@@ -1,0 +1,209 @@
+add; 1011 0100 0BDf ffff ffff ffff; ADD{.B} f {,WREG}; 1
+add; 1011 0000 0Bkk kkkk kkkk dddd; ADD{.B} #lit10, Wn; 1
+add; 0100 0www wBqq qddd d11k kkkk; ADD{.B} Wb, #lit5, Wd; 1
+add; 0100 0www wBqq qddd dppp ssss; ADD{.B} Wb, Ws, Wd; 1
+add; 1100 1011 A000 0000 0000 0000; ADD Acc; 1
+add; 1100 1001 Awww wrrr rggg ssss; ADD Ws, {#Slit4,} Acc; 1
+addc; 1011 0100 1BDf ffff ffff ffff; ADDC{.B} f {,WREG}; 1
+addc; 1011 0000 1Bkk kkkk kkkk dddd; ADDC{.B} #lit10, Wn; 1
+addc; 0100 1www wBqq qddd d11k kkkk; ADDC{.B} Wb, #lit5, Wd; 1
+addc; 0100 1www wBqq qddd dppp ssss; ADDC{.B} Wb, Ws, Wd; 1
+and; 1011 0110 0BDf ffff ffff ffff; AND{.B} f {,WREG}; 1
+and; 1011 0010 0Bkk kkkk kkkk dddd; AND{.B} #lit10, Wn; 1
+and; 0110 0www wBqq qddd d11k kkkk; AND{.B} Wb, #lit5, Wd; 1
+and; 0110 0www wBqq qddd dppp ssss; AND{.B} Wb, Ws, Wd; 1
+asr; 1101 0101 1BDf ffff ffff ffff; ASR{.B} f {,WREG}; 1
+asr; 1101 0001 1Bqq qddd dppp ssss; ASR{.B} Ws, Wd; 1
+asr; 1101 1110 1www wddd d100 kkkk; ASR Wb, #lit4, Wnd; 1
+asr; 1101 1110 1www wddd d000 ssss; ASR Wb, Wns, Wnd; 1
+bclr; 1010 1001 bbbf ffff ffff fffb; BCLR{.B} f, #bit4; 1
+bclr; 1010 0001 bbbb 0B00 0ppp ssss; BCLR{.B} Ws, #bit4; 1
+bra; 0011 0111 nnnn nnnn nnnn nnnn; BRA Expr; 2
+bra; 0000 0001 0110 0000 0000 ssss; BRA Wn; 2
+bra c; 0011 0001 nnnn nnnn nnnn nnnn; BRA C, Expr; 1-2
+bra ge; 0011 1101 nnnn nnnn nnnn nnnn; BRA GE, Expr; 1-2
+bra geu; 0011 0001 nnnn nnnn nnnn nnnn; BRA GEU, Expr; 1-2
+bra gt; 0011 1100 nnnn nnnn nnnn nnnn; BRA GT, Expr; 1-2
+bra gtu; 0011 1110 nnnn nnnn nnnn nnnn; BRA GTU, Expr; 1-2
+bra le; 0011 0100 nnnn nnnn nnnn nnnn; BRA LE, Expr; 1-2
+bra leu; 0011 0110 nnnn nnnn nnnn nnnn; BRA LEU, Expr; 1-2
+bra lt; 0011 0101 nnnn nnnn nnnn nnnn; BRA LT, Expr; 1-2
+bra ltu; 0011 1001 nnnn nnnn nnnn nnnn; BRA LTU, Expr; 1-2
+bra n; 0011 0011 nnnn nnnn nnnn nnnn; BRA N, Expr; 1-2
+bra nc; 0011 1001 nnnn nnnn nnnn nnnn; BRA NC, Expr; 1-2
+bra nn; 0011 1011 nnnn nnnn nnnn nnnn; BRA NN, Expr; 1-2
+bra nov; 0011 1000 nnnn nnnn nnnn nnnn; BRA NOV, Expr; 1-2
+bra nz; 0011 1010 nnnn nnnn nnnn nnnn; BRA NZ, Expr; 1-2
+bra oa; 0000 1100 nnnn nnnn nnnn nnnn; BRA OA, Expr; 1-2
+bra ob; 0000 1101 nnnn nnnn nnnn nnnn; BRA OB, Expr; 1-2
+bra ov; 0011 0000 nnnn nnnn nnnn nnnn; BRA OV, Expr; 1-2
+bra sa; 0000 1110 nnnn nnnn nnnn nnnn; BRA SA, Expr; 1-2
+bra sb; 0000 1111 nnnn nnnn nnnn nnnn; BRA SB, Expr; 1-2
+bra z; 0011 0010 nnnn nnnn nnnn nnnn; BRA Z, Expr; 1-2
+bset; 1010 1000 bbbf ffff ffff fffb; BSET{.B} f, #bit4; 1
+bset; 1010 0000 bbbb 0B00 0ppp ssss; BSET{.B} Ws, #bit4; 1
+bsw; 1010 1101 Zwww w000 0ppp ssss; BSW.{C|Z} Ws, Wb; 1
+btg; 1010 1010 bbbf ffff ffff fffb; BTG{.B} f, #bit4; 1
+btg; 1010 0010 bbbb 0B00 0ppp ssss; BTG{.B} Ws, #bit4; 1
+btsc; 1010 1111 bbbf ffff ffff fffb; BTSC{.B} f, #bit4; 1-3
+btsc; 1010 0111 bbbb 0000 0ppp ssss; BTSC Ws, #bit4; 1-3
+btss; 1010 1110 bbbf ffff ffff fffb; BTSS{.B} f, #bit4; 1-3
+btss; 1010 0110 bbbb 0000 0ppp ssss; BTSS Ws, #bit4; 1-3
+btst; 1010 1011 bbbf ffff ffff fffb; BTST{.B} f, #bit4; 1
+btst; 1010 0011 bbbb Z000 0ppp ssss; BTST.{C|Z} Ws, #bit4; 1
+btst; 1010 0101 Zwww w000 0ppp ssss; BTST.{C|Z} Ws, Wb; 1
+btsts; 1010 1100 bbbf ffff ffff fffb; BTSTS{.B} f, #bit4; 1
+btsts; 1010 0100 bbbb Z000 0ppp ssss; BTSTS.{C|Z} Ws, #bit4; 1
+call; 0000 0010 nnnn nnnn nnnn nnn0 0000 0000 0000 0000 0nnn nnnn; CALL Expr; 2
+call; 0000 0001 0000 0000 0000 ssss; CALL Wn; 2
+clr; 1110 1111 0BDf ffff ffff ffff; CLR{.B} f; 1
+clr; 1110 1011 0Bqq qddd d000 0000; CLR{.B} Wd; 1
+clr; 1100 0011 A0xx yyii iijj jjaa; CLR Acc {,[Wx],Wxd} {,[Wy],Wyd} {,AWB}; 1
+clrwdt; 1111 1110 0110 0000 0000 0000; CLRWDT; 1
+com; 1110 1110 1BDf ffff ffff ffff; COM{.B} f {,WREG}; 1
+com; 1110 1010 1Bqq qddd dppp ssss; COM{.B} Ws, Wd; 1
+cp; 1110 0011 0B0f ffff ffff ffff; CP{.B} f; 1
+cp; 1110 0001 0www wB00 011k kkkk; CP{.B} Wb, #lit5; 1
+cp; 1110 0001 0www wB00 0ppp ssss; CP{.B} Wb, Ws; 1
+cp0; 1110 0010 0B0f ffff ffff ffff; CP0{.B} f; 1
+cp0; 1110 0000 0000 0B00 0ppp ssss; CP0{.B} Ws; 1
+cpb; 1110 0011 1B0f ffff ffff ffff; CPB{.B} f; 1
+cpb; 1110 0001 1www wB00 011k kkkk; CPB{.B} Wb, #lit5; 1
+cpb; 1110 0001 1www wB00 0ppp ssss; CPB{.B} Wb, Ws; 1
+cpseq; 1110 0111 1www wB00 0000 ssss; CPSEQ{.B} Wb, Wn; 1-3
+cpsgt; 1110 0110 0www wB00 0000 ssss; CPSGT{.B} Wb, Wn; 1-3
+cpslt; 1110 0110 1www wB00 0000 ssss; CPSLT{.B} Wb, Wn; 1-3
+cpsne; 1110 0111 0www wB00 0000 ssss; CPSNE{.B} Wb, Wn; 1-3
+daw; 1111 1101 0100 0000 0000 ssss; DAW.B Wn; 1
+dec; 1110 1101 0BDf ffff ffff ffff; DEC{.B} f {,WREG}; 1
+dec; 1110 1001 0Bqq qddd dppp ssss; DEC{.B} Ws, Wd; 1
+dec2; 1110 1101 1BDf ffff ffff ffff; DEC2{.B} f {,WREG}; 1
+dec2; 1110 1001 1Bqq qddd dppp ssss; DEC2{.B} Ws, Wd; 1
+disi; 1111 1100 00kk kkkk kkkk kkkk; DISI #lit14; 18
+div; 1101 1000 0ttt tvvv vW00 ssss; DIV.S{W|D} Wm, Wn; 18
+div; 1101 1000 1ttt tvvv vW00 ssss; DIV.U{W|D} Wm, Wn; 18
+divf; 1101 1001 0ttt t000 0000 ssss; DIVF Wm, Wn; 18
+do; 0000 1000 00kk kkkk kkkk kkkk 0000 0000 nnnn nnnn nnnn nnnn; DO #lit14, Expr; 2
+do; 0000 1000 1000 0000 0000 ssss 0000 0000 nnnn nnnn nnnn nnnn; DO Wn, Expr; 2
+ed; 1111 00mm A1xx 00ii iijj jj11; Wm*Wm, Acc, [Wx], [Wy], Wxd; 1
+edac; 1111 00mm A1xx 00ii iijj jj10;  EDAC Wm*Wm, Acc, [Wx], [Wy], Wxd; 1
+exch; 1111 1101 0000 0ddd d000 ssss; EXCH Wns, Wnd; 1
+fbcl; 1101 1111 0000 0ddd dppp ssss; FBCL Ws, Wnd; 1
+ff1l; 1100 1111 1000 0ddd dppp ssss; FF1L Ws, Wnd; 1
+ff1r; 1100 1111 0000 0ddd dppp ssss; FF1R Ws, Wnd; 1
+goto; 0000 0100 nnnn nnnn nnnn nnn0 0000 0000 0000 0000 0nnn nnnn; GOTO Expr; 2
+goto; 0000 0001 0100 0000 0000 ssss; GOTO Wn; 2
+inc; 1110 1100 0BDf ffff ffff ffff; INC{.B} f {,WREG}; 1
+inc; 1110 1000 0Bqq qddd dppp ssss; INC{.B} Ws, Wd; 1
+inc2; 1110 1100 1BDf ffff ffff ffff; INC2{.B} f {,WREG}; 1
+inc2; 1110 1000 1Bqq qddd dppp ssss; INC2{.B} Ws, Wd; 1
+ior; 1011 0111 0BDf ffff ffff ffff; IOR{.B} f {,WREG}; 1
+ior; 1011 0011 0Bkk kkkk kkkk dddd; IOR{.B} #lit10, Wn; 1
+ior; 0111 0www wBqq qddd d11k kkkk; IOR{.B} Wb, #lit5, Wd; 1
+ior; 0111 0www wBqq qddd dppp ssss; IOR{.B} Wb, Ws, Wd; 1
+lac; 1100 1010 Awww wrrr rggg ssss; LAC Ws, {#Slit4,} Acc; 1
+lnk; 1111 1010 00kk kkkk kkkk kkk0; LNK #lit14; 1
+lsr; 1101 0101 0BDf ffff ffff ffff; LSR{.B} f {,WREG}; 1
+lsr; 1101 0001 0Bqq qddd dppp ssss; LSR{.B} Ws, Wd; 1
+lsr; 1101 1110 0www wddd d100 kkkk; LSR Wb, #lit4, Wnd; 1
+lsr; 1101 1110 0www wddd d000 ssss; LSR Wb, Wns, Wnd; 1
+mac; 1100 0mmm A0xx yyii iijj jjaa; MAC Wm*Wn, Acc {,[Wx],Wxd} {,[Wy],Wyd} {,AWB}; 1
+mac; 1111 00mm A0xx yyii iijj jj00; MAC Wm*Wm, Acc {,[Wx],Wxd} {,[Wy],Wyd}; 1
+mov; 1011 1111 1BDf ffff ffff ffff; MOV{.B} f {,WREG}; 1
+mov; 1011 0111 1B1f ffff ffff ffff; MOV{.B} WREG, f; 1
+mov; 1000 0fff ffff ffff ffff dddd; MOV f, Wnd; 1
+mov; 1000 1fff ffff ffff ffff ssss; MOV Wns, f; 1
+mov; 1011 0011 1100 kkkk kkkk dddd; MOV.B #lit8, Wnd; 1
+mov; 0010 kkkk kkkk kkkk kkkk dddd; MOV #lit16, Wnd; 1
+mov; 1001 0kkk kBkk kddd dkkk ssss; MOV{.B} [Ws+Slit10], Wnd; 1
+mov; 1001 1kkk kBkk kddd dkkk ssss; MOV{.B} Wns, [Wd+Slit10]; 1
+mov; 0111 1www wBhh hddd dggg ssss; MOV{.B} Ws, Wd; 1
+mov; 1011 1110 0000 0ddd 0ppp ssss; MOV.D Ws, Wnd; 2
+mov; 1011 1110 10qq qddd d000 sss0; MOV.D Wns, Wd; 2
+movsac; 1100 0111 A0xx yyii iijj jjaa; MOVSAC Acc {,[Wx],Wxd} {,[Wy],Wyd} {,AWB}; 1
+mpy; 1100 0mmm A0xx yyii iijj jj11; MPY Wm*Wn, Acc {,[Wx],Wxd} {,[Wy],Wyd}; 1
+mpy; 1111 00mm A0xx yyii iijj jj01; MPY Wm*Wm, Acc {,[Wx],Wxd} {,[Wy],Wyd}; 1
+mpy; 1100 0mmm A1xx yyii iijj jj11; MPY.N Wm*Wn, Acc {,[Wx],Wxd} {,[Wy],Wyd}; 1
+msc; 1100 0mmm A1xx yyii iijj jjaa; MSC Wm*Wn, Acc {,[Wx],Wxd} {,[Wy],Wyd} {,AWB}; 1
+mul; 1011 1100 0B0f ffff ffff ffff; MUL{.B} f; 1
+mul; 1011 1001 1www wddd dppp ssss; MUL.SS Wb, Ws, Wnd; 1
+mul; 1011 1001 0www wddd d11k kkkk; MUL.SU Wb, #lit5, Wnd; 1
+mul; 1011 1001 0www wddd dppp ssss; MUL.SU Wb, Ws, Wnd; 1
+mul; 1011 1000 1www wddd dppp ssss; MUL.US Wb, Ws, Wnd; 1
+mul; 1011 1000 0www wddd d11k kkkk; MUL.UU Wb, #lit5, Wnd; 1
+mul; 1011 1000 0www wddd dppp ssss; MUL.UU Wb, Ws, Wnd; 1
+neg; 1110 1110 0BDf ffff ffff ffff; NEG{.B} f {,WREG}; 1
+neg; 1110 1010 0Bqq qddd dppp ssss; NEG{.B} Ws, Wd; 1
+neg; 1100 1011 A001 0000 0000 0000; NEG Acc; 1
+nop; 0000 0000 xxxx xxxx xxxx xxxx; NOP; 1
+nopr; 1111 1111 xxxx xxxx xxxx xxxx; NOPR; 1
+pop; 1111 1001 ffff ffff ffff fff0; POP f; 1
+pop; 0111 1www w0hh hddd d100 1111; POP Wd; 1
+pop; 1011 1110 0000 0ddd 0100 1111; POP.D Wnd; 2
+pop; 1111 1110 1000 0000 0000 0000; POP.S; 1
+push; 1111 1000 ffff ffff ffff fff0; PUSH f; 1
+push; 0111 1www w001 1111 1ggg ssss; PUSH Ws; 1
+push; 1011 1110 1001 1111 1000 sss0; PUSH.D Wns; 2
+push; 1111 1110 1010 0000 0000 0000; PUSH.S; 1
+pwrsav; 1111 1110 0100 0000 0000 000k; PWRSAV #lit1; 1
+rcall; 0000 0111 nnnn nnnn nnnn nnnn; RCALL Expr; 2
+rcall; 0000 0001 0010 0000 0000 ssss; RCALL Wn; 2
+repeat; 0000 1001 00kk kkkk kkkk kkkk; REPEAT #lit14; 1
+repeat; 0000 1001 1000 0000 0000 ssss; REPEAT Wn; 1
+reset; 1111 1110 0000 0000 0000 0000; RESET; 1
+retfie; 0000 0110 0100 0000 0000 0000; RETFIE; 2-3
+retlw; 0000 0101 0Bkk kkkk kkkk dddd; RETLW{.B} #lit10, Wn; 2-3
+return; 0000 0110 0000 0000 0000 0000; RETURN; 2-3
+rlc; 1101 0110 1BDf ffff ffff ffff; RLC{.B} f {,WREG}; 1
+rlc; 1101 0010 1Bqq qddd dppp ssss; RLC{.B} Ws, Wd; 1
+rlnc; 1101 0110 0BDf ffff ffff ffff; RLNC{.B} f {,WREG}; 1
+rlnc; 1101 0010 0Bqq qddd dppp ssss; RLNC{.B} Ws, Wd; 1
+rrc; 1101 0111 1BDf ffff ffff ffff; RRC{.B} f {,WREG}; 1
+rrc; 1101 0011 1Bqq qddd dppp ssss; RRC{.B} Ws, Wd; 1
+rrnc; 1101 0111 0BDf ffff ffff ffff; RRNC{.B} f {,WREG}; 1
+rrnc; 1101 0011 0Bqq qddd dppp ssss; RRNC{.B} Ws, Wd; 1
+sac; 1100 1100 Awww wrrr rhhh dddd; SAC Acc, {#Slit4,} Wd; 1
+sac; 1100 1101 Awww wrrr rhhh dddd; SAC.R Acc, {#Slit4,} Wd; 1
+se; 1111 1011 0000 0ddd dppp ssss; SE Ws, Wnd; 1
+setm; 1110 1111 1BDf ffff ffff ffff; SETM{.B} f; 1
+setm; 1110 1011 1Bqq qddd d000 0000; SETM{.B} Wd; 1
+sftac; 1100 1000 A000 0000 01kk kkkk; SFTAC Acc, #Slit6; 1
+sftac; 1100 1000 A000 0000 0000 ssss; SFTAC Acc, Wb; 1
+sl; 1101 0100 0BDf ffff ffff ffff; SL{.B} f {,WREG}; 1
+sl; 1101 0000 0Bqq qddd dppp ssss; SL{.B} Ws, Wd; 1
+sl; 1101 1101 0www wddd d100 kkkk; SL Wb, #lit4, Wnd; 1
+sl; 1101 1101 0www wddd d000 ssss; SL Wb, Wns, Wnd; 1
+sub; 1011 0101 0BDf ffff ffff ffff; SUB{.B} f {,WREG}; 1
+sub; 1011 0001 0Bkk kkkk kkkk dddd; SUB{.B} #lit10, Wn; 1
+sub; 0101 0www wBqq qddd d11k kkkk; SUB{.B} Wb, #lit5, Wd; 1
+sub; 0101 0www wBqq qddd dppp ssss; SUB{.B} Wb, Ws, Wd; 1
+sub; 1100 1011 A011 0000 0000 0000; SUB Acc; 1
+subb; 1011 0101 1BDf ffff ffff ffff; SUBB{.B} f {,WREG}; 1
+subb; 1011 0001 1Bkk kkkk kkkk dddd; SUBB{.B} #lit10, Wn; 1
+subb; 0101 1www wBqq qddd d11k kkkk; SUBB{.B} Wb, #lit5, Wd; 1
+subb; 0101 1www wBqq qddd dppp ssss; SUBB{.B} Wb, Ws, Wd; 1
+subbr; 1011 1101 1BDf ffff ffff ffff; SUBBR{.B} f {,WREG}; 1
+subbr; 0001 1www wBqq qddd d11k kkkk; SUBBR{.B} Wb, #lit5, Wd; 1
+subbr; 0001 1www wBqq qddd dppp ssss; SUBBR{.B} Wb, Ws, Wd; 1
+subr; 1011 1101 0BDf ffff ffff ffff; SUBR{.B} f {,WREG}; 1
+subr; 0001 0www wBqq qddd d11k kkkk; SUBR{.B} Wb, #lit5, Wd; 1
+subr; 0001 0www wBqq qddd dppp ssss; SUBR{.B} Wb, Ws, Wd; 1
+swap; 1111 1101 1B00 0000 0000 ssss; SWAP{.B} Wn; 1
+tblrdh; 1011 1010 1Bqq qddd dppp ssss; TBLRDH{.B} [Ws], Wd; 2
+tblrdl; 1011 1010 0Bqq qddd dppp ssss; TBLRDL{.B} [Ws], Wd; 2
+tblwth; 1011 1011 1Bqq qddd dppp ssss; TBLWTH{.B} Ws, [Wd]; 2
+tblwtl; 1011 1011 0Bqq qddd dppp ssss; TBLWTL{.B} Ws, [Wd]; 2
+ulnk; 1111 1010 1000 0000 0000 0000; ULNK; 1
+xor; 1011 0110 1BDf ffff ffff ffff; XOR{.B} f {,WREG}; 1
+xor; 1011 0010 1Bkk kkkk kkkk dddd; XOR{.B} #lit10, Wn; 1
+xor; 0110 1www wBqq qddd d11k kkkk; XOR{.B} Wb, #lit5, Wd; 1
+xor; 0110 1www wBqq qddd dppp ssss; XOR{.B} Wb, Ws, Wd; 1
+ze; 1111 1011 10qq qddd dppp ssss; ZE Ws, Wnd; 1
+
+
+
+
+
+
+
+

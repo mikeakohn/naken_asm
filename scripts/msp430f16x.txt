@@ -1,0 +1,183 @@
+DMA   DMA channel 2 transfer size       DMA2SZ     01F6h
+      DMA channel 2 destination address DMA2DA     01F4h
+      DMA channel 2 source address      DMA2SA     01F2h
+      DMA channel 2 control             DMA2CTL    01F0h
+      DMA channel 1 transfer size       DMA1SZ     01EEh
+      DMA channel 1 destination address DMA1DA     01ECh
+      DMA channel 1 source address      DMA1SA     01EAh
+      DMA channel 1 control             DMA1CTL    01E8h
+      DMA channel 0 transfer size       DMA0SZ     01E6h
+      DMA channel 0 destination address DMA0DA     01E4h
+      DMA channel 0 source address      DMA0SA     01E2h
+      DMA channel 0 control             DMA0CTL    01E0h
+      DMA module control 1              DMACTL1    0124h
+      DMA module control 0              DMACTL0    0122h
+DAC12 DAC12_1 data                      DAC12_1DAT 01CAh
+      DAC12_1 control                   DAC12_1CTL 01C2h
+      DAC12_0 data                      DAC12_0DAT 01C8h
+      DAC12_0 control                   DAC12_0CTL 01C0h
+ADC12 Interrupt-vector-word register    ADC12IV    01A8h
+      Inerrupt-enable register          ADC12IE    01A6h
+      Inerrupt-flag register            ADC12IFG   01A4h
+      Control register 1                ADC12CTL1  01A2h
+      Control register 0                ADC12CTL0  01A0h
+      Conversion memory 15              ADC12MEM15 015Eh
+      Conversion memory 14              ADC12MEM14 015Ch
+      Conversion memory 13              ADC12MEM13 015Ah
+      Conversion memory 12              ADC12MEM12 0158h
+      Conversion memory 11              ADC12MEM11 0156h
+      Conversion memory 10              ADC12MEM10 0154h
+      Conversion memory 9               ADC12MEM9  0152h
+      Conversion memory 8               ADC12MEM8  0150h
+      Conversion memory 7               ADC12MEM7  014Eh
+      Conversion memory 6               ADC12MEM6  014Ch
+      Conversion memory 5               ADC12MEM5  014Ah
+      Conversion memory 4               ADC12MEM4  0148h
+      Conversion memory 3               ADC12MEM3  0146h
+      Conversion memory 2               ADC12MEM2  0144h
+      Conversion memory 1               ADC12MEM1  0142h
+      Conversion memory 0               ADC12MEM0  0140h
+             ADC memory-control register15 ADC12MCTL15 08Fh
+             ADC memory-control register14 ADC12MCTL14 08Eh
+             ADC memory-control register13 ADC12MCTL13 08Dh
+             ADC memory-control register12 ADC12MCTL12 08Ch
+             ADC memory-control register11 ADC12MCTL11 08Bh
+             ADC memory-control register10 ADC12MCTL10 08Ah
+             ADC memory-control register9  ADC12MCTL9  089h
+             ADC memory-control register8  ADC12MCTL8  088h
+             ADC memory-control register7  ADC12MCTL7  087h
+             ADC memory-control register6  ADC12MCTL6  086h
+             ADC memory-control register5  ADC12MCTL5  085h
+             ADC memory-control register4  ADC12MCTL4  084h
+             ADC memory-control register3  ADC12MCTL3  083h
+             ADC memory-control register2  ADC12MCTL2  082h
+             ADC memory-control register1  ADC12MCTL1  081h
+             ADC memory-control register0  ADC12MCTL0  080h
+Timer_B7/Timer_B3
+             Capture/compare register 6    TBCCR6      019Eh
+             Capture/compare register 5    TBCCR5      019Ch
+             Capture/compare register 4    TBCCR4      019Ah
+             Capture/compare register 3    TBCCR3      0198h
+             Capture/compare register 2    TBCCR2      0196h
+             Capture/compare register 1    TBCCR1      0194h
+             Capture/compare register 0    TBCCR0      0192h
+             Timer_B register              TBR         0190h
+             Capture/compare control 6     TBCCTL6     018Eh
+             Capture/compare control 5     TBCCTL5     018Ch
+             Capture/compare control 4     TBCCTL4     018Ah
+             Capture/compare control 3     TBCCTL3     0188h
+             Capture/compare control 2     TBCCTL2     0186h
+             Capture/compare control 1     TBCCTL1     0184h
+             Capture/compare control 0     TBCCTL0     0182h
+             Timer_B control               TBCTL       0180h
+             Timer_B interrupt vector      TBIV        011Eh
+Timer_A3
+             Reserved                                  017Eh
+             Reserved                                  017Ch
+             Reserved                                  017Ah
+             Reserved                                  0178h
+             Capture/compare register 2    TACCR2      0176h
+             Capture/compare register 1    TACCR1      0174h
+             Capture/compare register 0    TACCR0      0172h
+             Timer_A register              TAR         0170h
+             Reserved                                  016Eh
+             Reserved                                  016Ch
+             Reserved                                  016Ah
+             Reserved                                  0168h
+Timer_A3
+                Capture/compare control 2            TACCTL2 0166h
+                Capture/compare control 1            TACCTL1 0164h
+                Capture/compare control 0            TACCTL0 0162h
+                Timer_A control                      TACTL   0160h
+                Timer_A interrupt vector             TAIV    012Eh
+Hardware Multiplier (MSP430F16x and MSP430F161x only)
+                Sum extend                           SUMEXT  013Eh
+                Result high word                     RESHI   013Ch
+                Result low word                      RESLO   013Ah
+                Second operand                       OP2     0138h
+                Multiply signed +accumulate/operand1 MACS    0136h
+                Multiply+accumulate/operand1         MAC     0134h
+                Multiply signed/operand1             MPYS    0132h
+                Multiply unsigned/operand1           MPY     0130h
+Flash           Flash control 3                      FCTL3   012Ch
+                Flash control 2                      FCTL2   012Ah
+                Flash control 1                      FCTL1   0128h
+Watchdog        Watchdog Timer control               WDTCTL  0120h
+USART1 (MSP430F16x and MSP430F161x only)
+                Transmit buffer                      U1TXBUF 07Fh
+                Receive buffer                       U1RXBUF 07Eh
+                Baud rate                            U1BR1   07Dh
+                Baud rate                            U1BR0   07Ch
+                Modulation control                   U1MCTL  07Bh
+                Receive control                      U1RCTL  07Ah
+                Transmit control                     U1TCTL  079h
+                USART control                        U1CTL   078h
+USART0 (UART or SPI mode)
+                Transmit buffer                      U0TXBUF 077h
+                Receive buffer                       U0RXBUF 076h
+                Baud rate                            U0BR1   075h
+                Baud rate                            U0BR0   074h
+                Modulation control                   U0MCTL  073h
+                Receive control                      U0RCTL  072h
+                Transmit control                     U0TCTL  071h
+                USART control                        U0CTL   070h
+USART0 (I2C mode)
+                I2C interrupt vector                 I2CIV   011Ch
+                I2C slave address                    I2CSA   011Ah
+                I2C own address                      I2COA   0118h
+                I2C data                             I2CDR   076h
+                I2C SCLL                             I2CSCLL 075h
+                I2C SCLH                             I2CSCLH 074h
+                I2C PSC                              I2CPSC  073h
+                I2C data control                     I2CDCTL 072h
+                I2C transfer control                 I2CTCTL 071h
+                USART control                        U0CTL   070h
+                I2C data count                       I2CNDAT 052h
+                I2C interrupt flag                   I2CIFG  051h
+                I2C interrupt enable                 I2CIE   050h
+Comparator_A
+                  Comparator_A port disable                       CAPD    05Bh
+                  Comparator_A control2                           CACTL2  05Ah
+                  Comparator_A control1                           CACTL1  059h
+Basic Clock       Basic clock system control2                     BCSCTL2 058h
+                  Basic clock system control1                     BCSCTL1 057h
+                  DCO clock frequency control                     DCOCTL  056h
+BrownOUT, SVS     SVS control register (reset by brownout signal) SVSCTL  055h
+Port P6           Port P6 selection                               P6SEL   037h
+                  Port P6 direction                               P6DIR   036h
+                  Port P6 output                                  P6OUT   035h
+                  Port P6 input                                   P6IN    034h
+Port P5           Port P5 selection                               P5SEL   033h
+                  Port P5 direction                               P5DIR   032h
+                  Port P5 output                                  P5OUT   031h
+                  Port P5 input                                   P5IN    030h
+Port P4           Port P4 selection                               P4SEL   01Fh
+                  Port P4 direction                               P4DIR   01Eh
+                  Port P4 output                                  P4OUT   01Dh
+                  Port P4 input                                   P4IN    01Ch
+Port P3           Port P3 selection                               P3SEL   01Bh
+                  Port P3 direction                               P3DIR   01Ah
+                  Port P3 output                                  P3OUT   019h
+                  Port P3 input                                   P3IN    018h
+Port P2           Port P2 selection                               P2SEL   02Eh
+                  Port P2 interrupt enable                        P2IE    02Dh
+                  Port P2 interrupt-edge select                   P2IES   02Ch
+                  Port P2 interrupt flag                          P2IFG   02Bh
+                  Port P2 direction                               P2DIR   02Ah
+                  Port P2 output                                  P2OUT   029h
+                  Port P2 input                                   P2IN    028h
+Port P1           Port P1 selection                               P1SEL   026h
+                  Port P1 interrupt enable                        P1IE    025h
+                  Port P1 interrupt-edge select                   P1IES   024h
+                  Port P1 interrupt flag                          P1IFG   023h
+                  Port P1 direction                               P1DIR   022h
+                  Port P1 output                                  P1OUT   021h
+                  Port P1 input                                   P1IN    020h
+Special Functions
+                  SFR module enable 2                             ME2     005h
+                  SFR module enable 1                             ME1     004h
+                  SFR interrupt flag2                             IFG2    003h
+                  SFR interrupt flag1                             IFG1    002h
+                  SFR interrupt enable2                           IE2     001h
+                  SFR interrupt enable1                           IE1     000h
+

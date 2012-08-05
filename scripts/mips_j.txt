@@ -1,0 +1,2 @@
+j	 label	 000010	 coded address of label
+jal	 label	 000011	 coded address of label

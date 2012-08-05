@@ -1,0 +1,24 @@
+addi	 rt, rs, immediate	 001000	
+addiu	 rt, rs, immediate	 001001	
+andi	 rt, rs, immediate	 001100	
+beq	 rs, rt, label	 000100	
+bgez	 rs, label, rt=00001	 000001
+bgtz	 rs, label, rt=00000	 000111
+blez	 rs, label, rt=00000	 000110
+bltz	 rs, label, rt=00000	 000001
+bne	 rs, rt, label	 000101	
+lb	 rt, immediate(rs)	 100000	
+lbu	 rt, immediate(rs)	 100100	
+lh	 rt, immediate(rs)	 100001	
+lhu	 rt, immediate(rs)	 100101	
+lui	 rt, immediate	 001111	
+lw	 rt, immediate(rs)	 100011	
+lwc1	 rt, immediate(rs)	 110001	
+ori	 rt, rs, immediate	 001101	
+sb	 rt, immediate(rs)	 101000	
+slti	 rt, rs, immediate	 001010	
+sltiu	 rt, rs, immediate	 001011	
+sh	 rt, immediate(rs)	 101001	
+sw	 rt, immediate(rs)	 101011	
+swc1	 rt, immediate(rs)	 111001	
+xori	 rt, rs, immediate	 001110	

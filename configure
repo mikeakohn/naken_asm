@@ -1,0 +1,206 @@
+#!/usr/bin/env bash
+
+CC=gcc
+COMPILER_PREFIX=
+DEBUG=
+CFLAGS="-Wall"
+FLAGS=""
+LDFLAGS=""
+LDFLAGS_UTIL=""
+CONFIG_EXT=""
+INSTALL_PREFIX="/usr/local"
+INSTALL_BIN=
+INSTALL_INCLUDES=
+INCLUDE_PATH=
+
+targetos=`uname -s`
+case $targetos in
+MINGW*)
+#CFLAGS="${CFLAGS} -DWINDOWS -mwindows"
+CONFIG_EXT=".exe"
+INSTALL_PREFIX="/c/Program Files/naken_asm"
+;;
+esac
+
+show_help()
+{
+  echo
+  echo "Usage: ./configure [options]"
+  echo
+  echo "  --help                    list options"
+  echo "  --cflags=CFLAGS           extra compiler flags"
+  echo "  --ldflags=LDFLAGS         extra linker flags"
+  echo "  --install-prefix=PATH     base path to install to (${INSTALL_PREFIX})"
+  echo "  --include-path=PATH       default: (${INSTALL_PREFIX}/share/naken_asm/includes)"
+  echo "  --compiler-prefix=PREFIX  for cross-compilers"
+  echo "  --enable-debug            compile in debug code"
+  echo "  --disable-elf             disable elf file option"
+  echo
+
+  exit
+}
+
+test_compiler()
+{
+  cat >config.c <<EOF
+  main() { }
+EOF
+
+  ${1} -o config config.c >>config.log 2>&1
+}
+
+test_lib()
+{
+  cat >config.c <<EOF
+main() { }
+EOF
+
+  ${COMPILER_PREFIX}${CC} -o config config.c $1 ${LDFLAGS} >>config.log 2>&1
+}
+
+test_include()
+{
+  cat >config.c <<EOF
+#include <stdio.h>
+#include <stdlib.h>
+#include <${1}>
+int main() { return 0; }
+EOF
+
+  ${COMPILER_PREFIX}${CC} -c config.c ${CFLAGS} >>config.log 2>&1
+}
+
+instr()
+{
+  for s in $2; do
+    case "${s}" in
+    *${1}*) return 0
+    ;;
+    esac
+  done
+
+  return 1
+}
+
+cleanup()
+{
+  rm -f config.c
+  rm -f config.o
+  rm -f config.exe
+  rm -f config
+  rm -f config.log
+}
+
+for option in $@; do
+
+  optval="${option#*=}"
+
+  case "$option" in
+  --help) show_help
+  ;;
+  --enable-debug) DEBUG="-DDEBUG -g"
+  ;;
+  --disable-elf) CFLAGS="${CFLAGS} -DDISABLE_ELF"
+  ;;
+  --cflags=*) CFLAGS="${CFLAGS} $optval"
+  ;;
+  --ldflags=*) LDFLAGS="${LDFLAGS} $optval"
+  ;;
+  --compiler-prefix=*) COMPILER_PREFIX="$optval"
+  ;;
+  --install-prefix=*) INSTALL_PREFIX="$optval"
+  ;;
+  esac
+
+done
+
+if test_compiler "gcc"
+then
+  CC="gcc"
+elif test_compiler "cc"
+then
+  CC="cc"
+fi
+
+#if test_lib "-lws2_32"; then LDFLAGS="${LDFLAGS} -lws2_32"; fi
+#if test_lib "-lwinmm"; then LDFLAGS="${LDFLAGS} -lwinmm"; fi
+#if test_lib "-luser32"; then LDFLAGS="${LDFLAGS} -luser32"; fi
+if test_lib "-lreadline"
+then
+  if test_include "readline/readline.h"
+  then
+    LDFLAGS_UTIL="${LDFLAGS_UTIL} -lreadline"
+    CFLAGS="${CFLAGS} -DREADLINE"
+  fi
+fi
+
+if [ "${DEBUG}" = "" ]
+then
+  CFLAGS="${CFLAGS} -O3 -s"
+else
+  CFLAGS="${CFLAGS} ${DEBUG}"
+fi
+
+#if ! instr "WINDOWS" "${FLAGS}"
+#then
+#  a=`${COMPILER_PREFIX}${CC} --version`
+#
+#  if instr "mingw" "${a}"
+#  then
+#    FLAGS="${FLAGS} -DWINDOWS -mwindows"
+#    CONFIG_EXT=".exe"
+#  fi
+#fi
+
+if instr "mingw" "${COMPILER_PREFIX}"
+then
+  CONFIG_EXT=".exe"
+fi
+
+if ! instr "WINDOWS" "${CFLAGS}"
+then
+  INSTALL_BIN=${INSTALL_PREFIX}/bin
+  INSTALL_INCLUDES=${INSTALL_PREFIX}/share/naken_asm
+else
+  INSTALL_BIN=${INSTALL_PREFIX}
+  INSTALL_INCLUDES=${INSTALL_PREFIX}
+fi
+
+if [ "${INCLUDE_PATH}" = "" ]
+then
+  INCLUDE_PATH="${INSTALL_INCLUDES}/include"
+fi
+
+cleanup
+
+echo "# Generated include file" > config.mak
+echo "# $0 $*" >> config.mak
+echo >> config.mak
+echo "CC=${COMPILER_PREFIX}${CC}" >> config.mak
+echo "COMPILER_PREFIX=${COMPILER_PREFIX}" >> config.mak
+echo "LDFLAGS=${LDFLAGS}" >> config.mak
+echo "LDFLAGS_UTIL=${LDFLAGS_UTIL}" >> config.mak
+echo "CFLAGS=${CFLAGS}" >> config.mak
+echo "INSTALL_BIN=${INSTALL_BIN}" >> config.mak
+echo "INSTALL_INCLUDES=${INSTALL_INCLUDES}" >> config.mak
+echo "INCLUDE_PATH=${INCLUDE_PATH}" >> config.mak
+echo "CONFIG_EXT=${CONFIG_EXT}" >> config.mak
+echo >> config.mak
+
+echo
+echo "Configuration:"
+echo "  Install to: ${INSTALL_PREFIX}"
+echo "            : ${INSTALL_BIN}, ${INSTALL_INCLUDES}/include"
+echo "    Compiler: ${COMPILER_PREFIX}${CC}"
+echo "     LDFLAGS: ${LDFLAGS}"
+echo "UTIL LDFLAGS: ${LDFLAGS_UTIL}"
+echo "      CFLAGS: ${CFLAGS}"
+echo "INCLUDE_PATH: ${INCLUDE_PATH}"
+echo "        BINS: naken_asm${CONFIG_EXT}, naken_util${CONFIG_EXT}"
+echo
+echo "Now type: make"
+echo
+
+
+
+

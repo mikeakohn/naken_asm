@@ -1,0 +1,48 @@
+ADC10 (MSP430G2x31 only) ADC data transfer start address  ADC10SA  1BCh
+                         ADC control 0                   ADC10CTL0 01B0h
+                         ADC control 1                   ADC10CTL1 01B2h
+                         ADC memory                      ADC10MEM  01B4h
+Timer_A                  Capture/compare register         TACCR1   0174h
+                         Capture/compare register         TACCR0   0172h
+                         Timer_A register                   TAR    0170h
+                         Capture/compare control          TACCTL1  0164h
+                         Capture/compare control          TACCTL0  0162h
+                         Timer_A control                   TACTL   0160h
+                         Timer_A interrupt vector           TAIV   012Eh
+Flash Memory             Flash control 3                   FCTL3   012Ch
+                         Flash control 2                   FCTL2   012Ah
+                         Flash control 1                   FCTL1   0128h
+Watchdog Timer+          Watchdog/timer control           WDTCTL   0120h
+ADC10 (MSP430G2x31 only) ADC analog enable              ADC10AE0 04Ah
+                         ADC data transfer control 1   ADC10DTC1 049h
+                         ADC data transfer control 0   ADC10DTC0 048h
+USI                      USI control 0                   USICTL0 078h
+                         USI control 1                   USICTL1 079h
+                         USI clock control              USICKCTL 07Ah
+                         USI bit counter                 USICNT  07Bh
+                         USI shift register               USISR  07Ch
+Basic Clock System+      Basic clock system control 3   BCSCTL3  053h
+                         Basic clock system control 2   BCSCTL2  058h
+                         Basic clock system control 1   BCSCTL1  057h
+                         DCO clock frequency control     DCOCTL  056h
+Port P2                  Port P2 resistor enable          P2REN  02Fh
+                         Port P2 selection                P2SEL  02Eh
+                         Port P2 interrupt enable          P2IE  02Dh
+                         Port P2 interrupt edge select    P2IES  02Ch
+                         Port P2 interrupt flag           P2IFG  02Bh
+                         Port P2 direction                P2DIR  02Ah
+                         Port P2 output                   P2OUT  029h
+                         Port P2 input                     P2IN  028h
+Port P1          Port P1 resistor enable       P1REN 027h
+                 Port P1 selection             P1SEL 026h
+                 Port P1 interrupt enable       P1IE 025h
+                 Port P1 interrupt edge select P1IES 024h
+                 Port P1 interrupt flag        P1IFG 023h
+                 Port P1 direction             P1DIR 022h
+                 Port P1 output                P1OUT 021h
+                 Port P1 input                  P1IN 020h
+SFR Special Function SFR interrupt flag 2           IFG2 003h
+                 SFR interrupt flag 1           IFG1 002h
+                 SFR interrupt enable 2          IE2 001h
+                 SFR interrupt enable 1          IE1 000h
+

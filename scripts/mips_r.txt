@@ -1,0 +1,28 @@
+add	 rd, rs, rt	 100000
+addu	 rd, rs, rt	 100001
+and	 rd, rs, rt	 100100
+break		 001101
+div	 rs, rt	 011010
+divu	 rs, rt	 011011
+jalr	 rd, rs	 001001
+jr	 rs	 001000
+mfhi	 rd	 010000
+mflo	 rd	 010010
+mthi	 rs	 010001
+mtlo	 rs	 010011
+mult	 rs, rt	 011000
+multu	 rs, rt	 011001
+nor	 rd, rs, rt	 100111
+or	 rd, rs, rt	 100101
+sll	 rd, rt, sa	 000000
+sllv	 rd, rt, rs	 000100
+slt	 rd, rs, rt	 101010
+sltu	 rd, rs, rt	 101011
+sra	 rd, rt, sa	 000011
+srav	 rd, rt, rs	 000111
+srl	 rd, rt, sa	 000010
+srlv	 rd, rt, rs	 000110
+sub	 rd, rs, rt	 100010
+subu	 rd, rs, rt	 100011
+syscall		 001100
+xor	 rd, rs, rt	 100110

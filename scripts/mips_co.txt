@@ -1,0 +1,9 @@
+add.s	 fd, fs, ft	 000000	 10000
+cvt.s.w	 fd, fs, ft	 100000	 10100
+cvt.w.s	 fd, fs, ft	 100100	 10000
+div.s	 fd, fs, ft	 000011	 10000
+mfc1	 ft, fs	 000000	 00000
+mov.s	 fd, fs	 000110	 10000
+mtc1	 ft, fs	 000000	 00100
+mul.s	 fd, fs, ft	 000010	 10000
+sub.s	 fd, fs, ft	 000001	 10000
