@@ -484,7 +484,8 @@ int num;
   printf("Wrote %d words starting at address %04x\n", count, n);
 }
 
-static void disasm_range(struct _util_context *util_context, int start, int end, int dbg_flag)
+#if 0
+static void disasm_range(struct _util_context *util_context, int start, int end)
 {
 // Are these correct and the same for all MSP430's?
 char *vectors[16] = { "", "", "", "", "", "",
@@ -499,11 +500,8 @@ int num;
 
   printf("\n");
 
-  if (dbg_flag==0)
-  {
-    printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
-    printf("------- ------ ----------------------------------       ------\n");
-  }
+  printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
+  printf("------- ------ ----------------------------------       ------\n");
 
   while(start<=end)
   {
@@ -514,7 +512,6 @@ int num;
     }
 
     num=READ_RAM(start)|(READ_RAM(start+1)<<8);
-    //num=READ_RAM(start)|(READ_RAM(start+1)<<8)|(READ_RAM(start+2)<<16)|(READ_RAM(start+3)<<24);
 
     int count=util_context->disasm(&util_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -525,43 +522,20 @@ int num;
       continue;
     }
 
-    if (dbg_flag==0)
+    if (cycles_min<1)
     {
-      if (cycles_min<1)
-      {
-        printf("0x%04x: 0x%04x %-40s ?\n", start, num, instruction);
-      }
-        else
-      if (cycles_min==cycles_max)
-      {
-        printf("0x%04x: 0x%04x %-40s %d\n", start, num, instruction, cycles_min);
-      }
-        else
-      {
-        printf("0x%04x: 0x%04x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
-      }
+      printf("0x%04x: 0x%04x %-40s ?\n", start, num, instruction);
+    }
+      else
+    if (cycles_min==cycles_max)
+    {
+      printf("0x%04x: 0x%04x %-40s %d\n", start, num, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: 0x%04x  %-22s", start, num, instruction);
-
-      if (memory_debug_line_m(&util_context->memory, start)>=0)
-      {
-        int line=memory_debug_line_m(&util_context->memory, start);
-        printf(" [%d]", line);
-        fseek(util_context->src_fp, util_context->debug_line_offset[line-1], SEEK_SET);
-        int ch;
-        while(1)
-        {
-          ch=getc(util_context->src_fp);
-          if (ch=='\r') continue;
-          if (ch=='\n' || ch==EOF) break;
-          printf("%c", ch);
-        }
-      }
-
-      printf("\n");
+      printf("0x%04x: 0x%04x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
     }
+
     count-=util_context->instr_bytes;
     while (count>0)
     {
@@ -573,6 +547,7 @@ int num;
     start=start+util_context->instr_bytes;
   }
 }
+#endif
 
 static void disasm(struct _util_context *util_context, char *token, int dbg_flag)
 {
@@ -586,7 +561,7 @@ int start,end;
     return;
   }
 
-  disasm_range(util_context, start, end, dbg_flag);
+  util_context->disasm_range(&util_context->memory, start, end);
 }
 
 static void show_info(struct _util_context *util_context)
@@ -626,7 +601,7 @@ static void print_help()
   printf("  info                     [ general info ]\n");
   printf("  disasm                   [ disassemble at address ]\n");
   printf("  disasm <start>-<end>     [ disassemble range of addresses ]\n");
-  printf("  list <start>-<end>       [ disassemble wth debug listing ]\n");
+  //printf("  list <start>-<end>       [ disassemble wth debug listing ]\n");
 }
 
 static int load_debug(FILE **srcfile, char *filename, struct _util_context *util_context)
@@ -735,7 +710,7 @@ int chip=0;
     printf("    // The following options turn off interactive mode\n");
     printf("   -f      <flash serial port>\n");
     printf("   -disasm                      (disassemble all or part of program)\n");
-    printf("   -list                        (like -disasm, but adds source code)\n");
+    //printf("   -list                        (like -disasm, but adds source code)\n");
     printf("\n");
     exit(0);
   }
@@ -743,8 +718,8 @@ int chip=0;
   memset(&util_context, 0, sizeof(struct _util_context));
   memory_init(&util_context.memory, 1<<20, 1);
 
-  util_context.disasm=disasm_msp430;
-  util_context.instr_bytes=2;
+  util_context.disasm_range=disasm_range_msp430;
+  //util_context.instr_bytes=2;
 
   for (i=1; i<argc; i++)
   {
@@ -783,42 +758,44 @@ int chip=0;
        interactive=0;
     }
       else
+#if 0
     if (strcmp(argv[i], "-list")==0)
     {
        strcpy(command,"list");
        interactive=0;
     }
       else
+#endif
     if (strcmp(argv[i], "-msp430")==0)
     {
       // Default.. probably dumb to have as an option
-      util_context.disasm=disasm_msp430;
-      util_context.instr_bytes=2;
+      util_context.disasm_range=disasm_range_msp430;
+      //util_context.instr_bytes=2;
     }
       else
     if (strcmp(argv[i], "-dspic")==0)
     {
-      util_context.disasm=disasm_dspic;
-      util_context.instr_bytes=4;
+      util_context.disasm_range=disasm_range_dspic;
+      //util_context.instr_bytes=4;
     }
       else
     if (strcmp(argv[i], "-65xx")==0)
     {
-      util_context.disasm=disasm_65xx;
-      util_context.instr_bytes=1;
+      util_context.disasm_range=disasm_range_65xx;
+      //util_context.instr_bytes=1;
       chip=1;
     }
       else
     if (strcmp(argv[i], "-arm")==0)
     {
-      util_context.disasm=disasm_arm;
-      util_context.instr_bytes=4;
+      util_context.disasm_range=disasm_range_arm;
+      //util_context.instr_bytes=4;
     }
       else
     if (strcmp(argv[i], "-mips")==0)
     {
-      util_context.disasm=disasm_mips;
-      util_context.instr_bytes=4;
+      util_context.disasm_range=disasm_range_mips;
+      //util_context.instr_bytes=4;
     }
       else
     {
@@ -1146,8 +1123,9 @@ int chip=0;
       else
     if (strcmp(command, "disasm")==0)
     {
-       disasm_range(&util_context, util_context.memory.low_address, util_context.memory.high_address, 0);
+       util_context.disasm_range(&util_context.memory, util_context.memory.low_address, util_context.memory.high_address);
     }
+#if 0
       else
     if (strncmp(command, "list ", 7)==0)
     {
@@ -1169,9 +1147,10 @@ int chip=0;
        }
          else
        {
-         disasm_range(&util_context, util_context.memory.low_address, util_context.memory.high_address, 1);
+         disasm_range(&util_context, util_context.memory.low_address, util_context.memory.high_address);
        }
     }
+#endif
       else
     if (strcmp(command, "info")==0)
     {

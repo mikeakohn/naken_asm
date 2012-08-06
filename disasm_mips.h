@@ -60,6 +60,7 @@ extern struct _mips_cop_instr mips_cop_table[];
 int get_cycle_count_mips(unsigned short int opcode);
 int disasm_mips(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max);
 void list_output_mips(struct _asm_context *asm_context, int address);
+void disasm_range_mips(struct _memory *memory, int start, int end);
 
 #endif
 

@@ -21,6 +21,7 @@ void list_output_dspic(struct _asm_context *asm_context, int address);
 int get_dspic_flag_value(int flag);
 char *get_dspic_flag_str(int flag);
 int convert_dspic_flag_combo(int value, int flags);
+void disasm_range_dspic(struct _memory *memory, int start, int end);
 
 #endif
 

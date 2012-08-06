@@ -19,7 +19,7 @@
 //#define ARCH_DSPIC
 //#define ARCH_ARM
 
-typedef int (*disasm_t)(struct _memory *, int, char *, int *, int *);
+typedef void (*disasm_range_t)(struct _memory *, int, int);
 
 struct _util_context
 {
@@ -28,8 +28,8 @@ struct _util_context
   long *debug_line_offset;
   FILE *src_fp;
   int fd;
-  int instr_bytes;
-  disasm_t disasm;
+  //int instr_bytes;
+  disasm_range_t disasm_range;
 };
 
 #endif

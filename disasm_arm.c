@@ -339,4 +339,69 @@ unsigned int opcode=get_opcode32(&asm_context->memory, address);
 
 }
 
+void disasm_range_arm(struct _memory *memory, int start, int end)
+{
+// Are these correct and the same for all MSP430's?
+char *vectors[16] = { "", "", "", "", "", "",
+                      "", "", "", "",
+                      "", "", "", "",
+                      "",
+                      "Reset/Watchdog/Flash" };
+char instruction[128];
+int vectors_flag=0;
+int cycles_min=0,cycles_max=0;
+int num;
+
+  printf("\n");
+
+  printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
+  printf("------- ------ ----------------------------------       ------\n");
+
+  while(start<=end)
+  {
+    if (start>=0xffe0 && vectors_flag==0)
+    {
+      printf("Vectors:\n");
+      vectors_flag=1;
+    }
+
+    num=READ_RAM(start)|(READ_RAM(start+1)<<8);
+
+    disasm_arm(memory, start, instruction, &cycles_min, &cycles_max);
+
+    if (vectors_flag==1)
+    {
+      printf("0x%04x: 0x%04x  Vector %2d {%s}\n", start, num, (start-0xffe0)/2, vectors[(start-0xffe0)/2]);
+      start+=2;
+      continue;
+    }
+
+    if (cycles_min<1)
+    {
+      printf("0x%04x: 0x%04x %-40s ?\n", start, num, instruction);
+    }
+      else
+    if (cycles_min==cycles_max)
+    {
+      printf("0x%04x: 0x%04x %-40s %d\n", start, num, instruction, cycles_min);
+    }
+      else
+    {
+      printf("0x%04x: 0x%04x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
+    }
+
+#if 0
+    count-=4;
+    while (count>0)
+    {
+      start=start+4;
+      num=READ_RAM(start)|(READ_RAM(start+1)<<8);
+      printf("0x%04x: 0x%04x\n", start, num);
+      count-=4;
+    }
+#endif
+
+    start=start+4;
+  }
+}
 
