@@ -337,7 +337,7 @@ write_int16_t write_int16;
     case CPU_TYPE_ARM: e_machine=40;; break;
     case CPU_TYPE_DSPIC: e_machine=118;; break;
     case CPU_TYPE_MIPS: e_machine=8;; break;
-    case default: e_machine=0; break;
+    default: e_machine=0; break;
   }
 
   e_shnum=4;
@@ -514,10 +514,10 @@ printf("and i=%d  text_count=%d\n", i, text_count);
     if (i==0) { strcpy(name, ".text"); }
     else { sprintf(name, ".text%d", i); }
     shdr.sh_name=find_section(string_table, name, sizeof(string_table));
-printf("name=%s (%d) %s\n", name, shdr.sh_name, string_table+ shdr.sh_name);
+//printf("name=%s (%d) %s\n", name, shdr.sh_name, string_table+ shdr.sh_name);
     shdr.sh_type=1;
     shdr.sh_flags=6;
-printf("text_addr=%d\n", text_addr[i]);
+//printf("text_addr=%d\n", text_addr[i]);
     shdr.sh_addr=text_addr[i]; //asm_context->memory.low_address;
     shdr.sh_offset=sections_offset.text[i];
     shdr.sh_size=sections_size.text[i];

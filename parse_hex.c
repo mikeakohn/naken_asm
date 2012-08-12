@@ -40,7 +40,7 @@ int n=0;
   return n;
 }
 
-int hex_parse(char *filename, struct _memory *memory)
+int parse_hex(char *filename, struct _memory *memory)
 {
 FILE *in;
 int ch;

@@ -13,10 +13,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "assembler.h"
 #include "parse_elf.h"
 #include "naken_util.h"
 
 #ifndef DISABLE_ELF
+
+typedef unsigned int (*get_int16_t)(FILE *);
+typedef unsigned int (*get_int32_t)(FILE *);
 
 static unsigned int get_int16_le(FILE *in)
 {
@@ -40,7 +44,29 @@ unsigned int i;
   return i;
 }
 
-int elf_parse(char *filename, struct _memory *memory)
+static unsigned int get_int16_be(FILE *in)
+{
+unsigned int i;
+
+  i=(getc(in)<<8);
+  i|=getc(in);
+
+  return i;
+}
+
+static unsigned int get_int32_be(FILE *in)
+{
+unsigned int i;
+
+  i=(getc(in)<<24);
+  i|=(getc(in)<<16);
+  i|=(getc(in)<<8);
+  i|=getc(in);
+
+  return i;
+}
+
+int parse_elf(char *filename, struct _memory *memory, unsigned char *cpu_type)
 {
 FILE *in;
 unsigned char e_ident[16];
@@ -50,6 +76,8 @@ int e_shnum;
 int e_shstrndx;
 int n;
 int start, end;
+get_int16_t get_int16;
+get_int32_t get_int32;
 
   memory_clear(memory);
   //memset(dirty, 0, memory->size);
@@ -73,28 +101,71 @@ int start, end;
     return -2;
   }
 
-  if (e_ident[4]!=1 || e_ident[5]!=1 || e_ident[7]!=0xff)
+  if (e_ident[4]!=1)  // let's let other stuff in || e_ident[7]!=0xff)
   {
     printf("ELF Error: e_ident shows incorrect type\n");
     fclose(in);
     return -1;
   }
 
-  get_int16_le(in);
-  n=get_int16_le(in);
+  // EI_DATA
+  if (e_ident[5]==1)
+  {
+    memory->endian=ENDIAN_LITTLE;
+    get_int16=get_int16_le; 
+    get_int32=get_int32_le; 
+  }
+    else
+  if (e_ident[5]==2)
+  {
+    memory->endian=ENDIAN_BIG;
+    get_int16=get_int16_be; 
+    get_int32=get_int32_be; 
+  }
+    else
+  {
+    printf("ELF Error: EI_DATA incorrect data encoding\n");
+    fclose(in);
+    return -1;
+  }
+
+  get_int16(in);
+  n=get_int16(in);
+/*
   if (n!=0x69)
   {
     printf("ELF Error: e_machine isn't set for MSP430\n");
     fclose(in);
     return -1;
   }
+*/
+  switch(n)
+  {
+    case 8:
+    case 10:
+      *cpu_type=CPU_TYPE_MIPS;
+      break;
+    case 40:
+      *cpu_type=CPU_TYPE_ARM;
+      break;
+    case 105:
+      *cpu_type=CPU_TYPE_MSP430;
+      break;
+    case 118:
+      *cpu_type=CPU_TYPE_DSPIC;
+      break;
+    default:
+      printf("ELF Error: e_machine unknown\n");
+      fclose(in);
+      return -1;
+  }
 
   fseek(in, 32, SEEK_SET);
-  e_shoff=get_int32_le(in);
+  e_shoff=get_int32(in);
   fseek(in, 46, SEEK_SET);
-  e_shentsize=get_int16_le(in);
-  e_shnum=get_int16_le(in);
-  e_shstrndx=get_int16_le(in);
+  e_shentsize=get_int16(in);
+  e_shnum=get_int16(in);
+  e_shstrndx=get_int16(in);
 
   //printf("e_shoff=%d\n", e_shoff);
   //printf("e_shentsize=%d\n", e_shentsize);
@@ -102,7 +173,7 @@ int start, end;
   //printf("e_shstrndx=%d\n", e_shstrndx);
 
   fseek(in, e_shoff+(e_shstrndx*e_shentsize)+16, SEEK_SET);
-  int stroffset=get_int32_le(in);
+  int stroffset=get_int32(in);
   int sh_name;
   int sh_addr;
   int sh_offset;
@@ -121,12 +192,12 @@ int start, end;
   for (n=0; n<e_shnum; n++)
   {
     fseek(in, e_shoff+(n*e_shentsize), SEEK_SET);
-    sh_name=get_int32_le(in);
-    get_int32_le(in);
-    get_int32_le(in);
-    sh_addr=get_int32_le(in);
-    sh_offset=get_int32_le(in);
-    sh_size=get_int32_le(in);
+    sh_name=get_int32(in);
+    get_int32(in);
+    get_int32(in);
+    sh_addr=get_int32(in);
+    sh_offset=get_int32(in);
+    sh_size=get_int32(in);
 
     fseek(in, stroffset+sh_name, SEEK_SET);
     int ptr=0;
@@ -137,7 +208,7 @@ int start, end;
       name[ptr++]=ch;
     }
     name[ptr]=0;
-    printf("name=%s\n", name);
+    //printf("name=%s\n", name);
     int is_text=strncmp(name, ".text", 5)==0?1:0;
     if (is_text || strncmp(name, ".data", 5)==0 || strcmp(name, ".vectors")==0)
     {

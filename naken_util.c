@@ -18,6 +18,7 @@
 #include <readline/history.h>
 #endif
 
+#include "assembler.h"
 #include "disasm_65xx.h"
 #include "disasm_arm.h"
 #include "disasm_dspic.h"
@@ -62,76 +63,6 @@ int n;
   }
 
   return -1;
-}
-#endif
-
-#if 0
-#define LOAD_SYMBOL(sym) \
-  sprintf(symbol, "simulate_##sym##_%s", module); \
-  printf("%s", symbol); \
-  (*simulate)->simulate_##sym=dlsym(dl, symbol);
-
-static int set_library(struct _simulate **simulate, char *module)
-{
-simulate_init_t simulate_init;
-char symbol[64];
-void *dl;
-
-  dl=dlopen(NULL, RTLD_LAZY);
-  if (dl==NULL) { printf("ZOMG %s:%d\n", __FILE__, __LINE__); return -1; }
-
-printf("dl=%p\n", dl);
-  sprintf(symbol, "simulate_init_%s", module);
-printf("init=%s\n", symbol);
-  simulate_init=dlsym(dl, symbol);
-
-printf("simulate_init=%p\n", simulate_init);
-  *simulate=simulate_init();
-
-printf("In init()\n");
-fflush(stdout);
-
-  LOAD_SYMBOL(init);
-  LOAD_SYMBOL(free);
-  LOAD_SYMBOL(push);
-  LOAD_SYMBOL(set_reg);
-  LOAD_SYMBOL(get_reg);
-  LOAD_SYMBOL(reset);
-  LOAD_SYMBOL(dump_registers);
-  LOAD_SYMBOL(run);
-
-
-#if 0
-  sprintf(symbol, "simulate_init_%s", module);
-  simulate->simulate_init=dlsym(dl, symbol);
-  if (simulate_init==NULL) { dlclose(dl); printf("OOPS %s:%d\n", __FILE__, __LINE__); return -1; }
-
-  simulate_free
-  simulate->simulate_free
-
-  simulate_push
-  simulate->simulate_push
-
-  simulate_set_reg
-  simulate->simulate_set_reg
-
-  simulate_get_reg
-  simulate->simulate_get_reg
-
-  simulate_reset
-  simulate->simulate_reset
-
-  simulate_dump_registers
-  simulate->simulate_dump_registers
-
-  simulate_run
-  simulate->simulate_run
-#endif
-
-
-  dlclose(dl);
-
-  return 0;
 }
 #endif
 
@@ -695,7 +626,7 @@ int i;
 char *hexfile=NULL;
 int interactive=1;
 //FIXME
-int chip=0;
+//int chip=0;
 
   printf("\nnaken_util - by Michael Kohn\n");
   printf("    Web: http://www.mikekohn.net/\n");
@@ -719,6 +650,7 @@ int chip=0;
   memory_init(&util_context.memory, 1<<20, 1);
 
   util_context.disasm_range=disasm_range_msp430;
+  util_context.simulate=simulate_init_msp430();
   //util_context.instr_bytes=2;
 
   for (i=1; i<argc; i++)
@@ -782,8 +714,9 @@ int chip=0;
     if (strcmp(argv[i], "-65xx")==0)
     {
       util_context.disasm_range=disasm_range_65xx;
+      util_context.simulate=simulate_init_65xx();
       //util_context.instr_bytes=1;
-      chip=1;
+      //chip=1;
     }
       else
     if (strcmp(argv[i], "-arm")==0)
@@ -799,15 +732,37 @@ int chip=0;
     }
       else
     {
-#ifndef DISABLE_ELF
-      if (elf_parse(argv[i], &util_context.memory)>=0)
+      unsigned char cpu_type;
+      if (parse_elf(argv[i], &util_context.memory, &cpu_type)>=0)
       {
+        switch(cpu_type)
+        {
+          case CPU_TYPE_MSP430:
+            util_context.disasm_range=disasm_range_msp430;
+            util_context.simulate=simulate_init_msp430();
+            break;
+          case CPU_TYPE_65XX:
+            util_context.disasm_range=disasm_range_65xx;
+            util_context.simulate=simulate_init_65xx();
+            break;
+          case CPU_TYPE_ARM:
+            util_context.disasm_range=disasm_range_arm;
+            break;
+          case CPU_TYPE_DSPIC:
+            util_context.disasm_range=disasm_range_dspic;
+            break;
+          case CPU_TYPE_MIPS:
+            util_context.disasm_range=disasm_range_mips;
+            break;
+          default:
+            printf("Internal error %s:%d\n", __FILE__, __LINE__);
+            exit(1);
+        }
         hexfile=argv[i];
         printf("Loaded elf %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
       }
         else
-#endif
-      if (hex_parse(argv[i], &util_context.memory)>=0)
+      if (parse_hex(argv[i], &util_context.memory)>=0)
       {
         hexfile=argv[i];
         printf("Loaded hexfile %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
@@ -860,6 +815,7 @@ int chip=0;
     }
   }
 
+#if 0
   if (interactive==1)
   {
     if (chip==0)
@@ -872,6 +828,7 @@ int chip=0;
       util_context.simulate=simulate_init_65xx();
     }
   }
+#endif
 
   printf("Type help for a list of commands.\n");
   command[1023]=0;

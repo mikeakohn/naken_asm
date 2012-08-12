@@ -14,7 +14,7 @@
 
 #include "memory.h"
 
-int hex_parse(char *filename, struct _memory *memory);
+int parse_hex(char *filename, struct _memory *memory);
 
 #endif
 
