@@ -109,7 +109,11 @@ int n;
 }
 
 #ifndef DISABLE_ELF
-static void write_int32_l(FILE *out, unsigned int n)
+
+typedef void(*write_int32_t)(FILE *, unsigned int);
+typedef void(*write_int16_t)(FILE *, unsigned int);
+
+static void write_int32_le(FILE *out, unsigned int n)
 {
   putc(n&0xff, out);
   putc((n>>8)&0xff, out);
@@ -117,34 +121,48 @@ static void write_int32_l(FILE *out, unsigned int n)
   putc((n>>24)&0xff, out);
 }
 
-static void write_int16_l(FILE *out, unsigned int n)
+static void write_int16_le(FILE *out, unsigned int n)
 {
   putc(n&0xff, out);
   putc((n>>8)&0xff, out);
 }
 
-static void write_shdr(FILE *out, struct _shdr *shdr)
+static void write_int32_be(FILE *out, unsigned int n)
 {
-  write_int32_l(out, shdr->sh_name);
-  write_int32_l(out, shdr->sh_type);
-  write_int32_l(out, shdr->sh_flags);
-  write_int32_l(out, shdr->sh_addr);
-  write_int32_l(out, shdr->sh_offset);
-  write_int32_l(out, shdr->sh_size);
-  write_int32_l(out, shdr->sh_link);
-  write_int32_l(out, shdr->sh_info);
-  write_int32_l(out, shdr->sh_addralign);
-  write_int32_l(out, shdr->sh_entsize);
+  putc((n>>24)&0xff, out);
+  putc((n>>16)&0xff, out);
+  putc((n>>8)&0xff, out);
+  putc(n&0xff, out);
 }
 
-static void write_symtab(FILE *out, struct _symtab *symtab)
+static void write_int16_be(FILE *out, unsigned int n)
 {
-  write_int32_l(out, symtab->st_name);
-  write_int32_l(out, symtab->st_value);
-  write_int32_l(out, symtab->st_size);
+  putc((n>>8)&0xff, out);
+  putc(n&0xff, out);
+}
+
+static void write_shdr(FILE *out, struct _shdr *shdr, write_int32_t write_int32, write_int16_t write_int16)
+{
+  write_int32(out, shdr->sh_name);
+  write_int32(out, shdr->sh_type);
+  write_int32(out, shdr->sh_flags);
+  write_int32(out, shdr->sh_addr);
+  write_int32(out, shdr->sh_offset);
+  write_int32(out, shdr->sh_size);
+  write_int32(out, shdr->sh_link);
+  write_int32(out, shdr->sh_info);
+  write_int32(out, shdr->sh_addralign);
+  write_int32(out, shdr->sh_entsize);
+}
+
+static void write_symtab(FILE *out, struct _symtab *symtab, write_int32_t write_int32, write_int16_t write_int16)
+{
+  write_int32(out, symtab->st_name);
+  write_int32(out, symtab->st_value);
+  write_int32(out, symtab->st_size);
   putc(symtab->st_info, out);
   putc(symtab->st_other, out);
-  write_int16_l(out, symtab->st_shndx);
+  write_int16(out, symtab->st_shndx);
 }
 
 static int find_section(char *sections, char *name, int len)
@@ -193,20 +211,23 @@ int len;
 
 int write_elf(struct _asm_context *asm_context, FILE *out)
 {
-unsigned char e_ident[16] = { 0x7f, 'E','L','F',  1, 1, 1, 0xff,
-                              0, 0, 0, 0,  0, 0, 0, 0 };
+unsigned char e_ident[16];// = { 0x7f, 'E','L','F',  1, 1, 1, 0xff,
+                          //    0, 0, 0, 0,  0, 0, 0, 0 };
 struct _sections_offset sections_offset;
 struct _sections_size sections_size;
 struct _shdr shdr;
 struct _symtab symtab;
 int i;
 int e_flags;
+int e_machine;
 int e_shnum;
 int e_shstrndx=0;
 int text_addr[ELF_TEXT_MAX];
 int data_addr[ELF_TEXT_MAX];
 int text_count=0;
 int data_count=0;
+write_int32_t write_int32;
+write_int16_t write_int16;
 
   memset(&sections_offset, 0, sizeof(sections_offset));
   memset(&sections_size, 0, sizeof(sections_size));
@@ -287,7 +308,37 @@ int data_count=0;
     //".rela.debug_aranges\0"
   };
 
-  e_flags=11;  // mspgcc4/build/insight-6.8-1/include/elf/msp430.h
+  const char magic_number[16] = { 0x7f, 'E','L','F',  1, 1, 1, 0xff,
+                               0, 0, 0, 0,  0, 0, 0, 0 };
+  memcpy(e_ident, magic_number, 16);
+  if (asm_context->memory.endian==ENDIAN_LITTLE)
+  {
+    e_ident[5]=1;
+    write_int32=write_int32_le;
+    write_int16=write_int16_le;
+  }
+    else
+  {
+    e_ident[5]=2;
+    write_int32=write_int32_be;
+    write_int16=write_int16_be;
+  }
+
+  // We may need this later
+  //e_ident[7]=0xff; // SYSV=0, HPUX=1, STANDALONE=255
+
+  // mspgcc4/build/insight-6.8-1/include/elf/msp430.h (11)
+  e_flags=0;
+
+  // This could be a lookup table, but let's play it safe
+  switch (asm_context->cpu_type==CPU_TYPE_MSP430)
+  {
+    case CPU_TYPE_MSP430: e_machine=0x69; e_flags=11; break;
+    case CPU_TYPE_ARM: e_machine=40;; break;
+    case CPU_TYPE_DSPIC: e_machine=118;; break;
+    case CPU_TYPE_MIPS: e_machine=8;; break;
+    case default: e_machine=0; break;
+  }
 
   e_shnum=4;
   //if (asm_context->debug_file==1) { e_shnum+=4; }
@@ -295,19 +346,19 @@ int data_count=0;
 
   // Write Ehdr;
   i=fwrite(e_ident, 1, 16, out);
-  write_int16_l(out, 0);       // e_type 0=not relocatable 1=msp_32
-  write_int16_l(out, 0x69);    // e_machine EM_MSP430=0x69
-  write_int32_l(out, 1);       // e_version
-  write_int32_l(out, 0);       // e_entry (this could be 16 bit at 0xfffe)
-  write_int32_l(out, 0);       // e_phoff (program header offset)
-  write_int32_l(out, 0);       // e_shoff (section header offset)
-  write_int32_l(out, e_flags); // e_flags (should be set to CPU model)
-  write_int16_l(out, 0x34);    // e_ehsize (size of this struct)
-  write_int16_l(out, 0);       // e_phentsize (program header size)
-  write_int16_l(out, 0);       // e_phnum (number of program headers)
-  write_int16_l(out, 40);      // e_shentsize (section header size)
-  write_int16_l(out, e_shnum); // e_shnum (number of section headers)
-  write_int16_l(out, 2);       // e_shstrndx (section header string table index)
+  write_int16(out, 0);       // e_type 0=not relocatable 1=msp_32
+  write_int16(out, e_machine); // e_machine EM_MSP430=0x69
+  write_int32(out, 1);       // e_version
+  write_int32(out, 0);       // e_entry (this could be 16 bit at 0xfffe)
+  write_int32(out, 0);       // e_phoff (program header offset)
+  write_int32(out, 0);       // e_shoff (section header offset)
+  write_int32(out, e_flags); // e_flags (should be set to CPU model)
+  write_int16(out, 0x34);    // e_ehsize (size of this struct)
+  write_int16(out, 0);       // e_phentsize (program header size)
+  write_int16(out, 0);       // e_phnum (number of program headers)
+  write_int16(out, 40);      // e_shentsize (section header size)
+  write_int16(out, e_shnum); // e_shnum (number of section headers)
+  write_int16(out, 2);       // e_shstrndx (section header string table index)
 
   // .text and .data sections
   i=0;
@@ -411,13 +462,13 @@ printf("and i=%d  text_count=%d\n", i, text_count);
     memset(&symtab, 0, sizeof(symtab));
     symtab.st_info=3;
     symtab.st_shndx=1;
-    write_symtab(out, &symtab);
+    write_symtab(out, &symtab, write_int32, write_int16);
 
     // symtab filename
     memset(&symtab, 0, sizeof(symtab));
     symtab.st_name=1;
     symtab.st_info=4;
-    write_symtab(out, &symtab);
+    write_symtab(out, &symtab, write_int32, write_int16);
 
     // symbols from lookup tables
     n=0;
@@ -428,7 +479,7 @@ printf("and i=%d  text_count=%d\n", i, text_count);
       symtab.st_name=symbol_address[n++];
       symtab.st_value=iter.address;
       symtab.st_shndx=1;
-      write_symtab(out, &symtab);
+      write_symtab(out, &symtab, write_int32, write_int16);
     }
 
     sections_size.symtab=ftell(out)-sections_offset.symtab;
@@ -447,14 +498,14 @@ printf("and i=%d  text_count=%d\n", i, text_count);
   // A little ex-lax to dump the SHT's
   long marker=ftell(out);
   fseek(out, 32, SEEK_SET);
-  write_int32_l(out, marker);     // e_shoff (section header offset)
+  write_int32(out, marker);     // e_shoff (section header offset)
   fseek(out, 0x30, SEEK_SET);
-  write_int16_l(out, e_shnum);    // e_shnum (section count)
-  write_int16_l(out, e_shstrndx); // e_shstrndx (string_table index)
+  write_int16(out, e_shnum);    // e_shnum (section count)
+  write_int16(out, e_shstrndx); // e_shstrndx (string_table index)
   fseek(out, marker, SEEK_SET);
 
   memset(&shdr, 0, sizeof(shdr));
-  write_shdr(out, &shdr);
+  write_shdr(out, &shdr, write_int32, write_int16);
 
   // SHT .text
   for (i=0; i<text_count; i++)
@@ -471,7 +522,7 @@ printf("text_addr=%d\n", text_addr[i]);
     shdr.sh_offset=sections_offset.text[i];
     shdr.sh_size=sections_size.text[i];
     shdr.sh_addralign=1;
-    write_shdr(out, &shdr);
+    write_shdr(out, &shdr, write_int32, write_int16);
   }
 
   // SHT .data
@@ -487,7 +538,7 @@ printf("text_addr=%d\n", text_addr[i]);
     shdr.sh_offset=sections_offset.data[i];
     shdr.sh_size=sections_size.data[i];
     shdr.sh_addralign=1;
-    write_shdr(out, &shdr);
+    write_shdr(out, &shdr, write_int32, write_int16);
   }
 
   // SHT .shstrtab
@@ -497,7 +548,7 @@ printf("text_addr=%d\n", text_addr[i]);
   shdr.sh_offset=sections_offset.shstrtab;
   shdr.sh_size=sections_size.shstrtab;
   shdr.sh_addralign=1;
-  write_shdr(out, &shdr);
+  write_shdr(out, &shdr, write_int32, write_int16);
 
   // SHT .symtab
   memset(&shdr, 0, sizeof(shdr));
@@ -507,7 +558,7 @@ printf("text_addr=%d\n", text_addr[i]);
   shdr.sh_size=sections_size.symtab;
   shdr.sh_addralign=4;
   shdr.sh_entsize=16;
-  write_shdr(out, &shdr);
+  write_shdr(out, &shdr, write_int32, write_int16);
 
   // SHT .strtab
   memset(&shdr, 0, sizeof(shdr));
@@ -516,7 +567,7 @@ printf("text_addr=%d\n", text_addr[i]);
   shdr.sh_offset=sections_offset.strtab;
   shdr.sh_size=sections_size.strtab;
   shdr.sh_addralign=1;
-  write_shdr(out, &shdr);
+  write_shdr(out, &shdr, write_int32, write_int16);
 
   // SHT .comment
   memset(&shdr, 0, sizeof(shdr));
@@ -525,7 +576,7 @@ printf("text_addr=%d\n", text_addr[i]);
   shdr.sh_offset=sections_offset.comment;
   shdr.sh_size=sections_size.comment;
   shdr.sh_addralign=1;
-  write_shdr(out, &shdr);
+  write_shdr(out, &shdr, write_int32, write_int16);
 
   if (asm_context->debug_file==1)
   {

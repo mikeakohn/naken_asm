@@ -27,6 +27,15 @@
 #define SEGMENT_CODE 0
 #define SEGMENT_BSS 1
 
+enum
+{
+  CPU_TYPE_MSP430=0,
+  CPU_TYPE_65XX,
+  CPU_TYPE_ARM,
+  CPU_TYPE_DSPIC,
+  CPU_TYPE_MIPS
+};
+
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
 typedef void (*list_output_t)(struct _asm_context *, int);
 
@@ -107,6 +116,7 @@ struct _asm_context
   char include_path[INCLUDE_PATH_LEN];
   int include_count;
   const char *filename;
+  char cpu_type;
 };
 
 struct _memory_pool *add_pool(struct _naken_heap *heap, int heap_len);

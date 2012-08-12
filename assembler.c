@@ -690,6 +690,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   {
     asm_context->parse_instruction=parse_instruction_arm;
     asm_context->list_output=list_output_arm;
+    asm_context->cpu_type=CPU_TYPE_ARM;
     return 1;
   }
     else
@@ -697,6 +698,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   {
     asm_context->parse_instruction=parse_instruction_dspic;
     asm_context->list_output=list_output_dspic;
+    asm_context->cpu_type=CPU_TYPE_DSPIC;
     return 1;
   }
     else
@@ -704,6 +706,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   {
     asm_context->parse_instruction=parse_instruction_mips;
     asm_context->list_output=list_output_mips;
+    asm_context->cpu_type=CPU_TYPE_MIPS;
     return 1;
   }
     else
@@ -711,6 +714,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   {
     asm_context->parse_instruction=parse_instruction_msp430;
     asm_context->list_output=list_output_msp430;
+    asm_context->cpu_type=CPU_TYPE_MSP430;
     return 1;
   }
     else
@@ -718,6 +722,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   {
     asm_context->parse_instruction=parse_instruction_65xx;
     asm_context->list_output=list_output_65xx;
+    asm_context->cpu_type=CPU_TYPE_65XX;
     return 1;
   }
     else
