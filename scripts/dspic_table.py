@@ -227,6 +227,12 @@ for line in fp:
     if tokens[0].startswith("bra") and optype == "OP_EXPR":
       optype = "OP_BRA"
       #bitletter = "n"
+    elif tokens[0] == "do" and optype == "OP_EXPR":
+      optype = "OP_EXPR_DO"
+      #bitletter = "n"
+    elif tokens[0] == "goto" and optype == "OP_EXPR":
+      optype = "OP_EXPR_GOTO"
+      #bitletter = "n"
 
     if "{" in arg: optional = "1"
     else: optional = "0"

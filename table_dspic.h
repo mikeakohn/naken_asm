@@ -61,6 +61,8 @@ enum
   OP_PREFETCH_X, // (iiii)
   OP_PREFETCH_Y, // (jjjj)
   OP_ACC_WB,     // (aa)
+  OP_EXPR_DO,    // (nnnnnnnnnnn)
+  OP_EXPR_GOTO   // (nnnnnnnnnnn)
 };
 
 struct _dspic_operand

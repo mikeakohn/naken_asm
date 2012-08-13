@@ -334,9 +334,9 @@ write_int16_t write_int16;
   switch (asm_context->cpu_type==CPU_TYPE_MSP430)
   {
     case CPU_TYPE_MSP430: e_machine=0x69; e_flags=11; break;
-    case CPU_TYPE_ARM: e_machine=40;; break;
-    case CPU_TYPE_DSPIC: e_machine=118;; break;
-    case CPU_TYPE_MIPS: e_machine=8;; break;
+    case CPU_TYPE_ARM: e_machine=40; break;
+    case CPU_TYPE_DSPIC: e_machine=118; e_flags=1; break;
+    case CPU_TYPE_MIPS: e_machine=8; break;
     default: e_machine=0; break;
   }
 

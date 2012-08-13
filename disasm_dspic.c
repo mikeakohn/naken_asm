@@ -137,7 +137,7 @@ int value,attr;
 int n,r;
 
   //opcode=get24bits(memory, address);
-  opcode=get_opcode24(memory, address);
+  opcode=get_opcode32(memory, address);
 
   n=0;
   while(dspic_table[n].name!=NULL)
@@ -330,6 +330,16 @@ int n,r;
             if (value==0) { strcpy(temp, "w13"); }
             else if (value==1) { strcpy(temp, "[w13]+=2"); }
             else if (value==3) { strcpy(temp, "?"); }
+            break;
+          case OP_EXPR_DO:
+            value=get_opcode32(memory, address+4);
+            sprintf(temp, "%d", value);
+            count+=2;
+            break;
+          case OP_EXPR_GOTO:
+            value=(opcode&0xffff)|get_opcode32(memory, address+4);
+            sprintf(temp, "%d", value);
+            count+=2;
             break;
           default:
             strcpy(temp, "<error>");

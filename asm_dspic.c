@@ -163,6 +163,7 @@ int token_type;
 int matched,wrong_op;
 int range_error=-1;
 int opcode=0;
+int extra24=-1;
 int num;
 int n;
 
@@ -535,7 +536,6 @@ int n;
           {
             if (operands[curr_operand].type==OPTYPE_NUM)
             {
-printf("%d %d\n", operands[curr_operand].value, (asm_context->address+2));
               int value=(operands[curr_operand].value-(asm_context->address+2))/2;
               if (value<-32768 || value>32767)
               {
@@ -793,6 +793,7 @@ printf("%d %d\n", operands[curr_operand].value, (asm_context->address+2));
             break;
           }
           case OP_ACC_WB:
+          {
             if (operands[curr_operand].type==OPTYPE_REGISTER &&
                 operands[curr_operand].attribute==REG_NORMAL &&
                 operands[curr_operand].value==13)
@@ -811,6 +812,47 @@ printf("%d %d\n", operands[curr_operand].value, (asm_context->address+2));
               wrong_op=1;
             }
             break;
+          }
+          case OP_EXPR_GOTO:
+          {
+            // FIXME - add 24 bits
+            if (operands[curr_operand].type==OPTYPE_NUM)
+            {
+              if (check_range(dspic_table[n].operands[r].bitlen, operands[curr_operand].value)!=0)
+              {
+                range_error=curr_operand; 
+              }
+              if ((operands[curr_operand].value&1)==1)
+              {
+                printf("Error: Address not on boundary at %s:%d.\n", asm_context->filename, asm_context->line);
+              }
+              //opcode|=operands[curr_operand].value<<dspic_table[n].operands[r].bitpos;
+              opcode|=operands[curr_operand].value&0xfffe;
+              extra24=operands[curr_operand].value>>16;
+            }
+              else
+            {
+              wrong_op=1;
+            }
+            break;
+          }
+          case OP_EXPR_DO:
+          {
+            // FIXME - is this okay?
+            if (operands[curr_operand].type==OPTYPE_NUM)
+            {
+              if (check_range(dspic_table[n].operands[r].bitlen, operands[curr_operand].value)!=0)
+              {
+                range_error=curr_operand; 
+              }
+              extra24=operands[curr_operand].value;
+            }
+              else
+            {
+              wrong_op=1;
+            }
+            break;
+          }
           default:
             printf("Internal Error: %s:%d\n", __FILE__, __LINE__);
             break;
@@ -870,7 +912,10 @@ printf("%d %d\n", operands[curr_operand].value, (asm_context->address+2));
   }
 
   add_bin32(asm_context, opcode, IS_OPCODE);
-  // FIXME - add next 24 bits if needed
+  if (extra24!=-1)
+  {
+    add_bin32(asm_context, extra24, IS_OPCODE);
+  }
 
   asm_context->line++;
 
