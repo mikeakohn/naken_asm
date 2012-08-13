@@ -185,8 +185,8 @@ int n,r;
         {
           case OP_BRA:
           {
-            value=EXTRACT_VALUE();
-            sprintf(temp, "0x%02x", value);
+            short int distance=EXTRACT_VALUE();
+            sprintf(temp, "0x%02x  (%d)", (address+2)+distance*2, distance);
             break;
           }
           case OP_F:
@@ -390,14 +390,7 @@ unsigned int opcode=get_opcode24(&asm_context->memory, address);
 
 void disasm_range_dspic(struct _memory *memory, int start, int end)
 {
-// Are these correct and the same for all MSP430's?
-char *vectors[16] = { "", "", "", "", "", "",
-                      "", "", "", "",
-                      "", "", "", "",
-                      "",
-                      "Reset/Watchdog/Flash" };
 char instruction[128];
-int vectors_flag=0;
 int cycles_min=0,cycles_max=0;
 int num;
 

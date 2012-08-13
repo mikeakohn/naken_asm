@@ -445,7 +445,6 @@ int n;
     operands[operand_count++].value=num;
 
     token_type=get_token(asm_context, token, TOKENLEN);
-printf("getting token %d %s\n", token_type, token);
     if (token_type==TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token,',')) { print_error_unexp(token, asm_context); return -1; }
   }
@@ -461,13 +460,13 @@ printf("getting token %d %s\n", token_type, token);
   // On pass 1 we only calculate address.
   if (asm_context->pass==1)
   {
-    add_bin24(asm_context, 0x0000000, IS_OPCODE);
+    add_bin32(asm_context, 0x0000000, IS_OPCODE);
 
     if (strcmp("do", instr_case)==0 ||
         (strcmp("goto", instr_case)==0 && operand_count==1 &&
          operands[0].type==OPTYPE_REGISTER))
     {
-      add_bin24(asm_context, 0x0000000, IS_OPCODE);
+      add_bin32(asm_context, 0x0000000, IS_OPCODE);
     }
 
     return 0;
@@ -536,11 +535,13 @@ printf("getting token %d %s\n", token_type, token);
           {
             if (operands[curr_operand].type==OPTYPE_NUM)
             {
-              if (check_range(dspic_table[n].operands[r].bitlen, operands[curr_operand].value)!=0)
+printf("%d %d\n", operands[curr_operand].value, (asm_context->address+2));
+              int value=(operands[curr_operand].value-(asm_context->address+2))/2;
+              if (value<-32768 || value>32767)
               {
                 range_error=curr_operand; 
               }
-              opcode|=operands[curr_operand].value<<dspic_table[n].operands[r].bitpos;
+              opcode|=(unsigned short int)value<<dspic_table[n].operands[r].bitpos;
             }
               else
             {
