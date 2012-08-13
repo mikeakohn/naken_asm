@@ -403,52 +403,40 @@ int num;
 
   printf("\n");
 
-  printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
-  printf("------- ------ ----------------------------------       ------\n");
+  printf("%-7s %-10s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
+  printf("------- ---------- ----------------------------------       ------\n");
 
   while(start<=end)
   {
-    if (start>=0xffe0 && vectors_flag==0)
-    {
-      printf("Vectors:\n");
-      vectors_flag=1;
-    }
-
-    num=READ_RAM(start)|(READ_RAM(start+1)<<8);
+    num=READ_RAM(start)|(READ_RAM(start+1)<<8)|(READ_RAM(start+2)<<16)|(READ_RAM(start+3)<<24);
 
     int count=disasm_dspic(memory, start, instruction, &cycles_min, &cycles_max);
 
-    if (vectors_flag==1)
-    {
-      printf("0x%04x: 0x%04x  Vector %2d {%s}\n", start, num, (start-0xffe0)/2, vectors[(start-0xffe0)/2]);
-      start+=2;
-      continue;
-    }
-
     if (cycles_min<1)
     {
-      printf("0x%04x: 0x%04x %-40s ?\n", start, num, instruction);
+      printf("0x%04x: 0x%08x %-40s ?\n", start, num, instruction);
     }
       else
     if (cycles_min==cycles_max)
     {
-      printf("0x%04x: 0x%04x %-40s %d\n", start, num, instruction, cycles_min);
+      printf("0x%04x: 0x%08x %-40s %d\n", start, num, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: 0x%04x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
+      printf("0x%04x: 0x%08x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
     }
 
-    count-=2;
+    count-=4;
     while (count>0)
     {
-      start=start+2;
-      num=READ_RAM(start)|(READ_RAM(start+1)<<8);
-      printf("0x%04x: 0x%04x\n", start, num);
-      count-=2;
+      start=start+4;
+      // num=READ_RAM(start)|(READ_RAM(start+1)<<8);
+      num=READ_RAM(start)|(READ_RAM(start+1)<<8)|(READ_RAM(start+2)<<16)|(READ_RAM(start+3)<<24);
+      printf("0x%04x: 0x%08x\n", start, num);
+      count-=4;
     }
 
-    start=start+2;
+    start=start+4;
   }
 }
 

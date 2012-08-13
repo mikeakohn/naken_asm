@@ -417,8 +417,9 @@ int n;
         }
           else
         {
-          print_error_unexp(token, asm_context);
-          return -1;
+          pushback(asm_context, token, token_type);
+          //print_error_unexp(token, asm_context);
+          //return -1;
         }
       }
         else
@@ -444,6 +445,7 @@ int n;
     operands[operand_count++].value=num;
 
     token_type=get_token(asm_context, token, TOKENLEN);
+printf("getting token %d %s\n", token_type, token);
     if (token_type==TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token,',')) { print_error_unexp(token, asm_context); return -1; }
   }
@@ -866,7 +868,7 @@ int n;
     opcode|=flag<<dspic_entry->flag_pos;
   }
 
-  add_bin24(asm_context, opcode, IS_OPCODE);
+  add_bin32(asm_context, opcode, IS_OPCODE);
   // FIXME - add next 24 bits if needed
 
   asm_context->line++;

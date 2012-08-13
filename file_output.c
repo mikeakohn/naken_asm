@@ -65,7 +65,7 @@ int address=0,segment=0;
       continue;
     }
 
-    if ((n&0x0ffff)==0 && len!=0)
+    if ((n&0x0ffff)==0 && len>0)
     {
       write_hex_line(out, address, data, len, &segment);
       len=-1;
