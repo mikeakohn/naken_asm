@@ -25,6 +25,11 @@ int get_cycle_count_mips(unsigned short int opcode)
 
 int disasm_mips(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
+const char *reg[32] = {
+  "$0", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
+  "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
+  "$a0", "$a1", "$a2", "$a3", "$a4", "$a5", "$a6", "$a7",
+  "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra" };
 unsigned int opcode;
 int function,format;
 int n,r;
@@ -56,22 +61,22 @@ char temp[32];
 
           if (mips_r_table[n].operand[r]==MIPS_OP_RS)
           {
-            sprintf(temp, "$t%d", rs);
+            sprintf(temp, "%s", reg[rs]);
           }
             else
           if (mips_r_table[n].operand[r]==MIPS_OP_RT)
           {
-            sprintf(temp, "$t%d", rt);
+            sprintf(temp, "%s", reg[rt]);
           }
             else
           if (mips_r_table[n].operand[r]==MIPS_OP_RD)
           {
-            sprintf(temp, "$t%d", rd);
+            sprintf(temp, "%s", reg[rd]);
           }
             else
           if (mips_r_table[n].operand[r]==MIPS_OP_SA)
           {
-            sprintf(temp, "$t%d", sa);
+            sprintf(temp, "%s", reg[sa]);
           }
             else
           { temp[0]=0; }
@@ -182,12 +187,12 @@ char temp[32];
 
           if (mips_r_table[n].operand[r]==MIPS_OP_RS)
           {
-            sprintf(temp, "$t%d", rs);
+            sprintf(temp, "%s", reg[rs]);
           }
             else
           if (mips_r_table[n].operand[r]==MIPS_OP_RT)
           {
-            sprintf(temp, "$t%d", rt);
+            sprintf(temp, "%s", reg[rt]);
           }
             else
           if (mips_r_table[n].operand[r]==MIPS_OP_IMMEDIATE)
@@ -197,7 +202,7 @@ char temp[32];
             else
           if (mips_r_table[n].operand[r]==MIPS_OP_IMMEDIATE_RS)
           {
-            sprintf(temp, "%x($t%d)", immediate, rs);
+            sprintf(temp, "%x(%s)", immediate, reg[rs]);
           }
             else
           if (mips_r_table[n].operand[r]==MIPS_OP_LABEL)

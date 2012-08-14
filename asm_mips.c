@@ -36,20 +36,61 @@ struct _operand
   int reg2;
 };
 
+static int get_number(char *s)
+{
+int n=0;
+
+  while(s!=0)
+  {
+    if (*s<'0' || *s>'9') return -1;
+    n=(n*10)+(*s-'0');
+    s++;
+  }
+
+  return n;
+}
+
 static int get_register_mips(char *token, char letter)
 {
-  if (token[0]!='$') { return -1; }
-  if (token[1]!=letter) { return -1; }
+int num;
 
-  if (token[3]==0 && (token[2]>='0' && token[2]<='9'))
+  if (token[0]!='$')
   {
-    return token[2]-'0';
+    if (letter!='f' && strcasecmp(token, "zero")==0) return 0;
+    return -1;
   }
-    else
-  if (token[4]==0 && token[2]=='1' && (token[3]>='0' && token[3]<='5'))
+  if (token[1]==0) { return -1; }
+
+  num=get_number(token+2);
+  if (letter=='f')
   {
-    return 10+(token[3]-'0');
+    if (num>=0 && num<=31 && token[1]==letter)
+    {
+      return num; 
+    }
+
+    return -1;
   }
+
+  if (token[1]>='0' && token[1]<='9')
+  {
+    num=get_number(token+1);
+    if (num>=0 && num<=31) return num;
+    return -1;
+  }
+
+  if (token[1]=='v' && num>=0 && num<=1) { return 2+num; }
+  if (token[1]=='a' && num>=0 && num<=3) { return 4+num; }
+  if (token[1]=='t' && num>=0 && num<=7) { return 8+num; }
+  if (token[1]=='s' && num>=0 && num<=7) { return 16+num; }
+  if (token[1]=='t' && num>=8 && num<=9) { return 24+(num-8); }
+  if (token[1]=='k' && num>=0 && num<=1) { return 26+num; }
+
+  if (strcasecmp(token, "$gp")==0) return 28;
+  if (strcasecmp(token, "$sp")==0) return 29;
+  if (strcasecmp(token, "$s8")==0) return 30;
+  if (strcasecmp(token, "$fp")==0) return 30;
+  if (strcasecmp(token, "$ra")==0) return 31;
 
   return -1;
 }
