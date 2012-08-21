@@ -264,7 +264,6 @@ int num;
 
   while(start<=end)
   {
-    // FIXME - Endia
     num=READ_RAM(start)|(READ_RAM(start+1)<<8);
 
     disasm_mips(memory, start, instruction, &cycles_min, &cycles_max);
