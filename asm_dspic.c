@@ -45,7 +45,7 @@ enum
   OPTYPE_W_MUL_W,
 };
 
-int is_condition(char *token)
+static int is_condition(char *token)
 {
 char *cond[] = {
   "c", "ge", "geu", "gt", "gtu", "le",
@@ -464,7 +464,7 @@ int n;
   }
 
 #ifdef DEBUG
-  printf("-------- instr=%s  flag=%d\n", instr, flag);
+  printf("-------- instr=%s  flag=%d operand_count=%d\n", instr, flag, operand_count);
   for (n=0; n<operand_count; n++)
   {
     printf("operand %d: value=%d type=%d attribute=%d\n", n, operands[n].value, operands[n].type, operands[n].attribute);
@@ -476,9 +476,11 @@ int n;
   {
     add_bin_dspic(asm_context, 0x0000000, IS_OPCODE);
 
+    // FIXME - wtf is this.  can't this come from the table?
     if (strcmp("do", instr_case)==0 ||
-        (strcmp("goto", instr_case)==0 && operand_count==1 &&
-         operands[0].type==OPTYPE_REGISTER))
+        (((strcmp("goto", instr_case)==0 || strcmp("call", instr_case)==0)
+         && operand_count==1 &&
+         operands[0].type!=OPTYPE_REGISTER)))
     {
       add_bin_dspic(asm_context, 0x0000000, IS_OPCODE);
     }
@@ -492,7 +494,7 @@ int n;
   {
     if (strcmp(dspic_table[n].name, instr_case)==0)
     {
-//printf("Matched %s\n", dspic_table[n].name);
+      //printf("Matched %s\n", dspic_table[n].name);
       //int local_flag;
       matched=1;
       range_error=-1;
@@ -887,6 +889,7 @@ int n;
         r++;
       }
 
+//printf("r=%d args=%d\n", r, dspic_table[n].args);
       if (r==dspic_table[n].args)
       {
         dspic_entry=&dspic_table[n];

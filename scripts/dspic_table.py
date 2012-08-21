@@ -94,7 +94,7 @@ for line in fp:
 
   if "," in tokens[2]:
     args = len(tokens[2].split(","))
-  elif tokens[2] != "":
+  elif tokens[2].replace(tokens[0].upper(), "").strip() != "":
     args = 1
   else:
     args = 0
@@ -230,7 +230,7 @@ for line in fp:
     elif tokens[0] == "do" and optype == "OP_EXPR":
       optype = "OP_EXPR_DO"
       #bitletter = "n"
-    elif tokens[0] == "goto" and optype == "OP_EXPR":
+    elif (tokens[0] == "goto" or tokens[0] == "call") and optype == "OP_EXPR":
       optype = "OP_EXPR_GOTO"
       #bitletter = "n"
 
