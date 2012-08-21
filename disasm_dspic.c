@@ -186,7 +186,7 @@ int n,r;
           case OP_BRA:
           {
             short int distance=EXTRACT_VALUE();
-            sprintf(temp, "0x%02x  (%d)", (address+2)+distance*2, distance);
+            sprintf(temp, "0x%02x  (%d)", ((address+2)+distance)/2, distance);
             break;
           }
           case OP_F:
@@ -368,7 +368,10 @@ void list_output_dspic(struct _asm_context *asm_context, int address)
 {
 int cycles_min,cycles_max,count;
 char instruction[128];
-unsigned int opcode=get_opcode24(&asm_context->memory, address);
+unsigned int opcode;
+
+  address=address*2;
+  opcode=get_opcode32(&asm_context->memory, address);
 
   fprintf(asm_context->list, "\n");
   count=disasm_dspic(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
@@ -379,9 +382,7 @@ unsigned int opcode=get_opcode24(&asm_context->memory, address);
     memory_read(asm_context, address+2),
     instruction);
 #endif
-  fprintf(asm_context->list, "0x%04x: %06x %-40s cycles: ", address,
-    opcode,
-    instruction);
+  fprintf(asm_context->list, "0x%04x: 0x%06x %-40s cycles: ", address/2, opcode, instruction);
 
   if (cycles_min==cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
@@ -390,11 +391,11 @@ unsigned int opcode=get_opcode24(&asm_context->memory, address);
 
   if (count==6)
   {
-    fprintf(asm_context->list, "0x%04x: %02x%02x%02x\n",
-      address+3,
-      memory_read(asm_context, address+3),
+    fprintf(asm_context->list, "0x%04x: 0x%02x%02x%02x\n",
+      (address+4)/2,
       memory_read(asm_context, address+4),
-      memory_read(asm_context, address+5));
+      memory_read(asm_context, address+5),
+      memory_read(asm_context, address+6));
   }
 }
 
@@ -417,16 +418,16 @@ int num;
 
     if (cycles_min<1)
     {
-      printf("0x%04x: 0x%08x %-40s ?\n", start, num, instruction);
+      printf("0x%04x: 0x%08x %-40s ?\n", start/2, num, instruction);
     }
       else
     if (cycles_min==cycles_max)
     {
-      printf("0x%04x: 0x%08x %-40s %d\n", start, num, instruction, cycles_min);
+      printf("0x%04x: 0x%08x %-40s %d\n", start/2, num, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: 0x%08x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
+      printf("0x%04x: 0x%08x %-40s %d-%d\n", start/2, num, instruction, cycles_min, cycles_max);
     }
 
     count-=4;
@@ -435,7 +436,7 @@ int num;
       start=start+4;
       // num=READ_RAM(start)|(READ_RAM(start+1)<<8);
       num=READ_RAM(start)|(READ_RAM(start+1)<<8)|(READ_RAM(start+2)<<16)|(READ_RAM(start+3)<<24);
-      printf("0x%04x: 0x%08x\n", start, num);
+      printf("0x%04x: 0x%08x\n", start/2, num);
       count-=4;
     }
 

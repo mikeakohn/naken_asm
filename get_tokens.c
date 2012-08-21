@@ -224,7 +224,8 @@ char quote=0;
 
       if (ptr==0 && ch=='$')
       {
-        token_type=TOKEN_DOLLAR;
+        if (asm_context->cpu_type==CPU_TYPE_65XX) { token_type=TOKEN_DOLLAR; }
+        else { token_type=TOKEN_STRING; }
         token[ptr++]=ch;
         continue;
       }

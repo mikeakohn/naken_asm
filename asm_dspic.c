@@ -89,6 +89,19 @@ struct _instruction
 };
 */
 
+static void add_bin_dspic(struct _asm_context *asm_context, unsigned int b, int flags)
+{
+int line=asm_context->line;
+int address=asm_context->address*2; 
+
+  memory_write(asm_context, address++, b&0xff, line);
+  memory_write(asm_context, address++, (b>>8)&0xff, line);
+  memory_write(asm_context, address++, (b>>16)&0xff, line);
+  memory_write(asm_context, address++, (b>>24)&0xff, line);
+
+  asm_context->address+=2; 
+}
+
 static int get_register_dspic(char *token)
 {
   if (token[0]=='w' || token[0]=='W')
@@ -461,13 +474,13 @@ int n;
   // On pass 1 we only calculate address.
   if (asm_context->pass==1)
   {
-    add_bin32(asm_context, 0x0000000, IS_OPCODE);
+    add_bin_dspic(asm_context, 0x0000000, IS_OPCODE);
 
     if (strcmp("do", instr_case)==0 ||
         (strcmp("goto", instr_case)==0 && operand_count==1 &&
          operands[0].type==OPTYPE_REGISTER))
     {
-      add_bin32(asm_context, 0x0000000, IS_OPCODE);
+      add_bin_dspic(asm_context, 0x0000000, IS_OPCODE);
     }
 
     return 0;
@@ -911,10 +924,10 @@ int n;
     opcode|=flag<<dspic_entry->flag_pos;
   }
 
-  add_bin32(asm_context, opcode, IS_OPCODE);
+  add_bin_dspic(asm_context, opcode, IS_OPCODE);
   if (extra24!=-1)
   {
-    add_bin32(asm_context, extra24, IS_OPCODE);
+    add_bin_dspic(asm_context, extra24, IS_OPCODE);
   }
 
   asm_context->line++;

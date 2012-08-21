@@ -36,24 +36,6 @@ int line=DL_NO_CG;
   }
 }
 
-void add_bin24(struct _asm_context *asm_context, unsigned int b, int flags)
-{
-int line=asm_context->line;
-
-  if (asm_context->memory.endian==ENDIAN_LITTLE)
-  {
-    memory_write_inc(asm_context, b&0xff, line);
-    memory_write_inc(asm_context, (b>>8)&0xff, line);
-    memory_write_inc(asm_context, (b>>16)&0xff, line);
-  }
-    else
-  {
-    memory_write_inc(asm_context, (b>>16)&0xff, line);
-    memory_write_inc(asm_context, (b>>8)&0xff, line);
-    memory_write_inc(asm_context, b&0xff, line);
-  }
-}
-
 void add_bin32(struct _asm_context *asm_context, unsigned int b, int flags)
 {
 int line=asm_context->line;

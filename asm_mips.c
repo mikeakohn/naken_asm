@@ -40,7 +40,7 @@ static int get_number(char *s)
 {
 int n=0;
 
-  while(s!=0)
+  while(*s!=0)
   {
     if (*s<'0' || *s>'9') return -1;
     n=(n*10)+(*s-'0');
@@ -380,6 +380,7 @@ printf("%s  %d<<%d\n", instr, operands[r].value, shift_table[(int)mips_r_table[n
         opcode|=operands[r].value<<shift_table[(int)mips_i_table[n].operand[r]];
       }
 
+printf("adding bin %08x\n", opcode);
       add_bin32(asm_context, opcode, IS_OPCODE);
       return 4;
     }
