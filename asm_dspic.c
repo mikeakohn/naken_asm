@@ -490,6 +490,7 @@ int n;
 
   n=0;
   struct _dspic_table *dspic_entry=NULL;
+  matched=0;
   while(dspic_table[n].name!=NULL && dspic_entry==NULL)
   {
     if (strcmp(dspic_table[n].name, instr_case)==0)
