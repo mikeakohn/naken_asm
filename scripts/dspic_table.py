@@ -64,7 +64,7 @@ for line in fp:
   mask48 = ""
   opcode = ""
   opcode48 = ""
-  bitlen = 24
+  bitlen_tot = 24
 
   for i in range(0,len(bitfields)):
     if bitfields[i] != "1": opcode += "0"
@@ -78,7 +78,7 @@ for line in fp:
     mask = mask[:24]
     opcode48 = opcode[24:]
     opcode = opcode[:24]
-    bitlen = 24
+    bitlen_tot = 48
   if len(mask) != 24:
     print "ERROR: " + mask + " is not 24 or 48 bits"
     sys.exit(1)
@@ -267,7 +267,7 @@ for line in fp:
   print "  { \"" + tokens[0] + "\", " + \
         opcode + ", " + opcode48 + ", " + \
         mask + ", " + mask48 + ", " + \
-        str(bitlen) + ", " + \
+        str(bitlen_tot) + ", " + \
         str(args) + ", " + \
         cycles_min + ", " + cycles_max + ", " + \
         flag + ", " + default_flag + ", " + str(flag_pos) + ", " + \

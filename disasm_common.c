@@ -28,6 +28,7 @@ unsigned int get_opcode16(struct _memory *memory, int address)
   }
 }
 
+#if 0
 unsigned int get_opcode24(struct _memory *memory, int address)
 {
   if (memory->endian==ENDIAN_LITTLE)
@@ -43,6 +44,7 @@ unsigned int get_opcode24(struct _memory *memory, int address)
     (memory_read_m(memory, address+2));
   }
 }
+#endif
 
 unsigned int get_opcode32(struct _memory *memory, int address)
 {

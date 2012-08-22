@@ -146,10 +146,11 @@ int n,r;
     {
       if (dspic_table[n].bitlen==48)
       {
-        //opcode48=get24bits(memory, address+4);
-        opcode48=get_opcode24(memory, address+4);
-        if ((opcode&dspic_table[n].mask48)!=dspic_table[n].opcode48)
+        opcode48=get_opcode32(memory, address+4);
+
+        if ((opcode48&dspic_table[n].mask48)!=dspic_table[n].opcode48)
         {
+          n++;
           continue;
         }
 
@@ -186,7 +187,7 @@ int n,r;
           case OP_BRA:
           {
             short int distance=EXTRACT_VALUE();
-            sprintf(temp, "0x%02x  (%d)", ((address+2)+distance)/2, distance);
+            sprintf(temp, "0x%02x  (%d)", ((address+4)+(distance*4))/2, distance);
             break;
           }
           case OP_F:
@@ -334,12 +335,12 @@ int n,r;
           case OP_EXPR_DO:
             value=get_opcode32(memory, address+4);
             sprintf(temp, "%d", value);
-            count+=2;
+            //count+=2;
             break;
           case OP_EXPR_GOTO:
             value=(opcode&0xffff)|get_opcode32(memory, address+4);
-            sprintf(temp, "%d", value);
-            count+=2;
+            sprintf(temp, "0x%04x", value);
+            //count+=2;
             break;
           default:
             strcpy(temp, "<error>");
