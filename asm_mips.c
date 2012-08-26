@@ -102,6 +102,7 @@ int operand_count=0;
 char token[TOKENLEN];
 int token_type;
 char instr_case[TOKENLEN];
+int paren_flag;
 int num,n,r;
 int opcode;
 #if 0
@@ -133,19 +134,46 @@ int opcode=0;
 
     do
     {
+      paren_flag=0;
+
+      if (IS_TOKEN(token,'('))
+      {
+        token_type=get_token(asm_context, token, TOKENLEN);
+        paren_flag=1;
+      }
+
       num=get_register_mips(token, 't');
       if (num!=-1)
       {
         operands[operand_count].value=num;
         operands[operand_count].type=OPERAND_TREG;
-        break;
+        if (paren_flag==0) { break; }
+      }
+        else
+      if (paren_flag==0)
+      {
+        num=get_register_mips(token, 'f');
+        if (num!=-1)
+        {
+          operands[operand_count].value=num;
+          operands[operand_count].type=OPERAND_FREG;
+          break;
+        }
       }
 
-      num=get_register_mips(token, 'f');
-      if (num!=-1)
+      if (paren_flag==1)
       {
-        operands[operand_count].value=num;
-        operands[operand_count].type=OPERAND_FREG;
+        token_type=get_token(asm_context, token, TOKENLEN);
+        if (IS_NOT_TOKEN(token,')'))
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        operands[operand_count].reg2=operands[operand_count].value;
+        operands[operand_count].value=0;
+        operands[operand_count].type=OPERAND_IMMEDIATE_RS;;
+
         break;
       }
 
@@ -193,8 +221,7 @@ int opcode=0;
         pushback(asm_context, token, token_type);
       }
 
-      break;
-    } while(1);
+    } while(0);
 
     operand_count++;
 
@@ -241,7 +268,7 @@ int opcode=0;
           printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
           return -1;
         }
-printf("%s  %d<<%d\n", instr, operands[r].value, shift_table[(int)mips_r_table[n].operand[r]]);
+//printf("%s  %d<<%d\n", instr, operands[r].value, shift_table[(int)mips_r_table[n].operand[r]]);
         opcode|=operands[r].value<<shift_table[(int)mips_r_table[n].operand[r]];
       }
 
@@ -387,7 +414,9 @@ printf("adding bin %08x\n", opcode);
     n++;
   }
 
-  return 4;
+  printf("Error: Unknown instruction '%s'  at %s:%d\n", instr, asm_context->filename, asm_context->line);
+
+  return -1;
 }
 
 

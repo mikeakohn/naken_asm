@@ -1,0 +1,255 @@
+ACALL page0	0x11	2	None
+ACALL page1	0x31	2	None
+ACALL page2	0x51	2	None
+ACALL page3	0x71	2	None
+ACALL page4	0x91	2	None
+ACALL page5	0xB1	2	None
+ACALL page6	0xD1	2	None
+ACALL page7	0xF1	2	None
+ADD A,#data	0x24	2	C, AC, OV
+ADD A,iram addr	0x25	2	C, AC, OV
+ADD A,@R0	0x26	1	C, AC, OV
+ADD A,@R1	0x27	1	C, AC, OV
+ADD A,R0	0x28	1	C, AC, OV
+ADD A,R1	0x29	1	C, AC, OV
+ADD A,R2	0x2A	1	C, AC, OV
+ADD A,R3	0x2B	1	C, AC, OV
+ADD A,R4	0x2C	1	C, AC, OV
+ADD A,R5	0x2D	1	C, AC, OV
+ADD A,R6	0x2E	1	C, AC, OV
+ADD A,R7	0x2F	1	C, AC, OV
+ADDC A,#data	0x34	2	C, AC, OV
+ADDC A,iram addr	0x35	2	C, AC, OV
+ADDC A,@R0	0x36	1	C, AC, OV
+ADDC A,@R1	0x37	1	C, AC, OV
+ADDC A,R0	0x38	1	C, AC, OV
+ADDC A,R1	0x39	1	C, AC, OV
+ADDC A,R2	0x3A	1	C, AC, OV
+ADDC A,R3	0x3B	1	C, AC, OV
+ADDC A,R4	0x3C	1	C, AC, OV
+ADDC A,R5	0x3D	1	C, AC, OV
+ADDC A,R6	0x3E	1	C, AC, OV
+ADDC A,R7	0x3F	1	C, AC, OV
+AJMP page0	0x01	2	None
+AJMP page1	0x21	2	None
+AJMP page2	0x41	2	None
+AJMP page3	0x61	2	None
+AJMP page4	0x81	2	None
+AJMP page5	0xA1	2	None
+AJMP page6	0xC1	2	None
+AJMP page7	0xE1	2	None
+ANL iram addr,A	0x52	2	None
+ANL iram addr,#data	0x53	3	None
+ANL A,#data	0x54	2	None
+ANL A,iram addr	0x55	2	None
+ANL A,@R0	0x56	1	None
+ANL A,@R1	0x57	1	None
+ANL A,R0	0x58	1	None
+ANL A,R1	0x59	1	None
+ANL A,R2	0x5A	1	None
+ANL A,R3	0x5B	1	None
+ANL A,R4	0x5C	1	None
+ANL A,R5	0x5D	1	None
+ANL A,R6	0x5E	1	None
+ANL A,R7	0x5F	1	None
+ANL C,bit addr	0x82	2	C
+ANL C,/bit addr	0xB0	2	C
+CJNE A,#data,reladdr	0xB4	3	C
+CJNE A,iram addr,reladdr	0xB5	3	C
+CJNE @R0,#data,reladdr	0xB6	3	C
+CJNE @R1,#data,reladdr	0xB7	3	C
+CJNE R0,#data,reladdr	0xB8	3	C
+CJNE R1,#data,reladdr	0xB9	3	C
+CJNE R2,#data,reladdr	0xBA	3	C
+CJNE R3,#data,reladdr	0xBB	3	C
+CJNE R4,#data,reladdr	0xBC	3	C
+CJNE R5,#data,reladdr	0xBD	3	C
+CJNE R6,#data,reladdr	0xBE	3	C
+CJNE R7,#data,reladdr	0xBF	3	C
+CLR bit addr	0xC2	2	None
+CLR C	0xC3	1	C
+CLR A	0xE4	1	None
+CPL A	0xF4	1	None
+CPL C	0xB3	1	C
+CPL bit addr	0xB2	2	None
+DA	0xD4	1	C
+DEC A	0x14	1	None
+DEC iram addr	0x15	2	None
+DEC @R0	0x16	1	None
+DEC @R1	0x17	1	None
+DEC R0	0x18	1	None
+DEC R1	0x19	1	None
+DEC R2	0x1A	1	None
+DEC R3	0x1B	1	None
+DEC R4	0x1C	1	None
+DEC R5	0x1D	1	None
+DEC R6	0x1E	1	None
+DEC R7	0x1F	1	None
+DIV AB	0x84	1	C, OV
+DJNZ iram addr,reladdr	0xD5	3	None
+DJNZ R0,reladdr	0xD8	2	None
+DJNZ R1,reladdr	0xD9	2	None
+DJNZ R2,reladdr	0xDA	2	None
+DJNZ R3,reladdr	0xDB	2	None
+DJNZ R4,reladdr	0xDC	2	None
+DJNZ R5,reladdr	0xDD	2	None
+DJNZ R6,reladdr	0xDE	2	None
+DJNZ R7,reladdr	0xDF	2	None
+INC A	0x04	1	None
+INC iram addr	0x05	2	None
+INC @R0	0x06	1	None
+INC @R1	0x07	1	None
+INC R0	0x08	1	None
+INC R1	0x09	1	None
+INC R2	0x0A	1	None
+INC R3	0x0B	1	None
+INC R4	0x0C	1	None
+INC R5	0x0D	1	None
+INC R6	0x0E	1	None
+INC R7	0x0F	1	None
+INC DPTR	0xA3	1	None
+JB bit addr,reladdr	0x20	3	None
+JBC bit addr,reladdr	0x10	3	None
+JC reladdr	0x40	2	None
+JMP @A+DPTR	0x73	1	None
+JNB bit addr,reladdr	0x30	3	None
+JNC reladdr	0x50	2	None
+JNZ reladdr	0x70	2	None
+JZ reladdr	0x60	2	None
+LCALL code addr	0x12	3	None
+LJMP code addr	0x02	3	None
+MOV @R0,#data	0x76	2	None
+MOV @R1,#data	0x77	2	None
+MOV @R0,A	0xF6	1	None
+MOV @R1,A	0xF7	1	None
+MOV @R0,iram addr	0xA6	2	None
+MOV @R1,iram addr	0xA7	2	None
+MOV A,#data	0x74	2	None
+MOV A,@R0	0xE6	1	None
+MOV A,@R1	0xE7	1	None
+MOV A,R0	0xE8	1	None
+MOV A,R1	0xE9	1	None
+MOV A,R2	0xEA	1	None
+MOV A,R3	0xEB	1	None
+MOV A,R4	0xEC	1	None
+MOV A,R5	0xED	1	None
+MOV A,R6	0xEE	1	None
+MOV A,R7	0xEF	1	None
+MOV A,iram addr	0xE5	2	None
+MOV C,bit addr	0xA2	2	C
+MOV DPTR,#data16	0x90	3	None
+MOV R0,#data	0x78	2	None
+MOV R1,#data	0x79	2	None
+MOV R2,#data	0x7A	2	None
+MOV R3,#data	0x7B	2	None
+MOV R4,#data	0x7C	2	None
+MOV R5,#data	0x7D	2	None
+MOV R6,#data	0x7E	2	None
+MOV R7,#data	0x7F	2	None
+MOV R0,A	0xF8	1	None
+MOV R1,A	0xF9	1	None
+MOV R2,A	0xFA	1	None
+MOV R3,A	0xFB	1	None
+MOV R4,A	0xFC	1	None
+MOV R5,A	0xFD	1	None
+MOV R6,A	0xFE	1	None
+MOV R7,A	0xFF	1	None
+MOV R0,iram addr	0xA8	2	None
+MOV R1,iram addr	0xA9	2	None
+MOV R2,iram addr	0xAA	2	None
+MOV R3,iram addr	0xAB	2	None
+MOV R4,iram addr	0xAC	2	None
+MOV R5,iram addr	0xAD	2	None
+MOV R6,iram addr	0xAE	2	None
+MOV R7,iram addr	0xAF	2	None
+MOV bit addr,C	0x92	2	None
+MOV iram addr,#data	0x75	3	None
+MOV iram addr,@R0	0x86	2	None
+MOV iram addr,@R1	0x87	2	None
+MOV iram addr,R0	0x88	2	None
+MOV iram addr,R1	0x89	2	None
+MOV iram addr,R2	0x8A	2	None
+MOV iram addr,R3	0x8B	2	None
+MOV iram addr,R4	0x8C	2	None
+MOV iram addr,R5	0x8D	2	None
+MOV iram addr,R6	0x8E	2	None
+MOV iram addr,R7	0x8F	2	None
+MOV iram addr,A	0xF5	2	None
+MOV iram addr,iram addr	0x85	3	None
+MOVC A,@A+DPTR	0x93	1	None
+MOVC A,@A+PC	0x83	1	None
+MOVX @DPTR,A	0xF0	1	None
+MOVX @R0,A	0xF2	1	None
+MOVX @R1,A	0xF3	1	None
+MOVX A,@DPTR	0xE0	1	None
+MOVX A,@R0	0xE2	1	None
+MOVX A,@R1	0xE3	1	None
+MUL AB	0xA4	1	C, OV
+NOP	0x00	1	None
+ORL iram addr,A	0x42	2	None
+ORL iram addr,#data	0x43	3	None
+ORL A,#data	0x44	2	None
+ORL A,iram addr	0x45	2	None
+ORL A,@R0	0x46	1	None
+ORL A,@R1	0x47	1	None
+ORL A,R0	0x48	1	None
+ORL A,R1	0x49	1	None
+ORL A,R2	0x4A	1	None
+ORL A,R3	0x4B	1	None
+ORL A,R4	0x4C	1	None
+ORL A,R5	0x4D	1	None
+ORL A,R6	0x4E	1	None
+ORL A,R7	0x4F	1	None
+ORL C,bit addr	0x72	2	C
+ORL C,/bit addr	0xA0	2	C
+POP iram addr	0xD0	2	None
+PUSH iram addr	0xC0	2	None
+RET	0x22	1	None
+RETI	0x32	1	None
+RL A	0x23	1	C
+RLC A	0x33	1	C
+RR A	0x03	1	None
+RRC A	0x13	1	C
+SETB bit addr	0xD2	2	None
+SJMP reladdr	0x80	2	None
+SUBB A,#data	0x94	2	C, AC, OV
+SUBB A,iram addr	0x95	2	C, AC, OV
+SUBB A,@R0	0x96	1	C, AC, OV
+SUBB A,@R1	0x97	1	C, AC, OV
+SUBB A,R0	0x98	1	C, AC, OV
+SUBB A,R1	0x99	1	C, AC, OV
+SUBB A,R2	0x9A	1	C, AC, OV
+SUBB A,R3	0x9B	1	C, AC, OV
+SUBB A,R4	0x9C	1	C, AC, OV
+SUBB A,R5	0x9D	1	C, AC, OV
+SUBB A,R6	0x9E	1	C, AC, OV
+SUBB A,R7	0x9F	1	C, AC, OV
+SWAP A	0xC4	1	None
+???	0xA5	1	C
+XCH A,@R0	0xC6	1	None
+XCH A,@R1	0xC7	1	None
+XCH A,R0	0xC8	1	None
+XCH A,R1	0xC9	1	None
+XCH A,R2	0xCA	1	None
+XCH A,R3	0xCB	1	None
+XCH A,R4	0xCC	1	None
+XCH A,R5	0xCD	1	None
+XCH A,R6	0xCE	1	None
+XCH A,R7	0xCF	1	None
+XCH A,iram addr	0xC5	2	None
+XCHD A,@R0	0xD6	1	None
+XCHD A,@R1	0xD7	1	None
+XRL iram addr,A	0x62	2	None
+XRL iram addr,#data	0x63	3	None
+XRL A,#data	0x64	2	None
+XRL A,iram addr	0x65	2	None
+XRL A,@R0	0x66	1	None
+XRL A,@R1	0x67	1	None
+XRL A,R0	0x68	1	None
+XRL A,R1	0x69	1	None
+XRL A,R2	0x6A	1	None
+XRL A,R3	0x6B	1	None
+XRL A,R4	0x6C	1	None
+XRL A,R5	0x6D	1	None
+XRL A,R6	0x6E	1	None
+XRL A,R7	0x6F	1	None
