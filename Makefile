@@ -5,7 +5,7 @@ OBJS=asm_65xx.o asm_805x.o asm_arm.o asm_common.o asm_dspic.o asm_mips.o \
      disasm_common.o disasm_dspic.o disasm_mips.o disasm_msp430.o \
      eval_expression.o file_output.o get_tokens.o ifdef_expression.o \
      lookup_tables.o macros.o memory.o parse_elf.o parse_hex.o table_65xx.o \
-     table_mips.o table_dspic.o
+     table_805x.o table_mips.o table_dspic.o
 SIM_OBJS=simulate_65xx.o simulate_msp430.o
 
 default: $(OBJS) $(SIM_OBJS)

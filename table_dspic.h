@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef _DSPIC_TABLE_H
-#define _DSPIC_TABLE_H
+#ifndef _TABLE_DSPIC_H
+#define _TABLE_DSPIC_H
 
 #include "assembler.h"
 

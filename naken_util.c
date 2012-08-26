@@ -20,6 +20,7 @@
 
 #include "assembler.h"
 #include "disasm_65xx.h"
+#include "disasm_805x.h"
 #include "disasm_arm.h"
 #include "disasm_dspic.h"
 #include "disasm_mips.h"
@@ -717,6 +718,11 @@ int interactive=1;
       util_context.simulate=simulate_init_65xx();
       //util_context.instr_bytes=1;
       //chip=1;
+    }
+      else
+    if (strcmp(argv[i], "-8051")==0 || strcmp(argv[i], "-8052")==0)
+    {
+      util_context.disasm_range=disasm_range_805x;
     }
       else
     if (strcmp(argv[i], "-arm")==0)

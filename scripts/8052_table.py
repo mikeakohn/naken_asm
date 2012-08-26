@@ -4,7 +4,12 @@ import sys
 
 instructions = {}
 
-print "struct _table_805x *table_805x"
+print "#include <stdio.h>"
+print "#include <stdlib.h>"
+print "#include \"table_805x.h\""
+print
+
+print "struct _table_805x table805x[] ="
 print "{"
 
 fp = open("8052.txt", "rb")

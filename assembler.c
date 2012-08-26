@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "asm_65xx.h"
+#include "asm_805x.h"
 #include "asm_arm.h"
 #include "asm_common.h"
 #include "asm_dspic.h"
@@ -25,6 +26,7 @@
 #include "disasm_dspic.h"
 #include "disasm_mips.h"
 #include "disasm_msp430.h"
+#include "disasm_805x.h"
 #include "eval_expression.h"
 #include "get_tokens.h"
 #include "ifdef_expression.h"
@@ -723,6 +725,14 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->parse_instruction=parse_instruction_65xx;
     asm_context->list_output=list_output_65xx;
     asm_context->cpu_type=CPU_TYPE_65XX;
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "8051")==0 || strcasecmp(token, "8052")==0)
+  {
+    asm_context->parse_instruction=parse_instruction_805x;
+    asm_context->list_output=list_output_805x;
+    asm_context->cpu_type=CPU_TYPE_805X;
     return 1;
   }
     else
