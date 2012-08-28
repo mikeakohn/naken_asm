@@ -74,35 +74,41 @@ int n;
         strcat(instruction, "@DPTR");
         break;
       case OP_DATA:
-        sprintf(temp, "#%d", READ_RAM(address+count));
+        sprintf(temp, "#0x%02x", READ_RAM(address+count));
+        strcat(instruction, temp);
         count++;
         break;
       case OP_DATA_16:
-        sprintf(temp, "#%d", READ_RAM(address+count)|(READ_RAM(address+count+1)<<8));
+        sprintf(temp, "#0x%04x", READ_RAM(address+count)|(READ_RAM(address+count+1)<<8));
+        strcat(instruction, temp);
         count=3;
         break;
       case OP_CODE_ADDR:
-        sprintf(temp, "%d", READ_RAM(address+count)|(READ_RAM(address+count+1)<<8));
+        sprintf(temp, "0x%04x", READ_RAM(address+count)|(READ_RAM(address+count+1)<<8));
+        strcat(instruction, temp);
         count=3;
         break;
       case OP_SLASH_BIT_ADDR:
-        sprintf(temp, "/%d", READ_RAM(address+count));
+        sprintf(temp, "/0x%02x", READ_RAM(address+count));
+        strcat(instruction, temp);
         count++;
         break;
       case OP_PAGE:
-        sprintf(temp, "%d", READ_RAM(address+count)|(table_805x[opcode].range<<8));
+        sprintf(temp, "0x%04x", READ_RAM(address+count)|(table_805x[opcode].range<<8));
+        strcat(instruction, temp);
         count++;
         break;
       case OP_BIT_ADDR:
       case OP_RELADDR:
       case OP_IRAM_ADDR:
-        sprintf(temp, "%d", READ_RAM(address+count));
+        sprintf(temp, "0x%02x", READ_RAM(address+count));
+        strcat(instruction, temp);
         count++;
         break;
     }
   }
 
-  strcpy(instruction, "???");
+  //strcpy(instruction, "???");
   return count;
 }
 
@@ -110,11 +116,21 @@ void list_output_805x(struct _asm_context *asm_context, int address)
 {
 int cycles_min=-1,cycles_max=-1,count;
 char instruction[128];
-unsigned int opcode=memory_read_m(&asm_context->memory, address);
+char temp[32];
+char temp2[4];
+int n;
 
   fprintf(asm_context->list, "\n");
   count=disasm_805x(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-  fprintf(asm_context->list, "0x%04x: 0x%08x %-40s cycles: ", address, opcode, instruction);
+
+  temp[0]=0;
+  for (n=0; n<count; n++)
+  {
+    sprintf(temp2, "%02x ", memory_read_m(&asm_context->memory, address+n));
+    strcat(temp, temp2);
+  }
+
+  fprintf(asm_context->list, "0x%04x: %-10s %-40s cycles: ", address, temp, instruction);
 
 /*
   if (cycles_min==cycles_max)
@@ -127,8 +143,11 @@ unsigned int opcode=memory_read_m(&asm_context->memory, address);
 void disasm_range_805x(struct _memory *memory, int start, int end)
 {
 char instruction[128];
+char temp[32];
+char temp2[4];
 int cycles_min=0,cycles_max=0;
-int num;
+int count;
+int n;
 
   printf("\n");
 
@@ -137,22 +156,30 @@ int num;
 
   while(start<=end)
   {
-    num=READ_RAM(start)|(READ_RAM(start+1)<<8);
+    //num=READ_RAM(start)|(READ_RAM(start+1)<<8);
 
-    disasm_805x(memory, start, instruction, &cycles_min, &cycles_max);
+    count=disasm_805x(memory, start, instruction, &cycles_min, &cycles_max);
+
+    temp[0]=0;
+    for (n=0; n<count; n++)
+    {
+      //sprintf(temp2, "%02x ", READ_RAM(start+n));
+      sprintf(temp2, "%02x ", memory_read_m(memory, start+n));
+      strcat(temp, temp2);
+    }
 
     if (cycles_min<1)
     {
-      printf("0x%04x: 0x%08x %-40s ?\n", start, num, instruction);
+      printf("0x%04x: %-10s %-40s ?\n", start, temp, instruction);
     }
       else
     if (cycles_min==cycles_max)
     {
-      printf("0x%04x: 0x%08x %-40s %d\n", start, num, instruction, cycles_min);
+      printf("0x%04x: %-10s %-40s %d\n", start, temp, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: 0x%08x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
+      printf("0x%04x: %-10s %-40s %d-%d\n", start, temp, instruction, cycles_min, cycles_max);
     }
 
 #if 0
@@ -166,7 +193,7 @@ int num;
     }
 #endif
 
-    start=start+4;
+    start=start+count;
   }
 }
 

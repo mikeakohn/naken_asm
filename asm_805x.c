@@ -46,6 +46,11 @@ struct _operand
 
 static int get_register_805x(char *token)
 {
+  if (token[0]!='r' && token[0]!='R') return -1;
+  if (token[1]>='0' && token[1]<='7' && token[2]==0)
+  {
+    return token[1]-'0';
+  }
 
   return -1;
 }
@@ -65,7 +70,6 @@ int count=1;
   lower_copy(instr_lower, instr);
 
   memset(&operands, 0, sizeof(operands));
-
   while(1)
   {
     token_type=get_token(asm_context, token, TOKENLEN);
@@ -79,6 +83,13 @@ int count=1;
       break;
     }
 
+    num=get_register_805x(token);
+    if (num!=-1)
+    {
+      operands[operand_count].type=OPERAND_REG;
+      operands[operand_count].value=num;
+    }
+      else
     if (IS_TOKEN(token,'A'))
     {
       operands[operand_count].type=OPERAND_A;
@@ -197,10 +208,12 @@ int count=1;
         switch(table_805x[n].op[r])
         {
           case OP_REG:
-            if (operands[r].type!=OPERAND_REG) { r=4; }
+            if (operands[r].type!=OPERAND_REG ||
+                operands[r].value!=table_805x[n].range) { r=4; }
             break;
           case OP_AT_REG:
-            if (operands[r].type!=OPERAND_AT_REG) { r=4; }
+            if (operands[r].type!=OPERAND_AT_REG ||
+                operands[r].value!=table_805x[n].range) { r=4; }
             break;
           case OP_A:
             if (operands[r].type!=OPERAND_A) { r=4; }
@@ -244,6 +257,7 @@ int count=1;
                  operands[r].value>255)) { r=4; }
             break;
           case OP_PAGE:
+            if ((operands[r].value>>8)!=table_805x[n].range) { r=4; break; }
           case OP_BIT_ADDR:
           case OP_RELADDR:
           case OP_IRAM_ADDR:
