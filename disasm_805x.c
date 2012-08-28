@@ -110,17 +110,18 @@ void list_output_805x(struct _asm_context *asm_context, int address)
 {
 int cycles_min=-1,cycles_max=-1,count;
 char instruction[128];
-unsigned int opcode=get_opcode32(&asm_context->memory, address);
+unsigned int opcode=memory_read_m(&asm_context->memory, address);
 
   fprintf(asm_context->list, "\n");
   count=disasm_805x(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-  fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", address, opcode, instruction);
+  fprintf(asm_context->list, "0x%04x: 0x%08x %-40s cycles: ", address, opcode, instruction);
 
+/*
   if (cycles_min==cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
     else
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
-
+*/
 }
 
 void disasm_range_805x(struct _memory *memory, int start, int end)
