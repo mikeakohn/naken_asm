@@ -81,13 +81,13 @@ int n;
         sprintf(temp, "#%d", READ_RAM(address+count)|(READ_RAM(address+count+1)<<8));
         count=3;
         break;
-      case OP_SLASH_BIT_ADDR:
-        sprintf(temp, "/%d", READ_RAM(address+count));
-        count++;
-        break;
       case OP_CODE_ADDR:
         sprintf(temp, "%d", READ_RAM(address+count)|(READ_RAM(address+count+1)<<8));
         count=3;
+        break;
+      case OP_SLASH_BIT_ADDR:
+        sprintf(temp, "/%d", READ_RAM(address+count));
+        count++;
         break;
       case OP_PAGE:
         sprintf(temp, "%d", READ_RAM(address+count)|(table_805x[opcode].range<<8));

@@ -60,6 +60,7 @@ int operand_count=0;
 int token_type;
 int matched=0;
 int num,n,r;
+int count=1;
 
   lower_copy(instr_lower, instr);
 
@@ -227,6 +228,11 @@ int num,n,r;
                 (operands[r].value<-32768 || 
                  operands[r].value>32767)) { r=4; }
             break;
+          case OP_CODE_ADDR:
+            if (operands[r].type!=OPERAND_NUM ||
+                (operands[r].value<-32768 || 
+                 operands[r].value>32767)) { r=4; }
+            break;
           case OP_DATA:
             if (operands[r].type!=OPERAND_DATA ||
                 (operands[r].value<-128 || 
@@ -236,11 +242,6 @@ int num,n,r;
             if (operands[r].type!=OPERAND_SLASH_NUM||
                 (operands[r].value<-128 || 
                  operands[r].value>255)) { r=4; }
-            break;
-          case OP_CODE_ADDR:
-            if (operands[r].type!=OPERAND_NUM ||
-                (operands[r].value<-32768 || 
-                 operands[r].value>32767)) { r=4; }
             break;
           case OP_PAGE:
           case OP_BIT_ADDR:
@@ -258,6 +259,35 @@ int num,n,r;
 
       if (r==operand_count)
       {
+        memory_write_inc(asm_context, n, asm_context->line);
+        for(r=0; r<3; r++)
+        {
+          if (table_805x[n].op[r]==OP_NONE) { break; }
+          switch(table_805x[n].op[r])
+          {
+            case OP_DATA_16:
+            case OP_CODE_ADDR:
+            {
+              unsigned short int value=operands[r].value&0xffff;
+              memory_write_inc(asm_context, value&0xff, asm_context->line);
+              memory_write_inc(asm_context, value>>8, asm_context->line);
+              count+=2;
+              break;
+            }
+            case OP_DATA:
+            case OP_SLASH_BIT_ADDR:
+            case OP_PAGE:
+            case OP_BIT_ADDR:
+            case OP_RELADDR:
+            case OP_IRAM_ADDR:
+            {
+              memory_write_inc(asm_context, (unsigned char)operands[r].value&0xff, asm_context->line);
+              count++;
+              break;
+            }
+          }
+        }
+
         break;
       }
     }
@@ -275,7 +305,7 @@ int num,n,r;
     }
   }
 
-  return -1;
+  return count; 
 }
 
 
