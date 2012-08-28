@@ -15,8 +15,8 @@ default: $(OBJS) $(SIM_OBJS)
 	$(CC) -o naken_util$(CONFIG_EXT) naken_util.c disasm_65xx.o \
 	   disasm_805x.o disasm_arm.o disasm_common.o disasm_dspic.o \
 	   disasm_mips.o disasm_msp430.o parse_elf.o parse_hex.o memory.o \
-	   simulate_65xx.o simulate_msp430.o table_65xx.o table_dspic.o \
-	   table_mips.o $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
+	   simulate_65xx.o simulate_msp430.o table_65xx.o table_805x.o \
+	   table_dspic.o table_mips.o $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
 %.o: %.c *.h
 	$(CC) -c $*.c $(CFLAGS) $(LDFLAGS)

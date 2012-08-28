@@ -9,7 +9,7 @@ print "#include <stdlib.h>"
 print "#include \"table_805x.h\""
 print
 
-print "struct _table_805x table805x[] ="
+print "struct _table_805x table_805x[] ="
 print "{"
 
 fp = open("8052.txt", "rb")
@@ -65,7 +65,7 @@ for line in fp:
     else: print "op error: " + op + ":" + line; sys.exit(1)
     count += 1
 
-  instructions[int(tokens[1], 16)] = "  { \"" + instr + "\", "+operands[0]+", "+operands[1]+", "+operands[2]+", "+str(_range)+" }, // " + tokens[1]
+  instructions[int(tokens[1], 16)] = "  { \"" + instr + "\", { "+operands[0]+", "+operands[1]+", "+operands[2]+" }, "+str(_range)+" }, // " + tokens[1]
 
 fp.close()
 

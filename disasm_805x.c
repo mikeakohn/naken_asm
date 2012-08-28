@@ -14,7 +14,8 @@
 #include <string.h>
 
 #include "disasm_common.h"
-#include "disasm_mips.h"
+#include "disasm_805x.h"
+#include "table_805x.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
@@ -25,8 +26,84 @@ int get_cycle_count_805x(unsigned short int opcode)
 
 int disasm_805x(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
+int count=1;
+int opcode;
+char temp[32];
+int n;
+
+  opcode=READ_RAM(address);
+
+  strcpy(instruction, table_805x[opcode].name);
+
+  for (n=0; n<3; n++)
+  {
+    if (table_805x[opcode].op[n]==OP_NONE) break;
+
+    if (n==0) { strcat(instruction, " "); }
+    else { strcat(instruction, ", "); }
+
+    switch(table_805x[opcode].op[n])
+    {
+      case OP_REG:
+        sprintf(temp, "R%d", table_805x[opcode].range);
+        strcat(instruction, temp);
+        break;
+      case OP_AT_REG:
+        sprintf(temp, "@R%d", table_805x[opcode].range);
+        strcat(instruction, temp);
+        break;
+      case OP_A:
+        strcat(instruction, "A");
+        break;
+      case OP_C:
+        strcat(instruction, "C");
+        break;
+      case OP_AB:
+        strcat(instruction, "AB");
+        break;
+      case OP_DPTR:
+        strcat(instruction, "DPTR");
+        break;
+      case OP_AT_A_PLUS_DPTR:
+        strcat(instruction, "@A+DPTR");
+        break;
+      case OP_AT_A_PLUS_PC:
+        strcat(instruction, "@A+PC");
+        break;
+      case OP_AT_DPTR:
+        strcat(instruction, "@DPTR");
+        break;
+      case OP_DATA:
+        sprintf(temp, "#%d", READ_RAM(address+count));
+        count++;
+        break;
+      case OP_DATA_16:
+        sprintf(temp, "#%d", READ_RAM(address+count)|(READ_RAM(address+count+1)<<8));
+        count=3;
+        break;
+      case OP_SLASH_BIT_ADDR:
+        sprintf(temp, "/%d", READ_RAM(address+count));
+        count++;
+        break;
+      case OP_CODE_ADDR:
+        sprintf(temp, "%d", READ_RAM(address+count)|(READ_RAM(address+count+1)<<8));
+        count=3;
+        break;
+      case OP_PAGE:
+        sprintf(temp, "%d", READ_RAM(address+count)|(table_805x[opcode].range<<8));
+        count++;
+        break;
+      case OP_BIT_ADDR:
+      case OP_RELADDR:
+      case OP_IRAM_ADDR:
+        sprintf(temp, "%d", READ_RAM(address+count));
+        count++;
+        break;
+    }
+  }
+
   strcpy(instruction, "???");
-  return -1;
+  return count;
 }
 
 void list_output_805x(struct _asm_context *asm_context, int address)
@@ -61,7 +138,7 @@ int num;
   {
     num=READ_RAM(start)|(READ_RAM(start+1)<<8);
 
-    disasm_mips(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_805x(memory, start, instruction, &cycles_min, &cycles_max);
 
     if (cycles_min<1)
     {
