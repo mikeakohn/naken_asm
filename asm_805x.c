@@ -196,6 +196,15 @@ int count=1;
     }
   }
 
+#ifdef DEBUG
+printf("-----\n");
+for (n=0; n<operand_count; n++)
+{
+printf("[%d %d]", operands[n].type, operands[n].value);
+}
+printf("\n");
+#endif
+
   for (n=0; n<256; n++)
   {
     if (strcmp(table_805x[n].name, instr_lower)==0)
@@ -246,6 +255,9 @@ int count=1;
                 (operands[r].value<-32768 || 
                  operands[r].value>32767)) { r=4; }
             break;
+          case OP_RELADDR:
+            if (operands[r].type!=OPERAND_NUM) { r=4; }
+            break;
           case OP_DATA:
             if (operands[r].type!=OPERAND_DATA ||
                 (operands[r].value<-128 || 
@@ -258,8 +270,8 @@ int count=1;
             break;
           case OP_PAGE:
             if ((operands[r].value>>8)!=table_805x[n].range) { r=4; break; }
+            break;
           case OP_BIT_ADDR:
-          case OP_RELADDR:
           case OP_IRAM_ADDR:
             if (operands[r].type!=OPERAND_NUM||
                 (operands[r].value<-128 || 
@@ -288,11 +300,17 @@ int count=1;
               count+=2;
               break;
             }
+            case OP_RELADDR:
+            {
+              num=operands[r].value-(asm_context->address+1);
+              memory_write_inc(asm_context, (unsigned char)num, asm_context->line);
+              count++;
+              break;
+            }
             case OP_DATA:
             case OP_SLASH_BIT_ADDR:
             case OP_PAGE:
             case OP_BIT_ADDR:
-            case OP_RELADDR:
             case OP_IRAM_ADDR:
             {
               memory_write_inc(asm_context, (unsigned char)operands[r].value&0xff, asm_context->line);

@@ -29,6 +29,7 @@ int disasm_805x(struct _memory *memory, int address, char *instruction, int *cyc
 int count=1;
 int opcode;
 char temp[32];
+int value;
 int n;
 
   opcode=READ_RAM(address);
@@ -88,6 +89,12 @@ int n;
         strcat(instruction, temp);
         count=3;
         break;
+      case OP_RELADDR:
+        value=READ_RAM(address+count);
+        sprintf(temp, "0x%02x", (address+count+1)+((char)value));
+        strcat(instruction, temp);
+        count++;
+        break;
       case OP_SLASH_BIT_ADDR:
         sprintf(temp, "/0x%02x", READ_RAM(address+count));
         strcat(instruction, temp);
@@ -99,7 +106,6 @@ int n;
         count++;
         break;
       case OP_BIT_ADDR:
-      case OP_RELADDR:
       case OP_IRAM_ADDR:
         sprintf(temp, "0x%02x", READ_RAM(address+count));
         strcat(instruction, temp);
