@@ -106,6 +106,11 @@ int n;
         count++;
         break;
       case OP_BIT_ADDR:
+        value=READ_RAM(address+count);
+        sprintf(temp, "0x%02x.%d [0x%02x]", ((value&0x7f)>>3)|((value&128)==0?0x20:0x80), value&0x07, value);
+        strcat(instruction, temp);
+        count++;
+        break;
       case OP_IRAM_ADDR:
         sprintf(temp, "0x%02x", READ_RAM(address+count));
         strcat(instruction, temp);

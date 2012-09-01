@@ -36,6 +36,7 @@ enum
   OPERAND_DATA,
   OPERAND_NUM,
   OPERAND_SLASH_NUM,
+  OPERAND_BIT_ADDRESS,
 };
 
 struct _operand
@@ -179,6 +180,50 @@ int count=1;
     {
       operands[operand_count].type=OPERAND_NUM;
       operands[operand_count].value=atoi(token);
+
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token,'.'))
+      {
+        token_type=get_token(asm_context, token, TOKENLEN);
+        if (token_type!=TOKEN_NUMBER)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        num=atoi(token);
+        if (num<0 || num>7)
+        {
+          printf("Error: bit address out of range at %s:%d\n", asm_context->filename, asm_context->line);
+          return -1;
+        }
+
+        if (operands[operand_count].value>=0x20 &&
+            operands[operand_count].value<=0x2f)
+        {
+          operands[operand_count].value-=0x20;
+          operands[operand_count].value<<=3;
+        }
+          else
+        if (operands[operand_count].value>=0x80 &&
+            operands[operand_count].value<=0x8f)
+        {
+          operands[operand_count].value-=0x80;
+          operands[operand_count].value<<=3;
+          operands[operand_count].value|=128;
+        }
+          else
+        {
+          printf("Error: bit address out of range at %s:%d\n", asm_context->filename, asm_context->line);
+          return -1;
+        }
+
+        operands[operand_count].value|=num;
+      }
+        else
+      {
+        pushback(asm_context, token, token_type);
+      }
     }
       else
     {
