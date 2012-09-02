@@ -91,7 +91,7 @@ int n;
         break;
       case OP_RELADDR:
         value=READ_RAM(address+count);
-        sprintf(temp, "0x%02x", (address+count+1)+((char)value));
+        sprintf(temp, "0x%04x", (address+count+1)+((char)value));
         strcat(instruction, temp);
         count++;
         break;
