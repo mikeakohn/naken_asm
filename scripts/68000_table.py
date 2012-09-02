@@ -1,7 +1,20 @@
 #!/usr/bin/env python
 
-def print_instr(name, opcode, mask, size, op):
-  print "  { \"" + instr + "\", " + opcode + ", " + mask + ", " + size + " },"
+import sys
+
+op_table = 
+{
+  "<ea>": [ "OP_EA", "EAMEAR" ] 
+  "dest": [ "OP_EA", "EAMEAR" ] 
+  "src": [ "OP_EA", "EAMEAR" ] 
+  "label": [ "OP_LABEL", "8bitdisp" ] 
+  "#imm": [ "OP_IMM", "" ] 
+  "Dn": [ "OP_D", "REn" ] 
+  "An": [ "OP_A", "REn" ] 
+}
+
+def print_instr(name, opcode, mask, size, op, cond_pos):
+  print "  { \"" + instr + "\", " + opcode + ", " + mask + ", " + size + ", " + str(cond_pos) + " },"
 
 def calc_opcode(s):
   n = ""
@@ -43,8 +56,11 @@ print "{"
 fp = open("68000.txt", "rb")
 
 for line in fp:
-  tokens = line.split()[0:3]
+  tokens = line.split()[0:4]
   #print tokens
+
+  # Let's skip coprocessor stuff for now
+  if tokens[1].startswith("cp"): continue
 
   instr = tokens[1].lower()
   opcode = calc_opcode(tokens[0])
@@ -52,7 +68,24 @@ for line in fp:
   size = calc_size(tokens[2])
   ops = []
 
-  print_instr(instr, opcode, mask, size, ops)
+  if "COND" in tokens[0]: cond_pos = tokens[1].find("cc")
+  else: cond_pos = 0
+
+  count = 3
+  operands = tokens[3].spilt(",")
+  for operand in operands:
+    if operand == "<ea>":
+      op = "OP_EA"
+
+  if count < 0:
+    print "operand error"
+    sys.exit(1)
+
+  while count != 0:
+    ops.push([ "OP_NONE", 0, 0 ])
+    count -= 1
+
+  print_instr(instr, opcode, mask, size, ops, cond_pos)
 
 fp.close()
 
