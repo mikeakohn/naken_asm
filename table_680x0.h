@@ -24,6 +24,8 @@ enum
   OP_IMM,
   OP_D,
   OP_A,
+  OP_CCR,
+  OP_SR,
 };
 
 struct _680x0_operand
@@ -41,6 +43,7 @@ struct _table_680x0
   char size;
   char size_pos;      // bit pos
   char cond_pos;      // str pos: Bcc would be 1, DBcc would be 2, etc
+  char mode_flag;
   struct _680x0_operand operands[3];
 };
 
