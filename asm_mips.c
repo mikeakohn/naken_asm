@@ -112,7 +112,7 @@ int opcode=0;
 
   lower_copy(instr_case, instr);
 
-//printf("%s\n", instr_case);
+//printf("%s %s\n", instr_case, instr);
 
   while(1)
   {
@@ -246,6 +246,40 @@ int opcode=0;
     return 4;
   }
 
+  // Check pseudo-instructions
+  if (strcmp(instr_case, "move")==0 && operand_count==2)
+  {
+    strcpy(instr_case, "add");
+    operands[operand_count].value=0;
+    operands[operand_count].type=OPERAND_TREG;;
+    operand_count++;
+  }
+    else
+#if 0
+  if (strcmp(instr_case, "li")==0 && operand_count==2)
+  {
+    strcpy(instr_case, "addi");
+    memcpy(&operands[operand_count], &operands[operand_count-1], sizeof(struct _operand));
+    operands[operand_count-1].value=0;
+    operands[operand_count-1].reg2=0;
+    operands[operand_count-1].type=OPERAND_TREG;;
+    operand_count++;
+  }
+    else
+#endif
+  if (strcmp(instr_case, "nop")==0 && operand_count==0)
+  {
+    strcpy(instr_case, "add");
+    operand_count=3;
+  }
+    else
+  if (strcmp(instr_case, "neg")==0 && operand_count==1)
+  {
+    strcpy(instr_case, "subu");
+    memcpy(&operands[1], &operands[0], sizeof(struct _operand));
+    operand_count=3;
+  }
+
   // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
   n=0;
   while(mips_r_table[n].instr!=NULL)
@@ -265,6 +299,7 @@ int opcode=0;
       {
         if (operands[r].type!=OPERAND_TREG)
         {
+//printf("%s %s %s\n", instr_case, mips_r_table[n].instr, instr);
           printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
           return -1;
         }
@@ -407,7 +442,6 @@ int opcode=0;
         opcode|=operands[r].value<<shift_table[(int)mips_i_table[n].operand[r]];
       }
 
-printf("adding bin %08x\n", opcode);
       add_bin32(asm_context, opcode, IS_OPCODE);
       return 4;
     }
