@@ -25,8 +25,22 @@ static char *arm_cond_a[16] =
 {
   "eq", "ne", "cs", "ne",
   "mi", "pl", "vs", "vc",
-  "hi", "ls" "ge", "lt",
+  "hi", "ls", "ge", "lt",
   "gt", "le", "al", "nv"
+};
+
+enum
+{
+  OPERAND_REG,
+  OPERAND_IMMEDIATE,
+  OPERAND_INDEXED,
+};
+
+
+struct _operand
+{
+  int value;
+  int type;
 };
 
 static int get_register_arm(char *token)
@@ -49,6 +63,8 @@ static int get_register_arm(char *token)
 
 int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
 {
+struct _operand operands[3];
+int operand_count;
 char instr_lower_mem[TOKENLEN];
 char *instr_lower=instr_lower_mem;
 char token[TOKENLEN];
@@ -57,6 +73,76 @@ int n,cond,s=0;
 int opcode=0;
 
   lower_copy(instr_lower, instr);
+  memset(operands, 0, sizeof(operands));
+  operand_count=0;
+
+  while(1)
+  {
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL) { break; }
+
+    n=get_register_arm(token);
+
+    if (n!=-1)
+    {
+      operands[operand_count].value=n;
+      operands[operand_count].type=OPERAND_REG;
+    }
+      else
+    if (IS_TOKEN(token,'#'))
+    {
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (token_type!=TOKEN_NUMBER)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+      operands[operand_count].value=atoi(token);
+      operands[operand_count].type=OPERAND_IMMEDIATE;
+    }
+      else
+    if (IS_TOKEN(token,'['))
+    {
+      operands[operand_count].type=OPERAND_INDEXED;
+      token_type=get_token(asm_context, token, TOKENLEN);
+      n=get_register_arm(token);
+      if (n!=-1)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      operands[operand_count].value=n;
+      token_type=get_token(asm_context, token, TOKENLEN);
+
+      if (IS_NOT_TOKEN(token,']'))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+    }
+      else
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    operand_count++;
+
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL) { break; }
+    if (IS_NOT_TOKEN(token,','))
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    if (operand_count==3)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+  }
 
   for (n=0; n<16; n++)
   {
@@ -73,15 +159,28 @@ int opcode=0;
 
       if (instr_lower[0]=='s') { s=1; }
 
-      token_type=get_token(asm_context, token, TOKENLEN);
-      int rd=get_register_arm(token);
 
-      opcode=ALU_OPCODE|(n<<21)|(s<<20)|(rd<<12);
+      if (operand_count!=3 || 
+          operands[0].type!=OPERAND_REG ||
+          operands[1].type!=OPERAND_REG)
+      {
+        printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+
+      }
+
+      opcode=(cond<<28)|ALU_OPCODE|(n<<21)|(s<<20);
+      opcode|=operands[0].value<<12;
+      opcode|=operands[1].value<<16;
+
+      add_bin32(asm_context, opcode, IS_OPCODE);
+      return 4;
 
     }
   }
 
-  return 0;
+  printf("Error: Unknown instruction '%s'  at %s:%d\n", instr, asm_context->filename, asm_context->line);
+
+  return -1;
 }
 
 

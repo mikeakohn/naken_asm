@@ -24,7 +24,7 @@ static char *arm_cond[] =
 {
   "eq", "ne", "cs", "ne",
   "mi", "pl", "vs", "vc",
-  "hi", "ls" "ge", "lt",
+  "hi", "ls", "ge", "lt",
   "gt", "le", "", "nv"
 };
 
@@ -119,7 +119,7 @@ char temp[32];
       sprintf(temp, "%d", (operand2&0xff)<<rotate);
     }
 
-    sprintf(instruction, "%s%s%s r%d, r%d, %s", arm_alu_ops[ARM_NIB(28)], arm_cond[ARM_NIB(28)], s==1?"S":"", ARM_NIB(12), ARM_NIB(16), temp);
+    sprintf(instruction, "%s%s%s r%d, r%d, %s", arm_alu_ops[ARM_NIB(21)], arm_cond[ARM_NIB(28)], s==1?"S":"", ARM_NIB(12), ARM_NIB(16), temp);
   }
     else
   if ((opcode&MUL_MASK)==MUL_OPCODE)

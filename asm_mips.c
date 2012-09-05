@@ -111,6 +111,7 @@ int opcode=0;
 #endif
 
   lower_copy(instr_case, instr);
+  memset(operands, 0, sizeof(operands));
 
 //printf("%s %s\n", instr_case, instr);
 
@@ -289,7 +290,7 @@ int opcode=0;
       char shift_table[] = { 0, 11, 21, 16, 6 };
       if (mips_r_table[n].operand_count!=operand_count)
       {
-        printf("Error: Wrong number of operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+        printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
         return -1;
       }
 
@@ -320,7 +321,7 @@ int opcode=0;
     //unsigned int upper=(address+4)&0xf0000000;
     if (operand_count!=1)
     {
-      printf("Error: Wrong number of operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+      printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
       return -1;
     }
 
@@ -347,7 +348,7 @@ int opcode=0;
       char shift_table[] = { 0, 5, 11, 16 };
       if (mips_cop_table[n].operand_count!=operand_count)
       {
-        printf("Error: Wrong number of operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+        printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
         return -1;
       }
 

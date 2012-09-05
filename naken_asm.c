@@ -75,7 +75,7 @@ char *infile=NULL,*outfile=NULL;
 struct _asm_context asm_context;
 int error_flag=0;
 
-  printf("\nnaken_asm - by Michael Kohn (base code, ARM, dsPIC, MIPS, MSP430)\n");
+  printf("\nnaken_asm - by Michael Kohn (base code, 805x, ARM, dsPIC, MIPS, MSP430)\n");
   printf("               Joe Davisson (65xx)\n");
   printf("    Web: http://www.mikekohn.net/\n");
   printf("  Email: mike@mikekohn.net\n\n");
