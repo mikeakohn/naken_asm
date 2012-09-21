@@ -284,6 +284,14 @@ UCA0ABCTL equ 0x5d  ; USCI_A0 Auto baud control register
 UCA0IRTCTL equ 0x5e ; USCI_A0 IrDA transmit control register
 UCA0IRRCTL equ 0x5f ; USCI_A0 IrDA receive control register
 
+UCB0CTL0 equ 0x68   ; USCI_B0 control register 0
+UCB0CTL1 equ 0x69   ; USCI_B0 control register 1
+UCB0BR0 equ 0x6a    ; USCI_B0 baud rate control register 0
+UCB0BR1 equ 0x6b    ; USCI_B0 baud rate control register 1
+UCB0STAT equ 0x6d   ; USCI_B0 status register
+UCB0RXBUF equ 0x6e  ; USCI_B0 receive buffer register
+UCB0TXBUF equ 0x6f  ; USCI_B0 transmit buffer register
+
 UCPEN equ 128
 UCPAR equ 64
 UCMSB equ 32
@@ -495,6 +503,17 @@ UCA0RXIE equ 0x01
 UCA0TXIFG equ 0x02
 UCA0RXIFG equ 0x01
 
+UCCKPH equ 0x80
+UCCKPL equ 0x40
+;UCMSB equ 0x20
+;UC7BIT equ 0x10
+UCMST equ 0x08
+;UCMODE_0 equ 0x00
+;UCMODE_1 equ 0x02
+;UCMODE_2 equ 0x04
+;UCMODE_3 equ 0x06
+UCSYNC equ 0x01
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; USCI_A1
 
@@ -517,6 +536,14 @@ UCA1RXIE equ 0x01
 
 UCA1TXIFG equ 0x02
 UCA1RXIFG equ 0x01
+
+UCB0TXIFG equ 0x08
+UCB0RXIFG equ 0x04
+UCB1TXIFG equ 0x08
+UCB1RXIFG equ 0x04
+
+UCB0TXIE equ 0x08
+UCB0RXIE equ 0x04
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Basic Clock System+

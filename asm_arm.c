@@ -34,6 +34,7 @@ enum
   OPERAND_REG,
   OPERAND_IMMEDIATE,
   OPERAND_INDEXED,
+  OPERAND_SHIFT,
 };
 
 
@@ -41,6 +42,7 @@ struct _operand
 {
   int value;
   int type;
+  int sub_type;
 };
 
 static int get_register_arm(char *token)
@@ -123,8 +125,37 @@ int opcode=0;
     }
       else
     {
-      print_error_unexp(token, asm_context);
-      return -1;
+      for (n=0; n<4; n++)
+      {
+        if (strcasecmp(token, arm_alu_ops[n])==0)
+        {
+          token_type=get_token(asm_context, token, TOKENLEN);
+          if (IS_NOT_TOKEN(token,'#'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          token_type=get_token(asm_context, token, TOKENLEN);
+          if (token_type!=TOKEN_NUMBER)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].value=atoi(token);
+          operands[operand_count].type=OPERAND_SHIFT;
+          operands[operand_count].sub_type=n;
+
+          break;
+        }
+      }
+
+      if (n==4)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
     }
 
     operand_count++;
@@ -160,17 +191,47 @@ int opcode=0;
       if (instr_lower[0]=='s') { s=1; }
 
 
-      if (operand_count!=3 || 
+      if (operand_count<3 || operand_count>4 ||
           operands[0].type!=OPERAND_REG ||
           operands[1].type!=OPERAND_REG)
       {
         printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
-
       }
 
       opcode=(cond<<28)|ALU_OPCODE|(n<<21)|(s<<20);
       opcode|=operands[0].value<<12;
       opcode|=operands[1].value<<16;
+
+      if (operands[2].type==OPERAND_IMMEDIATE)
+      {
+        if (operands[2].value<-128 || operands[2].value>255)
+        {
+          print_error("Constant larger than 8 bit.", asm_context);
+          return -1;
+        }
+
+        opcode|=operands[2].value|(1<<25);
+
+        if (operand_count==4)
+        {
+          if (operands[4].type!=OPERAND_LSL)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          opcode|=operands[2].value<<8;
+        }
+      }
+        else
+      if (operands[2].type==OPERAND_REG)
+      {
+      }
+        else
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
       return 4;
