@@ -183,6 +183,11 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
       }
       break;
     case OPTYPE_REGISTER_INDIRECT_INC:
+      if (is_dest==1)
+      {
+        printf("Error: Indirect autoincrement not allowed for dest operand at %s:%d.\n", asm_context->filename, asm_context->line);
+        return -1;
+      }
       operand->a=3;
       break;
     case OPTYPE_SYMBOLIC:
