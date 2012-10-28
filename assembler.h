@@ -125,6 +125,7 @@ void free_pools(struct _memory_pool *memory_pool);
 
 void print_error(const char *s, struct _asm_context *asm_context);
 void print_error_unexp(const char *s, struct _asm_context *asm_context);
+void print_error_opcount(const char *instr, struct _asm_context *asm_context);
 int add_to_include_path(struct _asm_context *asm_context, char *paths);
 void assemble_init(struct _asm_context *asm_context);
 void assemble_print_info(struct _asm_context *asm_context, FILE *out);

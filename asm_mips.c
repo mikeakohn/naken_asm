@@ -379,7 +379,7 @@ int opcode=0;
       char shift_table[] = { 0, 0, 21, 16 };
       if (mips_i_table[n].operand_count!=operand_count)
       {
-        printf("Error: Wrong number of operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+        print_error_opcount(instr, asm_context);
         return -1;
       }
 

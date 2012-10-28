@@ -63,6 +63,21 @@ static int get_register_arm(char *token)
   return -1;
 }
 
+int parse_condition(char **instr_lower)
+{
+int cond;
+char *instr=*instr_lower;
+
+  for (cond=0; cond<16; cond++)
+  {
+    if (strncmp(instr, arm_cond_a[cond], 2)==0)
+    { *instr_lower+=2; break; }
+  }
+  if (cond==16) { cond=14; }
+
+  return cond;
+}
+
 int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
 {
 struct _operand operands[3];
@@ -78,6 +93,7 @@ int opcode=0;
   memset(operands, 0, sizeof(operands));
   operand_count=0;
 
+  // First parse instruction into the operands structures.
   while(1)
   {
     token_type=get_token(asm_context, token, TOKENLEN);
@@ -175,21 +191,16 @@ int opcode=0;
     }
   }
 
+  // Check for an ALU instruction
   for (n=0; n<16; n++)
   {
     if (strncmp(instr_lower, arm_alu_ops[n], 3)==0)
     {
       instr_lower+=3;
 
-      for (cond=0; cond<16; cond++)
-      {
-        if (strncmp(instr_lower, arm_cond_a[cond], 2)==0)
-        { instr_lower+=2; break; }
-      }
-      if (cond==16) { cond=14; }
+      cond=parse_condition(&instr_lower);
 
       if (instr_lower[0]=='s') { s=1; }
-
 
       if (operand_count<3 || operand_count>4 ||
           operands[0].type!=OPERAND_REG ||
@@ -214,11 +225,14 @@ int opcode=0;
 
         if (operand_count==4)
         {
+#if 0
+fuck fuck fuck fuck fuck
           if (operands[4].type!=OPERAND_LSL)
           {
             print_error_unexp(token, asm_context);
             return -1;
           }
+#endif
 
           opcode|=operands[2].value<<8;
         }
@@ -239,7 +253,26 @@ int opcode=0;
     }
   }
 
-  printf("Error: Unknown instruction '%s'  at %s:%d\n", instr, asm_context->filename, asm_context->line);
+  // Check for SWI
+  if (strncmp(instr_lower, "swi", 3)==0)
+  {
+    instr_lower+=3;
+    cond=parse_condition(&instr_lower);
+
+    if (*instr_lower==0)
+    {
+      if (operand_count!=0)
+      {
+        print_error_opcount(instr, asm_context);
+        return -1;
+      }
+
+      add_bin32(asm_context, 0xf000000|(cond<<28), IS_OPCODE);
+      return 4;
+    }
+  }
+
+  printf("Error: Unknown instruction '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
 
   return -1;
 }

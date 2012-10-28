@@ -43,6 +43,11 @@ void print_error_unexp(const char *s, struct _asm_context *asm_context)
   printf("Error: Unexpected token '%s' at %s:%d\n", s, asm_context->filename, asm_context->line);
 }
 
+void print_error_opcount(const char *instr, struct _asm_context *asm_context)
+{
+  printf("Error: Wrong number of operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+}
+
 struct _memory_pool *add_pool(struct _naken_heap *heap, int heap_len)
 {
   struct _memory_pool *curr_pool;

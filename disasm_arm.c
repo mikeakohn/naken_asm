@@ -311,7 +311,7 @@ char temp[32];
     else
   if ((opcode&CO_SWI_MASK)==CO_SWI_OPCODE)
   {
-    strcpy(instruction, "swi");
+    sprintf(instruction, "swi%s", arm_cond[ARM_NIB(28)]);
   }
     else
   {
