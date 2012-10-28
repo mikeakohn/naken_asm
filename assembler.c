@@ -388,6 +388,11 @@ unsigned short int data16;
 
   while(1)
   {
+    // if the user has a comma at the end, but no data, this is okay
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+    pushback(asm_context, token, token_type);
+
     if (eval_expression(asm_context, &data32)==-1)
     {
       eat_operand(asm_context);
