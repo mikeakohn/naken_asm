@@ -40,7 +40,7 @@ enum
 
 struct _operand
 {
-  int value;
+  unsigned int value;
   int type;
   int sub_type;
 };
@@ -59,6 +59,10 @@ static int get_register_arm(char *token)
       return 10+(token[2]-'0');
     }
   }
+
+  if (strcasecmp("sp", token)==0) { return 13; }
+  if (strcasecmp("lr", token)==0) { return 14; }
+  if (strcasecmp("pc", token)==0) { return 15; }
 
   return -1;
 }
@@ -196,17 +200,46 @@ int opcode=0;
   {
     if (strncmp(instr_lower, arm_alu_ops[n], 3)==0)
     {
+      // Change mov rd, #0xffffffff to mvn rd, #0
+      if (n==13 && operand_count==2 && operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_IMMEDIATE && operands[1].value==0xffffffff)
+      {
+        strncpy(instr_lower, "mvn", 3);
+      }
+
       instr_lower+=3;
 
       cond=parse_condition(&instr_lower);
 
-      if (instr_lower[0]=='s') { s=1; }
+      if (instr_lower[0]=='s') { s=1; instr_lower++; }
 
+      if (*instr_lower!=0)
+      {
+        print_error_unknown_instr(instr, asm_context);
+        return -1;
+      }
+
+      // mov rd, rn
+      if (operand_count==2 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_REG)
+      {
+      }
+
+      // mov rd, #imm
+      if (operand_count==2 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_IMMEDIATE)
+      {
+      }
+
+#if 0
       if (operand_count<3 || operand_count>4 ||
           operands[0].type!=OPERAND_REG ||
           operands[1].type!=OPERAND_REG)
       {
-        printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
       }
 
       opcode=(cond<<28)|ALU_OPCODE|(n<<21)|(s<<20);
@@ -246,6 +279,7 @@ fuck fuck fuck fuck fuck
         print_error_unexp(token, asm_context);
         return -1;
       }
+#endif
 
       add_bin32(asm_context, opcode, IS_OPCODE);
       return 4;
@@ -272,7 +306,7 @@ fuck fuck fuck fuck fuck
     }
   }
 
-  printf("Error: Unknown instruction '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+  print_error_unknown_instr(instr, asm_context);
 
   return -1;
 }

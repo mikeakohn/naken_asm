@@ -290,7 +290,7 @@ int opcode=0;
       char shift_table[] = { 0, 11, 21, 16, 6 };
       if (mips_r_table[n].operand_count!=operand_count)
       {
-        printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+        print_error_illegal_operands(instr, asm_context);
         return -1;
       }
 
@@ -321,7 +321,7 @@ int opcode=0;
     //unsigned int upper=(address+4)&0xf0000000;
     if (operand_count!=1)
     {
-      printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+      print_error_illegal_operands(instr, asm_context);
       return -1;
     }
 
@@ -348,7 +348,7 @@ int opcode=0;
       char shift_table[] = { 0, 5, 11, 16 };
       if (mips_cop_table[n].operand_count!=operand_count)
       {
-        printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+        print_error_illegal_operands(instr, asm_context);
         return -1;
       }
 
@@ -437,7 +437,7 @@ int opcode=0;
         }
           else
         {
-          printf("Error: Illegal operand %d for '%s' at %s:%d\n", r+1, instr, asm_context->filename, asm_context->line);
+          print_error_illegal_operands(instr, asm_context);
           return -1;
         }
         opcode|=operands[r].value<<shift_table[(int)mips_i_table[n].operand[r]];
@@ -449,7 +449,7 @@ int opcode=0;
     n++;
   }
 
-  printf("Error: Unknown instruction '%s'  at %s:%d\n", instr, asm_context->filename, asm_context->line);
+  print_error_unknown_instr(instr, asm_context);
 
   return -1;
 }
