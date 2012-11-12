@@ -195,14 +195,14 @@ int found = 0;
 
 void list_output_65xx(struct _asm_context *asm_context, int address)
 {
-int cycles_min,cycles_max,count;
+int cycles_min,cycles_max;
 char instruction[128];
 unsigned int opcode=get_opcode32(&asm_context->memory, address);
 
   opcode &= 0xFF;
 
   fprintf(asm_context->list, "\n");
-  count=disasm_65xx(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
+  disasm_65xx(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
   fprintf(asm_context->list, "0x%04x: 0x%02x %-40s cycles: ", address, opcode, instruction);
 
