@@ -107,6 +107,7 @@ for line in fp:
     operands = []
   else:
     operands = tokens[3].replace("\"", "").split(",")
+
   for operand in operands:
     operand = operand.strip()
 
@@ -129,7 +130,7 @@ for line in fp:
     count -= 1
 
   if count < 0:
-    print "operand error"
+    print "operand error " + str(operand)
     sys.exit(1)
 
   while count != 0:
