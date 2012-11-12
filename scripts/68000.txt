@@ -111,7 +111,7 @@
 1110NUM1SI011REd	ROL	BWL	"#imm8, Dn"	-**0*								
 1110REx1SI111REy	ROL	BWL	"Dx, Dy"	-**0*								
 1110011111EAMEAR	ROL	-W-	<ea>	-**0*								
-1110NUM0SI011REy	ROR	BWL	"#imm8, Dy"	-**0*								
+1110NUM0SI011REd	ROR	BWL	"#imm8, Dn"	-**0*								
 1110REx0SI111REy	ROR	BWL	"Dx, Dy"	-**0*								
 1110011011EAMEAR	ROR	-W-	<ea>	-**0*								
 1110NUM1SI010REd	ROXL	BWL	"#imm8, Dn"	***0*								

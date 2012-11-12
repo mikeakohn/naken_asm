@@ -29,12 +29,18 @@ static char *arm_cond_a[16] =
   "gt", "le", "al", "nv"
 };
 
+static char *arm_cond_ops[] =
+{
+  "b", "bl"
+};
+
 enum
 {
   OPERAND_REG,
   OPERAND_IMMEDIATE,
   OPERAND_INDEXED,
   OPERAND_SHIFT,
+  OPERAND_NUMBER,
 };
 
 
@@ -109,6 +115,12 @@ int opcode=0;
     {
       operands[operand_count].value=n;
       operands[operand_count].type=OPERAND_REG;
+    }
+      else
+    if (token_type==TOKEN_NUMBER)
+    {
+      operands[operand_count].value=atoi(token);
+      operands[operand_count].type=OPERAND_NUMBER;
     }
       else
     if (IS_TOKEN(token,'#'))
@@ -284,6 +296,25 @@ fuck fuck fuck fuck fuck
       add_bin32(asm_context, opcode, IS_OPCODE);
       return 4;
 
+    }
+  }
+
+  // Check for branch
+  for (n=0; n<2; n++)
+  {
+    if (strncmp(instr_lower, arm_cond_ops[n], 1)==0)
+    {
+      if (operand_count!=1 || operands[0].type!=OPERAND_NUMBER)
+      {
+        printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+      }
+
+      instr_lower+=n+1;  // It works, but ick.
+      cond=parse_condition(&instr_lower);
+      unsigned int offset=(asm_context->address+4)-operands[0].value;
+      if (offset<(1<<23) || offset>=(1<<23))
+      opcode=0xa0000000|(n<<28)|offset;
+      add_bin32(asm_context, opcode, IS_OPCODE);
     }
   }
 
