@@ -101,27 +101,6 @@ char temp[32];
   *cycles_max=1;
   opcode=get_opcode32(memory, address);
 
-  if ((opcode&ALU_MASK)==ALU_OPCODE)
-  {
-    int i=(opcode>>25)&1;
-    int s=(opcode>>20)&1;
-    int operand2=opcode&0xfff;
-
-    if (i==0)
-    {
-      arm_calc_shift(temp, operand2>>4, operand2&0xf);
-      *cycles_min=2;
-      *cycles_max=2;
-    }
-      else
-    {
-      int rotate=operand2>>8;
-      sprintf(temp, "%d", (operand2&0xff)<<rotate);
-    }
-
-    sprintf(instruction, "%s%s%s r%d, r%d, %s", arm_alu_ops[ARM_NIB(21)], arm_cond[ARM_NIB(28)], s==1?"S":"", ARM_NIB(12), ARM_NIB(16), temp);
-  }
-    else
   if ((opcode&MUL_MASK)==MUL_OPCODE)
   {
     int a=(opcode>>21)&1;
@@ -157,7 +136,7 @@ char temp[32];
   {
     int b=(opcode>>22)&1;
 
-    sprintf(instruction, "swap%s%s r%d, r%d, [r%d]", arm_cond[ARM_NIB(28)], b==1?"b":"", ARM_NIB(12), ARM_NIB(0), ARM_NIB(16));
+    sprintf(instruction, "swp%s%s r%d, r%d, [r%d]", arm_cond[ARM_NIB(28)], b==1?"b":"", ARM_NIB(12), ARM_NIB(0), ARM_NIB(16));
   }
     else
   if ((opcode&MRS_MASK)==MRS_OPCODE)
@@ -187,6 +166,27 @@ char temp[32];
     {
       sprintf(instruction, "msr%s %s_flg, #%d", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", (opcode&0xff)<<ARM_NIB(8));
     }
+  }
+    else
+  if ((opcode&ALU_MASK)==ALU_OPCODE)
+  {
+    int i=(opcode>>25)&1;
+    int s=(opcode>>20)&1;
+    int operand2=opcode&0xfff;
+
+    if (i==0)
+    {
+      arm_calc_shift(temp, operand2>>4, operand2&0xf);
+      *cycles_min=2;
+      *cycles_max=2;
+    }
+      else
+    {
+      int rotate=operand2>>8;
+      sprintf(temp, "%d", (operand2&0xff)<<rotate);
+    }
+
+    sprintf(instruction, "%s%s%s r%d, r%d, %s", arm_alu_ops[ARM_NIB(21)], arm_cond[ARM_NIB(28)], s==1?"S":"", ARM_NIB(12), ARM_NIB(16), temp);
   }
     else
   if ((opcode&LDR_STR_MASK)==LDR_STR_OPCODE)

@@ -96,7 +96,7 @@ char instr_lower_mem[TOKENLEN];
 char *instr_lower=instr_lower_mem;
 char token[TOKENLEN];
 int token_type;
-int n,cond,s=0;
+int n,cond;
 int opcode=0;
 
   lower_copy(instr_lower, instr);
@@ -140,7 +140,7 @@ int opcode=0;
       operands[operand_count].type=OPERAND_INDEXED;
       token_type=get_token(asm_context, token, TOKENLEN);
       n=get_register_arm(token);
-      if (n!=-1)
+      if (n==-1)
       {
         print_error_unexp(token, asm_context);
         return -1;
@@ -212,6 +212,9 @@ int opcode=0;
   {
     if (strncmp(instr_lower, arm_alu_ops[n], 3)==0)
     {
+      // S flag
+      int s=0;
+
       // Change mov rd, #0xffffffff to mvn rd, #0
       if (n==13 && operand_count==2 && operands[0].type==OPERAND_REG &&
           operands[1].type==OPERAND_IMMEDIATE && operands[1].value==0xffffffff)
@@ -230,6 +233,8 @@ int opcode=0;
         print_error_unknown_instr(instr, asm_context);
         return -1;
       }
+
+      opcode=(cond<<28)|(s<<20)|(n<<21);
 
       // mov rd, rn
       if (operand_count==2 &&
@@ -306,7 +311,8 @@ fuck fuck fuck fuck fuck
     {
       if (operand_count!=1 || operands[0].type!=OPERAND_NUMBER)
       {
-        printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+        print_error_illegal_operands(instr, asm_context);
+        //printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
       }
 
       instr_lower+=n+1;  // It works, but ick.
@@ -315,6 +321,28 @@ fuck fuck fuck fuck fuck
       if (offset<(1<<23) || offset>=(1<<23))
       opcode=0xa0000000|(n<<28)|offset;
       add_bin32(asm_context, opcode, IS_OPCODE);
+    }
+  }
+
+  // Check for swap
+  if (strncmp(instr_lower, "swp", 3)==0)
+  {
+    // B flag
+    int b=0;
+
+    instr_lower+=3;
+    cond=parse_condition(&instr_lower);
+
+    if ((*instr_lower=='b' || *instr_lower==0) &&
+         operand_count==3 &&
+         operands[0].type==OPERAND_REG &&
+         operands[1].type==OPERAND_REG &&
+         operands[2].type==OPERAND_INDEXED)
+    {
+      if (*instr_lower=='b') b=1;
+
+      add_bin32(asm_context, SWAP_OPCODE|(cond<<28)|(b<<22)|(operands[2].value<<16)|(operands[0].value<<12)|operands[1].value, IS_OPCODE);
+      return 4;
     }
   }
 
@@ -332,7 +360,7 @@ fuck fuck fuck fuck fuck
         return -1;
       }
 
-      add_bin32(asm_context, 0xf000000|(cond<<28), IS_OPCODE);
+      add_bin32(asm_context, CO_SWI_OPCODE|(cond<<28), IS_OPCODE);
       return 4;
     }
   }
