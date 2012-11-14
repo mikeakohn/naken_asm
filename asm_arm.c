@@ -41,6 +41,8 @@ enum
   OPERAND_INDEXED,
   OPERAND_SHIFT,
   OPERAND_NUMBER,
+  OPERAND_PSR,
+  OPERAND_PSRF,
 };
 
 
@@ -86,6 +88,12 @@ char *instr=*instr_lower;
   if (cond==16) { cond=14; }
 
   return cond;
+}
+
+int compute_source_operand(struct _operand *operands, int operand_count, int start)
+{
+
+  return -1;
 }
 
 int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
@@ -154,6 +162,30 @@ int opcode=0;
         print_error_unexp(token, asm_context);
         return -1;
       }
+    }
+      else
+    if (strcasecmp(token, "cpsr")==0)
+    {
+      operands[operand_count].type=OPERAND_PSR;
+      operands[operand_count].value=0;
+    }
+      else
+    if (strcasecmp(token, "spsr")==0)
+    {
+      operands[operand_count].type=OPERAND_PSR;
+      operands[operand_count].value=1;
+    }
+      else
+    if (strcasecmp(token, "cpsr_flg")==0)
+    {
+      operands[operand_count].type=OPERAND_PSRF;
+      operands[operand_count].value=0;
+    }
+      else
+    if (strcasecmp(token, "spsr_flg")==0)
+    {
+      operands[operand_count].type=OPERAND_PSRF;
+      operands[operand_count].value=1;
     }
       else
     {
@@ -343,6 +375,63 @@ fuck fuck fuck fuck fuck
 
       add_bin32(asm_context, SWAP_OPCODE|(cond<<28)|(b<<22)|(operands[2].value<<16)|(operands[0].value<<12)|operands[1].value, IS_OPCODE);
       return 4;
+    }
+  }
+
+  // Check for mrs
+  if (strncmp(instr_lower, "mrs", 3)==0)
+  {
+    // PS flag
+    int ps=0;
+
+    instr_lower+=3;
+    cond=parse_condition(&instr_lower);
+
+    if (*instr_lower==0 && operand_count==2 &&
+        operands[0].type==OPERAND_REG &&
+        operands[1].type==OPERAND_PSR)
+    {
+      ps=operands[1].value;
+      add_bin32(asm_context, MRS_OPCODE|(cond<<28)|(ps<<22)|(operands[0].value<<12), IS_OPCODE);
+      return 4;
+    }
+  }
+
+  // Check for msr
+  if (strncmp(instr_lower, "msr", 3)==0)
+  {
+    // PS flag
+    int ps=0;
+
+    instr_lower+=3;
+    cond=parse_condition(&instr_lower);
+
+    if (*instr_lower==0 && operand_count==2 && operands[0].type==OPERAND_PSR)
+    {
+      if (operands[1].type==OPERAND_REG)
+      {
+        ps=operands[0].value;
+        add_bin32(asm_context, MSR_ALL_OPCODE|(cond<<28)|(ps<<22)|(operands[1].value<<12), IS_OPCODE);
+        return 4;
+      }
+        else
+      if (operands[1].type==OPERAND_REG)
+      {
+        ps=operands[0].value;
+        add_bin32(asm_context, MSR_FLAG_OPCODE|(cond<<28)|(ps<<22)|(operands[1].value), IS_OPCODE);
+        return 4;
+      }
+        else
+      if (operands[1].type==OPERAND_NUMBER)
+      {
+        ps=operands[0].value;
+        int source_operand=compute_source_operand(operands, operand_count, 1);
+        if (source_operand!=-1)
+        {
+          add_bin32(asm_context, MSR_FLAG_OPCODE|(cond<<28)|(ps<<22)|source_operand, IS_OPCODE);
+          return 4;
+        }
+      }
     }
   }
 

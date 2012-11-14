@@ -7,4 +7,8 @@
   swilt
 
   swp r0, r1, [r2]
+  mrs r0, cpsr
+  mrs r1, spsr
+
+  msr cpsr, r0
 
