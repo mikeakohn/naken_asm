@@ -90,8 +90,20 @@ char *instr=*instr_lower;
   return cond;
 }
 
-int compute_source_operand(struct _operand *operands, int operand_count, int start)
+static int compute_immediate(int immediate)
 {
+  unsigned int i=immediate;
+  int n;
+
+  //printf("Compute immediate\n");
+
+  for (n=0; n<16; n++)
+  {
+    //printf("n=%d  i=%u\n", n, i);
+    if (i<256) { return i|(n<<8); }
+    //i=((i&0x3)<<30)|(i>>2);
+    i=((i&0xc0000000)>>30)|(i<<2);
+  }
 
   return -1;
 }
@@ -239,6 +251,14 @@ int opcode=0;
     }
   }
 
+#ifdef DEBUG
+  printf("--------- new operand ----------\n");
+  for (n=0; n<operand_count; n++)
+  {
+    printf("operand_type=%d operand_value=%d\n", operands[n].type, operands[n].value);
+  }
+#endif
+
   // Check for an ALU instruction
   for (n=0; n<16; n++)
   {
@@ -259,6 +279,8 @@ int opcode=0;
       cond=parse_condition(&instr_lower);
 
       if (instr_lower[0]=='s') { s=1; instr_lower++; }
+      // According to some doc, tst, teq, cmp, cmn should set S all the time
+      if (n>=8 && n<12) { s=1; }
 
       if (*instr_lower!=0)
       {
@@ -422,15 +444,18 @@ fuck fuck fuck fuck fuck
         return 4;
       }
         else
-      if (operands[1].type==OPERAND_NUMBER)
+      if (operands[1].type==OPERAND_IMMEDIATE)
       {
         ps=operands[0].value;
-        int source_operand=compute_source_operand(operands, operand_count, 1);
-        if (source_operand!=-1)
+        int source_operand=compute_immediate(operands[1].value);
+        if (source_operand==-1)
         {
-          add_bin32(asm_context, MSR_FLAG_OPCODE|(cond<<28)|(ps<<22)|source_operand, IS_OPCODE);
-          return 4;
+          printf("Error: Can't create a constant for immediate value %d at %s:%d\n", operands[1].value, asm_context->filename, asm_context->line);
+          return -1;
         }
+
+        add_bin32(asm_context, MSR_FLAG_OPCODE|(cond<<28)|(1<<25)|(ps<<22)|source_operand, IS_OPCODE);
+        return 4;
       }
     }
   }

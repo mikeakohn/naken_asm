@@ -46,6 +46,18 @@ int get_cycle_count_arm(unsigned short int opcode)
   return -1;
 }
 
+static int compute_immediate(int immediate)
+{
+  int shift=(immediate>>8)*2;
+  int shift_mask=(1<<(shift+1))-1;
+  immediate=immediate&0xff;
+
+  //printf("immediate=%d shift=%d shift_mask=%x\n", immediate, shift, shift_mask);
+
+  if (shift==0) { return immediate; }
+  return ((immediate&shift_mask)<<(32-shift))|(immediate>>shift);
+}
+
 static void arm_calc_shift(char *temp, int shift, int reg)
 {
   if ((shift&1)==0)
@@ -164,7 +176,8 @@ char temp[32];
     }
       else
     {
-      sprintf(instruction, "msr%s %s_flg, #%d", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", (opcode&0xff)<<ARM_NIB(8));
+      //sprintf(instruction, "msr%s %s_flg, #%d", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", (opcode&0xff)<<ARM_NIB(8));
+      sprintf(instruction, "msr%s %s_flg, #%d", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", compute_immediate(opcode&0xfff));
     }
   }
     else

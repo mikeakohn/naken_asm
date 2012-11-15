@@ -11,4 +11,7 @@
   mrs r1, spsr
 
   msr cpsr, r0
+  msr cpsr, #68
+  msr cpsr, #32768
+  msr cpsr, #65536
 
