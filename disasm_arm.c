@@ -176,8 +176,7 @@ char temp[32];
     }
       else
     {
-      //sprintf(instruction, "msr%s %s_flg, #%d", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", (opcode&0xff)<<ARM_NIB(8));
-      sprintf(instruction, "msr%s %s_flg, #%d", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", compute_immediate(opcode&0xfff));
+      sprintf(instruction, "msr%s %s_flg, #%d {#%d, %d}", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", compute_immediate(opcode&0xfff), opcode&0xff, (opcode&0xf00)>>7);
     }
   }
     else
@@ -195,8 +194,9 @@ char temp[32];
     }
       else
     {
-      int rotate=operand2>>8;
-      sprintf(temp, "%d", (operand2&0xff)<<rotate);
+      //int rotate=operand2>>8;
+      //sprintf(temp, "%d", (operand2&0xff)<<rotate);
+      sprintf(temp, "#%d {#%d, %d}", compute_immediate(opcode&0xfff), opcode&0xff, (opcode&0xf00)>>7);
     }
 
     sprintf(instruction, "%s%s%s r%d, r%d, %s", arm_alu_ops[ARM_NIB(21)], arm_cond[ARM_NIB(28)], s==1?"S":"", ARM_NIB(12), ARM_NIB(16), temp);

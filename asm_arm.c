@@ -108,9 +108,27 @@ static int compute_immediate(int immediate)
   return -1;
 }
 
+static int imm_shift_to_immediate(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int pos)
+{
+  if (operands[pos].value>=256 || operands[pos].value<0)
+  {
+    printf("Error: Immediate out of range for #imm, shift at %s:%d\n", asm_context->filename, asm_context->line);
+    return -1;
+  }
+
+  if ((operands[pos+1].value&1)==1 ||
+       operands[pos+1].value>30 || operands[pos+1].value<0)
+  {
+    printf("Error: Bad shift value for #imm, shift at %s:%d\n", asm_context->filename, asm_context->line);
+    return -1;
+  }
+
+  return operands[pos].value|(((operands[pos+1].value>>1)<<8));
+}
+
 int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
 {
-struct _operand operands[3];
+struct _operand operands[4];
 int operand_count;
 char instr_lower_mem[TOKENLEN];
 char *instr_lower=instr_lower_mem;
@@ -244,7 +262,7 @@ int opcode=0;
       return -1;
     }
 
-    if (operand_count==3)
+    if (operand_count==4)
     {
       print_error_unexp(token, asm_context);
       return -1;
@@ -264,8 +282,11 @@ int opcode=0;
   {
     if (strncmp(instr_lower, arm_alu_ops[n], 3)==0)
     {
+      int immediate=0;
       // S flag
       int s=0;
+      int rd=0,rn=0;
+      int i=0;
 
       // Change mov rd, #0xffffffff to mvn rd, #0
       if (n==13 && operand_count==2 && operands[0].type==OPERAND_REG &&
@@ -290,67 +311,64 @@ int opcode=0;
 
       opcode=(cond<<28)|(s<<20)|(n<<21);
 
-      // mov rd, rn
       if (operand_count==2 &&
           operands[0].type==OPERAND_REG &&
           operands[1].type==OPERAND_REG)
       {
+        // mov rd, rn
+        rd=operands[0].value;
+        rn=operands[1].value;
       }
-
-      // mov rd, #imm
+        else
       if (operand_count==2 &&
           operands[0].type==OPERAND_REG &&
           operands[1].type==OPERAND_IMMEDIATE)
       {
-      }
-
-#if 0
-      if (operand_count<3 || operand_count>4 ||
-          operands[0].type!=OPERAND_REG ||
-          operands[1].type!=OPERAND_REG)
-      {
-        print_error_illegal_operands(instr, asm_context);
-        return -1;
-      }
-
-      opcode=(cond<<28)|ALU_OPCODE|(n<<21)|(s<<20);
-      opcode|=operands[0].value<<12;
-      opcode|=operands[1].value<<16;
-
-      if (operands[2].type==OPERAND_IMMEDIATE)
-      {
-        if (operands[2].value<-128 || operands[2].value>255)
-        {
-          print_error("Constant larger than 8 bit.", asm_context);
-          return -1;
-        }
-
-        opcode|=operands[2].value|(1<<25);
-
-        if (operand_count==4)
-        {
-#if 0
-fuck fuck fuck fuck fuck
-          if (operands[4].type!=OPERAND_LSL)
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
-#endif
-
-          opcode|=operands[2].value<<8;
-        }
+        // mov rd, #imm
+        rd=operands[0].value;
+        immediate=compute_immediate(operands[1].value);
+        i=1;
       }
         else
-      if (operands[2].type==OPERAND_REG)
+      if (operand_count==3 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_IMMEDIATE &&
+          operands[2].type==OPERAND_NUMBER)
       {
+        // mov rd, #imm, shift
+        rd=operands[0].value;
+        immediate=imm_shift_to_immediate(asm_context, operands, operand_count, 1);
+        i=1;
+        if (immediate<0) { return -1; }
       }
         else
+      if (operand_count==3 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_REG &&
+          operands[2].type==OPERAND_IMMEDIATE)
       {
-        print_error_unexp(token, asm_context);
-        return -1;
+        // mov rd, rn, #imm
+        rd=operands[0].value;
+        rn=operands[1].value;
+        immediate=compute_immediate(operands[2].value);
+        i=1;
       }
-#endif
+        else
+      if (operand_count==4 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_REG &&
+          operands[2].type==OPERAND_IMMEDIATE &&
+          operands[3].type==OPERAND_NUMBER)
+      {
+        // mov rd, rn, #imm, shift
+        rd=operands[0].value;
+        rn=operands[1].value;
+        immediate=imm_shift_to_immediate(asm_context, operands, operand_count, 2);
+        i=1;
+        if (immediate<0) { return -1; }
+      }
+
+      opcode|=(i<<25)|(rn<<16)|(rd<<12)|immediate;
 
       add_bin32(asm_context, opcode, IS_OPCODE);
       return 4;
@@ -366,7 +384,6 @@ fuck fuck fuck fuck fuck
       if (operand_count!=1 || operands[0].type!=OPERAND_NUMBER)
       {
         print_error_illegal_operands(instr, asm_context);
-        //printf("Error: Illegal operands for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
       }
 
       instr_lower+=n+1;  // It works, but ick.
@@ -457,6 +474,17 @@ fuck fuck fuck fuck fuck
         add_bin32(asm_context, MSR_FLAG_OPCODE|(cond<<28)|(1<<25)|(ps<<22)|source_operand, IS_OPCODE);
         return 4;
       }
+    }
+      else
+    if (operand_count==3 &&
+        operands[0].type==OPERAND_PSR &&
+        operands[1].type==OPERAND_IMMEDIATE &&
+        operands[2].type==OPERAND_NUMBER)
+    {
+      int source_operand=imm_shift_to_immediate(asm_context, operands, operand_count, 1);
+      if (source_operand<0) { return -1; }
+      add_bin32(asm_context, MSR_FLAG_OPCODE|(cond<<28)|(1<<25)|(ps<<22)|source_operand, IS_OPCODE);
+      return 4;
     }
   }
 

@@ -14,4 +14,10 @@
   msr cpsr, #68
   msr cpsr, #32768
   msr cpsr, #65536
+  msr cpsr, #128, 2
+
+  mov r5, #256
+  mov r5, #128, 2
+  orr r5, r6, #256
+  orr r5, r6, #128, 2
 
