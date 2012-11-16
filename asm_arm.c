@@ -39,7 +39,8 @@ enum
   OPERAND_REG,
   OPERAND_IMMEDIATE,
   OPERAND_INDEXED,
-  OPERAND_SHIFT,
+  OPERAND_SHIFT_IMMEDIATE,
+  OPERAND_SHIFT_REG,
   OPERAND_NUMBER,
   OPERAND_PSR,
   OPERAND_PSRF,
@@ -221,25 +222,43 @@ int opcode=0;
     {
       for (n=0; n<4; n++)
       {
-        if (strcasecmp(token, arm_alu_ops[n])==0)
+        if (strcasecmp(token, arm_shift[n])==0)
         {
           token_type=get_token(asm_context, token, TOKENLEN);
-          if (IS_NOT_TOKEN(token,'#'))
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
-
-          token_type=get_token(asm_context, token, TOKENLEN);
-          if (token_type!=TOKEN_NUMBER)
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
-
-          operands[operand_count].value=atoi(token);
-          operands[operand_count].type=OPERAND_SHIFT;
           operands[operand_count].sub_type=n;
+
+          if (IS_TOKEN(token,'#'))
+          {
+            token_type=get_token(asm_context, token, TOKENLEN);
+            if (token_type!=TOKEN_NUMBER)
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+
+            operands[operand_count].value=atoi(token);
+
+            if (operands[operand_count].value<0 ||
+                operands[operand_count].value>31)
+            {
+              printf("Error: Shift value %d out of range at %s:%d\n", operands[1].value, asm_context->filename, asm_context->line);
+              return -1;
+            }
+
+            operands[operand_count].type=OPERAND_SHIFT_IMMEDIATE;
+          }
+            else
+          {
+            int r=get_register_arm(token);
+            if (r==-1)
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+
+            operands[operand_count].value=r;
+            operands[operand_count].type=OPERAND_SHIFT_REG;
+          }
 
           break;
         }
@@ -366,6 +385,44 @@ int opcode=0;
         immediate=imm_shift_to_immediate(asm_context, operands, operand_count, 2);
         i=1;
         if (immediate<0) { return -1; }
+      }
+        else
+      if (operand_count==3 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_REG &&
+          operands[2].type==OPERAND_REG)
+      {
+        // mov rd, rn, rm
+        rd=operands[0].value;
+        rn=operands[1].value;
+        immediate=operands[2].value|(1<<4);
+      }
+        else
+      if (operand_count==4 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_REG &&
+          operands[2].type==OPERAND_REG &&
+          (operands[3].type==OPERAND_SHIFT_IMMEDIATE ||
+           operands[3].type==OPERAND_SHIFT_REG))
+      {
+        rd=operands[0].value;
+        rn=operands[1].value;
+
+        if (operands[3].type==OPERAND_SHIFT_IMMEDIATE)
+        {
+          // mov rd, rn, rm, shift #
+          immediate=operands[2].value|(((operands[3].value<<3)|(operands[3].sub_type<<1)|1)<<4);
+        }
+          else
+        {
+          // mov rd, rn, rm, shift reg
+          immediate=operands[2].value|(((operands[3].value<<4)|(operands[3].sub_type<<1))<<4);
+        }
+      }
+        else
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
       }
 
       opcode|=(i<<25)|(rn<<16)|(rd<<12)|immediate;

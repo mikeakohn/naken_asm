@@ -21,3 +21,9 @@
   orr r5, r6, #256
   orr r5, r6, #128, 2
 
+  orr r5, r6, r7
+  orr r5, r6, r7, lsl r0
+  orr r5, r6, r7, ror #5
+
+
+

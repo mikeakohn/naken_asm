@@ -66,7 +66,15 @@ static void arm_calc_shift(char *temp, int shift, int reg)
   }
     else
   {
-    sprintf(temp, "r%d, %s #%d", reg, arm_shift[(shift>>1)&0x3], shift>>3);
+    int shift_amount=shift>>3;
+    if (shift_amount!=0)
+    {
+      sprintf(temp, "r%d, %s #%d", reg, arm_shift[(shift>>1)&0x3], shift>>3);
+    }
+      else
+    {
+      sprintf(temp, "r%d", reg);
+    }
   }
 }
 
