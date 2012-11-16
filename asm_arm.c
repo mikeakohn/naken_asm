@@ -269,14 +269,30 @@ int opcode=0;
         }
 
         token_type=get_token(asm_context, token, TOKENLEN);
-        if (IS_TOKEN(token,'-')) { r2=get_register_arm(token); }
-        else { r2=r1; }
+        if (IS_TOKEN(token,'-'))
+        {
+          token_type=get_token(asm_context, token, TOKENLEN);
+
+          r2=get_register_arm(token);
+          if (r2==-1)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          token_type=get_token(asm_context, token, TOKENLEN);
+        }
+        else
+        {
+          r2=r1;
+        }
 
         operands[operand_count].value|=compute_range(r1,r2);
 
         if (IS_TOKEN(token,'}')) { break; }
         if (IS_NOT_TOKEN(token,','))
         {
+printf("shit\n");
           print_error_unexp(token, asm_context);
           return -1;
         }
@@ -305,7 +321,7 @@ int opcode=0;
             if (operands[operand_count].value<0 ||
                 operands[operand_count].value>31)
             {
-              printf("Error: Shift value %d out of range at %s:%d\n", operands[1].value, asm_context->filename, asm_context->line);
+              print_error_range("Shift value", 0, 31, asm_context);
               return -1;
             }
 
@@ -523,10 +539,10 @@ int opcode=0;
     if (strncmp(instr_lower, arm_load_store[n], 3)==0)
     {
       //int s=0;
-      unsigned int offset=0;
+      int offset=0;
       int i=0;
       int pr=0;
-      int u=0;
+      int u=1;
       int b=0;
       int w=0;
       int ls=(*arm_load_store[n])=='s'?0:1;
@@ -545,10 +561,9 @@ int opcode=0;
           operands[1].type==OPERAND_INDEXED)
       {
         offset=operands[1].value;
-        offset=offset&0xfff;
-        if (offset>4096)
+        if (offset<0 || offset>4095)
         {
-          printf("Error: Offset out of range (12 bit) at %s:%d\n", asm_context->filename, asm_context->line);
+          print_error_range("Offset", 0, 4095, asm_context);
         }
       }
         else

@@ -28,5 +28,10 @@
   mul r1, r2, r3
   mla r1, r2, r3, r4
 
+  ldm r6, { r1, r2, r6-r8 }
+  stm r6, { r1, r2, r6-r8 }
+
+  ldr r6, [r7]
+  str r7, [r8]
 
 
