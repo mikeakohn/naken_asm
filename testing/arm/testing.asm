@@ -25,5 +25,8 @@
   orr r5, r6, r7, lsl r0
   orr r5, r6, r7, ror #5
 
+  mul r1, r2, r3
+  mla r1, r2, r3, r4
+
 
 

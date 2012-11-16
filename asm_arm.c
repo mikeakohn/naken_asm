@@ -34,16 +34,34 @@ static char *arm_cond_ops[] =
   "b", "bl"
 };
 
+static char *arm_load_store[] =
+{
+  "str", "ldr"
+};
+
+static char *arm_load_store_m[] =
+{
+  "stm","ldm"
+};
+
+static char *arm_multiply[] =
+{
+  "mul","mla"
+};
+
 enum
 {
+  OPERAND_NOTHING,
   OPERAND_REG,
   OPERAND_IMMEDIATE,
   OPERAND_INDEXED,
   OPERAND_SHIFT_IMMEDIATE,
   OPERAND_SHIFT_REG,
   OPERAND_NUMBER,
+  OPERAND_CONSTANT,
   OPERAND_PSR,
   OPERAND_PSRF,
+  OPERAND_MULTIPLE_REG,
 };
 
 
@@ -125,6 +143,22 @@ static int imm_shift_to_immediate(struct _asm_context *asm_context, struct _oper
   }
 
   return operands[pos].value|(((operands[pos+1].value>>1)<<8));
+}
+
+static int compute_range(int r1, int r2)
+{
+  int value=0;
+  int n;
+
+  if (r2<r1) { int temp=r1; r1=r2; r2=temp; }
+
+  // I know there is a better way to do this
+  for (n=r1; n<=r2; n++)
+  {
+    value|=(1<<n);
+  }
+
+  return value;
 }
 
 int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
@@ -217,6 +251,36 @@ int opcode=0;
     {
       operands[operand_count].type=OPERAND_PSRF;
       operands[operand_count].value=1;
+    }
+      else
+    if (IS_TOKEN(token,'{'))
+    {
+      operands[operand_count].type=OPERAND_MULTIPLE_REG;
+      operands[operand_count].value=0;
+      while(1)
+      {
+        token_type=get_token(asm_context, token, TOKENLEN);
+        int r1=get_register_arm(token);
+        int r2;
+        if (r1==-1)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        token_type=get_token(asm_context, token, TOKENLEN);
+        if (IS_TOKEN(token,'-')) { r2=get_register_arm(token); }
+        else { r2=r1; }
+
+        operands[operand_count].value|=compute_range(r1,r2);
+
+        if (IS_TOKEN(token,'}')) { break; }
+        if (IS_NOT_TOKEN(token,','))
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+      }
     }
       else
     {
@@ -436,7 +500,7 @@ int opcode=0;
   // Check for branch
   for (n=0; n<2; n++)
   {
-    if (strncmp(instr_lower, arm_cond_ops[n], 1)==0)
+    if (strncmp(instr_lower, arm_cond_ops[n], n+1)==0)
     {
       if (operand_count!=1 || operands[0].type!=OPERAND_NUMBER)
       {
@@ -449,6 +513,77 @@ int opcode=0;
       if (offset<(1<<23) || offset>=(1<<23))
       opcode=0xa0000000|(n<<28)|offset;
       add_bin32(asm_context, opcode, IS_OPCODE);
+    }
+  }
+
+  // Check for load / store.
+  for (n=0; n<2; n++)
+  {
+    // FIXME - what to do with b, unsigned, etc
+    if (strncmp(instr_lower, arm_load_store[n], 3)==0)
+    {
+      //int s=0;
+      unsigned int offset=0;
+      int i=0;
+      int pr=0;
+      int u=0;
+      int b=0;
+      int w=0;
+      int ls=(*arm_load_store[n])=='s'?0:1;
+      instr_lower+=3;
+      cond=parse_condition(&instr_lower);
+
+      if (instr_lower[0]=='b') { b=1; instr_lower++; }
+      if (*instr_lower!=0)
+      {
+        print_error_unknown_instr(instr, asm_context);
+        return -1;
+      }
+
+      if (operand_count==2 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_INDEXED)
+      {
+        offset=operands[1].value;
+        offset=offset&0xfff;
+        if (offset>4096)
+        {
+          printf("Error: Offset out of range (12 bit) at %s:%d\n", asm_context->filename, asm_context->line);
+        }
+      }
+        else
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
+      }
+
+      add_bin32(asm_context, LDR_STR_OPCODE|(cond<<28)|(i<<25)|(pr<<24)|(u<<23)|(b<<22)|(w<<21)|(ls<<20)|(operands[1].value<<16)|(operands[0].value<<12)|offset, IS_OPCODE);
+      return 4;
+    }
+  }
+
+  // Check for load / store multiple.
+  for (n=0; n<2; n++)
+  {
+    if (strncmp(instr_lower, arm_load_store_m[n], 3)==0)
+    {
+      int pr=0;
+      int u=0;
+      int s=0;
+      int w=0;
+      int ls=(*arm_load_store[n])=='s'?0:1;
+      instr_lower+=3;
+      cond=parse_condition(&instr_lower);
+
+      if (instr_lower[0]=='s') { s=1; instr_lower++; }
+      if (*instr_lower!=0)
+      {
+        print_error_unknown_instr(instr, asm_context);
+        return -1;
+      }
+
+      add_bin32(asm_context, 0x08000000|(cond<<28)|(pr<<24)|(u<<23)|(s<<22)|(w<<21)|(ls<<20)|(operands[0].value<<16)|operands[1].value, IS_OPCODE);
+      return 4;
     }
   }
 
@@ -470,6 +605,50 @@ int opcode=0;
       if (*instr_lower=='b') b=1;
 
       add_bin32(asm_context, SWAP_OPCODE|(cond<<28)|(b<<22)|(operands[2].value<<16)|(operands[0].value<<12)|operands[1].value, IS_OPCODE);
+      return 4;
+    }
+  }
+
+  // Check for MUL / MLA (multiply or multiply and accumulate)
+  for (n=0; n<2; n++)
+  {
+    if (strncmp(instr_lower, arm_multiply[n], 3)==0)
+    {
+      int s=0;
+      int rn;
+      instr_lower+=3;
+      cond=parse_condition(&instr_lower);
+
+      if (instr_lower[0]=='s') { s=1; instr_lower++; }
+      if (*instr_lower!=0)
+      {
+        print_error_unknown_instr(instr, asm_context);
+        return -1;
+      }
+
+      if (operands[0].type!=OPERAND_REG ||
+          operands[1].type!=OPERAND_REG ||
+          operands[2].type!=OPERAND_REG)
+      {
+        print_error_illegal_operands(instr, asm_context);
+      }
+
+      if (operand_count==3 && n==0)
+      {
+        rn=0;
+      }
+        else
+      if (operand_count==4 && n==1 &&
+          operands[3].type==OPERAND_REG)
+      {
+        rn=operands[3].value;
+      }
+        else
+      {
+        print_error_illegal_operands(instr, asm_context);
+      }
+
+      add_bin32(asm_context, MUL_OPCODE|(cond<<28)|(n<<21)|(s<<20)|(operands[0].value<<16)|(operands[1].value)|(operands[2].value<<8)|(rn<<12), IS_OPCODE);
       return 4;
     }
   }
