@@ -30,8 +30,11 @@
 
   ldm r6, { r1, r2, r6-r8 }
   stm r6, { r1, r2, r6-r8 }
+  stm r6, { r0, r1, r2, r6-r8 }
+  stm r6!, { r0-r2, r6-r8 }
 
   ldr r6, [r7]
   str r7, [r8]
+  str r7, 12
 
 

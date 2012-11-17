@@ -223,7 +223,14 @@ char temp[32];
 
     if (i==0)
     {
-      sprintf(temp, "r%d, #%s%d", rn, u==0?"-":"", offset);
+      if (offset==0)
+      {
+        sprintf(temp, "[r%d]", rn);
+      }
+        else
+      {
+        sprintf(temp, "[r%d], #%s%d", rn, u==0?"-":"", offset);
+      }
     }
       else
     {
@@ -253,7 +260,14 @@ char temp[32];
         }
           else
         {
-          sprintf(temp, "[r%d], r%d, %s #%d", rn, rm, arm_shift[type], shift>>3);
+          if ((shift>>3)==0)
+          {
+            sprintf(temp, "[r%d], r%d, %s #%d", rn, rm, arm_shift[type], shift>>3);
+          }
+            else
+          {
+            sprintf(temp, "[r%d], r%d", rn, rm);
+          }
         }
       }
     }

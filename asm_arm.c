@@ -53,6 +53,7 @@ enum
 {
   OPERAND_NOTHING,
   OPERAND_REG,
+  OPERAND_REG_WRITE_BACK,
   OPERAND_IMMEDIATE,
   OPERAND_INDEXED,
   OPERAND_SHIFT_IMMEDIATE,
@@ -148,15 +149,12 @@ static int imm_shift_to_immediate(struct _asm_context *asm_context, struct _oper
 static int compute_range(int r1, int r2)
 {
   int value=0;
-  int n;
 
+  if (r1==r2) { return 1<<r1; }
   if (r2<r1) { int temp=r1; r1=r2; r2=temp; }
 
-  // I know there is a better way to do this
-  for (n=r1; n<=r2; n++)
-  {
-    value|=(1<<n);
-  }
+  value=(1<<(r2+1))-1;
+  if (r1!=0) { value^=(1<<r1)-1; }
 
   return value;
 }
@@ -188,6 +186,16 @@ int opcode=0;
     {
       operands[operand_count].value=n;
       operands[operand_count].type=OPERAND_REG;
+
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token,'!'))
+      {
+        operands[operand_count].type=OPERAND_REG_WRITE_BACK;
+      }
+        else
+      {
+        pushback(asm_context, token, token_type);
+      }
     }
       else
     if (token_type==TOKEN_NUMBER)
@@ -558,13 +566,66 @@ printf("shit\n");
 
       if (operand_count==2 &&
           operands[0].type==OPERAND_REG &&
-          operands[1].type==OPERAND_INDEXED)
+          operands[1].type==OPERAND_NUMBER)
       {
         offset=operands[1].value;
+        //if (offset<0 && offset>-4096) { offset=-offset; u=0; }
         if (offset<0 || offset>4095)
         {
           print_error_range("Offset", 0, 4095, asm_context);
         }
+      }
+        else
+      if (operand_count==2 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_INDEXED)
+      {
+        offset=0;
+      }
+        else
+      if (operand_count==3 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_INDEXED &&
+          operands[2].type==OPERAND_IMMEDIATE)
+      {
+        offset=operands[2].value;
+        if (offset<0 && offset>-4096) { offset=-offset; u=0; }
+        if (offset<0 || offset>4095)
+        {
+          print_error_range("Offset", 0, 4095, asm_context);
+        }
+      }
+        else
+      if (operand_count==3 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_INDEXED &&
+          operands[2].type==OPERAND_REG)
+      {
+        offset=operands[2].value|(1<<4);
+        i=1;
+      }
+        else
+      if (operand_count==3 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_INDEXED &&
+          operands[2].type==OPERAND_REG &&
+          (operands[3].type==OPERAND_SHIFT_IMMEDIATE ||
+           operands[3].type==OPERAND_SHIFT_REG))
+      {
+        offset=operands[2].value;
+
+        if (operands[3].type==OPERAND_SHIFT_IMMEDIATE)
+        {
+          // ldr rd, [rn], rm, shift #
+          offset|=(((operands[3].value<<3)|(operands[3].sub_type<<1)|1)<<4);
+        }
+          else
+        {
+          // ldr rd, [rn], rm, shift rs 
+          offset|=(((operands[3].value<<4)|(operands[3].sub_type<<1))<<4);
+        }
+
+        i=1;
       }
         else
       {
@@ -585,7 +646,7 @@ printf("shit\n");
       int pr=0;
       int u=0;
       int s=0;
-      int w=0;
+      int w=(operands[0].type==OPERAND_REG_WRITE_BACK)?1:0;
       int ls=(*arm_load_store[n])=='s'?0:1;
       instr_lower+=3;
       cond=parse_condition(&instr_lower);
@@ -597,8 +658,14 @@ printf("shit\n");
         return -1;
       }
 
-      add_bin32(asm_context, 0x08000000|(cond<<28)|(pr<<24)|(u<<23)|(s<<22)|(w<<21)|(ls<<20)|(operands[0].value<<16)|operands[1].value, IS_OPCODE);
-      return 4;
+      if (operand_count==2 &&
+          (operands[0].type==OPERAND_REG ||
+           operands[0].type==OPERAND_REG_WRITE_BACK) &&
+          operands[1].type==OPERAND_MULTIPLE_REG)
+      {
+        add_bin32(asm_context, 0x08000000|(cond<<28)|(pr<<24)|(u<<23)|(s<<22)|(w<<21)|(ls<<20)|(operands[0].value<<16)|operands[1].value, IS_OPCODE);
+        return 4;
+      }
     }
   }
 
