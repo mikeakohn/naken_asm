@@ -365,6 +365,8 @@ int error_flag=0;
 
   memory_free(&asm_context.memory);
 
+  if (error_flag!=0) { return -1; }
+
   return 0;
 }
 

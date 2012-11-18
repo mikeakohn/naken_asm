@@ -180,6 +180,9 @@ int opcode=0;
     token_type=get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { break; }
 
+#if DEBUG
+    printf("arm: %s  (%d)\n", token, token_type);
+#endif
     n=get_register_arm(token);
 
     if (n!=-1)
@@ -206,14 +209,25 @@ int opcode=0;
       else
     if (IS_TOKEN(token,'#'))
     {
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (token_type!=TOKEN_NUMBER)
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-      operands[operand_count].value=atoi(token);
+      int num;
       operands[operand_count].type=OPERAND_IMMEDIATE;
+
+      if (eval_expression(asm_context, &num)!=0)
+      {
+        if (asm_context->pass==1)
+        {
+          eat_operand(asm_context);
+          //operands[operand_count].error=1;
+        }
+          else
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+      }
+
+      //token_type=get_token(asm_context, token, TOKENLEN);
+      operands[operand_count].value=num;
     }
       else
     if (IS_TOKEN(token,'['))

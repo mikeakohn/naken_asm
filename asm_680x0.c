@@ -163,6 +163,7 @@ int count=1;
 
 #ifdef DEBUG
 printf("-----\n");
+int n;
 for (n=0; n<operand_count; n++)
 {
 printf("[%d %d]", operands[n].type, operands[n].value);
