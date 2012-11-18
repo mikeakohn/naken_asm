@@ -41,6 +41,14 @@ char *arm_shift[] =
   "lsl", "lsr", "asr", "ror"
 };
 
+static char *arm_reg[] =
+{
+  "r0", "r1", "r2", "r3",
+  "r4", "r5", "r6", "r7",
+  "r8", "r9", "r10", "r11",
+  "r12", "sp", "lr", "pc"
+};
+
 int get_cycle_count_arm(unsigned short int opcode)
 {
   return -1;
@@ -121,6 +129,21 @@ char temp[32];
   *cycles_max=1;
   opcode=get_opcode32(memory, address);
 
+  if ((opcode&BRANCH_MASK)==BRANCH_OPCODE)
+  {
+    int l=(opcode>>24)&1;
+
+    sprintf(instruction, "%s%s 0x%02x", l==0?"b":"bl", arm_cond[ARM_NIB(28)], (opcode&0xffffff)<<2);
+
+    *cycles_max=3;
+  }
+    else
+  if ((opcode&BRANCH_EXCH_MASK)==BRANCH_EXCH_OPCODE)
+  {
+    // FIXME - implement
+    sprintf(instruction, "bx%s %s", arm_cond[ARM_NIB(28)], arm_reg[ARM_NIB(0)]);
+  }
+    else
   if ((opcode&MUL_MASK)==MUL_OPCODE)
   {
     int a=(opcode>>21)&1;
@@ -128,11 +151,11 @@ char temp[32];
 
     if (a==0)
     {
-      sprintf(instruction, "mul%s%s r%d, r%d, r%d", arm_cond[ARM_NIB(28)], s==1?"s":"", ARM_NIB(16), ARM_NIB(0), ARM_NIB(8));
+      sprintf(instruction, "mul%s%s %s, %s, %s", arm_cond[ARM_NIB(28)], s==1?"s":"", arm_reg[ARM_NIB(16)], arm_reg[ARM_NIB(0)], arm_reg[ARM_NIB(8)]);
     }
       else
     {
-      sprintf(instruction, "mla%s%s r%d, r%d, r%d, r%d", arm_cond[ARM_NIB(28)], s==1?"s":"", ARM_NIB(16), ARM_NIB(0), ARM_NIB(8), ARM_NIB(12));
+      sprintf(instruction, "mla%s%s %s, %s, %s, %s", arm_cond[ARM_NIB(28)], s==1?"s":"", arm_reg[ARM_NIB(16)], arm_reg[ARM_NIB(0)], arm_reg[ARM_NIB(8)], arm_reg[ARM_NIB(12)]);
     }
   }
     else
@@ -144,11 +167,11 @@ char temp[32];
 
     if (a==0)
     {
-      sprintf(instruction, "%cmull%s%s r%d, r%d, r%d", u==1?'u':'s', arm_cond[ARM_NIB(28)], s==1?"s":"", ARM_NIB(16), ARM_NIB(0), ARM_NIB(8));
+      sprintf(instruction, "%cmull%s%s %s, %s, %s", u==1?'u':'s', arm_cond[ARM_NIB(28)], s==1?"s":"", arm_reg[ARM_NIB(16)], arm_reg[ARM_NIB(0)], arm_reg[ARM_NIB(8)]);
     }
       else
     {
-      sprintf(instruction, "%cmlal%s%s r%d, r%d, r%d, r%d", u==1?'u':'s', arm_cond[ARM_NIB(28)], s==1?"s":"", ARM_NIB(16), ARM_NIB(0), ARM_NIB(8), ARM_NIB(12));
+      sprintf(instruction, "%cmlal%s%s %s, %s, %s, %s", u==1?'u':'s', arm_cond[ARM_NIB(28)], s==1?"s":"", arm_reg[ARM_NIB(16)], arm_reg[ARM_NIB(0)], arm_reg[ARM_NIB(8)], arm_reg[ARM_NIB(12)]);
     }
   }
     else
@@ -156,21 +179,21 @@ char temp[32];
   {
     int b=(opcode>>22)&1;
 
-    sprintf(instruction, "swp%s%s r%d, r%d, [r%d]", arm_cond[ARM_NIB(28)], b==1?"b":"", ARM_NIB(12), ARM_NIB(0), ARM_NIB(16));
+    sprintf(instruction, "swp%s%s %s, %s, [%s]", arm_cond[ARM_NIB(28)], b==1?"b":"", arm_reg[ARM_NIB(12)], arm_reg[ARM_NIB(0)], arm_reg[ARM_NIB(16)]);
   }
     else
   if ((opcode&MRS_MASK)==MRS_OPCODE)
   {
     int ps=(opcode>>22)&1;
 
-    sprintf(instruction, "mrs%s r%d, %s", arm_cond[ARM_NIB(28)], ARM_NIB(12), ps==1?"SPSR":"CPSR");
+    sprintf(instruction, "mrs%s %s, %s", arm_cond[ARM_NIB(28)], arm_reg[ARM_NIB(12)], ps==1?"SPSR":"CPSR");
   }
     else
   if ((opcode&MSR_ALL_MASK)==MSR_ALL_OPCODE)
   {
     int ps=(opcode>>22)&1;
 
-    sprintf(instruction, "msr%s %s, r%d", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", ARM_NIB(0));
+    sprintf(instruction, "msr%s %s, %s", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", arm_reg[ARM_NIB(0)]);
   }
     else
   if ((opcode&MSR_FLAG_MASK)==MSR_FLAG_OPCODE)
@@ -180,7 +203,7 @@ char temp[32];
 
     if (i==0)
     {
-      sprintf(instruction, "msr%s %s_flg, r%d", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", ARM_NIB(0));
+      sprintf(instruction, "msr%s %s_flg, %s", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", arm_reg[ARM_NIB(0)]);
     }
       else
     {
@@ -207,7 +230,7 @@ char temp[32];
       sprintf(temp, "#%d {#%d, %d}", compute_immediate(opcode&0xfff), opcode&0xff, (opcode&0xf00)>>7);
     }
 
-    sprintf(instruction, "%s%s%s r%d, r%d, %s", arm_alu_ops[ARM_NIB(21)], arm_cond[ARM_NIB(28)], s==1?"S":"", ARM_NIB(12), ARM_NIB(16), temp);
+    sprintf(instruction, "%s%s%s %s, %s, %s", arm_alu_ops[ARM_NIB(21)], arm_cond[ARM_NIB(28)], s==1?"S":"", arm_reg[ARM_NIB(12)], arm_reg[ARM_NIB(16)], temp);
   }
     else
   if ((opcode&LDR_STR_MASK)==LDR_STR_OPCODE)
@@ -225,11 +248,11 @@ char temp[32];
     {
       if (offset==0)
       {
-        sprintf(temp, "[r%d]", rn);
+        sprintf(temp, "[%s]", arm_reg[rn]);
       }
         else
       {
-        sprintf(temp, "[r%d], #%s%d", rn, u==0?"-":"", offset);
+        sprintf(temp, "[%s], #%s%d", arm_reg[rn], u==0?"-":"", offset);
       }
     }
       else
@@ -245,34 +268,34 @@ char temp[32];
 
         if (pr==1)
         {
-          sprintf(temp, "[r%d, r%d, %s r%d]", rn, rm, arm_shift[type], shift>>4);
+          sprintf(temp, "[%s, %s, %s %s]", arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[shift>>4]);
         }
           else
         {
-          sprintf(temp, "[r%d], r%d, %s r%d", rn, rm, arm_shift[type], shift>>4);
+          sprintf(temp, "[%s], %s, %s %s", arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[shift>>4]);
         }
       }
         else
       {
         if (pr==1)
         {
-          sprintf(temp, "[r%d, r%d, %s #%d]", rn, rm, arm_shift[type], shift>>3);
+          sprintf(temp, "[%s, %s, %s #%d]", arm_reg[rn], arm_reg[rm], arm_shift[type], shift>>3);
         }
           else
         {
           if ((shift>>3)==0)
           {
-            sprintf(temp, "[r%d], r%d, %s #%d", rn, rm, arm_shift[type], shift>>3);
+            sprintf(temp, "[%s], %s, %s #%d", arm_reg[rn], arm_reg[rm], arm_shift[type], shift>>3);
           }
             else
           {
-            sprintf(temp, "[r%d], r%d", rn, rm);
+            sprintf(temp, "[%s], %s", arm_reg[rn], arm_reg[rm]);
           }
         }
       }
     }
 
-    sprintf(instruction, "%s%s%s r%d, %s%s", ls==0?"str":"ldr", arm_cond[ARM_NIB(28)], b==0?"":"b", ARM_NIB(12), temp, w==0?"":"!");
+    sprintf(instruction, "%s%s%s %s, %s%s", ls==0?"str":"ldr", arm_cond[ARM_NIB(28)], b==0?"":"b", arm_reg[ARM_NIB(12)], temp, w==0?"":"!");
   }
     else
   if ((opcode&UNDEF_MASK)==UNDEF_OPCODE)
@@ -288,26 +311,11 @@ char temp[32];
     int s=(opcode>>22)&1;
     int pru=(opcode>>23)&0x3;
 
-    sprintf(instruction, "%s%s%s r%d%s, {", ls==1?"ldm":"stm", pru_str[pru], s==1?"s":"",  ARM_NIB(16), w==1?"!":"");
+    sprintf(instruction, "%s%s%s %s%s, {", ls==1?"ldm":"stm", pru_str[pru], s==1?"s":"",  arm_reg[ARM_NIB(16)], w==1?"!":"");
 
     arm_register_list(instruction, opcode);
 
     strcat(instruction, "}");
-  }
-    else
-  if ((opcode&BRANCH_MASK)==BRANCH_OPCODE)
-  {
-    int l=(opcode>>24)&1;
-
-    sprintf(temp, "%s%s 0x%02x", l==0?"b":"bl", arm_cond[ARM_NIB(28)], (opcode&0xffffff)<<2);
-
-    *cycles_max=3;
-  }
-    else
-  if ((opcode&BRANCH_EXCH_MASK)==BRANCH_EXCH_OPCODE)
-  {
-    // FIXME - implement
-    printf("branch exch?\n");
   }
     else
   if ((opcode&CO_TRANSFER_MASK)==CO_TRANSFER_OPCODE)

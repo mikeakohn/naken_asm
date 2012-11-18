@@ -526,18 +526,53 @@ printf("shit\n");
   {
     if (strncmp(instr_lower, arm_cond_ops[n], n+1)==0)
     {
-      if (operand_count!=1 || operands[0].type!=OPERAND_NUMBER)
+      //if (operand_count!=1 || operands[0].type!=OPERAND_NUMBER)
+      if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
       {
-        print_error_illegal_operands(instr, asm_context);
-      }
+        instr_lower+=n+1;  // It works, but ick.
+        cond=parse_condition(&instr_lower);
+        unsigned int offset=operands[0].value-(asm_context->address+4);
 
-      instr_lower+=n+1;  // It works, but ick.
-      cond=parse_condition(&instr_lower);
-      unsigned int offset=(asm_context->address+4)-operands[0].value;
-      if (offset<(1<<23) || offset>=(1<<23))
-      opcode=0xa0000000|(n<<28)|offset;
-      add_bin32(asm_context, opcode, IS_OPCODE);
+        if ((offset>>26)==0 || (offset>>26)==0x3f) { offset&=0x3ffffff; }
+
+        if ((offset&0x3)!=0)
+        {
+          printf("Error: Address is not a multiple of 4 at %s:%d\n", asm_context->filename, asm_context->line);
+          return -1;
+        }
+
+        //if (offset<-(1<<23) || offset>=(1<<23))
+        if ((offset>>26)!=0)
+        {
+          print_error_range("Offset", -(1<<25), (1<<25)-1, asm_context);
+          return -1;
+        }
+
+        offset>>=2;
+
+        opcode=BRANCH_OPCODE|(n<<28)|offset;
+        add_bin32(asm_context, opcode, IS_OPCODE);
+        return 4;
+      }
     }
+  }
+
+  if (strncmp(instr_lower, "bx", 2)==0)
+  {
+    if (operand_count!=1 || operands[0].type!=OPERAND_REG)
+    {
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+    }
+
+    instr_lower+=2;  // It works, but ick.
+    cond=parse_condition(&instr_lower);
+    //unsigned int offset=(asm_context->address+4)-operands[0].value;
+    //if (offset<(1<<23) || offset>=(1<<23))
+    opcode=BRANCH_EXCH_OPCODE|cond<<28|operands[0].value;
+    add_bin32(asm_context, opcode, IS_OPCODE);
+
+    return 4;
   }
 
   // Check for load / store.

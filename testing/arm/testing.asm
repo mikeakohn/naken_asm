@@ -21,6 +21,7 @@
   orr r5, r6, #256
   orr r5, r6, #128, 2
 
+main:
   orr r5, r6, r7
   orr r5, r6, r7, lsl r0
   orr r5, r6, r7, ror #5
@@ -36,5 +37,7 @@
   ldr r6, [r7]
   str r7, [r8]
   str r7, 12
+
+  b main
 
 
