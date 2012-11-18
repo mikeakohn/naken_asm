@@ -713,6 +713,7 @@ printf("shit\n");
           operands[2].type!=OPERAND_REG)
       {
         print_error_illegal_operands(instr, asm_context);
+        return -1;
       }
 
       if (operand_count==3 && n==0)

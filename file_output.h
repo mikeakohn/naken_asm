@@ -31,6 +31,7 @@ struct _sections_offset
   long debug_abbrev;
   long debug_aranges;
   long rela_debug_aranges;
+  long arm_attribute;
 };
 
 struct _sections_size
@@ -50,6 +51,7 @@ struct _sections_size
   int debug_abbrev;
   int debug_aranges;
   int rela_debug_aranges;
+  int arm_attribute;
 };
 
 struct _shdr

@@ -308,7 +308,7 @@ write_int16_t write_int16;
     //".rela.debug_aranges\0"
   };
 
-  const char magic_number[16] = { 0x7f, 'E','L','F',  1, 1, 1, 0xff,
+  const char magic_number[16] = { 0x7f, 'E','L','F',  1, 1, 1, 0, //0xff,
                                0, 0, 0, 0,  0, 0, 0, 0 };
   memcpy(e_ident, magic_number, 16);
   if (asm_context->memory.endian==ENDIAN_LITTLE)
@@ -330,23 +330,25 @@ write_int16_t write_int16;
   // mspgcc4/build/insight-6.8-1/include/elf/msp430.h (11)
   e_flags=0;
 
+  e_shnum=4;
+
   // This could be a lookup table, but let's play it safe
-  switch (asm_context->cpu_type==CPU_TYPE_MSP430)
+  switch (asm_context->cpu_type)
   {
     case CPU_TYPE_MSP430: e_machine=0x69; e_flags=11; break;
-    case CPU_TYPE_ARM: e_machine=40; break;
+    case CPU_TYPE_ARM: e_machine=40; e_flags=0x05000000; e_shnum++; break;
+    //case CPU_TYPE_ARM: e_machine=40; break;
     case CPU_TYPE_DSPIC: e_machine=118; e_flags=1; break;
     case CPU_TYPE_MIPS: e_machine=8; break;
     default: e_machine=0; break;
   }
 
-  e_shnum=4;
   //if (asm_context->debug_file==1) { e_shnum+=4; }
   e_shnum++; // Null section to start...
 
   // Write Ehdr;
   i=fwrite(e_ident, 1, 16, out);
-  write_int16(out, 0);       // e_type 0=not relocatable 1=msp_32
+  write_int16(out, 1);       // e_type 0=not relocatable 1=msp_32
   write_int16(out, e_machine); // e_machine EM_MSP430=0x69
   write_int32(out, 1);       // e_version
   write_int32(out, 0);       // e_entry (this could be 16 bit at 0xfffe)
@@ -392,7 +394,7 @@ write_int16_t write_int16;
       if (text_count==0) { strcpy(name, ".text"); }
       else { sprintf(name, ".text%d", text_count); }
       text_addr[text_count]=i;
-printf("and i=%d  text_count=%d\n", i, text_count);
+//printf("and i=%d  text_count=%d\n", i, text_count);
       string_table_append(string_table, name);
       sections_offset.text[text_count]=ftell(out);
       //while(asm_context->debug_line[i]>=0 || asm_context->debug_line[i]==-3)
@@ -416,6 +418,28 @@ printf("and i=%d  text_count=%d\n", i, text_count);
   }
 
   e_shstrndx=data_count+text_count+1;
+
+  // .ARM.attribute
+  if (asm_context->cpu_type==CPU_TYPE_ARM)
+  {
+    const unsigned char aeabi[] = {
+      0x41, 0x30, 0x00, 0x00, 0x00, 0x61, 0x65, 0x61,
+      0x62, 0x69, 0x00, 0x01, 0x26, 0x00, 0x00, 0x00,
+      0x05, 0x36, 0x00, 0x06, 0x06, 0x08, 0x01, 0x09,
+      0x01, 0x0a, 0x02, 0x12, 0x04, 0x14, 0x01, 0x15,
+      0x01, 0x17, 0x03, 0x18, 0x01, 0x19, 0x01, 0x1a,
+      0x02, 0x1b, 0x03, 0x1c, 0x01, 0x1e, 0x06, 0x2c,
+      0x01
+    };
+    string_table_append(string_table, ".ARM.attributes");
+
+    sections_offset.arm_attribute=ftell(out);
+    i=fwrite(aeabi, 1, sizeof(aeabi), out);
+    sections_size.arm_attribute=ftell(out)-sections_offset.arm_attribute;
+    putc(0x00, out); // null
+    putc(0x00, out); // null
+    putc(0x00, out); // null
+  }
 
   // .shstrtab section
   sections_offset.shstrtab=ftell(out);
@@ -451,12 +475,24 @@ printf("and i=%d  text_count=%d\n", i, text_count);
       sym_offset+=strlen((char *)iter.name);
     }
 
-    putc(0x00, out); // null
     sections_size.strtab=ftell(out)-sections_offset.strtab;
+    //putc(0x00, out); // null
 
+// HERE
     // .symtab section
     elf_addr_align(out);
     sections_offset.symtab=ftell(out);
+
+    // symtab null
+    memset(&symtab, 0, sizeof(symtab));
+    write_symtab(out, &symtab, write_int32, write_int16);
+
+    // symtab filename
+    memset(&symtab, 0, sizeof(symtab));
+    symtab.st_name=1;
+    symtab.st_info=4;
+    symtab.st_shndx=65521;
+    write_symtab(out, &symtab, write_int32, write_int16);
 
     // symtab text
     memset(&symtab, 0, sizeof(symtab));
@@ -464,11 +500,14 @@ printf("and i=%d  text_count=%d\n", i, text_count);
     symtab.st_shndx=1;
     write_symtab(out, &symtab, write_int32, write_int16);
 
-    // symtab filename
-    memset(&symtab, 0, sizeof(symtab));
-    symtab.st_name=1;
-    symtab.st_info=4;
-    write_symtab(out, &symtab, write_int32, write_int16);
+    // symtab ARM.attribute
+    if (asm_context->cpu_type==CPU_TYPE_ARM)
+    {
+      memset(&symtab, 0, sizeof(symtab));
+      symtab.st_info=3;
+      symtab.st_shndx=e_shnum-1;
+      write_symtab(out, &symtab, write_int32, write_int16);
+    }
 
     // symbols from lookup tables
     n=0;
@@ -478,6 +517,8 @@ printf("and i=%d  text_count=%d\n", i, text_count);
       memset(&symtab, 0, sizeof(symtab));
       symtab.st_name=symbol_address[n++];
       symtab.st_value=iter.address;
+      symtab.st_size=8;
+      symtab.st_info=18;
       symtab.st_shndx=1;
       write_symtab(out, &symtab, write_int32, write_int16);
     }
@@ -504,6 +545,12 @@ printf("and i=%d  text_count=%d\n", i, text_count);
   write_int16(out, e_shstrndx); // e_shstrndx (string_table index)
   fseek(out, marker, SEEK_SET);
 
+  // ------------------------ fold here -----------------------------
+
+  // Let's align this eventually
+  //elf_addr_align(out);
+
+  // NULL section
   memset(&shdr, 0, sizeof(shdr));
   write_shdr(out, &shdr, write_int32, write_int16);
 
@@ -556,6 +603,8 @@ printf("and i=%d  text_count=%d\n", i, text_count);
   shdr.sh_type=2;
   shdr.sh_offset=sections_offset.symtab;
   shdr.sh_size=sections_size.symtab;
+  shdr.sh_link=4;
+  shdr.sh_info=4;
   shdr.sh_addralign=4;
   shdr.sh_entsize=16;
   write_shdr(out, &shdr, write_int32, write_int16);
@@ -573,14 +622,29 @@ printf("and i=%d  text_count=%d\n", i, text_count);
   memset(&shdr, 0, sizeof(shdr));
   shdr.sh_name=find_section(string_table, ".comment", sizeof(string_table));
   shdr.sh_type=1;
+  shdr.sh_flags=0x30;
   shdr.sh_offset=sections_offset.comment;
   shdr.sh_size=sections_size.comment;
   shdr.sh_addralign=1;
+  shdr.sh_entsize=1;
   write_shdr(out, &shdr, write_int32, write_int16);
 
   if (asm_context->debug_file==1)
   {
     // insert debug SHT's
+  }
+
+  // .ARM.attribute
+  if (asm_context->cpu_type==CPU_TYPE_ARM)
+  {
+    memset(&shdr, 0, sizeof(shdr));
+    shdr.sh_name=find_section(string_table, ".ARM.attributes", sizeof(string_table));
+printf("shdr.sh_name=%d\n", shdr.sh_name);
+    shdr.sh_type=0x1;  // wtf?
+    shdr.sh_offset=sections_offset.arm_attribute;
+    shdr.sh_size=sections_size.arm_attribute;
+    shdr.sh_addralign=1;
+    write_shdr(out, &shdr, write_int32, write_int16);
   }
  
   return 0;
