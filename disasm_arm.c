@@ -68,20 +68,20 @@ static int compute_immediate(int immediate)
 
 static void arm_calc_shift(char *temp, int shift, int reg)
 {
-  if ((shift&1)==0)
+  if ((shift&1)==1)
   {
-    sprintf(temp, "r%d, %s r%d", reg, arm_shift[(shift>>1)&0x3], shift>>4);
+    sprintf(temp, "%s, %s %s", arm_reg[reg], arm_shift[(shift>>1)&0x3], arm_reg[shift>>4]);
   }
     else
   {
     int shift_amount=shift>>3;
     if (shift_amount!=0)
     {
-      sprintf(temp, "r%d, %s #%d", reg, arm_shift[(shift>>1)&0x3], shift>>3);
+      sprintf(temp, "%s, %s #%d", arm_reg[reg], arm_shift[(shift>>1)&0x3], shift>>3);
     }
       else
     {
-      sprintf(temp, "r%d", reg);
+      sprintf(temp, "%s", arm_reg[reg]);
     }
   }
 }
@@ -252,7 +252,14 @@ char temp[32];
       }
         else
       {
-        sprintf(temp, "[%s], #%s%d", arm_reg[rn], u==0?"-":"", offset);
+        if (pr==1)
+        {
+          sprintf(temp, "[%s, #%s%d]", arm_reg[rn], u==0?"-":"", offset);
+        }
+          else
+        {
+          sprintf(temp, "[%s], #%s%d", arm_reg[rn], u==0?"-":"", offset);
+        }
       }
     }
       else

@@ -55,7 +55,6 @@ enum
   OPERAND_REG,
   OPERAND_REG_WRITE_BACK,
   OPERAND_IMMEDIATE,
-  OPERAND_INDEXED,
   OPERAND_SHIFT_IMMEDIATE,
   OPERAND_SHIFT_REG,
   OPERAND_NUMBER,
@@ -63,6 +62,12 @@ enum
   OPERAND_PSR,
   OPERAND_PSRF,
   OPERAND_MULTIPLE_REG,
+  OPERAND_REG_INDEXED,
+  OPERAND_REG_INDEXED_OPEN,
+  OPERAND_REG_INDEXED_CLOSE,
+  OPERAND_IMM_INDEXED_CLOSE,
+  OPERAND_SHIFT_IMM_INDEXED_CLOSE,
+  OPERAND_SHIFT_REG_INDEXED_CLOSE,
 };
 
 
@@ -191,6 +196,12 @@ int opcode=0;
       operands[operand_count].type=OPERAND_REG;
 
       token_type=get_token(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token,']'))
+      {
+        operands[operand_count].type=OPERAND_REG_INDEXED_CLOSE;
+        token_type=get_token(asm_context, token, TOKENLEN);
+      }
+
       if (IS_TOKEN(token,'!'))
       {
         operands[operand_count].type=OPERAND_REG_WRITE_BACK;
@@ -217,7 +228,6 @@ int opcode=0;
         if (asm_context->pass==1)
         {
           eat_operand(asm_context);
-          //operands[operand_count].error=1;
         }
           else
         {
@@ -226,13 +236,22 @@ int opcode=0;
         }
       }
 
-      //token_type=get_token(asm_context, token, TOKENLEN);
       operands[operand_count].value=num;
+
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token,']'))
+      {
+        operands[operand_count].type=OPERAND_IMM_INDEXED_CLOSE;
+      }
+        else
+      {
+        pushback(asm_context, token, token_type);
+      }
     }
       else
     if (IS_TOKEN(token,'['))
     {
-      operands[operand_count].type=OPERAND_INDEXED;
+      operands[operand_count].type=OPERAND_REG_INDEXED_OPEN;
       token_type=get_token(asm_context, token, TOKENLEN);
       n=get_register_arm(token);
       if (n==-1)
@@ -244,10 +263,13 @@ int opcode=0;
       operands[operand_count].value=n;
       token_type=get_token(asm_context, token, TOKENLEN);
 
-      if (IS_NOT_TOKEN(token,']'))
+      if (IS_TOKEN(token,']'))
       {
-        print_error_unexp(token, asm_context);
-        return -1;
+        operands[operand_count].type=OPERAND_REG_INDEXED;
+      }
+        else
+      {
+        pushback(asm_context, token, token_type);
       }
     }
       else
@@ -314,7 +336,6 @@ int opcode=0;
         if (IS_TOKEN(token,'}')) { break; }
         if (IS_NOT_TOKEN(token,','))
         {
-printf("shit\n");
           print_error_unexp(token, asm_context);
           return -1;
         }
@@ -360,6 +381,24 @@ printf("shit\n");
 
             operands[operand_count].value=r;
             operands[operand_count].type=OPERAND_SHIFT_REG;
+          }
+
+          token_type=get_token(asm_context, token, TOKENLEN);
+          if (IS_TOKEN(token,']'))
+          {
+            if (operands[operand_count].type==OPERAND_SHIFT_REG)
+            {
+              operands[operand_count].type=OPERAND_SHIFT_REG_INDEXED_CLOSE;
+            }
+              else
+            if (operands[operand_count].type==OPERAND_SHIFT_IMMEDIATE)
+            {
+              operands[operand_count].type=OPERAND_SHIFT_IMM_INDEXED_CLOSE;
+            }
+          }
+            else
+          {
+            pushback(asm_context, token, token_type);
           }
 
           break;
@@ -438,7 +477,9 @@ printf("shit\n");
       {
         // mov rd, rn
         rd=operands[0].value;
-        rn=operands[1].value;
+        rn=0;
+        immediate=(1<<4)|operands[1].value;
+        i=1;
       }
         else
       if (operand_count==2 &&
@@ -494,10 +535,10 @@ printf("shit\n");
           operands[1].type==OPERAND_REG &&
           operands[2].type==OPERAND_REG)
       {
-        // mov rd, rn, rm
+        // orr rd, rn, rm
         rd=operands[0].value;
         rn=operands[1].value;
-        immediate=operands[2].value|(1<<4);
+        immediate=operands[2].value;
       }
         else
       if (operand_count==4 &&
@@ -513,12 +554,12 @@ printf("shit\n");
         if (operands[3].type==OPERAND_SHIFT_IMMEDIATE)
         {
           // mov rd, rn, rm, shift #
-          immediate=operands[2].value|(((operands[3].value<<3)|(operands[3].sub_type<<1)|1)<<4);
+          immediate=operands[2].value|(((operands[3].value<<3)|(operands[3].sub_type<<1))<<4);
         }
           else
         {
           // mov rd, rn, rm, shift reg
-          immediate=operands[2].value|(((operands[3].value<<4)|(operands[3].sub_type<<1))<<4);
+          immediate=operands[2].value|(((operands[3].value<<4)|(operands[3].sub_type<<1)|1)<<4);
         }
       }
         else
@@ -627,14 +668,28 @@ printf("shit\n");
         else
       if (operand_count==2 &&
           operands[0].type==OPERAND_REG &&
-          operands[1].type==OPERAND_INDEXED)
+          operands[1].type==OPERAND_REG_INDEXED)
       {
         offset=0;
       }
         else
       if (operand_count==3 &&
           operands[0].type==OPERAND_REG &&
-          operands[1].type==OPERAND_INDEXED &&
+          operands[1].type==OPERAND_REG_INDEXED_OPEN &&
+          operands[2].type==OPERAND_IMM_INDEXED_CLOSE)
+      {
+        offset=operands[2].value;
+        pr=1;
+        if (offset<0 && offset>-4096) { offset=-offset; u=0; }
+        if (offset<0 || offset>4095)
+        {
+          print_error_range("Offset", 0, 4095, asm_context);
+        }
+      }
+        else
+      if (operand_count==3 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_REG_INDEXED &&
           operands[2].type==OPERAND_IMMEDIATE)
       {
         offset=operands[2].value;
@@ -647,7 +702,7 @@ printf("shit\n");
         else
       if (operand_count==3 &&
           operands[0].type==OPERAND_REG &&
-          operands[1].type==OPERAND_INDEXED &&
+          operands[1].type==OPERAND_REG_INDEXED &&
           operands[2].type==OPERAND_REG)
       {
         offset=operands[2].value|(1<<4);
@@ -656,7 +711,17 @@ printf("shit\n");
         else
       if (operand_count==3 &&
           operands[0].type==OPERAND_REG &&
-          operands[1].type==OPERAND_INDEXED &&
+          operands[1].type==OPERAND_REG_INDEXED_OPEN &&
+          operands[2].type==OPERAND_REG_INDEXED_CLOSE)
+      {
+        offset=operands[2].value|(1<<4);
+        pr=1;
+        i=1;
+      }
+        else
+      if (operand_count==3 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_REG_INDEXED &&
           operands[2].type==OPERAND_REG &&
           (operands[3].type==OPERAND_SHIFT_IMMEDIATE ||
            operands[3].type==OPERAND_SHIFT_REG))
@@ -664,6 +729,30 @@ printf("shit\n");
         offset=operands[2].value;
 
         if (operands[3].type==OPERAND_SHIFT_IMMEDIATE)
+        {
+          // ldr rd, [rn], rm, shift #
+          offset|=(((operands[3].value<<3)|(operands[3].sub_type<<1)|1)<<4);
+        }
+          else
+        {
+          // ldr rd, [rn], rm, shift rs 
+          offset|=(((operands[3].value<<4)|(operands[3].sub_type<<1))<<4);
+        }
+
+        i=1;
+      }
+        else
+      if (operand_count==3 &&
+          operands[0].type==OPERAND_REG &&
+          operands[1].type==OPERAND_REG_INDEXED_OPEN &&
+          operands[2].type==OPERAND_REG &&
+          (operands[3].type==OPERAND_SHIFT_IMM_INDEXED_CLOSE ||
+           operands[3].type==OPERAND_SHIFT_REG_INDEXED_CLOSE))
+      {
+        offset=operands[2].value;
+        pr=1;
+
+        if (operands[3].type==OPERAND_SHIFT_IMM_INDEXED_CLOSE)
         {
           // ldr rd, [rn], rm, shift #
           offset|=(((operands[3].value<<3)|(operands[3].sub_type<<1)|1)<<4);
@@ -731,7 +820,7 @@ printf("shit\n");
          operand_count==3 &&
          operands[0].type==OPERAND_REG &&
          operands[1].type==OPERAND_REG &&
-         operands[2].type==OPERAND_INDEXED)
+         operands[2].type==OPERAND_REG_INDEXED)
     {
       if (*instr_lower=='b') b=1;
 

@@ -517,7 +517,7 @@ write_int16_t write_int16;
       memset(&symtab, 0, sizeof(symtab));
       symtab.st_name=symbol_address[n++];
       symtab.st_value=iter.address;
-      symtab.st_size=8;
+      symtab.st_size=0;
       symtab.st_info=18;
       symtab.st_shndx=1;
       write_symtab(out, &symtab, write_int32, write_int16);
@@ -639,8 +639,7 @@ write_int16_t write_int16;
   {
     memset(&shdr, 0, sizeof(shdr));
     shdr.sh_name=find_section(string_table, ".ARM.attributes", sizeof(string_table));
-printf("shdr.sh_name=%d\n", shdr.sh_name);
-    shdr.sh_type=0x1;  // wtf?
+    shdr.sh_type=1879048195;  // wtf?
     shdr.sh_offset=sections_offset.arm_attribute;
     shdr.sh_size=sections_size.arm_attribute;
     shdr.sh_addralign=1;

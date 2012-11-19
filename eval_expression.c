@@ -239,7 +239,7 @@ printf("Paren got back %d\n", paren_num);
     }
 
     // End of expression
-    if (IS_TOKEN(token,',') || token_type==TOKEN_EOF)
+    if (IS_TOKEN(token,',') || IS_TOKEN(token,']') || token_type==TOKEN_EOF)
     {
       pushback(asm_context, token, token_type);
       break;
