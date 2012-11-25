@@ -16,7 +16,8 @@
 
 #include "assembler.h"
 //#include "disasm_msp430.h"
-#include "file_output.h"
+#include "write_elf.h"
+#include "write_hex.h"
 #include "lookup_tables.h"
 #include "macros.h"
 #include "version.h"

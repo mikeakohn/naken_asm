@@ -9,11 +9,11 @@
  *
  */
 
-#ifndef _FILEOUTPUT_H
-#define _FILEOUTPUT_H
+#ifndef _WRITE_ELF_H
+#define _WRITE_ELF_H
 
-#ifndef DISABLE_ELF
 #define ELF_TEXT_MAX 64
+
 struct _sections_offset
 {
   long text[ELF_TEXT_MAX];
@@ -79,10 +79,6 @@ struct _symtab
 };
 
 int write_elf(struct _asm_context *asm_context, FILE *out);
-#endif
-
-int write_hex(struct _asm_context *asm_context, FILE *out);
-int write_bin(struct _asm_context *asm_context, FILE *out);
 
 #endif
 
