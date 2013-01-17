@@ -156,6 +156,11 @@ int error_flag=0;
     }
       else
     {
+      if (infile!=NULL)
+      {
+        printf("Error: Cannot use %s as input file since %s was already chosen.\n", argv[1], infile);
+        exit(1);
+      }
       infile=argv[i];
     }
   }
