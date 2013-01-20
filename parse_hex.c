@@ -137,11 +137,15 @@ int segment=0;
         #endif
         break;
 
-      /* Start Segment Address Record */
-      case 0x03:
-
       /* Extended Linear Address Record */
       case 0x04:
+        ch=get_hex(in,4);
+        checksum_calc+=(ch&0xff)+(ch>>8);
+        segment=(ch<<16);
+        break;
+
+      /* Start Segment Address Record */
+      case 0x03:
 
       /* Start Linear Address Record */
       case 0x05:

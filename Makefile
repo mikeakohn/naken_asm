@@ -1,12 +1,12 @@
 include config.mak
 
 OBJS=asm_65xx.o asm_680x0.o asm_805x.o asm_arm.o asm_common.o asm_dspic.o \
-     asm_mips.o asm_msp430.o assembler.o disasm_65xx.o disasm_680x0.o \
-     disasm_805x.o disasm_arm.o disasm_common.o disasm_dspic.o disasm_mips.o \
-     disasm_msp430.o eval_expression.o write_elf.o write_hex.o get_tokens.o \
-     ifdef_expression.o lookup_tables.o macros.o memory.o parse_elf.o \
-     parse_hex.o table_65xx.o table_680x0.o table_805x.o table_mips.o \
-     table_dspic.o
+     asm_mips.o asm_msp430.o asm_stm8.o assembler.o disasm_65xx.o \
+     disasm_680x0.o disasm_805x.o disasm_arm.o disasm_common.o disasm_dspic.o \
+     disasm_mips.o disasm_msp430.o disasm_stm8.o eval_expression.o write_elf.o \
+     write_hex.o get_tokens.o ifdef_expression.o lookup_tables.o macros.o \
+     memory.o parse_elf.o parse_hex.o table_65xx.o table_680x0.o table_805x.o \
+     table_mips.o table_dspic.o table_stm8.o
 SIM_OBJS=simulate_65xx.o simulate_msp430.o
 
 default: $(OBJS) $(SIM_OBJS)
@@ -15,9 +15,10 @@ default: $(OBJS) $(SIM_OBJS)
 	   $(CFLAGS) $(LDFLAGS)
 	$(CC) -o naken_util$(CONFIG_EXT) naken_util.c disasm_65xx.o \
 	   disasm_805x.o disasm_arm.o disasm_common.o disasm_dspic.o \
-	   disasm_mips.o disasm_msp430.o parse_elf.o parse_hex.o memory.o \
-	   simulate_65xx.o simulate_msp430.o table_65xx.o table_805x.o \
-	   table_dspic.o table_mips.o $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
+	   disasm_mips.o disasm_msp430.o disasm_stm8.o parse_elf.o parse_hex.o \
+	   memory.o simulate_65xx.o simulate_msp430.o table_65xx.o \
+	   table_805x.o table_dspic.o table_mips.o table_stm8.o \
+	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
 %.o: %.c *.h
 	$(CC) -c $*.c $(CFLAGS) $(LDFLAGS)

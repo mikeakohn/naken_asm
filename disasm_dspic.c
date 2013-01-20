@@ -338,7 +338,7 @@ int n,r;
             //count+=2;
             break;
           case OP_EXPR_GOTO:
-            value=(opcode&0xffff)|get_opcode32(memory, address+4);
+            value=(opcode&0xffff)|(get_opcode32(memory, address+4)<<16);
             sprintf(temp, "0x%04x", value);
             //count+=2;
             break;
