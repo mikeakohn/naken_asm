@@ -20,6 +20,7 @@
 #include "asm_dspic.h"
 #include "asm_mips.h"
 #include "asm_msp430.h"
+#include "asm_stm8.h"
 #include "assembler.h"
 #include "disasm_65xx.h"
 #include "disasm_arm.h"
@@ -27,6 +28,7 @@
 #include "disasm_mips.h"
 #include "disasm_msp430.h"
 #include "disasm_805x.h"
+#include "disasm_stm8.h"
 #include "eval_expression.h"
 #include "get_tokens.h"
 #include "ifdef_expression.h"
@@ -758,6 +760,14 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->parse_instruction=parse_instruction_805x;
     asm_context->list_output=list_output_805x;
     asm_context->cpu_type=CPU_TYPE_805X;
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "stm8")==0)
+  {
+    asm_context->parse_instruction=parse_instruction_stm8;
+    asm_context->list_output=list_output_stm8;
+    asm_context->cpu_type=CPU_TYPE_STM8;
     return 1;
   }
     else

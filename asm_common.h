@@ -19,6 +19,7 @@
 #define IS_OPCODE 1
 
 void add_bin(struct _asm_context *asm_context, unsigned short int b, int flags);
+void add_bin8(struct _asm_context *asm_context, unsigned char b, int flags);
 void add_bin24(struct _asm_context *asm_context, unsigned int b, int flags);
 void add_bin32(struct _asm_context *asm_context, unsigned int b, int flags);
 int eat_operand(struct _asm_context *asm_context);

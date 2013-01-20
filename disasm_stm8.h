@@ -33,6 +33,8 @@ struct _stm8_x_y
   char st7_support;
 };
 
+extern struct _stm8_single stm8_single[];
+extern struct _stm8_x_y stm8_x_y[];
 
 int get_cycle_count_stm8(unsigned short int opcode);
 int disasm_stm8(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max);

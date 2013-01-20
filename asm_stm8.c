@@ -34,6 +34,44 @@ int num,n,r;
 
   lower_copy(instr_case, instr);
 
+  n=0;
+  while(stm8_single[n].instr!=NULL)
+  {
+    if (strcmp(stm8_single[n].instr, instr_case)==0)
+    {
+      add_bin8(asm_context, stm8_single[n].opcode, IS_OPCODE);
+      return 1;
+    }
+
+    n++;
+  }
+
+  n=0;
+  while(stm8_x_y[n].instr!=NULL)
+  {
+    token_type=get_token(asm_context, token, TOKENLEN);
+
+    if (strcasecmp("y", token)==0)
+    {
+      add_bin8(asm_context, 0x90, IS_OPCODE);
+    }
+      else
+    if (strcasecmp("x", token)!=0)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    if (strcmp(stm8_x_y[n].instr, instr_case)==0)
+    {
+      add_bin8(asm_context, stm8_x_y[n].opcode, IS_OPCODE);
+      return 1;
+    }
+
+    n++;
+  }
+
+#if 0
   while(1)
   {
     token_type=get_token(asm_context, token, TOKENLEN);
@@ -55,9 +93,10 @@ int num,n,r;
 
   if (asm_context->pass==1)
   {
-    add_bin32(asm_context, 0, IS_OPCODE);
+    add_bin8(asm_context, 0, IS_OPCODE);
     return 4;
   }
+#endif
 
 
   printf("Error: Unknown instruction '%s'  at %s:%d\n", instr, asm_context->filename, asm_context->line);

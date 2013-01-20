@@ -25,7 +25,7 @@ int get_cycle_count_stm8(unsigned short int opcode)
 
 int disasm_stm8(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
-unsigned int opcode;
+unsigned char opcode;
 int function,format;
 int n,r;
 char temp[32];
@@ -33,19 +33,82 @@ char temp[32];
   *cycles_min=-1;
   *cycles_max=-1;
 
+  opcode=READ_RAM(address);
 
-  return 0;
+  if (opcode==0x90)
+  {
+    opcode=READ_RAM(address+1);
+printf("opcode=0x%02x\n", opcode);
+    n=0;
+    while(stm8_x_y[n].instr!=NULL)
+    {
+//printf("%02x %02x\n", stm8_x_y[n].opcode, opcode);
+      if (stm8_x_y[n].opcode==opcode)
+      {
+        sprintf(instruction, "%s Y", stm8_x_y[n].instr);
+        return 2;
+      }
+
+      n++;
+    }
+
+    strcpy(instruction, "???");
+    return 1;
+  }
+
+  n=0;
+  while(stm8_single[n].instr!=NULL)
+  {
+    if (stm8_single[n].opcode==opcode)
+    {
+      strcpy(instruction, stm8_single[n].instr);
+      //add_bin(asm_context, stm8_single[n].opcode, IS_OPCODE);
+      return 1;
+    }
+
+    n++;
+  }
+
+  n=0;
+  while(stm8_x_y[n].instr!=NULL)
+  {
+    if (stm8_x_y[n].opcode==opcode)
+    {
+      sprintf(instruction, "%s X", stm8_x_y[n].instr);
+      return 1;
+    }
+
+    n++;
+  }
+
+  strcpy(instruction, "???");
+
+  return 1;
 }
 
 void list_output_stm8(struct _asm_context *asm_context, int address)
 {
 int cycles_min,cycles_max,count;
 char instruction[128];
-unsigned int opcode=get_opcode32(&asm_context->memory, address);
+//unsigned int opcode=READ_RAM(&asm_context->memory, address);
+//unsigned int opcode=0;
+int n;
 
   fprintf(asm_context->list, "\n");
   count=disasm_stm8(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-  fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", address, opcode, instruction);
+  fprintf(asm_context->list, "0x%04x:", address);
+  for (n = 0; n < 5; n++)
+  {
+    if (n < count)
+    {
+      fprintf(asm_context->list, " %02x", memory_read_m(&asm_context->memory, address+n));
+    }
+      else
+    {
+      fprintf(asm_context->list, "   ");
+    }
+  }
+  fprintf(asm_context->list, " %-40s cycles: ", instruction);
 
   if (cycles_min==cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }

@@ -36,6 +36,14 @@ int line=DL_NO_CG;
   }
 }
 
+void add_bin8(struct _asm_context *asm_context, unsigned char b, int flags)
+{
+int line=DL_NO_CG;
+
+  if (asm_context->pass==2 && flags==IS_OPCODE) { line=asm_context->line; }
+  memory_write_inc(asm_context, b, line);
+}
+
 void add_bin32(struct _asm_context *asm_context, unsigned int b, int flags)
 {
 int line=asm_context->line;

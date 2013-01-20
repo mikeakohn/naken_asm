@@ -198,7 +198,7 @@ int n;
 
     if (operand_count==0)
     {
-      if (strcasecmp(instr_case, "bra")==0)
+      if (strcmp(instr_case, "bra")==0)
       {
         if (is_condition(token)==1)
         {

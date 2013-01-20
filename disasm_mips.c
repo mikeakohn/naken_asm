@@ -226,7 +226,7 @@ char temp[32];
 
     if (mips_i_table[n].instr==NULL)
     {
-      printf("Internal Error: Unknown MIPS opcode %08x, %s:%d\n", opcode, __FILE__, __LINE__);
+      //printf("Internal Error: Unknown MIPS opcode %08x, %s:%d\n", opcode, __FILE__, __LINE__);
       strcpy(instruction, "???");
     }
   }

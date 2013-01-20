@@ -34,7 +34,8 @@ enum
   CPU_TYPE_805X,
   CPU_TYPE_ARM,
   CPU_TYPE_DSPIC,
-  CPU_TYPE_MIPS
+  CPU_TYPE_MIPS,
+  CPU_TYPE_STM8
 };
 
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
