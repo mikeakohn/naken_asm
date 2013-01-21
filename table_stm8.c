@@ -42,10 +42,80 @@ struct _stm8_x_y stm8_x_y[] = {
 };
 
 /*
+SUB    0   // plus SUB SP, #byte
+CP     1
+SBC    2
+AND    4
+BCP    5
+LD     6
+LD     7   // reverse
+XOR    8
+ADC    9
+OR     a
+ADD    b
+JP     c   // no a, b, 1
+CALL   d   // no a and b
+*/
+
+//struct _stm8_instr stm8_type1[] = {
+char *stm8_type1[] = {
+  "sub",   //0   // plus SUB SP, #byte
+  "cp",    //1
+  "sbc",   //2
+  NULL,    //3
+  "and",   //4
+  "bcp" ,  //5
+  "ld",    //6
+  "ld",    //7   // reverse
+  "xor",   //8
+  "adc",   //9
+  "or",    //a
+  "add",   //b
+  "jp",    //c   // no a, b, 1
+  "call",  //d   // no a and b
+  NULL,    //e
+  NULL,    //f
+};
+
+/*
+NEG   0
+CPL   3
+SRL   4
+RRC   6
+SRA   7
+SLL   8   (SLA also)
+RLC   9
+DEC   a
+INC   c
+TNZ   d
+SWAP  e
+CLR   f
+*/
+
+//struct _stm8_instr stm8_type2[] = {
+char *stm8_type2[] = {
+  "neg",  // 0
+  NULL,   // 1
+  NULL,   // 2
+  "cpl",  // 3
+  "srl",  // 4
+  NULL,   // 5
+  "rrc",  // 6
+  "sra",  // 7
+  "sll",  // 8   (SLA also)
+  "rlc",  // 9
+  "dec",  // a
+  NULL,   // b
+  "inc",  // c
+  "tnz",  // d
+  "swap", // e
+  "clr",  // f
+};
+
+/*
 Load and Transfer
 LD
 LDF
-CLR
 MOV
 EXG
 LDW
@@ -55,21 +125,9 @@ Stack operation
 PUSH
 POP
 
-Increment/ Decrement
-INC
-DEC
-
 Compare and Tests
-CP
-TNZ
-BCP
 CPW
 
-Logical operations
-AND
-OR
-XOR
-CPL
 
 Bit Operation
 BSET
@@ -82,32 +140,17 @@ BTJT
 BTJF
 
 Arithmetic operations
-NEG
-ADC
-ADD
-SUB
-SBC
 MUL
 DIV
 DIVW
 ADDW
 SUBW
 
-Shift and Rotates
-SLL
-SRL
-SRA
-RLC
-RRC
-SWAP
-
 Unconditional Jump or Call
 JRA
 JRT
 JRF
-JP
 JPF
-CALL
 CALLR
 CALLF
 
