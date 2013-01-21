@@ -106,7 +106,8 @@ int prefix=0;
     n++;
   }
 
-  if (stm8_type1[opcode&0x0f]!=NULL)
+  int opcode_nybble=opcode&0x0f;
+  if (stm8_type1[opcode_nybble]!=NULL)
   {
     int masked=opcode&0xf0;
     char operand[32];
@@ -138,7 +139,7 @@ int prefix=0;
       { sprintf(operand, "$%02x.w", READ_RAM(address+1)); }
         else
       if (prefix==0x72)
-      { sprintf(operand, "$%04x", READ_RAM16(address+1)); }
+      { sprintf(operand, "$%04x", READ_RAM16(address+1)); size++; }
     }
       else
     if (masked==0xf0)
@@ -196,6 +197,93 @@ int prefix=0;
       *cycles_min=cycles;
       *cycles_max=cycles;
       if (prefix!=0) { size++; }
+
+      if (opcode_nybble==7)
+      { sprintf(instruction, "%s %s, A", stm8_type1[opcode_nybble], operand); }
+        else
+      { sprintf(instruction, "%s A, %s", stm8_type1[opcode_nybble], operand); }
+
+      return size;
+    }
+  }
+
+  if (stm8_type2[opcode_nybble]!=NULL)
+  {
+    int masked=opcode&0xf0;
+    char operand[32];
+    operand[0]=0;
+    int cycles=1;
+    int size=2;
+
+    if (masked==0x00 && prefix==0)
+    {
+      sprintf(operand, "($%02x,SP)", READ_RAM(address+1));
+    }
+      else
+    if (masked==0x50 && prefix==72)
+    {
+      sprintf(operand, "$%04x", READ_RAM16(address+1));
+      size=3;
+    }
+      else
+    if (masked==0x30)
+    {
+      if (prefix==0)
+      { sprintf(operand, "$%04x", READ_RAM16(address+1)); }
+        else
+      if (prefix==0x92)
+      { sprintf(operand, "[$%02x]", READ_RAM(address+1)); cycles=4; }
+        else
+      if (prefix==0x72)
+      { sprintf(operand, "[$%04x].w", READ_RAM16(address+1)); size++; cycles=4; }
+    }
+      else
+    if (masked==0x70)
+    {
+      if (prefix==0) { strcpy(operand, "(X)"); }
+      else if (prefix==0x90) { strcpy(operand, "(Y)"); }
+      size=1;
+    }
+      else
+    if (masked==0x40)
+    {
+      if (prefix==0) { strcpy(operand, "A"); size=1; }
+        else
+      if (prefix==0x72)
+      { sprintf(operand, "($%02x,X)", READ_RAM(address+1)); }
+        else
+      if (prefix==0x90)
+      { sprintf(operand, "($%02x,Y)", READ_RAM(address+1)); }
+    }
+      else
+    if (masked==0x60)
+    {
+      if (prefix==0)
+      { sprintf(operand, "($%02x,X)", READ_RAM(address+1)); }
+        else
+      if (prefix==0x90)
+      { sprintf(operand, "(9$%02x,Y)", READ_RAM(address+1)); }
+        else
+      if (prefix==0x92)
+      { sprintf(operand, "([$%02x.w],X)", READ_RAM(address+1)); }
+        else
+      if (prefix==0x72)
+      { sprintf(operand, "([$%04x.w],X)", READ_RAM16(address+1)); size++; }
+        else
+      if (prefix==0x91)
+      { sprintf(operand, "([$%02x.w],Y)", READ_RAM(address+1)); }
+
+      if (prefix!=0 && prefix!=0x90) { cycles=4; }
+    }
+
+    if (operand[0]!=0)
+    {
+      *cycles_min=cycles;
+      *cycles_max=cycles;
+      if (prefix!=0) { size++; }
+
+      sprintf(instruction, "%s %s", stm8_type2[opcode_nybble], operand);
+
       return size;
     }
   }

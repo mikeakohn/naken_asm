@@ -71,6 +71,10 @@ int num,n,r;
     n++;
   }
 
+  for (n=0; n<16; n++)
+  {
+  }
+
 #if 0
   while(1)
   {
