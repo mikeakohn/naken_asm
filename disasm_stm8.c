@@ -91,12 +91,12 @@ int prefix=0;
         sprintf(instruction, "%s X", stm8_x_y[n].instr);
       }
         else
-      if (prefix==0x92)
+      if (prefix==0x90)
       {
         sprintf(instruction, "%s Y", stm8_x_y[n].instr);
       }
         else
-      { continue; }
+      { return -1; }
 
       *cycles_min=stm8_x_y[n].cycles;
       *cycles_max=stm8_x_y[n].cycles;
@@ -106,8 +106,8 @@ int prefix=0;
     n++;
   }
 
-  int opcode_nybble=opcode&0x0f;
-  if (stm8_type1[opcode_nybble]!=NULL)
+  int opcode_nibble=opcode&0x0f;
+  if (stm8_type1[opcode_nibble]!=NULL)
   {
     int masked=opcode&0xf0;
     char operand[32];
@@ -198,16 +198,16 @@ int prefix=0;
       *cycles_max=cycles;
       if (prefix!=0) { size++; }
 
-      if (opcode_nybble==7)
-      { sprintf(instruction, "%s %s, A", stm8_type1[opcode_nybble], operand); }
+      if (opcode_nibble==7)
+      { sprintf(instruction, "%s %s, A", stm8_type1[opcode_nibble], operand); }
         else
-      { sprintf(instruction, "%s A, %s", stm8_type1[opcode_nybble], operand); }
+      { sprintf(instruction, "%s A, %s", stm8_type1[opcode_nibble], operand); }
 
       return size;
     }
   }
 
-  if (stm8_type2[opcode_nybble]!=NULL)
+  if (stm8_type2[opcode_nibble]!=NULL)
   {
     int masked=opcode&0xf0;
     char operand[32];
@@ -282,7 +282,7 @@ int prefix=0;
       *cycles_max=cycles;
       if (prefix!=0) { size++; }
 
-      sprintf(instruction, "%s %s", stm8_type2[opcode_nybble], operand);
+      sprintf(instruction, "%s %s", stm8_type2[opcode_nibble], operand);
 
       return size;
     }

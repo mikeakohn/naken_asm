@@ -8,4 +8,5 @@ main:
   clrw x
   clrw y
 
+  or A, #$55
 

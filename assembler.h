@@ -119,6 +119,7 @@ struct _asm_context
   int include_count;
   const char *filename;
   char cpu_type;
+  char is_dollar_hex:1;
 };
 
 struct _memory_pool *add_pool(struct _naken_heap *heap, int heap_len);

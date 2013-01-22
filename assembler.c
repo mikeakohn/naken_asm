@@ -752,6 +752,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->parse_instruction=parse_instruction_65xx;
     asm_context->list_output=list_output_65xx;
     asm_context->cpu_type=CPU_TYPE_65XX;
+    asm_context->is_dollar_hex=1;
     return 1;
   }
     else
@@ -768,6 +769,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->parse_instruction=parse_instruction_stm8;
     asm_context->list_output=list_output_stm8;
     asm_context->cpu_type=CPU_TYPE_STM8;
+    asm_context->is_dollar_hex=1;
     return 1;
   }
     else
