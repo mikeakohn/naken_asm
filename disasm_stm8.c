@@ -144,8 +144,8 @@ int prefix=0;
       else
     if (masked==0xf0)
     {
-      if (prefix==0) { strcpy(operand, "X"); }
-      else if (prefix==0x90) { strcpy(operand, "Y"); }
+      if (prefix==0) { strcpy(operand, "(X)"); }
+      else if (prefix==0x90) { strcpy(operand, "(Y)"); }
       size=1;
     }
       else
