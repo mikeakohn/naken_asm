@@ -133,10 +133,10 @@ int prefix=0;
     if (masked==0xc0)
     {
       if (prefix==0)
-      { sprintf(operand, "$%04x", READ_RAM16(address+1)); }
+      { sprintf(operand, "$%04x", READ_RAM16(address+1)); size++; }
         else
       if (prefix==0x92)
-      { sprintf(operand, "$%02x.w", READ_RAM(address+1)); }
+      { sprintf(operand, "$%02x", READ_RAM(address+1)); }
         else
       if (prefix==0x72)
       { sprintf(operand, "$%04x", READ_RAM16(address+1)); size++; }
@@ -164,16 +164,16 @@ int prefix=0;
       { sprintf(operand, "($%04x,X)", READ_RAM16(address+1)); size++; }
         else
       if (prefix==0x90)
-      { sprintf(operand, "([$%04x.w],Y)", READ_RAM16(address+1)); size++; }
+      { sprintf(operand, "([$%04x],Y)", READ_RAM16(address+1)); size++; }
         else
       if (prefix==0x92)
-      { sprintf(operand, "([$%02x.w],X)", READ_RAM(address+1)); }
+      { sprintf(operand, "([$%02x],X)", READ_RAM(address+1)); }
         else
       if (prefix==0x72)
-      { sprintf(operand, "([$%04x.w],X)", READ_RAM16(address+1)); size++; }
+      { sprintf(operand, "([$%04x],X)", READ_RAM16(address+1)); size++; }
         else
       if (prefix==0x91)
-      { sprintf(operand, "([$%02x.w],Y)", READ_RAM(address+1)); }
+      { sprintf(operand, "([$%02x],Y)", READ_RAM(address+1)); }
 
       if (prefix!=0 && prefix!=0x90) { cycles=4; }
     }
@@ -184,10 +184,10 @@ int prefix=0;
       { sprintf(operand, "$%04x", READ_RAM16(address+1)); size++; }
         else
       if (prefix==0x92)
-      { sprintf(operand, "[$%02x.w]", READ_RAM(address+1)); }
+      { sprintf(operand, "[$%02x]", READ_RAM(address+1)); }
         else
       if (prefix==0x72)
-      { sprintf(operand, "[$%04x.w]", READ_RAM16(address+1)); size++; }
+      { sprintf(operand, "[$%04x]", READ_RAM16(address+1)); size++; }
 
       if (prefix!=0) { cycles=4; }
     }
@@ -265,13 +265,13 @@ int prefix=0;
       { sprintf(operand, "(9$%02x,Y)", READ_RAM(address+1)); }
         else
       if (prefix==0x92)
-      { sprintf(operand, "([$%02x.w],X)", READ_RAM(address+1)); }
+      { sprintf(operand, "([$%02x],X)", READ_RAM(address+1)); }
         else
       if (prefix==0x72)
-      { sprintf(operand, "([$%04x.w],X)", READ_RAM16(address+1)); size++; }
+      { sprintf(operand, "([$%04x],X)", READ_RAM16(address+1)); size++; }
         else
       if (prefix==0x91)
-      { sprintf(operand, "([$%02x.w],Y)", READ_RAM(address+1)); }
+      { sprintf(operand, "([$%02x],Y)", READ_RAM(address+1)); }
 
       if (prefix!=0 && prefix!=0x90) { cycles=4; }
     }
@@ -304,6 +304,7 @@ int n;
   fprintf(asm_context->list, "\n");
   count=disasm_stm8(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
   fprintf(asm_context->list, "0x%04x:", address);
+
   for (n = 0; n < 5; n++)
   {
     if (n < count)

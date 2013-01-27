@@ -21,7 +21,7 @@
 #include "get_tokens.h"
 #include "eval_expression.h"
 
-static int parse_number(struct _asm_context *asm_context, int *num)
+static int parse_num(struct _asm_context *asm_context, char *instr, int *num, int max_size)
 {
 char token[TOKENLEN];
 int token_type;
@@ -32,7 +32,7 @@ int size=1;
     if (asm_context->pass==1)
     {
       memory_write_m(&asm_context->memory, asm_context->address, 1);
-      return -2;
+      return max_size;
     }
 
     print_error_illegal_operands(instr, asm_context);
@@ -52,14 +52,10 @@ int size=1;
         return -1;
       }
 
+#if 0
       unsigned char a=(unsigned char)*num;
       *num=a;
       return 1;
-#if 0
-      if (asm_context->pass==1)
-      {
-        memory_write_m(&asm_context->memory, asm_context->address, 1);
-      }
 #endif
     }
       else
@@ -71,14 +67,11 @@ int size=1;
         return -1;
       }
 
+      size=2;
+#if 0
       unsigned short int a=(unsigned short)*num;
       *num=a;
       return 2;
-#if 0
-      if (asm_context->pass==1)
-      {
-        memory_write_m(&asm_context->memory, asm_context->address, 2);
-      }
 #endif
     }
       else
@@ -90,14 +83,11 @@ int size=1;
         return -1;
       }
 
+      size=3;
+#if 0
       unsigned int a=(unsigned int)*num;
       *num=a&0xffffff;
       return 3;
-#if 0
-      if (asm_context->pass==1)
-      {
-        memory_write_m(&asm_context->memory, asm_context->address, 3);
-      }
 #endif
     }
       else
@@ -111,31 +101,51 @@ int size=1;
     pushback(asm_context, token, token_type);
   }
 
-  if (num>=-128 && num<=255)
+  if (*num>=-128 && *num<=255)
   {
     unsigned char a=(unsigned char)*num;
     *num=a;
-    return 1;
   }
     else
-  if (num>=-32768 && num<=65535)
+  if (*num>=-32768 && *num<=65535)
   {
+    if (max_size<2)
+    {
+      print_error_range("Constant", -128, 255, asm_context);
+      return -1;
+    }
+
     unsigned int a=(unsigned int)*num;
     *num=a&0xffff;
-    return 2;
+
+    size=2;
   }
     else
-  if (num>=0 && num<=((1<<24)-1))
+  if (*num>=0 && *num<=((1<<24)-1))
   {
+    if (max_size<2)
+    {
+      print_error_range("Constant", -(1<<((max_size*8)-1)), ((1<<(max_size*8))-1), asm_context);
+      return -1;
+    }
+
     unsigned int a=(unsigned int)*num;
     *num=(a&0xffffff);
-    return 3;
+
+    size=3;
   }
     else
   {
     printf("Error: Constant out of range at %s:%d\n", asm_context->filename, asm_context->line);
     return -1;
   }
+
+  if (memory_read_m(&asm_context->memory, asm_context->address)==1)
+  {
+    size=max_size;
+  }
+
+  return size;
 }
 
 static int parse_stm8_type1(struct _asm_context *asm_context, char *instr, int opcode_nibble)
@@ -143,28 +153,27 @@ static int parse_stm8_type1(struct _asm_context *asm_context, char *instr, int o
 char token[TOKENLEN];
 int token_type;
 int num;
+int n;
 
   token_type=get_token(asm_context, token, TOKENLEN);
 
   if (token_type==TOKEN_POUND)
   {
+    int opcode=0;
+
     if (asm_context->pass==1)
     {
       eat_operand(asm_context);
     }
-
-    if (eval_expression(asm_context, &num)!=0)
+      else
     {
-      print_error_illegal_operands(instr, asm_context);
+      if (parse_num(asm_context, instr, &num, 1)<0) { return -1; }
+      opcode=0xa0|opcode_nibble;
     }
 
-    if (num>255 || num<-128)
-    {
-      print_error_range(instr, -128, 255, asm_context);
-    }
-
-    add_bin8(asm_context, 0xa0|opcode_nibble, IS_OPCODE);
+    add_bin8(asm_context, opcode, IS_OPCODE);
     add_bin8(asm_context, num, IS_OPCODE);
+
     return 2;
   }
     else
@@ -184,6 +193,7 @@ int num;
       if (IS_NOT_TOKEN(token,')'))
       {
         print_error_unexp(token, asm_context);
+        return -1;
       }
 
       add_bin8(asm_context, 0xf0|opcode_nibble, IS_OPCODE);
@@ -192,9 +202,70 @@ int num;
 
     if (IS_TOKEN(token,'['))   // XOR A, ([$1000.w],X)
     {
-    }
+      int bytes=parse_num(asm_context, instr, &num, 2);
+      if (bytes<0) { return -1; }
 
-    pushback(asm_context, token, token_type);
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (IS_NOT_TOKEN(token,']'))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (IS_NOT_TOKEN(token,','))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      token_type=get_token(asm_context, token, TOKENLEN);
+
+      if (strcasecmp(token,"x")==0)
+      {
+        if (bytes==2)
+        {
+          add_bin8(asm_context, 0x72, IS_OPCODE);
+          add_bin8(asm_context, 0xd0|opcode_nibble, IS_OPCODE);
+          add_bin8(asm_context, (unsigned char)(num>>8), IS_OPCODE);
+          add_bin8(asm_context, (unsigned char)(num&0xff), IS_OPCODE);
+        }
+          else
+        {
+          add_bin8(asm_context, 0x92, IS_OPCODE);
+          add_bin8(asm_context, 0xd0|opcode_nibble, IS_OPCODE);
+          add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
+        }
+
+        print_error_range("Constant", -32768, 65535, asm_context);
+        return -1;
+      }
+        else
+      if (strcasecmp(token,"y")==0)
+      {
+        if (bytes==2)
+        {
+          print_error_range("Constant", -128, 255, asm_context);
+          return -1;
+        }
+
+        add_bin8(asm_context, 0x91, IS_OPCODE);
+        add_bin8(asm_context, 0xd0|opcode_nibble, IS_OPCODE);
+        add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
+      }
+        else
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (IS_NOT_TOKEN(token,')'))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+    }
   }
     else
   if (IS_TOKEN(token,'['))
@@ -204,37 +275,29 @@ int num;
   {
     pushback(asm_context, token, token_type);
 
-    if (eval_expression(asm_context, &num)!=0)
-    {
-      if (asm_context->pass==1)
-      {
-        add_bin16(asm_context, 1, IS_OPCODE);
-        add_bin8(asm_context, 1, IS_OPCODE);
-        return 3;
-      }
+    int bytes=parse_num(asm_context, instr, &num, 2);
+    if (bytes<0) { return -1; }
 
-      print_error_illegal_operands(instr, asm_context);
-      return -1;
+    if (asm_context->pass==1)
+    {
+      int a=memory_read_m(&asm_context->memory, asm_context->address);
+      for (n=0; n<bytes+1; n++) { add_bin8(asm_context, a, IS_OPCODE); }
+      return bytes+1;
     }
 
-    if (num>=-128 && num<=255 &&
-        memory_read_m(&asm_context->memory, asm_context->address)!=1)
+    if (bytes==1)
     {
       add_bin8(asm_context, 0xb0|opcode_nibble, IS_OPCODE);
       add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
       return 2;
     }
-
-    if (num>=-32768 && num<=32767)
+      else
     {
-      unsigned int n=num;
-      n=(n&0xffff);
       add_bin8(asm_context, 0xc0|opcode_nibble, IS_OPCODE);
-      add_bin8(asm_context, (n>>8), IS_OPCODE);
-      add_bin8(asm_context, (n&0xff), IS_OPCODE);
+      add_bin8(asm_context, (num>>8), IS_OPCODE);
+      add_bin8(asm_context, (num&0xff), IS_OPCODE);
       return 3;
     }
-    print_error_range(instr, -32768, 32767, asm_context);
   }
 
   return -1;
