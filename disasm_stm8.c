@@ -115,6 +115,16 @@ int prefix=0;
     int cycles=1;
     int size=2;
 
+    if (opcode==0x7b && prefix==0)
+    {
+      sprintf(operand, "($%02x, SP)", READ_RAM(address+1));
+    }
+      else
+    if (opcode==0x6b && prefix==0)
+    {
+      sprintf(operand, "($%02x, SP)", READ_RAM(address+1));
+    }
+      else
     if (masked==0x10 && prefix==0)
     {
       sprintf(operand, "($%02x, SP)", READ_RAM(address+1));
@@ -140,6 +150,8 @@ int prefix=0;
         else
       if (prefix==0x72)
       { sprintf(operand, "[$%04x]", READ_RAM16(address+1)); size++; }
+
+      if (prefix!=0) { cycles=4; }
     }
       else
     if (masked==0xf0)
@@ -154,7 +166,7 @@ int prefix=0;
       if (prefix==0)
       { sprintf(operand, "($%02x,X)", READ_RAM(address+1)); }
         else
-      if (prefix==0x92)
+      if (prefix==0x90)
       { sprintf(operand, "($%02x,Y)", READ_RAM(address+1)); }
     }
       else
@@ -164,7 +176,7 @@ int prefix=0;
       { sprintf(operand, "($%04x,X)", READ_RAM16(address+1)); size++; }
         else
       if (prefix==0x90)
-      { sprintf(operand, "([$%04x],Y)", READ_RAM16(address+1)); size++; }
+      { sprintf(operand, "($%04x,Y)", READ_RAM16(address+1)); size++; }
         else
       if (prefix==0x92)
       { sprintf(operand, "([$%02x],X)", READ_RAM(address+1)); }
@@ -176,20 +188,6 @@ int prefix=0;
       { sprintf(operand, "([$%02x],Y)", READ_RAM(address+1)); }
 
       if (prefix!=0 && prefix!=0x90) { cycles=4; }
-    }
-      else
-    if (masked==0xc0)
-    {
-      if (prefix==0)
-      { sprintf(operand, "$%04x", READ_RAM16(address+1)); size++; }
-        else
-      if (prefix==0x92)
-      { sprintf(operand, "[$%02x]", READ_RAM(address+1)); }
-        else
-      if (prefix==0x72)
-      { sprintf(operand, "[$%04x]", READ_RAM16(address+1)); size++; }
-
-      if (prefix!=0) { cycles=4; }
     }
 
     if (operand[0]!=0)

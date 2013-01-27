@@ -312,8 +312,6 @@ int num;
       else
     if (strcasecmp(token,"x")==0)
     {
-//boogers
-printf("x bytes=%d num=%d\n", bytes, num);
       if (bytes==2)
       {
         if (asm_context->pass!=1) { a=0xd0|opcode_nibble; }
@@ -325,7 +323,7 @@ printf("x bytes=%d num=%d\n", bytes, num);
         else
       {
         if (asm_context->pass!=1) { a=0xe0|opcode_nibble; }
-        add_bin8(asm_context, 0xd0|opcode_nibble, IS_OPCODE);
+        add_bin8(asm_context, a, IS_OPCODE);
         add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
         size=2;
       }
@@ -337,8 +335,9 @@ printf("x bytes=%d num=%d\n", bytes, num);
       {
         add_bin8(asm_context, asm_context->pass==1?a:0x90, IS_OPCODE);
         add_bin8(asm_context, 0xd0|opcode_nibble, IS_OPCODE);
-        add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
-        size=3;
+        add_bin8(asm_context, (unsigned char)(num>>8), IS_OPCODE);
+        add_bin8(asm_context, (unsigned char)(num&0xff), IS_OPCODE);
+        size=4;
       }
         else
       {
