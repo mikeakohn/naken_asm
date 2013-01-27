@@ -148,12 +148,20 @@ int size=1;
   return size;
 }
 
+// Populate pass 1 bytes
+static void stm8_pass1(struct _asm_context *asm_context, int bytes)
+{
+  int n;
+  int a=memory_read_m(&asm_context->memory, asm_context->address);
+  for (n=0; n<bytes; n++) { add_bin8(asm_context, a, IS_OPCODE); }
+}
+
 static int parse_stm8_type1(struct _asm_context *asm_context, char *instr, int opcode_nibble)
 {
 char token[TOKENLEN];
 int token_type;
 int num;
-int n;
+//int n;
 
   token_type=get_token(asm_context, token, TOKENLEN);
 
@@ -202,6 +210,7 @@ int n;
 
     if (IS_TOKEN(token,'['))   // XOR A, ([$1000.w],X)
     {
+      int size=-1;
       int bytes=parse_num(asm_context, instr, &num, 2);
       if (bytes<0) { return -1; }
 
@@ -219,26 +228,26 @@ int n;
         return -1;
       }
 
+      int a=memory_read_m(&asm_context->memory, asm_context->address);
       token_type=get_token(asm_context, token, TOKENLEN);
 
       if (strcasecmp(token,"x")==0)
       {
         if (bytes==2)
         {
-          add_bin8(asm_context, 0x72, IS_OPCODE);
+          add_bin8(asm_context, asm_context->pass==1?a:0x72, IS_OPCODE);
           add_bin8(asm_context, 0xd0|opcode_nibble, IS_OPCODE);
           add_bin8(asm_context, (unsigned char)(num>>8), IS_OPCODE);
           add_bin8(asm_context, (unsigned char)(num&0xff), IS_OPCODE);
+          size=4;
         }
           else
         {
-          add_bin8(asm_context, 0x92, IS_OPCODE);
+          add_bin8(asm_context, asm_context->pass==1?a:0x92, IS_OPCODE);
           add_bin8(asm_context, 0xd0|opcode_nibble, IS_OPCODE);
           add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
+          size=3;
         }
-
-        print_error_range("Constant", -32768, 65535, asm_context);
-        return -1;
       }
         else
       if (strcasecmp(token,"y")==0)
@@ -249,14 +258,10 @@ int n;
           return -1;
         }
 
-        add_bin8(asm_context, 0x91, IS_OPCODE);
+        add_bin8(asm_context, asm_context->pass==1?a:0x91, IS_OPCODE);
         add_bin8(asm_context, 0xd0|opcode_nibble, IS_OPCODE);
         add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
-      }
-        else
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
+        size=3;
       }
 
       token_type=get_token(asm_context, token, TOKENLEN);
@@ -265,11 +270,131 @@ int n;
         print_error_unexp(token, asm_context);
         return -1;
       }
+
+      return size;
     }
+
+    // (num, reg)
+    pushback(asm_context, token, token_type);
+    int bytes=parse_num(asm_context, instr, &num, 2);
+    if (bytes<0) { return -1; }
+
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (IS_NOT_TOKEN(token,','))
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    int size;
+    int a=memory_read_m(&asm_context->memory, asm_context->address);
+    token_type=get_token(asm_context, token, TOKENLEN);
+
+    if (strcasecmp(token,"sp")==0)
+    {
+      if (bytes>1)
+      {
+        print_error_range("Constant", -128, 255, asm_context);
+        return -1;
+      }
+
+      if (asm_context->pass!=1)
+      {
+        if (opcode_nibble==6) { a=0x7b; }
+        else if (opcode_nibble==7) { a=0x6b; }
+        else if (opcode_nibble==0xc) { print_error_unexp(token, asm_context); return -1; }
+        else { a=0x10|opcode_nibble; }
+      }
+
+      add_bin8(asm_context, a, IS_OPCODE);
+      add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
+    }
+      else
+    if (strcasecmp(token,"x")==0)
+    {
+//boogers
+printf("x bytes=%d num=%d\n", bytes, num);
+      if (bytes==2)
+      {
+        if (asm_context->pass!=1) { a=0xd0|opcode_nibble; }
+        add_bin8(asm_context, a, IS_OPCODE);
+        add_bin8(asm_context, (unsigned char)(num>>8), IS_OPCODE);
+        add_bin8(asm_context, (unsigned char)(num&0xff), IS_OPCODE);
+        size=3;
+      }
+        else
+      {
+        if (asm_context->pass!=1) { a=0xe0|opcode_nibble; }
+        add_bin8(asm_context, 0xd0|opcode_nibble, IS_OPCODE);
+        add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
+        size=2;
+      }
+    }
+      else
+    if (strcasecmp(token,"y")==0)
+    {
+      if (bytes==2)
+      {
+        add_bin8(asm_context, asm_context->pass==1?a:0x90, IS_OPCODE);
+        add_bin8(asm_context, 0xd0|opcode_nibble, IS_OPCODE);
+        add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
+        size=3;
+      }
+        else
+      {
+        add_bin8(asm_context, asm_context->pass==1?a:0x90, IS_OPCODE);
+        add_bin8(asm_context, 0xe0|opcode_nibble, IS_OPCODE);
+        add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
+        size=3;
+      }
+    }
+      else
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (IS_NOT_TOKEN(token,')'))
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    return size;
   }
     else
   if (IS_TOKEN(token,'['))
   {
+    int size=-1;
+    int bytes=parse_num(asm_context, instr, &num, 2);
+    if (bytes<0) { return -1; }
+    int a=memory_read_m(&asm_context->memory, asm_context->address);
+
+    if (bytes==2)
+    {
+      add_bin8(asm_context, asm_context->pass==1?a:0x72, IS_OPCODE);
+      add_bin8(asm_context, 0xc0|opcode_nibble, IS_OPCODE);
+      add_bin8(asm_context, (unsigned char)(num>>8), IS_OPCODE);
+      add_bin8(asm_context, (unsigned char)(num&0xff), IS_OPCODE);
+      size=4;
+    }
+      else
+    {
+      add_bin8(asm_context, asm_context->pass==1?a:0x92, IS_OPCODE);
+      add_bin8(asm_context, 0xc0|opcode_nibble, IS_OPCODE);
+      add_bin8(asm_context, (unsigned char)num, IS_OPCODE);
+      size=3;
+    }
+
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (IS_NOT_TOKEN(token,']'))
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    return size;
   }
     else
   {
@@ -278,12 +403,7 @@ int n;
     int bytes=parse_num(asm_context, instr, &num, 2);
     if (bytes<0) { return -1; }
 
-    if (asm_context->pass==1)
-    {
-      int a=memory_read_m(&asm_context->memory, asm_context->address);
-      for (n=0; n<bytes+1; n++) { add_bin8(asm_context, a, IS_OPCODE); }
-      return bytes+1;
-    }
+    if (asm_context->pass==1) { stm8_pass1(asm_context, bytes+1); return bytes+1; }
 
     if (bytes==1)
     {

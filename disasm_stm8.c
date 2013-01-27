@@ -117,7 +117,7 @@ int prefix=0;
 
     if (masked==0x10 && prefix==0)
     {
-      strcpy(operand, "SP");
+      sprintf(operand, "($%02x, SP)", READ_RAM(address+1));
     }
       else
     if (masked==0xa0 && prefix==0)
@@ -136,10 +136,10 @@ int prefix=0;
       { sprintf(operand, "$%04x", READ_RAM16(address+1)); size++; }
         else
       if (prefix==0x92)
-      { sprintf(operand, "$%02x", READ_RAM(address+1)); }
+      { sprintf(operand, "[$%02x]", READ_RAM(address+1)); }
         else
       if (prefix==0x72)
-      { sprintf(operand, "$%04x", READ_RAM16(address+1)); size++; }
+      { sprintf(operand, "[$%04x]", READ_RAM16(address+1)); size++; }
     }
       else
     if (masked==0xf0)

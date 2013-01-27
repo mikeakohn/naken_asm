@@ -15,5 +15,16 @@ main:
   xor A, (X)
   or A, (Y)
 
+  and A, ($10, X)
+  and A, ($1000, X)
+  and A, ($10, Y)
+  and A, ($1000, Y)
+  and A, ($10, SP)
+  and A, [$10]
+  and A, [$1000]
+  and A, ([$10],X)
+  and A, ([$1000],X)
+  and A, ([$10],Y)
+
 asdf:
 
