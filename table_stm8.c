@@ -112,6 +112,16 @@ char *stm8_type2[] = {
   "clr",  // f
 };
 
+char *stm8_bit_oper[] = {
+  "bset",
+  "bres",
+  "bcpl",
+  "bccm",
+  "btjt",
+  "btjf",
+};
+
+
 /*
 Load and Transfer
 LD
@@ -130,14 +140,8 @@ CPW
 
 
 Bit Operation
-BSET
-BRES
-BCPL
-BCCM
 
 Conditional Bit Test and Branch
-BTJT
-BTJF
 
 Arithmetic operations
 MUL

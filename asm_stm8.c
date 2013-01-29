@@ -422,6 +422,83 @@ int num;
   return -1;
 }
 
+static int parse_stm8_bit_oper(struct _asm_context *asm_context, char *instr, int oper)
+{
+char token[TOKENLEN];
+int token_type;
+int num;
+//int size=-1;
+int bytes;
+
+  bytes=parse_num(asm_context, instr, &num, 2);
+  if (bytes<0) { return -1; }
+
+  token_type=get_token(asm_context, token, TOKENLEN);
+  if (IS_NOT_TOKEN(token,','))
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  token_type=get_token(asm_context, token, TOKENLEN);
+  if (token_type!=TOKEN_POUND)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  token_type=get_token(asm_context, token, TOKENLEN);
+  if (token_type!=TOKEN_NUMBER)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  int n=atoi(token);
+  if (n<0 || n>7)
+  {
+    print_error_range("Constant", 0, 7, asm_context);
+    return -1;
+  }
+
+  add_bin8(asm_context, (oper<=1 || oper>=4)?0x72:0x90, IS_OPCODE);
+  add_bin8(asm_context, ((oper<4?1:0)<<4)|(n<<1)|(oper&1), IS_OPCODE);
+  add_bin8(asm_context, num>>8, IS_OPCODE);
+  add_bin8(asm_context, num&0xff, IS_OPCODE);
+
+  if (oper>=4)
+  {
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (IS_NOT_TOKEN(token,','))
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    bytes=parse_num(asm_context, instr, &num, 3);
+    if (bytes<0) { return -1; }
+
+    if (asm_context->pass==1)
+    {
+      add_bin8(asm_context, 0, IS_OPCODE);
+    }
+      else
+    {
+      int offset=num-(asm_context->address+1);
+      if (offset<-128 || offset>255)
+      {
+        print_error_range("Offset", -128, 255, asm_context);
+        return -1;
+      }
+      add_bin8(asm_context, offset&0xff, IS_OPCODE);
+    }
+
+    return 5;
+  }
+
+  return 4;
+}
+
 int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -511,6 +588,14 @@ int n;
     if (stm8_type2[n]==NULL) { continue; }
     if (strcmp(stm8_type2[n], instr_case)==0)
     {
+    }
+  }
+
+  for (n=0; n<6; n++)
+  {
+    if (strcmp(stm8_bit_oper[n], instr_case)==0)
+    {
+      return parse_stm8_bit_oper(asm_context, instr, n);
     }
   }
 

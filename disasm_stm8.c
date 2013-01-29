@@ -67,18 +67,21 @@ int prefix=0;
   }
 */
 
-  n=0;
-  while(stm8_single[n].instr!=NULL)
+  if (prefix==0x00)
   {
-    if (stm8_single[n].opcode==opcode)
+    n=0;
+    while(stm8_single[n].instr!=NULL)
     {
-      strcpy(instruction, stm8_single[n].instr);
-      *cycles_min=stm8_single[n].cycles;
-      *cycles_max=stm8_single[n].cycles;
-      return 1;
-    }
+      if (stm8_single[n].opcode==opcode)
+      {
+        strcpy(instruction, stm8_single[n].instr);
+        *cycles_min=stm8_single[n].cycles;
+        *cycles_max=stm8_single[n].cycles;
+        return 1;
+      }
 
-    n++;
+      n++;
+    }
   }
 
   n=0;
@@ -283,6 +286,26 @@ int prefix=0;
       sprintf(instruction, "%s %s", stm8_type2[opcode_nibble], operand);
 
       return size;
+    }
+  }
+
+  if ((prefix==0x90 && (opcode>>4)==1) || (prefix==0x72 && (opcode>>4)<=1))
+  {
+    //int bit_oper=((opcode&16)>>3)|(opcode&1);
+
+    if (prefix==0x72 && (opcode>>4)==0)
+    {
+      sprintf(instruction, "%s $%04x, #%d, $%04x", stm8_bit_oper[(opcode&1)+4], READ_RAM16(address+1), (opcode&0xf)>>1, (address+4)+((char)READ_RAM(address+4)));
+      *cycles_min=2;
+      *cycles_max=3;
+      return 5;
+    }
+      else
+    {
+      sprintf(instruction, "%s $%04x, #%d", stm8_bit_oper[(opcode&1)+((prefix==0x72)?0:2)], READ_RAM16(address+1), (opcode&0xf)>>1);
+      *cycles_min=1;
+      *cycles_max=1;
+      return 4;
     }
   }
 
