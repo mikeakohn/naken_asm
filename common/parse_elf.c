@@ -15,7 +15,7 @@
 
 #include "assembler.h"
 #include "parse_elf.h"
-#include "naken_util.h"
+//#include "naken_util.h"
 
 #ifndef DISABLE_ELF
 

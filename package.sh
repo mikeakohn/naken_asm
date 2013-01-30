@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BUILDDIR=/storage/builds
+BUILDDIR=/usbdisk/builds
 SOURCEDIR=/storage/git
 VERSION=`date +"%Y-%m-%d"`
 VERSION_H=`date +"%B %d, %Y"`
@@ -64,7 +64,8 @@ tar cvzf ${FULLNAME}.tar.gz ${FULLNAME}
 export PATH=$PATH:/home/mike/mingw32/bin
 cd ${BUILDDIR}/${FULLNAME}
 make clean
-./configure --compiler-prefix=i386-mingw32-
+#./configure --compiler-prefix=i386-mingw32-
+./configure --compiler-prefix=i686-w64-mingw32-
 make
 rm -f *.o ${FULLNAME}.zip
 cd ..

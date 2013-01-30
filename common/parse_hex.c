@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "parse_hex.h"
-#include "naken_util.h"
+//#include "naken_util.h"
 
 static int get_hex(FILE *in, int len)
 {
