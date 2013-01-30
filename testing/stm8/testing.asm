@@ -34,5 +34,12 @@ asdf:
   btjt $1000, #5, asdf
   btjf $1000, #6, asdf
 
+  mul x,a
+  mul y,a
+  div x,a
+  div y,a
+
+  divw x,y
+  exgw x,y
 
 

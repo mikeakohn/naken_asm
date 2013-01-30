@@ -121,6 +121,13 @@ char *stm8_bit_oper[] = {
   "btjf",
 };
 
+struct _stm8_r_r stm8_r_r[] = {
+  { "mul", 0x42, 4, 4, ST7_NO },   // X/Y, A
+  { "div", 0x62, 2, 17, ST7_NO },  // X/Y, A
+  { "divw", 0x65, 2, 17, ST7_NO }, // X,Y
+  { "exgw", 0x51, 1, 1, ST7_NO },  // X,Y
+  { NULL, 0x00, 0, 0, ST7_NO },
+};
 
 /*
 Load and Transfer
@@ -129,7 +136,6 @@ LDF
 MOV
 EXG
 LDW
-EXGW
 
 Stack operation
 PUSH
@@ -138,15 +144,7 @@ POP
 Compare and Tests
 CPW
 
-
-Bit Operation
-
-Conditional Bit Test and Branch
-
 Arithmetic operations
-MUL
-DIV
-DIVW
 ADDW
 SUBW
 

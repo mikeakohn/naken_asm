@@ -309,6 +309,30 @@ int prefix=0;
     }
   }
 
+  n=0;
+  while(stm8_r_r[n].instr!=NULL)
+  {
+    if (stm8_r_r[n].opcode==opcode)
+    {
+      *cycles_min=stm8_r_r[n].cycles_min;
+      *cycles_max=stm8_r_r[n].cycles_max;
+
+      if (n<2)
+      {
+        sprintf(instruction, "%s %c,A", stm8_r_r[n].instr, (prefix==0x90)?'Y':'X');
+        if (prefix==0x90) return 2;
+      }
+        else
+      {
+        sprintf(instruction, "%s X,Y", stm8_r_r[n].instr);
+      }
+
+      return 1;
+    }
+
+    n++;
+  }
+
   strcpy(instruction, "???");
 
   return 1;

@@ -599,6 +599,41 @@ int n;
     }
   }
 
+  n=0;
+  while(stm8_r_r[n].instr!=NULL)
+  {
+    if (strcmp(stm8_r_r[n].instr, instr_case)==0)
+    {
+      int is_x=0;
+      token_type=get_token(asm_context, token, TOKENLEN);
+
+      if (strcasecmp(token,"x")==0) { is_x=1; }
+      else if (strcasecmp(token,"y")==0 && n<2) { is_x=0; }
+      else { print_error_unexp(token, asm_context); return -1; }
+
+      if (expect_token(asm_context,',')!=0) { return -1; }
+
+      if (n<2)
+      {
+        if (expect_token_s(asm_context,"a")!=0) { return -1; }
+        if (is_x==0)
+        {
+          add_bin8(asm_context, 0x90, IS_OPCODE);
+          add_bin8(asm_context, stm8_r_r[n].opcode, IS_OPCODE);
+          return 2;
+        }
+      }
+        else
+      {
+        if (expect_token_s(asm_context,"y")!=0) { return -1; }
+      }
+
+      add_bin8(asm_context, stm8_r_r[n].opcode, IS_OPCODE);
+      return 1;
+    }
+    n++;
+  }
+
 #if 0
   while(1)
   {
@@ -626,8 +661,8 @@ int n;
   }
 #endif
 
-
-  printf("Error: Unknown instruction '%s'  at %s:%d\n", instr, asm_context->filename, asm_context->line);
+  print_error_unknown_instr(instr, asm_context);
+  //printf("Error: Unknown instruction '%s'  at %s:%d\n", instr, asm_context->filename, asm_context->line);
 
   return -1;
 }

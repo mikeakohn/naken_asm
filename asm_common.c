@@ -95,4 +95,35 @@ void lower_copy(char *d, const char *s)
   }
 }
 
+int expect_token(struct _asm_context *asm_context, char ch)
+{
+  char token[TOKENLEN];
+
+  get_token(asm_context, token, TOKENLEN);
+
+  if (IS_NOT_TOKEN(token,ch))
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
+int expect_token_s(struct _asm_context *asm_context, char *s)
+{
+  char token[TOKENLEN];
+
+  get_token(asm_context, token, TOKENLEN);
+
+  if (strcasecmp(token,s)!=0)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
+
 
