@@ -18,7 +18,7 @@ cp -r ${SOURCEDIR}/${PROGRAM} ${BUILDDIR}/${FULLNAME}
 cd ${BUILDDIR}/${FULLNAME}
 make distclean
 
-cat <<EOF > version.h
+cat <<EOF > common/version.h
 #ifndef _VERSION_H
 #define _VERSION_H
 

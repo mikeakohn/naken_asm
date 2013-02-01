@@ -13,10 +13,16 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS)
 	   parse_elf.o parse_hex.o memory.o simulate_65xx.o \
 	   simulate_msp430.o table_65xx.o table_805x.o table_dspic.o \
 	   table_mips.o table_stm8.o \
+	   -I../disasm -I../common -I../simulate \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
 %.o: %.c %.h
 	$(CC) -c $< -o $*.o $(CFLAGS) $(LDFLAGS) \
 	   -I../common -I../disasm -I../table -I../asm -I../simulate
+
+%.o: %.c
+	$(CC) -c $< -o $*.o $(CFLAGS) $(LDFLAGS) \
+	   -I../common -I../disasm -I../table -I../asm -I../simulate
+
 
 
