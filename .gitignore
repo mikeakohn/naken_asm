@@ -1,0 +1,6 @@
+*.o
+config.mak
+naken_asm
+naken_util
+*.hex
+*.lst
