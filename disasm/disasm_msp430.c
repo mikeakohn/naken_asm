@@ -156,7 +156,7 @@ int extra=0;
       else
     if (Ad==1)
     {
-      unsigned short int a=(READ_RAM(address+count+3)<<8)|READ_RAM(address+(count*2)+2);
+      unsigned short int a=(READ_RAM(address+count+3)<<8)|READ_RAM(address+(count+2));
       count+=2;
       a=a+(address+count);
       sprintf(reg_str, "0x%04x", a|extra);
