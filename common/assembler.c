@@ -783,6 +783,14 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+  if (strcasecmp(token, "tms1100")==0)
+  {
+    asm_context->parse_instruction=parse_instruction_tms1100;
+    asm_context->list_output=list_output_tms1100;
+    asm_context->cpu_type=CPU_TYPE_TMS1100;
+    return 1;
+  }
+    else
   if (strcasecmp(token, "big_endian")==0)
   {
     asm_context->memory.endian=ENDIAN_BIG;

@@ -38,7 +38,8 @@ enum
   CPU_TYPE_DSPIC,
   CPU_TYPE_MIPS,
   CPU_TYPE_STM8,
-  CPU_TYPE_TMS1000
+  CPU_TYPE_TMS1000,
+  CPU_TYPE_TMS1100
 };
 
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
