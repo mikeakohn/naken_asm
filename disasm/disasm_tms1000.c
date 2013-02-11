@@ -32,14 +32,14 @@ int n;
   *cycles_min=-1;
   *cycles_max=-1;
 
-  opcode=get_opcode32(memory, address);
+  opcode=READ_RAM(address);
 
   n=0;
   while(tms_instr_table[n].instr!=NULL)
   {
-    if (tms_instr_table[n].op1000==opcode)
+    if (opcode==tms_instr_table[n].op1000)
     {
-      sprintf(instruction, tms_instr_table[n].instr);
+      strcpy(instruction, tms_instr_table[n].instr);
       return 1;
     }
     n++;
@@ -67,7 +67,7 @@ int n;
 
   bit_instr=opcode>>6;
   unsigned char branch_address=opcode&0x3f;
-  if (branch_address&0x20!=0) { branch_address|=0xc0; }
+  if ((branch_address&0x20)!=0) { branch_address|=0xc0; }
   branch_address=(address+1)+((char)branch_address);
 
   if (bit_instr==0x2)
@@ -76,6 +76,8 @@ int n;
   if (bit_instr==0x3)
   { sprintf(instruction, "call %d", branch_address); return 1; }
 
+  strcpy(instruction, "???");
+
   return 1;
 }
 
@@ -83,7 +85,7 @@ void list_output_tms1000(struct _asm_context *asm_context, int address)
 {
 int cycles_min,cycles_max;
 char instruction[128];
-unsigned int opcode=get_opcode32(&asm_context->memory, address);
+unsigned int opcode=memory_read_m(&asm_context->memory, address);
 
   fprintf(asm_context->list, "\n");
   disasm_tms1000(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);

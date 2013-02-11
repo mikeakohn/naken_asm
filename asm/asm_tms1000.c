@@ -21,7 +21,7 @@
 #include "get_tokens.h"
 #include "eval_expression.h"
 
-static char *tmsinstr_1[] = { "sbit", "rbit", "tbiti", "ldx" };
+static char *tmsinstr_1[] = { "sbit", "rbit", "tbit1", "ldx" };
 static char *tmsinstr_2[] = { "tcy", "ynec", "tcmiy", "alec", "ldp" };
 static char *tms_branch[] = { "br", "call" };
 
@@ -37,7 +37,8 @@ int n;
   n=0;
   while(tms_instr_table[n].instr!=NULL)
   {
-    if (strcmp(instr_case, tms_instr_table[n].instr)==0)
+    if (strcmp(instr_case, tms_instr_table[n].instr)==0 &&
+        tms_instr_table[n].op1000!=0xffff)
     {
       add_bin8(asm_context, tms_instr_table[n].op1000, IS_OPCODE);
       return 1;
@@ -52,6 +53,7 @@ int n;
       token_type=get_token(asm_context, token, TOKENLEN);
       if (token_type!=TOKEN_NUMBER)
       {
+        if (asm_context->pass==1) { return 1; }
         print_error_unexp(token, asm_context);
         return -1;
       }
@@ -69,13 +71,14 @@ int n;
     }
   }
 
-  for (n=0; n<4; n++)
+  for (n=0; n<5; n++)
   {
     if (strcmp(instr_case, tmsinstr_2[n])==0)
     {
       token_type=get_token(asm_context, token, TOKENLEN);
       if (token_type!=TOKEN_NUMBER)
       {
+        if (asm_context->pass==1) { return 1; }
         print_error_unexp(token, asm_context);
         return -1;
       }

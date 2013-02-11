@@ -10,3 +10,9 @@ loop:
   tbit1 1
   ldx 2
 
+  tcy 3
+  tcmiy 3
+  ldp 3
+  alec 3
+  ynec 3
+
