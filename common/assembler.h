@@ -12,6 +12,8 @@
 #ifndef _ASSEMBLER_H
 #define _ASSEMBLER_H
 
+#include <stdio.h>
+
 #include "memory.h"
 
 #define MAX_NESTED_MACROS 128
@@ -35,7 +37,8 @@ enum
   CPU_TYPE_ARM,
   CPU_TYPE_DSPIC,
   CPU_TYPE_MIPS,
-  CPU_TYPE_STM8
+  CPU_TYPE_STM8,
+  CPU_TYPE_TMS1000
 };
 
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
