@@ -717,6 +717,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 2;
   }
     else
+#ifdef ENABLE_ARM
   if (strcasecmp(token, "arm")==0)
   {
     asm_context->parse_instruction=parse_instruction_arm;
@@ -725,6 +726,8 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+#endif
+#ifdef ENABLE_DSPIC
   if (strcasecmp(token, "dspic")==0)
   {
     asm_context->parse_instruction=parse_instruction_dspic;
@@ -733,6 +736,8 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+#endif
+#ifdef ENABLE_MIPS
   if (strcasecmp(token, "mips")==0)
   {
     asm_context->parse_instruction=parse_instruction_mips;
@@ -741,6 +746,8 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+#endif
+#ifdef ENABLE_MSP430
   if (strcasecmp(token, "msp430")==0)
   {
     asm_context->parse_instruction=parse_instruction_msp430;
@@ -749,6 +756,8 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+#endif
+#ifdef ENABLE_65XX
   if (strcasecmp(token, "65xx")==0)
   {
     asm_context->parse_instruction=parse_instruction_65xx;
@@ -758,6 +767,8 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+#endif
+#ifdef ENABLE_805X
   if (strcasecmp(token, "8051")==0 || strcasecmp(token, "8052")==0)
   {
     asm_context->parse_instruction=parse_instruction_805x;
@@ -766,6 +777,8 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+#endif
+#ifdef ENABLE_STM8
   if (strcasecmp(token, "stm8")==0)
   {
     asm_context->parse_instruction=parse_instruction_stm8;
@@ -775,6 +788,8 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+#endif
+#ifdef ENABLE_TMS1000
   if (strcasecmp(token, "tms1000")==0)
   {
     asm_context->parse_instruction=parse_instruction_tms1000;
@@ -791,6 +806,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+#endif
   if (strcasecmp(token, "big_endian")==0)
   {
     asm_context->memory.endian=ENDIAN_BIG;

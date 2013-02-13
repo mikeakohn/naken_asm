@@ -7,16 +7,22 @@ CFLAGS="-Wall"
 FLAGS=""
 LDFLAGS=""
 LDFLAGS_UTIL=""
+DFLAGS=""
 CONFIG_EXT=""
 INSTALL_PREFIX="/usr/local"
 INSTALL_BIN=
 INSTALL_INCLUDES=
 INCLUDE_PATH=
-ASM_OBJS="asm_65xx.o asm_680x0.o asm_805x.o asm_arm.o asm_common.o asm_dspic.o asm_mips.o asm_msp430.o asm_stm8.o asm_tms1000.o"
-DISASM_OBJS="assembler.o disasm_65xx.o disasm_680x0.o disasm_805x.o disasm_arm.o disasm_common.o disasm_dspic.o disasm_mips.o disasm_msp430.o disasm_stm8.o disasm_tms1000.o"
-COMMON_OBJS="eval_expression.o write_elf.o write_hex.o get_tokens.o ifdef_expression.o lookup_tables.o macros.o memory.o parse_elf.o parse_hex.o"
-TABLE_OBJS="table_65xx.o table_680x0.o table_805x.o table_mips.o table_dspic.o table_stm8.o table_tms1000.o"
-SIM_OBJS="simulate_65xx.o simulate_msp430.o"
+ASM_OBJS_ALL="asm_65xx.o asm_680x0.o asm_805x.o asm_arm.o asm_common.o asm_dspic.o asm_mips.o asm_msp430.o asm_stm8.o asm_tms1000.o"
+DISASM_OBJS_ALL="disasm_65xx.o disasm_680x0.o disasm_805x.o disasm_arm.o disasm_common.o disasm_dspic.o disasm_mips.o disasm_msp430.o disasm_stm8.o disasm_tms1000.o"
+TABLE_OBJS_ALL="table_65xx.o table_680x0.o table_805x.o table_mips.o table_dspic.o table_stm8.o table_tms1000.o"
+SIM_OBJS_ALL="simulate_65xx.o simulate_msp430.o"
+DFLAGS_ALL="-DENABLE_65XX -DENABLE_680X0 -DENABLE_805X -DENABLE_ARM -DENABLE_DSPIC -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_STM8 -DENABLE_TMS1000"
+ASM_OBJS="asm_common.o"
+DISASM_OBJS="disasm_common.o"
+TABLE_OBJS=""
+SIM_OBJS=""
+COMMON_OBJS="assembler.o eval_expression.o write_elf.o write_hex.o get_tokens.o ifdef_expression.o lookup_tables.o macros.o memory.o parse_elf.o parse_hex.o"
 
 targetos=`uname -s`
 case $targetos in
@@ -39,7 +45,16 @@ show_help()
   echo "  --include-path=PATH       default: (${INSTALL_PREFIX}/share/naken_asm/includes)"
   echo "  --compiler-prefix=PREFIX  for cross-compilers"
   echo "  --enable-debug            compile in debug code"
-  echo "  --disable-elf             disable elf file option"
+  #echo "  --disable-elf             disable elf file option"
+  echo "  --enable-all              compile in support for all CPU's"
+  echo "  --enable-65xx             compile in support for 6502/6510 etc"
+  echo "  --enable-805x             compile in support for 8051/8052"
+  echo "  --enable-arm              compile in support for ARM"
+  echo "  --enable-dspic            compile in support for dsPIC"
+  echo "  --enable-mips             compile in support for MIPS"
+  echo "  --enable-msp430           compile in support for MSP430"
+  echo "  --enable-stm8             compile in support for STM8"
+  echo "  --enable-tms1000          compile in support for tms1000/tms1100"
   echo
 
   exit
@@ -115,9 +130,78 @@ for option in $@; do
   ;;
   --install-prefix=*) INSTALL_PREFIX="$optval"
   ;;
+  --enable-all)
+    ASM_OBJS="${ASM_OBJS_ALL}"
+    DISASM_OBJS="${DISASM_OBJS_ALL}"
+    SIM_OBJS="${SIM_OBJS_ALL}"
+    TABLE_OBJS="${TABLE_OBJS_ALL}"
+    DFLAGS="${DFLAGS_ALL}"
+  ;;
+  --enable-65xx)
+    ASM_OBJS="${ASM_OBJS} asm_65xx.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_65xx.o"
+    SIM_OBJS="${SIM_OBJS} simulate_65xx.o"
+    TABLE_OBJS="${TABLE_OBJS} table_65xx.o"
+    DFLAGS="${DFLAGS} -DENABLE_65XX"
+  ;;
+  --enable-680x0)
+    ASM_OBJS="${ASM_OBJS} asm_680x0.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_680x0.o"
+    TABLE_OBJS="${TABLE_OBJS} table_680x0.o"
+    DFLAGS="${DFLAGS} -DENABLE_680X0"
+  ;;
+  --enable-805x)
+    ASM_OBJS="${ASM_OBJS} asm_805x.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_805x.o"
+    TABLE_OBJS="${TABLE_OBJS} table_805x.o"
+    DFLAGS="${DFLAGS} -DENABLE_805X"
+  ;;
+  --enable-arm)
+    ASM_OBJS="${ASM_OBJS} asm_arm.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_arm.o"
+    DFLAGS="${DFLAGS} -DENABLE_ARM"
+  ;;
+  --enable-dspic)
+    ASM_OBJS="${ASM_OBJS} asm_dspic.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_dspic.o"
+    TABLE_OBJS="${TABLE_OBJS} table_dspic.o"
+    DFLAGS="${DFLAGS} -DENABLE_DSPIC"
+  ;;
+  --enable-mips)
+    ASM_OBJS="${ASM_OBJS} asm_mips.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_mips.o"
+    TABLE_OBJS="${TABLE_OBJS} table_mips.o"
+    DFLAGS="${DFLAGS} -DENABLE_MIPS"
+  ;;
+  --enable-msp430)
+    ASM_OBJS="${ASM_OBJS} asm_msp430.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_msp430.o"
+    SIM_OBJS="${SIM_OBJS} simulate_msp430.o"
+    DFLAGS="${DFLAGS} -DENABLE_MSP430"
+  ;;
+  --enable-stm8)
+    ASM_OBJS="${ASM_OBJS} asm_stm8.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_stm8.o"
+    TABLE_OBJS="${TABLE_OBJS} table_stm8.o"
+    DFLAGS="${DFLAGS} -DENABLE_STM8"
+  ;;
+  --enable-tms1000)
+    ASM_OBJS="${ASM_OBJS} asm_tms1000.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_tms1000.o"
+    TABLE_OBJS="${TABLE_OBJS} table_tms1000.o"
+    DFLAGS="${DFLAGS} -DENABLE_TMS1000"
+  ;;
   esac
-
 done
+
+if [ "${ASM_OBJS}" == "asm_common.o" ]
+then
+  ASM_OBJS="${ASM_OBJS_ALL}"
+  DISASM_OBJS="${DISASM_OBJS_ALL}"
+  SIM_OBJS="${SIM_OBJS_ALL}"
+  TABLE_OBJS="${TABLE_OBJS_ALL}"
+  DFLAGS="${DFLAGS_ALL}"
+fi
 
 if test_compiler "gcc"
 then
@@ -186,6 +270,7 @@ echo "COMPILER_PREFIX=${COMPILER_PREFIX}" >> config.mak
 echo "LDFLAGS=${LDFLAGS}" >> config.mak
 echo "LDFLAGS_UTIL=${LDFLAGS_UTIL}" >> config.mak
 echo "CFLAGS=${CFLAGS}" >> config.mak
+echo "DFLAGS=${DFLAGS}" >> config.mak
 echo "INSTALL_BIN=${INSTALL_BIN}" >> config.mak
 echo "INSTALL_INCLUDES=${INSTALL_INCLUDES}" >> config.mak
 echo "INCLUDE_PATH=${INCLUDE_PATH}" >> config.mak
@@ -205,6 +290,7 @@ echo "    Compiler: ${COMPILER_PREFIX}${CC}"
 echo "     LDFLAGS: ${LDFLAGS}"
 echo "UTIL LDFLAGS: ${LDFLAGS_UTIL}"
 echo "      CFLAGS: ${CFLAGS}"
+echo "     DEFINES: ${DFLAGS}"
 echo "INCLUDE_PATH: ${INCLUDE_PATH}"
 echo "        BINS: naken_asm${CONFIG_EXT}, naken_util${CONFIG_EXT}"
 echo

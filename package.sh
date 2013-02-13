@@ -68,7 +68,7 @@ make clean
 #./configure --compiler-prefix=i386-mingw32-
 ./configure --compiler-prefix=i686-w64-mingw32-
 make
-rm -f *.o ${FULLNAME}.zip
+rm -f build/*.o ${FULLNAME}.zip
 cd ..
 zip -r ${FULLNAME}.zip ${FULLNAME}
 

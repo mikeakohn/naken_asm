@@ -25,6 +25,8 @@
 #include "disasm_dspic.h"
 #include "disasm_mips.h"
 #include "disasm_msp430.h"
+#include "disasm_stm8.h"
+#include "disasm_tms1000.h"
 #include "naken_util.h"
 #include "parse_elf.h"
 #include "parse_hex.h"
@@ -416,71 +418,6 @@ int num;
   printf("Wrote %d words starting at address %04x\n", count, n);
 }
 
-#if 0
-static void disasm_range(struct _util_context *util_context, int start, int end)
-{
-// Are these correct and the same for all MSP430's?
-char *vectors[16] = { "", "", "", "", "", "",
-                      "", "", "", "",
-                      "", "", "", "",
-                      "",
-                      "Reset/Watchdog/Flash" };
-char instruction[128];
-int vectors_flag=0;
-int cycles_min=0,cycles_max=0;
-int num;
-
-  printf("\n");
-
-  printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
-  printf("------- ------ ----------------------------------       ------\n");
-
-  while(start<=end)
-  {
-    if (start>=0xffe0 && vectors_flag==0)
-    {
-      printf("Vectors:\n");
-      vectors_flag=1;
-    }
-
-    num=READ_RAM(start)|(READ_RAM(start+1)<<8);
-
-    int count=util_context->disasm(&util_context->memory, start, instruction, &cycles_min, &cycles_max);
-
-    if (vectors_flag==1)
-    {
-      printf("0x%04x: 0x%04x  Vector %2d {%s}\n", start, num, (start-0xffe0)/2, vectors[(start-0xffe0)/2]);
-      start+=2;
-      continue;
-    }
-
-    if (cycles_min<1)
-    {
-      printf("0x%04x: 0x%04x %-40s ?\n", start, num, instruction);
-    }
-      else
-    if (cycles_min==cycles_max)
-    {
-      printf("0x%04x: 0x%04x %-40s %d\n", start, num, instruction, cycles_min);
-    }
-      else
-    {
-      printf("0x%04x: 0x%04x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
-    }
-
-    count-=util_context->instr_bytes;
-    while (count>0)
-    {
-      start=start+util_context->instr_bytes;
-      num=READ_RAM(start)|(READ_RAM(start+1)<<8);
-      printf("0x%04x: 0x%04x\n", start, num);
-      count-=util_context->instr_bytes;
-    }
-    start=start+util_context->instr_bytes;
-  }
-}
-#endif
-
 static void disasm(struct _util_context *util_context, char *token, int dbg_flag)
 {
 int start,end;
@@ -699,6 +636,7 @@ int interactive=1;
     }
       else
 #endif
+#ifdef ENABLE_MSP430
     if (strcmp(argv[i], "-msp430")==0)
     {
       // Default.. probably dumb to have as an option
@@ -706,12 +644,16 @@ int interactive=1;
       //util_context.instr_bytes=2;
     }
       else
+#endif
+#ifdef ENABLE_DSPIC
     if (strcmp(argv[i], "-dspic")==0)
     {
       util_context.disasm_range=disasm_range_dspic;
       //util_context.instr_bytes=4;
     }
       else
+#endif
+#ifdef ENABLE_65XX
     if (strcmp(argv[i], "-65xx")==0)
     {
       util_context.disasm_range=disasm_range_65xx;
@@ -720,46 +662,81 @@ int interactive=1;
       //chip=1;
     }
       else
+#endif
+#ifdef ENABLE_8051
     if (strcmp(argv[i], "-8051")==0 || strcmp(argv[i], "-8052")==0)
     {
       util_context.disasm_range=disasm_range_805x;
     }
       else
+#endif
+#ifdef ENABLE_ARM
     if (strcmp(argv[i], "-arm")==0)
     {
       util_context.disasm_range=disasm_range_arm;
       //util_context.instr_bytes=4;
     }
       else
+#endif
+#ifdef ENABLE_MIPS
     if (strcmp(argv[i], "-mips")==0)
     {
       util_context.disasm_range=disasm_range_mips;
-      //util_context.instr_bytes=4;
     }
       else
+#endif
+#ifdef ENABLE_STM8
+    if (strcmp(argv[i], "-stm8")==0)
+    {
+      util_context.disasm_range=disasm_range_stm8;
+    }
+      else
+#endif
+#ifdef ENABLE_TMS1000
+    if (strcmp(argv[i], "-tms1000")==0)
+    {
+      util_context.disasm_range=disasm_range_tms1000;
+    }
+      else
+    if (strcmp(argv[i], "-tms1000")==0)
+    {
+      util_context.disasm_range=disasm_range_tms1000;
+    }
+      else
+#endif
     {
       unsigned char cpu_type;
       if (parse_elf(argv[i], &util_context.memory, &cpu_type)>=0)
       {
         switch(cpu_type)
         {
+#ifdef ENABLE_MSP430
           case CPU_TYPE_MSP430:
             util_context.disasm_range=disasm_range_msp430;
             util_context.simulate=simulate_init_msp430();
             break;
+#endif
+#ifdef ENABLE_65XX
           case CPU_TYPE_65XX:
             util_context.disasm_range=disasm_range_65xx;
             util_context.simulate=simulate_init_65xx();
             break;
+#endif
+#ifdef ENABLE_ARM
           case CPU_TYPE_ARM:
             util_context.disasm_range=disasm_range_arm;
             break;
+#endif
+#ifdef ENABLE_DSPIC
           case CPU_TYPE_DSPIC:
             util_context.disasm_range=disasm_range_dspic;
             break;
+#endif
+#ifdef ENABLE_MIPS
           case CPU_TYPE_MIPS:
             util_context.disasm_range=disasm_range_mips;
             break;
+#endif
           default:
             printf("Internal error %s:%d\n", __FILE__, __LINE__);
             exit(1);
