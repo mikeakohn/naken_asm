@@ -20,6 +20,15 @@
 #define READ_RAM(a) memory_read_m(memory, a)
 #define READ_RAM16(a) ((memory_read_m(memory, a)<<8)|(memory_read_m(memory, a+1)))
 
+#define SINGLE_OPCODE(pre, op, cycles, size, instr) \
+  if (opcode==op && prefix==pre) \
+  { \
+    strcpy(instruction, instr); \
+    *cycles_min=cycles; \
+    *cycles_max=cycles; \
+    return size; \
+  }
+
 int get_cycle_count_stm8(unsigned short int opcode)
 {
   return -1;
@@ -28,9 +37,9 @@ int get_cycle_count_stm8(unsigned short int opcode)
 int disasm_stm8(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
 unsigned char opcode;
-int function,format;
-int n,r;
-char temp[32];
+//int function;
+int n;
+//char temp[32];
 int prefix=0;
 
   instruction[0]=0;
@@ -332,6 +341,56 @@ int prefix=0;
       n++;
     }
   }
+
+  SINGLE_OPCODE(0x72, 0x8f, 1, 2, "wfe")
+  SINGLE_OPCODE(0x00, 0x84, 1, 1, "pop A")
+  SINGLE_OPCODE(0x00, 0x86, 1, 1, "pop CC")
+  SINGLE_OPCODE(0x00, 0x88, 1, 1, "push A")
+  SINGLE_OPCODE(0x00, 0x8a, 1, 1, "push CC")
+
+  if (opcode==0x32 && prefix==0x00)
+  {
+    sprintf(instruction, "pop $%04x", READ_RAM16(address+1));
+    return 3;
+  }
+
+  if (opcode==0x4b && prefix==0x00)
+  {
+    sprintf(instruction, "push #$%02x", READ_RAM(address+1));
+    return 2;
+  }
+
+  if (opcode==0x3b && prefix==0x00)
+  {
+    sprintf(instruction, "push $%04x", READ_RAM16(address+1));
+    return 3;
+  }
+
+/*
+  if (opcode==0x8f && prefix==0x72)
+  {
+    strcpy(instruction, "wfe");
+    *cycles_min=1;
+    *cycles_max=1;
+    return 2;
+  }
+
+  if (opcode==0x84 && prefix==0x00)
+  {
+    strcpy(instruction, "pop A");
+    *cycles_min=1;
+    *cycles_max=1;
+    return 1;
+  }
+
+  if (opcode==0x86 && prefix==0x00)
+  {
+    strcpy(instruction, "pop A");
+    *cycles_min=1;
+    *cycles_max=1;
+    return 1;
+  }
+*/
 
   strcpy(instruction, "???");
 

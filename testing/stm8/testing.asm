@@ -58,4 +58,13 @@ asdf:
   swap ([$1000], X)
   swap ([$10], Y)
 
+  wfe
+  push a
+  push cc
+  push #$10
+  push $1000
+
+  pop a
+  pop cc
+  pop $1000
 

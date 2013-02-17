@@ -187,8 +187,8 @@ CALLR
 CALLF
 
 Conditional Branch/ Execution
-JRxx
-WFE
+(done) JRxx
+(done) WFE
 
 */
 

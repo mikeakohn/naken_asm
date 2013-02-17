@@ -885,6 +885,69 @@ int n;
     n++;
   }
 
+  if (strcmp("wfe", instr_case)==0)
+  {
+    add_bin8(asm_context, 0x72, IS_OPCODE);
+    add_bin8(asm_context, 0x8f, IS_OPCODE);
+    return 2;
+  }
+
+  if (strcmp("pop", instr_case)==0)
+  {
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (IS_TOKEN(token,'A') || IS_TOKEN(token,'a'))
+    {
+      add_bin8(asm_context, 0x84, IS_OPCODE);
+      return 1;
+    }
+
+    if (strcasecmp(token,"cc")==0)
+    {
+      add_bin8(asm_context, 0x86, IS_OPCODE);
+      return 1;
+    }
+
+    int num=0;
+    pushback(asm_context, token, token_type);
+    if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
+    add_bin8(asm_context, 0x32, IS_OPCODE);
+    add_bin8(asm_context, num>>8, IS_OPCODE);
+    add_bin8(asm_context, num&0xff, IS_OPCODE);
+    return 3;
+  }
+
+  if (strcmp("push", instr_case)==0)
+  {
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (IS_TOKEN(token,'A') || IS_TOKEN(token,'a'))
+    {
+      add_bin8(asm_context, 0x88, IS_OPCODE);
+      return 1;
+    }
+
+    if (strcasecmp(token,"cc")==0)
+    {
+      add_bin8(asm_context, 0x8a, IS_OPCODE);
+      return 1;
+    }
+
+    int num=0;
+    if (token_type==TOKEN_POUND)
+    {
+      if (parse_num(asm_context, instr, &num, 1)<0) { return -1; }
+      add_bin8(asm_context, 0x4b, IS_OPCODE);
+      add_bin8(asm_context, num, IS_OPCODE);
+      return 2;
+    }
+
+    pushback(asm_context, token, token_type);
+    if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
+    add_bin8(asm_context, 0x3b, IS_OPCODE);
+    add_bin8(asm_context, num>>8, IS_OPCODE);
+    add_bin8(asm_context, num&0xff, IS_OPCODE);
+    return 3;
+  }
+
 #if 0
   while(1)
   {
@@ -902,7 +965,6 @@ int n;
       strcat(instr_case, token);
       continue;
     }
-
   }
 
   if (asm_context->pass==1)
