@@ -63,7 +63,7 @@ char *stm8_type1[] = {
   "sub",   //0   // plus SUB SP, #byte
   "cp",    //1
   "sbc",   //2
-  NULL,    //3
+  "cpw",   //3  // X,
   "and",   //4
   "bcp" ,  //5
   "ld",    //6
@@ -165,24 +165,21 @@ Load and Transfer
 LD
 LDF
 MOV
-EXG
+(done) EXG
 LDW
 
 Stack operation
 (done) PUSH
 (done) POP
 
-Compare and Tests
-CPW
-
 Arithmetic operations
 ADDW
 SUBW
 
 Unconditional Jump or Call
-JPF
-CALLR
-CALLF
+(done) JPF
+(done) CALLR
+(dont) CALLF
 
 Conditional Branch/ Execution
 (done) JRxx

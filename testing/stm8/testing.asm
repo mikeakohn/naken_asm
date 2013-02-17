@@ -75,5 +75,25 @@ boogers:
   callr boogers
   call $1100
 
+  exg a, xl
+  exg a, yl
+  exg a, $1132
+
+  callf $123456
+  callf [$1234]
+  jpf $123456
+  jpf [$1234]
+
+  cpw x, #$10
+  cpw x, $10
+  cpw x, $1000
+  cpw x, (Y)
+  cpw x, ($10, Y)
+  cpw x, ($1000, Y)
+  cpw x, ($10, SP)
+  cpw x, [$10]
+  cpw x, [$1000]
+  cpw x, ([$10], Y)
+
 
 

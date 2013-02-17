@@ -19,6 +19,7 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 #define READ_RAM16(a) ((memory_read_m(memory, a)<<8)|(memory_read_m(memory, a+1)))
+#define READ_RAM24(a) ((memory_read_m(memory, a)<<16)|(memory_read_m(memory, a+1)<<8)|(memory_read_m(memory, a+2)))
 
 #define SINGLE_OPCODE(pre, op, cycles, size, instr) \
   if (opcode==op && prefix==pre) \
@@ -107,6 +108,26 @@ int prefix=0;
     *cycles_min=4;
     *cycles_max=4;
     return 3;
+  }
+
+  if (opcode==0x8d || opcode==0xac)
+  {
+    char *instr=(opcode==0x8d)?"callf":"jpf";
+    if (prefix==0x00)
+    {
+      sprintf(instruction, "%s $%06x", instr, READ_RAM24(address+1));
+      *cycles_min=(opcode==0x8d)?5:2;
+      *cycles_max=*cycles_min;;
+      return 4;
+    }
+      else
+    if (prefix==0x92)
+    {
+      sprintf(instruction, "%s [$%04x]", instr, READ_RAM16(address+1));
+      *cycles_min=(opcode==0x8d)?8:6;
+      *cycles_max=*cycles_min;;
+      return 4;
+    }
   }
 
   int opcode_nibble=opcode&0x0f;
@@ -203,6 +224,9 @@ int prefix=0;
 
       if (opcode_nibble==7)
       { sprintf(instruction, "%s %s, A", stm8_type1[opcode_nibble], operand); }
+        else
+      if (opcode_nibble==3)
+      { sprintf(instruction, "%s X, %s", stm8_type1[opcode_nibble], operand); }
         else
       if (opcode_nibble==0xd)
       { sprintf(instruction, "%s %s", stm8_type1[opcode_nibble], operand); }
@@ -365,6 +389,8 @@ int prefix=0;
   SINGLE_OPCODE(0x00, 0x86, 1, 1, "pop CC")
   SINGLE_OPCODE(0x00, 0x88, 1, 1, "push A")
   SINGLE_OPCODE(0x00, 0x8a, 1, 1, "push CC")
+  SINGLE_OPCODE(0x00, 0x41, 1, 1, "exg A, XL")
+  SINGLE_OPCODE(0x00, 0x61, 1, 1, "exg A, YL")
 
   if (opcode==0x32 && prefix==0x00)
   {
@@ -387,6 +413,14 @@ int prefix=0;
     sprintf(instruction, "push $%04x", READ_RAM16(address+1));
     *cycles_min=1;
     *cycles_max=1;
+    return 3;
+  }
+
+  if (opcode==0x31 && prefix==0x00)
+  {
+    sprintf(instruction, "exg A, $%04x", READ_RAM16(address+1));
+    *cycles_min=3;
+    *cycles_max=3;
     return 3;
   }
 
