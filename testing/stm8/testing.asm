@@ -33,6 +33,7 @@ asdf:
   bccm $1000, #4
   btjt $1000, #5, asdf
   btjf $1000, #6, asdf
+  jrc asdf
 
   mul x,a
   mul y,a
@@ -41,5 +42,20 @@ asdf:
 
   divw x,y
   exgw x,y
+
+  swap a
+  swap (x)
+  swap $10
+  swap $1000
+  swap ($10,x)
+  swap ($1000,x)
+  swap ($10,y)
+  swap ($1000,y)
+  swap ($10,sp)
+  swap [$10]
+  swap [$1000]
+  swap ([$10], X)
+  swap ([$1000], X)
+  swap ([$10], Y)
 
 

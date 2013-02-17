@@ -4,3 +4,4 @@ naken_asm
 naken_util
 *.hex
 *.lst
+*.swp

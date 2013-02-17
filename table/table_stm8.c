@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "disasm_stm8.h"
+#include "table_stm8.h"
 
 struct _stm8_single stm8_single[] = {
   { "break", 0x8b, 1, ST7_YES },
@@ -110,6 +111,7 @@ char *stm8_type2[] = {
   "tnz",  // d
   "swap", // e
   "clr",  // f
+  "sla",  // 10 (fake.. translate to 8)
 };
 
 char *stm8_bit_oper[] = {
@@ -127,6 +129,34 @@ struct _stm8_r_r stm8_r_r[] = {
   { "divw", 0x65, 2, 17, ST7_NO }, // X,Y
   { "exgw", 0x51, 1, 1, ST7_NO },  // X,Y
   { NULL, 0x00, 0, 0, ST7_NO },
+};
+
+struct _stm8_jumps stm8_jumps[] = {
+  { "jrt", 0x20, 0 },
+  { "jrf", 0x21, 0 },
+  { "jrugt", 0x22, 0 },
+  { "jrule", 0x23, 0 },
+  { "jruge", 0x24, 0 },
+  { "jrnc", 0x24, 0 },
+  { "jrc", 0x25, 0 },
+  { "jrult", 0x25, 0 },
+  { "jrne", 0x26, 0 },
+  { "jreq", 0x27, 0 },
+  { "jrnv", 0x28, 0 },
+  { "jrv", 0x29, 0 },
+  { "jrpl", 0x2a, 0 },
+  { "jrmi", 0x2b, 0 },
+  { "jrsgt", 0x2c, 0 },
+  { "jrsle", 0x2d, 0 },
+  { "jrsge", 0x2e, 0 },
+  { "jrslt", 0x2f, 0 },
+  { "jrnh", 0x28, 0x90 },
+  { "jrh", 0x29, 0x90 },
+  { "jrnm", 0x2c, 0x90 },
+  { "jrm", 0x2d, 0x90 },
+  { "jril", 0x2e, 0x90 },
+  { "jrih", 0x2f, 0x90 },
+  { NULL, 0, 0 },
 };
 
 /*
@@ -161,5 +191,8 @@ JRxx
 WFE
 
 */
+
+
+
 
 
