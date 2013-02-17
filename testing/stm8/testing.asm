@@ -64,7 +64,16 @@ asdf:
   push #$10
   push $1000
 
+boogers:
   pop a
   pop cc
   pop $1000
+  jra boogers
+  jrt boogers
+  jrf boogers
+  jrc boogers
+  callr boogers
+  call $1100
+
+
 

@@ -757,7 +757,7 @@ int n;
     {
       token_type=get_token(asm_context, token, TOKENLEN);
 
-      if (strcasecmp(token, "a")==0)
+      if (n!=0x0d && strcasecmp(token, "a")==0)
       {
         token_type=get_token(asm_context, token, TOKENLEN);
         if (IS_NOT_TOKEN(token,','))
@@ -770,18 +770,23 @@ int n;
       }
         else
       {
+        pushback(asm_context, token, token_type);
         int size=parse_stm8_type1(asm_context, instr, n);
-        token_type=get_token(asm_context, token, TOKENLEN);
-        if (IS_NOT_TOKEN(token,','))
+
+        if (n!=0x0d)
         {
-          print_error_unexp(token, asm_context);
-          return -1;
-        }
-        token_type=get_token(asm_context, token, TOKENLEN);
-        if (strcasecmp(token, "a")!=0)
-        {
-          print_error_unexp(token, asm_context);
-          return -1;
+          token_type=get_token(asm_context, token, TOKENLEN);
+          if (IS_NOT_TOKEN(token,','))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+          token_type=get_token(asm_context, token, TOKENLEN);
+          if (strcasecmp(token, "a")!=0)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
         }
         return size;
       }
@@ -948,31 +953,22 @@ int n;
     return 3;
   }
 
-#if 0
-  while(1)
+  if (strcmp("callr", instr_case)==0)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL) { break; }
-
-    if (operand_count==0 && IS_TOKEN(token,'.'))
+    int num=0;
+    if (parse_num(asm_context, instr, &num, 3)<0) { return -1; }
+    int offset=num-(asm_context->address+2);
+    if (offset<-127 || offset>128)
     {
-      strcat(instr_case, ".");
-      strcat(instr, ".");
-      token_type=get_token(asm_context, token, TOKENLEN);
-      strcat(instr, token);
-      n=0;
-      while(token[n]!=0) { token[n]=tolower(token[n]); n++; }
-      strcat(instr_case, token);
-      continue;
+      print_error_range("Offset", -128, 255, asm_context);
+      return -1;
     }
-  }
 
-  if (asm_context->pass==1)
-  {
-    add_bin8(asm_context, 0, IS_OPCODE);
-    return 4;
+    add_bin8(asm_context, 0xad, IS_OPCODE);
+    add_bin8(asm_context, (unsigned char)offset, IS_OPCODE);
+
+    return 2;
   }
-#endif
 
   print_error_unknown_instr(instr, asm_context);
   //printf("Error: Unknown instruction '%s'  at %s:%d\n", instr, asm_context->filename, asm_context->line);

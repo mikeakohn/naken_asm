@@ -100,6 +100,15 @@ int prefix=0;
     n++;
   }
 
+  if (opcode==0xad && prefix==0x00)
+  {
+    char offset=(char)READ_RAM(address+1);
+    sprintf(instruction, "callr $%04x (%d)", address+2+offset, offset);
+    *cycles_min=4;
+    *cycles_max=4;
+    return 3;
+  }
+
   int opcode_nibble=opcode&0x0f;
   if (stm8_type1[opcode_nibble]!=NULL)
   {
@@ -186,12 +195,17 @@ int prefix=0;
 
     if (operand[0]!=0)
     {
+      if (opcode_nibble==0x0d) { cycles=(cycles==1)?4:6; }
+
       *cycles_min=cycles;
       *cycles_max=cycles;
       if (prefix!=0) { size++; }
 
       if (opcode_nibble==7)
       { sprintf(instruction, "%s %s, A", stm8_type1[opcode_nibble], operand); }
+        else
+      if (opcode_nibble==0xd)
+      { sprintf(instruction, "%s %s", stm8_type1[opcode_nibble], operand); }
         else
       { sprintf(instruction, "%s A, %s", stm8_type1[opcode_nibble], operand); }
 
@@ -332,9 +346,13 @@ int prefix=0;
       if (stm8_jumps[n].opcode==opcode && stm8_jumps[n].prefix==prefix)
       {
         char offset=(char)READ_RAM(address+1);
-        sprintf(instruction, "%s %04x (%d)", stm8_jumps[n].instr, address+2+offset, offset);
+        sprintf(instruction, "%s $%04x (%d)", stm8_jumps[n].instr, address+2+offset, offset);
         *cycles_min=1;
         *cycles_max=2;
+
+        if (n==0 || n==1) { *cycles_min=2; }
+        else if (n==2) { *cycles_max=1; }
+
         return (prefix==0)?2:3;
       }
 
@@ -351,46 +369,27 @@ int prefix=0;
   if (opcode==0x32 && prefix==0x00)
   {
     sprintf(instruction, "pop $%04x", READ_RAM16(address+1));
+    *cycles_min=1;
+    *cycles_max=1;
     return 3;
   }
 
   if (opcode==0x4b && prefix==0x00)
   {
     sprintf(instruction, "push #$%02x", READ_RAM(address+1));
+    *cycles_min=1;
+    *cycles_max=1;
     return 2;
   }
 
   if (opcode==0x3b && prefix==0x00)
   {
     sprintf(instruction, "push $%04x", READ_RAM16(address+1));
+    *cycles_min=1;
+    *cycles_max=1;
     return 3;
   }
 
-/*
-  if (opcode==0x8f && prefix==0x72)
-  {
-    strcpy(instruction, "wfe");
-    *cycles_min=1;
-    *cycles_max=1;
-    return 2;
-  }
-
-  if (opcode==0x84 && prefix==0x00)
-  {
-    strcpy(instruction, "pop A");
-    *cycles_min=1;
-    *cycles_max=1;
-    return 1;
-  }
-
-  if (opcode==0x86 && prefix==0x00)
-  {
-    strcpy(instruction, "pop A");
-    *cycles_min=1;
-    *cycles_max=1;
-    return 1;
-  }
-*/
 
   strcpy(instruction, "???");
 

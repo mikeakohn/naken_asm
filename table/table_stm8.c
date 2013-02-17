@@ -132,6 +132,7 @@ struct _stm8_r_r stm8_r_r[] = {
 };
 
 struct _stm8_jumps stm8_jumps[] = {
+  { "jra", 0x20, 0 },
   { "jrt", 0x20, 0 },
   { "jrf", 0x21, 0 },
   { "jrugt", 0x22, 0 },
@@ -168,8 +169,8 @@ EXG
 LDW
 
 Stack operation
-PUSH
-POP
+(done) PUSH
+(done) POP
 
 Compare and Tests
 CPW
@@ -179,9 +180,6 @@ ADDW
 SUBW
 
 Unconditional Jump or Call
-JRA
-JRT
-JRF
 JPF
 CALLR
 CALLF
