@@ -162,10 +162,10 @@ struct _stm8_jumps stm8_jumps[] = {
 
 /*
 Load and Transfer
-LD
+(done) LD
+(done) EXG
 LDF
 MOV
-(done) EXG
 LDW
 
 Stack operation

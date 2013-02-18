@@ -1024,6 +1024,43 @@ int n;
     return 4;
   }
 
+  if (strcmp("mov", instr_case)==0)
+  {
+    int num1=0,num2=0;
+    if (parse_num(asm_context, instr, &num1, 2)<0) { return -1; }
+    if (expect_token_s(asm_context,",")!=0) { return -1; }
+    token_type=get_token(asm_context, token, TOKENLEN);
+
+    if (token_type==TOKEN_POUND)
+    {
+      if (parse_num(asm_context, instr, &num2, 1)<0) { return -1; }
+      add_bin8(asm_context, 0x35, IS_OPCODE);
+      add_bin8(asm_context, num2, IS_OPCODE);
+      add_bin8(asm_context, num1>>8, IS_OPCODE);
+      add_bin8(asm_context, num1&0xff, IS_OPCODE);
+      return 4;
+    }
+
+    pushback(asm_context, token, token_type);
+    if (parse_num(asm_context, instr, &num2, 2)<0) { return -1; }
+
+    if (num1<256 && num2<256)
+    {
+      add_bin8(asm_context, 0x45, IS_OPCODE);
+      add_bin8(asm_context, num2, IS_OPCODE);
+      add_bin8(asm_context, num1, IS_OPCODE);
+      return 3;
+    }
+
+    add_bin8(asm_context, 0x55, IS_OPCODE);
+    add_bin8(asm_context, num2>>8, IS_OPCODE);
+    add_bin8(asm_context, num2&0xff, IS_OPCODE);
+    add_bin8(asm_context, num1>>8, IS_OPCODE);
+    add_bin8(asm_context, num1&0xff, IS_OPCODE);
+
+    return 4;
+  }
+
   print_error_unknown_instr(instr, asm_context);
   //printf("Error: Unknown instruction '%s'  at %s:%d\n", instr, asm_context->filename, asm_context->line);
 

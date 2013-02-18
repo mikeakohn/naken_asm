@@ -392,36 +392,63 @@ int prefix=0;
   SINGLE_OPCODE(0x00, 0x41, 1, 1, "exg A, XL")
   SINGLE_OPCODE(0x00, 0x61, 1, 1, "exg A, YL")
 
-  if (opcode==0x32 && prefix==0x00)
+  if (prefix==0x00)
   {
-    sprintf(instruction, "pop $%04x", READ_RAM16(address+1));
-    *cycles_min=1;
-    *cycles_max=1;
-    return 3;
-  }
+    if (opcode==0x32 && prefix==0x00)
+    {
+      sprintf(instruction, "pop $%04x", READ_RAM16(address+1));
+      *cycles_min=1;
+      *cycles_max=1;
+      return 3;
+    }
 
-  if (opcode==0x4b && prefix==0x00)
-  {
-    sprintf(instruction, "push #$%02x", READ_RAM(address+1));
-    *cycles_min=1;
-    *cycles_max=1;
-    return 2;
-  }
+    if (opcode==0x4b)
+    {
+      sprintf(instruction, "push #$%02x", READ_RAM(address+1));
+      *cycles_min=1;
+      *cycles_max=1;
+      return 2;
+    }
 
-  if (opcode==0x3b && prefix==0x00)
-  {
-    sprintf(instruction, "push $%04x", READ_RAM16(address+1));
-    *cycles_min=1;
-    *cycles_max=1;
-    return 3;
-  }
+    if (opcode==0x3b)
+    {
+      sprintf(instruction, "push $%04x", READ_RAM16(address+1));
+      *cycles_min=1;
+      *cycles_max=1;
+      return 3;
+    }
 
-  if (opcode==0x31 && prefix==0x00)
-  {
-    sprintf(instruction, "exg A, $%04x", READ_RAM16(address+1));
-    *cycles_min=3;
-    *cycles_max=3;
-    return 3;
+    if (opcode==0x31)
+    {
+      sprintf(instruction, "exg A, $%04x", READ_RAM16(address+1));
+      *cycles_min=3;
+      *cycles_max=3;
+      return 3;
+    }
+
+    if (opcode==0x35)
+    {
+      sprintf(instruction, "mov $%04x, #$%02x", READ_RAM16(address+2), READ_RAM(address+1));
+      *cycles_min=1;
+      *cycles_max=1;
+      return 4;
+    }
+
+    if (opcode==0x45)
+    {
+      sprintf(instruction, "mov $%02x, $%02x", READ_RAM(address+2), READ_RAM(address+1));
+      *cycles_min=1;
+      *cycles_max=1;
+      return 3;
+    }
+
+    if (opcode==0x55)
+    {
+      sprintf(instruction, "mov $%04x, $%04x", READ_RAM16(address+3), READ_RAM16(address+1));
+      *cycles_min=1;
+      *cycles_max=1;
+      return 5;
+    }
   }
 
 
