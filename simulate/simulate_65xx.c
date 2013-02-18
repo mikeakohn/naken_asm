@@ -28,7 +28,7 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
-struct _simulate *simulate_init_65xx()
+struct _simulate *simulate_init_65xx(struct _memory *memory)
 {
 struct _simulate *simulate;
 
@@ -43,11 +43,12 @@ struct _simulate *simulate;
   simulate->simulate_dump_registers=simulate_dump_registers_65xx;
   simulate->simulate_run=simulate_run_65xx;
 
-  memory_init(&simulate->memory, 65536, 0);
+  //memory_init(&simulate->memory, 65536, 0);
   simulate_reset_65xx(simulate);
   simulate->usec=1000000; // 1Hz
   simulate->show=1; // Show simulation
   simulate->step_mode=0;
+  simulate->memory=memory;
 
   return simulate;
 }
@@ -89,13 +90,13 @@ struct _simulate_65xx *simulate_65xx=(struct _simulate_65xx *)simulate->context;
   simulate->cycle_count=0;
   simulate->ret_count=0;
   //memset(simulate_65xx->reg, 0, sizeof(simulate_65xx->reg));
-  memory_clear(&simulate->memory);
+  //memory_clear(simulate->memory);
   simulate->break_point=-1;
 }
 
 void simulate_free_65xx(struct _simulate *simulate)
 {
-  memory_free(&simulate->memory);
+  //memory_free(simulate->memory);
   free(simulate);
 }
 

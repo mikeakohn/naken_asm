@@ -106,48 +106,6 @@ int n=0;
   return token+s;
 }
 
-#if 0
-static int get_reg(char *token, int *r)
-{
-int num;
-int ptr;
-
-  if (strncasecmp(token, "pc=", 3)==0)
-  {
-    *r=0;
-    return 3;
-  }
-    else
-  if (strncasecmp(token, "sp=", 3)==0)
-  {
-    *r=1;
-    return 3;
-  }
-    else
-  if (strncasecmp(token, "sr=", 3)==0)
-  {
-    *r=2;
-    return 3;
-  }
-
-  *r=-1;
-  ptr=1;
-  num=0;
-  if (token[0]!='r' && token[0]!='R') return 0;
-
-  while(token[ptr]!='=' && token[ptr]!=0)
-  {
-    if (token[ptr]<'0' || token[ptr]>'9') { *r=-1; return 0; }
-    num=(num*10)+(token[ptr++]-'0');
-  }
-
-  if (num>15 || token[ptr]!='=') { *r=-1; return 0; }
-  *r=num;
-
-  return ptr+1;
-}
-#endif
-
 static char *get_num(char *token, int *num)
 {
 int s;
@@ -588,7 +546,7 @@ int interactive=1;
   memory_init(&util_context.memory, 1<<20, 1);
 
   util_context.disasm_range=disasm_range_msp430;
-  util_context.simulate=simulate_init_msp430();
+  util_context.simulate=simulate_init_msp430(&util_context.memory);
   //util_context.instr_bytes=2;
 
   for (i=1; i<argc; i++)
@@ -657,7 +615,7 @@ int interactive=1;
     if (strcmp(argv[i], "-65xx")==0)
     {
       util_context.disasm_range=disasm_range_65xx;
-      util_context.simulate=simulate_init_65xx();
+      util_context.simulate=simulate_init_65xx(&util_context.memory);
       //util_context.instr_bytes=1;
       //chip=1;
     }
@@ -713,13 +671,13 @@ int interactive=1;
 #ifdef ENABLE_MSP430
           case CPU_TYPE_MSP430:
             util_context.disasm_range=disasm_range_msp430;
-            util_context.simulate=simulate_init_msp430();
+            util_context.simulate=simulate_init_msp430(&util_context.memory);
             break;
 #endif
 #ifdef ENABLE_65XX
           case CPU_TYPE_65XX:
             util_context.disasm_range=disasm_range_65xx;
-            util_context.simulate=simulate_init_65xx();
+            util_context.simulate=simulate_init_65xx(&util_context.memory);
             break;
 #endif
 #ifdef ENABLE_ARM
@@ -762,6 +720,8 @@ int interactive=1;
     printf("No hexfile loaded.  Exiting...\n");
     exit(1);
   }
+
+  util_context.simulate->simulate_reset(util_context.simulate);
 
   if (loaded_debug==0)
   {
@@ -951,6 +911,7 @@ int interactive=1;
       {
         if (*s=='=')
         {
+          *s=0;
           s++;
           int a;
           get_num(s, &a);

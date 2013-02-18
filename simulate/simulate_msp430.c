@@ -25,9 +25,9 @@ Status: V SCG1 SCG0 OSCOFF CPUOFF GIE N Z C
 
 */
 
-#define SHOW_STACK sp, memory_read_m(&simulate->memory, sp+1), memory_read_m(&simulate->memory, sp)
-#define READ_RAM(a) memory_read_m(&simulate->memory, a)
-#define WRITE_RAM(a,b) memory_write_m(&simulate->memory, a, b)
+#define SHOW_STACK sp, memory_read_m(simulate->memory, sp+1), memory_read_m(simulate->memory, sp)
+#define READ_RAM(a) memory_read_m(simulate->memory, a)
+#define WRITE_RAM(a,b) memory_write_m(simulate->memory, a, b)
 
 #define GET_V() ((simulate_msp430->reg[2]>>8)&1)
 #define GET_SCG1() ((simulate_msp430->reg[2]>>7)&1)
@@ -610,7 +610,7 @@ unsigned int result;
   return 0;
 }
 
-struct _simulate *simulate_init_msp430()
+struct _simulate *simulate_init_msp430(struct _memory *memory)
 {
 struct _simulate *simulate;
 
@@ -625,7 +625,8 @@ struct _simulate *simulate;
   simulate->simulate_dump_registers=simulate_dump_registers_msp430;
   simulate->simulate_run=simulate_run_msp430;
 
-  memory_init(&simulate->memory, 65536, 0);
+  //memory_init(&simulate->memory, 65536, 0);
+  simulate->memory=memory;
   simulate_reset_msp430(simulate);
   simulate->usec=1000000; // 1Hz
   simulate->show=1; // Show simulation
@@ -695,7 +696,7 @@ struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->co
   simulate->cycle_count=0;
   simulate->ret_count=0;
   memset(simulate_msp430->reg, 0, sizeof(simulate_msp430->reg));
-  memory_clear(&simulate->memory);
+  //memory_clear(&simulate->memory);
   simulate_msp430->reg[0]=READ_RAM(0xfffe)|(READ_RAM(0xffff)<<8);
   // FIXME - A real chip wouldn't set the SP to this, but this is
   // in case someone is simulating code that won't run on a chip.
@@ -705,7 +706,7 @@ struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->co
 
 void simulate_free_msp430(struct _simulate *simulate)
 {
-  memory_free(&simulate->memory);
+  //memory_free(simulate->memory);
   free(simulate);
 }
 
@@ -814,7 +815,7 @@ int n;
         int cycles_min,cycles_max;
         int num;
         num=(READ_RAM(pc+1)<<8)|READ_RAM(pc);
-        int count=disasm_msp430(&simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+        int count=disasm_msp430(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
         if (cycles_min==-1) break;
 
         if (pc==simulate->break_point) { printf("*"); }
@@ -832,9 +833,15 @@ int n;
           printf("0x%04x: 0x%04x %-40s ?\n", pc, num, instruction);
         }
           else
+        if (cycles_min==cycles_max)
         {
-          printf("0x%04x: 0x%04x %-40s %d\n", pc, num, instruction, cycles);
+          printf("0x%04x: 0x%04x %-40s %d\n", pc, num, instruction, cycles_min);
         }
+          else
+        {
+          printf("0x%04x: 0x%04x %-40s %d-%d\n", pc, num, instruction, cycles_min, cycles_max);
+        }
+
         n=n+count;
         pc+=2;
         count--;

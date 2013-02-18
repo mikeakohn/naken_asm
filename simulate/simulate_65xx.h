@@ -24,7 +24,7 @@ struct _simulate_65xx
   // Define registers and anything 65xx specific here
 };
 
-struct _simulate *simulate_init_65xx();
+struct _simulate *simulate_init_65xx(struct _memory *memory);
 void simulate_free_65xx(struct _simulate *simulate);
 void simulate_push_65xx(struct _simulate *simulate, unsigned int value);
 int simulate_set_reg_65xx(struct _simulate *simulate, char *reg_string, unsigned int value);
