@@ -99,3 +99,19 @@ boogers:
   mov $80, $10
   mov $8000, $1000
 
+  subw x, #$5500
+  subw x, $1000
+  subw x, ($10,SP)
+  subw y, #$5500
+  subw y, $1000
+  subw y, ($10,SP)
+
+  addw x, #$5500
+  addw x, $1000
+  addw x, ($10,SP)
+  addw y, #$5500
+  addw y, $1000
+  addw y, ($10,SP)
+  addw SP, #$09
+
+

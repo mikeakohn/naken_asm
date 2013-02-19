@@ -998,7 +998,6 @@ int n;
   n=0;
   if (strcmp("callf", instr_case)==0) { n=0x8d; }
   else if (strcmp("jpf", instr_case)==0) { n=0xac; }
-
   if (n!=0)
   {
     token_type=get_token(asm_context, token, TOKENLEN);
@@ -1057,7 +1056,79 @@ int n;
     add_bin8(asm_context, num2&0xff, IS_OPCODE);
     add_bin8(asm_context, num1>>8, IS_OPCODE);
     add_bin8(asm_context, num1&0xff, IS_OPCODE);
+    return 4;
+  }
 
+  n=0;
+  if (strcmp("addw", instr_case)==0) { n=1; }
+  else if (strcmp("subw", instr_case)==0) { n=2; }
+  if (n!=0)
+  {
+    int is_x=0;
+    int size=3;
+
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (expect_token_s(asm_context,",")!=0) { return -1; }
+
+    if (strcasecmp(token,"x")==0) { is_x=1; }
+      else
+    if (strcasecmp(token,"sp")==0 && n==1)
+    {
+      if (expect_token_s(asm_context,"#")!=0) { return -1; }
+      if (parse_num(asm_context, instr, &num, 1)<0) { return -1; }
+      add_bin8(asm_context, 0x5b, IS_OPCODE);
+      add_bin8(asm_context, num, IS_OPCODE);
+      return 2;
+    }
+      else
+    if (strcasecmp(token,"y")!=0)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_POUND)
+    {
+      int opcode;
+      if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
+      if (is_x==0)
+      {
+        add_bin8(asm_context, 0x72, IS_OPCODE);
+        opcode=(n==1)?0xa9:0xa2;
+        size++;
+      }
+        else
+      {
+        opcode=(n==1)?0x1c:0x1d;
+      }
+
+      add_bin8(asm_context, opcode, IS_OPCODE);
+      add_bin8(asm_context, num>>8, IS_OPCODE);
+      add_bin8(asm_context, num&0xff, IS_OPCODE);
+      return size;
+    }
+
+    add_bin8(asm_context, 0x72, IS_OPCODE);
+    if (IS_TOKEN(token,'('))
+    {
+      unsigned char opcodes[]={ 0xf9, 0xfb, 0xf2, 0xf0 };
+      if (parse_num(asm_context, instr, &num, 1)<0) { return -1; }
+      if (expect_token_s(asm_context,",")!=0) { return -1; }
+      if (expect_token_s(asm_context,"SP")!=0) { return -1; }
+      if (expect_token_s(asm_context,")")!=0) { return -1; }
+      add_bin8(asm_context, opcodes[is_x|((n-1)<<1)], IS_OPCODE);
+      add_bin8(asm_context, num, IS_OPCODE);
+      return 3;
+    }
+
+    pushback(asm_context, token, token_type);
+
+    unsigned char opcodes[]={ 0xb9, 0xbb, 0xb2, 0xb0 };
+    if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
+    add_bin8(asm_context, opcodes[is_x|((n-1)<<1)], IS_OPCODE);
+    add_bin8(asm_context, num>>8, IS_OPCODE);
+    add_bin8(asm_context, num&0xff, IS_OPCODE);
     return 4;
   }
 

@@ -130,6 +130,37 @@ int prefix=0;
     }
   }
 
+  // Check for addw, subw
+  {
+    unsigned char opcodes[] =
+    {
+      0x1c, 0xbb, 0xfb, 0xa9, 0xb9, 0xf9,
+      0x1d, 0xb0, 0xf0, 0xa2, 0xb2, 0xf2,
+    };
+
+    for (n=0; n<12; n++)
+    {
+      if (opcode==opcodes[n])
+      {
+        if ((n%6)==0 && prefix!=0) { continue; }
+        if ((n%6)!=0 && prefix!=0x72) { continue; }
+        int size;
+        *cycles_min=2;
+        *cycles_max=2;
+        char *instr=(n>=6)?"subw":"addw";
+        char *reg=(((n/3)&1)==0)?"X":"Y";
+        int v=n%3;
+        if (v==0)
+        { sprintf(instruction, "%s %s, #$%04x", instr, reg, READ_RAM16(address+1)); size=3; }
+        else if (v==1)
+        { sprintf(instruction, "%s %s, $%04x", instr, reg, READ_RAM16(address+1)); size=4; }
+        else if (v==2)
+        { sprintf(instruction, "%s %s, ($%02x,SP)", instr, reg, READ_RAM(address+1)); size=4; }
+        return size;
+      }
+    }
+  }
+
   int opcode_nibble=opcode&0x0f;
   if (stm8_type1[opcode_nibble]!=NULL)
   {
@@ -448,6 +479,14 @@ int prefix=0;
       *cycles_min=1;
       *cycles_max=1;
       return 5;
+    }
+
+    if (opcode==0x5b)
+    {
+      sprintf(instruction, "addw SP, #$%02x", READ_RAM(address+1));
+      *cycles_min=2;
+      *cycles_max=2;
+      return 2;
     }
   }
 
