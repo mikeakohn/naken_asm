@@ -704,6 +704,77 @@ int bytes;
   return 4;
 }
 
+static int parse_stm8_ldf(struct _asm_context *asm_context, char *instr, int is_a_after)
+{
+char token[TOKENLEN];
+int token_type;
+int num=0;
+
+  token_type=get_token(asm_context, token, TOKENLEN);
+  if (IS_TOKEN(token,'('))
+  {
+    int prefix;
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (IS_TOKEN(token,'['))
+    {
+      if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
+      if (expect_token_s(asm_context,"]")!=0) { return -1; }
+      if (expect_token_s(asm_context,",")!=0) { return -1; }
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (strcasecmp(token,"x")==0) { prefix=0x92; }
+      else if (strcasecmp(token,"y")==0) { prefix=0x91; }
+      else { print_error_unexp(token, asm_context); return -1; }
+      if (expect_token_s(asm_context,")")!=0) { return -1; }
+
+      add_bin8(asm_context, prefix, IS_OPCODE);
+      add_bin8(asm_context, (is_a_after==0)?0xaf:0xa7, IS_OPCODE);
+      add_bin8(asm_context, num>>8, IS_OPCODE);
+      add_bin8(asm_context, num&0xff, IS_OPCODE);
+      return 4;
+    }
+
+    pushback(asm_context, token, token_type);
+    if (parse_num(asm_context, instr, &num, 3)<0) { return -1; }
+    if (expect_token_s(asm_context,",")!=0) { return -1; }
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (strcasecmp(token,"x")==0) { prefix=0x00; }
+    else if (strcasecmp(token,"y")==0) { prefix=0x90; }
+    else { print_error_unexp(token, asm_context); return -1; }
+    if (expect_token_s(asm_context,")")!=0) { return -1; }
+
+    if (prefix==0x90) { add_bin8(asm_context, prefix, IS_OPCODE); }
+    add_bin8(asm_context, (is_a_after==0)?0xaf:0xa7, IS_OPCODE);
+    add_bin8(asm_context, num>>16, IS_OPCODE);
+    add_bin8(asm_context, (num>>8)&0xff, IS_OPCODE);
+    add_bin8(asm_context, num&0xff, IS_OPCODE);
+
+    return (prefix==0)?4:5;
+  }
+    else
+  if (IS_TOKEN(token,'['))
+  {
+    if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
+    add_bin8(asm_context, 0x92, IS_OPCODE);
+    add_bin8(asm_context, (is_a_after==0)?0xbc:0xbd, IS_OPCODE);
+    add_bin8(asm_context, num>>8, IS_OPCODE);
+    add_bin8(asm_context, num&0xff, IS_OPCODE);
+    if (expect_token_s(asm_context,"]")!=0) { return -1; }
+    return 4;
+  }
+    else
+  {
+    pushback(asm_context, token, token_type);
+    if (parse_num(asm_context, instr, &num, 3)<0) { return -1; }
+    add_bin8(asm_context, (is_a_after==0)?0xbc:0xbd, IS_OPCODE);
+    add_bin8(asm_context, num>>16, IS_OPCODE);
+    add_bin8(asm_context, (num>>8)&0xff, IS_OPCODE);
+    add_bin8(asm_context, num&0xff, IS_OPCODE);
+    return 4;
+  }
+
+  return -1;
+}
+
 int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -1130,6 +1201,24 @@ int n;
     add_bin8(asm_context, num>>8, IS_OPCODE);
     add_bin8(asm_context, num&0xff, IS_OPCODE);
     return 4;
+  }
+
+  if (strcmp("ldf", instr_case)==0)
+  {
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (IS_TOKEN(token,'a') || IS_TOKEN(token,'A'))
+    {
+      if (expect_token_s(asm_context,",")!=0) { return -1; }
+      return parse_stm8_ldf(asm_context, instr, 0);
+    }
+      else
+    {
+      pushback(asm_context, token, token_type);
+      int ret=parse_stm8_ldf(asm_context, instr, 1);
+      if (expect_token_s(asm_context,",")!=0) { return -1; }
+      if (expect_token_s(asm_context,"A")!=0) { return -1; }
+      return ret;
+    }
   }
 
   print_error_unknown_instr(instr, asm_context);

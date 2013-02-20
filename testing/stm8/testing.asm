@@ -114,4 +114,18 @@ boogers:
   addw y, ($10,SP)
   addw SP, #$09
 
+  ldf A, $501122
+  ldf A, ($501122, X)
+  ldf A, ($501122, Y)
+  ldf A, ([$5000], X)
+  ldf A, ([$5000], Y)
+  ldf A, [$5000]
+
+  ldf $501122, A
+  ldf ($501122, X), A
+  ldf ($501122, Y), A
+  ldf ([$5000], X), A
+  ldf ([$5000], Y), A
+  ldf [$5000], A
+
 

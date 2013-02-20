@@ -173,8 +173,8 @@ Stack operation
 (done) POP
 
 Arithmetic operations
-ADDW
-SUBW
+(dont) ADDW
+(dont) SUBW
 
 Unconditional Jump or Call
 (done) JPF

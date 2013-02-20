@@ -74,6 +74,73 @@ int prefix=0;
     }
   }
 
+  // Check for ldf
+  {
+    int size=4;
+    int cycles=1;
+    unsigned char opcodes[] =
+    {
+      0xbc, 0xaf, 0xbd, 0xa7
+    };
+
+    for (n=0; n<4; n++)
+    {
+      if (opcode==opcodes[n])
+      {
+        char temp[32];
+
+        if ((n&1)==0)
+        {
+          if (prefix==0x00)
+          {
+            sprintf(temp, "$%06x", READ_RAM24(address+1));
+          }
+            else
+          if (prefix==0x92)
+          {
+            sprintf(temp, "[$%04x]", READ_RAM16(address+1));
+            cycles=5;
+          }
+            else
+          { break; }
+        }
+          else
+        {
+          if (prefix==0x00)
+          {
+            sprintf(temp, "($%06x, X)", READ_RAM24(address+1));
+          }
+            else
+          if (prefix==0x90)
+          {
+            sprintf(temp, "($%06x, Y)", READ_RAM24(address+1));
+            size=5;
+          }
+            else
+          if (prefix==0x92)
+          {
+            sprintf(temp, "([$%04x], X)", READ_RAM16(address+1));
+            cycles=5;
+          }
+            else
+          if (prefix==0x91)
+          {
+            sprintf(temp, "([$%04x], Y)", READ_RAM16(address+1));
+            cycles=5;
+          }
+            else
+          { break; }
+        }
+
+        if (n<2) { sprintf(instruction,"ldf A, %s", temp); }
+        else { sprintf(instruction,"ldf %s, A", temp); cycles=(cycles==5)?4:1; }
+        *cycles_min=cycles;
+        *cycles_max=cycles;
+        return size;
+      }
+    }
+  }
+
   n=0;
   while(stm8_x_y[n].instr!=NULL)
   {
