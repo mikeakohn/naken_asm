@@ -315,6 +315,12 @@ int prefix=0;
     if (operand[0]!=0)
     {
       if (opcode_nibble==0x0d) { cycles=(cycles==1)?4:6; }
+        else
+      if (opcode_nibble==0x0c)
+      {
+        if (cycles==4) { cycles==5; }
+        else if (prefix==0x90 && (opcode==0xec || opcode==0xdc)) { cycles=2; }
+      }
 
       *cycles_min=cycles;
       *cycles_max=cycles;
@@ -326,7 +332,7 @@ int prefix=0;
       if (opcode_nibble==3)
       { sprintf(instruction, "%s X, %s", stm8_type1[opcode_nibble], operand); }
         else
-      if (opcode_nibble==0xd)
+      if (opcode_nibble==0xd || opcode_nibble==0xc)
       { sprintf(instruction, "%s %s", stm8_type1[opcode_nibble], operand); }
         else
       { sprintf(instruction, "%s A, %s", stm8_type1[opcode_nibble], operand); }

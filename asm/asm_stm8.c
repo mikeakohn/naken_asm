@@ -170,6 +170,12 @@ int num;
   {
     int opcode=0;
 
+    if (opcode_nibble==0xc)
+    {
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+    }
+
     if (asm_context->pass==1)
     {
       eat_operand(asm_context);
@@ -293,6 +299,12 @@ int num;
 
     if (strcasecmp(token,"sp")==0)
     {
+      if (opcode_nibble==0xc)
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
+      }
+
       if (bytes>1)
       {
         print_error_range("Constant", -128, 255, asm_context);
@@ -402,6 +414,8 @@ int num;
 
     int bytes=parse_num(asm_context, instr, &num, 2);
     if (bytes<0) { return -1; }
+
+    if (opcode_nibble==0xc) { bytes=2; }
 
     if (asm_context->pass==1) { stm8_pass1(asm_context, bytes+1); return bytes+1; }
 
@@ -827,6 +841,11 @@ int n;
     if (stm8_type1[n]==NULL) { continue; }
     if (strcmp(stm8_type1[n], instr_case)==0)
     {
+      if (n==0x0c)
+      {
+        return parse_stm8_type1(asm_context, instr, n);
+      }
+
       token_type=get_token(asm_context, token, TOKENLEN);
 
       if ((n!=0x0d && strcasecmp(token, "a")==0) ||

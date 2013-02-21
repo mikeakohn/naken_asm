@@ -165,7 +165,7 @@ Load and Transfer
 (done) LD
 (done) EXG
 (done) MOV
-LDF
+(done) LDF
 LDW
 
 Stack operation
@@ -173,13 +173,14 @@ Stack operation
 (done) POP
 
 Arithmetic operations
-(dont) ADDW
-(dont) SUBW
+(done) ADDW
+(done) SUBW
 
 Unconditional Jump or Call
 (done) JPF
 (done) CALLR
-(dont) CALLF
+(done) CALLF
+JP
 
 Conditional Branch/ Execution
 (done) JRxx
