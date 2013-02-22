@@ -503,6 +503,7 @@ int prefix=0;
   SINGLE_OPCODE(0x00, 0x8a, 1, 1, "push CC")
   SINGLE_OPCODE(0x00, 0x41, 1, 1, "exg A, XL")
   SINGLE_OPCODE(0x00, 0x61, 1, 1, "exg A, YL")
+  SINGLE_OPCODE(0x00, 0xff, 2, 1, "ldw (X), Y")
 
   if (prefix==0x00)
   {
@@ -568,6 +569,38 @@ int prefix=0;
       *cycles_min=2;
       *cycles_max=2;
       return 2;
+    }
+
+    if (opcode==0xbf)
+    {
+      sprintf(instruction, "ldw $%02x, X", READ_RAM(address+1));
+      *cycles_min=2;
+      *cycles_max=2;
+      return 2;
+    }
+
+    if (opcode==0xcf)
+    {
+      sprintf(instruction, "ldw $%04x, X", READ_RAM16(address+1));
+      *cycles_min=2;
+      *cycles_max=2;
+      return 3;
+    }
+
+    if (opcode==0xef)
+    {
+      sprintf(instruction, "ldw ($%02x,X), Y", READ_RAM(address+1));
+      *cycles_min=2;
+      *cycles_max=2;
+      return 2;
+    }
+
+    if (opcode==0xdf)
+    {
+      sprintf(instruction, "ldw ($%04x,X), Y", READ_RAM16(address+1));
+      *cycles_min=2;
+      *cycles_max=2;
+      return 3;
     }
   }
 

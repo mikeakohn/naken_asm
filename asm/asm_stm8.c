@@ -808,10 +808,62 @@ int n;
       {
         if (strcasecmp(token, "x")==0)
         {
-          //token_type=get_token(asm_context, token, TOKENLEN);
           if (expect_token_s(asm_context,",")!=0) { return -1; }
 
           return parse_stm8_type1(asm_context, instr, n);
+        }
+
+        if (n==0x0e)
+        {
+          if (IS_TOKEN(token,'('))
+          {
+            token_type=get_token(asm_context, token, TOKENLEN);
+            if (strcasecmp(token,"x")==0)
+            {
+              if (expect_token_s(asm_context,")")!=0) { return -1; }
+              if (expect_token_s(asm_context,",")!=0) { return -1; }
+              if (expect_token_s(asm_context,"y")!=0) { return -1; }
+              add_bin8(asm_context, 0xff, IS_OPCODE);
+              return 1;
+            }
+            pushback(asm_context, token, token_type);
+            if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
+
+            if (expect_token_s(asm_context,",")!=0) { return -1; }
+            if (expect_token_s(asm_context,"x")!=0) { return -1; }
+            if (expect_token_s(asm_context,")")!=0) { return -1; }
+            if (expect_token_s(asm_context,",")!=0) { return -1; }
+            if (expect_token_s(asm_context,"y")!=0) { return -1; }
+
+            if (num>255)
+            {
+              add_bin8(asm_context, 0xdf, IS_OPCODE);
+              add_bin8(asm_context, num>>8, IS_OPCODE);
+              add_bin8(asm_context, num&0xff, IS_OPCODE);
+              return 3;
+            }
+
+            add_bin8(asm_context, 0xef, IS_OPCODE);
+            add_bin8(asm_context, num, IS_OPCODE);
+            return 2;
+          }
+
+          pushback(asm_context, token, token_type);
+          if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
+          if (expect_token_s(asm_context,",")!=0) { return -1; }
+          if (expect_token_s(asm_context,"x")!=0) { return -1; }
+
+          if (num>255)
+          {
+            add_bin8(asm_context, 0xcf, IS_OPCODE);
+            add_bin8(asm_context, num>>8, IS_OPCODE);
+            add_bin8(asm_context, num&0xff, IS_OPCODE);
+            return 3;
+          }
+
+          add_bin8(asm_context, 0xbf, IS_OPCODE);
+          add_bin8(asm_context, num, IS_OPCODE);
+          return 2;
         }
 
         print_error_unexp(token, asm_context);

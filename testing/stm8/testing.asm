@@ -135,4 +135,9 @@ boogers:
 
   ldw X, #$55aa
 
+  ldw $50, X
+  ldw $5000, X
+  ldw (X), Y
+  ldw ($50, X), Y
+  ldw ($5000, X), Y
 
