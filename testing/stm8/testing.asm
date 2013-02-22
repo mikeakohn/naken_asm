@@ -133,5 +133,6 @@ boogers:
   jp ($10, Y)
   jp ([$10], X)
 
+  ldw X, #$55aa
 
 

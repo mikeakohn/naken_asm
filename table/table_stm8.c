@@ -74,7 +74,7 @@ char *stm8_type1[] = {
   "add",   //b
   "jp",    //c   // no a, b, 1
   "call",  //d   // no a and b
-  NULL,    //e
+  "ldw",   //e
   NULL,    //f
 };
 

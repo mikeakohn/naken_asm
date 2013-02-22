@@ -182,12 +182,20 @@ int num;
     }
       else
     {
-      if (parse_num(asm_context, instr, &num, 1)<0) { return -1; }
+      if (parse_num(asm_context, instr, &num, (opcode_nibble==0xe)?2:1)<0) { return -1; }
       opcode=0xa0|opcode_nibble;
     }
 
     add_bin8(asm_context, opcode, IS_OPCODE);
-    add_bin8(asm_context, num, IS_OPCODE);
+    if (opcode_nibble==0xe)
+    {
+      add_bin8(asm_context, num>>8, IS_OPCODE);
+      add_bin8(asm_context, num&0xff, IS_OPCODE);
+    }
+      else
+    {
+      add_bin8(asm_context, num, IS_OPCODE);
+    }
 
     return 2;
   }
@@ -204,12 +212,7 @@ int num;
         size++;
       }
 
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (IS_NOT_TOKEN(token,')'))
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
+      if (expect_token_s(asm_context,")")!=0) { return -1; }
 
       add_bin8(asm_context, 0xf0|opcode_nibble, IS_OPCODE);
       return size;
@@ -221,19 +224,8 @@ int num;
       int bytes=parse_num(asm_context, instr, &num, 2);
       if (bytes<0) { return -1; }
 
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (IS_NOT_TOKEN(token,']'))
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (IS_NOT_TOKEN(token,','))
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
+      if (expect_token_s(asm_context,"]")!=0) { return -1; }
+      if (expect_token_s(asm_context,",")!=0) { return -1; }
 
       int a=memory_read_m(&asm_context->memory, asm_context->address);
       token_type=get_token(asm_context, token, TOKENLEN);
@@ -271,12 +263,7 @@ int num;
         size=3;
       }
 
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (IS_NOT_TOKEN(token,')'))
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
+      if (expect_token_s(asm_context,")")!=0) { return -1; }
 
       return size;
     }
@@ -286,12 +273,7 @@ int num;
     int bytes=parse_num(asm_context, instr, &num, 2);
     if (bytes<0) { return -1; }
 
-    token_type=get_token(asm_context, token, TOKENLEN);
-    if (IS_NOT_TOKEN(token,','))
-    {
-      print_error_unexp(token, asm_context);
-      return -1;
-    }
+    if (expect_token_s(asm_context,",")!=0) { return -1; }
 
     int size=0;
     int a=memory_read_m(&asm_context->memory, asm_context->address);
@@ -366,12 +348,7 @@ int num;
       return -1;
     }
 
-    token_type=get_token(asm_context, token, TOKENLEN);
-    if (IS_NOT_TOKEN(token,')'))
-    {
-      print_error_unexp(token, asm_context);
-      return -1;
-    }
+    if (expect_token_s(asm_context,")")!=0) { return -1; }
 
     return size;
   }
@@ -399,12 +376,7 @@ int num;
       size=3;
     }
 
-    token_type=get_token(asm_context, token, TOKENLEN);
-    if (IS_NOT_TOKEN(token,']'))
-    {
-      print_error_unexp(token, asm_context);
-      return -1;
-    }
+    if (expect_token_s(asm_context,"]")!=0) { return -1; }
 
     return size;
   }
@@ -652,19 +624,8 @@ int bytes;
   bytes=parse_num(asm_context, instr, &num, 2);
   if (bytes<0) { return -1; }
 
-  token_type=get_token(asm_context, token, TOKENLEN);
-  if (IS_NOT_TOKEN(token,','))
-  {
-    print_error_unexp(token, asm_context);
-    return -1;
-  }
-
-  token_type=get_token(asm_context, token, TOKENLEN);
-  if (token_type!=TOKEN_POUND)
-  {
-    print_error_unexp(token, asm_context);
-    return -1;
-  }
+  if (expect_token_s(asm_context,",")!=0) { return -1; }
+  if (expect_token_s(asm_context,"#")!=0) { return -1; }
 
   token_type=get_token(asm_context, token, TOKENLEN);
   if (token_type!=TOKEN_NUMBER)
@@ -687,12 +648,7 @@ int bytes;
 
   if (oper>=4)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
-    if (IS_NOT_TOKEN(token,','))
-    {
-      print_error_unexp(token, asm_context);
-      return -1;
-    }
+    if (expect_token_s(asm_context,",")!=0) { return -1; }
 
     bytes=parse_num(asm_context, instr, &num, 3);
     if (bytes<0) { return -1; }
@@ -848,15 +804,23 @@ int n;
 
       token_type=get_token(asm_context, token, TOKENLEN);
 
-      if ((n!=0x0d && strcasecmp(token, "a")==0) ||
-          (n==0x03 && strcasecmp(token, "x")==0))
+      if (n==0x03 || n==0x0e)
       {
-        token_type=get_token(asm_context, token, TOKENLEN);
-        if (IS_NOT_TOKEN(token,','))
+        if (strcasecmp(token, "x")==0)
         {
-          print_error_unexp(token, asm_context);
-          return -1;
+          //token_type=get_token(asm_context, token, TOKENLEN);
+          if (expect_token_s(asm_context,",")!=0) { return -1; }
+
+          return parse_stm8_type1(asm_context, instr, n);
         }
+
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+        else
+      if (strcasecmp(token, "a")==0)
+      {
+        if (expect_token_s(asm_context,",")!=0) { return -1; }
 
         return parse_stm8_type1(asm_context, instr, n);
       }
@@ -867,18 +831,8 @@ int n;
 
         if (n!=0x0d)
         {
-          token_type=get_token(asm_context, token, TOKENLEN);
-          if (IS_NOT_TOKEN(token,','))
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
-          token_type=get_token(asm_context, token, TOKENLEN);
-          if (strcasecmp(token, "a")!=0)
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
+          if (expect_token_s(asm_context,",")!=0) { return -1; }
+          if (expect_token_s(asm_context,"a")!=0) { return -1; }
         }
         return size;
       }

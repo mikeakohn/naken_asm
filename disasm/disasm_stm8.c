@@ -237,6 +237,12 @@ int prefix=0;
     int cycles=1;
     int size=2;
 
+    if (opcode==0xae && prefix==0)
+    {
+      sprintf(operand, "#$%04x", READ_RAM16(address+1));
+      size++;
+    }
+      else
     if (opcode==0x7b && prefix==0)
     {
       sprintf(operand, "($%02x, SP)", READ_RAM(address+1));
@@ -314,6 +320,8 @@ int prefix=0;
 
     if (operand[0]!=0)
     {
+      if (opcode_nibble==0x0e) { cycles=(prefix==0x00)?2:5; }
+        else
       if (opcode_nibble==0x0d) { cycles=(cycles==1)?4:6; }
         else
       if (opcode_nibble==0x0c)
