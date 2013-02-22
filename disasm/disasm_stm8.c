@@ -326,7 +326,7 @@ int prefix=0;
         else
       if (opcode_nibble==0x0c)
       {
-        if (cycles==4) { cycles==5; }
+        if (cycles==4) { cycles=5; }
         else if (prefix==0x90 && (opcode==0xec || opcode==0xdc)) { cycles=2; }
       }
 
