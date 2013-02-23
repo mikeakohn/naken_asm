@@ -745,7 +745,7 @@ int num=0;
   return -1;
 }
 
-int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
+static int parse_instruction_stm8_main(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
 int token_type;
@@ -1252,4 +1252,22 @@ int n;
   return -1;
 }
 
+int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
+{
+char token[TOKENLEN];
+int token_type;
+int ret;
+ 
+  ret=parse_instruction_stm8_main(asm_context, instr);
+  if (ret==-1) { return -1; }
+
+  token_type=get_token(asm_context, token, TOKENLEN);
+  if (token_type!=TOKEN_EOL && token_type!=TOKEN_EOF)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  return ret;
+}
 
