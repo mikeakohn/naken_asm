@@ -38,6 +38,8 @@ int token_type;
 char instr_case[TOKENLEN];
 int operand_type;
 int operand_value;
+int address_size=0;
+int opcode=-1;
 int n;
 
   lower_copy(instr_case, instr);
@@ -45,6 +47,13 @@ int n;
   do
   {
     token_type=get_token(asm_context, token, TOKENLEN);
+
+    if (strcasecmp(token, "a")==0)
+    {
+      strcat(instr_case, "a");
+      token_type=get_token(asm_context, token, TOKENLEN);
+    }
+
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF)
     {
       operand_type=OPERAND_NONE;
@@ -148,6 +157,84 @@ int n;
         add_bin8(asm_context, operand_value&0xff, IS_OPCODE);
         return 2;
       }
+        else
+      if (m680x_table[n].operand_type==M6800_OP_NN_X &&
+          operand_type==OPERAND_ADDRESS_COMMA_X)
+      {
+        int offset=operand_value-(asm_context->address+2);
+        if (asm_context->pass!=1)
+        {
+          if (offset<-128 || offset>127)
+          {
+            print_error_range("Offset", -128, 127, asm_context);
+            return -1;
+          }
+        }
+        add_bin8(asm_context, n, IS_OPCODE);
+        add_bin8(asm_context, offset&0xff, IS_OPCODE);
+        return 2;
+      }
+        else
+      if (m680x_table[n].operand_type==M6800_OP_DIR_PAGE_8 &&
+          operand_type==OPERAND_ADDRESS)
+      {
+        if (asm_context->pass==1)
+        {
+          if (address_size==0 && (operand_value>=0 && operand_value<=255))
+          {
+            address_size=1;
+            opcode=n;
+          }
+        }
+
+        if (memory_read_m(&asm_context->memory, asm_context->address)==1)
+        {
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, operand_value, IS_OPCODE);
+          return 2;
+        }
+      }
+        else
+      if (m680x_table[n].operand_type==M6800_OP_ABSOLUTE_16 &&
+          operand_type==OPERAND_ADDRESS)
+      {
+        if (asm_context->pass==1)
+        {
+          if (address_size==0)
+          {
+            address_size=2;
+            opcode=n;
+          }
+        }
+
+        if (memory_read_m(&asm_context->memory, asm_context->address)==2)
+        {
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, operand_value&0xff, IS_OPCODE);
+          add_bin8(asm_context, operand_value>>8, IS_OPCODE);
+          return 2;
+        }
+      }
+    }
+  }
+
+  if (opcode!=-1)
+  {
+    add_bin8(asm_context, address_size, IS_OPCODE);
+    add_bin8(asm_context, address_size, IS_OPCODE);
+    if (address_size==2)
+    {
+      if (operand_value<0 || operand_value>0xffff)
+      {
+        print_error_range("Address", 0, 0xffff, asm_context);
+        return -1;
+      }
+      add_bin8(asm_context, address_size, IS_OPCODE);
+      return 3;
+    }
+      else
+    {
+      return 2;
     }
   }
 

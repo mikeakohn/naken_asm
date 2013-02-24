@@ -64,8 +64,7 @@ int size=1;
       size=3;
       break;
     case M6800_OP_NN_X:
-      sprintf(instruction, "%s %d,X", m680x_table[opcode].instr, (char)(READ_RAM(address+1)));
-      sprintf(instruction, "%s ", m680x_table[opcode].instr);
+      sprintf(instruction, "%s $%04x,X (%d)", m680x_table[opcode].instr, (address+2)+(char)(READ_RAM(address+1)), (char)(READ_RAM(address+1)));
       size=2;
       break;
     case M6800_OP_REL_OFFSET:
