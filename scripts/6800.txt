@@ -1,0 +1,68 @@
+00 -             40 NEGA          80 SUBA #imm     C0 SUBB #imm
+01 NOP           41 -             81 CMPA #imm     C1 CMPB #imm
+02 -             42 -             82 SBCA #imm     C2 SBCB #imm
+03 -             43 COMA          83 -             C3 -
+04 -             44 LSRA          84 ANDA #imm     C4 ANDB #imm
+05 -             45 -             85 BITA #imm     C5 BITB #imm
+06 TAP           46 RORA          86 LDAA #imm     C6 LDAB #imm
+07 TPA           47 ASRA          87 -             C7 -
+08 INX           48 ASLA          88 EORA #imm     C8 EORB #imm
+09 DEX           49 ROLA          89 ADCA #imm     C9 ADCB #imm
+0A CLV           4A DECA          8A ORAA #imm     CA ORAB #imm
+0B SEV           4B -             8B ADDA #imm     CB ADDB #imm
+0C CLC           4C INCA          8C CPX  #n16     CC -
+0D SEC           4D TSTA          8D BSR  rel      CD -
+0E CLI           4E -             8E LDS  #n16     CE LDX  #n16
+0F SEI           4F CLRA          8F -             CF -
+
+10 SBA           50 NEGB          90 SUBA <dp      D0 SUBB <dp
+11 CBA           51 -             91 CMPA <dp      D1 CMPB <dp
+12 -             52 -             92 SBCA <dp      D2 SBCB <dp
+13 -             53 COMB          93 -             D3 -
+14 -             54 LSRB          94 ANDA <dp      D4 ANDB <dp
+15 -             55 -             95 BITA <dp      D5 BITB <dp
+16 TAB           56 RORB          96 LDAA <dp      D6 LDAB <dp
+17 TBA           57 ASRB          97 STAA <dp      D7 STAB <dp
+18 -             58 ASLB          98 EORA <dp      D8 EORB <dp
+19 DAA           59 ROLB          99 ADCA <dp      D9 ADCB <dp
+1A -             5A DECB          9A ORAA <dp      DA ORAB <dp
+1B ABA           5B -             9B ADDA <dp      DB ADDB <dp
+1C -             5C INCB          9C CPX  <dp      DC -
+1D -             5D TSTB          9D -             DD -
+1E -             5E -             9E LDS  <dp      DE LDX  <dp
+1F -             5F CLRB          9F STS  <dp      DF STX  <dp
+
+20 BRA  rel      60 NEG  nn,X     A0 SUBA nn,X     E0 SUBB nn,X
+21 -             61 -             A1 CMPA nn,X     E1 CMPB nn,X
+22 BHI  rel      62 -             A2 SBCA nn,X     E2 SBCB nn,X
+23 BLS  rel      63 COM  nn,X     A3 -             E3 -
+24 BCC  rel      64 LSR  nn,X     A4 ANDA nn,X     E4 ANDB nn,X
+25 BCS  rel      65 -             A5 BITA nn,X     E5 BITB nn,X
+26 BNE  rel      66 ROR  nn,X     A6 LDAA nn,X     E6 LDAB nn,X
+27 BEQ  rel      67 ASR  nn,X     A7 STAA nn,X     E7 STAB nn,X
+28 BVC  rel      68 ASL  nn,X     A8 EORA nn,X     E8 EORB nn,X
+29 BVS  rel      69 ROL  nn,X     A9 ADCA nn,X     E9 ADCB nn,X
+2A BPL  rel      6A DEC  nn,X     AA ORAA nn,X     EA ORAB nn,X
+2B BMI  rel      6B -             AB ADDA nn,X     EB ADDB nn,X
+2C BGE  rel      6C INC  nn,X     AC CPX  nn,X     EC -
+2D BLT  rel      6D TST  nn,X     AD JSR  nn,X     ED -
+2E BGT  rel      6E JMP  nn,X     AE LDS  nn,X     EE LDX  nn,X
+2F BLE  rel      6F CLR  nn,X     AF STS  nn,X     EF STX  nn,X
+
+30 TSX           70 NEG  >ext     B0 SUBA >ext     F0 SUBB >ext
+31 INS           71 -             B1 CMPA >ext     F1 CMPB >ext
+32 PULA          72 -             B2 SBCA >ext     F2 SBCB >ext
+33 PULB          73 COM  >ext     B3 -             F3 -
+34 DES           74 LSR  >ext     B4 ANDA >ext     F4 ANDB >ext
+35 TXS           75 -             B5 BITA >ext     F5 BITB >ext
+36 PSHA          76 ROR  >ext     B6 LDAA >ext     F6 LDAB >ext
+37 PSHB          77 ASR  >ext     B7 STAA >ext     F7 STAB >ext
+38 -             78 ASL  >ext     B8 EORA >ext     F8 EORB >ext
+39 RTS           79 ROL  >ext     B9 ADCA >ext     F9 ADCB >ext
+3A -             7A DEC  >ext     BA ORAA >ext     FA ORAB >ext
+3B RTI           7B -             BB ADDA >ext     FB ADDB >ext
+3C -             7C INC  >ext     BC CPX  >ext     FC -
+3D WAI           7D TST  >ext     BD JSR  >ext     FD -
+3E -             7E JMP  >ext     BE LDS  >ext     FE LDX  >ext
+3F SWI           7F CLR  >ext     BF STS  >ext     FF STX  >ext
+

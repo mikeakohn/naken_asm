@@ -243,7 +243,7 @@ int num;
       printf("0x%04x: 0x%02x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
     }
 
-    start=start+4;
+    start++;
   }
 }
 

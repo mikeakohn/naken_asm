@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "asm_65xx.h"
+#include "asm_680x.h"
 #include "asm_805x.h"
 #include "asm_arm.h"
 #include "asm_common.h"
@@ -24,6 +25,7 @@
 #include "asm_tms1000.h"
 #include "assembler.h"
 #include "disasm_65xx.h"
+#include "disasm_680x.h"
 #include "disasm_arm.h"
 #include "disasm_dspic.h"
 #include "disasm_mips.h"
@@ -768,6 +770,17 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->parse_instruction=parse_instruction_65xx;
     asm_context->list_output=list_output_65xx;
     asm_context->cpu_type=CPU_TYPE_65XX;
+    asm_context->is_dollar_hex=1;
+    return 1;
+  }
+    else
+#endif
+#ifdef ENABLE_680X
+  if (strcasecmp(token, "680x")==0)
+  {
+    asm_context->parse_instruction=parse_instruction_680x;
+    asm_context->list_output=list_output_680x;
+    asm_context->cpu_type=CPU_TYPE_680X;
     asm_context->is_dollar_hex=1;
     return 1;
   }
