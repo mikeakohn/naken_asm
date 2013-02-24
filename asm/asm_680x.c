@@ -105,6 +105,49 @@ int n;
         add_bin8(asm_context, n, IS_OPCODE);
         return 1;
       }
+        else
+      if (m680x_table[n].operand_type==M6800_OP_REL_OFFSET &&
+          operand_type==OPERAND_ADDRESS)
+      {
+        int offset=operand_value-(asm_context->address+2);
+        if (asm_context->pass!=1)
+        {
+          if (offset<-128 || offset>127)
+          {
+            print_error_range("Offset", -128, 127, asm_context);
+            return -1;
+          }
+        }
+        add_bin8(asm_context, n, IS_OPCODE);
+        add_bin8(asm_context, offset&0xff, IS_OPCODE);
+
+        return 1;
+      }
+        else
+      if (m680x_table[n].operand_type==M6800_OP_IMM16 &&
+          operand_type==OPERAND_NUMBER)
+      {
+        add_bin8(asm_context, n, IS_OPCODE);
+        add_bin8(asm_context, operand_value&0xff, IS_OPCODE);
+        add_bin8(asm_context, operand_value>>8, IS_OPCODE);
+        return 3;
+      }
+        else
+      if (m680x_table[n].operand_type==M6800_OP_IMM8 &&
+          operand_type==OPERAND_NUMBER)
+      {
+        if (asm_context->pass!=1)
+        {
+          if (operand_value<-128 || operand_value>255)
+          {
+            print_error_range("Offset", -128, 255, asm_context);
+            return -1;
+          }
+        }
+        add_bin8(asm_context, n, IS_OPCODE);
+        add_bin8(asm_context, operand_value&0xff, IS_OPCODE);
+        return 2;
+      }
     }
   }
 
