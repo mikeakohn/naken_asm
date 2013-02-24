@@ -20,10 +20,5 @@ int disasm_680x(struct _memory *memory, int address, char *instruction, int *cyc
 void list_output_680x(struct _asm_context *asm_context, int address);
 void disasm_range_680x(struct _memory *memory, int start, int end);
 
-int get_cycle_count_tms1100(unsigned short int opcode);
-int disasm_tms1100(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max);
-void list_output_tms1100(struct _asm_context *asm_context, int address);
-void disasm_range_tms1100(struct _memory *memory, int start, int end);
-
 #endif
 

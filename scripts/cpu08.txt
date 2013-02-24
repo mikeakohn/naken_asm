@@ -81,7 +81,7 @@ BRCLR 4,opr8a,rel DIR (b4) 09 dd rr 5
 BRCLR 5,opr8a,rel DIR (b5) 0B dd rr 5 
 BRCLR 6,opr8a,rel DIR (b6) 0D dd rr 5 
 BRCLR 7,opr8a,rel DIR (b7) 0F dd rr 5
-BRN rel REL 21 rr  3
+BRN rel REL 21 rr 3
 BRSET 0,opr8a,rel DIR (b0) 00 dd rr 5 
 BRSET 1,opr8a,rel DIR (b1) 02 dd rr 5 
 BRSET 2,opr8a,rel DIR (b2) 04 dd rr 5 
@@ -143,7 +143,7 @@ DBNZ opr8a,rel DIR 3B dd rr 5
 DBNZA rel INH 4B rr 3 
 DBNZX rel INH 5B rr 3 
 DBNZ oprx8,X,rel IX1 6B ff rr 5 
-DBNZ ,X, rel IX 7B rr 4 
+DBNZ ,X,rel IX 7B rr 4 
 DBNZ oprx8,SP,rel SP1 9E6B ff rr 6
 DEC opr8a DIR 3A dd 4 
 DECA INH (A) 4A 1 
@@ -151,7 +151,7 @@ DECX INH (X) 5A 1
 DEC oprx8,X IX1 6A ff 4 
 DEC ,X IX 7A 3 
 DEC oprx8,SP SP1 9E6A ff 5 
-DIV INH 52   7
+DIV INH BLAH 52 7
 EOR #opr8i IMM A8 ii 2 
 EOR opr8a DIR B8 dd 3 
 EOR opr16a EXT C8 hh ll 4 
