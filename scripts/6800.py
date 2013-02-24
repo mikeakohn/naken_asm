@@ -58,7 +58,7 @@ for instruction in instructions:
     elif tokens[2] == "rel": operand = "REL_OFFSET"
     else: operand = "??" + tokens[2]
 
-  print "  { " + tokens[1] + ", M6800_OP_" + operand + " },"
+  print "  { " + tokens[1] + ", M6800_OP_" + operand + " },  // " + ("0x%02x" % count)
   count += 1
 
 print "};"

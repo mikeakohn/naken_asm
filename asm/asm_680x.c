@@ -48,11 +48,13 @@ int n;
   {
     token_type=get_token(asm_context, token, TOKENLEN);
 
+#if 0
     if (strcasecmp(token, "a")==0)
     {
       strcat(instr_case, "a");
       token_type=get_token(asm_context, token, TOKENLEN);
     }
+#endif
 
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF)
     {
@@ -137,8 +139,8 @@ int n;
           operand_type==OPERAND_NUMBER)
       {
         add_bin8(asm_context, n, IS_OPCODE);
-        add_bin8(asm_context, operand_value&0xff, IS_OPCODE);
         add_bin8(asm_context, operand_value>>8, IS_OPCODE);
+        add_bin8(asm_context, operand_value&0xff, IS_OPCODE);
         return 3;
       }
         else
@@ -210,8 +212,8 @@ int n;
         if (memory_read_m(&asm_context->memory, asm_context->address)==2)
         {
           add_bin8(asm_context, n, IS_OPCODE);
-          add_bin8(asm_context, operand_value&0xff, IS_OPCODE);
           add_bin8(asm_context, operand_value>>8, IS_OPCODE);
+          add_bin8(asm_context, operand_value&0xff, IS_OPCODE);
           return 2;
         }
       }

@@ -18,7 +18,7 @@
 #include "table_680x.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) memory_read_m(memory, a)|(memory_read_m(memory, a+1)<<8)
+#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
 extern struct _m680x_table m680x_table[];
 

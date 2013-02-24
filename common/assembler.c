@@ -781,6 +781,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->parse_instruction=parse_instruction_680x;
     asm_context->list_output=list_output_680x;
     asm_context->cpu_type=CPU_TYPE_680X;
+    asm_context->memory.endian=ENDIAN_BIG;
     asm_context->is_dollar_hex=1;
     return 1;
   }
