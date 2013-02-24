@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2012 by Michael Kohn
+ * Copyright 2010-2013 by Michael Kohn
  *
  */
 
@@ -13,45 +13,7 @@
 #define _DISASM_MIPS_H
 
 #include "assembler.h"
-
-enum
-{
-  MIPS_OP_NONE,
-  MIPS_OP_RD,
-  MIPS_OP_RS,
-  MIPS_OP_RT,
-  MIPS_OP_SA,
-  MIPS_OP_LABEL,
-  MIPS_OP_IMMEDIATE,
-  MIPS_OP_IMMEDIATE_RS,
-  MIPS_OP_RT_IS_0,
-  MIPS_OP_RT_IS_1,
-};
-
-enum
-{
-  MIPS_COP_NONE,
-  MIPS_COP_FD,
-  MIPS_COP_FS,
-  MIPS_COP_FT,
-};
-
-struct _mips_instr
-{
-  const char *instr;
-  char operand[3];
-  unsigned char function;
-  char operand_count;
-};
-
-struct _mips_cop_instr
-{
-  const char *instr;
-  char operand[3];
-  unsigned char function;
-  unsigned char format;
-  char operand_count;
-};
+#include "table_mips.h"
 
 extern struct _mips_instr mips_r_table[];
 extern struct _mips_instr mips_i_table[];

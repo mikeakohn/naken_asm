@@ -17,9 +17,13 @@
 #include "asm_common.h"
 #include "asm_mips.h"
 #include "assembler.h"
-#include "disasm_mips.h"
 #include "get_tokens.h"
 #include "eval_expression.h"
+#include "table_mips.h"
+
+extern struct _mips_instr mips_r_table[];
+extern struct _mips_instr mips_i_table[];
+extern struct _mips_cop_instr mips_cop_table[];
 
 enum
 {

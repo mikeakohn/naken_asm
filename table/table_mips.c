@@ -1,6 +1,17 @@
-#include <stdio.h>
+/**
+ *  naken_asm assembler.
+ *  Author: Michael Kohn
+ *   Email: mike@mikekohn.net
+ *     Web: http://www.mikekohn.net/
+ * License: GPL
+ *
+ * Copyright 2010-2013 by Michael Kohn
+ *
+ */
+
 #include <stdlib.h>
-#include "disasm_mips.h"
+
+#include "table_mips.h"
 
 struct _mips_instr mips_r_table[] = {
   { "add", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 0x20, 3 },
