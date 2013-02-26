@@ -787,6 +787,18 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   }
     else
 #endif
+#ifdef ENABLE_68HC08
+  if (strcasecmp(token, "68hc08")==0)
+  {
+    asm_context->parse_instruction=parse_instruction_68hc08;
+    asm_context->list_output=list_output_68hc08;
+    asm_context->cpu_type=CPU_TYPE_68hc08;
+    asm_context->memory.endian=ENDIAN_BIG;
+    asm_context->is_dollar_hex=1;
+    return 1;
+  }
+    else
+#endif
 #ifdef ENABLE_805X
   if (strcasecmp(token, "8051")==0 || strcasecmp(token, "8052")==0)
   {

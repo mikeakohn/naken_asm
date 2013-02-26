@@ -21,6 +21,7 @@
 #define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
 extern struct _m68hc08_table m68hc08_table[];
+extern struct _m68hc08_16_table m68hc08_16_table[];
 
 int get_cycle_count_68hc08(unsigned short int opcode)
 {
@@ -32,32 +33,62 @@ int disasm_68hc08(struct _memory *memory, int address, char *instruction, int *c
 //int bit_instr;
 int opcode;
 int size=1;
-//int n;
+int n;
 
-  instruction[0]=0;
+  strcpy(instruction, "???");
 
   *cycles_min=-1;
   *cycles_max=-1;
 
   opcode=READ_RAM(address);
 
+  if (m68hc08_table[opcode].instr==NULL)
+  {
+    opcode=READ_RAM16(address);
+
+    n=0;
+    while(m68hc08_16_table[opcode].instr!=NULL)
+    {
+      if (m68hc08_16_table[opcode].opcode==opcode)
+      {
+        switch(m68hc08_16_table[opcode].operand_type)
+        {
+          case CPU08_OP_OPR8_SP:
+            sprintf(instruction, "%s %d,SP,%d", m68hc08_table[opcode].instr, READ_RAM(address+2), READ_RAM(address+3));
+            size=3;
+            break;
+          case CPU08_OP_OPR8_SP_REL:
+            sprintf(instruction, "%s %d,SP", m68hc08_table[opcode].instr, READ_RAM(address+2));
+            size=3;
+            break;
+          case CPU08_OP_OPR16_SP:
+            sprintf(instruction, "%s %d,SP", m68hc08_table[opcode].instr, READ_RAM16(address+2));
+            size=4;
+            break;
+        }
+
+        break;
+      }
+      n++;
+    }
+
+    return size;
+  }
+
   switch(m68hc08_table[opcode].operand_type)
   {
     case CPU08_OP_NONE:
-      sprintf(instruction, "%s", m68hc08_table[opcode].instr,m68hc08_table[opcode].operand_type-CPU08_OP_0_COMMA_OPR_REL, READ_RAM(address+1));
+      sprintf(instruction, "%s", m68hc08_table[opcode].instr);
       break;
     case CPU08_OP_NUM16:
     case CPU08_OP_NUM8:
     case CPU08_OP_NUM8_OPR8:
     case CPU08_OP_NUM8_REL:
     case CPU08_OP_OPR16:
-    case CPU08_OP_OPR16_SP:
     case CPU08_OP_OPR16_X:
     case CPU08_OP_OPR8:
     case CPU08_OP_OPR8_OPR8:
     case CPU08_OP_OPR8_REL:
-    case CPU08_OP_OPR8_SP:
-    case CPU08_OP_OPR8_SP_REL:
     case CPU08_OP_OPR8_X:
     case CPU08_OP_OPR8_X_PLUS:
     case CPU08_OP_OPR8_X_PLUS_REL:
