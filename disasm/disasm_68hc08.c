@@ -1,0 +1,170 @@
+/**
+ *  naken_asm assembler.
+ *  Author: Michael Kohn
+ *   Email: mike@mikekohn.net
+ *     Web: http://www.mikekohn.net/
+ * License: GPL
+ *
+ * Copyright 2010-2012 by Michael Kohn
+ *
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "disasm_common.h"
+#include "disasm_68hc08.h"
+#include "table_68hc08.h"
+
+#define READ_RAM(a) memory_read_m(memory, a)
+#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
+
+extern struct _m68hc08_table m68hc08_table[];
+
+int get_cycle_count_68hc08(unsigned short int opcode)
+{
+  return -1;
+}
+
+int disasm_68hc08(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+{
+//int bit_instr;
+int opcode;
+int size=1;
+//int n;
+
+  instruction[0]=0;
+
+  *cycles_min=-1;
+  *cycles_max=-1;
+
+  opcode=READ_RAM(address);
+
+  switch(m68hc08_table[opcode].operand_type)
+  {
+    case CPU08_OP_NONE:
+      sprintf(instruction, "%s", m68hc08_table[opcode].instr,m68hc08_table[opcode].operand_type-CPU08_OP_0_COMMA_OPR_REL, READ_RAM(address+1));
+      break;
+    case CPU08_OP_NUM16:
+    case CPU08_OP_NUM8:
+    case CPU08_OP_NUM8_OPR8:
+    case CPU08_OP_NUM8_REL:
+    case CPU08_OP_OPR16:
+    case CPU08_OP_OPR16_SP:
+    case CPU08_OP_OPR16_X:
+    case CPU08_OP_OPR8:
+    case CPU08_OP_OPR8_OPR8:
+    case CPU08_OP_OPR8_REL:
+    case CPU08_OP_OPR8_SP:
+    case CPU08_OP_OPR8_SP_REL:
+    case CPU08_OP_OPR8_X:
+    case CPU08_OP_OPR8_X_PLUS:
+    case CPU08_OP_OPR8_X_PLUS_REL:
+    case CPU08_OP_OPR8_X_REL:
+    case CPU08_OP_REL:
+    case CPU08_OP_COMMA_X:
+    case CPU08_OP_X:
+    case CPU08_OP_X_PLUS_OPR8:
+    case CPU08_OP_X_PLUS_REL:
+    case CPU08_OP_X_REL:
+      break;
+    case CPU08_OP_0_COMMA_OPR:
+    case CPU08_OP_1_COMMA_OPR:
+    case CPU08_OP_2_COMMA_OPR:
+    case CPU08_OP_3_COMMA_OPR:
+    case CPU08_OP_4_COMMA_OPR:
+    case CPU08_OP_5_COMMA_OPR:
+    case CPU08_OP_6_COMMA_OPR:
+    case CPU08_OP_7_COMMA_OPR:
+      sprintf(instruction, "%s %d,%d", m68hc08_table[opcode].instr, m68hc08_table[opcode].operand_type-CPU08_OP_0_COMMA_OPR_REL, READ_RAM(address+1));
+      size=2;
+      break;
+    case CPU08_OP_0_COMMA_OPR_REL:
+    case CPU08_OP_1_COMMA_OPR_REL:
+    case CPU08_OP_2_COMMA_OPR_REL:
+    case CPU08_OP_3_COMMA_OPR_REL:
+    case CPU08_OP_4_COMMA_OPR_REL:
+    case CPU08_OP_5_COMMA_OPR_REL:
+    case CPU08_OP_6_COMMA_OPR_REL:
+    case CPU08_OP_7_COMMA_OPR_REL:
+      sprintf(instruction, "%s %d,%d,%d", m68hc08_table[opcode].instr, m68hc08_table[opcode].operand_type-CPU08_OP_0_COMMA_OPR_REL, READ_RAM(address+1), READ_RAM(address+2));
+      size=2;
+      break;
+  }
+
+  return size;
+}
+
+void list_output_68hc08(struct _asm_context *asm_context, int address)
+{
+int cycles_min,cycles_max;
+char instruction[128];
+char bytes[10];
+int count;
+int n;
+//unsigned int opcode=memory_read_m(&asm_context->memory, address);
+
+  fprintf(asm_context->list, "\n");
+  count=disasm_68hc08(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
+
+  bytes[0]=0;
+  for (n=0; n<count; n++)
+  {
+    char temp[4];
+    sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, address+n));
+    strcat(bytes, temp);
+  }
+
+  fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ", address, bytes, instruction);
+
+  if (cycles_min==cycles_max)
+  { fprintf(asm_context->list, "%d\n", cycles_min); }
+    else
+  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+}
+
+void disasm_range_68hc08(struct _memory *memory, int start, int end)
+{
+char instruction[128];
+char bytes[10];
+int cycles_min=0,cycles_max=0;
+int count;
+int n;
+
+  printf("\n");
+
+  printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
+  printf("------- ------ ----------------------------------       ------\n");
+
+  while(start<=end)
+  {
+    count=disasm_68hc08(memory, start, instruction, &cycles_min, &cycles_max);
+
+    bytes[0]=0;
+    for (n=0; n<count; n++)
+    {
+      char temp[4];
+      sprintf(temp, "%02x ", READ_RAM(start+n));
+      strcat(bytes, temp);
+    }
+
+    if (cycles_min<1)
+    {
+      printf("0x%04x: %-9s %-40s ?\n", start, bytes, instruction);
+    }
+      else
+    if (cycles_min==cycles_max)
+    {
+      printf("0x%04x: %-9s %-40s %d\n", start, bytes, instruction, cycles_min);
+    }
+      else
+    {
+      printf("0x%04x: %-9s %-40s %d-%d\n", start, bytes, instruction, cycles_min, cycles_max);
+    }
+
+    start=start+count;
+  }
+}
+
+

@@ -25,14 +25,14 @@ AND ,X IX F4 2
 AND oprx16,SP SP2 9ED4 ee ff 5 
 AND oprx8,SP SP1 9EE4 ff 4
 ASL opr8a DIR 38 dd 4 
-ASLA INH (A) 48 1 
-ASLX INH (X) 58 1 
+ASLA INH(A) 48 1 
+ASLX INH(X) 58 1 
 ASL oprx8,X IX1 68 ff 4 
 ASL ,X IX 78 3 
 ASL oprx8,SP SP1 9E68 ff 5
 ASR opr8a DIR 37 dd 4 
-ASRA INH (A) 47 1 
-ASRX INH (X) 57 1 
+ASRA INH(A) 47 1 
+ASRX INH(X) 57 1 
 ASR oprx8,X IX1 67 ff 4 
 ASR ,X IX 77 3 
 ASR oprx8,SP SP1 9E67 ff 5
@@ -108,9 +108,9 @@ CBEQ oprx8,SP,rel SP1 9E61 ff rr 6
 CLC INH 98 1
 CLI INH 9A 2
 CLR opr8a DIR 3F dd 3 
-CLRA INH (A) 4F 1 
-CLRX INH (X) 5F 1 
-CLRH INH (H) 8C 1 
+CLRA INH(A) 4F 1 
+CLRX INH(X) 5F 1 
+CLRH INH(H) 8C 1 
 CLR oprx8,X IX1 6F ff 3 
 CLR ,X IX 7F 2 
 CLR oprx8,SP SP1 9E6F ff 4
@@ -123,12 +123,12 @@ CMP ,X IX F1 2
 CMP oprx16,SP SP2 9ED1 ee ff 5 
 CMP oprx8,SP SP1 9EE1 ff 4
 COM opr8a DIR 33 dd 4 
-COMA INH (A) 43 1 
-COMX INH (X) 53 1 
+COMA INH(A) 43 1 
+COMX INH(X) 53 1 
 COM oprx8,X IX1 63 ff 4 
 COM ,X IX 73 3 
 COM oprx8,SP SP1 9E63 ff 5
-CPHX #opr IMM 65 jj kk+1 3 
+CPHX #opr IMM16 65 jj kk+1 3 
 CPHX opr DIR 75 dd 4
 CPX #opr8i IMM A3 ii 2 
 CPX opr8a DIR B3 dd 3 
@@ -146,12 +146,12 @@ DBNZ oprx8,X,rel IX1 6B ff rr 5
 DBNZ ,X,rel IX 7B rr 4 
 DBNZ oprx8,SP,rel SP1 9E6B ff rr 6
 DEC opr8a DIR 3A dd 4 
-DECA INH (A) 4A 1 
-DECX INH (X) 5A 1 
+DECA INH(A) 4A 1 
+DECX INH(X) 5A 1 
 DEC oprx8,X IX1 6A ff 4 
 DEC ,X IX 7A 3 
 DEC oprx8,SP SP1 9E6A ff 5 
-DIV INH BLAH 52 7
+DIV INH 52 7
 EOR #opr8i IMM A8 ii 2 
 EOR opr8a DIR B8 dd 3 
 EOR opr16a EXT C8 hh ll 4 
@@ -161,8 +161,8 @@ EOR ,X IX F8 2
 EOR oprx16,SP SP2 9ED8 ee ff 5 
 EOR oprx8,SP SP1 9EE8 ff 4
 INC opr8a DIR 3C dd 4 
-INCA INH (A) 4C 1 
-INCX INH (X) 5C 1 
+INCA INH(A) 4C 1 
+INCX INH(X) 5C 1 
 INC oprx8,X IX1 6C ff 4 
 INC ,X IX 7C 3 
 INC oprx8,SP SP1 9E6C ff 5
@@ -184,7 +184,7 @@ LDA oprx8,X IX1 E6 ff 3
 LDA ,X IX F6 2 
 LDA oprx16,SP SP2 9ED6 ee ff 5 
 LDA oprx8,SP SP1 9EE6 ff 4
-LDHX #opr IMM 45 jj kk 3 
+LDHX #opr IMM16 45 jj kk 3 
 LDHX opr DIR 55 dd 4
 LDX #opr8i IMM AE ii 2 
 LDX opr8a DIR BE dd 3 
@@ -195,14 +195,14 @@ LDX ,X IX FE 2
 LDX oprx16,SP SP2 9EDE ee ff 5 
 LDX oprx8,SP SP1 9EEE ff 4
 LSL opr8a DIR 38 dd 4 
-LSLA INH (A) 48 1 
-LSLX INH (X) 58 1 
+LSLA INH(A) 48 1 
+LSLX INH(X) 58 1 
 LSL oprx8,X IX1 68 ff 4 
 LSL ,X IX 78 3 
 LSL oprx8,SP SP1 9E68 ff 5
 LSR opr8a DIR 34 dd 4 
-LSRA INH (A) 44 1 
-LSRX INH (X) 54 1 
+LSRA INH(A) 44 1 
+LSRX INH(X) 54 1 
 LSR oprx8,X IX1 64 ff 4 
 LSR ,X IX 74 3 
 LSR oprx8,SP SP1 9E64 ff 5
@@ -212,8 +212,8 @@ MOV #opr8i,opr8a IMM/DIR 6E ii dd 4
 MOV ,X+,opr8a IX+/DIR 7E dd 4
 MUL INH 42 5
 NEG opr8a DIR 30 dd 4 
-NEGA INH (A) 40 1 
-NEGX INH (X) 50 1 
+NEGA INH(A) 40 1 
+NEGX INH(X) 50 1 
 NEG oprx8,X IX1 60 ff 4 
 NEG ,X IX 70 3 
 NEG oprx8,SP SP1 9E60 ff 5
@@ -234,14 +234,14 @@ PULA INH 86 2
 PULH INH 8A 2
 PULX INH 88 2
 ROL opr8a DIR 39 dd 4 
-ROLA INH (A) 49 1 
-ROLX INH (X) 59 1 
+ROLA INH(A) 49 1 
+ROLX INH(X) 59 1 
 ROL oprx8,X IX1 69 ff 4 
 ROL ,X IX 79 3 
 ROL oprx8,SP SP1 9E69 ff 5
 ROR opr8a DIR 36 dd 4 
-RORA INH (A) 46 1 
-RORX INH (X) 56 1 
+RORA INH(A) 46 1 
+RORX INH(X) 56 1 
 ROR oprx8,X IX1 66 ff 4 
 ROR ,X IX 76 3 
 ROR oprx8,SP SP1 9E66 ff 5
@@ -287,8 +287,8 @@ TAP INH 84 2
 TAX INH 97 1
 TPA INH 85 1
 TST opr8a DIR 3D dd 3 
-TSTA INH (A) 4D 1 
-TSTX INH (X) 5D 1 
+TSTA INH(A) 4D 1 
+TSTX INH(X) 5D 1 
 TST oprx8,X IX1 6D ff 3 
 TST ,X IX 7D 2 
 TST oprx8,SP SP1 9E6D ff 4

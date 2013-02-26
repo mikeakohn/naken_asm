@@ -14,6 +14,8 @@
 
 #include "table_680x.h"
 
+// Based on: http://mdfs.net/Docs/Comp/6800/OpList
+
 struct _m680x_table m680x_table[] = {
   { NULL, M6800_OP_UNDEF },  // 0x00
   { "nop", M6800_OP_NONE },  // 0x01
