@@ -22,6 +22,7 @@
 #include "eval_expression.h"
 
 extern struct _m68hc08_table m68hc08_table[];
+extern struct _m68hc08_16_table m68hc08_16_table[];
 
 enum
 {
@@ -47,8 +48,9 @@ int token_type;
 char instr_case[TOKENLEN];
 struct _operands operands[3];
 int operand_count=0;
-int address_size=0;
+//int address_size=0;
 int opcode=-1;
+int matched=0;
 int num;
 int n;
 
@@ -144,10 +146,53 @@ int n;
 
   if (asm_context->pass==2)
   {
+    n=memory_read_m(&asm_context->memory, asm_context->address);
+    if (m68hc08_table[n].instr!=NULL)
+    {
+    }
+
+    n=memory_read_m(&asm_context->memory, asm_context->address)<<8|memory_read_m(&asm_context->memory, asm_context->address+1);
+    n=0;
+
+    while(m68hc08_16_table[opcode].instr!=NULL)
+    {
+      if (strcmp(m68hc08_16_table[n].instr, instr_case)==0)
+      {
+        matched=1;
+      }
+    }
   }
 
   for(n=0; n<256; n++)
   {
+    if (strcmp(m68hc08_table[n].instr, instr_case)==0)
+    {
+      matched=1;
+      if (m68hc08_table[n].operand_type==CPU08_OP_NONE &&
+          operand_count==0)
+      {
+        add_bin8(asm_context, n, IS_OPCODE);
+        return 1;
+      }
+    }
+  }
+
+  n=0;
+  while(m68hc08_16_table[opcode].instr!=NULL)
+  {
+    if (strcmp(m68hc08_16_table[n].instr, instr_case)==0)
+    {
+      matched=1;
+    }
+  }
+
+  if (matched==1)
+  {
+    printf("Error: Unknown flag/operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+  }
+    else
+  {
+    print_error_unknown_instr(instr, asm_context);
   }
 
   print_error_unknown_instr(instr, asm_context);
