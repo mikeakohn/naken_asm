@@ -15,6 +15,7 @@
 
 #include "asm_65xx.h"
 #include "asm_680x.h"
+#include "asm_68hc08.h"
 #include "asm_805x.h"
 #include "asm_arm.h"
 #include "asm_common.h"
@@ -26,6 +27,7 @@
 #include "assembler.h"
 #include "disasm_65xx.h"
 #include "disasm_680x.h"
+#include "disasm_68hc08.h"
 #include "disasm_arm.h"
 #include "disasm_dspic.h"
 #include "disasm_mips.h"
@@ -792,7 +794,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   {
     asm_context->parse_instruction=parse_instruction_68hc08;
     asm_context->list_output=list_output_68hc08;
-    asm_context->cpu_type=CPU_TYPE_68hc08;
+    asm_context->cpu_type=CPU_TYPE_68HC08;
     asm_context->memory.endian=ENDIAN_BIG;
     asm_context->is_dollar_hex=1;
     return 1;

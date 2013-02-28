@@ -71,15 +71,15 @@ int n;
   if (bit_instr==0x5) { sprintf(instruction, "ylec %d", opcode&0xf); return 1; }
 
   bit_instr=opcode>>6;
-  unsigned char branch_address=opcode&0x3f;
-  if ((branch_address&0x20)!=0) { branch_address|=0xc0; }
-  branch_address=(address+1)+((char)branch_address);
+  unsigned char offset=opcode&0x3f;
+  if ((offset&0x20)!=0) { offset|=0xc0; }
+  int branch_address=(address+1)+((char)offset);
 
   if (bit_instr==0x2)
-  { sprintf(instruction, "br %d", branch_address); return 1; }
+  { sprintf(instruction, "br 0x%02x (%d)", branch_address, (char)offset); return 1; }
     else
   if (bit_instr==0x3)
-  { sprintf(instruction, "call %d", branch_address); return 1; }
+  { sprintf(instruction, "call 0x%02x (%d)", branch_address, (char)offset); return 1; }
 
   strcpy(instruction, "???");
 
@@ -128,15 +128,15 @@ int n;
   if (bit_instr==0x5) { sprintf(instruction, "ylec %d", opcode&0xf); return 1; }
 
   bit_instr=opcode>>6;
-  unsigned char branch_address=opcode&0x3f;
-  if ((branch_address&0x20)!=0) { branch_address|=0xc0; }
-  branch_address=(address+1)+((char)branch_address);
+  unsigned char offset=opcode&0x3f;
+  if ((offset&0x20)!=0) { offset|=0xc0; }
+  int branch_address=(address+1)+((char)offset);
 
   if (bit_instr==0x2)
-  { sprintf(instruction, "br %d", branch_address); return 1; }
+  { sprintf(instruction, "br 0x%02x (%d)", branch_address, (char)offset); return 1; }
     else
   if (bit_instr==0x3)
-  { sprintf(instruction, "call %d", branch_address); return 1; }
+  { sprintf(instruction, "call 0x%02x (%d)", branch_address, (char)offset); return 1; }
 
   strcpy(instruction, "???");
 

@@ -8,7 +8,7 @@ main:
   cpx #blah
 
   bne main
-  cpx blah, X
+  cpx blah+1, X
 
 blah:
   lds #main

@@ -121,7 +121,7 @@ for instruction in instructions:
 
   #print instruction
   tokens = instruction.split("|")
-  tokens[1] = "\"" + tokens[1] + "\""
+  tokens[1] = "\"" + tokens[1].lower() + "\""
 
   opcode = int(" 0x" + tokens[0], 16)
   if opcode != count:
@@ -139,7 +139,7 @@ print "struct _m68hc08_16_table m68hc08_16_table[] = {"
 for instruction in instructions16:
   #print instruction
   tokens = instruction.split("|")
-  tokens[1] = "\"" + tokens[1] + "\""
+  tokens[1] = "\"" + tokens[1].lower() + "\""
 
   print "  { " + tokens[1] + ", 0x" + tokens[0].lower() + ", CPU08_OP_" + tokens[2] + ", " + tokens[3] + " },"
 

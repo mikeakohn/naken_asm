@@ -107,6 +107,7 @@ int n;
   {
     if (strcmp(instr_case, tms_branch[n])==0)
     {
+#if 0
       token_type=get_token(asm_context, token, TOKENLEN);
       if (token_type!=TOKEN_NUMBER)
       {
@@ -115,6 +116,22 @@ int n;
       }
 
       int num=atoi(token)-(asm_context->address+1);
+#endif
+      int num=0;
+      if (eval_expression(asm_context, &num)!=0)
+      {
+        if (asm_context->pass==2)
+        {
+          print_error_illegal_expression(instr, asm_context);
+          return -1;
+        }
+
+        eat_operand(asm_context);
+        num=asm_context->address;
+      }
+
+      num=num-(asm_context->address+1);
+
       if (num<-32 || num>31)
       {
         print_error_range("Offset", -32, 31, asm_context);
@@ -229,6 +246,7 @@ int n;
   {
     if (strcmp(instr_case, tms_branch[n])==0)
     {
+#if 0
       token_type=get_token(asm_context, token, TOKENLEN);
       if (token_type!=TOKEN_NUMBER)
       {
@@ -237,6 +255,23 @@ int n;
       }
 
       int num=atoi(token)-(asm_context->address+1);
+#endif
+
+      int num=0;
+      if (eval_expression(asm_context, &num)!=0)
+      {
+        if (asm_context->pass==2)
+        {
+          print_error_illegal_expression(instr, asm_context);
+          return -1;
+        }
+
+        eat_operand(asm_context);
+        num=asm_context->address;
+      }
+
+      num=num-(asm_context->address+1);
+
       if (num<-32 || num>31)
       {
         print_error_range("Offset", -32, 31, asm_context);

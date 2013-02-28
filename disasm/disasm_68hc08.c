@@ -47,11 +47,11 @@ int n;
     opcode=READ_RAM16(address);
 
     n=0;
-    while(m68hc08_16_table[opcode].instr!=NULL)
+    while(m68hc08_16_table[n].instr!=NULL)
     {
-      if (m68hc08_16_table[opcode].opcode==opcode)
+      if (m68hc08_16_table[n].opcode==opcode)
       {
-        switch(m68hc08_16_table[opcode].operand_type)
+        switch(m68hc08_16_table[n].operand_type)
         {
           case CPU08_OP_OPR8_SP:
             sprintf(instruction, "%s $%02x,SP", m68hc08_table[opcode].instr, READ_RAM(address+2));
@@ -67,6 +67,9 @@ int n;
             break;
         }
 
+        *cycles_min=m68hc08_table[n].cycles;
+        *cycles_max=m68hc08_table[n].cycles;
+
         break;
       }
       n++;
@@ -74,6 +77,9 @@ int n;
 
     return size;
   }
+
+  *cycles_min=m68hc08_table[opcode].cycles;
+  *cycles_max=m68hc08_table[opcode].cycles;
 
   switch(m68hc08_table[opcode].operand_type)
   {
@@ -89,8 +95,8 @@ int n;
       size=2;
       break;
     case CPU08_OP_NUM8_OPR8:
-      sprintf(instruction, "%s $%02x", m68hc08_table[opcode].instr, READ_RAM(address+1));
-      size=2;
+      sprintf(instruction, "%s #$%02x,$%02x", m68hc08_table[opcode].instr, READ_RAM(address+1), READ_RAM(address+2));
+      size=3;
       break;
     case CPU08_OP_NUM8_REL:
       sprintf(instruction, "%s $%04x", m68hc08_table[opcode].instr, (address+2)+((char)READ_RAM(address+1)));

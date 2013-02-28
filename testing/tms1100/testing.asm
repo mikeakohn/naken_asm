@@ -1,7 +1,7 @@
-.tms1000
+.tms1100
 
   a6aac
-  ;a7aac
+  a7aac
 loop:
   clo
   br loop
@@ -15,10 +15,9 @@ loop:
   tcy 3
   tcmiy 3
   ldp 3
-  alec 3
   ynec 3
 
 blah:
-  alec 3
+  ynec 3
 
 

@@ -73,6 +73,7 @@ int n;
           return -1;
         }
 
+        eat_operand(asm_context);
         operand_value=0xffff;
       }
     }
@@ -88,6 +89,7 @@ int n;
           return -1;
         }
 
+        eat_operand(asm_context);
         operand_value=0xffff;
       }
 
