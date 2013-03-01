@@ -179,9 +179,12 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
   if (asm_context->pass==2)
   {
     opcode=memory_read_m(&asm_context->memory, asm_context->address);
+//printf("opcode=%02x address=%d\n", opcode, asm_context->address);
     start=opcode;
     end=opcode+1;
   }
+
+//printf("line %d:  address=%d\n", asm_context->line, asm_context->address);
 
   for(n=start; n<end; n++)
   {
@@ -247,7 +250,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
           }
           add_bin8(asm_context, n, IS_OPCODE);
           add_bin8(asm_context, operands[0].value, IS_OPCODE);
-          size=2;
+          return 2;
         }
           else
         if (m68hc08_table[n].operand_type==CPU08_OP_X &&
@@ -260,7 +263,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
         else
       if (operand_count==2)
       {
-        if (m68hc08_table[n].operand_type==CPU08_OP_NUM8_OPR8 &&
+        if (m68hc08_table[n].operand_type==CPU08_OP_OPR8_OPR8 &&
             operands[0].type==OPERAND_ADDRESS &&
             operands[1].type==OPERAND_ADDRESS &&
             operands[0].value <= 0xff &&
