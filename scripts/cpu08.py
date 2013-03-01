@@ -116,6 +116,7 @@ instructions.sort()
 instructions16.sort()
 
 count = 0
+previous = -1
 
 for instruction in instructions:
 
@@ -124,12 +125,18 @@ for instruction in instructions:
   tokens[1] = "\"" + tokens[1].lower() + "\""
 
   opcode = int(" 0x" + tokens[0], 16)
+  if opcode == previous:
+    print "  // " + tokens[1]
+    continue
+
   if opcode != count:
     for n in range(count, opcode):
       print "  { NULL, CPU08_OP_NONE, 0 },  // " + ("0x%02x" % n) + " NONE"
     count = opcode
 
   print "  { " + tokens[1] + ", CPU08_OP_" + tokens[2] + ", " + tokens[3] + " },  // " + ("0x%02x" % count) + " 0x" + tokens[0].lower()
+
+  previous = opcode
   count += 1
 
 print "};"

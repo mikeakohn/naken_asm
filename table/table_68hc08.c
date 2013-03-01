@@ -51,9 +51,9 @@ struct _m68hc08_table m68hc08_table[] = {
   { "bhi", CPU08_OP_REL, 3 },  // 0x22 0x22
   { "bls", CPU08_OP_REL, 3 },  // 0x23 0x23
   { "bcc", CPU08_OP_REL, 3 },  // 0x24 0x24
-  { "bhs", CPU08_OP_REL, 3 },  // 0x24 0x24
+  // "bhs"
   { "bcs", CPU08_OP_REL, 3 },  // 0x25 0x25
-  { "blo", CPU08_OP_REL, 3 },  // 0x25 0x25
+  // "blo"
   { "bne", CPU08_OP_REL, 3 },  // 0x26 0x26
   { "beq", CPU08_OP_REL, 3 },  // 0x27 0x27
   { "bhcc", CPU08_OP_REL, 3 },  // 0x28 0x28
@@ -73,7 +73,7 @@ struct _m68hc08_table m68hc08_table[] = {
   { "ror", CPU08_OP_OPR8, 4 },  // 0x36 0x36
   { "asr", CPU08_OP_OPR8, 4 },  // 0x37 0x37
   { "asl", CPU08_OP_OPR8, 4 },  // 0x38 0x38
-  { "lsl", CPU08_OP_OPR8, 4 },  // 0x38 0x38
+  // "lsl"
   { "rol", CPU08_OP_OPR8, 4 },  // 0x39 0x39
   { "dec", CPU08_OP_OPR8, 4 },  // 0x3a 0x3a
   { "dbnz", CPU08_OP_OPR8_REL, 5 },  // 0x3b 0x3b
@@ -90,7 +90,7 @@ struct _m68hc08_table m68hc08_table[] = {
   { "rora", CPU08_OP_NONE, 1 },  // 0x46 0x46
   { "asra", CPU08_OP_NONE, 1 },  // 0x47 0x47
   { "asla", CPU08_OP_NONE, 1 },  // 0x48 0x48
-  { "lsla", CPU08_OP_NONE, 1 },  // 0x48 0x48
+  // "lsla"
   { "rola", CPU08_OP_NONE, 1 },  // 0x49 0x49
   { "deca", CPU08_OP_NONE, 1 },  // 0x4a 0x4a
   { "dbnza", CPU08_OP_REL, 3 },  // 0x4b 0x4b
@@ -107,7 +107,7 @@ struct _m68hc08_table m68hc08_table[] = {
   { "rorx", CPU08_OP_NONE, 1 },  // 0x56 0x56
   { "asrx", CPU08_OP_NONE, 1 },  // 0x57 0x57
   { "aslx", CPU08_OP_NONE, 1 },  // 0x58 0x58
-  { "lslx", CPU08_OP_NONE, 1 },  // 0x58 0x58
+  // "lslx"
   { "rolx", CPU08_OP_NONE, 1 },  // 0x59 0x59
   { "decx", CPU08_OP_NONE, 1 },  // 0x5a 0x5a
   { "dbnzx", CPU08_OP_REL, 3 },  // 0x5b 0x5b
@@ -124,7 +124,7 @@ struct _m68hc08_table m68hc08_table[] = {
   { "ror", CPU08_OP_OPR8_X, 4 },  // 0x66 0x66
   { "asr", CPU08_OP_OPR8_X, 4 },  // 0x67 0x67
   { "asl", CPU08_OP_OPR8_X, 4 },  // 0x68 0x68
-  { "lsl", CPU08_OP_OPR8_X, 4 },  // 0x68 0x68
+  // "lsl"
   { "rol", CPU08_OP_OPR8_X, 4 },  // 0x69 0x69
   { "dec", CPU08_OP_OPR8_X, 4 },  // 0x6a 0x6a
   { "dbnz", CPU08_OP_OPR8_X_REL, 5 },  // 0x6b 0x6b
@@ -141,7 +141,7 @@ struct _m68hc08_table m68hc08_table[] = {
   { "ror", CPU08_OP_COMMA_X, 3 },  // 0x76 0x76
   { "asr", CPU08_OP_COMMA_X, 3 },  // 0x77 0x77
   { "asl", CPU08_OP_COMMA_X, 3 },  // 0x78 0x78
-  { "lsl", CPU08_OP_COMMA_X, 3 },  // 0x78 0x78
+  // "lsl"
   { "rol", CPU08_OP_COMMA_X, 3 },  // 0x79 0x79
   { "dec", CPU08_OP_COMMA_X, 3 },  // 0x7a 0x7a
   { "dbnz", CPU08_OP_X_REL, 4 },  // 0x7b 0x7b
