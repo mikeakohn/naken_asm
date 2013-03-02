@@ -20,6 +20,8 @@
 
 #include "assembler.h"
 #include "disasm_65xx.h"
+#include "disasm_680x.h"
+#include "disasm_68hc08.h"
 #include "disasm_805x.h"
 #include "disasm_arm.h"
 #include "disasm_dspic.h"
@@ -537,6 +539,18 @@ int interactive=1;
     printf("    // The following options turn off interactive mode\n");
     printf("   -f      <flash serial port>\n");
     printf("   -disasm                      (disassemble all or part of program)\n");
+    printf("ELF files can auto-pick a CPU, if a hex file use:\n");
+    printf("   -65xx                        (65xx)\n");
+    printf("   -680x                        (680x)\n");
+    printf("   -68hc08                      (68hc08)\n");
+    printf("   -8051 / -8052                (8051 / 8052)\n");
+    printf("   -arm                         (ARM)\n");
+    printf("   -dspic                       (dsPIC)\n");
+    printf("   -mips                        (MIPS)\n");
+    printf("   -msp430                      (MSP430/MSP430X) DEFAULT\n");
+    printf("   -stm8                        (STM8)\n");
+    printf("   -tms1000                     (TMS1000)\n");
+    printf("   -tms1100                     (TMS1100)\n");
     //printf("   -list                        (like -disasm, but adds source code)\n");
     printf("\n");
     exit(0);
@@ -621,6 +635,20 @@ int interactive=1;
     }
       else
 #endif
+#ifdef ENABLE_680X
+    if (strcmp(argv[i], "-680x")==0)
+    {
+      util_context.disasm_range=disasm_range_680x;
+    }
+      else
+#endif
+#ifdef ENABLE_68HC08
+    if (strcmp(argv[i], "-68hc08")==0)
+    {
+      util_context.disasm_range=disasm_range_68hc08;
+    }
+      else
+#endif
 #ifdef ENABLE_8051
     if (strcmp(argv[i], "-8051")==0 || strcmp(argv[i], "-8052")==0)
     {
@@ -656,9 +684,9 @@ int interactive=1;
       util_context.disasm_range=disasm_range_tms1000;
     }
       else
-    if (strcmp(argv[i], "-tms1000")==0)
+    if (strcmp(argv[i], "-tms1100")==0)
     {
-      util_context.disasm_range=disasm_range_tms1000;
+      util_context.disasm_range=disasm_range_tms1100;
     }
       else
 #endif

@@ -191,7 +191,7 @@ void list_output_68hc08(struct _asm_context *asm_context, int address)
 {
 int cycles_min,cycles_max;
 char instruction[128];
-char bytes[10];
+char bytes[14];
 int count;
 int n;
 //unsigned int opcode=memory_read_m(&asm_context->memory, address);
@@ -207,7 +207,7 @@ int n;
     strcat(bytes, temp);
   }
 
-  fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ", address, bytes, instruction);
+  fprintf(asm_context->list, "0x%04x: %-12s %-40s cycles: ", address, bytes, instruction);
 
   if (cycles_min==cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
@@ -218,7 +218,7 @@ int n;
 void disasm_range_68hc08(struct _memory *memory, int start, int end)
 {
 char instruction[128];
-char bytes[10];
+char bytes[14];
 int cycles_min=0,cycles_max=0;
 int count;
 int n;
@@ -242,16 +242,16 @@ int n;
 
     if (cycles_min<1)
     {
-      printf("0x%04x: %-9s %-40s ?\n", start, bytes, instruction);
+      printf("0x%04x: %-12s %-40s ?\n", start, bytes, instruction);
     }
       else
     if (cycles_min==cycles_max)
     {
-      printf("0x%04x: %-9s %-40s %d\n", start, bytes, instruction, cycles_min);
+      printf("0x%04x: %-12s %-40s %d\n", start, bytes, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: %-9s %-40s %d-%d\n", start, bytes, instruction, cycles_min, cycles_max);
+      printf("0x%04x: %-12s %-40s %d-%d\n", start, bytes, instruction, cycles_min, cycles_max);
     }
 
     start=start+count;
