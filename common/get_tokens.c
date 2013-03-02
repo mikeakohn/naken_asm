@@ -111,7 +111,7 @@ char quote=0;
 
     if (token_type==TOKEN_DOLLAR)
     {
-      if ((ch>='0' && ch<='9') || (ch>='a' && ch<='f') || ch>='A' && ch<='F')
+      if ((ch>='0' && ch<='9') || (ch>='a' && ch<='f') || (ch>='A' && ch<='F'))
       {
         token[0]='0';
         token[1]='x';

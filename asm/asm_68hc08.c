@@ -259,6 +259,21 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
           add_bin8(asm_context, n, IS_OPCODE);
           return 1;
         }
+          else
+        if (m68hc08_table[n].operand_type==CPU08_OP_REL &&
+            operands[0].type==OPERAND_ADDRESS)
+        {
+          if (asm_context->pass==1) { operands[0].value=asm_context->address; }
+          offset=operands[0].value-(asm_context->address+2);
+          if (offset<-128 || offset>127)
+          {
+            print_error_range("Offset", -128, 127, asm_context);
+            return -1;
+          }
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, (char)offset, IS_OPCODE);
+          return 2;
+        }
       }
         else
       if (operand_count==2)
@@ -275,14 +290,26 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
           return 3;
         }
           else
+        if (m68hc08_table[n].operand_type==CPU08_OP_NUM8_OPR8 &&
+            operands[0].type==OPERAND_NUM8 &&
+            operands[1].type==OPERAND_ADDRESS &&
+            operands[1].value <= 0xff)
+        {
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, operands[0].value, IS_OPCODE);
+          add_bin8(asm_context, operands[1].value, IS_OPCODE);
+          return 3;
+        }
+          else
         if (m68hc08_table[n].operand_type==CPU08_OP_NUM8_REL &&
             operands[0].type==OPERAND_NUM8 &&
             operands[1].type==OPERAND_ADDRESS)
         {
+          if (asm_context->pass==1) { operands[1].value=asm_context->address; }
           offset=operands[1].value-(asm_context->address+3);
           if (offset<-128 || offset>127)
           {
-            print_error_range("Offset", -128, 255, asm_context);
+            print_error_range("Offset", -128, 127, asm_context);
             return -1;
           }
           add_bin8(asm_context, n, IS_OPCODE);
@@ -318,6 +345,167 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
           add_bin8(asm_context, operands[0].value, IS_OPCODE);
           return 2;
         }
+          else
+        if (m68hc08_table[n].operand_type==CPU08_OP_OPR8_X_PLUS &&
+            operands[0].type==OPERAND_ADDRESS &&
+            operands[0].value<=0xff &&
+            operands[1].type==OPERAND_X_PLUS)
+        {
+          if (size!=-1)
+          {
+            // If we previously wrote a 16 bit version, we can reverse it
+            // and use a smaller, better version.
+            asm_context->address-=size;
+          }
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, operands[0].value, IS_OPCODE);
+          return 2;
+        }
+          else
+        if (m68hc08_table[n].operand_type==CPU08_OP_OPR8_REL &&
+            operands[0].type==OPERAND_ADDRESS &&
+            operands[0].value<=0xff &&
+            operands[1].type==OPERAND_ADDRESS)
+        {
+          if (asm_context->pass==1) { operands[1].value=asm_context->address; }
+          offset=operands[1].value-(asm_context->address+3);
+          if (offset<-128 || offset>127)
+          {
+            print_error_range("Offset", -128, 127, asm_context);
+            return -1;
+          }
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, operands[0].value, IS_OPCODE);
+          add_bin8(asm_context, (char)offset, IS_OPCODE);
+          return 3;
+        }
+          else
+        if (m68hc08_table[n].operand_type==CPU08_OP_COMMA_X &&
+            operands[0].type==OPERAND_NONE &&
+            operands[1].type==OPERAND_X)
+        {
+          add_bin8(asm_context, n, IS_OPCODE);
+          return 1;
+        }
+          else
+        if (m68hc08_table[n].operand_type>=CPU08_OP_0_COMMA_OPR+operands[0].value &&
+            operands[0].type==OPERAND_ADDRESS &&
+            operands[0].value>=0 &&
+            operands[0].value<=7 &&
+            operands[1].type==OPERAND_ADDRESS &&
+            operands[1].value<=0xff)
+        {
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, operands[1].value, IS_OPCODE);
+          return 2;
+        }
+      }
+        else
+      if (operand_count==3)
+      {
+        if (m68hc08_table[n].operand_type==CPU08_OP_X_PLUS_OPR8 &&
+            operands[0].type==OPERAND_NONE &&
+            operands[1].type==OPERAND_X_PLUS &&
+            operands[2].type==OPERAND_ADDRESS &&
+            operands[2].value<=0xff)
+        {
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, operands[2].value, IS_OPCODE);
+          return 2;
+        }
+          else
+        if (m68hc08_table[n].operand_type==CPU08_OP_OPR8_X_PLUS_REL &&
+            operands[0].type==OPERAND_ADDRESS &&
+            operands[0].value<=0xff &&
+            operands[1].type==OPERAND_X_PLUS &&
+            operands[2].type==OPERAND_ADDRESS)
+        {
+          if (asm_context->pass==1) { operands[2].value=asm_context->address; }
+          offset=operands[2].value-(asm_context->address+3);
+          if (offset<-128 || offset>127)
+          {
+            print_error_range("Offset", -128, 127, asm_context);
+            return -1;
+          }
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, operands[0].value, IS_OPCODE);
+          add_bin8(asm_context, (char)offset, IS_OPCODE);
+          return 3;
+        }
+          else
+        if (m68hc08_table[n].operand_type==CPU08_OP_OPR8_X_REL &&
+            operands[0].type==OPERAND_ADDRESS &&
+            operands[0].value<=0xff &&
+            operands[1].type==OPERAND_X &&
+            operands[2].type==OPERAND_ADDRESS)
+        {
+          if (asm_context->pass==1) { operands[2].value=asm_context->address; }
+          offset=operands[2].value-(asm_context->address+3);
+          if (offset<-128 || offset>127)
+          {
+            print_error_range("Offset", -128, 127, asm_context);
+            return -1;
+          }
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, operands[0].value, IS_OPCODE);
+          add_bin8(asm_context, (char)offset, IS_OPCODE);
+          return 3;
+        }
+          else
+        if (m68hc08_table[n].operand_type==CPU08_OP_X_PLUS_REL &&
+            operands[0].type==OPERAND_NONE &&
+            operands[1].type==OPERAND_X_PLUS &&
+            operands[2].type==OPERAND_ADDRESS)
+        {
+          if (asm_context->pass==1) { operands[2].value=asm_context->address; }
+          offset=operands[2].value-(asm_context->address+2);
+          if (offset<-128 || offset>127)
+          {
+            print_error_range("Offset", -128, 127, asm_context);
+            return -1;
+          }
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, (char)offset, IS_OPCODE);
+          return 2;
+        }
+          else
+        if (m68hc08_table[n].operand_type==CPU08_OP_X_REL &&
+            operands[0].type==OPERAND_NONE &&
+            operands[1].type==OPERAND_X &&
+            operands[2].type==OPERAND_ADDRESS)
+        {
+          if (asm_context->pass==1) { operands[2].value=asm_context->address; }
+          offset=operands[2].value-(asm_context->address+2);
+          if (offset<-128 || offset>127)
+          {
+            print_error_range("Offset", -128, 127, asm_context);
+            return -1;
+          }
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, (char)offset, IS_OPCODE);
+          return 2;
+        }
+          else
+        if (m68hc08_table[n].operand_type>=CPU08_OP_0_COMMA_OPR_REL+operands[0].value &&
+            operands[0].type==OPERAND_ADDRESS &&
+            operands[0].value>=0 &&
+            operands[0].value<=7 &&
+            operands[1].type==OPERAND_ADDRESS &&
+            operands[1].value<=0xff &&
+            operands[2].type==OPERAND_ADDRESS)
+        {
+          if (asm_context->pass==1) { operands[2].value=asm_context->address; }
+          offset=operands[2].value-(asm_context->address+3);
+          if (offset<-128 || offset>127)
+          {
+            print_error_range("Offset", -128, 127, asm_context);
+            return -1;
+          }
+          add_bin8(asm_context, n, IS_OPCODE);
+          add_bin8(asm_context, operands[1].value, IS_OPCODE);
+          add_bin8(asm_context, (char)offset, IS_OPCODE);
+          return 3;
+        }
       }
     }
   }
@@ -342,34 +530,62 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
 
       matched=1;
 
-      if (m68hc08_16_table[n].operand_type==CPU08_OP_OPR16_SP &&
-          operands[0].type==OPERAND_ADDRESS &&
-          operands[1].type==OPERAND_SP)
+      if (operand_count==2)
       {
-        // 8 bit num can fit in here too, but better if it fits in NUM8
-        add_bin8(asm_context, m68hc08_16_table[n].opcode>>8, IS_OPCODE);
-        add_bin8(asm_context, m68hc08_16_table[n].opcode&0xff, IS_OPCODE);
-        add_bin8(asm_context, operands[0].value>>8, IS_OPCODE);
-        add_bin8(asm_context, operands[0].value&0xff, IS_OPCODE);
-        size=4;
-        if (asm_context->pass==2) { return size; }
+        if (m68hc08_16_table[n].operand_type==CPU08_OP_OPR16_SP &&
+            operands[0].type==OPERAND_ADDRESS &&
+            operands[1].type==OPERAND_SP)
+        {
+          // 8 bit num can fit in here too, but better if it fits in NUM8
+          add_bin8(asm_context, m68hc08_16_table[n].opcode>>8, IS_OPCODE);
+          add_bin8(asm_context, m68hc08_16_table[n].opcode&0xff, IS_OPCODE);
+          add_bin8(asm_context, operands[0].value>>8, IS_OPCODE);
+          add_bin8(asm_context, operands[0].value&0xff, IS_OPCODE);
+          size=4;
+          if (asm_context->pass==2) { return size; }
+        }
+          else
+        if (m68hc08_16_table[n].operand_type==CPU08_OP_OPR8_SP &&
+            operands[0].type==OPERAND_ADDRESS &&
+            operands[0].value<=0xff &&
+            operands[1].type==OPERAND_SP)
+        {
+          if (size!=-1)
+          {
+            // If we previously wrote a 16 bit version, we can reverse it
+            // and use a smaller, better version.
+            asm_context->address-=size;
+          }
+          add_bin8(asm_context, m68hc08_16_table[n].opcode>>8, IS_OPCODE);
+          add_bin8(asm_context, m68hc08_16_table[n].opcode&0xff, IS_OPCODE);
+          add_bin8(asm_context, operands[0].value, IS_OPCODE);
+          return 3;
+        }
       }
         else
-      if (m68hc08_16_table[n].operand_type==CPU08_OP_OPR8_SP &&
-          operands[0].type==OPERAND_ADDRESS &&
-          operands[0].value<=0xff &&
-          operands[1].type==OPERAND_SP)
+      if (operand_count==3)
       {
-        if (size!=-1)
+        if (m68hc08_16_table[n].operand_type==CPU08_OP_OPR8_SP_REL &&
+            operands[0].type==OPERAND_ADDRESS &&
+            operands[0].value<=0xff &&
+            operands[1].type==OPERAND_SP &&
+            operands[2].type==OPERAND_ADDRESS)
         {
-          // If we previously wrote a 16 bit version, we can reverse it
-          // and use a smaller, better version.
-          asm_context->address-=size;
+          if (asm_context->pass==1)
+          {
+            operands[2].value=asm_context->address;
+          }
+          offset=operands[2].value-(asm_context->address+4);
+          if (offset<-128 || offset>127)
+          {
+            print_error_range("Offset", -128, 127, asm_context);
+          }
+          add_bin8(asm_context, m68hc08_16_table[n].opcode>>8, IS_OPCODE);
+          add_bin8(asm_context, m68hc08_16_table[n].opcode&0xff, IS_OPCODE);
+          add_bin8(asm_context, operands[0].value, IS_OPCODE);
+          add_bin8(asm_context, offset, IS_OPCODE);
+          return 4;
         }
-        add_bin8(asm_context, m68hc08_16_table[n].opcode>>8, IS_OPCODE);
-        add_bin8(asm_context, m68hc08_16_table[n].opcode&0xff, IS_OPCODE);
-        add_bin8(asm_context, operands[0].value, IS_OPCODE);
-        return 3;
       }
     }
     n++;
