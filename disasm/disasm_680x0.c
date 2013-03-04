@@ -17,7 +17,10 @@
 #include "disasm_680x0.h"
 #include "table_680x0.h"
 
-#define READ_RAM16(a) (memory_read_m(memory, a+1)<<8)|memory_read_m(memory, a);
+#define READ_RAM(a) memory_read_m(memory, a);
+#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1);
+
+extern struct _table_680x0_no_operands table_680x0_no_operands[];
 
 int get_cycle_count_680x0(unsigned short int opcode)
 {
@@ -26,19 +29,34 @@ int get_cycle_count_680x0(unsigned short int opcode)
 
 int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
-int count=1;
+//int count=2;
 int opcode;
-char temp[32];
+//char temp[32];
 //int value;
 int n;
 
+  *cycles_min=-1;
+  *cycles_max=-1;
+
   opcode=READ_RAM16(address);
 
-  strcpy(instruction, table_680x0[opcode].name);
+  n=0;
+  while(table_680x0_no_operands[n].instr!=NULL)
+  {
+    if (opcode==table_680x0_no_operands[n].opcode)
+    {
+      sprintf(instruction, "%s", table_680x0_no_operands[n].instr);
+      return 2;
+    }
+    n++;
+  }
 
+  //strcpy(instruction, table_680x0[opcode].name);
+
+#if 0
   for (n=0; n<3; n++)
   {
-    if (table_680x0[opcode].operands[n].type==OP_NONE) break;
+    //if (table_680x0[opcode].operands[n].type==OP_NONE) break;
 
     if (n==0) { strcat(instruction, " "); }
     else { strcat(instruction, ", "); }
@@ -55,30 +73,39 @@ int n;
         break;
     }
   }
+#endif
 
-  //strcpy(instruction, "???");
-  return count;
+  strcpy(instruction, "???");
+  return -1;
 }
 
 void list_output_680x0(struct _asm_context *asm_context, int address)
 {
-int cycles_min=-1,cycles_max=-1,count;
+int cycles_min=-1,cycles_max=-1;
+int count;
 char instruction[128];
-char temp[32];
-char temp2[4];
+//char temp[32];
+//char temp2[4];
 int n;
 
   fprintf(asm_context->list, "\n");
   count=disasm_680x0(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
+#if 0
   temp[0]=0;
   for (n=0; n<count; n++)
   {
     sprintf(temp2, "%02x ", memory_read_m(&asm_context->memory, address+n));
     strcat(temp, temp2);
   }
+#endif
 
-  fprintf(asm_context->list, "0x%04x: %-10s %-40s cycles: ", address, temp, instruction);
+  fprintf(asm_context->list, "0x%04x: %04x %-40s", address, (memory_read_m(&asm_context->memory, address)<<8)|memory_read_m(&asm_context->memory, address+1), instruction);
+
+  for (n=2; n<count; n+=2)
+  {
+    fprintf(asm_context->list, "        %04x", (memory_read_m(&asm_context->memory, address+n)<<8)|memory_read_m(&asm_context->memory, address+n+1));
+  }
 
 /*
   if (cycles_min==cycles_max)

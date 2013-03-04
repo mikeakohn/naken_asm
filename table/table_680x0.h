@@ -14,6 +14,12 @@
 
 #include "assembler.h"
 
+struct _table_680x0_no_operands
+{
+  char *instr;
+  unsigned short int opcode;
+};
+
 enum
 {
   OP_NONE,

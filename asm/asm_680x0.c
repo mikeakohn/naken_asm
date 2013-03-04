@@ -20,15 +20,24 @@
 #include "disasm_arm.h"
 #include "get_tokens.h"
 #include "eval_expression.h"
-#include "table_805x.h"
+#include "table_680x0.h"
+
+extern struct _table_680x0_no_operands table_680x0_no_operands[];
 
 enum
 {
   OPERAND_A_REG,
   OPERAND_D_REG,
-  OPERAND_A_INDEXED,
-  OPERAND_DATA,
-  OPERAND_NUM,
+  OPERAND_IMMEDIATE,
+  OPERAND_ADDRESS,
+};
+
+enum
+{
+  SIZE_NONE,
+  SIZE_B,
+  SIZE_W,
+  SIZE_L,
 };
 
 struct _operand
@@ -39,7 +48,19 @@ struct _operand
 
 static int get_register_d_680x0(char *token)
 {
-  if (token[0]!='r' && token[0]!='R') return -1;
+  if (token[0]!='d' && token[0]!='D') return -1;
+  if (token[1]>='0' && token[1]<='7' && token[2]==0)
+  {
+    return token[1]-'0';
+  }
+
+  return -1;
+}
+
+static int get_register_a_680x0(char *token)
+{
+  if (strcasecmp(token, "sp")==0) return 7;
+  if (token[0]!='d' && token[0]!='D') return -1;
   if (token[1]>='0' && token[1]<='7' && token[2]==0)
   {
     return token[1]-'0';
@@ -50,18 +71,26 @@ static int get_register_d_680x0(char *token)
 
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
-char instr_lower_mem[TOKENLEN];
-char *instr_lower=instr_lower_mem;
 char token[TOKENLEN];
+int token_type;
+char instr_case_c[TOKENLEN];
+char *instr_case=instr_case_c;
 struct _operand operands[3];
 int operand_count=0;
-int token_type;
+int operand_size=SIZE_NONE;
 //int matched=0;
 int num;
 //int n,r;
 int count=1;
+int n;
 
-  lower_copy(instr_lower, instr);
+  lower_copy(instr_case, instr);
+  memset(operands, 0, sizeof(operands));
+
+#if 0
+  if (strcmp("bhs", instr_case)==0) { instr_case="bcc"; }
+  else if (strcmp("blo", instr_case)==0) { instr_case="bcs"; }
+#endif
 
   memset(&operands, 0, sizeof(operands));
   while(1)
@@ -69,86 +98,81 @@ int count=1;
     token_type=get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF)
     {
+#if 0
       if (operand_count!=0)
       {
         print_error_unexp(token, asm_context);
         return -1;
       }
+#endif
       break;
     }
 
-    num=get_register_d_680x0(token);
-    if (num!=-1)
+    if (IS_TOKEN(token, '.') && operand_count==0 && operand_size==SIZE_NONE)
+    {
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (strcasecmp(token, "b")==0) { operand_size=SIZE_B; }
+      else if (strcasecmp(token, "w")==0) { operand_size=SIZE_W; }
+      else if (strcasecmp(token, "l")==0) { operand_size=SIZE_L; }
+      else
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      continue;
+    }
+
+    if ((num=get_register_d_680x0(token))!=-1)
     {
       operands[operand_count].type=OPERAND_D_REG;
       operands[operand_count].value=num;
     }
       else
+    if ((num=get_register_a_680x0(token))!=-1)
+    {
+      operands[operand_count].type=OPERAND_A_REG;
+      operands[operand_count].value=num;
+    }
+      else
     if (token_type==TOKEN_POUND)
     {
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (token_type!=TOKEN_NUMBER)
+      if (eval_expression(asm_context, &num)!=0)
       {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-      operands[operand_count].type=OPERAND_DATA;
-      operands[operand_count].value=atoi(token);
-    }
-      else
-    if (token_type==TOKEN_NUMBER)
-    {
-      operands[operand_count].type=OPERAND_NUM;
-      operands[operand_count].value=atoi(token);
-
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (IS_TOKEN(token,'.'))
-      {
-        token_type=get_token(asm_context, token, TOKENLEN);
-        if (token_type!=TOKEN_NUMBER)
+        if (asm_context->pass==1)
         {
-          print_error_unexp(token, asm_context);
-          return -1;
-        }
-
-        num=atoi(token);
-        if (num<0 || num>7)
-        {
-          printf("Error: bit address out of range at %s:%d\n", asm_context->filename, asm_context->line);
-          return -1;
-        }
-
-        if (operands[operand_count].value>=0x20 &&
-            operands[operand_count].value<=0x2f)
-        {
-          operands[operand_count].value-=0x20;
-          operands[operand_count].value<<=3;
-        }
-          else
-        if (operands[operand_count].value>=0x80 &&
-            operands[operand_count].value<=0x8f)
-        {
-          operands[operand_count].value-=0x80;
-          operands[operand_count].value<<=3;
-          operands[operand_count].value|=128;
+          eat_operand(asm_context);
+          //operands[operand_count].error=1;
         }
           else
         {
-          printf("Error: bit address out of range at %s:%d\n", asm_context->filename, asm_context->line);
+          print_error_illegal_expression(instr, asm_context);
           return -1;
         }
+      }
 
-        operands[operand_count].value|=num;
-      }
-        else
-      {
-        pushback(asm_context, token, token_type);
-      }
+      operands[operand_count].type=OPERAND_IMMEDIATE;
+      operands[operand_count].value=num;
     }
       else
     {
-      print_error_unexp(token, asm_context);
-      return -1;
+      pushback(asm_context, token, token_type);
+
+      if (eval_expression(asm_context, &num)!=0)
+      {
+        if (asm_context->pass==1)
+        {
+          eat_operand(asm_context);
+        }
+          else
+        {
+          print_error_illegal_expression(instr, asm_context);
+          return -1;
+        }
+      }
+
+      operands[operand_count].type=OPERAND_ADDRESS;
+      operands[operand_count].value=num;
     }
 
     operand_count++;
@@ -171,6 +195,30 @@ printf("[%d %d]", operands[n].type, operands[n].value);
 printf("\n");
 #endif
 
+  n=0;
+  while(table_680x0_no_operands[n].instr!=NULL)
+  {
+    if (strcmp(table_680x0_no_operands[n].instr, instr_case)==0)
+    {
+      if (operand_size!=SIZE_NONE)
+      {
+        printf("Error: Instruction doesn't take a size attribute at %s:%d\n", asm_context->filename, asm_context->line);
+        return -1;
+      }
+
+      if (operand_count!=0)
+      {
+        printf("Error: Instruction doesn't take operands at %s:%d\n", asm_context->filename, asm_context->line);
+        return -1;
+      }
+
+      add_bin(asm_context, table_680x0_no_operands[n].opcode, IS_OPCODE);
+      return 2;
+    }
+    n++;
+  }
+
+
 #if 0
   for (n=0; n<256; n++)
   {
@@ -188,8 +236,9 @@ printf("\n");
     }
   }
 #endif
+  printf("Error: Unknown instruction '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
 
-  return count; 
+  return -1; 
 }
 
 
