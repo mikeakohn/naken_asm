@@ -14,6 +14,13 @@ struct _table_680x0_no_operands table_680x0_no_operands[] =
   { NULL, 0 },
 };
 
+struct _table_680x0 table_680x0[] =
+{
+  { "clr", 0x4200, 0xff00, OP_SINGLE_EA }, // (no immediate extra data)
+  { "neg", 0x4400, 0xff00, OP_SINGLE_EA },
+  { "tst", 0x4a00, 0xff00, OP_SINGLE_EA },
+};
+
 #if 0
 table_680x0_condition_codes =
 {
@@ -76,9 +83,6 @@ table_680x0_alui[]
   "ADDI",  // 6
   "EORI",  // 9
   "CMPI",  // 12
-  "CLR",   // 0x42  (no immediate extra data)
-  "NEG",   // 0x44  (no immediate extra data)
-  "TST",   // 0x4a  (no immediate extra data)
 };
 
 // 4 op, 3 reg, 3 mode, 6 EA(mode/reg)

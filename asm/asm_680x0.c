@@ -23,18 +23,22 @@
 #include "table_680x0.h"
 
 extern struct _table_680x0_no_operands table_680x0_no_operands[];
+extern struct _table_680x0 table_680x0[];
 
 enum
 {
-  OPERAND_A_REG,
   OPERAND_D_REG,
+  OPERAND_A_REG,
+  OPERAND_A_REG_INDEX,
+  OPERAND_A_REG_INDEX_PLUS,
+  OPERAND_A_REG_INDEX_MINUS,
   OPERAND_IMMEDIATE,
   OPERAND_ADDRESS,
 };
 
 enum
 {
-  SIZE_NONE,
+  SIZE_NONE=-1,
   SIZE_B,
   SIZE_W,
   SIZE_L,
@@ -67,6 +71,30 @@ static int get_register_a_680x0(char *token)
   }
 
   return -1;
+}
+
+int write_single_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=1)
+  {
+    print_error_opcount(instr, asm_context);
+    return -1;
+  }
+
+  switch(operands[0].type)
+  {
+    case OPERAND_D_REG:
+    case OPERAND_A_REG:
+    case OPERAND_A_REG_INDEX:
+    case OPERAND_A_REG_INDEX_PLUS:
+    case OPERAND_A_REG_INDEX_MINUS:
+      add_bin(asm_context, opcode|(size<<6)|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
+      return 2;
+    case OPERAND_IMMEDIATE:
+    default:
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+  }
 }
 
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
@@ -155,6 +183,41 @@ int n;
       operands[operand_count].value=num;
     }
       else
+    if (IS_TOKEN(token,'-'))
+    {
+      if (expect_token_s(asm_context,"(")!=0) { return -1; }
+      if ((num=get_register_a_680x0(token))!=-1)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+      if (expect_token_s(asm_context,")")!=0) { return -1; }
+
+      operands[operand_count].type=OPERAND_A_REG_INDEX_MINUS;
+      operands[operand_count].value=num;
+    }
+      else
+    if (IS_TOKEN(token,'('))
+    {
+      if ((num=get_register_a_680x0(token))!=-1)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+      operands[operand_count].value=num;
+      if (expect_token_s(asm_context,")")!=0) { return -1; }
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token,'+'))
+      {
+        operands[operand_count].type=OPERAND_A_REG_INDEX_PLUS;
+      }
+        else
+      {
+        operands[operand_count].type=OPERAND_A_REG_INDEX;
+        pushback(asm_context, token, token_type);
+      }
+    }
+      else
     {
       pushback(asm_context, token, token_type);
 
@@ -202,13 +265,13 @@ printf("\n");
     {
       if (operand_size!=SIZE_NONE)
       {
-        printf("Error: Instruction doesn't take a size attribute at %s:%d\n", asm_context->filename, asm_context->line);
+        printf("Error: %s doesn't take a size attribute at %s:%d\n", instr, asm_context->filename, asm_context->line);
         return -1;
       }
 
       if (operand_count!=0)
       {
-        printf("Error: Instruction doesn't take operands at %s:%d\n", asm_context->filename, asm_context->line);
+        print_error_opcount(instr, asm_context);
         return -1;
       }
 
@@ -218,6 +281,24 @@ printf("\n");
     n++;
   }
 
+  n=0;
+  while(table_680x0[n].instr!=NULL)
+  {
+    if (strcmp(table_680x0[n].instr, instr_case)==0)
+    {
+      switch(table_680x0[n].type)
+      {
+        case OP_SINGLE_EA:
+          return write_single_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+        default:
+          printf("Error: Unknown flag/operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+          return -1;
+
+      }
+    }
+
+    n++;
+  }
 
 #if 0
   for (n=0; n<256; n++)

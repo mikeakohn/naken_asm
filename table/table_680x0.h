@@ -14,12 +14,27 @@
 
 #include "assembler.h"
 
+enum
+{
+  OP_NONE,
+  OP_SINGLE_EA,
+};
+
 struct _table_680x0_no_operands
 {
   char *instr;
   unsigned short int opcode;
 };
 
+struct _table_680x0
+{
+  char *instr;
+  unsigned short int opcode;
+  unsigned short int mask;
+  char type;
+};
+
+#if 0
 enum
 {
   OP_NONE,
@@ -71,6 +86,7 @@ struct _table_680x0
 };
 
 extern struct _table_680x0 table_680x0[];
+#endif
 
 #endif
 

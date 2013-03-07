@@ -21,17 +21,54 @@
 #define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1);
 
 extern struct _table_680x0_no_operands table_680x0_no_operands[];
+extern struct _table_680x0 table_680x0[];
 
 int get_cycle_count_680x0(unsigned short int opcode)
 {
   return -1;
 }
 
+static int get_ea_680x0(char *ea, unsigned short int opcode, int pos)
+{
+  opcode=(opcode>>pos)&0x3f;
+
+  switch(opcode&0x7)
+  {
+    case 0:
+      sprintf(ea, "d%d", opcode>>3);
+      return 2;
+    case 1:
+      sprintf(ea, "a%d", opcode>>3);
+      return 2;
+    case 2:
+      sprintf(ea, "(a%d)", opcode>>3);
+      return 2;
+    case 3:
+      sprintf(ea, "-(a%d)", opcode>>3);
+      return 2;
+    case 4:
+      sprintf(ea, "(a%d)+", opcode>>3);
+      return 2;
+
+  }
+
+  strcpy(ea,"???");
+
+  return 2;
+}
+
+static char get_size_680x0(unsigned short int opcode, int pos)
+{
+  char size[] = { 'b','w','l','?' };
+  return size[(opcode>>pos)&0x3];
+}
+
 int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
 //int count=2;
 int opcode;
-//char temp[32];
+char ea[32];
+char size;
 //int value;
 int n;
 
@@ -48,6 +85,20 @@ int n;
       sprintf(instruction, "%s", table_680x0_no_operands[n].instr);
       return 2;
     }
+    n++;
+  }
+
+  n=0;
+  while(table_680x0[n].instr!=NULL)
+  {
+    if ((opcode&table_680x0[n].mask)==table_680x0[n].opcode)
+    {
+      get_ea_680x0(ea, opcode, 0);
+      size=get_size_680x0(opcode, 6);
+      sprintf(instruction, "%s.%c %s", table_680x0[n].instr, size, ea);
+      return 2;
+    }
+
     n++;
   }
 
