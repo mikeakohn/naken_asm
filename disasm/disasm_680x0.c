@@ -19,6 +19,7 @@
 
 #define READ_RAM(a) memory_read_m(memory, a);
 #define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1);
+#define READ_RAM32(a) (memory_read_m(memory, a)<<24)|(memory_read_m(memory, a+1)<<16)|(memory_read_m(memory, a+2)<<8)|memory_read_m(memory, a+3);
 
 extern struct _table_680x0_no_operands table_680x0_no_operands[];
 extern struct _table_680x0 table_680x0[];
@@ -32,22 +33,22 @@ static int get_ea_680x0(char *ea, unsigned short int opcode, int pos)
 {
   opcode=(opcode>>pos)&0x3f;
 
-  switch(opcode&0x7)
+  switch(opcode>>3)
   {
     case 0:
-      sprintf(ea, "d%d", opcode>>3);
+      sprintf(ea, "d%d", opcode&0x7);
       return 2;
     case 1:
-      sprintf(ea, "a%d", opcode>>3);
+      sprintf(ea, "a%d", opcode&0x7);
       return 2;
     case 2:
-      sprintf(ea, "(a%d)", opcode>>3);
+      sprintf(ea, "(a%d)", opcode&0x7);
       return 2;
     case 3:
-      sprintf(ea, "-(a%d)", opcode>>3);
+      sprintf(ea, "-(a%d)", opcode&0x7);
       return 2;
     case 4:
-      sprintf(ea, "(a%d)+", opcode>>3);
+      sprintf(ea, "(a%d)+", opcode&0x7);
       return 2;
 
   }
@@ -69,6 +70,7 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
 int opcode;
 char ea[32];
 char size;
+unsigned int immediate;
 //int value;
 int n;
 
@@ -93,10 +95,39 @@ int n;
   {
     if ((opcode&table_680x0[n].mask)==table_680x0[n].opcode)
     {
-      get_ea_680x0(ea, opcode, 0);
-      size=get_size_680x0(opcode, 6);
-      sprintf(instruction, "%s.%c %s", table_680x0[n].instr, size, ea);
-      return 2;
+      switch(table_680x0[n].type)
+      {
+        case OP_SINGLE_EA:
+          get_ea_680x0(ea, opcode, 0);
+          size=get_size_680x0(opcode, 6);
+          sprintf(instruction, "%s.%c %s", table_680x0[n].instr, size, ea);
+          return 2;
+        case OP_IMMEDIATE:
+          get_ea_680x0(ea, opcode, 0);
+          size=get_size_680x0(opcode, 6);
+
+          if (size=='b')
+          {
+            immediate=READ_RAM(address+3);
+            sprintf(instruction, "%s.%c #$%02x, %s", table_680x0[n].instr, size, immediate, ea);
+            return 4;
+          }
+            else
+          if (size=='w')
+          {
+            immediate=READ_RAM16(address+2);
+            sprintf(instruction, "%s.%c #$%04x, %s", table_680x0[n].instr, size, immediate, ea);
+            return 4;
+          }
+            else
+          {
+            immediate=READ_RAM32(address+2);
+            sprintf(instruction, "%s.%c #$%08x, %s", table_680x0[n].instr, size, immediate, ea);
+            return 6;
+          }
+        default:
+          return -1;
+      }
     }
 
     n++;
@@ -151,11 +182,11 @@ int n;
   }
 #endif
 
-  fprintf(asm_context->list, "0x%04x: %04x %-40s", address, (memory_read_m(&asm_context->memory, address)<<8)|memory_read_m(&asm_context->memory, address+1), instruction);
+  fprintf(asm_context->list, "0x%04x: %04x %-40s\n", address, (memory_read_m(&asm_context->memory, address)<<8)|memory_read_m(&asm_context->memory, address+1), instruction);
 
   for (n=2; n<count; n+=2)
   {
-    fprintf(asm_context->list, "        %04x", (memory_read_m(&asm_context->memory, address+n)<<8)|memory_read_m(&asm_context->memory, address+n+1));
+    fprintf(asm_context->list, "        %04x\n", (memory_read_m(&asm_context->memory, address+n)<<8)|memory_read_m(&asm_context->memory, address+n+1));
   }
 
 /*

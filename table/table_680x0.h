@@ -18,6 +18,7 @@ enum
 {
   OP_NONE,
   OP_SINGLE_EA,
+  OP_IMMEDIATE,
 };
 
 struct _table_680x0_no_operands

@@ -19,6 +19,12 @@ struct _table_680x0 table_680x0[] =
   { "clr", 0x4200, 0xff00, OP_SINGLE_EA }, // (no immediate extra data)
   { "neg", 0x4400, 0xff00, OP_SINGLE_EA },
   { "tst", 0x4a00, 0xff00, OP_SINGLE_EA },
+  { "ori", 0x0000, 0xff00, OP_IMMEDIATE },  // 0
+  { "andi", 0x0200, 0xff00, OP_IMMEDIATE }, // 2
+  { "subi", 0x0400, 0xff00, OP_IMMEDIATE }, // 4
+  { "addi", 0x0600, 0xff00, OP_IMMEDIATE }, // 6
+  { "eori", 0x0900, 0xff00, OP_IMMEDIATE }, // 9
+  { "cmpi", 0x0c00, 0xff00, OP_IMMEDIATE }, // 12
 };
 
 #if 0

@@ -97,6 +97,35 @@ int write_single_ea(struct _asm_context *asm_context, char *instr, struct _opera
   }
 }
 
+int write_immediate(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2)
+  {
+    print_error_opcount(instr, asm_context);
+    return -1;
+  }
+
+  switch(operands[1].type)
+  {
+    case OPERAND_D_REG:
+    case OPERAND_A_REG:
+    case OPERAND_A_REG_INDEX:
+    case OPERAND_A_REG_INDEX_PLUS:
+    case OPERAND_A_REG_INDEX_MINUS:
+      opcode|=(size<<6)|(operands[1].type<<3)|operands[1].value;
+      break;
+    case OPERAND_IMMEDIATE:
+      print_error_illegal_operands(instr, asm_context);
+    default:
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+  }
+
+  add_bin(asm_context, opcode, IS_OPCODE);
+  if (size<2) { add_bin(asm_context, operands[0].value, IS_OPCODE); return 4; }
+  else { add_bin32(asm_context, operands[0].value, IS_OPCODE); return 6; }
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -290,6 +319,8 @@ printf("\n");
       {
         case OP_SINGLE_EA:
           return write_single_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+        case OP_IMMEDIATE:
+          return write_immediate(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
         default:
           printf("Error: Unknown flag/operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
           return -1;
