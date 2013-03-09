@@ -24,6 +24,7 @@
 
 extern struct _table_680x0_no_operands table_680x0_no_operands[];
 extern struct _table_680x0 table_680x0[];
+extern char *table_680x0_condition_codes[];
 
 enum
 {
@@ -75,11 +76,7 @@ static int get_register_a_680x0(char *token)
 
 int write_single_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
-  if (operand_count!=1)
-  {
-    print_error_opcount(instr, asm_context);
-    return -1;
-  }
+  if (operand_count!=1) { return 0; }
 
   switch(operands[0].type)
   {
@@ -99,11 +96,7 @@ int write_single_ea(struct _asm_context *asm_context, char *instr, struct _opera
 
 int write_immediate(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
-  if (operand_count!=2)
-  {
-    print_error_opcount(instr, asm_context);
-    return -1;
-  }
+  if (operand_count!=2) { return 0; }
 
   switch(operands[1].type)
   {
@@ -126,6 +119,33 @@ int write_immediate(struct _asm_context *asm_context, char *instr, struct _opera
   else { add_bin32(asm_context, operands[0].value, IS_OPCODE); return 6; }
 }
 
+int write_shift(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+
+  if (operands[0].type==OPERAND_IMMEDIATE && operands[1].type==OPERAND_D_REG)
+  {
+    if (operands[0].value<1 || operands[0].value>8)
+    {
+      print_error_range("Shift", 1, 8, asm_context);
+      return -1;
+    }
+
+    add_bin(asm_context, opcode|((operands[0].value&7)<<9)|(size<<6)|operands[1].value, IS_OPCODE);
+  }
+    else
+  if (operands[0].type==OPERAND_D_REG && operands[1].type==OPERAND_D_REG)
+  {
+    add_bin(asm_context, opcode|(operands[0].value<<9)|(size<<6)|(1<<5)|operands[1].value, IS_OPCODE);
+  }
+    else
+  {
+    return 0;
+  }
+
+  return 2;
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -135,19 +155,19 @@ char *instr_case=instr_case_c;
 struct _operand operands[3];
 int operand_count=0;
 int operand_size=SIZE_NONE;
-//int matched=0;
+int matched=0;
 int num;
+int ret;
 //int n,r;
-int count=1;
+//int count=1;
 int n;
 
   lower_copy(instr_case, instr);
   memset(operands, 0, sizeof(operands));
 
-#if 0
-  if (strcmp("bhs", instr_case)==0) { instr_case="bcc"; }
-  else if (strcmp("blo", instr_case)==0) { instr_case="bcs"; }
-#endif
+  if (strcmp("dbhi", instr_case)==0) { instr_case="dbcc"; }
+  else if (strcmp("dblo", instr_case)==0) { instr_case="dbcs"; }
+  else if (strcmp("dbra", instr_case)==0) { instr_case="dbt"; }
 
   memset(&operands, 0, sizeof(operands));
   while(1)
@@ -287,6 +307,50 @@ printf("[%d %d]", operands[n].type, operands[n].value);
 printf("\n");
 #endif
 
+  if (instr_case[0]=='d' && instr_case[1]=='b')
+  {
+    int opcode=0x50c8;
+
+    for (n=0; n<16; n++)
+    {
+      if (strcmp(instr_case+2, table_680x0_condition_codes[n])!=0) { continue; }
+
+      if (operand_size!=SIZE_NONE)
+      {
+        printf("Error: %s doesn't take a size attribute at %s:%d\n", instr, asm_context->filename, asm_context->line);
+        return -1;
+      }
+
+      if (operand_count!=2)
+      {
+        print_error_opcount(instr, asm_context);
+        return -1;
+      }
+
+      if (operands[0].type!=OPERAND_D_REG || operands[1].type!=OPERAND_ADDRESS)
+      {
+        matched=1;
+        continue;
+      }
+
+      int offset=operands[1].value-(asm_context->address+4);
+      add_bin(asm_context, opcode|(n<<8)|operands[0].value, IS_OPCODE);
+
+      if (asm_context->pass==1) { add_bin(asm_context, 0, IS_OPCODE); }
+      else
+      {
+        if (offset<-32768 || offset>32767)
+        {
+          print_error_range("Offset", -32768, 32767, asm_context);
+          return -1;
+        }
+        add_bin(asm_context, offset, IS_OPCODE);
+      }
+
+      return 4;
+    }
+  }
+
   n=0;
   while(table_680x0_no_operands[n].instr!=NULL)
   {
@@ -315,40 +379,44 @@ printf("\n");
   {
     if (strcmp(table_680x0[n].instr, instr_case)==0)
     {
+      ret=0;
+      matched=1;
+
       switch(table_680x0[n].type)
       {
         case OP_SINGLE_EA:
-          return write_single_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          ret=write_single_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
         case OP_IMMEDIATE:
-          return write_immediate(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          ret=write_immediate(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_SHIFT_EA:
+          if (operand_size==SIZE_NONE || operand_size==SIZE_W)
+          {
+            ret=write_single_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, 3);
+          }
+          break;
+        case OP_SHIFT:
+          ret=write_shift(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
         default:
-          printf("Error: Unknown flag/operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
-          return -1;
-
+          n++;
+          continue;
       }
+      if (ret!=0) { return ret; }
     }
 
     n++;
   }
 
-#if 0
-  for (n=0; n<256; n++)
+  if (matched==1)
   {
+    printf("Error: Unknown flag/operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
   }
-
-  if (n==256)
+    else
   {
-    if (matched==1)
-    {
-      printf("Error: Unknown operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
-    }
-      else
-    {
-      printf("Error: Unknown instruction '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
-    }
+    printf("Error: Unknown instruction '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
   }
-#endif
-  printf("Error: Unknown instruction '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
 
   return -1; 
 }

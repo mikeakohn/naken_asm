@@ -19,6 +19,8 @@ enum
   OP_NONE,
   OP_SINGLE_EA,
   OP_IMMEDIATE,
+  OP_SHIFT_EA,
+  OP_SHIFT,
 };
 
 struct _table_680x0_no_operands
@@ -36,36 +38,6 @@ struct _table_680x0
 };
 
 #if 0
-enum
-{
-  OP_NONE,
-  OP_EA,
-  OP_LABEL,
-  //OP_SRC,
-  //OP_DEST,
-  OP_IMM,
-  OP_D,
-  OP_A,
-  OP_CCR,
-  OP_SR,
-  OP_DX,
-  OP_DY,
-  OP_AX,
-  OP_AY,
-  OP_IMM8,
-  OP_AX_PLUS,
-  OP_AY_PLUS,
-  OP_DR_DQ,
-  OP_DQ_DR_DQ,
-  OP_SEA,
-  OP_DEA,
-  OP_REG_LIST,
-  OP_D16_AY,
-  OP_IMM256,
-  OP_DL_DH_DL,
-  OP_IMM16,
-  OP_8BITDISP,
-};
 
 struct _680x0_operand
 {

@@ -23,6 +23,7 @@
 
 extern struct _table_680x0_no_operands table_680x0_no_operands[];
 extern struct _table_680x0 table_680x0[];
+extern char *table_680x0_condition_codes[];
 
 int get_cycle_count_680x0(unsigned short int opcode)
 {
@@ -125,6 +126,23 @@ int n;
             sprintf(instruction, "%s.%c #$%08x, %s", table_680x0[n].instr, size, immediate, ea);
             return 6;
           }
+        case OP_SHIFT_EA:
+          get_ea_680x0(ea, opcode, 0);
+          sprintf(instruction, "%s %s", table_680x0[n].instr, ea);
+          return 2;
+        case OP_SHIFT:
+          size=get_size_680x0(opcode, 6);
+          if ((opcode&0x0020)==0)
+          {
+            immediate=(opcode>>9)&0x7;
+            immediate=(immediate==0)?8:immediate;
+            sprintf(instruction, "%s.%c #%d, d%d", table_680x0[n].instr, size, immediate, opcode&0x7);
+          }
+            else
+          {
+            immediate=(opcode>>9)&0x7;
+            sprintf(instruction, "%s.%c d%d, d%d", table_680x0[n].instr, size, immediate, opcode&0x7);
+          }
         default:
           return -1;
       }
@@ -133,29 +151,12 @@ int n;
     n++;
   }
 
-  //strcpy(instruction, table_680x0[opcode].name);
-
-#if 0
-  for (n=0; n<3; n++)
+  if ((opcode&0xf0f8)==0x50c8)
   {
-    //if (table_680x0[opcode].operands[n].type==OP_NONE) break;
-
-    if (n==0) { strcat(instruction, " "); }
-    else { strcat(instruction, ", "); }
-
-    switch(table_680x0[opcode].operands[n].type)
-    {
-      case OP_D:
-        //sprintf(temp, "d%d", table_680x0[opcode].range);
-        strcat(instruction, temp);
-        break;
-      case OP_A:
-        //sprintf(temp, "a%d", table_680x0[opcode].range);
-        strcat(instruction, temp);
-        break;
-    }
+    short int offset=READ_RAM16(address+2);
+    sprintf(instruction, "db%s d%d, $%x (%d)", table_680x0_condition_codes[(opcode>>8)&0xf], opcode&0x7, (address+4)+offset, offset);
+    return 4;
   }
-#endif
 
   strcpy(instruction, "???");
   return -1;

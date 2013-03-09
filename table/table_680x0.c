@@ -25,30 +25,33 @@ struct _table_680x0 table_680x0[] =
   { "addi", 0x0600, 0xff00, OP_IMMEDIATE }, // 6
   { "eori", 0x0900, 0xff00, OP_IMMEDIATE }, // 9
   { "cmpi", 0x0c00, 0xff00, OP_IMMEDIATE }, // 12
+  { "asl", 0xe1c0, 0xffc0, OP_SHIFT_EA },
+  { "asr", 0xe0c0, 0xffc0, OP_SHIFT_EA },
+  { "asl", 0xe100, 0xf118, OP_SHIFT },
+  { "asr", 0xe000, 0xf118, OP_SHIFT },
+};
+
+char *table_680x0_condition_codes[] =
+{
+  "t",
+  "f",
+  "hi",
+  "ls",
+  "cc",  // hi
+  "cs",  // lo
+  "ne",
+  "eq",
+  "vc",
+  "vs",
+  "pl",
+  "mi",
+  "ge",
+  "lt",
+  "gt",
+  "le",
 };
 
 #if 0
-table_680x0_condition_codes =
-{
-  "T",
-  "F",
-  "HI",
-  "LS",
-  "CC",  // HI
-  "CS",  // LO
-  "NE",
-  "EQ",
-  "VC",
-  "VS",
-  "PL",
-  "MI",
-  "GE",
-  "LT",
-  "GT",
-  "LE",
-};
-
-
 
 struct _table_680x0_quick *table_680x0_quick[]
 {

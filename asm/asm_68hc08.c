@@ -579,6 +579,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
           if (offset<-128 || offset>127)
           {
             print_error_range("Offset", -128, 127, asm_context);
+            return -1;
           }
           add_bin8(asm_context, m68hc08_16_table[n].opcode>>8, IS_OPCODE);
           add_bin8(asm_context, m68hc08_16_table[n].opcode&0xff, IS_OPCODE);
