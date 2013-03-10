@@ -46,10 +46,10 @@ static int get_ea_680x0(char *ea, unsigned short int opcode, int pos)
       sprintf(ea, "(a%d)", opcode&0x7);
       return 2;
     case 3:
-      sprintf(ea, "-(a%d)", opcode&0x7);
+      sprintf(ea, "(a%d)+", opcode&0x7);
       return 2;
     case 4:
-      sprintf(ea, "(a%d)+", opcode&0x7);
+      sprintf(ea, "-(a%d)", opcode&0x7);
       return 2;
 
   }
@@ -102,6 +102,10 @@ int n;
           get_ea_680x0(ea, opcode, 0);
           size=get_size_680x0(opcode, 6);
           sprintf(instruction, "%s.%c %s", table_680x0[n].instr, size, ea);
+          return 2;
+        case OP_SINGLE_EA_NO_SIZE:
+          get_ea_680x0(ea, opcode, 0);
+          sprintf(instruction, "%s %s", table_680x0[n].instr, ea);
           return 2;
         case OP_IMMEDIATE:
           get_ea_680x0(ea, opcode, 0);

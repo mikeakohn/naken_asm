@@ -18,7 +18,10 @@ struct _table_680x0 table_680x0[] =
 {
   { "clr", 0x4200, 0xff00, OP_SINGLE_EA }, // (no immediate extra data)
   { "neg", 0x4400, 0xff00, OP_SINGLE_EA },
+  { "negx", 0x4000, 0xff00, OP_SINGLE_EA },
   { "tst", 0x4a00, 0xff00, OP_SINGLE_EA },
+  { "jmp", 0x4ec0, 0xffc0, OP_SINGLE_EA_NO_SIZE },
+  { "pea", 0x4840, 0xffc0, OP_SINGLE_EA_NO_SIZE },
   { "ori", 0x0000, 0xff00, OP_IMMEDIATE },  // 0
   { "andi", 0x0200, 0xff00, OP_IMMEDIATE }, // 2
   { "subi", 0x0400, 0xff00, OP_IMMEDIATE }, // 4
@@ -29,6 +32,14 @@ struct _table_680x0 table_680x0[] =
   { "asr", 0xe0c0, 0xffc0, OP_SHIFT_EA },
   { "asl", 0xe100, 0xf118, OP_SHIFT },
   { "asr", 0xe000, 0xf118, OP_SHIFT },
+  { "lsl", 0xe3c0, 0xffc0, OP_SHIFT_EA },
+  { "lsr", 0xe2c0, 0xffc0, OP_SHIFT_EA },
+  { "lsl", 0xe108, 0xf118, OP_SHIFT },
+  { "lsr", 0xe008, 0xf118, OP_SHIFT },
+  { "rol", 0xe7c0, 0xffc0, OP_SHIFT_EA },
+  { "ror", 0xe6c0, 0xffc0, OP_SHIFT_EA },
+  { "rol", 0xe118, 0xf118, OP_SHIFT },
+  { "ror", 0xe018, 0xf118, OP_SHIFT },
 };
 
 char *table_680x0_condition_codes[] =
@@ -64,34 +75,17 @@ struct _table_680x0_quick *table_680x0_quick[]
 // 4 op, 3 reg, 1 dir, 2 size, 6 EA(mode/reg)
 table_680x0_alu[]
 {
-  "OR",    // 1   dir=<ea>+Dn->Dn, Dn+<ea>-><ea>
-  "LEA",   // 4   dir=1,size=11
-  "DIVS",  // 8   dir=1,size=11
-  "DIVU",  // 8   dir=0,size=11
-  "SUB",   // 9   dir=<ea>+Dn->Dn, Dn+<ea>-><ea>
-  "CMP",   // 11  dir=0
-  "EOR",   // 11  dir=1
-  "MULS",  // 12  dir=1,size=11
-  "MULU",  // 12  dir=0,size=11
-  "AND",   // 12  dir=<ea>^Dn->Dn, Dn^<ea>-><ea>
-  "ADD",   // 13  dir=<ea>^Dn->Dn, Dn^<ea>-><ea>
-  "ASR",   // 14  dir=0 size=11  REVIEW (this is memory only)
-  "ASL",   // 14  dir=1 size=11  REVIEW
-  "LSR",   // 14  dir=0
-  "LSL",   // 14  dir=1
-  "ROR",   // 15  dir=0 size=11  REVIEW
-  "ROL",   // 15  dir=1 size=11  REVIEW
-};
-
-// 8 op, 2 size, 6 EA(mode/reg)  [16/8] [32]
-table_680x0_alui[]
-{
-  "ORI",   // 0
-  "ANDI",  // 2
-  "SUBI",  // 4
-  "ADDI",  // 6
-  "EORI",  // 9
-  "CMPI",  // 12
+  "or",    // 1   dir=<ea>+Dn->Dn, Dn+<ea>-><ea>
+  "lea",   // 4   dir=1,size=11
+  "divs",  // 8   dir=1,size=11
+  "divu",  // 8   dir=0,size=11
+  "sub",   // 9   dir=<ea>+Dn->Dn, Dn+<ea>-><ea>
+  "cmp",   // 11  dir=0
+  "eor",   // 11  dir=1
+  "muls",  // 12  dir=1,size=11
+  "mulu",  // 12  dir=0,size=11
+  "and",   // 12  dir=<ea>^Dn->Dn, Dn^<ea>-><ea>
+  "add",   // 13  dir=<ea>^Dn->Dn, Dn^<ea>-><ea>
 };
 
 // 4 op, 3 reg, 3 mode, 6 EA(mode/reg)
@@ -119,7 +113,6 @@ CMPM
 DBcc
 EXG
 EXT
-JMP
 JSR
 LINK
 MOVE
@@ -131,7 +124,6 @@ MOVEA
 MOVEM
 MOVEP
 NBCD
-NEGX
 NOT
 PEA
 RESET

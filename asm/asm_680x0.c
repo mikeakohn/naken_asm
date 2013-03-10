@@ -65,7 +65,7 @@ static int get_register_d_680x0(char *token)
 static int get_register_a_680x0(char *token)
 {
   if (strcasecmp(token, "sp")==0) return 7;
-  if (token[0]!='d' && token[0]!='D') return -1;
+  if (token[0]!='a' && token[0]!='A') return -1;
   if (token[1]>='0' && token[1]<='7' && token[2]==0)
   {
     return token[1]-'0';
@@ -86,6 +86,26 @@ int write_single_ea(struct _asm_context *asm_context, char *instr, struct _opera
     case OPERAND_A_REG_INDEX_PLUS:
     case OPERAND_A_REG_INDEX_MINUS:
       add_bin(asm_context, opcode|(size<<6)|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
+      return 2;
+    case OPERAND_IMMEDIATE:
+    default:
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+  }
+}
+
+int write_single_ea_no_size(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode)
+{
+  if (operand_count!=1) { return 0; }
+
+  switch(operands[0].type)
+  {
+    case OPERAND_D_REG:
+    case OPERAND_A_REG:
+    case OPERAND_A_REG_INDEX:
+    case OPERAND_A_REG_INDEX_PLUS:
+    case OPERAND_A_REG_INDEX_MINUS:
+      add_bin(asm_context, opcode|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
       return 2;
     case OPERAND_IMMEDIATE:
     default:
@@ -235,7 +255,8 @@ int n;
     if (IS_TOKEN(token,'-'))
     {
       if (expect_token_s(asm_context,"(")!=0) { return -1; }
-      if ((num=get_register_a_680x0(token))!=-1)
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if ((num=get_register_a_680x0(token))==-1)
       {
         print_error_unexp(token, asm_context);
         return -1;
@@ -248,7 +269,8 @@ int n;
       else
     if (IS_TOKEN(token,'('))
     {
-      if ((num=get_register_a_680x0(token))!=-1)
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if ((num=get_register_a_680x0(token))==-1)
       {
         print_error_unexp(token, asm_context);
         return -1;
@@ -386,6 +408,12 @@ printf("\n");
       {
         case OP_SINGLE_EA:
           ret=write_single_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_SINGLE_EA_NO_SIZE:
+          if (operand_size==SIZE_NONE)
+          {
+            ret=write_single_ea_no_size(asm_context, instr, operands, operand_count, table_680x0[n].opcode);
+          }
           break;
         case OP_IMMEDIATE:
           ret=write_immediate(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
