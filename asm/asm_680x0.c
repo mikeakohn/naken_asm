@@ -114,6 +114,49 @@ int write_single_ea_no_size(struct _asm_context *asm_context, char *instr, struc
   }
 }
 
+int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+  if (size==SIZE_NONE) { return 0; }
+
+  struct _operand *ea_operand;
+  int opmode;
+  int reg;
+
+  if (operands[0].type==OPERAND_D_REG)
+  {
+    reg=operands[0].value;
+    ea_operand=&operands[1];
+    opmode=1;
+  }
+    else
+  if (operands[1].type==OPERAND_D_REG)
+  {
+    reg=operands[1].value;
+    ea_operand=&operands[0];
+    opmode=0;
+  }
+    else
+  {
+    return 0;
+  }
+
+  switch(ea_operand->type)
+  {
+    case OPERAND_D_REG:
+    case OPERAND_A_REG:
+    case OPERAND_A_REG_INDEX:
+    case OPERAND_A_REG_INDEX_PLUS:
+    case OPERAND_A_REG_INDEX_MINUS:
+      add_bin(asm_context, opcode|(reg<<9)|(opmode<<8)|(size<<6)|(ea_operand->type<<3)|ea_operand->value, IS_OPCODE);
+      return 2;
+    case OPERAND_IMMEDIATE:
+    default:
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+  }
+}
+
 int write_immediate(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
   if (operand_count!=2) { return 0; }
@@ -426,6 +469,9 @@ printf("\n");
           break;
         case OP_SHIFT:
           ret=write_shift(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_REG_AND_EA:
+          ret=write_reg_and_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

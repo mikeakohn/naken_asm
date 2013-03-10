@@ -7,6 +7,7 @@
 struct _table_680x0_no_operands table_680x0_no_operands[] =
 {
   { "illegal", 0x4afc },
+  { "reset", 0x4e70 },
   { "nop", 0x4e71 },
   { "rtr", 0x4e77 },
   { "rts", 0x4e75 },
@@ -20,8 +21,10 @@ struct _table_680x0 table_680x0[] =
   { "neg", 0x4400, 0xff00, OP_SINGLE_EA },
   { "negx", 0x4000, 0xff00, OP_SINGLE_EA },
   { "tst", 0x4a00, 0xff00, OP_SINGLE_EA },
+  { "not", 0x4600, 0xff00, OP_SINGLE_EA },
   { "jmp", 0x4ec0, 0xffc0, OP_SINGLE_EA_NO_SIZE },
   { "pea", 0x4840, 0xffc0, OP_SINGLE_EA_NO_SIZE },
+  { "nbcd", 0x4800, 0xff00, OP_SINGLE_EA_NO_SIZE },
   { "ori", 0x0000, 0xff00, OP_IMMEDIATE },  // 0
   { "andi", 0x0200, 0xff00, OP_IMMEDIATE }, // 2
   { "subi", 0x0400, 0xff00, OP_IMMEDIATE }, // 4
@@ -40,6 +43,12 @@ struct _table_680x0 table_680x0[] =
   { "ror", 0xe6c0, 0xffc0, OP_SHIFT_EA },
   { "rol", 0xe118, 0xf118, OP_SHIFT },
   { "ror", 0xe018, 0xf118, OP_SHIFT },
+  { "or", 0x8000, 0xf000, OP_REG_AND_EA },
+  { "sub", 0x9000, 0xf000, OP_REG_AND_EA },
+  { "eor", 0xb000, 0xf000, OP_REG_AND_EA },
+  { "and", 0xc000, 0xf000, OP_REG_AND_EA },
+  { "add", 0xd000, 0xf000, OP_REG_AND_EA },
+  { NULL, 0x0000, 0x0000, OP_NONE },
 };
 
 char *table_680x0_condition_codes[] =
@@ -75,17 +84,12 @@ struct _table_680x0_quick *table_680x0_quick[]
 // 4 op, 3 reg, 1 dir, 2 size, 6 EA(mode/reg)
 table_680x0_alu[]
 {
-  "or",    // 1   dir=<ea>+Dn->Dn, Dn+<ea>-><ea>
   "lea",   // 4   dir=1,size=11
   "divs",  // 8   dir=1,size=11
   "divu",  // 8   dir=0,size=11
-  "sub",   // 9   dir=<ea>+Dn->Dn, Dn+<ea>-><ea>
   "cmp",   // 11  dir=0
-  "eor",   // 11  dir=1
   "muls",  // 12  dir=1,size=11
   "mulu",  // 12  dir=0,size=11
-  "and",   // 12  dir=<ea>^Dn->Dn, Dn^<ea>-><ea>
-  "add",   // 13  dir=<ea>^Dn->Dn, Dn^<ea>-><ea>
 };
 
 // 4 op, 3 reg, 3 mode, 6 EA(mode/reg)
@@ -123,10 +127,6 @@ MOVE
 MOVEA
 MOVEM
 MOVEP
-NBCD
-NOT
-PEA
-RESET
 ROXL
 ROXR
 RTE
@@ -136,7 +136,7 @@ STOP
 SUBX
 SWAP
 TAS
-TRAP
+trap
 UNLK
 UNPK
 */

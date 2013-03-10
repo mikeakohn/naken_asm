@@ -22,6 +22,7 @@ enum
   OP_IMMEDIATE,
   OP_SHIFT_EA,
   OP_SHIFT,
+  OP_REG_AND_EA,
 };
 
 struct _table_680x0_no_operands

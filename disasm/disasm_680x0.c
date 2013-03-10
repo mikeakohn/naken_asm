@@ -71,6 +71,8 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
 int opcode;
 char ea[32];
 char size;
+int reg;
+int mode;
 unsigned int immediate;
 //int value;
 int n;
@@ -147,6 +149,20 @@ int n;
             immediate=(opcode>>9)&0x7;
             sprintf(instruction, "%s.%c d%d, d%d", table_680x0[n].instr, size, immediate, opcode&0x7);
           }
+        case OP_REG_AND_EA:
+          get_ea_680x0(ea, opcode, 0);
+          size=get_size_680x0(opcode, 6);
+          reg=(opcode>>9)&0x7;
+          mode=(opcode>>8)&0x1;
+          if (mode==0)
+          {
+            sprintf(instruction, "%s.%c %s, d%d", table_680x0[n].instr, size, ea, reg);
+          }
+            else
+          {
+            sprintf(instruction, "%s.%c d%d, %s", table_680x0[n].instr, size, reg, ea);
+          }
+          return 2;
         default:
           return -1;
       }
