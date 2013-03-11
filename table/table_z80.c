@@ -13,11 +13,18 @@ struct _table_z80 table_z80[] =
   { "ld", 0x78, 0xf8, OP_A_REG8 },
   { "sbc", 0x98, 0xf8, OP_A_REG8 },
 
+  { "adc", 0xdd8c, 0xdffe, OP_A_REG_IHALF },
+  { "add", 0xdd84, 0xdffe, OP_A_REG_IHALF },
+  { "ld", 0xdd5c, 0xdffe, OP_A_REG_IHALF },
+  { "sbc", 0xdd9c, 0xdffe, OP_A_REG_IHALF },
+
   { "and", 0xa0, 0xf8, OP_REG8 },
   { "cp", 0xb8, 0xf8, OP_REG8 },
   { "or", 0xb0, 0xf8, OP_REG8 },
   { "sub", 0x90, 0xf8, OP_REG8 },
   { "xor", 0xa8, 0xf8, OP_REG8 },
+
+
 
   { "rl", 0xcb10, 0xfff8, OP_REG8_CB },
   { "rlc", 0xcb00, 0xfff8, OP_REG8_CB },

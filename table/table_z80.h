@@ -19,6 +19,7 @@ enum
   OP_NONE,
   OP_A_REG8,
   OP_REG8,
+  OP_A_REG_IHALF,
   OP_REG8_CB,
 };
 

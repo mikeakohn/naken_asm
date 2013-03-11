@@ -35,5 +35,10 @@ main:
   and  l             ; A5
   and  (hl)          ; A6
 
+  sbc  a,ixh         ; DD 9C
+  sbc  a,ixl         ; DD 9D
+  sbc  a,iyh         ; FD 9C
+  sbc  a,iyl         ; FD 9D
+
 
 

@@ -26,6 +26,7 @@ enum
   OPERAND_NONE,
   OPERAND_NUMBER,
   OPERAND_REG8,
+  OPERAND_REG_IHALF,
 };
 
 enum
@@ -38,6 +39,14 @@ enum
   REG_L,
   REG_INDEX_HL,
   REG_A=7,
+};
+
+enum
+{
+  REG_IXH=0,
+  REG_IXL,
+  REG_IYH,
+  REG_IYL,
 };
 
 struct _operand
@@ -116,6 +125,30 @@ int n;
       operands[operand_count].value=REG_L;
     }
       else
+    if (strcasecmp(token,"ixh")==0)
+    {
+      operands[operand_count].type=OPERAND_REG_IHALF;
+      operands[operand_count].value=REG_IXH;
+    }
+      else
+    if (strcasecmp(token,"ixl")==0)
+    {
+      operands[operand_count].type=OPERAND_REG_IHALF;
+      operands[operand_count].value=REG_IXL;
+    }
+      else
+    if (strcasecmp(token,"iyh")==0)
+    {
+      operands[operand_count].type=OPERAND_REG_IHALF;
+      operands[operand_count].value=REG_IYH;
+    }
+      else
+    if (strcasecmp(token,"iyl")==0)
+    {
+      operands[operand_count].type=OPERAND_REG_IHALF;
+      operands[operand_count].value=REG_IYL;
+    }
+      else
     if (IS_TOKEN(token,'('))
     {
       token_type=get_token(asm_context, token, TOKENLEN);
@@ -178,7 +211,7 @@ int n;
               operands[0].value==REG_A &&
               operands[1].type==OPERAND_REG8)
           {
-            add_bin(asm_context, table_z80[n].opcode|operands[1].value, IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode|operands[1].value, IS_OPCODE);
             return 1;
           }
           break;
@@ -186,11 +219,23 @@ int n;
           if (operand_count==1 &&
               operands[0].type==OPERAND_REG8)
           {
-            add_bin(asm_context, table_z80[n].opcode|operands[0].value, IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode|operands[0].value, IS_OPCODE);
             return 1;
           }
           break;
-
+        case OP_A_REG_IHALF:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG8 &&
+              operands[0].value==REG_A &&
+              operands[1].type==OPERAND_REG_IHALF)
+          {
+            unsigned char y=(operands[1].value>>1);
+            unsigned char l=(operands[1].value&0x1);
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|(y<<5), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|l, IS_OPCODE);
+            return 2;
+          }
+          break;
       }
     }
     n++;

@@ -18,7 +18,8 @@
 #include "table_z80.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) memory_read_m(memory, a)|(memory_read_m(memory, a+1)<<8)
+//#define READ_RAM16(a) memory_read_m(memory, a)|(memory_read_m(memory, a+1)<<8)
+#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
 int get_cycle_count_z80(unsigned short int opcode)
 {
@@ -31,6 +32,7 @@ int opcode;
 int opcode16;
 int n;
 char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
+char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
 
   *cycles_min=-1;
   *cycles_max=-1;
@@ -41,7 +43,7 @@ char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
   n=0;
   while(table_z80[n].instr!=NULL)
   {
-    if (table_z80[n].opcode==(opcode&0xf8))
+    if (table_z80[n].opcode==(opcode&table_z80[n].mask))
     {
       switch(table_z80[n].type)
       {
@@ -51,6 +53,17 @@ char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
         case OP_REG8:
           sprintf(instruction, "%s %s", table_z80[n].instr, reg8[opcode&0x7]);
           return 1;
+      }
+    }
+      else
+    if (table_z80[n].opcode==(opcode16&table_z80[n].mask))
+    {
+      switch(table_z80[n].type)
+      {
+        case OP_A_REG_IHALF:
+          n=((opcode&0x2000)>>12)|(opcode&1);
+          sprintf(instruction, "%s a,%s", table_z80[n].instr, reg_ihalf[n]);
+          return 2;
       }
     }
     n++;
