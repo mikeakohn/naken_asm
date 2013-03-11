@@ -27,6 +27,7 @@ enum
   OPERAND_NUMBER,
   OPERAND_REG8,
   OPERAND_REG_IHALF,
+  OPERAND_REG16_INDEX,
 };
 
 enum
@@ -47,12 +48,15 @@ enum
   REG_IXL,
   REG_IYH,
   REG_IYL,
+  REG_IX,
+  REG_IY,
 };
 
 struct _operand
 {
   int value;
   int type;
+  int offset;
 };
 
 int parse_instruction_z80(struct _asm_context *asm_context, char *instr)
@@ -158,6 +162,57 @@ int n;
         operands[operand_count].value=REG_INDEX_HL;
       }
         else
+      if (strcasecmp(token, "ix")==0)
+      {
+        operands[operand_count].type=OPERAND_REG16_INDEX;
+        operands[operand_count].value=REG_IX;
+        token_type=get_token(asm_context, token, TOKENLEN);
+        pushback(asm_context, token, token_type);
+        if (IS_NOT_TOKEN(token,')'))
+        {
+          if (eval_expression(asm_context, &num)!=0)
+          {
+            if (asm_context->pass==1)
+            {
+              eat_operand(asm_context);
+              num=0;
+            }
+              else
+            {
+              print_error_illegal_expression(instr, asm_context);
+              return -1;
+            }
+          }
+          operands[operand_count].offset=num;
+        }
+      }
+        else
+      if (strcasecmp(token, "iy")==0)
+      {
+        operands[operand_count].type=OPERAND_REG16_INDEX;
+        operands[operand_count].value=REG_IY;
+
+        token_type=get_token(asm_context, token, TOKENLEN);
+        pushback(asm_context, token, token_type);
+        if (IS_NOT_TOKEN(token,')'))
+        {
+          if (eval_expression(asm_context, &num)!=0)
+          {
+            if (asm_context->pass==1)
+            {
+              eat_operand(asm_context);
+              num=0;
+            }
+              else
+            {
+              print_error_illegal_expression(instr, asm_context);
+              return -1;
+            }
+          }
+          operands[operand_count].offset=num;
+        }
+      }
+        else
       {
         print_error_unexp(token, asm_context);
         return -1;
@@ -234,6 +289,18 @@ int n;
             add_bin8(asm_context, (table_z80[n].opcode>>8)|(y<<5), IS_OPCODE);
             add_bin8(asm_context, (table_z80[n].opcode&0xff)|l, IS_OPCODE);
             return 2;
+          }
+          break;
+        case OP_A_INDEX:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG8 &&
+              operands[0].value==REG_A &&
+              operands[1].type==OPERAND_REG16_INDEX)
+          {
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[1].value&0x1)<<5), IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
+            add_bin8(asm_context, (unsigned char)operands[1].offset, IS_OPCODE);
+            return 3;
           }
           break;
       }

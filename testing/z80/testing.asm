@@ -40,5 +40,11 @@ main:
   sbc  a,iyh         ; FD 9C
   sbc  a,iyl         ; FD 9D
 
+  add  a,(ix+5)      ; DD 86 DIS
+  add  a,(ix-1)      ; DD 86 NDIS
+  add  a,(iy)        ; FD 86 00
+  add  a,(iy+10)     ; FD 86 DIS
+  add  a,(iy-10)     ; FD 86 NDIS
+
 
 

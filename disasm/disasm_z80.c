@@ -64,6 +64,23 @@ char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
           n=((opcode&0x2000)>>12)|(opcode&1);
           sprintf(instruction, "%s a,%s", table_z80[n].instr, reg_ihalf[n]);
           return 2;
+        case OP_A_INDEX:
+          n=((opcode16&0x2000)>>13);
+          char offset=READ_RAM(address+2);
+          if (offset==0)
+          {
+            sprintf(instruction, "%s a,(%s)", table_z80[n].instr, (n==0)?"ix":"iy");
+          }
+            else
+          if (offset>0)
+          {
+            sprintf(instruction, "%s a,(%s+%d)", table_z80[n].instr, (n==0)?"ix":"iy", offset);
+          }
+            else
+          {
+            sprintf(instruction, "%s a,(%s%d)", table_z80[n].instr, (n==0)?"ix":"iy", offset);
+          }
+          return 3;
       }
     }
     n++;
