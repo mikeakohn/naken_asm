@@ -18,7 +18,7 @@
 #include "table_z80.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
-//#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
+#define READ_RAM16(a) memory_read_m(memory, a)|(memory_read_m(memory, a+1)<<8)
 
 int get_cycle_count_z80(unsigned short int opcode)
 {
@@ -28,21 +28,30 @@ int get_cycle_count_z80(unsigned short int opcode)
 int disasm_z80(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
 int opcode;
+int opcode16;
 int n;
-char reg8[] = { 'b','c','d','e','h','?','?','a' };
+char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
 
   *cycles_min=-1;
   *cycles_max=-1;
 
   opcode=READ_RAM(address);
+  opcode16=READ_RAM16(address);
 
   n=0;
-  while(table_z80_a_reg[n].instr!=NULL)
+  while(table_z80[n].instr!=NULL)
   {
-    if (table_z80_a_reg[n].opcode==(opcode&0xf8))
+    if (table_z80[n].opcode==(opcode&0xf8))
     {
-      sprintf(instruction, "%s a,%c", table_z80_a_reg[n].instr, reg8[opcode&0x7]);
-      return 1;
+      switch(table_z80[n].type)
+      {
+        case OP_A_REG8:
+          sprintf(instruction, "%s a,%s", table_z80[n].instr, reg8[opcode&0x7]);
+          return 1;
+        case OP_REG8:
+          sprintf(instruction, "%s %s", table_z80[n].instr, reg8[opcode&0x7]);
+          return 1;
+      }
     }
     n++;
   }

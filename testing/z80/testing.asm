@@ -26,4 +26,14 @@ main:
   ld   a,h           ; 7C
   sbc  a,h           ; 9C
 
+  and  a             ; A7
+  and  b             ; A0
+  and  c             ; A1
+  and  d             ; A2
+  and  e             ; A3
+  and  h             ; A4
+  and  l             ; A5
+  and  (hl)          ; A6
+
+
 

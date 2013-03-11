@@ -17,15 +17,20 @@
 enum
 {
   OP_NONE,
+  OP_A_REG8,
+  OP_REG8,
+  OP_REG8_CB,
 };
 
-struct _table_z80_a_reg
+struct _table_z80
 {
   char *instr;
-  unsigned char opcode;
+  unsigned short int opcode;
+  unsigned short int mask;
+  unsigned char type;
 };
 
-extern struct _table_z80_a_reg table_z80_a_reg[];
+extern struct _table_z80 table_z80[];
 
 #endif
 

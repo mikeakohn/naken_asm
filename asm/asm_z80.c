@@ -35,6 +35,8 @@ enum
   REG_D,
   REG_E,
   REG_H,
+  REG_L,
+  REG_INDEX_HL,
   REG_A=7,
 };
 
@@ -108,6 +110,28 @@ int n;
       operands[operand_count].value=REG_H;
     }
       else
+    if (IS_TOKEN(token,'l') || IS_TOKEN(token,'L'))
+    {
+      operands[operand_count].type=OPERAND_REG8;
+      operands[operand_count].value=REG_L;
+    }
+      else
+    if (IS_TOKEN(token,'('))
+    {
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (strcasecmp(token, "hl")==0)
+      {
+        operands[operand_count].type=OPERAND_REG8;
+        operands[operand_count].value=REG_INDEX_HL;
+      }
+        else
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+      if (expect_token_s(asm_context,")")!=0) { return -1; }
+    }
+      else
     {
       pushback(asm_context, token, token_type);
 
@@ -141,18 +165,33 @@ int n;
   // Instruction is parsed, now find matching opcode
 
   n=0;
-  while(table_z80_a_reg[n].instr!=NULL)
+  while(table_z80[n].instr!=NULL)
   {
-    if (strcmp(table_z80_a_reg[n].instr,instr_case)==0)
+    if (strcmp(table_z80[n].instr,instr_case)==0)
     {
-      if (operands[0].type!=OPERAND_REG8 || operands[0].value!=REG_A)
+       matched=1;
+      switch(table_z80[n].type)
       {
-        matched=1;
-        break;
-      }
+        case OP_A_REG8:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG8 &&
+              operands[0].value==REG_A &&
+              operands[1].type==OPERAND_REG8)
+          {
+            add_bin(asm_context, table_z80[n].opcode|operands[1].value, IS_OPCODE);
+            return 1;
+          }
+          break;
+        case OP_REG8:
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_REG8)
+          {
+            add_bin(asm_context, table_z80[n].opcode|operands[0].value, IS_OPCODE);
+            return 1;
+          }
+          break;
 
-      add_bin(asm_context, table_z80_a_reg[n].opcode|operands[1].value, IS_OPCODE);
-      return 1;
+      }
     }
     n++;
   }
