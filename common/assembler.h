@@ -42,7 +42,8 @@ enum
   CPU_TYPE_MIPS,
   CPU_TYPE_STM8,
   CPU_TYPE_TMS1000,
-  CPU_TYPE_TMS1100
+  CPU_TYPE_TMS1100,
+  CPU_TYPE_Z80
 };
 
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);

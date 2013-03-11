@@ -71,6 +71,12 @@ int n;
     token_type=get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) { break; }
 
+    if (operand_count>=3)
+    {
+      print_error_opcount(instr, asm_context);
+      return -1;
+    }
+
     if (token_type==TOKEN_POUND)
     {
       operands[operand_count].type=OPERAND_NUM8;

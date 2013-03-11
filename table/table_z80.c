@@ -4,9 +4,12 @@
 
 // http://search.cpan.org/~pscust/Asm-Z80-Table-0.02/lib/Asm/Z80/Table.pm
 
-struct _table_z80 table_z80[] =
+struct _table_z80_a_reg table_z80_a_reg[] =
 {
-  //{ "mov", { OP_REG, OP_A, OP_NONE }, 7 }, // 0xFF
-  { NULL, { OP_NONE, OP_NONE, OP_NONE }, 7 }, // 0xFF
+  { "adc", 0x88 },
+  { "add", 0x80 },
+  { "ld", 0x78 },
+  { "sbc", 0x98 },
+  { NULL, 0x00 },
 };
 

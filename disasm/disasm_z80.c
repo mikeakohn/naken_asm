@@ -15,9 +15,9 @@
 
 #include "disasm_common.h"
 #include "disasm_z80.h"
-//#include "table_z80.h"
+#include "table_z80.h"
 
-//#define READ_RAM(a) memory_read_m(memory, a)
+#define READ_RAM(a) memory_read_m(memory, a)
 //#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
 int get_cycle_count_z80(unsigned short int opcode)
@@ -27,10 +27,29 @@ int get_cycle_count_z80(unsigned short int opcode)
 
 int disasm_z80(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
+int opcode;
+int n;
+char reg8[] = { 'b','c','d','e','h','?','?','a' };
+
   *cycles_min=-1;
   *cycles_max=-1;
 
-  return -1;
+  opcode=READ_RAM(address);
+
+  n=0;
+  while(table_z80_a_reg[n].instr!=NULL)
+  {
+    if (table_z80_a_reg[n].opcode==(opcode&0xf8))
+    {
+      sprintf(instruction, "%s a,%c", table_z80_a_reg[n].instr, reg8[opcode&0x7]);
+      return 1;
+    }
+    n++;
+  }
+
+  sprintf(instruction, "???");
+
+  return 1;
 }
 
 void list_output_z80(struct _asm_context *asm_context, int address)

@@ -248,6 +248,12 @@ int n;
       break;
     }
 
+    if (operand_count>=3)
+    {
+      print_error_opcount(instr, asm_context);
+      return -1;
+    }
+
     if (IS_TOKEN(token, '.') && operand_count==0 && operand_size==SIZE_NONE)
     {
       token_type=get_token(asm_context, token, TOKENLEN);

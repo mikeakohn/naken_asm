@@ -19,14 +19,13 @@ enum
   OP_NONE,
 };
 
-struct _table_z80
+struct _table_z80_a_reg
 {
-  char *name;
-  char op[3];
-  char range;   // range of register or page (r0, r1, r2 etc)
+  char *instr;
+  unsigned char opcode;
 };
 
-extern struct _table_z80 table_z80[];
+extern struct _table_z80_a_reg table_z80_a_reg[];
 
 #endif
 

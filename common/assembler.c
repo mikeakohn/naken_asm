@@ -25,6 +25,7 @@
 #include "asm_msp430.h"
 #include "asm_stm8.h"
 #include "asm_tms1000.h"
+#include "asm_z80.h"
 #include "assembler.h"
 #include "disasm_65xx.h"
 #include "disasm_680x.h"
@@ -37,6 +38,7 @@
 #include "disasm_805x.h"
 #include "disasm_stm8.h"
 #include "disasm_tms1000.h"
+#include "disasm_z80.h"
 #include "eval_expression.h"
 #include "get_tokens.h"
 #include "ifdef_expression.h"
@@ -850,6 +852,17 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->parse_instruction=parse_instruction_tms1100;
     asm_context->list_output=list_output_tms1100;
     asm_context->cpu_type=CPU_TYPE_TMS1100;
+    return 1;
+  }
+    else
+#endif
+#ifdef ENABLE_STM8
+  if (strcasecmp(token, "z80")==0)
+  {
+    asm_context->parse_instruction=parse_instruction_z80;
+    asm_context->list_output=list_output_z80;
+    asm_context->cpu_type=CPU_TYPE_Z80;
+    //asm_context->is_dollar_hex=1;
     return 1;
   }
     else
