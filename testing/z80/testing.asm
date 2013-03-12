@@ -60,4 +60,8 @@ main:
   adc  hl,hl         ; ED 6A
   adc  hl,sp         ; ED 7A
 
+  ccf                ; 3F
+  reti               ; ED 4D
+  ret                ; C9
+
 

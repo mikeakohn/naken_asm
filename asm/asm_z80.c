@@ -293,6 +293,19 @@ int n;
        matched=1;
       switch(table_z80[n].type)
       {
+        case OP_NONE:
+          if (operand_count==0)
+          {
+            add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
+            return 1;
+          }
+        case OP_NONE16:
+          if (operand_count==0)
+          {
+            add_bin8(asm_context, table_z80[n].opcode>>8, IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
+            return 2;
+          }
         case OP_A_REG8:
           if (operand_count==2 &&
               operands[0].type==OPERAND_REG8 &&

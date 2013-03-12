@@ -48,6 +48,9 @@ char *reg16[] = { "bc","de","hl","sp" };
     {
       switch(table_z80[n].type)
       {
+        case OP_NONE:
+          sprintf(instruction, "%s", table_z80[n].instr);
+          return 1;
         case OP_A_REG8:
           sprintf(instruction, "%s a,%s", table_z80[n].instr, reg8[opcode&0x7]);
           return 1;
@@ -67,6 +70,9 @@ char *reg16[] = { "bc","de","hl","sp" };
     {
       switch(table_z80[n].type)
       {
+        case OP_NONE16:
+          sprintf(instruction, "%s", table_z80[n].instr);
+          return 2;
         case OP_A_REG_IHALF:
           n=((opcode&0x2000)>>12)|(opcode&1);
           sprintf(instruction, "%s a,%s", table_z80[n].instr, reg_ihalf[n]);
