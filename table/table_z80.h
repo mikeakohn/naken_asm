@@ -21,7 +21,10 @@ enum
   OP_REG8,
   OP_A_REG_IHALF,
   OP_A_INDEX,
+  OP_A_NUMBER8,
   OP_REG8_CB,
+  OP_HL_REG16_1,
+  OP_HL_REG16_2,
 };
 
 struct _table_z80

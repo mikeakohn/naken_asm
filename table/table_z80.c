@@ -20,8 +20,17 @@ struct _table_z80 table_z80[] =
 
   { "adc", 0xdd8e, 0xdfff, OP_A_INDEX },
   { "add", 0xdd86, 0xdfff, OP_A_INDEX },
-  //{ "ld", 0xdd5c, 0xdfff, OP_A_INDEX },
+  { "ld", 0xdd7e, 0xdfff, OP_A_INDEX },
   { "sbc", 0xdd9e, 0xdfff, OP_A_INDEX },
+
+  { "adc", 0xce, 0xff, OP_A_NUMBER8 },
+  { "add", 0xc6, 0xff, OP_A_NUMBER8 },
+  { "ld", 0x3d, 0xff, OP_A_NUMBER8 },
+  { "sbc", 0xde, 0xff, OP_A_NUMBER8 },
+
+  { "adc", 0xed4a, 0xffcf, OP_HL_REG16_2 },
+  { "add", 0x09, 0xcf, OP_HL_REG16_1 },
+  { "sbc", 0xed42, 0xffcf, OP_HL_REG16_2 },
 
   { "and", 0xa0, 0xf8, OP_REG8 },
   { "cp", 0xb8, 0xf8, OP_REG8 },

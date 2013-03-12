@@ -46,5 +46,18 @@ main:
   add  a,(iy+10)     ; FD 86 DIS
   add  a,(iy-10)     ; FD 86 NDIS
 
+  sbc  a,5           ; DE N
+  sbc  hl,bc         ; ED 42
+  sbc  hl,de         ; ED 52
+  sbc  hl,hl         ; ED 62
+  sbc  hl,sp         ; ED 72
+  add  hl,bc         ; 09
+  add  hl,de         ; 19
+  add  hl,hl         ; 29
+  add  hl,sp         ; 39
+  adc  hl,bc         ; ED 4A
+  adc  hl,de         ; ED 5A
+  adc  hl,hl         ; ED 6A
+  adc  hl,sp         ; ED 7A
 
 

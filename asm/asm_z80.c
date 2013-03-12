@@ -27,7 +27,8 @@ enum
   OPERAND_NUMBER,
   OPERAND_REG8,
   OPERAND_REG_IHALF,
-  OPERAND_REG16_INDEX,
+  OPERAND_REG16_XY,
+  OPERAND_REG16,
 };
 
 enum
@@ -50,6 +51,14 @@ enum
   REG_IYL,
   REG_IX,
   REG_IY,
+};
+
+enum
+{
+  REG_BC=0,
+  REG_DE,
+  REG_HL,
+  REG_SP,
 };
 
 struct _operand
@@ -153,6 +162,30 @@ int n;
       operands[operand_count].value=REG_IYL;
     }
       else
+    if (strcasecmp(token,"bc")==0)
+    {
+      operands[operand_count].type=OPERAND_REG16;
+      operands[operand_count].value=REG_BC;
+    }
+      else
+    if (strcasecmp(token,"de")==0)
+    {
+      operands[operand_count].type=OPERAND_REG16;
+      operands[operand_count].value=REG_DE;
+    }
+      else
+    if (strcasecmp(token,"hl")==0)
+    {
+      operands[operand_count].type=OPERAND_REG16;
+      operands[operand_count].value=REG_HL;
+    }
+      else
+    if (strcasecmp(token,"sp")==0)
+    {
+      operands[operand_count].type=OPERAND_REG16;
+      operands[operand_count].value=REG_SP;
+    }
+      else
     if (IS_TOKEN(token,'('))
     {
       token_type=get_token(asm_context, token, TOKENLEN);
@@ -164,7 +197,7 @@ int n;
         else
       if (strcasecmp(token, "ix")==0)
       {
-        operands[operand_count].type=OPERAND_REG16_INDEX;
+        operands[operand_count].type=OPERAND_REG16_XY;
         operands[operand_count].value=REG_IX;
         token_type=get_token(asm_context, token, TOKENLEN);
         pushback(asm_context, token, token_type);
@@ -189,7 +222,7 @@ int n;
         else
       if (strcasecmp(token, "iy")==0)
       {
-        operands[operand_count].type=OPERAND_REG16_INDEX;
+        operands[operand_count].type=OPERAND_REG16_XY;
         operands[operand_count].value=REG_IY;
 
         token_type=get_token(asm_context, token, TOKENLEN);
@@ -295,7 +328,7 @@ int n;
           if (operand_count==2 &&
               operands[0].type==OPERAND_REG8 &&
               operands[0].value==REG_A &&
-              operands[1].type==OPERAND_REG16_INDEX)
+              operands[1].type==OPERAND_REG16_XY)
           {
             add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[1].value&0x1)<<5), IS_OPCODE);
             add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
@@ -303,6 +336,41 @@ int n;
             return 3;
           }
           break;
+        case OP_A_NUMBER8:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG8 &&
+              operands[0].value==REG_A &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            if (operands[1].value<-128 || operands[1].value>127)
+            {
+              print_error_range("Constant", -128, 127, asm_context);
+              return -1;
+            }
+            add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, (unsigned char)operands[1].value, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_HL_REG16_1:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG16 &&
+              operands[0].value==REG_HL &&
+              operands[1].type==OPERAND_REG16)
+          {
+            add_bin8(asm_context, table_z80[n].opcode|(operands[1].value<<4), IS_OPCODE);
+            return 1;
+          }
+        case OP_HL_REG16_2:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG16 &&
+              operands[0].value==REG_HL &&
+              operands[1].type==OPERAND_REG16)
+          {
+            add_bin8(asm_context, table_z80[n].opcode>>8, IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|(operands[1].value<<4), IS_OPCODE);
+            return 2;
+          }
       }
     }
     n++;
@@ -310,7 +378,7 @@ int n;
 
   if (matched==1)
   {
-    printf("Error: Unknown flag/operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+    printf("Error: Unknown operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
   }
     else
   {

@@ -33,6 +33,7 @@ int opcode16;
 int n;
 char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
 char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
+char *reg16[] = { "bc","de","hl","sp" };
 
   *cycles_min=-1;
   *cycles_max=-1;
@@ -52,6 +53,12 @@ char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
           return 1;
         case OP_REG8:
           sprintf(instruction, "%s %s", table_z80[n].instr, reg8[opcode&0x7]);
+          return 1;
+        case OP_A_NUMBER8:
+          sprintf(instruction, "%s a,%d", table_z80[n].instr, READ_RAM(address+1));
+          return 1;
+        case OP_HL_REG16_1:
+          sprintf(instruction, "%s hl,%s", table_z80[n].instr, reg16[(opcode>>4)&0x3]);
           return 1;
       }
     }
@@ -81,6 +88,9 @@ char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
             sprintf(instruction, "%s a,(%s%d)", table_z80[n].instr, (n==0)?"ix":"iy", offset);
           }
           return 3;
+        case OP_HL_REG16_2:
+          sprintf(instruction, "%s hl,%s", table_z80[n].instr, reg16[(opcode16>>4)&0x3]);
+          return 2;
       }
     }
     n++;
