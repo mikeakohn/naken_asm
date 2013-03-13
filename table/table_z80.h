@@ -18,6 +18,7 @@ enum
 {
   OP_NONE,
   OP_NONE16,
+  OP_NONE24,
   OP_A_REG8,
   OP_REG8,
   OP_A_REG_IHALF,
@@ -26,6 +27,12 @@ enum
   OP_REG8_CB,
   OP_HL_REG16_1,
   OP_HL_REG16_2,
+  OP_XY_REG16,
+  OP_A_INDEX_HL,
+  OP_INDEX_HL,
+  OP_NUMBER8,
+  OP_REG_IHALF,
+  OP_INDEX,
 };
 
 struct _table_z80
@@ -34,6 +41,7 @@ struct _table_z80
   unsigned short int opcode;
   unsigned short int mask;
   unsigned char type;
+  unsigned char cycles;
 };
 
 extern struct _table_z80 table_z80[];

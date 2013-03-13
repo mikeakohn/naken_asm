@@ -35,6 +35,27 @@ main:
   and  l             ; A5
   and  (hl)          ; A6
 
+  and  ixh           ; DD A4
+  and  ixl           ; DD A5
+  and  iyh           ; FD A4
+  and  iyl           ; FD A5
+
+  and  7             ; E6 N
+
+  and  (ix+5)          ; DD A6 00
+  and  (iy)          ; FD A6 00
+
+
+
+  add  ix,bc         ; DD 09
+  add  ix,de         ; DD 19
+  add  ix,ix         ; DD 29
+  add  ix,sp         ; DD 39
+  add  iy,bc         ; FD 09
+  add  iy,de         ; FD 19
+  add  iy,iy         ; FD 29
+  add  iy,sp         ; FD 39
+
   sbc  a,ixh         ; DD 9C
   sbc  a,ixl         ; DD 9D
   sbc  a,iyh         ; FD 9C
@@ -63,5 +84,10 @@ main:
   ccf                ; 3F
   reti               ; ED 4D
   ret                ; C9
+  stop               ; DD DD 00
 
+  adc  a,(hl)        ; 8E
+
+  sub  (hl)          ; 96
+  sub  5             ; D6 N
 
