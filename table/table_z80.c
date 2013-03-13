@@ -29,6 +29,10 @@ struct _table_z80 table_z80[] =
   { "and", 0xc6, 0xff, OP_INDEX_HL, 7 },
   { "and", 0xdda6, 0xdfff, OP_INDEX, 19 },
 
+  { "bit", 0xcb40, 0xffc0, OP_BIT_REG8, 8 },
+  { "bit", 0xcb46, 0xffc7, OP_BIT_INDEX_HL, 12 },
+  { "bit", 0xddcb, 0xdfff, OP_BIT_INDEX, 20 },
+
   { "ccf", 0x3f, 0xff, OP_NONE, 4 },
 
   { "ld", 0x78, 0xf8, OP_A_REG8 },
@@ -57,8 +61,8 @@ struct _table_z80 table_z80[] =
   { "ldi", 0xeda0, 0xffff, OP_NONE16 },
   { "ldd", 0xeda8, 0xffff, OP_NONE16 },
   { "neg", 0xed44, 0xffff, OP_NONE16 },
-  { "ind", 0xedaa, 0xffff, OP_NONE16 },
-  { "indr", 0xedba, 0xffff, OP_NONE16 },
+  { "ind", 0xedaa, 0xffff, OP_NONE16, 16 },
+  { "indr", 0xedba, 0xffff, OP_NONE16, 16, 5 },
   { "ini", 0xeda2, 0xffff, OP_NONE16 },
   { "inir", 0xedb2, 0xffff, OP_NONE16 },
   { "cpd", 0xeda9, 0xffff, OP_NONE16 },

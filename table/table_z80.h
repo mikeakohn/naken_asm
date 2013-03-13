@@ -33,6 +33,9 @@ enum
   OP_NUMBER8,
   OP_REG_IHALF,
   OP_INDEX,
+  OP_BIT_REG8,
+  OP_BIT_INDEX_HL,
+  OP_BIT_INDEX,
 };
 
 struct _table_z80
@@ -41,7 +44,8 @@ struct _table_z80
   unsigned short int opcode;
   unsigned short int mask;
   unsigned char type;
-  unsigned char cycles;
+  unsigned char cycles:5;
+  unsigned char cycles_max:3; // add these 3 bits to cycles for max
 };
 
 extern struct _table_z80 table_z80[];

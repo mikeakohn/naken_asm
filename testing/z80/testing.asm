@@ -91,3 +91,12 @@ main:
   sub  (hl)          ; 96
   sub  5             ; D6 N
 
+  ind                ; ED AA
+  indr               ; ED BA
+
+  bit  6,l           ; CB 75
+  bit  7,(hl)        ; CB 7E
+  bit  7,(ix)        ; DD CB 00 7E
+  bit  7,(ix+5)      ; DD CB DIS 7E
+
+

@@ -480,6 +480,39 @@ int n;
             return 3;
           }
           break;
+        case OP_BIT_REG8:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_NUMBER &&
+              operands[1].type==OPERAND_REG8)
+          {
+            add_bin8(asm_context, table_z80[n].opcode>>8, IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|(operands[0].value<<3)|operands[1].value, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_BIT_INDEX_HL:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_NUMBER &&
+              operands[1].type==OPERAND_REG8 &&
+              operands[1].value==REG_INDEX_HL)
+          {
+            add_bin8(asm_context, table_z80[n].opcode>>8, IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|(operands[0].value<<3), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_BIT_INDEX:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_NUMBER &&
+              operands[1].type==OPERAND_INDEX_REG16_XY)
+          {
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[1].value&0x1)<<5), IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
+            add_bin8(asm_context, (unsigned char)operands[1].offset, IS_OPCODE);
+            add_bin8(asm_context, 0x40|(operands[0].value<<3), IS_OPCODE);
+            return 4;
+          }
+          break;
       }
     }
     n++;

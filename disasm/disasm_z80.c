@@ -30,10 +30,11 @@ int disasm_z80(struct _memory *memory, int address, char *instruction, int *cycl
 {
 int opcode;
 int opcode16;
-int n,r;
+int n,r,i;
 char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
 char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
 char *reg16[] = { "bc","de","hl","sp" };
+char *reg_xy[] = { "ix","iy" };
 char offset;
 
   *cycles_min=-1;
@@ -48,7 +49,7 @@ char offset;
     if (table_z80[n].opcode==(opcode&table_z80[n].mask))
     {
       *cycles_min=table_z80[n].cycles;
-      *cycles_max=table_z80[n].cycles;
+      *cycles_max=table_z80[n].cycles+table_z80[n].cycles_max;
 
       switch(table_z80[n].type)
       {
@@ -82,7 +83,7 @@ char offset;
     if (table_z80[n].opcode==(opcode16&table_z80[n].mask))
     {
       *cycles_min=table_z80[n].cycles;
-      *cycles_max=table_z80[n].cycles;
+      *cycles_max=table_z80[n].cycles+table_z80[n].cycles_max;
 
       switch(table_z80[n].type)
       {
@@ -101,20 +102,20 @@ char offset;
           sprintf(instruction, "%s a,%s", table_z80[n].instr, reg_ihalf[r]);
           return 2;
         case OP_A_INDEX:
-          r=((opcode16&0x2000)>>13);
+          r=((opcode16&0x2000)>>13)&0x1;
           offset=READ_RAM(address+2);
           if (offset==0)
           {
-            sprintf(instruction, "%s a,(%s)", table_z80[n].instr, (r==0)?"ix":"iy");
+            sprintf(instruction, "%s a,(%s)", table_z80[n].instr, reg_xy[r]);
           }
             else
           if (offset>0)
           {
-            sprintf(instruction, "%s a,(%s+%d)", table_z80[n].instr, (n==0)?"ix":"iy", offset);
+            sprintf(instruction, "%s a,(%s+%d)", table_z80[n].instr, reg_xy[r], offset);
           }
             else
           {
-            sprintf(instruction, "%s a,(%s%d)", table_z80[n].instr, (n==0)?"ix":"iy", offset);
+            sprintf(instruction, "%s a,(%s%d)", table_z80[n].instr, reg_xy[r], offset);
           }
           return 3;
         case OP_HL_REG16_2:
@@ -143,18 +144,50 @@ char offset;
           offset=READ_RAM(address+2);
           if (offset==0)
           {
-            sprintf(instruction, "%s (%s)", table_z80[n].instr, (r==0)?"ix":"iy");
+            sprintf(instruction, "%s (%s)", table_z80[n].instr, reg_xy[r]);
           }
             else
           if (offset>0)
           {
-            sprintf(instruction, "%s (%s+%d)", table_z80[n].instr, (n==0)?"ix":"iy", offset);
+            sprintf(instruction, "%s (%s+%d)", table_z80[n].instr, reg_xy[r], offset);
           }
             else
           {
-            sprintf(instruction, "%s (%s%d)", table_z80[n].instr, (n==0)?"ix":"iy", offset);
+            sprintf(instruction, "%s (%s%d)", table_z80[n].instr, reg_xy[r], offset);
           }
           return 3;
+        case OP_BIT_REG8:
+          r=opcode16&0x7;
+          i=(opcode16>>3)&0x7;
+          sprintf(instruction, "%s %d,%s", table_z80[n].instr, i, reg8[r]);
+          return 2;
+        case OP_BIT_INDEX_HL:
+          i=(opcode16>>3)&0x7;
+          sprintf(instruction, "%s %d,(hl)", table_z80[n].instr, i);
+          return 2;
+        case OP_BIT_INDEX:
+          r=(opcode16>>13)&0x1;
+          offset=READ_RAM(address+2);
+          i=READ_RAM(address+3);
+          if ((i>>6)==1)
+          {
+            i=(i>>3)&0x7;
+            if (offset==0)
+            {
+              sprintf(instruction, "%s %d,(%s)", table_z80[n].instr, i, reg_xy[r]);
+            }
+              else
+            if (offset>0)
+            {
+              sprintf(instruction, "%s %d,(%s+%d)", table_z80[n].instr, i, reg_xy[r], offset);
+            }
+              else
+            {
+              sprintf(instruction, "%s %d,(%s%d)", table_z80[n].instr, i, reg_xy[r], offset);
+            }
+            return 4;
+          }
+          break;
       }
     }
     n++;
@@ -169,7 +202,7 @@ void list_output_z80(struct _asm_context *asm_context, int address)
 {
 int cycles_min,cycles_max;
 char instruction[128];
-char bytes[10];
+char bytes[16];
 int count;
 int n;
 //unsigned int opcode=memory_read_m(&asm_context->memory, address);
