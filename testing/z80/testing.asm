@@ -99,4 +99,45 @@ main:
   bit  7,(ix)        ; DD CB 00 7E
   bit  7,(ix+5)      ; DD CB DIS 7E
 
+  call 0x1000        ; CD NNl NNh
+  call c,0x1000      ; DC NNl NNh
+  call m,0x1000      ; FC NNl NNh
+  call nc,0x1000     ; D4 NNl NNh
+  call nz,0x1000     ; C4 NNl NNh
+  call p,0x1000      ; F4 NNl NNh
+  call pe,0x1000     ; EC NNl NNh
+  call po,0x1000     ; E4 NNl NNh
+  call z,0x1000      ; CC NNl NNh
+
+  dec  (hl)          ; 35
+  dec  (ix)          ; DD 35 00
+  dec  (ix+5)      ; DD 35 DIS
+  dec  (ix-5)     ; DD 35 NDIS
+  dec  (iy)          ; FD 35 00
+  dec  (iy+7)      ; FD 35 DIS
+  dec  (iy-7)     ; FD 35 NDIS
+
+  dec  a             ; 3D
+  dec  b             ; 05
+  dec  c             ; 0D
+  dec  d             ; 15
+  dec  e             ; 1D
+  dec  h             ; 25
+  dec  l             ; 2D
+
+
+  dec  bc            ; 0B
+  dec  de            ; 1B
+  dec  hl            ; 2B
+  dec  sp            ; 3B
+
+  dec  ix            ; DD 2B
+  dec  iy            ; FD 2B
+
+  dec  ixh           ; DD 25
+  dec  ixl           ; DD 2D
+  dec  iyh           ; FD 25
+  dec  iyl           ; FD 2D
+
+
 

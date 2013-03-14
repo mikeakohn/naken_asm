@@ -35,6 +35,7 @@ char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
 char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
 char *reg16[] = { "bc","de","hl","sp" };
 char *reg_xy[] = { "ix","iy" };
+char *cond[] = { "nz","z","nc","c", "po","pe","p","m" };
 char offset;
 
   *cycles_min=-1;
@@ -77,6 +78,21 @@ char offset;
         case OP_NUMBER8:
           sprintf(instruction, "%s %d", table_z80[n].instr, READ_RAM(address+1));
           return 2;
+        case OP_ADDRESS:
+          sprintf(instruction, "%s 0x%04x", table_z80[n].instr, READ_RAM(address+1)|(READ_RAM(address+2)<<8));
+          return 3;
+        case OP_COND_ADDRESS:
+          r=(opcode>>3)&0x7;
+          sprintf(instruction, "%s %s,x0%04x", table_z80[n].instr, cond[r], READ_RAM(address+1)|(READ_RAM(address+2)<<8));
+          return 3;
+        case OP_REG8_V2:
+          r=(opcode>>3)&0x7;
+          sprintf(instruction, "%s %s", table_z80[n].instr, reg8[r]);
+          return 1;
+        case OP_REG16:
+          r=(opcode>>4)&0x3;
+          sprintf(instruction, "%s %s", table_z80[n].instr, reg16[r]);
+          return 1;
       }
     }
       else
@@ -188,6 +204,14 @@ char offset;
             return 4;
           }
           break;
+        case OP_REG_IHALF_V2:
+          r=((opcode16&0x2000)>>12)|((opcode16>>3)&1);
+          sprintf(instruction, "%s %s", table_z80[n].instr, reg_ihalf[r]);
+          return 2;
+        case OP_XY:
+          r=(opcode16>>13)&0x1;
+          sprintf(instruction, "%s %s", table_z80[n].instr, reg_xy[r]);
+          return 2;
       }
     }
     n++;

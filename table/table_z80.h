@@ -36,6 +36,12 @@ enum
   OP_BIT_REG8,
   OP_BIT_INDEX_HL,
   OP_BIT_INDEX,
+  OP_ADDRESS,
+  OP_COND_ADDRESS,
+  OP_REG8_V2,
+  OP_REG_IHALF_V2,
+  OP_REG16,
+  OP_XY,
 };
 
 struct _table_z80
