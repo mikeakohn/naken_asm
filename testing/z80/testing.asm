@@ -139,5 +139,48 @@ main:
   dec  iyh           ; FD 25
   dec  iyl           ; FD 2D
 
+  xor  (hl)          ; AE
+  xor  (ix)          ; DD AE 00
+  xor  (ix+5)        ; DD AE DIS
+  xor  (ix-5)        ; DD AE NDIS
+  xor  (iy)          ; FD AE 00
+  xor  (iy+5)        ; FD AE DIS
+  xor  (iy-5)        ; FD AE NDIS
+  xor  7             ; EE N
+  xor  a             ; AF
+  xor  b             ; A8
+  xor  c             ; A9
+  xor  d             ; AA
+  xor  e             ; AB
+  xor  h             ; AC
+  xor  ixh           ; DD AC
+  xor  ixl           ; DD AD
+  xor  iyh           ; FD AC
+  xor  iyl           ; FD AD
+  xor  l             ; AD
 
+
+  sub  (hl)          ; 96
+  sub  (ix)          ; DD 96 00
+  sub  (ix+8)        ; DD 96 DIS
+  sub  (ix-8)        ; DD 96 NDIS
+  sub  (iy)          ; FD 96 00
+  sub  (iy+8)        ; FD 96 DIS
+  sub  (iy-8)        ; FD 96 NDIS
+  sub  9             ; D6 N
+  sub  a             ; 97
+  sub  b             ; 90
+  sub  c             ; 91
+  sub  d             ; 92
+  sub  e             ; 93
+  sub  h             ; 94
+  ;sub  hl,bc         ; B7 ED 42
+  ;sub  hl,de         ; B7 ED 52
+  ;sub  hl,hl         ; B7 ED 62
+  ;sub  hl,sp         ; B7 ED 72
+  sub  ixh           ; DD 94
+  sub  ixl           ; DD 95
+  sub  iyh           ; FD 94
+  sub  iyl           ; FD 95
+  sub  l             ; 95
 
