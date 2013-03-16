@@ -29,10 +29,12 @@ enum
   OPERAND_REG_IHALF,
   OPERAND_INDEX_REG16_XY,
   OPERAND_INDEX_REG16,
+  OPERAND_INDEX_REG8,
   OPERAND_REG16_XY,
-  OPERAND_REG16_SPECIAL,
+  OPERAND_REG_SPECIAL,
   OPERAND_REG16,
   OPERAND_COND,
+  OPERAND_INDEX_NUMBER,
 };
 
 enum
@@ -73,6 +75,7 @@ enum
 {
   REG_AF,
   REG_AF_TICK,
+  REG_F,
 };
 
 struct _operand
@@ -149,10 +152,10 @@ int n;
 
 int get_reg_special(char *token)
 {
-char *reg_special[] = { "af","af'" };
+char *reg_special[] = { "af","af'","f" };
 int n;
 
-  for (n=0; n<2; n++)
+  for (n=0; n<3; n++)
   {
     if (strcasecmp(token, reg_special[n])==0) { return n; }
   }
@@ -197,6 +200,12 @@ int n;
         operands[operand_count].value=n;
       }
         else
+      if ((n=get_reg8(token))!=-1)
+      {
+        operands[operand_count].type=OPERAND_INDEX_REG8;
+        operands[operand_count].value=n;
+      }
+        else
       if ((n=get_reg_index(token))!=-1)
       {
         operands[operand_count].type=OPERAND_INDEX_REG16_XY;
@@ -223,8 +232,26 @@ int n;
       }
         else
       {
-        print_error_unexp(token, asm_context);
-        return -1;
+        pushback(asm_context, token, token_type);
+        if (eval_expression(asm_context, &num)!=0)
+        {
+          if (asm_context->pass==1)
+          {
+            eat_operand(asm_context);
+            num=0;
+          }
+            else
+          {
+            print_error_illegal_expression(instr, asm_context);
+            return -1;
+          }
+        }
+
+        operands[operand_count].type=OPERAND_INDEX_NUMBER;
+        operands[operand_count].value=num;
+
+        //print_error_unexp(token, asm_context);
+        //return -1;
       }
       if (expect_token_s(asm_context,")")!=0) { return -1; }
     }
@@ -255,7 +282,7 @@ int n;
       else
     if ((n=get_reg_special(token))!=-1)
     {
-      operands[operand_count].type=OPERAND_REG16_SPECIAL;
+      operands[operand_count].type=OPERAND_REG_SPECIAL;
       operands[operand_count].value=n;
     }
       else
@@ -273,6 +300,7 @@ int n;
         if (asm_context->pass==1)
         {
           eat_operand(asm_context);
+          num=0;
         }
           else
         {
@@ -293,7 +321,7 @@ int n;
 
     operand_count++;
     token_type=get_token(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL) break;
+    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
     if (IS_NOT_TOKEN(token,',') || operand_count==3)
     {
       print_error_unexp(token, asm_context);
@@ -612,9 +640,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
           break;
         case OP_AF_AF_TICK:
           if (operand_count==2 &&
-              operands[0].type==OPERAND_REG16_SPECIAL &&
+              operands[0].type==OPERAND_REG_SPECIAL &&
               operands[0].value==REG_AF &&
-              operands[1].type==OPERAND_REG16_SPECIAL &&
+              operands[1].type==OPERAND_REG_SPECIAL &&
               operands[1].value==REG_AF_TICK)
           {
             add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
@@ -630,6 +658,61 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
           {
             add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
             return 1;
+          }
+          break;
+        case OP_IM_NUM:
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_NUMBER)
+          {
+            if (operands[0].value<0 || operands[0].value>2)
+            {
+              print_error_range("Constant", 0, 2, asm_context);
+              return -1;
+            }
+            if (operands[0].value!=0) { operands[0].value++; }
+
+            add_bin8(asm_context, table_z80[n].opcode>>8, IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|(operands[0].value<<3), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_A_INDEX_N:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG8 &&
+              operands[0].value==REG_A &&
+              operands[1].type==OPERAND_INDEX_NUMBER)
+          {
+            if (operands[0].value<0 || operands[0].value>255)
+            {
+              print_error_range("Constant", 0, 255, asm_context);
+              return -1;
+            }
+            add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, operands[1].value, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG8_INDEX_C:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG8 &&
+              operands[1].type==OPERAND_INDEX_REG8 &&
+              operands[1].value==REG_C)
+          {
+            add_bin8(asm_context, table_z80[n].opcode>>8, IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|(operands[0].value<<3), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_F_INDEX_C:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG_SPECIAL &&
+              operands[0].value==REG_F &&
+              operands[1].type==OPERAND_INDEX_REG8 &&
+              operands[1].value==REG_C)
+          {
+            add_bin8(asm_context, table_z80[n].opcode>>8, IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff), IS_OPCODE);
+            return 2;
           }
           break;
       }

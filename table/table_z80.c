@@ -66,11 +66,20 @@ struct _table_z80 table_z80[] =
 
   { "halt", 0x76, 0xff, OP_NONE, 4 },
 
-  //{ "inc", 0x38, OP_REG8 },
+  { "im", 0xed46, 0xffc7, OP_IM_NUM, 8 },
+  { "in", 0xdb, 0xff, OP_A_INDEX_N, 11 },
+  { "in", 0xed40, 0xffc7, OP_REG8_INDEX_C, 12 },
+  { "in", 0xed70, 0xffff, OP_F_INDEX_C, 12 },
+  { "inc", 0x04, 0xc7, OP_REG8_V2, 4 },
+  { "inc", 0xdd24, 0xdff7, OP_REG_IHALF_V2, 8 },
+  { "inc", 0x34, 0xff, OP_INDEX_HL, 11 },
+  { "inc", 0xdd34, 0xdfff, OP_INDEX, 23 },
+  { "inc", 0x03, 0xcf, OP_REG16, 6 },
+  { "inc", 0xdd23, 0xdfff, OP_XY, 10 },
   { "ind", 0xedaa, 0xffff, OP_NONE16, 16 },
   { "indr", 0xedba, 0xffff, OP_NONE16, 16, 5 },
-  { "ini", 0xeda2, 0xffff, OP_NONE16 },
-  { "inir", 0xedb2, 0xffff, OP_NONE16 },
+  { "ini", 0xeda2, 0xffff, OP_NONE16, 16 },
+  { "inir", 0xedb2, 0xffff, OP_NONE16, 16, 5 },
 
   { "ld", 0x78, 0xf8, OP_A_REG8 },
   { "ld", 0xdd5c, 0xdffe, OP_A_REG_IHALF },

@@ -192,3 +192,22 @@ main:
   ex   de,hl         ; EB
   exx                ; D9
 
+  im   0             ; ED 46
+  im   1             ; ED 56
+  im   2             ; ED 5E
+
+  in   a,(10)         ; DB N
+  in   a,(c)         ; ED 78
+  in   b,(c)         ; ED 40
+  in   c,(c)         ; ED 48
+  in   d,(c)         ; ED 50
+  in   e,(c)         ; ED 58
+  in   f,(c)         ; ED 70
+  in   h,(c)         ; ED 60
+  in   l,(c)         ; ED 68
+  inc  (hl)          ; 34
+  inc  (ix)          ; DD 34 00
+
+
+
+

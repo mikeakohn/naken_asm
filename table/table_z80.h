@@ -45,7 +45,11 @@ enum
   OP_INDEX_SP_HL,
   OP_INDEX_SP_XY,
   OP_AF_AF_TICK,
-  OP_DE_HL
+  OP_DE_HL,
+  OP_IM_NUM,
+  OP_A_INDEX_N,
+  OP_REG8_INDEX_C,
+  OP_F_INDEX_C,
 };
 
 struct _table_z80
