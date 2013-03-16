@@ -77,8 +77,8 @@ struct _table_z80 table_z80[] =
   { "ldi", 0xeda0, 0xffff, OP_NONE16 },
   { "ldd", 0xeda8, 0xffff, OP_NONE16 },
 
-  { "neg", 0xed44, 0xffff, OP_NONE16 },
-  { "nop", 0x00, 0xff, OP_NONE },
+  { "neg", 0xed44, 0xffff, OP_NONE16, 8 },
+  { "nop", 0x00, 0xff, OP_NONE, 4 },
 
   { "or", 0xb0, 0xf8, OP_REG8 },
   { "otdr", 0xedbb, 0xffff, OP_NONE16 },

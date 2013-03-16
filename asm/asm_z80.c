@@ -51,7 +51,11 @@ enum
   REG_IXL,
   REG_IYH,
   REG_IYL,
-  REG_IX,
+};
+
+enum
+{
+  REG_IX=0,
   REG_IY,
 };
 
@@ -61,6 +65,9 @@ enum
   REG_DE,
   REG_HL,
   REG_SP,
+  REG_INDEX_SP,
+  REG_AF,
+  REG_AF_TICK,
 };
 
 struct _operand
@@ -78,6 +85,58 @@ int n;
   for (n=0; n<8; n++)
   {
     if (strcasecmp(token, cond[n])==0) { return n; }
+  }
+
+  return -1;
+}
+
+int get_reg8(char *token)
+{
+char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
+int n;
+
+  for (n=0; n<8; n++)
+  {
+    if (strcasecmp(token, reg8[n])==0) { return n; }
+  }
+
+  return -1;
+}
+
+int get_reg_ihalf(char *token)
+{
+char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
+int n;
+
+  for (n=0; n<4; n++)
+  {
+    if (strcasecmp(token, reg_ihalf[n])==0) { return n; }
+  }
+
+  return -1;
+}
+
+int get_reg_index(char *token)
+{
+char *reg_index[] = { "ix","iy" };
+int n;
+
+  for (n=0; n<2; n++)
+  {
+    if (strcasecmp(token, reg_index[n])==0) { return n; }
+  }
+
+  return -1;
+}
+
+int get_reg16(char *token)
+{
+char *reg16[] = { "bc","de","hl","sp" };
+int n;
+
+  for (n=0; n<4; n++)
+  {
+    if (strcasecmp(token, reg16[n])==0) { return n; }
   }
 
   return -1;
@@ -111,114 +170,6 @@ int n;
       return -1;
     }
 
-    if (IS_TOKEN(token,'a') || IS_TOKEN(token,'A'))
-    {
-      operands[operand_count].type=OPERAND_REG8;
-      operands[operand_count].value=REG_A;
-    }
-      else
-    if (IS_TOKEN(token,'b') || IS_TOKEN(token,'B'))
-    {
-      operands[operand_count].type=OPERAND_REG8;
-      operands[operand_count].value=REG_B;
-    }
-      else
-    if (IS_TOKEN(token,'c') || IS_TOKEN(token,'C'))
-    {
-      operands[operand_count].type=OPERAND_REG8;
-      operands[operand_count].value=REG_C;
-    }
-      else
-    if (IS_TOKEN(token,'d') || IS_TOKEN(token,'D'))
-    {
-      operands[operand_count].type=OPERAND_REG8;
-      operands[operand_count].value=REG_D;
-    }
-      else
-    if (IS_TOKEN(token,'e') || IS_TOKEN(token,'E'))
-    {
-      operands[operand_count].type=OPERAND_REG8;
-      operands[operand_count].value=REG_E;
-    }
-      else
-    if (IS_TOKEN(token,'h') || IS_TOKEN(token,'H'))
-    {
-      operands[operand_count].type=OPERAND_REG8;
-      operands[operand_count].value=REG_H;
-    }
-      else
-    if (IS_TOKEN(token,'l') || IS_TOKEN(token,'L'))
-    {
-      operands[operand_count].type=OPERAND_REG8;
-      operands[operand_count].value=REG_L;
-    }
-      else
-    if (strcasecmp(token,"ixh")==0)
-    {
-      operands[operand_count].type=OPERAND_REG_IHALF;
-      operands[operand_count].value=REG_IXH;
-    }
-      else
-    if (strcasecmp(token,"ixl")==0)
-    {
-      operands[operand_count].type=OPERAND_REG_IHALF;
-      operands[operand_count].value=REG_IXL;
-    }
-      else
-    if (strcasecmp(token,"iyh")==0)
-    {
-      operands[operand_count].type=OPERAND_REG_IHALF;
-      operands[operand_count].value=REG_IYH;
-    }
-      else
-    if (strcasecmp(token,"iyl")==0)
-    {
-      operands[operand_count].type=OPERAND_REG_IHALF;
-      operands[operand_count].value=REG_IYL;
-    }
-      else
-    if (strcasecmp(token,"ix")==0)
-    {
-      operands[operand_count].type=OPERAND_REG16_XY;
-      operands[operand_count].value=REG_IX;
-    }
-      else
-    if (strcasecmp(token,"iy")==0)
-    {
-      operands[operand_count].type=OPERAND_REG16_XY;
-      operands[operand_count].value=REG_IY;
-    }
-      else
-    if (strcasecmp(token,"bc")==0)
-    {
-      operands[operand_count].type=OPERAND_REG16;
-      operands[operand_count].value=REG_BC;
-    }
-      else
-    if (strcasecmp(token,"de")==0)
-    {
-      operands[operand_count].type=OPERAND_REG16;
-      operands[operand_count].value=REG_DE;
-    }
-      else
-    if (strcasecmp(token,"hl")==0)
-    {
-      operands[operand_count].type=OPERAND_REG16;
-      operands[operand_count].value=REG_HL;
-    }
-      else
-    if (strcasecmp(token,"sp")==0)
-    {
-      operands[operand_count].type=OPERAND_REG16;
-      operands[operand_count].value=REG_SP;
-    }
-      else
-    if ((n=get_cond(token))!=-1)
-    {
-      operands[operand_count].type=OPERAND_COND;
-      operands[operand_count].value=n;
-    }
-      else
     if (IS_TOKEN(token,'('))
     {
       token_type=get_token(asm_context, token, TOKENLEN);
@@ -228,36 +179,16 @@ int n;
         operands[operand_count].value=REG_INDEX_HL;
       }
         else
-      if (strcasecmp(token, "ix")==0)
+      if (strcasecmp(token, "sp")==0)
       {
-        operands[operand_count].type=OPERAND_INDEX_REG16_XY;
-        operands[operand_count].value=REG_IX;
-        token_type=get_token(asm_context, token, TOKENLEN);
-        pushback(asm_context, token, token_type);
-        if (IS_NOT_TOKEN(token,')'))
-        {
-          if (eval_expression(asm_context, &num)!=0)
-          {
-            if (asm_context->pass==1)
-            {
-              eat_operand(asm_context);
-              num=0;
-            }
-              else
-            {
-              print_error_illegal_expression(instr, asm_context);
-              return -1;
-            }
-          }
-          operands[operand_count].offset=num;
-        }
+        operands[operand_count].type=OPERAND_REG8;
+        operands[operand_count].value=REG_INDEX_SP;
       }
         else
-      if (strcasecmp(token, "iy")==0)
+      if ((n=get_reg_index(token))!=-1)
       {
         operands[operand_count].type=OPERAND_INDEX_REG16_XY;
-        operands[operand_count].value=REG_IY;
-
+        operands[operand_count].value=n;
         token_type=get_token(asm_context, token, TOKENLEN);
         pushback(asm_context, token, token_type);
         if (IS_NOT_TOKEN(token,')'))
@@ -284,6 +215,36 @@ int n;
         return -1;
       }
       if (expect_token_s(asm_context,")")!=0) { return -1; }
+    }
+      else
+    if ((n=get_reg8(token))!=-1)
+    {
+      operands[operand_count].type=OPERAND_REG8;
+      operands[operand_count].value=n;
+    }
+      else
+    if ((n=get_reg_ihalf(token))!=-1)
+    {
+      operands[operand_count].type=OPERAND_REG_IHALF;
+      operands[operand_count].value=n;
+    }
+      else
+    if ((n=get_reg16(token))!=-1)
+    {
+      operands[operand_count].type=OPERAND_REG16;
+      operands[operand_count].value=n;
+    }
+      else
+    if ((n=get_reg_index(token))!=-1)
+    {
+      operands[operand_count].type=OPERAND_REG16_XY;
+      operands[operand_count].value=n;
+    }
+      else
+    if ((n=get_cond(token))!=-1)
+    {
+      operands[operand_count].type=OPERAND_COND;
+      operands[operand_count].value=n;
     }
       else
     {
