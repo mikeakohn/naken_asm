@@ -50,6 +50,8 @@ enum
   OP_A_INDEX_N,
   OP_REG8_INDEX_C,
   OP_F_INDEX_C,
+  OP_INDEX_XY,
+  OP_JR_COND_ADDRESS,
 };
 
 struct _table_z80

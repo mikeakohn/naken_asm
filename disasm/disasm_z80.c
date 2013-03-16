@@ -105,6 +105,10 @@ char offset;
         case OP_A_INDEX_N:
           sprintf(instruction, "%s a,(%d)", table_z80[n].instr, READ_RAM(address+1));
           return 2;
+        case OP_JR_COND_ADDRESS:
+          r=(opcode>>3)&0x3;
+          sprintf(instruction, "%s %s,%d", table_z80[n].instr, cond[r],READ_RAM(address+1));
+          return 2;
       }
     }
       else
@@ -239,6 +243,10 @@ char offset;
           return 2;
         case OP_F_INDEX_C:
           sprintf(instruction, "%s f,(c)", table_z80[n].instr);
+          return 2;
+        case OP_INDEX_XY:
+          r=(opcode16>>13)&0x1;
+          sprintf(instruction, "%s (%s)", table_z80[n].instr, reg_xy[r]);
           return 2;
       }
     }

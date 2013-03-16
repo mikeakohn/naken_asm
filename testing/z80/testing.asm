@@ -208,6 +208,29 @@ main:
   inc  (hl)          ; 34
   inc  (ix)          ; DD 34 00
 
+  jp   (hl)          ; E9
+  jp   (ix)          ; DD E9
+  jp   (iy)          ; FD E9
+  jp   10             ; C3 NNl NNh
+  jp   c,10          ; DA NNl NNh
+  jp   m,10          ; FA NNl NNh
+  jp   nc,10         ; D2 NNl NNh
+  jp   nz,10         ; C2 NNl NNh
+  jp   p,10          ; F2 NNl NNh
+  jp   pe,10         ; EA NNl NNh
+  jp   po,10         ; E2 NNl NNh
+  jp   z,10          ; CA NNl NNh
+  jr   10            ; 18 NNo
+  jr   c,10          ; 38 NNo
+  ;jr   m,10          ; FA NNl NNh
+  jr   nc,10         ; 30 NNo
+  jr   nz,10         ; 20 NNo
+  ;jr   p,10          ; F2 NNl NNh
+  ;jr   pe,10         ; EA NNl NNh
+  ;jr   po,10         ; E2 NNl NNh
+  jr   z,10          ; 28 NNo
+
+
 
 
 

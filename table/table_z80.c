@@ -81,6 +81,13 @@ struct _table_z80 table_z80[] =
   { "ini", 0xeda2, 0xffff, OP_NONE16, 16 },
   { "inir", 0xedb2, 0xffff, OP_NONE16, 16, 5 },
 
+  { "jp", 0xc3, 0xff, OP_ADDRESS, 10 },
+  { "jp", 0xc3, 0xff, OP_INDEX_HL, 4 },
+  { "jp", 0xc3, 0xff, OP_INDEX_XY, 8 },
+  { "jp", 0xc2, 0xc7, OP_COND_ADDRESS, 10 },
+  { "jr", 0x18, 0xff, OP_NUMBER8, 12 },
+  { "jr", 0x20, 0xe7, OP_JR_COND_ADDRESS, 7, 5 },
+
   { "ld", 0x78, 0xf8, OP_A_REG8 },
   { "ld", 0xdd5c, 0xdffe, OP_A_REG_IHALF },
   { "ld", 0xdd7e, 0xdfff, OP_A_INDEX },

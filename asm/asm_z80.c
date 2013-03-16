@@ -78,6 +78,18 @@ enum
   REG_F,
 };
 
+enum
+{
+  COND_NZ,
+  COND_Z,
+  COND_NC,
+  COND_C,
+  COND_PO,
+  COND_PE,
+  COND_P,
+  COND_M,
+};
+
 struct _operand
 {
   int value;
@@ -569,7 +581,7 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
               operands[0].value==REG_C)
           {
             operands[0].type=OPERAND_COND;
-            operands[0].value=3;
+            operands[0].value=COND_C;
           }
           if (operand_count==2 &&
               operands[0].type==OPERAND_COND &&
@@ -712,6 +724,37 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
           {
             add_bin8(asm_context, table_z80[n].opcode>>8, IS_OPCODE);
             add_bin8(asm_context, (table_z80[n].opcode&0xff), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_INDEX_XY:
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_INDEX_REG16_XY)
+          {
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[0].value)<<5), IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_JR_COND_ADDRESS:
+          if (operands[0].type==OPERAND_REG8 &&
+              operands[0].value==REG_C)
+          {
+            operands[0].type=OPERAND_COND;
+            operands[0].value=COND_C;
+          }
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_COND &&
+              operands[0].value<4 &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            if (operands[1].value<0 || operands[1].value>255)
+            {
+              print_error_range("Address", 0, 255, asm_context);
+              return -1;
+            }
+            add_bin8(asm_context, table_z80[n].opcode|((operands[0].value)<<3), IS_OPCODE);
+            add_bin8(asm_context, operands[1].value, IS_OPCODE);
             return 2;
           }
           break;
