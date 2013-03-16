@@ -856,12 +856,13 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   }
     else
 #endif
-#ifdef ENABLE_STM8
+#ifdef ENABLE_Z80
   if (strcasecmp(token, "z80")==0)
   {
     asm_context->parse_instruction=parse_instruction_z80;
     asm_context->list_output=list_output_z80;
     asm_context->cpu_type=CPU_TYPE_Z80;
+    asm_context->can_tick_end_string=1;
     //asm_context->is_dollar_hex=1;
     return 1;
   }

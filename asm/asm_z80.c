@@ -28,7 +28,9 @@ enum
   OPERAND_REG8,
   OPERAND_REG_IHALF,
   OPERAND_INDEX_REG16_XY,
+  OPERAND_INDEX_REG16,
   OPERAND_REG16_XY,
+  OPERAND_REG16_SPECIAL,
   OPERAND_REG16,
   OPERAND_COND,
 };
@@ -41,7 +43,7 @@ enum
   REG_E,
   REG_H,
   REG_L,
-  REG_INDEX_HL,
+  REG_INDEX_HL,  // hmmmm?
   REG_A=7,
 };
 
@@ -65,7 +67,10 @@ enum
   REG_DE,
   REG_HL,
   REG_SP,
-  REG_INDEX_SP,
+};
+
+enum
+{
   REG_AF,
   REG_AF_TICK,
 };
@@ -142,6 +147,19 @@ int n;
   return -1;
 }
 
+int get_reg_special(char *token)
+{
+char *reg_special[] = { "af","af'" };
+int n;
+
+  for (n=0; n<2; n++)
+  {
+    if (strcasecmp(token, reg_special[n])==0) { return n; }
+  }
+
+  return -1;
+}
+
 int parse_instruction_z80(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -173,16 +191,10 @@ int n;
     if (IS_TOKEN(token,'('))
     {
       token_type=get_token(asm_context, token, TOKENLEN);
-      if (strcasecmp(token, "hl")==0)
+      if ((n=get_reg16(token))!=-1)
       {
-        operands[operand_count].type=OPERAND_REG8;
-        operands[operand_count].value=REG_INDEX_HL;
-      }
-        else
-      if (strcasecmp(token, "sp")==0)
-      {
-        operands[operand_count].type=OPERAND_REG8;
-        operands[operand_count].value=REG_INDEX_SP;
+        operands[operand_count].type=OPERAND_INDEX_REG16;
+        operands[operand_count].value=n;
       }
         else
       if ((n=get_reg_index(token))!=-1)
@@ -238,6 +250,12 @@ int n;
     if ((n=get_reg_index(token))!=-1)
     {
       operands[operand_count].type=OPERAND_REG16_XY;
+      operands[operand_count].value=n;
+    }
+      else
+    if ((n=get_reg_special(token))!=-1)
+    {
+      operands[operand_count].type=OPERAND_REG16_SPECIAL;
       operands[operand_count].value=n;
     }
       else
@@ -424,7 +442,7 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
           if (operand_count==2 &&
               operands[0].type==OPERAND_REG8 &&
               operands[0].value==REG_A &&
-              operands[1].type==OPERAND_REG16 &&
+              operands[1].type==OPERAND_INDEX_REG16 &&
               operands[1].value==REG_HL)
           {
             add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
@@ -433,8 +451,8 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
           break;
         case OP_INDEX_HL:
           if (operand_count==1 &&
-              operands[0].type==OPERAND_REG16 &&
-              operands[0].value==REG_INDEX_HL)
+              operands[0].type==OPERAND_INDEX_REG16 &&
+              operands[0].value==REG_HL)
           {
             add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
             return 1;
@@ -488,8 +506,8 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
         case OP_BIT_INDEX_HL:
           if (operand_count==2 &&
               operands[0].type==OPERAND_NUMBER &&
-              operands[1].type==OPERAND_REG8 &&
-              operands[1].value==REG_INDEX_HL)
+              operands[1].type==OPERAND_INDEX_REG16 &&
+              operands[1].value==REG_HL)
           {
             add_bin8(asm_context, table_z80[n].opcode>>8, IS_OPCODE);
             add_bin8(asm_context, (table_z80[n].opcode&0xff)|(operands[0].value<<3), IS_OPCODE);
@@ -568,6 +586,50 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             add_bin8(asm_context, (table_z80[n].opcode>>8)|(operands[0].value<<5), IS_OPCODE);
             add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
             return 2;
+          }
+          break;
+        case OP_INDEX_SP_HL:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_INDEX_REG16 &&
+              operands[0].value==REG_SP &&
+              operands[1].type==OPERAND_REG16 &&
+              operands[1].value==REG_HL)
+          {
+            add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
+            return 1;
+          }
+          break;
+        case OP_INDEX_SP_XY:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_INDEX_REG16 &&
+              operands[0].value==REG_SP &&
+              operands[1].type==OPERAND_REG16_XY)
+          {
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|(operands[1].value<<13), IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_AF_AF_TICK:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG16_SPECIAL &&
+              operands[0].value==REG_AF &&
+              operands[1].type==OPERAND_REG16_SPECIAL &&
+              operands[1].value==REG_AF_TICK)
+          {
+            add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
+            return 1;
+          }
+          break;
+        case OP_DE_HL:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG16 &&
+              operands[0].value==REG_DE &&
+              operands[1].type==OPERAND_REG16 &&
+              operands[1].value==REG_HL)
+          {
+            add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
+            return 1;
           }
           break;
       }

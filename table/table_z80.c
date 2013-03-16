@@ -58,6 +58,10 @@ struct _table_z80 table_z80[] =
   { "djnz", 0x10, 0xff, OP_NUMBER8, 8, 5 },
 
   { "ei", 0xfb, 0xff, OP_NONE, 4 },
+  { "ex", 0xe3, 0xff, OP_INDEX_SP_HL, 19 },
+  { "ex", 0xdde3, 0xdfff, OP_INDEX_SP_XY, 23 },
+  { "ex", 0x08, 0xff, OP_AF_AF_TICK, 4 },
+  { "ex", 0xeb, 0xff, OP_DE_HL, 4 },
   { "exx", 0xd9, 0xff, OP_NONE, 4 },
 
   { "halt", 0x76, 0xff, OP_NONE, 4 },

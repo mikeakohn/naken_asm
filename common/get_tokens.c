@@ -165,6 +165,14 @@ char quote=0;
 
     if (ch=='\"' || ch=='\'')
     {
+      if (asm_context->can_tick_end_string &&
+          ch=='\'' &&
+          token_type==TOKEN_STRING)
+      {
+        token[ptr++]=ch;
+        break;
+      }
+
       quote=ch;
       token_type=TOKEN_QUOTED;
       continue;

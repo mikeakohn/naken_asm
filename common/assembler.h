@@ -128,6 +128,7 @@ struct _asm_context
   const char *filename;
   char cpu_type;
   char is_dollar_hex:1;
+  char can_tick_end_string:1;
 };
 
 struct _memory_pool *add_pool(struct _naken_heap *heap, int heap_len);

@@ -184,3 +184,11 @@ main:
   sub  iyl           ; FD 95
   sub  l             ; 95
 
+  ei                 ; FB
+  ex   (sp),hl       ; E3
+  ex   (sp),ix       ; DD E3
+  ex   (sp),iy       ; FD E3
+  ex   af,af'        ; 08
+  ex   de,hl         ; EB
+  exx                ; D9
+

@@ -93,6 +93,15 @@ char offset;
           r=(opcode>>4)&0x3;
           sprintf(instruction, "%s %s", table_z80[n].instr, reg16[r]);
           return 1;
+        case OP_INDEX_SP_HL:
+          sprintf(instruction, "%s (sp),hl", table_z80[n].instr);
+          return 1;
+        case OP_AF_AF_TICK:
+          sprintf(instruction, "%s af,af'", table_z80[n].instr);
+          return 1;
+        case OP_DE_HL:
+          sprintf(instruction, "%s de,hl", table_z80[n].instr);
+          return 1;
       }
     }
       else
@@ -211,6 +220,10 @@ char offset;
         case OP_XY:
           r=(opcode16>>13)&0x1;
           sprintf(instruction, "%s %s", table_z80[n].instr, reg_xy[r]);
+          return 2;
+        case OP_INDEX_SP_XY:
+          r=(opcode16>>13)&0x1;
+          sprintf(instruction, "%s (sp),%s", table_z80[n].instr, reg_xy[r]);
           return 2;
       }
     }

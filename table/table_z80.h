@@ -42,6 +42,10 @@ enum
   OP_REG_IHALF_V2,
   OP_REG16,
   OP_XY,
+  OP_INDEX_SP_HL,
+  OP_INDEX_SP_XY,
+  OP_AF_AF_TICK,
+  OP_DE_HL
 };
 
 struct _table_z80
