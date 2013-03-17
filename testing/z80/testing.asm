@@ -352,4 +352,17 @@ main:
   outd               ; ED AB
   outi               ; ED A3
 
+  push af            ; F5
+  push bc            ; C5
+  push de            ; D5
+  push hl            ; E5
+  push ix            ; DD E5
+  push iy            ; FD E5
+  pop  af            ; F1
+  pop  bc            ; C1
+  pop  de            ; D1
+  pop  hl            ; E1
+  pop  ix            ; DD E1
+  pop  iy            ; FD E1
+
 

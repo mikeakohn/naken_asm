@@ -138,6 +138,11 @@ struct _table_z80 table_z80[] =
   { "outi", 0xeda3, 0xffff, OP_NONE16, 16 },
   { "otir", 0xedb3, 0xffff, OP_NONE16, 16, 5 },
 
+  { "pop", 0xc1, 0xcf, OP_REG16P, 10 },
+  { "pop", 0xdde1, 0xdfff, OP_XY, 14 },
+  { "push", 0xc5, 0xcf, OP_REG16P, 11 },
+  { "push", 0xdde5, 0xdfff, OP_XY, 15 },
+
   { "ret", 0xc9, 0xff, OP_NONE },
   { "rla", 0x17, 0xff, OP_NONE },
   { "rra", 0x1f, 0xff, OP_NONE },

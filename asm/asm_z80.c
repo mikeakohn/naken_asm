@@ -1271,6 +1271,20 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        case OP_REG16P:
+          if (operands[0].type==OPERAND_REG_SPECIAL &&
+              operands[0].value==REG_AF)
+          {
+            operands[0].type=OPERAND_REG16;
+            operands[0].value=REG_SP;
+          }
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_REG16)
+          {
+            add_bin8(asm_context, table_z80[n].opcode|(operands[0].value<<4), IS_OPCODE);
+            return 1;
+          }
+          break;
       }
     }
     n++;

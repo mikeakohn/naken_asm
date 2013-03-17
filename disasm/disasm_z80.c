@@ -24,6 +24,7 @@
 static char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
 static char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
 static char *reg16[] = { "bc","de","hl","sp" };
+static char *reg16_p[] = { "bc","de","hl","af" };
 static char *reg_xy[] = { "ix","iy" };
 static char *cond[] = { "nz","z","nc","c", "po","pe","p","m" };
 
@@ -182,6 +183,10 @@ char disp[64];
         case OP_INDEX_ADDRESS8_A:
           sprintf(instruction, "%s (%d),a", table_z80[n].instr, READ_RAM(address+1));
           return 2;
+        case OP_REG16P:
+          r=(opcode>>4)&0x3;
+          sprintf(instruction, "%s %s", table_z80[n].instr, reg16_p[r]);
+          return 1;
       }
     }
       else
