@@ -251,20 +251,20 @@ main:
   ld   b,e           ; 43
   ld   b,h           ; 44
 
-  ld   a,ixh         ; DD 7C
-  ld   a,ixl         ; DD 7D
-  ld   c,iyh         ; FD 7C
-  ld   a,iyl         ; FD 7D
-  ld   b,ixh         ; DD 44
-  ld   b,ixl         ; DD 45
-  ld   d,iyh         ; FD 44
-  ld   h,iyl         ; FD 45
+  ;ld   a,ixh         ; DD 7C
+  ;ld   a,ixl         ; DD 7D
+  ;ld   c,iyh         ; FD 7C
+  ;ld   a,iyl         ; FD 7D
+  ;ld   b,ixh         ; DD 44
+  ;ld   b,ixl         ; DD 45
+  ;ld   d,iyh         ; FD 44
+  ;ld   h,iyl         ; FD 45
 
-  ld   ixl,a         ; DD 6F
-  ld   ixh,b         ; DD 68
-  ld   iyl,c         ; DD 69
-  ld   iyh,d         ; DD 6A
-  ld   ixl,e         ; DD 6B
+  ;ld   ixl,a         ; DD 6F
+  ;ld   ixh,b         ; DD 68
+  ;ld   iyl,c         ; DD 69
+  ;ld   iyh,d         ; DD 6A
+  ;ld   ixl,e         ; DD 6B
 
   ;ld   ixl,ixh       ; DD 64
   ;ld   ixh,ixl       ; DD 65
@@ -280,6 +280,23 @@ main:
 
   ld   (hl),0x33      ; 36 N
 
+  ld   a,(ix+12)      ; DD 7E DIS
+  ld   b,(ix-11)      ; DD 7E N12
+  ld   c,(iy)         ; FD 7E 00
+  ld   h,(iy+12)      ; FD 7E DIS
+  ld   (hl),(iy-11)   ; FD 7E N12
+
+  ld   (ix+12),a     ; DD 77 DIS
+  ld   (ix+12),b     ; DD 70 DIS
+  ld   (iy-11),a     ; FD 77 N12
+  ld   (iy-11),b     ; FD 70 N12
+  ld   (ix+12),10    ; DD 36 DIS N
+
+  ld   (hl),e        ; 73
+  ld   (hl),h        ; 74
+  ld   (hl),l        ; 75
+  ld   (hl),10       ; 36 N
+
 .if 0
   ld   a,i           ; ED 57
   ld   (10),a        ; 32 NNl NNh
@@ -291,14 +308,10 @@ main:
   ld   (10),sp       ; ED 73 NNl NNh
   ld   (bc),a        ; 02
   ld   (de),a        ; 12
-  ld   (hl),N        ; 36 N
   ld   (hl),bc       ; 71 23 70 2B
   ld   (hl),c        ; 71
   ld   (hl),d        ; 72
   ld   (hl),de       ; 73 23 72 2B
-  ld   (hl),e        ; 73
-  ld   (hl),h        ; 74
-  ld   (hl),l        ; 75
   ld   (ix),N        ; DD 36 00 N
   ld   (ix),a        ; DD 77 00
   ld   (ix),b        ; DD 70 00
@@ -310,9 +323,6 @@ main:
   ld   (ix),h        ; DD 74 00
   ld   (ix),hl       ; DD 75 00 DD 74 01
   ld   (ix),l        ; DD 75 00
-  ld   (ix+12),N    ; DD 36 DIS N
-  ld   (ix+12),a    ; DD 77 DIS
-  ld   (ix+12),b    ; DD 70 DIS
   ld   (ix+12),bc   ; DD 71 DIS DD 70 DIS+1
   ld   (ix+12),c    ; DD 71 DIS
   ld   (ix+12),d    ; DD 72 DIS
@@ -355,8 +365,6 @@ main:
   ld   (iy+12),hl   ; FD 75 DIS FD 74 DIS+1
   ld   (iy+12),l    ; FD 75 DIS
   ld   (iy-11),N   ; FD 36 N12 N
-  ld   (iy-11),a   ; FD 77 N12
-  ld   (iy-11),b   ; FD 70 N12
   ld   (iy-11),bc  ; FD 71 N12 FD 70 NDIS+1
   ld   (iy-11),c   ; FD 71 N12
   ld   (iy-11),d   ; FD 72 N12
@@ -370,11 +378,6 @@ main:
   ld   a,(de)        ; 1A
   ld   a,(hl)        ; 7E
   ld   a,(ix)        ; DD 7E 00
-  ld   a,(ix+12)    ; DD 7E DIS
-  ld   a,(ix-11)   ; DD 7E N12
-  ld   a,(iy)        ; FD 7E 00
-  ld   a,(iy+12)    ; FD 7E DIS
-  ld   a,(iy-11)   ; FD 7E N12
   ld   a,N           ; 3E N
   ld   a,r           ; ED 5F
   ld   b,(ix)        ; DD 46 00

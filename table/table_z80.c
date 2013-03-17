@@ -89,11 +89,16 @@ struct _table_z80 table_z80[] =
   { "jr", 0x20, 0xe7, OP_JR_COND_ADDRESS, 7, 5 },
 
   { "ld", 0x40, 0xc0, OP_REG8_REG8, 4 },
-  { "ld", 0xdd44, 0xdfc6, OP_REG8_REG_IHALF, 8 },  // WTF??
-  { "ld", 0xdd60, 0xdff0, OP_REG_IHALF_REG8, 8 },  // WTF??
+  // { "ld", 0xdd44, 0xdfc6, OP_REG8_REG_IHALF, 8 },       WTF??
+  // { "ld", 0xdd60, 0xdff0, OP_REG_IHALF_REG8, 8 },       WTF??
   // { "ld", 0xdd64, 0xdf64, OP_REG_IHALF_REG_IHALF, 8 },  WTF??
   { "ld", 0x06, 0xc7, OP_REG8_NUMBER8, 7 },
   { "ld", 0x46, 0xc7, OP_REG8_INDEX_HL, 7 },
+  { "ld", 0xdd46, 0xdfc7, OP_REG8_INDEX, 19 },
+  { "ld", 0x70, 0xf8, OP_INDEX_HL_REG8, 7 },
+  { "ld", 0x36, 0xff, OP_INDEX_HL_NUMBER8, 10 },
+  { "ld", 0xdd70, 0xdff8, OP_INDEX_REG8, 19 },
+  { "ld", 0xdd36, 0xdfff, OP_INDEX_NUMBER8, 19 },
 
   //{ "ld", 0xdd5c, 0xdffe, OP_A_REG_IHALF },
   //{ "ld", 0xdd7e, 0xdfff, OP_A_INDEX },

@@ -187,6 +187,40 @@ static int compute_reg8(struct _operand *operand)
   return -1;
 }
 
+static int check_disp8(struct _asm_context *asm_context, struct _operand *operand)
+{
+  if (operand->value<-128 || operand->value>128)
+  {
+    print_error_range("Displacement", -128, 128, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
+static int check_const8(struct _asm_context *asm_context, struct _operand *operand)
+{
+  if (operand->value<-128 || operand->value>255)
+  {
+    print_error_range("Constant", -128, 255, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
+static int check_addr8(struct _asm_context *asm_context, struct _operand *operand)
+{
+  if (operand->value<0 || operand->value>255)
+  {
+    print_error_range("Address", 0, 255, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
+
 int parse_instruction_z80(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -431,6 +465,11 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
               operands[0].value==REG_A &&
               operands[1].type==OPERAND_INDEX_REG16_XY)
           {
+            if (operands[1].value<-128 || operands[1].value>127)
+            {
+              print_error_range("Constant", -128, 127, asm_context);
+              return -1;
+            }
             add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[1].value&0x1)<<5), IS_OPCODE);
             add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
             add_bin8(asm_context, (unsigned char)operands[1].offset, IS_OPCODE);
@@ -443,9 +482,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
               operands[0].value==REG_A &&
               operands[1].type==OPERAND_NUMBER)
           {
-            if (operands[1].value<-128 || operands[1].value>127)
+            if (operands[1].value<-128 || operands[1].value>255)
             {
-              print_error_range("Constant", -128, 127, asm_context);
+              print_error_range("Constant", -128, 255, asm_context);
               return -1;
             }
             add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
@@ -516,9 +555,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
           if (operand_count==1 &&
               operands[0].type==OPERAND_NUMBER)
           {
-            if (operands[0].value<-128 || operands[1].value>127)
+            if (operands[0].value<-128 || operands[1].value>255)
             {
-              print_error_range("Constant", -128, 127, asm_context);
+              print_error_range("Constant", -128, 255, asm_context);
               return -1;
             }
             add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
@@ -541,6 +580,11 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
           if (operand_count==1 &&
               operands[0].type==OPERAND_INDEX_REG16_XY)
           {
+            if (operands[0].value<-128 || operands[0].value>127)
+            {
+              print_error_range("Constant", -128, 127, asm_context);
+              return -1;
+            }
             add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[0].value&0x1)<<5), IS_OPCODE);
             add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
             add_bin8(asm_context, (unsigned char)operands[0].offset, IS_OPCODE);
@@ -574,6 +618,11 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
               operands[0].type==OPERAND_NUMBER &&
               operands[1].type==OPERAND_INDEX_REG16_XY)
           {
+            if (operands[1].value<-128 || operands[1].value>127)
+            {
+              print_error_range("Constant", -128, 127, asm_context);
+              return -1;
+            }
             add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[1].value&0x1)<<5), IS_OPCODE);
             add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
             add_bin8(asm_context, (unsigned char)operands[1].offset, IS_OPCODE);
@@ -748,6 +797,11 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
           if (operand_count==1 &&
               operands[0].type==OPERAND_INDEX_REG16_XY)
           {
+            if (operands[0].value<-128 || operands[0].value>127)
+            {
+              print_error_range("Constant", -128, 127, asm_context);
+              return -1;
+            }
             add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[0].value)<<5), IS_OPCODE);
             add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
             return 2;
@@ -843,6 +897,74 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
               operands[1].value==REG_HL)
           {
             add_bin8(asm_context, (table_z80[n].opcode)|(reg<<3), IS_OPCODE);
+            return 1;
+          }
+          break;
+        case OP_REG8_INDEX:
+          reg=compute_reg8(&operands[0]);
+          if (operand_count==2 &&
+              reg!=-1 &&
+              operands[1].type==OPERAND_INDEX_REG16_XY)
+          {
+            if (operands[1].value<-128 || operands[1].value>127)
+            {
+              print_error_range("Constant", -128, 127, asm_context);
+              return -1;
+            }
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[1].value&0x1)<<5), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|(reg<<3), IS_OPCODE);
+            add_bin8(asm_context, (unsigned char)operands[1].offset, IS_OPCODE);
+            return 3;
+          }
+          break;
+        case OP_INDEX_HL_REG8:
+          reg=compute_reg8(&operands[1]);
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_INDEX_REG16 &&
+              operands[0].value==REG_HL &&
+              reg!=-1)
+          {
+            add_bin8(asm_context, table_z80[n].opcode|reg, IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode|reg, IS_OPCODE);
+            return 1;
+          }
+          break;
+        case OP_INDEX_HL_NUMBER8:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_INDEX_REG16 &&
+              operands[0].value==REG_HL &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            if (check_const8(asm_context,&operands[1])==-1) { return -1; }
+            add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, (unsigned char)operands[1].value, IS_OPCODE);
+            return 1;
+          }
+          break;
+        case OP_INDEX_REG8:
+          reg=compute_reg8(&operands[1]);
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_INDEX_REG16_XY &&
+              reg!=-1)
+          {
+            if (check_disp8(asm_context,&operands[0])==-1) { return -1; }
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[0].value&0x1)<<5), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|reg, IS_OPCODE);
+            add_bin8(asm_context, (unsigned char)operands[0].offset, IS_OPCODE);
+            return 1;
+          }
+          break;
+        case OP_INDEX_NUMBER8:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_INDEX_REG16_XY &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            if (check_disp8(asm_context,&operands[0])==-1) { return -1; }
+            if (check_const8(asm_context,&operands[1])==-1) { return -1; }
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[0].value&0x1)<<5), IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
+            add_bin8(asm_context, (unsigned char)operands[0].offset, IS_OPCODE);
+            add_bin8(asm_context, (unsigned char)operands[1].value, IS_OPCODE);
             return 1;
           }
           break;
