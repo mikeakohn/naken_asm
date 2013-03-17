@@ -99,7 +99,6 @@ struct _table_z80 table_z80[] =
   { "ld", 0x36, 0xff, OP_INDEX_HL_NUMBER8, 10 },
   { "ld", 0xdd70, 0xdff8, OP_INDEX_REG8, 19 },
   { "ld", 0xdd36, 0xdfff, OP_INDEX_NUMBER8, 19 },
-
   { "ld", 0x0a, 0xff, OP_A_INDEX_BC, 7 },
   { "ld", 0x1a, 0xff, OP_A_INDEX_DE, 7 },
   { "ld", 0x3a, 0xff, OP_A_INDEX_ADDRESS, 13 },
@@ -116,10 +115,8 @@ struct _table_z80 table_z80[] =
   { "ld", 0x22, 0xff, OP_INDEX_ADDRESS_HL, 16 },
   { "ld", 0xed43, 0xffcf, OP_INDEX_ADDRESS_REG16, 20 },
   { "ld", 0xdd22, 0xdfff, OP_INDEX_ADDRESS_XY, 20 },
-
   { "ld", 0xf9, 0xff, OP_SP_HL, 6 },
   { "ld", 0xddf9, 0xdfff, OP_SP_XY, 10 },
-
   { "ldd", 0xeda8, 0xffff, OP_NONE16, 16 },
   { "lddr", 0xedb8, 0xffff, OP_NONE16, 16, 5 },
   { "ldi", 0xeda0, 0xffff, OP_NONE16, 16 },
@@ -128,11 +125,18 @@ struct _table_z80 table_z80[] =
   { "neg", 0xed44, 0xffff, OP_NONE16, 8 },
   { "nop", 0x00, 0xff, OP_NONE, 4 },
 
-  { "or", 0xb0, 0xf8, OP_REG8 },
-  { "otdr", 0xedbb, 0xffff, OP_NONE16 },
-  { "otir", 0xedb3, 0xffff, OP_NONE16 },
-  { "outd", 0xedab, 0xffff, OP_NONE16 },
-  { "outi", 0xeda3, 0xffff, OP_NONE16 },
+  { "or", 0xb0, 0xf8, OP_REG8, 4 },
+  { "or", 0xddb4, 0xdffe, OP_REG_IHALF, 8 },
+  { "or", 0xf6, 0xff, OP_NUMBER8, 7 },
+  { "or", 0xb6, 0xff, OP_INDEX_HL, 7 },
+  { "or", 0xddb6, 0xdfff, OP_INDEX, 19 },
+  { "out", 0xd3, 0xff, OP_INDEX_ADDRESS8_A, 11 },
+  { "out", 0xed71, 0xffff, OP_INDEX_C_ZERO, 12 },
+  { "out", 0xed41, 0xffc7, OP_INDEX_C_REG8, 12 },
+  { "outd", 0xedab, 0xffff, OP_NONE16, 16 },
+  { "otdr", 0xedbb, 0xffff, OP_NONE16, 16, 5 },
+  { "outi", 0xeda3, 0xffff, OP_NONE16, 16 },
+  { "otir", 0xedb3, 0xffff, OP_NONE16, 16, 5 },
 
   { "ret", 0xc9, 0xff, OP_NONE },
   { "rla", 0x17, 0xff, OP_NONE },

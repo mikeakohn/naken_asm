@@ -81,6 +81,9 @@ enum
   OP_INDEX_ADDRESS_XY,
   OP_SP_HL,
   OP_SP_XY,
+  OP_INDEX_ADDRESS8_A,
+  OP_INDEX_C_REG8,
+  OP_INDEX_C_ZERO,
 };
 
 struct _table_z80
