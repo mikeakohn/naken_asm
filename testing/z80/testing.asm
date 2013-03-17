@@ -275,8 +275,10 @@ main:
   ;ld   (hl),a        ; 77
   ;ld   (hl),b        ; 70
 
-  ld   b,(hl)        ; 46
-  ld   h,(hl)        ; 66
+  ld   b,(hl)         ; 46
+  ld   h,(hl)         ; 66
+
+  ld   (hl),0x33      ; 36 N
 
 .if 0
   ld   a,i           ; ED 57
