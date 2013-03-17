@@ -166,6 +166,19 @@ char disp[64];
         case OP_INDEX_ADDRESS_A:
           sprintf(instruction, "%s (0x%04x),a", table_z80[n].instr, READ_RAM(address+1)|(READ_RAM(address+2)<<8));
           return 3;
+        case OP_REG16_ADDRESS:
+          r=(opcode>>4)&0x3;
+          sprintf(instruction, "%s %s,0x%04x", table_z80[n].instr, reg16[r], READ_RAM(address+1)|(READ_RAM(address+2)<<8));
+          return 3;
+        case OP_HL_INDEX_ADDRESS:
+          sprintf(instruction, "%s hl,(0x%04x)", table_z80[n].instr, READ_RAM(address+1)|(READ_RAM(address+2)<<8));
+          return 3;
+        case OP_INDEX_ADDRESS_HL:
+          sprintf(instruction, "%s (0x%04x),hl", table_z80[n].instr, READ_RAM(address+1)|(READ_RAM(address+2)<<8));
+          return 3;
+        case OP_SP_HL:
+          sprintf(instruction, "%s sp,hl", table_z80[n].instr);
+          return 1;
       }
     }
       else
@@ -352,6 +365,38 @@ char disp[64];
           get_disp(disp, r, offset);
           sprintf(instruction, "%s %s,%d", table_z80[n].instr, disp, READ_RAM(address+3));
           return 4;
+        case OP_IR_A:
+          r=(opcode16>>3)&0x1;
+          sprintf(instruction, "%s %c,a", table_z80[n].instr, (r==0)?'i':'r');
+          return 2;
+        case OP_A_IR:
+          r=(opcode16>>3)&0x1;
+          sprintf(instruction, "%s a,%c", table_z80[n].instr, (r==0)?'i':'r');
+          return 2;
+        case OP_XY_ADDRESS:
+          r=(opcode16>>13)&0x1;
+          sprintf(instruction, "%s %s,0x%04x", table_z80[n].instr, reg_xy[r], READ_RAM(address+2)|(READ_RAM(address+3)<<8));
+          return 2;
+        case OP_REG16_INDEX_ADDRESS:
+          r=(opcode16>>4)&0x3;
+          sprintf(instruction, "%s %s,(0x%04x)", table_z80[n].instr, reg16[r], READ_RAM(address+2)|(READ_RAM(address+3)<<8));
+          return 4;
+        case OP_XY_INDEX_ADDRESS:
+          r=(opcode16>>13)&0x1;
+          sprintf(instruction, "%s %s,(0x%04x)", table_z80[n].instr, reg_xy[r], READ_RAM(address+2)|(READ_RAM(address+3)<<8));
+          return 4;
+        case OP_INDEX_ADDRESS_REG16:
+          r=(opcode16>>4)&0x3;
+          sprintf(instruction, "%s (0x%04x),%s", table_z80[n].instr, READ_RAM(address+2)|(READ_RAM(address+3)<<8), reg16[r]);
+          return 4;
+        case OP_INDEX_ADDRESS_XY:
+          r=(opcode16>>13)&0x1;
+          sprintf(instruction, "%s (0x%04x),%s", table_z80[n].instr, READ_RAM(address+2)|(READ_RAM(address+3)<<8), reg16[r]);
+          return 4;
+        case OP_SP_XY:
+          r=(opcode16>>13)&0x1;
+          sprintf(instruction, "%s sp,%s", table_z80[n].instr, reg_xy[r]);
+          return 2;
       }
     }
     n++;

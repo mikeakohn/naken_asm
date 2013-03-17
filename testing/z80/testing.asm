@@ -305,12 +305,28 @@ main:
   ld   (10),a        ; 32 NNl NNh
   ld   a,(10)        ; 3A NNl NNh
 
-.if 0
   ld   a,i           ; ED 57
-  ld   (10),bc       ; ED 43 NNl NNh
+  ld   r,a           ; ED 4F
+  ld   a,r           ; ED 5F
+  ld   i,a           ; ED 47
+
+  ld   ix,49152      ; DD 21 NNl NNh
+  ld   bc,49152      ; 01 NNl NNh
+
+  ld   bc,(49152)    ; ED 4B NNl NNh
+  ld   ix,(49152)    ; DD 2A NNl NNh
+  ld   hl,(49152)    ; 2A NNl NNh
+
+  ld   (49152),bc    ; ED 43 NNl NNh
+  ld   (49152),ix    ; DD 22 NNl NNh
+  ld   (49152),hl    ; 22 NNl NNh
+
+  ld   sp,hl         ; F9
+  ld   sp,ix         ; DD F9
+  ld   sp,iy         ; FD F9
+
+.if 0
   ld   (10),de       ; ED 53 NNl NNh
-  ld   (10),hl       ; 22 NNl NNh
-  ld   (10),ix       ; DD 22 NNl NNh
   ld   (10),iy       ; FD 22 NNl NNh
   ld   (10),sp       ; ED 73 NNl NNh
   ld   (hl),bc       ; 71 23 70 2B
@@ -381,7 +397,6 @@ main:
   ld   a,(hl)        ; 7E
   ld   a,(ix)        ; DD 7E 00
   ld   a,N           ; 3E N
-  ld   a,r           ; ED 5F
   ld   b,(ix)        ; DD 46 00
   ld   b,(ix+12)    ; DD 46 DIS
   ld   b,(ix-11)   ; DD 46 N12
@@ -472,7 +487,6 @@ main:
   ld   hl,hl         ; 64 6D
   ld   hl,ix         ; DD E5 E1
   ld   hl,iy         ; FD E5 E1
-  ld   i,a           ; ED 47
   ld   ix,(10)       ; DD 2A NNl NNh
   ld   ix,10         ; DD 21 NNl NNh
   ld   ix,bc         ; DD 69 DD 60
@@ -518,12 +532,8 @@ main:
   ld   l,(iy+12)    ; FD 6E DIS
   ld   l,(iy-11)   ; FD 6E N12
   ld   l,N           ; 2E N
-  ld   r,a           ; ED 4F
   ld   sp,(10)       ; ED 7B NNl NNh
   ld   sp,10         ; 31 NNl NNh
-  ld   sp,hl         ; F9
-  ld   sp,ix         ; DD F9
-  ld   sp,iy         ; FD F9
 .endif
 
 
