@@ -88,14 +88,21 @@ struct _table_z80 table_z80[] =
   { "jr", 0x18, 0xff, OP_NUMBER8, 12 },
   { "jr", 0x20, 0xe7, OP_JR_COND_ADDRESS, 7, 5 },
 
-  { "ld", 0x78, 0xf8, OP_A_REG8 },
-  { "ld", 0xdd5c, 0xdffe, OP_A_REG_IHALF },
-  { "ld", 0xdd7e, 0xdfff, OP_A_INDEX },
-  { "ld", 0x3d, 0xff, OP_A_NUMBER8 },
-  { "ldir", 0xed80, 0xffff, OP_NONE16 },
-  { "lddr", 0xedb8, 0xffff, OP_NONE16 },
-  { "ldi", 0xeda0, 0xffff, OP_NONE16 },
-  { "ldd", 0xeda8, 0xffff, OP_NONE16 },
+  { "ld", 0x40, 0xc0, OP_REG8_REG8, 4 },
+  { "ld", 0xdd44, 0xdfc6, OP_REG8_REG_IHALF, 8 },  // WTF??
+  { "ld", 0xdd60, 0xdff0, OP_REG_IHALF_REG8, 8 },  // WTF??
+  // { "ld", 0xdd64, 0xdf64, OP_REG_IHALF_REG_IHALF, 8 },  WTF??
+  { "ld", 0x06, 0xc7, OP_REG8_NUMBER8, 7 },
+  { "ld", 0x46, 0xc7, OP_REG8_INDEX_HL, 7 },
+
+  //{ "ld", 0xdd5c, 0xdffe, OP_A_REG_IHALF },
+  //{ "ld", 0xdd7e, 0xdfff, OP_A_INDEX },
+  //{ "ld", 0x3d, 0xff, OP_A_NUMBER8 },
+
+  { "ldd", 0xeda8, 0xffff, OP_NONE16, 16 },
+  { "lddr", 0xedb8, 0xffff, OP_NONE16, 16, 5 },
+  { "ldi", 0xeda0, 0xffff, OP_NONE16, 16 },
+  { "ldir", 0xed80, 0xffff, OP_NONE16, 16, 5 },
 
   { "neg", 0xed44, 0xffff, OP_NONE16, 8 },
   { "nop", 0x00, 0xff, OP_NONE, 4 },

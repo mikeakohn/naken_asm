@@ -83,7 +83,7 @@ char offset;
           return 3;
         case OP_COND_ADDRESS:
           r=(opcode>>3)&0x7;
-          sprintf(instruction, "%s %s,x0%04x", table_z80[n].instr, cond[r], READ_RAM(address+1)|(READ_RAM(address+2)<<8));
+          sprintf(instruction, "%s %s,0x%04x", table_z80[n].instr, cond[r], READ_RAM(address+1)|(READ_RAM(address+2)<<8));
           return 3;
         case OP_REG8_V2:
           r=(opcode>>3)&0x7;
@@ -109,6 +109,19 @@ char offset;
           r=(opcode>>3)&0x3;
           sprintf(instruction, "%s %s,%d", table_z80[n].instr, cond[r],READ_RAM(address+1));
           return 2;
+        case OP_REG8_REG8:
+          r=(opcode>>3)&0x7;
+          i=opcode&0x7;
+          sprintf(instruction, "%s %s,%s", table_z80[n].instr, reg8[r],reg8[i]);
+          return 1;
+        case OP_REG8_NUMBER8:
+          r=(opcode>>3)&0x7;
+          sprintf(instruction, "%s %s,%d", table_z80[n].instr, reg8[r],READ_RAM(address+1));
+          return 2;
+        case OP_REG8_INDEX_HL:
+          r=(opcode>>3)&0x7;
+          sprintf(instruction, "%s %s,(hl)", table_z80[n].instr, reg8[r]);
+          return 1;
       }
     }
       else
@@ -247,6 +260,20 @@ char offset;
         case OP_INDEX_XY:
           r=(opcode16>>13)&0x1;
           sprintf(instruction, "%s (%s)", table_z80[n].instr, reg_xy[r]);
+          return 2;
+        case OP_REG8_REG_IHALF:
+          i=((opcode16&0x2000)>>12)|(opcode16&1);
+          r=(opcode16>>3)&0x7;
+          sprintf(instruction, "%s %s,%s", table_z80[n].instr, reg8[r], reg_ihalf[i]);
+          return 2;
+        case OP_REG_IHALF_REG8:
+          i=((opcode16&0x2000)>>12)|((opcode16>>3)&1);
+          r=opcode16&0x7;
+          sprintf(instruction, "%s %s,%s", table_z80[n].instr, reg_ihalf[i], reg8[r]);
+          return 2;
+        case OP_REG_IHALF_REG_IHALF:
+          r=(opcode16&0x2000)>>12|(opcode16&1);
+          sprintf(instruction, "%s %s,%s", table_z80[n].instr, reg_ihalf[r^1], reg_ihalf[r]);
           return 2;
       }
     }

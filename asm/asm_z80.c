@@ -758,6 +758,74 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        case OP_REG8_REG8:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG8 &&
+              operands[1].type==OPERAND_REG8)
+          {
+            add_bin8(asm_context, table_z80[n].opcode|((operands[0].value)<<3)|operands[1].value, IS_OPCODE);
+            return 1;
+          }
+          break;
+        case OP_REG8_REG_IHALF:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG8 &&
+              operands[1].type==OPERAND_REG_IHALF)
+          {
+            unsigned char y=(operands[1].value>>1);
+            unsigned char l=(operands[1].value&0x1);
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|(y<<5), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|(operands[0].value<<3)|l, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_IHALF_REG8:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG_IHALF &&
+              operands[1].type==OPERAND_REG8)
+          {
+            unsigned char y=(operands[0].value>>1);
+            unsigned char l=(operands[0].value&0x1);
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|(y<<5), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|(l<<3)|operands[0].value, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_IHALF_REG_IHALF:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG_IHALF &&
+              operands[1].type==OPERAND_REG_IHALF &&
+              operands[0].value!=operands[1].value &&
+              (operands[0].value>>1)==(operands[1].value>>1))
+          {
+            unsigned char y=(operands[0].value>>1);
+            unsigned char l=((operands[0].value&0x1)==1)?0x8:0x1;
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|(y<<5), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|l, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG8_NUMBER8:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG8 &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            add_bin8(asm_context, (table_z80[n].opcode)|(operands[0].value<<3), IS_OPCODE);
+            add_bin8(asm_context, operands[1].value, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG8_INDEX_HL:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG8 &&
+              operands[1].type==OPERAND_INDEX_REG16 &&
+              operands[1].value==REG_HL)
+          {
+printf("BALLS %02x n=%d\n", table_z80[n].opcode, n);
+            add_bin8(asm_context, (table_z80[n].opcode)|(operands[0].value<<3), IS_OPCODE);
+            return 1;
+          }
+          break;
       }
     }
     n++;
