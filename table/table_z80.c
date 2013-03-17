@@ -100,6 +100,13 @@ struct _table_z80 table_z80[] =
   { "ld", 0xdd70, 0xdff8, OP_INDEX_REG8, 19 },
   { "ld", 0xdd36, 0xdfff, OP_INDEX_NUMBER8, 19 },
 
+  { "ld", 0x0a, 0xff, OP_A_INDEX_BC, 7 },
+  { "ld", 0x1a, 0xff, OP_A_INDEX_DE, 7 },
+  { "ld", 0x3a, 0xff, OP_A_INDEX_ADDRESS, 13 },
+  { "ld", 0x02, 0xff, OP_INDEX_BC_A, 7 },
+  { "ld", 0x12, 0xff, OP_INDEX_DE_A, 7 },
+  { "ld", 0x32, 0xff, OP_INDEX_ADDRESS_A, 13 },
+
   //{ "ld", 0xdd5c, 0xdffe, OP_A_REG_IHALF },
   //{ "ld", 0xdd7e, 0xdfff, OP_A_INDEX },
   //{ "ld", 0x3d, 0xff, OP_A_NUMBER8 },

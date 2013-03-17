@@ -148,6 +148,24 @@ char disp[64];
         case OP_INDEX_HL_NUMBER8:
           sprintf(instruction, "%s (hl),%d", table_z80[n].instr, READ_RAM(address+1));
           return 2;
+        case OP_A_INDEX_BC:
+          sprintf(instruction, "%s a,(bc)", table_z80[n].instr);
+          return 1;
+        case OP_A_INDEX_DE:
+          sprintf(instruction, "%s a,(de)", table_z80[n].instr);
+          return 1;
+        case OP_A_INDEX_ADDRESS:
+          sprintf(instruction, "%s a,(0x%04x)", table_z80[n].instr, READ_RAM(address+1)|(READ_RAM(address+2)<<8));
+          return 3;
+        case OP_INDEX_BC_A:
+          sprintf(instruction, "%s (bc),a", table_z80[n].instr);
+          return 1;
+        case OP_INDEX_DE_A:
+          sprintf(instruction, "%s (de),a", table_z80[n].instr);
+          return 1;
+        case OP_INDEX_ADDRESS_A:
+          sprintf(instruction, "%s (0x%04x),a", table_z80[n].instr, READ_RAM(address+1)|(READ_RAM(address+2)<<8));
+          return 3;
       }
     }
       else

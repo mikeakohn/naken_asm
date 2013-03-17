@@ -297,17 +297,22 @@ main:
   ld   (hl),l        ; 75
   ld   (hl),10       ; 36 N
 
+  ld   a,(bc)        ; 0A
+  ld   a,(de)        ; 1A
+  ld   (bc),a        ; 02
+  ld   (de),a        ; 12
+
+  ld   (10),a        ; 32 NNl NNh
+  ld   a,(10)        ; 3A NNl NNh
+
 .if 0
   ld   a,i           ; ED 57
-  ld   (10),a        ; 32 NNl NNh
   ld   (10),bc       ; ED 43 NNl NNh
   ld   (10),de       ; ED 53 NNl NNh
   ld   (10),hl       ; 22 NNl NNh
   ld   (10),ix       ; DD 22 NNl NNh
   ld   (10),iy       ; FD 22 NNl NNh
   ld   (10),sp       ; ED 73 NNl NNh
-  ld   (bc),a        ; 02
-  ld   (de),a        ; 12
   ld   (hl),bc       ; 71 23 70 2B
   ld   (hl),c        ; 71
   ld   (hl),d        ; 72
@@ -373,9 +378,6 @@ main:
   ld   (iy-11),h   ; FD 74 N12
   ld   (iy-11),hl  ; FD 75 N12 FD 74 NDIS+1
   ld   (iy-11),l   ; FD 75 N12
-  ld   a,(10)        ; 3A NNl NNh
-  ld   a,(bc)        ; 0A
-  ld   a,(de)        ; 1A
   ld   a,(hl)        ; 7E
   ld   a,(ix)        ; DD 7E 00
   ld   a,N           ; 3E N
