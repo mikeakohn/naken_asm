@@ -191,6 +191,10 @@ char disp[64];
           r=(opcode>>3)&0x7;
           sprintf(instruction, "%s %s", table_z80[n].instr, cond[r]);
           return 1;
+        case OP_RESTART_ADDRESS:
+          r=(opcode>>3)&0x7;
+          sprintf(instruction, "%s 0x%x", table_z80[n].instr, r*8);
+          return 1;
       }
     }
       else
@@ -403,6 +407,13 @@ char disp[64];
           return 2;
         case OP_INDEX_C_ZERO:
           sprintf(instruction, "%s (c),0", table_z80[n].instr);
+          return 2;
+        case OP_REG8_CB:
+          r=opcode16&0x7;
+          sprintf(instruction, "%s %s", table_z80[n].instr, reg8[r]);
+          return 2;
+        case OP_INDEX_HL_CB:
+          sprintf(instruction, "%s (hl)", table_z80[n].instr);
           return 2;
       }
     }

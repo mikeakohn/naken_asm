@@ -397,5 +397,14 @@ main:
   ret  po            ; E0
   ret  z             ; C8
 
+  rl   c             ; CB 11
+  rl   d             ; CB 12
+  rl   (hl)          ; CB 16
+
+  rst  0             ; C7
+  rst  16            ; D7
+  rst  24            ; DF
+
+
 
 

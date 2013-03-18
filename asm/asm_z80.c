@@ -1351,6 +1351,42 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        case OP_REG8_CB:
+          reg=compute_reg8(&operands[0]);
+          if (operand_count==1 &&
+              reg!=-1)
+          {
+            add_bin8(asm_context, (table_z80[n].opcode>>8), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode&0xff)|reg, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_INDEX_HL_CB:
+          reg=compute_reg8(&operands[0]);
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_INDEX_REG16 &&
+              operands[0].value==REG_HL)
+          {
+            add_bin8(asm_context, table_z80[n].opcode>>8, IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_RESTART_ADDRESS:
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_NUMBER)
+          {
+            if ((operands[0].value%8)!=0 || operands[0].value>0x38 ||
+                operands[0].value<0)
+            {
+              printf("Error: Illegal restart address at %s:%d\n", asm_context->filename, asm_context->line);
+              return -1;
+            }
+            int i=operands[0].value/8;
+            add_bin8(asm_context, table_z80[n].opcode|(i<<3), IS_OPCODE);
+            return 1;
+          }
+          break;
       }
     }
     n++;

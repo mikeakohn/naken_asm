@@ -24,7 +24,6 @@ enum
   OP_A_REG_IHALF,
   OP_A_INDEX,
   OP_A_NUMBER8,
-  OP_REG8_CB,
   OP_HL_REG16_1,
   OP_HL_REG16_2,
   OP_XY_REG16,
@@ -88,6 +87,9 @@ enum
   OP_BIT_INDEX_V2,
   OP_BIT_INDEX_REG8,
   OP_COND,
+  OP_REG8_CB,
+  OP_INDEX_HL_CB,
+  OP_RESTART_ADDRESS,
 };
 
 struct _table_z80
