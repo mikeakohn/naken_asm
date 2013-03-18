@@ -187,6 +187,10 @@ char disp[64];
           r=(opcode>>4)&0x3;
           sprintf(instruction, "%s %s", table_z80[n].instr, reg16_p[r]);
           return 1;
+        case OP_COND:
+          r=(opcode>>3)&0x7;
+          sprintf(instruction, "%s %s", table_z80[n].instr, cond[r]);
+          return 1;
       }
     }
       else
@@ -259,21 +263,6 @@ char disp[64];
           offset=READ_RAM(address+2);
           get_disp(disp, r, offset);
           sprintf(instruction, "%s %s", table_z80[n].instr, disp);
-#if 0
-          if (offset==0)
-          {
-            sprintf(instruction, "%s (%s)", table_z80[n].instr, reg_xy[r]);
-          }
-            else
-          if (offset>0)
-          {
-            sprintf(instruction, "%s (%s+%d)", table_z80[n].instr, reg_xy[r], offset);
-          }
-            else
-          {
-            sprintf(instruction, "%s (%s%d)", table_z80[n].instr, reg_xy[r], offset);
-          }
-#endif
           return 3;
         case OP_BIT_REG8:
           r=opcode16&0x7;
@@ -285,29 +274,32 @@ char disp[64];
           sprintf(instruction, "%s %d,(hl)", table_z80[n].instr, i);
           return 2;
         case OP_BIT_INDEX:
+        case OP_BIT_INDEX_V2:
           r=(opcode16>>13)&0x1;
           offset=READ_RAM(address+2);
           i=READ_RAM(address+3);
-          if ((i>>6)==1)
+          if ((i>>6)==1 && table_z80[n].instr[0]=='b')
           {
-            i=(i>>3)&0x7;
             get_disp(disp, r, offset);
+            i=(i>>3)&0x7;
             sprintf(instruction, "%s %d,%s", table_z80[n].instr, i, disp);
-#if 0
-            if (offset==0)
+            return 4;
+          }
+            else
+          if (((i>>6)==2 && table_z80[n].instr[0]=='r') ||
+              ((i>>6)==3 && table_z80[n].instr[0]=='s'))
+          {
+            get_disp(disp, r, offset);
+            r=i&0x7;
+            i=(i>>3)&0x7;
+            if (r==6)
             {
-              sprintf(instruction, "%s %d,(%s)", table_z80[n].instr, i, reg_xy[r]);
+              sprintf(instruction, "%s %d,%s", table_z80[n].instr, i, disp);
             }
               else
-            if (offset>0)
             {
-              sprintf(instruction, "%s %d,(%s+%d)", table_z80[n].instr, i, reg_xy[r], offset);
+              sprintf(instruction, "%s %d,%s,%s", table_z80[n].instr, i, disp, reg8[r]);
             }
-              else
-            {
-              sprintf(instruction, "%s %d,(%s%d)", table_z80[n].instr, i, reg_xy[r], offset);
-            }
-#endif
             return 4;
           }
           break;

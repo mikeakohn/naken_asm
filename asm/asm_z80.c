@@ -28,6 +28,7 @@ enum
   OPERAND_REG8,
   OPERAND_REG_IHALF,
   OPERAND_INDEX_REG16_XY,
+  //OPERAND_INDEX_REG16_XY_R,
   OPERAND_INDEX_REG16,
   OPERAND_INDEX_REG8,
   OPERAND_REG16_XY,
@@ -329,6 +330,34 @@ int n,reg;
         //print_error_unexp(token, asm_context);
         //return -1;
       }
+
+#if 0
+      if (operands[operand_count].type==OPERAND_INDEX_REG16_XY)
+      {
+        token_type=get_token(asm_context, token, TOKENLEN);
+        if (IS_TOKEN(token,'-'))
+        {
+          token_type=get_token(asm_context, token, TOKENLEN);
+          if (IS_NOT_TOKEN(token,'>'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+          token_type=get_token(asm_context, token, TOKENLEN);
+          if ((n=get_reg8(token))-=-1)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+          operands[operand_count].extra_reg=n;
+        }
+          else
+        {
+          pushback(asm_context, token, token_type);
+        }
+      }
+#endif
+
       if (expect_token_s(asm_context,")")!=0) { return -1; }
     }
       else
@@ -664,17 +693,10 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
           {
             if (check_bit(asm_context,&operands[0])==-1) { return -1; }
             if (check_disp8(asm_context,&operands[1])==-1) { return -1; }
-#if 0
-            if (operands[1].value<-128 || operands[1].value>127)
-            {
-              print_error_range("Constant", -128, 127, asm_context);
-              return -1;
-            }
-#endif
             add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[1].value&0x1)<<5), IS_OPCODE);
             add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
             add_bin8(asm_context, (unsigned char)operands[1].offset, IS_OPCODE);
-            add_bin8(asm_context, 0x40|(operands[0].value<<3), IS_OPCODE);
+            add_bin8(asm_context, 0x46|(operands[0].value<<3), IS_OPCODE);
             return 4;
           }
           break;
@@ -1282,6 +1304,50 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
               operands[0].type==OPERAND_REG16)
           {
             add_bin8(asm_context, table_z80[n].opcode|(operands[0].value<<4), IS_OPCODE);
+            return 1;
+          }
+          break;
+        case OP_BIT_INDEX_V2:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_NUMBER &&
+              operands[1].type==OPERAND_INDEX_REG16_XY)
+          {
+            if (check_bit(asm_context,&operands[0])==-1) { return -1; }
+            if (check_disp8(asm_context,&operands[1])==-1) { return -1; }
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[1].value&0x1)<<5), IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
+            add_bin8(asm_context, (unsigned char)operands[1].offset, IS_OPCODE);
+            add_bin8(asm_context, 0x86|(operands[0].value<<3), IS_OPCODE);
+            return 4;
+          }
+          break;
+        case OP_BIT_INDEX_REG8:
+          if (operand_count==3 &&
+              operands[0].type==OPERAND_NUMBER &&
+              operands[1].type==OPERAND_INDEX_REG16_XY &&
+              operands[2].type==OPERAND_REG8)
+          {
+            if (check_bit(asm_context,&operands[0])==-1) { return -1; }
+            if (check_disp8(asm_context,&operands[1])==-1) { return -1; }
+            reg=operands[2].value;
+            add_bin8(asm_context, (table_z80[n].opcode>>8)|((operands[1].value&0x1)<<5), IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode&0xff, IS_OPCODE);
+            add_bin8(asm_context, (unsigned char)operands[1].offset, IS_OPCODE);
+            add_bin8(asm_context, 0x80|(operands[0].value<<3)|reg, IS_OPCODE);
+            return 4;
+          }
+          break;
+        case OP_COND:
+          if (operands[0].type==OPERAND_REG8 &&
+              operands[0].value==REG_C)
+          {
+            operands[0].type=OPERAND_COND;
+            operands[0].value=COND_C;
+          }
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_COND)
+          {
+            add_bin8(asm_context, table_z80[n].opcode|((operands[0].value)<<3), IS_OPCODE);
             return 1;
           }
           break;

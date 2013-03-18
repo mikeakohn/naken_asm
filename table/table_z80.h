@@ -85,6 +85,9 @@ enum
   OP_INDEX_C_REG8,
   OP_INDEX_C_ZERO,
   OP_REG16P,
+  OP_BIT_INDEX_V2,
+  OP_BIT_INDEX_REG8,
+  OP_COND,
 };
 
 struct _table_z80
@@ -96,6 +99,17 @@ struct _table_z80
   unsigned char cycles:5;
   unsigned char cycles_max:3; // add these 3 bits to cycles for max
 };
+
+#if 0
+struct _table_z80_4_byte
+{
+  char *instr;
+  unsigned char opcode[4];
+  unsigned char mask[4];
+  unsigned char type;
+  unsigned char cycles;
+};
+#endif
 
 extern struct _table_z80 table_z80[];
 

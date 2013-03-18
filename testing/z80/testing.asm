@@ -94,11 +94,6 @@ main:
   ind                ; ED AA
   indr               ; ED BA
 
-  bit  6,l           ; CB 75
-  bit  7,(hl)        ; CB 7E
-  bit  7,(ix)        ; DD CB 00 7E
-  bit  7,(ix+5)      ; DD CB DIS 7E
-
   call 0x1000        ; CD NNl NNh
   call c,0x1000      ; DC NNl NNh
   call m,0x1000      ; FC NNl NNh
@@ -364,5 +359,43 @@ main:
   pop  hl            ; E1
   pop  ix            ; DD E1
   pop  iy            ; FD E1
+
+  bit  6,l           ; CB 75
+  bit  7,(hl)        ; CB 7E
+  bit  7,(ix)        ; DD CB 00 7E
+  bit  7,(ix+5)      ; DD CB DIS 7E
+
+.if 0
+  res  7,b           ; CB B8
+  res  7,c           ; CB B9
+  res  7,d           ; CB BA
+
+  res  7,(ix+10),c  ; DD CB DIS B9
+  res  7,(ix+10),d  ; DD CB DIS BA
+  res  7,(ix+10),e  ; DD CB DIS BB
+  res  5,(iy-10)    ; FD CB NDIS AE
+  res  6,(hl)        ; CB B6
+
+  set  7,(iy),c      ; FD CB 00 F9
+  set  7,(iy),d      ; FD CB 00 FA
+  set  7,(iy),e      ; FD CB 00 FB
+  set  7,(ix+10),b  ; DD CB DIS F8
+  set  7,(ix+10),c  ; DD CB DIS F9
+  set  7,(ix+10),d  ; DD CB DIS FA
+  set  7,(iy)        ; FD CB 00 FE
+  set  5,c           ; CB E9
+  set  5,d           ; CB EA
+.endif
+
+  ret                ; C9
+  ret  c             ; D8
+  ret  m             ; F8
+  ret  nc            ; D0
+  ret  nz            ; C0
+  ret  p             ; F0
+  ret  pe            ; E8
+  ret  po            ; E0
+  ret  z             ; C8
+
 
 

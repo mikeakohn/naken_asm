@@ -143,7 +143,12 @@ struct _table_z80 table_z80[] =
   { "push", 0xc5, 0xcf, OP_REG16P, 11 },
   { "push", 0xdde5, 0xdfff, OP_XY, 15 },
 
-  { "ret", 0xc9, 0xff, OP_NONE },
+  { "res", 0xcb80, 0xffc0, OP_BIT_REG8, 8 },
+  { "res", 0xcb86, 0xffc7, OP_BIT_INDEX_HL, 15 },
+
+  { "ret", 0xc9, 0xff, OP_NONE, 10 },
+  { "ret", 0xc0, 0xc7, OP_COND, 5, 6 },
+
   { "rla", 0x17, 0xff, OP_NONE },
   { "rra", 0x1f, 0xff, OP_NONE },
   { "rlca", 0x07, 0xff, OP_NONE },
@@ -157,12 +162,6 @@ struct _table_z80 table_z80[] =
   { "rr", 0xcb18, 0xfff8, OP_REG8_CB },
   { "rrc", 0xcb08, 0xfff8, OP_REG8_CB },
 
-  { "stop", 0xdddd, 0xffff, OP_NONE24 },
-  { "sla", 0xcb20, 0xfff8, OP_REG8_CB },
-  //{ "sli", 0x30, OP_REG8_CB },
-  { "sll", 0xcb30, 0xfff8, OP_REG8_CB },
-  { "sra", 0xcb28, 0xfff8, OP_REG8_CB },
-  { "srl", 0xcb38, 0xfff8, OP_REG8_CB },
   { "sbc", 0x98, 0xf8, OP_A_REG8, 4 },
   { "sbc", 0xdd9c, 0xdffe, OP_A_REG_IHALF, 8 },
   { "sbc", 0xde, 0xff, OP_A_NUMBER8, 7 },
@@ -170,6 +169,16 @@ struct _table_z80 table_z80[] =
   { "sbc", 0xdd9e, 0xdfff, OP_A_INDEX, 19 },
   { "sbc", 0xed42, 0xffcf, OP_HL_REG16_2, 15 },
   { "scf", 0x37, 0xff, OP_NONE, 4 },
+
+  { "set", 0xcbc0, 0xffc0, OP_BIT_REG8, 8 },
+  { "set", 0xcbc6, 0xffc7, OP_BIT_INDEX_HL, 15 },
+
+  { "stop", 0xdddd, 0xffff, OP_NONE24 },
+  { "sla", 0xcb20, 0xfff8, OP_REG8_CB },
+  //{ "sli", 0x30, OP_REG8_CB },
+  { "sll", 0xcb30, 0xfff8, OP_REG8_CB },
+  { "sra", 0xcb28, 0xfff8, OP_REG8_CB },
+  { "srl", 0xcb38, 0xfff8, OP_REG8_CB },
 
   { "sub", 0x90, 0xf8, OP_REG8, 4 },
   { "sub", 0xdd94, 0xdffe, OP_REG_IHALF, 8 },
@@ -186,4 +195,13 @@ struct _table_z80 table_z80[] =
   { NULL, 0x00, OP_NONE },
 };
 
+
+struct _table_z80 table_z80_4_byte[] =
+{
+  { "res", 0xddcb, 0xdfff, OP_BIT_INDEX_V2, 23 },
+  { "res", 0xddcb, 0xdfff, OP_BIT_INDEX_REG8, 23 },
+  { "set", 0xddcb, 0xdfff, OP_BIT_INDEX_V2, 23 },
+  { "set", 0xddcb, 0xdfff, OP_BIT_INDEX_REG8, 23 },
+  { NULL, 0x00, OP_NONE },
+};
 
