@@ -114,6 +114,7 @@ struct _table_z80_4_byte
 #endif
 
 extern struct _table_z80 table_z80[];
+extern struct _table_z80 table_z80_4_byte[];
 
 #endif
 

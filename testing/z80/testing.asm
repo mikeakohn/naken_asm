@@ -84,7 +84,7 @@ main:
   ccf                ; 3F
   reti               ; ED 4D
   ret                ; C9
-  stop               ; DD DD 00
+  ;stop               ; DD DD 00
 
   adc  a,(hl)        ; 8E
 
@@ -365,28 +365,6 @@ main:
   bit  7,(ix)        ; DD CB 00 7E
   bit  7,(ix+5)      ; DD CB DIS 7E
 
-.if 0
-  res  7,b           ; CB B8
-  res  7,c           ; CB B9
-  res  7,d           ; CB BA
-
-  res  7,(ix+10),c  ; DD CB DIS B9
-  res  7,(ix+10),d  ; DD CB DIS BA
-  res  7,(ix+10),e  ; DD CB DIS BB
-  res  5,(iy-10)    ; FD CB NDIS AE
-  res  6,(hl)        ; CB B6
-
-  set  7,(iy),c      ; FD CB 00 F9
-  set  7,(iy),d      ; FD CB 00 FA
-  set  7,(iy),e      ; FD CB 00 FB
-  set  7,(ix+10),b  ; DD CB DIS F8
-  set  7,(ix+10),c  ; DD CB DIS F9
-  set  7,(ix+10),d  ; DD CB DIS FA
-  set  7,(iy)        ; FD CB 00 FE
-  set  5,c           ; CB E9
-  set  5,d           ; CB EA
-.endif
-
   ret                ; C9
   ret  c             ; D8
   ret  m             ; F8
@@ -405,6 +383,26 @@ main:
   rst  16            ; D7
   rst  24            ; DF
 
+  res  6,(hl)        ; CB B6
+
+  res  7,b           ; CB B8
+  res  7,c           ; CB B9
+  res  7,d           ; CB BA
+
+  res  7,(ix+10),c  ; DD CB DIS B9
+  res  7,(ix+10),d  ; DD CB DIS BA
+  res  7,(ix+10),e  ; DD CB DIS BB
+  res  5,(iy-10)    ; FD CB NDIS AE
+
+  set  7,(iy),c      ; FD CB 00 F9
+  set  7,(iy),d      ; FD CB 00 FA
+  set  7,(iy),e      ; FD CB 00 FB
+  set  7,(ix+10),b  ; DD CB DIS F8
+  set  7,(ix+10),c  ; DD CB DIS F9
+  set  7,(ix+10),d  ; DD CB DIS FA
+  set  7,(iy)        ; FD CB 00 FE
+  set  5,c           ; CB E9
+  set  5,d           ; CB EA
 
 
 

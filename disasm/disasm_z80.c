@@ -278,17 +278,18 @@ char disp[64];
           sprintf(instruction, "%s %d,(hl)", table_z80[n].instr, i);
           return 2;
         case OP_BIT_INDEX:
-        case OP_BIT_INDEX_V2:
           r=(opcode16>>13)&0x1;
           offset=READ_RAM(address+2);
           i=READ_RAM(address+3);
-          if ((i>>6)==1 && table_z80[n].instr[0]=='b')
+          //if ((i>>6)==1 && table_z80[n].instr[0]=='b')
+          if ((i>>6)==1)
           {
             get_disp(disp, r, offset);
             i=(i>>3)&0x7;
             sprintf(instruction, "%s %d,%s", table_z80[n].instr, i, disp);
             return 4;
           }
+#if 0
             else
           if (((i>>6)==2 && table_z80[n].instr[0]=='r') ||
               ((i>>6)==3 && table_z80[n].instr[0]=='s'))
@@ -306,6 +307,7 @@ char disp[64];
             }
             return 4;
           }
+#endif
           break;
         case OP_REG_IHALF_V2:
           r=((opcode16&0x2000)>>12)|((opcode16>>3)&1);
@@ -417,7 +419,37 @@ char disp[64];
           return 2;
       }
     }
+
     n++;
+  }
+
+  if ((opcode16&0xdfff)==0xddcb)
+  {
+    i=READ_RAM(address+3);
+
+    n=0;
+    while(table_z80_4_byte[n].instr!=NULL)
+    {
+      if ((i&table_z80_4_byte[n].mask)==table_z80_4_byte[n].opcode)
+      {
+        offset=READ_RAM(address+2);
+        get_disp(disp, r, offset);
+
+        switch(table_z80_4_byte[n].type)
+        {
+          case OP_BIT_INDEX_V2:
+            i=(i>>3)&0x7;
+            sprintf(instruction, "%s %d,%s", table_z80_4_byte[n].instr, i, disp);
+            return 4;
+          case OP_BIT_INDEX_REG8:
+            r=i&0x7;
+            i=(i>>3)&0x7;
+            sprintf(instruction, "%s %d,%s,%s", table_z80_4_byte[n].instr, i, disp, reg8[r]);
+            return 4;
+        }
+      }
+      n++;
+    }
   }
 
   sprintf(instruction, "???");
