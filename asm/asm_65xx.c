@@ -24,6 +24,7 @@
 #include "eval_expression.h"
 
 #include "table_65xx.h"
+
 extern struct _opcodes_65xx opcodes_65xx[];
 
 // addressing modes
@@ -38,6 +39,8 @@ enum
   MODE_X_INDEXED_INDIRECT,
   MODE_INDIRECT_Y_INDEXED,
   MODE_RELATIVE,
+
+  // not supported at this time
   MODE_ZEROPAGE,
   MODE_ZEROPAGE_X_INDEXED,
   MODE_ZEROPAGE_Y_INDEXED
@@ -45,7 +48,6 @@ enum
 
 // bytes each mode takes
 static int mode_bytes[] = { 3, 3, 3, 2, 1, 3, 2, 2, 2, 2, 2, 2 };
-
 
 int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 {
@@ -89,7 +91,6 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
   if(IS_TOKEN(token, '#'))
   {
     mode = MODE_IMMEDIATE;
-
     if(eval_expression(asm_context, &num) != 0)
     {
       if(asm_context->pass == 1)
@@ -135,6 +136,11 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
     if(IS_TOKEN(token, ','))
     {
+      if(num > 0xFF)
+      {
+        print_error("X-Indexed Indirect value out of range", asm_context);
+        return -1;
+      }
       mode = MODE_X_INDEXED_INDIRECT;
     }
       else
@@ -145,6 +151,11 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
         if (token_type==TOKEN_EOL) { goto skip; }
       if(IS_TOKEN(token, ','))
       {
+      if(num > 0xFF)
+      {
+        print_error("Indirect Y-Indexed value out of range", asm_context);
+        return -1;
+      }
         mode = MODE_INDIRECT_Y_INDEXED;
       }
         else
@@ -172,10 +183,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     }
 
     num &= 0xFFFF;
-    if(num >= 256)
-      mode = MODE_ABSOLUTE;
-    else
-      mode = MODE_ZEROPAGE;
+    mode = MODE_ABSOLUTE;
 
     token_type = get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { goto skip; }
@@ -187,18 +195,12 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
       if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
       {
-        if(num >= 256)
           mode = MODE_ABSOLUTE_X_INDEXED;
-        else
-          mode = MODE_ZEROPAGE_X_INDEXED;
       }
         else
       if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
       {
-        if(num >= 256)
           mode = MODE_ABSOLUTE_Y_INDEXED;
-        else
-          mode = MODE_ZEROPAGE_Y_INDEXED;
       }
         else
       {
@@ -218,37 +220,17 @@ skip:
       // calculate branch offset, need to add 2 to current
       // address, since thats where the program counter would be
       num -= (asm_context->address + 2);
-      num &= 0xFF;
-      if(num < 0 || num > 0xFF)
-       {
+      if(num < -128 || num > 127)
+      {
         print_error("Branch out of range", asm_context);
         return -1;
       }
-      num &= 0xFF;
+      num = (unsigned char)num;
     }
   }
 
   // see if theres an opcode for this instruction and mode
   opcode = opcodes_65xx[index].opcode[mode];
-  if(opcode == 0xFF)
-  {
-    // try again without zeropage
-    if(mode == MODE_ZEROPAGE)
-    {
-      mode = MODE_ABSOLUTE;
-      opcode = opcodes_65xx[index].opcode[mode];
-    }
-    if(mode == MODE_ZEROPAGE_X_INDEXED)
-    {
-      mode = MODE_ABSOLUTE_X_INDEXED;
-      opcode = opcodes_65xx[index].opcode[mode];
-    }
-    if(mode == MODE_ZEROPAGE_Y_INDEXED)
-    {
-      mode = MODE_ABSOLUTE_Y_INDEXED;
-      opcode = opcodes_65xx[index].opcode[mode];
-    }
-  }
 
   if(asm_context->pass == 2 && opcode == 0xFF)
   {
@@ -264,15 +246,15 @@ skip:
   }
 
   // write opcode
-  memory_write_inc(asm_context, opcode & 0xFF, asm_context->line);
+  add_bin8(asm_context, opcode & 0xFF, IS_OPCODE);
 
   // write low byte first, if any
   if(mode_bytes[mode] > 1)
-    memory_write_inc(asm_context, num & 0xFF, DL_NO_CG);
+    add_bin8(asm_context, num & 0xFF, IS_DATA);
 
   // then high byte, if any
   if(mode_bytes[mode] > 2)
-    memory_write_inc(asm_context, (num >> 8) & 0xFF, DL_NO_CG);
+    add_bin8(asm_context, (num >> 8) & 0xFF, IS_DATA);
 
   return mode_bytes[mode];
 }

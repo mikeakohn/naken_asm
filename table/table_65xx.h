@@ -9,5 +9,6 @@ struct _cycles_65xx
   int opcode;
   int cycles;
   int inc;
+  int mode;
 };
 

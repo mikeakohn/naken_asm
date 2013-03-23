@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2013 by Michael Kohn
+ * Copyright 2010-2012 by Michael Kohn
  *
  * 65xx file by Joe Davisson
  *
@@ -94,13 +94,7 @@ int found = 0;
         // special case for branches
         if(mode == MODE_RELATIVE)
         {
-          // branch forward
-          if(lo >= 0 && lo <= 127)
-            branch_address = (address + 2) + lo;
-          // branch forward
-          if(lo >= 128 && lo <= 255)
-            branch_address = (address + 2) - (256 - lo);
-
+          branch_address = (address + 2) + (signed char)lo;
           sprintf(num, "0x%04x", branch_address);
         }
           else
@@ -187,9 +181,10 @@ int found = 0;
     strcpy(instruction, "???");
     sprintf(temp, " 0x%02x", opcode);
     strcat(instruction, temp);
+    return 0;
   }
 
-  // set this to the number of bytes the opcode took up
+  // set this to the number of bytes the operation took up
   return mode_bytes[mode];
 }
 
@@ -215,12 +210,6 @@ unsigned int opcode=get_opcode32(&asm_context->memory, address);
 
 void disasm_range_65xx(struct _memory *memory, int start, int end)
 {
-// Are these correct and the same for all MSP430's?
-char *vectors[16] = { "", "", "", "", "", "",
-                      "", "", "", "",
-                      "", "", "", "",
-                      "",
-                      "Reset/Watchdog/Flash" };
 char instruction[128];
 int vectors_flag=0;
 int cycles_min=0,cycles_max=0;
@@ -233,35 +222,22 @@ int num;
 
   while(start<=end)
   {
-    if (start>=0xffe0 && vectors_flag==0)
-    {
-      printf("Vectors:\n");
-      vectors_flag=1;
-    }
-
     num=READ_RAM(start)|(READ_RAM(start+1)<<8);
 
     int count=disasm_65xx(memory, start, instruction, &cycles_min, &cycles_max);
 
-    if (vectors_flag==1)
-    {
-      printf("0x%04x: 0x%04x  Vector %2d {%s}\n", start, num, (start-0xffe0)/2, vectors[(start-0xffe0)/2]);
-      start+=2;
-      continue;
-    }
-
     if (cycles_min<1)
     {
-      printf("0x%04x: 0x%04x %-40s ?\n", start, num, instruction);
+      printf("hi1 0x%04x: 0x%02x %-40s ?\n", start, num & 0xFF, instruction);
     }
       else
     if (cycles_min==cycles_max)
     {
-      printf("0x%04x: 0x%04x %-40s %d\n", start, num, instruction, cycles_min);
+      printf("hi2 0x%04x: 0x%02x %-40s %d\n", start, num & 0xFF, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: 0x%04x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
+      printf("hi3 0x%04x: 0x%02x %-40s %d-%d\n", start, num & 0xFF, instruction, cycles_min, cycles_max);
     }
 
     count-=1;
@@ -269,7 +245,7 @@ int num;
     {
       start=start+1;
       num=READ_RAM(start)|(READ_RAM(start+1)<<8);
-      printf("0x%04x: 0x%04x\n", start, num);
+      printf("hi4 0x%04x: 0x%02x\n", start, num & 0xFF);
       count-=1;
     }
 

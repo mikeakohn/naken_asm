@@ -1,6 +1,7 @@
-#include "disasm_tms1000.h"
+#include "table_tms1000.h"
 
-struct _tms_instr tms_instr_table[] = {
+struct _table_tms1000 table_tms1000[] =
+{
   { "knez", 0x09, 0x0e },
   { "tka", -1, 0x08 },
   { "setr", 0x0d, 0x0d },

@@ -18,6 +18,7 @@
 #include "asm_tms1000.h"
 #include "assembler.h"
 #include "disasm_tms1000.h"
+#include "table_tms1000.h"
 #include "get_tokens.h"
 #include "eval_expression.h"
 
@@ -35,12 +36,12 @@ int n;
   lower_copy(instr_case, instr);
 
   n=0;
-  while(tms_instr_table[n].instr!=NULL)
+  while(table_tms1000[n].instr!=NULL)
   {
-    if (strcmp(instr_case, tms_instr_table[n].instr)==0 &&
-        tms_instr_table[n].op1000!=0xffff)
+    if (strcmp(instr_case, table_tms1000[n].instr)==0 &&
+        table_tms1000[n].op1000!=0xffff)
     {
-      add_bin8(asm_context, tms_instr_table[n].op1000, IS_OPCODE);
+      add_bin8(asm_context, table_tms1000[n].op1000, IS_OPCODE);
       return 1;
     }
     n++;
@@ -107,16 +108,6 @@ int n;
   {
     if (strcmp(instr_case, tms_branch[n])==0)
     {
-#if 0
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (token_type!=TOKEN_NUMBER)
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-
-      int num=atoi(token)-(asm_context->address+1);
-#endif
       int num=0;
       if (eval_expression(asm_context, &num)!=0)
       {
@@ -138,7 +129,7 @@ int n;
         return -1;
       }
 
-      add_bin8(asm_context, (0x80|(n<<7))|(num&0x3f), IS_OPCODE);
+      add_bin8(asm_context, (0x80|(n<<6))|(num&0x3f), IS_OPCODE);
 
       return 1;
     }
@@ -159,12 +150,12 @@ int n;
   lower_copy(instr_case, instr);
 
   n=0;
-  while(tms_instr_table[n].instr!=NULL)
+  while(table_tms1000[n].instr!=NULL)
   {
-    if (strcmp(instr_case, tms_instr_table[n].instr)==0 &&
-        tms_instr_table[n].op1100!=0xffff)
+    if (strcmp(instr_case, table_tms1000[n].instr)==0 &&
+        table_tms1000[n].op1100!=0xffff)
     {
-      add_bin8(asm_context, tms_instr_table[n].op1100, IS_OPCODE);
+      add_bin8(asm_context, table_tms1000[n].op1100, IS_OPCODE);
       return 1;
     }
     n++;
@@ -246,17 +237,6 @@ int n;
   {
     if (strcmp(instr_case, tms_branch[n])==0)
     {
-#if 0
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (token_type!=TOKEN_NUMBER)
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-
-      int num=atoi(token)-(asm_context->address+1);
-#endif
-
       int num=0;
       if (eval_expression(asm_context, &num)!=0)
       {
@@ -278,7 +258,7 @@ int n;
         return -1;
       }
 
-      add_bin8(asm_context, (0x80|(n<<7))|(num&0x3f), IS_OPCODE);
+      add_bin8(asm_context, (0x80|(n<<6))|(num&0x3f), IS_OPCODE);
 
       return 1;
     }

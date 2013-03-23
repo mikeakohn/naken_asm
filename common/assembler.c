@@ -856,6 +856,16 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   }
     else
 #endif
+#ifdef ENABLE_TMS9900
+  if (strcasecmp(token, "tms9900")==0)
+  {
+    asm_context->parse_instruction=parse_instruction_tms9900;
+    asm_context->list_output=list_output_tms9900;
+    asm_context->cpu_type=CPU_TYPE_TMS9900;
+    return 1;
+  }
+    else
+#endif
 #ifdef ENABLE_Z80
   if (strcasecmp(token, "z80")==0)
   {

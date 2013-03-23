@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2013 by Michael Kohn
+ * Copyright 2010-2012 by Michael Kohn
  *
  * 65xx file by Joe Davisson
  *
@@ -22,6 +22,7 @@
 struct _simulate_65xx
 {
   // Define registers and anything 65xx specific here
+  int reg_a, reg_x, reg_y, reg_sr, reg_pc, reg_sp;
 };
 
 struct _simulate *simulate_init_65xx(struct _memory *memory);

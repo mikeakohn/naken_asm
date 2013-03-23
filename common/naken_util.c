@@ -22,6 +22,7 @@
 #include "disasm_65xx.h"
 #include "disasm_680x.h"
 #include "disasm_68hc08.h"
+#include "disasm_680x0.h"
 #include "disasm_805x.h"
 #include "disasm_arm.h"
 #include "disasm_dspic.h"
@@ -29,6 +30,8 @@
 #include "disasm_msp430.h"
 #include "disasm_stm8.h"
 #include "disasm_tms1000.h"
+#include "disasm_tms9900.h"
+#include "disasm_z80.h"
 #include "naken_util.h"
 #include "parse_elf.h"
 #include "parse_hex.h"
@@ -551,6 +554,7 @@ int interactive=1;
     printf("   -stm8                        (STM8)\n");
     printf("   -tms1000                     (TMS1000)\n");
     printf("   -tms1100                     (TMS1100)\n");
+    printf("   -z80                         (z80)\n");
     //printf("   -list                        (like -disasm, but adds source code)\n");
     printf("\n");
     exit(0);
@@ -649,6 +653,13 @@ int interactive=1;
     }
       else
 #endif
+#ifdef ENABLE_680X0
+    if (strcmp(argv[i], "-680x0")==0)
+    {
+      util_context.disasm_range=disasm_range_680x0;
+    }
+      else
+#endif
 #ifdef ENABLE_8051
     if (strcmp(argv[i], "-8051")==0 || strcmp(argv[i], "-8052")==0)
     {
@@ -687,6 +698,20 @@ int interactive=1;
     if (strcmp(argv[i], "-tms1100")==0)
     {
       util_context.disasm_range=disasm_range_tms1100;
+    }
+      else
+#endif
+#ifdef ENABLE_TMS9900
+    if (strcmp(argv[i], "-tms9900")==0)
+    {
+      util_context.disasm_range=disasm_range_tms9900;
+    }
+      else
+#endif
+#ifdef ENABLE_Z80
+    if (strcmp(argv[i], "-z80")==0)
+    {
+      util_context.disasm_range=disasm_range_z80;
     }
       else
 #endif

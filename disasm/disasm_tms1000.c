@@ -15,6 +15,7 @@
 
 #include "disasm_common.h"
 #include "disasm_tms1000.h"
+#include "table_tms1000.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
@@ -40,11 +41,11 @@ int n;
   opcode=READ_RAM(address);
 
   n=0;
-  while(tms_instr_table[n].instr!=NULL)
+  while(table_tms1000[n].instr!=NULL)
   {
-    if (opcode==tms_instr_table[n].op1000)
+    if (opcode==table_tms1000[n].op1000)
     {
-      strcpy(instruction, tms_instr_table[n].instr);
+      strcpy(instruction, table_tms1000[n].instr);
       return 1;
     }
     n++;
@@ -98,11 +99,11 @@ int n;
   opcode=READ_RAM(address);
 
   n=0;
-  while(tms_instr_table[n].instr!=NULL)
+  while(table_tms1000[n].instr!=NULL)
   {
-    if (opcode==tms_instr_table[n].op1100)
+    if (opcode==table_tms1000[n].op1100)
     {
-      strcpy(instruction, tms_instr_table[n].instr);
+      strcpy(instruction, table_tms1000[n].instr);
       return 1;
     }
     n++;

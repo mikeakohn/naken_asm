@@ -13,9 +13,9 @@ INSTALL_PREFIX="/usr/local"
 INSTALL_BIN=
 INSTALL_INCLUDES=
 INCLUDE_PATH=
-ASM_OBJS_ALL="asm_65xx.o asm_680x.o asm_68hc08.o asm_680x0.o asm_805x.o asm_arm.o asm_common.o asm_dspic.o asm_mips.o asm_msp430.o asm_stm8.o asm_tms1000.o asm_z80.o"
-DISASM_OBJS_ALL="disasm_65xx.o disasm_680x.o disasm_68hc08.o disasm_680x0.o disasm_805x.o disasm_arm.o disasm_common.o disasm_dspic.o disasm_mips.o disasm_msp430.o disasm_stm8.o disasm_tms1000.o disasm_z80.o"
-TABLE_OBJS_ALL="table_65xx.o table_680x.o table_68hc08.o table_680x0.o table_805x.o table_mips.o table_dspic.o table_stm8.o table_tms1000.o table_z80.o"
+ASM_OBJS_ALL="asm_65xx.o asm_680x.o asm_68hc08.o asm_680x0.o asm_805x.o asm_arm.o asm_common.o asm_dspic.o asm_mips.o asm_msp430.o asm_stm8.o asm_tms1000.o asm_tms9900.o asm_z80.o"
+DISASM_OBJS_ALL="disasm_65xx.o disasm_680x.o disasm_68hc08.o disasm_680x0.o disasm_805x.o disasm_arm.o disasm_common.o disasm_dspic.o disasm_mips.o disasm_msp430.o disasm_stm8.o disasm_tms1000.o disasm_tms9900.o disasm_z80.o"
+TABLE_OBJS_ALL="table_65xx.o table_680x.o table_68hc08.o table_680x0.o table_805x.o table_mips.o table_dspic.o table_stm8.o table_tms1000.o table_tms9900.o table_z80.o"
 SIM_OBJS_ALL="simulate_65xx.o simulate_msp430.o"
 DFLAGS_ALL="-DENABLE_65XX -DENABLE_680X -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_805X -DENABLE_ARM -DENABLE_DSPIC -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_STM8 -DENABLE_TMS1000 -DENABLE_Z80"
 ASM_OBJS="asm_common.o"
@@ -56,6 +56,7 @@ show_help()
   echo "  --enable-msp430           compile in support for MSP430"
   echo "  --enable-stm8             compile in support for STM8"
   echo "  --enable-tms1000          compile in support for tms1000/tms1100"
+  echo "  --enable-z80              compile in support for z80"
   echo
 
   exit
@@ -204,10 +205,16 @@ for option in $@; do
     TABLE_OBJS="${TABLE_OBJS} table_tms1000.o"
     DFLAGS="${DFLAGS} -DENABLE_TMS1000"
   ;;
+  --enable-tms9900)
+    ASM_OBJS="${ASM_OBJS} asm_tms9900.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_tms9900.o"
+    TABLE_OBJS="${TABLE_OBJS} table_tms9900.o"
+    DFLAGS="${DFLAGS} -DENABLE_TMS9900"
+  ;;
   --enable-z80)
-    ASM_OBJS="${ASM_OBJS} asm_z80"
-    DISASM_OBJS="${DISASM_OBJS} disasm_z80"
-    TABLE_OBJS="${TABLE_OBJS} table_z80"
+    ASM_OBJS="${ASM_OBJS} asm_z80.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_z80.o"
+    TABLE_OBJS="${TABLE_OBJS} table_z80.o"
     DFLAGS="${DFLAGS} -DENABLE_Z80"
   ;;
   esac
