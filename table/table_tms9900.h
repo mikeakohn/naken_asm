@@ -16,14 +16,25 @@
 
 enum
 {
-  OP_NONE,
+  OP_CRU_MULTIBIT,
+  OP_CRU_SINGLEBIT,
+  OP_DUAL,
+  OP_DUAL_MULTIPLE,
+  OP_EXTERNAL,
+  OP_IMMEDIATE,
+  OP_INT_REG_LD,
+  OP_INT_REG_ST,
+  OP_JUMP,
+  OP_RTWP,
+  OP_SHIFT,
+  OP_SINGLE,
+  OP_XOP,
 };
 
 struct _table_tms9900
 {
   char *instr;
   unsigned short int opcode;
-  unsigned short int mask;
   unsigned char type;
   unsigned char cycles_min;
   unsigned char cycles_max;
