@@ -39,8 +39,6 @@ enum
   MODE_X_INDEXED_INDIRECT,
   MODE_INDIRECT_Y_INDEXED,
   MODE_RELATIVE,
-
-  // not supported at this time
   MODE_ZEROPAGE,
   MODE_ZEROPAGE_X_INDEXED,
   MODE_ZEROPAGE_Y_INDEXED
@@ -104,8 +102,6 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
     }
 
-    num &= 0xFFFF;
-
     // out of byte range
     if(num < 0 || num > 0xFF)
     {
@@ -129,11 +125,8 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
     }
 
-    num &= 0xFFFF;
-
     token_type = get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { goto skip; }
-
     if(IS_TOKEN(token, ','))
     {
       if(num > 0xFF)
@@ -142,26 +135,43 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
         return -1;
       }
       mode = MODE_X_INDEXED_INDIRECT;
+      token_type = get_token(asm_context, token, TOKENLEN);
+      if (token_type==TOKEN_EOL) { goto skip; }
+      if(IS_NOT_TOKEN(token, 'x') && IS_NOT_TOKEN(token, 'X'))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+      token_type = get_token(asm_context, token, TOKENLEN);
+      if (token_type==TOKEN_EOL) { goto skip; }
+      if(IS_NOT_TOKEN(token, ')'))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
     }
       else
     if(IS_TOKEN(token, ')'))
     {
       mode = MODE_INDIRECT;
       token_type = get_token(asm_context, token, TOKENLEN);
-        if (token_type==TOKEN_EOL) { goto skip; }
+      if (token_type==TOKEN_EOL) { goto skip; }
       if(IS_TOKEN(token, ','))
       {
-      if(num > 0xFF)
-      {
-        print_error("Indirect Y-Indexed value out of range", asm_context);
-        return -1;
-      }
+        if(num > 0xFF)
+        {
+          print_error("Indirect Y-Indexed value out of range", asm_context);
+          return -1;
+        }
         mode = MODE_INDIRECT_Y_INDEXED;
-      }
-        else
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
+        token_type = get_token(asm_context, token, TOKENLEN);
+        if (token_type==TOKEN_EOL) { goto skip; }
+        if(IS_NOT_TOKEN(token, 'y') && IS_NOT_TOKEN(token, 'Y'))
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+        token_type = get_token(asm_context, token, TOKENLEN);
       }
     }
   }  
@@ -173,6 +183,8 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     {
       if(asm_context->pass == 1)
       {
+        if(num == -1)
+          num = 0xFFFF;
         eat_operand(asm_context);
       }
         else
@@ -182,9 +194,10 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
     }
 
-    num &= 0xFFFF;
-    mode = MODE_ABSOLUTE;
-
+    if(num >= 0 && num <= 0xFF)
+      mode = MODE_ZEROPAGE;
+    else
+      mode = MODE_ABSOLUTE;
     token_type = get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { goto skip; }
 
@@ -195,11 +208,17 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
       if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
       {
+        if(num >= 0 && num <= 0xFF)
+          mode = MODE_ZEROPAGE_X_INDEXED;
+        else
           mode = MODE_ABSOLUTE_X_INDEXED;
       }
         else
       if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
       {
+        if(num >= 0 && num <= 0xFF)
+          mode = MODE_ZEROPAGE_Y_INDEXED;
+        else
           mode = MODE_ABSOLUTE_Y_INDEXED;
       }
         else
@@ -231,6 +250,7 @@ skip:
 
   // see if theres an opcode for this instruction and mode
   opcode = opcodes_65xx[index].opcode[mode];
+
 
   if(asm_context->pass == 2 && opcode == 0xFF)
   {

@@ -211,7 +211,7 @@ unsigned int opcode=get_opcode32(&asm_context->memory, address);
 void disasm_range_65xx(struct _memory *memory, int start, int end)
 {
 char instruction[128];
-int vectors_flag=0;
+//int vectors_flag=0;
 int cycles_min=0,cycles_max=0;
 int num;
 

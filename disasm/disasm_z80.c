@@ -224,22 +224,6 @@ char disp[64];
           offset=READ_RAM(address+2);
           get_disp(disp, r, offset);
           sprintf(instruction, "%s a,%s", table_z80[n].instr, disp);
-
-#if 0
-          if (offset==0)
-          {
-            sprintf(instruction, "%s a,(%s)", table_z80[n].instr, reg_xy[r]);
-          }
-            else
-          if (offset>0)
-          {
-            sprintf(instruction, "%s a,(%s+%d)", table_z80[n].instr, reg_xy[r], offset);
-          }
-            else
-          {
-            sprintf(instruction, "%s a,(%s%d)", table_z80[n].instr, reg_xy[r], offset);
-          }
-#endif
           return 3;
         case OP_HL_REG16_2:
           sprintf(instruction, "%s hl,%s", table_z80[n].instr, reg16[(opcode16>>4)&0x3]);
@@ -289,25 +273,6 @@ char disp[64];
             sprintf(instruction, "%s %d,%s", table_z80[n].instr, i, disp);
             return 4;
           }
-#if 0
-            else
-          if (((i>>6)==2 && table_z80[n].instr[0]=='r') ||
-              ((i>>6)==3 && table_z80[n].instr[0]=='s'))
-          {
-            get_disp(disp, r, offset);
-            r=i&0x7;
-            i=(i>>3)&0x7;
-            if (r==6)
-            {
-              sprintf(instruction, "%s %d,%s", table_z80[n].instr, i, disp);
-            }
-              else
-            {
-              sprintf(instruction, "%s %d,%s,%s", table_z80[n].instr, i, disp, reg8[r]);
-            }
-            return 4;
-          }
-#endif
           break;
         case OP_REG_IHALF_V2:
           r=((opcode16&0x2000)>>12)|((opcode16>>3)&1);
@@ -433,6 +398,7 @@ char disp[64];
       if ((i&table_z80_4_byte[n].mask)==table_z80_4_byte[n].opcode)
       {
         offset=READ_RAM(address+2);
+        r=(opcode16>>13)&0x1;
         get_disp(disp, r, offset);
 
         switch(table_z80_4_byte[n].type)
