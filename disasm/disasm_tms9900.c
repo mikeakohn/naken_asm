@@ -20,51 +20,156 @@
 //#define READ_RAM(a) memory_read_m(memory, a)
 #define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
+static unsigned short int masks[] =
+{
+  0xf000, // OP_DUAL,
+  0xfc00, // OP_DUAL_MULTIPLE,
+  0xfc00, // OP_XOP,
+  0xffc0, // OP_SINGLE,
+  0xfc00, // OP_CRU_MULTIBIT,
+  0xff00, // OP_CRU_SINGLEBIT,
+  0xff00, // OP_JUMP,
+  0xff00, // OP_SHIFT,
+  0xffe0, // OP_IMMEDIATE,
+  0xffe0, // OP_INT_REG_LD,
+  0xffe0, // OP_INT_REG_ST,
+  0xffe0, // OP_RTWP,
+  0xffe0, // OP_EXTERNAL,
+};
+
 int get_cycle_count_tms9900(unsigned short int opcode)
 {
   return -1;
 }
 
+static void get_operand(char *operand, int t, int reg, int data)
+{
+  if (t==0) { sprintf(operand, "r%d", reg); }
+  else if (t==1) { sprintf(operand, "*r%d", reg); }
+  else if (t==3) { sprintf(operand, "*r%d+", reg); }
+  else
+  {
+    if (reg==0)
+    {
+      sprintf(operand, "@0x%04x", data);
+    }
+      else
+    {
+      sprintf(operand, "@0x%04x(r%d)", data, reg);
+    }
+  }
+}
+
 int disasm_tms9900(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
+char operand_s[32];
+char operand_d[32];
+int data_s;
+int data_d;
+int count=2;
 int opcode;
+int ts,td;
+int s,d;
+int n;
 
   *cycles_min=-1;
   *cycles_max=-1;
 
-  opcode=READ_RAM16(memory);
+  opcode=READ_RAM16(address);
 
+  n=0;
+  while(table_tms9900[n].instr!=NULL)
+  {
+    if ((opcode&masks[table_tms9900[n].type])==table_tms9900[n].opcode)
+    {
+      *cycles_min=table_tms9900[n].cycles_min;
+      *cycles_max=table_tms9900[n].cycles_max;
 
+      switch(table_tms9900[n].type)
+      {
+        case OP_DUAL:
+        {
+          ts=(opcode>>4)&0x3;
+          td=(opcode>>10)&0x3;
+          s=opcode&0xf;
+          d=(opcode>>6)&0xf;
+          if (ts==2) { address+=2; count+=2; data_s=READ_RAM16(address); }
+          if (td==2) { address+=2; count+=2; data_d=READ_RAM16(address); }
+          get_operand(operand_s, ts, s, data_s);
+          get_operand(operand_d, td, d, data_d);
+          sprintf(instruction, "%s %s,%s", table_tms9900[n].instr, operand_s, operand_d);
+          return count;
+        }
+        case OP_DUAL_MULTIPLE:
+        case OP_XOP:
+        {
+          ts=(opcode>>4)&0x3;
+          td=0;
+          s=opcode&0xf;
+          d=(opcode>>6)&0xf;
+          if (ts==2) { address+=2; count+=2; data_s=READ_RAM16(address); }
+          get_operand(operand_s, ts, s, data_s);
+          get_operand(operand_d, td, d, data_d);
+          sprintf(instruction, "%s %s,%s", table_tms9900[n].instr, operand_s, operand_d);
+          return count;
+        }
+        case OP_SINGLE:
+        {
+          ts=(opcode>>4)&0x3;
+          s=opcode&0xf;
+          if (ts==2) { address+=2; count+=2; data_s=READ_RAM16(address); }
+          get_operand(operand_s, ts, s, data_s);
+          sprintf(instruction, "%s %s", table_tms9900[n].instr, operand_s);
+          return count;
+        }
+        case OP_CRU_MULTIBIT:
+        case OP_CRU_SINGLEBIT:
+        case OP_JUMP:
+        case OP_SHIFT:
+        case OP_IMMEDIATE:
+        case OP_INT_REG_LD:
+        case OP_INT_REG_ST:
+        case OP_RTWP:
+        case OP_EXTERNAL:
+        default:
+          sprintf(instruction, "%s", table_tms9900[n].instr);
+          break;
+      }
 
-  return -1;
+      return count;
+    }
+
+    n++;
+  }
+
+  sprintf(instruction, "???");
+
+  return 2;
 }
 
 void list_output_tms9900(struct _asm_context *asm_context, int address)
 {
 int cycles_min,cycles_max;
 char instruction[128];
-char bytes[10];
 int count;
 int n;
-//unsigned int opcode=memory_read_m(&asm_context->memory, address);
+unsigned int opcode=(memory_read_m(&asm_context->memory, address)<<8)|memory_read_m(&asm_context->memory, address+1);
 
   fprintf(asm_context->list, "\n");
   count=disasm_tms9900(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
-  bytes[0]=0;
-  for (n=0; n<count; n++)
-  {
-    char temp[4];
-    sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, address+n));
-    strcat(bytes, temp);
-  }
-
-  fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ", address, bytes, instruction);
+  fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", address, opcode, instruction);
 
   if (cycles_min==cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
     else
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+
+  for (n=2; n<count; n=n+2)
+  {
+    opcode=(memory_read_m(&asm_context->memory, address+n)<<8)|memory_read_m(&asm_context->memory, address+n+1);
+    fprintf(asm_context->list, "0x%04x: %04x\n", address+n, opcode);
+  }
 }
 
 void disasm_range_tms9900(struct _memory *memory, int start, int end)
@@ -88,7 +193,7 @@ int n;
     for (n=0; n<count; n++)
     {
       char temp[4];
-      sprintf(temp, "%02x ", READ_RAM(start+n));
+      sprintf(temp, "%04x ", READ_RAM16(start+n));
       strcat(bytes, temp);
     }
 
