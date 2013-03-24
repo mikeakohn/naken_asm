@@ -123,8 +123,27 @@ int n;
           return count;
         }
         case OP_CRU_MULTIBIT:
+        {
+          ts=(opcode>>4)&0x3;
+          s=opcode&0xf;
+          data_d=(opcode>>6)&0xf;
+          if (ts==2) { address+=2; count+=2; data_s=READ_RAM16(address); }
+          get_operand(operand_s, ts, s, data_s);
+          sprintf(instruction, "%s %s,%d", table_tms9900[n].instr, operand_s, data_d);
+          return count;
+        }
         case OP_CRU_SINGLEBIT:
+        {
+          data_s=((char)(opcode&0xff));
+          sprintf(instruction, "%s %d", table_tms9900[n].instr, data_s);
+          return count;
+        }
         case OP_JUMP:
+        {
+          data_s=((char)(opcode&0xff));
+          sprintf(instruction, "%s 0x%04x (%d)", table_tms9900[n].instr, address+2+data_s, data_s);
+          return count;
+        }
         case OP_SHIFT:
         case OP_IMMEDIATE:
         case OP_INT_REG_LD:
