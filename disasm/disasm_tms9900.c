@@ -145,9 +145,31 @@ int n;
           return count;
         }
         case OP_SHIFT:
+        {
+          s=opcode&0xf;
+          data_d=(opcode>>4)&0xf;
+          sprintf(instruction, "%s r%d,%d", table_tms9900[n].instr, s, data_d);
+          return count;
+        }
         case OP_IMMEDIATE:
+        {
+          s=opcode&0xf;
+          data_d=READ_RAM16(address+2);
+          sprintf(instruction, "%s r%d,%d", table_tms9900[n].instr, s, data_d);
+          return count+2;
+        }
         case OP_INT_REG_LD:
+        {
+          data_d=READ_RAM16(address+2);
+          sprintf(instruction, "%s %d", table_tms9900[n].instr, data_d);
+          return count+2;
+        }
         case OP_INT_REG_ST:
+        {
+          s=opcode&0xf;
+          sprintf(instruction, "%s r%d", table_tms9900[n].instr, s);
+          return count;
+        }
         case OP_RTWP:
         case OP_EXTERNAL:
         default:

@@ -65,7 +65,7 @@ int token_type;
 char instr_case[TOKENLEN];
 struct _operand operands[2];
 int operand_count;
-int word_count=1;
+int count=2;
 int offset;
 int opcode;
 int n;
@@ -121,7 +121,6 @@ int n;
     if (IS_TOKEN(token,'@'))
     {
       operands[operand_count].type=OPERAND_SYMBOLIC;
-      word_count++;
 
       if (asm_context->pass==1)
       {
@@ -171,7 +170,6 @@ int n;
     }
       else
     {
-      word_count++;
       pushback(asm_context, token, token_type);
 
       if (asm_context->pass==1)
@@ -208,6 +206,7 @@ int n;
     }
   }
 
+#if 0
   if (asm_context->pass==1)
   {
     for (n=0; n<word_count; n++)
@@ -217,6 +216,7 @@ int n;
 
     return word_count*2;
   }
+#endif
 
   n=0;
   while(table_tms9900[n].instr!=NULL)
@@ -243,12 +243,14 @@ int n;
           if (operands[0].type>=OPERAND_SYMBOLIC)
           {
             add_bin(asm_context, operands[0].value, IS_OPCODE);
+            count+=2;
           }
           if (operands[1].type>=OPERAND_SYMBOLIC)
           {
             add_bin(asm_context, operands[1].value, IS_OPCODE);
+            count+=2;
           }
-          return word_count;
+          return count;
         }
         case OP_DUAL_MULTIPLE:
         case OP_XOP:
@@ -269,8 +271,9 @@ int n;
           if (operands[0].type>=OPERAND_SYMBOLIC)
           {
             add_bin(asm_context, operands[0].value, IS_OPCODE);
+            count+=2;
           }
-          return word_count;
+          return count;
         }
         case OP_SINGLE:
         {
@@ -289,8 +292,9 @@ int n;
           if (operands[0].type>=OPERAND_SYMBOLIC)
           {
             add_bin(asm_context, operands[0].value, IS_OPCODE);
+            count+=2;
           }
-          return word_count;
+          return count;
         }
         case OP_CRU_MULTIBIT:
         {
@@ -315,8 +319,9 @@ int n;
           if (operands[0].type>=OPERAND_SYMBOLIC)
           {
             add_bin(asm_context, operands[0].value, IS_OPCODE);
+            count+=2;
           }
-          return word_count;
+          return count;
         }
         case OP_CRU_SINGLEBIT:
         {
@@ -337,7 +342,7 @@ int n;
           }
           opcode=table_tms9900[n].opcode|((unsigned char)(operands[0].value));
           add_bin(asm_context, opcode, IS_OPCODE);
-          return word_count;
+          return count;
         }
         case OP_JUMP:
         {
@@ -351,7 +356,8 @@ int n;
             printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
             return -1;
           }
-          offset=operands[0].value-(asm_context->address+2);
+          if (asm_context->pass==1) { offset=0; }
+          else { offset=operands[0].value-(asm_context->address+2); }
           if (offset<-128 || offset>127)
           {
             print_error_range("Offset", -128, 127, asm_context);
@@ -359,19 +365,93 @@ int n;
           }
           opcode=table_tms9900[n].opcode|((unsigned char)(offset));
           add_bin(asm_context, opcode, IS_OPCODE);
-          return word_count;
+          return count;
         }
         case OP_SHIFT:
-          break;
+        {
+          if (operand_count!=2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+          if (operands[0].type!=OPERAND_REGISTER ||
+              operands[1].type!=OPERAND_NUMBER)
+          {
+            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            return -1;
+          }
+          if (operands[0].value<0 || operands[0].value>15)
+          {
+            print_error_range("Constant", 0, 15, asm_context);
+            return -1;
+          }
+          opcode=table_tms9900[n].opcode|(operands[1].value<<4)|operands[0].reg;
+          add_bin(asm_context, opcode, IS_OPCODE);
+          return count;
+        }
         case OP_IMMEDIATE:
-          break;
+        {
+          if (operand_count!=2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+          if (operands[0].type!=OPERAND_REGISTER ||
+              operands[1].type!=OPERAND_NUMBER)
+          {
+            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            return -1;
+          }
+          opcode=table_tms9900[n].opcode|operands[0].reg;
+          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin(asm_context, operands[1].value, IS_OPCODE);
+          return count+2;
+        }
         case OP_INT_REG_LD:
-          break;
+        {
+          if (operand_count!=1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+          if (operands[0].type!=OPERAND_NUMBER)
+          {
+            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            return -1;
+          }
+          opcode=table_tms9900[n].opcode;
+          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin(asm_context, operands[0].value, IS_OPCODE);
+          return count+2;
+        }
         case OP_INT_REG_ST:
-          break;
+        {
+          if (operand_count!=1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+          if (operands[0].type!=OPERAND_REGISTER)
+          {
+            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            return -1;
+          }
+          opcode=table_tms9900[n].opcode|operands[0].reg;
+          add_bin(asm_context, opcode, IS_OPCODE);
+          return count;
+        }
         case OP_RTWP:
         case OP_EXTERNAL:
-          break;
+        {
+          if (operand_count!=0)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+          opcode=table_tms9900[n].opcode;
+          add_bin(asm_context, opcode, IS_OPCODE);
+          return count;
+        }
       }
     }
 
