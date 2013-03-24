@@ -64,8 +64,8 @@ int disasm_tms9900(struct _memory *memory, int address, char *instruction, int *
 {
 char operand_s[32];
 char operand_d[32];
-int data_s;
-int data_d;
+int data_s=0;
+int data_d=0;
 int count=2;
 int opcode;
 int ts,td;
