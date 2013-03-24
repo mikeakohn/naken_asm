@@ -864,6 +864,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->parse_instruction=parse_instruction_tms9900;
     asm_context->list_output=list_output_tms9900;
     asm_context->cpu_type=CPU_TYPE_TMS9900;
+    asm_context->memory.endian=ENDIAN_BIG;
     return 1;
   }
     else

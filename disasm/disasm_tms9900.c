@@ -18,7 +18,7 @@
 #include "table_tms9900.h"
 
 //#define READ_RAM(a) memory_read_m(memory, a)
-//#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
+#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
 int get_cycle_count_tms9900(unsigned short int opcode)
 {
@@ -27,8 +27,14 @@ int get_cycle_count_tms9900(unsigned short int opcode)
 
 int disasm_tms9900(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
+int opcode;
+
   *cycles_min=-1;
   *cycles_max=-1;
+
+  opcode=READ_RAM16(memory);
+
+
 
   return -1;
 }
