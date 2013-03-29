@@ -19,6 +19,7 @@ enum
   OP_NONE,
   OP_SINGLE_EA,
   OP_SINGLE_EA_NO_SIZE,
+  OP_SINGLE_EA_TO_ADDR,
   OP_IMMEDIATE,
   OP_SHIFT_EA,
   OP_SHIFT,
@@ -29,6 +30,8 @@ enum
   OP_EA_AREG,
   OP_EA_DREG,
   OP_LOAD_EA,
+  OP_QUICK,
+  OP_MOVE_QUICK,
 };
 
 struct _table_680x0

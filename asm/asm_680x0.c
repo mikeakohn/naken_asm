@@ -196,12 +196,36 @@ static int write_single_ea_no_size(struct _asm_context *asm_context, char *instr
     case OPERAND_A_REG_INDEX_MINUS:
       add_bin(asm_context, opcode|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
       return 2;
+    case OPERAND_INDEX_DATA16_A_REG:
+      return ea_displacement(asm_context, opcode, &operands[0]);
+    case OPERAND_ADDRESS:
+      return ea_address(asm_context, opcode, &operands[0]);
     case OPERAND_IMMEDIATE:
     default:
       print_error_illegal_operands(instr, asm_context);
       return -1;
   }
 }
+
+static int write_single_ea_to_addr(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode)
+{
+  if (operand_count!=1) { return 0; }
+
+  switch(operands[0].type)
+  {
+    case OPERAND_A_REG_INDEX:
+      add_bin(asm_context, opcode|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
+      return 2;
+    case OPERAND_INDEX_DATA16_A_REG:
+      return ea_displacement(asm_context, opcode, &operands[0]);
+    case OPERAND_ADDRESS:
+      return ea_address(asm_context, opcode, &operands[0]);
+    default:
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+  }
+}
+
 
 static int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
@@ -437,6 +461,56 @@ static int write_load_ea(struct _asm_context *asm_context, char *instr, struct _
       print_error_illegal_operands(instr, asm_context);
       return -1;
   }
+}
+
+static int write_quick(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size, int type)
+{
+  if (operand_count!=2) { return 0; }
+  if (operands[0].type!=OPERAND_IMMEDIATE) { return 0; }
+
+  if (type==OP_MOVE_QUICK)
+  {
+    if (size!=SIZE_NONE) { return 0; }
+    if (operands[1].type!=OPERAND_D_REG) { return 0; }
+    if (operands[0].value<0 || operands[0].value>255)
+    {
+      print_error_range("Quick", 0, 255, asm_context);
+      return -1;
+    }
+    add_bin16(asm_context, opcode|(operands[1].value<<9)|operands[0].value, IS_OPCODE);
+    return 2;
+  }
+
+  if (size==SIZE_NONE) { return 0; }
+  if (operands[0].value<1 || operands[0].value>8)
+  {
+    print_error_range("Quick", 1, 8, asm_context);
+    return -1;
+  }
+
+  int data=(operands[0].value==0)?8:operands[0].value;
+
+  switch(operands[1].type)
+  {
+    case OPERAND_D_REG:
+    case OPERAND_A_REG:
+    case OPERAND_A_REG_INDEX:
+    case OPERAND_A_REG_INDEX_PLUS:
+    case OPERAND_A_REG_INDEX_MINUS:
+      add_bin16(asm_context, opcode|(data<<9)|(size<<6)|(operands[1].type<<3)|operands[0].value, IS_OPCODE);
+      return 2;
+    case OPERAND_INDEX_DATA16_A_REG:
+      return ea_displacement(asm_context, opcode|(data<<9)|(size<<6), &operands[0]);
+    case OPERAND_IMMEDIATE:
+      return ea_immediate(asm_context, opcode|(data<<9)|(size<<6), size, &operands[0]);
+    case OPERAND_ADDRESS:
+      return ea_address(asm_context, opcode|(data<<9)|(size<<6), &operands[0]);
+    default:
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+  }
+
+  return 2;
 }
 
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
@@ -706,6 +780,12 @@ printf("\n");
             ret=write_single_ea_no_size(asm_context, instr, operands, operand_count, table_680x0[n].opcode);
           }
           break;
+        case OP_SINGLE_EA_TO_ADDR:
+          if (operand_size==SIZE_NONE)
+          {
+            ret=write_single_ea_to_addr(asm_context, instr, operands, operand_count, table_680x0[n].opcode);
+          }
+          break;
         case OP_IMMEDIATE:
           ret=write_immediate(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
@@ -738,6 +818,10 @@ printf("\n");
           break;
         case OP_LOAD_EA:
           ret=write_load_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_QUICK:
+        case OP_MOVE_QUICK:
+          ret=write_quick(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size, table_680x0[n].type);
           break;
         default:
           n++;

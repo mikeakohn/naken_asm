@@ -60,4 +60,11 @@ blah:
   lea (-6,a3), a2
   lea $ff, a2
 
+  jsr (a6)
+
+  jsr main
+
+  addq.b #5, d5
+  subq.b #5, d5
+  moveq #100, d5
 

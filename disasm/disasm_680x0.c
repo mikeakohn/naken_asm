@@ -178,6 +178,7 @@ int n;
           sprintf(instruction, "%s.%c %s", table_680x0[n].instr, sizes[size], ea);
           return 2;
         case OP_SINGLE_EA_NO_SIZE:
+        case OP_SINGLE_EA_TO_ADDR:
           get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s %s", table_680x0[n].instr, ea);
           return 2;
@@ -273,6 +274,17 @@ int n;
           size=0;
           len=get_ea_680x0(memory, address, ea, opcode, 0, size);
           sprintf(instruction, "%s %s, a%d", table_680x0[n].instr, ea, reg);
+          return len;
+        case OP_QUICK:
+          reg=(opcode>>9)&0x7;
+          size=(opcode>>6)&0x3;
+          len=get_ea_680x0(memory, address, ea, opcode, 0, size);
+          sprintf(instruction, "%s.%c #%d, %s", table_680x0[n].instr, sizes[size], reg, ea);
+          return len;
+        case OP_MOVE_QUICK:
+          reg=(opcode>>9)&0x7;
+          sprintf(instruction, "%s #%d, d%d", table_680x0[n].instr, opcode&0xff, reg);
+          return 2;
         default:
           return -1;
       }
