@@ -239,7 +239,12 @@ static int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struc
     case OPERAND_A_REG_INDEX_MINUS:
       add_bin(asm_context, opcode|(reg<<9)|(opmode<<8)|(size<<6)|(ea_operand->type<<3)|ea_operand->value, IS_OPCODE);
       return 2;
+    case OPERAND_INDEX_DATA16_A_REG:
+      return ea_displacement(asm_context, opcode|(reg<<9)|(opmode<<6), &operands[0]);
     case OPERAND_IMMEDIATE:
+      return ea_immediate(asm_context, opcode|(reg<<9)|(opmode<<6), size, &operands[0]);
+    case OPERAND_ADDRESS:
+      return ea_address(asm_context, opcode|(reg<<9)|(opmode<<6), &operands[0]);
     default:
       print_error_illegal_operands(instr, asm_context);
       return -1;
@@ -355,6 +360,39 @@ static int write_ea_areg(struct _asm_context *asm_context, char *instr, struct _
   int reg=operands[1].value;
 
   opmode=(size==SIZE_W)?3:7;
+
+  switch(operands[0].type)
+  {
+    case OPERAND_D_REG:
+    case OPERAND_A_REG:
+    case OPERAND_A_REG_INDEX:
+    case OPERAND_A_REG_INDEX_PLUS:
+    case OPERAND_A_REG_INDEX_MINUS:
+      add_bin16(asm_context, opcode|(reg<<9)|(opmode<<6)|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
+      return 2;
+    case OPERAND_INDEX_DATA16_A_REG:
+    case OPERAND_INDEX_DATA16_PC:
+      return ea_displacement(asm_context, opcode|(reg<<9)|(opmode<<6), &operands[0]);
+    case OPERAND_IMMEDIATE:
+      return ea_immediate(asm_context, opcode|(reg<<9)|(opmode<<6), size, &operands[0]);
+    case OPERAND_ADDRESS:
+      return ea_address(asm_context, opcode|(reg<<9)|(opmode<<6), &operands[0]);
+    default:
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+  }
+}
+
+static int write_ea_dreg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+  if (size==SIZE_NONE) { return 0; }
+  if (operands[1].type!=OPERAND_D_REG) { return 0; }
+
+  int opmode;
+  int reg=operands[1].value;
+
+  opmode=size;
 
   switch(operands[0].type)
   {
@@ -696,6 +734,9 @@ printf("\n");
           break;
         case OP_EA_AREG:
           ret=write_ea_areg(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_EA_DREG:
+          ret=write_ea_dreg(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

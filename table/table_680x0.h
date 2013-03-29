@@ -27,15 +27,8 @@ enum
   OP_AREG,
   OP_REG,
   OP_EA_AREG,
+  OP_EA_DREG,
 };
-
-#if 0
-struct _table_680x0_no_operands
-{
-  char *instr;
-  unsigned short int opcode;
-};
-#endif
 
 struct _table_680x0
 {
@@ -44,30 +37,6 @@ struct _table_680x0
   unsigned short int mask;
   char type;
 };
-
-#if 0
-
-struct _680x0_operand
-{
-  unsigned char type;
-  unsigned char pos;
-  unsigned char size;
-};
-
-struct _table_680x0
-{
-  char *name;
-  unsigned int opcode;
-  unsigned int mask;
-  char size;
-  char size_pos;      // bit pos
-  char cond_pos;      // str pos: Bcc would be 1, DBcc would be 2, etc
-  //char mode_flag;
-  struct _680x0_operand operands[3];
-};
-
-extern struct _table_680x0 table_680x0[];
-#endif
 
 #endif
 

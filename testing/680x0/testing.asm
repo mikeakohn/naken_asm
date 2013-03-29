@@ -48,4 +48,12 @@ blah:
   adda.l (-6,a5), a3
   adda.l (-6,PC), a7
 
+  cmp.b #5, d6
+  cmp.l d7, d6
+
+  add.b #5, d1
+  add.b d2, d1
+  add.b d2, (a3)
+  add.b (a3), d2
+
 

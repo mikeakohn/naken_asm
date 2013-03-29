@@ -2,21 +2,6 @@
 #include <stdlib.h>
 #include "table_680x0.h"
 
-//struct _table_680x0 table_680x0[] =
-
-#if 0
-struct _table_680x0_no_operands table_680x0_no_operands[] =
-{
-  { "illegal", 0x4afc },
-  { "reset", 0x4e70 },
-  { "nop", 0x4e71 },
-  { "rtr", 0x4e77 },
-  { "rts", 0x4e75 },
-  { "trapv", 0x4e76 },
-  { NULL, 0 },
-};
-#endif
-
 struct _table_680x0 table_680x0[] =
 {
   { "add", 0xd000, 0xf000, OP_REG_AND_EA },
@@ -29,6 +14,8 @@ struct _table_680x0 table_680x0[] =
   { "asr", 0xe0c0, 0xffc0, OP_SHIFT_EA },
   { "asr", 0xe000, 0xf118, OP_SHIFT },
   { "clr", 0x4200, 0xff00, OP_SINGLE_EA }, // (no immediate extra data)
+  { "cmp", 0xb000, 0xf000, OP_EA_DREG },
+  { "cmpa", 0xb000, 0xf000, OP_EA_AREG },
   { "cmpi", 0x0c00, 0xff00, OP_IMMEDIATE }, // 12
   { "eor", 0xb000, 0xf000, OP_REG_AND_EA },
   { "eori", 0x0900, 0xff00, OP_IMMEDIATE }, // 9
@@ -55,6 +42,7 @@ struct _table_680x0 table_680x0[] =
   { "rtr", 0x4e77, 0xffff, OP_NONE },
   { "rts", 0x4e75, 0xffff, OP_NONE },
   { "sub", 0x9000, 0xf000, OP_REG_AND_EA },
+  { "suba", 0x9000, 0xf000, OP_EA_AREG },
   { "subi", 0x0400, 0xff00, OP_IMMEDIATE }, // 4
   { "swap", 0x4840, 0xfff8, OP_AREG },
   { "tas", 0x4ac0, 0xffc0, OP_SINGLE_EA_NO_SIZE },
@@ -101,18 +89,10 @@ table_680x0_alu[]
   "lea",   // 4   dir=1,size=11
   "divs",  // 8   dir=1,size=11
   "divu",  // 8   dir=0,size=11
-  "cmp",   // 11  dir=0
   "muls",  // 12  dir=1,size=11
   "mulu",  // 12  dir=0,size=11
 };
 
-// 4 op, 3 reg, 3 mode, 6 EA(mode/reg)
-table_680x0_alua[]
-{
-  "SUBA",  // 9
-  "CMPA",  // 11  mode=011:word,111:long
-  "ADDA",  // 13  mode=011:word,111:long
-};
 #endif
 
 /*
@@ -148,7 +128,6 @@ SBCD
 Scc
 STOP
 SUBX
-SWAP
 UNPK
 */
 
