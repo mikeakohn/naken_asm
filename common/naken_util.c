@@ -554,6 +554,7 @@ int interactive=1;
     printf("   -stm8                        (STM8)\n");
     printf("   -tms1000                     (TMS1000)\n");
     printf("   -tms1100                     (TMS1100)\n");
+    printf("   -tms9900                     (TMS9900)\n");
     printf("   -z80                         (z80)\n");
     //printf("   -list                        (like -disasm, but adds source code)\n");
     printf("\n");

@@ -16,6 +16,8 @@ MIPS                Michael Kohn
 MSP430/MSP430X      Michael Kohn
 STM8                Michael Kohn
 TMS1000/TMS1100     Michael Kohn
+TMS9900             Michael Kohn
+Z80                 Michael Kohn
 
 -------------------------------------------------------------------------
 
@@ -201,6 +203,8 @@ CPU Selection:
 .stm8            STM8
 .tms1000         TMS1000/TMS1200/TMS1070/TMS1270
 .tms1100         TMS1100/TMS1300
+.tms9900         TMS9900
+.z80             Z80
 
 Assembler Directives:
 .ascii <text>               Insert ASCII chars at memory address

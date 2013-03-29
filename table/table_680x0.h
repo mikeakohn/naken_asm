@@ -23,13 +23,19 @@ enum
   OP_SHIFT_EA,
   OP_SHIFT,
   OP_REG_AND_EA,
+  OP_VECTOR,
+  OP_AREG,
+  OP_REG,
+  OP_EA_AREG,
 };
 
+#if 0
 struct _table_680x0_no_operands
 {
   char *instr;
   unsigned short int opcode;
 };
+#endif
 
 struct _table_680x0
 {

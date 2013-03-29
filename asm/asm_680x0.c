@@ -22,7 +22,7 @@
 #include "eval_expression.h"
 #include "table_680x0.h"
 
-extern struct _table_680x0_no_operands table_680x0_no_operands[];
+//extern struct _table_680x0_no_operands table_680x0_no_operands[];
 extern struct _table_680x0 table_680x0[];
 extern char *table_680x0_condition_codes[];
 
@@ -33,7 +33,11 @@ enum
   OPERAND_A_REG_INDEX,
   OPERAND_A_REG_INDEX_PLUS,
   OPERAND_A_REG_INDEX_MINUS,
+  OPERAND_INDEX_DATA16_REG_A_REG,     // implement me
+  OPERAND_INDEX_DATA8_REG_A_REG_XN,   // implement me
   OPERAND_IMMEDIATE,
+  OPERAND_INDEX_DATA16_PC,            // implement me
+  OPERAND_INDEX_DATA8_PC_XN,          // implement me
   OPERAND_ADDRESS,
 };
 
@@ -49,6 +53,7 @@ struct _operand
 {
   int value;
   int type;
+  char error;
 };
 
 static int get_register_d_680x0(char *token)
@@ -74,7 +79,7 @@ static int get_register_a_680x0(char *token)
   return -1;
 }
 
-int write_single_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_single_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
   if (operand_count!=1) { return 0; }
 
@@ -94,7 +99,7 @@ int write_single_ea(struct _asm_context *asm_context, char *instr, struct _opera
   }
 }
 
-int write_single_ea_no_size(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode)
+static int write_single_ea_no_size(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode)
 {
   if (operand_count!=1) { return 0; }
 
@@ -114,7 +119,7 @@ int write_single_ea_no_size(struct _asm_context *asm_context, char *instr, struc
   }
 }
 
-int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
   if (operand_count!=2) { return 0; }
   if (size==SIZE_NONE) { return 0; }
@@ -157,7 +162,7 @@ int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struct _oper
   }
 }
 
-int write_immediate(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_immediate(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
   if (operand_count!=2) { return 0; }
 
@@ -182,7 +187,7 @@ int write_immediate(struct _asm_context *asm_context, char *instr, struct _opera
   else { add_bin32(asm_context, operands[0].value, IS_OPCODE); return 6; }
 }
 
-int write_shift(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_shift(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
   if (operand_count!=2) { return 0; }
 
@@ -207,6 +212,142 @@ int write_shift(struct _asm_context *asm_context, char *instr, struct _operand *
   }
 
   return 2;
+}
+
+static int write_vector(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=1) { return 0; }
+  if (size!=SIZE_NONE) { return 0; }
+  if (operands[0].type!=OPERAND_IMMEDIATE) { return 0; }
+
+  if (operands[0].value<0 || operands[0].value>16)
+  {
+    print_error_range("Vector", 0, 15, asm_context);
+    return -1;
+  }
+
+  add_bin(asm_context, opcode|operands[0].value, IS_OPCODE);
+  return 2;
+}
+
+static int write_areg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=1) { return 0; }
+  if (size!=SIZE_NONE) { return 0; }
+  if (operands[0].type!=OPERAND_A_REG) { return 0; }
+
+  add_bin(asm_context, opcode|operands[0].value, IS_OPCODE);
+  return 2;
+}
+
+static int write_reg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=1) { return 0; }
+  if (size!=SIZE_NONE) { return 0; }
+  if (operands[0].type==OPERAND_D_REG)
+  {
+    add_bin(asm_context, opcode|operands[0].value, IS_OPCODE);
+  }
+    else
+  if (operands[0].type==OPERAND_A_REG)
+  {
+    add_bin(asm_context, opcode|8|operands[0].value, IS_OPCODE);
+  }
+    else
+  {
+    return 0;
+  }
+
+  return 2;
+}
+
+static int write_ea_areg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+  if (size==SIZE_NONE || size==SIZE_B) { return 0; }
+  if (operands[1].type!=OPERAND_A_REG) { return 0; }
+
+  int opmode;
+  int reg=operands[1].value;
+  unsigned int value;
+
+  opmode=(size==SIZE_W)?3:7;
+
+  switch(operands[0].type)
+  {
+    case OPERAND_D_REG:
+    case OPERAND_A_REG:
+    case OPERAND_A_REG_INDEX:
+    case OPERAND_A_REG_INDEX_PLUS:
+    case OPERAND_A_REG_INDEX_MINUS:
+      add_bin16(asm_context, opcode|(reg<<9)|(opmode<<6)|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
+      return 2;
+    case OPERAND_IMMEDIATE:
+      add_bin16(asm_context, opcode|(reg<<9)|(opmode<<6)|(operands[0].type<<3)|0x4, IS_OPCODE);
+
+      if (size==SIZE_L)
+      {
+        add_bin32(asm_context, operands[0].value, IS_OPCODE);
+        return 6;
+      }
+        else
+      {
+        if (operands[0].value<-32768 || operands[0].value>65535)
+        {
+          print_error_range("Immediate", -32768, 65535, asm_context);
+          return -1;
+        }
+        add_bin16(asm_context, operands[0].value, IS_OPCODE);
+        return 4;
+      }
+    case OPERAND_ADDRESS:
+      if (asm_context->pass==1)
+      {
+        if (operands[0].error==1)
+        {
+          add_bin(asm_context, 0x0100, IS_OPCODE);
+          add_bin(asm_context, 0x0000, IS_OPCODE);
+          add_bin(asm_context, 0x0000, IS_OPCODE);
+          return 6;
+        }
+          else
+        if (operands[0].error==1)
+        {
+          add_bin(asm_context, 0x0100, IS_OPCODE);
+          add_bin(asm_context, 0x0000, IS_OPCODE);
+          add_bin(asm_context, 0x0000, IS_OPCODE);
+          return 4;
+        }
+      }
+
+      value=operands[0].value;
+          //operands[0].value<-32768 || operands[0].value>65535)
+
+      if (memory_read(asm_context, asm_context->address)==1)
+      {
+        add_bin16(asm_context, opcode|(reg<<9)|(opmode<<6)|(0x7<<3)|0x1, IS_OPCODE);
+        add_bin32(asm_context, value, IS_OPCODE);
+        return 6;
+      }
+        else
+      //if ((value&0xff800000)==0x00800000)
+      if ((value&0x00ff8000)==0x00000000 ||
+          (value&0xffff8000)==0x00ff8000)
+      {
+        add_bin16(asm_context, opcode|(reg<<9)|(opmode<<6)|(0x7<<3)|0x0, IS_OPCODE);
+        add_bin16(asm_context, value, IS_OPCODE);
+        return 4;
+      }
+        else
+      {
+        add_bin16(asm_context, opcode|(reg<<9)|(opmode<<6)|(0x7<<3)|0x1, IS_OPCODE);
+        add_bin32(asm_context, operands[0].value, IS_OPCODE);
+        return 6;
+      }
+    default:
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+  }
 }
 
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
@@ -288,7 +429,7 @@ int n;
         if (asm_context->pass==1)
         {
           eat_operand(asm_context);
-          //operands[operand_count].error=1;
+          operands[operand_count].error=1;
         }
           else
         {
@@ -422,6 +563,7 @@ printf("\n");
     }
   }
 
+#if 0
   n=0;
   while(table_680x0_no_operands[n].instr!=NULL)
   {
@@ -444,6 +586,7 @@ printf("\n");
     }
     n++;
   }
+#endif
 
   n=0;
   while(table_680x0[n].instr!=NULL)
@@ -455,6 +598,13 @@ printf("\n");
 
       switch(table_680x0[n].type)
       {
+        case OP_NONE:
+          if (operand_count==0)
+          {
+            add_bin(asm_context, table_680x0[n].opcode, IS_OPCODE);
+            ret=2;
+          }
+          break;
         case OP_SINGLE_EA:
           ret=write_single_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
@@ -478,6 +628,18 @@ printf("\n");
           break;
         case OP_REG_AND_EA:
           ret=write_reg_and_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_VECTOR:
+          ret=write_vector(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_AREG:
+          ret=write_areg(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_REG:
+          ret=write_reg(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_EA_AREG:
+          ret=write_ea_areg(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

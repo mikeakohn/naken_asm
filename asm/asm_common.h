@@ -18,6 +18,7 @@
 #define IS_DATA 0
 #define IS_OPCODE 1
 
+// FIXME - change add_bin() to add_bin16() instead.
 #define add_bin16 add_bin
 
 void add_bin(struct _asm_context *asm_context, unsigned short int b, int flags);
