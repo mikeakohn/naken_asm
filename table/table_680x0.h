@@ -28,6 +28,7 @@ enum
   OP_REG,
   OP_EA_AREG,
   OP_EA_DREG,
+  OP_LOAD_EA,
 };
 
 struct _table_680x0

@@ -416,6 +416,29 @@ static int write_ea_dreg(struct _asm_context *asm_context, char *instr, struct _
   }
 }
 
+static int write_load_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+  if (size!=SIZE_NONE) { return 0; }
+  if (operands[1].type!=OPERAND_A_REG) { return 0; }
+
+  int reg=operands[1].value;
+
+  switch(operands[0].type)
+  {
+    case OPERAND_A_REG_INDEX:
+      add_bin(asm_context, opcode|(reg<<9)|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
+      return 2;
+    case OPERAND_INDEX_DATA16_A_REG:
+      return ea_displacement(asm_context, opcode|(reg<<9), &operands[0]);
+    case OPERAND_ADDRESS:
+      return ea_address(asm_context, opcode|(reg<<9), &operands[0]);
+    default:
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+  }
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -657,31 +680,6 @@ printf("\n");
     }
   }
 
-#if 0
-  n=0;
-  while(table_680x0_no_operands[n].instr!=NULL)
-  {
-    if (strcmp(table_680x0_no_operands[n].instr, instr_case)==0)
-    {
-      if (operand_size!=SIZE_NONE)
-      {
-        printf("Error: %s doesn't take a size attribute at %s:%d\n", instr, asm_context->filename, asm_context->line);
-        return -1;
-      }
-
-      if (operand_count!=0)
-      {
-        print_error_opcount(instr, asm_context);
-        return -1;
-      }
-
-      add_bin(asm_context, table_680x0_no_operands[n].opcode, IS_OPCODE);
-      return 2;
-    }
-    n++;
-  }
-#endif
-
   n=0;
   while(table_680x0[n].instr!=NULL)
   {
@@ -737,6 +735,9 @@ printf("\n");
           break;
         case OP_EA_DREG:
           ret=write_ea_dreg(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_LOAD_EA:
+          ret=write_load_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

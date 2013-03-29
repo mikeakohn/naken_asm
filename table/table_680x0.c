@@ -21,6 +21,7 @@ struct _table_680x0 table_680x0[] =
   { "eori", 0x0900, 0xff00, OP_IMMEDIATE }, // 9
   { "illegal", 0x4afc, 0xffff, OP_NONE },
   { "jmp", 0x4ec0, 0xffc0, OP_SINGLE_EA_NO_SIZE },
+  { "lea", 0x41c0, 0xf1c0, OP_LOAD_EA },
   { "lsl", 0xe3c0, 0xffc0, OP_SHIFT_EA },
   { "lsl", 0xe108, 0xf118, OP_SHIFT },
   { "lsr", 0xe2c0, 0xffc0, OP_SHIFT_EA },

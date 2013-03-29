@@ -268,6 +268,11 @@ int n;
           len=get_ea_680x0(memory, address, ea, opcode, 0, size);
           sprintf(instruction, "%s.%c %s, d%d", table_680x0[n].instr, sizes[size], ea, reg);
           return len;
+        case OP_LOAD_EA:
+          reg=(opcode>>9)&0x7;
+          size=0;
+          len=get_ea_680x0(memory, address, ea, opcode, 0, size);
+          sprintf(instruction, "%s %s, a%d", table_680x0[n].instr, ea, reg);
         default:
           return -1;
       }

@@ -56,4 +56,8 @@ blah:
   add.b d2, (a3)
   add.b (a3), d2
 
+  lea (a3), a2
+  lea (-6,a3), a2
+  lea $ff, a2
+
 
