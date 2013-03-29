@@ -64,6 +64,9 @@ static int get_ea_680x0(struct _memory *memory, int address, char *ea, unsigned 
     case 4:
       sprintf(ea, "-(a%d)", reg);
       return 2;
+    case 5:
+      sprintf(ea, "(%d,a%d)", (short int)READ_RAM16(address+2), reg);
+      return 4;
     case 7:
       if (reg==0)
       {
@@ -75,6 +78,11 @@ static int get_ea_680x0(struct _memory *memory, int address, char *ea, unsigned 
       else if (reg==1)
       {
         sprintf(ea, "$%x", READ_RAM32(address+2));
+        return 6;
+      }
+      else if (reg==2)
+      {
+        sprintf(ea, "(%d,PC)", (short int)READ_RAM16(address+2));
         return 6;
       }
       else if (reg==4)

@@ -44,4 +44,8 @@ blah:
   adda.l $fffff, a3
   adda.l $ffffff, a3
 
+  adda.l (6,a5), a3
+  adda.l (-6,a5), a3
+  adda.l (-6,PC), a7
+
 
