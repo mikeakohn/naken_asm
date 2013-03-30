@@ -36,7 +36,8 @@ enum
   OP_MOVE_TO_CCR,
   OP_MOVE_FROM_SR,
   OP_MOVEA,
-  OP_TWO_INDEX_A_REG_POST,
+  OP_CMPM,
+  OP_ABCD,
 };
 
 struct _table_680x0

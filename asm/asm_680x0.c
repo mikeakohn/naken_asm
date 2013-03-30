@@ -544,7 +544,7 @@ static int write_movea(struct _asm_context *asm_context, char *instr, struct _op
   return ea_generic_all(asm_context, &operands[0], instr, opcode|(size_a<<12)|(operands[1].value<<9), size, 0);
 }
 
-static int write_two_index_a_reg_post(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_cmpm(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
   if (operand_count!=2) { return 0; }
   if (size==SIZE_NONE) { return 0; }
@@ -552,6 +552,31 @@ static int write_two_index_a_reg_post(struct _asm_context *asm_context, char *in
   if (operands[1].type!=OPERAND_A_REG_INDEX_PLUS) { return 0; }
 
   add_bin16(asm_context, opcode|(size<<6)|(operands[1].value<<9)|operands[0].value, IS_OPCODE);
+  return 2;
+}
+
+static int write_abcd(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+  if (size!=SIZE_NONE) { return 0; }
+
+  int rm=-1;
+
+  if (operands[0].type==OPERAND_A_REG_INDEX_MINUS &&
+      operands[1].type==OPERAND_A_REG_INDEX_MINUS)
+  {
+    rm=8;
+  }
+    else
+  if (operands[0].type==OPERAND_D_REG &&
+      operands[1].type==OPERAND_D_REG)
+  {
+    rm=0;
+  }
+
+  if (rm==-1) { return 0; }
+
+  add_bin16(asm_context, opcode|(operands[1].value<<9)|operands[0].value|rm, IS_OPCODE);
   return 2;
 }
 
@@ -879,8 +904,11 @@ printf("\n");
         case OP_MOVEA:
           ret=write_movea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
-        case OP_TWO_INDEX_A_REG_POST:
-          ret=write_two_index_a_reg_post(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+        case OP_CMPM:
+          ret=write_cmpm(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_ABCD:
+          ret=write_abcd(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

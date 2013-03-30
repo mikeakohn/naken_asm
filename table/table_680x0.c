@@ -4,6 +4,7 @@
 
 struct _table_680x0 table_680x0[] =
 {
+  { "abcd", 0xc100, 0xf1f0, OP_ABCD },
   { "add", 0xd000, 0xf000, OP_REG_AND_EA },
   { "addi", 0x0600, 0xff00, OP_IMMEDIATE }, // 6
   { "adda", 0xd000, 0xf000, OP_EA_AREG },
@@ -18,7 +19,7 @@ struct _table_680x0 table_680x0[] =
   { "cmp", 0xb000, 0xf000, OP_EA_DREG },
   { "cmpa", 0xb000, 0xf000, OP_EA_AREG },
   { "cmpi", 0x0c00, 0xff00, OP_IMMEDIATE },
-  { "cmpm", 0xb108, 0xf138, OP_TWO_INDEX_A_REG_POST },
+  { "cmpm", 0xb108, 0xf138, OP_CMPM },
   { "eor", 0xb000, 0xf000, OP_REG_AND_EA },
   { "eori", 0x0900, 0xff00, OP_IMMEDIATE },
   { "illegal", 0x4afc, 0xffff, OP_NONE },

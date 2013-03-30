@@ -304,10 +304,21 @@ int n;
           len=get_ea_680x0(memory, address, ea, opcode, 0, size);
           sprintf(instruction, "%s.%c %s, d%d", table_680x0[n].instr, sizes[size], ea, reg);
           return len;
-        case OP_TWO_INDEX_A_REG_POST:
+        case OP_CMPM:
           size=(opcode>>6)&0x3;
           reg=(opcode>>9)&0x7;
           sprintf(instruction, "%s.%c (a%d)+, (a%d)+", table_680x0[n].instr, sizes[size], opcode&0x7, reg);
+          return 2;
+        case OP_ABCD:
+          reg=(opcode>>9)&0x7;
+          if ((opcode&8)==0)
+          {
+            sprintf(instruction, "%s d%d, d%d", table_680x0[n].instr, opcode&0x7, reg);
+          }
+            else
+          {
+            sprintf(instruction, "%s -(a%d), -(a%d)", table_680x0[n].instr, opcode&0x7, reg);
+          }
           return 2;
         default:
           return -1;

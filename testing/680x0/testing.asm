@@ -75,4 +75,7 @@ blah:
   movea.l #400, a6
   cmpm.w (a6)+, (a1)+
 
+  abcd d1, d2
+  abcd -(a1), -(a2)
+
 
