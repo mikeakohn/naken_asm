@@ -39,6 +39,8 @@ enum
   OP_CMPM,
   OP_ABCD,
   OP_EXTENDED,
+  OP_ROX_MEM,
+  OP_ROX,
 };
 
 struct _table_680x0

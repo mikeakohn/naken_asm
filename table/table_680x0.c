@@ -49,6 +49,10 @@ struct _table_680x0 table_680x0[] =
   { "rol", 0xe118, 0xf118, OP_SHIFT },
   { "ror", 0xe6c0, 0xffc0, OP_SHIFT_EA },
   { "ror", 0xe018, 0xf118, OP_SHIFT },
+  { "roxl", 0xe5c0, 0xffc0, OP_ROX_MEM },
+  { "roxl", 0xe130, 0xf138, OP_ROX },
+  { "roxr", 0xe4c0, 0xffc0, OP_ROX_MEM },
+  { "roxr", 0xe110, 0xf138, OP_ROX },
   { "rtm", 0x06c0, 0xfff0, OP_REG },
   { "rtr", 0x4e77, 0xffff, OP_NONE },
   { "rts", 0x4e75, 0xffff, OP_NONE },
@@ -56,6 +60,7 @@ struct _table_680x0 table_680x0[] =
   { "suba", 0x9000, 0xf000, OP_EA_AREG },
   { "subi", 0x0400, 0xff00, OP_IMMEDIATE }, // 4
   { "subq", 0x5100, 0xf100, OP_QUICK },
+  { "subx", 0x9100, 0xf130, OP_EXTENDED },
   { "swap", 0x4840, 0xfff8, OP_AREG },
   { "tas", 0x4ac0, 0xffc0, OP_SINGLE_EA_NO_SIZE },
   { "tst", 0x4a00, 0xff00, OP_SINGLE_EA },
@@ -99,8 +104,6 @@ table_680x0_alu[]
 #endif
 
 /*
-ABCD
-ADDX
 Bcc
 Bcc.W
 BCHG
@@ -118,13 +121,10 @@ MOVE
 MOVE
 MOVEM
 MOVEP
-ROXL
-ROXR
 RTE
 SBCD
 Scc
 STOP
-SUBX
 UNPK
 */
 

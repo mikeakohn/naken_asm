@@ -333,6 +333,23 @@ int n;
             sprintf(instruction, "%s.%c -(a%d), -(a%d)", table_680x0[n].instr, sizes[size], opcode&0x7, reg);
           }
           return 2;
+        case OP_ROX_MEM:
+          len=get_ea_680x0(memory, address, ea, opcode, 0, 0);
+          sprintf(instruction, "%s %s", table_680x0[n].instr, ea);
+          return len;
+        case OP_ROX:
+          size=(opcode>>6)&0x3;
+          reg=(opcode>>9)&0x7;
+          if ((opcode&0x20)==0)
+          {
+            reg=(reg==0)?8:reg;
+            sprintf(instruction, "%s.%c #%d, d%d", table_680x0[n].instr, sizes[size], reg, opcode&0x7);
+          }
+            else
+          {
+            sprintf(instruction, "%s.%c d%d, d%d", table_680x0[n].instr, sizes[size], reg, opcode&0x7);
+          }
+          return 2;
         default:
           return -1;
       }

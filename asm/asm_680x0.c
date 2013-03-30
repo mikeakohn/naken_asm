@@ -592,6 +592,40 @@ static int write_extended(struct _asm_context *asm_context, char *instr, struct 
   return 2;
 }
 
+static int write_rox(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size, int type)
+{
+
+  if (type==OP_ROX_MEM)
+  {
+    if (size!=SIZE_NONE) { return 0; }
+    if (operand_count!=1) { return 0; }
+
+    return ea_generic_all(asm_context, &operands[0], instr, opcode, size, EA_NO_D|EA_NO_A|EA_NO_PC|EA_NO_IMM);
+  }
+    else
+  if (type==OP_ROX)
+  {
+    if (size==SIZE_NONE) { return 0; }
+    if (operand_count!=2) { return 0; }
+    if (operands[1].type!=OPERAND_D_REG) { return 0; }
+
+    if (operands[0].type==OPERAND_D_REG)
+    {
+      add_bin16(asm_context, opcode|(operands[0].value<<9)|(size<<6)|(1<<5)|operands[1].value, IS_OPCODE);
+      return 2;
+    }
+      else
+    if (operands[0].type==OPERAND_IMMEDIATE)
+    {
+      int count=(operands[0].value==8)?0:operands[0].value;
+      add_bin16(asm_context, opcode|(count<<9)|(size<<6)|operands[1].value, IS_OPCODE);
+      return 2;
+    }
+  }
+
+  return 0;
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -924,6 +958,10 @@ printf("\n");
           break;
         case OP_EXTENDED:
           ret=write_extended(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_ROX_MEM:
+        case OP_ROX:
+          ret=write_rox(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size, table_680x0[n].type);
           break;
         default:
           n++;

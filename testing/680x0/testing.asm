@@ -80,10 +80,20 @@ blah:
   abcd -(a1), -(a2)
 
   add.b d1, d2
-  ;add.b d1, a2
   add.b a1, d2
-
   addx.b d1, d2
   addx.w -(a2), -(a3)
+
+  sub.b d1, d2
+  sub.b a1, d2
+  subx.b d1, d2
+  subx.w -(a2), -(a3)
+
+  roxl (a1)
+  roxr $1000
+
+  roxl.w d1, d2
+  roxr.b #8, d2
+
 
 
