@@ -58,8 +58,11 @@ enum
 
 enum
 {
-  EA_NOFLAG,
-  EA_NO_PC,
+  EA_NOFLAG=0,
+  EA_NO_PC=1,
+  EA_NO_IMM=2,
+  EA_NO_A=4,
+  EA_NO_D=8,
 };
 
 struct _operand
@@ -189,7 +192,9 @@ static int ea_generic_all(struct _asm_context *asm_context, struct _operand *ope
   switch(operand->type)
   {
     case OPERAND_D_REG:
+      if (flags&EA_NO_D) { break; }
     case OPERAND_A_REG:
+      if (flags&EA_NO_A) { break; }
     case OPERAND_A_REG_INDEX:
     case OPERAND_A_REG_INDEX_PLUS:
     case OPERAND_A_REG_INDEX_MINUS:
@@ -200,6 +205,7 @@ static int ea_generic_all(struct _asm_context *asm_context, struct _operand *ope
     case OPERAND_INDEX_DATA16_A_REG:
       return ea_displacement(asm_context, opcode, operand);
     case OPERAND_IMMEDIATE:
+      if (flags&EA_NO_IMM) { break; }
       return ea_immediate(asm_context, opcode, size, operand);
     case OPERAND_ADDRESS:
       return ea_address(asm_context, opcode, operand);
@@ -280,46 +286,25 @@ static int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struc
   if (operand_count!=2) { return 0; }
   if (size==SIZE_NONE) { return 0; }
 
-  struct _operand *ea_operand;
   int opmode;
   int reg;
 
-  if (operands[0].type==OPERAND_D_REG)
-  {
-    reg=operands[0].value;
-    ea_operand=&operands[1];
-    opmode=1;
-  }
-    else
   if (operands[1].type==OPERAND_D_REG)
   {
     reg=operands[1].value;
-    ea_operand=&operands[0];
     opmode=0;
+    return ea_generic_all(asm_context, &operands[0], instr, opcode|(reg<<9)|(opmode<<8)|(size<<6), size, 0);
+  }
+    else
+  if (operands[0].type==OPERAND_D_REG)
+  {
+    reg=operands[0].value;
+    opmode=1;
+    return ea_generic_all(asm_context, &operands[1], instr, opcode|(reg<<9)|(opmode<<8)|(size<<6), size, EA_NO_PC|EA_NO_D|EA_NO_A|EA_NO_IMM);
   }
     else
   {
     return 0;
-  }
-
-  switch(ea_operand->type)
-  {
-    case OPERAND_D_REG:
-    case OPERAND_A_REG:
-    case OPERAND_A_REG_INDEX:
-    case OPERAND_A_REG_INDEX_PLUS:
-    case OPERAND_A_REG_INDEX_MINUS:
-      add_bin(asm_context, opcode|(reg<<9)|(opmode<<8)|(size<<6)|(ea_operand->type<<3)|ea_operand->value, IS_OPCODE);
-      return 2;
-    case OPERAND_INDEX_DATA16_A_REG:
-      return ea_displacement(asm_context, opcode|(reg<<9)|(opmode<<6), &operands[0]);
-    case OPERAND_IMMEDIATE:
-      return ea_immediate(asm_context, opcode|(reg<<9)|(opmode<<6), size, &operands[0]);
-    case OPERAND_ADDRESS:
-      return ea_address(asm_context, opcode|(reg<<9)|(opmode<<6), &operands[0]);
-    default:
-      print_error_illegal_operands(instr, asm_context);
-      return -1;
   }
 }
 
@@ -576,7 +561,34 @@ static int write_abcd(struct _asm_context *asm_context, char *instr, struct _ope
 
   if (rm==-1) { return 0; }
 
-  add_bin16(asm_context, opcode|(operands[1].value<<9)|operands[0].value|rm, IS_OPCODE);
+  add_bin16(asm_context, opcode|(operands[1].value<<9)|rm|operands[0].value, IS_OPCODE);
+
+  return 2;
+}
+
+static int write_extended(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+  if (size==SIZE_NONE) { return 0; }
+
+  int rm=-1;
+
+  if (operands[0].type==OPERAND_A_REG_INDEX_MINUS &&
+      operands[1].type==OPERAND_A_REG_INDEX_MINUS)
+  {
+    rm=8;
+  }
+    else
+  if (operands[0].type==OPERAND_D_REG &&
+      operands[1].type==OPERAND_D_REG)
+  {
+    rm=0;
+  }
+
+  if (rm==-1) { return 0; }
+
+  add_bin16(asm_context, opcode|(operands[1].value<<9)|(size<<6)|rm|operands[0].value, IS_OPCODE);
+
   return 2;
 }
 
@@ -909,6 +921,9 @@ printf("\n");
           break;
         case OP_ABCD:
           ret=write_abcd(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_EXTENDED:
+          ret=write_extended(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

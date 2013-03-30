@@ -26,9 +26,10 @@ blah:
   pea -(a5)
   pea (a5)+
 
-  and.w d1, a2
+  ;and.w d1, a2
   and.b a2, d1
   and.l d2, d1
+  and.b d2, d1
 
   trapv
   trap #5
@@ -77,5 +78,12 @@ blah:
 
   abcd d1, d2
   abcd -(a1), -(a2)
+
+  add.b d1, d2
+  ;add.b d1, a2
+  add.b a1, d2
+
+  addx.b d1, d2
+  addx.w -(a2), -(a3)
 
 

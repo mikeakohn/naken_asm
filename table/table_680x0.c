@@ -9,6 +9,7 @@ struct _table_680x0 table_680x0[] =
   { "addi", 0x0600, 0xff00, OP_IMMEDIATE }, // 6
   { "adda", 0xd000, 0xf000, OP_EA_AREG },
   { "addq", 0x5000, 0xf100, OP_QUICK },
+  { "addx", 0xd100, 0xf130, OP_EXTENDED },
   { "and", 0xc000, 0xf000, OP_REG_AND_EA },
   { "andi", 0x0200, 0xff00, OP_IMMEDIATE },
   { "asl", 0xe1c0, 0xffc0, OP_SHIFT_EA },

@@ -227,10 +227,11 @@ int n;
           return 2;
         case OP_REG_AND_EA:
           size=SIZE(opcode,6);
-          get_ea_680x0(memory, address, ea, opcode, 0, size);
           if (size==3) { break; }
+          len=get_ea_680x0(memory, address, ea, opcode, 0, size);
           reg=(opcode>>9)&0x7;
           mode=(opcode>>8)&0x1;
+          if (mode==1 && ((opcode>>3)&0x7)>=1) { break; }
           if (mode==0)
           {
             sprintf(instruction, "%s.%c %s, d%d", table_680x0[n].instr, sizes[size], ea, reg);
@@ -239,7 +240,7 @@ int n;
           {
             sprintf(instruction, "%s.%c d%d, %s", table_680x0[n].instr, sizes[size], reg, ea);
           }
-          return 2;
+          return len;
         case OP_VECTOR:
           sprintf(instruction, "%s #%d", table_680x0[n].instr, opcode&0xf);
           return 2;
@@ -318,6 +319,18 @@ int n;
             else
           {
             sprintf(instruction, "%s -(a%d), -(a%d)", table_680x0[n].instr, opcode&0x7, reg);
+          }
+          return 2;
+        case OP_EXTENDED:
+          reg=(opcode>>9)&0x7;
+          size=(opcode>>6)&0x3;
+          if ((opcode&8)==0)
+          {
+            sprintf(instruction, "%s.%c d%d, d%d", table_680x0[n].instr, sizes[size], opcode&0x7, reg);
+          }
+            else
+          {
+            sprintf(instruction, "%s.%c -(a%d), -(a%d)", table_680x0[n].instr, sizes[size], opcode&0x7, reg);
           }
           return 2;
         default:

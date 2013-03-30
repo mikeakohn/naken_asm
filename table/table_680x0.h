@@ -38,6 +38,7 @@ enum
   OP_MOVEA,
   OP_CMPM,
   OP_ABCD,
+  OP_EXTENDED,
 };
 
 struct _table_680x0
