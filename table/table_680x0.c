@@ -47,7 +47,7 @@ struct _table_680x0 table_680x0[] =
   { "move", 0x40c0, 0xffc0, OP_MOVE_FROM_SR },
   { "movea", 0x0040, 0xc1c0, OP_MOVEA },
   { "moveq", 0x7000, 0xf100, OP_MOVE_QUICK },
-  { "nbcd", 0x4800, 0xff00, OP_SINGLE_EA_NO_SIZE },
+  { "nbcd", 0x4800, 0xffc0, OP_SINGLE_EA_NO_SIZE },
   { "neg", 0x4400, 0xff00, OP_SINGLE_EA },
   { "negx", 0x4000, 0xff00, OP_SINGLE_EA },
   { "nop", 0x4e71, 0xffff, OP_NONE },

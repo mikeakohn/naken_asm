@@ -282,6 +282,7 @@ int n;
         case OP_QUICK:
           reg=(opcode>>9)&0x7;
           size=(opcode>>6)&0x3;
+          if (size==3) { break; }
           len=get_ea_680x0(memory, address, ea, opcode, 0, size);
           sprintf(instruction, "%s.%c #%d, %s", table_680x0[n].instr, sizes[size], reg, ea);
           return len;
