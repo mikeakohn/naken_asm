@@ -34,14 +34,18 @@ struct _table_680x0 table_680x0[] =
   { "cmpa", 0xb000, 0xf000, OP_EA_AREG },
   { "cmpi", 0x0c00, 0xff00, OP_IMMEDIATE },
   { "cmpm", 0xb108, 0xf138, OP_CMPM },
+  { "divs", 0x81c0, 0xf1c0, OP_DIV_MUL },
+  { "divu", 0x80c0, 0xf1c0, OP_DIV_MUL },
   { "eor", 0xb000, 0xf000, OP_REG_AND_EA },
   { "eori", 0x0900, 0xff00, OP_IMMEDIATE },
   { "eori", 0x0a3c, 0xffff, OP_LOGIC_CCR },
   { "exg", 0xc100, 0xf100, OP_EXCHANGE },
+  { "ext", 0x4800, 0xfe38, OP_EXT },
   { "illegal", 0x4afc, 0xffff, OP_NONE },
   { "jmp", 0x4ec0, 0xffc0, OP_SINGLE_EA_NO_SIZE },
   { "jsr", 0x4e80, 0xffc0, OP_SINGLE_EA_TO_ADDR },
   { "lea", 0x41c0, 0xf1c0, OP_LOAD_EA },
+  { "link", 0x4e50, 0xfff8, OP_LINK },
   { "lsl", 0xe3c0, 0xffc0, OP_SHIFT_EA },
   { "lsl", 0xe108, 0xf118, OP_SHIFT },
   { "lsr", 0xe2c0, 0xffc0, OP_SHIFT_EA },
@@ -51,6 +55,8 @@ struct _table_680x0 table_680x0[] =
   { "move", 0x40c0, 0xffc0, OP_MOVE_FROM_SR },
   { "movea", 0x0040, 0xc1c0, OP_MOVEA },
   { "moveq", 0x7000, 0xf100, OP_MOVE_QUICK },
+  { "muls", 0xc1c0, 0xf1c0, OP_DIV_MUL },
+  { "mulu", 0xc1c0, 0xf1c0, OP_DIV_MUL },
   { "nbcd", 0x4800, 0xffc0, OP_SINGLE_EA_NO_SIZE },
   { "neg", 0x4400, 0xff00, OP_SINGLE_EA },
   { "negx", 0x4000, 0xff00, OP_SINGLE_EA },
@@ -121,14 +127,13 @@ table_680x0_alu[]
 #endif
 
 /*
-EXT
-LINK
 MOVE
 MOVE
 MOVEM
 MOVEP
+
+EXTB
 RTE
-Scc
 STOP
 UNPK
 */

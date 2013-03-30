@@ -48,7 +48,9 @@ enum
   OP_EA_DREG_WL,
   OP_LOGIC_CCR,
   OP_DISPLACEMENT,
-  //OP_DISPLACEMENT_COND,
+  OP_EXT,
+  OP_LINK,
+  OP_DIV_MUL,
 };
 
 struct _table_680x0

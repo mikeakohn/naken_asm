@@ -835,6 +835,54 @@ static int write_displacement(struct _asm_context *asm_context, char *instr, str
   }
 }
 
+static int write_ext(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=1) { return 0; }
+  if (operands[0].type!=OPERAND_D_REG) { return 0; }
+
+  if (size==SIZE_W)
+  {
+    add_bin16(asm_context, opcode|(2<<6)|operands[0].value, IS_OPCODE);
+    return 2;
+  }
+    else
+  if (size==SIZE_L)
+  {
+    add_bin16(asm_context, opcode|(3<<6)|operands[0].value, IS_OPCODE);
+    return 2;
+  }
+
+  return 0;
+}
+
+static int write_link(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+  if (operands[0].type!=OPERAND_A_REG) { return 0; }
+  if (operands[1].type!=OPERAND_IMMEDIATE) { return 0; }
+  if (size!=SIZE_NONE) { return 0; }
+
+  if (operands[1].value<0 || operands[1].value>65535)
+  {
+    print_error_range("Displacement", 0, 65535, asm_context);
+    return -1;
+  }
+
+  add_bin16(asm_context, opcode|operands[0].value, IS_OPCODE);
+  add_bin16(asm_context, operands[1].value, IS_OPCODE);
+
+  return 4;
+}
+
+static int write_div_mul(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+  if (size!=SIZE_W) { return 0; }
+  if (operands[1].type!=OPERAND_D_REG) { return 0; }
+
+  return ea_generic_all(asm_context, &operands[0], instr, opcode|(operands[1].value<<9), 0, EA_NO_A, NO_EXTRA_IMM);
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -1214,6 +1262,15 @@ printf("\n");
           break;
         case OP_DISPLACEMENT:
           ret=write_displacement(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_EXT:
+          ret=write_ext(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_LINK:
+          ret=write_link(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_DIV_MUL:
+          ret=write_div_mul(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

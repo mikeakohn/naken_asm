@@ -422,6 +422,22 @@ int n;
             sprintf(instruction, "%s $%x (%d)", table_680x0[n].instr, address+2+offset, offset);
             return 2;
           }
+        case OP_EXT:
+          reg=opcode&0x7;
+          mode=(opcode>>6)&0x7;
+          if (mode!=2 && mode!=3) { break; }
+          size=(mode==2)?SIZE_W:SIZE_L;
+          sprintf(instruction, "%s.%c d%d", table_680x0[n].instr, sizes[size], reg);
+          return 2;
+        case OP_LINK:
+          reg=opcode&0x7;
+          sprintf(instruction, "%s a%d, #%d", table_680x0[n].instr, reg, READ_RAM16(address+2));
+          return 4;
+        case OP_DIV_MUL:
+          reg=(opcode>>9)&0x7;
+          len=get_ea_680x0(memory, address, ea, opcode, 0, 0);
+          sprintf(instruction, "%s.w %s, d%d", table_680x0[n].instr, ea, reg);
+          return len;
         default:
           return -1;
       }

@@ -122,5 +122,14 @@ crap:
   sne d5
   st (a6)
 
+  ext.w d1
+  ext.l d2
+
+  link a6, #5
+  unlk a6
+
+  muls.w #5, d6
+  divu.w #5, d2
+
 
 
