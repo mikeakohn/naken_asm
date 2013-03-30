@@ -461,6 +461,13 @@ int n;
     }
     return 4;
   }
+    else
+  if ((opcode&0xf0c0)==0x50c0)
+  {
+    len=get_ea_680x0(memory, address, ea, opcode, 0, 0);
+    sprintf(instruction, "s%s %s", table_680x0_condition_codes[(opcode>>8)&0xf], ea);
+    return len;
+  }
 
   strcpy(instruction, "???");
   return -1;

@@ -1094,6 +1094,18 @@ printf("\n");
     }
   }
 
+  if (instr_case[0]=='s' && operand_count==1)
+  {
+    for (n=0; n<16; n++)
+    {
+      if (strcmp(instr_case+1, table_680x0_condition_codes[n])!=0) { continue; }
+      matched=1;
+      if (operand_size!=SIZE_NONE) { continue; }
+      int opcode=0x50c0|(n<<8);
+      return ea_generic_all(asm_context, &operands[0], instr, opcode, 0, EA_NO_A|EA_NO_IMM|EA_NO_PC, NO_EXTRA_IMM);
+    }
+  }
+
   n=0;
   while(table_680x0[n].instr!=NULL)
   {

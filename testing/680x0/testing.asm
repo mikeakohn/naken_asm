@@ -119,4 +119,8 @@ crap:
   bne test_addr
   bne blah
 
+  sne d5
+  st (a6)
+
+
 

@@ -121,11 +121,6 @@ table_680x0_alu[]
 #endif
 
 /*
-Bcc
-Bcc.W
-BSR
-BSR.W
-DBcc
 EXT
 LINK
 MOVE
