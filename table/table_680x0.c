@@ -6,7 +6,7 @@ struct _table_680x0 table_680x0[] =
 {
   { "abcd", 0xc100, 0xf1f0, OP_ABCD },
   { "add", 0xd000, 0xf000, OP_REG_AND_EA },
-  { "addi", 0x0600, 0xff00, OP_IMMEDIATE }, // 6
+  { "addi", 0x0600, 0xff00, OP_IMMEDIATE },
   { "adda", 0xd000, 0xf000, OP_EA_AREG },
   { "addq", 0x5000, 0xf100, OP_QUICK },
   { "addx", 0xd100, 0xf130, OP_EXTENDED },
@@ -16,6 +16,8 @@ struct _table_680x0 table_680x0[] =
   { "asl", 0xe100, 0xf118, OP_SHIFT },
   { "asr", 0xe0c0, 0xffc0, OP_SHIFT_EA },
   { "asr", 0xe000, 0xf118, OP_SHIFT },
+  { "bclr", 0x0180, 0xf1c0, OP_BCLR },
+  { "bclr", 0x0880, 0xffc0, OP_EXTRA_IMM_EA },
   { "clr", 0x4200, 0xff00, OP_SINGLE_EA }, // (no immediate extra data)
   { "cmp", 0xb000, 0xf000, OP_EA_DREG },
   { "cmpa", 0xb000, 0xf000, OP_EA_AREG },
@@ -23,6 +25,7 @@ struct _table_680x0 table_680x0[] =
   { "cmpm", 0xb108, 0xf138, OP_CMPM },
   { "eor", 0xb000, 0xf000, OP_REG_AND_EA },
   { "eori", 0x0900, 0xff00, OP_IMMEDIATE },
+  { "exg", 0xc100, 0xf100, OP_EXCHANGE },
   { "illegal", 0x4afc, 0xffff, OP_NONE },
   { "jmp", 0x4ec0, 0xffc0, OP_SINGLE_EA_NO_SIZE },
   { "jsr", 0x4e80, 0xffc0, OP_SINGLE_EA_TO_ADDR },
@@ -42,7 +45,7 @@ struct _table_680x0 table_680x0[] =
   { "nop", 0x4e71, 0xffff, OP_NONE },
   { "not", 0x4600, 0xff00, OP_SINGLE_EA },
   { "or", 0x8000, 0xf000, OP_REG_AND_EA },
-  { "ori", 0x0000, 0xff00, OP_IMMEDIATE },  // 0
+  { "ori", 0x0000, 0xff00, OP_IMMEDIATE },
   { "pea", 0x4840, 0xffc0, OP_SINGLE_EA_NO_SIZE },
   { "reset", 0x4e70, 0xffff, OP_NONE },
   { "rol", 0xe7c0, 0xffc0, OP_SHIFT_EA },
@@ -58,7 +61,7 @@ struct _table_680x0 table_680x0[] =
   { "rts", 0x4e75, 0xffff, OP_NONE },
   { "sub", 0x9000, 0xf000, OP_REG_AND_EA },
   { "suba", 0x9000, 0xf000, OP_EA_AREG },
-  { "subi", 0x0400, 0xff00, OP_IMMEDIATE }, // 4
+  { "subi", 0x0400, 0xff00, OP_IMMEDIATE },
   { "subq", 0x5100, 0xf100, OP_QUICK },
   { "subx", 0x9100, 0xf130, OP_EXTENDED },
   { "swap", 0x4840, 0xfff8, OP_AREG },
@@ -114,13 +117,13 @@ BSR.W
 BTST
 CHK
 DBcc
-EXG
 EXT
 LINK
 MOVE
 MOVE
 MOVEM
 MOVEP
+ORI to CCR
 RTE
 SBCD
 Scc

@@ -41,6 +41,9 @@ enum
   OP_EXTENDED,
   OP_ROX_MEM,
   OP_ROX,
+  OP_EXCHANGE,
+  OP_BCLR,
+  OP_EXTRA_IMM_EA,
 };
 
 struct _table_680x0

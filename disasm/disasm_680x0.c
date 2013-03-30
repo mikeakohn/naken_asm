@@ -41,11 +41,10 @@ int get_cycle_count_680x0(unsigned short int opcode)
   return -1;
 }
 
-static int get_ea_680x0(struct _memory *memory, int address, char *ea, unsigned short int opcode, int pos, int size)
+static int get_ea_680x0(struct _memory *memory, int address, char *ea, unsigned short int opcode, int skip, int size)
 {
-  // FIXME - is pos always 0?
   int reg=opcode&0x7;
-  int mode=((opcode>>pos)>>3)&0x7;
+  int mode=(opcode>>3)&0x7;
 
   switch(mode)
   {
@@ -65,42 +64,42 @@ static int get_ea_680x0(struct _memory *memory, int address, char *ea, unsigned 
       sprintf(ea, "-(a%d)", reg);
       return 2;
     case 5:
-      sprintf(ea, "(%d,a%d)", (short int)READ_RAM16(address+2), reg);
+      sprintf(ea, "(%d,a%d)", (short int)READ_RAM16(address+2+skip), reg);
       return 4;
     case 7:
       if (reg==0)
       {
-        short int value=READ_RAM16(address+2);
+        short int value=READ_RAM16(address+2+skip);
         if (value>0) { sprintf(ea, "$%x", value); }
         else { sprintf(ea, "$%x", ((unsigned int)value)&0xffffff); }
         return 4;
       }
       else if (reg==1)
       {
-        sprintf(ea, "$%x", READ_RAM32(address+2));
+        sprintf(ea, "$%x", READ_RAM32(address+2+skip));
         return 6;
       }
       else if (reg==2)
       {
-        sprintf(ea, "(%d,PC)", (short int)READ_RAM16(address+2));
+        sprintf(ea, "(%d,PC)", (short int)READ_RAM16(address+2+skip));
         return 6;
       }
       else if (reg==4)
       {
         if (size==SIZE_B)
         {
-          sprintf(ea, "#$%x", READ_RAM(address+3));
+          sprintf(ea, "#$%x", READ_RAM(address+3+skip));
         }
           else
         if (size==SIZE_W)
         {
-          sprintf(ea, "#$%x", READ_RAM16(address+2));
+          sprintf(ea, "#$%x", READ_RAM16(address+2+skip));
           return 4;
         }
           else
         if (size==SIZE_L)
         {
-          sprintf(ea, "#$%x", READ_RAM32(address+2));
+          sprintf(ea, "#$%x", READ_RAM32(address+2+skip));
           return 6;
         }
           else
@@ -231,7 +230,7 @@ int n;
           len=get_ea_680x0(memory, address, ea, opcode, 0, size);
           reg=(opcode>>9)&0x7;
           mode=(opcode>>8)&0x1;
-          if (mode==1 && ((opcode>>3)&0x7)>=1) { break; }
+          if (mode==1 && ((opcode>>3)&0x7)<=1) { break; }
           if (mode==0)
           {
             sprintf(instruction, "%s.%c %s, d%d", table_680x0[n].instr, sizes[size], ea, reg);
@@ -350,6 +349,38 @@ int n;
             sprintf(instruction, "%s.%c d%d, d%d", table_680x0[n].instr, sizes[size], reg, opcode&0x7);
           }
           return 2;
+        case OP_EXCHANGE:
+          reg=(opcode>>9)&0x7;
+          mode=(opcode>>3)&0x1f;
+          if (mode==8)
+          {
+            sprintf(instruction, "%s d%d, d%d", table_680x0[n].instr, reg, opcode&0x7);
+          }
+            else
+          if (mode==9)
+          {
+            sprintf(instruction, "%s a%d, a%d", table_680x0[n].instr, reg, opcode&0x7);
+          }
+            else
+          if (mode==0x11)
+          {
+            sprintf(instruction, "%s d%d, a%d", table_680x0[n].instr, reg, opcode&0x7);
+          }
+            else
+          {
+            break;
+          }
+          return 2;
+        case OP_BCLR:
+          reg=(opcode>>9)&0x7;
+          len=get_ea_680x0(memory, address, ea, opcode, 0, 0);
+          sprintf(instruction, "%s d%d, %s", table_680x0[n].instr, reg, ea);
+          return len;
+        case OP_EXTRA_IMM_EA:
+          reg=READ_RAM16(address+2); // Immediate
+          len=get_ea_680x0(memory, address, ea, opcode, 2, 0);
+          sprintf(instruction, "%s #%d, %s", table_680x0[n].instr, reg, ea);
+          return len+2;
         default:
           return -1;
       }

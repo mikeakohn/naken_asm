@@ -95,5 +95,14 @@ blah:
   roxl.w d1, d2
   roxr.b #8, d2
 
+  and.w d1, d2
 
+  exg d1, d2
+  exg a1, a2
+  exg d1, a2
+
+  bclr d1, d5
+  bclr #7, d5
+  bclr #7, $ff
+  bclr #7, $fffff
 
