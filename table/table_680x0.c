@@ -4,7 +4,7 @@
 
 struct _table_680x0 table_680x0[] =
 {
-  { "abcd", 0xc100, 0xf1f0, OP_ABCD },
+  { "abcd", 0xc100, 0xf1f0, OP_BCD },
   { "add", 0xd000, 0xf000, OP_REG_AND_EA },
   { "addi", 0x0600, 0xff00, OP_IMMEDIATE },
   { "adda", 0xd000, 0xf000, OP_EA_AREG },
@@ -16,8 +16,16 @@ struct _table_680x0 table_680x0[] =
   { "asl", 0xe100, 0xf118, OP_SHIFT },
   { "asr", 0xe0c0, 0xffc0, OP_SHIFT_EA },
   { "asr", 0xe000, 0xf118, OP_SHIFT },
-  { "bclr", 0x0180, 0xf1c0, OP_BCLR },
+  { "bchg", 0x0140, 0xf1c0, OP_REG_EA_NO_SIZE },
+  { "bchg", 0x0840, 0xffc0, OP_EXTRA_IMM_EA },
+  { "bclr", 0x0180, 0xf1c0, OP_REG_EA_NO_SIZE },
   { "bclr", 0x0880, 0xffc0, OP_EXTRA_IMM_EA },
+  { "bkpt", 0x4848, 0xfff8, OP_VECTOR3 },
+  { "bset", 0x01c0, 0xf1c0, OP_REG_EA_NO_SIZE },
+  { "bset", 0x08c0, 0xffc0, OP_EXTRA_IMM_EA },
+  { "btst", 0x0100, 0xf1c0, OP_REG_EA_NO_SIZE },
+  { "btst", 0x0800, 0xffc0, OP_EXTRA_IMM_EA },
+  { "chk", 0x4000, 0xf040, OP_EA_DREG_WL },
   { "clr", 0x4200, 0xff00, OP_SINGLE_EA }, // (no immediate extra data)
   { "cmp", 0xb000, 0xf000, OP_EA_DREG },
   { "cmpa", 0xb000, 0xf000, OP_EA_AREG },
@@ -59,6 +67,7 @@ struct _table_680x0 table_680x0[] =
   { "rtm", 0x06c0, 0xfff0, OP_REG },
   { "rtr", 0x4e77, 0xffff, OP_NONE },
   { "rts", 0x4e75, 0xffff, OP_NONE },
+  { "sbcd", 0x8100, 0xf1f0, OP_BCD },
   { "sub", 0x9000, 0xf000, OP_REG_AND_EA },
   { "suba", 0x9000, 0xf000, OP_EA_AREG },
   { "subi", 0x0400, 0xff00, OP_IMMEDIATE },
@@ -109,12 +118,8 @@ table_680x0_alu[]
 /*
 Bcc
 Bcc.W
-BCHG
-BCLR
-BSET
 BSR
 BSR.W
-BTST
 CHK
 DBcc
 EXT
@@ -125,7 +130,6 @@ MOVEM
 MOVEP
 ORI to CCR
 RTE
-SBCD
 Scc
 STOP
 UNPK

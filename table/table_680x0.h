@@ -25,6 +25,7 @@ enum
   OP_SHIFT,
   OP_REG_AND_EA,
   OP_VECTOR,
+  OP_VECTOR3,
   OP_AREG,
   OP_REG,
   OP_EA_AREG,
@@ -37,13 +38,14 @@ enum
   OP_MOVE_FROM_SR,
   OP_MOVEA,
   OP_CMPM,
-  OP_ABCD,
+  OP_BCD,
   OP_EXTENDED,
   OP_ROX_MEM,
   OP_ROX,
   OP_EXCHANGE,
-  OP_BCLR,
+  OP_REG_EA_NO_SIZE,
   OP_EXTRA_IMM_EA,
+  OP_EA_DREG_WL,
 };
 
 struct _table_680x0

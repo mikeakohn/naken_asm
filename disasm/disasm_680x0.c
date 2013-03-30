@@ -89,6 +89,7 @@ static int get_ea_680x0(struct _memory *memory, int address, char *ea, unsigned 
         if (size==SIZE_B)
         {
           sprintf(ea, "#$%x", READ_RAM(address+3+skip));
+          return 4;
         }
           else
         if (size==SIZE_W)
@@ -243,6 +244,9 @@ int n;
         case OP_VECTOR:
           sprintf(instruction, "%s #%d", table_680x0[n].instr, opcode&0xf);
           return 2;
+        case OP_VECTOR3:
+          sprintf(instruction, "%s #%d", table_680x0[n].instr, opcode&0x7);
+          return 2;
         case OP_AREG:
           sprintf(instruction, "%s a%d", table_680x0[n].instr, opcode&0x7);
           return 2;
@@ -309,7 +313,7 @@ int n;
           reg=(opcode>>9)&0x7;
           sprintf(instruction, "%s.%c (a%d)+, (a%d)+", table_680x0[n].instr, sizes[size], opcode&0x7, reg);
           return 2;
-        case OP_ABCD:
+        case OP_BCD:
           reg=(opcode>>9)&0x7;
           if ((opcode&8)==0)
           {
@@ -371,7 +375,7 @@ int n;
             break;
           }
           return 2;
-        case OP_BCLR:
+        case OP_REG_EA_NO_SIZE:
           reg=(opcode>>9)&0x7;
           len=get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s d%d, %s", table_680x0[n].instr, reg, ea);
@@ -381,6 +385,14 @@ int n;
           len=get_ea_680x0(memory, address, ea, opcode, 2, 0);
           sprintf(instruction, "%s #%d, %s", table_680x0[n].instr, reg, ea);
           return len+2;
+        case OP_EA_DREG_WL:
+          reg=(opcode>>9)&0x7;
+          size=(opcode>>7)&0x3;
+          if (size<2) { break; }
+          size=(size==2)?SIZE_L:SIZE_W;
+          len=get_ea_680x0(memory, address, ea, opcode, 0, 0);
+          sprintf(instruction, "%s.%c %s, d%d", table_680x0[n].instr, sizes[size], ea, reg);
+          return len;
         default:
           return -1;
       }

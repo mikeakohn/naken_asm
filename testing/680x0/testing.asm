@@ -33,6 +33,7 @@ blah:
 
   trapv
   trap #5
+  bkpt #5
 
   unlk a6
 
@@ -105,4 +106,8 @@ blah:
   bclr #7, d5
   bclr #7, $ff
   bclr #7, $fffff
+
+  chk.w #7, d3
+
+
 
