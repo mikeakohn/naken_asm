@@ -1082,6 +1082,18 @@ printf("\n");
     }
   }
 
+  if (instr_case[0]=='b' && operand_count==1)
+  {
+    for (n=0; n<16; n++)
+    {
+      if (strcmp(instr_case+1, table_680x0_condition_codes[n])!=0) { continue; }
+      if (operands[0].type!=OPERAND_ADDRESS) { continue; }
+      matched=1;
+      int opcode=0x6000|(n<<8);
+      return write_displacement(asm_context, instr, operands, operand_count, opcode, operand_size);
+    }
+  }
+
   n=0;
   while(table_680x0[n].instr!=NULL)
   {

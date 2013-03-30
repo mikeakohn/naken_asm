@@ -110,10 +110,13 @@ test_addr:
 
   bra blah
   bsr crap
+  bne crap
 
   chk.w #7, d3
   ori #5, CCR
 crap:
   bra test_addr
+  bne test_addr
+  bne blah
 
 

@@ -436,6 +436,31 @@ int n;
     sprintf(instruction, "db%s d%d, $%x (%d)", table_680x0_condition_codes[(opcode>>8)&0xf], opcode&0x7, (address+4)+offset, offset);
     return 4;
   }
+    else
+  if ((opcode&0xf000)==0x6000)
+  {
+    offset=(opcode&0xff);
+    if (offset==0)
+    {
+      offset=(short int)READ_RAM16(address+2);
+      sprintf(instruction, "b%s $%x (%d)", table_680x0_condition_codes[(opcode>>8)&0xf], address+4+offset, offset);
+      return 4;
+    }
+      else
+    if (offset==0xff)
+    {
+      offset=READ_RAM32(address+2);
+      sprintf(instruction, "b%s $%x (%d)", table_680x0_condition_codes[(opcode>>8)&0xf], address+6+offset, offset);
+      return 6;
+    }
+      else
+    {
+      offset=(int)((char)offset);
+      sprintf(instruction, "b%s $%x (%d)", table_680x0_condition_codes[(opcode>>8)&0xf], address+2+offset, offset);
+      return 2;
+    }
+    return 4;
+  }
 
   strcpy(instruction, "???");
   return -1;
