@@ -285,6 +285,18 @@ int n;
           reg=(opcode>>9)&0x7;
           sprintf(instruction, "%s #%d, d%d", table_680x0[n].instr, opcode&0xff, reg);
           return 2;
+        case OP_MOVE_FROM_CCR:
+          len=get_ea_680x0(memory, address, ea, opcode, 0, SIZE_W);
+          sprintf(instruction, "%s CCR, %s", table_680x0[n].instr, ea);
+          return 2;
+        case OP_MOVE_TO_CCR:
+          len=get_ea_680x0(memory, address, ea, opcode, 0, SIZE_W);
+          sprintf(instruction, "%s %s, CCR", table_680x0[n].instr, ea);
+          return 2;
+        case OP_MOVE_FROM_SR:
+          len=get_ea_680x0(memory, address, ea, opcode, 0, SIZE_W);
+          sprintf(instruction, "%s SR, %s", table_680x0[n].instr, ea);
+          return 2;
         default:
           return -1;
       }

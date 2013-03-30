@@ -32,6 +32,9 @@ enum
   OP_LOAD_EA,
   OP_QUICK,
   OP_MOVE_QUICK,
+  OP_MOVE_FROM_CCR,
+  OP_MOVE_TO_CCR,
+  OP_MOVE_FROM_SR,
 };
 
 struct _table_680x0

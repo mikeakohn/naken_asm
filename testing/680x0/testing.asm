@@ -68,3 +68,7 @@ blah:
   subq.b #5, d5
   moveq #100, d5
 
+  move CCR, d6
+  move d6, CCR
+  move SR, d6
+
