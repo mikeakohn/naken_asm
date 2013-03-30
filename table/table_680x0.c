@@ -24,6 +24,8 @@ struct _table_680x0 table_680x0[] =
   { "bkpt", 0x4848, 0xfff8, OP_VECTOR3 },
   { "bset", 0x01c0, 0xf1c0, OP_REG_EA_NO_SIZE },
   { "bset", 0x08c0, 0xffc0, OP_EXTRA_IMM_EA },
+  { "bsr", 0x6100, 0xff00, OP_DISPLACEMENT },
+  { "bra", 0x6000, 0xff00, OP_DISPLACEMENT },
   { "btst", 0x0100, 0xf1c0, OP_REG_EA_NO_SIZE },
   { "btst", 0x0800, 0xffc0, OP_EXTRA_IMM_EA },
   { "chk", 0x4000, 0xf040, OP_EA_DREG_WL },
@@ -123,7 +125,6 @@ Bcc
 Bcc.W
 BSR
 BSR.W
-CHK
 DBcc
 EXT
 LINK

@@ -102,13 +102,18 @@ blah:
   exg a1, a2
   exg d1, a2
 
+test_addr:
   bclr d1, d5
   bclr #7, d5
   bclr #7, $ff
   bclr #7, $fffff
 
-  chk.w #7, d3
+  bra blah
+  bsr crap
 
+  chk.w #7, d3
   ori #5, CCR
+crap:
+  bra test_addr
 
 

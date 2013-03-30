@@ -106,6 +106,22 @@ static int get_register_special_680x0(char *token)
   return -1;
 }
 
+static int calc_displacement_size(int address, int new_address)
+{
+int offset;
+
+  offset=new_address-(address+2);
+  if (offset>=-128 && offset<=127) { return SIZE_B; }
+  offset=new_address-(address+4);
+  if (offset>=-32768 && offset<=32767) { return SIZE_W; }
+
+#if WE_SUPPORT_68020
+  return SIZE_L;
+#endif
+
+  return SIZE_W;
+}
+
 static int ea_immediate(struct _asm_context *asm_context, int opcode, int size, struct _operand *operand)
 {
   add_bin16(asm_context, opcode|(operand->type<<3)|0x4, IS_OPCODE);
@@ -761,6 +777,64 @@ static int write_logic_ccr(struct _asm_context *asm_context, char *instr, struct
   return 4;
 }
 
+static int write_displacement(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=1) { return 0; }
+  if (operands[0].type!=OPERAND_ADDRESS) { return 0; }
+
+  if (asm_context->pass==1)
+  {
+    if (size==SIZE_NONE)
+    {
+      if (operands[0].error==1) { size=SIZE_W; }
+      else { size=calc_displacement_size(asm_context->address, operands[0].value); }
+    }
+
+    add_bin16(asm_context, (size+1)<<8, IS_OPCODE);
+    int n;
+    for (n=0; n<size; n++) { add_bin16(asm_context, 0, IS_OPCODE); }
+
+    return (size+1)*2;
+  }
+
+  int len=memory_read(asm_context, asm_context->address);
+  int offset;
+
+  if (len==1)
+  {
+    offset=operands[0].value-(asm_context->address+2);
+    if ((offset<-128 && offset>127) || offset==0 || offset==-1)
+    {
+      print_error_range("Offset", -128, 127, asm_context);
+      return -1;
+    }
+
+    add_bin16(asm_context, opcode|(offset&0xff), IS_OPCODE);
+    return 2;
+  }
+    else
+  if (len==2)
+  {
+    offset=operands[0].value-(asm_context->address+4);
+    if (offset<-32768 && offset>32767)
+    {
+      print_error_range("Offset", -32768, 32767, asm_context);
+      return -1;
+    }
+
+    add_bin16(asm_context, opcode|0x00, IS_OPCODE);
+    add_bin16(asm_context, offset, IS_OPCODE);
+    return 4;
+  }
+    else
+  {
+    offset=operands[0].value-(asm_context->address+6);
+    add_bin16(asm_context, opcode|0xff, IS_OPCODE);
+    add_bin32(asm_context, offset, IS_OPCODE);
+    return 6;
+  }
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -1113,6 +1187,9 @@ printf("\n");
           break;
         case OP_LOGIC_CCR:
           ret=write_logic_ccr(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_DISPLACEMENT:
+          ret=write_displacement(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

@@ -43,8 +43,8 @@ int get_cycle_count_680x0(unsigned short int opcode)
 
 static int get_ea_680x0(struct _memory *memory, int address, char *ea, unsigned short int opcode, int skip, int size)
 {
-  int reg=opcode&0x7;
-  int mode=(opcode>>3)&0x7;
+int reg=opcode&0x7;
+int mode=(opcode>>3)&0x7;
 
   switch(mode)
   {
@@ -140,6 +140,7 @@ int size;
 int reg;
 int mode,len;
 unsigned int immediate;
+int offset;
 //int value;
 int n;
 
@@ -400,6 +401,27 @@ int n;
         case OP_LOGIC_CCR:
           sprintf(instruction, "%s #$%02x, CCR", table_680x0[n].instr, READ_RAM16(address+2));
           return 4;
+        case OP_DISPLACEMENT:
+          offset=(opcode&0xff);
+          if (offset==0)
+          {
+            offset=(short int)READ_RAM16(address+2);
+            sprintf(instruction, "%s $%x (%d)", table_680x0[n].instr, address+4+offset, offset);
+            return 4;
+          }
+            else
+          if (offset==0xff)
+          {
+            offset=READ_RAM32(address+2);
+            sprintf(instruction, "%s $%x (%d)", table_680x0[n].instr, address+6+offset, offset);
+            return 6;
+          }
+            else
+          {
+            offset=(int)((char)offset);
+            sprintf(instruction, "%s $%x (%d)", table_680x0[n].instr, address+2+offset, offset);
+            return 2;
+          }
         default:
           return -1;
       }
