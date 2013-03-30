@@ -46,6 +46,7 @@ enum
   OP_REG_EA_NO_SIZE,
   OP_EXTRA_IMM_EA,
   OP_EA_DREG_WL,
+  OP_LOGIC_CCR,
 };
 
 struct _table_680x0

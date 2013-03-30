@@ -109,5 +109,6 @@ blah:
 
   chk.w #7, d3
 
+  ori #5, CCR
 
 

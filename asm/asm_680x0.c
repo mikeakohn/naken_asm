@@ -343,6 +343,9 @@ static int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struc
 static int write_immediate(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
   if (operand_count!=2) { return 0; }
+  if (size==SIZE_NONE) { return 0; }
+  if (operands[0].type!=OPERAND_IMMEDIATE) { return 0; }
+  if (operands[1].type==OPERAND_SPECIAL_REG) { return 0; }
 
   switch(operands[1].type)
   {
@@ -738,6 +741,26 @@ static int write_ea_dreg_wl(struct _asm_context *asm_context, char *instr, struc
   return ea_generic_all(asm_context, &operands[0], instr, opcode|(operands[1].value<<9)|(size_a<<7), 0, EA_NO_A, NO_EXTRA_IMM);
 }
 
+static int write_logic_ccr(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+  if (size!=SIZE_NONE) { return 0; }
+  if (operands[0].type!=OPERAND_IMMEDIATE) { return 0; }
+  if (operands[1].type!=OPERAND_SPECIAL_REG) { return 0; }
+  if (operands[1].value!=SPECIAL_CCR) { return 0; }
+
+  if (operands[0].value<0 || operands[0].value>255)
+  {
+    print_error_range("Immediate", 0, 255, asm_context);
+    return -1;
+  }
+
+  add_bin16(asm_context, opcode, IS_OPCODE);
+  add_bin16(asm_context, operands[0].value, IS_OPCODE);
+
+  return 4;
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -1087,6 +1110,9 @@ printf("\n");
           break;
         case OP_EA_DREG_WL:
           ret=write_ea_dreg_wl(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_LOGIC_CCR:
+          ret=write_logic_ccr(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

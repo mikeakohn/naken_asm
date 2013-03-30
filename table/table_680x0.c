@@ -12,6 +12,7 @@ struct _table_680x0 table_680x0[] =
   { "addx", 0xd100, 0xf130, OP_EXTENDED },
   { "and", 0xc000, 0xf000, OP_REG_AND_EA },
   { "andi", 0x0200, 0xff00, OP_IMMEDIATE },
+  { "andi", 0x023c, 0xffff, OP_LOGIC_CCR },
   { "asl", 0xe1c0, 0xffc0, OP_SHIFT_EA },
   { "asl", 0xe100, 0xf118, OP_SHIFT },
   { "asr", 0xe0c0, 0xffc0, OP_SHIFT_EA },
@@ -33,6 +34,7 @@ struct _table_680x0 table_680x0[] =
   { "cmpm", 0xb108, 0xf138, OP_CMPM },
   { "eor", 0xb000, 0xf000, OP_REG_AND_EA },
   { "eori", 0x0900, 0xff00, OP_IMMEDIATE },
+  { "eori", 0x0a3c, 0xffff, OP_LOGIC_CCR },
   { "exg", 0xc100, 0xf100, OP_EXCHANGE },
   { "illegal", 0x4afc, 0xffff, OP_NONE },
   { "jmp", 0x4ec0, 0xffc0, OP_SINGLE_EA_NO_SIZE },
@@ -54,6 +56,7 @@ struct _table_680x0 table_680x0[] =
   { "not", 0x4600, 0xff00, OP_SINGLE_EA },
   { "or", 0x8000, 0xf000, OP_REG_AND_EA },
   { "ori", 0x0000, 0xff00, OP_IMMEDIATE },
+  { "ori", 0x003c, 0xffff, OP_LOGIC_CCR },
   { "pea", 0x4840, 0xffc0, OP_SINGLE_EA_NO_SIZE },
   { "reset", 0x4e70, 0xffff, OP_NONE },
   { "rol", 0xe7c0, 0xffc0, OP_SHIFT_EA },
@@ -128,7 +131,6 @@ MOVE
 MOVE
 MOVEM
 MOVEP
-ORI to CCR
 RTE
 Scc
 STOP

@@ -184,6 +184,9 @@ int n;
           return 2;
         case OP_IMMEDIATE:
           size=SIZE(opcode,6);
+          mode=(opcode>>3)&0x7;
+          reg=(opcode)&0x7;
+          if (mode==1 || (mode==7 && reg==4)) { break; }
           get_ea_680x0(memory, address, ea, opcode, 0, size);
           if (size==3) { break; }
 
@@ -394,6 +397,9 @@ int n;
           len=get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s.%c %s, d%d", table_680x0[n].instr, sizes[size], ea, reg);
           return len;
+        case OP_LOGIC_CCR:
+          sprintf(instruction, "%s #$%02x, CCR", table_680x0[n].instr, READ_RAM16(address+2));
+          return 4;
         default:
           return -1;
       }
