@@ -288,14 +288,26 @@ int n;
         case OP_MOVE_FROM_CCR:
           len=get_ea_680x0(memory, address, ea, opcode, 0, SIZE_W);
           sprintf(instruction, "%s CCR, %s", table_680x0[n].instr, ea);
-          return 2;
+          return len;
         case OP_MOVE_TO_CCR:
           len=get_ea_680x0(memory, address, ea, opcode, 0, SIZE_W);
           sprintf(instruction, "%s %s, CCR", table_680x0[n].instr, ea);
-          return 2;
+          return len;
         case OP_MOVE_FROM_SR:
           len=get_ea_680x0(memory, address, ea, opcode, 0, SIZE_W);
           sprintf(instruction, "%s SR, %s", table_680x0[n].instr, ea);
+          return len;
+        case OP_MOVEA:
+          size=(opcode>>12)&0x3;
+          size=(size==3)?SIZE_W:SIZE_L;
+          reg=(opcode>>9)&0x7;
+          len=get_ea_680x0(memory, address, ea, opcode, 0, size);
+          sprintf(instruction, "%s.%c %s, d%d", table_680x0[n].instr, sizes[size], ea, reg);
+          return len;
+        case OP_TWO_INDEX_A_REG_POST:
+          size=(opcode>>6)&0x3;
+          reg=(opcode>>9)&0x7;
+          sprintf(instruction, "%s.%c (a%d)+, (a%d)+", table_680x0[n].instr, sizes[size], opcode&0x7, reg);
           return 2;
         default:
           return -1;

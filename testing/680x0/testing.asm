@@ -72,3 +72,7 @@ blah:
   move d6, CCR
   move SR, d6
 
+  movea.l #400, a6
+  cmpm.w (a6)+, (a1)+
+
+

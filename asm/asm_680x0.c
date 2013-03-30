@@ -532,6 +532,29 @@ static int write_move_special(struct _asm_context *asm_context, char *instr, str
   return 0;
 }
 
+static int write_movea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+  if (size==SIZE_NONE) { return 0; }
+  if (size<SIZE_W) { return 0; }
+  if (operands[1].type!=OPERAND_A_REG) { return 0; }
+
+  int size_a=(size==SIZE_W)?3:2;
+
+  return ea_generic_all(asm_context, &operands[0], instr, opcode|(size_a<<12)|(operands[1].value<<9), size, 0);
+}
+
+static int write_two_index_a_reg_post(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+  if (operand_count!=2) { return 0; }
+  if (size==SIZE_NONE) { return 0; }
+  if (operands[0].type!=OPERAND_A_REG_INDEX_PLUS) { return 0; }
+  if (operands[1].type!=OPERAND_A_REG_INDEX_PLUS) { return 0; }
+
+  add_bin16(asm_context, opcode|(size<<6)|(operands[1].value<<9)|operands[0].value, IS_OPCODE);
+  return 2;
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -852,6 +875,12 @@ printf("\n");
         case OP_MOVE_TO_CCR:
         case OP_MOVE_FROM_SR:
           ret=write_move_special(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size, table_680x0[n].type);
+          break;
+        case OP_MOVEA:
+          ret=write_movea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_TWO_INDEX_A_REG_POST:
+          ret=write_two_index_a_reg_post(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

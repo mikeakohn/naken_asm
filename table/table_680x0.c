@@ -9,7 +9,7 @@ struct _table_680x0 table_680x0[] =
   { "adda", 0xd000, 0xf000, OP_EA_AREG },
   { "addq", 0x5000, 0xf100, OP_QUICK },
   { "and", 0xc000, 0xf000, OP_REG_AND_EA },
-  { "andi", 0x0200, 0xff00, OP_IMMEDIATE }, // 2
+  { "andi", 0x0200, 0xff00, OP_IMMEDIATE },
   { "asl", 0xe1c0, 0xffc0, OP_SHIFT_EA },
   { "asl", 0xe100, 0xf118, OP_SHIFT },
   { "asr", 0xe0c0, 0xffc0, OP_SHIFT_EA },
@@ -17,9 +17,10 @@ struct _table_680x0 table_680x0[] =
   { "clr", 0x4200, 0xff00, OP_SINGLE_EA }, // (no immediate extra data)
   { "cmp", 0xb000, 0xf000, OP_EA_DREG },
   { "cmpa", 0xb000, 0xf000, OP_EA_AREG },
-  { "cmpi", 0x0c00, 0xff00, OP_IMMEDIATE }, // 12
+  { "cmpi", 0x0c00, 0xff00, OP_IMMEDIATE },
+  { "cmpm", 0xb108, 0xf138, OP_TWO_INDEX_A_REG_POST },
   { "eor", 0xb000, 0xf000, OP_REG_AND_EA },
-  { "eori", 0x0900, 0xff00, OP_IMMEDIATE }, // 9
+  { "eori", 0x0900, 0xff00, OP_IMMEDIATE },
   { "illegal", 0x4afc, 0xffff, OP_NONE },
   { "jmp", 0x4ec0, 0xffc0, OP_SINGLE_EA_NO_SIZE },
   { "jsr", 0x4e80, 0xffc0, OP_SINGLE_EA_TO_ADDR },
@@ -31,6 +32,7 @@ struct _table_680x0 table_680x0[] =
   { "move", 0x42c0, 0xffc0, OP_MOVE_FROM_CCR },
   { "move", 0x44c0, 0xffc0, OP_MOVE_TO_CCR },
   { "move", 0x40c0, 0xffc0, OP_MOVE_FROM_SR },
+  { "movea", 0x0040, 0xc1c0, OP_MOVEA },
   { "moveq", 0x7000, 0xf100, OP_MOVE_QUICK },
   { "nbcd", 0x4800, 0xff00, OP_SINGLE_EA_NO_SIZE },
   { "neg", 0x4400, 0xff00, OP_SINGLE_EA },
@@ -106,17 +108,12 @@ BSR
 BSR.W
 BTST
 CHK
-CMPM
 DBcc
 EXG
 EXT
 LINK
 MOVE
 MOVE
-MOVE
-MOVE
-MOVE
-MOVEA
 MOVEM
 MOVEP
 ROXL
