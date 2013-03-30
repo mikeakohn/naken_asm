@@ -55,6 +55,7 @@ struct _table_680x0 table_680x0[] =
   { "move", 0x40c0, 0xffc0, OP_MOVE_FROM_SR },
   { "movea", 0x0040, 0xc1c0, OP_MOVEA },
   { "moveq", 0x7000, 0xf100, OP_MOVE_QUICK },
+  { "movep", 0x0008, 0xf038, OP_MOVEP },
   { "muls", 0xc1c0, 0xf1c0, OP_DIV_MUL },
   { "mulu", 0xc1c0, 0xf1c0, OP_DIV_MUL },
   { "nbcd", 0x4800, 0xffc0, OP_SINGLE_EA_NO_SIZE },
@@ -112,19 +113,6 @@ char *table_680x0_condition_codes[] =
   "gt",
   "le",
 };
-
-#if 0
-
-// 4 op, 3 reg, 1 dir, 2 size, 6 EA(mode/reg)
-table_680x0_alu[]
-{
-  "divs",  // 8   dir=1,size=11
-  "divu",  // 8   dir=0,size=11
-  "muls",  // 12  dir=1,size=11
-  "mulu",  // 12  dir=0,size=11
-};
-
-#endif
 
 /*
 MOVE

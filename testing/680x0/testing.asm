@@ -131,5 +131,8 @@ crap:
   muls.w #5, d6
   divu.w #5, d2
 
-
+  movep.w d6, (8,a6)
+  movep.l d2, (-8,a1)
+  movep.w (100,a6), d3
+  movep.l (-16,a1), d4
 

@@ -51,6 +51,7 @@ enum
   OP_EXT,
   OP_LINK,
   OP_DIV_MUL,
+  OP_MOVEP,
 };
 
 struct _table_680x0

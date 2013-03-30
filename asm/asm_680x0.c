@@ -883,6 +883,44 @@ static int write_div_mul(struct _asm_context *asm_context, char *instr, struct _
   return ea_generic_all(asm_context, &operands[0], instr, opcode|(operands[1].value<<9), 0, EA_NO_A, NO_EXTRA_IMM);
 }
 
+static int write_movep(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+int opmode;
+
+  if (operand_count!=2) { return 0; }
+  if (size!=SIZE_W && size!=SIZE_L) { return 0; }
+
+  if (operands[0].type==OPERAND_D_REG &&
+      operands[1].type==OPERAND_INDEX_DATA16_A_REG)
+  {
+    if (operands[1].value<-32768 || operands[1].value>32767)
+    {
+      print_error_range("Offset", -32768, 32767, asm_context);
+      return -1;
+    }
+    opmode=(size==SIZE_W)?6:7;
+    add_bin16(asm_context, opcode|(operands[0].value<<9)|(opmode<<6)|operands[1].dis_reg, IS_OPCODE);
+    add_bin16(asm_context, operands[1].value, IS_OPCODE);
+    return 4;
+  }
+    else
+  if (operands[0].type==OPERAND_INDEX_DATA16_A_REG &&
+      operands[1].type==OPERAND_D_REG)
+  {
+    if (operands[0].value<-32768 || operands[0].value>32767)
+    {
+      print_error_range("Offset", -32768, 32767, asm_context);
+      return -1;
+    }
+    opmode=(size==SIZE_W)?4:5;
+    add_bin16(asm_context, opcode|(operands[1].value<<9)|(opmode<<6)|operands[0].dis_reg, IS_OPCODE);
+    add_bin16(asm_context, operands[0].value, IS_OPCODE);
+    return 4;
+  }
+
+  return 0;
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -1271,6 +1309,9 @@ printf("\n");
           break;
         case OP_DIV_MUL:
           ret=write_div_mul(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_MOVEP:
+          ret=write_movep(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

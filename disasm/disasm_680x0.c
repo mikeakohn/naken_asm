@@ -211,9 +211,10 @@ int n;
             return 6;
           }
         case OP_SHIFT_EA:
-          get_ea_680x0(memory, address, ea, opcode, 0, 0);
+          if (((opcode>>3)&0x7)<=1) { break; }
+          len=get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s %s", table_680x0[n].instr, ea);
-          return 2;
+          return len;
         case OP_SHIFT:
           size=SIZE(opcode,6);
           if (size==3) { break; }
@@ -382,6 +383,8 @@ int n;
           return 2;
         case OP_REG_EA_NO_SIZE:
           reg=(opcode>>9)&0x7;
+          // FIXME - should this be for all destination EA's?
+          if (((opcode>>3)&0x7)==1) { break; }
           len=get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s d%d, %s", table_680x0[n].instr, reg, ea);
           return len;
@@ -438,6 +441,20 @@ int n;
           len=get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s.w %s, d%d", table_680x0[n].instr, ea, reg);
           return len;
+        case OP_MOVEP:
+          reg=(opcode>>9)&0x7;
+          mode=(opcode>>6)&0x7;
+          offset=READ_RAM16(address+2);
+          if (mode<4) { break; }
+          if (mode==4 || mode==5)
+          {
+            sprintf(instruction, "%s.%c (%d,a%d), d%d", table_680x0[n].instr, sizes[mode-3], (short int)offset, opcode&0x7,reg);
+          }
+            else
+          {
+            sprintf(instruction, "%s.%c d%d, (%d,a%d)", table_680x0[n].instr, sizes[mode-5], reg, (short int)offset, opcode&0x7);
+          }
+          return 4;
         default:
           return -1;
       }
