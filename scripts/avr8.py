@@ -60,7 +60,7 @@ for line in fp:
   elif line == "Rd,Y+q": line = "OP_RD_Y_PLUS_Q"
   elif line == "Y+q,Rr": line = "OP_Y_PLUS_Q_RR"
 
-  print "  { \"" + instr + "\", " + line + ", " + min + ", "+ max + " },"
+  print "  { \"" + instr + "\", 0x0000, 0x0000, " + line + ", " + min + ", "+ max + " },"
 
 fp.close()
 
