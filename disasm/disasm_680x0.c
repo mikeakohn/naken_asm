@@ -123,6 +123,36 @@ int mode=(opcode>>3)&0x7;
   return 2;
 }
 
+static void get_reglist(char *reglist, int regs)
+{
+int ptr=0;
+int n;
+
+  for (n=0; n<8; n++)
+  {
+    if ((regs&1)==1)
+    {
+      if (ptr!=0) { reglist[ptr++]='/'; }
+      reglist[ptr++]='d';
+      reglist[ptr++]=n+'0';
+    }
+    regs>>=1;
+  }
+
+  for (n=0; n<8; n++)
+  {
+    if ((regs&1)==1)
+    {
+      if (ptr!=0) { reglist[ptr++]='/'; }
+      reglist[ptr++]='a';
+      reglist[ptr++]=n+'0';
+    }
+    regs>>=1;
+  }
+
+  reglist[ptr]=0;
+}
+
 #if 0
 static char get_size_680x0(unsigned short int opcode, int pos)
 {
@@ -136,6 +166,7 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
 //int count=2;
 int opcode;
 char ea[32];
+char reglist[128];
 int size;
 int reg;
 int mode,len;
@@ -455,6 +486,19 @@ int n;
             sprintf(instruction, "%s.%c d%d, (%d,a%d)", table_680x0[n].instr, sizes[mode-5], reg, (short int)offset, opcode&0x7);
           }
           return 4;
+        case OP_MOVEM:
+          size=((opcode>>6)&1)+1;
+          get_reglist(reglist, READ_RAM16(address+2));
+          len=get_ea_680x0(memory, address, ea, opcode, 2, size);
+          if (((opcode>>10)&0x1)==0)
+          {
+            sprintf(instruction, "%s.%c %s, %s", table_680x0[n].instr, sizes[size], reglist, ea);
+          }
+            else
+          {
+            sprintf(instruction, "%s.%c %s, %s", table_680x0[n].instr, sizes[size], ea, reglist);
+          }
+          return len+2;
         default:
           return -1;
       }

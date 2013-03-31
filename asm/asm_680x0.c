@@ -42,6 +42,7 @@ enum
   OPERAND_INDEX_DATA8_PC_XN,          // implement me
   OPERAND_ADDRESS,
   OPERAND_SPECIAL_REG,
+  OPERAND_MULTIPLE_REG,
 };
 
 enum
@@ -65,6 +66,8 @@ enum
   EA_NO_IMM=2,
   EA_NO_A=4,
   EA_NO_D=8,
+  EA_NO_PLUS=16,
+  EA_NO_MINUS=32,
 };
 
 struct _operand
@@ -921,6 +924,44 @@ int opmode;
   return 0;
 }
 
+static int write_movem(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+struct _operand *operand=&operands[1];
+int mask=0;
+int dir=0;
+
+  if (operand_count!=2) { return 0; }
+  if (size!=SIZE_W && size!=SIZE_L) { return 0; }
+
+  if (operands[0].type==OPERAND_MULTIPLE_REG)
+  {
+    mask=operands[0].value;
+  }
+    else
+  if (operands[1].type==OPERAND_MULTIPLE_REG)
+  {
+    mask=operands[1].value;
+    operand=&operands[0];
+    dir=1;
+  }
+    else
+  {
+    return 0;
+  }
+
+  size=(size==SIZE_W)?0:1;
+
+  if (dir==1)
+  {
+    // Reg to mem
+    return ea_generic_all(asm_context, operand, instr, opcode|(1<<10)|(size<<6), 0, EA_NO_A|EA_NO_D|EA_NO_IMM|EA_NO_PLUS|EA_NO_PC, mask);
+  }
+    else
+  {
+    return ea_generic_all(asm_context, operand, instr, opcode|(size<<6), 0, EA_NO_A|EA_NO_D|EA_NO_IMM|EA_NO_MINUS|EA_NO_PC, mask);
+  }
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -1102,6 +1143,92 @@ int n;
 
       operands[operand_count].type=OPERAND_ADDRESS;
       operands[operand_count].value=num;
+    }
+
+    // See if multiple registers are listed like: a3-a5/d1/d2-d3
+    if (operands[operand_count].type==OPERAND_D_REG ||
+        operands[operand_count].type==OPERAND_A_REG)
+    {
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token,'-') || IS_TOKEN(token,'/'))
+      {
+        int type=operands[operand_count].type;
+        int curr=operands[operand_count].value;
+        int mask=(1<<operands[operand_count].value);
+        if (type==OPERAND_A_REG) { mask=mask<<8; }
+        operands[operand_count].type=OPERAND_MULTIPLE_REG;
+        operands[operand_count].value=0;
+
+        while(1)
+        {
+          if (IS_TOKEN(token,'-'))
+          {
+            token_type=get_token(asm_context, token, TOKENLEN);
+            if (type==OPERAND_D_REG)
+            {
+              num=get_register_d_680x0(token);
+              if (num==-1 || num<curr)
+              {
+                print_error_unexp(token, asm_context);
+                return -1;
+              }
+              for (n=curr; n<=num; n++) { mask|=(1<<n); }
+              type=0;
+            }
+              else
+            if (type==OPERAND_A_REG)
+            {
+              num=get_register_a_680x0(token);
+              if (num==-1 || num<curr)
+              {
+                print_error_unexp(token, asm_context);
+                return -1;
+              }
+              for (n=curr; n<=num; n++) { mask|=(1<<(n+8)); }
+              type=0;
+            }
+
+            token_type=get_token(asm_context, token, TOKENLEN);
+          }
+            else
+          if (IS_TOKEN(token,'/'))
+          {
+            token_type=get_token(asm_context, token, TOKENLEN);
+            if ((num=get_register_d_680x0(token))!=-1)
+            {
+              type=OPERAND_D_REG;
+              curr=num;
+              mask|=(1<<num);
+              token_type=get_token(asm_context, token, TOKENLEN);
+            }
+              else
+            if ((num=get_register_a_680x0(token))!=-1)
+            {
+              type=OPERAND_A_REG;
+              curr=num;
+              mask|=(1<<(num+8));
+              token_type=get_token(asm_context, token, TOKENLEN);
+            }
+              else
+            {
+              pushback(asm_context, token, token_type);
+              break;
+            }
+          }
+            else
+          {
+            pushback(asm_context, token, token_type);
+            break;
+          }
+        }
+
+        //printf("mask=0x%04x\n", mask);
+        operands[operand_count].value=mask;
+      }
+        else
+      {
+        pushback(asm_context, token, token_type);
+      }
     }
 
     operand_count++;
@@ -1312,6 +1439,9 @@ printf("\n");
           break;
         case OP_MOVEP:
           ret=write_movep(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_MOVEM:
+          ret=write_movem(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

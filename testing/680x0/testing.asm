@@ -136,3 +136,8 @@ crap:
   movep.w (100,a6), d3
   movep.l (-16,a1), d4
 
+  movem.w d3-d7/a7, $1000 
+  movem.w $1000, d3-d7/a7
+
+
+
