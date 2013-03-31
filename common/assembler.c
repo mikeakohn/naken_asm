@@ -390,8 +390,6 @@ int data32;
     }
   }
 
-  //list_data(asm_context, address, asm_context->address-address);
-
   asm_context->line++;
 
   return 0;
@@ -401,29 +399,14 @@ static int parse_dw(struct _asm_context *asm_context)
 {
 char token[TOKENLEN];
 int token_type;
-//int sign=1;
 int data32;
 unsigned short int data16;
-//int address=asm_context->address;
 
   if (asm_context->segment==SEGMENT_BSS)
   {
     printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->filename, asm_context->line);
     return -1;
   }
-
-#if 0
-  if ((asm_context->address&0x01)!=0)
-  {
-    if (asm_context->pass==2)
-    {
-      printf("Warning: dw doesn't start on 16 bit boundary at %s:%d.  Padding with a 0.\n", asm_context->filename, asm_context->line);
-    }
-
-    memory_write_inc(asm_context, 0, DL_DATA);
-    asm_context->data_count++;
-  }
-#endif
 
   while(1)
   {
@@ -438,8 +421,16 @@ unsigned short int data16;
     }
     data16=(unsigned short)data32;
 
-    memory_write_inc(asm_context, data16&255, DL_DATA);
-    memory_write_inc(asm_context, data16>>8, DL_DATA);
+    if (asm_context->memory.endian==ENDIAN_LITTLE)
+    {
+      memory_write_inc(asm_context, data16&255, DL_DATA);
+      memory_write_inc(asm_context, data16>>8, DL_DATA);
+    }
+      else
+    {
+      memory_write_inc(asm_context, data16>>8, DL_DATA);
+      memory_write_inc(asm_context, data16&255, DL_DATA);
+    }
 
     asm_context->data_count+=2;
     token_type=get_token(asm_context, token, TOKENLEN);
@@ -450,15 +441,84 @@ unsigned short int data16;
       printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
       return -1;
     }
-
-    //sign=1;
   }
-
-  //list_data(asm_context, address, asm_context->address-address);
 
   asm_context->line++;
 
   return 0;
+}
+
+static int parse_dl(struct _asm_context *asm_context)
+{
+char token[TOKENLEN];
+int token_type;
+int data32;
+unsigned int udata32;
+
+  if (asm_context->segment==SEGMENT_BSS)
+  {
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->filename, asm_context->line);
+    return -1;
+  }
+
+  while(1)
+  {
+    // if the user has a comma at the end, but no data, this is okay
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+    pushback(asm_context, token, token_type);
+
+    if (eval_expression(asm_context, &data32)==-1)
+    {
+      eat_operand(asm_context);
+    }
+    udata32=(unsigned int)data32;
+
+    if (asm_context->memory.endian==ENDIAN_LITTLE)
+    {
+      memory_write_inc(asm_context, udata32&255, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>8)&0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>16)&0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>24)&0xff, DL_DATA);
+    }
+      else
+    {
+      memory_write_inc(asm_context, udata32>>8, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>8)&0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>16)&0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>24)&0xff, DL_DATA);
+    }
+
+    asm_context->data_count+=2;
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+
+    if (IS_NOT_TOKEN(token,','))
+    {
+      printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
+      return -1;
+    }
+  }
+
+  asm_context->line++;
+
+  return 0;
+}
+
+static int parse_dc(struct _asm_context *asm_context)
+{
+char token[TOKENLEN];
+//int token_type;
+
+  if (expect_token_s(asm_context,".")!=0) { return -1; }
+  get_token(asm_context, token, TOKENLEN);
+
+  if (strcasecmp(token,"b")==0) { return parse_db(asm_context,0); }
+  if (strcasecmp(token,"w")==0) { return parse_dw(asm_context); }
+  if (strcasecmp(token,"l")==0) { return parse_dl(asm_context); }
+
+  print_error_unexp(token, asm_context);
+  return -1;
 }
 
 static int parse_ds(struct _asm_context *asm_context, int n)
@@ -709,9 +769,21 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+  if (strcasecmp(token, "dc")==0)
+  {
+    if (parse_dc(asm_context)!=0) return -1;
+    return 1;
+  }
+    else
   if (strcasecmp(token, "dw")==0 || strcasecmp(token, "dc16")==0)
   {
     if (parse_dw(asm_context)!=0) return -1;
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "dl")==0 || strcasecmp(token, "dc32")==0)
+  {
+    if (parse_dl(asm_context)!=0) return -1;
     return 1;
   }
     else
