@@ -139,5 +139,6 @@ crap:
   movem.w d3-d7/a7, $1000 
   movem.w $1000, d3-d7/a7
 
+  move.w $1234, $5678
 
 

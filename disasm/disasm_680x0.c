@@ -166,7 +166,6 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
 //int count=2;
 int opcode;
 char ea[32];
-char reglist[128];
 int size;
 int reg;
 int mode,len;
@@ -487,6 +486,8 @@ int n;
           }
           return 4;
         case OP_MOVEM:
+        {
+          char reglist[128];
           size=((opcode>>6)&1)+1;
           get_reglist(reglist, READ_RAM16(address+2));
           len=get_ea_680x0(memory, address, ea, opcode, 2, size);
@@ -499,6 +500,17 @@ int n;
             sprintf(instruction, "%s.%c %s, %s", table_680x0[n].instr, sizes[size], ea, reglist);
           }
           return len+2;
+        }
+        case OP_MOVE:
+        {
+          char dst_ea[128];
+          int dst_len;
+          size=(opcode>>12)&3;
+          len=get_ea_680x0(memory, address, ea, opcode, 0, size);
+          dst_len=get_ea_680x0(memory, address, dst_ea, opcode>>6, len-2, size);
+          sprintf(instruction, "%s.%c %s, %s", table_680x0[n].instr, sizes[size], ea, dst_ea);
+          return len+dst_len-2;
+        }
         default:
           return -1;
       }

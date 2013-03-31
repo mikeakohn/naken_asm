@@ -68,6 +68,7 @@ enum
   EA_NO_D=8,
   EA_NO_PLUS=16,
   EA_NO_MINUS=32,
+  //EA_SKIP_BYTES=64,
 };
 
 struct _operand
@@ -235,6 +236,14 @@ static int ea_displacement(struct _asm_context *asm_context, int opcode, struct 
 
 static int ea_generic_all(struct _asm_context *asm_context, struct _operand *operand, char *instr, int opcode, int size, int flags, unsigned int extra_imm)
 {
+#if 0
+  if (flags&EA_SKIP_BYTES)
+  {
+    skip
+    extra_imm=NO_EXTRA_IMM;
+  }
+#endif
+
   switch(operand->type)
   {
     case OPERAND_D_REG:
@@ -244,6 +253,8 @@ static int ea_generic_all(struct _asm_context *asm_context, struct _operand *ope
     case OPERAND_A_REG_INDEX_MINUS:
       if (flags&EA_NO_D && operand->type==OPERAND_D_REG) { break; }
       if (flags&EA_NO_A && operand->type==OPERAND_A_REG) { break; }
+      if (flags&EA_NO_PLUS && operand->type==OPERAND_A_REG_INDEX_PLUS) { break;}
+      if (flags&EA_NO_MINUS && operand->type==OPERAND_A_REG_INDEX_MINUS) { break; }
       add_bin16(asm_context, opcode|(operand->type<<3)|operand->value, IS_OPCODE);
       if (extra_imm!=NO_EXTRA_IMM)
       {
@@ -962,6 +973,73 @@ int dir=0;
   }
 }
 
+static int write_move(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+unsigned int address;
+unsigned short int ea_src_bytes[32];
+unsigned short int ea_dst_bytes[32];
+int src_len;
+int dst_len;
+int len=2;
+int n;
+
+  if (size==SIZE_NONE) { return 0; }
+
+  // Translate to MOVEA
+  if (operands[1].type==OPERAND_A_REG)
+  {
+    return write_movea(asm_context, instr, operands, operand_count, 0x0040, size);
+  }
+
+  opcode=opcode|(size<<12);
+  address=asm_context->address;
+
+  src_len=ea_generic_all(asm_context, &operands[0], instr, opcode, size, 0, NO_EXTRA_IMM);
+  if (src_len==0) { return 0; }
+
+//printf("src_len=%d\n", src_len);
+  for (n=0; n<src_len; n++)
+  {
+    ea_src_bytes[n]=memory_read(asm_context, address+n);
+//printf("%d %d %02x\n", asm_context->address, address+n, ea_src_bytes[n]);
+  }
+
+  asm_context->address=address;
+
+  dst_len=ea_generic_all(asm_context, &operands[1], instr, opcode, size, EA_NO_A|EA_NO_IMM|EA_NO_PC, NO_EXTRA_IMM);
+  if (dst_len==0) { return 0; }
+//printf("dst_len=%d\n", src_len);
+
+  for (n=0; n<dst_len; n++)
+  {
+    ea_dst_bytes[n]=memory_read(asm_context, address+n);
+//printf("%d %d %02x\n", asm_context->address, address+n, ea_dst_bytes[n]);
+  }
+
+  asm_context->address=address;
+
+  opcode|=(ea_dst_bytes[1]&0x3f)<<6;
+  opcode|=(ea_src_bytes[1]&0x3f);
+
+  //printf("%04x\n", opcode);
+  add_bin16(asm_context, opcode, IS_OPCODE);
+  for (n=2; n<src_len; n+=2)
+  {
+    opcode=(ea_src_bytes[n]<<8)|ea_src_bytes[n+1];
+    add_bin16(asm_context, opcode, IS_OPCODE);
+    len+=2;
+  }
+
+  for (n=2; n<dst_len; n+=2)
+  {
+    opcode=(ea_dst_bytes[n]<<8)|ea_dst_bytes[n+1];
+    add_bin16(asm_context, opcode, IS_OPCODE);
+    len+=2;
+  }
+
+  return len;
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -1442,6 +1520,9 @@ printf("\n");
           break;
         case OP_MOVEM:
           ret=write_movem(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_MOVE:
+          ret=write_move(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;
