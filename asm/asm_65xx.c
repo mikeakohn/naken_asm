@@ -44,7 +44,7 @@ enum
   MODE_ZEROPAGE_Y_INDEXED
 };
 
-// bytes each mode takes
+// bytes for each mode
 static int mode_bytes[] = { 3, 3, 3, 2, 1, 3, 2, 2, 2, 2, 2, 2 };
 
 int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
@@ -81,8 +81,10 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     return -1;
   }
 
+  // default
   mode = MODE_IMPLIED;
 
+  // begin parsing
   token_type=get_token(asm_context, token, TOKENLEN);
   if (token_type==TOKEN_EOL) { goto skip; }
 
@@ -102,11 +104,10 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
     }
 
-    // out of byte range
+    num = (unsigned)num;
+
     if(num < 0 || num > 0xFF)
-    {
       print_error_unexp(token, asm_context);
-    }
   }
     else
   if(IS_TOKEN(token, '('))
@@ -129,7 +130,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     if (token_type==TOKEN_EOL) { goto skip; }
     if(IS_TOKEN(token, ','))
     {
-      if(num > 0xFF)
+      if(num < 0 || num > 0xFF)
       {
         print_error("X-Indexed Indirect value out of range", asm_context);
         return -1;
@@ -158,7 +159,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       if (token_type==TOKEN_EOL) { goto skip; }
       if(IS_TOKEN(token, ','))
       {
-        if(num > 0xFF)
+        if(num < 0 || num > 0xFF)
         {
           print_error("Indirect Y-Indexed value out of range", asm_context);
           return -1;
@@ -183,8 +184,6 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     {
       if(asm_context->pass == 1)
       {
-        if(num == -1)
-          num = 0xFFFF;
         eat_operand(asm_context);
       }
         else
@@ -194,10 +193,16 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
     }
 
-    if(num >= 0 && num <= 0xFF)
+    if(num >= 0x01 && num <= 0xFF)
+    {
+      // can only safely use zero page for known values 1-255
       mode = MODE_ZEROPAGE;
+    }
     else
+    {
       mode = MODE_ABSOLUTE;
+    }
+
     token_type = get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { goto skip; }
 
@@ -227,6 +232,11 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
         return -1;
       }
     }
+    if(num < 0 || num > 0xFFFF)
+    {
+      print_error("Address out of range", asm_context);
+      return -1;
+    }
   }
 
 skip:
@@ -250,7 +260,6 @@ skip:
 
   // see if theres an opcode for this instruction and mode
   opcode = opcodes_65xx[index].opcode[mode];
-
 
   if(asm_context->pass == 2 && opcode == 0xFF)
   {

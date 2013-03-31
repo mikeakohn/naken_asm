@@ -86,7 +86,7 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
       indirect = READ_RAM(address);
       return (READ_RAM(indirect) + 256 * (READ_RAM(indirect + 1) & 0xFFFF) + REG_Y) & 0xFFFF;
     case 8:
-      return (address + (READ_RAM(address) - 128) + 1) & 0xFFFF;
+      return (address + ((signed char)READ_RAM(address) + 1)) & 0xFFFF;
     case 9:
       return READ_RAM(address) & 0xFF;
     case 10:
@@ -379,9 +379,11 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     // JSR
     case 0x20:
       WRITE_RAM(0x100 + REG_SP, (REG_PC + 2) / 256);
-      REG_SP--;
+      REG_SP--; 
+      REG_SP &= 0xFF;
       WRITE_RAM(0x100 + REG_SP, (REG_PC + 2) & 0xFF);
       REG_SP--;
+      REG_SP &= 0xFF;
       REG_PC = address;
       return 1;
     // LDA
@@ -461,20 +463,24 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x48:
       WRITE_RAM(0x100 + REG_SP, REG_A);
       REG_SP--;
+      REG_SP &= 0xFF;
       break;
     // PHP
     case 0x08:
       WRITE_RAM(0x100 + REG_SP, REG_SR);
       REG_SP--;
+      REG_SP &= 0xFF;
       break;
     // PLA
     case 0x68:
       REG_SP++;
+      REG_SP &= 0xFF;
       REG_A = READ_RAM(0x100 + REG_SP);
       break;
     // PLP
     case 0x28:
       REG_SP++;
+      REG_SP &= 0xFF;
       REG_SR = READ_RAM(0x100 + REG_SP);
       break;
     // ROL
@@ -532,10 +538,13 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     // RTI
     case 0x40:
       REG_SP++;
+      REG_SP &= 0xFF;
       REG_SR = READ_RAM(0x100 + REG_SP);
       REG_SP++;
+      REG_SP &= 0xFF;
       pc_lo = READ_RAM(0x100 + REG_SP);
       REG_SP++;
+      REG_SP &= 0xFF;
       pc_hi = READ_RAM(0x100 + REG_SP);
       REG_PC = (pc_lo + 256 * pc_hi);
       REG_PC++;
@@ -543,8 +552,10 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     // RTS
     case 0x60:
       REG_SP++;
+      REG_SP &= 0xFF;
       pc_lo = READ_RAM(0x100 + REG_SP);
       REG_SP++;
+      REG_SP &= 0xFF;
       pc_hi = READ_RAM(0x100 + REG_SP);
       REG_PC = (pc_lo + 256 * pc_hi);
       REG_PC++;
@@ -692,6 +703,7 @@ struct _simulate_65xx *simulate_65xx=(struct _simulate_65xx *)simulate->context;
 
   WRITE_RAM(0x100 + REG_SP, value & 0xFF);
   REG_SP--;
+  REG_SP &= 0xFF;
 }
 
 int simulate_set_reg_65xx(struct _simulate *simulate, char *reg_string, unsigned int value)
@@ -775,12 +787,12 @@ int sp=REG_SP;
 
   printf("\nSimulation Register Dump                               Stack\n");
   printf("------------------------------------------------------------\n");
-  printf("        7 6 5 4 3 2 1 0                         0x%04x: 0x%02x\n", SHOW_STACK);
+  printf("        7 6 5 4 3 2 1 0                          0x%03x: 0x%02x\n", SHOW_STACK);
   sp = (sp - 1) & 0xFF;
   
-  printf("Status: N V - B D I Z C                         0x%04x: 0x%02x\n", SHOW_STACK);
+  printf("Status: N V - B D I Z C                          0x%03x: 0x%02x\n", SHOW_STACK);
   sp = (sp - 1) & 0xFF;
-  printf("        %d %d %d %d %d %d %d %d                         0x%04x: 0x%02x\n",
+  printf("        %d %d %d %d %d %d %d %d                          0x%03x: 0x%02x\n",
     READ_FLAG(flag_n),
     READ_FLAG(flag_v),
     READ_FLAG(flag_g),
@@ -792,12 +804,12 @@ int sp=REG_SP;
     SHOW_STACK);
   sp = (sp - 1) & 0xFF;
   
-  printf("                                                0x%04x: 0x%02x\n", SHOW_STACK);
+  printf("                                                 0x%03x: 0x%02x\n", SHOW_STACK);
   sp = (sp - 1) & 0xFF;
 
-  printf("  A=0x%02x   X=0x%02x   Y=0x%02x                      0x%04x: 0x%02x\n", REG_A, REG_X, REG_Y, SHOW_STACK);
+  printf("  A=0x%02x   X=0x%02x   Y=0x%02x                       0x%03x: 0x%02x\n", REG_A, REG_X, REG_Y, SHOW_STACK);
   sp = (sp - 1) & 0xFF;
-  printf(" SR=0x%02x  SP=0x%02x  PC=0x%04x                    0x%04x: 0x%02x\n", REG_SR, REG_SP, REG_PC, SHOW_STACK);
+  printf(" SR=0x%02x  SP=0x%02x  PC=0x%04x                     0x%03x: 0x%02x\n", REG_SR, REG_SP, REG_PC, SHOW_STACK);
 
   printf("\n\n");
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
@@ -821,10 +833,6 @@ char instruction[128];
     int cycles_min, cycles_max;
     int opcode = READ_RAM(pc);
 
-    //system("cls");
-    printf("\x1b[1J\x1b[1;1H");
-    simulate_dump_registers_65xx(simulate);
-
     int ret = operand_exe(simulate, opcode);
 
     // stop simulation on BRK instruction
@@ -835,36 +843,41 @@ char instruction[128];
     if(ret == 0)
       REG_PC += disasm_65xx(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
 
-// if simulate->show = 1
-    int n = 0;
-    while(n < 6)
+    if(simulate->show == 1)
     {
-      int count = disasm_65xx(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+      printf("\x1b[1J\x1b[1;1H");
+      simulate_dump_registers_65xx(simulate);
 
-      if(cycles_min == -1) break;
-
-      if(pc == simulate->break_point) { printf("*"); }
-      else { printf(" "); }
-
-      if(n == 0)
-      { printf("! "); }
-        else
-      if(pc == REG_PC) { printf("> "); }
-        else
-      { printf("  "); }
-
-      printf("0x%04x: %-40s %d-%d\n", pc, instruction, cycles_min, cycles_max);
-      n += count;
-      pc += count;
-
-      count--;
-      while(count > 0)
+      int n = 0;
+      while(n < 6)
       {
+        int count = disasm_65xx(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+
+        if(cycles_min == -1) break;
+
         if(pc == simulate->break_point) { printf("*"); }
         else { printf(" "); }
-        printf("  0x%04x: 0x%04x\n", pc, READ_RAM(pc));
+
+        if(n == 0)
+        { printf("! "); }
+          else
+        if(pc == REG_PC) { printf("> "); }
+          else
+        { printf("  "); }
+
+        printf("0x%04x: %-40s %d-%d\n", pc, instruction, cycles_min, cycles_max);
+        n += count;
         pc += count;
+
         count--;
+        while(count > 0)
+        {
+          if(pc == simulate->break_point) { printf("*"); }
+          else { printf(" "); }
+          printf("  0x%04x: 0x%04x\n", pc, READ_RAM(pc));
+          pc += count;
+          count--;
+        }
       }
     }
 

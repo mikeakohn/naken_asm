@@ -211,7 +211,7 @@ unsigned int opcode=get_opcode32(&asm_context->memory, address);
 void disasm_range_65xx(struct _memory *memory, int start, int end)
 {
 char instruction[128];
-//int vectors_flag=0;
+int vectors_flag=0;
 int cycles_min=0,cycles_max=0;
 int num;
 
@@ -228,16 +228,16 @@ int num;
 
     if (cycles_min<1)
     {
-      printf("hi1 0x%04x: 0x%02x %-40s ?\n", start, num & 0xFF, instruction);
+      printf("0x%04x: 0x%02x %-40s ?\n", start, num & 0xFF, instruction);
     }
       else
     if (cycles_min==cycles_max)
     {
-      printf("hi2 0x%04x: 0x%02x %-40s %d\n", start, num & 0xFF, instruction, cycles_min);
+      printf("0x%04x: 0x%02x %-40s %d\n", start, num & 0xFF, instruction, cycles_min);
     }
       else
     {
-      printf("hi3 0x%04x: 0x%02x %-40s %d-%d\n", start, num & 0xFF, instruction, cycles_min, cycles_max);
+      printf("0x%04x: 0x%02x %-40s %d-%d\n", start, num & 0xFF, instruction, cycles_min, cycles_max);
     }
 
     count-=1;
@@ -245,7 +245,7 @@ int num;
     {
       start=start+1;
       num=READ_RAM(start)|(READ_RAM(start+1)<<8);
-      printf("hi4 0x%04x: 0x%02x\n", start, num & 0xFF);
+      printf("0x%04x: 0x%02x\n", start, num & 0xFF);
       count-=1;
     }
 

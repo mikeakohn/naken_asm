@@ -49,6 +49,8 @@ show_help()
   echo "  --enable-all              compile in support for all CPU's"
   echo "  --enable-65xx             compile in support for 6502/6510 etc"
   echo "  --enable-680x             compile in support for 6800 series"
+  echo "  --enable-68hc08           compile in support for 68hc08 series"
+  echo "  --enable-680x0            compile in support for 680x0 series"
   echo "  --enable-805x             compile in support for 8051/8052"
   echo "  --enable-arm              compile in support for ARM"
   echo "  --enable-dspic            compile in support for dsPIC"
@@ -56,6 +58,7 @@ show_help()
   echo "  --enable-msp430           compile in support for MSP430"
   echo "  --enable-stm8             compile in support for STM8"
   echo "  --enable-tms1000          compile in support for tms1000/tms1100"
+  echo "  --enable-tms9900          compile in support for tms9900"
   echo "  --enable-z80              compile in support for z80"
   echo
 
