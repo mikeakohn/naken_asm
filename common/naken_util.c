@@ -25,6 +25,7 @@
 #include "disasm_680x0.h"
 #include "disasm_805x.h"
 #include "disasm_arm.h"
+#include "disasm_avr8.h"
 #include "disasm_dspic.h"
 #include "disasm_mips.h"
 #include "disasm_msp430.h"
@@ -673,6 +674,14 @@ int interactive=1;
     if (strcmp(argv[i], "-arm")==0)
     {
       util_context.disasm_range=disasm_range_arm;
+      //util_context.instr_bytes=4;
+    }
+      else
+#endif
+#ifdef ENABLE_AVR8
+    if (strcmp(argv[i], "-avr8")==0)
+    {
+      util_context.disasm_range=disasm_range_avr8;
       //util_context.instr_bytes=4;
     }
       else

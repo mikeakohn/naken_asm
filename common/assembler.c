@@ -19,6 +19,7 @@
 #include "asm_680x0.h"
 #include "asm_805x.h"
 #include "asm_arm.h"
+#include "asm_avr8.h"
 #include "asm_common.h"
 #include "asm_dspic.h"
 #include "asm_mips.h"
@@ -33,6 +34,7 @@
 #include "disasm_68hc08.h"
 #include "disasm_680x0.h"
 #include "disasm_arm.h"
+#include "disasm_avr8.h"
 #include "disasm_dspic.h"
 #include "disasm_mips.h"
 #include "disasm_msp430.h"
@@ -804,16 +806,6 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 2;
   }
     else
-#ifdef ENABLE_ARM
-  if (strcasecmp(token, "arm")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_arm;
-    asm_context->list_output=list_output_arm;
-    asm_context->cpu_type=CPU_TYPE_ARM;
-    return 1;
-  }
-    else
-#endif
 #ifdef ENABLE_DSPIC
   if (strcasecmp(token, "dspic")==0)
   {
@@ -897,6 +889,27 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->parse_instruction=parse_instruction_805x;
     asm_context->list_output=list_output_805x;
     asm_context->cpu_type=CPU_TYPE_805X;
+    return 1;
+  }
+    else
+#endif
+#ifdef ENABLE_ARM
+  if (strcasecmp(token, "arm")==0)
+  {
+    asm_context->parse_instruction=parse_instruction_arm;
+    asm_context->list_output=list_output_arm;
+    asm_context->cpu_type=CPU_TYPE_ARM;
+    return 1;
+  }
+    else
+#endif
+#ifdef ENABLE_AVR8
+  if (strcasecmp(token, "avr8")==0)
+  {
+    asm_context->parse_instruction=parse_instruction_avr8;
+    asm_context->list_output=list_output_avr8;
+    asm_context->cpu_type=CPU_TYPE_AVR8;
+    asm_context->memory.endian=ENDIAN_BIG;
     return 1;
   }
     else

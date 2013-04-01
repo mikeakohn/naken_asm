@@ -567,21 +567,10 @@ void list_output_680x0(struct _asm_context *asm_context, int address)
 int cycles_min=-1,cycles_max=-1;
 int count;
 char instruction[128];
-//char temp[32];
-//char temp2[4];
 int n;
 
   fprintf(asm_context->list, "\n");
   count=disasm_680x0(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-
-#if 0
-  temp[0]=0;
-  for (n=0; n<count; n++)
-  {
-    sprintf(temp2, "%02x ", memory_read_m(&asm_context->memory, address+n));
-    strcat(temp, temp2);
-  }
-#endif
 
   fprintf(asm_context->list, "0x%04x: %04x %-40s\n", address, (memory_read_m(&asm_context->memory, address)<<8)|memory_read_m(&asm_context->memory, address+1), instruction);
 
@@ -589,13 +578,6 @@ int n;
   {
     fprintf(asm_context->list, "        %04x\n", (memory_read_m(&asm_context->memory, address+n)<<8)|memory_read_m(&asm_context->memory, address+n+1));
   }
-
-/*
-  if (cycles_min==cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
-    else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
-*/
 }
 
 void disasm_range_680x0(struct _memory *memory, int start, int end)

@@ -17,12 +17,17 @@
 enum
 {
   OP_NONE,
+  OP_BRANCH_S_K,
+  OP_BRANCH_K,
+
+#if 0
   OP_K,
   OP_RD_RR,
   OP_RD_B,
   OP_S_B,
   OP_P_B,
   OP_RD_K,
+#endif
 };
 
 struct _table_avr8
