@@ -73,6 +73,8 @@ int token_type;
 char instr_case[TOKENLEN];
 struct _operand operands[2];
 int operand_count=0;
+int matched=0;
+int offset;
 int n,num;
 
   lower_copy(instr_case, instr);
@@ -202,9 +204,43 @@ int n,num;
     {
       switch(table_avr8[n].type)
       {
+        matched=1;
         case OP_NONE:
+          if (operand_count==0)
+          {
+            add_bin16(asm_context, table_avr8[n].opcode, IS_OPCODE);
+          }
         case OP_BRANCH_S_K:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            if (asm_context->pass==1) { offset=0; }
+            else { offset=operands[0].value-asm_context->address+2; }
+            if (offset<-64 || offset>63)
+            {
+              print_error_range("Offset", -64, 63, asm_context);
+              return -1;
+            }
+            if (operands[0].value>7)
+            {
+              print_error_range("Register", 0, 7, asm_context);
+              return -1;
+            }
+            add_bin16(asm_context, table_avr8[n].opcode|(offset&0x7f)|operands[0].value, IS_OPCODE);
+          }
         case OP_BRANCH_K:
+          if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
+          {
+            if (asm_context->pass==1) { offset=0; }
+            else { offset=operands[0].value-asm_context->address+2; }
+            if (offset<-64 || offset>63)
+            {
+              print_error_range("Offset", -64, 63, asm_context);
+              return -1;
+            }
+            add_bin16(asm_context, table_avr8[n].opcode|(offset&0x7f), IS_OPCODE);
+          }
         default:
           break;
       }
@@ -212,7 +248,14 @@ int n,num;
     n++;
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  if (matched==1)
+  {
+    printf("Error: Unknown flag/operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+  }
+    else
+  {
+    printf("Error: Unknown instruction '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+  }
 
   return -1;
 }
