@@ -70,12 +70,14 @@ int parse_instruction_avr8(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
 int token_type;
-char instr_case[TOKENLEN];
+char instr_case_mem[TOKENLEN];
+char *instr_case=instr_case_mem;
 struct _operand operands[2];
 int operand_count=0;
 int matched=0;
 int offset;
 int n,num;
+int rd,rr;
 
   lower_copy(instr_case, instr);
 
@@ -197,6 +199,32 @@ int n,num;
     }
   }
 
+  // Check for aliases:
+
+  if (strcasecmp("clr",instr_case)==0)
+  {
+    matched=1;
+    if (operand_count==1 && operands[0].type==OPERAND_REG)
+    {
+      operand_count=2;
+      operands[1].type=OPERAND_REG;
+      operands[1].value=operands[0].value;
+      instr_case="eor";
+    }
+  }
+    else
+  if (strcasecmp("tst",instr_case)==0)
+  {
+    matched=1;
+    if (operand_count==1 && operands[0].type==OPERAND_REG)
+    {
+      operand_count=2;
+      operands[1].type=OPERAND_REG;
+      operands[1].value=operands[0].value;
+      instr_case="and";
+    }
+  }
+
   n=0;
   while(table_avr8[n].instr!=NULL)
   {
@@ -209,6 +237,7 @@ int n,num;
           if (operand_count==0)
           {
             add_bin16(asm_context, table_avr8[n].opcode, IS_OPCODE);
+            return 2;
           }
         case OP_BRANCH_S_K:
           if (operand_count==2 &&
@@ -228,6 +257,7 @@ int n,num;
               return -1;
             }
             add_bin16(asm_context, table_avr8[n].opcode|(offset&0x7f)|operands[0].value, IS_OPCODE);
+            return 2;
           }
         case OP_BRANCH_K:
           if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
@@ -240,6 +270,17 @@ int n,num;
               return -1;
             }
             add_bin16(asm_context, table_avr8[n].opcode|(offset&0x7f), IS_OPCODE);
+            return 2;
+          }
+        case OP_TWO_REG:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG)
+          {
+            rd=operands[0].value<<4;
+            rr=((operands[1].value&0x10)<<5)|(operands[1].value&0xf);
+            add_bin16(asm_context, table_avr8[n].opcode|rd|rr, IS_OPCODE);
+            return 2;
           }
         default:
           break;

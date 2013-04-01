@@ -19,6 +19,7 @@ enum
   OP_NONE,
   OP_BRANCH_S_K,
   OP_BRANCH_K,
+  OP_TWO_REG,
 
 #if 0
   OP_K,

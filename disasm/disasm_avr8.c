@@ -18,7 +18,7 @@
 #include "table_avr8.h"
 
 //#define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
+#define READ_RAM16(a) memory_read_m(memory, a)|(memory_read_m(memory, a+1)<<8)
 
 int get_cycle_count_avr8(unsigned short int opcode)
 {
@@ -29,6 +29,7 @@ int disasm_avr8(struct _memory *memory, int address, char *instruction, int *cyc
 {
 int opcode;
 int n;
+int rd,rr;
 
   *cycles_min=-1;
   *cycles_max=-1;
@@ -40,6 +41,9 @@ int n;
   {
     if ((opcode&table_avr8[n].mask)==table_avr8[n].opcode)
     {
+      *cycles_min=table_avr8[n].cycles_min;
+      *cycles_max=table_avr8[n].cycles_max;
+
       switch(table_avr8[n].type)
       {
         case OP_NONE:
@@ -50,6 +54,11 @@ int n;
           return 2;
         case OP_BRANCH_K:
           sprintf(instruction, "%s addr", table_avr8[n].instr);
+          return 2;
+        case OP_TWO_REG:
+          rd=(opcode>>4)&0x1f;
+          rr=((opcode&0x200)>>5)|((opcode)&0xf);
+          sprintf(instruction, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
           return 2;
         default:
           sprintf(instruction, "%s", table_avr8[n].instr);
@@ -74,7 +83,7 @@ int n;
   fprintf(asm_context->list, "\n");
   count=disasm_avr8(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
-  opcode=(memory_read_m(&asm_context->memory, address)<<8)|memory_read_m(&asm_context->memory, address+1);
+  opcode=memory_read_m(&asm_context->memory, address)|(memory_read_m(&asm_context->memory, address+1)<<8);
 
   fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", address, opcode, instruction);
 
@@ -85,7 +94,7 @@ int n;
 
   for (n=2; n<count; n+=2)
   {
-    opcode=(memory_read_m(&asm_context->memory, address+n)<<8)|memory_read_m(&asm_context->memory, address+n+1);
+    opcode=memory_read_m(&asm_context->memory, address+n)|(memory_read_m(&asm_context->memory, address+n+1)<<8);
     printf("     %04x\n", opcode);
   }
 }
