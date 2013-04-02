@@ -240,9 +240,10 @@ int rd,rr,k;
   {
     if (strcmp(table_avr8[n].instr, instr_case)==0)
     {
+      matched=1;
+
       switch(table_avr8[n].type)
       {
-        matched=1;
         case OP_NONE:
           if (operand_count==0)
           {
@@ -369,13 +370,63 @@ int rd,rr,k;
               print_error_range("I/O Reg", 0, 31, asm_context);
               return -1;
             }
+
             if (operands[1].value<0 || operands[1].value>7)
             {
               print_error_range("Bit", 0, 7, asm_context);
               return -1;
             }
-            rd=operands[0].value<<3;
+            rd=(operands[0].value<<3);
             k=operands[1].value;
+            add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
+            return 2;
+          }
+        case OP_SREG_BIT:
+          if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
+          {
+            k=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|k, IS_OPCODE);
+            return 2;
+          }
+        case OP_REG_4:
+          if (operand_count==1 && operands[0].type==OPERAND_REG)
+          {
+            if (operands[0].value<16)
+            {
+              print_error_range("Register", 16, 31, asm_context);
+              return -1;
+            }
+            rd=(operands[0].value-16)<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+        case OP_IN:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            if (operands[1].value<0 || operands[1].value>63)
+            {
+              print_error_range("I/O Reg", 0, 63, asm_context);
+              return -1;
+            }
+            rd=operands[0].value<<4;
+            k=((operands[1].value&0x30)<<5)|(operands[1].value&0xf);
+            add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
+            return 2;
+          }
+        case OP_OUT:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_NUMBER &&
+              operands[1].type==OPERAND_REG)
+          {
+            if (operands[0].value<0 || operands[0].value>63)
+            {
+              print_error_range("I/O Reg", 0, 63, asm_context);
+              return -1;
+            }
+            rd=operands[1].value<<4;
+            k=((operands[0].value&0x30)<<5)|(operands[0].value&0xf);
             add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
             return 2;
           }

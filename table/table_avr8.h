@@ -25,6 +25,10 @@ enum
   OP_REG_BIT,
   OP_REG_IMM_WORD,
   OP_IOREG_BIT,
+  OP_SREG_BIT,
+  OP_REG_4,
+  OP_IN,
+  OP_OUT,
 
 #if 0
   OP_K,

@@ -93,11 +93,18 @@ struct _table_avr8 table_avr8[] =
   { "sbiw", 0x9700, 0xff00, OP_REG_IMM_WORD, 2, 2 },
   { "sbi", 0x9a00, 0xff00, OP_IOREG_BIT, 2, 2 },
   { "cbi", 0x9800, 0xff00, OP_IOREG_BIT, 2, 2 },
+  { "bset", 0x9408, 0xff8f, OP_SREG_BIT, 1, 1 },
+  { "bclr", 0x9488, 0xff8f, OP_SREG_BIT, 1, 1 },
+  { "ser", 0xef0f, 0xff0f, OP_REG_4, 1, 1 },
+  { "in", 0xb000, 0xf800, OP_IN, 1, 1 },
+  { "out", 0xb800, 0xf800, OP_OUT, 1, 1 },
 
 #if 0
 
+  { "sbic", 0x9900, 0xff00, OP_P_B, 1, 3 },
+  { "sbis", 0x9b00, 0xff00, OP_P_B, 1, 3 },
+  { "movw", 0x0100, 0xff00, OP_RD_RR, 1, 1 },
 
-  { "ser", 0xef0f, 0xff0f, OP_RD, 1, 1 },
   //{ "muls", 0x0200, 0xff00, OP_RD_RR, 2, 2 },
   { "mulsu", 0x0300, 0xff88, OP_RD_RR, 2, 2 },
   { "fmul", 0x0308, 0xff88, OP_FMUL, 2, 2 },
@@ -108,9 +115,6 @@ struct _table_avr8 table_avr8[] =
   { "jmp", 0x940c, 0xfe0e, OP_JUMP, 3, 3 },
   { "rcall", 0xd000, 0xf000, OP_RELATIVE, 3, 3 },
   { "call", 0x940e, 0xfe0e, OP_CALL, 4, 4 },
-  { "sbic", 0x9900, 0xff00, OP_P_B, 1, 3 },
-  { "sbis", 0x9b00, 0xff00, OP_P_B, 1, 3 },
-  { "movw", 0x0100, 0xff00, OP_RD_RR, 1, 1 },
   { "lds", 0x9000, 0xfe0f, OP_RD_K, 3, 3 },
   { "ld", 0x900c, 0xfe0f, OP_RD_X, 2, 2 },
   { "ld", 0x900d, 0xfe0f, OP_RD_X_PLUS, 2, 2 },
@@ -142,10 +146,6 @@ struct _table_avr8 table_avr8[] =
   { "spm", 0x95e8, 0xffff, OP_Z_PLUS, -1, -1 },
   { "spm", 0x95f8, 0xffff, OP_Z_PLUS, -1, -1 },
   { "spm", 0x0000, 0x0000, OP_Z_PLUS, -1, -1 },
-  { "in", 0xb000, 0xf800, OP_RD_P, 1, 1 },
-  { "out", 0xb000, 0xf800, OP_P_Rr, 1, 1 },
-  { "bset", 0x9408, 0xff8f, OP_S, 1, 1 },
-  { "bclr", 0x9488, 0xff8f, OP_S, 1, 1 },
 #endif
   { NULL, 0, 0, 0, 0, 0 }
 };

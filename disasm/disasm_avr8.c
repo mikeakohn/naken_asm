@@ -84,6 +84,24 @@ int rd,rr,k;
           k=opcode&0x7;
           sprintf(instruction, "%s 0x%x, %d", table_avr8[n].instr, rd, k);
           return 2;
+        case OP_SREG_BIT:
+          k=(opcode>>4)&0x7;
+          sprintf(instruction, "%s %d", table_avr8[n].instr, k);
+          return 2;
+        case OP_REG_4:
+          rd=((opcode>>4)&0xf)+16;
+          sprintf(instruction, "%s r%d", table_avr8[n].instr, rd);
+          return 2;
+        case OP_IN:
+          rd=(opcode>>4)&0xf;
+          k=((opcode&0x600)>>5)|(opcode&0xf);
+          sprintf(instruction, "%s r%d, 0x%x", table_avr8[n].instr, rd, k);
+          return 2;
+        case OP_OUT:
+          rd=(opcode>>4)&0xf;
+          k=((opcode&0x600)>>5)|(opcode&0xf);
+          sprintf(instruction, "%s 0x%x, r%d", table_avr8[n].instr, k, rd);
+          return 2;
         default:
           sprintf(instruction, "%s", table_avr8[n].instr);
           return 2;
