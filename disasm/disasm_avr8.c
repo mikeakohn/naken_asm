@@ -29,7 +29,7 @@ int disasm_avr8(struct _memory *memory, int address, char *instruction, int *cyc
 {
 int opcode;
 int n;
-int rd,rr;
+int rd,rr,k;
 
   *cycles_min=-1;
   *cycles_max=-1;
@@ -59,6 +59,30 @@ int rd,rr;
           rd=(opcode>>4)&0x1f;
           rr=((opcode&0x200)>>5)|((opcode)&0xf);
           sprintf(instruction, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
+          return 2;
+        case OP_REG_IMM:
+          rd=((opcode>>4)&0xf)+16;
+          k=((opcode&0xf00)>>4)|(opcode&0xf);
+          sprintf(instruction, "%s r%d, 0x%x", table_avr8[n].instr, rd, k);
+          return 2;
+        case OP_ONE_REG:
+          rd=(opcode>>4)&0x1f;
+          sprintf(instruction, "%s r%d", table_avr8[n].instr, rd);
+          return 2;
+        case OP_REG_BIT:
+          rd=(opcode>>4)&0x1f;
+          k=opcode&0x7;
+          sprintf(instruction, "%s r%d, %d", table_avr8[n].instr, rd, k);
+          return 2;
+        case OP_REG_IMM_WORD:
+          rd=(((opcode>>4)&0x3)<<2)+24;
+          k=((opcode&0xc0)>>2)|(opcode&0xf);
+          sprintf(instruction, "%s r%d, %d", table_avr8[n].instr, rd, k);
+          return 2;
+        case OP_IOREG_BIT:
+          rd=(opcode>>3)&0x1f;
+          k=opcode&0x7;
+          sprintf(instruction, "%s 0x%x, %d", table_avr8[n].instr, rd, k);
           return 2;
         default:
           sprintf(instruction, "%s", table_avr8[n].instr);

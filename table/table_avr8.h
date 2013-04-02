@@ -20,6 +20,11 @@ enum
   OP_BRANCH_S_K,
   OP_BRANCH_K,
   OP_TWO_REG,
+  OP_REG_IMM,
+  OP_ONE_REG,
+  OP_REG_BIT,
+  OP_REG_IMM_WORD,
+  OP_IOREG_BIT,
 
 #if 0
   OP_K,

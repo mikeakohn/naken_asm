@@ -44,6 +44,21 @@ struct _operand
   char type;
 };
 
+struct _alias
+{
+  char *instr;
+  char *new;
+};
+
+static struct _alias alias[] =
+{
+  { "clr", "eor" },
+  { "tst", "and" },
+  { "lsl", "add" },
+  { "rol", "adc" },
+  { NULL, NULL },
+};
+
 static int get_register_avr8(char *token)
 {
 int n;
@@ -77,7 +92,7 @@ int operand_count=0;
 int matched=0;
 int offset;
 int n,num;
-int rd,rr;
+int rd,rr,k;
 
   lower_copy(instr_case, instr);
 
@@ -200,29 +215,24 @@ int rd,rr;
   }
 
   // Check for aliases:
+  n=0;
+  while(alias[n].instr!=NULL)
+  {
+    if (strcmp(alias[n].instr, instr_case)==0)
+    {
+      operand_count=2;
+      operands[1].type=OPERAND_REG;
+      operands[1].value=operands[0].value;
+      instr_case=alias[n].new;
+    }
 
-  if (strcasecmp("clr",instr_case)==0)
-  {
-    matched=1;
-    if (operand_count==1 && operands[0].type==OPERAND_REG)
-    {
-      operand_count=2;
-      operands[1].type=OPERAND_REG;
-      operands[1].value=operands[0].value;
-      instr_case="eor";
-    }
+    n++;
   }
-    else
-  if (strcasecmp("tst",instr_case)==0)
+
+  if (strcmp("cbr", instr_case)==0)
   {
-    matched=1;
-    if (operand_count==1 && operands[0].type==OPERAND_REG)
-    {
-      operand_count=2;
-      operands[1].type=OPERAND_REG;
-      operands[1].value=operands[0].value;
-      instr_case="and";
-    }
+    operands[1].value=(operands[1].value^0xff);
+    instr_case="andi";
   }
 
   n=0;
@@ -241,7 +251,7 @@ int rd,rr;
           }
         case OP_BRANCH_S_K:
           if (operand_count==2 &&
-              operands[0].type==OPERAND_REG &&
+              operands[0].type==OPERAND_NUMBER &&
               operands[1].type==OPERAND_NUMBER)
           {
             if (asm_context->pass==1) { offset=0; }
@@ -253,7 +263,7 @@ int rd,rr;
             }
             if (operands[0].value>7)
             {
-              print_error_range("Register", 0, 7, asm_context);
+              print_error_range("Bit", 0, 7, asm_context);
               return -1;
             }
             add_bin16(asm_context, table_avr8[n].opcode|(offset&0x7f)|operands[0].value, IS_OPCODE);
@@ -280,6 +290,93 @@ int rd,rr;
             rd=operands[0].value<<4;
             rr=((operands[1].value&0x10)<<5)|(operands[1].value&0xf);
             add_bin16(asm_context, table_avr8[n].opcode|rd|rr, IS_OPCODE);
+            return 2;
+          }
+        case OP_REG_IMM:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            if (operands[0].value<16)
+            {
+              print_error_range("Register", 16, 31, asm_context);
+              return -1;
+            }
+
+            if (operands[1].value<-128 || operands[1].value>255)
+            {
+              print_error_range("Constant", -128, 255, asm_context);
+              return -1;
+            }
+
+            operands[1].value=operands[1].value&0xff;
+            rd=(operands[0].value-16)<<4;
+            k=((operands[1].value&0xf0)<<4)|(operands[1].value&0xf);
+            add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
+            return 2;
+          }
+        case OP_ONE_REG:
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_REG)
+          {
+            rd=(operands[0].value)<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+        case OP_REG_BIT:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            if (operands[1].value<0 || operands[1].value>7)
+            {
+              print_error_range("Bit", 0, 7, asm_context);
+              return -1;
+            }
+            rd=(operands[0].value)<<4;
+            k=operands[1].value;
+            add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
+            return 2;
+          }
+        case OP_REG_IMM_WORD:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            if (operands[0].value<24 || operands[0].value>30 ||
+                (operands[0].value&0x1)==1)
+            {
+              printf("Error: Register must be r24,r26,r28,r30 for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+              return -1;
+            }
+            if (operands[1].value<0 || operands[1].value>63)
+            {
+              print_error_range("Constant", 0, 63, asm_context);
+              return -1;
+            }
+            rd=((operands[0].value-24)>>2)<<4;
+            k=((operands[1].value&0x30)<<2)|(operands[1].value&0xf);
+            add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
+            return 2;
+          }
+        case OP_IOREG_BIT:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_NUMBER &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            if (operands[0].value<0 || operands[0].value>31)
+            {
+              print_error_range("I/O Reg", 0, 31, asm_context);
+              return -1;
+            }
+            if (operands[1].value<0 || operands[1].value>7)
+            {
+              print_error_range("Bit", 0, 7, asm_context);
+              return -1;
+            }
+            rd=operands[0].value<<3;
+            k=operands[1].value;
+            add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
             return 2;
           }
         default:
