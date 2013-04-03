@@ -195,8 +195,10 @@ with some include files.
 
 CPU Selection:
 .65xx            6502, 6510, and any other 6500 series cpu
+.680x0           Motorola 68000
 .8051 or .8052   8051/8052/MCS-51
 .arm             All ARM CPU's
+.avr8            Atmel AVR8
 .dspic           dsPIC
 .mips            MIPS including PIC32
 .msp430          MSP430/MSP430X

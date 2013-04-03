@@ -53,6 +53,7 @@ show_help()
   echo "  --enable-680x0            compile in support for 680x0 series"
   echo "  --enable-805x             compile in support for 8051/8052"
   echo "  --enable-arm              compile in support for ARM"
+  echo "  --enable-avr8             compile in support for Atmel AVR8"
   echo "  --enable-dspic            compile in support for dsPIC"
   echo "  --enable-mips             compile in support for MIPS"
   echo "  --enable-msp430           compile in support for MSP430"

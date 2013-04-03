@@ -550,6 +550,7 @@ int interactive=1;
     printf("   -680x0                       (680x0)\n");
     printf("   -8051 / -8052                (8051 / 8052)\n");
     printf("   -arm                         (ARM)\n");
+    printf("   -avr8                        (Atmel AVR8)\n");
     printf("   -dspic                       (dsPIC)\n");
     printf("   -mips                        (MIPS)\n");
     printf("   -msp430                      (MSP430/MSP430X) DEFAULT\n");
