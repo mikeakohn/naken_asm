@@ -51,6 +51,9 @@ enum
   OP_MINUS_X_REG,
   OP_MINUS_Y_REG,
   OP_MINUS_Z_REG,
+  OP_FMUL,
+  OP_MUL,
+  OP_MULS,
 
 #if 0
   OP_K,

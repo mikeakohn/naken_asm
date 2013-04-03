@@ -123,30 +123,27 @@ struct _table_avr8 table_avr8[] =
   { "st", 0x920e, 0xfe0f, OP_MINUS_X_REG, 2, 2 },
   { "st", 0x920a, 0xfe0f, OP_MINUS_Y_REG, 2, 2 },
   { "st", 0x9202, 0xfe0f, OP_MINUS_Z_REG, 2, 2 },
+  { "lpm", 0x9004, 0xfe0f, OP_REG_Z, 3, 3 },
+  { "lpm", 0x9005, 0xfe0f, OP_REG_Z_PLUS, 3, 3 },
+  { "elpm", 0x9006, 0xfe0f, OP_REG_Z, 3, 3 },
+  { "elpm", 0x9007, 0xfe0f, OP_REG_Z_PLUS, 3, 3 },
+  { "fmuls", 0x0380, 0xff88, OP_FMUL, 2, 2 },
+  { "fmul", 0x0308, 0xff88, OP_FMUL, 2, 2 },
+  { "fmulsu", 0x0388, 0xff88, OP_FMUL, 2, 2 },
+  { "mulsu", 0x0300, 0xff88, OP_FMUL, 2, 2 },
+  { "muls", 0x0200, 0xff00, OP_MULS, 2, 2 },
 
 #if 0
 
-  //{ "muls", 0x0200, 0xff00, OP_RD_RR, 2, 2 },
-  { "mulsu", 0x0300, 0xff88, OP_RD_RR, 2, 2 },
-  { "fmul", 0x0308, 0xff88, OP_FMUL, 2, 2 },
-  { "fmuls", 0x0380, 0xff88, OP_FMUL, 2, 2 },
-  { "fmulsu", 0x0388, 0xff88, OP_FMUL, 2, 2 },
   { "des", 0x940b, 0xff0f, OP_DATA4, 1, 2 },
-
-  { "lds", 0x9000, 0xfe0f, OP_RD_K, 3, 3 },
-
 
   { "ldd", 0x8008, 0xd208, OP_RD_Y_PLUS_Q, 2, 2 },
   { "ldd", 0x8000, 0xd208, OP_RD_Z_PLUS_Q, 2, 2 },
+  { "lds", 0x9000, 0xfe0f, OP_RD_K, 3, 3 },
   { "sts", 0x9200, 0xfe0f, OP_K_RR, 3, 3 },
-
 
   { "std", 0x8200, 0xd208, OP_Z_PLUS_Q_RR, 2, 2 },
   { "std", 0x8208, 0xd208, OP_Y_PLUS_Q_RR, 2, 2 },
-  { "lpm", 0x9004, 0xfe0f, OP_RD_Z, 3, 3 },
-  { "lpm", 0x9005, 0xfe0f, OP_RD_Z_PLUS, 3, 3 },
-  { "elpm", 0x9006, 0xfe0f, OP_RD_Z, 3, 3 },
-  { "elpm", 0x9007, 0xfe0f, OP_RD_Z_PLUS, 3, 3 },
 #endif
   { "spm", 0x95e8, 0xffff, OP_SPM_Z_PLUS, -1, -1 },  // all devices
   { "spm", 0x94c8, 0xffff, OP_NONE, -1, -1 },        // #2?

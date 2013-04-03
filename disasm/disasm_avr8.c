@@ -191,7 +191,16 @@ int rd,rr,k;
           rd=(opcode>>4)&0x1f;
           sprintf(instruction, "%s -Z, r%d", table_avr8[n].instr, rd);
           return 2;
-
+        case OP_FMUL:
+          rd=((opcode>>4)&0x7)+16;
+          rr=(opcode&0x7)+16;
+          sprintf(instruction, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
+          return 2;
+        case OP_MULS:
+          rd=((opcode>>4)&0xf)+16;
+          rr=(opcode&0xf)+16;
+          sprintf(instruction, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
+          return 2;
         default:
           sprintf(instruction, "%s", table_avr8[n].instr);
           return 2;

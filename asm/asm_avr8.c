@@ -679,23 +679,42 @@ int rd,rr,k;
             return 2;
           }
           break;
-
-
-
-#if 0
-        case OP_REG_XYZ:
-          rd=(operands[0].value<<4);
-          if (operand_count==2 && operands[0].type==OPERAND_REG)
+        case OP_FMUL:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG)
           {
-            char regcode[] = { 0xc, 0x8, 0x0 };
-            if (operands[1].type>=OPERAND_REG16 && 
-                operands[1].type<=OPERAND_MINUS_REG16)
+            if (operands[0].value<16 || operands[0].value>23 ||
+                operands[1].value<16 || operands[1].value>23)
             {
-              k=OPERAND_MINUS_REG16-operands[1].type;
-
+               print_error_range("Register", 16, 23, asm_context);
+               return -1;
             }
+            rd=(operands[0].value-16)<<4;
+            rr=(operands[1].value-16);
+            add_bin16(asm_context, table_avr8[n].opcode|rd|rr, IS_OPCODE);
+            return 2;
           }
-#endif
+          break;
+        case OP_MULS:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG)
+          {
+            if (operands[0].value<16 || operands[0].value>31 ||
+                operands[1].value<16 || operands[1].value>31)
+            {
+               print_error_range("Register", 16, 31, asm_context);
+               return -1;
+            }
+            rd=(operands[0].value-16)<<4;
+            rr=(operands[1].value-16);
+            add_bin16(asm_context, table_avr8[n].opcode|rd|rr, IS_OPCODE);
+            return 2;
+          }
+          break;
+
+
         default:
           break;
       }
