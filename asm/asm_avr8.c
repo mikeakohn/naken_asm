@@ -27,8 +27,8 @@ enum
   OPERAND_NUMBER,
   OPERAND_REG,
   OPERAND_REG16,
-  OPERAND_MINUS_REG16,
   OPERAND_REG16_PLUS,
+  OPERAND_MINUS_REG16,
 };
 
 enum
@@ -250,6 +250,7 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode, IS_OPCODE);
             return 2;
           }
+          break;
         case OP_BRANCH_S_K:
           if (operand_count==2 &&
               operands[0].type==OPERAND_NUMBER &&
@@ -270,6 +271,7 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode|(offset&0x7f)|operands[0].value, IS_OPCODE);
             return 2;
           }
+          break;
         case OP_BRANCH_K:
           if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
           {
@@ -283,6 +285,7 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode|(offset&0x7f), IS_OPCODE);
             return 2;
           }
+          break;
         case OP_TWO_REG:
           if (operand_count==2 &&
               operands[0].type==OPERAND_REG &&
@@ -293,6 +296,7 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode|rd|rr, IS_OPCODE);
             return 2;
           }
+          break;
         case OP_REG_IMM:
           if (operand_count==2 &&
               operands[0].type==OPERAND_REG &&
@@ -316,6 +320,7 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
             return 2;
           }
+          break;
         case OP_ONE_REG:
           if (operand_count==1 &&
               operands[0].type==OPERAND_REG)
@@ -324,6 +329,7 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
             return 2;
           }
+          break;
         case OP_REG_BIT:
           if (operand_count==2 &&
               operands[0].type==OPERAND_REG &&
@@ -339,6 +345,7 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
             return 2;
           }
+          break;
         case OP_REG_IMM_WORD:
           if (operand_count==2 &&
               operands[0].type==OPERAND_REG &&
@@ -355,11 +362,12 @@ int rd,rr,k;
               print_error_range("Constant", 0, 63, asm_context);
               return -1;
             }
-            rd=((operands[0].value-24)>>2)<<4;
+            rd=((operands[0].value-24)>>1)<<4;
             k=((operands[1].value&0x30)<<2)|(operands[1].value&0xf);
             add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
             return 2;
           }
+          break;
         case OP_IOREG_BIT:
           if (operand_count==2 &&
               operands[0].type==OPERAND_NUMBER &&
@@ -381,6 +389,7 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
             return 2;
           }
+          break;
         case OP_SREG_BIT:
           if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
           {
@@ -388,6 +397,7 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode|k, IS_OPCODE);
             return 2;
           }
+          break;
         case OP_REG_4:
           if (operand_count==1 && operands[0].type==OPERAND_REG)
           {
@@ -400,6 +410,7 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
             return 2;
           }
+          break;
         case OP_IN:
           if (operand_count==2 &&
               operands[0].type==OPERAND_REG &&
@@ -415,6 +426,7 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
             return 2;
           }
+          break;
         case OP_OUT:
           if (operand_count==2 &&
               operands[0].type==OPERAND_NUMBER &&
@@ -430,6 +442,260 @@ int rd,rr,k;
             add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
             return 2;
           }
+          break;
+        case OP_MOVW:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG)
+          {
+            if ((operands[0].value&0x1)!=0 &&
+                (operands[1].value&0x1)!=0)
+            {
+              printf("Error: Register must be even for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+              return -1;
+            }
+            rd=(operands[0].value>>1)<<4;
+            rr=operands[1].value>>1;
+            add_bin16(asm_context, table_avr8[n].opcode|rd|rr, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_RELATIVE:
+          if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
+          {
+            if (asm_context->pass==1) { offset=0; }
+            else { offset=operands[0].value-(asm_context->address+2); }
+
+            if (offset<-2048 || offset>4096)
+            {
+              print_error_range("Offset", -2048, 2048, asm_context);
+              return -1;
+            }
+
+            offset=offset&0xfff;
+            add_bin16(asm_context, table_avr8[n].opcode|offset, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_JUMP:
+          if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
+          {
+            if (asm_context->pass==1) { k=0; }
+            else { k=operands[0].value; }
+
+            if (k<0 || k>((1<<22)-1))
+            {
+              print_error_range("Address", 0, ((1<<22)-1), asm_context);
+              return -1;
+            }
+
+            rd=k>>8;
+            rd=((k<<3)&0x1f0)|(k&0x1);
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            add_bin16(asm_context, k&0xffff, IS_OPCODE);
+            return 4;
+          }
+          break;
+        case OP_SPM_Z_PLUS:
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_REG16_PLUS &&
+              operands[0].value==REG16_Z)
+          {
+            add_bin16(asm_context, table_avr8[n].opcode, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_X:
+          if (operand_count==2 && operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG16 && operands[1].value==REG16_X)
+          {
+            rd=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_Y:
+          if (operand_count==2 && operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG16 && operands[1].value==REG16_Y)
+          {
+            rd=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_Z:
+          if (operand_count==2 && operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG16 && operands[1].value==REG16_Z)
+          {
+            rd=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_X_PLUS:
+          if (operand_count==2 && operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG16_PLUS &&
+              operands[1].value==REG16_X)
+          {
+            rd=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_Y_PLUS:
+          if (operand_count==2 && operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG16_PLUS &&
+              operands[1].value==REG16_Y)
+          {
+            rd=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_Z_PLUS:
+          if (operand_count==2 && operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG16_PLUS &&
+              operands[1].value==REG16_Z)
+          {
+            rd=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_MINUS_X:
+          if (operand_count==2 && operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_MINUS_REG16 &&
+              operands[1].value==REG16_X)
+          {
+            rd=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_MINUS_Y:
+          if (operand_count==2 && operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_MINUS_REG16 &&
+              operands[1].value==REG16_Y)
+          {
+            rd=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_MINUS_Z:
+          if (operand_count==2 && operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_MINUS_REG16 &&
+              operands[1].value==REG16_Z)
+          {
+            rd=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_X_REG:
+          if (operand_count==2 && operands[1].type==OPERAND_REG &&
+              operands[0].type==OPERAND_REG16 && operands[0].value==REG16_X)
+          {
+            rd=operands[1].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_Y_REG:
+          if (operand_count==2 && operands[1].type==OPERAND_REG &&
+              operands[0].type==OPERAND_REG16 && operands[0].value==REG16_Y)
+          {
+            rd=operands[1].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_Z_REG:
+          if (operand_count==2 && operands[1].type==OPERAND_REG &&
+              operands[0].type==OPERAND_REG16 && operands[0].value==REG16_Z)
+          {
+            rd=operands[1].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_X_PLUS_REG:
+          if (operand_count==2 && operands[1].type==OPERAND_REG &&
+              operands[0].type==OPERAND_REG16_PLUS &&
+              operands[0].value==REG16_X)
+          {
+            rd=operands[1].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_Y_PLUS_REG:
+          if (operand_count==2 && operands[1].type==OPERAND_REG &&
+              operands[0].type==OPERAND_REG16_PLUS &&
+              operands[0].value==REG16_Y)
+          {
+            rd=operands[1].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_Z_PLUS_REG:
+          if (operand_count==2 && operands[1].type==OPERAND_REG &&
+              operands[0].type==OPERAND_REG16_PLUS &&
+              operands[0].value==REG16_Z)
+          {
+            rd=operands[1].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_MINUS_X_REG:
+          if (operand_count==2 && operands[1].type==OPERAND_REG &&
+              operands[0].type==OPERAND_MINUS_REG16 &&
+              operands[0].value==REG16_X)
+          {
+            rd=operands[1].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_MINUS_Y_REG:
+          if (operand_count==2 && operands[1].type==OPERAND_REG &&
+              operands[0].type==OPERAND_MINUS_REG16 &&
+              operands[0].value==REG16_Y)
+          {
+            rd=operands[1].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_MINUS_Z_REG:
+          if (operand_count==2 && operands[1].type==OPERAND_REG &&
+              operands[0].type==OPERAND_MINUS_REG16 &&
+              operands[0].value==REG16_Z)
+          {
+            rd=operands[1].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            return 2;
+          }
+          break;
+
+
+
+#if 0
+        case OP_REG_XYZ:
+          rd=(operands[0].value<<4);
+          if (operand_count==2 && operands[0].type==OPERAND_REG)
+          {
+            char regcode[] = { 0xc, 0x8, 0x0 };
+            if (operands[1].type>=OPERAND_REG16 && 
+                operands[1].type<=OPERAND_MINUS_REG16)
+            {
+              k=OPERAND_MINUS_REG16-operands[1].type;
+
+            }
+          }
+#endif
         default:
           break;
       }
