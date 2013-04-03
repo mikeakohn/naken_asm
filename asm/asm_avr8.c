@@ -29,6 +29,7 @@ enum
   OPERAND_REG16,
   OPERAND_REG16_PLUS,
   OPERAND_MINUS_REG16,
+  OPERAND_REG16_PLUS_Q,
 };
 
 enum
@@ -42,6 +43,7 @@ struct _operand
 {
   int value;
   char type;
+  char q;
 };
 
 struct _alias
@@ -132,8 +134,29 @@ int rd,rr,k;
       operands[operand_count].type=OPERAND_REG16;
       operands[operand_count].value=REG16_Y;
       token_type=get_token(asm_context, token, TOKENLEN);
-      if (IS_TOKEN(token,'+')) { operands[operand_count].type=OPERAND_REG16_PLUS; }
-      else { pushback(asm_context, token, token_type); }
+      if (IS_TOKEN(token,'+'))
+      {
+        operands[operand_count].type=OPERAND_REG16_PLUS;
+        token_type=get_token(asm_context, token, TOKENLEN);
+        if (token_type==TOKEN_NUMBER)
+        {
+          operands[operand_count].type=OPERAND_REG16_PLUS_Q;
+          operands[operand_count].q=atoi(token);
+          if (operands[operand_count].q<0 || operands[operand_count].q>63)
+          {
+            print_error_range("Constant", 0, 63, asm_context);
+            return -1;
+          }
+        }
+          else
+        {
+          pushback(asm_context, token, token_type);
+        }
+      }
+        else
+      {
+        pushback(asm_context, token, token_type);
+      }
     }
       else
     if (IS_TOKEN(token,'z') || IS_TOKEN(token,'Z'))
@@ -141,8 +164,29 @@ int rd,rr,k;
       operands[operand_count].type=OPERAND_REG16;
       operands[operand_count].value=REG16_Z;
       token_type=get_token(asm_context, token, TOKENLEN);
-      if (IS_TOKEN(token,'+')) { operands[operand_count].type=OPERAND_REG16_PLUS; }
-      else { pushback(asm_context, token, token_type); }
+      if (IS_TOKEN(token,'+'))
+      {
+        operands[operand_count].type=OPERAND_REG16_PLUS;
+        token_type=get_token(asm_context, token, TOKENLEN);
+        if (token_type==TOKEN_NUMBER)
+        {
+          operands[operand_count].type=OPERAND_REG16_PLUS_Q;
+          operands[operand_count].q=atoi(token);
+          if (operands[operand_count].q<0 || operands[operand_count].q>63)
+          {
+            print_error_range("Constant", 0, 63, asm_context);
+            return -1;
+          }
+        }
+          else
+        {
+          pushback(asm_context, token, token_type);
+        }
+      }
+        else
+      {
+        pushback(asm_context, token, token_type);
+      }
     }
       else
     if (IS_TOKEN(token,'-'))
@@ -713,8 +757,99 @@ int rd,rr,k;
             return 2;
           }
           break;
-
-
+        case OP_DATA4:
+          if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
+          {
+            if (operands[0].value<0 || operands[0].value>15)
+            {
+               print_error_range("Constant", 0, 15, asm_context);
+               return -1;
+            }
+            k=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|k, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_SRAM:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            if (operands[1].value<0 || operands[1].value>65535)
+            {
+               print_error_range("Address", 0, 65535, asm_context);
+               return -1;
+            }
+            rd=operands[0].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
+            add_bin16(asm_context, operands[1].value, IS_OPCODE);
+            return 4;
+          }
+          break;
+        case OP_SRAM_REG:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_NUMBER &&
+              operands[1].type==OPERAND_REG)
+          {
+            if (operands[0].value<0 || operands[0].value>65535)
+            {
+               print_error_range("Address", 0, 65535, asm_context);
+               return -1;
+            }
+            rr=operands[1].value<<4;
+            add_bin16(asm_context, table_avr8[n].opcode|rr, IS_OPCODE);
+            add_bin16(asm_context, operands[0].value, IS_OPCODE);
+            return 4;
+          }
+          break;
+        case OP_REG_Y_PLUS_Q:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG16_PLUS_Q &&
+              operands[1].value==REG16_Y)
+          {
+            rd=operands[0].value<<4;
+            k=((operands[1].q&0x20)<<8)|((operands[1].q&0x18)<<7)|(operands[1].q&0x7);
+            add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_REG_Z_PLUS_Q:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG &&
+              operands[1].type==OPERAND_REG16_PLUS_Q &&
+              operands[1].value==REG16_Z)
+          {
+            rd=operands[0].value<<4;
+            k=((operands[1].q&0x20)<<8)|((operands[1].q&0x18)<<7)|(operands[1].q&0x7);
+            add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_Y_PLUS_Q_REG:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG16_PLUS_Q &&
+              operands[0].value==REG16_Y &&
+              operands[1].type==OPERAND_REG)
+          {
+            rd=operands[1].value<<4;
+            k=((operands[0].q&0x20)<<8)|((operands[0].q&0x18)<<7)|(operands[0].q&0x7);
+            add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_Z_PLUS_Q_REG:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REG16_PLUS_Q &&
+              operands[0].value==REG16_Z &&
+              operands[1].type==OPERAND_REG)
+          {
+            rd=operands[1].value<<4;
+            k=((operands[0].q&0x20)<<8)|((operands[0].q&0x18)<<7)|(operands[0].q&0x7);
+            add_bin16(asm_context, table_avr8[n].opcode|rd|k, IS_OPCODE);
+            return 2;
+          }
+          break;
         default:
           break;
       }

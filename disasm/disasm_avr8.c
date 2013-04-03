@@ -115,7 +115,7 @@ int rd,rr,k;
         case OP_JUMP:
           k=(((opcode>>3)|(opcode&0x1))<<8)|READ_RAM16(address+2);
           sprintf(instruction, "%s 0x%x", table_avr8[n].instr, k);
-          return 2;
+          return 4;
         case OP_SPM_Z_PLUS:
           sprintf(instruction, "%s Z+", table_avr8[n].instr);
           return 2;
@@ -201,6 +201,40 @@ int rd,rr,k;
           rr=(opcode&0xf)+16;
           sprintf(instruction, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
           return 2;
+        case OP_DATA4:
+          k=(opcode>>4)&0xf;
+          sprintf(instruction, "%s %d", table_avr8[n].instr, k);
+          return 2;
+        case OP_REG_SRAM:
+          rd=(opcode>>4)&0x1f;
+          k=READ_RAM16(address+2);
+          sprintf(instruction, "%s r%d, 0x%x", table_avr8[n].instr, rd, k);
+          return 4;
+        case OP_SRAM_REG:
+          rr=(opcode>>4)&0x1f;
+          k=READ_RAM16(address+2);
+          sprintf(instruction, "%s 0x%x, r%d", table_avr8[n].instr, k, rr);
+          return 4;
+        case OP_REG_Y_PLUS_Q:
+          rd=(opcode>>4)&0x1f;
+          k=((opcode&0x2000)>>8)|((opcode&0xc00)>>7)|(opcode&0x7);
+          sprintf(instruction, "%s r%d, Y+%d", table_avr8[n].instr, rd, k);
+          return 2;
+        case OP_REG_Z_PLUS_Q:
+          rd=(opcode>>4)&0x1f;
+          k=((opcode&0x2000)>>8)|((opcode&0xc00)>>7)|(opcode&0x7);
+          sprintf(instruction, "%s r%d, Z+%d", table_avr8[n].instr, rd, k);
+          return 2;
+        case OP_Y_PLUS_Q_REG:
+          rr=(opcode>>4)&0x1f;
+          k=((opcode&0x2000)>>8)|((opcode&0xc00)>>7)|(opcode&0x7);
+          sprintf(instruction, "%s Y+%d, r%d", table_avr8[n].instr, k, rd);
+          return 2;
+        case OP_Z_PLUS_Q_REG:
+          rr=(opcode>>4)&0x1f;
+          k=((opcode&0x2000)>>8)|((opcode&0xc00)>>7)|(opcode&0x7);
+          sprintf(instruction, "%s Z+%d, r%d", table_avr8[n].instr, k, rd);
+          return 2;
         default:
           sprintf(instruction, "%s", table_avr8[n].instr);
           return 2;
@@ -236,7 +270,7 @@ int n;
   for (n=2; n<count; n+=2)
   {
     opcode=memory_read_m(&asm_context->memory, address+n)|(memory_read_m(&asm_context->memory, address+n+1)<<8);
-    printf("     %04x\n", opcode);
+    fprintf(asm_context->list, "        %04x\n", opcode);
   }
 }
 

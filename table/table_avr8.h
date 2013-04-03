@@ -54,15 +54,13 @@ enum
   OP_FMUL,
   OP_MUL,
   OP_MULS,
-
-#if 0
-  OP_K,
-  OP_RD_RR,
-  OP_RD_B,
-  OP_S_B,
-  OP_P_B,
-  OP_RD_K,
-#endif
+  OP_DATA4,
+  OP_REG_SRAM,
+  OP_SRAM_REG,
+  OP_REG_Y_PLUS_Q,
+  OP_REG_Z_PLUS_Q,
+  OP_Y_PLUS_Q_REG,
+  OP_Z_PLUS_Q_REG,
 };
 
 struct _table_avr8
