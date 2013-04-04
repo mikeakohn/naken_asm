@@ -50,10 +50,14 @@ int rd,rr,k;
           sprintf(instruction, "%s", table_avr8[n].instr);
           return 2;
         case OP_BRANCH_S_K:
-          sprintf(instruction, "%s s,addr", table_avr8[n].instr);
+          k=(opcode>>3)&0x7f;
+          if ((k&0x40)!=0) { k=(char)(0x80|k); }
+          sprintf(instruction, "%s %d, 0x%x (%d)", table_avr8[n].instr, opcode&0x7, (address/2)+1+k, k);
           return 2;
         case OP_BRANCH_K:
-          sprintf(instruction, "%s addr", table_avr8[n].instr);
+          k=(opcode>>3)&0x7f;
+          if ((k&0x40)!=0) { k=(char)(0x80|k); }
+          sprintf(instruction, "%s 0x%x (%d)", table_avr8[n].instr, (address/2)+1+k, k);
           return 2;
         case OP_TWO_REG:
           rd=(opcode>>4)&0x1f;
@@ -110,7 +114,7 @@ int rd,rr,k;
         case OP_RELATIVE:
           k=opcode&0xfff;
           if (k&800) { k=-(((~k)&0xfff)+1); }
-          sprintf(instruction, "%s 0x%x (%d)", table_avr8[n].instr, address+k, k);
+          sprintf(instruction, "%s 0x%x (%d)", table_avr8[n].instr, (address/2)+1+k, k);
           return 2;
         case OP_JUMP:
           k=(((opcode>>3)|(opcode&0x1))<<8)|READ_RAM16(address+2);
@@ -260,7 +264,7 @@ int n;
 
   opcode=memory_read_m(&asm_context->memory, address)|(memory_read_m(&asm_context->memory, address+1)<<8);
 
-  fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", address, opcode, instruction);
+  fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", address/2, opcode, instruction);
 
   if (cycles_min==cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
@@ -295,16 +299,16 @@ int n;
 
     if (cycles_min<1)
     {
-      printf("0x%04x: %04x %-40s ?\n", start, opcode, instruction);
+      printf("0x%04x: %04x %-40s ?\n", start/2, opcode, instruction);
     }
       else
     if (cycles_min==cycles_max)
     {
-      printf("0x%04x: %04x %-40s %d\n", start, opcode, instruction, cycles_min);
+      printf("0x%04x: %04x %-40s %d\n", start/2, opcode, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: %04x %-40s %d-%d\n", start, opcode, instruction, cycles_min, cycles_max);
+      printf("0x%04x: %04x %-40s %d-%d\n", start/2, opcode, instruction, cycles_min, cycles_max);
     }
 
     for (n=2; n<count; n+=2)
