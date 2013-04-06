@@ -52,7 +52,7 @@ struct _table_avr8 table_avr8[] =
   { "brbs", 0xf000, 0xfc00, OP_BRANCH_S_K, 1, 2 },
   { "brbc", 0xf400, 0xfc00, OP_BRANCH_S_K, 1, 2 },
   { "adc", 0x1c00, 0xfc00, OP_TWO_REG, 1, 1 },
-  { "add", 0x1c00, 0xfc00, OP_TWO_REG, 1, 1 },
+  { "add", 0x0c00, 0xfc00, OP_TWO_REG, 1, 1 },
   { "and", 0x2000, 0xfc00, OP_TWO_REG, 1, 1 },
   { "cp", 0x1400, 0xfc00, OP_TWO_REG, 1, 1 },
   { "cpc", 0x0400, 0xfc00, OP_TWO_REG, 1, 1 },
@@ -67,7 +67,7 @@ struct _table_avr8 table_avr8[] =
   //{ "clr", 0x2400, 0xfc00, OP_RD, 1, 1 },   eor
   //{ "lsl", 0x0c00, 0xfc00, OP_RD, 1, 1 },
   //{ "rol", 0x1c00, 0xfc00, OP_RD, 1, 1 },
-  { "andi", 0x3000, 0xf000, OP_REG_IMM, 1, 1 },
+  { "andi", 0x7000, 0xf000, OP_REG_IMM, 1, 1 },
   { "cpi", 0x3000, 0xf000, OP_REG_IMM, 1, 1 },
   { "ldi", 0xe000, 0xf000, OP_REG_IMM, 1, 1 },
   { "ori", 0x6000, 0xf000, OP_REG_IMM, 1, 1 },
