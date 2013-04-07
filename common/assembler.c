@@ -491,7 +491,7 @@ unsigned int udata32;
       memory_write_inc(asm_context, (udata32>>24)&0xff, DL_DATA);
     }
 
-    asm_context->data_count+=2;
+    asm_context->data_count+=4;
     token_type=get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
 

@@ -30,10 +30,10 @@ default_old: objs $(OBJS) $(SIM_OBJS)
 
 install:
 	@mkdir -p $(INSTALL_BIN)
-	@mkdir -p $(INSTALL_INCLUDES)/include
+	#@mkdir -p $(INSTALL_INCLUDES)/include
 	@cp naken_asm $(INSTALL_BIN)
 	@cp naken_util $(INSTALL_BIN)
-	@cp -r include/*.inc $(INSTALL_INCLUDES)/include
+	#@cp -r include/*.inc $(INSTALL_INCLUDES)/include
 
 objs:
 	@mkdir -f objs
