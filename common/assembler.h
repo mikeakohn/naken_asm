@@ -129,6 +129,7 @@ struct _asm_context
   int include_count;
   const char *filename;
   char cpu_type;
+  char bytes_per_address;
   char is_dollar_hex:1;
   char can_tick_end_string:1;
 };

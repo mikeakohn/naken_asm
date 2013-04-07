@@ -117,7 +117,7 @@ int rd,rr,k;
           sprintf(instruction, "%s 0x%x (%d)", table_avr8[n].instr, (address/2)+1+k, k);
           return 2;
         case OP_JUMP:
-          k=(((opcode>>3)|(opcode&0x1))<<8)|READ_RAM16(address+2);
+          k=((((opcode&0x1f0)>>3)|(opcode&0x1))<<16)|READ_RAM16(address+2);
           sprintf(instruction, "%s 0x%x", table_avr8[n].instr, k);
           return 4;
         case OP_SPM_Z_PLUS:

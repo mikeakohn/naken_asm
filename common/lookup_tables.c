@@ -74,6 +74,8 @@ struct _memory_pool *memory_pool=address_heap->memory_pool;
      memory_pool=memory_pool->next;
   }
 
+  address=address/asm_context->bytes_per_address;
+
   memcpy(memory_pool->buffer+memory_pool->ptr, name, token_len);
   memcpy(memory_pool->buffer+memory_pool->ptr+token_len, &address, sizeof(int));
   memory_pool->ptr+=token_len+sizeof(int);

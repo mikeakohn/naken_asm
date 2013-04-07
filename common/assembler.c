@@ -692,6 +692,7 @@ void assemble_init(struct _asm_context *asm_context)
   asm_context->unget_ptr=0;
   asm_context->unget_stack_ptr=0;
   asm_context->unget_stack[0]=0;
+  asm_context->bytes_per_address=1;
 
   defines_heap_free(&asm_context->defines_heap);
   asm_context->def_param_stack_count=0;
@@ -910,6 +911,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->list_output=list_output_avr8;
     asm_context->cpu_type=CPU_TYPE_AVR8;
     //asm_context->memory.endian=ENDIAN_BIG;
+    asm_context->bytes_per_address=2;
     return 1;
   }
     else

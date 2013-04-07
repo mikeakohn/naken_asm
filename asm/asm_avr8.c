@@ -301,7 +301,7 @@ int rd,rr,k;
               operands[1].type==OPERAND_NUMBER)
           {
             if (asm_context->pass==1) { offset=0; }
-            else { offset=(operands[0].value/2)-((asm_context->address/2)+1); }
+            else { offset=operands[0].value-((asm_context->address/2)+1); }
             if (offset<-64 || offset>63)
             {
               print_error_range("Offset", -64, 63, asm_context);
@@ -320,7 +320,7 @@ int rd,rr,k;
           if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
           {
             if (asm_context->pass==1) { offset=0; }
-            else { offset=(operands[0].value/2)-((asm_context->address/2)+1); }
+            else { offset=operands[0].value-((asm_context->address/2)+1); }
             if (offset<-64 || offset>63)
             {
               print_error_range("Offset", -64, 63, asm_context);
@@ -508,7 +508,7 @@ int rd,rr,k;
           if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
           {
             if (asm_context->pass==1) { offset=0; }
-            else { offset=(operands[0].value/2)-((asm_context->address/2)+1); }
+            else { offset=operands[0].value-((asm_context->address/2)+1); }
 
             if (offset<-2048 || offset>2047)
             {
@@ -533,8 +533,8 @@ int rd,rr,k;
               return -1;
             }
 
-            rd=k>>8;
-            rd=((k<<3)&0x1f0)|(k&0x1);
+            rd=(k>>16)&0xffff;
+            rd=((rd<<3)&0x1f0)|(rd&0x1);
             add_bin16(asm_context, table_avr8[n].opcode|rd, IS_OPCODE);
             add_bin16(asm_context, k&0xffff, IS_OPCODE);
             return 4;
