@@ -323,6 +323,7 @@ static int write_single_ea_no_size(struct _asm_context *asm_context, char *instr
   }
 }
 
+#if 0
 static int write_single_ea_to_addr(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode)
 {
   if (operand_count!=1) { return 0; }
@@ -341,7 +342,7 @@ static int write_single_ea_to_addr(struct _asm_context *asm_context, char *instr
       return -1;
   }
 }
-
+#endif
 
 static int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
@@ -1046,6 +1047,28 @@ int n;
   return len;
 }
 
+static int write_jump(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+{
+int16_t offset=0;
+
+  if (operand_count!=1) { return 0; }
+  if (size!=SIZE_NONE) { return 0; }
+
+  if (operands[0].type==OPERAND_ADDRESS)
+  {
+    //offset=operands[0].value-(asm_context->address+4);
+    offset=operands[0].value-(asm_context->address+2);
+    if (offset<-32768 || offset>32767)
+    {
+      print_error_range("Offset", -32768, 32767, asm_context);
+    }
+    operands[0].value=offset;
+    operands[0].type=OPERAND_INDEX_DATA16_PC;
+  }
+
+  return ea_generic_all(asm_context, &operands[0], instr, opcode, 0, EA_NO_A|EA_NO_D|EA_NO_IMM|EA_NO_PLUS|EA_NO_MINUS, NO_EXTRA_IMM);
+}
+
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -1429,12 +1452,14 @@ printf("\n");
             ret=write_single_ea_no_size(asm_context, instr, operands, operand_count, table_680x0[n].opcode);
           }
           break;
+#if 0
         case OP_SINGLE_EA_TO_ADDR:
           if (operand_size==SIZE_NONE)
           {
             ret=write_single_ea_to_addr(asm_context, instr, operands, operand_count, table_680x0[n].opcode);
           }
           break;
+#endif
         case OP_IMMEDIATE:
           ret=write_immediate(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
@@ -1529,6 +1554,9 @@ printf("\n");
           break;
         case OP_MOVE:
           ret=write_move(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          break;
+        case OP_JUMP:
+          ret=write_jump(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         default:
           n++;

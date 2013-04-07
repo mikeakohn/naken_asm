@@ -82,7 +82,7 @@ int mode=(opcode>>3)&0x7;
       else if (reg==2)
       {
         sprintf(ea, "(%d,PC)", (short int)READ_RAM16(address+2+skip));
-        return 6;
+        return 4;
       }
       else if (reg==4)
       {
@@ -209,7 +209,7 @@ int n;
           sprintf(instruction, "%s.%c %s", table_680x0[n].instr, sizes[size], ea);
           return 2;
         case OP_SINGLE_EA_NO_SIZE:
-        case OP_SINGLE_EA_TO_ADDR:
+        //case OP_SINGLE_EA_TO_ADDR:
           get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s %s", table_680x0[n].instr, ea);
           return 2;
@@ -513,6 +513,11 @@ int n;
           sprintf(instruction, "%s.%c %s, %s", table_680x0[n].instr, sizes[size], ea, dst_ea);
           return len+dst_len-2;
         }
+        case OP_JUMP:
+          len=get_ea_680x0(memory, address, ea, opcode, 0, 0);
+          sprintf(instruction, "%s %s", table_680x0[n].instr, ea);
+printf("len=%d\n", len);
+          return len;
         default:
           return -1;
       }
