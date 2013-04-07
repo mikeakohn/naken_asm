@@ -964,12 +964,18 @@ int dir=0;
 
   if (dir==1)
   {
-    // Reg to mem
-    return ea_generic_all(asm_context, operand, instr, opcode|(1<<10)|(size<<6), 0, EA_NO_A|EA_NO_D|EA_NO_IMM|EA_NO_PLUS|EA_NO_PC, mask);
+    // Memory to register dir=1
+    return ea_generic_all(asm_context, operand, instr, opcode|(1<<10)|(size<<6), 0, EA_NO_A|EA_NO_D|EA_NO_IMM|EA_NO_MINUS|EA_NO_PC, mask);
   }
     else
   {
-    return ea_generic_all(asm_context, operand, instr, opcode|(size<<6), 0, EA_NO_A|EA_NO_D|EA_NO_IMM|EA_NO_MINUS|EA_NO_PC, mask);
+    if (operands[1].type==OPERAND_A_REG_INDEX_MINUS)
+    {
+      mask=reverse_bits16(mask);
+    }
+
+    // Register to memory dir=0
+    return ea_generic_all(asm_context, operand, instr, opcode|(size<<6), 0, EA_NO_A|EA_NO_D|EA_NO_IMM|EA_NO_PLUS|EA_NO_PC, mask);
   }
 }
 

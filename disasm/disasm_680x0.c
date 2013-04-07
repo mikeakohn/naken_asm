@@ -488,8 +488,10 @@ int n;
         case OP_MOVEM:
         {
           char reglist[128];
+          uint16_t mask=READ_RAM16(address+2);
+          if (((opcode>>3)&0x7)==4) { mask=reverse_bits16(mask); }
+          get_reglist(reglist, mask);
           size=((opcode>>6)&1)+1;
-          get_reglist(reglist, READ_RAM16(address+2));
           len=get_ea_680x0(memory, address, ea, opcode, 2, size);
           if (((opcode>>10)&0x1)==0)
           {
@@ -591,8 +593,8 @@ int n;
 
   printf("\n");
 
-  printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
-  printf("------- ------ ----------------------------------       ------\n");
+  printf("%-11s %-5s %-40s\n", "Addr", "Opcode", "Instruction");
+  printf("----------- ------ ----------------------------------\n");
 
   while(start<=end)
   {
@@ -605,18 +607,13 @@ int n;
       strcat(temp, temp2);
     }
 
-    if (cycles_min<1)
+    //printf("0x%04x: %-10s %s\n", start, temp, instruction);
+
+    printf("0x%04x: %04x   %-40s\n", start, (memory_read_m(memory, start)<<8)|memory_read_m(memory, start+1), instruction);
+
+    for (n=2; n<count; n+=2)
     {
-      printf("0x%04x: %-10s %-40s ?\n", start, temp, instruction);
-    }
-      else
-    if (cycles_min==cycles_max)
-    {
-      printf("0x%04x: %-10s %-40s %d\n", start, temp, instruction, cycles_min);
-    }
-      else
-    {
-      printf("0x%04x: %-10s %-40s %d-%d\n", start, temp, instruction, cycles_min, cycles_max);
+      printf("        %04x\n", (memory_read_m(memory, start+n)<<8)|memory_read_m(memory, start+n+1));
     }
 
     start=start+count;

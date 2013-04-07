@@ -12,6 +12,8 @@
 #ifndef _TABLE_680x0_H
 #define _TABLE_680x0_H
 
+#include <stdint.h>
+
 #include "assembler.h"
 
 enum
@@ -63,6 +65,8 @@ struct _table_680x0
   unsigned short int mask;
   char type;
 };
+
+uint16_t reverse_bits16(uint16_t bits);
 
 #endif
 

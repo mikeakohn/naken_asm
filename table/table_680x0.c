@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "table_680x0.h"
 
 struct _table_680x0 table_680x0[] =
@@ -78,6 +79,7 @@ struct _table_680x0 table_680x0[] =
   { "roxl", 0xe130, 0xf138, OP_ROX },
   { "roxr", 0xe4c0, 0xffc0, OP_ROX_MEM },
   { "roxr", 0xe110, 0xf138, OP_ROX },
+  { "rte", 0x4e73, 0xfff0, OP_NONE },
   { "rtm", 0x06c0, 0xfff0, OP_REG },
   { "rtr", 0x4e77, 0xffff, OP_NONE },
   { "rts", 0x4e75, 0xffff, OP_NONE },
@@ -123,8 +125,27 @@ MOVEM
 MOVEP
 
 EXTB
-RTE
 STOP
 UNPK
 */
+
+uint16_t reverse_bits16(uint16_t bits)
+{
+uint16_t num=0;
+int n;
+
+  uint8_t bit_table[] =
+  {
+    0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15,
+  };
+
+  for (n=0; n<16; n+=4)
+  {
+    num=(num<<4)|bit_table[(bits>>n)&0xf];
+  }
+
+  return num;
+}
+
+
 

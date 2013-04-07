@@ -78,7 +78,7 @@ int segment=0;
     if (ch!=':')
     {
       /* Line is a junkie piece of shit because ch says so */
-      while(1) { if (ch=='\n') break; ch=getc(in); }
+      while(1) { if (ch=='\n' || ch==EOF) break; ch=getc(in); }
       continue;
     }
 
