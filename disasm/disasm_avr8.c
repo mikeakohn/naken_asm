@@ -232,12 +232,12 @@ int rd,rr,k;
         case OP_Y_PLUS_Q_REG:
           rr=(opcode>>4)&0x1f;
           k=((opcode&0x2000)>>8)|((opcode&0xc00)>>7)|(opcode&0x7);
-          sprintf(instruction, "%s Y+%d, r%d", table_avr8[n].instr, k, rd);
+          sprintf(instruction, "%s Y+%d, r%d", table_avr8[n].instr, k, rr);
           return 2;
         case OP_Z_PLUS_Q_REG:
           rr=(opcode>>4)&0x1f;
           k=((opcode&0x2000)>>8)|((opcode&0xc00)>>7)|(opcode&0x7);
-          sprintf(instruction, "%s Z+%d, r%d", table_avr8[n].instr, k, rd);
+          sprintf(instruction, "%s Z+%d, r%d", table_avr8[n].instr, k, rr);
           return 2;
         default:
           sprintf(instruction, "%s", table_avr8[n].instr);
