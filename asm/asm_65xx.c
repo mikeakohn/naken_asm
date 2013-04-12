@@ -203,6 +203,8 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       mode = MODE_ABSOLUTE;
     }
 
+    mode = MODE_ABSOLUTE;
+
     token_type = get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { goto skip; }
 
@@ -213,7 +215,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
       if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
       {
-        if(num >= 0 && num <= 0xFF)
+        if(num >= 1 && num <= 0xFF)
           mode = MODE_ZEROPAGE_X_INDEXED;
         else
           mode = MODE_ABSOLUTE_X_INDEXED;
@@ -221,7 +223,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
         else
       if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
       {
-        if(num >= 0 && num <= 0xFF)
+        if(num >= 1 && num <= 0xFF)
           mode = MODE_ZEROPAGE_Y_INDEXED;
         else
           mode = MODE_ABSOLUTE_Y_INDEXED;
@@ -274,16 +276,25 @@ skip:
     print_error("Warning: Indirect JMP to upper page boundary (6502 bug)", asm_context);
   }
 
+//printf("address=%04x, num=%04x\n", asm_context->address, num);
+
   // write opcode
+//printf("%04x, %02x\n", asm_context->address, opcode & 0xFF);
   add_bin8(asm_context, opcode & 0xFF, IS_OPCODE);
 
   // write low byte first, if any
   if(mode_bytes[mode] > 1)
-    add_bin8(asm_context, num & 0xFF, IS_DATA);
+{
+//printf("%04x, %02x\n", asm_context->address, num & 0xFF);
+    add_bin8(asm_context, num & 0xFF, IS_OPCODE);
+}
 
   // then high byte, if any
   if(mode_bytes[mode] > 2)
-    add_bin8(asm_context, (num >> 8) & 0xFF, IS_DATA);
+{
+//printf("%04x, %02x\n", asm_context->address, (num >> 8) & 0xFF);
+    add_bin8(asm_context, (num >> 8) & 0xFF, IS_OPCODE);
+}
 
   return mode_bytes[mode];
 }
