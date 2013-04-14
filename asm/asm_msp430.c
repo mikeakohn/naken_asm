@@ -309,6 +309,7 @@ int num;
     if (num<1 || num>16)
     {
       print_error("Constant can only be between 1 and 16", asm_context);
+      return -1;
     }
     return 0x1800|(zc<<8)|num;
   }
@@ -422,7 +423,11 @@ int prefix=0;
         }
 
         token_type=get_token(asm_context, token, TOKENLEN);
-        if (token_type<0) return -1;
+        if (token_type<0)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
       }
     }
 
@@ -556,7 +561,7 @@ int prefix=0;
 
     token_type=get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { break; }
-    if (IS_NOT_TOKEN(token,',')) { return -1; }
+    if (expect_token_s(asm_context,",")!=0) { return -1; }
   }
 
 #ifdef DEBUG
