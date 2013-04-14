@@ -561,7 +561,11 @@ int prefix=0;
 
     token_type=get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { break; }
-    if (expect_token_s(asm_context,",")!=0) { return -1; }
+    if (IS_NOT_TOKEN(token,','))
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
   }
 
 #ifdef DEBUG
