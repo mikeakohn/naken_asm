@@ -101,10 +101,12 @@ static char *msp430x_stack[] = { "pushm", "popm", NULL };
 static char *msp430x_alu[] = { "mova", "cmpa", "adda", "suba", NULL };
 static char *msp430x_rpt[] = { "rpt", "rptc", "rptz",  NULL };
 
+#if 0
 static void print_operand_error(const char *s, int count, struct _asm_context *asm_context)
 {
   printf("Error: Instruction '%s' takes %d operand%s at %s:%d\n", s, count, count==1?"":"s", asm_context->filename, asm_context->line);
 }
+#endif
 
 static int process_operand(struct _asm_context *asm_context, struct _operand *operand, struct _data *data, int bw, int al, int is_dest)
 {
@@ -197,6 +199,11 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
       data->count++;
       break;
     case OPTYPE_IMMEDIATE:
+      if (is_dest==1)
+      {
+        printf("Error: Immediate not allowed for dest operand at %s:%d.\n", asm_context->filename, asm_context->line);
+        return -1;
+      }
       if (memory_read(asm_context, asm_context->address)!=0 ||
           operand->error!=0)
       {
@@ -584,7 +591,8 @@ int prefix=0;
     {
       if (aliases[n].operand_count!=operand_count)
       {
-        print_operand_error(instr, aliases[n].operand_count, asm_context);
+        //print_operand_error(instr, aliases[n].operand_count, asm_context);
+        print_error_opcount(instr, asm_context);
         return -1;
       }
 
@@ -708,7 +716,8 @@ int prefix=0;
 
       if (operand_count!=1)
       {
-        print_operand_error(instr, 1, asm_context);
+        //print_operand_error(instr, 1, asm_context);
+        print_error_opcount(instr, asm_context);
         return -1;
       }
 
@@ -736,7 +745,8 @@ int prefix=0;
     {
       if (operand_count!=1)
       {
-        print_operand_error(instr, 1, asm_context);
+        //print_operand_error(instr, 1, asm_context);
+        print_error_opcount(instr, asm_context);
         return -1;
       }
 
@@ -793,7 +803,8 @@ int prefix=0;
     {
       if (operand_count!=2)
       {
-        print_operand_error(instr, 2, asm_context);
+        //print_operand_error(instr, 2, asm_context);
+        print_error_opcount(instr, asm_context);
         return -1;
       }
 
@@ -801,6 +812,14 @@ int prefix=0;
       {
         return -1;
       }
+
+#if 0
+      if (operands[1].type==OPTYPE_IMMEDIATE)
+      {
+        printf("Error: Immediate not allowed for dest operand at %s:%d.\n", asm_context->filename, asm_context->line);
+        return -1;
+      }
+#endif
 
       if (process_operand(asm_context, &operands[1], &data, bw, al, 1)<0)
       {
@@ -828,7 +847,8 @@ int prefix=0;
 
     if (operand_count!=0)
     {
-      print_operand_error(instr, 0, asm_context);
+      //print_operand_error(instr, 0, asm_context);
+      print_error_opcount(instr, asm_context);
       return -1;
     }
 
