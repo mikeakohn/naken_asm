@@ -867,6 +867,7 @@ int opcode=0;
         else
       {
         print_error_illegal_operands(instr, asm_context);
+        return -1;
       }
 
       add_bin32(asm_context, MUL_OPCODE|(cond<<28)|(n<<21)|(s<<20)|(operands[0].value<<16)|(operands[1].value)|(operands[2].value<<8)|(rn<<12), IS_OPCODE);
