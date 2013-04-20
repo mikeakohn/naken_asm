@@ -104,7 +104,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
     }
 
-    num = (unsigned)num;
+    num = (unsigned char)num;
 
     if(num < 0 || num > 0xFF)
       print_error_unexp(token, asm_context);
@@ -195,7 +195,6 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
     if(num >= 0x01 && num <= 0xFF)
     {
-      // can only safely use zero page for known values 1-255
       mode = MODE_ZEROPAGE;
     }
     else
@@ -245,18 +244,26 @@ skip:
   // branches are in table positions 3 - 10
   if(index >= 3 && index <= 10)
   {
-    mode = MODE_RELATIVE;
-    if(asm_context->pass == 2)
+    if(mode == MODE_IMMEDIATE)
     {
-      // calculate branch offset, need to add 2 to current
-      // address, since thats where the program counter would be
-      num -= (asm_context->address + 2);
-      if(num < -128 || num > 127)
-      {
-        print_error("Branch out of range", asm_context);
-        return -1;
-      }
+      mode = MODE_RELATIVE;
       num = (unsigned char)num;
+    }
+    else
+    {
+      mode = MODE_RELATIVE;
+      if(asm_context->pass == 2)
+      {
+        // calculate branch offset, need to add 2 to current
+        // address, since thats where the program counter would be
+        num -= (asm_context->address + 2);
+        if(num < -128 || num > 127)
+        {
+          print_error("Branch out of range", asm_context);
+          return -1;
+        }
+        num = (unsigned char)num;
+      }
     }
   }
 

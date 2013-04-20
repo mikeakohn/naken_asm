@@ -176,6 +176,7 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
           printf("Warning: Addressing mode of @r%d being changed to 0(r%d) at %s:%d.\n", operand->reg, operand->reg, asm_context->filename, asm_context->line);
         }
 
+        data->data[data->count++]=0;
         operand->a=1;
         operand->value=0;
       }
