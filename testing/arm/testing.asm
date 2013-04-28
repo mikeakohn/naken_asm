@@ -40,4 +40,7 @@ main:
 
   b main
 
+  str r7, [r1,r2, lsl #2]
+
+
 
