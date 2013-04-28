@@ -25,6 +25,7 @@
 #include "asm_mips.h"
 #include "asm_msp430.h"
 #include "asm_stm8.h"
+#include "asm_thumb.h"
 #include "asm_tms1000.h"
 #include "asm_tms9900.h"
 #include "asm_z80.h"
@@ -40,6 +41,7 @@
 #include "disasm_msp430.h"
 #include "disasm_805x.h"
 #include "disasm_stm8.h"
+#include "disasm_thumb.h"
 #include "disasm_tms1000.h"
 #include "disasm_tms9900.h"
 #include "disasm_z80.h"
@@ -923,6 +925,16 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->list_output=list_output_stm8;
     asm_context->cpu_type=CPU_TYPE_STM8;
     asm_context->is_dollar_hex=1;
+    return 1;
+  }
+    else
+#endif
+#ifdef ENABLE_THUMB
+  if (strcasecmp(token, "thumb")==0)
+  {
+    asm_context->parse_instruction=parse_instruction_thumb;
+    asm_context->list_output=list_output_thumb;
+    asm_context->cpu_type=CPU_TYPE_THUMB;
     return 1;
   }
     else

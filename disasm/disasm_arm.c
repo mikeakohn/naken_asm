@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "disasm_arm.h"
 #include "disasm_common.h"
@@ -122,7 +123,7 @@ int n;
 
 int disasm_arm(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
-unsigned int opcode;
+uint32_t opcode;
 char temp[32];
 
   *cycles_min=1;

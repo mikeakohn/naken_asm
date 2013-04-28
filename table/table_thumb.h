@@ -12,6 +12,8 @@
 #ifndef _TABLE_THUMB_H
 #define _TABLE_THUMB_H
 
+#include <stdint.h>
+
 #include "assembler.h"
 
 enum
@@ -22,10 +24,10 @@ enum
 struct _table_thumb
 {
   char *instr;
-  unsigned short int opcode;
-  unsigned short int mask;
-  unsigned char type;
-  unsigned char cycles;
+  uint16_t opcode;
+  uint16_t mask;
+  uint8_t type;
+  uint8_t cycles;
 };
 
 extern struct _table_thumb table_thumb[];

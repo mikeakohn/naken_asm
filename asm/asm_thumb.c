@@ -206,19 +206,19 @@ int n;
       switch(table_thumb[n].type)
       {
         case OP_SHIFT:
-          if (operand_count!=3 &&
+          if (operand_count==3 &&
               operands[0].type==OPERAND_REGISTER &&
               operands[1].type==OPERAND_REGISTER &&
               operands[2].type==OPERAND_NUMBER)
           {
             if (check_reg_lower(asm_context, operands[0].value)==-1) { return -1; }
             if (check_reg_lower(asm_context, operands[1].value)==-1) { return -1; }
-            if (operands[2].value<0 || operands[2].value>32)
+            if (operands[2].value<0 || operands[2].value>31)
             {
               print_error_range("Offset", 0, 31, asm_context);
               return -1;
             }
-            add_bin16(asm_context, table_thumb[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[2].value<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
             return 2;
           }
         default:
