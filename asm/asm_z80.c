@@ -197,9 +197,9 @@ static int compute_reg8(struct _operand *operand)
 
 static int check_disp8(struct _asm_context *asm_context, struct _operand *operand)
 {
-  if (operand->offset<-128 || operand->offset>128)
+  if (operand->offset<-128 || operand->offset>127)
   {
-    print_error_range("Displacement", -128, 128, asm_context);
+    print_error_range("Displacement", -128, 127, asm_context);
     return -1;
   }
 

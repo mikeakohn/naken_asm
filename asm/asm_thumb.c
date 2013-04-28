@@ -17,7 +17,7 @@
 #include "asm_common.h"
 #include "asm_thumb.h"
 #include "assembler.h"
-//#include "table_thumb.h"
+#include "table_thumb.h"
 #include "get_tokens.h"
 #include "eval_expression.h"
 
@@ -62,6 +62,17 @@ static int get_register_thumb(char *token)
   return -1;
 }
 
+static int check_reg_lower(struct _asm_context *asm_context, int value)
+{
+  if (value>7)
+  {
+    print_error_range("Register", 0, 7, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
 int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -69,6 +80,7 @@ int token_type;
 char instr_case[TOKENLEN];
 struct _operand operands[3];
 int operand_count=0;
+int matched=0;
 int num;
 int n;
 
@@ -184,8 +196,47 @@ int n;
     }
   }
 
+  n=0;
+  while(table_thumb[n].instr!=NULL)
+  {
+    if (strcmp(table_thumb[n].instr,instr_case)==0)
+    {
+      matched=1;
 
-  print_error_unknown_instr(instr, asm_context);
+      switch(table_thumb[n].type)
+      {
+        case OP_SHIFT:
+          if (operand_count!=3 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_REGISTER &&
+              operands[2].type==OPERAND_NUMBER)
+          {
+            if (check_reg_lower(asm_context, operands[0].value)==-1) { return -1; }
+            if (check_reg_lower(asm_context, operands[1].value)==-1) { return -1; }
+            if (operands[2].value<0 || operands[2].value>32)
+            {
+              print_error_range("Offset", 0, 31, asm_context);
+              return -1;
+            }
+            add_bin16(asm_context, table_thumb[n].opcode, IS_OPCODE);
+            return 2;
+          }
+        default:
+          break;
+      }
+    }
+
+    n++;
+  }
+
+  if (matched==1)
+  {
+    printf("Error: Unknown operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+  }
+    else
+  {
+    printf("Error: Unknown instruction '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+  }
 
   return -1;
 }
