@@ -30,6 +30,7 @@
 #include "asm_tms9900.h"
 #include "asm_z80.h"
 #include "assembler.h"
+#include "cpu_list.h"
 #include "disasm_65xx.h"
 #include "disasm_680x.h"
 #include "disasm_68hc08.h"
@@ -809,177 +810,6 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 2;
   }
     else
-#ifdef ENABLE_DSPIC
-  if (strcasecmp(token, "dspic")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_dspic;
-    asm_context->list_output=list_output_dspic;
-    asm_context->cpu_type=CPU_TYPE_DSPIC;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_MIPS
-  if (strcasecmp(token, "mips")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_mips;
-    asm_context->list_output=list_output_mips;
-    asm_context->cpu_type=CPU_TYPE_MIPS;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_MSP430
-  if (strcasecmp(token, "msp430")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_msp430;
-    asm_context->list_output=list_output_msp430;
-    asm_context->cpu_type=CPU_TYPE_MSP430;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_65XX
-  if (strcasecmp(token, "65xx")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_65xx;
-    asm_context->list_output=list_output_65xx;
-    asm_context->cpu_type=CPU_TYPE_65XX;
-    asm_context->is_dollar_hex=1;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_680X
-  if (strcasecmp(token, "680x")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_680x;
-    asm_context->list_output=list_output_680x;
-    asm_context->cpu_type=CPU_TYPE_680X;
-    asm_context->memory.endian=ENDIAN_BIG;
-    asm_context->is_dollar_hex=1;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_68HC08
-  if (strcasecmp(token, "68hc08")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_68hc08;
-    asm_context->list_output=list_output_68hc08;
-    asm_context->cpu_type=CPU_TYPE_68HC08;
-    asm_context->memory.endian=ENDIAN_BIG;
-    asm_context->is_dollar_hex=1;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_680X0
-  if (strcasecmp(token, "680x0")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_680x0;
-    asm_context->list_output=list_output_680x0;
-    asm_context->cpu_type=CPU_TYPE_680X0;
-    asm_context->memory.endian=ENDIAN_BIG;
-    asm_context->is_dollar_hex=1;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_805X
-  if (strcasecmp(token, "8051")==0 || strcasecmp(token, "8052")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_805x;
-    asm_context->list_output=list_output_805x;
-    asm_context->cpu_type=CPU_TYPE_805X;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_ARM
-  if (strcasecmp(token, "arm")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_arm;
-    asm_context->list_output=list_output_arm;
-    asm_context->cpu_type=CPU_TYPE_ARM;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_AVR8
-  if (strcasecmp(token, "avr8")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_avr8;
-    asm_context->list_output=list_output_avr8;
-    asm_context->cpu_type=CPU_TYPE_AVR8;
-    //asm_context->memory.endian=ENDIAN_BIG;
-    asm_context->bytes_per_address=2;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_STM8
-  if (strcasecmp(token, "stm8")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_stm8;
-    asm_context->list_output=list_output_stm8;
-    asm_context->cpu_type=CPU_TYPE_STM8;
-    asm_context->is_dollar_hex=1;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_THUMB
-  if (strcasecmp(token, "thumb")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_thumb;
-    asm_context->list_output=list_output_thumb;
-    asm_context->cpu_type=CPU_TYPE_THUMB;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_TMS1000
-  if (strcasecmp(token, "tms1000")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_tms1000;
-    asm_context->list_output=list_output_tms1000;
-    asm_context->cpu_type=CPU_TYPE_TMS1000;
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "tms1100")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_tms1100;
-    asm_context->list_output=list_output_tms1100;
-    asm_context->cpu_type=CPU_TYPE_TMS1100;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_TMS9900
-  if (strcasecmp(token, "tms9900")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_tms9900;
-    asm_context->list_output=list_output_tms9900;
-    asm_context->cpu_type=CPU_TYPE_TMS9900;
-    asm_context->memory.endian=ENDIAN_BIG;
-    return 1;
-  }
-    else
-#endif
-#ifdef ENABLE_Z80
-  if (strcasecmp(token, "z80")==0)
-  {
-    asm_context->parse_instruction=parse_instruction_z80;
-    asm_context->list_output=list_output_z80;
-    asm_context->cpu_type=CPU_TYPE_Z80;
-    asm_context->can_tick_end_string=1;
-    //asm_context->is_dollar_hex=1;
-    return 1;
-  }
-    else
-#endif
   if (strcasecmp(token, "big_endian")==0)
   {
     asm_context->memory.endian=ENDIAN_BIG;
@@ -988,6 +818,22 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   if (strcasecmp(token, "little_endian")==0)
   {
     asm_context->memory.endian=ENDIAN_LITTLE;
+  }
+
+  int n=0;
+  while (cpu_list[n].name!=NULL)
+  {
+    if (strcasecmp(token, cpu_list[n].name)==0)
+    {
+      asm_context->cpu_type=cpu_list[n].type;
+      asm_context->memory.endian=cpu_list[n].default_endian;
+      asm_context->bytes_per_address=cpu_list[n].bytes_per_address;
+      asm_context->is_dollar_hex=cpu_list[n].is_dollar_hex;
+      asm_context->can_tick_end_string=cpu_list[n].can_tick_end_string;
+      asm_context->parse_instruction=cpu_list[n].parse_instruction;
+      asm_context->list_output=cpu_list[n].list_output;
+      return 1;
+    }
   }
 
   return 0;

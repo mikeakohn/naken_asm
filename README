@@ -9,12 +9,17 @@ SUPPORTED CPU'S
 
 CPU                 Author
 65xx                Joe Davisson
+680x                Michael Kohn 
+68HC08              Michael Kohn 
+680x0               Michael Kohn 
 8051/8052           Michael Kohn
 ARM                 Michael Kohn
+AVR8                Michael Kohn
 dsPIC               Michael Kohn
 MIPS                Michael Kohn
 MSP430/MSP430X      Michael Kohn
 STM8                Michael Kohn
+THUMB               Michael Kohn
 TMS1000/TMS1100     Michael Kohn
 TMS9900             Michael Kohn
 Z80                 Michael Kohn
@@ -195,6 +200,7 @@ with some include files.
 
 CPU Selection:
 .65xx            6502, 6510, and any other 6500 series cpu
+.680x            6800
 .680x0           Motorola 68000
 .8051 or .8052   8051/8052/MCS-51
 .arm             All ARM CPU's
@@ -203,6 +209,7 @@ CPU Selection:
 .mips            MIPS including PIC32
 .msp430          MSP430/MSP430X
 .stm8            STM8
+.thumb           THUMB
 .tms1000         TMS1000/TMS1200/TMS1070/TMS1270
 .tms1100         TMS1100/TMS1300
 .tms9900         TMS9900

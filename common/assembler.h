@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 
+#include "cpu_list.h"
 #include "memory.h"
 
 #define MAX_NESTED_MACROS 128
@@ -28,29 +29,6 @@
 
 #define SEGMENT_CODE 0
 #define SEGMENT_BSS 1
-
-enum
-{
-  CPU_TYPE_MSP430=0,
-  CPU_TYPE_65XX,
-  CPU_TYPE_680X,
-  CPU_TYPE_68HC08,
-  CPU_TYPE_680X0,
-  CPU_TYPE_805X,
-  CPU_TYPE_ARM,
-  CPU_TYPE_AVR8,
-  CPU_TYPE_DSPIC,
-  CPU_TYPE_MIPS,
-  CPU_TYPE_STM8,
-  CPU_TYPE_THUMB,
-  CPU_TYPE_TMS1000,
-  CPU_TYPE_TMS1100,
-  CPU_TYPE_TMS9900,
-  CPU_TYPE_Z80
-};
-
-typedef int (*parse_instruction_t)(struct _asm_context *, char *);
-typedef void (*list_output_t)(struct _asm_context *, int);
 
 struct _naken_heap
 {
