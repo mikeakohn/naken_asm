@@ -12,12 +12,16 @@
 #ifndef _CPU_LIST_H
 #define _CPU_LIST_H
 
+#include "simulate_common.h"
+
 struct _asm_context;
 struct _memory;
+struct _simulate;
 
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
 typedef void (*list_output_t)(struct _asm_context *, int);
 typedef void (*disasm_range_t)(struct _memory *, int, int);
+//typedef struct _simulate *(*simulate_init_t)(struct _memory *memory);
 
 enum
 {
@@ -51,6 +55,7 @@ struct _cpu_list
   parse_instruction_t parse_instruction;
   list_output_t list_output;
   disasm_range_t disasm_range;
+  simulate_init_t simulate_init;
 };
 
 extern struct _cpu_list cpu_list[];

@@ -19,6 +19,7 @@
 
 //#define READ_RAM(a) memory_read_m(memory, a)
 //#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
+#define READ_RAM(a) (memory_read_m(memory, a)<<24)|(memory_read_m(memory, a)<<16)|(memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
 int get_cycle_count_powerpc(unsigned short int opcode)
 {

@@ -86,9 +86,6 @@ int n;
 
   lower_copy(instr_case, instr);
 
-  //token_type=get_token(asm_context, token, TOKENLEN);
-  //pushback(asm_context, token, token_type);
-
   memset(&operands, 0, sizeof(operands));
   while(1)
   {
@@ -230,12 +227,11 @@ int n;
   }
 
   if (matched==1)
-  {
-    printf("Error: Unknown operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+  {    print_error_unknown_operand_combo(instr, asm_context);
   }
     else
   {
-    printf("Error: Unknown instruction '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+    print_error_unknown_instr(instr, asm_context);
   }
 
   return -1;

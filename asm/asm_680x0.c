@@ -1573,7 +1573,7 @@ printf("\n");
   }
     else
   {
-    printf("Error: Unknown instruction '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+    print_error_unknown_instr(instr, asm_context);
   }
 
   return -1; 

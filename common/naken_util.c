@@ -43,6 +43,25 @@
 #define READ_RAM(a) memory_read_m(&util_context->memory, a)
 #define WRITE_RAM(a,b) memory_write_m(&util_context->memory, a, b)
 
+// FIXME - How to do this better?
+parse_instruction_t parse_instruction_65xx=NULL;
+parse_instruction_t parse_instruction_680x=NULL;
+parse_instruction_t parse_instruction_68hc08=NULL;
+parse_instruction_t parse_instruction_680x0=NULL;
+parse_instruction_t parse_instruction_805x=NULL;
+parse_instruction_t parse_instruction_arm=NULL;
+parse_instruction_t parse_instruction_avr8=NULL;
+parse_instruction_t parse_instruction_dspic=NULL;
+parse_instruction_t parse_instruction_mips=NULL;
+parse_instruction_t parse_instruction_msp430=NULL;
+parse_instruction_t parse_instruction_powerpc=NULL;
+parse_instruction_t parse_instruction_stm8=NULL;
+parse_instruction_t parse_instruction_thumb=NULL;
+parse_instruction_t parse_instruction_tms1000=NULL;
+parse_instruction_t parse_instruction_tms1100=NULL;
+parse_instruction_t parse_instruction_tms9900=NULL;
+parse_instruction_t parse_instruction_z80=NULL;
+
 static char *mode_stopped="stopped";
 static char *mode_running="running";
 
@@ -573,6 +592,29 @@ int interactive=1;
 
   for (i=1; i<argc; i++)
   {
+    if (argv[i][0]=='-')
+    {
+      int n=0;
+      while (cpu_list[n].name!=NULL)
+      {
+        if (strcasecmp(argv[i]+1, cpu_list[n].name)==0)
+        {
+          util_context.disasm_range=cpu_list[n].disasm_range;
+          if (cpu_list[n].simulate_init!=NULL)
+          {
+            util_context.simulate=cpu_list[n].simulate_init(&util_context.memory);
+            //util_context.simulate=simulate_init_65xx(&util_context.memory);
+            //util_context.simulate=simulate_init_msp430(&util_context.memory);
+          }
+
+          break;
+        }
+
+        n++;
+      }
+      if (cpu_list[n].name!=NULL) { continue; }
+    }
+
     if (strcmp(argv[i], "-d")==0)
     {
       //if (load_debug(&src, argv[++i], util_context.debug_line, &util_context)==0)
@@ -608,129 +650,26 @@ int interactive=1;
        interactive=0;
     }
       else
-#if 0
-    if (strcmp(argv[i], "-list")==0)
-    {
-       strcpy(command,"list");
-       interactive=0;
-    }
-      else
-#endif
-#ifdef ENABLE_MSP430
-    if (strcmp(argv[i], "-msp430")==0)
-    {
-      // Default.. probably dumb to have as an option
-      util_context.disasm_range=disasm_range_msp430;
-      //util_context.instr_bytes=2;
-    }
-      else
-#endif
-#ifdef ENABLE_DSPIC
-    if (strcmp(argv[i], "-dspic")==0)
-    {
-      util_context.disasm_range=disasm_range_dspic;
-      //util_context.instr_bytes=4;
-    }
-      else
-#endif
-#ifdef ENABLE_65XX
-    if (strcmp(argv[i], "-65xx")==0)
-    {
-      util_context.disasm_range=disasm_range_65xx;
-      util_context.simulate=simulate_init_65xx(&util_context.memory);
-      //util_context.instr_bytes=1;
-      //chip=1;
-    }
-      else
-#endif
-#ifdef ENABLE_680X
-    if (strcmp(argv[i], "-680x")==0)
-    {
-      util_context.disasm_range=disasm_range_680x;
-    }
-      else
-#endif
-#ifdef ENABLE_68HC08
-    if (strcmp(argv[i], "-68hc08")==0)
-    {
-      util_context.disasm_range=disasm_range_68hc08;
-    }
-      else
-#endif
-#ifdef ENABLE_680X0
-    if (strcmp(argv[i], "-680x0")==0)
-    {
-      util_context.disasm_range=disasm_range_680x0;
-    }
-      else
-#endif
-#ifdef ENABLE_8051
-    if (strcmp(argv[i], "-8051")==0 || strcmp(argv[i], "-8052")==0)
-    {
-      util_context.disasm_range=disasm_range_805x;
-    }
-      else
-#endif
-#ifdef ENABLE_ARM
-    if (strcmp(argv[i], "-arm")==0)
-    {
-      util_context.disasm_range=disasm_range_arm;
-      //util_context.instr_bytes=4;
-    }
-      else
-#endif
-#ifdef ENABLE_AVR8
-    if (strcmp(argv[i], "-avr8")==0)
-    {
-      util_context.disasm_range=disasm_range_avr8;
-      //util_context.instr_bytes=4;
-    }
-      else
-#endif
-#ifdef ENABLE_MIPS
-    if (strcmp(argv[i], "-mips")==0)
-    {
-      util_context.disasm_range=disasm_range_mips;
-    }
-      else
-#endif
-#ifdef ENABLE_STM8
-    if (strcmp(argv[i], "-stm8")==0)
-    {
-      util_context.disasm_range=disasm_range_stm8;
-    }
-      else
-#endif
-#ifdef ENABLE_TMS1000
-    if (strcmp(argv[i], "-tms1000")==0)
-    {
-      util_context.disasm_range=disasm_range_tms1000;
-    }
-      else
-    if (strcmp(argv[i], "-tms1100")==0)
-    {
-      util_context.disasm_range=disasm_range_tms1100;
-    }
-      else
-#endif
-#ifdef ENABLE_TMS9900
-    if (strcmp(argv[i], "-tms9900")==0)
-    {
-      util_context.disasm_range=disasm_range_tms9900;
-    }
-      else
-#endif
-#ifdef ENABLE_Z80
-    if (strcmp(argv[i], "-z80")==0)
-    {
-      util_context.disasm_range=disasm_range_z80;
-    }
-      else
-#endif
     {
       unsigned char cpu_type;
       if (parse_elf(argv[i], &util_context.memory, &cpu_type)>=0)
       {
+        int n=0;
+        while (cpu_list[n].name!=NULL)
+        {
+          if (cpu_type==cpu_list[n].type)
+          {
+            util_context.disasm_range=cpu_list[n].disasm_range;
+            if (cpu_list[n].simulate_init!=NULL)
+            {
+              util_context.simulate=cpu_list[n].simulate_init(&util_context.memory);
+            }
+            break;
+          }
+
+          n++;
+        }
+/*
         switch(cpu_type)
         {
 #ifdef ENABLE_MSP430
@@ -764,6 +703,7 @@ int interactive=1;
             printf("Internal error %s:%d\n", __FILE__, __LINE__);
             exit(1);
         }
+*/
         hexfile=argv[i];
         printf("Loaded elf %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
       }

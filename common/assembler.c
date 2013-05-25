@@ -87,6 +87,11 @@ void print_error_range(const char *s, int r1, int r2, struct _asm_context *asm_c
   printf("Error: %s out of range (%d,%d) at %s:%d\n", s, r1, r2, asm_context->filename, asm_context->line);
 }
 
+void print_error_unknown_operand_combo(const char *instr, struct _asm_context *asm_context)
+{
+  printf("Error: Unknown operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+}
+
 struct _memory_pool *add_pool(struct _naken_heap *heap, int heap_len)
 {
   struct _memory_pool *curr_pool;
@@ -834,6 +839,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
       asm_context->list_output=cpu_list[n].list_output;
       return 1;
     }
+    n++;
   }
 
   return 0;

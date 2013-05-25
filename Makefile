@@ -14,25 +14,16 @@ vpath=asm:disasm:common:simulate
 default:
 	cd build && make
 
-default_old: objs $(OBJS) $(SIM_OBJS)
-	$(CC) -o naken_asm$(CONFIG_EXT) naken_asm.c $(OBJS) \
-	    -DINCLUDE_PATH="\"$(INCLUDE_PATH)\"" \
-	   $(CFLAGS) $(LDFLAGS)
-	$(CC) -o naken_util$(CONFIG_EXT) naken_util.c disasm_65xx.o \
-	   disasm_805x.o disasm_arm.o disasm_common.o disasm_dspic.o \
-	   disasm_mips.o disasm_msp430.o disasm_stm8.o parse_elf.o parse_hex.o \
-	   memory.o simulate_65xx.o simulate_msp430.o table_65xx.o \
-	   table_805x.o table_dspic.o table_mips.o table_stm8.o \
-	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
-
 %.o: %.c *.h
 	$(CC) -c $*.c $(CFLAGS) $(LDFLAGS)
 
 install:
 	@mkdir -p $(INSTALL_BIN)
-	#@mkdir -p $(INSTALL_INCLUDES)/include
 	@cp naken_asm $(INSTALL_BIN)
 	@cp naken_util $(INSTALL_BIN)
+
+install_old:
+	#@mkdir -p $(INSTALL_INCLUDES)/include
 	#@cp -r include/*.inc $(INSTALL_INCLUDES)/include
 
 objs:

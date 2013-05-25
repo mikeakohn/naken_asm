@@ -1408,11 +1408,11 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
 
   if (matched==1)
   {
-    printf("Error: Unknown operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+    print_error_unknown_operand_combo(instr, asm_context);
   }
     else
   {
-    printf("Error: Unknown instruction '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+    print_error_unknown_instr(instr, asm_context);
   }
 
   return -1;

@@ -17,6 +17,7 @@
 enum
 {
   OP_NONE,
+  OP_BRANCH,
 };
 
 struct _table_powerpc
