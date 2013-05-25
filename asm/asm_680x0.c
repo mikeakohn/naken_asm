@@ -1049,7 +1049,7 @@ int n;
 
 static int write_jump(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
-int16_t offset=0;
+int32_t offset=0;
 
   if (operand_count!=1) { return 0; }
   if (size!=SIZE_NONE) { return 0; }
