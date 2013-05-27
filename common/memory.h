@@ -12,6 +12,8 @@
 #ifndef _MEMORY_H
 #define _MEMORY_H
 
+#include <stdint.h>
+
 #define PAGE_SIZE 8192
 
 #define ENDIAN_LITTLE 0
@@ -20,8 +22,8 @@
 // TODO - Use this instead later
 struct _memory_page
 {
-  int address;
-  //int size;
+  uint32_t address;
+  uint32_t offset_min,offset_max;
   struct _memory_page *next;
   unsigned char bin[PAGE_SIZE];
   int debug_line[];
@@ -42,6 +44,10 @@ struct _asm_context;
 void memory_init(struct _memory *memory, int size, int debug_flag);
 void memory_free(struct _memory *memory);
 void memory_clear(struct _memory *memory);
+int memory_in_use(struct _memory *memory, int address);
+int memory_get_page_address_min(struct _memory *memory, int address);
+int memory_get_page_address_max(struct _memory *memory, int address);
+int memory_page_size();
 unsigned char memory_read(struct _asm_context *asm_context, int address);
 unsigned char memory_read_m(struct _memory *memory, int address);
 unsigned char memory_read_inc(struct _asm_context *asm_context);

@@ -53,12 +53,68 @@ struct _memory_page *next;
   {
     next=page->next;
     memset(page->bin, 0, PAGE_SIZE);
-    //if (memory->debug==1)
-    //{
-    //  memset(page->debug, 0, PAGE_SIZE*sizeof(int));
-    //}
+    page->offset_min=PAGE_SIZE;
+    page->offset_max=0;
     page=next; 
   }
+}
+
+int memory_in_use(struct _memory *memory, int address)
+{
+struct _memory_page *page;
+
+  page=memory->pages;
+  while(page!=NULL)
+  {
+    if (address>=page->address && address<page->address+PAGE_SIZE)
+    {
+      return 1;
+    }
+    page=page->next;
+  }
+
+  return 0;
+}
+
+int memory_get_page_address_min(struct _memory *memory, int address)
+{
+struct _memory_page *page;
+
+  page=memory->pages;
+  while(page!=NULL)
+  {
+    if (address>=page->address && address<page->address+PAGE_SIZE)
+    {
+      return page->address+page->offset_min;
+    }
+    page=page->next;
+  }
+
+  printf("Internal Error: %s:%d\n", __FILE__, __LINE__);
+  return 0;
+}
+
+int memory_get_page_address_max(struct _memory *memory, int address)
+{
+struct _memory_page *page;
+
+  page=memory->pages;
+  while(page!=NULL)
+  {
+    if (address>=page->address && address<page->address+PAGE_SIZE)
+    {
+      return page->address+page->offset_max;
+    }
+    page=page->next;
+  }
+
+  printf("Internal Error: %s:%d\n", __FILE__, __LINE__);
+  return 0;
+}
+
+int memory_page_size()
+{
+  return PAGE_SIZE;
 }
 
 static unsigned char read_byte(struct _memory *memory, int address)
@@ -105,6 +161,8 @@ struct _memory_page *page;
 
   page=malloc(sizeof(struct _memory_page)+(memory->debug_flag==1?PAGE_SIZE*sizeof(int):0));
   page->address=(address/PAGE_SIZE)*PAGE_SIZE;
+  page->offset_min=PAGE_SIZE;
+  page->offset_max=0;
   page->next=0;
 
   memset(page->bin, 0, PAGE_SIZE);
@@ -142,7 +200,10 @@ struct _memory_page *page;
   if (memory->low_address>address) memory->low_address=address;
   if (memory->high_address<address) memory->high_address=address;
 
-  page->bin[address-page->address]=data;
+  int offset=address-page->address;
+  if (page->offset_min>offset) { page->offset_min=offset; }
+  if (page->offset_max<offset) { page->offset_max=offset; }
+  page->bin[offset]=data;
 }
 
 static void write_debug(struct _memory *memory, int address, int data)
@@ -167,7 +228,11 @@ struct _memory_page *page;
     page=page->next;
   }
 
-  page->debug_line[address-page->address]=data;
+  int offset=address-page->address;
+  if (page->offset_min>offset) { page->offset_min=offset; }
+  if (page->offset_max<offset) { page->offset_max=offset; }
+
+  page->debug_line[offset]=data;
 }
 
 unsigned char memory_read(struct _asm_context *asm_context, int address)

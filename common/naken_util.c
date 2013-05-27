@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #ifdef READLINE
 #include <readline/readline.h>
@@ -401,6 +402,54 @@ int num;
   printf("Wrote %d words starting at address %04x\n", count, n);
 }
 
+static void disasm_range(struct _util_context *util_context, int start, int end)
+{
+uint32_t page_size,page_mask;
+int curr_start=start;
+int valid_page_start=1;
+int address_min,address_max;
+int curr_end;
+int n;
+
+  page_size=memory_page_size(&util_context->memory);
+  page_mask=page_size-1;
+  curr_end=start|page_mask;
+
+  for (n=start; n<=end; n+=page_size)
+  {
+//printf("address=%x page=%x %d\n", n, n&(~page_mask), memory_in_use(&util_context->memory, n));
+    if (memory_in_use(&util_context->memory, n))
+    {
+      if (valid_page_start==0)
+      {
+        curr_start=n&(~page_mask);
+        valid_page_start=1;
+      }
+      curr_end=n|page_mask;
+    }
+      else
+    {
+      if (valid_page_start==1)
+      {
+        address_min=memory_get_page_address_min(&util_context->memory, curr_start);
+        address_max=memory_get_page_address_max(&util_context->memory, curr_end);
+        //util_context->disasm_range(&util_context->memory, curr_start, curr_end);
+        util_context->disasm_range(&util_context->memory, address_min, address_max);
+        valid_page_start=0;
+      }
+    }
+  }
+
+  if (valid_page_start==1)
+  {
+//printf("valid_page %x %x\n",curr_start, curr_end);
+    address_min=memory_get_page_address_min(&util_context->memory, curr_start);
+    address_max=memory_get_page_address_max(&util_context->memory, curr_end);
+    util_context->disasm_range(&util_context->memory, address_min, address_max);
+  }
+//printf("%x %x %d\n", start, end, memory_in_use(&util_context->memory, curr_end));
+}
+
 static void disasm(struct _util_context *util_context, char *token, int dbg_flag)
 {
 int start,end;
@@ -669,41 +718,7 @@ int interactive=1;
 
           n++;
         }
-/*
-        switch(cpu_type)
-        {
-#ifdef ENABLE_MSP430
-          case CPU_TYPE_MSP430:
-            util_context.disasm_range=disasm_range_msp430;
-            util_context.simulate=simulate_init_msp430(&util_context.memory);
-            break;
-#endif
-#ifdef ENABLE_65XX
-          case CPU_TYPE_65XX:
-            util_context.disasm_range=disasm_range_65xx;
-            util_context.simulate=simulate_init_65xx(&util_context.memory);
-            break;
-#endif
-#ifdef ENABLE_ARM
-          case CPU_TYPE_ARM:
-            util_context.disasm_range=disasm_range_arm;
-            break;
-#endif
-#ifdef ENABLE_DSPIC
-          case CPU_TYPE_DSPIC:
-            util_context.disasm_range=disasm_range_dspic;
-            break;
-#endif
-#ifdef ENABLE_MIPS
-          case CPU_TYPE_MIPS:
-            util_context.disasm_range=disasm_range_mips;
-            break;
-#endif
-          default:
-            printf("Internal error %s:%d\n", __FILE__, __LINE__);
-            exit(1);
-        }
-*/
+
         hexfile=argv[i];
         printf("Loaded elf %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
       }
@@ -1029,7 +1044,8 @@ int interactive=1;
       else
     if (strcmp(command, "disasm")==0)
     {
-       util_context.disasm_range(&util_context.memory, util_context.memory.low_address, util_context.memory.high_address);
+       //util_context.disasm_range(&util_context.memory, util_context.memory.low_address, util_context.memory.high_address);
+       disasm_range(&util_context, util_context.memory.low_address, util_context.memory.high_address);
     }
 #if 0
       else
