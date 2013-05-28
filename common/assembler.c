@@ -683,6 +683,82 @@ int num;
   return 0;
 }
 
+static int parse_pragma(struct _asm_context *asm_context)
+{
+char token[TOKENLEN];
+int token_type;
+
+  while(1)
+  {
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) { break; }
+  }
+
+  asm_context->line++;
+
+  return 0;
+}
+
+static int parse_device(struct _asm_context *asm_context)
+{
+char token[TOKENLEN];
+int token_type;
+
+  // FIXME - Do nothing right now
+
+  token_type=get_token(asm_context, token, TOKENLEN);
+  if (token_type==TOKEN_EOL || token_type==TOKEN_EOF)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  token_type=get_token(asm_context, token, TOKENLEN);
+  if (token_type!=TOKEN_EOL && token_type!=TOKEN_EOF)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  asm_context->line++;
+
+  return 0;
+}
+
+static int parse_equ(struct _asm_context *asm_context)
+{
+char token[TOKENLEN];
+char name[TOKENLEN];
+char value[TOKENLEN];
+int token_type;
+
+  // Atmel's include files want:  .equ NAME = VALUE
+
+  token_type=get_token(asm_context, name, TOKENLEN);
+  if (token_type==TOKEN_EOL || token_type==TOKEN_EOF)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  if (expect_token(asm_context, '=')!=0) { return -1; }
+
+  token_type=get_token(asm_context, value, TOKENLEN);
+
+  token_type=get_token(asm_context, token, TOKENLEN);
+  if (token_type!=TOKEN_EOL && token_type!=TOKEN_EOF)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  defines_heap_append(asm_context, name, value, 0);
+
+  asm_context->line++;
+
+  return 0;
+}
+
 void assemble_init(struct _asm_context *asm_context)
 {
   fseek(asm_context->in, 0, SEEK_SET);
@@ -940,6 +1016,21 @@ int token_type;
       if (strcasecmp(token, "macro")==0)
       {
         if (parse_macro(asm_context, IS_MACRO)!=0) return -1;
+      }
+        else
+      if (strcasecmp(token, "pragma")==0)
+      {
+        if (parse_pragma(asm_context)!=0) return -1;
+      }
+        else
+      if (strcasecmp(token, "device")==0)
+      {
+        if (parse_device(asm_context)!=0) return -1;
+      }
+        else
+      if (strcasecmp(token, "equ")==0 || strcasecmp(token, "def")==0)
+      {
+        if (parse_equ(asm_context)!=0) return -1;
       }
         else
       {
