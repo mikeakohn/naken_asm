@@ -1,3 +1,16 @@
+/**
+ *  naken_asm assembler.
+ *  Author: Michael Kohn
+ *   Email: mike@mikekohn.net
+ *     Web: http://www.mikekohn.net/
+ * License: GPL
+ *
+ * Copyright 2010-2013 by Michael Kohn
+ *
+ * 65XX file by Joe Davisson
+ *
+ */
+
 #include "table_65xx.h"
 
 #define unused -1
@@ -333,3 +346,4 @@ struct _cycles_65xx cycles_65xx[] = {
   {  0xFE, 7,   0,   absx },
   {  0xFF, 0,   0,   unused }
 };
+

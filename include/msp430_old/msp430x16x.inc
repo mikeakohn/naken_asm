@@ -115,6 +115,23 @@ TAR equ 0x0170            ; Timer_A register
 ; Reserved 016Ah
 ; Reserved 0168h
 
+TASSEL_0 equ 0   ; TACLK
+TASSEL_1 equ 256 ; ACLK
+TASSEL_2 equ 512 ; SMCLK
+TASSEL_3 equ 768 ; INCLK
+
+ID_0 equ 0   ; div by 1
+ID_1 equ 64  ; div by 2
+ID_2 equ 128 ; div by 4
+ID_3 equ 192 ; div by 8
+
+MC_0 equ 0  ; timer is halted
+MC_1 equ 16 ; timer counts up to TACCR0
+MC_2 equ 32 ; timer counts up to 0xffff
+MC_3 equ 48 ; up/down timer counts up to TACCR0 then down to 0x0000
+
+CCIE equ 0x0010
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Timer_A3
 
@@ -148,6 +165,18 @@ FCTL1 equ 0x0128          ; Flash control 1
 
 WDTCTL equ 0x0120         ; Watchdog Timer control
 
+WDTPW equ 0x5a00
+WDTHOLD equ 0x0080
+WDTNMIES equ 0x0040
+WDTNMI equ 0x0020
+WDTTMSEL equ 0x0010
+WDTCNTCL equ 0x0008
+WDTSSEL equ 0x0004
+WDTIS0 equ 0x0000
+WDTIS1 equ 0x0001
+WDTIS2 equ 0x0002
+WDTIS3 equ 0x0003
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; USART1 (MSP430F16x and MSP430F161x only)
 
@@ -170,7 +199,7 @@ U0BR0 equ 0x0074          ; Baud rate
 U0MCTL equ 0x0073         ; Modulation control
 U0RCTL equ 0x0072         ; Receive control
 U0TCTL equ 0x0071         ; Transmit control
-U0CTL equ 0x0070          ; USART control
+;U0CTL equ 0x0070          ; USART control
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; USART0 (I2C mode)
@@ -271,6 +300,13 @@ IFG2 equ 0x0003           ; SFR interrupt flag2
 IFG1 equ 0x0002           ; SFR interrupt flag1
 IE2 equ 0x0001            ; SFR interrupt enable2
 IE1 equ 0x0000            ; SFR interrupt enable1
+
+OSCOFF equ 32
+OFIFG   equ 2
+
+XT2OFF equ 0x80
+SELM_2 equ 0x80
+SELS equ 0x08
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "disasm_msp430.h"
 
@@ -60,7 +61,7 @@ int extra=0;
       else
     if (As==1)
     {
-      unsigned short int a=(READ_RAM(address+3)<<8)|READ_RAM(address+2);
+      uint16_t a=(READ_RAM(address+3)<<8)|READ_RAM(address+2);
       count+=2;
       a=a+(address+count);
       sprintf(reg_str, "0x%04x", a|extra);
@@ -71,7 +72,7 @@ int extra=0;
       else
     if (As==3)
     {
-      unsigned short int a=(READ_RAM(address+3)<<8)|READ_RAM(address+2);
+      uint16_t a=(READ_RAM(address+3)<<8)|READ_RAM(address+2);
       count+=2;
       if (bw==0)
       { sprintf(reg_str, "#0x%04x", a|extra); }
@@ -87,7 +88,7 @@ int extra=0;
       else
     if (As==1)
     {
-      unsigned short int a=(READ_RAM(address+3)<<8)|READ_RAM(address+2);
+      uint16_t a=(READ_RAM(address+3)<<8)|READ_RAM(address+2);
       count+=2;
       sprintf(reg_str, "&0x%04x", a|extra);
     }
@@ -122,7 +123,7 @@ int extra=0;
       else
     if (As==1)
     {
-      unsigned short int a=(READ_RAM(address+3)<<8)|READ_RAM(address+2);
+      uint16_t a=(READ_RAM(address+3)<<8)|READ_RAM(address+2);
       count+=2;
       sprintf(reg_str, "0x%x(%s)", a|extra, regs[reg]);
     }
@@ -156,7 +157,7 @@ int extra=0;
       else
     if (Ad==1)
     {
-      unsigned short int a=(READ_RAM(address+count+3)<<8)|READ_RAM(address+(count+2));
+      uint16_t a=(READ_RAM(address+count+3)<<8)|READ_RAM(address+(count+2));
       count+=2;
       a=a+(address+count);
       sprintf(reg_str, "0x%04x", a|extra);
@@ -170,7 +171,7 @@ int extra=0;
       else
     if (Ad==1)
     {
-      unsigned short int a=(READ_RAM(address+count+3)<<8)|READ_RAM(address+count+2);
+      uint16_t a=(READ_RAM(address+count+3)<<8)|READ_RAM(address+count+2);
       count+=2;
       sprintf(reg_str, "&0x%04x", a|extra);
     }
@@ -189,7 +190,7 @@ int extra=0;
       else
     if (Ad==1)
     {
-      unsigned short int a=(READ_RAM(address+count+3)<<8)|READ_RAM(address+count+2);
+      uint16_t a=(READ_RAM(address+count+3)<<8)|READ_RAM(address+count+2);
       count+=2;
       sprintf(reg_str, "0x%x(%s)", a|extra, regs[reg]);
     }
@@ -198,7 +199,7 @@ int extra=0;
   return count;
 }
 
-static int one_operand(struct _memory *memory, int address, char *instruction, unsigned short int opcode, int prefix)
+static int one_operand(struct _memory *memory, int address, char *instruction, uint16_t opcode, int prefix)
 {
 char *instr[] = { "rrc", "swpb", "rra", "sxt", "push", "call", "reti", "???" };
 char ext[3] = { 0 };
@@ -266,7 +267,7 @@ int bw=0;
   return count;
 }
 
-static int relative_jump(struct _memory *memory, int address, char *instruction, unsigned short int opcode, int prefix)
+static int relative_jump(struct _memory *memory, int address, char *instruction, uint16_t opcode, int prefix)
 {
 char *instr[] = { "jne", "jeq", "jlo", "jhs", "jn", "jge", "jl", "jmp" };
 int count=2;
@@ -298,7 +299,7 @@ int o;
   return count;
 }
 
-static int two_operand(struct _memory *memory, int address, char *instruction, unsigned short int opcode, int prefix)
+static int two_operand(struct _memory *memory, int address, char *instruction, uint16_t opcode, int prefix)
 {
 char *instr[] = { "mov", "add", "addc", "subc", "sub", "cmp", "dadd", "bit",
                   "bic", "bis", "xor", "and" };
@@ -405,7 +406,7 @@ static int get_20bit(struct _memory *memory, int address, unsigned int opcode)
          (READ_RAM(address+2));
 }
 
-static int twenty_bit_zero(struct _memory *memory, int address, char *instruction, unsigned short int opcode)
+static int twenty_bit_zero(struct _memory *memory, int address, char *instruction, uint16_t opcode)
 {
 char *instr[] = { "rrcm", "rram", "rlam", "rrum" };
 char *instr2[] = { "mova", "cmpa", "adda", "suba" };
@@ -455,7 +456,7 @@ int o;
   }
 }
 
-static int twenty_bit_call(struct _memory *memory, int address, char *instruction, unsigned short int opcode)
+static int twenty_bit_call(struct _memory *memory, int address, char *instruction, uint16_t opcode)
 {
   if ((opcode&0x00ff)==0) { strcpy(instruction, "reti"); return 2; }
 
@@ -499,7 +500,7 @@ static int twenty_bit_call(struct _memory *memory, int address, char *instructio
   return 2;
 }
 
-static int twenty_bit_stack(struct _memory *memory, int address, char *instruction, unsigned short int opcode)
+static int twenty_bit_stack(struct _memory *memory, int address, char *instruction, uint16_t opcode)
 {
 char temp[8];
 int n=((opcode>>4)&0xf)+1;
@@ -524,7 +525,7 @@ int is_push=(opcode&0x0200)==0?1:0;
 }
 //#endif
 
-int get_cycle_count(unsigned short int opcode)
+int get_cycle_count(uint16_t opcode)
 {
 int src_reg,dst_reg;
 int Ad,As;
@@ -642,7 +643,7 @@ int Ad,As;
 
 static int disasm_msp430_a(struct _memory *memory, int address, char *instruction, int *cycles, int prefix)
 {
-unsigned short int opcode;
+uint16_t opcode;
 int op;
 
   instruction[0]=0;
