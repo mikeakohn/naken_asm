@@ -15,6 +15,7 @@
 #include <stdint.h>
 
 #include "disasm_msp430.h"
+#include "table_msp430.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
@@ -199,24 +200,23 @@ int extra=0;
   return count;
 }
 
-static int one_operand(struct _memory *memory, int address, char *instruction, uint16_t opcode, int prefix)
+static int one_operand(struct _memory *memory, int address, char *instruction, uint16_t opcode, uint16_t prefix)
 {
-char *instr[] = { "rrc", "swpb", "rra", "sxt", "push", "call", "reti", "???" };
+//char *instr[] = { "rrc", "swpb", "rra", "sxt", "push", "call", "reti", "???" };
 char ext[3] = { 0 };
 int o;
 int reg;
 int As;
 int count=2;
 int bw=0;
-//char *prefix="";
 
   o=(opcode&0x0380)>>7;
 
-  strcpy(instruction, instr[o]);
+  //strcpy(instruction, instr[o]);
   if (o==7) { return 2; }
   if (o==6) { return count; }
 
-  if (prefix!=-1) { strcat(instruction, "x"); count+=2; }
+  if (prefix!=0xffff) { strcat(instruction, "x"); }
 
   As=(opcode&0x0030)>>4;
   reg=opcode&0x000f;
@@ -267,9 +267,9 @@ int bw=0;
   return count;
 }
 
-static int relative_jump(struct _memory *memory, int address, char *instruction, uint16_t opcode, int prefix)
+static int relative_jump(struct _memory *memory, int address, char *instruction, uint16_t opcode, uint16_t prefix)
 {
-char *instr[] = { "jne", "jeq", "jlo", "jhs", "jn", "jge", "jl", "jmp" };
+//char *instr[] = { "jne", "jeq", "jlo", "jhs", "jn", "jge", "jl", "jmp" };
 int count=2;
 int o;
 
@@ -280,9 +280,9 @@ int o;
     return 1;
   }
 
-  strcpy(instruction, instr[o]);
+  //strcpy(instruction, instr[o]);
 
-  if (prefix!=-1) { strcat(instruction, "x"); count+=2; }
+  if (prefix!=0xffff) { strcat(instruction, "x"); }
 
   int offset=opcode&0x03ff;
   if ((offset&0x0200)!=0)
@@ -299,22 +299,25 @@ int o;
   return count;
 }
 
-static int two_operand(struct _memory *memory, int address, char *instruction, uint16_t opcode, int prefix)
+static int two_operand(struct _memory *memory, int address, char *instruction, uint16_t opcode, uint16_t prefix)
 {
-char *instr[] = { "mov", "add", "addc", "subc", "sub", "cmp", "dadd", "bit",
-                  "bic", "bis", "xor", "and" };
+//char *instr[] = { "mov", "add", "addc", "subc", "sub", "cmp", "dadd", "bit",
+//                  "bic", "bis", "xor", "and" };
 char ext[3] = { 0 };
 int o;
 int Ad,As;
 int count=0;
 int bw=0;
 
+  // FIXME - is this needed anymore?
   o=opcode>>12;
+#if 0
   if (o<4 || o>15)
   {
     strcpy(instruction, "???");
     return 1;
   }
+#endif
 
   o=o-4;
 
@@ -323,53 +326,57 @@ int bw=0;
     else
   { strcpy(ext, ".b"); bw=1; }
 
-  if (prefix==-1)
+  if (prefix==0xffff)
   {
+    char instr[32];
+    strcpy(instr, instruction);
     if ((opcode&0x00ff)==0x0003)
-    { sprintf(instruction, "nop   --  %s", instr[o]); }
+    { sprintf(instruction, "nop   --  %s", instr); }
       else
     if (opcode==0x4130)
-    { sprintf(instruction, "ret   --  %s", instr[o]); }
+    { sprintf(instruction, "ret   --  %s", instr); }
       else
     if ((opcode&0xff30)==0x4130)
     { sprintf(instruction, "pop.%c r%d   --  %s", bw==0?'w':'b', opcode&0x000f, instr[o]); }
       else
     if (opcode==0xc312)
-    { sprintf(instruction, "clrc  --  %s", instr[o]); }
+    { sprintf(instruction, "clrc  --  %s", instr); }
       else
     if (opcode==0xc222)
-    { sprintf(instruction, "clrn  --  %s", instr[o]); }
+    { sprintf(instruction, "clrn  --  %s", instr); }
       else
     if (opcode==0xc322)
-    { sprintf(instruction, "clrz  --  %s", instr[o]); }
+    { sprintf(instruction, "clrz  --  %s", instr); }
       else
     if (opcode==0xc232)
-    { sprintf(instruction, "dint  --  %s", instr[o]); }
+    { sprintf(instruction, "dint  --  %s", instr); }
       else
     if (opcode==0xd312)
-    { sprintf(instruction, "setc  --  %s", instr[o]); }
+    { sprintf(instruction, "setc  --  %s", instr); }
       else
     if (opcode==0xd222)
-    { sprintf(instruction, "setn  --  %s", instr[o]); }
+    { sprintf(instruction, "setn  --  %s", instr); }
       else
     if (opcode==0xd322)
-    { sprintf(instruction, "setz  --  %s", instr[o]); }
+    { sprintf(instruction, "setz  --  %s", instr); }
       else
     if (opcode==0xd232)
-    { sprintf(instruction, "eint  --  %s", instr[o]); }
+    { sprintf(instruction, "eint  --  %s", instr); }
+#if 0
       else
     { strcpy(instruction, instr[o]); }
+#endif
   }
     else
   {
-    strcpy(instruction, instr[o]);
+    //strcpy(instruction, instr[o]);
     strcat(instruction, "x");
   }
 
   Ad=(opcode&0x0080)>>7;
   As=(opcode&0x0030)>>4;
 
-  if (prefix!=-1)
+  if (prefix!=0xffff)
   {
     int al=((prefix>>5)&2)|bw;
 
@@ -390,10 +397,7 @@ int bw=0;
   count=get_dest_reg(memory, address, opcode&0x000f, Ad, reg_str, count, prefix);
   strcat(instruction, reg_str);
 
-  //int src_reg=(opcode>>8)&0x000f;
-  //int dst_reg=opcode&0x000f;
-
-  if (prefix!=-1) { count+=2; }
+  //if (prefix!=0xffff) { count+=2; }
 
   return count+2;
 }
@@ -646,6 +650,8 @@ static int disasm_msp430_a(struct _memory *memory, int address, char *instructio
 uint16_t opcode;
 int op;
 
+printf("wtf?\n");
+
   instruction[0]=0;
   //opcode=(memory[address+1]<<8)|memory[address];
   opcode=(READ_RAM(address+1)<<8)|READ_RAM(address);
@@ -709,6 +715,7 @@ int op;
   return 2;
 }
 
+#if 0
 int disasm_msp430(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
   int count=disasm_msp430_a(memory, address, instruction, cycles_min, -1);
@@ -716,17 +723,100 @@ int disasm_msp430(struct _memory *memory, int address, char *instruction, int *c
 
   return count;
 }
+#endif
+
+int disasm_msp430(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+{
+uint16_t opcode;
+uint16_t prefix=-1;
+char *prefix_str="";
+int count=0;
+int n;
+
+  instruction[0]=0;
+  opcode=(READ_RAM(address+1)<<8)|READ_RAM(address);
+  // FIXME - this doesn't work for MSP430X
+  *cycles_min=get_cycle_count(opcode);
+  *cycles_max=*cycles_min;
+
+  // 20 bit prefix to 16 bit instructions 
+  if ((opcode&0xf800)==0x1800)
+  {
+    prefix=opcode;
+    opcode=(READ_RAM(address+3)<<8)|READ_RAM(address+2);
+    count=2;
+  }
+
+  n=0;
+  while(table_msp430[n].instr!=NULL)
+  {
+printf("n=%d\n", n);
+    if ((opcode&table_msp430[n].mask)==table_msp430[n].opcode)
+    {
+      strcpy(instruction, table_msp430[n].instr);
+
+      switch(table_msp430[n].type)
+      {
+        case OP_NONE:
+          break;
+        case OP_ONE_OPERAND:
+          count+=one_operand(memory, address, instruction, opcode, prefix);
+          break;
+        case OP_JUMP:
+printf("Kaboom! %d\n", n);
+          count+=relative_jump(memory, address, instruction, opcode, prefix);
+          break;
+        case OP_TWO_OPERAND:
+          count+=two_operand(memory, address, instruction, opcode, prefix);
+          break;
+        case OP_MOVA_AT_REG_REG:
+        case OP_MOVA_AT_REG_PLUS_REG:
+        case OP_MOVA_ABS20_REG:
+        case OP_MOVA_INDIRECT_REG:
+        case OP_SHIFT20:
+        case OP_MOVA_REG_ABS:
+        case OP_MOVA_REG_INDIRECT:
+        case OP_IMMEDIATE_REG:
+        case OP_REG_REG:
+        case OP_CALLA_SOURCE:
+        case OP_CALLA_ABS20:
+        case OP_CALLA_INDIRECT_PC:
+        case OP_CALLA_IMMEDIATE:
+        case OP_PUSH:
+        case OP_POP:
+        default:
+          strcat(instruction, " << wtf");
+          break;
+      }
+
+      break;
+    }
+
+    n++;
+  }
+
+  if (table_msp430[n].instr==NULL) { strcpy(instruction, "???"); }
+
+  return count;
+}
 
 void list_output_msp430(struct _asm_context *asm_context, int address)
 {
-int cycles,count;
+int cycles_min,cycles_max,count;
 int num;
 char instruction[128];
 
   fprintf(asm_context->list, "\n");
-  count=disasm_msp430_a(&asm_context->memory, address, instruction, &cycles, -1);
+  count=disasm_msp430(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
   num=memory_read(asm_context, address)|memory_read(asm_context, address+1)<<8;
-  fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: %d\n", address, num, instruction, cycles);
+  if (cycles_min<0)
+  {
+    fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: ?\n", address, num, instruction, cycles_min);
+  }
+    else
+  {
+    fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: %d\n", address, num, instruction, cycles_min);
+  }
   count-=2;
 
   while(count>0)
