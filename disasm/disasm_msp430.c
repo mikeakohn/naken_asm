@@ -46,12 +46,12 @@ int get_register_msp430(char *token)
   return -1;
 }
 
-static int get_source_reg(struct _memory *memory, int address, int reg, int As, int bw, char *reg_str, int prefix)
+static int get_source_reg(struct _memory *memory, int address, int reg, int As, int bw, char *reg_str, uint16_t prefix)
 {
 int count=0;
 int extra=0;
 
-  if (prefix!=-1) extra=(prefix&0x0780)<<9;
+  if (prefix!=0xffff) extra=(prefix&0x0780)<<9;
 
   reg_str[0]=0;
 
@@ -143,11 +143,11 @@ int extra=0;
   return count;
 }
 
-static int get_dest_reg(struct _memory *memory, int address, int reg, int Ad, char *reg_str, int count, int prefix)
+static int get_dest_reg(struct _memory *memory, int address, int reg, int Ad, char *reg_str, int count, uint16_t prefix)
 {
 int extra=0;
 
-  if (prefix!=-1) extra=(prefix&0x000f)<<16;
+  if (prefix!=0xffff) extra=(prefix&0x000f)<<16;
 
   reg_str[0]=0;
 
@@ -730,6 +730,7 @@ int disasm_msp430(struct _memory *memory, int address, char *instruction, int *c
 uint16_t opcode;
 uint16_t prefix=-1;
 char *prefix_str="";
+int dst,src,num;
 int count=0;
 int n;
 
@@ -744,35 +745,53 @@ int n;
   {
     prefix=opcode;
     opcode=(READ_RAM(address+3)<<8)|READ_RAM(address+2);
+    address+=2;
     count=2;
   }
 
   n=0;
   while(table_msp430[n].instr!=NULL)
   {
-printf("n=%d\n", n);
     if ((opcode&table_msp430[n].mask)==table_msp430[n].opcode)
     {
-      strcpy(instruction, table_msp430[n].instr);
-
       switch(table_msp430[n].type)
       {
         case OP_NONE:
+          strcpy(instruction, table_msp430[n].instr);
           break;
         case OP_ONE_OPERAND:
+          strcpy(instruction, table_msp430[n].instr);
           count+=one_operand(memory, address, instruction, opcode, prefix);
           break;
         case OP_JUMP:
-printf("Kaboom! %d\n", n);
+          strcpy(instruction, table_msp430[n].instr);
           count+=relative_jump(memory, address, instruction, opcode, prefix);
           break;
         case OP_TWO_OPERAND:
+          strcpy(instruction, table_msp430[n].instr);
           count+=two_operand(memory, address, instruction, opcode, prefix);
           break;
         case OP_MOVA_AT_REG_REG:
+          src=(opcode>>8)&0xf;
+          dst=opcode&0xf;
+          sprintf(instruction, "mova @%s, %s", regs[src], regs[dst]);
+          return 2;
         case OP_MOVA_AT_REG_PLUS_REG:
+          src=(opcode>>8)&0xf;
+          dst=opcode&0xf;
+          sprintf(instruction, "mova @%s+, %s", regs[src], regs[dst]);
+          return 2;
         case OP_MOVA_ABS20_REG:
+          num=(((opcode>>8)&0xf)<<16)|(READ_RAM(address+2));
+          dst=opcode&0xf;
+          sprintf(instruction, "mova &0x%x, %s", num, regs[dst]);
+          return 4;
         case OP_MOVA_INDIRECT_REG:
+          num=READ_RAM(address+2);
+          src=(opcode>>8)&0xf;
+          dst=opcode&0xf;
+          sprintf(instruction, "mova 0x%x(%s), %s", num, regs[src], regs[dst]);
+          return 4;
         case OP_SHIFT20:
         case OP_MOVA_REG_ABS:
         case OP_MOVA_REG_INDIRECT:
@@ -785,7 +804,7 @@ printf("Kaboom! %d\n", n);
         case OP_PUSH:
         case OP_POP:
         default:
-          strcat(instruction, " << wtf");
+          sprintf(instruction, "%s << wtf", table_msp430[n].instr);
           break;
       }
 

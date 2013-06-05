@@ -22,7 +22,7 @@ struct _table_msp430 table_msp430[] =
   { "reti", 0x1000, 0xffff, OP_NONE },
   { "jne", 0x2000, 0xfc00, OP_JUMP },
   { "jeq", 0x2400, 0xfc00, OP_JUMP },
-  { "jnc", 0x2800, 0xfc00, OP_JUMP },
+  { "jlo", 0x2800, 0xfc00, OP_JUMP },
   { "jhs", 0x2c00, 0xfc00, OP_JUMP },
   { "jn", 0x3000, 0xfc00, OP_JUMP },
   { "jge", 0x3400, 0xfc00, OP_JUMP },

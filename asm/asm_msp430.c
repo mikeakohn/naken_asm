@@ -93,9 +93,9 @@ static char *jumps[] = { "jne", "jeq", "jlo", "jhs", "jn", "jge", "jl", "jmp", N
 static char *jumps_a[] = { "jnz", "jz", "jnc", "jc", NULL, NULL, NULL, NULL, NULL };
 static char *two_oper[] = { "mov", "add", "addc", "subc", "sub", "cmp", "dadd", "bit",
                      "bic", "bis", "xor", "and", NULL };
-static char *ms430x_ext[] = { "rrcx", "swpbx", "rrax", "sxtx", "pushx", "movx", "addx",
-                    "addcx", "subcx", "subx", "cmpx", "daddx", "bitx", "bicx",
-                    "bisx", "xorx", "andx", NULL };
+static char *ms430x_ext[] = { "rrcx", "swpbx", "rrax", "sxtx", "pushx",
+                    "movx", "addx", "addcx", "subcx", "subx", "cmpx",
+                    "daddx", "bitx", "bicx", "bisx", "xorx", "andx", NULL };
 static char *msp430x_shift[] = { "rrcm", "rram", "rlam", "rrum", NULL };
 static char *msp430x_stack[] = { "pushm", "popm", NULL };
 static char *msp430x_alu[] = { "mova", "cmpa", "adda", "suba", NULL };
@@ -649,17 +649,17 @@ int prefix=0;
     {
       msp430x=1;
       instr_lower[strlen(instr_lower)-1]=0;
-      int src19_16=0;
-      int dst19_16=0;
+      uint32_t src19_16=0;
+      uint32_t dst19_16=0;
 
       if (operand_count>0)
       {
-        src19_16=(((unsigned int)operands[0].value)&0xf0000)>>16;
+        src19_16=(((uint32_t)operands[0].value)&0xf0000)>>16;
       }
 
       if (operand_count>1)
       {
-        dst19_16=(((unsigned int)operands[1].value)&0xf0000)>>16;
+        dst19_16=(((uint32_t)operands[1].value)&0xf0000)>>16;
       }
 
       if (prefix==0)
@@ -963,10 +963,22 @@ int prefix=0;
   {
     if (strcmp(instr_lower,msp430x_alu[n])==0)
     {
+      int count=2;
+
       if (operand_count!=2)
       {
         print_error("Instruction takes exactly two operands", asm_context);
         return -1;
+      }
+
+      // FIXME - Hack. This should probably all be done using the table
+      // instead.  Fix later.
+      if (n==0)
+      {
+        if (operands[0].type==OPTYPE_REGISTER_INDIRECT) { n++; continue; }
+        if (operands[0].type==OPTYPE_REGISTER_INDIRECT_INC) { n++; continue; }
+        if (operands[0].type==OPTYPE_ABSOLUTE) { n++; continue; }
+        if (operands[0].type==OPTYPE_INDEXED) { n++; continue; }
       }
 
       if (size!=0)
@@ -988,6 +1000,7 @@ int prefix=0;
         opcode=((((unsigned int)value)&0xf0000)>>8)|(2<<6)|(n<<4)|operands[1].reg;
         add_bin(asm_context, opcode, IS_OPCODE);
         add_bin(asm_context, ((unsigned int)value)&0xffff, IS_DATA);
+        count=4;
       }
         else
       if (operands[0].type==OPTYPE_REGISTER &&
@@ -1004,7 +1017,7 @@ int prefix=0;
         return -1;
       }
 
-      return 0;
+      return count;
     }
 
     n++;
@@ -1036,7 +1049,7 @@ int prefix=0;
 
       opcode=0x1400|(n<<9)|(al<<8)|(operands[0].value<<4)|reg;
       add_bin(asm_context, opcode, IS_OPCODE);
-      return 0;
+      return 2;
     }
 
     n++;
@@ -1065,13 +1078,13 @@ int prefix=0;
       {
         opcode|=(operands[0].reg<<8);
         add_bin(asm_context, opcode, IS_OPCODE);
-        return 0;
+        return 2;
       }
       if (operands[0].type==OPTYPE_REGISTER_INDIRECT_INC)
       {
         opcode|=(1<<4)|(operands[0].reg<<8);
         add_bin(asm_context, opcode, IS_OPCODE);
-        return 0;
+        return 2;
       }
       if (operands[0].type==OPTYPE_ABSOLUTE)
       {
@@ -1081,9 +1094,10 @@ int prefix=0;
           return -1;
         }
 
-        opcode|=(2<<4)|(((unsigned int)operands[0].value&0xf0000)>>16);
+        opcode|=(2<<4)|(((uint32_t)operands[0].value&0xf0000)>>8);
         add_bin(asm_context, opcode, IS_OPCODE);
         add_bin(asm_context, operands[0].value&0xffff, IS_DATA);
+        return 4;
       }
       if (operands[0].type==OPTYPE_INDEXED)
       {
@@ -1096,7 +1110,7 @@ int prefix=0;
         opcode|=(3<<4)|(operands[0].reg<<8);
         add_bin(asm_context, opcode, IS_OPCODE);
         add_bin(asm_context, operands[0].value&0xffff, IS_DATA);
-        return 0;
+        return 4;
       }
     }
       else
@@ -1114,7 +1128,7 @@ int prefix=0;
         opcode|=0x0020|((operands[1].value&0xf0000)>>16);
         add_bin(asm_context, opcode, IS_OPCODE);
         add_bin(asm_context, operands[1].value&0xffff, IS_DATA);
-        return 0;
+        return 4;
       }
 
       if (operands[1].type==OPTYPE_INDEXED)
@@ -1127,7 +1141,7 @@ int prefix=0;
         opcode|=0x0030|operands[1].reg;
         add_bin(asm_context, opcode, IS_OPCODE);
         add_bin(asm_context, operands[1].value&0xffff, IS_DATA);
-        return 0;
+        return 4;
       }
     }
 

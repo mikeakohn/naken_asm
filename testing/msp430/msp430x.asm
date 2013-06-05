@@ -11,6 +11,10 @@ start:
   jlo start
 
   mov #3, r10
-  movx #300000, r10
+  movx #0x1234, r10
 
+  mova @r8, r9
+  mova @r8+, r9
+  mova &0x10000, r9
+  mova 0x1234(r8), r9
 
