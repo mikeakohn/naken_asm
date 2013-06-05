@@ -730,7 +730,7 @@ int disasm_msp430(struct _memory *memory, int address, char *instruction, int *c
 uint16_t opcode;
 uint16_t prefix=-1;
 char *prefix_str="";
-int dst,src,num;
+int dst,src,num,wa;
 int count=0;
 int n;
 
@@ -793,6 +793,11 @@ int n;
           sprintf(instruction, "mova 0x%x(%s), %s", num, regs[src], regs[dst]);
           return 4;
         case OP_SHIFT20:
+          num=(opcode>>9)&0x3;
+          wa=(opcode>>4)&0x1;
+          dst=opcode&0xf;
+          sprintf(instruction, "%s.%c #%d, %s", table_msp430[n].instr, (wa==0)?'w':'a', num+1, regs[dst]);
+          return 2;
         case OP_MOVA_REG_ABS:
         case OP_MOVA_REG_INDIRECT:
         case OP_IMMEDIATE_REG:

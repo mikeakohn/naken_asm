@@ -693,13 +693,7 @@ int prefix=0;
 
   if (ms430x_ext[n]!=NULL && prefix!=0)
   {
-    print_error("instruction doesn't support RPT", asm_context);
-    return -1;
-  }
-
-  if (msp430x==0 && size>16)
-  {
-    print_error("instruction doesn't support .a", asm_context);
+    print_error("Instruction doesn't support RPT", asm_context);
     return -1;
   }
 
@@ -709,6 +703,12 @@ int prefix=0;
   {
     if (strcmp(instr_lower,one_oper[n])==0)
     {
+      if (msp430x==0 && size>16)
+      {
+        print_error("Instruction doesn't support .a", asm_context);
+        return -1;
+      }
+
       if ((n%1)==1 && size==8)
       {
         printf("Error: Instruction '%s' can't be used with .b at %s:%d\n", instr, asm_context->filename, asm_context->line);
@@ -750,6 +750,14 @@ int prefix=0;
         print_error_opcount(instr, asm_context);
         return -1;
       }
+
+#if 0
+      if (size!=0)
+      {
+        print_error("Instruction doesn't support .a", asm_context);
+        return -1;
+      }
+#endif
 
       if (asm_context->pass==1)
       {
@@ -802,6 +810,12 @@ int prefix=0;
   {
     if (strcmp(instr_lower,two_oper[n])==0)
     {
+      if (msp430x==0 && size>16)
+      {
+        print_error("Instruction doesn't support .a", asm_context);
+        return -1;
+      }
+
       if (operand_count!=2)
       {
         //print_operand_error(instr, 2, asm_context);
@@ -937,13 +951,13 @@ int prefix=0;
         return -1;
       }
 
-      if (operands[0].value<1 || operands[0].value>16)
+      if (operands[0].value<1 || operands[0].value>4)
       {
         print_error("rotate can only shift between 1 and 4", asm_context);
         return -1;
       }
 
-      if (al!=0 || bw!=1)
+      if (al==bw && size!=0)
       {
         print_error("msp430x rotate can only be 16 or 20 bit", asm_context);
         return -1;
@@ -951,7 +965,7 @@ int prefix=0;
 
       opcode=((operands[0].value-1)<<10)|(n<<8)|(1<<6)|(al<<4)|operands[1].value;
       add_bin(asm_context, opcode, IS_OPCODE);
-      return 0;
+      return 2;
     }
 
     n++;
@@ -983,7 +997,7 @@ int prefix=0;
 
       if (size!=0)
       {
-        print_error("instruction doesn't take a size", asm_context);
+        print_error("Instruction doesn't take a size", asm_context);
         return -1;
       }
 

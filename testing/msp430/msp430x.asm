@@ -18,3 +18,10 @@ start:
   mova &0x10000, r9
   mova 0x1234(r8), r9
 
+  rrcm.a #1, r8
+  rram.w #2, r8
+  rlam #3, r8
+  rrum #4, r8
+
+
+
