@@ -751,13 +751,11 @@ int prefix=0;
         return -1;
       }
 
-#if 0
       if (size!=0)
       {
-        print_error("Instruction doesn't support .a", asm_context);
+        print_error("Instruction doesn't take a size.", asm_context);
         return -1;
       }
-#endif
 
       if (asm_context->pass==1)
       {
@@ -989,10 +987,14 @@ int prefix=0;
       // instead.  Fix later.
       if (n==0)
       {
+printf("check %s  %d operands[1].type=%d\n", instr, asm_context->line, operands[1].type);
         if (operands[0].type==OPTYPE_REGISTER_INDIRECT) { n++; continue; }
         if (operands[0].type==OPTYPE_REGISTER_INDIRECT_INC) { n++; continue; }
         if (operands[0].type==OPTYPE_ABSOLUTE) { n++; continue; }
         if (operands[0].type==OPTYPE_INDEXED) { n++; continue; }
+        if (operands[1].type==OPTYPE_ABSOLUTE) { n++; continue; }
+        if (operands[1].type==OPTYPE_INDEXED) { n++; continue; }
+printf("passed %s  %d operands[1].type=%d\n", instr, asm_context->line, operands[1].type);
       }
 
       if (size!=0)

@@ -799,7 +799,16 @@ int n;
           sprintf(instruction, "%s.%c #%d, %s", table_msp430[n].instr, (wa==0)?'w':'a', num+1, regs[dst]);
           return 2;
         case OP_MOVA_REG_ABS:
+          num=((opcode&0xf)<<16)|READ_RAM(address+2);
+          src=(opcode>>8)&0xf;
+          sprintf(instruction, "mova %s, &0x%x", regs[src], num);
+          return 4;
         case OP_MOVA_REG_INDIRECT:
+          num=READ_RAM(address+2);
+          src=(opcode>>8)&0xf;
+          dst=opcode&0xf;
+          sprintf(instruction, "mova %s, 0x%x(%s)", regs[src], num, regs[dst]);
+          return 4;
         case OP_IMMEDIATE_REG:
         case OP_REG_REG:
         case OP_CALLA_SOURCE:

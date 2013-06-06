@@ -23,5 +23,6 @@ start:
   rlam #3, r8
   rrum #4, r8
 
-
+  mova r8, &0xa1234
+  mova r8, 0x40(r7)
 
