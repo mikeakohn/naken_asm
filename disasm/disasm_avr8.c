@@ -102,7 +102,7 @@ int rd,rr,k;
           sprintf(instruction, "%s r%d, 0x%x", table_avr8[n].instr, rd, k);
           return 2;
         case OP_OUT:
-          rd=(opcode>>4)&0xf;
+          rd=(opcode>>4)&0x1f;
           k=((opcode&0x600)>>5)|(opcode&0xf);
           sprintf(instruction, "%s 0x%x, r%d", table_avr8[n].instr, k, rd);
           return 2;
