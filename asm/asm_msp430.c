@@ -108,11 +108,13 @@ static void print_operand_error(const char *s, int count, struct _asm_context *a
 }
 #endif
 
-static int process_operand(struct _asm_context *asm_context, struct _operand *operand, struct _data *data, int bw, int al, int is_dest)
+static int process_operand(struct _asm_context *asm_context, struct _operand *operand, struct _data *data, int size, int is_dest)
 {
+  if (size==0) { size=16; }
+
   if (operand->type==OPTYPE_IMMEDIATE)
   {
-    if (bw==1 && al==1)
+    if (size==8)
     {
       if (operand->value>0xff || operand->value<-128)
       {
@@ -120,10 +122,10 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
         return -1;
       }
 
-      operand->value=(((unsigned short int)operand->value)&0xff);
+      operand->value=(((uint16_t)operand->value)&0xff);
     }
       else
-    if (bw==0 && al==1)
+    if (size==16)
     {
       if (operand->value>0xffff || operand->value<-32768)
       {
@@ -131,10 +133,10 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
         return -1;
       }
 
-      operand->value=(((unsigned int)operand->value)&0xffff);
+      operand->value=(((uint32_t)operand->value)&0xffff);
     }
       else
-    if (bw==1 && al==0)
+    if (size==20)
     {
       if (operand->value>0xfffff || operand->value<-524288)
       {
@@ -142,7 +144,7 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
         return -1;
       }
 
-      operand->value=(((unsigned int)operand->value)&0xffff);
+      operand->value=(((uint32_t)operand->value)&0xfffff);
     }
   }
     else
@@ -156,7 +158,7 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
       return -1;
     }
 
-    operand->value=(((unsigned int)operand->value)&0xffff);
+    operand->value=(((uint32_t)operand->value)&0xffff);
   }
 
   switch(operand->type)
@@ -219,13 +221,19 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
       else if (operand->value==4) { operand->reg=2; operand->a=2; }
       else if (operand->value==8) { operand->reg=2; operand->a=3; }
         else
-      if (operand->value==0xff && bw==1)
+      if (operand->value==0xff && size==8)
       {
         operand->a=3;
         operand->reg=3;
       }
         else
-      if (operand->value==0xffff && bw==0)
+      if (operand->value==0xffff && size==16)
+      {
+        operand->a=3;
+        operand->reg=3;
+      }
+        else
+      if (operand->value==0xfffff && size==20)
       {
         operand->a=3;
         operand->reg=3;
@@ -345,7 +353,7 @@ char *instr_lower;
 int token_type;
 int size=0;
 int num,n;
-int bw=0,al=1;
+int bw=0;
 int opcode;
 int msp430x=0;
 int prefix=0;
@@ -577,7 +585,7 @@ int prefix=0;
   }
 
 #ifdef DEBUG
-  printf("-------- instr=%s bw=%d  al=%d\n", instr, bw, al);
+  printf("-------- line=%d instr=%s bw=%d\n", asm_context->line, instr, bw);
   for (n=0; n<operand_count; n++)
   {
     printf("operand %d: value=%d type=%d error=%d\n", n, operands[n].value, operands[n].type, operands[n].error);
@@ -641,6 +649,20 @@ int prefix=0;
     n++;
   }
 
+  // Set bw and al
+#if 0
+  if (size==8) { bw=1; al=1; }
+  else if (size==16) { bw=0; al=1; }
+  else if (size==20) { bw=1; al=0; }
+  else
+  {
+    if (msp430x==0) { bw=0; al=0; }
+    else { bw=1; al=0; }
+  }
+#endif
+
+  if (size==8) { bw=1; }
+
   // Check for MSP430X version of MSP430 instruction
   n=0;
   while(ms430x_ext[n]!=NULL)
@@ -651,6 +673,12 @@ int prefix=0;
       instr_lower[strlen(instr_lower)-1]=0;
       uint32_t src19_16=0;
       uint32_t dst19_16=0;
+      int al;
+
+      if (size==8) { al=1; bw=1; }
+      else if (size==16) { al=1; bw=0; }
+      else if (size==20) { al=0; bw=1; }
+      else { al=1; bw=0; }
 
       if (operand_count>0)
       {
@@ -679,16 +707,6 @@ int prefix=0;
     }
 
     n++;
-  }
-
-  // Set bw and al
-  if (size==8) { bw=1; al=1; }
-  else if (size==16) { bw=0; al=1; }
-  else if (size==20) { bw=1; al=0; }
-  else
-  {
-    if (msp430x==0) { bw=0; al=0; }
-    else { bw=1; al=0; }
   }
 
   if (ms430x_ext[n]!=NULL && prefix!=0)
@@ -722,7 +740,7 @@ int prefix=0;
         return -1;
       }
 
-      if (process_operand(asm_context, &operands[0], &data, bw, al, 0)<0)
+      if (process_operand(asm_context, &operands[0], &data, size, 0)<0)
       {
         return -1;
       }
@@ -821,7 +839,7 @@ int prefix=0;
         return -1;
       }
 
-      if (process_operand(asm_context, &operands[0], &data, bw, al, 0)<0)
+      if (process_operand(asm_context, &operands[0], &data, size, 0)<0)
       {
         return -1;
       }
@@ -834,7 +852,7 @@ int prefix=0;
       }
 #endif
 
-      if (process_operand(asm_context, &operands[1], &data, bw, al, 1)<0)
+      if (process_operand(asm_context, &operands[1], &data, size, 1)<0)
       {
         return -1;
       }
@@ -955,12 +973,13 @@ int prefix=0;
         return -1;
       }
 
-      if (al==bw && size!=0)
+      if (size==8)
       {
         print_error("msp430x rotate can only be 16 or 20 bit", asm_context);
         return -1;
       }
 
+      int al=(size==20)?1:0;
       opcode=((operands[0].value-1)<<10)|(n<<8)|(1<<6)|(al<<4)|operands[1].value;
       add_bin(asm_context, opcode, IS_OPCODE);
       return 2;
@@ -987,14 +1006,14 @@ int prefix=0;
       // instead.  Fix later.
       if (n==0)
       {
-printf("check %s  %d operands[1].type=%d\n", instr, asm_context->line, operands[1].type);
+//printf("check %s  %d operands[1].type=%d\n", instr, asm_context->line, operands[1].type);
         if (operands[0].type==OPTYPE_REGISTER_INDIRECT) { n++; continue; }
         if (operands[0].type==OPTYPE_REGISTER_INDIRECT_INC) { n++; continue; }
         if (operands[0].type==OPTYPE_ABSOLUTE) { n++; continue; }
         if (operands[0].type==OPTYPE_INDEXED) { n++; continue; }
         if (operands[1].type==OPTYPE_ABSOLUTE) { n++; continue; }
         if (operands[1].type==OPTYPE_INDEXED) { n++; continue; }
-printf("passed %s  %d operands[1].type=%d\n", instr, asm_context->line, operands[1].type);
+//printf("passed %s  %d operands[1].type=%d\n", instr, asm_context->line, operands[1].type);
       }
 
       if (size!=0)
@@ -1063,6 +1082,7 @@ printf("passed %s  %d operands[1].type=%d\n", instr, asm_context->line, operands
       else if (n==1) { reg=(operands[1].reg-n+1)&0x0f; }
       else { printf("Internal error at %s:%d\n", __FILE__, __LINE__); return -1; }
 
+      int al=(size==16)?0:1;
       opcode=0x1400|(n<<9)|(al<<8)|(operands[0].value<<4)|reg;
       add_bin(asm_context, opcode, IS_OPCODE);
       return 2;

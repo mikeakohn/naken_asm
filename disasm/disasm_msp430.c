@@ -18,6 +18,7 @@
 #include "table_msp430.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
+#define READ_RAM16(a) (memory_read_m(memory, a+1)<<8)|memory_read_m(memory, a)
 
 static char *regs[] = { "PC", "SP", "SR", "CG", "r4", "r5", "r6", "r7", "r8",
                         "r9", "r10", "r11", "r12", "r13", "r14", "r15" };
@@ -362,22 +363,11 @@ int bw=0;
       else
     if (opcode==0xd232)
     { sprintf(instruction, "eint  --  %s", instr); }
-#if 0
-      else
-    { strcpy(instruction, instr[o]); }
-#endif
   }
     else
   {
-    //strcpy(instruction, instr[o]);
     strcat(instruction, "x");
-  }
 
-  Ad=(opcode&0x0080)>>7;
-  As=(opcode&0x0030)>>4;
-
-  if (prefix!=0xffff)
-  {
     int al=((prefix>>5)&2)|bw;
 
     if (al==0) { strcpy(ext, ".?"); }
@@ -385,6 +375,9 @@ int bw=0;
     else if (al==2) { strcpy(ext, ".w"); }
     else if (al==3) { strcpy(ext, ".b"); }
   }
+
+  Ad=(opcode&0x0080)>>7;
+  As=(opcode&0x0030)>>4;
 
   strcat(instruction, ext);
   strcat(instruction, " ");
@@ -410,6 +403,7 @@ static int get_20bit(struct _memory *memory, int address, unsigned int opcode)
          (READ_RAM(address+2));
 }
 
+#if 0
 static int twenty_bit_zero(struct _memory *memory, int address, char *instruction, uint16_t opcode)
 {
 char *instr[] = { "rrcm", "rram", "rlam", "rrum" };
@@ -459,7 +453,9 @@ int o;
     return 2;
   }
 }
+#endif
 
+#if 0
 static int twenty_bit_call(struct _memory *memory, int address, char *instruction, uint16_t opcode)
 {
   if ((opcode&0x00ff)==0) { strcpy(instruction, "reti"); return 2; }
@@ -503,7 +499,9 @@ static int twenty_bit_call(struct _memory *memory, int address, char *instructio
   strcpy(instruction, "???");
   return 2;
 }
+#endif
 
+#if 0
 static int twenty_bit_stack(struct _memory *memory, int address, char *instruction, uint16_t opcode)
 {
 char temp[8];
@@ -527,7 +525,7 @@ int is_push=(opcode&0x0200)==0?1:0;
 
   return 2;
 }
-//#endif
+#endif
 
 int get_cycle_count(uint16_t opcode)
 {
@@ -735,7 +733,7 @@ int count=0;
 int n;
 
   instruction[0]=0;
-  opcode=(READ_RAM(address+1)<<8)|READ_RAM(address);
+  opcode=READ_RAM16(address);
   // FIXME - this doesn't work for MSP430X
   *cycles_min=get_cycle_count(opcode);
   *cycles_max=*cycles_min;
@@ -744,7 +742,7 @@ int n;
   if ((opcode&0xf800)==0x1800)
   {
     prefix=opcode;
-    opcode=(READ_RAM(address+3)<<8)|READ_RAM(address+2);
+    opcode=READ_RAM16(address+2);
     address+=2;
     count=2;
   }
@@ -782,29 +780,30 @@ int n;
           sprintf(instruction, "mova @%s+, %s", regs[src], regs[dst]);
           return 2;
         case OP_MOVA_ABS20_REG:
-          num=(((opcode>>8)&0xf)<<16)|(READ_RAM(address+2));
+          num=(((opcode>>8)&0xf)<<16)|(READ_RAM16(address+2));
           dst=opcode&0xf;
           sprintf(instruction, "mova &0x%x, %s", num, regs[dst]);
           return 4;
         case OP_MOVA_INDIRECT_REG:
-          num=READ_RAM(address+2);
+          num=READ_RAM16(address+2);
           src=(opcode>>8)&0xf;
           dst=opcode&0xf;
           sprintf(instruction, "mova 0x%x(%s), %s", num, regs[src], regs[dst]);
           return 4;
         case OP_SHIFT20:
-          num=(opcode>>9)&0x3;
+          num=((opcode>>10)&0x3)+1;
           wa=(opcode>>4)&0x1;
           dst=opcode&0xf;
-          sprintf(instruction, "%s.%c #%d, %s", table_msp430[n].instr, (wa==0)?'w':'a', num+1, regs[dst]);
+          *cycles_min=num; *cycles_max=num;
+          sprintf(instruction, "%s.%c #%d, %s", table_msp430[n].instr, (wa==0)?'w':'a', num, regs[dst]);
           return 2;
         case OP_MOVA_REG_ABS:
-          num=((opcode&0xf)<<16)|READ_RAM(address+2);
+          num=((opcode&0xf)<<16)|READ_RAM16(address+2);
           src=(opcode>>8)&0xf;
           sprintf(instruction, "mova %s, &0x%x", regs[src], num);
           return 4;
         case OP_MOVA_REG_INDIRECT:
-          num=READ_RAM(address+2);
+          num=READ_RAM16(address+2);
           src=(opcode>>8)&0xf;
           dst=opcode&0xf;
           sprintf(instruction, "mova %s, 0x%x(%s)", regs[src], num, regs[dst]);

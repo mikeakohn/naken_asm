@@ -288,7 +288,7 @@ int num;
     return -1;
   }
 
-  asm_context->address=num;
+  asm_context->address=num*asm_context->bytes_per_address;
 
   return 0;
 }

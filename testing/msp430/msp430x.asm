@@ -6,12 +6,18 @@ start:
   rrc.w r8
   rrcx.w r8
 
+  rrum.w #4, r8
+  rrum.a #4, r8
+
   mov r8, r9
 
   jlo start
 
   mov #3, r10
   movx #0x1234, r10
+  movx.w #0x1234, r10
+  movx.a #0x1234, r10
+  movx.b #0x34, r10
 
   mova @r8, r9
   mova @r8+, r9
