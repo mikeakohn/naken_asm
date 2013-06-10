@@ -902,8 +902,8 @@ int prefix=0;
       return -1;
     }
 
-    int mode=0;
-    int op=2;
+    //int mode=0;
+    //int op=2;
     int value=operands[0].value;
     if (value>0xfffff || value<-524288)
     {
@@ -911,47 +911,44 @@ int prefix=0;
       return -1;
     }
 
+    opcode=0x1300;
+
     switch(operands[0].type)
     {
       case OPTYPE_ABSOLUTE:
-        break;
+        add_bin16(asm_context, opcode|0x80|((operands[0].value>>16)&0xf), IS_OPCODE);
+        add_bin16(asm_context, operands[0].value&0xffff, IS_OPCODE);
+        return 4;
       case OPTYPE_INDEXED:
-        if (operands[0].reg!=0) { op=0; }
-        else { mode=1; }
+        if (value>0xffff || value<-32768)
+        {
+          print_error_range("Index", -32768, 32767, asm_context);
+          return -1;
+        }
+        add_bin16(asm_context, opcode|0x50|operands[0].value, IS_OPCODE);
+        add_bin16(asm_context, operands[0].value&0xffff, IS_OPCODE);
+        return 4;
+      case OPTYPE_SYMBOLIC:
+        if (asm_context->pass==1) { return 4; }
         break;
       case OPTYPE_IMMEDIATE:
-        mode=3;
-        break;
+        add_bin16(asm_context, opcode|0xb0|((operands[0].value>>16)&0xf), IS_OPCODE);
+        add_bin16(asm_context, operands[0].value&0xffff, IS_OPCODE);
       case OPTYPE_REGISTER:
+        add_bin16(asm_context, opcode|0x40|operands[0].value, IS_OPCODE);
+        return 2;
       case OPTYPE_REGISTER_INDIRECT:
+        add_bin16(asm_context, opcode|0x60|operands[0].value, IS_OPCODE);
+        return 2;
       case OPTYPE_REGISTER_INDIRECT_INC:
-        op=1;
+        add_bin16(asm_context, opcode|0x70|operands[0].value, IS_OPCODE);
+        return 2;
       default:
-        op=0;
         break;
     }
 
-    opcode=0x1300|(op<<6);;
-
-    if (op==0)
-    {
-      opcode|=(operands[0].a<<4)|(operands[0].reg);
-      add_bin(asm_context, opcode, IS_OPCODE);
-    }
-      else
-    if (op==1)
-    {
-      opcode|=(mode<<4)|((((unsigned int)value)&0xf0000)>>16);
-      add_bin(asm_context, opcode, IS_OPCODE);
-      add_bin(asm_context, ((unsigned int)value)&0xffff, IS_DATA);
-    }
-      else
-    {
-      print_error("Unknown addressing mode for calla", asm_context);
-      return -1;
-    }
-
-    return 0;
+    print_error("Unknown addressing mode for calla", asm_context);
+    return -1;
   }
 
   // MSP430X SHIFT

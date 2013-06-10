@@ -32,3 +32,30 @@ start:
   mova r8, &0xa1234
   mova r8, 0x40(r7)
 
+  mova #0x12345, r6
+  cmpa #0x12345, r6
+  adda #0x12345, r6
+  suba #0x12345, r6
+
+  mova r8, r9
+  cmpa r8, r9
+  adda r8, r9
+  suba r8, r9
+
+  call #blah
+
+  call r9
+  call 0x100(r9)
+  call @r9
+  call @r9+
+
+blah:
+  calla r9
+  calla 0x100(r9)
+  calla @r9
+  calla @r9+
+  reti
+
+
+
+

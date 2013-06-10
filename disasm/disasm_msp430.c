@@ -203,7 +203,6 @@ int extra=0;
 
 static int one_operand(struct _memory *memory, int address, char *instruction, uint16_t opcode, uint16_t prefix)
 {
-//char *instr[] = { "rrc", "swpb", "rra", "sxt", "push", "call", "reti", "???" };
 char ext[3] = { 0 };
 int o;
 int reg;
@@ -213,10 +212,6 @@ int bw=0;
 
   o=(opcode&0x0380)>>7;
 
-  //strcpy(instruction, instr[o]);
-  if (o==7) { return 2; }
-  if (o==6) { return count; }
-
   if (prefix!=0xffff) { strcat(instruction, "x"); }
 
   As=(opcode&0x0030)>>4;
@@ -224,19 +219,18 @@ int bw=0;
 
   if ((opcode&0x0040)==0)
   {
-    if (((opcode>>7)&1)==0 && ((opcode>>7)&7)!=6)
+    if ((o&1)==0)
     {
       strcpy(ext, ".w");
     }
   }
     else
   {
-    if (o==1 || o==3 || o==5 || o==6) { strcpy(instruction, "???"); return 1; }
     strcpy(ext, ".b");
     bw=1;
   }
 
-  if (prefix!=-1 && o<=5)
+  if (prefix!=0xffff && o<=5)
   {
     int al=((prefix>>5)&2)|bw;
 
@@ -255,8 +249,6 @@ int bw=0;
       else if (al==3) { strcpy(ext, ".b"); }
     }
   }
-
-  // FIXME - Add extension for MSP430X
 
   strcat(instruction, ext);
   strcat(instruction, " ");
@@ -809,8 +801,27 @@ int n;
           sprintf(instruction, "mova %s, 0x%x(%s)", regs[src], num, regs[dst]);
           return 4;
         case OP_IMMEDIATE_REG:
+          num=((opcode&0x0f00)<<8)|READ_RAM16(address+2);
+          dst=opcode&0xf;
+          sprintf(instruction, "%s #0x%x, %s", table_msp430[n].instr, num, regs[dst]);
+          return 4;
         case OP_REG_REG:
+          src=(opcode>>8)&0xf;
+          dst=opcode&0xf;
+          sprintf(instruction, "%s %s, %s", table_msp430[n].instr, regs[src], regs[dst]);
+          return 2;
         case OP_CALLA_SOURCE:
+        {
+          char temp[32];
+          int as=(opcode>>4)&0x3;
+          dst=opcode&0xf;
+          if (as==0) { sprintf(temp, "%s", regs[dst]); }
+          else if (as==1) { sprintf(temp, "0x%x(%s)", READ_RAM16(address+2), regs[dst]); }
+          else if (as==2) { sprintf(temp, "@%s", regs[dst]); }
+          else if (as==3) { sprintf(temp, "@%s+", regs[dst]); }
+          sprintf(instruction, "%s %s", table_msp430[n].instr, temp);
+          return (as==1)?4:2;
+        }
         case OP_CALLA_ABS20:
         case OP_CALLA_INDIRECT_PC:
         case OP_CALLA_IMMEDIATE:
