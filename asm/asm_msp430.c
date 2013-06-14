@@ -902,8 +902,6 @@ int prefix=0;
       return -1;
     }
 
-    //int mode=0;
-    //int op=2;
     int value=operands[0].value;
     if (value>0xfffff || value<-524288)
     {
@@ -916,8 +914,8 @@ int prefix=0;
     switch(operands[0].type)
     {
       case OPTYPE_ABSOLUTE:
-        add_bin16(asm_context, opcode|0x80|((operands[0].value>>16)&0xf), IS_OPCODE);
-        add_bin16(asm_context, operands[0].value&0xffff, IS_OPCODE);
+        add_bin16(asm_context, opcode|0x80|((value>>16)&0xf), IS_OPCODE);
+        add_bin16(asm_context, value&0xffff, IS_OPCODE);
         return 4;
       case OPTYPE_INDEXED:
         if (value>0xffff || value<-32768)
@@ -925,23 +923,32 @@ int prefix=0;
           print_error_range("Index", -32768, 32767, asm_context);
           return -1;
         }
-        add_bin16(asm_context, opcode|0x50|operands[0].value, IS_OPCODE);
-        add_bin16(asm_context, operands[0].value&0xffff, IS_OPCODE);
+        add_bin16(asm_context, opcode|0x50|operands[0].reg, IS_OPCODE);
+        add_bin16(asm_context, value&0xffff, IS_OPCODE);
         return 4;
       case OPTYPE_SYMBOLIC:
         if (asm_context->pass==1) { return 4; }
-        break;
+        value=operands[0].value-(asm_context->address+4);
+printf("value=%d address=%x operand=%x\n", value, asm_context->address, operands[0].value);
+        if (value>32767 || value<-32768)
+        {
+          print_error_range("Offset", -32768, 32767, asm_context);
+          return -1;
+        }
+        add_bin16(asm_context, opcode|0x50|0, IS_OPCODE);
+        add_bin16(asm_context, value&0xffff, IS_OPCODE);
+        return 4;
       case OPTYPE_IMMEDIATE:
-        add_bin16(asm_context, opcode|0xb0|((operands[0].value>>16)&0xf), IS_OPCODE);
-        add_bin16(asm_context, operands[0].value&0xffff, IS_OPCODE);
+        add_bin16(asm_context, opcode|0xb0|((value>>16)&0xf), IS_OPCODE);
+        add_bin16(asm_context, value&0xffff, IS_OPCODE);
       case OPTYPE_REGISTER:
-        add_bin16(asm_context, opcode|0x40|operands[0].value, IS_OPCODE);
+        add_bin16(asm_context, opcode|0x40|value, IS_OPCODE);
         return 2;
       case OPTYPE_REGISTER_INDIRECT:
-        add_bin16(asm_context, opcode|0x60|operands[0].value, IS_OPCODE);
+        add_bin16(asm_context, opcode|0x60|value, IS_OPCODE);
         return 2;
       case OPTYPE_REGISTER_INDIRECT_INC:
-        add_bin16(asm_context, opcode|0x70|operands[0].value, IS_OPCODE);
+        add_bin16(asm_context, opcode|0x70|value, IS_OPCODE);
         return 2;
       default:
         break;

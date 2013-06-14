@@ -816,15 +816,36 @@ int n;
           int as=(opcode>>4)&0x3;
           dst=opcode&0xf;
           if (as==0) { sprintf(temp, "%s", regs[dst]); }
-          else if (as==1) { sprintf(temp, "0x%x(%s)", READ_RAM16(address+2), regs[dst]); }
+          else if (as==1)
+          {
+            if (dst==0)
+            {
+              int16_t offset=READ_RAM16(address+2);
+              sprintf(temp, "0x%x(%s) -- 0x%x", READ_RAM16(address+2), regs[dst], (address+4)+offset);
+            }
+              else
+            {
+              sprintf(temp, "0x%x(%s)", READ_RAM16(address+2), regs[dst]);
+            }
+          }
           else if (as==2) { sprintf(temp, "@%s", regs[dst]); }
           else if (as==3) { sprintf(temp, "@%s+", regs[dst]); }
           sprintf(instruction, "%s %s", table_msp430[n].instr, temp);
           return (as==1)?4:2;
         }
         case OP_CALLA_ABS20:
+          num=((opcode&0xf)<<16)|READ_RAM16(address+2);
+          sprintf(instruction, "%s &0x%x", table_msp430[n].instr, num);
+          return 4;
         case OP_CALLA_INDIRECT_PC:
+          num=((opcode&0xf)<<16)|READ_RAM16(address+2);
+          if ((num&0x80000)!=0) { num|=0xfff0000; }
+          sprintf(instruction, "%s 0x%x(%d)", table_msp430[n].instr, address+4+num, num);
+          return 4;
         case OP_CALLA_IMMEDIATE:
+          num=((opcode&0xf)<<16)|READ_RAM16(address+2);
+          sprintf(instruction, "%s #0x%x", table_msp430[n].instr, num);
+          return 4;
         case OP_PUSH:
         case OP_POP:
         default:

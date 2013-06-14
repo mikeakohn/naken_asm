@@ -56,6 +56,13 @@ blah:
   calla @r9+
   reti
 
+  calla blah
+  calla &0x12345
+  calla something
+  calla #0x12345
+something:
+  nop
+  mov.w #something, r9
 
 
 
