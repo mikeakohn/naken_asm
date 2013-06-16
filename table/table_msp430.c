@@ -62,8 +62,8 @@ struct _table_msp430 table_msp430[] =
   { "calla", 0x1380, 0xfff0, OP_CALLA_ABS20 },
   { "calla", 0x1390, 0xfff0, OP_CALLA_INDIRECT_PC },
   { "calla", 0x13b0, 0xfff0, OP_CALLA_IMMEDIATE },
-  { "pushm", 0x0000, 0xfe00, OP_PUSH },
-  { "popm", 0x0000, 0xfe00, OP_POP },
+  { "pushm", 0x1400, 0xfe00, OP_PUSH },
+  { "popm", 0x1600, 0xfe00, OP_POP },
   { NULL, 0, 0, 0 }
 };
 

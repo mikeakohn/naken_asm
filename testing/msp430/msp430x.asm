@@ -64,5 +64,8 @@ something:
   nop
   mov.w #something, r9
 
+  pushm.w #4, r8
+  popm.a #4, r8
+
 
 

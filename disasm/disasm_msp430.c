@@ -262,7 +262,6 @@ int bw=0;
 
 static int relative_jump(struct _memory *memory, int address, char *instruction, uint16_t opcode, uint16_t prefix)
 {
-//char *instr[] = { "jne", "jeq", "jlo", "jhs", "jn", "jge", "jl", "jmp" };
 int count=2;
 int o;
 
@@ -294,23 +293,13 @@ int o;
 
 static int two_operand(struct _memory *memory, int address, char *instruction, uint16_t opcode, uint16_t prefix)
 {
-//char *instr[] = { "mov", "add", "addc", "subc", "sub", "cmp", "dadd", "bit",
-//                  "bic", "bis", "xor", "and" };
 char ext[3] = { 0 };
 int o;
 int Ad,As;
 int count=0;
 int bw=0;
 
-  // FIXME - is this needed anymore?
   o=opcode>>12;
-#if 0
-  if (o<4 || o>15)
-  {
-    strcpy(instruction, "???");
-    return 1;
-  }
-#endif
 
   o=o-4;
 
@@ -330,7 +319,7 @@ int bw=0;
     { sprintf(instruction, "ret   --  %s", instr); }
       else
     if ((opcode&0xff30)==0x4130)
-    { sprintf(instruction, "pop.%c r%d   --  %s", bw==0?'w':'b', opcode&0x000f, instr[o]); }
+    { sprintf(instruction, "pop.%c r%d   --  %s", bw==0?'w':'b', opcode&0x000f, instr); }
       else
     if (opcode==0xc312)
     { sprintf(instruction, "clrc  --  %s", instr); }
@@ -382,142 +371,8 @@ int bw=0;
   count=get_dest_reg(memory, address, opcode&0x000f, Ad, reg_str, count, prefix);
   strcat(instruction, reg_str);
 
-  //if (prefix!=0xffff) { count+=2; }
-
   return count+2;
 }
-
-//#ifdef SUPPORT_MSP430X
-static int get_20bit(struct _memory *memory, int address, unsigned int opcode)
-{
-  return ((opcode>>8)&0x0f)<<16|
-         (READ_RAM(address+3)<<8)|
-         (READ_RAM(address+2));
-}
-
-#if 0
-static int twenty_bit_zero(struct _memory *memory, int address, char *instruction, uint16_t opcode)
-{
-char *instr[] = { "rrcm", "rram", "rlam", "rrum" };
-char *instr2[] = { "mova", "cmpa", "adda", "suba" };
-int o;
-
-  o=(opcode>>4)&0x0f;
-
-  switch(o)
-  {
-  case 0:
-    sprintf(instruction, "mova @r%d, r%d", (opcode>>8)&0x0f, (opcode&0x0f));
-    return 2;
-  case 1:
-    sprintf(instruction, "mova @r%d+, r%d", (opcode>>8)&0x0f, (opcode&0x0f));
-    return 2;
-  case 2:
-    sprintf(instruction, "mova &%05x, r%d", get_20bit(memory,address,opcode), (opcode&0x0f));
-    return 4;
-  case 3:
-    sprintf(instruction, "mova %d(r%d), r%d", (READ_RAM(address+3)<<8)|READ_RAM(address+2),(opcode>>8)&0xff, (opcode&0x0f));
-    return 4;
-  case 4:
-  case 5:
-    sprintf(instruction, "%s.%c #%d, r%d", instr[(opcode>>8)&3], ((opcode&64)==0)?'a':'w', (opcode>>10)&3, opcode&0x000f);
-    return 2;
-  case 6:
-    sprintf(instruction, "mova r%d, &0x%05x", (opcode>>8)&0x0f, ((opcode&0x0f)<<16)|(READ_RAM(address+3)<<8)|READ_RAM(address+2));
-    return 4;
-  case 7:
-    sprintf(instruction, "mova r%d, %d(r%d)", (opcode>>8)&0x0f, (READ_RAM(address+3)<<8)|READ_RAM(address+2),  opcode&0x0f);
-    return 4;
-  case 8:
-  case 9:
-  case 10:
-  case 11:
-    sprintf(instruction, "%s #%d, r%d", instr2[(opcode>>4)&3], get_20bit(memory,address,opcode), opcode&0x0f);
-    return 4;
-  case 12:
-  case 13:
-  case 14:
-  case 15:
-    sprintf(instruction, "%s r%d, r%d", instr2[(opcode>>4)&3], (opcode>>8)&0x0f, opcode&0x0f);
-    return 2;
-  default:
-    strcpy(instruction, "???");
-    return 2;
-  }
-}
-#endif
-
-#if 0
-static int twenty_bit_call(struct _memory *memory, int address, char *instruction, uint16_t opcode)
-{
-  if ((opcode&0x00ff)==0) { strcpy(instruction, "reti"); return 2; }
-
-  int o=(opcode>>6)&0x03;
-  int mode=(opcode>>4)&0x03;
-
-  if (o==0x01) // calla source, As=mode
-  {
-    int count=2;
-    int reg=opcode&0x000f;
-    char reg_str[128];
-
-    // mode=As 
-    count+=get_source_reg(memory, address, reg, mode, 0, reg_str, -1);
-    sprintf(instruction, "calla %s", reg_str);
-    return count;
-  }
-    else
-  if (o==0x02)
-  {
-    if (mode==0) // calla &abs20
-    {
-      sprintf(instruction, "calla &%d", get_20bit(memory,address,opcode));
-      return 4;
-    }
-      else
-    if (mode==1) // calla x(PC)
-    {
-      sprintf(instruction, "calla %d(PC)", get_20bit(memory,address,opcode));
-      return 4;
-    }
-      else
-    if (mode==3) // calla #immediate
-    {
-      sprintf(instruction, "calla #%d", get_20bit(memory,address,opcode));
-      return 4;
-    }
-  }
-
-  strcpy(instruction, "???");
-  return 2;
-}
-#endif
-
-#if 0
-static int twenty_bit_stack(struct _memory *memory, int address, char *instruction, uint16_t opcode)
-{
-char temp[8];
-int n=((opcode>>4)&0xf)+1;
-int is_push=(opcode&0x0200)==0?1:0;
-
-  sprintf(instruction, "%s", (is_push==1)?"pushm":"popm");
-  strcat(instruction, (opcode&0x0100)==0?".a ":".w ");
-  sprintf(temp, "#%d, ", n);
-  strcat(instruction, temp);
-  if (is_push==1)
-  {
-    sprintf(temp, "r%d", (opcode&0xf));
-  }
-    else
-  {
-    //sprintf(temp, "r%d", (opcode&0xf)-n+1);
-    sprintf(temp, "r%d", (opcode&0xf)-1+n);
-  }
-  strcat(instruction, temp);
-
-  return 2;
-}
-#endif
 
 int get_cycle_count(uint16_t opcode)
 {
@@ -635,91 +490,10 @@ int Ad,As;
   return -1;
 }
 
-static int disasm_msp430_a(struct _memory *memory, int address, char *instruction, int *cycles, int prefix)
-{
-uint16_t opcode;
-int op;
-
-printf("wtf?\n");
-
-  instruction[0]=0;
-  //opcode=(memory[address+1]<<8)|memory[address];
-  opcode=(READ_RAM(address+1)<<8)|READ_RAM(address);
-  *cycles=get_cycle_count(opcode);
-
-  // Check single operand
-  op=opcode>>7;
-  if ((((op>>3)==0x04) && (op&0x07)<=5) || opcode==0x1300)
-  {
-    return one_operand(memory, address, instruction, opcode, prefix);
-  }
-
-  // Check conditional jmp
-  if ((opcode>>13)==1)
-  {
-    return relative_jump(memory, address, instruction, opcode, prefix);
-  }
-
-  // Two operand instruction
-  op=opcode>>12;
-  if (op>=4 && op<=15)
-  {
-    //printf("two operand\n");
-    return two_operand(memory, address, instruction, opcode, prefix);
-  }
-
-  if (prefix!=-1)
-  {
-    // We already have a 20 bit instruction in the works. This is wrong.
-    strcpy(instruction, "???");
-    return 2;
-  }
-
-  // 20 bit moves, adds, shifts, compares
-  if ((opcode&0xf000)==0x0000)
-  {
-    return twenty_bit_zero(memory, address, instruction, opcode);
-  }
-
-  // 20 bit call and returns
-  if ((opcode&0xff00)==0x1300)
-  {
-    return twenty_bit_call(memory, address, instruction, opcode);
-  }
-
-  // 20 bit push and pop
-  if ((opcode&0xfc00)==0x1400)
-  {
-    return twenty_bit_stack(memory, address, instruction, opcode);
-  }
-
-  // 20 bit prefix to 16 bit instructions 
-  if ((opcode&0xf800)==0x1800)
-  {
-    int count=disasm_msp430_a(memory, address+2, instruction, cycles, opcode);
-    *cycles=-1;
-    return count;
-  }
-
-  strcpy(instruction, "???");
-  return 2;
-}
-
-#if 0
-int disasm_msp430(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
-{
-  int count=disasm_msp430_a(memory, address, instruction, cycles_min, -1);
-  *cycles_max=*cycles_min;
-
-  return count;
-}
-#endif
-
 int disasm_msp430(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
 uint16_t opcode;
 uint16_t prefix=-1;
-char *prefix_str="";
 int dst,src,num,wa;
 int count=0;
 int n;
@@ -742,6 +516,7 @@ int n;
   n=0;
   while(table_msp430[n].instr!=NULL)
   {
+    char mode[]={ 'w','a' };
     if ((opcode&table_msp430[n].mask)==table_msp430[n].opcode)
     {
       switch(table_msp430[n].type)
@@ -787,7 +562,7 @@ int n;
           wa=(opcode>>4)&0x1;
           dst=opcode&0xf;
           *cycles_min=num; *cycles_max=num;
-          sprintf(instruction, "%s.%c #%d, %s", table_msp430[n].instr, (wa==0)?'w':'a', num, regs[dst]);
+          sprintf(instruction, "%s.%c #%d, %s", table_msp430[n].instr, mode[wa], num, regs[dst]);
           return 2;
         case OP_MOVA_REG_ABS:
           num=((opcode&0xf)<<16)|READ_RAM16(address+2);
@@ -836,6 +611,8 @@ int n;
         case OP_CALLA_ABS20:
           num=((opcode&0xf)<<16)|READ_RAM16(address+2);
           sprintf(instruction, "%s &0x%x", table_msp430[n].instr, num);
+          *cycles_min=6;
+          *cycles_max=*cycles_min;
           return 4;
         case OP_CALLA_INDIRECT_PC:
           num=((opcode&0xf)<<16)|READ_RAM16(address+2);
@@ -845,9 +622,25 @@ int n;
         case OP_CALLA_IMMEDIATE:
           num=((opcode&0xf)<<16)|READ_RAM16(address+2);
           sprintf(instruction, "%s #0x%x", table_msp430[n].instr, num);
+          *cycles_min=4;
+          *cycles_max=*cycles_min;
           return 4;
         case OP_PUSH:
+          src=opcode&0xf;
+          num=(opcode>>4)&0xf;
+          wa=(opcode>>8)&0x1;
+          sprintf(instruction, "pushm.%c #%d, %s", mode[wa], num+1, regs[src]);
+          *cycles_min=2+(num+1);
+          *cycles_max=*cycles_min;
+          return 2;
         case OP_POP:
+          dst=opcode&0xf;
+          num=(opcode>>4)&0xf;
+          wa=(opcode>>8)&0x1;
+          sprintf(instruction, "popm.%c #%d, %s", mode[wa], num+1, regs[dst]);
+          *cycles_min=2+(num+1);
+          *cycles_max=*cycles_min;
+          return 2;
         default:
           sprintf(instruction, "%s << wtf", table_msp430[n].instr);
           break;
@@ -875,7 +668,7 @@ char instruction[128];
   num=memory_read(asm_context, address)|memory_read(asm_context, address+1)<<8;
   if (cycles_min<0)
   {
-    fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: ?\n", address, num, instruction, cycles_min);
+    fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: ?\n", address, num, instruction);
   }
     else
   {

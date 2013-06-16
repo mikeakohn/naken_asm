@@ -1090,13 +1090,23 @@ int prefix=0;
         return -1;
       }
 
+      if (size==8)
+      {
+        printf("Error: Instruction '%s' can't be used with .b at %s:%d\n", instr, asm_context->filename, asm_context->line);
+        return -1;
+      }
+
+      int reg=operands[1].reg;
+      int num=operands[0].value-1;
+#if 0
       int reg;
       if (n==0) { reg=operands[1].reg; }
       else if (n==1) { reg=(operands[1].reg-n+1)&0x0f; }
       else { printf("Internal error at %s:%d\n", __FILE__, __LINE__); return -1; }
+#endif
 
-      int al=(size==16)?0:1;
-      opcode=0x1400|(n<<9)|(al<<8)|(operands[0].value<<4)|reg;
+      int al=(size==20)?1:0;
+      opcode=0x1400|(n<<9)|(al<<8)|(num<<4)|reg;
       add_bin(asm_context, opcode, IS_OPCODE);
       return 2;
     }
