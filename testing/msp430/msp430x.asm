@@ -68,9 +68,12 @@ something:
   popm.a #4, r8
 
   rpt #5
-  add.w #1, r6
-  rptc r7 
-  add.w #1, r6
+  addx.w r8, r6
 
+  rptc r7
+  addx.w #1, r6
+
+  rptz #5
+  rrcx.w r8
 
 

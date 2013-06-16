@@ -220,10 +220,13 @@ int memory_ext=0;
   {
     if (As==0)
     {
-      char temp[32];
-      int r=(prefix>>7)&1;
-      if ((prefix&0x0080)==1) { sprintf(temp, "%s r%d ", rpt[r], prefix&0xf); }
-      else { sprintf(temp, "%s #%d ", rpt[r], prefix&0xf); }
+      char temp[64];
+      int r=(prefix>>8)&1;
+      if ((prefix&0x0080)==0)
+      { sprintf(temp, "%s #%d %s", rpt[r], prefix&0xf, instruction); }
+        else
+      { sprintf(temp, "%s r%d %s", rpt[r], prefix&0xf, instruction); }
+      strcpy(instruction, temp);
     }
       else
     {
@@ -315,20 +318,26 @@ int Ad,As;
 int count=0;
 int bw=0;
 int memory_ext=0;
+int src,dst;
 
   Ad=(opcode&0x0080)>>7;
   As=(opcode&0x0030)>>4;
+  src=(opcode>>8)&0xf;
+  dst=opcode&0xf;
   o=opcode>>12;
   o=o-4;
 
   if (prefix!=0xffff)
   {
-    if (As==0 && Ad==0)
+    if (Ad==0 && (As==0 || src==3 || (src==2 && As!=1)) )
     {
-      char temp[32];
-      int r=(prefix>>7)&1;
-      if ((prefix&0x0080)==1) { sprintf(temp, "%s r%d ", rpt[r], prefix&0xf); }
-      else { sprintf(temp, "%s #%d ", rpt[r], prefix&0xf); }
+      char temp[64];
+      int r=(prefix>>8)&1;
+      if ((prefix&0x0080)==0)
+      { sprintf(temp, "%s #%d %s", rpt[r], prefix&0xf, instruction); }
+        else
+      { sprintf(temp, "%s r%d %s", rpt[r], prefix&0xf, instruction); }
+      strcpy(instruction, temp);
     }
       else
     {
@@ -382,7 +391,7 @@ int memory_ext=0;
   }
     else
   {
-    strcat(instruction, "x");
+    //strcat(instruction, "x");
 
     int al=((prefix>>5)&2)|bw;
 
@@ -396,11 +405,11 @@ int memory_ext=0;
   strcat(instruction, " ");
 
   char reg_str[128];
-  count=get_source_reg(memory, address, (opcode&0x0f00)>>8, As, bw, reg_str, prefix, memory_ext);
+  count=get_source_reg(memory, address, src, As, bw, reg_str, prefix, memory_ext);
   strcat(instruction, reg_str);
 
   strcat(instruction, ", ");
-  count=get_dest_reg(memory, address, opcode&0x000f, Ad, reg_str, count, prefix, memory_ext);
+  count=get_dest_reg(memory, address, dst, Ad, reg_str, count, prefix, memory_ext);
   strcat(instruction, reg_str);
 
   return count+2;

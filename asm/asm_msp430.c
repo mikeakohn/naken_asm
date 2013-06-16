@@ -99,7 +99,7 @@ static char *ms430x_ext[] = { "rrcx", "swpbx", "rrax", "sxtx", "pushx",
 static char *msp430x_shift[] = { "rrcm", "rram", "rlam", "rrum", NULL };
 static char *msp430x_stack[] = { "pushm", "popm", NULL };
 static char *msp430x_alu[] = { "mova", "cmpa", "adda", "suba", NULL };
-static char *msp430x_rpt[] = { "rpt", "rptc", "rptz",  NULL };
+static char *msp430x_rpt[] = { "rpt", "rptz", "rptc",  NULL };
 
 #if 0
 static void print_operand_error(const char *s, int count, struct _asm_context *asm_context)
@@ -307,10 +307,11 @@ int get_register_msp430(char *token)
 }
 #endif
 
-static int get_prefix(struct _asm_context *asm_context, int zc)
+static uint16_t get_prefix(struct _asm_context *asm_context, int zc)
 {
 char token[TOKENLEN];
 //int token_type;
+uint16_t prefix=0xffff;
 int num;
 
   get_token(asm_context, token, TOKENLEN);
@@ -319,27 +320,33 @@ int num;
     if (eval_expression(asm_context, &num)!=0)
     {
       print_error_unexp(token, asm_context);
-      return -1;
+      return 0xffff; 
     }
 
     if (num<1 || num>16)
     {
       print_error("Constant can only be between 1 and 16", asm_context);
-      return -1;
+      return 0xffff;
     }
-    return 0x1800|(zc<<8)|num;
+
+    prefix=0x1800|(zc<<8)|num;
   }
     else
   {
     num=get_register_msp430(token);
     if (num>=0)
     {
-      return 0x1880|(zc<<8)|num;
+      prefix=0x1880|(zc<<8)|num;
     }
   }
 
-  print_error("expecting register or immediate", asm_context);
-  return -1;
+  if (prefix==0xffff)
+  {
+    print_error("expecting register or immediate", asm_context);
+    return -1;
+  }
+
+  return prefix;
 }
 
 int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
@@ -379,27 +386,21 @@ int prefix=0;
     if (strcmp(instr_lower,msp430x_rpt[n])==0)
     {
       prefix=get_prefix(asm_context, n&1);
-      if (prefix==-1) return -1;
-      token_type=get_token(asm_context, instr, TOKENLEN);
-      if (token_type!=TOKEN_EOL)
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-      asm_context->line++;
+      if (prefix==0xffff) return -1;
       while(1)
       {
         token_type=get_token(asm_context, instr, TOKENLEN);
-        if (token_type==TOKEN_EOL) break;
+        if (token_type!=TOKEN_EOL) { break; }
         if (token_type==TOKEN_EOF)
         {
           print_error("Unexpected end of file", asm_context);
           return -1;
         }
+        asm_context->line++;
       }
 
       lower_copy(instr_lower_mem, instr);
-      msp430x=1;
+      //msp430x=1;
       break;
     }
 
@@ -680,6 +681,24 @@ int prefix=0;
       else if (size==20) { al=0; bw=1; }
       else { al=1; bw=0; }
 
+      if (prefix!=0)
+      {
+#if 0
+        if (operands[0].type!=OPTYPE_REGISTER ||
+            operands[1].type!=OPTYPE_REGISTER)
+        {
+          print_error("RPT only supports registers.", asm_context);
+          return -1;
+        }
+#endif
+
+        add_bin(asm_context, prefix|(al<<6), IS_OPCODE);
+        msp430x=2;
+        break;
+      }
+
+      msp430x=1;
+
       if (operand_count>0)
       {
         src19_16=(((uint32_t)operands[0].value)&0xf0000)>>16;
@@ -690,9 +709,12 @@ int prefix=0;
         dst19_16=(((uint32_t)operands[1].value)&0xf0000)>>16;
       }
 
+#if 0
       if (prefix==0)
       {
+#endif
         add_bin(asm_context, 0x1800|(src19_16<<7)|(al<<6)|(dst19_16), IS_OPCODE);
+#if 0
       }
         else
       {
@@ -703,13 +725,14 @@ int prefix=0;
         }
         add_bin(asm_context, prefix|(al<<6), IS_OPCODE);
       }
+#endif
       break;
     }
 
     n++;
   }
 
-  if (ms430x_ext[n]!=NULL && prefix!=0)
+  if (msp430x==0 && prefix!=0)
   {
     print_error("Instruction doesn't support RPT", asm_context);
     return -1;
@@ -745,6 +768,12 @@ int prefix=0;
         return -1;
       }
 
+      if (msp430x==2 && operands[0].a!=0)
+      {
+        print_error("RPT only supports registers.", asm_context);
+        return -1;
+      }
+
       opcode=0x1000|(n<<7)|(bw<<6)|(operands[0].a<<4)|operands[0].reg;
       add_instruction(asm_context, &data, operands[0].error, opcode);
 
@@ -752,6 +781,67 @@ int prefix=0;
     }
 
     n++;
+  }
+
+  // Two operand instructions
+  n=0;
+  while(two_oper[n]!=NULL)
+  {
+    if (strcmp(instr_lower,two_oper[n])==0)
+    {
+      if (msp430x==0 && size>16)
+      {
+        print_error("Instruction doesn't support .a", asm_context);
+        return -1;
+      }
+
+      if (operand_count!=2)
+      {
+        //print_operand_error(instr, 2, asm_context);
+        print_error_opcount(instr, asm_context);
+        return -1;
+      }
+
+      if (process_operand(asm_context, &operands[0], &data, size, 0)<0)
+      {
+        return -1;
+      }
+
+#if 0
+      if (operands[1].type==OPTYPE_IMMEDIATE)
+      {
+        printf("Error: Immediate not allowed for dest operand at %s:%d.\n", asm_context->filename, asm_context->line);
+        return -1;
+      }
+#endif
+
+      if (process_operand(asm_context, &operands[1], &data, size, 1)<0)
+      {
+        return -1;
+      }
+
+      if (msp430x==2 && (operands[1].a!=0 ||
+          !(operands[0].a==0 || operands[0].reg==3 ||
+          (operands[0].reg==2 && operands[0].a!=1))))
+      {
+        print_error("RPT only supports registers.", asm_context);
+        return -1;
+      }
+
+      opcode=((n+4)<<12)|(operands[0].reg<<8)|(operands[1].a<<7)|(bw<<6)|
+             (operands[0].a<<4)|(operands[1].reg);
+      add_instruction(asm_context, &data, operands[0].error, opcode);
+
+      return 0;
+    }
+
+    n++;
+  }
+
+  if (prefix!=0)
+  {
+    print_error("Instruction doesn't support RPT", asm_context);
+    return -1;
   }
 
   // Jumps
@@ -813,53 +903,6 @@ int prefix=0;
       opcode=0x2000|(n<<10);
       opcode|=((unsigned int)offset)&0x03ff;
       add_instruction(asm_context, &data, 0, opcode);
-
-      return 0;
-    }
-
-    n++;
-  }
-
-  // Two operand instructions
-  n=0;
-  while(two_oper[n]!=NULL)
-  {
-    if (strcmp(instr_lower,two_oper[n])==0)
-    {
-      if (msp430x==0 && size>16)
-      {
-        print_error("Instruction doesn't support .a", asm_context);
-        return -1;
-      }
-
-      if (operand_count!=2)
-      {
-        //print_operand_error(instr, 2, asm_context);
-        print_error_opcount(instr, asm_context);
-        return -1;
-      }
-
-      if (process_operand(asm_context, &operands[0], &data, size, 0)<0)
-      {
-        return -1;
-      }
-
-#if 0
-      if (operands[1].type==OPTYPE_IMMEDIATE)
-      {
-        printf("Error: Immediate not allowed for dest operand at %s:%d.\n", asm_context->filename, asm_context->line);
-        return -1;
-      }
-#endif
-
-      if (process_operand(asm_context, &operands[1], &data, size, 1)<0)
-      {
-        return -1;
-      }
-
-      opcode=((n+4)<<12)|(operands[0].reg<<8)|(operands[1].a<<7)|(bw<<6)|
-             (operands[0].a<<4)|(operands[1].reg);
-      add_instruction(asm_context, &data, operands[0].error, opcode);
 
       return 0;
     }
