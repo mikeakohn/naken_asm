@@ -1089,18 +1089,24 @@ int token_type;
           else
         {
           pushback(asm_context, token2, token_type2);
-          int address=asm_context->address;
+          //int address=asm_context->address;
 
           //ret=parse_instruction_msp430(asm_context, token);
           ret=asm_context->parse_instruction(asm_context, token);
           if (asm_context->pass==2 && asm_context->list!=NULL && asm_context->include_count==0)
           {
-            asm_context->list_output(asm_context, address);
+            asm_context->list_output(asm_context, start_address);
             fprintf(asm_context->list, "\n");
           }
 
           if (ret<0) return -1;
 
+#if 0
+if (asm_context->address-start_address==0)
+{
+  printf("ZOMG %x  ret=%d %d\n", start_address, ret, asm_context->address-start_address);
+}
+#endif
           if (asm_context->defines_heap.stack_ptr==0) { asm_context->line++; }
           asm_context->instruction_count++;
 

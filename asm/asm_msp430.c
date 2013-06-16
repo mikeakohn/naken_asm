@@ -927,9 +927,14 @@ int prefix=0;
         add_bin16(asm_context, value&0xffff, IS_OPCODE);
         return 4;
       case OPTYPE_SYMBOLIC:
-        if (asm_context->pass==1) { return 4; }
+        if (asm_context->pass==1)
+        {
+          add_bin16(asm_context, opcode|0x50|0, IS_OPCODE);
+          add_bin16(asm_context, value&0xffff, IS_OPCODE);
+          return 4;
+        }
         value=operands[0].value-(asm_context->address+4);
-printf("value=%d address=%x operand=%x\n", value, asm_context->address, operands[0].value);
+
         if (value>32767 || value<-32768)
         {
           print_error_range("Offset", -32768, 32767, asm_context);
@@ -1010,13 +1015,18 @@ printf("value=%d address=%x operand=%x\n", value, asm_context->address, operands
       // instead.  Fix later.
       if (n==0)
       {
+        if (operands[1].type!=OPTYPE_REGISTER) { n++; continue; }
+        if (operands[0].type!=OPTYPE_IMMEDIATE &&
+            operands[0].type!=OPTYPE_REGISTER) { n++; continue; }
 //printf("check %s  %d operands[1].type=%d\n", instr, asm_context->line, operands[1].type);
+#if 0
         if (operands[0].type==OPTYPE_REGISTER_INDIRECT) { n++; continue; }
         if (operands[0].type==OPTYPE_REGISTER_INDIRECT_INC) { n++; continue; }
         if (operands[0].type==OPTYPE_ABSOLUTE) { n++; continue; }
         if (operands[0].type==OPTYPE_INDEXED) { n++; continue; }
         if (operands[1].type==OPTYPE_ABSOLUTE) { n++; continue; }
         if (operands[1].type==OPTYPE_INDEXED) { n++; continue; }
+#endif
 //printf("passed %s  %d operands[1].type=%d\n", instr, asm_context->line, operands[1].type);
       }
 
@@ -1048,10 +1058,9 @@ printf("value=%d address=%x operand=%x\n", value, asm_context->address, operands
         opcode=(operands[0].reg<<8)|(3<<6)|(n<<4)|operands[1].reg;
         add_bin(asm_context, opcode, IS_OPCODE);
       }
-        else
-      if (n!=0)
+
+      if (count==0)
       {
-        if (n==0) { break; }  // this is a MOVA
         print_error("Unknown addressing mode", asm_context);
         return -1;
       }
@@ -1120,12 +1129,14 @@ printf("value=%d address=%x operand=%x\n", value, asm_context->address, operands
         add_bin(asm_context, opcode, IS_OPCODE);
         return 2;
       }
+
       if (operands[0].type==OPTYPE_REGISTER_INDIRECT_INC)
       {
         opcode|=(1<<4)|(operands[0].reg<<8);
-        add_bin(asm_context, opcode, IS_OPCODE);
+        add_bin16(asm_context, opcode, IS_OPCODE);
         return 2;
       }
+
       if (operands[0].type==OPTYPE_ABSOLUTE)
       {
         if (operands[0].value>0xfffff || operands[0].value<-524288)
@@ -1135,10 +1146,23 @@ printf("value=%d address=%x operand=%x\n", value, asm_context->address, operands
         }
 
         opcode|=(2<<4)|(((uint32_t)operands[0].value&0xf0000)>>8);
-        add_bin(asm_context, opcode, IS_OPCODE);
-        add_bin(asm_context, operands[0].value&0xffff, IS_DATA);
+        add_bin16(asm_context, opcode, IS_OPCODE);
+        add_bin16(asm_context, operands[0].value&0xffff, IS_DATA);
         return 4;
       }
+
+      if (operands[0].type==OPTYPE_SYMBOLIC)
+      {
+        // Assembler thinks this is symbolic, but it's really indexed.
+        if (asm_context->pass==1)
+        {
+          opcode|=(3<<4)|(operands[0].reg<<8);
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[0].value&0xffff, IS_OPCODE);
+          return 4;
+        }
+      }
+
       if (operands[0].type==OPTYPE_INDEXED)
       {
         if (operands[0].value>0xffff || operands[0].value<-32768)
@@ -1148,10 +1172,14 @@ printf("value=%d address=%x operand=%x\n", value, asm_context->address, operands
         }
 
         opcode|=(3<<4)|(operands[0].reg<<8);
-        add_bin(asm_context, opcode, IS_OPCODE);
-        add_bin(asm_context, operands[0].value&0xffff, IS_DATA);
+        add_bin16(asm_context, opcode, IS_OPCODE);
+        add_bin16(asm_context, operands[0].value&0xffff, IS_OPCODE);
         return 4;
       }
+
+      print_error("Unknown addressing mode for mova", asm_context);
+
+      return -1;
     }
       else
     if (operands[0].type==OPTYPE_REGISTER)
@@ -1165,10 +1193,23 @@ printf("value=%d address=%x operand=%x\n", value, asm_context->address, operands
           print_error("Constant larger than 20 bit.", asm_context);
           return -1;
         }
+
         opcode|=0x0020|((operands[1].value&0xf0000)>>16);
-        add_bin(asm_context, opcode, IS_OPCODE);
-        add_bin(asm_context, operands[1].value&0xffff, IS_DATA);
+        add_bin16(asm_context, opcode, IS_OPCODE);
+        add_bin16(asm_context, operands[1].value&0xffff, IS_OPCODE);
         return 4;
+      }
+
+      if (operands[1].type==OPTYPE_SYMBOLIC)
+      {
+        // This is probably really INDEXED.
+        if (asm_context->pass==1)
+        {
+          opcode|=0x0030|operands[1].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[1].value&0xffff, IS_OPCODE);
+          return 4;
+        }
       }
 
       if (operands[1].type==OPTYPE_INDEXED)
@@ -1178,11 +1219,15 @@ printf("value=%d address=%x operand=%x\n", value, asm_context->address, operands
           print_error("Constant larger than 16 bit.", asm_context);
           return -1;
         }
+
         opcode|=0x0030|operands[1].reg;
-        add_bin(asm_context, opcode, IS_OPCODE);
-        add_bin(asm_context, operands[1].value&0xffff, IS_DATA);
+        add_bin16(asm_context, opcode, IS_OPCODE);
+        add_bin16(asm_context, operands[1].value&0xffff, IS_OPCODE);
         return 4;
       }
+
+      print_error("Unknown addressing mode for mova", asm_context);
+      return -1;
     }
 
     print_error("Unknown addressing mode for mova", asm_context);
