@@ -22,6 +22,7 @@
 
 static char *regs[] = { "PC", "SP", "SR", "CG", "r4", "r5", "r6", "r7", "r8",
                         "r9", "r10", "r11", "r12", "r13", "r14", "r15" };
+static char *rpt[] = { "rptc", "rptz" };
 
 // FIXME - let's move this somewhee more sane
 int get_register_msp430(char *token)
@@ -47,12 +48,12 @@ int get_register_msp430(char *token)
   return -1;
 }
 
-static int get_source_reg(struct _memory *memory, int address, int reg, int As, int bw, char *reg_str, uint16_t prefix)
+static int get_source_reg(struct _memory *memory, int address, int reg, int As, int bw, char *reg_str, uint16_t prefix, int memory_ext)
 {
 int count=0;
 int extra=0;
 
-  if (prefix!=0xffff) extra=(prefix&0x0780)<<9;
+  if (memory_ext==1) extra=(prefix&0x0780)<<9;
 
   reg_str[0]=0;
 
@@ -144,11 +145,11 @@ int extra=0;
   return count;
 }
 
-static int get_dest_reg(struct _memory *memory, int address, int reg, int Ad, char *reg_str, int count, uint16_t prefix)
+static int get_dest_reg(struct _memory *memory, int address, int reg, int Ad, char *reg_str, int count, uint16_t prefix, int memory_ext)
 {
 int extra=0;
 
-  if (prefix!=0xffff) extra=(prefix&0x000f)<<16;
+  if (memory_ext==1) extra=(prefix&0x000f)<<16;
 
   reg_str[0]=0;
 
@@ -209,13 +210,28 @@ int reg;
 int As;
 int count=2;
 int bw=0;
-
-  o=(opcode&0x0380)>>7;
-
-  if (prefix!=0xffff) { strcat(instruction, "x"); }
+int memory_ext=0;
 
   As=(opcode&0x0030)>>4;
   reg=opcode&0x000f;
+  o=(opcode&0x0380)>>7;
+
+  if (prefix!=0xffff)
+  {
+    if (As==0)
+    {
+      char temp[32];
+      int r=(prefix>>7)&1;
+      if ((prefix&0x0080)==1) { sprintf(temp, "%s r%d ", rpt[r], prefix&0xf); }
+      else { sprintf(temp, "%s #%d ", rpt[r], prefix&0xf); }
+    }
+      else
+    {
+      memory_ext=1;
+    }
+
+    strcat(instruction, "x");
+  }
 
   if ((opcode&0x0040)==0)
   {
@@ -254,7 +270,7 @@ int bw=0;
   strcat(instruction, " ");
 
   char reg_str[128];
-  count+=get_source_reg(memory, address, reg, As, bw, reg_str, prefix);
+  count+=get_source_reg(memory, address, reg, As, bw, reg_str, prefix, memory_ext);
   strcat(instruction, reg_str);
 
   return count;
@@ -298,10 +314,29 @@ int o;
 int Ad,As;
 int count=0;
 int bw=0;
+int memory_ext=0;
 
+  Ad=(opcode&0x0080)>>7;
+  As=(opcode&0x0030)>>4;
   o=opcode>>12;
-
   o=o-4;
+
+  if (prefix!=0xffff)
+  {
+    if (As==0 && Ad==0)
+    {
+      char temp[32];
+      int r=(prefix>>7)&1;
+      if ((prefix&0x0080)==1) { sprintf(temp, "%s r%d ", rpt[r], prefix&0xf); }
+      else { sprintf(temp, "%s #%d ", rpt[r], prefix&0xf); }
+    }
+      else
+    {
+      memory_ext=1;
+    }
+
+    strcat(instruction, "x");
+  }
 
   if ((opcode&0x0040)==0)
   { strcpy(ext, ".w"); bw=0; }
@@ -357,18 +392,15 @@ int bw=0;
     else if (al==3) { strcpy(ext, ".b"); }
   }
 
-  Ad=(opcode&0x0080)>>7;
-  As=(opcode&0x0030)>>4;
-
   strcat(instruction, ext);
   strcat(instruction, " ");
 
   char reg_str[128];
-  count=get_source_reg(memory, address, (opcode&0x0f00)>>8, As, bw, reg_str, prefix);
+  count=get_source_reg(memory, address, (opcode&0x0f00)>>8, As, bw, reg_str, prefix, memory_ext);
   strcat(instruction, reg_str);
 
   strcat(instruction, ", ");
-  count=get_dest_reg(memory, address, opcode&0x000f, Ad, reg_str, count, prefix);
+  count=get_dest_reg(memory, address, opcode&0x000f, Ad, reg_str, count, prefix, memory_ext);
   strcat(instruction, reg_str);
 
   return count+2;
@@ -505,7 +537,7 @@ int n;
   *cycles_max=*cycles_min;
 
   // 20 bit prefix to 16 bit instructions 
-  if ((opcode&0xf800)==0x1800)
+  if ((opcode&0xf830)==0x1800)
   {
     prefix=opcode;
     opcode=READ_RAM16(address+2);

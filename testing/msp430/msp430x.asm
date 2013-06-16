@@ -67,5 +67,10 @@ something:
   pushm.w #4, r8
   popm.a #4, r8
 
+  rpt #5
+  add.w #1, r6
+  rptc r7 
+  add.w #1, r6
+
 
 
