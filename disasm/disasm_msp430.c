@@ -223,7 +223,7 @@ int memory_ext=0;
       char temp[64];
       int r=(prefix>>8)&1;
       if ((prefix&0x0080)==0)
-      { sprintf(temp, "%s #%d %s", rpt[r], prefix&0xf, instruction); }
+      { sprintf(temp, "%s #%d %s", rpt[r], (prefix&0xf)+1, instruction); }
         else
       { sprintf(temp, "%s r%d %s", rpt[r], prefix&0xf, instruction); }
       strcpy(instruction, temp);
@@ -334,7 +334,7 @@ int src,dst;
       char temp[64];
       int r=(prefix>>8)&1;
       if ((prefix&0x0080)==0)
-      { sprintf(temp, "%s #%d %s", rpt[r], prefix&0xf, instruction); }
+      { sprintf(temp, "%s #%d %s", rpt[r], (prefix&0xf)+1, instruction); }
         else
       { sprintf(temp, "%s r%d %s", rpt[r], prefix&0xf, instruction); }
       strcpy(instruction, temp);

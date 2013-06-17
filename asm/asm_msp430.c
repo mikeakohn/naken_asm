@@ -329,7 +329,7 @@ int num;
       return 0xffff;
     }
 
-    prefix=0x1800|(zc<<8)|num;
+    prefix=0x1800|(zc<<8)|(num-1);
   }
     else
   {

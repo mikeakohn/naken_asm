@@ -76,4 +76,9 @@ something:
   rptz #5
   rrcx.w r8
 
+  rpt #13
+  addx.a r8, r8
+
+
+
 
