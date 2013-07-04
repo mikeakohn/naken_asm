@@ -1,4 +1,4 @@
-.msp430
+.msp430x
 
 start:
   rrc.b r8

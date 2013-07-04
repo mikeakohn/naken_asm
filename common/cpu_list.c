@@ -76,6 +76,7 @@ struct _cpu_list cpu_list[] =
   { "mips", CPU_TYPE_MIPS, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_mips, list_output_mips, disasm_range_mips },
 #endif
   { "msp430", CPU_TYPE_MSP430, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_msp430, list_output_msp430, disasm_range_msp430 },
+  { "msp430x", CPU_TYPE_MSP430X, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_msp430, list_output_msp430, disasm_range_msp430 },
 #ifdef ENABLE_POWERPC
   { "powerpc", CPU_TYPE_POWERPC, ENDIAN_BIG, 1, 0, 0, parse_instruction_powerpc, list_output_powerpc, disasm_range_powerpc },
 #endif

@@ -380,31 +380,34 @@ int prefix=0;
   }
 
   // check for RPT prefix
-  n=0;
-  while(msp430x_rpt[n]!=NULL)
+  if (asm_context->cpu_type==CPU_TYPE_MSP430X)
   {
-    if (strcmp(instr_lower,msp430x_rpt[n])==0)
+    n=0;
+    while(msp430x_rpt[n]!=NULL)
     {
-      prefix=get_prefix(asm_context, n&1);
-      if (prefix==0xffff) return -1;
-      while(1)
+      if (strcmp(instr_lower,msp430x_rpt[n])==0)
       {
-        token_type=get_token(asm_context, instr, TOKENLEN);
-        if (token_type!=TOKEN_EOL) { break; }
-        if (token_type==TOKEN_EOF)
+        prefix=get_prefix(asm_context, n&1);
+        if (prefix==0xffff) return -1;
+        while(1)
         {
-          print_error("Unexpected end of file", asm_context);
-          return -1;
+          token_type=get_token(asm_context, instr, TOKENLEN);
+          if (token_type!=TOKEN_EOL) { break; }
+          if (token_type==TOKEN_EOF)
+          {
+            print_error("Unexpected end of file", asm_context);
+            return -1;
+          }
+          asm_context->line++;
         }
-        asm_context->line++;
+
+        lower_copy(instr_lower_mem, instr);
+
+        break;
       }
 
-      lower_copy(instr_lower_mem, instr);
-      //msp430x=1;
-      break;
+      n++;
     }
-
-    n++;
   }
 
   memset(&operands, 0, sizeof(operands));
@@ -601,7 +604,6 @@ int prefix=0;
     {
       if (aliases[n].operand_count!=operand_count)
       {
-        //print_operand_error(instr, aliases[n].operand_count, asm_context);
         print_error_opcount(instr, asm_context);
         return -1;
       }
@@ -650,86 +652,52 @@ int prefix=0;
     n++;
   }
 
-  // Set bw and al
-#if 0
-  if (size==8) { bw=1; al=1; }
-  else if (size==16) { bw=0; al=1; }
-  else if (size==20) { bw=1; al=0; }
-  else
-  {
-    if (msp430x==0) { bw=0; al=0; }
-    else { bw=1; al=0; }
-  }
-#endif
-
   if (size==8) { bw=1; }
 
   // Check for MSP430X version of MSP430 instruction
-  n=0;
-  while(ms430x_ext[n]!=NULL)
+  if (asm_context->cpu_type==CPU_TYPE_MSP430X)
   {
-    if (strcmp(instr_lower,ms430x_ext[n])==0)
+    n=0;
+    while(ms430x_ext[n]!=NULL)
     {
-      msp430x=1;
-      instr_lower[strlen(instr_lower)-1]=0;
-      uint32_t src19_16=0;
-      uint32_t dst19_16=0;
-      int al;
-
-      if (size==8) { al=1; bw=1; }
-      else if (size==16) { al=1; bw=0; }
-      else if (size==20) { al=0; bw=1; }
-      else { al=1; bw=0; }
-
-      if (prefix!=0)
+      if (strcmp(instr_lower,ms430x_ext[n])==0)
       {
-#if 0
-        if (operands[0].type!=OPTYPE_REGISTER ||
-            operands[1].type!=OPTYPE_REGISTER)
-        {
-          print_error("RPT only supports registers.", asm_context);
-          return -1;
-        }
-#endif
+        msp430x=1;
+        instr_lower[strlen(instr_lower)-1]=0;
+        uint32_t src19_16=0;
+        uint32_t dst19_16=0;
+        int al;
 
-        add_bin(asm_context, prefix|(al<<6), IS_OPCODE);
-        msp430x=2;
+        if (size==8) { al=1; bw=1; }
+        else if (size==16) { al=1; bw=0; }
+        else if (size==20) { al=0; bw=1; }
+        else { al=1; bw=0; }
+
+        if (prefix!=0)
+        {
+          add_bin(asm_context, prefix|(al<<6), IS_OPCODE);
+          msp430x=2;
+          break;
+        }
+
+        msp430x=1;
+
+        if (operand_count>0)
+        {
+          src19_16=(((uint32_t)operands[0].value)&0xf0000)>>16;
+        }
+
+        if (operand_count>1)
+        {
+          dst19_16=(((uint32_t)operands[1].value)&0xf0000)>>16;
+        }
+
+        add_bin(asm_context, 0x1800|(src19_16<<7)|(al<<6)|(dst19_16),IS_OPCODE);
         break;
       }
 
-      msp430x=1;
-
-      if (operand_count>0)
-      {
-        src19_16=(((uint32_t)operands[0].value)&0xf0000)>>16;
-      }
-
-      if (operand_count>1)
-      {
-        dst19_16=(((uint32_t)operands[1].value)&0xf0000)>>16;
-      }
-
-#if 0
-      if (prefix==0)
-      {
-#endif
-        add_bin(asm_context, 0x1800|(src19_16<<7)|(al<<6)|(dst19_16), IS_OPCODE);
-#if 0
-      }
-        else
-      {
-        if (src19_16!=0 || dst19_16!=0)
-        {
-          print_error("Constants out of 16 bit range with RPT", asm_context);
-          return -1;
-        }
-        add_bin(asm_context, prefix|(al<<6), IS_OPCODE);
-      }
-#endif
-      break;
+      n++;
     }
-
-    n++;
   }
 
   if (msp430x==0 && prefix!=0)
@@ -797,7 +765,6 @@ int prefix=0;
 
       if (operand_count!=2)
       {
-        //print_operand_error(instr, 2, asm_context);
         print_error_opcount(instr, asm_context);
         return -1;
       }
@@ -806,14 +773,6 @@ int prefix=0;
       {
         return -1;
       }
-
-#if 0
-      if (operands[1].type==OPTYPE_IMMEDIATE)
-      {
-        printf("Error: Immediate not allowed for dest operand at %s:%d.\n", asm_context->filename, asm_context->line);
-        return -1;
-      }
-#endif
 
       if (process_operand(asm_context, &operands[1], &data, size, 1)<0)
       {
@@ -928,6 +887,12 @@ int prefix=0;
 
     add_bin(asm_context, 0x1300, IS_OPCODE);
     return 0;
+  }
+
+  if (asm_context->cpu_type!=CPU_TYPE_MSP430X)
+  {
+    print_error_unknown_instr(instr, asm_context);
+    return -1;
   }
 
   // MSP430X CALLA
@@ -1061,16 +1026,6 @@ int prefix=0;
         if (operands[1].type!=OPTYPE_REGISTER) { n++; continue; }
         if (operands[0].type!=OPTYPE_IMMEDIATE &&
             operands[0].type!=OPTYPE_REGISTER) { n++; continue; }
-//printf("check %s  %d operands[1].type=%d\n", instr, asm_context->line, operands[1].type);
-#if 0
-        if (operands[0].type==OPTYPE_REGISTER_INDIRECT) { n++; continue; }
-        if (operands[0].type==OPTYPE_REGISTER_INDIRECT_INC) { n++; continue; }
-        if (operands[0].type==OPTYPE_ABSOLUTE) { n++; continue; }
-        if (operands[0].type==OPTYPE_INDEXED) { n++; continue; }
-        if (operands[1].type==OPTYPE_ABSOLUTE) { n++; continue; }
-        if (operands[1].type==OPTYPE_INDEXED) { n++; continue; }
-#endif
-//printf("passed %s  %d operands[1].type=%d\n", instr, asm_context->line, operands[1].type);
       }
 
       if (size!=0)
