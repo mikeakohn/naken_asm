@@ -782,8 +782,8 @@ void assemble_init(struct _asm_context *asm_context)
   asm_context->def_param_stack_count=0;
   if (asm_context->pass==1)
   {
-    //memset(asm_context->debug_line, 0xff, sizeof(int)*asm_context->memory_size);
-    memory_init(&asm_context->memory, 1<<20, 1);
+    // FIXME - probably need to allow 32 bit data
+    memory_init(&asm_context->memory, 1<<24, 1);
   }
 }
 

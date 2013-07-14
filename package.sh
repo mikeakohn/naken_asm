@@ -48,6 +48,7 @@ rm -f out.*
 #rm -f asm.s43
 rm -f .*.swp
 rm -f .gitignore
+rm -f package.sh
 #mkdir tests
 #mv *.asm tests/
 #mv *.inc tests/
