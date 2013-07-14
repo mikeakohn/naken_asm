@@ -553,8 +553,7 @@ int n;
           {
             if (operands[curr_operand].type==OPTYPE_NUM)
             {
-              //int value=(operands[curr_operand].value-(asm_context->address+2))/2;
-              int value=(operands[curr_operand].value-(asm_context->address+2));
+              int value=(operands[curr_operand].value-((asm_context->address/2)+2))/2;
               if (value<-32768 || value>32767)
               {
                 range_error=curr_operand; 

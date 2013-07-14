@@ -187,7 +187,7 @@ int n,r;
           case OP_BRA:
           {
             short int distance=EXTRACT_VALUE();
-            sprintf(temp, "0x%02x  (%d)", ((address+4)+(distance*4))/2, distance);
+            sprintf(temp, "0x%02x  (%d)", ((address+4)+(distance*4))/2, distance*2);
             break;
           }
           case OP_F:
