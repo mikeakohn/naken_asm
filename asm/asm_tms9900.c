@@ -211,7 +211,7 @@ int n;
   {
     for (n=0; n<word_count; n++)
     {
-      add_bin(asm_context, 0, IS_OPCODE);
+      add_bin16(asm_context, 0, IS_OPCODE);
     }
 
     return word_count*2;
@@ -239,15 +239,15 @@ int n;
             return -1;
           }
           opcode=table_tms9900[n].opcode|(operands[1].reg<<6)|operands[0].reg|(mode[operands[1].type]<<10)|(mode[operands[0].type]<<4);
-          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
           if (operands[0].type>=OPERAND_SYMBOLIC)
           {
-            add_bin(asm_context, operands[0].value, IS_OPCODE);
+            add_bin16(asm_context, operands[0].value, IS_OPCODE);
             count+=2;
           }
           if (operands[1].type>=OPERAND_SYMBOLIC)
           {
-            add_bin(asm_context, operands[1].value, IS_OPCODE);
+            add_bin16(asm_context, operands[1].value, IS_OPCODE);
             count+=2;
           }
           return count;
@@ -267,10 +267,10 @@ int n;
             return -1;
           }
           opcode=table_tms9900[n].opcode|(operands[1].reg<<6)|operands[0].reg|(mode[operands[0].type]<<4);
-          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
           if (operands[0].type>=OPERAND_SYMBOLIC)
           {
-            add_bin(asm_context, operands[0].value, IS_OPCODE);
+            add_bin16(asm_context, operands[0].value, IS_OPCODE);
             count+=2;
           }
           return count;
@@ -288,10 +288,10 @@ int n;
             return -1;
           }
           opcode=table_tms9900[n].opcode|operands[0].reg|(mode[operands[0].type]<<4);
-          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
           if (operands[0].type>=OPERAND_SYMBOLIC)
           {
-            add_bin(asm_context, operands[0].value, IS_OPCODE);
+            add_bin16(asm_context, operands[0].value, IS_OPCODE);
             count+=2;
           }
           return count;
@@ -315,10 +315,10 @@ int n;
             return -1;
           }
           opcode=table_tms9900[n].opcode|(operands[1].value<<6)|operands[0].reg|(mode[operands[0].type]<<4);
-          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
           if (operands[0].type>=OPERAND_SYMBOLIC)
           {
-            add_bin(asm_context, operands[0].value, IS_OPCODE);
+            add_bin16(asm_context, operands[0].value, IS_OPCODE);
             count+=2;
           }
           return count;
@@ -341,7 +341,7 @@ int n;
             return -1;
           }
           opcode=table_tms9900[n].opcode|((unsigned char)(operands[0].value));
-          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
           return count;
         }
         case OP_JUMP:
@@ -364,7 +364,7 @@ int n;
             return -1;
           }
           opcode=table_tms9900[n].opcode|((unsigned char)(offset));
-          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
           return count;
         }
         case OP_SHIFT:
@@ -386,7 +386,7 @@ int n;
             return -1;
           }
           opcode=table_tms9900[n].opcode|(operands[1].value<<4)|operands[0].reg;
-          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
           return count;
         }
         case OP_IMMEDIATE:
@@ -403,8 +403,8 @@ int n;
             return -1;
           }
           opcode=table_tms9900[n].opcode|operands[0].reg;
-          add_bin(asm_context, opcode, IS_OPCODE);
-          add_bin(asm_context, operands[1].value, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[1].value, IS_OPCODE);
           return count+2;
         }
         case OP_INT_REG_LD:
@@ -420,8 +420,8 @@ int n;
             return -1;
           }
           opcode=table_tms9900[n].opcode;
-          add_bin(asm_context, opcode, IS_OPCODE);
-          add_bin(asm_context, operands[0].value, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[0].value, IS_OPCODE);
           return count+2;
         }
         case OP_INT_REG_ST:
@@ -437,7 +437,7 @@ int n;
             return -1;
           }
           opcode=table_tms9900[n].opcode|operands[0].reg;
-          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
           return count;
         }
         case OP_RTWP:
@@ -449,7 +449,7 @@ int n;
             return -1;
           }
           opcode=table_tms9900[n].opcode;
-          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
           return count;
         }
       }

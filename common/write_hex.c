@@ -12,15 +12,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "assembler.h"
 #include "lookup_tables.h"
 #include "write_hex.h"
 
-static void write_hex_line(FILE *out, int address, unsigned char *data, int len, int *segment)
+static void write_hex_line(FILE *out, uint32_t address, uint8_t *data, int len, uint32_t *segment)
 {
 int checksum;
 int n;
+
+#if 0
+  // This was using sections of type 2.. let's change to type 4 (linear)
 
   if (address<(*segment) || address>(*segment+0xffff))
   {
@@ -29,9 +33,23 @@ int n;
     fprintf(out, ":02000002%02X%02X%02X\n", ((*segment)>>12)&0xff, ((*segment)>>4)&0xff, (((checksum&0xff)^0xff)+1)&0xff);
   }
 
-//printf("%05x %05x\n", address, *segment);
   address=address-(*segment);
+#endif
 
+  // Check if we should change the linear address (upper 16 bits of a possible
+  // 32 bit address.
+  if ((address&0xffff0000)!=*segment)
+  {
+    *segment=address&0xffff0000;
+//printf("address=%x segment=%x %02x %02x\n", address, *segment, (((*segment)>>24)&0xff),(((*segment)>>16)&0xff));
+    checksum=4+(((*segment)>>24)&0xff)+(((*segment)>>16)&0xff)+2;
+
+    fprintf(out, ":02000004%04X%02X\n", ((*segment)>>16)&0xffff, (((checksum&0xff)^0xff)+1)&0xff);
+  }
+
+  address=address&0xffff;
+
+  // Ready to write data
   fprintf(out, ":%02X%04X00", len, address);
   checksum=len+(address>>8)+(address&255);
 
@@ -46,10 +64,10 @@ int n;
 
 int write_hex(struct _asm_context *asm_context, FILE *out)
 {
-unsigned char data[16];
+uint8_t data[16];
 int len;
 int n;
-int address=0,segment=0;
+uint32_t address=0,segment=0;
 
   len=-1;
   for (n=asm_context->memory.low_address; n<=asm_context->memory.high_address; n++)
@@ -96,6 +114,8 @@ int address=0,segment=0;
   return 0;
 }
 
+// This could be put in its own file, although it does so little it may be
+// not worth it.
 int write_bin(struct _asm_context *asm_context, FILE *out)
 {
 int n;

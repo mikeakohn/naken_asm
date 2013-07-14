@@ -327,7 +327,7 @@ int error_flag=0;
           {
             output_hex_text(asm_context.list, str, ptr);
           }
-          fprintf(asm_context.list, "\n%04x:", i);
+          fprintf(asm_context.list, "\n%04x:", i/asm_context.bytes_per_address);
           ptr=0;
         }
 

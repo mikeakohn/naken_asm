@@ -107,10 +107,10 @@ struct _asm_context
   char include_path[INCLUDE_PATH_LEN];
   int include_count;
   const char *filename;
-  char cpu_type;
-  char bytes_per_address;
-  char is_dollar_hex:1;
-  char can_tick_end_string:1;
+  int8_t cpu_type;
+  int8_t bytes_per_address;
+  int8_t is_dollar_hex:1;
+  int8_t can_tick_end_string:1;
 };
 
 struct _memory_pool *add_pool(struct _naken_heap *heap, int heap_len);

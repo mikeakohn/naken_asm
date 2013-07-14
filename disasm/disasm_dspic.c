@@ -371,18 +371,12 @@ int cycles_min,cycles_max,count;
 char instruction[128];
 unsigned int opcode;
 
-  address=address*2;
+  //address=address*2;
   opcode=get_opcode32(&asm_context->memory, address);
 
   fprintf(asm_context->list, "\n");
   count=disasm_dspic(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-#if 0
-  fprintf(asm_context->list, "0x%04x: %02x%02x%02x %-40s cycles: ", address,
-    memory_read(asm_context, address),
-    memory_read(asm_context, address+1),
-    memory_read(asm_context, address+2),
-    instruction);
-#endif
+
   fprintf(asm_context->list, "0x%04x: 0x%06x %-40s cycles: ", address/2, opcode, instruction);
 
   if (cycles_min==cycles_max)
@@ -390,10 +384,11 @@ unsigned int opcode;
     else
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
 
-  if (count==6)
+  if (count==8)
   {
     fprintf(asm_context->list, "0x%04x: 0x%02x%02x%02x\n",
-      (address+4)/2,
+      //(address+4)/2,
+      (address/2)+2,
       memory_read(asm_context, address+4),
       memory_read(asm_context, address+5),
       memory_read(asm_context, address+6));

@@ -70,7 +70,7 @@ struct _cpu_list cpu_list[] =
   { "avr8", CPU_TYPE_AVR8, ENDIAN_LITTLE, 2, 0, 0, parse_instruction_avr8, list_output_avr8, disasm_range_avr8 },
 #endif
 #ifdef ENABLE_DSPIC
-  { "dspic", CPU_TYPE_DSPIC, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_dspic, list_output_dspic, disasm_range_dspic },
+  { "dspic", CPU_TYPE_DSPIC, ENDIAN_LITTLE, 2, 0, 0, parse_instruction_dspic, list_output_dspic, disasm_range_dspic },
 #endif
 #ifdef ENABLE_MIPS
   { "mips", CPU_TYPE_MIPS, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_mips, list_output_mips, disasm_range_mips },

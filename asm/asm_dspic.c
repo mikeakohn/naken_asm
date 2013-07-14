@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -89,17 +90,17 @@ struct _instruction
 };
 */
 
-static void add_bin_dspic(struct _asm_context *asm_context, unsigned int b, int flags)
+static void add_bin_dspic(struct _asm_context *asm_context, uint32_t b, int flags)
 {
 int line=asm_context->line;
-int address=asm_context->address*2; 
+int address=asm_context->address;
 
   memory_write(asm_context, address++, b&0xff, line);
   memory_write(asm_context, address++, (b>>8)&0xff, line);
   memory_write(asm_context, address++, (b>>16)&0xff, line);
   memory_write(asm_context, address++, (b>>24)&0xff, line);
 
-  asm_context->address+=2; 
+  asm_context->address+=4; 
 }
 
 static int get_register_dspic(char *token)
@@ -552,7 +553,8 @@ int n;
           {
             if (operands[curr_operand].type==OPTYPE_NUM)
             {
-              int value=(operands[curr_operand].value-(asm_context->address+2))/2;
+              //int value=(operands[curr_operand].value-(asm_context->address+2))/2;
+              int value=(operands[curr_operand].value-(asm_context->address+2));
               if (value<-32768 || value>32767)
               {
                 range_error=curr_operand; 

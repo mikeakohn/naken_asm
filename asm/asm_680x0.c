@@ -290,7 +290,7 @@ static int write_single_ea(struct _asm_context *asm_context, char *instr, struct
     case OPERAND_A_REG_INDEX:
     case OPERAND_A_REG_INDEX_PLUS:
     case OPERAND_A_REG_INDEX_MINUS:
-      add_bin(asm_context, opcode|(size<<6)|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
+      add_bin16(asm_context, opcode|(size<<6)|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
       return 2;
     case OPERAND_IMMEDIATE:
     default:
@@ -310,7 +310,7 @@ static int write_single_ea_no_size(struct _asm_context *asm_context, char *instr
     case OPERAND_A_REG_INDEX:
     case OPERAND_A_REG_INDEX_PLUS:
     case OPERAND_A_REG_INDEX_MINUS:
-      add_bin(asm_context, opcode|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
+      add_bin16(asm_context, opcode|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
       return 2;
     case OPERAND_INDEX_DATA16_A_REG:
       return ea_displacement(asm_context, opcode, &operands[0]);
@@ -331,7 +331,7 @@ static int write_single_ea_to_addr(struct _asm_context *asm_context, char *instr
   switch(operands[0].type)
   {
     case OPERAND_A_REG_INDEX:
-      add_bin(asm_context, opcode|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
+      add_bin16(asm_context, opcode|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
       return 2;
     case OPERAND_INDEX_DATA16_A_REG:
       return ea_displacement(asm_context, opcode, &operands[0]);
@@ -394,8 +394,8 @@ static int write_immediate(struct _asm_context *asm_context, char *instr, struct
       return -1;
   }
 
-  add_bin(asm_context, opcode, IS_OPCODE);
-  if (size<2) { add_bin(asm_context, operands[0].value, IS_OPCODE); return 4; }
+  add_bin16(asm_context, opcode, IS_OPCODE);
+  if (size<2) { add_bin16(asm_context, operands[0].value, IS_OPCODE); return 4; }
   else { add_bin32(asm_context, operands[0].value, IS_OPCODE); return 6; }
 }
 
@@ -411,12 +411,12 @@ static int write_shift(struct _asm_context *asm_context, char *instr, struct _op
       return -1;
     }
 
-    add_bin(asm_context, opcode|((operands[0].value&7)<<9)|(size<<6)|operands[1].value, IS_OPCODE);
+    add_bin16(asm_context, opcode|((operands[0].value&7)<<9)|(size<<6)|operands[1].value, IS_OPCODE);
   }
     else
   if (operands[0].type==OPERAND_D_REG && operands[1].type==OPERAND_D_REG)
   {
-    add_bin(asm_context, opcode|(operands[0].value<<9)|(size<<6)|(1<<5)|operands[1].value, IS_OPCODE);
+    add_bin16(asm_context, opcode|(operands[0].value<<9)|(size<<6)|(1<<5)|operands[1].value, IS_OPCODE);
   }
     else
   {
@@ -450,7 +450,7 @@ static int write_vector(struct _asm_context *asm_context, char *instr, struct _o
   }
 
 
-  add_bin(asm_context, opcode|operands[0].value, IS_OPCODE);
+  add_bin16(asm_context, opcode|operands[0].value, IS_OPCODE);
   return 2;
 }
 
@@ -460,7 +460,7 @@ static int write_areg(struct _asm_context *asm_context, char *instr, struct _ope
   if (size!=SIZE_NONE) { return 0; }
   if (operands[0].type!=OPERAND_A_REG) { return 0; }
 
-  add_bin(asm_context, opcode|operands[0].value, IS_OPCODE);
+  add_bin16(asm_context, opcode|operands[0].value, IS_OPCODE);
   return 2;
 }
 
@@ -470,12 +470,12 @@ static int write_reg(struct _asm_context *asm_context, char *instr, struct _oper
   if (size!=SIZE_NONE) { return 0; }
   if (operands[0].type==OPERAND_D_REG)
   {
-    add_bin(asm_context, opcode|operands[0].value, IS_OPCODE);
+    add_bin16(asm_context, opcode|operands[0].value, IS_OPCODE);
   }
     else
   if (operands[0].type==OPERAND_A_REG)
   {
-    add_bin(asm_context, opcode|8|operands[0].value, IS_OPCODE);
+    add_bin16(asm_context, opcode|8|operands[0].value, IS_OPCODE);
   }
     else
   {
@@ -524,7 +524,7 @@ static int write_load_ea(struct _asm_context *asm_context, char *instr, struct _
   switch(operands[0].type)
   {
     case OPERAND_A_REG_INDEX:
-      add_bin(asm_context, opcode|(reg<<9)|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
+      add_bin16(asm_context, opcode|(reg<<9)|(operands[0].type<<3)|operands[0].value, IS_OPCODE);
       return 2;
     case OPERAND_INDEX_DATA16_A_REG:
       return ea_displacement(asm_context, opcode|(reg<<9), &operands[0]);
@@ -1384,9 +1384,9 @@ printf("\n");
       }
 
       int offset=operands[1].value-(asm_context->address+4);
-      add_bin(asm_context, opcode|(n<<8)|operands[0].value, IS_OPCODE);
+      add_bin16(asm_context, opcode|(n<<8)|operands[0].value, IS_OPCODE);
 
-      if (asm_context->pass==1) { add_bin(asm_context, 0, IS_OPCODE); }
+      if (asm_context->pass==1) { add_bin16(asm_context, 0, IS_OPCODE); }
       else
       {
         if (offset<-32768 || offset>32767)
@@ -1394,7 +1394,7 @@ printf("\n");
           print_error_range("Offset", -32768, 32767, asm_context);
           return -1;
         }
-        add_bin(asm_context, offset, IS_OPCODE);
+        add_bin16(asm_context, offset, IS_OPCODE);
       }
 
       return 4;
@@ -1438,7 +1438,7 @@ printf("\n");
         case OP_NONE:
           if (operand_count==0)
           {
-            add_bin(asm_context, table_680x0[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, table_680x0[n].opcode, IS_OPCODE);
             ret=2;
           }
           break;

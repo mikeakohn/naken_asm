@@ -266,17 +266,17 @@ int n;
 
   if (asm_context->pass==1)
   {
-    if (error==1) { add_bin(asm_context, 1, IS_DATA); }
-    else { add_bin(asm_context, 0, IS_DATA); }
+    if (error==1) { add_bin16(asm_context, 1, IS_DATA); }
+    else { add_bin16(asm_context, 0, IS_DATA); }
   }
     else
   {
-    add_bin(asm_context, opcode, IS_OPCODE);
+    add_bin16(asm_context, opcode, IS_OPCODE);
   }
 
   for (n=0; n<data->count; n++)
   {
-    add_bin(asm_context, data->data[n], IS_DATA);
+    add_bin16(asm_context, data->data[n], IS_DATA);
   }
 
   return 0;
@@ -610,7 +610,7 @@ int prefix=0;
 
       if (aliases[n].operand_count==0)
       {
-        add_bin(asm_context, aliases[n].opcode, IS_OPCODE);
+        add_bin16(asm_context, aliases[n].opcode, IS_OPCODE);
         return 0;
       }
 
@@ -675,7 +675,7 @@ int prefix=0;
 
         if (prefix!=0)
         {
-          add_bin(asm_context, prefix|(al<<6), IS_OPCODE);
+          add_bin16(asm_context, prefix|(al<<6), IS_OPCODE);
           msp430x=2;
           break;
         }
@@ -692,7 +692,7 @@ int prefix=0;
           dst19_16=(((uint32_t)operands[1].value)&0xf0000)>>16;
         }
 
-        add_bin(asm_context, 0x1800|(src19_16<<7)|(al<<6)|(dst19_16),IS_OPCODE);
+        add_bin16(asm_context, 0x1800|(src19_16<<7)|(al<<6)|(dst19_16),IS_OPCODE);
         break;
       }
 
@@ -885,7 +885,7 @@ int prefix=0;
       return -1;
     }
 
-    add_bin(asm_context, 0x1300, IS_OPCODE);
+    add_bin16(asm_context, 0x1300, IS_OPCODE);
     return 0;
   }
 
@@ -998,7 +998,7 @@ int prefix=0;
 
       int al=(size==20)?1:0;
       opcode=((operands[0].value-1)<<10)|(n<<8)|(1<<6)|(al<<4)|operands[1].value;
-      add_bin(asm_context, opcode, IS_OPCODE);
+      add_bin16(asm_context, opcode, IS_OPCODE);
       return 2;
     }
 
@@ -1045,8 +1045,8 @@ int prefix=0;
           operands[1].type==OPTYPE_REGISTER)
       {
         opcode=((((unsigned int)value)&0xf0000)>>8)|(2<<6)|(n<<4)|operands[1].reg;
-        add_bin(asm_context, opcode, IS_OPCODE);
-        add_bin(asm_context, ((unsigned int)value)&0xffff, IS_DATA);
+        add_bin16(asm_context, opcode, IS_OPCODE);
+        add_bin16(asm_context, ((unsigned int)value)&0xffff, IS_DATA);
         count=4;
       }
         else
@@ -1054,7 +1054,7 @@ int prefix=0;
           operands[1].type==OPTYPE_REGISTER)
       {
         opcode=(operands[0].reg<<8)|(3<<6)|(n<<4)|operands[1].reg;
-        add_bin(asm_context, opcode, IS_OPCODE);
+        add_bin16(asm_context, opcode, IS_OPCODE);
       }
 
       if (count==0)
@@ -1105,7 +1105,7 @@ int prefix=0;
 
       int al=(size==20)?1:0;
       opcode=0x1400|(n<<9)|(al<<8)|(num<<4)|reg;
-      add_bin(asm_context, opcode, IS_OPCODE);
+      add_bin16(asm_context, opcode, IS_OPCODE);
       return 2;
     }
 
@@ -1134,7 +1134,7 @@ int prefix=0;
       if (operands[0].type==OPTYPE_REGISTER_INDIRECT)
       {
         opcode|=(operands[0].reg<<8);
-        add_bin(asm_context, opcode, IS_OPCODE);
+        add_bin16(asm_context, opcode, IS_OPCODE);
         return 2;
       }
 
