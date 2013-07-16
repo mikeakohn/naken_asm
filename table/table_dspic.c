@@ -162,7 +162,7 @@ struct _dspic_table dspic_table[] = {
   { "push", 0xbe9f80, 0x000000, 0xfffff1, 0x000000, 24, 1, 2, 2, FLAG_D, FLAG_NONE, -1,  { { OP_WNS, 3, 1, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 } }  },
   { "push", 0xfea000, 0x000000, 0xffffff, 0x000000, 24, 1, 1, 1, FLAG_S, FLAG_NONE, -1,  { { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 } }  },
   { "pwrsav", 0xfe4000, 0x000000, 0xfffffe, 0x000000, 24, 1, 1, 1, FLAG_NONE, FLAG_NONE, 0,  { { OP_LIT, 1, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 } }  },
-  { "rcall", 0x070000, 0x000000, 0xff0000, 0x000000, 24, 1, 2, 2, FLAG_NONE, FLAG_NONE, 0,  { { OP_EXPR, 16, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 } }  },
+  { "rcall", 0x070000, 0x000000, 0xff0000, 0x000000, 24, 1, 2, 2, FLAG_NONE, FLAG_NONE, 0,  { { OP_BRA, 16, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 } }  },
   { "rcall", 0x012000, 0x000000, 0xfffff0, 0x000000, 24, 1, 2, 2, FLAG_NONE, FLAG_NONE, 0,  { { OP_WN, 4, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 } }  },
   { "repeat", 0x090000, 0x000000, 0xffc000, 0x000000, 24, 1, 1, 1, FLAG_NONE, FLAG_NONE, 0,  { { OP_LIT, 14, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 } }  },
   { "repeat", 0x098000, 0x000000, 0xfffff0, 0x000000, 24, 1, 1, 1, FLAG_NONE, FLAG_NONE, 0,  { { OP_WN, 4, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 }, { OP_NONE, 0, 0, 0, 0, 0 } }  },
