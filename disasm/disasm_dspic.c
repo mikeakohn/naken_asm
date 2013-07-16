@@ -200,7 +200,7 @@ int n,r;
           case OP_LIT:
           {
             value=EXTRACT_VALUE();
-            sprintf(temp, "#%d", value);
+            sprintf(temp, "#0x%x", value);
             break;
           }
           case OP_ACC:
