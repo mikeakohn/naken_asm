@@ -12,6 +12,8 @@
 #ifndef _TABLE_DSPIC_H
 #define _TABLE_DSPIC_H
 
+#include <stdint.h>
+
 #include "assembler.h"
 
 #define FLAG_NONE 0x0000
@@ -36,63 +38,85 @@
 enum
 {
   OP_NONE,
-  OP_BRA,        // branch calculated address
-  OP_F,          // f ; flag
-  OP_EXPR,       // Expr (n); Expression
-  OP_LIT,        // literal (k) ; #lit<num>  (#bit<num> b)
-  OP_ACC,        // Acc (A) ; Accumulator
-  OP_WREG,       // WREG (D); W0
-  OP_WN,         // Wn (d,s 4) ; address of working register?
-  OP_WM,         // Wn (t 4) ; dividend?
-  OP_WB,         // Wb (w 4) ; address of base register
-  OP_WNS,        // Wns (s 4) ; source register
-  OP_WND,        // Wnd (d 4) ; destination register
-  OP_WD,         // Wd (d 4) ; source with inc/dec (q 3) addr mode
-  OP_WS,         // Ws (s 4) ; dest with inc/dec (p 3) addr mode
-  OP_W_INDEX,    // (d) [Wd] or [Ws]
-  OP_WS_LIT,     // Ws (s) (k); [ Ws + LIT ]
-  OP_WD_LIT,     // Wd (d) (k); [ Wd + LIT ]
-  OP_WXD,        // (xx)
-  OP_WYD,        // (yy)
-  OP_MULT2,      // (mm) Wm*Wm W4*W4, W5*W5, W6*W6, W7*W7
-  OP_MULT3,      // (mmm) Wm*Wn W4*(W5,W6*W7), W5*(W6*W7), W6*W7
-  OP_PREFETCH_ED_X, // (iiii)
-  OP_PREFETCH_ED_Y, // (jjjj)
-  OP_PREFETCH_X, // (iiii)
-  OP_PREFETCH_Y, // (jjjj)
-  OP_ACC_WB,     // (aa)
-  OP_EXPR_DO,    // (nnnnnnnnnnn)
-  OP_EXPR_GOTO   // (nnnnnnnnnnn)
+  OP_F,
+  OP_ACC,
+  OP_ACC_LIT4_WD,
+  OP_ACC_LIT6,
+  OP_ACC_WB,
+  OP_A_WX_WY_AWB,
+  OP_BRA,
+  OP_CP0_F,
+  OP_CP_F,
+  OP_D_WNS_WND_1,
+  OP_D_WNS_WND_2,
+  OP_F_BIT4,
+  OP_F_BIT4_2,
+  OP_F_WND,
+  OP_F_WREG,
+  OP_GOTO,
+  OP_LIT1,
+  OP_LIT10_WN,
+  OP_LIT14,
+  OP_LIT14_EXPR,
+  OP_LIT16_WND,
+  OP_LIT8_WND,
+  OP_LNK_LIT14,
+  OP_N_WM_WN_ACC_AX_WY,
+  OP_POP_D_WND,
+  OP_POP_S,
+  OP_POP_WD,
+  OP_PUSH_S,
+  OP_PUSH_WNS,
+  OP_SS_WB_WS_WND,
+  OP_SU_WB_LIT5_WND,
+  OP_SU_WB_WS_WND,
+  OP_S_WM_WN,
+  OP_US_WB_WS_WND,
+  OP_UU_WB_LIT5_WND,
+  OP_UU_WB_WS_WND,
+  OP_U_WM_WN,
+  OP_WB_LIT4_WND,
+  OP_WB_LIT5,
+  OP_WB_LIT5_WD,
+  OP_WB_WN,
+  OP_WB_WNS_WND,
+  OP_WB_WS,
+  OP_WB_WS_WD,
+  OP_WD,
+  OP_WM_WM_ACC_WX_WY,
+  OP_WM_WM_ACC_WX_WY_WXD,
+  OP_WM_WN,
+  OP_WM_WN_ACC_WX_WY,
+  OP_WM_WN_ACC_WX_WY_AWB,
+  OP_WN,
+  OP_WN_EXPR,
+  OP_WNS_F,
+  OP_WNS_WD_LIT10,
+  OP_WNS_WND,
+  OP_WS_BIT4,
+  OP_WS_BIT4_2,
+  OP_WS_LIT10_WND,
+  OP_WS_LIT4_ACC,
+  OP_WS_PLUS_WB,
+  OP_WS_WB,
+  OP_WS_WB_WD_WB,
+  OP_WS_WD,
+  OP_WS_WND,
 };
 
-struct _dspic_operand
-{
-  char type;
-  char bitlen;
-  char bitpos;
-  char optional;
-  char attrlen;
-  char attrpos;
-};
-
-struct _dspic_table
+struct _table_dspic
 {
   char *name;
-  int opcode;
-  int opcode48;
-  int mask;
-  int mask48;
-  char bitlen;
-  char args;
-  char cycles_min;
-  char cycles_max;
-  int flags;
-  int default_flag;  // if FLAG_NONE then flag is not optional
-  char flag_pos;
-  struct _dspic_operand operands[5];
+  uint32_t opcode;
+  uint32_t opcode48;
+  uint32_t mask;
+  uint32_t mask48;
+  uint8_t type;
+  uint8_t cycles_min;
+  uint8_t cycles_max;
 };
 
-extern struct _dspic_table dspic_table[];
+extern struct _table_dspic table_dspic[];
 
 #endif
 

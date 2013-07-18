@@ -18,12 +18,12 @@
 #include "table_dspic.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
-#define EXTRACT_VALUE() ((opcode>>dspic_table[n].operands[r].bitpos)& \
-                  ((1<<dspic_table[n].operands[r].bitlen)-1))
-#define EXTRACT_ATTR() ((opcode>>dspic_table[n].operands[r].attrpos)& \
-                  ((1<<dspic_table[n].operands[r].attrlen)-1))
+#define EXTRACT_VALUE() ((opcode>>table_dspic[n].operands[r].bitpos)& \
+                  ((1<<table_dspic[n].operands[r].bitlen)-1))
+#define EXTRACT_ATTR() ((opcode>>table_dspic[n].operands[r].attrpos)& \
+                  ((1<<table_dspic[n].operands[r].attrlen)-1))
 
-static char *addr_modes[] = { "w%d", "[w%d]", "[w%d--]", "[w%d++]", "[--w%d]", "[++w%d]" };
+//static char *addr_modes[] = { "w%d", "[w%d]", "[w%d--]", "[w%d++]", "[--w%d]", "[++w%d]" };
 
 int get_dspic_flag_value(int flag)
 {
@@ -130,25 +130,27 @@ static void get_reg_string(char *temp, int mode, int reg)
 
 int disasm_dspic(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
-char temp[32];
-int opcode,opcode48;
+//char temp[32];
+uint32_t opcode;
+//opcode48;
 int count=4;
-int value,attr;
-int n,r;
+//int value,attr;
+int n;
 
   //opcode=get24bits(memory, address);
   opcode=get_opcode32(memory, address);
 
   n=0;
-  while(dspic_table[n].name!=NULL)
+  while(table_dspic[n].name!=NULL)
   {
-    if ((opcode&dspic_table[n].mask)==dspic_table[n].opcode)
+    if ((opcode&table_dspic[n].mask)==table_dspic[n].opcode)
     {
-      if (dspic_table[n].bitlen==48)
+#if 0
+      if (table_dspic[n].bitlen==48)
       {
         opcode48=get_opcode32(memory, address+4);
 
-        if ((opcode48&dspic_table[n].mask48)!=dspic_table[n].opcode48)
+        if ((opcode48&table_dspic[n].mask48)!=table_dspic[n].opcode48)
         {
           n++;
           continue;
@@ -156,203 +158,83 @@ int n,r;
 
         count+=4;
       }
+#endif
 
-      strcpy(instruction, dspic_table[n].name);
-      *cycles_min=dspic_table[n].cycles_min;
-      *cycles_max=dspic_table[n].cycles_max;
+      strcpy(instruction, table_dspic[n].name);
+      *cycles_min=table_dspic[n].cycles_min;
+      *cycles_max=table_dspic[n].cycles_max;
 
-      if (dspic_table[n].flags!=0)
+      switch(table_dspic[n].type)
       {
-        int flag=-1;
-        if (dspic_table[n].flag_pos==-1)
-        {
-          flag=dspic_table[n].default_flag;
-        }
-          else
-        {
-          flag=(opcode>>(dspic_table[n].flag_pos))&1;
-          flag=convert_dspic_flag_combo(flag, dspic_table[n].flags);
-        }
-
-        strcat(instruction, get_dspic_flag_str(flag));
-      }
-//printf("n=%d args=%d\n", n, dspic_table[n].args);
-
-      for (r=0; r<dspic_table[n].args; r++)
-      {
-        temp[0]=0;
-
-        switch(dspic_table[n].operands[r].type)
-        {
-          case OP_BRA:
-          {
-            short int distance=EXTRACT_VALUE();
-            sprintf(temp, "0x%02x  (%d)", ((address+4)+(distance*4))/2, distance*2);
-            break;
-          }
-          case OP_F:
-          case OP_EXPR:
-          {
-            value=EXTRACT_VALUE();
-            sprintf(temp, "0x%02x", value);
-            break;
-          }
-          case OP_LIT:
-          {
-            value=EXTRACT_VALUE();
-            sprintf(temp, "#0x%x", value);
-            break;
-          }
-          case OP_ACC:
-          {
-            value=EXTRACT_VALUE();
-            if (value==0) { strcpy(temp, "A"); }
-            else { strcpy(temp, "B"); }
-            break;
-          }
-          case OP_WREG:
-          {
-            value=EXTRACT_VALUE();
-            if (dspic_table[n].operands[r].optional==1)
-            {
-              if (value==1) strcpy(temp, "wreg");
-            }
-            break;
-          }
-          case OP_WN:
-          case OP_WM:
-          case OP_WB:
-          case OP_WNS:
-          case OP_WND:
-          {
-            value=EXTRACT_VALUE();
-            sprintf(temp, "w%d", value);
-            break;
-          }
-          case OP_WD:
-          case OP_WS:
-          case OP_W_INDEX:
-          {
-            value=EXTRACT_VALUE();
-            attr=EXTRACT_ATTR();
-            if (attr>=6)
-            {
-              if ((opcode>>19)==0xf)
-              {
-                sprintf(temp, "[r%d + r%d]", value, (opcode>>15)&0xf);
-              }
-                else
-              {
-                strcpy(temp, "???");
-              }
-            }
-              else
-            {
-              sprintf(temp, addr_modes[attr], value);
-            }
-
-            break;
-          }
-          case OP_WS_LIT:
-          case OP_WD_LIT:
-          {
-            value=EXTRACT_VALUE();
-            attr=EXTRACT_ATTR();
-
-            sprintf(temp, "[w%d + #%d]", value, attr);
-
-            break;
-          }
-          case OP_WXD:
-          case OP_WYD:
-          {
-            value=EXTRACT_VALUE();
-            sprintf(temp, "w%d", value+4);
-            break;
-          }
-          case OP_MULT2:
-          {
-            value=EXTRACT_VALUE();
-            sprintf(temp, "w%d*w%d", value+4, value+4);
-            break;
-          }
-          case OP_MULT3:
-          {
-            const char *mul3[] = { "w4*w5", "w4*w6", "w4*w7", "?", "w5*w6",
-                                   "w5*w7", "w6*w7", "?" };
-            value=EXTRACT_VALUE();
-            sprintf(temp, "%s", mul3[value]);
-            break;
-          }
-          case OP_PREFETCH_ED_X:
-          case OP_PREFETCH_ED_Y:
-          case OP_PREFETCH_X:
-          case OP_PREFETCH_Y:
-          {
-            int reg;
-            value=EXTRACT_VALUE();
-            if (value==0x4)
-            {
-              strcpy(temp, "<no prefetch?>");
-            }
-              else
-            {
-              reg=(value>>3)+8;
-              value=value&0x7;
-              if (dspic_table[n].operands[r].type==OP_PREFETCH_ED_Y) reg+=2;
-              if (value==0x4)
-              {
-                sprintf(temp, "[w%d + w12]", reg);
-              }
-                else
-              {
-                if ((value&0x7)!=0)
-                {
-                  value=((value^0x7)+1);
-                  sprintf(temp, "[w%d]-=%d", reg, value*2);
-                }
-                  else
-                {
-                  sprintf(temp, "[w%d]+=%d", reg, value*2);
-                }
-              }
-              if (dspic_table[n].operands[r].type==OP_PREFETCH_X ||
-                 dspic_table[n].operands[r].type==OP_PREFETCH_Y)
-              {
-                char temp2[8];
-                attr=EXTRACT_ATTR();
-                sprintf(temp2, ", w%d", attr+4);
-                strcat(temp, temp2);
-              }
-            }
-          }
-          case OP_ACC_WB:
-            value=EXTRACT_VALUE();
-            if (value==0) { strcpy(temp, "w13"); }
-            else if (value==1) { strcpy(temp, "[w13]+=2"); }
-            else if (value==3) { strcpy(temp, "?"); }
-            break;
-          case OP_EXPR_DO:
-            value=get_opcode32(memory, address+4);
-            sprintf(temp, "%d", value);
-            //count+=2;
-            break;
-          case OP_EXPR_GOTO:
-            value=(opcode&0xffff)|(get_opcode32(memory, address+4)<<16);
-            sprintf(temp, "0x%04x", value);
-            //count+=2;
-            break;
-          default:
-            strcpy(temp, "<error>");
-            break;
-        }
-
-        if (temp[0]!=0)
-        {
-          if (r==0) { strcat(instruction, " "); }
-          else { strcat(instruction, ", "); }
-          strcat(instruction, temp);
-        }
+        case OP_NONE:
+          return 4;
+        case OP_WNS_F:
+        case OP_ACC:
+        case OP_ACC_LIT4_WD:
+        case OP_ACC_LIT6:
+        case OP_ACC_WB:
+        case OP_A_WX_WY_AWB:
+        case OP_BRA:
+        case OP_CP0_F:
+        case OP_CP_F:
+        case OP_D_WNS_WND_1:
+        case OP_D_WNS_WND_2:
+        case OP_F:
+        case OP_F_BIT4:
+        case OP_F_BIT4_2:
+        case OP_F_WND:
+        case OP_F_WREG:
+        case OP_GOTO:
+        case OP_LIT1:
+        case OP_LIT10_WN:
+        case OP_LIT14:
+        case OP_LIT14_EXPR:
+        case OP_LIT16_WND:
+        case OP_LIT8_WND:
+        case OP_LNK_LIT14:
+        case OP_N_WM_WN_ACC_AX_WY:
+        case OP_POP_D_WND:
+        case OP_POP_S:
+        case OP_POP_WD:
+        case OP_PUSH_S:
+        case OP_PUSH_WNS:
+        case OP_SS_WB_WS_WND:
+        case OP_SU_WB_LIT5_WND:
+        case OP_SU_WB_WS_WND:
+        case OP_S_WM_WN:
+        case OP_US_WB_WS_WND:
+        case OP_UU_WB_LIT5_WND:
+        case OP_UU_WB_WS_WND:
+        case OP_U_WM_WN:
+        case OP_WB_LIT4_WND:
+        case OP_WB_LIT5:
+        case OP_WB_LIT5_WD:
+        case OP_WB_WN:
+        case OP_WB_WNS_WND:
+        case OP_WB_WS:
+        case OP_WB_WS_WD:
+        case OP_WD:
+        case OP_WM_WM_ACC_WX_WY:
+        case OP_WM_WM_ACC_WX_WY_WXD:
+        case OP_WM_WN:
+        case OP_WM_WN_ACC_WX_WY:
+        case OP_WM_WN_ACC_WX_WY_AWB:
+        case OP_WN:
+        case OP_WN_EXPR:
+        case OP_WNS_WD_LIT10:
+        case OP_WNS_WND:
+        case OP_WS_BIT4:
+        case OP_WS_BIT4_2:
+        case OP_WS_LIT10_WND:
+        case OP_WS_LIT4_ACC:
+        case OP_WS_PLUS_WB:
+        case OP_WS_WB:
+        case OP_WS_WB_WD_WB:
+        case OP_WS_WD:
+        case OP_WS_WND:
+        default:
+          strcpy(instruction, "???");
+          break;
       }
 
       return count;

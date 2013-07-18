@@ -1,0 +1,8 @@
+.dspic
+
+
+main:
+  nop
+  nopr
+
+

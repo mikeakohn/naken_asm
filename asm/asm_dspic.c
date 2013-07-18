@@ -90,6 +90,7 @@ struct _instruction
 };
 */
 
+#if 0
 static void add_bin_dspic(struct _asm_context *asm_context, uint32_t b, int flags)
 {
 int line=asm_context->line;
@@ -102,6 +103,7 @@ int address=asm_context->address;
 
   asm_context->address+=4; 
 }
+#endif
 
 static int get_register_dspic(char *token)
 {
@@ -174,8 +176,9 @@ char token[TOKENLEN];
 char instr_case[TOKENLEN];
 int flag=0;
 int token_type;
-int matched,wrong_op;
-int range_error=-1;
+int matched;
+//int wrong_op;
+//int range_error=-1;
 int opcode=0;
 int extra24=-1;
 int num;
@@ -189,7 +192,7 @@ int n;
     token_type=get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { break; }
 
-    if (operand_count==3)
+    if (operand_count==5)
     {
       print_error_unexp(token, asm_context);
       return -1;
@@ -475,7 +478,7 @@ int n;
   // On pass 1 we only calculate address.
   if (asm_context->pass==1)
   {
-    add_bin_dspic(asm_context, 0x0000000, IS_OPCODE);
+    add_bin32(asm_context, 0x0000000, IS_OPCODE);
 
     // FIXME - wtf is this.  can't this come from the table?
     if (strcmp("do", instr_case)==0 ||
@@ -483,424 +486,103 @@ int n;
          && operand_count==1 &&
          operands[0].type!=OPTYPE_REGISTER)))
     {
-      add_bin_dspic(asm_context, 0x0000000, IS_OPCODE);
+      add_bin32(asm_context, 0x0000000, IS_OPCODE);
     }
 
     return 0;
   }
 
   n=0;
-  struct _dspic_table *dspic_entry=NULL;
+  //struct _table_dspic *dspic_entry=NULL;
   matched=0;
-  while(dspic_table[n].name!=NULL && dspic_entry==NULL)
+  while(table_dspic[n].name!=NULL)
   {
-    if (strcmp(dspic_table[n].name, instr_case)==0)
+    if (strcmp(table_dspic[n].name, instr_case)==0)
     {
-      //printf("Matched %s\n", dspic_table[n].name);
-      //int local_flag;
       matched=1;
-      range_error=-1;
-
-      if (flag==FLAG_NONE)
+      //opcode=table_dspic[n].opcode;
+      switch(table_dspic[n].type)
       {
-        // If default flag is none, then a flag is required
-        if (dspic_table[n].default_flag==FLAG_NONE &&
-            dspic_table[n].flags!=0)
-        {
-          n++;
-          continue;
-        }
-
-        flag=dspic_table[n].default_flag;
-//printf("Setting default flag=%d\n", flag);
-      }
-
-      if ((flag&dspic_table[n].flags)==0 && dspic_table[n].flags!=0)
-      {
-//printf("n=%d\n", 0);
-        n++;
-        continue;
-      }
-
-//printf("flag=%d\n", flag);
-      opcode=dspic_table[n].opcode;
-
-      int r=0,curr_operand=0;
-      while(dspic_table[n].operands[r].type!=OP_NONE && r<dspic_table[n].args)
-      {
-        wrong_op=0;
-
-        if (curr_operand>=operand_count)
-        {
-          // Who the fuck makes an optional argument equal to value 2
-          // forcing the assembler to have to have some stupid shit like
-          // like this in it?
-          if (dspic_table[n].operands[r].type==OP_ACC_WB)
+        case OP_NONE:
+          if (operand_count==0)
           {
-            opcode|=2<<dspic_table[n].operands[r].bitpos;
-            r++;
-            continue;
+            add_bin32(asm_context, table_dspic[n].opcode, IS_OPCODE);
+            return 4;
           }
-
-          if (dspic_table[n].operands[r].optional==1) { r++; continue; }
           break;
-        }
-
-//printf("NEXT: n=%d r=%d curr_operand=%d type=%d  operand_type=%d %s\n", n, r, curr_operand, dspic_table[n].operands[r].type, operands[curr_operand].type, instr_case);
-        switch(dspic_table[n].operands[r].type)
-        {
-          case OP_BRA:
-          {
-            if (operands[curr_operand].type==OPTYPE_NUM)
-            {
-              int value=(operands[curr_operand].value-((asm_context->address/2)+2))/2;
-              if (value<-32768 || value>32767)
-              {
-                range_error=curr_operand; 
-              }
-              opcode|=(unsigned short int)value<<dspic_table[n].operands[r].bitpos;
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_F:
-          case OP_EXPR:
-          {
-            if (operands[curr_operand].type==OPTYPE_NUM)
-            {
-              if (check_range(dspic_table[n].operands[r].bitlen, operands[curr_operand].value)!=0)
-              {
-                range_error=curr_operand; 
-              }
-              opcode|=operands[curr_operand].value<<dspic_table[n].operands[r].bitpos;
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_LIT:
-          {
-            if (operands[curr_operand].type==OPTYPE_LIT)
-            {
-              if (check_range(dspic_table[n].operands[r].bitlen, operands[curr_operand].value)!=0)
-              {
-                range_error=curr_operand; 
-              }
-              opcode|=operands[curr_operand].value<<dspic_table[n].operands[r].bitpos;
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_ACC:
-          {
-            if (operands[curr_operand].type==OPTYPE_ACCUM)
-            {
-              opcode|=operands[curr_operand].value<<dspic_table[n].operands[r].bitpos;
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_WREG:
-          {
-            if (operands[curr_operand].type==OPTYPE_WREG)
-            {
-              opcode|=1<<dspic_table[n].operands[r].bitpos;
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_WN:
-          case OP_WM:
-          case OP_WB:
-          case OP_WNS:
-          case OP_WND:
-          {
-            if (operands[curr_operand].type==OPTYPE_REGISTER &&
-                operands[curr_operand].attribute==REG_NORMAL)
-            {
-              opcode|=operands[curr_operand].value<<dspic_table[n].operands[r].bitpos;
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_WD:
-          case OP_WS:
-          case OP_W_INDEX:
-          {
-            if (operands[curr_operand].type==OPTYPE_REGISTER &&
-                operands[curr_operand].attribute<REG_INDIRECT_W_PLUS_W)
-            {
-              if (operands[curr_operand].attribute==REG_NORMAL &&
-                  dspic_table[n].operands[r].type==OP_W_INDEX) { wrong_op=1; }
-              opcode|=operands[curr_operand].value<<dspic_table[n].operands[r].bitpos;
-              opcode|=operands[curr_operand].attribute<<dspic_table[n].operands[r].attrpos;
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_WS_LIT:
-          case OP_WD_LIT:
-          {
-            if (operands[curr_operand].type==OPTYPE_W_PLUS_LIT)
-            {
-              opcode|=operands[curr_operand].value<<dspic_table[n].operands[r].bitpos;
-              opcode|=operands[curr_operand].attribute<<dspic_table[n].operands[r].attrpos;
-              if (check_range(dspic_table[n].operands[r].bitlen, operands[curr_operand].attribute)!=0)
-              {
-                range_error=curr_operand; 
-              }
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_WXD:
-          case OP_WYD:
-          {
-            if (operands[curr_operand].type==OPTYPE_REGISTER)
-            {
-              if (operands[curr_operand].value<4 ||
-                  operands[curr_operand].value>7)
-              {
-                //print_error("Register out of range (w4-w7)", asm_context);
-                wrong_op=1;
-              }
-                else
-              {
-                opcode|=(operands[curr_operand].value-4)<<dspic_table[n].operands[r].bitpos;
-              }
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_MULT2:
-          {
-            // Wm*Wm
-            if (operands[curr_operand].type==OPTYPE_W_MUL_W)
-            {
-              if (operands[curr_operand].value!=operands[curr_operand].attribute ||
-                  operands[curr_operand].value<4 ||
-                  operands[curr_operand].value>7)
-              {
-                wrong_op=1;
-              }
-                else
-              {
-                opcode|=(operands[curr_operand].value-4)<<dspic_table[n].operands[r].bitpos;
-              }
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_MULT3:
-          {
-            // Wm*Wn
-            if (operands[curr_operand].type==OPTYPE_W_MUL_W)
-            {
-              int value=0;
-              int reg1=operands[curr_operand].value;
-              int reg2=operands[curr_operand].attribute;
-              if (reg1==4 && reg2==5) { value=0; }
-              else if (reg1==4 && reg2==6) { value=1; }
-              else if (reg1==4 && reg2==7) { value=2; }
-              else if (reg1==5 && reg2==6) { value=4; }
-              else if (reg1==5 && reg2==7) { value=5; }
-              else if (reg1==6 && reg2==7) { value=6; }
-              else { wrong_op=1; break; }
-
-              opcode|=(value)<<dspic_table[n].operands[r].bitpos;
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_PREFETCH_ED_X:
-          case OP_PREFETCH_ED_Y:
-          case OP_PREFETCH_X:
-          case OP_PREFETCH_Y:
-          {
-            int value=0;
-            if (dspic_table[n].operands[r].type==OP_PREFETCH_ED_X)
-            {
-              if (operands[curr_operand].value==8) { value=0; }
-              else if (operands[curr_operand].value==9) { value=8; }
-            }
-              else
-            if (dspic_table[n].operands[r].type==OP_PREFETCH_ED_Y)
-            {
-              if (operands[curr_operand].value==8) { value=0; }
-              else if (operands[curr_operand].value==9) { value=8; }
-            }
-              else
-            { wrong_op=1; break; }
-
-            if (operands[curr_operand].type==OPTYPE_REGISTER &&
-                operands[curr_operand].attribute==REG_INDIRECT_W_PLUS_W)
-            {
-              opcode|=(value|4)<<dspic_table[n].operands[r].bitpos;
-            }
-              else
-            if (operands[curr_operand].type==OPTYPE_W_PLUS_LIT)
-            {
-              int attr=operands[curr_operand].attribute;
-              if ((attr&0x1)==1 || attr>6 || attr<-6) { wrong_op=1; break; }
-              attr=attr/2;
-              attr=attr&0x7;
-              opcode|=(value|attr)<<dspic_table[n].operands[r].bitpos;
-            }
-              else
-            if (operands[curr_operand].type==OPTYPE_REGISTER &&
-                operands[curr_operand].attribute==REG_INDIRECT)
-            {
-              opcode|=(value)<<dspic_table[n].operands[r].bitpos;
-            }
-              else
-            {
-              wrong_op=1;
-              break;
-            }
-
-            if (dspic_table[n].operands[r].type==OP_PREFETCH_X ||
-                dspic_table[n].operands[r].type==OP_PREFETCH_Y)
-            {
-              curr_operand++;
-              if (curr_operand>=operand_count ||
-                  operands[curr_operand].type!=OPTYPE_REGISTER ||
-                  operands[curr_operand].attribute!=REG_NORMAL ||
-                  operands[curr_operand].value<4 ||
-                  operands[curr_operand].value>7)
-              {
-                printf("Error: Expecting register w4-w7 at %s:%d.\n", asm_context->filename, asm_context->line);
-                return -1;
-              }
-
-              opcode|=(operands[curr_operand].value-4)<<dspic_table[n].operands[r].attrpos;
-
-            }
-            break;
-          }
-          case OP_ACC_WB:
-          {
-            if (operands[curr_operand].type==OPTYPE_REGISTER &&
-                operands[curr_operand].attribute==REG_NORMAL &&
-                operands[curr_operand].value==13)
-            {
-              // aa = 0, do nothing (arf arf)
-            }
-              else
-            if (operands[curr_operand].type==OPTYPE_W_PLUS_LIT &&
-                operands[curr_operand].value==13 &&
-                operands[curr_operand].attribute==2)
-            {
-              opcode|=1<<dspic_table[n].operands[r].bitpos;
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_EXPR_GOTO:
-          {
-            // FIXME - add 24 bits
-            if (operands[curr_operand].type==OPTYPE_NUM)
-            {
-              if (check_range(dspic_table[n].operands[r].bitlen, operands[curr_operand].value)!=0)
-              {
-                range_error=curr_operand; 
-              }
-              if ((operands[curr_operand].value&1)==1)
-              {
-                printf("Error: Address not on boundary at %s:%d.\n", asm_context->filename, asm_context->line);
-              }
-              //opcode|=operands[curr_operand].value<<dspic_table[n].operands[r].bitpos;
-              opcode|=operands[curr_operand].value&0xfffe;
-              extra24=operands[curr_operand].value>>16;
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          case OP_EXPR_DO:
-          {
-            // FIXME - is this okay?
-            if (operands[curr_operand].type==OPTYPE_NUM)
-            {
-              if (check_range(dspic_table[n].operands[r].bitlen, operands[curr_operand].value)!=0)
-              {
-                range_error=curr_operand; 
-              }
-              extra24=operands[curr_operand].value;
-            }
-              else
-            {
-              wrong_op=1;
-            }
-            break;
-          }
-          default:
-            printf("Internal Error: %s:%d\n", __FILE__, __LINE__);
-            break;
-        }
-
-        if (wrong_op==1)
-        {
-          if (dspic_table[n].operands[r].optional!=1)
-          {
-            r=dspic_table[n].args+1;
-            break;
-          }
-        }
-          else
-        {
-          curr_operand++;
-        }
-
-        r++;
-      }
-
-//printf("r=%d args=%d\n", r, dspic_table[n].args);
-      if (r==dspic_table[n].args)
-      {
-        dspic_entry=&dspic_table[n];
+        case OP_F:
+        case OP_ACC:
+        case OP_ACC_LIT4_WD:
+        case OP_ACC_LIT6:
+        case OP_ACC_WB:
+        case OP_A_WX_WY_AWB:
+        case OP_BRA:
+        case OP_CP0_F:
+        case OP_CP_F:
+        case OP_D_WNS_WND_1:
+        case OP_D_WNS_WND_2:
+        case OP_F_BIT4:
+        case OP_F_BIT4_2:
+        case OP_F_WND:
+        case OP_F_WREG:
+        case OP_GOTO:
+        case OP_LIT1:
+        case OP_LIT10_WN:
+        case OP_LIT14:
+        case OP_LIT14_EXPR:
+        case OP_LIT16_WND:
+        case OP_LIT8_WND:
+        case OP_LNK_LIT14:
+        case OP_N_WM_WN_ACC_AX_WY:
+        case OP_POP_D_WND:
+        case OP_POP_S:
+        case OP_POP_WD:
+        case OP_PUSH_S:
+        case OP_PUSH_WNS:
+        case OP_SS_WB_WS_WND:
+        case OP_SU_WB_LIT5_WND:
+        case OP_SU_WB_WS_WND:
+        case OP_S_WM_WN:
+        case OP_US_WB_WS_WND:
+        case OP_UU_WB_LIT5_WND:
+        case OP_UU_WB_WS_WND:
+        case OP_U_WM_WN:
+        case OP_WB_LIT4_WND:
+        case OP_WB_LIT5:
+        case OP_WB_LIT5_WD:
+        case OP_WB_WN:
+        case OP_WB_WNS_WND:
+        case OP_WB_WS:
+        case OP_WB_WS_WD:
+        case OP_WD:
+        case OP_WM_WM_ACC_WX_WY:
+        case OP_WM_WM_ACC_WX_WY_WXD:
+        case OP_WM_WN:
+        case OP_WM_WN_ACC_WX_WY:
+        case OP_WM_WN_ACC_WX_WY_AWB:
+        case OP_WN:
+        case OP_WN_EXPR:
+        case OP_WNS_F:
+        case OP_WNS_WD_LIT10:
+        case OP_WNS_WND:
+        case OP_WS_BIT4:
+        case OP_WS_BIT4_2:
+        case OP_WS_LIT10_WND:
+        case OP_WS_LIT4_ACC:
+        case OP_WS_PLUS_WB:
+        case OP_WS_WB:
+        case OP_WS_WB_WD_WB:
+        case OP_WS_WD:
+        case OP_WS_WND:
+        default:
+          break;
       }
     }
 
     n++;
   }
 
+#if 0
   if (dspic_entry==NULL)
   {
     if (matched==1)
@@ -928,14 +610,26 @@ int n;
     flag=flag==-1?0:flag;
     opcode|=flag<<dspic_entry->flag_pos;
   }
+#endif
 
-  add_bin_dspic(asm_context, opcode, IS_OPCODE);
+#if 0
+  add_bin32(asm_context, opcode, IS_OPCODE);
   if (extra24!=-1)
   {
-    add_bin_dspic(asm_context, extra24, IS_OPCODE);
+    add_bin32(asm_context, extra24, IS_OPCODE);
   }
+#endif
 
-  asm_context->line++;
+  //asm_context->line++;
+
+  if (matched==1)
+  {
+    print_error_unknown_operand_combo(instr, asm_context);
+  }
+    else
+  {
+    print_error_unknown_instr(instr, asm_context);
+  }
 
   return 0;
 }
