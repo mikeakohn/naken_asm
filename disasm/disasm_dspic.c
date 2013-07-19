@@ -135,7 +135,7 @@ uint32_t opcode;
 //opcode48;
 int count=4;
 //int value,attr;
-int n,b,d,f;
+int n,b,d,f,a,lit;
 
   //opcode=get24bits(memory, address);
   opcode=get_opcode32(memory, address);
@@ -179,7 +179,24 @@ int n,b,d,f;
           sprintf(instruction, "%s%s 0x%04x%s", table_dspic[n].name, (b==0?"":".b"), f, (d==0?", wreg":""));
           return 4;
         case OP_ACC:
+          a=(opcode>>15)&1;
+          sprintf(instruction, "%s %c", table_dspic[n].name, (a==0)?'A':'B');
+          return 4;
         case OP_ACC_LIT4_WD:
+          b=(opcode>>16)&1;  // .R ?
+          a=(opcode>>15)&1;
+          lit=(opcode>>7)&0xf;
+          if ((lit&0x8)!=0) { lit=-((lit&0xf)+1); }
+
+          if (lit==0)
+          {
+            sprintf(instruction, "%s%s %c", table_dspic[n].name, (b==0)?"":".r", (a==0)?'A':'B');
+          }
+            else
+          {
+            sprintf(instruction, "%s%s %c, #%d", table_dspic[n].name, (b==0)?"":".r", (a==0)?'A':'B', lit);
+          }
+          return 4;
         case OP_ACC_LIT6:
         case OP_ACC_WB:
         case OP_A_WX_WY_AWB:

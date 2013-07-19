@@ -200,6 +200,12 @@ static int check_f_wreg(struct _asm_context *asm_context, int value, int flag)
   return 0;
 }
 
+#if 0
+int is_wd_wb(int type)
+{
+}
+#endif
+
 int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
 {
 struct _operand operands[5];
@@ -332,32 +338,41 @@ int n;
     if (IS_TOKEN(token,'['))
     {
       operands[operand_count].type=OPTYPE_REGISTER;
+      token_type=get_token(asm_context, token, TOKENLEN);
 
       if (IS_TOKEN(token,'+'))
       {
+        if (expect_token(asm_context, '+')==-1) { return -1; }
+#if 0
         token_type=get_token(asm_context, token, TOKENLEN);
         if (IS_NOT_TOKEN(token,'+'))
         {
           print_error_unexp(token, asm_context);
           return -1;
         }
+#endif
 
         operands[operand_count].attribute=REG_INDIRECT_PRE_INC;
+        token_type=get_token(asm_context, token, TOKENLEN);
       }
         else
       if (IS_TOKEN(token,'-'))
       {
+        if (expect_token(asm_context, '-')==-1) { return -1; }
+#if 0
         token_type=get_token(asm_context, token, TOKENLEN);
         if (IS_NOT_TOKEN(token,'-'))
         {
           print_error_unexp(token, asm_context);
           return -1;
         }
+#endif
         operands[operand_count].attribute=REG_INDIRECT_PRE_DEC;
+        token_type=get_token(asm_context, token, TOKENLEN);
       }
 
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (token_type<0) { print_error_unexp(token, asm_context); return -1; }
+      //token_type=get_token(asm_context, token, TOKENLEN);
+      //if (token_type<0) { print_error_unexp(token, asm_context); return -1; }
 
       num=get_register_dspic(token);
       if (num<0)
@@ -365,50 +380,56 @@ int n;
         print_error_unexp(token, asm_context);
         return -1;
       }
+      operands[operand_count].value=num;
 
       token_type=get_token(asm_context, token, TOKENLEN);
-      if (operands[operand_count].type==OPTYPE_REGISTER)
+      //if (operands[operand_count].type==OPTYPE_REGISTER) // what?
+      //{
+      if (IS_TOKEN(token,'+'))
       {
-        if (IS_TOKEN(token,'+'))
+        token_type=get_token(asm_context, token, TOKENLEN);
+        if (IS_NOT_TOKEN(token,'+'))
         {
-          token_type=get_token(asm_context, token, TOKENLEN);
-          if (IS_NOT_TOKEN(token,'+'))
+          // Check for: [W + #] and [W + W]
+          if (IS_TOKEN(token,'#'))
           {
-            // Check for: [W + #] and [W + W]
-            if (IS_TOKEN(token,'#'))
+            int a;
+            operands[operand_count].type=OPTYPE_W_PLUS_LIT;
+            if (eval_expression(asm_context, &a)!=0)
             {
-              int a;
-              operands[operand_count].type=OPTYPE_W_PLUS_LIT;
-              if (eval_expression(asm_context, &a)!=0)
-              {
-                print_error_unexp(token, asm_context);
-                return -1;
-              }
-              operands[operand_count].attribute=a;
+              print_error_unexp(token, asm_context);
+              return -1;
             }
-              else
-            {
-              operands[operand_count].reg2=get_register_dspic(token);
-              if (operands[operand_count].reg2==-1)
-              {
-                print_error_unexp(token, asm_context);
-                return -1;
-              }
-              operands[operand_count].attribute=REG_INDIRECT_W_PLUS_W;
-            }
+            operands[operand_count].attribute=a;
           }
             else
           {
-            operands[operand_count].attribute=REG_INDIRECT_POST_INC;
+            operands[operand_count].reg2=get_register_dspic(token);
+            if (operands[operand_count].reg2==-1)
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+            operands[operand_count].attribute=REG_INDIRECT_W_PLUS_W;
           }
         }
           else
-        if (IS_TOKEN(token,'-'))
         {
-          token_type=get_token(asm_context, token, TOKENLEN);
-          if (IS_NOT_TOKEN(token,'-')) { return -1; }
-          operands[operand_count].attribute=REG_INDIRECT_POST_DEC;
+          operands[operand_count].attribute=REG_INDIRECT_POST_INC;
         }
+
+        token_type=get_token(asm_context, token, TOKENLEN);
+      }
+        else
+      if (IS_TOKEN(token,'-'))
+      {
+        if (expect_token(asm_context, '-')==-1) { return -1; }
+#if 0
+        token_type=get_token(asm_context, token, TOKENLEN);
+        if (IS_NOT_TOKEN(token,'-')) { return -1; }
+#endif
+        operands[operand_count].attribute=REG_INDIRECT_POST_DEC;
+        token_type=get_token(asm_context, token, TOKENLEN);
       }
 
       if (IS_NOT_TOKEN(token,']'))
@@ -423,12 +444,15 @@ int n;
         operands[operand_count].type=OPTYPE_W_OP_EQ_NUM;
         int a=0;
         if (IS_TOKEN(token,'+')) { a=1; }
+        if (expect_token(asm_context, '=')==-1) { return -1; }
+#if 0
         token_type=get_token(asm_context, token, TOKENLEN);
         if (IS_NOT_TOKEN(token,'='))
         {
           print_error_unexp(token, asm_context);
           return -1;
         }
+#endif
         if (eval_expression(asm_context, &a)!=0)
         {
           print_error_unexp(token, asm_context);
@@ -567,68 +591,168 @@ int n;
             add_bin32(asm_context, table_dspic[n].opcode|(flag==FLAG_B?(1<<14):0)|operands[0].value, IS_OPCODE);
             return 4;
           }
+          break;
         case OP_ACC:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_ACCUM)
+          {
+            add_bin32(asm_context, table_dspic[n].opcode|(operands[0].value<<15), IS_OPCODE);
+            return 4;
+          }
+          break;
         case OP_ACC_LIT4_WD:
+          if (flag!=FLAG_NONE && flag!=FLAG_R) { break; }
+          opcode=table_dspic[n].opcode|((flag==FLAG_R)?(1<<16):0); 
+          opcode|=(operands[0].value<<15);
+
+          if (operand_count==2 &&
+              operands[0].type==OPTYPE_ACCUM &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            opcode|=operands[1].value;
+            opcode|=(operands[1].attribute<<4);
+            if (operands[1].attribute==6) { opcode|=operands[1].reg2<<16; }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+          if (operand_count==3 &&
+              operands[0].type==OPTYPE_ACCUM &&
+              operands[1].type==OPTYPE_LIT &&
+              operands[2].type==OPTYPE_REGISTER)
+          {
+            if (operands[1].value<-8 || operands[1].value>7)
+            {
+              print_error_range("Literal", -8, 7, asm_context);
+              return -1;
+            }
+            opcode|=((uint32_t)(operands[1].value&0xf))<<7;
+            opcode|=operands[2].value;
+            opcode|=operands[2].attribute<<4;
+            if (operands[1].attribute==6) { opcode|=operands[1].reg2<<16; }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+          break;
         case OP_ACC_LIT6:
+          break;
         case OP_ACC_WB:
+          break;
         case OP_A_WX_WY_AWB:
+          break;
         case OP_BRA:
+          break;
         case OP_CP0_F:
+          break;
         case OP_CP_F:
+          break;
         case OP_D_WNS_WND_1:
+          break;
         case OP_D_WNS_WND_2:
+          break;
         case OP_F_BIT4:
+          break;
         case OP_F_BIT4_2:
+          break;
         case OP_F_WND:
+          break;
         case OP_GOTO:
+          break;
         case OP_LIT1:
+          break;
         case OP_LIT10_WN:
+          break;
         case OP_LIT14:
+          break;
         case OP_LIT14_EXPR:
+          break;
         case OP_LIT16_WND:
+          break;
         case OP_LIT8_WND:
+          break;
         case OP_LNK_LIT14:
+          break;
         case OP_N_WM_WN_ACC_AX_WY:
+          break;
         case OP_POP_D_WND:
+          break;
         case OP_POP_S:
+          break;
         case OP_POP_WD:
+          break;
         case OP_PUSH_S:
+          break;
         case OP_PUSH_WNS:
+          break;
         case OP_SS_WB_WS_WND:
+          break;
         case OP_SU_WB_LIT5_WND:
+          break;
         case OP_SU_WB_WS_WND:
+          break;
         case OP_S_WM_WN:
+          break;
         case OP_US_WB_WS_WND:
+          break;
         case OP_UU_WB_LIT5_WND:
+          break;
         case OP_UU_WB_WS_WND:
+          break;
         case OP_U_WM_WN:
+          break;
         case OP_WB_LIT4_WND:
+          break;
         case OP_WB_LIT5:
+          break;
         case OP_WB_LIT5_WD:
+          break;
         case OP_WB_WN:
+          break;
         case OP_WB_WNS_WND:
+          break;
         case OP_WB_WS:
+          break;
         case OP_WB_WS_WD:
+          break;
         case OP_WD:
+          break;
         case OP_WM_WM_ACC_WX_WY:
+          break;
         case OP_WM_WM_ACC_WX_WY_WXD:
+          break;
         case OP_WM_WN:
+          break;
         case OP_WM_WN_ACC_WX_WY:
+          break;
         case OP_WM_WN_ACC_WX_WY_AWB:
+          break;
         case OP_WN:
+          break;
         case OP_WN_EXPR:
+          break;
         case OP_WNS_F:
+          break;
         case OP_WNS_WD_LIT10:
+          break;
         case OP_WNS_WND:
+          break;
         case OP_WS_BIT4:
+          break;
         case OP_WS_BIT4_2:
+          break;
         case OP_WS_LIT10_WND:
+          break;
         case OP_WS_LIT4_ACC:
+          break;
         case OP_WS_PLUS_WB:
+          break;
         case OP_WS_WB:
+          break;
         case OP_WS_WB_WD_WB:
+          break;
         case OP_WS_WD:
+          break;
         case OP_WS_WND:
+          break;
         default:
           break;
       }
