@@ -39,6 +39,7 @@ enum
 {
   OP_NONE,
   OP_F,
+  OP_F_WREG,
   OP_ACC,
   OP_ACC_LIT4_WD,
   OP_ACC_LIT6,
@@ -52,7 +53,6 @@ enum
   OP_F_BIT4,
   OP_F_BIT4_2,
   OP_F_WND,
-  OP_F_WREG,
   OP_GOTO,
   OP_LIT1,
   OP_LIT10_WN,

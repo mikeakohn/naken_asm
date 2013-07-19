@@ -168,13 +168,45 @@ static int check_range(int bitlen, int num)
   return 0;
 }
 
+static int check_f(struct _asm_context *asm_context, int value)
+{
+  if ((value&1)!=0)
+  {
+    print_error("Address not on 16 bit boundary", asm_context);
+  }
+
+  if (value<0 || value>0xffff)
+  {
+    print_error_range("Address", 0, 0xffff, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
+static int check_f_wreg(struct _asm_context *asm_context, int value, int flag)
+{
+  if (flag==0 && (value&1)!=0)
+  {
+    print_error("Address not on 16 bit boundary", asm_context);
+  }
+
+  if (value<0 || value>0x1fff)
+  {
+    print_error_range("Address", 0, 0x1fff, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
 int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
 {
 struct _operand operands[5];
 int operand_count=0;
 char token[TOKENLEN];
 char instr_case[TOKENLEN];
-int flag=0;
+int flag=FLAG_NONE;
 int token_type;
 int matched;
 //int wrong_op;
@@ -504,13 +536,37 @@ int n;
       switch(table_dspic[n].type)
       {
         case OP_NONE:
-          if (operand_count==0)
+          if (operand_count==0 && flag==FLAG_NONE)
           {
             add_bin32(asm_context, table_dspic[n].opcode, IS_OPCODE);
             return 4;
           }
           break;
         case OP_F:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_NUM)
+          {
+            if (check_f(asm_context,operands[0].value)==-1) { return -1; }
+
+            add_bin32(asm_context, table_dspic[n].opcode|operands[0].value, IS_OPCODE);
+            return 4;
+          }
+          break;
+        case OP_F_WREG:
+          if (flag!=FLAG_NONE && flag!=FLAG_B) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_NUM)
+          {
+            if (check_f_wreg(asm_context,operands[0].value,flag)==-1) { return -1; }
+            add_bin32(asm_context, table_dspic[n].opcode|(flag==FLAG_B?(1<<14):0)|(1<<13)|operands[0].value, IS_OPCODE);
+            return 4;
+          }
+          if (operand_count==2 &&
+              operands[0].type==OPTYPE_NUM && operands[1].type==OPTYPE_WREG)
+          {
+            if (check_f_wreg(asm_context,operands[0].value,flag)==-1) { return -1; }
+            add_bin32(asm_context, table_dspic[n].opcode|(flag==FLAG_B?(1<<14):0)|operands[0].value, IS_OPCODE);
+            return 4;
+          }
         case OP_ACC:
         case OP_ACC_LIT4_WD:
         case OP_ACC_LIT6:
@@ -524,7 +580,6 @@ int n;
         case OP_F_BIT4:
         case OP_F_BIT4_2:
         case OP_F_WND:
-        case OP_F_WREG:
         case OP_GOTO:
         case OP_LIT1:
         case OP_LIT10_WN:
