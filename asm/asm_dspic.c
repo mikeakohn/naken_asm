@@ -90,21 +90,6 @@ struct _instruction
 };
 */
 
-#if 0
-static void add_bin_dspic(struct _asm_context *asm_context, uint32_t b, int flags)
-{
-int line=asm_context->line;
-int address=asm_context->address;
-
-  memory_write(asm_context, address++, b&0xff, line);
-  memory_write(asm_context, address++, (b>>8)&0xff, line);
-  memory_write(asm_context, address++, (b>>16)&0xff, line);
-  memory_write(asm_context, address++, (b>>24)&0xff, line);
-
-  asm_context->address+=4; 
-}
-#endif
-
 static int get_register_dspic(char *token)
 {
   if (token[0]=='w' || token[0]=='W')
@@ -126,49 +111,16 @@ static int get_register_dspic(char *token)
   return -1;
 }
 
-// generated with
-// cat dspic_asm.c | grep BRA | grep define | awk '{ print "  else if (strcasecmp(token, \""$2"\")==0) { return "$2"; }" }'
-#if 0
-int get_condition(char *token)
+static int check_range(struct _asm_context *asm_context, char *type, int num, int min, int max)
 {
-char s[TOKENLEN];
+  if (num<min || num>max)
+  {
+    print_error_range(type, min, max, asm_context);
+    return -1;
+  }
 
-  lower_copy(s, token);
-
-  if (strcmp(s, "BRA_C")==0) { return BRA_C; }
-  else if (strcmp(s, "BRA_GE")==0) { return BRA_GE; }
-  else if (strcmp(s, "BRA_GEU")==0) { return BRA_GEU; }
-  else if (strcmp(s, "BRA_GT")==0) { return BRA_GT; }
-  else if (strcmp(s, "BRA_GTU")==0) { return BRA_GTU; }
-  else if (strcmp(s, "BRA_LE")==0) { return BRA_LE; }
-  else if (strcmp(s, "BRA_LEU")==0) { return BRA_LEU; }
-  else if (strcmp(s, "BRA_LT")==0) { return BRA_LT; }
-  else if (strcmp(s, "BRA_LTU")==0) { return BRA_LTU; }
-  else if (strcmp(s, "BRA_N")==0) { return BRA_N; }
-  else if (strcmp(s, "BRA_NC")==0) { return BRA_NC; }
-  else if (strcmp(s, "BRA_NN")==0) { return BRA_NN; }
-  else if (strcmp(s, "BRA_NOV")==0) { return BRA_NOV; }
-  else if (strcmp(s, "BRA_NZ")==0) { return BRA_NZ; }
-  else if (strcmp(s, "BRA_OA")==0) { return BRA_OA; }
-  else if (strcmp(s, "BRA_OB")==0) { return BRA_OB; }
-  else if (strcmp(s, "BRA_OV")==0) { return BRA_OV; }
-  else if (strcmp(s, "BRA_SA")==0) { return BRA_SA; }
-  else if (strcmp(s, "BRA_SB")==0) { return BRA_SB; }
-  else if (strcmp(s, "BRA_Z")==0) { return BRA_Z; }
-
-  return BRA_UNCOND;
-}
-#endif
-
-#if 0
-static int check_range(int bitlen, int num)
-{
-  int low=-(1<<(bitlen-1));
-  int high=(1<<bitlen)-1;
-  if (num>high || num<low) { return -1; }
   return 0;
 }
-#endif
 
 static int check_f(struct _asm_context *asm_context, int value)
 {
@@ -186,9 +138,9 @@ static int check_f(struct _asm_context *asm_context, int value)
   return 0;
 }
 
-static int check_f_wreg(struct _asm_context *asm_context, int value, int flag)
+static int check_f_flag(struct _asm_context *asm_context, int value, int flag)
 {
-  if (flag==0 && (value&1)!=0)
+  if (flag!=FLAG_B && (value&1)!=0)
   {
     print_error("Address not on 16 bit boundary", asm_context);
   }
@@ -580,17 +532,17 @@ int n;
           }
           break;
         case OP_F_WREG:
-          if (flag!=FLAG_NONE && flag!=FLAG_B) { break; }
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
           if (operand_count==1 && operands[0].type==OPTYPE_NUM)
           {
-            if (check_f_wreg(asm_context,operands[0].value,flag)==-1) { return -1; }
+            if (check_f_flag(asm_context,operands[0].value,flag)==-1) { return -1; }
             add_bin32(asm_context, table_dspic[n].opcode|(flag==FLAG_B?(1<<14):0)|(1<<13)|operands[0].value, IS_OPCODE);
             return 4;
           }
           if (operand_count==2 &&
               operands[0].type==OPTYPE_NUM && operands[1].type==OPTYPE_WREG)
           {
-            if (check_f_wreg(asm_context,operands[0].value,flag)==-1) { return -1; }
+            if (check_f_flag(asm_context,operands[0].value,flag)==-1) { return -1; }
             add_bin32(asm_context, table_dspic[n].opcode|(flag==FLAG_B?(1<<14):0)|operands[0].value, IS_OPCODE);
             return 4;
           }
@@ -623,11 +575,7 @@ int n;
               operands[1].type==OPTYPE_LIT &&
               operands[2].type==OPTYPE_REGISTER)
           {
-            if (operands[1].value<-8 || operands[1].value>7)
-            {
-              print_error_range("Literal", -8, 7, asm_context);
-              return -1;
-            }
+            if (check_range(asm_context, "Literal", operands[1].value, -8, 7)==-1) { return -1; }
             opcode|=(((uint32_t)(operands[1].value&0xf))<<7);
             opcode|=operands[2].value;
             opcode|=(operands[2].attribute<<4);
@@ -642,11 +590,7 @@ int n;
           if (operand_count==2 && operands[0].type==OPTYPE_ACCUM &&
               operands[1].type==OPTYPE_LIT)
           {
-            if (operands[1].value<-16 || operands[1].value>16)
-            {
-              print_error_range("Literal", -16, 16, asm_context);
-              return -1;
-            }
+            if (check_range(asm_context, "Literal", operands[1].value, -16, 16)==-1) { return -1; }
             opcode=table_dspic[n].opcode;
             opcode|=(operands[0].value<<15);
             opcode|=((uint32_t)(operands[1].value&0x3f));
@@ -673,11 +617,7 @@ int n;
           if (operand_count==1 && operands[0].type==OPTYPE_NUM)
           {
             int offset=operands[0].value-((asm_context->address/2)+2);
-            if (offset<-32768 || offset>32767)
-            {
-              print_error_range("Offset", -32768, 32767, asm_context);
-              return -1;
-            }
+            if (check_range(asm_context, "Offset", offset, -32768, 32767)==-1) { return -1; }
             opcode=table_dspic[n].opcode;
             opcode|=(offset&0xffff);
             add_bin32(asm_context, opcode, IS_OPCODE);
@@ -685,7 +625,7 @@ int n;
           }
           break;
         case OP_CP0_WS:
-          if (flag!=FLAG_NONE && flag!=FLAG_B) { break; }
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
           if (operand_count==1 && operands[0].type==OPTYPE_REGISTER)
           {
             if (operands[0].attribute>5) { break; }
@@ -697,17 +637,102 @@ int n;
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
-
           break;
         case OP_CP_F:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_NUM)
+          {
+            if (check_f_flag(asm_context,operands[0].value,flag)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[0].value;
+            if (flag==FLAG_B) { opcode|=(1<<14); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_D_WNS_WND_1:
+          if (flag!=FLAG_D) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (operands[1].attribute>5) { break; }
+            if (operands[0].attribute!=0) { break; }
+            if (operands[1].attribute==0 && (operands[1].value&1)!=0)
+            {
+              print_error("Illegal register for double", asm_context);
+              return -1;
+            }
+            if ((operands[0].value&1)!=0)
+            {
+              print_error("Illegal register for double", asm_context);
+              return -1;
+            }
+            opcode=table_dspic[n].opcode|((operands[0].value/2)<<1)|
+                   (operands[1].attribute<<11)|(operands[1].value<<7);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_D_WNS_WND_2:
+          if (flag!=FLAG_D) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute>5) { break; }
+            if (operands[1].attribute!=0) { break; }
+            if (operands[0].attribute==0 && (operands[0].value&1)!=0)
+            {
+              print_error("Illegal register for double", asm_context);
+              return -1;
+            }
+            if ((operands[1].value&1)!=0)
+            {
+              print_error("Illegal register for double", asm_context);
+              return -1;
+            }
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   (operands[0].attribute<<4)|((operands[1].value/2)<<8);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_F_BIT4:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_NUM &&
+              operands[1].type==OPTYPE_LIT)
+          {
+            if (check_f_flag(asm_context,operands[0].value,flag)==-1) { return -1; }
+            opcode=table_dspic[n].opcode;
+            if (flag==FLAG_B)
+            {
+              if (check_range(asm_context, "Literal", operands[1].value, 0, 7)==-1) { return -1; }
+              opcode|=operands[0].value;
+              opcode|=operands[1].value<<13;
+            }
+              else
+            {
+              if (check_range(asm_context, "Literal", operands[1].value, 0, 15)==-1) { return -1; }
+              opcode|=operands[0].value;
+              opcode|=(operands[1].value&0x7)<<13;
+              if (operands[1].value>7) { opcode|=1; }
+            }
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_F_BIT4_2:
+          if (flag!=FLAG_C && flag!=FLAG_Z) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_LIT)
+          {
+            if (check_range(asm_context, "Literal", operands[1].value, 0, 15)==-1) { return -1; }
+            if (operands[0].attribute>5) { break; }
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   (operands[0].attribute<<4)|(operands[1].value<<12);
+            if (flag==FLAG_Z) { opcode|=(1<<11); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_F_WND:
           break;

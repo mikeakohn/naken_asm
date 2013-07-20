@@ -251,10 +251,31 @@ int n,b,d,f,a,w,lit;
           sprintf(instruction, "%s%s %s", table_dspic[n].name, (b==0)?"":".b", temp);
           return 4;
         case OP_CP_F:
+          b=(opcode>>14)&1;
+          f=opcode&0x1fff;
+          sprintf(instruction, "%s%s 0x%04x", table_dspic[n].name, (b==0)?"":".b", f);
+          return 4;
         case OP_D_WNS_WND_1:
+          w=((opcode>>1)&0x7)*2;
+          get_wd(temp, (opcode>>7)&0xf, (opcode>>11)&0x7, 0);
+          sprintf(instruction, "%s.d w%d, %s", table_dspic[n].name, w, temp);
+          return 4;
         case OP_D_WNS_WND_2:
+          w=((opcode>>8)&0x7)*2;
+          get_wd(temp, opcode&0xf, (opcode>>4)&0x7, 0);
+          sprintf(instruction, "%s.d %s, w%d", table_dspic[n].name, temp, w);
+          return 4;
         case OP_F_BIT4:
+          f=opcode&0x1fff;
+          lit=(opcode>>13)&0x7;
+          sprintf(instruction, "%s.b 0x%x, #%d", table_dspic[n].name, f, lit);
+          return 4;
         case OP_F_BIT4_2:
+          get_wd(temp, opcode&0xf, (opcode>>4)&0x7, 0);
+          lit=(opcode>>12)&0xf;
+          b=(opcode>>11)&1;
+          sprintf(instruction, "%s.%c %s, #%d", table_dspic[n].name, (b==0)?'c':'z', temp, lit);
+          return 4;
         case OP_F_WND:
         case OP_GOTO:
         case OP_LIT1:
