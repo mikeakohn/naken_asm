@@ -23,5 +23,20 @@ main:
   sac B, #1, [W15++]
   sac B, #1, [W15--]
 
+blah:
+  sftac A, #15
+  sftac B, #-15
+  sftac B, #-16
+  bra ge, blah
+
+  bra asdf
+  sftac A, w3
+asdf:
+
+  cp0 w4
+  cp0.b [--w4]
+  cp0.b [w2++]
+  cp0.b [w8]
+
 
 

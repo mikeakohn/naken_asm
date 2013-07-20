@@ -44,9 +44,8 @@ enum
   OP_ACC_LIT4_WD,
   OP_ACC_LIT6,
   OP_ACC_WB,
-  OP_A_WX_WY_AWB,
   OP_BRA,
-  OP_CP0_F,
+  OP_CP0_WS,
   OP_CP_F,
   OP_D_WNS_WND_1,
   OP_D_WNS_WND_2,
@@ -102,6 +101,7 @@ enum
   OP_WS_WB_WD_WB,
   OP_WS_WD,
   OP_WS_WND,
+  OP_A_WX_WY_AWB,
 };
 
 struct _table_dspic

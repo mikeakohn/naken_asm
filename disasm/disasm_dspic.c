@@ -26,6 +26,7 @@
                   ((1<<table_dspic[n].operands[r].attrlen)-1))
 #endif
 
+static char accum[] = { 'A','B' };
 static char *addr_modes[] = { "w%d", "[w%d]", "[w%d--]", "[w%d++]", "[--w%d]", "[++w%d]" };
 
 #if 0
@@ -164,8 +165,9 @@ char temp[32];
 uint32_t opcode;
 //opcode48;
 int count=4;
+int16_t offset;
 //int value,attr;
-int n,b,d,f,a,lit;
+int n,b,d,f,a,w,lit;
 
   //opcode=get24bits(memory, address);
   opcode=get_opcode32(memory, address);
@@ -221,18 +223,33 @@ int n,b,d,f,a,lit;
 
           if (lit==0)
           {
-            sprintf(instruction, "%s%s %c, %s", table_dspic[n].name, (b==0)?"":".r", (a==0)?'A':'B', temp);
+            sprintf(instruction, "%s%s %c, %s", table_dspic[n].name, (b==0)?"":".r", accum[a], temp);
           }
             else
           {
-            sprintf(instruction, "%s%s %c, #%d, %s", table_dspic[n].name, (b==0)?"":".r", (a==0)?'A':'B', lit, temp);
+            sprintf(instruction, "%s%s %c, #%d, %s", table_dspic[n].name, (b==0)?"":".r", accum[a], lit, temp);
           }
           return 4;
         case OP_ACC_LIT6:
+          a=(opcode>>15)&1;
+          lit=opcode&0x3f;
+          if ((lit&0x20)!=0) { lit=-((lit^0x3f)+1); }
+          sprintf(instruction, "%s %c, #%d", table_dspic[n].name, accum[a], lit);
+          return 4;
         case OP_ACC_WB:
-        case OP_A_WX_WY_AWB:
+          a=(opcode>>15)&1;
+          w=opcode&0xf;
+          sprintf(instruction, "%s %c, w%d", table_dspic[n].name, accum[a], w);
+          return 4;
         case OP_BRA:
-        case OP_CP0_F:
+          offset=opcode&0xffff;
+          sprintf(instruction, "%s 0x%04x (%d)", table_dspic[n].name, (address/2)+2+offset, offset);
+          return 4;
+        case OP_CP0_WS:
+          b=(opcode>>11)&1;
+          get_wd(temp, opcode&0xf, (opcode>>4)&0x7, 0);
+          sprintf(instruction, "%s%s %s", table_dspic[n].name, (b==0)?"":".b", temp);
+          return 4;
         case OP_CP_F:
         case OP_D_WNS_WND_1:
         case OP_D_WNS_WND_2:
@@ -288,6 +305,7 @@ int n,b,d,f,a,lit;
         case OP_WS_WB_WD_WB:
         case OP_WS_WD:
         case OP_WS_WND:
+        case OP_A_WX_WY_AWB:
         default:
           strcpy(instruction, "???");
           break;

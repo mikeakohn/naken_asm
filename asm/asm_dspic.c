@@ -160,6 +160,7 @@ char s[TOKENLEN];
 }
 #endif
 
+#if 0
 static int check_range(int bitlen, int num)
 {
   int low=-(1<<(bitlen-1));
@@ -167,6 +168,7 @@ static int check_range(int bitlen, int num)
   if (num>high || num<low) { return -1; }
   return 0;
 }
+#endif
 
 static int check_f(struct _asm_context *asm_context, int value)
 {
@@ -218,7 +220,7 @@ int matched;
 //int wrong_op;
 //int range_error=-1;
 int opcode=0;
-int extra24=-1;
+//int extra24=-1;
 int num;
 int n;
 
@@ -629,20 +631,73 @@ int n;
             opcode|=(((uint32_t)(operands[1].value&0xf))<<7);
             opcode|=operands[2].value;
             opcode|=(operands[2].attribute<<4);
-            if (operands[2].attribute==6) { opcode|=(operands[1].reg2<<11); }
+            if (operands[2].attribute==6) { opcode|=(operands[2].reg2<<11); }
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
           break;
         case OP_ACC_LIT6:
+          if (flag!=FLAG_NONE) { break; }
+
+          if (operand_count==2 && operands[0].type==OPTYPE_ACCUM &&
+              operands[1].type==OPTYPE_LIT)
+          {
+            if (operands[1].value<-16 || operands[1].value>16)
+            {
+              print_error_range("Literal", -16, 16, asm_context);
+              return -1;
+            }
+            opcode=table_dspic[n].opcode;
+            opcode|=(operands[0].value<<15);
+            opcode|=((uint32_t)(operands[1].value&0x3f));
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_ACC_WB:
-          break;
-        case OP_A_WX_WY_AWB:
+          if (flag!=FLAG_NONE) { break; }
+
+          if (operand_count==2 && operands[0].type==OPTYPE_ACCUM &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            opcode=table_dspic[n].opcode;
+            opcode|=(operands[0].value<<15);
+            opcode|=operands[1].value;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_BRA:
+          if (flag!=FLAG_NONE) { break; }
+
+          if (operand_count==1 && operands[0].type==OPTYPE_NUM)
+          {
+            int offset=operands[0].value-((asm_context->address/2)+2);
+            if (offset<-32768 || offset>32767)
+            {
+              print_error_range("Offset", -32768, 32767, asm_context);
+              return -1;
+            }
+            opcode=table_dspic[n].opcode;
+            opcode|=(offset&0xffff);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
-        case OP_CP0_F:
+        case OP_CP0_WS:
+          if (flag!=FLAG_NONE && flag!=FLAG_B) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute>5) { break; }
+
+            opcode=table_dspic[n].opcode;
+            opcode|=operands[0].value;
+            opcode|=operands[0].attribute<<4;
+            if (flag==FLAG_B) { opcode|=(1<<10); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+
           break;
         case OP_CP_F:
           break;
@@ -753,6 +808,8 @@ int n;
         case OP_WS_WD:
           break;
         case OP_WS_WND:
+          break;
+        case OP_A_WX_WY_AWB:
           break;
         default:
           break;
