@@ -60,11 +60,9 @@ enum
   OP_LIT16_WND,
   OP_LIT8_WND,
   OP_LNK_LIT14,
-  OP_N_WM_WN_ACC_AX_WY,
   OP_POP_D_WND,
   OP_POP_S,
   OP_POP_WD,
-  OP_PUSH_S,
   OP_PUSH_WNS,
   OP_SS_WB_WS_WND,
   OP_SU_WB_LIT5_WND,
@@ -102,6 +100,7 @@ enum
   OP_WS_WD,
   OP_WS_WND,
   OP_A_WX_WY_AWB,
+  OP_N_WM_WN_ACC_AX_WY,
 };
 
 struct _table_dspic

@@ -162,6 +162,7 @@ static void get_reg_string(char *temp, int mode, int reg)
 int disasm_dspic(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
 char temp[32];
+char temp2[32];
 uint32_t opcode;
 //opcode48;
 int count=4;
@@ -177,22 +178,7 @@ int n,b,d,f,a,w,lit;
   {
     if ((opcode&table_dspic[n].mask)==table_dspic[n].opcode)
     {
-#if 0
-      if (table_dspic[n].bitlen==48)
-      {
-        opcode48=get_opcode32(memory, address+4);
-
-        if ((opcode48&table_dspic[n].mask48)!=table_dspic[n].opcode48)
-        {
-          n++;
-          continue;
-        }
-
-        count+=4;
-      }
-#endif
-
-      strcpy(instruction, table_dspic[n].name);
+      //strcpy(instruction, table_dspic[n].name);
       *cycles_min=table_dspic[n].cycles_min;
       *cycles_max=table_dspic[n].cycles_max;
 
@@ -318,11 +304,17 @@ int n,b,d,f,a,w,lit;
           lit=opcode&0x3fff;
           sprintf(instruction, "%s #0x%02x", table_dspic[n].name, lit);
           return 4;
-        case OP_N_WM_WN_ACC_AX_WY:
         case OP_POP_D_WND:
+          w=((opcode>>8)&0x7)*2;
+          sprintf(instruction, "%s.d w%d", table_dspic[n].name, w);
+          return 4;
         case OP_POP_S:
+          sprintf(instruction, "%s.s", table_dspic[n].name);
+          return 4;
         case OP_POP_WD:
-        case OP_PUSH_S:
+          get_wd(temp, (opcode>>7)&0xf, (opcode>>11)&0x7, (opcode>>15)&0xf);
+          sprintf(instruction, "%s %s", table_dspic[n].name, temp);
+          return 4;
         case OP_PUSH_WNS:
         case OP_SS_WB_WS_WND:
         case OP_SU_WB_LIT5_WND:
@@ -356,10 +348,17 @@ int n,b,d,f,a,w,lit;
         case OP_WS_LIT4_ACC:
         case OP_WS_PLUS_WB:
         case OP_WS_WB:
+          break;
         case OP_WS_WB_WD_WB:
+          get_wd(temp, opcode&0xf, (opcode>>4)&0x7, (opcode>>15)&0xf);
+          get_wd(temp2, (opcode>>7)&0xf, (opcode>>11)&0x7, (opcode>>15)&0xf);
+          b=opcode>>14;
+          sprintf(instruction, "%s%s %s, %s", table_dspic[n].name, (b==0)?"":".b", temp, temp2);
+          return 4;
         case OP_WS_WD:
         case OP_WS_WND:
         case OP_A_WX_WY_AWB:
+        case OP_N_WM_WN_ACC_AX_WY:
         default:
           strcpy(instruction, "???");
           break;
@@ -370,6 +369,8 @@ int n,b,d,f,a,w,lit;
 
     n++;
   }
+
+printf("%06x %06x %06x\n", opcode, opcode&0xf8407f, 0x78004f);
 
   strcpy(instruction, "???");
   return 4;

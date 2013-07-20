@@ -228,18 +228,6 @@ int n;
 
           token_type=get_token(asm_context, token, TOKENLEN);
         }
-#if 0
-        operands[operand_count].attribute=get_condition(token);
-        if (operands[operand_count].attribute!=BRA_UNCOND)
-        {
-          token_type=get_token(asm_context, token, TOKENLEN);
-          if (token_type<=0)
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
-        }
-#endif
       }
         else
       if (IS_TOKEN(token,'.'))
@@ -271,8 +259,10 @@ int n;
           print_error_unexp(token, asm_context);
         }
 
-        token_type=get_token(asm_context, token, TOKENLEN);
-        if (token_type<0) return -1;
+        //token_type=get_token(asm_context, token, TOKENLEN);
+        //if (token_type<0) return -1;
+
+        continue;
       }
     }
 
@@ -865,15 +855,38 @@ int n;
             return 4;
           }
           break;
-        case OP_N_WM_WN_ACC_AX_WY:
-          break;
         case OP_POP_D_WND:
+          if (flag!=FLAG_D) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            if ((operands[0].value&1)!=0)
+            {
+              print_error("Illegal register for double", asm_context);
+              return -1;
+            }
+            opcode=table_dspic[n].opcode|((operands[0].value/2)<<8);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_POP_S:
+          if (flag!=FLAG_S) { break; }
+          if (operand_count==0)
+          {
+            add_bin32(asm_context, table_dspic[n].opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_POP_WD:
-          break;
-        case OP_PUSH_S:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_REGISTER)
+          {
+            opcode=table_dspic[n].opcode|(operands[0].value<<7)|
+                   (operands[0].attribute<<11)|(operands[0].reg2<<15);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_PUSH_WNS:
           break;
@@ -942,12 +955,32 @@ int n;
         case OP_WS_WB:
           break;
         case OP_WS_WB_WD_WB:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute==6 && operands[1].attribute==6 &&
+                operands[0].reg2 != operands[1].reg2)
+            {
+              print_error("Source and destination Wb don't match", asm_context);
+              return -1;
+            }
+
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   (operands[0].attribute<<4)|(operands[0].reg2<<15)|
+                   (operands[1].value<<7)|(operands[1].attribute<<11);
+            if (flag==FLAG_B) { opcode|=(1<<14); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WS_WD:
           break;
         case OP_WS_WND:
           break;
         case OP_A_WX_WY_AWB:
+          break;
+        case OP_N_WM_WN_ACC_AX_WY:
           break;
         default:
           break;

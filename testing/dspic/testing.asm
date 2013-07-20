@@ -78,5 +78,14 @@ asdf:
   mov #0x4347, w7
 
   lnk #0x64
+  pop.d w6
+  pop.s
+  pop [w1]
+  pop [--w7]
+  pop [w3+w4]
 
+  mov.b [w1+w2], [w4+w2]
+  mov.b [w1+w2], [w4++]
+
+  push.s
 
