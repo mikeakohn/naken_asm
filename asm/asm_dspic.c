@@ -127,6 +127,7 @@ static int check_f(struct _asm_context *asm_context, int value)
   if ((value&1)!=0)
   {
     print_error("Address not on 16 bit boundary", asm_context);
+    return -1;
   }
 
   if (value<0 || value>0xffff)
@@ -778,23 +779,91 @@ int n;
           if (flag!=FLAG_NONE) { break; }
           if (operand_count==1 && operands[0].type==OPTYPE_LIT)
           {
-            if (check_range(asm_context, "Lit", operands[0].value, 0, 1)==-1) { return -1; }
+            if (check_range(asm_context, "Literal", operands[0].value, 0, 1)==-1) { return -1; }
             opcode=table_dspic[n].opcode|operands[0].value;
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
           break;
         case OP_LIT10_WN:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_LIT &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (check_range(asm_context, "Literal", operands[0].value, 0, 0x3ff)==-1) { return -1; }
+            if (operands[1].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|operands[1].value;
+            opcode|=operands[0].value<<4;
+            if (flag==FLAG_B) { opcode|=(1<<14); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_LIT14:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_LIT)
+          {
+            if (check_range(asm_context, "Literal", operands[0].value, 0, 0x3fff)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[0].value;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_LIT14_EXPR:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_LIT &&
+              operands[1].type==OPTYPE_NUM)
+          {
+            int offset=operands[1].value-((asm_context->address/2)+2);
+            if (check_range(asm_context, "Literal", operands[0].value, 0, 0x3fff)==-1) { return -1; }
+            if (check_range(asm_context, "Offset", offset, -32768, 32767)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[0].value;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            add_bin32(asm_context, offset&0xffff, IS_OPCODE);
+            return 8;
+          }
           break;
         case OP_LIT16_WND:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_LIT &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (check_range(asm_context, "Literal", operands[0].value, -32768, 0xffff)==-1) { return -1; }
+            if (operands[1].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|((operands[0].value&0xffff)<<4)|
+                   operands[1].value;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+
           break;
         case OP_LIT8_WND:
+          if (flag!=FLAG_B) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_LIT &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (check_range(asm_context, "Literal", operands[0].value, -128, 0xff)==-1) { return -1; }
+            if (operands[1].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|((operands[0].value&0xff)<<4)|
+                   operands[1].value;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_LNK_LIT14:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_LIT)
+          {
+            if (check_range(asm_context, "Literal", operands[0].value, 0, 0x3ffe)==-1) { return -1; }
+            if ((operands[0].value&1)!=0)
+            {
+              print_error("Address not on 16 bit boundary", asm_context);
+              return -1;
+            }
+            opcode=table_dspic[n].opcode|operands[0].value;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_N_WM_WN_ACC_AX_WY:
           break;

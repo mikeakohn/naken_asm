@@ -60,11 +60,23 @@ asdf:
   btsts.z [w9], #8
   btsts.z [--w9], #8
 
+  ;do #5, end_do
   mov 0x122, w6
   mov 0xfffe, w6
+;end_do:
 
   goto blah
 
   pwrsav #1
+
+  retlw #100, w3
+  sub.b #100, w3
+
+  repeat #100
+
+  mov.b #0x43, w5
+  mov #0x4347, w7
+
+  lnk #0x64
 
 
