@@ -277,8 +277,18 @@ int n,b,d,f,a,w,lit;
           sprintf(instruction, "%s.%c %s, #%d", table_dspic[n].name, (b==0)?'c':'z', temp, lit);
           return 4;
         case OP_F_WND:
+          f=((opcode>>4)&0x7ffff)<<1;
+          w=opcode&0xf;
+          sprintf(instruction, "%s 0x%04x, w%d", table_dspic[n].name, f, w);
+          return 4;
         case OP_GOTO:
+          f=(opcode&0xffff)|(get_opcode32(memory, address+4)<<16);
+          sprintf(instruction, "%s 0x%04x, w%d", table_dspic[n].name, f, w);
+          return 8;
         case OP_LIT1:
+          lit=opcode&0x1;
+          sprintf(instruction, "%s #%d", table_dspic[n].name, lit);
+          return 4;
         case OP_LIT10_WN:
         case OP_LIT14:
         case OP_LIT14_EXPR:

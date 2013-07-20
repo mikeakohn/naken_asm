@@ -154,6 +154,22 @@ static int check_f_flag(struct _asm_context *asm_context, int value, int flag)
   return 0;
 }
 
+static int check_f_64k(struct _asm_context *asm_context, int value)
+{
+  if ((value&1)!=0)
+  {
+    print_error("Address not on 16 bit boundary", asm_context);
+  }
+
+  if (value<0 || value>0xfffe)
+  {
+    print_error_range("Address", 0, 0xfffe, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
 #if 0
 int is_wd_wb(int type)
 {
@@ -735,10 +751,38 @@ int n;
           }
           break;
         case OP_F_WND:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_NUM &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (check_f_64k(asm_context, operands[0].value)==-1) { return -1; }
+            if (operands[1].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|operands[1].value|
+                   (operands[0].value<<3);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_GOTO:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_NUM)
+          {
+            if (check_range(asm_context, "Address", operands[0].value, 0, 0x7ffffe)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|(operands[0].value&0xffff);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            add_bin32(asm_context, operands[0].value>>16, IS_OPCODE);
+            return 8;
+          }
           break;
         case OP_LIT1:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_LIT)
+          {
+            if (check_range(asm_context, "Lit", operands[0].value, 0, 1)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[0].value;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_LIT10_WN:
           break;

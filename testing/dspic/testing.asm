@@ -60,4 +60,11 @@ asdf:
   btsts.z [w9], #8
   btsts.z [--w9], #8
 
+  mov 0x122, w6
+  mov 0xfffe, w6
+
+  goto blah
+
+  pwrsav #1
+
 
