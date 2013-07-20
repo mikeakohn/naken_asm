@@ -18,13 +18,17 @@
 #include "table_dspic.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
+
+#if 0
 #define EXTRACT_VALUE() ((opcode>>table_dspic[n].operands[r].bitpos)& \
                   ((1<<table_dspic[n].operands[r].bitlen)-1))
 #define EXTRACT_ATTR() ((opcode>>table_dspic[n].operands[r].attrpos)& \
                   ((1<<table_dspic[n].operands[r].attrlen)-1))
+#endif
 
-//static char *addr_modes[] = { "w%d", "[w%d]", "[w%d--]", "[w%d++]", "[--w%d]", "[++w%d]" };
+static char *addr_modes[] = { "w%d", "[w%d]", "[w%d--]", "[w%d++]", "[--w%d]", "[++w%d]" };
 
+#if 0
 int get_dspic_flag_value(int flag)
 {
   switch(flag)
@@ -49,7 +53,9 @@ int get_dspic_flag_value(int flag)
   }
   return 0;
 }
+#endif
 
+#if 0
 char *get_dspic_flag_str(int flag)
 {
   switch(flag)
@@ -75,7 +81,9 @@ char *get_dspic_flag_str(int flag)
 
   return "";
 }
+#endif
 
+#if 0
 int convert_dspic_flag_combo(int value, int flags)
 {
   switch(flags)
@@ -98,11 +106,33 @@ int convert_dspic_flag_combo(int value, int flags)
 
   return -1;
 }
+#endif
 
 
 int get_cycle_count_dspic(unsigned short int opcode)
 {
   return -1;
+}
+
+static void get_wd(char *temp, int reg, int attr, int reg2)
+{
+  switch(attr)
+  {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+      sprintf(temp, addr_modes[attr], reg);
+      break;
+    case 6:
+      sprintf(temp, "[w%d+w%d]", reg, reg2);
+      break;
+    default:
+      strcpy(temp, "???");
+      break;
+  }
 }
 
 #if 0
@@ -130,7 +160,7 @@ static void get_reg_string(char *temp, int mode, int reg)
 
 int disasm_dspic(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
-//char temp[32];
+char temp[32];
 uint32_t opcode;
 //opcode48;
 int count=4;
@@ -186,15 +216,16 @@ int n,b,d,f,a,lit;
           b=(opcode>>16)&1;  // .R ?
           a=(opcode>>15)&1;
           lit=(opcode>>7)&0xf;
-          if ((lit&0x8)!=0) { lit=-((lit&0xf)+1); }
+          if ((lit&0x8)!=0) { lit=-((lit^0xf)+1); }
+          get_wd(temp, opcode&0xf, (opcode>>4)&0x7, (opcode>>11)&0xf);
 
           if (lit==0)
           {
-            sprintf(instruction, "%s%s %c", table_dspic[n].name, (b==0)?"":".r", (a==0)?'A':'B');
+            sprintf(instruction, "%s%s %c, %s", table_dspic[n].name, (b==0)?"":".r", (a==0)?'A':'B', temp);
           }
             else
           {
-            sprintf(instruction, "%s%s %c, #%d", table_dspic[n].name, (b==0)?"":".r", (a==0)?'A':'B', lit);
+            sprintf(instruction, "%s%s %c, #%d, %s", table_dspic[n].name, (b==0)?"":".r", (a==0)?'A':'B', lit, temp);
           }
           return 4;
         case OP_ACC_LIT6:

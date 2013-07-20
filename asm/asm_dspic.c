@@ -67,10 +67,10 @@ int n;
 
 #define REG_NORMAL 0
 #define REG_INDIRECT 1
-#define REG_INDIRECT_POST_INC 2
-#define REG_INDIRECT_POST_DEC 3
-#define REG_INDIRECT_PRE_INC 4
-#define REG_INDIRECT_PRE_DEC 5
+#define REG_INDIRECT_POST_DEC 2
+#define REG_INDIRECT_POST_INC 3
+#define REG_INDIRECT_PRE_DEC 4
+#define REG_INDIRECT_PRE_INC 5
 #define REG_INDIRECT_W_PLUS_W 6
 
 struct _operand
@@ -338,6 +338,7 @@ int n;
     if (IS_TOKEN(token,'['))
     {
       operands[operand_count].type=OPTYPE_REGISTER;
+      operands[operand_count].attribute=REG_INDIRECT;
       token_type=get_token(asm_context, token, TOKENLEN);
 
       if (IS_TOKEN(token,'+'))
@@ -611,7 +612,7 @@ int n;
           {
             opcode|=operands[1].value;
             opcode|=(operands[1].attribute<<4);
-            if (operands[1].attribute==6) { opcode|=operands[1].reg2<<16; }
+            if (operands[1].attribute==6) { opcode|=(operands[1].reg2<<11); }
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
@@ -625,10 +626,10 @@ int n;
               print_error_range("Literal", -8, 7, asm_context);
               return -1;
             }
-            opcode|=((uint32_t)(operands[1].value&0xf))<<7;
+            opcode|=(((uint32_t)(operands[1].value&0xf))<<7);
             opcode|=operands[2].value;
-            opcode|=operands[2].attribute<<4;
-            if (operands[1].attribute==6) { opcode|=operands[1].reg2<<16; }
+            opcode|=(operands[2].attribute<<4);
+            if (operands[2].attribute==6) { opcode|=(operands[1].reg2<<11); }
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
