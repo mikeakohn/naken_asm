@@ -244,11 +244,13 @@ int n,b,d,f,a,w,lit;
           sprintf(instruction, "%s%s 0x%04x", table_dspic[n].name, bflag[b], f);
           return 4;
         case OP_D_WNS_WND_1:
+          if (((opcode>>7)&0xf)==15 && ((opcode>>11)&0x7)==3) { n++; continue; }
           w=((opcode>>1)&0x7)*2;
           get_wd(temp, (opcode>>7)&0xf, (opcode>>11)&0x7, 0);
           sprintf(instruction, "%s.d w%d, %s", table_dspic[n].name, w, temp);
           return 4;
         case OP_D_WNS_WND_2:
+          if ((opcode&0xf)==15 && ((opcode>>4)&0x7)==4) { n++; continue; }
           w=((opcode>>8)&0x7)*2;
           get_wd(temp, opcode&0xf, (opcode>>4)&0x7, 0);
           sprintf(instruction, "%s.d %s, w%d", table_dspic[n].name, temp, w);
@@ -494,6 +496,8 @@ int n,b,d,f,a,w,lit;
           sprintf(instruction, "%s%s %s, w%d", table_dspic[n].name, (b==0)?".c":".z", temp, w);
           return 4;
         case OP_WS_WB_WD_WB:
+          if (((opcode>>7)&0xf)==15 && ((opcode>>11)&0x7)==3) { n++; continue; }
+          if ((opcode&0xf)==15 && ((opcode>>4)&0x7)==4) { n++; continue; }
         case OP_WS_WD:
         case OP_WS_WND:
           get_wd(temp, opcode&0xf, (opcode>>4)&0x7, (opcode>>15)&0xf);

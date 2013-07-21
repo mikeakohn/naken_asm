@@ -79,6 +79,8 @@ asdf:
 
   lnk #0x64
   pop.d w6
+  pop.d w8
+
   pop.s
   pop [w1]
   pop [--w7]
