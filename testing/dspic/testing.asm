@@ -88,4 +88,26 @@ asdf:
   mov.b [w1+w2], [w4++]
 
   push.s
+  push.d w8
+
+  mul.ss w3, w4, w6
+  mul.ss w3, [w4++], w6
+  mul.su w3, #31, w6
+  mul.uu w3, #15, w8
+  mul.su w3, w4, w6
+  mul.us w3, [--w4], w6
+  mul.uu w3, [--w1], w6
+
+  div.u w3, w3
+  div.ud w2, w3
+
+  lsr w1, w3
+  lsr.b [w1++], [--w3]
+
+  se w1, w2
+  se [--w1], w2
+
+  bsw.z [w3++], w3
+  bsw.c [w8++], w15
+
 

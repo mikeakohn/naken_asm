@@ -315,15 +315,53 @@ int n,b,d,f,a,w,lit;
           get_wd(temp, (opcode>>7)&0xf, (opcode>>11)&0x7, (opcode>>15)&0xf);
           sprintf(instruction, "%s %s", table_dspic[n].name, temp);
           return 4;
-        case OP_PUSH_WNS:
+        case OP_PUSH_D_WNS:
+          w=((opcode>>1)&0x7)*2;
+          sprintf(instruction, "%s.d w%d", table_dspic[n].name, w);
+          return 4;
         case OP_SS_WB_WS_WND:
-        case OP_SU_WB_LIT5_WND:
         case OP_SU_WB_WS_WND:
-        case OP_S_WM_WN:
         case OP_US_WB_WS_WND:
-        case OP_UU_WB_LIT5_WND:
         case OP_UU_WB_WS_WND:
+          w=(opcode>>11)&0xf;
+          get_wd(temp, opcode&0xf, (opcode>>4)&0x7, 0);
+          d=(opcode>>7)&0xf;
+          if (table_dspic[n].type==OP_SS_WB_WS_WND) { sprintf(temp2, ".ss"); }
+            else
+          if (table_dspic[n].type==OP_SU_WB_WS_WND) { sprintf(temp2, ".su"); }
+            else
+          if (table_dspic[n].type==OP_US_WB_WS_WND) { sprintf(temp2, ".us"); }
+            else
+          if (table_dspic[n].type==OP_UU_WB_WS_WND) { sprintf(temp2, ".uu"); }
+            else
+          { strcpy(temp2, "???"); }
+          sprintf(instruction, "%s%s w%d, %s, w%d", table_dspic[n].name, temp2, w, temp, d);
+          return 4;
+        case OP_SU_WB_LIT5_WND:
+        case OP_UU_WB_LIT5_WND:
+          w=(opcode>>11)&0xf;
+          lit=opcode&0x1f;
+          d=(opcode>>7)&0xf;
+          if (table_dspic[n].type==OP_SU_WB_LIT5_WND) { sprintf(temp2, ".su"); }
+            else
+          if (table_dspic[n].type==OP_UU_WB_LIT5_WND) { sprintf(temp2, ".uu"); }
+            else
+          { strcpy(temp2, "???"); }
+          sprintf(instruction, "%s%s w%d, #%d, w%d", table_dspic[n].name, temp2, w, lit, d);
+          return 4;
+        case OP_S_WM_WN:
         case OP_U_WM_WN:
+          w=(opcode>>7)&0xf;
+          d=opcode&0xf;
+          b=(opcode>>6)&1;
+          if (table_dspic[n].type==OP_S_WM_WN) { sprintf(temp2, ".s"); }
+            else
+          if (table_dspic[n].type==OP_U_WM_WN) { sprintf(temp2, ".u"); }
+            else
+          { strcpy(temp2, "???"); }
+          if (b==1) { strcat(temp2, "d"); }
+          sprintf(instruction, "%s%s w%d, w%d", table_dspic[n].name, temp2, w, d);
+          return 4;
         case OP_WB_LIT4_WND:
         case OP_WB_LIT5:
         case OP_WB_LIT5_WD:
@@ -348,15 +386,19 @@ int n,b,d,f,a,w,lit;
         case OP_WS_LIT4_ACC:
         case OP_WS_PLUS_WB:
         case OP_WS_WB:
+          get_wd(temp, opcode&0xf, (opcode>>4)&0x7, 0);
+          w=(opcode>>11)&0xf;
+          b=opcode>>14;
+          sprintf(instruction, "%s%s %s, w%d", table_dspic[n].name, (b==0)?".c":".z", temp, w);
           break;
         case OP_WS_WB_WD_WB:
+        case OP_WS_WD:
+        case OP_WS_WND:
           get_wd(temp, opcode&0xf, (opcode>>4)&0x7, (opcode>>15)&0xf);
           get_wd(temp2, (opcode>>7)&0xf, (opcode>>11)&0x7, (opcode>>15)&0xf);
           b=opcode>>14;
           sprintf(instruction, "%s%s %s, %s", table_dspic[n].name, (b==0)?"":".b", temp, temp2);
           return 4;
-        case OP_WS_WD:
-        case OP_WS_WND:
         case OP_A_WX_WY_AWB:
         case OP_N_WM_WN_ACC_AX_WY:
         default:
