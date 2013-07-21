@@ -145,4 +145,15 @@ asdf:
   mov w5, [w1+100]
   mov w5, [w1-100]
 
+  exch w3, w4
+
+  bset [w0], #15
+  bset.b [w0], #7
+
+  btsc [--w2], #15
+
+  mov [w1-100], w5
+  mov [w1+100], w5
+  mov.b [w9+200], w5
+
 

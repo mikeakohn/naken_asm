@@ -1211,12 +1211,82 @@ int n;
           }
           break;
         case OP_WNS_WND:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            if (operands[1].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   (operands[1].value<<7);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WS_BIT4:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_LIT)
+          {
+            if (operands[0].attribute>5) { break; }
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   (operands[0].attribute<<4)|(operands[1].value<<12);
+            if (flag==FLAG_B)
+            {
+              opcode|=(1<<10);
+              if (check_range(asm_context, "Literal", operands[1].value, 0, 7)==-1) { return -1; }
+            }
+              else
+            {
+              if (check_range(asm_context, "Literal", operands[1].value, 0, 15)==-1) { return -1; }
+            }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WS_BIT4_2:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_LIT)
+          {
+            if (operands[0].attribute>5) { break; }
+            if (check_range(asm_context, "Literal", operands[1].value, 0, 15)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   (operands[0].attribute<<4)|(operands[1].value<<12);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WS_LIT10_WND:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_W_PLUS_LIT &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (operands[1].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   (operands[1].value<<7);
+            num=operands[0].attribute;
+            if (flag==FLAG_B)
+            {
+              if (check_range(asm_context, "Literal", num, -512, 511)==-1) { return -1; }
+              opcode|=(1<<14);
+            }
+              else
+            {
+              if (check_range(asm_context, "Literal", num, -1024, 1022)==-1) { return -1; }
+              if ((num&1)==1)
+              {
+                print_error("Literal not an even number", asm_context);
+                return -1;
+              }
+              num=num/2;
+            }
+            opcode|=(num&0x7)<<4;
+            opcode|=((num>>3)&0x7)<<11;
+            opcode|=((num>>6)&0xf)<<15;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WS_LIT4_ACC:
           break;
