@@ -748,20 +748,28 @@ int num;
   {
     if (start>=0xffe0 && vectors_flag==0)
     {
-      printf("Vectors:\n");
+      printf("\nVectors:\n");
       vectors_flag=1;
     }
 
     num=READ_RAM(start)|(READ_RAM(start+1)<<8);
 
-    int count=disasm_msp430(memory, start, instruction, &cycles_min, &cycles_max);
-
     if (vectors_flag==1)
     {
-      printf("0x%04x: 0x%04x  Vector %2d {%s}\n", start, num, (start-0xffe0)/2, vectors[(start-0xffe0)/2]);
-      start+=2;
-      continue;
+      if (start>0xffff)
+      {
+        printf("\n");
+        vectors_flag=0;
+      }
+        else
+      {
+        printf("0x%04x: 0x%04x  Vector %2d {%s}\n", start, num, (start-0xffe0)/2, vectors[(start-0xffe0)/2]);
+        start+=2;
+        continue;
+      }
     }
+
+    int count=disasm_msp430(memory, start, instruction, &cycles_min, &cycles_max);
 
     if (cycles_min<1)
     {
