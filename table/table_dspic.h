@@ -81,6 +81,8 @@ enum
   OP_WB_WS_WD,
   OP_WD,
   OP_WN,
+  OP_B_WN,
+  OP_DAW_B_WN,
   OP_WN_EXPR,
   OP_WNS_F,
   OP_WNS_WD_LIT10,

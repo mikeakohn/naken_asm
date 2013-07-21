@@ -400,8 +400,30 @@ int n,b,d,f,a,w,lit;
           sprintf(instruction, "%s%s w%d, %s", table_dspic[n].name, (b==0)?"":".b", w, temp);
           return 4;
         case OP_WB_WS_WD:
+          w=(opcode>>15)&0xf;
+          get_wd(temp, opcode&0xf, (opcode>>4)&0x7, 0);
+          get_wd(temp2, (opcode>>7)&0xf, (opcode>>11)&0x7, 0);
+          b=(opcode>>14)&1;
+          sprintf(instruction, "%s%s w%d, %s, %s", table_dspic[n].name, (b==0)?"":".b", w, temp, temp2);
+          return 4;
         case OP_WD:
+          get_wd(temp, (opcode>>7)&0xf, (opcode>>11)&0x7, 0);
+          b=(opcode>>14)&1;
+          sprintf(instruction, "%s%s %s", table_dspic[n].name, (b==0)?"":".b", temp);
+          return 4;
         case OP_WN:
+          w=opcode&0xf;
+          sprintf(instruction, "%s w%d", table_dspic[n].name, w);
+          return 4;
+        case OP_B_WN:
+          w=opcode&0xf;
+          b=(opcode>>14)&1;
+          sprintf(instruction, "%s%s w%d", table_dspic[n].name, (b==0)?"":".b", w);
+          return 4;
+        case OP_DAW_B_WN:
+          w=opcode&0xf;
+          sprintf(instruction, "%s.b w%d", table_dspic[n].name, w);
+          return 4;
         case OP_WN_EXPR:
         case OP_WNS_F:
         case OP_WNS_WD_LIT10:
@@ -414,7 +436,7 @@ int n,b,d,f,a,w,lit;
         case OP_WS_WB:
           get_wd(temp, opcode&0xf, (opcode>>4)&0x7, 0);
           w=(opcode>>11)&0xf;
-          b=opcode>>14;
+          b=(opcode>>14)&1;
           sprintf(instruction, "%s%s %s, w%d", table_dspic[n].name, (b==0)?".c":".z", temp, w);
           break;
         case OP_WS_WB_WD_WB:
@@ -422,7 +444,7 @@ int n,b,d,f,a,w,lit;
         case OP_WS_WND:
           get_wd(temp, opcode&0xf, (opcode>>4)&0x7, (opcode>>15)&0xf);
           get_wd(temp2, (opcode>>7)&0xf, (opcode>>11)&0x7, (opcode>>15)&0xf);
-          b=opcode>>14;
+          b=(opcode>>14)&1;
           sprintf(instruction, "%s%s %s, %s", table_dspic[n].name, (b==0)?"":".b", temp, temp2);
           return 4;
         case OP_WM_WN:

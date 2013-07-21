@@ -1070,10 +1070,64 @@ int n;
           }
           break;
         case OP_WB_WS_WD:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==3 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_REGISTER &&
+              operands[2].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            if (operands[1].attribute>5) { break; }
+            if (operands[2].attribute>5) { break; }
+            opcode=table_dspic[n].opcode|operands[1].value|
+                   (operands[0].value<<15)|(operands[1].attribute<<4)|
+                   (operands[2].value<<7)|(operands[2].attribute<<11);
+            if (flag==FLAG_B) { opcode|=(1<<14); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WD:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute>5) { break; }
+            opcode=table_dspic[n].opcode|(operands[0].value<<7)|
+                   (operands[0].attribute<<11);
+            if (flag==FLAG_B) { opcode|=(1<<14); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WN:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|operands[0].value;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+          break;
+        case OP_B_WN:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|operands[0].value;
+            if (flag==FLAG_B) { opcode|=(1<<14); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+          break;
+        case OP_DAW_B_WN:
+          if (flag!=FLAG_B) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|operands[0].value;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WN_EXPR:
           break;

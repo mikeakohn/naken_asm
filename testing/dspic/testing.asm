@@ -125,4 +125,16 @@ asdf:
 
   divf w1, w2
 
+  ior w3, w5, [--w7]
+  ior.b w1, [++w15], [--w7]
+
+  setm [++w1]
+  setm.b w9
+
+  swap w4
+  swap.b w4
+  call w9
+  bra w9
+  daw.b w10
+
 

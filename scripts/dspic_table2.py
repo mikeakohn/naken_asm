@@ -313,7 +313,7 @@ for line in fp:
   elif bitop == "00000wwwwBqqqddddpppssss" and mask == "0xf80000":
     op_type = "OP_WB_WS_WD"
   elif bitop == "000000000B0000000000ssss" and mask == "0xffbff0":
-    op_type = "OP_WN"
+    op_type = "OP_B_WN"
   elif bitop == "00000000A000000000kkkkkk" and mask == "0xff7fc0":
     op_type = "OP_ACC_LIT6"
   elif bitop == "00000000A00000000000ssss" and mask == "0xff7ff0":
