@@ -110,4 +110,10 @@ asdf:
   bsw.z [w3++], w3
   bsw.c [w8++], w15
 
+  lsr w1, #15, w3
+  cp w3, #17
+  cp.b w9, #31
+
+  ior w1, #31, [--w3]
+  ior.b w7, #31, [w3--]
 

@@ -981,10 +981,50 @@ int n;
           }
           break;
         case OP_WB_LIT4_WND:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==3 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_LIT &&
+              operands[2].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            if (operands[2].attribute!=0) { break; }
+            if (check_range(asm_context, "Literal", operands[1].value, 0, 15)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[1].value|
+                   (operands[0].value<<11)|(operands[2].value<<7);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WB_LIT5:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_LIT)
+          {
+            if (operands[0].attribute!=0) { break; }
+            if (check_range(asm_context, "Literal", operands[1].value, 0, 31)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[1].value|
+                   (operands[0].value<<11);
+            if (flag==FLAG_B) { opcode|=(1<<10); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WB_LIT5_WD:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==3 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_LIT &&
+              operands[2].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            if (operands[2].attribute==6) { break; }
+            if (check_range(asm_context, "Literal", operands[1].value, 0, 31)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[1].value|
+                   (operands[0].value<<15)|(operands[2].value<<7)|
+                   (operands[2].attribute<<11);
+            if (flag==FLAG_B) { opcode|=(1<<14); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WB_WN:
           break;
