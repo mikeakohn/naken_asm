@@ -131,10 +131,18 @@ asdf:
   setm [++w1]
   setm.b w9
 
+  ;do w4, label3
   swap w4
   swap.b w4
   call w9
   bra w9
   daw.b w10
+;label3:
+
+  mov w3, 0xfffe
+  mov w3, 0x1234
+
+  mov w5, [w1+100]
+  mov w5, [w1-100]
 
 

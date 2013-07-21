@@ -369,10 +369,20 @@ int n;
             operands[operand_count].reg2=get_register_dspic(token);
             if (operands[operand_count].reg2==-1)
             {
-              print_error_unexp(token, asm_context);
-              return -1;
+              int a;
+              operands[operand_count].type=OPTYPE_W_PLUS_LIT;
+              pushback(asm_context, token, token_type);
+              if (eval_expression(asm_context, &a)!=0)
+              {
+                print_error_unexp(token, asm_context);
+                return -1;
+              }
+              operands[operand_count].attribute=a;
             }
-            operands[operand_count].attribute=REG_INDIRECT_W_PLUS_W;
+              else
+            {
+              operands[operand_count].attribute=REG_INDIRECT_W_PLUS_W;
+            }
           }
         }
           else
@@ -385,12 +395,25 @@ int n;
         else
       if (IS_TOKEN(token,'-'))
       {
-        if (expect_token(asm_context, '-')==-1) { return -1; }
-#if 0
+        //if (expect_token(asm_context, '-')==-1) { return -1; }
+
         token_type=get_token(asm_context, token, TOKENLEN);
-        if (IS_NOT_TOKEN(token,'-')) { return -1; }
-#endif
-        operands[operand_count].attribute=REG_INDIRECT_POST_DEC;
+        if (IS_TOKEN(token, '-'))
+        {
+          operands[operand_count].attribute=REG_INDIRECT_POST_DEC;
+        }
+          else
+        {
+          int a;
+          operands[operand_count].type=OPTYPE_W_PLUS_LIT;
+          pushback(asm_context, token, token_type);
+          if (eval_expression(asm_context, &a)!=0)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+          operands[operand_count].attribute=-a;
+        }
         token_type=get_token(asm_context, token, TOKENLEN);
       }
 
@@ -1130,10 +1153,62 @@ int n;
           }
           break;
         case OP_WN_EXPR:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_NUM)
+          {
+            if (operands[0].attribute!=0) { break; }
+            int offset=operands[1].value-((asm_context->address/2)+2);
+            if (check_range(asm_context, "Offset", offset, -32768, 32767)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[0].value;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            add_bin32(asm_context, offset&0xffff, IS_OPCODE);
+            return 8;
+          }
           break;
         case OP_WNS_F:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_NUM)
+          {
+            if (operands[0].attribute!=0) { break; }
+            if (check_f_64k(asm_context, operands[1].value)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   ((operands[1].value>>1)<<4);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WNS_WD_LIT10:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_W_PLUS_LIT)
+          {
+            if (operands[0].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   (operands[1].value<<7);
+            num=operands[1].attribute;
+            if (flag==FLAG_B)
+            {
+              if (check_range(asm_context, "Literal", num, -512, 511)==-1) { return -1; }
+              opcode|=(1<<14);
+            }
+              else
+            {
+              if (check_range(asm_context, "Literal", num, -1024, 1022)==-1) { return -1; }
+              if ((num&1)==1)
+              {
+                print_error("Literal not an even number", asm_context);
+                return -1;
+              }
+              num=num/2;
+            }
+            opcode|=(num&0x7)<<4;
+            opcode|=((num>>3)&0x7)<<11;
+            opcode|=((num>>6)&0xf)<<15;
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WNS_WND:
           break;
