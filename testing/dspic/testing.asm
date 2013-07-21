@@ -156,4 +156,11 @@ asdf:
   mov [w1+100], w5
   mov.b [w9+200], w5
 
+  add [w1], #-5, B
+  lac [w1+w2], #5, A
+
+  push [w3]
+  push [w3+w4]
+  push [w3++]
+
 

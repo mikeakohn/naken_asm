@@ -1289,8 +1289,27 @@ int n;
           }
           break;
         case OP_WS_LIT4_ACC:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==3 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_LIT && operands[2].type==OPTYPE_ACCUM)
+          {
+            if (check_range(asm_context, "Literal", operands[1].value, -8, 7)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   (operands[0].attribute<<4)|((operands[1].value&0xf)<<7)|
+                   (operands[0].reg2<<11)|(operands[2].value<<15);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WS_PLUS_WB:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==1 && operands[0].type==OPTYPE_REGISTER)
+          {
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   (operands[0].attribute<<4)|(operands[0].reg2<<15);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WS_WB:
           if (flag!=FLAG_C && flag!=FLAG_Z) { break; }

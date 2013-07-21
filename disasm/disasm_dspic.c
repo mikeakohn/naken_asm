@@ -477,7 +477,16 @@ int n,b,d,f,a,w,lit;
           sprintf(instruction, "%s%s [w%d%s%d], w%d", table_dspic[n].name, bflag[b], w, (lit<0)?"":"+", lit, d);
           return 4;
         case OP_WS_LIT4_ACC:
+          get_wd(temp, opcode&0xf, (opcode>>4)&0x7, (opcode>>11)&0xf);
+          lit=(opcode>>7)&0xf;
+          if ((lit&0x8)!=0) { lit=-((lit^0xf)+1); }
+          a=(opcode>>15)&0x1;
+          sprintf(instruction, "%s %s, #%d, %c", table_dspic[n].name, temp, lit, accum[a]);
+          return 4;
         case OP_WS_PLUS_WB:
+          get_wd(temp, opcode&0xf, (opcode>>4)&0x7, (opcode>>11)&0xf);
+          sprintf(instruction, "%s %s", table_dspic[n].name, temp);
+          return 4;
         case OP_WS_WB:
           get_wd(temp, opcode&0xf, (opcode>>4)&0x7, 0);
           w=(opcode>>11)&0xf;
