@@ -1027,24 +1027,51 @@ int n;
           }
           break;
         case OP_WB_WN:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            if (operands[1].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|operands[1].value|
+                   (operands[0].value<<11);
+            if (flag==FLAG_B) { opcode|=(1<<10); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WB_WNS_WND:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==3 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_REGISTER &&
+              operands[2].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            if (operands[1].attribute!=0) { break; }
+            if (operands[2].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|operands[1].value|
+                   (operands[0].value<<11)|(operands[2].value<<7);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WB_WS:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            if (operands[1].attribute>5) { break; }
+            opcode=table_dspic[n].opcode|operands[1].value|
+                   (operands[0].value<<11)|(operands[1].attribute<<4);
+            if (flag==FLAG_B) { opcode|=(1<<10); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WB_WS_WD:
           break;
         case OP_WD:
-          break;
-        case OP_WM_WM_ACC_WX_WY:
-          break;
-        case OP_WM_WM_ACC_WX_WY_WXD:
-          break;
-        case OP_WM_WN:
-          break;
-        case OP_WM_WN_ACC_WX_WY:
-          break;
-        case OP_WM_WN_ACC_WX_WY_AWB:
           break;
         case OP_WN:
           break;
@@ -1128,6 +1155,27 @@ int n;
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
+          break;
+        case OP_WM_WN:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_REGISTER)
+          {
+            if (operands[0].attribute!=0) { break; }
+            if (operands[1].attribute!=0) { break; }
+            opcode=table_dspic[n].opcode|operands[1].value|
+                   (operands[0].value<<11);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+          break;
+        case OP_WM_WM_ACC_WX_WY:
+          break;
+        case OP_WM_WM_ACC_WX_WY_WXD:
+          break;
+        case OP_WM_WN_ACC_WX_WY:
+          break;
+        case OP_WM_WN_ACC_WX_WY_AWB:
           break;
         case OP_A_WX_WY_AWB:
           break;

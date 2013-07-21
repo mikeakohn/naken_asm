@@ -117,3 +117,12 @@ asdf:
   ior w1, #31, [--w3]
   ior.b w7, #31, [w3--]
 
+  cpseq w1, w2
+  cpsgt.b w1, w2
+
+  lsr w1, w2, w3
+  cp w1, [w2++]
+
+  divf w1, w2
+
+
