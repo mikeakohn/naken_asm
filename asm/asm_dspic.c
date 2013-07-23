@@ -209,6 +209,38 @@ int num;
   return 0;
 }
 
+static int parse_awb(struct _asm_context *asm_context, struct _operand *operands, int *aa)
+{
+  if (operands->type==OPTYPE_REGISTER &&
+      operands->value==13 && operands->attribute==REG_NORMAL)
+  {
+    if (operands->attribute>1)
+    {
+      print_error("Illegal addressing mode", asm_context);
+      return -1;
+    }
+    *aa=0;
+  }
+    else
+  if (operands->type==OPTYPE_W_OP_EQ_NUM && 
+      operands->value==13 && operands->attribute==2)
+  {
+    if (operands->attribute>1)
+    {
+      print_error("Illegal addressing mode", asm_context);
+      return -1;
+    }
+    *aa=1;
+  }
+    else
+  {
+    print_error("Illegal operands", asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
 static int parse_movsac(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int opcode)
 {
 int operand=0;
@@ -228,47 +260,6 @@ int xx=0,yy=0,iiii=4,jjjj=4,aa=2;
     if (operands[operand].value==8 || operands[operand].value==9)
     {
       if (parse_dsp_op(asm_context, operands, operand, operand_count, 8, &xx, &iiii)==-1) { return -1; }
-#if 0
-      if (operand+2>operand_count ||
-          operands[operand+1].value<4 || operands[operand+1].value>7)
-      {
-        print_error("Illegal operands", asm_context);
-        return -1;
-      }
-
-      xx=operands[operand+1].value-4;
-
-      if (operands[operand].type==OPTYPE_REGISTER &&
-          operands[operand].attribute==REG_INDIRECT)
-      {
-        iiii=operands[operand].value==8?0:8;
-      }
-        else
-      if (operands[operand].type==OPTYPE_REGISTER &&
-          operands[operand].attribute==REG_INDIRECT_W_PLUS_W &&
-          operands[operand].value==9 &&
-          operands[operand].reg2==12)
-      {
-        iiii=12;
-      }
-        else
-      if (operands[operand].type==OPTYPE_W_OP_EQ_NUM)
-      {
-        iiii=operands[operand].value==8?0:8;
-        num=operands[operand].attribute;
-        if ((num&1)!=0 || num<-6 || num>6)
-        {
-          print_error("Illegal operands", asm_context);
-          return -1;
-        }
-        iiii|=(num/2)&0x7;
-      }
-        else
-      {
-        print_error("Illegal operands", asm_context);
-        return -1;
-      }
-#endif
 
       operand+=2;
     }
@@ -279,78 +270,13 @@ int xx=0,yy=0,iiii=4,jjjj=4,aa=2;
     {
       if (parse_dsp_op(asm_context, operands, operand, operand_count, 10, &yy, &jjjj)==-1) { return -1; }
 
-#if 0
-      if (operand+2>operand_count ||
-          operands[operand+1].value<4 || operands[operand+1].value>7)
-      {
-        print_error("Illegal operands\n", asm_context);
-        return -1;
-      }
-
-      yy=operands[operand+1].value-4;
-
-      if (operands[operand].type==OPTYPE_REGISTER &&
-          operands[operand].attribute==REG_INDIRECT)
-      {
-        jjjj=operands[operand].value==10?0:8;
-      }
-        else
-      if (operands[operand].type==OPTYPE_REGISTER &&
-          operands[operand].attribute==REG_INDIRECT_W_PLUS_W &&
-          operands[operand].value==11 &&
-          operands[operand].reg2==12)
-      {
-        jjjj=12;
-      }
-        else
-      if (operands[operand].type==OPTYPE_W_OP_EQ_NUM)
-      {
-        jjjj=operands[operand].value==10?0:8;
-        num=operands[operand].attribute;
-        if ((num&1)!=0 || num<-6 || num>6)
-        {
-          print_error("Illegal operands", asm_context);
-          return -1;
-        }
-        jjjj|=(num/2)&0x7;
-      }
-        else
-      {
-        print_error("Illegal operands", asm_context);
-        return -1;
-      }
-#endif
-
       operand+=2;
     }
 
     if (operand>=operand_count) { break; }
 
-    if (operands[operand].type==OPTYPE_REGISTER &&
-        operands[operand].value==13 &&
-        operands[operand].attribute==REG_NORMAL)
-    {
-      if (operands[operand].attribute>1)
-      {
-        print_error("Illegal addressing mode", asm_context);
-        return -1;
-      }
-      aa=0;
-      operand++;
-    }
-      else
-    if (operands[operand].type==OPTYPE_W_OP_EQ_NUM && 
-        operands[operand].value==13 &&
-        operands[operand].attribute==2)
-    {
-      if (operands[operand].attribute>1)
-      {
-        print_error("Illegal addressing mode", asm_context);
-        return -1;
-      }
-      aa=1;
-      operand++;
-    }
+    if (parse_awb(asm_context, &operands[operand], &aa)==-1) { return -1; }
+    operand++;
 
     if (operand<operand_count)
     {
