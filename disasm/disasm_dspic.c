@@ -22,6 +22,7 @@
 static char accum[] = { 'A','B' };
 static char *bflag[] = { "", ".b" };
 static char *addr_modes[] = { "w%d", "[w%d]", "[w%d--]", "[w%d++]", "[--w%d]", "[++w%d]" };
+static char *mmm_table[] = { "w4*w5", "w4*w6", "w4*w7", "???", "w5*w6", "w5*w7", "w6*w7", "???" };
 
 int get_cycle_count_dspic(unsigned short int opcode)
 {
@@ -450,16 +451,31 @@ int n,b,d,f,a,w,lit;
           sprintf(instruction, "%s w%d, w%d", table_dspic[n].name, w, d);
           return 4;
         case OP_A_WX_WY_AWB:
- //0xc72e28
+          if ((opcode&0x3)>1) { continue; }
           a=(opcode>>15)&0x1;
           sprintf(instruction, "%s %c", table_dspic[n].name, accum[a]);
           parse_dsp(instruction, opcode);
           return 4;
-        case OP_N_WM_WN_ACC_AX_WY:
+        case OP_N_WM_WN_ACC_WX_WY:
+          if ((opcode&0x3)<2) { continue; }
+          a=(opcode>>15)&0x1;
+          d=(opcode>>16)&0x7;
+          sprintf(instruction, "%s.n %s, %c", table_dspic[n].name, mmm_table[d], accum[a]);
+          parse_dsp(instruction, opcode);
+          return 4;
         case OP_WM_WM_ACC_WX_WY:
+          printf("2\n"); break;
         case OP_WM_WN_ACC_WX_WY:
+          if ((opcode&0x3)<2) { continue; }
+          a=(opcode>>15)&0x1;
+          d=(opcode>>16)&0x7;
+          sprintf(instruction, "%s %s, %c", table_dspic[n].name, mmm_table[d], accum[a]);
+          parse_dsp(instruction, opcode);
+          return 4;
         case OP_WM_WM_ACC_WX_WY_WXD:
+          printf("4\n"); break;
         case OP_WM_WN_ACC_WX_WY_AWB:
+          printf("5\n"); break;
         default:
           strcpy(instruction, "???");
           break;

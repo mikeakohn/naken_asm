@@ -169,7 +169,6 @@ int num;
   if (operand+2>operand_count ||
       operands[operand+1].value<4 || operands[operand+1].value>7)
   {
-    print_error("Illegal operands", asm_context);
     return -1;
   }
 
@@ -178,7 +177,7 @@ int num;
   if (operands[operand].type==OPTYPE_REGISTER &&
       operands[operand].attribute==REG_INDIRECT)
   {
-    *iiii=operands[operand].value==8?0:8;
+    *iiii=(operands[operand].value&1)==0?0:8;
   }
     else
   if (operands[operand].type==OPTYPE_REGISTER &&
@@ -191,18 +190,13 @@ int num;
     else
   if (operands[operand].type==OPTYPE_W_OP_EQ_NUM)
   {
-    *iiii=operands[operand].value==8?0:8;
+    *iiii=(operands[operand].value&1)==0?0:8;
     num=operands[operand].attribute;
-    if ((num&1)!=0 || num<-6 || num>6)
-    {
-      print_error("Illegal operands", asm_context);
-      return -1;
-    }
+    if ((num&1)!=0 || num<-6 || num>6) { return -1; }
     *iiii|=(num/2)&0x7;
   }
     else
   {
-    print_error("Illegal operands", asm_context);
     return -1;
   }
 
@@ -214,29 +208,56 @@ static int parse_awb(struct _asm_context *asm_context, struct _operand *operands
   if (operands->type==OPTYPE_REGISTER &&
       operands->value==13 && operands->attribute==REG_NORMAL)
   {
-    if (operands->attribute>1)
-    {
-      print_error("Illegal addressing mode", asm_context);
-      return -1;
-    }
+    if (operands->attribute>1) { return -1; }
     *aa=0;
   }
     else
   if (operands->type==OPTYPE_W_OP_EQ_NUM && 
       operands->value==13 && operands->attribute==2)
   {
-    if (operands->attribute>1)
-    {
-      print_error("Illegal addressing mode", asm_context);
-      return -1;
-    }
+    if (operands->attribute>1) { return -1; }
     *aa=1;
   }
     else
   {
-    print_error("Illegal operands", asm_context);
     return -1;
   }
+
+  return 0;
+}
+
+static int parse_mmm(struct _asm_context *asm_context, struct _operand *operands, int *mmm)
+{
+  if (operands->value==4)
+  {
+    if (operands->reg2==5) { *mmm=0; }
+    else if (operands->reg2==6) { *mmm=1; }
+    else if (operands->reg2==7) { *mmm=2; }
+    else { return -1; }
+  }
+    else
+  if (operands->value==5)
+  {
+    if (operands->reg2==6) { *mmm=4; }
+    if (operands->reg2==7) { *mmm=5; }
+    else { return -1; }
+  }
+    else
+  if (operands->value==6 && operands->reg2==7)
+  {
+    *mmm=6;
+  }
+    else
+  { return -1; }
+
+  return 0;
+}
+
+static int parse_mm(struct _asm_context *asm_context, struct _operand *operands, int *mm)
+{
+  if (operands->value!=operands->reg2) { return -1; }
+  if (operands->value<4 || operands->reg2>7) { return -1; }
+  *mm=operands->value-4;
 
   return 0;
 }
@@ -246,11 +267,7 @@ static int parse_movsac(struct _asm_context *asm_context, struct _operand *opera
 int operand=0;
 int xx=0,yy=0,iiii=4,jjjj=4,aa=2;
 
-  if (operand_count<1 || operands[operand].type!=OPTYPE_ACCUM)
-  {
-    print_error("No accumulator set", asm_context);
-    return -1;
-  }
+  if (operand_count<1 || operands[operand].type!=OPTYPE_ACCUM) { return -1; }
   opcode|=(operands[operand++].value<<15);
 
   do
@@ -278,15 +295,56 @@ int xx=0,yy=0,iiii=4,jjjj=4,aa=2;
     if (parse_awb(asm_context, &operands[operand], &aa)==-1) { return -1; }
     operand++;
 
-    if (operand<operand_count)
-    {
-      print_error("Too many operands", asm_context);
-      return -1;
-    }
+    if (operand<operand_count) { return -1; }
 
   } while(0);
 
   opcode|=(xx<<12)|(yy<<10)|(iiii<<6)|(jjjj<<2)|aa;
+
+  return opcode;
+}
+
+static int parse_mpy_n(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int opcode)
+{
+int operand=0;
+int xx=0,yy=0,iiii=4,jjjj=4,mmm=0;
+
+  if (operand>=operand_count) { return -1; }
+  if (operands[operand].type!=OPTYPE_W_MUL_W) { return -1; }
+
+  if (parse_mmm(asm_context, operands, &mmm)==-1) { return -1; }
+  operand++;
+
+  if (operand>=operand_count) { return -1; }
+
+  if (operands[operand].type!=OPTYPE_ACCUM) { return -1; }
+  opcode|=(operands[operand++].value<<15);
+
+  do
+  {
+    if (operand>=operand_count) { break; }
+
+    if (operands[operand].value==8 || operands[operand].value==9)
+    {
+      if (parse_dsp_op(asm_context, operands, operand, operand_count, 8, &xx, &iiii)==-1) { return -1; }
+
+      operand+=2;
+    }
+
+    if (operand>=operand_count) { break; }
+
+    if (operands[operand].value==10 || operands[operand].value==11)
+    {
+      if (parse_dsp_op(asm_context, operands, operand, operand_count, 10, &yy, &jjjj)==-1) { return -1; }
+
+      operand+=2;
+    }
+
+    if (operand<operand_count) { return -1; }
+
+  } while(0);
+
+  opcode|=(mmm<<16)|(xx<<12)|(yy<<10)|(iiii<<6)|(jjjj<<2);
 
   return opcode;
 }
@@ -1514,20 +1572,42 @@ int n;
           }
           break;
         case OP_A_WX_WY_AWB:
+          if (flag!=FLAG_NONE) { break; }
           opcode=parse_movsac(asm_context, operands, operand_count, table_dspic[n].opcode);
-          if (opcode<0) { return -1; }
+          if (opcode==-1) { break; }
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
           break;
-        case OP_N_WM_WN_ACC_AX_WY:
+        case OP_N_WM_WN_ACC_WX_WY:
+          if (flag!=FLAG_N) { break; }
+          opcode=parse_mpy_n(asm_context, operands, operand_count, table_dspic[n].opcode);
+          if (opcode==-1) { break; }
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
           break;
         case OP_WM_WM_ACC_WX_WY:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count>1 &&operands[0].type==OPTYPE_W_MUL_W &&
+              operands[0].value==operands[0].reg2)
+          {
+          }
           break;
         case OP_WM_WN_ACC_WX_WY:
+          if (flag!=FLAG_NONE) { break; }
+          opcode=parse_mpy_n(asm_context, operands, operand_count, table_dspic[n].opcode);
+          if (opcode==-1) { break; }
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
           break;
         case OP_WM_WM_ACC_WX_WY_WXD:
+          if (flag!=FLAG_NONE) { break; }
+          if (operand_count>1 &&operands[0].type==OPTYPE_W_MUL_W &&
+              operands[0].value==operands[0].reg2)
+          {
+          }
           break;
         case OP_WM_WN_ACC_WX_WY_AWB:
+          if (flag!=FLAG_NONE) { break; }
           break;
         default:
           break;

@@ -173,3 +173,6 @@ asdf:
   movsac A, [w11]+=4, w7, w13
   clr A, [w11+w12], w7, w13
 
+  mpy.n w4*w5, A, [w8]+=2, w4, [w10]+=2, w5
+
+
