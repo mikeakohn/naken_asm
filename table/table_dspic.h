@@ -40,6 +40,7 @@ enum
   OP_NONE,
   OP_F,
   OP_F_WREG,
+  OP_WREG_F,
   OP_ACC,
   OP_ACC_LIT4_WD,
   OP_ACC_LIT6,
@@ -97,12 +98,12 @@ enum
   OP_WS_WD,
   OP_WS_WND,
   OP_WM_WN,
-  OP_WM_WM_ACC_WX_WY,
-  OP_WM_WM_ACC_WX_WY_WXD,
-  OP_WM_WN_ACC_WX_WY,
-  OP_WM_WN_ACC_WX_WY_AWB,
   OP_A_WX_WY_AWB,
   OP_N_WM_WN_ACC_AX_WY,
+  OP_WM_WM_ACC_WX_WY,
+  OP_WM_WN_ACC_WX_WY,
+  OP_WM_WM_ACC_WX_WY_WXD,
+  OP_WM_WN_ACC_WX_WY_AWB,
 };
 
 struct _table_dspic

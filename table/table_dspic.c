@@ -115,7 +115,7 @@ struct _table_dspic table_dspic[] = {
   { "mac", 0xc00000, 0x000000, 0xf84000, 0x000000, OP_WM_WN_ACC_WX_WY_AWB, 1, 1 },
   { "mac", 0xf00000, 0x000000, 0xfc4003, 0x000000, OP_WM_WM_ACC_WX_WY, 1, 1 },
   { "mov", 0xbf8000, 0x000000, 0xff8000, 0x000000, OP_F_WREG, 1, 1 },
-  { "mov", 0xb7a000, 0x000000, 0xffa000, 0x000000, OP_CP_F, 1, 1 },
+  { "mov", 0xb7a000, 0x000000, 0xffa000, 0x000000, OP_WREG_F, 1, 1 },
   { "mov", 0x800000, 0x000000, 0xf80000, 0x000000, OP_F_WND, 1, 1 },
   { "mov", 0x880000, 0x000000, 0xf80000, 0x000000, OP_WNS_F, 1, 1 },
   { "mov", 0xb3c000, 0x000000, 0xfff000, 0x000000, OP_LIT8_WND, 1, 1 },

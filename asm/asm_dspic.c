@@ -81,15 +81,6 @@ struct _operand
   int reg2;
 };
 
-/*
-struct _instruction
-{
-  char *name;
-  int opcode;
-  int operand_count;
-};
-*/
-
 static int get_register_dspic(char *token)
 {
   if (token[0]=='w' || token[0]=='W')
@@ -171,15 +162,212 @@ static int check_f_64k(struct _asm_context *asm_context, int value)
   return 0;
 }
 
-#if 0
-int is_wd_wb(int type)
+static int parse_dsp_op(struct _asm_context *asm_context, struct _operand *operands, int operand, int operand_count, int w, int *xx, int *iiii)
 {
+int num;
+
+  if (operand+2>operand_count ||
+      operands[operand+1].value<4 || operands[operand+1].value>7)
+  {
+    print_error("Illegal operands", asm_context);
+    return -1;
+  }
+
+  *xx=operands[operand+1].value-4;
+
+  if (operands[operand].type==OPTYPE_REGISTER &&
+      operands[operand].attribute==REG_INDIRECT)
+  {
+    *iiii=operands[operand].value==8?0:8;
+  }
+    else
+  if (operands[operand].type==OPTYPE_REGISTER &&
+      operands[operand].attribute==REG_INDIRECT_W_PLUS_W &&
+      operands[operand].value==w+1 &&
+      operands[operand].reg2==12)
+  {
+    *iiii=12;
+  }
+    else
+  if (operands[operand].type==OPTYPE_W_OP_EQ_NUM)
+  {
+    *iiii=operands[operand].value==8?0:8;
+    num=operands[operand].attribute;
+    if ((num&1)!=0 || num<-6 || num>6)
+    {
+      print_error("Illegal operands", asm_context);
+      return -1;
+    }
+    *iiii|=(num/2)&0x7;
+  }
+    else
+  {
+    print_error("Illegal operands", asm_context);
+    return -1;
+  }
+
+  return 0;
 }
+
+static int parse_movsac(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int opcode)
+{
+int operand=0;
+int xx=0,yy=0,iiii=4,jjjj=4,aa=2;
+
+  if (operand_count<1 || operands[operand].type!=OPTYPE_ACCUM)
+  {
+    print_error("No accumulator set", asm_context);
+    return -1;
+  }
+  opcode|=(operands[operand++].value<<15);
+
+  do
+  {
+    if (operand>=operand_count) { break; }
+
+    if (operands[operand].value==8 || operands[operand].value==9)
+    {
+      if (parse_dsp_op(asm_context, operands, operand, operand_count, 8, &xx, &iiii)==-1) { return -1; }
+#if 0
+      if (operand+2>operand_count ||
+          operands[operand+1].value<4 || operands[operand+1].value>7)
+      {
+        print_error("Illegal operands", asm_context);
+        return -1;
+      }
+
+      xx=operands[operand+1].value-4;
+
+      if (operands[operand].type==OPTYPE_REGISTER &&
+          operands[operand].attribute==REG_INDIRECT)
+      {
+        iiii=operands[operand].value==8?0:8;
+      }
+        else
+      if (operands[operand].type==OPTYPE_REGISTER &&
+          operands[operand].attribute==REG_INDIRECT_W_PLUS_W &&
+          operands[operand].value==9 &&
+          operands[operand].reg2==12)
+      {
+        iiii=12;
+      }
+        else
+      if (operands[operand].type==OPTYPE_W_OP_EQ_NUM)
+      {
+        iiii=operands[operand].value==8?0:8;
+        num=operands[operand].attribute;
+        if ((num&1)!=0 || num<-6 || num>6)
+        {
+          print_error("Illegal operands", asm_context);
+          return -1;
+        }
+        iiii|=(num/2)&0x7;
+      }
+        else
+      {
+        print_error("Illegal operands", asm_context);
+        return -1;
+      }
 #endif
+
+      operand+=2;
+    }
+
+    if (operand>=operand_count) { break; }
+
+    if (operands[operand].value==10 || operands[operand].value==11)
+    {
+      if (parse_dsp_op(asm_context, operands, operand, operand_count, 10, &yy, &jjjj)==-1) { return -1; }
+
+#if 0
+      if (operand+2>operand_count ||
+          operands[operand+1].value<4 || operands[operand+1].value>7)
+      {
+        print_error("Illegal operands\n", asm_context);
+        return -1;
+      }
+
+      yy=operands[operand+1].value-4;
+
+      if (operands[operand].type==OPTYPE_REGISTER &&
+          operands[operand].attribute==REG_INDIRECT)
+      {
+        jjjj=operands[operand].value==10?0:8;
+      }
+        else
+      if (operands[operand].type==OPTYPE_REGISTER &&
+          operands[operand].attribute==REG_INDIRECT_W_PLUS_W &&
+          operands[operand].value==11 &&
+          operands[operand].reg2==12)
+      {
+        jjjj=12;
+      }
+        else
+      if (operands[operand].type==OPTYPE_W_OP_EQ_NUM)
+      {
+        jjjj=operands[operand].value==10?0:8;
+        num=operands[operand].attribute;
+        if ((num&1)!=0 || num<-6 || num>6)
+        {
+          print_error("Illegal operands", asm_context);
+          return -1;
+        }
+        jjjj|=(num/2)&0x7;
+      }
+        else
+      {
+        print_error("Illegal operands", asm_context);
+        return -1;
+      }
+#endif
+
+      operand+=2;
+    }
+
+    if (operand>=operand_count) { break; }
+
+    if (operands[operand].type==OPTYPE_REGISTER &&
+        operands[operand].value==13 &&
+        operands[operand].attribute==REG_NORMAL)
+    {
+      if (operands[operand].attribute>1)
+      {
+        print_error("Illegal addressing mode", asm_context);
+        return -1;
+      }
+      aa=0;
+      operand++;
+    }
+      else
+    if (operands[operand].type==OPTYPE_W_OP_EQ_NUM && 
+        operands[operand].value==13 &&
+        operands[operand].attribute==2)
+    {
+      if (operands[operand].attribute>1)
+      {
+        print_error("Illegal addressing mode", asm_context);
+        return -1;
+      }
+      aa=1;
+      operand++;
+    }
+
+    if (operand<operand_count)
+    {
+      print_error("Too many operands", asm_context);
+      return -1;
+    }
+
+  } while(0);
+
+  opcode|=(xx<<12)|(yy<<10)|(iiii<<6)|(jjjj<<2)|aa;
+
+  return opcode;
+}
 
 int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
 {
-struct _operand operands[5];
+struct _operand operands[6];
 int operand_count=0;
 char token[TOKENLEN];
 char instr_case[TOKENLEN];
@@ -201,7 +389,7 @@ int n;
     token_type=get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { break; }
 
-    if (operand_count==5)
+    if (operand_count==6)
     {
       print_error_unexp(token, asm_context);
       return -1;
@@ -574,6 +762,18 @@ int n;
           {
             if (check_f_flag(asm_context,operands[0].value,flag)==-1) { return -1; }
             add_bin32(asm_context, table_dspic[n].opcode|(flag==FLAG_B?(1<<14):0)|operands[0].value, IS_OPCODE);
+            return 4;
+          }
+          break;
+        case OP_WREG_F:
+          if (flag!=FLAG_NONE && flag!=FLAG_B && flag!=FLAG_W) { break; }
+          if (operand_count==2 &&
+              operands[0].type==OPTYPE_WREG && operands[1].type==OPTYPE_NUM)
+          {
+            if (check_f_flag(asm_context,operands[0].value,flag)==-1) { return -1; }
+            opcode=table_dspic[n].opcode|operands[1].value;
+            if (flag==FLAG_B) { opcode|=(1<<14); }
+            add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
           break;
@@ -1387,17 +1587,21 @@ int n;
             return 4;
           }
           break;
-        case OP_WM_WM_ACC_WX_WY:
+        case OP_A_WX_WY_AWB:
+          opcode=parse_movsac(asm_context, operands, operand_count, table_dspic[n].opcode);
+          if (opcode<0) { return -1; }
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
           break;
-        case OP_WM_WM_ACC_WX_WY_WXD:
+        case OP_N_WM_WN_ACC_AX_WY:
+          break;
+        case OP_WM_WM_ACC_WX_WY:
           break;
         case OP_WM_WN_ACC_WX_WY:
           break;
+        case OP_WM_WM_ACC_WX_WY_WXD:
+          break;
         case OP_WM_WN_ACC_WX_WY_AWB:
-          break;
-        case OP_A_WX_WY_AWB:
-          break;
-        case OP_N_WM_WN_ACC_AX_WY:
           break;
         default:
           break;

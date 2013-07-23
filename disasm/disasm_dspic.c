@@ -19,97 +19,9 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-#if 0
-#define EXTRACT_VALUE() ((opcode>>table_dspic[n].operands[r].bitpos)& \
-                  ((1<<table_dspic[n].operands[r].bitlen)-1))
-#define EXTRACT_ATTR() ((opcode>>table_dspic[n].operands[r].attrpos)& \
-                  ((1<<table_dspic[n].operands[r].attrlen)-1))
-#endif
-
 static char accum[] = { 'A','B' };
 static char *bflag[] = { "", ".b" };
 static char *addr_modes[] = { "w%d", "[w%d]", "[w%d--]", "[w%d++]", "[--w%d]", "[++w%d]" };
-
-#if 0
-int get_dspic_flag_value(int flag)
-{
-  switch(flag)
-  {
-    case FLAG_B: return 1;  // sometimes not a flag (mov) :(
-    case FLAG_W: return 0;
-    case FLAG_C: return 0;
-    case FLAG_Z: return 1;
-    case FLAG_N: return 0;  // not a flag
-    case FLAG_D: return 0;  // not a flag (pop,push)
-    case FLAG_U: return 0;  // not a flag (div)
-    case FLAG_SW: return 0; // not a flag? (div)
-    case FLAG_SD: return 0; // not a flag? (div)
-    case FLAG_UW: return 0;  // MISTAKE?
-    case FLAG_UD: return 0;  // not a flag
-    case FLAG_S:  return 0;  // not a flag (div,pop,push)
-    case FLAG_SS: return 0;  // not a flag (mul)
-    case FLAG_SU: return 0;  // not a flag (mul)
-    case FLAG_US: return 0;  // not a flag (mul)
-    case FLAG_UU: return 0;  // not a flag (mul)
-    case FLAG_R: return 0;   // not a flag (sac)
-  }
-  return 0;
-}
-#endif
-
-#if 0
-char *get_dspic_flag_str(int flag)
-{
-  switch(flag)
-  {
-    case FLAG_B: return ".b";
-    case FLAG_W: return ".w";
-    case FLAG_C: return ".c";
-    case FLAG_Z: return ".z";
-    case FLAG_N: return ".n";
-    case FLAG_D: return ".d";
-    case FLAG_U: return ".u";
-    case FLAG_SW: return ".sw";
-    case FLAG_SD: return ".sd";
-    case FLAG_UW: return ".uw";
-    case FLAG_UD: return ".ud";
-    case FLAG_S:  return ".s";
-    case FLAG_SS: return ".ss";
-    case FLAG_SU: return ".su";
-    case FLAG_US: return ".us";
-    case FLAG_UU: return ".uu";
-    case FLAG_R: return ".r";
-  }
-
-  return "";
-}
-#endif
-
-#if 0
-int convert_dspic_flag_combo(int value, int flags)
-{
-  switch(flags)
-  {
-    case FLAG_NONE:
-      if (value==0) return 0;
-      return -1;
-    case FLAG_B|FLAG_W:
-      if (value==1) return FLAG_B;
-      return -1;
-    case FLAG_C|FLAG_Z:
-      if (value==1) return FLAG_Z;
-      return FLAG_C;
-    case FLAG_S|FLAG_SW|FLAG_SD:
-      if (value==0) return FLAG_S;
-      return FLAG_SD;
-  }
-
-  printf("Internal Error: Not implemented %s:%d\n", __FILE__, __LINE__);
-
-  return -1;
-}
-#endif
-
 
 int get_cycle_count_dspic(unsigned short int opcode)
 {
@@ -137,41 +49,63 @@ static void get_wd(char *temp, int reg, int attr, int reg2)
   }
 }
 
-#if 0
-static int get24bits(struct _memory *memory, int address)
+static void get_prefetch(char *temp, int w, int xx, int iiii)
 {
-int data;
-
-  //data=READ_RAM(address)<<16;
-  //data|=READ_RAM(address+1)<<8;
-  //data|=READ_RAM(address+2);
-  data=READ_RAM(address+2)<<16;
-  data|=READ_RAM(address+1)<<8;
-  data|=READ_RAM(address);
-
-  return data;
+  if (iiii==0xc) { sprintf(temp, ", [w%d+12], w%d", w, xx+4); return; }
+  if (iiii>=8) { w++; iiii=iiii&0x7; }
+  if (iiii==0) { sprintf(temp, ", [w%d], w%d", w, xx+4); return; }
+  if ((iiii&0x4)!=0)
+  {
+    iiii=((iiii^0x7)+1);
+    sprintf(temp, ", [w%d]-=%d, w%d", w, iiii*2, xx+4);
+  }
+    else
+  {
+    sprintf(temp, ", [w%d]+=%d, w%d", w, iiii*2, xx+4);
+  }
 }
-#endif
 
-#if 0
-static void get_reg_string(char *temp, int mode, int reg)
+static void parse_dsp(char *instruction, uint32_t opcode)
 {
-  sprintf(temp, addr_modes[mode], reg);
+  char temp[32];
+  int xx=(opcode>>12)&0x3;
+  int yy=(opcode>>10)&0x3;
+  int iiii=(opcode>>6)&0xf;
+  int jjjj=(opcode>>2)&0xf;
+  int aa=opcode&0x3;
+
+  if (iiii!=4)
+  {
+    get_prefetch(temp, 8, xx, iiii);
+    strcat(instruction, temp);
+  }
+
+  if (jjjj!=4)
+  {
+    get_prefetch(temp, 10, yy, jjjj);
+    strcat(instruction, temp);
+  }
+
+  if (aa==0)
+  {
+    strcat(instruction, ", w13");
+  }
+    else
+  if (aa==1)
+  {
+    strcat(instruction, ", [w13]+=2");
+  }
 }
-#endif
 
 int disasm_dspic(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
 char temp[32];
 char temp2[32];
 uint32_t opcode;
-//opcode48;
 int count=4;
 int16_t offset;
-//int value,attr;
 int n,b,d,f,a,w,lit;
 
-  //opcode=get24bits(memory, address);
   opcode=get_opcode32(memory, address);
 
   n=0;
@@ -197,6 +131,11 @@ int n,b,d,f,a,w,lit;
           d=(opcode>>13)&1;
           f=opcode&0x1fff;
           sprintf(instruction, "%s%s 0x%04x%s", table_dspic[n].name, bflag[b], f, (d==0?", wreg":""));
+          return 4;
+        case OP_WREG_F:
+          b=(opcode>>14)&1;
+          f=opcode&0x1fff;
+          sprintf(instruction, "%s%s wreg, 0x%04x", table_dspic[n].name, bflag[b], f);
           return 4;
         case OP_ACC:
           a=(opcode>>15)&1;
@@ -511,10 +450,15 @@ int n,b,d,f,a,w,lit;
           sprintf(instruction, "%s w%d, w%d", table_dspic[n].name, w, d);
           return 4;
         case OP_A_WX_WY_AWB:
+ //0xc72e28
+          a=(opcode>>15)&0x1;
+          sprintf(instruction, "%s %c", table_dspic[n].name, accum[a]);
+          parse_dsp(instruction, opcode);
+          return 4;
         case OP_N_WM_WN_ACC_AX_WY:
         case OP_WM_WM_ACC_WX_WY:
-        case OP_WM_WM_ACC_WX_WY_WXD:
         case OP_WM_WN_ACC_WX_WY:
+        case OP_WM_WM_ACC_WX_WY_WXD:
         case OP_WM_WN_ACC_WX_WY_AWB:
         default:
           strcpy(instruction, "???");

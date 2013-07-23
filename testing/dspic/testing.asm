@@ -165,4 +165,11 @@ asdf:
   push [w3+w4]
   push [w3++]
 
+  mov.b wreg, 163
+  mov.b 163
+  mov.b 163, wreg
+
+  movsac A, [w9], w6, [w11]+=4, w7, w13
+  movsac A, [w11]+=4, w7, w13
+  clr A, [w11+w12], w7, w13
 
