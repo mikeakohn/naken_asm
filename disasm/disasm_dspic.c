@@ -66,6 +66,22 @@ static void get_prefetch(char *temp, int w, int xx, int iiii)
   }
 }
 
+static void get_prefetch_half(char *temp, int w, int iiii)
+{
+  if (iiii==0xc) { sprintf(temp, ", [w%d+12]", w); return; }
+  if (iiii>=8) { w++; iiii=iiii&0x7; }
+  if (iiii==0) { sprintf(temp, ", [w%d]", w); return; }
+  if ((iiii&0x4)!=0)
+  {
+    iiii=((iiii^0x7)+1);
+    sprintf(temp, ", [w%d]-=%d", w, iiii*2);
+  }
+    else
+  {
+    sprintf(temp, ", [w%d]+=%d", w, iiii*2);
+  }
+}
+
 static void parse_dsp(char *instruction, uint32_t opcode)
 {
   char temp[32];
@@ -213,7 +229,7 @@ int n,b,d,f,a,w,lit;
           return 4;
         case OP_GOTO:
           f=(opcode&0xffff)|(get_opcode32(memory, address+4)<<16);
-          sprintf(instruction, "%s 0x%04x, w%d", table_dspic[n].name, f, w);
+          sprintf(instruction, "%s 0x%04x", table_dspic[n].name, f);
           return 8;
         case OP_LIT1:
           lit=opcode&0x1;
@@ -451,31 +467,48 @@ int n,b,d,f,a,w,lit;
           sprintf(instruction, "%s w%d, w%d", table_dspic[n].name, w, d);
           return 4;
         case OP_A_WX_WY_AWB:
-          if ((opcode&0x3)>1) { continue; }
+          //if ((opcode&0x3)>1) { continue; }
           a=(opcode>>15)&0x1;
           sprintf(instruction, "%s %c", table_dspic[n].name, accum[a]);
           parse_dsp(instruction, opcode);
           return 4;
         case OP_N_WM_WN_ACC_WX_WY:
-          if ((opcode&0x3)<2) { continue; }
+          //if ((opcode&0x3)<2) { continue; }
           a=(opcode>>15)&0x1;
           d=(opcode>>16)&0x7;
           sprintf(instruction, "%s.n %s, %c", table_dspic[n].name, mmm_table[d], accum[a]);
           parse_dsp(instruction, opcode);
           return 4;
         case OP_WM_WM_ACC_WX_WY:
-          printf("2\n"); break;
+          a=(opcode>>15)&0x1;
+          d=((opcode>>16)&0x3)+4;
+          sprintf(instruction, "%s w%d*w%d, %c", table_dspic[n].name, d, d, accum[a]);
+          parse_dsp(instruction, opcode);
+          return 4;
         case OP_WM_WN_ACC_WX_WY:
-          if ((opcode&0x3)<2) { continue; }
+          //if ((opcode&0x3)<2) { continue; }
           a=(opcode>>15)&0x1;
           d=(opcode>>16)&0x7;
           sprintf(instruction, "%s %s, %c", table_dspic[n].name, mmm_table[d], accum[a]);
           parse_dsp(instruction, opcode);
           return 4;
         case OP_WM_WM_ACC_WX_WY_WXD:
-          printf("4\n"); break;
+          a=(opcode>>15)&0x1;
+          d=(opcode>>16)&0x3;
+          sprintf(instruction, "%s w%d*w%d, %c", table_dspic[n].name, d, d, accum[a]);
+          get_prefetch_half(temp, 8, (opcode>>6)&0xf);
+          strcat(instruction, temp);
+          get_prefetch_half(temp, 10, (opcode>>2)&0xf);
+          strcat(instruction, temp);
+          sprintf(temp, ", w%d", ((opcode>>12)&0x3)+4);
+          strcat(instruction, temp);
+          break;
         case OP_WM_WN_ACC_WX_WY_AWB:
-          printf("5\n"); break;
+          a=(opcode>>15)&0x1;
+          d=(opcode>>16)&0x7;
+          sprintf(instruction, "%s %s, %c", table_dspic[n].name, mmm_table[d], accum[a]);
+          parse_dsp(instruction, opcode);
+          break;
         default:
           strcpy(instruction, "???");
           break;
@@ -487,7 +520,7 @@ int n,b,d,f,a,w,lit;
     n++;
   }
 
-printf("%06x %06x %06x\n", opcode, opcode&0xf8407f, 0x78004f);
+//printf("%06x %06x %06x\n", opcode, opcode&0xf8407f, 0x78004f);
 
   strcpy(instruction, "???");
   return 4;
@@ -495,7 +528,7 @@ printf("%06x %06x %06x\n", opcode, opcode&0xf8407f, 0x78004f);
 
 void list_output_dspic(struct _asm_context *asm_context, int address)
 {
-int cycles_min,cycles_max,count;
+int cycles_min=0,cycles_max=0,count;
 char instruction[128];
 unsigned int opcode;
 

@@ -162,9 +162,42 @@ static int check_f_64k(struct _asm_context *asm_context, int value)
   return 0;
 }
 
-static int parse_dsp_op(struct _asm_context *asm_context, struct _operand *operands, int operand, int operand_count, int w, int *xx, int *iiii)
+static int parse_wx_wy(struct _operand *operands, int w, int *iiii)
 {
 int num;
+
+  if (operands->type==OPTYPE_REGISTER &&
+      operands->attribute==REG_INDIRECT)
+  {
+    *iiii=(operands->value&1)==0?0:8;
+  }
+    else
+  if (operands->type==OPTYPE_REGISTER &&
+      operands->attribute==REG_INDIRECT_W_PLUS_W &&
+      operands->value==w+1 &&
+      operands->reg2==12)
+  {
+    *iiii=12;
+  }
+    else
+  if (operands->type==OPTYPE_W_OP_EQ_NUM)
+  {
+    *iiii=(operands->value&1)==0?0:8;
+    num=operands->attribute;
+    if ((num&1)!=0 || num<-6 || num>6) { return -1; }
+    *iiii|=(num/2)&0x7;
+  }
+    else
+  {
+    return -1;
+  }
+
+  return 0;
+}
+
+static int parse_dsp_op(struct _operand *operands, int operand, int operand_count, int w, int *xx, int *iiii)
+{
+//int num;
 
   if (operand+2>operand_count ||
       operands[operand+1].value<4 || operands[operand+1].value>7)
@@ -174,6 +207,8 @@ int num;
 
   *xx=operands[operand+1].value-4;
 
+  return parse_wx_wy(&operands[operand], w, iiii);
+#if 0
   if (operands[operand].type==OPTYPE_REGISTER &&
       operands[operand].attribute==REG_INDIRECT)
   {
@@ -201,6 +236,7 @@ int num;
   }
 
   return 0;
+#endif
 }
 
 static int parse_awb(struct _asm_context *asm_context, struct _operand *operands, int *aa)
@@ -215,7 +251,6 @@ static int parse_awb(struct _asm_context *asm_context, struct _operand *operands
   if (operands->type==OPTYPE_W_OP_EQ_NUM && 
       operands->value==13 && operands->attribute==2)
   {
-    if (operands->attribute>1) { return -1; }
     *aa=1;
   }
     else
@@ -228,6 +263,7 @@ static int parse_awb(struct _asm_context *asm_context, struct _operand *operands
 
 static int parse_mmm(struct _asm_context *asm_context, struct _operand *operands, int *mmm)
 {
+  if (operands->type!=OPTYPE_W_MUL_W) { return -1; }
   if (operands->value==4)
   {
     if (operands->reg2==5) { *mmm=0; }
@@ -255,6 +291,7 @@ static int parse_mmm(struct _asm_context *asm_context, struct _operand *operands
 
 static int parse_mm(struct _asm_context *asm_context, struct _operand *operands, int *mm)
 {
+  if (operands->type!=OPTYPE_W_MUL_W) { return -1; }
   if (operands->value!=operands->reg2) { return -1; }
   if (operands->value<4 || operands->reg2>7) { return -1; }
   *mm=operands->value-4;
@@ -276,7 +313,7 @@ int xx=0,yy=0,iiii=4,jjjj=4,aa=2;
 
     if (operands[operand].value==8 || operands[operand].value==9)
     {
-      if (parse_dsp_op(asm_context, operands, operand, operand_count, 8, &xx, &iiii)==-1) { return -1; }
+      if (parse_dsp_op(operands, operand, operand_count, 8, &xx, &iiii)==-1) { return -1; }
 
       operand+=2;
     }
@@ -285,7 +322,7 @@ int xx=0,yy=0,iiii=4,jjjj=4,aa=2;
 
     if (operands[operand].value==10 || operands[operand].value==11)
     {
-      if (parse_dsp_op(asm_context, operands, operand, operand_count, 10, &yy, &jjjj)==-1) { return -1; }
+      if (parse_dsp_op(operands, operand, operand_count, 10, &yy, &jjjj)==-1) { return -1; }
 
       operand+=2;
     }
@@ -310,7 +347,6 @@ int operand=0;
 int xx=0,yy=0,iiii=4,jjjj=4,mmm=0;
 
   if (operand>=operand_count) { return -1; }
-  if (operands[operand].type!=OPTYPE_W_MUL_W) { return -1; }
 
   if (parse_mmm(asm_context, operands, &mmm)==-1) { return -1; }
   operand++;
@@ -326,7 +362,7 @@ int xx=0,yy=0,iiii=4,jjjj=4,mmm=0;
 
     if (operands[operand].value==8 || operands[operand].value==9)
     {
-      if (parse_dsp_op(asm_context, operands, operand, operand_count, 8, &xx, &iiii)==-1) { return -1; }
+      if (parse_dsp_op(operands, operand, operand_count, 8, &xx, &iiii)==-1) { return -1; }
 
       operand+=2;
     }
@@ -335,7 +371,7 @@ int xx=0,yy=0,iiii=4,jjjj=4,mmm=0;
 
     if (operands[operand].value==10 || operands[operand].value==11)
     {
-      if (parse_dsp_op(asm_context, operands, operand, operand_count, 10, &yy, &jjjj)==-1) { return -1; }
+      if (parse_dsp_op(operands, operand, operand_count, 10, &yy, &jjjj)==-1) { return -1; }
 
       operand+=2;
     }
@@ -349,9 +385,138 @@ int xx=0,yy=0,iiii=4,jjjj=4,mmm=0;
   return opcode;
 }
 
+static int parse_mac_m_m(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int opcode)
+{
+int operand=0;
+int xx=0,yy=0,iiii=4,jjjj=4,mm=0;
+
+  if (operand>=operand_count) { return -1; }
+
+  if (parse_mm(asm_context, operands, &mm)==-1) { return -1; }
+  operand++;
+
+  if (operand>=operand_count) { return -1; }
+
+  if (operands[operand].type!=OPTYPE_ACCUM) { return -1; }
+  opcode|=(operands[operand++].value<<15);
+
+  do
+  {
+    if (operand>=operand_count) { break; }
+
+    if (operands[operand].value==8 || operands[operand].value==9)
+    {
+      if (parse_dsp_op(operands, operand, operand_count, 8, &xx, &iiii)==-1) { return -1; }
+
+      operand+=2;
+    }
+
+    if (operand>=operand_count) { break; }
+
+    if (operands[operand].value==10 || operands[operand].value==11)
+    {
+      if (parse_dsp_op(operands, operand, operand_count, 10, &yy, &jjjj)==-1) { return -1; }
+
+      operand+=2;
+    }
+
+#if 0
+    if (operand>=operand_count) { break; }
+
+    if (parse_awb(asm_context, &operands[operand], &aa)==-1) { return -1; }
+    operand++;
+#endif
+
+    if (operand<operand_count) { return -1; }
+
+  } while(0);
+
+  opcode|=(mm<<16)|(xx<<12)|(yy<<10)|(iiii<<6)|(jjjj<<2);
+
+  return opcode;
+}
+
+static int parse_ed_m_m(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int opcode)
+{
+int xx=0,iiii=4,jjjj=4,mm=0;
+
+  if (operand_count!=5) { return -1; }
+
+  if (parse_mm(asm_context, operands, &mm)==-1) { return -1; }
+
+  if (operands[1].type!=OPTYPE_ACCUM) { return -1; }
+  opcode|=(operands[1].value<<15);
+
+  if (operands[2].value!=8 && operands[2].value!=9) { return -1; }
+  if (parse_wx_wy(&operands[2], 8, &iiii)==-1) { return -1; }
+
+  if (operands[3].value!=10 && operands[3].value!=11) { return -1; }
+  if (parse_wx_wy(&operands[3], 10, &jjjj)==-1) { return -1; }
+
+  if (operands[4].type!=OPTYPE_REGISTER || operands[4].attribute!=0)
+  {
+    return -1;
+  }
+
+  xx=operands[4].value-4;
+
+  opcode|=(mm<<16)|(xx<<12)|(iiii<<6)|(jjjj<<2);
+
+  return opcode;
+}
+
+static int parse_mac_m_n(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int opcode)
+{
+int operand=0;
+int xx=0,yy=0,iiii=4,jjjj=4,mmm=0,aa=2;
+
+  if (operand>=operand_count) { return -1; }
+
+  if (parse_mmm(asm_context, operands, &mmm)==-1) { return -1; }
+  operand++;
+
+  if (operand>=operand_count) { return -1; }
+
+  if (operands[operand].type!=OPTYPE_ACCUM) { return -1; }
+  opcode|=(operands[operand++].value<<15);
+
+  do
+  {
+    if (operand>=operand_count) { break; }
+
+    if (operands[operand].value==8 || operands[operand].value==9)
+    {
+      if (parse_dsp_op(operands, operand, operand_count, 8, &xx, &iiii)==-1) { return -1; }
+
+      operand+=2;
+    }
+
+    if (operand>=operand_count) { break; }
+
+    if (operands[operand].value==10 || operands[operand].value==11)
+    {
+      if (parse_dsp_op(operands, operand, operand_count, 10, &yy, &jjjj)==-1) { return -1; }
+
+      operand+=2;
+    }
+
+    if (operand>=operand_count) { break; }
+
+    if (parse_awb(asm_context, &operands[operand], &aa)==-1) { return -1; }
+    operand++;
+
+    if (operand<operand_count) { return -1; }
+
+  } while(0);
+
+  opcode|=(mmm<<16)|(xx<<12)|(yy<<10)|(iiii<<6)|(jjjj<<2)|aa;
+
+  return opcode;
+}
+
 int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
 {
-struct _operand operands[6];
+struct _operand operands[7];
 int operand_count=0;
 char token[TOKENLEN];
 char instr_case[TOKENLEN];
@@ -373,7 +538,7 @@ int n;
     token_type=get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { break; }
 
-    if (operand_count==6)
+    if (operand_count==7)
     {
       print_error_unexp(token, asm_context);
       return -1;
@@ -682,9 +847,10 @@ int n;
 
 #ifdef DEBUG
   printf("-------- instr=%s  flag=%d operand_count=%d\n", instr, flag, operand_count);
+  char *types[]= { "ERROR", "REGISTER", "WREG", "LIT", "NUM", "ACCUM", "W_PLUS_LIT", "W_OP_EQ_NUM", "W_MUL_W" };
   for (n=0; n<operand_count; n++)
   {
-    printf("operand %d: value=%d type=%d attribute=%d\n", n, operands[n].value, operands[n].type, operands[n].attribute);
+    printf("operand %d: value=%d type=%s (%d) attribute=%d reg2=%d\n", n, operands[n].value, types[operands[n].type], operands[n].type, operands[n].attribute, operands[n].reg2);
   }
 #endif
 
@@ -1587,10 +1753,10 @@ int n;
           break;
         case OP_WM_WM_ACC_WX_WY:
           if (flag!=FLAG_NONE) { break; }
-          if (operand_count>1 &&operands[0].type==OPTYPE_W_MUL_W &&
-              operands[0].value==operands[0].reg2)
-          {
-          }
+          opcode=parse_mac_m_m(asm_context, operands, operand_count, table_dspic[n].opcode);
+          if (opcode==-1) { break; }
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
           break;
         case OP_WM_WN_ACC_WX_WY:
           if (flag!=FLAG_NONE) { break; }
@@ -1601,13 +1767,17 @@ int n;
           break;
         case OP_WM_WM_ACC_WX_WY_WXD:
           if (flag!=FLAG_NONE) { break; }
-          if (operand_count>1 &&operands[0].type==OPTYPE_W_MUL_W &&
-              operands[0].value==operands[0].reg2)
-          {
-          }
+          opcode=parse_ed_m_m(asm_context, operands, operand_count, table_dspic[n].opcode);
+          if (opcode==-1) { break; }
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
           break;
         case OP_WM_WN_ACC_WX_WY_AWB:
           if (flag!=FLAG_NONE) { break; }
+          opcode=parse_mac_m_n(asm_context, operands, operand_count, table_dspic[n].opcode);
+          if (opcode==-1) { break; }
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
           break;
         default:
           break;
