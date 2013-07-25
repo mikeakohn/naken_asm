@@ -997,7 +997,13 @@ int n;
           if (operand_count==1 && operands[0].type==OPTYPE_NUM)
           {
             int offset=operands[0].value-((asm_context->address/2)+2);
-            if (check_range(asm_context, "Offset", offset, -32768, 32767)==-1) { return -1; }
+            if ((offset&1)!=0)
+            {
+              print_error("Address not on 16 bit boundary", asm_context);
+              return -1;
+            }
+            if (check_range(asm_context, "Offset", offset, -32768*2, 32767*2)==-1) { return -1; }
+            offset=offset/2;
             opcode=table_dspic[n].opcode;
             opcode|=(offset&0xffff);
             add_bin32(asm_context, opcode, IS_OPCODE);

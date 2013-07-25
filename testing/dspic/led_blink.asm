@@ -7,15 +7,18 @@
 .org 0x100
 main:
   clr w0
-  mov w0, 0x163
+  mov.b wreg, 0x02c6
 repeat:
   mov #2, w0
-  mov w0, 0x165
+  mov.b wreg, 0x02c8
+
+;myself:
+;  goto myself
 
   call delay
 
   mov #1, w0
-  mov w0, 0x165
+  mov.b wreg, 0x02c8
 
   call delay
 

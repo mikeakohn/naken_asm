@@ -187,7 +187,7 @@ int n,b,d,f,a,w,lit;
           return 4;
         case OP_BRA:
           offset=opcode&0xffff;
-          sprintf(instruction, "%s 0x%04x (%d)", table_dspic[n].name, (address/2)+2+offset, offset);
+          sprintf(instruction, "%s 0x%04x (%d)", table_dspic[n].name, (address/2)+2+((int32_t)(offset)*2), ((int32_t)(offset)*2));
           return 4;
         case OP_CP0_WS:
           b=(opcode>>11)&1;
