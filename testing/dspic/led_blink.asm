@@ -12,9 +12,6 @@ repeat:
   mov #2, w0
   mov.b wreg, 0x02c8
 
-;myself:
-;  goto myself
-
   call delay
 
   mov #1, w0

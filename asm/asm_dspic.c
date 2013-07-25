@@ -531,6 +531,8 @@ int num;
 int n;
 
   memset(&operands, 0, sizeof(operands));
+
+  //memset(instr_case, 0xff, sizeof(instr_case));
   lower_copy(instr_case, instr);
 
   while(1)
@@ -1854,7 +1856,9 @@ int n;
     print_error_unknown_instr(instr, asm_context);
   }
 
-  return 0;
+  asm_context->error=1;
+
+  return 4;
 }
 
 

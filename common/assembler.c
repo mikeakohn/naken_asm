@@ -1124,6 +1124,8 @@ if (asm_context->address-start_address==0)
     }
   }
 
+  if (asm_context->error==1) { return -1; }
+
   return 0;
 }
 
