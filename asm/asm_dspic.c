@@ -1185,7 +1185,13 @@ int n;
           {
             int offset=operands[1].value-((asm_context->address/2)+2);
             if (check_range(asm_context, "Literal", operands[0].value, 0, 0x3fff)==-1) { return -1; }
-            if (check_range(asm_context, "Offset", offset, -32768, 32767)==-1) { return -1; }
+            if ((offset&1)!=0)
+            {
+              print_error("Address not on 16 bit boundary", asm_context);
+              return -1;
+            }
+            if (check_range(asm_context, "Offset", offset, -32768*2, 32767*2)==-1) { return -1; }
+            offset=offset/2;
             opcode=table_dspic[n].opcode|operands[0].value;
             add_bin32(asm_context, opcode, IS_OPCODE);
             add_bin32(asm_context, offset&0xffff, IS_OPCODE);
@@ -1515,7 +1521,13 @@ int n;
           {
             if (operands[0].attribute!=0) { break; }
             int offset=operands[1].value-((asm_context->address/2)+2);
-            if (check_range(asm_context, "Offset", offset, -32768, 32767)==-1) { return -1; }
+            if ((offset&1)!=0)
+            {
+              print_error("Address not on 16 bit boundary", asm_context);
+              return -1;
+            }
+            if (check_range(asm_context, "Offset", offset, -32768*2, 32767*2)==-1) { return -1; }
+            offset=offset/2;
             opcode=table_dspic[n].opcode|operands[0].value;
             add_bin32(asm_context, opcode, IS_OPCODE);
             add_bin32(asm_context, offset&0xffff, IS_OPCODE);

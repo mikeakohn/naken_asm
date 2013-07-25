@@ -248,7 +248,7 @@ int n,b,d,f,a,w,lit;
         case OP_LIT14_EXPR:
           lit=opcode&0x3fff;
           offset=get_opcode32(memory, address+4);
-          sprintf(instruction, "%s #%d, 0x%04x (%d)", table_dspic[n].name, lit, ((address/2)+2)+offset, offset);
+          sprintf(instruction, "%s #%d, 0x%04x (%d)", table_dspic[n].name, lit, ((address/2)+2)+((int32_t)(offset)*2), ((int32_t)(offset)*2));
           return 8;
         case OP_LIT16_WND:
           lit=(opcode>>4)&0xffff;
@@ -387,7 +387,7 @@ int n,b,d,f,a,w,lit;
         case OP_WN_EXPR:
           offset=get_opcode32(memory, address+4);
           w=opcode&0xf;
-          sprintf(instruction, "%s w%d, 0x%04x (%d)", table_dspic[n].name, w, ((address/2)+2)+offset, offset);
+          sprintf(instruction, "%s w%d, 0x%04x (%d)", table_dspic[n].name, w, ((address/2)+2)+((int32_t)(offset)*2), ((int32_t)(offset)*2));
           return 8;
         case OP_WNS_F:
           w=opcode&0xf;
