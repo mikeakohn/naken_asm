@@ -861,16 +861,16 @@ int n;
   {
     add_bin32(asm_context, 0x0000000, IS_OPCODE);
 
-    // FIXME - wtf is this.  can't this come from the table?
     if (strcmp("do", instr_case)==0 ||
         (((strcmp("goto", instr_case)==0 || strcmp("call", instr_case)==0)
          && operand_count==1 &&
          operands[0].type!=OPTYPE_REGISTER)))
     {
       add_bin32(asm_context, 0x0000000, IS_OPCODE);
+      return 8;
     }
 
-    return 0;
+    return 4;
   }
 
   n=0;

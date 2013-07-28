@@ -284,7 +284,7 @@ int num;
 
   if (eval_expression(asm_context, &num)==-1)
   {
-    printf("Parse error on line %d. ORG expects an address.\n", asm_context->line);
+    print_error("org expects an address", asm_context);
     return -1;
   }
 
