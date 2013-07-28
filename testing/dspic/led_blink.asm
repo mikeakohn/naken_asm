@@ -1,5 +1,6 @@
 
 .dspic
+.include "p30f3012.inc"
 
 .org 0
   goto main
@@ -7,15 +8,15 @@
 .org 0x100
 main:
   clr w0
-  mov.b wreg, 0x02c6
+  mov.b wreg, TRISB 
 repeat:
   mov #2, w0
-  mov.b wreg, 0x02c8
+  mov.b wreg, PORTB
 
   call delay
 
   mov #1, w0
-  mov.b wreg, 0x02c8
+  mov.b wreg, PORTB 
 
   call delay
 
