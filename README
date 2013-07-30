@@ -15,7 +15,7 @@ CPU                 Author
 8051/8052           Michael Kohn
 ARM                 Michael Kohn
 AVR8                Michael Kohn
-dsPIC               Michael Kohn
+dsPIC/PIC24         Michael Kohn
 MIPS                Michael Kohn
 MSP430/MSP430X      Michael Kohn
 STM8                Michael Kohn
@@ -201,13 +201,16 @@ with some include files.
 CPU Selection:
 .65xx            6502, 6510, and any other 6500 series cpu
 .680x            6800
+.68hc08          68HC08
 .680x0           Motorola 68000
 .8051 or .8052   8051/8052/MCS-51
 .arm             All ARM CPU's
 .avr8            Atmel AVR8
 .dspic           dsPIC
 .mips            MIPS including PIC32
-.msp430          MSP430/MSP430X
+.msp430          MSP430
+.mps430x         MSP430X
+.pic24           PIC24
 .stm8            STM8
 .thumb           THUMB
 .tms1000         TMS1000/TMS1200/TMS1070/TMS1270

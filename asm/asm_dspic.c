@@ -878,6 +878,12 @@ int n;
   matched=0;
   while(table_dspic[n].name!=NULL)
   {
+    if (asm_context->cpu_type==CPU_TYPE_PIC24 && table_dspic[n].dspic)
+    {
+      n++;
+      continue;
+    }
+
     if (strcmp(table_dspic[n].name, instr_case)==0)
     {
       matched=1;

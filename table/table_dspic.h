@@ -110,9 +110,9 @@ struct _table_dspic
 {
   char *name;
   uint32_t opcode;
-  uint32_t opcode48;
+  //uint32_t opcode48;
   uint32_t mask;
-  uint32_t mask48;
+  //uint32_t mask48;
   uint8_t type;
   uint8_t cycles_min;
   uint8_t cycles_max;
