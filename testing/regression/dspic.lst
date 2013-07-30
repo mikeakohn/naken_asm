@@ -1,0 +1,572 @@
+.dspic
+
+main:
+  nop
+
+0x0000: 0x000000 nop                                      cycles: 1
+
+  nopr
+
+0x0002: 0xff0000 nopr                                     cycles: 1
+
+
+  push 0x1234
+
+0x0004: 0xf81234 push 0x1234                              cycles: 1
+
+  pop 0xfff0
+
+0x0006: 0xf9fff0 pop 0xfff0                               cycles: 1
+
+
+  sub 0x556
+
+0x0008: 0xb52556 sub 0x0556                               cycles: 1
+
+  sub.b 0x555
+
+0x000a: 0xb56555 sub.b 0x0555                             cycles: 1
+
+  sub.b 0x555, wreg
+
+0x000c: 0xb54555 sub.b 0x0555, wreg                       cycles: 1
+
+  clr.w 0x234
+
+0x000e: 0xef2234 clr 0x0234                               cycles: 1
+
+
+  add A
+
+0x0010: 0xcb0000 add A                                    cycles: 1
+
+  sub B
+
+0x0012: 0xcbb000 sub B                                    cycles: 1
+
+
+  sac B, W1
+
+0x0014: 0xcc8001 sac B, w1                                cycles: 1
+
+  sac.r B, W0
+
+0x0016: 0xcd8000 sac.b B, w0                              cycles: 1
+
+  sac.r A, #5, [W9]
+
+0x0018: 0xcd0299 sac.b A, #5, [w9]                        cycles: 1
+
+  sac.r A, #-5, [W7+W2]
+
+0x001a: 0xcd15e7 sac.b A, #-5, [w7+w2]                    cycles: 1
+
+  sac B, #-2, [++W1]
+
+0x001c: 0xcc8751 sac B, #-2, [++w1]                       cycles: 1
+
+  sac B, #2, [--W15]
+
+0x001e: 0xcc814f sac B, #2, [--w15]                       cycles: 1
+
+  sac B, #1, [W15++]
+
+0x0020: 0xcc80bf sac B, #1, [w15++]                       cycles: 1
+
+  sac B, #1, [W15--]
+
+0x0022: 0xcc80af sac B, #1, [w15--]                       cycles: 1
+
+
+blah:
+  sftac A, #15
+
+0x0024: 0xc8004f sftac A, #15                             cycles: 1
+
+  sftac B, #-15
+
+0x0026: 0xc88071 sftac B, #-15                            cycles: 1
+
+  sftac B, #-16
+
+0x0028: 0xc88070 sftac B, #-16                            cycles: 1
+
+  bra ge, blah
+
+0x002a: 0x3dfffc bra ge 0x0024 (-8)                       cycles: 1-2
+
+
+  bra asdf
+
+0x002c: 0x370001 bra 0x0030 (2)                           cycles: 2
+
+  sftac A, w3
+
+0x002e: 0xc80003 sftac A, w3                              cycles: 1
+
+asdf:
+
+  cp0 w4
+
+0x0030: 0xe00004 cp0 w4                                   cycles: 1
+
+  cp0.w w4
+
+0x0032: 0xe00004 cp0 w4                                   cycles: 1
+
+  cp0.b [--w4]
+
+0x0034: 0xe00444 cp0 [--w4]                               cycles: 1
+
+  cp0.b [w2++]
+
+0x0036: 0xe00432 cp0 [w2++]                               cycles: 1
+
+  cp0.b [w8]
+
+0x0038: 0xe00418 cp0 [w8]                                 cycles: 1
+
+
+  cp.b 0x08
+
+0x003a: 0xe34008 cp.b 0x0008                              cycles: 1
+
+  cp 0x100
+
+0x003c: 0xe30100 cp 0x0100                                cycles: 1
+
+  cp.w 0x100
+
+0x003e: 0xe30100 cp 0x0100                                cycles: 1
+
+
+  mov.d w4, w8
+
+0x0040: 0xbe0404 mov.d w4, w8                             cycles: 2
+
+  mov.d [w5], w6
+
+0x0042: 0xbe0315 mov.d [w5], w6                           cycles: 2
+
+  mov.d [w5--], w8
+
+0x0044: 0xbe0425 mov.d [w5--], w8                         cycles: 2
+
+
+  mov.d w6, [w5]
+
+0x0046: 0xbe8a86 mov.d w6, [w5]                           cycles: 2
+
+  mov.d w8, [--w5]
+
+0x0048: 0xbea288 mov.d w8, [--w5]                         cycles: 2
+
+
+  bset 0x100, #4
+
+0x004a: 0xa88100 bset.b 0x100, #4                         cycles: 1
+
+  bset.b 0x100, #4
+
+0x004c: 0xa88100 bset.b 0x100, #4                         cycles: 1
+
+  bset.b 0x101, #7
+
+0x004e: 0xa8e101 bset.b 0x101, #7                         cycles: 1
+
+  bset 0x100, #15
+
+0x0050: 0xa8e101 bset.b 0x101, #7                         cycles: 1
+
+
+  btsts.c w2, #15
+
+0x0052: 0xa4f002 btsts.c w2, #15                          cycles: 1
+
+  btsts.z [w9], #8
+
+0x0054: 0xa48819 btsts.z [w9], #8                         cycles: 1
+
+  btsts.z [--w9], #8
+
+0x0056: 0xa48849 btsts.z [--w9], #8                       cycles: 1
+
+
+  ;do #5, end_do
+  mov 0x122, w6
+
+0x0058: 0x800916 mov 0x0122, w6                           cycles: 1
+
+  mov 0xfffe, w6
+
+0x005a: 0x87fff6 mov 0xfffe, w6                           cycles: 1
+
+;end_do:
+
+  goto blah
+
+0x005c: 0x040024 goto 0x0024                              cycles: 2
+0x005e: 0x000000
+
+
+  pwrsav #1
+
+0x0060: 0xfe4001 pwrsav #1                                cycles: 1
+
+
+  retlw #100, w3
+
+0x0062: 0x050643 retlw #64, w3                            cycles: 2-3
+
+  sub.b #100, w3
+
+0x0064: 0xb14643 sub.b #64, w3                            cycles: 1
+
+
+  repeat #100
+
+0x0066: 0x090064 repeat #100                              cycles: 1
+
+
+  mov.b #0x43, w5
+
+0x0068: 0xb3c435 mov #0x43, w5                            cycles: 1
+
+  mov #0x4347, w7
+
+0x006a: 0x243477 mov #0x4347, w7                          cycles: 1
+
+
+  lnk #0x64
+
+0x006c: 0xfa0064 lnk #0x64                                cycles: 1
+
+  pop.d w6
+
+0x006e: 0xbe034f pop.d w6                                 cycles: 2
+
+  pop.d w8
+
+0x0070: 0xbe044f pop.d w8                                 cycles: 2
+
+
+  pop.s
+
+0x0072: 0xfe8000 pop.s                                    cycles: 1
+
+  pop [w1]
+
+0x0074: 0x7808cf pop [w1]                                 cycles: 1
+
+  pop [--w7]
+
+0x0076: 0x7823cf pop [--w7]                               cycles: 1
+
+  pop [w3+w4]
+
+0x0078: 0x7a31cf pop [w3+w4]                              cycles: 1
+
+
+  mov.b [w1+w2], [w4+w2]
+
+0x007a: 0x797261 mov.b [w1+w2], [w4+w2]                   cycles: 1
+
+  mov.b [w1+w2], [w4++]
+
+0x007c: 0x795a61 mov.b [w1+w2], [w4++]                    cycles: 1
+
+
+  push.s
+
+0x007e: 0xfea000 push.s                                   cycles: 1
+
+  push.d w8
+
+0x0080: 0xbe9f88 push.d w8                                cycles: 2
+
+
+  mul.ss w3, w4, w6
+
+0x0082: 0xb99b04 mul.ss w3, w4, w6                        cycles: 1
+
+  mul.ss w3, [w4++], w6
+
+0x0084: 0xb99b34 mul.ss w3, [w4++], w6                    cycles: 1
+
+  mul.su w3, #31, w6
+
+0x0086: 0xb91b7f mul.su w3, #31, w6                       cycles: 1
+
+  mul.uu w3, #15, w8
+
+0x0088: 0xb81c6f mul.uu w3, #15, w8                       cycles: 1
+
+  mul.su w3, w4, w6
+
+0x008a: 0xb91b04 mul.su w3, w4, w6                        cycles: 1
+
+  mul.us w3, [--w4], w6
+
+0x008c: 0xb89b44 mul.us w3, [--w4], w6                    cycles: 1
+
+  mul.uu w3, [--w1], w6
+
+0x008e: 0xb81b41 mul.uu w3, [--w1], w6                    cycles: 1
+
+
+  div.u w3, w3
+
+0x0090: 0xd88183 div.u w3, w3                             cycles: 18
+
+  div.ud w2, w3
+
+0x0092: 0xd89943 div.ud w2, w3                            cycles: 18
+
+
+  lsr w1, w3
+
+0x0094: 0xd10181 lsr w1, w3                               cycles: 1
+
+  lsr.b [w1++], [--w3]
+
+0x0096: 0xd161b1 lsr.b [w1++], [--w3]                     cycles: 1
+
+
+  se w1, w2
+
+0x0098: 0xfb0101 se w1, w2                                cycles: 1
+
+  se [--w1], w2
+
+0x009a: 0xfb0141 se [--w1], w2                            cycles: 1
+
+
+  bsw.z [w3++], w3
+
+0x009c: 0xad9833 bsw.c [w3++], w3                         cycles: 1
+
+  bsw.c [w8++], w15
+
+0x009e: 0xad7838 bsw.z [w8++], w15                        cycles: 1
+
+
+  lsr w1, #15, w3
+
+0x00a0: 0xde09cf lsr w1, #15, w3                          cycles: 1
+
+  cp w3, #17
+
+0x00a2: 0xe11871 cp w3, #17                               cycles: 1
+
+  cp.b w9, #31
+
+0x00a4: 0xe14c7f cp.b w9, #31                             cycles: 1
+
+
+  ior w1, #31, [--w3]
+
+0x00a6: 0x70a1ff ior w1, #31, [--w3]                      cycles: 1
+
+  ior.b w7, #31, [w3--]
+
+0x00a8: 0x73d1ff ior.b w7, #31, [w3--]                    cycles: 1
+
+
+  cpseq w1, w2
+
+0x00aa: 0xe78802 cpseq w1, w2                             cycles: 1-3
+
+  cpsgt.b w1, w2
+
+0x00ac: 0xe60c02 cpsgt.b w1, w2                           cycles: 1-3
+
+
+  lsr w1, w2, w3
+
+0x00ae: 0xde0982 lsr w1, w2, w3                           cycles: 1
+
+  cp w1, [w2++]
+
+0x00b0: 0xe10832 cp w1, [w2++]                            cycles: 1
+
+
+  divf w1, w2
+
+0x00b2: 0xd90802 divf w1, w2                              cycles: 18
+
+
+  ior w3, w5, [--w7]
+
+0x00b4: 0x71a385 ior w3, w5, [--w7]                       cycles: 1
+
+  ior.b w1, [++w15], [--w7]
+
+0x00b6: 0x70e3df ior.b w1, [++w15], [--w7]                cycles: 1
+
+
+  setm [++w1]
+
+0x00b8: 0xeba880 setm [++w1]                              cycles: 1
+
+  setm.b w9
+
+0x00ba: 0xebc480 setm.b w9                                cycles: 1
+
+
+  ;do w4, label3
+  swap w4
+
+0x00bc: 0xfd8004 swap w4                                  cycles: 1
+
+  swap.b w4
+
+0x00be: 0xfdc004 swap.b w4                                cycles: 1
+
+  call w9
+
+0x00c0: 0x010009 call w9                                  cycles: 2
+
+  bra w9
+
+0x00c2: 0x016009 bra w9                                   cycles: 2
+
+  daw.b w10
+
+0x00c4: 0xfd400a daw.b w10                                cycles: 1
+
+;label3:
+
+  mov w3, 0xfffe
+
+0x00c6: 0x8ffff3 mov w3, 0xfffe                           cycles: 1
+
+  mov w3, 0x1234
+
+0x00c8: 0x8891a3 mov w3, 0x1234                           cycles: 1
+
+
+  mov w5, [w1+100]
+
+0x00ca: 0x9830a5 mov w5, [w1+100]                         cycles: 1
+
+  mov w5, [w1-100]
+
+0x00cc: 0x9f88e5 mov w5, [w1-100]                         cycles: 1
+
+
+  exch w3, w4
+
+0x00ce: 0xfd0203 exch w3, w4                              cycles: 1
+
+
+  bset [w0], #15
+
+0x00d0: 0xa0f010 bset [w0], #15                           cycles: 1
+
+  bset.b [w0], #7
+
+0x00d2: 0xa07410 bset.b [w0], #7                          cycles: 1
+
+
+  btsc [--w2], #15
+
+0x00d4: 0xa7f042 btsc [--w2], #15                         cycles: 1-3
+
+
+  mov [w1-100], w5
+
+0x00d6: 0x978ae1 mov [w1-100], w5                         cycles: 1
+
+  mov [w1+100], w5
+
+0x00d8: 0x9032a1 mov [w1+100], w5                         cycles: 1
+
+  mov.b [w9+200], w5
+
+0x00da: 0x91ca89 mov.b [w9+200], w5                       cycles: 1
+
+
+  add [w1], #-5, B
+
+0x00dc: 0xc98591 add [w1], #-5, B                         cycles: 1
+
+  lac [w1+w2], #5, A
+
+0x00de: 0xca12e1 lac [w1+w2], #5, A                       cycles: 1
+
+
+  push [w3]
+
+0x00e0: 0x781f93 push [w3]                                cycles: 1
+
+  push [w3+w4]
+
+0x00e2: 0x7a1fe3 push [w3+w3]                             cycles: 1
+
+  push [w3++]
+
+0x00e4: 0x781fb3 push [w3++]                              cycles: 1
+
+
+  mov.b wreg, 163
+
+0x00e6: 0xb7e0a3 mov.b wreg, 0x00a3                       cycles: 1
+
+  mov.b 163
+
+0x00e8: 0xbfe0a3 mov.b 0x00a3                             cycles: 1
+
+  mov.b 163, wreg
+
+0x00ea: 0xbfc0a3 mov.b 0x00a3, wreg                       cycles: 1
+
+
+  movsac A, [w9], w6, [w11]+=4, w7, w13
+
+0x00ec: 0xc72e28 mac ???, A, [w9], w6, [w11]+=4, w7, w13  cycles: 1
+
+  movsac A, [w11]+=4, w7, w13
+
+0x00ee: 0xc70d28 mac ???, A, [w11]+=4, w7, w13            cycles: 1
+
+  clr A, [w11+w12], w7, w13
+
+0x00f0: 0xc30d30 clr A, [w10+12], w7, w13                 cycles: 1
+
+
+  mpy.n w4*w5, A, [w8]+=2, w4, [w10]+=2, w5
+
+0x00f2: 0xc04447 mpy.n w4*w5, A, [w8]+=2, w4, [w10]+=2, w5 cycles: 1
+
+  mac w4*w4, A, [w8]+=2, w4, [w10]+=2, w5
+
+0x00f4: 0xf00444 mac w4*w4, A, [w8]+=2, w4, [w10]+=2, w5, w13 cycles: 1
+
+
+  ed w4*w4, B, [w8]+=2, [w10]+=2, w5
+
+0x00f6: 0xf0d047 ed w0*w0, B, [w8]+=2, [w10]+=2, w5       cycles: 1
+
+
+  ;ed w4*w5, B, [w8]+=2, w4, [w10]+=2, w5, w13
+  mac w4*w5, B, [w8]+=2, w4, [w10]+=2, w5, w13
+
+0x00f8: 0xc08444 mac w4*w5, B, [w8]+=2, w4, [w10]+=2, w5, w13 cycles: 1
+
+
+
+
+
+
+data sections:
+
+
+Program Info:
+Include Paths: .
+               /usr/local/share/naken_asm/include
+ Instructions: 124
+   Code Bytes: 500
+   Data Bytes: 0
+  Low Address: 0000 (0)
+ High Address: 00f9 (249)
+

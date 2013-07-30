@@ -116,6 +116,7 @@ struct _table_dspic
   uint8_t type;
   uint8_t cycles_min;
   uint8_t cycles_max;
+  uint8_t dspic;
 };
 
 extern struct _table_dspic table_dspic[];
