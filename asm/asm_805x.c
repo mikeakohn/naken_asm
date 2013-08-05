@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <ctype.h>
 
 #include "asm_805x.h"
@@ -339,7 +340,7 @@ printf("\n");
             case OP_DATA_16:
             case OP_CODE_ADDR:
             {
-              unsigned short int value=operands[r].value&0xffff;
+              uint16_t value=operands[r].value&0xffff;
               memory_write_inc(asm_context, value&0xff, asm_context->line);
               memory_write_inc(asm_context, value>>8, asm_context->line);
               count+=2;
@@ -348,7 +349,7 @@ printf("\n");
             case OP_RELADDR:
             {
               num=operands[r].value-(asm_context->address+1);
-              memory_write_inc(asm_context, (unsigned char)num, asm_context->line);
+              memory_write_inc(asm_context, (uint8_t)num, asm_context->line);
               count++;
               break;
             }
@@ -358,7 +359,7 @@ printf("\n");
             case OP_BIT_ADDR:
             case OP_IRAM_ADDR:
             {
-              memory_write_inc(asm_context, (unsigned char)operands[r].value&0xff, asm_context->line);
+              memory_write_inc(asm_context, (uint8_t)operands[r].value&0xff, asm_context->line);
               count++;
               break;
             }

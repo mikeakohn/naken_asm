@@ -28,7 +28,8 @@ int get_cycle_count_thumb(unsigned short int opcode)
 int disasm_thumb(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
 uint16_t opcode;
-int rd,rs,offset;
+int rd,rs,rn,offset;
+int immediate;
 int n;
 
   *cycles_min=-1;
@@ -41,6 +42,9 @@ int n;
   {
     if (table_thumb[n].opcode==(opcode&table_thumb[n].mask))
     {
+      *cycles_min=table_thumb[n].cycles;
+      *cycles_max=table_thumb[n].cycles;
+
       switch(table_thumb[n].type)
       {
         case OP_SHIFT:
@@ -48,6 +52,31 @@ int n;
           rs=(opcode>>3)&0x7;
           offset=(opcode>>6)&0x1f;
           sprintf(instruction, "%s r%d, r%d, #%d", table_thumb[n].instr, rd, rs, offset);
+          return 2;
+        case OP_ADD_SUB:
+          immediate=(opcode>>10)&1;
+          rd=opcode&0x7;
+          rs=(opcode>>3)&0x7;
+          if (immediate==0)
+          {
+            rn=(opcode>>6)&7;
+            sprintf(instruction, "%s r%d, r%d, r%d", table_thumb[n].instr, rd, rs, rn);
+          }
+            else
+          {
+            offset=(opcode>>6)&7;
+            sprintf(instruction, "%s r%d, r%d, #%d", table_thumb[n].instr, rd, rs, offset);
+          }
+          return 2;
+        case OP_IMM:
+          immediate=opcode&0xff;
+          rd=(opcode>>8)&0x7;
+          sprintf(instruction, "%s r%d, #0x%02x", table_thumb[n].instr, rd, immediate);
+          return 2;
+        case OP_ALU:
+          rd=opcode&0x7;
+          rs=(opcode>>3)&0x7;
+          sprintf(instruction, "%s r%d, r%d", table_thumb[n].instr, rd, rs);
           return 2;
         default:
           strcpy(instruction, "???");

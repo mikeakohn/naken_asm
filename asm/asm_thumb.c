@@ -44,6 +44,11 @@ static int get_register_thumb(char *token)
 {
   if (token[0]=='r' || token[0]=='R')
   {
+    if (token[2]==0 && (token[1]>='0' && token[1]<='7'))
+    {
+      return token[1]-'0';
+    }
+#if 0
     if (token[2]==0 && (token[1]>='0' && token[1]<='9'))
     {
       return token[1]-'0';
@@ -53,11 +58,14 @@ static int get_register_thumb(char *token)
     {
       return 10+(token[2]-'0');
     }
+#endif
   }
 
+#if 0
   if (strcasecmp("sp", token)==0) { return 13; }
   if (strcasecmp("lr", token)==0) { return 14; }
   if (strcasecmp("pc", token)==0) { return 15; }
+#endif
 
   return -1;
 }
@@ -218,6 +226,44 @@ int n;
             add_bin16(asm_context, table_thumb[n].opcode|(operands[2].value<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
             return 2;
           }
+          break;
+        case OP_ADD_SUB:
+          if (operand_count==3 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_REGISTER &&
+              operands[2].type==OPERAND_REGISTER)
+          {
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[2].value<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
+            return 2;
+          }
+            else
+          if (operand_count==3 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_REGISTER &&
+              operands[2].type==OPERAND_NUMBER)
+          {
+            add_bin16(asm_context, table_thumb[n].opcode|(1<<10)|(operands[2].value<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_IMM:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[0].value<<8)|(operands[1].value), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_ALU:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_REGISTER)
+          {
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
+            return 2;
+          }
+          break;
         default:
           break;
       }

@@ -4,3 +4,29 @@
   lsr r0, r1, #31
   asr r7, r1, #31
 
+  sub r7, r6, r5
+  add r7, r6, #4
+
+  mov r3, #0x80
+  cmp r4, #1
+  add r2, #100
+  sub r3, #10
+
+  and r1, r2
+  eor r2, r7
+  lsl r3, r3
+  lsr r4, r1
+  asr r7, r4
+  adc r4, r3
+  sbc r3, r4
+  ror r1, r4
+  tst r0, r1
+  neg r7, r0
+  cmp r4, r1
+  cmn r3, r2
+  orr r3, r3
+  mul r5, r4
+  bic r2, r5
+  mvn r1, r3
+
+

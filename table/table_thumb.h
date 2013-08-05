@@ -19,6 +19,9 @@
 enum
 {
   OP_SHIFT,
+  OP_ADD_SUB,
+  OP_IMM,
+  OP_ALU,
 };
 
 struct _table_thumb
