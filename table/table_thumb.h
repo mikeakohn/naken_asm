@@ -22,6 +22,8 @@ enum
   OP_ADD_SUB,
   OP_IMM,
   OP_ALU,
+  OP_HI,
+  OP_HI_BX,
 };
 
 struct _table_thumb

@@ -25,6 +25,7 @@ enum
 {
   OPERAND_NONE,
   OPERAND_REGISTER,
+  OPERAND_H_REGISTER,
   OPERAND_NUMBER,
   OPERAND_TWO_REG_IN_BRACKETS,      // [ Rb, Ro ]
   OPERAND_REG_AND_NUM_IN_BRACKETS,  // [ Rb, #IMM ]
@@ -39,7 +40,6 @@ struct _operand
   int second_value;
 };
 
-// FIXME - This is the same as get_register_arm()
 static int get_register_thumb(char *token)
 {
   if (token[0]=='r' || token[0]=='R')
@@ -48,24 +48,29 @@ static int get_register_thumb(char *token)
     {
       return token[1]-'0';
     }
-#if 0
-    if (token[2]==0 && (token[1]>='0' && token[1]<='9'))
+  }
+
+  return -1;
+}
+
+static int get_h_register_thumb(char *token)
+{
+  if (token[0]=='r' || token[0]=='R')
+  {
+    if (token[2]==0 && (token[1]>='8' && token[1]<='9'))
     {
-      return token[1]-'0';
+      return (token[1]-'0')-8;
     }
       else
     if (token[3]==0 && token[1]=='1' && (token[2]>='0' && token[2]<='5'))
     {
-      return 10+(token[2]-'0');
+      return (token[2]-'0')+10-8;
     }
-#endif
   }
 
-#if 0
-  if (strcasecmp("sp", token)==0) { return 13; }
-  if (strcasecmp("lr", token)==0) { return 14; }
-  if (strcasecmp("pc", token)==0) { return 15; }
-#endif
+  if (strcasecmp("sp", token)==0) { return 13-8; }
+  if (strcasecmp("lr", token)==0) { return 14-8; }
+  if (strcasecmp("pc", token)==0) { return 15-8; }
 
   return -1;
 }
@@ -112,6 +117,12 @@ int n;
     if ((num=get_register_thumb(token))!=-1)
     {
       operands[operand_count].type=OPERAND_REGISTER;
+      operands[operand_count].value=num;
+    }
+      else
+    if ((num=get_h_register_thumb(token))!=-1)
+    {
+      operands[operand_count].type=OPERAND_H_REGISTER;
       operands[operand_count].value=num;
     }
       else
@@ -261,6 +272,46 @@ int n;
               operands[1].type==OPERAND_REGISTER)
           {
             add_bin16(asm_context, table_thumb[n].opcode|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_HI:
+          if (operand_count==2)
+          {
+            if (operands[0].type==OPERAND_H_REGISTER &&
+                operands[1].type==OPERAND_REGISTER)
+            {
+              add_bin16(asm_context, table_thumb[n].opcode|(1<<7)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
+              return 2;
+            }
+              else
+            if (operands[0].type==OPERAND_REGISTER &&
+                operands[1].type==OPERAND_H_REGISTER)
+            {
+              add_bin16(asm_context, table_thumb[n].opcode|(1<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
+              return 2;
+            }
+              else
+            if (operands[0].type==OPERAND_H_REGISTER &&
+                operands[1].type==OPERAND_H_REGISTER)
+            {
+              add_bin16(asm_context, table_thumb[n].opcode|(1<<7)|(1<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
+              return 2;
+            }
+          }
+          break;
+        case OP_HI_BX:
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_REGISTER)
+          {
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[0].value<<3), IS_OPCODE);
+            return 2;
+          }
+            else
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_H_REGISTER)
+          {
+            add_bin16(asm_context, table_thumb[n].opcode|(1<<6)|(operands[0].value<<3), IS_OPCODE);
             return 2;
           }
           break;

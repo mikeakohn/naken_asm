@@ -29,4 +29,19 @@
   bic r2, r5
   mvn r1, r3
 
+  add r1, r8
+  add r8, r2
+  add r8, r10
+
+  cmp r1, r10
+  cmp r9, r2
+  cmp r8, r12
+
+  mov r1, r10
+  mov r11, r2
+  mov r10, r13
+
+  bx r5
+  bx r11
+
 

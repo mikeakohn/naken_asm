@@ -29,6 +29,7 @@ int disasm_thumb(struct _memory *memory, int address, char *instruction, int *cy
 {
 uint16_t opcode;
 int rd,rs,rn,offset;
+int h1,h2;
 int immediate;
 int n;
 
@@ -77,6 +78,18 @@ int n;
           rd=opcode&0x7;
           rs=(opcode>>3)&0x7;
           sprintf(instruction, "%s r%d, r%d", table_thumb[n].instr, rd, rs);
+          return 2;
+        case OP_HI:
+          rd=opcode&0x7;
+          rs=(opcode>>3)&0x7;
+          h1=(opcode>>7)&0x1;
+          h2=(opcode>>6)&0x1;
+          sprintf(instruction, "%s r%d, r%d", table_thumb[n].instr, rd+(h1*8), rs+(h2*8));
+          return 2;
+        case OP_HI_BX:
+          rs=(opcode>>3)&0x7;
+          h2=(opcode>>6)&0x1;
+          sprintf(instruction, "%s r%d", table_thumb[n].instr, rs+(h2*8));
           return 2;
         default:
           strcpy(instruction, "???");

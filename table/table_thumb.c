@@ -38,6 +38,10 @@ struct _table_thumb table_thumb[] =
   { "mul", 0x4340, 0xffc0, OP_ALU, 2 },
   { "bic", 0x4380, 0xffc0, OP_ALU, 2 },
   { "mvn", 0x43c0, 0xffc0, OP_ALU, 2 },
+  { "add", 0x4400, 0xff00, OP_HI, 2 },
+  { "cmp", 0x4500, 0xff00, OP_HI, 2 },
+  { "mov", 0x4600, 0xff00, OP_HI, 2 },
+  { "bx", 0x4700, 0xff00, OP_HI_BX, 2 },  // This is odd.
   { NULL, 0, 0, 0, 0 }
 };
 
