@@ -27,10 +27,11 @@ enum
   OPERAND_REGISTER,
   OPERAND_H_REGISTER,
   OPERAND_NUMBER,
+  OPERAND_ADDRESS,
   OPERAND_TWO_REG_IN_BRACKETS,      // [ Rb, Ro ]
   OPERAND_REG_AND_NUM_IN_BRACKETS,  // [ Rb, #IMM ]
-  //OPERAND_PC_AND_REG_IN_BRACKETS,   // [ PC, Rb ]
-  //OPERAND_PC_AND_NUM_IN_BRACKETS,   // [ PC, #IMM ]
+  OPERAND_PC_AND_REG_IN_BRACKETS,   // [ PC, Rb ]
+  OPERAND_PC_AND_NUM_IN_BRACKETS,   // [ PC, #IMM ]
 };
 
 struct _operand
@@ -148,13 +149,12 @@ int n;
     if (IS_TOKEN(token,'['))
     {
       token_type=get_token(asm_context, token, TOKENLEN);
-#if 0
+
       if (strcasecmp(token,"pc")==0)
       {
         operands[operand_count].type=OPERAND_PC_AND_REG_IN_BRACKETS;
       }
         else
-#endif
       if ((num=get_register_thumb(token))!=-1)
       {
         operands[operand_count].type=OPERAND_TWO_REG_IN_BRACKETS;
@@ -173,6 +173,10 @@ int n;
       if ((num=get_register_thumb(token))!=-1)
       {
         operands[operand_count].second_value=num;
+        if (operands[operand_count].type==OPERAND_PC_AND_NUM_IN_BRACKETS)
+        {
+          operands[operand_count].type=OPERAND_PC_AND_REG_IN_BRACKETS;
+        }
       }
         else
       if (token_type==TOKEN_POUND)
@@ -200,6 +204,26 @@ int n;
       }
 
       if (expect_token_s(asm_context,"]")!=0) { return -1; }
+    }
+      else
+    {
+      pushback(asm_context, token, token_type);
+
+      if (eval_expression(asm_context, &num)!=0)
+      {
+        if (asm_context->pass==1)
+        {
+          eat_operand(asm_context);
+        }
+          else
+        {
+          print_error_illegal_expression(instr, asm_context);
+          return -1;
+        }
+      }
+
+      operands[operand_count].value=num;
+      operands[operand_count].type=OPERAND_ADDRESS;
     }
 
     operand_count++;
@@ -315,6 +339,49 @@ int n;
             return 2;
           }
           break;
+        case OP_PC_RELATIVE_LOAD:
+          // REVIEW - Docs say this is a 10 bit, 4 byte aligned number
+          // and it seems unsigned.  Why isn't this signed?
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_PC_AND_NUM_IN_BRACKETS)
+          {
+            if (operands[1].second_value<0 || operands[1].second_value>1020)
+            {
+              print_error_range("Offset", 0, 1020, asm_context);
+              return -1;
+            }
+            if ((operands[1].second_value&0x3)!=0)
+            {
+              print_error("Offset not 4 byte aligned", asm_context);
+              return -1;
+            }
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[0].value<<8)|(operands[1].second_value>>2), IS_OPCODE);
+            return 2;
+          }
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_ADDRESS)
+          {
+            // REVIEW: This looks so odd.  Docs say: The value of the PC will
+            // be 4 bytes greater than the address of this instruction, but bit
+            // 1 of the PC is forced to 0 to ensure it is word aligned.
+            if ((operands[1].value&0x3)!=0)
+            {
+              print_error("Offset not 4 byte aligned", asm_context);
+              return -1;
+            }
+            int offset=operands[1].value-((asm_context->address+4)&0xfffffffc);
+            if (asm_context->pass==1) { offset=0; }
+            if (offset<0 || offset>1020)
+            {
+              print_error_range("Offset", 0, 1020, asm_context);
+              return -1;
+            }
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[0].value<<8)|(offset>>2), IS_OPCODE);
+            return 2;
+          }
+          break;
         default:
           break;
       }
@@ -324,7 +391,8 @@ int n;
   }
 
   if (matched==1)
-  {    print_error_unknown_operand_combo(instr, asm_context);
+  {
+    print_error_unknown_operand_combo(instr, asm_context);
   }
     else
   {

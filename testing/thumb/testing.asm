@@ -41,7 +41,14 @@
   mov r11, r2
   mov r10, r13
 
+  ldr r3, [PC, #44]
+  ldr r3, label1
+
   bx r5
   bx r11
+
+label1:
+
+
 
 

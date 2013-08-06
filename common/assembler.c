@@ -293,6 +293,39 @@ int num;
   return 0;
 }
 
+static int parse_align(struct _asm_context *asm_context)
+{
+int num;
+
+  if (eval_expression(asm_context, &num)==-1 || (num!=16 && num!=32))
+  {
+    print_error("align expects 16 or 32", asm_context);
+    return -1;
+  }
+
+  if (num==16)
+  {
+    if ((asm_context->address&1)!=0)
+    {
+      memory_write_inc(asm_context, 0, DL_DATA);
+    }
+  }
+    else
+  if (num==32)
+  {
+    if ((asm_context->address&3)!=0)
+    {
+      int n;
+      for (n=(asm_context->address&3); n<4; n++)
+      {
+        memory_write_inc(asm_context, 0, DL_DATA);
+      }
+    }
+  }
+
+  return 0;
+}
+
 static int parse_name(struct _asm_context *asm_context)
 {
 char token[TOKENLEN];
@@ -829,6 +862,12 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   if (strcasecmp(token, "org")==0)
   {
     if (parse_org(asm_context)!=0) return -1;
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "align")==0)
+  {
+    if (parse_align(asm_context)!=0) return -1;
     return 1;
   }
     else

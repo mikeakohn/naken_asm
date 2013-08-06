@@ -91,6 +91,11 @@ int n;
           h2=(opcode>>6)&0x1;
           sprintf(instruction, "%s r%d", table_thumb[n].instr, rs+(h2*8));
           return 2;
+        case OP_PC_RELATIVE_LOAD:
+          rd=(opcode>>8)&0x7;
+          offset=(opcode&0xff)<<2;
+          sprintf(instruction, "%s r%d, [PC, #%d]  (0x%x)", table_thumb[n].instr, rd, offset, ((address+4)&0xfffffffc)+offset);
+          return 2;
         default:
           strcpy(instruction, "???");
           return 2;

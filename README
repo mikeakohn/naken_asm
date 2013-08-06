@@ -237,5 +237,6 @@ Assembler Directives:
 .include "includefile.inc"  Include a file of asm source code
 .macro <name> (opt. params) Define a macro (should end with .endm
 .org <address>              Address where next assembled bytes are written to
+.align <16 or 32>           Align to 16 bit or 32 bit boundary
 
 

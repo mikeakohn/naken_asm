@@ -24,6 +24,7 @@ enum
   OP_ALU,
   OP_HI,
   OP_HI_BX,
+  OP_PC_RELATIVE_LOAD,
 };
 
 struct _table_thumb
@@ -32,7 +33,7 @@ struct _table_thumb
   uint16_t opcode;
   uint16_t mask;
   uint8_t type;
-  uint8_t cycles;
+  int8_t cycles;
 };
 
 extern struct _table_thumb table_thumb[];

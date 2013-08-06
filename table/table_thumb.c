@@ -41,7 +41,8 @@ struct _table_thumb table_thumb[] =
   { "add", 0x4400, 0xff00, OP_HI, 2 },
   { "cmp", 0x4500, 0xff00, OP_HI, 2 },
   { "mov", 0x4600, 0xff00, OP_HI, 2 },
-  { "bx", 0x4700, 0xff00, OP_HI_BX, 2 },  // This is odd.
+  { "bx", 0x4700, 0xff00, OP_HI_BX, -1 },  // This is odd.
+  { "ldr", 0x4800, 0xf800, OP_PC_RELATIVE_LOAD, -1 },
   { NULL, 0, 0, 0, 0 }
 };
 
