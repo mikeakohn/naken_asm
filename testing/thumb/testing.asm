@@ -69,4 +69,11 @@ label1:
   str r1, [SP, #1020]
   ldr r6, [SP, #32]
 
+  add r1, PC, #1020
+  add r6, SP, #32
+
+  add SP, #268
+  add SP, #-104
+
+
 

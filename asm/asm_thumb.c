@@ -484,6 +484,47 @@ int n;
             return 2;
           }
           break;
+        case OP_LOAD_ADDRESS:
+          if (operand_count==3 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_H_REGISTER &&
+              operands[2].type==OPERAND_NUMBER)
+          {
+            if (check_range(asm_context, "Offset", operands[2].value, 0, 1020)==-1) { return -1; }
+            if (is_4_byte_aligned(asm_context, operands[2].value)==-1) { return -1; }
+            if (operands[1].value==7)
+            {
+              add_bin16(asm_context, table_thumb[n].opcode|(operands[0].value<<8)|(operands[2].value>>2), IS_OPCODE);
+              return 2;
+            }
+              else
+            if (operands[1].value==5)
+            {
+              add_bin16(asm_context, table_thumb[n].opcode|(1<<11)|(operands[0].value<<8)|(operands[2].value>>2), IS_OPCODE);
+              return 2;
+            }
+          }
+          break;
+        case OP_ADD_OFFSET_TO_SP:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_H_REGISTER &&
+              operands[0].value==5 &&
+              operands[1].type==OPERAND_NUMBER)
+          {
+            // FIXME - According to the docs, what I did here is wrong.
+            // it says that the offset is +-508 and i have +-1020.
+            if (check_range(asm_context, "Offset", operands[1].value, -1020, 1020)==-1) { return -1; }
+            int s=0;
+            if (operands[1].value<0)
+            {
+              operands[1].value=-operands[1].value;
+              s=1;
+            }
+            if (is_4_byte_aligned(asm_context, operands[1].value)==-1) { return -1; }
+            add_bin16(asm_context, table_thumb[n].opcode|(s<<8)|(operands[1].value>>2), IS_OPCODE);
+            return 2;
+          }
+          break;
         default:
           break;
       }

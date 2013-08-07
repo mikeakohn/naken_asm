@@ -131,6 +131,17 @@ int n;
           offset=opcode&0xff;
           sprintf(instruction, "%s r%d, [SP, #%d]", table_thumb[n].instr, rd, offset<<2);
           return 2;
+        case OP_LOAD_ADDRESS:
+          rd=(opcode>>8)&0x7;
+          offset=opcode&0xff;
+          rs=(opcode>>11)&0x1;  // SP (0=PC,1=SP)
+          sprintf(instruction, "%s r%d, %s, #%d", table_thumb[n].instr, rd, (rs==0)?"PC":"SP",offset<<2);
+          return 2;
+        case OP_ADD_OFFSET_TO_SP:
+          rs=(opcode>>11)&0x1;  // S (0=positive,1=negative)
+          offset=opcode&0xff;
+          sprintf(instruction, "%s SP, #%s%d", table_thumb[n].instr, (rs==0)?"":"-",offset<<2);
+          return 2;
         default:
           strcpy(instruction, "???");
           return 2;
@@ -157,11 +168,21 @@ int n;
   count=disasm_thumb(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
   bytes[0]=0;
-  for (n=0; n<count; n++)
+  // count should always be 2
+  if (count==2)
   {
-    char temp[4];
-    sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, address+n));
+    char temp[8];
+    sprintf(temp, "%04x ", memory_read_m(&asm_context->memory, address)|(memory_read_m(&asm_context->memory, address+1)<<8));
     strcat(bytes, temp);
+  }
+    else
+  {
+    for (n=0; n<count; n++)
+    {
+      char temp[4];
+      sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, address+n));
+      strcat(bytes, temp);
+    }
   }
 
   fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ", address, bytes, instruction);
@@ -190,11 +211,21 @@ int n;
     count=disasm_thumb(memory, start, instruction, &cycles_min, &cycles_max);
 
     bytes[0]=0;
-    for (n=0; n<count; n++)
+    // count should always be 2
+    if (count==2)
     {
-      char temp[4];
-      sprintf(temp, "%02x ", READ_RAM(start+n));
+      char temp[8];
+      sprintf(temp, "%04x ", READ_RAM16(start));
       strcat(bytes, temp);
+    }
+      else
+    {
+      for (n=0; n<count; n++)
+      {
+        char temp[4];
+        sprintf(temp, "%02x ", READ_RAM(start+n));
+        strcat(bytes, temp);
+      }
     }
 
     if (cycles_min<1)
