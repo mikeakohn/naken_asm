@@ -58,8 +58,8 @@ label1:
   ldsb r1, [r3, r0]
   ldsh r6, [r3, r3]
 
-  str r5, [r4, #5]
-  ldr r5, [r4, #7]
+  str r5, [r4, #124]
+  ldr r5, [r4, #64]
   strb r1, [r3, #9]
   ldrb r6, [r3, #31]
 

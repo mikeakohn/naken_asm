@@ -108,10 +108,16 @@ int n;
           rn=(opcode>>6)&0x7;  // ro
           sprintf(instruction, "%s r%d, [r%d, r%d]", table_thumb[n].instr, rd, rs, rn);
           return 2;
+        case OP_LOAD_STORE_IMM_OFFSET_WORD:
+          rd=opcode&0x7;
+          rs=(opcode>>3)&0x7;  // rb
+          offset=(opcode>>6)&0x1f;
+          sprintf(instruction, "%s r%d, [r%d, #%d]", table_thumb[n].instr, rd, rs, offset<<2);
+          return 2;
         case OP_LOAD_STORE_IMM_OFFSET:
           rd=opcode&0x7;
           rs=(opcode>>3)&0x7;  // rb
-          offset=(opcode>>6)&0x1f;  // ro
+          offset=(opcode>>6)&0x1f;
           sprintf(instruction, "%s r%d, [r%d, #%d]", table_thumb[n].instr, rd, rs, offset);
           return 2;
         default:

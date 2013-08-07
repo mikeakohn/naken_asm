@@ -416,6 +416,23 @@ int n;
             return 2;
           }
           break;
+        case OP_LOAD_STORE_IMM_OFFSET_WORD:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_REG_AND_NUM_IN_BRACKETS)
+          {
+            int offset=operands[1].second_value;
+            if (check_range(asm_context, "Offset", offset, 0, 124)==-1) { return -1; }
+            if ((offset&0x3)!=0)
+            {
+              print_error("Offset not 4 byte aligned", asm_context);
+              return -1;
+            }
+            offset=offset>>2;
+            add_bin16(asm_context, table_thumb[n].opcode|(offset<<6)|(operands[1].value<<3)|(operands[0].value>>2), IS_OPCODE);
+            return 2;
+          }
+          break;
         case OP_LOAD_STORE_IMM_OFFSET:
           if (operand_count==2 &&
               operands[0].type==OPERAND_REGISTER &&
