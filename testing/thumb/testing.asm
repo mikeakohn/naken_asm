@@ -63,4 +63,10 @@ label1:
   strb r1, [r3, #9]
   ldrb r6, [r3, #31]
 
+  strh r1, [r3, #60]
+  ldrh r6, [r3, #32]
+
+  str r1, [SP, #1020]
+  ldr r6, [SP, #32]
+
 

@@ -89,6 +89,17 @@ static int check_reg_lower(struct _asm_context *asm_context, int value)
   return 0;
 }
 
+static int is_4_byte_aligned(struct _asm_context *asm_context, int num)
+{
+  if ((num&0x3)!=0)
+  {
+    print_error("Offset not 4 byte aligned", asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
 int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
 {
 char token[TOKENLEN];
@@ -152,12 +163,12 @@ int n;
     {
       token_type=get_token(asm_context, token, TOKENLEN);
 
-      if (strcasecmp(token,"pc")==0)
+      if (strcasecmp(token,"pc")==0 || strcasecmp(token,"r15")==0)
       {
         operands[operand_count].type=OPERAND_PC_AND_REG_IN_BRACKETS;
       }
         else
-      if (strcasecmp(token,"sp")==0)
+      if (strcasecmp(token,"sp")==0 || strcasecmp(token,"r13")==0)
       {
         operands[operand_count].type=OPERAND_SP_AND_REG_IN_BRACKETS;
       }
@@ -357,18 +368,14 @@ int n;
               operands[1].type==OPERAND_PC_AND_NUM_IN_BRACKETS)
           {
             if (check_range(asm_context, "Offset", operands[1].second_value, 0, 1020)==-1) { return -1; }
+            if (is_4_byte_aligned(asm_context, operands[1].second_value)==-1) { return -1; }
 #if 0
-            if (operands[1].second_value<0 || operands[1].second_value>1020)
-            {
-              print_error_range("Offset", 0, 1020, asm_context);
-              return -1;
-            }
-#endif
             if ((operands[1].second_value&0x3)!=0)
             {
               print_error("Offset not 4 byte aligned", asm_context);
               return -1;
             }
+#endif
             add_bin16(asm_context, table_thumb[n].opcode|(operands[0].value<<8)|(operands[1].second_value>>2), IS_OPCODE);
             return 2;
           }
@@ -379,11 +386,14 @@ int n;
             // REVIEW: This looks so odd.  Docs say: The value of the PC will
             // be 4 bytes greater than the address of this instruction, but bit
             // 1 of the PC is forced to 0 to ensure it is word aligned.
+            if (is_4_byte_aligned(asm_context, operands[1].value)==-1) { return -1; }
+#if 0
             if ((operands[1].value&0x3)!=0)
             {
               print_error("Offset not 4 byte aligned", asm_context);
               return -1;
             }
+#endif
             int offset=operands[1].value-((asm_context->address+4)&0xfffffffc);
             if (asm_context->pass==1) { offset=0; }
             if (check_range(asm_context, "Offset", offset, 0, 1020)==-1) { return -1; }
@@ -423,13 +433,16 @@ int n;
           {
             int offset=operands[1].second_value;
             if (check_range(asm_context, "Offset", offset, 0, 124)==-1) { return -1; }
+            if (is_4_byte_aligned(asm_context, offset)==-1) { return -1; }
+#if 0
             if ((offset&0x3)!=0)
             {
               print_error("Offset not 4 byte aligned", asm_context);
               return -1;
             }
+#endif
             offset=offset>>2;
-            add_bin16(asm_context, table_thumb[n].opcode|(offset<<6)|(operands[1].value<<3)|(operands[0].value>>2), IS_OPCODE);
+            add_bin16(asm_context, table_thumb[n].opcode|(offset<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
             return 2;
           }
           break;
@@ -440,6 +453,34 @@ int n;
           {
             if (check_range(asm_context, "Offset", operands[1].second_value, 0, 31)==-1) { return -1; }
             add_bin16(asm_context, table_thumb[n].opcode|(operands[1].second_value<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_LOAD_STORE_IMM_OFFSET_HALF_WORD:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_REG_AND_NUM_IN_BRACKETS)
+          {
+            int offset=operands[1].second_value;
+            if (check_range(asm_context, "Offset", offset, 0, 60)==-1) { return -1; }
+            if ((offset&0x1)!=0)
+            {
+              print_error("Offset not 2 byte aligned", asm_context);
+              return -1;
+            }
+            offset=offset>>1;
+            add_bin16(asm_context, table_thumb[n].opcode|(offset<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_LOAD_STORE_SP_RELATIVE:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_SP_AND_NUM_IN_BRACKETS)
+          {
+            if (check_range(asm_context, "Offset", operands[1].value, 0, 1020)==-1) { return -1; }
+            if (is_4_byte_aligned(asm_context, operands[1].value)==-1) { return -1; }
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[0].value<<8)|(operands[1].second_value>>2), IS_OPCODE);
             return 2;
           }
           break;

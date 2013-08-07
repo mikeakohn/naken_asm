@@ -55,6 +55,10 @@ struct _table_thumb table_thumb[] =
   { "ldr", 0x6800, 0xf800, OP_LOAD_STORE_IMM_OFFSET_WORD, -1 },
   { "strb", 0x7000, 0xf800, OP_LOAD_STORE_IMM_OFFSET, -1 },
   { "ldrb", 0x7800, 0xf800, OP_LOAD_STORE_IMM_OFFSET, -1 },
+  { "strh", 0x8000, 0xf800, OP_LOAD_STORE_IMM_OFFSET_HALF_WORD, -1 },
+  { "ldrh", 0x8800, 0xf800, OP_LOAD_STORE_IMM_OFFSET_HALF_WORD, -1 },
+  { "str", 0x9000, 0xf800, OP_LOAD_STORE_SP_RELATIVE, -1 },
+  { "ldr", 0x9800, 0xf800, OP_LOAD_STORE_SP_RELATIVE, -1 },
   { NULL, 0, 0, 0, 0 }
 };
 

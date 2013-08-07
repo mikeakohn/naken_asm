@@ -120,6 +120,17 @@ int n;
           offset=(opcode>>6)&0x1f;
           sprintf(instruction, "%s r%d, [r%d, #%d]", table_thumb[n].instr, rd, rs, offset);
           return 2;
+        case OP_LOAD_STORE_IMM_OFFSET_HALF_WORD:
+          rd=opcode&0x7;
+          rs=(opcode>>3)&0x7;  // rb
+          offset=(opcode>>6)&0x1f;
+          sprintf(instruction, "%s r%d, [r%d, #%d]", table_thumb[n].instr, rd, rs, offset<<1);
+          return 2;
+        case OP_LOAD_STORE_SP_RELATIVE:
+          rd=(opcode>>8)&0x7;
+          offset=opcode&0xff;
+          sprintf(instruction, "%s r%d, [SP, #%d]", table_thumb[n].instr, rd, offset<<2);
+          return 2;
         default:
           strcpy(instruction, "???");
           return 2;
