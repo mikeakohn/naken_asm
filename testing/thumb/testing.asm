@@ -46,9 +46,21 @@
 
   bx r5
   bx r11
-
 label1:
 
+  str r5, [r4, r6]
+  strb r5, [r4, r0]
+  ldr r1, [r3, r0]
+  ldrb r6, [r3, r3]
 
+  strh r5, [r4, r6]
+  ldrh r5, [r4, r0]
+  ldsb r1, [r3, r0]
+  ldsh r6, [r3, r3]
+
+  str r5, [r4, #5]
+  ldr r5, [r4, #7]
+  strb r1, [r3, #9]
+  ldrb r6, [r3, #31]
 
 

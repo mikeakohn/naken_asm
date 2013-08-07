@@ -102,17 +102,6 @@ static int get_register_dspic(char *token)
   return -1;
 }
 
-static int check_range(struct _asm_context *asm_context, char *type, int num, int min, int max)
-{
-  if (num<min || num>max)
-  {
-    print_error_range(type, min, max, asm_context);
-    return -1;
-  }
-
-  return 0;
-}
-
 static int check_f(struct _asm_context *asm_context, int value)
 {
   if ((value&1)!=0)

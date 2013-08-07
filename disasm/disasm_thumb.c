@@ -96,6 +96,24 @@ int n;
           offset=(opcode&0xff)<<2;
           sprintf(instruction, "%s r%d, [PC, #%d]  (0x%x)", table_thumb[n].instr, rd, offset, ((address+4)&0xfffffffc)+offset);
           return 2;
+        case OP_LOAD_STORE:
+          rd=opcode&0x7;
+          rs=(opcode>>3)&0x7;  // rb
+          rn=(opcode>>6)&0x7;  // ro
+          sprintf(instruction, "%s r%d, [r%d, r%d]", table_thumb[n].instr, rd, rs, rn);
+          return 2;
+        case OP_LOAD_STORE_SIGN_EXT_HALF_WORD:
+          rd=opcode&0x7;
+          rs=(opcode>>3)&0x7;  // rb
+          rn=(opcode>>6)&0x7;  // ro
+          sprintf(instruction, "%s r%d, [r%d, r%d]", table_thumb[n].instr, rd, rs, rn);
+          return 2;
+        case OP_LOAD_STORE_IMM_OFFSET:
+          rd=opcode&0x7;
+          rs=(opcode>>3)&0x7;  // rb
+          offset=(opcode>>6)&0x1f;  // ro
+          sprintf(instruction, "%s r%d, [r%d, #%d]", table_thumb[n].instr, rd, rs, offset);
+          return 2;
         default:
           strcpy(instruction, "???");
           return 2;

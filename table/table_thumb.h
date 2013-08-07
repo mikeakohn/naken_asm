@@ -25,6 +25,9 @@ enum
   OP_HI,
   OP_HI_BX,
   OP_PC_RELATIVE_LOAD,
+  OP_LOAD_STORE,
+  OP_LOAD_STORE_SIGN_EXT_HALF_WORD,
+  OP_LOAD_STORE_IMM_OFFSET,
 };
 
 struct _table_thumb

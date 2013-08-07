@@ -125,5 +125,15 @@ int expect_token_s(struct _asm_context *asm_context, char *s)
   return 0;
 }
 
+int check_range(struct _asm_context *asm_context, char *type, int num, int min, int max)
+{
+  if (num<min || num>max)
+  {
+    print_error_range(type, min, max, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
 
 

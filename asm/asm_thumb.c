@@ -32,6 +32,8 @@ enum
   OPERAND_REG_AND_NUM_IN_BRACKETS,  // [ Rb, #IMM ]
   OPERAND_PC_AND_REG_IN_BRACKETS,   // [ PC, Rb ]
   OPERAND_PC_AND_NUM_IN_BRACKETS,   // [ PC, #IMM ]
+  OPERAND_SP_AND_REG_IN_BRACKETS,   // [ SP, Rb ]
+  OPERAND_SP_AND_NUM_IN_BRACKETS,   // [ SP, #IMM ]
 };
 
 struct _operand
@@ -155,6 +157,11 @@ int n;
         operands[operand_count].type=OPERAND_PC_AND_REG_IN_BRACKETS;
       }
         else
+      if (strcasecmp(token,"sp")==0)
+      {
+        operands[operand_count].type=OPERAND_SP_AND_REG_IN_BRACKETS;
+      }
+        else
       if ((num=get_register_thumb(token))!=-1)
       {
         operands[operand_count].type=OPERAND_TWO_REG_IN_BRACKETS;
@@ -253,11 +260,14 @@ int n;
           {
             if (check_reg_lower(asm_context, operands[0].value)==-1) { return -1; }
             if (check_reg_lower(asm_context, operands[1].value)==-1) { return -1; }
+            if (check_range(asm_context, "Offset", operands[2].value, 0, 31)==-1) { return -1; }
+#if 0
             if (operands[2].value<0 || operands[2].value>31)
             {
               print_error_range("Offset", 0, 31, asm_context);
               return -1;
             }
+#endif
             add_bin16(asm_context, table_thumb[n].opcode|(operands[2].value<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
             return 2;
           }
@@ -346,11 +356,14 @@ int n;
               operands[0].type==OPERAND_REGISTER &&
               operands[1].type==OPERAND_PC_AND_NUM_IN_BRACKETS)
           {
+            if (check_range(asm_context, "Offset", operands[1].second_value, 0, 1020)==-1) { return -1; }
+#if 0
             if (operands[1].second_value<0 || operands[1].second_value>1020)
             {
               print_error_range("Offset", 0, 1020, asm_context);
               return -1;
             }
+#endif
             if ((operands[1].second_value&0x3)!=0)
             {
               print_error("Offset not 4 byte aligned", asm_context);
@@ -373,12 +386,43 @@ int n;
             }
             int offset=operands[1].value-((asm_context->address+4)&0xfffffffc);
             if (asm_context->pass==1) { offset=0; }
+            if (check_range(asm_context, "Offset", offset, 0, 1020)==-1) { return -1; }
+#if 0
             if (offset<0 || offset>1020)
             {
               print_error_range("Offset", 0, 1020, asm_context);
               return -1;
             }
+#endif
             add_bin16(asm_context, table_thumb[n].opcode|(operands[0].value<<8)|(offset>>2), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_LOAD_STORE:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_TWO_REG_IN_BRACKETS)
+          {
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[1].second_value<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_LOAD_STORE_SIGN_EXT_HALF_WORD:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_TWO_REG_IN_BRACKETS)
+          {
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[1].second_value<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_LOAD_STORE_IMM_OFFSET:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REGISTER &&
+              operands[1].type==OPERAND_REG_AND_NUM_IN_BRACKETS)
+          {
+            if (check_range(asm_context, "Offset", operands[1].second_value, 0, 31)==-1) { return -1; }
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[1].second_value<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
             return 2;
           }
           break;

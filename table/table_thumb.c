@@ -43,6 +43,18 @@ struct _table_thumb table_thumb[] =
   { "mov", 0x4600, 0xff00, OP_HI, 2 },
   { "bx", 0x4700, 0xff00, OP_HI_BX, -1 },  // This is odd.
   { "ldr", 0x4800, 0xf800, OP_PC_RELATIVE_LOAD, -1 },
+  { "str", 0x5000, 0xfe00, OP_LOAD_STORE, -1 },
+  { "strb", 0x5400, 0xfe00, OP_LOAD_STORE, -1 },
+  { "ldr", 0x5800, 0xfe00, OP_LOAD_STORE, -1 },
+  { "ldrb", 0x5c00, 0xfe00, OP_LOAD_STORE, -1 },
+  { "strh", 0x5200, 0xfe00, OP_LOAD_STORE_SIGN_EXT_HALF_WORD, -1 },
+  { "ldrh", 0x5a00, 0xfe00, OP_LOAD_STORE_SIGN_EXT_HALF_WORD, -1 },
+  { "ldsb", 0x5600, 0xfe00, OP_LOAD_STORE_SIGN_EXT_HALF_WORD, -1 },
+  { "ldsh", 0x5e00, 0xfe00, OP_LOAD_STORE_SIGN_EXT_HALF_WORD, -1 },
+  { "str", 0x6000, 0xf800, OP_LOAD_STORE_IMM_OFFSET, -1 },
+  { "ldr", 0x6800, 0xf800, OP_LOAD_STORE_IMM_OFFSET, -1 },
+  { "strb", 0x7000, 0xf800, OP_LOAD_STORE_IMM_OFFSET, -1 },
+  { "ldrb", 0x7800, 0xf800, OP_LOAD_STORE_IMM_OFFSET, -1 },
   { NULL, 0, 0, 0, 0 }
 };
 
