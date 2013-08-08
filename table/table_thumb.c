@@ -61,6 +61,8 @@ struct _table_thumb table_thumb[] =
   { "ldr", 0x9800, 0xf800, OP_LOAD_STORE_SP_RELATIVE, -1 },
   { "add", 0xa000, 0xf000, OP_LOAD_ADDRESS, -1 },
   { "add", 0xb000, 0xfe00, OP_ADD_OFFSET_TO_SP, -1 },
+  { "push", 0xb400, 0xfe00, OP_PUSH_POP_REGISTERS, -1 },
+  { "pop", 0xbc00, 0xfe00, OP_PUSH_POP_REGISTERS, -1 },
   { NULL, 0, 0, 0, 0 }
 };
 
