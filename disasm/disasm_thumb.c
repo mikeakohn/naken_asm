@@ -206,13 +206,22 @@ int n;
           sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address+4+offset, offset);
           return 2;
         case OP_LONG_BRANCH_WITH_LINK:
-          offset=opcode&0x3ff;
-          if ((offset&0x200)!=0)
+          offset=READ_RAM16(address+2);
+          if ((offset&0xf800)!=0xf800)
           {
-            offset=-((offset^0x3ff)+1);
+            sprintf(instruction, "%s ???", table_thumb[n].instr);
           }
-          offset<<=1;
-          sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address+4+offset, offset);
+            else
+          {
+            rn=opcode&0x7ff;
+            offset=(rn<<11)|(offset&0x7ff);
+            if ((offset&0x200000)!=0)
+            {
+              offset=-((offset^0x3fffff)+1);
+            }
+            offset<<=1;
+            sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address+4+offset, offset);
+          }
           return 4;
         default:
           strcpy(instruction, "???");

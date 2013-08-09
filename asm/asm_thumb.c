@@ -708,11 +708,12 @@ int n;
             // ahead of the current instruction.
             int offset=operands[0].value-(asm_context->address+4);
             if (asm_context->pass==1) { offset=0; }
-            if (check_range(asm_context, "Offset", offset, -2048, 2047)==-1) { return -1; }
+            if (check_range(asm_context, "Offset", offset, -(1<<22), (1<<22)-1)==-1) { return -1; }
             if (is_2_byte_aligned(asm_context, offset)==-1) { return -1; }
             offset>>=1;
-            add_bin16(asm_context, table_thumb[n].opcode|(offset&0x7ff), IS_OPCODE);
-            return 2;
+            add_bin16(asm_context, table_thumb[n].opcode|((offset>>11)&0x7ff), IS_OPCODE);
+            add_bin16(asm_context, table_thumb[n].opcode|(1<<11)|(offset&0x7ff), IS_OPCODE);
+            return 4;
           }
           break;
         default:
