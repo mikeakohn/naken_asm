@@ -188,6 +188,14 @@ int n;
           get_rlist(temp, rs);
           sprintf(instruction, "%s r%d!, {%s }", table_thumb[n].instr, rd, temp);
           return 2;
+        case OP_CONDITIONAL_BRANCH:
+          offset=((int8_t)(opcode&0xff))<<1;
+          sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address+4+offset, offset);
+          return 2;
+        case OP_SOFTWARE_INTERRUPT:
+          offset=opcode&0xff;
+          sprintf(instruction, "%s 0x%02x", table_thumb[n].instr, offset);
+          return 2;
         default:
           strcpy(instruction, "???");
           return 2;

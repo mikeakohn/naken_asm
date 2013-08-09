@@ -65,6 +65,21 @@ struct _table_thumb table_thumb[] =
   { "pop", 0xbc00, 0xfe00, OP_PUSH_POP_REGISTERS, -1 },
   { "stmia", 0xc000, 0xf800, OP_MULTIPLE_LOAD_STORE, -1 },
   { "ldmia", 0xc800, 0xf800, OP_MULTIPLE_LOAD_STORE, -1 },
+  { "beq", 0xd000, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "bne", 0xd100, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "bcs", 0xd200, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "bcc", 0xd300, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "bmi", 0xd400, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "bpl", 0xd500, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "bvs", 0xd600, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "bvc", 0xd700, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "bhi", 0xd800, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "bls", 0xd900, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "bge", 0xda00, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "blt", 0xdb00, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "bgt", 0xdc00, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "ble", 0xdd00, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
+  { "swi", 0xdf00, 0xff00, OP_SOFTWARE_INTERRUPT, -1 },
   { NULL, 0, 0, 0, 0 }
 };
 

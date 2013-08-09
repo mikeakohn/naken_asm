@@ -102,6 +102,17 @@ static int is_4_byte_aligned(struct _asm_context *asm_context, int num)
   return 0;
 }
 
+static int is_2_byte_aligned(struct _asm_context *asm_context, int num)
+{
+  if ((num&0x1)!=0)
+  {
+    print_error("Offset not 2 byte aligned", asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
 static int read_register_list(struct _asm_context *asm_context, struct _operand *operand)
 {
 int token_type;
@@ -552,11 +563,14 @@ int n;
           {
             int offset=operands[1].second_value;
             if (check_range(asm_context, "Offset", offset, 0, 60)==-1) { return -1; }
+            if (is_2_byte_aligned(asm_context, offset)==-1) { return -1; }
+#if 0
             if ((offset&0x1)!=0)
             {
               print_error("Offset not 2 byte aligned", asm_context);
               return -1;
             }
+#endif
             offset=offset>>1;
             add_bin16(asm_context, table_thumb[n].opcode|(offset<<6)|(operands[1].value<<3)|(operands[0].value), IS_OPCODE);
             return 2;
@@ -641,6 +655,31 @@ int n;
               operands[1].type==OPERAND_REGISTER_LIST)
           {
             add_bin16(asm_context, table_thumb[n].opcode|(operands[0].value<<8)|(operands[1].value), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_CONDITIONAL_BRANCH:
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_ADDRESS)
+          {
+            // From the docs: The branch offset must take account of the
+            // prefetch operation, which causes the PC to be 1 word (4 bytes)
+            // ahead of the current instruction.
+            int offset=operands[0].value-(asm_context->address+4);
+            if (asm_context->pass==1) { offset=0; }
+            if (check_range(asm_context, "Offset", offset, -256, 255)==-1) { return -1; }
+            if (is_2_byte_aligned(asm_context, offset)==-1) { return -1; }
+            offset>>=1;
+            add_bin16(asm_context, table_thumb[n].opcode|(offset&0xff), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_SOFTWARE_INTERRUPT:
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_ADDRESS)
+          {
+            if (check_range(asm_context, "Comment", operands[0].value, 0, 255)==-1) { return -1; }
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[0].value&0xff), IS_OPCODE);
             return 2;
           }
           break;

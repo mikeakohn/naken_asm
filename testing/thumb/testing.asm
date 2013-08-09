@@ -80,6 +80,12 @@ label1:
   pop { r1-r3, r0 }
   pop { r1-r3, r6, pc }
 
+back:
   stmia r0!, { r3-r7 }
   ldmia r4!, { r0, r3-r7 }
+
+  bvc back
+
+  swi 0x64
+
 
