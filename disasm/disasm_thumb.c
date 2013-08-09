@@ -182,6 +182,12 @@ int n;
           }
           sprintf(instruction, "%s {%s }", table_thumb[n].instr, temp);
           return 2;
+        case OP_MULTIPLE_LOAD_STORE:
+          rd=opcode>>8&0x7;    // Rb!
+          rs=opcode&0xff;      // Rlist
+          get_rlist(temp, rs);
+          sprintf(instruction, "%s r%d!, {%s }", table_thumb[n].instr, rd, temp);
+          return 2;
         default:
           strcpy(instruction, "???");
           return 2;

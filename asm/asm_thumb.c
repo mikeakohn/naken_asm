@@ -25,6 +25,7 @@ enum
 {
   OPERAND_NONE,
   OPERAND_REGISTER,
+  OPERAND_REGISTER_INC,
   OPERAND_H_REGISTER,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
@@ -202,6 +203,15 @@ int n;
     {
       operands[operand_count].type=OPERAND_REGISTER;
       operands[operand_count].value=num;
+      token_type=get_token(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token,'!'))
+      {
+        operands[operand_count].type=OPERAND_REGISTER_INC;
+      }
+        else
+      {
+        pushback(asm_context, token, token_type);
+      }
     }
       else
     if ((num=get_h_register_thumb(token))!=-1)
@@ -622,6 +632,15 @@ int n;
             }
 
             add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_MULTIPLE_LOAD_STORE:
+          if (operand_count==2 &&
+              operands[0].type==OPERAND_REGISTER_INC &&
+              operands[1].type==OPERAND_REGISTER_LIST)
+          {
+            add_bin16(asm_context, table_thumb[n].opcode|(operands[0].value<<8)|(operands[1].value), IS_OPCODE);
             return 2;
           }
           break;

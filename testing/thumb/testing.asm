@@ -80,3 +80,6 @@ label1:
   pop { r1-r3, r0 }
   pop { r1-r3, r6, pc }
 
+  stmia r0!, { r3-r7 }
+  ldmia r4!, { r0, r3-r7 }
+

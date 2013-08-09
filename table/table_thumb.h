@@ -34,6 +34,7 @@ enum
   OP_LOAD_ADDRESS,
   OP_ADD_OFFSET_TO_SP,
   OP_PUSH_POP_REGISTERS,
+  OP_MULTIPLE_LOAD_STORE,
 };
 
 struct _table_thumb
