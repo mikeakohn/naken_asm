@@ -80,6 +80,8 @@ struct _table_thumb table_thumb[] =
   { "bgt", 0xdc00, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
   { "ble", 0xdd00, 0xff00, OP_CONDITIONAL_BRANCH, -1 },
   { "swi", 0xdf00, 0xff00, OP_SOFTWARE_INTERRUPT, -1 },
+  { "b", 0xe000, 0xf800, OP_UNCONDITIONAL_BRANCH, -1 },
+  { "bl", 0xf000, 0xf800, OP_LONG_BRANCH_WITH_LINK, -1 },
   { NULL, 0, 0, 0, 0 }
 };
 

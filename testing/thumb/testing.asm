@@ -88,4 +88,6 @@ back:
 
   swi 0x64
 
+  b back
+
 
