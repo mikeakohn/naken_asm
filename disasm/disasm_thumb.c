@@ -240,47 +240,29 @@ void list_output_thumb(struct _asm_context *asm_context, int address)
 {
 int cycles_min,cycles_max;
 char instruction[128];
-char bytes[10];
 int count;
-int n;
-//unsigned int opcode=memory_read_m(&asm_context->memory, address);
 
   fprintf(asm_context->list, "\n");
   count=disasm_thumb(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
-  bytes[0]=0;
-  // count should always be 2
-  if (count==2)
-  {
-    char temp[8];
-    sprintf(temp, "%04x ", memory_read_m(&asm_context->memory, address)|(memory_read_m(&asm_context->memory, address+1)<<8));
-    strcat(bytes, temp);
-  }
-    else
-  {
-    for (n=0; n<count; n++)
-    {
-      char temp[4];
-      sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, address+n));
-      strcat(bytes, temp);
-    }
-  }
-
-  fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ", address, bytes, instruction);
+  fprintf(asm_context->list, "0x%04x: %04x  %-40s cycles: ", address, memory_read_m(&asm_context->memory, address)|(memory_read_m(&asm_context->memory, address+1)<<8), instruction);
 
   if (cycles_min==cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
     else
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+
+  if (count==4)
+  {
+    fprintf(asm_context->list, "        %04x\n", memory_read_m(&asm_context->memory, address+2)|(memory_read_m(&asm_context->memory, address+3)<<8));
+  }
 }
 
 void disasm_range_thumb(struct _memory *memory, int start, int end)
 {
 char instruction[128];
-char bytes[10];
 int cycles_min=0,cycles_max=0;
 int count;
-int n;
 
   printf("\n");
 
@@ -291,36 +273,23 @@ int n;
   {
     count=disasm_thumb(memory, start, instruction, &cycles_min, &cycles_max);
 
-    bytes[0]=0;
-    // count should always be 2
-    if (count==2)
-    {
-      char temp[8];
-      sprintf(temp, "%04x ", READ_RAM16(start));
-      strcat(bytes, temp);
-    }
-      else
-    {
-      for (n=0; n<count; n++)
-      {
-        char temp[4];
-        sprintf(temp, "%02x ", READ_RAM(start+n));
-        strcat(bytes, temp);
-      }
-    }
-
     if (cycles_min<1)
     {
-      printf("0x%04x: %-9s %-40s ?\n", start, bytes, instruction);
+      printf("0x%04x: %04x  %-40s ?\n", start, READ_RAM16(start), instruction);
     }
       else
     if (cycles_min==cycles_max)
     {
-      printf("0x%04x: %-9s %-40s %d\n", start, bytes, instruction, cycles_min);
+      printf("0x%04x: %04x  %-40s %d\n", start, READ_RAM16(start), instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: %-9s %-40s %d-%d\n", start, bytes, instruction, cycles_min, cycles_max);
+      printf("0x%04x: %04x  %-40s %d-%d\n", start, READ_RAM16(start), instruction, cycles_min, cycles_max);
+    }
+
+    if (count==4)
+    {
+      printf("        %04x\n", READ_RAM16(start+2));
     }
 
     start=start+count;
