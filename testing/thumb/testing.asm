@@ -75,5 +75,8 @@ label1:
   add SP, #268
   add SP, #-104
 
-
+  push { r1-r3, r7 }
+  push { r1, r2, r3, r5-r7, lr }
+  pop { r1-r3, r0 }
+  pop { r1-r3, r6, pc }
 

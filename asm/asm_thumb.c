@@ -34,6 +34,7 @@ enum
   OPERAND_PC_AND_NUM_IN_BRACKETS,   // [ PC, #IMM ]
   OPERAND_SP_AND_REG_IN_BRACKETS,   // [ SP, Rb ]
   OPERAND_SP_AND_NUM_IN_BRACKETS,   // [ SP, #IMM ]
+  OPERAND_REGISTER_LIST,
 };
 
 struct _operand
@@ -95,6 +96,75 @@ static int is_4_byte_aligned(struct _asm_context *asm_context, int num)
   {
     print_error("Offset not 4 byte aligned", asm_context);
     return -1;
+  }
+
+  return 0;
+}
+
+static int read_register_list(struct _asm_context *asm_context, struct _operand *operand)
+{
+int token_type;
+char token[TOKENLEN];
+int reg_start,reg_end;
+
+  while(1)
+  {
+    get_token(asm_context, token, TOKENLEN);
+
+    if ((strcasecmp(token,"lr")==0 || strcasecmp(token,"r14")==0) &&
+        operand->second_value==0)
+    {
+      operand->second_value=1;
+    }
+      else
+    if ((strcasecmp(token,"pc")==0 || strcasecmp(token,"r15")==0) &&
+        operand->second_value==0)
+    {
+      operand->second_value=2;
+    }
+      else
+    if ((reg_start=get_register_thumb(token))!=-1)
+    {
+      token_type=get_token(asm_context, token, TOKENLEN);
+
+      if (IS_TOKEN(token,'-'))
+      {
+        get_token(asm_context, token, TOKENLEN);
+        if ((reg_end=get_register_thumb(token))==-1 || reg_end<reg_start)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        while(reg_start<=reg_end)
+        {
+          operand->value|=1<<reg_start;
+          reg_start++;
+        }
+      }
+        else
+      {
+        operand->value|=1<<reg_start;
+        pushback(asm_context, token, token_type);
+      }
+    }
+      else
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    get_token(asm_context, token, TOKENLEN);
+    if (IS_TOKEN(token,'}'))
+    {
+      break;
+    }
+      else
+    if (IS_NOT_TOKEN(token,','))
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
   }
 
   return 0;
@@ -222,6 +292,15 @@ int n;
       }
 
       if (expect_token_s(asm_context,"]")!=0) { return -1; }
+    }
+      else
+    if (IS_TOKEN(token,'{'))
+    {
+      operands[operand_count].type=OPERAND_REGISTER_LIST;
+      if (read_register_list(asm_context, &operands[operand_count])==-1)
+      {
+        return -1;
+      }
     }
       else
     {
@@ -522,6 +601,27 @@ int n;
             }
             if (is_4_byte_aligned(asm_context, operands[1].value)==-1) { return -1; }
             add_bin16(asm_context, table_thumb[n].opcode|(s<<8)|(operands[1].value>>2), IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_PUSH_POP_REGISTERS:
+          if (operand_count==1 &&
+              operands[0].type==OPERAND_REGISTER_LIST)
+          {
+            int opcode=table_thumb[n].opcode|operands[0].value;
+            if (operands[0].second_value==1)
+            {
+              if (((opcode>>11)&1)==1) { break; }
+              opcode|=(1<<8);
+            }
+              else
+            if (operands[0].second_value==2)
+            {
+              if (((opcode>>11)&1)==0) { break; }
+              opcode|=(1<<8);
+            }
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;
           }
           break;

@@ -25,12 +25,40 @@ int get_cycle_count_thumb(unsigned short int opcode)
   return -1;
 }
 
+static void get_rlist(char *s, int rlist)
+{
+int i,comma;
+char temp[32];
+
+  s[0]=0;
+
+  for (i=0; i<8; i++)
+  {
+    if ((rlist&(1<<i))!=0)
+    {
+      if (comma==0)
+      {
+        sprintf(temp, " r%d", i);
+        comma=1;
+      }
+        else
+      {
+        sprintf(temp, ", r%d", i);
+        comma=1;
+      }
+
+      strcat(s, temp);
+    }
+  }
+}
+
 int disasm_thumb(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
 uint16_t opcode;
 int rd,rs,rn,offset;
 int h1,h2;
 int immediate;
+char temp[128];
 int n;
 
   *cycles_min=-1;
@@ -141,6 +169,18 @@ int n;
           rs=(opcode>>11)&0x1;  // S (0=positive,1=negative)
           offset=opcode&0xff;
           sprintf(instruction, "%s SP, #%s%d", table_thumb[n].instr, (rs==0)?"":"-",offset<<2);
+          return 2;
+        case OP_PUSH_POP_REGISTERS:
+          rs=opcode&0xff;      // Rlist
+          rn=opcode>>8&0x1;    // PC or LR
+          get_rlist(temp, rs);
+          if (rn==1)
+          {
+            if (temp[0]!=0) { strcat(temp, ","); }
+            if (((opcode>>11)&1)==0) { strcat(temp, " LR"); }
+            else { strcat(temp, " PC"); }
+          }
+          sprintf(instruction, "%s {%s }", table_thumb[n].instr, temp);
           return 2;
         default:
           strcpy(instruction, "???");
