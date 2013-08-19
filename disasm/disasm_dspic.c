@@ -239,7 +239,7 @@ int n,b,d,f,a,w,lit;
           lit=(opcode>>4)&0x3ff;
           b=(opcode>>14)&0x1;
           w=opcode&0xf;
-          sprintf(instruction, "%s%s #%x, w%d", table_dspic[n].name, bflag[b], lit, w);
+          sprintf(instruction, "%s%s #0x%x, w%d", table_dspic[n].name, bflag[b], lit, w);
           return 4;
         case OP_LIT14:
           lit=opcode&0x3fff;

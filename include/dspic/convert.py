@@ -37,7 +37,7 @@ for line in fp:
   line = line.strip()
   if line.startswith(".equiv"):
     tokens = line.split(",")
-    #print tokens[0].replace(".equiv","") + " equ " + tokens[1]
+    print tokens[0].replace(".equiv","") + " equ " + tokens[1]
 
 fp.close()
 
