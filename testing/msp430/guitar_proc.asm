@@ -4,7 +4,7 @@
 ;; http://www.mikekohn.net/
 ;; mike@mikekohn.net
 ;;
-;; Short sample of using naken430asm and MSP430 to make a guitar
+;; Short sample of using naken_asm and MSP430 to make a guitar
 ;; processor.
 
 .include "msp430x2xx.inc"

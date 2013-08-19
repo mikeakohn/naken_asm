@@ -1,0 +1,139 @@
+.tms9900
+
+main:
+  mov r0, r1
+
+0x0000: 40c0 szc r0,r3                                cycles: 14
+
+  a r0, @data
+
+0x0002: 00a8 ???                                      cycles: -1
+
+  a *r5, @data(r3)
+
+0x0006: d5a8 movb @0x4e00(r8),*r6                     cycles: 14
+0x0008: 4e00
+
+  a @data(r3), *r1+
+
+0x000a: 63ac s @0x4e00(r12),r14                       cycles: 14
+0x000c: 4e00
+
+  a @data(r3), @data(r4)
+
+0x000e: 23a9 coc @0x4e00(r9),r14                      cycles: 14
+0x0010: 4e00
+
+  a @data, @data
+
+0x0014: 20a8 coc @0x4e00(r8),r2                       cycles: 14
+0x0016: 4e00
+
+
+  czc @data, r6
+
+0x001a: a025 a @0x4e00(r5),r0                         cycles: 14
+0x001c: 4e00
+
+
+loop:
+  clr r8
+
+0x001e: c804 mov r4,@0x5804                           cycles: 14
+0x0020: 5804
+
+  b *r8
+
+0x0020: 5804 szcb r4,@0x3804                          cycles: 14
+0x0022: 3804
+
+  blwp *r8+
+
+0x0022: 3804 mpy r4,r0                                cycles: 52
+
+  inc @data+2
+
+0x0024: a005 a r5,r0                                  cycles: 14
+
+  inc @data(r5)
+
+0x0028: a505 a r5,*r4                                 cycles: 14
+
+
+  ldcr *r5, 6
+
+0x002c: 9531 cb *r1+,*r4                              cycles: 14
+
+  stcr @data, 7
+
+0x002e: e035 soc *r5+,r0                              cycles: 14
+
+
+  jle loop
+
+0x0032: ea12 soc *r2,@0x001b(r8)                      cycles: 14
+0x0034: 001b
+
+  jh skip
+
+0x0034: 041b blwp *r11                                cycles: 26
+
+
+  sbo -5
+
+0x0036: fb1d socb *r13,@0x001e(r12)                   cycles: 14
+0x0038: 001e
+
+  sbz 5
+
+0x0038: 051e neg *r14                                 cycles: 12
+
+skip:
+  sla r5, 6
+
+0x003a: 650a s r10,*r4                                cycles: 14
+
+
+  li r6, 65535
+
+0x003c: 0602 dec r2                                   cycles: 10
+
+  ai r7, -1
+
+0x0040: 2702 czc r2,r12                               cycles: 14
+
+
+  lwpi 1000
+
+0x0044: e002 soc r2,r0                                cycles: 14
+
+  stst r6
+
+0x0048: c602 mov r2,*r8                               cycles: 14
+
+
+  idle
+
+0x004a: 4003 szc r3,r0                                cycles: 14
+
+  rtwp
+
+0x004c: 8003 c r3,r0                                  cycles: 14
+
+
+data:
+  dw 100, 200, 300
+
+data sections:
+004e: 64 00 c8 00 2c 01                                d...,.
+
+
+Program Info:
+Include Paths: .
+               /usr/local/share/naken_asm/include
+ Instructions: 25
+   Code Bytes: 78
+   Data Bytes: 6
+  Low Address: 0000 (0)
+ High Address: 0053 (83)
+

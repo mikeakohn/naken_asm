@@ -1,0 +1,49 @@
+
+.805x
+
+start:
+  add A, @r1
+
+0x0000: 27         add A, @R1                               cycles: 
+  add A, r5
+
+0x0001: 2d         add A, R5                                cycles: 
+
+  mov r3, #5
+
+0x0002: 7b 05      mov R3, #0x05                            cycles: 
+  ajmp 515
+
+0x0004: 41 03      ajmp 0x0203                              cycles: 
+
+repeat:
+  anl 50, #3
+
+0x0006: 53 32 03   anl 0x32, #0x03                          cycles: 
+  anl A, #100
+
+0x0009: 54 64      anl A, #0x64                             cycles: 
+  anl A, 0x55
+
+0x000b: 55 55      anl A, 0x55                              cycles: 
+
+  cpl 1
+
+0x000d: b2 01      cpl 0x20.1 [0x01]                        cycles: 
+
+  jb 1, repeat
+
+0x000f: 20 01 f4   jb 0x20.1 [0x01], 0x0006                 cycles: 
+
+data sections:
+
+
+Program Info:
+Include Paths: .
+               /usr/local/share/naken_asm/include
+ Instructions: 9
+   Code Bytes: 18
+   Data Bytes: 0
+  Low Address: 0000 (0)
+ High Address: 0011 (17)
+
