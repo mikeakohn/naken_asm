@@ -397,13 +397,15 @@ int n,reg;
       operands[operand_count].value=n;
     }
       else
-    if (IS_TOKEN(token,'i') || IS_TOKEN(token,'I'))
+    if (token_type==TOKEN_STRING &&
+        (IS_TOKEN(token,'i') || IS_TOKEN(token,'I')))
     {
       operands[operand_count].type=OPERAND_IR;
       operands[operand_count].value=REG_I;
     }
       else
-    if (IS_TOKEN(token,'r') || IS_TOKEN(token,'R'))
+    if (token_type==TOKEN_STRING &&
+        (IS_TOKEN(token,'r') || IS_TOKEN(token,'R')))
     {
       operands[operand_count].type=OPERAND_IR;
       operands[operand_count].value=REG_R;

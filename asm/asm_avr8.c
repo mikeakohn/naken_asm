@@ -120,7 +120,8 @@ int rd,rr,k;
       operands[operand_count].value=n;
     }
       else
-    if (IS_TOKEN(token,'x') || IS_TOKEN(token,'X'))
+    if (token_type==TOKEN_STRING &&
+        (IS_TOKEN(token,'x') || IS_TOKEN(token,'X')))
     {
       operands[operand_count].type=OPERAND_REG16;
       operands[operand_count].value=REG16_X;
@@ -129,7 +130,8 @@ int rd,rr,k;
       else { pushback(asm_context, token, token_type); }
     }
       else
-    if (IS_TOKEN(token,'y') || IS_TOKEN(token,'Y'))
+    if (token_type==TOKEN_STRING &&
+        (IS_TOKEN(token,'y') || IS_TOKEN(token,'Y')))
     {
       operands[operand_count].type=OPERAND_REG16;
       operands[operand_count].value=REG16_Y;
@@ -159,7 +161,8 @@ int rd,rr,k;
       }
     }
       else
-    if (IS_TOKEN(token,'z') || IS_TOKEN(token,'Z'))
+    if (token_type==TOKEN_STRING &&
+        (IS_TOKEN(token,'z') || IS_TOKEN(token,'Z')))
     {
       operands[operand_count].type=OPERAND_REG16;
       operands[operand_count].value=REG16_Z;

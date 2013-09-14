@@ -81,7 +81,6 @@ int get_token(struct _asm_context *asm_context, char *token, int len)
 int token_type=TOKEN_EOF;
 int ch;
 int ptr=0;
-char quote=0;
 
 #ifdef DEBUG
 //printf("Enter get_token()\n");
@@ -149,6 +148,45 @@ char quote=0;
 
     if (ch=='\r') continue;   /* DOS sucks. Geesh get a modern OS. */
 
+    if (ch=='"' || ch=='\'')
+    {
+      char quote=ch;
+      if (ch=='"' ) { token_type=TOKEN_QUOTED; }
+      else { token_type=TOKEN_TICKED; }
+
+      while(1)
+      {
+        ch=get_next_char(asm_context);
+        if (ch==quote)
+        {
+          break;
+        }
+
+        if (ch=='\\')
+        {
+          ch=get_next_char(asm_context);
+          if (ch=='n') { ch='\n'; }
+          else if (ch=='r') { ch='\r'; }
+          else if (ch=='t') { ch='\t'; }
+        }
+
+        token[ptr++]=ch;
+        if (ptr>=len)
+        {
+          printf("get_token.c: line=%d - Internal error\n", __LINE__);
+          exit(1);
+        }
+      }
+
+      break;
+    }
+
+#if 0
+    if (ch=='\'')
+    {
+      token_type=TOKEN_TICKED;
+    }
+
     if (quote!=0)
     {
       if (ch=='\n')
@@ -178,7 +216,7 @@ char quote=0;
       continue;
     }
 
-    if (ch=='\\' && token_type==TOKEN_QUOTED)
+    if (ch=='\\' && (token_type==TOKEN_QUOTED || token_type==TOKEN_TICKED))
     {
       token[ptr++]=ch;
       ch=get_next_char(asm_context);
@@ -191,6 +229,7 @@ char quote=0;
       token[ptr++]=ch;
       continue;
     }
+#endif
 
     if (ch=='\n' || ch==' ' || ch=='\t' || ch==EOF)
     {
@@ -372,6 +411,14 @@ char quote=0;
   }
 
   token[ptr]=0;
+
+  if (ptr>=len)
+  {
+    printf("get_token.c: line=%d - Internal error\n", __LINE__);
+    exit(1);
+  }
+
+  if (token_type==TOKEN_TICKED && ptr==1) { token_type=TOKEN_NUMBER; }
 
   if (IS_TOKEN(token, '$'))
   {

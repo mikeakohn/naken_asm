@@ -92,12 +92,12 @@ int count=1;
       operands[operand_count].value=num;
     }
       else
-    if (IS_TOKEN(token,'A'))
+    if (token_type==TOKEN_STRING && IS_TOKEN(token,'A'))
     {
       operands[operand_count].type=OPERAND_A;
     }
       else
-    if (IS_TOKEN(token,'C'))
+    if (token_type==TOKEN_STRING && IS_TOKEN(token,'C'))
     {
       operands[operand_count].type=OPERAND_C;
     }
@@ -127,7 +127,7 @@ int count=1;
         operands[operand_count].type=OPERAND_AT_DPTR;
       }
         else
-      if (strcasecmp(token, "a")==0)
+      if (token_type==TOKEN_STRING && strcasecmp(token, "a")==0)
       {
         do
         {
