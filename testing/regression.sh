@@ -16,6 +16,7 @@ test_arch()
 }
 
 test_arch "805x"
+test_arch "avr8"
 test_arch "dspic"
 test_arch "msp430"
 test_arch "stm8"

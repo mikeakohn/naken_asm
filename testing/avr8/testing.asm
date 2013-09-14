@@ -40,6 +40,8 @@ zomg:
   ld r19, Y 
   ld r0, Z+
 
+  cpi r16, 'z'
+
   st Z, r9
   st Y+, r10
   st -Y, r31
