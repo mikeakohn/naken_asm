@@ -200,17 +200,28 @@ zomg:
 0x002f: ac80 ldd r8, Z+56                             cycles: 2
 
 
+  ldi r30, blah&0xff
 
+0x0030: e3e2 ldi r30, 0x32                            cycles: 1
+
+  ldi r31, blah>>8
+
+0x0031: e0f0 ldi r31, 0x0                             cycles: 1
+
+
+blah:
+  dw 0x1234, 0x4321
 
 data sections:
+0032: 34 12 21 43                                      4.!C
 
 
 Program Info:
 Include Paths: .
                /usr/local/share/naken_asm/include
- Instructions: 44
-   Code Bytes: 96
-   Data Bytes: 0
+ Instructions: 46
+   Code Bytes: 100
+   Data Bytes: 4
   Low Address: 0000 (0)
- High Address: 002f (47)
+ High Address: 0033 (51)
 

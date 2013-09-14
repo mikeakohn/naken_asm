@@ -64,5 +64,9 @@ zomg:
   ldd r5, Y+7
   ldd r8, Z+56
 
+  ldi r30, blah&0xff
+  ldi r31, blah>>8
 
+blah:
+  dw 0x1234, 0x4321
 
