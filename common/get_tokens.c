@@ -148,6 +148,18 @@ int ptr=0;
 
     if (ch=='\r') continue;   /* DOS sucks. Geesh get a modern OS. */
 
+    // Nasty, but some CPU's like Z80 need this
+    if (ch=='\'')
+    {
+      if (asm_context->can_tick_end_string &&
+          ch=='\'' &&
+          token_type==TOKEN_STRING)
+      {
+        token[ptr++]=ch;
+        break;
+      }
+    }
+
     if (ch=='"' || ch=='\'')
     {
       char quote=ch;
@@ -171,9 +183,9 @@ int ptr=0;
         }
 
         token[ptr++]=ch;
-        if (ptr>=len)
+        if (ptr>=len || (token_type==TOKEN_TICKED && ptr>1))
         {
-          printf("get_token.c: line=%d - Internal error\n", __LINE__);
+          print_error("Unterminated quote", asm_context);
           exit(1);
         }
       }
@@ -254,7 +266,7 @@ int ptr=0;
 
       if (ptr>=len)
       {
-        printf("get_token.c: line=%d - Internal error\n", __LINE__);
+        printf("Internal Error: %s:%d  line=%d\n", __FILE__, __LINE__, asm_context->line);
         exit(1);
       }
 
@@ -414,7 +426,7 @@ int ptr=0;
 
   if (ptr>=len)
   {
-    printf("get_token.c: line=%d - Internal error\n", __LINE__);
+    printf("Internal Error: %s:%d  line=%d\n", __FILE__, __LINE__, asm_context->line);
     exit(1);
   }
 

@@ -21,4 +21,5 @@ test_arch "dspic"
 test_arch "msp430"
 test_arch "stm8"
 test_arch "tms9900"
+test_arch "z80"
 
