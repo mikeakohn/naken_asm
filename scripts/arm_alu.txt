@@ -1,0 +1,16 @@
+0000	AND	Rd	=	Rn	AN
+0001	EOR	Rd	=	Rn	EOR	Op2				
+0010	SUB	Rd	=	Rn	-	Op2				
+0011	RSB	Rd	=	Op2	-	Rn				
+0100	ADD	Rd	=	Rn	+	Op2				
+0101	ADC	Rd	=	Rn	+	Op2
+0110	SBC	Rd	=	Rn	-	Op2
+0111	RSC	Rd	=	Op2	-	Rn
+1000	TST			Rn	AND	Op2	
+1001	TEQ			Rn	EOR	Op2				
+1010	CMP			Rn	-	Op2				
+1011	CMN			Rn	+	Op2				
+1100	ORR	Rd	=	Rn	OR	Op2				
+1101	MOV	Rd	=	Op2						
+1110	BIC	Rd	=	Rn	AND	¬Op2				
+1111	MVN	Rd	=	¬Op2						
