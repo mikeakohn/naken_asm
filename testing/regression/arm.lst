@@ -1,0 +1,146 @@
+.arm
+
+  mov r0, #0xffffffff
+
+0x0000: 0xffffffff swinv                                    cycles: 1
+
+  ;add r0, r0, #2 
+  add r0, r0, r1
+
+0x0004: 0xe0800001 add r0, r0, r1                           cycles: 2
+
+  swi
+
+0x0008: 0xef000000 swi                                      cycles: 1
+
+  swilt
+
+0x000c: 0xbf000000 swilt                                    cycles: 1
+
+
+  swp r0, r1, [r2]
+
+0x0010: 0xe1020091 swp r0, r1, [r2]                         cycles: 1
+
+  mrs r0, cpsr
+
+0x0014: 0xe10f0000 mrs r0, CPSR                             cycles: 1
+
+  mrs r1, spsr
+
+0x0018: 0xe14f1000 mrs r1, SPSR                             cycles: 1
+
+
+  msr cpsr, r0
+
+0x001c: 0xe129f000 msr CPSR, r0                             cycles: 1
+
+  msr cpsr, #68
+
+0x0020: 0xe329f044 msr CPSR_flg, #68 {#68, 0}               cycles: 1
+
+  msr cpsr, #32768
+
+0x0024: 0xe329f902 msr CPSR_flg, #32768 {#2, 18}            cycles: 1
+
+  msr cpsr, #65536
+
+0x0028: 0xe329f801 msr CPSR_flg, #65536 {#1, 16}            cycles: 1
+
+  msr cpsr, #128, 2
+
+0x002c: 0xe329f180 msr CPSR_flg, #32 {#128, 2}              cycles: 1
+
+
+  mov r5, #256
+
+0x0030: 0xe3a05c01 mov r5, r0, #256 {#1, 24}                cycles: 1
+
+  mov r5, #128, 2
+
+0x0034: 0xe3a05180 mov r5, r0, #32 {#128, 2}                cycles: 1
+
+  orr r5, r6, #256
+
+0x0038: 0xe3865c01 orr r5, r6, #256 {#1, 24}                cycles: 1
+
+  orr r5, r6, #128, 2
+
+0x003c: 0xe3865180 orr r5, r6, #32 {#128, 2}                cycles: 1
+
+
+main:
+  orr r5, r6, r7
+
+0x0040: 0xe1865007 orr r5, r6, r7                           cycles: 2
+
+  orr r5, r6, r7, lsl r0
+
+0x0044: 0xe1865017 orr r5, r6, r7, lsl r0                   cycles: 2
+
+  orr r5, r6, r7, ror #5
+
+0x0048: 0xe18652e7 orr r5, r6, r7, ror #5                   cycles: 2
+
+
+  mul r1, r2, r3
+
+0x004c: 0xe0010392 mul r1, r2, r3                           cycles: 1
+
+  mla r1, r2, r3, r4
+
+0x0050: 0xe0214392 mla r1, r2, r3, r4                       cycles: 1
+
+
+  ldm r6, { r1, r2, r6-r8 }
+
+0x0054: 0xe81601c6 ldmdb r6, {r1-r2, r6-r8}                 cycles: 1
+
+  stm r6, { r1, r2, r6-r8 }
+
+0x0058: 0xe80601c6 stmdb r6, {r1-r2, r6-r8}                 cycles: 1
+
+  stm r6, { r0, r1, r2, r6-r8 }
+
+0x005c: 0xe80601c7 stmdb r6, {r0-r2, r6-r8}                 cycles: 1
+
+  stm r6!, { r0-r2, r6-r8 }
+
+0x0060: 0xe82601c7 stmdb r6!, {r0-r2, r6-r8}                cycles: 1
+
+
+  ldr r6, [r7]
+
+0x0064: 0xe4976000 ldr r6, [r7]                             cycles: 1
+
+  str r7, [r8]
+
+0x0068: 0xe4887000 str r7, [r8]                             cycles: 1
+
+  str r7, 12
+
+0x006c: 0xe48c700c str r7, [r12], #12                       cycles: 1
+
+
+  b main
+
+0x0070: 0x0afffff3 beq 0x3ffffcc                            cycles: 1-3
+
+
+  ; FIXME
+  ;str r7, [r1,r2, lsl #2]
+
+
+
+data sections:
+
+
+Program Info:
+Include Paths: .
+               /usr/local/share/naken_asm/include
+ Instructions: 29
+   Code Bytes: 116
+   Data Bytes: 0
+  Low Address: 0000 (0)
+ High Address: 0073 (115)
+
