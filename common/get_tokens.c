@@ -266,7 +266,7 @@ int ptr=0;
 
       if (ptr>=len)
       {
-        printf("Internal Error: %s:%d  line=%d\n", __FILE__, __LINE__, asm_context->line);
+        print_error_internal(asm_context, __FILE__, __LINE__);
         exit(1);
       }
 
@@ -426,7 +426,7 @@ int ptr=0;
 
   if (ptr>=len)
   {
-    printf("Internal Error: %s:%d  line=%d\n", __FILE__, __LINE__, asm_context->line);
+    print_error_internal(asm_context, __FILE__, __LINE__);
     exit(1);
   }
 

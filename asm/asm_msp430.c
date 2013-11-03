@@ -251,7 +251,7 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
       data->data[data->count++]=operand->value;
       break;
     default:
-      printf("Internal Error: Unknown optype\n");
+      print_error_internal(asm_context, __FILE__, __LINE__);
       break;
   }
 

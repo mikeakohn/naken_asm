@@ -26,7 +26,7 @@ ASM_OBJS="asm_common.o"
 DISASM_OBJS="disasm_common.o"
 TABLE_OBJS=""
 SIM_OBJS=""
-COMMON_OBJS="assembler.o cpu_list.o eval_expression.o write_elf.o write_hex.o get_tokens.o ifdef_expression.o lookup_tables.o macros.o memory.o parse_elf.o parse_hex.o"
+COMMON_OBJS="assembler.o cpu_list.o eval_expression.o print_error.o write_elf.o write_hex.o get_tokens.o ifdef_expression.o lookup_tables.o macros.o memory.o parse_elf.o parse_hex.o"
 
 for file in asm/*.c
 do

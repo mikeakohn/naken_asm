@@ -24,11 +24,9 @@ enum
   OP_MRS,
   OP_MSR_ALL,
   OP_MSR_FLAG,
-  OP_LDR,
-  OP_STR,
+  OP_LDR_STR,
   OP_UNDEFINED,
-  OP_LDM,
-  OP_STM,
+  OP_LDM_STM,
   OP_BRANCH,
   OP_BRANCH_EXCHANGE,
   OP_SWI,
@@ -40,6 +38,7 @@ struct _table_arm
   uint32_t opcode;
   uint32_t mask;
   uint8_t type;
+  uint8_t len;
   int8_t cycles;
 };
 

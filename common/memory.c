@@ -90,7 +90,7 @@ struct _memory_page *page;
     page=page->next;
   }
 
-  printf("Internal Error: %s:%d\n", __FILE__, __LINE__);
+  print_error_internal(NULL, __FILE__, __LINE__);
   return 0;
 }
 
@@ -108,7 +108,7 @@ struct _memory_page *page;
     page=page->next;
   }
 
-  printf("Internal Error: %s:%d\n", __FILE__, __LINE__);
+  print_error_internal(NULL, __FILE__, __LINE__);
   return 0;
 }
 

@@ -404,7 +404,7 @@ for (n=0; n<count; n++)
 
     if (ptr>=PARAM_STACK_LEN)
     {
-      printf("Internal error: %s:%d\n", __FILE__, __LINE__);
+      print_error_internal(NULL, __FILE__, __LINE__);
       exit(1);
     }
 
@@ -693,7 +693,7 @@ int ch;
       asm_context->def_param_stack_count--;
       if (asm_context->def_param_stack_count<0)
       {
-        printf("Internal error: %s:%d\n", __FILE__, __LINE__);
+        print_error_internal(NULL, __FILE__, __LINE__);
         exit(1);
       }
 #ifdef DEBUG

@@ -16,6 +16,7 @@
 
 #include "cpu_list.h"
 #include "memory.h"
+#include "print_error.h"
 
 #define MAX_NESTED_MACROS 128
 #define TOKENLEN 512
@@ -116,15 +117,6 @@ struct _asm_context
 
 struct _memory_pool *add_pool(struct _naken_heap *heap, int heap_len);
 void free_pools(struct _memory_pool *memory_pool);
-
-void print_error(const char *s, struct _asm_context *asm_context);
-void print_error_unexp(const char *s, struct _asm_context *asm_context);
-void print_error_unknown_instr(const char *instr, struct _asm_context *asm_context);
-void print_error_opcount(const char *instr, struct _asm_context *asm_context);
-void print_error_illegal_operands(const char *instr, struct _asm_context *asm_context);
-void print_error_illegal_expression(const char *instr, struct _asm_context *asm_context);
-void print_error_range(const char *s, int r1, int r2, struct _asm_context *asm_context);
-void print_error_unknown_operand_combo(const char *instr, struct _asm_context *asm_context);
 int add_to_include_path(struct _asm_context *asm_context, char *paths);
 void assemble_init(struct _asm_context *asm_context);
 void assemble_print_info(struct _asm_context *asm_context, FILE *out);

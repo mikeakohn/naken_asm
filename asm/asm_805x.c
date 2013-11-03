@@ -324,7 +324,7 @@ printf("\n");
                  operands[r].value>255)) { r=4; }
             break;
           default:
-            printf("Internal error %s:%d\n", __FILE__, __LINE__);
+            print_error_internal(asm_context, __FILE__, __LINE__);
             return -1;
         }
       }

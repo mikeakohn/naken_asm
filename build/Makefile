@@ -12,7 +12,7 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS)
 	   $(TABLE_OBJS) \
 	   $(SIM_OBJS) \
 	   $(DFLAGS) \
-	   cpu_list.o parse_elf.o parse_hex.o memory.o \
+	   cpu_list.o parse_elf.o parse_hex.o memory.o print_error.o \
 	   -I../disasm -I../common -I../simulate -I../table \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
