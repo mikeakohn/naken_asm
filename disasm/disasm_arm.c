@@ -16,6 +16,7 @@
 
 #include "disasm_arm.h"
 #include "disasm_common.h"
+#include "table_arm.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
 #define ARM_NIB(n) ((opcode>>n)&0xf)
@@ -29,6 +30,7 @@ static char *arm_cond[] =
   "gt", "le", "", "nv"
 };
 
+#if 0
 char *arm_alu_ops[] = 
 {
   "and", "eor", "sub", "rsb",
@@ -36,6 +38,7 @@ char *arm_alu_ops[] =
   "tst", "teq", "cmp", "cmn",
   "orr", "mov", "bic", "mvn"
 };
+#endif
 
 char *arm_shift[] =
 {
@@ -121,45 +124,7 @@ int n;
 
 }
 
-int disasm_arm(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
-{
-uint32_t opcode;
-char temp[32];
-
-  *cycles_min=1;
-  *cycles_max=1;
-  opcode=get_opcode32(memory, address);
-
-  if ((opcode&BRANCH_MASK)==BRANCH_OPCODE)
-  {
-    int l=(opcode>>24)&1;
-
-    sprintf(instruction, "%s%s 0x%02x", l==0?"b":"bl", arm_cond[ARM_NIB(28)], (opcode&0xffffff)<<2);
-
-    *cycles_max=3;
-  }
-    else
-  if ((opcode&BRANCH_EXCH_MASK)==BRANCH_EXCH_OPCODE)
-  {
-    // FIXME - implement
-    sprintf(instruction, "bx%s %s", arm_cond[ARM_NIB(28)], arm_reg[ARM_NIB(0)]);
-  }
-    else
-  if ((opcode&MUL_MASK)==MUL_OPCODE)
-  {
-    int a=(opcode>>21)&1;
-    int s=(opcode>>20)&1;
-
-    if (a==0)
-    {
-      sprintf(instruction, "mul%s%s %s, %s, %s", arm_cond[ARM_NIB(28)], s==1?"s":"", arm_reg[ARM_NIB(16)], arm_reg[ARM_NIB(0)], arm_reg[ARM_NIB(8)]);
-    }
-      else
-    {
-      sprintf(instruction, "mla%s%s %s, %s, %s, %s", arm_cond[ARM_NIB(28)], s==1?"s":"", arm_reg[ARM_NIB(16)], arm_reg[ARM_NIB(0)], arm_reg[ARM_NIB(8)], arm_reg[ARM_NIB(12)]);
-    }
-  }
-    else
+#if 0
   if ((opcode&MUL_LONG_MASK)==MUL_LONG_OPCODE)
   {
     int u=(opcode>>22)&1;
@@ -176,198 +141,302 @@ char temp[32];
     }
   }
     else
-  if ((opcode&SWAP_MASK)==SWAP_OPCODE)
-  {
-    int b=(opcode>>22)&1;
-
-    sprintf(instruction, "swp%s%s %s, %s, [%s]", arm_cond[ARM_NIB(28)], b==1?"b":"", arm_reg[ARM_NIB(12)], arm_reg[ARM_NIB(0)], arm_reg[ARM_NIB(16)]);
-  }
-    else
-  if ((opcode&MRS_MASK)==MRS_OPCODE)
-  {
-    int ps=(opcode>>22)&1;
-
-    sprintf(instruction, "mrs%s %s, %s", arm_cond[ARM_NIB(28)], arm_reg[ARM_NIB(12)], ps==1?"SPSR":"CPSR");
-  }
-    else
-  if ((opcode&MSR_ALL_MASK)==MSR_ALL_OPCODE)
-  {
-    int ps=(opcode>>22)&1;
-
-    sprintf(instruction, "msr%s %s, %s", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", arm_reg[ARM_NIB(0)]);
-  }
-    else
-  if ((opcode&MSR_FLAG_MASK)==MSR_FLAG_OPCODE)
-  {
-    int i=(opcode>>25)&1;
-    int ps=(opcode>>22)&1;
-
-    if (i==0)
-    {
-      sprintf(instruction, "msr%s %s_flg, %s", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", arm_reg[ARM_NIB(0)]);
-    }
-      else
-    {
-      sprintf(instruction, "msr%s %s_flg, #%d {#%d, %d}", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", compute_immediate(opcode&0xfff), opcode&0xff, (opcode&0xf00)>>7);
-    }
-  }
-    else
-  if ((opcode&ALU_MASK)==ALU_OPCODE)
-  {
-    int i=(opcode>>25)&1;
-    int s=(opcode>>20)&1;
-    int operand2=opcode&0xfff;
-
-    if (i==0)
-    {
-      arm_calc_shift(temp, operand2>>4, operand2&0xf);
-      *cycles_min=2;
-      *cycles_max=2;
-    }
-      else
-    {
-      //int rotate=operand2>>8;
-      //sprintf(temp, "%d", (operand2&0xff)<<rotate);
-      sprintf(temp, "#%d {#%d, %d}", compute_immediate(opcode&0xfff), opcode&0xff, (opcode&0xf00)>>7);
-    }
-
-    sprintf(instruction, "%s%s%s %s, %s, %s", arm_alu_ops[ARM_NIB(21)], arm_cond[ARM_NIB(28)], s==1?"S":"", arm_reg[ARM_NIB(12)], arm_reg[ARM_NIB(16)], temp);
-  }
-    else
-  if ((opcode&LDR_STR_MASK)==LDR_STR_OPCODE)
-  {
-    int ls=(opcode>>20)&1;
-    int w=(opcode>>21)&1;
-    int b=(opcode>>22)&1;
-    int u=(opcode>>23)&1;
-    int pr=(opcode>>24)&1;
-    int i=(opcode>>25)&1;
-    int offset=opcode&0xfff;
-    int rn=ARM_NIB(16);
-
-    if (i==0)
-    {
-      if (offset==0)
-      {
-        sprintf(temp, "[%s]", arm_reg[rn]);
-      }
-        else
-      {
-        if (pr==1)
-        {
-          sprintf(temp, "[%s, #%s%d]", arm_reg[rn], u==0?"-":"", offset);
-        }
-          else
-        {
-          sprintf(temp, "[%s], #%s%d", arm_reg[rn], u==0?"-":"", offset);
-        }
-      }
-    }
-      else
-    {
-      int shift=offset>>8;
-      int type=(shift>>1)&0x3;
-      int rm=offset&0xf;
-
-      if ((shift&1)==0)
-      {
-        *cycles_min=2;
-        *cycles_max=2;
-
-        if (pr==1)
-        {
-          sprintf(temp, "[%s, %s, %s %s]", arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[shift>>4]);
-        }
-          else
-        {
-          sprintf(temp, "[%s], %s, %s %s", arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[shift>>4]);
-        }
-      }
-        else
-      {
-        if (pr==1)
-        {
-          sprintf(temp, "[%s, %s, %s #%d]", arm_reg[rn], arm_reg[rm], arm_shift[type], shift>>3);
-        }
-          else
-        {
-          if ((shift>>3)==0)
-          {
-            sprintf(temp, "[%s], %s, %s #%d", arm_reg[rn], arm_reg[rm], arm_shift[type], shift>>3);
-          }
-            else
-          {
-            sprintf(temp, "[%s], %s", arm_reg[rn], arm_reg[rm]);
-          }
-        }
-      }
-    }
-
-    sprintf(instruction, "%s%s%s %s, %s%s", ls==0?"str":"ldr", arm_cond[ARM_NIB(28)], b==0?"":"b", arm_reg[ARM_NIB(12)], temp, w==0?"":"!");
-  }
-    else
-  if ((opcode&UNDEF_MASK)==UNDEF_OPCODE)
-  {
-    strcpy(instruction, "undefined");
-  }
-    else
   if ((opcode&LDM_STM_MASK)==LDM_STM_OPCODE)
   {
-    char *pru_str[] = { "db", "ib", "da", "ia" };
-    int ls=(opcode>>20)&1;
-    int w=(opcode>>21)&1;
-    int s=(opcode>>22)&1;
-    int pru=(opcode>>23)&0x3;
+  }
+#endif
 
-    sprintf(instruction, "%s%s%s %s%s, {", ls==1?"ldm":"stm", pru_str[pru], s==1?"s":"",  arm_reg[ARM_NIB(16)], w==1?"!":"");
+static void process_alu(char *instruction, uint32_t opcode, int index)
+{
+int i=(opcode>>25)&1;
+int s=(opcode>>20)&1;
+int operand2=opcode&0xfff;
+char temp[32];
 
-    arm_register_list(instruction, opcode);
-
-    strcat(instruction, "}");
+  if (i==0)
+  {
+    arm_calc_shift(temp, operand2>>4, operand2&0xf);
   }
     else
-  if ((opcode&CO_TRANSFER_MASK)==CO_TRANSFER_OPCODE)
   {
-    int ls=(opcode>>20)&1;
-    int w=(opcode>>21)&1;
-    int n=(opcode>>22)&1;
-    int u=(opcode>>23)&1;
-    int pr=(opcode>>24)&1;
-    int offset=opcode&0xff;
+    sprintf(temp, "#%d {#%d, %d}", compute_immediate(opcode&0xfff), opcode&0xff, (opcode&0xf00)>>7);
+  }
 
+  sprintf(instruction, "%s%s%s %s, %s, %s", table_arm[index].instr, arm_cond[ARM_NIB(28)], s==1?"S":"", arm_reg[ARM_NIB(12)], arm_reg[ARM_NIB(16)], temp);
+}
+
+static void process_mul(char *instruction, uint32_t opcode)
+{
+int a=(opcode>>21)&1;
+int s=(opcode>>20)&1;
+
+  if (a==0)
+  {
+    sprintf(instruction, "mul%s%s %s, %s, %s", arm_cond[ARM_NIB(28)], s==1?"s":"", arm_reg[ARM_NIB(16)], arm_reg[ARM_NIB(0)], arm_reg[ARM_NIB(8)]);
+  }
+    else
+  {
+    sprintf(instruction, "mla%s%s %s, %s, %s, %s", arm_cond[ARM_NIB(28)], s==1?"s":"", arm_reg[ARM_NIB(16)], arm_reg[ARM_NIB(0)], arm_reg[ARM_NIB(8)], arm_reg[ARM_NIB(12)]);
+  }
+}
+
+static void process_swap(char *instruction, uint32_t opcode)
+{
+int b=(opcode>>22)&1;
+
+  sprintf(instruction, "swp%s%s %s, %s, [%s]", arm_cond[ARM_NIB(28)], b==1?"b":"", arm_reg[ARM_NIB(12)], arm_reg[ARM_NIB(0)], arm_reg[ARM_NIB(16)]);
+}
+
+static void process_mrs(char *instruction, uint32_t opcode)
+{
+int ps=(opcode>>22)&1;
+
+  sprintf(instruction, "mrs%s %s, %s", arm_cond[ARM_NIB(28)], arm_reg[ARM_NIB(12)], ps==1?"SPSR":"CPSR");
+}
+
+static void process_msr_all(char *instruction, uint32_t opcode)
+{
+int ps=(opcode>>22)&1;
+
+  sprintf(instruction, "msr%s %s, %s", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", arm_reg[ARM_NIB(0)]);
+}
+
+static void process_msr_flag(char *instruction, uint32_t opcode)
+{
+int i=(opcode>>25)&1;
+int ps=(opcode>>22)&1;
+
+  if (i==0)
+  {
+    sprintf(instruction, "msr%s %s_flg, %s", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", arm_reg[ARM_NIB(0)]);
+  }
+    else
+  {
+    sprintf(instruction, "msr%s %s_flg, #%d {#%d, %d}", arm_cond[ARM_NIB(28)], ps==1?"SPSR":"CPSR", compute_immediate(opcode&0xfff), opcode&0xff, (opcode&0xf00)>>7);
+  }
+}
+
+static void process_ldr_str(char *instruction, uint32_t opcode, int index)
+{
+int w=(opcode>>21)&1;
+int b=(opcode>>22)&1;
+int u=(opcode>>23)&1;
+int pr=(opcode>>24)&1;
+int i=(opcode>>25)&1;
+int offset=opcode&0xfff;
+int rn=ARM_NIB(16);
+char temp[32];
+
+  if (i==0)
+  {
     if (offset==0)
     {
-      sprintf(instruction, "%s%s%s %d, cr%d, [r%d]", ls==1?"ldc":"stc", arm_cond[ARM_NIB(28)], n==1?"l":"", ARM_NIB(8), ARM_NIB(12), ARM_NIB(16));
-    }
-      else
-    if (pr==1)
-    {
-      sprintf(instruction, "%s%s%s %d, cr%d, [r%d, #%s%d]%s", ls==1?"ldc":"stc", arm_cond[ARM_NIB(28)], n==1?"l":"", ARM_NIB(8), ARM_NIB(12), ARM_NIB(16), u==0?"-":"", offset, w==1?"!":"");
+      sprintf(temp, "[%s]", arm_reg[rn]);
     }
       else
     {
-      sprintf(instruction, "%s%s%s %d, cr%d, [r%d], #%s%d%s", ls==1?"ldc":"stc", arm_cond[ARM_NIB(28)], n==1?"l":"", ARM_NIB(8), ARM_NIB(12), ARM_NIB(16), u==0?"-":"", offset, w==1?"!":"");
+      if (pr==1)
+      {
+        sprintf(temp, "[%s, #%s%d]", arm_reg[rn], u==0?"-":"", offset);
+      }
+        else
+      {
+        sprintf(temp, "[%s], #%s%d", arm_reg[rn], u==0?"-":"", offset);
+      }
     }
   }
     else
-  if ((opcode&CO_OP_MASK)==CO_OP_OPCODE)
   {
-    sprintf(temp, "cdp%s %d, %d, cr%d, cr%d, cr%d, %d", arm_cond[ARM_NIB(28)], ARM_NIB(8), ARM_NIB(20), ARM_NIB(12), ARM_NIB(16), ARM_NIB(0), (opcode>>5)&0x7);
+    int shift=offset>>8;
+    int type=(shift>>1)&0x3;
+    int rm=offset&0xf;
+
+    if ((shift&1)==0)
+    {
+      //*cycles_min=2;
+      //*cycles_max=2;
+
+      if (pr==1)
+      {
+        sprintf(temp, "[%s, %s, %s %s]", arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[shift>>4]);
+      }
+        else
+      {
+        sprintf(temp, "[%s], %s, %s %s", arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[shift>>4]);
+      }
+    }
+      else
+    {
+      if (pr==1)
+      {
+        sprintf(temp, "[%s, %s, %s #%d]", arm_reg[rn], arm_reg[rm], arm_shift[type], shift>>3);
+      }
+        else
+      {
+        if ((shift>>3)==0)
+        {
+          sprintf(temp, "[%s], %s, %s #%d", arm_reg[rn], arm_reg[rm], arm_shift[type], shift>>3);
+        }
+          else
+        {
+          sprintf(temp, "[%s], %s", arm_reg[rn], arm_reg[rm]);
+        }
+      }
+    }
+  }
+
+  sprintf(instruction, "%s%s%s %s, %s%s", table_arm[index].instr, arm_cond[ARM_NIB(28)], b==0?"":"b", arm_reg[ARM_NIB(12)], temp, w==0?"":"!");
+}
+
+static void process_undefined(char *instruction, uint32_t opcode)
+{
+  // hmm.. why?
+  strcpy(instruction, "???");
+}
+
+static void process_ldm_stm(char *instruction, uint32_t opcode, int index)
+{
+char *pru_str[] = { "db", "ib", "da", "ia" };
+int w=(opcode>>21)&1;
+int s=(opcode>>22)&1;
+int pru=(opcode>>23)&0x3;
+
+  sprintf(instruction, "%s%s%s %s%s, {", table_arm[index].instr, pru_str[pru], s==1?"s":"",  arm_reg[ARM_NIB(16)], w==1?"!":"");
+
+  arm_register_list(instruction, opcode);
+
+  strcat(instruction, "}");
+}
+
+static void process_branch(char *instruction, uint32_t opcode)
+{
+int l=(opcode>>24)&1;
+
+  sprintf(instruction, "%s%s 0x%02x", l==0?"b":"bl", arm_cond[ARM_NIB(28)], (opcode&0xffffff)<<2);
+}
+
+static void process_branch_exchange(char *instruction, uint32_t opcode)
+{
+  // FIXME - implement
+  sprintf(instruction, "bx%s %s", arm_cond[ARM_NIB(28)], arm_reg[ARM_NIB(0)]);
+}
+
+static void process_swi(char *instruction, uint32_t opcode)
+{
+  sprintf(instruction, "swi%s", arm_cond[ARM_NIB(28)]);
+}
+
+static void process_co_swi(char *instruction, uint32_t opcode)
+{
+}
+
+static void process_co_transfer(char *instruction, uint32_t opcode)
+{
+}
+
+static void process_co_op_mask(char *instruction, uint32_t opcode)
+{
+  sprintf(instruction, "cdp%s %d, %d, cr%d, cr%d, cr%d, %d", arm_cond[ARM_NIB(28)], ARM_NIB(8), ARM_NIB(20), ARM_NIB(12), ARM_NIB(16), ARM_NIB(0), (opcode>>5)&0x7);
+}
+
+static void process_co_transfer_mask(char *instruction, uint32_t opcode)
+{
+int ls=(opcode>>20)&1;
+int w=(opcode>>21)&1;
+int n=(opcode>>22)&1;
+int u=(opcode>>23)&1;
+int pr=(opcode>>24)&1;
+int offset=opcode&0xff;
+
+  if (offset==0)
+  {
+    sprintf(instruction, "%s%s%s %d, cr%d, [r%d]", ls==1?"ldc":"stc", arm_cond[ARM_NIB(28)], n==1?"l":"", ARM_NIB(8), ARM_NIB(12), ARM_NIB(16));
   }
     else
-  if ((opcode&CO_RTRANSFER_MASK)==CO_RTRANSFER_OPCODE)
+  if (pr==1)
   {
-    // FIXME - implement this
-  }
-    else
-  if ((opcode&CO_SWI_MASK)==CO_SWI_OPCODE)
-  {
-    sprintf(instruction, "swi%s", arm_cond[ARM_NIB(28)]);
+    sprintf(instruction, "%s%s%s %d, cr%d, [r%d, #%s%d]%s", ls==1?"ldc":"stc", arm_cond[ARM_NIB(28)], n==1?"l":"", ARM_NIB(8), ARM_NIB(12), ARM_NIB(16), u==0?"-":"", offset, w==1?"!":"");
   }
     else
   {
-    printf("Internal Error: Unknown ARM opcode %08x, %s:%d\n", opcode, __FILE__, __LINE__);
-    strcpy(instruction, "???");
+    sprintf(instruction, "%s%s%s %d, cr%d, [r%d], #%s%d%s", ls==1?"ldc":"stc", arm_cond[ARM_NIB(28)], n==1?"l":"", ARM_NIB(8), ARM_NIB(12), ARM_NIB(16), u==0?"-":"", offset, w==1?"!":"");
+  }
+}
+
+int disasm_arm(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+{
+uint32_t opcode;
+
+  *cycles_min=-1;
+  *cycles_max=-1;
+  opcode=get_opcode32(memory, address);
+
+  int n=0;
+  while(table_arm[n].instr!=NULL)
+  {
+    if ((opcode&table_arm[n].mask)==table_arm[n].opcode)
+    {
+      //*cycles_min=table_arm[n].cycles;
+      //*cycles_max=table_arm[n].cycles;
+
+      switch(table_arm[n].type)
+      {
+        case OP_ALU:
+          //*cycles_min=2;
+          //*cycles_max=2;
+          process_alu(instruction, opcode, n);
+          break;
+        case OP_MULTIPLY:
+          process_mul(instruction, opcode);
+          break;
+        case OP_SWAP:
+          process_swap(instruction, opcode);
+          break;
+        case OP_MRS:
+          process_mrs(instruction, opcode);
+          break;
+        case OP_MSR_ALL:
+          process_msr_all(instruction, opcode);
+          break;
+        case OP_MSR_FLAG:
+          process_msr_flag(instruction, opcode);
+          break;
+        case OP_LDR_STR:
+          process_ldr_str(instruction, opcode, n);
+          break;
+        case OP_UNDEFINED:
+          process_undefined(instruction, opcode);
+          break;
+        case OP_LDM_STM:
+          process_ldm_stm(instruction, opcode, n);
+          break;
+        case OP_BRANCH:
+          process_branch(instruction, opcode);
+          //*cycles_max=3;
+          break;
+        case OP_BRANCH_EXCHANGE:
+          process_branch_exchange(instruction, opcode);
+          break;
+        case OP_SWI:
+          process_swi(instruction, opcode);
+          break;
+        case OP_CO_SWI:
+          process_co_swi(instruction, opcode);
+          break;
+        case OP_CO_TRANSFER:
+          process_co_transfer(instruction, opcode);
+          break;
+        case OP_CO_OP_MASK:
+          process_co_op_mask(instruction, opcode);
+          break;
+        case OP_CO_TRANSFER_MASK:
+          process_co_transfer_mask(instruction, opcode);
+          break;
+        default:
+          strcpy(instruction, "???");
+          break;
+      }
+    }
   }
 
   return 4;

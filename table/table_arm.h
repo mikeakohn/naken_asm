@@ -30,6 +30,10 @@ enum
   OP_BRANCH,
   OP_BRANCH_EXCHANGE,
   OP_SWI,
+  OP_CO_SWI,
+  OP_CO_TRANSFER,
+  OP_CO_OP_MASK,
+  OP_CO_TRANSFER_MASK,
 };
 
 struct _table_arm
