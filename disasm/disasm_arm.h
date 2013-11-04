@@ -48,7 +48,7 @@
 #define CO_SWI_OPCODE 0x0f000000
 
 //extern char *arm_alu_ops[];
-//extern char *arm_shift[];
+extern char *arm_shift[];
 
 int get_cycle_count_arm(unsigned short int opcode);
 int disasm_arm(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max);

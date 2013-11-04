@@ -437,6 +437,8 @@ uint32_t opcode;
           break;
       }
     }
+
+    n++;
   }
 
   return 4;
@@ -452,6 +454,9 @@ unsigned int opcode=get_opcode32(&asm_context->memory, address);
   disasm_arm(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
   fprintf(asm_context->list, "0x%04x: 0x%08x %-40s cycles: ", address, opcode, instruction);
 
+  if (cycles_min==-1)
+  { fprintf(asm_context->list, "\n"); }
+    else
   if (cycles_min==cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
     else

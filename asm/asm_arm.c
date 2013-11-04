@@ -966,7 +966,7 @@ int bytes=-1;
   n=0;
   while(table_arm[n].instr!=NULL)
   {
-    if (strcmp(table_arm[n].instr,instr_lower)==0)
+    if (strncmp(table_arm[n].instr,instr_lower,table_arm[n].len)==0)
     {
       char *instr = instr_lower + table_arm[n].len;
       matched=1;
