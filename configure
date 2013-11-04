@@ -145,7 +145,7 @@ EOF
   a=`${COMPILER_PREFIX}${CC} config.c -s 2>&1 | grep 'option -s is obsolete'`
   if [ "${a}" == "" ]
   then
-    LDFLAGS='${LDFLAGS} -s'
+    LDFLAGS="${LDFLAGS} -s"
   fi
 }
 
