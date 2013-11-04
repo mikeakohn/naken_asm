@@ -137,6 +137,18 @@ EOF
   ${COMPILER_PREFIX}${CC} -c config.c ${CFLAGS} >>config.log 2>&1
 }
 
+test_strip()
+{
+  cat >config.c <<EOF
+int main() { return 0; }
+EOF
+  a=`${COMPILER_PREFIX}${CC} config.c -s 2>&1 | grep 'option -s is obsolete'`
+  if [ "${a}" == "" ]
+  then
+    LDFLAGS='${LDFLAGS} -s'
+  fi
+}
+
 instr()
 {
   for s in $2; do
@@ -307,7 +319,7 @@ fi
 
 if [ "${DEBUG}" = "" ]
 then
-  CFLAGS="${CFLAGS} -O3 -s"
+  CFLAGS="${CFLAGS} -O3"
 else
   CFLAGS="${CFLAGS} ${DEBUG}"
 fi
@@ -341,6 +353,8 @@ if [ "${INCLUDE_PATH}" = "" ]
 then
   INCLUDE_PATH="${INSTALL_INCLUDES}/include"
 fi
+
+test_strip
 
 cleanup
 
