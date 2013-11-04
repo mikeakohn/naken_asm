@@ -145,7 +145,7 @@ int count=1;
           }
         } while(0);
 
-        if (operands[operand_count].type==0);
+        if (operands[operand_count].type==0)
         {
           print_error_unexp(token, asm_context);
           return -1;

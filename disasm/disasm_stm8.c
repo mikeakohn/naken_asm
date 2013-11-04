@@ -217,6 +217,7 @@ int prefix=0;
         char *instr=(n>=6)?"subw":"addw";
         char *reg=(((n/3)&1)==0)?"X":"Y";
         int v=n%3;
+        size=0; // Good job bitching about nothing clang
         if (v==0)
         { sprintf(instruction, "%s %s, #$%04x", instr, reg, READ_RAM16(address+1)); size=3; }
         else if (v==1)

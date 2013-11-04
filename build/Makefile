@@ -17,19 +17,19 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS)
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
 assembler.o: assembler.c assembler.h
-	$(CC) -c $< -o $*.o $(CFLAGS) $(LDFLAGS) $(DFLAGS) \
+	$(CC) -c $< -o $*.o $(CFLAGS) $(DFLAGS) \
 	   -I../common -I../disasm -I../table -I../asm -I../simulate
 
 cpu_list.o: cpu_list.c cpu_list.h
-	$(CC) -c $< -o $*.o $(CFLAGS) $(LDFLAGS) $(DFLAGS) \
+	$(CC) -c $< -o $*.o $(CFLAGS) $(DFLAGS) \
 	   -I../common -I../disasm -I../table -I../asm -I../simulate
 
 %.o: %.c %.h
-	$(CC) -c $< -o $*.o $(CFLAGS) $(LDFLAGS) \
+	$(CC) -c $< -o $*.o $(CFLAGS) \
 	   -I../common -I../disasm -I../table -I../asm -I../simulate
 
 %.o: %.c
-	$(CC) -c $< -o $*.o $(CFLAGS) $(LDFLAGS) \
+	$(CC) -c $< -o $*.o $(CFLAGS) \
 	   -I../common -I../disasm -I../table -I../asm -I../simulate
 
 

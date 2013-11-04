@@ -80,7 +80,7 @@ enum
 
 struct _operand
 {
-  unsigned int value;
+  uint32_t value;
   int type;
   int sub_type;
 };
@@ -149,14 +149,14 @@ static int compute_immediate(int immediate)
 
 static int imm_shift_to_immediate(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int pos)
 {
-  if (operands[pos].value>=256 || operands[pos].value<0)
+  if (operands[pos].value>=256 || (int32_t)operands[pos].value<0)
   {
     printf("Error: Immediate out of range for #imm, shift at %s:%d\n", asm_context->filename, asm_context->line);
     return -1;
   }
 
   if ((operands[pos+1].value&1)==1 ||
-       operands[pos+1].value>30 || operands[pos+1].value<0)
+       operands[pos+1].value>30 || (int32_t)operands[pos+1].value<0)
   {
     printf("Error: Bad shift value for #imm, shift at %s:%d\n", asm_context->filename, asm_context->line);
     return -1;
@@ -887,7 +887,7 @@ int bytes=-1;
 
             operands[operand_count].value=atoi(token);
 
-            if (operands[operand_count].value<0 ||
+            if ((int32_t)operands[operand_count].value<0 ||
                 operands[operand_count].value>31)
             {
               print_error_range("Shift value", 0, 31, asm_context);
