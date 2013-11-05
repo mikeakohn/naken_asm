@@ -14,19 +14,16 @@ INSTALL_BIN=
 INSTALL_INCLUDES=
 INCLUDE_PATH=
 ASM_OBJS_ALL=""
-#ASM_OBJS_ALL="asm_65xx.o asm_680x.o asm_68hc08.o asm_680x0.o asm_805x.o asm_arm.o asm_avr8.o asm_common.o asm_dspic.o asm_mips.o asm_msp430.o asm_stm8.o asm_thumb.o asm_tms1000.o asm_tms9900.o asm_z80.o"
 DISASM_OBJS_ALL=""
-#DISASM_OBJS_ALL="disasm_65xx.o disasm_680x.o disasm_68hc08.o disasm_680x0.o disasm_805x.o disasm_arm.o disasm_avr8.o disasm_common.o disasm_dspic.o disasm_mips.o disasm_msp430.o disasm_stm8.o disasm_thumb.o disasm_tms1000.o disasm_tms9900.o disasm_z80.o"
 TABLE_OBJS_ALL=""
-#TABLE_OBJS_ALL="table_65xx.o table_680x.o table_68hc08.o table_680x0.o table_805x.o table_avr8.o table_mips.o table_dspic.o table_stm8.o table_thumb.o table_tms1000.o table_tms9900.o table_z80.o"
 SIM_OBJS_ALL=""
-#SIM_OBJS_ALL="simulate_65xx.o simulate_msp430.o"
 DFLAGS_ALL="-DENABLE_65XX -DENABLE_680X -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_805X -DENABLE_ARM -DENABLE_AVR8 -DENABLE_DSPIC -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_STM8 -DENABLE_THUMB -DENABLE_TMS1000 -DENABLE_TMS9900 -DENABLE_Z80"
 ASM_OBJS="asm_common.o"
 DISASM_OBJS="disasm_common.o"
 TABLE_OBJS=""
 SIM_OBJS=""
 COMMON_OBJS="assembler.o cpu_list.o eval_expression.o print_error.o write_elf.o write_hex.o get_tokens.o ifdef_expression.o lookup_tables.o macros.o memory.o parse_elf.o parse_hex.o"
+PROG_OBJS="lpc.o serial.o"
 
 for file in asm/*.c
 do
@@ -376,6 +373,7 @@ echo "DISASM_OBJS=${DISASM_OBJS}" >> config.mak
 echo "COMMON_OBJS=${COMMON_OBJS}" >> config.mak
 echo "TABLE_OBJS=${TABLE_OBJS}" >> config.mak
 echo "SIM_OBJS=${SIM_OBJS}" >> config.mak
+echo "PROG_OBJS=${PROG_OBJS}" >> config.mak
 echo >> config.mak
 
 echo

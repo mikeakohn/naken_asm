@@ -1,8 +1,9 @@
 include ../config.mak
 
-VPATH=../asm:../disasm:../common:../simulate:../table
+VPATH=../asm:../disasm:../common:../simulate:../table:../prog
 
-default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS)
+default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
+         $(PROG_OBJS)
 	$(CC) -o ../naken_asm$(CONFIG_EXT) ../common/naken_asm.c $(ASM_OBJS) \
 	   $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
 	    -DINCLUDE_PATH="\"$(INCLUDE_PATH)\"" \
@@ -14,6 +15,9 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS)
 	   $(DFLAGS) \
 	   cpu_list.o parse_elf.o parse_hex.o memory.o print_error.o \
 	   -I../disasm -I../common -I../simulate -I../table \
+	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
+	$(CC) -o ../naken_prog$(CONFIG_EXT) ../common/naken_prog.c \
+	   memory.o parse_elf.o parse_hex.o print_error.o serial.o \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
 assembler.o: assembler.c assembler.h
