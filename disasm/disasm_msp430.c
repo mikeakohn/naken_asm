@@ -478,15 +478,6 @@ int Ad,As;
     return 2; 
   }
     else
-//#ifdef SUPPORT_MSP430X
-  if ((opcode&0x1400)==0x1400)
-  {
-    int mul=(((opcode&0x0100)>>8)^1)+1;
-    int n=((opcode>>4)&0x000f)+1;
-    return 2+(n*mul);
-  }
-    else
-//#endif
   {
     // Two operand
     Ad=(opcode&0x0080)>>7;
