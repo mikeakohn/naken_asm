@@ -29,6 +29,7 @@ enum
 {
   COMMAND_UNDEF=0,
   COMMAND_INFO,
+  COMMAND_READ,
   COMMAND_WRITE,
 };
 
@@ -38,6 +39,7 @@ struct _memory memory;
 char *hexfile=NULL;
 int prog_type=PROG_UNDEF;
 int command=COMMAND_UNDEF;
+int param1=0,param2=0;
 int i;
 
   printf("\nnaken_prog - by Michael Kohn\n");
@@ -47,8 +49,13 @@ int i;
 
   if (argc<2)
   {
-    printf("Usage: naken_util [options] <infile>\n");
+    printf("Usage: naken_util [options]\n");
+    printf("  CPU options:\n");
     printf("   -lpc\n");
+    printf("  Command:\n");
+    printf("   -info\n");
+    printf("   -write <hexfile>\n");
+    printf("   -read <address> <count>\n");
     printf("\n");
     exit(0);
   }
@@ -65,6 +72,18 @@ int i;
     if (strcmp(argv[i], "-info")==0)
     {
       command=COMMAND_INFO;
+    }
+      else
+    if (strcmp(argv[i], "-read")==0)
+    {
+      command=COMMAND_READ;
+      if (i+2>=argc)
+      {
+        printf("Error: -read command takes 2 arguments\n");
+        exit(1);
+      }
+      param1=atoi(argv[++i]);
+      param2=atoi(argv[++i]);
     }
       else
     if (strcmp(argv[i], "-write")==0)
@@ -104,6 +123,11 @@ int i;
       // FIXME - make USB port selectable
       lpc_info("/dev/ttyUSB0");
     }
+  }
+    else
+  if (command==COMMAND_READ)
+  {
+    lpc_memory_read("/dev/ttyUSB0", param1, param2);
   }
     else
   if (command==COMMAND_WRITE)
