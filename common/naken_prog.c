@@ -14,6 +14,7 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "lpc.h"
 #include "parse_elf.h"
 #include "parse_hex.h"
 #include "version.h"
@@ -24,11 +25,19 @@ enum
   PROG_LPC,
 };
 
+enum
+{
+  COMMAND_UNDEF=0,
+  COMMAND_INFO,
+  COMMAND_WRITE,
+};
+
 int main(int argc, char *argv[])
 {
 struct _memory memory;
 char *hexfile=NULL;
-int prog_type;
+int prog_type=PROG_UNDEF;
+int command=COMMAND_UNDEF;
 int i;
 
   printf("\nnaken_prog - by Michael Kohn\n");
@@ -53,6 +62,16 @@ int i;
       prog_type=PROG_LPC;
     }
       else
+    if (strcmp(argv[i], "-info")==0)
+    {
+      command=COMMAND_INFO;
+    }
+      else
+    if (strcmp(argv[i], "-write")==0)
+    {
+      command=COMMAND_WRITE;
+    }
+      else
     {
       unsigned char cpu_type;
       if (parse_elf(argv[i], &memory, &cpu_type)>=0)
@@ -73,10 +92,27 @@ int i;
     }
   }
 
-  if (hexfile==NULL)
+  if (prog_type==PROG_UNDEF)
   {
-    printf("No hexfile loaded.  Exiting...\n");
-    exit(1);
+    printf("Error: No chip type selected.\n");
+  }
+
+  if (command==COMMAND_INFO)
+  {
+    if (prog_type==PROG_LPC)
+    {
+      // FIXME - make USB port selectable
+      lpc_info("/dev/ttyUSB0");
+    }
+  }
+    else
+  if (command==COMMAND_WRITE)
+  {
+    if (hexfile==NULL)
+    {
+      printf("No hexfile loaded.  Exiting...\n");
+      exit(1);
+    }
   }
 
   return 0;

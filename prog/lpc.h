@@ -12,7 +12,7 @@
 #ifndef _LPC_H
 #define _LPC_H
 
-int lpc_probe(char *device);
+int lpc_info(char *device);
 
 #endif
 

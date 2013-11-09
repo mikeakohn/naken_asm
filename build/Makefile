@@ -17,6 +17,7 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
 	   -I../disasm -I../common -I../simulate -I../table \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 	$(CC) -o ../naken_prog$(CONFIG_EXT) ../common/naken_prog.c \
+	   -I../prog lpc.o \
 	   memory.o parse_elf.o parse_hex.o print_error.o serial.o \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 

@@ -23,8 +23,8 @@
 
 int serial_open(struct _serial *serial, char *device)
 {
-  serial->fd = open(device, O_RDWR|O_NOCTTY);
-  if (serial->fd == -1)
+  serial->fd=open(device, O_RDWR|O_NOCTTY);
+  if (serial->fd==-1)
   {
     printf("Couldn't open serial device.\n");
   }
@@ -33,12 +33,12 @@ int serial_open(struct _serial *serial, char *device)
     tcgetattr(serial->fd, &serial->oldtio);
 
     memset(&serial->newtio, 0, sizeof(struct termios));
-    serial->newtio.c_cflag = B9600|CS8|CLOCAL|CREAD;
-    serial->newtio.c_iflag = IGNPAR;
-    serial->newtio.c_oflag = 0;
-    serial->newtio.c_lflag = 0;
-    serial->newtio.c_cc[VTIME] = 0;
-    serial->newtio.c_cc[VMIN] = 1;
+    serial->newtio.c_cflag=B9600|CS8|CLOCAL|CREAD;
+    serial->newtio.c_iflag=IGNPAR;
+    serial->newtio.c_oflag=0;
+    serial->newtio.c_lflag=0;
+    serial->newtio.c_cc[VTIME]=0;
+    serial->newtio.c_cc[VMIN]=1;
 
     tcflush(serial->fd, TCIFLUSH);
     tcsetattr(serial->fd, TCSANOW, &serial->newtio);
@@ -52,7 +52,7 @@ int serial_send(struct _serial *serial, uint8_t *buffer, int len)
 int i,n;
 
   i=0;
-  while(1)
+  while(i<len)
   {
     n=write(serial->fd, buffer+i, len-i);
     if (n<0) { return -1; }
@@ -70,12 +70,15 @@ int i,n;
   i=0;
   while(1)
   {
-    n=write(serial->fd, buffer+i, 1);
+    n=read(serial->fd, buffer+i, 1);
+printf("n=%d i=%d 0x%02x\n", n, i, buffer[i]);
     if (n<0) { return -1; }
     i++;
     if (i==len) { break; }
-    if (i=='\n') { break; }
+    if (buffer[i-1]=='\n') { break; }
   }
+
+  buffer[i]=0;
 
   return i;
 }

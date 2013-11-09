@@ -2,6 +2,7 @@
 config.mak
 naken_asm
 naken_util
+naken_prog
 *.hex
 *.lst
 *.swp
