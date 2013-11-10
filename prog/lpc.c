@@ -183,9 +183,11 @@ char uudecode[256];
 char buffer[128];
 char command[128];
 uint32_t holding;
+uint32_t mask;
 uint32_t len;
 uint32_t bytes;
-int lines;
+uint32_t checksum;
+int lines,bytes_written;
 int n,c;
 
   memset(uudecode, 0, sizeof(uudecode));
@@ -209,22 +211,37 @@ int n,c;
     if (lpc_send_command(&serial, command)!=0) { break; }
 
     bytes=0; lines=0; // bytes read in, lines read in
+    bytes_written=0;  // to know when to print a \n
+    checksum=0;
     holding=0; len=0; // for uudecode
+    mask=0;
 
     while(bytes<count)
     {
       c=lpc_read(&serial, buffer, 128);
       bytes+=uudecode[(int)buffer[0]];
+
       for (n=1; n<c; n++)
       {
         holding<<=6;
+        mask=(mask<<6)|0x3f;
         holding|=uudecode[(int)buffer[n]];
         len+=6;
-        if (len>=8)
+
+        while (len>=8)
         {
-          printf(" %02x", holding>>(len-8));
+          if ((bytes_written%16)==0) { printf("\n"); }
+          if (bytes_written<count)
+          {
+            int data=holding>>(len-8);
+            checksum+=data;
+            printf(" %02x", data);
+            bytes_written++;
+          }
+          // printf(" holding=%x len=%d mask=%x\n", holding, len, mask);
           len-=8;
-          holding=(holding&(0xffffffff>>(32-len)));
+          mask>>=8;
+          holding&=mask;
         }
       }
 
@@ -234,8 +251,41 @@ int n,c;
       // the checksum matches.
       if ((lines%20)==0)
       {
+        lpc_read(&serial, buffer, 128);
+
+        if (atoi(buffer)!=checksum)
+        {
+          // FIXME - Add the resend code
+          printf("Error: Checksum failure %s %d\n", buffer, checksum);
+          break;
+        }
+
         if (lpc_send_command(&serial, "OK")!=0) { break; }
+        checksum=0;
       }
+    }
+
+#if 0
+    while (len>0)
+    {
+      if ((bytes_written%16)==0) { printf("\n"); }
+      int data=holding>>(len-8);
+      checksum+=data;
+      printf(" %02x", data);
+      bytes_written++;
+      // printf(" holding=%x len=%d mask=%x\n", holding, len, mask);
+      len-=8;
+      mask>>=8;
+      holding&=mask;
+    }
+#endif
+
+    lpc_read(&serial, buffer, 128);
+    //printf("%s %d\n", buffer, checksum);
+    if (atoi(buffer)!=checksum)
+    {
+      // FIXME - Add the resend code
+      printf("Error: Checksum failure %s %d\n", buffer, checksum);
     }
   } while(0);
 
