@@ -280,18 +280,18 @@ int error_flag=0;
 
     if (format==FORMAT_HEX)
     {
-      write_hex(&asm_context, out);
+      write_hex(&asm_context.memory, out);
     }
       else
     if (format==FORMAT_BIN)
     {
-      write_bin(&asm_context, out);
+      write_bin(&asm_context.memory, out);
     }
 #ifndef DISABLE_ELF
       else
     if (format==FORMAT_ELF)
     {
-      write_elf(&asm_context, out);
+      write_elf(&asm_context.memory, out, &asm_context.address_heap, asm_context.filename, asm_context.cpu_type);
     }
 #endif
 

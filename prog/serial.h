@@ -12,13 +12,17 @@
 #ifndef _SERIAL_H
 #define _SERIAL_H
 
+#ifndef WIN32
 #include <termios.h>
+#endif
 
 struct _serial
 {
   int fd;
+#ifndef WIN32
   struct termios oldtio;
   struct termios newtio;
+#endif
 };
 
 int serial_open(struct _serial *serial, char *device);

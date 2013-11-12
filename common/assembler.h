@@ -15,6 +15,7 @@
 #include <stdio.h>
 
 #include "cpu_list.h"
+#include "lookup_tables.h"
 #include "memory.h"
 #include "print_error.h"
 
@@ -24,9 +25,9 @@
 #define PARAM_STACK_LEN 4096
 #define INCLUDE_PATH_LEN 1024
 
-#define DL_EMPTY -1
-#define DL_DATA -2
-#define DL_NO_CG -3
+//#define DL_EMPTY -1
+//#define DL_DATA -2
+//#define DL_NO_CG -3
 
 #define SEGMENT_CODE 0
 #define SEGMENT_BSS 1
@@ -53,11 +54,13 @@ struct _memory_pool
   unsigned char buffer[];
 };
 
+/*
 struct _address_heap
 {
   struct _memory_pool *memory_pool;
   int locked;
 };
+*/
 
 /*
   defines_heap buffer looks like this:

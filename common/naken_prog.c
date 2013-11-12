@@ -15,8 +15,10 @@
 #include <stdint.h>
 
 #include "lpc.h"
+#include "memory.h"
 #include "parse_elf.h"
 #include "parse_hex.h"
+#include "write_hex.h"
 #include "version.h"
 
 enum
@@ -127,7 +129,13 @@ int i;
     else
   if (command==COMMAND_READ)
   {
-    lpc_memory_read("/dev/ttyUSB0", param1, param2);
+    memory_init(&memory, 0xffffffff, 1);
+    lpc_memory_read("/dev/ttyUSB0", &memory, param1, param2);
+    // FIXME - make filename selectable
+    FILE *out=fopen("prog.hex", "wb");
+    write_hex(&memory, out);
+    fclose(out);
+    memory_free(&memory);
   }
     else
   if (command==COMMAND_WRITE)

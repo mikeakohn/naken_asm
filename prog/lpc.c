@@ -16,6 +16,7 @@
 
 #include "lpc.h"
 #include "lpc_parts.h"
+#include "memory.h"
 #include "serial.h"
 
 static char uuencode[64] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_";
@@ -176,7 +177,7 @@ int n;
   return 0;
 }
 
-int lpc_memory_read(char *device, uint32_t address, uint32_t count)
+int lpc_memory_read(char *device, struct _memory *memory, uint32_t address, uint32_t count)
 {
 struct _serial serial;
 char uudecode[256];
@@ -236,6 +237,9 @@ int n,c;
             int data=holding>>(len-8);
             checksum+=data;
             printf(" %02x", data);
+            memory_write_m(memory, address, data);
+            memory_debug_line_set_m(memory, address, 1);
+            address++;
             bytes_written++;
           }
           // printf(" holding=%x len=%d mask=%x\n", holding, len, mask);
@@ -294,7 +298,7 @@ int n,c;
   return 0;
 }
 
-int lpc_memory_write(char *device)
+int lpc_memory_write(char *device, struct _memory *memory)
 {
   return -1;
 }

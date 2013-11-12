@@ -19,6 +19,10 @@
 #define ENDIAN_LITTLE 0
 #define ENDIAN_BIG 1
 
+#define DL_EMPTY -1
+#define DL_DATA -2
+#define DL_NO_CG -3
+
 // TODO - Use this instead later
 struct _memory_page
 {
@@ -32,32 +36,32 @@ struct _memory_page
 struct _memory
 {
   struct _memory_page *pages;
-  int low_address;
-  int high_address;
+  uint32_t low_address;
+  uint32_t high_address;
   int endian;
-  int size;
+  uint32_t size;
   int debug_flag;
 };
 
 struct _asm_context;
 
-void memory_init(struct _memory *memory, int size, int debug_flag);
+void memory_init(struct _memory *memory, uint32_t size, int debug_flag);
 void memory_free(struct _memory *memory);
 void memory_clear(struct _memory *memory);
-int memory_in_use(struct _memory *memory, int address);
-int memory_get_page_address_min(struct _memory *memory, int address);
-int memory_get_page_address_max(struct _memory *memory, int address);
+int memory_in_use(struct _memory *memory, uint32_t address);
+int memory_get_page_address_min(struct _memory *memory, uint32_t address);
+int memory_get_page_address_max(struct _memory *memory, uint32_t address);
 int memory_page_size();
-unsigned char memory_read(struct _asm_context *asm_context, int address);
-unsigned char memory_read_m(struct _memory *memory, int address);
+unsigned char memory_read(struct _asm_context *asm_context, uint32_t address);
+unsigned char memory_read_m(struct _memory *memory, uint32_t address);
 unsigned char memory_read_inc(struct _asm_context *asm_context);
-void memory_write(struct _asm_context *asm_context, int address, unsigned char data, int line);
+void memory_write(struct _asm_context *asm_context, uint32_t address, unsigned char data, int line);
 void memory_write_inc(struct _asm_context *asm_context, unsigned char data, int line);
-void memory_write_m(struct _memory *memory, int address, unsigned char data);
-int memory_debug_line(struct _asm_context *asm_context, int address);
-void memory_debug_line_set(struct _asm_context *asm_context, int address, int value);
-int memory_debug_line_m(struct _memory *memory, int address);
-void memory_debug_line_set_m(struct _memory *memory, int address, int value);
+void memory_write_m(struct _memory *memory, uint32_t address, unsigned char data);
+int memory_debug_line(struct _asm_context *asm_context, uint32_t address);
+void memory_debug_line_set(struct _asm_context *asm_context, uint32_t address, int value);
+int memory_debug_line_m(struct _memory *memory, uint32_t address);
+void memory_debug_line_set_m(struct _memory *memory, uint32_t address, int value);
 
 #endif
 

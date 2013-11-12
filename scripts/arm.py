@@ -6,7 +6,7 @@ count = 0
 for line in fp:
   tokens = line.split()
   if count != int(tokens[0],2): print "WTF" 
-  print "  { \"" + tokens[1].lower() + "\", 0x%08x, 0x0fe00000, OP_ALU, 2 }," % (0x02000000 | (count << 21))
+  print "  { \"" + tokens[1].lower() + "\", 0x%08x, 0x0de00000, OP_ALU, 3, 2 }," % (0x00000000 | (count << 21))
   #print str(count) + " " + str(int(token[0],2))
   count += 1
 

@@ -35,28 +35,6 @@ static char *arm_cond_a[16] =
   "gt", "le", "al", "nv"
 };
 
-#if 0
-static char *arm_cond_ops[] =
-{
-  "b", "bl"
-};
-
-static char *arm_load_store[] =
-{
-  "str", "ldr"
-};
-
-static char *arm_load_store_m[] =
-{
-  "stm","ldm"
-};
-
-static char *arm_multiply[] =
-{
-  "mul","mla"
-};
-#endif
-
 enum
 {
   OPERAND_NOTHING,
@@ -207,22 +185,24 @@ int i=0;
     return ARM_UNKNOWN_INSTRUCTION;
   }
 
-  opcode=(cond<<28)|(s<<20)|(n<<21);
+  // opcode=(cond<<28)|(s<<20)|(n<<21);
 
   if (operand_count==2 &&
       operands[0].type==OPERAND_REG &&
-      operands[1].type==OPERAND_REG)
+      operands[1].type==OPERAND_REG &&
+      opcode==0x01a00000)
   {
     // mov rd, rn
     rd=operands[0].value;
     rn=0;
     immediate=(1<<4)|operands[1].value;
-    i=1;
+    i=0;
   }
     else
   if (operand_count==2 &&
       operands[0].type==OPERAND_REG &&
-      operands[1].type==OPERAND_IMMEDIATE)
+      operands[1].type==OPERAND_IMMEDIATE &&
+      opcode==0x01a00000)
   {
     // mov rd, #imm
     rd=operands[0].value;
@@ -233,7 +213,8 @@ int i=0;
   if (operand_count==3 &&
       operands[0].type==OPERAND_REG &&
       operands[1].type==OPERAND_IMMEDIATE &&
-      operands[2].type==OPERAND_NUMBER)
+      operands[2].type==OPERAND_SHIFT_IMMEDIATE &&
+      opcode==0x01a00000)
   {
     // mov rd, #imm, shift
     rd=operands[0].value;
@@ -258,6 +239,22 @@ int i=0;
       operands[0].type==OPERAND_REG &&
       operands[1].type==OPERAND_REG &&
       operands[2].type==OPERAND_IMMEDIATE &&
+      operands[3].type==OPERAND_SHIFT_IMMEDIATE)
+  {
+    // mov rd, rn, #imm, shift
+    rd=operands[0].value;
+    rn=operands[1].value;
+    immediate=imm_shift_to_immediate(asm_context, operands, operand_count, 2);
+    i=1;
+    if (immediate<0) { return -1; }
+  }
+    else
+#if 0
+//what is this?
+  if (operand_count==4 &&
+      operands[0].type==OPERAND_REG &&
+      operands[1].type==OPERAND_REG &&
+      operands[2].type==OPERAND_IMMEDIATE &&
       operands[3].type==OPERAND_NUMBER)
   {
     // mov rd, rn, #imm, shift
@@ -268,6 +265,7 @@ int i=0;
     if (immediate<0) { return -1; }
   }
     else
+#endif
   if (operand_count==3 &&
       operands[0].type==OPERAND_REG &&
       operands[1].type==OPERAND_REG &&
@@ -276,7 +274,7 @@ int i=0;
     // orr rd, rn, rm
     rd=operands[0].value;
     rn=operands[1].value;
-    immediate=operands[2].value;
+    immediate=0x10|operands[2].value;
   }
     else
   if (operand_count==4 &&
@@ -302,11 +300,11 @@ int i=0;
   }
     else
   {
-    print_error_illegal_operands(instr, asm_context);
+    //print_error_illegal_operands(instr, asm_context);
     return ARM_ILLEGAL_OPERANDS;
   }
 
-  opcode|=(cond<<28)|(i<<25)|(rn<<16)|(rd<<12)|immediate;
+  opcode|=(cond<<28)|(i<<25)|(s<<20)|(n<<21)|(rn<<16)|(rd<<12)|immediate;
 
   add_bin32(asm_context, opcode, IS_OPCODE);
   return 4;
@@ -348,7 +346,7 @@ static int parse_branch_exchange(struct _asm_context *asm_context, struct _opera
 {
   if (operand_count!=1 || operands[0].type!=OPERAND_REG)
   {
-    print_error_illegal_operands(instr, asm_context);
+    //print_error_illegal_operands(instr, asm_context);
     return ARM_ILLEGAL_OPERANDS;
   }
 
@@ -494,7 +492,7 @@ int w=0;
   }
     else
   {
-    print_error_illegal_operands(instr, asm_context);
+    //print_error_illegal_operands(instr, asm_context);
     return ARM_ILLEGAL_OPERANDS;
   }
 
@@ -663,7 +661,7 @@ int rn;
       operands[1].type!=OPERAND_REG ||
       operands[2].type!=OPERAND_REG)
   {
-    print_error_illegal_operands(instr, asm_context);
+    //print_error_illegal_operands(instr, asm_context);
     return ARM_ILLEGAL_OPERANDS;
   }
 
@@ -680,7 +678,7 @@ int rn;
   }
     else
   {
-    print_error_illegal_operands(instr, asm_context);
+    //print_error_illegal_operands(instr, asm_context);
     return ARM_ILLEGAL_OPERANDS;
   }
 
@@ -959,7 +957,7 @@ int bytes=-1;
   printf("--------- new operand ----------\n");
   for (n=0; n<operand_count; n++)
   {
-    printf("operand_type=%d operand_value=%d\n", operands[n].type, operands[n].value);
+    printf("operand_type=%d operand_value=%d sub_type=%d\n", operands[n].type, operands[n].value, operands[n].sub_type);
   }
 #endif
 
@@ -968,47 +966,47 @@ int bytes=-1;
   {
     if (strncmp(table_arm[n].instr,instr_lower,table_arm[n].len)==0)
     {
-      char *instr = instr_lower + table_arm[n].len;
+      char *instr_cond = instr_lower + table_arm[n].len;
       matched=1;
 
       switch(table_arm[n].type)
       {
         case OP_ALU:
-          bytes=parse_alu(asm_context, operands, operand_count, instr, table_arm[n].opcode);
+          bytes=parse_alu(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         case OP_MULTIPLY:
-          bytes=parse_multiply(asm_context, operands, operand_count, instr, table_arm[n].opcode);
+          bytes=parse_multiply(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         case OP_SWAP:
-          bytes=parse_swap(asm_context, operands, operand_count, instr, table_arm[n].opcode);
+          bytes=parse_swap(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         case OP_MRS:
-          bytes=parse_mrs(asm_context, operands, operand_count, instr, table_arm[n].opcode);
+          bytes=parse_mrs(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         case OP_MSR_ALL:
-          bytes=parse_msr(asm_context, operands, operand_count, instr, table_arm[n].opcode);
+          bytes=parse_msr(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         //case OP_MSR_FLAG:
-        //  bytes=parse_msr_flag(asm_context, operands, operand_count, instr, table_arm[n].opcode);
+        //  bytes=parse_msr_flag(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
         //  break;
         case OP_LDR_STR:
-          bytes=parse_ldr_str(asm_context, operands, operand_count, instr, table_arm[n].opcode);
+          bytes=parse_ldr_str(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         case OP_UNDEFINED:
           matched=0;
           bytes=ARM_UNKNOWN_INSTRUCTION;
           break;
         case OP_LDM_STM:
-          bytes=parse_ldm_stm(asm_context, operands, operand_count, instr, table_arm[n].opcode);
+          bytes=parse_ldm_stm(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         case OP_BRANCH:
-          bytes=parse_branch(asm_context, operands, operand_count, instr, table_arm[n].opcode);
+          bytes=parse_branch(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         case OP_BRANCH_EXCHANGE:
-          bytes=parse_branch_exchange(asm_context, operands, operand_count, instr, table_arm[n].opcode);
+          bytes=parse_branch_exchange(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         case OP_SWI:
-          bytes=parse_swi(asm_context, operands, operand_count, instr, table_arm[n].opcode);
+          bytes=parse_swi(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         default:
           print_error_internal(asm_context, __FILE__, __LINE__);
@@ -1018,6 +1016,11 @@ int bytes=-1;
       if (bytes==ARM_UNKNOWN_INSTRUCTION)
       {
         print_error_unknown_instr(instr, asm_context);
+      }
+        else
+      if (bytes==ARM_ILLEGAL_OPERANDS)
+      {
+        print_error_illegal_operands(instr, asm_context);
       }
 
       if (bytes!=ARM_ERROR_OPCOMBO) return bytes;

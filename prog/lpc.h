@@ -12,9 +12,11 @@
 #ifndef _LPC_H
 #define _LPC_H
 
+#include "memory.h"
+
 int lpc_info(char *device);
-int lpc_memory_read(char *device, uint32_t address, uint32_t count);
-int lpc_memory_write(char *device);
+int lpc_memory_read(char *device, struct _memory *memory, uint32_t address, uint32_t count);
+int lpc_memory_write(char *device, struct _memory *memory);
 
 #endif
 

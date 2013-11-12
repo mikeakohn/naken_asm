@@ -14,6 +14,12 @@
 
 #define ADDRESS_HEAP_SIZE 32768
 
+struct _address_heap
+{
+  struct _memory_pool *memory_pool;
+  int locked;
+};
+
 struct _address_heap_iter
 {
   struct _memory_pool *memory_pool;

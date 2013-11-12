@@ -72,7 +72,7 @@ static int compute_immediate(int immediate)
 
 static void arm_calc_shift(char *temp, int shift, int reg)
 {
-  if ((shift&1)==1)
+  if ((shift&1)==0)
   {
     sprintf(temp, "%s, %s %s", arm_reg[reg], arm_shift[(shift>>1)&0x3], arm_reg[shift>>4]);
   }
@@ -81,7 +81,7 @@ static void arm_calc_shift(char *temp, int shift, int reg)
     int shift_amount=shift>>3;
     if (shift_amount!=0)
     {
-      sprintf(temp, "%s, %s #%d", arm_reg[reg], arm_shift[(shift>>1)&0x3], shift>>3);
+      sprintf(temp, "%s, %s #0x%x", arm_reg[reg], arm_shift[(shift>>1)&0x3], shift>>3);
     }
       else
     {
@@ -159,10 +159,17 @@ char temp[32];
   }
     else
   {
-    sprintf(temp, "#%d {#%d, %d}", compute_immediate(opcode&0xfff), opcode&0xff, (opcode&0xf00)>>7);
+    sprintf(temp, "#0x%x {#0x%02x, %d}", compute_immediate(opcode&0xfff), opcode&0xff, (opcode&0xf00)>>7);
   }
 
-  sprintf(instruction, "%s%s%s %s, %s, %s", table_arm[index].instr, arm_cond[ARM_NIB(28)], s==1?"S":"", arm_reg[ARM_NIB(12)], arm_reg[ARM_NIB(16)], temp);
+  if ((opcode&table_arm[index].mask)==0x01a00000)
+  {
+    sprintf(instruction, "%s%s%s %s, %s", table_arm[index].instr, arm_cond[ARM_NIB(28)], s==1?"s":"", arm_reg[ARM_NIB(12)], temp);
+  }
+    else
+  {
+    sprintf(instruction, "%s%s%s %s, %s, %s", table_arm[index].instr, arm_cond[ARM_NIB(28)], s==1?"s":"", arm_reg[ARM_NIB(12)], arm_reg[ARM_NIB(16)], temp);
+  }
 }
 
 static void process_mul(char *instruction, uint32_t opcode)
@@ -370,10 +377,12 @@ uint32_t opcode;
   *cycles_min=-1;
   *cycles_max=-1;
   opcode=get_opcode32(memory, address);
+  //printf("%08x: opcode=%08x\n", address, opcode);
 
   int n=0;
   while(table_arm[n].instr!=NULL)
   {
+    //printf("%08x  %08x  %08x %08x\n", opcode, table_arm[n].mask, (opcode&table_arm[n].mask), table_arm[n].opcode);
     if ((opcode&table_arm[n].mask)==table_arm[n].opcode)
     {
       //*cycles_min=table_arm[n].cycles;

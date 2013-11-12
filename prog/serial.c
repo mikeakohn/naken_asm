@@ -13,7 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#ifndef WIN32
 #include <termios.h>
+#endif
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -23,6 +25,7 @@
 
 int serial_open(struct _serial *serial, char *device)
 {
+#ifndef WIN32
   serial->fd=open(device, O_RDWR|O_NOCTTY);
   if (serial->fd==-1)
   {
@@ -43,6 +46,7 @@ int serial_open(struct _serial *serial, char *device)
     tcflush(serial->fd, TCIFLUSH);
     tcsetattr(serial->fd, TCSANOW, &serial->newtio);
   }
+#endif
 
   return 0;
 }
@@ -71,7 +75,7 @@ int i,n;
   while(1)
   {
     n=read(serial->fd, buffer+i, 1);
-printf("n=%d i=%d 0x%02x\n", n, i, buffer[i]);
+    // printf("n=%d i=%d 0x%02x\n", n, i, buffer[i]);
     if (n<0) { return -1; }
     i++;
     if (i==len) { break; }
@@ -87,8 +91,10 @@ void serial_close(struct _serial *serial)
 {
   if (serial->fd == 0) { return; }
 
+#ifndef WIN32
   tcsetattr(serial->fd, TCSANOW, &serial->oldtio);
   close(serial->fd);
+#endif
 
   serial->fd = 0;
 }

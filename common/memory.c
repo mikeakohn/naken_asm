@@ -16,7 +16,7 @@
 #include "assembler.h"
 #include "memory.h"
 
-void memory_init(struct _memory *memory, int size, int debug_flag)
+void memory_init(struct _memory *memory, uint32_t size, int debug_flag)
 {
   memory->low_address=size-1;
   memory->high_address=0;
@@ -59,7 +59,7 @@ struct _memory_page *next;
   }
 }
 
-int memory_in_use(struct _memory *memory, int address)
+int memory_in_use(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
@@ -76,7 +76,7 @@ struct _memory_page *page;
   return 0;
 }
 
-int memory_get_page_address_min(struct _memory *memory, int address)
+int memory_get_page_address_min(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
@@ -94,7 +94,7 @@ struct _memory_page *page;
   return 0;
 }
 
-int memory_get_page_address_max(struct _memory *memory, int address)
+int memory_get_page_address_max(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
@@ -117,7 +117,7 @@ int memory_page_size()
   return PAGE_SIZE;
 }
 
-static unsigned char read_byte(struct _memory *memory, int address)
+static unsigned char read_byte(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
@@ -134,7 +134,7 @@ struct _memory_page *page;
   return 0;
 }
 
-static int read_debug(struct _memory *memory, int address)
+static int read_debug(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
@@ -153,7 +153,7 @@ struct _memory_page *page;
   return -1;
 }
 
-static struct _memory_page *alloc_page(struct _memory *memory, int address)
+static struct _memory_page *alloc_page(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
@@ -175,7 +175,7 @@ struct _memory_page *page;
   return page;
 }
 
-static void write_byte(struct _memory *memory, int address, unsigned char data)
+static void write_byte(struct _memory *memory, uint32_t address, unsigned char data)
 {
 struct _memory_page *page;
 
@@ -206,7 +206,7 @@ struct _memory_page *page;
   page->bin[offset]=data;
 }
 
-static void write_debug(struct _memory *memory, int address, int data)
+static void write_debug(struct _memory *memory, uint32_t address, int data)
 {
 struct _memory_page *page;
 
@@ -235,7 +235,7 @@ struct _memory_page *page;
   page->debug_line[offset]=data;
 }
 
-unsigned char memory_read(struct _asm_context *asm_context, int address)
+unsigned char memory_read(struct _asm_context *asm_context, uint32_t address)
 {
   if (address>=asm_context->memory.size)
   {
@@ -251,12 +251,12 @@ unsigned char memory_read_inc(struct _asm_context *asm_context)
   return read_byte(&asm_context->memory, asm_context->address++);
 }
 
-unsigned char memory_read_m(struct _memory *memory, int address)
+unsigned char memory_read_m(struct _memory *memory, uint32_t address)
 {
   return read_byte(memory, address);
 }
 
-void memory_write(struct _asm_context *asm_context, int address, unsigned char data, int line)
+void memory_write(struct _asm_context *asm_context, uint32_t address, unsigned char data, int line)
 {
   if (address>=asm_context->memory.size)
   {
@@ -275,27 +275,27 @@ void memory_write_inc(struct _asm_context *asm_context, unsigned char data, int 
   asm_context->address++;
 }
 
-void memory_write_m(struct _memory *memory, int address, unsigned char data)
+void memory_write_m(struct _memory *memory, uint32_t address, unsigned char data)
 {
   write_byte(memory, address, data);
 }
 
-int memory_debug_line(struct _asm_context *asm_context, int address)
+int memory_debug_line(struct _asm_context *asm_context, uint32_t address)
 {
   return read_debug(&asm_context->memory, address);
 }
 
-void memory_debug_line_set(struct _asm_context *asm_context, int address, int value)
+void memory_debug_line_set(struct _asm_context *asm_context, uint32_t address, int value)
 {
   write_debug(&asm_context->memory, address, value);
 }
 
-int memory_debug_line_m(struct _memory *memory, int address)
+int memory_debug_line_m(struct _memory *memory, uint32_t address)
 {
   return read_debug(memory, address);
 }
 
-void memory_debug_line_set_m(struct _memory *memory, int address, int value)
+void memory_debug_line_set_m(struct _memory *memory, uint32_t address, int value)
 {
   write_debug(memory, address, value);
 }

@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "assembler.h"
+#include "memory.h"
 #include "lookup_tables.h"
 #include "write_hex.h"
 
@@ -62,7 +62,7 @@ int n;
   fprintf(out,"%02X\n", (((checksum&0xff)^0xff)+1)&0xff);
 }
 
-int write_hex(struct _asm_context *asm_context, FILE *out)
+int write_hex(struct _memory *memory, FILE *out)
 {
 uint8_t data[16];
 int len;
@@ -70,9 +70,9 @@ int n;
 uint32_t address=0,segment=0;
 
   len=-1;
-  for (n=asm_context->memory.low_address; n<=asm_context->memory.high_address; n++)
+  for (n=memory->low_address; n<=memory->high_address; n++)
   {
-    if (memory_debug_line(asm_context, n)==DL_EMPTY)
+    if (memory_debug_line_m(memory, n)==DL_EMPTY)
     {
       if (len>0)
       {
@@ -95,7 +95,7 @@ uint32_t address=0,segment=0;
       len=0;
     }
 
-    data[len++]=memory_read(asm_context, n);
+    data[len++]=memory_read_m(memory, n);
 
     if (len==16)
     {
@@ -116,13 +116,13 @@ uint32_t address=0,segment=0;
 
 // This could be put in its own file, although it does so little it may be
 // not worth it.
-int write_bin(struct _asm_context *asm_context, FILE *out)
+int write_bin(struct _memory *memory, FILE *out)
 {
 int n;
 
-  for (n=asm_context->memory.low_address; n<=asm_context->memory.high_address; n++)
+  for (n=memory->low_address; n<=memory->high_address; n++)
   {
-    putc(memory_read(asm_context, n), out);
+    putc(memory_read_m(memory, n), out);
   }
 
   return 0;

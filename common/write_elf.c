@@ -116,7 +116,7 @@ int len;
   *string_table=0;
 }
 
-int write_elf(struct _asm_context *asm_context, FILE *out)
+int write_elf(struct _memory *memory, FILE *out, struct _address_heap *address_heap, const char *filename, int cpu_type)
 {
 unsigned char e_ident[16];// = { 0x7f, 'E','L','F',  1, 1, 1, 0xff,
                           //    0, 0, 0, 0,  0, 0, 0, 0 };
@@ -141,50 +141,50 @@ write_int16_t write_int16;
 
   // Fill in blank to minimize text and data sections
   i=0;
-  while (i<=asm_context->memory.high_address)
+  while (i<=memory->high_address)
   {
-    if (memory_debug_line(asm_context, i)==-2)
+    if (memory_debug_line_m(memory, i)==-2)
     {
       // Fill gaps in data sections
-      while(memory_debug_line(asm_context, i)==-2)
+      while(memory_debug_line_m(memory, i)==-2)
       {
         //printf("Found data %02x\n", i);
-        while(i<=asm_context->memory.high_address && memory_debug_line(asm_context, i)==-2)
+        while(i<=memory->high_address && memory_debug_line_m(memory, i)==-2)
         { i+=2; }
         //printf("End data %02x\n", i);
-        if (i==asm_context->memory.high_address) break;
+        if (i==memory->high_address) break;
         int marker=i;
-        while(i<=asm_context->memory.high_address && memory_debug_line(asm_context, i)==-1)
+        while(i<=memory->high_address && memory_debug_line_m(memory, i)==-1)
         { i+=2; }
-        if (i==asm_context->memory.high_address) break;
+        if (i==memory->high_address) break;
 
-        if (i<=asm_context->memory.high_address && memory_debug_line(asm_context, i)==-2)
+        if (i<=memory->high_address && memory_debug_line_m(memory, i)==-2)
         {
-          while(marker!=i) { memory_debug_line_set(asm_context, marker++, -2); }
+          while(marker!=i) { memory_debug_line_set_m(memory, marker++, -2); }
         }
-        if (i==asm_context->memory.high_address) break;
+        if (i==memory->high_address) break;
       }
     }
       else
-    if (memory_debug_line(asm_context, i)>=0)
+    if (memory_debug_line_m(memory, i)>=0)
     {
       // Fill gaps in code sections
-      while(i<=asm_context->memory.high_address && memory_debug_line(asm_context, i)>=0)
+      while(i<=memory->high_address && memory_debug_line_m(memory, i)>=0)
       {
-        while(i<=asm_context->memory.high_address && (memory_debug_line(asm_context, i)>=0 || memory_debug_line(asm_context, i)==-3))
+        while(i<=memory->high_address && (memory_debug_line_m(memory, i)>=0 || memory_debug_line_m(memory, i)==-3))
         { i+=2; }
-        if (i==asm_context->memory.high_address) break;
+        if (i==memory->high_address) { break; }
 
         int marker=i;
-        while(i<=asm_context->memory.high_address && memory_debug_line(asm_context, i)==-1)
+        while(i<=memory->high_address && memory_debug_line_m(memory, i)==-1)
         { i+=2; }
-        if (i==asm_context->memory.high_address) break;
+        if (i==memory->high_address) { break; }
 
-        if (memory_debug_line(asm_context, i)>=0)
+        if (memory_debug_line_m(memory, i)>=0)
         {
-          while(marker!=i) { memory_debug_line_set(asm_context, marker++, -3); }
+          while(marker!=i) { memory_debug_line_set_m(memory, marker++, -3); }
         }
-        if (i==asm_context->memory.high_address) break;
+        if (i==memory->high_address) break;
       }
     }
 
@@ -218,7 +218,7 @@ write_int16_t write_int16;
   const char magic_number[16] = { 0x7f, 'E','L','F',  1, 1, 1, 0, //0xff,
                                0, 0, 0, 0,  0, 0, 0, 0 };
   memcpy(e_ident, magic_number, 16);
-  if (asm_context->memory.endian==ENDIAN_LITTLE)
+  if (memory->endian==ENDIAN_LITTLE)
   {
     e_ident[5]=1;
     write_int32=write_int32_le;
@@ -240,7 +240,7 @@ write_int16_t write_int16;
   e_shnum=4;
 
   // This could be a lookup table, but let's play it safe
-  switch (asm_context->cpu_type)
+  switch (cpu_type)
   {
     case CPU_TYPE_MSP430: e_machine=0x69; e_flags=11; break;
     case CPU_TYPE_ARM: e_machine=40; e_flags=0x05000000; e_shnum++; break;
@@ -271,11 +271,11 @@ write_int16_t write_int16;
 
   // .text and .data sections
   i=0;
-  while (i<=asm_context->memory.high_address)
+  while (i<=memory->high_address)
   {
     char name[32];
 
-    if (memory_debug_line(asm_context, i)==-2)
+    if (memory_debug_line_m(memory, i)==-2)
     {
       if (data_count>=ELF_TEXT_MAX) { printf("Too many elf .data sections (count=%d).  Internal error.\n", data_count); exit(1); }
       if (data_count==0) { strcpy(name, ".data"); }
@@ -283,38 +283,33 @@ write_int16_t write_int16;
       data_addr[data_count]=i;
       string_table_append(string_table, name);
       sections_offset.data[data_count]=ftell(out);
-      while(memory_debug_line(asm_context, i)==-2)
+      while(memory_debug_line_m(memory, i)==-2)
       {
-        //putc(asm_context->bin[i++], out);
-        //putc(asm_context->bin[i++], out);
-        putc(memory_read(asm_context, i++), out);
-        putc(memory_read(asm_context, i++), out);
+        putc(memory_read_m(memory, i++), out);
+        putc(memory_read_m(memory, i++), out);
       }
       sections_size.data[data_count]=ftell(out)-sections_offset.data[data_count];
       data_count++;
       e_shnum++;
     }
       else
-    if (memory_debug_line(asm_context, i)!=-1)
+    if (memory_debug_line_m(memory, i)!=-1)
     {
       if (text_count>=ELF_TEXT_MAX) { printf("Too many elf .text sections(%d).  Internal error.\n", text_count); exit(1); }
       if (text_count==0) { strcpy(name, ".text"); }
       else { sprintf(name, ".text%d", text_count); }
       text_addr[text_count]=i;
-//printf("and i=%d  text_count=%d\n", i, text_count);
       string_table_append(string_table, name);
       sections_offset.text[text_count]=ftell(out);
-      //while(asm_context->debug_line[i]>=0 || asm_context->debug_line[i]==-3)
+
       while(1)
       {
-        int debug_line=memory_debug_line(asm_context, i);
+        int debug_line=memory_debug_line_m(memory, i);
         if (!(debug_line>=0 || debug_line==-3))
         { break; }
 
-        //putc(asm_context->bin[i++], out);
-        //putc(asm_context->bin[i++], out);
-        putc(memory_read(asm_context, i++), out);
-        putc(memory_read(asm_context, i++), out);
+        putc(memory_read_m(memory, i++), out);
+        putc(memory_read_m(memory, i++), out);
       }
       sections_size.text[text_count]=ftell(out)-sections_offset.text[text_count];
       text_count++;
@@ -327,7 +322,7 @@ write_int16_t write_int16;
   e_shstrndx=data_count+text_count+1;
 
   // .ARM.attribute
-  if (asm_context->cpu_type==CPU_TYPE_ARM)
+  if (cpu_type==CPU_TYPE_ARM)
   {
     const unsigned char aeabi[] = {
       0x41, 0x30, 0x00, 0x00, 0x00, 0x61, 0x65, 0x61,
@@ -367,7 +362,7 @@ write_int16_t write_int16;
   sections_size.shstrtab=ftell(out)-sections_offset.shstrtab;
 
   {
-    struct _address_heap *address_heap=&asm_context->address_heap;
+    //struct _address_heap *address_heap=&asm_context->address_heap;
     struct _address_heap_iter iter;
     int symbol_count;
     int sym_offset;
@@ -382,8 +377,8 @@ write_int16_t write_int16;
     sections_offset.strtab=ftell(out);
     putc(0x00, out); // none
 
-    fprintf(out, "%s%c", asm_context->filename, 0);
-    sym_offset=strlen(asm_context->filename)+2;
+    fprintf(out, "%s%c", filename, 0);
+    sym_offset=strlen(filename)+2;
 
     n=0;
     memset(&iter, 0, sizeof(iter));
@@ -420,7 +415,7 @@ write_int16_t write_int16;
     write_symtab(out, &symtab, write_int32, write_int16);
 
     // symtab ARM.attribute
-    if (asm_context->cpu_type==CPU_TYPE_ARM)
+    if (cpu_type==CPU_TYPE_ARM)
     {
       memset(&symtab, 0, sizeof(symtab));
       symtab.st_info=3;
@@ -450,10 +445,12 @@ write_int16_t write_int16;
   fprintf(out, "Created with naken_asm.  http://www.mikekohn.net/");
   sections_size.comment=ftell(out)-sections_offset.comment;
 
+#if 0
   if (asm_context->debug_file==1)
   {
     // insert debug sections
   }
+#endif
 
   // A little ex-lax to dump the SHT's
   long marker=ftell(out);
@@ -548,13 +545,15 @@ write_int16_t write_int16;
   shdr.sh_entsize=1;
   write_shdr(out, &shdr, write_int32, write_int16);
 
+#if 0
   if (asm_context->debug_file==1)
   {
     // insert debug SHT's
   }
+#endif
 
   // .ARM.attribute
-  if (asm_context->cpu_type==CPU_TYPE_ARM)
+  if (cpu_type==CPU_TYPE_ARM)
   {
     memset(&shdr, 0, sizeof(shdr));
     shdr.sh_name=find_section(string_table, ".ARM.attributes", sizeof(string_table));
