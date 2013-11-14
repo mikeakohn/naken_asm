@@ -954,7 +954,7 @@ int bytes=-1;
   }
 
 #ifdef DEBUG
-  printf("--------- new operand ----------\n");
+  printf("--------- new operand %s ----------\n", instr);
   for (n=0; n<operand_count; n++)
   {
     printf("operand_type=%d operand_value=%d sub_type=%d\n", operands[n].type, operands[n].value, operands[n].sub_type);

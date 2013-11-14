@@ -38,7 +38,7 @@ enum
 int main(int argc, char *argv[])
 {
 struct _memory memory;
-char *hexfile=NULL;
+char *filename=NULL;
 int prog_type=PROG_UNDEF;
 int command=COMMAND_UNDEF;
 int param1=0,param2=0;
@@ -56,8 +56,8 @@ int i;
     printf("   -lpc\n");
     printf("  Command:\n");
     printf("   -info\n");
-    printf("   -write <hexfile>\n");
-    printf("   -read <address> <count>\n");
+    printf("   -write <outfile>\n");
+    printf("   -read <address> <count> <infile>\n");
     printf("\n");
     exit(0);
   }
@@ -94,28 +94,15 @@ int i;
     }
       else
     {
-      unsigned char cpu_type;
-      if (parse_elf(argv[i], &memory, &cpu_type)>=0)
-      {
-        hexfile=argv[i];
-        printf("Loaded elf %s from 0x%04x to 0x%04x\n", argv[i], memory.low_address, memory.high_address);
-      }
-        else
-      if (parse_hex(argv[i], &memory)>=0)
-      {
-        hexfile=argv[i];
-        printf("Loaded hexfile %s from 0x%04x to 0x%04x\n", argv[i], memory.low_address, memory.high_address);
-      }
-        else
-      {
-        printf("Could not load hexfile\n");
-      }
+      filename=argv[i];
+
     }
   }
 
   if (prog_type==PROG_UNDEF)
   {
     printf("Error: No chip type selected.\n");
+    exit(0);
   }
 
   if (command==COMMAND_INFO)
@@ -140,11 +127,34 @@ int i;
     else
   if (command==COMMAND_WRITE)
   {
-    if (hexfile==NULL)
+    unsigned char cpu_type;
+
+    if (filename==NULL)
     {
       printf("No hexfile loaded.  Exiting...\n");
       exit(1);
     }
+
+    memory_init(&memory, 0xffffffff, 1);
+
+    if (parse_elf(filename, &memory, &cpu_type)>=0)
+    {
+      printf("Loaded ELF %s from 0x%04x to 0x%04x\n", filename, memory.low_address, memory.high_address);
+    }
+      else
+    if (parse_hex(filename, &memory)>=0)
+    {
+      printf("Loaded hexfile %s from 0x%04x to 0x%04x\n", filename, memory.low_address, memory.high_address);
+    }
+      else
+    {
+      printf("Could not load hexfile\n");
+      memory_free(&memory);
+      exit(1);
+    }
+
+    lpc_memory_write("/dev/ttyUSB0", &memory);
+    memory_free(&memory);
   }
 
   return 0;

@@ -236,7 +236,7 @@ int n,c;
           {
             int data=holding>>(len-8);
             checksum+=data;
-            printf(" %02x", data);
+            //printf(" %02x", data);
             memory_write_m(memory, address, data);
             memory_debug_line_set_m(memory, address, 1);
             address++;
@@ -300,6 +300,46 @@ int n,c;
 
 int lpc_memory_write(char *device, struct _memory *memory)
 {
+uint32_t holding,mask;
+int len;
+char coded_data[64];
+int coded_ptr;
+uint32_t checksum;
+uint32_t i;
+uint8_t data;
+
+  holding=0; len=0; coded_ptr=1; mask=0;
+
+  for (i=memory->low_address; i<=memory->high_address; i++)
+  {
+    holding<<=8;
+    data=memory_read_m(memory, i);
+    holding|=data;
+    checksum+=data;
+    mask<<=8;
+    mask|=0xff;
+    len+=8;
+    while(len>6)
+    {
+       coded_data[coded_ptr++]=uuencode[holding>>(len-6)];
+       mask>>=6;
+       holding&=mask;
+       len-=6;
+       if (coded_ptr==46)
+       {
+         coded_data[coded_ptr]=0;
+         coded_data[0]=uuencode[coded_ptr-1];
+         printf("%s\n", coded_data);
+         coded_ptr=1;
+       }
+    }
+  }
+
+  coded_data[coded_ptr]=0;
+  coded_data[0]=uuencode[coded_ptr-1];
+  printf("%s\n", coded_data);
+  printf("checksum=%d\n", checksum);
+
   return -1;
 }
 

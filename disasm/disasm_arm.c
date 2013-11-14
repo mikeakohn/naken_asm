@@ -60,6 +60,11 @@ int get_cycle_count_arm(unsigned short int opcode)
 
 static int compute_immediate(int immediate)
 {
+  int rotate=immediate>>8;
+  immediate&=0xff;
+
+  return immediate<<(rotate<<1);
+#if 0
   int shift=(immediate>>8)*2;
   int shift_mask=(1<<(shift+1))-1;
   immediate=immediate&0xff;
@@ -68,6 +73,7 @@ static int compute_immediate(int immediate)
 
   if (shift==0) { return immediate; }
   return ((immediate&shift_mask)<<(32-shift))|(immediate>>shift);
+#endif
 }
 
 static void arm_calc_shift(char *temp, int shift, int reg)
