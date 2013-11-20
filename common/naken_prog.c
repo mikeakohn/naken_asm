@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
 {
 struct _memory memory;
 char *filename=NULL;
+char *uart="/dev/ttyUSB0";
 int prog_type=PROG_UNDEF;
 int command=COMMAND_UNDEF;
 int param1=0,param2=0;
@@ -95,7 +96,6 @@ int i;
       else
     {
       filename=argv[i];
-
     }
   }
 
@@ -109,15 +109,14 @@ int i;
   {
     if (prog_type==PROG_LPC)
     {
-      // FIXME - make USB port selectable
-      lpc_info("/dev/ttyUSB0");
+      lpc_info(uart);
     }
   }
     else
   if (command==COMMAND_READ)
   {
     memory_init(&memory, 0xffffffff, 1);
-    lpc_memory_read("/dev/ttyUSB0", &memory, param1, param2);
+    lpc_memory_read(uart, &memory, param1, param2);
     // FIXME - make filename selectable
     FILE *out=fopen("prog.hex", "wb");
     write_hex(&memory, out);
@@ -153,7 +152,7 @@ int i;
       exit(1);
     }
 
-    lpc_memory_write("/dev/ttyUSB0", &memory);
+    lpc_memory_write(uart, &memory);
     memory_free(&memory);
   }
 
