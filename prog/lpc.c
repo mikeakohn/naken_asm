@@ -47,11 +47,11 @@ static void uu_init(struct _uu *uu)
   uu->lines=0;
 }
 
-static int uu_decode_bytes(struct _uu *uu, char *line)
+static int uu_decode_bytes(struct _uu *uu, char *line, struct _memory *memory, uint32_t *address)
 {
 int expected;
 int real=0;
-char *s=line+1;
+uint8_t *s=(uint8_t *)line+1;
 
   expected=line[0]-32;
 
@@ -65,16 +65,11 @@ char *s=line+1;
     while (uu->len>=8)
     {
       real++;
-#if 0
-      if (bytes_written<count)
-      {
-        int data=holding>>(len-8);
-        uu->checksum+=data;
-        memory_write_m(memory, address, data);
-        memory_debug_line_set_m(memory, address, 1);
-        address++;
-      }
-#endif
+      int data=uu->holding>>(uu->len-8);
+      uu->checksum+=data;
+      memory_write_m(memory, *address, data);
+      memory_debug_line_set_m(memory, *address, 1);
+      (*address)++;
       // printf(" holding=%x len=%d mask=%x\n", holding, len, mask);
 
       uu->len-=8;
@@ -336,38 +331,36 @@ int c;
 
     //bytes_written=0;  // to know when to print a \n
 
+    uu_init(&uu);
+
     //while(bytes<count)
     while(1)
     {
       c=lpc_read(&serial, buffer, 128);
-      uu_decode_bytes(&uu, buffer);
-#if 0
+      if (c<0) { break; }
+      uu_decode_bytes(&uu, buffer, memory, &address);
 
       // Every 20 lines we are supposed to send OK to say the
       // the checksum matches.
-      if ((lines%20)==0)
+      if ((uu.lines%20)==0 || uu.bytes==count)
       {
         lpc_read(&serial, buffer, 128);
 
-        if (atoi(buffer)!=checksum)
+        if (atoi(buffer)!=uu.checksum)
         {
           // FIXME - Add the resend code
-          printf("Error: Checksum failure %s %d\n", buffer, checksum);
-          break;
+          printf("Error: Checksum failure %s %d\n", buffer, uu.checksum);
+          serial_send(&serial, (uint8_t *)"RESEND\r\n", 8, 1);
+          address-=(45*20);
         }
-
-        if (lpc_send_command(&serial, "OK")!=0) { break; }
-        checksum=0;
+          else
+        {
+          serial_send(&serial, (uint8_t *)"OK\r\n", 4, 1);
+          uu.checksum=0;
+        }
       }
-#endif
-    }
 
-    lpc_read(&serial, buffer, 128);
-    printf("checksum=%d\n", uu.checksum);
-    if (atoi(buffer)!=uu.checksum)
-    {
-      // FIXME - Add the resend code
-      printf("Error: Checksum failure %s %d\n", buffer, uu.checksum);
+      if (uu.bytes==count) { break; }
     }
   } while(0);
 

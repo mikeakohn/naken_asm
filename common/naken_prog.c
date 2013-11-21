@@ -115,10 +115,16 @@ int i;
     else
   if (command==COMMAND_READ)
   {
+    if (filename==NULL)
+    {
+      printf("No output filename.  Exiting...\n");
+      exit(1);
+    }
+
     memory_init(&memory, 0xffffffff, 1);
     lpc_memory_read(uart, &memory, param1, param2);
     // FIXME - make filename selectable
-    FILE *out=fopen("prog.hex", "wb");
+    FILE *out=fopen(filename, "wb");
     write_hex(&memory, out);
     fclose(out);
     memory_free(&memory);
