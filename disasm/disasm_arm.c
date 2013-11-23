@@ -321,11 +321,15 @@ int pru=(opcode>>23)&0x3;
   strcat(instruction, "}");
 }
 
-static void process_branch(char *instruction, uint32_t opcode)
+static void process_branch(char *instruction, uint32_t opcode, uint32_t address)
 {
 int l=(opcode>>24)&1;
 
-  sprintf(instruction, "%s%s 0x%02x", l==0?"b":"bl", arm_cond[ARM_NIB(28)], (opcode&0xffffff)<<2);
+  int32_t offset=(opcode&0xffffff);
+  if ((offset&(1<<23))!=0) { offset|=0xff000000; }
+  offset<<=2;
+
+  sprintf(instruction, "%s%s 0x%02x (%d)", l==0?"b":"bl", arm_cond[ARM_NIB(28)], (address+4)+offset, offset);
 }
 
 static void process_branch_exchange(char *instruction, uint32_t opcode)
@@ -426,7 +430,7 @@ uint32_t opcode;
           process_ldm_stm(instruction, opcode, n);
           break;
         case OP_BRANCH:
-          process_branch(instruction, opcode);
+          process_branch(instruction, opcode, address);
           //*cycles_max=3;
           break;
         case OP_BRANCH_EXCHANGE:

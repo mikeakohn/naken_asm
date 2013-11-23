@@ -316,9 +316,10 @@ static int parse_branch(struct _asm_context *asm_context, struct _operand *opera
   if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
   {
     int cond=parse_condition(&instr);
-    unsigned int offset=operands[0].value-(asm_context->address+4);
+    //uint32_t offset=operands[0].value-(asm_context->address+4);
+    int32_t offset=operands[0].value-(asm_context->address+4);
 
-    if ((offset>>26)==0 || (offset>>26)==0x3f) { offset&=0x3ffffff; }
+    //if ((offset>>26)==0 || (offset>>26)==0x3f) { offset&=0x3ffffff; }
 
     if ((offset&0x3)!=0)
     {
@@ -326,16 +327,26 @@ static int parse_branch(struct _asm_context *asm_context, struct _operand *opera
       return ARM_ERROR_ADDRESS;
     }
 
-        //if (offset<-(1<<23) || offset>=(1<<23))
+    offset>>=2;
+
+    if ((offset&0xff000000)!=0 && (offset&0xff000000)!=0xff000000)
+    {
+      print_error_range("Offset", -(1<<25), (1<<25)-1, asm_context);
+      return ARM_ERROR_ADDRESS;
+    }
+
+#if 0
     if ((offset>>26)!=0)
     {
       print_error_range("Offset", -(1<<25), (1<<25)-1, asm_context);
       return -1;
     }
+#endif
 
     offset>>=2;
+printf("offset=%08x\n", offset&0x00ffffff);
 
-    add_bin32(asm_context, opcode|(cond<<28)|offset, IS_OPCODE);
+    add_bin32(asm_context, opcode|(cond<<28)|(offset&0x00ffffff), IS_OPCODE);
     return 4;
   }
 
