@@ -80,6 +80,7 @@ uint8_t *s=(uint8_t *)line+1;
     }
 
     if (real==expected) { break; }
+    s++;
   }
 
   uu->bytes+=real;
