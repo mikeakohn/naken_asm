@@ -33,6 +33,7 @@ enum
   COMMAND_INFO,
   COMMAND_READ,
   COMMAND_WRITE,
+  COMMAND_RUN,
 };
 
 int main(int argc, char *argv[])
@@ -59,6 +60,7 @@ int i;
     printf("   -info\n");
     printf("   -write <outfile>\n");
     printf("   -read <address> <count> <infile>\n");
+    printf("   -execute <address>\n");
     printf("\n");
     exit(0);
   }
@@ -92,6 +94,11 @@ int i;
     if (strcmp(argv[i], "-write")==0)
     {
       command=COMMAND_WRITE;
+    }
+      else
+    if (strcmp(argv[i], "-run")==0)
+    {
+      command=COMMAND_RUN;
     }
       else
     {
@@ -160,6 +167,14 @@ int i;
 
     lpc_memory_write(uart, &memory);
     memory_free(&memory);
+  }
+    else
+  if (command==COMMAND_RUN)
+  {
+    if (prog_type==PROG_LPC)
+    {
+      lpc_run(uart, param1);
+    }
   }
 
   return 0;

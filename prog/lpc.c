@@ -57,6 +57,7 @@ uint8_t *s=(uint8_t *)line+1;
 
   while(*s!=0)
   {
+    if (*s=='`') { *s=' '; }
     uu->holding<<=6;
     uu->mask=(uu->mask<<6)|0x3f;
     uu->holding|=((*s)-32);
@@ -323,19 +324,9 @@ int lpc_memory_read(char *device, struct _memory *memory, uint32_t address, uint
 {
 struct _serial serial;
 struct _uu uu;
-//char uudecode[256];
 char buffer[128];
 char command[128];
-//int bytes_written;
 int c;
-
-#if 0
-  memset(uudecode, 0, sizeof(uudecode));
-  for (n=0; n<64; n++)
-  {
-    uudecode[(int)uuencode[n]] = n;
-  }
-#endif
 
   if (serial_open(&serial, device)!=0)
   {
@@ -451,5 +442,33 @@ uint8_t data;
   return 0;
 }
 
+int lpc_run(char *device, uint32_t address)
+{
+struct _serial serial;
+char buffer[128];
+
+  if (serial_open(&serial, device)!=0)
+  {
+    printf("Error: Cannot open serial port %s\n", device);
+    return -1;
+  }
+
+  do
+  {
+    if (lpc_synchronize(&serial)!=0) { break; }
+
+    // Send unlock code
+    if (lpc_send_command(&serial, "U 23130")!=0) { break; }
+
+    // Send GO command
+    sprintf(buffer, "G %d A", address);
+    if (lpc_send_command(&serial, buffer)!=0) { break; }
+
+  } while(0);
+
+  serial_close(&serial);
+
+  return 0;
+}
 
 
