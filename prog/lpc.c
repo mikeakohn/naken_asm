@@ -110,14 +110,25 @@ static int uu_encode_byte(struct _uu *uu, uint8_t data)
   return uu->bytes;
 }
 
-static int uu_encode_write(struct _uu *uu, struct _serial *serial)
+static int uu_encode_write(struct _uu *uu, struct _serial *serial, int send_checksum)
 {
-  uu->coded_data[0]=(uu->coded_ptr-1)+32;
+  // printf("holding=%08x len=%d coded_ptr=%d\n", uu->holding, uu->len, uu->coded_ptr);
+  if (uu->len>0)
+  {
+    uu->holding<<=(6-uu->len);
+    uu->coded_data[uu->coded_ptr++]=uu->holding+32;
+    //uu->coded_data[uu->coded_ptr++]=(uu->holding>>(uu->len-6))+32;
+    //uu->mask>>=6;
+    //uu->holding&=uu->mask;
+    //uu->len-=6;
+  }
+
+  uu->coded_data[0]=(uu->bytes)+32;
   uu->coded_data[uu->coded_ptr+0]='\r';
   uu->coded_data[uu->coded_ptr+1]='\n';
   uu->coded_data[uu->coded_ptr+2]=0;
 
-  printf("%s", uu->coded_data);
+  printf("coded_data=%s", uu->coded_data);
   int len=strlen(uu->coded_data);
   if (serial_send(serial, (uint8_t *)uu->coded_data, len, 1)!=0)
   {
@@ -127,12 +138,23 @@ static int uu_encode_write(struct _uu *uu, struct _serial *serial)
 
   uu->coded_ptr=1;
   uu->lines++;
+  uu->bytes=0;
 
-  if (uu->lines==20)
+  if (uu->lines==20 || send_checksum==1)
   {
     printf("checksum=%d\n", uu->checksum);
-    sprintf(uu->coded_data, "%d", uu->checksum);
-    if (lpc_send_command(serial, uu->coded_data)!=0) { return -1; }
+    sprintf(uu->coded_data, "%d\r\n", uu->checksum);
+    //if (lpc_send_command(serial, uu->coded_data)!=0) { return -1; }
+    if (serial_send(serial, (uint8_t *)uu->coded_data, strlen((char *)uu->coded_data), 1)!=0) { return -1; }
+    uint8_t buffer[128];
+    int len=serial_readln(serial, (char *)buffer, 128);
+    if (len<0) { return -1; }
+    if (strcmp((const char *)buffer, "RESEND\r\n")==0)
+    {
+      // FIXME - This is wrong.
+      //uu->address-=(45*20);
+    }
+printf("Received: %s", buffer);
 
     uu->checksum=0;
     uu->lines=0;
@@ -348,7 +370,8 @@ int c;
 
         if (atoi(buffer)!=uu.checksum)
         {
-          // FIXME - Add the resend code
+          // FIXME - This isn't quite right.  Should only subtract the
+          // number of bytes written since the last checksum.
           printf("Error: Checksum failure %s %d\n", buffer, uu.checksum);
           serial_send(&serial, (uint8_t *)"RESEND\r\n", 8, 1);
           address-=(45*20);
@@ -401,11 +424,15 @@ uint8_t data;
       data=memory_read_m(memory, i);
       if (uu_encode_byte(&uu, data)==45)
       {
-        uu_encode_write(&uu, &serial);
+        uu_encode_write(&uu, &serial, 0);
       }
     }
 
-    uu_encode_write(&uu, &serial);
+    uu_encode_write(&uu, &serial, 1);
+
+    // Prepare sectors for write.
+    sprintf(uu.coded_data, "P %d %d", 0, 0);
+    if (lpc_send_command(&serial, uu.coded_data)!=0) { break; }
 
     // Erase sectors?  FIXME - what to do?
 #if 0
@@ -414,8 +441,7 @@ uint8_t data;
 #endif
 
     // Copy RAM to FLASH:  copy(flash_addr, ram_addr, size);
-    sprintf(uu.coded_data, "C %d %d %d", 0, 0, 256);
-printf("coded_data='%s'\n", uu.coded_data);
+    sprintf(uu.coded_data, "C %d %d %d", 0, 0x10000000, 256);
     if (lpc_send_command(&serial, uu.coded_data)!=0) { break; }
 
   } while(0);
