@@ -99,14 +99,14 @@ static int uu_encode_byte(struct _uu *uu, uint8_t data)
   uu->mask|=0xff;
   uu->len+=8;
 
-  while(uu->len>6)
+  while(uu->len>=6)
   {
     uu->coded_data[uu->coded_ptr++]=(uu->holding>>(uu->len-6))+32;
     uu->mask>>=6;
     uu->holding&=uu->mask;
     uu->len-=6;
 
-    if (uu->bytes==45) { break; }
+    //if (uu->bytes==45) { break; }
   }
 
   return uu->bytes;
@@ -416,6 +416,7 @@ uint8_t data;
       data=memory_read_m(memory, i);
       if (uu_encode_byte(&uu, data)==45)
       {
+printf("holding=%d len=%d\n", uu.holding, uu.len);
         uu_encode_write(&uu, &serial, 0);
       }
     }

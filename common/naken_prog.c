@@ -99,6 +99,7 @@ int i;
     if (strcmp(argv[i], "-run")==0)
     {
       command=COMMAND_RUN;
+      param1=atoi(argv[++i]);
     }
       else
     {
