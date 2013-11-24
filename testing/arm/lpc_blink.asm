@@ -18,22 +18,23 @@ start:
   ;; r4 = GPIO0DATA,  1) set r4 to 0  2) shift in 4 bytes of address
   ;; Note: Add =numeric constant feature
   eor r4, r4, r4
-  mov r4, #(GPIO0DATA>>24), lsl #24
+  ;mov r4, #(GPIO0DATA>>24), ror #8
+  ;mov r4, #5, ror #4
+  mov r4, #(GPIO0DATA&0xff000000)
   mov r5, r4
-  orr r4, r4, #((GPIO0DATA>>8)&0xff), lsl #8
+  orr r4, r4, #(GPIO0DATA&0xff00)
   orr r4, r4, #(GPIO0DATA&0xff)
 
   ;; r5 = GPIO0DIR
-  orr r5, r5, #((GPIO0DIR>>8)&0xff), lsl #8
+  orr r5, r5, #GPIO0DIR&0xff00
   orr r5, r5, #(GPIO0DIR&0xff)
 
-  ;mov [r4], #0x100
-  ;mov [r5], #0x100
   mov r1, #0x100
   str r1, [r4]
+boobs:
   str r1, [r5]
 
 main:
-  b main   ; while(1);
+  b boobs   ; while(1);
 
 

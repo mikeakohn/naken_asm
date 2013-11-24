@@ -334,7 +334,6 @@ int l=(opcode>>24)&1;
 
 static void process_branch_exchange(char *instruction, uint32_t opcode)
 {
-  // FIXME - implement
   sprintf(instruction, "bx%s %s", arm_cond[ARM_NIB(28)], arm_reg[ARM_NIB(0)]);
 }
 

@@ -112,7 +112,7 @@ static int compute_immediate(int immediate)
   unsigned int i=immediate;
   int n;
 
-  //printf("Compute immediate\n");
+  //printf("Compute immediate %x\n", immediate);
 
   for (n=0; n<16; n++)
   {
@@ -133,7 +133,7 @@ static int imm_shift_to_immediate(struct _asm_context *asm_context, struct _oper
     return -1;
   }
 
-  if ((operands[pos+1].value&1)==1 ||
+  if ((operands[pos+1].value&1)==1 || (operands[pos+1].sub_type!=3) ||
        operands[pos+1].value>30 || (int32_t)operands[pos+1].value<0)
   {
     printf("Error: Bad shift value for #imm, shift at %s:%d\n", asm_context->filename, asm_context->line);
@@ -195,7 +195,7 @@ int i=0;
     // mov rd, rn
     rd=operands[0].value;
     rn=0;
-    immediate=(1<<4)|operands[1].value;
+    immediate=(0<<4)|operands[1].value;
     i=0;
   }
     else
@@ -274,7 +274,7 @@ int i=0;
     // orr rd, rn, rm
     rd=operands[0].value;
     rn=operands[1].value;
-    immediate=0x10|operands[2].value;
+    immediate=(0<<4)|operands[2].value;
   }
     else
   if (operand_count==4 &&
@@ -327,7 +327,7 @@ static int parse_branch(struct _asm_context *asm_context, struct _operand *opera
       return ARM_ERROR_ADDRESS;
     }
 
-    offset>>=2;
+    //offset>>=2;
 
     if ((offset&0xff000000)!=0 && (offset&0xff000000)!=0xff000000)
     {
@@ -344,7 +344,6 @@ static int parse_branch(struct _asm_context *asm_context, struct _operand *opera
 #endif
 
     offset>>=2;
-printf("offset=%08x\n", offset&0x00ffffff);
 
     add_bin32(asm_context, opcode|(cond<<28)|(offset&0x00ffffff), IS_OPCODE);
     return 4;
@@ -406,6 +405,7 @@ int w=0;
       operands[0].type==OPERAND_REG &&
       operands[1].type==OPERAND_REG_INDEXED)
   {
+    pr=1;  // gcc sets this for some reason
     offset=0;
   }
     else
@@ -514,13 +514,15 @@ int w=0;
 
 static int parse_ldm_stm(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
 {
-int pr=0;
+int pr=1;  // gcc sets this to 1 if it's not used
 int u=0;
 int s=0;
 int w=(operands[0].type==OPERAND_REG_WRITE_BACK)?1:0;
 //int ls=(*arm_load_store[n])=='s'?0:1;
 
   int cond=parse_condition(&instr);
+
+  // FIXME: Add post / pre inc
 
   if (instr[0]=='s') { s=1; instr++; }
   if (*instr!=0)
