@@ -15,6 +15,7 @@ GPIO0DIR equ 0x50008000
 .dc32 start
 
 start:
+.if 0
 .thumb
   mov r4, #GPIO0DATA>>24
   lsl r4, r4, #24
@@ -40,8 +41,8 @@ start:
 repeat:
   b repeat
   orr r1, r1
+.endif
 
-.if 0
 .arm
   ;; r4 = GPIO0DATA,  1) set r4 to 0  2) shift in 4 bytes of address
   ;; Note: Add =numeric constant feature
@@ -58,11 +59,9 @@ repeat:
   mov r1, #0x100
   str r1, [r5]
   str r1, [r4]
-boobs:
   orr r4, r4, r4
 
 main:
-  b boobs   ; while(1);
-.endif
+  b main   ; while(1);
 
 

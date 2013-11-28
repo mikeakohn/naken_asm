@@ -312,14 +312,12 @@ int i=0;
 
 static int parse_branch(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
 {
-  //if (operand_count!=1 || operands[0].type!=OPERAND_NUMBER)
   if (operand_count==1 && operands[0].type==OPERAND_NUMBER)
   {
     int cond=parse_condition(&instr);
-    //uint32_t offset=operands[0].value-(asm_context->address+4);
-    int32_t offset=operands[0].value-(asm_context->address+4);
 
-    //if ((offset>>26)==0 || (offset>>26)==0x3f) { offset&=0x3ffffff; }
+    // address+8 (to allow for the pipeline)
+    int32_t offset=operands[0].value-(asm_context->address+8);
 
     if ((offset&0x3)!=0)
     {
@@ -327,21 +325,11 @@ static int parse_branch(struct _asm_context *asm_context, struct _operand *opera
       return ARM_ERROR_ADDRESS;
     }
 
-    //offset>>=2;
-
     if ((offset&0xff000000)!=0 && (offset&0xff000000)!=0xff000000)
     {
       print_error_range("Offset", -(1<<25), (1<<25)-1, asm_context);
       return ARM_ERROR_ADDRESS;
     }
-
-#if 0
-    if ((offset>>26)!=0)
-    {
-      print_error_range("Offset", -(1<<25), (1<<25)-1, asm_context);
-      return -1;
-    }
-#endif
 
     offset>>=2;
 

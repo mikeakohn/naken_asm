@@ -329,7 +329,8 @@ int l=(opcode>>24)&1;
   if ((offset&(1<<23))!=0) { offset|=0xff000000; }
   offset<<=2;
 
-  sprintf(instruction, "%s%s 0x%02x (%d)", l==0?"b":"bl", arm_cond[ARM_NIB(28)], (address+4)+offset, offset);
+  // address+8 (to allow for the pipeline)
+  sprintf(instruction, "%s%s 0x%02x (%d)", l==0?"b":"bl", arm_cond[ARM_NIB(28)], (address+8)+offset, offset);
 }
 
 static void process_branch_exchange(char *instruction, uint32_t opcode)
