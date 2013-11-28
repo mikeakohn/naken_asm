@@ -21,6 +21,36 @@
 
 static int lpc_send_command(struct _serial *serial, char *command);
 
+char *lpc_errors[] =
+{
+  "CMD_SUCCESS",            // 0
+  "INVALID_COMMAND",        // 1
+  "SRC_ADDR_ERROR",         // 2
+  "DST_ADDR_ERROR",         // 3
+  "SRC_ADDR_NOT_MAPPED",    // 4
+  "DST_ADDR_NOT_MAPPED",    // 5
+  "COUNT_ERROR",            // 6
+  "INVALID_SECTOR",         // 7
+  "SECTOR_NOT_BLANK",       // 8
+  "SECTOR_NOT_PREPARED_FOR_WRITE_OPERATION", // 9
+  "COMPARE_ERROR",          // 10
+  "BUSY",                   // 11
+  "PARAM_ERROR",            // 12
+  "ADDR_ERROR",             // 13
+  "ADDR_NOT_MAPPED",        // 14
+  "CMD_LOCKED",             // 15
+  "INVALID_CODE",           // 16
+  "INVALID_BAUD_RATE",      // 17
+  "INVALID_STOP_BIT",       // 18
+  "CODE_READ_PROTECTION_ENABLED",           // 19
+};
+
+static char *lpc_show_error(int err_code)
+{
+  if (err_code<0 || err_code>19) { return "???"; }
+  return lpc_errors[err_code];
+}
+
 //FIXME - change this to a simple subtraction
 //static char uuencode[64] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_";
 
@@ -117,13 +147,16 @@ static int uu_encode_write(struct _uu *uu, struct _serial *serial, int send_chec
   // printf("holding=%08x len=%d coded_ptr=%d\n", uu->holding, uu->len, uu->coded_ptr);
   if (uu->len>0)
   {
+//printf(">> holding=%08x len=%d\n", uu->holding, uu->len);
     uu->holding<<=(6-uu->len);
     uu->coded_data[uu->coded_ptr++]=uu->holding+32;
     //uu->coded_data[uu->coded_ptr++]=(uu->holding>>(uu->len-6))+32;
     //uu->mask>>=6;
     //uu->holding&=uu->mask;
     //uu->len-=6;
+    //uu->len=0;
   }
+//printf("holding=%08x len=%d\n", uu->holding, uu->len);
 
   uu->coded_data[0]=(uu->bytes)+32;
   uu->coded_data[uu->coded_ptr+0]='\r';
@@ -168,6 +201,7 @@ printf("Received: %s", buffer);
 static int lpc_send_command(struct _serial *serial, char *command)
 {
 char buffer[128];
+int err_code;
 int len;
 
   printf("lpc_send_command command='%s'\n", command);
@@ -183,11 +217,12 @@ int len;
   len=serial_readln(serial, buffer, 128);
   if (len==128) { printf("Error: read error (128)\n"); return -1; }
   buffer[len-2]=0;
-  printf("buffer='%s'\n", buffer);
+  err_code=atoi(buffer);
+  printf("buffer='%s'  %s (%d)\n", buffer, lpc_show_error(err_code), err_code);
 
   if (strcmp(buffer, "0")!=0)
   {
-    printf("Error: lpc_send_command(%s) error status=%s.\n", command, buffer);
+    printf("Error: lpc_send_command(%s) error status='%s' %s (%d).\n", command, buffer, lpc_show_error(err_code), err_code);
     return -1; 
   }
 
@@ -390,6 +425,18 @@ struct _serial serial;
 struct _uu uu;
 uint32_t i;
 uint8_t data;
+uint32_t count;
+int sectors;
+
+  count=memory->high_address-memory->low_address+1;
+  sectors=count/256;
+  if ((count%256)!=0) { sectors++; }
+
+  if ((count&0x3)!=0)
+  {
+    printf("Error: Data chunk isn't 4 byte aligned.\n");
+    return -1;
+  }
 
   if (serial_open(&serial, device)!=0)
   {
@@ -406,7 +453,7 @@ uint8_t data;
 
     // Send data to write to RAM so it can be transferred to FLASH
     //sprintf(coded_data, "W %d %d", memory->low_address, memory->high_address-memory->low_address + 1);
-    sprintf(uu.coded_data, "W %d %d", 0x10000000, memory->high_address-memory->low_address + 1);
+    sprintf(uu.coded_data, "W %d %d", 0x10000000, count);
     if (lpc_send_command(&serial, uu.coded_data)!=0) { break; }
 
     uu_init(&uu);
@@ -416,7 +463,6 @@ uint8_t data;
       data=memory_read_m(memory, i);
       if (uu_encode_byte(&uu, data)==45)
       {
-printf("holding=%d len=%d\n", uu.holding, uu.len);
         uu_encode_write(&uu, &serial, 0);
       }
     }
@@ -424,7 +470,7 @@ printf("holding=%d len=%d\n", uu.holding, uu.len);
     uu_encode_write(&uu, &serial, 1);
 
     // Prepare sectors for write.
-    sprintf(uu.coded_data, "P %d %d", 0, 0);
+    sprintf(uu.coded_data, "P %d %d", 0, sectors-1);
     if (lpc_send_command(&serial, uu.coded_data)!=0) { break; }
 
     // Erase sectors?  FIXME - what to do?
@@ -434,7 +480,7 @@ printf("holding=%d len=%d\n", uu.holding, uu.len);
 #endif
 
     // Copy RAM to FLASH:  copy(flash_addr, ram_addr, size);
-    sprintf(uu.coded_data, "C %d %d %d", 0, 0x10000000, 256);
+    sprintf(uu.coded_data, "C %d %d %d", 0, 0x10000000, sectors*256);
     if (lpc_send_command(&serial, uu.coded_data)!=0) { break; }
 
   } while(0);
@@ -463,7 +509,7 @@ char buffer[128];
     if (lpc_send_command(&serial, "U 23130")!=0) { break; }
 
     // Send GO command
-    sprintf(buffer, "G %d A", address);
+    sprintf(buffer, "G %d T", address);
     if (lpc_send_command(&serial, buffer)!=0) { break; }
 
   } while(0);
