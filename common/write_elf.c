@@ -386,7 +386,7 @@ write_int16_t write_int16;
     {
       symbol_address[n++]=sym_offset;
       fprintf(out, "%s%c", iter.name, 0);
-      sym_offset+=strlen((char *)iter.name);
+      sym_offset+=strlen((char *)iter.name)+1;
     }
 
     sections_size.strtab=ftell(out)-sections_offset.strtab;
