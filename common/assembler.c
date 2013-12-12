@@ -345,7 +345,7 @@ int data32;
     token_type=get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
 
-    if (token_type==TOKEN_QUOTED || token_type==TOKEN_TICKED)
+    if (token_type==TOKEN_QUOTED)
     {
       unsigned char *s=(unsigned char *)token;
       while(*s!=0)

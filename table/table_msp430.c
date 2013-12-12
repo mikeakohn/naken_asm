@@ -38,7 +38,7 @@ struct _table_msp430 table_msp430[] =
   { "bit", 0xb000, 0xf000, OP_TWO_OPERAND },
   { "bic", 0xc000, 0xf000, OP_TWO_OPERAND },
   { "bis", 0xd000, 0xf000, OP_TWO_OPERAND },
-  { "sor", 0xe000, 0xf000, OP_TWO_OPERAND },
+  { "xor", 0xe000, 0xf000, OP_TWO_OPERAND },
   { "and", 0xf000, 0xf000, OP_TWO_OPERAND },
   { "mova", 0x0000, 0xf0f0, OP_MOVA_AT_REG_REG },
   { "mova", 0x0010, 0xf0f0, OP_MOVA_AT_REG_PLUS_REG },

@@ -139,7 +139,7 @@ test_strip()
   cat >config.c <<EOF
 int main() { return 0; }
 EOF
-  a=`${COMPILER_PREFIX}${CC} config.c -s 2>&1 | grep 'option -s is obsolete'`
+  a=`${COMPILER_PREFIX}${CC} -o config config.c -s 2>&1 >>config.log | grep 'option -s is obsolete'`
   if [ "${a}" == "" ]
   then
     LDFLAGS="${LDFLAGS} -s"
@@ -386,7 +386,7 @@ echo "UTIL LDFLAGS: ${LDFLAGS_UTIL}"
 echo "      CFLAGS: ${CFLAGS}"
 echo "     DEFINES: ${DFLAGS}"
 echo "INCLUDE_PATH: ${INCLUDE_PATH}"
-echo "        BINS: naken_asm${CONFIG_EXT}, naken_util${CONFIG_EXT}"
+echo "        BINS: naken_asm${CONFIG_EXT}, naken_util${CONFIG_EXT}, naken_prog${CONFIG_EXT}"
 echo
 echo "Now type: make"
 echo

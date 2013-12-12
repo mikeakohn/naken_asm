@@ -15,12 +15,12 @@
 #include <stdint.h>
 #ifndef WIN32
 #include <termios.h>
-#endif
+#include <sys/select.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/select.h>
 #include <fcntl.h>
+#endif
 
 #include "serial.h"
 
@@ -54,6 +54,7 @@ int serial_open(struct _serial *serial, char *device)
 
 int serial_send(struct _serial *serial, uint8_t *buffer, int len, int do_flow)
 {
+#ifndef WIN32
 struct timeval timeout;
 fd_set readset;
 int i,n;
@@ -89,6 +90,7 @@ int wait_for_chip=0;
     if (n<0) { return -1; }
     i+=n;
   }
+#endif
 
   return 0;
 }

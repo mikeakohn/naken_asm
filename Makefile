@@ -44,7 +44,7 @@ msp430x:
 	msp430-objcopy -F ihex a.out msp430x.hex
 
 clean:
-	@rm -f naken_asm naken_util *.exe *.o *.hex a.out *.lst *.ndbg *.elf
+	@rm -f naken_asm naken_util naken_prog *.exe *.o *.hex a.out *.lst *.ndbg *.elf
 	@rm -rf build/*.o
 	@echo "Clean!"
 

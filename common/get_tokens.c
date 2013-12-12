@@ -152,7 +152,7 @@ int ptr=0;
     if (ch=='\'')
     {
       if (asm_context->can_tick_end_string &&
-          ch=='\'' &&
+          //ch=='\'' &&
           token_type==TOKEN_STRING)
       {
         token[ptr++]=ch;
@@ -430,7 +430,12 @@ int ptr=0;
     exit(1);
   }
 
-  if (token_type==TOKEN_TICKED && ptr==1) { token_type=TOKEN_NUMBER; }
+  if (token_type==TOKEN_TICKED && ptr==1)
+  {
+    ch=token[0];
+    sprintf(token, "%d", ch);
+    token_type=TOKEN_NUMBER;
+  }
 
   if (IS_TOKEN(token, '$'))
   {
