@@ -536,13 +536,18 @@ int prefix=0;
         }
           else
         {
-          pushback(asm_context, token, token_type);
+          // FIXME - Ugly fix. The real problem is in eval_expression.
+          int neg=1;
+          if (IS_TOKEN(token,'-')) { neg=-1; }
+          else { pushback(asm_context, token, token_type); }
+
           if (eval_expression(asm_context, &num)!=0)
           {
-            print_error_unexp(token, asm_context);
+            //print_error_unexp(token, asm_context);
             return -1;
           }
 
+          num=num*neg;
           operands[operand_count].value=num;
 
           token_type=get_token(asm_context, token, TOKENLEN);
