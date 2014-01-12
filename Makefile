@@ -12,7 +12,7 @@ include config.mak
 vpath=asm:disasm:common:simulate
 
 default:
-	cd build && make
+	@+make -C build
 
 %.o: %.c *.h
 	$(CC) -c $*.c $(CFLAGS) $(LDFLAGS)
