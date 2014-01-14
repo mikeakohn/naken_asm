@@ -1,0 +1,271 @@
+/**
+ *  naken_asm assembler.
+ *  Author: Michael Kohn
+ *   Email: mike@mikekohn.net
+ *     Web: http://www.mikekohn.net/
+ * License: GPL
+ *
+ * Copyright 2010-2013 by Michael Kohn
+ *
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "asm_common.h"
+#include "assembler.h"
+#include "eval_expression.h"
+#include "get_tokens.h"
+#include "print_error.h"
+
+int parse_db(struct _asm_context *asm_context, int null_term_flag)
+{
+char token[TOKENLEN];
+int token_type;
+int data32;
+
+  if (asm_context->segment==SEGMENT_BSS)
+  {
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->filename, asm_context->line);
+    return -1;
+  }
+
+  while(1)
+  {
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+
+    if (token_type==TOKEN_QUOTED)
+    {
+      unsigned char *s=(unsigned char *)token;
+      while(*s!=0)
+      {
+        if (*s=='\\')
+        {
+          int e=escape_char(asm_context, s);
+          if (e==0)
+          {
+            return -1;
+          }
+          s=s+e;
+        }
+
+        memory_write_inc(asm_context, *s, DL_DATA);
+
+        asm_context->data_count++;
+        s++;
+      }
+
+      if (null_term_flag==1)
+      {
+        memory_write_inc(asm_context, 0, DL_DATA);
+        asm_context->data_count++;
+      }
+    }
+      else
+    {
+      pushback(asm_context, token, token_type);
+      if (eval_expression(asm_context, &data32)==-1)
+      {
+        eat_operand(asm_context);
+      }
+
+      memory_write_inc(asm_context, (unsigned char)data32, DL_DATA);
+      asm_context->data_count++;
+    }
+
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+
+    if (IS_NOT_TOKEN(token,','))
+    {
+      printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
+      return -1;
+    }
+  }
+
+  asm_context->line++;
+
+  return 0;
+}
+
+int parse_dw(struct _asm_context *asm_context)
+{
+char token[TOKENLEN];
+int token_type;
+int data32;
+unsigned short int data16;
+
+  if (asm_context->segment==SEGMENT_BSS)
+  {
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->filename, asm_context->line);
+    return -1;
+  }
+
+  while(1)
+  {
+    // if the user has a comma at the end, but no data, this is okay
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+    pushback(asm_context, token, token_type);
+
+    if (eval_expression(asm_context, &data32)==-1)
+    {
+      eat_operand(asm_context);
+    }
+    data16=(unsigned short)data32;
+
+    if (asm_context->memory.endian==ENDIAN_LITTLE)
+    {
+      memory_write_inc(asm_context, data16&255, DL_DATA);
+      memory_write_inc(asm_context, data16>>8, DL_DATA);
+    }
+      else
+    {
+      memory_write_inc(asm_context, data16>>8, DL_DATA);
+      memory_write_inc(asm_context, data16&255, DL_DATA);
+    }
+
+    asm_context->data_count+=2;
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+
+    if (IS_NOT_TOKEN(token,','))
+    {
+      printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
+      return -1;
+    }
+  }
+
+  asm_context->line++;
+
+  return 0;
+}
+
+int parse_dl(struct _asm_context *asm_context)
+{
+char token[TOKENLEN];
+int token_type;
+int data32;
+unsigned int udata32;
+
+  if (asm_context->segment==SEGMENT_BSS)
+  {
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->filename, asm_context->line);
+    return -1;
+  }
+
+  while(1)
+  {
+    // if the user has a comma at the end, but no data, this is okay
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+    pushback(asm_context, token, token_type);
+
+    if (eval_expression(asm_context, &data32)==-1)
+    {
+      eat_operand(asm_context);
+    }
+    udata32=(unsigned int)data32;
+
+    if (asm_context->memory.endian==ENDIAN_LITTLE)
+    {
+      memory_write_inc(asm_context, udata32&255, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>8)&0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>16)&0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>24)&0xff, DL_DATA);
+    }
+      else
+    {
+      memory_write_inc(asm_context, udata32>>8, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>8)&0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>16)&0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>24)&0xff, DL_DATA);
+    }
+
+    asm_context->data_count+=4;
+    token_type=get_token(asm_context, token, TOKENLEN);
+    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+
+    if (IS_NOT_TOKEN(token,','))
+    {
+      printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
+      return -1;
+    }
+  }
+
+  asm_context->line++;
+
+  return 0;
+}
+
+int parse_dc(struct _asm_context *asm_context)
+{
+char token[TOKENLEN];
+
+  if (expect_token_s(asm_context,".")!=0) { return -1; }
+  get_token(asm_context, token, TOKENLEN);
+
+  if (strcasecmp(token,"b")==0) { return parse_db(asm_context,0); }
+  if (strcasecmp(token,"w")==0) { return parse_dw(asm_context); }
+  if (strcasecmp(token,"l")==0) { return parse_dl(asm_context); }
+
+  print_error_unexp(token, asm_context);
+  return -1;
+}
+
+int parse_ds(struct _asm_context *asm_context, int n)
+{
+char token[TOKENLEN];
+int token_type;
+int num;
+
+  token_type=get_token(asm_context, token, TOKENLEN);
+  if (token_type!=TOKEN_NUMBER)
+  {
+    printf("Parse error: memory length on line %d.\n", asm_context->line);
+    return -1;
+  }
+
+  num=atoi(token)*n;
+
+  for (n=0; n<num; n++)
+  {
+    if (asm_context->segment!=SEGMENT_BSS)
+    {
+      memory_write_inc(asm_context, 0, DL_DATA);
+    }
+      else
+    {
+      asm_context->address++;
+    }
+
+    if (asm_context->address>=asm_context->memory.size)
+    {
+       printf("Error: ds overran 64k boundary at %s:%d", asm_context->filename, asm_context->line);
+       return -1;
+    }
+  }
+
+  asm_context->data_count+=num;
+
+  return 0;
+}
+
+// Thanks Mark.
+int parse_resb(struct _asm_context *asm_context, int size)
+{ 
+int num;
+
+  if (eval_expression(asm_context, &num)==-1)
+  {
+    print_error("Parse Error: Expected data count.", asm_context);
+    return -1;
+  }
+  
+  asm_context->address+=(num*size);
+
+  return 0;
+}
+
