@@ -312,22 +312,6 @@ char token[TOKENLEN];
   return 0;
 }
 
-#if 0
-static void list_data(struct _asm_context *asm_context, int address, int len)
-{
-int n;
-
-  fprintf(asm_context->list, "0x%04x:", address);
-
-  for (n=address; n<address+len; n++)
-  {
-    fprintf(asm_context->list, " 0x%02x:", memory_read(asm_context, n));
-  }
-
-  fprintf(asm_context->list, "\n");
-}
-#endif
-
 static int ifdef_ignore(struct _asm_context *asm_context)
 {
 char token[TOKENLEN];
