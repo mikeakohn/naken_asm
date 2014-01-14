@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2013 by Michael Kohn
+ * Copyright 2010-2014 by Michael Kohn
  *
  * 65xx file by Joe Davisson
  *
