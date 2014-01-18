@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <signal.h>
 
@@ -161,7 +162,7 @@ struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->co
     if (As==1) // &LABEL
     {
       int PC=simulate_msp430->reg[0];
-      unsigned short int a=READ_RAM(PC)|(READ_RAM(PC+1)<<8);
+      uint16_t a=READ_RAM(PC)|(READ_RAM(PC+1)<<8);
 
       simulate_msp430->reg[0]+=2;
       if (bw==0)
@@ -182,7 +183,8 @@ struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->co
     // This is probably worthless.. some other condition should pick this up
     if (As==3) // #immediate
     {
-      unsigned short int a=READ_RAM(simulate_msp430->reg[0])|(READ_RAM(simulate_msp430->reg[0]+1)<<8);
+      uint16_t a=READ_RAM(simulate_msp430->reg[0])|(READ_RAM(simulate_msp430->reg[0]+1)<<8);
+
       simulate_msp430->reg[0]+=2;
       if (bw==0)
       { return a; }
@@ -193,8 +195,8 @@ struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->co
 
   if (As==1) // x(Rn)
   {
-    unsigned short int a=READ_RAM(simulate_msp430->reg[0])|(READ_RAM(simulate_msp430->reg[0]+1)<<8);
-    unsigned short int index=simulate_msp430->reg[reg]+a;
+    uint16_t a=READ_RAM(simulate_msp430->reg[0])|(READ_RAM(simulate_msp430->reg[0]+1)<<8);
+    uint16_t index=simulate_msp430->reg[reg]+((int16_t)a);
     simulate_msp430->reg[0]+=2;
     if (bw==0)
     { return READ_RAM(index)|(READ_RAM(index+1)<<8); }
@@ -212,7 +214,8 @@ struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->co
     else
   if (As==3) // @Rn+
   {
-    unsigned short index=simulate_msp430->reg[reg];
+    uint16_t index=simulate_msp430->reg[reg];
+
     if (bw==0)
     {
       simulate_msp430->reg[reg]+=2;
@@ -251,7 +254,7 @@ struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->co
   {
     if (Ad==1) // &LABEL
     {
-      unsigned short int a=READ_RAM(PC)|(READ_RAM(PC+1)<<8);
+      uint16_t a=READ_RAM(PC)|(READ_RAM(PC+1)<<8);
 
       if (bw==0)
       {
@@ -268,7 +271,7 @@ struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->co
   {
     if (Ad==1) // LABEL
     {
-      unsigned short int a=READ_RAM(PC)|(READ_RAM(PC+1)<<8);
+      uint16_t a=READ_RAM(PC)|(READ_RAM(PC+1)<<8);
 
       if (bw==0)
       {
@@ -286,16 +289,17 @@ struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->co
 
   if (Ad==1) // x(Rn)
   {
-    unsigned short int a=READ_RAM(PC)|(READ_RAM(PC+1)<<8);
+    uint16_t a=READ_RAM(PC)|(READ_RAM(PC+1)<<8);
+    int address=simulate_msp430->reg[reg]+((int16_t)a);
 
     if (bw==0)
     {
-      WRITE_RAM(simulate_msp430->reg[reg]+a, data&0xff);
-      WRITE_RAM(simulate_msp430->reg[reg]+a+1, data>>8);
+      WRITE_RAM(address, data&0xff);
+      WRITE_RAM(address+1, data>>8);
     }
       else
     {
-      WRITE_RAM(simulate_msp430->reg[reg]+a, data&0xff);
+      WRITE_RAM(address, data&0xff);
     }
 
     return 0;
