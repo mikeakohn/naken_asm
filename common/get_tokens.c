@@ -21,6 +21,77 @@
 
 #define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }
 
+static int hex_string_to_int(char *s, int *num, int prefixed)
+{
+  int n=0;
+
+  while(*s!=0 && *s!='h')
+  {
+    if (*s>='0' && *s<='9')
+    { n=(n<<4)|((*s)-'0'); }
+      else
+    if (*s>='a' && *s<='f')
+    { n=(n<<4)|((*s)-'a'+10); }
+      else
+    if (*s>='A' && *s<='F')
+    { n=(n<<4)|((*s)-'A'+10); }
+      else
+    if (*s!='_')
+    { return -1; }
+
+    s++;
+  }
+
+  if (*s=='h' && prefixed==1) { return -1; }
+
+  *num=n;
+
+  return 0;
+}
+
+static int octal_string_to_int(char *s, int *num)
+{
+  int n=0;
+
+  while(*s!=0 && *s!='q')
+  {
+    if (*s>='0' && *s<='7')
+    { n=(n<<3)|((*s)-'0'); }
+      else
+    if (*s!='_')
+    { return -1; }
+
+    s++;
+  }
+
+  *num=n;
+
+  return 0;
+}
+
+static int binary_string_to_int(char *s, int *num)
+{
+  int n=0;
+
+  while(*s!=0 && *s!='b')
+  {
+    if (*s=='0')
+    { n=n<<1; }
+      else
+    if (*s=='1')
+    { n=(n<<1)|1; }
+      else
+    if (*s!='_')
+    { return -1; }
+
+    s++;
+  }
+
+  *num=n;
+
+  return 0;
+}
+
 int get_next_char(struct _asm_context *asm_context)
 {
 int ch;
@@ -299,6 +370,12 @@ int ptr=0;
         }
       }
 
+      if (token_type==TOKEN_NUMBER && ch=='_')
+      {
+        // Let's allow the user to type stuff like 1111_1011b
+        continue;
+      }
+
       if ((ch>='a' && ch<='z') || (ch>='A' && ch<='Z') || ch=='_')
       {
         if (ptr==0)
@@ -308,6 +385,7 @@ int ptr=0;
           else
         if (token_type==TOKEN_NUMBER)
         {
+          // Why did I do this?
           token_type=TOKEN_STRING;
         }
       }
@@ -484,82 +562,36 @@ printf("debug> '%s' is a define.  param_count=%d\n", token, param_count);
       else
     if (token[0]=='0' && token[1]=='x')
     {
-      int num=0;
-      char *s=token+2;
-      while(*s!=0)
-      {
-        if (*s>='0' && *s<='9')
-        { num=(num<<4)|((*s)-'0'); }
-          else
-        if (*s>='a' && *s<='f')
-        { num=(num<<4)|((*s)-'a'+10); }
-          else
-        if (*s>='A' && *s<='F')
-        { num=(num<<4)|((*s)-'A'+10); }
-          else
-        { return token_type; }
-        s++;
-      }
+      // If token starts with 0x it's probably hex
+      int num;
+      if (hex_string_to_int(token+2, &num, 1)!=0) { return token_type; }
       sprintf(token, "%d", num);
       token_type=TOKEN_NUMBER;
     }
       else
     if ((token[0]>='0' && token[0]<='9') && tolower(token[ptr-1])=='h')
     {
-      int num=0;
-      char *s=token;
-      while(*s!=0 && s!=token+ptr-1)
-      {
-        if (*s>='0' && *s<='9')
-        { num=(num<<4)|((*s)-'0'); }
-          else
-        if (*s>='a' && *s<='f')
-        { num=(num<<4)|((*s)-'a'+10); }
-          else
-        if (*s>='A' && *s<='F')
-        { num=(num<<4)|((*s)-'A'+10); }
-          else
-        { return token_type; }
-
-        s++;
-      }
+      // If token starts with a number and ends with a h it's probably hex
+      int num;
+      if (hex_string_to_int(token, &num, 0)!=0) { return token_type; }
       sprintf(token, "%d", num);
       token_type=TOKEN_NUMBER;
     }
       else
     if ((token[0]>='0' && token[0]<='7') && tolower(token[ptr-1])=='q')
     {
-      int num=0;
-      char *s=token;
-      while(*s!=0 && s!=token+ptr-1)
-      {
-        if (*s>='0' && *s<='7')
-        { num=(num<<3)|((*s)-'0'); }
-          else
-        { return token_type; }
-
-        s++;
-      }
+      // If token starts with a number and ends with a q it's octal
+      int num;
+      if (octal_string_to_int(token, &num)!=0) { return token_type; }
       sprintf(token, "%d", num);
       token_type=TOKEN_NUMBER;
     }
       else
     if ((token[0]=='0' || token[0]=='1') && tolower(token[ptr-1])=='b')
     {
-      int num=0;
-      char *s=token;
-      while(*s!=0 && s!=token+ptr-1)
-      {
-        if (*s=='0')
-        { num=num<<1; }
-          else
-        if (*s=='1')
-        { num=(num<<1)|1; }
-          else
-        { return token_type; }
-
-        s++;
-      }
+      // If token starts with a number and ends with a b it's probably binary
+      int num;
+      if (binary_string_to_int(token, &num)!=0) { return token_type; }
       sprintf(token, "%d", num);
       token_type=TOKEN_NUMBER;
     }
@@ -567,25 +599,11 @@ printf("debug> '%s' is a define.  param_count=%d\n", token, param_count);
 
   if (token_type==TOKEN_NUMBER && token[0]=='0' && token[1]!=0)
   {
-    // Octal
-    int num=0;
-    int ptr=0;
-    while(token[ptr]!=0)
-    {
-      num=num<<3;
-      if (token[ptr]>='0' && token[ptr]<='7')
-      {
-        num=num|(token[ptr]-'0');
-      }
-        else
-      {
-        printf("Error: invalid digit '%c' in octal constant at %s:%d.\n", token[ptr], asm_context->filename, asm_context->line);
-        return TOKEN_EOF;
-      }
-
-      ptr++;
-    }
+    // If token is a number and starts with a 0 it's octal
+    int num;
+    if (octal_string_to_int(token, &num)!=0) { return token_type; }
     sprintf(token, "%d", num);
+    token_type=TOKEN_NUMBER;
   }
 
   return token_type;
@@ -597,7 +615,7 @@ void pushback(struct _asm_context *asm_context, char *token, int token_type)
   asm_context->pushback_type=token_type;
 }
 
-// Returns the number of chars eaten by this function or 0 for ZOMG
+// Returns the number of chars eaten by this function or 0 for error
 int escape_char(struct _asm_context *asm_context, unsigned char *s)
 {
 int ptr=1;
