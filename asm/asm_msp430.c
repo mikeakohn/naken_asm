@@ -731,7 +731,6 @@ int prefix=0;
 
       if (operand_count!=1)
       {
-        //print_operand_error(instr, 1, asm_context);
         print_error_opcount(instr, asm_context);
         return -1;
       }
@@ -748,6 +747,23 @@ int prefix=0;
       }
 
       opcode=0x1000|(n<<7)|(bw<<6)|(operands[0].a<<4)|operands[0].reg;
+      if (asm_context->msp430_cpu4==1)
+      {
+        // A bug in the MSP430 for push #4 and push #8.  Cannot use CG.
+        if (opcode==0x1222)
+        {
+          opcode=0x1230;
+          data.count=1;
+          data.data[0]=4;
+        }
+          else
+        if (opcode==0x1232)
+        {
+          opcode=0x1230;
+          data.count=1;
+          data.data[0]=8;
+        }
+      }
       add_instruction(asm_context, &data, operands[0].error, opcode);
 
       return 0;
