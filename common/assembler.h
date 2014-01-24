@@ -116,6 +116,7 @@ struct _asm_context
   uint8_t is_dollar_hex:1;
   uint8_t can_tick_end_string:1;
   uint8_t error:1;
+  uint8_t msp430_cpu4:1;
 };
 
 struct _memory_pool *add_pool(struct _naken_heap *heap, int heap_len);

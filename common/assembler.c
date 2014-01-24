@@ -521,6 +521,11 @@ int token_type;
         asm_context->segment=SEGMENT_BSS;
       }
         else
+      if (strcasecmp(token, "msp430_cpu4")==0)
+      {
+        asm_context->msp430_cpu4=1;
+      }
+        else
       if (strcasecmp(token, "macro")==0)
       {
         if (parse_macro(asm_context, IS_MACRO)!=0) return -1;
