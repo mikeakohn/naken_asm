@@ -1,0 +1,1818 @@
+; Convert Microchip include files to naken_asm readable.
+
+__FBS equ 0xF80000
+__FGS equ 0xF80004
+__FOSCSEL equ 0xF80006
+__FOSC equ 0xF80008
+__FWDT equ 0xF8000A
+__FPOR equ 0xF8000C
+__FICD equ 0xF8000E
+__FUID0 equ 0xF80010
+__FUID1 equ 0xF80012
+__NO_HANDLES equ 1;          /* Suppress handles on this device  */
+__IVT_BASE  equ 0x4
+__AIVT_BASE equ 0x104
+__DATA_BASE equ 0x800
+__DATA_LENGTH equ 0x100
+__YDATA_BASE equ 0x880
+__CODE_BASE equ 0x200
+__CODE_LENGTH equ 0xE00
+_WREG0        equ 0x0
+WREG1        equ 0x2
+_WREG1        equ 0x2
+WREG2        equ 0x4
+_WREG2        equ 0x4
+WREG3        equ 0x6
+_WREG3        equ 0x6
+WREG4        equ 0x8
+_WREG4        equ 0x8
+WREG5        equ 0xA
+_WREG5        equ 0xA
+WREG6        equ 0xC
+_WREG6        equ 0xC
+WREG7        equ 0xE
+_WREG7        equ 0xE
+WREG8        equ 0x10
+_WREG8        equ 0x10
+WREG9        equ 0x12
+_WREG9        equ 0x12
+WREG10       equ 0x14
+_WREG10       equ 0x14
+WREG11       equ 0x16
+_WREG11       equ 0x16
+WREG12       equ 0x18
+_WREG12       equ 0x18
+WREG13       equ 0x1A
+_WREG13       equ 0x1A
+WREG14       equ 0x1C
+_WREG14       equ 0x1C
+WREG15       equ 0x1E
+_WREG15       equ 0x1E
+SPLIM        equ 0x20
+_SPLIM        equ 0x20
+ACCAL        equ 0x22
+_ACCAL        equ 0x22
+ACCAH        equ 0x24
+_ACCAH        equ 0x24
+ACCAU        equ 0x26
+_ACCAU        equ 0x26
+ACCBL        equ 0x28
+_ACCBL        equ 0x28
+ACCBH        equ 0x2A
+_ACCBH        equ 0x2A
+ACCBU        equ 0x2C
+_ACCBU        equ 0x2C
+PCL          equ 0x2E
+_PCL          equ 0x2E
+PCH          equ 0x30
+_PCH          equ 0x30
+TBLPAG       equ 0x32
+_TBLPAG       equ 0x32
+PSVPAG       equ 0x34
+_PSVPAG       equ 0x34
+RCOUNT       equ 0x36
+_RCOUNT       equ 0x36
+DCOUNT       equ 0x38
+_DCOUNT       equ 0x38
+DOSTARTL     equ 0x3A
+_DOSTARTL     equ 0x3A
+DOSTARTH     equ 0x3C
+_DOSTARTH     equ 0x3C
+DOENDL       equ 0x3E
+_DOENDL       equ 0x3E
+DOENDH       equ 0x40
+_DOENDH       equ 0x40
+SR           equ 0x42
+_SR           equ 0x42
+_SRbits       equ 0x42
+CORCON       equ 0x44
+_CORCON       equ 0x44
+_CORCONbits   equ 0x44
+MODCON       equ 0x46
+_MODCON       equ 0x46
+_MODCONbits   equ 0x46
+XMODSRT      equ 0x48
+_XMODSRT      equ 0x48
+XMODEND      equ 0x4A
+_XMODEND      equ 0x4A
+YMODSRT      equ 0x4C
+_YMODSRT      equ 0x4C
+YMODEND      equ 0x4E
+_YMODEND      equ 0x4E
+XBREV        equ 0x50
+_XBREV        equ 0x50
+_XBREVbits    equ 0x50
+DISICNT      equ 0x52
+_DISICNT      equ 0x52
+CNEN1        equ 0x60
+_CNEN1        equ 0x60
+_CNEN1bits    equ 0x60
+CNPU1        equ 0x68
+_CNPU1        equ 0x68
+_CNPU1bits    equ 0x68
+INTCON1      equ 0x80
+_INTCON1      equ 0x80
+_INTCON1bits  equ 0x80
+INTCON2      equ 0x82
+_INTCON2      equ 0x82
+_INTCON2bits  equ 0x82
+IFS0         equ 0x84
+_IFS0         equ 0x84
+_IFS0bits     equ 0x84
+IFS1         equ 0x86
+_IFS1         equ 0x86
+_IFS1bits     equ 0x86
+IFS3         equ 0x8A
+_IFS3         equ 0x8A
+_IFS3bits     equ 0x8A
+IFS4         equ 0x8C
+_IFS4         equ 0x8C
+_IFS4bits     equ 0x8C
+IFS5         equ 0x8E
+_IFS5         equ 0x8E
+_IFS5bits     equ 0x8E
+IFS6         equ 0x90
+_IFS6         equ 0x90
+_IFS6bits     equ 0x90
+IFS7         equ 0x92
+_IFS7         equ 0x92
+_IFS7bits     equ 0x92
+IEC0         equ 0x94
+_IEC0         equ 0x94
+_IEC0bits     equ 0x94
+IEC1         equ 0x96
+_IEC1         equ 0x96
+_IEC1bits     equ 0x96
+IEC3         equ 0x9A
+_IEC3         equ 0x9A
+_IEC3bits     equ 0x9A
+IEC4         equ 0x9C
+_IEC4         equ 0x9C
+_IEC4bits     equ 0x9C
+IEC5         equ 0x9E
+_IEC5         equ 0x9E
+_IEC5bits     equ 0x9E
+IEC6         equ 0xA0
+_IEC6         equ 0xA0
+_IEC6bits     equ 0xA0
+IEC7         equ 0xA2
+_IEC7         equ 0xA2
+_IEC7bits     equ 0xA2
+IPC0         equ 0xA4
+_IPC0         equ 0xA4
+_IPC0bits     equ 0xA4
+IPC1         equ 0xA6
+_IPC1         equ 0xA6
+_IPC1bits     equ 0xA6
+IPC2         equ 0xA8
+_IPC2         equ 0xA8
+_IPC2bits     equ 0xA8
+IPC3         equ 0xAA
+_IPC3         equ 0xAA
+_IPC3bits     equ 0xAA
+IPC4         equ 0xAC
+_IPC4         equ 0xAC
+_IPC4bits     equ 0xAC
+IPC5         equ 0xAE
+_IPC5         equ 0xAE
+_IPC5bits     equ 0xAE
+IPC7         equ 0xB2
+_IPC7         equ 0xB2
+_IPC7bits     equ 0xB2
+IPC14        equ 0xC0
+_IPC14        equ 0xC0
+_IPC14bits    equ 0xC0
+IPC16        equ 0xC4
+_IPC16        equ 0xC4
+_IPC16bits    equ 0xC4
+IPC23        equ 0xD2
+_IPC23        equ 0xD2
+_IPC23bits    equ 0xD2
+IPC24        equ 0xD4
+_IPC24        equ 0xD4
+_IPC24bits    equ 0xD4
+IPC27        equ 0xDA
+_IPC27        equ 0xDA
+_IPC27bits    equ 0xDA
+IPC28        equ 0xDC
+_IPC28        equ 0xDC
+_IPC28bits    equ 0xDC
+INTTREG      equ 0xE0
+_INTTREG      equ 0xE0
+_INTTREGbits  equ 0xE0
+TMR1         equ 0x100
+_TMR1         equ 0x100
+PR1          equ 0x102
+_PR1          equ 0x102
+T1CON        equ 0x104
+_T1CON        equ 0x104
+_T1CONbits    equ 0x104
+TMR2         equ 0x106
+_TMR2         equ 0x106
+PR2          equ 0x10C
+_PR2          equ 0x10C
+T2CON        equ 0x110
+_T2CON        equ 0x110
+_T2CONbits    equ 0x110
+OC1RS        equ 0x180
+_OC1RS        equ 0x180
+OC1R         equ 0x182
+_OC1R         equ 0x182
+OC1CON       equ 0x184
+_OC1CON       equ 0x184
+_OC1CONbits   equ 0x184
+I2C1RCV      equ 0x200
+_I2C1RCV      equ 0x200
+I2CRCV       equ 0x200
+_I2CRCV       equ 0x200
+I2C1TRN      equ 0x202
+_I2C1TRN      equ 0x202
+I2CTRN       equ 0x202
+_I2CTRN       equ 0x202
+I2C1BRG      equ 0x204
+_I2C1BRG      equ 0x204
+I2C1CON      equ 0x206
+_I2C1CON      equ 0x206
+_I2C1CONbits  equ 0x206
+I2CCON       equ 0x206
+_I2CCON       equ 0x206
+_I2CCONbits   equ 0x206
+I2C1STAT     equ 0x208
+_I2C1STAT     equ 0x208
+_I2C1STATbits equ 0x208
+I2CSTAT      equ 0x208
+_I2CSTAT      equ 0x208
+_I2CSTATbits  equ 0x208
+I2C1ADD      equ 0x20A
+_I2C1ADD      equ 0x20A
+I2CADD       equ 0x20A
+_I2CADD       equ 0x20A
+I2C1MSK      equ 0x20C
+_I2C1MSK      equ 0x20C
+U1MODE       equ 0x220
+_U1MODE       equ 0x220
+_U1MODEbits   equ 0x220
+U1STA        equ 0x222
+_U1STA        equ 0x222
+_U1STAbits    equ 0x222
+U1TXREG      equ 0x224
+_U1TXREG      equ 0x224
+_U1TXREGbits  equ 0x224
+U1RXREG      equ 0x226
+_U1RXREG      equ 0x226
+_U1RXREGbits  equ 0x226
+U1BRG        equ 0x228
+_U1BRG        equ 0x228
+SPI1STAT     equ 0x240
+_SPI1STAT     equ 0x240
+_SPI1STATbits equ 0x240
+SPI1CON1     equ 0x242
+_SPI1CON1     equ 0x242
+_SPI1CON1bits equ 0x242
+SPI1CON2     equ 0x244
+_SPI1CON2     equ 0x244
+_SPI1CON2bits equ 0x244
+SPI1BUF      equ 0x248
+_SPI1BUF      equ 0x248
+TRISA        equ 0x2C0
+_TRISA        equ 0x2C0
+_TRISAbits    equ 0x2C0
+PORTA        equ 0x2C2
+_PORTA        equ 0x2C2
+_PORTAbits    equ 0x2C2
+LATA         equ 0x2C4
+_LATA         equ 0x2C4
+_LATAbits     equ 0x2C4
+ODCA         equ 0x2C6
+_ODCA         equ 0x2C6
+_ODCAbits     equ 0x2C6
+TRISB        equ 0x2C8
+_TRISB        equ 0x2C8
+_TRISBbits    equ 0x2C8
+PORTB        equ 0x2CA
+_PORTB        equ 0x2CA
+_PORTBbits    equ 0x2CA
+LATB         equ 0x2CC
+_LATB         equ 0x2CC
+_LATBbits     equ 0x2CC
+ODCB         equ 0x2CE
+_ODCB         equ 0x2CE
+_ODCBbits     equ 0x2CE
+ADCON        equ 0x300
+_ADCON        equ 0x300
+_ADCONbits    equ 0x300
+ADPCFG       equ 0x302
+_ADPCFG       equ 0x302
+_ADPCFGbits   equ 0x302
+ADSTAT       equ 0x306
+_ADSTAT       equ 0x306
+_ADSTATbits   equ 0x306
+ADBASE       equ 0x308
+_ADBASE       equ 0x308
+ADCPC0       equ 0x30A
+_ADCPC0       equ 0x30A
+_ADCPC0bits   equ 0x30A
+ADCPC1       equ 0x30C
+_ADCPC1       equ 0x30C
+_ADCPC1bits   equ 0x30C
+ADCBUF0      equ 0x320
+_ADCBUF0      equ 0x320
+ADCBUF1      equ 0x322
+_ADCBUF1      equ 0x322
+ADCBUF2      equ 0x324
+_ADCBUF2      equ 0x324
+ADCBUF3      equ 0x326
+_ADCBUF3      equ 0x326
+ADCBUF6      equ 0x32C
+_ADCBUF6      equ 0x32C
+ADCBUF7      equ 0x32E
+_ADCBUF7      equ 0x32E
+PTCON        equ 0x400
+_PTCON        equ 0x400
+_PTCONbits    equ 0x400
+PTCON2       equ 0x402
+_PTCON2       equ 0x402
+_PTCON2bits   equ 0x402
+PTPER        equ 0x404
+_PTPER        equ 0x404
+SEVTCMP      equ 0x406
+_SEVTCMP      equ 0x406
+MDC          equ 0x40A
+_MDC          equ 0x40A
+PWMCON1      equ 0x420
+_PWMCON1      equ 0x420
+_PWMCON1bits  equ 0x420
+IOCON1       equ 0x422
+_IOCON1       equ 0x422
+_IOCON1bits   equ 0x422
+FCLCON1      equ 0x424
+_FCLCON1      equ 0x424
+_FCLCON1bits  equ 0x424
+PDC1         equ 0x426
+_PDC1         equ 0x426
+PHASE1       equ 0x428
+_PHASE1       equ 0x428
+DTR1         equ 0x42A
+_DTR1         equ 0x42A
+ALTDTR1      equ 0x42C
+_ALTDTR1      equ 0x42C
+SDC1         equ 0x42E
+_SDC1         equ 0x42E
+SPHASE1      equ 0x430
+_SPHASE1      equ 0x430
+TRIG1        equ 0x432
+_TRIG1        equ 0x432
+_TRIG1bits    equ 0x432
+TRGCON1      equ 0x434
+_TRGCON1      equ 0x434
+_TRGCON1bits  equ 0x434
+STRIG1       equ 0x436
+_STRIG1       equ 0x436
+_STRIG1bits   equ 0x436
+PWMCAP1      equ 0x438
+_PWMCAP1      equ 0x438
+_PWMCAP1bits  equ 0x438
+LEBCON1      equ 0x43A
+_LEBCON1      equ 0x43A
+_LEBCON1bits  equ 0x43A
+PWMCON4      equ 0x480
+_PWMCON4      equ 0x480
+_PWMCON4bits  equ 0x480
+IOCON4       equ 0x482
+_IOCON4       equ 0x482
+_IOCON4bits   equ 0x482
+FCLCON4      equ 0x484
+_FCLCON4      equ 0x484
+_FCLCON4bits  equ 0x484
+PDC4         equ 0x486
+_PDC4         equ 0x486
+PHASE4       equ 0x488
+_PHASE4       equ 0x488
+DTR4         equ 0x48A
+_DTR4         equ 0x48A
+ALTDTR4      equ 0x48C
+_ALTDTR4      equ 0x48C
+SDC4         equ 0x48E
+_SDC4         equ 0x48E
+SPHASE4      equ 0x490
+_SPHASE4      equ 0x490
+TRIG4        equ 0x492
+_TRIG4        equ 0x492
+_TRIG4bits    equ 0x492
+TRGCON4      equ 0x494
+_TRGCON4      equ 0x494
+_TRGCON4bits  equ 0x494
+STRIG4       equ 0x496
+_STRIG4       equ 0x496
+_STRIG4bits   equ 0x496
+PWMCAP4      equ 0x498
+_PWMCAP4      equ 0x498
+LEBCON4      equ 0x49A
+_LEBCON4      equ 0x49A
+_LEBCON4bits  equ 0x49A
+RPINR0       equ 0x680
+_RPINR0       equ 0x680
+_RPINR0bits   equ 0x680
+RPINR1       equ 0x682
+_RPINR1       equ 0x682
+_RPINR1bits   equ 0x682
+RPINR2       equ 0x684
+_RPINR2       equ 0x684
+_RPINR2bits   equ 0x684
+RPINR3       equ 0x686
+_RPINR3       equ 0x686
+_RPINR3bits   equ 0x686
+RPINR11      equ 0x696
+_RPINR11      equ 0x696
+_RPINR11bits  equ 0x696
+RPINR18      equ 0x6A4
+_RPINR18      equ 0x6A4
+_RPINR18bits  equ 0x6A4
+RPINR20      equ 0x6A8
+_RPINR20      equ 0x6A8
+_RPINR20bits  equ 0x6A8
+RPINR21      equ 0x6AA
+_RPINR21      equ 0x6AA
+_RPINR21bits  equ 0x6AA
+RPINR29      equ 0x6BA
+_RPINR29      equ 0x6BA
+_RPINR29bits  equ 0x6BA
+RPINR30      equ 0x6BC
+_RPINR30      equ 0x6BC
+_RPINR30bits  equ 0x6BC
+RPINR31      equ 0x6BE
+_RPINR31      equ 0x6BE
+_RPINR31bits  equ 0x6BE
+RPINR32      equ 0x6C0
+_RPINR32      equ 0x6C0
+_RPINR32bits  equ 0x6C0
+RPINR33      equ 0x6C2
+_RPINR33      equ 0x6C2
+_RPINR33bits  equ 0x6C2
+RPINR34      equ 0x6C4
+_RPINR34      equ 0x6C4
+_RPINR34bits  equ 0x6C4
+RPOR0        equ 0x6D0
+_RPOR0        equ 0x6D0
+_RPOR0bits    equ 0x6D0
+RPOR1        equ 0x6D2
+_RPOR1        equ 0x6D2
+_RPOR1bits    equ 0x6D2
+RPOR2        equ 0x6D4
+_RPOR2        equ 0x6D4
+_RPOR2bits    equ 0x6D4
+RPOR3        equ 0x6D6
+_RPOR3        equ 0x6D6
+_RPOR3bits    equ 0x6D6
+RPOR16       equ 0x6F0
+_RPOR16       equ 0x6F0
+_RPOR16bits   equ 0x6F0
+RPOR17       equ 0x6F2
+_RPOR17       equ 0x6F2
+_RPOR17bits   equ 0x6F2
+RCON         equ 0x740
+_RCON         equ 0x740
+_RCONbits     equ 0x740
+OSCCON       equ 0x742
+_OSCCON       equ 0x742
+_OSCCONbits   equ 0x742
+OSCCONL      equ 0x742
+_OSCCONL      equ 0x742
+OSCCONH      equ 0x743
+_OSCCONH      equ 0x743
+CLKDIV       equ 0x744
+_CLKDIV       equ 0x744
+_CLKDIVbits   equ 0x744
+PLLFBD       equ 0x746
+_PLLFBD       equ 0x746
+_PLLFBDbits   equ 0x746
+OSCTUN       equ 0x748
+_OSCTUN       equ 0x748
+_OSCTUNbits   equ 0x748
+LFSR         equ 0x74C
+_LFSR         equ 0x74C
+REFOCON      equ 0x74E
+_REFOCON      equ 0x74E
+_REFOCONbits  equ 0x74E
+ACLKCON      equ 0x750
+_ACLKCON      equ 0x750
+_ACLKCONbits  equ 0x750
+NVMCON       equ 0x760
+_NVMCON       equ 0x760
+_NVMCONbits   equ 0x760
+NVMKEY       equ 0x766
+_NVMKEY       equ 0x766
+PMD1         equ 0x770
+_PMD1         equ 0x770
+_PMD1bits     equ 0x770
+PMD2         equ 0x772
+_PMD2         equ 0x772
+_PMD2bits     equ 0x772
+PMD4         equ 0x776
+_PMD4         equ 0x776
+_PMD4bits     equ 0x776
+PMD6         equ 0x77A
+_PMD6         equ 0x77A
+_PMD6bits     equ 0x77A
+ACCA         equ 0x22
+_ACCA         equ 0x22
+ACCB         equ 0x28
+_ACCB         equ 0x28
+OC1          equ 0x180
+_OC1          equ 0x180
+SPI1         equ 0x240
+_SPI1         equ 0x240
+UART1        equ 0x220
+_UART1        equ 0x220
+  WREG0L equ  _WREG0
+  WREG0H equ  _WREG0+1
+  WREG1L equ  _WREG1
+  WREG1H equ  _WREG1+1
+  WREG2L equ  _WREG2
+  WREG2H equ  _WREG2+1
+  WREG3L equ  _WREG3
+  WREG3H equ  _WREG3+1
+  WREG4L equ  _WREG4
+  WREG4H equ  _WREG4+1
+  WREG5L equ  _WREG5
+  WREG5H equ  _WREG5+1
+  WREG6L equ  _WREG6
+  WREG6H equ  _WREG6+1
+  WREG7L equ  _WREG7
+  WREG7H equ  _WREG7+1
+  WREG8L equ  _WREG8
+  WREG8H equ  _WREG8+1
+  WREG9L equ  _WREG9
+  WREG9H equ  _WREG9+1
+  WREG10L equ  _WREG10
+  WREG10H equ  _WREG10+1
+  WREG11L equ  _WREG11
+  WREG11H equ  _WREG11+1
+  WREG12L equ  _WREG12
+  WREG12H equ  _WREG12+1
+  WREG13L equ  _WREG13
+  WREG13H equ  _WREG13+1
+  WREG14L equ  _WREG14
+  WREG14H equ  _WREG14+1
+  WREG15L equ  _WREG15
+  WREG15H equ  _WREG15+1
+  SPLIML equ  _SPLIM
+  SPLIMH equ  _SPLIM+1
+  ACCALL equ  _ACCAL
+  ACCALH equ  _ACCAL+1
+  ACCAHL equ  _ACCAH
+  ACCAHH equ  _ACCAH+1
+  ACCAUL equ  _ACCAU
+  ACCAUH equ  _ACCAU+1
+  ACCBLL equ  _ACCBL
+  ACCBLH equ  _ACCBL+1
+  ACCBHL equ  _ACCBH
+  ACCBHH equ  _ACCBH+1
+  ACCBUL equ  _ACCBU
+  ACCBUH equ  _ACCBU+1
+  PCLL equ  _PCL
+  PCLH equ  _PCL+1
+  PCHL equ  _PCH
+  PCHH equ  _PCH+1
+  TBLPAGL equ  _TBLPAG
+  TBLPAGH equ  _TBLPAG+1
+  PSVPAGL equ  _PSVPAG
+  PSVPAGH equ  _PSVPAG+1
+  RCOUNTL equ  _RCOUNT
+  RCOUNTH equ  _RCOUNT+1
+  DCOUNTL equ  _DCOUNT
+  DCOUNTH equ  _DCOUNT+1
+  DOSTARTLL equ  _DOSTARTL
+  DOSTARTLH equ  _DOSTARTL+1
+  DOSTARTHL equ  _DOSTARTH
+  DOSTARTHH equ  _DOSTARTH+1
+  DOENDLL equ  _DOENDL
+  DOENDLH equ  _DOENDL+1
+  DOENDHL equ  _DOENDH
+  DOENDHH equ  _DOENDH+1
+  SRL equ  _SR
+  SRH equ  _SR+1
+  CORCONL equ  _CORCON
+  CORCONH equ  _CORCON+1
+  MODCONL equ  _MODCON
+  MODCONH equ  _MODCON+1
+  XMODSRTL equ  _XMODSRT
+  XMODSRTH equ  _XMODSRT+1
+  XMODENDL equ  _XMODEND
+  XMODENDH equ  _XMODEND+1
+  YMODSRTL equ  _YMODSRT
+  YMODSRTH equ  _YMODSRT+1
+  YMODENDL equ  _YMODEND
+  YMODENDH equ  _YMODEND+1
+  XBREVL equ  _XBREV
+  XBREVH equ  _XBREV+1
+  DISICNTL equ  _DISICNT
+  DISICNTH equ  _DISICNT+1
+  CNEN1L equ  _CNEN1
+  CNEN1H equ  _CNEN1+1
+  CNPU1L equ  _CNPU1
+  CNPU1H equ  _CNPU1+1
+  INTCON1L equ  _INTCON1
+  INTCON1H equ  _INTCON1+1
+  INTCON2L equ  _INTCON2
+  INTCON2H equ  _INTCON2+1
+  IFS0L equ  _IFS0
+  IFS0H equ  _IFS0+1
+  IFS1L equ  _IFS1
+  IFS1H equ  _IFS1+1
+  IFS3L equ  _IFS3
+  IFS3H equ  _IFS3+1
+  IFS4L equ  _IFS4
+  IFS4H equ  _IFS4+1
+  IFS5L equ  _IFS5
+  IFS5H equ  _IFS5+1
+  IFS6L equ  _IFS6
+  IFS6H equ  _IFS6+1
+  IFS7L equ  _IFS7
+  IFS7H equ  _IFS7+1
+  IEC0L equ  _IEC0
+  IEC0H equ  _IEC0+1
+  IEC1L equ  _IEC1
+  IEC1H equ  _IEC1+1
+  IEC3L equ  _IEC3
+  IEC3H equ  _IEC3+1
+  IEC4L equ  _IEC4
+  IEC4H equ  _IEC4+1
+  IEC5L equ  _IEC5
+  IEC5H equ  _IEC5+1
+  IEC6L equ  _IEC6
+  IEC6H equ  _IEC6+1
+  IEC7L equ  _IEC7
+  IEC7H equ  _IEC7+1
+  IPC0L equ  _IPC0
+  IPC0H equ  _IPC0+1
+  IPC1L equ  _IPC1
+  IPC1H equ  _IPC1+1
+  IPC2L equ  _IPC2
+  IPC2H equ  _IPC2+1
+  IPC3L equ  _IPC3
+  IPC3H equ  _IPC3+1
+  IPC4L equ  _IPC4
+  IPC4H equ  _IPC4+1
+  IPC5L equ  _IPC5
+  IPC5H equ  _IPC5+1
+  IPC7L equ  _IPC7
+  IPC7H equ  _IPC7+1
+  IPC14L equ  _IPC14
+  IPC14H equ  _IPC14+1
+  IPC16L equ  _IPC16
+  IPC16H equ  _IPC16+1
+  IPC23L equ  _IPC23
+  IPC23H equ  _IPC23+1
+  IPC24L equ  _IPC24
+  IPC24H equ  _IPC24+1
+  IPC27L equ  _IPC27
+  IPC27H equ  _IPC27+1
+  IPC28L equ  _IPC28
+  IPC28H equ  _IPC28+1
+  INTTREGL equ  _INTTREG
+  INTTREGH equ  _INTTREG+1
+  TMR1L equ  _TMR1
+  TMR1H equ  _TMR1+1
+  PR1L equ  _PR1
+  PR1H equ  _PR1+1
+  T1CONL equ  _T1CON
+  T1CONH equ  _T1CON+1
+  TMR2L equ  _TMR2
+  TMR2H equ  _TMR2+1
+  PR2L equ  _PR2
+  PR2H equ  _PR2+1
+  T2CONL equ  _T2CON
+  T2CONH equ  _T2CON+1
+  OC1RSL equ  _OC1RS
+  OC1RSH equ  _OC1RS+1
+  OC1RL equ  _OC1R
+  OC1RH equ  _OC1R+1
+  OC1CONL equ  _OC1CON
+  OC1CONH equ  _OC1CON+1
+  I2C1RCVL equ  _I2C1RCV
+  I2C1RCVH equ  _I2C1RCV+1
+  I2CRCVL equ  _I2CRCV
+  I2CRCVH equ  _I2CRCV+1
+  I2C1TRNL equ  _I2C1TRN
+  I2C1TRNH equ  _I2C1TRN+1
+  I2CTRNL equ  _I2CTRN
+  I2CTRNH equ  _I2CTRN+1
+  I2C1BRGL equ  _I2C1BRG
+  I2C1BRGH equ  _I2C1BRG+1
+  I2C1CONL equ  _I2C1CON
+  I2C1CONH equ  _I2C1CON+1
+  I2CCONL equ  _I2CCON
+  I2CCONH equ  _I2CCON+1
+  I2C1STATL equ  _I2C1STAT
+  I2C1STATH equ  _I2C1STAT+1
+  I2CSTATL equ  _I2CSTAT
+  I2CSTATH equ  _I2CSTAT+1
+  I2C1ADDL equ  _I2C1ADD
+  I2C1ADDH equ  _I2C1ADD+1
+  I2CADDL equ  _I2CADD
+  I2CADDH equ  _I2CADD+1
+  I2C1MSKL equ  _I2C1MSK
+  I2C1MSKH equ  _I2C1MSK+1
+  U1MODEL equ  _U1MODE
+  U1MODEH equ  _U1MODE+1
+  U1STAL equ  _U1STA
+  U1STAH equ  _U1STA+1
+  U1TXREGL equ  _U1TXREG
+  U1TXREGH equ  _U1TXREG+1
+  U1RXREGL equ  _U1RXREG
+  U1RXREGH equ  _U1RXREG+1
+  U1BRGL equ  _U1BRG
+  U1BRGH equ  _U1BRG+1
+  SPI1STATL equ  _SPI1STAT
+  SPI1STATH equ  _SPI1STAT+1
+  SPI1CON1L equ  _SPI1CON1
+  SPI1CON1H equ  _SPI1CON1+1
+  SPI1CON2L equ  _SPI1CON2
+  SPI1CON2H equ  _SPI1CON2+1
+  SPI1BUFL equ  _SPI1BUF
+  SPI1BUFH equ  _SPI1BUF+1
+  TRISAL equ  _TRISA
+  TRISAH equ  _TRISA+1
+  PORTAL equ  _PORTA
+  PORTAH equ  _PORTA+1
+  LATAL equ  _LATA
+  LATAH equ  _LATA+1
+  ODCAL equ  _ODCA
+  ODCAH equ  _ODCA+1
+  TRISBL equ  _TRISB
+  TRISBH equ  _TRISB+1
+  PORTBL equ  _PORTB
+  PORTBH equ  _PORTB+1
+  LATBL equ  _LATB
+  LATBH equ  _LATB+1
+  ODCBL equ  _ODCB
+  ODCBH equ  _ODCB+1
+  ADCONL equ  _ADCON
+  ADCONH equ  _ADCON+1
+  ADPCFGL equ  _ADPCFG
+  ADPCFGH equ  _ADPCFG+1
+  ADSTATL equ  _ADSTAT
+  ADSTATH equ  _ADSTAT+1
+  ADBASEL equ  _ADBASE
+  ADBASEH equ  _ADBASE+1
+  ADCPC0L equ  _ADCPC0
+  ADCPC0H equ  _ADCPC0+1
+  ADCPC1L equ  _ADCPC1
+  ADCPC1H equ  _ADCPC1+1
+  ADCBUF0L equ  _ADCBUF0
+  ADCBUF0H equ  _ADCBUF0+1
+  ADCBUF1L equ  _ADCBUF1
+  ADCBUF1H equ  _ADCBUF1+1
+  ADCBUF2L equ  _ADCBUF2
+  ADCBUF2H equ  _ADCBUF2+1
+  ADCBUF3L equ  _ADCBUF3
+  ADCBUF3H equ  _ADCBUF3+1
+  ADCBUF6L equ  _ADCBUF6
+  ADCBUF6H equ  _ADCBUF6+1
+  ADCBUF7L equ  _ADCBUF7
+  ADCBUF7H equ  _ADCBUF7+1
+  PTCONL equ  _PTCON
+  PTCONH equ  _PTCON+1
+  PTCON2L equ  _PTCON2
+  PTCON2H equ  _PTCON2+1
+  PTPERL equ  _PTPER
+  PTPERH equ  _PTPER+1
+  SEVTCMPL equ  _SEVTCMP
+  SEVTCMPH equ  _SEVTCMP+1
+  MDCL equ  _MDC
+  MDCH equ  _MDC+1
+  PWMCON1L equ  _PWMCON1
+  PWMCON1H equ  _PWMCON1+1
+  IOCON1L equ  _IOCON1
+  IOCON1H equ  _IOCON1+1
+  FCLCON1L equ  _FCLCON1
+  FCLCON1H equ  _FCLCON1+1
+  PDC1L equ  _PDC1
+  PDC1H equ  _PDC1+1
+  PHASE1L equ  _PHASE1
+  PHASE1H equ  _PHASE1+1
+  DTR1L equ  _DTR1
+  DTR1H equ  _DTR1+1
+  ALTDTR1L equ  _ALTDTR1
+  ALTDTR1H equ  _ALTDTR1+1
+  SDC1L equ  _SDC1
+  SDC1H equ  _SDC1+1
+  SPHASE1L equ  _SPHASE1
+  SPHASE1H equ  _SPHASE1+1
+  TRIG1L equ  _TRIG1
+  TRIG1H equ  _TRIG1+1
+  TRGCON1L equ  _TRGCON1
+  TRGCON1H equ  _TRGCON1+1
+  STRIG1L equ  _STRIG1
+  STRIG1H equ  _STRIG1+1
+  PWMCAP1L equ  _PWMCAP1
+  PWMCAP1H equ  _PWMCAP1+1
+  LEBCON1L equ  _LEBCON1
+  LEBCON1H equ  _LEBCON1+1
+  PWMCON4L equ  _PWMCON4
+  PWMCON4H equ  _PWMCON4+1
+  IOCON4L equ  _IOCON4
+  IOCON4H equ  _IOCON4+1
+  FCLCON4L equ  _FCLCON4
+  FCLCON4H equ  _FCLCON4+1
+  PDC4L equ  _PDC4
+  PDC4H equ  _PDC4+1
+  PHASE4L equ  _PHASE4
+  PHASE4H equ  _PHASE4+1
+  DTR4L equ  _DTR4
+  DTR4H equ  _DTR4+1
+  ALTDTR4L equ  _ALTDTR4
+  ALTDTR4H equ  _ALTDTR4+1
+  SDC4L equ  _SDC4
+  SDC4H equ  _SDC4+1
+  SPHASE4L equ  _SPHASE4
+  SPHASE4H equ  _SPHASE4+1
+  TRIG4L equ  _TRIG4
+  TRIG4H equ  _TRIG4+1
+  TRGCON4L equ  _TRGCON4
+  TRGCON4H equ  _TRGCON4+1
+  STRIG4L equ  _STRIG4
+  STRIG4H equ  _STRIG4+1
+  PWMCAP4L equ  _PWMCAP4
+  PWMCAP4H equ  _PWMCAP4+1
+  LEBCON4L equ  _LEBCON4
+  LEBCON4H equ  _LEBCON4+1
+  RPINR0L equ  _RPINR0
+  RPINR0H equ  _RPINR0+1
+  RPINR1L equ  _RPINR1
+  RPINR1H equ  _RPINR1+1
+  RPINR2L equ  _RPINR2
+  RPINR2H equ  _RPINR2+1
+  RPINR3L equ  _RPINR3
+  RPINR3H equ  _RPINR3+1
+  RPINR11L equ  _RPINR11
+  RPINR11H equ  _RPINR11+1
+  RPINR18L equ  _RPINR18
+  RPINR18H equ  _RPINR18+1
+  RPINR20L equ  _RPINR20
+  RPINR20H equ  _RPINR20+1
+  RPINR21L equ  _RPINR21
+  RPINR21H equ  _RPINR21+1
+  RPINR29L equ  _RPINR29
+  RPINR29H equ  _RPINR29+1
+  RPINR30L equ  _RPINR30
+  RPINR30H equ  _RPINR30+1
+  RPINR31L equ  _RPINR31
+  RPINR31H equ  _RPINR31+1
+  RPINR32L equ  _RPINR32
+  RPINR32H equ  _RPINR32+1
+  RPINR33L equ  _RPINR33
+  RPINR33H equ  _RPINR33+1
+  RPINR34L equ  _RPINR34
+  RPINR34H equ  _RPINR34+1
+  RPOR0L equ  _RPOR0
+  RPOR0H equ  _RPOR0+1
+  RPOR1L equ  _RPOR1
+  RPOR1H equ  _RPOR1+1
+  RPOR2L equ  _RPOR2
+  RPOR2H equ  _RPOR2+1
+  RPOR3L equ  _RPOR3
+  RPOR3H equ  _RPOR3+1
+  RPOR16L equ  _RPOR16
+  RPOR16H equ  _RPOR16+1
+  RPOR17L equ  _RPOR17
+  RPOR17H equ  _RPOR17+1
+  RCONL equ  _RCON
+  RCONH equ  _RCON+1
+  OSCCONLL equ  _OSCCONL
+  OSCCONLH equ  _OSCCONL+1
+  OSCCONHL equ  _OSCCONH
+  OSCCONHH equ  _OSCCONH+1
+  CLKDIVL equ  _CLKDIV
+  CLKDIVH equ  _CLKDIV+1
+  PLLFBDL equ  _PLLFBD
+  PLLFBDH equ  _PLLFBD+1
+  OSCTUNL equ  _OSCTUN
+  OSCTUNH equ  _OSCTUN+1
+  LFSRL equ  _LFSR
+  LFSRH equ  _LFSR+1
+  REFOCONL equ  _REFOCON
+  REFOCONH equ  _REFOCON+1
+  ACLKCONL equ  _ACLKCON
+  ACLKCONH equ  _ACLKCON+1
+  NVMCONL equ  _NVMCON
+  NVMCONH equ  _NVMCON+1
+  NVMKEYL equ  _NVMKEY
+  NVMKEYH equ  _NVMKEY+1
+  PMD1L equ  _PMD1
+  PMD1H equ  _PMD1+1
+  PMD2L equ  _PMD2
+  PMD2H equ  _PMD2+1
+  PMD4L equ  _PMD4
+  PMD4H equ  _PMD4+1
+  PMD6L equ  _PMD6
+  PMD6H equ  _PMD6+1
+ C equ        0x0000
+ Z equ        0x0001
+ OV equ       0x0002
+ N equ        0x0003
+ RA equ       0x0004
+ DC equ       0x0008
+ DA equ       0x0009
+ SAB equ      0x000A
+ OAB equ      0x000B
+ SB equ       0x000C
+ SA equ       0x000D
+ OB equ       0x000E
+ OA equ       0x000F
+ IPL0 equ     0x0005
+ IPL1 equ     0x0006
+ IPL2 equ     0x0007
+ IF equ       0x0000
+ RND equ      0x0001
+ PSV equ      0x0002
+ IPL3 equ     0x0003
+ ACCSAT equ   0x0004
+ SATDW equ    0x0005
+ SATB equ     0x0006
+ SATA equ     0x0007
+ EDT equ      0x000B
+ US equ       0x000C
+ DL0 equ      0x0008
+ DL1 equ      0x0009
+ DL2 equ      0x000A
+ YMODEN equ   0x000E
+ XMODEN equ   0x000F
+ XWM0 equ     0x0000
+ XWM1 equ     0x0001
+ XWM2 equ     0x0002
+ XWM3 equ     0x0003
+ YWM0 equ     0x0004
+ YWM1 equ     0x0005
+ YWM2 equ     0x0006
+ YWM3 equ     0x0007
+ BWM0 equ     0x0008
+ BWM1 equ     0x0009
+ BWM2 equ     0x000A
+ BWM3 equ     0x000B
+ BREN equ     0x000F
+ XB0 equ      0x0000
+ XB1 equ      0x0001
+ XB2 equ      0x0002
+ XB3 equ      0x0003
+ XB4 equ      0x0004
+ XB5 equ      0x0005
+ XB6 equ      0x0006
+ XB7 equ      0x0007
+ XB8 equ      0x0008
+ XB9 equ      0x0009
+ XB10 equ     0x000A
+ XB11 equ     0x000B
+ XB12 equ     0x000C
+ XB13 equ     0x000D
+ XB14 equ     0x000E
+ CN0IE equ    0x0000
+ CN1IE equ    0x0001
+ CN2IE equ    0x0002
+ CN3IE equ    0x0003
+ CN4IE equ    0x0004
+ CN5IE equ    0x0005
+ CN6IE equ    0x0006
+ CN7IE equ    0x0007
+ CN0PUE equ   0x0000
+ CN1PUE equ   0x0001
+ CN2PUE equ   0x0002
+ CN3PUE equ   0x0003
+ CN4PUE equ   0x0004
+ CN5PUE equ   0x0005
+ CN6PUE equ   0x0006
+ CN7PUE equ   0x0007
+ OSCFAIL equ  0x0001
+ STKERR equ   0x0002
+ ADDRERR equ  0x0003
+ MATHERR equ  0x0004
+ DIV0ERR equ  0x0006
+ SFTACERR equ  0x0007
+ COVTE equ    0x0008
+ OVBTE equ    0x0009
+ OVATE equ    0x000A
+ COVBERR equ  0x000B
+ COVAERR equ  0x000C
+ OVBERR equ   0x000D
+ OVAERR equ   0x000E
+ NSTDIS equ   0x000F
+ INT0EP equ   0x0000
+ INT1EP equ   0x0001
+ INT2EP equ   0x0002
+ DISI equ     0x000E
+ ALTIVT equ   0x000F
+ INT0IF equ   0x0000
+ OC1IF equ    0x0002
+ T1IF equ     0x0003
+ T2IF equ     0x0007
+ SPI1EIF equ  0x0009
+ SPI1IF equ   0x000A
+ U1RXIF equ   0x000B
+ U1TXIF equ   0x000C
+ ADIF equ     0x000D
+ SI2C1IF equ  0x0000
+ MI2C1IF equ  0x0001
+ CNIF equ     0x0003
+ INT1IF equ   0x0004
+ INT2IF equ   0x000D
+ PSEMIF equ   0x0009
+ U1EIF equ    0x0001
+ PWM1IF equ   0x000E
+ PWM4IF equ   0x0001
+ ADCP0IF equ  0x000E
+ ADCP1IF equ  0x000F
+ ADCP3IF equ  0x0001
+ INT0IE equ   0x0000
+ OC1IE equ    0x0002
+ T1IE equ     0x0003
+ T2IE equ     0x0007
+ SPI1EIE equ  0x0009
+ SPI1IE equ   0x000A
+ U1RXIE equ   0x000B
+ U1TXIE equ   0x000C
+ ADIE equ     0x000D
+ SI2C1IE equ  0x0000
+ MI2C1IE equ  0x0001
+ CNIE equ     0x0003
+ INT1IE equ   0x0004
+ INT2IE equ   0x000D
+ PSEMIE equ   0x0009
+ U1EIE equ    0x0001
+ PWM1IE equ   0x000E
+ PWM4IE equ   0x0001
+ ADCP0IE equ  0x000E
+ ADCP1IE equ  0x000F
+ ADCP3IE equ  0x0001
+ INT0IP0 equ  0x0000
+ INT0IP1 equ  0x0001
+ INT0IP2 equ  0x0002
+ IC1IP0 equ   0x0004
+ IC1IP1 equ   0x0005
+ IC1IP2 equ   0x0006
+ OC1IP0 equ   0x0008
+ OC1IP1 equ   0x0009
+ OC1IP2 equ   0x000A
+ T1IP0 equ    0x000C
+ T1IP1 equ    0x000D
+ T1IP2 equ    0x000E
+ T2IP0 equ    0x000C
+ T2IP1 equ    0x000D
+ T2IP2 equ    0x000E
+ SPI1EIP0 equ  0x0004
+ SPI1EIP1 equ  0x0005
+ SPI1EIP2 equ  0x0006
+ SPI1IP0 equ  0x0008
+ SPI1IP1 equ  0x0009
+ SPI1IP2 equ  0x000A
+ U1RXIP0 equ  0x000C
+ U1RXIP1 equ  0x000D
+ U1RXIP2 equ  0x000E
+ U1TXIP0 equ  0x0000
+ U1TXIP1 equ  0x0001
+ U1TXIP2 equ  0x0002
+ ADIP0 equ    0x0004
+ ADIP1 equ    0x0005
+ ADIP2 equ    0x0006
+ SI2C1IP0 equ  0x0000
+ SI2C1IP1 equ  0x0001
+ SI2C1IP2 equ  0x0002
+ MI2C1IP0 equ  0x0004
+ MI2C1IP1 equ  0x0005
+ MI2C1IP2 equ  0x0006
+ CNIP0 equ    0x000C
+ CNIP1 equ    0x000D
+ CNIP2 equ    0x000E
+ INT1IP0 equ  0x0000
+ INT1IP1 equ  0x0001
+ INT1IP2 equ  0x0002
+ INT2IP0 equ  0x0004
+ INT2IP1 equ  0x0005
+ INT2IP2 equ  0x0006
+ PSEMIP0 equ  0x0004
+ PSEMIP1 equ  0x0005
+ PSEMIP2 equ  0x0006
+ U1EIP0 equ   0x0004
+ U1EIP1 equ   0x0005
+ U1EIP2 equ   0x0006
+ PWM1IP0 equ  0x0008
+ PWM1IP1 equ  0x0009
+ PWM1IP2 equ  0x000A
+ PWM4IP0 equ  0x0004
+ PWM4IP1 equ  0x0005
+ PWM4IP2 equ  0x0006
+ ADCP0IP0 equ  0x0008
+ ADCP0IP1 equ  0x0009
+ ADCP0IP2 equ  0x000A
+ ADCP1IP0 equ  0x000C
+ ADCP1IP1 equ  0x000D
+ ADCP1IP2 equ  0x000E
+ ADCP3IP0 equ  0x0004
+ ADCP3IP1 equ  0x0005
+ ADCP3IP2 equ  0x0006
+ VECNUM0 equ  0x0000
+ VECNUM1 equ  0x0001
+ VECNUM2 equ  0x0002
+ VECNUM3 equ  0x0003
+ VECNUM4 equ  0x0004
+ VECNUM5 equ  0x0005
+ VECNUM6 equ  0x0006
+ ILR0 equ     0x0008
+ ILR1 equ     0x0009
+ ILR2 equ     0x000A
+ ILR3 equ     0x000B
+ TCS equ      0x0001
+ TSYNC equ    0x0002
+ TGATE equ    0x0006
+ TSIDL equ    0x000D
+ TON equ      0x000F
+ TCKPS0 equ   0x0004
+ TCKPS1 equ   0x0005
+ OCTSEL equ   0x0003
+ OCFLT equ    0x0004
+ OCSIDL equ   0x000D
+ OCM0 equ     0x0000
+ OCM1 equ     0x0001
+ OCM2 equ     0x0002
+ SEN equ      0x0000
+ RSEN equ     0x0001
+ PEN equ      0x0002
+ RCEN equ     0x0003
+ ACKEN equ    0x0004
+ ACKDT equ    0x0005
+ STREN equ    0x0006
+ GCEN equ     0x0007
+ SMEN equ     0x0008
+ DISSLW equ   0x0009
+ A10M equ     0x000A
+ IPMIEN equ   0x000B
+ SCLREL equ   0x000C
+ I2CSIDL equ  0x000D
+ I2CEN equ    0x000F
+ TBF equ      0x0000
+ RBF equ      0x0001
+ R_W equ      0x0002
+ S equ        0x0003
+ P equ        0x0004
+ D_A equ      0x0005
+ I2COV equ    0x0006
+ IWCOL equ    0x0007
+ ADD10 equ    0x0008
+ GCSTAT equ   0x0009
+ BCL equ      0x000A
+ TRSTAT equ   0x000E
+ ACKSTAT equ  0x000F
+ STSEL equ    0x0000
+ BRGH equ     0x0003
+ URXINV equ   0x0004
+ ABAUD equ    0x0005
+ LPBACK equ   0x0006
+ WAKE equ     0x0007
+ RTSMD equ    0x000B
+ IREN equ     0x000C
+ USIDL equ    0x000D
+ UARTEN equ   0x000F
+ PDSEL0 equ   0x0001
+ PDSEL1 equ   0x0002
+ UEN0 equ     0x0008
+ UEN1 equ     0x0009
+ URXDA equ    0x0000
+ OERR equ     0x0001
+ FERR equ     0x0002
+ PERR equ     0x0003
+ RIDLE equ    0x0004
+ ADDEN equ    0x0005
+ TRMT equ     0x0008
+ UTXBF equ    0x0009
+ UTXEN equ    0x000A
+ UTXBRK equ   0x000B
+ UTXISEL0 equ  0x000D
+ UTXINV equ   0x000E
+ UTXISEL1 equ  0x000F
+ URXISEL0 equ  0x0006
+ URXISEL1 equ  0x0007
+ UTXREG0 equ  0x0000
+ UTXREG1 equ  0x0001
+ UTXREG2 equ  0x0002
+ UTXREG3 equ  0x0003
+ UTXREG4 equ  0x0004
+ UTXREG5 equ  0x0005
+ UTXREG6 equ  0x0006
+ UTXREG7 equ  0x0007
+ UTXREG8 equ  0x0008
+ URXREG0 equ  0x0000
+ URXREG1 equ  0x0001
+ URXREG2 equ  0x0002
+ URXREG3 equ  0x0003
+ URXREG4 equ  0x0004
+ URXREG5 equ  0x0005
+ URXREG6 equ  0x0006
+ URXREG7 equ  0x0007
+ URXREG8 equ  0x0008
+ SPIRBF equ   0x0000
+ SPITBF equ   0x0001
+ SPIROV equ   0x0006
+ SPISIDL equ  0x000D
+ SPIEN equ    0x000F
+ MSTEN equ    0x0005
+ CKP equ      0x0006
+ SSEN equ     0x0007
+ CKE equ      0x0008
+ SMP equ      0x0009
+ MODE16 equ   0x000A
+ DISSDO equ   0x000B
+ DISSCK equ   0x000C
+ PPRE0 equ    0x0000
+ PPRE1 equ    0x0001
+ SPRE0 equ    0x0002
+ SPRE1 equ    0x0003
+ SPRE2 equ    0x0004
+ FRMDLY equ   0x0001
+ FRMPOL equ   0x000D
+ SPIFSD equ   0x000E
+ FRMEN equ    0x000F
+ TRISA0 equ   0x0000
+ TRISA1 equ   0x0001
+ TRISA2 equ   0x0002
+ TRISA3 equ   0x0003
+ TRISA4 equ   0x0004
+ RA0 equ      0x0000
+ RA1 equ      0x0001
+ RA2 equ      0x0002
+ RA3 equ      0x0003
+ RA4 equ      0x0004
+ LATA0 equ    0x0000
+ LATA1 equ    0x0001
+ LATA2 equ    0x0002
+ LATA3 equ    0x0003
+ LATA4 equ    0x0004
+ ODCA0 equ    0x0000
+ ODCA1 equ    0x0001
+ ODCA2 equ    0x0002
+ ODCA3 equ    0x0003
+ ODCA4 equ    0x0004
+ TRISB0 equ   0x0000
+ TRISB1 equ   0x0001
+ TRISB2 equ   0x0002
+ TRISB3 equ   0x0003
+ TRISB4 equ   0x0004
+ TRISB5 equ   0x0005
+ TRISB6 equ   0x0006
+ TRISB7 equ   0x0007
+ RB0 equ      0x0000
+ RB1 equ      0x0001
+ RB2 equ      0x0002
+ RB3 equ      0x0003
+ RB4 equ      0x0004
+ RB5 equ      0x0005
+ RB6 equ      0x0006
+ RB7 equ      0x0007
+ LATB0 equ    0x0000
+ LATB1 equ    0x0001
+ LATB2 equ    0x0002
+ LATB3 equ    0x0003
+ LATB4 equ    0x0004
+ LATB5 equ    0x0005
+ LATB6 equ    0x0006
+ LATB7 equ    0x0007
+ ODCB0 equ    0x0000
+ ODCB1 equ    0x0001
+ ODCB2 equ    0x0002
+ ODCB3 equ    0x0003
+ ODCB4 equ    0x0004
+ ODCB5 equ    0x0005
+ ODCB6 equ    0x0006
+ ODCB7 equ    0x0007
+ ASYNCSAMP equ  0x0004
+ SEQSAMP equ  0x0005
+ ORDER equ    0x0006
+ EIE equ      0x0007
+ FORM equ     0x0008
+ GSWTRG equ   0x000A
+ SLOWCLK equ  0x000C
+ ADSIDL equ   0x000D
+ ADON equ     0x000F
+ ADCS0 equ    0x0000
+ ADCS1 equ    0x0001
+ ADCS2 equ    0x0002
+ PCFG0 equ    0x0000
+ PCFG1 equ    0x0001
+ PCFG2 equ    0x0002
+ PCFG3 equ    0x0003
+ PCFG6 equ    0x0006
+ PCFG7 equ    0x0007
+ P0RDY equ    0x0000
+ P1RDY equ    0x0001
+ P3RDY equ    0x0003
+ P6RDY equ    0x0006
+ SWTRG0 equ   0x0005
+ PEND0 equ    0x0006
+ IRQEN0 equ   0x0007
+ SWTRG1 equ   0x000D
+ PEND1 equ    0x000E
+ IRQEN1 equ   0x000F
+ TRGSRC00 equ  0x0000
+ TRGSRC01 equ  0x0001
+ TRGSRC02 equ  0x0002
+ TRGSRC03 equ  0x0003
+ TRGSRC04 equ  0x0004
+ TRGSRC10 equ  0x0008
+ TRGSRC11 equ  0x0009
+ TRGSRC12 equ  0x000A
+ TRGSRC13 equ  0x000B
+ TRGSRC14 equ  0x000C
+ SWTRG3 equ   0x000D
+ PEND3 equ    0x000E
+ IRQEN3 equ   0x000F
+ TRGSRC30 equ  0x0008
+ TRGSRC31 equ  0x0009
+ TRGSRC32 equ  0x000A
+ TRGSRC33 equ  0x000B
+ TRGSRC34 equ  0x000C
+ SYNCEN equ   0x0007
+ SYNCOEN equ  0x0008
+ SYNCPOL equ  0x0009
+ EIPU equ     0x000A
+ SEIEN equ    0x000B
+ SESTAT equ   0x000C
+ PTSIDL equ   0x000D
+ PTEN equ     0x000F
+ SEVTPS0 equ  0x0000
+ SEVTPS1 equ  0x0001
+ SEVTPS2 equ  0x0002
+ SEVTPS3 equ  0x0003
+ SYNCSRC0 equ  0x0004
+ SYNCSRC1 equ  0x0005
+ PCLKDIV0 equ  0x0000
+ PCLKDIV1 equ  0x0001
+ PCLKDIV2 equ  0x0002
+ IUE equ      0x0000
+ XPRES equ    0x0001
+ CAM equ      0x0002
+ MDCS equ     0x0008
+ ITB equ      0x0009
+ TRGIEN equ   0x000A
+ CLIEN equ    0x000B
+ FLTIEN equ   0x000C
+ TRGSTAT equ  0x000D
+ CLSTAT equ   0x000E
+ FLTSTAT equ  0x000F
+ DTC0 equ     0x0006
+ DTC1 equ     0x0007
+ OSYNC equ    0x0000
+ SWAP equ     0x0001
+ OVRENL equ   0x0008
+ OVRENH equ   0x0009
+ POLL equ     0x000C
+ POLH equ     0x000D
+ PENL equ     0x000E
+ PENH equ     0x000F
+ CLDAT0 equ   0x0002
+ CLDAT1 equ   0x0003
+ FLTDAT0 equ  0x0004
+ FLTDAT1 equ  0x0005
+ OVRDAT0 equ  0x0006
+ OVRDAT1 equ  0x0007
+ PMOD0 equ    0x000A
+ PMOD1 equ    0x000B
+ FLTPOL equ   0x0002
+ CLMOD equ    0x0008
+ CLPOL equ    0x0009
+ IFLTMOD equ  0x000F
+ FLTMOD0 equ  0x0000
+ FLTMOD1 equ  0x0001
+ FLTSRC0 equ  0x0003
+ FLTSRC1 equ  0x0004
+ FLTSRC2 equ  0x0005
+ FLTSRC3 equ  0x0006
+ FLTSRC4 equ  0x0007
+ CLSRC0 equ   0x000A
+ CLSRC1 equ   0x000B
+ CLSRC2 equ   0x000C
+ CLSRC3 equ   0x000D
+ CLSRC4 equ   0x000E
+ TRGCMP0 equ  0x0003
+ TRGCMP1 equ  0x0004
+ TRGCMP2 equ  0x0005
+ TRGCMP3 equ  0x0006
+ TRGCMP4 equ  0x0007
+ TRGCMP5 equ  0x0008
+ TRGCMP6 equ  0x0009
+ TRGCMP7 equ  0x000A
+ TRGCMP8 equ  0x000B
+ TRGCMP9 equ  0x000C
+ TRGCMP10 equ  0x000D
+ TRGCMP11 equ  0x000E
+ TRGCMP12 equ  0x000F
+ DTM equ      0x0007
+ TRGSTRT0 equ  0x0000
+ TRGSTRT1 equ  0x0001
+ TRGSTRT2 equ  0x0002
+ TRGSTRT3 equ  0x0003
+ TRGSTRT4 equ  0x0004
+ TRGSTRT5 equ  0x0005
+ TRGDIV0 equ  0x000C
+ TRGDIV1 equ  0x000D
+ TRGDIV2 equ  0x000E
+ TRGDIV3 equ  0x000F
+ STRGCMP0 equ  0x0003
+ STRGCMP1 equ  0x0004
+ STRGCMP2 equ  0x0005
+ STRGCMP3 equ  0x0006
+ STRGCMP4 equ  0x0007
+ STRGCMP5 equ  0x0008
+ STRGCMP6 equ  0x0009
+ STRGCMP7 equ  0x000A
+ STRGCMP8 equ  0x000B
+ STRGCMP9 equ  0x000C
+ STRGCMP10 equ  0x000D
+ STRGCMP11 equ  0x000E
+ STRGCMP12 equ  0x000F
+ PWMCAP10 equ  0x0003
+ PWMCAP11 equ  0x0004
+ PWMCAP12 equ  0x0005
+ PWMCAP13 equ  0x0006
+ PWMCAP14 equ  0x0007
+ PWMCAP15 equ  0x0008
+ PWMCAP16 equ  0x0009
+ PWMCAP17 equ  0x000A
+ PWMCAP18 equ  0x000B
+ PWMCAP19 equ  0x000C
+ PWMCAP110 equ  0x000D
+ PWMCAP111 equ  0x000E
+ PWMCAP112 equ  0x000F
+ CLLEBEN equ  0x000A
+ FLTLEBEN equ  0x000B
+ PLF equ      0x000C
+ PLR equ      0x000D
+ PHF equ      0x000E
+ PHR equ      0x000F
+ LEB0 equ     0x0003
+ LEB1 equ     0x0004
+ LEB2 equ     0x0005
+ LEB3 equ     0x0006
+ LEB4 equ     0x0007
+ LEB5 equ     0x0008
+ LEB6 equ     0x0009
+ INT1R0 equ   0x0008
+ INT1R1 equ   0x0009
+ INT1R2 equ   0x000A
+ INT1R3 equ   0x000B
+ INT1R4 equ   0x000C
+ INT1R5 equ   0x000D
+ INT2R0 equ   0x0000
+ INT2R1 equ   0x0001
+ INT2R2 equ   0x0002
+ INT2R3 equ   0x0003
+ INT2R4 equ   0x0004
+ INT2R5 equ   0x0005
+ T1CKR0 equ   0x0008
+ T1CKR1 equ   0x0009
+ T1CKR2 equ   0x000A
+ T1CKR3 equ   0x000B
+ T1CKR4 equ   0x000C
+ T1CKR5 equ   0x000D
+ T2CKR0 equ   0x0000
+ T2CKR1 equ   0x0001
+ T2CKR2 equ   0x0002
+ T2CKR3 equ   0x0003
+ T2CKR4 equ   0x0004
+ T2CKR5 equ   0x0005
+ OCFAR0 equ   0x0000
+ OCFAR1 equ   0x0001
+ OCFAR2 equ   0x0002
+ OCFAR3 equ   0x0003
+ OCFAR4 equ   0x0004
+ OCFAR5 equ   0x0005
+ U1RXR0 equ   0x0000
+ U1RXR1 equ   0x0001
+ U1RXR2 equ   0x0002
+ U1RXR3 equ   0x0003
+ U1RXR4 equ   0x0004
+ U1RXR5 equ   0x0005
+ U1CTSR0 equ  0x0008
+ U1CTSR1 equ  0x0009
+ U1CTSR2 equ  0x000A
+ U1CTSR3 equ  0x000B
+ U1CTSR4 equ  0x000C
+ U1CTSR5 equ  0x000D
+ SDI1R0 equ   0x0000
+ SDI1R1 equ   0x0001
+ SDI1R2 equ   0x0002
+ SDI1R3 equ   0x0003
+ SDI1R4 equ   0x0004
+ SDI1R5 equ   0x0005
+ SCK1R0 equ   0x0008
+ SCK1R1 equ   0x0009
+ SCK1R2 equ   0x000A
+ SCK1R3 equ   0x000B
+ SCK1R4 equ   0x000C
+ SCK1R5 equ   0x000D
+ SS1R0 equ    0x0000
+ SS1R1 equ    0x0001
+ SS1R2 equ    0x0002
+ SS1R3 equ    0x0003
+ SS1R4 equ    0x0004
+ SS1R5 equ    0x0005
+ FLT1R0 equ   0x0008
+ FLT1R1 equ   0x0009
+ FLT1R2 equ   0x000A
+ FLT1R3 equ   0x000B
+ FLT1R4 equ   0x000C
+ FLT1R5 equ   0x000D
+ FLT2R0 equ   0x0000
+ FLT2R1 equ   0x0001
+ FLT2R2 equ   0x0002
+ FLT2R3 equ   0x0003
+ FLT2R4 equ   0x0004
+ FLT2R5 equ   0x0005
+ FLT3R0 equ   0x0008
+ FLT3R1 equ   0x0009
+ FLT3R2 equ   0x000A
+ FLT3R3 equ   0x000B
+ FLT3R4 equ   0x000C
+ FLT3R5 equ   0x000D
+ FLT4R0 equ   0x0000
+ FLT4R1 equ   0x0001
+ FLT4R2 equ   0x0002
+ FLT4R3 equ   0x0003
+ FLT4R4 equ   0x0004
+ FLT4R5 equ   0x0005
+ FLT5R0 equ   0x0008
+ FLT5R1 equ   0x0009
+ FLT5R2 equ   0x000A
+ FLT5R3 equ   0x000B
+ FLT5R4 equ   0x000C
+ FLT5R5 equ   0x000D
+ FLT6R0 equ   0x0000
+ FLT6R1 equ   0x0001
+ FLT6R2 equ   0x0002
+ FLT6R3 equ   0x0003
+ FLT6R4 equ   0x0004
+ FLT6R5 equ   0x0005
+ FLT7R0 equ   0x0008
+ FLT7R1 equ   0x0009
+ FLT7R2 equ   0x000A
+ FLT7R3 equ   0x000B
+ FLT7R4 equ   0x000C
+ FLT7R5 equ   0x000D
+ FLT8R0 equ   0x0000
+ FLT8R1 equ   0x0001
+ FLT8R2 equ   0x0002
+ FLT8R3 equ   0x0003
+ FLT8R4 equ   0x0004
+ FLT8R5 equ   0x0005
+ SYNCI1R0 equ  0x0008
+ SYNCI1R1 equ  0x0009
+ SYNCI1R2 equ  0x000A
+ SYNCI1R3 equ  0x000B
+ SYNCI1R4 equ  0x000C
+ SYNCI1R5 equ  0x000D
+ SYNCI2R0 equ  0x0000
+ SYNCI2R1 equ  0x0001
+ SYNCI2R2 equ  0x0002
+ SYNCI2R3 equ  0x0003
+ SYNCI2R4 equ  0x0004
+ SYNCI2R5 equ  0x0005
+ RP0R0 equ    0x0000
+ RP0R1 equ    0x0001
+ RP0R2 equ    0x0002
+ RP0R3 equ    0x0003
+ RP0R4 equ    0x0004
+ RP0R5 equ    0x0005
+ RP1R0 equ    0x0008
+ RP1R1 equ    0x0009
+ RP1R2 equ    0x000A
+ RP1R3 equ    0x000B
+ RP1R4 equ    0x000C
+ RP1R5 equ    0x000D
+ RP2R0 equ    0x0000
+ RP2R1 equ    0x0001
+ RP2R2 equ    0x0002
+ RP2R3 equ    0x0003
+ RP2R4 equ    0x0004
+ RP2R5 equ    0x0005
+ RP3R0 equ    0x0008
+ RP3R1 equ    0x0009
+ RP3R2 equ    0x000A
+ RP3R3 equ    0x000B
+ RP3R4 equ    0x000C
+ RP3R5 equ    0x000D
+ RP4R0 equ    0x0000
+ RP4R1 equ    0x0001
+ RP4R2 equ    0x0002
+ RP4R3 equ    0x0003
+ RP4R4 equ    0x0004
+ RP4R5 equ    0x0005
+ RP5R0 equ    0x0008
+ RP5R1 equ    0x0009
+ RP5R2 equ    0x000A
+ RP5R3 equ    0x000B
+ RP5R4 equ    0x000C
+ RP5R5 equ    0x000D
+ RP6R0 equ    0x0000
+ RP6R1 equ    0x0001
+ RP6R2 equ    0x0002
+ RP6R3 equ    0x0003
+ RP6R4 equ    0x0004
+ RP6R5 equ    0x0005
+ RP7R0 equ    0x0008
+ RP7R1 equ    0x0009
+ RP7R2 equ    0x000A
+ RP7R3 equ    0x000B
+ RP7R4 equ    0x000C
+ RP7R5 equ    0x000D
+ RP32R0 equ   0x0000
+ RP32R1 equ   0x0001
+ RP32R2 equ   0x0002
+ RP32R3 equ   0x0003
+ RP32R4 equ   0x0004
+ RP32R5 equ   0x0005
+ RP33R0 equ   0x0008
+ RP33R1 equ   0x0009
+ RP33R2 equ   0x000A
+ RP33R3 equ   0x000B
+ RP33R4 equ   0x000C
+ RP33R5 equ   0x000D
+ RP34R0 equ   0x0000
+ RP34R1 equ   0x0001
+ RP34R2 equ   0x0002
+ RP34R3 equ   0x0003
+ RP34R4 equ   0x0004
+ RP34R5 equ   0x0005
+ RP35R0 equ   0x0008
+ RP35R1 equ   0x0009
+ RP35R2 equ   0x000A
+ RP35R3 equ   0x000B
+ RP35R4 equ   0x000C
+ RP35R5 equ   0x000D
+ POR equ      0x0000
+ BOR equ      0x0001
+ IDLE equ     0x0002
+ SLEEP equ    0x0003
+ WDTO equ     0x0004
+ SWDTEN equ   0x0005
+ SWR equ      0x0006
+ EXTR equ     0x0007
+ VREGS equ    0x0008
+ CM equ       0x0009
+ IOPUWR equ   0x000E
+ TRAPR equ    0x000F
+ OSWEN equ    0x0000
+ CF equ       0x0003
+ LOCK equ     0x0005
+ IOLOCK equ   0x0006
+ CLKLOCK equ  0x0007
+ NOSC0 equ    0x0008
+ NOSC1 equ    0x0009
+ NOSC2 equ    0x000A
+ COSC0 equ    0x000C
+ COSC1 equ    0x000D
+ COSC2 equ    0x000E
+ DOZEN equ    0x000B
+ ROI equ      0x000F
+ PLLPRE0 equ  0x0000
+ PLLPRE1 equ  0x0001
+ PLLPRE2 equ  0x0002
+ PLLPRE3 equ  0x0003
+ PLLPRE4 equ  0x0004
+ PLLPOST0 equ  0x0006
+ PLLPOST1 equ  0x0007
+ FRCDIV0 equ  0x0008
+ FRCDIV1 equ  0x0009
+ FRCDIV2 equ  0x000A
+ DOZE0 equ    0x000C
+ DOZE1 equ    0x000D
+ DOZE2 equ    0x000E
+ PLLDIV0 equ  0x0000
+ PLLDIV1 equ  0x0001
+ PLLDIV2 equ  0x0002
+ PLLDIV3 equ  0x0003
+ PLLDIV4 equ  0x0004
+ PLLDIV5 equ  0x0005
+ PLLDIV6 equ  0x0006
+ PLLDIV7 equ  0x0007
+ PLLDIV8 equ  0x0008
+ TUN0 equ     0x0000
+ TUN1 equ     0x0001
+ TUN2 equ     0x0002
+ TUN3 equ     0x0003
+ TUN4 equ     0x0004
+ TUN5 equ     0x0005
+ ROSEL equ    0x000C
+ ROSIDL equ   0x000D
+ ROON equ     0x000F
+ RODIV0 equ   0x0008
+ RODIV1 equ   0x0009
+ RODIV2 equ   0x000A
+ RODIV3 equ   0x000B
+ ROSSLP equ   0x000D
+ FRCSEL equ   0x0006
+ ASRCSEL equ  0x0007
+ SELACLK equ  0x000D
+ APLLCK equ   0x000E
+ ENAPLL equ   0x000F
+ APSTSCLR0 equ  0x0008
+ APSTSCLR1 equ  0x0009
+ APSTSCLR2 equ  0x000A
+ ERASE equ    0x0006
+ WRERR equ    0x000D
+ WREN equ     0x000E
+ WR equ       0x000F
+ NVMOP0 equ   0x0000
+ NVMOP1 equ   0x0001
+ NVMOP2 equ   0x0002
+ NVMOP3 equ   0x0003
+ ADCMD equ    0x0000
+ SPI1MD equ   0x0003
+ U1MD equ     0x0005
+ I2C1MD equ   0x0007
+ PWMMD equ    0x0009
+ T1MD equ     0x000B
+ T2MD equ     0x000C
+ OC1MD equ    0x0000
+ REFOMD equ   0x0003
+ PWM1MD equ   0x0008
+ PWM4MD equ   0x000B
+ SLEEP_MODE equ  0x0
+ IDLE_MODE equ  0x1
+ BWRP_WRPROTECT_ON equ  0xFFFE ; Boot Segment is write protected
+ BWRP_WRPROTECT_OFF equ  0xFFFF ; Boot Segment may be written
+ BSS_HIGH_LARGE_BOOT_CODE equ  0xFFF1 ; High Security
+ BSS_LARGE_FLASH_HIGH equ  0xFFF1 ; High Security
+ BSS_HIGH_MEDIUM_BOOT_CODE equ  0xFFF3 ; High Security
+ BSS_MEDIUM_FLASH_HIGH equ  0xFFF3 ; High Security
+ BSS_HIGH_SMALL_BOOT_CODE equ  0xFFF5 ; High Security
+ BSS_SMALL_FLASH_HIGH equ  0xFFF5 ; High Security
+ BSS_STRD_LARGE_BOOT_CODE equ  0xFFF9 ; Standard Security
+ BSS_LARGE_FLASH_STD equ  0xFFF9 ; Standard Security
+ BSS_STRD_MEDIUM_BOOT_CODE equ  0xFFFB ; Standard Security
+ BSS_MEDIUM_FLASH_STD equ  0xFFFB ; Standard Security
+ BSS_STRD_SMALL_BOOT_CODE equ  0xFFFD ; Standard Security
+ BSS_SMALL_FLASH_STD equ  0xFFFD ; Standard Security
+ BSS_NO_BOOT_CODE equ  0xFFFF ; No Boot Segment
+ BSS_NO_FLASH equ     0xFFFF ; No Boot Segment Program Memory
+ GWRP_ON equ          0xFFFE ; General Segment is write protected
+ GWRP_OFF equ         0xFFFF ; General Segment may be written
+ GSS_HIGH equ         0xFFFB ; High Security Code Protection Enabled
+ GSS_STD equ          0xFFFD ; Standard Security Code Protection Enabled
+ GCP_ON equ           0xFFFD ; Standard Security Code Protection Enabled
+ GSS_OFF equ          0xFFFF ; User program memory is not code-protected
+ GCP_OFF equ          0xFFFF ; User program memory is not code-protected
+ FNOSC_FRC equ        0xFFF8 ; Internal Fast RC (FRC) oscillator
+ FNOSC_FRCPLL equ     0xFFF9 ; Internal Fast RC (FRC) with PLL
+ FNOSC_PRI equ        0xFFFA ; Primary Oscillator (XT
+ FNOSC_PRIPLL equ     0xFFFB ; Primary Oscillator (XT
+ FNOSC_SOSC equ       0xFFFC ; Secondary Oscillator (SOSC)
+ FNOSC_LPRC equ       0xFFFD ; Low Power RC oscillator (LPRC)
+ FNOSC_FRCDIV16 equ   0xFFFE ; Internal Fast RC (FRC) with divide by 16
+ FNOSC_FRCDIVN equ    0xFFFF ; Internal Fast RC (FRC) oscillator with postscaler
+ IESO_OFF equ         0xFF7F ; Start up device with user-selected oscillator source
+ IESO_ON equ          0xFFFF ; Start up device with FRC
+ POSCMD_EC equ        0xFFFC ; EC (External Clock) Mode
+ POSCMD_XT equ        0xFFFD ; XT Crystal Oscillator Mode
+ POSCMD_HS equ        0xFFFE ; HS Crystal Oscillator Mode
+ POSCMD_NONE equ      0xFFFF ; Primary oscillator disabled
+ OSCIOFNC_ON equ      0xFFFB ; OSC2 is general purpose digital I/O pin
+ OSCIOFNC_OFF equ     0xFFFF ; OSC2 is clock output
+ IOL1WAY_OFF equ      0xFFDF ; Allow multiple reconfigurations
+ IOL1WAY_ON equ       0xFFFF ; Allow only one reconfiguration
+ FCKSM_CSECME equ     0xFF3F ; Clock switching and Fail-Safe Clock Monitor are enabled
+ FCKSM_CSECMD equ     0xFF7F ; Clock switching is enabled
+ FCKSM_CSDCMD equ     0xFFBF ; Clock switching and Fail-Safe Clock Monitor are disabled
+ WDTPOST_PS1 equ      0xFFF0 ; 1:1
+ WDTPOST_PS2 equ      0xFFF1 ; 1:2
+ WDTPOST_PS4 equ      0xFFF2 ; 1:4
+ WDTPOST_PS8 equ      0xFFF3 ; 1:8
+ WDTPOST_PS16 equ     0xFFF4 ; 1:16
+ WDTPOST_PS32 equ     0xFFF5 ; 1:32
+ WDTPOST_PS64 equ     0xFFF6 ; 1:64
+ WDTPOST_PS128 equ    0xFFF7 ; 1:128
+ WDTPOST_PS256 equ    0xFFF8 ; 1:256
+ WDTPOST_PS512 equ    0xFFF9 ; 1:512
+ WDTPOST_PS1024 equ   0xFFFA ; 1:1
+ WDTPOST_PS2048 equ   0xFFFB ; 1:2
+ WDTPOST_PS4096 equ   0xFFFC ; 1:4
+ WDTPOST_PS8192 equ   0xFFFD ; 1:8
+ WDTPOST_PS16384 equ  0xFFFE ; 1:16
+ WDTPOST_PS32768 equ  0xFFFF ; 1:32
+ WDTPRE_PR32 equ      0xFFEF ; 1:32
+ WDTPRE_PR128 equ     0xFFFF ; 1:128
+ WINDIS_ON equ        0xFFBF ; Watchdog Timer in Window mode
+ WINDIS_OFF equ       0xFFFF ; Watchdog Timer in Non-Window mode
+ FWDTEN_OFF equ       0xFF7F ; Watchdog timer enabled/disabled by user software
+ FWDTEN_ON equ        0xFFFF ; Watchdog timer always enabled
+ FPWRT_PWR1 equ       0xFFF8 ; Disabled
+ FPWRT_PWR2 equ       0xFFF9 ; 2ms
+ FPWRT_PWR4 equ       0xFFFA ; 4ms
+ FPWRT_PWR8 equ       0xFFFB ; 8ms
+ FPWRT_PWR16 equ      0xFFFC ; 16ms
+ FPWRT_PWR32 equ      0xFFFD ; 32ms
+ FPWRT_PWR64 equ      0xFFFE ; 64ms
+ FPWRT_PWR128 equ     0xFFFF ; 128ms
+ ICS_NONE equ         0xFFFC ; Reserved
+ ICS_PGD3 equ         0xFFFD ; Communicate on PGC3/EMUC3 and PGD3/EMUD3
+ ICS_PGD2 equ         0xFFFE ; Communicate on PGC2/EMUC2 and PGD2/EMUD2
+ ICS_PGD1 equ         0xFFFF ; Communicate on PGC1/EMUC1 and PGD1/EMUD1
+ JTAGEN_OFF equ       0xFFDF ; JTAG is disabled
+ JTAGEN_ON equ        0xFFFF ; JTAG is enabled
