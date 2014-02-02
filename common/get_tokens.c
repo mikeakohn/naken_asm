@@ -175,6 +175,7 @@ int ptr=0;
 //printf("debug> get_token, grabbing next char ptr=%d\n", ptr);
 #endif
     ch=get_next_char(asm_context);
+    if (ch=='\r') continue;   /* DOS sucks. Geesh get a modern OS. */
 #ifdef DEBUG
 //printf("debug> getc()='%c'  ptr=%d  token='%s'\n", ch, ptr, token);
 #endif
@@ -216,8 +217,6 @@ int ptr=0;
       token[1]=0;
       return TOKEN_EOL;
     }
-
-    if (ch=='\r') continue;   /* DOS sucks. Geesh get a modern OS. */
 
     // Nasty, but some CPU's like Z80 need this
     if (ch=='\'')

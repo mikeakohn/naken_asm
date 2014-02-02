@@ -750,16 +750,16 @@ int prefix=0;
       if (asm_context->msp430_cpu4==1)
       {
         // A bug in the MSP430 for push #4 and push #8.  Cannot use CG.
-        if (opcode==0x1222)
+        if ((opcode&0xffbf)==0x1222)
         {
-          opcode=0x1230;
+          opcode=0x1230|(opcode&0x0040);
           data.count=1;
           data.data[0]=4;
         }
           else
-        if (opcode==0x1232)
+        if ((opcode&0xffbf)==0x1232)
         {
-          opcode=0x1230;
+          opcode=0x1230|(opcode&0x0040);
           data.count=1;
           data.data[0]=8;
         }
