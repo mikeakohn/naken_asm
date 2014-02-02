@@ -267,6 +267,7 @@ void assemble_init(struct _asm_context *asm_context)
   asm_context->unget_stack_ptr=0;
   asm_context->unget_stack[0]=0;
   asm_context->bytes_per_address=1;
+  asm_context->cpu_list_index=-1;
 
   defines_heap_free(&asm_context->defines_heap);
   asm_context->def_param_stack_count=0;
@@ -421,6 +422,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
       asm_context->can_tick_end_string=cpu_list[n].can_tick_end_string;
       asm_context->parse_instruction=cpu_list[n].parse_instruction;
       asm_context->list_output=cpu_list[n].list_output;
+      asm_context->cpu_list_index=n;
       return 1;
     }
     n++;

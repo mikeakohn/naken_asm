@@ -123,8 +123,21 @@ printf("including file %s.\n", token);
       if (strlen(token)+strlen(s+ptr)<1022)
       {
         sprintf(filename, "%s/%s", s+ptr, token);
+#ifdef DEBUG
+        printf("Trying %s\n", filename);
+#endif
         asm_context->in=fopen(filename, "rb");
         if (asm_context->in!=NULL) break;
+
+        if (asm_context->cpu_list_index!=-1)
+        {
+          sprintf(filename, "%s/%s/%s", s+ptr, cpu_list[asm_context->cpu_list_index].name, token);
+#ifdef DEBUG
+          printf("Trying %s\n", filename);
+#endif
+          asm_context->in=fopen(filename, "rb");
+          if (asm_context->in!=NULL) break;
+        }
       }
 
       while (s[ptr]!=0) ptr++;

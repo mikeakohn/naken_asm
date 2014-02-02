@@ -28,7 +28,6 @@
 #include "asm_tms1000.h"
 #include "asm_tms9900.h"
 #include "asm_z80.h"
-//#include "assembler.h"
 #include "disasm_65xx.h"
 #include "disasm_680x.h"
 #include "disasm_68hc08.h"

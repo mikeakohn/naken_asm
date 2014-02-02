@@ -110,6 +110,7 @@ struct _asm_context
   int def_param_stack_count;
   char include_path[INCLUDE_PATH_LEN];
   int include_count;
+  int cpu_list_index;
   const char *filename;
   uint8_t cpu_type;
   uint8_t bytes_per_address;
