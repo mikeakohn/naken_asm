@@ -8,15 +8,15 @@
 .org 0x100
 main:
   clr w0
-  mov.b wreg, TRISA
+  mov wreg, TRISA
 repeat:
   mov #2, w0
-  mov.b wreg, PORTA
+  mov wreg, PORTA
 
   call delay
 
   mov #1, w0
-  mov.b wreg, PORTA
+  mov wreg, PORTA
 
   call delay
 

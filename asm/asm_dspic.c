@@ -1665,6 +1665,15 @@ int n;
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
+          if (operand_count==2 && operands[0].type==OPTYPE_REGISTER &&
+              operands[1].type==OPTYPE_ACCUM)
+          {
+            opcode=table_dspic[n].opcode|operands[0].value|
+                   (operands[0].attribute<<4)|
+                   (operands[0].reg2<<11)|(operands[1].value<<15);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
           break;
         case OP_WS_PLUS_WB:
           if (flag!=FLAG_NONE) { break; }

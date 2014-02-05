@@ -51,6 +51,7 @@ struct _data
 #define CMD_PC 0xdead0002
 #define CMD_R3 0xdead0003
 #define CMD_DST_DST 0xdead0004
+#define CMD_SRC_DST 0xdead0005
 
 static struct _aliases
 {
@@ -80,6 +81,7 @@ static struct _aliases
   { "rla", 1, 0, "add", CMD_DST_DST },
   { "rlc", 1, 0, "addc", CMD_DST_DST },
   { "sbc", 1, 0, "subc", 0 },
+  { "sbb", 2, 0, "subc", CMD_SRC_DST },
   { "setc", 0, 0xd312, NULL, 0 },
   { "setn", 0, 0xd222, NULL, 0 },
   { "setz", 0, 0xd322, NULL, 0 },
@@ -640,6 +642,8 @@ int prefix=0;
           break;
         case CMD_DST_DST:
           memcpy(&operands[1], &operands[0], sizeof(struct _operand));
+          break;
+        case CMD_SRC_DST:
           break;
         default:
           memcpy(&operands[1], &operands[0], sizeof(struct _operand));
