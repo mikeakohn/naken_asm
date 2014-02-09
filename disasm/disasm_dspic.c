@@ -82,7 +82,7 @@ static void get_prefetch_half(char *temp, int w, int iiii)
   }
 }
 
-static void parse_dsp(char *instruction, uint32_t opcode)
+static void parse_dsp(char *instruction, uint32_t opcode, int has_aa)
 {
   char temp[32];
   int xx=(opcode>>12)&0x3;
@@ -102,6 +102,8 @@ static void parse_dsp(char *instruction, uint32_t opcode)
     get_prefetch(temp, 10, yy, jjjj);
     strcat(instruction, temp);
   }
+
+  if (has_aa==0) { return; }
 
   if (aa==0)
   {
@@ -470,27 +472,27 @@ int n,b,d,f,a,w,lit;
           //if ((opcode&0x3)>1) { continue; }
           a=(opcode>>15)&0x1;
           sprintf(instruction, "%s %c", table_dspic[n].name, accum[a]);
-          parse_dsp(instruction, opcode);
+          parse_dsp(instruction, opcode, 1);
           return 4;
         case OP_N_WM_WN_ACC_WX_WY:
           //if ((opcode&0x3)<2) { continue; }
           a=(opcode>>15)&0x1;
           d=(opcode>>16)&0x7;
           sprintf(instruction, "%s.n %s, %c", table_dspic[n].name, mmm_table[d], accum[a]);
-          parse_dsp(instruction, opcode);
+          parse_dsp(instruction, opcode, 0);
           return 4;
         case OP_WM_WM_ACC_WX_WY:
           a=(opcode>>15)&0x1;
           d=((opcode>>16)&0x3)+4;
           sprintf(instruction, "%s w%d*w%d, %c", table_dspic[n].name, d, d, accum[a]);
-          parse_dsp(instruction, opcode);
+          parse_dsp(instruction, opcode, 0);
           return 4;
         case OP_WM_WN_ACC_WX_WY:
           //if ((opcode&0x3)<2) { continue; }
           a=(opcode>>15)&0x1;
           d=(opcode>>16)&0x7;
           sprintf(instruction, "%s %s, %c", table_dspic[n].name, mmm_table[d], accum[a]);
-          parse_dsp(instruction, opcode);
+          parse_dsp(instruction, opcode, 0);
           return 4;
         case OP_WM_WM_ACC_WX_WY_WXD:
           a=(opcode>>15)&0x1;
@@ -507,7 +509,7 @@ int n,b,d,f,a,w,lit;
           a=(opcode>>15)&0x1;
           d=(opcode>>16)&0x7;
           sprintf(instruction, "%s %s, %c", table_dspic[n].name, mmm_table[d], accum[a]);
-          parse_dsp(instruction, opcode);
+          parse_dsp(instruction, opcode, 1);
           break;
         default:
           strcpy(instruction, "???");
