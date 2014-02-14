@@ -727,9 +727,9 @@ int prefix=0;
         return -1;
       }
 
-      if ((n%1)==1 && size==8)
+      if ((n&1)==1 && (size==8 || (msp430x==0 && size==16)))
       {
-        printf("Error: Instruction '%s' can't be used with .b at %s:%d\n", instr, asm_context->filename, asm_context->line);
+        printf("Error: Instruction '%s' can't be used with .b/w at %s:%d\n", instr, asm_context->filename, asm_context->line);
         return -1;
       }
 
