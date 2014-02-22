@@ -15,7 +15,6 @@
 #include <unistd.h>
 
 #include "assembler.h"
-//#include "disasm_msp430.h"
 #include "write_elf.h"
 #include "write_hex.h"
 #include "address_list.h"

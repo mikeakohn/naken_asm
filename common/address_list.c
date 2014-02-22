@@ -49,7 +49,7 @@ struct _memory_pool *memory_pool = address_list->memory_pool;
 
   token_len = strlen(name) + 1;
 
-  if (token_len + 4 > ADDRESS_HEAP_SIZE)
+  if (token_len > 255)
   {
     printf("Error: Label '%s' is too big.\n", name);
     return -1;
@@ -62,7 +62,7 @@ struct _memory_pool *memory_pool = address_list->memory_pool;
 
   while(1)
   {
-     if (memory_pool->ptr + token_len + sizeof(int) < memory_pool->len)
+     if (memory_pool->ptr + token_len + sizeof(struct _address_data) < memory_pool->len)
      {
        break;
      }
@@ -72,14 +72,20 @@ struct _memory_pool *memory_pool = address_list->memory_pool;
        memory_pool->next = memory_pool_add((struct _naken_heap *)address_list, ADDRESS_HEAP_SIZE);
      }
 
-     memory_pool=memory_pool->next;
+     memory_pool = memory_pool->next;
   }
 
   address = address / asm_context->bytes_per_address;
+  struct _address_data *address_data =
+    (struct _address_data *)(memory_pool->buffer + memory_pool->ptr);
 
-  memcpy(memory_pool->buffer + memory_pool->ptr, name, token_len);
-  memcpy(memory_pool->buffer + memory_pool->ptr+token_len, &address, sizeof(int));
-  memory_pool->ptr += token_len + sizeof(int);
+  memcpy(address_data->name, name, token_len);
+  address_data->len = token_len;
+  address_data->flag_read_only = 0;
+  address_data->flag_export = 0;
+  address_data->address = address;
+
+  memory_pool->ptr += token_len + sizeof(struct _address_data);
 
   return 0;
 } 
@@ -92,22 +98,23 @@ void address_list_lock(struct _address_list *address_list)
 int address_list_lookup(struct _address_list *address_list, char *name)
 {
 struct _memory_pool *memory_pool = address_list->memory_pool;
-int token_len;
-int address;
 int ptr;
 
   while(memory_pool != NULL)
   {
     ptr = 0;
+
     while(ptr < memory_pool->ptr)
     {
-      token_len = strlen((char *)memory_pool->buffer + ptr) + 1;
-      if (strcmp((char *)memory_pool->buffer+ptr, name) == 0)
+      struct _address_data *address_data =
+        (struct _address_data *)(memory_pool->buffer + ptr);
+
+      if (strcmp(address_data->name, name) == 0)
       {
-        memcpy(&address, memory_pool->buffer + ptr + token_len, sizeof(int));
-        return address;
+        return address_data->address;
       }
-      ptr += token_len + sizeof(int);
+
+      ptr += address_data->len + sizeof(struct _address_data);
     }
 
     memory_pool = memory_pool->next;
@@ -119,7 +126,6 @@ int ptr;
 int address_list_iterate(struct _address_list *address_list, struct _address_list_iter *iter)
 {
 struct _memory_pool *memory_pool = address_list->memory_pool;
-int token_len;
 
   if (iter->end_flag == 1) return -1;
   if (iter->memory_pool == NULL)
@@ -132,11 +138,14 @@ int token_len;
   {
     if(iter->ptr < memory_pool->ptr)
     {
-      token_len = strlen((char *)memory_pool->buffer + iter->ptr) + 1;
-      memcpy(&iter->address, memory_pool->buffer + iter->ptr + token_len, sizeof(int));
-      iter->name = memory_pool->buffer + iter->ptr;
-      iter->ptr = iter->ptr+token_len + sizeof(int);
+      struct _address_data * address_data =
+        (struct _address_data *)(memory_pool->buffer + iter->ptr);
+
+      iter->address = address_data->address;
+      iter->name = address_data->name;
+      iter->ptr = iter->ptr + address_data->len + sizeof(struct _address_data);
       iter->count++;
+
       return 0;
     }
 
@@ -169,7 +178,6 @@ struct _address_list_iter iter;
 int address_list_count_symbols(struct _address_list *address_list)
 {
 struct _memory_pool *memory_pool = address_list->memory_pool;
-int token_len;
 int ptr;
 int count = 0;
 
@@ -178,8 +186,9 @@ int count = 0;
     ptr = 0;
     while(ptr < memory_pool->ptr)
     {
-      token_len = strlen((char *)memory_pool->buffer + ptr) + 1;
-      ptr = ptr + token_len + sizeof(int);
+      struct _address_data *address_data =
+        (struct _address_data *)(memory_pool->buffer + ptr);
+      ptr += address_data->len + sizeof(struct _address_data);
       count++;
     }
 
@@ -188,4 +197,5 @@ int count = 0;
 
   return count;
 }
+
 

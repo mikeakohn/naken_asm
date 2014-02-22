@@ -14,6 +14,15 @@
 
 #define ADDRESS_HEAP_SIZE 32768
 
+struct _address_data
+{
+  uint8_t len; // length of name[]
+  uint8_t flag_read_only:1;
+  uint8_t flag_export:1;
+  uint32_t address;
+  char name[]; // null terminated name of label:
+};
+
 struct _address_list
 {
   struct _memory_pool *memory_pool;
@@ -23,7 +32,7 @@ struct _address_list
 struct _address_list_iter
 {
   struct _memory_pool *memory_pool;
-  unsigned char *name;
+  char *name;
   int address;
   int ptr;
   int count;
