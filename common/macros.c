@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "get_tokens.h"
-#include "lookup_tables.h"
+#include "address_list.h"
 #include "macros.h"
 #include "memory_pool.h"
 

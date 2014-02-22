@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "assembler.h"
-#include "lookup_tables.h"
+#include "address_list.h"
 #include "write_elf.h"
 
 typedef void(*write_int32_t)(FILE *, unsigned int);

@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 #include "memory.h"
-#include "lookup_tables.h"
+#include "address_list.h"
 #include "write_hex.h"
 
 static void write_hex_line(FILE *out, uint32_t address, uint8_t *data, int len, uint32_t *segment)

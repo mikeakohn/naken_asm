@@ -15,7 +15,7 @@
 #include <stdio.h>
 
 #include "cpu_list.h"
-#include "lookup_tables.h"
+#include "address_list.h"
 #include "macros.h"
 #include "memory.h"
 #include "memory_pool.h"

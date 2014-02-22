@@ -52,7 +52,7 @@
 #include "eval_expression.h"
 #include "get_tokens.h"
 #include "ifdef_expression.h"
-#include "lookup_tables.h"
+#include "address_list.h"
 #include "macros.h"
 #include "print_error.h"
 

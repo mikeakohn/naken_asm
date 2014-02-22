@@ -16,7 +16,7 @@
 #include <signal.h>
 
 #include "get_tokens.h"
-#include "lookup_tables.h"
+#include "address_list.h"
 #include "macros.h"
 
 #define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }

@@ -18,7 +18,7 @@
 //#include "disasm_msp430.h"
 #include "write_elf.h"
 #include "write_hex.h"
-#include "lookup_tables.h"
+#include "address_list.h"
 #include "macros.h"
 #include "version.h"
 

@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "assembler.h"
-#include "lookup_tables.h"
+#include "address_list.h"
 #include "macros.h"
 
 int address_list_init(struct _address_list *address_list)
