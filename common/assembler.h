@@ -16,12 +16,12 @@
 
 #include "cpu_list.h"
 #include "lookup_tables.h"
+#include "macros.h"
 #include "memory.h"
+#include "memory_pool.h"
 #include "print_error.h"
 
-#define MAX_NESTED_MACROS 128
 #define TOKENLEN 512
-#define MAX_MACRO_LEN 1024
 #define PARAM_STACK_LEN 4096
 #define INCLUDE_PATH_LEN 1024
 
@@ -31,54 +31,6 @@
 
 #define SEGMENT_CODE 0
 #define SEGMENT_BSS 1
-
-struct _naken_heap
-{
-  struct _memory_pool *memory_pool;
-};
-
-/*
-  address_heap buffer looks like this:
-  struct
-  {
-    char name[];
-    int address;
-  };
-*/
-
-struct _memory_pool
-{
-  struct _memory_pool *next;
-  int len;
-  int ptr;
-  unsigned char buffer[];
-};
-
-/*
-struct _address_heap
-{
-  struct _memory_pool *memory_pool;
-  int locked;
-};
-*/
-
-/*
-  defines_heap buffer looks like this:
-  struct
-  {
-    char name[];
-    unsigned char value[];  // params are binary 0x01 to 0x09
-    int param_count;
-  };
-*/
-
-struct _defines_heap
-{
-  struct _memory_pool *memory_pool;
-  int locked;
-  char *stack[MAX_NESTED_MACROS];
-  int stack_ptr;
-};
 
 struct _asm_context
 {
@@ -120,8 +72,6 @@ struct _asm_context
   uint8_t msp430_cpu4:1;
 };
 
-struct _memory_pool *add_pool(struct _naken_heap *heap, int heap_len);
-void free_pools(struct _memory_pool *memory_pool);
 int add_to_include_path(struct _asm_context *asm_context, char *paths);
 void assemble_init(struct _asm_context *asm_context);
 void assemble_print_info(struct _asm_context *asm_context, FILE *out);

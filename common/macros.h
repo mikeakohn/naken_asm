@@ -12,11 +12,31 @@
 #ifndef _MACROS_H
 #define _MACROS_H
 
+#define MAX_NESTED_MACROS 128
+#define MAX_MACRO_LEN 1024
 #define DEFINES_HEAP_SIZE 32768
 #define MAX_MACRO_LEN 1024
 #define CHAR_EOF -1
 #define IS_DEFINE 1
 #define IS_MACRO 0
+
+/*
+  defines_heap buffer looks like this:
+  struct
+  {
+    char name[];
+    unsigned char value[];  // params are binary 0x01 to 0x09
+    int param_count;
+  };
+*/
+
+struct _defines_heap
+{
+  struct _memory_pool *memory_pool;
+  int locked;
+  char *stack[MAX_NESTED_MACROS];
+  int stack_ptr;
+};
 
 struct _defines_heap_iter
 {
@@ -43,7 +63,6 @@ int defines_heap_iterate(struct _defines_heap *defines_heap, struct _defines_hea
 int defines_heap_print(struct _defines_heap *defines_heap);
 int defines_heap_push_define(struct _defines_heap *defines_heap, char *define);
 int defines_heap_get_char(struct _asm_context *asm_context);
-
 
 #endif
 

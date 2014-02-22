@@ -56,51 +56,6 @@
 #include "macros.h"
 #include "print_error.h"
 
-struct _memory_pool *add_pool(struct _naken_heap *heap, int heap_len)
-{
-  struct _memory_pool *curr_pool;
-  struct _memory_pool *memory_pool=malloc(heap_len+sizeof(struct _memory_pool));
-
-  memory_pool->len=heap_len;
-  memory_pool->ptr=0;
-  memory_pool->next=NULL;
-
-  if (heap->memory_pool==NULL)
-  {
-    heap->memory_pool=memory_pool;
-  }
-    else
-  {
-    curr_pool=heap->memory_pool;
-    while (curr_pool->next!=NULL) { curr_pool=curr_pool->next; }
-    curr_pool->next=memory_pool;
-  }
-
-#ifdef DEBUG
-printf("add_pool pool=%p\n", memory_pool);
-#endif
-
-  return memory_pool;
-}
-
-void free_pools(struct _memory_pool *memory_pool)
-{
-  struct _memory_pool *curr_pool;
-  struct _memory_pool *last_pool;
-
-  curr_pool=memory_pool;
-
-  while (curr_pool!=NULL)
-  {
-#ifdef DEBUG
-printf("free_pools pool=%p\n", curr_pool);
-#endif
-    last_pool=curr_pool;
-    curr_pool=curr_pool->next;
-    free(last_pool);
-  }
-}
-
 static int parse_org(struct _asm_context *asm_context)
 {
 int num;
