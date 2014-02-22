@@ -256,7 +256,7 @@ int error_flag=0;
 
   printf("\n");
 
-  address_heap_init(&asm_context.address_heap);
+  address_list_init(&asm_context.address_list);
   defines_heap_init(&asm_context.defines_heap);
 
   printf("Pass 1...\n");
@@ -270,7 +270,7 @@ int error_flag=0;
   }
     else
   {
-    address_heap_lock(&asm_context.address_heap);
+    address_list_lock(&asm_context.address_list);
     // defines_heap_lock(&asm_context.defines_heap);
 
     printf("Pass 2...\n");
@@ -291,7 +291,7 @@ int error_flag=0;
       else
     if (format==FORMAT_ELF)
     {
-      write_elf(&asm_context.memory, out, &asm_context.address_heap, asm_context.filename, asm_context.cpu_type);
+      write_elf(&asm_context.memory, out, &asm_context.address_list, asm_context.filename, asm_context.cpu_type);
     }
 #endif
 
@@ -357,7 +357,7 @@ int error_flag=0;
 
   assemble_print_info(&asm_context, stdout);
 
-  address_heap_free(&asm_context.address_heap);
+  address_list_free(&asm_context.address_list);
   defines_heap_free(&asm_context.defines_heap);
 
   if (asm_context.list!=NULL) { fclose(asm_context.list); }

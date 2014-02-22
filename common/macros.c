@@ -455,7 +455,7 @@ struct _memory_pool *memory_pool = defines_heap->memory_pool;
   if (defines_heap->locked == 1) { return 0; }
 
   if (defines_heap_lookup(defines_heap, name, &param_count_temp) != NULL ||
-      address_heap_lookup(&asm_context->address_heap, name) != -1)
+      address_list_lookup(&asm_context->address_list, name) != -1)
   {
     printf("Error: #define '%s' already defined.\n", name);
     return -1;

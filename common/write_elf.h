@@ -78,7 +78,7 @@ struct _symtab
   unsigned short int st_shndx;
 };
 
-int write_elf(struct _memory *memory, FILE *out, struct _address_heap *address_heap, const char *filename, int cpu_type);
+int write_elf(struct _memory *memory, FILE *out, struct _address_list *address_list, const char *filename, int cpu_type);
 
 #endif
 

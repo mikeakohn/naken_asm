@@ -524,7 +524,7 @@ int ptr=0;
   {
     int param_count=0;
     char *define=defines_heap_lookup(&asm_context->defines_heap, token, &param_count);
-    int address=address_heap_lookup(&asm_context->address_heap, token);
+    int address=address_list_lookup(&asm_context->address_list, token);
 
     if (address!=-1 && asm_context->parsing_ifdef==0)
     {

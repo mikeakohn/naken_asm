@@ -17,30 +17,30 @@
 #include "lookup_tables.h"
 #include "macros.h"
 
-int address_heap_init(struct _address_heap *address_heap)
+int address_list_init(struct _address_list *address_list)
 {
-  address_heap->memory_pool = NULL;
-  address_heap->locked = 0;
+  address_list->memory_pool = NULL;
+  address_list->locked = 0;
 
   return 0;
 }
 
-void address_heap_free(struct _address_heap *address_heap)
+void address_list_free(struct _address_list *address_list)
 {
-  memory_pool_free(address_heap->memory_pool);
-  address_heap->memory_pool = NULL;
+  memory_pool_free(address_list->memory_pool);
+  address_list->memory_pool = NULL;
 }
 
-int address_heap_append(struct _asm_context *asm_context, char *name, int address)
+int address_list_append(struct _asm_context *asm_context, char *name, int address)
 {
 int token_len;
-struct _address_heap *address_heap = &asm_context->address_heap;
-struct _memory_pool *memory_pool = address_heap->memory_pool;
+struct _address_list *address_list = &asm_context->address_list;
+struct _memory_pool *memory_pool = address_list->memory_pool;
 
-  if (address_heap->locked ==1) return 0;
+  if (address_list->locked ==1) return 0;
 
   int param_count_temp;
-  if (address_heap_lookup(address_heap, name) != -1 ||
+  if (address_list_lookup(address_list, name) != -1 ||
       defines_heap_lookup(&asm_context->defines_heap, name, &param_count_temp) != NULL)
   {
     printf("Error: Label '%s' already defined.\n", name);
@@ -57,7 +57,7 @@ struct _memory_pool *memory_pool = address_heap->memory_pool;
 
   if (memory_pool == NULL)
   {
-    memory_pool = memory_pool_add((struct _naken_heap *)address_heap, ADDRESS_HEAP_SIZE);
+    memory_pool = memory_pool_add((struct _naken_heap *)address_list, ADDRESS_HEAP_SIZE);
   }
 
   while(1)
@@ -69,7 +69,7 @@ struct _memory_pool *memory_pool = address_heap->memory_pool;
 
      if (memory_pool->next == NULL)
      {
-       memory_pool->next = memory_pool_add((struct _naken_heap *)address_heap, ADDRESS_HEAP_SIZE);
+       memory_pool->next = memory_pool_add((struct _naken_heap *)address_list, ADDRESS_HEAP_SIZE);
      }
 
      memory_pool=memory_pool->next;
@@ -84,14 +84,14 @@ struct _memory_pool *memory_pool = address_heap->memory_pool;
   return 0;
 } 
 
-void address_heap_lock(struct _address_heap *address_heap)
+void address_list_lock(struct _address_list *address_list)
 {
-  address_heap->locked = 1;
+  address_list->locked = 1;
 }
 
-int address_heap_lookup(struct _address_heap *address_heap, char *name)
+int address_list_lookup(struct _address_list *address_list, char *name)
 {
-struct _memory_pool *memory_pool = address_heap->memory_pool;
+struct _memory_pool *memory_pool = address_list->memory_pool;
 int token_len;
 int address;
 int ptr;
@@ -116,15 +116,15 @@ int ptr;
   return -1;
 }
 
-int address_heap_iterate(struct _address_heap *address_heap, struct _address_heap_iter *iter)
+int address_list_iterate(struct _address_list *address_list, struct _address_list_iter *iter)
 {
-struct _memory_pool *memory_pool = address_heap->memory_pool;
+struct _memory_pool *memory_pool = address_list->memory_pool;
 int token_len;
 
   if (iter->end_flag == 1) return -1;
   if (iter->memory_pool == NULL)
   {
-    iter->memory_pool = address_heap->memory_pool;
+    iter->memory_pool = address_list->memory_pool;
     iter->ptr = 0;
   }
 
@@ -148,15 +148,15 @@ int token_len;
   return -1;
 }
 
-int address_heap_print(struct _address_heap *address_heap)
+int address_list_print(struct _address_list *address_list)
 {
-struct _address_heap_iter iter;
+struct _address_list_iter iter;
 
   memset(&iter, 0, sizeof(iter));
 
   printf("%30s ADDRESS\n", "LABEL");
 
-  while(address_heap_iterate(address_heap, &iter) != -1)
+  while(address_list_iterate(address_list, &iter) != -1)
   {
     printf("%30s %08x (%d)\n", iter.name, iter.address, iter.address);
   }
@@ -166,9 +166,9 @@ struct _address_heap_iter iter;
   return 0;
 }
 
-int address_heap_count_symbols(struct _address_heap *address_heap)
+int address_list_count_symbols(struct _address_list *address_list)
 {
-struct _memory_pool *memory_pool = address_heap->memory_pool;
+struct _memory_pool *memory_pool = address_list->memory_pool;
 int token_len;
 int ptr;
 int count = 0;

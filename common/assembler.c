@@ -237,7 +237,7 @@ void assemble_print_info(struct _asm_context *asm_context, FILE *out)
 {
   fprintf(out, "\nProgram Info:\n");
 #ifdef DEBUG
-  address_heap_print(&asm_context->address_heap);
+  address_list_print(&asm_context->address_list);
   defines_heap_print(&asm_context->defines_heap);
 #endif
 
@@ -406,7 +406,7 @@ int token_type;
       else
     if (token_type==TOKEN_LABEL)
     {
-      if (address_heap_append(asm_context, token, asm_context->address)==-1)
+      if (address_list_append(asm_context, token, asm_context->address)==-1)
       { return -1; }
     }
       else

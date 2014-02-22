@@ -399,7 +399,7 @@ static void elf_addr_align(FILE *out)
   while((marker%4)!=0) { putc(0x00, out); marker++; }
 }
 
-int write_elf(struct _memory *memory, FILE *out, struct _address_heap *address_heap, const char *filename, int cpu_type)
+int write_elf(struct _memory *memory, FILE *out, struct _address_list *address_list, const char *filename, int cpu_type)
 {
 struct _shdr shdr;
 struct _symtab symtab;
@@ -436,13 +436,13 @@ int i;
   elf.sections_size.shstrtab = ftell(out)-elf.sections_offset.shstrtab;
 
   {
-    //struct _address_heap *address_heap=&asm_context->address_heap;
-    struct _address_heap_iter iter;
+    //struct _address_list *address_list=&asm_context->address_list;
+    struct _address_list_iter iter;
     int symbol_count;
     int sym_offset;
     int n;
 
-    symbol_count = address_heap_count_symbols(address_heap);
+    symbol_count = address_list_count_symbols(address_list);
 
     int symbol_address[symbol_count];
 
@@ -456,7 +456,7 @@ int i;
 
     n = 0;
     memset(&iter, 0, sizeof(iter));
-    while(address_heap_iterate(address_heap, &iter) != -1)
+    while(address_list_iterate(address_list, &iter) != -1)
     {
       symbol_address[n++] = sym_offset;
       fprintf(out, "%s%c", iter.name, 0);
@@ -499,7 +499,7 @@ int i;
     // symbols from lookup tables
     n = 0;
     memset(&iter, 0, sizeof(iter));
-    while(address_heap_iterate(address_heap, &iter)!=-1)
+    while(address_list_iterate(address_list, &iter)!=-1)
     {
       memset(&symtab, 0, sizeof(symtab));
       symtab.st_name = symbol_address[n++];
