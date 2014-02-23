@@ -25,60 +25,60 @@ struct _operator
 
 static int get_operator(char *token, struct _operator *operator)
 {
-  if (token[1]==0)
+  if (token[1] == 0)
   {
-    if (token[0]=='~')
+    if (token[0] == '~')
     {
-      operator->precedence=PREC_NOT;
-      operator->operation=OPER_NOT;
+      operator->precedence = PREC_NOT;
+      operator->operation = OPER_NOT;
     }
       else
-    if (token[0]=='*')
+    if (token[0] == '*')
     {
-      operator->precedence=PREC_MUL;
-      operator->operation=OPER_MUL;
+      operator->precedence = PREC_MUL;
+      operator->operation = OPER_MUL;
     }
       else
-    if (token[0]=='/')
+    if (token[0] == '/')
     {
-      operator->precedence=PREC_MUL;
-      operator->operation=OPER_DIV;
+      operator->precedence = PREC_MUL;
+      operator->operation = OPER_DIV;
     }
       else
-    if (token[0]=='%')
+    if (token[0] == '%')
     {
-      operator->precedence=PREC_MUL;
-      operator->operation=OPER_MOD;
+      operator->precedence = PREC_MUL;
+      operator->operation = OPER_MOD;
     }
       else
-    if (token[0]=='+')
+    if (token[0] == '+')
     {
-      operator->precedence=PREC_ADD;
-      operator->operation=OPER_PLUS;
+      operator->precedence = PREC_ADD;
+      operator->operation = OPER_PLUS;
     }
       else
-    if (token[0]=='-')
+    if (token[0] == '-')
     {
-      operator->precedence=PREC_ADD;
-      operator->operation=OPER_MINUS;
+      operator->precedence = PREC_ADD;
+      operator->operation = OPER_MINUS;
     }
       else
-    if (token[0]=='&')
+    if (token[0] == '&')
     {
-      operator->precedence=PREC_AND;  
-      operator->operation=OPER_AND;
+      operator->precedence = PREC_AND;  
+      operator->operation = OPER_AND;
     }
       else
-    if (token[0]=='^')
+    if (token[0] == '^')
     {
-      operator->precedence=PREC_XOR;
-      operator->operation=OPER_XOR;
+      operator->precedence = PREC_XOR;
+      operator->operation = OPER_XOR;
     }
       else
-    if (token[0]=='|')
+    if (token[0] == '|')
     {
-      operator->precedence=PREC_OR;
-      operator->operation=OPER_OR;
+      operator->precedence = PREC_OR;
+      operator->operation = OPER_OR;
     }
       else
     {
@@ -86,18 +86,18 @@ static int get_operator(char *token, struct _operator *operator)
     }
   }
     else
-  if (token[2]==0)
+  if (token[2] == 0)
   {
-    if (token[0]=='<' && token[1]=='<')
+    if (token[0] == '<' && token[1] == '<')
     {
-      operator->precedence=PREC_SHIFT;
-      operator->operation=OPER_LEFT_SHIFT;
+      operator->precedence = PREC_SHIFT;
+      operator->operation = OPER_LEFT_SHIFT;
     }
       else
-    if (token[0]=='>' && token[1]=='>')
+    if (token[0] == '>' && token[1] == '>')
     {
-      operator->precedence=PREC_SHIFT;
-      operator->operation=OPER_RIGHT_SHIFT;
+      operator->precedence = PREC_SHIFT;
+      operator->operation = OPER_RIGHT_SHIFT;
     }
       else
     {
@@ -123,25 +123,25 @@ printf(">>> OPERATING ON %d (%d) %d\n", a, operator->operation, b);
     case OPER_NOT:
       return ~a;
     case OPER_MUL:
-      return a*b;
+      return a * b;
     case OPER_DIV:
-      return a/b;
+      return a / b;
     case OPER_MOD:
-      return a%b;
+      return a % b;
     case OPER_PLUS:
-      return a+b;
+      return a + b;
     case OPER_MINUS:
-      return a-b;
+      return a - b;
     case OPER_LEFT_SHIFT:
-      return a<<b;
+      return a << b;
     case OPER_RIGHT_SHIFT:
-      return a>>b;
+      return a >> b;
     case OPER_AND:
-      return a&b;
+      return a & b;
     case OPER_XOR:
-      return a^b;
+      return a ^ b;
     case OPER_OR:
-      return a|b;
+      return a | b;
     default:
       printf("Internal Error: WTF, bad operator %d\n", operator->operation);
       return 0;
@@ -161,25 +161,25 @@ printf("Enter eval_expression_go,  num=%d\n", *num);
 #endif
 
   memcpy(&operator, last_operator, sizeof(struct _operator));
-  num_stack[0]=*num;
+  num_stack[0] = *num;
 
   while(1)
   {
 #ifdef DEBUG
 printf("eval_expression> going to grab a token\n");
 #endif
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type = get_token(asm_context, token, TOKENLEN);
 
 #ifdef DEBUG
 printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
 #endif
-    if (token_type==TOKEN_QUOTED)
+    if (token_type == TOKEN_QUOTED)
     {
-      if (token[0]=='\\')
+      if (token[0] == '\\')
       {
-        int e=escape_char(asm_context, (unsigned char *)token);
-        if (e==0) return -1;
-        if (token[e+1]!=0)
+        int e = escape_char(asm_context, (unsigned char *)token);
+        if (e == 0) return -1;
+        if (token[e+1] != 0)
         {
           print_error("Quoted literal too long.", asm_context);
           return -1;
@@ -196,24 +196,24 @@ printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
         sprintf(token, "%d", token[0]);
       }
 
-      token_type=TOKEN_NUMBER;
+      token_type = TOKEN_NUMBER;
     }
 
     // Open and close parenthesis
     if (IS_TOKEN(token,'('))
     {
-      if (operator.operation==OPER_UNSET && num_stack_ptr==2)
+      if (operator.operation == OPER_UNSET && num_stack_ptr == 2)
       {
         // This is probably the x(r12) case.. so this is actually okay
-        *num=num_stack[num_stack_ptr-1];
+        *num = num_stack[num_stack_ptr-1];
         pushback(asm_context, token, token_type);
         return 0;
       }
 
-      int paren_num=0;
+      int paren_num = 0;
       struct _operator paren_operator;
-      paren_operator.precedence=PREC_UNSET;
-      paren_operator.operation=OPER_UNSET;
+      paren_operator.precedence = PREC_UNSET;
+      paren_operator.operation = OPER_UNSET;
 
       if (eval_expression_go(asm_context, &paren_num, &paren_operator)!=0)
       { return -1; }
@@ -221,10 +221,10 @@ printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
 #ifdef DEBUG
 printf("Paren got back %d\n", paren_num);
 #endif
-      num_stack[num_stack_ptr++]=paren_num;
+      num_stack[num_stack_ptr++] = paren_num;
 
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (!(token[1]==0 && token[0]==')'))
+      token_type = get_token(asm_context, token, TOKENLEN);
+      if (!(token[1] == 0 && token[0] == ')'))
       {
         print_error("No matching ')'", asm_context);
         return -1;
@@ -239,12 +239,12 @@ printf("Paren got back %d\n", paren_num);
     }
 
     // End of expression
-    if (IS_TOKEN(token,',') || IS_TOKEN(token,']') || token_type==TOKEN_EOF)
+    if (IS_TOKEN(token,',') || IS_TOKEN(token,']') || token_type == TOKEN_EOF)
     {
       pushback(asm_context, token, token_type);
       break;
     }
-    if (token_type==TOKEN_EOL)
+    if (token_type == TOKEN_EOL)
     {
       //asm_context->line++;
       pushback(asm_context, token, token_type);
@@ -252,18 +252,18 @@ printf("Paren got back %d\n", paren_num);
     }
 
     // Read number
-    if (token_type==TOKEN_NUMBER)
+    if (token_type == TOKEN_NUMBER)
     {
-      if (num_stack_ptr==3)
+      if (num_stack_ptr == 3)
       {
         print_error_unexp(token, asm_context);
         return -1;
       }
 
-      num_stack[num_stack_ptr++]=atoi(token);
+      num_stack[num_stack_ptr++] = atoi(token);
     }
       else
-    if (token_type==TOKEN_SYMBOL)
+    if (token_type == TOKEN_SYMBOL)
     {
       if (get_operator(token, &operator)==-1)
       {
@@ -281,7 +281,7 @@ printf("Paren got back %d\n", paren_num);
 printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, operator.precedence);
 #endif
 
-      if (last_operator->precedence>operator.precedence)
+      if (last_operator->precedence > operator.precedence)
       {
         if (eval_expression_go(asm_context, &num_stack[num_stack_ptr-1], &operator)==-1)
         {
@@ -289,22 +289,22 @@ printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, operato
         }
       }
         else
-      if (last_operator->precedence<operator.precedence)
+      if (last_operator->precedence < operator.precedence)
       {
         pushback(asm_context, token, token_type);
-        *num=num_stack[num_stack_ptr-1];
+        *num = num_stack[num_stack_ptr-1];
         return 0;
       }
         else
       {
-        num_stack[num_stack_ptr-2]=operate(num_stack[num_stack_ptr-2],num_stack[num_stack_ptr-1], last_operator);
+        num_stack[num_stack_ptr-2] = operate(num_stack[num_stack_ptr-2],num_stack[num_stack_ptr-1], last_operator);
         num_stack_ptr--;
         memcpy(last_operator, &operator, sizeof(struct _operator));
       }
     }
       else
     {
-      if (asm_context->pass!=1)
+      if (asm_context->pass != 1)
       {
         print_error_unexp(token, asm_context);
       }
@@ -315,16 +315,16 @@ printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, operato
 #ifdef DEBUG
 printf("going to leave %d\n", last_operator->operation);
 int i;
-for (i=0; i<num_stack_ptr; i++) printf("-- %d\n", num_stack[i]);
+for (i = 0; i < num_stack_ptr; i++) printf("-- %d\n", num_stack[i]);
 #endif
 
   if (last_operator->operation!=OPER_UNSET)
   {
-    num_stack[num_stack_ptr-2]=operate(num_stack[num_stack_ptr-2],num_stack[num_stack_ptr-1], last_operator);
+    num_stack[num_stack_ptr-2] = operate(num_stack[num_stack_ptr-2], num_stack[num_stack_ptr-1], last_operator);
     num_stack_ptr--;
   }
 
-  *num=num_stack[num_stack_ptr-1];
+  *num = num_stack[num_stack_ptr-1];
 
   return 0;
 }
@@ -333,9 +333,9 @@ int eval_expression(struct _asm_context *asm_context, int *num)
 {
 struct _operator operator;
 
-  *num=0;
-  operator.precedence=PREC_UNSET;
-  operator.operation=OPER_UNSET;
+  *num = 0;
+  operator.precedence = PREC_UNSET;
+  operator.operation = OPER_UNSET;
   return eval_expression_go(asm_context, num, &operator);
 }
 
