@@ -18,13 +18,13 @@
 
 void memory_init(struct _memory *memory, uint32_t size, int debug_flag)
 {
-  memory->low_address=size-1;
-  memory->high_address=0;
-  memory->endian=ENDIAN_LITTLE;
-  memory->size=size;
-  memory->debug_flag=debug_flag;
-  memory->pages=NULL;
-  //memset(memory->debug_line, 0xff, sizeof(int)*memory->size);
+  memory->low_address = size - 1;
+  memory->high_address = 0;
+  memory->endian = ENDIAN_LITTLE;
+  memory->size = size;
+  memory->debug_flag = debug_flag;
+  memory->pages = NULL;
+  //memset(memory->debug_line, 0xff, sizeof(int) * memory->size);
 }
 
 void memory_free(struct _memory *memory)
@@ -32,15 +32,15 @@ void memory_free(struct _memory *memory)
 struct _memory_page *page;
 struct _memory_page *next;
 
-  page=memory->pages;
-  while(page!=NULL)
+  page = memory->pages;
+  while(page != NULL)
   {
-    next=page->next;
+    next = page->next;
     free(page);
-    page=next; 
+    page = next; 
   }
 
-  memory->pages=NULL;
+  memory->pages = NULL;
 }
 
 void memory_clear(struct _memory *memory)
@@ -48,14 +48,14 @@ void memory_clear(struct _memory *memory)
 struct _memory_page *page;
 struct _memory_page *next;
 
-  page=memory->pages;
-  while(page!=NULL)
+  page = memory->pages;
+  while(page != NULL)
   {
-    next=page->next;
+    next = page->next;
     memset(page->bin, 0, PAGE_SIZE);
-    page->offset_min=PAGE_SIZE;
-    page->offset_max=0;
-    page=next; 
+    page->offset_min = PAGE_SIZE;
+    page->offset_max = 0;
+    page = next; 
   }
 }
 
@@ -63,14 +63,14 @@ int memory_in_use(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
-  page=memory->pages;
-  while(page!=NULL)
+  page = memory->pages;
+  while(page != NULL)
   {
-    if (address>=page->address && address<page->address+PAGE_SIZE)
+    if (address >= page->address && address < page->address + PAGE_SIZE)
     {
       return 1;
     }
-    page=page->next;
+    page = page->next;
   }
 
   return 0;
@@ -80,14 +80,14 @@ int memory_get_page_address_min(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
-  page=memory->pages;
-  while(page!=NULL)
+  page = memory->pages;
+  while(page != NULL)
   {
-    if (address>=page->address && address<page->address+PAGE_SIZE)
+    if (address >= page->address && address < page->address + PAGE_SIZE)
     {
-      return page->address+page->offset_min;
+      return page->address + page->offset_min;
     }
-    page=page->next;
+    page = page->next;
   }
 
   print_error_internal(NULL, __FILE__, __LINE__);
@@ -98,14 +98,14 @@ int memory_get_page_address_max(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
-  page=memory->pages;
-  while(page!=NULL)
+  page = memory->pages;
+  while(page != NULL)
   {
-    if (address>=page->address && address<page->address+PAGE_SIZE)
+    if (address >= page->address && address < page->address + PAGE_SIZE)
     {
-      return page->address+page->offset_max;
+      return page->address + page->offset_max;
     }
-    page=page->next;
+    page = page->next;
   }
 
   print_error_internal(NULL, __FILE__, __LINE__);
@@ -121,14 +121,14 @@ static unsigned char read_byte(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
-  page=memory->pages;
-  while(page!=NULL)
+  page = memory->pages;
+  while(page != NULL)
   {
-    if (address>=page->address && address<page->address+PAGE_SIZE)
+    if (address >= page->address && address < page->address + PAGE_SIZE)
     {
       return page->bin[address-page->address];
     }
-    page=page->next;
+    page = page->next;
   }
 
   return 0;
@@ -138,16 +138,16 @@ static int read_debug(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
-  if (memory->debug_flag==0) return -1;
+  if (memory->debug_flag == 0) return -1;
 
-  page=memory->pages;
-  while(page!=NULL)
+  page = memory->pages;
+  while(page != NULL)
   {
-    if (address>=page->address && address<page->address+PAGE_SIZE)
+    if (address >= page->address && address < page->address + PAGE_SIZE)
     {
       return page->debug_line[address-page->address];
     }
-    page=page->next;
+    page = page->next;
   }
 
   return -1;
@@ -159,17 +159,17 @@ struct _memory_page *page;
 
 //printf("allocating page %d\n", address);
 
-  page=malloc(sizeof(struct _memory_page)+(memory->debug_flag==1?PAGE_SIZE*sizeof(int):0));
-  page->address=(address/PAGE_SIZE)*PAGE_SIZE;
-  page->offset_min=PAGE_SIZE;
-  page->offset_max=0;
-  page->next=0;
+  page=malloc(sizeof(struct _memory_page) + (memory->debug_flag == 1 ? PAGE_SIZE * sizeof(int) : 0));
+  page->address = (address / PAGE_SIZE) * PAGE_SIZE;
+  page->offset_min = PAGE_SIZE;
+  page->offset_max = 0;
+  page->next = 0;
 
   memset(page->bin, 0, PAGE_SIZE);
 
   if (memory->debug_flag==1)
   {
-    memset(page->debug_line, 0xff, PAGE_SIZE*sizeof(int));
+    memset(page->debug_line, 0xff, PAGE_SIZE * sizeof(int));
   }
 
   return page;
@@ -179,65 +179,65 @@ static void write_byte(struct _memory *memory, uint32_t address, unsigned char d
 {
 struct _memory_page *page;
 
-  if (memory->pages==NULL) { memory->pages=alloc_page(memory, address); }
+  if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
 
-  page=memory->pages;
-  while(page!=NULL)
+  page = memory->pages;
+  while(page != NULL)
   {
-    if (address>=page->address && address<page->address+PAGE_SIZE)
+    if (address >= page->address && address < page->address + PAGE_SIZE)
     {
       break;
     }
 
-    if (page->next==NULL)
+    if (page->next == NULL)
     {
-      page->next=alloc_page(memory, address);
+      page->next = alloc_page(memory, address);
     }
 
-    page=page->next;
+    page = page->next;
   }
 
-  if (memory->low_address>address) memory->low_address=address;
-  if (memory->high_address<address) memory->high_address=address;
+  if (memory->low_address > address) memory->low_address = address;
+  if (memory->high_address < address) memory->high_address = address;
 
-  int offset=address-page->address;
-  if (page->offset_min>offset) { page->offset_min=offset; }
-  if (page->offset_max<offset) { page->offset_max=offset; }
-  page->bin[offset]=data;
+  int offset = address-page->address;
+  if (page->offset_min > offset) { page->offset_min = offset; }
+  if (page->offset_max < offset) { page->offset_max = offset; }
+  page->bin[offset] = data;
 }
 
 static void write_debug(struct _memory *memory, uint32_t address, int data)
 {
 struct _memory_page *page;
 
-  if (memory->pages==NULL) { memory->pages=alloc_page(memory, address); }
+  if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
 
-  page=memory->pages;
-  while(page!=NULL)
+  page = memory->pages;
+  while(page != NULL)
   {
-    if (address>=page->address && address<page->address+PAGE_SIZE)
+    if (address >= page->address && address < page->address + PAGE_SIZE)
     {
       break;
     }
 
-    if (page->next==NULL)
+    if (page->next == NULL)
     {
-      page->next=alloc_page(memory, address);
+      page->next = alloc_page(memory, address);
     }
 
     page=page->next;
   }
 
-  int offset=address-page->address;
-  if (page->offset_min>offset) { page->offset_min=offset; }
-  if (page->offset_max<offset) { page->offset_max=offset; }
+  int offset = address-page->address;
+  if (page->offset_min > offset) { page->offset_min = offset; }
+  if (page->offset_max < offset) { page->offset_max = offset; }
 
-  page->debug_line[offset]=data;
+  page->debug_line[offset] = data;
 }
 
 unsigned char memory_read(struct _asm_context *asm_context, uint32_t address)
 {
-  if (address>=asm_context->memory.size)
+  if (address >= asm_context->memory.size)
   {
     printf("Warning: Data read address %d overran %d byte boundary at %s:%d\n", address, asm_context->memory.size, asm_context->filename, asm_context->line);
     return 0;
@@ -258,7 +258,7 @@ unsigned char memory_read_m(struct _memory *memory, uint32_t address)
 
 void memory_write(struct _asm_context *asm_context, uint32_t address, unsigned char data, int line)
 {
-  if (address>=asm_context->memory.size)
+  if (address >= asm_context->memory.size)
   {
     printf("Warning: Data write address %d overran %d byte boundary at %s:%d\n", address, asm_context->memory.size, asm_context->filename, asm_context->line);
     return;
