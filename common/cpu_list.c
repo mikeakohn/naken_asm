@@ -50,7 +50,7 @@
 struct _cpu_list cpu_list[] =
 {
 #ifdef ENABLE_65XX
-  { "65xx", CPU_TYPE_65XX, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_65xx, list_output_65xx, disasm_range_65xx, simulate_init_65xx },
+  { "65xx", CPU_TYPE_65XX, ENDIAN_LITTLE, 1, 1, 0, parse_instruction_65xx, list_output_65xx, disasm_range_65xx, simulate_init_65xx },
 #endif
 #ifdef ENABLE_680X
   { "680x", CPU_TYPE_680X, ENDIAN_BIG, 1, 1, 0, parse_instruction_680x, list_output_680x, disasm_range_680x, NULL },
