@@ -132,7 +132,8 @@ static int check_endm(char *macro, int ptr)
   }
 
   ptr++;
-  if (strncasecmp(macro + ptr, ".endm", 5)==0 || strncasecmp(macro + ptr, "endm", 4)==0)
+  if (strncasecmp(macro + ptr, ".endm", 5) == 0 ||
+      strncasecmp(macro + ptr, "endm", 4) == 0)
   {
     macro[ptr] = 0;
     return 1;
@@ -295,6 +296,7 @@ printf("debug> #ifdef param found %s %d\n", name_test, index);
       }
         else
       {
+        macro[ptr] = 0;
         if (check_endm(macro,ptr) == 1) break;
       }
     }

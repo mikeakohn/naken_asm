@@ -178,7 +178,10 @@ char name[TOKENLEN];
 int num;
 int token_type;
 
+  asm_context->no_address_list = 1;
   token_type = get_token(asm_context, name, TOKENLEN);
+  asm_context->no_address_list = 0;
+
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
     print_error_unexp(token, asm_context);
@@ -219,7 +222,10 @@ int token_type;
 
   // Atmel's include files want:  .equ NAME = VALUE
 
+  asm_context->no_address_list = 1;
   token_type = get_token(asm_context, name, TOKENLEN);
+  asm_context->no_address_list = 0;
+
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
     print_error_unexp(token, asm_context);

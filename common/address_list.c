@@ -64,10 +64,10 @@ int address_list_append(struct _asm_context *asm_context, char *name, int addres
 int token_len;
 struct _address_list *address_list = &asm_context->address_list;
 struct _memory_pool *memory_pool = address_list->memory_pool;
+int param_count_temp;
 
-  if (address_list->locked ==1) return 0;
+  if (address_list->locked == 1) return 0;
 
-  int param_count_temp;
   if (address_list_lookup(address_list, name) != -1 ||
       defines_heap_lookup(&asm_context->defines_heap, name, &param_count_temp) != NULL)
   {
@@ -121,7 +121,9 @@ struct _memory_pool *memory_pool = address_list->memory_pool;
 int address_list_set(struct _asm_context *asm_context, char *name, int address)
 {
   struct _address_list *address_list = &asm_context->address_list;
-  struct _address_data *address_data = address_list_find(address_list, name);
+  struct _address_data *address_data = NULL;
+
+  address_data = address_list_find(address_list, name);
 
   if (address_data == NULL)
   {
@@ -130,6 +132,7 @@ int address_list_set(struct _asm_context *asm_context, char *name, int address)
       return -1; 
     }
 
+    address_data = address_list_find(address_list, name);
     address_data->flag_rw = 1;
   }
     else

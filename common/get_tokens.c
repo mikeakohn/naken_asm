@@ -175,7 +175,7 @@ int ptr = 0;
 #ifdef DEBUG
 //printf("debug> get_token, grabbing next char ptr=%d\n", ptr);
 #endif
-    ch=get_next_char(asm_context);
+    ch = get_next_char(asm_context);
     if (ch == '\r') continue;   /* DOS sucks. Geesh get a modern OS. */
 #ifdef DEBUG
 //printf("debug> getc()='%c'  ptr=%d  token='%s'\n", ch, ptr, token);
@@ -479,7 +479,16 @@ int ptr = 0;
   {
     int param_count = 0;
     char *define = defines_heap_lookup(&asm_context->defines_heap, token, &param_count);
-    int address = address_list_lookup(&asm_context->address_list, token);
+    int address;
+
+    if (asm_context->no_address_list == 0)
+    {
+      address = address_list_lookup(&asm_context->address_list, token);
+    }
+      else
+    {
+      address = -1;
+    }
 
     if (address != -1 && asm_context->parsing_ifdef == 0)
     {
