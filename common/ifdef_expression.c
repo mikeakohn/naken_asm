@@ -112,6 +112,9 @@ int ret;
   if (macros_lookup(&asm_context->macros, token, &param_count) != NULL)
   { ret = 1; }
     else
+  if (address_list_find(&asm_context->address_list, token) != NULL)
+  { ret = 1; }
+    else
   { ret = 0; }
 
   get_token(asm_context, token, TOKENLEN);
@@ -163,6 +166,7 @@ static int parse_ifdef_expression(struct _asm_context *asm_context, int *num, in
 {
 char token[TOKENLEN];
 struct _operator operator;
+struct _address_data *address_data;
 int token_type;
 //int state=0;  // 0 = get next num to process
 int not = 0;
@@ -270,6 +274,11 @@ printf("debug> #if eval_operation() @paren  n=%d\n", n);
 printf("debug> #if: parse_defined()=%d\n", n);
 #endif
           if (n == -1) return -1;
+        }
+          else
+        if (value == NULL && (address_data = address_list_find(&asm_context->address_list, token)) != NULL)
+        {
+          n = address_data->address;
         }
           else
         if (value != NULL && param_count == 0 && is_num(value))
