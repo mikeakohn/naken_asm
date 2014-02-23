@@ -110,7 +110,6 @@ int ret;
   }
 
   get_token(asm_context, token, TOKENLEN);
-printf("Looking up %s\n", token);
   if (macros_lookup(&asm_context->macros, token, &param_count) != NULL)
   { ret = 1; }
     else
