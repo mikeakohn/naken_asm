@@ -89,7 +89,8 @@ int param_count; // throw away
     return -1;
   }
 
-  if (macros_lookup(&asm_context->macros, token, &param_count)!=NULL)
+  if (macros_lookup(&asm_context->macros, token, &param_count) != NULL ||
+      address_list_find(&asm_context->address_list, token) != NULL)
   {
     if (ifndef == 1) ignore_section = 1;
   }

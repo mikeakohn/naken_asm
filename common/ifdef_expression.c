@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "address_list.h"
 #include "get_tokens.h"
 #include "ifdef_expression.h"
 #include "macros.h"
@@ -109,6 +110,7 @@ int ret;
   }
 
   get_token(asm_context, token, TOKENLEN);
+printf("Looking up %s\n", token);
   if (macros_lookup(&asm_context->macros, token, &param_count) != NULL)
   { ret = 1; }
     else
@@ -329,7 +331,7 @@ printf("debug> #if get_operator() token=%s operation=%d precedence=%d\n", token,
         if (parse_ifdef_expression(asm_context, &n, paren_count, next_operator.precedence, 1) == -1) return -1;
       }
         else
-      if (next_operator.precedence<precedence)
+      if (next_operator.precedence < precedence)
       {
         pushback(asm_context, token, token_type);
         return 0;
