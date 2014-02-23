@@ -12,12 +12,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
-#include "assembler.h"
 #include "address_list.h"
-#include "macros.h"
+#include "memory_pool.h"
 
-static struct _address_data *address_list_find(struct _address_list *address_list, char *name)
+int address_list_init(struct _address_list *address_list)
+{
+  address_list->memory_pool = NULL;
+  address_list->locked = 0;
+
+  return 0;
+}
+
+void address_list_free(struct _address_list *address_list)
+{
+  memory_pool_free(address_list->memory_pool);
+  address_list->memory_pool = NULL;
+}
+
+struct _address_data *address_list_find(struct _address_list *address_list, char *name)
 {
 struct _memory_pool *memory_pool = address_list->memory_pool;
 int ptr;
@@ -45,31 +59,14 @@ int ptr;
   return NULL;
 }
 
-int address_list_init(struct _address_list *address_list)
-{
-  address_list->memory_pool = NULL;
-  address_list->locked = 0;
-
-  return 0;
-}
-
-void address_list_free(struct _address_list *address_list)
-{
-  memory_pool_free(address_list->memory_pool);
-  address_list->memory_pool = NULL;
-}
-
-int address_list_append(struct _asm_context *asm_context, char *name, int address)
+int address_list_append(struct _address_list *address_list, char *name, int address)
 {
 int token_len;
-struct _address_list *address_list = &asm_context->address_list;
 struct _memory_pool *memory_pool = address_list->memory_pool;
-int param_count_temp;
 
   if (address_list->locked == 1) return 0;
 
-  if (address_list_lookup(address_list, name) != -1 ||
-      macros_lookup(&asm_context->macros, name, &param_count_temp) != NULL)
+  if (address_list_find(address_list, name) != NULL)
   {
     printf("Error: Label '%s' already defined.\n", name);
     return -1;
@@ -108,7 +105,7 @@ int param_count_temp;
   }
 
   // Divide by bytes_per_address (for AVR8 and dsPIC).
-  address = address / asm_context->bytes_per_address;
+  //address = address / asm_context->bytes_per_address;
 
   // Set the new label/address entry.
   struct _address_data *address_data =
@@ -125,16 +122,15 @@ int param_count_temp;
   return 0;
 } 
 
-int address_list_set(struct _asm_context *asm_context, char *name, int address)
+int address_list_set(struct _address_list *address_list, char *name, int address)
 {
-  struct _address_list *address_list = &asm_context->address_list;
   struct _address_data *address_data = NULL;
 
   address_data = address_list_find(address_list, name);
 
   if (address_data == NULL)
   {
-    if (address_list_append(asm_context, name, address) != 0)
+    if (address_list_append(address_list, name, address) != 0)
     {
       return -1; 
     }

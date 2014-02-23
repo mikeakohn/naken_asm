@@ -66,7 +66,7 @@ int num;
     return -1;
   }
 
-  asm_context->address = num*asm_context->bytes_per_address;
+  asm_context->address = num * asm_context->bytes_per_address;
 
   return 0;
 }
@@ -206,7 +206,8 @@ int token_type;
   }
 #endif
 
-  address_list_set(asm_context, name, num);
+  // REVIEW - should num be divided by bytes_per_address for dsPIC and avr8?
+  address_list_set(&asm_context->address_list, name, num);
 
   asm_context->line++;
 
@@ -312,11 +313,11 @@ void assemble_print_info(struct _asm_context *asm_context, FILE *out)
   fprintf(out, "   Code Bytes: %d\n", asm_context->code_count);
   fprintf(out, "   Data Bytes: %d\n", asm_context->data_count);
   fprintf(out, "  Low Address: %04x (%d)\n",
-    asm_context->memory.low_address/asm_context->bytes_per_address,
-    asm_context->memory.low_address/asm_context->bytes_per_address);
+    asm_context->memory.low_address / asm_context->bytes_per_address,
+    asm_context->memory.low_address / asm_context->bytes_per_address);
   fprintf(out, " High Address: %04x (%d)\n",
-    asm_context->memory.high_address/asm_context->bytes_per_address,
-    asm_context->memory.high_address/asm_context->bytes_per_address);
+    asm_context->memory.high_address / asm_context->bytes_per_address,
+    asm_context->memory.high_address / asm_context->bytes_per_address);
   fprintf(out, "\n");
 }
 
@@ -458,8 +459,17 @@ int token_type;
       else
     if (token_type == TOKEN_LABEL)
     {
-      if (address_list_append(asm_context, token, asm_context->address) == -1)
-      { return -1; }
+      int param_count_temp;
+      if (macros_lookup(&asm_context->macros, token, &param_count_temp) != NULL)
+      {
+        print_already_defined(asm_context, token);
+        return -1;
+      }
+
+      if (address_list_append(&asm_context->address_list, token, asm_context->address / asm_context->bytes_per_address) == -1)
+      {
+        return -1;
+      }
     }
       else
     if (token_type == TOKEN_POUND || IS_TOKEN(token,'.'))

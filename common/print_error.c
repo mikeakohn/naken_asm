@@ -66,3 +66,11 @@ void print_error_internal(struct _asm_context *asm_context, const char *filename
     printf("Internal Error: At %s:%d from line %s:%d.\n", filename, line, asm_context->filename, asm_context->line);
   }
 }
+
+void print_already_defined(struct _asm_context *asm_context, char *name)
+{
+  printf("Error: '%s' already defined at %s:%d.\n", name, asm_context->filename, asm_context->line);
+}
+
+
+

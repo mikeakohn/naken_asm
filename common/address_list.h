@@ -12,6 +12,8 @@
 #ifndef _ADDRESS_LIST_H
 #define _ADDRESS_LIST_H
 
+#include <stdint.h>
+
 #define ADDRESS_HEAP_SIZE 32768
 
 struct _address_data
@@ -41,8 +43,9 @@ struct _address_list_iter
 
 int address_list_init(struct _address_list *address_heap);
 void address_list_free(struct _address_list *address_heap);
-int address_list_append(struct _asm_context *asm_context, char *name, int address);
-int address_list_set(struct _asm_context *asm_context, char *name, int address);
+struct _address_data *address_list_find(struct _address_list *address_list, char *name);
+int address_list_append(struct _address_list *address_list, char *name, int address);
+int address_list_set(struct _address_list *address_list, char *name, int address);
 int address_list_export(struct _address_list *address_list, char *name);
 void address_list_lock(struct _address_list *address_heap);
 int address_list_lookup(struct _address_list *address_heap, char *name);
