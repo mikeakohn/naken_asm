@@ -38,7 +38,7 @@ struct _asm_context
   FILE *list;
   struct _memory memory;
   struct _address_list address_list;
-  struct _defines_heap defines_heap;
+  struct _macros macros;
   parse_instruction_t parse_instruction;
   list_output_t list_output;
   int address;

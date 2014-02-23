@@ -30,7 +30,15 @@
   };
 */
 
-struct _defines_heap
+struct _macro_data
+{
+  int8_t param_count; // number of macro parameters
+  int8_t name_len;    // length of the macro name
+  int16_t value_len;  // length of the macro
+  char data[];        // name[], value[]
+};
+
+struct _macros
 {
   struct _memory_pool *memory_pool;
   int locked;
@@ -38,7 +46,7 @@ struct _defines_heap
   int stack_ptr;
 };
 
-struct _defines_heap_iter
+struct _macros_iter
 {
   struct _memory_pool *memory_pool;
   unsigned char *name;
@@ -52,17 +60,17 @@ struct _defines_heap_iter
 void strip_macro(char *macro);
 void eatout_star_comment(struct _asm_context *asm_context);
 int parse_macro(struct _asm_context *asm_context, int is_define);
-char *expand_params(struct _asm_context *asm_context, char *define, int param_count);
+char *macros_expand_params(struct _asm_context *asm_context, char *define, int param_count);
 
-int defines_heap_init(struct _defines_heap *defines_heap);
-void defines_heap_free(struct _defines_heap *defines_heap);
-int defines_heap_append(struct _asm_context *asm_context, char *name, char *value, int param_count);
-void defines_heap_lock(struct _defines_heap *defines_heap);
-char *defines_heap_lookup(struct _defines_heap *defines_heap, char *name, int *param_count);
-int defines_heap_iterate(struct _defines_heap *defines_heap, struct _defines_heap_iter *iter);
-int defines_heap_print(struct _defines_heap *defines_heap);
-int defines_heap_push_define(struct _defines_heap *defines_heap, char *define);
-int defines_heap_get_char(struct _asm_context *asm_context);
+int macros_init(struct _macros *macros);
+void macros_free(struct _macros *macros);
+int macros_append(struct _asm_context *asm_context, char *name, char *value, int param_count);
+void macros_lock(struct _macros *macros);
+char *macros_lookup(struct _macros *macros, char *name, int *param_count);
+int macros_iterate(struct _macros *macros, struct _macros_iter *iter);
+int macros_print(struct _macros *macros);
+int macros_push_define(struct _macros *macros, char *define);
+int macros_get_char(struct _asm_context *asm_context);
 
 #endif
 

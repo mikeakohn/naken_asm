@@ -332,12 +332,12 @@ printf("Debug: adding macro '%s'\n", macro);
 
   strip_macro(macro);
 
-  defines_heap_append(asm_context, name, macro, param_count);
+  macros_append(asm_context, name, macro, param_count);
 
   return 0;
 }
 
-char *expand_params(struct _asm_context *asm_context, char *define, int param_count)
+char *macros_expand_params(struct _asm_context *asm_context, char *define, int param_count)
 {
 int ch;
 char params[1024];
@@ -431,40 +431,40 @@ printf("debug> Expanded macro becomes: %s\n", asm_context->def_param_stack_data+
          asm_context->def_param_stack_ptr[asm_context->def_param_stack_count-1];
 }
 
-int defines_heap_init(struct _defines_heap *defines_heap)
+int macros_init(struct _macros *macros)
 {
-  defines_heap->memory_pool = NULL;
-  defines_heap->locked = 0;
+  macros->memory_pool = NULL;
+  macros->locked = 0;
 
   return 0;
 }
 
-void defines_heap_free(struct _defines_heap *defines_heap)
+void macros_free(struct _macros *macros)
 {
-  memory_pool_free(defines_heap->memory_pool);
-  defines_heap->memory_pool = NULL;
-  defines_heap->stack_ptr = 0;
+  memory_pool_free(macros->memory_pool);
+  macros->memory_pool = NULL;
+  macros->stack_ptr = 0;
 }
 
-int defines_heap_append(struct _asm_context *asm_context, char *name, char *value, int param_count)
+int macros_append(struct _asm_context *asm_context, char *name, char *value, int param_count)
 {
 int name_len;
 int value_len;
 int param_count_temp;
-struct _defines_heap *defines_heap = &asm_context->defines_heap;
-struct _memory_pool *memory_pool = defines_heap->memory_pool;
+struct _macros *macros = &asm_context->macros;
+struct _memory_pool *memory_pool = macros->memory_pool;
 
-  if (defines_heap->locked == 1) { return 0; }
+  if (macros->locked == 1) { return 0; }
 
-  if (defines_heap_lookup(defines_heap, name, &param_count_temp) != NULL ||
+  if (macros_lookup(macros, name, &param_count_temp) != NULL ||
       address_list_lookup(&asm_context->address_list, name) != -1)
   {
     printf("Error: #define '%s' already defined.\n", name);
     return -1;
   }
 
-  name_len = strlen(name)+1;
-  value_len = strlen(value)+1;
+  name_len = strlen(name) + 1;
+  value_len = strlen(value) + 1;
 
   if (name_len + value_len + 1 > DEFINES_HEAP_SIZE)
   {
@@ -474,7 +474,7 @@ struct _memory_pool *memory_pool = defines_heap->memory_pool;
 
   if (memory_pool == NULL)
   {
-    memory_pool=memory_pool_add((struct _naken_heap *)defines_heap, DEFINES_HEAP_SIZE);
+    memory_pool = memory_pool_add((struct _naken_heap *)macros, DEFINES_HEAP_SIZE);
   }
 
   while(1)
@@ -486,7 +486,7 @@ struct _memory_pool *memory_pool = defines_heap->memory_pool;
 
      if (memory_pool->next == NULL)
      {
-       memory_pool->next=memory_pool_add((struct _naken_heap *)defines_heap, DEFINES_HEAP_SIZE);
+       memory_pool->next = memory_pool_add((struct _naken_heap *)macros, DEFINES_HEAP_SIZE);
      }
 
      memory_pool = memory_pool->next;
@@ -494,20 +494,20 @@ struct _memory_pool *memory_pool = defines_heap->memory_pool;
 
   memcpy(memory_pool->buffer + memory_pool->ptr, name, name_len);
   memcpy(memory_pool->buffer + memory_pool->ptr + name_len, value, value_len);
-  memory_pool->ptr += name_len+value_len+1;
+  memory_pool->ptr += name_len+value_len + 1;
   memory_pool->buffer[memory_pool->ptr-1] = (uint8_t)param_count;
 
   return 0;
 } 
 
-void defines_heap_lock(struct _defines_heap *defines_heap)
+void macros_lock(struct _macros *macros)
 {
-  defines_heap->locked = 1;
+  macros->locked = 1;
 }
 
-char *defines_heap_lookup(struct _defines_heap *defines_heap, char *name, int *param_count)
+char *macros_lookup(struct _macros *macros, char *name, int *param_count)
 {
-struct _memory_pool *memory_pool = defines_heap->memory_pool;
+struct _memory_pool *memory_pool = macros->memory_pool;
 int name_len;
 int value_len;
 char *value;
@@ -524,7 +524,7 @@ int ptr;
       if (strcmp((char *)memory_pool->buffer + ptr, name) == 0)
       {
         value = (char *)memory_pool->buffer + ptr + strlen((char *)memory_pool->buffer + ptr) + 1;
-        *param_count = *(value+strlen(value) + 1);
+        *param_count = *(value + strlen(value) + 1);
         return value;
       }
       ptr = ptr + name_len + value_len + 1;
@@ -536,22 +536,21 @@ int ptr;
   return NULL;
 }
 
-int defines_heap_iterate(struct _defines_heap *defines_heap, struct _defines_heap_iter *iter)
+int macros_iterate(struct _macros *macros, struct _macros_iter *iter)
 {
-struct _memory_pool *memory_pool = defines_heap->memory_pool;
+struct _memory_pool *memory_pool = macros->memory_pool;
 int name_len;
 int value_len;
 
   if (iter->end_flag == 1) { return -1; }
   if (iter->memory_pool == NULL)
   {
-    iter->memory_pool = defines_heap->memory_pool;
+    iter->memory_pool = macros->memory_pool;
     iter->ptr = 0;
   }
 
   while(memory_pool != NULL)
   {
-//printf("POOL %p  %d / %d  %d\n", memory_pool, memory_pool->ptr, memory_pool->len, iter->ptr);
     if(iter->ptr < memory_pool->ptr)
     {
       name_len = strlen((char *)memory_pool->buffer + iter->ptr) + 1;
@@ -574,15 +573,15 @@ int value_len;
   return -1;
 }
 
-int defines_heap_print(struct _defines_heap *defines_heap)
+int macros_print(struct _macros *macros)
 {
-struct _defines_heap_iter iter;
+struct _macros_iter iter;
 
   memset(&iter, 0, sizeof(iter));
 
   printf("%18s %s\n", "NAME", "VALUE");
 
-  while(defines_heap_iterate(defines_heap, &iter) != -1)
+  while(macros_iterate(macros, &iter) != -1)
   {
     if (iter.param_count == 0)
     {
@@ -618,46 +617,46 @@ struct _defines_heap_iter iter;
   return 0;
 }
 
-int defines_heap_push_define(struct _defines_heap *defines_heap, char *define)
+int macros_push_define(struct _macros *macros, char *define)
 {
 #ifdef DEBUG
-printf("debug> defines_heap_push_define, define=%s defines_heap->stack_ptr=%d\n", define, defines_heap->stack_ptr);
+printf("debug> macros_push_define, define=%s macros->stack_ptr=%d\n", define, macros->stack_ptr);
 #endif
 
-  if (defines_heap->stack_ptr >= MAX_NESTED_MACROS)
+  if (macros->stack_ptr >= MAX_NESTED_MACROS)
   {
     printf("Internal Error: defines heap stack exhausted.\n");
     return -1;
   }
 
-  defines_heap->stack[defines_heap->stack_ptr++] = define;
+  macros->stack[macros->stack_ptr++] = define;
 
   return 0;
 }
 
-int defines_heap_get_char(struct _asm_context *asm_context)
+int macros_get_char(struct _asm_context *asm_context)
 {
 int stack_ptr;
 int ch;
 
-  struct _defines_heap *defines_heap = &asm_context->defines_heap;
+  struct _macros *macros = &asm_context->macros;
 
   while(1)
   {
     // Is there even a character waiting on the #define stack?
-    stack_ptr = defines_heap->stack_ptr-1;
+    stack_ptr = macros->stack_ptr-1;
     if (stack_ptr < 0) { return CHAR_EOF; }
 
     // Pull the next char off the stack
-    ch = *defines_heap->stack[stack_ptr];
-    defines_heap->stack[stack_ptr]++;
+    ch = *macros->stack[stack_ptr];
+    macros->stack[stack_ptr]++;
 
     // If we have a char then break this loop and return (all is good)
     if (ch != 0) { break; }
 
     // drop the #define stack by 1 level
-    if (defines_heap->stack[stack_ptr] >= asm_context->def_param_stack_data &&
-        defines_heap->stack[stack_ptr] < asm_context->def_param_stack_data + PARAM_STACK_LEN)
+    if (macros->stack[stack_ptr] >= asm_context->def_param_stack_data &&
+        macros->stack[stack_ptr] < asm_context->def_param_stack_data + PARAM_STACK_LEN)
     {
       asm_context->def_param_stack_count--;
       if (asm_context->def_param_stack_count < 0)
@@ -669,7 +668,7 @@ int ch;
 printf("debug> asm_context->def_param_stack_count=%d\n",asm_context->def_param_stack_count);
 #endif
     }
-    defines_heap->stack_ptr--;
+    macros->stack_ptr--;
     asm_context->unget_stack_ptr--;
 
     // Check if something need to be ungetted

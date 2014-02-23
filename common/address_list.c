@@ -69,7 +69,7 @@ int param_count_temp;
   if (address_list->locked == 1) return 0;
 
   if (address_list_lookup(address_list, name) != -1 ||
-      defines_heap_lookup(&asm_context->defines_heap, name, &param_count_temp) != NULL)
+      macros_lookup(&asm_context->macros, name, &param_count_temp) != NULL)
   {
     printf("Error: Label '%s' already defined.\n", name);
     return -1;

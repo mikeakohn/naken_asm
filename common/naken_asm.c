@@ -256,7 +256,7 @@ int error_flag=0;
   printf("\n");
 
   address_list_init(&asm_context.address_list);
-  defines_heap_init(&asm_context.defines_heap);
+  macros_init(&asm_context.macros);
 
   printf("Pass 1...\n");
   asm_context.pass=1;
@@ -270,7 +270,7 @@ int error_flag=0;
     else
   {
     address_list_lock(&asm_context.address_list);
-    // defines_heap_lock(&asm_context.defines_heap);
+    // macros_lock(&asm_context.defines_heap);
 
     printf("Pass 2...\n");
     asm_context.pass=2;
@@ -357,7 +357,7 @@ int error_flag=0;
   assemble_print_info(&asm_context, stdout);
 
   address_list_free(&asm_context.address_list);
-  defines_heap_free(&asm_context.defines_heap);
+  macros_free(&asm_context.macros);
 
   if (asm_context.list!=NULL) { fclose(asm_context.list); }
   fclose(asm_context.in);

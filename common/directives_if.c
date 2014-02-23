@@ -89,7 +89,7 @@ int param_count; // throw away
     return -1;
   }
 
-  if (defines_heap_lookup(&asm_context->defines_heap, token, &param_count)!=NULL)
+  if (macros_lookup(&asm_context->macros, token, &param_count)!=NULL)
   {
     if (ifndef==1) ignore_section=1;
   }

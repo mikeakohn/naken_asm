@@ -109,7 +109,7 @@ int ch;
     return asm_context->unget[--asm_context->unget_ptr];
   }
 
-  ch = defines_heap_get_char(asm_context);
+  ch = macros_get_char(asm_context);
 
   // Check if defines is empty
   if (ch == CHAR_EOF)
@@ -478,7 +478,7 @@ int ptr = 0;
   if (token_type == TOKEN_STRING)
   {
     int param_count = 0;
-    char *define = defines_heap_lookup(&asm_context->defines_heap, token, &param_count);
+    char *macro = macros_lookup(&asm_context->macros, token, &param_count);
     int address;
 
     if (asm_context->no_address_list == 0)
@@ -496,20 +496,20 @@ int ptr = 0;
       token_type = TOKEN_NUMBER;
     }
       else
-    if (define != NULL && asm_context->parsing_ifdef == 0)
+    if (macro != NULL && asm_context->parsing_ifdef == 0)
     {
 #ifdef DEBUG
-printf("debug> '%s' is a define.  param_count=%d\n", token, param_count);
+printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
 #endif
       if (param_count == 0)
       {
-        defines_heap_push_define(&asm_context->defines_heap, define);
+        macros_push_define(&asm_context->macros, macro);
       }
         else
       {
-        char *expanded = expand_params(asm_context, define, param_count);
+        char *expanded = macros_expand_params(asm_context, macro, param_count);
         if (expanded == NULL) return TOKEN_EOF;
-        defines_heap_push_define(&asm_context->defines_heap, expanded);
+        macros_push_define(&asm_context->macros, expanded);
       }
 
       asm_context->unget_stack[++asm_context->unget_stack_ptr] = asm_context->unget_ptr;

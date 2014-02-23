@@ -243,7 +243,7 @@ int token_type;
     return -1;
   }
 
-  defines_heap_append(asm_context, name, value, 0);
+  macros_append(asm_context, name, value, 0);
 
   asm_context->line++;
 
@@ -270,7 +270,7 @@ void assemble_init(struct _asm_context *asm_context)
   asm_context->bytes_per_address = 1;
   asm_context->cpu_list_index = -1;
 
-  defines_heap_free(&asm_context->defines_heap);
+  macros_free(&asm_context->macros);
   asm_context->def_param_stack_count = 0;
   if (asm_context->pass == 1)
   {
@@ -284,7 +284,7 @@ void assemble_print_info(struct _asm_context *asm_context, FILE *out)
   fprintf(out, "\nProgram Info:\n");
 #ifdef DEBUG
   address_list_print(&asm_context->address_list);
-  defines_heap_print(&asm_context->defines_heap);
+  macros_print(&asm_context->macros);
 #endif
 
   fprintf(out, "Include Paths: .\n");
@@ -453,7 +453,7 @@ int token_type;
 
     if (token_type == TOKEN_EOL)
     {
-      if (asm_context->defines_heap.stack_ptr == 0) { asm_context->line++; }
+      if (asm_context->macros.stack_ptr == 0) { asm_context->line++; }
     }
       else
     if (token_type == TOKEN_LABEL)
@@ -612,7 +612,7 @@ int token_type;
           token2[ptr] = 0;
           unget_next_char(asm_context, ch);
           strip_macro(token2);
-          defines_heap_append(asm_context, token, token2, 0);
+          macros_append(asm_context, token, token2, 0);
         }
           else
         {
@@ -636,7 +636,7 @@ if (asm_context->address-start_address==0)
   printf("ZOMG %x  ret=%d %d\n", start_address, ret, asm_context->address-start_address);
 }
 #endif
-          if (asm_context->defines_heap.stack_ptr == 0) { asm_context->line++; }
+          if (asm_context->macros.stack_ptr == 0) { asm_context->line++; }
           asm_context->instruction_count++;
 
           if (asm_context->address>start_address)
