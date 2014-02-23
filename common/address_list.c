@@ -17,6 +17,34 @@
 #include "address_list.h"
 #include "macros.h"
 
+static struct _address_data *address_list_find(struct _address_list *address_list, char *name)
+{
+struct _memory_pool *memory_pool = address_list->memory_pool;
+int ptr;
+
+  while(memory_pool != NULL)
+  {
+    ptr = 0;
+
+    while(ptr < memory_pool->ptr)
+    {
+      struct _address_data *address_data =
+        (struct _address_data *)(memory_pool->buffer + ptr);
+
+      if (strcmp(address_data->name, name) == 0)
+      {
+        return address_data;
+      }
+
+      ptr += address_data->len + sizeof(struct _address_data);
+    }
+
+    memory_pool = memory_pool->next;
+  }
+
+  return NULL;
+}
+
 int address_list_init(struct _address_list *address_list)
 {
   address_list->memory_pool = NULL;
@@ -81,7 +109,7 @@ struct _memory_pool *memory_pool = address_list->memory_pool;
 
   memcpy(address_data->name, name, token_len);
   address_data->len = token_len;
-  address_data->flag_read_only = 0;
+  address_data->flag_rw = 0;
   address_data->flag_export = 0;
   address_data->address = address;
 
@@ -90,6 +118,44 @@ struct _memory_pool *memory_pool = address_list->memory_pool;
   return 0;
 } 
 
+int address_list_set(struct _asm_context *asm_context, char *name, int address)
+{
+  struct _address_list *address_list = &asm_context->address_list;
+  struct _address_data *address_data = address_list_find(address_list, name);
+
+  if (address_data == NULL)
+  {
+    if (address_list_append(asm_context, name, address) != 0)
+    {
+      return -1; 
+    }
+
+    address_data->flag_rw = 1;
+  }
+    else
+  if (address_data->flag_rw == 1)
+  {
+    address_data->address = address;
+  }
+    else
+  {
+    return -1;
+  }
+
+  return 0;
+}
+
+int address_list_export(struct _address_list *address_list, char *name)
+{
+  struct _address_data *address_data = address_list_find(address_list, name);
+
+  if (address_data == NULL) { return -1; }
+
+  address_data->flag_export = 1;
+
+  return 0;
+}
+
 void address_list_lock(struct _address_list *address_list)
 {
   address_list->locked = 1;
@@ -97,30 +163,11 @@ void address_list_lock(struct _address_list *address_list)
 
 int address_list_lookup(struct _address_list *address_list, char *name)
 {
-struct _memory_pool *memory_pool = address_list->memory_pool;
-int ptr;
+  struct _address_data *address_data = address_list_find(address_list, name);
 
-  while(memory_pool != NULL)
-  {
-    ptr = 0;
+  if (address_data == NULL) { return -1; }
 
-    while(ptr < memory_pool->ptr)
-    {
-      struct _address_data *address_data =
-        (struct _address_data *)(memory_pool->buffer + ptr);
-
-      if (strcmp(address_data->name, name) == 0)
-      {
-        return address_data->address;
-      }
-
-      ptr += address_data->len + sizeof(struct _address_data);
-    }
-
-    memory_pool = memory_pool->next;
-  }
-
-  return -1;
+  return address_data->address;
 }
 
 int address_list_iterate(struct _address_list *address_list, struct _address_list_iter *iter)

@@ -16,11 +16,11 @@
 
 struct _address_data
 {
-  uint8_t len; // length of name[]
-  uint8_t flag_read_only:1;
-  uint8_t flag_export:1;
-  uint32_t address;
-  char name[]; // null terminated name of label:
+  uint8_t len;           // length of name[]
+  uint8_t flag_rw:1;     // can write to this
+  uint8_t flag_export:1; // ELF will export symbol
+  uint32_t address;      // address for this name
+  char name[];           // null terminated name of label:
 };
 
 struct _address_list
@@ -42,6 +42,8 @@ struct _address_list_iter
 int address_list_init(struct _address_list *address_heap);
 void address_list_free(struct _address_list *address_heap);
 int address_list_append(struct _asm_context *asm_context, char *name, int address);
+int address_list_set(struct _asm_context *asm_context, char *name, int address);
+int address_list_export(struct _address_list *address_list, char *name);
 void address_list_lock(struct _address_list *address_heap);
 int address_list_lookup(struct _address_list *address_heap, char *name);
 int address_list_iterate(struct _address_list *address_heap, struct _address_list_iter *iter);
