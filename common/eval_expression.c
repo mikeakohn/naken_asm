@@ -297,7 +297,7 @@ printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, operato
       }
         else
       {
-        num_stack[num_stack_ptr-2] = operate(num_stack[num_stack_ptr-2],num_stack[num_stack_ptr-1], last_operator);
+        num_stack[num_stack_ptr-2] = operate(num_stack[num_stack_ptr-2], num_stack[num_stack_ptr-1], last_operator);
         num_stack_ptr--;
         memcpy(last_operator, &operator, sizeof(struct _operator));
       }
@@ -318,7 +318,7 @@ int i;
 for (i = 0; i < num_stack_ptr; i++) printf("-- %d\n", num_stack[i]);
 #endif
 
-  if (last_operator->operation!=OPER_UNSET)
+  if (last_operator->operation != OPER_UNSET)
   {
     num_stack[num_stack_ptr-2] = operate(num_stack[num_stack_ptr-2], num_stack[num_stack_ptr-1], last_operator);
     num_stack_ptr--;
