@@ -33,7 +33,7 @@ int ptr = 0;
   return 0;
 }
 
-static int parse_macro_token(struct _asm_context *asm_context, char *token, int len)
+static int macros_parse_token(struct _asm_context *asm_context, char *token, int len)
 {
 int ptr = 0;
 char ch;
@@ -82,46 +82,6 @@ char ch;
   return 0;
 }
 
-void strip_macro(char *macro)
-{
-  char *s = macro;
-  // Remove ; and // comments
-  while (*s != 0)
-  {
-    if (*s == ';') { *s = 0; break; }
-    if (*s == '/' && *(s+1)=='/') { *s = 0; break; }
-    s++;
-  }
-
-  if (s != macro) { s--; }
-
-  // Trim spaces from end of macro
-  while (s != macro)
-  {
-    if (*s != ' ') break;
-    *s = 0;
-    s--;
-  }
-}
-
-void eatout_star_comment(struct _asm_context *asm_context)
-{
-int it, cl = 0;
-
-#ifdef DEBUG
-printf("debug> eatout_star_comment()\n");
-#endif
-
-  while(1)
-  {
-    it = get_next_char(asm_context);
-    if (it == EOF) break;
-    if (it == '\n') asm_context->line++;
-    if (it == '/' && cl == '*') break;
-    cl = it;
-  }
-}
-
 static int check_endm(char *macro, int ptr)
 {
   ptr--;
@@ -140,295 +100,6 @@ static int check_endm(char *macro, int ptr)
   }
 
   return 0;
-}
-
-int parse_macro(struct _asm_context *asm_context, int macro_type)
-{
-char name[128];
-char token[TOKENLEN];
-char params[1024];
-char *name_test;
-char macro[MAX_MACRO_LEN];
-int ptr = 0;
-int token_type;
-int ch;
-int cont = 0;
-int parens = 0;
-int param_count = 0;
-
-  // First pull the name out
-  parens = parse_macro_token(asm_context, name, 128);
-  if (parens == -1) return -1;
-
-#ifdef DEBUG
-printf("#define %s   parens_flag=%d\n", name, parens);
-#endif
-
-  // Now pull any params out
-  ptr = 0;
-  if (parens != 0)
-  {
-    while(1)
-    {
-      token_type = get_token(asm_context, token, TOKENLEN);
-#ifdef DEBUG
-printf("debug> #ifdef param %s\n", token);
-#endif
-      if (token_type != TOKEN_STRING)
-      {
-        printf("Error: Expected a param name but got '%s' at %s:%d.\n", token, asm_context->filename,asm_context->line);
-        return -1;
-      }
-
-      param_count++;
-
-      int len = strlen(token);
-      if (ptr + len + 2 > 1024)
-      {
-        print_error("Macro with too long parameter list\n", asm_context);
-        return -1;
-      }
-
-      strcpy(params + ptr,token);
-      ptr = ptr + len + 1;
-
-      token_type = get_token(asm_context, token, TOKENLEN);
-      if (IS_TOKEN(token,','))
-      {
-      }
-        else
-      if (IS_TOKEN(token,')'))
-      {
-        break;
-      }
-        else
-      {
-        print_error("Expected ',' or ')'", asm_context);
-        return -1;
-      }
-    }
-  }
-
-  params[ptr]=0;
-
-#ifdef DEBUG
-printf("debug> #define param count=%d\n", param_count);
-#endif
-
-  // Now macro time
-  ptr = 0;
-  name_test = NULL;
-
-  while(1)
-  {
-    ch = get_next_char(asm_context);
-    if (name_test == NULL)
-    {
-      if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
-      {
-        name_test = macro + ptr;
-      }
-    }
-      else
-    if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
-          (ch >= '0' && ch <= '9')))
-    {
-      if (name_test != NULL)
-      {
-        macro[ptr] = 0;
-        int index = get_param_index(params,name_test);
-
-#ifdef DEBUG
-printf("debug> #ifdef param found %s %d\n", name_test, index);
-#endif
-
-        if (index != 0)
-        {
-          ptr = name_test - macro;
-          macro[ptr++] = index;
-        }
-        name_test = NULL;
-      }
-    }
-
-    if (ch == ';' || (ptr > 0 && macro[ptr-1] == '/'))
-    {
-      if (macro[ptr-1] == '/') { ptr--; }
-
-      while(1)
-      {
-        ch = get_next_char(asm_context);
-        if (ch == '\n' || ch == EOF) break;
-      }
-
-      while(ptr > 0)
-      {
-        if (macro[ptr-1] != ' ') { break; }
-        ptr--;
-      }
-    }
-
-    if (ch == '\r') continue;
-    if (ch == ' ' && (ptr == 0 || cont != 0)) continue;
-    if (ch == '\\' && cont == 0)
-    {
-      if (macro_type == IS_DEFINE)
-      {
-        cont = 1;
-        continue;
-      }
-    }
-
-    if (ch == '\n' || ch == EOF)
-    {
-      asm_context->line++;
-
-      if (macro_type == IS_DEFINE)
-      {
-        if (cont == 1)
-        {
-          macro[ptr++] = ch;
-          cont = 2;
-          continue;
-        }
-
-        break;
-      }
-        else
-      {
-        macro[ptr] = 0;
-        if (check_endm(macro,ptr) == 1) break;
-      }
-    }
-
-    if (cont == 1)
-    {
-      printf("Parse error: Expecting end-of-line on line %d\n", asm_context->line);
-      return -1;
-    }
-
-    cont = 0;
-
-    if (ch == '*' && ptr > 0 && macro[ptr-1] == '/')
-    {
-      eatout_star_comment(asm_context);
-      ptr--;
-      continue;
-    }
-
-    macro[ptr++] = ch;
-    if (ptr >= MAX_MACRO_LEN - 1)
-    {
-      printf("Internal error: macro longer than %d bytes on line %d\n", MAX_MACRO_LEN, asm_context->line);
-      return -1;
-    }
-  }
-
-  macro[ptr++] = 0;
-
-#ifdef DEBUG
-printf("Debug: adding macro '%s'\n", macro);
-#endif
-
-  strip_macro(macro);
-
-  macros_append(asm_context, name, macro, param_count);
-
-  return 0;
-}
-
-char *macros_expand_params(struct _asm_context *asm_context, char *define, int param_count)
-{
-int ch;
-char params[1024];
-int params_ptr[256];
-int count,ptr;
-
-  ch = get_next_char(asm_context);
-
-  if (ch != '(')
-  {
-    print_error("Macro expects params", asm_context);
-    return 0;
-  }
-
-  count = 0;
-  ptr = 0;
-  params_ptr[count] = ptr;
-
-  while(1)
-  {
-    ch = get_next_char(asm_context);
-    if (ch == '\r') continue;
-    if (ch == ')') break;
-    if (ch == '\n' || ch == EOF)
-    {
-      print_error("Macro expects ')'", asm_context);
-      return NULL;
-    }
-    if (ch == ',')
-    {
-      params[ptr++] = 0;
-      params_ptr[++count] = ptr;
-      continue;
-    }
-
-    params[ptr++] = ch;
-  }
-
-  params[ptr++] = 0;
-  count++;
-  if (count != param_count)
-  {
-    printf("Error: Macro expects %d params, but got only %d at %s:%d.\n", param_count, count, asm_context->filename, asm_context->line);
-    return NULL;
-  }
-
-#ifdef DEBUG
-printf("debug> Expanding macro with params: pass=%d\n", asm_context->pass);
-int n;
-for (n = 0; n < count; n++)
-{
-  printf("debug>   %s\n", params + params_ptr[n]);
-}
-#endif
-
-  ptr = asm_context->def_param_stack_ptr[asm_context->def_param_stack_count];
-
-  while(*define != 0)
-  {
-    if (*define < 10)
-    {
-      strcpy(asm_context->def_param_stack_data + ptr, params + params_ptr[((int)*define)-1]);
-      while(*(asm_context->def_param_stack_data + ptr) != 0) { ptr++; }
-    }
-    else
-    {
-      asm_context->def_param_stack_data[ptr++] = *define;
-    }
-
-    if (ptr >= PARAM_STACK_LEN)
-    {
-      print_error_internal(NULL, __FILE__, __LINE__);
-      exit(1);
-    }
-
-    define++;
-  }
-
-#ifdef DEBUG
-printf("debug>   ptr=%d\n", ptr);
-#endif
-  asm_context->def_param_stack_data[ptr++] = 0;
-
-#ifdef DEBUG
-printf("debug> Expanded macro becomes: %s\n", asm_context->def_param_stack_data+asm_context->def_param_stack_ptr[asm_context->def_param_stack_count]);
-#endif
-
-  asm_context->def_param_stack_ptr[++asm_context->def_param_stack_count] = ptr;
-
-  return asm_context->def_param_stack_data +
-         asm_context->def_param_stack_ptr[asm_context->def_param_stack_count-1];
 }
 
 int macros_init(struct _macros *macros)
@@ -700,4 +371,332 @@ printf("debug> get_next_char(?) ungetc %d %d '%c'\n", asm_context->unget_stack_p
   return ch;
 }
 
+void macros_strip(char *macro)
+{
+  char *s = macro;
+  // Remove ; and // comments
+  while (*s != 0)
+  {
+    if (*s == ';') { *s = 0; break; }
+    if (*s == '/' && *(s+1)=='/') { *s = 0; break; }
+    s++;
+  }
+
+  if (s != macro) { s--; }
+
+  // Trim spaces from end of macro
+  while (s != macro)
+  {
+    if (*s != ' ') break;
+    *s = 0;
+    s--;
+  }
+}
+
+int macros_parse(struct _asm_context *asm_context, int macro_type)
+{
+char name[128];
+char token[TOKENLEN];
+char params[1024];
+char *name_test;
+char macro[MAX_MACRO_LEN];
+int ptr = 0;
+int token_type;
+int ch;
+int cont = 0;
+int parens = 0;
+int param_count = 0;
+
+  // First pull the name out
+  parens = macros_parse_token(asm_context, name, 128);
+  if (parens == -1) return -1;
+
+#ifdef DEBUG
+printf("#define %s   parens_flag=%d\n", name, parens);
+#endif
+
+  // Now pull any params out
+  ptr = 0;
+  if (parens != 0)
+  {
+    while(1)
+    {
+      token_type = get_token(asm_context, token, TOKENLEN);
+#ifdef DEBUG
+printf("debug> #ifdef param %s\n", token);
+#endif
+      if (token_type != TOKEN_STRING)
+      {
+        printf("Error: Expected a param name but got '%s' at %s:%d.\n", token, asm_context->filename,asm_context->line);
+        return -1;
+      }
+
+      param_count++;
+
+      int len = strlen(token);
+      if (ptr + len + 2 > 1024)
+      {
+        print_error("Macro with too long parameter list\n", asm_context);
+        return -1;
+      }
+
+      strcpy(params + ptr,token);
+      ptr = ptr + len + 1;
+
+      token_type = get_token(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token,','))
+      {
+      }
+        else
+      if (IS_TOKEN(token,')'))
+      {
+        break;
+      }
+        else
+      {
+        print_error("Expected ',' or ')'", asm_context);
+        return -1;
+      }
+    }
+  }
+
+  params[ptr]=0;
+
+#ifdef DEBUG
+printf("debug> #define param count=%d\n", param_count);
+#endif
+
+  // Now macro time
+  ptr = 0;
+  name_test = NULL;
+
+  while(1)
+  {
+    ch = get_next_char(asm_context);
+    if (name_test == NULL)
+    {
+      if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
+      {
+        name_test = macro + ptr;
+      }
+    }
+      else
+    if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+          (ch >= '0' && ch <= '9')))
+    {
+      if (name_test != NULL)
+      {
+        macro[ptr] = 0;
+        int index = get_param_index(params,name_test);
+
+#ifdef DEBUG
+printf("debug> #ifdef param found %s %d\n", name_test, index);
+#endif
+
+        if (index != 0)
+        {
+          ptr = name_test - macro;
+          macro[ptr++] = index;
+        }
+        name_test = NULL;
+      }
+    }
+
+    if (ch == ';' || (ptr > 0 && macro[ptr-1] == '/'))
+    {
+      if (macro[ptr-1] == '/') { ptr--; }
+
+      while(1)
+      {
+        ch = get_next_char(asm_context);
+        if (ch == '\n' || ch == EOF) break;
+      }
+
+      while(ptr > 0)
+      {
+        if (macro[ptr-1] != ' ') { break; }
+        ptr--;
+      }
+    }
+
+    if (ch == '\r') continue;
+    if (ch == ' ' && (ptr == 0 || cont != 0)) continue;
+    if (ch == '\\' && cont == 0)
+    {
+      if (macro_type == IS_DEFINE)
+      {
+        cont = 1;
+        continue;
+      }
+    }
+
+    if (ch == '\n' || ch == EOF)
+    {
+      asm_context->line++;
+
+      if (macro_type == IS_DEFINE)
+      {
+        if (cont == 1)
+        {
+          macro[ptr++] = ch;
+          cont = 2;
+          continue;
+        }
+
+        break;
+      }
+        else
+      {
+        macro[ptr] = 0;
+        if (check_endm(macro,ptr) == 1) break;
+      }
+    }
+
+    if (cont == 1)
+    {
+      printf("Parse error: Expecting end-of-line on line %d\n", asm_context->line);
+      return -1;
+    }
+
+    cont = 0;
+
+    if (ch == '*' && ptr > 0 && macro[ptr-1] == '/')
+    {
+      macros_strip_comment(asm_context);
+      ptr--;
+      continue;
+    }
+
+    macro[ptr++] = ch;
+    if (ptr >= MAX_MACRO_LEN - 1)
+    {
+      printf("Internal error: macro longer than %d bytes on line %d\n", MAX_MACRO_LEN, asm_context->line);
+      return -1;
+    }
+  }
+
+  macro[ptr++] = 0;
+
+#ifdef DEBUG
+printf("Debug: adding macro '%s'\n", macro);
+#endif
+
+  macros_strip(macro);
+  macros_append(asm_context, name, macro, param_count);
+
+  return 0;
+}
+
+char *macros_expand_params(struct _asm_context *asm_context, char *define, int param_count)
+{
+int ch;
+char params[1024];
+int params_ptr[256];
+int count,ptr;
+
+  ch = get_next_char(asm_context);
+
+  if (ch != '(')
+  {
+    print_error("Macro expects params", asm_context);
+    return 0;
+  }
+
+  count = 0;
+  ptr = 0;
+  params_ptr[count] = ptr;
+
+  while(1)
+  {
+    ch = get_next_char(asm_context);
+    if (ch == '\r') continue;
+    if (ch == ')') break;
+    if (ch == '\n' || ch == EOF)
+    {
+      print_error("Macro expects ')'", asm_context);
+      return NULL;
+    }
+    if (ch == ',')
+    {
+      params[ptr++] = 0;
+      params_ptr[++count] = ptr;
+      continue;
+    }
+
+    params[ptr++] = ch;
+  }
+
+  params[ptr++] = 0;
+  count++;
+  if (count != param_count)
+  {
+    printf("Error: Macro expects %d params, but got only %d at %s:%d.\n", param_count, count, asm_context->filename, asm_context->line);
+    return NULL;
+  }
+
+#ifdef DEBUG
+printf("debug> Expanding macro with params: pass=%d\n", asm_context->pass);
+int n;
+for (n = 0; n < count; n++)
+{
+  printf("debug>   %s\n", params + params_ptr[n]);
+}
+#endif
+
+  ptr = asm_context->def_param_stack_ptr[asm_context->def_param_stack_count];
+
+  while(*define != 0)
+  {
+    if (*define < 10)
+    {
+      strcpy(asm_context->def_param_stack_data + ptr, params + params_ptr[((int)*define)-1]);
+      while(*(asm_context->def_param_stack_data + ptr) != 0) { ptr++; }
+    }
+    else
+    {
+      asm_context->def_param_stack_data[ptr++] = *define;
+    }
+
+    if (ptr >= PARAM_STACK_LEN)
+    {
+      print_error_internal(NULL, __FILE__, __LINE__);
+      exit(1);
+    }
+
+    define++;
+  }
+
+#ifdef DEBUG
+printf("debug>   ptr=%d\n", ptr);
+#endif
+  asm_context->def_param_stack_data[ptr++] = 0;
+
+#ifdef DEBUG
+printf("debug> Expanded macro becomes: %s\n", asm_context->def_param_stack_data+asm_context->def_param_stack_ptr[asm_context->def_param_stack_count]);
+#endif
+
+  asm_context->def_param_stack_ptr[++asm_context->def_param_stack_count] = ptr;
+
+  return asm_context->def_param_stack_data +
+         asm_context->def_param_stack_ptr[asm_context->def_param_stack_count-1];
+}
+
+void macros_strip_comment(struct _asm_context *asm_context)
+{
+int it, cl = 0;
+
+#ifdef DEBUG
+printf("debug> macros_strip_comment()\n");
+#endif
+
+  // Look for /*  */ comment and remove.
+  while(1)
+  {
+    it = get_next_char(asm_context);
+    if (it == EOF) break;
+    if (it == '\n') asm_context->line++;
+    if (it == '/' && cl == '*') break;
+    cl = it;
+  }
+}
 

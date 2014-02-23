@@ -57,10 +57,6 @@ struct _macros_iter
   int end_flag;
 };
 
-void strip_macro(char *macro);
-void eatout_star_comment(struct _asm_context *asm_context);
-int parse_macro(struct _asm_context *asm_context, int is_define);
-char *macros_expand_params(struct _asm_context *asm_context, char *define, int param_count);
 
 int macros_init(struct _macros *macros);
 void macros_free(struct _macros *macros);
@@ -71,6 +67,10 @@ int macros_iterate(struct _macros *macros, struct _macros_iter *iter);
 int macros_print(struct _macros *macros);
 int macros_push_define(struct _macros *macros, char *define);
 int macros_get_char(struct _asm_context *asm_context);
+void macros_strip(char *macro);
+int macros_parse(struct _asm_context *asm_context, int is_define);
+char *macros_expand_params(struct _asm_context *asm_context, char *define, int param_count);
+void macros_strip_comment(struct _asm_context *asm_context);
 
 #endif
 

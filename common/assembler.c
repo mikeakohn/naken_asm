@@ -472,7 +472,7 @@ int token_type;
 
       if (strcasecmp(token, "define") == 0)
       {
-        if (parse_macro(asm_context, IS_DEFINE) != 0) return -1;
+        if (macros_parse(asm_context, IS_DEFINE) != 0) return -1;
       }
         else
       if (strcasecmp(token, "ifdef") == 0)
@@ -537,7 +537,7 @@ int token_type;
         else
       if (strcasecmp(token, "macro") == 0)
       {
-        if (parse_macro(asm_context, IS_MACRO) != 0) return -1;
+        if (macros_parse(asm_context, IS_MACRO) != 0) return -1;
       }
         else
       if (strcasecmp(token, "pragma") == 0)
@@ -597,7 +597,7 @@ int token_type;
             if (ch == EOF || ch == '\n') break;
             if (ch == '*' && ptr > 0 && token2[ptr-1] == '/')
             {
-              eatout_star_comment(asm_context);
+              macros_strip_comment(asm_context);
               ptr--;
               continue;
             }
@@ -611,7 +611,7 @@ int token_type;
           }
           token2[ptr] = 0;
           unget_next_char(asm_context, ch);
-          strip_macro(token2);
+          macros_strip(token2);
           macros_append(asm_context, token, token2, 0);
         }
           else
