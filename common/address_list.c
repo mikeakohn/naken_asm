@@ -77,17 +77,21 @@ int param_count_temp;
 
   token_len = strlen(name) + 1;
 
+  // Check if size of new label is bigger than 255.
   if (token_len > 255)
   {
     printf("Error: Label '%s' is too big.\n", name);
     return -1;
   }
 
+  // If we have no pool, add one.
   if (memory_pool == NULL)
   {
     memory_pool = memory_pool_add((struct _naken_heap *)address_list, ADDRESS_HEAP_SIZE);
   }
 
+  // Find a pool that has enough area at the end to add this address.
+  // If none can be found, alloc a new one.
   while(1)
   {
      if (memory_pool->ptr + token_len + sizeof(struct _address_data) < memory_pool->len)
@@ -103,7 +107,10 @@ int param_count_temp;
      memory_pool = memory_pool->next;
   }
 
+  // Divide by bytes_per_address (for AVR8 and dsPIC).
   address = address / asm_context->bytes_per_address;
+
+  // Set the new label/address entry.
   struct _address_data *address_data =
     (struct _address_data *)(memory_pool->buffer + memory_pool->ptr);
 

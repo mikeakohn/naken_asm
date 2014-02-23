@@ -14,7 +14,7 @@
 
 #define MAX_NESTED_MACROS 128
 #define MAX_MACRO_LEN 1024
-#define DEFINES_HEAP_SIZE 32768
+#define MACROS_HEAP_SIZE 32768
 #define MAX_MACRO_LEN 1024
 #define CHAR_EOF -1
 #define IS_DEFINE 1
@@ -49,9 +49,9 @@ struct _macros
 struct _macros_iter
 {
   struct _memory_pool *memory_pool;
-  unsigned char *name;
-  unsigned char *value;
-  unsigned char param_count;
+  uint8_t param_count;
+  char *name;
+  char *value;
   int ptr;
   int count;
   int end_flag;

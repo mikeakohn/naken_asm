@@ -399,8 +399,8 @@ for (n = 0; n < count; n++)
   {
     if (*define < 10)
     {
-      strcpy(asm_context->def_param_stack_data+ptr, params+params_ptr[((int)*define)-1]);
-      while(*(asm_context->def_param_stack_data+ptr) != 0) { ptr++; }
+      strcpy(asm_context->def_param_stack_data + ptr, params + params_ptr[((int)*define)-1]);
+      while(*(asm_context->def_param_stack_data + ptr) != 0) { ptr++; }
     }
     else
     {
@@ -448,54 +448,71 @@ void macros_free(struct _macros *macros)
 
 int macros_append(struct _asm_context *asm_context, char *name, char *value, int param_count)
 {
-int name_len;
-int value_len;
-int param_count_temp;
 struct _macros *macros = &asm_context->macros;
 struct _memory_pool *memory_pool = macros->memory_pool;
+int param_count_temp;
+int name_len;
+int value_len;
 
   if (macros->locked == 1) { return 0; }
 
   if (macros_lookup(macros, name, &param_count_temp) != NULL ||
       address_list_lookup(&asm_context->address_list, name) != -1)
   {
-    printf("Error: #define '%s' already defined.\n", name);
+    printf("Error: Macro '%s' already defined.\n", name);
     return -1;
   }
 
   name_len = strlen(name) + 1;
   value_len = strlen(value) + 1;
 
-  if (name_len + value_len + 1 > DEFINES_HEAP_SIZE)
+  // The name of the macro can only be 255 chars
+  if (name_len > 255)
   {
-    printf("Error: Label '%s' is too big.\n", name);
+    printf("Error: Macro name '%s' is too big.\n", name);
     return -1;
   }
 
-  if (memory_pool == NULL)
+  // Check the size of the new macro against the size of a pool.
+  if (name_len + value_len + sizeof(struct _macro_data) > MACROS_HEAP_SIZE)
   {
-    memory_pool = memory_pool_add((struct _naken_heap *)macros, DEFINES_HEAP_SIZE);
+    printf("Error: Macro '%s' is too big.\n", name);
+    return -1;
   }
 
+  // If we have no pool, add one.
+  if (memory_pool == NULL)
+  {
+    memory_pool = memory_pool_add((struct _naken_heap *)macros, MACROS_HEAP_SIZE);
+  }
+
+  // Find a pool that has enough area at the end to add this macro.
+  // If none can be found, alloc a new one.
   while(1)
   {
-     if (memory_pool->ptr + name_len+value_len + 1 < memory_pool->len)
+     if (memory_pool->ptr + name_len + value_len + sizeof(struct _macro_data) < memory_pool->len)
      {
        break;
      }
 
      if (memory_pool->next == NULL)
      {
-       memory_pool->next = memory_pool_add((struct _naken_heap *)macros, DEFINES_HEAP_SIZE);
+       memory_pool->next = memory_pool_add((struct _naken_heap *)macros, MACROS_HEAP_SIZE);
      }
 
      memory_pool = memory_pool->next;
   }
 
-  memcpy(memory_pool->buffer + memory_pool->ptr, name, name_len);
-  memcpy(memory_pool->buffer + memory_pool->ptr + name_len, value, value_len);
-  memory_pool->ptr += name_len+value_len + 1;
-  memory_pool->buffer[memory_pool->ptr-1] = (uint8_t)param_count;
+  // Set the new macro entry.
+  // FIXME - probably should align by 4 for RISC machines.
+  struct _macro_data *macro_data =
+    (struct _macro_data *)(memory_pool->buffer + memory_pool->ptr);
+  macro_data->param_count = (uint8_t)param_count;
+  macro_data->name_len = name_len;
+  macro_data->value_len = value_len;
+  memcpy(macro_data->data, name, name_len);
+  memcpy(macro_data->data + name_len, value, value_len);
+  memory_pool->ptr += name_len + value_len + sizeof(struct _macro_data);
 
   return 0;
 } 
@@ -508,8 +525,6 @@ void macros_lock(struct _macros *macros)
 char *macros_lookup(struct _macros *macros, char *name, int *param_count)
 {
 struct _memory_pool *memory_pool = macros->memory_pool;
-int name_len;
-int value_len;
 char *value;
 int ptr;
 
@@ -518,16 +533,18 @@ int ptr;
     ptr = 0;
     while(ptr < memory_pool->ptr)
     {
-      name_len = strlen((char *)memory_pool->buffer+ptr) + 1;
-      value_len = strlen((char *)memory_pool->buffer + ptr + name_len) + 1;
+      struct _macro_data *macro_data =
+        (struct _macro_data *)(memory_pool->buffer + ptr);
+      //name_len = strlen((char *)memory_pool->buffer+ptr) + 1;
+      //value_len = strlen((char *)memory_pool->buffer + ptr + name_len) + 1;
 
-      if (strcmp((char *)memory_pool->buffer + ptr, name) == 0)
+      if (strcmp(macro_data->data, name) == 0)
       {
-        value = (char *)memory_pool->buffer + ptr + strlen((char *)memory_pool->buffer + ptr) + 1;
-        *param_count = *(value + strlen(value) + 1);
+        value = macro_data->data + macro_data->name_len;
+        *param_count = macro_data->param_count;
         return value;
       }
-      ptr = ptr + name_len + value_len + 1;
+      ptr += macro_data->name_len + macro_data->value_len + sizeof(struct _macro_data);
     }
 
     memory_pool = memory_pool->next;
@@ -539,8 +556,6 @@ int ptr;
 int macros_iterate(struct _macros *macros, struct _macros_iter *iter)
 {
 struct _memory_pool *memory_pool = macros->memory_pool;
-int name_len;
-int value_len;
 
   if (iter->end_flag == 1) { return -1; }
   if (iter->memory_pool == NULL)
@@ -553,14 +568,15 @@ int value_len;
   {
     if(iter->ptr < memory_pool->ptr)
     {
-      name_len = strlen((char *)memory_pool->buffer + iter->ptr) + 1;
-      value_len = strlen((char *)memory_pool->buffer + iter->ptr+name_len) + 1;
-      iter->param_count = *((char *)memory_pool->buffer + iter->ptr + name_len+value_len);
+      struct _macro_data *macro_data =
+        (struct _macro_data *)(memory_pool->buffer + iter->ptr);
 
-      iter->name = memory_pool->buffer + iter->ptr;
-      iter->value = memory_pool->buffer + iter->ptr + name_len;
+      iter->param_count = macro_data->param_count;
+      iter->name = macro_data->data;
+      iter->value = macro_data->data + macro_data->name_len;
 
-      iter->ptr = iter->ptr + name_len + value_len + 1;
+      iter->ptr += macro_data->name_len + macro_data->value_len + sizeof(struct _macro_data);
+
       iter->count++;
       return 0;
     }
@@ -600,7 +616,7 @@ struct _macros_iter iter;
       printf(")=");
     }
 
-    unsigned char *value = iter.value;
+    char *value = iter.value;
     while (*value != 0)
     {
       if (*value < 10) { printf("{%d}", *value); }
