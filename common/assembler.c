@@ -52,8 +52,8 @@
 #include "eval_expression.h"
 #include "get_tokens.h"
 #include "ifdef_expression.h"
-#include "address_list.h"
 #include "macros.h"
+#include "symbols.h"
 #include "print_error.h"
 
 static int parse_org(struct _asm_context *asm_context)
@@ -178,9 +178,9 @@ char name[TOKENLEN];
 int num;
 int token_type;
 
-  asm_context->no_address_list = 1;
+  asm_context->no_symbols = 1;
   token_type = get_token(asm_context, name, TOKENLEN);
-  asm_context->no_address_list = 0;
+  asm_context->no_symbols = 0;
 
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
@@ -207,7 +207,7 @@ int token_type;
 #endif
 
   // REVIEW - should num be divided by bytes_per_address for dsPIC and avr8?
-  address_list_set(&asm_context->address_list, name, num);
+  symbols_set(&asm_context->symbols, name, num);
 
   asm_context->line++;
 
@@ -223,9 +223,9 @@ int token_type;
 
   // Atmel's include files want:  .equ NAME = VALUE
 
-  asm_context->no_address_list = 1;
+  asm_context->no_symbols = 1;
   token_type = get_token(asm_context, name, TOKENLEN);
-  asm_context->no_address_list = 0;
+  asm_context->no_symbols = 0;
 
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
@@ -284,7 +284,7 @@ void assemble_print_info(struct _asm_context *asm_context, FILE *out)
 {
   fprintf(out, "\nProgram Info:\n");
 #ifdef DEBUG
-  address_list_print(&asm_context->address_list);
+  symbols_print(&asm_context->symbols);
   macros_print(&asm_context->macros);
 #endif
 
@@ -466,7 +466,7 @@ int token_type;
         return -1;
       }
 
-      if (address_list_append(&asm_context->address_list, token, asm_context->address / asm_context->bytes_per_address) == -1)
+      if (symbols_append(&asm_context->symbols, token, asm_context->address / asm_context->bytes_per_address) == -1)
       {
         return -1;
       }

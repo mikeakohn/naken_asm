@@ -12,6 +12,8 @@
 #ifndef _WRITE_ELF_H
 #define _WRITE_ELF_H
 
+#include "symbols.h"
+
 #define ELF_TEXT_MAX 64
 
 struct _sections_offset
@@ -78,7 +80,7 @@ struct _symtab
   unsigned short int st_shndx;
 };
 
-int write_elf(struct _memory *memory, FILE *out, struct _address_list *address_list, const char *filename, int cpu_type);
+int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const char *filename, int cpu_type);
 
 #endif
 

@@ -14,9 +14,9 @@
 #include <string.h>
 
 #include "get_tokens.h"
-#include "address_list.h"
 #include "macros.h"
 #include "memory_pool.h"
+#include "symbols.h"
 
 static int get_param_index(char *params, char *name)
 {
@@ -128,7 +128,7 @@ int value_len;
   if (macros->locked == 1) { return 0; }
 
   if (macros_lookup(macros, name, &param_count_temp) != NULL ||
-      address_list_lookup(&asm_context->address_list, name) != -1)
+      symbols_lookup(&asm_context->symbols, name) != -1)
   {
     printf("Error: Macro '%s' already defined.\n", name);
     return -1;

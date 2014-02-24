@@ -17,8 +17,8 @@
 #include "assembler.h"
 #include "write_elf.h"
 #include "write_hex.h"
-#include "address_list.h"
 #include "macros.h"
+#include "symbols.h"
 #include "version.h"
 
 #define FORMAT_HEX 0
@@ -253,7 +253,7 @@ int error_flag=0;
 
   printf("\n");
 
-  address_list_init(&asm_context.address_list);
+  symbols_init(&asm_context.symbols);
   macros_init(&asm_context.macros);
 
   printf("Pass 1...\n");
@@ -267,7 +267,7 @@ int error_flag=0;
   }
     else
   {
-    address_list_lock(&asm_context.address_list);
+    symbols_lock(&asm_context.symbols);
     // macros_lock(&asm_context.defines_heap);
 
     printf("Pass 2...\n");
@@ -288,7 +288,7 @@ int error_flag=0;
       else
     if (format == FORMAT_ELF)
     {
-      write_elf(&asm_context.memory, out, &asm_context.address_list, asm_context.filename, asm_context.cpu_type);
+      write_elf(&asm_context.memory, out, &asm_context.symbols, asm_context.filename, asm_context.cpu_type);
     }
 #endif
 
@@ -354,7 +354,7 @@ int error_flag=0;
 
   assemble_print_info(&asm_context, stdout);
 
-  address_list_free(&asm_context.address_list);
+  symbols_free(&asm_context.symbols);
   macros_free(&asm_context.macros);
 
   if (asm_context.list != NULL) { fclose(asm_context.list); }

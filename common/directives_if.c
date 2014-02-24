@@ -90,7 +90,7 @@ int param_count; // throw away
   }
 
   if (macros_lookup(&asm_context->macros, token, &param_count) != NULL ||
-      address_list_find(&asm_context->address_list, token) != NULL)
+      symbols_find(&asm_context->symbols, token) != NULL)
   {
     if (ifndef == 1) ignore_section = 1;
   }

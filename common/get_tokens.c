@@ -16,8 +16,8 @@
 #include <signal.h>
 
 #include "get_tokens.h"
-#include "address_list.h"
 #include "macros.h"
+#include "symbols.h"
 
 #define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }
 
@@ -485,9 +485,9 @@ int ptr = 0;
     char *macro = macros_lookup(&asm_context->macros, token, &param_count);
     int address;
 
-    if (asm_context->no_address_list == 0)
+    if (asm_context->no_symbols == 0)
     {
-      address = address_list_lookup(&asm_context->address_list, token);
+      address = symbols_lookup(&asm_context->symbols, token);
     }
       else
     {

@@ -15,11 +15,11 @@
 #include <stdio.h>
 
 #include "cpu_list.h"
-#include "address_list.h"
 #include "macros.h"
 #include "memory.h"
 #include "memory_pool.h"
 #include "print_error.h"
+#include "symbols.h"
 
 #define TOKENLEN 512
 #define PARAM_STACK_LEN 4096
@@ -37,7 +37,7 @@ struct _asm_context
   FILE *in;
   FILE *list;
   struct _memory memory;
-  struct _address_list address_list;
+  struct _symbols symbols;
   struct _macros macros;
   parse_instruction_t parse_instruction;
   list_output_t list_output;
@@ -70,7 +70,7 @@ struct _asm_context
   uint8_t can_tick_end_string:1;
   uint8_t error:1;
   uint8_t msp430_cpu4:1;
-  uint8_t no_address_list:1;
+  uint8_t no_symbols:1;
 };
 
 int add_to_include_path(struct _asm_context *asm_context, char *paths);
