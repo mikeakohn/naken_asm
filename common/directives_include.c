@@ -20,27 +20,27 @@
 
 int add_to_include_path(struct _asm_context *asm_context, char *paths)
 {
-int ptr=0;
-int n=0;
+int ptr = 0;
+int n = 0;
 char *s;
 
-  s=asm_context->include_path;
-  while(!(s[ptr]==0 && s[ptr+1]==0)) { ptr++; }
-  if (ptr!=0) ptr++;
+  s = asm_context->include_path;
+  while(!(s[ptr] == 0 && s[ptr+1] == 0)) { ptr++; }
+  if (ptr != 0) ptr++;
 
-  while(paths[n]!=0)
+  while(paths[n] != 0)
   {
-    if (paths[n]==':')
+    if (paths[n] == ':')
     {
       n++;
-      s[ptr++]=0;
+      s[ptr++] = 0;
     }
       else
     {
-      s[ptr++]=paths[n++];
+      s[ptr++] = paths[n++];
     }
 
-    if (ptr>=INCLUDE_PATH_LEN-1) return -1;
+    if (ptr >= INCLUDE_PATH_LEN-1) return -1;
   }
 
   return 0;
@@ -55,7 +55,7 @@ unsigned char buffer[8192];
 int len;
 int n;
 
-  if (asm_context->segment==SEGMENT_BSS)
+  if (asm_context->segment == SEGMENT_BSS)
   {
     printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->filename, asm_context->line);
     return -1;
@@ -66,8 +66,8 @@ int n;
 printf("binfile file %s.\n", token);
 #endif
 
-  in=fopen(token, "rb");
-  if (in==NULL)
+  in = fopen(token, "rb");
+  if (in == NULL)
   {
     printf("Cannot open binfile file '%s' at %s:%d\n", token, asm_context->filename, asm_context->line);
     return -1;
@@ -75,14 +75,14 @@ printf("binfile file %s.\n", token);
 
   while(1)
   {
-    len=fread(buffer, 1, 8192, in);
-    if (len<=0) break;
+    len = fread(buffer, 1, 8192, in);
+    if (len <= 0) break;
 
-    for (n=0; n<len; n++)
+    for (n = 0; n < len; n++)
     {
       memory_write_inc(asm_context, buffer[n], DL_DATA);
     }
-    asm_context->data_count+=len;
+    asm_context->data_count += len;
   }
 
   fclose(in);
@@ -106,67 +106,67 @@ printf("including file %s.\n", token);
 
   asm_context->include_count++;
 
-  oldfp=asm_context->in;
+  oldfp = asm_context->in;
 
-  asm_context->in=fopen(token, "rb");
+  asm_context->in = fopen(token, "rb");
 
-  if (asm_context->in==NULL)
+  if (asm_context->in == NULL)
   {
-    int ptr=0;
-    char *s=asm_context->include_path;
+    int ptr = 0;
+    char *s = asm_context->include_path;
     char filename[1024];
 
     while(1)
     {
-      if (s[ptr]==0) break;
+      if (s[ptr] == 0) break;
 
-      if (strlen(token)+strlen(s+ptr)<1022)
+      if (strlen(token) + strlen(s+ptr) < 1022)
       {
         sprintf(filename, "%s/%s", s+ptr, token);
 #ifdef DEBUG
         printf("Trying %s\n", filename);
 #endif
-        asm_context->in=fopen(filename, "rb");
-        if (asm_context->in!=NULL) break;
+        asm_context->in = fopen(filename, "rb");
+        if (asm_context->in != NULL) break;
 
-        if (asm_context->cpu_list_index!=-1)
+        if (asm_context->cpu_list_index != -1)
         {
           sprintf(filename, "%s/%s/%s", s+ptr, cpu_list[asm_context->cpu_list_index].name, token);
 #ifdef DEBUG
           printf("Trying %s\n", filename);
 #endif
-          asm_context->in=fopen(filename, "rb");
-          if (asm_context->in!=NULL) break;
+          asm_context->in = fopen(filename, "rb");
+          if (asm_context->in != NULL) break;
         }
       }
 
-      while (s[ptr]!=0) ptr++;
+      while (s[ptr] != 0) ptr++;
       ptr++;
     }
   }
 
-  if (asm_context->in==NULL)
+  if (asm_context->in == NULL)
   {
     printf("Cannot open include file '%s' at %s:%d\n", token, asm_context->filename, asm_context->line);
-    ret=-1;
+    ret = -1;
   }
     else
   {
-    oldname=asm_context->filename;
-    oldline=asm_context->line;
+    oldname = asm_context->filename;
+    oldline = asm_context->line;
 
-    asm_context->filename=token;
-    asm_context->line=1;
+    asm_context->filename = token;
+    asm_context->line = 1;
 
-    ret=assemble(asm_context);
+    ret = assemble(asm_context);
 
-    asm_context->filename=oldname;
-    asm_context->line=oldline;
+    asm_context->filename = oldname;
+    asm_context->line = oldline;
   }
 
-  if (asm_context->in!=NULL) { fclose(asm_context->in); }
+  if (asm_context->in != NULL) { fclose(asm_context->in); }
 
-  asm_context->in=oldfp;
+  asm_context->in = oldfp;
   asm_context->include_count--;
 
   return ret;
