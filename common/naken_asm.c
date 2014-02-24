@@ -29,49 +29,49 @@ static void new_extension(char *filename, char *ext, int len)
 {
 int i;
 
-  i=strlen(filename)-1;
-  if (i+2>len)
+  i = strlen(filename) - 1;
+  if (i + 2 > len)
   {
     printf("Internal error: filename too long %s:%d\n", __FILE__, __LINE__);
     exit(1);
   }
 
-  while(i>0)
+  while(i > 0)
   {
-    if (filename[i]=='.')
+    if (filename[i] == '.')
     {
-      strcpy(filename+i+1,ext);
+      strcpy(filename + i + 1, ext);
       break;
     }
 
     i--;
   }
 
-  if (i==0)
+  if (i == 0)
   {
-    strcat(filename,ext);
+    strcat(filename, ext);
   }
 
 }
 
 static void output_hex_text(FILE *fp, char *s, int ptr)
 {
-  if (ptr==0) return;
-  s[ptr]=0;
+  if (ptr == 0) return;
+  s[ptr] = 0;
   int n;
-  for (n=0; n<((16-ptr)*3)+2; n++) { putc(' ', fp); }
+  for (n = 0; n < ((16 - ptr) * 3) + 2; n++) { putc(' ', fp); }
   fprintf(fp, "%s", s);
 }
 
 int main(int argc, char *argv[])
 {
 FILE *out;
-FILE *dbg=NULL;
-//FILE *list=NULL;
+FILE *dbg = NULL;
+//FILE *list = NULL;
 int i;
-int format=FORMAT_HEX;
-int create_list=0;
-char *infile=NULL,*outfile=NULL;
+int format = FORMAT_HEX;
+int create_list = 0;
+char *infile = NULL, *outfile = NULL;
 struct _asm_context asm_context;
 int error_flag=0;
 
@@ -81,7 +81,7 @@ int error_flag=0;
   printf("  Email: mike@mikekohn.net\n\n");
   printf("Version: "VERSION"\n\n");
 
-  if (argc<2)
+  if (argc < 2)
   {
     printf("Usage: naken_asm [options] <infile>\n");
     printf("   -o <outfile>\n");
@@ -99,46 +99,46 @@ int error_flag=0;
 
   memset(&asm_context, 0, sizeof(asm_context));
 
-  for (i=1; i<argc; i++)
+  for (i = 1; i < argc; i++)
   {
-    if (strcmp(argv[i], "-o")==0)
+    if (strcmp(argv[i], "-o") == 0)
     {
-      outfile=argv[++i];
+      outfile = argv[++i];
     }
       else
-    if (strcmp(argv[i], "-h")==0)
+    if (strcmp(argv[i], "-h") == 0)
     {
-      format=FORMAT_HEX;
+      format = FORMAT_HEX;
     }
       else
-    if (strcmp(argv[i], "-b")==0)
+    if (strcmp(argv[i], "-b") == 0)
     {
-      format=FORMAT_BIN;
+      format = FORMAT_BIN;
     }
 #ifndef DISABLE_ELF
       else
-    if (strcmp(argv[i], "-e")==0)
+    if (strcmp(argv[i], "-e") == 0)
     {
       format=FORMAT_ELF;
     }
 #endif
       else
-    if (strcmp(argv[i], "-d")==0)
+    if (strcmp(argv[i], "-d") == 0)
     {
       asm_context.debug_file=1;
     }
       else
-    if (strcmp(argv[i], "-l")==0)
+    if (strcmp(argv[i], "-l") == 0)
     {
       create_list=1;
     }
       else
-    if (strncmp(argv[i], "-I", 2)==0)
+    if (strncmp(argv[i], "-I", 2) == 0)
     {
-      char *s=argv[i];
-      if (s[2]==0)
+      char *s = argv[i];
+      if (s[2] == 0)
       {
-        if (add_to_include_path(&asm_context, argv[++i])!=0)
+        if (add_to_include_path(&asm_context, argv[++i]) != 0)
         {
           printf("Internal Error:  Too many include paths\n");
           exit(1);
@@ -146,7 +146,7 @@ int error_flag=0;
       }
         else
       {
-        if (add_to_include_path(&asm_context, s+2)!=0)
+        if (add_to_include_path(&asm_context, s+2) != 0)
         {
           printf("Internal Error:  Too many include paths\n");
           exit(1);
@@ -155,77 +155,75 @@ int error_flag=0;
     }
       else
     {
-      if (infile!=NULL)
+      if (infile != NULL)
       {
         printf("Error: Cannot use %s as input file since %s was already chosen.\n", argv[1], infile);
         exit(1);
       }
-      infile=argv[i];
+      infile = argv[i];
     }
   }
 
-  if (infile==NULL)
+  if (infile == NULL)
   {
     printf("No input file specified.\n");
     exit(1);
   }
 
-  if (outfile==NULL)
+  if (outfile == NULL)
   {
-    if (format==FORMAT_HEX)
+    if (format == FORMAT_HEX)
     {
-      outfile="out.hex";
+      outfile = "out.hex";
     }
       else
-    if (format==FORMAT_BIN)
+    if (format == FORMAT_BIN)
     {
-      outfile="out.bin";
+      outfile = "out.bin";
     }
-#ifndef DISABLE_ELF
       else
-    if (format==FORMAT_ELF)
+    if (format == FORMAT_ELF)
     {
       outfile="out.elf";
     }
-#endif
   }
 
 #ifdef INCLUDE_PATH
-  if (add_to_include_path(&asm_context, INCLUDE_PATH)!=0)
+  if (add_to_include_path(&asm_context, INCLUDE_PATH) != 0)
   {
     printf("Internal Error:  Too many include paths\n");
     exit(1);
   }
 #endif
 
-  asm_context.in=fopen(infile,"rb");
-  if (asm_context.in==NULL)
+  asm_context.in = fopen(infile,"rb");
+  if (asm_context.in == NULL)
   {
-    printf("Couldn't open %s for reading.\n",infile);
+    printf("Couldn't open %s for reading.\n", infile);
     exit(1);
   }
 
-  asm_context.filename=infile;
+  asm_context.filename = infile;
 
-  out=fopen(outfile,"wb");
-  if (out==NULL)
+  out = fopen(outfile, "wb");
+  if (out == NULL)
   {
-    printf("Couldn't open %s for writing.\n",outfile);
+    printf("Couldn't open %s for writing.\n", outfile);
     exit(1);
   }
 
-  printf(" Input file: %s\n",infile);
-  printf("Output file: %s\n",outfile);
+  printf(" Input file: %s\n", infile);
+  printf("Output file: %s\n", outfile);
 
-  if (asm_context.debug_file==1)
+  if (asm_context.debug_file == 1)
   {
     char filename[1024];
-    strcpy(filename,outfile);
+    strcpy(filename, outfile);
 
     new_extension(filename, "ndbg", 1024);
 
-    dbg=fopen(filename,"wb");
-    if (dbg==NULL)
+    dbg = fopen(filename,"wb");
+    if (dbg == NULL)
     {
       printf("Couldn't open %s for writing.\n",filename);
       exit(1);
@@ -233,24 +231,24 @@ int error_flag=0;
 
     printf(" Debug file: %s\n",filename);
 
-    fprintf(dbg,"%s\n",infile);
+    fprintf(dbg, "%s\n", infile);
   }
 
-  if (create_list==1)
+  if (create_list == 1)
   {
     char filename[1024];
-    strcpy(filename,outfile);
+    strcpy(filename, outfile);
 
     new_extension(filename, "lst", 1024);
 
-    asm_context.list=fopen(filename,"wb");
-    if (asm_context.list==NULL)
+    asm_context.list=fopen(filename, "wb");
+    if (asm_context.list == NULL)
     {
-      printf("Couldn't open %s for writing.\n",filename);
+      printf("Couldn't open %s for writing.\n", filename);
       exit(1);
     }
 
-    printf("  List file: %s\n",filename);
+    printf("  List file: %s\n", filename);
   }
 
   printf("\n");
@@ -259,10 +257,10 @@ int error_flag=0;
   macros_init(&asm_context.macros);
 
   printf("Pass 1...\n");
-  asm_context.pass=1;
+  asm_context.pass = 1;
   assemble_init(&asm_context);
-  error_flag=assemble(&asm_context);
-  if (error_flag!=0)
+  error_flag = assemble(&asm_context);
+  if (error_flag != 0)
   {
     printf("** Errors... bailing out\n");
     unlink(outfile);
@@ -273,34 +271,34 @@ int error_flag=0;
     // macros_lock(&asm_context.defines_heap);
 
     printf("Pass 2...\n");
-    asm_context.pass=2;
+    asm_context.pass = 2;
     assemble_init(&asm_context);
-    error_flag=assemble(&asm_context);
+    error_flag = assemble(&asm_context);
 
-    if (format==FORMAT_HEX)
+    if (format == FORMAT_HEX)
     {
       write_hex(&asm_context.memory, out);
     }
       else
-    if (format==FORMAT_BIN)
+    if (format == FORMAT_BIN)
     {
       write_bin(&asm_context.memory, out);
     }
 #ifndef DISABLE_ELF
       else
-    if (format==FORMAT_ELF)
+    if (format == FORMAT_ELF)
     {
       write_elf(&asm_context.memory, out, &asm_context.address_list, asm_context.filename, asm_context.cpu_type);
     }
 #endif
 
-    if (dbg!=NULL)
+    if (dbg != NULL)
     {
-      for (i=0; i<asm_context.memory.size; i++)
+      for (i = 0; i < asm_context.memory.size; i++)
       {
-        int debug_line=memory_debug_line(&asm_context, i);
-        putc(debug_line>>8,dbg);
-        putc(debug_line&0xff,dbg);
+        int debug_line = memory_debug_line(&asm_context, i);
+        putc(debug_line >> 8, dbg);
+        putc(debug_line & 0xff, dbg);
       }
 
       fclose(dbg);
@@ -310,42 +308,42 @@ int error_flag=0;
 
   fclose(out);
 
-  if (create_list==1)
+  if (create_list == 1)
   {
-    int ch=0;
+    int ch = 0;
     char str[17];
-    int ptr=0;
+    int ptr = 0;
     fprintf(asm_context.list, "data sections:");
-    for (i=asm_context.memory.low_address; i<=asm_context.memory.high_address; i++)
+    for (i = asm_context.memory.low_address; i <= asm_context.memory.high_address; i++)
     {
-      if (memory_debug_line(&asm_context, i)==-2)
+      if (memory_debug_line(&asm_context, i) == -2)
       {
-        if (ch==0)
+        if (ch == 0)
         {
-          if (ptr!=0)
+          if (ptr != 0)
           {
             output_hex_text(asm_context.list, str, ptr);
           }
           fprintf(asm_context.list, "\n%04x:", i/asm_context.bytes_per_address);
-          ptr=0;
+          ptr = 0;
         }
 
-        unsigned char data=memory_read(&asm_context, i);
+        unsigned char data = memory_read(&asm_context, i);
         fprintf(asm_context.list, " %02x", data);
 
-        if (data>=' ' && data<=120)
-        { str[ptr++]=data; }
+        if (data >= ' ' && data <= 120)
+        { str[ptr++] = data; }
           else
-        { str[ptr++]='.'; }
+        { str[ptr++] = '.'; }
 
         ch++;
-        if (ch==16) { ch=0; }
+        if (ch == 16) { ch = 0; }
       }
         else
       {
         output_hex_text(asm_context.list, str, ptr);
-        ch=0;
-        ptr=0;
+        ch = 0;
+        ptr = 0;
       }
     }
     output_hex_text(asm_context.list, str, ptr);
@@ -359,10 +357,10 @@ int error_flag=0;
   address_list_free(&asm_context.address_list);
   macros_free(&asm_context.macros);
 
-  if (asm_context.list!=NULL) { fclose(asm_context.list); }
+  if (asm_context.list != NULL) { fclose(asm_context.list); }
   fclose(asm_context.in);
 
-  if (error_flag!=0)
+  if (error_flag != 0)
   {
     printf("*** Failed ***\n\n");
     unlink(outfile);
@@ -370,7 +368,7 @@ int error_flag=0;
 
   memory_free(&asm_context.memory);
 
-  if (error_flag!=0) { return -1; }
+  if (error_flag != 0) { return -1; }
 
   return 0;
 }
