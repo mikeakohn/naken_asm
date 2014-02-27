@@ -44,12 +44,12 @@ int get_cycle_count_tms9900(unsigned short int opcode)
 
 static void get_operand(char *operand, int t, int reg, int data)
 {
-  if (t==0) { sprintf(operand, "r%d", reg); }
-  else if (t==1) { sprintf(operand, "*r%d", reg); }
-  else if (t==3) { sprintf(operand, "*r%d+", reg); }
+  if (t == 0) { sprintf(operand, "r%d", reg); }
+  else if (t == 1) { sprintf(operand, "*r%d", reg); }
+  else if (t == 3) { sprintf(operand, "*r%d+", reg); }
   else
   {
-    if (reg==0)
+    if (reg == 0)
     {
       sprintf(operand, "@0x%04x", data);
     }
@@ -64,37 +64,37 @@ int disasm_tms9900(struct _memory *memory, int address, char *instruction, int *
 {
 char operand_s[32];
 char operand_d[32];
-int data_s=0;
-int data_d=0;
-int count=2;
+int data_s = 0;
+int data_d = 0;
+int count = 2;
 int opcode;
 int ts,td;
 int s,d;
 int n;
 
-  *cycles_min=-1;
-  *cycles_max=-1;
+  *cycles_min = -1;
+  *cycles_max = -1;
 
-  opcode=READ_RAM16(address);
+  opcode = READ_RAM16(address);
 
-  n=0;
-  while(table_tms9900[n].instr!=NULL)
+  n = 0;
+  while(table_tms9900[n].instr != NULL)
   {
-    if ((opcode&masks[table_tms9900[n].type])==table_tms9900[n].opcode)
+    if ((opcode&masks[table_tms9900[n].type]) == table_tms9900[n].opcode)
     {
-      *cycles_min=table_tms9900[n].cycles_min;
-      *cycles_max=table_tms9900[n].cycles_max;
+      *cycles_min = table_tms9900[n].cycles_min;
+      *cycles_max = table_tms9900[n].cycles_max;
 
       switch(table_tms9900[n].type)
       {
         case OP_DUAL:
         {
-          ts=(opcode>>4)&0x3;
-          td=(opcode>>10)&0x3;
-          s=opcode&0xf;
-          d=(opcode>>6)&0xf;
-          if (ts==2) { address+=2; count+=2; data_s=READ_RAM16(address); }
-          if (td==2) { address+=2; count+=2; data_d=READ_RAM16(address); }
+          ts = (opcode >> 4) & 0x3;
+          td = (opcode >> 10) & 0x3;
+          s = opcode & 0xf;
+          d = (opcode >> 6) & 0xf;
+          if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
+          if (td == 2) { address += 2; count += 2; data_d=READ_RAM16(address); }
           get_operand(operand_s, ts, s, data_s);
           get_operand(operand_d, td, d, data_d);
           sprintf(instruction, "%s %s,%s", table_tms9900[n].instr, operand_s, operand_d);
@@ -103,11 +103,11 @@ int n;
         case OP_DUAL_MULTIPLE:
         case OP_XOP:
         {
-          ts=(opcode>>4)&0x3;
-          td=0;
-          s=opcode&0xf;
-          d=(opcode>>6)&0xf;
-          if (ts==2) { address+=2; count+=2; data_s=READ_RAM16(address); }
+          ts = (opcode >> 4) & 0x3;
+          td = 0;
+          s = opcode & 0xf;
+          d = (opcode >> 6) & 0xf;
+          if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
           get_operand(operand_s, ts, s, data_s);
           get_operand(operand_d, td, d, data_d);
           sprintf(instruction, "%s %s,%s", table_tms9900[n].instr, operand_s, operand_d);
@@ -115,58 +115,58 @@ int n;
         }
         case OP_SINGLE:
         {
-          ts=(opcode>>4)&0x3;
-          s=opcode&0xf;
-          if (ts==2) { address+=2; count+=2; data_s=READ_RAM16(address); }
+          ts = (opcode >> 4) & 0x3;
+          s = opcode & 0xf;
+          if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
           get_operand(operand_s, ts, s, data_s);
           sprintf(instruction, "%s %s", table_tms9900[n].instr, operand_s);
           return count;
         }
         case OP_CRU_MULTIBIT:
         {
-          ts=(opcode>>4)&0x3;
-          s=opcode&0xf;
-          data_d=(opcode>>6)&0xf;
-          if (ts==2) { address+=2; count+=2; data_s=READ_RAM16(address); }
+          ts = (opcode >> 4) & 0x3;
+          s = opcode & 0xf;
+          data_d = (opcode >> 6) & 0xf;
+          if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
           get_operand(operand_s, ts, s, data_s);
           sprintf(instruction, "%s %s,%d", table_tms9900[n].instr, operand_s, data_d);
           return count;
         }
         case OP_CRU_SINGLEBIT:
         {
-          data_s=((char)(opcode&0xff));
+          data_s = ((char)(opcode & 0xff));
           sprintf(instruction, "%s %d", table_tms9900[n].instr, data_s);
           return count;
         }
         case OP_JUMP:
         {
-          data_s=((char)(opcode&0xff));
+          data_s = ((char)(opcode & 0xff));
           sprintf(instruction, "%s 0x%04x (%d)", table_tms9900[n].instr, address+2+data_s, data_s);
           return count;
         }
         case OP_SHIFT:
         {
-          s=opcode&0xf;
-          data_d=(opcode>>4)&0xf;
+          s = opcode & 0xf;
+          data_d = (opcode >> 4) & 0xf;
           sprintf(instruction, "%s r%d,%d", table_tms9900[n].instr, s, data_d);
           return count;
         }
         case OP_IMMEDIATE:
         {
-          s=opcode&0xf;
-          data_d=READ_RAM16(address+2);
+          s = opcode & 0xf;
+          data_d = READ_RAM16(address + 2);
           sprintf(instruction, "%s r%d,%d", table_tms9900[n].instr, s, data_d);
-          return count+2;
+          return count + 2;
         }
         case OP_INT_REG_LD:
         {
-          data_d=READ_RAM16(address+2);
+          data_d = READ_RAM16(address + 2);
           sprintf(instruction, "%s %d", table_tms9900[n].instr, data_d);
-          return count+2;
+          return count + 2;
         }
         case OP_INT_REG_ST:
         {
-          s=opcode&0xf;
+          s = opcode & 0xf;
           sprintf(instruction, "%s r%d", table_tms9900[n].instr, s);
           return count;
         }
@@ -194,22 +194,22 @@ int cycles_min,cycles_max;
 char instruction[128];
 int count;
 int n;
-unsigned int opcode=(memory_read_m(&asm_context->memory, address)<<8)|memory_read_m(&asm_context->memory, address+1);
+unsigned int opcode = (memory_read_m(&asm_context->memory, address) << 8) | memory_read_m(&asm_context->memory, address + 1);
 
   fprintf(asm_context->list, "\n");
   count=disasm_tms9900(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
   fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", address, opcode, instruction);
 
-  if (cycles_min==cycles_max)
+  if (cycles_min == cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
     else
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
 
-  for (n=2; n<count; n=n+2)
+  for (n = 2; n < count; n = n + 2)
   {
-    opcode=(memory_read_m(&asm_context->memory, address+n)<<8)|memory_read_m(&asm_context->memory, address+n+1);
-    fprintf(asm_context->list, "0x%04x: %04x\n", address+n, opcode);
+    opcode = (memory_read_m(&asm_context->memory, address + n) << 8) | memory_read_m(&asm_context->memory, address + n + 1);
+    fprintf(asm_context->list, "0x%04x: %04x\n", address + n, opcode);
   }
 }
 
@@ -217,7 +217,7 @@ void disasm_range_tms9900(struct _memory *memory, int start, int end)
 {
 char instruction[128];
 char bytes[10];
-int cycles_min=0,cycles_max=0;
+int cycles_min = 0,cycles_max = 0;
 int count;
 int n;
 
@@ -226,24 +226,24 @@ int n;
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start<=end)
+  while(start <= end)
   {
-    count=disasm_tms9900(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_tms9900(memory, start, instruction, &cycles_min, &cycles_max);
 
-    bytes[0]=0;
-    for (n=0; n<count; n++)
+    bytes[0] = 0;
+    for (n = 0; n < count; n++)
     {
       char temp[4];
-      sprintf(temp, "%04x ", READ_RAM16(start+n));
+      sprintf(temp, "%04x ", READ_RAM16(start + n));
       strcat(bytes, temp);
     }
 
-    if (cycles_min<1)
+    if (cycles_min < 1)
     {
       printf("0x%04x: %-9s %-40s ?\n", start, bytes, instruction);
     }
       else
-    if (cycles_min==cycles_max)
+    if (cycles_min == cycles_max)
     {
       printf("0x%04x: %-9s %-40s %d\n", start, bytes, instruction, cycles_min);
     }
@@ -252,7 +252,7 @@ int n;
       printf("0x%04x: %-9s %-40s %d-%d\n", start, bytes, instruction, cycles_min, cycles_max);
     }
 
-    start=start+count;
+    start = start + count;
   }
 }
 

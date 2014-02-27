@@ -19,48 +19,48 @@
 
 void add_bin8(struct _asm_context *asm_context, uint8_t b, int flags)
 {
-int line=DL_NO_CG;
+int line = DL_NO_CG;
 
-  if (asm_context->pass==2 && flags==IS_OPCODE) { line=asm_context->line; }
+  if (asm_context->pass == 2 && flags == IS_OPCODE) { line = asm_context->line; }
   memory_write_inc(asm_context, b, line);
 }
 
 void add_bin16(struct _asm_context *asm_context, uint16_t b, int flags)
 {
-int line=DL_NO_CG;
+int line = DL_NO_CG;
 
-  if (asm_context->pass==2 && flags==IS_OPCODE) { line=asm_context->line; }
+  if (asm_context->pass == 2 && flags == IS_OPCODE) { line = asm_context->line; }
 
-  if (asm_context->memory.endian==ENDIAN_LITTLE)
+  if (asm_context->memory.endian == ENDIAN_LITTLE)
   {
     // 1 little, 2 little, 3 little endian
-    memory_write_inc(asm_context, b&0xff, line);
-    memory_write_inc(asm_context, b>>8, DL_NO_CG);
+    memory_write_inc(asm_context, b & 0xff, line);
+    memory_write_inc(asm_context, b >> 8, DL_NO_CG);
   }
     else
   {
-    memory_write_inc(asm_context, b>>8, DL_NO_CG);
-    memory_write_inc(asm_context, b&0xff, line);
+    memory_write_inc(asm_context, b >> 8, DL_NO_CG);
+    memory_write_inc(asm_context, b & 0xff, line);
   }
 }
 
 void add_bin32(struct _asm_context *asm_context, uint32_t b, int flags)
 {
-int line=asm_context->line;
+int line = asm_context->line;
 
-  if (asm_context->memory.endian==ENDIAN_LITTLE)
+  if (asm_context->memory.endian == ENDIAN_LITTLE)
   {
-    memory_write_inc(asm_context, b&0xff, line);
-    memory_write_inc(asm_context, (b>>8)&0xff, line);
-    memory_write_inc(asm_context, (b>>16)&0xff, line);
-    memory_write_inc(asm_context, (b>>24)&0xff, line);
+    memory_write_inc(asm_context, b & 0xff, line);
+    memory_write_inc(asm_context, (b >> 8) & 0xff, line);
+    memory_write_inc(asm_context, (b >> 16) & 0xff, line);
+    memory_write_inc(asm_context, (b >> 24) & 0xff, line);
   }
     else
   {
-    memory_write_inc(asm_context, (b>>24)&0xff, line);
-    memory_write_inc(asm_context, (b>>16)&0xff, line);
-    memory_write_inc(asm_context, (b>>8)&0xff, line);
-    memory_write_inc(asm_context, b&0xff, line);
+    memory_write_inc(asm_context, (b >> 24) & 0xff, line);
+    memory_write_inc(asm_context, (b >> 16) & 0xff, line);
+    memory_write_inc(asm_context, (b >> 8) & 0xff, line);
+    memory_write_inc(asm_context, b & 0xff, line);
   }
 }
 
@@ -74,7 +74,7 @@ int token_type;
   {
     token_type=get_token(asm_context, token, TOKENLEN);
 
-    if (IS_TOKEN(token,',') || token_type==TOKEN_EOL)
+    if (IS_TOKEN(token,',') || token_type == TOKEN_EOL)
     {
       pushback(asm_context, token, token_type);
       return 0;
@@ -88,8 +88,8 @@ void lower_copy(char *d, const char *s)
 {
   while(1)
   {
-    *d=tolower(*s);
-    if (*s==0) break;
+    *d = tolower(*s);
+    if (*s == 0) break;
     d++;
     s++;
   }
@@ -116,7 +116,7 @@ int expect_token_s(struct _asm_context *asm_context, char *s)
 
   get_token(asm_context, token, TOKENLEN);
 
-  if (strcasecmp(token,s)!=0)
+  if (strcasecmp(token,s) != 0)
   {
     print_error_unexp(token, asm_context);
     return -1;

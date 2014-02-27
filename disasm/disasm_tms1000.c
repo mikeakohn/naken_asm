@@ -35,15 +35,15 @@ int bit_instr;
 int opcode;
 int n;
 
-  *cycles_min=-1;
-  *cycles_max=-1;
+  *cycles_min = -1;
+  *cycles_max = -1;
 
-  opcode=READ_RAM(address);
+  opcode = READ_RAM(address);
 
-  n=0;
-  while(table_tms1000[n].instr!=NULL)
+  n = 0;
+  while(table_tms1000[n].instr != NULL)
   {
-    if (opcode==table_tms1000[n].op1000)
+    if (opcode == table_tms1000[n].op1000)
     {
       strcpy(instruction, table_tms1000[n].instr);
       return 1;
@@ -51,7 +51,7 @@ int n;
     n++;
   }
 
-  bit_instr=opcode>>2;
+  bit_instr = opcode >> 2;
   if (bit_instr==0xc) { sprintf(instruction, "sbit %d", opcode&0x3); return 1; }
     else
   if (bit_instr==0xd) { sprintf(instruction, "rbit %d", opcode&0x3); return 1; }
@@ -72,14 +72,14 @@ int n;
   if (bit_instr==0x5) { sprintf(instruction, "ylec %d", opcode&0xf); return 1; }
 
   bit_instr=opcode>>6;
-  unsigned char offset=opcode&0x3f;
-  if ((offset&0x20)!=0) { offset|=0xc0; }
-  int branch_address=(address+1)+((char)offset);
+  unsigned char offset = opcode & 0x3f;
+  if ((offset & 0x20) != 0) { offset |= 0xc0; }
+  int branch_address = (address + 1) + ((char)offset);
 
-  if (bit_instr==0x2)
+  if (bit_instr == 0x2)
   { sprintf(instruction, "br 0x%02x (%d)", branch_address, (char)offset); return 1; }
     else
-  if (bit_instr==0x3)
+  if (bit_instr == 0x3)
   { sprintf(instruction, "call 0x%02x (%d)", branch_address, (char)offset); return 1; }
 
   strcpy(instruction, "???");
@@ -93,15 +93,15 @@ int bit_instr;
 int opcode;
 int n;
 
-  *cycles_min=-1;
-  *cycles_max=-1;
+  *cycles_min = -1;
+  *cycles_max = -1;
 
-  opcode=READ_RAM(address);
+  opcode = READ_RAM(address);
 
-  n=0;
-  while(table_tms1000[n].instr!=NULL)
+  n = 0;
+  while(table_tms1000[n].instr != NULL)
   {
-    if (opcode==table_tms1000[n].op1100)
+    if (opcode == table_tms1000[n].op1100)
     {
       strcpy(instruction, table_tms1000[n].instr);
       return 1;
@@ -109,17 +109,17 @@ int n;
     n++;
   }
 
-  bit_instr=opcode>>2;
+  bit_instr = opcode >> 2;
   if (bit_instr==0xc) { sprintf(instruction, "sbit %d", opcode&0x3); return 1; }
     else
   if (bit_instr==0xd) { sprintf(instruction, "rbit %d", opcode&0x3); return 1; }
     else
   if (bit_instr==0xe) { sprintf(instruction, "tbiti %d", opcode&0x3); return 1;}
 
-  bit_instr=opcode>>3;
+  bit_instr = opcode >> 3;
   if (bit_instr==0x5) { sprintf(instruction, "ldx %d", opcode&0x7); return 1; }
 
-  bit_instr=opcode>>4;
+  bit_instr = opcode >> 4;
   if (bit_instr==0x4) { sprintf(instruction, "tcy %d", opcode&0xf); return 1; }
     else
   if (bit_instr==0x6) { sprintf(instruction, "tcmiy %d", opcode&0xf); return 1;}
@@ -128,15 +128,15 @@ int n;
     else
   if (bit_instr==0x5) { sprintf(instruction, "ylec %d", opcode&0xf); return 1; }
 
-  bit_instr=opcode>>6;
-  unsigned char offset=opcode&0x3f;
-  if ((offset&0x20)!=0) { offset|=0xc0; }
-  int branch_address=(address+1)+((char)offset);
+  bit_instr = opcode >> 6;
+  unsigned char offset = opcode& 0x3f;
+  if ((offset & 0x20) != 0) { offset |= 0xc0; }
+  int branch_address = (address + 1) + ((char)offset);
 
-  if (bit_instr==0x2)
+  if (bit_instr == 0x2)
   { sprintf(instruction, "br 0x%02x (%d)", branch_address, (char)offset); return 1; }
     else
-  if (bit_instr==0x3)
+  if (bit_instr == 0x3)
   { sprintf(instruction, "call 0x%02x (%d)", branch_address, (char)offset); return 1; }
 
   strcpy(instruction, "???");

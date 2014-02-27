@@ -35,11 +35,11 @@ int n;
 
   lower_copy(instr_case, instr);
 
-  n=0;
-  while(table_tms1000[n].instr!=NULL)
+  n = 0;
+  while(table_tms1000[n].instr != NULL)
   {
-    if (strcmp(instr_case, table_tms1000[n].instr)==0 &&
-        table_tms1000[n].op1000!=0xffff)
+    if (strcmp(instr_case, table_tms1000[n].instr) == 0 &&
+        table_tms1000[n].op1000 != 0xffff)
     {
       add_bin8(asm_context, table_tms1000[n].op1000, IS_OPCODE);
       return 1;
@@ -47,20 +47,20 @@ int n;
     n++;
   }
 
-  for (n=0; n<4; n++)
+  for (n = 0; n < 4; n++)
   {
-    if (strcmp(instr_case, tmsinstr_1[n])==0)
+    if (strcmp(instr_case, tmsinstr_1[n]) == 0)
     {
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (token_type!=TOKEN_NUMBER)
+      token_type = get_token(asm_context, token, TOKENLEN);
+      if (token_type != TOKEN_NUMBER)
       {
-        if (asm_context->pass==1) { return 1; }
+        if (asm_context->pass == 1) { return 1; }
         print_error_unexp(token, asm_context);
         return -1;
       }
 
-      int num=atoi(token);
-      if (num<0 || num>3)
+      int num = atoi(token);
+      if (num < 0 || num > 3)
       {
         print_error_range("Constant", 0, 3, asm_context);
         return -1;
@@ -72,64 +72,64 @@ int n;
     }
   }
 
-  for (n=0; n<5; n++)
+  for (n = 0; n < 5; n++)
   {
-    if (strcmp(instr_case, tmsinstr_2[n])==0)
+    if (strcmp(instr_case, tmsinstr_2[n]) == 0)
     {
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (token_type!=TOKEN_NUMBER)
+      token_type = get_token(asm_context, token, TOKENLEN);
+      if (token_type != TOKEN_NUMBER)
       {
-        if (asm_context->pass==1) { return 1; }
+        if (asm_context->pass == 1) { return 1; }
         print_error_unexp(token, asm_context);
         return -1;
       }
 
-      int num=atoi(token);
-      if (num<0 || num>15)
+      int num = atoi(token);
+      if (num < 0 || num > 15)
       {
         print_error_range("Constant", 0, 3, asm_context);
         return -1;
       }
 
-      if (n<4)
+      if (n < 4)
       {
-        add_bin8(asm_context, ((0x4+n)<<4)|num, IS_OPCODE);
+        add_bin8(asm_context, ((0x4 + n) << 4)|num, IS_OPCODE);
       }
         else
       {
-        add_bin8(asm_context, 0x10|num, IS_OPCODE);
+        add_bin8(asm_context, 0x10 | num, IS_OPCODE);
       }
 
       return 1;
     }
   }
 
-  for (n=0; n<2; n++)
+  for (n = 0; n < 2; n++)
   {
-    if (strcmp(instr_case, tms_branch[n])==0)
+    if (strcmp(instr_case, tms_branch[n]) == 0)
     {
-      int num=0;
-      if (eval_expression(asm_context, &num)!=0)
+      int num = 0;
+      if (eval_expression(asm_context, &num) != 0)
       {
-        if (asm_context->pass==2)
+        if (asm_context->pass == 2)
         {
           print_error_illegal_expression(instr, asm_context);
           return -1;
         }
 
         eat_operand(asm_context);
-        num=asm_context->address;
+        num = asm_context->address;
       }
 
-      num=num-(asm_context->address+1);
+      num = num - (asm_context->address + 1);
 
-      if (num<-32 || num>31)
+      if (num < -32 || num > 31)
       {
         print_error_range("Offset", -32, 31, asm_context);
         return -1;
       }
 
-      add_bin8(asm_context, (0x80|(n<<6))|(num&0x3f), IS_OPCODE);
+      add_bin8(asm_context, (0x80 | (n << 6)) | (num & 0x3f), IS_OPCODE);
 
       return 1;
     }
@@ -149,11 +149,11 @@ int n;
 
   lower_copy(instr_case, instr);
 
-  n=0;
-  while(table_tms1000[n].instr!=NULL)
+  n = 0;
+  while(table_tms1000[n].instr != NULL)
   {
-    if (strcmp(instr_case, table_tms1000[n].instr)==0 &&
-        table_tms1000[n].op1100!=0xffff)
+    if (strcmp(instr_case, table_tms1000[n].instr) == 0 &&
+        table_tms1000[n].op1100 != 0xffff)
     {
       add_bin8(asm_context, table_tms1000[n].op1100, IS_OPCODE);
       return 1;
@@ -161,104 +161,104 @@ int n;
     n++;
   }
 
-  for (n=0; n<4; n++)
+  for (n = 0; n < 4; n++)
   {
-    if (strcmp(instr_case, tmsinstr_1[n])==0)
+    if (strcmp(instr_case, tmsinstr_1[n]) == 0)
     {
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (token_type!=TOKEN_NUMBER)
+      token_type = get_token(asm_context, token, TOKENLEN);
+      if (token_type != TOKEN_NUMBER)
       {
-        if (asm_context->pass==1) { return 1; }
+        if (asm_context->pass == 1) { return 1; }
         print_error_unexp(token, asm_context);
         return -1;
       }
 
-      int num=atoi(token);
+      int num = atoi(token);
 
-      if (n==3)
+      if (n == 3)
       {
-        if (num<0 || num>7)
+        if (num < 0 || num > 7)
         {
           print_error_range("Constant", 0, 7, asm_context);
           return -1;
         }
 
-        add_bin8(asm_context, ((0x5)<<3)|num, IS_OPCODE);
+        add_bin8(asm_context, (0x5 << 3) | num, IS_OPCODE);
       }
         else
       {
-        if (num<0 || num>3)
+        if (num < 0 || num > 3)
         {
           print_error_range("Constant", 0, 3, asm_context);
           return -1;
         }
 
-        add_bin8(asm_context, ((0xc+n)<<2)|num, IS_OPCODE);
+        add_bin8(asm_context, ((0xc + n) << 2)|num, IS_OPCODE);
       }
 
       return 1;
     }
   }
 
-  for (n=0; n<5; n++)
+  for (n = 0; n < 5; n++)
   {
-    if (n==3) { continue; }
-    if (strcmp(instr_case, tmsinstr_2[n])==0)
+    if (n == 3) { continue; }
+    if (strcmp(instr_case, tmsinstr_2[n]) == 0)
     {
-      token_type=get_token(asm_context, token, TOKENLEN);
-      if (token_type!=TOKEN_NUMBER)
+      token_type = get_token(asm_context, token, TOKENLEN);
+      if (token_type != TOKEN_NUMBER)
       {
-        if (asm_context->pass==1) { return 1; }
+        if (asm_context->pass == 1) { return 1; }
         print_error_unexp(token, asm_context);
         return -1;
       }
 
-      int num=atoi(token);
-      if (num<0 || num>15)
+      int num = atoi(token);
+      if (num < 0 || num > 15)
       {
         print_error_range("Constant", 0, 3, asm_context);
         return -1;
       }
 
-      if (n<4)
+      if (n < 4)
       {
-        add_bin8(asm_context, ((0x4+n)<<4)|num, IS_OPCODE);
+        add_bin8(asm_context, ((0x4 + n) << 4) | num, IS_OPCODE);
       }
         else
       {
-        add_bin8(asm_context, 0x10|num, IS_OPCODE);
+        add_bin8(asm_context, 0x10 | num, IS_OPCODE);
       }
 
       return 1;
     }
   }
 
-  for (n=0; n<2; n++)
+  for (n = 0; n < 2; n++)
   {
-    if (strcmp(instr_case, tms_branch[n])==0)
+    if (strcmp(instr_case, tms_branch[n]) == 0)
     {
-      int num=0;
-      if (eval_expression(asm_context, &num)!=0)
+      int num = 0;
+      if (eval_expression(asm_context, &num) != 0)
       {
-        if (asm_context->pass==2)
+        if (asm_context->pass == 2)
         {
           print_error_illegal_expression(instr, asm_context);
           return -1;
         }
 
         eat_operand(asm_context);
-        num=asm_context->address;
+        num = asm_context->address;
       }
 
-      num=num-(asm_context->address+1);
+      num = num - (asm_context->address + 1);
 
-      if (num<-32 || num>31)
+      if (num < -32 || num > 31)
       {
         print_error_range("Offset", -32, 31, asm_context);
         return -1;
       }
 
-      add_bin8(asm_context, (0x80|(n<<6))|(num&0x3f), IS_OPCODE);
+      add_bin8(asm_context, (0x80 | (n << 6)) | (num & 0x3f), IS_OPCODE);
 
       return 1;
     }
