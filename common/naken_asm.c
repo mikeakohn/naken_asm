@@ -49,6 +49,7 @@ int i;
 
   if (i == 0)
   {
+    strcat(filename, ".");
     strcat(filename, ext);
   }
 
@@ -119,7 +120,7 @@ int error_flag=0;
       else
     if (strcmp(argv[i], "-e") == 0)
     {
-      format=FORMAT_ELF;
+      format = FORMAT_ELF;
     }
 #endif
       else
@@ -130,7 +131,7 @@ int error_flag=0;
       else
     if (strcmp(argv[i], "-l") == 0)
     {
-      create_list=1;
+      create_list = 1;
     }
       else
     if (strncmp(argv[i], "-I", 2) == 0)
@@ -241,7 +242,7 @@ int error_flag=0;
 
     new_extension(filename, "lst", 1024);
 
-    asm_context.list=fopen(filename, "wb");
+    asm_context.list = fopen(filename, "wb");
     if (asm_context.list == NULL)
     {
       printf("Couldn't open %s for writing.\n", filename);
