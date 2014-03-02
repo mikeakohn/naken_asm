@@ -307,7 +307,7 @@ struct _macros_iter iter;
 int macros_push_define(struct _macros *macros, char *define)
 {
 #ifdef DEBUG
-printf("debug> macros_push_define, define=%s macros->stack_ptr=%d\n", define, macros->stack_ptr);
+printf("debug> macros_push_define(), define=%s macros->stack_ptr=%d\n", define, macros->stack_ptr);
 #endif
 
   if (macros->stack_ptr >= MAX_NESTED_MACROS)
@@ -352,7 +352,7 @@ int ch;
         exit(1);
       }
 #ifdef DEBUG
-printf("debug> asm_context->def_param_stack_count=%d\n",asm_context->def_param_stack_count);
+printf("debug> macros_get_char() asm_context->def_param_stack_count=%d\n",asm_context->def_param_stack_count);
 #endif
     }
     macros->stack_ptr--;
@@ -362,7 +362,7 @@ printf("debug> asm_context->def_param_stack_count=%d\n",asm_context->def_param_s
     if (asm_context->unget_ptr > asm_context->unget_stack[asm_context->unget_stack_ptr])
     {
 #ifdef DEBUG
-printf("debug> get_next_char(?) ungetc %d %d '%c'\n", asm_context->unget_stack_ptr, asm_context->unget_stack[asm_context->unget_stack_ptr], asm_context->unget[asm_context->unget_ptr-1]);
+printf("debug> macros_get_char() get_next_char(?) ungetc %d %d '%c'\n", asm_context->unget_stack_ptr, asm_context->unget_stack[asm_context->unget_stack_ptr], asm_context->unget[asm_context->unget_ptr-1]);
 #endif
       return asm_context->unget[--asm_context->unget_ptr];
     }
@@ -412,7 +412,7 @@ int param_count = 0;
   if (parens == -1) return -1;
 
 #ifdef DEBUG
-printf("#define %s   parens_flag=%d\n", name, parens);
+printf("debug> macros_parse() name=%s parens_flag=%d\n", name, parens);
 #endif
 
   // Now pull any params out
@@ -423,7 +423,7 @@ printf("#define %s   parens_flag=%d\n", name, parens);
     {
       token_type = get_token(asm_context, token, TOKENLEN);
 #ifdef DEBUG
-printf("debug> #ifdef param %s\n", token);
+printf("debug> macros_parse() param %s\n", token);
 #endif
       if (token_type != TOKEN_STRING)
       {
@@ -463,7 +463,7 @@ printf("debug> #ifdef param %s\n", token);
   params[ptr]=0;
 
 #ifdef DEBUG
-printf("debug> #define param count=%d\n", param_count);
+printf("debug> macros_parse() param count=%d\n", param_count);
 #endif
 
   // Now macro time
@@ -490,7 +490,7 @@ printf("debug> #define param count=%d\n", param_count);
         int index = get_param_index(params,name_test);
 
 #ifdef DEBUG
-printf("debug> #ifdef param found %s %d\n", name_test, index);
+printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
 #endif
 
         if (index != 0)
@@ -578,7 +578,7 @@ printf("debug> #ifdef param found %s %d\n", name_test, index);
   macro[ptr++] = 0;
 
 #ifdef DEBUG
-printf("Debug: adding macro '%s'\n", macro);
+printf("debug> Adding macro '%s'\n", macro);
 #endif
 
   macros_strip(macro);
@@ -593,6 +593,7 @@ int ch;
 char params[1024];
 int params_ptr[256];
 int count,ptr;
+uint8_t in_string = 0;
 
   ch = get_next_char(asm_context);
 
@@ -610,7 +611,8 @@ int count,ptr;
   {
     ch = get_next_char(asm_context);
     if (ch == '\r') continue;
-    if (ch == ')') break;
+    if (ch == '"') { in_string = in_string ^ 1; }
+    if (ch == ')' && in_string == 0) break;
     if (ch == '\n' || ch == EOF)
     {
       print_error("Macro expects ')'", asm_context);
@@ -635,7 +637,7 @@ int count,ptr;
   }
 
 #ifdef DEBUG
-printf("debug> Expanding macro with params: pass=%d\n", asm_context->pass);
+printf("debug> macros_expand_params() with params: pass=%d\n", asm_context->pass);
 int n;
 for (n = 0; n < count; n++)
 {
