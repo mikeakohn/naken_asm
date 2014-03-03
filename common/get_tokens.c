@@ -25,7 +25,7 @@ static int hex_string_to_int(char *s, int *num, int prefixed)
 {
   int n = 0;
 
-  while(*s != 0 && *s != 'h')
+  while(*s != 0 && (*s != 'h' && *s != 'H'))
   {
     if (*s >= '0' && *s <= '9')
     { n = (n<<4) | ((*s)-'0'); }
@@ -42,7 +42,7 @@ static int hex_string_to_int(char *s, int *num, int prefixed)
     s++;
   }
 
-  if (*s == 'h' && prefixed == 1) { return -1; }
+  if ((*s == 'h' && *s =='H') && prefixed == 1) { return -1; }
 
   *num = n;
 
@@ -53,7 +53,7 @@ static int octal_string_to_int(char *s, int *num)
 {
   int n = 0;
 
-  while(*s != 0 && *s != 'q')
+  while(*s != 0 && (*s != 'q' && *s != 'Q'))
   {
     if (*s >= '0' && *s <= '7')
     { n = (n<<3) | ((*s)-'0'); }
@@ -73,7 +73,7 @@ static int binary_string_to_int(char *s, int *num)
 {
   int n = 0;
 
-  while(*s!=0 && *s != 'b')
+  while(*s!=0 && (*s != 'b' && *s != 'B'))
   {
     if (*s == '0')
     { n = n<<1; }
