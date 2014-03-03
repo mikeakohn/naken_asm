@@ -193,16 +193,12 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
     }
 
+    mode = MODE_ABSOLUTE;
+
     if(num >= 0x01 && num <= 0xFF)
     {
       mode = MODE_ZEROPAGE;
     }
-    else
-    {
-      mode = MODE_ABSOLUTE;
-    }
-
-    mode = MODE_ABSOLUTE;
 
     token_type = get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { goto skip; }
@@ -214,18 +210,18 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
       if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
       {
-        if(num >= 1 && num <= 0xFF)
-          mode = MODE_ZEROPAGE_X_INDEXED;
-        else
-          mode = MODE_ABSOLUTE_X_INDEXED;
+        //if(num >= 1 && num <= 0xFF)
+        //  mode = MODE_ZEROPAGE_X_INDEXED;
+        //else
+        mode = MODE_ABSOLUTE_X_INDEXED;
       }
         else
       if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
       {
-        if(num >= 1 && num <= 0xFF)
-          mode = MODE_ZEROPAGE_Y_INDEXED;
-        else
-          mode = MODE_ABSOLUTE_Y_INDEXED;
+        //if(num >= 1 && num <= 0xFF)
+        // mode = MODE_ZEROPAGE_Y_INDEXED;
+        //else
+        mode = MODE_ABSOLUTE_Y_INDEXED;
       }
         else
       {
