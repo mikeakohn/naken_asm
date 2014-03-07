@@ -193,12 +193,12 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
     }
 
-    mode = MODE_ABSOLUTE;
 
-    if(num >= 0x01 && num <= 0xFF)
-    {
+    // try zero page
+    if((num >= 0x01 && num <= 0xFF) && opcodes_65xx[index].opcode[9] != 0xFF)
       mode = MODE_ZEROPAGE;
-    }
+    else
+      mode = MODE_ABSOLUTE;
 
     token_type = get_token(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { goto skip; }
@@ -210,18 +210,18 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
       if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
       {
-        //if(num >= 1 && num <= 0xFF)
-        //  mode = MODE_ZEROPAGE_X_INDEXED;
-        //else
-        mode = MODE_ABSOLUTE_X_INDEXED;
+        if(num >= 0 && num <= 0xFF)
+          mode = MODE_ZEROPAGE_X_INDEXED;
+        else
+          mode = MODE_ABSOLUTE_X_INDEXED;
       }
         else
       if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
       {
-        //if(num >= 1 && num <= 0xFF)
-        // mode = MODE_ZEROPAGE_Y_INDEXED;
-        //else
-        mode = MODE_ABSOLUTE_Y_INDEXED;
+        if(num >= 0 && num <= 0xFF)
+          mode = MODE_ZEROPAGE_Y_INDEXED;
+        else
+          mode = MODE_ABSOLUTE_Y_INDEXED;
       }
         else
       {
@@ -229,6 +229,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
         return -1;
       }
     }
+
     if(num < 0 || num > 0xFFFF)
     {
       print_error("Address out of range", asm_context);
@@ -287,17 +288,17 @@ skip:
 
   // write low byte first, if any
   if(mode_bytes[mode] > 1)
-{
+  {
 //printf("%04x, %02x\n", asm_context->address, num & 0xFF);
     add_bin8(asm_context, num & 0xFF, IS_OPCODE);
-}
+  }
 
   // then high byte, if any
   if(mode_bytes[mode] > 2)
-{
+  {
 //printf("%04x, %02x\n", asm_context->address, (num >> 8) & 0xFF);
     add_bin8(asm_context, (num >> 8) & 0xFF, IS_OPCODE);
-}
+  }
 
   return mode_bytes[mode];
 }
