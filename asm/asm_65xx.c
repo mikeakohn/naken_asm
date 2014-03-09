@@ -193,9 +193,9 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
     }
 
-
     // try zero page
-    if((num >= 0x01 && num <= 0xFF) && opcodes_65xx[index].opcode[9] != 0xFF)
+    if((num >= 0x01 && num <= 0xFF)
+       && opcodes_65xx[index].opcode[MODE_ZEROPAGE] != 0xFF)
       mode = MODE_ZEROPAGE;
     else
       mode = MODE_ABSOLUTE;
@@ -210,7 +210,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
       if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
       {
-        if(num >= 0 && num <= 0xFF)
+        if(num >= 0x01 && num <= 0xFF)
           mode = MODE_ZEROPAGE_X_INDEXED;
         else
           mode = MODE_ABSOLUTE_X_INDEXED;
@@ -218,7 +218,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
         else
       if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
       {
-        if(num >= 0 && num <= 0xFF)
+        if(num >= 0x01 && num <= 0xFF)
           mode = MODE_ZEROPAGE_Y_INDEXED;
         else
           mode = MODE_ABSOLUTE_Y_INDEXED;
@@ -264,8 +264,13 @@ skip:
     }
   }
 
-  if(num == 0 && asm_context->pass == 2 && mode == MODE_ABSOLUTE)
+  if(num == 0 && asm_context->pass == 2 &&
+    ((mode == MODE_ABSOLUTE) ||
+    (mode == MODE_ABSOLUTE_X_INDEXED) ||
+    (mode == MODE_ABSOLUTE_Y_INDEXED)))
+  {
     print_error("Warning: Address 0 will use absolute mode", asm_context);
+  }
 
   // see if theres an opcode for this instruction and mode
   opcode = opcodes_65xx[index].opcode[mode];
