@@ -278,16 +278,6 @@ skip:
     }
   }
 
-/*
-  if(num == 0 && asm_context->pass == 2 &&
-    ((mode == MODE_ABSOLUTE) ||
-    (mode == MODE_ABSOLUTE_X_INDEXED) ||
-    (mode == MODE_ABSOLUTE_Y_INDEXED)))
-  {
-    print_error("Warning: Address 0 will use absolute mode", asm_context);
-  }
-*/
-
   // see if theres an opcode for this instruction and mode
   opcode = opcodes_65xx[index].opcode[mode];
 
