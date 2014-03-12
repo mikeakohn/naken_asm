@@ -1,4 +1,5 @@
 .msp430x
+.export start
 
 .define number_five #5
 
@@ -24,6 +25,7 @@ start:
 
   call &start
 
+blah:
   jnz start
   jne start
   jz start

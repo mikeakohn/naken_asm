@@ -197,6 +197,7 @@ struct _memory_pool *memory_pool = symbols->memory_pool;
       iter->address = symbols_data->address;
       iter->name = symbols_data->name;
       iter->ptr = iter->ptr + symbols_data->len + sizeof(struct _symbols_data);
+      iter->flag_export = symbols_data->flag_export;
       iter->count++;
 
       return 0;
@@ -220,7 +221,7 @@ struct _symbols_iter iter;
 
   while(symbols_iterate(symbols, &iter) != -1)
   {
-    printf("%30s %08x (%d)\n", iter.name, iter.address, iter.address);
+    printf("%30s %08x (%d)%s\n", iter.name, iter.address, iter.address, iter.flag_export == 1 ? " EXPORTED" : "");
   }
 
   printf("Total %d.\n\n", iter.count);
@@ -243,6 +244,29 @@ int count = 0;
         (struct _symbols_data *)(memory_pool->buffer + ptr);
       ptr += symbols_data->len + sizeof(struct _symbols_data);
       count++;
+    }
+
+    memory_pool = memory_pool->next;
+  }
+
+  return count;
+}
+
+int symbols_export_count(struct _symbols *symbols)
+{
+struct _memory_pool *memory_pool = symbols->memory_pool;
+int ptr;
+int count = 0;
+
+  while(memory_pool != NULL)
+  {
+    ptr = 0;
+    while(ptr < memory_pool->ptr)
+    {
+      struct _symbols_data *symbols_data =
+        (struct _symbols_data *)(memory_pool->buffer + ptr);
+      ptr += symbols_data->len + sizeof(struct _symbols_data);
+      if (symbols_data->flag_export == 1) { count++; }
     }
 
     memory_pool = memory_pool->next;

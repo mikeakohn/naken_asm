@@ -39,6 +39,7 @@ struct _symbols_iter
   int ptr;
   int count;
   int end_flag;
+  uint8_t flag_export:1;
 };
 
 int symbols_init(struct _symbols *symbols);
@@ -52,6 +53,7 @@ int symbols_lookup(struct _symbols *symbols, char *name);
 int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter);
 int symbols_print(struct _symbols *symbols);
 int symbols_count(struct _symbols *symbols);
+int symbols_export_count(struct _symbols *symbols);
 
 #endif
 

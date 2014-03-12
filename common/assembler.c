@@ -214,6 +214,31 @@ int token_type;
   return 0;
 }
 
+static int parse_export(struct _asm_context *asm_context)
+{
+char token[TOKENLEN];
+int token_type;
+
+  asm_context->no_symbols = 1;
+  token_type = get_token(asm_context, token, TOKENLEN);
+  asm_context->no_symbols = 0;
+
+  if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  if (asm_context->pass == 2)
+  {
+    if (symbols_export(&asm_context->symbols, token) != 0) { return -1; }
+  }
+
+  asm_context->line++;
+
+  return 0;
+}
+
 static int parse_equ(struct _asm_context *asm_context)
 {
 char token[TOKENLEN];
@@ -563,6 +588,11 @@ int token_type;
       if (strcasecmp(token, "set") == 0)
       {
         if (parse_set(asm_context) != 0) return -1;
+      }
+        else
+      if (strcasecmp(token, "export") == 0)
+      {
+        if (parse_export(asm_context) != 0) return -1;
       }
         else
       if (strcasecmp(token, "equ") == 0 || strcasecmp(token, "def")==0)

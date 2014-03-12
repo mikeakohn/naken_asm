@@ -436,13 +436,12 @@ int i;
   elf.sections_size.shstrtab = ftell(out)-elf.sections_offset.shstrtab;
 
   {
-    //struct _symbols *symbols=&asm_context->symbols;
     struct _symbols_iter iter;
     int symbol_count;
     int sym_offset;
     int n;
 
-    symbol_count = symbols_count(symbols);
+    symbol_count = symbols_export_count(symbols);
 
     int symbol_address[symbol_count];
 
@@ -458,6 +457,8 @@ int i;
     memset(&iter, 0, sizeof(iter));
     while(symbols_iterate(symbols, &iter) != -1)
     {
+      if (iter.flag_export == 0) { continue; }
+
       symbol_address[n++] = sym_offset;
       fprintf(out, "%s%c", iter.name, 0);
       sym_offset += strlen((char *)iter.name)+1;
@@ -501,6 +502,8 @@ int i;
     memset(&iter, 0, sizeof(iter));
     while(symbols_iterate(symbols, &iter)!=-1)
     {
+      if (iter.flag_export == 0) { continue; }
+
       memset(&symtab, 0, sizeof(symtab));
       symtab.st_name = symbol_address[n++];
       symtab.st_value = iter.address;
