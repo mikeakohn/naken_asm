@@ -69,7 +69,7 @@ const char string_table_default[] =
   //".rela.debug_aranges\0"
 ;
 
-static void write_int32_le(FILE *out, unsigned int n)
+static void write_int32_le(FILE *out, uint32_t n)
 {
   putc(n&0xff, out);
   putc((n>>8)&0xff, out);
@@ -77,13 +77,13 @@ static void write_int32_le(FILE *out, unsigned int n)
   putc((n>>24)&0xff, out);
 }
 
-static void write_int16_le(FILE *out, unsigned int n)
+static void write_int16_le(FILE *out, uint32_t n)
 {
   putc(n&0xff, out);
   putc((n>>8)&0xff, out);
 }
 
-static void write_int32_be(FILE *out, unsigned int n)
+static void write_int32_be(FILE *out, uint32_t n)
 {
   putc((n>>24)&0xff, out);
   putc((n>>16)&0xff, out);
@@ -91,7 +91,7 @@ static void write_int32_be(FILE *out, unsigned int n)
   putc(n&0xff, out);
 }
 
-static void write_int16_be(FILE *out, unsigned int n)
+static void write_int16_be(FILE *out, uint32_t n)
 {
   putc((n>>8)&0xff, out);
   putc(n&0xff, out);
@@ -99,20 +99,26 @@ static void write_int16_be(FILE *out, unsigned int n)
 
 static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory)
 {
+  #define EI_DATA 5    // 1=little endian, 2=big endian
+  #define EI_OSABI 7   // 0=SysV, 255=Embedded
+
   memcpy(elf->e_ident, magic_number, 16);
 
   if (memory->endian == ENDIAN_LITTLE)
   {
-    elf->e_ident[5] = 1;
+    elf->e_ident[EI_DATA] = 1;
     elf->write_int32=write_int32_le;
     elf->write_int16=write_int16_le;
   }
     else
   {
-    elf->e_ident[5] = 2;
+    elf->e_ident[EI_DATA] = 2;
     elf->write_int32=write_int32_be;
     elf->write_int16=write_int16_be;
   }
+
+  // This probably should be 0 for Raspberry Pi, etc.
+  elf->e_ident[EI_OSABI] = 255;
 
   // We may need this later
   //elf.e_ident[7]=0xff; // SYSV=0, HPUX=1, STANDALONE=255
@@ -125,6 +131,7 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
   switch (elf->cpu_type)
   {
     case CPU_TYPE_MSP430:
+    case CPU_TYPE_MSP430X:
       elf->e_machine = 0x69;
       elf->e_flags = 11;
       break;
@@ -133,9 +140,6 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
       elf->e_flags = 0x05000000;
       elf->e_shnum++;
       break;
-    //case CPU_TYPE_ARM:
-    //  elf->e_machine=40;
-    //  break;
     case CPU_TYPE_DSPIC:
       elf->e_machine = 118;
       elf->e_flags = 1;
@@ -144,6 +148,7 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
       elf->e_machine = 8;
       break;
     default:
+printf("WTF? %d %d\n", elf->cpu_type, CPU_TYPE_MSP430);
       elf->e_machine = 0;
       break;
   }
@@ -416,7 +421,6 @@ int i;
 
   // Fill in blank to minimize text and data sections
   optimize_memory(memory);
-
 
   write_elf_header(out, &elf, memory);
 

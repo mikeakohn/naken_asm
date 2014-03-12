@@ -58,26 +58,26 @@ struct _sections_size
 
 struct _shdr
 {
-  unsigned int sh_name;
-  unsigned int sh_type;
-  unsigned int sh_flags;
-  unsigned int sh_addr;
-  unsigned int sh_offset;
-  unsigned int sh_size;
-  unsigned int sh_link;
-  unsigned int sh_info;
-  unsigned int sh_addralign;
-  unsigned int sh_entsize;
+  uint32_t sh_name;
+  uint32_t sh_type;
+  uint32_t sh_flags;
+  uint32_t sh_addr;
+  uint32_t sh_offset;
+  uint32_t sh_size;
+  uint32_t sh_link;
+  uint32_t sh_info;
+  uint32_t sh_addralign;
+  uint32_t sh_entsize;
 };
 
 struct _symtab
 {
-  unsigned int st_name;
-  unsigned int st_value;
-  unsigned int st_size;
+  uint32_t st_name;
+  uint32_t st_value;
+  uint32_t st_size;
   char st_info;
   char st_other;
-  unsigned short int st_shndx;
+  uint16_t st_shndx;
 };
 
 int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const char *filename, int cpu_type);
