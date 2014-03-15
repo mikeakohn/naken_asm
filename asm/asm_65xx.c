@@ -194,7 +194,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     }
 
     // try zero page
-    if((num >= 0x00 && num <= 0xFF)
+    if((num >= 0x01 && num <= 0xFF)
         && opcodes_65xx[index].opcode[MODE_ZEROPAGE] != 0xFF)
     {
       mode = MODE_ZEROPAGE;
