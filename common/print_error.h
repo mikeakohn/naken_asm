@@ -22,6 +22,7 @@ void print_error_range(const char *s, int r1, int r2, struct _asm_context *asm_c
 void print_error_unknown_operand_combo(const char *instr, struct _asm_context *asm_context);
 void print_error_internal(struct _asm_context *asm_context, const char *filename, int line);
 void print_already_defined(struct _asm_context *asm_context, char *name);
+void print_not_defined(struct _asm_context *asm_context, char *name);
 
 #endif
 

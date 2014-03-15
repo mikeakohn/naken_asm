@@ -72,5 +72,10 @@ void print_already_defined(struct _asm_context *asm_context, char *name)
   printf("Error: '%s' already defined at %s:%d.\n", name, asm_context->filename, asm_context->line);
 }
 
+void print_not_defined(struct _asm_context *asm_context, char *name)
+{
+  printf("Error: '%s' not defined at %s:%d.\n", name, asm_context->filename, asm_context->line);
+}
+
 
 

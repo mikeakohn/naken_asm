@@ -7,6 +7,8 @@
 ;; Short sample of using naken_asm and MSP430 to make a guitar
 ;; processor.
 
+.msp430
+
 .include "msp430x2xx.inc"
 
   org 0xf800

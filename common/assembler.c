@@ -231,7 +231,11 @@ int token_type;
 
   if (asm_context->pass == 2)
   {
-    if (symbols_export(&asm_context->symbols, token) != 0) { return -1; }
+    if (symbols_export(&asm_context->symbols, token) != 0)
+    {
+      print_not_defined(asm_context, token);
+      return -1;
+    }
   }
 
   asm_context->line++;
