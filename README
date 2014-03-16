@@ -125,6 +125,17 @@ It can confirm it's written by typing: bprint 0x1000
 
 For reading and writing word sized data, wprint and wwrite work the same way.
 
+As of March 16, 2014, I added a -run command to naken_util for MSP430.
+A program can now be assembled and then run directly from the command-line
+without entering the simulator:
+
+naken_util -run program.hex
+
+If when the program hits a ret instruction that didn't have a matching
+call instruction, the program will stop and the registers will be dumped
+along with number of cycles passed.  This was added for automated testing
+in Java Grinder but could be pretty useful other places.
+
 -------------------------------------------------------------------------
 
 SYNTAX
@@ -219,6 +230,7 @@ CPU Selection:
 .z80             Z80
 
 Assembler Directives:
+.align <16 or 32>           Align to 16 bit or 32 bit boundary
 .ascii <text>               Insert ASCII chars at memory address
 .asciiz <text>              Same as .ascii but zero padded
 .big_endian                 Store databytes in big endian format
@@ -231,12 +243,13 @@ Assembler Directives:
 .else <exression>           Else for .if or .ifdef
 .endif                      Close an .ifdef or .if
 .endm                       End of macro definition
+.export                     Export symbol so it shows up in ELF file
 .if <exression>             Evaluate an expression and assemble code if true
 .ifdef <exression>          If defined, can be used with .define
 .ifndef <exression>         If not defined, can be used with .define
 .include "includefile.inc"  Include a file of asm source code
 .macro <name> (opt. params) Define a macro (should end with .endm
 .org <address>              Address where next assembled bytes are written to
-.align <16 or 32>           Align to 16 bit or 32 bit boundary
+.set <symbol>=<value>       Create or modify symbol's value (excluding labels)
 
 
