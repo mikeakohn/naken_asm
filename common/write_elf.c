@@ -173,6 +173,7 @@ printf("WTF? %d %d\n", elf->cpu_type, CPU_TYPE_MSP430);
   elf->write_int16(out, 2);       // e_shstrndx (section header string table index)
 }
 
+#if 0
 static void optimize_memory(struct _memory *memory)
 {
   int i = 0;
@@ -228,6 +229,7 @@ static void optimize_memory(struct _memory *memory)
     i += 2;
   }
 }
+#endif
 
 static int get_string_table_len(char *string_table)
 {
@@ -253,6 +255,29 @@ int len;
 
 static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory *memory)
 {
+  char *name = ".text";
+  int i;
+
+  elf->text_addr[elf->text_count] = memory->low_address;
+  string_table_append(elf, name);
+  elf->sections_offset.text[elf->text_count] = ftell(out);
+
+  for(i = memory->low_address; i <= memory->high_address; i++)
+  {
+    putc(memory_read_m(memory, i), out);
+  }
+
+  elf->sections_size.text[elf->text_count] = ftell(out)-elf->sections_offset.text[elf->text_count];
+
+  elf->text_count++;
+  elf->e_shnum++;
+
+  elf->e_shstrndx = elf->data_count + elf->text_count+1;
+}
+
+#if 0
+static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory *memory)
+{
   int i = 0;
 
   while (i <= memory->high_address)
@@ -261,7 +286,7 @@ static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory 
 
     if (memory_debug_line_m(memory, i) == -2)
     {
-      if (elf->data_count>=ELF_TEXT_MAX)
+      if (elf->data_count >= ELF_TEXT_MAX)
       {
         printf("Too many elf .data sections (count=%d).  Internal error.\n", elf->data_count);
         exit(1);
@@ -286,7 +311,7 @@ static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory 
       elf->e_shnum++;
     }
       else
-    if (memory_debug_line_m(memory, i)!=-1)
+    if (memory_debug_line_m(memory, i) != -1)
     {
       if (elf->text_count >= ELF_TEXT_MAX)
       {
@@ -304,9 +329,12 @@ static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory 
       while(1)
       {
         int debug_line = memory_debug_line_m(memory, i);
+
+        // Make sure this is executable code
         if (!(debug_line >= 0 || debug_line == -3))
         { break; }
 
+        // FIXME - This is 16 bit?
         putc(memory_read_m(memory, i++), out);
         putc(memory_read_m(memory, i++), out);
       }
@@ -322,6 +350,7 @@ static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory 
 
   elf->e_shstrndx = elf->data_count + elf->text_count+1;
 }
+#endif
 
 static void write_arm_attribute(FILE *out, struct _elf *elf)
 {
@@ -420,7 +449,7 @@ int i;
   memcpy(elf.string_table, string_table_default, sizeof(string_table_default));
 
   // Fill in blank to minimize text and data sections
-  optimize_memory(memory);
+  //optimize_memory(memory);
 
   write_elf_header(out, &elf, memory);
 
