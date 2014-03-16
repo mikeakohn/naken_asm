@@ -44,6 +44,13 @@
 #define READ_RAM(a) memory_read_m(&util_context->memory, a)
 #define WRITE_RAM(a,b) memory_write_m(&util_context->memory, a, b)
 
+enum
+{
+  MODE_INTERACTIVE,
+  MODE_DISASM,
+  MODE_RUN,
+};
+
 // FIXME - How to do this better?
 parse_instruction_t parse_instruction_65xx = NULL;
 parse_instruction_t parse_instruction_680x = NULL;
@@ -63,8 +70,8 @@ parse_instruction_t parse_instruction_tms1100 = NULL;
 parse_instruction_t parse_instruction_tms9900 = NULL;
 parse_instruction_t parse_instruction_z80 = NULL;
 
-static char *mode_stopped = "stopped";
-static char *mode_running = "running";
+static char *state_stopped = "stopped";
+static char *state_running = "running";
 
 static char *get_hex(char *token, int *num)
 {
@@ -556,7 +563,7 @@ int main(int argc, char *argv[])
 {
 FILE *src = NULL;
 struct _util_context util_context;
-char *mode = mode_stopped;
+char *state = state_stopped;
 char command[1024];
 #ifdef READLINE
 char *line = NULL;
@@ -564,7 +571,7 @@ char *line = NULL;
 int loaded_debug = 0;
 int i;
 char *hexfile = NULL;
-int interactive = 1;
+int mode = MODE_INTERACTIVE;
 //FIXME
 //int chip=0;
 
@@ -579,8 +586,8 @@ int interactive = 1;
     printf("   -s      <source file>\n");
     printf("   -d      <debug file>\n");
     printf("    // The following options turn off interactive mode\n");
-    //printf("   -f      <flash serial port>\n");
     printf("   -disasm                      (disassemble all or part of program)\n");
+    printf("   -exe                         (execute program and dump registers)\n");
     printf("ELF files can auto-pick a CPU, if a hex file use:\n");
     printf("   -65xx                        (65xx)\n");
     printf("   -680x                        (680x)\n");
@@ -605,8 +612,8 @@ int interactive = 1;
   memset(&util_context, 0, sizeof(struct _util_context));
   memory_init(&util_context.memory, 1<<20, 1);
 
-  util_context.disasm_range=disasm_range_msp430;
-  util_context.simulate=simulate_init_msp430(&util_context.memory);
+  util_context.disasm_range = disasm_range_msp430;
+  util_context.simulate = simulate_init_msp430(&util_context.memory);
   //util_context.instr_bytes=2;
 
   for (i = 1; i < argc; i++)
@@ -622,8 +629,6 @@ int interactive = 1;
           if (cpu_list[n].simulate_init != NULL)
           {
             util_context.simulate = cpu_list[n].simulate_init(&util_context.memory);
-            //util_context.simulate=simulate_init_65xx(&util_context.memory);
-            //util_context.simulate=simulate_init_msp430(&util_context.memory);
           }
 
           break;
@@ -666,7 +671,13 @@ int interactive = 1;
     if (strcmp(argv[i], "-disasm") == 0)
     {
        strcpy(command, "disasm");
-       interactive = 0;
+       mode = MODE_DISASM;
+    }
+      else
+    if (strcmp(argv[i], "-run") == 0)
+    {
+       strcpy(command, "run");
+       mode = MODE_RUN;
     }
       else
     {
@@ -681,6 +692,12 @@ int interactive = 1;
             util_context.disasm_range = cpu_list[n].disasm_range;
             if (cpu_list[n].simulate_init != NULL)
             {
+              // FIXME - Remove this free by allocating the memory early
+              // to the size of the biggest possible struct.
+              if (util_context.simulate != NULL)
+              {
+                free(util_context.simulate);
+              }
               util_context.simulate = cpu_list[n].simulate_init(&util_context.memory);
             }
             break;
@@ -748,27 +765,19 @@ int interactive = 1;
     }
   }
 
-#if 0
-  if (interactive == 1)
+  if (mode == MODE_RUN)
   {
-    if (chip == 0)
-    {
-      util_context.simulate = simulate_init_msp430();
-    }
-      else
-    if (chip == 1)
-    {
-      util_context.simulate = simulate_init_65xx();
-    }
+    util_context.simulate->usec = 1;
+    util_context.simulate->show = 0;
+    util_context.simulate->auto_run = 1;
   }
-#endif
 
   printf("Type help for a list of commands.\n");
   command[1023] = 0;
 
   while(1)
   {
-    if (interactive == 1)
+    if (mode == MODE_INTERACTIVE)
     {
 #ifndef READLINE
       printf("%s> ",mode);
@@ -777,7 +786,7 @@ int interactive = 1;
       command[1023] = 0;
 #else
       char prompt[32];
-      sprintf(prompt, "%s> ", mode);
+      sprintf(prompt, "%s> ", state);
       line = readline(prompt);
       if (!(line == NULL || line[0] == 0))
       {
@@ -823,10 +832,12 @@ int interactive = 1;
     if (strncmp(command, "run", 3) == 0 &&
         (command[3] == 0 ||command[3] == ' '))
     {
-      mode = mode_running;
+      state = state_running;
       if (util_context.simulate->usec == 0) { util_context.simulate->step_mode = 1; }
       util_context.simulate->simulate_run(util_context.simulate, (command[3] == 0) ? -1 : atoi(command+4), 0);
-      mode = mode_stopped;
+      state = state_stopped;
+
+      if (mode == MODE_RUN) { break; }
       continue;
     }
       else
@@ -839,7 +850,7 @@ int interactive = 1;
       else
     if (strncmp(command, "call ", 4) == 0)
     {
-      mode = mode_running;
+      state = state_running;
       if (util_context.simulate->usec == 0) { util_context.simulate->step_mode = 1; }
       int a;
       get_num(command + 5, &a);
@@ -852,13 +863,13 @@ int interactive = 1;
       }
 #endif
       util_context.simulate->simulate_run(util_context.simulate, -1, 0);
-      mode = mode_stopped;
+      state = state_stopped;
       continue;
     }
       else
     if (strcmp(command, "stop") == 0)
     {
-      mode = mode_stopped;
+      state = state_stopped;
     }
       else
     if (strcmp(command, "reset") == 0)
@@ -1088,8 +1099,13 @@ int interactive = 1;
       printf("Unknown command: %s\n", command);
     }
 
-    if (interactive == 0) break;
+    if (mode != MODE_INTERACTIVE) break;
     util_context.simulate->step_mode = 0;
+  }
+
+  if (mode == MODE_RUN)
+  {
+    util_context.simulate->simulate_dump_registers(util_context.simulate);
   }
 
   if (src != NULL) { fclose(src); }

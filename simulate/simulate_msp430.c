@@ -384,6 +384,7 @@ int pc;
       WRITE_RAM(simulate_msp430->reg[1], simulate_msp430->reg[0] & 0xff);
       WRITE_RAM(simulate_msp430->reg[1] + 1, simulate_msp430->reg[0] >> 8);
       simulate_msp430->reg[0] = src;
+      simulate->nested_call_count++;
       break;
     case 6:  // RETI
       break;
@@ -634,8 +635,9 @@ struct _simulate *simulate;
   simulate->memory = memory;
   simulate_reset_msp430(simulate);
   simulate->usec = 1000000; // 1Hz
-  simulate->show = 1; // Show simulation
   simulate->step_mode = 0;
+  simulate->show = 1;       // Show simulation
+  simulate->auto_run = 0;   // Will this program stop on a ret from main
   return simulate;
 }
 
@@ -699,7 +701,7 @@ void simulate_reset_msp430(struct _simulate *simulate)
 struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
 
   simulate->cycle_count = 0;
-  simulate->ret_count = 0;
+  simulate->nested_call_count = 0;
   memset(simulate_msp430->reg, 0, sizeof(simulate_msp430->reg));
   //memory_clear(&simulate->memory);
   simulate_msp430->reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
@@ -805,6 +807,7 @@ int n;
     }
       else
     {
+      if (opcode == 0x4130) { simulate->nested_call_count--; }
       ret = two_operand_exe(simulate, opcode);
     }
 
@@ -861,6 +864,8 @@ int n;
         }
       }
     }
+
+    if (simulate->auto_run == 1 && simulate->nested_call_count < 0) { return 0; }
 
     if (ret == -1)
     {
