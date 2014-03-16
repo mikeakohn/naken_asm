@@ -763,7 +763,6 @@ void simulate_reset_65xx(struct _simulate *simulate)
 struct _simulate_65xx *simulate_65xx=(struct _simulate_65xx *)simulate->context;
 
   simulate->cycle_count=0;
-  simulate->ret_count=0;
   REG_A = 0;
   REG_X = 0;
   REG_Y = 0;
