@@ -780,7 +780,7 @@ int mode = MODE_INTERACTIVE;
     if (mode == MODE_INTERACTIVE)
     {
 #ifndef READLINE
-      printf("%s> ",mode);
+      printf("%s> ", state);
       fflush(stdout);
       if (fgets(command, 1023, stdin) == NULL) break;
       command[1023] = 0;
