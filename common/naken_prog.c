@@ -16,8 +16,8 @@
 
 #include "lpc.h"
 #include "memory.h"
-#include "parse_elf.h"
-#include "parse_hex.h"
+#include "read_elf.h"
+#include "read_hex.h"
 #include "write_hex.h"
 #include "version.h"
 
@@ -150,12 +150,12 @@ int i;
 
     memory_init(&memory, 0xffffffff, 1);
 
-    if (parse_elf(filename, &memory, &cpu_type)>=0)
+    if (read_elf(filename, &memory, &cpu_type)>=0)
     {
       printf("Loaded ELF %s from 0x%04x to 0x%04x\n", filename, memory.low_address, memory.high_address);
     }
       else
-    if (parse_hex(filename, &memory)>=0)
+    if (read_hex(filename, &memory)>=0)
     {
       printf("Loaded hexfile %s from 0x%04x to 0x%04x\n", filename, memory.low_address, memory.high_address);
     }

@@ -9,12 +9,12 @@
  *
  */
 
-#ifndef _PARSE_ELF_H
-#define _PARSE_ELF_H
+#ifndef _READ_ELF_H
+#define _READ_ELF_H
 
 #include "memory.h"
 
-int parse_elf(char *filename, struct _memory *memory, uint8_t *cpu_type);
+int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type);
 
 #endif
 

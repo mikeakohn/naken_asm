@@ -35,8 +35,8 @@
 #include "disasm_tms9900.h"
 #include "disasm_z80.h"
 #include "naken_util.h"
-#include "parse_elf.h"
-#include "parse_hex.h"
+#include "read_elf.h"
+#include "read_hex.h"
 #include "simulate_65xx.h"
 #include "simulate_msp430.h"
 #include "version.h"
@@ -683,7 +683,7 @@ int mode = MODE_INTERACTIVE;
       else
     {
       unsigned char cpu_type;
-      if (parse_elf(argv[i], &util_context.memory, &cpu_type)>=0)
+      if (read_elf(argv[i], &util_context.memory, &cpu_type)>=0)
       {
         int n = 0;
         while (cpu_list[n].name != NULL)
@@ -711,7 +711,7 @@ int mode = MODE_INTERACTIVE;
         printf("Loaded elf %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
       }
         else
-      if (parse_hex(argv[i], &util_context.memory) >= 0)
+      if (read_hex(argv[i], &util_context.memory) >= 0)
       {
         hexfile = argv[i];
         printf("Loaded hexfile %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);

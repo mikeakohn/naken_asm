@@ -14,17 +14,16 @@
 #include <string.h>
 
 #include "assembler.h"
-#include "parse_elf.h"
-//#include "naken_util.h"
+#include "read_elf.h"
 
 #ifndef DISABLE_ELF
 
-typedef unsigned int (*get_int16_t)(FILE *);
-typedef unsigned int (*get_int32_t)(FILE *);
+typedef uint32_t (*get_int16_t)(FILE *);
+typedef uint32_t (*get_int32_t)(FILE *);
 
-static unsigned int get_int16_le(FILE *in)
+static uint32_t get_int16_le(FILE *in)
 {
-unsigned int i;
+uint32_t i;
 
   i = getc(in);
   i |= (getc(in)<<8);
@@ -32,9 +31,9 @@ unsigned int i;
   return i;
 }
 
-static unsigned int get_int32_le(FILE *in)
+static uint32_t get_int32_le(FILE *in)
 {
-unsigned int i;
+uint32_t i;
 
   i = getc(in);
   i |= (getc(in)<<8);
@@ -44,9 +43,9 @@ unsigned int i;
   return i;
 }
 
-static unsigned int get_int16_be(FILE *in)
+static uint32_t get_int16_be(FILE *in)
 {
-unsigned int i;
+uint32_t i;
 
   i = (getc(in)<<8);
   i |= getc(in);
@@ -54,9 +53,9 @@ unsigned int i;
   return i;
 }
 
-static unsigned int get_int32_be(FILE *in)
+static uint32_t get_int32_be(FILE *in)
 {
-unsigned int i;
+uint32_t i;
 
   i = (getc(in)<<24);
   i |= (getc(in)<<16);
@@ -66,7 +65,7 @@ unsigned int i;
   return i;
 }
 
-int parse_elf(char *filename, struct _memory *memory, uint8_t *cpu_type)
+int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type)
 {
 FILE *in;
 uint8_t e_ident[16];

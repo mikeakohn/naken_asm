@@ -9,12 +9,12 @@
  *
  */
 
-#ifndef _PARSE_HEX_H
-#define _PARSE_HEX_H
+#ifndef _READ_HEX_H
+#define _READ_HEX_H
 
 #include "memory.h"
 
-int parse_hex(char *filename, struct _memory *memory);
+int read_hex(char *filename, struct _memory *memory);
 
 #endif
 

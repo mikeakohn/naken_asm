@@ -13,8 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "parse_hex.h"
-//#include "naken_util.h"
+#include "read_hex.h"
 
 static int get_hex(FILE *in, int len)
 {
@@ -40,7 +39,7 @@ int n = 0;
   return n;
 }
 
-int parse_hex(char *filename, struct _memory *memory)
+int read_hex(char *filename, struct _memory *memory)
 {
 FILE *in;
 int ch;
