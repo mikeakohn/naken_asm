@@ -22,6 +22,7 @@ struct _util_context
 {
   struct _memory memory;
   struct _simulate *simulate;
+  struct _symbols symbols;
   long *debug_line_offset;
   FILE *src_fp;
   int fd;

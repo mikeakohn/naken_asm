@@ -66,10 +66,10 @@ unsigned int i;
   return i;
 }
 
-int parse_elf(char *filename, struct _memory *memory, unsigned char *cpu_type)
+int parse_elf(char *filename, struct _memory *memory, uint8_t *cpu_type)
 {
 FILE *in;
-unsigned char e_ident[16];
+uint8_t e_ident[16];
 int e_shoff;
 int e_shentsize;
 int e_shnum;
@@ -102,7 +102,11 @@ get_int32_t get_int32;
     return -2;
   }
 
-  if (e_ident[4] != 1)  // let's let other stuff in || e_ident[7]!=0xff)
+  #define EI_CLASS 4   // 1=32 bit, 2=64 bit
+  #define EI_DATA 5    // 1=little endian, 2=big endian
+  #define EI_OSABI 7   // 0=SysV, 255=Embedded
+
+  if (e_ident[EI_CLASS] != 1) // let's let other stuff in || e_ident[7]!=0xff)
   {
     printf("ELF Error: e_ident shows incorrect type\n");
     fclose(in);
@@ -110,14 +114,14 @@ get_int32_t get_int32;
   }
 
   // EI_DATA
-  if (e_ident[5] == 1)
+  if (e_ident[EI_DATA] == 1)
   {
     memory->endian = ENDIAN_LITTLE;
     get_int16 = get_int16_le; 
     get_int32 = get_int32_le; 
   }
     else
-  if (e_ident[5] == 2)
+  if (e_ident[EI_DATA] == 2)
   {
     memory->endian = ENDIAN_BIG;
     get_int16 = get_int16_be; 
@@ -192,6 +196,7 @@ get_int32_t get_int32;
 
   for (n = 0; n < e_shnum; n++)
   {
+    // FIXME - a little inefficient eh?
     fseek(in, e_shoff + (n * e_shentsize), SEEK_SET);
     sh_name = get_int32(in);
     get_int32(in);
@@ -210,6 +215,7 @@ get_int32_t get_int32;
     }
     name[ptr] = 0;
     //printf("name=%s\n", name);
+    // FIXME - Should check the flags instead
     int is_text = strncmp(name, ".text", 5) == 0 ? 1 : 0;
     if (is_text ||
         strncmp(name, ".data", 5) == 0 || strcmp(name, ".vectors") == 0)

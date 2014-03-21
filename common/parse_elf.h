@@ -14,7 +14,7 @@
 
 #include "memory.h"
 
-int parse_elf(char *filename, struct _memory *memory, unsigned char *cpu_type);
+int parse_elf(char *filename, struct _memory *memory, uint8_t *cpu_type);
 
 #endif
 

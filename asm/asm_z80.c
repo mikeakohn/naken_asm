@@ -21,6 +21,9 @@
 #include "get_tokens.h"
 #include "eval_expression.h"
 
+// http://wikiti.brandonw.net/index.php?title=Z80_Instruction_Set
+// http://map.grauw.nl/resources/z80instr.php
+
 enum
 {
   OPERAND_NONE,

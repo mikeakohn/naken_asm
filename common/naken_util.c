@@ -611,6 +611,7 @@ int mode = MODE_INTERACTIVE;
 
   memset(&util_context, 0, sizeof(struct _util_context));
   memory_init(&util_context.memory, 1<<20, 1);
+  symbols_init(&util_context.symbols);
 
   util_context.disasm_range = disasm_range_msp430;
   util_context.simulate = simulate_init_msp430(&util_context.memory);
@@ -1109,6 +1110,8 @@ int mode = MODE_INTERACTIVE;
   }
 
   if (src != NULL) { fclose(src); }
+
+  symbols_free(&util_context.symbols);
 
   if (util_context.debug_line_offset !=NULL)
   { free(util_context.debug_line_offset); }
