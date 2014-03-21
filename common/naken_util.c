@@ -200,14 +200,72 @@ int ch, n;
   }
 }
 
-static int get_range(char *token, int *start, int *end)
+static int get_range(struct _util_context *util_context, char *token, int *start, int *end)
 {
-  token = get_num(token, start);
-  if (*start < 0) *start = 0;
-  //if (*start>65535) *start=65535;
+char *start_string = NULL;
+char *end_string = NULL;
+char *s;
 
-  if (token == NULL) return -1;
-  while(*token == ' ') token++;
+  // Remove white space from start;
+  while(*token == ' ') { token++; }
+
+  start_string = token;
+  while(*token != '-' && *token != 0)
+  {
+    token++;
+  }
+
+  // Remove white space from end of start_string
+  s = token - 1;
+  while(s >= start_string)
+  {
+    if (*s != ' ') { break; }
+    *s = 0;
+    s--;
+  }
+
+  if (*token == '-')
+  {
+    *token = 0;
+    end_string = token + 1;
+
+    // Strip white space from start of end_string
+    while(*end_string == ' ') end_string++;
+  }
+
+  // Remove white space from end of end_string
+  s = token - 1;
+  while(s >= start_string)
+  {
+    if (*s != ' ') { break; }
+    *s = 0;
+    s--;
+  }
+
+  // Look up start_string in symbol table or use number
+  *start = symbols_lookup(&util_context->symbols, start_string);
+  if (*start == -1)
+  {
+    token = get_num(start_string, start);
+    if (*start < 0) *start = 0;
+  }
+
+  // If end_string is empty then end = start
+  if (end_string == NULL || *end_string == 0)
+  {
+    *end = *start;
+    return 0;
+  }
+
+  // Look up end_string in symbol table or use number
+  *end = symbols_lookup(&util_context->symbols, end_string);
+  if (*end == -1)
+  {
+    token = get_num(end_string, end);
+    if (*end < 0) *end = 0;
+  }
+
+#if 0
   if (*token == '-')
   {
     token++;
@@ -221,6 +279,7 @@ static int get_range(char *token, int *start, int *end)
   }
 
   *end = *start;
+#endif
 
   return 0;
 }
@@ -232,7 +291,7 @@ int start,end;
 int ptr = 0;
 
   // FIXME - is this right?
-  if (get_range(token, &start, &end)==-1) return;
+  if (get_range(util_context, token, &start, &end)==-1) return;
   if (start > util_context->memory.size) start = util_context->memory.size;
   if (start == end) end = start + 128;
   if (end > util_context->memory.size) end = util_context->memory.size;
@@ -274,7 +333,7 @@ char chars[17];
 int start,end;
 int ptr=0;
 
-  if (get_range(token, &start, &end) == -1) return;
+  if (get_range(util_context, token, &start, &end) == -1) return;
   if (start > util_context->memory.size) start = util_context->memory.size;
   if (start == end) end = start + 128;
   if (end > util_context->memory.size) end = util_context->memory.size;
@@ -432,7 +491,7 @@ static void disasm(struct _util_context *util_context, char *token, int dbg_flag
 {
 int start,end;
 
-  if (get_range(token, &start, &end) == -1) return;
+  if (get_range(util_context, token, &start, &end) == -1) return;
 
   if ((start % 2) != 0 || (end % 2) != 0)
   {
@@ -682,7 +741,7 @@ int mode = MODE_INTERACTIVE;
     }
       else
     {
-      unsigned char cpu_type;
+      uint8_t cpu_type;
       if (read_elf(argv[i], &util_context.memory, &cpu_type, &util_context.symbols)>=0)
       {
         int n = 0;
