@@ -539,6 +539,7 @@ static void print_help()
   printf("  info                     [ general info ]\n");
   printf("  disasm                   [ disassemble at address ]\n");
   printf("  disasm <start>-<end>     [ disassemble range of addresses ]\n");
+  printf("  symbols                  [ show symbols ]\n");
   //printf("  list <start>-<end>       [ disassemble wth debug listing ]\n");
 }
 
@@ -1090,6 +1091,11 @@ int mode = MODE_INTERACTIVE;
     {
        //util_context.disasm_range(&util_context.memory, util_context.memory.low_address, util_context.memory.high_address);
        disasm_range(&util_context, util_context.memory.low_address, util_context.memory.high_address);
+    }
+      else
+    if (strcmp(command, "symbols") == 0)
+    {
+      symbols_print(&util_context.symbols);
     }
 #if 0
       else
