@@ -13,8 +13,9 @@
 #define _READ_ELF_H
 
 #include "memory.h"
+#include "symbols.h"
 
-int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type);
+int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _symbols *symbols);
 
 #endif
 

@@ -568,7 +568,7 @@ char command[1024];
 #ifdef READLINE
 char *line = NULL;
 #endif
-int loaded_debug = 0;
+//int loaded_debug = 0;
 int i;
 char *hexfile = NULL;
 int mode = MODE_INTERACTIVE;
@@ -645,7 +645,7 @@ int mode = MODE_INTERACTIVE;
       //if (load_debug(&src, argv[++i], util_context.debug_line, &util_context)==0)
       if (load_debug(&src, argv[++i], &util_context) == 0)
       {
-        loaded_debug = 1;
+        //loaded_debug = 1;
       }
     }
       else
@@ -683,7 +683,7 @@ int mode = MODE_INTERACTIVE;
       else
     {
       unsigned char cpu_type;
-      if (read_elf(argv[i], &util_context.memory, &cpu_type)>=0)
+      if (read_elf(argv[i], &util_context.memory, &cpu_type, &util_context.symbols)>=0)
       {
         int n = 0;
         while (cpu_list[n].name != NULL)
@@ -731,6 +731,7 @@ int mode = MODE_INTERACTIVE;
 
   util_context.simulate->simulate_reset(util_context.simulate);
 
+#if 0
   if (loaded_debug == 0)
   {
     char filename[1024];
@@ -765,6 +766,7 @@ int mode = MODE_INTERACTIVE;
       printf("Debug file not found.\n");
     }
   }
+#endif
 
   if (mode == MODE_RUN)
   {

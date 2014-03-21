@@ -150,7 +150,7 @@ int i;
 
     memory_init(&memory, 0xffffffff, 1);
 
-    if (read_elf(filename, &memory, &cpu_type)>=0)
+    if (read_elf(filename, &memory, &cpu_type, NULL)>=0)
     {
       printf("Loaded ELF %s from 0x%04x to 0x%04x\n", filename, memory.low_address, memory.high_address);
     }

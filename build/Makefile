@@ -18,8 +18,8 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
 	   -I../disasm -I../common -I../simulate -I../table -I../fileio \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 	$(CC) -o ../naken_prog$(CONFIG_EXT) ../common/naken_prog.c \
-	   -I../prog -I../common -I../fileio lpc.o memory.o \
-	   read_elf.o read_hex.o print_error.o serial.o write_hex.o \
+	   -I../prog -I../common -I../fileio lpc.o memory.o memory_pool.o \
+	   read_elf.o read_hex.o print_error.o serial.o symbols.o write_hex.o \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
 assembler.o: assembler.c assembler.h

@@ -15,11 +15,60 @@
 
 #include "assembler.h"
 #include "read_elf.h"
+#include "symbols.h"
 
-#ifndef DISABLE_ELF
+#define SHT_NULL 0
+#define SHT_PROGBITS 1
+#define SHT_SYMTAB 2
+#define SHT_STRTAB 3
+#define SHT_RELA 4
+#define SHT_HASH 5
+#define SHT_DYNAMIC 6
+#define SHT_NOTE 7
+#define SHT_NOBITS 8
+#define SHT_REL 9
+#define SHT_SHLIB 10
+#define SHT_DYNSYM 11
+#define SHT_LOPROC 0x70000000
+#define SHT_HIPROC 0x7fffffff
+#define SHT_LOUSER 0x80000000
+#define SHT_HIUSER 0xffffffff
+
+#define SHF_WRITE 0x1
+#define SHF_ALLOC 0x2
+#define SHF_EXECINSTR 0x4
+#define SHF_MASKPROC 0xf0000000
+
+#define STT_NOTYPE 0
+#define STT_OBJECT 1
+#define STT_FUNC 2
+#define STT_SECTION 3
+#define STT_FILE 4
+#define STT_LOPROC 13
+#define STT_HIPROC 15
 
 typedef uint32_t (*get_int16_t)(FILE *);
 typedef uint32_t (*get_int32_t)(FILE *);
+
+struct _elf32_shdr
+{
+  uint32_t sh_name;
+  uint32_t sh_type;
+  uint32_t sh_flags;
+  uint32_t sh_addr;
+  uint32_t sh_offset;
+  uint32_t sh_size;
+};
+
+struct _elf32_sym
+{
+  uint32_t st_name;
+  uint32_t st_value;
+  uint32_t st_size;
+  uint8_t st_info;
+  uint8_t st_other;
+  uint16_t st_shndx;
+};
 
 static uint32_t get_int16_le(FILE *in)
 {
@@ -65,7 +114,40 @@ uint32_t i;
   return i;
 }
 
-int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type)
+static int read_shdr(FILE *in, struct _elf32_shdr *elf32_shdr, get_int32_t get_int32)
+{
+  elf32_shdr->sh_name = get_int32(in);
+  elf32_shdr->sh_type = get_int32(in);
+  elf32_shdr->sh_flags = get_int32(in);
+  elf32_shdr->sh_addr = get_int32(in);
+  elf32_shdr->sh_offset = get_int32(in);
+  elf32_shdr->sh_size = get_int32(in);
+
+  return 0;
+}
+
+static int read_name(FILE *in, char *name, int len, long offset)
+{
+long marker = ftell(in);
+int ptr = 0;
+
+  fseek(in, offset, SEEK_SET);
+
+  while(1)
+  {
+    int ch = getc(in);
+    if (ch == 0) { break; }
+    name[ptr++] = ch;
+    if (ptr == len - 1) { break; }
+  }
+  name[ptr] = 0;
+
+  fseek(in, marker, SEEK_SET);
+
+  return 0;
+}
+
+int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _symbols *symbols)
 {
 FILE *in;
 uint8_t e_ident[16];
@@ -75,6 +157,8 @@ int e_shnum;
 int e_shstrndx;
 int n;
 int start, end;
+struct _elf32_shdr elf32_shdr;
+long strtab_offset = 0;
 get_int16_t get_int16;
 get_int32_t get_int32;
 
@@ -135,14 +219,7 @@ get_int32_t get_int32;
 
   get_int16(in);
   n = get_int16(in);
-/*
-  if (n != 0x69)
-  {
-    printf("ELF Error: e_machine isn't set for MSP430\n");
-    fclose(in);
-    return -1;
-  }
-*/
+
   switch(n)
   {
     case 8:
@@ -178,70 +255,91 @@ get_int32_t get_int32;
 
   fseek(in, e_shoff + (e_shstrndx * e_shentsize) + 16, SEEK_SET);
   int stroffset = get_int32(in);
-  int sh_name;
-  int sh_addr;
-  int sh_offset;
-  int sh_size;
-  char name[20];
-/*
-  char text[20];
-  char data[20];
-  int text_count=0;
-  int data_count=0;
+  char name[32];
 
-  strcpy(text, ".text0");
-  strcpy(data, ".data0");
-*/
+  // Need to find .strtab so we can fill in symbol names
+  for (n = 0; n < e_shnum; n++)
+  {
+    fseek(in, e_shoff + (n * e_shentsize), SEEK_SET);
+    read_shdr(in, &elf32_shdr, get_int32);
+
+    if (elf32_shdr.sh_type == SHT_STRTAB)
+    {
+      read_name(in, name, 32, stroffset + elf32_shdr.sh_name);
+      if (strcmp(name, ".strtab") == 0)
+      {
+        strtab_offset = elf32_shdr.sh_offset;
+        break;
+      }
+    }
+  }
 
   for (n = 0; n < e_shnum; n++)
   {
     // FIXME - a little inefficient eh?
     fseek(in, e_shoff + (n * e_shentsize), SEEK_SET);
-    sh_name = get_int32(in);
-    get_int32(in);
-    get_int32(in);
-    sh_addr = get_int32(in);
-    sh_offset = get_int32(in);
-    sh_size = get_int32(in);
+    read_shdr(in, &elf32_shdr, get_int32);
 
-    fseek(in, stroffset + sh_name, SEEK_SET);
-    int ptr = 0;
-    while(ptr < 19)
-    {
-      int ch = getc(in);
-      if (ch == 0 || ch == EOF) { break; }
-      name[ptr++] = ch;
-    }
-    name[ptr] = 0;
+    read_name(in, name, 32, stroffset + elf32_shdr.sh_name);
+
     //printf("name=%s\n", name);
-    // FIXME - Should check the flags instead
-    int is_text = strncmp(name, ".text", 5) == 0 ? 1 : 0;
+    //int is_text = strncmp(name, ".text", 5) == 0 ? 1 : 0;
+    int is_text = (elf32_shdr.sh_flags & SHF_EXECINSTR) != 0 ? 1 : 0;
     if (is_text ||
         strncmp(name, ".data", 5) == 0 || strcmp(name, ".vectors") == 0)
     {
       if (is_text)
       {
-        if (start == -1) { start = sh_addr; }
-        else if (start > sh_addr) { start = sh_addr; }
+        if (start == -1) { start = elf32_shdr.sh_addr; }
+        else if (start > elf32_shdr.sh_addr) { start = elf32_shdr.sh_addr; }
 
-        if (end == -1) { end = sh_addr + sh_size - 1; }
-        else if (end < sh_addr + sh_size) { end = sh_addr+sh_size - 1; }
+        if (end == -1) { end = elf32_shdr.sh_addr + elf32_shdr.sh_size - 1; }
+        else if (end < elf32_shdr.sh_addr + elf32_shdr.sh_size) { end = elf32_shdr.sh_addr+elf32_shdr.sh_size - 1; }
       }
 
       long marker = ftell(in);
-      fseek(in, sh_offset, SEEK_SET);
+      fseek(in, elf32_shdr.sh_offset, SEEK_SET);
 
       int n;
-      for (n = 0; n < sh_size; n++)
+      for (n = 0; n < elf32_shdr.sh_size; n++)
       {
-        if (sh_addr + n >= memory->size) break;
-        memory_write_m(memory, sh_addr + n, getc(in)); 
-        //dirty[sh_addr+n] = 1; 
+        if (elf32_shdr.sh_addr + n >= memory->size) break;
+        memory_write_m(memory, elf32_shdr.sh_addr + n, getc(in)); 
       }
 
       fseek(in, marker, SEEK_SET);
 
-      printf("Loaded %d %s bytes from 0x%04x\n", n, name, sh_addr);
+      printf("Loaded %d %s bytes from 0x%04x\n", n, name, elf32_shdr.sh_addr);
+    }
+      else
+    if (elf32_shdr.sh_type == SHT_SYMTAB && symbols != NULL)
+    {
+      long marker = ftell(in);
+      fseek(in, elf32_shdr.sh_offset, SEEK_SET);
+
+      for (n = 0; n < elf32_shdr.sh_size; n += 16)
+      {
+        char name[128];
+
+        struct _elf32_sym elf32_sym;
+        elf32_sym.st_name = get_int32(in);
+        elf32_sym.st_value = get_int32(in);
+        elf32_sym.st_size = get_int32(in);
+        elf32_sym.st_info = getc(in);
+        elf32_sym.st_other = getc(in);
+        elf32_sym.st_shndx = get_int16(in);
+
+        read_name(in, name, 128, strtab_offset + elf32_sym.st_name);
+
+        printf("symbol %12s 0x%04x\n", name, elf32_sym.st_value);
+        if (elf32_sym.st_info != STT_NOTYPE &&
+            elf32_sym.st_info != STT_SECTION &&
+            elf32_sym.st_info != STT_FILE)
+        {
+          symbols_append(symbols, name, elf32_sym.st_value);
+        }
+      }
+      fseek(in, marker, SEEK_SET);
     }
   }
 
@@ -252,7 +350,4 @@ get_int32_t get_int32;
 
   return start;
 }
-
-#endif
-
 
