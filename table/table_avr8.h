@@ -66,9 +66,9 @@ enum
 struct _table_avr8
 {
   char *instr;
-  unsigned short int opcode;
-  unsigned short int mask;
-  unsigned char type;
+  uint16_t opcode;
+  uint16_t mask;
+  uint8_t type;
   char cycles_min;
   char cycles_max;
 };

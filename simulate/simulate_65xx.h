@@ -29,7 +29,7 @@ struct _simulate *simulate_init_65xx(struct _memory *memory);
 void simulate_free_65xx(struct _simulate *simulate);
 void simulate_push_65xx(struct _simulate *simulate, unsigned int value);
 int simulate_set_reg_65xx(struct _simulate *simulate, char *reg_string, unsigned int value);
-unsigned int simulate_get_reg_65xx(struct _simulate *simulate, char *reg_string);
+uint32_t simulate_get_reg_65xx(struct _simulate *simulate, char *reg_string);
 void simulate_reset_65xx(struct _simulate *simulate);
 void simulate_dump_registers_65xx(struct _simulate *simulate);
 int simulate_run_65xx(struct _simulate *simulate, int max_cycles, int step);

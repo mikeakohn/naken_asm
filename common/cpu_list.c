@@ -45,7 +45,9 @@
 #include "disasm_tms9900.h"
 #include "disasm_z80.h"
 #include "simulate_65xx.h"
+#include "simulate_avr8.h"
 #include "simulate_msp430.h"
+#include "simulate_z80.h"
 
 struct _cpu_list cpu_list[] =
 {
@@ -68,7 +70,7 @@ struct _cpu_list cpu_list[] =
   { "arm", CPU_TYPE_ARM, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_arm, list_output_arm, disasm_range_arm, NULL },
 #endif
 #ifdef ENABLE_AVR8
-  { "avr8", CPU_TYPE_AVR8, ENDIAN_LITTLE, 2, 0, 0, parse_instruction_avr8, list_output_avr8, disasm_range_avr8, NULL },
+  { "avr8", CPU_TYPE_AVR8, ENDIAN_LITTLE, 2, 0, 0, parse_instruction_avr8, list_output_avr8, disasm_range_avr8, simulate_init_avr8 },
 #endif
 #ifdef ENABLE_DSPIC
   { "dspic", CPU_TYPE_DSPIC, ENDIAN_LITTLE, 2, 0, 0, parse_instruction_dspic, list_output_dspic, disasm_range_dspic, NULL },
@@ -98,7 +100,7 @@ struct _cpu_list cpu_list[] =
   { "tms9900", CPU_TYPE_TMS9900, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_tms9900, list_output_tms9900, disasm_range_tms9900, NULL },
 #endif
 #ifdef ENABLE_Z80
-  { "z80", CPU_TYPE_Z80, ENDIAN_LITTLE, 1, 0, 1, parse_instruction_z80, list_output_z80, disasm_range_z80, NULL },
+  { "z80", CPU_TYPE_Z80, ENDIAN_LITTLE, 1, 0, 1, parse_instruction_z80, list_output_z80, disasm_range_z80, simulate_init_z80 },
 #endif
   { NULL },
 };

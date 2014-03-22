@@ -14,7 +14,8 @@
 
 #include "assembler.h"
 
-int get_cycle_count_avr8(unsigned short int opcode);
+int get_register_avr8(char *token);
+int get_cycle_count_avr8(uint16_t opcode);
 int disasm_avr8(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max);
 void list_output_avr8(struct _asm_context *asm_context, int address);
 void disasm_range_avr8(struct _memory *memory, int start, int end);

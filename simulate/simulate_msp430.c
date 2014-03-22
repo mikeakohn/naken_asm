@@ -233,7 +233,7 @@ struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->
   return 0;
 }
 
-static int put_data(struct _simulate *simulate, int PC, int reg, int Ad, int bw, unsigned int data)
+static int put_data(struct _simulate *simulate, int PC, int reg, int Ad, int bw, uint32_t data)
 {
 struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
 
@@ -317,7 +317,7 @@ int o;
 int reg;
 int As,bw;
 int count = 1;
-unsigned int result;
+uint32_t result;
 int src;
 int pc;
 
@@ -451,7 +451,7 @@ int src_reg,dst_reg;
 int Ad,As,bw;
 int dst,src;
 int pc;
-unsigned int result;
+uint32_t result;
 
   o = opcode >> 12;
   Ad = (opcode & 0x0080) >> 7;
@@ -641,7 +641,7 @@ struct _simulate *simulate;
   return simulate;
 }
 
-void simulate_push_msp430(struct _simulate *simulate, unsigned int value)
+void simulate_push_msp430(struct _simulate *simulate, uint32_t value)
 {
 struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
 
@@ -653,7 +653,7 @@ struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->
 static char *flags[] = { "C", "Z", "N", "GIE", "CPUOFF", "OSCOFF", "SCG0",
                        "SCG1", "V" };
 
-int simulate_set_reg_msp430(struct _simulate *simulate, char *reg_string, unsigned int value)
+int simulate_set_reg_msp430(struct _simulate *simulate, char *reg_string, uint32_t value)
 {
 struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
 int reg,n;
@@ -681,7 +681,7 @@ int reg,n;
   return 0;
 }
 
-unsigned int simulate_get_reg_msp430(struct _simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_msp430(struct _simulate *simulate, char *reg_string)
 {
 struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
 int reg;
@@ -774,7 +774,7 @@ int simulate_run_msp430(struct _simulate *simulate, int max_cycles, int step)
 {
 struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
 char instruction[128];
-unsigned short int opcode;
+uint16_t opcode;
 int cycles = 0;
 int ret;
 int pc;

@@ -20,8 +20,40 @@
 //#define READ_RAM(a) memory_read_m(memory, a)
 #define READ_RAM16(a) memory_read_m(memory, a)|(memory_read_m(memory, a+1)<<8)
 
-int get_cycle_count_avr8(unsigned short int opcode)
+int get_register_avr8(char *token)
 {
+int n;
+int r;
+
+  if (token[0]=='r' || token[0]=='R')
+  {
+    if (token[1]==0) return -1;
+
+    r=0; n=1;
+    while(1)
+    {
+      if (token[n]==0) return r;
+      if (token[n]<'0' || token[n]>'9') return -1;
+      r=(r*10)+(token[n]-'0');
+      n++;
+    }
+  }
+
+  return -1;
+}
+
+int get_cycle_count_avr8(uint16_t opcode)
+{
+  int n = 0;
+  while(table_avr8[n].instr != NULL)
+  {
+    if (table_avr8[n].opcode == opcode)
+    {
+      return table_avr8[n].cycles_min;
+    }
+    n++;
+  }
+
   return -1;
 }
 

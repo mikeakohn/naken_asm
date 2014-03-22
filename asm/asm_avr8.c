@@ -61,7 +61,8 @@ static struct _alias alias[] =
   { NULL, NULL },
 };
 
-static int get_register_avr8(char *token)
+#if 0
+int get_register_avr8(char *token)
 {
 int n;
 int r;
@@ -82,6 +83,7 @@ int r;
 
   return -1;
 }
+#endif
 
 int parse_instruction_avr8(struct _asm_context *asm_context, char *instr)
 {
