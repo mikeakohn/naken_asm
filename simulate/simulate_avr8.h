@@ -17,12 +17,23 @@
 #include "memory.h"
 #include "simulate_common.h"
 
+#define SREG_C 0
+#define SREG_Z 1
+#define SREG_N 2
+#define SREG_V 3
+#define SREG_S 4
+#define SREG_H 5
+#define SREG_T 6
+#define SREG_I 7
+
 struct _simulate_avr8
 {
   uint8_t reg[32];
-  int sp;
+  uint8_t ram[8192];
   int sp_start;
   int pc;
+  int sp;
+  uint8_t sreg;
 };
 
 struct _simulate *simulate_init_avr8();
