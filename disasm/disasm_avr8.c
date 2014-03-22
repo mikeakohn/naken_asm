@@ -145,7 +145,7 @@ int rd,rr,k;
           return 2;
         case OP_RELATIVE:
           k = opcode & 0xfff;
-          if (k & 800) { k = -(((~k) & 0xfff) + 1); }
+          if (k & 0x800) { k = -(((~k) & 0xfff) + 1); }
           sprintf(instruction, "%s 0x%x (%d)", table_avr8[n].instr, (address/2)+1+k, k);
           return 2;
         case OP_JUMP:

@@ -24,9 +24,9 @@
                        (memory_read_m(simulate->memory, (a * 2) + 1) << 8))
 //#define WRITE_RAM(a,b) memory_write_m(simulate->memory, a, b)
 
-#define SREG_SET(bit) (simulate_avr8->sreg |= (1<<bit))
+#define SREG_SET(bit) (simulate_avr8->sreg |= (1 << bit))
 #define SREG_CLR(bit) (simulate_avr8->sreg &= (0xff ^ (1<<bit)))
-#define GET_SREG(bit) ((simulate_avr8->sreg & (1<<bit)) == 0 ? 0 : 1)
+#define GET_SREG(bit) ((simulate_avr8->sreg & (1 << bit)) == 0 ? 0 : 1)
 
 #define GET_X() (simulate_avr8->reg[26] | (simulate_avr8->reg[27] << 8))
 #define GET_Y() (simulate_avr8->reg[28] | (simulate_avr8->reg[29] << 8))
@@ -158,7 +158,7 @@ static int simulate_execute_avr8_op_none(struct _simulate *simulate, struct _tab
 {
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
 
-  switch(table_avr8->opcode)
+  switch(table_avr8->id)
   {
     case AVR8_SEC:
       SREG_SET(SREG_C);
@@ -311,7 +311,7 @@ int k = ((opcode & 0xf00) >> 4) | (opcode & 0xf);
 uint8_t prev = simulate_avr8->reg[rd];
 int prev_reg16,reg16;
 
-  switch(table_avr8->opcode)
+  switch(table_avr8->id)
   {
     case AVR8_ANDI:
       simulate_avr8->reg[rd] &= k;
@@ -359,9 +359,9 @@ static int simulate_execute_avr8_op_relative(struct _simulate *simulate, struct 
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
 int k = opcode & 0xfff;
 
-  if (k & 800) { k = -(((~k) & 0xfff) + 1); }
+  if (k & 0x800) { k = -(((~k) & 0xfff) + 1); }
 
-  switch(table_avr8->opcode)
+  switch(table_avr8->id)
   {
     case AVR8_RJMP:
       break;
@@ -380,10 +380,10 @@ static int simulate_execute_avr8(struct _simulate *simulate)
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
 uint16_t opcode;
 int cycles = -1;
-int pc;
+//int pc;
 
-  pc = simulate_avr8->pc * 2;
-  opcode = READ_OPCODE(pc);
+  //pc = simulate_avr8->pc * 2;
+  opcode = READ_OPCODE(simulate_avr8->pc);
   //c = get_cycle_count(opcode);
   //if (c > 0) simulate->cycle_count += c;
   simulate_avr8->pc += 1;
@@ -399,16 +399,19 @@ int pc;
       switch(table_avr8[n].type)
       {
         case OP_NONE:
-          cycles = simulate_execute_avr8_op_none(simulate, table_avr8);
+          cycles = simulate_execute_avr8_op_none(simulate, &table_avr8[n]);
           break;
         case OP_REG_IMM:
-          cycles = simulate_execute_avr8_op_reg_imm(simulate, table_avr8, opcode);
+          cycles = simulate_execute_avr8_op_reg_imm(simulate, &table_avr8[n], opcode);
+          break;
         case OP_RELATIVE:
-          cycles = simulate_execute_avr8_op_relative(simulate, table_avr8, opcode);
+          cycles = simulate_execute_avr8_op_relative(simulate, &table_avr8[n], opcode);
           break;
         default:
-          break;
+          return -1;
       }
+
+      return cycles;
     }
 
     n++;
@@ -428,6 +431,7 @@ int n;
          "                                %d %d %d %d %d %d %d %d\n",
          simulate_avr8->pc,
          simulate_avr8->sp,
+         simulate_avr8->sreg,
          GET_SREG(SREG_I),
          GET_SREG(SREG_T),
          GET_SREG(SREG_H),
@@ -435,8 +439,7 @@ int n;
          GET_SREG(SREG_V),
          GET_SREG(SREG_N),
          GET_SREG(SREG_Z),
-         GET_SREG(SREG_C),
-         simulate_avr8->sreg);
+         GET_SREG(SREG_C));
 
   for (n = 0; n < 32; n++)
   {
@@ -480,7 +483,7 @@ int n;
 
     if (simulate->show == 1) printf("\x1b[1J\x1b[1;1H");
 
-    //if (c > 0) cycles += c;
+    if (ret > 0) simulate->cycle_count += ret;
 
     if (simulate->show == 1)
     {
@@ -534,6 +537,7 @@ int n;
         }
       }
     }
+//if (pc == 1) exit(1);
 
     if (simulate->auto_run == 1 && simulate->nested_call_count < 0) { return 0; }
 
