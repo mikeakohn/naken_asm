@@ -140,6 +140,11 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
       elf->e_flags = 0x05000000;
       elf->e_shnum++;
       break;
+    case CPU_TYPE_AVR8:
+      elf->e_machine = 0x53;
+      elf->e_flags = 0x85;
+      elf->e_shnum++;
+      break;
     case CPU_TYPE_DSPIC:
       elf->e_machine = 118;
       elf->e_flags = 1;

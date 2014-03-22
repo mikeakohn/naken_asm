@@ -229,6 +229,9 @@ get_int32_t get_int32;
     case 40:
       *cpu_type = CPU_TYPE_ARM;
       break;
+    case 83:
+      *cpu_type = CPU_TYPE_AVR8;
+      break;
     case 105:
       *cpu_type = CPU_TYPE_MSP430;
       break;

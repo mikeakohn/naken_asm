@@ -179,7 +179,7 @@ int n;
 
     char reg[4];
     sprintf(reg, "r%d",n);
-    printf("%3s: 0x%04x,", reg, simulate_avr8->reg[n]);
+    printf("%3s: 0x%02x", reg, simulate_avr8->reg[n]);
   }
   //printf("      0x%04x: 0x%02x%02x", SHOW_STACK);
   printf("\n\n");
