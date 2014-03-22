@@ -286,12 +286,30 @@ int S = N ^ 0;
   if (S == 1) { SREG_SET(SREG_S); } else { SREG_CLR(SREG_S); }
 }
 
+static void simulate_execute_avr8_set_sreg_reg16(struct _simulate *simulate, int rd_prev, int rd)
+{
+struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+int R15 = (rd & 0x8000) >> 15;
+int Rdh7 = (rd_prev & 0x0080) >> 7;
+int N = R15; 
+int V = (Rdh7 ^ 1) & R15;
+int S = N ^ V;
+int C = (R15 ^ 1) & Rdh7;
+
+  if (S == 1) { SREG_SET(SREG_S); } else { SREG_CLR(SREG_S); }
+  if (V == 1) { SREG_SET(SREG_V); } else { SREG_CLR(SREG_V); }
+  if (N == 1) { SREG_SET(SREG_N); } else { SREG_CLR(SREG_N); }
+  if (rd == 0) { SREG_SET(SREG_Z); } else { SREG_CLR(SREG_Z); }
+  if (C == 1) { SREG_SET(SREG_C); } else { SREG_CLR(SREG_C); }
+}
+
 static int simulate_execute_avr8_op_reg_imm(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
 int rd = ((opcode >> 4) & 0xf) + 16;
 int k = ((opcode & 0xf00) >> 4) | (opcode & 0xf);
 uint8_t prev = simulate_avr8->reg[rd];
+int prev_reg16,reg16;
 
   switch(table_avr8->opcode)
   {
@@ -323,7 +341,13 @@ uint8_t prev = simulate_avr8->reg[rd];
       simulate_avr8->reg[rd] &= k ^ 0xff;
       simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k); 
     case AVR8_ADIW:
+      prev_reg16 = simulate_avr8->reg[rd] | (simulate_avr8->reg[rd + 1] << 8);
+      reg16 = prev_reg16 + k;
+      simulate_execute_avr8_set_sreg_reg16(simulate, prev_reg16, reg16); 
     case AVR8_SBIW:
+      prev_reg16 = simulate_avr8->reg[rd] | (simulate_avr8->reg[rd + 1] << 8);
+      reg16 = prev_reg16 - k;
+      simulate_execute_avr8_set_sreg_reg16(simulate, prev_reg16, reg16); 
       break;
   }
 
