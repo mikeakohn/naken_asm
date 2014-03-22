@@ -20,8 +20,9 @@
 #include "simulate_avr8.h"
 #include "table_avr8.h"
 
-#define READ_RAM(a) memory_read_m(simulate->memory, a)
-#define WRITE_RAM(a,b) memory_write_m(simulate->memory, a, b)
+#define READ_OPCODE(a)(memory_read_m(simulate->memory, a * 2) | \
+                       (memory_read_m(simulate->memory, (a * 2) + 1) << 8))
+//#define WRITE_RAM(a,b) memory_write_m(simulate->memory, a, b)
 
 #define SREG_SET(bit) (simulate_avr8->sreg |= (1<<bit))
 #define SREG_CLR(bit) (simulate_avr8->sreg &= (0xff ^ (1<<bit)))
@@ -30,6 +31,9 @@
 #define GET_X() (simulate_avr8->reg[26] | (simulate_avr8->reg[27] << 8))
 #define GET_Y() (simulate_avr8->reg[28] | (simulate_avr8->reg[29] << 8))
 #define GET_Z() (simulate_avr8->reg[30] | (simulate_avr8->reg[31] << 8))
+
+#define PUSH_STACK(n) \
+  simulate_avr8->ram[simulate_avr8->sp--] = (n) && 0xff;
 
 #define PUSH_STACK16(n) \
   simulate_avr8->ram[simulate_avr8->sp--] = (n) >> 8; \
@@ -93,8 +97,7 @@ void simulate_push_avr8(struct _simulate *simulate, uint32_t value)
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
 
   simulate_avr8->sp -= 1;
-  WRITE_RAM(simulate_avr8->sp, value & 0xff);
-  //WRITE_RAM(simulate_avr8->sp + 1, value >> 8);
+  PUSH_STACK(value);
 }
 
 int simulate_set_reg_avr8(struct _simulate *simulate, char *reg_string, uint32_t value)
@@ -222,7 +225,7 @@ struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->contex
     case AVR8_EIJMP:
       return -1;
     case AVR8_ICALL:
-      PUSH_STACK16(simulate_avr8->pc + 1)
+      PUSH_STACK16(simulate_avr8->pc)
       simulate_avr8->pc = GET_Z();
       simulate->nested_call_count++;
       return table_avr8->cycles_min;
@@ -247,14 +250,116 @@ struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->contex
   return -1;
 }
 
+static void simulate_execute_avr8_set_sreg_arith(struct _simulate *simulate, uint8_t rd_prev, uint8_t rd, int k)
+{
+struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+int Rd7 = (rd_prev & 0x80) >> 7;
+int R7 = (rd & 0x80) >> 7;
+int K7 = (k & 0x80) >> 7;
+int C = ((Rd7 ^ 1) & (K7)) | (K7 & R7) | (R7 & (Rd7 ^ 1));
+int V = (Rd7 & (K7 ^ 1) & (R7 ^ 1)) | ((Rd7 ^ 1) & K7 & R7);
+int N = R7; 
+int S = N ^ V;
+int Rd3 = (rd_prev & 0x08) >> 3;
+int R3 = (rd & 0x08) >> 3;
+int K3 = (k & 0x08) >> 3;
+int H = ((Rd3 ^ 1) & K3) | (K3 & R3) | (R3 & (Rd3 ^ 1));
+
+  if (N == 1) { SREG_SET(SREG_N); } else { SREG_CLR(SREG_N); }
+  if (C == 1) { SREG_SET(SREG_C); } else { SREG_CLR(SREG_C); }
+  if (rd == 0) { SREG_SET(SREG_Z); } else { SREG_CLR(SREG_Z); }
+  if (S == 1) { SREG_SET(SREG_S); } else { SREG_CLR(SREG_S); }
+  if (V == 1) { SREG_SET(SREG_V); } else { SREG_CLR(SREG_V); }
+  if (H == 1) { SREG_SET(SREG_H); } else { SREG_CLR(SREG_H); }
+}
+
+static void simulate_execute_avr8_set_sreg_logic(struct _simulate *simulate, uint8_t rd_prev, uint8_t rd, int k)
+{
+struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+int R7 = (rd & 0x80) >> 7;
+int N = R7; 
+int S = N ^ 0;
+
+  SREG_CLR(SREG_V);
+  if (N == 1) { SREG_SET(SREG_N); } else { SREG_CLR(SREG_N); }
+  if (rd == 0) { SREG_SET(SREG_Z); } else { SREG_CLR(SREG_Z); }
+  if (S == 1) { SREG_SET(SREG_S); } else { SREG_CLR(SREG_S); }
+}
+
+static int simulate_execute_avr8_op_reg_imm(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+{
+struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+int rd = ((opcode >> 4) & 0xf) + 16;
+int k = ((opcode & 0xf00) >> 4) | (opcode & 0xf);
+uint8_t prev = simulate_avr8->reg[rd];
+
+  switch(table_avr8->opcode)
+  {
+    case AVR8_ANDI:
+      simulate_avr8->reg[rd] &= k;
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k); 
+      break;
+    case AVR8_CPI:
+      simulate_avr8->reg[rd] -= k;
+      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], k); 
+      break;
+    case AVR8_LDI:
+      simulate_avr8->reg[rd] = k;
+      break;
+    case AVR8_ORI:
+      simulate_avr8->reg[rd] |= k;
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k); 
+      break;
+    case AVR8_SBCI:
+      simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - k - GET_SREG(SREG_C);
+      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], k); 
+    case AVR8_SBR:
+      simulate_avr8->reg[rd] &= k;
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k); 
+    case AVR8_SUBI:
+      simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - k;
+      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], k); 
+    case AVR8_CBR:
+      simulate_avr8->reg[rd] &= k ^ 0xff;
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k); 
+    case AVR8_ADIW:
+    case AVR8_SBIW:
+      break;
+  }
+
+  return table_avr8->cycles_min;
+}
+
+static int simulate_execute_avr8_op_relative(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+{
+struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+int k = opcode & 0xfff;
+
+  if (k & 800) { k = -(((~k) & 0xfff) + 1); }
+
+  switch(table_avr8->opcode)
+  {
+    case AVR8_RJMP:
+      break;
+    case AVR8_RCALL:
+      PUSH_STACK16(simulate_avr8->pc)
+      break;
+  }
+
+  simulate_avr8->pc += k;
+
+  return table_avr8->cycles_min;
+}
+
 static int simulate_execute_avr8(struct _simulate *simulate)
 {
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
 uint16_t opcode;
+int cycles = -1;
 int pc;
 
   pc = simulate_avr8->pc * 2;
-  opcode = READ_RAM(pc) | (READ_RAM(pc + 1) << 8);
+  opcode = READ_OPCODE(pc);
   //c = get_cycle_count(opcode);
   //if (c > 0) simulate->cycle_count += c;
   simulate_avr8->pc += 1;
@@ -270,7 +375,12 @@ int pc;
       switch(table_avr8[n].type)
       {
         case OP_NONE:
-          simulate_execute_avr8_op_none(simulate, table_avr8);
+          cycles = simulate_execute_avr8_op_none(simulate, table_avr8);
+          break;
+        case OP_REG_IMM:
+          cycles = simulate_execute_avr8_op_reg_imm(simulate, table_avr8, opcode);
+        case OP_RELATIVE:
+          cycles = simulate_execute_avr8_op_relative(simulate, table_avr8, opcode);
           break;
         default:
           break;
@@ -280,14 +390,13 @@ int pc;
     n++;
   }
 
-  return -1;
+  return cycles;
 }
 
 void simulate_dump_registers_avr8(struct _simulate *simulate)
 {
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
 int n;
-//int sp = simulate_avr8->sp;
 
   printf("\nSimulation Register Dump\n");
   printf("-------------------------------------------------------------------\n");
@@ -305,16 +414,6 @@ int n;
          GET_SREG(SREG_C),
          simulate_avr8->sreg);
 
-#if 0
-  printf("        8    7    6             4   3 2 1 0              0x%04x: 0x%02x%02x\n", SHOW_STACK);
-  sp_inc(&sp);
-  printf("Status: V SCG1 SCG0 OSCOFF CPUOFF GIE N Z C              0x%04x: 0x%02x%02x\n", SHOW_STACK);
-  sp_inc(&sp);
-  sp_inc(&sp);
-  printf("                                                         0x%04x: 0x%02x%02x\n", SHOW_STACK);
-  sp_inc(&sp);
-#endif
-
   for (n = 0; n < 32; n++)
   {
     if ((n % 8) == 0)
@@ -330,8 +429,8 @@ int n;
     sprintf(reg, "r%d",n);
     printf("%3s: 0x%02x", reg, simulate_avr8->reg[n]);
   }
-  //printf("      0x%04x: 0x%02x%02x", SHOW_STACK);
-  printf("\n\n");
+
+  printf(" X=0x%04x, Y=0x%04x, Z=0x%04x\n\n", GET_X(), GET_Y(), GET_Z());
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }
 
@@ -352,7 +451,7 @@ int n;
 
   while(stop_running == 0)
   {
-    pc = simulate_avr8->pc * 2;
+    pc = simulate_avr8->pc;
     ret = simulate_execute_avr8(simulate);
 
     if (simulate->show == 1) printf("\x1b[1J\x1b[1;1H");
@@ -361,6 +460,7 @@ int n;
 
     if (simulate->show == 1)
     {
+      int disasm_pc = pc;
       simulate_dump_registers_avr8(simulate);
 
       n = 0;
@@ -368,44 +468,44 @@ int n;
       {
         int cycles_min,cycles_max;
         int num;
-        num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
-        int count = disasm_avr8(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+        num = READ_OPCODE(disasm_pc);
+        int count = disasm_avr8(simulate->memory, disasm_pc * 2, instruction, &cycles_min, &cycles_max) / 2;
         if (cycles_min == -1) break;
 
-        if (pc == simulate->break_point) { printf("*"); }
+        if (disasm_pc == simulate->break_point) { printf("*"); }
         else { printf(" "); }
 
         if (n == 0)
         { printf("! "); }
           else
-        if (pc == simulate_avr8->reg[0]) { printf("> "); }
+        if (disasm_pc == simulate_avr8->reg[0]) { printf("> "); }
           else
         { printf("  "); }
 
         if (cycles_min < 1)
         {
-          printf("0x%04x: 0x%04x %-40s ?\n", pc, num, instruction);
+          printf("0x%04x: 0x%04x %-40s ?\n", disasm_pc, num, instruction);
         }
           else
         if (cycles_min == cycles_max)
         {
-          printf("0x%04x: 0x%04x %-40s %d\n", pc, num, instruction, cycles_min);
+          printf("0x%04x: 0x%04x %-40s %d\n", disasm_pc, num, instruction, cycles_min);
         }
           else
         {
-          printf("0x%04x: 0x%04x %-40s %d-%d\n", pc, num, instruction, cycles_min, cycles_max);
+          printf("0x%04x: 0x%04x %-40s %d-%d\n", disasm_pc, num, instruction, cycles_min, cycles_max);
         }
 
         n = n + count;
-        pc += 2;
         count--;
+        disasm_pc++;
         while (count > 0)
         {
-          if (pc == simulate->break_point) { printf("*"); }
+          if (disasm_pc == simulate->break_point) { printf("*"); }
           else { printf(" "); }
-          num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
-          printf("  0x%04x: 0x%04x\n", pc, num);
-          pc += 2;
+          num = READ_OPCODE(disasm_pc);
+          printf("  0x%04x: 0x%04x\n", disasm_pc, num);
+          disasm_pc++;
           count--;
         }
       }
@@ -433,14 +533,15 @@ int n;
       return 0;
     }
 
-    if (simulate_avr8->reg[0] == 0xffff)
+#if 0
+    if (simulate_avr8->pc == 0xffff)
     {
       printf("Function ended.  Total cycles: %d\n", simulate->cycle_count);
       simulate->step_mode = 0;
-      simulate_avr8->reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
       signal(SIGINT, SIG_DFL);
       return 0;
     }
+#endif
 
     usleep(simulate->usec);
   }
