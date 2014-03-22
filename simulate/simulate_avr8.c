@@ -35,6 +35,9 @@
 #define PUSH_STACK(n) \
   simulate_avr8->ram[simulate_avr8->sp--] = (n) && 0xff;
 
+#define POP_STACK(n) \
+  simulate_avr8->ram[++simulate_avr8->sp];
+
 #define PUSH_STACK16(n) \
   simulate_avr8->ram[simulate_avr8->sp--] = (n) >> 8; \
   simulate_avr8->ram[simulate_avr8->sp--] = (n) & 0xff;
@@ -330,6 +333,23 @@ int C = (R15 ^ 1) & Rdh7;
   if (C == 1) { SREG_SET(SREG_C); } else { SREG_CLR(SREG_C); }
 }
 
+static void simulate_execute_avr8_set_sreg_common(struct _simulate *simulate, uint8_t value)
+{
+struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+int N = (value & 0x80) >> 7;
+
+  if (N == 1) { SREG_SET(SREG_N); } else { SREG_CLR(SREG_N); }
+  if (value == 0) { SREG_SET(SREG_Z); } else { SREG_CLR(SREG_Z); }
+}
+
+static void simulate_execute_avr8_set_sreg_sign(struct _simulate *simulate)
+{
+struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+int S = GET_SREG(SREG_N) ^ GET_SREG(SREG_V);
+
+  if (S == 1) { SREG_SET(SREG_S); } else { SREG_CLR(SREG_S); }
+}
+
 static int simulate_execute_avr8_op_branch_s_k(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
@@ -545,6 +565,85 @@ int temp;
   return table_avr8->cycles_min;
 }
 
+static int simulate_execute_avr8_op_one_reg(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+{
+struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+int rd = (opcode >> 4) & 0x1f;
+int prev = simulate_avr8->reg[rd];
+
+  switch(table_avr8->id)
+  {
+    case AVR8_ASR:
+      simulate_avr8->reg[rd] = ((prev >> 1) & 0x7f) | (prev & 0x80);
+      if ((prev & 1) != 0) { SREG_SET(SREG_C); } else { SREG_CLR(SREG_C); }
+      if ((GET_SREG(SREG_N) ^ GET_SREG(SREG_C)) != 0) { SREG_SET(SREG_V); }
+      else { SREG_CLR(SREG_V); }
+      simulate_execute_avr8_set_sreg_common(simulate, simulate_avr8->reg[rd]);
+      simulate_execute_avr8_set_sreg_sign(simulate);
+      break;
+    case AVR8_COM:
+      simulate_avr8->reg[rd] = ~simulate_avr8->reg[rd];
+      SREG_CLR(SREG_V);
+      SREG_SET(SREG_C);
+      simulate_execute_avr8_set_sreg_common(simulate, simulate_avr8->reg[rd]);
+      simulate_execute_avr8_set_sreg_sign(simulate);
+      break;
+    case AVR8_DEC:
+      simulate_avr8->reg[rd] -= 1;
+      if ((simulate_avr8->reg[rd] ^ 0x80) == 0xff) { SREG_SET(SREG_V); }
+      else { SREG_CLR(SREG_V); }
+      simulate_execute_avr8_set_sreg_common(simulate, simulate_avr8->reg[rd]);
+      simulate_execute_avr8_set_sreg_sign(simulate);
+      break;
+    case AVR8_INC:
+      simulate_avr8->reg[rd] += 1;
+      if ((simulate_avr8->reg[rd] ^ 0x80) == 0xff) { SREG_SET(SREG_V); }
+      else { SREG_CLR(SREG_V); }
+      simulate_execute_avr8_set_sreg_common(simulate, simulate_avr8->reg[rd]);
+      simulate_execute_avr8_set_sreg_sign(simulate);
+      break;
+    case AVR8_LSR:
+      simulate_avr8->reg[rd] = ((prev >> 1) & 0x7f);
+      if ((prev & 1) != 0) { SREG_SET(SREG_C); } else { SREG_CLR(SREG_C); }
+      simulate_execute_avr8_set_sreg_common(simulate, simulate_avr8->reg[rd]);
+      if ((GET_SREG(SREG_N) ^ GET_SREG(SREG_C)) != 0) { SREG_SET(SREG_V); }
+      else { SREG_CLR(SREG_V); }
+      simulate_execute_avr8_set_sreg_sign(simulate);
+      break;
+    case AVR8_NEG:
+      simulate_avr8->reg[rd] = -simulate_avr8->reg[rd];
+      if ((simulate_avr8->reg[rd] ^ 0x7f) == 0xff) { SREG_SET(SREG_V); }
+      else { SREG_CLR(SREG_V); }
+      if ((simulate_avr8->reg[rd]) != 0x00) { SREG_SET(SREG_C); }
+      else { SREG_CLR(SREG_C); }
+      if (((simulate_avr8->reg[rd] & 0x08) | (prev & 0x08)) != 0x00)
+           { SREG_SET(SREG_H); }
+      else { SREG_CLR(SREG_H); }  // FIXME - WTF? This is always H=1?
+      simulate_execute_avr8_set_sreg_common(simulate, simulate_avr8->reg[rd]);
+      simulate_execute_avr8_set_sreg_sign(simulate);
+      break;
+    case AVR8_POP:
+      simulate_avr8->reg[rd] = POP_STACK();
+      break;
+    case AVR8_PUSH:
+      PUSH_STACK(simulate_avr8->reg[rd]);
+      break;
+    case AVR8_ROR:
+      simulate_avr8->reg[rd] = ((prev >> 1) & 0x7f) | (GET_SREG(SREG_C) << 7);
+      if ((prev & 1) != 0) { SREG_SET(SREG_C); } else { SREG_CLR(SREG_C); }
+      simulate_execute_avr8_set_sreg_common(simulate, simulate_avr8->reg[rd]);
+      if ((GET_SREG(SREG_N) ^ GET_SREG(SREG_C)) != 0) { SREG_SET(SREG_V); }
+      else { SREG_CLR(SREG_V); }
+      simulate_execute_avr8_set_sreg_sign(simulate);
+      break;
+    case AVR8_SWAP:
+      simulate_avr8->reg[rd] = (prev >> 4) | ((prev & 0xf) << 4);
+      break;
+  }
+
+  return table_avr8->cycles_min;
+}
+
 static int simulate_execute_avr8_op_relative(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
@@ -603,6 +702,9 @@ int cycles = -1;
           break;
         case OP_REG_IMM:
           cycles = simulate_execute_avr8_op_reg_imm(simulate, &table_avr8[n], opcode);
+          break;
+        case OP_ONE_REG:
+          cycles = simulate_execute_avr8_op_one_reg(simulate, &table_avr8[n], opcode);
           break;
         case OP_RELATIVE:
           cycles = simulate_execute_avr8_op_relative(simulate, &table_avr8[n], opcode);
