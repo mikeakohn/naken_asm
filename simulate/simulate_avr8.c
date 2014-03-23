@@ -500,23 +500,23 @@ int temp;
     case AVR8_ADC:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] +
                                simulate_avr8->reg[rr] + GET_SREG(SREG_C);
-      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], rd); 
+      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
       break;
     case AVR8_ADD:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] + simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], rd); 
+      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
       break;
     case AVR8_AND:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] & simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], rd); 
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
       break;
     case AVR8_CP:
       temp = simulate_avr8->reg[rd] - simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_arith(simulate, prev, temp, rd); 
+      simulate_execute_avr8_set_sreg_arith(simulate, prev, temp, simulate_avr8->reg[rr]); 
       break;
     case AVR8_CPC:
       temp = simulate_avr8->reg[rd] - simulate_avr8->reg[rr] - GET_SREG(SREG_C);
-      simulate_execute_avr8_set_sreg_arith(simulate, prev, temp, rd); 
+      simulate_execute_avr8_set_sreg_arith(simulate, prev, temp, simulate_avr8->reg[rr]); 
       break;
     case AVR8_CPSE:
       if (simulate_avr8->reg[rd] == simulate_avr8->reg[rr])
@@ -529,7 +529,7 @@ int temp;
       break;
     case AVR8_EOR:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] ^ simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], rd); 
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
       break;
     case AVR8_MOV:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rr];
@@ -544,16 +544,16 @@ int temp;
       break;
     case AVR8_OR:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], rd); 
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
       break;
     case AVR8_SBC:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] -
                                simulate_avr8->reg[rr] - GET_SREG(SREG_C);
-      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], rd); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
       break;
     case AVR8_SUB:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], rd); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
       break;
   }
 
