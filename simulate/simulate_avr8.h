@@ -30,6 +30,7 @@ struct _simulate_avr8
 {
   uint8_t reg[32];
   uint8_t ram[8192];
+  uint8_t io[32];
   int sp_start;
   int pc;
   int sp;
