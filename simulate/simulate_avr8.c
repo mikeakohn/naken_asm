@@ -481,7 +481,7 @@ int temp;
       break;
     case AVR8_ADD:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] + simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], rd); 
+      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], rd); 
       break;
     case AVR8_AND:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] & simulate_avr8->reg[rr];
