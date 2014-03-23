@@ -32,6 +32,26 @@
 #define GET_Y() (simulate_avr8->reg[28] | (simulate_avr8->reg[29] << 8))
 #define GET_Z() (simulate_avr8->reg[30] | (simulate_avr8->reg[31] << 8))
 
+#define INC_X() { int a = GET_X(); a++; \
+                  simulate_avr8->reg[26] = a & 0xff; \
+                  simulate_avr8->reg[27] = (a >> 8) & 0xff; }
+#define INC_Y() { int a = GET_Y(); a++; \
+                  simulate_avr8->reg[28] = a & 0xff; \
+                  simulate_avr8->reg[29] = (a >> 8) & 0xff; }
+#define INC_Z() { int a = GET_Z(); a++; \
+                  simulate_avr8->reg[30] = a & 0xff; \
+                  simulate_avr8->reg[31] = (a >> 8) & 0xff; }
+
+#define DEC_X() { int a = GET_X(); a--; \
+                  simulate_avr8->reg[26] = a & 0xff; \
+                  simulate_avr8->reg[27] = (a >> 8) & 0xff; }
+#define DEC_Y() { int a = GET_Y(); a--; \
+                  simulate_avr8->reg[28] = a & 0xff; \
+                  simulate_avr8->reg[29] = (a >> 8) & 0xff; }
+#define DEC_Z() { int a = GET_Z(); a--; \
+                  simulate_avr8->reg[30] = a & 0xff; \
+                  simulate_avr8->reg[31] = (a >> 8) & 0xff; }
+
 #define PUSH_STACK(n) \
   simulate_avr8->ram[simulate_avr8->sp--] = (n) && 0xff;
 
@@ -46,8 +66,11 @@
   (simulate_avr8->ram[simulate_avr8->sp] | \
   (simulate_avr8->ram[simulate_avr8->sp+1] << 8)); simulate_avr8->sp += 2;
 
-#define READ_FLASH(n) memory_read_m(simulate->memory, n)
+#define READ_FLASH(n) memory_read_m(simulate->memory, n * 2)
 #define WRITE_FLASH(n,data) memory_write_m(simulate->memory, n, data)
+
+#define READ_RAM(a) simulate_avr8->ram[a & RAM_MASK];
+#define WRITE_RAM(a,v) simulate_avr8->ram[a & RAM_MASK] = v;
 
 static int stop_running = 0;
 
@@ -751,20 +774,6 @@ int k = (opcode >> 4) & 0x7;
   return table_avr8->cycles_min;
 }
 
-static int simulate_execute_avr8_op_reg_4(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
-{
-struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
-int rd = ((opcode >> 4) & 0xf) + 16;
-
-  switch(table_avr8->id)
-  {
-    case AVR8_SER:
-      simulate_avr8->reg[rd] = 0xff;
-  }
-
-  return table_avr8->cycles_min;
-}
-
 static int simulate_execute_avr8_op_relative(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
@@ -786,11 +795,31 @@ int k = opcode & 0xfff;
   return table_avr8->cycles_min;
 }
 
+static int simulate_execute_avr8_op_jump(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+{
+struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+int k = ((((opcode & 0x1f0) >> 3) | (opcode & 0x1)) << 16) | READ_OPCODE(simulate_avr8->pc + 1);
+
+  simulate_avr8->pc++;
+
+  switch(table_avr8->id)
+  {
+    case AVR8_CALL:
+      PUSH_STACK16(simulate_avr8->pc);
+    case AVR8_JMP:
+      simulate_avr8->pc = k;
+      break;
+  }
+
+  return table_avr8->cycles_min;
+}
+
 static int simulate_execute_avr8(struct _simulate *simulate)
 {
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
 uint16_t opcode;
 int cycles = -1;
+int rd,rr,k;
 //int pc;
 
   //pc = simulate_avr8->pc * 2;
@@ -840,10 +869,91 @@ int cycles = -1;
           cycles = simulate_execute_avr8_op_sreg_bit(simulate, &table_avr8[n], opcode);
           break;
         case OP_REG_4:
-          cycles = simulate_execute_avr8_op_reg_4(simulate, &table_avr8[n], opcode);
+          rd = ((opcode >> 4) & 0xf) + 16;
+          simulate_avr8->reg[rd] = 0xff;
+          cycles = table_avr8[n].cycles_min;
+          break;
+        case OP_IN:
+          rd = (opcode >> 4) & 0xf;
+          k = ((opcode & 0x600) >> 5) | (opcode & 0xf);
+          simulate_avr8->reg[rd] = simulate_avr8->io[k];
+          cycles = table_avr8[n].cycles_min;
+          break;
+        case OP_OUT:
+          rd = (opcode >> 4) & 0x1f;
+          k = ((opcode & 0x600) >> 5) | (opcode & 0xf);
+          simulate_avr8->io[k] = simulate_avr8->reg[rd];
+          cycles = table_avr8[n].cycles_min;
+          break;
+        case OP_MOVW:
+          rd = ((opcode >> 4) & 0xf) << 1;
+          rr = (opcode & 0xf) << 1;
+          simulate_avr8->reg[rd] = simulate_avr8->reg[rr];
+          simulate_avr8->reg[rd + 1] = simulate_avr8->reg[rr + 1];
+          cycles = table_avr8[n].cycles_min;
           break;
         case OP_RELATIVE:
           cycles = simulate_execute_avr8_op_relative(simulate, &table_avr8[n], opcode);
+          break;
+        case OP_JUMP:
+          cycles = simulate_execute_avr8_op_jump(simulate, &table_avr8[n], opcode);
+          break;
+        case OP_SPM_Z_PLUS:
+          WRITE_FLASH(GET_Z(), simulate_avr8->reg[0]);
+          WRITE_FLASH(GET_Z() + 1, simulate_avr8->reg[1]);
+          { INC_Z(); }
+          cycles = table_avr8[n].cycles_min;
+          break;
+        case OP_REG_X:
+        case OP_REG_X_PLUS:
+        case OP_REG_MINUS_X:
+          rd = (opcode >> 4) & 0x1f;
+          if (table_avr8[n].type == OP_REG_MINUS_X) { DEC_X(); }
+          simulate_avr8->reg[rd] = READ_RAM(GET_X());
+          if (table_avr8[n].type == OP_REG_X_PLUS) { INC_X(); }
+          cycles = table_avr8[n].cycles_min;
+          break;
+        case OP_REG_Y:
+        case OP_REG_Y_PLUS:
+        case OP_REG_MINUS_Y:
+          rd = (opcode >> 4) & 0x1f;
+          if (table_avr8[n].type == OP_REG_MINUS_Y) { DEC_Y(); }
+          simulate_avr8->reg[rd] = READ_RAM(GET_Y());
+          if (table_avr8[n].type == OP_REG_Y_PLUS) { INC_Y(); }
+          cycles = table_avr8[n].cycles_min;
+          break;
+        case OP_REG_Z:
+        case OP_REG_Z_PLUS:
+        case OP_REG_MINUS_Z:
+          rd = (opcode >> 4) & 0x1f;
+          if (table_avr8[n].type == OP_REG_MINUS_Z) { DEC_Z(); }
+          simulate_avr8->reg[rd] = READ_RAM(GET_Z());
+          if (table_avr8[n].type == OP_REG_Y_PLUS) { INC_Z(); }
+          cycles = table_avr8[n].cycles_min;
+          break;
+        case OP_X_REG:
+        case OP_X_PLUS_REG:
+        case OP_MINUS_X_REG:
+          rd = (opcode >> 4) & 0x1f;
+          if (table_avr8[n].type == OP_MINUS_X_REG) { DEC_X(); }
+          WRITE_RAM(GET_X(), simulate_avr8->reg[rd]);
+          if (table_avr8[n].type == OP_X_PLUS_REG) { INC_X(); }
+          break;
+        case OP_Y_REG:
+        case OP_Y_PLUS_REG:
+        case OP_MINUS_Y_REG:
+          rd = (opcode >> 4) & 0x1f;
+          if (table_avr8[n].type == OP_MINUS_Y_REG) { DEC_Y(); }
+          WRITE_RAM(GET_Y(), simulate_avr8->reg[rd]);
+          if (table_avr8[n].type == OP_Y_PLUS_REG) { INC_Y(); }
+          break;
+        case OP_Z_REG:
+        case OP_Z_PLUS_REG:
+        case OP_MINUS_Z_REG:
+          rd = (opcode >> 4) & 0x1f;
+          if (table_avr8[n].type == OP_MINUS_Z_REG) { DEC_Z(); }
+          WRITE_RAM(GET_Z(), simulate_avr8->reg[rd]);
+          if (table_avr8[n].type == OP_Z_PLUS_REG) { INC_Z(); }
           break;
         default:
           return -1;

@@ -26,11 +26,14 @@
 #define SREG_T 6
 #define SREG_I 7
 
+#define RAM_MASK 0x1fff
+#define RAM_SIZE (RAM_MASK + 1)
+
 struct _simulate_avr8
 {
   uint8_t reg[32];
-  uint8_t ram[8192];
-  uint8_t io[32];
+  uint8_t ram[RAM_SIZE];
+  uint8_t io[64];
   int sp_start;
   int pc;
   int sp;
