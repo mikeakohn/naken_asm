@@ -253,7 +253,7 @@ int rd,rr,k;
           return 4;
         case OP_REG_Y_PLUS_Q:
           rd = (opcode >> 4) & 0x1f;
-          k = ((opcode & 0x2000) >> 8)|((opcode & 0xc00) >> 7) | (opcode & 0x7);
+          k = ((opcode & 0x2000) >> 8) | ((opcode & 0xc00) >> 7) | (opcode & 0x7);
           sprintf(instruction, "%s r%d, Y+%d", table_avr8[n].instr, rd, k);
           return 2;
         case OP_REG_Z_PLUS_Q:
