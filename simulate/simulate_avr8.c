@@ -311,6 +311,29 @@ struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->contex
 int Rd7 = (rd_prev & 0x80) >> 7;
 int R7 = (rd & 0x80) >> 7;
 int K7 = (k & 0x80) >> 7;
+int C = (Rd7 & K7) | (K7 & (R7 ^ 1)) | ((R7 ^ 1) & Rd7);
+int V = (Rd7 & (K7 ^ 1) & (R7 ^ 1)) | ((Rd7 ^ 1) & K7 & R7);
+int N = R7; 
+int S = N ^ V;
+int Rd3 = (rd_prev & 0x08) >> 3;
+int R3 = (rd & 0x08) >> 3;
+int K3 = (k & 0x08) >> 3;
+int H = ((Rd3 ^ 1) & K3) | (K3 & R3) | (R3 & (Rd3 ^ 1));
+
+  if (N == 1) { SREG_SET(SREG_N); } else { SREG_CLR(SREG_N); }
+  if (C == 1) { SREG_SET(SREG_C); } else { SREG_CLR(SREG_C); }
+  if (rd == 0) { SREG_SET(SREG_Z); } else { SREG_CLR(SREG_Z); }
+  if (S == 1) { SREG_SET(SREG_S); } else { SREG_CLR(SREG_S); }
+  if (V == 1) { SREG_SET(SREG_V); } else { SREG_CLR(SREG_V); }
+  if (H == 1) { SREG_SET(SREG_H); } else { SREG_CLR(SREG_H); }
+}
+
+static void simulate_execute_avr8_set_sreg_arith_sub(struct _simulate *simulate, uint8_t rd_prev, uint8_t rd, int k)
+{
+struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+int Rd7 = (rd_prev & 0x80) >> 7;
+int R7 = (rd & 0x80) >> 7;
+int K7 = (k & 0x80) >> 7;
 int C = ((Rd7 ^ 1) & (K7)) | (K7 & R7) | (R7 & (Rd7 ^ 1));
 int V = (Rd7 & (K7 ^ 1) & (R7 ^ 1)) | ((Rd7 ^ 1) & K7 & R7);
 int N = R7; 
@@ -526,11 +549,11 @@ int temp;
     case AVR8_SBC:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] -
                                simulate_avr8->reg[rr] - GET_SREG(SREG_C);
-      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], rd); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], rd); 
       break;
     case AVR8_SUB:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], rd); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], rd); 
       break;
   }
 
