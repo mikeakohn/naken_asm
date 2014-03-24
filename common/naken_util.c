@@ -291,7 +291,7 @@ int start,end;
 int ptr = 0;
 
   // FIXME - is this right?
-  if (get_range(util_context, token, &start, &end)==-1) return;
+  if (get_range(util_context, token, &start, &end) == -1) return;
   if (start > util_context->memory.size) start = util_context->memory.size;
   if (start == end) end = start + 128;
   if (end > util_context->memory.size) end = util_context->memory.size;
@@ -1096,6 +1096,20 @@ int mode = MODE_INTERACTIVE;
     if (strcmp(command, "symbols") == 0)
     {
       symbols_print(&util_context.symbols);
+    }
+      else
+    if (strncmp(command, "dumpram", 7) == 0)
+    {
+      int start,end;
+      if (get_range(&util_context, command+7, &start, &end) == -1)
+      {
+        printf("Illegal range.\n");
+      }
+        else
+      if (util_context.simulate->simulate_dumpram(util_context.simulate, start, end) == -1)
+      {
+        printf("This arch doesn't support dumpram.  Use bprint / wprint.\n");
+      }
     }
 #if 0
       else

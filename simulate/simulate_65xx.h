@@ -27,6 +27,7 @@ struct _simulate_65xx
 
 struct _simulate *simulate_init_65xx(struct _memory *memory);
 void simulate_free_65xx(struct _simulate *simulate);
+int simulate_dumpram_65xx(struct _simulate *simulate, int start, int end);
 void simulate_push_65xx(struct _simulate *simulate, unsigned int value);
 int simulate_set_reg_65xx(struct _simulate *simulate, char *reg_string, unsigned int value);
 uint32_t simulate_get_reg_65xx(struct _simulate *simulate, char *reg_string);

@@ -24,6 +24,7 @@ struct _simulate_msp430
 
 struct _simulate *simulate_init_msp430();
 void simulate_free_msp430(struct _simulate *simulate);
+int simulate_dumpram_msp430(struct _simulate *simulate, int start, int end);
 void simulate_push_msp430(struct _simulate *simulate, uint32_t value);
 int simulate_set_reg_msp430(struct _simulate *simulate, char *reg_string, uint32_t value);
 uint32_t simulate_get_reg_msp430(struct _simulate *simulate, char *reg_string);

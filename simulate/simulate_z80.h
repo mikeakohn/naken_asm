@@ -24,6 +24,7 @@ struct _simulate_z80
 
 struct _simulate *simulate_init_z80();
 void simulate_free_z80(struct _simulate *simulate);
+int simulate_dumpram_z80(struct _simulate *simulate, int start, int end);
 void simulate_push_z80(struct _simulate *simulate, uint32_t value);
 int simulate_set_reg_z80(struct _simulate *simulate, char *reg_string, uint32_t value);
 uint32_t simulate_get_reg_z80(struct _simulate *simulate, char *reg_string);

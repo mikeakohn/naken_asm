@@ -124,6 +124,7 @@ struct _simulate *simulate;
 
   simulate->simulate_init = simulate_init_avr8;
   simulate->simulate_free = simulate_free_avr8;
+  simulate->simulate_dumpram = simulate_dumpram_avr8;
   simulate->simulate_push = simulate_push_avr8;
   simulate->simulate_set_reg = simulate_set_reg_avr8;
   simulate->simulate_get_reg = simulate_get_reg_avr8;
@@ -206,6 +207,24 @@ void simulate_free_avr8(struct _simulate *simulate)
 {
   //memory_free(simulate->memory);
   free(simulate);
+}
+
+int simulate_dumpram_avr8(struct _simulate *simulate, int start, int end)
+{
+struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+int n,count;
+
+  count = 0;
+  for (n = start; n < end; n++)
+  {
+    if ((count % 16) == 0) { printf("\n0x%04x: ", n); }
+    printf(" %02x", simulate_avr8->ram[n]);
+    count++;
+  }
+
+  printf("\n\n");
+
+  return 0;
 }
 
 // cat table/table_avr8.c | grep OP_NONE | sed 's/^.*AVR8_/AVR8_/' | sed 's/ .*$/:/'

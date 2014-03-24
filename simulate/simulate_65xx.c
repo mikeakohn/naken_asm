@@ -681,6 +681,7 @@ struct _simulate *simulate;
 
   simulate->simulate_init=simulate_init_65xx;
   simulate->simulate_free=simulate_free_65xx;
+  simulate->simulate_dumpram=simulate_dumpram_65xx;
   simulate->simulate_push=simulate_push_65xx;
   simulate->simulate_set_reg=simulate_set_reg_65xx;
   simulate->simulate_get_reg=simulate_get_reg_65xx;
@@ -777,6 +778,11 @@ void simulate_free_65xx(struct _simulate *simulate)
 {
   //memory_free(simulate->memory);
   free(simulate);
+}
+
+int simulate_dumpram_65xx(struct _simulate *simulate, int start, int end)
+{
+  return -1;
 }
 
 void simulate_dump_registers_65xx(struct _simulate *simulate)

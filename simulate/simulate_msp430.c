@@ -624,6 +624,7 @@ struct _simulate *simulate;
 
   simulate->simulate_init = simulate_init_msp430;
   simulate->simulate_free = simulate_free_msp430;
+  simulate->simulate_dumpram = simulate_dumpram_msp430;
   simulate->simulate_push = simulate_push_msp430;
   simulate->simulate_set_reg = simulate_set_reg_msp430;
   simulate->simulate_get_reg = simulate_get_reg_msp430;
@@ -715,6 +716,11 @@ void simulate_free_msp430(struct _simulate *simulate)
 {
   //memory_free(simulate->memory);
   free(simulate);
+}
+
+int simulate_dumpram_msp430(struct _simulate *simulate, int start, int end)
+{
+  return -1;
 }
 
 void simulate_dump_registers_msp430(struct _simulate *simulate)

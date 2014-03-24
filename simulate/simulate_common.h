@@ -18,6 +18,7 @@
 
 typedef struct _simulate *(*simulate_init_t)(struct _memory *);
 typedef void (*simulate_free_t)(struct _simulate *);
+typedef int (*simulate_dumpram_t)(struct _simulate *, int start, int end);
 typedef void (*simulate_push_t)(struct _simulate *, unsigned int value);
 typedef int (*simulate_set_reg_t)(struct _simulate *, char *reg_string, uint32_t value);
 typedef uint32_t (*simulate_get_reg_t)(struct _simulate *, char *reg_string);
@@ -38,6 +39,7 @@ struct _simulate
 
   simulate_init_t simulate_init;
   simulate_free_t simulate_free;
+  simulate_dumpram_t simulate_dumpram;
   simulate_push_t simulate_push;
   simulate_set_reg_t simulate_set_reg;
   simulate_get_reg_t simulate_get_reg;
