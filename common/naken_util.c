@@ -525,6 +525,7 @@ static void print_help()
   printf("  wprint <start>-<end>     [ print words at start address (opt. to end) ]\n");
   printf("  bwrite <address> <data>..[ write multiple bytes to RAM starting at address]\n");
   printf("  wwrite <address> <data>..[ write multiple words to RAM starting at address]\n");
+  printf("  dumpram <address> <data> [ Dump RAM of AVR8 during simulation]\n");
   printf("  registers                [ dump registers ]\n");
   printf("  run, stop, step          [ simulation run, stop, step ]\n");
   printf("  call <address>           [ call function at address ]\n");
