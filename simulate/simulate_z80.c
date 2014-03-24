@@ -167,17 +167,17 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
   printf("             %d %d %d %d - %d - %d\n",
          GET_S(), GET_Z(), GET_I(), GET_H(), GET_P(), GET_C());
 
-  printf(" A: %02x F: %02x          B: %02x C: %02X\n",
+  printf(" A: %02x F: %02x     B: %02x C: %02X    "
+         " D: %02x E: %02x     H: %02x L: %02X\n",
          simulate_z80->reg[REG_A],
          simulate_z80->reg[REG_F],
          simulate_z80->reg[REG_B],
-         simulate_z80->reg[REG_C]);
-  printf(" D: %02x E: %02x          H: %02x L: %02X\n",
+         simulate_z80->reg[REG_C],
          simulate_z80->reg[REG_D],
          simulate_z80->reg[REG_E],
          simulate_z80->reg[REG_H],
          simulate_z80->reg[REG_L]);
-  printf("IX: %04x   IY: %04x   SP: %04X   PC: %04x\n",
+  printf("IX: %04x        IY: %04x        SP: %04X        PC: %04x\n",
          simulate_z80->ix, simulate_z80->iy,
          simulate_z80->sp, simulate_z80->pc);
 
