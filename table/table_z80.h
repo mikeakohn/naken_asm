@@ -92,26 +92,89 @@ enum
   OP_RESTART_ADDRESS,
 };
 
+enum
+{
+  Z80_ADC,
+  Z80_ADD,
+  Z80_AND,
+  Z80_BIT,
+  Z80_CALL,
+  Z80_CCF,
+  Z80_CP,
+  Z80_CPD,
+  Z80_CPDR,
+  Z80_CPI,
+  Z80_CPIR,
+  Z80_CPL,
+  Z80_DAA,
+  Z80_DEC,
+  Z80_DI,
+  Z80_DJNZ,
+  Z80_EI,
+  Z80_EX,
+  Z80_EXX,
+  Z80_HALT,
+  Z80_IM,
+  Z80_IN,
+  Z80_INC,
+  Z80_IND,
+  Z80_INDR,
+  Z80_INI,
+  Z80_INIR,
+  Z80_JP,
+  Z80_JR,
+  Z80_LD,
+  Z80_LDD,
+  Z80_LDDR,
+  Z80_LDI,
+  Z80_LDIR,
+  Z80_NEG,
+  Z80_NOP,
+  Z80_OR,
+  Z80_OTDR,
+  Z80_OTIR,
+  Z80_OUT,
+  Z80_OUTD,
+  Z80_OUTI,
+  Z80_POP,
+  Z80_PUSH,
+  Z80_RES,
+  Z80_RET,
+  Z80_RETI,
+  Z80_RETN,
+  Z80_RL,
+  Z80_RLA,
+  Z80_RLC,
+  Z80_RLCA,
+  Z80_RLD,
+  Z80_RR,
+  Z80_RRA,
+  Z80_RRC,
+  Z80_RRCA,
+  Z80_RRD,
+  Z80_RST,
+  Z80_SBC,
+  Z80_SCF,
+  Z80_SET,
+  Z80_SLA,
+  Z80_SLL,
+  Z80_SRA,
+  Z80_SRL,
+  Z80_STOP,
+  Z80_SUB,
+  Z80_XOR,
+};
+
 struct _table_z80
 {
   char *instr;
-  unsigned short int opcode;
-  unsigned short int mask;
-  unsigned char type;
-  unsigned char cycles:5;
-  unsigned char cycles_max:3; // add these 3 bits to cycles for max
+  uint16_t opcode;
+  uint16_t mask;
+  uint8_t type;
+  uint8_t id;
+  uint8_t cycles:5;
+  uint8_t cycles_max:3; // add these 3 bits to cycles for max
 };
-
-#if 0
-struct _table_z80_4_byte
-{
-  char *instr;
-  unsigned char opcode[4];
-  unsigned char mask[4];
-  unsigned char type;
-  unsigned char cycles;
-};
-#endif
 
 extern struct _table_z80 table_z80[];
 extern struct _table_z80 table_z80_4_byte[];

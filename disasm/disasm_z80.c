@@ -198,7 +198,7 @@ char disp[64];
       }
     }
       else
-    if (table_z80[n].opcode == (opcode16&table_z80[n].mask))
+    if (table_z80[n].opcode == (opcode16 & table_z80[n].mask))
     {
       *cycles_min = table_z80[n].cycles;
       *cycles_max = table_z80[n].cycles + table_z80[n].cycles_max;
