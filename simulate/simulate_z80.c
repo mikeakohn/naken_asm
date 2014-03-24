@@ -22,6 +22,13 @@
 #define READ_RAM(a) memory_read_m(simulate->memory, a)
 #define WRITE_RAM(a,b) memory_write_m(simulate->memory, a, b)
 
+#define GET_S() ((simulate_z80->status >> 7) & 1)
+#define GET_Z() ((simulate_z80->status >> 6) & 1)
+#define GET_I() ((simulate_z80->status >> 5) & 1)
+#define GET_H() ((simulate_z80->status >> 4) & 1)
+#define GET_P() ((simulate_z80->status >> 2) & 1)
+#define GET_C() ((simulate_z80->status >> 0) & 1)
+
 static int stop_running = 0;
 
 static void handle_signal(int sig)
@@ -129,13 +136,13 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   simulate->cycle_count = 0;
   simulate->nested_call_count = 0;
-  memset(simulate_z80->reg, 0, sizeof(simulate_z80->reg));
-  //memory_clear(&simulate->memory);
-  simulate_z80->reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
-  // FIXME - A real chip wouldn't set the SP to this, but this is
-  // in case someone is simulating code that won't run on a chip.
-  simulate_z80->reg[1] = 0x800;
   simulate->break_point = -1;
+  memset(simulate_z80->reg, 0, sizeof(simulate_z80->reg));
+  simulate_z80->ix = 0;
+  simulate_z80->iy = 0;
+  simulate_z80->sp = 0;
+  simulate_z80->pc = 0;
+  simulate_z80->status = 0;
 }
 
 void simulate_free_z80(struct _simulate *simulate)
@@ -151,55 +158,30 @@ int simulate_dumpram_z80(struct _simulate *simulate, int start, int end)
 
 void simulate_dump_registers_z80(struct _simulate *simulate)
 {
-//struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-//int sp = simulate_z80->reg[1];
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   printf("\nSimulation Register Dump                                  Stack\n");
   printf("-------------------------------------------------------------------\n");
 
-#if 0
-  printf("        8    7    6             4   3 2 1 0              0x%04x: 0x%02x%02x\n", SHOW_STACK);
-  sp_inc(&sp);
-  printf("Status: V SCG1 SCG0 OSCOFF CPUOFF GIE N Z C              0x%04x: 0x%02x%02x\n", SHOW_STACK);
-  sp_inc(&sp);
-  printf("        %d    %d    %d      %d      %d   %d %d %d %d              0x%04x: 0x%02x%02x\n",
-         (simulate_z80->reg[2] >> 8) & 1,
-         (simulate_z80->reg[2] >> 7) & 1,
-         (simulate_z80->reg[2] >> 6) & 1,
-         (simulate_z80->reg[2] >> 5) & 1,
-         (simulate_z80->reg[2] >> 4) & 1,
-         (simulate_z80->reg[2] >> 3) & 1,
-         (simulate_z80->reg[2] >> 2) & 1,
-         (simulate_z80->reg[2] >> 1) & 1,
-         (simulate_z80->reg[2]) & 1,
-         SHOW_STACK);
-  sp_inc(&sp);
-  printf("                                                         0x%04x: 0x%02x%02x\n", SHOW_STACK);
-  sp_inc(&sp);
+  printf("Status: %02x   S Z I H - P - C\n", simulate_z80->status);
+  printf("             %d %d %d %d - %d - %d\n",
+         GET_S(), GET_Z(), GET_I(), GET_H(), GET_P(), GET_C());
 
-  printf(" PC: 0x%04x,  SP: 0x%04x,  SR: 0x%04x,  CG: 0x%04x,",
-         simulate_z80->reg[0],
-         simulate_z80->reg[1],
-         simulate_z80->reg[2],
-         simulate_z80->reg[3]);
+  printf(" A: %02x F: %02x          B: %02x C: %02X\n",
+         simulate_z80->reg[REG_A],
+         simulate_z80->reg[REG_F],
+         simulate_z80->reg[REG_B],
+         simulate_z80->reg[REG_C]);
+  printf(" D: %02x E: %02x          H: %02x L: %02X\n",
+         simulate_z80->reg[REG_D],
+         simulate_z80->reg[REG_E],
+         simulate_z80->reg[REG_H],
+         simulate_z80->reg[REG_L]);
+  printf("IX: %04x   IY: %04x   SP: %04X   PC: %04x\n",
+         simulate_z80->ix, simulate_z80->iy,
+         simulate_z80->sp, simulate_z80->pc);
 
-  for (n = 4; n < 16; n++)
-  {
-    if ((n % 4) == 0)
-    {
-      printf("      0x%04x: 0x%02x%02x", SHOW_STACK);
-      printf("\n");
-      sp_inc(&sp);
-    }
-      else
-    { printf(" "); }
 
-    char reg[4];
-    sprintf(reg, "r%d",n);
-    printf("%3s: 0x%04x,", reg, simulate_z80->reg[n]);
-  }
-  printf("      0x%04x: 0x%02x%02x", SHOW_STACK);
-#endif
   printf("\n\n");
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }

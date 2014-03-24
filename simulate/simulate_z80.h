@@ -17,9 +17,23 @@
 #include "memory.h"
 #include "simulate_common.h"
 
+#define REG_A 0
+#define REG_F 1
+#define REG_B 2
+#define REG_C 3
+#define REG_D 4
+#define REG_E 5
+#define REG_H 6
+#define REG_L 7
+
 struct _simulate_z80
 {
-  uint16_t reg[16];
+  uint8_t reg[8];
+  uint16_t ix;
+  uint16_t iy;
+  uint16_t sp;
+  uint16_t pc;
+  uint8_t status;
 };
 
 struct _simulate *simulate_init_z80();
