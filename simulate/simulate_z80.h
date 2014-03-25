@@ -34,6 +34,8 @@ struct _simulate_z80
   uint16_t sp;
   uint16_t pc;
   uint8_t status;
+  uint8_t iff1;
+  uint8_t iff2;
 };
 
 struct _simulate *simulate_init_z80();

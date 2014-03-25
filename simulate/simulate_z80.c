@@ -30,7 +30,24 @@
 #define GET_I() ((simulate_z80->status >> 5) & 1)
 #define GET_H() ((simulate_z80->status >> 4) & 1)
 #define GET_P() ((simulate_z80->status >> 2) & 1)
+#define GET_N() ((simulate_z80->status >> 1) & 1)
 #define GET_C() ((simulate_z80->status >> 0) & 1)
+
+#define SET_S() simulate_z80->status |= (1 << 7);
+#define SET_Z() simulate_z80->status |= (1 << 6);
+#define SET_I() simulate_z80->status |= (1 << 5);
+#define SET_H() simulate_z80->status |= (1 << 4);
+#define SET_P() simulate_z80->status |= (1 << 2);
+#define SET_N() simulate_z80->status |= (1 << 1);
+#define SET_C() simulate_z80->status |= (1 << 0);
+
+#define CLR_S() simulate_z80->status &= 0xff ^ (1 << 7);
+#define CLR_Z() simulate_z80->status &= 0xff ^ (1 << 6);
+#define CLR_I() simulate_z80->status &= 0xff ^ (1 << 5);
+#define CLR_H() simulate_z80->status &= 0xff ^ (1 << 4);
+#define CLR_P() simulate_z80->status &= 0xff ^ (1 << 2);
+#define CLR_N() simulate_z80->status &= 0xff ^ (1 << 1);
+#define CLR_C() simulate_z80->status &= 0xff ^ (1 << 0);
 
 static int stop_running = 0;
 
@@ -146,6 +163,8 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
   simulate_z80->sp = 0;
   simulate_z80->pc = 0;
   simulate_z80->status = 0;
+  simulate_z80->iff1 = 0;
+  simulate_z80->iff2 = 0;
 }
 
 void simulate_free_z80(struct _simulate *simulate)
@@ -156,6 +175,65 @@ void simulate_free_z80(struct _simulate *simulate)
 
 int simulate_dumpram_z80(struct _simulate *simulate, int start, int end)
 {
+  return -1;
+}
+
+int simulate_z80_execute_op_none(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int tmp;
+int a4,tmp4;
+
+  switch(table_z80->id)
+  {
+    case  Z80_CCF:
+      if (GET_C() == 1) { SET_H(); } else { CLR_H(); }
+      if (GET_C() == 0) { SET_C(); } else { CLR_C(); }
+      return 1;
+    case  Z80_CPL:
+      simulate_z80->reg[REG_A] = ~simulate_z80->reg[REG_A];
+      return 1;
+    case  Z80_DAA:
+      // What the fuck?
+      tmp = simulate_z80->reg[REG_A];
+      if (GET_N() == 1)
+      {
+        if (GET_H() == 1 || ((simulate_z80->reg[REG_A] & 0x0f) > 9)) { tmp -= 0x06; }
+        if (GET_C() == 1 || (simulate_z80->reg[REG_A] > 0x99)) { tmp -= 0x60; }
+      }
+        else
+      {
+        if (GET_H() == 1 || ((simulate_z80->reg[REG_A] & 0x0f) > 9)) { tmp += 0x06; }
+        if (GET_C() == 1 || (simulate_z80->reg[REG_A] > 0x99)) { tmp += 0x60; }
+      }
+      if (GET_C() == 1 || simulate_z80->reg[REG_A] > 0x099) { SET_C(); }
+      a4 = simulate_z80->reg[REG_A] & 0x08;
+      tmp4 = tmp & 0x08;
+      a4 = (a4 == 0) ? 0 : 1;
+      tmp4 = (tmp4 == 0) ? 0 : 1;
+      if ((a4 ^ tmp4) == 0) { CLR_H(); } else { SET_H(); }
+      simulate_z80->reg[REG_A] = tmp;
+      return 1;
+    case  Z80_DI:
+      simulate_z80->iff1 = 0;
+      simulate_z80->iff2 = 0;
+    case  Z80_EI:
+      simulate_z80->iff1 = 1;
+      simulate_z80->iff2 = 1;
+    case  Z80_EXX:
+    case  Z80_HALT:
+    case  Z80_NOP:
+    case  Z80_RET:
+    case  Z80_RLA:
+    case  Z80_RLCA:
+    case  Z80_RRA:
+    case  Z80_RRCA:
+      break;
+    case  Z80_SCF:
+      SET_C();
+      return 1;
+  }
+
   return -1;
 }
 
@@ -174,6 +252,7 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
       switch(table_z80[n].type)
       {
         case OP_NONE:
+          return simulate_z80_execute_op_none(simulate, &table_z80[n], opcode);
         case OP_A_REG8:
         case OP_REG8:
         case OP_A_NUMBER8:
@@ -273,9 +352,9 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
   printf("\nSimulation Register Dump                                  Stack\n");
   printf("-------------------------------------------------------------------\n");
 
-  printf("Status: %02x   S Z I H - P - C\n", simulate_z80->status);
-  printf("             %d %d %d %d - %d - %d\n",
-         GET_S(), GET_Z(), GET_I(), GET_H(), GET_P(), GET_C());
+  printf("Status: %02x   S Z I H - P N C\n", simulate_z80->status);
+  printf("             %d %d %d %d - %d %d %d\n",
+         GET_S(), GET_Z(), GET_I(), GET_H(), GET_P(), GET_N(), GET_C());
 
   printf(" A: %02x F: %02x     B: %02x C: %02X    "
          " D: %02x E: %02x     H: %02x L: %02X\n",
