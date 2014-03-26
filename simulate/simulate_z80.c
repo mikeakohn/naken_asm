@@ -29,6 +29,7 @@
 #define GET_Z() ((simulate_z80->status >> 6) & 1)
 #define GET_I() ((simulate_z80->status >> 5) & 1)
 #define GET_H() ((simulate_z80->status >> 4) & 1)
+#define GET_Y() ((simulate_z80->status >> 3) & 1)
 #define GET_P() ((simulate_z80->status >> 2) & 1)
 #define GET_N() ((simulate_z80->status >> 1) & 1)
 #define GET_C() ((simulate_z80->status >> 0) & 1)
@@ -37,6 +38,7 @@
 #define SET_Z() simulate_z80->status |= (1 << 6);
 #define SET_I() simulate_z80->status |= (1 << 5);
 #define SET_H() simulate_z80->status |= (1 << 4);
+#define SET_Y() simulate_z80->status |= (1 << 3);
 #define SET_P() simulate_z80->status |= (1 << 2);
 #define SET_N() simulate_z80->status |= (1 << 1);
 #define SET_C() simulate_z80->status |= (1 << 0);
@@ -45,6 +47,7 @@
 #define CLR_Z() simulate_z80->status &= 0xff ^ (1 << 6);
 #define CLR_I() simulate_z80->status &= 0xff ^ (1 << 5);
 #define CLR_H() simulate_z80->status &= 0xff ^ (1 << 4);
+#define CLR_Y() simulate_z80->status &= 0xff ^ (1 << 3);
 #define CLR_P() simulate_z80->status &= 0xff ^ (1 << 2);
 #define CLR_N() simulate_z80->status &= 0xff ^ (1 << 1);
 #define CLR_C() simulate_z80->status &= 0xff ^ (1 << 0);
@@ -178,6 +181,7 @@ int simulate_dumpram_z80(struct _simulate *simulate, int start, int end)
   return -1;
 }
 
+// cat table/table_z80.c | grep OP_REG8 | awk -F, '{ print "    case" $5 ":" }'
 int simulate_z80_execute_op_none(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
@@ -217,22 +221,144 @@ int a4,tmp4;
     case  Z80_DI:
       simulate_z80->iff1 = 0;
       simulate_z80->iff2 = 0;
+      return 1;
     case  Z80_EI:
       simulate_z80->iff1 = 1;
       simulate_z80->iff2 = 1;
+      return 1;
     case  Z80_EXX:
+      return -1;
     case  Z80_HALT:
+      return -1;
     case  Z80_NOP:
+      return 1;
     case  Z80_RET:
+      return -1;
     case  Z80_RLA:
+      tmp = simulate_z80->reg[REG_A] & 0x80;
+      simulate_z80->reg[REG_A] <<= 1;
+      simulate_z80->reg[REG_A] |= GET_C();
+      if (tmp == 0) { CLR_C(); } else { SET_C(); }
+      return 1;
     case  Z80_RLCA:
+      if ((simulate_z80->reg[REG_A] & 0x80) == 0) { CLR_C(); } else { SET_C(); }
+      simulate_z80->reg[REG_A] <<= 1;
+      simulate_z80->reg[REG_A] |= GET_C();
+      return 1;
     case  Z80_RRA:
+      tmp = simulate_z80->reg[REG_A] & 1;
+      simulate_z80->reg[REG_A] >>= 1;
+      simulate_z80->reg[REG_A] |= GET_C() << 7;
+      if (tmp == 0) { CLR_C(); } else { SET_C(); }
+      return 1;
     case  Z80_RRCA:
-      break;
+      if ((simulate_z80->reg[REG_A] & 0x01) == 0) { CLR_C(); } else { SET_C(); }
+      simulate_z80->reg[REG_A] >>= 1;
+      simulate_z80->reg[REG_A] |= GET_C() << 7;
+      return 1;
     case  Z80_SCF:
       SET_C();
       return 1;
   }
+
+  return -1;
+}
+
+int simulate_z80_execute_op_a_reg8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int a = simulate_z80->reg[REG_A];
+int rrr = opcode & 0x7;
+
+  switch(table_z80->id)
+  {
+    case Z80_ADC:
+      a += simulate_z80->reg[rrr] + GET_C();
+      CLR_N();
+      break;
+    case Z80_ADD:
+      a += simulate_z80->reg[rrr];
+      CLR_N();
+      break;
+    case Z80_SBC:
+      a -= simulate_z80->reg[rrr] + GET_C();
+      SET_N();
+      break;
+  }
+
+  simulate_z80->reg[REG_A] = (a & 0xff);
+  if (simulate_z80->reg[REG_A] == 0) { SET_Z(); } else { CLR_Z(); }
+  if (simulate_z80->reg[REG_A] == 0) { SET_Z(); } else { CLR_Z(); }
+  if ((simulate_z80->reg[REG_A] & 0x80) != 0) { SET_S(); } else { CLR_S(); }
+  if ((simulate_z80->reg[REG_A] & 0x10) != 0) { SET_H(); } else { CLR_H(); }
+  if ((a & 0x0100) != 0) { SET_C(); } else { CLR_C(); }
+  // FIXME - Set parity
+
+  return -1;
+}
+
+int simulate_z80_execute_op_reg8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int a = simulate_z80->reg[REG_A];
+int rrr = opcode & 0x7;
+
+  switch(table_z80->id)
+  {
+    case Z80_AND:
+      a &= simulate_z80->reg[rrr];
+      CLR_N();
+      break;
+    case Z80_CP:
+      return -1;
+    case Z80_DEC:
+      a -= 1;
+      SET_N();
+      break;
+    case Z80_IN:
+    case Z80_INC:
+      a += 1;
+      CLR_N();
+      break;
+#if 0
+    case Z80_LD:
+    case Z80_LD:
+    case Z80_LD:
+    case Z80_LD:
+#endif
+    case Z80_LD:
+      return -1;
+    case Z80_OR:
+      a &= simulate_z80->reg[rrr];
+      CLR_N();
+      break;
+    case Z80_RL:
+    case Z80_RLC:
+    case Z80_RR:
+    case Z80_RRC:
+    case Z80_SLA:
+    case Z80_SRA:
+    case Z80_SLL:
+    case Z80_SRL:
+      return -1;
+    case Z80_SUB:
+      a -= simulate_z80->reg[rrr];
+      SET_N();
+      break;
+    case Z80_XOR:
+      a ^= simulate_z80->reg[rrr];
+      SET_N();
+      break;
+  }
+
+  simulate_z80->reg[REG_A] = (a & 0xff);
+  if (simulate_z80->reg[REG_A] == 0) { SET_Z(); } else { CLR_Z(); }
+  if (simulate_z80->reg[REG_A] == 0) { SET_Z(); } else { CLR_Z(); }
+  if ((simulate_z80->reg[REG_A] & 0x80) != 0) { SET_S(); } else { CLR_S(); }
+  if ((simulate_z80->reg[REG_A] & 0x10) != 0) { SET_H(); } else { CLR_H(); }
+  //if ((a & 0x0100) != 0) { SET_C(); } else { CLR_C(); }
+  CLR_C();
+  // FIXME - Set parity
 
   return -1;
 }
@@ -254,7 +380,9 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
         case OP_NONE:
           return simulate_z80_execute_op_none(simulate, &table_z80[n], opcode);
         case OP_A_REG8:
+          return simulate_z80_execute_op_a_reg8(simulate, &table_z80[n], opcode);
         case OP_REG8:
+          return simulate_z80_execute_op_reg8(simulate, &table_z80[n], opcode);
         case OP_A_NUMBER8:
         case OP_HL_REG16_1:
         case OP_A_INDEX_HL:
