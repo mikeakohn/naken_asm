@@ -160,6 +160,20 @@ struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->contex
 int reg;
 
   while(*reg_string == ' ') { reg_string++; }
+
+  // joe needed these
+  if(strcasecmp(reg_string, "sp") == 0)
+  {
+    simulate_avr8->sp = value & 0xffff;
+    return 0;
+  }
+
+  if(strcasecmp(reg_string, "pc") == 0)
+  {
+    simulate_avr8->pc = value & 0xffff;
+    return 0;
+  }
+
   reg = get_register_avr8(reg_string);
   if (reg == -1)
   {
