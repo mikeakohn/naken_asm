@@ -20,6 +20,10 @@
 #include "simulate_z80.h"
 #include "table_z80.h"
 
+#define VFLAG_OVERFLOW 0
+#define VFLAG_CLEAR 1
+#define VFLAG_PARITY 2
+
 #define READ_RAM(a) memory_read_m(simulate->memory, a)
 #define READ_RAM16(a) (memory_read_m(simulate->memory, a) << 8) | \
                        memory_read_m(simulate->memory, a + 1)
@@ -27,28 +31,28 @@
 
 #define GET_S() ((simulate_z80->status >> 7) & 1)
 #define GET_Z() ((simulate_z80->status >> 6) & 1)
-#define GET_I() ((simulate_z80->status >> 5) & 1)
+#define GET_X() ((simulate_z80->status >> 5) & 1)
 #define GET_H() ((simulate_z80->status >> 4) & 1)
 #define GET_Y() ((simulate_z80->status >> 3) & 1)
-#define GET_P() ((simulate_z80->status >> 2) & 1)
+#define GET_V() ((simulate_z80->status >> 2) & 1)
 #define GET_N() ((simulate_z80->status >> 1) & 1)
 #define GET_C() ((simulate_z80->status >> 0) & 1)
 
 #define SET_S() simulate_z80->status |= (1 << 7);
 #define SET_Z() simulate_z80->status |= (1 << 6);
-#define SET_I() simulate_z80->status |= (1 << 5);
+#define SET_X() simulate_z80->status |= (1 << 5);
 #define SET_H() simulate_z80->status |= (1 << 4);
 #define SET_Y() simulate_z80->status |= (1 << 3);
-#define SET_P() simulate_z80->status |= (1 << 2);
+#define SET_V() simulate_z80->status |= (1 << 2);
 #define SET_N() simulate_z80->status |= (1 << 1);
 #define SET_C() simulate_z80->status |= (1 << 0);
 
 #define CLR_S() simulate_z80->status &= 0xff ^ (1 << 7);
 #define CLR_Z() simulate_z80->status &= 0xff ^ (1 << 6);
-#define CLR_I() simulate_z80->status &= 0xff ^ (1 << 5);
+#define CLR_X() simulate_z80->status &= 0xff ^ (1 << 5);
 #define CLR_H() simulate_z80->status &= 0xff ^ (1 << 4);
 #define CLR_Y() simulate_z80->status &= 0xff ^ (1 << 3);
-#define CLR_P() simulate_z80->status &= 0xff ^ (1 << 2);
+#define CLR_V() simulate_z80->status &= 0xff ^ (1 << 2);
 #define CLR_N() simulate_z80->status &= 0xff ^ (1 << 1);
 #define CLR_C() simulate_z80->status &= 0xff ^ (1 << 0);
 
@@ -58,6 +62,53 @@ static void handle_signal(int sig)
 {
   stop_running = 1;
   signal(SIGINT, SIG_DFL);
+}
+
+static void set_parity(struct _simulate *simulate, uint8_t a)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int parity;
+
+  // Hmm is 4 bit look-up table better?
+  parity = ((a & 0x01) >> 0) ^
+           ((a & 0x02) >> 1) ^
+           ((a & 0x04) >> 2) ^
+           ((a & 0x08) >> 3) ^
+           ((a & 0x10) >> 4) ^
+           ((a & 0x20) >> 5) ^
+           ((a & 0x40) >> 6) ^
+           ((a & 0x80) >> 7);
+  if (parity) { SET_V(); } else { CLR_V(); }
+}
+
+static void set_flags_a(struct _simulate *simulate, int a, int number, uint8_t vflag)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+
+  if (vflag == VFLAG_OVERFLOW)
+  {
+    int a0 = simulate_z80->reg[REG_A];
+    int v = (((a0 >> 7) & 1) & ((number >> 7) & 1) & (((a >> 7) & 1) ^ 1)) |
+           ((((a0 >> 7) & 1) ^1) & (((number >> 7) & 1) ^ 1) & ((a >> 7) & 1));
+    if (v) { SET_V(); } else { CLR_V(); }
+  }
+
+  simulate_z80->reg[REG_A] = (a & 0xff);
+  if (simulate_z80->reg[REG_A] == 0) { SET_Z(); } else { CLR_Z(); }
+  if ((simulate_z80->reg[REG_A] & 0x80) != 0) { SET_S(); } else { CLR_S(); }
+  if ((simulate_z80->reg[REG_A] & 0x10) != 0) { SET_H(); } else { CLR_H(); }
+  if (a & 0x0100) { SET_C(); } else { CLR_C(); }
+  CLR_C();
+
+  if (vflag == VFLAG_CLEAR)
+  {
+    CLR_V();
+  }
+    else
+  if (vflag == VFLAG_PARITY)
+  {
+    set_parity(simulate, simulate_z80->reg[REG_A]);
+  }
 }
 
 #if 0
@@ -269,32 +320,27 @@ int simulate_z80_execute_op_a_reg8(struct _simulate *simulate, struct _table_z80
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int a = simulate_z80->reg[REG_A];
 int rrr = opcode & 0x7;
+int number = simulate_z80->reg[rrr];
 
   switch(table_z80->id)
   {
     case Z80_ADC:
-      a += simulate_z80->reg[rrr] + GET_C();
+      a += number + GET_C();
       CLR_N();
       break;
     case Z80_ADD:
-      a += simulate_z80->reg[rrr];
+      a += number;
       CLR_N();
       break;
     case Z80_SBC:
-      a -= simulate_z80->reg[rrr] + GET_C();
+      a -= number + GET_C();
       SET_N();
       break;
   }
 
-  simulate_z80->reg[REG_A] = (a & 0xff);
-  if (simulate_z80->reg[REG_A] == 0) { SET_Z(); } else { CLR_Z(); }
-  if (simulate_z80->reg[REG_A] == 0) { SET_Z(); } else { CLR_Z(); }
-  if ((simulate_z80->reg[REG_A] & 0x80) != 0) { SET_S(); } else { CLR_S(); }
-  if ((simulate_z80->reg[REG_A] & 0x10) != 0) { SET_H(); } else { CLR_H(); }
-  if ((a & 0x0100) != 0) { SET_C(); } else { CLR_C(); }
-  // FIXME - Set parity
+  set_flags_a(simulate, a, number, VFLAG_OVERFLOW);
 
-  return -1;
+  return 1;
 }
 
 int simulate_z80_execute_op_reg8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
@@ -302,65 +348,116 @@ int simulate_z80_execute_op_reg8(struct _simulate *simulate, struct _table_z80 *
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int a = simulate_z80->reg[REG_A];
 int rrr = opcode & 0x7;
+int number = simulate_z80->reg[rrr];
+int vflag = VFLAG_CLEAR;
+int tmp;
 
   switch(table_z80->id)
   {
     case Z80_AND:
-      a &= simulate_z80->reg[rrr];
+      a &= number;
       CLR_N();
       break;
     case Z80_CP:
-      return -1;
-    case Z80_DEC:
-      a -= 1;
+      tmp = a - number;
+      if (number & 0x20) { SET_X(); } else { CLR_X(); }
+      if (number & 0x08) { SET_Y(); } else { CLR_Y(); }
       SET_N();
-      break;
-    case Z80_IN:
-    case Z80_INC:
-      a += 1;
-      CLR_N();
-      break;
-#if 0
-    case Z80_LD:
-    case Z80_LD:
-    case Z80_LD:
-    case Z80_LD:
-#endif
-    case Z80_LD:
-      return -1;
+      if (tmp & 0x80) { SET_S(); } else { CLR_S(); }
+      if (tmp & 0xff) { CLR_Z(); } else { SET_Z() }
+      if (tmp & 0x10) { SET_H(); } else { CLR_H(); }
+      if (tmp & 0x100) { SET_C(); } else { CLR_C(); }
+      set_parity(simulate, tmp);
+      return 1;
     case Z80_OR:
-      a &= simulate_z80->reg[rrr];
+      a &= number;
       CLR_N();
       break;
-    case Z80_RL:
-    case Z80_RLC:
-    case Z80_RR:
-    case Z80_RRC:
-    case Z80_SLA:
-    case Z80_SRA:
-    case Z80_SLL:
-    case Z80_SRL:
-      return -1;
     case Z80_SUB:
-      a -= simulate_z80->reg[rrr];
+      a -= number;
+      vflag = VFLAG_OVERFLOW;
       SET_N();
       break;
     case Z80_XOR:
-      a ^= simulate_z80->reg[rrr];
+      a ^= number;
       SET_N();
       break;
   }
 
-  simulate_z80->reg[REG_A] = (a & 0xff);
-  if (simulate_z80->reg[REG_A] == 0) { SET_Z(); } else { CLR_Z(); }
-  if (simulate_z80->reg[REG_A] == 0) { SET_Z(); } else { CLR_Z(); }
-  if ((simulate_z80->reg[REG_A] & 0x80) != 0) { SET_S(); } else { CLR_S(); }
-  if ((simulate_z80->reg[REG_A] & 0x10) != 0) { SET_H(); } else { CLR_H(); }
-  //if ((a & 0x0100) != 0) { SET_C(); } else { CLR_C(); }
-  CLR_C();
-  // FIXME - Set parity
+  set_flags_a(simulate, a, number, vflag);
 
-  return -1;
+  return 1;
+}
+
+int simulate_z80_execute_op_a_number8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode16)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int a = simulate_z80->reg[REG_A];
+int number = opcode16 & 0xff;
+
+  switch(table_z80->id)
+  {
+    case Z80_ADC:
+      a += number + GET_C();
+      CLR_N();
+      break;
+    case Z80_ADD:
+      a += number;
+      CLR_N();
+      break;
+    case Z80_SBC:
+      a = simulate_z80->reg[REG_A] - (number + GET_C());
+      SET_N();
+      break;
+  }
+
+  set_flags_a(simulate, a, number, VFLAG_OVERFLOW);
+
+  return 2;
+}
+
+int simulate_z80_execute_op_number8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode16)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int a = simulate_z80->reg[REG_A];
+int number = opcode16 & 0xff;
+int vflag = VFLAG_CLEAR;
+int tmp;
+
+  switch(table_z80->id)
+  {
+    case Z80_AND:
+      a &= number;
+      CLR_N();
+      break;
+    case Z80_CP:
+      tmp = a - number;
+      SET_N();
+      if (tmp & 0x80) { SET_S(); } else { CLR_S(); }
+      if (tmp & 0xff) { CLR_Z(); } else { SET_Z() }
+      if (tmp & 0x10) { SET_H(); } else { CLR_H(); }
+      if (tmp & 0x100) { SET_C(); } else { CLR_C(); }
+      set_parity(simulate, tmp);
+      return 2;
+    case Z80_DJNZ:
+    case Z80_JR:
+    case Z80_OR:
+      a |= number;
+      CLR_N();
+      break;
+    case Z80_SUB:
+      SET_N();
+      vflag = VFLAG_OVERFLOW;
+      break;
+    case Z80_XOR:
+      a ^= number;
+      CLR_N();
+      break;
+  }
+
+  set_flags_a(simulate, a, number, vflag);
+
+  return 2;
 }
 
 int simulate_z80_execute(struct _simulate *simulate)
@@ -384,10 +481,15 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
         case OP_REG8:
           return simulate_z80_execute_op_reg8(simulate, &table_z80[n], opcode);
         case OP_A_NUMBER8:
+          return simulate_z80_execute_op_a_number8(simulate, &table_z80[n], opcode16);
         case OP_HL_REG16_1:
+           return -1;
         case OP_A_INDEX_HL:
+           return -1;
         case OP_INDEX_HL:
+           return -1;
         case OP_NUMBER8:
+          return simulate_z80_execute_op_number8(simulate, &table_z80[n], opcode16);
         case OP_ADDRESS:
         case OP_COND_ADDRESS:
         case OP_REG8_V2:
@@ -480,9 +582,9 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
   printf("\nSimulation Register Dump                                  Stack\n");
   printf("-------------------------------------------------------------------\n");
 
-  printf("Status: %02x   S Z I H - P N C\n", simulate_z80->status);
-  printf("             %d %d %d %d - %d %d %d\n",
-         GET_S(), GET_Z(), GET_I(), GET_H(), GET_P(), GET_N(), GET_C());
+  printf("Status: %02x   S Z X H Y V N C\n", simulate_z80->status);
+  printf("             %d %d %d %d %d %d %d %d\n",
+    GET_S(), GET_Z(), GET_X(), GET_H(), GET_Y(), GET_V(), GET_N(), GET_C());
 
   printf(" A: %02x F: %02x     B: %02x C: %02X    "
          " D: %02x E: %02x     H: %02x L: %02X\n",
