@@ -17,14 +17,14 @@
 #include "memory.h"
 #include "simulate_common.h"
 
-#define REG_A 0
-#define REG_F 1
-#define REG_B 2
-#define REG_C 3
-#define REG_D 4
-#define REG_E 5
-#define REG_H 6
-#define REG_L 7
+#define REG_B 0
+#define REG_C 1
+#define REG_D 2
+#define REG_E 3
+#define REG_H 4
+#define REG_L 5
+#define REG_F 6
+#define REG_A 7
 
 struct _simulate_z80
 {

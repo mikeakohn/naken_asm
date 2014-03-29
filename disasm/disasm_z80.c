@@ -67,6 +67,7 @@ char disp[64];
   n = 0;
   while(table_z80[n].instr != NULL)
   {
+    if (table_z80[n].mask > 0xff) { n++; continue; }
     if (table_z80[n].opcode == (opcode & table_z80[n].mask))
     {
       *cycles_min = table_z80[n].cycles;
@@ -198,6 +199,14 @@ char disp[64];
       }
     }
       else
+
+    n++;
+  }
+
+  n = 0;
+  while(table_z80[n].instr != NULL)
+  {
+    if (table_z80[n].mask <= 0xff) { n++; continue; }
     if (table_z80[n].opcode == (opcode16 & table_z80[n].mask))
     {
       *cycles_min = table_z80[n].cycles;

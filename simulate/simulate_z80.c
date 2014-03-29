@@ -440,7 +440,15 @@ int tmp;
       set_parity(simulate, tmp);
       return 2;
     case Z80_DJNZ:
+      simulate_z80->reg[REG_B]--;
+      if (simulate_z80->reg[REG_B] == 0)
+      {
+        simulate_z80->pc += (int8_t)number;
+      }
+      return 2;
     case Z80_JR:
+      simulate_z80->pc += (int8_t)number;
+      return 2;
     case Z80_OR:
       a |= number;
       CLR_N();
@@ -460,18 +468,45 @@ int tmp;
   return 2;
 }
 
+int simulate_z80_execute_op_reg8_v2(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int a = simulate_z80->reg[REG_A];
+int rrr = (opcode >> 3) & 0x7;
+int number = 1;
+int vflag = VFLAG_OVERFLOW;
+
+  switch(table_z80->id)
+  {
+    case Z80_DEC:
+      simulate_z80->reg[rrr]--;
+      SET_N();
+      break;
+    case Z80_INC:
+      simulate_z80->reg[rrr]++;
+      CLR_N();
+      break;
+  }
+
+  set_flags_a(simulate, a, number, vflag);
+
+  return 1;
+}
+
 int simulate_z80_execute(struct _simulate *simulate)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int reg,n;
 
   uint16_t opcode = READ_RAM(simulate_z80->pc);
   uint16_t opcode16 = READ_RAM16(simulate_z80->pc);
 
-  int n = 0;
+  n = 0;
   while(table_z80[n].instr != NULL)
   {
     if (table_z80[n].opcode == (opcode & table_z80[n].mask))
     {
+      if (table_z80[n].mask > 0xff) { n++; continue; }
       switch(table_z80[n].type)
       {
         case OP_NONE:
@@ -483,25 +518,41 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
         case OP_A_NUMBER8:
           return simulate_z80_execute_op_a_number8(simulate, &table_z80[n], opcode16);
         case OP_HL_REG16_1:
-           return -1;
+          return -1;
         case OP_A_INDEX_HL:
-           return -1;
+          return -1;
         case OP_INDEX_HL:
-           return -1;
+          return -1;
         case OP_NUMBER8:
           return simulate_z80_execute_op_number8(simulate, &table_z80[n], opcode16);
         case OP_ADDRESS:
+          return -1;
         case OP_COND_ADDRESS:
+          return -1;
         case OP_REG8_V2:
+          return simulate_z80_execute_op_reg8_v2(simulate, &table_z80[n], opcode);
         case OP_REG16:
+          return -1;
         case OP_INDEX_SP_HL:
+          return -1;
         case OP_AF_AF_TICK:
+          return -1;
         case OP_DE_HL:
+          return -1;
         case OP_A_INDEX_N:
+          return -1;
         case OP_JR_COND_ADDRESS:
+          return -1;
         case OP_REG8_REG8:
+          reg = (opcode >> 3) & 0x7;
+          simulate_z80->reg[reg] = simulate_z80->reg[opcode & 0x7];
+          return 1;
         case OP_REG8_NUMBER8:
+          reg = (opcode16 >> 11) & 0x7;
+          simulate_z80->reg[reg] = opcode16 & 0xff;
+          return 2;
         case OP_REG8_INDEX_HL:
+          return -1;
         case OP_INDEX_HL_REG8:
         case OP_INDEX_HL_NUMBER8:
         case OP_A_INDEX_BC:
@@ -522,7 +573,14 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
           return -1;
       }
     }
-      else
+
+    n++;
+  }
+
+  n = 0;
+  while(table_z80[n].instr != NULL)
+  {
+    if (table_z80[n].mask <= 0xff) { n++; continue; }
     if (table_z80[n].opcode == (opcode16 & table_z80[n].mask))
     {
       switch(table_z80[n].type)
@@ -569,6 +627,7 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
           return -1;
       }
     }
+
     n++;
   }
 
@@ -639,12 +698,13 @@ int n;
     if (simulate->show == 1)
     {
       simulate_dump_registers_z80(simulate);
+      int disasm_pc = pc;
 
       n = 0;
       while(n < 6)
       {
         //int num;
-        int count = disasm_z80(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+        int count = disasm_z80(simulate->memory, disasm_pc, instruction, &cycles_min, &cycles_max);
 #if 0
         if (count == 2)
         {
@@ -657,49 +717,37 @@ int n;
 #endif
         if (cycles_min == -1) break;
 
-        if (pc == simulate->break_point) { printf("*"); }
+        if (disasm_pc == simulate->break_point) { printf("*"); }
         else { printf(" "); }
 
         if (n == 0)
         { printf("! "); }
           else
-        if (pc == simulate_z80->reg[0]) { printf("> "); }
+        if (disasm_pc == simulate_z80->reg[0]) { printf("> "); }
           else
         { printf("  "); }
 
         char hex[8];
-        if (count == 1) { sprintf(hex, "   %02x", READ_RAM(pc)); }
-        else if (count == 2) { sprintf(hex, "%02x %02x", READ_RAM(pc), READ_RAM(pc + 1)); }
+        if (count == 1) { sprintf(hex, "   %02x", READ_RAM(disasm_pc)); }
+        else if (count == 2) { sprintf(hex, "%02x %02x", READ_RAM(disasm_pc), READ_RAM(pc + 1)); }
         else { hex[0] = '?'; }
 
         if (cycles_min < 1)
         {
-          printf("0x%04x: %s %-40s ?\n", pc, hex, instruction);
+          printf("0x%04x: %s %-40s ?\n", disasm_pc, hex, instruction);
         }
           else
         if (cycles_min == cycles_max)
         {
-          printf("0x%04x: %s %-40s %d\n", pc, hex, instruction, cycles_min);
+          printf("0x%04x: %s %-40s %d\n", disasm_pc, hex, instruction, cycles_min);
         }
           else
         {
-          printf("0x%04x: %s %-40s %d-%d\n", pc, hex, instruction, cycles_min, cycles_max);
+          printf("0x%04x: %s %-40s %d-%d\n", disasm_pc, hex, instruction, cycles_min, cycles_max);
         }
 
         n++;
-        pc += count;
-#if 0
-        count--;
-        while (count > 0)
-        {
-          if (pc == simulate->break_point) { printf("*"); }
-          else { printf(" "); }
-          num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
-          printf("  0x%04x: 0x%04x\n", pc, num);
-          pc += count;
-          count--;
-        }
-#endif
+        disasm_pc += count;
       }
     }
 
