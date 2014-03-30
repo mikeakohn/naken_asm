@@ -20,8 +20,8 @@
 #include "simulate_avr8.h"
 #include "table_avr8.h"
 
-#define READ_OPCODE(a)(memory_read_m(simulate->memory, a * 2) | \
-                       (memory_read_m(simulate->memory, (a * 2) + 1) << 8))
+#define READ_OPCODE(a)(memory_read_m(simulate->memory, (a) * 2) | \
+                       (memory_read_m(simulate->memory, ((a) * 2) + 1) << 8))
 //#define WRITE_RAM(a,b) memory_write_m(simulate->memory, a, b)
 
 #define SREG_SET(bit) (simulate_avr8->sreg |= (1 << bit))
@@ -854,7 +854,7 @@ int k = opcode & 0xfff;
 static int simulate_execute_avr8_op_jump(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
 struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
-int k = ((((opcode & 0x1f0) >> 3) | (opcode & 0x1)) << 16) | READ_OPCODE(simulate_avr8->pc + 1);
+int k = ((((opcode & 0x1f0) >> 3) | (opcode & 0x1)) << 16) | READ_OPCODE(simulate_avr8->pc);
 
   simulate_avr8->pc++;
 
