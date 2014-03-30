@@ -59,11 +59,11 @@
   simulate_avr8->ram[++simulate_avr8->sp];
 
 #define PUSH_STACK16(n) \
-  simulate_avr8->ram[simulate_avr8->sp--] = (n) >> 8; \
-  simulate_avr8->ram[simulate_avr8->sp--] = (n) & 0xff;
+  simulate_avr8->ram[simulate_avr8->sp--] = (n) & 0xff; \
+  simulate_avr8->ram[simulate_avr8->sp--] = (n) >> 8;
 
 #define POP_STACK16() \
-  (simulate_avr8->ram[simulate_avr8->sp] | \
+  (simulate_avr8->ram[simulate_avr8->sp+2] | \
   (simulate_avr8->ram[simulate_avr8->sp+1] << 8)); simulate_avr8->sp += 2;
 
 #define READ_FLASH(n) memory_read_m(simulate->memory, n * 2)
