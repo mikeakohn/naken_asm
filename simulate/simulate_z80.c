@@ -746,15 +746,17 @@ int value;
   {
     value = get_p(simulate, reg16);
 
-    WRITE_RAM(simulate_z80->sp--, value >> 8);
-    WRITE_RAM(simulate_z80->sp--, value & 0xff);
+    simulate_z80->sp -= 2;
+    WRITE_RAM(simulate_z80->sp, value >> 8);
+    WRITE_RAM(simulate_z80->sp + 1, value & 0xff);
     return 1;
   }
     else
   if (table_z80->id == Z80_POP)
   {
-    value = READ_RAM(++simulate_z80->sp);
-    value |= READ_RAM(++simulate_z80->sp) << 8;
+    value = READ_RAM(simulate_z80->sp);
+    value |= READ_RAM(simulate_z80->sp + 1) << 8;
+    simulate_z80->sp += 2;
 
     set_p(simulate, reg16, value);
     return 1;
@@ -773,15 +775,17 @@ int value;
   {
     value = (xy == 0) ? simulate_z80->ix : simulate_z80->iy;
 
-    WRITE_RAM(simulate_z80->sp--, value >> 8);
-    WRITE_RAM(simulate_z80->sp--, value & 0xff);
+    simulate_z80->sp -= 2;
+    WRITE_RAM(simulate_z80->sp, value >> 8);
+    WRITE_RAM(simulate_z80->sp + 1, value & 0xff);
     return 1;
   }
     else
   if (table_z80->id == Z80_POP)
   {
-    value = READ_RAM(++simulate_z80->sp);
-    value |= READ_RAM(++simulate_z80->sp) << 8;
+    value = READ_RAM(simulate_z80->sp);
+    value |= READ_RAM(simulate_z80->sp + 1) << 8;
+    simulate_z80->sp += 2;
 
     if (xy == 0) { simulate_z80->ix = value; }
     else { simulate_z80->iy = value; }
