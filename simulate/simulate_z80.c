@@ -29,32 +29,32 @@
                        memory_read_m(simulate->memory, a + 1)
 #define WRITE_RAM(a,b) memory_write_m(simulate->memory, a, b)
 
-#define GET_S() ((simulate_z80->status >> 7) & 1)
-#define GET_Z() ((simulate_z80->status >> 6) & 1)
-#define GET_X() ((simulate_z80->status >> 5) & 1)
-#define GET_H() ((simulate_z80->status >> 4) & 1)
-#define GET_Y() ((simulate_z80->status >> 3) & 1)
-#define GET_V() ((simulate_z80->status >> 2) & 1)
-#define GET_N() ((simulate_z80->status >> 1) & 1)
-#define GET_C() ((simulate_z80->status >> 0) & 1)
+#define GET_S() ((simulate_z80->reg[REG_F] >> 7) & 1)
+#define GET_Z() ((simulate_z80->reg[REG_F] >> 6) & 1)
+#define GET_X() ((simulate_z80->reg[REG_F] >> 5) & 1)
+#define GET_H() ((simulate_z80->reg[REG_F] >> 4) & 1)
+#define GET_Y() ((simulate_z80->reg[REG_F] >> 3) & 1)
+#define GET_V() ((simulate_z80->reg[REG_F] >> 2) & 1)
+#define GET_N() ((simulate_z80->reg[REG_F] >> 1) & 1)
+#define GET_C() ((simulate_z80->reg[REG_F] >> 0) & 1)
 
-#define SET_S() simulate_z80->status |= (1 << 7);
-#define SET_Z() simulate_z80->status |= (1 << 6);
-#define SET_X() simulate_z80->status |= (1 << 5);
-#define SET_H() simulate_z80->status |= (1 << 4);
-#define SET_Y() simulate_z80->status |= (1 << 3);
-#define SET_V() simulate_z80->status |= (1 << 2);
-#define SET_N() simulate_z80->status |= (1 << 1);
-#define SET_C() simulate_z80->status |= (1 << 0);
+#define SET_S() simulate_z80->reg[REG_F] |= (1 << 7);
+#define SET_Z() simulate_z80->reg[REG_F] |= (1 << 6);
+#define SET_X() simulate_z80->reg[REG_F] |= (1 << 5);
+#define SET_H() simulate_z80->reg[REG_F] |= (1 << 4);
+#define SET_Y() simulate_z80->reg[REG_F] |= (1 << 3);
+#define SET_V() simulate_z80->reg[REG_F] |= (1 << 2);
+#define SET_N() simulate_z80->reg[REG_F] |= (1 << 1);
+#define SET_C() simulate_z80->reg[REG_F] |= (1 << 0);
 
-#define CLR_S() simulate_z80->status &= 0xff ^ (1 << 7);
-#define CLR_Z() simulate_z80->status &= 0xff ^ (1 << 6);
-#define CLR_X() simulate_z80->status &= 0xff ^ (1 << 5);
-#define CLR_H() simulate_z80->status &= 0xff ^ (1 << 4);
-#define CLR_Y() simulate_z80->status &= 0xff ^ (1 << 3);
-#define CLR_V() simulate_z80->status &= 0xff ^ (1 << 2);
-#define CLR_N() simulate_z80->status &= 0xff ^ (1 << 1);
-#define CLR_C() simulate_z80->status &= 0xff ^ (1 << 0);
+#define CLR_S() simulate_z80->reg[REG_F] &= 0xff ^ (1 << 7);
+#define CLR_Z() simulate_z80->reg[REG_F] &= 0xff ^ (1 << 6);
+#define CLR_X() simulate_z80->reg[REG_F] &= 0xff ^ (1 << 5);
+#define CLR_H() simulate_z80->reg[REG_F] &= 0xff ^ (1 << 4);
+#define CLR_Y() simulate_z80->reg[REG_F] &= 0xff ^ (1 << 3);
+#define CLR_V() simulate_z80->reg[REG_F] &= 0xff ^ (1 << 2);
+#define CLR_N() simulate_z80->reg[REG_F] &= 0xff ^ (1 << 1);
+#define CLR_C() simulate_z80->reg[REG_F] &= 0xff ^ (1 << 0);
 
 static int stop_running = 0;
 
@@ -87,6 +87,65 @@ int value = 0;
   if (reg16 == 3)
   {
     value = simulate_z80->sp;
+  }
+
+  return value;
+}
+
+static int get_p(struct _simulate *simulate, int reg16)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int value = 0;
+
+  if (reg16 == 0)
+  {
+    value = (simulate_z80->reg[REG_B] << 8) | simulate_z80->reg[REG_C];
+  }
+    else
+  if (reg16 == 1)
+  {
+    value = (simulate_z80->reg[REG_D] << 8) | simulate_z80->reg[REG_E];
+  }
+    else
+  if (reg16 == 2)
+  {
+    value = (simulate_z80->reg[REG_H] << 8) | simulate_z80->reg[REG_L];
+  }
+    else
+  if (reg16 == 3)
+  {
+    value = (simulate_z80->reg[REG_A] << 8) | simulate_z80->reg[REG_F];
+  }
+
+  return value;
+}
+
+static int set_p(struct _simulate *simulate, int reg16, int value)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+
+  if (reg16 == 0)
+  {
+    simulate_z80->reg[REG_B] = value >> 8;
+    simulate_z80->reg[REG_C] = value & 0xff;
+  }
+    else
+  if (reg16 == 1)
+  {
+    simulate_z80->reg[REG_D] = value >> 8;
+    simulate_z80->reg[REG_E] = value & 0xff;
+  }
+    else
+  if (reg16 == 2)
+  {
+    simulate_z80->reg[REG_H] = value >> 8;
+    simulate_z80->reg[REG_L] = value & 0xff;
+  }
+    else
+  if (reg16 == 3)
+  {
+    simulate_z80->reg[REG_A] = value >> 8;
+    simulate_z80->reg[REG_F] = value & 0xff;
   }
 
   return value;
@@ -367,7 +426,7 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
   simulate_z80->iy = 0;
   simulate_z80->sp = 0;
   simulate_z80->pc = 0;
-  simulate_z80->status = 0;
+  //simulate_z80->status = 0;
   simulate_z80->iff1 = 0;
   simulate_z80->iff2 = 0;
 }
@@ -384,7 +443,7 @@ int simulate_dumpram_z80(struct _simulate *simulate, int start, int end)
 }
 
 // cat table/table_z80.c | grep OP_REG8 | awk -F, '{ print "    case" $5 ":" }'
-int simulate_z80_execute_op_none(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode)
+static int simulate_z80_execute_op_none(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int tmp;
@@ -466,7 +525,7 @@ int a4,tmp4;
   return -1;
 }
 
-int simulate_z80_execute_op_a_reg8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
+static int simulate_z80_execute_op_a_reg8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int a = simulate_z80->reg[REG_A];
@@ -494,7 +553,7 @@ int number = simulate_z80->reg[rrr];
   return 1;
 }
 
-int simulate_z80_execute_op_reg8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
+static int simulate_z80_execute_op_reg8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int a = simulate_z80->reg[REG_A];
@@ -540,7 +599,7 @@ int tmp;
   return 1;
 }
 
-int simulate_z80_execute_op_a_number8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode16)
+static int simulate_z80_execute_op_a_number8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode16)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int a = simulate_z80->reg[REG_A];
@@ -567,7 +626,7 @@ int number = opcode16 & 0xff;
   return 2;
 }
 
-int simulate_z80_execute_op_number8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode16)
+static int simulate_z80_execute_op_number8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode16)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int a = simulate_z80->reg[REG_A];
@@ -619,7 +678,7 @@ int tmp;
   return 2;
 }
 
-int simulate_z80_execute_op_reg8_v2(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
+static int simulate_z80_execute_op_reg8_v2(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int a = simulate_z80->reg[REG_A];
@@ -644,7 +703,7 @@ int vflag = VFLAG_OVERFLOW;
   return 1;
 }
 
-int simulate_z80_execute_op_reg16(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
+static int simulate_z80_execute_op_reg16(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 uint16_t new;
@@ -675,6 +734,61 @@ int vflag = VFLAG_OVERFLOW;
   set_flags8(simulate, new, old, number, vflag);
 
   return 1;
+}
+
+static int simulate_z80_execute_op_reg16p(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int reg16 = (opcode >> 4) & 0x3;
+int value;
+
+  if (table_z80->id == Z80_PUSH)
+  {
+    value = get_p(simulate, reg16);
+
+    WRITE_RAM(simulate_z80->sp--, value >> 8);
+    WRITE_RAM(simulate_z80->sp--, value & 0xff);
+    return 1;
+  }
+    else
+  if (table_z80->id == Z80_POP)
+  {
+    value = READ_RAM(++simulate_z80->sp);
+    value |= READ_RAM(++simulate_z80->sp) << 8;
+
+    set_p(simulate, reg16, value);
+    return 1;
+  }
+
+  return -1;
+}
+
+static int simulate_z80_execute_op_xy(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode16)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int xy = (opcode16 >> 13) & 0x1;
+int value;
+
+  if (table_z80->id == Z80_PUSH)
+  {
+    value = (xy == 0) ? simulate_z80->ix : simulate_z80->iy;
+
+    WRITE_RAM(simulate_z80->sp--, value >> 8);
+    WRITE_RAM(simulate_z80->sp--, value & 0xff);
+    return 1;
+  }
+    else
+  if (table_z80->id == Z80_POP)
+  {
+    value = READ_RAM(++simulate_z80->sp);
+    value |= READ_RAM(++simulate_z80->sp) << 8;
+
+    if (xy == 0) { simulate_z80->ix = value; }
+    else { simulate_z80->iy = value; }
+    return 1;
+  }
+
+  return -1;
 }
 
 int simulate_z80_execute(struct _simulate *simulate)
@@ -751,8 +865,12 @@ int reg16,xy;
         case OP_INDEX_ADDRESS_HL:
         case OP_SP_HL:
         case OP_INDEX_ADDRESS8_A:
+          return -1;
         case OP_REG16P:
+          return simulate_z80_execute_op_reg16p(simulate, &table_z80[n], opcode);
+          return 1;
         case OP_COND:
+          return -1;
         case OP_RESTART_ADDRESS:
         default:
           return -1;
@@ -788,6 +906,7 @@ int reg16,xy;
         case OP_BIT_INDEX:
         case OP_REG_IHALF_V2:
         case OP_XY:
+          return simulate_z80_execute_op_xy(simulate, &table_z80[n], opcode16);
         case OP_INDEX_SP_XY:
         case OP_IM_NUM:
         case OP_REG8_INDEX_C:
@@ -831,7 +950,7 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
   printf("\nSimulation Register Dump                                  Stack\n");
   printf("-------------------------------------------------------------------\n");
 
-  printf("Status: %02x   S Z X H Y V N C\n", simulate_z80->status);
+  printf("Status: %02x   S Z X H Y V N C\n", simulate_z80->reg[REG_F]);
   printf("             %d %d %d %d %d %d %d %d\n",
     GET_S(), GET_Z(), GET_X(), GET_H(), GET_Y(), GET_V(), GET_N(), GET_C());
 
