@@ -64,6 +64,71 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
+static int get_q(struct _simulate *simulate, int reg16)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int value = 0;
+
+  if (reg16 == 0)
+  {
+    value = (simulate_z80->reg[REG_B] << 8) | simulate_z80->reg[REG_C];
+  }
+    else
+  if (reg16 == 1)
+  {
+    value = (simulate_z80->reg[REG_D] << 8) | simulate_z80->reg[REG_E];
+  }
+    else
+  if (reg16 == 2)
+  {
+    value = (simulate_z80->reg[REG_H] << 8) | simulate_z80->reg[REG_L];
+  }
+    else
+  if (reg16 == 3)
+  {
+    value = simulate_z80->sp;
+  }
+
+  return value;
+}
+
+static int get_reg16_half(struct _simulate *simulate, int reg16)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int value;
+
+  if (reg16 == 0) { value = simulate_z80->ix >> 8; }
+  else if (reg16 == 1) { value = simulate_z80->ix & 0xff; }
+  else if (reg16 == 2) { value = simulate_z80->iy >> 8; }
+  else if (reg16 == 3) { value = simulate_z80->iy & 0xff; }
+
+  return value;
+}
+
+static void set_reg16_half(struct _simulate *simulate, int reg16, int value)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+
+  value = value & 0xff;
+
+  if (reg16 == 0)
+  {
+    simulate_z80->ix = (simulate_z80->ix & 0x00ff) | (value << 8);
+  }
+  else if (reg16 == 1)
+  {
+    simulate_z80->ix = (simulate_z80->ix & 0xff00) | value;
+  }
+  else if (reg16 == 2)
+  {
+    simulate_z80->iy = (simulate_z80->iy & 0x00ff) | (value << 8);
+  }
+  else if (reg16 == 3)
+  {
+    simulate_z80->iy = (simulate_z80->iy & 0xff00) | value;
+  }
+}
+
 static void set_parity(struct _simulate *simulate, uint8_t a)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
@@ -109,6 +174,92 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
   {
     set_parity(simulate, simulate_z80->reg[REG_A]);
   }
+}
+
+static void set_flags8(struct _simulate *simulate, int new, int old, int number, uint8_t vflag)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+
+  if (vflag == VFLAG_OVERFLOW)
+  {
+    int a0 = old;
+    int a = new;
+    int v = (((a0 >> 7) & 1) & ((number >> 7) & 1) & (((a >> 7) & 1) ^ 1)) |
+           ((((a0 >> 7) & 1) ^1) & (((number >> 7) & 1) ^ 1) & ((a >> 7) & 1));
+    if (v) { SET_V(); } else { CLR_V(); }
+  }
+
+  if ((new & 0xffff) == 0) { SET_Z(); } else { CLR_Z(); }
+  if ((new & 0x8000) != 0) { SET_S(); } else { CLR_S(); }
+  //if ((new & 0x10) != 0) { SET_H(); } else { CLR_H(); }
+  if (new & 0x10000) { SET_C(); } else { CLR_C(); }
+  CLR_C();
+
+  if (vflag == VFLAG_CLEAR)
+  {
+    CLR_V();
+  }
+    else
+  if (vflag == VFLAG_PARITY)
+  {
+    set_parity(simulate, new & 0xff);
+  }
+}
+
+static void set_flags16(struct _simulate *simulate, int new, int old, int number, uint8_t vflag)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+
+  if (vflag == VFLAG_OVERFLOW)
+  {
+    int a0 = old;
+    int a = new;
+    int v = (((a0 >> 15) & 1) & ((number >> 15) & 1) & (((a >> 15) & 1) ^ 1)) |
+           ((((a0 >> 15) & 1) ^1) & (((number >> 15) & 1) ^ 1) & ((a >> 15) & 1));
+    if (v) { SET_V(); } else { CLR_V(); }
+  }
+
+  if ((new & 0xffff) == 0) { SET_Z(); } else { CLR_Z(); }
+  if ((new & 0x8000) != 0) { SET_S(); } else { CLR_S(); }
+  //if ((new & 0x10) != 0) { SET_H(); } else { CLR_H(); }
+  if (new & 0x10000) { SET_C(); } else { CLR_C(); }
+  CLR_C();
+
+  if (vflag == VFLAG_CLEAR)
+  {
+    CLR_V();
+  }
+    else
+  if (vflag == VFLAG_PARITY)
+  {
+    //set_parity(simulate, new & 0xffff);
+  }
+}
+
+static void add_reg16(struct _simulate *simulate, int xy, int reg16)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+int number;
+int new, old;
+
+  number = get_q(simulate, reg16);
+
+  if (xy == 0)
+  {
+    old = simulate_z80->ix;
+    new = old + number;
+    simulate_z80->ix = new & 0xffff;
+  }
+    else
+  {
+    old = simulate_z80->iy;
+    new = old + number;
+    simulate_z80->iy = new & 0xffff;
+  }
+
+  CLR_N();
+
+  set_flags16(simulate, new, old, number, VFLAG_OVERFLOW);
 }
 
 #if 0
@@ -493,10 +644,44 @@ int vflag = VFLAG_OVERFLOW;
   return 1;
 }
 
+int simulate_z80_execute_op_reg16(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+uint16_t new;
+uint16_t old;
+int reg16 = (opcode >> 4) & 0x3;
+int number = 1;
+int vflag = VFLAG_OVERFLOW;
+
+  old = get_reg16_half(simulate, reg16);
+  new = old;
+
+  switch(table_z80->id)
+  {
+    case Z80_DEC:
+      new--;
+      SET_N();
+      number = -1;
+      break;
+    case Z80_INC:
+      new++;
+      CLR_N();
+      number = 1;
+      break;
+  }
+
+  set_reg16_half(simulate, reg16, new);
+
+  set_flags8(simulate, new, old, number, vflag);
+
+  return 1;
+}
+
 int simulate_z80_execute(struct _simulate *simulate)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int reg,n;
+int reg16,xy;
 
   uint16_t opcode = READ_RAM(simulate_z80->pc);
   uint16_t opcode16 = READ_RAM16(simulate_z80->pc);
@@ -532,7 +717,7 @@ int reg,n;
         case OP_REG8_V2:
           return simulate_z80_execute_op_reg8_v2(simulate, &table_z80[n], opcode);
         case OP_REG16:
-          return -1;
+          return simulate_z80_execute_op_reg16(simulate, &table_z80[n], opcode);
         case OP_INDEX_SP_HL:
           return -1;
         case OP_AF_AF_TICK:
@@ -590,7 +775,12 @@ int reg,n;
         case OP_A_REG_IHALF:
         case OP_A_INDEX:
         case OP_HL_REG16_2:
+          return -1;
         case OP_XY_REG16:
+          xy = (opcode16 >> 13) & 0x1;
+          reg16 = (opcode16 >> 4) & 0x3;
+          add_reg16(simulate, xy, reg16);
+          return 2;
         case OP_REG_IHALF:
         case OP_INDEX:
         case OP_BIT_REG8:
