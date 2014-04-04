@@ -338,7 +338,7 @@ char disp[64];
           int src = opcode16 & 0x7;
           get_disp(disp, r, offset);
           sprintf(instruction, "%s %s,%s", table_z80[n].instr, disp, reg8[src]);
-          return 4;
+          return 3;
         case OP_INDEX_NUMBER8:
           r = (opcode16 >> 13) & 0x1;
           offset = READ_RAM(address + 2);

@@ -803,6 +803,42 @@ int value;
   return -1;
 }
 
+static int simulate_z80_execute_op_hl_reg16_2(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
+{
+struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+uint16_t new;
+uint16_t old;
+int reg16 = (opcode >> 4) & 0x3;
+int number;
+int value;
+
+  number = get_p(simulate, reg16);
+  old = get_p(simulate, 2);
+  new = old;
+
+  if (table_z80->id == Z80_ADC)
+  {
+    value = old + (number + GET_C());
+    SET_N();
+  }
+    else
+  if (table_z80->id == Z80_SBC)
+  {
+    value = old - (number + GET_C());
+    SET_N();
+  }
+    else
+  {
+    return -1;
+  }
+
+  set_p(simulate, 2, value);
+
+  set_flags16(simulate, new, old, number, VFLAG_OVERFLOW);
+
+  return table_z80->cycles;
+}
+
 static int simulate_z80_execute_op_xy(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode16)
 {
 struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
@@ -940,8 +976,9 @@ int address;
         case OP_NONE24:
         case OP_A_REG_IHALF:
         case OP_A_INDEX:
-        case OP_HL_REG16_2:
           return -1;
+        case OP_HL_REG16_2:
+          return simulate_z80_execute_op_hl_reg16_2(simulate, &table_z80[n], opcode16);
         case OP_XY_REG16:
           xy = (opcode16 >> 13) & 0x1;
           reg16 = (opcode16 >> 4) & 0x3;
@@ -979,7 +1016,13 @@ int address;
           WRITE_RAM(address, simulate_z80->reg[reg]);
           return table_z80->cycles;
         case OP_INDEX_NUMBER8:
+          xy = (opcode16 >> 13) & 0x1;
+          offset = READ_RAM(simulate_z80->pc + 2);
+          address = xy + offset;
+          WRITE_RAM(address, READ_RAM(simulate_z80->pc + 3));
+          return table_z80->cycles;
         case OP_IR_A:
+          return -1;
         case OP_A_IR:
           return -1;
         case OP_XY_ADDRESS:
@@ -1071,7 +1114,6 @@ int n;
     ret = simulate_z80_execute(simulate);
 
     simulate_z80->pc += count;
-    //if (c > 0) cycles += c;
 
     if (simulate->show == 1)
     {
@@ -1107,9 +1149,9 @@ int n;
 
         char hex[16];
         if (count == 1) { sprintf(hex, "         %02x", READ_RAM(disasm_pc)); }
-        else if (count == 2) { sprintf(hex, "      %02x %02x", READ_RAM(disasm_pc), READ_RAM(pc + 1)); }
-        else if (count == 3) { sprintf(hex, "   %02x %02x %02x", READ_RAM(disasm_pc), READ_RAM(pc + 1), READ_RAM(pc + 2)); }
-        else if (count == 4) { sprintf(hex, "%02x %02x %02x %02x", READ_RAM(disasm_pc), READ_RAM(pc + 1), READ_RAM(pc + 2), READ_RAM(pc + 3)); }
+        else if (count == 2) { sprintf(hex, "      %02x %02x", READ_RAM(disasm_pc), READ_RAM(disasm_pc + 1)); }
+        else if (count == 3) { sprintf(hex, "   %02x %02x %02x", READ_RAM(disasm_pc), READ_RAM(disasm_pc + 1), READ_RAM(disasm_pc + 2)); }
+        else if (count == 4) { sprintf(hex, "%02x %02x %02x %02x", READ_RAM(disasm_pc), READ_RAM(disasm_pc + 1), READ_RAM(disasm_pc + 2), READ_RAM(disasm_pc + 3)); }
         else { sprintf(hex, "         ???"); }
 
         if (cycles_min < 1)
