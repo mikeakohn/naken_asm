@@ -1,6 +1,12 @@
 
 ;; RAM
+curBGColor equ 0xa017
+curCol equ equ 0x8459
 curFGColor equ 0xa015
+curRow equ equ 0x845a
+fillRectColor equ 0xa5f4
+penBGColor equ equ 0xa036
+penFGColor equ equ 0xa038
 
 ;; Functions
 CenterPutS equ 0x55a5
