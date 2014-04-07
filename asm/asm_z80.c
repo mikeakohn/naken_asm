@@ -317,7 +317,20 @@ int n,reg;
         {
           if (asm_context->pass == 1)
           {
-            eat_operand(asm_context);
+            int paren_count = 1;
+            while(1)
+            {
+              token_type = get_token(asm_context, token, TOKENLEN);
+              if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
+              if (IS_TOKEN(token,'(')) { paren_count++; }
+              if (IS_TOKEN(token,')'))
+              {
+                paren_count--;
+                if (paren_count == 0) { break; }
+              }
+            }
+
+            pushback(asm_context, ")", TOKEN_SYMBOL);
             num = 0;
           }
             else
@@ -416,6 +429,7 @@ int n,reg;
 
     operand_count++;
     token_type = get_token(asm_context, token, TOKENLEN);
+
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
     if (IS_NOT_TOKEN(token,',') || operand_count == 3)
     {

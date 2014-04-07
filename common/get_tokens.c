@@ -574,6 +574,8 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
     token_type = TOKEN_NUMBER;
   }
 
+  //printf("next token: %s\n", token);
+
   return token_type;
 }
 
