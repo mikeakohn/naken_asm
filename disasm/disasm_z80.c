@@ -371,7 +371,7 @@ char disp[64];
           return 4;
         case OP_INDEX_ADDRESS_XY:
           r = (opcode16 >> 13) & 0x1;
-          sprintf(instruction, "%s (0x%04x),%s", table_z80[n].instr, READ_RAM(address + 2) | (READ_RAM(address + 3) << 8), reg16[r]);
+          sprintf(instruction, "%s (0x%04x),%s", table_z80[n].instr, READ_RAM(address + 2) | (READ_RAM(address + 3) << 8), reg_xy[r]);
           return 4;
         case OP_SP_XY:
           r = (opcode16 >> 13) & 0x1;
