@@ -152,6 +152,44 @@ OUT equ 0x0004   ; output high
 COV equ 0x0002   ; capture overflow
 CCIFG equ 0x0001 ; interrupt pending
 
+;; Timer_B
+TBCTL equ 0x180
+TBR equ 0x190
+TBCCTL0 equ 0x182
+TBCCR0 equ 0x192
+TBCCTL1 equ 0x184
+TBCCR1 equ 0x194
+TBCCTL2 equ 0x186
+TBCCR2 equ 0x196
+TBCCTL3 equ 0x188
+TBCCR3 equ 0x198
+TBCCTL4 equ 0x18a
+TBCCR4 equ 0x19a
+TBCCTL5 equ 0x18c
+TBCCR5 equ 0x19c
+TBCCTL6 equ 0x18e
+TBCCR6 equ 0x19e
+TBIV equ 0x11e
+
+TBCLGRP_0 equ 0x0000
+TBCLGRP_1 equ 0x2000
+TBCLGRP_2 equ 0x4000
+TBCLGRP_3 equ 0x6000
+
+CNTL_0 equ 0x0000
+CNTL_1 equ 0x0800
+CNTL_2 equ 0x1000
+CNTL_3 equ 0x1800
+
+TBSSEL_0 equ 0x0000
+TBSSEL_1 equ 0x0100
+TBSSEL_2 equ 0x0200
+TBSSEL_3 equ 0x0300
+
+TBCLR equ 0x4
+TBIE equ 0x2
+TBIFG equ 0x1
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Flash Memory
 

@@ -91,7 +91,7 @@ int error_flag=0;
     printf("   -e             [output elf file]\n");
 #endif
     printf("   -b             [output binary file]\n");
-    printf("   -d             [create .ndbg debug file]\n");
+    //printf("   -d             [create .ndbg debug file]\n");
     printf("   -l             [create .lst listing file]\n");
     printf("   -I             [add to include path]\n");
     printf("\n");
@@ -216,6 +216,7 @@ int error_flag=0;
   printf(" Input file: %s\n", infile);
   printf("Output file: %s\n", outfile);
 
+#if 0
   if (asm_context.debug_file == 1)
   {
     char filename[1024];
@@ -234,6 +235,7 @@ int error_flag=0;
 
     fprintf(dbg, "%s\n", infile);
   }
+#endif
 
   if (create_list == 1)
   {
