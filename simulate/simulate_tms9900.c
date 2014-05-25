@@ -85,8 +85,12 @@
 #define IS_EQ_SET() (simulate_tms9900->st & 0x2000)
 #define IS_C_SET() (simulate_tms9900->st & 0x1000)
 #define IS_V_SET() (simulate_tms9900->st & 0x0800)
-#define IS_PO_SET() (simulate_tms9900->st & 0x0400)
-#define IS_EO_SET() (simulate_tms9900->st & 0x0200)
+#define IS_OP_SET() (simulate_tms9900->st & 0x0400)
+#define IS_XOP_SET() (simulate_tms9900->st & 0x0200)
+#define IS_PRV_SET() (simulate_tms9900->st & 0x0100)
+#define IS_M_SET() (simulate_tms9900->st & 0x0080)
+#define IS_AFIE_SET() (simulate_tms9900->st & 0x0020)
+#define IS_EM_SET() (simulate_tms9900->st & 0x0010)
 #define GET_INT_MASK() (simulate_tms9900->st & 0x000f)
 
 #define SET_LGT() simulate_tms9900->st |= 0x8000;
@@ -94,8 +98,12 @@
 #define SET_EQ() simulate_tms9900->st |= 0x2000;
 #define SET_C() simulate_tms9900->st |= 0x1000;
 #define SET_V() simulate_tms9900->st |= 0x0800;
-#define SET_PO() simulate_tms9900->st |= 0x0400;
-#define SET_EO() simulate_tms9900->st |= 0x0200;
+#define SET_OP() simulate_tms9900->st |= 0x0400;
+#define SET_XOP() simulate_tms9900->st |= 0x0200;
+#define SET_PRV() simulate_tms9900->st |= 0x0100;
+#define SET_M() simulate_tms9900->st |= 0x0080;
+#define SET_AFIE() simulate_tms9900->st |= 0x0020;
+#define SET_EM() simulate_tms9900->st |= 0x0010;
 #define SET_INT_MASK(a) simulate_tms9900->st =& 0xfff0; \
                         simulate_tms9900->st =| a;
 
@@ -104,8 +112,12 @@
 #define CLR_EQ() simulate_tms9900->st &= (0x2000 ^ 0xffff);
 #define CLR_C() simulate_tms9900->st &= (0x1000 ^ 0xffff);
 #define CLR_V() simulate_tms9900->st &= (0x0800 ^ 0xffff);
-#define CLR_EO() simulate_tms9900->st &= (0x0400 ^ 0xffff);
-#define CLR_PO() simulate_tms9900->st &= (0x0200 ^ 0xffff);
+#define CLR_OP() simulate_tms9900->st &= (0x0400 ^ 0xffff);
+#define CLR_XOP() simulate_tms9900->st &= (0x0200 ^ 0xffff);
+#define CLR_PRV() simulate_tms9900->st &= (0x0100 ^ 0xffff);
+#define CLR_M() simulate_tms9900->st &= (0x0080 ^ 0xffff);
+#define CLR_AFIE() simulate_tms9900->st &= (0x0020 ^ 0xffff);
+#define CLR_EM() simulate_tms9900->st &= (0x0010 ^ 0xffff);
 
 static int stop_running = 0;
 
@@ -262,15 +274,19 @@ int n;
   printf("-------------------------------------------------------------------\n");
 
   printf("          0  1 2 3 4 5 6     12-15\n");
-  printf("Status:  L> A> = C O P X  INT_MASK\n");
-  printf("         %d  %d  %d %d %d %d %d %d %d\n",
+  printf("Status:  L> A> EQ C O OP XOP PRV M AFIE EM  INT_MASK\n");
+  printf("         %d  %d  %d %d %d %d %d %d %d %d %d %d\n",
          IS_LGT_SET(),
          IS_AGT_SET(),
          IS_EQ_SET(),
          IS_C_SET(),
          IS_V_SET(),
-         IS_PO_SET(),
-         IS_EO_SET(),
+         IS_OP_SET(),
+         IS_XOP_SET(),
+         IS_PRV_SET(),
+         IS_M_SET(),
+         IS_AFIE_SET(),
+         IS_EM_SET(),
          GET_INT_MASK());
 
   printf(" PC: 0x%04x,  WP: 0x%04x,  ST: 0x%04x",
