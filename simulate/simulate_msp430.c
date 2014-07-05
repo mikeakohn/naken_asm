@@ -824,7 +824,7 @@ int n;
       simulate_dump_registers_msp430(simulate);
 
       n = 0;
-      while(n < 6)
+      while(n < 12)
       {
         int cycles_min,cycles_max;
         int num;
@@ -858,7 +858,7 @@ int n;
 
         n = n + count;
         pc += 2;
-        count--;
+        count -= 2;
         while (count > 0)
         {
           if (pc == simulate->break_point) { printf("*"); }
@@ -866,7 +866,7 @@ int n;
           num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
           printf("  0x%04x: 0x%04x\n", pc, num);
           pc += 2;
-          count--;
+          count -= 2;
         }
       }
     }
