@@ -25,7 +25,7 @@ char token[TOKENLEN];
 int token_type;
 int data32;
 
-  if (asm_context->segment==SEGMENT_BSS)
+  if (asm_context->segment == SEGMENT_BSS)
   {
     printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->filename, asm_context->line);
     return -1;
@@ -33,22 +33,22 @@ int data32;
 
   while(1)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+    token_type = get_token(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
 
-    if (token_type==TOKEN_QUOTED)
+    if (token_type == TOKEN_QUOTED)
     {
-      unsigned char *s=(unsigned char *)token;
-      while(*s!=0)
+      unsigned char *s = (unsigned char *)token;
+      while(*s != 0)
       {
-        if (*s=='\\')
+        if (*s == '\\')
         {
-          int e=escape_char(asm_context, s);
-          if (e==0)
+          int e = escape_char(asm_context, s);
+          if (e == 0)
           {
             return -1;
           }
-          s=s+e;
+          s = s + e;
         }
 
         memory_write_inc(asm_context, *s, DL_DATA);
@@ -57,7 +57,7 @@ int data32;
         s++;
       }
 
-      if (null_term_flag==1)
+      if (null_term_flag == 1)
       {
         memory_write_inc(asm_context, 0, DL_DATA);
         asm_context->data_count++;
@@ -66,7 +66,7 @@ int data32;
       else
     {
       pushback(asm_context, token, token_type);
-      if (eval_expression(asm_context, &data32)==-1)
+      if (eval_expression(asm_context, &data32) == -1)
       {
         eat_operand(asm_context);
       }
@@ -75,8 +75,8 @@ int data32;
       asm_context->data_count++;
     }
 
-    token_type=get_token(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+    token_type = get_token(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
 
     if (IS_NOT_TOKEN(token,','))
     {
@@ -97,7 +97,7 @@ int token_type;
 int data32;
 unsigned short int data16;
 
-  if (asm_context->segment==SEGMENT_BSS)
+  if (asm_context->segment == SEGMENT_BSS)
   {
     printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->filename, asm_context->line);
     return -1;
@@ -106,30 +106,30 @@ unsigned short int data16;
   while(1)
   {
     // if the user has a comma at the end, but no data, this is okay
-    token_type=get_token(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+    token_type = get_token(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
     pushback(asm_context, token, token_type);
 
-    if (eval_expression(asm_context, &data32)==-1)
+    if (eval_expression(asm_context, &data32) == -1)
     {
       eat_operand(asm_context);
     }
     data16=(unsigned short)data32;
 
-    if (asm_context->memory.endian==ENDIAN_LITTLE)
+    if (asm_context->memory.endian == ENDIAN_LITTLE)
     {
-      memory_write_inc(asm_context, data16&255, DL_DATA);
-      memory_write_inc(asm_context, data16>>8, DL_DATA);
+      memory_write_inc(asm_context, data16 & 255, DL_DATA);
+      memory_write_inc(asm_context, data16 >> 8, DL_DATA);
     }
       else
     {
-      memory_write_inc(asm_context, data16>>8, DL_DATA);
-      memory_write_inc(asm_context, data16&255, DL_DATA);
+      memory_write_inc(asm_context, data16 >> 8, DL_DATA);
+      memory_write_inc(asm_context, data16 & 255, DL_DATA);
     }
 
-    asm_context->data_count+=2;
-    token_type=get_token(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+    asm_context->data_count += 2;
+    token_type = get_token(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
 
     if (IS_NOT_TOKEN(token,','))
     {
@@ -150,7 +150,7 @@ int token_type;
 int data32;
 unsigned int udata32;
 
-  if (asm_context->segment==SEGMENT_BSS)
+  if (asm_context->segment == SEGMENT_BSS)
   {
     printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->filename, asm_context->line);
     return -1;
@@ -159,36 +159,36 @@ unsigned int udata32;
   while(1)
   {
     // if the user has a comma at the end, but no data, this is okay
-    token_type=get_token(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+    token_type = get_token(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
     pushback(asm_context, token, token_type);
 
-    if (eval_expression(asm_context, &data32)==-1)
+    if (eval_expression(asm_context, &data32) == -1)
     {
       eat_operand(asm_context);
     }
-    udata32=(unsigned int)data32;
+    udata32 = (unsigned int)data32;
 
-    if (asm_context->memory.endian==ENDIAN_LITTLE)
+    if (asm_context->memory.endian == ENDIAN_LITTLE)
     {
-      memory_write_inc(asm_context, udata32&255, DL_DATA);
-      memory_write_inc(asm_context, (udata32>>8)&0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32>>16)&0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32>>24)&0xff, DL_DATA);
+      memory_write_inc(asm_context, udata32 & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>8) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>16) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>24) & 0xff, DL_DATA);
     }
       else
     {
-      memory_write_inc(asm_context, udata32>>8, DL_DATA);
-      memory_write_inc(asm_context, (udata32>>8)&0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32>>16)&0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32>>24)&0xff, DL_DATA);
+      memory_write_inc(asm_context, udata32 >> 8, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>8) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>16) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32>>24) & 0xff, DL_DATA);
     }
 
-    asm_context->data_count+=4;
-    token_type=get_token(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
+    asm_context->data_count += 4;
+    token_type = get_token(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
 
-    if (IS_NOT_TOKEN(token,','))
+    if (IS_NOT_TOKEN(token, ','))
     {
       printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
       return -1;
@@ -204,12 +204,12 @@ int parse_dc(struct _asm_context *asm_context)
 {
 char token[TOKENLEN];
 
-  if (expect_token_s(asm_context,".")!=0) { return -1; }
+  if (expect_token_s(asm_context,".") != 0) { return -1; }
   get_token(asm_context, token, TOKENLEN);
 
-  if (strcasecmp(token,"b")==0) { return parse_db(asm_context,0); }
-  if (strcasecmp(token,"w")==0) { return parse_dw(asm_context); }
-  if (strcasecmp(token,"l")==0) { return parse_dl(asm_context); }
+  if (strcasecmp(token,"b") == 0) { return parse_db(asm_context,0); }
+  if (strcasecmp(token,"w") == 0) { return parse_dw(asm_context); }
+  if (strcasecmp(token,"l") == 0) { return parse_dl(asm_context); }
 
   print_error_unexp(token, asm_context);
   return -1;
@@ -221,18 +221,18 @@ char token[TOKENLEN];
 int token_type;
 int num;
 
-  token_type=get_token(asm_context, token, TOKENLEN);
-  if (token_type!=TOKEN_NUMBER)
+  token_type = get_token(asm_context, token, TOKENLEN);
+  if (token_type != TOKEN_NUMBER)
   {
     printf("Parse error: memory length on line %d.\n", asm_context->line);
     return -1;
   }
 
-  num=atoi(token)*n;
+  num = atoi(token)*n;
 
-  for (n=0; n<num; n++)
+  for (n = 0; n < num; n++)
   {
-    if (asm_context->segment!=SEGMENT_BSS)
+    if (asm_context->segment != SEGMENT_BSS)
     {
       memory_write_inc(asm_context, 0, DL_DATA);
     }
@@ -241,14 +241,14 @@ int num;
       asm_context->address++;
     }
 
-    if (asm_context->address>=asm_context->memory.size)
+    if (asm_context->address >= asm_context->memory.size)
     {
        printf("Error: ds overran 64k boundary at %s:%d", asm_context->filename, asm_context->line);
        return -1;
     }
   }
 
-  asm_context->data_count+=num;
+  asm_context->data_count += num;
 
   return 0;
 }
@@ -258,13 +258,13 @@ int parse_resb(struct _asm_context *asm_context, int size)
 { 
 int num;
 
-  if (eval_expression(asm_context, &num)==-1)
+  if (eval_expression(asm_context, &num) == -1)
   {
     print_error("Parse Error: Expected data count.", asm_context);
     return -1;
   }
   
-  asm_context->address+=(num*size);
+  asm_context->address += (num * size);
 
   return 0;
 }
