@@ -34,7 +34,6 @@
 
 struct _asm_context
 {
-  FILE *in;
   FILE *list;
   struct _memory memory;
   struct _symbols symbols;
@@ -50,12 +49,16 @@ struct _asm_context
   int code_count;
   int ifdef_count;
   int parsing_ifdef;
+  // tokens_get start - maybe move into its own struct
+  FILE *in;
+  const char *filename;
   char pushback[TOKENLEN];
   int pushback_type;
   char unget[512];
   int unget_ptr;
   int unget_stack[MAX_NESTED_MACROS+1];
   int unget_stack_ptr;
+  // tokens_get end
   int debug_file;
   char def_param_stack_data[PARAM_STACK_LEN];
   int def_param_stack_ptr[MAX_NESTED_MACROS+1];
@@ -63,7 +66,6 @@ struct _asm_context
   char include_path[INCLUDE_PATH_LEN];
   int include_count;
   int cpu_list_index;
-  const char *filename;
   uint8_t cpu_type;
   uint8_t bytes_per_address;
   uint8_t is_dollar_hex:1;
