@@ -19,7 +19,7 @@
 #include "assembler.h"
 #include "disasm_avr8.h"
 #include "table_avr8.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 
 enum
@@ -101,11 +101,11 @@ int rd,rr,k;
 
   lower_copy(instr_case, instr);
 
-  //pushback(asm_context, token, token_type);
+  //tokens_push(asm_context, token, token_type);
 
   while(1)
   {
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       break;
@@ -128,9 +128,9 @@ int rd,rr,k;
     {
       operands[operand_count].type = OPERAND_REG16;
       operands[operand_count].value = REG16_X;
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,'+')) { operands[operand_count].type = OPERAND_REG16_PLUS; }
-      else { pushback(asm_context, token, token_type); }
+      else { tokens_push(asm_context, token, token_type); }
     }
       else
     if (token_type == TOKEN_STRING &&
@@ -138,11 +138,11 @@ int rd,rr,k;
     {
       operands[operand_count].type = OPERAND_REG16;
       operands[operand_count].value = REG16_Y;
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,'+'))
       {
         operands[operand_count].type = OPERAND_REG16_PLUS;
-        token_type = get_token(asm_context, token, TOKENLEN);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
         if (token_type == TOKEN_NUMBER)
         {
           operands[operand_count].type = OPERAND_REG16_PLUS_Q;
@@ -155,12 +155,12 @@ int rd,rr,k;
         }
           else
         {
-          pushback(asm_context, token, token_type);
+          tokens_push(asm_context, token, token_type);
         }
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
@@ -169,11 +169,11 @@ int rd,rr,k;
     {
       operands[operand_count].type = OPERAND_REG16;
       operands[operand_count].value = REG16_Z;
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,'+'))
       {
         operands[operand_count].type = OPERAND_REG16_PLUS;
-        token_type = get_token(asm_context, token, TOKENLEN);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
         if (token_type == TOKEN_NUMBER)
         {
           operands[operand_count].type = OPERAND_REG16_PLUS_Q;
@@ -186,19 +186,19 @@ int rd,rr,k;
         }
           else
         {
-          pushback(asm_context, token, token_type);
+          tokens_push(asm_context, token, token_type);
         }
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
     if (IS_TOKEN(token,'-'))
     {
       operands[operand_count].type = OPERAND_MINUS_REG16;
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,'x') || IS_TOKEN(token,'X'))
       {
         operands[operand_count].value = REG16_X;
@@ -216,7 +216,7 @@ int rd,rr,k;
         else
       {
         //double pushback, or?
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
         if (asm_context->pass == 1)
         {
           eat_operand(asm_context);
@@ -235,7 +235,7 @@ int rd,rr,k;
     }
       else
     {
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
 
       if (eval_expression(asm_context, &num) != 0)
       {
@@ -255,7 +255,7 @@ int rd,rr,k;
     }
 
     operand_count++;
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) break;
     if (IS_NOT_TOKEN(token,',') || operand_count == 3)
     {

@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "get_tokens.h"
+#include "tokens.h"
 #include "macros.h"
 #include "memory_pool.h"
 #include "symbols.h"
@@ -40,7 +40,7 @@ char ch;
 
   while(1)
   {
-    ch = get_next_char(asm_context);
+    ch = tokens_get_char(asm_context);
     if (ch == ' ')
     {
       if (ptr == 0) continue;
@@ -70,7 +70,7 @@ char ch;
     }
       else
     {
-      unget_next_char(asm_context, ch);
+      tokens_unget_char(asm_context, ch);
       break;
     }
 
@@ -362,7 +362,7 @@ printf("debug> macros_get_char() asm_context->def_param_stack_count=%d\n",asm_co
     if (asm_context->unget_ptr > asm_context->unget_stack[asm_context->unget_stack_ptr])
     {
 #ifdef DEBUG
-printf("debug> macros_get_char() get_next_char(?) ungetc %d %d '%c'\n", asm_context->unget_stack_ptr, asm_context->unget_stack[asm_context->unget_stack_ptr], asm_context->unget[asm_context->unget_ptr-1]);
+printf("debug> macros_get_char() tokens_get_char(?) ungetc %d %d '%c'\n", asm_context->unget_stack_ptr, asm_context->unget_stack[asm_context->unget_stack_ptr], asm_context->unget[asm_context->unget_ptr-1]);
 #endif
       return asm_context->unget[--asm_context->unget_ptr];
     }
@@ -421,13 +421,14 @@ printf("debug> macros_parse() name=%s parens_flag=%d\n", name, parens);
   {
     while(1)
     {
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
 #ifdef DEBUG
 printf("debug> macros_parse() param %s\n", token);
 #endif
       if (token_type != TOKEN_STRING)
       {
-        printf("Error: Expected a param name but got '%s' at %s:%d.\n", token, asm_context->filename,asm_context->line);
+        printf("Error: Expected a param name but got '%s' at %s:%d.\n", token,
+          asm_context->filename, asm_context->line);
         return -1;
       }
 
@@ -443,7 +444,7 @@ printf("debug> macros_parse() param %s\n", token);
       strcpy(params + ptr,token);
       ptr = ptr + len + 1;
 
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,','))
       {
       }
@@ -472,7 +473,7 @@ printf("debug> macros_parse() param count=%d\n", param_count);
 
   while(1)
   {
-    ch = get_next_char(asm_context);
+    ch = tokens_get_char(asm_context);
     if (name_test == NULL)
     {
       if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
@@ -508,7 +509,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
 
       while(1)
       {
-        ch = get_next_char(asm_context);
+        ch = tokens_get_char(asm_context);
         if (ch == '\n' || ch == EOF) break;
       }
 
@@ -595,7 +596,7 @@ int params_ptr[256];
 int count,ptr;
 uint8_t in_string = 0;
 
-  ch = get_next_char(asm_context);
+  ch = tokens_get_char(asm_context);
 
   if (ch != '(')
   {
@@ -609,7 +610,7 @@ uint8_t in_string = 0;
 
   while(1)
   {
-    ch = get_next_char(asm_context);
+    ch = tokens_get_char(asm_context);
     if (ch == '\r') continue;
     if (ch == '"') { in_string = in_string ^ 1; }
     if (ch == ')' && in_string == 0) break;
@@ -632,7 +633,8 @@ uint8_t in_string = 0;
   count++;
   if (count != param_count)
   {
-    printf("Error: Macro expects %d params, but got only %d at %s:%d.\n", param_count, count, asm_context->filename, asm_context->line);
+    printf("Error: Macro expects %d params, but got only %d at %s:%d.\n",
+      param_count, count, asm_context->filename, asm_context->line);
     return NULL;
   }
 
@@ -694,7 +696,7 @@ printf("debug> macros_strip_comment()\n");
   // Look for /*  */ comment and remove.
   while(1)
   {
-    it = get_next_char(asm_context);
+    it = tokens_get_char(asm_context);
     if (it == EOF) break;
     if (it == '\n') asm_context->line++;
     if (it == '/' && cl == '*') break;

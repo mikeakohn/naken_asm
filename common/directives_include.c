@@ -15,7 +15,7 @@
 
 #include "assembler.h"
 #include "directives_include.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "print_error.h"
 
 int add_to_include_path(struct _asm_context *asm_context, char *paths)
@@ -61,7 +61,7 @@ int n;
     return -1;
   }
 
-  get_token(asm_context, token, TOKENLEN);
+  tokens_get(asm_context, token, TOKENLEN);
 #ifdef DEBUG
 printf("binfile file %s.\n", token);
 #endif
@@ -99,7 +99,7 @@ int oldline;
 FILE *oldfp;
 int ret;
 
-  get_token(asm_context, token, TOKENLEN);
+  tokens_get(asm_context, token, TOKENLEN);
 #ifdef DEBUG
 printf("including file %s.\n", token);
 #endif

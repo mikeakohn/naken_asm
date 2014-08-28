@@ -18,7 +18,7 @@
 #include "asm_68hc08.h"
 #include "assembler.h"
 #include "table_68hc08.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 
 extern struct _m68hc08_table m68hc08_table[];
@@ -68,7 +68,7 @@ int n;
 
   while(1)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) { break; }
 
     if (operand_count>=3)
@@ -113,7 +113,7 @@ int n;
       else
     if (strcasecmp(token, "x")==0)
     {
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,'+'))
       {
         operands[operand_count].type=OPERAND_X_PLUS;
@@ -121,7 +121,7 @@ int n;
         else
       {
         operands[operand_count].type=OPERAND_X;
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
@@ -133,11 +133,11 @@ int n;
     if (strcasecmp(token, ",")==0 && operand_count==0)
     {
       // operand type should be none
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
     }
       else
     {
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
       operands[operand_count].type=OPERAND_ADDRESS;
 
       if (eval_expression(asm_context, &num)!=0)
@@ -161,7 +161,7 @@ int n;
 
     operand_count++;
 
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) { break; }
     if (IS_NOT_TOKEN(token, ','))
     {

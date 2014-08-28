@@ -16,7 +16,7 @@
 #include "asm_common.h"
 #include "assembler.h"
 #include "eval_expression.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "print_error.h"
 
 int parse_db(struct _asm_context *asm_context, int null_term_flag)
@@ -33,7 +33,7 @@ int data32;
 
   while(1)
   {
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
 
     if (token_type == TOKEN_QUOTED)
@@ -43,7 +43,7 @@ int data32;
       {
         if (*s == '\\')
         {
-          int e = escape_char(asm_context, s);
+          int e = tokens_escape_char(asm_context, s);
           if (e == 0)
           {
             return -1;
@@ -65,7 +65,7 @@ int data32;
     }
       else
     {
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
       if (eval_expression(asm_context, &data32) == -1)
       {
         eat_operand(asm_context);
@@ -75,7 +75,7 @@ int data32;
       asm_context->data_count++;
     }
 
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
 
     if (IS_NOT_TOKEN(token,','))
@@ -106,9 +106,9 @@ uint16_t data16;
   while(1)
   {
     // if the user has a comma at the end, but no data, this is okay
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
 
     if (eval_expression(asm_context, &data32) == -1)
     {
@@ -128,7 +128,7 @@ uint16_t data16;
     }
 
     asm_context->data_count += 2;
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
 
     if (IS_NOT_TOKEN(token,','))
@@ -159,9 +159,9 @@ uint32_t udata32;
   while(1)
   {
     // if the user has a comma at the end, but no data, this is okay
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
 
     if (eval_expression(asm_context, &data32) == -1)
     {
@@ -185,7 +185,7 @@ uint32_t udata32;
     }
 
     asm_context->data_count += 4;
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
 
     if (IS_NOT_TOKEN(token, ','))
@@ -205,7 +205,7 @@ int parse_dc(struct _asm_context *asm_context)
 char token[TOKENLEN];
 
   if (expect_token_s(asm_context,".") != 0) { return -1; }
-  get_token(asm_context, token, TOKENLEN);
+  tokens_get(asm_context, token, TOKENLEN);
 
   if (strcasecmp(token,"b") == 0) { return parse_db(asm_context,0); }
   if (strcasecmp(token,"w") == 0) { return parse_dw(asm_context); }
@@ -221,7 +221,7 @@ char token[TOKENLEN];
 int token_type;
 int num;
 
-  token_type = get_token(asm_context, token, TOKENLEN);
+  token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type != TOKEN_NUMBER)
   {
     printf("Parse error: memory length on line %d.\n", asm_context->line);

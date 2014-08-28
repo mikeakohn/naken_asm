@@ -20,7 +20,7 @@
 #include "asm_65xx.h"
 #include "assembler.h"
 #include "disasm_65xx.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 
 #include "table_65xx.h"
@@ -85,8 +85,8 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
   mode = MODE_IMPLIED;
 
   // begin parsing
-  token_type=get_token(asm_context, token, TOKENLEN);
-  if (token_type==TOKEN_EOL) { goto skip; }
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+  if (token_type == TOKEN_EOL) { goto skip; }
 
   if(IS_TOKEN(token, '#'))
   {
@@ -126,7 +126,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
     }
 
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { goto skip; }
     if(IS_TOKEN(token, ','))
     {
@@ -136,14 +136,14 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
         return -1;
       }
       mode = MODE_X_INDEXED_INDIRECT;
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (token_type==TOKEN_EOL) { goto skip; }
       if(IS_NOT_TOKEN(token, 'x') && IS_NOT_TOKEN(token, 'X'))
       {
         print_error_unexp(token, asm_context);
         return -1;
       }
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (token_type==TOKEN_EOL) { goto skip; }
       if(IS_NOT_TOKEN(token, ')'))
       {
@@ -155,7 +155,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     if(IS_TOKEN(token, ')'))
     {
       mode = MODE_INDIRECT;
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (token_type==TOKEN_EOL) { goto skip; }
       if(IS_TOKEN(token, ','))
       {
@@ -165,20 +165,20 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
           return -1;
         }
         mode = MODE_INDIRECT_Y_INDEXED;
-        token_type = get_token(asm_context, token, TOKENLEN);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
         if (token_type==TOKEN_EOL) { goto skip; }
         if(IS_NOT_TOKEN(token, 'y') && IS_NOT_TOKEN(token, 'Y'))
         {
           print_error_unexp(token, asm_context);
           return -1;
         }
-        token_type = get_token(asm_context, token, TOKENLEN);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
       }
     }
   }  
     else
   {
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
 
     if(eval_expression(asm_context, &num) != 0)
     {
@@ -204,13 +204,13 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       mode = MODE_ABSOLUTE;
     }
 
-    token_type = get_token(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL) { goto skip; }
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL) { goto skip; }
 
     if(IS_TOKEN(token, ','))
     {
-      token_type = get_token(asm_context, token, TOKENLEN);
-      if (token_type==TOKEN_EOL) { goto skip; }
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (token_type == TOKEN_EOL) { goto skip; }
 
       if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
       {

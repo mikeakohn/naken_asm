@@ -16,7 +16,7 @@
 #include "assembler.h"
 #include "directives_if.h"
 #include "ifdef_expression.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "macros.h"
 #include "print_error.h"
 
@@ -27,7 +27,7 @@ int token_type;
 
   while(1)
   {
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
 
     if (token_type == TOKEN_EOF)
     {
@@ -42,7 +42,7 @@ int token_type;
       else
     if (token_type == TOKEN_POUND || IS_TOKEN(token,'.'))
     {
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (strcasecmp(token, "endif") == 0) return 0;
         else
       if (strcasecmp(token, "else") == 0) return 2;
@@ -80,7 +80,7 @@ int param_count; // throw away
   asm_context->ifdef_count++;
 
   asm_context->parsing_ifdef = 1;
-  token_type = get_token(asm_context, token, TOKENLEN);
+  token_type = tokens_get(asm_context, token, TOKENLEN);
   asm_context->parsing_ifdef = 0;
 
   if (token_type != TOKEN_STRING)

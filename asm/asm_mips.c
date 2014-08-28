@@ -17,7 +17,7 @@
 #include "asm_common.h"
 #include "asm_mips.h"
 #include "assembler.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 #include "table_mips.h"
 
@@ -121,7 +121,7 @@ int opcode=0;
 
   while(1)
   {
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
     //printf("token=%s token_type=%d\n", token, token_type);
 
@@ -129,7 +129,7 @@ int opcode=0;
     {
       strcat(instr_case, ".");
       strcat(instr, ".");
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       strcat(instr, token);
       n = 0;
       while(token[n] != 0) { token[n]=tolower(token[n]); n++; }
@@ -143,7 +143,7 @@ int opcode=0;
 
       if (IS_TOKEN(token,'('))
       {
-        token_type = get_token(asm_context, token, TOKENLEN);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
         paren_flag = 1;
       }
 
@@ -168,7 +168,7 @@ int opcode=0;
 
       if (paren_flag == 1)
       {
-        token_type = get_token(asm_context, token, TOKENLEN);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
         if (IS_NOT_TOKEN(token,')'))
         {
           print_error_unexp(token, asm_context);
@@ -190,7 +190,7 @@ int opcode=0;
         break;
       }
 
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
       if (eval_expression(asm_context, &num) != 0)
       {
         print_error_unexp(token, asm_context);
@@ -199,10 +199,10 @@ int opcode=0;
 
       operands[operand_count].value = num;
 
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,'('))
       {
-        token_type = get_token(asm_context, token, TOKENLEN);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
         num = get_register_mips(token, 't');
         if (num == -1)
         {
@@ -213,7 +213,7 @@ int opcode=0;
         operands[operand_count].reg2 = num;
         operands[operand_count].type = OPERAND_IMMEDIATE_RS;;
 
-        token_type = get_token(asm_context, token, TOKENLEN);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
 
         if (IS_NOT_TOKEN(token,')'))
         {
@@ -223,14 +223,14 @@ int opcode=0;
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
 
     } while(0);
 
     operand_count++;
 
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token,','))
     {

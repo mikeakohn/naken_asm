@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "get_tokens.h"
+#include "tokens.h"
 #include "ifdef_expression.h"
 #include "macros.h"
 #include "symbols.h"
@@ -102,14 +102,14 @@ char token[TOKENLEN];
 int param_count; // throw away
 int ret;
 
-  get_token(asm_context, token, TOKENLEN);
+  tokens_get(asm_context, token, TOKENLEN);
   if (IS_NOT_TOKEN(token,'('))
   {
     print_error_unexp(token, asm_context);
     return -1;
   }
 
-  get_token(asm_context, token, TOKENLEN);
+  tokens_get(asm_context, token, TOKENLEN);
   if (macros_lookup(&asm_context->macros, token, &param_count) != NULL)
   { ret = 1; }
     else
@@ -118,7 +118,7 @@ int ret;
     else
   { ret = 0; }
 
-  get_token(asm_context, token, TOKENLEN);
+  tokens_get(asm_context, token, TOKENLEN);
   if (IS_NOT_TOKEN(token,')'))
   {
     print_error_unexp(token, asm_context);
@@ -180,7 +180,7 @@ int n;
 
   while(1)
   {
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
 
 #ifdef DEBUG
 printf("debug> #if: %d) %s   n=%d paren_count=%d precedence=%d state=%d\n", token_type, token, n, paren_count, precedence, state);
@@ -188,7 +188,7 @@ printf("debug> #if: %d) %s   n=%d paren_count=%d precedence=%d state=%d\n", toke
 
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
 
       if (paren_count != 0)
       {
@@ -326,13 +326,13 @@ printf("debug> #if get_operator() token=%s operation=%d precedence=%d\n", token,
 
       if (next_operator.precedence > precedence)
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
         if (parse_ifdef_expression(asm_context, &n, paren_count, next_operator.precedence, 1) == -1) return -1;
       }
         else
       if (next_operator.precedence < precedence)
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
         return 0;
       }
         else
@@ -372,7 +372,7 @@ int num = 0;
 #ifdef DEBUG
 printf("debug> parse_ifdef_expression() result is %d\n", num);
 #endif
-  token_type = get_token(asm_context, token, TOKENLEN);
+  token_type = tokens_get(asm_context, token, TOKENLEN);
 
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {

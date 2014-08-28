@@ -19,7 +19,7 @@
 #include "assembler.h"
 #include "disasm_tms1000.h"
 #include "table_tms1000.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 
 static char *tmsinstr_1[] = { "sbit", "rbit", "tbit1", "ldx" };
@@ -51,7 +51,7 @@ int n;
   {
     if (strcmp(instr_case, tmsinstr_1[n]) == 0)
     {
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (token_type != TOKEN_NUMBER)
       {
         if (asm_context->pass == 1) { return 1; }
@@ -76,7 +76,7 @@ int n;
   {
     if (strcmp(instr_case, tmsinstr_2[n]) == 0)
     {
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (token_type != TOKEN_NUMBER)
       {
         if (asm_context->pass == 1) { return 1; }
@@ -165,7 +165,7 @@ int n;
   {
     if (strcmp(instr_case, tmsinstr_1[n]) == 0)
     {
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (token_type != TOKEN_NUMBER)
       {
         if (asm_context->pass == 1) { return 1; }
@@ -205,7 +205,7 @@ int n;
     if (n == 3) { continue; }
     if (strcmp(instr_case, tmsinstr_2[n]) == 0)
     {
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (token_type != TOKEN_NUMBER)
       {
         if (asm_context->pass == 1) { return 1; }

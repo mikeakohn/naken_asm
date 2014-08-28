@@ -19,7 +19,7 @@
 #include "asm_dspic.h"
 #include "assembler.h"
 #include "disasm_dspic.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 #include "table_dspic.h"
 
@@ -526,7 +526,7 @@ int n;
 
   while(1)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { break; }
 
     if (operand_count==7)
@@ -547,20 +547,20 @@ int n;
           while(*s!=0) { *s=tolower(*s); s++; }
           strcat(instr_case, " ");
           strcat(instr_case, token);
-          token_type=get_token(asm_context, token, TOKENLEN);
+          token_type=tokens_get(asm_context, token, TOKENLEN);
           if (IS_NOT_TOKEN(token,','))
           {
             print_error_unexp(token, asm_context);
             return -1;
           }
 
-          token_type=get_token(asm_context, token, TOKENLEN);
+          token_type=tokens_get(asm_context, token, TOKENLEN);
         }
       }
         else
       if (IS_TOKEN(token,'.'))
       {
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
         char s[TOKENLEN];
         lower_copy(s, token);
 
@@ -587,7 +587,7 @@ int n;
           print_error_unexp(token, asm_context);
         }
 
-        //token_type=get_token(asm_context, token, TOKENLEN);
+        //token_type=tokens_get(asm_context, token, TOKENLEN);
         //if (token_type<0) return -1;
 
         continue;
@@ -628,13 +628,13 @@ int n;
     {
       operands[operand_count].type=OPTYPE_REGISTER;
       operands[operand_count].attribute=REG_INDIRECT;
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
 
       if (IS_TOKEN(token,'+'))
       {
         if (expect_token(asm_context, '+')==-1) { return -1; }
 #if 0
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
         if (IS_NOT_TOKEN(token,'+'))
         {
           print_error_unexp(token, asm_context);
@@ -643,14 +643,14 @@ int n;
 #endif
 
         operands[operand_count].attribute=REG_INDIRECT_PRE_INC;
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
       }
         else
       if (IS_TOKEN(token,'-'))
       {
         if (expect_token(asm_context, '-')==-1) { return -1; }
 #if 0
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
         if (IS_NOT_TOKEN(token,'-'))
         {
           print_error_unexp(token, asm_context);
@@ -658,10 +658,10 @@ int n;
         }
 #endif
         operands[operand_count].attribute=REG_INDIRECT_PRE_DEC;
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
       }
 
-      //token_type=get_token(asm_context, token, TOKENLEN);
+      //token_type=tokens_get(asm_context, token, TOKENLEN);
       //if (token_type<0) { print_error_unexp(token, asm_context); return -1; }
 
       num=get_register_dspic(token);
@@ -672,12 +672,12 @@ int n;
       }
       operands[operand_count].value=num;
 
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
       //if (operands[operand_count].type==OPTYPE_REGISTER) // what?
       //{
       if (IS_TOKEN(token,'+'))
       {
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
         if (IS_NOT_TOKEN(token,'+'))
         {
           // Check for: [W + #] and [W + W]
@@ -699,7 +699,7 @@ int n;
             {
               int a;
               operands[operand_count].type=OPTYPE_W_PLUS_LIT;
-              pushback(asm_context, token, token_type);
+              tokens_push(asm_context, token, token_type);
               if (eval_expression(asm_context, &a)!=0)
               {
                 print_error_unexp(token, asm_context);
@@ -718,14 +718,14 @@ int n;
           operands[operand_count].attribute=REG_INDIRECT_POST_INC;
         }
 
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
       }
         else
       if (IS_TOKEN(token,'-'))
       {
         //if (expect_token(asm_context, '-')==-1) { return -1; }
 
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
         if (IS_TOKEN(token, '-'))
         {
           operands[operand_count].attribute=REG_INDIRECT_POST_DEC;
@@ -734,7 +734,7 @@ int n;
         {
           int a;
           operands[operand_count].type=OPTYPE_W_PLUS_LIT;
-          pushback(asm_context, token, token_type);
+          tokens_push(asm_context, token, token_type);
           if (eval_expression(asm_context, &a)!=0)
           {
             print_error_unexp(token, asm_context);
@@ -742,7 +742,7 @@ int n;
           }
           operands[operand_count].attribute=-a;
         }
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
       }
 
       if (IS_NOT_TOKEN(token,']'))
@@ -751,7 +751,7 @@ int n;
         return -1;
       }
 
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,'-') || IS_TOKEN(token,'+'))
       {
         operands[operand_count].type=OPTYPE_W_OP_EQ_NUM;
@@ -759,7 +759,7 @@ int n;
         if (IS_TOKEN(token,'+')) { a=1; }
         if (expect_token(asm_context, '=')==-1) { return -1; }
 #if 0
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
         if (IS_NOT_TOKEN(token,'='))
         {
           print_error_unexp(token, asm_context);
@@ -776,7 +776,7 @@ int n;
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
@@ -790,10 +790,10 @@ int n;
       if (num>=0)
       {
         operands[operand_count].type=OPTYPE_REGISTER;
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
         if (IS_TOKEN(token,'*'))
         {
-          token_type=get_token(asm_context, token, TOKENLEN);
+          token_type=tokens_get(asm_context, token, TOKENLEN);
           operands[operand_count].reg2=get_register_dspic(token);
           if (operands[operand_count].reg2==-1)
           {
@@ -804,7 +804,7 @@ int n;
         }
           else
         {
-          pushback(asm_context, token, token_type);
+          tokens_push(asm_context, token, token_type);
           //print_error_unexp(token, asm_context);
           //return -1;
         }
@@ -812,7 +812,7 @@ int n;
         else
       {
         operands[operand_count].type=OPTYPE_NUM;
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
 
         if (eval_expression(asm_context, &num)!=0)
         {
@@ -831,7 +831,7 @@ int n;
 
     operands[operand_count++].value=num;
 
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token,',')) { print_error_unexp(token, asm_context); return -1; }
   }

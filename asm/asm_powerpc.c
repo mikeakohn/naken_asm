@@ -18,7 +18,7 @@
 #include "asm_powerpc.h"
 #include "assembler.h"
 #include "table_powerpc.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 
 enum
@@ -47,7 +47,7 @@ int n;
   memset(&operands, 0, sizeof(operands));
   while(1)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF)
     {
       break;
@@ -56,7 +56,7 @@ int n;
     // FIXME - FILL IN
 
     operand_count++;
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) break;
     if (IS_NOT_TOKEN(token,',') || operand_count==3)
     {

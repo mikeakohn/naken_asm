@@ -18,7 +18,7 @@
 #include "asm_thumb.h"
 #include "assembler.h"
 #include "table_thumb.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 
 enum
@@ -121,7 +121,7 @@ int reg_start,reg_end;
 
   while(1)
   {
-    get_token(asm_context, token, TOKENLEN);
+    tokens_get(asm_context, token, TOKENLEN);
 
     if ((strcasecmp(token,"lr")==0 || strcasecmp(token,"r14")==0) &&
         operand->second_value==0)
@@ -137,11 +137,11 @@ int reg_start,reg_end;
       else
     if ((reg_start=get_register_thumb(token))!=-1)
     {
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
 
       if (IS_TOKEN(token,'-'))
       {
-        get_token(asm_context, token, TOKENLEN);
+        tokens_get(asm_context, token, TOKENLEN);
         if ((reg_end=get_register_thumb(token))==-1 || reg_end<reg_start)
         {
           print_error_unexp(token, asm_context);
@@ -157,7 +157,7 @@ int reg_start,reg_end;
         else
       {
         operand->value|=1<<reg_start;
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
@@ -166,7 +166,7 @@ int reg_start,reg_end;
       return -1;
     }
 
-    get_token(asm_context, token, TOKENLEN);
+    tokens_get(asm_context, token, TOKENLEN);
     if (IS_TOKEN(token,'}'))
     {
       break;
@@ -198,7 +198,7 @@ int n;
   memset(&operands, 0, sizeof(operands));
   while(1)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF)
     {
       break;
@@ -214,14 +214,14 @@ int n;
     {
       operands[operand_count].type=OPERAND_REGISTER;
       operands[operand_count].value=num;
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,'!'))
       {
         operands[operand_count].type=OPERAND_REGISTER_INC;
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
@@ -252,7 +252,7 @@ int n;
       else
     if (IS_TOKEN(token,'['))
     {
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
 
       if (strcasecmp(token,"pc")==0 || strcasecmp(token,"r15")==0)
       {
@@ -277,7 +277,7 @@ int n;
 
       if (expect_token_s(asm_context,",")!=0) { return -1; }
 
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
 
       if ((num=get_register_thumb(token))!=-1)
       {
@@ -325,7 +325,7 @@ int n;
     }
       else
     {
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
 
       if (eval_expression(asm_context, &num)!=0)
       {
@@ -345,7 +345,7 @@ int n;
     }
 
     operand_count++;
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) break;
     if (IS_NOT_TOKEN(token,',') || operand_count==3)
     {

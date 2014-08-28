@@ -17,7 +17,7 @@
 #include "asm_msp430.h"
 #include "assembler.h"
 #include "disasm_msp430.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 
 enum
@@ -316,7 +316,7 @@ char token[TOKENLEN];
 uint16_t prefix=0xffff;
 int num;
 
-  get_token(asm_context, token, TOKENLEN);
+  tokens_get(asm_context, token, TOKENLEN);
   if (IS_TOKEN(token,'#'))
   {
     if (eval_expression(asm_context, &num)!=0)
@@ -393,7 +393,7 @@ int prefix=0;
         if (prefix==0xffff) return -1;
         while(1)
         {
-          token_type=get_token(asm_context, instr, TOKENLEN);
+          token_type=tokens_get(asm_context, instr, TOKENLEN);
           if (token_type!=TOKEN_EOL) { break; }
           if (token_type==TOKEN_EOF)
           {
@@ -417,7 +417,7 @@ int prefix=0;
 
   while(1)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { break; }
 
     if (operand_count==3)
@@ -433,7 +433,7 @@ int prefix=0;
     {
       if (IS_TOKEN(token,'.'))
       {
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
 
         if (IS_TOKEN(token,'b') || IS_TOKEN(token,'B')) { size=8; }
         else if (IS_TOKEN(token,'w') || IS_TOKEN(token,'W')) { size=16; }
@@ -444,7 +444,7 @@ int prefix=0;
           return -1;
         }
 
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
         if (token_type<0)
         {
           print_error_unexp(token, asm_context);
@@ -476,7 +476,7 @@ int prefix=0;
     if (IS_TOKEN(token,'@'))
     {
       operands[operand_count].type=OPTYPE_REGISTER_INDIRECT;
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
       num=get_register_msp430(token);
 
       if (num<0)
@@ -487,7 +487,7 @@ int prefix=0;
 
       operands[operand_count].reg=num;
 
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
 
       if (IS_TOKEN(token,'+'))
       {
@@ -495,7 +495,7 @@ int prefix=0;
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
@@ -541,7 +541,7 @@ int prefix=0;
           // FIXME - Ugly fix. The real problem is in eval_expression.
           int neg=1;
           if (IS_TOKEN(token,'-')) { neg=-1; }
-          else { pushback(asm_context, token, token_type); }
+          else { tokens_push(asm_context, token, token_type); }
 
           if (eval_expression(asm_context, &num)!=0)
           {
@@ -552,12 +552,12 @@ int prefix=0;
           num=num*neg;
           operands[operand_count].value=num;
 
-          token_type=get_token(asm_context, token, TOKENLEN);
+          token_type=tokens_get(asm_context, token, TOKENLEN);
           if (IS_TOKEN(token,'('))
           {
             operands[operand_count].type=OPTYPE_INDEXED;
 
-            token_type=get_token(asm_context, token, TOKENLEN);
+            token_type=tokens_get(asm_context, token, TOKENLEN);
             {
               int reg=get_register_msp430(token);
 
@@ -570,7 +570,7 @@ int prefix=0;
               operands[operand_count].reg=reg;
             }
 
-            token_type=get_token(asm_context, token, TOKENLEN);
+            token_type=tokens_get(asm_context, token, TOKENLEN);
             if (IS_NOT_TOKEN(token,')'))
             {
               print_error_unexp(token, asm_context);
@@ -578,7 +578,7 @@ int prefix=0;
           }
             else
           {
-            pushback(asm_context, token, token_type);
+            tokens_push(asm_context, token, token_type);
           }
         }
       }
@@ -586,7 +586,7 @@ int prefix=0;
 
     operands[operand_count++].value=num;
 
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token,','))
     {

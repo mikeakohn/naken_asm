@@ -18,7 +18,7 @@
 #include "asm_tms9900.h"
 #include "assembler.h"
 #include "table_tms9900.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 
 enum
@@ -76,7 +76,7 @@ int n;
 
   while(1)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
 
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF)
     {
@@ -97,7 +97,7 @@ int n;
       else
     if (IS_TOKEN(token,'*'))
     {
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
       n=get_register_tms9900(token);
       if (n==-1)
       {
@@ -107,14 +107,14 @@ int n;
       operands[operand_count].type=OPERAND_REGISTER_INDIRECT;
       operands[operand_count].reg=n;
 
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,'+'))
       {
         operands[operand_count].type=OPERAND_REGISTER_INDIRECT_INC;
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
@@ -143,11 +143,11 @@ int n;
 
         operands[operand_count].value=n;
 
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
         if (IS_TOKEN(token,'('))
         {
           operands[operand_count].type=OPERAND_TABLE;
-          token_type=get_token(asm_context, token, TOKENLEN);
+          token_type=tokens_get(asm_context, token, TOKENLEN);
           n=get_register_tms9900(token);
           if (n==-1)
           {
@@ -164,13 +164,13 @@ int n;
         }
           else
         {
-          pushback(asm_context, token, token_type);
+          tokens_push(asm_context, token, token_type);
         }
       }
     }
       else
     {
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
 
       if (asm_context->pass==1)
       {
@@ -197,7 +197,7 @@ int n;
     }
 
     operand_count++;
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) break;
     if (IS_NOT_TOKEN(token,',') || operand_count==3)
     {

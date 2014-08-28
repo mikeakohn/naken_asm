@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 #include "assembler.h"
-#include "get_tokens.h"
+#include "tokens.h"
 
 #define IS_DATA 0
 #define IS_OPCODE 1

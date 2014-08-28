@@ -18,7 +18,7 @@
 #include "asm_stm8.h"
 #include "assembler.h"
 #include "disasm_stm8.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 #include "table_stm8.h"
 
@@ -40,11 +40,11 @@ int size=1;
     return -1;
   }
 
-  token_type=get_token(asm_context, token, TOKENLEN);
+  token_type=tokens_get(asm_context, token, TOKENLEN);
 
   if (IS_TOKEN(token,'.'))
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (strcasecmp(token,"b")==0)
     {
       if (*num<-128 || *num>255)
@@ -99,7 +99,7 @@ int size=1;
   }
     else
   {
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
   }
 
   if (*num>=-128 && *num<=255)
@@ -164,7 +164,7 @@ int token_type;
 int num;
 //int n;
 
-  token_type=get_token(asm_context, token, TOKENLEN);
+  token_type=tokens_get(asm_context, token, TOKENLEN);
 
   if (token_type==TOKEN_POUND)
   {
@@ -202,7 +202,7 @@ int num;
     else
   if (IS_TOKEN(token,'('))
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (strcasecmp(token,"x")==0 || strcasecmp(token,"y")==0)
     {
       int size=1;
@@ -228,7 +228,7 @@ int num;
       if (expect_token_s(asm_context,",")!=0) { return -1; }
 
       int a=memory_read_m(&asm_context->memory, asm_context->address);
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
 
       if (strcasecmp(token,"x")==0)
       {
@@ -269,7 +269,7 @@ int num;
     }
 
     // (num, reg)
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
     int bytes=parse_num(asm_context, instr, &num, 2);
     if (bytes<0) { return -1; }
 
@@ -277,7 +277,7 @@ int num;
 
     int size=0;
     int a=memory_read_m(&asm_context->memory, asm_context->address);
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
 
     if (strcasecmp(token,"sp")==0)
     {
@@ -382,7 +382,7 @@ int num;
   }
     else
   {
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
 
     int bytes=parse_num(asm_context, instr, &num, 2);
     if (bytes<0) { return -1; }
@@ -415,7 +415,7 @@ char token[TOKENLEN];
 int token_type;
 int num;
 
-  token_type=get_token(asm_context, token, TOKENLEN);
+  token_type=tokens_get(asm_context, token, TOKENLEN);
 
   if (IS_TOKEN(token,'A') || IS_TOKEN(token,'a'))
   {
@@ -425,7 +425,7 @@ int num;
     else
   if (IS_TOKEN(token,'('))
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (IS_TOKEN(token,'X') || IS_TOKEN(token,'x'))
     {
       add_bin8(asm_context, 0x70|opcode_nibble, IS_OPCODE);
@@ -447,7 +447,7 @@ int num;
       if (bytes<0) { return -1; }
       if (expect_token_s(asm_context,"]")!=0) { return -1; }
       if (expect_token_s(asm_context,",")!=0) { return -1; }
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
       if (expect_token_s(asm_context,")")!=0) { return -1; }
 
       if (IS_TOKEN(token,'X') || IS_TOKEN(token,'x'))
@@ -492,12 +492,12 @@ int num;
     }
 
     int size=2;
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
     int bytes=parse_num(asm_context, instr, &num, 2);
     if (bytes<0) { return -1; }
     if (expect_token_s(asm_context,",")!=0) { return -1; }
 
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (strcasecmp(token,"sp")==0)
     {
       if (bytes>1)
@@ -587,7 +587,7 @@ int num;
   }
     else
   {
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
 
     int bytes=parse_num(asm_context, instr, &num, 2);
     if (bytes<0) { return -1; }
@@ -627,7 +627,7 @@ int bytes;
   if (expect_token_s(asm_context,",")!=0) { return -1; }
   if (expect_token_s(asm_context,"#")!=0) { return -1; }
 
-  token_type=get_token(asm_context, token, TOKENLEN);
+  token_type=tokens_get(asm_context, token, TOKENLEN);
   if (token_type!=TOKEN_NUMBER)
   {
     print_error_unexp(token, asm_context);
@@ -680,17 +680,17 @@ char token[TOKENLEN];
 int token_type;
 int num=0;
 
-  token_type=get_token(asm_context, token, TOKENLEN);
+  token_type=tokens_get(asm_context, token, TOKENLEN);
   if (IS_TOKEN(token,'('))
   {
     int prefix;
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (IS_TOKEN(token,'['))
     {
       if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
       if (expect_token_s(asm_context,"]")!=0) { return -1; }
       if (expect_token_s(asm_context,",")!=0) { return -1; }
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
       if (strcasecmp(token,"x")==0) { prefix=0x92; }
       else if (strcasecmp(token,"y")==0) { prefix=0x91; }
       else { print_error_unexp(token, asm_context); return -1; }
@@ -703,10 +703,10 @@ int num=0;
       return 4;
     }
 
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
     if (parse_num(asm_context, instr, &num, 3)<0) { return -1; }
     if (expect_token_s(asm_context,",")!=0) { return -1; }
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (strcasecmp(token,"x")==0) { prefix=0x00; }
     else if (strcasecmp(token,"y")==0) { prefix=0x90; }
     else { print_error_unexp(token, asm_context); return -1; }
@@ -733,7 +733,7 @@ int num=0;
   }
     else
   {
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
     if (parse_num(asm_context, instr, &num, 3)<0) { return -1; }
     add_bin8(asm_context, (is_a_after==0)?0xbc:0xbd, IS_OPCODE);
     add_bin8(asm_context, num>>16, IS_OPCODE);
@@ -772,7 +772,7 @@ int n;
   {
     if (strcmp(stm8_x_y[n].instr, instr_case)==0)
     {
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
 
       if (strcasecmp("y", token)==0)
       {
@@ -802,7 +802,7 @@ int n;
         return parse_stm8_type1(asm_context, instr, n);
       }
 
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
 
       if (n==0x03 || n==0x0e)
       {
@@ -817,7 +817,7 @@ int n;
         {
           if (IS_TOKEN(token,'('))
           {
-            token_type=get_token(asm_context, token, TOKENLEN);
+            token_type=tokens_get(asm_context, token, TOKENLEN);
             if (strcasecmp(token,"x")==0)
             {
               if (expect_token_s(asm_context,")")!=0) { return -1; }
@@ -826,7 +826,7 @@ int n;
               add_bin8(asm_context, 0xff, IS_OPCODE);
               return 1;
             }
-            pushback(asm_context, token, token_type);
+            tokens_push(asm_context, token, token_type);
             if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
 
             if (expect_token_s(asm_context,",")!=0) { return -1; }
@@ -848,7 +848,7 @@ int n;
             return 2;
           }
 
-          pushback(asm_context, token, token_type);
+          tokens_push(asm_context, token, token_type);
           if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
           if (expect_token_s(asm_context,",")!=0) { return -1; }
           if (expect_token_s(asm_context,"x")!=0) { return -1; }
@@ -878,7 +878,7 @@ int n;
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
         int size=parse_stm8_type1(asm_context, instr, n);
 
         if (n!=0x0d)
@@ -915,7 +915,7 @@ int n;
     if (strcmp(stm8_r_r[n].instr, instr_case)==0)
     {
       int is_x=0;
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
 
       if (strcasecmp(token,"x")==0) { is_x=1; }
       else if (strcasecmp(token,"y")==0 && n<2) { is_x=0; }
@@ -996,7 +996,7 @@ int n;
 
   if (strcmp("pop", instr_case)==0)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (IS_TOKEN(token,'A') || IS_TOKEN(token,'a'))
     {
       add_bin8(asm_context, 0x84, IS_OPCODE);
@@ -1009,7 +1009,7 @@ int n;
       return 1;
     }
 
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
     if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
     add_bin8(asm_context, 0x32, IS_OPCODE);
     add_bin8(asm_context, num>>8, IS_OPCODE);
@@ -1019,7 +1019,7 @@ int n;
 
   if (strcmp("push", instr_case)==0)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (IS_TOKEN(token,'A') || IS_TOKEN(token,'a'))
     {
       add_bin8(asm_context, 0x88, IS_OPCODE);
@@ -1040,7 +1040,7 @@ int n;
       return 2;
     }
 
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
     if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
     add_bin8(asm_context, 0x3b, IS_OPCODE);
     add_bin8(asm_context, num>>8, IS_OPCODE);
@@ -1069,7 +1069,7 @@ int n;
     if (expect_token_s(asm_context,"a")!=0) { return -1; }
     if (expect_token_s(asm_context,",")!=0) { return -1; }
 
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (strcasecmp(token, "XL")==0)
     {
       add_bin8(asm_context, 0x41, IS_OPCODE);
@@ -1082,7 +1082,7 @@ int n;
       return 1;
     }
 
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
     if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
 
     add_bin8(asm_context, 0x31, IS_OPCODE);
@@ -1096,7 +1096,7 @@ int n;
   else if (strcmp("jpf", instr_case)==0) { n=0xac; }
   if (n!=0)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (IS_TOKEN(token,'['))
     {
       if (parse_num(asm_context, instr, &num, 3)<0) { return -1; }
@@ -1109,7 +1109,7 @@ int n;
       return 4;
     }
 
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
     if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
     add_bin8(asm_context, n, IS_OPCODE);
     add_bin8(asm_context, num>>16, IS_OPCODE);
@@ -1124,7 +1124,7 @@ int n;
     int num1=0,num2=0;
     if (parse_num(asm_context, instr, &num1, 2)<0) { return -1; }
     if (expect_token_s(asm_context,",")!=0) { return -1; }
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
 
     if (token_type==TOKEN_POUND)
     {
@@ -1136,7 +1136,7 @@ int n;
       return 4;
     }
 
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
     if (parse_num(asm_context, instr, &num2, 2)<0) { return -1; }
 
     if (num1<256 && num2<256)
@@ -1163,7 +1163,7 @@ int n;
     int is_x=0;
     int size=3;
 
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (expect_token_s(asm_context,",")!=0) { return -1; }
 
     if (strcasecmp(token,"x")==0) { is_x=1; }
@@ -1183,7 +1183,7 @@ int n;
       return -1;
     }
 
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (token_type==TOKEN_POUND)
     {
       int opcode;
@@ -1218,7 +1218,7 @@ int n;
       return 3;
     }
 
-    pushback(asm_context, token, token_type);
+    tokens_push(asm_context, token, token_type);
 
     unsigned char opcodes[]={ 0xb9, 0xbb, 0xb2, 0xb0 };
     if (parse_num(asm_context, instr, &num, 2)<0) { return -1; }
@@ -1230,7 +1230,7 @@ int n;
 
   if (strcmp("ldf", instr_case)==0)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
     if (IS_TOKEN(token,'a') || IS_TOKEN(token,'A'))
     {
       if (expect_token_s(asm_context,",")!=0) { return -1; }
@@ -1238,7 +1238,7 @@ int n;
     }
       else
     {
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
       int ret=parse_stm8_ldf(asm_context, instr, 1);
       if (expect_token_s(asm_context,",")!=0) { return -1; }
       if (expect_token_s(asm_context,"A")!=0) { return -1; }
@@ -1261,7 +1261,7 @@ int ret;
   ret=parse_instruction_stm8_main(asm_context, instr);
   if (ret==-1) { return -1; }
 
-  token_type=get_token(asm_context, token, TOKENLEN);
+  token_type=tokens_get(asm_context, token, TOKENLEN);
   if (token_type!=TOKEN_EOL && token_type!=TOKEN_EOF)
   {
     print_error_unexp(token, asm_context);

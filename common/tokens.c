@@ -15,7 +15,7 @@
 #include <string.h>
 #include <signal.h>
 
-#include "get_tokens.h"
+#include "tokens.h"
 #include "macros.h"
 #include "symbols.h"
 
@@ -92,19 +92,19 @@ static int binary_string_to_int(char *s, int *num)
   return 0;
 }
 
-int get_next_char(struct _asm_context *asm_context)
+int tokens_get_char(struct _asm_context *asm_context)
 {
 int ch;
 
 #ifdef DEBUG
-//printf("debug> get_next_char()\n");
+//printf("debug> tokens_get_char()\n");
 #endif
 
   // Check if something need to be ungetted
   if (asm_context->unget_ptr > asm_context->unget_stack[asm_context->unget_stack_ptr])
   {
 #ifdef DEBUG
-//printf("debug> get_next_char(?) ungetc %d %d '%c'\n", asm_context->unget_stack_ptr, asm_context->unget_stack[asm_context->unget_stack_ptr], asm_context->unget[asm_context->unget_ptr-1]);
+//printf("debug> tokens_get_char(?) ungetc %d %d '%c'\n", asm_context->unget_stack_ptr, asm_context->unget_stack[asm_context->unget_stack_ptr], asm_context->unget[asm_context->unget_ptr-1]);
 #endif
     return asm_context->unget[--asm_context->unget_ptr];
   }
@@ -117,12 +117,12 @@ int ch;
     if (asm_context->unget_ptr > asm_context->unget_stack[asm_context->unget_stack_ptr])
     {
 #ifdef DEBUG
-//printf("debug> get_next_char(FILE ungetc %d %d '%c'\n", asm_context->unget_stack_ptr, asm_context->unget_stack[asm_context->unget_stack_ptr], asm_context->unget[asm_context->unget_ptr-1]);
+//printf("debug> tokens_get_char(FILE ungetc %d %d '%c'\n", asm_context->unget_stack_ptr, asm_context->unget_stack[asm_context->unget_stack_ptr], asm_context->unget[asm_context->unget_ptr-1]);
 #endif
       return asm_context->unget[--asm_context->unget_ptr];
     }
 #ifdef DEBUG
-//printf("debug> get_next_char(FILE)='%c'\n", ch);
+//printf("debug> tokens_get_char(FILE)='%c'\n", ch);
 #endif
 
     // Why do people still use DOS :(
@@ -140,27 +140,27 @@ int ch;
     else
   {
 #ifdef DEBUG
-//printf("debug> get_next_char(DEFINE)='%c'\n", ch);
+//printf("debug> tokens_get_char(DEFINE)='%c'\n", ch);
 #endif
   }
 
   return ch;
 }
 
-int unget_next_char(struct _asm_context *asm_context, int ch)
+int tokens_unget_char(struct _asm_context *asm_context, int ch)
 {
   asm_context->unget[asm_context->unget_ptr++] = ch;
   return 0;
 }
 
-int get_token(struct _asm_context *asm_context, char *token, int len)
+int tokens_get(struct _asm_context *asm_context, char *token, int len)
 {
 int token_type = TOKEN_EOF;
 int ch;
 int ptr = 0;
 
 #ifdef DEBUG
-//printf("Enter get_token()\n");
+//printf("Enter tokens_get()\n");
 #endif
 
   token[0] = 0;
@@ -170,7 +170,7 @@ int ptr = 0;
     strcpy(token, asm_context->pushback);
     asm_context->pushback[0] = 0;
 #ifdef DEBUG
-//printf("debug> get_token pushback: '%s'\n",token);
+//printf("debug> tokens_get pushback: '%s'\n",token);
 #endif
     return asm_context->pushback_type;
   }
@@ -178,9 +178,9 @@ int ptr = 0;
   while(1)
   {
 #ifdef DEBUG
-//printf("debug> get_token, grabbing next char ptr=%d\n", ptr);
+//printf("debug> tokens_get, grabbing next char ptr=%d\n", ptr);
 #endif
-    ch = get_next_char(asm_context);
+    ch = tokens_get_char(asm_context);
 #ifdef DEBUG
 //printf("debug> getc()='%c'  ptr=%d  token='%s'\n", ch, ptr, token);
 #endif
@@ -198,7 +198,7 @@ int ptr = 0;
         else
       if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')))
       {
-        unget_next_char(asm_context, ch);
+        tokens_unget_char(asm_context, ch);
         break;
       }
 
@@ -209,7 +209,7 @@ int ptr = 0;
     {
       if (ptr != 0)
       {
-        unget_next_char(asm_context, ch);
+        tokens_unget_char(asm_context, ch);
         break;
         //int n;
         //for(n=0; n<ptr; n++) printf("%c\n", token[n]);
@@ -217,7 +217,7 @@ int ptr = 0;
       }
 
       while(1)
-      { ch = get_next_char(asm_context); if (ch == '\n' || ch == EOF) break; }
+      { ch = tokens_get_char(asm_context); if (ch == '\n' || ch == EOF) break; }
 
       assert(ptr == 0);
       token[0] = '\n';
@@ -245,7 +245,7 @@ int ptr = 0;
 
       while(1)
       {
-        ch = get_next_char(asm_context);
+        ch = tokens_get_char(asm_context);
         if (ch == quote)
         {
           break;
@@ -253,7 +253,7 @@ int ptr = 0;
 
         if (ch == '\\')
         {
-          ch = get_next_char(asm_context);
+          ch = tokens_get_char(asm_context);
           if (ch == 'n') { ch = '\n'; }
           else if (ch == 'r') { ch = '\r'; }
           else if (ch == 't') { ch = '\t'; }
@@ -282,7 +282,7 @@ int ptr = 0;
           return TOKEN_EOL;
         }
           else
-        { unget_next_char(asm_context, ch); }
+        { tokens_unget_char(asm_context, ch); }
       }
 
       if (ptr == 0)
@@ -360,7 +360,7 @@ int ptr = 0;
           token[ptr++] = ch;
           if (ch == '/')
           {
-            ch = get_next_char(asm_context);
+            ch = tokens_get_char(asm_context);
             if (ch == '*')
             {
               ptr = 0;
@@ -368,7 +368,7 @@ int ptr = 0;
 
               while(1)
               {
-                ch = get_next_char(asm_context);
+                ch = tokens_get_char(asm_context);
                 if (ch == EOF)
                 {
                   print_error("Unterminated comment", asm_context);
@@ -382,9 +382,9 @@ int ptr = 0;
                   else
                 if (ch== '*')
                 {
-                  ch = get_next_char(asm_context);
+                  ch = tokens_get_char(asm_context);
                   if (ch == '/') break;
-                  unget_next_char(asm_context, ch);
+                  tokens_unget_char(asm_context, ch);
                 }
               }
 
@@ -395,7 +395,7 @@ int ptr = 0;
             {
               while(1)
               {
-                ch = get_next_char(asm_context);
+                ch = tokens_get_char(asm_context);
                 if (ch == '\n' || ch == EOF) break;
               }
 
@@ -405,7 +405,7 @@ int ptr = 0;
             }
               else
             {
-              unget_next_char(asm_context, ch);
+              tokens_unget_char(asm_context, ch);
               break;
             }
           }
@@ -413,7 +413,7 @@ int ptr = 0;
           if (ch == '>' || ch == '<' || ch == '=')
           {
             int ch1;
-            ch1 = get_next_char(asm_context);
+            ch1 = tokens_get_char(asm_context);
             if (ch1 == ch)
             {
               token[ptr++] = ch;
@@ -428,28 +428,28 @@ int ptr = 0;
               else
             {
               if (ch!='=') token_type = TOKEN_EQUALITY;
-              unget_next_char(asm_context, ch1);
+              tokens_unget_char(asm_context, ch1);
             }
           }
             else
           if (ch == '&' || ch == '|')
           {
             int ch1;
-            ch1 = get_next_char(asm_context);
+            ch1 = tokens_get_char(asm_context);
             if (ch1 == ch)
             {
               token[ptr++] = ch;
             }
               else
             {
-              unget_next_char(asm_context, ch1);
+              tokens_unget_char(asm_context, ch1);
             }
           }
           break;
         }
           else
         {
-          unget_next_char(asm_context, ch);
+          tokens_unget_char(asm_context, ch);
           break;
         }
       }
@@ -522,7 +522,7 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
 //printf("debug> unget_stack_ptr=%d unget_ptr=%d\n", asm_context->unget_stack_ptr, asm_context->unget_ptr);
 #endif
 
-      token_type = get_token(asm_context, token, len);
+      token_type = tokens_get(asm_context, token, len);
 #ifdef DEBUG
 //printf("debug> expanding.. '%s'\n", token);
 #endif
@@ -579,14 +579,14 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
   return token_type;
 }
 
-void pushback(struct _asm_context *asm_context, char *token, int token_type)
+void tokens_push(struct _asm_context *asm_context, char *token, int token_type)
 {
   strcpy(asm_context->pushback, token);
   asm_context->pushback_type = token_type;
 }
 
 // Returns the number of chars eaten by this function or 0 for error
-int escape_char(struct _asm_context *asm_context, unsigned char *s)
+int tokens_escape_char(struct _asm_context *asm_context, unsigned char *s)
 {
 int ptr = 1;
 

@@ -18,7 +18,7 @@
 #include "asm_NAME.h"
 #include "assembler.h"
 #include "table_NAME.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 
 enum
@@ -35,8 +35,8 @@ int n;
 
   lower_copy(instr_case, instr);
 
-  //token_type=get_token(asm_context, token, TOKENLEN);
-  //pushback(asm_context, token, token_type);
+  //token_type=tokens_get(asm_context, token, TOKENLEN);
+  //tokens_push(asm_context, token, token_type);
 
   print_error_unknown_instr(instr, asm_context);
 

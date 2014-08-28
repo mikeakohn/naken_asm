@@ -18,7 +18,7 @@
 #include "asm_common.h"
 #include "assembler.h"
 #include "disasm_arm.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 #include "table_arm.h"
 
@@ -699,7 +699,7 @@ int bytes = -1;
   // First parse instruction into the operands structures.
   while(1)
   {
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
 
 #if DEBUG
@@ -712,11 +712,11 @@ int bytes = -1;
       operands[operand_count].value = n;
       operands[operand_count].type = OPERAND_REG;
 
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,']'))
       {
         operands[operand_count].type = OPERAND_REG_INDEXED_CLOSE;
-        token_type = get_token(asm_context, token, TOKENLEN);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
       }
 
       if (IS_TOKEN(token,'!'))
@@ -725,7 +725,7 @@ int bytes = -1;
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
@@ -755,21 +755,21 @@ int bytes = -1;
 
       operands[operand_count].value = num;
 
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,']'))
       {
         operands[operand_count].type = OPERAND_IMM_INDEXED_CLOSE;
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
     if (IS_TOKEN(token,'['))
     {
       operands[operand_count].type = OPERAND_REG_INDEXED_OPEN;
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       n = get_register_arm(token);
       if (n == -1)
       {
@@ -778,7 +778,7 @@ int bytes = -1;
       }
 
       operands[operand_count].value = n;
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
 
       if (IS_TOKEN(token,']'))
       {
@@ -786,7 +786,7 @@ int bytes = -1;
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
@@ -820,7 +820,7 @@ int bytes = -1;
       operands[operand_count].value = 0;
       while(1)
       {
-        token_type=get_token(asm_context, token, TOKENLEN);
+        token_type=tokens_get(asm_context, token, TOKENLEN);
         int r1 = get_register_arm(token);
         int r2;
         if (r1 == -1)
@@ -829,10 +829,10 @@ int bytes = -1;
           return -1;
         }
 
-        token_type = get_token(asm_context, token, TOKENLEN);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
         if (IS_TOKEN(token,'-'))
         {
-          token_type = get_token(asm_context, token, TOKENLEN);
+          token_type = tokens_get(asm_context, token, TOKENLEN);
 
           r2 = get_register_arm(token);
           if (r2 == -1)
@@ -841,7 +841,7 @@ int bytes = -1;
             return -1;
           }
 
-          token_type = get_token(asm_context, token, TOKENLEN);
+          token_type = tokens_get(asm_context, token, TOKENLEN);
         }
         else
         {
@@ -864,12 +864,12 @@ int bytes = -1;
       {
         if (strcasecmp(token, arm_shift[n]) == 0)
         {
-          token_type = get_token(asm_context, token, TOKENLEN);
+          token_type = tokens_get(asm_context, token, TOKENLEN);
           operands[operand_count].sub_type = n;
 
           if (IS_TOKEN(token,'#'))
           {
-            token_type = get_token(asm_context, token, TOKENLEN);
+            token_type = tokens_get(asm_context, token, TOKENLEN);
             if (token_type != TOKEN_NUMBER)
             {
               print_error_unexp(token, asm_context);
@@ -900,7 +900,7 @@ int bytes = -1;
             operands[operand_count].type = OPERAND_SHIFT_REG;
           }
 
-          token_type = get_token(asm_context, token, TOKENLEN);
+          token_type = tokens_get(asm_context, token, TOKENLEN);
           if (IS_TOKEN(token,']'))
           {
             if (operands[operand_count].type == OPERAND_SHIFT_REG)
@@ -915,7 +915,7 @@ int bytes = -1;
           }
             else
           {
-            pushback(asm_context, token, token_type);
+            tokens_push(asm_context, token, token_type);
           }
 
           break;
@@ -931,7 +931,7 @@ int bytes = -1;
 
     operand_count++;
 
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token,','))
     {

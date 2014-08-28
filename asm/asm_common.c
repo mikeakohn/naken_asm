@@ -72,11 +72,11 @@ int token_type;
   // Eat all tokens until an ',' or EOL
   while(1)
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
 
     if (IS_TOKEN(token,',') || token_type == TOKEN_EOL)
     {
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
       return 0;
     }
   }
@@ -99,7 +99,7 @@ int expect_token(struct _asm_context *asm_context, char ch)
 {
   char token[TOKENLEN];
 
-  get_token(asm_context, token, TOKENLEN);
+  tokens_get(asm_context, token, TOKENLEN);
 
   if (IS_NOT_TOKEN(token,ch))
   {
@@ -114,7 +114,7 @@ int expect_token_s(struct _asm_context *asm_context, char *s)
 {
   char token[TOKENLEN];
 
-  get_token(asm_context, token, TOKENLEN);
+  tokens_get(asm_context, token, TOKENLEN);
 
   if (strcasecmp(token,s) != 0)
   {

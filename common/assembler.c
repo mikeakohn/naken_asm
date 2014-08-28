@@ -50,7 +50,7 @@
 #include "directives_if.h"
 #include "directives_include.h"
 #include "eval_expression.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "ifdef_expression.h"
 #include "macros.h"
 #include "symbols.h"
@@ -109,7 +109,7 @@ static int parse_name(struct _asm_context *asm_context)
 char token[TOKENLEN];
 //int token_type;
 
-  get_token(asm_context, token, TOKENLEN);
+  tokens_get(asm_context, token, TOKENLEN);
 
   printf("Program name: %s (ignored)\n", token);
 
@@ -121,7 +121,7 @@ static int parse_public(struct _asm_context *asm_context)
 char token[TOKENLEN];
 //int token_type;
 
-  get_token(asm_context, token, TOKENLEN);
+  tokens_get(asm_context, token, TOKENLEN);
 
   printf("Public symbol: %s (ignored)\n", token);
 
@@ -135,7 +135,7 @@ int token_type;
 
   while(1)
   {
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
   }
 
@@ -151,14 +151,14 @@ int token_type;
 
   // FIXME - Do nothing right now
 
-  token_type = get_token(asm_context, token, TOKENLEN);
+  token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
     print_error_unexp(token, asm_context);
     return -1;
   }
 
-  token_type = get_token(asm_context, token, TOKENLEN);
+  token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
     print_error_unexp(token, asm_context);
@@ -179,7 +179,7 @@ int num;
 int token_type;
 
   asm_context->no_symbols = 1;
-  token_type = get_token(asm_context, name, TOKENLEN);
+  token_type = tokens_get(asm_context, name, TOKENLEN);
   asm_context->no_symbols = 0;
 
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
@@ -197,7 +197,7 @@ int token_type;
   }
 
 #if 0
-  token_type = get_token(asm_context, token, TOKENLEN);
+  token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF &&
       token_type == TOKEN_NUMBER)
   {
@@ -220,7 +220,7 @@ char token[TOKENLEN];
 int token_type;
 
   asm_context->no_symbols = 1;
-  token_type = get_token(asm_context, token, TOKENLEN);
+  token_type = tokens_get(asm_context, token, TOKENLEN);
   asm_context->no_symbols = 0;
 
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
@@ -253,7 +253,7 @@ int token_type;
   // Atmel's include files want:  .equ NAME = VALUE
 
   asm_context->no_symbols = 1;
-  token_type = get_token(asm_context, name, TOKENLEN);
+  token_type = tokens_get(asm_context, name, TOKENLEN);
   asm_context->no_symbols = 0;
 
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
@@ -264,9 +264,9 @@ int token_type;
 
   if (expect_token(asm_context, '=') != 0) { return -1; }
 
-  token_type = get_token(asm_context, value, TOKENLEN);
+  token_type = tokens_get(asm_context, value, TOKENLEN);
 
-  token_type = get_token(asm_context, token, TOKENLEN);
+  token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
     print_error_unexp(token, asm_context);
@@ -475,7 +475,7 @@ int token_type;
 
   while(1)
   {
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
 #ifdef DEBUG
     printf("%d: <%d> %s\n", asm_context->line, token_type, token);
 #endif
@@ -503,7 +503,7 @@ int token_type;
       else
     if (token_type == TOKEN_POUND || IS_TOKEN(token,'.'))
     {
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
 #ifdef DEBUG
     printf("%d: <%d> %s\n", asm_context->line, token_type, token);
 #endif
@@ -627,17 +627,17 @@ int token_type;
         char token2[TOKENLEN];
         int token_type2;
 
-        token_type2 = get_token(asm_context, token2, TOKENLEN);
+        token_type2 = tokens_get(asm_context, token2, TOKENLEN);
 
         if (strcasecmp(token2, "equ") == 0)
         {
-          //token_type2=get_token(asm_context, token2, TOKENLEN);
+          //token_type2 = tokens_get(asm_context, token2, TOKENLEN);
           int ptr = 0;
           int ch = '\n';
 
           while(1)
           {
-            ch = get_next_char(asm_context);
+            ch = tokens_get_char(asm_context);
             if (ch == EOF || ch == '\n') break;
             if (ch == '*' && ptr > 0 && token2[ptr-1] == '/')
             {
@@ -654,13 +654,13 @@ int token_type;
             }
           }
           token2[ptr] = 0;
-          unget_next_char(asm_context, ch);
+          tokens_unget_char(asm_context, ch);
           macros_strip(token2);
           macros_append(asm_context, token, token2, 0);
         }
           else
         {
-          pushback(asm_context, token2, token_type2);
+          tokens_push(asm_context, token2, token_type2);
           //int address=asm_context->address;
 
           //ret=parse_instruction_msp430(asm_context, token);

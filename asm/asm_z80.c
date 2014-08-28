@@ -18,7 +18,7 @@
 #include "asm_z80.h"
 #include "assembler.h"
 #include "table_z80.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 
 // http://wikiti.brandonw.net/index.php?title=Z80_Instruction_Set
@@ -259,7 +259,7 @@ int n,reg;
   memset(&operands, 0, sizeof(operands));
   while(1)
   {
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       break;
@@ -273,7 +273,7 @@ int n,reg;
 
     if (IS_TOKEN(token,'('))
     {
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if ((n = get_reg16(token)) != -1)
       {
         operands[operand_count].type = OPERAND_INDEX_REG16;
@@ -290,8 +290,8 @@ int n,reg;
       {
         operands[operand_count].type = OPERAND_INDEX_REG16_XY;
         operands[operand_count].value = n;
-        token_type = get_token(asm_context, token, TOKENLEN);
-        pushback(asm_context, token, token_type);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        tokens_push(asm_context, token, token_type);
         if (IS_NOT_TOKEN(token,')'))
         {
           if (eval_expression(asm_context, &num) != 0)
@@ -312,7 +312,7 @@ int n,reg;
       }
         else
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
         if (eval_expression(asm_context, &num) != 0)
         {
           if (asm_context->pass == 1)
@@ -320,7 +320,7 @@ int n,reg;
             int paren_count = 1;
             while(1)
             {
-              token_type = get_token(asm_context, token, TOKENLEN);
+              token_type = tokens_get(asm_context, token, TOKENLEN);
               if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
               if (IS_TOKEN(token,'(')) { paren_count++; }
               if (IS_TOKEN(token,')'))
@@ -330,7 +330,7 @@ int n,reg;
               }
             }
 
-            pushback(asm_context, ")", TOKEN_SYMBOL);
+            tokens_push(asm_context, ")", TOKEN_SYMBOL);
             num = 0;
           }
             else
@@ -401,7 +401,7 @@ int n,reg;
     }
       else
     {
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
 
       if (eval_expression(asm_context, &num) != 0)
       {
@@ -428,7 +428,7 @@ int n,reg;
     }
 
     operand_count++;
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
 
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
     if (IS_NOT_TOKEN(token,',') || operand_count == 3)

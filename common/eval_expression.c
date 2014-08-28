@@ -15,7 +15,7 @@
 
 #include "assembler.h"
 #include "eval_expression.h"
-#include "get_tokens.h"
+#include "tokens.h"
 
 struct _operator
 {
@@ -168,7 +168,7 @@ printf("Enter eval_expression_go,  num=%d\n", *num);
 #ifdef DEBUG
 printf("eval_expression> going to grab a token\n");
 #endif
-    token_type = get_token(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
 
 #ifdef DEBUG
 printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
@@ -177,7 +177,7 @@ printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
     {
       if (token[0] == '\\')
       {
-        int e = escape_char(asm_context, (unsigned char *)token);
+        int e = tokens_escape_char(asm_context, (unsigned char *)token);
         if (e == 0) return -1;
         if (token[e+1] != 0)
         {
@@ -206,7 +206,7 @@ printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
       {
         // This is probably the x(r12) case.. so this is actually okay
         *num = num_stack[num_stack_ptr-1];
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
         return 0;
       }
 
@@ -223,7 +223,7 @@ printf("Paren got back %d\n", paren_num);
 #endif
       num_stack[num_stack_ptr++] = paren_num;
 
-      token_type = get_token(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (!(token[1] == 0 && token[0] == ')'))
       {
         print_error("No matching ')'", asm_context);
@@ -234,20 +234,20 @@ printf("Paren got back %d\n", paren_num);
 
     if (IS_TOKEN(token,')'))
     {
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
       break;
     }
 
     // End of expression
     if (IS_TOKEN(token,',') || IS_TOKEN(token,']') || token_type == TOKEN_EOF)
     {
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
       break;
     }
     if (token_type == TOKEN_EOL)
     {
       //asm_context->line++;
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
       break;
     }
 
@@ -291,7 +291,7 @@ printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, operato
         else
       if (last_operator->precedence < operator.precedence)
       {
-        pushback(asm_context, token, token_type);
+        tokens_push(asm_context, token, token_type);
         *num = num_stack[num_stack_ptr-1];
         return 0;
       }

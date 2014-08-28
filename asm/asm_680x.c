@@ -18,7 +18,7 @@
 #include "asm_680x.h"
 #include "assembler.h"
 #include "table_680x.h"
-#include "get_tokens.h"
+#include "tokens.h"
 #include "eval_expression.h"
 
 extern struct _m680x_table m680x_table[];
@@ -46,13 +46,13 @@ int n;
 
   do
   {
-    token_type=get_token(asm_context, token, TOKENLEN);
+    token_type=tokens_get(asm_context, token, TOKENLEN);
 
 #if 0
     if (strcasecmp(token, "a")==0)
     {
       strcat(instr_case, "a");
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
     }
 #endif
 
@@ -80,7 +80,7 @@ int n;
       else
     {
       operand_type=OPERAND_ADDRESS;
-      pushback(asm_context, token, token_type);
+      tokens_push(asm_context, token, token_type);
       if (eval_expression(asm_context, &operand_value)!=0)
       {
         if (asm_context->pass==2)
@@ -93,7 +93,7 @@ int n;
         operand_value=0xffff;
       }
 
-      token_type=get_token(asm_context, token, TOKENLEN);
+      token_type=tokens_get(asm_context, token, TOKENLEN);
       if (token_type==TOKEN_EOL || token_type==TOKEN_EOF) { break; }
       if (IS_NOT_TOKEN(token,','))
       {
