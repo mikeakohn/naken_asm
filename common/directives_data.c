@@ -95,7 +95,7 @@ int parse_dw(struct _asm_context *asm_context)
 char token[TOKENLEN];
 int token_type;
 int data32;
-unsigned short int data16;
+uint16_t data16;
 
   if (asm_context->segment == SEGMENT_BSS)
   {
@@ -114,7 +114,7 @@ unsigned short int data16;
     {
       eat_operand(asm_context);
     }
-    data16=(unsigned short)data32;
+    data16 = (uint16_t)data32;
 
     if (asm_context->memory.endian == ENDIAN_LITTLE)
     {
@@ -148,7 +148,7 @@ int parse_dl(struct _asm_context *asm_context)
 char token[TOKENLEN];
 int token_type;
 int data32;
-unsigned int udata32;
+uint32_t udata32;
 
   if (asm_context->segment == SEGMENT_BSS)
   {
@@ -167,14 +167,14 @@ unsigned int udata32;
     {
       eat_operand(asm_context);
     }
-    udata32 = (unsigned int)data32;
+    udata32 = (uint32_t)data32;
 
     if (asm_context->memory.endian == ENDIAN_LITTLE)
     {
       memory_write_inc(asm_context, udata32 & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32>>8) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32>>16) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32>>24) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32 >> 8) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32 >> 16) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32 >> 24) & 0xff, DL_DATA);
     }
       else
     {
