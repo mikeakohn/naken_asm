@@ -20,6 +20,7 @@
 #include "memory_pool.h"
 #include "print_error.h"
 #include "symbols.h"
+#include "tokens.h"
 
 #define TOKENLEN 512
 #define PARAM_STACK_LEN 4096
@@ -52,6 +53,7 @@ struct _asm_context
   // tokens_get start - maybe move into its own struct
   FILE *in;
   const char *filename;
+  struct _token_buffer token_buffer;
   char pushback[TOKENLEN];
   int pushback_type;
   char unget[512];

@@ -13,15 +13,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tokens.h"
+#include "assembler.h"
 #include "macros.h"
 #include "memory_pool.h"
 #include "symbols.h"
+#include "tokens.h"
 
 static int get_param_index(char *params, char *name)
 {
-int count = 1;
-int ptr = 0;
+  int count = 1;
+  int ptr = 0;
 
   while(params[ptr] != 0)
   {
@@ -35,8 +36,8 @@ int ptr = 0;
 
 static int macros_parse_token(struct _asm_context *asm_context, char *token, int len)
 {
-int ptr = 0;
-char ch;
+  int ptr = 0;
+  char ch;
 
   while(1)
   {
@@ -119,11 +120,11 @@ void macros_free(struct _macros *macros)
 
 int macros_append(struct _asm_context *asm_context, char *name, char *value, int param_count)
 {
-struct _macros *macros = &asm_context->macros;
-struct _memory_pool *memory_pool = macros->memory_pool;
-int param_count_temp;
-int name_len;
-int value_len;
+  struct _macros *macros = &asm_context->macros;
+  struct _memory_pool *memory_pool = macros->memory_pool;
+  int param_count_temp;
+  int name_len;
+  int value_len;
 
   if (macros->locked == 1) { return 0; }
 
@@ -195,9 +196,9 @@ void macros_lock(struct _macros *macros)
 
 char *macros_lookup(struct _macros *macros, char *name, int *param_count)
 {
-struct _memory_pool *memory_pool = macros->memory_pool;
-char *value;
-int ptr;
+  struct _memory_pool *memory_pool = macros->memory_pool;
+  char *value;
+  int ptr;
 
   while(memory_pool != NULL)
   {
@@ -226,7 +227,7 @@ int ptr;
 
 int macros_iterate(struct _macros *macros, struct _macros_iter *iter)
 {
-struct _memory_pool *memory_pool = macros->memory_pool;
+  struct _memory_pool *memory_pool = macros->memory_pool;
 
   if (iter->end_flag == 1) { return -1; }
   if (iter->memory_pool == NULL)
@@ -262,7 +263,7 @@ struct _memory_pool *memory_pool = macros->memory_pool;
 
 int macros_print(struct _macros *macros)
 {
-struct _macros_iter iter;
+  struct _macros_iter iter;
 
   memset(&iter, 0, sizeof(iter));
 
@@ -323,8 +324,8 @@ printf("debug> macros_push_define(), define=%s macros->stack_ptr=%d\n", define, 
 
 int macros_get_char(struct _asm_context *asm_context)
 {
-int stack_ptr;
-int ch;
+  int stack_ptr;
+  int ch;
 
   struct _macros *macros = &asm_context->macros;
 
@@ -395,17 +396,17 @@ void macros_strip(char *macro)
 
 int macros_parse(struct _asm_context *asm_context, int macro_type)
 {
-char name[128];
-char token[TOKENLEN];
-char params[1024];
-char *name_test;
-char macro[MAX_MACRO_LEN];
-int ptr = 0;
-int token_type;
-int ch;
-int cont = 0;
-int parens = 0;
-int param_count = 0;
+  char name[128];
+  char token[TOKENLEN];
+  char params[1024];
+  char *name_test;
+  char macro[MAX_MACRO_LEN];
+  int ptr = 0;
+  int token_type;
+  int ch;
+  int cont = 0;
+  int parens = 0;
+  int param_count = 0;
 
   // First pull the name out
   parens = macros_parse_token(asm_context, name, 128);
@@ -590,11 +591,11 @@ printf("debug> Adding macro '%s'\n", macro);
 
 char *macros_expand_params(struct _asm_context *asm_context, char *define, int param_count)
 {
-int ch;
-char params[1024];
-int params_ptr[256];
-int count,ptr;
-uint8_t in_string = 0;
+  int ch;
+  char params[1024];
+  int params_ptr[256];
+  int count,ptr;
+  uint8_t in_string = 0;
 
   ch = tokens_get_char(asm_context);
 
@@ -687,7 +688,7 @@ printf("debug> Expanded macro becomes: %s\n", asm_context->def_param_stack_data+
 
 void macros_strip_comment(struct _asm_context *asm_context)
 {
-int it, cl = 0;
+  int it, cl = 0;
 
 #ifdef DEBUG
 printf("debug> macros_strip_comment()\n");

@@ -12,6 +12,8 @@
 #ifndef _MACROS_H
 #define _MACROS_H
 
+#include <stdint.h>
+
 #define MAX_NESTED_MACROS 128
 #define MAX_MACRO_LEN 1024
 #define MACROS_HEAP_SIZE 32768
@@ -56,7 +58,6 @@ struct _macros_iter
   int count;
   int end_flag;
 };
-
 
 int macros_init(struct _macros *macros);
 void macros_free(struct _macros *macros);

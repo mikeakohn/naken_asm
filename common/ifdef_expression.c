@@ -13,10 +13,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tokens.h"
+#include "assembler.h"
 #include "ifdef_expression.h"
 #include "macros.h"
 #include "symbols.h"
+#include "tokens.h"
 
 enum
 {

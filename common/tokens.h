@@ -9,15 +9,21 @@
  *
  */
 
-#ifndef _GET_TOKEN_H
-#define _GET_TOKEN_H
+#ifndef _TOKENS_H
+#define _TOKENS_H
 
-#include "assembler.h"
+//#include "assembler.h"
 
 #define IS_TOKEN(t,a) (t[0]==a && t[1]==0)
 #define IS_NOT_TOKEN(t,a) (t[0]!=a || t[1]!=0)
 
 struct _asm_context;
+
+struct _token_buffer
+{
+  char *code;
+  int ptr;
+};
 
 int tokens_open_file(struct _asm_context *asm_context, char *filename);
 void tokens_open_buffer(struct _asm_context *asm_context, char *buffer);

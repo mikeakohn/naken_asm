@@ -15,9 +15,10 @@
 #include <string.h>
 #include <signal.h>
 
-#include "tokens.h"
+#include "assembler.h"
 #include "macros.h"
 #include "symbols.h"
+#include "tokens.h"
 
 #define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }
 
@@ -37,11 +38,16 @@ int tokens_open_file(struct _asm_context *asm_context, char *filename)
 
 void tokens_open_buffer(struct _asm_context *asm_context, char *buffer)
 {
+  asm_context->token_buffer.code = buffer;
+  asm_context->token_buffer.ptr = 0;
 }
 
 void tokens_close(struct _asm_context *asm_context)
 {
-  fclose(asm_context->in);
+  if (asm_context->in != NULL)
+  {
+    fclose(asm_context->in);
+  }
 }
 
 void tokens_reset(struct _asm_context *asm_context)
@@ -50,6 +56,8 @@ void tokens_reset(struct _asm_context *asm_context)
   {
     fseek(asm_context->in, 0, SEEK_SET);
   }
+
+  asm_context->token_buffer.ptr = 0;
 
   asm_context->line = 1;
   asm_context->pushback[0] = 0;
