@@ -12,15 +12,15 @@ test_arch()
     echo "Passed $1 ..."
   fi
 
-  rm out.hex
+  #rm -f out.hex
 }
 
-test_arch "805x"
+#test_arch "805x"
 test_arch "arm"
-test_arch "avr8"
-test_arch "dspic"
-test_arch "msp430"
-test_arch "stm8"
-test_arch "tms9900"
-test_arch "z80"
+#test_arch "avr8"
+#test_arch "dspic"
+#test_arch "msp430"
+#test_arch "stm8"
+#test_arch "tms9900"
+#test_arch "z80"
 

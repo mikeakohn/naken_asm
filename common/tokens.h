@@ -19,6 +19,10 @@
 
 struct _asm_context;
 
+int tokens_open_file(struct _asm_context *asm_context, char *filename);
+void tokens_open_buffer(struct _asm_context *asm_context, char *buffer);
+void tokens_close(struct _asm_context *asm_context);
+void tokens_reset(struct _asm_context *asm_context);
 int tokens_get_char(struct _asm_context *asm_context);
 int tokens_unget_char(struct _asm_context *asm_context, int ch);
 int tokens_get(struct _asm_context *asm_context, char *token, int len);

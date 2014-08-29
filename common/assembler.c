@@ -282,21 +282,23 @@ int token_type;
 
 void assemble_init(struct _asm_context *asm_context)
 {
-  fseek(asm_context->in, 0, SEEK_SET);
+  tokens_reset(asm_context);
   asm_context->parse_instruction = parse_instruction_msp430;
   asm_context->list_output = list_output_msp430;
   asm_context->address = 0;
-  asm_context->line = 1;
   asm_context->instruction_count = 0;
   asm_context->code_count = 0;
   asm_context->data_count = 0;
   asm_context->ifdef_count = 0;
   asm_context->parsing_ifdef = 0;
+#if 0
+  asm_context->line = 1;
   asm_context->pushback[0] = 0;
   asm_context->unget[0] = 0;
   asm_context->unget_ptr = 0;
   asm_context->unget_stack_ptr = 0;
   asm_context->unget_stack[0] = 0;
+#endif
   asm_context->bytes_per_address = 1;
   asm_context->cpu_list_index = -1;
 
@@ -666,7 +668,7 @@ int token_type;
           //ret=parse_instruction_msp430(asm_context, token);
           ret = asm_context->parse_instruction(asm_context, token);
           if (asm_context->pass == 2 && asm_context->list != NULL &&
-              asm_context->include_count==0)
+              asm_context->include_count == 0)
           {
             asm_context->list_output(asm_context, start_address);
             fprintf(asm_context->list, "\n");

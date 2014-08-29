@@ -19,6 +19,7 @@
 #include "write_hex.h"
 #include "macros.h"
 #include "symbols.h"
+#include "tokens.h"
 #include "version.h"
 
 #define FORMAT_HEX 0
@@ -197,14 +198,11 @@ int error_flag=0;
   }
 #endif
 
-  asm_context.in = fopen(infile,"rb");
-  if (asm_context.in == NULL)
+  if (tokens_open_file(&asm_context, infile) != 0)
   {
     printf("Couldn't open %s for reading.\n", infile);
     exit(1);
   }
-
-  asm_context.filename = infile;
 
   out = fopen(outfile, "wb");
   if (out == NULL)

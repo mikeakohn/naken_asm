@@ -21,7 +21,45 @@
 
 #define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }
 
-static int hex_string_to_int(char *s, int *num, int prefixed)
+int tokens_open_file(struct _asm_context *asm_context, char *filename)
+{
+  asm_context->in = fopen(filename, "rb");
+
+  if (asm_context->in == NULL)
+  {
+    return -1;
+  }
+
+  asm_context->filename = filename;
+
+  return 0;
+}
+
+void tokens_open_buffer(struct _asm_context *asm_context, char *buffer)
+{
+}
+
+void tokens_close(struct _asm_context *asm_context)
+{
+  fclose(asm_context->in);
+}
+
+void tokens_reset(struct _asm_context *asm_context)
+{
+  if (asm_context->in != NULL)
+  {
+    fseek(asm_context->in, 0, SEEK_SET);
+  }
+
+  asm_context->line = 1;
+  asm_context->pushback[0] = 0;
+  asm_context->unget[0] = 0;
+  asm_context->unget_ptr = 0;
+  asm_context->unget_stack_ptr = 0;
+  asm_context->unget_stack[0] = 0;
+}
+
+static int tokens_hex_string_to_int(char *s, int *num, int prefixed)
 {
   int n = 0;
 
@@ -49,7 +87,7 @@ static int hex_string_to_int(char *s, int *num, int prefixed)
   return 0;
 }
 
-static int octal_string_to_int(char *s, int *num)
+static int tokens_octal_string_to_int(char *s, int *num)
 {
   int n = 0;
 
@@ -69,7 +107,7 @@ static int octal_string_to_int(char *s, int *num)
   return 0;
 }
 
-static int binary_string_to_int(char *s, int *num)
+static int tokens_binary_string_to_int(char *s, int *num)
 {
   int n = 0;
 
@@ -94,7 +132,7 @@ static int binary_string_to_int(char *s, int *num)
 
 int tokens_get_char(struct _asm_context *asm_context)
 {
-int ch;
+  int ch;
 
 #ifdef DEBUG
 //printf("debug> tokens_get_char()\n");
@@ -155,9 +193,9 @@ int tokens_unget_char(struct _asm_context *asm_context, int ch)
 
 int tokens_get(struct _asm_context *asm_context, char *token, int len)
 {
-int token_type = TOKEN_EOF;
-int ch;
-int ptr = 0;
+  int token_type = TOKEN_EOF;
+  int ch;
+  int ptr = 0;
 
 #ifdef DEBUG
 //printf("Enter tokens_get()\n");
@@ -532,7 +570,7 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
     {
       // If token starts with 0x it's probably hex
       int num;
-      if (hex_string_to_int(token+2, &num, 1) != 0) { return token_type; }
+      if (tokens_hex_string_to_int(token+2, &num, 1) != 0) { return token_type; }
       sprintf(token, "%d", num);
       token_type = TOKEN_NUMBER;
     }
@@ -541,7 +579,7 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
     {
       // If token starts with a number and ends with a h it's probably hex
       int num;
-      if (hex_string_to_int(token, &num, 0) != 0) { return token_type; }
+      if (tokens_hex_string_to_int(token, &num, 0) != 0) { return token_type; }
       sprintf(token, "%d", num);
       token_type = TOKEN_NUMBER;
     }
@@ -550,7 +588,7 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
     {
       // If token starts with a number and ends with a q it's octal
       int num;
-      if (octal_string_to_int(token, &num)!=0) { return token_type; }
+      if (tokens_octal_string_to_int(token, &num)!=0) { return token_type; }
       sprintf(token, "%d", num);
       token_type = TOKEN_NUMBER;
     }
@@ -559,7 +597,7 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
     {
       // If token starts with a number and ends with a b it's probably binary
       int num;
-      if (binary_string_to_int(token, &num) != 0) { return token_type; }
+      if (tokens_binary_string_to_int(token, &num) != 0) { return token_type; }
       sprintf(token, "%d", num);
       token_type = TOKEN_NUMBER;
     }
@@ -569,7 +607,7 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
   {
     // If token is a number and starts with a 0 it's octal
     int num;
-    if (octal_string_to_int(token, &num) != 0) { return token_type; }
+    if (tokens_octal_string_to_int(token, &num) != 0) { return token_type; }
     sprintf(token, "%d", num);
     token_type = TOKEN_NUMBER;
   }
@@ -588,7 +626,7 @@ void tokens_push(struct _asm_context *asm_context, char *token, int token_type)
 // Returns the number of chars eaten by this function or 0 for error
 int tokens_escape_char(struct _asm_context *asm_context, unsigned char *s)
 {
-int ptr = 1;
+  int ptr = 1;
 
   switch(s[ptr])
   {

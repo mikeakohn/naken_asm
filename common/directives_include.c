@@ -108,9 +108,7 @@ printf("including file %s.\n", token);
 
   oldfp = asm_context->in;
 
-  asm_context->in = fopen(token, "rb");
-
-  if (asm_context->in == NULL)
+  if (tokens_open_file(asm_context, token) != 0)
   {
     int ptr = 0;
     char *s = asm_context->include_path;
@@ -126,8 +124,7 @@ printf("including file %s.\n", token);
 #ifdef DEBUG
         printf("Trying %s\n", filename);
 #endif
-        asm_context->in = fopen(filename, "rb");
-        if (asm_context->in != NULL) break;
+        if (tokens_open_file(asm_context, filename) == 0) { break; }
 
         if (asm_context->cpu_list_index != -1)
         {
@@ -135,8 +132,7 @@ printf("including file %s.\n", token);
 #ifdef DEBUG
           printf("Trying %s\n", filename);
 #endif
-          asm_context->in = fopen(filename, "rb");
-          if (asm_context->in != NULL) break;
+          if (tokens_open_file(asm_context, filename) == 0) { break; }
         }
       }
 

@@ -1,0 +1,414 @@
+.msp430x
+
+.define number_five #5
+
+.macro testing(a,b)
+  mov a,b
+.endm
+
+start:
+  mov.b #5, &100
+
+0x0000: 0x40f2 mov.b #0x05, &0x0064                     cycles: 5
+0x0002: 0x0005
+0x0004: 0x0064
+
+  mov.b 100, &100
+
+0x0006: 0x40d2 mov.b 0x0064, &0x0064                    cycles: 6
+0x0008: 0x005c
+0x000a: 0x0064
+
+  add.w 100, &0x100
+
+0x000c: 0x5092 add.w 0x0064, &0x0100                    cycles: 6
+0x000e: 0x0056
+0x0010: 0x0100
+
+  sub.w &0x8000, &0x100
+
+0x0012: 0x8292 sub.w &0x8000, &0x0100                   cycles: 6
+0x0014: 0x8000
+0x0016: 0x0100
+
+  mov.w &0x8000, r1
+
+0x0018: 0x4211 mov.w &0x8000, SP                        cycles: 3
+0x001a: 0x8000
+
+  rrc.w r9
+
+0x001c: 0x1009 rrc.w r9                                 cycles: 1
+
+  rra.w &0x100 
+
+0x001e: 0x1112 rra.w &0x0100                            cycles: 4
+0x0020: 0x0100
+
+  jmp start
+
+0x0022: 0x3fee jmp 0x0000  (offset: -36)                cycles: 2
+
+  push r9
+
+0x0024: 0x1209 push.w r9                                cycles: 3
+
+  push.w r9
+
+0x0026: 0x1209 push.w r9                                cycles: 3
+
+  push.b r9
+
+0x0028: 0x1249 push.b r9                                cycles: 3
+
+  sxt r9
+
+0x002a: 0x1189 sxt r9                                   cycles: 1
+
+  swpb r9
+
+0x002c: 0x1089 swpb r9                                  cycles: 1
+
+  reti
+
+0x002e: 0x1300 reti                                     cycles: 5
+
+
+  call &start
+
+0x0030: 0x1292 call &0x0000                             cycles: 5
+0x0032: 0x0000
+
+
+  jnz start
+
+0x0034: 0x23e5 jne 0x0000  (offset: -54)                cycles: 2
+
+  jne start
+
+0x0036: 0x23e4 jne 0x0000  (offset: -56)                cycles: 2
+
+  jz start
+
+0x0038: 0x27e3 jeq 0x0000  (offset: -58)                cycles: 2
+
+  jeq start
+
+0x003a: 0x27e2 jeq 0x0000  (offset: -60)                cycles: 2
+
+  jc start
+
+0x003c: 0x2fe1 jhs 0x0000  (offset: -62)                cycles: 2
+
+  jhs start
+
+0x003e: 0x2fe0 jhs 0x0000  (offset: -64)                cycles: 2
+
+  jn start
+
+0x0040: 0x33df jn 0x0000  (offset: -66)                 cycles: 2
+
+  jge start
+
+0x0042: 0x37de jge 0x0000  (offset: -68)                cycles: 2
+
+  jl start
+
+0x0044: 0x3bdd jl 0x0000  (offset: -70)                 cycles: 2
+
+
+  testing (#2,4)
+0x0046: 0x43a0 mov.w #2, 0x0004                         cycles: 2
+0x0048: 0xffbc
+
+
+  testing (number_five,4)
+0x004a: 0x40b0 mov.w #0x0005, 0x0004                    cycles: 3
+0x004c: 0x0005
+0x004e: 0xffb6
+
+
+
+  addc.w 100, &0x100
+
+0x0050: 0x6092 addc.w 0x0064, &0x0100                   cycles: 6
+0x0052: 0x0012
+0x0054: 0x0100
+
+  sub.w 100, &0x100
+
+0x0056: 0x8092 sub.w 0x0064, &0x0100                    cycles: 6
+0x0058: 0x000c
+0x005a: 0x0100
+
+  cmp.w 100, &0x100
+
+0x005c: 0x9092 cmp.w 0x0064, &0x0100                    cycles: 6
+0x005e: 0x0006
+0x0060: 0x0100
+
+  dadd.b 100, &0x100
+
+0x0062: 0xa0d2 dadd.b 0x0064, &0x0100                   cycles: 6
+0x0064: 0x0000
+0x0066: 0x0100
+
+  bit.b #5, &0x100
+
+0x0068: 0xb0f2 bit.b #0x05, &0x0100                     cycles: 5
+0x006a: 0x0005
+0x006c: 0x0100
+
+  bit.b #0xff, &0x100
+
+0x006e: 0xb3f2 bit.b #-1, &0x0100                       cycles: 4
+0x0070: 0x0100
+
+  bis.b #0xff, &0x100
+
+0x0072: 0xd3f2 bis.b #-1, &0x0100                       cycles: 4
+0x0074: 0x0100
+
+  xor.b #0xff, &0x100
+
+0x0076: 0xe3f2 sor.b #-1, &0x0100                       cycles: 4
+0x0078: 0x0100
+
+  and.b #0xff, &0x100
+
+0x007a: 0xf3f2 and.b #-1, &0x0100                       cycles: 4
+0x007c: 0x0100
+
+
+  adc.b r9
+
+0x007e: 0x6349 addc.b #0, r9                            cycles: 1
+
+  br #start
+
+0x0080: 0x4300 mov.w #0, PC                             cycles: 2
+
+  clrc
+
+0x0082: 0xc312 clrc  --  bic.w #1, SR                   cycles: 1
+
+  clrn
+
+0x0084: 0xc222 clrn  --  bic.w #4, SR                   cycles: 1
+
+  clrz
+
+0x0086: 0xc322 clrz  --  bic.w #2, SR                   cycles: 1
+
+  dadc.w &0x100
+
+0x0088: 0xa382 dadd.w #0, &0x0100                       cycles: 4
+0x008a: 0x0100
+
+  dec.w &0x100
+
+0x008c: 0x8392 sub.w #1, &0x0100                        cycles: 4
+0x008e: 0x0100
+
+  decd.w &0x100
+
+0x0090: 0x83a2 sub.w #2, &0x0100                        cycles: 4
+0x0092: 0x0100
+
+  dint
+
+0x0094: 0xc232 dint  --  bic.w #8, SR                   cycles: 1
+
+  eint
+
+0x0096: 0xd232 eint  --  bis.w #8, SR                   cycles: 1
+
+  inc.w &0x100
+
+0x0098: 0x5392 add.w #1, &0x0100                        cycles: 4
+0x009a: 0x0100
+
+  inv.w &0x100
+
+0x009c: 0xe3b2 sor.w #-1, &0x0100                       cycles: 4
+0x009e: 0x0100
+
+  nop
+
+0x00a0: 0x4303 nop   --  mov.w #0, CG                   cycles: 1
+
+  ret
+
+0x00a2: 0x4130 ret   --  mov.w @SP+, PC                 cycles: 3
+
+  rla.w &0x100
+
+0x00a4: 0x5292 add.w &0x0100, &0x0100                   cycles: 6
+0x00a6: 0x0100
+0x00a8: 0x0100
+
+  rlc.w &0x100
+
+0x00aa: 0x6292 addc.w &0x0100, &0x0100                  cycles: 6
+0x00ac: 0x0100
+0x00ae: 0x0100
+
+  sbc.w &0x100
+
+0x00b0: 0x7382 subc.w #0, &0x0100                       cycles: 4
+0x00b2: 0x0100
+
+  setc
+
+0x00b4: 0xd312 setc  --  bis.w #1, SR                   cycles: 1
+
+  setn
+
+0x00b6: 0xd222 setn  --  bis.w #4, SR                   cycles: 1
+
+  setz
+
+0x00b8: 0xd322 setz  --  bis.w #2, SR                   cycles: 1
+
+  tst.w r6
+
+0x00ba: 0x9306 cmp.w #0, r6                             cycles: 1
+
+
+  mova @r8, r9
+
+0x00bc: 0x0809 mova @r8, r9                             cycles: ?
+
+  mova @r8+, r9
+
+0x00be: 0x0819 mova @r8+, r9                            cycles: ?
+
+  mova &0x12345, r9
+
+0x00c0: 0x0129 mova &0x12345, r9                        cycles: ?
+0x00c2: 0x2345
+
+  mova 0x100(r8), r9
+
+0x00c4: 0x0839 mova 0x100(r8), r9                       cycles: ?
+0x00c6: 0x0100
+
+
+  rrcm.a #3, r9
+
+0x00c8: 0x0859 rrcm.a #3, r9                            cycles: 3
+
+  rrcm.w #3, r9
+
+0x00ca: 0x0849 rrcm.w #3, r9                            cycles: 3
+
+  rrcm.a #3, r9
+
+0x00cc: 0x0859 rrcm.a #3, r9                            cycles: 3
+
+  rram.w #3, r9
+
+0x00ce: 0x0949 rram.w #3, r9                            cycles: 3
+
+  rlam.a #3, r9
+
+0x00d0: 0x0a59 rlam.a #3, r9                            cycles: 3
+
+  rrum.w #3, r9
+
+0x00d2: 0x0b49 rrum.w #3, r9                            cycles: 3
+
+
+  mova r9, &0x12345
+
+0x00d4: 0x0961 mova r9, &0x12345                        cycles: ?
+0x00d6: 0x2345
+
+  mova r9, 0x100(r9)
+
+0x00d8: 0x0979 mova r9, 0x100(r9)                       cycles: ?
+0x00da: 0x0100
+
+
+  mova #0x12345, r9
+
+0x00dc: 0x0189 mova #0x12345, r9                        cycles: ?
+0x00de: 0x2345
+
+  cmpa #0x12345, r9
+
+0x00e0: 0x0199 cmpa #0x12345, r9                        cycles: ?
+0x00e2: 0x2345
+
+  adda #0x12345, r9
+
+0x00e4: 0x01a9 adda #0x12345, r9                        cycles: ?
+0x00e6: 0x2345
+
+  suba #0x12345, r9
+
+0x00e8: 0x01b9 suba #0x12345, r9                        cycles: ?
+0x00ea: 0x2345
+
+
+  mova r8, r9
+
+0x00ec: 0x08c9 mova r8, r9                              cycles: ?
+
+  cmpa r8, r9
+
+0x00ee: 0x08d9 cmpa r8, r9                              cycles: ?
+
+  adda r8, r9
+
+0x00f0: 0x08e9 adda r8, r9                              cycles: ?
+
+  suba r8, r9
+
+0x00f2: 0x08f9 suba r8, r9                              cycles: ?
+
+
+  calla start
+
+0x00f4: 0x1350 calla 0xff08(PC) -- 0x0                  cycles: ?
+0x00f6: 0xff08
+
+  calla &0x12345
+
+0x00f8: 0x1381 calla &0x12345                           cycles: 6
+0x00fa: 0x2345
+
+  calla 0x10(PC)
+
+0x00fc: 0x1350 calla 0x10(PC) -- 0x110                  cycles: ?
+0x00fe: 0x0010
+
+  calla #0x12345
+
+0x0100: 0x13b1 calla #0x12345                           cycles: 4
+0x0102: 0x2345
+
+
+  pushm.w #3, r9
+
+0x0106: 0x1429 pushm.w #3, r9                           cycles: 5
+
+  popm.w #7, r9
+
+0x0108: 0x1669 popm.w #7, r9                            cycles: 9
+
+
+
+
+data sections:
+
+
+Program Info:
+Include Paths: .
+               /usr/local/share/naken_asm/include
+ Instructions: 82
+   Code Bytes: 266
+   Data Bytes: 0
+  Low Address: 0000 (0)
+ High Address: 0109 (265)
+
