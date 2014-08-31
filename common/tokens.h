@@ -21,12 +21,12 @@ struct _asm_context;
 
 struct _token_buffer
 {
-  char *code;
+  const char *code;
   int ptr;
 };
 
 int tokens_open_file(struct _asm_context *asm_context, char *filename);
-void tokens_open_buffer(struct _asm_context *asm_context, char *buffer);
+void tokens_open_buffer(struct _asm_context *asm_context, const char *buffer);
 void tokens_close(struct _asm_context *asm_context);
 void tokens_reset(struct _asm_context *asm_context);
 int tokens_get_char(struct _asm_context *asm_context);

@@ -965,7 +965,7 @@ int bytes = -1;
       switch(table_arm[n].type)
       {
         case OP_ALU:
-          bytes =parse_alu(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
+          bytes = parse_alu(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         case OP_MULTIPLY:
           bytes = parse_multiply(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
@@ -1005,6 +1005,8 @@ int bytes = -1;
           print_error_internal(asm_context, __FILE__, __LINE__);
           break;
       }
+
+      if (bytes == -1) { return -1; }
 
       if (bytes == ARM_UNKNOWN_INSTRUCTION)
       {

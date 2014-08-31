@@ -36,7 +36,7 @@ int tokens_open_file(struct _asm_context *asm_context, char *filename)
   return 0;
 }
 
-void tokens_open_buffer(struct _asm_context *asm_context, char *buffer)
+void tokens_open_buffer(struct _asm_context *asm_context, const char *buffer)
 {
   asm_context->token_buffer.code = buffer;
   asm_context->token_buffer.ptr = 0;
