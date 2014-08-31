@@ -174,7 +174,16 @@ int tokens_get_char(struct _asm_context *asm_context)
     // Why do people still use DOS :(
     do
     {
-      ch = getc(asm_context->in);
+      if (asm_context->token_buffer.code != NULL)
+      {
+        ch = asm_context->token_buffer.code[asm_context->token_buffer.ptr];
+        if (ch == 0) { ch = EOF; }
+        else { asm_context->token_buffer.ptr++; }
+      }
+        else
+      {
+        ch = getc(asm_context->in);
+      }
     } while(ch == '\r');
 
     if (asm_context->pass == 2 && asm_context->list != NULL &&
