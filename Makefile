@@ -48,8 +48,9 @@ clean:
 	@rm -rf build/*.o
 	@echo "Clean!"
 
-regression:
+tests:
 	@cd testing && sh regression.sh
+	@cd testing/unit/eval_expression && make && ./unit_test && make clean
 
 distclean: clean
 	@rm -f config.mak *.asm

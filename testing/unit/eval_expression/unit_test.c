@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "assembler.h"
 #include "eval_expression.h"
 #include "tokens.h"
 
@@ -15,6 +14,8 @@ void test(const char *expression, int answer)
   printf("Testing: %s ... ", expression);
 
   tokens_open_buffer(&asm_context, expression);
+  tokens_reset(&asm_context);
+  //assemble_init(&asm_context);
 
   if (eval_expression(&asm_context, &num) != 0)
   {
@@ -37,10 +38,13 @@ void test(const char *expression, int answer)
 
 int main(int argc, char *argv[])
 {
+  printf("eval_expression() test\n");
+
   test("3*5", 15);
   test("3 * 5", 15);
   test("3*(5+4)", 27);
   test("3*(5<<2)", 60);
+  test("5+3*9", 32);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
