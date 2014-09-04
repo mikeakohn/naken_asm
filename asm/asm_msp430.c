@@ -1021,7 +1021,7 @@ int prefix=0;
         return -1;
       }
 
-      int al=(size==20)?1:0;
+      int al=(size==20)?0:1;
       opcode=((operands[0].value-1)<<10)|(n<<8)|(1<<6)|(al<<4)|operands[1].value;
       add_bin16(asm_context, opcode, IS_OPCODE);
       return 2;
@@ -1128,7 +1128,7 @@ int prefix=0;
       else { printf("Internal error at %s:%d\n", __FILE__, __LINE__); return -1; }
 #endif
 
-      int al=(size==20)?1:0;
+      int al=(size==20)?0:1;
       opcode=0x1400|(n<<9)|(al<<8)|(num<<4)|reg;
       add_bin16(asm_context, opcode, IS_OPCODE);
       return 2;

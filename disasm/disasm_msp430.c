@@ -548,7 +548,7 @@ int n;
   n=0;
   while(table_msp430[n].instr!=NULL)
   {
-    char mode[]={ 'w','a' };
+    char mode[]={ 'a','w' };
     if ((opcode&table_msp430[n].mask)==table_msp430[n].opcode)
     {
       switch(table_msp430[n].type)
