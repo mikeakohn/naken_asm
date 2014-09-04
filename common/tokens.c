@@ -220,7 +220,7 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
 
   token[0] = 0;
 
-  if (asm_context->pushback[0]!=0)
+  if (asm_context->pushback[0] != 0)
   {
     strcpy(token, asm_context->pushback);
     asm_context->pushback[0] = 0;

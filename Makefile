@@ -43,13 +43,16 @@ msp430x:
 	msp430-as testing/msp430x.asm -mmsp430x2619
 	msp430-objcopy -F ihex a.out msp430x.hex
 
+archive:
+	ar rvs build/naken_asm.a build/*.o
+
 clean:
 	@rm -f naken_asm naken_util naken_prog *.exe *.o *.hex a.out *.lst *.ndbg *.elf
-	@rm -rf build/*.o
+	@rm -rf build/*.o build/*.a
 	@echo "Clean!"
 
 tests:
-	@cd testing && sh regression.sh
+	@cd testing/regression && sh regression.sh
 	@cd testing/unit/eval_expression && make && ./unit_test && make clean
 
 distclean: clean

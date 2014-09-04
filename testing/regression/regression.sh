@@ -2,7 +2,7 @@
 
 test_arch()
 {
-  b=`../naken_asm -o out.hex $1/testing.asm`
+  b=`../../naken_asm -o out.hex ../$1/testing.asm`
 
   if [ $? -ne 0 ]
   then
@@ -10,7 +10,7 @@ test_arch()
     return
   fi
 
-  a=`diff out.hex regression/$1.hex`
+  a=`diff out.hex $1.hex`
 
   if [ "${a}" != "" ]
   then
@@ -19,7 +19,7 @@ test_arch()
     echo "Passed $1 ..."
   fi
 
-  #rm -f out.hex
+  rm -f out.hex out.lst
 }
 
 test_arch "805x"
