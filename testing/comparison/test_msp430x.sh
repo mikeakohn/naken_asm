@@ -26,6 +26,7 @@ EOF
     echo "PASS"
   else
     echo "FAIL ${a} ${b}"
+    exit 0
   fi
 
   rm -f msp430x_gnu.hex msp430x_naken.hex a.out msp430x.asm
@@ -37,6 +38,20 @@ test_instr "pushm.a #1, r5"
 test_instr "rrcm.w #3, r5"
 test_instr "rrcm.a #3, r5"
 test_instr "rrcm #3, r5"
+test_instr "mova @r10, r11"
+test_instr "mova @r10+, r11"
+test_instr "mova &0x12344, r11"
+test_instr "mova 5(r10), r11"
+test_instr "mova r11, &0x12344"
+test_instr "mova r11, 5(r10)"
+test_instr "mova #0x12345, r10"
+test_instr "cmpa #0x12345, r10"
+test_instr "adda #0x12345, r10"
+test_instr "suba #0x12345, r10"
+test_instr "mova r11, r10"
+test_instr "calla &0x12346"
+#test_instr "calla 10(PC)"
+test_instr "calla #0x12346"
 
 
 

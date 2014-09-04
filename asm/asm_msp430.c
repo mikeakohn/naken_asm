@@ -979,6 +979,7 @@ int prefix=0;
       case OPTYPE_IMMEDIATE:
         add_bin16(asm_context, opcode|0xb0|((value>>16)&0xf), IS_OPCODE);
         add_bin16(asm_context, value&0xffff, IS_OPCODE);
+        return 4;
       case OPTYPE_REGISTER:
         add_bin16(asm_context, opcode|0x40|value, IS_OPCODE);
         return 2;
