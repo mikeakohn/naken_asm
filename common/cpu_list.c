@@ -80,7 +80,7 @@ struct _cpu_list cpu_list[] =
   { "mips", CPU_TYPE_MIPS, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_mips, list_output_mips, disasm_range_mips, NULL },
 #endif
   { "msp430", CPU_TYPE_MSP430, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_msp430, list_output_msp430, disasm_range_msp430, simulate_init_msp430 },
-  { "msp430x", CPU_TYPE_MSP430X, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_msp430, list_output_msp430, disasm_range_msp430, simulate_init_msp430},
+  { "msp430x", CPU_TYPE_MSP430X, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_msp430, list_output_msp430x, disasm_range_msp430x, simulate_init_msp430},
 #ifdef ENABLE_DSPIC
   { "pic24", CPU_TYPE_PIC24, ENDIAN_LITTLE, 2, 0, 0, parse_instruction_dspic, list_output_dspic, disasm_range_dspic, NULL },
 #endif

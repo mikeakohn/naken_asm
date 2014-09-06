@@ -695,16 +695,39 @@ int n;
   return count;
 }
 
-void list_output_msp430(struct _asm_context *asm_context, int address)
+int disasm_msp430x(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+{
+  uint16_t opcode = READ_RAM16(address);
+  if (opcode == 0x1300)
+  {
+    sprintf(instruction, "reti");
+    *cycles_min = 3;
+    *cycles_max = *cycles_min;
+    return 2;
+  }
+
+  return disasm_msp430(memory, address, instruction, cycles_min, cycles_max);
+}
+
+static void list_output_msp430_both(struct _asm_context *asm_context, int address, int msp430x)
 {
 int cycles_min,cycles_max,count;
 int num;
 char instruction[128];
 
   fprintf(asm_context->list, "\n");
-  count = disasm_msp430(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
+  if (msp430x == 0)
+  {
+    count = disasm_msp430(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
+  }
+    else
+  {
+    count = disasm_msp430x(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
+  }
+
   num = memory_read(asm_context, address) |
         memory_read(asm_context, address + 1) << 8;
+
   if (cycles_min < 0)
   {
     fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: ?\n", address, num, instruction);
@@ -725,7 +748,7 @@ char instruction[128];
   }
 }
 
-void disasm_range_msp430(struct _memory *memory, int start, int end)
+static void disasm_range_msp430_both(struct _memory *memory, int start, int end, int msp430x)
 {
 // Are these correct and the same for all MSP430's?
 char *vectors[16] = { "", "", "", "", "", "",
@@ -736,7 +759,7 @@ char *vectors[16] = { "", "", "", "", "", "",
 char instruction[128];
 int vectors_flag = 0;
 int cycles_min = 0,cycles_max = 0;
-int num;
+int num,count;
 
   printf("\n");
 
@@ -768,7 +791,14 @@ int num;
       }
     }
 
-    int count = disasm_msp430(memory, start, instruction, &cycles_min, &cycles_max);
+    if (msp430x == 0)
+    {
+      count = disasm_msp430(memory, start, instruction, &cycles_min, &cycles_max);
+    }
+      else
+    {
+      count = disasm_msp430x(memory, start, instruction, &cycles_min, &cycles_max);
+    }
 
     if (cycles_min < 1)
     {
@@ -795,6 +825,26 @@ int num;
 
     start = start + 2;
   }
+}
+
+void disasm_range_msp430(struct _memory *memory, int start, int end)
+{
+  disasm_range_msp430_both(memory, start, end, 0);
+}
+
+void disasm_range_msp430x(struct _memory *memory, int start, int end)
+{
+  disasm_range_msp430_both(memory, start, end, 1);
+}
+
+void list_output_msp430(struct _asm_context *asm_context, int address)
+{
+  list_output_msp430_both(asm_context, address, 0);
+}
+
+void list_output_msp430x(struct _asm_context *asm_context, int address)
+{
+  list_output_msp430_both(asm_context, address, 1);
 }
 
 
