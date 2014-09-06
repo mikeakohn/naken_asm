@@ -623,22 +623,25 @@ int n;
           char temp[32];
           int as = (opcode >> 4) & 0x3;
           dst = opcode & 0xf;
-          if (as == 0) { sprintf(temp, "%s", regs[dst]); }
+          if (as == 0) { sprintf(temp, "%s", regs[dst]); *cycles_min = 4; }
           else if (as == 1)
           {
             if (dst == 0)
             {
               int16_t offset = READ_RAM16(address + 2);
-              sprintf(temp, "0x%x(%s) -- 0x%x", READ_RAM16(address + 2), regs[dst], (address + 4)+offset);
+              sprintf(temp, "0x%x(%s) -- 0x%x", READ_RAM16(address + 2), regs[dst], (address + 4) + offset);
             }
               else
             {
               sprintf(temp, "0x%x(%s)", READ_RAM16(address + 2), regs[dst]);
             }
+            *cycles_min = 6;
+            if (dst == 1) (*cycles_min)++; // if Rn=SP increment by 1
           }
-          else if (as == 2) { sprintf(temp, "@%s", regs[dst]); }
-          else if (as == 3) { sprintf(temp, "@%s+", regs[dst]); }
+          else if (as == 2) { sprintf(temp, "@%s", regs[dst]); *cycles_min = 5; }
+          else if (as == 3) { sprintf(temp, "@%s+", regs[dst]); *cycles_min = 5; }
           sprintf(instruction, "%s %s", table_msp430[n].instr, temp);
+          *cycles_max = *cycles_min;
           return (as == 1) ? 4:2;
         }
         case OP_CALLA_ABS20:
@@ -651,6 +654,8 @@ int n;
           num = ((opcode & 0xf) << 16) | READ_RAM16(address + 2);
           if ((num & 0x80000) != 0) { num |= 0xfff0000; }
           sprintf(instruction, "%s 0x%x(%d)", table_msp430[n].instr, address + 4 + num, num);
+          *cycles_min = 6;
+          *cycles_max = *cycles_min;
           return 4;
         case OP_CALLA_IMMEDIATE:
           num = ((opcode & 0xf) << 16) | READ_RAM16(address + 2);
@@ -663,7 +668,7 @@ int n;
           num = (opcode >> 4) & 0xf;
           wa = (opcode >> 8) & 0x1;
           sprintf(instruction, "pushm.%c #%d, %s", mode[wa], num+1, regs[src]);
-          *cycles_min = 2 + (num + 1);
+          *cycles_min = 2 + (num + 1) * (wa + 1);
           *cycles_max = *cycles_min;
           return 2;
         case OP_POP:
@@ -671,7 +676,7 @@ int n;
           num = (opcode >> 4) & 0xf;
           wa = (opcode >> 8) & 0x1;
           sprintf(instruction, "popm.%c #%d, %s", mode[wa], num+1, regs[dst]);
-          *cycles_min = 2 + (num + 1);
+          *cycles_min = 2 + (num + 1) * (wa + 1);
           *cycles_max = *cycles_min;
           return 2;
         default:
