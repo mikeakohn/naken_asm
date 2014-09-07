@@ -172,8 +172,8 @@ struct _table_z80 table_z80[] =
   { "rr", 0xcb1e, 0xffff, OP_INDEX_HL_CB, Z80_RR, 15 },
   { "rr", 0xcb18, 0xfff8, OP_REG8_CB, Z80_RR,8 },
   { "rrca", 0x0f, 0xff, OP_NONE, Z80_RRCA, 4 },
-  { "rrc", 0xcb0e, 0xffff, OP_INDEX_HL_CB, Z80_RRC, -1 },
-  { "rrc", 0xcb08, 0xfff8, OP_REG8_CB, Z80_RRC, -1 },
+  { "rrc", 0xcb0e, 0xffff, OP_INDEX_HL_CB, Z80_RRC, 15 },
+  { "rrc", 0xcb08, 0xfff8, OP_REG8_CB, Z80_RRC, 8 },
   { "rrd", 0xed67, 0xffff, OP_NONE16, Z80_RRD, 18 },
   { "rst", 0xc7, 0xc7, OP_RESTART_ADDRESS, Z80_RST, 11 },
 

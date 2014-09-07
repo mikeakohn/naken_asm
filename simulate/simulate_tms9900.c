@@ -324,7 +324,7 @@ uint16_t opcode;
 int cycles = 0;
 int ret;
 int pc;
-int c;
+int c = 0; // FIXME - broken
 int n;
 
   stop_running = 0;

@@ -1196,11 +1196,11 @@ int n;
       return 0;
     }
 
-    if (simulate_z80->reg[0] == 0xffff)
+    if (simulate_z80->pc == 0xffff)
     {
       printf("Function ended.  Total cycles: %d\n", simulate->cycle_count);
       simulate->step_mode = 0;
-      simulate_z80->reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
+      simulate_z80->pc = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
       signal(SIGINT, SIG_DFL);
       return 0;
     }
