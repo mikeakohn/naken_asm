@@ -515,7 +515,7 @@ int prefix = 0;
         {
           // FIXME - Ugly fix. The real problem is in eval_expression.
           int neg = 1;
-          if (IS_TOKEN(token,'-')) { neg=-1; }
+          if (IS_TOKEN(token,'-')) { neg = -1; }
           else { tokens_push(asm_context, token, token_type); }
 
           if (eval_expression(asm_context, &num) != 0)
@@ -826,11 +826,11 @@ int prefix = 0;
 
       if (asm_context->pass == 1)
       {
-        offset=asm_context->address;
+        offset = asm_context->address;
       }
         else
       {
-        if (operands[0].type!=OPTYPE_SYMBOLIC)
+        if (operands[0].type != OPTYPE_SYMBOLIC)
         {
           print_error("Expecting a branch address", asm_context);
           return -1;
@@ -926,30 +926,44 @@ int prefix = 0;
         add_bin16(asm_context, value & 0xffff, IS_OPCODE);
         return 4;
       case OPTYPE_INDEXED:
-        if (value > 0xffff || value < -32768)
+        if (operands[0].reg == 0)
         {
-          print_error_range("Index", -32768, 32767, asm_context);
-          return -1;
+          if (value > 0xfffff || value < -524288)
+          {
+            print_error_range("Index", -524288, 0x7ffff, asm_context);
+            return -1;
+          }
+          add_bin16(asm_context, opcode | 0x90 | ((value >> 16) & 0xf), IS_OPCODE);
         }
-        add_bin16(asm_context, opcode | 0x50 | operands[0].reg, IS_OPCODE);
+          else
+        {
+          if (value > 0xffff || value < -32768)
+          {
+            print_error_range("Index", -32768, 32767, asm_context);
+            return -1;
+          }
+          add_bin16(asm_context, opcode | 0x50 | operands[0].reg, IS_OPCODE);
+        }
+
         add_bin16(asm_context, value & 0xffff, IS_OPCODE);
         return 4;
       case OPTYPE_SYMBOLIC:
         if (asm_context->pass == 1)
         {
-          add_bin16(asm_context, opcode | 0x50 | 0, IS_OPCODE);
+          add_bin16(asm_context, opcode | 0x90 | 0, IS_OPCODE);
           add_bin16(asm_context, value & 0xffff, IS_OPCODE);
           return 4;
         }
-        value = operands[0].value - (asm_context->address + 4);
 
-        if (value>32767 || value<-32768)
+        int offset = operands[0].value - (asm_context->address + 4);
+
+        if (offset > 0xfffff || offset < -524288)
         {
-          print_error_range("Offset", -32768, 32767, asm_context);
+          print_error_range("Offset", -524288, 0x7ffff, asm_context);
           return -1;
         }
-        add_bin16(asm_context, opcode | 0x50 | 0, IS_OPCODE);
-        add_bin16(asm_context, value & 0xffff, IS_OPCODE);
+        add_bin16(asm_context, opcode | 0x90 | ((offset >> 16) & 0xf), IS_OPCODE);
+        add_bin16(asm_context, offset & 0xffff, IS_OPCODE);
         return 4;
       case OPTYPE_IMMEDIATE:
         add_bin16(asm_context, opcode | 0xb0 | ((value >> 16) & 0xf), IS_OPCODE);
