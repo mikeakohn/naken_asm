@@ -86,7 +86,7 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
       return (READ_RAM(indirect) + 256 * READ_RAM(indirect + 1)) & 0xFFFF;
     case 7:
       indirect = lo;
-      return (READ_RAM(indirect) + 256 * READ_RAM(indirect + 1) + REG_Y) & 0xFFFF;
+      return ((READ_RAM(indirect) + 256 * READ_RAM(indirect + 1) + REG_Y)) & 0xFFFF;
     case 8:
       return (address + ((signed char)READ_RAM(address) + 1)) & 0xFFFF;
     case 9:
