@@ -15,7 +15,7 @@ struct _table_avr8 table_avr8[] =
 {
   { "sec", 0x9408, 0xffff, OP_NONE, 1, 1, AVR8_SEC },
   { "clc", 0x9488, 0xffff, OP_NONE, 1, 1, AVR8_CLC },
-  { "sen", 0x9448, 0xffff, OP_NONE, 1, 1, AVR8_SEN },
+  { "sen", 0x9428, 0xffff, OP_NONE, 1, 1, AVR8_SEN },
   { "cln", 0x94a8, 0xffff, OP_NONE, 1, 1, AVR8_CLN },
   { "sez", 0x9418, 0xffff, OP_NONE, 1, 1, AVR8_SEZ },
   { "clz", 0x9498, 0xffff, OP_NONE, 1, 1, AVR8_CLZ },
