@@ -243,7 +243,7 @@ struct _cycles_65xx cycles_65xx[] = {
   { 0x97,  0,   0,   unused },
   { 0x98,  2,   0,   imp },
   { 0x99,  5,   0,   absy },
-  { 0x9a,  0,   0,   imp },
+  { 0x9a,  2,   0,   imp },
   { 0x9b,  0,   0,   unused },
   { 0x9c,  0,   0,   unused },
   { 0x9d,  5,   0,   absx },
