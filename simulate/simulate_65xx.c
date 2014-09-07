@@ -77,22 +77,22 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
     case 4:
       return address;
     case 5:
-      indirect = READ_RAM(address) + 256 * READ_RAM((address + 1) & 0xFFFF);
-      return READ_RAM(indirect) + 256 * READ_RAM((indirect + 1) & 0xFFFF);
+      indirect = (READ_RAM(address) + 256 * READ_RAM(address + 1)) & 0xFFFF;
+      return (READ_RAM(indirect) + 256 * READ_RAM(indirect + 1)) & 0xFFFF;
     case 6:
-      indirect = READ_RAM((address + REG_X) & 0xFF);
-      return READ_RAM(indirect) + 256 * READ_RAM((indirect + 1) & 0xFFFF);
+      indirect = (READ_RAM(address) + REG_X) & 0xFF;
+      return (READ_RAM(indirect) + 256 * READ_RAM(indirect + 1)) & 0xFFFF;
     case 7:
       indirect = READ_RAM(address);
-      return (READ_RAM(indirect) + 256 * (READ_RAM(indirect + 1) & 0xFFFF) + REG_Y) & 0xFFFF;
+      return (READ_RAM(indirect) + 256 * READ_RAM(indirect + 1) + REG_Y) & 0xFFFF;
     case 8:
       return (address + ((signed char)READ_RAM(address) + 1)) & 0xFFFF;
     case 9:
-      return READ_RAM(address & 0xFF);
+      return READ_RAM(address) & 0xFF;
     case 10:
       return READ_RAM((address + REG_X) & 0xFF);
     case 11:
-      return READ_RAM((address + REG_Y) & 0xFF);
+      return READ_RAM((address + REG_Y) & 0xFFFF);
     default:
       return -1;
   }
