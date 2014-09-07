@@ -16,8 +16,12 @@ fi
 
 }
 
+# sudo apt-get install gcc-arm-linux-gnueabi
+# sudo apt-get install gcc-msp430
+
 test_compare "arm-linux-gnueabi-as" "arm"
 test_compare "msp430-as" "msp430x"
+test_compare "avr-as" "avr8"
 
 echo "Compare test done"
 

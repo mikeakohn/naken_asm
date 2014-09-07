@@ -41,7 +41,7 @@ struct _table_avr8 table_avr8[] =
   { "reti", 0x9518, 0xffff, OP_NONE, 4, 4, AVR8_RETI },
   { "lpm", 0x95c8, 0xffff, OP_NONE, 3, 3, AVR8_LPM },
   { "elpm", 0x95d8, 0xffff, OP_NONE, 3, 3, AVR8_ELPM },
-  { "spm", 0x94c8, 0xffff, OP_NONE, -1, -1, AVR8_SPM },
+  { "spm", 0x95e8, 0xffff, OP_NONE, -1, -1, AVR8_SPM },
   { "breq", 0xf001, 0xfc07, OP_BRANCH_K, 1, 2, AVR8_BREQ },
   { "brne", 0xf401, 0xfc07, OP_BRANCH_K, 1, 2, AVR8_BRNE },
   { "brcs", 0xf000, 0xfc07, OP_BRANCH_K, 1, 2, AVR8_BRCS },
