@@ -63,7 +63,7 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
   struct _simulate_65xx *simulate_65xx=(struct _simulate_65xx *)simulate->context;
 
   int lo = READ_RAM(address);
-  int hi = READ_RAM((address + 1 & 0xFFFF));
+  int hi = READ_RAM((address + 1) & 0xFFFF);
   int indirect;
 
   switch(mode)
