@@ -22,7 +22,7 @@ ASM_OBJS="asm_common.o"
 DISASM_OBJS="disasm_common.o"
 TABLE_OBJS=""
 SIM_OBJS="simulate_65xx.o simulate_avr8.o simulate_msp430.o simulate_z80.o tms9900.o"
-COMMON_OBJS="assembler.o cpu_list.o directives_data.o directives_if.o directives_include.o eval_expression.o print_error.o write_elf.o write_hex.o tokens.o ifdef_expression.o macros.o memory.o memory_pool.o read_elf.o read_hex.o symbols.o"
+COMMON_OBJS="assembler.o cpu_list.o directives_data.o directives_if.o directives_include.o eval_expression.o print_error.o write_elf.o write_hex.o tokens.o ifdef_expression.o macros.o memory.o memory_pool.o read_elf.o read_hex.o read_ti_txt.o symbols.o"
 PROG_OBJS="lpc.o serial.o"
 
 for file in asm/*.c

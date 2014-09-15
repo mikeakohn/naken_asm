@@ -13,8 +13,8 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
 	   $(TABLE_OBJS) \
 	   $(SIM_OBJS) \
 	   $(DFLAGS) \
-	   cpu_list.o read_elf.o read_hex.o memory.o memory_pool.o \
-	   print_error.o symbols.o \
+	   cpu_list.o memory.o memory_pool.o print_error.o read_elf.o \
+	   read_hex.o read_ti_txt.o symbols.o \
 	   -I../disasm -I../common -I../simulate -I../table -I../fileio \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 	$(CC) -o ../naken_prog$(CONFIG_EXT) ../common/naken_prog.c \
