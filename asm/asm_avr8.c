@@ -270,6 +270,12 @@ int rd,rr,k;
   {
     if (strcmp(alias[n].instr, instr_case) == 0)
     {
+      if (operand_count != 1)
+      {
+        print_error_opcount(instr, asm_context);
+        return -1;
+      }
+
       operand_count = 2;
       operands[1].type = OPERAND_REG;
       operands[1].value = operands[0].value;
