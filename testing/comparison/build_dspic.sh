@@ -15,11 +15,11 @@ EOF
   xc16-bin2hex a.out
   #xc16-objcopy -F ihex a.out dspic_gnu.hex
   #xc16-objdump -d a.out
-  b=`head -1 a.hex | tr -d '\r' | tr -d '\n'`
+  b=`egrep '^:04' a.hex | tr '[:lower:]' '[:upper:]' | tr -d '\r' | tr -d '\n'`
 
   echo "${1}|${b}" >> dspic.txt
 
-  rm -f a.hex a.out dspic.asm
+  #rm -f a.hex a.out dspic.asm
 }
 
 echo -n > dspic.txt
