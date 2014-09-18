@@ -5,16 +5,12 @@ test_instr()
   echo "building ${1} ..."
 
 cat >msp430.asm << EOF
-.ifndef  __GNU__
-.msp430
-.endif
-
   ${1}
 EOF
 
   #cat msp430.asm
 
-  msp430-as msp430.asm -mmsp430x2553 -mcpu=430x --defsym __GNU__=1
+  msp430-as msp430.asm -mmsp430x2553
   msp430-objcopy -F ihex a.out msp430_gnu.hex
 
   b=`head -1 msp430_gnu.hex | tr -d '\r' | tr -d '\n'`

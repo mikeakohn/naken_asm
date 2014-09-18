@@ -5,16 +5,12 @@ test_instr()
   echo "building ${1} ..."
 
 cat >avr8.asm << EOF
-.ifndef  __GNU__
-.avr8
-.endif
-
   ${1}
 EOF
 
   #cat avr8.asm
 
-  avr-as avr8.asm -mmcu=atmega168 --defsym __GNU__=1
+  avr-as avr8.asm -mmcu=atmega168
   avr-objcopy -F ihex a.out avr8_gnu.hex
 
   b=`head -1 avr8_gnu.hex | tr -d '\r' | tr -d '\n'`

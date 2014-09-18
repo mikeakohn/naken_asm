@@ -5,16 +5,12 @@ test_instr()
   echo "building ${1} ... "
 
 cat >arm.asm << EOF
-.ifndef  __GNU__
-.arm
-.endif
-
   ${1}
 EOF
 
   #cat arm.asm
 
-  arm-linux-gnueabi-as arm.asm --defsym __GNU__=1
+  arm-linux-gnueabi-as arm.asm
   arm-linux-gnueabi-objcopy -F ihex a.out arm_gnu.hex
 
   b=`head -1 arm_gnu.hex | tr -d '\r' | tr -d '\n'`

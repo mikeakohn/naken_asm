@@ -54,7 +54,7 @@ clean:
 tests:
 	@cd testing/regression && sh regression.sh
 	@cd testing/unit/eval_expression && make && ./unit_test && make clean
-	@cd testing/comparison && sh test.sh
+	@cd testing/comparison && make
 
 distclean: clean
 	@rm -f config.mak *.asm
