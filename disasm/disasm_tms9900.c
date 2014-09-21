@@ -141,7 +141,8 @@ int n;
         case OP_JUMP:
         {
           data_s = ((char)(opcode & 0xff));
-          sprintf(instruction, "%s 0x%04x (%d)", table_tms9900[n].instr, address+2+data_s, data_s);
+          int offset = data_s * 2;
+          sprintf(instruction, "%s 0x%04x (%d)", table_tms9900[n].instr, address + 2 + offset, offset);
           return count;
         }
         case OP_SHIFT:

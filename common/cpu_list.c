@@ -98,7 +98,7 @@ struct _cpu_list cpu_list[] =
   { "tms1100", CPU_TYPE_TMS1100, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_tms1100, list_output_tms1100, disasm_range_tms1100, NULL },
 #endif
 #ifdef ENABLE_TMS9900
-  { "tms9900", CPU_TYPE_TMS9900, ENDIAN_LITTLE, 1, 0, 0, parse_instruction_tms9900, list_output_tms9900, disasm_range_tms9900, simulate_init_tms9900 },
+  { "tms9900", CPU_TYPE_TMS9900, ENDIAN_BIG, 1, 0, 0, parse_instruction_tms9900, list_output_tms9900, disasm_range_tms9900, simulate_init_tms9900 },
 #endif
 #ifdef ENABLE_Z80
   { "z80", CPU_TYPE_Z80, ENDIAN_LITTLE, 1, 0, 1, parse_instruction_z80, list_output_z80, disasm_range_z80, simulate_init_z80 },

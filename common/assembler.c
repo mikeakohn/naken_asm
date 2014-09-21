@@ -441,12 +441,12 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     else
   if (strcasecmp(token, "big_endian") == 0)
   {
-    asm_context->memory.endian=ENDIAN_BIG;
+    asm_context->memory.endian = ENDIAN_BIG;
   }
     else
   if (strcasecmp(token, "little_endian") == 0)
   {
-    asm_context->memory.endian=ENDIAN_LITTLE;
+    asm_context->memory.endian = ENDIAN_LITTLE;
   }
 
   int n = 0;
