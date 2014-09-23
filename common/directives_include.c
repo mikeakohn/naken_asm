@@ -107,6 +107,7 @@ printf("including file %s.\n", token);
   asm_context->include_count++;
 
   oldfp = asm_context->in;
+  oldname = asm_context->filename;
 
   if (tokens_open_file(asm_context, token) != 0)
   {
@@ -148,7 +149,6 @@ printf("including file %s.\n", token);
   }
     else
   {
-    oldname = asm_context->filename;
     oldline = asm_context->line;
 
     asm_context->filename = token;
@@ -156,12 +156,12 @@ printf("including file %s.\n", token);
 
     ret = assemble(asm_context);
 
-    asm_context->filename = oldname;
     asm_context->line = oldline;
   }
 
   if (asm_context->in != NULL) { fclose(asm_context->in); }
 
+  asm_context->filename = oldname;
   asm_context->in = oldfp;
   asm_context->include_count--;
 
