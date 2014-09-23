@@ -236,10 +236,12 @@ int n;
           if (operands[0].type == OPERAND_NUMBER ||
               operands[1].type == OPERAND_NUMBER)
           {
-            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            print_error_illegal_operands(instr, asm_context);
             return -1;
           }
-          opcode = table_tms9900[n].opcode | (operands[1].reg << 6) | operands[0].reg | (mode[operands[1].type] << 10) | (mode[operands[0].type] << 4);
+
+          opcode = table_tms9900[n].opcode |(operands[1].reg << 6) | operands[0].reg | (mode[operands[1].type] << 10) | (mode[operands[0].type] << 4);
+
           add_bin16(asm_context, opcode, IS_OPCODE);
           if (operands[0].type >= OPERAND_SYMBOLIC)
           {
@@ -264,7 +266,7 @@ int n;
           if (operands[0].type == OPERAND_NUMBER ||
               operands[1].type != OPERAND_REGISTER)
           {
-            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            print_error_illegal_operands(instr, asm_context);
             return -1;
           }
           opcode = table_tms9900[n].opcode | (operands[1].reg << 6) | operands[0].reg | (mode[operands[0].type] << 4);
@@ -285,7 +287,7 @@ int n;
           }
           if (operands[0].type == OPERAND_NUMBER)
           {
-            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            print_error_illegal_operands(instr, asm_context);
             return -1;
           }
           opcode = table_tms9900[n].opcode | operands[0].reg | (mode[operands[0].type] << 4);
@@ -307,7 +309,7 @@ int n;
           if (operands[0].type == OPERAND_NUMBER ||
               operands[1].type != OPERAND_NUMBER)
           {
-            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            print_error_illegal_operands(instr, asm_context);
             return -1;
           }
           if (operands[1].value < 0 || operands[1].value > 15)
@@ -333,7 +335,7 @@ int n;
           }
           if (operands[0].type != OPERAND_NUMBER)
           {
-            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            print_error_illegal_operands(instr, asm_context);
             return -1;
           }
           if (operands[0].value < -128 || operands[0].value > 127)
@@ -354,7 +356,7 @@ int n;
           }
           if (operands[0].type != OPERAND_NUMBER)
           {
-            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            print_error_illegal_operands(instr, asm_context);
             return -1;
           }
           if (asm_context->pass == 1) { offset = 0; }
@@ -380,7 +382,7 @@ int n;
           if (operands[0].type != OPERAND_REGISTER ||
               operands[1].type != OPERAND_NUMBER)
           {
-            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            print_error_illegal_operands(instr, asm_context);
             return -1;
           }
           if (operands[0].value < 0 || operands[0].value > 15)
@@ -402,7 +404,7 @@ int n;
           if (operands[0].type != OPERAND_REGISTER ||
               operands[1].type != OPERAND_NUMBER)
           {
-            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            print_error_illegal_operands(instr, asm_context);
             return -1;
           }
           opcode = table_tms9900[n].opcode | operands[0].reg;
@@ -419,7 +421,7 @@ int n;
           }
           if (operands[0].type != OPERAND_NUMBER)
           {
-            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            print_error_illegal_operands(instr, asm_context);
             return -1;
           }
           opcode = table_tms9900[n].opcode;
@@ -436,7 +438,7 @@ int n;
           }
           if (operands[0].type != OPERAND_REGISTER)
           {
-            printf("Error: Illegal operand at %s:%d\n", asm_context->filename, asm_context->line);
+            print_error_illegal_operands(instr, asm_context);
             return -1;
           }
           opcode = table_tms9900[n].opcode | operands[0].reg;
