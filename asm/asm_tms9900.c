@@ -108,7 +108,7 @@ int n;
       operands[operand_count].type = OPERAND_REGISTER_INDIRECT;
       operands[operand_count].reg = n;
 
-      token_type=tokens_get(asm_context, token, TOKENLEN);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,'+'))
       {
         operands[operand_count].type = OPERAND_REGISTER_INDIRECT_INC;
@@ -130,19 +130,27 @@ int n;
       }
         else
       {
+        // FIXME - Ugly fix. The real problem is in eval_expression.
+        int neg = 1;
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (IS_TOKEN(token,'-')) { neg = -1; }
+        else { tokens_push(asm_context, token, token_type); }
+
         if (eval_expression(asm_context, &n) != 0)
         {
           print_error_illegal_expression(instr, asm_context);
           return -1;
         }
 
-        if (n < 0 || n > 65535)
+        n = n * neg;
+
+        if (n < -32768 || n > 65535)
         {
           print_error_range("Address", 0, 65535, asm_context);
           return -1;
         }
 
-        operands[operand_count].value = n;
+        operands[operand_count].value = (uint16_t)n;
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
         if (IS_TOKEN(token,'('))

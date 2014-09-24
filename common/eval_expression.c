@@ -215,8 +215,10 @@ printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
       paren_operator.precedence = PREC_UNSET;
       paren_operator.operation = OPER_UNSET;
 
-      if (eval_expression_go(asm_context, &paren_num, &paren_operator)!=0)
-      { return -1; }
+      if (eval_expression_go(asm_context, &paren_num, &paren_operator) != 0)
+      {
+        return -1;
+      }
 
 #ifdef DEBUG
 printf("Paren got back %d\n", paren_num);
