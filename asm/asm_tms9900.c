@@ -370,12 +370,12 @@ int n;
           if (asm_context->pass == 1) { offset = 0; }
           else { offset = operands[0].value - (asm_context->address + 2); }
 
-          offset = offset / 2;
           if (offset < -256 || offset > 255)
           {
             print_error_range("Offset", -256, 255, asm_context);
             return -1;
           }
+          offset = offset / 2;
           opcode = table_tms9900[n].opcode | ((uint8_t)(offset));
           add_bin16(asm_context, opcode, IS_OPCODE);
           return count;
