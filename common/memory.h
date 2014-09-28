@@ -62,6 +62,7 @@ int memory_debug_line(struct _asm_context *asm_context, uint32_t address);
 void memory_debug_line_set(struct _asm_context *asm_context, uint32_t address, int value);
 int memory_debug_line_m(struct _memory *memory, uint32_t address);
 void memory_debug_line_set_m(struct _memory *memory, uint32_t address, int value);
+void memory_dump(struct _memory *memory);
 
 #endif
 

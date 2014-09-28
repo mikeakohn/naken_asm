@@ -300,5 +300,22 @@ void memory_debug_line_set_m(struct _memory *memory, uint32_t address, int value
   write_debug(memory, address, value);
 }
 
+void memory_dump(struct _memory *memory)
+{
+  struct _memory_page *page = memory->pages;
+
+  printf("------ memory dump (debug) ---------\n");
+  printf(" low_address: 0x%08x\n", memory->low_address);
+  printf("high_address: 0x%08x\n", memory->high_address);
+  printf("      endian: %d\n", memory->endian);
+  printf("        size: 0x%x\n", memory->size);
+  printf("  debug_flag: %d\n", memory->debug_flag);
+
+  while(page != NULL)
+  {
+    printf("  page: %p next=%p address=0x%08x offset_min=%d offset_max=%d\n", page, page->next, page->address, page->offset_min, page->offset_max);
+    page = page->next;
+  }
+}
 
 

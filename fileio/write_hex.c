@@ -63,12 +63,17 @@ int n;
   fprintf(out,"%02X\n", (((checksum & 0xff) ^ 0xff) + 1) & 0xff);
 }
 
+// NOTE: (to self) - This is kind of slowish.  I wonder if it would be
+// better to request pages from the memory module and just dump the memory
+// pages instead of treating it as one big memory thing.
 int write_hex(struct _memory *memory, FILE *out)
 {
 uint8_t data[16];
 int len;
-int n;
+uint32_t n;
 uint32_t address = 0,segment = 0;
+
+  //memory_dump(memory);
 
   len = -1;
   for (n = memory->low_address; n <= memory->high_address; n++)
@@ -119,7 +124,7 @@ uint32_t address = 0,segment = 0;
 // not worth it.
 int write_bin(struct _memory *memory, FILE *out)
 {
-int n;
+uint32_t n;
 
   for (n = memory->low_address; n <= memory->high_address; n++)
   {
