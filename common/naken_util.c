@@ -38,8 +38,12 @@
 #include "read_elf.h"
 #include "read_hex.h"
 #include "read_ti_txt.h"
+#include "simulate_avr8.h"
 #include "simulate_65xx.h"
 #include "simulate_msp430.h"
+#include "simulate_tms9900.h"
+#include "simulate_z80.h"
+#include "simulate_null.h"
 #include "version.h"
 
 #define READ_RAM(a) memory_read_m(&util_context->memory, a)
@@ -672,9 +676,13 @@ int mode = MODE_INTERACTIVE;
   memory_init(&util_context.memory, 1<<20, 1);
   symbols_init(&util_context.symbols);
 
+#ifndef NO_MSP430
   util_context.disasm_range = disasm_range_msp430;
   util_context.simulate = simulate_init_msp430(&util_context.memory);
-  //util_context.instr_bytes=2;
+#else
+  util_context.disasm_range = cpu_list[0].disasm_range;
+  util_context.simulate = simulate_init_null(&util_context.memory);
+#endif
 
   for (i = 1; i < argc; i++)
   {

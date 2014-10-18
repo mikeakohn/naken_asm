@@ -21,9 +21,10 @@ DFLAGS_ALL="-DENABLE_65XX -DENABLE_680X -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_
 ASM_OBJS="asm_common.o"
 DISASM_OBJS="disasm_common.o"
 TABLE_OBJS=""
-SIM_OBJS="simulate_65xx.o simulate_avr8.o simulate_msp430.o simulate_z80.o tms9900.o"
+SIM_OBJS="simulate_null.o"
 COMMON_OBJS="assembler.o cpu_list.o directives_data.o directives_if.o directives_include.o eval_expression.o print_error.o write_elf.o write_hex.o tokens.o ifdef_expression.o macros.o memory.o memory_pool.o read_elf.o read_hex.o read_ti_txt.o symbols.o"
 PROG_OBJS="lpc.o serial.o"
+NO_MSP430="-DNO_MSP430"
 
 for file in asm/*.c
 do
@@ -230,8 +231,9 @@ for option in $@; do
     DFLAGS="${DFLAGS} -DENABLE_ARM"
   ;;
   --enable-avr8)
-    ASM_OBJS="${ASM_OBJS} asm_avr8"
-    DISASM_OBJS="${DISASM_OBJS} disasm_avr8"
+    ASM_OBJS="${ASM_OBJS} asm_avr8.o"
+    DISASM_OBJS="${DISASM_OBJS} disasm_avr8.o"
+    SIM_OBJS="${SIM_OBJS} simulate_avr8.o"
     DFLAGS="${DFLAGS} -DENABLE_AVR8"
   ;;
   --enable-dspic)
@@ -250,7 +252,9 @@ for option in $@; do
     ASM_OBJS="${ASM_OBJS} asm_msp430.o"
     DISASM_OBJS="${DISASM_OBJS} disasm_msp430.o"
     SIM_OBJS="${SIM_OBJS} simulate_msp430.o"
+    TABLE_OBJS="${TABLE_OBJS} table_msp430.o"
     DFLAGS="${DFLAGS} -DENABLE_MSP430"
+    NO_MSP430=""
   ;;
   --enable-stm8)
     ASM_OBJS="${ASM_OBJS} asm_stm8.o"
@@ -273,12 +277,14 @@ for option in $@; do
   --enable-tms9900)
     ASM_OBJS="${ASM_OBJS} asm_tms9900.o"
     DISASM_OBJS="${DISASM_OBJS} disasm_tms9900.o"
+    SIM_OBJS="${SIM_OBJS} simulate_tms9900.o"
     TABLE_OBJS="${TABLE_OBJS} table_tms9900.o"
     DFLAGS="${DFLAGS} -DENABLE_TMS9900"
   ;;
   --enable-z80)
     ASM_OBJS="${ASM_OBJS} asm_z80.o"
     DISASM_OBJS="${DISASM_OBJS} disasm_z80.o"
+    SIM_OBJS="${SIM_OBJS} simulate_z80.o"
     TABLE_OBJS="${TABLE_OBJS} table_z80.o"
     DFLAGS="${DFLAGS} -DENABLE_Z80"
   ;;
@@ -292,6 +298,7 @@ then
   SIM_OBJS="${SIM_OBJS_ALL}"
   TABLE_OBJS="${TABLE_OBJS_ALL}"
   DFLAGS="${DFLAGS_ALL}"
+  NO_MSP430=""
 fi
 
 if test_compiler "gcc"
@@ -319,6 +326,11 @@ then
   CFLAGS="${CFLAGS} -O3"
 else
   CFLAGS="${CFLAGS} ${DEBUG}"
+fi
+
+if [ "${NO_MSP430}" != "" ]
+then
+  CFLAGS="${CFLAGS} ${NO_MSP430}"
 fi
 
 #if ! instr "WINDOWS" "${FLAGS}"

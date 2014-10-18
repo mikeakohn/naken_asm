@@ -56,6 +56,18 @@
 #include "symbols.h"
 #include "print_error.h"
 
+static void configure_cpu(struct _asm_context *asm_context, int index)
+{
+  asm_context->cpu_type = cpu_list[index].type;
+  asm_context->memory.endian = cpu_list[index].default_endian;
+  asm_context->bytes_per_address = cpu_list[index].bytes_per_address;
+  asm_context->is_dollar_hex = cpu_list[index].is_dollar_hex;
+  asm_context->can_tick_end_string = cpu_list[index].can_tick_end_string;
+  asm_context->parse_instruction = cpu_list[index].parse_instruction;
+  asm_context->list_output = cpu_list[index].list_output;
+  asm_context->cpu_list_index = index;
+}
+
 static int parse_org(struct _asm_context *asm_context)
 {
 int num;
@@ -283,24 +295,20 @@ int token_type;
 void assemble_init(struct _asm_context *asm_context)
 {
   tokens_reset(asm_context);
+#ifndef NO_MSP430
   asm_context->parse_instruction = parse_instruction_msp430;
   asm_context->list_output = list_output_msp430;
+  asm_context->cpu_list_index = -1;
+#else
+  configure_cpu(asm_context, 0);
+#endif
   asm_context->address = 0;
   asm_context->instruction_count = 0;
   asm_context->code_count = 0;
   asm_context->data_count = 0;
   asm_context->ifdef_count = 0;
   asm_context->parsing_ifdef = 0;
-#if 0
-  asm_context->line = 1;
-  asm_context->pushback[0] = 0;
-  asm_context->unget[0] = 0;
-  asm_context->unget_ptr = 0;
-  asm_context->unget_stack_ptr = 0;
-  asm_context->unget_stack[0] = 0;
-#endif
   asm_context->bytes_per_address = 1;
-  asm_context->cpu_list_index = -1;
 
   macros_free(&asm_context->macros);
   asm_context->def_param_stack_count = 0;
@@ -455,14 +463,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   {
     if (strcasecmp(token, cpu_list[n].name) == 0)
     {
-      asm_context->cpu_type = cpu_list[n].type;
-      asm_context->memory.endian = cpu_list[n].default_endian;
-      asm_context->bytes_per_address = cpu_list[n].bytes_per_address;
-      asm_context->is_dollar_hex = cpu_list[n].is_dollar_hex;
-      asm_context->can_tick_end_string = cpu_list[n].can_tick_end_string;
-      asm_context->parse_instruction = cpu_list[n].parse_instruction;
-      asm_context->list_output = cpu_list[n].list_output;
-      asm_context->cpu_list_index = n;
+      configure_cpu(asm_context, n);
       return 1;
     }
     n++;
