@@ -61,6 +61,9 @@ struct _table_stm8_opcodes
   uint8_t type;
   uint8_t prefix;
   uint8_t opcode;
+  uint8_t dest;
+  uint8_t src;
+  uint8_t cycles;
   uint8_t is_stm7;
 };
 

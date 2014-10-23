@@ -27,39 +27,86 @@ enum
   OPERAND_REG_A,
   OPERAND_REG_X,
   OPERAND_REG_Y,
-  OPERAND_NUM8,
-  OPERAND_ADDRESS8,
-  OPERAND_ADDRESS16,
-  OPERAND_ADDRESS24,
-  OPERAND_INDEX_X,
-  OPERAND_INDEX_Y,
-  OPERAND_OFFSET8_INDEX_X,
-  OPERAND_OFFSET16_INDEX_X,
-  OPERAND_OFFSET8_INDEX_Y,
-  OPERAND_OFFSET16_INDEX_Y,
-  OPERAND_OFFSET8_INDEX_SP,
-  OPERAND_INDIRECT8,
-  OPERAND_INDIRECT16,
-  OPERAND_INDIRECT8_X,
-  OPERAND_INDIRECT16_X,
-  OPERAND_INDIRECT8_Y,
+  OPERAND_SP,
+  OPERAND_NUMBER8,             // #$10
+  OPERAND_NUMBER16,            // #$1000
+  OPERAND_ADDRESS8,            // $10
+  OPERAND_ADDRESS16,           // $1000
+  OPERAND_ADDRESS24,           // REVIEW: Is this needed?
+  OPERAND_INDEX_X,             // (X)
+  OPERAND_INDEX_Y,             // (Y)
+  OPERAND_OFFSET8_INDEX_X,     // ($10, X)
+  OPERAND_OFFSET16_INDEX_X,    // ($1000,X)
+  OPERAND_OFFSET8_INDEX_Y,     // ($10,Y)
+  OPERAND_OFFSET16_INDEX_Y,    // ($1000,Y)
+  OPERAND_OFFSET8_INDEX_SP,    // ($10,SP)
+  OPERAND_OFFSET16_INDEX_SP,   // REVIEW: Is this needed?
+  OPERAND_INDIRECT8,           // [$10.w]
+  OPERAND_INDIRECT16,          // [$1000.w]
+  OPERAND_INDIRECT8_X,         // ([$10.w],X)
+  OPERAND_INDIRECT16_X,        // ([$1000.w],X)
+  OPERAND_INDIRECT8_Y,         // ([$10.w].Y)
 };
+
+enum
+{
+  NUM_SIZE_SHORT,
+  NUM_SIZE_WORD,
+  NUM_SIZE_EXTENDED,
+};
+
+struct _operand
+{
+  uint8_t type;
+  uint8_t reg;
+  int value;
+};
+
+static int get_num(struct _asm_context *asm_context, char *instr, int *num, int *num_size)
+{
+  if (eval_expression(asm_context, num) != 0)
+  {
+    print_error_illegal_expression(instr, asm_context);
+    return -1;
+  }
+
+  if (*num >= -128 && *num <= 0xff) { *num_size = NUM_SIZE_SHORT; return -1; }
+  if (*num >= -32768 && *num <= 0xffff) { *num_size = NUM_SIZE_WORD; return -1; }
+  if (*num >= -8388608 && *num <=0xffffff) { *num_size = NUM_SIZE_EXTENDED; return -1; }
+
+  // FIXME - bad error message
+  print_error_range("number", 0, 0xffffff, asm_context);
+
+  return -1;
+}
 
 int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 {
 char instr_case[TOKENLEN];
 char token[TOKENLEN];
+struct _operand operands[2];
+int operand_count;
 int token_type;
+int num_size;
 int ret;
 int n;
 
   lower_copy(instr_case, instr);
+  operand_count = 0;
+  memset(operands, 0, sizeof(operands));
 
   // Find instruction
   n = 0;
   while(table_stm8[n].instr != NULL)
   {
+    if (strcmp(instr_case, table_stm8[n].instr) == 0) { break; }
     n++;
+  }
+
+  if (table_stm8[n].instr == NULL)
+  {
+    print_error_unknown_instr(instr, asm_context);
+    return -1;
   }
 
   // Parse operands
@@ -71,6 +118,227 @@ int n;
     { 
       break;
     }
+
+    if (operand_count != 0)
+    {
+      if (IS_NOT_TOKEN(token,','))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+    }
+
+    if (strcasecmp(token,"A") == 0)
+    {
+      operands[operand_count].type = OPERAND_REG_A;
+    }
+      else
+    if (strcasecmp(token,"X") == 0)
+    {
+      operands[operand_count].type = OPERAND_REG_X;
+    }
+      else
+    if (strcasecmp(token,"Y") == 0)
+    {
+      operands[operand_count].type = OPERAND_REG_Y;
+    }
+      else
+    if (strcasecmp(token,"SP") == 0)
+    {
+      operands[operand_count].type = OPERAND_SP;
+    }
+      else
+    if (IS_TOKEN(token,'#'))
+    {
+      if (get_num(asm_context, instr, &n, &num_size) != 0)
+      {
+        return -1;
+      }
+
+      switch(num_size)
+      {
+        case NUM_SIZE_SHORT:
+          operands[operand_count].type = OPERAND_NUMBER8; break;
+        case NUM_SIZE_WORD:
+          operands[operand_count].type = OPERAND_NUMBER16; break;
+        default:
+           // FIXME - bad error message
+           print_error_range(instr, 0, 0xff, asm_context);
+           return -1;
+      }
+
+      operands[operand_count].value = n;
+    }
+      else
+    if (IS_TOKEN(token,'('))
+    {
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (IS_TOKEN(token,'['))
+      {
+        if (get_num(asm_context, instr, &n, &num_size) != 0)
+        {
+          return -1;
+        }
+
+        operands[operand_count].value = n;
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (IS_NOT_TOKEN(token,']'))
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (IS_NOT_TOKEN(token,','))
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (strcasecmp(token,"X") == 0)
+        {
+          operands[operand_count].type = OPERAND_INDIRECT8_X;
+        }
+          else
+        if (strcasecmp(token,"Y") == 0)
+        {
+          operands[operand_count].type = OPERAND_INDIRECT8_Y;
+        }
+          else
+        {
+          print_error_unexp(token, asm_context);
+        }
+
+        switch(num_size)
+        {
+          case NUM_SIZE_SHORT: operands[operand_count].type++; break;
+          case NUM_SIZE_WORD: operands[operand_count].type++; break;
+          default:
+             // FIXME - bad error message
+             print_error_range(instr, 0, 0xff, asm_context);
+             return -1;
+        }
+      }
+        else
+      if (strcasecmp(token,"X") == 0)
+      {
+        operands[operand_count].type = OPERAND_INDEX_X;
+      }
+        else
+      if (strcasecmp(token,"Y") == 0)
+      {
+        operands[operand_count].type = OPERAND_INDEX_Y;
+      }
+        else
+      {
+        if (get_num(asm_context, instr, &n, &num_size) != 0)
+        {
+          return -1;
+        }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (IS_NOT_TOKEN(token,','))
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (strcasecmp(token,"X") == 0)
+        {
+          operands[operand_count].type = OPERAND_OFFSET8_INDEX_X;
+        }
+          else
+        if (strcasecmp(token,"Y") == 0)
+        {
+          operands[operand_count].type = OPERAND_OFFSET8_INDEX_Y;
+        }
+          else
+        if (strcasecmp(token,"SP") == 0)
+        {
+          operands[operand_count].type = OPERAND_OFFSET8_INDEX_SP;
+        }
+          else
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        switch(num_size)
+        {
+          case NUM_SIZE_SHORT: operands[operand_count].type++; break;
+          case NUM_SIZE_WORD: operands[operand_count].type++; break;
+          default:
+             // FIXME - bad error message
+             print_error_range(instr, 0, 0xff, asm_context);
+             return -1;
+        }
+      }
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (IS_NOT_TOKEN(token,')'))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+    }
+      else
+    if (IS_TOKEN(token,'['))
+    {
+      if (get_num(asm_context, instr, &n, &num_size) != 0)
+      {
+        return -1;
+      }
+
+      switch(num_size)
+      {
+        case NUM_SIZE_SHORT:
+          operands[operand_count].type = OPERAND_INDIRECT8; break;
+        case NUM_SIZE_WORD:
+          operands[operand_count].type = OPERAND_INDIRECT16; break;
+        default:
+           // FIXME - bad error message
+           print_error_range(instr, 0, 0xff, asm_context);
+           return -1;
+      }
+
+      operands[operand_count].value = n;
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (IS_NOT_TOKEN(token,']'))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+    }
+      else
+    {
+      if (get_num(asm_context, instr, &n, &num_size) != 0)
+      {
+        return -1;
+      }
+
+      switch(num_size)
+      {
+        case NUM_SIZE_SHORT:
+          operands[operand_count].type = OPERAND_ADDRESS8; break;
+        case NUM_SIZE_WORD:
+          operands[operand_count].type = OPERAND_ADDRESS16; break;
+        default:
+           // FIXME - bad error message
+           print_error_range(instr, 0, 0xff, asm_context);
+           return -1;
+      }
+
+      operands[operand_count].value = n;
+    }
+
+    operand_count++;
   }
 
   // Get opcodes
@@ -81,13 +349,6 @@ int n;
     {
     }
     n++;
-  }
- 
-  token_type=tokens_get(asm_context, token, TOKENLEN);
-  if (token_type!=TOKEN_EOL && token_type!=TOKEN_EOF)
-  {
-    print_error_unexp(token, asm_context);
-    return -1;
   }
 
   return ret;
