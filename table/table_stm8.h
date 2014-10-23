@@ -57,7 +57,7 @@ struct _table_stm8
 
 struct _table_stm8_opcodes
 {
-  uint8_t id;
+  uint8_t instr_enum;
   uint8_t type;
   uint8_t prefix;
   uint8_t opcode;
@@ -149,6 +149,34 @@ enum
   STM8_WFE,
   STM8_WFI,
   STM8_XOR,
+};
+
+enum
+{
+  OP_NUMBER,
+  OP_ADDRESS8,
+  OP_ADDRESS16,
+  OP_INDEX_X,
+  OP_OFFSET8_INDEX_X,
+  OP_OFFSET16_INDEX_X,
+  OP_INDEX_Y,
+  OP_OFFSET8_INDEX_Y,
+  OP_OFFSET16_INDEX_Y,
+  OP_OFFSET8_INDEX_SP,
+  OP_INDIRECT8,
+  OP_INDIRECT16,
+  OP_INDIRECT8_X,
+  OP_INDIRECT16_X,
+  OP_INDIRECT8_Y,
+};
+
+enum
+{
+  REG_NONE,
+  REG_A,
+  REG_X,
+  REG_Y,
+  REG_SP,
 };
 
 extern struct _table_stm8 table_stm8[];

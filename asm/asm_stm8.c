@@ -24,6 +24,7 @@
 
 enum
 {
+  OPERAND_NONE,
   OPERAND_REG_A,
   OPERAND_REG_X,
   OPERAND_REG_Y,
@@ -86,6 +87,7 @@ char instr_case[TOKENLEN];
 char token[TOKENLEN];
 struct _operand operands[2];
 int operand_count;
+int instr_enum;
 int token_type;
 int num_size;
 int ret;
@@ -108,6 +110,8 @@ int n;
     print_error_unknown_instr(instr, asm_context);
     return -1;
   }
+
+  instr_enum = n;
 
   // Parse operands
   while(1)
@@ -345,8 +349,42 @@ int n;
   n = 0;
   while(table_stm8[n].instr != NULL)
   {
-    if (strcmp(table_stm8[n].instr,instr_case) == 0)
+    if (table_stm8_opcodes[n].instr_enum == instr_enum)
     {
+      if (table_stm8_opcodes[n].dest != REG_NONE &&
+          operands[0].type != table_stm8_opcodes[n].dest)
+      {
+        n++;
+        continue;
+      }
+
+      if (table_stm8_opcodes[n].src != REG_NONE &&
+          operands[0].type != table_stm8_opcodes[n].src)
+      {
+        n++;
+        continue;
+      }
+
+      switch(table_stm8_opcodes[n].type)
+      {
+        case OP_NUMBER:
+        case OP_ADDRESS8:
+        case OP_ADDRESS16:
+        case OP_INDEX_X:
+        case OP_OFFSET8_INDEX_X:
+        case OP_OFFSET16_INDEX_X:
+        case OP_INDEX_Y:
+        case OP_OFFSET8_INDEX_Y:
+        case OP_OFFSET16_INDEX_Y:
+        case OP_OFFSET8_INDEX_SP:
+        case OP_INDIRECT8:
+        case OP_INDIRECT16:
+        case OP_INDIRECT8_X:
+        case OP_INDIRECT16_X:
+        case OP_INDIRECT8_Y:
+        default:
+          break;
+      }
     }
     n++;
   }
