@@ -133,7 +133,6 @@ int operand_count;
 int instr_enum;
 int token_type;
 int num_size;
-int matched = 0;
 int n;
 
   lower_copy(instr_case, instr);
@@ -154,7 +153,7 @@ int n;
     return -1;
   }
 
-  instr_enum = n;
+  instr_enum = table_stm8[n].id;
 
   // Parse operands
   while(1)
@@ -380,12 +379,10 @@ int n;
 
   // Get opcodes
   n = 0;
-  while(table_stm8[n].instr != NULL)
+  while(table_stm8_opcodes[n].instr_enum != STM8_NONE)
   {
     if (table_stm8_opcodes[n].instr_enum == instr_enum)
     {
-      matched = 1;
-
       if (table_stm8_opcodes[n].dest != REG_NONE &&
           operands[0].type != table_stm8_opcodes[n].dest)
       {
@@ -601,14 +598,7 @@ int n;
     n++;
   }
 
-  if (matched == 1)
-  {
-    print_error_unknown_operand_combo(instr, asm_context);
-  }
-    else
-  {
-    print_error_unknown_instr(instr, asm_context);
-  }
+  print_error_unknown_operand_combo(instr, asm_context);
 
   return -1;
 }

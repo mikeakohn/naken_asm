@@ -69,6 +69,7 @@ struct _table_stm8_opcodes
 
 enum
 {
+  STM8_NONE,
   STM8_ADC,
   STM8_ADD,
   STM8_ADDW,
@@ -153,7 +154,8 @@ enum
 
 enum
 {
-  OP_NUMBER,
+  OP_NUMBER8,
+  OP_NUMBER16,
   OP_ADDRESS8,
   OP_ADDRESS16,
   OP_INDEX_X,
