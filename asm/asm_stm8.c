@@ -133,6 +133,7 @@ int operand_count;
 int instr_enum;
 int token_type;
 int num_size;
+int matched = 0;
 int n;
 
   lower_copy(instr_case, instr);
@@ -163,6 +164,12 @@ int n;
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     { 
       break;
+    }
+
+    if (operand_count == 2)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
     }
 
     if (operand_count != 0)
@@ -231,19 +238,10 @@ int n;
 
         operands[operand_count].value = n;
 
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-        if (IS_NOT_TOKEN(token,']'))
-        {
-          print_error_unexp(token, asm_context);
-          return -1;
-        }
-
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-        if (IS_NOT_TOKEN(token,','))
-        {
-          print_error_unexp(token, asm_context);
-          return -1;
-        }
+        if (expect_token(asm_context, '.') == -1) { return -1; }
+        if (expect_token(asm_context, 'w') == -1) { return -1; }
+        if (expect_token(asm_context, ']') == -1) { return -1; }
+        if (expect_token(asm_context, ',') == -1) { return -1; }
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
         if (strcasecmp(token,"X") == 0)
@@ -291,12 +289,7 @@ int n;
 
         operands[operand_count].value = n;
 
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-        if (IS_NOT_TOKEN(token,','))
-        {
-          print_error_unexp(token, asm_context);
-          return -1;
-        }
+        if (expect_token(asm_context, ',') == -1) { return -1; }
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
         if (strcasecmp(token,"X") == 0)
@@ -330,12 +323,7 @@ int n;
         }
       }
 
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (IS_NOT_TOKEN(token,')'))
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
+      if (expect_token(asm_context, ')') == -1) { return -1; }
     }
       else
     if (IS_TOKEN(token,'['))
@@ -359,12 +347,9 @@ int n;
 
       operands[operand_count].value = n;
 
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (IS_NOT_TOKEN(token,']'))
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
+      if (expect_token(asm_context, '.') == -1) { return -1; }
+      if (expect_token(asm_context, 'w') == -1) { return -1; }
+      if (expect_token(asm_context, ']') == -1) { return -1; }
     }
       else
     {
@@ -399,6 +384,8 @@ int n;
   {
     if (table_stm8_opcodes[n].instr_enum == instr_enum)
     {
+      matched = 1;
+
       if (table_stm8_opcodes[n].dest != REG_NONE &&
           operands[0].type != table_stm8_opcodes[n].dest)
       {
@@ -540,10 +527,70 @@ int n;
           break;
         }
         case OP_INDIRECT8:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_INDIRECT8)
+          {
+            return add_bin_num8(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_INDIRECT8)
+          {
+            return add_bin_num8(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_INDIRECT16:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_INDIRECT16)
+          {
+            return add_bin_num16(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_INDIRECT16)
+          {
+            return add_bin_num16(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_INDIRECT8_X:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_INDIRECT8_X)
+          {
+            return add_bin_num8(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_INDIRECT8_X)
+          {
+            return add_bin_num8(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_INDIRECT16_X:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_INDIRECT16_X)
+          {
+            return add_bin_num16(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_INDIRECT16_X)
+          {
+            return add_bin_num16(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_INDIRECT8_Y:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_INDIRECT8_Y)
+          {
+            return add_bin_num8(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_INDIRECT8_Y)
+          {
+            return add_bin_num8(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         default:
           printf("Internal error %s:%d\n", __FILE__, __LINE__);
           return -1;
@@ -554,7 +601,14 @@ int n;
     n++;
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  if (matched == 1)
+  {
+    print_error_unknown_operand_combo(instr, asm_context);
+  }
+    else
+  {
+    print_error_unknown_instr(instr, asm_context);
+  }
 
   return -1;
 }
