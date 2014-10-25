@@ -200,6 +200,9 @@ struct _table_stm8_opcodes table_stm8_opcodes[] = {
   { STM8_CALL, OP_INDIRECT8_X, 0x92, 0xdd, OP_NONE, OP_NONE, 6,6, ST7_YES },
   { STM8_CALL, OP_INDIRECT16_X, 0x72, 0xdd, OP_NONE, OP_NONE, 6,6, ST7_NO },
   { STM8_CALL, OP_INDIRECT8_Y, 0x91, 0xdd, OP_NONE, OP_NONE, 6,6, ST7_YES },
+  // CALLF
+  { STM8_CALLF, OP_ADDRESS24, 0, 0x8d, OP_NONE, OP_NONE, 5,5, ST7_NO },
+  { STM8_CALLF, OP_INDIRECT16_E, 0x92, 0x8d, OP_NONE, OP_NONE, 8,8, ST7_NO },
 
   { STM8_NONE, 0, 0, 0, 0, 0, 0, 0 },
 };

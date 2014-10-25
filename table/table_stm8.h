@@ -164,7 +164,7 @@ enum
   OP_NUMBER16,           // #$1000
   OP_ADDRESS8,           // $10
   OP_ADDRESS16,          // $1000
-  OP_ADDRESS24,          // REVIEW: Is this needed?
+  OP_ADDRESS24,          // $35aa00
   OP_INDEX_X,            // (X)
   OP_OFFSET8_INDEX_X,    // ($10,X)
   OP_OFFSET16_INDEX_X,   // ($1000,X)
@@ -174,6 +174,7 @@ enum
   OP_OFFSET8_INDEX_SP,   // ($10,SP)
   OP_INDIRECT8,          // [$10.w]
   OP_INDIRECT16,         // [$1000.w]
+  OP_INDIRECT16_E,       // [$1000.e]
   OP_INDIRECT8_X,        // ([$10.w],X) 
   OP_INDIRECT16_X,       // ([$1000.w],X)
   OP_INDIRECT8_Y,        // ([$10.w],Y)

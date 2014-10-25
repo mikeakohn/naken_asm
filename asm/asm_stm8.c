@@ -94,6 +94,7 @@ static int get_minimum_size(int instr_index)
         case OP_OFFSET16_INDEX_X:
         case OP_OFFSET16_INDEX_Y:
         case OP_INDIRECT16:
+        case OP_INDIRECT16_E:
         case OP_INDIRECT16_X:
           if (num_size < NUM_SIZE_WORD) { num_size = NUM_SIZE_WORD; }
           count++;
@@ -186,6 +187,22 @@ static int add_bin_num16(struct _asm_context *asm_context, int n, int num)
     add_bin8(asm_context, table_stm8_opcodes[n].prefix, IS_OPCODE);
   }
   add_bin8(asm_context, table_stm8_opcodes[n].opcode, IS_OPCODE);
+  add_bin8(asm_context, (num >> 8) & 0xff, IS_OPCODE);
+  add_bin8(asm_context, num & 0xff, IS_OPCODE);
+
+  return count;
+}
+
+static int add_bin_num24(struct _asm_context *asm_context, int n, int num)
+{
+  int count = 4;
+
+  if (table_stm8_opcodes[n].prefix != 0)
+  {
+    add_bin8(asm_context, table_stm8_opcodes[n].prefix, IS_OPCODE);
+  }
+  add_bin8(asm_context, table_stm8_opcodes[n].opcode, IS_OPCODE);
+  add_bin8(asm_context, (num >> 16) & 0xff, IS_OPCODE);
   add_bin8(asm_context, (num >> 8) & 0xff, IS_OPCODE);
   add_bin8(asm_context, num & 0xff, IS_OPCODE);
 
@@ -448,7 +465,18 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
       operands[operand_count].value = n;
 
       if (expect_token(asm_context, '.') == -1) { return -1; }
-      if (expect_token(asm_context, 'w') == -1) { return -1; }
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (strcasecmp(token, "e") == 0 &&
+          operands[operand_count].type == OP_INDIRECT16)
+      {
+        operands[operand_count].type = OP_INDIRECT16_E;
+      }
+        else
+      if (strcasecmp(token, "w") != 0)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
       if (expect_token(asm_context, ']') == -1) { return -1; }
     }
       else
@@ -466,6 +494,8 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           operands[operand_count].type = OP_ADDRESS8; break;
         case NUM_SIZE_WORD:
           operands[operand_count].type = OP_ADDRESS16; break;
+        case NUM_SIZE_EXTENDED:
+          operands[operand_count].type = OP_ADDRESS24; break;
         default:
            // FIXME - bad error message
            print_error_range(instr, 0, 0xff, asm_context);
@@ -565,6 +595,17 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
                operands[1].type == OP_ADDRESS8))
           {
             return add_bin_num16(asm_context, n, operands[1].value);
+          }
+          break;
+        }
+        case OP_ADDRESS24:
+        {
+          if (operand_count == 1 &&
+              (operands[0].type == OP_ADDRESS24 ||
+               operands[0].type == OP_ADDRESS16 ||
+               operands[0].type == OP_ADDRESS8))
+          {
+            return add_bin_num24(asm_context, n, operands[0].value);
           }
           break;
         }
@@ -674,6 +715,19 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           }
             else
           if (operand_count == 2 && operands[1].type == OP_INDIRECT16)
+          {
+            return add_bin_num16(asm_context, n, operands[1].value);
+          }
+          break;
+        }
+        case OP_INDIRECT16_E:
+        {
+          if (operand_count <= 2 && operands[0].type == OP_INDIRECT16_E)
+          {
+            return add_bin_num16(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OP_INDIRECT16_E)
           {
             return add_bin_num16(asm_context, n, operands[1].value);
           }
