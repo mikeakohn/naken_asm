@@ -262,7 +262,7 @@ int n;
 
         switch(num_size)
         {
-          case NUM_SIZE_SHORT: operands[operand_count].type++; break;
+          case NUM_SIZE_SHORT: break;
           case NUM_SIZE_WORD: operands[operand_count].type++; break;
           default:
              // FIXME - bad error message
@@ -282,10 +282,14 @@ int n;
       }
         else
       {
+        tokens_push(asm_context, token, token_type);
+
         if (get_num(asm_context, instr, &n, &num_size) != 0)
         {
           return -1;
         }
+
+        operands[operand_count].value = n;
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
         if (IS_NOT_TOKEN(token,','))
@@ -317,7 +321,7 @@ int n;
 
         switch(num_size)
         {
-          case NUM_SIZE_SHORT: operands[operand_count].type++; break;
+          case NUM_SIZE_SHORT: break;
           case NUM_SIZE_WORD: operands[operand_count].type++; break;
           default:
              // FIXME - bad error message
@@ -364,6 +368,8 @@ int n;
     }
       else
     {
+      tokens_push(asm_context, token, token_type);
+
       if (get_num(asm_context, instr, &n, &num_size) != 0)
       {
         return -1;
@@ -452,26 +458,87 @@ int n;
         {
           if (operand_count == 2 &&
               (operands[0].type == OPERAND_INDEX_X ||
-               operands[0].type == OPERAND_INDEX_Y))
+               operands[1].type == OPERAND_INDEX_X))
           {
             return add_bin_void(asm_context, n);
           }
           break;
         }
         case OP_OFFSET8_INDEX_X:
-        case OP_OFFSET16_INDEX_X:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_OFFSET8_INDEX_X)
+          {
+            return add_bin_num8(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_OFFSET8_INDEX_X)
+          {
+            return add_bin_num8(asm_context, n, operands[1].value);
+          }
           break;
+        }
+        case OP_OFFSET16_INDEX_X:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_OFFSET16_INDEX_X)
+          {
+            return add_bin_num16(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_OFFSET16_INDEX_X)
+          {
+            return add_bin_num16(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_INDEX_Y:
+        {
           if (operand_count == 2 &&
-              (operands[0].type == OPERAND_INDEX_X ||
-               operands[0].type == OPERAND_INDEX_Y))
+              (operands[0].type == OPERAND_INDEX_Y ||
+               operands[1].type == OPERAND_INDEX_Y))
           {
             return add_bin_void(asm_context, n);
           }
           break;
+        }
         case OP_OFFSET8_INDEX_Y:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_OFFSET8_INDEX_Y)
+          {
+            return add_bin_num8(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_OFFSET8_INDEX_Y)
+          {
+            return add_bin_num8(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_OFFSET16_INDEX_Y:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_OFFSET16_INDEX_Y)
+          {
+            return add_bin_num16(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_OFFSET16_INDEX_Y)
+          {
+            return add_bin_num16(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_OFFSET8_INDEX_SP:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_OFFSET8_INDEX_SP)
+          {
+            return add_bin_num8(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_OFFSET8_INDEX_SP)
+          {
+            return add_bin_num8(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_INDIRECT8:
         case OP_INDIRECT16:
         case OP_INDIRECT8_X:
