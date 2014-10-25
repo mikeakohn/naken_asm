@@ -510,7 +510,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_NUMBER8:
         {
-          if (operand_count == 2 && operands[0].type == OP_NUMBER8)
+          if (operand_count <= 2 && operands[0].type == OP_NUMBER8)
           {
             return add_bin_num8(asm_context, n, operands[0].value);
           }
@@ -523,7 +523,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_NUMBER16:
         {
-          if (operand_count == 2 &&
+          if (operand_count <= 2 &&
               (operands[0].type == OP_NUMBER16 ||
                operands[0].type == OP_NUMBER8))
           {
@@ -553,7 +553,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_ADDRESS16:
         {
-          if (operand_count == 2 &&
+          if (operand_count <= 2 &&
               (operands[0].type == OP_ADDRESS16 ||
                operands[0].type == OP_ADDRESS8))
           {
@@ -570,7 +570,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_INDEX_X:
         {
-          if (operand_count == 2 &&
+          if (operand_count <= 2 &&
               (operands[0].type == OP_INDEX_X ||
                operands[1].type == OP_INDEX_X))
           {
@@ -580,7 +580,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_OFFSET8_INDEX_X:
         {
-          if (operand_count == 2 && operands[0].type == OP_OFFSET8_INDEX_X)
+          if (operand_count <= 2 && operands[0].type == OP_OFFSET8_INDEX_X)
           {
             return add_bin_num8(asm_context, n, operands[0].value);
           }
@@ -593,7 +593,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_OFFSET16_INDEX_X:
         {
-          if (operand_count == 2 && operands[0].type == OP_OFFSET16_INDEX_X)
+          if (operand_count <= 2 && operands[0].type == OP_OFFSET16_INDEX_X)
           {
             return add_bin_num16(asm_context, n, operands[0].value);
           }
@@ -606,7 +606,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_INDEX_Y:
         {
-          if (operand_count == 2 &&
+          if (operand_count <= 2 &&
               (operands[0].type == OP_INDEX_Y ||
                operands[1].type == OP_INDEX_Y))
           {
@@ -616,7 +616,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_OFFSET8_INDEX_Y:
         {
-          if (operand_count == 2 && operands[0].type == OP_OFFSET8_INDEX_Y)
+          if (operand_count <= 2 && operands[0].type == OP_OFFSET8_INDEX_Y)
           {
             return add_bin_num8(asm_context, n, operands[0].value);
           }
@@ -629,7 +629,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_OFFSET16_INDEX_Y:
         {
-          if (operand_count == 2 && operands[0].type == OP_OFFSET16_INDEX_Y)
+          if (operand_count <= 2 && operands[0].type == OP_OFFSET16_INDEX_Y)
           {
             return add_bin_num16(asm_context, n, operands[0].value);
           }
@@ -655,7 +655,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_INDIRECT8:
         {
-          if (operand_count == 2 && operands[0].type == OP_INDIRECT8)
+          if (operand_count <= 2 && operands[0].type == OP_INDIRECT8)
           {
             return add_bin_num8(asm_context, n, operands[0].value);
           }
@@ -668,7 +668,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_INDIRECT16:
         {
-          if (operand_count == 2 && operands[0].type == OP_INDIRECT16)
+          if (operand_count <= 2 && operands[0].type == OP_INDIRECT16)
           {
             return add_bin_num16(asm_context, n, operands[0].value);
           }
@@ -681,7 +681,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_INDIRECT8_X:
         {
-          if (operand_count == 2 && operands[0].type == OP_INDIRECT8_X)
+          if (operand_count <= 2 && operands[0].type == OP_INDIRECT8_X)
           {
             return add_bin_num8(asm_context, n, operands[0].value);
           }
@@ -694,7 +694,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_INDIRECT16_X:
         {
-          if (operand_count == 2 && operands[0].type == OP_INDIRECT16_X)
+          if (operand_count <= 2 && operands[0].type == OP_INDIRECT16_X)
           {
             return add_bin_num16(asm_context, n, operands[0].value);
           }
@@ -707,7 +707,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_INDIRECT8_Y:
         {
-          if (operand_count == 2 && operands[0].type == OP_INDIRECT8_Y)
+          if (operand_count <= 2 && operands[0].type == OP_INDIRECT8_Y)
           {
             return add_bin_num8(asm_context, n, operands[0].value);
           }
