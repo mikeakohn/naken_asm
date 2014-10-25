@@ -385,14 +385,14 @@ int n;
   {
     if (table_stm8_opcodes[n].instr_enum == instr_enum)
     {
-      if (table_stm8_opcodes[n].dest != REG_NONE &&
+      if (table_stm8_opcodes[n].dest != OP_NONE &&
           operands[0].type != table_stm8_opcodes[n].dest)
       {
         n++;
         continue;
       }
 
-      if (table_stm8_opcodes[n].src != REG_NONE &&
+      if (table_stm8_opcodes[n].src != OP_NONE &&
           operands[0].type != table_stm8_opcodes[n].src)
       {
         n++;
@@ -414,6 +414,23 @@ int n;
           }
           break;
         }
+        case OP_NUMBER16:
+        {
+          if (operand_count == 2 &&
+              (operands[0].type == OP_NUMBER16 ||
+               operands[0].type == OP_NUMBER8))
+          {
+            return add_bin_num16(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 &&
+              (operands[1].type == OP_NUMBER16 ||
+               operands[1].type == OP_NUMBER8))
+          {
+            return add_bin_num16(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_ADDRESS8:
         {
           if (operand_count == 2 && operands[0].type == OP_ADDRESS8)
@@ -429,12 +446,16 @@ int n;
         }
         case OP_ADDRESS16:
         {
-          if (operand_count == 2 && operands[0].type == OP_ADDRESS16)
+          if (operand_count == 2 &&
+              (operands[0].type == OP_ADDRESS16 ||
+               operands[0].type == OP_ADDRESS8))
           {
             return add_bin_num16(asm_context, n, operands[0].value);
           }
             else
-          if (operand_count == 2 && operands[1].type == OP_ADDRESS16)
+          if (operand_count == 2 &&
+              (operands[1].type == OP_ADDRESS16 ||
+               operands[1].type == OP_ADDRESS8))
           {
             return add_bin_num16(asm_context, n, operands[1].value);
           }
