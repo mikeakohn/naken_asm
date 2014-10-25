@@ -793,7 +793,8 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         {
           if (operand_count == 3 &&
               (operands[0].type == OP_ADDRESS8 ||
-               operands[0].type == OP_ADDRESS16) &&
+               operands[0].type == OP_ADDRESS16 ||
+               operands[0].type == OP_ADDRESS24) &&
               operands[1].type == OP_NUMBER8 &&
               (operands[2].type == OP_ADDRESS8 ||
                operands[2].type == OP_ADDRESS16))
@@ -815,6 +816,27 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
             }
 
             return add_bin_bit_offset(asm_context, n, operands[0].value, operands[1].value, offset);
+          }
+          break;
+        }
+        case OP_RELATIVE:
+        {
+          if (operand_count == 1 &&
+              (operands[0].type == OP_ADDRESS8 ||
+               operands[0].type == OP_ADDRESS16 ||
+               operands[0].type == OP_ADDRESS24))
+          {
+            int address = asm_context->address + 2;
+            if (table_stm8_opcodes[n].prefix != 0) { address++; }
+            int offset = operands[0].value - address;
+
+            if (offset < -128 || offset > 127)
+            {
+              print_error_range("Offset", -128, 127, asm_context);
+              return -1;
+            }
+
+            return add_bin_num8(asm_context, n, offset);
           }
           break;
         }

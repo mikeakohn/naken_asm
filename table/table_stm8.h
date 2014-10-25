@@ -180,6 +180,7 @@ enum
   OP_INDIRECT8_Y,        // ([$10.w],Y)
   OP_ADDRESS_BIT,        // $1000, #2
   OP_ADDRESS_BIT_LOOP,   // $1000, #2, loop
+  OP_RELATIVE,
 };
 
 #if 0
