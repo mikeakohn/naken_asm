@@ -22,6 +22,13 @@ void add_bin8(struct _asm_context *asm_context, uint8_t b, int flags)
   int line = DL_NO_CG;
 
   if (asm_context->pass == 2 && flags == IS_OPCODE) { line = asm_context->line; }
+
+  if (asm_context->pass == 1 && asm_context->pass_1_write_disable == 1)
+  {
+    asm_context->address++;
+    return;
+  }
+
   memory_write_inc(asm_context, b, line);
 }
 
@@ -30,6 +37,12 @@ void add_bin16(struct _asm_context *asm_context, uint16_t b, int flags)
   int line = DL_NO_CG;
 
   if (asm_context->pass == 2 && flags == IS_OPCODE) { line = asm_context->line; }
+
+  if (asm_context->pass == 1 && asm_context->pass_1_write_disable == 1)
+  {
+    asm_context->address += 2;
+    return;
+  }
 
   if (asm_context->memory.endian == ENDIAN_LITTLE)
   {
@@ -47,6 +60,12 @@ void add_bin16(struct _asm_context *asm_context, uint16_t b, int flags)
 void add_bin32(struct _asm_context *asm_context, uint32_t b, int flags)
 {
   int line = asm_context->line;
+
+  if (asm_context->pass == 1 && asm_context->pass_1_write_disable == 1)
+  {
+    asm_context->address += 4;
+    return;
+  }
 
   if (asm_context->memory.endian == ENDIAN_LITTLE)
   {

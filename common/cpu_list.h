@@ -54,6 +54,7 @@ struct _cpu_list
   char bytes_per_address;
   char is_dollar_hex:1;
   char can_tick_end_string:1;
+  char pass_1_write_disable:1;
   parse_instruction_t parse_instruction;
   list_output_t list_output;
   disasm_range_t disasm_range;

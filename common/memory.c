@@ -117,7 +117,7 @@ int memory_page_size()
   return PAGE_SIZE;
 }
 
-static unsigned char read_byte(struct _memory *memory, uint32_t address)
+static uint8_t read_byte(struct _memory *memory, uint32_t address)
 {
 struct _memory_page *page;
 
@@ -175,7 +175,7 @@ struct _memory_page *page;
   return page;
 }
 
-static void write_byte(struct _memory *memory, uint32_t address, unsigned char data)
+static void write_byte(struct _memory *memory, uint32_t address, uint8_t data)
 {
 struct _memory_page *page;
 
@@ -235,7 +235,7 @@ struct _memory_page *page;
   page->debug_line[offset] = data;
 }
 
-unsigned char memory_read(struct _asm_context *asm_context, uint32_t address)
+uint8_t memory_read(struct _asm_context *asm_context, uint32_t address)
 {
   if (address >= asm_context->memory.size)
   {
@@ -246,17 +246,17 @@ unsigned char memory_read(struct _asm_context *asm_context, uint32_t address)
   return read_byte(&asm_context->memory, address);
 }
 
-unsigned char memory_read_inc(struct _asm_context *asm_context)
+uint8_t memory_read_inc(struct _asm_context *asm_context)
 {
   return read_byte(&asm_context->memory, asm_context->address++);
 }
 
-unsigned char memory_read_m(struct _memory *memory, uint32_t address)
+uint8_t memory_read_m(struct _memory *memory, uint32_t address)
 {
   return read_byte(memory, address);
 }
 
-void memory_write(struct _asm_context *asm_context, uint32_t address, unsigned char data, int line)
+void memory_write(struct _asm_context *asm_context, uint32_t address, uint8_t data, int line)
 {
   if (address >= asm_context->memory.size)
   {
@@ -268,14 +268,14 @@ void memory_write(struct _asm_context *asm_context, uint32_t address, unsigned c
   write_debug(&asm_context->memory, address, line);
 }
 
-void memory_write_inc(struct _asm_context *asm_context, unsigned char data, int line)
+void memory_write_inc(struct _asm_context *asm_context, uint8_t data, int line)
 {
   write_byte(&asm_context->memory, asm_context->address, data);
   write_debug(&asm_context->memory, asm_context->address, line);
   asm_context->address++;
 }
 
-void memory_write_m(struct _memory *memory, uint32_t address, unsigned char data)
+void memory_write_m(struct _memory *memory, uint32_t address, uint8_t data)
 {
   write_byte(memory, address, data);
 }

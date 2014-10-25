@@ -65,12 +65,78 @@ struct _operand
   int value;
 };
 
-static int get_num(struct _asm_context *asm_context, char *instr, int *num, int *num_size)
+static int get_minimum_size(int instr_index)
+{
+  int n = 0;
+  int num_size = NUM_SIZE_SHORT;
+  int instr_enum = table_stm8[instr_index].instr_enum;
+  int count = 0;
+
+  while(table_stm8_opcodes[n].instr_enum != STM8_NONE)
+  {
+    if (table_stm8_opcodes[n].instr_enum == instr_enum)
+    {
+      switch(table_stm8_opcodes[n].type)
+      {
+        case OP_NUMBER8:
+        case OP_ADDRESS8:
+        case OP_OFFSET8_INDEX_X:
+        case OP_OFFSET8_INDEX_Y:
+        case OP_OFFSET8_INDEX_SP:
+        case OP_INDIRECT8:
+        case OP_INDIRECT8_X:
+        case OP_INDIRECT8_Y:
+          if (num_size < NUM_SIZE_SHORT) { num_size = NUM_SIZE_SHORT; }
+          count++;
+          break;
+        case OP_NUMBER16:
+        case OP_ADDRESS16:
+        case OP_OFFSET16_INDEX_X:
+        case OP_OFFSET16_INDEX_Y:
+        case OP_INDIRECT16:
+        case OP_INDIRECT16_X:
+          if (num_size < NUM_SIZE_WORD) { num_size = NUM_SIZE_WORD; }
+          count++;
+          break;
+        case OP_ADDRESS24:
+          if (num_size < NUM_SIZE_EXTENDED) { num_size = NUM_SIZE_EXTENDED; }
+          count++;
+          break;
+        default:
+          break;
+      }
+    }
+
+    n++;
+  }
+
+  if (count < 2) { return 0; }
+
+  return num_size;
+}
+
+static int get_num(struct _asm_context *asm_context, int instr_index, int *num, int *num_size)
 {
   if (eval_expression(asm_context, num) != 0)
   {
-    print_error_illegal_expression(instr, asm_context);
+    if (asm_context->pass == 1)
+    {
+      eat_operand(asm_context);
+      *num_size = get_minimum_size(instr_index);
+      memory_write(asm_context, asm_context->address, *num_size, asm_context->line);
+      return 0;
+    }
+
+    print_error_illegal_expression(table_stm8[instr_index].instr, asm_context);
     return -1;
+  }
+
+  int override_size = memory_read(asm_context, asm_context->address);
+
+  if (asm_context->pass == 2 && override_size != 0)
+  {
+    *num_size = override_size;
+    return 0;
   }
 
   if (*num >= -128 && *num <= 0xff) { *num_size = NUM_SIZE_SHORT; return 0; }
@@ -159,14 +225,15 @@ static int add_bin_bit_offset(struct _asm_context *asm_context, int n, int num, 
 
 int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 {
-char instr_case[TOKENLEN];
-char token[TOKENLEN];
-struct _operand operands[3];
-int operand_count;
-int instr_enum;
-int token_type;
-int num_size;
-int n;
+  char instr_case[TOKENLEN];
+  char token[TOKENLEN];
+  struct _operand operands[3];
+  int operand_count;
+  int instr_enum;
+  int instr_index;
+  int token_type;
+  int num_size;
+  int n;
 
   lower_copy(instr_case, instr);
   operand_count = 0;
@@ -186,7 +253,8 @@ int n;
     return -1;
   }
 
-  instr_enum = table_stm8[n].id;
+  instr_index = n;
+  instr_enum = table_stm8[n].instr_enum;
 
   // Parse operands
   while(1)
@@ -237,7 +305,7 @@ int n;
       else
     if (IS_TOKEN(token,'#'))
     {
-      if (get_num(asm_context, instr, &n, &num_size) != 0)
+      if (get_num(asm_context, instr_index, &n, &num_size) != 0)
       {
         return -1;
       }
@@ -263,7 +331,7 @@ int n;
 
       if (IS_TOKEN(token,'['))
       {
-        if (get_num(asm_context, instr, &n, &num_size) != 0)
+        if (get_num(asm_context, instr_index, &n, &num_size) != 0)
         {
           return -1;
         }
@@ -314,7 +382,7 @@ int n;
       {
         tokens_push(asm_context, token, token_type);
 
-        if (get_num(asm_context, instr, &n, &num_size) != 0)
+        if (get_num(asm_context, instr_index, &n, &num_size) != 0)
         {
           return -1;
         }
@@ -360,7 +428,7 @@ int n;
       else
     if (IS_TOKEN(token,'['))
     {
-      if (get_num(asm_context, instr, &n, &num_size) != 0)
+      if (get_num(asm_context, instr_index, &n, &num_size) != 0)
       {
         return -1;
       }
@@ -387,7 +455,7 @@ int n;
     {
       tokens_push(asm_context, token, token_type);
 
-      if (get_num(asm_context, instr, &n, &num_size) != 0)
+      if (get_num(asm_context, instr_index, &n, &num_size) != 0)
       {
         return -1;
       }

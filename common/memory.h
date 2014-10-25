@@ -29,7 +29,7 @@ struct _memory_page
   uint32_t address;
   uint32_t offset_min,offset_max;
   struct _memory_page *next;
-  unsigned char bin[PAGE_SIZE];
+  uint8_t bin[PAGE_SIZE];
   int debug_line[];
 };
 
@@ -52,12 +52,12 @@ int memory_in_use(struct _memory *memory, uint32_t address);
 int memory_get_page_address_min(struct _memory *memory, uint32_t address);
 int memory_get_page_address_max(struct _memory *memory, uint32_t address);
 int memory_page_size();
-unsigned char memory_read(struct _asm_context *asm_context, uint32_t address);
-unsigned char memory_read_m(struct _memory *memory, uint32_t address);
-unsigned char memory_read_inc(struct _asm_context *asm_context);
-void memory_write(struct _asm_context *asm_context, uint32_t address, unsigned char data, int line);
-void memory_write_inc(struct _asm_context *asm_context, unsigned char data, int line);
-void memory_write_m(struct _memory *memory, uint32_t address, unsigned char data);
+uint8_t memory_read(struct _asm_context *asm_context, uint32_t address);
+uint8_t memory_read_m(struct _memory *memory, uint32_t address);
+uint8_t memory_read_inc(struct _asm_context *asm_context);
+void memory_write(struct _asm_context *asm_context, uint32_t address, uint8_t data, int line);
+void memory_write_inc(struct _asm_context *asm_context, uint8_t data, int line);
+void memory_write_m(struct _memory *memory, uint32_t address, uint8_t data);
 int memory_debug_line(struct _asm_context *asm_context, uint32_t address);
 void memory_debug_line_set(struct _asm_context *asm_context, uint32_t address, int value);
 int memory_debug_line_m(struct _memory *memory, uint32_t address);
