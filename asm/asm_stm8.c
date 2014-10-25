@@ -71,14 +71,57 @@ static int get_num(struct _asm_context *asm_context, char *instr, int *num, int 
     return -1;
   }
 
-  if (*num >= -128 && *num <= 0xff) { *num_size = NUM_SIZE_SHORT; return -1; }
-  if (*num >= -32768 && *num <= 0xffff) { *num_size = NUM_SIZE_WORD; return -1; }
-  if (*num >= -8388608 && *num <=0xffffff) { *num_size = NUM_SIZE_EXTENDED; return -1; }
+  if (*num >= -128 && *num <= 0xff) { *num_size = NUM_SIZE_SHORT; return 0; }
+  if (*num >= -32768 && *num <= 0xffff) { *num_size = NUM_SIZE_WORD; return 0; }
+  if (*num >= -8388608 && *num <=0xffffff) { *num_size = NUM_SIZE_EXTENDED; return 0; }
 
   // FIXME - bad error message
   print_error_range("number", 0, 0xffffff, asm_context);
 
   return -1;
+}
+
+static int add_bin_void(struct _asm_context *asm_context, int n)
+{
+  int count = 1;
+
+  if (table_stm8_opcodes[n].prefix != 0)
+  {
+    add_bin8(asm_context, table_stm8_opcodes[n].prefix, IS_OPCODE);
+    count++;
+  }
+  add_bin8(asm_context, table_stm8_opcodes[n].opcode, IS_OPCODE);
+
+  return count;
+}
+
+static int add_bin_num8(struct _asm_context *asm_context, int n, int num)
+{
+  int count = 2;
+
+  if (table_stm8_opcodes[n].prefix != 0)
+  {
+    add_bin8(asm_context, table_stm8_opcodes[n].prefix, IS_OPCODE);
+  }
+  add_bin8(asm_context, table_stm8_opcodes[n].opcode, IS_OPCODE);
+  add_bin8(asm_context, num, IS_OPCODE);
+
+  return count;
+}
+
+static int add_bin_num16(struct _asm_context *asm_context, int n, int num)
+{
+  int count = 3;
+
+  if (table_stm8_opcodes[n].prefix != 0)
+  {
+    add_bin8(asm_context, table_stm8_opcodes[n].prefix, IS_OPCODE);
+  }
+  add_bin8(asm_context, table_stm8_opcodes[n].opcode, IS_OPCODE);
+  add_bin8(asm_context, (num >> 8) & 0xff, IS_OPCODE);
+  add_bin8(asm_context, num & 0xff, IS_OPCODE);
+
+  return count;
 }
 
 int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
@@ -90,7 +133,6 @@ int operand_count;
 int instr_enum;
 int token_type;
 int num_size;
-int ret;
 int n;
 
   lower_copy(instr_case, instr);
@@ -368,12 +410,65 @@ int n;
       switch(table_stm8_opcodes[n].type)
       {
         case OP_NUMBER:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_NUMBER8)
+          {
+            return add_bin_num8(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_NUMBER8)
+          {
+            return add_bin_num8(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_ADDRESS8:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_ADDRESS8)
+          {
+            return add_bin_num8(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_ADDRESS8)
+          {
+            return add_bin_num8(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_ADDRESS16:
+        {
+          if (operand_count == 2 && operands[0].type == OPERAND_ADDRESS16)
+          {
+            return add_bin_num16(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OPERAND_ADDRESS16)
+          {
+            return add_bin_num16(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_INDEX_X:
+        {
+          if (operand_count == 2 &&
+              (operands[0].type == OPERAND_INDEX_X ||
+               operands[0].type == OPERAND_INDEX_Y))
+          {
+            return add_bin_void(asm_context, n);
+          }
+          break;
+        }
         case OP_OFFSET8_INDEX_X:
         case OP_OFFSET16_INDEX_X:
+          break;
         case OP_INDEX_Y:
+          if (operand_count == 2 &&
+              (operands[0].type == OPERAND_INDEX_X ||
+               operands[0].type == OPERAND_INDEX_Y))
+          {
+            return add_bin_void(asm_context, n);
+          }
+          break;
         case OP_OFFSET8_INDEX_Y:
         case OP_OFFSET16_INDEX_Y:
         case OP_OFFSET8_INDEX_SP:
@@ -383,12 +478,17 @@ int n;
         case OP_INDIRECT16_X:
         case OP_INDIRECT8_Y:
         default:
+          printf("Internal error %s:%d\n", __FILE__, __LINE__);
+          return -1;
           break;
       }
     }
+
     n++;
   }
 
-  return ret;
+  print_error_unknown_instr(instr, asm_context);
+
+  return -1;
 }
 
