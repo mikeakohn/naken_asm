@@ -63,7 +63,8 @@ struct _table_stm8_opcodes
   uint8_t opcode;
   uint8_t dest;
   uint8_t src;
-  uint8_t cycles;
+  uint8_t min_cycles;
+  uint8_t max_cycles;
   uint8_t is_stm7;
 };
 
@@ -177,6 +178,7 @@ enum
   OP_INDIRECT16_X,       // ([$1000.w],X)
   OP_INDIRECT8_Y,        // ([$10.w],Y)
   OP_ADDRESS_BIT,        // $1000, #2
+  OP_ADDRESS_BIT_LOOP,   // $1000, #2, loop
 };
 
 #if 0
