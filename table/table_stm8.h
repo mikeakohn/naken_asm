@@ -154,24 +154,31 @@ enum
 
 enum
 {
-  OP_NUMBER8,
-  OP_NUMBER16,
-  OP_ADDRESS8,
-  OP_ADDRESS16,
-  OP_INDEX_X,
-  OP_OFFSET8_INDEX_X,
-  OP_OFFSET16_INDEX_X,
-  OP_INDEX_Y,
-  OP_OFFSET8_INDEX_Y,
-  OP_OFFSET16_INDEX_Y,
-  OP_OFFSET8_INDEX_SP,
-  OP_INDIRECT8,
-  OP_INDIRECT16,
-  OP_INDIRECT8_X,
-  OP_INDIRECT16_X,
-  OP_INDIRECT8_Y,
+  OP_NONE,
+  OP_REG_A,
+  OP_REG_X,
+  OP_REG_Y,
+  OP_SP,
+  OP_NUMBER8,            // #$10
+  OP_NUMBER16,           // #$1000
+  OP_ADDRESS8,           // $10
+  OP_ADDRESS16,          // $1000
+  OP_ADDRESS24,          // REVIEW: Is this needed?
+  OP_INDEX_X,            // (X)
+  OP_OFFSET8_INDEX_X,    // ($10,X)
+  OP_OFFSET16_INDEX_X,   // ($1000,X)
+  OP_INDEX_Y,            // (Y)
+  OP_OFFSET8_INDEX_Y,    // ($10,Y)
+  OP_OFFSET16_INDEX_Y,   // ($1000,Y)
+  OP_OFFSET8_INDEX_SP,   // ($10,SP)
+  OP_INDIRECT8,          // [$10.w]
+  OP_INDIRECT16,         // [$1000.w]
+  OP_INDIRECT8_X,        // ([$10.w],X) 
+  OP_INDIRECT16_X,       // ([$1000.w],X)
+  OP_INDIRECT8_Y,        // ([$10.w],Y)
 };
 
+#if 0
 enum
 {
   REG_NONE,
@@ -180,6 +187,7 @@ enum
   REG_Y,
   REG_SP,
 };
+#endif
 
 extern struct _table_stm8 table_stm8[];
 extern struct _table_stm8_opcodes table_stm8_opcodes[];
