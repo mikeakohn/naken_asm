@@ -126,6 +126,21 @@ static int add_bin_num16(struct _asm_context *asm_context, int n, int num)
   return count;
 }
 
+static int add_bin_bit(struct _asm_context *asm_context, int n, int num, int pos)
+{
+  int count = 3;
+
+  if (table_stm8_opcodes[n].prefix != 0)
+  {
+    add_bin8(asm_context, table_stm8_opcodes[n].prefix, IS_OPCODE);
+  }
+  add_bin8(asm_context, table_stm8_opcodes[n].opcode | pos, IS_OPCODE);
+  add_bin8(asm_context, (num >> 8) & 0xff, IS_OPCODE);
+  add_bin8(asm_context, num & 0xff, IS_OPCODE);
+
+  return count;
+}
+
 int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 {
 char instr_case[TOKENLEN];
@@ -608,6 +623,23 @@ int n;
           if (operand_count == 2 && operands[1].type == OP_INDIRECT8_Y)
           {
             return add_bin_num8(asm_context, n, operands[1].value);
+          }
+          break;
+        }
+        case OP_ADDRESS_BIT:
+        {
+          if (operand_count == 2 &&
+              (operands[0].type == OP_ADDRESS8 ||
+               operands[0].type == OP_ADDRESS16) &&
+              operands[1].type == OP_NUMBER8)
+          {
+            if (operands[1].type < 0 || operands[1].type > 7)
+            {
+              print_error_range("Bit", 0, 7, asm_context);
+              return -1;
+            }
+
+            return add_bin_bit(asm_context, n, operands[0].value, operands[1].value);
           }
           break;
         }

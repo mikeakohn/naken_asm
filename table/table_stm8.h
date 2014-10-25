@@ -176,6 +176,7 @@ enum
   OP_INDIRECT8_X,        // ([$10.w],X) 
   OP_INDIRECT16_X,       // ([$1000.w],X)
   OP_INDIRECT8_Y,        // ([$10.w],Y)
+  OP_ADDRESS_BIT,        // $1000, #2
 };
 
 #if 0
