@@ -181,6 +181,7 @@ enum
   OP_ADDRESS_BIT,        // $1000, #2
   OP_ADDRESS_BIT_LOOP,   // $1000, #2, loop
   OP_RELATIVE,
+  OP_SINGLE_REGISTER,
 };
 
 #if 0

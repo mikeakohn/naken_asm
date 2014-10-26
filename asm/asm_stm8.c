@@ -570,7 +570,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_ADDRESS8:
         {
-          if (operand_count == 2 && operands[0].type == OP_ADDRESS8)
+          if (operand_count <= 2 && operands[0].type == OP_ADDRESS8)
           {
             return add_bin_num8(asm_context, n, operands[0].value);
           }
@@ -683,7 +683,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_OFFSET8_INDEX_SP:
         {
-          if (operand_count == 2 && operands[0].type == OP_OFFSET8_INDEX_SP)
+          if (operand_count <= 2 && operands[0].type == OP_OFFSET8_INDEX_SP)
           {
             return add_bin_num8(asm_context, n, operands[0].value);
           }
@@ -837,6 +837,14 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
             }
 
             return add_bin_num8(asm_context, n, offset);
+          }
+          break;
+        }
+        case OP_SINGLE_REGISTER:
+        {
+          if (operand_count == 1)
+          {
+            return add_bin_void(asm_context, n);
           }
           break;
         }
