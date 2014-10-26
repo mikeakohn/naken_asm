@@ -245,6 +245,54 @@ static int add_bin_bit_offset(struct _asm_context *asm_context, int n, int num, 
   return count;
 }
 
+static int add_bin_num16_num8(struct _asm_context *asm_context, int n, int num1, int num2)
+{
+  int count = 4;
+
+  if (table_stm8_opcodes[n].prefix != 0)
+  {
+    add_bin8(asm_context, table_stm8_opcodes[n].prefix, IS_OPCODE);
+  }
+  add_bin8(asm_context, table_stm8_opcodes[n].opcode, IS_OPCODE);
+  add_bin8(asm_context, num2 & 0xff, IS_OPCODE);
+  add_bin8(asm_context, (num1 >> 8) & 0xff, IS_OPCODE);
+  add_bin8(asm_context, num1 & 0xff, IS_OPCODE);
+
+  return count;
+}
+
+static int add_bin_num8_num8(struct _asm_context *asm_context, int n, int num1, int num2)
+{
+  int count = 3;
+
+  if (table_stm8_opcodes[n].prefix != 0)
+  {
+    add_bin8(asm_context, table_stm8_opcodes[n].prefix, IS_OPCODE);
+  }
+  add_bin8(asm_context, table_stm8_opcodes[n].opcode, IS_OPCODE);
+  add_bin8(asm_context, num2 & 0xff, IS_OPCODE);
+  add_bin8(asm_context, num1 & 0xff, IS_OPCODE);
+
+  return count;
+}
+
+static int add_bin_num16_num16(struct _asm_context *asm_context, int n, int num1, int num2)
+{
+  int count = 5;
+
+  if (table_stm8_opcodes[n].prefix != 0)
+  {
+    add_bin8(asm_context, table_stm8_opcodes[n].prefix, IS_OPCODE);
+  }
+  add_bin8(asm_context, table_stm8_opcodes[n].opcode, IS_OPCODE);
+  add_bin8(asm_context, (num2 >> 8) & 0xff, IS_OPCODE);
+  add_bin8(asm_context, num2 & 0xff, IS_OPCODE);
+  add_bin8(asm_context, (num1 >> 8) & 0xff, IS_OPCODE);
+  add_bin8(asm_context, num1 & 0xff, IS_OPCODE);
+
+  return count;
+}
+
 int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
@@ -970,6 +1018,39 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           if (operand_count == 2)
           {
             return add_bin_void(asm_context, n);
+          }
+          break;
+        }
+        case OP_ADDRESS16_NUMBER8:
+        {
+          if (operand_count == 2 &&
+              (operands[0].type == OP_ADDRESS8 ||
+               operands[0].type == OP_ADDRESS16) &&
+              operands[1].type == OP_NUMBER8)
+          {
+            return add_bin_num16_num8(asm_context, n, operands[0].value, operands[1].value);
+          }
+          break;
+        }
+        case OP_ADDRESS8_ADDRESS8:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OP_ADDRESS8 && 
+              operands[1].type == OP_ADDRESS8)
+          {
+            return add_bin_num8_num8(asm_context, n, operands[0].value, operands[1].value);
+          }
+          break;
+        }
+        case OP_ADDRESS16_ADDRESS16:
+        {
+          if (operand_count == 2 &&
+              (operands[0].type == OP_ADDRESS8 ||
+               operands[0].type == OP_ADDRESS16) &&
+              (operands[1].type == OP_ADDRESS8 ||
+               operands[1].type == OP_ADDRESS16))
+          {
+            return add_bin_num16_num16(asm_context, n, operands[0].value, operands[1].value);
           }
           break;
         }
