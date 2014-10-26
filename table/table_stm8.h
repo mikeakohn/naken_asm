@@ -186,6 +186,8 @@ enum
   OP_REG_Y,
   OP_REG_XL,
   OP_REG_YL,
+  OP_REG_XH,
+  OP_REG_YH,
   OP_SP,
   OP_NUMBER8,            // #$10
   OP_NUMBER16,           // #$1000
