@@ -522,7 +522,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
       }
 
       if (table_stm8_opcodes[n].src != OP_NONE &&
-          operands[0].type != table_stm8_opcodes[n].src)
+          operands[1].type != table_stm8_opcodes[n].src)
       {
         n++;
         continue;
@@ -843,6 +843,14 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         case OP_SINGLE_REGISTER:
         {
           if (operand_count == 1)
+          {
+            return add_bin_void(asm_context, n);
+          }
+          break;
+        }
+        case OP_TWO_REGISTERS:
+        {
+          if (operand_count == 2)
           {
             return add_bin_void(asm_context, n);
           }

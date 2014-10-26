@@ -91,6 +91,7 @@ enum
   STM8_CLRW,
   STM8_CP,
   STM8_CPW,
+  STM8_CPL,
   STM8_CPLW,
   STM8_DEC,
   STM8_DECW,
@@ -182,6 +183,7 @@ enum
   OP_ADDRESS_BIT_LOOP,   // $1000, #2, loop
   OP_RELATIVE,
   OP_SINGLE_REGISTER,
+  OP_TWO_REGISTERS,
 };
 
 #if 0
