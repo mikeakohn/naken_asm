@@ -566,8 +566,25 @@ struct _table_stm8_opcodes table_stm8_opcodes[] = {
   // POPW
   // FIXME: WTF here?  all the W instructions don't have ST7 marked, but in
   // the stm8.pdf it is marked.  This looks like another mistake.
-  { STM8_POPW, OP_SINGLE_REGISTER, 0, 0x85, OP_REG_X, OP_NONE, 1,1, ST7_YES },
-  { STM8_POPW, OP_SINGLE_REGISTER, 0x90, 0x85, OP_REG_X, OP_NONE, 1,1, ST7_YES },
+  { STM8_POPW, OP_SINGLE_REGISTER, 0, 0x85, OP_REG_X, OP_NONE, 2,2, ST7_YES },
+  { STM8_POPW, OP_SINGLE_REGISTER, 0x90, 0x85, OP_REG_Y, OP_NONE, 2,2, ST7_YES },
+   // PUSH
+  { STM8_PUSH, OP_SINGLE_REGISTER, 0, 0x88, OP_REG_A, OP_NONE, 1,1, ST7_YES },
+  { STM8_PUSH, OP_SINGLE_REGISTER, 0, 0x8a, OP_REG_CC, OP_NONE, 1,1, ST7_YES },
+  { STM8_PUSH, OP_NUMBER8, 0, 0x4b, OP_NONE, OP_NONE, 1,1, ST7_NO },
+  { STM8_PUSH, OP_ADDRESS16, 0, 0x3b, OP_NONE, OP_NONE, 1,1, ST7_NO },
+  // PUSHW
+  // FIXME: Again it shows ST7.
+  { STM8_PUSHW, OP_SINGLE_REGISTER, 0, 0x89, OP_REG_X, OP_NONE, 2,2, ST7_YES },
+  { STM8_PUSHW, OP_SINGLE_REGISTER, 0x90, 0x89, OP_REG_Y, OP_NONE, 2,2, ST7_YES },
+  // RCF
+  { STM8_RCF, OP_NONE, 0, 0x98, OP_NONE, OP_NONE, 1,1, ST7_YES },
+  // RET
+  { STM8_RET, OP_NONE, 0, 0x81, OP_NONE, OP_NONE, 4,4, ST7_YES },
+  // RETF
+  { STM8_RET, OP_NONE, 0, 0x87, OP_NONE, OP_NONE, 5,5, ST7_NO },
+  // RIM
+  { STM8_RIM, OP_NONE, 0, 0x9a, OP_NONE, OP_NONE, 1,1, ST7_NO },
 
   { STM8_NONE, 0, 0, 0, 0, 0, 0, 0 },
 };
