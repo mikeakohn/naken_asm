@@ -388,6 +388,11 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OP_REG_YH;
     }
       else
+    if (strcasecmp(token,"CC") == 0)
+    {
+      operands[operand_count].type = OP_REG_CC;
+    }
+      else
     if (strcasecmp(token,"SP") == 0)
     {
       operands[operand_count].type = OP_SP;

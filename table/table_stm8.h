@@ -188,6 +188,7 @@ enum
   OP_REG_YL,
   OP_REG_XH,
   OP_REG_YH,
+  OP_REG_CC,
   OP_SP,
   OP_NUMBER8,            // #$10
   OP_NUMBER16,           // #$1000
@@ -220,6 +221,7 @@ enum
   OP_ADDRESS16_NUMBER8,
   OP_ADDRESS8_ADDRESS8,
   OP_ADDRESS16_ADDRESS16,
+  //OP_ADDRESS16,
 };
 
 #if 0
