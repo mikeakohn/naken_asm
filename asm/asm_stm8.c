@@ -96,10 +96,15 @@ static int get_minimum_size(int instr_index)
         case OP_INDIRECT16:
         case OP_INDIRECT16_E:
         case OP_INDIRECT16_X:
+        case OP_INDIRECT16_Y:
+        case OP_INDIRECT16_E_X:
+        case OP_INDIRECT16_E_Y:
           if (num_size < NUM_SIZE_WORD) { num_size = NUM_SIZE_WORD; }
           count++;
           break;
         case OP_ADDRESS24:
+        case OP_OFFSET24_INDEX_X:
+        case OP_OFFSET24_INDEX_Y:
           if (num_size < NUM_SIZE_EXTENDED) { num_size = NUM_SIZE_EXTENDED; }
           count++;
           break;
@@ -376,7 +381,19 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         operands[operand_count].value = n;
 
         if (expect_token(asm_context, '.') == -1) { return -1; }
-        if (expect_token(asm_context, 'w') == -1) { return -1; }
+        //if (expect_token(asm_context, 'w') == -1) { return -1; }
+        int is_w = 1;
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (strcasecmp(token, "e") == 0)
+        {
+          is_w = 0;
+        }
+          else
+        if (strcasecmp(token, "w") != 0)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
         if (expect_token(asm_context, ']') == -1) { return -1; }
         if (expect_token(asm_context, ',') == -1) { return -1; }
 
@@ -397,11 +414,20 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 
         switch(num_size)
         {
-          case NUM_SIZE_SHORT: break;
-          case NUM_SIZE_WORD: operands[operand_count].type++; break;
+          case NUM_SIZE_SHORT:
+            if (is_w == 0)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+            break;
+          case NUM_SIZE_WORD:
+            operands[operand_count].type++;
+            if (is_w == 0) { operands[operand_count].type++; }
+            break;
           default:
              // FIXME - bad error message
-             print_error_range(instr, 0, 0xff, asm_context);
+             print_error_range(instr, 0, 0xffff, asm_context);
              return -1;
         }
       }
@@ -453,6 +479,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         {
           case NUM_SIZE_SHORT: break;
           case NUM_SIZE_WORD: operands[operand_count].type++; break;
+          case NUM_SIZE_EXTENDED: operands[operand_count].type += 2; break;
           default:
              // FIXME - bad error message
              print_error_range(instr, 0, 0xff, asm_context);
@@ -486,8 +513,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 
       if (expect_token(asm_context, '.') == -1) { return -1; }
       token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (strcasecmp(token, "e") == 0 &&
-          operands[operand_count].type == OP_INDIRECT16)
+      if (strcasecmp(token, "e") == 0)
       {
         operands[operand_count].type = OP_INDIRECT16_E;
       }
@@ -620,12 +646,19 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_ADDRESS24:
         {
-          if (operand_count == 1 &&
+          if (operand_count <= 2 &&
               (operands[0].type == OP_ADDRESS24 ||
                operands[0].type == OP_ADDRESS16 ||
                operands[0].type == OP_ADDRESS8))
           {
             return add_bin_num24(asm_context, n, operands[0].value);
+          }
+          if (operand_count == 2 &&
+              (operands[1].type == OP_ADDRESS24 ||
+               operands[1].type == OP_ADDRESS16 ||
+               operands[1].type == OP_ADDRESS8))
+          {
+            return add_bin_num24(asm_context, n, operands[1].value);
           }
           break;
         }
@@ -665,6 +698,25 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           }
           break;
         }
+        case OP_OFFSET24_INDEX_X:
+        {
+          if (operand_count <= 2 && 
+              (operands[0].type == OP_OFFSET24_INDEX_X ||
+               operands[0].type == OP_OFFSET16_INDEX_X ||
+               operands[0].type == OP_OFFSET8_INDEX_X))
+          {
+            return add_bin_num24(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 &&
+              (operands[1].type == OP_OFFSET24_INDEX_X ||
+               operands[1].type == OP_OFFSET16_INDEX_X ||
+               operands[1].type == OP_OFFSET8_INDEX_X))
+          {
+            return add_bin_num24(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_INDEX_Y:
         {
           if (operand_count <= 2 &&
@@ -698,6 +750,25 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           if (operand_count == 2 && operands[1].type == OP_OFFSET16_INDEX_Y)
           {
             return add_bin_num16(asm_context, n, operands[1].value);
+          }
+          break;
+        }
+        case OP_OFFSET24_INDEX_Y:
+        {
+          if (operand_count <= 2 && 
+              (operands[0].type == OP_OFFSET24_INDEX_Y ||
+               operands[0].type == OP_OFFSET16_INDEX_Y ||
+               operands[0].type == OP_OFFSET8_INDEX_Y))
+          {
+            return add_bin_num24(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 &&
+              (operands[1].type == OP_OFFSET24_INDEX_Y ||
+               operands[1].type == OP_OFFSET16_INDEX_Y ||
+               operands[1].type == OP_OFFSET8_INDEX_Y))
+          {
+            return add_bin_num24(asm_context, n, operands[1].value);
           }
           break;
         }
@@ -779,6 +850,19 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           }
           break;
         }
+        case OP_INDIRECT16_E_X:
+        {
+          if (operand_count <= 2 && operands[0].type == OP_INDIRECT16_E_X)
+          {
+            return add_bin_num16(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OP_INDIRECT16_E_X)
+          {
+            return add_bin_num16(asm_context, n, operands[1].value);
+          }
+          break;
+        }
         case OP_INDIRECT8_Y:
         {
           if (operand_count <= 2 && operands[0].type == OP_INDIRECT8_Y)
@@ -789,6 +873,19 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           if (operand_count == 2 && operands[1].type == OP_INDIRECT8_Y)
           {
             return add_bin_num8(asm_context, n, operands[1].value);
+          }
+          break;
+        }
+        case OP_INDIRECT16_E_Y:
+        {
+          if (operand_count <= 2 && operands[0].type == OP_INDIRECT16_E_Y)
+          {
+            return add_bin_num16(asm_context, n, operands[0].value);
+          }
+            else
+          if (operand_count == 2 && operands[1].type == OP_INDIRECT16_E_Y)
+          {
+            return add_bin_num16(asm_context, n, operands[1].value);
           }
           break;
         }
