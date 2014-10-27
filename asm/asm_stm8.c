@@ -309,6 +309,18 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
   operand_count = 0;
   memset(operands, 0, sizeof(operands));
 
+  if (strcmp(instr_case, "sla") == 0)
+  {
+    // Alias SLA as SLL
+    strcpy(instr_case, "sll");
+  }
+    else
+  if (strcmp(instr_case, "slaw") == 0)
+  {
+    // Alias SLAW as SLLW
+    strcpy(instr_case, "sllw");
+  }
+
   // Find instruction
   n = 0;
   while(table_stm8[n].instr != NULL)
