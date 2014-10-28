@@ -17,37 +17,6 @@
 #define ST7_NO 0
 #define ST7_YES 1
 
-struct _stm8_single
-{
-  char *instr;
-  unsigned char opcode;
-  char cycles;
-  char st7_support;
-};
-
-struct _stm8_x_y
-{
-  char *instr;
-  unsigned char opcode;
-  char cycles;
-  char st7_support;
-};
-
-struct _stm8_r_r
-{
-  char *instr;
-  unsigned char opcode;
-  char cycles_min;
-  char cycles_max;
-  char st7_support;
-};
-
-struct _stm8_jumps
-{  char *instr;
-   uint8_t opcode;
-   uint8_t prefix;
-};
-
 struct _table_stm8
 {
   char *instr;
@@ -225,27 +194,8 @@ enum
   //OP_ADDRESS16,
 };
 
-#if 0
-enum
-{
-  REG_NONE,
-  REG_A,
-  REG_X,
-  REG_Y,
-  REG_SP,
-};
-#endif
-
 extern struct _table_stm8 table_stm8[];
 extern struct _table_stm8_opcodes table_stm8_opcodes[];
-
-extern struct _stm8_single stm8_single[];
-extern struct _stm8_x_y stm8_x_y[];
-extern char *stm8_type1[];
-extern char *stm8_type2[];
-extern char *stm8_bit_oper[];
-extern struct _stm8_r_r stm8_r_r[];
-extern struct _stm8_jumps stm8_jumps[];
 
 #endif
 
