@@ -961,7 +961,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
                operands[0].type == OP_ADDRESS16) &&
               operands[1].type == OP_NUMBER8)
           {
-            if (operands[1].type < 0 || operands[1].type > 7)
+            if (operands[1].value < 0 || operands[1].value > 7)
             {
               print_error_range("Bit", 0, 7, asm_context);
               return -1;
@@ -981,7 +981,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
               (operands[2].type == OP_ADDRESS8 ||
                operands[2].type == OP_ADDRESS16))
           {
-            if (operands[1].type < 0 || operands[1].type > 7)
+            if (operands[1].value < 0 || operands[1].value > 7)
             {
               print_error_range("Bit", 0, 7, asm_context);
               return -1;
