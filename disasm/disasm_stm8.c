@@ -35,589 +35,290 @@ int get_cycle_count_stm8(unsigned short int opcode)
   return -1;
 }
 
-int disasm_stm8(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+static void get_instruction(char *instr, int instr_enum)
 {
-unsigned char opcode;
-//int function;
-int n;
-//char temp[32];
-int prefix=0;
+  int n;
 
-  instruction[0]=0;
+  n = 0;
+  while(table_stm8[n].instr != NULL)
+  {
+    if (table_stm8[n].instr_enum == instr_enum)
+    {
+      strcpy(instr, table_stm8[n].instr);
+      break;
+    }
+    n++;
+  }
+}
 
-  *cycles_min=-1;
-  *cycles_max=-1;
+void add_reg(char *instr, int reg)
+{
+  switch(reg)
+  {
+    case OP_REG_A:
+      strcat(instr, "A");
+      break;
+    case OP_REG_X:
+      strcat(instr, "X");
+      break;
+    case OP_REG_Y:
+      strcat(instr, "Y");
+      break;
+    case OP_REG_XL:
+      strcat(instr, "XL");
+      break;
+    case OP_REG_YL:
+      strcat(instr, "YL");
+      break;
+    case OP_REG_XH:
+      strcat(instr, "XH");
+      break;
+    case OP_REG_YH:
+      strcat(instr, "YH");
+      break;
+    case OP_REG_CC:
+      strcat(instr, "CC");
+      break;
+    case OP_SP:
+      strcat(instr, "SP");
+      break;
+    case OP_NONE:
+    default:
+      strcat(instr, "?");
+      break;
+  }
+}
 
-  opcode=READ_RAM(address);
+int disasm_stm8(struct _memory *memory, int address, char *instr, int *cycles_min, int *cycles_max)
+{
+  uint8_t opcode;
+  uint8_t prefix = 0;
+  int8_t offset;
+  char temp[128];
+  int count = 1;
+  int n;
+
+  instr[0] = 0;
+
+  *cycles_min = -1;
+  *cycles_max = -1;
+
+  opcode = READ_RAM(address);
 
   if (opcode==0x90 || opcode==0x91 || opcode==0x92 || opcode==0x72)
   {
-    prefix=opcode;
-    address++;
-    opcode=READ_RAM(address);
+    prefix = opcode;
+    opcode = READ_RAM(address + count);
+    count++;
   }
 
-  if (prefix==0x00)
+//printf("prefix=%x  opcode=%x\n", prefix, opcode);
+
+  n = 0;
+  while(table_stm8_opcodes[n].instr_enum != STM8_NONE)
   {
-    n=0;
-    while(stm8_single[n].instr!=NULL)
+    if (table_stm8_opcodes[n].prefix == prefix &&
+        table_stm8_opcodes[n].opcode == opcode)
     {
-      if (stm8_single[n].opcode==opcode)
-      {
-        strcpy(instruction, stm8_single[n].instr);
-        *cycles_min=stm8_single[n].cycles;
-        *cycles_max=stm8_single[n].cycles;
-        return 1;
-      }
-
-      n++;
+      break;
     }
-  }
-
-  // Check for ldf
-  {
-    int size=4;
-    int cycles=1;
-    unsigned char opcodes[] =
-    {
-      0xbc, 0xaf, 0xbd, 0xa7
-    };
-
-    for (n=0; n<4; n++)
-    {
-      if (opcode==opcodes[n])
-      {
-        char temp[32];
-
-        if ((n&1)==0)
-        {
-          if (prefix==0x00)
-          {
-            sprintf(temp, "$%06x", READ_RAM24(address+1));
-          }
-            else
-          if (prefix==0x92)
-          {
-            sprintf(temp, "[$%04x]", READ_RAM16(address+1));
-            cycles=5;
-          }
-            else
-          { break; }
-        }
-          else
-        {
-          if (prefix==0x00)
-          {
-            sprintf(temp, "($%06x, X)", READ_RAM24(address+1));
-          }
-            else
-          if (prefix==0x90)
-          {
-            sprintf(temp, "($%06x, Y)", READ_RAM24(address+1));
-            size=5;
-          }
-            else
-          if (prefix==0x92)
-          {
-            sprintf(temp, "([$%04x], X)", READ_RAM16(address+1));
-            cycles=5;
-          }
-            else
-          if (prefix==0x91)
-          {
-            sprintf(temp, "([$%04x], Y)", READ_RAM16(address+1));
-            cycles=5;
-          }
-            else
-          { break; }
-        }
-
-        if (n<2) { sprintf(instruction,"ldf A, %s", temp); }
-        else { sprintf(instruction,"ldf %s, A", temp); cycles=(cycles==5)?4:1; }
-        *cycles_min=cycles;
-        *cycles_max=cycles;
-        return size;
-      }
-    }
-  }
-
-  n=0;
-  while(stm8_x_y[n].instr!=NULL)
-  {
-    if (stm8_x_y[n].opcode==opcode)
-    {
-      if (prefix==0x00)
-      {
-        sprintf(instruction, "%s X", stm8_x_y[n].instr);
-      }
-        else
-      if (prefix==0x90)
-      {
-        sprintf(instruction, "%s Y", stm8_x_y[n].instr);
-      }
-        else
-      {
-        break;
-      }
-
-      *cycles_min=stm8_x_y[n].cycles;
-      *cycles_max=stm8_x_y[n].cycles;
-      return 1;
-    }
-
     n++;
   }
 
-  if (opcode==0xad && prefix==0x00)
+  // If instruction can't be found return ???.
+  if (table_stm8_opcodes[n].instr_enum == STM8_NONE)
   {
-    char offset=(char)READ_RAM(address+1);
-    sprintf(instruction, "callr $%04x (%d)", address+2+offset, offset);
-    *cycles_min=4;
-    *cycles_max=4;
-    return 3;
+    strcpy(instr, "???");
+    return 1 + count;
   }
 
-  if (opcode==0x8d || opcode==0xac)
+  *cycles_min = table_stm8_opcodes[n].cycles_min;
+  *cycles_max = table_stm8_opcodes[n].cycles_max;
+
+  get_instruction(instr, table_stm8_opcodes[n].instr_enum);
+
+  if (table_stm8_opcodes[n].type != OP_NONE) { strcat(instr, " "); }
+
+  if (table_stm8_opcodes[n].dest != 0)
   {
-    char *instr=(opcode==0x8d)?"callf":"jpf";
-    if (prefix==0x00)
+    add_reg(instr, table_stm8_opcodes[n].dest);
+
+    if (table_stm8_opcodes[n].type != OP_NONE &&
+        table_stm8_opcodes[n].type != OP_SINGLE_REGISTER)
     {
-      sprintf(instruction, "%s $%06x", instr, READ_RAM24(address+1));
-      *cycles_min=(opcode==0x8d)?5:2;
-      *cycles_max=*cycles_min;;
-      return 4;
-    }
-      else
-    if (prefix==0x92)
-    {
-      sprintf(instruction, "%s [$%04x]", instr, READ_RAM16(address+1));
-      *cycles_min=(opcode==0x8d)?8:6;
-      *cycles_max=*cycles_min;;
-      return 4;
+      strcat(instr, ", ");
     }
   }
 
-  // Check for addw, subw
+  switch(table_stm8_opcodes[n].type)
   {
-    unsigned char opcodes[] =
-    {
-      0x1c, 0xbb, 0xfb, 0xa9, 0xb9, 0xf9,
-      0x1d, 0xb0, 0xf0, 0xa2, 0xb2, 0xf2,
-    };
-
-    for (n=0; n<12; n++)
-    {
-      if (opcode==opcodes[n])
-      {
-        if ((n%6)==0 && prefix!=0) { continue; }
-        if ((n%6)!=0 && prefix!=0x72) { continue; }
-        int size;
-        *cycles_min=2;
-        *cycles_max=2;
-        char *instr=(n>=6)?"subw":"addw";
-        char *reg=(((n/3)&1)==0)?"X":"Y";
-        int v=n%3;
-        size=0; // Good job bitching about nothing clang
-        if (v==0)
-        { sprintf(instruction, "%s %s, #$%04x", instr, reg, READ_RAM16(address+1)); size=3; }
-        else if (v==1)
-        { sprintf(instruction, "%s %s, $%04x", instr, reg, READ_RAM16(address+1)); size=4; }
-        else if (v==2)
-        { sprintf(instruction, "%s %s, ($%02x,SP)", instr, reg, READ_RAM(address+1)); size=4; }
-        return size;
-      }
-    }
+    case OP_NONE:
+      break;
+    case OP_NUMBER8:
+      sprintf(temp, "#$%02x", READ_RAM(address + count));
+      strcat(instr, temp);
+      count++;
+      break;
+    case OP_NUMBER16:
+      sprintf(temp, "#$%x", READ_RAM16(address + count));
+      strcat(instr, temp);
+      count += 2;
+      break;
+    case OP_ADDRESS8:
+      sprintf(temp, "$%02x", READ_RAM(address + count));
+      strcat(instr, temp);
+      count++;
+      break;
+    case OP_ADDRESS16:
+      sprintf(temp, "$%x", READ_RAM16(address + count));
+      strcat(instr, temp);
+      count += 2;
+      break;
+    case OP_ADDRESS24:
+      sprintf(temp, "$%x", READ_RAM24(address + count));
+      strcat(instr, temp);
+      count += 3;
+      break;
+    case OP_INDEX_X:
+      strcat(instr, "(X)");
+      break;
+    case OP_OFFSET8_INDEX_X:
+      sprintf(temp, "($%02x,X)", READ_RAM(address + count));
+      strcat(instr, temp);
+      count++;
+      break;
+    case OP_OFFSET16_INDEX_X:
+      sprintf(temp, "($%x,X)", READ_RAM16(address + count));
+      strcat(instr, temp);
+      count += 2;
+      break;
+    case OP_OFFSET24_INDEX_X:
+      sprintf(temp, "($%x,X)", READ_RAM24(address + count));
+      strcat(instr, temp);
+      count += 3;
+      break;
+    case OP_INDEX_Y:
+      strcat(instr, "(Y)");
+      break;
+    case OP_OFFSET8_INDEX_Y:
+      sprintf(temp, "($%02x,Y)", READ_RAM(address + count));
+      strcat(instr, temp);
+      count++;
+      break;
+    case OP_OFFSET16_INDEX_Y:
+      sprintf(temp, "($%x,Y)", READ_RAM16(address + count));
+      strcat(instr, temp);
+      count += 2;
+      break;
+    case OP_OFFSET24_INDEX_Y:
+      sprintf(temp, "($%x,Y)", READ_RAM24(address + count));
+      strcat(instr, temp);
+      count += 3;
+      break;
+    case OP_OFFSET8_INDEX_SP:
+      sprintf(temp, "($%02x,SP)", READ_RAM(address + count));
+      strcat(instr, temp);
+      count++;
+      break;
+    case OP_INDIRECT8:
+      sprintf(temp, "[$%02x.w]", READ_RAM(address + count));
+      strcat(instr, temp);
+      count++;
+      break;
+    case OP_INDIRECT16:
+      sprintf(temp, "[$%x.w]", READ_RAM16(address + count));
+      strcat(instr, temp);
+      count += 2;
+      break;
+    case OP_INDIRECT16_E:
+      sprintf(temp, "[$%x.e]", READ_RAM16(address + count));
+      strcat(instr, temp);
+      count += 2;
+      break;
+    case OP_INDIRECT8_X:
+      sprintf(temp, "([$%02x.w],X)", READ_RAM(address + count));
+      strcat(instr, temp);
+      count++;
+      break;
+    case OP_INDIRECT16_X:
+      sprintf(temp, "([$%x.w],X)", READ_RAM16(address + count));
+      strcat(instr, temp);
+      count += 2;
+      break;
+    case OP_INDIRECT16_E_X:
+      sprintf(temp, "([$%x.e],X)", READ_RAM16(address + count));
+      strcat(instr, temp);
+      count += 2;
+      break;
+    case OP_INDIRECT8_Y:
+      sprintf(temp, "([$%02x.w],Y)", READ_RAM(address + count));
+      strcat(instr, temp);
+      count++;
+      break;
+    case OP_INDIRECT16_E_Y:
+      sprintf(temp, "([$%x.e],Y)", READ_RAM16(address + count));
+      strcat(instr, temp);
+      count += 2;
+      break;
+    case OP_ADDRESS_BIT:
+      sprintf(temp, "$%x, #%d", READ_RAM16(address + count), (opcode & 0x0e) >> 1);
+      strcat(instr, temp);
+      count += 2;
+      break;
+    case OP_ADDRESS_BIT_LOOP:
+      offset = (int8_t)READ_RAM(address + count + 2);
+      sprintf(temp, "$%x, #%d, $%x  (offset=%d)", READ_RAM16(address + count), (opcode & 0x0e) >> 1, (address + count + 3) + offset, offset);
+      strcat(instr, temp);
+      count += 3;
+      break;
+    case OP_RELATIVE:
+      offset = (int8_t)READ_RAM(address + count);
+      sprintf(temp, "$%x  (offset=%d)", (address + count + 1) + offset, offset);
+      strcat(instr, temp);
+      count++;
+      break;
+    case OP_SINGLE_REGISTER:
+    case OP_TWO_REGISTERS:
+      break;
+    case OP_ADDRESS16_NUMBER8:
+      sprintf(temp, "$%x, #$%02x", READ_RAM16(address + count + 1), READ_RAM(address + count));
+      strcat(instr, temp);
+      count += 3;
+      break;
+    case OP_ADDRESS8_ADDRESS8:
+      sprintf(temp, "$%x, $%02x", READ_RAM(address + count + 1), READ_RAM(address + count));
+      strcat(instr, temp);
+      count += 2;
+      break;
+    case OP_ADDRESS16_ADDRESS16:
+      sprintf(temp, "$%x, $%x", READ_RAM16(address + count + 2), READ_RAM16(address + count));
+      strcat(instr, temp);
+      count += 4;
+      break;
+    default:
+      strcpy(instr, "???");
+      break;
   }
 
-  int opcode_nibble=opcode&0x0f;
-  if (stm8_type1[opcode_nibble]!=NULL)
+  if (table_stm8_opcodes[n].src != 0)
   {
-    int masked=opcode&0xf0;
-    char operand[32];
-    operand[0]=0;
-    int cycles=1;
-    int size=2;
-
-    if (opcode==0xae && prefix==0)
+    if (table_stm8_opcodes[n].type != OP_NONE &&
+        table_stm8_opcodes[n].type != OP_TWO_REGISTERS)
     {
-      sprintf(operand, "#$%04x", READ_RAM16(address+1));
-      size++;
-    }
-      else
-    if (opcode==0x7b && prefix==0)
-    {
-      sprintf(operand, "($%02x, SP)", READ_RAM(address+1));
-    }
-      else
-    if (opcode==0x6b && prefix==0)
-    {
-      sprintf(operand, "($%02x, SP)", READ_RAM(address+1));
-    }
-      else
-    if (masked==0x10 && prefix==0)
-    {
-      sprintf(operand, "($%02x, SP)", READ_RAM(address+1));
-    }
-      else
-    if (masked==0xa0 && prefix==0)
-    {
-      sprintf(operand, "#$%02x", READ_RAM(address+1));
-    }
-      else
-    if (masked==0xb0)
-    {
-      sprintf(operand, "$%02x", READ_RAM(address+1));
-    }
-      else
-    if (masked==0xc0)
-    {
-      if (prefix==0)
-      { sprintf(operand, "$%04x", READ_RAM16(address+1)); size++; }
-        else
-      if (prefix==0x92)
-      { sprintf(operand, "[$%02x]", READ_RAM(address+1)); }
-        else
-      if (prefix==0x72)
-      { sprintf(operand, "[$%04x]", READ_RAM16(address+1)); size++; }
-
-      if (prefix!=0) { cycles=4; }
-    }
-      else
-    if (masked==0xf0)
-    {
-      if (prefix==0) { strcpy(operand, "(X)"); }
-      else if (prefix==0x90) { strcpy(operand, "(Y)"); }
-      size=1;
-    }
-      else
-    if (masked==0xe0)
-    {
-      if (prefix==0)
-      { sprintf(operand, "($%02x,X)", READ_RAM(address+1)); }
-        else
-      if (prefix==0x90)
-      { sprintf(operand, "($%02x,Y)", READ_RAM(address+1)); }
-    }
-      else
-    if (masked==0xd0)
-    {
-      if (prefix==0)
-      { sprintf(operand, "($%04x,X)", READ_RAM16(address+1)); size++; }
-        else
-      if (prefix==0x90)
-      { sprintf(operand, "($%04x,Y)", READ_RAM16(address+1)); size++; }
-        else
-      if (prefix==0x92)
-      { sprintf(operand, "([$%02x],X)", READ_RAM(address+1)); }
-        else
-      if (prefix==0x72)
-      { sprintf(operand, "([$%04x],X)", READ_RAM16(address+1)); size++; }
-        else
-      if (prefix==0x91)
-      { sprintf(operand, "([$%02x],Y)", READ_RAM(address+1)); }
-
-      if (prefix!=0 && prefix!=0x90) { cycles=4; }
+      strcat(instr, ",");
     }
 
-    if (operand[0]!=0)
-    {
-      if (opcode_nibble==0x0e) { cycles=(prefix==0x00)?2:5; }
-        else
-      if (opcode_nibble==0x0d) { cycles=(cycles==1)?4:6; }
-        else
-      if (opcode_nibble==0x0c)
-      {
-        if (cycles==4) { cycles=5; }
-        else if (prefix==0x90 && (opcode==0xec || opcode==0xdc)) { cycles=2; }
-      }
-
-      *cycles_min=cycles;
-      *cycles_max=cycles;
-      if (prefix!=0) { size++; }
-
-      if (opcode_nibble==7)
-      { sprintf(instruction, "%s %s, A", stm8_type1[opcode_nibble], operand); }
-        else
-      if (opcode_nibble==3)
-      { sprintf(instruction, "%s X, %s", stm8_type1[opcode_nibble], operand); }
-        else
-      if (opcode_nibble==0xd || opcode_nibble==0xc)
-      { sprintf(instruction, "%s %s", stm8_type1[opcode_nibble], operand); }
-        else
-      { sprintf(instruction, "%s A, %s", stm8_type1[opcode_nibble], operand); }
-
-      return size;
-    }
+    add_reg(instr, table_stm8_opcodes[n].src);
   }
 
-  if (stm8_type2[opcode_nibble]!=NULL)
-  {
-    int masked=opcode&0xf0;
-    char operand[32];
-    operand[0]=0;
-    int cycles=1;
-    int size=2;
-
-    if (masked==0x00 && prefix==0)
-    {
-      sprintf(operand, "($%02x,SP)", READ_RAM(address+1));
-    }
-      else
-    if (masked==0x50 && prefix==0x72)
-    {
-      sprintf(operand, "$%04x", READ_RAM16(address+1));
-      size=3;
-    }
-      else
-    if (masked==0x30)
-    {
-      if (prefix==0)
-      { sprintf(operand, "$%02x", READ_RAM(address+1)); }
-        else
-      if (prefix==0x92)
-      { sprintf(operand, "[$%02x]", READ_RAM(address+1)); cycles=4; }
-        else
-      if (prefix==0x72)
-      { sprintf(operand, "[$%04x]", READ_RAM16(address+1)); size++; cycles=4; }
-    }
-      else
-    if (masked==0x70)
-    {
-      if (prefix==0) { strcpy(operand, "(X)"); }
-      else if (prefix==0x90) { strcpy(operand, "(Y)"); }
-      size=1;
-    }
-      else
-    if (masked==0x40)
-    {
-      if (prefix==0) { strcpy(operand, "A"); size=1; }
-        else
-      if (prefix==0x72)
-      { sprintf(operand, "($%04x,X)", READ_RAM16(address+1)); size++; }
-        else
-      if (prefix==0x90)
-      { sprintf(operand, "($%04x,Y)", READ_RAM16(address+1)); size++; }
-    }
-      else
-    if (masked==0x60)
-    {
-      if (prefix==0)
-      { sprintf(operand, "($%02x,X)", READ_RAM(address+1)); }
-        else
-      if (prefix==0x90)
-      { sprintf(operand, "($%02x,Y)", READ_RAM(address+1)); }
-        else
-      if (prefix==0x92)
-      { sprintf(operand, "([$%02x],X)", READ_RAM(address+1)); }
-        else
-      if (prefix==0x72)
-      { sprintf(operand, "([$%04x],X)", READ_RAM16(address+1)); size++; }
-        else
-      if (prefix==0x91)
-      { sprintf(operand, "([$%02x],Y)", READ_RAM(address+1)); }
-
-      if (prefix!=0 && prefix!=0x90) { cycles=4; }
-    }
-
-    if (operand[0]!=0)
-    {
-      *cycles_min=cycles;
-      *cycles_max=cycles;
-      if (prefix!=0) { size++; }
-
-      sprintf(instruction, "%s %s", stm8_type2[opcode_nibble], operand);
-
-      return size;
-    }
-  }
-
-  if ((prefix==0x90 && (opcode>>4)==1) || (prefix==0x72 && (opcode>>4)<=1))
-  {
-    //int bit_oper=((opcode&16)>>3)|(opcode&1);
-
-    if (prefix==0x72 && (opcode>>4)==0)
-    {
-      sprintf(instruction, "%s $%04x, #%d, $%04x", stm8_bit_oper[(opcode&1)+4], READ_RAM16(address+1), (opcode&0xf)>>1, (address+4)+((char)READ_RAM(address+4)));
-      *cycles_min=2;
-      *cycles_max=3;
-      return 5;
-    }
-      else
-    {
-      sprintf(instruction, "%s $%04x, #%d", stm8_bit_oper[(opcode&1)+((prefix==0x72)?0:2)], READ_RAM16(address+1), (opcode&0xf)>>1);
-      *cycles_min=1;
-      *cycles_max=1;
-      return 4;
-    }
-  }
-
-  n=0;
-  while(stm8_r_r[n].instr!=NULL)
-  {
-    if (stm8_r_r[n].opcode==opcode)
-    {
-      *cycles_min=stm8_r_r[n].cycles_min;
-      *cycles_max=stm8_r_r[n].cycles_max;
-
-      if (n<2)
-      {
-        sprintf(instruction, "%s %c,A", stm8_r_r[n].instr, (prefix==0x90)?'Y':'X');
-        if (prefix==0x90) return 2;
-      }
-        else
-      {
-        sprintf(instruction, "%s X,Y", stm8_r_r[n].instr);
-      }
-
-      return 1;
-    }
-
-    n++;
-  }
-
-  if (opcode>=0x20 && opcode <=0x2f)
-  {
-    n=0;
-    while(stm8_jumps[n].instr!=NULL)
-    {
-      if (stm8_jumps[n].opcode==opcode && stm8_jumps[n].prefix==prefix)
-      {
-        char offset=(char)READ_RAM(address+1);
-        sprintf(instruction, "%s $%04x (%d)", stm8_jumps[n].instr, address+2+offset, offset);
-        *cycles_min=1;
-        *cycles_max=2;
-
-        if (n==0 || n==1) { *cycles_min=2; }
-        else if (n==2) { *cycles_max=1; }
-
-        return (prefix==0)?2:3;
-      }
-
-      n++;
-    }
-  }
-
-  SINGLE_OPCODE(0x72, 0x8f, 1, 2, "wfe")
-  SINGLE_OPCODE(0x00, 0x84, 1, 1, "pop A")
-  SINGLE_OPCODE(0x00, 0x86, 1, 1, "pop CC")
-  SINGLE_OPCODE(0x00, 0x88, 1, 1, "push A")
-  SINGLE_OPCODE(0x00, 0x8a, 1, 1, "push CC")
-  SINGLE_OPCODE(0x00, 0x41, 1, 1, "exg A, XL")
-  SINGLE_OPCODE(0x00, 0x61, 1, 1, "exg A, YL")
-  SINGLE_OPCODE(0x00, 0xff, 2, 1, "ldw (X), Y")
-
-  if (prefix==0x00)
-  {
-    if (opcode==0x32 && prefix==0x00)
-    {
-      sprintf(instruction, "pop $%04x", READ_RAM16(address+1));
-      *cycles_min=1;
-      *cycles_max=1;
-      return 3;
-    }
-
-    if (opcode==0x4b)
-    {
-      sprintf(instruction, "push #$%02x", READ_RAM(address+1));
-      *cycles_min=1;
-      *cycles_max=1;
-      return 2;
-    }
-
-    if (opcode==0x3b)
-    {
-      sprintf(instruction, "push $%04x", READ_RAM16(address+1));
-      *cycles_min=1;
-      *cycles_max=1;
-      return 3;
-    }
-
-    if (opcode==0x31)
-    {
-      sprintf(instruction, "exg A, $%04x", READ_RAM16(address+1));
-      *cycles_min=3;
-      *cycles_max=3;
-      return 3;
-    }
-
-    if (opcode==0x35)
-    {
-      sprintf(instruction, "mov $%04x, #$%02x", READ_RAM16(address+2), READ_RAM(address+1));
-      *cycles_min=1;
-      *cycles_max=1;
-      return 4;
-    }
-
-    if (opcode==0x45)
-    {
-      sprintf(instruction, "mov $%02x, $%02x", READ_RAM(address+2), READ_RAM(address+1));
-      *cycles_min=1;
-      *cycles_max=1;
-      return 3;
-    }
-
-    if (opcode==0x55)
-    {
-      sprintf(instruction, "mov $%04x, $%04x", READ_RAM16(address+3), READ_RAM16(address+1));
-      *cycles_min=1;
-      *cycles_max=1;
-      return 5;
-    }
-
-    if (opcode==0x5b)
-    {
-      sprintf(instruction, "addw SP, #$%02x", READ_RAM(address+1));
-      *cycles_min=2;
-      *cycles_max=2;
-      return 2;
-    }
-
-    if (opcode==0xbf)
-    {
-      sprintf(instruction, "ldw $%02x, X", READ_RAM(address+1));
-      *cycles_min=2;
-      *cycles_max=2;
-      return 2;
-    }
-
-    if (opcode==0xcf)
-    {
-      sprintf(instruction, "ldw $%04x, X", READ_RAM16(address+1));
-      *cycles_min=2;
-      *cycles_max=2;
-      return 3;
-    }
-
-    if (opcode==0xef)
-    {
-      sprintf(instruction, "ldw ($%02x,X), Y", READ_RAM(address+1));
-      *cycles_min=2;
-      *cycles_max=2;
-      return 2;
-    }
-
-    if (opcode==0xdf)
-    {
-      sprintf(instruction, "ldw ($%04x,X), Y", READ_RAM16(address+1));
-      *cycles_min=2;
-      *cycles_max=2;
-      return 3;
-    }
-  }
-
-
-  strcpy(instruction, "???");
-
-  return 1;
+  return count;
 }
 
 void list_output_stm8(struct _asm_context *asm_context, int address)
 {
-int cycles_min,cycles_max,count;
-char instruction[128];
-//unsigned int opcode=READ_RAM(&asm_context->memory, address);
-//unsigned int opcode=0;
-int n;
+  int cycles_min,cycles_max,count;
+  char instruction[128];
+  int n;
 
   fprintf(asm_context->list, "\n");
   count=disasm_stm8(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
@@ -636,7 +337,7 @@ int n;
   }
   fprintf(asm_context->list, " %-40s cycles: ", instruction);
 
-  if (cycles_min==cycles_max)
+  if (cycles_min == cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
     else
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
@@ -645,27 +346,27 @@ int n;
 
 void disasm_range_stm8(struct _memory *memory, int start, int end)
 {
-char instruction[128];
-int cycles_min=0,cycles_max=0;
-int num;
+  char instruction[128];
+  int cycles_min = 0,cycles_max = 0;
+  int num;
 
   printf("\n");
 
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start<=end)
+  while(start <= end)
   {
-    num=READ_RAM(start)|(READ_RAM(start+1)<<8);
+    num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
 
     disasm_stm8(memory, start, instruction, &cycles_min, &cycles_max);
 
-    if (cycles_min<1)
+    if (cycles_min < 1)
     {
       printf("0x%04x: 0x%08x %-40s ?\n", start, num, instruction);
     }
       else
-    if (cycles_min==cycles_max)
+    if (cycles_min == cycles_max)
     {
       printf("0x%04x: 0x%08x %-40s %d\n", start, num, instruction, cycles_min);
     }
@@ -675,17 +376,17 @@ int num;
     }
 
 #if 0
-    count-=4;
-    while (count>0)
+    count -= 4;
+    while (count > 0)
     {
-      start=start+4;
-      num=READ_RAM(start)|(READ_RAM(start+1)<<8);
+      start = start+4;
+      num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
       printf("0x%04x: 0x%04x\n", start, num);
-      count-=4;
+      count -= 4;
     }
 #endif
 
-    start=start+4;
+    start = start + 4;
   }
 }
 

@@ -63,8 +63,8 @@ struct _table_stm8_opcodes
   uint8_t opcode;
   uint8_t dest;
   uint8_t src;
-  uint8_t min_cycles;
-  uint8_t max_cycles;
+  uint8_t cycles_min;
+  uint8_t cycles_max;
   uint8_t is_stm7;
 };
 
