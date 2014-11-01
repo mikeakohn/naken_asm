@@ -35,14 +35,14 @@ for instruction in fp:
     code_len = "%02X" % l
     checksum = l
 
-    for i in range(0,l+1,2):
+    for i in range(0, len(code), 2):
       a = code[i:i+2]
       a = int(a,16)
       #print "%02x" % ((0 - a) & 0xff)
       #print "%02x" % (((a ^ 0xff) + 1) & 0xff)
       checksum += a
 
-    checksum = (0 - checksum) & 0xff
+    checksum = ((checksum ^ 0xff) + 1) & 0xff
     checksum = "%02X" % checksum
     hex = ":" + code_len + "000000" + code + checksum
     #print hex

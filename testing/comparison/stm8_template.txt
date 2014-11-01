@@ -4,3 +4,312 @@ exg A, XL
 exg A, YL
 exg A, $1000
 exgw X, Y
+adc A, #$55
+adc A, $10
+adc A, $1000
+adc A, (X)
+adc A, ($10,X)
+adc A, ($1000,X)
+adc A, (Y)
+adc A, ($10,Y)
+adc A, ($1000,Y)
+adc A, ($10,SP)
+adc A, [$10.w]
+adc A, [$1000.w]
+adc A, ([$10.w],X)
+adc A, ([$1000.w],X)
+adc A, ([$10.w],Y)
+adc A, ([$10.w],Y)
+add A, #$55
+add A, $10
+add A, $1000
+add A, (X)
+add A, ($10,X)
+add A, ($1000,X)
+add A, (Y)
+add A, ($10,Y)
+add A, ($1000,Y)
+add A, ($10,SP)
+add A, [$10.w]
+add A, [$1000.w]
+add A, ([$10.w],X)
+add A, ([$1000.w],X)
+add A, ([$10.w],Y)
+add A, ([$10.w],Y)
+and A, #$55
+and A, $10
+and A, $1000
+and A, (X)
+and A, ($10,X)
+and A, ($1000,X)
+and A, (Y)
+and A, ($10,Y)
+and A, ($1000,Y)
+and A, ($10,SP)
+and A, [$10.w]
+and A, [$1000.w]
+and A, ([$10.w],X)
+and A, ([$1000.w],X)
+and A, ([$10.w],Y)
+and A, ([$10.w],Y)
+cp A, #$55
+cp A, $10
+cp A, $1000
+cp A, (X)
+cp A, ($10,X)
+cp A, ($1000,X)
+cp A, (Y)
+cp A, ($10,Y)
+cp A, ($1000,Y)
+cp A, ($10,SP)
+cp A, [$10.w]
+cp A, [$1000.w]
+cp A, ([$10.w],X)
+cp A, ([$1000.w],X)
+cp A, ([$10.w],Y)
+cp A, ([$10.w],Y)
+ld A, #$55
+ld A, $10
+ld A, $1000
+ld A, (X)
+ld A, ($10,X)
+ld A, ($1000,X)
+ld A, (Y)
+ld A, ($10,Y)
+ld A, ($1000,Y)
+ld A, ($10,SP)
+ld A, [$10.w]
+ld A, [$1000.w]
+ld A, ([$10.w],X)
+ld A, ([$1000.w],X)
+ld A, ([$10.w],Y)
+ld A, ([$10.w],Y)
+or A, #$55
+or A, $10
+or A, $1000
+or A, (X)
+or A, ($10,X)
+or A, ($1000,X)
+or A, (Y)
+or A, ($10,Y)
+or A, ($1000,Y)
+or A, ($10,SP)
+or A, [$10.w]
+or A, [$1000.w]
+or A, ([$10.w],X)
+or A, ([$1000.w],X)
+or A, ([$10.w],Y)
+or A, ([$10.w],Y)
+sbc A, #$55
+sbc A, $10
+sbc A, $1000
+sbc A, (X)
+sbc A, ($10,X)
+sbc A, ($1000,X)
+sbc A, (Y)
+sbc A, ($10,Y)
+sbc A, ($1000,Y)
+sbc A, ($10,SP)
+sbc A, [$10.w]
+sbc A, [$1000.w]
+sbc A, ([$10.w],X)
+sbc A, ([$1000.w],X)
+sbc A, ([$10.w],Y)
+sbc A, ([$10.w],Y)
+sub A, #$55
+sub A, $10
+sub A, $1000
+sub A, (X)
+sub A, ($10,X)
+sub A, ($1000,X)
+sub A, (Y)
+sub A, ($10,Y)
+sub A, ($1000,Y)
+sub A, ($10,SP)
+sub A, [$10.w]
+sub A, [$1000.w]
+sub A, ([$10.w],X)
+sub A, ([$1000.w],X)
+sub A, ([$10.w],Y)
+sub A, ([$10.w],Y)
+xor A, #$55
+xor A, $10
+xor A, $1000
+xor A, (X)
+xor A, ($10,X)
+xor A, ($1000,X)
+xor A, (Y)
+xor A, ($10,Y)
+xor A, ($1000,Y)
+xor A, ($10,SP)
+xor A, [$10.w]
+xor A, [$1000.w]
+xor A, ([$10.w],X)
+xor A, ([$1000.w],X)
+xor A, ([$10.w],Y)
+xor A, ([$10.w],Y)
+clr A
+clr $10
+clr $1000
+clr (X)
+clr ($10,X)
+clr ($1000,X)
+clr (Y)
+clr ($10,Y)
+clr ($1000,Y)
+clr ($10,SP)
+clr [$10.w]
+clr [$1000.w]
+clr ([$10.w],X)
+clr ([$1000.w],X)
+clr ([$10.w],Y)
+cpl A
+cpl $10
+cpl $1000
+cpl (X)
+cpl ($10,X)
+cpl ($1000,X)
+cpl (Y)
+cpl ($10,Y)
+cpl ($1000,Y)
+cpl ($10,SP)
+cpl [$10.w]
+cpl [$1000.w]
+cpl ([$10.w],X)
+cpl ([$1000.w],X)
+cpl ([$10.w],Y)
+dec A
+dec $10
+dec $1000
+dec (X)
+dec ($10,X)
+dec ($1000,X)
+dec (Y)
+dec ($10,Y)
+dec ($1000,Y)
+dec ($10,SP)
+dec [$10.w]
+dec [$1000.w]
+dec ([$10.w],X)
+dec ([$1000.w],X)
+dec ([$10.w],Y)
+inc A
+inc $10
+inc $1000
+inc (X)
+inc ($10,X)
+inc ($1000,X)
+inc (Y)
+inc ($10,Y)
+inc ($1000,Y)
+inc ($10,SP)
+inc [$10.w]
+inc [$1000.w]
+inc ([$10.w],X)
+inc ([$1000.w],X)
+inc ([$10.w],Y)
+neg A
+neg $10
+neg $1000
+neg (X)
+neg ($10,X)
+neg ($1000,X)
+neg (Y)
+neg ($10,Y)
+neg ($1000,Y)
+neg ($10,SP)
+neg [$10.w]
+neg [$1000.w]
+neg ([$10.w],X)
+neg ([$1000.w],X)
+neg ([$10.w],Y)
+rlc A
+rlc $10
+rlc $1000
+rlc (X)
+rlc ($10,X)
+rlc ($1000,X)
+rlc (Y)
+rlc ($10,Y)
+rlc ($1000,Y)
+rlc ($10,SP)
+rlc [$10.w]
+rlc [$1000.w]
+rlc ([$10.w],X)
+rlc ([$1000.w],X)
+rlc ([$10.w],Y)
+rrc A
+rrc $10
+rrc $1000
+rrc (X)
+rrc ($10,X)
+rrc ($1000,X)
+rrc (Y)
+rrc ($10,Y)
+rrc ($1000,Y)
+rrc ($10,SP)
+rrc [$10.w]
+rrc [$1000.w]
+rrc ([$10.w],X)
+rrc ([$1000.w],X)
+rrc ([$10.w],Y)
+sra A
+sra $10
+sra $1000
+sra (X)
+sra ($10,X)
+sra ($1000,X)
+sra (Y)
+sra ($10,Y)
+sra ($1000,Y)
+sra ($10,SP)
+sra [$10.w]
+sra [$1000.w]
+sra ([$10.w],X)
+sra ([$1000.w],X)
+sra ([$10.w],Y)
+srl A
+srl $10
+srl $1000
+srl (X)
+srl ($10,X)
+srl ($1000,X)
+srl (Y)
+srl ($10,Y)
+srl ($1000,Y)
+srl ($10,SP)
+srl [$10.w]
+srl [$1000.w]
+srl ([$10.w],X)
+srl ([$1000.w],X)
+srl ([$10.w],Y)
+swap A
+swap $10
+swap $1000
+swap (X)
+swap ($10,X)
+swap ($1000,X)
+swap (Y)
+swap ($10,Y)
+swap ($1000,Y)
+swap ($10,SP)
+swap [$10.w]
+swap [$1000.w]
+swap ([$10.w],X)
+swap ([$1000.w],X)
+swap ([$10.w],Y)
+tnz A
+tnz $10
+tnz $1000
+tnz (X)
+tnz ($10,X)
+tnz ($1000,X)
+tnz (Y)
+tnz ($10,Y)
+tnz ($1000,Y)
+tnz ($10,SP)
+tnz [$10.w]
+tnz [$1000.w]
+tnz ([$10.w],X)
+tnz ([$1000.w],X)
+tnz ([$10.w],Y)
