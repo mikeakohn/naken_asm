@@ -313,3 +313,36 @@ tnz [$1000.w]
 tnz ([$10.w],X)
 tnz ([$1000.w],X)
 tnz ([$10.w],Y)
+cpw X, #$55
+cpw X, $10
+cpw X, $1000
+cpw X, (Y)
+cpw X, ($10,Y)
+cpw X, ($1000,Y)
+cpw X, ($10,SP)
+cpw X, [$10.w]
+cpw X, [$1000.w]
+cpw X, ([$10.w],Y)
+cpw Y, #$55
+cpw Y, $10
+cpw Y, $1000
+cpw Y, (X)
+cpw Y, ($10,X)
+cpw Y, ($1000,X)
+cpw Y, [$10.w]
+cpw Y, ([$10.w],X)
+cpw Y, ([$1000.w],X)
+addw X,#$1000
+addw X,$1000
+addw X,($10,SP)
+addw Y,#$1000
+addw Y,$1000
+addw Y,($10,SP)
+addw SP,#$9
+subw X,#$1000
+subw X,$1000
+subw X,($10,SP)
+subw Y,#$1000
+subw Y,$1000
+subw Y,($10,SP)
+subw SP,#$9
