@@ -117,10 +117,18 @@ int disasm_stm8(struct _memory *memory, int address, char *instr, int *cycles_mi
   n = 0;
   while(table_stm8_opcodes[n].instr_enum != STM8_NONE)
   {
-    if (table_stm8_opcodes[n].prefix == prefix &&
-        table_stm8_opcodes[n].opcode == opcode)
+    if (table_stm8_opcodes[n].prefix == prefix)
     {
-      break;
+      if (table_stm8_opcodes[n].opcode == opcode)
+      {
+        break;
+      }
+
+      if (prefix != 0 && (table_stm8_opcodes[n].opcode & 0xf0) == 0x10 &&
+          table_stm8_opcodes[n].opcode == (opcode & 0xf1))
+      {
+        break;
+      }
     }
     n++;
   }

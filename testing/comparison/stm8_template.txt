@@ -52,6 +52,22 @@ and A, ([$10.w],X)
 and A, ([$1000.w],X)
 and A, ([$10.w],Y)
 and A, ([$10.w],Y)
+bcp A, #$55
+bcp A, $10
+bcp A, $1000
+bcp A, (X)
+bcp A, ($10,X)
+bcp A, ($1000,X)
+bcp A, (Y)
+bcp A, ($10,Y)
+bcp A, ($1000,Y)
+bcp A, ($10,SP)
+bcp A, [$10.w]
+bcp A, [$1000.w]
+bcp A, ([$10.w],X)
+bcp A, ([$1000.w],X)
+bcp A, ([$10.w],Y)
+bcp A, ([$10.w],Y)
 cp A, #$55
 cp A, $10
 cp A, $1000
@@ -367,10 +383,12 @@ pushw X
 pushw Y
 rlcw X
 rlcw Y
-rlwa Y
+rlwa X,A
+rlwa Y,A
 rrcw X
 rrcw Y
-rrwa Y
+rrwa X,A
+rrwa Y,A
 sllw X
 sllw Y
 slaw X
@@ -383,3 +401,58 @@ swapw X
 swapw Y
 tnzw X
 tnzw Y
+bccm $1000,#2
+bcpl $1000,#2
+bres $1000,#2
+bset $1000,#2
+call $1000
+call (X)
+call ($10,X)
+call ($1000,X)
+call (Y)
+call ($10,Y)
+call ($1000,Y)
+call [$10.w]
+call [$1000.w]
+call ([$10.w],X)
+call ([$1000.w],X)
+call ([$10.w],Y)
+callf $35aa00
+callf [$2ffc.e]
+ccf
+halt
+iret
+rcf
+rim
+retf
+ret
+rvf
+sim
+trap
+wfe
+wfi
+nop
+div X,A
+div Y,A
+divw X,Y
+exg A,XL
+exg A,YL
+exg A,$1000
+exgw X,Y
+mul X,A
+mul Y,A
+mov $8000,#$aa
+mov $80,$10
+mov $8000,$1000
+ldf A, $123456
+ldf A, ($123456,X)
+ldf A, ($123456,Y)
+ldf A, ([$1234.e],X)
+ldf A, ([$1234.e],Y)
+ldf A, [$5000.e]
+ldf $123456, A
+ldf ($123456,X), A
+ldf ($123456,Y), A
+ldf ([$1234.e],X), A
+ldf ([$1234.e],Y), A
+ldf [$5000.e], A

@@ -30,6 +30,7 @@ for instruction in fp:
     line = line.strip()
     if not "000000" in line: continue
     code = line.split()[2]
+    if code == "R": code = line.split()[3]
 
     l = (len(code) / 2)
     code_len = "%02X" % l

@@ -583,7 +583,7 @@ struct _table_stm8_opcodes table_stm8_opcodes[] = {
   // RET
   { STM8_RET, OP_NONE, 0, 0x81, OP_NONE, OP_NONE, 4,4, ST7_YES },
   // RETF
-  { STM8_RET, OP_NONE, 0, 0x87, OP_NONE, OP_NONE, 5,5, ST7_NO },
+  { STM8_RETF, OP_NONE, 0, 0x87, OP_NONE, OP_NONE, 5,5, ST7_NO },
   // RIM
   { STM8_RIM, OP_NONE, 0, 0x9a, OP_NONE, OP_NONE, 1,1, ST7_NO },
   // RLC
@@ -609,8 +609,8 @@ struct _table_stm8_opcodes table_stm8_opcodes[] = {
   { STM8_RLCW, OP_SINGLE_REGISTER, 0, 0x59, OP_REG_X, OP_NONE, 2,2, ST7_YES },
   { STM8_RLCW, OP_SINGLE_REGISTER, 0x90, 0x59, OP_REG_Y, OP_NONE, 2,2, ST7_YES },
   // RLWA
-  { STM8_RLWA, OP_SINGLE_REGISTER, 0, 0x02, OP_REG_X, OP_NONE, 1,1, ST7_NO },
-  { STM8_RLWA, OP_SINGLE_REGISTER, 0x90, 0x02, OP_REG_Y, OP_NONE, 1,1, ST7_NO },
+  { STM8_RLWA, OP_TWO_REGISTERS, 0, 0x02, OP_REG_X, OP_REG_A, 1,1, ST7_NO },
+  { STM8_RLWA, OP_TWO_REGISTERS, 0x90, 0x02, OP_REG_Y, OP_REG_A, 1,1, ST7_NO },
   // RRC
   // FIXME: No other instruction has ($10,SP) support for ST7... why is it
   // set here?  This again looks like a documentation error.
@@ -634,8 +634,8 @@ struct _table_stm8_opcodes table_stm8_opcodes[] = {
   { STM8_RRCW, OP_SINGLE_REGISTER, 0, 0x56, OP_REG_X, OP_NONE, 2,2, ST7_YES },
   { STM8_RRCW, OP_SINGLE_REGISTER, 0x90, 0x56, OP_REG_Y, OP_NONE, 2,2, ST7_YES },
   // RRWA
-  { STM8_RRWA, OP_SINGLE_REGISTER, 0, 0x01, OP_REG_X, OP_NONE, 1,1, ST7_NO },
-  { STM8_RRWA, OP_SINGLE_REGISTER, 0x90, 0x01, OP_REG_Y, OP_NONE, 1,1, ST7_NO },
+  { STM8_RRWA, OP_TWO_REGISTERS, 0, 0x01, OP_REG_X, OP_REG_A, 1,1, ST7_NO },
+  { STM8_RRWA, OP_TWO_REGISTERS, 0x90, 0x01, OP_REG_Y, OP_REG_A, 1,1, ST7_NO },
   // RVF
   { STM8_RVF, OP_NONE, 0, 0x9c, OP_NONE, OP_NONE, 5,5, ST7_YES },
   // SBC
@@ -793,9 +793,9 @@ struct _table_stm8_opcodes table_stm8_opcodes[] = {
   // TRAP
   { STM8_TRAP, OP_NONE, 0, 0x83, OP_NONE, OP_NONE, 9,9, ST7_YES },
   // WFE
-  { STM8_TRAP, OP_NONE, 0x72, 0x8f, OP_NONE, OP_NONE, 1,1, ST7_NO },
+  { STM8_WFE, OP_NONE, 0x72, 0x8f, OP_NONE, OP_NONE, 1,1, ST7_NO },
   // WFI
-  { STM8_TRAP, OP_NONE, 0, 0x8f, OP_NONE, OP_NONE, 10,10, ST7_YES },
+  { STM8_WFI, OP_NONE, 0, 0x8f, OP_NONE, OP_NONE, 10,10, ST7_YES },
   // XOR
   { STM8_XOR, OP_NUMBER8, 0, 0xa8, OP_REG_A, OP_NONE, 1,1, ST7_YES },
   { STM8_XOR, OP_ADDRESS8, 0, 0xb8, OP_REG_A, OP_NONE, 1,1, ST7_YES },
