@@ -19,7 +19,6 @@ adc A, [$1000.w]
 adc A, ([$10.w],X)
 adc A, ([$1000.w],X)
 adc A, ([$10.w],Y)
-adc A, ([$10.w],Y)
 add A, #$55
 add A, $10
 add A, $1000
@@ -34,7 +33,6 @@ add A, [$10.w]
 add A, [$1000.w]
 add A, ([$10.w],X)
 add A, ([$1000.w],X)
-add A, ([$10.w],Y)
 add A, ([$10.w],Y)
 and A, #$55
 and A, $10
@@ -51,7 +49,6 @@ and A, [$1000.w]
 and A, ([$10.w],X)
 and A, ([$1000.w],X)
 and A, ([$10.w],Y)
-and A, ([$10.w],Y)
 bcp A, #$55
 bcp A, $10
 bcp A, $1000
@@ -66,7 +63,6 @@ bcp A, [$10.w]
 bcp A, [$1000.w]
 bcp A, ([$10.w],X)
 bcp A, ([$1000.w],X)
-bcp A, ([$10.w],Y)
 bcp A, ([$10.w],Y)
 cp A, #$55
 cp A, $10
@@ -83,7 +79,6 @@ cp A, [$1000.w]
 cp A, ([$10.w],X)
 cp A, ([$1000.w],X)
 cp A, ([$10.w],Y)
-cp A, ([$10.w],Y)
 ld A, #$55
 ld A, $10
 ld A, $1000
@@ -98,7 +93,6 @@ ld A, [$10.w]
 ld A, [$1000.w]
 ld A, ([$10.w],X)
 ld A, ([$1000.w],X)
-ld A, ([$10.w],Y)
 ld A, ([$10.w],Y)
 or A, #$55
 or A, $10
@@ -115,7 +109,6 @@ or A, [$1000.w]
 or A, ([$10.w],X)
 or A, ([$1000.w],X)
 or A, ([$10.w],Y)
-or A, ([$10.w],Y)
 sbc A, #$55
 sbc A, $10
 sbc A, $1000
@@ -130,7 +123,6 @@ sbc A, [$10.w]
 sbc A, [$1000.w]
 sbc A, ([$10.w],X)
 sbc A, ([$1000.w],X)
-sbc A, ([$10.w],Y)
 sbc A, ([$10.w],Y)
 sub A, #$55
 sub A, $10
@@ -147,7 +139,6 @@ sub A, [$1000.w]
 sub A, ([$10.w],X)
 sub A, ([$1000.w],X)
 sub A, ([$10.w],Y)
-sub A, ([$10.w],Y)
 xor A, #$55
 xor A, $10
 xor A, $1000
@@ -162,7 +153,6 @@ xor A, [$10.w]
 xor A, [$1000.w]
 xor A, ([$10.w],X)
 xor A, ([$1000.w],X)
-xor A, ([$10.w],Y)
 xor A, ([$10.w],Y)
 clr A
 clr $10
@@ -456,3 +446,59 @@ ldf ($123456,Y), A
 ldf ([$1234.e],X), A
 ldf ([$1234.e],Y), A
 ldf [$5000.e], A
+ldw X,#$55aa
+ldw X,$50
+ldw X,$5000
+ldw X,(X)
+ldw X,($50,X)
+ldw X,($5000,X)
+ldw X,($50,SP)
+ldw X,[$50.w]
+ldw X,[$5000.w]
+ldw X,([$50.w],X)
+ldw X,([$5000.w],X)
+ldw $50,X
+ldw $5000,X
+ldw (X),Y
+ldw ($50,X),Y
+ldw ($5000,X),Y
+ldw ($50,SP),X
+ldw [$50.w],X
+ldw [$5000.w],X
+ldw ([$50.w],X),Y
+ldw ([$5000.w],X),Y
+ldw Y,#$55aa
+ldw Y,$50
+ldw Y,$5000
+ldw Y,(Y)
+ldw Y,($50,Y)
+ldw Y,($5000,Y)
+ldw Y,($50,SP)
+ldw Y,[$50.w]
+ldw Y,([$50.w],Y)
+ldw $50,Y
+ldw $5000,Y
+ldw (Y),X
+ldw ($50,Y),X
+ldw ($5000,Y),X
+ldw ($50,SP),Y
+ldw [$50.w],Y
+ldw ([$50.w],Y),X
+ldw Y,X
+ldw X,Y
+ldw X,SP
+ldw SP,X
+ldw Y,SP
+ldw SP,Y
+jp $1000
+jp (X)
+jp ($10,X)
+jp ($1000,X)
+jp (Y)
+jp ($10,Y)
+jp ($1000,Y)
+jp [$10.w]
+jp [$1000.w]
+jp ([$10.w],X)
+jp ([$1000.w],X)
+jp ([$10.w],Y)
