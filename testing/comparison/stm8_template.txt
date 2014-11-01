@@ -1,0 +1,6 @@
+add A, #4
+addw SP, #$10
+exg A, XL
+exg A, YL
+exg A, $1000
+exgw X, Y

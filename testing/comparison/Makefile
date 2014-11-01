@@ -1,11 +1,12 @@
 
 
 default:
-	sh run_test.sh arm
-	sh run_test.sh avr8
-	sh run_test.sh dspic
-	sh run_test.sh msp430
-	sh run_test.sh msp430x
+	bash run_test.sh arm
+	bash run_test.sh avr8
+	bash run_test.sh dspic
+	bash run_test.sh msp430
+	bash run_test.sh msp430x
+	bash run_test.sh stm8
 
 rebuild:
 	sh build_arm.sh

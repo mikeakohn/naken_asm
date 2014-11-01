@@ -16,9 +16,9 @@ EOF
 
   if [ "$a" = "${2}" ]
   then
-    echo "PASS"
+    echo -e "\x1b[32mPASS\x1b[0m"
   else
-    echo "FAIL ${a} ${b}"
+    echo -e "\x1b[31mFAIL ${a} ${b}\x1b[0m"
     exit 0
   fi
 
@@ -35,5 +35,4 @@ do
   hex=`echo ${line} | awk -F\| '{ print $2 }'`
   test_instr "${instr}" "${hex}"
 done < ${cpu}.txt
-
 
