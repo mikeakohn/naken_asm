@@ -95,6 +95,7 @@ enum
 
 enum
 {
+  Z80_NONE,
   Z80_ADC,
   Z80_ADD,
   Z80_AND,
@@ -166,18 +167,24 @@ enum
   Z80_XOR,
 };
 
-struct _table_z80
+struct _table_instr_z80
 {
   char *instr;
-  uint16_t opcode;
-  uint16_t mask;
-  uint8_t type;
-  uint8_t id;
-  uint8_t cycles:5;
-  uint8_t cycles_max:3; // add these 3 bits to cycles for max
-  uint8_t extra_opcode;
+  uint8_t instr_enum;
 };
 
+struct _table_z80
+{
+  uint8_t instr_enum;
+  uint8_t type;
+  uint16_t opcode;
+  uint16_t mask;
+  uint8_t extra_opcode;
+  uint8_t cycles_min;
+  uint8_t cycles_max;
+};
+
+extern struct _table_instr_z80 table_instr_z80[];
 extern struct _table_z80 table_z80[];
 extern struct _table_z80 table_z80_4_byte[];
 

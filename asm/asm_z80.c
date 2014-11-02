@@ -251,12 +251,31 @@ char instr_case[TOKENLEN];
 struct _operand operands[3];
 int operand_count=0;
 int matched=0;
+int instr_enum;
 int num;
 int n,reg;
 
   lower_copy(instr_case, instr);
 
   memset(&operands, 0, sizeof(operands));
+
+  // Find instruction
+  n = 0;
+  while(table_instr_z80[n].instr != NULL)
+  {
+    if (strcmp(instr_case, table_instr_z80[n].instr) == 0) { break; }
+    n++;
+  }
+
+  if (table_instr_z80[n].instr == NULL)
+  {
+    print_error_unknown_instr(instr, asm_context);
+    return -1;
+  }
+
+  //instr_index = n;
+  instr_enum = table_instr_z80[n].instr_enum;
+
   while(1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -449,9 +468,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
   // Instruction is parsed, now find matching opcode
 
   n = 0;
-  while(table_z80[n].instr != NULL)
+  while(table_z80[n].instr_enum != Z80_NONE)
   {
-    if (strcmp(table_z80[n].instr,instr_case) == 0)
+    if (table_z80[n].instr_enum == instr_enum)
     {
       matched = 1;
       switch(table_z80[n].type)
@@ -1318,9 +1337,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
   }
 
   n=0;
-  while(table_z80_4_byte[n].instr != NULL)
+  while(table_z80_4_byte[n].instr_enum != Z80_NONE)
   {
-    if (strcmp(table_z80_4_byte[n].instr,instr_case) == 0)
+    if (table_z80_4_byte[n].instr_enum == instr_enum)
     {
       matched = 1;
       switch(table_z80_4_byte[n].type)
