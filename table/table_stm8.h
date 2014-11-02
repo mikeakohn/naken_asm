@@ -21,7 +21,6 @@ struct _table_stm8
 {
   char *instr;
   uint8_t instr_enum;
-  uint8_t opcode;
 };
 
 struct _table_stm8_opcodes
