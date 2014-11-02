@@ -1,9 +1,3 @@
-add A, #4
-addw SP, #$10
-exg A, XL
-exg A, YL
-exg A, $1000
-exgw X, Y
 adc A, #$55
 adc A, $10
 adc A, $1000
@@ -259,6 +253,21 @@ rrc [$1000.w]
 rrc ([$10.w],X)
 rrc ([$1000.w],X)
 rrc ([$10.w],Y)
+sll A
+sll $10
+sll $1000
+sll (X)
+sll ($10,X)
+sll ($1000,X)
+sll (Y)
+sll ($10,Y)
+sll ($1000,Y)
+sll ($10,SP)
+sll [$10.w]
+sll [$1000.w]
+sll ([$10.w],X)
+sll ([$1000.w],X)
+sll ([$10.w],Y)
 sra A
 sra $10
 sra $1000
@@ -367,6 +376,8 @@ decw X
 decw Y
 incw X
 incw Y
+negw X
+negw Y
 popw X
 popw Y
 pushw X
@@ -503,3 +514,33 @@ jp ([$10.w],X)
 jp ([$1000.w],X)
 jp ([$10.w],Y)
 callr $2
+btjf $1000,#1,$5
+btjt $1000,#1,$5
+jpf $2ffffc
+jpf [$2ffc.e]
+jra $2
+jrc $2
+jreq $2
+jrf $2
+jrh $3
+jrih $3
+jril $3
+jrm $3
+jrmi $2
+jrnc $2
+jrne $2
+jrnh $3
+jrnm $3
+jrnv $2
+jrpl $2
+jrsge $2
+jrsgt $2
+jrsle $2
+jrslt $2
+jrt $2
+jruge $2
+jrugt $2
+jrule $2
+jrc $2
+jrult $2
+jrv $2
