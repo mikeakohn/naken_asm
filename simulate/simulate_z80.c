@@ -485,15 +485,15 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int tmp;
 int a4,tmp4;
 
-  switch(table_z80->id)
+  switch(table_z80->instr_enum)
   {
     case  Z80_CCF:
       if (GET_C() == 1) { SET_H(); } else { CLR_H(); }
       if (GET_C() == 0) { SET_C(); } else { CLR_C(); }
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case  Z80_CPL:
       simulate_z80->reg[REG_A] = ~simulate_z80->reg[REG_A];
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case  Z80_DAA:
       // What the fuck?
       tmp = simulate_z80->reg[REG_A];
@@ -514,15 +514,15 @@ int a4,tmp4;
       tmp4 = (tmp4 == 0) ? 0 : 1;
       if ((a4 ^ tmp4) == 0) { CLR_H(); } else { SET_H(); }
       simulate_z80->reg[REG_A] = tmp;
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case  Z80_DI:
       simulate_z80->iff1 = 0;
       simulate_z80->iff2 = 0;
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case  Z80_EI:
       simulate_z80->iff1 = 1;
       simulate_z80->iff2 = 1;
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case  Z80_EXX:
       return -1;
     case  Z80_HALT:
@@ -536,26 +536,26 @@ int a4,tmp4;
       simulate_z80->reg[REG_A] <<= 1;
       simulate_z80->reg[REG_A] |= GET_C();
       if (tmp == 0) { CLR_C(); } else { SET_C(); }
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case  Z80_RLCA:
       if ((simulate_z80->reg[REG_A] & 0x80) == 0) { CLR_C(); } else { SET_C(); }
       simulate_z80->reg[REG_A] <<= 1;
       simulate_z80->reg[REG_A] |= GET_C();
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case  Z80_RRA:
       tmp = simulate_z80->reg[REG_A] & 1;
       simulate_z80->reg[REG_A] >>= 1;
       simulate_z80->reg[REG_A] |= GET_C() << 7;
       if (tmp == 0) { CLR_C(); } else { SET_C(); }
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case  Z80_RRCA:
       if ((simulate_z80->reg[REG_A] & 0x01) == 0) { CLR_C(); } else { SET_C(); }
       simulate_z80->reg[REG_A] >>= 1;
       simulate_z80->reg[REG_A] |= GET_C() << 7;
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case  Z80_SCF:
       SET_C();
-      return table_z80->cycles;
+      return table_z80->cycles_min;
   }
 
   return -1;
@@ -568,7 +568,7 @@ int a = simulate_z80->reg[REG_A];
 int rrr = opcode & 0x7;
 int number = simulate_z80->reg[rrr];
 
-  switch(table_z80->id)
+  switch(table_z80->instr_enum)
   {
     case Z80_ADC:
       a += number + GET_C();
@@ -586,7 +586,7 @@ int number = simulate_z80->reg[rrr];
 
   set_flags_a(simulate, a, number, VFLAG_OVERFLOW);
 
-  return table_z80->cycles;
+  return table_z80->cycles_min;
 }
 
 static int simulate_z80_execute_op_reg8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
@@ -598,7 +598,7 @@ int number = simulate_z80->reg[rrr];
 int vflag = VFLAG_CLEAR;
 int tmp;
 
-  switch(table_z80->id)
+  switch(table_z80->instr_enum)
   {
     case Z80_AND:
       a &= number;
@@ -614,7 +614,7 @@ int tmp;
       if (tmp & 0x10) { SET_H(); } else { CLR_H(); }
       if (tmp & 0x100) { SET_C(); } else { CLR_C(); }
       set_parity(simulate, tmp);
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case Z80_OR:
       a &= number;
       CLR_N();
@@ -632,7 +632,7 @@ int tmp;
 
   set_flags_a(simulate, a, number, vflag);
 
-  return table_z80->cycles;
+  return table_z80->cycles_min;
 }
 
 static int simulate_z80_execute_op_a_number8(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode16)
@@ -641,7 +641,7 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int a = simulate_z80->reg[REG_A];
 int number = opcode16 & 0xff;
 
-  switch(table_z80->id)
+  switch(table_z80->instr_enum)
   {
     case Z80_ADC:
       a += number + GET_C();
@@ -659,7 +659,7 @@ int number = opcode16 & 0xff;
 
   set_flags_a(simulate, a, number, VFLAG_OVERFLOW);
 
-  return table_z80->cycles;
+  return table_z80->cycles_min;
 }
 
 static int simulate_z80_execute_op_number8(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode16)
@@ -670,7 +670,7 @@ int number = opcode16 & 0xff;
 int vflag = VFLAG_CLEAR;
 int tmp;
 
-  switch(table_z80->id)
+  switch(table_z80->instr_enum)
   {
     case Z80_AND:
       a &= number;
@@ -684,17 +684,17 @@ int tmp;
       if (tmp & 0x10) { SET_H(); } else { CLR_H(); }
       if (tmp & 0x100) { SET_C(); } else { CLR_C(); }
       set_parity(simulate, tmp);
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case Z80_DJNZ:
       simulate_z80->reg[REG_B]--;
       if (simulate_z80->reg[REG_B] == 0)
       {
         simulate_z80->pc += (int8_t)number;
       }
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case Z80_JR:
       simulate_z80->pc += (int8_t)number;
-      return table_z80->cycles;
+      return table_z80->cycles_min;
     case Z80_OR:
       a |= number;
       CLR_N();
@@ -711,7 +711,7 @@ int tmp;
 
   set_flags_a(simulate, a, number, vflag);
 
-  return table_z80->cycles;
+  return table_z80->cycles_min;
 }
 
 static int simulate_z80_execute_op_reg8_v2(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
@@ -722,7 +722,7 @@ int rrr = (opcode >> 3) & 0x7;
 int number = 1;
 int vflag = VFLAG_OVERFLOW;
 
-  switch(table_z80->id)
+  switch(table_z80->instr_enum)
   {
     case Z80_DEC:
       simulate_z80->reg[rrr]--;
@@ -736,7 +736,7 @@ int vflag = VFLAG_OVERFLOW;
 
   set_flags_a(simulate, a, number, vflag);
 
-  return table_z80->cycles;
+  return table_z80->cycles_min;
 }
 
 static int simulate_z80_execute_op_reg16(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
@@ -752,7 +752,7 @@ int vflag = VFLAG_OVERFLOW;
   old = get_q(simulate, reg16);
   new = old;
 
-  switch(table_z80->id)
+  switch(table_z80->instr_enum)
   {
     case Z80_DEC:
       new--;
@@ -771,7 +771,7 @@ int vflag = VFLAG_OVERFLOW;
 
   set_flags16(simulate, new, old, number, vflag);
 
-  return table_z80->cycles;
+  return table_z80->cycles_min;
 }
 
 static int simulate_z80_execute_op_reg16p(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
@@ -780,24 +780,24 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int reg16 = (opcode >> 4) & 0x3;
 int value;
 
-  if (table_z80->id == Z80_PUSH)
+  if (table_z80->instr_enum == Z80_PUSH)
   {
     value = get_p(simulate, reg16);
 
     simulate_z80->sp -= 2;
     WRITE_RAM(simulate_z80->sp, value >> 8);
     WRITE_RAM(simulate_z80->sp + 1, value & 0xff);
-    return table_z80->cycles;
+    return table_z80->cycles_min;
   }
     else
-  if (table_z80->id == Z80_POP)
+  if (table_z80->instr_enum == Z80_POP)
   {
     value = READ_RAM(simulate_z80->sp);
     value |= READ_RAM(simulate_z80->sp + 1) << 8;
     simulate_z80->sp += 2;
 
     set_p(simulate, reg16, value);
-    return table_z80->cycles;
+    return table_z80->cycles_min;
   }
 
   return -1;
@@ -816,13 +816,13 @@ int value;
   old = get_p(simulate, 2);
   new = old;
 
-  if (table_z80->id == Z80_ADC)
+  if (table_z80->instr_enum == Z80_ADC)
   {
     value = old + (number + GET_C());
     SET_N();
   }
     else
-  if (table_z80->id == Z80_SBC)
+  if (table_z80->instr_enum == Z80_SBC)
   {
     value = old - (number + GET_C());
     SET_N();
@@ -836,7 +836,7 @@ int value;
 
   set_flags16(simulate, new, old, number, VFLAG_OVERFLOW);
 
-  return table_z80->cycles;
+  return table_z80->cycles_min;
 }
 
 static int simulate_z80_execute_op_xy(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode16)
@@ -845,17 +845,17 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int xy = (opcode16 >> 13) & 0x1;
 int value;
 
-  if (table_z80->id == Z80_PUSH)
+  if (table_z80->instr_enum == Z80_PUSH)
   {
     value = (xy == 0) ? simulate_z80->ix : simulate_z80->iy;
 
     simulate_z80->sp -= 2;
     WRITE_RAM(simulate_z80->sp, value >> 8);
     WRITE_RAM(simulate_z80->sp + 1, value & 0xff);
-    return table_z80->cycles;
+    return table_z80->cycles_min;
   }
     else
-  if (table_z80->id == Z80_POP)
+  if (table_z80->instr_enum == Z80_POP)
   {
     value = READ_RAM(simulate_z80->sp);
     value |= READ_RAM(simulate_z80->sp + 1) << 8;
@@ -863,7 +863,7 @@ int value;
 
     if (xy == 0) { simulate_z80->ix = value; }
     else { simulate_z80->iy = value; }
-    return table_z80->cycles;
+    return table_z80->cycles_min;
   }
 
   return -1;
@@ -881,7 +881,7 @@ int address;
   uint16_t opcode16 = READ_OPCODE16(simulate_z80->pc);
 
   n = 0;
-  while(table_z80[n].instr != NULL)
+  while(table_z80[n].instr_enum != Z80_NONE)
   {
     if (table_z80[n].opcode == (opcode & table_z80[n].mask))
     {
@@ -925,11 +925,11 @@ int address;
         case OP_REG8_REG8:
           reg = (opcode >> 3) & 0x7;
           simulate_z80->reg[reg] = simulate_z80->reg[opcode & 0x7];
-          return table_z80->cycles;
+          return table_z80->cycles_min;
         case OP_REG8_NUMBER8:
           reg = (opcode16 >> 11) & 0x7;
           simulate_z80->reg[reg] = opcode16 & 0xff;
-          return table_z80->cycles;
+          return table_z80->cycles_min;
         case OP_REG8_INDEX_HL:
           return -1;
         case OP_INDEX_HL_REG8:
@@ -944,7 +944,7 @@ int address;
         case OP_REG16_ADDRESS:
           reg16 = (opcode >> 4) & 0x3;
           set_q(simulate, reg16, READ_RAM16(simulate_z80->pc + 1));
-          return table_z80->cycles;
+          return table_z80->cycles_min;
         case OP_HL_INDEX_ADDRESS:
         case OP_INDEX_ADDRESS_HL:
         case OP_SP_HL:
@@ -965,7 +965,7 @@ int address;
   }
 
   n = 0;
-  while(table_z80[n].instr != NULL)
+  while(table_z80[n].instr_enum != Z80_NONE)
   {
     if (table_z80[n].mask <= 0xff) { n++; continue; }
     if (table_z80[n].opcode == (opcode16 & table_z80[n].mask))
@@ -983,7 +983,7 @@ int address;
           xy = (opcode16 >> 13) & 0x1;
           reg16 = (opcode16 >> 4) & 0x3;
           add_reg16(simulate, xy, reg16);
-          return table_z80->cycles;
+          return table_z80->cycles_min;
         case OP_REG_IHALF:
         case OP_INDEX:
         case OP_BIT_REG8:
@@ -1007,20 +1007,20 @@ int address;
           address = xy + offset;
           reg = (opcode16 >> 3) & 0x7;
           simulate_z80->reg[reg] = READ_RAM(address);
-          return table_z80->cycles;
+          return table_z80->cycles_min;
         case OP_INDEX_REG8:
           xy = (opcode16 >> 13) & 0x1;
           offset = READ_RAM(simulate_z80->pc + 2);
           address = xy + offset;
           reg = opcode16 & 0x7;
           WRITE_RAM(address, simulate_z80->reg[reg]);
-          return table_z80->cycles;
+          return table_z80->cycles_min;
         case OP_INDEX_NUMBER8:
           xy = (opcode16 >> 13) & 0x1;
           offset = READ_RAM(simulate_z80->pc + 2);
           address = xy + offset;
           WRITE_RAM(address, READ_RAM(simulate_z80->pc + 3));
-          return table_z80->cycles;
+          return table_z80->cycles_min;
         case OP_IR_A:
           return -1;
         case OP_A_IR:
@@ -1028,7 +1028,7 @@ int address;
         case OP_XY_ADDRESS:
           xy = (opcode16 >> 13) & 0x1;
           set_xy(simulate, xy, READ_RAM16(simulate_z80->pc + 2));
-          return table_z80->cycles;
+          return table_z80->cycles_min;
         case OP_REG16_INDEX_ADDRESS:
         case OP_XY_INDEX_ADDRESS:
         case OP_INDEX_ADDRESS_REG16:
@@ -1037,7 +1037,7 @@ int address;
         case OP_SP_XY:
           xy = (opcode16 >> 13) & 0x1;
           simulate_z80->sp = get_xy(simulate, xy);
-          return table_z80->cycles;
+          return table_z80->cycles_min;
         case OP_INDEX_C_REG8:
         case OP_INDEX_C_ZERO:
         case OP_REG8_CB:
