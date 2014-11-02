@@ -8,6 +8,7 @@ default:
 	bash run_test.sh msp430
 	bash run_test.sh msp430x
 	bash run_test.sh stm8
+	bash run_test.sh z80
 
 rebuild:
 	sh build_arm.sh

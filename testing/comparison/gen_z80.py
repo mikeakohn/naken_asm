@@ -4,7 +4,7 @@ import os
 
 def create_asm(instruction):
   out = open("temp.asm", "wb")
-  out.write("  cpu 6502\n")
+  out.write("  cpu z80\n")
   out.write("  output hex\n")
   out.write("  *=0\n")
   out.write("  " + instruction + "\n")
@@ -12,8 +12,8 @@ def create_asm(instruction):
 
 # --------------------------------- fold here -------------------------------
 
-fp = open("65xx_template.txt", "rb")
-out = open("65xx.txt", "wb")
+fp = open("z80_template.txt", "rb")
+out = open("z80.txt", "wb")
 
 for instruction in fp:
   instruction = instruction.strip()
