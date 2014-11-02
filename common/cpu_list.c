@@ -12,6 +12,7 @@
 #include "cpu_list.h"
 
 #include "asm_65xx.h"
+#include "asm_65816.h"
 #include "asm_680x.h"
 #include "asm_68hc08.h"
 #include "asm_680x0.h"
@@ -29,6 +30,7 @@
 #include "asm_tms9900.h"
 #include "asm_z80.h"
 #include "disasm_65xx.h"
+#include "disasm_65816.h"
 #include "disasm_680x.h"
 #include "disasm_68hc08.h"
 #include "disasm_680x0.h"
@@ -54,6 +56,9 @@ struct _cpu_list cpu_list[] =
 {
 #ifdef ENABLE_65XX
   { "65xx", CPU_TYPE_65XX, ENDIAN_LITTLE, 1, 1, 0, 0, parse_instruction_65xx, list_output_65xx, disasm_range_65xx, simulate_init_65xx },
+#endif
+#ifdef ENABLE_65816
+  { "65816", CPU_TYPE_65816, ENDIAN_LITTLE, 1, 1, 0, 0, parse_instruction_65816, list_output_65816, disasm_range_65816, NULL },
 #endif
 #ifdef ENABLE_680X
   { "680x", CPU_TYPE_680X, ENDIAN_BIG, 1, 1, 0, 0, parse_instruction_680x, list_output_680x, disasm_range_680x, NULL },

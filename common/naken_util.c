@@ -21,6 +21,7 @@
 
 #include "assembler.h"
 #include "disasm_65xx.h"
+#include "disasm_65816.h"
 #include "disasm_680x.h"
 #include "disasm_68hc08.h"
 #include "disasm_680x0.h"
@@ -58,6 +59,7 @@ enum
 
 // FIXME - How to do this better?
 parse_instruction_t parse_instruction_65xx = NULL;
+parse_instruction_t parse_instruction_65816 = NULL;
 parse_instruction_t parse_instruction_680x = NULL;
 parse_instruction_t parse_instruction_68hc08 = NULL;
 parse_instruction_t parse_instruction_680x0 = NULL;
@@ -638,37 +640,39 @@ int i;
 char *hexfile = NULL;
 int mode = MODE_INTERACTIVE;
 
-  printf("\nnaken_util - by Michael Kohn\n");
-  printf("    Web: http://www.mikekohn.net/\n");
-  printf("  Email: mike@mikekohn.net\n\n");
-  printf("Version: "VERSION"\n\n");
+  printf("\nnaken_util - by Michael Kohn\n"
+         "                Joe Davisson\n"
+         "    Web: http://www.mikekohn.net/\n"
+         "  Email: mike@mikekohn.net\n\n"
+         "Version: "VERSION"\n\n");
 
   if (argc<2)
   {
-    printf("Usage: naken_util [options] <infile>\n");
-    printf("   -s      <source file>\n");
-    printf("   -d      <debug file>\n");
-    printf("    // The following options turn off interactive mode\n");
-    printf("   -disasm                      (disassemble all or part of program)\n");
-    printf("   -exe                         (execute program and dump registers)\n");
-    printf("ELF files can auto-pick a CPU, if a hex file use:\n");
-    printf("   -65xx                        (65xx)\n");
-    printf("   -680x                        (680x)\n");
-    printf("   -68hc08                      (68hc08)\n");
-    printf("   -680x0                       (680x0)\n");
-    printf("   -8051 / -8052                (8051 / 8052)\n");
-    printf("   -arm                         (ARM)\n");
-    printf("   -avr8                        (Atmel AVR8)\n");
-    printf("   -dspic                       (dsPIC)\n");
-    printf("   -mips                        (MIPS)\n");
-    printf("   -msp430                      (MSP430/MSP430X) DEFAULT\n");
-    printf("   -stm8                        (STM8)\n");
-    printf("   -tms1000                     (TMS1000)\n");
-    printf("   -tms1100                     (TMS1100)\n");
-    printf("   -tms9900                     (TMS9900)\n");
-    printf("   -z80                         (z80)\n");
-    //printf("   -list                        (like -disasm, but adds source code)\n");
-    printf("\n");
+    printf("Usage: naken_util [options] <infile>\n"
+           "   -s      <source file>\n"
+           "   -d      <debug file>\n"
+           "    // The following options turn off interactive mode\n"
+           "   -disasm                      (disassemble all or part of program)\n"
+           "   -exe                         (execute program and dump registers)\n"
+           "ELF files can auto-pick a CPU, if a hex file use:\n"
+           "   -65xx                        (65xx)\n"
+           "   -65816                       (65816)\n"
+           "   -680x                        (680x)\n"
+           "   -68hc08                      (68hc08)\n"
+           "   -680x0                       (680x0)\n"
+           "   -8051 / -8052                (8051 / 8052)\n"
+           "   -arm                         (ARM)\n"
+           "   -avr8                        (Atmel AVR8)\n"
+           "   -dspic                       (dsPIC)\n"
+           "   -mips                        (MIPS)\n"
+           "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
+           "   -stm8                        (STM8)\n"
+           "   -tms1000                     (TMS1000)\n"
+           "   -tms1100                     (TMS1100)\n"
+           "   -tms9900                     (TMS9900)\n"
+           "   -z80                         (z80)\n"
+           //"   -list                        (like -disasm, but adds source code)\n");
+           "\n");
     exit(0);
   }
 

@@ -77,25 +77,28 @@ char *infile = NULL, *outfile = NULL;
 struct _asm_context asm_context;
 int error_flag=0;
 
-  printf("\nnaken_asm - by Michael Kohn (base code, 6800, 68HC08, 805x, ARM, dsPIC, MIPS, MSP430, STM8, TMS1000, TMS1100, TMS9900, Z80)\n");
-  printf("               Joe Davisson (65xx)\n");
-  printf("    Web: http://www.mikekohn.net/\n");
-  printf("  Email: mike@mikekohn.net\n\n");
-  printf("Version: "VERSION"\n\n");
+  printf("\n"
+         "naken_asm - by Michael Kohn\n"
+         "               Joe Davisson\n"
+         "    CPU: MSP430, MSP430X, 65xx, 65816, 680x, 68HC08, 680x0, 805x\n"
+         "         ARM, AVR8, dsPIC, MIPS, STM8, THUMB, TMS1000, TMS1100\n"
+         "         TMS9900, Z80\n"
+         "    Web: http://www.mikekohn.net/\n"
+         "  Email: mike@mikekohn.net\n\n"
+         "Version: "VERSION"\n\n");
 
   if (argc < 2)
   {
-    printf("Usage: naken_asm [options] <infile>\n");
-    printf("   -o <outfile>\n");
-    printf("   -h             [output hex file]\n");
+    printf("Usage: naken_asm [options] <infile>\n"
+           "   -o <outfile>\n"
+           "   -h             [output hex file]\n"
 #ifndef DISABLE_ELF
-    printf("   -e             [output elf file]\n");
+           "   -e             [output elf file]\n"
 #endif
-    printf("   -b             [output binary file]\n");
-    //printf("   -d             [create .ndbg debug file]\n");
-    printf("   -l             [create .lst listing file]\n");
-    printf("   -I             [add to include path]\n");
-    printf("\n");
+           "   -b             [output binary file]\n"
+           "   -l             [create .lst listing file]\n"
+           "   -I             [add to include path]\n"
+           "\n");
     exit(0);
   }
 
