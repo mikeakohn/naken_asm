@@ -6,6 +6,8 @@ adc a,e
 adc a,h
 adc a,l
 adc a,100
+adc a,(ix+10)
+adc a,(iy+10)
 add a,a
 add a,b
 add a,c
@@ -14,6 +16,8 @@ add a,e
 add a,h
 add a,l
 add a,100
+add a,(ix+10)
+add a,(iy+10)
 sbc a,a
 sbc a,b
 sbc a,c
@@ -22,6 +26,8 @@ sbc a,e
 sbc a,h
 sbc a,l
 sbc a,100
+sbc a,(ix+10)
+sbc a,(iy+10)
 and a
 and b
 and c
@@ -31,6 +37,8 @@ and h
 and l
 and 100
 and (hl)
+and (ix+10)
+and (iy+10)
 cp a
 cp b
 cp c
@@ -40,6 +48,8 @@ cp h
 cp l
 cp 100
 cp (hl)
+cp (ix+10)
+cp (iy+10)
 dec a
 dec b
 dec c
@@ -48,6 +58,8 @@ dec e
 dec h
 dec l
 dec (hl)
+dec (ix+10)
+dec (iy+10)
 inc a
 inc b
 inc c
@@ -56,6 +68,8 @@ inc e
 inc h
 inc l
 inc (hl)
+inc (ix+10)
+inc (iy+10)
 or a
 or b
 or c
@@ -65,6 +79,8 @@ or h
 or l
 or 100
 or (hl)
+or (ix+10)
+or (iy+10)
 rl a
 rl b
 rl c
@@ -73,6 +89,8 @@ rl e
 rl h
 rl l
 rl (hl)
+rl (ix+10)
+rl (iy+10)
 rlc a
 rlc b
 rlc c
@@ -81,6 +99,8 @@ rlc e
 rlc h
 rlc l
 rlc (hl)
+rlc (ix+10)
+rlc (iy+10)
 rr a
 rr b
 rr c
@@ -89,6 +109,18 @@ rr e
 rr h
 rr l
 rr (hl)
+rr (ix+10)
+rr (iy+10)
+rrc a
+rrc b
+rrc c
+rrc d
+rrc e
+rrc h
+rrc l
+rrc (hl)
+rrc (ix+10)
+rrc (iy+10)
 sra a
 sra b
 sra c
@@ -97,6 +129,8 @@ sra e
 sra h
 sra l
 sra (hl)
+sra (ix+10)
+sra (iy+10)
 srl a
 srl b
 srl c
@@ -105,6 +139,8 @@ srl e
 srl h
 srl l
 srl (hl)
+srl (ix+10)
+srl (iy+10)
 sub a
 sub b
 sub c
@@ -114,6 +150,8 @@ sub h
 sub l
 sub 100
 sub (hl)
+sub (ix+10)
+sub (iy+10)
 xor a
 xor b
 xor c
@@ -123,3 +161,12 @@ xor h
 xor l
 xor 100
 xor (hl)
+xor (ix+10)
+xor (iy+10)
+neg
+nop
+outd
+otdr
+outi
+otir
+rrd

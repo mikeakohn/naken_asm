@@ -633,6 +633,18 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 3;
           }
           break;
+        case OP_INDEX_LONG:
+          if (operand_count == 1 &&
+              operands[0].type == OPERAND_INDEX_REG16_XY)
+          {
+            if (check_disp8(asm_context,&operands[0]) == -1) { return -1; }
+            add_bin8(asm_context, (table_z80[n].opcode >> 8) | ((operands[0].value & 0x1) << 5), IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].opcode & 0xff, IS_OPCODE);
+            add_bin8(asm_context, (uint8_t)operands[0].offset, IS_OPCODE);
+            add_bin8(asm_context, table_z80[n].extra_opcode, IS_OPCODE);
+            return 4;
+          }
+          break;
         case OP_BIT_REG8:
           reg = compute_reg8(&operands[1]);
           if (operand_count == 2 &&

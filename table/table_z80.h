@@ -32,6 +32,7 @@ enum
   OP_NUMBER8,
   OP_REG_IHALF,
   OP_INDEX,
+  OP_INDEX_LONG,
   OP_BIT_REG8,
   OP_BIT_INDEX_HL,
   OP_BIT_INDEX,
@@ -174,6 +175,7 @@ struct _table_z80
   uint8_t id;
   uint8_t cycles:5;
   uint8_t cycles_max:3; // add these 3 bits to cycles for max
+  uint8_t extra_opcode;
 };
 
 extern struct _table_z80 table_z80[];
