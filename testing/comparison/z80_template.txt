@@ -60,6 +60,12 @@ dec l
 dec (hl)
 dec (ix+10)
 dec (iy+10)
+dec ix
+dec iy
+dec bc
+dec de
+dec hl
+dec sp
 inc a
 inc b
 inc c
@@ -70,6 +76,12 @@ inc l
 inc (hl)
 inc (ix+10)
 inc (iy+10)
+inc ix
+inc iy
+inc bc
+inc de
+inc hl
+inc sp
 or a
 or b
 or c
@@ -121,6 +133,16 @@ rrc l
 rrc (hl)
 rrc (ix+10)
 rrc (iy+10)
+sla a
+sla b
+sla c
+sla d
+sla e
+sla h
+sla l
+sla (hl)
+sla (ix+10)
+sla (iy+10)
 sra a
 sra b
 sra c
@@ -170,3 +192,53 @@ otdr
 outi
 otir
 rrd
+ret
+retn
+cpd
+cpi
+cpir
+cpl
+daa
+di
+ei
+ex (sp),hl
+ex (sp),ix
+ex (sp),iy
+exx
+ex de,hl
+pop bc
+pop de
+pop hl
+pop af
+push bc
+push de
+push hl
+push af
+pop ix
+pop iy
+push ix
+push iy
+call 5000
+call nz,5000
+call z,5000
+call nc,5000
+call c,5000
+call po,5000
+call pe,5000
+call p,5000
+call m,5000
+bit 3,a
+bit 3,b
+bit 3,c
+bit 3,d
+bit 3,e
+bit 3,h
+bit 3,l
+jp 5000
+jp (hl)
+jp (ix)
+jp (iy)
+jp nz,5000
+jp z,5000
+jp nc,5000
+jp c,5000

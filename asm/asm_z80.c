@@ -782,7 +782,7 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
               operands[0].value == REG_SP &&
               operands[1].type == OPERAND_REG16_XY)
           {
-            add_bin8(asm_context, (table_z80[n].opcode >> 8) | (operands[1].value << 13), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode >> 8) | (operands[1].value << 5), IS_OPCODE);
             add_bin8(asm_context, table_z80[n].opcode & 0xff, IS_OPCODE);
             return 2;
           }

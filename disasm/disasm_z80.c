@@ -33,6 +33,23 @@ int get_cycle_count_z80(unsigned short int opcode)
   return -1;
 }
 
+static const char *get_instruction(int instr_enum)
+{
+  int n;
+
+  n = 0;
+  while(table_instr_z80[n].instr != NULL)
+  {
+    if (table_instr_z80[n].instr_enum == instr_enum)
+    {
+      return table_instr_z80[n].instr;
+    }
+    n++;
+  }
+
+  return "";
+}
+
 static void get_disp(char *disp, int reg, int offset)
 {
   if (offset == 0)
@@ -54,6 +71,7 @@ int disasm_z80(struct _memory *memory, int address, char *instruction, int *cycl
 {
 int opcode;
 int opcode16;
+uint8_t extra_opcode;
 int n,r,i;
 char offset;
 char disp[64];
@@ -72,7 +90,7 @@ char disp[64];
     {
       *cycles_min = table_z80[n].cycles_min;
       *cycles_max = table_z80[n].cycles_max;
-      const char *instr = table_instr_z80[table_z80[n].instr_enum].instr;
+      const char *instr = get_instruction(table_z80[n].instr_enum);
 
       switch(table_z80[n].type)
       {
@@ -212,7 +230,7 @@ char disp[64];
     {
       *cycles_min = table_z80[n].cycles_min;
       *cycles_max = table_z80[n].cycles_max;
-      const char *instr = table_instr_z80[table_z80[n].instr_enum].instr;
+      const char *instr = get_instruction(table_z80[n].instr_enum);
 
       switch(table_z80[n].type)
       {
@@ -263,6 +281,14 @@ char disp[64];
           get_disp(disp, r, offset);
           sprintf(instruction, "%s %s", instr, disp);
           return 3;
+        case OP_INDEX_LONG:
+          extra_opcode = READ_RAM(address + 3);
+          if (extra_opcode != table_z80[n].extra_opcode) { break; }
+          r = ((opcode16 & 0x2000) >> 13);
+          offset = READ_RAM(address + 2);
+          get_disp(disp, r, offset);
+          sprintf(instruction, "%s %s", instr, disp);
+          return 4;
         case OP_BIT_REG8:
           r = opcode16 & 0x7;
           i = (opcode16 >> 3) & 0x7;
@@ -414,7 +440,7 @@ char disp[64];
         get_disp(disp, r, offset);
         *cycles_min = table_z80_4_byte[n].cycles_min;
         *cycles_max = table_z80_4_byte[n].cycles_max;
-        const char *instr = table_instr_z80[table_z80_4_byte[n].instr_enum].instr;
+        const char *instr = get_instruction(table_z80_4_byte[n].instr_enum);
 
         switch(table_z80_4_byte[n].type)
         {
