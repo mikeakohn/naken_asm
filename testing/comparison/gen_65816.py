@@ -4,6 +4,8 @@ import os
 
 def create_asm(instruction):
   out = open("temp.asm", "wb")
+  out.write("  .al\n")
+  out.write("  .xl\n")
   out.write("  " + instruction + "\n")
   out.close()
 
@@ -17,7 +19,7 @@ for instruction in fp:
   print instruction
   create_asm(instruction)
 
-  os.system("xa temp.asm")
+  os.system("xa -w temp.asm")
 
   fp1 = open("a.o65", "rb")
 
