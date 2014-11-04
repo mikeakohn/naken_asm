@@ -1,2 +1,141 @@
-lda #$09
-ldx #$09
+and #$44
+and $44
+and $44,X
+and $4400
+and $4400,X
+and $4400,Y
+and ($44,X)
+and ($44),Y
+;asl A
+asl $44
+asl $44,X
+asl $4400
+asl $4400,X
+bit $44
+bit $4400
+bpl 2
+bmi 2
+bvc 2
+bvs 2
+bcc 2
+bcs 2
+bne 2
+beq 2
+brk
+cmp #$44
+cmp $44
+cmp $44,X
+cmp $4400
+cmp $4400,X
+cmp $4400,Y
+cmp ($44,X)
+cmp ($44),Y
+cpx #$44
+cpx $44
+cpx $4400
+cpy #$44
+cpy $44
+cpy $4400
+dec $44
+dec $44,X
+dec $4400
+dec $4400,X
+eor #$44
+eor $44
+eor $44,X
+eor $4400
+eor $4400,X
+eor $4400,Y
+eor ($44,X)
+eor ($44),Y
+clc
+sec
+cli
+sei
+clv
+cld
+sed
+inc $44
+inc $44,X
+inc $4400
+inc $4400,X
+jmp $5597
+jmp ($5597)
+jsr $5597
+lda #$44
+lda $44
+lda $44,X
+lda $4400
+lda $4400,X
+lda $4400,Y
+lda ($44,X)
+lda ($44),Y
+ldx #$44
+ldx $44
+ldx $44,Y
+ldx $4400
+ldx $4400,Y
+ldy #$44
+ldy $44
+ldy $44,X
+ldy $4400
+ldy $4400,X
+;lsr A
+lsr $44
+lsr $4400
+lsr $4400,X
+nop
+ora #$44
+ora $44
+ora $44,X
+ora $4400
+ora $4400,X
+ora $4400,Y
+ora ($44,X)
+ora ($44),Y
+tax
+txa
+dex
+inx
+tay
+tya
+dey
+;rol A
+rol $44
+rol $44,X
+rol $4400
+rol $4400,X
+;ror A
+ror $44
+ror $44,X
+ror $4400
+ror $4400,X
+rti
+rts
+sbc #$44
+sbc $44
+sbc $44,X
+sbc $4400
+sbc $4400,X
+sbc $4400,Y
+sbc ($44,X)
+sbc ($44),Y
+sta $44
+sta $44,X
+sta $4400
+sta $4400,X
+sta $4400,Y
+sta ($44,X)
+sta ($44),Y
+txs
+tsx
+pha
+pla
+php
+plp
+stx $44
+stx $44,Y
+stx $4400
+sty $44
+sty $44,X
+sty $4400
