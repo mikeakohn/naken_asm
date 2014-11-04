@@ -5,6 +5,10 @@ adc a,d
 adc a,e
 adc a,h
 adc a,l
+adc a,ixh
+adc a,ixl
+adc a,iyh
+adc a,iyl
 adc a,100
 adc a,(ix+10)
 adc a,(iy+10)

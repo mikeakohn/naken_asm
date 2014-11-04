@@ -634,8 +634,8 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
           if (operand_count == 1 &&
               operands[0].type == OPERAND_REG_IHALF)
           {
-            uint8_t y=(operands[0].value >> 1);
-            uint8_t l=(operands[0].value & 0x1);
+            uint8_t y = (operands[0].value >> 1);
+            uint8_t l = (operands[0].value & 0x1);
             add_bin8(asm_context, (table_z80[n].opcode >> 8) | (y << 5), IS_OPCODE);
             add_bin8(asm_context, (table_z80[n].opcode & 0xff) | l, IS_OPCODE);
             return 2;
