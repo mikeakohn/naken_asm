@@ -6,7 +6,7 @@ and $4400,X
 and $4400,Y
 and ($44,X)
 and ($44),Y
-;asl A
+asl
 asl $44
 asl $44,X
 asl $4400
@@ -80,7 +80,7 @@ ldy $44
 ldy $44,X
 ldy $4400
 ldy $4400,X
-;lsr A
+lsr
 lsr $44
 lsr $4400
 lsr $4400,X
@@ -100,12 +100,12 @@ inx
 tay
 tya
 dey
-;rol A
+rol
 rol $44
 rol $44,X
 rol $4400
 rol $4400,X
-;ror A
+ror
 ror $44
 ror $44,X
 ror $4400
