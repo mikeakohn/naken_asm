@@ -192,7 +192,7 @@ struct _table_z80 table_z80[] =
   { Z80_LDD, OP_NONE16, 0xeda8, 0xffff, 0x00, 16, 16 },
   { Z80_LDDR, OP_NONE16, 0xedb8, 0xffff, 0x00, 16, 21 },
   { Z80_LDI, OP_NONE16, 0xeda0, 0xffff, 0x00, 16, 16 },
-  { Z80_LDIR, OP_NONE16, 0xed80, 0xffff, 0x00, 16, 21 },
+  { Z80_LDIR, OP_NONE16, 0xedb0, 0xffff, 0x00, 16, 21 },
   { Z80_NEG, OP_NONE16, 0xed44, 0xffff, 0x00, 8, 8 },
   { Z80_NOP, OP_NONE, 0x00, 0xff, 0x00, 4, 4 },
   { Z80_OR, OP_REG8, 0xb0, 0xf8, 0x00, 4, 4 },

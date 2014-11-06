@@ -26,6 +26,19 @@ add a,iyl
 add a,100
 add a,(ix+10)
 add a,(iy+10)
+add a,(hl)
+add hl,bc
+add hl,de
+add hl,hl
+add hl,sp
+add ix,bc
+add ix,de
+add ix,ix
+add ix,sp
+add iy,bc
+add iy,de
+add iy,iy
+add iy,sp
 sbc a,a
 sbc a,b
 sbc a,c
@@ -230,9 +243,26 @@ nop
 outd
 otdr
 outi
+out (c),a
+out (c),b
+out (c),c
+out (c),d
+out (c),e
+out (c),h
+out (c),l
+out (c),a
 otir
 rrd
 ret
+ret c
+ret m
+ret nc
+ret nz
+ret p
+ret pe
+ret po
+ret z
+reti
 retn
 cpd
 cpi
@@ -246,16 +276,17 @@ ex (sp),ix
 ex (sp),iy
 exx
 ex de,hl
+ex af,af'
 pop bc
 pop de
 pop hl
 pop af
+pop ix
+pop iy
 push bc
 push de
 push hl
 push af
-pop ix
-pop iy
 push ix
 push iy
 call 5000
@@ -372,4 +403,61 @@ ld iy,5000
 ld sp, ix
 ld sp, iy
 ld sp, hl
+ld i,a
+ld bc,10000
+ld de,10000
+ld hl,10000
+ld a,10000
+ld bc,(10000)
+ld de,(10000)
+ld hl,(10000)
+ld a,(10000)
+ld ix,(10000)
+ld iy,(10000)
+ld (10000),bc
+ld (10000),de
+ld (10000),hl
+ld (10000),a
+ld (10000),ix
+ld (10000),iy
+ldd
+lddr
+ldi
+ldir
 rst 8
+halt
+im 0
+im 1
+im 2
+in a,(c)
+in a,(55)
+in b,(c)
+in c,(c)
+in d,(c)
+in e,(c)
+in h,(c)
+in l,(c)
+;in f,(c)
+set 5,(hl)
+set 5,(ix+6)
+set 5,(iy+6)
+set 5,a
+set 5,b
+set 5,c
+set 5,d
+set 5,e
+set 5,h
+res 5,(hl)
+res 5,(ix+6)
+res 5,(iy+6)
+res 5,a
+res 5,b
+res 5,c
+res 5,d
+res 5,e
+res 5,h
+ind
+indr
+ini
+inir
+ccf
