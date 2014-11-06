@@ -19,6 +19,10 @@ add a,d
 add a,e
 add a,h
 add a,l
+add a,ixh
+add a,ixl
+add a,iyh
+add a,iyl
 add a,100
 add a,(ix+10)
 add a,(iy+10)
@@ -29,6 +33,10 @@ sbc a,d
 sbc a,e
 sbc a,h
 sbc a,l
+sbc a,ixh
+sbc a,ixl
+sbc a,iyh
+sbc a,iyl
 sbc a,100
 sbc a,(ix+10)
 sbc a,(iy+10)
@@ -39,6 +47,10 @@ and d
 and e
 and h
 and l
+and ixh
+and ixl
+and iyh
+and iyl
 and 100
 and (hl)
 and (ix+10)
@@ -50,6 +62,10 @@ cp d
 cp e
 cp h
 cp l
+cp ixh
+cp ixl
+cp iyh
+cp iyl
 cp 100
 cp (hl)
 cp (ix+10)
@@ -61,6 +77,10 @@ dec d
 dec e
 dec h
 dec l
+dec ixh
+dec ixl
+dec iyh
+dec iyl
 dec (hl)
 dec (ix+10)
 dec (iy+10)
@@ -77,6 +97,10 @@ inc d
 inc e
 inc h
 inc l
+inc ixh
+inc ixl
+inc iyh
+inc iyl
 inc (hl)
 inc (ix+10)
 inc (iy+10)
@@ -93,6 +117,10 @@ or d
 or e
 or h
 or l
+or ixh
+or ixl
+or iyh
+or iyl
 or 100
 or (hl)
 or (ix+10)
@@ -174,6 +202,10 @@ sub d
 sub e
 sub h
 sub l
+sub ixh
+sub ixl
+sub iyh
+sub iyl
 sub 100
 sub (hl)
 sub (ix+10)
@@ -185,6 +217,10 @@ xor d
 xor e
 xor h
 xor l
+xor ixh
+xor ixl
+xor iyh
+xor iyl
 xor 100
 xor (hl)
 xor (ix+10)
@@ -336,3 +372,4 @@ ld iy,5000
 ld sp, ix
 ld sp, iy
 ld sp, hl
+rst 8
