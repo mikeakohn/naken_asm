@@ -158,7 +158,7 @@ struct _table_z80 table_z80[] =
   { Z80_JP, OP_INDEX_HL, 0xe9, 0xff, 0x00, 4, 4 },
   { Z80_JP, OP_INDEX_XY, 0xdde9, 0xdfff, 0x00, 8, 8 },
   { Z80_JP, OP_COND_ADDRESS, 0xc2, 0xc7, 0x00, 10, 10 },
-  { Z80_JR, OP_NUMBER8, 0x18, 0xff, 0x00, 12, 12 },
+  { Z80_JR, OP_OFFSET8, 0x18, 0xff, 0x00, 12, 12 },
   { Z80_JR, OP_JR_COND_ADDRESS, 0x20, 0xe7, 0x00, 7, 12 },
   { Z80_LD, OP_REG8_REG8, 0x40, 0xc0, 0x00, 4, 4 },
 //  "ld", 0xdd44, 0xdfc6, OP_REG8_REG_IHALF, Z80_LD, 8        WTF??

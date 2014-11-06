@@ -231,6 +231,21 @@ static int check_addr8(struct _asm_context *asm_context, struct _operand *operan
   return 0;
 }
 
+static int check_offset8(struct _asm_context *asm_context, struct _operand *operand, int address, int *offset)
+{
+  int o = operand->value - address;
+
+  if (o < -128 || o > 127)
+  {
+    print_error_range("Offset", -128, 127, asm_context);
+    return -1;
+  }
+
+  *offset = o;
+
+  return 0;
+}
+
 static int check_bit(struct _asm_context *asm_context, struct _operand *operand)
 {
   if (operand->value < 0 || operand->value > 7)
@@ -250,6 +265,7 @@ int token_type;
 char instr_case[TOKENLEN];
 struct _operand operands[3];
 int operand_count=0;
+int offset=0;
 int matched=0;
 int instr_enum;
 int num;
@@ -871,6 +887,15 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        case OP_OFFSET8:
+          if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)
+          {
+            if (check_offset8(asm_context, &operands[0], asm_context->address + 2, &offset) == -1) { return -1; }
+            add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, offset, IS_OPCODE);
+            return 2;
+          }
+          break;
         case OP_JR_COND_ADDRESS:
           if (operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_C)
@@ -883,9 +908,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
               operands[0].value < 4 &&
               operands[1].type == OPERAND_NUMBER)
           {
-            if (check_addr8(asm_context,&operands[1]) == -1) { return -1; }
+            if (check_offset8(asm_context, &operands[1], asm_context->address + 2, &offset) == -1) { return -1; }
             add_bin8(asm_context, table_z80[n].opcode | ((operands[0].value) << 3), IS_OPCODE);
-            add_bin8(asm_context, operands[1].value, IS_OPCODE);
+            add_bin8(asm_context, offset, IS_OPCODE);
             return 2;
           }
           break;

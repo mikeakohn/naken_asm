@@ -305,6 +305,9 @@ bit 3,d
 bit 3,e
 bit 3,h
 bit 3,l
+bit 3,(hl)
+bit 3,(ix+10)
+bit 3,(iy+10)
 jp 5000
 jp (hl)
 jp (ix)
@@ -461,3 +464,8 @@ indr
 ini
 inir
 ccf
+label: jr label
+label: jr C,label
+label: jr NC,label
+label: jr NZ,label
+label: jr Z,label

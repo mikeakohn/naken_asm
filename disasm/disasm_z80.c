@@ -145,9 +145,14 @@ char disp[64];
         case OP_A_INDEX_N:
           sprintf(instruction, "%s a,(%d)", instr, READ_RAM(address + 1));
           return 2;
+        case OP_OFFSET8:
+          i = (int8_t)READ_RAM(address + 1);
+          sprintf(instruction, "%s %d  (%d)", instr, (address + 2) + i, i);
+          return 2;
         case OP_JR_COND_ADDRESS:
           r = (opcode >> 3) & 0x3;
-          sprintf(instruction, "%s %s,%d", instr, cond[r],READ_RAM(address + 1));
+          i = (int8_t)READ_RAM(address + 1);
+          sprintf(instruction, "%s %s,%d  (%d)", instr, cond[r], (address + 2) + i, i);
           return 2;
         case OP_REG8_REG8:
           r = (opcode >> 3) & 0x7;
