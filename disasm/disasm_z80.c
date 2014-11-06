@@ -253,6 +253,22 @@ char disp[64];
           r = ((opcode16 & 0x2000) >> 12) | (opcode16 & 1);
           sprintf(instruction, "%s a,%s", instr, reg_ihalf[r]);
           return 2;
+        case OP_B_REG_IHALF:
+          r = ((opcode16 & 0x2000) >> 12) | (opcode16 & 1);
+          sprintf(instruction, "%s b,%s", instr, reg_ihalf[r]);
+          return 2;
+        case OP_C_REG_IHALF:
+          r = ((opcode16 & 0x2000) >> 12) | (opcode16 & 1);
+          sprintf(instruction, "%s c,%s", instr, reg_ihalf[r]);
+          return 2;
+        case OP_D_REG_IHALF:
+          r = ((opcode16 & 0x2000) >> 12) | (opcode16 & 1);
+          sprintf(instruction, "%s d,%s", instr, reg_ihalf[r]);
+          return 2;
+        case OP_E_REG_IHALF:
+          r = ((opcode16 & 0x2000) >> 12) | (opcode16 & 1);
+          sprintf(instruction, "%s e,%s", instr, reg_ihalf[r]);
+          return 2;
         case OP_A_INDEX:
           r = ((opcode16 & 0x2000) >> 13) & 0x1;
           offset = READ_RAM(address + 2);

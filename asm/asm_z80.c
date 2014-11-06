@@ -545,6 +545,58 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        case OP_B_REG_IHALF:
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REG8 &&
+              operands[0].value == REG_B &&
+              operands[1].type == OPERAND_REG_IHALF)
+          {
+            uint8_t y = (operands[1].value >> 1);
+            uint8_t l = (operands[1].value & 0x1);
+            add_bin8(asm_context, (table_z80[n].opcode >> 8) | (y << 5), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode & 0xff) | l, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_C_REG_IHALF:
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REG8 &&
+              operands[0].value == REG_C &&
+              operands[1].type == OPERAND_REG_IHALF)
+          {
+            uint8_t y = (operands[1].value >> 1);
+            uint8_t l = (operands[1].value & 0x1);
+            add_bin8(asm_context, (table_z80[n].opcode >> 8) | (y << 5), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode & 0xff) | l, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_D_REG_IHALF:
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REG8 &&
+              operands[0].value == REG_D &&
+              operands[1].type == OPERAND_REG_IHALF)
+          {
+            uint8_t y = (operands[1].value >> 1);
+            uint8_t l = (operands[1].value & 0x1);
+            add_bin8(asm_context, (table_z80[n].opcode >> 8) | (y << 5), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode & 0xff) | l, IS_OPCODE);
+            return 2;
+          }
+          break;
+        case OP_E_REG_IHALF:
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REG8 &&
+              operands[0].value == REG_E &&
+              operands[1].type == OPERAND_REG_IHALF)
+          {
+            uint8_t y = (operands[1].value >> 1);
+            uint8_t l = (operands[1].value & 0x1);
+            add_bin8(asm_context, (table_z80[n].opcode >> 8) | (y << 5), IS_OPCODE);
+            add_bin8(asm_context, (table_z80[n].opcode & 0xff) | l, IS_OPCODE);
+            return 2;
+          }
+          break;
         case OP_A_INDEX:
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&

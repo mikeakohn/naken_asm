@@ -322,6 +322,17 @@ ld a,c
 ld a,d
 ld a,e
 ld a,h
+ld a,i
+ld a,ixh
+ld a,ixl
+ld a,iyh
+ld a,iyl
+ld a,(bc)
+ld a,(de)
+ld a,(hl)
+ld a,(500)
+ld a,(ix+50)
+ld a,(iy+50)
 ld a,l
 ld b,a
 ld b,b
@@ -330,6 +341,13 @@ ld b,d
 ld b,e
 ld b,h
 ld b,l
+ld b,ixh
+ld b,ixl
+ld b,iyh
+ld b,iyl
+ld b,(hl)
+ld b,(ix+50)
+ld b,(iy+50)
 ld c,a
 ld c,b
 ld c,c
@@ -337,6 +355,13 @@ ld c,d
 ld c,e
 ld c,h
 ld c,l
+ld c,ixh
+ld c,ixl
+ld c,iyh
+ld c,iyl
+ld c,(hl)
+ld c,(ix+50)
+ld c,(iy+50)
 ld d,a
 ld d,b
 ld d,c
@@ -344,6 +369,13 @@ ld d,d
 ld d,e
 ld d,h
 ld d,l
+ld d,ixh
+ld d,ixl
+ld d,iyh
+ld d,iyl
+ld d,(hl)
+ld d,(ix+50)
+ld d,(iy+50)
 ld e,a
 ld e,b
 ld e,c
@@ -351,6 +383,13 @@ ld e,d
 ld e,e
 ld e,h
 ld e,l
+ld e,ixh
+ld e,ixl
+ld e,iyh
+ld e,iyl
+ld e,(hl)
+ld e,(ix+50)
+ld e,(iy+50)
 ld h,a
 ld h,b
 ld h,c
@@ -358,6 +397,9 @@ ld h,d
 ld h,e
 ld h,h
 ld h,l
+ld h,(hl)
+ld h,(ix+50)
+ld h,(iy+50)
 ld l,a
 ld l,b
 ld l,c
@@ -365,6 +407,9 @@ ld l,d
 ld l,e
 ld l,h
 ld l,l
+ld l,(hl)
+ld l,(ix+50)
+ld l,(iy+50)
 ld a,50
 ld b,50
 ld c,50
@@ -469,3 +514,4 @@ label: jr C,label
 label: jr NC,label
 label: jr NZ,label
 label: jr Z,label
+label: djnz label
