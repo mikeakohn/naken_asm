@@ -544,3 +544,4 @@ jrule $2
 jrc $2
 jrult $2
 jrv $2
+ldw X,[$50]

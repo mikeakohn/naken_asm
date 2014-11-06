@@ -445,19 +445,26 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 
         operands[operand_count].value = n;
 
-        if (expect_token(asm_context, '.') == -1) { return -1; }
-        //if (expect_token(asm_context, 'w') == -1) { return -1; }
         int is_w = 1;
+
         token_type = tokens_get(asm_context, token, TOKENLEN);
-        if (strcasecmp(token, "e") == 0)
+        if (IS_TOKEN(token,'.'))
         {
-          is_w = 0;
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (strcasecmp(token, "e") == 0)
+          {
+            is_w = 0;
+          }
+            else
+          if (strcasecmp(token, "w") != 0)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
         }
           else
-        if (strcasecmp(token, "w") != 0)
         {
-          print_error_unexp(token, asm_context);
-          return -1;
+          tokens_push(asm_context, token, token_type);
         }
         if (expect_token(asm_context, ']') == -1) { return -1; }
         if (expect_token(asm_context, ',') == -1) { return -1; }
@@ -576,17 +583,24 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 
       operands[operand_count].value = n;
 
-      if (expect_token(asm_context, '.') == -1) { return -1; }
       token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (strcasecmp(token, "e") == 0)
+      if (IS_TOKEN(token,'.'))
       {
-        operands[operand_count].type = OP_INDIRECT16_E;
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (strcasecmp(token, "e") == 0)
+        {
+          operands[operand_count].type = OP_INDIRECT16_E;
+        }
+          else
+        if (strcasecmp(token, "w") != 0)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
       }
         else
-      if (strcasecmp(token, "w") != 0)
       {
-        print_error_unexp(token, asm_context);
-        return -1;
+        tokens_push(asm_context, token, token_type);
       }
       if (expect_token(asm_context, ']') == -1) { return -1; }
     }
