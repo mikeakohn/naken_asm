@@ -215,15 +215,16 @@ main:
   jp   pe,10         ; EA NNl NNh
   jp   po,10         ; E2 NNl NNh
   jp   z,10          ; CA NNl NNh
-  jr   10            ; 18 NNo
-  jr   c,10          ; 38 NNo
-  ;jr   m,10          ; FA NNl NNh
-  jr   nc,10         ; 30 NNo
-  jr   nz,10         ; 20 NNo
+blah:
+  jr   blah            ; 18 NNo
+  jr   c,blah          ; 38 NNo
+  ;jr   m,blah          ; FA NNl NNh
+  jr   nc,blah         ; 30 NNo
+  jr   nz,blah         ; 20 NNo
   ;jr   p,10          ; F2 NNl NNh
   ;jr   pe,10         ; EA NNl NNh
   ;jr   po,10         ; E2 NNl NNh
-  jr   z,10          ; 28 NNo
+  jr   z,blah          ; 28 NNo
 
   ld   l,a           ; 6F
   ld   l,b           ; 68

@@ -80,9 +80,9 @@ boogers:
   exg a, $1132
 
   callf $123456
-  callf [$1234]
+  callf [$1234.e]
   jpf $123456
-  jpf [$1234]
+  jpf [$1234.e]
 
   cpw x, #$10
   cpw x, $10
@@ -117,16 +117,16 @@ boogers:
   ldf A, $501122
   ldf A, ($501122, X)
   ldf A, ($501122, Y)
-  ldf A, ([$5000], X)
-  ldf A, ([$5000], Y)
-  ldf A, [$5000]
+  ldf A, ([$5000.e], X)
+  ldf A, ([$5000.e], Y)
+  ldf A, [$5000.e]
 
   ldf $501122, A
   ldf ($501122, X), A
   ldf ($501122, Y), A
-  ldf ([$5000], X), A
-  ldf ([$5000], Y), A
-  ldf [$5000], A
+  ldf ([$5000.e], X), A
+  ldf ([$5000.e], Y), A
+  ldf [$5000.e], A
 
   jp (x)
   jp $10

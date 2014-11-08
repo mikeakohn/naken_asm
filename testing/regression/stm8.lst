@@ -7,7 +7,7 @@ main:
 
   halt
 
-0x0001: 8e             halt                                     cycles: 10
+0x0001: 8e             halt                                     cycles: 1
 
   sim
 
@@ -20,7 +20,7 @@ main:
 
   clrw y
 
-0x0004: 90             clrw Y                                   cycles: 1
+0x0004: 90 5f          clrw Y                                   cycles: 1
 
 
   or A, #$55
@@ -37,7 +37,7 @@ main:
 
   or A, asdf
 
-0x000d: ca 00 32       or A, $0032                              cycles: 1
+0x000d: ca 00 32       or A, $32                                cycles: 1
 
   xor A, (X)
 
@@ -66,27 +66,27 @@ main:
 
   and A, ($10, SP)
 
-0x001f: 14 10          and A, ($10, SP)                         cycles: 1
+0x001f: 14 10          and A, ($10,SP)                          cycles: 1
 
   and A, [$10]
 
-0x0021: 92 c4 10       and A, [$10]                             cycles: 4
+0x0021: 92 c4 10       and A, [$10.w]                           cycles: 4
 
   and A, [$1000]
 
-0x0024: 72 c4 10 00    and A, [$1000]                           cycles: 4
+0x0024: 72 c4 10 00    and A, [$1000.w]                         cycles: 4
 
   and A, ([$10],X)
 
-0x0028: 92 d4 10       and A, ([$10],X)                         cycles: 4
+0x0028: 92 d4 10       and A, ([$10.w],X)                       cycles: 4
 
   and A, ([$1000],X)
 
-0x002b: 72 d4 10 00    and A, ([$1000],X)                       cycles: 4
+0x002b: 72 d4 10 00    and A, ([$1000.w],X)                     cycles: 4
 
   and A, ([$10],Y)
 
-0x002f: 91 d4 10       and A, ([$10],Y)                         cycles: 4
+0x002f: 91 d4 10       and A, ([$10.w],Y)                       cycles: 4
 
 
 asdf:
@@ -108,41 +108,41 @@ asdf:
 
   btjt $1000, #5, asdf
 
-0x0042: 72 0a 10 00 eb btjt $1000, #5, $00b9                    cycles: 2-3
+0x0042: 72 0a 10       ???                                      cycles: -1
 
   btjf $1000, #6, asdf
 
-0x0047: 72 0d 10 00 e6 btjf $1000, #6, $0071                    cycles: 2-3
+0x0047: 72 0d 10       ???                                      cycles: -1
 
   jrc asdf
 
-0x004c: 25 e4          jrc $0032 (-28)                          cycles: 1-2
+0x004c: 25 e4          jrc $32  (offset=-28)                    cycles: 1-2
 
 
   mul x,a
 
-0x004e: 42             mul X,A                                  cycles: 4
+0x004e: 42             mul X, A                                 cycles: 4
 
   mul y,a
 
-0x004f: 90 42          mul Y,A                                  cycles: 4
+0x004f: 90 42          mul Y, A                                 cycles: 4
 
   div x,a
 
-0x0051: 62             div X,A                                  cycles: 2-17
+0x0051: 62             div X, A                                 cycles: 2-17
 
   div y,a
 
-0x0052: 90 62          div Y,A                                  cycles: 2-17
+0x0052: 90 62          div Y, A                                 cycles: 2-17
 
 
   divw x,y
 
-0x0054: 65             divw X,Y                                 cycles: 2-17
+0x0054: 65             divw X, Y                                cycles: 2-17
 
   exgw x,y
 
-0x0055: 51             exgw X,Y                                 cycles: 1
+0x0055: 51             exgw X, Y                                cycles: 1
 
 
   swap a
@@ -183,23 +183,23 @@ asdf:
 
   swap [$10]
 
-0x006d: 92 3e 10       swap [$10]                               cycles: 4
+0x006d: 92 3e 10       swap [$10.w]                             cycles: 4
 
   swap [$1000]
 
-0x0070: 72 3e 10 00    swap [$1000]                             cycles: 4
+0x0070: 72 3e 10 00    swap [$1000.w]                           cycles: 4
 
   swap ([$10], X)
 
-0x0074: 92 6e 10       swap ([$10],X)                           cycles: 4
+0x0074: 92 6e 10       swap ([$10.w],X)                         cycles: 4
 
   swap ([$1000], X)
 
-0x0077: 72 6e 10 00    swap ([$1000],X)                         cycles: 4
+0x0077: 72 6e 10 00    swap ([$1000.w],X)                       cycles: 4
 
   swap ([$10], Y)
 
-0x007b: 91 6e 10       swap ([$10],Y)                           cycles: 4
+0x007b: 91 6e 10       swap ([$10.w],Y)                         cycles: 4
 
 
   wfe
@@ -238,23 +238,23 @@ boogers:
 
   jra boogers
 
-0x008c: 20 f8          jra $0086 (-8)                           cycles: 2
+0x008c: 20 f9          jra $87  (offset=-7)                     cycles: 2
 
   jrt boogers
 
-0x008e: 20 f6          jra $0086 (-10)                          cycles: 2
+0x008e: 20 f7          jra $87  (offset=-9)                     cycles: 2
 
   jrf boogers
 
-0x0090: 21 f4          jrf $0086 (-12)                          cycles: 1
+0x0090: 21 f5          jrf $87  (offset=-11)                    cycles: 1-2
 
   jrc boogers
 
-0x0092: 25 f2          jrc $0086 (-14)                          cycles: 1-2
+0x0092: 25 f3          jrc $87  (offset=-13)                    cycles: 1-2
 
   callr boogers
 
-0x0094: ad f0 00       callr $0086 (-16)                        cycles: 4
+0x0094: ad f1          callr $87  (offset=-15)                  cycles: 4
 
   call $1100
 
@@ -278,218 +278,218 @@ boogers:
 
 0x009e: 8d 12 34 56    callf $123456                            cycles: 5
 
-  callf [$1234]
+  callf [$1234.e]
 
-0x00a2: 92 8d 12 34    callf [$1234]                            cycles: 8
+0x00a2: 92 8d 12 34    callf [$1234.e]                          cycles: 8
 
   jpf $123456
 
 0x00a6: ac 12 34 56    jpf $123456                              cycles: 2
 
-  jpf [$1234]
+  jpf [$1234.e]
 
-0x00aa: 92 ac 12 34    jpf [$1234]                              cycles: 6
+0x00aa: 92 ac 12 34    jpf [$1234.e]                            cycles: 6
 
 
   cpw x, #$10
 
-0x00ae: a3 10          cpw X, #$10                              cycles: 1
+0x00ae: a3 00 10       cpw X, #$10                              cycles: 2
 
   cpw x, $10
 
-0x00b0: b3 10          cpw X, $10                               cycles: 1
+0x00b1: b3 10          cpw X, $10                               cycles: 2
 
   cpw x, $1000
 
-0x00b2: c3 10 00       cpw X, $1000                             cycles: 1
+0x00b3: c3 10 00       cpw X, $1000                             cycles: 2
 
   cpw x, (Y)
 
-0x00b5: 90 f3          cpw X, (Y)                               cycles: 1
+0x00b6: 90 f3          cpw X, (Y)                               cycles: 2
 
   cpw x, ($10, Y)
 
-0x00b7: 90 e3 10       cpw X, ($10,Y)                           cycles: 1
+0x00b8: 90 e3 10       cpw X, ($10,Y)                           cycles: 2
 
   cpw x, ($1000, Y)
 
-0x00ba: 90 d3 10 00    cpw X, ($1000,Y)                         cycles: 1
+0x00bb: 90 d3 10 00    cpw X, ($1000,Y)                         cycles: 2
 
   cpw x, ($10, SP)
 
-0x00be: 13 10          cpw X, ($10, SP)                         cycles: 1
+0x00bf: 13 10          cpw X, ($10,SP)                          cycles: 2
 
   cpw x, [$10]
 
-0x00c0: 92 c3 10       cpw X, [$10]                             cycles: 4
+0x00c1: 92 c3 10       cpw X, [$10.w]                           cycles: 5
 
   cpw x, [$1000]
 
-0x00c3: 72 c3 10 00    cpw X, [$1000]                           cycles: 4
+0x00c4: 72 c3 10 00    cpw X, [$1000.w]                         cycles: 5
 
   cpw x, ([$10], Y)
 
-0x00c7: 91 d3 10       cpw X, ([$10],Y)                         cycles: 4
+0x00c8: 91 d3 10       cpw X, ([$10.w],Y)                       cycles: 5
 
 
   mov $8000, #$aa
 
-0x00ca: 35 aa 80 00    mov $8000, #$aa                          cycles: 1
+0x00cb: 35 aa 80 00    mov $8000, #$aa                          cycles: 1
 
   mov $80, $10
 
-0x00ce: 45 10 80       mov $80, $10                             cycles: 1
+0x00cf: 45 10 80       mov $80, $10                             cycles: 1
 
   mov $8000, $1000
 
-0x00d1: 55 10 00 80 00 mov $8000, $1000                         cycles: 1
+0x00d2: 55 10 00 80 00 mov $8000, $1000                         cycles: 1
 
 
   subw x, #$5500
 
-0x00d6: 1d 55 00       subw X, #$5500                           cycles: 2
+0x00d7: 1d 55 00       subw X, #$5500                           cycles: 2
 
   subw x, $1000
 
-0x00d9: 72 b0 10 00    subw X, $1000                            cycles: 2
+0x00da: 72 b0 10 00    subw X, $1000                            cycles: 2
 
   subw x, ($10,SP)
 
-0x00dd: 72 f0 10 a2    subw X, ($10,SP)                         cycles: 2
+0x00de: 72 f0 10       subw X, ($10,SP)                         cycles: 2
 
   subw y, #$5500
 
-0x00e0: 72 a2 55       subw Y, #$5500                           cycles: 2
+0x00e1: 72 a2 55 00    subw Y, #$5500                           cycles: 2
 
   subw y, $1000
 
-0x00e4: 72 b2 10 00    subw Y, $1000                            cycles: 2
+0x00e5: 72 b2 10 00    subw Y, $1000                            cycles: 2
 
   subw y, ($10,SP)
 
-0x00e8: 72 f2 10 55    subw Y, ($10,SP)                         cycles: 2
+0x00e9: 72 f2 10       subw Y, ($10,SP)                         cycles: 2
 
 
   addw x, #$5500
 
-0x00eb: 1c 55 00       addw X, #$5500                           cycles: 2
+0x00ec: 1c 55 00       addw X, #$5500                           cycles: 2
 
   addw x, $1000
 
-0x00ee: 72 bb 10 00    addw X, $1000                            cycles: 2
+0x00ef: 72 bb 10 00    addw X, $1000                            cycles: 2
 
   addw x, ($10,SP)
 
-0x00f2: 72 fb 10 a9    addw X, ($10,SP)                         cycles: 2
+0x00f3: 72 fb 10       addw X, ($10,SP)                         cycles: 2
 
   addw y, #$5500
 
-0x00f5: 72 a9 55       addw Y, #$5500                           cycles: 2
+0x00f6: 72 a9 55 00    addw Y, #$5500                           cycles: 2
 
   addw y, $1000
 
-0x00f9: 72 b9 10 00    addw Y, $1000                            cycles: 2
+0x00fa: 72 b9 10 00    addw Y, $1000                            cycles: 2
 
   addw y, ($10,SP)
 
-0x00fd: 72 f9 10 09    addw Y, ($10,SP)                         cycles: 2
+0x00fe: 72 f9 10       addw Y, ($10,SP)                         cycles: 2
 
   addw SP, #$09
 
-0x0100: 5b 09          addw SP, #$09                            cycles: 2
+0x0101: 5b 09          addw SP, #$09                            cycles: 2
 
 
   ldf A, $501122
 
-0x0102: bc 50 11 22    ldf A, $501122                           cycles: 1
+0x0103: bc 50 11 22    ldf A, $501122                           cycles: 1
 
   ldf A, ($501122, X)
 
-0x0106: af 50 11 22    ldf A, ($501122, X)                      cycles: 1
+0x0107: af 50 11 22    ldf A, ($501122,X)                       cycles: 1
 
   ldf A, ($501122, Y)
 
-0x010a: 90 af 50 11 22 ldf A, ($501122, Y)                      cycles: 1
+0x010b: 90 af 50 11 22 ldf A, ($501122,Y)                       cycles: 1
 
-  ldf A, ([$5000], X)
+  ldf A, ([$5000.e], X)
 
-0x010f: 92 af 50 00    ldf A, ([$5000], X)                      cycles: 5
+0x0110: 92 af 50 00    ldf A, ([$5000.e],X)                     cycles: 4
 
-  ldf A, ([$5000], Y)
+  ldf A, ([$5000.e], Y)
 
-0x0113: 91 af 50 00    ldf A, ([$5000], Y)                      cycles: 5
+0x0114: 91 af 50 00    ldf A, ([$5000.e],Y)                     cycles: 4
 
-  ldf A, [$5000]
+  ldf A, [$5000.e]
 
-0x0117: 92 bc 50 00    ldf A, [$5000]                           cycles: 5
+0x0118: 92 bc 50 00    ldf A, [$5000.e]                         cycles: 4
 
 
   ldf $501122, A
 
-0x011b: bd 50 11 22    ldf $501122, A                           cycles: 1
+0x011c: bd 50 11 22    ldf $501122,A                            cycles: 1
 
   ldf ($501122, X), A
 
-0x011f: a7 50 11 22    ldf ($501122, X), A                      cycles: 1
+0x0120: a7 50 11 22    ldf ($501122,X),A                        cycles: 1
 
   ldf ($501122, Y), A
 
-0x0123: 90 a7 50 11 22 ldf ($501122, Y), A                      cycles: 1
+0x0124: 90 a7 50 11 22 ldf ($501122,Y),A                        cycles: 1
 
-  ldf ([$5000], X), A
+  ldf ([$5000.e], X), A
 
-0x0128: 92 a7 50 00    ldf ([$5000], X), A                      cycles: 4
+0x0129: 92 a7 50 00    ldf ([$5000.e],X),A                      cycles: 4
 
-  ldf ([$5000], Y), A
+  ldf ([$5000.e], Y), A
 
-0x012c: 91 a7 50 00    ldf ([$5000], Y), A                      cycles: 4
+0x012d: 91 a7 50 00    ldf ([$5000.e],Y),A                      cycles: 4
 
-  ldf [$5000], A
+  ldf [$5000.e], A
 
-0x0130: 92 bd 50 00    ldf [$5000], A                           cycles: 4
+0x0131: 92 bd 50 00    ldf [$5000.e],A                          cycles: 4
 
 
   jp (x)
 
-0x0134: fc             jp (X)                                   cycles: 1
+0x0135: fc             jp (X)                                   cycles: 1
 
   jp $10
 
-0x0135: cc 00 10       jp $0010                                 cycles: 1
+0x0136: cc 00 10       jp $10                                   cycles: 1
 
   jp ($10, Y)
 
-0x0138: 90 ec 10       jp ($10,Y)                               cycles: 2
+0x0139: 90 ec 10       jp ($10,Y)                               cycles: 2
 
   jp ([$10], X)
 
-0x013b: 92 dc 10       jp ([$10],X)                             cycles: 5
+0x013c: 92 dc 10       jp ([$10.w],X)                           cycles: 5
 
 
   ldw X, #$55aa
 
-0x013e: ae 55 aa       ldw A, #$55aa                            cycles: 2
+0x013f: ae 55 aa       ldw X, #$55aa                            cycles: 2
 
 
   ldw $50, X
 
-0x0141: bf 50          ldw $50, X                               cycles: 2
+0x0142: bf 50          ldw $50,X                                cycles: 2
 
   ldw $5000, X
 
-0x0143: cf 50 00       ldw $5000, X                             cycles: 2
+0x0144: cf 50 00       ldw $5000,X                              cycles: 2
 
   ldw (X), Y
 
-0x0146: ff             ldw (X), Y                               cycles: 2
+0x0147: ff             ldw (X),Y                                cycles: 2
 
   ldw ($50, X), Y
 
-0x0147: ef 50          ldw ($50,X), Y                           cycles: 2
+0x0148: ef 50          ldw ($50,X),Y                            cycles: 2
 
   ldw ($5000, X), Y
 
-0x0149: df 50 00       ldw ($5000,X), Y                         cycles: 2
+0x014a: df 50 00       ldw ($5000,X),Y                          cycles: 2
 
 
 data sections:
@@ -499,8 +499,8 @@ Program Info:
 Include Paths: .
                /usr/local/share/naken_asm/include
  Instructions: 117
-   Code Bytes: 332
+   Code Bytes: 333
    Data Bytes: 0
   Low Address: 0000 (0)
- High Address: 014b (331)
+ High Address: 014c (332)
 
