@@ -2,7 +2,7 @@
 
 test_instr()
 {
-  echo -n "testing ${1} ... "
+  echo -n "[${3}]testing ${1} ... "
 
 cat >${cpu}.asm << EOF
 .${cpu}
@@ -33,6 +33,6 @@ while read line
 do
   instr=`echo ${line} | awk -F\| '{ print $1 }'`
   hex=`echo ${line} | awk -F\| '{ print $2 }'`
-  test_instr "${instr}" "${hex}"
+  test_instr "${instr}" "${hex}" "${cpu}"
 done < ${cpu}.txt
 

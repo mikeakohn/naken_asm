@@ -417,6 +417,9 @@ ld d,50
 ld e,50
 ld h,50
 ld l,50
+ld (bc),a
+ld (de),a
+ld (hl),50
 ld (hl),a
 ld (hl),b
 ld (hl),c
@@ -442,6 +445,12 @@ ld (hl),50
 ld a,(bc)
 ld a,(de)
 ld (5000),a
+ld (5000),bc
+ld (5000),de
+ld (5000),hl
+ld (5000),ix
+ld (5000),iy
+ld (5000),sp
 ld i,a
 ld r,a
 ld a,i
@@ -451,6 +460,8 @@ ld iy,5000
 ld sp, ix
 ld sp, iy
 ld sp, hl
+ld sp, 10000
+ld sp, (10000)
 ld i,a
 ld bc,10000
 ld de,10000
