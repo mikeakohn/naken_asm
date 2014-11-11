@@ -21,6 +21,7 @@
 #include "asm_avr8.h"
 #include "asm_common.h"
 #include "asm_dspic.h"
+#include "asm_epiphany.h"
 #include "asm_mips.h"
 #include "asm_msp430.h"
 #include "asm_powerpc.h"
@@ -38,6 +39,7 @@
 #include "disasm_arm.h"
 #include "disasm_avr8.h"
 #include "disasm_dspic.h"
+#include "disasm_epiphany.h"
 #include "disasm_mips.h"
 #include "disasm_msp430.h"
 #include "disasm_powerpc.h"
@@ -80,6 +82,9 @@ struct _cpu_list cpu_list[] =
 #endif
 #ifdef ENABLE_DSPIC
   { "dspic", CPU_TYPE_DSPIC, ENDIAN_LITTLE, 2, 0, 0, 0, parse_instruction_dspic, list_output_dspic, disasm_range_dspic, NULL },
+#endif
+#ifdef ENABLE_EPIPHANY
+  { "epiphany", CPU_TYPE_EPIPHANY, ENDIAN_LITTLE, 1, 0, 0, 0, parse_instruction_epiphany, list_output_epiphany, disasm_range_epiphany, NULL },
 #endif
 #ifdef ENABLE_MIPS
   { "mips", CPU_TYPE_MIPS, ENDIAN_LITTLE, 1, 0, 0, 0, parse_instruction_mips, list_output_mips, disasm_range_mips, NULL },

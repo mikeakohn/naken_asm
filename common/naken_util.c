@@ -29,6 +29,7 @@
 #include "disasm_arm.h"
 #include "disasm_avr8.h"
 #include "disasm_dspic.h"
+#include "disasm_epiphany.h"
 #include "disasm_mips.h"
 #include "disasm_msp430.h"
 #include "disasm_stm8.h"
@@ -67,6 +68,7 @@ parse_instruction_t parse_instruction_805x = NULL;
 parse_instruction_t parse_instruction_arm = NULL;
 parse_instruction_t parse_instruction_avr8 = NULL;
 parse_instruction_t parse_instruction_dspic = NULL;
+parse_instruction_t parse_instruction_epiphany = NULL;
 parse_instruction_t parse_instruction_mips = NULL;
 parse_instruction_t parse_instruction_msp430 = NULL;
 parse_instruction_t parse_instruction_powerpc = NULL;
@@ -664,6 +666,7 @@ int mode = MODE_INTERACTIVE;
            "   -arm                         (ARM)\n"
            "   -avr8                        (Atmel AVR8)\n"
            "   -dspic                       (dsPIC)\n"
+           "   -epiphany                    (Epiphany III/IV)\n"
            "   -mips                        (MIPS)\n"
            "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
            "   -stm8                        (STM8)\n"
