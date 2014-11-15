@@ -22,12 +22,73 @@
 #include "eval_expression.h"
 #include "table_epiphany.h"
 
+enum
+{
+  OPERAND_NONE,
+  OPERAND_REG,
+  OPERAND_NUMBER8,
+  OPERAND_NUMBER16,
+  OPERAND_ADDRESS,
+};
+
 struct _operand
 {
   uint8_t type;
   uint8_t reg;
   int value;
 };
+
+static int get_register(const char *token)
+{
+  if (token[0] == 'r' || token[1] == 'R')
+  {
+    const char *s = token + 1;
+    int n = 0, count = 0;
+
+    while(*s != 0)
+    {
+      if (*s < '0' || *s > '9') { return -1; }
+      n = (n * 10) + (*s - '0');
+      count++;
+
+      // Disallow leading 0's on registers
+      if (n == 0 && count >1) { return -1; }
+
+      s++;
+    }
+
+    // This token was just r or R.
+    if (count == 0) { return -1; }
+
+    return n;
+  }
+
+  // A1-A4 = R0-R3
+  if (token[0] == 'a' || token[1] == 'A')
+  {
+    if (token[2] == 0 && token[1] >= '1' && token[1] <= '4')
+    {
+      return token[1] - '1';
+    }
+  }
+
+  // V1-V8 = R4-R11
+  if (token[0] == 'v' || token[1] == 'V')
+  {
+    if (token[2] == 0 && token[1] >= '1' && token[1] <= '8')
+    {
+      return (token[1] - '1') + 4;
+    }
+  }
+
+  if (strcasecmp(token, "sb") == 0) { return 9; }
+  if (strcasecmp(token, "sl") == 0) { return 10; }
+  if (strcasecmp(token, "fp") == 0) { return 11; }
+  if (strcasecmp(token, "sp") == 0) { return 13; }
+  if (strcasecmp(token, "lr") == 0) { return 14; }
+
+  return -1;
+}
 
 int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
 {
@@ -36,6 +97,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
   int token_type;
   struct _operand operands[3];
   int operand_count;
+  uint32_t reg_combo;
   int n;
 
   lower_copy(instr_case, instr);
@@ -48,15 +110,11 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
-    { 
+    {
       break;
     }
 
-    if (operand_count == 3)
-    {
-      print_error_unexp(token, asm_context);
-      return -1;
-    }
+    // if (IS_TOKEN(token,';')) { break; }
 
     if (operand_count != 0)
     {
@@ -69,28 +127,69 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
       token_type = tokens_get(asm_context, token, TOKENLEN);
     }
 
-#if 0
-    if (strcasecmp(token,"A") == 0)
+    if (operand_count == 3)
     {
-      operands[operand_count].type = OP_REG_A;
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    n = get_register(token);
+
+    if (n != -1)
+    {
+      operands[operand_count].type = OPERAND_REG;
+      operands[operand_count].value = n;
     }
       else
-#endif
     if (IS_TOKEN(token,'#'))
     {
-      operands[operand_count].value = 0;
+      if (eval_expression(asm_context, &n) != 0)
+      {
+        if (asm_context->pass == 1)
+        {
+          eat_operand(asm_context);
+          memory_write(asm_context, asm_context->address, 1, asm_context->line);
+        }
+          else
+        {
+          print_error_illegal_expression(instr, asm_context);
+          return -1;
+        }
+
+        if (memory_read(asm_context, asm_context->address) != 0)
+        {
+          operands[operand_count].type = OPERAND_NUMBER16;
+        }
+          else
+        if (n < 0 || n > 255)
+        {
+          operands[operand_count].type = OPERAND_NUMBER16;
+        }
+          else
+        {
+          operands[operand_count].type = OPERAND_NUMBER8;
+        }
+
+        operands[operand_count].value = n;
+      }
     }
       else
-    if (IS_TOKEN(token,'('))
     {
-    }
-      else
-    if (IS_TOKEN(token,'['))
-    {
-    }
-      else
-    {
-      operands[operand_count].value = 0;
+      if (eval_expression(asm_context, &n) != 0)
+      {
+        if (asm_context->pass == 1)
+        {
+          eat_operand(asm_context);
+        }
+          else
+        {
+          print_error_illegal_expression(instr, asm_context);
+          return -1;
+        }
+      }
+
+      operands[operand_count].type = OPERAND_ADDRESS;
+      operands[operand_count].value = n;
     }
 
     operand_count++;
@@ -108,6 +207,39 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         {
           if (operand_count == 0)
           {
+          }
+          break;
+        }
+        case OP_REG_3_16:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG && operands[0].value < 8 &&
+              operands[1].type == OPERAND_REG && operands[1].value < 8 &&
+              operands[2].type == OPERAND_REG && operands[2].value < 8)
+          {
+            reg_combo = (operands[0].value << 13) |
+                        (operands[1].value << 10) |
+                        (operands[2].value << 7);
+            add_bin16(asm_context, table_epiphany[n].opcode|reg_combo, IS_OPCODE);
+            return 2;
+          }
+          break;
+        }
+        case OP_REG_3_32:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[2].type == OPERAND_REG)
+          {
+            reg_combo = ((operands[0].value & 0x7) << 13) |
+                        ((operands[1].value & 0x7) << 10) |
+                        ((operands[2].value & 0x7) << 7) |
+                        ((operands[0].value >> 3) << 29) |
+                        ((operands[1].value >> 3) << 26) |
+                        ((operands[2].value >> 3) << 23);
+            add_bin32(asm_context, table_epiphany[n].opcode|reg_combo, IS_OPCODE);
+            return 4;
           }
           break;
         }

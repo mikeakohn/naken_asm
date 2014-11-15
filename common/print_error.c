@@ -22,7 +22,7 @@ void print_error(const char *s, struct _asm_context *asm_context)
 
 void print_error_unexp(const char *s, struct _asm_context *asm_context)
 {
-  printf("Error: Unexpected token '%s' at %s:%d\n", s,
+  printf("Error: Unexpected token '%s' at %s:%d\n", *s == '\n' ? "<EOL>" : s,
     asm_context->filename,
     asm_context->line);
 }

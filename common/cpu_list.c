@@ -84,7 +84,7 @@ struct _cpu_list cpu_list[] =
   { "dspic", CPU_TYPE_DSPIC, ENDIAN_LITTLE, 2, 0, 0, 0, parse_instruction_dspic, list_output_dspic, disasm_range_dspic, NULL },
 #endif
 #ifdef ENABLE_EPIPHANY
-  { "epiphany", CPU_TYPE_EPIPHANY, ENDIAN_LITTLE, 1, 0, 0, 0, parse_instruction_epiphany, list_output_epiphany, disasm_range_epiphany, NULL },
+  { "epiphany", CPU_TYPE_EPIPHANY, ENDIAN_LITTLE, 1, 0, 0, 1, parse_instruction_epiphany, list_output_epiphany, disasm_range_epiphany, NULL },
 #endif
 #ifdef ENABLE_MIPS
   { "mips", CPU_TYPE_MIPS, ENDIAN_LITTLE, 1, 0, 0, 0, parse_instruction_mips, list_output_mips, disasm_range_mips, NULL },

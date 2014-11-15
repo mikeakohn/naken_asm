@@ -29,6 +29,8 @@ enum
 {
   OP_NONE,
   OP_BRANCH,
+  OP_REG_3_16,
+  OP_REG_3_32,
 };
 
 extern struct _table_epiphany table_epiphany[];

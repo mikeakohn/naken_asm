@@ -18,8 +18,12 @@
 #include "table_epiphany.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) ((memory_read_m(memory, a)<<8)|(memory_read_m(memory, a+1)))
-#define READ_RAM24(a) ((memory_read_m(memory, a)<<16)|(memory_read_m(memory, a+1)<<8)|(memory_read_m(memory, a+2)))
+#define READ_RAM16(a) ((memory_read_m(memory, a)) | \
+                       (memory_read_m(memory, a+1)<<8))
+#define READ_RAM32(a) ((memory_read_m(memory, a)) | \
+                       (memory_read_m(memory, a+1)<<8) | \
+                       (memory_read_m(memory, a+2)<<16) | \
+                       (memory_read_m(memory, a+3)<<32))
 
 #define SINGLE_OPCODE(pre, op, cycles, size, instr) \
   if (opcode==op && prefix==pre) \
@@ -30,6 +34,15 @@
     return size; \
   }
 
+#if 0
+static const char *regs[] = {
+  "a1", "a2", "a3", "a4",
+  "v1", "v2", "v3", "v4", "v5", "sb", "sl", "fp",
+  "r12",
+  "sp", "lr"
+};
+#endif
+
 int get_cycle_count_epiphany(unsigned short int opcode)
 {
   return -1;
@@ -37,15 +50,18 @@ int get_cycle_count_epiphany(unsigned short int opcode)
 
 int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycles_min, int *cycles_max)
 {
-  uint32_t opcode;
+  uint32_t opcode32;
+  uint16_t opcode16;
   //int8_t offset;
   //char temp[128];
   int count = 1;
+  int rd,rn,rm;
   int n;
 
   instr[0] = 0;
 
-  opcode = READ_RAM16(address);
+  opcode16 = READ_RAM16(address);
+  opcode32 = READ_RAM32(address);
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -53,11 +69,27 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
   n = 0;
   while(1)
   {
-    if (table_epiphany[n].opcode == (opcode & table_epiphany[n].mask))
+    if ((table_epiphany[n].size == 16 &&
+         table_epiphany[n].opcode == (opcode16 & table_epiphany[n].mask)) ||
+        (table_epiphany[n].size == 32 &&
+         table_epiphany[n].opcode == (opcode32 & table_epiphany[n].mask)))
     {
       switch(table_epiphany[n].type)
       {
         case OP_BRANCH:
+          break;
+        case OP_REG_3_16:
+          rd = (opcode16 >> 13) & 0x7;
+          rn = (opcode16 >> 10) & 0x7;
+          rm = (opcode16 >> 7) & 0x7;
+          sprintf(instr, "%s r%d,r%d,r%d", table_epiphany[n].instr, rd, rn, rm);
+          return 2;
+        case OP_REG_3_32:
+          rd = ((opcode32 >> 13) & 0x7) | (((opcode32 >> 29) & 0x7) << 3);
+          rn = ((opcode32 >> 10) & 0x7) | (((opcode32 >> 26) & 0x7) << 3);
+          rm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 23) & 0x7) << 3);
+          sprintf(instr, "%s r%d,r%d,r%d", table_epiphany[n].instr, rd, rn, rm);
+          return 4;
         default:
           break;
       }
