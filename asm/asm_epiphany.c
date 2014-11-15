@@ -271,6 +271,33 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           }
           break;
         }
+        case OP_NONE_16:
+        {
+          if (operand_count == 0)
+          {
+            add_bin16(asm_context, table_epiphany[n].opcode, IS_OPCODE);
+            return 2;
+          }
+          break;
+        }
+        case OP_NUM_16:
+        {
+          if (operand_count == 1)
+          {
+            //add_bin16(asm_context, table_epiphany[n].opcode, IS_OPCODE);
+            return 2;
+          }
+          break;
+        }
+        case OP_NONE_32:
+        {
+          if (operand_count == 0)
+          {
+            add_bin32(asm_context, table_epiphany[n].opcode, IS_OPCODE);
+            return 4;
+          }
+          break;
+        }
         default:
           printf("Internal error %s:%d\n", __FILE__, __LINE__);
           return -1;

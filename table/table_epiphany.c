@@ -75,6 +75,18 @@ struct _table_epiphany table_epiphany[] = {
   { "float", 0x0007005f, 0x000f03ff, OP_REG_2_32, 32, 0, 0 },
   { "fix",   0x0007006f, 0x000f03ff, OP_REG_2_32, 32, 0, 0 },
   { "fabs",  0x0007007f, 0x000f03ff, OP_REG_2_32, 32, 0, 0 },
+
+  { "gie",    0x0192, 0xffff, OP_NONE_16, 16, 0, 0 },
+  { "gid",    0x0392, 0xffff, OP_NONE_16, 16, 0, 0 },
+  { "nop",    0x01a2, 0xffff, OP_NONE_16, 16, 0, 0 },
+  { "idle",   0x01b2, 0xffff, OP_NONE_16, 16, 0, 0 },
+  { "bkpt",   0x01c2, 0xffff, OP_NONE_16, 16, 0, 0 },
+  { "mbkpt",  0x03c2, 0xffff, OP_NONE_16, 16, 0, 0 },
+  { "sync",   0x01f2, 0xffff, OP_NONE_16, 16, 0, 0 },
+  { "rti",    0x01d2, 0xffff, OP_NONE_16, 16, 0, 0 },
+  { "wand",   0x0182, 0xffff, OP_NONE_16, 16, 0, 0 },
+  { "trap",   0x03e2, 0x03ff, OP_NUM_16, 16, 0, 0 },
+  { "unimpl",  0x000f000f, 0xffffffff, OP_NONE_32, 16, 0, 0 },
   { NULL, 0 }
 };
 
