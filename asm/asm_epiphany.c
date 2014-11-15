@@ -210,6 +210,30 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           }
           break;
         }
+        case OP_DISP_3_16:
+        {
+          break;
+        }
+        case OP_INDEX_16:
+        {
+          break;
+        }
+        case OP_INDEX_32:
+        {
+          break;
+        }
+        case OP_POST_MOD_16:
+        {
+          break;
+        }
+        case OP_DISP_11_32:
+        {
+          break;
+        }
+        case OP_POST_MOD_DISP_32:
+        {
+          break;
+        }
         case OP_REG_3_16:
         {
           if (operand_count == 3 &&
