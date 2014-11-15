@@ -243,6 +243,34 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           }
           break;
         }
+        case OP_REG_2_16:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REG && operands[0].value < 8 &&
+              operands[1].type == OPERAND_REG && operands[1].value < 8)
+          {
+            reg_combo = (operands[0].value << 13) |
+                        (operands[1].value << 10);
+            add_bin16(asm_context, table_epiphany[n].opcode|reg_combo, IS_OPCODE);
+            return 2;
+          }
+          break;
+        }
+        case OP_REG_2_32:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG)
+          {
+            reg_combo = ((operands[0].value & 0x7) << 13) |
+                        ((operands[1].value & 0x7) << 10) |
+                        ((operands[0].value >> 3) << 29) |
+                        ((operands[1].value >> 3) << 26);
+            add_bin32(asm_context, table_epiphany[n].opcode|reg_combo, IS_OPCODE);
+            return 4;
+          }
+          break;
+        }
         default:
           printf("Internal error %s:%d\n", __FILE__, __LINE__);
           return -1;
