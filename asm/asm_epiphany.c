@@ -210,6 +210,20 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           }
           break;
         }
+        case OP_BRANCH_16:
+        {
+          if (operand_count == 1)
+          {
+          }
+          break;
+        }
+        case OP_BRANCH_32:
+        {
+          if (operand_count == 1)
+          {
+          }
+          break;
+        }
         case OP_DISP_3_16:
         {
           break;
@@ -231,6 +245,30 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           break;
         }
         case OP_POST_MOD_DISP_32:
+        {
+          break;
+        }
+        case OP_REG_IMM_16:
+        {
+          break;
+        }
+        case OP_REG_IMM_32:
+        {
+          break;
+        }
+        case OP_REG_2_IMM_16:
+        {
+          break;
+        }
+        case OP_REG_2_IMM_32:
+        {
+          break;
+        }
+        case OP_REG_2_IMM5_16:
+        {
+          break;
+        }
+        case OP_REG_2_IMM5_32:
         {
           break;
         }
@@ -295,13 +333,12 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           }
           break;
         }
-        case OP_NONE_16:
+        case OP_REG_1_16:
         {
-          if (operand_count == 0)
-          {
-            add_bin16(asm_context, table_epiphany[n].opcode, IS_OPCODE);
-            return 2;
-          }
+          break;
+        }
+        case OP_REG_1_32:
+        {
           break;
         }
         case OP_NUM_16:
@@ -309,6 +346,15 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           if (operand_count == 1)
           {
             //add_bin16(asm_context, table_epiphany[n].opcode, IS_OPCODE);
+            return 2;
+          }
+          break;
+        }
+        case OP_NONE_16:
+        {
+          if (operand_count == 0)
+          {
+            add_bin16(asm_context, table_epiphany[n].opcode, IS_OPCODE);
             return 2;
           }
           break;

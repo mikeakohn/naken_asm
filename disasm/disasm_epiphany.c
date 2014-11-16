@@ -23,7 +23,7 @@
 #define READ_RAM32(a) ((memory_read_m(memory, a)) | \
                        (memory_read_m(memory, a+1)<<8) | \
                        (memory_read_m(memory, a+2)<<16) | \
-                       (memory_read_m(memory, a+3)<<32))
+                       (memory_read_m(memory, a+3)<<24))
 
 #define SINGLE_OPCODE(pre, op, cycles, size, instr) \
   if (opcode==op && prefix==pre) \
@@ -76,7 +76,33 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
     {
       switch(table_epiphany[n].type)
       {
-        case OP_BRANCH:
+        case OP_BRANCH_16:
+          break;
+        case OP_BRANCH_32:
+          break;
+        case OP_DISP_3_16:
+          break;
+        case OP_INDEX_16:
+          break;
+        case OP_INDEX_32:
+          break;
+        case OP_POST_MOD_16:
+          break;
+        case OP_DISP_11_32:
+          break;
+        case OP_POST_MOD_DISP_32:
+          break;
+        case OP_REG_IMM_16:
+          break;
+        case OP_REG_IMM_32:
+          break;
+        case OP_REG_2_IMM_16:
+          break;
+        case OP_REG_2_IMM_32:
+          break;
+        case OP_REG_2_IMM5_16:
+          break;
+        case OP_REG_2_IMM5_32:
           break;
         case OP_REG_3_16:
           rd = (opcode16 >> 13) & 0x7;
@@ -90,6 +116,20 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
           rm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 23) & 0x7) << 3);
           sprintf(instr, "%s r%d,r%d,r%d", table_epiphany[n].instr, rd, rn, rm);
           return 4;
+        case OP_REG_2_16:
+          break;
+        case OP_REG_2_32:
+          break;
+        case OP_REG_1_16:
+          break;
+        case OP_REG_1_32:
+          break;
+        case OP_NUM_16:
+          break;
+        case OP_NONE_16:
+          break;
+        case OP_NONE_32:
+          break;
         default:
           break;
       }
