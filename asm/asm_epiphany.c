@@ -26,9 +26,11 @@ enum
 {
   OPERAND_NONE,
   OPERAND_REG,
-  OPERAND_NUMBER8,
-  OPERAND_NUMBER16,
+  OPERAND_NUMBER,
   OPERAND_ADDRESS,
+  OPERAND_INDEX_REG,
+  OPERAND_INDEX_REG_IMM,
+  OPERAND_INDEX_REG_REG,
 };
 
 struct _operand
@@ -36,6 +38,8 @@ struct _operand
   uint8_t type;
   uint8_t reg;
   int value;
+  uint8_t use_32_bit_instruction;
+  uint8_t reg_is_negative;
 };
 
 static int get_register(const char *token)
@@ -139,7 +143,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
     if (n != -1)
     {
       operands[operand_count].type = OPERAND_REG;
-      operands[operand_count].value = n;
+      operands[operand_count].reg = n;
     }
       else
     if (IS_TOKEN(token,'#'))
@@ -150,6 +154,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         {
           eat_operand(asm_context);
           memory_write(asm_context, asm_context->address, 1, asm_context->line);
+          operands[operand_count].use_32_bit_instruction = 1;
         }
           else
         {
@@ -159,19 +164,104 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
 
         if (memory_read(asm_context, asm_context->address) != 0)
         {
-          operands[operand_count].type = OPERAND_NUMBER16;
-        }
-          else
-        if (n < 0 || n > 255)
-        {
-          operands[operand_count].type = OPERAND_NUMBER16;
-        }
-          else
-        {
-          operands[operand_count].type = OPERAND_NUMBER8;
+          operands[operand_count].use_32_bit_instruction = 1;
         }
 
+        operands[operand_count].type = OPERAND_NUMBER;
         operands[operand_count].value = n;
+      }
+    }
+      else
+    if (IS_TOKEN(token,'['))
+    {
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      n = get_register(token);
+
+      if (n == -1)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      operands[operand_count].type = OPERAND_INDEX_REG;
+      operands[operand_count].reg = n;
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token,','))
+      {
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (IS_TOKEN(token,'#'))
+        {
+          if (eval_expression(asm_context, &n) != 0)
+          {
+            if (asm_context->pass == 1)
+            {
+              eat_operand(asm_context);
+              memory_write(asm_context, asm_context->address, 1, asm_context->line);
+              operands[operand_count].use_32_bit_instruction = 1;
+            }
+              else
+            {
+              print_error_illegal_expression(instr, asm_context);
+              return -1;
+            }
+          }
+
+          if (memory_read(asm_context, asm_context->address) != 0)
+          {
+            operands[operand_count].use_32_bit_instruction = 1;
+          }
+
+          operands[operand_count].type = OPERAND_INDEX_REG_IMM;
+          operands[operand_count].value = n;
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (IS_NOT_TOKEN(token,']'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+        }
+          else
+        if (IS_TOKEN(token,'-'))
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          n = get_register(token);
+
+          if (n == -1)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].type = OPERAND_INDEX_REG_REG;
+          operands[operand_count].value = n;
+          operands[operand_count].reg_is_negative = 1;
+        }
+          else
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          n = get_register(token);
+
+          if (n == -1)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].type = OPERAND_INDEX_REG_REG;
+          operands[operand_count].value = n;
+        }
+      }
+        else
+      if (IS_NOT_TOKEN(token,']'))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
       }
     }
       else
