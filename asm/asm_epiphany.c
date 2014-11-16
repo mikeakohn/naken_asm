@@ -104,6 +104,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
   int offset;
   uint32_t reg_combo;
   uint32_t value;
+  uint32_t sub;
   int n;
 
   lower_copy(instr_case, instr);
@@ -185,8 +186,9 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         return -1;
       }
 
-      operands[operand_count].type = OPERAND_INDEX_REG;
+      operands[operand_count].type = OPERAND_INDEX_REG_IMM;
       operands[operand_count].reg = n;
+      operands[operand_count].value = 0;
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,','))
@@ -216,14 +218,6 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
 
           operands[operand_count].type = OPERAND_INDEX_REG_IMM;
           operands[operand_count].value = n;
-
-          token_type = tokens_get(asm_context, token, TOKENLEN);
-
-          if (IS_NOT_TOKEN(token,']'))
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
         }
           else
         if (IS_TOKEN(token,'-'))
@@ -244,8 +238,6 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         }
           else
         {
-          token_type = tokens_get(asm_context, token, TOKENLEN);
-
           n = get_register(token);
 
           if (n == -1)
@@ -257,8 +249,10 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           operands[operand_count].type = OPERAND_INDEX_REG_REG;
           operands[operand_count].value = n;
         }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
       }
-        else
+
       if (IS_NOT_TOKEN(token,']'))
       {
         print_error_unexp(token, asm_context);
@@ -397,10 +391,41 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         }
         case OP_INDEX_16:
         {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_INDEX_REG_REG)
+          {
+            if (operands[0].reg > 7) { break; }
+            if (operands[1].reg > 7) { break; }
+            if (operands[1].value > 7) { break; }
+            if (operands[1].reg_is_negative == 1) { break; }
+
+            reg_combo = (operands[0].reg << 13) |
+                        (operands[1].reg << 10) |
+                        (operands[1].value << 7);
+            add_bin16(asm_context, table_epiphany[n].opcode | reg_combo, IS_OPCODE);
+
+            return 2;
+          }
           break;
         }
         case OP_INDEX_32:
         {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_INDEX_REG_REG)
+          {
+            reg_combo = ((operands[0].reg & 0x7) << 13) |
+                        ((operands[1].reg & 0x7) << 10) |
+                        ((operands[1].value & 0x7) << 7) |
+                        ((operands[0].reg >> 3) << 29) |
+                        ((operands[1].reg >> 3) << 26) |
+                        ((operands[1].value >> 3) << 23);
+
+            sub = (operands[1].reg_is_negative == 1) ? 0x00100000 : 0;
+            add_bin32(asm_context, table_epiphany[n].opcode | reg_combo | sub, IS_OPCODE);
+            return 4;
+          }
           break;
         }
         case OP_POST_MOD_16:
