@@ -97,6 +97,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
   int token_type;
   struct _operand operands[3];
   int operand_count;
+  int offset;
   uint32_t reg_combo;
   int n;
 
@@ -175,6 +176,8 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
     }
       else
     {
+      tokens_push(asm_context, token, token_type);
+
       if (eval_expression(asm_context, &n) != 0)
       {
         if (asm_context->pass == 1)
@@ -205,22 +208,55 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
       {
         case OP_NONE:
         {
-          if (operand_count == 0)
-          {
-          }
+          // Should never get in here.
           break;
         }
         case OP_BRANCH_16:
         {
-          if (operand_count == 1)
+          if (operand_count == 1 && operands[0].type == OPERAND_ADDRESS)
           {
+            offset = operands[0].value - (asm_context->address + 2);
+
+            if ((offset & 1) != 0)
+            {
+              print_error("Address not on an odd boundary", asm_context);
+              return -1;
+            }
+
+            if (offset >= -256 && offset <= 255)
+            {
+              add_bin16(asm_context, table_epiphany[n].opcode|(((uint16_t)offset) << 8), IS_OPCODE);
+              return 2;
+            }
           }
           break;
         }
         case OP_BRANCH_32:
         {
-          if (operand_count == 1)
+          if (operand_count == 1 && operands[0].type == OPERAND_ADDRESS)
           {
+            offset = operands[0].value - (asm_context->address + 4);
+
+            if ((offset & 1) != 0)
+            {
+              print_error("Address not on an odd boundary", asm_context);
+              return -1;
+            }
+
+#if 0
+            if (offset < -0x800000 && offset > 0x7fffff)
+            {
+              return -1;
+            }
+#endif
+            if (check_range(asm_context, "Offset", offset, -0x800000, 0x7fffff)==-1)
+            {
+              return -1;
+            }
+
+            add_bin32(asm_context, table_epiphany[n].opcode|(((uint32_t)offset) << 8), IS_OPCODE);
+
+            return 4;
           }
           break;
         }
