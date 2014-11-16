@@ -37,4 +37,9 @@ blah:
   lsr r5,r6,#10
   lsr r30,r40,#10
 
+  jr r5
+  jr r30
+  jalr r5
+  jalr r30
+
 

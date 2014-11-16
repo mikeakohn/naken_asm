@@ -213,8 +213,8 @@ struct _table_epiphany table_epiphany[] = {
 
   { "jr",    0x0142, 0xe3ff, OP_REG_1_16, 16, 0, 0 },
   { "jalr",  0x0152, 0xe3ff, OP_REG_1_16, 16, 0, 0 },
-  { "jr",    0x00020142, 0xe000e3ff, OP_REG_1_32, 32, 0, 0 },
-  { "jalr",  0x00020152, 0xe3ffe3ff, OP_REG_1_32, 32, 0, 0 },
+  { "jr",    0x0002014f, 0xe3ffe3ff, OP_REG_1_32, 32, 0, 0 },
+  { "jalr",  0x0002015f, 0xe3ffe3ff, OP_REG_1_32, 32, 0, 0 },
 
   { "gie",    0x0192, 0xffff, OP_NONE_16, 16, 0, 0 },
   { "gid",    0x0392, 0xffff, OP_NONE_16, 16, 0, 0 },
