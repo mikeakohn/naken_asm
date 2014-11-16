@@ -54,7 +54,7 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
   uint16_t opcode16;
   int offset;
   int imm;
-  int count = 1;
+  //int count = 1;
   int rd,rn,rm;
   int n;
 
@@ -67,7 +67,7 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
   *cycles_max = -1;
 
   n = 0;
-  while(1)
+  while(table_epiphany[n].instr != NULL)
   {
     if ((table_epiphany[n].size == 16 &&
          table_epiphany[n].opcode == (opcode16 & table_epiphany[n].mask)) ||
@@ -98,8 +98,6 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
           sprintf(instr, "%s 0x%x  (offset=%d)", table_epiphany[n].instr, (address + 2) + offset, offset);
           return 4;
         case OP_DISP_IMM3_16:
-          //rd = (opcode16 >> 13) & 0x7;
-          //rn = (opcode16 >> 10) & 0x7;
           imm = (opcode16 >> 7) & 0x7;
           if (imm != 0)
           {
@@ -154,9 +152,14 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
           sprintf(instr, "%s r%d,[r%d],#%d", table_epiphany[n].instr, rd, rn, imm);
           return 4;
         case OP_REG_IMM_16:
-          break;
+          imm = ((opcode32 >> 5) & 0xff);
+          sprintf(instr, "%s r%d,#0x%02x", table_epiphany[n].instr, rd, imm);
+          return 2;
         case OP_REG_IMM_32:
-          break;
+          imm = ((opcode32 >> 5) & 0xff);
+          imm |= ((opcode32 >> 20) & 0xff) << 8;
+          sprintf(instr, "%s r%d,#0x%02x", table_epiphany[n].instr, rd, imm);
+          return 4;
         case OP_REG_2_IMM_16:
           break;
         case OP_REG_2_IMM_32:
@@ -166,15 +169,9 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
         case OP_REG_2_IMM5_32:
           break;
         case OP_REG_3_16:
-          //rd = (opcode16 >> 13) & 0x7;
-          //rn = (opcode16 >> 10) & 0x7;
-          //rm = (opcode16 >> 7) & 0x7;
           sprintf(instr, "%s r%d,r%d,r%d", table_epiphany[n].instr, rd, rn, rm);
           return 2;
         case OP_REG_3_32:
-          //rd = ((opcode32 >> 13) & 0x7) | (((opcode32 >> 29) & 0x7) << 3);
-          //rn = ((opcode32 >> 10) & 0x7) | (((opcode32 >> 26) & 0x7) << 3);
-          //rm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 23) & 0x7) << 3);
           sprintf(instr, "%s r%d,r%d,r%d", table_epiphany[n].instr, rd, rn, rm);
           return 4;
         case OP_REG_2_16:
@@ -198,7 +195,9 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
     n++;
   }
 
-  return count;
+  sprintf(instr, "???");
+
+  return 4;
 }
 
 void list_output_epiphany(struct _asm_context *asm_context, int address)

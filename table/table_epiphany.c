@@ -112,7 +112,7 @@ struct _table_epiphany table_epiphany[] = {
 
   { "mov", 0x0003, 0x001f, OP_REG_IMM_16, 16, 0, 0 },
   { "mov",  0x0000000b, 0x100f001f, OP_REG_IMM_32, 32, 0, 0 },
-  { "movt", 0x0001000b, 0x100f001f, OP_REG_IMM_32, 32, 0, 0 },
+  { "movt", 0x1001000b, 0x100f001f, OP_REG_IMM_32, 32, 0, 0 },
   { "add", 0x0013, 0x007f, OP_REG_2_IMM_16, 16, 0, 0 },
   { "sub", 0x0033, 0x007f, OP_REG_2_IMM_16, 16, 0, 0 },
   { "add",  0x0000001b, 0x0300001f, OP_REG_2_IMM_32, 32, 0, 0 },

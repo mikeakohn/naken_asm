@@ -26,4 +26,9 @@ blah:
   ldrb r5, [r7], #100
   ldrb r5, [r7], #-200
 
+  mov r5, #100
+  mov r33, #100
+  mov r33, #0xff
+  mov r5, #-1
+
 
