@@ -203,15 +203,15 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           print_error_illegal_expression(instr, asm_context);
           return -1;
         }
-
-        if (memory_read(asm_context, asm_context->address) != 0)
-        {
-          operands[operand_count].use_32_bit_instruction = 1;
-        }
-
-        operands[operand_count].type = OPERAND_NUMBER;
-        operands[operand_count].value = n;
       }
+
+      if (memory_read(asm_context, asm_context->address) != 0)
+      {
+        operands[operand_count].use_32_bit_instruction = 1;
+      }
+
+      operands[operand_count].type = OPERAND_NUMBER;
+      operands[operand_count].value = n;
     }
       else
     if (IS_TOKEN(token,'['))
@@ -391,10 +391,6 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
             if (operands[1].reg > 7) { break; }
 
             reg_combo = get_reg_combo16(operands[0].reg, operands[1].reg, 0);
-#if 0
-            reg_combo = (operands[0].reg << 13) |
-                        (operands[1].reg << 10);
-#endif
 
             add_bin16(asm_context, table_epiphany[n].opcode | reg_combo | (operands[1].value << 7), IS_OPCODE);
             return 2;
@@ -410,12 +406,6 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
             if (check_range(asm_context, "Immediate", operands[1].value, -2047, 2047) == -1) { return -1; }
 
             reg_combo = get_reg_combo32(operands[0].reg, operands[1].reg, 0);
-#if 0
-            reg_combo = ((operands[0].reg & 0x7) << 13) |
-                        ((operands[1].reg & 0x7) << 10) |
-                        ((operands[0].reg >> 3) << 29) |
-                        ((operands[1].reg >> 3) << 26);
-#endif
 
             if (operands[1].value < 0)
             {
@@ -446,11 +436,6 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
             if (operands[1].value > 7) { break; }
             if (operands[1].reg_is_negative == 1) { break; }
 
-#if 0
-            reg_combo = (operands[0].reg << 13) |
-                        (operands[1].reg << 10) |
-                        (operands[1].value << 7);
-#endif
             reg_combo = get_reg_combo16(operands[0].reg, operands[1].reg, operands[1].value);
             add_bin16(asm_context, table_epiphany[n].opcode | reg_combo, IS_OPCODE);
 
@@ -464,14 +449,6 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
               operands[0].type == OPERAND_REG &&
               operands[1].type == OPERAND_INDEX_REG_REG)
           {
-#if 0
-            reg_combo = ((operands[0].reg & 0x7) << 13) |
-                        ((operands[1].reg & 0x7) << 10) |
-                        ((operands[1].value & 0x7) << 7) |
-                        ((operands[0].reg >> 3) << 29) |
-                        ((operands[1].reg >> 3) << 26) |
-                        ((operands[1].value >> 3) << 23);
-#endif
             reg_combo = get_reg_combo32(operands[0].reg, operands[1].reg, operands[1].value);
 
             sub = (operands[1].reg_is_negative == 1) ? 0x00100000 : 0;
@@ -491,11 +468,6 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
             if (operands[1].reg > 7) { break; }
             if (operands[2].reg > 7) { break; }
 
-#if 0
-            reg_combo = (operands[0].reg << 13) |
-                        (operands[1].reg << 10) |
-                        (operands[2].reg << 7);
-#endif
             reg_combo = get_reg_combo16(operands[0].reg, operands[1].reg, operands[2].reg);
             add_bin16(asm_context, table_epiphany[n].opcode | reg_combo, IS_OPCODE);
             return 2;
@@ -511,14 +483,6 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
               (operands[2].type == OPERAND_REG ||
                operands[2].type == OPERAND_NEG_REG))
           {
-#if 0
-            reg_combo = ((operands[0].reg & 0x7) << 13) |
-                        ((operands[1].reg & 0x7) << 10) |
-                        ((operands[2].reg & 0x7) << 7) |
-                        ((operands[0].reg >> 3) << 29) |
-                        ((operands[1].reg >> 3) << 26) |
-                        ((operands[2].reg >> 3) << 23);
-#endif
             reg_combo = get_reg_combo32(operands[0].reg, operands[1].reg, operands[2].reg);
             sub = operands[2].type == OPERAND_NEG_REG ? 0x00100000 : 0;
             add_bin32(asm_context, table_epiphany[n].opcode | reg_combo | sub, IS_OPCODE);
@@ -528,6 +492,31 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         }
         case OP_POST_MOD_DISP_32:
         {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_INDEX_REG_IMM &&
+              operands[1].value == 0 &&
+              operands[2].type == OPERAND_NUMBER)
+          {
+            if (check_range(asm_context, "Immediate", operands[1].value, -2047, 2047) == -1) { return -1; }
+
+            if (operands[2].value < 0)
+            {
+              operands[2].value = -operands[2].value;
+              value = 0x01000000;
+            }
+              else
+            {
+              value = 0;
+            }
+
+            value |= ((operands[2].value & 0x7) << 7) |
+                     (((operands[2].value >> 3) & 0x7f) << 16);
+
+            reg_combo = get_reg_combo32(operands[0].reg, operands[1].reg, 0);
+            add_bin32(asm_context, table_epiphany[n].opcode | reg_combo | value, IS_OPCODE);
+            return 4;
+          }
           break;
         }
         case OP_REG_IMM_16:

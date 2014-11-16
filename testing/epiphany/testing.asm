@@ -23,5 +23,7 @@ blah:
   ldr r5,[r6],r8
   ldr r5,[r6],-r2
 
+  ldrb r5, [r7], #100
+  ldrb r5, [r7], #-200
 
 
