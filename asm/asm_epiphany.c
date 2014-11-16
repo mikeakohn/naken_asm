@@ -529,7 +529,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
             if (operands[1].value < 0 || operands[1].value > 0xff) { break; }
 
             reg_combo = get_reg_combo16(operands[0].reg, 0, 0);
-            value = operands[1].value << 3;
+            value = operands[1].value << 5;
 
             add_bin16(asm_context, table_epiphany[n].opcode | reg_combo | value, IS_OPCODE);
             return 2;
@@ -555,18 +555,75 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         }
         case OP_REG_2_IMM_16:
         {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[2].type == OPERAND_NUMBER)
+          {
+            if (operands[0].reg > 7) { break; }
+            if (operands[1].reg > 7) { break; }
+            if (operands[2].value < -4 || operands[2].value > 3) { break; }
+
+            reg_combo = get_reg_combo16(operands[0].reg, operands[1].reg, 0);
+            value = (operands[2].value & 0x7) << 7;
+
+            add_bin16(asm_context, table_epiphany[n].opcode | reg_combo | value, IS_OPCODE);
+            return 2;
+          }
           break;
         }
         case OP_REG_2_IMM_32:
         {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[2].type == OPERAND_NUMBER)
+          {
+            if (check_range(asm_context, "Immediate", operands[2].value, -1024, 1023) == -1) { return -1; }
+
+            reg_combo = get_reg_combo16(operands[0].reg, operands[1].reg, 0);
+            value = (operands[2].value & 0x7) << 7;
+            value |= ((operands[2].value >> 3) & 0xff) << 16;
+
+            add_bin32(asm_context, table_epiphany[n].opcode | reg_combo | value, IS_OPCODE);
+            return 4;
+          }
           break;
         }
         case OP_REG_2_IMM5_16:
         {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[2].type == OPERAND_NUMBER)
+          {
+            if (operands[0].reg > 7) { break; }
+            if (operands[1].reg > 7) { break; }
+            if (check_range(asm_context, "Immediate", operands[2].value, 0, 31) == -1) { return -1; }
+
+            reg_combo = get_reg_combo16(operands[0].reg, operands[1].reg, 0);
+            value = (operands[2].value & 0x1f) << 5;
+
+            add_bin16(asm_context, table_epiphany[n].opcode | reg_combo | value, IS_OPCODE);
+            return 2;
+          }
           break;
         }
         case OP_REG_2_IMM5_32:
         {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[2].type == OPERAND_NUMBER)
+          {
+            if (check_range(asm_context, "Immediate", operands[2].value, 0, 31) == -1) { return -1; }
+
+            reg_combo = get_reg_combo32(operands[0].reg, operands[1].reg, 0);
+            value = (operands[2].value & 0x1f) << 5;
+
+            add_bin32(asm_context, table_epiphany[n].opcode | reg_combo | value, IS_OPCODE);
+            return 4;
+          }
           break;
         }
         case OP_REG_3_16:

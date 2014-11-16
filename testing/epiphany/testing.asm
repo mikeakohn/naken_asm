@@ -2,8 +2,6 @@
 
 main:
   add r5,r6,r7
-  ;add r5,r6,#0x44
-  ;add r5,r6,#0x4411
   bne blah 
   beq main
 blah:
@@ -30,5 +28,13 @@ blah:
   mov r33, #100
   mov r33, #0xff
   mov r5, #-1
+
+  add r5,r6,#2
+  add r5,r6,#-4
+  add r5,r6,#-1024
+  add r5,r6,#1000
+
+  lsr r5,r6,#10
+  lsr r30,r40,#10
 
 
