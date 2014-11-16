@@ -53,4 +53,6 @@ blah:
   wand
   trap 60
 
+  moveq r5, r7
+
 
