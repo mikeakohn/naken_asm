@@ -8,3 +8,9 @@ main:
   beq main
 blah:
 
+  ldr r5,[r6,#3]
+  str r5,[r6,#3]
+  ldrb r5,[r7,#-3]
+  ldrd r5,[r7,#8]
+
+
