@@ -42,4 +42,15 @@ blah:
   jalr r5
   jalr r30
 
+  gie
+  gid
+  nop
+  idle
+  bkpt
+  mbkpt
+  sync
+  rti
+  wand
+  trap 60
+
 

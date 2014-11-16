@@ -697,11 +697,12 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           }
           break;
         }
-        case OP_NUM_16:
+        case OP_NUM6_16:
         {
-          if (operand_count == 1)
+          if (operand_count == 1 && operands[0].type == OPERAND_ADDRESS)
           {
-            //add_bin16(asm_context, table_epiphany[n].opcode, IS_OPCODE);
+            if (check_range(asm_context, "Immediate", operands[0].value, 0, 63) == -1) { return -1; }
+            add_bin16(asm_context, table_epiphany[n].opcode | operands[0].value << 10, IS_OPCODE);
             return 2;
           }
           break;

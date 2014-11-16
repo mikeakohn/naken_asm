@@ -225,7 +225,7 @@ struct _table_epiphany table_epiphany[] = {
   { "sync",   0x01f2, 0xffff, OP_NONE_16, 16, 0, 0 },
   { "rti",    0x01d2, 0xffff, OP_NONE_16, 16, 0, 0 },
   { "wand",   0x0182, 0xffff, OP_NONE_16, 16, 0, 0 },
-  { "trap",   0x03e2, 0x03ff, OP_NUM_16, 16, 0, 0 },
+  { "trap",   0x03e2, 0x03ff, OP_NUM6_16, 16, 0, 0 },
   { "unimpl",  0x000f000f, 0xffffffff, OP_NONE_32, 16, 0, 0 },
   { NULL, 0 }
 };

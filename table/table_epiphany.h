@@ -50,7 +50,7 @@ enum
   OP_REG_1_16,
   OP_REG_1_32,
   OP_NONE_16,
-  OP_NUM_16,
+  OP_NUM6_16,
   OP_NONE_32,
 };
 

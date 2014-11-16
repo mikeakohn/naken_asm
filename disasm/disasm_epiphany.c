@@ -197,12 +197,16 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
         case OP_REG_1_32:
           sprintf(instr, "%s r%d", table_epiphany[n].instr, rn);
           return 4;
-        case OP_NUM_16:
-          break;
+        case OP_NUM6_16:
+          imm = opcode32 >> 10;
+          sprintf(instr, "%s %d", table_epiphany[n].instr, imm);
+          return 2;
         case OP_NONE_16:
-          break;
+          sprintf(instr, "%s", table_epiphany[n].instr);
+          return 2;
         case OP_NONE_32:
-          break;
+          sprintf(instr, "%s", table_epiphany[n].instr);
+          return 4;
         default:
           break;
       }
