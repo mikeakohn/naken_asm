@@ -74,6 +74,19 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
         (table_epiphany[n].size == 32 &&
          table_epiphany[n].opcode == (opcode32 & table_epiphany[n].mask)))
     {
+      if (table_epiphany[n].size == 16)
+      {
+        rd = (opcode16 >> 13) & 0x7;
+        rn = (opcode16 >> 10) & 0x7;
+        rm = (opcode16 >> 7) & 0x7;
+      }
+        else
+      {
+        rd = ((opcode32 >> 13) & 0x7) | (((opcode32 >> 29) & 0x7) << 3);
+        rn = ((opcode32 >> 10) & 0x7) | (((opcode32 >> 26) & 0x7) << 3);
+        rm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 23) & 0x7) << 3);
+      }
+
       switch(table_epiphany[n].type)
       {
         case OP_BRANCH_16:
@@ -85,8 +98,8 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
           sprintf(instr, "%s 0x%x  (offset=%d)", table_epiphany[n].instr, (address + 2) + offset, offset);
           return 4;
         case OP_DISP_IMM3_16:
-          rd = (opcode16 >> 13) & 0x7;
-          rn = (opcode16 >> 10) & 0x7;
+          //rd = (opcode16 >> 13) & 0x7;
+          //rn = (opcode16 >> 10) & 0x7;
           imm = (opcode16 >> 7) & 0x7;
           if (imm != 0)
           {
@@ -98,8 +111,8 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
           }
           return 2;
         case OP_DISP_IMM11_32:
-          rd = ((opcode32 >> 13) & 0x7) | (((opcode32 >> 29) & 0x7) << 3);
-          rn = ((opcode32 >> 10) & 0x7) | (((opcode32 >> 26) & 0x7) << 3);
+          //rd = ((opcode32 >> 13) & 0x7) | (((opcode32 >> 29) & 0x7) << 3);
+          //rn = ((opcode32 >> 10) & 0x7) | (((opcode32 >> 26) & 0x7) << 3);
           imm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 16) & 0x7f) << 3);
           imm = ((opcode32 & 0x01000000) == 0) ? imm : -imm;
           if (imm != 0)
@@ -112,15 +125,15 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
           }
           return 4;
         case OP_INDEX_16:
-          rd = (opcode16 >> 13) & 0x7;
-          rn = (opcode16 >> 10) & 0x7;
-          rm = (opcode16 >> 7) & 0x7;
+          //rd = (opcode16 >> 13) & 0x7;
+          //rn = (opcode16 >> 10) & 0x7;
+          //rm = (opcode16 >> 7) & 0x7;
           sprintf(instr, "%s r%d,[r%d,r%d]", table_epiphany[n].instr, rd, rn, rm);
           return 2;
         case OP_INDEX_32:
-          rd = ((opcode32 >> 13) & 0x7) | (((opcode32 >> 29) & 0x7) << 3);
-          rn = ((opcode32 >> 10) & 0x7) | (((opcode32 >> 26) & 0x7) << 3);
-          rm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 23) & 0x7) << 3);
+          //rd = ((opcode32 >> 13) & 0x7) | (((opcode32 >> 29) & 0x7) << 3);
+          //rn = ((opcode32 >> 10) & 0x7) | (((opcode32 >> 26) & 0x7) << 3);
+          //rm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 23) & 0x7) << 3);
           if ((opcode32 & 0x00100000) == 0)
           {
             sprintf(instr, "%s r%d,[r%d,r%d]", table_epiphany[n].instr, rd, rn, rm);
@@ -131,7 +144,18 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
           }
           return 4;
         case OP_POST_MOD_16:
-          break;
+          sprintf(instr, "%s r%d,[r%d],r%d", table_epiphany[n].instr, rd, rn, rm);
+          return 2;
+        case OP_POST_MOD_32:
+          if ((opcode32 & 0x00100000) == 0)
+          {
+            sprintf(instr, "%s r%d,[r%d],r%d", table_epiphany[n].instr, rd, rn, rm);
+          }
+            else
+          {
+            sprintf(instr, "%s r%d,[r%d],-r%d", table_epiphany[n].instr, rd, rn, rm);
+          }
+          return 4;
         case OP_POST_MOD_DISP_32:
           break;
         case OP_REG_IMM_16:
@@ -147,15 +171,15 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
         case OP_REG_2_IMM5_32:
           break;
         case OP_REG_3_16:
-          rd = (opcode16 >> 13) & 0x7;
-          rn = (opcode16 >> 10) & 0x7;
-          rm = (opcode16 >> 7) & 0x7;
+          //rd = (opcode16 >> 13) & 0x7;
+          //rn = (opcode16 >> 10) & 0x7;
+          //rm = (opcode16 >> 7) & 0x7;
           sprintf(instr, "%s r%d,r%d,r%d", table_epiphany[n].instr, rd, rn, rm);
           return 2;
         case OP_REG_3_32:
-          rd = ((opcode32 >> 13) & 0x7) | (((opcode32 >> 29) & 0x7) << 3);
-          rn = ((opcode32 >> 10) & 0x7) | (((opcode32 >> 26) & 0x7) << 3);
-          rm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 23) & 0x7) << 3);
+          //rd = ((opcode32 >> 13) & 0x7) | (((opcode32 >> 29) & 0x7) << 3);
+          //rn = ((opcode32 >> 10) & 0x7) | (((opcode32 >> 26) & 0x7) << 3);
+          //rm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 23) & 0x7) << 3);
           sprintf(instr, "%s r%d,r%d,r%d", table_epiphany[n].instr, rd, rn, rm);
           return 4;
         case OP_REG_2_16:
@@ -194,17 +218,17 @@ void list_output_epiphany(struct _asm_context *asm_context, int address)
   if (count == 2)
   {
     fprintf(asm_context->list, "%02x%02x     ",
-      memory_read_m(&asm_context->memory, address+1),
-      memory_read_m(&asm_context->memory, address+0));
+      memory_read_m(&asm_context->memory, address + 1),
+      memory_read_m(&asm_context->memory, address + 0));
   }
     else
   if (count == 4)
   {
     fprintf(asm_context->list, "%02x%02x%02x%02x ",
-      memory_read_m(&asm_context->memory, address+3),
-      memory_read_m(&asm_context->memory, address+2),
-      memory_read_m(&asm_context->memory, address+1),
-      memory_read_m(&asm_context->memory, address+0));
+      memory_read_m(&asm_context->memory, address + 3),
+      memory_read_m(&asm_context->memory, address + 2),
+      memory_read_m(&asm_context->memory, address + 1),
+      memory_read_m(&asm_context->memory, address + 0));
   }
    else
   {

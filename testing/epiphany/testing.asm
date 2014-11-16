@@ -18,3 +18,10 @@ blah:
   ldr r5,[r6,-r6]
   ldr r5,[r6,r8]
 
+  ldr r5,[r6],r2
+  ldr r5,[r6],r3
+  ldr r5,[r6],r8
+  ldr r5,[r6],-r2
+
+
+
