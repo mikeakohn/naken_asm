@@ -147,7 +147,7 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
           }
           return 4;
         case OP_POST_MOD_DISP_32:
-          imm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 16) & 0x7f) << 3);
+          imm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 16) & 0xff) << 3);
           imm = ((opcode32 & 0x01000000) == 0) ? imm : -imm;
           sprintf(instr, "%s r%d,[r%d],#%d", table_epiphany[n].instr, rd, rn, imm);
           return 4;

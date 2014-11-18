@@ -85,7 +85,7 @@ struct _table_epiphany table_epiphany[] = {
   { "ldrh", 0x0200002c, 0x0200007f, OP_POST_MOD_DISP_32, 32, 0, 0 },
   { "ldr",  0x0200004c, 0x0200007f, OP_POST_MOD_DISP_32, 32, 0, 0 },
   { "ldrd", 0x0200006c, 0x0200007f, OP_POST_MOD_DISP_32, 32, 0, 0 },
-  { "strb", 0x0000001c, 0x0200007f, OP_POST_MOD_DISP_32, 32, 0, 0 },
+  { "strb", 0x0200001c, 0x0200007f, OP_POST_MOD_DISP_32, 32, 0, 0 },
   { "strh", 0x0200003c, 0x0200007f, OP_POST_MOD_DISP_32, 32, 0, 0 },
   { "str",  0x0200005c, 0x0200007f, OP_POST_MOD_DISP_32, 32, 0, 0 },
   { "strd", 0x0200007c, 0x0200007f, OP_POST_MOD_DISP_32, 32, 0, 0 },

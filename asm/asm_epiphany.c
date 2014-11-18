@@ -511,7 +511,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
             }
 
             value |= ((operands[2].value & 0x7) << 7) |
-                     (((operands[2].value >> 3) & 0x7f) << 16);
+                     (((operands[2].value >> 3) & 0xff) << 16);
 
             reg_combo = get_reg_combo32(operands[0].reg, operands[1].reg, 0);
             add_bin32(asm_context, table_epiphany[n].opcode | reg_combo | value, IS_OPCODE);
