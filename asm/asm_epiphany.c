@@ -655,8 +655,8 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         case OP_REG_2_16:
         {
           if (operand_count == 2 &&
-              operands[0].type == OPERAND_REG && operands[0].value < 8 &&
-              operands[1].type == OPERAND_REG && operands[1].value < 8)
+              operands[0].type == OPERAND_REG && operands[0].reg < 8 &&
+              operands[1].type == OPERAND_REG && operands[1].reg < 8)
           {
             reg_combo = get_reg_combo16(operands[0].reg, operands[1].reg, 0);
             add_bin16(asm_context, table_epiphany[n].opcode | reg_combo, IS_OPCODE);
