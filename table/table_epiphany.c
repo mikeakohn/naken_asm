@@ -186,7 +186,7 @@ struct _table_epiphany table_epiphany[] = {
   { "movblt",  0x00c2, 0x03ff, OP_REG_2_16, 16, 0, 0 },
   { "movblte", 0x00d2, 0x03ff, OP_REG_2_16, 16, 0, 0 },
   { "mov",     0x00e2, 0x03ff, OP_REG_2_16, 16, 0, 0 },
-  { "movl",    0x00f2, 0x03ff, OP_REG_2_16, 16, 0, 0 },
+  //{ "movl",    0x00f2, 0x03ff, OP_REG_2_16, 16, 0, 0 },
 
   { "moveq",   0x0002000f, 0x03ff03ff, OP_REG_2_32, 32, 0, 0 },
   { "movne",   0x0002001f, 0x03ff03ff, OP_REG_2_32, 32, 0, 0 },
@@ -203,7 +203,7 @@ struct _table_epiphany table_epiphany[] = {
   { "movblt",  0x000200cf, 0x03ff03ff, OP_REG_2_32, 32, 0, 0 },
   { "movblte", 0x000200df, 0x03ff03ff, OP_REG_2_32, 32, 0, 0 },
   { "mov",     0x000200ef, 0x03ff03ff, OP_REG_2_32, 32, 0, 0 },
-  { "movl",    0x000200ff, 0x03ff03ff, OP_REG_2_32, 32, 0, 0 },
+  //{ "movl",    0x000200ff, 0x03ff03ff, OP_REG_2_32, 32, 0, 0 },
 
   // dafuq?
   //{ "movts",    0x0102, 0x03ff, OP_REG_2_16, 16, 0, 0 },
