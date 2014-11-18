@@ -179,6 +179,12 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
           imm = ((opcode32 >> 5) & 0x1f);
           sprintf(instr, "%s r%d,r%d,#%d", table_epiphany[n].instr, rd, rn, imm);
           return 4;
+        case OP_REG_2_ZERO_16:
+          sprintf(instr, "%s r%d,r%d", table_epiphany[n].instr, rd, rn);
+          return 2;
+        case OP_REG_2_ZERO_32:
+          sprintf(instr, "%s r%d,r%d", table_epiphany[n].instr, rd, rn);
+          return 4;
         case OP_REG_3_16:
           sprintf(instr, "%s r%d,r%d,r%d", table_epiphany[n].instr, rd, rn, rm);
           return 2;

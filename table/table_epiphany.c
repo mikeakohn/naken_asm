@@ -110,22 +110,22 @@ struct _table_epiphany table_epiphany[] = {
   { "str",  0x0000005d, 0x006f007f, OP_POST_MOD_32, 32, 0, 0 },
   { "strd", 0x0000007d, 0x006f007f, OP_POST_MOD_32, 32, 0, 0 },
 
-  { "mov", 0x0003, 0x001f, OP_REG_IMM_16, 16, 0, 0 },
+  { "mov",  0x0003, 0x001f, OP_REG_IMM_16, 16, 0, 0 },
   { "mov",  0x0000000b, 0x100f001f, OP_REG_IMM_32, 32, 0, 0 },
   { "movt", 0x1001000b, 0x100f001f, OP_REG_IMM_32, 32, 0, 0 },
-  { "add", 0x0013, 0x007f, OP_REG_2_IMM_16, 16, 0, 0 },
-  { "sub", 0x0033, 0x007f, OP_REG_2_IMM_16, 16, 0, 0 },
+  { "add",  0x0013, 0x007f, OP_REG_2_IMM_16, 16, 0, 0 },
+  { "sub",  0x0033, 0x007f, OP_REG_2_IMM_16, 16, 0, 0 },
   { "add",  0x0000001b, 0x0300001f, OP_REG_2_IMM_32, 32, 0, 0 },
   { "sub",  0x0000003b, 0x0300001f, OP_REG_2_IMM_32, 32, 0, 0 },
 
   { "lsr",  0x0006, 0x001f, OP_REG_2_IMM5_16, 16, 0, 0 },
   { "lsl",  0x0016, 0x001f, OP_REG_2_IMM5_16, 16, 0, 0 },
   { "asr",  0x000e, 0x001f, OP_REG_2_IMM5_16, 16, 0, 0 },
-  { "bitr", 0x001e, 0x001f, OP_REG_2_IMM5_16, 16, 0, 0 },
+  { "bitr", 0x001e, 0x03ff, OP_REG_2_ZERO_16, 16, 0, 0 },
   { "lsr",  0x0006000f, 0x03ff001f, OP_REG_2_IMM5_32, 32, 0, 0 },
   { "lsl",  0x0006001f, 0x03ff001f, OP_REG_2_IMM5_32, 32, 0, 0 },
   { "asr",  0x000e000f, 0x03ff001f, OP_REG_2_IMM5_32, 32, 0, 0 },
-  { "bitr", 0x000e001f, 0x03ff001f, OP_REG_2_IMM5_32, 32, 0, 0 },
+  { "bitr", 0x000e001f, 0x03ff03ff, OP_REG_2_ZERO_32, 32, 0, 0 },
 
   { "add", 0x001a, 0x007f, OP_REG_3_16, 16, 0, 0 },
   { "sub", 0x003a, 0x007f, OP_REG_3_16, 16, 0, 0 },
@@ -150,8 +150,8 @@ struct _table_epiphany table_epiphany[] = {
   { "isub",  0x0017, 0x007f, OP_REG_3_16, 16, 0, 0 }, // DUP
   { "fmul",  0x0027, 0x007f, OP_REG_3_16, 16, 0, 0 },
   { "imul",  0x0027, 0x007f, OP_REG_3_16, 16, 0, 0 }, // DUP
-  { "fmadd", 0x003a, 0x007f, OP_REG_3_16, 16, 0, 0 },
-  { "imadd", 0x003a, 0x007f, OP_REG_3_16, 16, 0, 0 }, // DUP
+  { "fmadd", 0x0037, 0x007f, OP_REG_3_16, 16, 0, 0 },
+  { "imadd", 0x0037, 0x007f, OP_REG_3_16, 16, 0, 0 }, // DUP
   { "fmsub", 0x0047, 0x007f, OP_REG_3_16, 16, 0, 0 },
   { "imsub", 0x0047, 0x007f, OP_REG_3_16, 16, 0, 0 }, // DUP
   { "float", 0x0057, 0x03ff, OP_REG_2_16, 16, 0, 0 },
