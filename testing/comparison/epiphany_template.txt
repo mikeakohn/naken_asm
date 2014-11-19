@@ -118,3 +118,33 @@ movbne r31,r43
 movblt r43,r33
 movblte r52,r5
 mov r59,r19
+mov r1, #0
+mov r1, #0xff
+mov r8, #0xff
+mov r9, #0xff
+movt r1, #0
+movt r8, #0xff
+movt r8, #0xff
+mov r63, #0xffff
+orr r1,r2,r3
+orr r48,r50,r53
+sub r1,r2,r3
+sub r48,r50,r53
+sub r1,r7,#-4
+sub r1,r8,#2
+sub r1,r8,#-100
+sub r10,r8,#100
+trap 7
+testset r3,[r5,-r6]
+testset r3,[r5,r6]
+testset r3,[r5,r10]
+testset r3,[r5,-r10]
+gie
+gid
+nop
+idle
+bkpt
+mbkpt
+sync
+rti
+wand

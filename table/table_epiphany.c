@@ -97,10 +97,10 @@ struct _table_epiphany table_epiphany[] = {
   { "strh", 0x00000039, 0x006f007f, OP_INDEX_32, 32, 0, 0 },
   { "str",  0x00000059, 0x006f007f, OP_INDEX_32, 32, 0, 0 },
   { "strd", 0x00000079, 0x006f007f, OP_INDEX_32, 32, 0, 0 },
-  { "testsetb", 0x00200001, 0x006f007f, OP_INDEX_32, 32, 0, 0 },
-  { "testseth", 0x00200021, 0x006f007f, OP_INDEX_32, 32, 0, 0 },
-  { "testset",  0x00200041, 0x006f007f, OP_INDEX_32, 32, 0, 0 },
-  { "testsetd", 0x00200061, 0x006f007f, OP_INDEX_32, 32, 0, 0 },
+  { "testsetb", 0x00200009, 0x006f007f, OP_INDEX_32, 32, 0, 0 },
+  { "testseth", 0x00200029, 0x006f007f, OP_INDEX_32, 32, 0, 0 },
+  { "testset",  0x00200049, 0x006f007f, OP_INDEX_32, 32, 0, 0 },
+  { "testsetd", 0x00200069, 0x006f007f, OP_INDEX_32, 32, 0, 0 },
   { "ldrb", 0x0000000d, 0x006f007f, OP_POST_MOD_32, 32, 0, 0 },
   { "ldrh", 0x0000002d, 0x006f007f, OP_POST_MOD_32, 32, 0, 0 },
   { "ldr",  0x0000004d, 0x006f007f, OP_POST_MOD_32, 32, 0, 0 },
@@ -111,8 +111,8 @@ struct _table_epiphany table_epiphany[] = {
   { "strd", 0x0000007d, 0x006f007f, OP_POST_MOD_32, 32, 0, 0 },
 
   { "mov",  0x0003, 0x001f, OP_REG_IMM_16, 16, 0, 0 },
-  { "mov",  0x0000000b, 0x100f001f, OP_REG_IMM_32, 32, 0, 0 },
-  { "movt", 0x1001000b, 0x100f001f, OP_REG_IMM_32, 32, 0, 0 },
+  { "mov",  0x0002000b, 0x100f001f, OP_REG_IMM_32, 32, 0, 0 },  // WRONG IN PDF
+  { "movt", 0x1002000b, 0x100f001f, OP_REG_IMM_32, 32, 0, 0 },  // WRONG IN PDF
   { "add",  0x0013, 0x007f, OP_REG_2_IMM_16, 16, 0, 0 },
   { "sub",  0x0033, 0x007f, OP_REG_2_IMM_16, 16, 0, 0 },
   { "add",  0x0000001b, 0x0300001f, OP_REG_2_IMM_32, 32, 0, 0 },
