@@ -1026,10 +1026,17 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
             if (table_stm8_opcodes[n].prefix != 0) { address++; }
             int offset = operands[0].value - address;
 
-            if (offset < -128 || offset > 127)
+            if (asm_context->pass == 1)
             {
-              print_error_range("Offset", -128, 127, asm_context);
-              return -1;
+              offset = 0;
+            }
+              else
+            {
+              if (offset < -128 || offset > 127)
+              {
+                print_error_range("Offset", -128, 127, asm_context);
+                return -1;
+              }
             }
 
             return add_bin_num8(asm_context, n, offset);
