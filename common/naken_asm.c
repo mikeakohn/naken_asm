@@ -17,14 +17,19 @@
 #include "assembler.h"
 #include "write_elf.h"
 #include "write_hex.h"
+#include "write_srec.h"
 #include "macros.h"
 #include "symbols.h"
 #include "tokens.h"
 #include "version.h"
 
-#define FORMAT_HEX 0
-#define FORMAT_BIN 1
-#define FORMAT_ELF 2
+enum
+{
+  FORMAT_HEX,
+  FORMAT_BIN,
+  FORMAT_ELF,
+  FORMAT_SREC,
+};
 
 static void new_extension(char *filename, char *ext, int len)
 {
@@ -96,6 +101,7 @@ int error_flag=0;
            "   -e             [output elf file]\n"
 #endif
            "   -b             [output binary file]\n"
+           "   -s             [output srec file]\n"
            "   -l             [create .lst listing file]\n"
            "   -I             [add to include path]\n"
            "\n");
@@ -119,6 +125,11 @@ int error_flag=0;
     if (strcmp(argv[i], "-b") == 0)
     {
       format = FORMAT_BIN;
+    }
+      else
+    if (strcmp(argv[i], "-s") == 0)
+    {
+      format = FORMAT_SREC;
     }
 #ifndef DISABLE_ELF
       else
@@ -177,19 +188,13 @@ int error_flag=0;
 
   if (outfile == NULL)
   {
-    if (format == FORMAT_HEX)
+    switch(format)
     {
-      outfile = "out.hex";
-    }
-      else
-    if (format == FORMAT_BIN)
-    {
-      outfile = "out.bin";
-    }
-      else
-    if (format == FORMAT_ELF)
-    {
-      outfile="out.elf";
+      case FORMAT_HEX: outfile = "out.hex"; break;
+      case FORMAT_BIN: outfile = "out.bin"; break;
+      case FORMAT_ELF: outfile = "out.elf"; break;
+      case FORMAT_SREC: outfile = "out.srec"; break;
+      default: outfile = "out.err"; break;
     }
   }
 
@@ -287,6 +292,11 @@ int error_flag=0;
     if (format == FORMAT_BIN)
     {
       write_bin(&asm_context.memory, out);
+    }
+      else
+    if (format == FORMAT_SREC)
+    {
+      write_srec(&asm_context.memory, out);
     }
 #ifndef DISABLE_ELF
       else

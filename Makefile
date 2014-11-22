@@ -47,7 +47,7 @@ archive:
 	ar rvs build/naken_asm.a build/*.o
 
 clean:
-	@rm -f naken_asm naken_util naken_prog *.exe *.o *.hex a.out *.lst *.ndbg *.elf
+	@rm -f naken_asm naken_util naken_prog *.exe *.o *.hex a.out *.lst *.ndbg *.elf *.srec
 	@rm -rf build/*.o build/*.a
 	@echo "Clean!"
 

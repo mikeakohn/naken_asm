@@ -175,7 +175,7 @@ int segment=0;
 
     if (checksum != checksum_calc)
     {
-      printf("hex_parse: Checksum failure on line %d!\n", line);
+      printf("read_hex: Checksum failure on line %d!\n", line);
       fclose(in);
       in = NULL;
       start_address = -4;

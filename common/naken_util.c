@@ -39,6 +39,7 @@
 #include "naken_util.h"
 #include "read_elf.h"
 #include "read_hex.h"
+#include "read_srec.h"
 #include "read_ti_txt.h"
 #include "simulate_avr8.h"
 #include "simulate_65xx.h"
@@ -797,6 +798,13 @@ int mode = MODE_INTERACTIVE;
       {
         hexfile = argv[i];
         printf("Loaded ti_txt %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
+      }
+        else
+      if (strcmp(extension, "srec") == 0 &&
+          read_srec(argv[i], &util_context.memory) >= 0)
+      {
+        hexfile = argv[i];
+        printf("Loaded srec %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
       }
         else
       if (read_hex(argv[i], &util_context.memory) >= 0)
