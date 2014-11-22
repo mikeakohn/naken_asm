@@ -5,6 +5,7 @@ default:
 	bash run_test.sh arm
 	bash run_test.sh avr8
 	bash run_test.sh dspic
+	bash run_test.sh epiphany
 	bash run_test.sh msp430
 	bash run_test.sh msp430x
 	bash run_test.sh stm8

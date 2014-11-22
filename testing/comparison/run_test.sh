@@ -19,7 +19,7 @@ EOF
     echo -e "\x1b[32mPASS\x1b[0m"
   else
     echo -e "\x1b[31mFAIL ${a} ${b}\x1b[0m"
-    exit 0
+    exit 1
   fi
 
   rm -f ${cpu}_naken.hex a.out ${cpu}.asm

@@ -135,10 +135,14 @@ sub r1,r8,#2
 sub r1,r8,#-100
 sub r10,r8,#100
 trap 7
+testsetb r3,[r5,-r6]
 testset r3,[r5,-r6]
 testset r3,[r5,r6]
+testseth r3,[r5,r6]
 testset r3,[r5,r10]
 testset r3,[r5,-r10]
+testsetb r3,[r5,-r10]
+testseth r3,[r5,-r10]
 gie
 gid
 nop
@@ -148,3 +152,36 @@ mbkpt
 sync
 rti
 wand
+beq 0
+beq 4
+bne 4
+bgtu 4
+bgteu 4
+blteu 4
+bltu 4
+bgt 4
+bgte 4
+blt 4
+blte 4
+bbeq 4
+bbne 4
+bblt 4
+bblte 4
+b 4
+bl 4
+beq 4000
+bne 4000
+bgtu 4000
+bgteu 4000
+blteu 4000
+bltu 4000
+bgt 4000
+bgte 4000
+blt 4000
+blte 4000
+bbeq 4000
+bbne 4000
+bblt 4000
+bblte 4000
+b 4000
+bl 4000
