@@ -54,6 +54,7 @@ clean:
 tests:
 	@cd testing/regression && sh regression.sh
 	@cd testing/unit/eval_expression && make && ./unit_test && make clean
+	@cd testing/unit/eval_expression_ex && make && ./unit_test && make clean
 	@cd testing/unit/var && make && ./unit_test && make clean
 	@cd testing/comparison && make
 
