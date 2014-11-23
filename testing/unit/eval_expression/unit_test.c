@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
 
+  if (errors != 0) { return -1; }
+
   return 0;
 }
 

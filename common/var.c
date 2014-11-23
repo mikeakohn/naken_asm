@@ -40,7 +40,7 @@ void var_set_float(struct _var *var, double value)
   var->type = VAR_FLOAT;
 }
 
-uint32_t var_get_int32(struct _var *var)
+int32_t var_get_int32(struct _var *var)
 {
   VAR_RETURN_VALUE(var,uint32_t);
 
@@ -49,7 +49,7 @@ uint32_t var_get_int32(struct _var *var)
   return 0;
 }
 
-uint64_t var_get_int64(struct _var *var)
+int64_t var_get_int64(struct _var *var)
 {
   VAR_RETURN_VALUE(var,uint64_t);
 
@@ -74,6 +74,11 @@ double var_get_double(struct _var *var)
   assert(0);
 
   return 0;
+}
+
+int var_get_type(struct _var *var)
+{
+  return var->type;
 }
 
 int var_add(struct _var *var_d, struct _var *var_s)
