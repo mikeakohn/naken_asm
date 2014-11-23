@@ -14,8 +14,6 @@
 
 #include "assembler.h"
 
-int eval_expression(struct _asm_context *asm_context, int *num);
-
 enum
 {
   PREC_NOT,
@@ -43,6 +41,8 @@ enum
   OPER_XOR,
   OPER_OR
 };
+
+int eval_expression(struct _asm_context *asm_context, int *num);
 
 #endif
 
