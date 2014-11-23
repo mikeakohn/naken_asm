@@ -14,11 +14,18 @@
 
 #define PASS() { printf("PASS: %s:%d\n", __FILE__, __LINE__); }
 
-#define CHECK(var,value) \
-  if (var_get_int32(&var) != value) { ERROR(var); } else { printf("PASS\n"); } \
-  if (var_get_int64(&var) != value) { ERROR(var); }  else { printf("PASS\n"); }\
-  if (var_get_float(&var) != (float)value) { ERROR(var); }  else { printf("PASS\n"); }\
-  if (var_get_double(&var) != value) { ERROR(var); }  else { printf("PASS\n"); }\
+#define CHECK(var,a,b) \
+  if (var_get_int32(&var) != a) { ERROR(var); } \
+  if (var_get_int64(&var) != a) { ERROR(var); } \
+  if (var_get_float(&var) != (float)b) { ERROR(var); } \
+  if (var_get_double(&var) != (double)b) { ERROR(var); }
+
+
+#define TEST_OP(op,type,a,b,c,d) \
+  var_set_##type(&var1, a); \
+  var_set_##type(&var2, b); \
+  var_##op(&var1, &var2); \
+  CHECK(var1, c, d);
  
 int errors = 0;
 
@@ -29,28 +36,25 @@ int main(int argc, char *argv[])
   printf("Testing var.h\n");
 
   var_set_int(&var1, 1000);
-  if (var_get_int32(&var1) != 1000) { ERROR(var1); }
-  if (var_get_int64(&var1) != 1000) { ERROR(var1); }
-  if (var_get_float(&var1) != 1000) { ERROR(var1); }
-  if (var_get_double(&var1) != 1000) { ERROR(var1); }
+  CHECK(var1, 1000, 1000);
 
   var_set_float(&var1, 99.32);
-  if (var_get_int32(&var1) != 99) { ERROR(var1); }
-  if (var_get_int64(&var1) != 99) { ERROR(var1); }
-  if (var_get_float(&var1) != (float)99.32) { ERROR(var1); }
-  if (var_get_double(&var1) != 99.32) { ERROR(var1); }
+  CHECK(var1, 99, 99.32);
 
-  var_set_int(&var1, -10);
-  var_set_int(&var2, 20);
-  var_add(&var1, &var2);
-  if (var_get_int32(&var1) != 10) { ERROR(var1); }
-  if (var_get_double(&var1) != 10) { ERROR(var1); }
-
-  var_set_int(&var1, -10);
-  var_set_int(&var2, 20);
-  var_sub(&var1, &var2);
-  if (var_get_int32(&var1) != -30) { ERROR(var1); }
-  if (var_get_double(&var1) != -30) { ERROR(var1); }
+  TEST_OP(add, int, -10, 20, 10, 10);
+  TEST_OP(add, int, 10, 20, 30, 30);
+  TEST_OP(sub, int, -10, 20, -30, -30);
+  TEST_OP(sub, int, 10, 20, -10, -10);
+  TEST_OP(mul, int, 10, 20, 200, 200);
+  TEST_OP(div, int, 10, 20, 0, 0);
+  TEST_OP(div, int, 20, -10, -2, -2);
+  TEST_OP(add, float, -10.1, 20, 9, 9.9);
+  TEST_OP(add, float, -10, 20.2, 10, 10.2);
+  TEST_OP(sub, float, -10, 20.2, -30, -30.2);
+  TEST_OP(mul, float, -10, 20.2, -202, -202);
+  TEST_OP(mul, float, 8, 20.2, 161, 161.60);
+  TEST_OP(div, float, 2.56, 8, 0, 0.32);
+  TEST_OP(div, float, 32.8, 4, 8, 8.2);
 
   if (errors != 0) { printf("var.h ... FAILED.\n"); return -1; }
 
