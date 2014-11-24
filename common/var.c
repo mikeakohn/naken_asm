@@ -141,4 +141,150 @@ int var_div(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
+int var_mod(struct _var *var_d, struct _var *var_s)
+{
+  if (var_d->type == VAR_FLOAT)
+  {
+    var_d->value_int = (int64_t)var_d->value_float;
+    var_d->type = VAR_INT;
+  }
+
+  if (var_s->type == VAR_FLOAT)
+  {
+    var_s->value_int = (int64_t)var_s->value_float;
+    var_s->type = VAR_INT;
+  }
+
+  var_d->value_int = var_d->value_int % var_s->value_int;
+
+  return 0;
+}
+
+int var_shift_left(struct _var *var_d, struct _var *var_s)
+{
+  if (var_d->type == VAR_FLOAT)
+  {
+    var_d->value_int = (int64_t)var_d->value_float;
+    var_d->type = VAR_INT;
+  }
+
+  if (var_s->type == VAR_FLOAT)
+  {
+    var_s->value_int = (int64_t)var_s->value_float;
+    var_s->type = VAR_INT;
+  }
+
+  var_d->value_int = var_d->value_int << var_s->value_int;
+
+  return 0;
+}
+
+int var_shift_right(struct _var *var_d, struct _var *var_s)
+{
+  if (var_d->type == VAR_FLOAT)
+  {
+    var_d->value_int = (int64_t)var_d->value_float;
+    var_d->type = VAR_INT;
+  }
+
+  if (var_s->type == VAR_FLOAT)
+  {
+    var_s->value_int = (int64_t)var_s->value_float;
+    var_s->type = VAR_INT;
+  }
+
+  var_d->value_int = var_d->value_int >> var_s->value_int;
+
+  return 0;
+}
+
+int var_shift_right_unsigned(struct _var *var_d, struct _var *var_s)
+{
+  if (var_d->type == VAR_FLOAT)
+  {
+    var_d->value_int = (int64_t)var_d->value_float;
+    var_d->type = VAR_INT;
+  }
+
+  if (var_s->type == VAR_FLOAT)
+  {
+    var_s->value_int = (int64_t)var_s->value_float;
+    var_s->type = VAR_INT;
+  }
+
+  var_d->value_int = (uint64_t)var_d->value_int >> var_s->value_int;
+
+  return 0;
+}
+
+int var_and(struct _var *var_d, struct _var *var_s)
+{
+  if (var_d->type == VAR_FLOAT)
+  {
+    var_d->value_int = (int64_t)var_d->value_float;
+    var_d->type = VAR_INT;
+  }
+
+  if (var_s->type == VAR_FLOAT)
+  {
+    var_s->value_int = (int64_t)var_s->value_float;
+    var_s->type = VAR_INT;
+  }
+
+  var_d->value_int = var_d->value_int & var_s->value_int;
+
+  return 0;
+}
+
+int var_or(struct _var *var_d, struct _var *var_s)
+{
+  if (var_d->type == VAR_FLOAT)
+  {
+    var_d->value_int = (int64_t)var_d->value_float;
+    var_d->type = VAR_INT;
+  }
+
+  if (var_s->type == VAR_FLOAT)
+  {
+    var_s->value_int = (int64_t)var_s->value_float;
+    var_s->type = VAR_INT;
+  }
+
+  var_d->value_int = var_d->value_int | var_s->value_int;
+
+  return 0;
+}
+
+int var_xor(struct _var *var_d, struct _var *var_s)
+{
+  if (var_d->type == VAR_FLOAT)
+  {
+    var_d->value_int = (int64_t)var_d->value_float;
+    var_d->type = VAR_INT;
+  }
+
+  if (var_s->type == VAR_FLOAT)
+  {
+    var_s->value_int = (int64_t)var_s->value_float;
+    var_s->type = VAR_INT;
+  }
+
+  var_d->value_int = var_d->value_int ^ var_s->value_int;
+
+  return 0;
+}
+
+int var_not(struct _var *var)
+{
+  if (var->type == VAR_FLOAT)
+  {
+    var->value_int = (int64_t)var->value_float;
+    var->type = VAR_INT;
+  }
+
+  var->value_int = ~var->value_int;
+
+  return 0;
+}
+
 

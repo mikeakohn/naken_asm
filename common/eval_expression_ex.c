@@ -124,32 +124,30 @@ printf(">>> OPERATING ON %d/%f/%d (%d) %d/%f/%d\n",
   var_get_int32(var_s), var_get_float(var_s), var_get_type(var_s));
 #endif
 
-int a = 0, b = 0;
-
   switch(operator->operation)
   {
     case OPER_NOT:
-      return ~a;
+      return var_not(var_d);
     case OPER_MUL:
       return var_mul(var_d, var_s);
     case OPER_DIV:
       return var_div(var_d, var_s);
     case OPER_MOD:
-      return a % b;
+      return var_mod(var_d, var_s);
     case OPER_PLUS:
       return var_add(var_d, var_s);
     case OPER_MINUS:
       return var_sub(var_d, var_s);
     case OPER_LEFT_SHIFT:
-      return a << b;
+      return var_shift_left(var_d, var_s);
     case OPER_RIGHT_SHIFT:
-      return a >> b;
+      return var_shift_right(var_d, var_s);
     case OPER_AND:
-      return a & b;
+      return var_and(var_d, var_s);
     case OPER_XOR:
-      return a ^ b;
+      return var_xor(var_d, var_s);
     case OPER_OR:
-      return a | b;
+      return var_or(var_d, var_s);
     default:
       printf("Internal Error: WTF, bad operator %d\n", operator->operation);
       return 0;

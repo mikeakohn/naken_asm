@@ -41,6 +41,14 @@ int var_add(struct _var *var_d, struct _var *var_s);
 int var_sub(struct _var *var_d, struct _var *var_s);
 int var_mul(struct _var *var_d, struct _var *var_s);
 int var_div(struct _var *var_d, struct _var *var_s);
+int var_mod(struct _var *var_d, struct _var *var_s);
+int var_shift_left(struct _var *var_d, struct _var *var_s);
+int var_shift_left_unsigned(struct _var *var_d, struct _var *var_s);
+int var_shift_right(struct _var *var_d, struct _var *var_s);
+int var_and(struct _var *var_d, struct _var *var_s);
+int var_or(struct _var *var_d, struct _var *var_s);
+int var_xor(struct _var *var_d, struct _var *var_s);
+int var_not(struct _var *var_d);
 
 #endif
 

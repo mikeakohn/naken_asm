@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   test_int("3*5", 15);
   test_int("3 * 5", 15);
   test_int("3*(5+4)", 27);
-  //test_int("3*(5<<2)", 60);
+  test_int("3*(5<<2)", 60);
   test_int("5+3*9", 32);
 
   printf("Total errors: %d\n", errors);
