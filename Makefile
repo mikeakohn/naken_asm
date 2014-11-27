@@ -52,13 +52,14 @@ clean:
 	@rm -rf testing/unit/eval_expression/unit_test
 	@rm -rf testing/unit/eval_expression_ex/unit_test
 	@rm -rf testing/unit/data/data_test
+	@rm -rf testing/unit/var/var_test
 	@echo "Clean!"
 
 tests:
 	@cd testing/regression && sh regression.sh
 	@cd testing/unit/eval_expression && make && ./unit_test && make clean
 	@cd testing/unit/eval_expression_ex && make && ./unit_test && make clean
-	@cd testing/unit/var && make && ./unit_test && make clean
+	@cd testing/unit/var && make && ./var_test && make clean
 	@cd testing/unit/data && make && ./data_test && make clean
 	@cd testing/comparison && make
 
