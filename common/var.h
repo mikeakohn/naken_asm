@@ -30,7 +30,7 @@ struct _var
   };
 };
 
-void var_set_int(struct _var *var, uint64_t value);
+void var_set_int(struct _var *var, int64_t value);
 void var_set_float(struct _var *var, double value);
 int32_t var_get_int32(struct _var *var);
 int64_t var_get_int64(struct _var *var);

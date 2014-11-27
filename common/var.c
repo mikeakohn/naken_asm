@@ -28,7 +28,7 @@
     return (ret_type)var->value_float; \
   }
 
-void var_set_int(struct _var *var, uint64_t value)
+void var_set_int(struct _var *var, int64_t value)
 {
   var->value_int = value;
   var->type = VAR_INT;

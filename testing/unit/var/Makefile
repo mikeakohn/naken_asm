@@ -6,11 +6,11 @@ CFLAGS=-Wall -g -DUNIT_TEST $(INCLUDES)
 LD_FLAGS=-L../../../build
 
 default:
-	gcc -o unit_test unit_test.c \
+	gcc -o var_test var_test.c \
           ../../../build/var.o \
 	  $(CFLAGS)
 
 clean:
-	@rm -f unit_test
+	@rm -f var_test
 	@echo "Clean!"
 

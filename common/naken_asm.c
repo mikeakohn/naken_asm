@@ -368,8 +368,8 @@ int error_flag=0;
 
   assemble_print_info(&asm_context, stdout);
 
-  symbols_free(&asm_context.symbols);
-  macros_free(&asm_context.macros);
+  //symbols_free(&asm_context.symbols);
+  //macros_free(&asm_context.macros);
 
   if (asm_context.list != NULL) { fclose(asm_context.list); }
   fclose(asm_context.in);
@@ -380,7 +380,8 @@ int error_flag=0;
     unlink(outfile);
   }
 
-  memory_free(&asm_context.memory);
+  //memory_free(&asm_context.memory);
+  assemble_free(&asm_context);
 
   if (error_flag != 0) { return -1; }
 

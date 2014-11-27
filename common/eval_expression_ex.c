@@ -271,7 +271,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
         return -1;
       }
 
-      var_set_int(&var_stack[var_stack_ptr++], atoi(token));
+      var_set_int(&var_stack[var_stack_ptr++], atoll(token));
     }
       else
     if (token_type == TOKEN_SYMBOL)

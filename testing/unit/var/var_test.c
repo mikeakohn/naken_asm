@@ -4,8 +4,10 @@
 #include "var.h"
 
 #define PRINT_VAR(var) \
-  printf("int32=%d int64=%ld float=%f double=%f   (%d)\n", \
+  printf("int32=%d/%x int64=%ld/%lx float=%f double=%f   (%d)\n", \
     var_get_int32(&var), \
+    var_get_int32(&var), \
+    var_get_int64(&var), \
     var_get_int64(&var), \
     var_get_float(&var), \
     var_get_double(&var), \
@@ -20,12 +22,21 @@
   if (var_get_float(&var) != (float)b) { ERROR(var); } \
   if (var_get_double(&var) != (double)b) { ERROR(var); }
 
+#define CHECK_INT(var,a,b) \
+  if (var_get_int32(&var) != a) { ERROR(var); } \
+  if (var_get_int64(&var) != b) { ERROR(var); }
 
 #define TEST_OP(op,type,a,b,c,d) \
   var_set_##type(&var1, a); \
   var_set_##type(&var2, b); \
   var_##op(&var1, &var2); \
   CHECK(var1, c, d);
+
+#define TEST_OP_INT(op,type,a,b,c,d) \
+  var_set_##type(&var1, a); \
+  var_set_##type(&var2, b); \
+  var_##op(&var1, &var2); \
+  CHECK_INT(var1, c, d);
  
 int errors = 0;
 
@@ -41,6 +52,15 @@ int main(int argc, char *argv[])
   var_set_float(&var1, 99.32);
   CHECK(var1, 99, 99.32);
 
+  var_set_int(&var1, 0x0122223333);
+  CHECK_INT(var1, 0x22223333, 0x122223333);
+
+  var_set_int(&var1, 0xffffffffffffffff);
+  CHECK_INT(var1, 0xffffffff, 0xffffffffffffffff);
+
+  var_set_int(&var1, 0x0fffffffffffffff);
+  CHECK_INT(var1, 0xffffffff, 0x0fffffffffffffff);
+
   TEST_OP(add, int, -10, 20, 10, 10);
   TEST_OP(add, int, 10, 20, 30, 30);
   TEST_OP(sub, int, -10, 20, -30, -30);
@@ -55,6 +75,8 @@ int main(int argc, char *argv[])
   TEST_OP(mul, float, 8, 20.2, 161, 161.60);
   TEST_OP(div, float, 2.56, 8, 0, 0.32);
   TEST_OP(div, float, 32.8, 4, 8, 8.2);
+
+  TEST_OP_INT(add, int, 0xffffffff, 1, 0, 0x100000000);
 
   if (errors != 0) { printf("var.h ... FAILED.\n"); return -1; }
 

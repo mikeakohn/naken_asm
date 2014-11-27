@@ -158,8 +158,7 @@ static struct _memory_page *alloc_page(struct _memory *memory, uint32_t address)
 struct _memory_page *page;
 
 //printf("allocating page %d\n", address);
-
-  page=malloc(sizeof(struct _memory_page) + (memory->debug_flag == 1 ? PAGE_SIZE * sizeof(int) : 0));
+  page = malloc(sizeof(struct _memory_page) + (memory->debug_flag == 1 ? PAGE_SIZE * sizeof(int) : 0));
   page->address = (address / PAGE_SIZE) * PAGE_SIZE;
   page->offset_min = PAGE_SIZE;
   page->offset_max = 0;
@@ -210,6 +209,7 @@ static void write_debug(struct _memory *memory, uint32_t address, int data)
 {
 struct _memory_page *page;
 
+  if (memory->debug_flag == 0) { return; }
   if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
 
   page = memory->pages;

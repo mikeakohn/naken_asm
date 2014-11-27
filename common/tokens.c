@@ -13,14 +13,16 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <assert.h>
 
 #include "assembler.h"
 #include "macros.h"
 #include "symbols.h"
 #include "tokens.h"
 
-#define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }
+//#define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }
 
 int tokens_open_file(struct _asm_context *asm_context, char *filename)
 {
@@ -67,9 +69,9 @@ void tokens_reset(struct _asm_context *asm_context)
   asm_context->unget_stack[0] = 0;
 }
 
-static int tokens_hex_string_to_int(char *s, int *num, int prefixed)
+static int tokens_hex_string_to_int(char *s, uint64_t *num, int prefixed)
 {
-  int n = 0;
+  uint64_t n = 0;
 
   while(*s != 0 && (*s != 'h' && *s != 'H'))
   {
@@ -95,9 +97,9 @@ static int tokens_hex_string_to_int(char *s, int *num, int prefixed)
   return 0;
 }
 
-static int tokens_octal_string_to_int(char *s, int *num)
+static int tokens_octal_string_to_int(char *s, uint64_t *num)
 {
-  int n = 0;
+  uint64_t n = 0;
 
   while(*s != 0 && (*s != 'q' && *s != 'Q'))
   {
@@ -115,7 +117,7 @@ static int tokens_octal_string_to_int(char *s, int *num)
   return 0;
 }
 
-static int tokens_binary_string_to_int(char *s, int *num)
+static int tokens_binary_string_to_int(char *s, uint64_t *num)
 {
   int n = 0;
 
@@ -586,36 +588,36 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
     if (token[0] == '0' && token[1] == 'x')
     {
       // If token starts with 0x it's probably hex
-      int num;
+      uint64_t num;
       if (tokens_hex_string_to_int(token+2, &num, 1) != 0) { return token_type; }
-      sprintf(token, "%d", num);
+      sprintf(token, "%" PRId64, num);
       token_type = TOKEN_NUMBER;
     }
       else
     if ((token[0] >= '0' && token[0] <= '9') && tolower(token[ptr-1]) == 'h')
     {
       // If token starts with a number and ends with a h it's probably hex
-      int num;
+      uint64_t num;
       if (tokens_hex_string_to_int(token, &num, 0) != 0) { return token_type; }
-      sprintf(token, "%d", num);
+      sprintf(token, "%" PRId64, num);
       token_type = TOKEN_NUMBER;
     }
       else
     if ((token[0] >= '0' && token[0] <= '7') && tolower(token[ptr-1]) == 'q')
     {
       // If token starts with a number and ends with a q it's octal
-      int num;
+      uint64_t num;
       if (tokens_octal_string_to_int(token, &num)!=0) { return token_type; }
-      sprintf(token, "%d", num);
+      sprintf(token, "%" PRId64, num);
       token_type = TOKEN_NUMBER;
     }
       else
     if ((token[0] == '0' || token[0] == '1') && tolower(token[ptr-1]) == 'b')
     {
       // If token starts with a number and ends with a b it's probably binary
-      int num;
+      uint64_t num;
       if (tokens_binary_string_to_int(token, &num) != 0) { return token_type; }
-      sprintf(token, "%d", num);
+      sprintf(token, "%" PRId64, num);
       token_type = TOKEN_NUMBER;
     }
   }
@@ -623,9 +625,9 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
   if (token_type == TOKEN_NUMBER && token[0] == '0' && token[1] != 0)
   {
     // If token is a number and starts with a 0 it's octal
-    int num;
+    uint64_t num;
     if (tokens_octal_string_to_int(token, &num) != 0) { return token_type; }
-    sprintf(token, "%d", num);
+    sprintf(token, "%" PRId64, num);
     token_type = TOKEN_NUMBER;
   }
 

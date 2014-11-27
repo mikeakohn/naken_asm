@@ -13,8 +13,10 @@
 #define _EVAL_EXPRESSION_EX_H
 
 #include "assembler.h"
+#include "eval_expression.h"
 #include "var.h"
 
+#if 0
 enum
 {
   PREC_NOT,
@@ -42,6 +44,7 @@ enum
   OPER_XOR,
   OPER_OR
 };
+#endif
 
 int eval_expression_ex(struct _asm_context *asm_context, struct _var *var);
 

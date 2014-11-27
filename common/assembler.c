@@ -323,6 +323,13 @@ void assemble_init(struct _asm_context *asm_context)
   }
 }
 
+void assemble_free(struct _asm_context *asm_context)
+{
+  symbols_free(&asm_context->symbols);
+  macros_free(&asm_context->macros);
+  memory_free(&asm_context->memory);
+}
+
 void assemble_print_info(struct _asm_context *asm_context, FILE *out)
 {
   fprintf(out, "\nProgram Info:\n");
@@ -412,13 +419,19 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     else
   if (strcasecmp(token, "dw") == 0 || strcasecmp(token, "dc16") == 0)
   {
-    if (parse_dw(asm_context) != 0) return -1;
+    if (parse_dc16(asm_context) != 0) return -1;
     return 1;
   }
     else
   if (strcasecmp(token, "dl") == 0 || strcasecmp(token, "dc32") == 0)
   {
-    if (parse_dl(asm_context) != 0) return -1;
+    if (parse_dc32(asm_context) != 0) return -1;
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "dc64") == 0)
+  {
+    if (parse_dc64(asm_context) != 0) return -1;
     return 1;
   }
     else

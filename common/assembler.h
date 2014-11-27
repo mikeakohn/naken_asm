@@ -80,6 +80,7 @@ struct _asm_context
 
 int add_to_include_path(struct _asm_context *asm_context, char *paths);
 void assemble_init(struct _asm_context *asm_context);
+void assemble_free(struct _asm_context *asm_context);
 void assemble_print_info(struct _asm_context *asm_context, FILE *out);
 int assemble(struct _asm_context *asm_context);
 
