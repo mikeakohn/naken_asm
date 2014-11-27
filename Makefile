@@ -49,6 +49,8 @@ archive:
 clean:
 	@rm -f naken_asm naken_util naken_prog *.exe *.o *.hex a.out *.lst *.ndbg *.elf *.srec
 	@rm -rf build/*.o build/*.a
+	@rm -rf testing/unit/eval_expression/unit_test
+	@rm -rf testing/unit/eval_expression_ex/unit_test
 	@echo "Clean!"
 
 tests:

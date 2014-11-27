@@ -9,7 +9,7 @@ int errors = 0;
 
 void test_int(const char *expression, int answer)
 {
-  struct _asm_context asm_context;
+  struct _asm_context asm_context = { 0 };
   struct _var var;
 
   printf("Testing: %s ... ", expression);
@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
   test_int("3*(5+4)", 27);
   test_int("3*(5<<2)", 60);
   test_int("5+3*9", 32);
+  test_int("1+(((2*3)+5)+3)", 15);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");

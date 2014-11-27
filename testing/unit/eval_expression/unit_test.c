@@ -8,7 +8,7 @@ int errors = 0;
 
 void test(const char *expression, int answer)
 {
-  struct _asm_context asm_context;
+  struct _asm_context asm_context = { 0 };
   int num;
 
   printf("Testing: %s ... ", expression);
