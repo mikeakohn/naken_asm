@@ -360,8 +360,8 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
     {
       if (ch == '#')
       {
-        token_type=TOKEN_POUND;
-        token[ptr++]=ch;
+        token_type = TOKEN_POUND;
+        token[ptr++] = ch;
         break;
       }
 
@@ -400,6 +400,12 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
           // Why did I do this?
           token_type = TOKEN_STRING;
         }
+          else
+        if (token_type == TOKEN_FLOAT)
+        {
+          tokens_unget_char(asm_context, ch);
+          break;
+        }
       }
         else
       if (ch >= '0' && ch <= '9')
@@ -408,6 +414,12 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
         {
           token_type = TOKEN_NUMBER;
         }
+      }
+        else
+      if (ch == '.' && token_type == TOKEN_NUMBER)
+      {
+        //token[ptr++] = ch;
+        token_type = TOKEN_FLOAT;
       }
         else
       {
@@ -516,6 +528,16 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
   }
 
   token[ptr] = 0;
+
+  if (token_type == TOKEN_FLOAT)
+  {
+    if (token[ptr-1] == '.')
+    {
+      tokens_unget_char(asm_context, '.');
+      token_type = TOKEN_NUMBER;
+      token[--ptr] = 0;
+    }
+  }
 
   if (ptr >= len)
   {

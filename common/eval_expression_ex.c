@@ -274,6 +274,17 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
       var_set_int(&var_stack[var_stack_ptr++], atoll(token));
     }
       else
+    if (token_type == TOKEN_FLOAT)
+    {
+      if (var_stack_ptr == 3)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      var_set_float(&var_stack[var_stack_ptr++], atof(token));
+    }
+      else
     if (token_type == TOKEN_SYMBOL)
     {
       if (get_operator(token, &operator)==-1)

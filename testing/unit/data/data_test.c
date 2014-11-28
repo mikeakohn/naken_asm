@@ -10,7 +10,7 @@
 
 int errors = 0;
 
-struct _tests
+struct _tests_int
 {
   char *source;
   uint8_t answer[16];
@@ -18,7 +18,15 @@ struct _tests
   int endian;
 };
 
-struct _tests tests[] =
+struct _tests_float
+{
+  char *source;
+  float answer[2];
+  int length;
+  int endian;
+};
+
+struct _tests_int tests_int[] =
 {
   { ".db 0x01, 0x02, 0x03, 0x04", { 0x01, 0x02, 0x03, 0x04 }, 4, LITTLE },
   { ".db 0x01, 0x02, 0x03, 0x04", { 0x01, 0x02, 0x03, 0x04 }, 4, BIG },
@@ -41,7 +49,13 @@ struct _tests tests[] =
   { NULL }
 };
 
-void test(const char *source, uint8_t *answer, int length, int endian)
+struct _tests_float tests_float[] =
+{
+  { ".dq 1.2, -1.2", { 1.2, -1.2 }, 2, LITTLE },
+  { ".dq 1.2, -1.2", { 1.2, -1.2 }, 2, BIG },
+};
+
+void test_int(const char *source, uint8_t *answer, int length, int endian)
 {
   struct _asm_context asm_context = { 0 };
   int oops = 0;
@@ -81,6 +95,77 @@ void test(const char *source, uint8_t *answer, int length, int endian)
   assemble_free(&asm_context);
 }
 
+void test_float(const char *source, float *answer, int length, int endian)
+{
+  struct _asm_context asm_context = { 0 };
+  int oops = 0;
+  int i;
+
+  printf("Testing: %s (%s) ... ", source, endian == LITTLE ? "little":"big");
+
+  tokens_open_buffer(&asm_context, source);
+  tokens_reset(&asm_context);
+
+  if (endian == BIG)
+  {
+    asm_context.memory.endian = 1;
+  }
+
+  assemble(&asm_context);
+
+  uint32_t f = 0;
+
+  for (i = 0; i < length * 4; i++)
+  {
+    if ((i % 4) == 0) { f = 0; }
+
+    // printf("%d) %02x\n", i, memory_read_m(&asm_context.memory, i));
+    if (endian == LITTLE)
+    {
+      f = (f >> 8) | (memory_read_m(&asm_context.memory, i) << 24);
+    }
+      else
+    {
+      f = (f << 8) | memory_read_m(&asm_context.memory, i);
+    }
+
+    if ((i % 4) == 3)
+    {
+#if 0
+      float a = f & 0x7fffff;
+      uint8_t e = ((f >> 23) & 0xff);
+      if ((f & 0x80000000) != 0) { a = -a; }
+#endif
+      union
+      {
+        float f;
+        uint32_t i;
+      } data;
+
+      data.i = f;
+
+      if (data.f != answer[i / 4])
+      {
+        printf("[%f!=%f] ", data.f, answer[i / 4]);
+        oops++;
+      }
+    }
+  }
+
+  if (oops != 0)
+  {
+    printf("FAIL\n");
+    errors++;
+  }
+    else
+  {
+    printf("PASS\n");
+  }
+
+  tokens_close(&asm_context);
+  assemble_free(&asm_context);
+}
+
 int main(int argc, char *argv[])
 {
   int n;
@@ -90,8 +175,16 @@ int main(int argc, char *argv[])
   n = 0;
   while(1)
   {
-    if (tests[n].source == NULL) { break; }
-    test(tests[n].source, tests[n].answer, tests[n].length, tests[n].endian);
+    if (tests_int[n].source == NULL) { break; }
+    test_int(tests_int[n].source, tests_int[n].answer, tests_int[n].length, tests_int[n].endian);
+    n++;
+  }
+
+  n = 0;
+  while(1)
+  {
+    if (tests_float[n].source == NULL) { break; }
+    test_float(tests_float[n].source, tests_float[n].answer, tests_float[n].length, tests_float[n].endian);
     n++;
   }
 

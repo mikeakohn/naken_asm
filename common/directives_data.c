@@ -282,6 +282,76 @@ char token[TOKENLEN];
   return -1;
 }
 
+int parse_dq(struct _asm_context *asm_context)
+{
+char token[TOKENLEN];
+int token_type;
+struct _var var;
+uint32_t udata32;
+union
+{
+  float f32;
+  uint32_t u32;
+} data;
+
+  if (asm_context->segment == SEGMENT_BSS)
+  {
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->filename, asm_context->line);
+    return -1;
+  }
+
+  while(1)
+  {
+    // if the user has a comma at the end, but no data, this is okay
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+    tokens_push(asm_context, token, token_type);
+
+    if (eval_expression_ex(asm_context, &var) == -1)
+    {
+      eat_operand(asm_context);
+    }
+    data.f32 = var_get_float(&var);
+    udata32 = data.u32;
+
+#ifdef __ORDER_LITTLE_ENDIAN__
+    //int swap = (asm_context->memory.endian == ENDIAN_LITTLE) ? 
+#else
+    //int swap = 1;
+#endif
+
+    //if (swap == 0)
+    if (asm_context->memory.endian == ENDIAN_LITTLE)
+    {
+      memory_write_inc(asm_context, udata32 & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32 >> 8) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32 >> 16) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32 >> 24) & 0xff, DL_DATA);
+    }
+      else
+    {
+      memory_write_inc(asm_context, (udata32 >> 24) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32 >> 16) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, (udata32 >> 8) & 0xff, DL_DATA);
+      memory_write_inc(asm_context, udata32 & 0xff, DL_DATA);
+    }
+
+    asm_context->data_count += 4;
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+
+    if (IS_NOT_TOKEN(token, ','))
+    {
+      printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
+      return -1;
+    }
+  }
+
+  asm_context->line++;
+
+  return 0;
+}
+
 int parse_ds(struct _asm_context *asm_context, int n)
 {
 char token[TOKENLEN];

@@ -16,6 +16,7 @@ CPU                 Author
 ARM                 Michael Kohn
 AVR8                Michael Kohn
 dsPIC/PIC24         Michael Kohn
+Epiphany/Parallela  Michael Kohn
 MIPS                Michael Kohn
 MSP430/MSP430X      Michael Kohn
 STM8                Michael Kohn
@@ -52,6 +53,7 @@ Usage: naken_asm [options] <infile>
    -o <outfile>
    -h             [output hex file]
    -e             [output elf file]
+   -s             [output srec file]
    -b             [output binary file]
    -d             [create .ndbg debug file]
    -l             [create .lst listing file]
@@ -218,6 +220,7 @@ CPU Selection:
 .arm             All ARM CPU's
 .avr8            Atmel AVR8
 .dspic           dsPIC
+.epiphany        Ephiphany/Parallella
 .mips            MIPS including PIC32
 .msp430          MSP430
 .mps430x         MSP430X
@@ -238,6 +241,13 @@ Assembler Directives:
 .db <data bytes>            8 bit data bytes
 .define <macro>             Define a C style #define macro
 .dw <data words>            16 bit data bytes
+.dc.w <data words>          16 bit data bytes
+.dl <data words>            32 bit data bytes
+.dc.l <data words>          32 bit data bytes
+.dc16 <data words>          16 bit data bytes
+.dc32 <data words>          32 bit data bytes
+.dc64 <data words>          64 bit data bytes
+.dq <data words>            32 bit floats
 .ds8 <data byte count>      Reserve <count> bytes
 .ds16 <data words count>    Reserve <count> 16 bit words
 .else <exression>           Else for .if or .ifdef
@@ -248,6 +258,7 @@ Assembler Directives:
 .ifdef <exression>          If defined, can be used with .define
 .ifndef <exression>         If not defined, can be used with .define
 .include "includefile.inc"  Include a file of asm source code
+.little_endian              Store databytes in little endian format
 .macro <name> (opt. params) Define a macro (should end with .endm
 .org <address>              Address where next assembled bytes are written to
 .set <symbol>=<value>       Create or modify symbol's value (excluding labels)

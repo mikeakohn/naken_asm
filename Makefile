@@ -53,6 +53,7 @@ clean:
 	@rm -rf testing/unit/eval_expression_ex/unit_test
 	@rm -rf testing/unit/data/data_test
 	@rm -rf testing/unit/var/var_test
+	@rm -rf testing/unit/tokens/tokens_test
 	@echo "Clean!"
 
 tests:
@@ -61,6 +62,7 @@ tests:
 	@cd testing/unit/eval_expression_ex && make && ./unit_test && make clean
 	@cd testing/unit/var && make && ./var_test && make clean
 	@cd testing/unit/data && make && ./data_test && make clean
+	@cd testing/unit/tokens && make && ./tokens_test && make clean
 	@cd testing/comparison && make
 
 distclean: clean

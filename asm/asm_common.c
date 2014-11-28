@@ -93,7 +93,7 @@ int eat_operand(struct _asm_context *asm_context)
   {
     token_type=tokens_get(asm_context, token, TOKENLEN);
 
-    if (IS_TOKEN(token,',') || token_type == TOKEN_EOL)
+    if (IS_TOKEN(token,',') || token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       tokens_push(asm_context, token, token_type);
       return 0;

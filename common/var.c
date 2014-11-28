@@ -83,7 +83,7 @@ int var_get_type(struct _var *var)
 
 int var_add(struct _var *var_d, struct _var *var_s)
 {
-  if (var_d->type == VAR_INT && var_d->type == VAR_INT)
+  if (var_d->type == VAR_INT && var_s->type == VAR_INT)
   {
     var_d->value_int = var_d->value_int + var_s->value_int;
   }
@@ -98,7 +98,7 @@ int var_add(struct _var *var_d, struct _var *var_s)
 
 int var_sub(struct _var *var_d, struct _var *var_s)
 {
-  if (var_d->type == VAR_INT && var_d->type == VAR_INT)
+  if (var_d->type == VAR_INT && var_s->type == VAR_INT)
   {
     var_d->value_int = var_d->value_int - var_s->value_int;
   }
@@ -113,7 +113,7 @@ int var_sub(struct _var *var_d, struct _var *var_s)
 
 int var_mul(struct _var *var_d, struct _var *var_s)
 {
-  if (var_d->type == VAR_INT && var_d->type == VAR_INT)
+  if (var_d->type == VAR_INT && var_s->type == VAR_INT)
   {
     var_d->value_int = var_d->value_int * var_s->value_int;
   }
@@ -128,7 +128,7 @@ int var_mul(struct _var *var_d, struct _var *var_s)
 
 int var_div(struct _var *var_d, struct _var *var_s)
 {
-  if (var_d->type == VAR_INT && var_d->type == VAR_INT)
+  if (var_d->type == VAR_INT && var_s->type == VAR_INT)
   {
     var_d->value_int = var_d->value_int / var_s->value_int;
   }

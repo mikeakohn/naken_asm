@@ -417,6 +417,12 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+  if (strcasecmp(token, "dq") == 0)
+  {
+    if (parse_dq(asm_context) != 0) return -1;
+    return 1;
+  }
+    else
   if (strcasecmp(token, "dw") == 0 || strcasecmp(token, "dc16") == 0)
   {
     if (parse_dc16(asm_context) != 0) return -1;
