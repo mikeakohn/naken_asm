@@ -235,6 +235,12 @@ static int check_offset8(struct _asm_context *asm_context, struct _operand *oper
 {
   int o = operand->value - address;
 
+  if (asm_context->pass == 1)
+  {
+    *offset = 0;
+    return 0;
+  }
+
   if (o < -128 || o > 127)
   {
     print_error_range("Offset", -128, 127, asm_context);

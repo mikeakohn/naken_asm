@@ -763,106 +763,119 @@ blah:
 
 0x014b: 18 fe     jr 331  (-2)                             cycles: 12
 
+  jr   forward            ; 18 NNo
+
+0x014d: 18 10     jr 351  (16)                             cycles: 12
+
   jr   c,blah          ; 38 NNo
 
-0x014d: 38 fc     jr c,331  (-4)                           cycles: 7-12
+0x014f: 38 fa     jr c,331  (-6)                           cycles: 7-12
 
   ;jr   m,blah          ; FA NNl NNh
   jr   nc,blah         ; 30 NNo
 
-0x014f: 30 fa     jr nc,331  (-6)                          cycles: 7-12
+0x0151: 30 f8     jr nc,331  (-8)                          cycles: 7-12
 
   jr   nz,blah         ; 20 NNo
 
-0x0151: 20 f8     jr nz,331  (-8)                          cycles: 7-12
+0x0153: 20 f6     jr nz,331  (-10)                         cycles: 7-12
+
+  jr   nz,forward         ; 20 NNo
+
+0x0155: 20 08     jr nz,351  (8)                           cycles: 7-12
 
   ;jr   p,10          ; F2 NNl NNh
   ;jr   pe,10         ; EA NNl NNh
   ;jr   po,10         ; E2 NNl NNh
   jr   z,blah          ; 28 NNo
 
-0x0153: 28 f6     jr z,331  (-10)                          cycles: 7-12
+0x0157: 28 f2     jr z,331  (-14)                          cycles: 7-12
+
+  jr   z,forward          ; 28 NNo
+
+0x0159: 28 04     jr z,351  (4)                            cycles: 7-12
 
 
   ld   l,a           ; 6F
 
-0x0155: 6f        ld l,a                                   cycles: 4
+0x015b: 6f        ld l,a                                   cycles: 4
 
   ld   l,b           ; 68
 
-0x0156: 68        ld l,b                                   cycles: 4
+0x015c: 68        ld l,b                                   cycles: 4
 
   ld   l,c           ; 69
 
-0x0157: 69        ld l,c                                   cycles: 4
+0x015d: 69        ld l,c                                   cycles: 4
 
   ld   l,d           ; 6A
 
-0x0158: 6a        ld l,d                                   cycles: 4
+0x015e: 6a        ld l,d                                   cycles: 4
 
+forward:
   ld   l,e           ; 6B
 
-0x0159: 6b        ld l,e                                   cycles: 4
+0x015f: 6b        ld l,e                                   cycles: 4
 
   ld   l,h           ; 6C
 
-0x015a: 6c        ld l,h                                   cycles: 4
+0x0160: 6c        ld l,h                                   cycles: 4
 
   ld   l,l           ; 6D
 
-0x015b: 6d        ld l,l                                   cycles: 4
+0x0161: 6d        ld l,l                                   cycles: 4
 
   ld   a,a           ; 7F
 
-0x015c: 7f        ld a,a                                   cycles: 4
+0x0162: 7f        ld a,a                                   cycles: 4
 
   ld   a,b           ; 78
 
-0x015d: 78        ld a,b                                   cycles: 4
+0x0163: 78        ld a,b                                   cycles: 4
 
   ld   a,c           ; 79
 
-0x015e: 79        ld a,c                                   cycles: 4
+0x0164: 79        ld a,c                                   cycles: 4
 
   ld   a,d           ; 7A
 
-0x015f: 7a        ld a,d                                   cycles: 4
+0x0165: 7a        ld a,d                                   cycles: 4
 
   ld   a,e           ; 7B
 
-0x0160: 7b        ld a,e                                   cycles: 4
+0x0166: 7b        ld a,e                                   cycles: 4
 
   ld   a,h           ; 7C
 
-0x0161: 7c        ld a,h                                   cycles: 4
+0x0167: 7c        ld a,h                                   cycles: 4
 
   ld   a,l           ; 7D
 
-0x0162: 7d        ld a,l                                   cycles: 4
+0x0168: 7d        ld a,l                                   cycles: 4
 
   ld   b,a           ; 47
 
-0x0163: 47        ld b,a                                   cycles: 4
+0x0169: 47        ld b,a                                   cycles: 4
 
   ld   b,b           ; 40
 
-0x0164: 40        ld b,b                                   cycles: 4
+0x016a: 40        ld b,b                                   cycles: 4
 
   ld   b,c           ; 41
 
-0x0165: 41        ld b,c                                   cycles: 4
+0x016b: 41        ld b,c                                   cycles: 4
 
   ld   b,d           ; 42
 
-0x0166: 42        ld b,d                                   cycles: 4
+0x016c: 42        ld b,d                                   cycles: 4
 
   ld   b,e           ; 43
 
-0x0167: 43        ld b,e                                   cycles: 4
+0x016d: 43        ld b,e                                   cycles: 4
 
   ld   b,h           ; 44
 
-0x0168: 44        ld b,h                                   cycles: 4
+0x016e: 44        ld b,h                                   cycles: 4
 
 
   ;ld   a,ixh         ; DD 7C
@@ -887,476 +900,476 @@ blah:
 
   ld   c,10           ; 0E N
 
-0x0169: 0e 0a     ld c,10                                  cycles: 7
+0x016f: 0e 0a     ld c,10                                  cycles: 7
 
   ;ld   (hl),a        ; 77
   ;ld   (hl),b        ; 70
 
   ld   b,(hl)         ; 46
 
-0x016b: 46        ld b,(hl)                                cycles: 4
+0x0171: 46        ld b,(hl)                                cycles: 4
 
   ld   h,(hl)         ; 66
 
-0x016c: 66        ld h,(hl)                                cycles: 4
+0x0172: 66        ld h,(hl)                                cycles: 4
 
 
   ld   (hl),0x33      ; 36 N
 
-0x016d: 36 33     ld (hl),51                               cycles: 7
+0x0173: 36 33     ld (hl),51                               cycles: 7
 
 
   ld   a,(ix+12)      ; DD 7E DIS
 
-0x016f: dd 7e 0c  ld a,(ix+12)                             cycles: 19
+0x0175: dd 7e 0c  ld a,(ix+12)                             cycles: 19
 
   ld   b,(ix-11)      ; DD 7E N12
 
-0x0172: dd 46 f5  ld b,(ix-11)                             cycles: 19
+0x0178: dd 46 f5  ld b,(ix-11)                             cycles: 19
 
   ld   c,(iy)         ; FD 7E 00
 
-0x0175: fd 4e 00  ld c,(iy)                                cycles: 19
+0x017b: fd 4e 00  ld c,(iy)                                cycles: 19
 
   ld   h,(iy+12)      ; FD 7E DIS
 
-0x0178: fd 66 0c  ld h,(iy+12)                             cycles: 19
+0x017e: fd 66 0c  ld h,(iy+12)                             cycles: 19
 
   ld   (hl),(iy-11)   ; FD 7E N12
 
-0x017b: fd 76 f5  ld (hl),(iy-11)                          cycles: 19
+0x0181: fd 76 f5  ld (hl),(iy-11)                          cycles: 19
 
 
   ld   (ix+12),a     ; DD 77 DIS
 
-0x017e: dd 77 0c  ld (ix+12),a                             cycles: 19
+0x0184: dd 77 0c  ld (ix+12),a                             cycles: 19
 
   ld   (ix+12),b     ; DD 70 DIS
 
-0x0181: dd 70 0c  ld (ix+12),b                             cycles: 19
+0x0187: dd 70 0c  ld (ix+12),b                             cycles: 19
 
   ld   (iy-11),a     ; FD 77 N12
 
-0x0184: fd 77 f5  ld (iy-11),a                             cycles: 19
+0x018a: fd 77 f5  ld (iy-11),a                             cycles: 19
 
   ld   (iy-11),b     ; FD 70 N12
 
-0x0187: fd 70 f5  ld (iy-11),b                             cycles: 19
+0x018d: fd 70 f5  ld (iy-11),b                             cycles: 19
 
   ld   (ix+12),10    ; DD 36 DIS N
 
-0x018a: dd 36 0c 0a  ld (ix+12),10                            cycles: 19
+0x0190: dd 36 0c 0a  ld (ix+12),10                            cycles: 19
 
 
   ld   (hl),e        ; 73
 
-0x018e: 73        ld (hl),e                                cycles: 4
+0x0194: 73        ld (hl),e                                cycles: 4
 
   ld   (hl),h        ; 74
 
-0x018f: 74        ld (hl),h                                cycles: 4
+0x0195: 74        ld (hl),h                                cycles: 4
 
   ld   (hl),l        ; 75
 
-0x0190: 75        ld (hl),l                                cycles: 4
+0x0196: 75        ld (hl),l                                cycles: 4
 
   ld   (hl),10       ; 36 N
 
-0x0191: 36 0a     ld (hl),10                               cycles: 7
+0x0197: 36 0a     ld (hl),10                               cycles: 7
 
 
   ld   a,(bc)        ; 0A
 
-0x0193: 0a        ld a,(bc)                                cycles: 7
+0x0199: 0a        ld a,(bc)                                cycles: 7
 
   ld   a,(de)        ; 1A
 
-0x0194: 1a        ld a,(de)                                cycles: 7
+0x019a: 1a        ld a,(de)                                cycles: 7
 
   ld   (bc),a        ; 02
 
-0x0195: 02        ld (bc),a                                cycles: 7
+0x019b: 02        ld (bc),a                                cycles: 7
 
   ld   (de),a        ; 12
 
-0x0196: 12        ld (de),a                                cycles: 7
+0x019c: 12        ld (de),a                                cycles: 7
 
 
   ld   (10),a        ; 32 NNl NNh
 
-0x0197: 32 0a 00  ld (0x000a),a                            cycles: 13
+0x019d: 32 0a 00  ld (0x000a),a                            cycles: 13
 
   ld   a,(10)        ; 3A NNl NNh
 
-0x019a: 3a 0a 00  ld a,(0x000a)                            cycles: 13
+0x01a0: 3a 0a 00  ld a,(0x000a)                            cycles: 13
 
 
   ld   a,i           ; ED 57
 
-0x019d: ed 57     ld a,i                                   cycles: 9
+0x01a3: ed 57     ld a,i                                   cycles: 9
 
   ld   r,a           ; ED 4F
 
-0x019f: ed 4f     ld r,a                                   cycles: 9
+0x01a5: ed 4f     ld r,a                                   cycles: 9
 
   ld   a,r           ; ED 5F
 
-0x01a1: ed 5f     ld a,r                                   cycles: 9
+0x01a7: ed 5f     ld a,r                                   cycles: 9
 
   ld   i,a           ; ED 47
 
-0x01a3: ed 47     ld i,a                                   cycles: 9
+0x01a9: ed 47     ld i,a                                   cycles: 9
 
 
   ld   ix,49152      ; DD 21 NNl NNh
 
-0x01a5: dd 21 00 c0  ld ix,0xc000                             cycles: 14
+0x01ab: dd 21 00 c0  ld ix,0xc000                             cycles: 14
 
   ld   bc,49152      ; 01 NNl NNh
 
-0x01a9: 01 00 c0  ld bc,0xc000                             cycles: 10
+0x01af: 01 00 c0  ld bc,0xc000                             cycles: 10
 
 
   ld   bc,(49152)    ; ED 4B NNl NNh
 
-0x01ac: ed 4b 00 c0  ld bc,(0xc000)                           cycles: 20
+0x01b2: ed 4b 00 c0  ld bc,(0xc000)                           cycles: 20
 
   ld   ix,(49152)    ; DD 2A NNl NNh
 
-0x01b0: dd 2a 00 c0  ld ix,(0xc000)                           cycles: 20
+0x01b6: dd 2a 00 c0  ld ix,(0xc000)                           cycles: 20
 
   ld   hl,(49152)    ; 2A NNl NNh
 
-0x01b4: 2a 00 c0  ld hl,(0xc000)                           cycles: 16
+0x01ba: 2a 00 c0  ld hl,(0xc000)                           cycles: 16
 
 
   ld   (49152),bc    ; ED 43 NNl NNh
 
-0x01b7: ed 43 00 c0  ld (0xc000),bc                           cycles: 20
+0x01bd: ed 43 00 c0  ld (0xc000),bc                           cycles: 20
 
   ld   (49152),ix    ; DD 22 NNl NNh
 
-0x01bb: dd 22 00 c0  ld (0xc000),ix                           cycles: 20
+0x01c1: dd 22 00 c0  ld (0xc000),ix                           cycles: 20
 
   ld   (49152),hl    ; 22 NNl NNh
 
-0x01bf: 22 00 c0  ld (0xc000),hl                           cycles: 16
+0x01c5: 22 00 c0  ld (0xc000),hl                           cycles: 16
 
 
   ld   sp,hl         ; F9
 
-0x01c2: f9        ld sp,hl                                 cycles: 6
+0x01c8: f9        ld sp,hl                                 cycles: 6
 
   ld   sp,ix         ; DD F9
 
-0x01c3: dd f9     ld sp,ix                                 cycles: 10
+0x01c9: dd f9     ld sp,ix                                 cycles: 10
 
   ld   sp,iy         ; FD F9
 
-0x01c5: fd f9     ld sp,iy                                 cycles: 10
+0x01cb: fd f9     ld sp,iy                                 cycles: 10
 
 
   or   (hl)          ; B6
 
-0x01c7: b6        or (hl)                                  cycles: 4
+0x01cd: b6        or (hl)                                  cycles: 4
 
   or   (ix)          ; DD B6 00
 
-0x01c8: dd b6 00  or (ix)                                  cycles: 19
+0x01ce: dd b6 00  or (ix)                                  cycles: 19
 
   or   (ix+10)      ; DD B6 DIS
 
-0x01cb: dd b6 0a  or (ix+10)                               cycles: 19
+0x01d1: dd b6 0a  or (ix+10)                               cycles: 19
 
   or   (ix-10)     ; DD B6 NDIS
 
-0x01ce: dd b6 f6  or (ix-10)                               cycles: 19
+0x01d4: dd b6 f6  or (ix-10)                               cycles: 19
 
   or   (iy)          ; FD B6 00
 
-0x01d1: fd b6 00  or (iy)                                  cycles: 19
+0x01d7: fd b6 00  or (iy)                                  cycles: 19
 
   or   (iy+10)      ; FD B6 DIS
 
-0x01d4: fd b6 0a  or (iy+10)                               cycles: 19
+0x01da: fd b6 0a  or (iy+10)                               cycles: 19
 
   or   (iy-10)     ; FD B6 NDIS
 
-0x01d7: fd b6 f6  or (iy-10)                               cycles: 19
+0x01dd: fd b6 f6  or (iy-10)                               cycles: 19
 
   or   10             ; F6 N
 
-0x01da: f6 0a     or 10                                    cycles: 7
+0x01e0: f6 0a     or 10                                    cycles: 7
 
   or   a             ; B7
 
-0x01dc: b7        or a                                     cycles: 4
+0x01e2: b7        or a                                     cycles: 4
 
   or   b             ; B0
 
-0x01dd: b0        or b                                     cycles: 4
+0x01e3: b0        or b                                     cycles: 4
 
   or   c             ; B1
 
-0x01de: b1        or c                                     cycles: 4
+0x01e4: b1        or c                                     cycles: 4
 
   or   d             ; B2
 
-0x01df: b2        or d                                     cycles: 4
+0x01e5: b2        or d                                     cycles: 4
 
   or   e             ; B3
 
-0x01e0: b3        or e                                     cycles: 4
+0x01e6: b3        or e                                     cycles: 4
 
   or   h             ; B4
 
-0x01e1: b4        or h                                     cycles: 4
+0x01e7: b4        or h                                     cycles: 4
 
   or   ixh           ; DD B4
 
-0x01e2: dd b4     or ixh                                   cycles: 8
+0x01e8: dd b4     or ixh                                   cycles: 8
 
   or   ixl           ; DD B5
 
-0x01e4: dd b5     or ixl                                   cycles: 8
+0x01ea: dd b5     or ixl                                   cycles: 8
 
   or   iyh           ; FD B4
 
-0x01e6: fd b4     or iyh                                   cycles: 8
+0x01ec: fd b4     or iyh                                   cycles: 8
 
   or   iyl           ; FD B5
 
-0x01e8: fd b5     or iyl                                   cycles: 8
+0x01ee: fd b5     or iyl                                   cycles: 8
 
   or   l             ; B5
 
-0x01ea: b5        or l                                     cycles: 4
+0x01f0: b5        or l                                     cycles: 4
 
 
   out  (10),a        ; D3 N
 
-0x01eb: d3 0a     out (10),a                               cycles: 11
+0x01f1: d3 0a     out (10),a                               cycles: 11
 
   out  (c),0         ; ED 71
 
-0x01ed: ed 71     out (c),0                                cycles: 12
+0x01f3: ed 71     out (c),0                                cycles: 12
 
   out  (c),h         ; ED 61
 
-0x01ef: ed 61     out (c),h                                cycles: 12
+0x01f5: ed 61     out (c),h                                cycles: 12
 
   out  (c),l         ; ED 69
 
-0x01f1: ed 69     out (c),l                                cycles: 12
+0x01f7: ed 69     out (c),l                                cycles: 12
 
   outd               ; ED AB
 
-0x01f3: ed ab     outd                                     cycles: 16
+0x01f9: ed ab     outd                                     cycles: 16
 
   outi               ; ED A3
 
-0x01f5: ed a3     outi                                     cycles: 16
+0x01fb: ed a3     outi                                     cycles: 16
 
 
   push af            ; F5
 
-0x01f7: f5        push af                                  cycles: 11
+0x01fd: f5        push af                                  cycles: 11
 
   push bc            ; C5
 
-0x01f8: c5        push bc                                  cycles: 11
+0x01fe: c5        push bc                                  cycles: 11
 
   push de            ; D5
 
-0x01f9: d5        push de                                  cycles: 11
+0x01ff: d5        push de                                  cycles: 11
 
   push hl            ; E5
 
-0x01fa: e5        push hl                                  cycles: 11
+0x0200: e5        push hl                                  cycles: 11
 
   push ix            ; DD E5
 
-0x01fb: dd e5     push ix                                  cycles: 15
+0x0201: dd e5     push ix                                  cycles: 15
 
   push iy            ; FD E5
 
-0x01fd: fd e5     push iy                                  cycles: 15
+0x0203: fd e5     push iy                                  cycles: 15
 
   pop  af            ; F1
 
-0x01ff: f1        pop af                                   cycles: 10
+0x0205: f1        pop af                                   cycles: 10
 
   pop  bc            ; C1
 
-0x0200: c1        pop bc                                   cycles: 10
+0x0206: c1        pop bc                                   cycles: 10
 
   pop  de            ; D1
 
-0x0201: d1        pop de                                   cycles: 10
+0x0207: d1        pop de                                   cycles: 10
 
   pop  hl            ; E1
 
-0x0202: e1        pop hl                                   cycles: 10
+0x0208: e1        pop hl                                   cycles: 10
 
   pop  ix            ; DD E1
 
-0x0203: dd e1     pop ix                                   cycles: 14
+0x0209: dd e1     pop ix                                   cycles: 14
 
   pop  iy            ; FD E1
 
-0x0205: fd e1     pop iy                                   cycles: 14
+0x020b: fd e1     pop iy                                   cycles: 14
 
 
   bit  6,l           ; CB 75
 
-0x0207: cb 75     bit 6,l                                  cycles: 8
+0x020d: cb 75     bit 6,l                                  cycles: 8
 
   bit  7,(hl)        ; CB 7E
 
-0x0209: cb 7e     bit 7,(hl)                               cycles: 8
+0x020f: cb 7e     bit 7,(hl)                               cycles: 8
 
   bit  7,(ix)        ; DD CB 00 7E
 
-0x020b: dd cb 00 7e  bit 7,(ix)                               cycles: 20
+0x0211: dd cb 00 7e  bit 7,(ix)                               cycles: 20
 
   bit  7,(ix+5)      ; DD CB DIS 7E
 
-0x020f: dd cb 05 7e  bit 7,(ix+5)                             cycles: 20
+0x0215: dd cb 05 7e  bit 7,(ix+5)                             cycles: 20
 
 
   ret                ; C9
 
-0x0213: c9        ret                                      cycles: 10
+0x0219: c9        ret                                      cycles: 10
 
   ret  c             ; D8
 
-0x0214: d8        ret c                                    cycles: 5-11
+0x021a: d8        ret c                                    cycles: 5-11
 
   ret  m             ; F8
 
-0x0215: f8        ret m                                    cycles: 5-11
+0x021b: f8        ret m                                    cycles: 5-11
 
   ret  nc            ; D0
 
-0x0216: d0        ret nc                                   cycles: 5-11
+0x021c: d0        ret nc                                   cycles: 5-11
 
   ret  nz            ; C0
 
-0x0217: c0        ret nz                                   cycles: 5-11
+0x021d: c0        ret nz                                   cycles: 5-11
 
   ret  p             ; F0
 
-0x0218: f0        ret p                                    cycles: 5-11
+0x021e: f0        ret p                                    cycles: 5-11
 
   ret  pe            ; E8
 
-0x0219: e8        ret pe                                   cycles: 5-11
+0x021f: e8        ret pe                                   cycles: 5-11
 
   ret  po            ; E0
 
-0x021a: e0        ret po                                   cycles: 5-11
+0x0220: e0        ret po                                   cycles: 5-11
 
   ret  z             ; C8
 
-0x021b: c8        ret z                                    cycles: 5-11
+0x0221: c8        ret z                                    cycles: 5-11
 
 
   rl   c             ; CB 11
 
-0x021c: cb 11     rl c                                     cycles: 8
+0x0222: cb 11     rl c                                     cycles: 8
 
   rl   d             ; CB 12
 
-0x021e: cb 12     rl d                                     cycles: 8
+0x0224: cb 12     rl d                                     cycles: 8
 
   rl   (hl)          ; CB 16
 
-0x0220: cb 16     rl (hl)                                  cycles: 15
+0x0226: cb 16     rl (hl)                                  cycles: 15
 
 
   rst  0             ; C7
 
-0x0222: c7        rst 0x0                                  cycles: 11
+0x0228: c7        rst 0x0                                  cycles: 11
 
   rst  16            ; D7
 
-0x0223: d7        rst 0x10                                 cycles: 11
+0x0229: d7        rst 0x10                                 cycles: 11
 
   rst  24            ; DF
 
-0x0224: df        rst 0x18                                 cycles: 11
+0x022a: df        rst 0x18                                 cycles: 11
 
 
   res  6,(hl)        ; CB B6
 
-0x0225: cb b6     res 6,(hl)                               cycles: 8
+0x022b: cb b6     res 6,(hl)                               cycles: 8
 
 
   res  7,b           ; CB B8
 
-0x0227: cb b8     res 7,b                                  cycles: 8
+0x022d: cb b8     res 7,b                                  cycles: 8
 
   res  7,c           ; CB B9
 
-0x0229: cb b9     res 7,c                                  cycles: 8
+0x022f: cb b9     res 7,c                                  cycles: 8
 
   res  7,d           ; CB BA
 
-0x022b: cb ba     res 7,d                                  cycles: 8
+0x0231: cb ba     res 7,d                                  cycles: 8
 
 
   res  7,(ix+10),c  ; DD CB DIS B9
 
-0x022d: dd cb 0a b9  res 7,(ix+10),c                          cycles: 23
+0x0233: dd cb 0a b9  res 7,(ix+10),c                          cycles: 23
 
   res  7,(ix+10),d  ; DD CB DIS BA
 
-0x0231: dd cb 0a ba  res 7,(ix+10),d                          cycles: 23
+0x0237: dd cb 0a ba  res 7,(ix+10),d                          cycles: 23
 
   res  7,(ix+10),e  ; DD CB DIS BB
 
-0x0235: dd cb 0a bb  res 7,(ix+10),e                          cycles: 23
+0x023b: dd cb 0a bb  res 7,(ix+10),e                          cycles: 23
 
   res  5,(iy-10)    ; FD CB NDIS AE
 
-0x0239: fd cb f6 ae  res 5,(iy-10)                            cycles: 23
+0x023f: fd cb f6 ae  res 5,(iy-10)                            cycles: 23
 
 
   set  7,(iy),c      ; FD CB 00 F9
 
-0x023d: fd cb 00 f9  set 7,(iy),c                             cycles: 23
+0x0243: fd cb 00 f9  set 7,(iy),c                             cycles: 23
 
   set  7,(iy),d      ; FD CB 00 FA
 
-0x0241: fd cb 00 fa  set 7,(iy),d                             cycles: 23
+0x0247: fd cb 00 fa  set 7,(iy),d                             cycles: 23
 
   set  7,(iy),e      ; FD CB 00 FB
 
-0x0245: fd cb 00 fb  set 7,(iy),e                             cycles: 23
+0x024b: fd cb 00 fb  set 7,(iy),e                             cycles: 23
 
   set  7,(ix+10),b  ; DD CB DIS F8
 
-0x0249: dd cb 0a f8  set 7,(ix+10),b                          cycles: 23
+0x024f: dd cb 0a f8  set 7,(ix+10),b                          cycles: 23
 
   set  7,(ix+10),c  ; DD CB DIS F9
 
-0x024d: dd cb 0a f9  set 7,(ix+10),c                          cycles: 23
+0x0253: dd cb 0a f9  set 7,(ix+10),c                          cycles: 23
 
   set  7,(ix+10),d  ; DD CB DIS FA
 
-0x0251: dd cb 0a fa  set 7,(ix+10),d                          cycles: 23
+0x0257: dd cb 0a fa  set 7,(ix+10),d                          cycles: 23
 
   set  7,(iy)        ; FD CB 00 FE
 
-0x0255: fd cb 00 fe  set 7,(iy)                               cycles: 23
+0x025b: fd cb 00 fe  set 7,(iy)                               cycles: 23
 
   set  5,c           ; CB E9
 
-0x0259: cb e9     set 5,c                                  cycles: 8
+0x025f: cb e9     set 5,c                                  cycles: 8
 
   set  5,d           ; CB EA
 
-0x025b: cb ea     set 5,d                                  cycles: 8
+0x0261: cb ea     set 5,d                                  cycles: 8
 
 
 
@@ -1367,9 +1380,9 @@ data sections:
 Program Info:
 Include Paths: .
                /usr/local/share/naken_asm/include
- Instructions: 318
-   Code Bytes: 605
+ Instructions: 321
+   Code Bytes: 611
    Data Bytes: 0
   Low Address: 0000 (0)
- High Address: 025c (604)
+ High Address: 0262 (610)
 

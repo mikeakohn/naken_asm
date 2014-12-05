@@ -217,19 +217,23 @@ main:
   jp   z,10          ; CA NNl NNh
 blah:
   jr   blah            ; 18 NNo
+  jr   forward            ; 18 NNo
   jr   c,blah          ; 38 NNo
   ;jr   m,blah          ; FA NNl NNh
   jr   nc,blah         ; 30 NNo
   jr   nz,blah         ; 20 NNo
+  jr   nz,forward         ; 20 NNo
   ;jr   p,10          ; F2 NNl NNh
   ;jr   pe,10         ; EA NNl NNh
   ;jr   po,10         ; E2 NNl NNh
   jr   z,blah          ; 28 NNo
+  jr   z,forward          ; 28 NNo
 
   ld   l,a           ; 6F
   ld   l,b           ; 68
   ld   l,c           ; 69
   ld   l,d           ; 6A
+forward:
   ld   l,e           ; 6B
   ld   l,h           ; 6C
   ld   l,l           ; 6D
