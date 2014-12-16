@@ -103,6 +103,12 @@ int rd,rr,k;
 
   //tokens_push(asm_context, token, token_type);
 
+  if ((asm_context->address & 1) == 1)
+  {
+    printf("Warning: address 0x%04x not on 16 bit boundary\n", asm_context->address);
+    asm_context->address++;
+  }
+
   while(1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);

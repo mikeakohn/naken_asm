@@ -51,6 +51,7 @@ enum
   SIZE_B,
   SIZE_W,
   SIZE_L,
+  SIZE_S,
 };
 
 enum
@@ -1120,6 +1121,7 @@ int n;
       if (strcasecmp(token, "b")==0) { operand_size=SIZE_B; }
       else if (strcasecmp(token, "w")==0) { operand_size=SIZE_W; }
       else if (strcasecmp(token, "l")==0) { operand_size=SIZE_L; }
+      else if (strcasecmp(token, "s")==0) { operand_size=SIZE_S; }
       else
       {
         print_error_unexp(token, asm_context);
@@ -1409,8 +1411,15 @@ printf("\n");
       if (operands[0].type!=OPERAND_ADDRESS) { continue; }
       matched=1;
       int opcode=0x6000|(n<<8);
+      if (operand_size==SIZE_S) { operand_size=SIZE_B; }
       return write_displacement(asm_context, instr, operands, operand_count, opcode, operand_size);
     }
+  }
+
+  if (operand_size==SIZE_S && strcmp(instr_case, "bra")!=0)
+  {
+    print_error_unexp("s", asm_context);
+    return -1;
   }
 
   if (instr_case[0]=='s' && operand_count==1)
@@ -1534,6 +1543,7 @@ printf("\n");
           ret=write_logic_ccr(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         case OP_DISPLACEMENT:
+          if (operand_size==SIZE_S) { operand_size=SIZE_B; }
           ret=write_displacement(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         case OP_EXT:

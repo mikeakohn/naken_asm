@@ -439,20 +439,20 @@ int n;
           if (offset==0)
           {
             offset=(short int)READ_RAM16(address+2);
-            sprintf(instruction, "%s $%x (%d)", table_680x0[n].instr, address+4+offset, offset);
+            sprintf(instruction, "%s.w $%x (%d)", table_680x0[n].instr, address+4+offset, offset);
             return 4;
           }
             else
           if (offset==0xff)
           {
             offset=READ_RAM32(address+2);
-            sprintf(instruction, "%s $%x (%d)", table_680x0[n].instr, address+6+offset, offset);
+            sprintf(instruction, "%s.l $%x (%d)", table_680x0[n].instr, address+6+offset, offset);
             return 6;
           }
             else
           {
             offset=(int)((char)offset);
-            sprintf(instruction, "%s $%x (%d)", table_680x0[n].instr, address+2+offset, offset);
+            sprintf(instruction, "%s.s $%x (%d)", table_680x0[n].instr, address+2+offset, offset);
             return 2;
           }
         case OP_EXT:
