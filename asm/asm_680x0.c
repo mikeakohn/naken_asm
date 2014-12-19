@@ -41,6 +41,8 @@ enum
   OPERAND_INDEX_DATA16_PC,            // implement me
   OPERAND_INDEX_DATA8_PC_XN,          // implement me
   OPERAND_ADDRESS,
+  OPERAND_ADDRESS_W,
+  OPERAND_ADDRESS_L,
   OPERAND_SPECIAL_REG,
   OPERAND_MULTIPLE_REG,
 };
@@ -148,7 +150,7 @@ static int ea_immediate(struct _asm_context *asm_context, int opcode, int size, 
   }
 }
 
-static int ea_address(struct _asm_context *asm_context, int opcode, struct _operand *operand, unsigned int extra_imm)
+static int ea_address(struct _asm_context *asm_context, int opcode, struct _operand *operand, uint32_t extra_imm)
 {
   unsigned int value;
   int len;
@@ -1207,30 +1209,92 @@ int n;
         // Check for displacement
         tokens_push(asm_context, token, token_type);
 
+        int eval_error = 0;
+
         if (eval_expression(asm_context, &num)!=0)
         {
-          print_error_illegal_expression(instr, asm_context);
-          return -1;
+          if (asm_context->pass == 1)
+          {
+            eval_error = 1;
+            eat_operand(asm_context);
+          }
+            else
+          {
+            print_error_illegal_expression(instr, asm_context);
+            return -1;
+          }
         }
 
         operands[operand_count].value=num;
         operands[operand_count].type=OPERAND_INDEX_DATA16_A_REG;
-        if (expect_token_s(asm_context,",")!=0) { return -1; }
 
         token_type=tokens_get(asm_context, token, TOKENLEN);
-        if ((num=get_register_a_680x0(token))!=-1)
+
+        if (IS_TOKEN(token, ','))
         {
-          operands[operand_count].dis_reg=num;
+          token_type=tokens_get(asm_context, token, TOKENLEN);
+          if ((num=get_register_a_680x0(token))!=-1)
+          {
+            operands[operand_count].dis_reg=num;
+          }
+            else
+          {
+            if (strcasecmp(token, "pc")==0)
+            {
+              operands[operand_count].type=OPERAND_INDEX_DATA16_PC;
+            }
+          }
+
+          if (expect_token_s(asm_context,")")!=0) { return -1; }
         }
           else
         {
-          if (strcasecmp(token, "pc")==0)
+          if (expect_token_s(asm_context,")")!=0) { return -1; }
+
+          if (eval_error == 1)
           {
-            operands[operand_count].type=OPERAND_INDEX_DATA16_PC;
+            memory_write(asm_context, asm_context->address, 4, asm_context->line);
+          }
+
+          token_type=tokens_get(asm_context, token, TOKENLEN);
+
+          if (IS_TOKEN(token, '.'))
+          {
+            token_type=tokens_get(asm_context, token, TOKENLEN);
+            if (strcasecmp(token, "w") == 0)
+            {
+              //operands[operand_count].type = OPERAND_ADDRESS_W;
+              operands[operand_count].type = OPERAND_ADDRESS;
+              if (num < 0 || num > 0xffff)
+              {
+                print_error_range(instr, 0, 0xffff, asm_context);
+                return -1;
+              }
+            }
+              else
+            if (strcasecmp(token, "l") == 0)
+            {
+              //operands[operand_count].type = OPERAND_ADDRESS_L;
+              operands[operand_count].type = OPERAND_ADDRESS;
+            }
+              else
+            {
+              print_error_unexp(token, asm_context);
+            }
+          }
+            else
+          {
+            if (memory_read(asm_context, asm_context->address) != 0 ||
+                eval_error == 1 ||
+                num > 0xffff)
+            {
+              //operands[operand_count].type = OPERAND_ADDRESS_L;
+              operands[operand_count].type = OPERAND_ADDRESS;
+            }
+
+            tokens_push(asm_context, token, token_type);
           }
         }
-
-        if (expect_token_s(asm_context,")")!=0) { return -1; }
       }
     }
       else
