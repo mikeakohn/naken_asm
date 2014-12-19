@@ -2,6 +2,7 @@
 
 default:
 	bash run_test.sh 65xx
+	bash run_test.sh 680x0
 	bash run_test.sh arm
 	bash run_test.sh avr8
 	bash run_test.sh dspic
