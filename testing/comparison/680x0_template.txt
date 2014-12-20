@@ -18,6 +18,10 @@ add.l %d3,(%a6)+
 add.l %d1,-(%a6)
 add.l %d0,(100,%a6)
 add.l %d0,(1000).w
-add.l %d0,(1000).l
-add.l %d0,(1000)
+add.w %d0,(1000).l
+add.b %d0,(1000)
 add.l %d0,(100000)
+add.l #0xfff33,%d0
+add.w #1000,%d1
+add.b #7,%d7
+add.b #7,(0xffff,%a3)

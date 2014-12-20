@@ -628,7 +628,7 @@ static int write_quick(struct _asm_context *asm_context, char *instr, struct _op
 
   int data = (operands[0].value == 0) ? 8 : operands[0].value;
 
-  return ea_generic_all(asm_context, &operands[0], instr, opcode | (data << 9) | (size << 6), size, EA_NO_PC, NO_EXTRA_IMM);
+  return ea_generic_all(asm_context, &operands[1], instr, opcode | (data << 9) | (size << 6), size, EA_NO_PC, NO_EXTRA_IMM);
 }
 
 static int write_move_special(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size, int type)
@@ -1506,6 +1506,30 @@ printf("[%d %d]", operands[n].type, operands[n].value);
 }
 printf("\n");
 #endif
+
+  // M68000 FAMILY PROGRAMMER'S REFERENCE MANUAL, page 4-6
+  // ADDA is used when the destintation is an address register.
+  // ADDI and ADDQ are used when the source is immediate data.
+  // Most assemblers automatically make this distinction.
+  if (strcmp(instr_case, "add") == 0 && operand_count == 2)
+  {
+    if (operands[1].type == OPERAND_A_REG)
+    {
+      instr_case = "adda";
+    }
+      else
+    if (operands[0].type == OPERAND_IMMEDIATE)
+    {
+      if (operands[0].value >= 1 && operands[0].value <= 8)
+      {
+        instr_case = "addq";
+      }
+        else
+      {
+        instr_case = "addi";
+      }
+    }
+  }
 
   if (instr_case[0] == 'd' && instr_case[1] == 'b')
   {
