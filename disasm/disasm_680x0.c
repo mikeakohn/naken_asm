@@ -41,10 +41,12 @@ int get_cycle_count_680x0(unsigned short int opcode)
   return -1;
 }
 
-static int get_ea_680x0(struct _memory *memory, int address, char *ea, unsigned short int opcode, int skip, int size)
+static int get_ea_680x0(struct _memory *memory, int address, char *ea, uint16_t opcode, int skip, int size)
 {
-int reg = opcode & 0x7;
-int mode = (opcode >> 3) & 0x7;
+  int reg = opcode & 0x7;
+  int mode = (opcode >> 3) & 0x7;
+  int xn,xn_reg;
+  char xn_ad,xn_size;
 
   switch(mode)
   {
@@ -65,6 +67,13 @@ int mode = (opcode >> 3) & 0x7;
       return 2;
     case 5:
       sprintf(ea, "(%d,a%d)", (int16_t)READ_RAM16(address + 2 + skip), reg);
+      return 4;
+    case 6:
+      xn = READ_RAM16(address + 2 + skip);
+      xn_ad = (xn & 0x8000) == 0 ? 'd' : 'a';
+      xn_reg = (xn >> 12) & 0x7;
+      xn_size = (xn & 0x0800) == 0 ? 'w' : 'l';
+      sprintf(ea, "(%d,a%d,%c%d.%c)", (int8_t)(xn & 0xff), reg, xn_ad, xn_reg, xn_size);
       return 4;
     case 7:
       if (reg==0)
@@ -125,8 +134,8 @@ int mode = (opcode >> 3) & 0x7;
 
 static void get_reglist(char *reglist, int regs)
 {
-int ptr = 0;
-int n;
+  int ptr = 0;
+  int n;
 
   for (n = 0; n < 8; n++)
   {
@@ -163,16 +172,16 @@ static char get_size_680x0(unsigned short int opcode, int pos)
 
 int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
-//int count=2;
-int opcode;
-char ea[32];
-int size;
-int reg;
-int mode,len;
-unsigned int immediate;
-int offset;
-//int value;
-int n;
+  //int count=2;
+  int opcode;
+  char ea[32];
+  int size;
+  int reg;
+  int mode,len;
+  uint32_t immediate;
+  int offset;
+  //int value;
+  int n;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -204,42 +213,44 @@ int n;
           return 2;
         case OP_SINGLE_EA:
           size = SIZE(opcode, 6);
-          get_ea_680x0(memory, address, ea, opcode, 0, size);
+          len = get_ea_680x0(memory, address, ea, opcode, 0, size);
           if (size == 3) { break; }
           sprintf(instruction, "%s.%c %s", table_680x0[n].instr, sizes[size], ea);
-          return 2;
+          return len;
         case OP_SINGLE_EA_NO_SIZE:
         //case OP_SINGLE_EA_TO_ADDR:
-          get_ea_680x0(memory, address, ea, opcode, 0, 0);
+          len = get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s %s", table_680x0[n].instr, ea);
-          return 2;
+          return len;
         case OP_IMMEDIATE:
           size = SIZE(opcode, 6);
           mode = (opcode >> 3) & 0x7;
           reg = (opcode) & 0x7;
           if (mode == 1 || (mode == 7 && reg == 4)) { break; }
-          get_ea_680x0(memory, address, ea, opcode, 0, size);
+          len = get_ea_680x0(memory, address, ea, opcode, 2, size);
           if (size == 3) { break; }
 
           if (size == SIZE_B)
           {
             immediate = READ_RAM(address + 3);
             sprintf(instruction, "%s.%c #$%02x, %s", table_680x0[n].instr, sizes[size], immediate, ea);
-            return 4;
+            len += 2;
           }
             else
           if (size == SIZE_W)
           {
             immediate = READ_RAM16(address + 2);
             sprintf(instruction, "%s.%c #$%04x, %s", table_680x0[n].instr, sizes[size], immediate, ea);
-            return 4;
+            len += 2;
           }
             else
           {
             immediate = READ_RAM32(address + 2);
             sprintf(instruction, "%s.%c #$%08x, %s", table_680x0[n].instr, sizes[size], immediate, ea);
-            return 6;
+            len += 4;
           }
+
+          return len;
         case OP_SHIFT_EA:
           if (((opcode >> 3) & 0x7) <= 1) { break; }
           len = get_ea_680x0(memory, address, ea, opcode, 0, 0);
@@ -570,10 +581,10 @@ int n;
 
 void list_output_680x0(struct _asm_context *asm_context, int address)
 {
-int cycles_min=-1,cycles_max=-1;
-int count;
-char instruction[128];
-int n;
+  int cycles_min=-1,cycles_max=-1;
+  int count;
+  char instruction[128];
+  int n;
 
   fprintf(asm_context->list, "\n");
   count = disasm_680x0(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
@@ -588,12 +599,12 @@ int n;
 
 void disasm_range_680x0(struct _memory *memory, int start, int end)
 {
-char instruction[128];
-char temp[32];
-char temp2[4];
-int cycles_min=0,cycles_max=0;
-int count;
-int n;
+  char instruction[128];
+  char temp[32];
+  char temp2[4];
+  int cycles_min=0,cycles_max=0;
+  int count;
+  int n;
 
   printf("\n");
 

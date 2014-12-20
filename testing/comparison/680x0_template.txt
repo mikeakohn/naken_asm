@@ -24,4 +24,9 @@ add.l %d0,(100000)
 add.l #0xfff33,%d0
 add.w #1000,%d1
 add.b #7,%d7
-add.b #7,(0xffff,%a3)
+add.b #7,(100,%a3)
+add.b #7,(-100,%a3)
+add.b #0x66,(5,%a3,%d3)
+add.b #0x66,(5,%a3,%d3.w)
+add.b #0x66,(5,%a3,%d3.l)
+add.b #0x66,(5,%a3,%a3.l)

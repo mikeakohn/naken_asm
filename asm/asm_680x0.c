@@ -36,10 +36,10 @@ enum
   OPERAND_A_REG_INDEX_PLUS,
   OPERAND_A_REG_INDEX_MINUS,
   OPERAND_INDEX_DATA16_A_REG,
-  OPERAND_INDEX_DATA8_A_REG_XN,   // implement me
+  OPERAND_INDEX_DATA8_A_REG_XN,
   OPERAND_IMMEDIATE,
-  OPERAND_INDEX_DATA16_PC,        // implement me
-  OPERAND_INDEX_DATA8_PC_XN,      // implement me
+  OPERAND_INDEX_DATA16_PC,
+  OPERAND_INDEX_DATA8_PC_XN,
   OPERAND_ADDRESS,                // for branches/jumps
   OPERAND_ADDRESS_W,              // for word memory writes
   OPERAND_ADDRESS_L,              // for long memory writes
@@ -80,6 +80,8 @@ struct _operand
   int type;
   //char error;
   char dis_reg;
+  char xn_reg;
+  char xn_size;
 };
 
 static int get_register_d_680x0(char *token)
@@ -283,6 +285,30 @@ static int ea_displacement(struct _asm_context *asm_context, int opcode, struct 
   return 4;
 }
 
+static int ea_displacement_xn(struct _asm_context *asm_context, int opcode, struct _operand *operand)
+{
+  if (operand->value < -128 || operand->value > 127)
+  {
+    print_error_range("Displacement", -128, 127, asm_context);
+    return -1;
+  }
+
+  if (operand->type == OPERAND_INDEX_DATA8_A_REG_XN)
+  {
+    add_bin16(asm_context, opcode | (0x6 << 3) | operand->dis_reg, IS_OPCODE);
+  }
+    else
+  if (operand->type == OPERAND_INDEX_DATA8_PC_XN)
+  {
+    add_bin16(asm_context, opcode | (0x7 << 3) | 0x3, IS_OPCODE);
+  }
+
+  // [D=0/A=1] [REG3] [W=0/L=1] [000] [DISP8]
+  add_bin16(asm_context, (operand->xn_reg << 12) | (operand->xn_size == SIZE_L ? (1 << 11) | (operand->value & 0xff) : 0), IS_OPCODE);
+
+  return 4;
+}
+
 static int ea_generic_all(struct _asm_context *asm_context, struct _operand *operand, char *instr, int opcode, int size, int flags, unsigned int extra_imm)
 {
 #if 0
@@ -313,8 +339,12 @@ static int ea_generic_all(struct _asm_context *asm_context, struct _operand *ope
       return 2;
     case OPERAND_INDEX_DATA16_PC:
       if (flags & EA_NO_PC) { break; }
+    case OPERAND_INDEX_DATA8_PC_XN:
+      return ea_displacement_xn(asm_context, opcode, operand);
     case OPERAND_INDEX_DATA16_A_REG:
       return ea_displacement(asm_context, opcode, operand);
+    case OPERAND_INDEX_DATA8_A_REG_XN:
+      return ea_displacement_xn(asm_context, opcode, operand);
     case OPERAND_IMMEDIATE:
       if (flags & EA_NO_IMM) { break; }
       return ea_immediate(asm_context, opcode, size, operand);
@@ -433,6 +463,10 @@ static int write_immediate(struct _asm_context *asm_context, char *instr, struct
   if (operands[0].type != OPERAND_IMMEDIATE) { return 0; }
   if (operands[1].type == OPERAND_SPECIAL_REG) { return 0; }
 
+  int len = 2;
+
+  opcode |= (size << 6);
+
   switch(operands[1].type)
   {
     case OPERAND_D_REG:
@@ -440,26 +474,66 @@ static int write_immediate(struct _asm_context *asm_context, char *instr, struct
     case OPERAND_A_REG_INDEX:
     case OPERAND_A_REG_INDEX_PLUS:
     case OPERAND_A_REG_INDEX_MINUS:
-      opcode |= (size << 6) | (operands[1].type << 3) | operands[1].value;
+      opcode |= (operands[1].type << 3) | operands[1].value;
       break;
-    case OPERAND_IMMEDIATE:
-      print_error_illegal_operands(instr, asm_context);
+    case OPERAND_INDEX_DATA16_A_REG:
+      //ea_displacement(asm_context, opcode, &operands[1]);
+      opcode |= (5 << 3) | operands[1].dis_reg;
+      break;
+    case OPERAND_INDEX_DATA8_A_REG_XN:
+      opcode |= (6 << 3) | operands[1].dis_reg;
+      break;
+    case OPERAND_INDEX_DATA16_PC:
+      opcode |= (7 << 3) | 2;
+      break;
+    case OPERAND_INDEX_DATA8_PC_XN:
+      opcode |= (7 << 3) | 3;
+      break;
+    case OPERAND_ADDRESS_W:
+      opcode |= (7 << 3) | 0;
+      break;
+    case OPERAND_ADDRESS_L:
+      opcode |= (7 << 3) | 1;
+      break;
     default:
       print_error_illegal_operands(instr, asm_context);
       return -1;
   }
 
   add_bin16(asm_context, opcode, IS_OPCODE);
-  if (size < 2)
+
+  if (size < SIZE_L)
   {
     add_bin16(asm_context, operands[0].value, IS_OPCODE);
-    return 4;
+    len += 2;
   }
     else
   {
     add_bin32(asm_context, operands[0].value, IS_OPCODE);
-    return 6;
+    len += 4;
   }
+
+  switch(operands[1].type)
+  {
+    case OPERAND_INDEX_DATA16_A_REG:
+    case OPERAND_INDEX_DATA8_A_REG_XN:
+    case OPERAND_INDEX_DATA16_PC:
+    case OPERAND_INDEX_DATA8_PC_XN:
+      // [D=0/A=1] [REG3] [W=0/L=1] [000] [DISP8]
+      add_bin16(asm_context, (operands[1].xn_reg << 12) | (operands[1].xn_size == SIZE_L ? (1 << 11) : 0) | (operands[1].value & 0xff), IS_OPCODE);
+      len += 2;
+      break;
+    case OPERAND_ADDRESS_W:
+      add_bin16(asm_context, operands[1].value, IS_OPCODE);
+      len += 2;
+      break;
+    case OPERAND_ADDRESS_L:
+      add_bin32(asm_context, operands[1].value, IS_OPCODE);
+      len += 4;
+      break;
+  }
+
+  return len;
 }
 
 static int write_shift(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
@@ -1308,7 +1382,65 @@ int n;
             }
           }
 
-          if (expect_token_s(asm_context,")") != 0) { return -1; }
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (IS_TOKEN(token,','))
+          {
+            token_type = tokens_get(asm_context, token, TOKENLEN);
+
+            if ((num = get_register_d_680x0(token)) != -1)
+            {
+            }
+              else
+            if ((num = get_register_a_680x0(token)) != -1)
+            {
+              num |= 0x8;
+            }
+              else
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+
+            if (operands[operand_count].type == OPERAND_INDEX_DATA16_PC)
+            {
+              operands[operand_count].type = OPERAND_INDEX_DATA8_PC_XN;
+            }
+              else
+            {
+              operands[operand_count].type = OPERAND_INDEX_DATA8_A_REG_XN;
+            }
+
+            operands[operand_count].xn_reg = num;
+            operands[operand_count].xn_size = SIZE_L;
+
+            token_type = tokens_get(asm_context, token, TOKENLEN);
+            if (IS_TOKEN(token,'.'))
+            {
+              token_type = tokens_get(asm_context, token, TOKENLEN);
+              if (strcasecmp(token,"w") == 0)
+              {
+                operands[operand_count].xn_size = SIZE_W;
+              }
+                else
+              if (strcasecmp(token,"l") == 0)
+              {
+                operands[operand_count].xn_size = SIZE_L;
+              }
+                else
+              {
+                print_error_unexp(token, asm_context);
+                return -1;
+              }
+
+              token_type = tokens_get(asm_context, token, TOKENLEN);
+            }
+          }
+
+          if (IS_NOT_TOKEN(token,')'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
         }
           else
         {
