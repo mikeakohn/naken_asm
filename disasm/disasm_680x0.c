@@ -434,7 +434,7 @@ int n;
         case OP_LOGIC_CCR:
           sprintf(instruction, "%s #$%02x, CCR", table_680x0[n].instr, READ_RAM16(address + 2));
           return 4;
-        case OP_DISPLACEMENT:
+        case OP_BRANCH:
           offset = (opcode & 0xff);
           if (offset == 0)
           {

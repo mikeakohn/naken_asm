@@ -38,11 +38,11 @@ enum
   OPERAND_INDEX_DATA16_A_REG,
   OPERAND_INDEX_DATA8_A_REG_XN,   // implement me
   OPERAND_IMMEDIATE,
-  OPERAND_INDEX_DATA16_PC,            // implement me
-  OPERAND_INDEX_DATA8_PC_XN,          // implement me
-  OPERAND_ADDRESS,
-  OPERAND_ADDRESS_W,
-  OPERAND_ADDRESS_L,
+  OPERAND_INDEX_DATA16_PC,        // implement me
+  OPERAND_INDEX_DATA8_PC_XN,      // implement me
+  OPERAND_ADDRESS,                // for branches/jumps
+  OPERAND_ADDRESS_W,              // for word memory writes
+  OPERAND_ADDRESS_L,              // for long memory writes
   OPERAND_SPECIAL_REG,
   OPERAND_MULTIPLE_REG,
 };
@@ -78,7 +78,7 @@ struct _operand
 {
   int value;
   int type;
-  char error;
+  //char error;
   char dis_reg;
 };
 
@@ -113,7 +113,8 @@ static int get_register_special_680x0(char *token)
   return -1;
 }
 
-static int calc_displacement_size(int address, int new_address)
+#if 0
+static int calc_branch_size(int address, int new_address)
 {
 int offset;
 
@@ -128,6 +129,7 @@ int offset;
 
   return SIZE_W;
 }
+#endif
 
 static int ea_immediate(struct _asm_context *asm_context, int opcode, int size, struct _operand *operand)
 {
@@ -150,13 +152,14 @@ static int ea_immediate(struct _asm_context *asm_context, int opcode, int size, 
   }
 }
 
-static int ea_address(struct _asm_context *asm_context, int opcode, struct _operand *operand, uint32_t extra_imm)
+static int ea_address(struct _asm_context *asm_context, int opcode, struct _operand *operand, uint32_t extra_imm, int size)
 {
   uint32_t value;
   int len;
 
   if (asm_context->pass == 1)
   {
+#if 0
     if (operand->error == 1)
     {
       len = 6;
@@ -170,10 +173,52 @@ static int ea_address(struct _asm_context *asm_context, int opcode, struct _oper
       add_bin16(asm_context, 0x0000, IS_OPCODE);
       return len;
     }
+#endif
+    len = 4;
+    if (size == 4)
+    {
+      add_bin16(asm_context, 0x0404, IS_OPCODE);
+      add_bin16(asm_context, 0x0404, IS_OPCODE);
+      len += 2;
+    }
+      else
+    {
+      add_bin16(asm_context, 0x0000, IS_OPCODE);
+    }
+
+    if (extra_imm != NO_EXTRA_IMM)
+    {
+      add_bin16(asm_context, extra_imm, IS_OPCODE);
+      len += 2;
+    }
+
+    return len;
   }
 
   value = operand->value;
+  len = 4;
 
+  add_bin16(asm_context, opcode | (0x7 << 3) | ((size == 4) ? 1 : 0), IS_OPCODE);
+
+  if (extra_imm != NO_EXTRA_IMM)
+  {
+    add_bin16(asm_context, extra_imm, IS_OPCODE);
+    len += 2;
+  }
+
+  if (size == 4)
+  {
+    add_bin32(asm_context, value, IS_OPCODE);
+    len += 2;
+  }
+    else
+  {
+    add_bin16(asm_context, value, IS_OPCODE);
+  }
+
+  return len;
+
+#if 0
   if (memory_read(asm_context, asm_context->address) == 1)
   {
     len=6;
@@ -212,6 +257,7 @@ static int ea_address(struct _asm_context *asm_context, int opcode, struct _oper
     add_bin32(asm_context, operand->value, IS_OPCODE);
     return len;
   }
+#endif
 }
 
 static int ea_displacement(struct _asm_context *asm_context, int opcode, struct _operand *operand)
@@ -272,8 +318,10 @@ static int ea_generic_all(struct _asm_context *asm_context, struct _operand *ope
     case OPERAND_IMMEDIATE:
       if (flags & EA_NO_IMM) { break; }
       return ea_immediate(asm_context, opcode, size, operand);
-    case OPERAND_ADDRESS:
-      return ea_address(asm_context, opcode, operand, extra_imm);
+    case OPERAND_ADDRESS_W:
+      return ea_address(asm_context, opcode, operand, extra_imm, 2);
+    case OPERAND_ADDRESS_L:
+      return ea_address(asm_context, opcode, operand, extra_imm, 4);
     default:
       break;
   }
@@ -317,8 +365,10 @@ static int write_single_ea_no_size(struct _asm_context *asm_context, char *instr
       return 2;
     case OPERAND_INDEX_DATA16_A_REG:
       return ea_displacement(asm_context, opcode, &operands[0]);
-    case OPERAND_ADDRESS:
-      return ea_address(asm_context, opcode, &operands[0], NO_EXTRA_IMM);
+    case OPERAND_ADDRESS_W:
+      return ea_address(asm_context, opcode, &operands[0], NO_EXTRA_IMM, 2);
+    case OPERAND_ADDRESS_L:
+      return ea_address(asm_context, opcode, &operands[0], NO_EXTRA_IMM, 4);
     case OPERAND_IMMEDIATE:
     default:
       print_error_illegal_operands(instr, asm_context);
@@ -338,8 +388,10 @@ static int write_single_ea_to_addr(struct _asm_context *asm_context, char *instr
       return 2;
     case OPERAND_INDEX_DATA16_A_REG:
       return ea_displacement(asm_context, opcode, &operands[0]);
-    case OPERAND_ADDRESS:
-      return ea_address(asm_context, opcode, &operands[0], NO_EXTRA_IMM);
+    case OPERAND_ADDRESS_W:
+      return ea_address(asm_context, opcode, &operands[0], NO_EXTRA_IMM, 2);
+    case OPERAND_ADDRESS_L:
+      return ea_address(asm_context, opcode, &operands[0], NO_EXTRA_IMM, 4);
     default:
       print_error_illegal_operands(instr, asm_context);
       return -1;
@@ -539,8 +591,10 @@ static int write_load_ea(struct _asm_context *asm_context, char *instr, struct _
       return 2;
     case OPERAND_INDEX_DATA16_A_REG:
       return ea_displacement(asm_context, opcode | (reg << 9), &operands[0]);
-    case OPERAND_ADDRESS:
-      return ea_address(asm_context, opcode | (reg << 9), &operands[0], NO_EXTRA_IMM);
+    case OPERAND_ADDRESS_W:
+      return ea_address(asm_context, opcode | (reg << 9), &operands[0], NO_EXTRA_IMM, 2);
+    case OPERAND_ADDRESS_L:
+      return ea_address(asm_context, opcode | (reg << 9), &operands[0], NO_EXTRA_IMM, 4);
     default:
       print_error_illegal_operands(instr, asm_context);
       return -1;
@@ -803,7 +857,7 @@ static int write_logic_ccr(struct _asm_context *asm_context, char *instr, struct
   return 4;
 }
 
-static int write_displacement(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_branch(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
   if (operand_count != 1) { return 0; }
   if (operands[0].type != OPERAND_ADDRESS) { return 0; }
@@ -812,8 +866,9 @@ static int write_displacement(struct _asm_context *asm_context, char *instr, str
   {
     if (size == SIZE_NONE)
     {
-      if (operands[0].error == 1) { size = SIZE_W; }
-      else { size = calc_displacement_size(asm_context->address, operands[0].value); }
+      //if (operands[0].error == 1) { size = SIZE_W; }
+      //else { size = calc_branch_size(asm_context->address, operands[0].value); }
+      return 0;
     }
 
     add_bin16(asm_context, (size + 1) << 8, IS_OPCODE);
@@ -1166,7 +1221,7 @@ int n;
         if (asm_context->pass == 1)
         {
           eat_operand(asm_context);
-          operands[operand_count].error = 1;
+          //operands[operand_count].error = 1;
         }
           else
         {
@@ -1257,7 +1312,11 @@ int n;
         }
           else
         {
-          if (expect_token_s(asm_context,")") != 0) { return -1; }
+          if (IS_NOT_TOKEN(token,')'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
 
           if (eval_error == 1)
           {
@@ -1271,8 +1330,7 @@ int n;
             token_type = tokens_get(asm_context, token, TOKENLEN);
             if (strcasecmp(token, "w") == 0)
             {
-              //operands[operand_count].type = OPERAND_ADDRESS_W;
-              operands[operand_count].type = OPERAND_ADDRESS;
+              operands[operand_count].type = OPERAND_ADDRESS_W;
               if (num < 0 || num > 0xffff)
               {
                 print_error_range(instr, 0, 0xffff, asm_context);
@@ -1282,8 +1340,7 @@ int n;
               else
             if (strcasecmp(token, "l") == 0)
             {
-              //operands[operand_count].type = OPERAND_ADDRESS_L;
-              operands[operand_count].type = OPERAND_ADDRESS;
+              operands[operand_count].type = OPERAND_ADDRESS_L;
             }
               else
             {
@@ -1296,8 +1353,11 @@ int n;
                 eval_error == 1 ||
                 num > 0xffff)
             {
-              //operands[operand_count].type = OPERAND_ADDRESS_L;
-              operands[operand_count].type = OPERAND_ADDRESS;
+              operands[operand_count].type = OPERAND_ADDRESS_L;
+            }
+              else
+            {
+              operands[operand_count].type = OPERAND_ADDRESS_W;
             }
 
             tokens_push(asm_context, token, token_type);
@@ -1308,12 +1368,15 @@ int n;
       else
     {
       tokens_push(asm_context, token, token_type);
+      //int eval_error = 0;
 
       if (eval_expression(asm_context, &num) != 0)
       {
         if (asm_context->pass == 1)
         {
           eat_operand(asm_context);
+          //memory_write(asm_context, asm_context->address, 4, asm_context->line);
+          //eval_error = 1;
         }
           else
         {
@@ -1321,6 +1384,19 @@ int n;
           return -1;
         }
       }
+
+#if 0
+      if (memory_read(asm_context, asm_context->address) != 0 ||
+          eval_error == 1 ||
+          num > 0xffff)
+      {
+        operands[operand_count].type = OPERAND_ADDRESS_L;
+      }
+        else
+      {
+        operands[operand_count].type = OPERAND_ADDRESS_W;
+      }
+#endif
 
       operands[operand_count].type = OPERAND_ADDRESS;
       operands[operand_count].value = num;
@@ -1451,7 +1527,8 @@ printf("\n");
         return -1;
       }
 
-      if (operands[0].type != OPERAND_D_REG || operands[1].type != OPERAND_ADDRESS)
+      if (operands[0].type != OPERAND_D_REG ||
+          operands[1].type != OPERAND_ADDRESS)
       {
         matched=1;
         continue;
@@ -1484,7 +1561,7 @@ printf("\n");
       matched = 1;
       int opcode = 0x6000 | (n << 8);
       if (operand_size == SIZE_S) { operand_size = SIZE_B; }
-      return write_displacement(asm_context, instr, operands, operand_count, opcode, operand_size);
+      return write_branch(asm_context, instr, operands, operand_count, opcode, operand_size);
     }
   }
 
@@ -1614,9 +1691,9 @@ printf("\n");
         case OP_LOGIC_CCR:
           ret = write_logic_ccr(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
-        case OP_DISPLACEMENT:
+        case OP_BRANCH:
           if (operand_size == SIZE_S) { operand_size = SIZE_B; }
-          ret = write_displacement(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          ret = write_branch(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         case OP_EXT:
           ret = write_ext(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
