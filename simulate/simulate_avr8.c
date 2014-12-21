@@ -983,6 +983,9 @@ int t;
         case OP_REG_MINUS_Z:
           rd = (opcode >> 4) & 0x1f;
           if (table_avr8[n].type == OP_REG_MINUS_Z) { DEC_Z(); }
+          if(table_avr8[n].id == AVR8_LPM)
+            simulate_avr8->reg[rd] = READ_FLASH(GET_Z());
+          else
             simulate_avr8->reg[rd] = READ_RAM(GET_Z());
           if (table_avr8[n].type == OP_REG_Z_PLUS) { INC_Z(); }
           cycles = table_avr8[n].cycles_min;
