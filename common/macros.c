@@ -464,6 +464,14 @@ printf("debug> macros_parse() param %s\n", token);
 
   params[ptr]=0;
 
+  // Fixing where the user could have extra crap at the end of the macro
+  // line.
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+  if (token_type != TOKEN_EOL)
+  {
+    print_error_unexp(token, asm_context);
+  }
+
 #ifdef DEBUG
 printf("debug> macros_parse() param count=%d\n", param_count);
 #endif
@@ -475,6 +483,9 @@ printf("debug> macros_parse() param count=%d\n", param_count);
   while(1)
   {
     ch = tokens_get_char(asm_context);
+
+    if (ch == '\t') { ch = ' '; }
+
     if (name_test == NULL)
     {
       if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
