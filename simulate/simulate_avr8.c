@@ -66,7 +66,7 @@
   (simulate_avr8->ram[simulate_avr8->sp+2] | \
   (simulate_avr8->ram[simulate_avr8->sp+1] << 8)); simulate_avr8->sp += 2;
 
-#define READ_FLASH(n) memory_read_m(simulate->memory, n * 2)
+#define READ_FLASH(n) memory_read_m(simulate->memory, n)
 #define WRITE_FLASH(n,data) memory_write_m(simulate->memory, n, data)
 
 #define READ_RAM(a) simulate_avr8->ram[a & RAM_MASK];
@@ -983,8 +983,11 @@ int t;
         case OP_REG_MINUS_Z:
           rd = (opcode >> 4) & 0x1f;
           if (table_avr8[n].type == OP_REG_MINUS_Z) { DEC_Z(); }
-          simulate_avr8->reg[rd] = READ_RAM(GET_Z());
-          if (table_avr8[n].type == OP_REG_Y_PLUS) { INC_Z(); }
+          if(table_avr8[n].id == AVR8_LPM)
+            simulate_avr8->reg[rd] = READ_FLASH(GET_Z());
+          else
+            simulate_avr8->reg[rd] = READ_RAM(GET_Z());
+          if (table_avr8[n].type == OP_REG_Z_PLUS) { INC_Z(); }
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_X_REG:
