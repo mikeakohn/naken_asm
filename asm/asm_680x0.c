@@ -304,7 +304,8 @@ static int ea_displacement_xn(struct _asm_context *asm_context, int opcode, stru
   }
 
   // [D=0/A=1] [REG3] [W=0/L=1] [000] [DISP8]
-  add_bin16(asm_context, (operand->xn_reg << 12) | (operand->xn_size == SIZE_L ? (1 << 11) | (operand->value & 0xff) : 0), IS_OPCODE);
+  //add_bin16(asm_context, (operand->xn_reg << 12) | (operand->xn_size == SIZE_L ? (1 << 11) | (operand->value & 0xff) : 0), IS_OPCODE);
+  add_bin16(asm_context, (operand->xn_reg << 12) | (operand->xn_size == SIZE_L ? (1 << 11) : 0) | (operand->value & 0xff), IS_OPCODE);
 
   return 4;
 }
