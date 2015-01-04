@@ -42,3 +42,27 @@ adda.w (5,%a3,%d3.w), %a6
 addi.b #5, %d1
 addi.w #5, (%a3)
 addi.l #5, (50,%a3)
+addq.l #5, (50,%a3)
+addq.l #8, %d0
+addq.l #1, %a5
+addq.w #1, (%a5)
+addq.b #2, (%a5)+
+addx.b %d0, %d1
+addx.w %d7, %d6
+addx.l %d5, %d3
+addx.b -(%a0), -(%a1)
+addx.w -(%a7), -(%a6)
+addx.l -(%a5), -(%a3)
+and.b %d3,%d7
+and.w %d4,(100,%a3)
+and.w %d7,(-100,%a3)
+and.b (20,%a3,%a3.w),%d0
+and.b (5,%a3,%a3.l),%d7
+and.b (5,%a3,%d3),%d4
+andi.l #0x66,(5,%a3,%d3.w)
+andi.w #0x66,(5,%a3,%d3.l)
+andi.l #0x66,(20,%a3,%a3.w)
+addi.b #5, %d1
+andi.w #5, (%a3)
+andi.l #5, (50,%a3)
+andi.b #0x66,(5,%a3,%a3.l)

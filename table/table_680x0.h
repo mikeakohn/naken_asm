@@ -59,12 +59,25 @@ enum
   OP_JUMP,
 };
 
+#define MODE_DN 1
+#define MODE_AN 2
+#define MODE_AN_P 4
+#define MODE_AN_N 8
+#define MODE_IMM 16
+#define OMIT_B 1
+#define OMIT_W 2
+#define OMIT_L 4
+#define NO_SIZE 128
+
 struct _table_680x0
 {
   char *instr;
-  unsigned short int opcode;
-  unsigned short int mask;
-  char type;
+  uint16_t opcode;
+  uint16_t mask;
+  uint8_t type;
+  uint8_t omit_src;
+  uint8_t omit_dst;
+  uint8_t omit_size;
 };
 
 uint16_t reverse_bits16(uint16_t bits);
