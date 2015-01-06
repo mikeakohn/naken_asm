@@ -68,6 +68,9 @@ enum
 #define OMIT_W 2
 #define OMIT_L 4
 #define NO_SIZE 128
+#define DEFAULT_B 1
+#define DEFAULT_W 2
+#define DEFAULT_L 3
 
 struct _table_680x0
 {
@@ -78,6 +81,7 @@ struct _table_680x0
   uint8_t omit_src;
   uint8_t omit_dst;
   uint8_t omit_size;
+  uint8_t default_size;
 };
 
 uint16_t reverse_bits16(uint16_t bits);

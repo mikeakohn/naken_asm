@@ -810,17 +810,16 @@ static int write_cmpm(struct _asm_context *asm_context, char *instr, struct _ope
   return 2;
 }
 
-static int write_bcd(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_bcd(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table)
 {
   if (operand_count != 2) { return 0; }
-  if (size != SIZE_NONE) { return 0; }
 
   int rm = -1;
 
   if (operands[0].type == OPERAND_A_REG_INDEX_MINUS &&
       operands[1].type == OPERAND_A_REG_INDEX_MINUS)
   {
-    rm=8;
+    rm = 8;
   }
     else
   if (operands[0].type == OPERAND_D_REG &&
@@ -831,7 +830,7 @@ static int write_bcd(struct _asm_context *asm_context, char *instr, struct _oper
 
   if (rm == -1) { return 0; }
 
-  add_bin16(asm_context, opcode | (operands[1].value << 9) | rm | operands[0].value, IS_OPCODE);
+  add_bin16(asm_context, table->opcode | (operands[1].value << 9) | rm | operands[0].value, IS_OPCODE);
 
   return 2;
 }
@@ -956,7 +955,6 @@ static int write_ea_extra_imm(struct _asm_context *asm_context, char *instr, str
 static int write_ea_dreg_wl(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
-  //if (size != SIZE_W && size != SIZE_L) { return 0; }
   if (check_size(size, table->omit_size) != 0) { return 0; }
   if (check_reg(operands[0].type, table->omit_src) != 0) { return 0; }
   if (operands[1].type != OPERAND_D_REG) { return 0; }
@@ -967,11 +965,11 @@ static int write_ea_dreg_wl(struct _asm_context *asm_context, char *instr, struc
   return ea_generic_all(asm_context, &operands[0], instr, opcode | (operands[1].value << 9) | (size_a << 7), 0, EA_NO_A, NO_EXTRA_IMM);
 }
 
-static int write_logic_ccr(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_logic_ccr(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
-  if (size != SIZE_NONE) { return 0; }
-  if (operands[0].type != OPERAND_IMMEDIATE) { return 0; }
+  if (check_size(size, table->omit_size) != 0) { return 0; }
+  if (check_reg(operands[0].type, table->omit_src) != 0) { return 0; }
   if (operands[1].type != OPERAND_SPECIAL_REG) { return 0; }
   if (operands[1].value != SPECIAL_CCR) { return 0; }
 
@@ -981,7 +979,7 @@ static int write_logic_ccr(struct _asm_context *asm_context, char *instr, struct
     return -1;
   }
 
-  add_bin16(asm_context, opcode, IS_OPCODE);
+  add_bin16(asm_context, table->opcode, IS_OPCODE);
   add_bin16(asm_context, operands[0].value, IS_OPCODE);
 
   return 4;
@@ -1806,6 +1804,25 @@ printf("\n");
       ret = 0;
       matched = 1;
 
+      // WARNING: All instructions of the same name have to have the same
+      // default size.
+      if (operand_size == SIZE_NONE && table_680x0[n].default_size != 0)
+      {
+        switch(table_680x0[n].default_size)
+        {
+          case DEFAULT_B: operand_size = SIZE_B; break;
+          case DEFAULT_W: operand_size = SIZE_W; break;
+          case DEFAULT_L: operand_size = SIZE_L; break;
+          default: break;
+        }
+      }
+
+      if (check_size(operand_size, table_680x0[n].omit_size) != 0)
+      {
+        n++;
+        continue;
+      }
+
       switch(table_680x0[n].type)
       {
         case OP_NONE:
@@ -1882,7 +1899,7 @@ printf("\n");
           ret = write_cmpm(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         case OP_BCD:
-          ret = write_bcd(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          ret = write_bcd(asm_context, instr, operands, operand_count, &table_680x0[n]);
           break;
         case OP_EXTENDED:
           ret = write_extended(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
@@ -1904,7 +1921,7 @@ printf("\n");
           ret = write_ea_dreg_wl(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         case OP_LOGIC_CCR:
-          ret = write_logic_ccr(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          ret = write_logic_ccr(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         case OP_BRANCH:
           if (operand_size == SIZE_S) { operand_size = SIZE_B; }
