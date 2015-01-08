@@ -462,14 +462,18 @@ printf("debug> macros_parse() param %s\n", token);
     }
   }
 
-  params[ptr]=0;
+  params[ptr] = 0;
 
-  // Fixing where the user could have extra crap at the end of the macro
-  // line.
-  token_type = tokens_get(asm_context, token, TOKENLEN);
-  if (token_type != TOKEN_EOL)
+  if (macro_type != IS_DEFINE)
   {
-    print_error_unexp(token, asm_context);
+    // Fixing where the user could have extra crap at the end of the macro
+    // line.
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    if (token_type != TOKEN_EOL)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
   }
 
 #ifdef DEBUG
