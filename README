@@ -55,7 +55,7 @@ Usage: naken_asm [options] <infile>
    -e             [output elf file]
    -s             [output srec file]
    -b             [output binary file]
-   -d             [create .ndbg debug file]
+   -d             [add debug info (no longer implement)]
    -l             [create .lst listing file]
    -I             [add to include path]
 
@@ -79,18 +79,17 @@ assemble against, for example if this was a dsPIC program, the directive
 .dspic can be placed at the top of the program.  All assembler directives
 are listed below.
 
-The -d option will create a .ndbg file which will help naken_util when
-it disassembles to match addresses with symbols.  I may remove this
-feature in the future and just rely on the symbol being included in the
-ELF file.
+The -d option used to create a .ndbg file which will help naken_util when
+it disassembles to match addresses with symbols.  These features are being
+moved to .elf support instead.
 
 To disassemble a program:
 
 ./naken_util -disasm launchpad_blink.hex
 
-The simulator (as of the writing of this file only MSP430 is supported) allows
-the user to show how their program will run. It gives a view of all the
-registers and how many CPU cycles have passed, along with the current
+The simulator (as of the writing of this file only MSP430, AVR8, and 6502 is
+supported) allows the user to show how their program will run. It gives a view
+of all the registers and how many CPU cycles have passed, along with the current
 instruction that executed and the next few in memory. To test the simulation,
 after assembling launchpad.asm type:
 
