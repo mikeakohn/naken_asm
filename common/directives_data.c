@@ -365,7 +365,12 @@ int num;
     return -1;
   }
 
-  num = atoi(token)*n;
+  num = atoi(token) * n;
+
+  if (num == 0 && asm_context->pass == 1)
+  {
+    printf("Warning: Reserving %d byte at %s:%d\n", num, asm_context->filename, asm_context->line);
+  }
 
   for (n = 0; n < num; n++)
   {
@@ -380,7 +385,7 @@ int num;
 
     if (asm_context->address >= asm_context->memory.size)
     {
-       printf("Error: ds overran 64k boundary at %s:%d", asm_context->filename, asm_context->line);
+       printf("Error: ds overran %d boundary at %s:%d", asm_context->memory.size, asm_context->filename, asm_context->line);
        return -1;
     }
   }

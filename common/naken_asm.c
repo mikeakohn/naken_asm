@@ -138,11 +138,13 @@ int error_flag=0;
       format = FORMAT_ELF;
     }
 #endif
+#if 0
       else
     if (strcmp(argv[i], "-d") == 0)
     {
-      asm_context.debug_file=1;
+      asm_context.debug_file = 1;
     }
+#endif
       else
     if (strcmp(argv[i], "-l") == 0)
     {

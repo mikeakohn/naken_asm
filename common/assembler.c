@@ -453,6 +453,12 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+  if (strcasecmp(token, "ds32") == 0)
+  {
+    if (parse_ds(asm_context,4) != 0) return -1;
+    return 1;
+  }
+    else
   if (strcasecmp(token, "resb") == 0)
   {
     if (parse_resb(asm_context,1) != 0) return -1;
