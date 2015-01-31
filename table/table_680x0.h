@@ -64,6 +64,8 @@ enum
 #define MODE_AN_P 4
 #define MODE_AN_N 8
 #define MODE_IMM 16
+#define MODE_D16_PC 32
+#define MODE_D8_PC_XN 64
 #define OMIT_B 1
 #define OMIT_W 2
 #define OMIT_L 4

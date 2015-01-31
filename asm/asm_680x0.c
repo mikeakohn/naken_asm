@@ -359,7 +359,7 @@ static int ea_displacement_xn(struct _asm_context *asm_context, int opcode, stru
   return 4;
 }
 
-static int ea_generic_all(struct _asm_context *asm_context, struct _operand *operand, char *instr, int opcode, int size, int flags, unsigned int extra_imm)
+static int ea_generic_all(struct _asm_context *asm_context, struct _operand *operand, char *instr, int opcode, int size, int flags, uint32_t extra_imm)
 {
 #if 0
   if (flags&EA_SKIP_BYTES)
@@ -387,21 +387,22 @@ static int ea_generic_all(struct _asm_context *asm_context, struct _operand *ope
         return 4;
       }
       return 2;
-    case OPERAND_INDEX_DATA16_PC:
-      if (flags & EA_NO_PC) { break; }
-    case OPERAND_INDEX_DATA8_PC_XN:
-      return ea_displacement_xn(asm_context, opcode, operand);
     case OPERAND_INDEX_DATA16_A_REG:
       return ea_displacement(asm_context, opcode, operand);
     case OPERAND_INDEX_DATA8_A_REG_XN:
       return ea_displacement_xn(asm_context, opcode, operand);
-    case OPERAND_IMMEDIATE:
-      if (flags & EA_NO_IMM) { break; }
-      return ea_immediate(asm_context, opcode, size, operand);
     case OPERAND_ADDRESS_W:
       return ea_address(asm_context, opcode, operand, extra_imm, 2);
     case OPERAND_ADDRESS_L:
       return ea_address(asm_context, opcode, operand, extra_imm, 4);
+    case OPERAND_IMMEDIATE:
+      if (flags & EA_NO_IMM) { break; }
+      return ea_immediate(asm_context, opcode, size, operand);
+    case OPERAND_INDEX_DATA16_PC:
+      if (flags & EA_NO_PC) { break; }
+      return ea_displacement(asm_context, opcode, operand);
+    case OPERAND_INDEX_DATA8_PC_XN:
+      return ea_displacement_xn(asm_context, opcode, operand);
     default:
       break;
   }
@@ -410,24 +411,63 @@ static int ea_generic_all(struct _asm_context *asm_context, struct _operand *ope
   return -1;
 }
 
-static int write_single_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+// This should replace ea_generic_all since it gets its information from
+// table_680x0 on which modes are valid.  Wish I would have done it this
+// way from the start.
+static int ea_generic_new(struct _asm_context *asm_context, struct _operand *operand, char *instr, int size, struct _table_680x0 *table, int is_src, uint32_t extra_imm)
 {
-  if (operand_count != 1) { return 0; }
+  int omit_mode = (is_src == 1) ? table->omit_src : table->omit_dst;
+  int opcode = table->opcode;
 
-  switch(operands[0].type)
+  switch(operand->type)
   {
     case OPERAND_D_REG:
     case OPERAND_A_REG:
     case OPERAND_A_REG_INDEX:
     case OPERAND_A_REG_INDEX_PLUS:
     case OPERAND_A_REG_INDEX_MINUS:
-      add_bin16(asm_context, opcode | (size << 6) | (operands[0].type << 3) | operands[0].value, IS_OPCODE);
+      if ((omit_mode & MODE_DN) && operand->type == OPERAND_D_REG) { break; }
+      if ((omit_mode & MODE_AN) && operand->type == OPERAND_A_REG) { break; }
+      if ((omit_mode & MODE_AN_P) && operand->type == OPERAND_A_REG_INDEX_PLUS) { break;}
+      if ((omit_mode & MODE_AN_N) && operand->type == OPERAND_A_REG_INDEX_MINUS) { break; }
+      add_bin16(asm_context, opcode | (operand->type << 3) | operand->value, IS_OPCODE);
+      if (extra_imm != NO_EXTRA_IMM)
+      {
+        add_bin16(asm_context, extra_imm, IS_OPCODE);
+        return 4;
+      }
       return 2;
+    case OPERAND_INDEX_DATA16_A_REG:
+      return ea_displacement(asm_context, opcode, operand);
+    case OPERAND_INDEX_DATA8_A_REG_XN:
+      return ea_displacement_xn(asm_context, opcode, operand);
+    case OPERAND_ADDRESS_W:
+      return ea_address(asm_context, opcode, operand, extra_imm, 2);
+    case OPERAND_ADDRESS_L:
+      return ea_address(asm_context, opcode, operand, extra_imm, 4);
     case OPERAND_IMMEDIATE:
+      if (omit_mode & MODE_IMM) { break; }
+      return ea_immediate(asm_context, opcode, size, operand);
+    case OPERAND_INDEX_DATA16_PC:
+      if (omit_mode & MODE_D16_PC) { break; }
+      return ea_displacement(asm_context, opcode, operand);
+    case OPERAND_INDEX_DATA8_PC_XN:
+      if (omit_mode & MODE_D8_PC_XN) { break; }
+      return ea_displacement_xn(asm_context, opcode, operand);
     default:
-      print_error_illegal_operands(instr, asm_context);
-      return -1;
+      break;
   }
+
+  print_error_illegal_operands(instr, asm_context);
+  return -1;
+}
+
+//static int write_single_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_single_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
+{
+  if (operand_count != 1) { return 0; }
+
+  return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM);
 }
 
 static int write_single_ea_no_size(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode)
@@ -1833,7 +1873,7 @@ printf("\n");
           }
           break;
         case OP_SINGLE_EA:
-          ret = write_single_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          ret = write_single_ea(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         case OP_SINGLE_EA_NO_SIZE:
           if (operand_size == SIZE_NONE)
@@ -1853,10 +1893,7 @@ printf("\n");
           ret = write_immediate(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         case OP_SHIFT_EA:
-          if (operand_size == SIZE_NONE || operand_size == SIZE_W)
-          {
-            ret = write_single_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, 3);
-          }
+          ret = write_single_ea(asm_context, instr, operands, operand_count, &table_680x0[n], 3);
           break;
         case OP_SHIFT:
           ret = write_shift(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);

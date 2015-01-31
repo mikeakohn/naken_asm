@@ -249,6 +249,7 @@ Assembler Directives:
 .dq <data words>            32 bit floats
 .ds8 <data byte count>      Reserve <count> bytes
 .ds16 <data words count>    Reserve <count> 16 bit words
+.ds32 <data words count>    Reserve <count> 32 bit words
 .else <exression>           Else for .if or .ifdef
 .endif                      Close an .ifdef or .if
 .endm                       End of macro definition
