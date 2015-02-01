@@ -833,16 +833,16 @@ static int write_move_special(struct _asm_context *asm_context, char *instr, str
   return 0;
 }
 
-static int write_movea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_movea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
-  if (size == SIZE_NONE) { return 0; }
-  if (size < SIZE_W) { return 0; }
   if (operands[1].type != OPERAND_A_REG) { return 0; }
 
   int size_a = (size == SIZE_W) ? 3 : 2;
+  int opcode_extra = (size_a << 12) | (operands[1].value << 9);
 
-  return ea_generic_all(asm_context, &operands[0], instr, opcode | (size_a << 12) | (operands[1].value << 9), size, 0, NO_EXTRA_IMM);
+  //return ea_generic_all(asm_context, &operands[0], instr, opcode | (size_a << 12) | (operands[1].value << 9), size, 0, NO_EXTRA_IMM);
+  return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM, opcode_extra);
 }
 
 static int write_cmpm(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
@@ -1235,7 +1235,9 @@ int n;
   // Translate to MOVEA
   if (operands[1].type == OPERAND_A_REG)
   {
-    return write_movea(asm_context, instr, operands, operand_count, 0x0040, size);
+    //return write_movea(asm_context, instr, operands, operand_count, 0x0040, size);
+    strcpy(instr, "movea");
+    return 0;
   }
 
   opcode = opcode | (size << 12);
@@ -1244,28 +1246,29 @@ int n;
   src_len = ea_generic_all(asm_context, &operands[0], instr, opcode, size, 0, NO_EXTRA_IMM);
   if (src_len == 0) { return 0; }
 
-//printf("src_len=%d\n", src_len);
   for (n = 0; n < src_len; n++)
   {
-    ea_src_bytes[n] = memory_read(asm_context, address+n);
-//printf("%d %d %02x\n", asm_context->address, address + n, ea_src_bytes[n]);
+    ea_src_bytes[n] = memory_read(asm_context, address + n);
   }
 
   asm_context->address = address;
 
   dst_len = ea_generic_all(asm_context, &operands[1], instr, opcode, size, EA_NO_A | EA_NO_IMM | EA_NO_PC, NO_EXTRA_IMM);
   if (dst_len == 0) { return 0; }
-//printf("dst_len=%d\n", src_len);
 
   for (n = 0; n < dst_len; n++)
   {
-    ea_dst_bytes[n] = memory_read(asm_context, address+n);
-//printf("%d %d %02x\n", asm_context->address, address+n, ea_dst_bytes[n]);
+    ea_dst_bytes[n] = memory_read(asm_context, address + n);
   }
 
   asm_context->address = address;
 
-  opcode |= (ea_dst_bytes[1] & 0x3f) << 6;
+  // Good lord Motorla :(
+  uint16_t ea_dst = ea_dst_bytes[1] & 0x3f;
+  ea_dst = (ea_dst >> 3) | ((ea_dst & 0x7) << 3);
+
+  //opcode |= (ea_dst_bytes[1] & 0x3f) << 6;
+  opcode |= (ea_dst) << 6;
   opcode |= (ea_src_bytes[1] & 0x3f);
 
   //printf("%04x\n", opcode);
@@ -1936,7 +1939,7 @@ printf("\n");
           ret = write_move_special(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         case OP_MOVEA:
-          ret = write_movea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          ret = write_movea(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         case OP_CMPM:
           ret = write_cmpm(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);

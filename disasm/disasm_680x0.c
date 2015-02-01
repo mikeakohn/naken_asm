@@ -132,6 +132,60 @@ static int get_ea_680x0(struct _memory *memory, int address, char *ea, uint16_t 
   return 2;
 }
 
+static int is_ea_valid(struct _table_680x0 *table, uint16_t opcode, int is_dst)
+{
+  int omit_mode = (is_dst == 1) ? table->omit_dst : table->omit_src;
+  int mode = (opcode >> 3) & 0x7;
+  int reg = opcode & 0x7;
+
+  switch(mode)
+  {
+    case 0: // Dn
+      if (omit_mode & MODE_DN) { return 0; }
+      break;
+    case 1: // An
+      if (omit_mode & MODE_AN) { return 0; }
+      break;
+    case 2: // (An)
+      break;
+    case 3: // (An)+
+      if (omit_mode & MODE_AN_P) { return 0; }
+      break;
+    case 4: // (An)-
+      if (omit_mode & MODE_AN_N) { return 0; }
+      break;
+    case 5: // (d16,An)
+      break;
+    case 6: // (d8,An,Xn)
+      break;
+    case 7:
+      switch(reg)
+      {
+        case 0: // (xxx).w
+          break;
+        case 1: // (xxx).l
+          break;
+        case 4: // #<data> IMM
+          if (is_dst == 1) { return 0; }
+          if (omit_mode & MODE_IMM) { return 0; }
+          break;
+        case 2: // (d16,PC)
+          if (omit_mode & MODE_D16_PC) { return 0; }
+          break;
+        case 3: // (d8,PC,Xn)
+          if (omit_mode & MODE_D8_PC_XN) { return 0; }
+          break;
+        default:
+          break;
+      } 
+      break;
+    default:
+      break;
+  }
+
+  return 1;
+}
+
 static void get_reglist(char *reglist, int regs)
 {
   int ptr = 0;
@@ -518,9 +572,15 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
         {
           char dst_ea[128];
           int dst_len;
+          uint16_t ea_dst = (opcode >> 6) & 0x3f;
+          ea_dst = (ea_dst >> 3) | ((ea_dst & 0x7) << 3);
+
+          if (is_ea_valid(&table_680x0[n], opcode, 0) == 0) { break; }
+          if (is_ea_valid(&table_680x0[n], ea_dst, 1) == 0) { break; }
+
           size = (opcode >> 12) & 3;
           len = get_ea_680x0(memory, address, ea, opcode, 0, size);
-          dst_len = get_ea_680x0(memory, address, dst_ea, opcode >> 6, len - 2, size);
+          dst_len = get_ea_680x0(memory, address, dst_ea, ea_dst, len - 2, size);
           sprintf(instruction, "%s.%c %s, %s", table_680x0[n].instr, sizes[size], ea, dst_ea);
           return len + dst_len- 2;
         }
