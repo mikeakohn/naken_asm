@@ -414,10 +414,10 @@ static int ea_generic_all(struct _asm_context *asm_context, struct _operand *ope
 // This should replace ea_generic_all since it gets its information from
 // table_680x0 on which modes are valid.  Wish I would have done it this
 // way from the start.
-static int ea_generic_new(struct _asm_context *asm_context, struct _operand *operand, char *instr, int size, struct _table_680x0 *table, int is_src, uint32_t extra_imm)
+static int ea_generic_new(struct _asm_context *asm_context, struct _operand *operand, char *instr, int size, struct _table_680x0 *table, int is_dst, uint32_t extra_imm, int opcode_extra)
 {
-  int omit_mode = (is_src == 1) ? table->omit_src : table->omit_dst;
-  int opcode = table->opcode;
+  int omit_mode = (is_dst == 1) ? table->omit_dst : table->omit_src;
+  int opcode = table->opcode | opcode_extra;
 
   switch(operand->type)
   {
@@ -467,7 +467,7 @@ static int write_single_ea(struct _asm_context *asm_context, char *instr, struct
 {
   if (operand_count != 1) { return 0; }
 
-  return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM);
+  return ea_generic_new(asm_context, &operands[0], instr, size, table, 1, NO_EXTRA_IMM, 0);
 }
 
 static int write_single_ea_no_size(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode)
@@ -519,26 +519,29 @@ static int write_single_ea_to_addr(struct _asm_context *asm_context, char *instr
 }
 #endif
 
-static int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
   if (size == SIZE_NONE) { return 0; }
 
   int opmode;
   int reg;
+  int opcode_extra;
 
   if (operands[1].type == OPERAND_D_REG)
   {
     reg = operands[1].value;
     opmode = 0;
-    return ea_generic_all(asm_context, &operands[0], instr, opcode | (reg << 9) | (opmode << 8) | (size << 6), size, 0, NO_EXTRA_IMM);
+    opcode_extra = (reg << 9) | (opmode << 8) | (size << 6);
+    return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM, opcode_extra);
   }
     else
   if (operands[0].type == OPERAND_D_REG)
   {
     reg = operands[0].value;
     opmode = 1;
-    return ea_generic_all(asm_context, &operands[1], instr, opcode | (reg << 9) | (opmode << 8) | (size << 6), size, EA_NO_PC | EA_NO_D | EA_NO_A | EA_NO_IMM, NO_EXTRA_IMM);
+    opcode_extra = (reg << 9) | (opmode << 8) | (size << 6);
+    return ea_generic_new(asm_context, &operands[1], instr, size, table, 1, NO_EXTRA_IMM, opcode_extra);
   }
     else
   {
@@ -712,7 +715,7 @@ static int write_reg(struct _asm_context *asm_context, char *instr, struct _oper
   return 2;
 }
 
-static int write_ea_areg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_ea_areg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
   if (size == SIZE_NONE || size == SIZE_B) { return 0; }
@@ -720,13 +723,14 @@ static int write_ea_areg(struct _asm_context *asm_context, char *instr, struct _
 
   int opmode;
   int reg = operands[1].value;
+  int opcode_extra;
 
   opmode = (size == SIZE_W) ? 3 : 7;
+  opcode_extra = (reg << 9) | (opmode << 6);
 
-  return ea_generic_all(asm_context, &operands[0], instr, opcode | (reg << 9) | (opmode << 6), size, 0, NO_EXTRA_IMM);
+  return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM, opcode_extra);
 }
 
-//static int write_ea_dreg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 static int write_ea_dreg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
@@ -736,11 +740,12 @@ static int write_ea_dreg(struct _asm_context *asm_context, char *instr, struct _
 
   int opmode;
   int reg = operands[1].value;
-  uint16_t opcode = table->opcode;
+  int opcode_extra;
 
   opmode = size;
+  opcode_extra = (reg << 9) | (opmode << 6);
 
-  return ea_generic_all(asm_context, &operands[0], instr, opcode | (reg << 9) | (opmode << 6), size, 0, NO_EXTRA_IMM);
+  return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM, opcode_extra);
 }
 
 static int write_load_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
@@ -768,12 +773,12 @@ static int write_load_ea(struct _asm_context *asm_context, char *instr, struct _
   }
 }
 
-static int write_quick(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size, int type)
+static int write_quick(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
   if (operands[0].type != OPERAND_IMMEDIATE) { return 0; }
 
-  if (type == OP_MOVE_QUICK)
+  if (table->type == OP_MOVE_QUICK)
   {
     if (size != SIZE_NONE) { return 0; }
     if (operands[1].type != OPERAND_D_REG) { return 0; }
@@ -782,7 +787,7 @@ static int write_quick(struct _asm_context *asm_context, char *instr, struct _op
       print_error_range("Quick", 0, 255, asm_context);
       return -1;
     }
-    add_bin16(asm_context, opcode | (operands[1].value << 9) | operands[0].value, IS_OPCODE);
+    add_bin16(asm_context, table->opcode | (operands[1].value << 9) | operands[0].value, IS_OPCODE);
     return 2;
   }
 
@@ -794,34 +799,35 @@ static int write_quick(struct _asm_context *asm_context, char *instr, struct _op
   }
 
   int data = (operands[0].value == 0) ? 8 : operands[0].value;
+  int opcode_extra = (data << 9) | (size << 6);
 
-  return ea_generic_all(asm_context, &operands[1], instr, opcode | (data << 9) | (size << 6), size, EA_NO_PC, NO_EXTRA_IMM);
+  return ea_generic_new(asm_context, &operands[1], instr, size, table, 1, NO_EXTRA_IMM, opcode_extra);
 }
 
-static int write_move_special(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size, int type)
+static int write_move_special(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
   if (size != SIZE_NONE) { return 0; }
 
-  if (type == OP_MOVE_TO_CCR &&
+  if (table->type == OP_MOVE_TO_CCR &&
       operands[1].type == OPERAND_SPECIAL_REG &&
       operands[1].value == SPECIAL_CCR)
   {
-    return ea_generic_all(asm_context, &operands[0], instr, opcode, size, 0, NO_EXTRA_IMM);
+    return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM, 0);
   }
 
-  if (type == OP_MOVE_FROM_CCR &&
+  if (table->type == OP_MOVE_FROM_CCR &&
       operands[0].type == OPERAND_SPECIAL_REG &&
       operands[0].value == SPECIAL_CCR)
   {
-    return ea_generic_all(asm_context, &operands[1], instr, opcode, size, 0, NO_EXTRA_IMM);
+    return ea_generic_new(asm_context, &operands[1], instr, size, table, 1, NO_EXTRA_IMM, 0);
   }
 
-  if (type == OP_MOVE_FROM_SR &&
+  if (table->type == OP_MOVE_FROM_SR &&
       operands[0].type == OPERAND_SPECIAL_REG &&
       operands[0].value == SPECIAL_SR)
   {
-    return ea_generic_all(asm_context, &operands[1], instr, opcode, size, 0, NO_EXTRA_IMM);
+    return ea_generic_new(asm_context, &operands[1], instr, size, table, 1, NO_EXTRA_IMM, 0);
   }
 
   return 0;
@@ -1899,7 +1905,7 @@ printf("\n");
           ret = write_shift(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         case OP_REG_AND_EA:
-          ret = write_reg_and_ea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          ret = write_reg_and_ea(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         case OP_VECTOR:
         case OP_VECTOR3:
@@ -1912,7 +1918,7 @@ printf("\n");
           ret = write_reg(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         case OP_EA_AREG:
-          ret = write_ea_areg(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          ret = write_ea_areg(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         case OP_EA_DREG:
           ret = write_ea_dreg(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
@@ -1922,12 +1928,12 @@ printf("\n");
           break;
         case OP_QUICK:
         case OP_MOVE_QUICK:
-          ret = write_quick(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size, table_680x0[n].type);
+          ret = write_quick(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         case OP_MOVE_FROM_CCR:
         case OP_MOVE_TO_CCR:
         case OP_MOVE_FROM_SR:
-          ret = write_move_special(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size, table_680x0[n].type);
+          ret = write_move_special(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         case OP_MOVEA:
           ret = write_movea(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
