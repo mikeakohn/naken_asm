@@ -129,6 +129,12 @@ int disasm_stm8(struct _memory *memory, int address, char *instr, int *cycles_mi
       {
         break;
       }
+
+      if (prefix != 0 && (table_stm8_opcodes[n].opcode & 0xf0) == 0x00 &&
+          table_stm8_opcodes[n].opcode == (opcode & 0xf1))
+      {
+        break;
+      }
     }
     n++;
   }
