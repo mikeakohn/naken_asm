@@ -1003,7 +1003,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 
             int address = asm_context->address + 4;
             if (table_stm8_opcodes[n].prefix != 0) { address++; }
-            int offset = operands[2].value - address;
+            int offset = (asm_context->pass == 1) ? 0 : operands[2].value - address;
 
             if (offset < -128 || offset > 127)
             {
