@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -13,12 +13,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "assembler.h"
-#include "directives_if.h"
-#include "ifdef_expression.h"
-#include "tokens.h"
-#include "macros.h"
-#include "print_error.h"
+#include "common/assembler.h"
+#include "common/directives_if.h"
+#include "common/ifdef_expression.h"
+#include "common/tokens.h"
+#include "common/macros.h"
+#include "common/print_error.h"
 
 int ifdef_ignore(struct _asm_context *asm_context)
 {

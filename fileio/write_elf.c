@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -13,9 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "assembler.h"
-#include "symbols.h"
-#include "write_elf.h"
+#include "common/assembler.h"
+#include "common/symbols.h"
+#include "fileio/write_elf.h"
 
 typedef void(*write_int32_t)(FILE *, unsigned int);
 typedef void(*write_int16_t)(FILE *, unsigned int);

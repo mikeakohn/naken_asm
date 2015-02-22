@@ -5,16 +5,16 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
 #ifndef _EVAL_EXPRESSION_EX_H
 #define _EVAL_EXPRESSION_EX_H
 
-#include "assembler.h"
-#include "eval_expression.h"
-#include "var.h"
+#include "common/assembler.h"
+#include "common/eval_expression.h"
+#include "common/var.h"
 
 #if 0
 enum

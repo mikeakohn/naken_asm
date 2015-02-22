@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
 #ifndef _EVAL_EXPRESSION_H
 #define _EVAL_EXPRESSION_H
 
-#include "assembler.h"
+#include "common/assembler.h"
 
 enum
 {

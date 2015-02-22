@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -22,7 +22,7 @@
 #include <fcntl.h>
 #endif
 
-#include "serial.h"
+#include "prog/serial.h"
 
 int serial_open(struct _serial *serial, char *device)
 {

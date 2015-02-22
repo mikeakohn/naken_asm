@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
 #ifndef _LPC_H
 #define _LPC_H
 
-#include "memory.h"
+#include "common/memory.h"
 
 int lpc_info(char *device);
 int lpc_memory_read(char *device, struct _memory *memory, uint32_t address, uint32_t count);

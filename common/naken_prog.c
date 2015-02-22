@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -14,12 +14,12 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "lpc.h"
-#include "memory.h"
-#include "read_elf.h"
-#include "read_hex.h"
-#include "write_hex.h"
-#include "version.h"
+#include "common/memory.h"
+#include "common/version.h"
+#include "fileio/read_elf.h"
+#include "fileio/read_hex.h"
+#include "fileio/write_hex.h"
+#include "prog/lpc.h"
 
 enum
 {

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -14,13 +14,13 @@
 
 #include <stdio.h>
 
-#include "cpu_list.h"
-#include "macros.h"
-#include "memory.h"
-#include "memory_pool.h"
-#include "print_error.h"
-#include "symbols.h"
-#include "tokens.h"
+#include "common/cpu_list.h"
+#include "common/macros.h"
+#include "common/memory.h"
+#include "common/memory_pool.h"
+#include "common/print_error.h"
+#include "common/symbols.h"
+#include "common/tokens.h"
 
 #define TOKENLEN 512
 #define PARAM_STACK_LEN 4096

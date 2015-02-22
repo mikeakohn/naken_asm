@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -14,8 +14,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "memory.h"
-#include "write_hex.h"
+#include "common/memory.h"
+#include "fileio/write_hex.h"
 
 static void write_hex_line(FILE *out, uint32_t address, uint8_t *data, int len, uint32_t *segment)
 {

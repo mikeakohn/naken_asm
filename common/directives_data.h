@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
 #ifndef _DIRECTIVES_DATA_H
 #define _DIRECTIVES_DATA_H
 
-#include "assembler.h"
+#include "common/assembler.h"
 
 int parse_db(struct _asm_context *asm_context, int null_term_flag);
 int parse_dc16(struct _asm_context *asm_context);

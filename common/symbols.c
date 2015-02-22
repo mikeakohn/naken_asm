@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -14,8 +14,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "symbols.h"
-#include "memory_pool.h"
+#include "common/symbols.h"
+#include "common/memory_pool.h"
 
 int symbols_init(struct _symbols *symbols)
 {

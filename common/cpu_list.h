@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
 #ifndef _CPU_LIST_H
 #define _CPU_LIST_H
 
-#include "simulate_common.h"
+#include "simulate/common.h"
 
 struct _asm_context;
 struct _memory;

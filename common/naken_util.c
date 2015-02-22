@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -19,35 +19,35 @@
 #include <readline/history.h>
 #endif
 
-#include "assembler.h"
-#include "disasm_65xx.h"
-#include "disasm_65816.h"
-#include "disasm_680x.h"
-#include "disasm_68hc08.h"
-#include "disasm_680x0.h"
-#include "disasm_805x.h"
-#include "disasm_arm.h"
-#include "disasm_avr8.h"
-#include "disasm_dspic.h"
-#include "disasm_epiphany.h"
-#include "disasm_mips.h"
-#include "disasm_msp430.h"
-#include "disasm_stm8.h"
-#include "disasm_tms1000.h"
-#include "disasm_tms9900.h"
-#include "disasm_z80.h"
-#include "naken_util.h"
-#include "read_elf.h"
-#include "read_hex.h"
-#include "read_srec.h"
-#include "read_ti_txt.h"
-#include "simulate_avr8.h"
-#include "simulate_65xx.h"
-#include "simulate_msp430.h"
-#include "simulate_tms9900.h"
-#include "simulate_z80.h"
-#include "simulate_null.h"
-#include "version.h"
+#include "common/assembler.h"
+#include "common/naken_util.h"
+#include "common/version.h"
+#include "disasm/65xx.h"
+#include "disasm/65816.h"
+#include "disasm/680x.h"
+#include "disasm/68hc08.h"
+#include "disasm/680x0.h"
+#include "disasm/805x.h"
+#include "disasm/arm.h"
+#include "disasm/avr8.h"
+#include "disasm/dspic.h"
+#include "disasm/epiphany.h"
+#include "disasm/mips.h"
+#include "disasm/msp430.h"
+#include "disasm/stm8.h"
+#include "disasm/tms1000.h"
+#include "disasm/tms9900.h"
+#include "disasm/z80.h"
+#include "fileio/read_elf.h"
+#include "fileio/read_hex.h"
+#include "fileio/read_srec.h"
+#include "fileio/read_ti_txt.h"
+#include "simulate/avr8.h"
+#include "simulate/65xx.h"
+#include "simulate/msp430.h"
+#include "simulate/tms9900.h"
+#include "simulate/z80.h"
+#include "simulate/null.h"
 
 #define READ_RAM(a) memory_read_m(&util_context->memory, a)
 #define WRITE_RAM(a,b) memory_write_m(&util_context->memory, a, b)

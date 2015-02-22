@@ -5,15 +5,15 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "assembler.h"
-#include "print_error.h"
+#include "common/assembler.h"
+#include "common/print_error.h"
 
 void print_error(const char *s, struct _asm_context *asm_context)
 {

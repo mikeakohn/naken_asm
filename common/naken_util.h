@@ -5,16 +5,16 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
 #ifndef NAKEN_430_UTIL_H
 #define NAKEN_430_UTIL_H
 
-#include "cpu_list.h"
-#include "memory.h"
-#include "simulate_msp430.h"
+#include "common/cpu_list.h"
+#include "common/memory.h"
+#include "simulate/msp430.h"
 
 //typedef void (*disasm_range_t)(struct _memory *, int, int);
 

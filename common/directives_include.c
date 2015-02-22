@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -13,10 +13,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "assembler.h"
-#include "directives_include.h"
-#include "tokens.h"
-#include "print_error.h"
+#include "common/assembler.h"
+#include "common/directives_include.h"
+#include "common/tokens.h"
+#include "common/print_error.h"
 
 int add_to_include_path(struct _asm_context *asm_context, char *paths)
 {

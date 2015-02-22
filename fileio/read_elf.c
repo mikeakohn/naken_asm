@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -13,9 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "assembler.h"
-#include "read_elf.h"
-#include "symbols.h"
+#include "common/assembler.h"
+#include "common/symbols.h"
+#include "fileio/read_elf.h"
 
 #define SHT_NULL 0
 #define SHT_PROGBITS 1

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -13,11 +13,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "assembler.h"
-#include "macros.h"
-#include "memory_pool.h"
-#include "symbols.h"
-#include "tokens.h"
+#include "common/assembler.h"
+#include "common/macros.h"
+#include "common/memory_pool.h"
+#include "common/symbols.h"
+#include "common/tokens.h"
 
 static int get_param_index(char *params, char *name)
 {

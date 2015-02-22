@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -14,10 +14,10 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "lpc.h"
-#include "lpc_parts.h"
-#include "memory.h"
-#include "serial.h"
+#include "prog/lpc.h"
+#include "prog/lpc_parts.h"
+#include "prog/serial.h"
+#include "common/memory.h"
 
 static int lpc_send_command(struct _serial *serial, char *command);
 

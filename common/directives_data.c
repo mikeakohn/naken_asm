@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -13,12 +13,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "asm_common.h"
-#include "assembler.h"
-#include "eval_expression.h"
-#include "eval_expression_ex.h"
-#include "tokens.h"
-#include "print_error.h"
+#include "asm/common.h"
+#include "common/assembler.h"
+#include "common/eval_expression.h"
+#include "common/eval_expression_ex.h"
+#include "common/tokens.h"
+#include "common/print_error.h"
 
 int parse_db(struct _asm_context *asm_context, int null_term_flag)
 {

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -15,8 +15,8 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "memory.h"
-#include "write_srec.h"
+#include "common/memory.h"
+#include "fileio/write_srec.h"
 
 #define LINE_LENGTH 16
 

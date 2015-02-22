@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "memory_pool.h"
+#include "common/memory_pool.h"
 
 struct _memory_pool *memory_pool_add(struct _naken_heap *heap, int heap_len)
 {

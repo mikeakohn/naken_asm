@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -17,10 +17,10 @@
 #include <inttypes.h>
 #include <assert.h>
 
-#include "assembler.h"
-#include "macros.h"
-#include "symbols.h"
-#include "tokens.h"
+#include "common/assembler.h"
+#include "common/macros.h"
+#include "common/symbols.h"
+#include "common/tokens.h"
 
 //#define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }
 

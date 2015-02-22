@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -14,14 +14,14 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "assembler.h"
-#include "write_elf.h"
-#include "write_hex.h"
-#include "write_srec.h"
-#include "macros.h"
-#include "symbols.h"
-#include "tokens.h"
-#include "version.h"
+#include "common/assembler.h"
+#include "common/macros.h"
+#include "common/symbols.h"
+#include "common/tokens.h"
+#include "common/version.h"
+#include "fileio/write_elf.h"
+#include "fileio/write_hex.h"
+#include "fileio/write_srec.h"
 
 enum
 {

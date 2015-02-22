@@ -18,10 +18,10 @@ DISASM_OBJS_ALL=""
 TABLE_OBJS_ALL=""
 SIM_OBJS_ALL=""
 DFLAGS_ALL="-DENABLE_65XX -DENABLE_680X -DENABLE_65816 -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_805X -DENABLE_ARM -DENABLE_AVR8 -DENABLE_DSPIC -DENABLE_EPIPHANY -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_STM8 -DENABLE_THUMB -DENABLE_TMS1000 -DENABLE_TMS9900 -DENABLE_Z80"
-ASM_OBJS="asm_common.o"
-DISASM_OBJS="disasm_common.o"
+ASM_OBJS="common.o"
+DISASM_OBJS="common.o"
 TABLE_OBJS=""
-SIM_OBJS="simulate_null.o"
+SIM_OBJS="null.o"
 COMMON_OBJS="assembler.o cpu_list.o directives_data.o directives_if.o directives_include.o eval_expression.o eval_expression_ex.o print_error.o tokens.o ifdef_expression.o macros.o memory.o memory_pool.o symbols.o var.o"
 FILEIO_OBJS="read_elf.o read_hex.o read_srec.o read_ti_txt.o write_elf.o write_hex.o write_srec.o"
 PROG_OBJS="lpc.o serial.o"
@@ -208,115 +208,115 @@ for option in $@; do
     DFLAGS="${DFLAGS_ALL}"
   ;;
   --enable-65xx)
-    ASM_OBJS="${ASM_OBJS} asm_65xx.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_65xx.o"
-    SIM_OBJS="${SIM_OBJS} simulate_65xx.o"
-    TABLE_OBJS="${TABLE_OBJS} table_65xx.o"
+    ASM_OBJS="${ASM_OBJS} 65xx.o"
+    DISASM_OBJS="${DISASM_OBJS} 65xx.o"
+    SIM_OBJS="${SIM_OBJS} 65xx.o"
+    TABLE_OBJS="${TABLE_OBJS} 65xx.o"
     DFLAGS="${DFLAGS} -DENABLE_65XX"
   ;;
   --enable-65816)
-    ASM_OBJS="${ASM_OBJS} asm_65816.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_65816.o"
-    TABLE_OBJS="${TABLE_OBJS} table_65816.o"
+    ASM_OBJS="${ASM_OBJS} 65816.o"
+    DISASM_OBJS="${DISASM_OBJS} 65816.o"
+    TABLE_OBJS="${TABLE_OBJS} 65816.o"
     DFLAGS="${DFLAGS} -DENABLE_65816"
   ;;
   --enable-680x)
-    ASM_OBJS="${ASM_OBJS} asm_680x.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_680x.o"
-    TABLE_OBJS="${TABLE_OBJS} table_680x.o"
+    ASM_OBJS="${ASM_OBJS} 680x.o"
+    DISASM_OBJS="${DISASM_OBJS} 680x.o"
+    TABLE_OBJS="${TABLE_OBJS} 680x.o"
     DFLAGS="${DFLAGS} -DENABLE_680X"
   ;;
   --enable-68hc08)
-    ASM_OBJS="${ASM_OBJS} asm_68hc08.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_68hc08.o"
-    TABLE_OBJS="${TABLE_OBJS} table_68hc08.o"
+    ASM_OBJS="${ASM_OBJS} 68hc08.o"
+    DISASM_OBJS="${DISASM_OBJS} 68hc08.o"
+    TABLE_OBJS="${TABLE_OBJS} 68hc08.o"
     DFLAGS="${DFLAGS} -DENABLE_68HC08"
   ;;
   --enable-680x0)
-    ASM_OBJS="${ASM_OBJS} asm_680x0.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_680x0.o"
-    TABLE_OBJS="${TABLE_OBJS} table_680x0.o"
+    ASM_OBJS="${ASM_OBJS} 680x0.o"
+    DISASM_OBJS="${DISASM_OBJS} 680x0.o"
+    TABLE_OBJS="${TABLE_OBJS} 680x0.o"
     DFLAGS="${DFLAGS} -DENABLE_680X0"
   ;;
   --enable-805x)
-    ASM_OBJS="${ASM_OBJS} asm_805x.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_805x.o"
-    TABLE_OBJS="${TABLE_OBJS} table_805x.o"
+    ASM_OBJS="${ASM_OBJS} 805x.o"
+    DISASM_OBJS="${DISASM_OBJS} 805x.o"
+    TABLE_OBJS="${TABLE_OBJS} 805x.o"
     DFLAGS="${DFLAGS} -DENABLE_805X"
   ;;
   --enable-arm)
-    ASM_OBJS="${ASM_OBJS} asm_arm.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_arm.o"
+    ASM_OBJS="${ASM_OBJS} arm.o"
+    DISASM_OBJS="${DISASM_OBJS} arm.o"
     DFLAGS="${DFLAGS} -DENABLE_ARM"
   ;;
   --enable-avr8)
-    ASM_OBJS="${ASM_OBJS} asm_avr8.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_avr8.o"
-    SIM_OBJS="${SIM_OBJS} simulate_avr8.o"
+    ASM_OBJS="${ASM_OBJS} avr8.o"
+    DISASM_OBJS="${DISASM_OBJS} avr8.o"
+    SIM_OBJS="${SIM_OBJS} avr8.o"
     DFLAGS="${DFLAGS} -DENABLE_AVR8"
   ;;
   --enable-dspic)
-    ASM_OBJS="${ASM_OBJS} asm_dspic.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_dspic.o"
-    TABLE_OBJS="${TABLE_OBJS} table_dspic.o"
+    ASM_OBJS="${ASM_OBJS} dspic.o"
+    DISASM_OBJS="${DISASM_OBJS} dspic.o"
+    TABLE_OBJS="${TABLE_OBJS} dspic.o"
     DFLAGS="${DFLAGS} -DENABLE_DSPIC"
   ;;
   --enable-epiphany)
-    ASM_OBJS="${ASM_OBJS} asm_epiphany.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_epiphany.o"
-    TABLE_OBJS="${TABLE_OBJS} table_epiphany.o"
+    ASM_OBJS="${ASM_OBJS} epiphany.o"
+    DISASM_OBJS="${DISASM_OBJS} epiphany.o"
+    TABLE_OBJS="${TABLE_OBJS} epiphany.o"
     DFLAGS="${DFLAGS} -DENABLE_EPIPHANY"
   ;;
   --enable-mips)
-    ASM_OBJS="${ASM_OBJS} asm_mips.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_mips.o"
-    TABLE_OBJS="${TABLE_OBJS} table_mips.o"
+    ASM_OBJS="${ASM_OBJS} mips.o"
+    DISASM_OBJS="${DISASM_OBJS} mips.o"
+    TABLE_OBJS="${TABLE_OBJS} mips.o"
     DFLAGS="${DFLAGS} -DENABLE_MIPS"
   ;;
   --enable-msp430)
-    ASM_OBJS="${ASM_OBJS} asm_msp430.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_msp430.o"
-    SIM_OBJS="${SIM_OBJS} simulate_msp430.o"
-    TABLE_OBJS="${TABLE_OBJS} table_msp430.o"
+    ASM_OBJS="${ASM_OBJS} msp430.o"
+    DISASM_OBJS="${DISASM_OBJS} msp430.o"
+    SIM_OBJS="${SIM_OBJS} msp430.o"
+    TABLE_OBJS="${TABLE_OBJS} msp430.o"
     DFLAGS="${DFLAGS} -DENABLE_MSP430"
     NO_MSP430=""
   ;;
   --enable-stm8)
-    ASM_OBJS="${ASM_OBJS} asm_stm8.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_stm8.o"
-    TABLE_OBJS="${TABLE_OBJS} table_stm8.o"
+    ASM_OBJS="${ASM_OBJS} stm8.o"
+    DISASM_OBJS="${DISASM_OBJS} stm8.o"
+    TABLE_OBJS="${TABLE_OBJS} stm8.o"
     DFLAGS="${DFLAGS} -DENABLE_STM8"
   ;;
   --enable-thumb)
-    ASM_OBJS="${ASM_OBJS} asm_thumb"
-    DISASM_OBJS="${DISASM_OBJS} disasm_thumb"
-    TABLE_OBJS="${TABLE_OBJS} table_thumb.o"
+    ASM_OBJS="${ASM_OBJS} thumb"
+    DISASM_OBJS="${DISASM_OBJS} thumb"
+    TABLE_OBJS="${TABLE_OBJS} thumb.o"
     DFLAGS="${DFLAGS} -DENABLE_THUMB"
   ;;
   --enable-tms1000)
-    ASM_OBJS="${ASM_OBJS} asm_tms1000.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_tms1000.o"
-    TABLE_OBJS="${TABLE_OBJS} table_tms1000.o"
+    ASM_OBJS="${ASM_OBJS} tms1000.o"
+    DISASM_OBJS="${DISASM_OBJS} tms1000.o"
+    TABLE_OBJS="${TABLE_OBJS} tms1000.o"
     DFLAGS="${DFLAGS} -DENABLE_TMS1000"
   ;;
   --enable-tms9900)
-    ASM_OBJS="${ASM_OBJS} asm_tms9900.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_tms9900.o"
-    SIM_OBJS="${SIM_OBJS} simulate_tms9900.o"
-    TABLE_OBJS="${TABLE_OBJS} table_tms9900.o"
+    ASM_OBJS="${ASM_OBJS} tms9900.o"
+    DISASM_OBJS="${DISASM_OBJS} tms9900.o"
+    SIM_OBJS="${SIM_OBJS} tms9900.o"
+    TABLE_OBJS="${TABLE_OBJS} tms9900.o"
     DFLAGS="${DFLAGS} -DENABLE_TMS9900"
   ;;
   --enable-z80)
-    ASM_OBJS="${ASM_OBJS} asm_z80.o"
-    DISASM_OBJS="${DISASM_OBJS} disasm_z80.o"
-    SIM_OBJS="${SIM_OBJS} simulate_z80.o"
-    TABLE_OBJS="${TABLE_OBJS} table_z80.o"
+    ASM_OBJS="${ASM_OBJS} z80.o"
+    DISASM_OBJS="${DISASM_OBJS} z80.o"
+    SIM_OBJS="${SIM_OBJS} z80.o"
+    TABLE_OBJS="${TABLE_OBJS} z80.o"
     DFLAGS="${DFLAGS} -DENABLE_Z80"
   ;;
   esac
 done
 
-if [ "${ASM_OBJS}" == "asm_common.o" ]
+if [ "${ASM_OBJS}" == "common.o" ]
 then
   ASM_OBJS="${ASM_OBJS_ALL}"
   DISASM_OBJS="${DISASM_OBJS_ALL}"

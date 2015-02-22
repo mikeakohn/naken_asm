@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "read_srec.h"
+#include "fileio/read_srec.h"
 
 // FIXME: Redundant with read_hex.c
 static int get_hex(FILE *in, int len)

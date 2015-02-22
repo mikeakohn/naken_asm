@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
 #ifndef _WRITE_ELF_H
 #define _WRITE_ELF_H
 
-#include "symbols.h"
+#include "common/symbols.h"
 
 #define ELF_TEXT_MAX 64
 

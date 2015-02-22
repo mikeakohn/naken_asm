@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn
  *
  */
 
@@ -15,7 +15,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "var.h"
+#include "common/var.h"
 
 #define VAR_RETURN_VALUE(var,ret_type) \
   if (var->type == VAR_INT) \
