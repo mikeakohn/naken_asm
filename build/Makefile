@@ -3,9 +3,10 @@ include ../config.mak
 VPATH=../asm:../disasm:../common:../simulate:../table:../prog:../fileio
 
 default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
-         $(PROG_OBJS)
+         $(FILE_OBJS) $(PROG_OBJS)
 	$(CC) -o ../naken_asm$(CONFIG_EXT) ../common/naken_asm.c $(ASM_OBJS) \
-	   $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
+	   $(DISASM_OBJS) $(FILE_OBJS) $(COMMON_OBJS) $(SIM_OBJS) \
+	   $(TABLE_OBJS) \
 	    -DINCLUDE_PATH="\"$(INCLUDE_PATH)\"" \
 	   $(CFLAGS) $(LDFLAGS) -I../simulate -I../common -I../fileio
 	$(CC) -o ../naken_util$(CONFIG_EXT) ../common/naken_util.c \
