@@ -230,7 +230,7 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
   int opcode;
   char ea[32];
   int size;
-  int reg;
+  int reg,imm;
   int mode,len;
   uint32_t immediate;
   int offset;
@@ -476,17 +476,17 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
             break;
           }
           return 2;
-        case OP_REG_EA_NO_SIZE:
+        case OP_BIT_REG_EA:
           reg = (opcode >> 9) & 0x7;
           // FIXME - should this be for all destination EA's?
           if (((opcode >> 3) & 0x7) == 1) { break; }
           len = get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s d%d, %s", table_680x0[n].instr, reg, ea);
           return len;
-        case OP_EXTRA_IMM_EA:
-          reg = READ_RAM16(address+2); // Immediate
+        case OP_BIT_IMM_EA:
+          imm = READ_RAM16(address+2); // Immediate
           len = get_ea_680x0(memory, address, ea, opcode, 2, 0);
-          sprintf(instruction, "%s #%d, %s", table_680x0[n].instr, reg, ea);
+          sprintf(instruction, "%s #%d, %s", table_680x0[n].instr, imm, ea);
           return len + 2;
         case OP_EA_DREG_WL:
           reg = (opcode >> 9) & 0x7;

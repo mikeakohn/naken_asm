@@ -966,33 +966,55 @@ static int write_exchange(struct _asm_context *asm_context, char *instr, struct 
   return 0;
 }
 
-static int write_reg_ea_no_size(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_bit_reg_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
-  if (size != SIZE_NONE) { return 0; }
+  //if (size != SIZE_NONE) { return 0; }
 
   if (operands[0].type == OPERAND_D_REG)
   {
-    return ea_generic_all(asm_context, &operands[1], instr, opcode | (operands[0].value << 9), 0, EA_NO_A | EA_NO_IMM | EA_NO_PC, NO_EXTRA_IMM);
+    uint16_t opcode_extra = (operands[0].value << 9);
+    return ea_generic_new(asm_context, &operands[1], instr, size, table, 1, NO_EXTRA_IMM, opcode_extra);
   }
 
   return 0;
 }
 
-static int write_ea_extra_imm(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_bit_imm_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
-  if (size != SIZE_NONE) { return 0; }
+  //if (size != SIZE_NONE) { return 0; }
 
   if (operands[0].type == OPERAND_IMMEDIATE)
   {
-    if (operands[0].value < 0 || operands[0].value > 255)
+    if (operands[0].value < 0 || operands[0].value > 127)
     {
-      print_error_range("Immediate", 0, 255, asm_context);
+      print_error_range("Immediate", 0, 127, asm_context);
       return -1;
     }
 
-    return ea_generic_all(asm_context, &operands[1], instr, opcode, 0, EA_NO_A | EA_NO_IMM | EA_NO_PC, operands[0].value);
+    //return ea_generic_all(asm_context, &operands[1], instr, opcode, 0, EA_NO_A | EA_NO_IMM | EA_NO_PC, operands[0].value);
+    int len = ea_generic_new(asm_context, &operands[1], instr, size, table, 1, NO_EXTRA_IMM, 0);
+
+    if (len <= 0)
+    {
+      print_error_illegal_expression(instr, asm_context);
+      return -1;
+    }
+
+    if (len != 2)
+    {
+      asm_context->address -= 2;
+      int ea = memory_read(asm_context, asm_context->address - 2);
+      add_bin16(asm_context, operands[0].value, IS_OPCODE);
+      add_bin16(asm_context, ea, IS_OPCODE);
+    }
+      else
+    {
+      add_bin16(asm_context, operands[0].value, IS_OPCODE);
+    }
+
+    return len + 2;
   }
 
   return 0;
@@ -1957,11 +1979,11 @@ printf("\n");
         case OP_EXCHANGE:
           ret = write_exchange(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
-        case OP_REG_EA_NO_SIZE:
-          ret = write_reg_ea_no_size(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+        case OP_BIT_REG_EA:
+          ret = write_bit_reg_ea(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
-        case OP_EXTRA_IMM_EA:
-          ret = write_ea_extra_imm(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+        case OP_BIT_IMM_EA:
+          ret = write_bit_imm_ea(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         case OP_EA_DREG_WL:
           ret = write_ea_dreg_wl(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
