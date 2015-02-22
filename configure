@@ -23,7 +23,7 @@ DISASM_OBJS="disasm_common.o"
 TABLE_OBJS=""
 SIM_OBJS="simulate_null.o"
 COMMON_OBJS="assembler.o cpu_list.o directives_data.o directives_if.o directives_include.o eval_expression.o eval_expression_ex.o print_error.o tokens.o ifdef_expression.o macros.o memory.o memory_pool.o symbols.o var.o"
-FILE_OBJS="read_elf.o read_hex.o read_srec.o read_ti_txt.o write_elf.o write_hex.o write_srec.o"
+FILEIO_OBJS="read_elf.o read_hex.o read_srec.o read_ti_txt.o write_elf.o write_hex.o write_srec.o"
 PROG_OBJS="lpc.o serial.o"
 NO_MSP430="-DNO_MSP430"
 
@@ -169,6 +169,16 @@ cleanup()
   rm -f config.exe
   rm -f config
   rm -f config.log
+}
+
+output_objs()
+{
+  echo -n "${1}=" >> config.mak
+  for file in ${3}
+  do
+    printf " \\\\\n  ${2}/${file}" >> config.mak
+  done
+  echo >> config.mak
 }
 
 for option in $@; do
@@ -395,13 +405,19 @@ echo "INSTALL_BIN=${INSTALL_BIN}" >> config.mak
 echo "INSTALL_INCLUDES=${INSTALL_INCLUDES}" >> config.mak
 echo "INCLUDE_PATH=${INCLUDE_PATH}" >> config.mak
 echo "CONFIG_EXT=${CONFIG_EXT}" >> config.mak
-echo "ASM_OBJS=${ASM_OBJS}" >> config.mak
-echo "DISASM_OBJS=${DISASM_OBJS}" >> config.mak
-echo "COMMON_OBJS=${COMMON_OBJS}" >> config.mak
-echo "TABLE_OBJS=${TABLE_OBJS}" >> config.mak
-echo "SIM_OBJS=${SIM_OBJS}" >> config.mak
-echo "FILE_OBJS=${FILE_OBJS}" >> config.mak
-echo "PROG_OBJS=${PROG_OBJS}" >> config.mak
+#echo "ASM_OBJS=${ASM_OBJS}" >> config.mak
+#echo "DISASM_OBJS=${DISASM_OBJS}" >> config.mak
+#echo "COMMON_OBJS=${COMMON_OBJS}" >> config.mak
+#echo "TABLE_OBJS=${TABLE_OBJS}" >> config.mak
+#echo "SIM_OBJS=${SIM_OBJS}" >> config.mak
+#echo "PROG_OBJS=${PROG_OBJS}" >> config.mak
+output_objs ASM_OBJS asm "${ASM_OBJS}"
+output_objs DISASM_OBJS disasm "${DISASM_OBJS}"
+output_objs TABLE_OBJS table "${TABLE_OBJS}"
+output_objs COMMON_OBJS common "${COMMON_OBJS}"
+output_objs SIM_OBJS simulate "${SIM_OBJS}"
+output_objs FILEIO_OBJS fileio "${FILEIO_OBJS}"
+output_objs PROG_OBJS prog "${PROG_OBJS}"
 echo >> config.mak
 
 echo

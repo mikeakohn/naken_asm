@@ -3,6 +3,13 @@ include config.mak
 vpath=asm:disasm:common:simulate
 
 default:
+	@mkdir -p build/asm
+	@mkdir -p build/disasm
+	@mkdir -p build/table
+	@mkdir -p build/common
+	@mkdir -p build/simulate
+	@mkdir -p build/fileio
+	@mkdir -p build/prog
 	@$(MAKE) -C build
 
 %.o: %.c *.h
@@ -40,6 +47,8 @@ archive:
 clean:
 	@rm -f naken_asm naken_util naken_prog *.exe *.o *.hex a.out *.lst *.ndbg *.elf *.srec
 	@rm -rf build/*.o build/*.a
+	@rm -rf build/asm build/disasm build/table build/common
+	@rm -rf build/simulate build/fileio build/prog
 	@rm -rf testing/unit/eval_expression/unit_test
 	@rm -rf testing/unit/eval_expression_ex/unit_test
 	@rm -rf testing/unit/data/data_test

@@ -1,11 +1,11 @@
 include ../config.mak
 
-VPATH=../asm:../disasm:../common:../simulate:../table:../prog:../fileio
+VPATH=../asm:../disasm:../common:../simulate:../table:../prog:../fileio:..
 
 default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
-         $(FILE_OBJS) $(PROG_OBJS)
+         $(FILEIO_OBJS) $(PROG_OBJS)
 	$(CC) -o ../naken_asm$(CONFIG_EXT) ../common/naken_asm.c $(ASM_OBJS) \
-	   $(DISASM_OBJS) $(FILE_OBJS) $(COMMON_OBJS) $(SIM_OBJS) \
+	   $(DISASM_OBJS) $(FILEIO_OBJS) $(COMMON_OBJS) $(SIM_OBJS) \
 	   $(TABLE_OBJS) \
 	    -DINCLUDE_PATH="\"$(INCLUDE_PATH)\"" \
 	   $(CFLAGS) $(LDFLAGS) -I../simulate -I../common -I../fileio
@@ -13,14 +13,17 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
 	   $(DISASM_OBJS) \
 	   $(TABLE_OBJS) \
 	   $(SIM_OBJS) \
+	   $(FILEIO_OBJS) \
 	   $(DFLAGS) \
-	   cpu_list.o memory.o memory_pool.o print_error.o read_elf.o \
-	   read_hex.o read_srec.o read_ti_txt.o symbols.o \
+	   common/cpu_list.o common/memory.o common/memory_pool.o \
+	   common/print_error.o common/symbols.o \
 	   -I../disasm -I../common -I../simulate -I../table -I../fileio \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 	$(CC) -o ../naken_prog$(CONFIG_EXT) ../common/naken_prog.c \
-	   -I../prog -I../common -I../fileio lpc.o memory.o memory_pool.o \
-	   read_elf.o read_hex.o print_error.o serial.o symbols.o write_hex.o \
+	   -I../prog -I../common -I../fileio prog/lpc.o common/memory.o \
+	   common/memory_pool.o fileio/read_elf.o fileio/read_hex.o \
+	   fileio/write_hex.o common/print_error.o prog/serial.o \
+	   common/symbols.o \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
 assembler.o: assembler.c assembler.h
