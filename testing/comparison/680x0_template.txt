@@ -97,5 +97,14 @@ cmpi.l #5, (%a7)
 cmpm.b (%a1)+, (%a2)+
 cmpm.w (%a2)+, (%a5)+
 cmpm.l (%a3)+, (%a6)+
+divs.w (%a3), %d6
+divu.w %d3, %d6
+eor.b %d3, (%a3)
+eor.w %d3, (%a3)+
+eor.l %d3, (10,%a3)
+eori.b #3, (%a3)
+eori.w #7, (%a3)+
+eori.l #9, (10,%a3)
+eori #9, %ccr
 movea.l %d5, %a3
 move.l %d5, (%a1)+
