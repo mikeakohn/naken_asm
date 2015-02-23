@@ -467,7 +467,9 @@ static int write_single_ea(struct _asm_context *asm_context, char *instr, struct
 {
   if (operand_count != 1) { return 0; }
 
-  return ea_generic_new(asm_context, &operands[0], instr, size, table, 1, NO_EXTRA_IMM, 0);
+  uint16_t extra_opcode = size << 6;
+
+  return ea_generic_new(asm_context, &operands[0], instr, size, table, 1, NO_EXTRA_IMM, extra_opcode);
 }
 
 static int write_single_ea_no_size(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode)
