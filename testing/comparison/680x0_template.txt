@@ -106,5 +106,8 @@ eori.b #3, (%a3)
 eori.w #7, (%a3)+
 eori.l #9, (10,%a3)
 eori #9, %ccr
+exg %d1, %d7
+exg %a1, %a7
+exg %d1, %a7
 movea.l %d5, %a3
 move.l %d5, (%a1)+

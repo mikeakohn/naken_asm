@@ -942,26 +942,25 @@ static int write_rox(struct _asm_context *asm_context, char *instr, struct _oper
   return 0;
 }
 
-static int write_exchange(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_exchange(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
-  if (size != SIZE_NONE) { return 0; }
 
   if (operands[0].type == OPERAND_D_REG && operands[1].type == OPERAND_D_REG)
   {
-    add_bin16(asm_context, opcode | (operands[0].value << 9) | (0x8 << 3) | operands[1].value, IS_OPCODE);
+    add_bin16(asm_context, table->opcode | (operands[0].value << 9) | (0x8 << 3) | operands[1].value, IS_OPCODE);
     return 2;
   }
     else
   if (operands[0].type == OPERAND_A_REG && operands[1].type == OPERAND_A_REG)
   {
-    add_bin16(asm_context, opcode | (operands[0].value << 9) | (0x9 << 3) | operands[1].value, IS_OPCODE);
+    add_bin16(asm_context, table->opcode | (operands[0].value << 9) | (0x9 << 3) | operands[1].value, IS_OPCODE);
     return 2;
   }
     else
   if (operands[0].type == OPERAND_D_REG && operands[1].type == OPERAND_A_REG)
   {
-    add_bin16(asm_context, opcode | (operands[0].value << 9) | (0x11 << 3) | operands[1].value, IS_OPCODE);
+    add_bin16(asm_context, table->opcode | (operands[0].value << 9) | (0x11 << 3) | operands[1].value, IS_OPCODE);
     return 2;
   }
 
@@ -1997,7 +1996,7 @@ printf("\n");
           ret = write_rox(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size, table_680x0[n].type);
           break;
         case OP_EXCHANGE:
-          ret = write_exchange(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          ret = write_exchange(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         case OP_BIT_REG_EA:
           ret = write_bit_reg_ea(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);

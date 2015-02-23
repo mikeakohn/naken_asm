@@ -51,7 +51,7 @@ struct _table_680x0 table_680x0[] =
   { "eor", 0xb000, 0xf000, OP_REG_AND_EA, 0, MODE_AN|MODE_D16_PC|MODE_D8_PC_XN, 0, 0 },
   { "eori", 0x0a00, 0xff00, OP_IMMEDIATE, 0, MODE_AN|MODE_D16_PC|MODE_D8_PC_XN, 0, 0 },
   { "eori", 0x0a3c, 0xffff, OP_LOGIC_CCR, 0, 0, OMIT_W|OMIT_L, DEFAULT_B },
-  { "exg", 0xc100, 0xf100, OP_EXCHANGE, 0, 0, OMIT_B|OMIT_W, 0 },
+  { "exg", 0xc100, 0xf100, OP_EXCHANGE, 0, 0, OMIT_B|OMIT_W, DEFAULT_L },
   { "ext", 0x4800, 0xfe38, OP_EXT, 0, 0, OMIT_B, 0 },
   { "illegal", 0x4afc, 0xffff, OP_NONE, 0, 0, NO_SIZE, 0 },
   { "jmp", 0x4ec0, 0xffc0, OP_JUMP, 0, MODE_DN|MODE_AN|MODE_AN_P|MODE_AN_N, NO_SIZE, 0 },
