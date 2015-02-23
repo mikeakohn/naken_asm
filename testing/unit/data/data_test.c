@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "assembler.h"
-#include "memory.h"
+#include "common/assembler.h"
+#include "common/memory.h"
 
 #define LITTLE 0
 #define BIG 1

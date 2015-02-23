@@ -24,10 +24,10 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
 	   prog/serial.o common/symbols.o -I.. \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
-assembler.o: assembler.c assembler.h
+common/assembler.o: common/assembler.c common/assembler.h
 	$(CC) -c $< -o $*.o $(CFLAGS) $(DFLAGS) -I..
 
-cpu_list.o: cpu_list.c cpu_list.h
+common/cpu_list.o: common/cpu_list.c common/cpu_list.h
 	$(CC) -c $< -o $*.o $(CFLAGS) $(DFLAGS) -I..
 
 %.o: %.c %.h

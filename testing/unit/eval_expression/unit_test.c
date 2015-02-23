@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "eval_expression.h"
-#include "tokens.h"
+#include "common/eval_expression.h"
+#include "common/tokens.h"
 
 int errors = 0;
 

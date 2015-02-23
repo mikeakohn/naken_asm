@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "var.h"
+#include "common/var.h"
 
 #define PRINT_VAR(var) \
   printf("int32=%d/%x int64=%ld/%lx float=%f double=%f   (%d)\n", \

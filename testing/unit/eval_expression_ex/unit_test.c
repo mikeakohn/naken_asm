@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "eval_expression_ex.h"
-#include "tokens.h"
-#include "var.h"
+#include "common/eval_expression_ex.h"
+#include "common/tokens.h"
+#include "common/var.h"
 
 int errors = 0;
 
