@@ -79,5 +79,10 @@ bchg.l #5, (8,%a2)
 bclr.b %d4, (%a4)+
 bclr.l #2, -(%a4)
 bkpt #3
+bset.b %d1, (%a3)
+bset.l #5, %d1
+btst.b %d6, (100)
+btst.l #5, (1000)
+chk.w (%a4), %d5
 movea.l %d5, %a3
 move.l %d5, (%a1)+

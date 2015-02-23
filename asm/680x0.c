@@ -1002,12 +1002,30 @@ static int write_bit_imm_ea(struct _asm_context *asm_context, char *instr, struc
       return -1;
     }
 
-    if (len != 2)
+    if (len > 2)
     {
-      asm_context->address -= 2;
-      int ea = memory_read(asm_context, asm_context->address - 2);
+      // Need to shift the extra bytes of the EA forward 16 bytes so
+      // the bit number can fit.
+      uint8_t ea[32];
+      int distance = len - 2;
+      int n;
+
+      if (distance > 32) { return -1; }
+
+      asm_context->address -= distance;
+
+      for (n = 0; n < distance; n++)
+      {
+        ea[n] = memory_read(asm_context, asm_context->address + n);
+      }
+
       add_bin16(asm_context, operands[0].value, IS_OPCODE);
-      add_bin16(asm_context, ea, IS_OPCODE);
+
+      for (n = 0; n < distance; n += 2)
+      {
+        int data = (ea[n] << 8) | ea[n + 1];
+        add_bin16(asm_context, data, IS_OPCODE);
+      }
     }
       else
     {

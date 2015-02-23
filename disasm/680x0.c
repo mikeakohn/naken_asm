@@ -79,13 +79,13 @@ static int get_ea_680x0(struct _memory *memory, int address, char *ea, uint16_t 
       if (reg==0)
       {
         int16_t value = READ_RAM16(address + 2 + skip);
-        if (value > 0) { sprintf(ea, "$%x", value); }
-        else { sprintf(ea, "$%x", ((uint32_t)value) & 0xffffff); }
+        if (value > 0) { sprintf(ea, "($%x)", value); }
+        else { sprintf(ea, "($%x)", ((uint32_t)value) & 0xffffff); }
         return 4;
       }
       else if (reg == 1)
       {
-        sprintf(ea, "$%x", READ_RAM32(address + 2 + skip));
+        sprintf(ea, "($%x)", READ_RAM32(address + 2 + skip));
         return 6;
       }
       else if (reg == 2)
