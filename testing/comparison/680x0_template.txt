@@ -170,11 +170,15 @@ ori.b #0x66,(5,%a3,%a3.l)
 ori #0x66, %ccr
 pea (%a4)
 pea (10,%a4)
+rol.w #5, %d7
 rol.w %d5, %d7
+ror.b %d5, %d7
 ror.b #5, %d7
 ror (%a6)
+roxl.w #5, %d7
 roxl.w %d5, %d7
 roxr.l #5, %d7
+roxr.l %d5, %d7
 roxr.w (%a6)
 rtr
 rts
