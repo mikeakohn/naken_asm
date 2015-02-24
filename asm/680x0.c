@@ -796,7 +796,6 @@ static int write_quick(struct _asm_context *asm_context, char *instr, struct _op
 static int write_move_special(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
   if (operand_count != 2) { return 0; }
-  if (size != SIZE_NONE) { return 0; }
 
   if (table->type == OP_MOVE_TO_CCR &&
       operands[1].type == OPERAND_SPECIAL_REG &&
