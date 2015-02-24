@@ -527,10 +527,14 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
           size = (mode == 2) ? SIZE_W : SIZE_L;
           sprintf(instruction, "%s.%c d%d", table_680x0[n].instr, sizes[size], reg);
           return 2;
-        case OP_LINK:
-          reg = opcode&0x7;
-          sprintf(instruction, "%s a%d, #%d", table_680x0[n].instr, reg, READ_RAM16(address + 2));
+        case OP_LINK_W:
+          reg = opcode & 0x7;
+          sprintf(instruction, "%s.w a%d, #%d", table_680x0[n].instr, reg, READ_RAM16(address + 2));
           return 4;
+        case OP_LINK_L:
+          reg = opcode & 0x7;
+          sprintf(instruction, "%s.l a%d, #%d", table_680x0[n].instr, reg, READ_RAM32(address + 2));
+          return 6;
         case OP_DIV_MUL:
           reg = (opcode >> 9) & 0x7;
           len = get_ea_680x0(memory, address, ea, opcode, 0, 0);

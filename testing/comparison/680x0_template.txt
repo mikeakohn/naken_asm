@@ -109,5 +109,15 @@ eori #9, %ccr
 exg %d1, %d7
 exg %a1, %a7
 exg %d1, %a7
+ext.w %d1
+ext.l %d2
+illegal
+lea (1000), %a4
+lea (%a4), %a1
+lea (8,%a3,%d1), %a2
+lea (8,%a3), %a3
+lea (100,%pc), %a3
+link.w %a4, #50
+link.l %a4, #50
 movea.l %d5, %a3
 move.l %d5, (%a1)+
