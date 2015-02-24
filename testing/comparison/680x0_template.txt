@@ -134,3 +134,17 @@ move %d2, %ccr
 move (%a4), %ccr
 move %sr, %d5
 move %sr, (%a5)
+movem %d4/%d5/%d6, (%a4)
+movem (%a4), %d4/%d5/%d6
+movep %d3, (100,%a4)
+movep (100,%a2), %d1
+moveq #50, %d5
+muls.w (%a3), %d6
+muls.w %d3, %d6
+mulu.w (%a3), %d6
+mulu.w %d3, %d6
+nbcd %d5
+nbcd (%a5)
+neg.b (%a5)
+neg.w %d3
+neg.l (%a2)
