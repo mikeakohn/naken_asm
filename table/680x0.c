@@ -101,7 +101,7 @@ struct _table_680x0 table_680x0[] =
   { "subi", 0x0400, 0xff00, OP_IMMEDIATE, 0, MODE_AN|MODE_D16_PC|MODE_D8_PC_XN, 0, 0 },
   { "subq", 0x5100, 0xf100, OP_QUICK, 0, MODE_D16_PC|MODE_D8_PC_XN, 0, 0 },
   { "subx", 0x9100, 0xf130, OP_EXTENDED, 0, 0, 0, 0 },
-  { "swap", 0x4840, 0xfff8, OP_AREG, 0, 0, OMIT_B|OMIT_L, 0 },
+  { "swap", 0x4840, 0xfff8, OP_REG, 0, 0, OMIT_B|OMIT_L, DEFAULT_W },
   { "tas", 0x4ac0, 0xffc0, OP_SINGLE_EA_NO_SIZE, 0, MODE_AN|MODE_D16_PC|MODE_D8_PC_XN, NO_SIZE, 0 },
   { "trap", 0x4e40, 0xfff0, OP_VECTOR, 0, 0, NO_SIZE, 0 },
   { "trapv", 0x4e76, 0xffff, OP_NONE, 0, 0, NO_SIZE, 0 },

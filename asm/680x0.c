@@ -657,7 +657,7 @@ static int write_areg(struct _asm_context *asm_context, char *instr, struct _ope
 static int write_reg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
   if (operand_count != 1) { return 0; }
-  if (size != SIZE_NONE) { return 0; }
+
   if (operands[0].type == OPERAND_D_REG)
   {
     add_bin16(asm_context, opcode | operands[0].value, IS_OPCODE);

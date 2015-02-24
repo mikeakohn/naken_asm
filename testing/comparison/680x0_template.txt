@@ -182,3 +182,19 @@ roxr.l %d5, %d7
 roxr.w (%a6)
 rtr
 rts
+sbcd %d1, %d7
+sbcd -(%a3), -(%a1)
+sub.b %d7, (%a4)
+sub.l (%a4), %d1
+suba.w (%a4), %a1
+suba.l %d4, %a1
+subi.w #4, (%a3)
+subq.l #4, (%a3)
+subx.w %d1, %d7
+subx.l -(%a3), -(%a1)
+swap %d5
+tas %d5
+trap #3
+trapv
+tst.l (%a3)
+unlk %a4
