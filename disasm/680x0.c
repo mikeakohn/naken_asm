@@ -574,6 +574,7 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
         }
         case OP_MOVE:
         {
+          const int move_size[] = { 0, 0, 2, 1 };
           char dst_ea[128];
           int dst_len;
           uint16_t ea_dst = (opcode >> 6) & 0x3f;
@@ -583,6 +584,8 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
           if (is_ea_valid(&table_680x0[n], ea_dst, 1) == 0) { break; }
 
           size = (opcode >> 12) & 3;
+          size = move_size[size];
+
           len = get_ea_680x0(memory, address, ea, opcode, 0, size);
           dst_len = get_ea_680x0(memory, address, dst_ea, ea_dst, len - 2, size);
           sprintf(instruction, "%s.%c %s, %s", table_680x0[n].instr, sizes[size], ea, dst_ea);

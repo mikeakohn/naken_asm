@@ -1262,6 +1262,7 @@ int dir=0;
 
 static int write_move(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
+const int move_size[] = { 1, 3, 2, 0 };
 uint32_t address;
 uint16_t ea_src_bytes[32];
 uint16_t ea_dst_bytes[32];
@@ -1271,6 +1272,8 @@ int len=2;
 int n;
 
   if (size == SIZE_NONE) { return 0; }
+
+  size = move_size[size];
 
   // Translate to MOVEA
   if (operands[1].type == OPERAND_A_REG)
@@ -1294,6 +1297,7 @@ int n;
   asm_context->address = address;
 
   dst_len = ea_generic_all(asm_context, &operands[1], instr, opcode, size, EA_NO_A | EA_NO_IMM | EA_NO_PC, NO_EXTRA_IMM);
+
   if (dst_len == 0) { return 0; }
 
   for (n = 0; n < dst_len; n++)

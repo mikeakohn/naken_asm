@@ -119,5 +119,11 @@ lea (8,%a3), %a3
 lea (100,%pc), %a3
 link.w %a4, #50
 link.l %a4, #50
+lsl.w %d1, %d2
+lsr.l #5, %d2
+lsl.w (%a5)
 movea.l %d5, %a3
 move.l %d5, (%a1)+
+move.w %d5, %d6
+move.w %d5, (5,%a4)
+move.b (8,%a5), (5,%a4)
