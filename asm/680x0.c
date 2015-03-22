@@ -210,30 +210,17 @@ static int ea_address(struct _asm_context *asm_context, int opcode, struct _oper
 
   if (asm_context->pass == 1)
   {
-#if 0
-    if (operand->error == 1)
-    {
-      len = 6;
-      add_bin16(asm_context, 0x0100, IS_OPCODE);
-      if (extra_imm != NO_EXTRA_IMM)
-      {
-        add_bin16(asm_context, extra_imm, IS_OPCODE);
-        len += 2;
-      }
-      add_bin16(asm_context, 0x0000, IS_OPCODE);
-      add_bin16(asm_context, 0x0000, IS_OPCODE);
-      return len;
-    }
-#endif
     len = 4;
     if (size == 4)
     {
+      add_bin16(asm_context, 0x0404, IS_OPCODE);
       add_bin16(asm_context, 0x0404, IS_OPCODE);
       add_bin16(asm_context, 0x0404, IS_OPCODE);
       len += 2;
     }
       else
     {
+      add_bin16(asm_context, 0x0000, IS_OPCODE);
       add_bin16(asm_context, 0x0000, IS_OPCODE);
     }
 
@@ -1291,12 +1278,11 @@ int n;
   return len;
 }
 
-static int write_jump(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_jump(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
 {
-int32_t offset = 0;
+  int32_t offset = 0;
 
   if (operand_count != 1) { return 0; }
-  if (size != SIZE_NONE) { return 0; }
 
   if (operands[0].type == OPERAND_ADDRESS)
   {
@@ -1310,7 +1296,7 @@ int32_t offset = 0;
     operands[0].type = OPERAND_INDEX_DATA16_PC;
   }
 
-  return ea_generic_all(asm_context, &operands[0], instr, opcode, 0, EA_NO_A | EA_NO_D | EA_NO_IMM | EA_NO_PLUS | EA_NO_MINUS, NO_EXTRA_IMM);
+  return ea_generic_new(asm_context, &operands[0], instr, size, table, 1, NO_EXTRA_IMM, 0);
 }
 
 int parse_instruction_680x0(struct _asm_context *asm_context, char *instr)
@@ -2056,12 +2042,13 @@ printf("\n");
           ret = write_move(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
           break;
         case OP_JUMP:
-          ret = write_jump(asm_context, instr, operands, operand_count, table_680x0[n].opcode, operand_size);
+          ret = write_jump(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         default:
           n++;
           continue;
       }
+//printf("ret=%d  address=%d\n", ret, asm_context->address);
       if (ret != 0) { return ret; }
     }
 
