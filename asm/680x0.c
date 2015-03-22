@@ -1446,13 +1446,84 @@ int n;
         }
       }
         else
+      if (asm_context->pass == 1)
+      {
+        // If there are any commas in here, then it's a 16 bit + 16 bit
+        // instruction.  If there are no comments then it's an absolute
+        // address and is either 16 + either 16 or 32 bits.
+
+        int has_comma = 0;
+        int eval_error = 0;
+
+        // First try to evaluate the expression
+        if (eval_expression(asm_context, &num) != 0)
+        {
+          // Overflow 16 bit
+          eval_error = 1;
+        }
+
+        while(1)
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (IS_TOKEN(token, ',')) { has_comma = 1; }
+          else if (IS_TOKEN(token, ')')) { break; }
+        }
+
+        if (has_comma == 0)
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (IS_TOKEN(token, '.'))
+          {
+            token_type = tokens_get(asm_context, token, TOKENLEN);
+            if (strcasecmp(token, "w") == 0)
+            {
+              //memory_write(asm_context, asm_context->address, 2, asm_context->line);
+              operands[operand_count].type = OPERAND_ADDRESS_W;
+            }
+              else
+            if (strcasecmp(token, "l") == 0)
+            {
+              memory_write(asm_context, asm_context->address, 4, asm_context->line);
+              operands[operand_count].type = OPERAND_ADDRESS_L;
+            }
+              else
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+          }
+            else
+          {
+            if (eval_error == 1 || num > 0xffff)
+            {
+              // Can't figure out the size, so assume 32 bit :(
+              memory_write(asm_context, asm_context->address, 4, asm_context->line);
+              operands[operand_count].type = OPERAND_ADDRESS_L;
+            }
+              else
+            {
+              //memory_write(asm_context, asm_context->address, 2, asm_context->line);
+              operands[operand_count].type = OPERAND_ADDRESS_W;
+            }
+
+            tokens_push(asm_context, token, token_type);
+          }
+        }
+          else
+        {
+          // Any one of these would work here since they are all 16 bit
+          // plus an extra 16 bit for the offset.
+          operands[operand_count].type = OPERAND_INDEX_DATA16_A_REG;
+        }
+      }
+        else
       {
         // Check for displacement
         tokens_push(asm_context, token, token_type);
 
         int eval_error = 0;
 
-        if (eval_expression(asm_context, &num)!=0)
+        if (eval_expression(asm_context, &num) != 0)
         {
           if (asm_context->pass == 1)
           {
@@ -1487,7 +1558,7 @@ int n;
           }
 
           token_type = tokens_get(asm_context, token, TOKENLEN);
-          if (IS_TOKEN(token,','))
+          if (IS_TOKEN(token, ','))
           {
             token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -1518,7 +1589,7 @@ int n;
             operands[operand_count].xn_size = SIZE_L;
 
             token_type = tokens_get(asm_context, token, TOKENLEN);
-            if (IS_TOKEN(token,'.'))
+            if (IS_TOKEN(token, '.'))
             {
               token_type = tokens_get(asm_context, token, TOKENLEN);
               if (strcasecmp(token,"w") == 0)
