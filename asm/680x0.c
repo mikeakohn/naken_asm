@@ -1286,8 +1286,7 @@ static int write_jump(struct _asm_context *asm_context, char *instr, struct _ope
 
   if (operands[0].type == OPERAND_ADDRESS)
   {
-    //offset = operands[0].value - (asm_context->address + 4);
-    offset = operands[0].value - (asm_context->address + 2);
+    offset = operands[0].value - (asm_context->address + 4);
     if (offset < -32768 || offset > 32767)
     {
       print_error_range("Offset", -32768, 32767, asm_context);
