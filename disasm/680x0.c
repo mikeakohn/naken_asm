@@ -616,20 +616,20 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
     if (offset == 0)
     {
       offset = (int16_t)READ_RAM16(address + 2);
-      sprintf(instruction, "b%s $%x (%d)", table_680x0_condition_codes[(opcode >> 8) & 0xf], address + 4 + offset, offset);
+      sprintf(instruction, "b%s.w $%x (%d)", table_680x0_condition_codes[(opcode >> 8) & 0xf], address + 4 + offset, offset);
       return 4;
     }
       else
     if (offset == 0xff)
     {
       offset = READ_RAM32(address + 2);
-      sprintf(instruction, "b%s $%x (%d)", table_680x0_condition_codes[(opcode >> 8) & 0xf], address + 6 + offset, offset);
+      sprintf(instruction, "b%s.l $%x (%d)", table_680x0_condition_codes[(opcode >> 8) & 0xf], address + 6 + offset, offset);
       return 6;
     }
       else
     {
       offset = (int)((char)offset);
-      sprintf(instruction, "b%s $%x (%d)", table_680x0_condition_codes[(opcode >> 8) & 0xf], address + 2 + offset, offset);
+      sprintf(instruction, "b%s.s $%x (%d)", table_680x0_condition_codes[(opcode >> 8) & 0xf], address + 2 + offset, offset);
       return 2;
     }
     return 4;

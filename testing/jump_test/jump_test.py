@@ -2,7 +2,7 @@
 
 import sys,os
 
-def test_jump(arch, instruction, distance, jump):
+def test_jump(arch, instruction, distance, jump, start, end):
 
   print instruction + " / " + jump + " ... ",
 
@@ -20,7 +20,9 @@ def test_jump(arch, instruction, distance, jump):
   code = fp2.readline()
   fp2.close()
 
-  code = code[13:17]
+  code = code[start:end]
+
+  #print code
 
   if int(code,16) != distance:
     print "\x1b[31mERROR! " + str(int(code,16)) + " " + str(distance) + "\x1b[0m"
@@ -49,11 +51,9 @@ for line in fp:
   distance = len(code) / 2
   #print str(tokens) + " " + code + " " + str(distance)
 
-  errors += test_jump(arch, tokens[0], distance + 4, "jmp (blah)")
-  errors += test_jump(arch, tokens[0], distance, "jmp blah")
-  errors += test_jump(arch, tokens[0], distance, "beq blah")
-
-  break
+  errors += test_jump(arch, tokens[0], distance + 4, "jmp (blah)", 13, 17)
+  errors += test_jump(arch, tokens[0], distance, "jmp blah", 13, 17)
+  errors += test_jump(arch, tokens[0], distance, "beq.s blah", 11, 13)
 
 fp.close()
 

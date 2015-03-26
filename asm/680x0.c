@@ -1012,9 +1012,8 @@ static int write_branch(struct _asm_context *asm_context, char *instr, struct _o
   {
     if (size == SIZE_NONE)
     {
-      //if (operands[0].error == 1) { size = SIZE_W; }
-      //else { size = calc_branch_size(asm_context->address, operands[0].value); }
-      return 0;
+      print_error_internal(asm_context, __FILE__, __LINE__);
+      return -1;
     }
 
     add_bin16(asm_context, (size + 1) << 8, IS_OPCODE);
@@ -1024,10 +1023,10 @@ static int write_branch(struct _asm_context *asm_context, char *instr, struct _o
     return (size + 1) * 2;
   }
 
-  int len = memory_read(asm_context, asm_context->address);
+  //int len = memory_read(asm_context, asm_context->address);
   int offset;
 
-  if (len == 1)
+  if (size == SIZE_B)
   {
     offset = operands[0].value - (asm_context->address + 2);
     if ((offset < -128 && offset > 127) || offset == 0 || offset == -1)
@@ -1040,7 +1039,7 @@ static int write_branch(struct _asm_context *asm_context, char *instr, struct _o
     return 2;
   }
     else
-  if (len == 2)
+  if (size == SIZE_W)
   {
     offset = operands[0].value - (asm_context->address + 4);
     if (offset < -32768 && offset > 32767)
@@ -1875,10 +1874,16 @@ printf("\n");
     for (n = 0; n < 16; n++)
     {
       if (strcmp(instr_case + 1, table_680x0_condition_codes[n]) != 0) { continue; }
-      if (operands[0].type != OPERAND_ADDRESS) { continue; }
       matched = 1;
+      if (operands[0].type != OPERAND_ADDRESS) { continue; }
       int opcode = 0x6000 | (n << 8);
       if (operand_size == SIZE_S) { operand_size = SIZE_B; }
+
+      if (operand_size == -1)
+      {
+        break;
+      }
+
       return write_branch(asm_context, instr, operands, operand_count, opcode, operand_size);
     }
   }
