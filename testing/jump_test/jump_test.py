@@ -51,7 +51,9 @@ for line in fp:
   distance = len(code) / 2
   #print str(tokens) + " " + code + " " + str(distance)
 
-  errors += test_jump(arch, tokens[0], distance + 4, "jmp (blah)", 13, 17)
+  errors += test_jump(arch, tokens[0], distance + 6, "jmp (blah)", 17, 21)
+  errors += test_jump(arch, tokens[0], distance + 4, "jmp (blah).w", 13, 17)
+  errors += test_jump(arch, tokens[0], distance + 6, "jmp (blah).l", 17, 21)
   errors += test_jump(arch, tokens[0], distance, "jmp blah", 13, 17)
   errors += test_jump(arch, tokens[0], distance, "beq.s blah", 11, 13)
 

@@ -1432,6 +1432,8 @@ int n;
         else
       if (asm_context->pass == 1)
       {
+        tokens_push(asm_context, token, token_type);
+
         // If there are any commas in here, then it's a 16 bit + 16 bit
         // instruction.  If there are no comments then it's an absolute
         // address and is either 16 + either 16 or 32 bits.
@@ -1445,6 +1447,7 @@ int n;
           // Overflow 16 bit
           eval_error = 1;
         }
+printf("num=%d\n", num);
 
         while(1)
         {
@@ -2052,7 +2055,8 @@ printf("\n");
           n++;
           continue;
       }
-//printf("ret=%d  address=%d\n", ret, asm_context->address);
+//FUCK
+printf("ret=%d  address=%d\n", ret, asm_context->address);
       if (ret != 0) { return ret; }
     }
 
