@@ -97,7 +97,7 @@ int n;
           if (td == 2) { address += 2; count += 2; data_d=READ_RAM16(address); }
           get_operand(operand_s, ts, s, data_s);
           get_operand(operand_d, td, d, data_d);
-          sprintf(instruction, "%s %s,%s", table_tms9900[n].instr, operand_s, operand_d);
+          sprintf(instruction, "%s %s, %s", table_tms9900[n].instr, operand_s, operand_d);
           return count;
         }
         case OP_DUAL_MULTIPLE:
@@ -110,7 +110,7 @@ int n;
           if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
           get_operand(operand_s, ts, s, data_s);
           get_operand(operand_d, td, d, data_d);
-          sprintf(instruction, "%s %s,%s", table_tms9900[n].instr, operand_s, operand_d);
+          sprintf(instruction, "%s %s, %s", table_tms9900[n].instr, operand_s, operand_d);
           return count;
         }
         case OP_SINGLE:
@@ -129,7 +129,7 @@ int n;
           data_d = (opcode >> 6) & 0xf;
           if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
           get_operand(operand_s, ts, s, data_s);
-          sprintf(instruction, "%s %s,%d", table_tms9900[n].instr, operand_s, data_d);
+          sprintf(instruction, "%s %s, %d", table_tms9900[n].instr, operand_s, data_d);
           return count;
         }
         case OP_CRU_SINGLEBIT:
@@ -149,14 +149,15 @@ int n;
         {
           s = opcode & 0xf;
           data_d = (opcode >> 4) & 0xf;
-          sprintf(instruction, "%s r%d,%d", table_tms9900[n].instr, s, data_d);
+          sprintf(instruction, "%s r%d, %d", table_tms9900[n].instr, s, data_d);
           return count;
         }
         case OP_IMMEDIATE:
         {
           s = opcode & 0xf;
           data_d = READ_RAM16(address + 2);
-          sprintf(instruction, "%s r%d,%d", table_tms9900[n].instr, s, data_d);
+          sprintf(instruction, "%s r%d, 0x%04x (%d)",
+            table_tms9900[n].instr, s, data_d, data_d);
           return count + 2;
         }
         case OP_INT_REG_LD:
