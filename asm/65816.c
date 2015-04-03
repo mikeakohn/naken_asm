@@ -25,7 +25,7 @@
 
 #include "table/65816.h"
 
-extern struct _table_65816_instr table_65816_instr[];
+extern struct _table_65816 table_65816[];
 extern struct _table_65816_opcodes table_65816_opcodes[];
 
 // bytes for each mode
@@ -55,7 +55,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
   for(i = 0; i < 92; i++)
   {
-    if(strcmp(instr_case, table_65816_instr[i].name) == 0)
+    if(strcmp(instr_case, table_65816[i].name) == 0)
     {
       enum_value = i;
       break;

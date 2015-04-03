@@ -16,18 +16,17 @@
 
 #include "common/assembler.h"
 
-struct _table_65816_instr
+struct _table_65816
 {
   char *name;
-  uint8_t instr_enum;
-  uint8_t instr_op;
+  uint8_t instr;
+  uint8_t op;
 };
 
 struct _table_65816_opcodes
 {
-  uint8_t instr_enum;
-  uint8_t opcode;
-  uint8_t type;
+  uint8_t instr;
+  uint8_t op;
   uint8_t cycles_min;
   uint8_t cycles_max;
 };
