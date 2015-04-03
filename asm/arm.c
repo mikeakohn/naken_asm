@@ -29,7 +29,7 @@
 
 static char *arm_cond_a[16] =
 {
-  "eq", "ne", "cs", "ne",
+  "eq", "ne", "cs", "cc",
   "mi", "pl", "vs", "vc",
   "hi", "ls", "ge", "lt",
   "gt", "le", "al", "nv"
