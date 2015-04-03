@@ -97,5 +97,12 @@ void print_not_defined(struct _asm_context *asm_context, char *name)
     asm_context->line);
 }
 
+void print_error_align(struct _asm_context *asm_context, int align)
+{
+  printf("Error: %d byte misalignment at %s:%d.\n",
+    align,
+    asm_context->filename,
+    asm_context->line);
+}
 
 

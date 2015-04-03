@@ -2,5 +2,44 @@ add r0, r1, r2
 orr r5, r6, #256
 andlt r5, r6, #512
 andeq r5, r6, #1024
+andeqs r5, r6, #1024
 andvc r5, r6, #0
 andcc r1, r3, #77
+andeq r5, r6, #512
+andne r1, r6, #512
+andcs r0, r6, #512
+andmi r2, r1, #1
+andpl r5, r3, #3
+andpls r5, r3, #3
+andvs r3, r4, r9
+andvc r5, r3, #512
+andhi r5, r8, r0
+andls r8, r6, r8
+andge r5, r9, r9
+andlt r5, r10, #512
+andgt r5, r11, #512
+andle r5, r6, #7
+andles r5, r6, #7
+andal r4, r6, #112
+eor r8, r6, #512
+sub r1, r3, #512
+rsb r2, r3, #1
+add r3, r6, r9 
+adds r3, r6, r9
+adc r4, r2, #512
+rsc r5, r6, r0
+orr r10, r10, #9
+bic r1, r9, #512
+mvn r0, #7
+mov r11, r1
+tst r11, #7
+teq r11, r1
+cmp r11, #120
+cmn r11, #1024
+mvn r4, #0xffffffff
+mov r4, #0xffffffff
+add r1, r2, r3, lsl #1
+adds r7, r2, r3, asl #2
+addnes r7, r2, r3, lsr #3
+addeqs r7, r2, r3, asr #4
+addals r7, r2, r3, ror #5
