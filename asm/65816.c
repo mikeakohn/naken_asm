@@ -37,6 +37,10 @@ static int op_bytes[] =
 
 int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 {
+//FIXME add ! prefix to force absolute address (16-bit)
+//FIXME add @ prefix to force long address (24-bit)
+//FIXME add < > ^ prefixes to immediate mode options (for old people)
+
   char token[TOKENLEN];
   char instr_case[TOKENLEN];
   char temp[256];
