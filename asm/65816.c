@@ -29,20 +29,21 @@ extern struct _table_65816_instr table_65816_instr[];
 extern struct _table_65816_opcodes table_65816_opcodes[];
 
 // bytes for each mode
+/*
 static int mode_bytes[] =
 {
   1, 3, 2, 3, 4, 2, 2, 3, 3, 4, 2,
   2, 3, 2, 3, 2, 2, 3, 2, 3, 2, 2
 };
+*/
 
 int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];
   char instr_case[TOKENLEN];
-  //char temp[80];
   int token_type;
-  int opcode;
-  int mode;
+//  int opcode;
+//  int mode;
   int enum_value;
   int i;
 
@@ -69,7 +70,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   }
 
   // reset mode to default
-  mode = OP_NONE;
+//  mode = OP_NONE;
 
   // parse
   while((token_type = tokens_get(asm_context, token, TOKENLEN)) != TOKEN_EOL)
