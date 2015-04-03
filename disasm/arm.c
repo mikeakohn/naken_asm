@@ -173,12 +173,13 @@ static void process_alu_3(char *instruction, uint32_t opcode, int index)
   }
 }
 
-static void process_alu_2(char *instruction, uint32_t opcode, int index)
+static void process_alu_2(char *instruction, uint32_t opcode, int index, int use_d)
 {
   int i = (opcode >> 25) & 1;
   int s = (opcode >> 20) & 1;
   int operand2 = opcode & 0xfff;
   char opcode2[32];
+  int reg_offset = (use_d == 1) ? 12 : 16;
 
   if (i == 0)
   {
@@ -196,7 +197,7 @@ static void process_alu_2(char *instruction, uint32_t opcode, int index)
       table_arm[index].instr,
       arm_cond[ARM_NIB(28)],
       (s == 1) ? "s" : "",
-      arm_reg[ARM_NIB(12)],
+      arm_reg[ARM_NIB(reg_offset)],
       opcode2);
   }
     else
@@ -205,8 +206,7 @@ static void process_alu_2(char *instruction, uint32_t opcode, int index)
       table_arm[index].instr,
       arm_cond[ARM_NIB(28)],
       (s == 1) ? "s" : "",
-      arm_reg[ARM_NIB(12)],
-      //arm_reg[ARM_NIB(16)],
+      arm_reg[ARM_NIB(reg_offset)],
       opcode2);
   }
 }
@@ -505,10 +505,11 @@ uint32_t opcode;
           //*cycles_max = 2;
           process_alu_3(instruction, opcode, n);
           break;
-        case OP_ALU_2:
-          //*cycles_min = 2;
-          //*cycles_max = 2;
-          process_alu_2(instruction, opcode, n);
+        case OP_ALU_2_N:
+          process_alu_2(instruction, opcode, n, 0);
+          break;
+        case OP_ALU_2_D:
+          process_alu_2(instruction, opcode, n, 1);
           break;
         case OP_MULTIPLY:
           process_mul(instruction, opcode);

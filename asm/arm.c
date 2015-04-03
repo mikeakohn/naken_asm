@@ -238,12 +238,13 @@ static int parse_alu_3(struct _asm_context *asm_context, struct _operand *operan
   return 4;
 }
 
-static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode, int use_d)
 {
   int immediate = 0;
   int s = 0; // S flag
   int rd = 0,rn = 0;
   int i = 0;
+  //int reg_offset = (use_d == 1) ? 12 : 16;
 
   // Change mov rd, #0xffffffff to mvn rd, #0
   // FIXME - check this
@@ -275,8 +276,9 @@ static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operan
       operands[1].type == OPERAND_REG)
   {
     // mov rd, rn
-    rd = operands[0].value;
-    rn = 0;
+    if (use_d == 1) { rd = operands[0].value; }
+    else { rn = operands[0].value; }
+
     immediate = (0 << 4) | operands[1].value;
     i = 0;
   }
@@ -286,7 +288,9 @@ static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operan
       operands[1].type == OPERAND_IMMEDIATE)
   {
     // mov rd, #imm
-    rd = operands[0].value;
+    if (use_d == 1) { rd = operands[0].value; }
+    else { rn = operands[0].value; }
+
     immediate = compute_immediate(operands[1].value);
     i = 1;
   }
@@ -297,7 +301,9 @@ static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operan
       operands[2].type == OPERAND_SHIFT_IMMEDIATE)
   {
     // mov rd, #imm, shift
-    rd = operands[0].value;
+    if (use_d == 1) { rd = operands[0].value; }
+    else { rn = operands[0].value; }
+
     immediate = imm_shift_to_immediate(asm_context, operands, operand_count, 1);
     i = 1;
     if (immediate < 0) { return -1; }
@@ -975,8 +981,11 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
         case OP_ALU_3:
           bytes = parse_alu_3(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
-        case OP_ALU_2:
-          bytes = parse_alu_2(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
+        case OP_ALU_2_N:
+          bytes = parse_alu_2(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode, 0);
+          break;
+        case OP_ALU_2_D:
+          bytes = parse_alu_2(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode, 1);
           break;
         case OP_MULTIPLY:
           bytes = parse_multiply(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);

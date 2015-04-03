@@ -19,7 +19,8 @@
 enum
 {
   OP_ALU_3,
-  OP_ALU_2,
+  OP_ALU_2_N,
+  OP_ALU_2_D,
   OP_MULTIPLY,
   OP_SWAP,
   OP_MRS,
