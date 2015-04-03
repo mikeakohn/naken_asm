@@ -1,0 +1,3 @@
+add r0, r1, r2
+orr r5, r6, #256
+andlt r5, r6, #256
