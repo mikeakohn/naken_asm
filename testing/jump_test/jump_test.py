@@ -61,3 +61,7 @@ fp.close()
 
 print "Total errors " + str(errors)
 
+os.unlink("test.asm")
+os.unlink("out.hex")
+os.unlink("out.lst")
+
