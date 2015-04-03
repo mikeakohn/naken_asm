@@ -16,10 +16,11 @@
 
 #include "common/assembler.h"
 
-struct _table_65816
+struct _table_65816_instr
 {
-  char *inst;
+  char *name;
   uint8_t instr_enum;
+  uint8_t instr_op;
 };
 
 struct _table_65816_opcodes
@@ -144,22 +145,24 @@ enum
   OP_INDEXED24_X,      // $100000,x  al,x
 
   OP_INDIRECT8,        // ($10)      (d) 
-  OP_INDIRECT8_LONG,   // ($10)      [d] 
+  OP_INDIRECT8_LONG,   // [$10]      [d] 
   OP_INDIRECT16,       // ($1000)    (a) 
 
   OP_X_INDIRECT8,      // ($10,x)    (d,x) 
   OP_X_INDIRECT16,     // ($1000,x)  (a,x) 
 
-  OP_INDIRECT8_Y,      // ($10),y)   (d),y 
-  OP_INDIRECT8_Y_LONG, // [$10],y)   [d],y 
+  OP_INDIRECT8_Y,      // ($10),y   (d),y 
+  OP_INDIRECT8_Y_LONG, // [$10],y   [d],y 
 
-  OP_XYC,              // $1000      xyc
+  OP_XYC,              // $10,$10      xyc
 
   OP_RELATIVE,         // $10        r
   OP_RELATIVE_LONG,    // $1000      rl
 
-  OP_SP_RELATIVE,      // $10        d,s
-  OP_SP_INDIRECT_Y     // $10,y      (d,s),y
+  OP_SP_RELATIVE,      // $10,s        d,s
+  OP_SP_INDIRECT_Y     // $(10,s),y      (d,s),y
+
+  OP_UNKNOWN,          // unknown until parsed
 };
 
 #endif
