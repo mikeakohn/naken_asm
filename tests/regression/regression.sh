@@ -2,7 +2,7 @@
 
 test_arch()
 {
-  b=`../../naken_asm -o out.hex ../$1/testing.asm`
+  b=`../../naken_asm -o out.hex ../../samples/$1/testing.asm`
 
   if [ $? -ne 0 ]
   then
