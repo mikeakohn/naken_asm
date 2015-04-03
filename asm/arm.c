@@ -884,6 +884,11 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
     }
       else
     {
+      if (strcasecmp(token, "asl") == 0)
+      {
+        strcpy(token, "lsl");
+      }
+
       for (n = 0; n < 4; n++)
       {
         if (strcasecmp(token, arm_shift[n]) == 0)
