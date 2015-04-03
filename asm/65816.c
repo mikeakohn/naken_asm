@@ -40,7 +40,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   char token[TOKENLEN];
   char instr_case[TOKENLEN];
   char temp[256];
-  int token_type;
+//  int token_type;
   int opcode;
   int op;
   int instr_enum;
@@ -73,22 +73,30 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   op = table_65816[instr_enum].op;
 
   // parse
-  while((token_type = tokens_get(asm_context, token, TOKENLEN)) != TOKEN_EOL)
+  while(1)
   {
+    if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+      break;
+
     if(op == OP_RELATIVE)
     {
+      num = (uint8_t)num;
     }
     else if(op == OP_RELATIVE_LONG)
     {
+      num = (uint16_t)num;
     }
     else if(op == OP_BLOCK_MOVE)
     {
+      print_error("Block move not implemented yet.", asm_context);
+      return -1;
     }
     else
     {
       if(IS_TOKEN(token, '#'))
       {
         op = OP_NUMBER16;
+
         if(eval_expression(asm_context, &num) != 0)
         {
           if(asm_context->pass == 1)
@@ -104,35 +112,151 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
         num = (uint16_t)num;
       }
-    }
-
-    opcode = -1;
-    for(i = 0; i < 256; i++)
-    {
-      if( (table_65816_opcodes[i].instr == instr_enum) &&
-          (table_65816_opcodes[i].op == op) )
+      else if(IS_TOKEN(token, '('))
       {
-        opcode = i;
+        if(eval_expression(asm_context, &num) != 0)
+        {
+          if(asm_context->pass == 1)
+          {
+            eat_operand(asm_context);
+          }
+          else
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+        }
+
+        if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+          break;
+
+        if(IS_TOKEN(token, ','))
+        {
+          if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+            break;
+
+          if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
+          {
+            if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+              break;
+
+            if(IS_TOKEN(token, ')'))
+            {
+              if(num > 0xFF)
+                op = OP_X_INDIRECT16;
+              else
+                op = OP_X_INDIRECT8;
+            }
+            else
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+          }
+          else if(IS_TOKEN(token, 's') || IS_TOKEN(token, 'S'))
+          {
+            num = (uint8_t)num;
+            op = OP_SP_INDIRECT_Y;
+
+            if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+              break;
+
+            if(IS_NOT_TOKEN(token, ')'))
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+
+            if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+              break;
+
+            if(IS_NOT_TOKEN(token, ','))
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+
+            if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+              break;
+
+            if(IS_NOT_TOKEN(token, 'y') && IS_NOT_TOKEN(token, 'Y'))
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+          }
+        }
+      }
+      else if(IS_TOKEN(token, '['))
+      {
+        if(eval_expression(asm_context, &num) != 0)
+        {
+          if(asm_context->pass == 1)
+          {
+            eat_operand(asm_context);
+          }
+          else
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+        }
+
+        if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+          break;
+
+        if(IS_TOKEN(token, ']'))
+        {
+          num = (uint8_t)num;
+          op = OP_INDIRECT8_LONG;
+
+          if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+            break;
+
+          if(IS_TOKEN(token, ','))
+          {
+            if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+              break;
+
+            if(IS_TOKEN(token, 'y'))
+              op = OP_INDIRECT8_Y_LONG;
+          }
+        }
       }
     }
+  }
 
-    if(asm_context->pass == 2 && opcode == -1)
+  opcode = -1;
+
+  for(i = 0; i < 256; i++)
+  {
+    if( (table_65816_opcodes[i].instr == instr_enum) &&
+        (table_65816_opcodes[i].op == op) )
     {
-      sprintf(temp, "No instruction found for addressing mode %d", op);
-      print_error(temp, asm_context);
-      return -1;
+      opcode = i;
     }
+  }
 
-    add_bin8(asm_context, opcode & 0xFF, IS_OPCODE);
+  if(asm_context->pass == 2 && opcode == -1)
+  {
+    sprintf(temp, "No instruction found for addressing mode %d", op);
+    print_error(temp, asm_context);
+    return -1;
+  }
 
-    if(op_bytes[op] > 1)
-      add_bin8(asm_context, num & 0xFF, IS_OPCODE);
+  add_bin8(asm_context, opcode & 0xFF, IS_OPCODE);
 
-    if(op_bytes[op] > 2)
-      add_bin8(asm_context, (num >> 8) & 0xFF, IS_OPCODE);
+  if(op_bytes[op] > 1)
+    add_bin8(asm_context, num & 0xFF, IS_OPCODE);
 
-    if(op_bytes[op] > 3)
-      add_bin8(asm_context, (num >> 16) & 0xFF, IS_OPCODE);
+  if(op_bytes[op] > 2)
+    add_bin8(asm_context, (num >> 8) & 0xFF, IS_OPCODE);
+
+  if(op_bytes[op] > 3)
+    add_bin8(asm_context, (num >> 16) & 0xFF, IS_OPCODE);
+
+  return op_bytes[op];
+}
 
     // special cases:
     // OP_RELATIVE
@@ -180,8 +304,4 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
     // if instruction only
     //   OP_NONE
-  }
-
-  return op_bytes[op];
-}
 
