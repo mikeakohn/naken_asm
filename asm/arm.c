@@ -94,8 +94,8 @@ static int get_register_arm(char *token)
 
 int parse_condition(char **instr_lower)
 {
-int cond;
-char *instr = *instr_lower;
+  int cond;
+  char *instr = *instr_lower;
 
   for (cond = 0; cond < 16; cond++)
   {
@@ -152,79 +152,28 @@ static int compute_range(int r1, int r2)
   return value;
 }
 
-static int parse_alu(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+static int parse_alu_3(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
 {
-int immediate = 0;
-int s = 0; // S flag
-int rd = 0,rn = 0;
-int i = 0;
-
-  // Change mov rd, #0xffffffff to mvn rd, #0
-  // FIXME - check this
-  if (opcode == 0x03e00000 && operand_count == 2 &&
-      operands[0].type == OPERAND_REG &&
-      operands[1].type == OPERAND_IMMEDIATE &&
-      operands[1].value == 0xffffffff)
-  {
-    //strncpy(instr_lower, "mvn", 3);
-    opcode = 0x03a00000;
-    operands[1].value = 0;
-  }
+  int immediate = 0;
+  int s = 0; // S flag
+  int rd = 0,rn = 0;
+  int i = 0;
 
   int cond = parse_condition(&instr);
 
   if (instr[0] == 's') { s = 1; instr++; }
-  // According to some doc, tst, teq, cmp, cmn should set S all the time
-  int n = (opcode >> 21) & 0xf;
-  if (n >= 8 && n < 12) { s = 1; }
 
   if (*instr != 0)
   {
     return ARM_UNKNOWN_INSTRUCTION;
   }
 
-  if (operand_count == 2 &&
-      operands[0].type == OPERAND_REG &&
-      operands[1].type == OPERAND_REG &&
-      opcode == 0x01a00000)
-  {
-    // mov rd, rn
-    rd = operands[0].value;
-    rn = 0;
-    immediate = (0 << 4) | operands[1].value;
-    i = 0;
-  }
-    else
-  if (operand_count == 2 &&
-      operands[0].type == OPERAND_REG &&
-      operands[1].type == OPERAND_IMMEDIATE &&
-      opcode == 0x01a00000)
-  {
-    // mov rd, #imm
-    rd = operands[0].value;
-    immediate = compute_immediate(operands[1].value);
-    i = 1;
-  }
-    else
-  if (operand_count == 3 &&
-      operands[0].type == OPERAND_REG &&
-      operands[1].type == OPERAND_IMMEDIATE &&
-      operands[2].type == OPERAND_SHIFT_IMMEDIATE &&
-      opcode == 0x01a00000)
-  {
-    // mov rd, #imm, shift
-    rd = operands[0].value;
-    immediate = imm_shift_to_immediate(asm_context, operands, operand_count, 1);
-    i = 1;
-    if (immediate < 0) { return -1; }
-  }
-    else
   if (operand_count == 3 &&
       operands[0].type == OPERAND_REG &&
       operands[1].type == OPERAND_REG &&
       operands[2].type == OPERAND_IMMEDIATE)
   {
-    // mov rd, rn, #imm
+    // add rd, rn, #imm
     rd = operands[0].value;
     rn = operands[1].value;
     immediate = compute_immediate(operands[2].value);
@@ -237,7 +186,7 @@ int i = 0;
       operands[2].type == OPERAND_IMMEDIATE &&
       operands[3].type == OPERAND_SHIFT_IMMEDIATE)
   {
-    // mov rd, rn, #imm, shift
+    // add rd, rn, #imm, shift
     rd = operands[0].value;
     rn = operands[1].value;
     immediate = imm_shift_to_immediate(asm_context, operands, operand_count, 2);
@@ -245,29 +194,12 @@ int i = 0;
     if (immediate < 0) { return -1; }
   }
     else
-#if 0
-//what is this?
-  if (operand_count==4 &&
-      operands[0].type==OPERAND_REG &&
-      operands[1].type==OPERAND_REG &&
-      operands[2].type==OPERAND_IMMEDIATE &&
-      operands[3].type==OPERAND_NUMBER)
-  {
-    // mov rd, rn, #imm, shift
-    rd=operands[0].value;
-    rn=operands[1].value;
-    immediate=imm_shift_to_immediate(asm_context, operands, operand_count, 2);
-    i=1;
-    if (immediate<0) { return -1; }
-  }
-    else
-#endif
   if (operand_count == 3 &&
       operands[0].type == OPERAND_REG &&
       operands[1].type == OPERAND_REG &&
       operands[2].type == OPERAND_REG)
   {
-    // orr rd, rn, rm
+    // add rd, rn, rm
     rd = operands[0].value;
     rn = operands[1].value;
     immediate = (0 << 4) | operands[2].value;
@@ -285,12 +217,12 @@ int i = 0;
 
     if (operands[3].type == OPERAND_SHIFT_IMMEDIATE)
     {
-      // mov rd, rn, rm, shift #
+      // add rd, rn, rm, shift #
       immediate = operands[2].value | (((operands[3].value << 3) | (operands[3].sub_type << 1)) << 4);
     }
       else
     {
-      // mov rd, rn, rm, shift reg
+      // add rd, rn, rm, shift reg
       immediate = operands[2].value | (((operands[3].value << 4) | (operands[3].sub_type << 1) | 1) << 4);
     }
   }
@@ -300,7 +232,83 @@ int i = 0;
     return ARM_ILLEGAL_OPERANDS;
   }
 
-  opcode |= (cond<<28)|(i<<25)|(s<<20)|(n<<21)|(rn<<16)|(rd<<12)|immediate;
+  opcode |= (cond<<28)|(i<<25)|(s<<20)|(rn<<16)|(rd<<12)|immediate;
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+  return 4;
+}
+
+static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+{
+  int immediate = 0;
+  int s = 0; // S flag
+  int rd = 0,rn = 0;
+  int i = 0;
+
+  // Change mov rd, #0xffffffff to mvn rd, #0
+  // FIXME - check this
+  if (opcode == 0x03e00000 && operand_count == 2 &&
+      operands[0].type == OPERAND_REG &&
+      operands[1].type == OPERAND_IMMEDIATE &&
+      operands[1].value == 0xffffffff)
+  {
+    //strncpy(instr_lower, "mvn", 3);
+    opcode = 0x03a00000;
+    operands[1].value = 0;
+  }
+
+  int cond = parse_condition(&instr);
+
+  if (instr[0] == 's') { s = 1; instr++; }
+  // According to some doc, tst, teq, cmp, cmn should set S all the time
+  // But it doesn't agree with gcc.
+  int n = (opcode >> 21) & 0xf;
+  if (n >= 8 && n < 12) { s = 1; }
+
+  if (*instr != 0)
+  {
+    return ARM_UNKNOWN_INSTRUCTION;
+  }
+
+  if (operand_count == 2 &&
+      operands[0].type == OPERAND_REG &&
+      operands[1].type == OPERAND_REG)
+  {
+    // mov rd, rn
+    rd = operands[0].value;
+    rn = 0;
+    immediate = (0 << 4) | operands[1].value;
+    i = 0;
+  }
+    else
+  if (operand_count == 2 &&
+      operands[0].type == OPERAND_REG &&
+      operands[1].type == OPERAND_IMMEDIATE)
+  {
+    // mov rd, #imm
+    rd = operands[0].value;
+    immediate = compute_immediate(operands[1].value);
+    i = 1;
+  }
+    else
+  if (operand_count == 3 &&
+      operands[0].type == OPERAND_REG &&
+      operands[1].type == OPERAND_IMMEDIATE &&
+      operands[2].type == OPERAND_SHIFT_IMMEDIATE)
+  {
+    // mov rd, #imm, shift
+    rd = operands[0].value;
+    immediate = imm_shift_to_immediate(asm_context, operands, operand_count, 1);
+    i = 1;
+    if (immediate < 0) { return -1; }
+  }
+    else
+  {
+    //print_error_illegal_operands(instr, asm_context);
+    return ARM_ILLEGAL_OPERANDS;
+  }
+
+  opcode |= (cond<<28)|(i<<25)|(s<<20)|(rn<<16)|(rd<<12)|immediate;
 
   add_bin32(asm_context, opcode, IS_OPCODE);
   return 4;
@@ -315,21 +323,21 @@ static int parse_branch(struct _asm_context *asm_context, struct _operand *opera
     // address+8 (to allow for the pipeline)
     int32_t offset = operands[0].value - (asm_context->address + 8);
 
-    if ((offset&0x3) != 0)
+    if ((offset & 0x3) != 0)
     {
-      printf("Error: Address is not a multiple of 4 at %s:%d\n", asm_context->filename, asm_context->line);
+      print_error_align(asm_context, 4);
       return ARM_ERROR_ADDRESS;
     }
 
-    if ((offset&0xff000000) != 0 && (offset&0xff000000) != 0xff000000)
+    if ((offset & 0xff000000) != 0 && (offset & 0xff000000) != 0xff000000)
     {
-      print_error_range("Offset", -(1<<25), (1<<25) - 1, asm_context);
+      print_error_range("Offset", -(1 << 25), (1 << 25) - 1, asm_context);
       return ARM_ERROR_ADDRESS;
     }
 
     offset>>=2;
 
-    add_bin32(asm_context, opcode|(cond<<28)|(offset&0x00ffffff), IS_OPCODE);
+    add_bin32(asm_context, opcode | (cond << 28) | (offset & 0x00ffffff), IS_OPCODE);
     return 4;
   }
 
@@ -355,12 +363,12 @@ static int parse_branch_exchange(struct _asm_context *asm_context, struct _opera
 
 static int parse_ldr_str(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
 {
-int offset = 0;
-int i = 0;
-int pr = 0;
-int u = 1;
-int b = 0;
-int w = 0;
+  int offset = 0;
+  int i = 0;
+  int pr = 0;
+  int u = 1;
+  int b = 0;
+  int w = 0;
 
   int cond = parse_condition(&instr);
 
@@ -495,10 +503,10 @@ int w = 0;
 
 static int parse_ldm_stm(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
 {
-int pr = 1;  // gcc sets this to 1 if it's not used
-int u = 0;
-int s = 0;
-int w = (operands[0].type == OPERAND_REG_WRITE_BACK) ? 1 : 0;
+  int pr = 1;  // gcc sets this to 1 if it's not used
+  int u = 0;
+  int s = 0;
+  int w = (operands[0].type == OPERAND_REG_WRITE_BACK) ? 1 : 0;
 
   int cond = parse_condition(&instr);
 
@@ -547,7 +555,7 @@ int b = 0; // B flag
 
 static int parse_mrs(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
 {
-int ps = 0; // PS flag
+  int ps = 0; // PS flag
 
   int cond = parse_condition(&instr);
 
@@ -565,7 +573,7 @@ int ps = 0; // PS flag
 
 static int parse_msr(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
 {
-int ps = 0; // PS flag
+  int ps = 0; // PS flag
 
   // This is for MSR(all) and MSR(flag).
 
@@ -637,8 +645,8 @@ static int parse_swi(struct _asm_context *asm_context, struct _operand *operands
 
 static int parse_multiply(struct _asm_context *asm_context, struct _operand *operands, int operand_count,  char *instr, uint32_t opcode)
 {
-int s = 0;
-int rn;
+  int s = 0;
+  int rn;
 
   // MUL / MLA (multiply or multiply and accumulate)
   int cond = parse_condition(&instr);
@@ -682,15 +690,15 @@ int rn;
 
 int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
 {
-struct _operand operands[4];
-int operand_count;
-char instr_lower_mem[TOKENLEN];
-char *instr_lower=instr_lower_mem;
-char token[TOKENLEN];
-int token_type;
-int n;
-int matched = 0;
-int bytes = -1;
+  struct _operand operands[4];
+  int operand_count;
+  char instr_lower_mem[TOKENLEN];
+  char *instr_lower=instr_lower_mem;
+  char token[TOKENLEN];
+  int token_type;
+  int n;
+  int matched = 0;
+  int bytes = -1;
 
   lower_copy(instr_lower, instr);
   memset(operands, 0, sizeof(operands));
@@ -964,8 +972,11 @@ int bytes = -1;
 
       switch(table_arm[n].type)
       {
-        case OP_ALU:
-          bytes = parse_alu(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
+        case OP_ALU_3:
+          bytes = parse_alu_3(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
+          break;
+        case OP_ALU_2:
+          bytes = parse_alu_2(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
           break;
         case OP_MULTIPLY:
           bytes = parse_multiply(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);
