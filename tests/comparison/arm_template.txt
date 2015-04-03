@@ -33,3 +33,4 @@ teq r11, r1
 cmp r11, #120
 cmn r11, #1024
 mvn r4, #0xffffffff
+mov r4, #0xffffffff

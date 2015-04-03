@@ -247,14 +247,24 @@ static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operan
   //int reg_offset = (use_d == 1) ? 12 : 16;
 
   // Change mov rd, #0xffffffff to mvn rd, #0
-  // FIXME - check this
-  if (opcode == 0x03e00000 && operand_count == 2 &&
+  if (opcode == 0x01a00000 && operand_count == 2 &&
       operands[0].type == OPERAND_REG &&
       operands[1].type == OPERAND_IMMEDIATE &&
       operands[1].value == 0xffffffff)
   {
     //strncpy(instr_lower, "mvn", 3);
-    opcode = 0x03a00000;
+    opcode = 0x01e00000,
+    operands[1].value = 0x0;
+  }
+
+  // Change mvn rd, #0xffffffff to mov rd, #0
+  if (opcode == 0x01e00000 && operand_count == 2 &&
+      operands[0].type == OPERAND_REG &&
+      operands[1].type == OPERAND_IMMEDIATE &&
+      operands[1].value == 0xffffffff)
+  {
+    //strncpy(instr_lower, "mov", 3);
+    opcode = 0x01a00000;
     operands[1].value = 0;
   }
 
