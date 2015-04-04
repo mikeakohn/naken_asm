@@ -482,15 +482,17 @@ printf("%d  %d %d %d\n",
     if (operands[3].type == OPERAND_SHIFT_IMMEDIATE)
     {
       // ldr rd, [rn], rm, shift #
-      offset |= (((operands[3].value<<3) | (operands[3].sub_type<<1) | 1) << 4);
+      offset |= (((operands[3].value << 3) |
+                  (operands[3].sub_type << 1)) << 4);
     }
       else
     {
       // ldr rd, [rn], rm, shift rs 
-      offset |= (((operands[3].value<<4) | (operands[3].sub_type<<1)) << 4);
+      offset |= (((operands[3].value << 4) |
+                  (operands[3].sub_type << 1) | 1) << 4);
     }
 
-    i=1;
+    i = 1;
   }
     else
   if (operand_count == 4 &&

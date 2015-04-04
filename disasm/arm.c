@@ -329,6 +329,11 @@ static void process_ldr_str(char *instruction, uint32_t opcode, int index)
     int rm = offset & 0xf;
     int rs = (shift >> 4) & 0xf;
 
+#if 0
+printf("shift=%d is_reg=%d type=%d rm=%d rs=%d\n",
+  shift, is_reg, type, rm, rs);
+#endif
+
     if (is_reg == 1)
     {
       if (pr == 1)
@@ -344,17 +349,19 @@ static void process_ldr_str(char *instruction, uint32_t opcode, int index)
     }
       else
     {
+      int shift_amount = shift >> 3;
+
       if (pr == 1)
       {
         sprintf(temp, "[%s, %s, %s #%d]",
-          arm_reg[rn], arm_reg[rm], arm_shift[type], shift >> 3);
+          arm_reg[rn], arm_reg[rm], arm_shift[type], shift_amount);
       }
         else
       {
-        if ((shift >> 3) == 0)
+        if (shift_amount != 0)
         {
           sprintf(temp, "[%s], %s, %s #%d",
-            arm_reg[rn], arm_reg[rm], arm_shift[type], shift >> 3);
+            arm_reg[rn], arm_reg[rm], arm_shift[type], shift_amount);
         }
           else
         {
