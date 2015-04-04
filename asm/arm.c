@@ -386,6 +386,14 @@ static int parse_ldr_str(struct _asm_context *asm_context, struct _operand *oper
   int b = 0;
   int w = 0;
 
+#if 0
+printf("%d  %d %d %d\n",
+  operand_count,
+  operands[0].type,
+  operands[1].type,
+  operands[2].type);
+#endif
+
   int cond = parse_condition(&instr);
 
   if (instr[0] == 'b') { b = 1; instr++; }
@@ -455,12 +463,14 @@ static int parse_ldr_str(struct _asm_context *asm_context, struct _operand *oper
       operands[1].type == OPERAND_REG_INDEXED_OPEN &&
       operands[2].type == OPERAND_REG_INDEXED_CLOSE)
   {
-    offset = operands[2].value | (1 << 4);
+    //dafuq?
+    //offset = operands[2].value | (1 << 4);
+    offset = operands[2].value;
     pr = 1;
     i = 1;
   }
     else
-  if (operand_count == 3 &&
+  if (operand_count == 4 &&
       operands[0].type == OPERAND_REG &&
       operands[1].type == OPERAND_REG_INDEXED &&
       operands[2].type == OPERAND_REG &&
@@ -483,7 +493,7 @@ static int parse_ldr_str(struct _asm_context *asm_context, struct _operand *oper
     i=1;
   }
     else
-  if (operand_count == 3 &&
+  if (operand_count == 4 &&
       operands[0].type == OPERAND_REG &&
       operands[1].type == OPERAND_REG_INDEXED_OPEN &&
       operands[2].type == OPERAND_REG &&
@@ -495,13 +505,15 @@ static int parse_ldr_str(struct _asm_context *asm_context, struct _operand *oper
 
     if (operands[3].type == OPERAND_SHIFT_IMM_INDEXED_CLOSE)
     {
-      // ldr rd, [rn], rm, shift #
-      offset |= (((operands[3].value<<3) | (operands[3].sub_type<<1) | 1) << 4);
+      // ldr rd, [rn, rm, shift #]
+      offset |= (((operands[3].value << 3) |
+                  (operands[3].sub_type << 1)) << 4);
     }
        else
     {
-      // ldr rd, [rn], rm, shift rs 
-      offset |= (((operands[3].value<<4) | (operands[3].sub_type << 1)) << 4);
+      // ldr rd, [rn, rm, shift rs]
+      offset |= (((operands[3].value<<4) |
+                  (operands[3].sub_type << 1) | 1) << 4);
     }
 
     i = 1;
@@ -512,7 +524,9 @@ static int parse_ldr_str(struct _asm_context *asm_context, struct _operand *oper
     return ARM_ILLEGAL_OPERANDS;
   }
 
-  add_bin32(asm_context, opcode | (cond<<28) | (i<<25) | (pr<<24) | (u<<23) | (b<<22) | (w<<21) | (operands[1].value<<16) | (operands[0].value<<12) | offset, IS_OPCODE);
+  add_bin32(asm_context, opcode | (cond << 28) | (i << 25) | (pr << 24) |
+            (u << 23) | (b << 22) | (w << 21) | (operands[1].value << 16) |
+            (operands[0].value << 12) | offset, IS_OPCODE);
 
   return 4;
 }
@@ -930,6 +944,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
           }
 
           token_type = tokens_get(asm_context, token, TOKENLEN);
+
           if (IS_TOKEN(token,']'))
           {
             if (operands[operand_count].type == OPERAND_SHIFT_REG)

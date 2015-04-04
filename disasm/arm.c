@@ -294,14 +294,14 @@ int ps = (opcode >> 22) & 1;
 
 static void process_ldr_str(char *instruction, uint32_t opcode, int index)
 {
-int w = (opcode >> 21) & 1;
-int b = (opcode >> 22) & 1;
-int u = (opcode >> 23) & 1;
-int pr = (opcode >> 24) & 1;
-int i = (opcode >> 25) & 1;
-int offset = opcode & 0xfff;
-int rn = ARM_NIB(16);
-char temp[32];
+  int w = (opcode >> 21) & 1;
+  int b = (opcode >> 22) & 1;
+  int u = (opcode >> 23) & 1;
+  int pr = (opcode >> 24) & 1;
+  int i = (opcode >> 25) & 1;
+  int offset = opcode & 0xfff;
+  int rn = ARM_NIB(16);
+  char temp[32];
 
   if (i == 0)
   {
@@ -311,7 +311,7 @@ char temp[32];
     }
       else
     {
-      if (pr==1)
+      if (pr == 1)
       {
         sprintf(temp, "[%s, #%s%d]", arm_reg[rn], (u == 0) ? "-" : "", offset);
       }
@@ -323,24 +323,23 @@ char temp[32];
   }
     else
   {
-    int shift = offset >> 8;
+    int shift = offset >> 4;
+    int is_reg = shift & 0x1;
     int type = (shift >> 1) & 0x3;
     int rm = offset & 0xf;
+    int rs = (shift >> 4) & 0xf;
 
-    if ((shift & 1) == 0)
+    if (is_reg == 1)
     {
-      //*cycles_min=2;
-      //*cycles_max=2;
-
       if (pr == 1)
       {
         sprintf(temp, "[%s, %s, %s %s]",
-          arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[shift >> 4]);
+          arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[rs]);
       }
         else
       {
         sprintf(temp, "[%s], %s, %s %s",
-          arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[shift >> 4]);
+          arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[rs]);
       }
     }
       else
@@ -352,7 +351,7 @@ char temp[32];
       }
         else
       {
-        if ((shift>>3)==0)
+        if ((shift >> 3) == 0)
         {
           sprintf(temp, "[%s], %s, %s #%d",
             arm_reg[rn], arm_reg[rm], arm_shift[type], shift >> 3);
@@ -504,59 +503,59 @@ uint32_t opcode;
           //*cycles_min = 2;
           //*cycles_max = 2;
           process_alu_3(instruction, opcode, n);
-          break;
+          return 4;
         case OP_ALU_2_N:
           process_alu_2(instruction, opcode, n, 0);
-          break;
+          return 4;
         case OP_ALU_2_D:
           process_alu_2(instruction, opcode, n, 1);
-          break;
+          return 4;
         case OP_MULTIPLY:
           process_mul(instruction, opcode);
-          break;
+          return 4;
         case OP_SWAP:
           process_swap(instruction, opcode);
-          break;
+          return 4;
         case OP_MRS:
           process_mrs(instruction, opcode);
-          break;
+          return 4;
         case OP_MSR_ALL:
           process_msr_all(instruction, opcode);
-          break;
+          return 4;
         case OP_MSR_FLAG:
           process_msr_flag(instruction, opcode);
-          break;
+          return 4;
         case OP_LDR_STR:
           process_ldr_str(instruction, opcode, n);
-          break;
+          return 4;
         case OP_UNDEFINED:
           process_undefined(instruction, opcode);
-          break;
+          return 4;
         case OP_LDM_STM:
           process_ldm_stm(instruction, opcode, n);
-          break;
+          return 4;
         case OP_BRANCH:
           process_branch(instruction, opcode, address);
           //*cycles_max = 3;
-          break;
+          return 4;
         case OP_BRANCH_EXCHANGE:
           process_branch_exchange(instruction, opcode);
-          break;
+          return 4;
         case OP_SWI:
           process_swi(instruction, opcode);
-          break;
+          return 4;
         case OP_CO_SWI:
           process_co_swi(instruction, opcode);
-          break;
+          return 4;
         case OP_CO_TRANSFER:
           process_co_transfer(instruction, opcode);
-          break;
+          return 4;
         case OP_CO_OP_MASK:
           process_co_op_mask(instruction, opcode);
-          break;
+          return 4;
         case OP_CO_TRANSFER_MASK:
           process_co_transfer_mask(instruction, opcode);
-          break;
+          return 4;
         default:
           strcpy(instruction, "???");
           break;

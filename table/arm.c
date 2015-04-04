@@ -36,8 +36,8 @@ struct _table_arm table_arm[] =
   { "mrs", 0x010f0000, 0x0fbf0fff, OP_MRS, 3, -1 },
   { "msr", 0x0129f000, 0x0fbffff0, OP_MSR_ALL, 3, -1 },
   { "msr", 0x0329f000, 0x0fbff000, OP_MSR_FLAG, 3, -1 },
-  { "ldr", 0x04100000, 0x0e100000, OP_LDR_STR, 3, -1 },  // LS = 1 load
-  { "str", 0x04000000, 0x0e100000, OP_LDR_STR, 3, -1 },  // LS = 0 store
+  { "ldr", 0x04100000, 0x0c100000, OP_LDR_STR, 3, -1 },  // LS = 1 load
+  { "str", 0x04000000, 0x0c100000, OP_LDR_STR, 3, -1 },  // LS = 0 store
   { "???", 0x06000000, 0x0e000000, OP_UNDEFINED, 3, -1 },  // is this needed?
   { "ldm", 0x08100000, 0x0e100000, OP_LDM_STM, 3, -1 },  // LS = 1 load
   { "stm", 0x08000000, 0x0e100000, OP_LDM_STM, 3, -1 },  // LS = 0 store

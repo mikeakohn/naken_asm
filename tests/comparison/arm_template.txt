@@ -43,3 +43,21 @@ adds r7, r2, r3, asl #2
 addnes r7, r2, r3, lsr #3
 addeqs r7, r2, r3, asr #4
 addals r7, r2, r3, ror #5
+rsbles r4, r5, #5
+rsb r2,r3,r3,lsl #4
+mul r5, r6, r7
+mulge r5, r6, r7
+mulles r5, r6, r7
+str r2, [r1]
+ldr r3, [r1]
+ldr r7, [r1, r2]
+ldr r7, [r1, r2, ror #2]
+ldr r7, [r1, r2, lsl #2]
+str r1, [r1, r2, lsl #2]
+str r0, [r1], r2, lsl #2
+str r0, [r1], #-12
+strb r0, [r1], #-12
+strleb r0, [r1], #-12
+streqb r0, [r1], #-12
+ldr r2, [r0, r1, ror #2]
+ldr r2, [r0, r1, lsl #2]
