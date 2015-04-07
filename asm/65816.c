@@ -44,7 +44,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   char token[TOKENLEN];
   char instr_case[TOKENLEN];
   char temp[256];
-//  int token_type;
+  int token_type;
   int opcode;
   int op;
   int instr_enum;
@@ -79,7 +79,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   // parse
   while(1)
   {
-    if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+    if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
       break;
 
     if(op == OP_RELATIVE)
@@ -157,17 +157,17 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           }
         }
 
-        if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+        if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
           break;
 
         if(IS_TOKEN(token, ','))
         {
-          if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+          if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
             break;
 
           if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
           {
-            if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+            if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
               break;
 
             if(IS_TOKEN(token, ')'))
@@ -188,7 +188,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
             num = (uint8_t)num;
             op = OP_SP_INDIRECT_Y;
 
-            if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+            if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
               break;
 
             if(IS_NOT_TOKEN(token, ')'))
@@ -197,7 +197,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
               return -1;
             }
 
-            if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+            if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
               break;
 
             if(IS_NOT_TOKEN(token, ','))
@@ -206,7 +206,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
               return -1;
             }
 
-            if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+            if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
               break;
 
             if(IS_NOT_TOKEN(token, 'y') && IS_NOT_TOKEN(token, 'Y'))
@@ -232,7 +232,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           }
         }
 
-        if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+        if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
           break;
 
         if(IS_TOKEN(token, ']'))
@@ -240,12 +240,12 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           num = (uint8_t)num;
           op = OP_INDIRECT8_LONG;
 
-          if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+          if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
             break;
 
           if(IS_TOKEN(token, ','))
           {
-            if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+            if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
               break;
 
             if(IS_TOKEN(token, 'y'))
@@ -255,6 +255,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       }
       else
       {
+        tokens_push(asm_context, token, token_type);
+
         if(eval_expression(asm_context, &num) != 0)
         {
           if(asm_context->pass == 1)
@@ -279,12 +281,12 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         if(num <= 0xFFFFFF)
           op = OP_ADDRESS24;
 
-        if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+        if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
           break;
 
         if(IS_TOKEN(token, ','))
         {
-          if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+          if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
             break;
 
           if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
