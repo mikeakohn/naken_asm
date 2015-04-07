@@ -272,14 +272,20 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
         num = (uint32_t)num;
 
-        if(num <= 0xFF)
-          op = OP_ADDRESS8;
+        op = OP_ADDRESS8;
 
-        if(num <= 0xFFFF)
+        if(num > 0xFF)
           op = OP_ADDRESS16;
 
-        if(num <= 0xFFFFFF)
+        if(num > 0xFFFF)
           op = OP_ADDRESS24;
+
+        if(num > 0xFFFFFF)
+        {
+          print_error("Address out of range.", asm_context);
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
 
         if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
           break;
@@ -342,13 +348,24 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       if(table_65816_opcodes[i].op == op)
       {
         opcode = i;
+        break;
       }
-      else if(op == OP_ADDRESS8 || op == OP_ADDRESS16)
+      else if(op == OP_ADDRESS8)
       {
-        if(table_65816_opcodes[i].op == OP_ADDRESS16 ||
-           table_65816_opcodes[i].op == OP_ADDRESS24)
+        if(table_65816_opcodes[i].op == OP_ADDRESS16)
         {
+          op = OP_ADDRESS16;
           opcode = i;
+          break;
+        }
+      }
+      else if(op == OP_ADDRESS16)
+      {
+        if(table_65816_opcodes[i].op == OP_ADDRESS24)
+        {
+          op = OP_ADDRESS24;
+          opcode = i;
+          break;
         }
       }
     }
