@@ -297,13 +297,15 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
           if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
           {
-            if(num <= 0xFF)
-              op = OP_INDEXED8_X;
-            else if(num <= 0xFFFF)
+            op = OP_INDEXED8_X;
+
+            if(num > 0xFF)
               op = OP_INDEXED16_X;
-            else if(num <= 0xFFFFFF)
+
+            if(num > 0xFFFF)
               op = OP_INDEXED24_X;
-            else
+
+            if(num > 0xFFFFFF)
             {
               print_error("Address out of range.", asm_context);
               print_error_unexp(token, asm_context);
@@ -312,11 +314,12 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           }
           else if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
           {
-            if(num <= 0xFFFF)
+            op = OP_INDEXED8_Y;
+
+            if(num > 0xFF)
               op = OP_INDEXED16_Y;
-            else if(num <= 0xFF)
-              op = OP_INDEXED8_Y;
-            else
+
+            if(num > 0xFFFF)
             {
               print_error("Absolute long not supported for Y indexing.", asm_context);
               print_error_unexp(token, asm_context);
