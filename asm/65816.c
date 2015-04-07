@@ -316,9 +316,6 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     }
   }
 
-  if(op == OP_UNKNOWN)
-    op = OP_NONE;
-
   opcode = -1;
 
   for(i = 0; i < 256; i++)

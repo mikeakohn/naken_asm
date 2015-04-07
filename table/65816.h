@@ -160,8 +160,6 @@ enum
 
   OP_SP_RELATIVE,      // $10,s       d,s
   OP_SP_INDIRECT_Y,    // $(10,s),y   (d,s),y
-
-  OP_UNKNOWN           // unknown until parsed
 };
 
 #endif
