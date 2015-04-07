@@ -84,10 +84,36 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
     if(op == OP_RELATIVE)
     {
+      if(eval_expression(asm_context, &num) != 0)
+      {
+        if(asm_context->pass == 1)
+        {
+          eat_operand(asm_context);
+        }
+        else
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+      }
+
       num = (uint8_t)num;
     }
     else if(op == OP_RELATIVE_LONG)
     {
+      if(eval_expression(asm_context, &num) != 0)
+      {
+        if(asm_context->pass == 1)
+        {
+          eat_operand(asm_context);
+        }
+        else
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+      }
+
       num = (uint16_t)num;
     }
     else if(op == OP_BLOCK_MOVE)
@@ -227,8 +253,71 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           }
         }
       }
+      else
+      {
+        if(eval_expression(asm_context, &num) != 0)
+        {
+          if(asm_context->pass == 1)
+          {
+            eat_operand(asm_context);
+          }
+          else
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+        }
+
+        num = (uint32_t)num & 0xFFFFFF;
+
+        if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+          break;
+
+        if(IS_TOKEN(token, ','))
+        {
+          if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
+            break;
+
+          if(IS_TOKEN(token, 'x'))
+          {
+            op = OP_INDEXED24_X;
+
+            if(num < 65536)
+              op = OP_INDEXED16_X;
+            else if (num < 256)
+              op = OP_INDEXED8_X;
+          }
+          else if(IS_TOKEN(token, 'y'))
+          {
+            if(num < 65536)
+              op = OP_INDEXED16_Y;
+            else if (num < 256)
+              op = OP_INDEXED8_Y;
+            else
+            {
+              print_error("Address out of range.", asm_context);
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+          }
+          else if(IS_TOKEN(token, 's'))
+          {
+            op = OP_SP_RELATIVE;
+
+            if(num < 0 || num > 255)
+            {
+              print_error("Address out of range.", asm_context);
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+          }
+        }
+      }
     }
   }
+
+  if(op == OP_UNKNOWN)
+    op = OP_NONE;
 
   opcode = -1;
 
