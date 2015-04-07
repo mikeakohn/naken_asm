@@ -37,9 +37,9 @@ static int op_bytes[] =
 
 int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 {
-//FIXME add ! prefix to force absolute address (16-bit)
-//FIXME add @ prefix to force long address (24-bit)
-//FIXME add < > ^ prefixes to immediate mode options (for old people)
+//FIXME add ! prefix to force absolute address (16-bit) ?
+//FIXME add @ prefix to force long address (24-bit) ?
+//FIXME add < > ^ prefixes to immediate mode options (for old people) ?
 
   char token[TOKENLEN];
   char instr_case[TOKENLEN];
@@ -268,7 +268,16 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           }
         }
 
-        num = (uint32_t)num & 0xFFFFFF;
+        num = (uint32_t)num;
+
+        if(num <= 0xFF)
+          op = OP_ADDRESS8;
+
+        if(num <= 0xFFFF)
+          op = OP_ADDRESS16;
+
+        if(num <= 0xFFFFFF)
+          op = OP_ADDRESS24;
 
         if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
           break;
@@ -278,24 +287,30 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           if(tokens_get(asm_context, token, TOKENLEN) == TOKEN_EOL)
             break;
 
-          if(IS_TOKEN(token, 'x'))
+          if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
           {
-            op = OP_INDEXED24_X;
-
-            if(num < 65536)
-              op = OP_INDEXED16_X;
-            else if (num < 256)
+            if(num <= 0xFF)
               op = OP_INDEXED8_X;
-          }
-          else if(IS_TOKEN(token, 'y'))
-          {
-            if(num < 65536)
-              op = OP_INDEXED16_Y;
-            else if (num < 256)
-              op = OP_INDEXED8_Y;
+            else if(num <= 0xFFFF)
+              op = OP_INDEXED16_X;
+            else if(num <= 0xFFFFFF)
+              op = OP_INDEXED24_X;
             else
             {
               print_error("Address out of range.", asm_context);
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+          }
+          else if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
+          {
+            if(num <= 0xFFFF)
+              op = OP_INDEXED16_Y;
+            else if(num <= 0xFF)
+              op = OP_INDEXED8_Y;
+            else
+            {
+              print_error("Absolute long not supported for Y indexing.", asm_context);
               print_error_unexp(token, asm_context);
               return -1;
             }
@@ -320,10 +335,20 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
   for(i = 0; i < 256; i++)
   {
-    if( (table_65816_opcodes[i].instr == instr_enum) &&
-        (table_65816_opcodes[i].op == op) )
+    if(table_65816_opcodes[i].instr == instr_enum)
     {
-      opcode = i;
+      if(table_65816_opcodes[i].op == op)
+      {
+        opcode = i;
+      }
+      else if(op == OP_ADDRESS8 || op == OP_ADDRESS16)
+      {
+        if(table_65816_opcodes[i].op == OP_ADDRESS16 ||
+           table_65816_opcodes[i].op == OP_ADDRESS24)
+        {
+          opcode = i;
+        }
+      }
     }
   }
 
@@ -347,51 +372,4 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
   return op_bytes[op];
 }
-
-    // special cases:
-    // OP_RELATIVE
-    // OP_RELATIVE_LONG
-    // OP_BLOCK_MOVE
-
-    // if #
-    //  OP_NUMBER16
-
-    // if (
-    //   if ,x)
-    //     OP_X_INDIRECT8
-    //   if ,s),y
-    //     OP_SP_INDIRECT_Y
-    //   if )
-    //     if ,y
-    //       OP_INDIRECT8_Y
-    //     else
-    //       OP_INDIRECT8
-    //       OP_INDIRECT16
-
-    // if [
-    //   if ]
-    //     if ,y
-    //       OP_INDIRECT8_Y_LONG
-    //     else
-    //       OP_INDIRECT8_LONG
-
-    // if ,x
-    //   OP_INDEXED8_X
-    //   OP_INDEXED16_X
-    //   OP_INDEXED24_X
-
-    // if ,y
-    //   OP_INDEXED8_Y
-    //   OP_INDEXED16_Y
-    //   OP_INDEXED24_X
-
-    // if ,s
-    //   OP_SP_RELATIVE
-
-    // OP_ADDRESS8
-    // OP_ADDRESS16
-    // OP_ADDRESS24
-
-    // if instruction only
-    //   OP_NONE
 
