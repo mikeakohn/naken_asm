@@ -25,6 +25,23 @@
 
 #include "table/65816.h"
 
+#define GET_TOKEN() \
+  (token_type = tokens_get(asm_context, token, TOKENLEN))
+
+#define GET_NUM() \
+  if(eval_expression(asm_context, &num) != 0) \
+  { \
+    if(asm_context->pass == 1) \
+    { \
+      eat_operand(asm_context); \
+    } \
+    else \
+    { \
+      print_error_unexp(token, asm_context); \
+      return -1; \
+    } \
+  }
+
 extern struct _table_65816 table_65816[];
 extern struct _table_65816_opcodes table_65816_opcodes[];
 
@@ -39,7 +56,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 {
 //FIXME add ! prefix to force absolute address (16-bit) ?
 //FIXME add @ prefix to force long address (24-bit) ?
-//FIXME add < > ^ prefixes to immediate mode options (for old people) ?
+//FIXME add < > ^ prefixes to immediate mode options ?
+//FIXME add support for M and X flags
 
   char token[TOKENLEN];
   char instr_case[TOKENLEN];
@@ -79,42 +97,46 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   // parse
   while(1)
   {
-    if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+    if(GET_TOKEN() == TOKEN_EOL)
       break;
 
     if(op == OP_RELATIVE)
     {
-      if(eval_expression(asm_context, &num) != 0)
+      GET_NUM();
+
+      if(asm_context->pass == 2)
       {
-        if(asm_context->pass == 1)
+        // calculate branch offset, need to add 2 to current
+        // address, since thats where the program counter would be
+        num -= (asm_context->address + 2);
+
+        if(num < -128 || num > 127)
         {
-          eat_operand(asm_context);
-        }
-        else
-        {
-          print_error_unexp(token, asm_context);
+          print_error("Relative branch out of range", asm_context);
           return -1;
         }
-      }
 
-      num = (uint8_t)num;
+        num = (uint8_t)num;
+      }
     }
     else if(op == OP_RELATIVE_LONG)
     {
-      if(eval_expression(asm_context, &num) != 0)
+      GET_NUM();
+
+      if(asm_context->pass == 2)
       {
-        if(asm_context->pass == 1)
+        // calculate branch offset, need to add 3 to current
+        // address, since thats where the program counter would be
+        num -= (asm_context->address + 3);
+
+        if(num < -32768 || num > 32767)
         {
-          eat_operand(asm_context);
-        }
-        else
-        {
-          print_error_unexp(token, asm_context);
+          print_error("Relative long branch out of range", asm_context);
           return -1;
         }
-      }
 
-      num = (uint16_t)num;
+        num = (uint16_t)num;
+      }
     }
     else if(op == OP_BLOCK_MOVE)
     {
@@ -125,49 +147,25 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     {
       if(IS_TOKEN(token, '#'))
       {
-        op = OP_NUMBER16;
-
-        if(eval_expression(asm_context, &num) != 0)
-        {
-          if(asm_context->pass == 1)
-          {
-            eat_operand(asm_context);
-          }
-          else
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
-        }
-
+        GET_NUM();
         num = (uint16_t)num;
+        op = OP_NUMBER16;
       }
       else if(IS_TOKEN(token, '('))
       {
-        if(eval_expression(asm_context, &num) != 0)
-        {
-          if(asm_context->pass == 1)
-          {
-            eat_operand(asm_context);
-          }
-          else
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
-        }
+        GET_NUM();
 
-        if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+        if(GET_TOKEN() == TOKEN_EOL)
           break;
 
         if(IS_TOKEN(token, ','))
         {
-          if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+          if(GET_TOKEN() == TOKEN_EOL)
             break;
 
           if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
           {
-            if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+            if(GET_TOKEN() == TOKEN_EOL)
               break;
 
             if(IS_TOKEN(token, ')'))
@@ -185,10 +183,9 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           }
           else if(IS_TOKEN(token, 's') || IS_TOKEN(token, 'S'))
           {
-            num = (uint8_t)num;
             op = OP_SP_INDIRECT_Y;
 
-            if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+            if(GET_TOKEN() == TOKEN_EOL)
               break;
 
             if(IS_NOT_TOKEN(token, ')'))
@@ -197,7 +194,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
               return -1;
             }
 
-            if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+            if(GET_TOKEN() == TOKEN_EOL)
               break;
 
             if(IS_NOT_TOKEN(token, ','))
@@ -206,7 +203,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
               return -1;
             }
 
-            if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+            if(GET_TOKEN() == TOKEN_EOL)
               break;
 
             if(IS_NOT_TOKEN(token, 'y') && IS_NOT_TOKEN(token, 'Y'))
@@ -219,36 +216,24 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       }
       else if(IS_TOKEN(token, '['))
       {
-        if(eval_expression(asm_context, &num) != 0)
-        {
-          if(asm_context->pass == 1)
-          {
-            eat_operand(asm_context);
-          }
-          else
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
-        }
+        GET_NUM();
 
-        if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+        if(GET_TOKEN() == TOKEN_EOL)
           break;
 
         if(IS_TOKEN(token, ']'))
         {
-          num = (uint8_t)num;
           op = OP_INDIRECT8_LONG;
 
-          if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+          if(GET_TOKEN() == TOKEN_EOL)
             break;
 
           if(IS_TOKEN(token, ','))
           {
-            if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+            if(GET_TOKEN() == TOKEN_EOL)
               break;
 
-            if(IS_TOKEN(token, 'y'))
+            if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
               op = OP_INDIRECT8_Y_LONG;
           }
         }
@@ -256,22 +241,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       else
       {
         tokens_push(asm_context, token, token_type);
-
-        if(eval_expression(asm_context, &num) != 0)
-        {
-          if(asm_context->pass == 1)
-          {
-            eat_operand(asm_context);
-          }
-          else
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
-        }
-
+        GET_NUM();
         num = (uint32_t)num;
-
         op = OP_ADDRESS8;
 
         if(num > 0xFF)
@@ -287,12 +258,12 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-        if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+        if(GET_TOKEN() == TOKEN_EOL)
           break;
 
         if(IS_TOKEN(token, ','))
         {
-          if((token_type = tokens_get(asm_context, token, TOKENLEN)) == TOKEN_EOL)
+          if(GET_TOKEN() == TOKEN_EOL)
             break;
 
           if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
@@ -321,7 +292,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
             if(num > 0xFFFF)
             {
-              print_error("Absolute long not supported for Y indexing.", asm_context);
+              print_error("Absolute long not supported for Y indexing.",
+                          asm_context);
               print_error_unexp(token, asm_context);
               return -1;
             }
@@ -330,7 +302,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           {
             op = OP_SP_RELATIVE;
 
-            if(num < 0 || num > 255)
+            if(num > 0xFF)
             {
               print_error("Address out of range.", asm_context);
               print_error_unexp(token, asm_context);
