@@ -131,7 +131,7 @@ enum
 {
   OP_NONE,             //            A / s 
 
-  OP_NUMBER16,         // #$1000     #
+  OP_IMMEDIATE,         // #$1000     #
 
   OP_ADDRESS8,         // $10        d
   OP_ADDRESS16,        // $1000      a

@@ -67,6 +67,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   int op;
   int instr_enum;
   int num;
+  int size;
+  int bytes;
   int i;
 
   // make lowercase
@@ -94,11 +96,36 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   // get default op, if any
   op = table_65816[instr_enum].op;
 
+  size = 0;
+
   // parse
   while(1)
   {
     if(GET_TOKEN() == TOKEN_EOL)
       break;
+
+    if(IS_TOKEN(token, '.'))
+    {
+      if(GET_TOKEN() == TOKEN_EOL)
+        break;
+
+      if(IS_TOKEN(token, 'b') || IS_TOKEN(token, 'B'))
+      {
+        size = 8;
+      }
+      else if(IS_TOKEN(token, 'w') || IS_TOKEN(token, 'W'))
+      {
+        size = 16;
+      }
+      else
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      if(GET_TOKEN() == TOKEN_EOL)
+        break;
+    }
 
     if(op == OP_RELATIVE)
     {
@@ -148,8 +175,13 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       if(IS_TOKEN(token, '#'))
       {
         GET_NUM();
-        num = (uint16_t)num;
-        op = OP_NUMBER16;
+
+        if(size == 16)
+          num = (uint16_t)num;
+        else
+          num = (uint8_t)num;
+
+        op = OP_IMMEDIATE;
       }
       else if(IS_TOKEN(token, '('))
       {
@@ -353,17 +385,46 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     return -1;
   }
 
+  if(size == 8)
+  {
+    if(op == OP_IMMEDIATE)
+    {
+      bytes = 2;
+    }
+    else
+    {
+      print_error("The .b suffix only works in immediate mode.", asm_context);
+      return -1;
+    }
+  }
+  else if(size == 16)
+  {
+    if(op == OP_IMMEDIATE)
+    {
+      bytes = 3;
+    }
+    else
+    {
+      print_error("The .w suffix only works in immediate mode.", asm_context);
+      return -1;
+    }
+  }
+  else
+  {
+    bytes = op_bytes[op];
+  }
+
   add_bin8(asm_context, opcode & 0xFF, IS_OPCODE);
 
-  if(op_bytes[op] > 1)
+  if(bytes > 1)
     add_bin8(asm_context, num & 0xFF, IS_OPCODE);
 
-  if(op_bytes[op] > 2)
+  if(bytes > 2)
     add_bin8(asm_context, (num >> 8) & 0xFF, IS_OPCODE);
 
-  if(op_bytes[op] > 3)
+  if(bytes > 3)
     add_bin8(asm_context, (num >> 16) & 0xFF, IS_OPCODE);
 
-  return op_bytes[op];
+  return bytes;
 }
 
