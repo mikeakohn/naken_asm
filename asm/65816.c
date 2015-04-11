@@ -54,11 +54,6 @@ static int op_bytes[] =
 
 int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 {
-//FIXME add ! prefix to force absolute address (16-bit) ?
-//FIXME add @ prefix to force long address (24-bit) ?
-//FIXME add < > ^ prefixes to immediate mode options ?
-//FIXME add support for M and X flags
-
   char token[TOKENLEN];
   char instr_case[TOKENLEN];
   char temp[256];
@@ -70,6 +65,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   int size;
   int bytes;
   int i;
+  int src, dst;
 
   // make lowercase
   lower_copy(instr_case, instr);
@@ -93,7 +89,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
    return -1;
   }
 
-  // get default op, if any
+  // get default addressing mode
   op = table_65816[instr_enum].op;
 
   size = 0;
@@ -167,8 +163,39 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     }
     else if(op == OP_BLOCK_MOVE)
     {
-      print_error("Block move not implemented yet.", asm_context);
-      return -1;
+      tokens_push(asm_context, token, token_type);
+      GET_NUM();
+      src = num;
+
+      if(src < 0 || src > 0xFF)
+      {
+        print_error("Block move source address out of range.", asm_context);
+        return -1;
+      }
+
+      if(GET_TOKEN() == TOKEN_EOL)
+        break;
+
+      if(IS_NOT_TOKEN(token, ','))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      if(GET_TOKEN() == TOKEN_EOL)
+        break;
+
+      tokens_push(asm_context, token, token_type);
+      GET_NUM();
+      dst = num;
+
+      if(dst < 0 || dst > 0xFF)
+      {
+        print_error("Block move destination address out of range.", asm_context);
+        return -1;
+      }
+
+      num = src + (dst << 8);
     }
     else
     {
@@ -177,9 +204,25 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         GET_NUM();
 
         if(size == 16)
+        {
+          if(num < -32768 || num > 0xFFFF)
+          {
+            print_error("16-bit constant out of range.", asm_context);
+            return -1;
+          }
+
           num = (uint16_t)num;
+        }
         else
+        {
+          if(num < -128 || num > 0xFF)
+          {
+            print_error("8-bit constant out of range.", asm_context);
+            return -1;
+          }
+
           num = (uint8_t)num;
+        }
 
         op = OP_IMMEDIATE;
       }
@@ -202,6 +245,12 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
             if(IS_TOKEN(token, ')'))
             {
+              if(num < 0 || num > 0xFFFF)
+              {
+                print_error("Address out of range.", asm_context);
+                return -1;
+              }
+
               if(num > 0xFF)
                 op = OP_X_INDIRECT16;
               else
@@ -274,7 +323,13 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       {
         tokens_push(asm_context, token, token_type);
         GET_NUM();
-        num = (uint32_t)num;
+
+        if(num < 0 || num > 0xFFFFFF)
+        {
+          print_error("Address out of range.", asm_context);
+          return -1;
+        }
+
         op = OP_ADDRESS8;
 
         if(num > 0xFF)
@@ -282,13 +337,6 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
         if(num > 0xFFFF)
           op = OP_ADDRESS24;
-
-        if(num > 0xFFFFFF)
-        {
-          print_error("Address out of range.", asm_context);
-          print_error_unexp(token, asm_context);
-          return -1;
-        }
 
         if(GET_TOKEN() == TOKEN_EOL)
           break;
