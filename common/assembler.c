@@ -693,11 +693,11 @@ int token_type;
           else
         {
           tokens_push(asm_context, token2, token_type2);
-          //int address=asm_context->address;
 
-          //ret=parse_instruction_msp430(asm_context, token);
           ret = asm_context->parse_instruction(asm_context, token);
-          if (asm_context->pass == 2 && asm_context->list != NULL &&
+
+          if (asm_context->pass == 2 &&
+              asm_context->list != NULL &&
               asm_context->include_count == 0)
           {
             asm_context->list_output(asm_context, start_address);
@@ -715,7 +715,7 @@ if (asm_context->address-start_address==0)
           if (asm_context->macros.stack_ptr == 0) { asm_context->line++; }
           asm_context->instruction_count++;
 
-          if (asm_context->address>start_address)
+          if (asm_context->address > start_address)
           {
             asm_context->code_count += (asm_context->address - start_address);
           }
