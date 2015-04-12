@@ -330,7 +330,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 {
 struct _operand operands[3];
 struct _data data;
-int operand_count=0;
+int operand_count = 0;
 char token[TOKENLEN];
 char instr_lower_mem[TOKENLEN];
 char *instr_lower;
@@ -343,7 +343,7 @@ int msp430x = 0;
 int prefix = 0;
 
   lower_copy(instr_lower_mem, instr);
-  instr_lower=instr_lower_mem;
+  instr_lower = instr_lower_mem;
 
   // Not sure if this is a good area for this.  If there isn't an instruction
   // here then it pads for no reason.
@@ -388,7 +388,7 @@ int prefix = 0;
   }
 
   memset(&operands, 0, sizeof(operands));
-  data.count=0;
+  data.count = 0;
 
   while(1)
   {
@@ -419,12 +419,16 @@ int prefix = 0;
           return -1;
         }
 
+#if 0
         token_type = tokens_get(asm_context, token, TOKENLEN);
         if (token_type < 0)
         {
           print_error_unexp(token, asm_context);
           return -1;
         }
+#endif
+
+        continue;
       }
     }
 
@@ -582,9 +586,9 @@ int prefix = 0;
   n = 0;
   while(aliases[n].instr != NULL)
   {
-    if (strcmp(instr_lower,aliases[n].instr) == 0)
+    if (strcmp(instr_lower, aliases[n].instr) == 0)
     {
-      if (aliases[n].operand_count!=operand_count)
+      if (aliases[n].operand_count != operand_count)
       {
         print_error_opcount(instr, asm_context);
         return -1;
