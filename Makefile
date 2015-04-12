@@ -56,14 +56,15 @@ clean:
 	@rm -rf testing/unit/tokens/tokens_test
 	@echo "Clean!"
 
+.PHONY: tests
 tests:
-	@cd testing/regression && sh regression.sh
-	@cd testing/unit/eval_expression && make && ./unit_test && make clean
-	@cd testing/unit/eval_expression_ex && make && ./unit_test && make clean
-	@cd testing/unit/var && make && ./var_test && make clean
-	@cd testing/unit/data && make && ./data_test && make clean
-	@cd testing/unit/tokens && make && ./tokens_test && make clean
-	@cd testing/comparison && make
+	@cd tests/regression && sh regression.sh
+	@cd tests/unit/eval_expression && make && ./unit_test && make clean
+	@cd tests/unit/eval_expression_ex && make && ./unit_test && make clean
+	@cd tests/unit/var && make && ./var_test && make clean
+	@cd tests/unit/data && make && ./data_test && make clean
+	@cd tests/unit/tokens && make && ./tokens_test && make clean
+	@cd tests/comparison && make
 
 distclean: clean
 	@rm -f config.mak *.asm

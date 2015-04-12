@@ -1,4 +1,5 @@
-.msp430x
+.msp430
+.export start
 
 .define number_five #5
 
@@ -80,6 +81,7 @@ start:
 0x0032: 0x0000
 
 
+blah:
   jnz start
 
 0x0034: 0x23e5 jne 0x0000  (offset: -54)                cycles: 2
@@ -171,7 +173,7 @@ start:
 
   xor.b #0xff, &0x100
 
-0x0076: 0xe3f2 sor.b #-1, &0x0100                       cycles: 4
+0x0076: 0xe3f2 xor.b #-1, &0x0100                       cycles: 4
 0x0078: 0x0100
 
   and.b #0xff, &0x100
@@ -230,7 +232,7 @@ start:
 
   inv.w &0x100
 
-0x009c: 0xe3b2 sor.w #-1, &0x0100                       cycles: 4
+0x009c: 0xe3b2 xor.w #-1, &0x0100                       cycles: 4
 0x009e: 0x0100
 
   nop
@@ -275,140 +277,15 @@ start:
 0x00ba: 0x9306 cmp.w #0, r6                             cycles: 1
 
 
-  mova @r8, r9
-
-0x00bc: 0x0809 mova @r8, r9                             cycles: ?
-
-  mova @r8+, r9
-
-0x00be: 0x0819 mova @r8+, r9                            cycles: ?
-
-  mova &0x12345, r9
-
-0x00c0: 0x0129 mova &0x12345, r9                        cycles: ?
-0x00c2: 0x2345
-
-  mova 0x100(r8), r9
-
-0x00c4: 0x0839 mova 0x100(r8), r9                       cycles: ?
-0x00c6: 0x0100
-
-
-  rrcm.a #3, r9
-
-0x00c8: 0x0859 rrcm.a #3, r9                            cycles: 3
-
-  rrcm.w #3, r9
-
-0x00ca: 0x0849 rrcm.w #3, r9                            cycles: 3
-
-  rrcm.a #3, r9
-
-0x00cc: 0x0859 rrcm.a #3, r9                            cycles: 3
-
-  rram.w #3, r9
-
-0x00ce: 0x0949 rram.w #3, r9                            cycles: 3
-
-  rlam.a #3, r9
-
-0x00d0: 0x0a59 rlam.a #3, r9                            cycles: 3
-
-  rrum.w #3, r9
-
-0x00d2: 0x0b49 rrum.w #3, r9                            cycles: 3
-
-
-  mova r9, &0x12345
-
-0x00d4: 0x0961 mova r9, &0x12345                        cycles: ?
-0x00d6: 0x2345
-
-  mova r9, 0x100(r9)
-
-0x00d8: 0x0979 mova r9, 0x100(r9)                       cycles: ?
-0x00da: 0x0100
-
-
-  mova #0x12345, r9
-
-0x00dc: 0x0189 mova #0x12345, r9                        cycles: ?
-0x00de: 0x2345
-
-  cmpa #0x12345, r9
-
-0x00e0: 0x0199 cmpa #0x12345, r9                        cycles: ?
-0x00e2: 0x2345
-
-  adda #0x12345, r9
-
-0x00e4: 0x01a9 adda #0x12345, r9                        cycles: ?
-0x00e6: 0x2345
-
-  suba #0x12345, r9
-
-0x00e8: 0x01b9 suba #0x12345, r9                        cycles: ?
-0x00ea: 0x2345
-
-
-  mova r8, r9
-
-0x00ec: 0x08c9 mova r8, r9                              cycles: ?
-
-  cmpa r8, r9
-
-0x00ee: 0x08d9 cmpa r8, r9                              cycles: ?
-
-  adda r8, r9
-
-0x00f0: 0x08e9 adda r8, r9                              cycles: ?
-
-  suba r8, r9
-
-0x00f2: 0x08f9 suba r8, r9                              cycles: ?
-
-
-  calla start
-
-0x00f4: 0x1350 calla 0xff08(PC) -- 0x0                  cycles: ?
-0x00f6: 0xff08
-
-  calla &0x12345
-
-0x00f8: 0x1381 calla &0x12345                           cycles: 6
-0x00fa: 0x2345
-
-  calla 0x10(PC)
-
-0x00fc: 0x1350 calla 0x10(PC) -- 0x110                  cycles: ?
-0x00fe: 0x0010
-
-  calla #0x12345
-
-0x0100: 0x13b1 calla #0x12345                           cycles: 4
-0x0102: 0x2345
-
-
-  pushm.w #3, r9
-
-0x0106: 0x1429 pushm.w #3, r9                           cycles: 5
-
-  popm.w #7, r9
-
-0x0108: 0x1669 popm.w #7, r9                            cycles: 9
-
-
-
-
 data sections:
 
 
 Program Info:
 Include Paths: .
                /usr/local/share/naken_asm/include
- Instructions: 82
-   Code Bytes: 266
+ Instructions: 56
+   Code Bytes: 188
    Data Bytes: 0
   Low Address: 0000 (0)
- High Address: 0109 (265)
+ High Address: 00bb (187)
 

@@ -105,7 +105,7 @@ zomg:
   ;spm Z+
   spm
 
-0x0019: 94c8 cls                                      cycles: 1
+0x0019: 95e8 spm                                      cycles: -1
 
 
   ld r13, Z

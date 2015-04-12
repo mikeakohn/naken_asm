@@ -3,129 +3,134 @@
 main:
   mov r0, r1
 
-0x0000: 40c0 szc r0,r3                                cycles: 14
+0x0000: c040 mov r0, r1                               cycles: 14
 
   a r0, @data
 
-0x0002: 00a8 ???                                      cycles: -1
+0x0002: a800 a r0, @0x004e                            cycles: 14
+0x0004: 004e
 
   a *r5, @data(r3)
 
-0x0006: d5a8 movb @0x4e00(r8),*r6                     cycles: 14
-0x0008: 4e00
+0x0006: a8d5 a *r5, @0x004e(r3)                       cycles: 14
+0x0008: 004e
 
   a @data(r3), *r1+
 
-0x000a: 63ac s @0x4e00(r12),r14                       cycles: 14
-0x000c: 4e00
+0x000a: ac63 a @0x004e(r3), *r1+                      cycles: 14
+0x000c: 004e
 
   a @data(r3), @data(r4)
 
-0x000e: 23a9 coc @0x4e00(r9),r14                      cycles: 14
-0x0010: 4e00
+0x000e: a923 a @0x004e(r3), @0x004e(r4)               cycles: 14
+0x0010: 004e
+0x0012: 004e
 
   a @data, @data
 
-0x0014: 20a8 coc @0x4e00(r8),r2                       cycles: 14
-0x0016: 4e00
+0x0014: a820 a @0x004e, @0x004e                       cycles: 14
+0x0016: 004e
+0x0018: 004e
 
 
   czc @data, r6
 
-0x001a: a025 a @0x4e00(r5),r0                         cycles: 14
-0x001c: 4e00
+0x001a: 25a0 czc @0x004e, r6                          cycles: 14
+0x001c: 004e
 
 
 loop:
   clr r8
 
-0x001e: c804 mov r4,@0x5804                           cycles: 14
-0x0020: 5804
+0x001e: 04c8 clr r8                                   cycles: 10
 
   b *r8
 
-0x0020: 5804 szcb r4,@0x3804                          cycles: 14
-0x0022: 3804
+0x0020: 0458 b *r8                                    cycles: 8
 
   blwp *r8+
 
-0x0022: 3804 mpy r4,r0                                cycles: 52
+0x0022: 0438 blwp *r8+                                cycles: 26
 
   inc @data+2
 
-0x0024: a005 a r5,r0                                  cycles: 14
+0x0024: 05a0 inc @0x0050                              cycles: 10
+0x0026: 0050
 
   inc @data(r5)
 
-0x0028: a505 a r5,*r4                                 cycles: 14
+0x0028: 05a5 inc @0x004e(r5)                          cycles: 10
+0x002a: 004e
 
 
   ldcr *r5, 6
 
-0x002c: 9531 cb *r1+,*r4                              cycles: 14
+0x002c: 3195 ldcr *r5, 6                              cycles: 20-52
 
   stcr @data, 7
 
-0x002e: e035 soc *r5+,r0                              cycles: 14
+0x002e: 35e0 stcr @0x004e, 7                          cycles: 42-60
+0x0030: 004e
 
 
   jle loop
 
-0x0032: ea12 soc *r2,@0x001b(r8)                      cycles: 14
-0x0034: 001b
+0x0032: 12f5 jle 0x001e (-22)                         cycles: 8-10
 
   jh skip
 
-0x0034: 041b blwp *r11                                cycles: 26
+0x0034: 1b02 jh 0x003a (4)                            cycles: 8-10
 
 
   sbo -5
 
-0x0036: fb1d socb *r13,@0x001e(r12)                   cycles: 14
-0x0038: 001e
+0x0036: 1dfb sbo -5                                   cycles: 12
 
   sbz 5
 
-0x0038: 051e neg *r14                                 cycles: 12
+0x0038: 1e05 sbz 5                                    cycles: 12
 
 skip:
   sla r5, 6
 
-0x003a: 650a s r10,*r4                                cycles: 14
+0x003a: 0a65 sla r5, 6                                cycles: 12-52
 
 
   li r6, 65535
 
-0x003c: 0602 dec r2                                   cycles: 10
+0x003c: 0206 li r6, 0xffff (65535)                    cycles: 12
+0x003e: ffff
 
   ai r7, -1
 
-0x0040: 2702 czc r2,r12                               cycles: 14
+0x0040: 0227 ai r7, 0xffff (65535)                    cycles: 14
+0x0042: ffff
 
 
   lwpi 1000
 
-0x0044: e002 soc r2,r0                                cycles: 14
+0x0044: 02e0 lwpi 1000                                cycles: 10
+0x0046: 03e8
 
   stst r6
 
-0x0048: c602 mov r2,*r8                               cycles: 14
+0x0048: 02c6 stst r6                                  cycles: 8
 
 
   idle
 
-0x004a: 4003 szc r3,r0                                cycles: 14
+0x004a: 0340 idle                                     cycles: 12
 
   rtwp
 
-0x004c: 8003 c r3,r0                                  cycles: 14
+0x004c: 0380 rtwp                                     cycles: 14
 
 
 data:
   dw 100, 200, 300
 
 data sections:
-004e: 64 00 c8 00 2c 01                                d...,.
+004e: 00 64 00 c8 01 2c                                .d...,
 
 
 Program Info:

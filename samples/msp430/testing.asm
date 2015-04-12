@@ -1,4 +1,4 @@
-.msp430x
+.msp430
 .export start
 
 .define number_five #5
@@ -70,39 +70,4 @@ blah:
   setn
   setz
   tst.w r6
-
-  mova @r8, r9
-  mova @r8+, r9
-  mova &0x12345, r9
-  mova 0x100(r8), r9
-
-  rrcm.a #3, r9
-  rrcm.w #3, r9
-  rrcm.a #3, r9
-  rram.w #3, r9
-  rlam.a #3, r9
-  rrum.w #3, r9
-
-  mova r9, &0x12345
-  mova r9, 0x100(r9)
-
-  mova #0x12345, r9
-  cmpa #0x12345, r9
-  adda #0x12345, r9
-  suba #0x12345, r9
-
-  mova r8, r9
-  cmpa r8, r9
-  adda r8, r9
-  suba r8, r9
-
-  calla start
-  calla &0x12345
-  calla 0x10(PC)
-  calla #0x12345
-
-  pushm.w #3, r9
-  popm.w #7, r9
-
-
 
