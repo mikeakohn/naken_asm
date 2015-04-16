@@ -56,15 +56,77 @@ enum
   NUM_SIZE_SHORT,
   NUM_SIZE_WORD,
   NUM_SIZE_EXTENDED,
+  NUM_SIZE_UNKNOWN,
 };
 
 struct _operand
 {
   uint8_t type;
   uint8_t reg;
+  uint8_t num_size;
   int value;
 };
 
+int find_bigger_instruction(int n)
+{
+  switch(table_stm8_opcodes[n].type)
+  {
+    case OP_NUMBER8:
+      if (table_stm8_opcodes[n+1].type == OP_NUMBER16)
+      {
+        return n + 1;
+      }
+      break;
+    case OP_ADDRESS8:
+      if (table_stm8_opcodes[n+1].type == OP_ADDRESS16)
+      {
+        return n + 1;
+      }
+      break;
+    case OP_OFFSET8_INDEX_X:
+      if (table_stm8_opcodes[n+1].type == OP_OFFSET16_INDEX_X)
+      {
+        return n + 1;
+      }
+      break;
+    case OP_OFFSET8_INDEX_Y:
+      if (table_stm8_opcodes[n+1].type == OP_OFFSET16_INDEX_Y)
+      {
+        return n + 1;
+      }
+      break;
+    case OP_INDIRECT8:
+      if (table_stm8_opcodes[n+1].type == OP_INDIRECT16)
+      {
+        return n + 1;
+      }
+      break;
+    case OP_INDIRECT8_X:
+      if (table_stm8_opcodes[n+1].type == OP_INDIRECT16_X)
+      {
+        return n + 1;
+      }
+      break;
+    case OP_INDIRECT8_Y:
+      if (table_stm8_opcodes[n+1].type == OP_INDIRECT16_Y)
+      {
+        return n + 1;
+      }
+      break;
+    case OP_ADDRESS8_ADDRESS8:
+      if (table_stm8_opcodes[n+1].type == OP_ADDRESS16_ADDRESS16)
+      {
+        return n + 1;
+      }
+      break;
+    default:
+      break;
+  }
+
+  return n;
+}
+
+#if 0
 static int get_minimum_size(int instr_index)
 {
   int n = 0;
@@ -120,6 +182,7 @@ static int get_minimum_size(int instr_index)
 
   return num_size;
 }
+#endif
 
 static int get_num(struct _asm_context *asm_context, int instr_index, int *num, int *num_size)
 {
@@ -128,7 +191,8 @@ static int get_num(struct _asm_context *asm_context, int instr_index, int *num, 
     if (asm_context->pass == 1)
     {
       eat_operand(asm_context);
-      *num_size = get_minimum_size(instr_index);
+      //*num_size = get_minimum_size(instr_index);
+      *num_size = NUM_SIZE_UNKNOWN;
       memory_write(asm_context, asm_context->address, *num_size, asm_context->line);
       return 0;
     }
@@ -283,6 +347,7 @@ static int add_bin_num16_num16(struct _asm_context *asm_context, int n, int num1
   if (table_stm8_opcodes[n].prefix != 0)
   {
     add_bin8(asm_context, table_stm8_opcodes[n].prefix, IS_OPCODE);
+    count++;
   }
   add_bin8(asm_context, table_stm8_opcodes[n].opcode, IS_OPCODE);
   add_bin8(asm_context, (num2 >> 8) & 0xff, IS_OPCODE);
@@ -299,6 +364,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
   char token[TOKENLEN];
   struct _operand operands[3];
   int operand_count;
+  int has_unknown_size;
   int instr_enum;
   int instr_index;
   int token_type;
@@ -424,12 +490,15 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         case NUM_SIZE_WORD:
           operands[operand_count].type = OP_NUMBER16; break;
         default:
-           // FIXME - bad error message
-           print_error_range(instr, 0, 0xff, asm_context);
-           return -1;
+          // FIXME - bad error message
+          //print_error_range(instr, 0, 0xff, asm_context);
+          //return -1;
+          operands[operand_count].type = OP_NUMBER8; break;
+          break;
       }
 
       operands[operand_count].value = n;
+      operands[operand_count].num_size = num_size;
     }
       else
     if (IS_TOKEN(token,'('))
@@ -444,6 +513,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
 
         operands[operand_count].value = n;
+        operands[operand_count].num_size = num_size;
 
         int is_w = 1;
 
@@ -466,6 +536,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         {
           tokens_push(asm_context, token, token_type);
         }
+
         if (expect_token(asm_context, ']') == -1) { return -1; }
         if (expect_token(asm_context, ',') == -1) { return -1; }
 
@@ -498,9 +569,10 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
             if (is_w == 0) { operands[operand_count].type++; }
             break;
           default:
-             // FIXME - bad error message
-             print_error_range(instr, 0, 0xffff, asm_context);
-             return -1;
+            // FIXME - bad error message
+            //print_error_range(instr, 0, 0xffff, asm_context);
+            //return -1;
+            break;
         }
       }
         else
@@ -523,6 +595,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
 
         operands[operand_count].value = n;
+        operands[operand_count].num_size = num_size;
 
         if (expect_token(asm_context, ',') == -1) { return -1; }
 
@@ -553,9 +626,10 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           case NUM_SIZE_WORD: operands[operand_count].type++; break;
           case NUM_SIZE_EXTENDED: operands[operand_count].type += 2; break;
           default:
-             // FIXME - bad error message
-             print_error_range(instr, 0, 0xff, asm_context);
-             return -1;
+            // FIXME - bad error message
+            //print_error_range(instr, 0, 0xff, asm_context);
+            //return -1;
+            break;
         }
       }
 
@@ -576,12 +650,15 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         case NUM_SIZE_WORD:
           operands[operand_count].type = OP_INDIRECT16; break;
         default:
-           // FIXME - bad error message
-           print_error_range(instr, 0, 0xff, asm_context);
-           return -1;
+          // FIXME - bad error message
+          //print_error_range(instr, 0, 0xff, asm_context);
+          //return -1;
+          operands[operand_count].type = OP_INDIRECT8; break;
+          break;
       }
 
       operands[operand_count].value = n;
+      operands[operand_count].num_size = num_size;
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
       if (IS_TOKEN(token,'.'))
@@ -622,15 +699,27 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         case NUM_SIZE_EXTENDED:
           operands[operand_count].type = OP_ADDRESS24; break;
         default:
-           // FIXME - bad error message
-           print_error_range(instr, 0, 0xff, asm_context);
-           return -1;
+          // FIXME - bad error message
+          //print_error_range(instr, 0, 0xff, asm_context);
+          //return -1;
+          operands[operand_count].type = OP_ADDRESS8; break;
       }
 
       operands[operand_count].value = n;
+      operands[operand_count].num_size = num_size;
     }
 
     operand_count++;
+  }
+
+  // Check for an unknown size
+  has_unknown_size = 0;
+  for (n = 0; n < operand_count; n ++)
+  {
+    if (operands[n].num_size == NUM_SIZE_UNKNOWN)
+    {
+      has_unknown_size = 1;
+    }
   }
 
   // Get opcodes
@@ -651,6 +740,16 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
       {
         n++;
         continue;
+      }
+
+      if (has_unknown_size == 1)
+      {
+        // Check if the next instruction is a bigger version
+        if (table_stm8_opcodes[n].instr_enum ==
+            table_stm8_opcodes[n+1].instr_enum)
+        {
+          n = find_bigger_instruction(n);
+        }
       }
 
       switch(table_stm8_opcodes[n].type)
