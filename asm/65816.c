@@ -118,13 +118,14 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         print_error_unexp(token, asm_context);
         return -1;
       }
-
+ 
       if(GET_TOKEN() == TOKEN_EOL)
         break;
     }
 
     if(op == OP_RELATIVE)
     {
+      tokens_push(asm_context, token, token_type);
       GET_NUM();
 
       if(asm_context->pass == 2)
@@ -144,6 +145,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     }
     else if(op == OP_RELATIVE_LONG)
     {
+      tokens_push(asm_context, token, token_type);
       GET_NUM();
 
       if(asm_context->pass == 2)
