@@ -125,22 +125,37 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
     if(op == OP_RELATIVE)
     {
-      tokens_push(asm_context, token, token_type);
-      GET_NUM();
-
-      if(asm_context->pass == 2)
+      if(IS_TOKEN(token, '#'))
       {
-        // calculate branch offset, need to add 2 to current
-        // address, since thats where the program counter would be
-        num -= (asm_context->address + 2);
+        GET_NUM();
 
-        if(num < -128 || num > 127)
+        if(num < -128 || num > 0xFF)
         {
-          print_error("Relative branch out of range", asm_context);
+          print_error("8-bit constant out of range.", asm_context);
           return -1;
         }
 
         num = (uint8_t)num;
+      }
+      else
+      {
+        tokens_push(asm_context, token, token_type);
+        GET_NUM();
+
+        if(asm_context->pass == 2)
+        {
+          // calculate branch offset, need to add 2 to current
+          // address, since thats where the program counter would be
+          num -= (asm_context->address + 2);
+
+          if(num < -128 || num > 127)
+          {
+            print_error("Relative branch out of range", asm_context);
+            return -1;
+          }
+
+          num = (uint8_t)num;
+        }
       }
     }
     else if(op == OP_RELATIVE_LONG)
@@ -294,6 +309,20 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
               print_error_unexp(token, asm_context);
               return -1;
             }
+          }
+        }
+        else if(IS_TOKEN(token, ')'))
+        {
+          if(GET_TOKEN() == TOKEN_EOL)
+            break;
+
+          if(IS_TOKEN(token, ','))
+          {
+            if(GET_TOKEN() == TOKEN_EOL)
+              break;
+
+            if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
+              op = OP_INDIRECT8_Y;
           }
         }
       }
