@@ -313,6 +313,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         }
         else if(IS_TOKEN(token, ')'))
         {
+          op = OP_INDIRECT8;
+
           if(GET_TOKEN() == TOKEN_EOL)
             break;
 

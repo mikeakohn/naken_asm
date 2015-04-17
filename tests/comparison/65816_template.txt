@@ -1,1 +1,15 @@
-lda #$1234
+adc ($44,x)
+adc $44,s
+adc $44
+adc [$44]
+adc #$44
+adc $4444
+adc $444444
+adc ($44),y
+adc ($44)
+adc ($44,s),y
+adc $44,x
+adc [$44],y
+adc $4444,y
+adc $4444,x
+adc $444444,x
