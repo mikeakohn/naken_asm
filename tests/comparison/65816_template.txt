@@ -1,6 +1,6 @@
 adc ($44,x)
 adc $44,s
-adc $44
+adc $4444
 adc [$44]
 adc #$44
 adc $4444
@@ -13,3 +13,43 @@ adc [$44],y
 adc $4444,y
 adc $4444,x
 adc $444444,x
+and ($44,x)
+and $44,s
+and $4444
+and [$44]
+and #$44
+and $4444
+and $444444
+and ($44),y
+and ($44)
+and ($44,s),y
+and $44,x
+and [$44],y
+and $4444,y
+and $4444,x
+and $444444,x
+asl $44
+asl
+asl $4444
+asl $44,x
+asl $4444,x
+label_bcc: bcc label_bcc
+label_bcs: bcs label_bcs
+label_beq: beq label_beq
+bit $44
+bit $4444
+bit $44,x
+bit $4444,x
+bit #$44
+label_bmi: bmi label_bmi
+label_bne: bmi label_bne
+label_bpl: bmi label_bpl
+label_bra: bmi label_bra
+brk
+label_brl: brl label_brl
+label_bvc: bmi label_bvc
+label_bvs: bmi label_bvs
+clc
+cld
+cli
+clv
