@@ -1447,7 +1447,6 @@ int n;
           // Overflow 16 bit
           eval_error = 1;
         }
-printf("num=%d\n", num);
 
         while(1)
         {
@@ -2055,8 +2054,7 @@ printf("\n");
           n++;
           continue;
       }
-//FUCK
-printf("ret=%d  address=%d\n", ret, asm_context->address);
+
       if (ret != 0) { return ret; }
     }
 
