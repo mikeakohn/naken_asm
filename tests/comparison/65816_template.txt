@@ -53,3 +53,25 @@ clc
 cld
 cli
 clv
+cmp ($44,x)
+cmp $44,s
+cmp $4444
+cmp [$44]
+cmp #$44
+cmp $4444
+cmp $444444
+cmp ($44),y
+cmp ($44)
+cmp ($44,s),y
+cmp $44,x
+cmp [$44],y
+cmp $4444,y
+cmp $4444,x
+cmp $444444,x
+cpx #$44
+cpx $44
+cpx $4444
+cpy #$44
+cpy $44
+cpy $4444
+

@@ -353,7 +353,7 @@ struct _table_65816_opcodes table_65816_opcodes[] =
   /* 0xE1 */ { M65816_SBC, OP_X_INDIRECT8, 0, 0 },
   /* 0xE2 */ { M65816_SEP, OP_IMMEDIATE, 0, 0 },
   /* 0xE3 */ { M65816_SBC, OP_SP_RELATIVE, 0, 0 },
-  /* 0xE4 */ { M65816_INX, OP_ADDRESS8, 0, 0 },
+  /* 0xE4 */ { M65816_CPX, OP_ADDRESS8, 0, 0 },
   /* 0xE5 */ { M65816_SBC, OP_ADDRESS8, 0, 0 },
   /* 0xE6 */ { M65816_INC, OP_ADDRESS8, 0, 0 },
   /* 0xE7 */ { M65816_SBC, OP_INDIRECT8_LONG, 0, 0 },
