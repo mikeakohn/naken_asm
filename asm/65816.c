@@ -49,7 +49,7 @@ extern struct _table_65816_opcodes table_65816_opcodes[];
 static int op_bytes[] =
 {
   1, 3, 2, 3, 4, 2, 2, 3, 3, 4, 2,
-  2, 3, 2, 3, 2, 2, 3, 2, 3, 2, 2
+  2, 3, 3, 2, 3, 2, 2, 3, 2, 3, 2, 2
 };
 
 int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
@@ -452,6 +452,33 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         if(table_65816_opcodes[i].op == OP_ADDRESS24)
         {
           op = OP_ADDRESS24;
+          opcode = i;
+          break;
+        }
+      }
+      else if(op == OP_INDIRECT8)
+      {
+        if(table_65816_opcodes[i].op == OP_INDIRECT16)
+        {
+          op = OP_INDIRECT16;
+          opcode = i;
+          break;
+        }
+      }
+      else if(op == OP_INDIRECT8_LONG)
+      {
+        if(table_65816_opcodes[i].op == OP_INDIRECT16_LONG)
+        {
+          op = OP_INDIRECT16_LONG;
+          opcode = i;
+          break;
+        }
+      }
+      else if(op == OP_X_INDIRECT8)
+      {
+        if(table_65816_opcodes[i].op == OP_X_INDIRECT16)
+        {
+          op = OP_X_INDIRECT16;
           opcode = i;
           break;
         }

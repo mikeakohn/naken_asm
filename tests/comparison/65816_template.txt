@@ -74,4 +74,37 @@ cpx $4444
 cpy #$44
 cpy $44
 cpy $4444
-
+dec
+dec $44
+dec $4444
+dec $44,x
+dec $4444,x
+dex
+dey
+eor ($44,x)
+eor $44,s
+eor $4444
+eor [$44]
+eor #$44
+eor $4444
+eor $444444
+eor ($44),y
+eor ($44)
+eor ($44,s),y
+eor $44,x
+eor [$44],y
+eor $4444,y
+eor $4444,x
+eor $444444,x
+inc
+inc $44
+inc $4444
+inc $44,x
+inc $4444,x
+inx
+iny
+jmp $4444
+jmp $444444
+jmp ($4444)
+jmp ($44,x)
+jmp [$4444]

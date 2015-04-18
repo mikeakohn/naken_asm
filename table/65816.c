@@ -344,7 +344,7 @@ struct _table_65816_opcodes table_65816_opcodes[] =
   /* 0xD9 */ { M65816_CMP, OP_INDEXED16_Y, 0, 0 },
   /* 0xDA */ { M65816_PHX, OP_NONE, 0, 0 },
   /* 0xDB */ { M65816_STP, OP_NONE, 0, 0 },
-  /* 0xDC */ { M65816_JMP, OP_X_INDIRECT16, 0, 0 },
+  /* 0xDC */ { M65816_JMP, OP_INDIRECT16_LONG, 0, 0 },
   /* 0xDD */ { M65816_CMP, OP_INDEXED16_X, 0, 0 },
   /* 0xDE */ { M65816_DEC, OP_INDEXED16_X, 0, 0 },
   /* 0xDF */ { M65816_CMP, OP_INDEXED24_X, 0, 0 },

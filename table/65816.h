@@ -131,7 +131,7 @@ enum
 {
   OP_NONE,             //            A / s 
 
-  OP_IMMEDIATE,         // #$1000     #
+  OP_IMMEDIATE,        // #$1000     #
 
   OP_ADDRESS8,         // $10        d
   OP_ADDRESS16,        // $1000      a
@@ -146,6 +146,7 @@ enum
   OP_INDIRECT8,        // ($10)      (d) 
   OP_INDIRECT8_LONG,   // [$10]      [d] 
   OP_INDIRECT16,       // ($1000)    (a) 
+  OP_INDIRECT16_LONG,  // [$1000]    [d] 
 
   OP_X_INDIRECT8,      // ($10,x)    (d,x) 
   OP_X_INDIRECT16,     // ($1000,x)  (a,x) 
@@ -155,11 +156,11 @@ enum
 
   OP_BLOCK_MOVE,       // $10,$10    xyc
 
-  OP_RELATIVE,         // $10         r
-  OP_RELATIVE_LONG,    // $1000       rl
+  OP_RELATIVE,         // $10        r
+  OP_RELATIVE_LONG,    // $1000      rl
 
-  OP_SP_RELATIVE,      // $10,s       d,s
-  OP_SP_INDIRECT_Y,    // $(10,s),y   (d,s),y
+  OP_SP_RELATIVE,      // $10,s      d,s
+  OP_SP_INDIRECT_Y,    // $(10,s),y  (d,s),y
 };
 
 #endif
