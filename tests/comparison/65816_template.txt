@@ -1,6 +1,6 @@
 adc ($44,x)
 adc $44,s
-adc $4444
+adc $44
 adc [$44]
 adc #$44
 adc $4444
@@ -15,7 +15,7 @@ adc $4444,x
 adc $444444,x
 and ($44,x)
 and $44,s
-and $4444
+and $44
 and [$44]
 and #$44
 and $4444
@@ -55,7 +55,7 @@ cli
 clv
 cmp ($44,x)
 cmp $44,s
-cmp $4444
+cmp $44
 cmp [$44]
 cmp #$44
 cmp $4444
@@ -83,7 +83,7 @@ dex
 dey
 eor ($44,x)
 eor $44,s
-eor $4444
+eor $44
 eor [$44]
 eor #$44
 eor $4444
@@ -113,7 +113,7 @@ jsr $444444
 jsr ($4444,x)
 lda ($44,x)
 lda $44,s
-lda $4444
+lda $44
 lda [$44]
 lda #$44
 lda $4444
@@ -144,7 +144,7 @@ lsr $4444,x
 nop
 ora ($44,x)
 ora $44,s
-ora $4444
+ora $44
 ora [$44]
 ora #$44
 ora $4444
@@ -173,3 +173,32 @@ pld
 plp
 plx
 ply
+rep #$44
+rol $44
+rol
+rol $4444
+rol $44,x
+rol $4444,x
+ror $44
+ror
+ror $4444
+ror $44,x
+ror $4444,x
+rti
+rtl
+rts
+sbc ($44,x)
+sbc $44,s
+sbc $44
+sbc [$44]
+sbc #$44
+sbc $4444
+sbc $444444
+sbc ($44),y
+sbc ($44)
+sbc ($44,s),y
+sbc $44,x
+sbc [$44],y
+sbc $4444,y
+sbc $4444,x
+sbc $444444,x

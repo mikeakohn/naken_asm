@@ -48,7 +48,7 @@ extern struct _table_65816_opcodes table_65816_opcodes[];
 // bytes for each addressing mode
 static int op_bytes[] =
 {
-  1, 3, 2, 3, 4, 2, 2, 3, 3, 4, 2,
+  1, 2, 3, 2, 3, 4, 2, 2, 3, 3, 4, 2,
   2, 3, 3, 2, 3, 2, 2, 3, 2, 3, 2, 2
 };
 
@@ -220,6 +220,11 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       {
         GET_NUM();
 
+        if(op == OP_IMMEDIATE8)
+          size = 8;
+        else
+          op = OP_IMMEDIATE16;
+
         if(size == 16)
         {
           if(num < -32768 || num > 0xFFFF)
@@ -240,8 +245,6 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
           num = (uint8_t)num;
         }
-
-        op = OP_IMMEDIATE;
       }
       else if(IS_TOKEN(token, '('))
       {
@@ -495,7 +498,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
   if(size == 8)
   {
-    if(op == OP_IMMEDIATE)
+    if(op == OP_IMMEDIATE8 || op == OP_IMMEDIATE16)
     {
       bytes = 2;
     }
@@ -507,7 +510,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   }
   else if(size == 16)
   {
-    if(op == OP_IMMEDIATE)
+    if(op == OP_IMMEDIATE16)
     {
       bytes = 3;
     }
