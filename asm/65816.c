@@ -113,6 +113,10 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       {
         size = 16;
       }
+      else if(IS_TOKEN(token, 'l') || IS_TOKEN(token, 'L'))
+      {
+        size = 24;
+      }
       else
       {
         print_error_unexp(token, asm_context);
@@ -122,7 +126,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       if(GET_TOKEN() == TOKEN_EOL)
         break;
     }
-    else if(op == OP_RELATIVE)
+
+    if(op == OP_RELATIVE)
     {
       if(IS_TOKEN(token, '#'))
       {
@@ -224,17 +229,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         else
           op = OP_IMMEDIATE16;
 
-        if(size == 16)
-        {
-          if(num < -32768 || num > 0xFFFF)
-          {
-            print_error("16-bit constant out of range.", asm_context);
-            return -1;
-          }
-
-          num = (uint16_t)num;
-        }
-        else
+        if(size == 8)
         {
           if(num < -128 || num > 0xFF)
           {
@@ -243,6 +238,16 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           }
 
           num = (uint8_t)num;
+        }
+        else
+        {
+          if(num < -32768 || num > 0xFFFF)
+          {
+            print_error("16-bit constant out of range.", asm_context);
+            return -1;
+          }
+
+          num = (uint16_t)num;
         }
       }
       else if(IS_TOKEN(token, '('))
@@ -373,6 +378,37 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         if(num > 0xFFFF)
           op = OP_ADDRESS24;
 
+        if(size == 8)
+        {
+          if(num > 0xFF)
+          {
+            print_error("Direct-page address out of range.", asm_context);
+            return -1;
+          }
+
+          op = OP_ADDRESS8;
+        }
+        else if(size == 16)
+        {
+          if(num > 0xFFFF)
+          {
+            print_error("Absolute address out of range.", asm_context);
+            return -1;
+          }
+
+          op = OP_ADDRESS16;
+        }
+        else if(size == 24)
+        {
+          if(num > 0xFFFFFF)
+          {
+            print_error("Absolute long address out of range.", asm_context);
+            return -1;
+          }
+
+          op = OP_ADDRESS24;
+        }
+
         if(GET_TOKEN() == TOKEN_EOL)
           break;
 
@@ -495,34 +531,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     return -1;
   }
 
-  if(size == 8)
-  {
-    if(op == OP_IMMEDIATE8 || op == OP_IMMEDIATE16)
-    {
-      bytes = 2;
-    }
-    else
-    {
-      print_error("The .b suffix only works in immediate mode.", asm_context);
-      return -1;
-    }
-  }
-  else if(size == 16)
-  {
-    if(op == OP_IMMEDIATE16)
-    {
-      bytes = 3;
-    }
-    else
-    {
-      print_error("The .w suffix only works in immediate mode.", asm_context);
-      return -1;
-    }
-  }
-  else
-  {
-    bytes = op_bytes[op];
-  }
+  bytes = op_bytes[op];
 
   add_bin8(asm_context, opcode & 0xFF, IS_OPCODE);
 
