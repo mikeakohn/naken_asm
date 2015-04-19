@@ -1,13 +1,13 @@
 /**
- *  naken_asm MSP430 assembler.
+ *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2015 by Michael Kohn, Joe Davisson
  *
- * 65xx file by Joe Davisson
+ * 65816 by Joe Davisson
  *
  */
 
@@ -19,301 +19,328 @@
 #include "asm/common.h"
 #include "asm/65xx.h"
 #include "common/assembler.h"
-#include "disasm/65xx.h"
+//#include "disasm/65xx.h"
 #include "common/tokens.h"
 #include "common/eval_expression.h"
 
 #include "table/65xx.h"
 
-extern struct _opcodes_65xx opcodes_65xx[];
+#define GET_TOKEN() \
+  (token_type = tokens_get(asm_context, token, TOKENLEN))
 
-// addressing modes
-enum
-{
-  MODE_ABSOLUTE,
-  MODE_ABSOLUTE_X_INDEXED,
-  MODE_ABSOLUTE_Y_INDEXED,
-  MODE_IMMEDIATE,
-  MODE_IMPLIED,
-  MODE_INDIRECT,
-  MODE_X_INDEXED_INDIRECT,
-  MODE_INDIRECT_Y_INDEXED,
-  MODE_RELATIVE,
-  MODE_ZEROPAGE,
-  MODE_ZEROPAGE_X_INDEXED,
-  MODE_ZEROPAGE_Y_INDEXED
-};
+#define GET_NUM() \
+  if(eval_expression(asm_context, &num) != 0) \
+  { \
+    if(asm_context->pass == 1) \
+    { \
+      eat_operand(asm_context); \
+    } \
+    else \
+    { \
+      print_error_unexp(token, asm_context); \
+      return -1; \
+    } \
+  }
 
-// bytes for each mode
-static int mode_bytes[] = { 3, 3, 3, 2, 1, 3, 2, 2, 2, 2, 2, 2 };
+extern struct _table_65xx table_65xx[];
+extern struct _table_65xx_opcodes table_65xx_opcodes[];
+
+// bytes for each addressing mode
+static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2 };
 
 int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];
   char instr_case[TOKENLEN];
-  char temp[80];
+  char temp[256];
   int token_type;
   int opcode;
-  int mode;
+  int op;
+  int instr_enum;
   int num;
-  int index;
+  int size;
+  int bytes;
   int i;
 
-  // make lower case
+  // make lowercase
   lower_copy(instr_case, instr);
 
-  // get instruction index
-  index = -1;
+  // get instruction from string
+  instr_enum = -1;
 
   for(i = 0; i < 56; i++)
   {
-    if(strcmp(instr_case, opcodes_65xx[i].name) == 0)
+    if(strcmp(instr_case, table_65xx[i].name) == 0)
     {
-      index = i;
+      instr_enum = i;
       break;
     }
   }
 
-  // no instruction found
-  if(index == -1)
+  // no matching instruction
+  if(instr_enum == -1)
   {
-    print_error_unexp(token, asm_context);
-    return -1;
+   print_error_unexp(token, asm_context);
+   return -1;
   }
 
-  // default
-  mode = MODE_IMPLIED;
+  // get default addressing mode
+  op = table_65xx[instr_enum].op;
 
-  // begin parsing
-  token_type = tokens_get(asm_context, token, TOKENLEN);
-  if (token_type == TOKEN_EOL) { goto skip; }
+  size = 0;
 
-  if(IS_TOKEN(token, '#'))
+  // parse
+  while(1)
   {
-    mode = MODE_IMMEDIATE;
-    if(eval_expression(asm_context, &num) != 0)
-    {
-      if(asm_context->pass == 1)
-      {
-        eat_operand(asm_context);
-      }
-        else
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-    }
+    if(GET_TOKEN() == TOKEN_EOL)
+      break;
 
-    num = (unsigned char)num;
-
-    if(num < 0 || num > 0xFF)
-      print_error_unexp(token, asm_context);
-  }
-    else
-  if(IS_TOKEN(token, '('))
-  {
-    mode = MODE_INDIRECT;
-    if(eval_expression(asm_context, &num) != 0)
+    if(IS_TOKEN(token, '.'))
     {
-      if(asm_context->pass == 1)
-      {
-        eat_operand(asm_context);
-      }
-        else
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-    }
+      if(GET_TOKEN() == TOKEN_EOL)
+        break;
 
-    token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL) { goto skip; }
-    if(IS_TOKEN(token, ','))
-    {
-      if(num < 0 || num > 0xFF)
+      if(IS_TOKEN(token, 'b') || IS_TOKEN(token, 'B'))
       {
-        print_error("X-Indexed Indirect value out of range", asm_context);
-        return -1;
+        size = 8;
       }
-      mode = MODE_X_INDEXED_INDIRECT;
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (token_type==TOKEN_EOL) { goto skip; }
-      if(IS_NOT_TOKEN(token, 'x') && IS_NOT_TOKEN(token, 'X'))
+      else if(IS_TOKEN(token, 'w') || IS_TOKEN(token, 'W'))
       {
-        print_error_unexp(token, asm_context);
-        return -1;
+        size = 16;
       }
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (token_type==TOKEN_EOL) { goto skip; }
-      if(IS_NOT_TOKEN(token, ')'))
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-    }
       else
-    if(IS_TOKEN(token, ')'))
-    {
-      mode = MODE_INDIRECT;
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (token_type==TOKEN_EOL) { goto skip; }
-      if(IS_TOKEN(token, ','))
-      {
-        if(num < 0 || num > 0xFF)
-        {
-          print_error("Indirect Y-Indexed value out of range", asm_context);
-          return -1;
-        }
-        mode = MODE_INDIRECT_Y_INDEXED;
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-        if (token_type==TOKEN_EOL) { goto skip; }
-        if(IS_NOT_TOKEN(token, 'y') && IS_NOT_TOKEN(token, 'Y'))
-        {
-          print_error_unexp(token, asm_context);
-          return -1;
-        }
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-      }
-    }
-  }  
-    else
-  {
-    tokens_push(asm_context, token, token_type);
-
-    if(eval_expression(asm_context, &num) != 0)
-    {
-      if(asm_context->pass == 1)
-      {
-        eat_operand(asm_context);
-      }
-        else
       {
         print_error_unexp(token, asm_context);
         return -1;
       }
+ 
+      if(GET_TOKEN() == TOKEN_EOL)
+        break;
     }
 
-    // try zero page
-    if((num >= 0x01 && num <= 0xFF)
-        && opcodes_65xx[index].opcode[MODE_ZEROPAGE] != 0xFF)
+    if(op == OP_RELATIVE)
     {
-      mode = MODE_ZEROPAGE;
-    }
+      if(IS_TOKEN(token, '#'))
+      {
+        GET_NUM();
+
+        if(num < -128 || num > 0xFF)
+        {
+          print_error("8-bit constant out of range.", asm_context);
+          return -1;
+        }
+
+        num = (uint8_t)num;
+      }
       else
-    {
-      mode = MODE_ABSOLUTE;
-    }
-
-    token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL) { goto skip; }
-
-    if(IS_TOKEN(token, ','))
-    {
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (token_type == TOKEN_EOL) { goto skip; }
-
-      if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
       {
-        if((num >= 0x00 && num <= 0xFF)
-            && opcodes_65xx[index].opcode[MODE_ZEROPAGE_X_INDEXED] != 0xFF)
+        tokens_push(asm_context, token, token_type);
+        GET_NUM();
+
+        if(asm_context->pass == 2)
         {
-          mode = MODE_ZEROPAGE_X_INDEXED;
-        }
-          else
-        {
-          mode = MODE_ABSOLUTE_X_INDEXED;
+          // calculate branch offset, need to add 2 to current
+          // address, since thats where the program counter would be
+          num -= (asm_context->address + 2);
+
+          if(num < -128 || num > 127)
+          {
+            print_error("Relative branch out of range", asm_context);
+            return -1;
+          }
+
+          num = (uint8_t)num;
         }
       }
-        else
-      if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
-      {
-        if((num >= 0x00 && num <= 0xFF)
-            && opcodes_65xx[index].opcode[MODE_ZEROPAGE_Y_INDEXED] != 0xFF)
-        {
-          mode = MODE_ZEROPAGE_Y_INDEXED;
-        }
-          else
-        {
-          mode = MODE_ABSOLUTE_Y_INDEXED;
-        }
-      }
-        else
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-    }
-
-    if(num < 0 || num > 0xFFFF)
-    {
-      print_error("Address out of range", asm_context);
-      return -1;
-    }
-  }
-
-skip:
-  // branches are in table positions 3 - 10
-  if(index >= 3 && index <= 10)
-  {
-    if(mode == MODE_IMMEDIATE)
-    {
-      mode = MODE_RELATIVE;
-      num = (unsigned char)num;
     }
     else
     {
-      mode = MODE_RELATIVE;
-      if(asm_context->pass == 2)
+      if(IS_TOKEN(token, '#'))
       {
-        // calculate branch offset, need to add 2 to current
-        // address, since thats where the program counter would be
-        num -= (asm_context->address + 2);
-        if(num < -128 || num > 127)
+        GET_NUM();
+
+        if(size == 8)
         {
-          print_error("Branch out of range", asm_context);
+          if(num < -128 || num > 0xFF)
+          {
+            print_error("8-bit constant out of range.", asm_context);
+            return -1;
+          }
+
+          num = (uint8_t)num;
+        }
+
+        op = OP_IMMEDIATE;
+      }
+      else if(IS_TOKEN(token, '('))
+      {
+        GET_NUM();
+
+        if(GET_TOKEN() == TOKEN_EOL)
+          break;
+
+        if(IS_TOKEN(token, ','))
+        {
+          if(GET_TOKEN() == TOKEN_EOL)
+            break;
+
+          if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
+          {
+            if(GET_TOKEN() == TOKEN_EOL)
+              break;
+
+            if(IS_TOKEN(token, ')'))
+            {
+              if(num < 0 || num > 0xFF)
+              {
+                print_error("Address out of range.", asm_context);
+                return -1;
+              }
+
+              op = OP_X_INDIRECT8;
+            }
+            else
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+          }
+        }
+        else if(IS_TOKEN(token, ')'))
+        {
+          op = OP_INDIRECT16;
+
+          if(GET_TOKEN() == TOKEN_EOL)
+            break;
+
+          if(IS_TOKEN(token, ','))
+          {
+            if(GET_TOKEN() == TOKEN_EOL)
+              break;
+
+            if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
+              op = OP_INDIRECT8_Y;
+          }
+        }
+      }
+      else
+      {
+        tokens_push(asm_context, token, token_type);
+        GET_NUM();
+
+        if(num < 0 || num > 0xFFFF)
+        {
+          print_error("Address out of range.", asm_context);
           return -1;
         }
-        num = (unsigned char)num;
+
+        op = OP_ADDRESS8;
+
+        if(num > 0xFF)
+          op = OP_ADDRESS16;
+
+        if(size == 8)
+        {
+          if(num > 0xFF)
+          {
+            print_error("Direct-page address out of range.", asm_context);
+            return -1;
+          }
+
+          op = OP_ADDRESS8;
+        }
+        else if(size == 16)
+        {
+          if(num > 0xFFFF)
+          {
+            print_error("Absolute address out of range.", asm_context);
+            return -1;
+          }
+
+          op = OP_ADDRESS16;
+        }
+
+        if(GET_TOKEN() == TOKEN_EOL)
+          break;
+
+        if(IS_TOKEN(token, ','))
+        {
+          if(GET_TOKEN() == TOKEN_EOL)
+            break;
+
+          if(IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
+          {
+            op = OP_INDEXED8_X;
+
+            if(num > 0xFF)
+              op = OP_INDEXED16_X;
+
+            if(num > 0xFFFF)
+            {
+              print_error("Address out of range.", asm_context);
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+          }
+          else if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
+          {
+            op = OP_INDEXED8_Y;
+
+            if(num > 0xFF)
+              op = OP_INDEXED16_Y;
+
+            if(num > 0xFFFF)
+            {
+              print_error("Address out of range.", asm_context);
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+          }
+        }
       }
     }
   }
 
-  // see if theres an opcode for this instruction and mode
-  opcode = opcodes_65xx[index].opcode[mode];
+  opcode = -1;
 
-  if(asm_context->pass == 2 && opcode == 0xFF)
+  for(i = 0; i < 256; i++)
   {
-    sprintf(temp, "No instruction found for addressing mode %d", mode);
+    if(table_65xx_opcodes[i].instr == instr_enum)
+    {
+      if(table_65xx_opcodes[i].op == op)
+      {
+        opcode = i;
+        break;
+      }
+      else if(op == OP_ADDRESS8)
+      {
+        if(table_65xx_opcodes[i].op == OP_ADDRESS16)
+        {
+          op = OP_ADDRESS16;
+          opcode = i;
+          break;
+        }
+      }
+    }
+  }
+
+  if(asm_context->pass == 2 && opcode == -1)
+  {
+    sprintf(temp, "No instruction found for addressing mode %d", op);
     print_error(temp, asm_context);
     return -1;
   }
 
-  // warn if indirect JMP bug will happen
-  if((opcode == 0x6C) && ((num & 0xFF) == 0xFF))
-  {
-    print_error("Warning: Indirect JMP to upper page boundary (6502 bug)", asm_context);
-  }
+  bytes = op_bytes[op];
 
-//printf("address=%04x, num=%04x\n", asm_context->address, num);
-
-  // write opcode
-//printf("%04x, %02x\n", asm_context->address, opcode & 0xFF);
   add_bin8(asm_context, opcode & 0xFF, IS_OPCODE);
 
-  // write low byte first, if any
-  if(mode_bytes[mode] > 1)
-  {
-//printf("%04x, %02x\n", asm_context->address, num & 0xFF);
+  if(bytes > 1)
     add_bin8(asm_context, num & 0xFF, IS_OPCODE);
-  }
 
-  // then high byte, if any
-  if(mode_bytes[mode] > 2)
-  {
-//printf("%04x, %02x\n", asm_context->address, (num >> 8) & 0xFF);
+  if(bytes > 2)
     add_bin8(asm_context, (num >> 8) & 0xFF, IS_OPCODE);
-  }
 
-  return mode_bytes[mode];
+  return bytes;
 }
 

@@ -19,30 +19,13 @@
 #include "disasm/65xx.h"
 
 #include "table/65xx.h"
-extern struct _opcodes_65xx opcodes_65xx[];
-extern struct _cycles_65xx cycles_65xx[];
+extern struct _table_65xx table_65xx[];
+extern struct _table_65xx_opcodes table_65xx_opcodes[];
 
 #define READ_RAM(a) (memory_read_m(memory, a) & 0xFF)
 
-// addressing modes
-enum
-{
-  MODE_ABSOLUTE,
-  MODE_ABSOLUTE_X_INDEXED,
-  MODE_ABSOLUTE_Y_INDEXED,
-  MODE_IMMEDIATE,
-  MODE_IMPLIED,
-  MODE_INDIRECT,
-  MODE_X_INDEXED_INDIRECT,
-  MODE_INDIRECT_Y_INDEXED,
-  MODE_RELATIVE,
-  MODE_ZEROPAGE,
-  MODE_ZEROPAGE_X_INDEXED,
-  MODE_ZEROPAGE_Y_INDEXED
-};
-
-// bytes each mode takes
-static int mode_bytes[] = { 3, 3, 3, 2, 1, 3, 2, 2, 2, 2, 2, 2 };
+// bytes for each addressing mode
+static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2 };
 
 int get_cycle_count_65xx(unsigned short int opcode)
 {
@@ -56,43 +39,29 @@ unsigned int opcode;
 char temp[32];
 char num[8];
 
-int index, mode;
+int op;
 int lo, hi;
 int branch_address = 0;
-int found = 0;
 
   *cycles_min=-1;
   *cycles_max=-1;
   opcode=READ_RAM(address);
 
-  for(index = 0; index < 56; index++)
-  {
-    for(mode = 0; mode < 12; mode++)
-    {
-      if(opcodes_65xx[index].opcode[mode] == opcode)
-      {
-        found = 1;
-        break;
-      }
-    }
-    if(found == 1)
-      break;
-  }
-
   sprintf(temp, " ");
 
-  if(found)
+  if(table_65xx_opcodes[opcode].instr != -1)
   {
-    strcpy(instruction, opcodes_65xx[index].name);
+    strcpy(instruction, table_65xx[table_65xx_opcodes[opcode].instr].name);
+    op = table_65xx_opcodes[opcode].op;
 
-    if(mode_bytes[mode] > 1)
+    if(op_bytes[op] > 1)
     {
-      if(mode_bytes[mode] == 2)
+      if(op_bytes[op] == 2)
       {
         lo = READ_RAM(address + 1);
 
         // special case for branches
-        if(mode == MODE_RELATIVE)
+        if(op == OP_RELATIVE)
         {
           branch_address = (address + 2) + (signed char)lo;
           sprintf(num, "0x%04x", branch_address);
@@ -102,60 +71,59 @@ int found = 0;
           sprintf(num, "0x%02x", lo);
         }
       }
-
-      if(mode_bytes[mode] == 3)
+      else if(op_bytes[op] == 3)
       {
         lo = READ_RAM(address + 1);
         hi = READ_RAM(address + 2);
         sprintf(num, "0x%04x", (hi << 8) | lo);
       }
 
-      switch(mode)
+      switch(op)
       {
-        case MODE_ABSOLUTE:
-          sprintf(temp, " %s", num);
-          break;
-        case MODE_ABSOLUTE_X_INDEXED:
-          sprintf(temp, " %s,x", num);
-          break;
-        case MODE_ABSOLUTE_Y_INDEXED:
-          sprintf(temp, " %s,y", num);
-          break;
-        case MODE_IMMEDIATE:
-          sprintf(temp, " #%s", num);
-          break;
-        case MODE_IMPLIED:
+        case OP_NONE:
           sprintf(temp, " ");
           break;
-        case MODE_INDIRECT:
-          sprintf(temp, " (%s)", num);
+        case OP_IMMEDIATE:
+          sprintf(temp, " #%s", num);
           break;
-        case MODE_X_INDEXED_INDIRECT:
-          sprintf(temp, " (%s,x)", num);
-          break;
-        case MODE_INDIRECT_Y_INDEXED:
-          sprintf(temp, " (%s),y", num);
-          break;
-        case MODE_RELATIVE:
+        case OP_ADDRESS8:
           sprintf(temp, " %s", num);
           break;
-        case MODE_ZEROPAGE:
+        case OP_ADDRESS16:
           sprintf(temp, " %s", num);
           break;
-        case MODE_ZEROPAGE_X_INDEXED:
+        case OP_INDEXED8_X:
           sprintf(temp, " %s,x", num);
           break;
-        case MODE_ZEROPAGE_Y_INDEXED:
+        case OP_INDEXED8_Y:
           sprintf(temp, " %s,y", num);
+          break;
+        case OP_INDEXED16_X:
+          sprintf(temp, " %s,x", num);
+          break;
+        case OP_INDEXED16_Y:
+          sprintf(temp, " %s,y", num);
+          break;
+        case OP_INDIRECT16:
+          sprintf(temp, " (%s)", num);
+          break;
+        case OP_X_INDIRECT8:
+          sprintf(temp, " (%s,x)", num);
+          break;
+        case OP_INDIRECT8_Y:
+          sprintf(temp, " (%s),y", num);
+          break;
+        case OP_RELATIVE:
+          sprintf(temp, " %s", num);
           break;
       }
     }
 
     // get cycle mode
-    int min = cycles_65xx[opcode].cycles;
-    int max = min;
+    int min = table_65xx_opcodes[opcode].cycles_min;
+    int max = table_65xx_opcodes[opcode].cycles_max;
 
-    if(mode == MODE_RELATIVE)
+    if(op == OP_RELATIVE)
     {
       // branch, see if we're in the same page
       int page1 = (address + 2) / 256;
@@ -164,10 +132,6 @@ int found = 0;
         max += 2;
       else
         max += 1;
-    }
-      else
-    {
-      max += cycles_65xx[opcode].inc;
     }
 
     strcat(instruction, temp);
@@ -185,7 +149,7 @@ int found = 0;
   }
 
   // set this to the number of bytes the operation took up
-  return mode_bytes[mode];
+  return op_bytes[op];
 }
 
 void list_output_65xx(struct _asm_context *asm_context, int address)

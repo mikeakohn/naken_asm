@@ -21,7 +21,7 @@
 #include "simulate/65xx.h"
 #include "table/65xx.h"
 
-extern struct _cycles_65xx cycles_65xx[];
+extern struct _table_65xx_opcodes table_65xx_opcodes[];
 
 #define SHOW_STACK 0x100 + sp, memory_read_m(simulate->memory, 0x100 + sp)
 #define READ_RAM(a) memory_read_m(simulate->memory, a)
@@ -68,33 +68,33 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
 
   switch(mode)
   {
-    case 0:
+    case OP_NONE:
+      return address;
+    case OP_IMMEDIATE:
+      return address;
+    case OP_ADDRESS8:
+      return lo & 0xFF;
+    case OP_ADDRESS16:
       return lo + 256 * hi;
-    case 1:
+    case OP_INDEXED8_X:
+      return (lo + REG_X) & 0xFF;
+    case OP_INDEXED8_Y:
+      return (lo + REG_Y) & 0xFFFF;
+    case OP_INDEXED16_X:
       return ((lo + 256 * hi) + REG_X) & 0xFFFF;
-    case 2:
+    case OP_INDEXED16_Y:
       return ((lo + 256 * hi) + REG_Y) & 0xFFFF;
-    case 3:
-      return address;
-    case 4:
-      return address;
-    case 5:
+    case OP_INDIRECT16:
       indirect = (lo + 256 * hi) & 0xFFFF;
       return (READ_RAM(indirect) + 256 * READ_RAM((indirect + 1) & 0xFFFF)) & 0xFFFF;
-    case 6:
+    case OP_X_INDIRECT8:
       indirect = ((READ_RAM(lo) + REG_X) & 0xFF) + 256 * READ_RAM((lo + 1) & 0xFF);
       return (indirect) & 0xFFFF;
-    case 7:
+    case OP_INDIRECT8_Y:
       indirect = READ_RAM(lo) + 256 * READ_RAM((lo + 1) & 0xFF);
       return (indirect + REG_Y) & 0xFFFF;
-    case 8:
+    case OP_RELATIVE:
       return (address + ((signed char)READ_RAM(address) + 1)) & 0xFFFF;
-    case 9:
-      return lo & 0xFF;
-    case 10:
-      return (lo + REG_X) & 0xFF;
-    case 11:
-      return (lo + REG_Y) & 0xFFFF;
     default:
       return -1;
   }
@@ -103,19 +103,24 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
 static int operand_exe(struct _simulate *simulate, int opcode)
 {
   struct _simulate_65xx *simulate_65xx=(struct _simulate_65xx *)simulate->context;
+
+  if(opcode < 0 || opcode > 0xFF)
+    return -1;
   
-  int mode = cycles_65xx[opcode].mode;
+  int mode = table_65xx_opcodes[opcode].op;
   if(mode == -1)
     return -1;
 
   int address = calc_address(simulate, REG_PC + 1, mode);
+  if(address == -1)
+    return -1;
 
   int m = READ_RAM(address);
   int temp;
   int pc_lo, pc_hi;
   int temp_a = REG_A;
 
-  CYCLE_COUNT += cycles_65xx[opcode].cycles;
+  CYCLE_COUNT += table_65xx_opcodes[opcode].cycles_min;
 //FIXME add extra cycles when required below
 
   switch(opcode)
