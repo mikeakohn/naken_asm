@@ -108,3 +108,68 @@ jmp $444444
 jmp ($4444)
 jmp ($44,x)
 jmp [$4444]
+jsr $4444
+jsr $444444
+jsr ($4444,x)
+lda ($44,x)
+lda $44,s
+lda $4444
+lda [$44]
+lda #$44
+lda $4444
+lda $444444
+lda ($44),y
+lda ($44)
+lda ($44,s),y
+lda $44,x
+lda [$44],y
+lda $4444,y
+lda $4444,x
+lda $444444,x
+ldx #$44
+ldx $44
+ldx $4444
+ldx $44,y
+ldx $4444,y
+ldy #$44
+ldy $44
+ldy $4444
+ldy $44,x
+ldy $4444,x
+lsr $44
+lsr
+lsr $4444
+lsr $44,x
+lsr $4444,x
+nop
+ora ($44,x)
+ora $44,s
+ora $4444
+ora [$44]
+ora #$44
+ora $4444
+ora $444444
+ora ($44),y
+ora ($44)
+ora ($44,s),y
+ora $44,x
+ora [$44],y
+ora $4444,y
+ora $4444,x
+ora $444444,x
+pea $4444
+pei ($44)
+label_per: per label_per
+pha
+phb
+phd
+phk
+php
+phx
+phy
+pla
+plb
+pld
+plp
+plx
+ply
