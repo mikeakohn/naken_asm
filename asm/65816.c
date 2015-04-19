@@ -122,8 +122,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       if(GET_TOKEN() == TOKEN_EOL)
         break;
     }
-
-    if(op == OP_RELATIVE)
+    else if(op == OP_RELATIVE)
     {
       if(IS_TOKEN(token, '#'))
       {

@@ -68,6 +68,7 @@ cmp [$44],y
 cmp $4444,y
 cmp $4444,x
 cmp $444444,x
+cop #$44
 cpx #$44
 cpx $44
 cpx $4444
@@ -141,6 +142,8 @@ lsr
 lsr $4444
 lsr $44,x
 lsr $4444,x
+mvp $44,$44
+mvn $44,$44
 nop
 ora ($44,x)
 ora $44,s
@@ -202,3 +205,50 @@ sbc [$44],y
 sbc $4444,y
 sbc $4444,x
 sbc $444444,x
+sec
+sed
+sei
+sep #$44
+sta ($44,x)
+sta $44,s
+sta $44
+sta [$44]
+sta $4444
+sta $444444
+sta ($44),y
+sta ($44)
+sta ($44,s),y
+sta $44,x
+sta [$44],y
+sta $4444,y
+sta $4444,x
+sta $444444,x
+stp
+stx $44
+stx $4444
+stx $44,y
+sty $44
+sty $4444
+sty $44,x
+stz $44
+stz $44,x
+stz $4444
+stz $4444,x
+tax
+tay
+tcd
+tcs
+trb $44
+trb $4444
+tsb $44
+tsb $4444
+tsc
+tsx
+txa
+txs
+txy
+tya
+tyx
+wai
+xba
+xce
