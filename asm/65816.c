@@ -239,7 +239,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
           num = (uint8_t)num;
         }
-        else
+        else if(size == 16)
         {
           if(num < -32768 || num > 0xFFFF)
           {
@@ -248,6 +248,11 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           }
 
           num = (uint16_t)num;
+        }
+        else if(size == 24)
+        {
+          print_error("Cannot force long value in immediate mode.", asm_context);
+          return -1;
         }
       }
       else if(IS_TOKEN(token, '('))
