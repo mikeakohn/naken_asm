@@ -100,7 +100,7 @@ struct _cpu_list cpu_list[] =
   { "powerpc", CPU_TYPE_POWERPC, ENDIAN_BIG, 1, 0, 0, 0, parse_instruction_powerpc, list_output_powerpc, disasm_range_powerpc, NULL },
 #endif
 #ifdef ENABLE_STM8
-  { "stm8", CPU_TYPE_STM8, ENDIAN_LITTLE, 1, 1, 0, 1, parse_instruction_stm8, list_output_stm8, disasm_range_stm8, NULL },
+  { "stm8", CPU_TYPE_STM8, ENDIAN_BIG, 1, 1, 0, 1, parse_instruction_stm8, list_output_stm8, disasm_range_stm8, NULL },
 #endif
 #ifdef ENABLE_THUMB
   { "thumb", CPU_TYPE_THUMB, ENDIAN_LITTLE, 1, 0, 0, 0, parse_instruction_thumb, list_output_thumb, disasm_range_thumb, NULL },

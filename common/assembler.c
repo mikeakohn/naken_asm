@@ -479,11 +479,13 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   if (strcasecmp(token, "big_endian") == 0)
   {
     asm_context->memory.endian = ENDIAN_BIG;
+    return 1;
   }
     else
   if (strcasecmp(token, "little_endian") == 0)
   {
     asm_context->memory.endian = ENDIAN_LITTLE;
+    return 1;
   }
 
   int n = 0;
@@ -502,8 +504,8 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
 
 int assemble(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-int token_type;
+  char token[TOKENLEN];
+  int token_type;
 
   while(1)
   {

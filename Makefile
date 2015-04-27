@@ -65,6 +65,7 @@ tests:
 	@cd tests/unit/data && make && ./data_test && make clean
 	@cd tests/unit/tokens && make && ./tokens_test && make clean
 	@cd tests/comparison && make
+	@cd tests/other/directives && python test.py
 
 distclean: clean
 	@rm -f config.mak *.asm
