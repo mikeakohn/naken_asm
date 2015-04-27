@@ -865,12 +865,16 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_OFFSET16_INDEX_X:
         {
-          if (operand_count <= 2 && operands[0].type == OP_OFFSET16_INDEX_X)
+          if (operand_count <= 2 &&
+              (operands[0].type == OP_OFFSET16_INDEX_X ||
+               operands[0].type == OP_OFFSET8_INDEX_X))
           {
             return add_bin_num16(asm_context, n, operands[0].value);
           }
             else
-          if (operand_count == 2 && operands[1].type == OP_OFFSET16_INDEX_X)
+          if (operand_count == 2 &&
+              (operands[1].type == OP_OFFSET16_INDEX_X ||
+               operands[1].type == OP_OFFSET8_INDEX_X))
           {
             return add_bin_num16(asm_context, n, operands[1].value);
           }
