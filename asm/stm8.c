@@ -184,13 +184,34 @@ static int get_minimum_size(int instr_index)
 }
 #endif
 
+static int ignore_expression(struct _asm_context *asm_context)
+{
+  char token[TOKENLEN];
+  int token_type;
+
+  // Ignore all tokens until an ',' or ']' or EOL
+  while(1)
+  {
+    token_type=tokens_get(asm_context, token, TOKENLEN);
+
+    if (IS_TOKEN(token,',') || IS_TOKEN(token,']') ||
+        token_type == TOKEN_EOL || token_type == TOKEN_EOF)
+    {
+      tokens_push(asm_context, token, token_type);
+      return 0;
+    }
+  }
+
+  return -1;
+}
+
 static int get_num(struct _asm_context *asm_context, int instr_index, int *num, int *num_size)
 {
   if (eval_expression(asm_context, num) != 0)
   {
     if (asm_context->pass == 1)
     {
-      eat_operand(asm_context);
+      ignore_expression(asm_context);
       //*num_size = get_minimum_size(instr_index);
       *num_size = NUM_SIZE_UNKNOWN;
       memory_write(asm_context, asm_context->address, *num_size, asm_context->line);
@@ -924,12 +945,16 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_OFFSET16_INDEX_Y:
         {
-          if (operand_count <= 2 && operands[0].type == OP_OFFSET16_INDEX_Y)
+          if (operand_count <= 2 &&
+              (operands[0].type == OP_OFFSET16_INDEX_Y ||
+               operands[0].type == OP_OFFSET8_INDEX_Y))
           {
             return add_bin_num16(asm_context, n, operands[0].value);
           }
             else
-          if (operand_count == 2 && operands[1].type == OP_OFFSET16_INDEX_Y)
+          if (operand_count == 2 &&
+              (operands[1].type == OP_OFFSET16_INDEX_Y ||
+               operands[1].type == OP_OFFSET8_INDEX_Y))
           {
             return add_bin_num16(asm_context, n, operands[1].value);
           }
@@ -982,12 +1007,16 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_INDIRECT16:
         {
-          if (operand_count <= 2 && operands[0].type == OP_INDIRECT16)
+          if (operand_count <= 2 &&
+              (operands[0].type == OP_INDIRECT16 ||
+               operands[0].type == OP_INDIRECT8))
           {
             return add_bin_num16(asm_context, n, operands[0].value);
           }
             else
-          if (operand_count == 2 && operands[1].type == OP_INDIRECT16)
+          if (operand_count == 2 &&
+              (operands[1].type == OP_INDIRECT16 ||
+               operands[1].type == OP_INDIRECT8))
           {
             return add_bin_num16(asm_context, n, operands[1].value);
           }
@@ -1021,12 +1050,16 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_INDIRECT16_X:
         {
-          if (operand_count <= 2 && operands[0].type == OP_INDIRECT16_X)
+          if (operand_count <= 2 &&
+              (operands[0].type == OP_INDIRECT16_X ||
+               operands[0].type == OP_INDIRECT8_X))
           {
             return add_bin_num16(asm_context, n, operands[0].value);
           }
             else
-          if (operand_count == 2 && operands[1].type == OP_INDIRECT16_X)
+          if (operand_count == 2 &&
+              (operands[1].type == OP_INDIRECT16_X ||
+               operands[1].type == OP_INDIRECT8_X))
           {
             return add_bin_num16(asm_context, n, operands[1].value);
           }
