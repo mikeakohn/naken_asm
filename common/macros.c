@@ -410,7 +410,7 @@ int macros_parse(struct _asm_context *asm_context, int macro_type)
 
   // First pull the name out
   parens = macros_parse_token(asm_context, name, 128);
-  if (parens == -1) return -1;
+  if (parens == -1) { return -1; }
 
 #ifdef DEBUG
 printf("debug> macros_parse() name=%s parens_flag=%d\n", name, parens);
@@ -442,7 +442,7 @@ printf("debug> macros_parse() param %s\n", token);
         return -1;
       }
 
-      strcpy(params + ptr,token);
+      strcpy(params + ptr, token);
       ptr = ptr + len + 1;
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -474,6 +474,8 @@ printf("debug> macros_parse() param %s\n", token);
       print_error_unexp(token, asm_context);
       return -1;
     }
+
+    asm_context->line++;
   }
 
 #ifdef DEBUG
@@ -565,7 +567,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
         else
       {
         macro[ptr] = 0;
-        if (check_endm(macro,ptr) == 1) break;
+        if (check_endm(macro, ptr) == 1) break;
       }
     }
 

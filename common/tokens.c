@@ -333,7 +333,6 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
       {
         if (ptr == 0)
         {
-          //asm_context->line++;
           token[0] = '\n';
           token[1] = 0;
           return TOKEN_EOL;
