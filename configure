@@ -23,7 +23,7 @@ DISASM_OBJS="common.o"
 TABLE_OBJS=""
 SIM_OBJS="null.o"
 COMMON_OBJS="assembler.o cpu_list.o directives_data.o directives_if.o directives_include.o eval_expression.o eval_expression_ex.o print_error.o tokens.o ifdef_expression.o macros.o memory.o memory_pool.o symbols.o var.o"
-FILEIO_OBJS="read_elf.o read_hex.o read_srec.o read_ti_txt.o write_elf.o write_hex.o write_srec.o"
+FILEIO_OBJS="read_bin.o read_elf.o read_hex.o read_srec.o read_ti_txt.o write_bin.o write_elf.o write_hex.o write_srec.o"
 PROG_OBJS="lpc.o serial.o"
 NO_MSP430="-DNO_MSP430"
 

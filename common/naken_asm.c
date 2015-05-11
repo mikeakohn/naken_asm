@@ -19,6 +19,7 @@
 #include "common/symbols.h"
 #include "common/tokens.h"
 #include "common/version.h"
+#include "fileio/write_bin.h"
 #include "fileio/write_elf.h"
 #include "fileio/write_hex.h"
 #include "fileio/write_srec.h"

@@ -9,10 +9,14 @@
  *
  */
 
-#ifndef _WRITE_HEX_H
-#define _WRITE_HEX_H
+#ifndef _READ_BIN_H
+#define _READ_BIN_H
 
-int write_hex(struct _memory *memory, FILE *out);
+#include <stdint.h>
+
+#include "common/memory.h"
+
+int read_bin(char *filename, struct _memory *memory, uint32_t start_address);
 
 #endif
 

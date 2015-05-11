@@ -17,8 +17,8 @@
 
 static int get_hex(FILE *in, int len)
 {
-int ch;
-int n = 0;
+  int ch;
+  int n = 0;
 
   while(len > 0)
   {
@@ -41,18 +41,18 @@ int n = 0;
 
 int read_hex(char *filename, struct _memory *memory)
 {
-FILE *in;
-int ch;
-int byte_count;
-int address;
-int record_type;
-int checksum;
-int checksum_calc;
-int n;
-int start_address=0;
-int line=0;
-int start, end;
-int segment=0;
+  FILE *in;
+  int ch;
+  int byte_count;
+  int address;
+  int record_type;
+  int checksum;
+  int checksum_calc;
+  int n;
+  int start_address=0;
+  int line=0;
+  int start, end;
+  int segment=0;
 
   //memset(memory, 0, memory_len);
   memory_clear(memory);
@@ -191,7 +191,10 @@ int segment=0;
   }
 
   /* We're all slaves to a state machine */
-  if (in != NULL) fclose(in);
+  if (in != NULL)
+  {
+    fclose(in);
+  }
 
   memory->low_address = start;
   memory->high_address = end;

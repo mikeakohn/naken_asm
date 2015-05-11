@@ -9,10 +9,10 @@
  *
  */
 
-#ifndef _WRITE_HEX_H
-#define _WRITE_HEX_H
+#ifndef _WRITE_BIN_H
+#define _WRITE_BIN_H
 
-int write_hex(struct _memory *memory, FILE *out);
+int write_bin(struct _memory *memory, FILE *out);
 
 #endif
 

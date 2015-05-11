@@ -38,6 +38,7 @@
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
 #include "disasm/z80.h"
+#include "fileio/read_bin.h"
 #include "fileio/read_elf.h"
 #include "fileio/read_hex.h"
 #include "fileio/read_srec.h"
@@ -639,6 +640,7 @@ int main(int argc, char *argv[])
 #ifdef READLINE
   char *line = NULL;
 #endif
+  uint32_t start_address = 0;
   int i;
   char *hexfile = NULL;
   int mode = MODE_INTERACTIVE;
@@ -657,6 +659,7 @@ int main(int argc, char *argv[])
            "    // The following options turn off interactive mode\n"
            "   -disasm                      (disassemble all or part of program)\n"
            "   -exe                         (execute program and dump registers)\n"
+           "   -address <start_address>     (for bin files: binary placed at this address)\n"
            "ELF files can auto-pick a CPU, if a hex file use:\n"
            "   -65xx                        (65xx)\n"
            "   -65816                       (65816)\n"
@@ -717,7 +720,6 @@ int main(int argc, char *argv[])
 
     if (strcmp(argv[i], "-d") == 0)
     {
-      //if (load_debug(&src, argv[++i], util_context.debug_line, &util_context)==0)
       if (load_debug(&src, argv[++i], &util_context) == 0)
       {
         //loaded_debug = 1;
@@ -748,6 +750,17 @@ int main(int argc, char *argv[])
     {
        strcpy(command, "disasm");
        mode = MODE_DISASM;
+    }
+      else
+    if (strcmp(argv[i], "-address") == 0)
+    {
+      i++;
+      if (i >= argc)
+      {
+        printf("Error: -address needs an address\n");
+        exit(1);
+      }
+      start_address = atoi(argv[i]);
     }
       else
     if (strcmp(argv[i], "-run") == 0)
@@ -798,6 +811,13 @@ int main(int argc, char *argv[])
       {
         hexfile = argv[i];
         printf("Loaded ti_txt %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
+      }
+        else
+      if (strcmp(extension, "bin") == 0 &&
+          read_bin(argv[i], &util_context.memory, start_address) >= 0)
+      {
+        hexfile = argv[i];
+        printf("Loaded bin %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
       }
         else
       if (strcmp(extension, "srec") == 0 &&

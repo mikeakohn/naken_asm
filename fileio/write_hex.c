@@ -19,8 +19,8 @@
 
 static void write_hex_line(FILE *out, uint32_t address, uint8_t *data, int len, uint32_t *segment)
 {
-int checksum;
-int n;
+  int checksum;
+  int n;
 
 #if 0
   // This was using sections of type 2.. let's change to type 4 (linear)
@@ -68,10 +68,10 @@ int n;
 // pages instead of treating it as one big memory thing.
 int write_hex(struct _memory *memory, FILE *out)
 {
-uint8_t data[16];
-int len;
-uint32_t n;
-uint32_t address = 0,segment = 0;
+  uint8_t data[16];
+  int len;
+  uint32_t n;
+  uint32_t address = 0,segment = 0;
 
   //memory_dump(memory);
 
@@ -116,20 +116,6 @@ uint32_t address = 0,segment = 0;
   }
 
   fputs(":00000001FF\n", out);
-
-  return 0;
-}
-
-// This could be put in its own file, although it does so little it may be
-// not worth it.
-int write_bin(struct _memory *memory, FILE *out)
-{
-uint32_t n;
-
-  for (n = memory->low_address; n <= memory->high_address; n++)
-  {
-    putc(memory_read_m(memory, n), out);
-  }
 
   return 0;
 }
