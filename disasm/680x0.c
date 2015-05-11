@@ -407,7 +407,7 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
           size = (size == 3) ? SIZE_W:SIZE_L;
           reg = (opcode >> 9) & 0x7;
           len  = get_ea_680x0(memory, address, ea, opcode, 0, size);
-          sprintf(instruction, "%s.%c %s, d%d", table_680x0[n].instr, sizes[size], ea, reg);
+          sprintf(instruction, "%s.%c %s, a%d", table_680x0[n].instr, sizes[size], ea, reg);
           return len;
         case OP_CMPM:
           size = (opcode >> 6) & 0x3;
