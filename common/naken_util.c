@@ -85,8 +85,8 @@ static char *state_running = "running";
 
 static char *get_hex(char *token, int *num)
 {
-int s = 0;
-int n = 0;
+  int s = 0;
+  int n = 0;
 
   while(token[s] != 0 && token[s] != ' ' && token[s] != '-' && token[s] != 'h')
   {
@@ -122,8 +122,8 @@ int n = 0;
 
 static char *get_num(char *token, int *num)
 {
-int s;
-int n;
+  int s;
+  int n;
 
   *num=0;
 
@@ -176,8 +176,8 @@ int n;
 
 static void load_debug_offsets(struct _util_context *util_context)
 {
-int line_count = 0;
-int ch, n;
+  int line_count = 0;
+  int ch, n;
 
   fseek(util_context->src_fp, 0, SEEK_SET);
   while(1)
@@ -212,9 +212,9 @@ int ch, n;
 
 static int get_range(struct _util_context *util_context, char *token, int *start, int *end)
 {
-char *start_string = NULL;
-char *end_string = NULL;
-char *s;
+  char *start_string = NULL;
+  char *end_string = NULL;
+  char *s;
 
   // Remove white space from start;
   while(*token == ' ') { token++; }
@@ -296,9 +296,9 @@ char *s;
 
 static void bprint(struct _util_context *util_context, char *token)
 {
-char chars[17];
-int start,end;
-int ptr = 0;
+  char chars[17];
+  int start,end;
+  int ptr = 0;
 
   // FIXME - is this right?
   if (get_range(util_context, token, &start, &end) == -1) return;
@@ -339,9 +339,9 @@ int ptr = 0;
 
 static void wprint(struct _util_context *util_context, char *token)
 {
-char chars[17];
-int start,end;
-int ptr=0;
+  char chars[17];
+  int start,end;
+  int ptr=0;
 
   if (get_range(util_context, token, &start, &end) == -1) return;
   if (start > util_context->memory.size) start = util_context->memory.size;
@@ -394,9 +394,9 @@ int ptr=0;
 
 static void bwrite(struct _util_context *util_context, char *token)
 {
-int address = 0;
-int count = 0;
-int num;
+  int address = 0;
+  int count = 0;
+  int num;
 
   while(*token == ' ' && *token != 0) token++;
   if (token == 0) { printf("Syntax error: no address given.\n"); }
@@ -419,9 +419,9 @@ int num;
 
 static void wwrite(struct _util_context *util_context, char *token)
 {
-int address = 0;
-int count = 0;
-int num;
+  int address = 0;
+  int count = 0;
+  int num;
 
   while(*token == ' ' && *token != 0) token++;
   if (token == 0) { printf("Syntax error: no address given.\n"); }
@@ -451,12 +451,12 @@ int num;
 
 static void disasm_range(struct _util_context *util_context, int start, int end)
 {
-uint32_t page_size,page_mask;
-int curr_start = start;
-int valid_page_start = 1;
-int address_min,address_max;
-int curr_end;
-int n;
+  uint32_t page_size,page_mask;
+  int curr_start = start;
+  int valid_page_start = 1;
+  int address_min,address_max;
+  int curr_end;
+  int n;
 
   page_size = memory_page_size(&util_context->memory);
   page_mask = page_size - 1;
@@ -499,7 +499,7 @@ int n;
 
 static void disasm(struct _util_context *util_context, char *token, int dbg_flag)
 {
-int start,end;
+  int start,end;
 
   if (get_range(util_context, token, &start, &end) == -1) return;
 
@@ -556,10 +556,10 @@ static void print_help()
 
 static int load_debug(FILE **srcfile, char *filename, struct _util_context *util_context)
 {
-char src_filename[1024];
-FILE *in;
-int ch;
-int i;
+  char src_filename[1024];
+  FILE *in;
+  int ch;
+  int i;
 
   // Reset debug memory on all loads.
   //memset(debug_line, 0, 65536*sizeof(int));
@@ -632,16 +632,16 @@ int i;
 
 int main(int argc, char *argv[])
 {
-FILE *src = NULL;
-struct _util_context util_context;
-char *state = state_stopped;
-char command[1024];
+  FILE *src = NULL;
+  struct _util_context util_context;
+  char *state = state_stopped;
+  char command[1024];
 #ifdef READLINE
-char *line = NULL;
+  char *line = NULL;
 #endif
-int i;
-char *hexfile = NULL;
-int mode = MODE_INTERACTIVE;
+  int i;
+  char *hexfile = NULL;
+  int mode = MODE_INTERACTIVE;
 
   printf("\nnaken_util - by Michael Kohn\n"
          "                Joe Davisson\n"
