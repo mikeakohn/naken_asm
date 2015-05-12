@@ -606,7 +606,14 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
   if ((opcode & 0xf0f8) == 0x50c8)
   {
     int16_t offset = READ_RAM16(address + 2);
-    sprintf(instruction, "db%s d%d, $%x (%d)", table_680x0_condition_codes[(opcode >> 8) & 0xf], opcode & 0x7, (address + 4) + offset, offset);
+    const char *cond_code = table_680x0_condition_codes[(opcode >> 8) & 0xf];
+
+    if (((opcode >> 8) & 0xf) == 1)
+    {
+      cond_code = "ra";  // if false, then always branch
+    }
+
+    sprintf(instruction, "db%s d%d, $%x (%d)", cond_code, opcode & 0x7, (address + 2) + offset, offset);
     return 4;
   }
     else

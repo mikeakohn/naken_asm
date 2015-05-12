@@ -1318,7 +1318,7 @@ int n;
 
   if (strcmp("dbhi", instr_case) == 0) { instr_case = "dbcc"; }
   else if (strcmp("dblo", instr_case) == 0) { instr_case = "dbcs"; }
-  else if (strcmp("dbra", instr_case) == 0) { instr_case = "dbt"; }
+  else if (strcmp("dbra", instr_case) == 0) { instr_case = "dbf"; }
 
   memset(&operands, 0, sizeof(operands));
   while(1)
@@ -1852,7 +1852,7 @@ printf("\n");
         continue;
       }
 
-      int offset = operands[1].value - (asm_context->address + 4);
+      int offset = operands[1].value - (asm_context->address + 2);
       add_bin16(asm_context, opcode | (n << 8) | operands[0].value, IS_OPCODE);
 
       if (asm_context->pass == 1) { add_bin16(asm_context, 0, IS_OPCODE); }
