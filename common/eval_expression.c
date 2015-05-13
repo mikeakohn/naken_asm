@@ -17,6 +17,12 @@
 #include "common/eval_expression.h"
 #include "common/tokens.h"
 
+#define PRINT_STACK() \
+{ \
+  int i; \
+  for (i = 0; i < num_stack_ptr; i++) printf("%d) %d <-\n", i, num_stack[i]); \
+}
+
 struct _operator
 {
   int operation;
@@ -247,6 +253,7 @@ printf("Paren got back %d\n", paren_num);
       tokens_push(asm_context, token, token_type);
       break;
     }
+
     if (token_type == TOKEN_EOL)
     {
       //asm_context->line++;
@@ -264,29 +271,33 @@ printf("Paren got back %d\n", paren_num);
       }
 
       num_stack[num_stack_ptr++] = atoi(token);
+#ifdef DEBUG
+printf("pushed\n");
+PRINT_STACK()
+#endif
     }
       else
     if (token_type == TOKEN_SYMBOL)
     {
-      if (get_operator(token, &operator)==-1)
+      if (get_operator(token, &operator) == -1)
       {
         print_error_unexp(token, asm_context);
         return -1;
       }
 
-      if (num_stack_ptr==0)
+      if (num_stack_ptr == 0)
       {
         printf("Error: Unexpected operator '%s' at %s:%d\n", token, asm_context->filename, asm_context->line);
         return -1;
       }
 
 #ifdef DEBUG
-printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, operator.precedence);
+printf("OPERATOR %s: precedence last=%d this=%d\n", token, last_operator->precedence, operator.precedence);
 #endif
 
       if (last_operator->precedence > operator.precedence)
       {
-        if (eval_expression_go(asm_context, &num_stack[num_stack_ptr-1], &operator)==-1)
+        if (eval_expression_go(asm_context, &num_stack[num_stack_ptr-1], &operator) == -1)
         {
           return -1;
         }
@@ -317,8 +328,7 @@ printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, operato
 
 #ifdef DEBUG
 printf("going to leave %d\n", last_operator->operation);
-int i;
-for (i = 0; i < num_stack_ptr; i++) printf("-- %d\n", num_stack[i]);
+PRINT_STACK()
 #endif
 
   if (last_operator->operation != OPER_UNSET)
