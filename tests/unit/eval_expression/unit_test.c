@@ -40,11 +40,16 @@ int main(int argc, char *argv[])
 {
   printf("eval_expression() test\n");
 
+  test("-6", -6);
   test("3*5", 15);
   test("3 * 5", 15);
   test("3*(5+4)", 27);
   test("3*(5<<2)", 60);
   test("5+3*9", 32);
+  test("(106 - 100) * 2 - 2", 10);
+  test("(106 - 100) / 2 - 2", 1);
+  test("6 / 2 - 2", 1);
+  test("6 * 2 - 2", 10);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");

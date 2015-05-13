@@ -285,6 +285,7 @@ PRINT_STACK()
         return -1;
       }
 
+      // Stack pointer probably shouldn't be less than 2
       if (num_stack_ptr == 0)
       {
         printf("Error: Unexpected operator '%s' at %s:%d\n", token, asm_context->filename, asm_context->line);
@@ -292,24 +293,33 @@ PRINT_STACK()
       }
 
 #ifdef DEBUG
-printf("OPERATOR %s: precedence last=%d this=%d\n", token, last_operator->precedence, operator.precedence);
+printf("OPERATOR '%s': precedence last=%d this=%d\n", token, last_operator->precedence, operator.precedence);
 #endif
 
+      if (last_operator->precedence == PREC_UNSET)
+      {
+        memcpy(last_operator, &operator, sizeof(struct _operator));
+      }
+        else
       if (last_operator->precedence > operator.precedence)
       {
+        // The older operation has LESS precedence
         if (eval_expression_go(asm_context, &num_stack[num_stack_ptr-1], &operator) == -1)
         {
           return -1;
         }
       }
         else
+#if 0
       if (last_operator->precedence < operator.precedence)
       {
+        // The older operation has MORE precedence
         tokens_push(asm_context, token, token_type);
         *num = num_stack[num_stack_ptr-1];
         return 0;
       }
         else
+#endif
       {
         num_stack[num_stack_ptr-2] = operate(num_stack[num_stack_ptr-2], num_stack[num_stack_ptr-1], last_operator);
         num_stack_ptr--;
