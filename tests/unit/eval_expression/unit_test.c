@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
   test("(106 - 100) / 2 - 2", 1);
   test("6 / 2 - 2", 1);
   test("6 * 2 - 2", 10);
+  test("((106 - 100) / 2) - 2", 1);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
