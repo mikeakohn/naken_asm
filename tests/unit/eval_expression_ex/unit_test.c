@@ -66,7 +66,7 @@ void test_int64(const char *expression, int64_t answer)
   }
     else
   {
-    printf("FAILED. %ld should be %ld\n", num, answer);
+    printf("FAILED. %lld should be %lld\n", num, answer);
     errors++;
   }
 
@@ -77,12 +77,17 @@ int main(int argc, char *argv[])
 {
   printf("eval_expression_ex() test\n");
 
+  test_int("-6", -6);
   test_int("3*5", 15);
   test_int("3 * 5", 15);
   test_int("3*(5+4)", 27);
   test_int("3*(5<<2)", 60);
   test_int("5+3*9", 32);
   test_int("1+(((2*3)+5)+3)", 15);
+  test_int("(106 - 100) * 2 - 2", 10);
+  test_int("(106 - 100) / 2 - 2", 1);
+  test_int("6 / 2 - 2", 1);
+  test_int("6 * 2 - 2", 10);
   test_int64("0xffffffff+1", 0x100000000);
 
   printf("Total errors: %d\n", errors);
