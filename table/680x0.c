@@ -55,7 +55,7 @@ struct _table_680x0 table_680x0[] =
   { "ext", 0x4800, 0xfe38, OP_EXT, 0, 0, OMIT_B, 0 },
   { "illegal", 0x4afc, 0xffff, OP_NONE, 0, 0, NO_SIZE, 0 },
   { "jmp", 0x4ec0, 0xffc0, OP_JUMP, 0, MODE_DN|MODE_AN|MODE_AN_P|MODE_AN_N, NO_SIZE, 0 },
-  { "jsr", 0x4e80, 0xffc0, OP_JUMP,  MODE_DN|MODE_AN|MODE_AN_P|MODE_AN_N, NO_SIZE, 0 },
+  { "jsr", 0x4e80, 0xffc0, OP_JUMP, 0, MODE_DN|MODE_AN|MODE_AN_P|MODE_AN_N, NO_SIZE, 0 },
   { "lea", 0x41c0, 0xf1c0, OP_LOAD_EA, MODE_DN|MODE_AN|MODE_AN_P|MODE_AN_N|MODE_IMM, 0, OMIT_B|OMIT_W, DEFAULT_L },
   { "link", 0x4e50, 0xfff8, OP_LINK_W, 0, 0, OMIT_B|OMIT_L, DEFAULT_W },
   { "link", 0x4808, 0xfff8, OP_LINK_L, 0, 0, OMIT_B|OMIT_W, DEFAULT_L },
