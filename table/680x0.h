@@ -58,6 +58,7 @@ enum
   OP_MOVEM,
   OP_MOVE,
   OP_JUMP,
+  OP_DREG_EA,
 };
 
 #define MODE_DN 1

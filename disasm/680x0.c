@@ -595,6 +595,13 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
           len = get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s %s", table_680x0[n].instr, ea);
           return len;
+        case OP_DREG_EA:
+          reg = (opcode >> 9) & 0x7;
+          mode = (opcode >> 6) & 0x7;
+          size = mode & 0x3;
+          len = get_ea_680x0(memory, address, ea, opcode, 0, size);
+          sprintf(instruction, "%s.%c %s, d%d", table_680x0[n].instr, sizes[size], ea, reg);
+          return len;
         default:
           return -1;
       }

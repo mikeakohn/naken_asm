@@ -496,6 +496,23 @@ static int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struc
   }
 }
 
+static int write_dreg_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_680x0 *table, int size)
+{
+  if (operand_count != 2) { return 0; }
+  if (size == SIZE_NONE) { return 0; }
+  if (operands[0].type != OPERAND_D_REG) { return 0; }
+
+  int opmode;
+  int reg;
+  int opcode_extra;
+
+  reg = operands[0].value;
+  opmode = 0x4 | size;
+  opcode_extra = (reg << 9) | (opmode << 6);
+
+  return ea_generic_new(asm_context, &operands[1], instr, size, table, 1, NO_EXTRA_IMM, opcode_extra);
+}
+
 static int write_immediate(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
   if (operand_count != 2) { return 0; }
@@ -2052,6 +2069,9 @@ printf("\n");
           break;
         case OP_JUMP:
           ret = write_jump(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
+          break;
+        case OP_DREG_EA:
+          ret = write_dreg_ea(asm_context, instr, operands, operand_count, &table_680x0[n], operand_size);
           break;
         default:
           n++;

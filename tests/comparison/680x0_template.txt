@@ -106,6 +106,9 @@ eori.b #3, (%a3)
 eori.w #7, (%a3)+
 eori.l #9, (10,%a3)
 eori #9, %ccr
+eor.b %d1, %d2
+eor.w %d3, %d4
+eor.l %d5, %d6
 exg %d1, %d7
 exg %a1, %a7
 exg %d1, %a7

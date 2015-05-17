@@ -48,7 +48,7 @@ struct _table_680x0 table_680x0[] =
   { "cmpm", 0xb108, 0xf138, OP_CMPM, 0, 0, 0, 0 },
   { "divs", 0x81c0, 0xf1c0, OP_DIV_MUL, MODE_AN, 0, OMIT_B, 0 },
   { "divu", 0x80c0, 0xf1c0, OP_DIV_MUL, MODE_AN, 0, OMIT_B, 0 },
-  { "eor", 0xb000, 0xf000, OP_REG_AND_EA, 0, MODE_AN|MODE_D16_PC|MODE_D8_PC_XN, 0, 0 },
+  { "eor", 0xb000, 0xf000, OP_DREG_EA, 0, MODE_AN|MODE_D16_PC|MODE_D8_PC_XN, 0, 0 },
   { "eori", 0x0a00, 0xff00, OP_IMMEDIATE, 0, MODE_AN|MODE_D16_PC|MODE_D8_PC_XN, 0, 0 },
   { "eori", 0x0a3c, 0xffff, OP_LOGIC_CCR, 0, 0, OMIT_W|OMIT_L, DEFAULT_B },
   { "exg", 0xc100, 0xf100, OP_EXCHANGE, 0, 0, OMIT_B|OMIT_W, DEFAULT_L },
