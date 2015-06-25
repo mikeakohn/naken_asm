@@ -222,12 +222,18 @@ get_int32_t get_int32;
 
   switch(n)
   {
+    case 4:
+      *cpu_type = CPU_TYPE_680X0;
+      break;
     case 8:
     case 10:
       *cpu_type = CPU_TYPE_MIPS;
       break;
     case 40:
       *cpu_type = CPU_TYPE_ARM;
+      break;
+    case 71:
+      *cpu_type = CPU_TYPE_68HC08;
       break;
     case 83:
       *cpu_type = CPU_TYPE_AVR8;
@@ -237,6 +243,15 @@ get_int32_t get_int32;
       break;
     case 118:
       *cpu_type = CPU_TYPE_DSPIC;
+      break;
+    case 165:
+      *cpu_type = CPU_TYPE_805X;
+      break;
+    case 168:
+      *cpu_type = CPU_TYPE_STM8;
+      break;
+    case 220:
+      *cpu_type = CPU_TYPE_Z80;
       break;
     default:
       printf("ELF Error: e_machine unknown\n");

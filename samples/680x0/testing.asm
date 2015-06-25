@@ -12,7 +12,7 @@ blah:
 
   asl.w #4, d3
   asl.b d1, d3
-  asl d1
+  asl #5, d1
 
   ror.w #3, d3
   rol.b d1, d3
@@ -27,7 +27,7 @@ blah:
   pea (a5)+
 
   ;and.w d1, a2
-  and.b a2, d1
+  and.b d3, d1
   and.l d2, d1
   and.b d2, d1
 
@@ -42,9 +42,9 @@ blah:
 
   adda.w d6, a3
   adda.w #500, a3
-  adda.l $ff, a3
-  adda.l $fffff, a3
-  adda.l $ffffff, a3
+  adda.l #$ff, a3
+  adda.l #$fffff, a3
+  adda.l #$ffffff, a3
 
   adda.l (6,a5), a3
   adda.l (-6,a5), a3
@@ -60,7 +60,7 @@ blah:
 
   lea (a3), a2
   lea (-6,a3), a2
-  lea $ff, a2
+  lea ($ff), a2
 
   jsr (a6)
 
@@ -91,7 +91,7 @@ blah:
   subx.w -(a2), -(a3)
 
   roxl (a1)
-  roxr $1000
+  roxr ($1000)
 
   roxl.w d1, d2
   roxr.b #8, d2
@@ -103,21 +103,19 @@ blah:
   exg d1, a2
 
 test_addr:
-  bclr d1, d5
-  bclr #7, d5
-  bclr #7, $ff
-  bclr #7, $fffff
+  ;bclr #7, d5
+  ;bclr #7, $ff
+  ;bclr #7, $fffff
 
-  bra blah
-  bsr crap
-  bne crap
+  bra.s blah
+  bne.s crap
 
   chk.w #7, d3
   ori #5, CCR
 crap:
-  bra test_addr
-  bne test_addr
-  bne blah
+  bra.s test_addr
+  bne.s test_addr
+  bne.s blah
 
   sne d5
   st (a6)
@@ -136,11 +134,11 @@ crap:
   movep.w (100,a6), d3
   movep.l (-16,a1), d4
 
-  movem.w d3-d7/a7, $1000 
-  movem.w $1000, d3-d7/a7
+  movem.w d3-d7/a7, ($1000)
+  movem.w ($1000), d3-d7/a7
 
-  move.w $1234, $5678
+  move.w ($1234), ($5678)
 
-  add.l #1, $1000
+  add.l #1, ($1000)
 
 

@@ -132,8 +132,17 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
   {
     case CPU_TYPE_MSP430:
     case CPU_TYPE_MSP430X:
-      elf->e_machine = 0x69;
+      elf->e_machine = 105;
       elf->e_flags = 11;
+      break;
+    case CPU_TYPE_680X0:
+      elf->e_machine = 4;
+      break;
+    case CPU_TYPE_68HC08:
+      elf->e_machine = 71;
+      break;
+    case CPU_TYPE_805X:
+      elf->e_machine = 165;
       break;
     case CPU_TYPE_ARM:
       elf->e_machine = 40;
@@ -152,8 +161,13 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
     case CPU_TYPE_MIPS:
       elf->e_machine = 8;
       break;
+    case CPU_TYPE_STM8:
+      elf->e_machine = 168;
+      break;
+    case CPU_TYPE_Z80:
+      elf->e_machine = 220;
+      break;
     default:
-printf("WTF? %d %d\n", elf->cpu_type, CPU_TYPE_MSP430);
       elf->e_machine = 0;
       break;
   }
