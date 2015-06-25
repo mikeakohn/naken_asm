@@ -247,7 +247,7 @@ get_int32_t get_int32;
     case 165:
       *cpu_type = CPU_TYPE_805X;
       break;
-    case 168:
+    case 186:
       *cpu_type = CPU_TYPE_STM8;
       break;
     case 220:
