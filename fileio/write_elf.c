@@ -162,7 +162,7 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
       elf->e_machine = 8;
       break;
     case CPU_TYPE_STM8:
-      elf->e_machine = 168;
+      elf->e_machine = 186;
       break;
     case CPU_TYPE_Z80:
       elf->e_machine = 220;
