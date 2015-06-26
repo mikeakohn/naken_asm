@@ -361,8 +361,8 @@ void list_output_stm8(struct _asm_context *asm_context, int address)
 void disasm_range_stm8(struct _memory *memory, int start, int end)
 {
   char instruction[128];
-  int cycles_min = 0,cycles_max = 0;
-  int num;
+  int cycles_min = 0, cycles_max = 0;
+  int num, count;
 
   printf("\n");
 
@@ -373,7 +373,7 @@ void disasm_range_stm8(struct _memory *memory, int start, int end)
   {
     num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
 
-    disasm_stm8(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_stm8(memory, start, instruction, &cycles_min, &cycles_max);
 
     if (cycles_min < 1)
     {
@@ -389,18 +389,7 @@ void disasm_range_stm8(struct _memory *memory, int start, int end)
       printf("0x%04x: 0x%08x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
     }
 
-#if 0
-    count -= 4;
-    while (count > 0)
-    {
-      start = start+4;
-      num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
-      printf("0x%04x: 0x%04x\n", start, num);
-      count -= 4;
-    }
-#endif
-
-    start = start + 4;
+    start = start + count;
   }
 }
 
