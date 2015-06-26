@@ -14,6 +14,7 @@
 
 void print_error(const char *s, struct _asm_context *asm_context);
 void print_error_unexp(const char *s, struct _asm_context *asm_context);
+void print_error_expecting(const char *wanted, const char *got, struct _asm_context *asm_context);
 void print_error_unknown_instr(const char *instr, struct _asm_context *asm_context);
 void print_error_opcount(const char *instr, struct _asm_context *asm_context);
 void print_error_illegal_operands(const char *instr, struct _asm_context *asm_context);

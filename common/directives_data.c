@@ -39,7 +39,7 @@ int data32;
 
     if (token_type == TOKEN_QUOTED)
     {
-      unsigned char *s = (unsigned char *)token;
+      uint8_t *s = (uint8_t *)token;
       while(*s != 0)
       {
         if (*s == '\\')
@@ -72,16 +72,22 @@ int data32;
         eat_operand(asm_context);
       }
 
-      memory_write_inc(asm_context, (unsigned char)data32, DL_DATA);
+      if (data32 < -128 || data32 > 0xff)
+      {
+        print_error_range("db", -128, 0xff, asm_context);
+        return -1;
+      }
+
+      memory_write_inc(asm_context, (uint8_t)data32, DL_DATA);
       asm_context->data_count++;
     }
 
     token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
     if (IS_NOT_TOKEN(token,','))
     {
-      printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
+      print_error_expecting(",", token, asm_context);
       return -1;
     }
   }
@@ -115,6 +121,13 @@ uint16_t data16;
     {
       eat_operand(asm_context);
     }
+
+    if (data32 < -32768 || data32 > 0xffff)
+    {
+      print_error_range("dc16", -32768, 0xffff, asm_context);
+      return -1;
+    }
+
     data16 = (uint16_t)data32;
 
     if (asm_context->memory.endian == ENDIAN_LITTLE)
@@ -134,7 +147,7 @@ uint16_t data16;
 
     if (IS_NOT_TOKEN(token,','))
     {
-      printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
+      print_error_expecting(",", token, asm_context);
       return -1;
     }
   }
