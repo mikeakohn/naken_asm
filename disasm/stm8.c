@@ -362,7 +362,8 @@ void disasm_range_stm8(struct _memory *memory, int start, int end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;
-  int num, count;
+  int count;
+  int n;
 
   printf("\n");
 
@@ -371,22 +372,36 @@ void disasm_range_stm8(struct _memory *memory, int start, int end)
 
   while(start <= end)
   {
-    num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
-
     count = disasm_stm8(memory, start, instruction, &cycles_min, &cycles_max);
+
+    printf("0x%04x: ", start);
+
+    for (n = 0; n < 5; n++)
+    {
+      if (n < count)
+      {
+        printf(" %02x", memory_read_m(memory, start + n));
+      }
+        else
+      {
+        printf("   ");
+      }
+    }
+
+    printf(" %-40s cycles=", instruction);
 
     if (cycles_min < 1)
     {
-      printf("0x%04x: 0x%08x %-40s ?\n", start, num, instruction);
+      printf("?\n");
     }
       else
     if (cycles_min == cycles_max)
     {
-      printf("0x%04x: 0x%08x %-40s %d\n", start, num, instruction, cycles_min);
+      printf("%d\n", cycles_min);
     }
       else
     {
-      printf("0x%04x: 0x%08x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
+      printf("%d-%d\n", cycles_min, cycles_max);
     }
 
     start = start + count;
