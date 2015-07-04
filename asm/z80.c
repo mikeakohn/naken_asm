@@ -1027,6 +1027,12 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
               reg != -1 &&
               operands[1].type == OPERAND_NUMBER)
           {
+            if (operands[1].value < -128 || operands[1].value > 255)
+            {
+              print_error_range("Immediate", -128, 255, asm_context);
+              return -1;
+            }
+
             add_bin8(asm_context, (table_z80[n].opcode) | (reg << 3), IS_OPCODE);
             add_bin8(asm_context, operands[1].value, IS_OPCODE);
             return 2;
