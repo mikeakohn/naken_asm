@@ -548,18 +548,18 @@ uint32_t result;
       {
         int a;
         a = (src & 0xf) + (dst & 0xf) + GET_C();
-        a = ((((src >> 4) & 0xf) + ((dst >> 4) & 0xf) + (a >> 4)) << 4) | (a & 0xf);
-        a = ((((src >> 8) & 0xf) + ((dst >> 8) & 0xf) + (a >> 8)) << 8) | (a & 0xff);
-        a = ((((src >> 12) & 0xf) + ((dst >> 12) & 0xf) + (a >> 12)) << 12) | (a & 0xfff);
-        if ((a & 0xffff0000) != 0) { SET_C(); } else { CLEAR_C(); }
+        a = ((((src >>  4) & 0xf) + ((dst >>  4) & 0xf) + ((a >> 0)/10)) <<  4) | (((a >> 0) % 10)<<0);
+        a = ((((src >>  8) & 0xf) + ((dst >>  8) & 0xf) + ((a >> 4)/10)) <<  8) | (((a >> 4) % 10)<<4) | (a & 0xf);
+        a = ((((src >> 12) & 0xf) + ((dst >> 12) & 0xf) + ((a >> 8)/10)) << 12) | (((a >> 8) % 10)<<8) | (a & 0xff);
+        if( (a>>12) >= 10 ) { a = (((a >> 12) % 10)<<12) | (a&0xfff); SET_C(); } else { CLEAR_C(); }
         result = a;
       }
         else
       {
         int a;
         a = (src & 0xf) + (dst & 0xf) + GET_C();
-        a = ((((src >> 4) & 0xf) + ((dst >> 4) & 0xf) + (a >> 4)) << 4) | (a & 0xf);
-        if ((a & 0xffffff00) != 0) { SET_C(); } else { CLEAR_C(); }
+        a = ((((src >> 4) & 0xf) + ((dst >> 4) & 0xf) + ((a >> 0)/10)) << 4) | (((a >> 0) % 10)<<0);
+        if( (a>>4) >= 10 ) { a = (((a >> 4) % 10) << 4) | (a & 0x0f); SET_C(); } else {CLEAR_C(); }
         result = a;
       }
       put_data(simulate, pc, dst_reg, Ad, bw, result);
