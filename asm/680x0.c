@@ -733,12 +733,13 @@ static int write_quick(struct _asm_context *asm_context, char *instr, struct _op
   {
     //if (size != SIZE_NONE) { return 0; }
     if (operands[1].type != OPERAND_D_REG) { return 0; }
-    if (operands[0].value < 0 || operands[0].value > 255)
+    if (operands[0].value < -128 || operands[0].value > 127)
     {
-      print_error_range("Quick", 0, 255, asm_context);
+      print_error_range("Quick", -128, 127, asm_context);
       return -1;
     }
-    add_bin16(asm_context, table->opcode | (operands[1].value << 9) | operands[0].value, IS_OPCODE);
+    uint8_t value = (uint8_t)operands[0].value;
+    add_bin16(asm_context, table->opcode | (operands[1].value << 9) | value, IS_OPCODE);
     return 2;
   }
 

@@ -142,6 +142,7 @@ movem (%a4), %d4/%d5/%d6
 movep %d3, (100,%a4)
 movep (100,%a2), %d1
 moveq #50, %d5
+moveq #-50, %d5
 muls.w (%a3), %d6
 muls.w %d3, %d6
 mulu.w (%a3), %d6
