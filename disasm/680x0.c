@@ -529,7 +529,7 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
           return 2;
         case OP_LINK_W:
           reg = opcode & 0x7;
-          sprintf(instruction, "%s.w a%d, #%d", table_680x0[n].instr, reg, READ_RAM16(address + 2));
+          sprintf(instruction, "%s.w a%d, #%d", table_680x0[n].instr, reg, (int16_t)READ_RAM16(address + 2));
           return 4;
         case OP_LINK_L:
           reg = opcode & 0x7;

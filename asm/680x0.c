@@ -1109,22 +1109,28 @@ static int write_link(struct _asm_context *asm_context, char *instr, struct _ope
   if (operands[1].type != OPERAND_IMMEDIATE) { return 0; }
   //if (size != SIZE_NONE) { return 0; }
 
-  if (operands[1].value < 0 || operands[1].value > 65535)
-  {
-    print_error_range("Displacement", 0, 65535, asm_context);
-    return -1;
-  }
-
   add_bin16(asm_context, table->opcode | operands[0].value, IS_OPCODE);
 
   if (size == SIZE_W)
   {
+    if (operands[1].value < -32768 || operands[1].value > 32767)
+    {
+      print_error_range("Displacement", -32768, 32767, asm_context);
+      return -1;
+    }
+
     add_bin16(asm_context, operands[1].value, IS_OPCODE);
     return 4;
   }
     else
   if (size == SIZE_L)
   {
+    if (operands[1].value < -0x80000000 || operands[1].value > 0x7fffffff)
+    {
+      print_error_range("Displacement", -32768, 32767, asm_context);
+      return -1;
+    }
+
     add_bin16(asm_context, operands[1].value >> 16, IS_OPCODE);
     add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
     return 4;
