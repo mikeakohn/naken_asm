@@ -536,7 +536,10 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     return -1;
   }
 
-  bytes = op_bytes[op];
+  if(size == 8 && op == OP_IMMEDIATE16)
+    bytes = op_bytes[OP_IMMEDIATE8];
+  else
+    bytes = op_bytes[op];
 
   add_bin8(asm_context, opcode & 0xFF, IS_OPCODE);
 
