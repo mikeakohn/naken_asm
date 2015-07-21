@@ -285,6 +285,28 @@ PRINT_STACK()
         return -1;
       }
 
+      // Issue 15: 2015-July-21 mkohn - If operator is ~ then reverse
+      // the next number.
+      if (operator.operation == OPER_NOT)
+      {
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (token_type != TOKEN_NUMBER)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        if (num_stack_ptr == 3)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        num_stack[num_stack_ptr++] = ~atoi(token);
+
+        continue;
+      }
+
       // Stack pointer probably shouldn't be less than 2
       if (num_stack_ptr == 0)
       {

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "common/eval_expression_ex.h"
 #include "common/tokens.h"
@@ -66,7 +67,7 @@ void test_int64(const char *expression, int64_t answer)
   }
     else
   {
-    printf("FAILED. %lld should be %lld\n", num, answer);
+    printf("FAILED. %" PRId64 " should be %" PRId64 "\n", num, answer);
     errors++;
   }
 
@@ -89,6 +90,8 @@ int main(int argc, char *argv[])
   test_int("6 / 2 - 2", 1);
   test_int("6 * 2 - 2", 10);
   test_int64("0xffffffff+1", 0x100000000);
+  test_int64("~0", -1);
+  test_int64("1 - ~0", 2);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
