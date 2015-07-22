@@ -1062,7 +1062,7 @@ static int write_branch(struct _asm_context *asm_context, char *instr, struct _o
     else
   if (size == SIZE_W)
   {
-    offset = operands[0].value - (asm_context->address + 4);
+    offset = operands[0].value - (asm_context->address + 2);
     if (offset < -32768 && offset > 32767)
     {
       print_error_range("Offset", -32768, 32767, asm_context);
@@ -1075,7 +1075,7 @@ static int write_branch(struct _asm_context *asm_context, char *instr, struct _o
   }
     else
   {
-    offset = operands[0].value - (asm_context->address + 6);
+    offset = operands[0].value - (asm_context->address + 2);
     add_bin16(asm_context, opcode | 0xff, IS_OPCODE);
     add_bin32(asm_context, offset, IS_OPCODE);
     return 6;
