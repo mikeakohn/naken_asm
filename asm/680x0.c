@@ -1050,7 +1050,7 @@ static int write_branch(struct _asm_context *asm_context, char *instr, struct _o
     // 0 means the displacement is 16 bit.  -1 means the displacement is
     // 32 bit.  Maybe should give a different error message.
     offset = operands[0].value - (asm_context->address + 2);
-    if ((offset < -128 && offset > 127) || offset == 0 || offset == -1)
+    if ((offset < -128 || offset > 127) || offset == 0 || offset == -1)
     {
       print_error_range("Offset", -128, 127, asm_context);
       return -1;
