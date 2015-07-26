@@ -92,6 +92,16 @@ int main(int argc, char *argv[])
   test_int64("0xffffffff+1", 0x100000000);
   test_int64("~0", -1);
   test_int64("1 - ~0", 2);
+  test_int64("1 + ~0", 0);
+  test_int64("1 + ~1", -1);
+  test_int64("1 + ~(0 - 1)", 1);
+  test_int64("2 + ~~0", 2);
+  test_int64("1 + ~~(0 - 1)", 0);
+  test_int64("~~5", 5);
+  test_int64("~~5 + 1", 6);
+  test_int64("~1 + 1", -1);
+  test_int64("~-1 + 5", 5);
+  test_int64("~-~1 + 5", 2);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");

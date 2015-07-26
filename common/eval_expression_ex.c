@@ -160,6 +160,52 @@ printf(">>> OPERATING ON %d/%f/%d (%d) %d/%f/%d\n",
   }
 }
 
+static int parse_unary(struct _asm_context *asm_context, int64_t *num, int operation)
+{
+  char token[TOKENLEN];
+  int token_type;
+  int64_t temp;
+  struct _var var;
+
+  var_set_int(&var, 0);
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+//printf("parse_unary: %s token_type=%d(%d)\n", token, token_type, TOKEN_NUMBER);
+
+  if (IS_TOKEN(token,'-'))
+  {
+    if (parse_unary(asm_context, &temp, OPER_MINUS) == -1) { return -1; }
+  }
+    else
+  if (IS_TOKEN(token,'~'))
+  {
+    if (parse_unary(asm_context, &temp, OPER_NOT) != 0) { return -1; }
+  }
+    else
+  if (token_type == TOKEN_NUMBER)
+  {
+    temp = atoll(token);
+  }
+    else
+  {
+    if (eval_expression_ex(asm_context, &var) != 0) { return -1; }
+    if (var.type != VAR_INT)
+    {
+      print_error("Non-integer number in expression", asm_context);
+      return -1;
+    }
+
+    temp = var_get_int64(&var);
+  }
+
+  if (operation == OPER_NOT) { *num = ~temp; }
+  else if (operation == OPER_MINUS) { *num = -temp; }
+  else { print_error_internal(NULL, __FILE__, __LINE__); return -1; }
+
+  return 0;
+}
+
 static int eval_expression_go(struct _asm_context *asm_context, struct _var *var, struct _operator *last_operator)
 {
   char token[TOKENLEN];
@@ -303,12 +349,17 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
       // the next number.
       if (operator.operation == OPER_NOT)
       {
+        int64_t num;
+
+        if (parse_unary(asm_context, &num, OPER_NOT) != 0) { return -1; }
+#if 0
         token_type = tokens_get(asm_context, token, TOKENLEN);
         if (token_type != TOKEN_NUMBER)
         {
           print_error_unexp(token, asm_context);
           return -1;
         }
+#endif
 
         if (var_stack_ptr == 3)
         {
@@ -316,7 +367,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
           return -1;
         }
 
-        var_set_int(&var_stack[var_stack_ptr++], ~atoll(token));
+        var_set_int(&var_stack[var_stack_ptr++], num);
 
         continue;
       }

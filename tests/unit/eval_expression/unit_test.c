@@ -53,6 +53,15 @@ int main(int argc, char *argv[])
   test("((106 - 100) / 2) - 2", 1);
   test("~0", 0xffffffff);
   test("1 + ~0", 0);
+  test("1 + ~1", -1);
+  test("1 + ~(0 - 1)", 1);
+  test("2 + ~~0", 2);
+  test("1 + ~~(0 - 1)", 0);
+  test("~~5", 5);
+  test("~~5 + 1", 6);
+  test("~1 + 1", -1);
+  test("~-1 + 5", 5);
+  test("~-~1 + 5", 2);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
