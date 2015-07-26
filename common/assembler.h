@@ -62,6 +62,7 @@ struct _asm_context
   int unget_stack_ptr;
   uint8_t is_dollar_hex:1;
   uint8_t can_tick_end_string:1;
+  uint8_t quiet_output:1;
   // tokens_get end
   int debug_file;
   char def_param_stack_data[PARAM_STACK_LEN];

@@ -332,6 +332,8 @@ void assemble_free(struct _asm_context *asm_context)
 
 void assemble_print_info(struct _asm_context *asm_context, FILE *out)
 {
+  if (asm_context->quiet_output) { return; }
+
   fprintf(out, "\nProgram Info:\n");
 #ifdef DEBUG
   symbols_print(&asm_context->symbols);

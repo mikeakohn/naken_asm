@@ -32,9 +32,20 @@ enum
   FORMAT_SREC,
 };
 
+const char *credits =
+  "\n"
+  "naken_asm - by Michael Kohn\n"
+  "               Joe Davisson\n"
+  "    CPU: MSP430, MSP430X, 65xx, 65816, 680x, 68HC08, 680x0, 805x\n"
+  "         ARM, AVR8, dsPIC, MIPS, STM8, THUMB, TMS1000, TMS1100\n"
+  "         TMS9900, Z80\n"
+  "    Web: http://www.mikekohn.net/\n"
+  "  Email: mike@mikekohn.net\n"
+  "Version: "VERSION"\n";
+
 static void new_extension(char *filename, char *ext, int len)
 {
-int i;
+  int i;
 
   i = strlen(filename) - 1;
   if (i + 2 > len)
@@ -73,25 +84,17 @@ static void output_hex_text(FILE *fp, char *s, int ptr)
 
 int main(int argc, char *argv[])
 {
-FILE *out;
-FILE *dbg = NULL;
-//FILE *list = NULL;
-int i;
-int format = FORMAT_HEX;
-int create_list = 0;
-char *infile = NULL, *outfile = NULL;
-struct _asm_context asm_context;
-int error_flag=0;
+  FILE *out;
+  FILE *dbg = NULL;
+  //FILE *list = NULL;
+  int i;
+  int format = FORMAT_HEX;
+  int create_list = 0;
+  char *infile = NULL, *outfile = NULL;
+  struct _asm_context asm_context;
+  int error_flag=0;
 
-  printf("\n"
-         "naken_asm - by Michael Kohn\n"
-         "               Joe Davisson\n"
-         "    CPU: MSP430, MSP430X, 65xx, 65816, 680x, 68HC08, 680x0, 805x\n"
-         "         ARM, AVR8, dsPIC, MIPS, STM8, THUMB, TMS1000, TMS1100\n"
-         "         TMS9900, Z80\n"
-         "    Web: http://www.mikekohn.net/\n"
-         "  Email: mike@mikekohn.net\n\n"
-         "Version: "VERSION"\n\n");
+  puts(credits);
 
   if (argc < 2)
   {
@@ -105,6 +108,7 @@ int error_flag=0;
            "   -s             [output srec file]\n"
            "   -l             [create .lst listing file]\n"
            "   -I             [add to include path]\n"
+           "   -q             Quiet (only output errors)\n"
            "\n");
     exit(0);
   }
@@ -173,6 +177,11 @@ int error_flag=0;
       }
     }
       else
+    if (strcmp(argv[i], "-q") == 0)
+    {
+      asm_context.quiet_output = 1;
+    }
+      else
     {
       if (infile != NULL)
       {
@@ -222,8 +231,11 @@ int error_flag=0;
     exit(1);
   }
 
-  printf(" Input file: %s\n", infile);
-  printf("Output file: %s\n", outfile);
+  if (asm_context.quiet_output == 0)
+  {
+    printf(" Input file: %s\n", infile);
+    printf("Output file: %s\n", outfile);
+  }
 
 #if 0
   if (asm_context.debug_file == 1)
@@ -260,15 +272,20 @@ int error_flag=0;
       exit(1);
     }
 
-    printf("  List file: %s\n", filename);
+    if (asm_context.quiet_output == 0)
+    {
+      printf("  List file: %s\n", filename);
+    }
   }
 
-  printf("\n");
+  if (asm_context.quiet_output == 0)
+  {
+    printf("\nPass 1...\n");
+  }
 
   symbols_init(&asm_context.symbols);
   macros_init(&asm_context.macros);
 
-  printf("Pass 1...\n");
   asm_context.pass = 1;
   assemble_init(&asm_context);
   error_flag = assemble(&asm_context);
@@ -282,7 +299,7 @@ int error_flag=0;
     symbols_lock(&asm_context.symbols);
     // macros_lock(&asm_context.defines_heap);
 
-    printf("Pass 2...\n");
+    if (asm_context.quiet_output == 0) { printf("Pass 2...\n"); }
     asm_context.pass = 2;
     assemble_init(&asm_context);
     error_flag = assemble(&asm_context);
