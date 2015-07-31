@@ -179,8 +179,21 @@ static int parse_unary(struct _asm_context *asm_context, int *num, int operation
     temp = atoi(token);
   }
     else
+  if (IS_TOKEN(token, '('))
   {
     if (eval_expression(asm_context, &temp) != 0) { return -1; }
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    if (IS_NOT_TOKEN(token,')'))
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+  }
+    else
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
   }
 
   if (operation == OPER_NOT) { *num = ~temp; }

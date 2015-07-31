@@ -22,9 +22,9 @@
 
 int parse_db(struct _asm_context *asm_context, int null_term_flag)
 {
-char token[TOKENLEN];
-int token_type;
-int data32;
+  char token[TOKENLEN];
+  int token_type;
+  int data32;
 
   if (asm_context->segment == SEGMENT_BSS)
   {
@@ -67,9 +67,15 @@ int data32;
       else
     {
       tokens_push(asm_context, token, token_type);
-      if (eval_expression(asm_context, &data32) == -1)
+      if (eval_expression(asm_context, &data32) != 0)
       {
+        if (asm_context->pass == 2)
+        {
+          return -1;
+        }
+
         eat_operand(asm_context);
+        data32 = 0;
       }
 
       if (data32 < -128 || data32 > 0xff)
@@ -99,10 +105,10 @@ int data32;
 
 int parse_dc16(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-int token_type;
-int data32;
-uint16_t data16;
+  char token[TOKENLEN];
+  int token_type;
+  int data32;
+  uint16_t data16;
 
   if (asm_context->segment == SEGMENT_BSS)
   {
@@ -117,9 +123,15 @@ uint16_t data16;
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
     tokens_push(asm_context, token, token_type);
 
-    if (eval_expression(asm_context, &data32) == -1)
+    if (eval_expression(asm_context, &data32) != 0)
     {
+      if (asm_context->pass == 2)
+      {
+        return -1;
+      }
+
       eat_operand(asm_context);
+      data32 = 0;
     }
 
     if (data32 < -32768 || data32 > 0xffff)
@@ -159,10 +171,10 @@ uint16_t data16;
 
 int parse_dc32(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-int token_type;
-int data32;
-uint32_t udata32;
+  char token[TOKENLEN];
+  int token_type;
+  int data32;
+  uint32_t udata32;
 
   if (asm_context->segment == SEGMENT_BSS)
   {
@@ -177,9 +189,15 @@ uint32_t udata32;
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
     tokens_push(asm_context, token, token_type);
 
-    if (eval_expression(asm_context, &data32) == -1)
+    if (eval_expression(asm_context, &data32) != 0)
     {
+      if (asm_context->pass == 2)
+      {
+        return -1;
+      }
+
       eat_operand(asm_context);
+      data32 = 0;
     }
     udata32 = (uint32_t)data32;
 
@@ -216,10 +234,10 @@ uint32_t udata32;
 
 int parse_dc64(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-int token_type;
-struct _var var;
-uint64_t udata64;
+  char token[TOKENLEN];
+  int token_type;
+  struct _var var;
+  uint64_t udata64;
 
   if (asm_context->segment == SEGMENT_BSS)
   {
@@ -281,7 +299,7 @@ uint64_t udata64;
 
 int parse_dc(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
+  char token[TOKENLEN];
 
   if (expect_token_s(asm_context,".") != 0) { return -1; }
   tokens_get(asm_context, token, TOKENLEN);
@@ -297,15 +315,15 @@ char token[TOKENLEN];
 
 int parse_dq(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-int token_type;
-struct _var var;
-uint32_t udata32;
-union
-{
-  float f32;
-  uint32_t u32;
-} data;
+  char token[TOKENLEN];
+  int token_type;
+  struct _var var;
+  uint32_t udata32;
+  union
+  {
+    float f32;
+    uint32_t u32;
+  } data;
 
   if (asm_context->segment == SEGMENT_BSS)
   {
@@ -367,9 +385,9 @@ union
 
 int parse_ds(struct _asm_context *asm_context, int n)
 {
-char token[TOKENLEN];
-int token_type;
-int num;
+  char token[TOKENLEN];
+  int token_type;
+  int num;
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type != TOKEN_NUMBER)
@@ -410,11 +428,16 @@ int num;
 
 // Thanks Mark.
 int parse_resb(struct _asm_context *asm_context, int size)
-{ 
-int num;
+{
+  int num;
 
-  if (eval_expression(asm_context, &num) == -1)
+  if (eval_expression(asm_context, &num) != 0)
   {
+    if (asm_context->pass == 2)
+    {
+      return -1;
+    }
+
     print_error("Parse Error: Expected data count.", asm_context);
     return -1;
   }

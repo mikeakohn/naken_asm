@@ -188,6 +188,7 @@ static int parse_unary(struct _asm_context *asm_context, int64_t *num, int opera
     temp = atoll(token);
   }
     else
+  if (IS_TOKEN(token, '('))
   {
     if (eval_expression_ex(asm_context, &var) != 0) { return -1; }
     if (var.type != VAR_INT)
@@ -197,6 +198,18 @@ static int parse_unary(struct _asm_context *asm_context, int64_t *num, int opera
     }
 
     temp = var_get_int64(&var);
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    if (IS_NOT_TOKEN(token,')'))
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+  }
+    else
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
   }
 
   if (operation == OPER_NOT) { *num = ~temp; }

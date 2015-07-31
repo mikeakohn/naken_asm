@@ -482,7 +482,7 @@ int prefix = 0;
     {
       operands[operand_count].type = OPTYPE_ABSOLUTE;
 
-      if (eval_expression(asm_context, &num)!=0)
+      if (eval_expression(asm_context, &num) != 0)
       {
         if (asm_context->pass == 1)
         {
