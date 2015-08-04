@@ -29,8 +29,8 @@ void memory_init(struct _memory *memory, uint32_t size, int debug_flag)
 
 void memory_free(struct _memory *memory)
 {
-struct _memory_page *page;
-struct _memory_page *next;
+  struct _memory_page *page;
+  struct _memory_page *next;
 
   page = memory->pages;
   while(page != NULL)
@@ -45,8 +45,8 @@ struct _memory_page *next;
 
 void memory_clear(struct _memory *memory)
 {
-struct _memory_page *page;
-struct _memory_page *next;
+  struct _memory_page *page;
+  struct _memory_page *next;
 
   page = memory->pages;
   while(page != NULL)
@@ -61,7 +61,7 @@ struct _memory_page *next;
 
 int memory_in_use(struct _memory *memory, uint32_t address)
 {
-struct _memory_page *page;
+  struct _memory_page *page;
 
   page = memory->pages;
   while(page != NULL)
@@ -78,7 +78,7 @@ struct _memory_page *page;
 
 int memory_get_page_address_min(struct _memory *memory, uint32_t address)
 {
-struct _memory_page *page;
+  struct _memory_page *page;
 
   page = memory->pages;
   while(page != NULL)
@@ -96,7 +96,7 @@ struct _memory_page *page;
 
 int memory_get_page_address_max(struct _memory *memory, uint32_t address)
 {
-struct _memory_page *page;
+  struct _memory_page *page;
 
   page = memory->pages;
   while(page != NULL)
@@ -119,7 +119,7 @@ int memory_page_size()
 
 static uint8_t read_byte(struct _memory *memory, uint32_t address)
 {
-struct _memory_page *page;
+  struct _memory_page *page;
 
   page = memory->pages;
   while(page != NULL)
@@ -136,7 +136,7 @@ struct _memory_page *page;
 
 static int read_debug(struct _memory *memory, uint32_t address)
 {
-struct _memory_page *page;
+  struct _memory_page *page;
 
   if (memory->debug_flag == 0) return -1;
 
@@ -155,7 +155,7 @@ struct _memory_page *page;
 
 static struct _memory_page *alloc_page(struct _memory *memory, uint32_t address)
 {
-struct _memory_page *page;
+  struct _memory_page *page;
 
 //printf("allocating page %d\n", address);
   page = malloc(sizeof(struct _memory_page) + (memory->debug_flag == 1 ? PAGE_SIZE * sizeof(int) : 0));
@@ -176,7 +176,7 @@ struct _memory_page *page;
 
 static void write_byte(struct _memory *memory, uint32_t address, uint8_t data)
 {
-struct _memory_page *page;
+  struct _memory_page *page;
 
   if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
 
@@ -207,7 +207,7 @@ struct _memory_page *page;
 
 static void write_debug(struct _memory *memory, uint32_t address, int data)
 {
-struct _memory_page *page;
+  struct _memory_page *page;
 
   if (memory->debug_flag == 0) { return; }
   if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
