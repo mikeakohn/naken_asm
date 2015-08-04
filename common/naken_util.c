@@ -641,6 +641,7 @@ int main(int argc, char *argv[])
   char *line = NULL;
 #endif
   uint32_t start_address = 0;
+  uint8_t force_bin = 0;
   int i;
   char *hexfile = NULL;
   int mode = MODE_INTERACTIVE;
@@ -660,6 +661,7 @@ int main(int argc, char *argv[])
            "   -disasm                      (disassemble all or part of program)\n"
            "   -exe                         (execute program and dump registers)\n"
            "   -address <start_address>     (for bin files: binary placed at this address)\n"
+           "   -bin                         (file is binary)\n"
            "ELF files can auto-pick a CPU, if a hex file use:\n"
            "   -65xx                        (65xx)\n"
            "   -65816                       (65816)\n"
@@ -763,6 +765,11 @@ int main(int argc, char *argv[])
       start_address = atoi(argv[i]);
     }
       else
+    if (strcmp(argv[i], "-bin") == 0)
+    {
+      force_bin = 1;
+    }
+      else
     if (strcmp(argv[i], "-run") == 0)
     {
        strcpy(command, "run");
@@ -813,7 +820,7 @@ int main(int argc, char *argv[])
         printf("Loaded ti_txt %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
       }
         else
-      if (strcmp(extension, "bin") == 0 &&
+      if ((strcmp(extension, "bin") == 0 || force_bin == 1) &&
           read_bin(argv[i], &util_context.memory, start_address) >= 0)
       {
         hexfile = argv[i];
