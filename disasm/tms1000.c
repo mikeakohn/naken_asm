@@ -158,7 +158,6 @@ void list_output_tms1000(struct _asm_context *asm_context, int address)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
     else
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
-
 }
 
 void list_output_tms1100(struct _asm_context *asm_context, int address)
@@ -209,7 +208,7 @@ void disasm_range_tms1000(struct _memory *memory, int start, int end)
       printf("0x%04x: 0x%02x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
     }
 
-    start = start + 4;
+    start++;
   }
 }
 
