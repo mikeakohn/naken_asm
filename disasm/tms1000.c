@@ -35,8 +35,8 @@ int disasm_tms1000(struct _memory *memory, int address, char *instruction, int *
   int opcode;
   int n;
 
-  *cycles_min = -1;
-  *cycles_max = -1;
+  *cycles_min = 6;
+  *cycles_max = 6;
 
   opcode = READ_RAM(address);
 
@@ -185,8 +185,8 @@ void disasm_range_tms1000(struct _memory *memory, int start, int end)
 
   printf("\n");
 
-  printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
-  printf("------- ------ ----------------------------------       ------\n");
+  printf("%-3s %-4s %-5s %-40s Cycles\n", "Page", "Addr", "Opcode", "Instruction");
+  printf("---- ---- ------ ----------------------------------       ------\n");
 
   while(start <= end)
   {
@@ -194,18 +194,21 @@ void disasm_range_tms1000(struct _memory *memory, int start, int end)
 
     disasm_tms1000(memory, start, instruction, &cycles_min, &cycles_max);
 
+    uint8_t page = start >> 6;
+    uint8_t pc = start & 0x3f;
+
     if (cycles_min < 1)
     {
-      printf("0x%04x: 0x%02x %-40s ?\n", start, num, instruction);
+      printf("%02x   %02x:  %02x     %-40s ?\n", page, pc, num, instruction);
     }
       else
     if (cycles_min==cycles_max)
     {
-      printf("0x%04x: 0x%02x %-40s %d\n", start, num, instruction, cycles_min);
+      printf("%02x   %02x:  %02x     %-40s %d\n", page, pc, num, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: 0x%02x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
+      printf("%02x   %02x:  %02x     %-40s %d-%d\n", page, pc, num, instruction, cycles_min, cycles_max);
     }
 
     start++;
@@ -220,8 +223,8 @@ void disasm_range_tms1100(struct _memory *memory, int start, int end)
 
   printf("\n");
 
-  printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
-  printf("------- ------ ----------------------------------       ------\n");
+  printf("%-3s %-4s %-5s %-40s Cycles\n", "Page", "Addr", "Opcode", "Instruction");
+  printf("---- ---- ------ ----------------------------------       ------\n");
 
   while(start <= end)
   {
@@ -229,18 +232,21 @@ void disasm_range_tms1100(struct _memory *memory, int start, int end)
 
     disasm_tms1100(memory, start, instruction, &cycles_min, &cycles_max);
 
+    uint8_t page = start >> 6;
+    uint8_t pc = start & 0x3f;
+
     if (cycles_min < 1)
     {
-      printf("0x%04x: 0x%02x %-40s ?\n", start, num, instruction);
+      printf("%02x   %02x:  %02x     %-40s ?\n", page, pc, num, instruction);
     }
       else
-    if (cycles_min == cycles_max)
+    if (cycles_min==cycles_max)
     {
-      printf("0x%04x: 0x%02x %-40s %d\n", start, num, instruction, cycles_min);
+      printf("%02x   %02x:  %02x     %-40s %d\n", page, pc, num, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: 0x%02x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
+      printf("%02x   %02x:  %02x     %-40s %d-%d\n", page, pc, num, instruction, cycles_min, cycles_max);
     }
 
     start++;
