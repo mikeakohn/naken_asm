@@ -19,14 +19,14 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-int get_cycle_count_tms1000(unsigned short int opcode)
+int get_cycle_count_tms1000(uint16_t opcode)
 {
-  return -1;
+  return 6;
 }
 
-int get_cycle_count_tms1100(unsigned short int opcode)
+int get_cycle_count_tms1100(uint16_t opcode)
 {
-  return -1;
+  return 6;
 }
 
 int disasm_tms1000(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
@@ -72,15 +72,15 @@ int disasm_tms1000(struct _memory *memory, int address, char *instruction, int *
   if (bit_instr == 0x5) { sprintf(instruction, "ylec %d", opcode&0xf); return 1; }
 
   bit_instr=opcode>>6;
-  unsigned char offset = opcode & 0x3f;
-  if ((offset & 0x20) != 0) { offset |= 0xc0; }
-  int branch_address = (address + 1) + ((char)offset);
+  uint8_t branch_address = opcode & 0x3f;
+  //if ((offset & 0x20) != 0) { offset |= 0xc0; }
+  //int branch_address = (address + 1) + ((char)offset);
 
   if (bit_instr == 0x2)
-  { sprintf(instruction, "br 0x%02x (%d)", branch_address, (char)offset); return 1; }
+  { sprintf(instruction, "br 0x%02x", branch_address); return 1; }
     else
   if (bit_instr == 0x3)
-  { sprintf(instruction, "call 0x%02x (%d)", branch_address, (char)offset); return 1; }
+  { sprintf(instruction, "call 0x%02x", branch_address); return 1; }
 
   strcpy(instruction, "???");
 
@@ -93,8 +93,8 @@ int disasm_tms1100(struct _memory *memory, int address, char *instruction, int *
   int opcode;
   int n;
 
-  *cycles_min = -1;
-  *cycles_max = -1;
+  *cycles_min = 6;
+  *cycles_max = 6;
 
   opcode = READ_RAM(address);
 
@@ -129,15 +129,15 @@ int disasm_tms1100(struct _memory *memory, int address, char *instruction, int *
   if (bit_instr == 0x5) { sprintf(instruction, "ylec %d", opcode&0xf); return 1; }
 
   bit_instr = opcode >> 6;
-  unsigned char offset = opcode& 0x3f;
-  if ((offset & 0x20) != 0) { offset |= 0xc0; }
-  int branch_address = (address + 1) + ((char)offset);
+  uint8_t branch_address = opcode & 0x3f;
+  //if ((offset & 0x20) != 0) { offset |= 0xc0; }
+  //int branch_address = (address + 1) + offset;
 
   if (bit_instr == 0x2)
-  { sprintf(instruction, "br 0x%02x (%d)", branch_address, (char)offset); return 1; }
+  { sprintf(instruction, "br 0x%02x", branch_address); return 1; }
     else
   if (bit_instr == 0x3)
-  { sprintf(instruction, "call 0x%02x (%d)", branch_address, (char)offset); return 1; }
+  { sprintf(instruction, "call 0x%02x", branch_address); return 1; }
 
   strcpy(instruction, "???");
 
@@ -148,11 +148,14 @@ void list_output_tms1000(struct _asm_context *asm_context, int address)
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  unsigned int opcode = memory_read_m(&asm_context->memory, address);
+  uint32_t opcode = memory_read_m(&asm_context->memory, address);
+  uint8_t page = address >> 6;
+  uint8_t pc = address & 0x3f;
 
   fprintf(asm_context->list, "\n");
   disasm_tms1000(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-  fprintf(asm_context->list, "0x%04x: 0x%02x %-40s cycles: ", address, opcode, instruction);
+
+  fprintf(asm_context->list, "%02x/%02x: %02x %-40s cycles: ", page, pc, opcode, instruction);
 
   if (cycles_min == cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
@@ -164,11 +167,14 @@ void list_output_tms1100(struct _asm_context *asm_context, int address)
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  unsigned int opcode = memory_read_m(&asm_context->memory, address);
+  uint16_t opcode = memory_read_m(&asm_context->memory, address);
+  uint8_t page = address >> 6;
+  uint8_t pc = address & 0x3f;
 
   fprintf(asm_context->list, "\n");
   disasm_tms1100(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-  fprintf(asm_context->list, "0x%04x: 0x%02x %-40s cycles: ", address, opcode, instruction);
+
+  fprintf(asm_context->list, "%02x/%02x: %02x %-40s cycles: ", page, pc, opcode, instruction);
 
   if (cycles_min == cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
