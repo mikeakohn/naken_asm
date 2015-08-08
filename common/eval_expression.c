@@ -208,7 +208,7 @@ static int eval_expression_go(struct _asm_context *asm_context, int *num, struct
   char token[TOKENLEN];
   int token_type;
   int num_stack[3];
-  int num_stack_ptr=1;
+  int num_stack_ptr = 1;
   struct _operator operator;
 
 #ifdef DEBUG
@@ -228,6 +228,14 @@ printf("eval_expression> going to grab a token\n");
 #ifdef DEBUG
 printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
 #endif
+//printf("num_stack_ptr=%d operator=%d\n", num_stack_ptr, operator.operation);
+
+    // Issue 15: Return an error if a stack is full with noe operator.
+    if (num_stack_ptr == 3 && operator.operation == OPER_UNSET)
+    {
+      return -1;
+    }
+
     if (token_type == TOKEN_QUOTED)
     {
       if (token[0] == '\\')
@@ -328,6 +336,10 @@ PRINT_STACK()
       else
     if (token_type == TOKEN_SYMBOL)
     {
+      struct _operator operator_prev;
+
+      memcpy(&operator_prev, &operator, sizeof(struct _operator));
+
       if (get_operator(token, &operator) == -1)
       {
         print_error_unexp(token, asm_context);
@@ -348,6 +360,7 @@ PRINT_STACK()
         }
 
         num_stack[num_stack_ptr++] = num;
+        memcpy(&operator, &operator_prev, sizeof(struct _operator));
 
         continue;
       }

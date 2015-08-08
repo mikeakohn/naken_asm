@@ -74,12 +74,38 @@ void test_int64(const char *expression, int64_t answer)
   tokens_close(&asm_context);
 }
 
+void should_fail(const char *expression)
+{
+  struct _asm_context asm_context = { 0 };
+  struct _var var;
+
+  printf("Testing: %s ... ", expression);
+
+  tokens_open_buffer(&asm_context, expression);
+  tokens_reset(&asm_context);
+
+  int ret = eval_expression_ex(&asm_context, &var);
+
+  if (ret == 0)
+  {
+    printf("FAILED.  (should have failed)\n");
+    errors++;
+  }
+    else
+  {
+    printf("PASS\n");
+  }
+
+  tokens_close(&asm_context);
+}
+
 int main(int argc, char *argv[])
 {
   printf("eval_expression_ex() test\n");
 
   test_int("-6", -6);
   test_int("3*5", 15);
+  test_int("3+5+1*2", 10);
   test_int("3 * 5", 15);
   test_int("3*(5+4)", 27);
   test_int("3*(5<<2)", 60);
@@ -102,6 +128,8 @@ int main(int argc, char *argv[])
   test_int64("~1 + 1", -1);
   test_int64("~-1 + 5", 5);
   test_int64("~-~1 + 5", 2);
+  should_fail("23 23");
+  should_fail("23~23");
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");

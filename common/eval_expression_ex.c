@@ -244,6 +244,13 @@ printf("eval_expression> going to grab a token\n");
 #ifdef DEBUG
 printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
 #endif
+
+    // Issue 15: Return an error if a stack is full with noe operator.
+    if (var_stack_ptr == 3 && operator.operation == OPER_UNSET)
+    {
+      return -1;
+    }
+
     if (token_type == TOKEN_QUOTED)
     {
       if (token[0] == '\\')
@@ -352,6 +359,9 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
       else
     if (token_type == TOKEN_SYMBOL)
     {
+      struct _operator operator_prev;
+      memcpy(&operator_prev, &operator, sizeof(struct _operator));
+
       if (get_operator(token, &operator) == -1)
       {
         print_error_unexp(token, asm_context);
@@ -381,6 +391,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
         }
 
         var_set_int(&var_stack[var_stack_ptr++], num);
+        memcpy(&operator, &operator_prev, sizeof(struct _operator));
 
         continue;
       }
