@@ -27,10 +27,10 @@ static char *tms_branch[] = { "br", "call" };
 
 int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
 {
-char token[TOKENLEN];
-int token_type;
-char instr_case[TOKENLEN];
-int n;
+  char token[TOKENLEN];
+  int token_type;
+  char instr_case[TOKENLEN];
+  int n;
 
   lower_copy(instr_case, instr);
 
@@ -105,10 +105,14 @@ int n;
 
   for (n = 0; n < 2; n++)
   {
+    // Branch / call instructions
     if (strcmp(instr_case, tms_branch[n]) == 0)
     {
-      int num = 0;
-      if (eval_expression(asm_context, &num) != 0)
+      int is_forward = 0;
+      int address = 0;
+      int page;
+
+      if (eval_expression(asm_context, &address) != 0)
       {
         if (asm_context->pass == 2)
         {
@@ -117,18 +121,29 @@ int n;
         }
 
         eat_operand(asm_context);
-        num = asm_context->address;
+        is_forward = 1;
+        address = asm_context->address;
       }
 
-      num = num - (asm_context->address + 1);
+      if (address > asm_context->address) { is_forward = 1; }
 
-      if (num < -32 || num > 31)
+      int curr_page = asm_context->address >> 6;
+
+      page = address >> 6;
+      address &= 0x3f;
+
+      if (page < 0 || page > 15)
       {
-        print_error_range("Offset", -32, 31, asm_context);
+        print_error_range("Page", 0, 15, asm_context);
         return -1;
       }
 
-      add_bin8(asm_context, (0x80 | (n << 6)) | (num & 0x3f), IS_OPCODE);
+      if (is_forward == 1 || page != curr_page)
+      {
+        add_bin8(asm_context, (0x10) | (page & 0xf), IS_OPCODE);
+      }
+
+      add_bin8(asm_context, (0x80 | (n << 6)) | (address & 0x3f), IS_OPCODE);
 
       return 1;
     }
@@ -141,10 +156,10 @@ int n;
 
 int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
 {
-char token[TOKENLEN];
-int token_type;
-char instr_case[TOKENLEN];
-int n;
+  char token[TOKENLEN];
+  int token_type;
+  char instr_case[TOKENLEN];
+  int n;
 
   lower_copy(instr_case, instr);
 
@@ -192,7 +207,7 @@ int n;
           return -1;
         }
 
-        add_bin8(asm_context, ((0xc + n) << 2)|num, IS_OPCODE);
+        add_bin8(asm_context, ((0xc + n) << 2) | num, IS_OPCODE);
       }
 
       return 1;
@@ -234,10 +249,13 @@ int n;
 
   for (n = 0; n < 2; n++)
   {
+    // Branch / call instructions
     if (strcmp(instr_case, tms_branch[n]) == 0)
     {
-      int num = 0;
-      if (eval_expression(asm_context, &num) != 0)
+      int is_forward = 0;
+      int address = 0;
+      int page;
+      if (eval_expression(asm_context, &address) != 0)
       {
         if (asm_context->pass == 2)
         {
@@ -246,18 +264,29 @@ int n;
         }
 
         eat_operand(asm_context);
-        num = asm_context->address;
+        is_forward = 1;
+        address = asm_context->address;
       }
 
-      num = num - (asm_context->address + 1);
+      if (address > asm_context->address) { is_forward = 1; }
 
-      if (num < -32 || num > 31)
+      int curr_page = asm_context->address >> 6;
+
+      page = address >> 6;
+      address &= 0x3f;
+
+      if (page < 0 || page > 15)
       {
-        print_error_range("Offset", -32, 31, asm_context);
+        print_error_range("Page", 0, 15, asm_context);
         return -1;
       }
 
-      add_bin8(asm_context, (0x80 | (n << 6)) | (num & 0x3f), IS_OPCODE);
+      if (is_forward == 1 || page != curr_page)
+      {
+        add_bin8(asm_context, (0x10) | (page & 0xf), IS_OPCODE);
+      }
+
+      add_bin8(asm_context, (0x80 | (n << 6)) | (address & 0x3f), IS_OPCODE);
 
       return 1;
     }
