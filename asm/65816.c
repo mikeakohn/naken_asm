@@ -336,7 +336,14 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
               break;
 
             if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
+            {
               op = OP_INDIRECT8_Y;
+            }
+            else
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
           }
         }
       }
@@ -360,7 +367,14 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
               break;
 
             if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
+            {
               op = OP_INDIRECT8_Y_LONG;
+            }
+            else
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
           }
         }
       }
