@@ -157,20 +157,16 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     {
       if(IS_TOKEN(token, '#'))
       {
+        op = OP_IMMEDIATE;
         GET_NUM();
 
-        if(size == 8)
+        if(num < -128 || num > 0xFF)
         {
-          if(num < -128 || num > 0xFF)
-          {
-            print_error("8-bit constant out of range.", asm_context);
-            return -1;
-          }
-
-          num = (uint8_t)num;
+          print_error("8-bit constant out of range.", asm_context);
+          return -1;
         }
 
-        op = OP_IMMEDIATE;
+        num = (uint8_t)num;
       }
       else if(IS_TOKEN(token, '('))
       {
@@ -243,7 +239,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
         {
           if(num > 0xFF)
           {
-            print_error("Direct-page address out of range.", asm_context);
+            print_error("Zero-page address out of range.", asm_context);
             return -1;
           }
 
