@@ -350,6 +350,16 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
               return -1;
             }
           }
+          else
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+        }
+        else
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
         }
       }
       else if(IS_TOKEN(token, '['))
@@ -380,6 +390,11 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
               print_error_unexp(token, asm_context);
               return -1;
             }
+          }
+          else
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
           }
         }
       }
