@@ -67,14 +67,9 @@ static int get_address(struct _asm_context *asm_context,
                        char *token, int *token_type,
                        int *num, int *size)
 {
-  char modifier = 0;
-
-  if(IS_TOKEN(token, '<'))
-    modifier = '<';
-  else if(IS_TOKEN(token, '>'))
-    modifier = '>';
-  else if(IS_TOKEN(token, '!'))
-    modifier = '!';
+  // force absolute mode
+  if(IS_TOKEN(token, '!'))
+    *size = 16;
   else
     tokens_push(asm_context, token, *token_type);
 
@@ -84,22 +79,6 @@ static int get_address(struct _asm_context *asm_context,
       eat_operand(asm_context);
     else
       return -1;
-  }
-
-  if(modifier == '!')
-  {
-    *size = 16;
-  }
-  else if(modifier == '<')
-  {
-    *num &= 0xFF;
-    *size = 8;
-  }
-  else if(modifier == '>')
-  {
-    *num >>= 8;
-    *num &= 0xFF;
-    *size = 8;
   }
 
   return 0;
@@ -202,6 +181,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       else
       {
         tokens_push(asm_context, token, token_type);
+
         if(GET_TOKEN() == TOKEN_EOL)
           break;
 
