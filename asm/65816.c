@@ -118,6 +118,20 @@ static int op_bytes[] =
   2, 3, 3, 2, 3, 2, 2, 3, 2, 3, 2, 2
 };
 
+int parse_directive_65816(struct _asm_context *asm_context,
+                          const char *directive)
+{
+puts("got here");
+/*
+  if(strcmp(directive, "longa"))
+  {
+    puts("longa encountered");
+    return 0;
+  }
+*/
+  return 0;
+}
+
 int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];

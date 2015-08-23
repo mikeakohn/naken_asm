@@ -16,6 +16,7 @@
 
 #include "common/assembler.h"
 
+int parse_directive_65816(struct _asm_context *asm_context, const char *directive);
 int parse_instruction_65816(struct _asm_context *asm_context, char *instr);
 
 #endif
