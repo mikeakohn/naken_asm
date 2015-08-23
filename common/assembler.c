@@ -505,6 +505,16 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     if (strcasecmp(token, cpu_list[n].name) == 0)
     {
       configure_cpu(asm_context, n);
+
+      if (strcmp(token, "65816") == 0)
+      {
+        asm_context->parse_directive = parse_directive_65816;
+      }
+        else
+      {
+        asm_context->parse_directive = NULL;
+      }
+
       return 1;
     }
     n++;
