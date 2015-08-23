@@ -337,7 +337,6 @@ PRINT_STACK()
     if (token_type == TOKEN_SYMBOL)
     {
       struct _operator operator_prev;
-
       memcpy(&operator_prev, &operator, sizeof(struct _operator));
 
       if (get_operator(token, &operator) == -1)

@@ -19,6 +19,7 @@ struct _memory;
 struct _simulate;
 
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
+typedef int (*parse_directive_t)(struct _asm_context *, char *);
 typedef void (*list_output_t)(struct _asm_context *, int);
 typedef void (*disasm_range_t)(struct _memory *, int, int);
 //typedef struct _simulate *(*simulate_init_t)(struct _memory *memory);
@@ -58,6 +59,7 @@ struct _cpu_list
   char can_tick_end_string:1;
   char pass_1_write_disable:1;
   parse_instruction_t parse_instruction;
+  parse_directive_t parse_directive;
   list_output_t list_output;
   disasm_range_t disasm_range;
   simulate_init_t simulate_init;

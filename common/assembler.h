@@ -40,6 +40,7 @@ struct _asm_context
   struct _symbols symbols;
   struct _macros macros;
   parse_instruction_t parse_instruction;
+  parse_directive_t parse_directive;
   list_output_t list_output;
   int address;
   int segment;
@@ -77,6 +78,7 @@ struct _asm_context
   uint8_t msp430_cpu4:1;
   uint8_t no_symbols:1;
   uint8_t pass_1_write_disable:1;
+  uint32_t extra_context;
 };
 
 int add_to_include_path(struct _asm_context *asm_context, char *paths);

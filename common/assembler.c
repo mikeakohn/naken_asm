@@ -67,6 +67,7 @@ static void configure_cpu(struct _asm_context *asm_context, int index)
   asm_context->can_tick_end_string = cpu_list[index].can_tick_end_string;
   asm_context->pass_1_write_disable = cpu_list[index].pass_1_write_disable;
   asm_context->parse_instruction = cpu_list[index].parse_instruction;
+  asm_context->parse_directive = cpu_list[index].parse_directive;
   asm_context->list_output = cpu_list[index].list_output;
   asm_context->cpu_list_index = index;
 }
@@ -490,6 +491,13 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
 
+  if (asm_context->parse_directive != NULL)
+  {
+    int ret = asm_context->parse_directive(asm_context, token);
+    if (ret == 0) { return 1; }   // Found and used
+    if (ret == -1) { return -1; } // Found and there was a problem
+  }
+
   int n = 0;
   while (cpu_list[n].name != NULL)
   {
@@ -710,12 +718,6 @@ int assemble(struct _asm_context *asm_context)
 
           if (ret < 0) return -1;
 
-#if 0
-if (asm_context->address-start_address==0)
-{
-  printf("ZOMG %x  ret=%d %d\n", start_address, ret, asm_context->address-start_address);
-}
-#endif
           if (asm_context->macros.stack_ptr == 0) { asm_context->line++; }
           asm_context->instruction_count++;
 
