@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "asm/65xx.h"
+#include "asm/65816.h"
 #include "asm/680x.h"
 #include "asm/68hc08.h"
 #include "asm/680x0.h"
