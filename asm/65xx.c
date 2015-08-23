@@ -25,22 +25,85 @@
 
 #include "table/65xx.h"
 
-#define GET_TOKEN() \
-  (token_type = tokens_get(asm_context, token, TOKENLEN))
+#define GET_TOKEN() (token_type = tokens_get(asm_context, token, TOKENLEN))
 
-#define GET_NUM() \
-  if(eval_expression(asm_context, &num) != 0) \
-  { \
-    if(asm_context->pass == 1) \
-    { \
-      eat_operand(asm_context); \
-    } \
-    else \
-    { \
-      print_error_unexp(token, asm_context); \
-      return -1; \
-    } \
+static int get_num(struct _asm_context *asm_context,
+                   char *token, int *token_type,
+                   int *num, int *size)
+{
+  char modifier = 0;
+
+  if(IS_TOKEN(token, '<'))
+    modifier = '<';
+  else if(IS_TOKEN(token, '>'))
+    modifier = '>';
+  else
+    tokens_push(asm_context, token, *token_type);
+
+  if(eval_expression(asm_context, num) != 0)
+  {
+    if(asm_context->pass == 1)
+      eat_operand(asm_context);
+    else
+      return -1;
   }
+
+  if(modifier == '<')
+  {
+    *num &= 0xFF;
+    *size = 8;
+  }
+  else if(modifier == '>')
+  {
+    *num >>= 8;
+    *num &= 0xFF;
+    *size = 8;
+  }
+
+  return 0;
+}
+
+static int get_address(struct _asm_context *asm_context,
+                       char *token, int *token_type,
+                       int *num, int *size)
+{
+  char modifier = 0;
+
+  if(IS_TOKEN(token, '<'))
+    modifier = '<';
+  else if(IS_TOKEN(token, '>'))
+    modifier = '>';
+  else if(IS_TOKEN(token, '!'))
+    modifier = '!';
+  else
+    tokens_push(asm_context, token, *token_type);
+
+  if(eval_expression(asm_context, num) != 0)
+  {
+    if(asm_context->pass == 1)
+      eat_operand(asm_context);
+    else
+      return -1;
+  }
+
+  if(modifier == '!')
+  {
+    *size = 16;
+  }
+  else if(modifier == '<')
+  {
+    *num &= 0xFF;
+    *size = 8;
+  }
+  else if(modifier == '>')
+  {
+    *num >>= 8;
+    *num &= 0xFF;
+    *size = 8;
+  }
+
+  return 0;
+}
 
 extern struct _table_65xx table_65xx[];
 extern struct _table_65xx_opcodes table_65xx_opcodes[];
@@ -122,7 +185,11 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     {
       if(IS_TOKEN(token, '#'))
       {
-        GET_NUM();
+        if(GET_TOKEN() == TOKEN_EOL)
+          break;
+
+        if(get_num(asm_context, token, &token_type, &num, &size) == -1)
+          return -1;
 
         if(num < -128 || num > 0xFF)
         {
@@ -135,7 +202,11 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       else
       {
         tokens_push(asm_context, token, token_type);
-        GET_NUM();
+        if(GET_TOKEN() == TOKEN_EOL)
+          break;
+
+        if(get_num(asm_context, token, &token_type, &num, &size) == -1)
+          return -1;
 
         if(asm_context->pass == 2)
         {
@@ -158,7 +229,12 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       if(IS_TOKEN(token, '#'))
       {
         op = OP_IMMEDIATE;
-        GET_NUM();
+
+        if(GET_TOKEN() == TOKEN_EOL)
+          break;
+
+        if(get_num(asm_context, token, &token_type, &num, &size) == -1)
+          return -1;
 
         if(num < -128 || num > 0xFF)
         {
@@ -170,7 +246,11 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
       else if(IS_TOKEN(token, '('))
       {
-        GET_NUM();
+        if(GET_TOKEN() == TOKEN_EOL)
+          break;
+
+        if(get_address(asm_context, token, &token_type, &num, &size) == -1)
+          return -1;
 
         if(GET_TOKEN() == TOKEN_EOL)
           break;
@@ -187,7 +267,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
             if(IS_TOKEN(token, ')'))
             {
-              if(num < 0 || num > 0xFF)
+              if(num < 0 || num > 0xFF || size == 16)
               {
                 print_error("Address out of range.", asm_context);
                 return -1;
@@ -216,6 +296,12 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
             if(IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
             {
+              if(num < 0 || num > 0xFF || size == 16)
+              {
+                print_error("Address out of range.", asm_context);
+                return -1;
+              }
+
               op = OP_INDIRECT8_Y;
             }
             else
@@ -234,7 +320,12 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       else
       {
         tokens_push(asm_context, token, token_type);
-        GET_NUM();
+
+        if(GET_TOKEN() == TOKEN_EOL)
+          break;
+
+        if(get_address(asm_context, token, &token_type, &num, &size) == -1)
+          return -1;
 
         if(num < 0 || num > 0xFFFF)
         {
