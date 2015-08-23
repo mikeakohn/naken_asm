@@ -121,15 +121,7 @@ static int op_bytes[] =
 int parse_directive_65816(struct _asm_context *asm_context,
                           const char *directive)
 {
-puts("got here");
-/*
-  if(strcmp(directive, "longa"))
-  {
-    puts("longa encountered");
-    return 0;
-  }
-*/
-  return 0;
+  return 1;
 }
 
 int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
