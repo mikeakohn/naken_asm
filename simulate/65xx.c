@@ -108,7 +108,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     return -1;
   
   int mode = table_65xx_opcodes[opcode].op;
-  if(mode == -1)
+  if(mode == M65XX_ERROR)
     return -1;
 
   int address = calc_address(simulate, REG_PC + 1, mode);

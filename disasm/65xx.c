@@ -49,7 +49,7 @@ int branch_address = 0;
 
   sprintf(temp, " ");
 
-  if(table_65xx_opcodes[opcode].instr != -1)
+  if(table_65xx_opcodes[opcode].instr != M65XX_ERROR)
   {
     strcpy(instruction, table_65xx[table_65xx_opcodes[opcode].instr].name);
     op = table_65xx_opcodes[opcode].op;

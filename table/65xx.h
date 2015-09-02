@@ -88,7 +88,8 @@ enum
   M65XX_TSX,
   M65XX_TXA,
   M65XX_TXS,
-  M65XX_TYA
+  M65XX_TYA,
+  M65XX_ERROR
 };
 
 enum
