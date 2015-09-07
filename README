@@ -212,6 +212,7 @@ with some include files.
 
 CPU Selection:
 .65xx            6502, 6510, and any other 6500 series cpu
+.65816           W65C816
 .680x            6800
 .68hc08          68HC08
 .680x0           Motorola 68000
