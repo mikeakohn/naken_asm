@@ -379,7 +379,7 @@ void macros_strip(char *macro)
   while (*s != 0)
   {
     if (*s == ';') { *s = 0; break; }
-    if (*s == '/' && *(s+1)=='/') { *s = 0; break; }
+    if (*s == '/' && *(s+1) == '/') { *s = 0; break; }
     s++;
   }
 
@@ -521,7 +521,9 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
       }
     }
 
-    if (ch == ';' || (ptr > 0 && macro[ptr-1] == '/'))
+    // If there is a comment on this line of the macro, ignore the rest of
+    // of the line.
+    if (ch == ';' || (ptr > 0 && ch == '/' && macro[ptr-1] == '/'))
     {
       if (macro[ptr-1] == '/') { ptr--; }
 
@@ -705,7 +707,7 @@ printf("debug> Expanded macro becomes: %s\n", asm_context->def_param_stack_data+
 
 void macros_strip_comment(struct _asm_context *asm_context)
 {
-  int it, cl = 0;
+  int ch, last = 0;
 
 #ifdef DEBUG
 printf("debug> macros_strip_comment()\n");
@@ -714,11 +716,11 @@ printf("debug> macros_strip_comment()\n");
   // Look for /*  */ comment and remove.
   while(1)
   {
-    it = tokens_get_char(asm_context);
-    if (it == EOF) break;
-    if (it == '\n') asm_context->line++;
-    if (it == '/' && cl == '*') break;
-    cl = it;
+    ch = tokens_get_char(asm_context);
+    if (ch == EOF) break;
+    if (ch == '\n') asm_context->line++;
+    if (ch == '/' && last == '*') { break; }
+    last = ch;
   }
 }
 
