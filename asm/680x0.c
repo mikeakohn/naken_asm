@@ -575,6 +575,8 @@ static int write_immediate(struct _asm_context *asm_context, char *instr, struct
     case OPERAND_INDEX_DATA16_A_REG:
     case OPERAND_INDEX_DATA8_A_REG_XN:
     case OPERAND_INDEX_DATA16_PC:
+      add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
+      break;
     case OPERAND_INDEX_DATA8_PC_XN:
       // [D=0/A=1] [REG3] [W=0/L=1] [000] [DISP8]
       add_bin16(asm_context, (operands[1].xn_reg << 12) | (operands[1].xn_size == SIZE_L ? (1 << 11) : 0) | (operands[1].value & 0xff), IS_OPCODE);

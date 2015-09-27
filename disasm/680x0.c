@@ -281,8 +281,8 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
           mode = (opcode >> 3) & 0x7;
           reg = (opcode) & 0x7;
           if (mode == 1 || (mode == 7 && reg == 4)) { break; }
-          len = get_ea_680x0(memory, address, ea, opcode, 2, size);
           if (size == 3) { break; }
+          len = get_ea_680x0(memory, address, ea, opcode, size == SIZE_L ? 4 : 2, size);
 
           if (size == SIZE_B)
           {
