@@ -575,10 +575,10 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           {
             op = OP_INDEXED8_X;
 
-            if(num > 0xFF)
+            if(size == 16 || num > 0xFF)
               op = OP_INDEXED16_X;
 
-            if(num > 0xFFFF)
+            if(size == 24 || num > 0xFFFF)
               op = OP_INDEXED24_X;
 
             if(num > 0xFFFFFF)
@@ -592,10 +592,10 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           {
             op = OP_INDEXED8_Y;
 
-            if(num > 0xFF)
+            if(size == 16 || num > 0xFF)
               op = OP_INDEXED16_Y;
 
-            if(num > 0xFFFF)
+            if(size == 24 || num > 0xFFFF)
             {
               print_error("Absolute long not supported for Y indexing.",
                           asm_context);
