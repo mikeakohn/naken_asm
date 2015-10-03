@@ -41,7 +41,7 @@ int get_cycle_count_680x0(unsigned short int opcode)
   return -1;
 }
 
-static int is_illgeal_ea(int16_t opcode, int omit_mode)
+static int is_illegal_ea(int16_t opcode, int omit_mode)
 {
   int reg = opcode & 0x7;
   int mode = (opcode >> 3) & 0x7;
@@ -320,7 +320,7 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
           sprintf(instruction, "%s.%c %s", table_680x0[n].instr, sizes[size], ea);
           return len;
         case OP_SINGLE_EA_NO_SIZE:
-          if (is_illgeal_ea(opcode, table_680x0[n].omit_src)) { break; }
+          if (is_illegal_ea(opcode, table_680x0[n].omit_src)) { break; }
           len = get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s %s", table_680x0[n].instr, ea);
           return len;

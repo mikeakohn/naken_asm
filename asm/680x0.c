@@ -573,7 +573,11 @@ static int write_immediate(struct _asm_context *asm_context, char *instr, struct
   switch(operands[1].type)
   {
     case OPERAND_INDEX_DATA16_A_REG:
+      add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
+      break;
     case OPERAND_INDEX_DATA8_A_REG_XN:
+      add_bin16(asm_context, (operands[1].xn_reg << 12) | (operands[1].xn_size == SIZE_L ? (1 << 11) : 0) | (operands[1].value & 0xffff), IS_OPCODE);
+      break;
     case OPERAND_INDEX_DATA16_PC:
       add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
       break;
