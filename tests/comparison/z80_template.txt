@@ -466,7 +466,6 @@ ld i,a
 ld bc,10000
 ld de,10000
 ld hl,10000
-ld a,10000
 ld bc,(10000)
 ld de,(10000)
 ld hl,(10000)
