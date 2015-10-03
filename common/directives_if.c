@@ -22,8 +22,9 @@
 
 int ifdef_ignore(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-int token_type;
+  char token[TOKENLEN];
+  int token_type;
+  int nested_if = 0;
 
   while(1)
   {
@@ -43,9 +44,21 @@ int token_type;
     if (token_type == TOKEN_POUND || IS_TOKEN(token,'.'))
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (strcasecmp(token, "endif") == 0) return 0;
+      if (strcasecmp(token, "endif") == 0)
+      {
+        if (nested_if == 0) { return 0; }
+        nested_if--;
+      }
         else
-      if (strcasecmp(token, "else") == 0) return 2;
+      if (strcasecmp(token, "else") == 0)
+      {
+        if (nested_if == 0) { return 2; }
+      }
+        else
+      if (strcasecmp(token, "if") == 0 || strcasecmp(token, "ifdef") == 0)
+      {
+        nested_if++;
+      }
     }
   }
 }
@@ -72,10 +85,10 @@ int parse_ifdef_ignore(struct _asm_context *asm_context, int ignore_section)
 
 int parse_ifdef(struct _asm_context *asm_context, int ifndef)
 {
-char token[TOKENLEN];
-int token_type;
-int ignore_section = 0;
-int param_count; // throw away
+  char token[TOKENLEN];
+  int token_type;
+  int ignore_section = 0;
+  int param_count; // throw away
 
   asm_context->ifdef_count++;
 
@@ -108,7 +121,7 @@ int param_count; // throw away
 
 int parse_if(struct _asm_context *asm_context)
 {
-int num;
+  int num;
 
   asm_context->ifdef_count++;
 

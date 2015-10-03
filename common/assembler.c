@@ -590,7 +590,7 @@ int assemble(struct _asm_context *asm_context)
       {
         if (asm_context->ifdef_count < 1)
         {
-          printf("Error: unmatched #endif at %s:%d\n", asm_context->filename, asm_context->ifdef_count);
+          printf("Error: unmatched .endif at %s:%d\n", asm_context->filename, asm_context->ifdef_count);
           return -1;
         }
         return 0;
@@ -600,7 +600,7 @@ int assemble(struct _asm_context *asm_context)
       {
         if (asm_context->ifdef_count < 1)
         {
-          printf("Error: unmatched #else at %s:%d\n", asm_context->filename, asm_context->ifdef_count);
+          printf("Error: unmatched .else at %s:%d\n", asm_context->filename, asm_context->ifdef_count);
           return -1;
         }
         return 2;
