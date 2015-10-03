@@ -1131,7 +1131,7 @@ static int write_link(struct _asm_context *asm_context, char *instr, struct _ope
     else
   if (size == SIZE_L)
   {
-    if (operands[1].value < -0x80000000 || operands[1].value > 0x7fffffff)
+    if (operands[1].value < (int)0x80000000 || operands[1].value > 0x7fffffff)
     {
       print_error_range("Displacement", -32768, 32767, asm_context);
       return -1;
