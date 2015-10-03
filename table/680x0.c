@@ -81,7 +81,7 @@ struct _table_680x0 table_680x0[] =
   { "or", 0x8000, 0xf000, OP_REG_AND_EA, MODE_AN, MODE_DN|MODE_AN|MODE_D16_PC|MODE_D8_PC_XN, 0, 0 },
   { "ori", 0x0000, 0xff00, OP_IMMEDIATE, 0, MODE_AN|MODE_D16_PC|MODE_D8_PC_XN, 0, 0 },
   { "ori", 0x003c, 0xffff, OP_LOGIC_CCR, 0, 0, OMIT_W|OMIT_L, DEFAULT_B },
-  { "pea", 0x4840, 0xffc0, OP_SINGLE_EA_NO_SIZE, 0, MODE_DN|MODE_AN|MODE_AN_P|MODE_AN_N, NO_SIZE, 0 },
+  { "pea", 0x4840, 0xffc0, OP_SINGLE_EA_NO_SIZE, MODE_DN|MODE_AN|MODE_AN_P|MODE_AN_N, 0, NO_SIZE, 0 },
   { "reset", 0x4e70, 0xffff, OP_NONE, 0, 0, NO_SIZE, 0 },
   { "rol", 0xe7c0, 0xffc0, OP_SHIFT_EA, 0, MODE_DN|MODE_AN|MODE_D16_PC|MODE_D8_PC_XN, OMIT_B|OMIT_L, DEFAULT_W  },
   { "rol", 0xe118, 0xf118, OP_SHIFT, 0, 0, 0, 0 },

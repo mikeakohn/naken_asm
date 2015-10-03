@@ -41,6 +41,54 @@ int get_cycle_count_680x0(unsigned short int opcode)
   return -1;
 }
 
+static int is_illgeal_ea(int16_t opcode, int omit_mode)
+{
+  int reg = opcode & 0x7;
+  int mode = (opcode >> 3) & 0x7;
+
+  switch(mode)
+  {
+    case 0:
+      if ((omit_mode & MODE_DN) != 0) { return 1; }
+      break;
+    case 1:
+      if ((omit_mode & MODE_AN) != 0) { return 1; }
+      break;
+    case 2:
+      break;
+    case 3:
+      if ((omit_mode & MODE_AN_P) != 0) { return 1; }
+      break;
+    case 4:
+      if ((omit_mode & MODE_AN_N) != 0) { return 1; }
+      break;
+    case 5:
+       break;
+    case 6:
+       break;
+    case 7:
+       switch(reg)
+       {
+         case 2:
+           if ((omit_mode & MODE_D16_PC) != 0) { return 1; }
+           break;
+         case 3:
+           if ((omit_mode & MODE_D8_PC_XN) != 0) { return 1; }
+           break;
+         case 4:
+           if ((omit_mode & MODE_IMM) != 0) { return 1; }
+           break;
+         default:
+           break;
+       }
+    default:
+      break;
+
+  }
+
+  return 0;
+}
+
 static int get_ea_680x0(struct _memory *memory, int address, char *ea, uint16_t opcode, int skip, int size)
 {
   int reg = opcode & 0x7;
@@ -127,7 +175,7 @@ static int get_ea_680x0(struct _memory *memory, int address, char *ea, uint16_t 
 
   }
 
-  strcpy(ea,"???");
+  strcpy(ea, "???");
 
   return 2;
 }
@@ -272,7 +320,7 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
           sprintf(instruction, "%s.%c %s", table_680x0[n].instr, sizes[size], ea);
           return len;
         case OP_SINGLE_EA_NO_SIZE:
-        //case OP_SINGLE_EA_TO_ADDR:
+          if (is_illgeal_ea(opcode, table_680x0[n].omit_src)) { break; }
           len = get_ea_680x0(memory, address, ea, opcode, 0, 0);
           sprintf(instruction, "%s %s", table_680x0[n].instr, ea);
           return len;
