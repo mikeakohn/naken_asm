@@ -69,10 +69,12 @@ static struct _aliases
   { "clrz", 0, 0xc322, NULL, 0 },
   { "dadc", 1, 0, "dadd", 0 },
   { "dec", 1, 0, "sub", 1 },
+  { "decx", 1, 0, "subx", 1 },
   { "decd", 1, 0, "sub", 2 },
   { "dint", 0, 0xc232, NULL, 0 },
   { "eint", 0, 0xd232, NULL, 0 },
   { "inc", 1, 0, "add", 1 },
+  { "incx", 1, 0, "addx", 1 },
   { "incd", 1, 0, "add", 2 },
   { "inv", 1, 0, "xor", -1 },
   { "nop", 0, 0x4303, NULL, CMD_R3 },
@@ -93,11 +95,16 @@ static struct _aliases
 static char *one_oper[] = { "rrc", "swpb", "rra", "sxt", "push", "call", NULL };
 static char *jumps[] = { "jne", "jeq", "jlo", "jhs", "jn", "jge", "jl", "jmp", NULL };
 static char *jumps_a[] = { "jnz", "jz", "jnc", "jc", NULL, NULL, NULL, NULL, NULL };
-static char *two_oper[] = { "mov", "add", "addc", "subc", "sub", "cmp", "dadd", "bit",
-                     "bic", "bis", "xor", "and", NULL };
-static char *ms430x_ext[] = { "rrcx", "swpbx", "rrax", "sxtx", "pushx",
-                    "movx", "addx", "addcx", "subcx", "subx", "cmpx",
-                    "daddx", "bitx", "bicx", "bisx", "xorx", "andx", NULL };
+static char *two_oper[] =
+{
+  "mov", "add", "addc", "subc", "sub", "cmp", "dadd", "bit",
+  "bic", "bis", "xor", "and", NULL
+};
+static char *msp430x_ext[] =
+{
+  "rrcx", "swpbx", "rrax", "sxtx", "pushx", "movx", "addx", "addcx", "subcx",
+  "subx", "cmpx", "daddx", "bitx", "bicx", "bisx", "xorx", "andx", NULL
+};
 static char *msp430x_shift[] = { "rrcm", "rram", "rlam", "rrum", NULL };
 static char *msp430x_stack[] = { "pushm", "popm", NULL };
 static char *msp430x_alu[] = { "mova", "cmpa", "adda", "suba", NULL };
@@ -362,7 +369,7 @@ int prefix = 0;
     n=0;
     while(msp430x_rpt[n] != NULL)
     {
-      if (strcmp(instr_lower,msp430x_rpt[n]) == 0)
+      if (strcmp(instr_lower, msp430x_rpt[n]) == 0)
       {
         prefix = get_prefix(asm_context, n & 1);
         if (prefix == 0xffff) return -1;
@@ -633,7 +640,8 @@ int prefix = 0;
       }
 
       operand_count = 2;
-      instr_lower = (char *)aliases[n].alt;
+      //instr_lower = (char *)aliases[n].alt;
+      strcpy(instr_lower, (char *)aliases[n].alt);
       break;
     }
 
@@ -646,15 +654,18 @@ int prefix = 0;
   if (asm_context->cpu_type == CPU_TYPE_MSP430X)
   {
     n = 0;
-    while(ms430x_ext[n] != NULL)
+
+    while(msp430x_ext[n] != NULL)
     {
-      if (strcmp(instr_lower,ms430x_ext[n]) == 0)
+      if (strcmp(instr_lower, msp430x_ext[n]) == 0)
       {
-        msp430x = 1;
-        instr_lower[strlen(instr_lower)-1] = 0;
         uint32_t src19_16 = 0;
         uint32_t dst19_16 = 0;
         int al;
+
+        // Strip the 'x' off of the end of the instruction so it can
+        // be processed below as a regular msp430 instruction.
+        instr_lower[strlen(instr_lower) - 1] = 0;
 
         if (size == 8) { al = 1; bw = 1; }
         else if (size == 16) { al = 1; bw = 0; }
