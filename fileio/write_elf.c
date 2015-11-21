@@ -158,7 +158,7 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
       elf->e_machine = 118;
       elf->e_flags = 1;
       break;
-    case CPU_TYPE_MIPS:
+    case CPU_TYPE_MIPS32:
       elf->e_machine = 8;
       break;
     case CPU_TYPE_STM8:

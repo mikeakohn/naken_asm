@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "disasm/common.h"
-#include "disasm/mips.h"
+#include "disasm/mips32.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
 

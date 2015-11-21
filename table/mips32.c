@@ -11,7 +11,7 @@
 
 #include <stdlib.h>
 
-#include "table/mips.h"
+#include "table/mips32.h"
 
 struct _mips_instr mips_r_table[] = {
   { "add", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 0x20, 3 },

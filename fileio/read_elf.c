@@ -227,7 +227,7 @@ get_int32_t get_int32;
       break;
     case 8:
     case 10:
-      *cpu_type = CPU_TYPE_MIPS;
+      *cpu_type = CPU_TYPE_MIPS32;
       break;
     case 40:
       *cpu_type = CPU_TYPE_ARM;

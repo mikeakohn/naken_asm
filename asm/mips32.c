@@ -15,11 +15,11 @@
 #include <ctype.h>
 
 #include "asm/common.h"
-#include "asm/mips.h"
+#include "asm/mips32.h"
 #include "common/assembler.h"
 #include "common/tokens.h"
 #include "common/eval_expression.h"
-#include "table/mips.h"
+#include "table/mips32.h"
 
 extern struct _mips_instr mips_r_table[];
 extern struct _mips_instr mips_i_table[];

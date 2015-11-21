@@ -78,7 +78,7 @@ def parse_co_file(filename, struct_name):
 
 print "#include <stdio.h>"
 print "#include <stdlib.h>"
-print "#include \"disasm_mips.h\""
+print "#include \"disasm_mips32.h\""
 print
 
 parse_file("mips_r.txt", "mips_r_table")

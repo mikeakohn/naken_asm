@@ -13,7 +13,7 @@
 #define _DISASM_MIPS_H
 
 #include "common/assembler.h"
-#include "table/mips.h"
+#include "table/mips32.h"
 
 extern struct _mips_instr mips_r_table[];
 extern struct _mips_instr mips_i_table[];

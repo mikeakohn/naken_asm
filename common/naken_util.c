@@ -32,7 +32,7 @@
 #include "disasm/avr8.h"
 #include "disasm/dspic.h"
 #include "disasm/epiphany.h"
-#include "disasm/mips.h"
+#include "disasm/mips32.h"
 #include "disasm/msp430.h"
 #include "disasm/stm8.h"
 #include "disasm/tms1000.h"
