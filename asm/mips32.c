@@ -42,7 +42,7 @@ struct _operand
 
 static int get_number(char *s)
 {
-int n = 0;
+  int n = 0;
 
   while(*s != 0)
   {
@@ -56,7 +56,7 @@ int n = 0;
 
 static int get_register_mips(char *token, char letter)
 {
-int num;
+  int num;
 
   if (token[0] != '$')
   {
@@ -101,17 +101,17 @@ int num;
 
 int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 {
-struct _operand operands[3];
-int operand_count = 0;
-char token[TOKENLEN];
-int token_type;
-char instr_case[TOKENLEN];
-int paren_flag;
-int num,n,r;
-int opcode;
+  struct _operand operands[3];
+  int operand_count = 0;
+  char token[TOKENLEN];
+  int token_type;
+  char instr_case[TOKENLEN];
+  int paren_flag;
+  int num,n,r;
+  int opcode;
 #if 0
-int n,cond,s=0;
-int opcode=0;
+  int n,cond,s=0;
+  int opcode=0;
 #endif
 
   lower_copy(instr_case, instr);

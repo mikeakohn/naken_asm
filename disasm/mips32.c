@@ -25,15 +25,17 @@ int get_cycle_count_mips(unsigned short int opcode)
 
 int disasm_mips(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
 {
-const char *reg[32] = {
-  "$0", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
-  "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
-  "$a0", "$a1", "$a2", "$a3", "$a4", "$a5", "$a6", "$a7",
-  "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra" };
-unsigned int opcode;
-int function,format;
-int n,r;
-char temp[32];
+  uint32_t opcode;
+  int function,format;
+  int n,r;
+  char temp[32];
+  const char *reg[32] =
+  {
+    "$0", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
+    "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
+    "$a0", "$a1", "$a2", "$a3", "$a4", "$a5", "$a6", "$a7",
+    "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
+  };
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -236,9 +238,9 @@ char temp[32];
 
 void list_output_mips(struct _asm_context *asm_context, int address)
 {
-int cycles_min,cycles_max;
-char instruction[128];
-unsigned int opcode = get_opcode32(&asm_context->memory, address);
+  int cycles_min,cycles_max;
+  char instruction[128];
+  uint32_t opcode = get_opcode32(&asm_context->memory, address);
 
   fprintf(asm_context->list, "\n");
   disasm_mips(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
@@ -252,9 +254,9 @@ unsigned int opcode = get_opcode32(&asm_context->memory, address);
 
 void disasm_range_mips(struct _memory *memory, int start, int end)
 {
-char instruction[128];
-int cycles_min = 0,cycles_max = 0;
-int num;
+  char instruction[128];
+  int cycles_min = 0,cycles_max = 0;
+  int num;
 
   printf("\n");
 
@@ -263,7 +265,7 @@ int num;
 
   while(start <= end)
   {
-    num=READ_RAM(start) | (READ_RAM(start + 1) << 8);
+    num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
 
     disasm_mips(memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -292,7 +294,7 @@ int num;
     }
 #endif
 
-    start=start+4;
+    start += 4;
   }
 }
 
