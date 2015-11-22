@@ -209,8 +209,11 @@ int disasm_mips(struct _memory *memory, int address, char *instruction, int *cyc
             else
           if (mips_i_table[n].operand[r] == MIPS_OP_LABEL)
           {
-            // FIXME - this is probably an offset
-            sprintf(temp, "%x", immediate);
+            int32_t offset = (int16_t)immediate;
+
+            offset = offset << 2;
+
+            sprintf(temp, "%x (offset=%d)", address + 4 + offset, offset);
           }
             else
           { temp[0] = 0; }

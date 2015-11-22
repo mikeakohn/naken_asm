@@ -99,6 +99,54 @@ static int get_register_mips(char *token, char letter)
   return -1;
 }
 
+void check_for_pseudo_instruction(struct _operand *operands, int *operand_count, char *instr_case)
+{
+  // Check pseudo-instructions
+  if (strcmp(instr_case, "move") == 0 && *operand_count == 2)
+  {
+    strcpy(instr_case, "add");
+    operands[2].value = 0;
+    operands[2].type = OPERAND_TREG;;
+    *operand_count = 3;
+  }
+    else
+#if 0
+  if (strcmp(instr_case, "li") == 0 && operand_count == 2)
+  {
+    strcpy(instr_case, "addi");
+    memcpy(&operands[2], &operands[1], sizeof(struct _operand));
+    operands[1].value = 0;
+    operands[1].reg2 = 0;
+    operands[1].type = OPERAND_TREG;;
+    *operand_count = 3;
+  }
+    else
+#endif
+  if (strcmp(instr_case, "nop") == 0 && *operand_count == 0)
+  {
+    strcpy(instr_case, "add");
+    *operand_count = 3;
+  }
+    else
+  if (strcmp(instr_case, "neg") == 0 && *operand_count == 1)
+  {
+    strcpy(instr_case, "subu");
+    memcpy(&operands[1], &operands[0], sizeof(struct _operand));
+    *operand_count = 3;
+  }
+    else
+  if (strcmp(instr_case, "b") == 0 && *operand_count == 1)
+  {
+    strcpy(instr_case, "beq");
+    memcpy(&operands[2], &operands[0], sizeof(struct _operand));
+    operands[0].value = 0;
+    operands[0].type = OPERAND_TREG;
+    operands[1].value = 0;
+    operands[1].type = OPERAND_TREG;
+    *operand_count = 3;
+  }
+}
+
 int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 {
   struct _operand operands[3];
@@ -251,39 +299,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
     return 4;
   }
 
-  // Check pseudo-instructions
-  if (strcmp(instr_case, "move") == 0 && operand_count == 2)
-  {
-    strcpy(instr_case, "add");
-    operands[operand_count].value = 0;
-    operands[operand_count].type = OPERAND_TREG;;
-    operand_count++;
-  }
-    else
-#if 0
-  if (strcmp(instr_case, "li") == 0 && operand_count == 2)
-  {
-    strcpy(instr_case, "addi");
-    memcpy(&operands[operand_count], &operands[operand_count-1], sizeof(struct _operand));
-    operands[operand_count-1].value = 0;
-    operands[operand_count-1].reg2 = 0;
-    operands[operand_count-1].type = OPERAND_TREG;;
-    operand_count++;
-  }
-    else
-#endif
-  if (strcmp(instr_case, "nop") == 0 && operand_count == 0)
-  {
-    strcpy(instr_case, "add");
-    operand_count = 3;
-  }
-    else
-  if (strcmp(instr_case, "neg") == 0 && operand_count == 1)
-  {
-    strcpy(instr_case, "subu");
-    memcpy(&operands[1], &operands[0], sizeof(struct _operand));
-    operand_count = 3;
-  }
+  check_for_pseudo_instruction(operands, &operand_count, instr_case);
 
   // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
   n = 0;
@@ -400,13 +416,16 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           else
         if (mips_i_table[n].operand[r] == MIPS_OP_LABEL)
         {
-          // FIXME - Calculate address
-          //if (operands[r].value > 65535 || operands[r].value < -32768)
-          //{
-          //  print_error("Constant larger than 16 bit.", asm_context);
-          //  return -1;
-          //}
-          opcode |= operands[r].value;
+          int32_t offset = operands[r].value - (asm_context->address + 4);
+
+          if (operands[r].value < -(1 << 17) ||
+              operands[r].value > (1 << 17) - 1)
+          {
+            print_error("Constant larger than 16 bit.", asm_context);
+            return -1;
+          }
+
+          opcode |= (offset >> 2) & 0xffff;
         }
           else
         if (mips_i_table[n].operand[r] == MIPS_OP_IMMEDIATE)
