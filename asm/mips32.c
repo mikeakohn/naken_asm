@@ -21,9 +21,9 @@
 #include "common/eval_expression.h"
 #include "table/mips32.h"
 
-extern struct _mips_instr mips_r_table[];
-extern struct _mips_instr mips_i_table[];
-extern struct _mips_cop_instr mips_cop_table[];
+extern struct _mips32_instr mips32_r_table[];
+extern struct _mips32_instr mips32_i_table[];
+extern struct _mips32_cop_instr mips32_cop_table[];
 
 enum
 {
@@ -54,7 +54,7 @@ static int get_number(char *s)
   return n;
 }
 
-static int get_register_mips(char *token, char letter)
+static int get_register_mips32(char *token, char letter)
 {
   int num;
 
@@ -147,7 +147,7 @@ void check_for_pseudo_instruction(struct _operand *operands, int *operand_count,
   }
 }
 
-int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
+int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
 {
   struct _operand operands[3];
   int operand_count = 0;
@@ -195,7 +195,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         paren_flag = 1;
       }
 
-      num = get_register_mips(token, 't');
+      num = get_register_mips32(token, 't');
       if (num != -1)
       {
         operands[operand_count].value = num;
@@ -205,7 +205,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         else
       if (paren_flag == 0)
       {
-        num = get_register_mips(token, 'f');
+        num = get_register_mips32(token, 'f');
         if (num != -1)
         {
           operands[operand_count].value = num;
@@ -251,7 +251,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
       if (IS_TOKEN(token,'('))
       {
         token_type = tokens_get(asm_context, token, TOKENLEN);
-        num = get_register_mips(token, 't');
+        num = get_register_mips32(token, 't');
         if (num == -1)
         {
           print_error_unexp(token, asm_context);
@@ -303,29 +303,29 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
   // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
   n = 0;
-  while(mips_r_table[n].instr != NULL)
+  while(mips32_r_table[n].instr != NULL)
   {
-    if (strcmp(instr_case, mips_r_table[n].instr) == 0)
+    if (strcmp(instr_case, mips32_r_table[n].instr) == 0)
     {
       char shift_table[] = { 0, 11, 21, 16, 6 };
-      if (mips_r_table[n].operand_count != operand_count)
+      if (mips32_r_table[n].operand_count != operand_count)
       {
         print_error_illegal_operands(instr, asm_context);
         return -1;
       }
 
-      opcode = mips_r_table[n].function;
+      opcode = mips32_r_table[n].function;
 
       for (r = 0; r < operand_count; r++)
       {
         if (operands[r].type != OPERAND_TREG)
         {
-//printf("%s %s %s\n", instr_case, mips_r_table[n].instr, instr);
+//printf("%s %s %s\n", instr_case, mips32_r_table[n].instr, instr);
           printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
           return -1;
         }
-//printf("%s  %d<<%d\n", instr, operands[r].value, shift_table[(int)mips_r_table[n].operand[r]]);
-        opcode |= operands[r].value << shift_table[(int)mips_r_table[n].operand[r]];
+//printf("%s  %d<<%d\n", instr, operands[r].value, shift_table[(int)mips32_r_table[n].operand[r]]);
+        opcode |= operands[r].value << shift_table[(int)mips32_r_table[n].operand[r]];
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
@@ -361,18 +361,18 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
   // Coprocessor Instruction [ op 6, format 5, ft 5, fs 5, fd 5, funct 6 ]
   n = 0;
-  while(mips_cop_table[n].instr != NULL)
+  while(mips32_cop_table[n].instr != NULL)
   {
-    if (strcmp(instr_case, mips_cop_table[n].instr) == 0)
+    if (strcmp(instr_case, mips32_cop_table[n].instr) == 0)
     {
       char shift_table[] = { 0, 5, 11, 16 };
-      if (mips_cop_table[n].operand_count != operand_count)
+      if (mips32_cop_table[n].operand_count != operand_count)
       {
         print_error_illegal_operands(instr, asm_context);
         return -1;
       }
 
-      opcode = (0x11 << 26) | (mips_cop_table[n].format << 21) | mips_cop_table[n].function;
+      opcode = (0x11 << 26) | (mips32_cop_table[n].format << 21) | mips32_cop_table[n].function;
 
       for (r = 0; r < operand_count; r++)
       {
@@ -381,7 +381,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
           return -1;
         }
-        opcode |= operands[r].value << shift_table[(int)mips_cop_table[n].operand[r]];
+        opcode |= operands[r].value << shift_table[(int)mips32_cop_table[n].operand[r]];
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
@@ -392,29 +392,29 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
   // I-Type?  [ op 6, rs 5, rt 5, imm 16 ]
   n = 0;
-  while(mips_i_table[n].instr != NULL)
+  while(mips32_i_table[n].instr != NULL)
   {
-    if (strcmp(instr_case, mips_i_table[n].instr) == 0)
+    if (strcmp(instr_case, mips32_i_table[n].instr) == 0)
     {
       char shift_table[] = { 0, 0, 21, 16 };
-      if (mips_i_table[n].operand_count != operand_count)
+      if (mips32_i_table[n].operand_count != operand_count)
       {
         print_error_opcount(instr, asm_context);
         return -1;
       }
 
-      opcode = mips_i_table[n].function << 26;
+      opcode = mips32_i_table[n].function << 26;
 
-      for (r = 0; r < mips_i_table[n].operand_count; r++)
+      for (r = 0; r < mips32_i_table[n].operand_count; r++)
       {
-        if ((mips_i_table[n].operand[r] == MIPS_OP_RT ||
-            mips_i_table[n].operand[r] == MIPS_OP_RS) &&
+        if ((mips32_i_table[n].operand[r] == MIPS_OP_RT ||
+            mips32_i_table[n].operand[r] == MIPS_OP_RS) &&
             operands[r].type == OPERAND_TREG)
         {
-          opcode |= operands[r].value << shift_table[(int)mips_i_table[n].operand[r]];
+          opcode |= operands[r].value << shift_table[(int)mips32_i_table[n].operand[r]];
         }
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_LABEL)
+        if (mips32_i_table[n].operand[r] == MIPS_OP_LABEL)
         {
           int32_t offset = operands[r].value - (asm_context->address + 4);
 
@@ -428,7 +428,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           opcode |= (offset >> 2) & 0xffff;
         }
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_IMMEDIATE)
+        if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE)
         {
           if (operands[r].value > 65535 || operands[r].value < -32768)
           {
@@ -438,7 +438,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           opcode |= operands[r].value;
         }
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
+        if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
         {
           if (operands[r].value > 65535 || operands[r].value < -32768)
           {
@@ -449,12 +449,12 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           opcode |= operands[r].reg2 << 21;
         }
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_RT_IS_0)
+        if (mips32_i_table[n].operand[r] == MIPS_OP_RT_IS_0)
         {
           // Derr
         }
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_RT_IS_1)
+        if (mips32_i_table[n].operand[r] == MIPS_OP_RT_IS_1)
         {
           opcode |= 1 << 16;
         }
@@ -463,7 +463,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           print_error_illegal_operands(instr, asm_context);
           return -1;
         }
-        opcode |= operands[r].value << shift_table[(int)mips_i_table[n].operand[r]];
+        opcode |= operands[r].value << shift_table[(int)mips32_i_table[n].operand[r]];
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);

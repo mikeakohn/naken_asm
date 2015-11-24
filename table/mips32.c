@@ -13,7 +13,7 @@
 
 #include "table/mips32.h"
 
-struct _mips_instr mips_r_table[] = {
+struct _mips32_instr mips32_r_table[] = {
   { "add", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 0x20, 3 },
   { "addu", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 0x21, 3 },
   { "and", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 0x24, 3 },
@@ -45,7 +45,7 @@ struct _mips_instr mips_r_table[] = {
   { NULL, { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0x00, 0 }
 };
 
-struct _mips_instr mips_i_table[] = {
+struct _mips32_instr mips32_i_table[] = {
   { "addi", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE }, 0x08, 3 },
   { "addiu", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE }, 0x09, 3 },
   { "andi", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE }, 0x0c, 3 },
@@ -73,7 +73,7 @@ struct _mips_instr mips_i_table[] = {
   { NULL, { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0x00, 0 }
 };
 
-struct _mips_cop_instr mips_cop_table[] = {
+struct _mips32_cop_instr mips32_cop_table[] = {
   { "add.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x00, 0x10, 3 },
   { "cvt.s.w", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x20, 0x14, 3 },
   { "cvt.w.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x24, 0x10, 3 },

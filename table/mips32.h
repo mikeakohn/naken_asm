@@ -34,7 +34,7 @@ enum
   MIPS_COP_FT,
 };
 
-struct _mips_instr
+struct _mips32_instr
 {
   const char *instr;
   char operand[3];
@@ -42,7 +42,7 @@ struct _mips_instr
   char operand_count;
 };
 
-struct _mips_cop_instr
+struct _mips32_cop_instr
 {
   const char *instr;
   char operand[3];

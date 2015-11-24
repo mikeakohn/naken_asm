@@ -87,7 +87,7 @@ struct _cpu_list cpu_list[] =
   { "epiphany", CPU_TYPE_EPIPHANY, ENDIAN_LITTLE, 1, 0, 0, 1, parse_instruction_epiphany, NULL, list_output_epiphany, disasm_range_epiphany, NULL },
 #endif
 #ifdef ENABLE_MIPS
-  { "mips32", CPU_TYPE_MIPS32, ENDIAN_LITTLE, 1, 0, 0, 0, parse_instruction_mips, NULL, list_output_mips, disasm_range_mips, NULL },
+  { "mips32", CPU_TYPE_MIPS32, ENDIAN_LITTLE, 1, 0, 0, 0, parse_instruction_mips32, NULL, list_output_mips32, disasm_range_mips32, NULL },
 #endif
 #ifdef ENABLE_MSP430
   { "msp430", CPU_TYPE_MSP430, ENDIAN_LITTLE, 1, 0, 0, 0, parse_instruction_msp430, NULL, list_output_msp430, disasm_range_msp430, simulate_init_msp430 },

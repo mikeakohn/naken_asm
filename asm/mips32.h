@@ -14,7 +14,7 @@
 
 #include "common/assembler.h"
 
-int parse_instruction_mips(struct _asm_context *asm_context, char *instr);
+int parse_instruction_mips32(struct _asm_context *asm_context, char *instr);
 
 #endif
 
