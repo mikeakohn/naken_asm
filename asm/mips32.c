@@ -99,7 +99,7 @@ static int get_register_mips32(char *token, char letter)
   return -1;
 }
 
-void check_for_pseudo_instruction(struct _operand *operands, int *operand_count, char *instr_case)
+static void check_for_pseudo_instruction(struct _operand *operands, int *operand_count, char *instr_case)
 {
   // Check pseudo-instructions
   if (strcmp(instr_case, "move") == 0 && *operand_count == 2)
@@ -408,7 +408,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
       for (r = 0; r < mips32_i_table[n].operand_count; r++)
       {
         if ((mips32_i_table[n].operand[r] == MIPS_OP_RT ||
-            mips32_i_table[n].operand[r] == MIPS_OP_RS) &&
+             mips32_i_table[n].operand[r] == MIPS_OP_RS) &&
             operands[r].type == OPERAND_TREG)
         {
           opcode |= operands[r].value << shift_table[(int)mips32_i_table[n].operand[r]];
@@ -421,7 +421,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
           if (operands[r].value < -(1 << 17) ||
               operands[r].value > (1 << 17) - 1)
           {
-            print_error("Constant larger than 16 bit.", asm_context);
+            print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context); 
             return -1;
           }
 
@@ -432,7 +432,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
         {
           if (operands[r].value > 65535 || operands[r].value < -32768)
           {
-            print_error("Constant larger than 16 bit.", asm_context);
+            print_error_range("Constant", -32768, 65535, asm_context); 
             return -1;
           }
           opcode |= operands[r].value;
@@ -442,7 +442,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
         {
           if (operands[r].value > 65535 || operands[r].value < -32768)
           {
-            print_error("Constant larger than 16 bit.", asm_context);
+            print_error_range("Constant", -32768, 65535, asm_context); 
             return -1;
           }
           opcode |= operands[r].value;
@@ -452,6 +452,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
         if (mips32_i_table[n].operand[r] == MIPS_OP_RT_IS_0)
         {
           // Derr
+          print_error_internal(asm_context, __FILE__, __LINE__);
         }
           else
         if (mips32_i_table[n].operand[r] == MIPS_OP_RT_IS_1)
@@ -467,6 +468,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
+
       return 4;
     }
     n++;

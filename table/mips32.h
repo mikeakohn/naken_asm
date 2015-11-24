@@ -12,6 +12,8 @@
 #ifndef _TABLE_MIPS
 #define _TABLE_MIPS
 
+#include <stdint.h>
+
 enum
 {
   MIPS_OP_NONE,
@@ -38,17 +40,17 @@ struct _mips32_instr
 {
   const char *instr;
   char operand[3];
-  unsigned char function;
-  char operand_count;
+  uint8_t function;
+  int8_t operand_count;
 };
 
 struct _mips32_cop_instr
 {
   const char *instr;
   char operand[3];
-  unsigned char function;
-  unsigned char format;
-  char operand_count;
+  uint8_t function;
+  uint8_t format;
+  int8_t operand_count;
 };
 
 #endif
