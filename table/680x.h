@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef _TABLE_680X
-#define _TABLE_680X
+#ifndef _TABLE_680X_H
+#define _TABLE_680X_H
 
 enum
 {
