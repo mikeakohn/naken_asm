@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef _TABLE_MIPS
-#define _TABLE_MIPS
+#ifndef _TABLE_MIPS32_H
+#define _TABLE_MIPS32_H
 
 #include <stdint.h>
 

@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef _DISASM_MIPS_H
-#define _DISASM_MIPS_H
+#ifndef _DISASM_MIPS32_H
+#define _DISASM_MIPS32_H
 
 #include "common/assembler.h"
 #include "table/mips32.h"

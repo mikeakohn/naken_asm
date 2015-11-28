@@ -99,10 +99,30 @@ static int get_register_mips32(char *token, char letter)
   return -1;
 }
 
-static void check_for_pseudo_instruction(struct _operand *operands, int *operand_count, char *instr_case)
+static uint32_t find_opcode(const char *instr_case)
+{
+  int n = 0;
+
+  while(mips32_i_table[n].instr != NULL)
+  {
+    if (strcmp(instr_case, mips32_i_table[n].instr) == 0)
+    {
+      return n << 26;
+    }
+
+    n++;
+  }
+
+  return 0xffffffff;
+}
+
+static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct _operand *operands, int *operand_count, char *instr_case)
 {
   // Check pseudo-instructions
-  if (strcmp(instr_case, "move") == 0 && *operand_count == 2)
+  if (strcmp(instr_case, "move") == 0 &&
+      *operand_count == 2 &&
+      operands[0].type == OPERAND_TREG &&
+      operands[1].type == OPERAND_TREG)
   {
     strcpy(instr_case, "add");
     operands[2].value = 0;
@@ -110,32 +130,43 @@ static void check_for_pseudo_instruction(struct _operand *operands, int *operand
     *operand_count = 3;
   }
     else
-#if 0
-  if (strcmp(instr_case, "li") == 0 && operand_count == 2)
+  if (strcmp(instr_case, "li") == 0 &&
+      operands[0].type == OPERAND_TREG &&
+      operands[1].type == OPERAND_IMMEDIATE &&
+      *operand_count == 2)
   {
-    strcpy(instr_case, "addi");
-    memcpy(&operands[2], &operands[1], sizeof(struct _operand));
-    operands[1].value = 0;
-    operands[1].reg2 = 0;
-    operands[1].type = OPERAND_TREG;;
-    *operand_count = 3;
+    uint32_t opcode;
+    opcode = find_opcode("lui");
+    add_bin32(asm_context, opcode | (operands[0].value << 16) | ((operands[1].value >> 16) & 0xffff), IS_OPCODE);
+    asm_context->address += 4;
+
+    opcode = find_opcode("ori");
+    add_bin32(asm_context, opcode | (operands[0].value << 16) | (operands[1].value & 0xffff), IS_OPCODE);
+
+    return 8;
   }
     else
-#endif
   if (strcmp(instr_case, "nop") == 0 && *operand_count == 0)
   {
     strcpy(instr_case, "add");
     *operand_count = 3;
   }
     else
-  if (strcmp(instr_case, "neg") == 0 && *operand_count == 1)
+  if (strcmp(instr_case, "negu") == 0 &&
+      *operand_count == 1 &&
+      operands[0].type == OPERAND_TREG)
   {
+    // negu reg = subu reg, 0, reg
     strcpy(instr_case, "subu");
-    memcpy(&operands[1], &operands[0], sizeof(struct _operand));
+    operands[1].value = 0;
+    operands[1].type = OPERAND_TREG;
+    memcpy(&operands[2], &operands[0], sizeof(struct _operand));
     *operand_count = 3;
   }
     else
-  if (strcmp(instr_case, "b") == 0 && *operand_count == 1)
+  if (strcmp(instr_case, "b") == 0 &&
+      *operand_count == 1 &&
+      operands[0].type == OPERAND_IMMEDIATE)
   {
     strcpy(instr_case, "beq");
     memcpy(&operands[2], &operands[0], sizeof(struct _operand));
@@ -145,6 +176,8 @@ static void check_for_pseudo_instruction(struct _operand *operands, int *operand
     operands[1].type = OPERAND_TREG;
     *operand_count = 3;
   }
+
+  return 4;
 }
 
 int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
@@ -157,6 +190,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
   int paren_flag;
   int num,n,r;
   int opcode;
+  int opcode_size = 4;
 #if 0
   int n,cond,s=0;
   int opcode=0;
@@ -293,13 +327,18 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
     }
   }
 
+  n = check_for_pseudo_instruction(asm_context, operands, &operand_count, instr_case);
+
+  if (n != 4)
+  {
+    return opcode_size;
+  }
+
   if (asm_context->pass == 1)
   {
     add_bin32(asm_context, 0, IS_OPCODE);
-    return 4;
+    return opcode_size;
   }
-
-  check_for_pseudo_instruction(operands, &operand_count, instr_case);
 
   // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
   n = 0;
@@ -329,7 +368,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
-      return 4;
+      return opcode_size;
     }
     n++;
   }
@@ -356,7 +395,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
 
     add_bin32(asm_context, opcode | operands[0].value >> 2, IS_OPCODE);
 
-    return 4;
+    return opcode_size;
   }
 
   // Coprocessor Instruction [ op 6, format 5, ft 5, fs 5, fd 5, funct 6 ]
@@ -385,7 +424,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
-      return 4;
+      return opcode_size;
     }
     n++;
   }
@@ -469,7 +508,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
 
       add_bin32(asm_context, opcode, IS_OPCODE);
 
-      return 4;
+      return opcode_size;
     }
     n++;
   }

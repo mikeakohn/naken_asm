@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef _ASM_MIPS_H
-#define _ASM_MIPS_H
+#ifndef _ASM_MIPS32_H
+#define _ASM_MIPS32_H
 
 #include "common/assembler.h"
 

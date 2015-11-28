@@ -199,12 +199,12 @@ int disasm_mips32(struct _memory *memory, int address, char *instruction, int *c
             else
           if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE)
           {
-            sprintf(temp, "%x", immediate);
+            sprintf(temp, "0x%x", immediate);
           }
             else
           if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
           {
-            sprintf(temp, "%x(%s)", immediate, reg[rs]);
+            sprintf(temp, "0x%x(%s)", immediate, reg[rs]);
           }
             else
           if (mips32_i_table[n].operand[r] == MIPS_OP_LABEL)
@@ -213,7 +213,7 @@ int disasm_mips32(struct _memory *memory, int address, char *instruction, int *c
 
             offset = offset << 2;
 
-            sprintf(temp, "%x (offset=%d)", address + 4 + offset, offset);
+            sprintf(temp, "0x%x (offset=%d)", address + 4 + offset, offset);
           }
             else
           { temp[0] = 0; }
@@ -285,17 +285,6 @@ void disasm_range_mips32(struct _memory *memory, int start, int end)
     {
       printf("0x%04x: 0x%08x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
     }
-
-#if 0
-    count -= 4;
-    while(count > 0)
-    {
-      start = start + 4;
-      num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
-      printf("0x%04x: 0x%04x\n", start, num);
-      count -= 4;
-    }
-#endif
 
     start += 4;
   }
