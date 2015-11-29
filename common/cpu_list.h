@@ -20,8 +20,8 @@ struct _simulate;
 
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
 typedef int (*parse_directive_t)(struct _asm_context *, const char *);
-typedef void (*list_output_t)(struct _asm_context *, int);
-typedef void (*disasm_range_t)(struct _memory *, int, int);
+typedef void (*list_output_t)(struct _asm_context *, uint32_t, uint32_t);
+typedef void (*disasm_range_t)(struct _memory *, uint32_t, uint32_t);
 //typedef struct _simulate *(*simulate_init_t)(struct _memory *memory);
 
 enum

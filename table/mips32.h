@@ -9,8 +9,10 @@
  *
  */
 
-#ifndef _TABLE_MIPS
-#define _TABLE_MIPS
+#ifndef _TABLE_MIPS32_H
+#define _TABLE_MIPS32_H
+
+#include <stdint.h>
 
 enum
 {
@@ -34,21 +36,21 @@ enum
   MIPS_COP_FT,
 };
 
-struct _mips_instr
+struct _mips32_instr
 {
   const char *instr;
   char operand[3];
-  unsigned char function;
-  char operand_count;
+  uint8_t function;
+  int8_t operand_count;
 };
 
-struct _mips_cop_instr
+struct _mips32_cop_instr
 {
   const char *instr;
   char operand[3];
-  unsigned char function;
-  unsigned char format;
-  char operand_count;
+  uint8_t function;
+  uint8_t format;
+  int8_t operand_count;
 };
 
 #endif

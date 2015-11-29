@@ -21,9 +21,9 @@
 #include "common/eval_expression.h"
 #include "table/mips32.h"
 
-extern struct _mips_instr mips_r_table[];
-extern struct _mips_instr mips_i_table[];
-extern struct _mips_cop_instr mips_cop_table[];
+extern struct _mips32_instr mips32_r_table[];
+extern struct _mips32_instr mips32_i_table[];
+extern struct _mips32_cop_instr mips32_cop_table[];
 
 enum
 {
@@ -54,7 +54,7 @@ static int get_number(char *s)
   return n;
 }
 
-static int get_register_mips(char *token, char letter)
+static int get_register_mips32(char *token, char letter)
 {
   int num;
 
@@ -99,10 +99,30 @@ static int get_register_mips(char *token, char letter)
   return -1;
 }
 
-void check_for_pseudo_instruction(struct _operand *operands, int *operand_count, char *instr_case)
+static uint32_t find_opcode(const char *instr_case)
+{
+  int n = 0;
+
+  while(mips32_i_table[n].instr != NULL)
+  {
+    if (strcmp(instr_case, mips32_i_table[n].instr) == 0)
+    {
+      return n << 26;
+    }
+
+    n++;
+  }
+
+  return 0xffffffff;
+}
+
+static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct _operand *operands, int *operand_count, char *instr_case)
 {
   // Check pseudo-instructions
-  if (strcmp(instr_case, "move") == 0 && *operand_count == 2)
+  if (strcmp(instr_case, "move") == 0 &&
+      *operand_count == 2 &&
+      operands[0].type == OPERAND_TREG &&
+      operands[1].type == OPERAND_TREG)
   {
     strcpy(instr_case, "add");
     operands[2].value = 0;
@@ -110,32 +130,43 @@ void check_for_pseudo_instruction(struct _operand *operands, int *operand_count,
     *operand_count = 3;
   }
     else
-#if 0
-  if (strcmp(instr_case, "li") == 0 && operand_count == 2)
+  if (strcmp(instr_case, "li") == 0 &&
+      operands[0].type == OPERAND_TREG &&
+      operands[1].type == OPERAND_IMMEDIATE &&
+      *operand_count == 2)
   {
-    strcpy(instr_case, "addi");
-    memcpy(&operands[2], &operands[1], sizeof(struct _operand));
-    operands[1].value = 0;
-    operands[1].reg2 = 0;
-    operands[1].type = OPERAND_TREG;;
-    *operand_count = 3;
+    uint32_t opcode;
+    opcode = find_opcode("lui");
+    add_bin32(asm_context, opcode | (operands[0].value << 16) | ((operands[1].value >> 16) & 0xffff), IS_OPCODE);
+    asm_context->address += 4;
+
+    opcode = find_opcode("ori");
+    add_bin32(asm_context, opcode | (operands[0].value << 16) | (operands[1].value & 0xffff), IS_OPCODE);
+
+    return 8;
   }
     else
-#endif
   if (strcmp(instr_case, "nop") == 0 && *operand_count == 0)
   {
     strcpy(instr_case, "add");
     *operand_count = 3;
   }
     else
-  if (strcmp(instr_case, "neg") == 0 && *operand_count == 1)
+  if (strcmp(instr_case, "negu") == 0 &&
+      *operand_count == 1 &&
+      operands[0].type == OPERAND_TREG)
   {
+    // negu reg = subu reg, 0, reg
     strcpy(instr_case, "subu");
-    memcpy(&operands[1], &operands[0], sizeof(struct _operand));
+    operands[1].value = 0;
+    operands[1].type = OPERAND_TREG;
+    memcpy(&operands[2], &operands[0], sizeof(struct _operand));
     *operand_count = 3;
   }
     else
-  if (strcmp(instr_case, "b") == 0 && *operand_count == 1)
+  if (strcmp(instr_case, "b") == 0 &&
+      *operand_count == 1 &&
+      operands[0].type == OPERAND_IMMEDIATE)
   {
     strcpy(instr_case, "beq");
     memcpy(&operands[2], &operands[0], sizeof(struct _operand));
@@ -145,9 +176,11 @@ void check_for_pseudo_instruction(struct _operand *operands, int *operand_count,
     operands[1].type = OPERAND_TREG;
     *operand_count = 3;
   }
+
+  return 4;
 }
 
-int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
+int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
 {
   struct _operand operands[3];
   int operand_count = 0;
@@ -157,6 +190,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   int paren_flag;
   int num,n,r;
   int opcode;
+  int opcode_size = 4;
 #if 0
   int n,cond,s=0;
   int opcode=0;
@@ -195,7 +229,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         paren_flag = 1;
       }
 
-      num = get_register_mips(token, 't');
+      num = get_register_mips32(token, 't');
       if (num != -1)
       {
         operands[operand_count].value = num;
@@ -205,7 +239,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         else
       if (paren_flag == 0)
       {
-        num = get_register_mips(token, 'f');
+        num = get_register_mips32(token, 'f');
         if (num != -1)
         {
           operands[operand_count].value = num;
@@ -251,7 +285,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
       if (IS_TOKEN(token,'('))
       {
         token_type = tokens_get(asm_context, token, TOKENLEN);
-        num = get_register_mips(token, 't');
+        num = get_register_mips32(token, 't');
         if (num == -1)
         {
           print_error_unexp(token, asm_context);
@@ -293,43 +327,48 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
     }
   }
 
+  n = check_for_pseudo_instruction(asm_context, operands, &operand_count, instr_case);
+
+  if (n != 4)
+  {
+    return opcode_size;
+  }
+
   if (asm_context->pass == 1)
   {
     add_bin32(asm_context, 0, IS_OPCODE);
-    return 4;
+    return opcode_size;
   }
-
-  check_for_pseudo_instruction(operands, &operand_count, instr_case);
 
   // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
   n = 0;
-  while(mips_r_table[n].instr != NULL)
+  while(mips32_r_table[n].instr != NULL)
   {
-    if (strcmp(instr_case, mips_r_table[n].instr) == 0)
+    if (strcmp(instr_case, mips32_r_table[n].instr) == 0)
     {
       char shift_table[] = { 0, 11, 21, 16, 6 };
-      if (mips_r_table[n].operand_count != operand_count)
+      if (mips32_r_table[n].operand_count != operand_count)
       {
         print_error_illegal_operands(instr, asm_context);
         return -1;
       }
 
-      opcode = mips_r_table[n].function;
+      opcode = mips32_r_table[n].function;
 
       for (r = 0; r < operand_count; r++)
       {
         if (operands[r].type != OPERAND_TREG)
         {
-//printf("%s %s %s\n", instr_case, mips_r_table[n].instr, instr);
+//printf("%s %s %s\n", instr_case, mips32_r_table[n].instr, instr);
           printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
           return -1;
         }
-//printf("%s  %d<<%d\n", instr, operands[r].value, shift_table[(int)mips_r_table[n].operand[r]]);
-        opcode |= operands[r].value << shift_table[(int)mips_r_table[n].operand[r]];
+//printf("%s  %d<<%d\n", instr, operands[r].value, shift_table[(int)mips32_r_table[n].operand[r]]);
+        opcode |= operands[r].value << shift_table[(int)mips32_r_table[n].operand[r]];
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
-      return 4;
+      return opcode_size;
     }
     n++;
   }
@@ -356,23 +395,23 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
     add_bin32(asm_context, opcode | operands[0].value >> 2, IS_OPCODE);
 
-    return 4;
+    return opcode_size;
   }
 
   // Coprocessor Instruction [ op 6, format 5, ft 5, fs 5, fd 5, funct 6 ]
   n = 0;
-  while(mips_cop_table[n].instr != NULL)
+  while(mips32_cop_table[n].instr != NULL)
   {
-    if (strcmp(instr_case, mips_cop_table[n].instr) == 0)
+    if (strcmp(instr_case, mips32_cop_table[n].instr) == 0)
     {
       char shift_table[] = { 0, 5, 11, 16 };
-      if (mips_cop_table[n].operand_count != operand_count)
+      if (mips32_cop_table[n].operand_count != operand_count)
       {
         print_error_illegal_operands(instr, asm_context);
         return -1;
       }
 
-      opcode = (0x11 << 26) | (mips_cop_table[n].format << 21) | mips_cop_table[n].function;
+      opcode = (0x11 << 26) | (mips32_cop_table[n].format << 21) | mips32_cop_table[n].function;
 
       for (r = 0; r < operand_count; r++)
       {
@@ -381,80 +420,81 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
           return -1;
         }
-        opcode |= operands[r].value << shift_table[(int)mips_cop_table[n].operand[r]];
+        opcode |= operands[r].value << shift_table[(int)mips32_cop_table[n].operand[r]];
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
-      return 4;
+      return opcode_size;
     }
     n++;
   }
 
   // I-Type?  [ op 6, rs 5, rt 5, imm 16 ]
   n = 0;
-  while(mips_i_table[n].instr != NULL)
+  while(mips32_i_table[n].instr != NULL)
   {
-    if (strcmp(instr_case, mips_i_table[n].instr) == 0)
+    if (strcmp(instr_case, mips32_i_table[n].instr) == 0)
     {
       char shift_table[] = { 0, 0, 21, 16 };
-      if (mips_i_table[n].operand_count != operand_count)
+      if (mips32_i_table[n].operand_count != operand_count)
       {
         print_error_opcount(instr, asm_context);
         return -1;
       }
 
-      opcode = mips_i_table[n].function << 26;
+      opcode = mips32_i_table[n].function << 26;
 
-      for (r = 0; r < mips_i_table[n].operand_count; r++)
+      for (r = 0; r < mips32_i_table[n].operand_count; r++)
       {
-        if ((mips_i_table[n].operand[r] == MIPS_OP_RT ||
-            mips_i_table[n].operand[r] == MIPS_OP_RS) &&
+        if ((mips32_i_table[n].operand[r] == MIPS_OP_RT ||
+             mips32_i_table[n].operand[r] == MIPS_OP_RS) &&
             operands[r].type == OPERAND_TREG)
         {
-          opcode |= operands[r].value << shift_table[(int)mips_i_table[n].operand[r]];
+          opcode |= operands[r].value << shift_table[(int)mips32_i_table[n].operand[r]];
         }
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_LABEL)
+        if (mips32_i_table[n].operand[r] == MIPS_OP_LABEL)
         {
           int32_t offset = operands[r].value - (asm_context->address + 4);
 
           if (operands[r].value < -(1 << 17) ||
               operands[r].value > (1 << 17) - 1)
           {
-            print_error("Constant larger than 16 bit.", asm_context);
+            print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context); 
             return -1;
           }
 
           opcode |= (offset >> 2) & 0xffff;
         }
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_IMMEDIATE)
+        if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE)
         {
           if (operands[r].value > 65535 || operands[r].value < -32768)
           {
-            print_error("Constant larger than 16 bit.", asm_context);
+            print_error_range("Constant", -32768, 65535, asm_context); 
             return -1;
           }
           opcode |= operands[r].value;
         }
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
+        if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
         {
           if (operands[r].value > 65535 || operands[r].value < -32768)
           {
-            print_error("Constant larger than 16 bit.", asm_context);
+            print_error_range("Constant", -32768, 65535, asm_context); 
             return -1;
           }
           opcode |= operands[r].value;
           opcode |= operands[r].reg2 << 21;
         }
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_RT_IS_0)
+        if (mips32_i_table[n].operand[r] == MIPS_OP_RT_IS_0)
         {
           // Derr
+          print_error_internal(asm_context, __FILE__, __LINE__);
         }
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_RT_IS_1)
+        if (mips32_i_table[n].operand[r] == MIPS_OP_RT_IS_1)
         {
           opcode |= 1 << 16;
         }
@@ -463,11 +503,12 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           print_error_illegal_operands(instr, asm_context);
           return -1;
         }
-        opcode |= operands[r].value << shift_table[(int)mips_i_table[n].operand[r]];
+        opcode |= operands[r].value << shift_table[(int)mips32_i_table[n].operand[r]];
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
-      return 4;
+
+      return opcode_size;
     }
     n++;
   }

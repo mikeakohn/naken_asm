@@ -239,7 +239,7 @@ static void process_mul(char *instruction, uint32_t opcode)
 
 static void process_swap(char *instruction, uint32_t opcode)
 {
-int b = (opcode >> 22) & 1;
+  int b = (opcode >> 22) & 1;
 
   sprintf(instruction, "swp%s%s %s, %s, [%s]",
     arm_cond[ARM_NIB(28)],
@@ -251,7 +251,7 @@ int b = (opcode >> 22) & 1;
 
 static void process_mrs(char *instruction, uint32_t opcode)
 {
-int ps=(opcode>>22)&1;
+  int ps=(opcode>>22)&1;
 
   sprintf(instruction, "mrs%s %s, %s",
     arm_cond[ARM_NIB(28)],
@@ -261,7 +261,7 @@ int ps=(opcode>>22)&1;
 
 static void process_msr_all(char *instruction, uint32_t opcode)
 {
-int ps=(opcode>>22)&1;
+  int ps=(opcode>>22)&1;
 
   sprintf(instruction, "msr%s %s, %s",
     arm_cond[ARM_NIB(28)],
@@ -271,8 +271,8 @@ int ps=(opcode>>22)&1;
 
 static void process_msr_flag(char *instruction, uint32_t opcode)
 {
-int i = (opcode >> 25) & 1;
-int ps = (opcode >> 22) & 1;
+  int i = (opcode >> 25) & 1;
+  int ps = (opcode >> 22) & 1;
 
   if (i == 0)
   {
@@ -388,10 +388,10 @@ static void process_undefined(char *instruction, uint32_t opcode)
 
 static void process_ldm_stm(char *instruction, uint32_t opcode, int index)
 {
-char *pru_str[] = { "db", "ib", "da", "ia" };
-int w = (opcode >> 21) & 1;
-int s = (opcode >> 22) & 1;
-int pru = (opcode >> 23)  &0x3;
+  char *pru_str[] = { "db", "ib", "da", "ia" };
+  int w = (opcode >> 21) & 1;
+  int s = (opcode >> 22) & 1;
+  int pru = (opcode >> 23)  &0x3;
 
   sprintf(instruction, "%s%s%s %s%s, {",
     table_arm[index].instr,
@@ -407,7 +407,7 @@ int pru = (opcode >> 23)  &0x3;
 
 static void process_branch(char *instruction, uint32_t opcode, uint32_t address)
 {
-int l = (opcode >> 24) & 1;
+  int l = (opcode >> 24) & 1;
 
   int32_t offset = (opcode & 0xffffff);
   if ((offset & (1 << 23)) != 0) { offset |= 0xff000000; }
@@ -447,12 +447,12 @@ static void process_co_op_mask(char *instruction, uint32_t opcode)
 
 static void process_co_transfer_mask(char *instruction, uint32_t opcode)
 {
-int ls = (opcode >> 20) & 1;
-int w = (opcode >> 21) & 1;
-int n = (opcode >> 22) & 1;
-int u = (opcode >> 23) & 1;
-int pr = (opcode >> 24) & 1;
-int offset = opcode & 0xff;
+  int ls = (opcode >> 20) & 1;
+  int w = (opcode >> 21) & 1;
+  int n = (opcode >> 22) & 1;
+  int u = (opcode >> 23) & 1;
+  int pr = (opcode >> 24) & 1;
+  int offset = opcode & 0xff;
 
   if (offset == 0)
   {
@@ -487,9 +487,9 @@ int offset = opcode & 0xff;
   }
 }
 
-int disasm_arm(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_arm(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
-uint32_t opcode;
+  uint32_t opcode;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -575,38 +575,44 @@ uint32_t opcode;
   return 4;
 }
 
-void list_output_arm(struct _asm_context *asm_context, int address)
+void list_output_arm(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
-int cycles_min,cycles_max;
-char instruction[128];
-unsigned int opcode = get_opcode32(&asm_context->memory, address);
+  int cycles_min,cycles_max;
+  char instruction[128];
+  int count;
 
-  fprintf(asm_context->list, "\n");
-  disasm_arm(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-  fprintf(asm_context->list, "0x%04x: 0x%08x %-40s cycles: ", address, opcode, instruction);
+  while(start < end)
+  {
+    uint32_t opcode = get_opcode32(&asm_context->memory, start);
+  
+    fprintf(asm_context->list, "\n");
+    count = disasm_arm(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    fprintf(asm_context->list, "0x%04x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
-  if (cycles_min == -1)
-  { fprintf(asm_context->list, "\n"); }
-    else
-  if (cycles_min == cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
-    else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    if (cycles_min == -1)
+    { fprintf(asm_context->list, "\n"); }
+      else
+    if (cycles_min == cycles_max)
+    { fprintf(asm_context->list, "%d\n", cycles_min); }
+      else
+    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
 
+    start += count;
+  }
 }
 
-void disasm_range_arm(struct _memory *memory, int start, int end)
+void disasm_range_arm(struct _memory *memory, uint32_t start, uint32_t end)
 {
-// Are these correct and the same for all MSP430's?
-char *vectors[16] = { "", "", "", "", "", "",
-                      "", "", "", "",
-                      "", "", "", "",
-                      "",
-                      "Reset/Watchdog/Flash" };
-char instruction[128];
-int vectors_flag = 0;
-int cycles_min = 0,cycles_max = 0;
-int num;
+  // Are these correct and the same for all chips?
+  char *vectors[16] = { "", "", "", "", "", "",
+                        "", "", "", "",
+                        "", "", "", "",
+                        "",
+                        "Reset/Watchdog/Flash" };
+  char instruction[128];
+  int vectors_flag = 0;
+  int cycles_min = 0,cycles_max = 0;
+  int num;
 
   printf("\n");
 

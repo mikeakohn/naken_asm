@@ -89,7 +89,7 @@ static int is_illegal_ea(int16_t opcode, int omit_mode)
   return 0;
 }
 
-static int get_ea_680x0(struct _memory *memory, int address, char *ea, uint16_t opcode, int skip, int size)
+static int get_ea_680x0(struct _memory *memory, uint32_t address, char *ea, uint16_t opcode, int skip, int size)
 {
   int reg = opcode & 0x7;
   int mode = (opcode >> 3) & 0x7;
@@ -272,7 +272,7 @@ static char get_size_680x0(unsigned short int opcode, int pos)
 }
 #endif
 
-int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_680x0(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   //int count=2;
   int opcode;
@@ -708,7 +708,7 @@ int disasm_680x0(struct _memory *memory, int address, char *instruction, int *cy
   return -1;
 }
 
-void list_output_680x0(struct _asm_context *asm_context, int address)
+void list_output_680x0(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min=-1,cycles_max=-1;
   int count;
@@ -716,17 +716,23 @@ void list_output_680x0(struct _asm_context *asm_context, int address)
   int n;
 
   fprintf(asm_context->list, "\n");
-  count = disasm_680x0(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
-  fprintf(asm_context->list, "0x%04x: %04x %-40s\n", address, (memory_read_m(&asm_context->memory, address) << 8)|memory_read_m(&asm_context->memory, address + 1), instruction);
-
-  for (n = 2; n < count; n += 2)
+  while(start < end)
   {
-    fprintf(asm_context->list, "        %04x\n", (memory_read_m(&asm_context->memory, address + n) << 8) | memory_read_m(&asm_context->memory, address + n + 1));
+    count = disasm_680x0(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+
+    fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start, (memory_read_m(&asm_context->memory, start) << 8) | memory_read_m(&asm_context->memory, start + 1), instruction);
+
+    for (n = 2; n < count; n += 2)
+    {
+      fprintf(asm_context->list, "        %04x\n", (memory_read_m(&asm_context->memory, start + n) << 8) | memory_read_m(&asm_context->memory, start + n + 1));
+    }
+
+    start += count;
   }
 }
 
-void disasm_range_680x0(struct _memory *memory, int start, int end)
+void disasm_range_680x0(struct _memory *memory, uint32_t start, uint32_t end)
 {
   char instruction[128];
   char temp[32];

@@ -26,12 +26,12 @@ int get_cycle_count_65816(uint16_t opcode)
   return -1;
 }
 
-int disasm_65816(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   return -1;
 }
 
-void list_output_65816(struct _asm_context *asm_context, int address)
+void list_output_65816(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
 #if 0
 int cycles_min,cycles_max;
@@ -52,7 +52,7 @@ unsigned int opcode=get_opcode32(&asm_context->memory, address);
 #endif
 }
 
-void disasm_range_65816(struct _memory *memory, int start, int end)
+void disasm_range_65816(struct _memory *memory, uint32_t start, uint32_t end)
 {
 #if 0
 char instruction[128];

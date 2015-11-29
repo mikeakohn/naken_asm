@@ -29,7 +29,7 @@ int get_cycle_count_tms1100(uint16_t opcode)
   return 6;
 }
 
-int disasm_tms1000(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_tms1000(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   int bit_instr;
   int opcode;
@@ -87,7 +87,7 @@ int disasm_tms1000(struct _memory *memory, int address, char *instruction, int *
   return 1;
 }
 
-int disasm_tms1100(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_tms1100(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   int bit_instr;
   int opcode;
@@ -144,16 +144,16 @@ int disasm_tms1100(struct _memory *memory, int address, char *instruction, int *
   return 1;
 }
 
-void list_output_tms1000(struct _asm_context *asm_context, int address)
+void list_output_tms1000(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  uint32_t opcode = memory_read_m(&asm_context->memory, address);
-  uint8_t page = address >> 6;
-  uint8_t pc = address & 0x3f;
+  uint32_t opcode = memory_read_m(&asm_context->memory, start);
+  uint8_t page = start >> 6;
+  uint8_t pc = start & 0x3f;
 
   fprintf(asm_context->list, "\n");
-  disasm_tms1000(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
+  disasm_tms1000(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
   fprintf(asm_context->list, "%02x/%02x: %02x %-40s cycles: ", page, pc, opcode, instruction);
 
@@ -163,16 +163,16 @@ void list_output_tms1000(struct _asm_context *asm_context, int address)
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
 }
 
-void list_output_tms1100(struct _asm_context *asm_context, int address)
+void list_output_tms1100(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  uint16_t opcode = memory_read_m(&asm_context->memory, address);
-  uint8_t page = address >> 6;
-  uint8_t pc = address & 0x3f;
+  uint16_t opcode = memory_read_m(&asm_context->memory, start);
+  uint8_t page = start >> 6;
+  uint8_t pc = start & 0x3f;
 
   fprintf(asm_context->list, "\n");
-  disasm_tms1100(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
+  disasm_tms1100(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
   fprintf(asm_context->list, "%02x/%02x: %02x %-40s cycles: ", page, pc, opcode, instruction);
 
@@ -180,10 +180,9 @@ void list_output_tms1100(struct _asm_context *asm_context, int address)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
     else
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
-
 }
 
-void disasm_range_tms1000(struct _memory *memory, int start, int end)
+void disasm_range_tms1000(struct _memory *memory, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;
@@ -221,7 +220,7 @@ void disasm_range_tms1000(struct _memory *memory, int start, int end)
   }
 }
 
-void disasm_range_tms1100(struct _memory *memory, int start, int end)
+void disasm_range_tms1100(struct _memory *memory, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;

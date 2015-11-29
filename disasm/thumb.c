@@ -27,8 +27,8 @@ int get_cycle_count_thumb(unsigned short int opcode)
 
 static void get_rlist(char *s, int rlist)
 {
-int i,comma;
-char temp[32];
+  int i,comma;
+  char temp[32];
 
   s[0]=0;
 
@@ -52,14 +52,14 @@ char temp[32];
   }
 }
 
-int disasm_thumb(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
-uint16_t opcode;
-int rd,rs,rn,offset;
-int h1,h2;
-int immediate;
-char temp[128];
-int n;
+  uint16_t opcode;
+  int rd,rs,rn,offset;
+  int h1,h2;
+  int immediate;
+  char temp[128];
+  int n;
 
   *cycles_min=-1;
   *cycles_max=-1;
@@ -236,49 +236,61 @@ int n;
   return 2;
 }
 
-void list_output_thumb(struct _asm_context *asm_context, int address)
+void list_output_thumb(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
-int cycles_min,cycles_max;
-char instruction[128];
-int count;
+  int cycles_min,cycles_max;
+  char instruction[128];
+  int count;
 
   fprintf(asm_context->list, "\n");
-  count=disasm_thumb(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
-  fprintf(asm_context->list, "0x%04x: %04x  %-40s cycles: ", address, memory_read_m(&asm_context->memory, address)|(memory_read_m(&asm_context->memory, address+1)<<8), instruction);
-
-  if (cycles_min==cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
-    else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
-
-  if (count==4)
+  while(start < end)
   {
-    fprintf(asm_context->list, "        %04x\n", memory_read_m(&asm_context->memory, address+2)|(memory_read_m(&asm_context->memory, address+3)<<8));
+    count = disasm_thumb(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+
+    fprintf(asm_context->list, "0x%04x: %04x  %-40s cycles: ",
+      start,
+      memory_read_m(&asm_context->memory, start) |
+     (memory_read_m(&asm_context->memory, start + 1) << 8),
+      instruction);
+
+    if (cycles_min == cycles_max)
+    { fprintf(asm_context->list, "%d\n", cycles_min); }
+      else
+    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+
+    if (count == 4)
+    {
+      fprintf(asm_context->list, "        %04x\n",
+        memory_read_m(&asm_context->memory, start + 2) |
+       (memory_read_m(&asm_context->memory, start + 3) << 8));
+    }
+
+    start += count;
   }
 }
 
-void disasm_range_thumb(struct _memory *memory, int start, int end)
+void disasm_range_thumb(struct _memory *memory, uint32_t start, uint32_t end)
 {
-char instruction[128];
-int cycles_min=0,cycles_max=0;
-int count;
+  char instruction[128];
+  int cycles_min = 0, cycles_max = 0;
+  int count;
 
   printf("\n");
 
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start<=end)
+  while(start <= end)
   {
     count=disasm_thumb(memory, start, instruction, &cycles_min, &cycles_max);
 
-    if (cycles_min<1)
+    if (cycles_min < 1)
     {
       printf("0x%04x: %04x  %-40s ?\n", start, READ_RAM16(start), instruction);
     }
       else
-    if (cycles_min==cycles_max)
+    if (cycles_min == cycles_max)
     {
       printf("0x%04x: %04x  %-40s %d\n", start, READ_RAM16(start), instruction, cycles_min);
     }
@@ -287,12 +299,12 @@ int count;
       printf("0x%04x: %04x  %-40s %d-%d\n", start, READ_RAM16(start), instruction, cycles_min, cycles_max);
     }
 
-    if (count==4)
+    if (count == 4)
     {
       printf("        %04x\n", READ_RAM16(start+2));
     }
 
-    start=start+count;
+    start += count;
   }
 }
 

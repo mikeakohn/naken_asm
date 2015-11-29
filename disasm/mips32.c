@@ -18,12 +18,12 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-int get_cycle_count_mips(unsigned short int opcode)
+int get_cycle_count_mips32(unsigned short int opcode)
 {
   return -1;
 }
 
-int disasm_mips(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
   int function,format;
@@ -46,37 +46,37 @@ int disasm_mips(struct _memory *memory, int address, char *instruction, int *cyc
     // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
     function = opcode & 0x3f;
     n = 0;
-    while(mips_r_table[n].instr != NULL)
+    while(mips32_r_table[n].instr != NULL)
     {
-      if (mips_r_table[n].function == function)
+      if (mips32_r_table[n].function == function)
       {
         int rs = (opcode >> 21) & 0x1f;
         int rt = (opcode >> 16) & 0x1f;
         int rd = (opcode >> 11) & 0x1f;
         int sa = (opcode >> 6) & 0x1f;
 
-        strcpy(instruction, mips_r_table[n].instr);
+        strcpy(instruction, mips32_r_table[n].instr);
 
         for (r = 0; r < 3; r++)
         {
-          if (mips_r_table[n].operand[r] == MIPS_OP_NONE) { break; }
+          if (mips32_r_table[n].operand[r] == MIPS_OP_NONE) { break; }
 
-          if (mips_r_table[n].operand[r] == MIPS_OP_RS)
+          if (mips32_r_table[n].operand[r] == MIPS_OP_RS)
           {
             sprintf(temp, "%s", reg[rs]);
           }
             else
-          if (mips_r_table[n].operand[r] == MIPS_OP_RT)
+          if (mips32_r_table[n].operand[r] == MIPS_OP_RT)
           {
             sprintf(temp, "%s", reg[rt]);
           }
             else
-          if (mips_r_table[n].operand[r] == MIPS_OP_RD)
+          if (mips32_r_table[n].operand[r] == MIPS_OP_RD)
           {
             sprintf(temp, "%s", reg[rd]);
           }
             else
-          if (mips_r_table[n].operand[r] == MIPS_OP_SA)
+          if (mips32_r_table[n].operand[r] == MIPS_OP_SA)
           {
             sprintf(temp, "%s", reg[sa]);
           }
@@ -116,32 +116,32 @@ int disasm_mips(struct _memory *memory, int address, char *instruction, int *cyc
     function = opcode & 0x3f;
     format = (opcode >> 21) & 0x1f;
     n = 0;
-    while(mips_cop_table[n].instr != NULL)
+    while(mips32_cop_table[n].instr != NULL)
     {
-      if (mips_cop_table[n].function == function &&
-          mips_cop_table[n].format == format)
+      if (mips32_cop_table[n].function == function &&
+          mips32_cop_table[n].format == format)
       {
         int ft = (opcode >> 16) & 0x1f;
         int fs = (opcode >> 11) & 0x1f;
         int fd = (opcode >> 6) & 0x1f;
 
-        strcpy(instruction, mips_cop_table[n].instr);
+        strcpy(instruction, mips32_cop_table[n].instr);
 
         for (r = 0; r < 3; r++)
         {
-          if (mips_cop_table[n].operand[r] == MIPS_COP_NONE) { break; }
+          if (mips32_cop_table[n].operand[r] == MIPS_COP_NONE) { break; }
 
-          if (mips_cop_table[n].operand[r] == MIPS_COP_FD)
+          if (mips32_cop_table[n].operand[r] == MIPS_COP_FD)
           {
             sprintf(temp, "$f%d", fd);
           }
             else
-          if (mips_cop_table[n].operand[r] == MIPS_COP_FS)
+          if (mips32_cop_table[n].operand[r] == MIPS_COP_FS)
           {
             sprintf(temp, "$f%d", fs);
           }
             else
-          if (mips_cop_table[n].operand[r] == MIPS_COP_FT)
+          if (mips32_cop_table[n].operand[r] == MIPS_COP_FT)
           {
             sprintf(temp, "$f%d", ft);
           }
@@ -163,57 +163,57 @@ int disasm_mips(struct _memory *memory, int address, char *instruction, int *cyc
     int op = opcode >> 26;
     // I-Type?  [ op 6, rs 5, rt 5, imm 16 ]
     n = 0;
-    while(mips_i_table[n].instr != NULL)
+    while(mips32_i_table[n].instr != NULL)
     {
-      if (mips_i_table[n].function == op)
+      if (mips32_i_table[n].function == op)
       {
         int rs = (opcode >> 21) & 0x1f;
         int rt = (opcode >> 16) & 0x1f;
         int immediate = opcode & 0xffff;
 
-        if (mips_i_table[n].operand[2] == MIPS_OP_RT_IS_0)
+        if (mips32_i_table[n].operand[2] == MIPS_OP_RT_IS_0)
         {
           if (rt != 0) { continue; }
         }
           else
-        if (mips_i_table[n].operand[2] == MIPS_OP_RT_IS_1)
+        if (mips32_i_table[n].operand[2] == MIPS_OP_RT_IS_1)
         {
           if (rt != 1) { continue; }
         }
 
-        strcpy(instruction, mips_i_table[n].instr);
+        strcpy(instruction, mips32_i_table[n].instr);
 
         for (r = 0; r < 3; r++)
         {
-          if (mips_i_table[n].operand[r] == MIPS_OP_NONE) { break; }
+          if (mips32_i_table[n].operand[r] == MIPS_OP_NONE) { break; }
 
-          if (mips_i_table[n].operand[r] == MIPS_OP_RS)
+          if (mips32_i_table[n].operand[r] == MIPS_OP_RS)
           {
             sprintf(temp, "%s", reg[rs]);
           }
             else
-          if (mips_i_table[n].operand[r] == MIPS_OP_RT)
+          if (mips32_i_table[n].operand[r] == MIPS_OP_RT)
           {
             sprintf(temp, "%s", reg[rt]);
           }
             else
-          if (mips_i_table[n].operand[r] == MIPS_OP_IMMEDIATE)
+          if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE)
           {
-            sprintf(temp, "%x", immediate);
+            sprintf(temp, "0x%x", immediate);
           }
             else
-          if (mips_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
+          if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
           {
-            sprintf(temp, "%x(%s)", immediate, reg[rs]);
+            sprintf(temp, "0x%x(%s)", immediate, reg[rs]);
           }
             else
-          if (mips_i_table[n].operand[r] == MIPS_OP_LABEL)
+          if (mips32_i_table[n].operand[r] == MIPS_OP_LABEL)
           {
             int32_t offset = (int16_t)immediate;
 
             offset = offset << 2;
 
-            sprintf(temp, "%x (offset=%d)", address + 4 + offset, offset);
+            sprintf(temp, "0x%x (offset=%d)", address + 4 + offset, offset);
           }
             else
           { temp[0] = 0; }
@@ -229,7 +229,7 @@ int disasm_mips(struct _memory *memory, int address, char *instruction, int *cyc
       n++;
     }
 
-    if (mips_i_table[n].instr == NULL)
+    if (mips32_i_table[n].instr == NULL)
     {
       //printf("Internal Error: Unknown MIPS opcode %08x, %s:%d\n", opcode, __FILE__, __LINE__);
       strcpy(instruction, "???");
@@ -239,23 +239,29 @@ int disasm_mips(struct _memory *memory, int address, char *instruction, int *cyc
   return 4;
 }
 
-void list_output_mips(struct _asm_context *asm_context, int address)
+void list_output_mips32(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  uint32_t opcode = get_opcode32(&asm_context->memory, address);
+  uint32_t opcode;
 
-  fprintf(asm_context->list, "\n");
-  disasm_mips(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-  fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", address, opcode, instruction);
+  while(start < end)
+  {
+    opcode = get_opcode32(&asm_context->memory, start);
+    fprintf(asm_context->list, "\n");
 
-  if (cycles_min == cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
-    else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    disasm_mips32(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+
+    fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
+
+    if (cycles_min == cycles_max)
+    { fprintf(asm_context->list, "%d\n", cycles_min); }
+      else
+    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+  }
 }
 
-void disasm_range_mips(struct _memory *memory, int start, int end)
+void disasm_range_mips32(struct _memory *memory, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0,cycles_max = 0;
@@ -266,11 +272,11 @@ void disasm_range_mips(struct _memory *memory, int start, int end)
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while(start < end)
   {
     num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
 
-    disasm_mips(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_mips32(memory, start, instruction, &cycles_min, &cycles_max);
 
     if (cycles_min < 1)
     {
@@ -285,17 +291,6 @@ void disasm_range_mips(struct _memory *memory, int start, int end)
     {
       printf("0x%04x: 0x%08x %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
     }
-
-#if 0
-    count -= 4;
-    while(count > 0)
-    {
-      start = start + 4;
-      num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
-      printf("0x%04x: 0x%04x\n", start, num);
-      count -= 4;
-    }
-#endif
 
     start += 4;
   }
