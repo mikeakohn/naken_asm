@@ -22,8 +22,8 @@
 
 int get_register_avr8(char *token)
 {
-int n;
-int r;
+  int n;
+  int r;
 
   if (token[0] == 'r' || token[0] == 'R')
   {
@@ -57,11 +57,11 @@ int get_cycle_count_avr8(uint16_t opcode)
   return -1;
 }
 
-int disasm_avr8(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_avr8(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
-int opcode;
-int n;
-int rd,rr,k;
+  int opcode;
+  int n;
+  int rd,rr,k;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -284,39 +284,45 @@ int rd,rr,k;
   return 2;
 }
 
-void list_output_avr8(struct _asm_context *asm_context, int address)
+void list_output_avr8(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
-int cycles_min,cycles_max;
-char instruction[128];
-int count,opcode;
-int n;
+  int cycles_min,cycles_max;
+  char instruction[128];
+  int count,opcode;
+  int n;
 
   fprintf(asm_context->list, "\n");
-  count = disasm_avr8(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
-  opcode = memory_read_m(&asm_context->memory, address)|(memory_read_m(&asm_context->memory, address + 1) << 8);
-
-  fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", address / 2, opcode, instruction);
-
-  if (cycles_min == cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
-    else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
-
-  for (n = 2; n < count; n += 2)
+  while(start < end)
   {
-    opcode = memory_read_m(&asm_context->memory, address + n) |
-            (memory_read_m(&asm_context->memory, address + n + 1) << 8);
-    fprintf(asm_context->list, "        %04x\n", opcode);
+    count = disasm_avr8(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+
+    opcode = memory_read_m(&asm_context->memory, start) | (memory_read_m(&asm_context->memory, start + 1) << 8);
+
+    fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", start / 2, opcode, instruction);
+
+    if (cycles_min == cycles_max)
+    { fprintf(asm_context->list, "%d\n", cycles_min); }
+      else
+    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+
+    for (n = 2; n < count; n += 2)
+    {
+      opcode = memory_read_m(&asm_context->memory, start + n) |
+              (memory_read_m(&asm_context->memory, start + n + 1) << 8);
+      fprintf(asm_context->list, "        %04x\n", opcode);
+    }
+
+    start += count;
   }
 }
 
-void disasm_range_avr8(struct _memory *memory, int start, int end)
+void disasm_range_avr8(struct _memory *memory, uint32_t start, uint32_t end)
 {
-char instruction[128];
-int cycles_min=0,cycles_max=0;
-int count,opcode;
-int n;
+  char instruction[128];
+  int cycles_min=0,cycles_max=0;
+  int count,opcode;
+  int n;
 
   printf("\n");
 

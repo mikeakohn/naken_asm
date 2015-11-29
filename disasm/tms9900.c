@@ -60,17 +60,17 @@ static void get_operand(char *operand, int t, int reg, int data)
   }
 }
 
-int disasm_tms9900(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_tms9900(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
-char operand_s[32];
-char operand_d[32];
-int data_s = 0;
-int data_d = 0;
-int count = 2;
-int opcode;
-int ts,td;
-int s,d;
-int n;
+  char operand_s[32];
+  char operand_d[32];
+  int data_s = 0;
+  int data_d = 0;
+  int count = 2;
+  int opcode;
+  int ts,td;
+  int s,d;
+  int n;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -190,38 +190,45 @@ int n;
   return 2;
 }
 
-void list_output_tms9900(struct _asm_context *asm_context, int address)
+void list_output_tms9900(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
-int cycles_min,cycles_max;
-char instruction[128];
-int count;
-int n;
-unsigned int opcode = (memory_read_m(&asm_context->memory, address) << 8) | memory_read_m(&asm_context->memory, address + 1);
+  int cycles_min,cycles_max;
+  char instruction[128];
+  int count;
+  int n;
+  uint32_t opcode;
 
   fprintf(asm_context->list, "\n");
-  count=disasm_tms9900(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
-  fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", address, opcode, instruction);
-
-  if (cycles_min == cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
-    else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
-
-  for (n = 2; n < count; n = n + 2)
+  while(start < end)
   {
-    opcode = (memory_read_m(&asm_context->memory, address + n) << 8) | memory_read_m(&asm_context->memory, address + n + 1);
-    fprintf(asm_context->list, "0x%04x: %04x\n", address + n, opcode);
+    opcode = (memory_read_m(&asm_context->memory, start) << 8) | memory_read_m(&asm_context->memory, start + 1);
+    count = disasm_tms9900(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+
+    fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", start, opcode, instruction);
+
+    if (cycles_min == cycles_max)
+    { fprintf(asm_context->list, "%d\n", cycles_min); }
+      else
+    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+
+    for (n = 2; n < count; n = n + 2)
+    {
+      opcode = (memory_read_m(&asm_context->memory, start + n) << 8) | memory_read_m(&asm_context->memory, start + n + 1);
+      fprintf(asm_context->list, "0x%04x: %04x\n", start + n, opcode);
+    }
+
+    start += count;
   }
 }
 
-void disasm_range_tms9900(struct _memory *memory, int start, int end)
+void disasm_range_tms9900(struct _memory *memory, uint32_t start, uint32_t end)
 {
-char instruction[128];
-char bytes[10];
-int cycles_min = 0,cycles_max = 0;
-int count;
-int n;
+  char instruction[128];
+  char bytes[10];
+  int cycles_min = 0,cycles_max = 0;
+  int count;
+  int n;
 
   printf("\n");
 

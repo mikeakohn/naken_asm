@@ -14,8 +14,8 @@
 
 #include "common/assembler.h"
 
-uint32_t get_opcode16(struct _memory *memory, int address);
-uint32_t get_opcode32(struct _memory *memory, int address);
+uint32_t get_opcode16(struct _memory *memory, uint32_t address);
+uint32_t get_opcode32(struct _memory *memory, uint32_t address);
 
 #endif
 

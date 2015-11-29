@@ -32,16 +32,16 @@ int get_cycle_count_65xx(unsigned short int opcode)
   return -1;
 }
 
-int disasm_65xx(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_65xx(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
-unsigned int opcode;
-//int n,r;
-char temp[32];
-char num[8];
+  uint32_t opcode;
+  //int n,r;
+  char temp[32];
+  char num[8];
 
-int op;
-int lo, hi;
-int branch_address = 0;
+  int op;
+  int lo, hi;
+  int branch_address = 0;
 
   *cycles_min=-1;
   *cycles_max=-1;
@@ -152,18 +152,18 @@ int branch_address = 0;
   return op_bytes[op];
 }
 
-void list_output_65xx(struct _asm_context *asm_context, int address)
+void list_output_65xx(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
-int cycles_min,cycles_max;
-char instruction[128];
-unsigned int opcode=get_opcode32(&asm_context->memory, address);
+  int cycles_min,cycles_max;
+  char instruction[128];
+  uint32_t opcode = get_opcode32(&asm_context->memory, start);
 
   opcode &= 0xFF;
 
   fprintf(asm_context->list, "\n");
-  disasm_65xx(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
+  disasm_65xx(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-  fprintf(asm_context->list, "0x%04x: 0x%02x %-40s cycles: ", address, opcode, instruction);
+  fprintf(asm_context->list, "0x%04x: 0x%02x %-40s cycles: ", start, opcode, instruction);
 
   if (cycles_min==cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
@@ -172,12 +172,12 @@ unsigned int opcode=get_opcode32(&asm_context->memory, address);
 
 }
 
-void disasm_range_65xx(struct _memory *memory, int start, int end)
+void disasm_range_65xx(struct _memory *memory, uint32_t start, uint32_t end)
 {
-char instruction[128];
-//int vectors_flag=0;
-int cycles_min=0,cycles_max=0;
-int num;
+  char instruction[128];
+  //int vectors_flag=0;
+  int cycles_min=0,cycles_max=0;
+  int num;
 
   printf("\n");
 

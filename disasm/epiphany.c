@@ -48,7 +48,7 @@ int get_cycle_count_epiphany(unsigned short int opcode)
   return -1;
 }
 
-int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycles_min, int *cycles_max)
+int disasm_epiphany(struct _memory *memory, uint32_t address, char *instr, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode32;
   uint16_t opcode16;
@@ -225,45 +225,51 @@ int disasm_epiphany(struct _memory *memory, int address, char *instr, int *cycle
   return 4;
 }
 
-void list_output_epiphany(struct _asm_context *asm_context, int address)
+void list_output_epiphany(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min,cycles_max,count;
   char instruction[128];
 
   fprintf(asm_context->list, "\n");
-  count = disasm_epiphany(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-  fprintf(asm_context->list, "0x%04x: ", address);
 
-  if (count == 2)
+  while(start < end)
   {
-    fprintf(asm_context->list, "%02x%02x     ",
-      memory_read_m(&asm_context->memory, address + 1),
-      memory_read_m(&asm_context->memory, address + 0));
-  }
-    else
-  if (count == 4)
-  {
-    fprintf(asm_context->list, "%02x%02x%02x%02x ",
-      memory_read_m(&asm_context->memory, address + 3),
-      memory_read_m(&asm_context->memory, address + 2),
-      memory_read_m(&asm_context->memory, address + 1),
-      memory_read_m(&asm_context->memory, address + 0));
-  }
-   else
-  {
-    printf("Internal Error: %s:%d  count=%d\n", __FILE__, __LINE__, count);
-  }
+    count = disasm_epiphany(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    fprintf(asm_context->list, "0x%04x: ", start);
 
-  fprintf(asm_context->list, " %-40s cycles: ", instruction);
+    if (count == 2)
+    {
+      fprintf(asm_context->list, "%02x%02x     ",
+        memory_read_m(&asm_context->memory, start + 1),
+        memory_read_m(&asm_context->memory, start + 0));
+    }
+      else
+    if (count == 4)
+    {
+      fprintf(asm_context->list, "%02x%02x%02x%02x ",
+        memory_read_m(&asm_context->memory, start + 3),
+        memory_read_m(&asm_context->memory, start + 2),
+        memory_read_m(&asm_context->memory, start + 1),
+        memory_read_m(&asm_context->memory, start + 0));
+    }
+     else
+    {
+      printf("Internal Error: %s:%d  count=%d\n", __FILE__, __LINE__, count);
+    }
 
-  if (cycles_min == cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
-    else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    fprintf(asm_context->list, " %-40s cycles: ", instruction);
+
+    if (cycles_min == cycles_max)
+    { fprintf(asm_context->list, "%d\n", cycles_min); }
+      else
+    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+
+    start += count;
+  }
 
 }
 
-void disasm_range_epiphany(struct _memory *memory, int start, int end)
+void disasm_range_epiphany(struct _memory *memory, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0,cycles_max = 0;

@@ -23,7 +23,7 @@ int get_cycle_count_mips32(unsigned short int opcode)
   return -1;
 }
 
-int disasm_mips32(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
   int function,format;
@@ -239,23 +239,29 @@ int disasm_mips32(struct _memory *memory, int address, char *instruction, int *c
   return 4;
 }
 
-void list_output_mips32(struct _asm_context *asm_context, int address)
+void list_output_mips32(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  uint32_t opcode = get_opcode32(&asm_context->memory, address);
+  uint32_t opcode;
 
-  fprintf(asm_context->list, "\n");
-  disasm_mips32(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-  fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", address, opcode, instruction);
+  while(start < end)
+  {
+    opcode = get_opcode32(&asm_context->memory, start);
+    fprintf(asm_context->list, "\n");
 
-  if (cycles_min == cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
-    else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    disasm_mips32(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+
+    fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
+
+    if (cycles_min == cycles_max)
+    { fprintf(asm_context->list, "%d\n", cycles_min); }
+      else
+    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+  }
 }
 
-void disasm_range_mips32(struct _memory *memory, int start, int end)
+void disasm_range_mips32(struct _memory *memory, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0,cycles_max = 0;
@@ -266,7 +272,7 @@ void disasm_range_mips32(struct _memory *memory, int start, int end)
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while(start < end)
   {
     num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
 

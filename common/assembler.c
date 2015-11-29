@@ -725,7 +725,7 @@ int assemble(struct _asm_context *asm_context)
               asm_context->list != NULL &&
               asm_context->include_count == 0)
           {
-            asm_context->list_output(asm_context, start_address);
+            asm_context->list_output(asm_context, start_address, asm_context->address);
             fprintf(asm_context->list, "\n");
           }
 

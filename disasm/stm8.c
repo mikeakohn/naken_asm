@@ -89,7 +89,7 @@ void add_reg(char *instr, int reg)
   }
 }
 
-int disasm_stm8(struct _memory *memory, int address, char *instr, int *cycles_min, int *cycles_max)
+int disasm_stm8(struct _memory *memory, uint32_t address, char *instr, int *cycles_min, int *cycles_max)
 {
   uint8_t opcode;
   uint8_t prefix = 0;
@@ -328,37 +328,43 @@ int disasm_stm8(struct _memory *memory, int address, char *instr, int *cycles_mi
   return count;
 }
 
-void list_output_stm8(struct _asm_context *asm_context, int address)
+void list_output_stm8(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min,cycles_max,count;
   char instruction[128];
   int n;
 
   fprintf(asm_context->list, "\n");
-  count=disasm_stm8(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
-  fprintf(asm_context->list, "0x%04x:", address);
 
-  for (n = 0; n < 5; n++)
+  while(start < end)
   {
-    if (n < count)
+    count = disasm_stm8(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    fprintf(asm_context->list, "0x%04x:", start);
+
+    for (n = 0; n < 5; n++)
     {
-      fprintf(asm_context->list, " %02x", memory_read_m(&asm_context->memory, address+n));
+      if (n < count)
+      {
+        fprintf(asm_context->list, " %02x", memory_read_m(&asm_context->memory, start + n));
+      }
+        else
+      {
+        fprintf(asm_context->list, "   ");
+      }
     }
+
+    fprintf(asm_context->list, " %-40s cycles: ", instruction);
+
+    if (cycles_min == cycles_max)
+    { fprintf(asm_context->list, "%d\n", cycles_min); }
       else
-    {
-      fprintf(asm_context->list, "   ");
-    }
+    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+
+    start += count;
   }
-  fprintf(asm_context->list, " %-40s cycles: ", instruction);
-
-  if (cycles_min == cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
-    else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
-
 }
 
-void disasm_range_stm8(struct _memory *memory, int start, int end)
+void disasm_range_stm8(struct _memory *memory, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;

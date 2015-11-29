@@ -27,7 +27,7 @@ int get_cycle_count_680x(unsigned short int opcode)
   return -1;
 }
 
-int disasm_680x(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_680x(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   int opcode;
   int size = 1;
@@ -74,7 +74,7 @@ int disasm_680x(struct _memory *memory, int address, char *instruction, int *cyc
   return size;
 }
 
-void list_output_680x(struct _asm_context *asm_context, int address)
+void list_output_680x(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
@@ -83,25 +83,31 @@ void list_output_680x(struct _asm_context *asm_context, int address)
   int n;
 
   fprintf(asm_context->list, "\n");
-  count = disasm_680x(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
-  bytes[0] = 0;
-  for (n = 0; n < count; n++)
+  while(start < end)
   {
-    char temp[4];
-    sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, address + n));
-    strcat(bytes, temp);
+    count = disasm_680x(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+
+    bytes[0] = 0;
+    for (n = 0; n < count; n++)
+    {
+      char temp[4];
+      sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, start + n));
+      strcat(bytes, temp);
+    }
+
+    fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ", start, bytes, instruction);
+
+    if (cycles_min == cycles_max)
+    { fprintf(asm_context->list, "%d\n", cycles_min); }
+      else
+    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+
+    start += count;
   }
-
-  fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ", address, bytes, instruction);
-
-  if (cycles_min == cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
-    else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
 }
 
-void disasm_range_680x(struct _memory *memory, int start, int end)
+void disasm_range_680x(struct _memory *memory, uint32_t start, uint32_t end)
 {
   char instruction[128];
   char bytes[10];

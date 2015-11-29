@@ -25,28 +25,28 @@ int get_cycle_count_NAME(unsigned short int opcode)
   return -1;
 }
 
-int disasm_NAME(struct _memory *memory, int address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_NAME(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
-  *cycles_min=-1;
-  *cycles_max=-1;
+  *cycles_min = -1;
+  *cycles_max = -1;
 
   return -1;
 }
 
-void list_output_NAME(struct _asm_context *asm_context, int address)
+void list_output_NAME(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
-int cycles_min,cycles_max;
-char instruction[128];
-char bytes[10];
-int count;
-int n;
-//unsigned int opcode=memory_read_m(&asm_context->memory, address);
+  int cycles_min,cycles_max;
+  char instruction[128];
+  char bytes[10];
+  int count;
+  int n;
+  //unsigned int opcode=memory_read_m(&asm_context->memory, address);
 
   fprintf(asm_context->list, "\n");
   count=disasm_NAME(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
-  bytes[0]=0;
-  for (n=0; n<count; n++)
+  bytes[0] = 0;
+  for (n = 0; n < count; n++)
   {
     char temp[4];
     sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, address+n));
@@ -55,43 +55,43 @@ int n;
 
   fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ", address, bytes, instruction);
 
-  if (cycles_min==cycles_max)
+  if (cycles_min == cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
     else
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
 }
 
-void disasm_range_NAME(struct _memory *memory, int start, int end)
+void disasm_range_NAME(struct _memory *memory, uint32_t start, uint32_t end)
 {
-char instruction[128];
-char bytes[10];
-int cycles_min=0,cycles_max=0;
-int count;
-int n;
+  char instruction[128];
+  char bytes[10];
+  int cycles_min=0,cycles_max=0;
+  int count;
+  int n;
 
   printf("\n");
 
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start<=end)
+  while(start <= end)
   {
-    count=disasm_NAME(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_NAME(memory, start, instruction, &cycles_min, &cycles_max);
 
-    bytes[0]=0;
-    for (n=0; n<count; n++)
+    bytes[0] = 0;
+    for (n = 0; n < count; n++)
     {
       char temp[4];
-      sprintf(temp, "%02x ", READ_RAM(start+n));
+      sprintf(temp, "%02x ", READ_RAM(start + n));
       strcat(bytes, temp);
     }
 
-    if (cycles_min<1)
+    if (cycles_min < 1)
     {
       printf("0x%04x: %-9s %-40s ?\n", start, bytes, instruction);
     }
       else
-    if (cycles_min==cycles_max)
+    if (cycles_min == cycles_max)
     {
       printf("0x%04x: %-9s %-40s %d\n", start, bytes, instruction, cycles_min);
     }
@@ -100,7 +100,7 @@ int n;
       printf("0x%04x: %-9s %-40s %d-%d\n", start, bytes, instruction, cycles_min, cycles_max);
     }
 
-    start=start+count;
+    start += count;
   }
 }
 
