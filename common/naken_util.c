@@ -673,7 +673,7 @@ int main(int argc, char *argv[])
            "   -avr8                        (Atmel AVR8)\n"
            "   -dspic                       (dsPIC)\n"
            "   -epiphany                    (Epiphany III/IV)\n"
-           "   -mips                        (MIPS)\n"
+           "   -mips32                      (MIPS)\n"
            "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
            "   -stm8                        (STM8)\n"
            "   -tms1000                     (TMS1000)\n"
