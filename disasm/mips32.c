@@ -41,6 +41,8 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
   *cycles_max = -1;
   opcode = get_opcode32(memory, address);
 
+  instruction[0] = 0;
+
   if ((opcode >> 26) == 0)
   {
     // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
@@ -245,10 +247,11 @@ void list_output_mips32(struct _asm_context *asm_context, uint32_t start, uint32
   char instruction[128];
   uint32_t opcode;
 
+  fprintf(asm_context->list, "\n");
+
   while(start < end)
   {
     opcode = get_opcode32(&asm_context->memory, start);
-    fprintf(asm_context->list, "\n");
 
     disasm_mips32(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -258,6 +261,8 @@ void list_output_mips32(struct _asm_context *asm_context, uint32_t start, uint32
     { fprintf(asm_context->list, "%d\n", cycles_min); }
       else
     { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+
+    start += 4;
   }
 }
 

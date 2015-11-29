@@ -107,7 +107,7 @@ static uint32_t find_opcode(const char *instr_case)
   {
     if (strcmp(instr_case, mips32_i_table[n].instr) == 0)
     {
-      return n << 26;
+      return mips32_i_table[n].function << 26;
     }
 
     n++;
@@ -138,7 +138,6 @@ static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct
     uint32_t opcode;
     opcode = find_opcode("lui");
     add_bin32(asm_context, opcode | (operands[0].value << 16) | ((operands[1].value >> 16) & 0xffff), IS_OPCODE);
-    asm_context->address += 4;
 
     opcode = find_opcode("ori");
     add_bin32(asm_context, opcode | (operands[0].value << 16) | (operands[1].value & 0xffff), IS_OPCODE);
