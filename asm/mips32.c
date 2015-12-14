@@ -456,8 +456,8 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
         {
           int32_t offset = operands[r].value - (asm_context->address + 4);
 
-          if (operands[r].value < -(1 << 17) ||
-              operands[r].value > (1 << 17) - 1)
+          if (offset < -(1 << 17) ||
+              offset > (1 << 17) - 1)
           {
             print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context); 
             return -1;
