@@ -410,6 +410,15 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
           break;
         }
       }
+      else if(op == OP_INDEXED8_Y)
+      {
+        if(table_65xx_opcodes[i].op == OP_INDEXED16_Y)
+        {
+          op = OP_INDEXED16_Y;
+          opcode = i;
+          break;
+        }
+      }
     }
   }
 
