@@ -21,10 +21,6 @@
 #include "common/eval_expression.h"
 #include "table/mips32.h"
 
-extern struct _mips32_instr mips32_r_table[];
-extern struct _mips32_instr mips32_i_table[];
-extern struct _mips32_cop_instr mips32_cop_table[];
-
 enum
 {
   OPERAND_TREG,
@@ -89,12 +85,13 @@ static int get_register_mips32(char *token, char letter)
   if (token[1] == 's' && num >= 0 && num <= 7) { return 16 + num; }
   if (token[1] == 't' && num >= 8 && num <= 9) { return 24 + (num - 8); }
   if (token[1] == 'k' && num >= 0 && num <= 1) { return 26 + num; }
+  if (token[1] == 's' && num == 8) { return 30; }
 
-  if (strcasecmp(token, "$gp") == 0) return 28;
-  if (strcasecmp(token, "$sp") == 0) return 29;
-  if (strcasecmp(token, "$s8") == 0) return 30;
-  if (strcasecmp(token, "$fp") == 0) return 30;
-  if (strcasecmp(token, "$ra") == 0) return 31;
+  if (strcasecmp(token, "$gp") == 0) { return 28; }
+  if (strcasecmp(token, "$sp") == 0) { return 29; }
+  if (strcasecmp(token, "$s8") == 0) { return 30; }
+  if (strcasecmp(token, "$fp") == 0) { return 30; }
+  if (strcasecmp(token, "$ra") == 0) { return 31; }
 
   return -1;
 }
@@ -124,13 +121,13 @@ static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct
       operands[0].type == OPERAND_TREG &&
       operands[1].type == OPERAND_TREG)
   {
-    strcpy(instr_case, "add");
+    strcpy(instr_case, "addu");
     operands[2].value = 0;
     operands[2].type = OPERAND_TREG;;
     *operand_count = 3;
   }
     else
-  if (strcmp(instr_case, "li") == 0 &&
+  if ((strcmp(instr_case, "li") == 0 || strcmp(instr_case, "la") == 0) &&
       operands[0].type == OPERAND_TREG &&
       operands[1].type == OPERAND_IMMEDIATE &&
       *operand_count == 2)
@@ -140,7 +137,7 @@ static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct
     add_bin32(asm_context, opcode | (operands[0].value << 16) | ((operands[1].value >> 16) & 0xffff), IS_OPCODE);
 
     opcode = find_opcode("ori");
-    add_bin32(asm_context, opcode | (operands[0].value << 16) | (operands[1].value & 0xffff), IS_OPCODE);
+    add_bin32(asm_context, opcode | (operands[0].value << 21) |(operands[0].value << 16) | (operands[1].value & 0xffff), IS_OPCODE);
 
     return 8;
   }
@@ -152,14 +149,15 @@ static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct
   }
     else
   if (strcmp(instr_case, "negu") == 0 &&
-      *operand_count == 1 &&
-      operands[0].type == OPERAND_TREG)
+      *operand_count == 2 &&
+      operands[0].type == OPERAND_TREG &&
+      operands[1].type == OPERAND_TREG)
   {
-    // negu reg = subu reg, 0, reg
+    // negu rd, rs = subu rd, 0, rs
     strcpy(instr_case, "subu");
+    memcpy(&operands[2], &operands[1], sizeof(struct _operand));
     operands[1].value = 0;
     operands[1].type = OPERAND_TREG;
-    memcpy(&operands[2], &operands[0], sizeof(struct _operand));
     *operand_count = 3;
   }
     else
@@ -358,11 +356,9 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
       {
         if (operands[r].type != OPERAND_TREG)
         {
-//printf("%s %s %s\n", instr_case, mips32_r_table[n].instr, instr);
           printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
           return -1;
         }
-//printf("%s  %d<<%d\n", instr, operands[r].value, shift_table[(int)mips32_r_table[n].operand[r]]);
         opcode |= operands[r].value << shift_table[(int)mips32_r_table[n].operand[r]];
       }
 
@@ -507,6 +503,42 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
 
       add_bin32(asm_context, opcode, IS_OPCODE);
 
+      return opcode_size;
+    }
+    n++;
+  }
+
+  // Special2 type
+  n = 0;
+  while(mips32_special2_table[n].instr != NULL)
+  {
+    if (strcmp(instr_case, mips32_special2_table[n].instr) == 0)
+    {
+      char shift_table[] = { 0, 11, 21, 16, 6 };
+
+      if (mips32_special2_table[n].operand_count != operand_count)
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
+      }
+
+      opcode = (0x1c << 26) | mips32_special2_table[n].function;
+
+      for (r = 0; r < operand_count; r++)
+      {
+        if (operands[r].type != OPERAND_TREG)
+        {
+          printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
+          return -1;
+        }
+
+        opcode |= operands[r].value << shift_table[(int)mips32_special2_table[n].operand[r]];
+      }
+
+      // FIXME - Is this always true?
+      opcode |= operands[0].value << shift_table[3];
+
+      add_bin32(asm_context, opcode, IS_OPCODE);
       return opcode_size;
     }
     n++;

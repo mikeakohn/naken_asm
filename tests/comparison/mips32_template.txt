@@ -1,0 +1,15 @@
+add $5, $6, $7
+add $k0, $s0, $t7
+addi $k0, $s0, 0x1234
+addiu $9, $sp, 0x1234
+addu $ra, $gp, $fp
+clo $t0, $t1
+clz $t2, $t3
+lui $t1, 0x1234
+la $t3, 0x12341234
+li $t3, 0x12341234
+move $t3, $t4
+negu $t3, $t4
+sub $t3, $t4, $t5
+subu $t3, $t4, $t5
+sw $0, ($t1)

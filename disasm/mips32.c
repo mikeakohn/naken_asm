@@ -161,6 +161,61 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
     }
   }
     else
+  if ((opcode >> 26) == 0x1c)
+  {
+    // Special2
+    function = opcode & 0x3f;
+    n = 0;
+    while(mips32_special2_table[n].instr != NULL)
+    {
+      if (mips32_special2_table[n].function == function)
+      {
+        int rs = (opcode >> 21) & 0x1f;
+        int rt = (opcode >> 16) & 0x1f;
+        int rd = (opcode >> 11) & 0x1f;
+        int sa = (opcode >> 6) & 0x1f;
+
+        strcpy(instruction, mips32_special2_table[n].instr);
+
+        for (r = 0; r < 3; r++)
+        {
+          if (mips32_special2_table[n].operand[r] == MIPS_OP_NONE) { break; }
+
+          if (mips32_special2_table[n].operand[r] == MIPS_OP_RS)
+          {
+            sprintf(temp, "%s", reg[rs]);
+          }
+            else
+          if (mips32_special2_table[n].operand[r] == MIPS_OP_RT)
+          {
+            sprintf(temp, "%s", reg[rt]);
+          }
+            else
+          if (mips32_special2_table[n].operand[r] == MIPS_OP_RD)
+          {
+            sprintf(temp, "%s", reg[rd]);
+          }
+            else
+          if (mips32_special2_table[n].operand[r] == MIPS_OP_SA)
+          {
+            sprintf(temp, "%s", reg[sa]);
+          }
+            else
+          { temp[0] = 0; }
+
+          if (r != 0) { strcat(instruction, ", "); }
+          else { strcat(instruction, " "); }
+
+          strcat(instruction, temp);
+        }
+
+        break;
+      }
+
+      n++;
+    }
+  }
+    else
   {
     int op = opcode >> 26;
     // I-Type?  [ op 6, rs 5, rt 5, imm 16 ]

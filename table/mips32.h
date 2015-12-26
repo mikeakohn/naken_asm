@@ -53,5 +53,10 @@ struct _mips32_cop_instr
   int8_t operand_count;
 };
 
+extern struct _mips32_instr mips32_r_table[];
+extern struct _mips32_instr mips32_i_table[];
+extern struct _mips32_instr mips32_special2_table[];
+extern struct _mips32_cop_instr mips32_cop_table[];
+
 #endif
 
