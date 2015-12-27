@@ -17,6 +17,8 @@
 #define FORMAT_SPECIAL0 0x00
 #define FORMAT_SPECIAL2 0x1c
 #define FORMAT_SPECIAL3 0x1f
+#define SPECIAL_TYPE_REGS 0
+#define SPECIAL_TYPE_SA 1
 
 enum
 {
@@ -65,6 +67,7 @@ struct _mips32_special_instr
   uint8_t format;
   uint8_t operation;
   uint8_t function;
+  uint8_t type;
 };
 
 extern struct _mips32_instr mips32_r_table[];

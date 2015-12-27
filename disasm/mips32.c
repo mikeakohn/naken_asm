@@ -50,18 +50,39 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
       format == FORMAT_SPECIAL3)
   {
     // Special2 / Special3
-    operation = (opcode >> 6) & 0x1f;
     function = opcode & 0x3f;
 
     n = 0;
     while(mips32_special_table[n].instr != NULL)
     {
       if (mips32_special_table[n].format == format &&
-          mips32_special_table[n].operation == operation &&
           mips32_special_table[n].function == function)
       {
-        char operand_reg[4] = { 0 };
-        int shift = 21;
+        uint8_t operand_reg[4] = { 0 };
+        int shift;
+
+        if (mips32_special_table[n].type == SPECIAL_TYPE_REGS)
+        {
+          operation = (opcode >> 6) & 0x1f;
+          shift = 21;
+        }
+          else
+        if (mips32_special_table[n].type == SPECIAL_TYPE_SA)
+        {
+          operation = (opcode >> 21) & 0x1f;
+          shift = 16;
+        }
+          else
+        {
+          sprintf(instruction, "internal error");
+          return 4;
+        }
+
+        if (mips32_special_table[n].operation != operation)
+        {
+          n++;
+          continue;
+        }
 
         for (r = 0; r < 3; r++)
         {
@@ -79,7 +100,14 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
 
         for (r = 0; r < mips32_special_table[n].operand_count; r++)
         {
-          sprintf(temp, "%s", reg[(int)operand_reg[r]]);
+          if (r < 2 || mips32_special_table[n].type == SPECIAL_TYPE_REGS)
+          {
+            sprintf(temp, "%s", reg[(int)operand_reg[r]]);
+          }
+            else
+          {
+            sprintf(temp, "%d", operand_reg[r]);
+          }
 
           if (r != 0) { strcat(instruction, ", "); }
           else { strcat(instruction, " "); }

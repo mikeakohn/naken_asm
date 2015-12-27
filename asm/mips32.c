@@ -520,11 +520,27 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
         return -1;
       }
 
+      int shift;
+
       opcode = (mips32_special_table[n].format << 26) |
-               (mips32_special_table[n].operation << 6) |
                 mips32_special_table[n].function;
 
-      int shift = 21;
+      if (mips32_special_table[n].type == SPECIAL_TYPE_REGS)
+      {
+        opcode |= mips32_special_table[n].operation << 6;
+        shift = 21;
+      }
+        else
+      if (mips32_special_table[n].type == SPECIAL_TYPE_SA)
+      {
+        opcode |= mips32_special_table[n].operation << 21;
+        shift = 16;
+      }
+        else
+      {
+        print_error_internal(asm_context, __FILE__, __LINE__);
+        return -1;
+      }
 
       for (r = 0; r < 3; r++)
       {
@@ -532,10 +548,27 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
 
         if (operand_index != -1)
         {
-          if (operands[operand_index].type != OPERAND_TREG)
+          if (r < 2 || mips32_special_table[n].type == SPECIAL_TYPE_REGS)
           {
-            printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
-            return -1;
+            if (operands[operand_index].type != OPERAND_TREG)
+            {
+              printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
+              return -1;
+            }
+          }
+            else
+          {
+            if (operands[operand_index].type != OPERAND_IMMEDIATE)
+            {
+              printf("Error: '%s' expects immediate %s:%d\n", instr, asm_context->filename, asm_context->line);
+              return -1;
+            }
+
+            if (operands[r].value < 0 || operands[r].value > 31)
+            {
+              print_error_range("Constant", 0, 31, asm_context); 
+              return -1;
+            }
           }
 
           opcode |= operands[operand_index].value << shift;
