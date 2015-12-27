@@ -179,7 +179,7 @@ static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct
 
 int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
 {
-  struct _operand operands[3];
+  struct _operand operands[4];
   int operand_count = 0;
   char token[TOKENLEN];
   int token_type;
@@ -317,7 +317,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
       return -1;
     }
 
-    if (operand_count == 3)
+    if (operand_count == 4)
     {
       print_error_unexp(token, asm_context);
       return -1;
@@ -555,12 +555,22 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
         shift = 16;
       }
         else
+      if (mips32_special_table[n].type == SPECIAL_TYPE_BITS)
+      {
+        shift = 21;
+      }
+        else
+      if (mips32_special_table[n].type == SPECIAL_TYPE_BITS2)
+      {
+        shift = 21;
+      }
+        else
       {
         print_error_internal(asm_context, __FILE__, __LINE__);
         return -1;
       }
 
-      for (r = 0; r < 3; r++)
+      for (r = 0; r < 4; r++)
       {
         int operand_index = mips32_special_table[n].operand[r];
 
@@ -576,16 +586,52 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
           }
             else
           {
+            // SPECIAL_TYPE_SA and SPECIAL_TYPE_BITS
             if (operands[operand_index].type != OPERAND_IMMEDIATE)
             {
               printf("Error: '%s' expects immediate %s:%d\n", instr, asm_context->filename, asm_context->line);
               return -1;
             }
 
-            if (operands[r].value < 0 || operands[r].value > 31)
+            if (operand_index == 3 &&
+                mips32_special_table[n].type == SPECIAL_TYPE_BITS)
             {
-              print_error_range("Constant", 0, 31, asm_context); 
-              return -1;
+              if (operands[operand_index].value < 1 ||
+                  operands[operand_index].value > 32)
+              {
+                print_error_range("Constant", 1, 32, asm_context); 
+                return -1;
+              }
+
+              operands[operand_index].value--;
+            }
+              else
+            if (operand_index == 3 &&
+                mips32_special_table[n].type == SPECIAL_TYPE_BITS2)
+            {
+              if (operands[operand_index].value < 1 ||
+                  operands[operand_index].value > 32)
+              {
+                print_error_range("size", 1, 32, asm_context); 
+                return -1;
+              }
+
+              operands[operand_index].value += operands[2].value - 1;
+
+              if (operands[operand_index].value < 1 ||
+                  operands[operand_index].value > 32)
+              {
+                print_error_range("pos+size", 1, 32, asm_context); 
+                return -1;
+              }
+            }
+              else
+            {
+              if (operands[r].value < 0 || operands[r].value > 31)
+              {
+                print_error_range("Constant", 0, 31, asm_context); 
+                return -1;
+              }
             }
           }
 

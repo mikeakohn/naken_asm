@@ -73,6 +73,13 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
           shift = 16;
         }
           else
+        if (mips32_special_table[n].type == SPECIAL_TYPE_BITS ||
+            mips32_special_table[n].type == SPECIAL_TYPE_BITS2)
+        {
+          operation = 0;
+          shift = 21;
+        }
+          else
         {
           sprintf(instruction, "internal error");
           return 4;
@@ -84,13 +91,24 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
           continue;
         }
 
-        for (r = 0; r < 3; r++)
+        for (r = 0; r < 4; r++)
         {
           int operand_index = mips32_special_table[n].operand[r];
 
           if (operand_index != -1)
           {
             operand_reg[operand_index] = (opcode >> shift) & 0x1f;
+          }
+
+          if (r == 2 && mips32_special_table[n].type == SPECIAL_TYPE_BITS)
+          {
+            operand_reg[operand_index]++;
+          }
+            else
+          if (r == 3 && mips32_special_table[n].type == SPECIAL_TYPE_BITS2)
+          {
+            operand_reg[operand_index + 1] -= operand_reg[operand_index];
+            operand_reg[operand_index + 1]++;
           }
 
           shift -= 5;

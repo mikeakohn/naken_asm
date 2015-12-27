@@ -17,8 +17,14 @@
 #define FORMAT_SPECIAL0 0x00
 #define FORMAT_SPECIAL2 0x1c
 #define FORMAT_SPECIAL3 0x1f
-#define SPECIAL_TYPE_REGS 0
-#define SPECIAL_TYPE_SA 1
+
+enum
+{
+  SPECIAL_TYPE_REGS,
+  SPECIAL_TYPE_SA,
+  SPECIAL_TYPE_BITS,
+  SPECIAL_TYPE_BITS2,
+};
 
 enum
 {
@@ -62,7 +68,7 @@ struct _mips32_cop_instr
 struct _mips32_special_instr
 {
   const char *instr;
-  char operand[3];
+  char operand[4];
   int8_t operand_count;
   uint8_t format;
   uint8_t operation;

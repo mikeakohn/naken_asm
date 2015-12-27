@@ -74,13 +74,15 @@ struct _mips32_instr mips32_i_table[] = {
 };
 
 struct _mips32_special_instr mips32_special_table[] = {
-  { "clo", { 1, 0, 0 }, 2, FORMAT_SPECIAL2, 0x00, 0x21, SPECIAL_TYPE_REGS },
-  { "clz", { 1, 0, 0 }, 2, FORMAT_SPECIAL2, 0x00, 0x20, SPECIAL_TYPE_REGS },
-  { "seb", { -1, 1, 0 }, 2, FORMAT_SPECIAL3, 0x10, 0x20, SPECIAL_TYPE_REGS },
-  { "seh", { -1, 1, 0 }, 2, FORMAT_SPECIAL3, 0x18, 0x20, SPECIAL_TYPE_REGS },
-  { "rotr", { 1, 0, 2 }, 3, FORMAT_SPECIAL0, 0x01, 0x02, SPECIAL_TYPE_SA },
-  { "rotrv", { 2, 1, 0 }, 3, FORMAT_SPECIAL0, 0x01, 0x06, SPECIAL_TYPE_REGS },
-  { NULL, { 0, 0, 0 }, 0, 0, 0x00 }
+  { "clo", { 1, 0, 0, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x21, SPECIAL_TYPE_REGS },
+  { "clz", { 1, 0, 0, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x20, SPECIAL_TYPE_REGS },
+  { "ext", { 1, 0, 3, 2 }, 4, FORMAT_SPECIAL3, 0x00, 0x00, SPECIAL_TYPE_BITS },
+  { "ins", { 1, 0, 3, 2 }, 4, FORMAT_SPECIAL3, 0x00, 0x04, SPECIAL_TYPE_BITS2 },
+  { "seb", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x10, 0x20, SPECIAL_TYPE_REGS },
+  { "seh", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x18, 0x20, SPECIAL_TYPE_REGS },
+  { "rotr", { 1, 0, 2, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x02, SPECIAL_TYPE_SA },
+  { "rotrv", { 2, 1, 0, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x06, SPECIAL_TYPE_REGS },
+  { NULL, { 0, 0, 0, 0 }, 0, 0, 0x00 }
 };
 
 struct _mips32_cop_instr mips32_cop_table[] = {

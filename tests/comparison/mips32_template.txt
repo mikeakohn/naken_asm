@@ -3,8 +3,12 @@ add $k0, $s0, $t7
 addi $k0, $s0, 0x1234
 addiu $9, $sp, 0x1234
 addu $ra, $gp, $fp
+and $t5, $t6, $t7
+andi $t5, $t6, 0x1234
 clo $t0, $t1
 clz $t2, $t3
+ext $t2, $t3, 4, 2
+ins $t2, $t3, 4, 2
 lui $t1, 0x1234
 la $t3, 0x12341234
 li $t3, 0x12341234
