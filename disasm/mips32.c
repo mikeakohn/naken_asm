@@ -26,7 +26,7 @@ int get_cycle_count_mips32(unsigned short int opcode)
 int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
-  int function,format;
+  int function, format, operation;
   int n,r;
   char temp[32];
   const char *reg[32] =
@@ -161,47 +161,41 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
     }
   }
     else
-  if ((opcode >> 26) == 0x1c)
+  if ((opcode >> 26) == FORMAT_SPECIAL2 ||
+      (opcode >> 26) == FORMAT_SPECIAL3)
   {
-    // Special2
+    // Special2 / Special3
+    format = (opcode >> 26) & 0x3f;
+    operation = (opcode >> 6) & 0x1f;
     function = opcode & 0x3f;
-    n = 0;
-    while(mips32_special2_table[n].instr != NULL)
-    {
-      if (mips32_special2_table[n].function == function)
-      {
-        int rs = (opcode >> 21) & 0x1f;
-        int rt = (opcode >> 16) & 0x1f;
-        int rd = (opcode >> 11) & 0x1f;
-        int sa = (opcode >> 6) & 0x1f;
 
-        strcpy(instruction, mips32_special2_table[n].instr);
+    n = 0;
+    while(mips32_special_table[n].instr != NULL)
+    {
+      if (mips32_special_table[n].format == format &&
+          mips32_special_table[n].operation == operation &&
+          mips32_special_table[n].function == function)
+      {
+        char operand_reg[4] = { 0 };
+        int shift = 21;
 
         for (r = 0; r < 3; r++)
         {
-          if (mips32_special2_table[n].operand[r] == MIPS_OP_NONE) { break; }
+          int operand_index = mips32_special_table[n].operand[r];
 
-          if (mips32_special2_table[n].operand[r] == MIPS_OP_RS)
+          if (operand_index != -1)
           {
-            sprintf(temp, "%s", reg[rs]);
+            operand_reg[operand_index] = (opcode >> shift) & 0x1f;
           }
-            else
-          if (mips32_special2_table[n].operand[r] == MIPS_OP_RT)
-          {
-            sprintf(temp, "%s", reg[rt]);
-          }
-            else
-          if (mips32_special2_table[n].operand[r] == MIPS_OP_RD)
-          {
-            sprintf(temp, "%s", reg[rd]);
-          }
-            else
-          if (mips32_special2_table[n].operand[r] == MIPS_OP_SA)
-          {
-            sprintf(temp, "%s", reg[sa]);
-          }
-            else
-          { temp[0] = 0; }
+
+          shift -= 5;
+        }
+
+        strcpy(instruction, mips32_special_table[n].instr);
+
+        for (r = 0; r < mips32_special_table[n].operand_count; r++)
+        {
+          sprintf(temp, "%s", reg[(int)operand_reg[r]]);
 
           if (r != 0) { strcat(instruction, ", "); }
           else { strcat(instruction, " "); }

@@ -508,35 +508,44 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
     n++;
   }
 
-  // Special2 type
+  // Special2 / Special3 type
   n = 0;
-  while(mips32_special2_table[n].instr != NULL)
+  while(mips32_special_table[n].instr != NULL)
   {
-    if (strcmp(instr_case, mips32_special2_table[n].instr) == 0)
+    if (strcmp(instr_case, mips32_special_table[n].instr) == 0)
     {
-      char shift_table[] = { 0, 11, 21, 16, 6 };
-
-      if (mips32_special2_table[n].operand_count != operand_count)
+      if (mips32_special_table[n].operand_count != operand_count)
       {
         print_error_illegal_operands(instr, asm_context);
         return -1;
       }
 
-      opcode = (0x1c << 26) | mips32_special2_table[n].function;
+      opcode = (mips32_special_table[n].format << 26) |
+               (mips32_special_table[n].operation << 6) |
+                mips32_special_table[n].function;
 
-      for (r = 0; r < operand_count; r++)
+      int shift = 21;
+
+      for (r = 0; r < 3; r++)
       {
-        if (operands[r].type != OPERAND_TREG)
+        int operand_index = mips32_special_table[n].operand[r];
+
+        if (operand_index != -1)
         {
-          printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
-          return -1;
+          if (operands[operand_index].type != OPERAND_TREG)
+          {
+            printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
+            return -1;
+          }
+
+          opcode |= operands[operand_index].value << shift;
         }
 
-        opcode |= operands[r].value << shift_table[(int)mips32_special2_table[n].operand[r]];
+        shift -= 5;
       }
 
       // FIXME - Is this always true?
-      opcode |= operands[0].value << shift_table[3];
+      //opcode |= operands[0].value << shift_table[3];
 
       add_bin32(asm_context, opcode, IS_OPCODE);
       return opcode_size;

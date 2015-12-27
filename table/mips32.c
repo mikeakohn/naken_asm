@@ -73,10 +73,12 @@ struct _mips32_instr mips32_i_table[] = {
   { NULL, { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0x00, 0 }
 };
 
-struct _mips32_instr mips32_special2_table[] = {
-  { "clo", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_NONE }, 0x21, 2 },
-  { "clz", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_NONE }, 0x20, 2 },
-  { NULL, { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0x00, 0 }
+struct _mips32_special_instr mips32_special_table[] = {
+  { "clo", { 1, 0, 0 }, 2, FORMAT_SPECIAL2, 0x00, 0x21 },
+  { "clz", { 1, 0, 0 }, 2, FORMAT_SPECIAL2, 0x00, 0x20 },
+  { "seb", { -1, 1, 0 }, 2, FORMAT_SPECIAL3, 0x10, 0x20 },
+  { "seh", { -1, 1, 0 }, 2, FORMAT_SPECIAL3, 0x18, 0x20 },
+  { NULL, { 0, 0, 0 }, 0, 0, 0x00 }
 };
 
 struct _mips32_cop_instr mips32_cop_table[] = {

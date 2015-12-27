@@ -14,6 +14,9 @@
 
 #include <stdint.h>
 
+#define FORMAT_SPECIAL2 0x1c
+#define FORMAT_SPECIAL3 0x1f
+
 enum
 {
   MIPS_OP_NONE,
@@ -53,9 +56,19 @@ struct _mips32_cop_instr
   int8_t operand_count;
 };
 
+struct _mips32_special_instr
+{
+  const char *instr;
+  char operand[3];
+  int8_t operand_count;
+  uint8_t format;
+  uint8_t operation;
+  uint8_t function;
+};
+
 extern struct _mips32_instr mips32_r_table[];
 extern struct _mips32_instr mips32_i_table[];
-extern struct _mips32_instr mips32_special2_table[];
+extern struct _mips32_special_instr mips32_special_table[];
 extern struct _mips32_cop_instr mips32_cop_table[];
 
 #endif
