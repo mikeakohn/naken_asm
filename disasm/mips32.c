@@ -122,7 +122,7 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
     }
   }
 
-  if ((opcode >> 26) == 0)
+  if (format == 0)
   {
     // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
     function = opcode & 0x3f;
@@ -159,7 +159,7 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
             else
           if (mips32_r_table[n].operand[r] == MIPS_OP_SA)
           {
-            sprintf(temp, "%s", reg[sa]);
+            sprintf(temp, "%d", sa);
           }
             else
           { temp[0] = 0; }

@@ -15,6 +15,12 @@ rotr $t3, $t4, 31
 rotrv $t3, $t4, $t5
 seb $t3, $t4
 seh $t3, $t4
+sll $t5, $t6, 5
+sllv $t5, $t6, $t7
+sra $t5, $t6, 5
+srav $t5, $t6, $t7
+srl $t5, $t6, 5
+srlv $t5, $t6, $t7
 sub $t3, $t4, $t5
 subu $t3, $t4, $t5
 sw $0, ($t1)

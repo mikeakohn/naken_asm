@@ -354,11 +354,29 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
 
       for (r = 0; r < operand_count; r++)
       {
-        if (operands[r].type != OPERAND_TREG)
+        if (mips32_r_table[n].operand[r] == MIPS_OP_SA)
         {
-          printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
-          return -1;
+          if (operands[r].type != OPERAND_IMMEDIATE)
+          {
+            printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
+            return -1;
+          }
+
+          if (operands[r].value < 0 || operands[r].value > 31)
+          {
+            print_error_range("Constant", 0, 31, asm_context); 
+            return -1;
+          }
         }
+          else
+        {
+          if (operands[r].type != OPERAND_TREG)
+          {
+            printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
+            return -1;
+          }
+        }
+
         opcode |= operands[r].value << shift_table[(int)mips32_r_table[n].operand[r]];
       }
 
