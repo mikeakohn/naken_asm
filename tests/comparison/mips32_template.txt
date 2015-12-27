@@ -12,6 +12,13 @@ ins $t2, $t3, 4, 2
 lui $t1, 0x1234
 la $t3, 0x12341234
 li $t3, 0x12341234
+madd $t3, $t4
+maddu $t3, $t4
+msub $t3, $t4
+msubu $t3, $t4
+mul $t3, $t4, $t5
+mult $t3, $t4
+multu $t3, $t4
 move $t3, $t4
 movn $t3, $t4, $t5
 movz $t3, $t4, $t5
