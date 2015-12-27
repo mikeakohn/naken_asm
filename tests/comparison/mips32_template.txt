@@ -13,6 +13,8 @@ lui $t1, 0x1234
 la $t3, 0x12341234
 li $t3, 0x12341234
 move $t3, $t4
+movn $t3, $t4, $t5
+movz $t3, $t4, $t5
 negu $t3, $t4
 nop
 nor $t3, $k1, $k0
@@ -26,6 +28,10 @@ seb $t3, $t4
 seh $t3, $t4
 sll $t5, $t6, 5
 sllv $t5, $t6, $t7
+slt $t3, $t4, $t5
+slti $t3, $k0, 0x1234
+sltiu $t3, $k0, 0x1234
+sltu $t3, $t4, $t5
 sra $t5, $t6, 5
 srav $t5, $t6, $t7
 srl $t5, $t6, 5
@@ -33,5 +39,6 @@ srlv $t5, $t6, $t7
 sub $t3, $t4, $t5
 subu $t3, $t4, $t5
 sw $0, ($t1)
+wsbh $t1, $t2
 xor $t3, $k0, $k1
 xori $t3, $k0, 0x1234
