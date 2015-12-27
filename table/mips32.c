@@ -77,6 +77,7 @@ struct _mips32_special_instr mips32_special_table[] = {
   { "clo", { 1, 0, 0 }, 2, FORMAT_SPECIAL2, 0x00, 0x21 },
   { "clz", { 1, 0, 0 }, 2, FORMAT_SPECIAL2, 0x00, 0x20 },
   { "seb", { -1, 1, 0 }, 2, FORMAT_SPECIAL3, 0x10, 0x20 },
+  { "rotrv", { 2, 1, 0 }, 3, FORMAT_SPECIAL0, 0x01, 0x06 },
   { "seh", { -1, 1, 0 }, 2, FORMAT_SPECIAL3, 0x18, 0x20 },
   { NULL, { 0, 0, 0 }, 0, 0, 0x00 }
 };

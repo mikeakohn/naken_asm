@@ -43,6 +43,57 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
 
   instruction[0] = 0;
 
+  format = (opcode >> 26) & 0x3f;
+
+  if (format == FORMAT_SPECIAL0 ||
+      format == FORMAT_SPECIAL2 ||
+      format == FORMAT_SPECIAL3)
+  {
+    // Special2 / Special3
+    operation = (opcode >> 6) & 0x1f;
+    function = opcode & 0x3f;
+
+    n = 0;
+    while(mips32_special_table[n].instr != NULL)
+    {
+      if (mips32_special_table[n].format == format &&
+          mips32_special_table[n].operation == operation &&
+          mips32_special_table[n].function == function)
+      {
+        char operand_reg[4] = { 0 };
+        int shift = 21;
+
+        for (r = 0; r < 3; r++)
+        {
+          int operand_index = mips32_special_table[n].operand[r];
+
+          if (operand_index != -1)
+          {
+            operand_reg[operand_index] = (opcode >> shift) & 0x1f;
+          }
+
+          shift -= 5;
+        }
+
+        strcpy(instruction, mips32_special_table[n].instr);
+
+        for (r = 0; r < mips32_special_table[n].operand_count; r++)
+        {
+          sprintf(temp, "%s", reg[(int)operand_reg[r]]);
+
+          if (r != 0) { strcat(instruction, ", "); }
+          else { strcat(instruction, " "); }
+
+          strcat(instruction, temp);
+        }
+
+        return 4;
+      }
+
+      n++;
+    }
+  }
+
   if ((opcode >> 26) == 0)
   {
     // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
@@ -151,55 +202,6 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
           { temp[0] = 0; }
 
           if (r != 0) { strcat(instruction, ", "); }
-          strcat(instruction, temp);
-        }
-
-        break;
-      }
-
-      n++;
-    }
-  }
-    else
-  if ((opcode >> 26) == FORMAT_SPECIAL2 ||
-      (opcode >> 26) == FORMAT_SPECIAL3)
-  {
-    // Special2 / Special3
-    format = (opcode >> 26) & 0x3f;
-    operation = (opcode >> 6) & 0x1f;
-    function = opcode & 0x3f;
-
-    n = 0;
-    while(mips32_special_table[n].instr != NULL)
-    {
-      if (mips32_special_table[n].format == format &&
-          mips32_special_table[n].operation == operation &&
-          mips32_special_table[n].function == function)
-      {
-        char operand_reg[4] = { 0 };
-        int shift = 21;
-
-        for (r = 0; r < 3; r++)
-        {
-          int operand_index = mips32_special_table[n].operand[r];
-
-          if (operand_index != -1)
-          {
-            operand_reg[operand_index] = (opcode >> shift) & 0x1f;
-          }
-
-          shift -= 5;
-        }
-
-        strcpy(instruction, mips32_special_table[n].instr);
-
-        for (r = 0; r < mips32_special_table[n].operand_count; r++)
-        {
-          sprintf(temp, "%s", reg[(int)operand_reg[r]]);
-
-          if (r != 0) { strcat(instruction, ", "); }
-          else { strcat(instruction, " "); }
-
           strcat(instruction, temp);
         }
 

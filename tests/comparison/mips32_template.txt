@@ -10,6 +10,9 @@ la $t3, 0x12341234
 li $t3, 0x12341234
 move $t3, $t4
 negu $t3, $t4
+rotr $t3, $t4, 10
+rotr $t3, $t4, 31
+rotrv $t3, $t4, $t5
 seb $t3, $t4
 seh $t3, $t4
 sub $t3, $t4, $t5

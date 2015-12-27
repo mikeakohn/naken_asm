@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 
+#define FORMAT_SPECIAL0 0x00
 #define FORMAT_SPECIAL2 0x1c
 #define FORMAT_SPECIAL3 0x1f
 
