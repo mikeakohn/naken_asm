@@ -16,6 +16,7 @@ lbu $t3, 0x1234($t4)
 lh $t3, 0x1234($t4)
 lhu $t3, 0x1234($t4)
 li $t3, 0x12341234
+ll $t3, 0x1234($t4)
 lw $t3, 0x1234($t4)
 lwl $t3, 0x1234($t4)
 lwr $t3, 0x1234($t4)
@@ -42,13 +43,11 @@ ori $t3, $k0, 0x1234
 rotr $t3, $t4, 10
 rotr $t3, $t4, 31
 rotrv $t3, $t4, $t5
+sc $t3, 0x1234($t4)
 sb $t3, 0x1234($t4)
-sh $t3, 0x1234($t4)
-sw $t3, 0x1234($t4)
-swl $t3, 0x1234($t4)
-swr $t3, 0x1234($t4)
 seb $t3, $t4
 seh $t3, $t4
+sh $t3, 0x1234($t4)
 sll $t5, $t6, 5
 sllv $t5, $t6, $t7
 slt $t3, $t4, $t5
@@ -62,6 +61,9 @@ srlv $t5, $t6, $t7
 sub $t3, $t4, $t5
 subu $t3, $t4, $t5
 sw $0, ($t1)
+sw $t3, 0x1234($t4)
+swl $t3, 0x1234($t4)
+swr $t3, 0x1234($t4)
 wsbh $t1, $t2
 xor $t3, $k0, $k1
 xori $t3, $k0, 0x1234
