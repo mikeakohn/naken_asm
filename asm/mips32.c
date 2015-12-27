@@ -144,8 +144,16 @@ static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct
     else
   if (strcmp(instr_case, "nop") == 0 && *operand_count == 0)
   {
-    strcpy(instr_case, "add");
+    strcpy(instr_case, "sll");
     *operand_count = 3;
+    operands[2].type = OPERAND_IMMEDIATE;
+  }
+    else
+  if (strcmp(instr_case, "not") == 0 && *operand_count == 2)
+  {
+    strcpy(instr_case, "nor");
+    *operand_count = 3;
+    operands[2].type = OPERAND_TREG;
   }
     else
   if (strcmp(instr_case, "negu") == 0 &&

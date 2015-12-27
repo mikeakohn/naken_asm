@@ -14,6 +14,11 @@ la $t3, 0x12341234
 li $t3, 0x12341234
 move $t3, $t4
 negu $t3, $t4
+nop
+nor $t3, $k1, $k0
+not $t3, $t4
+or $t3, $k0, $k1
+ori $t3, $k0, 0x1234
 rotr $t3, $t4, 10
 rotr $t3, $t4, 31
 rotrv $t3, $t4, $t5
@@ -28,3 +33,5 @@ srlv $t5, $t6, $t7
 sub $t3, $t4, $t5
 subu $t3, $t4, $t5
 sw $0, ($t1)
+xor $t3, $k0, $k1
+xori $t3, $k0, 0x1234
