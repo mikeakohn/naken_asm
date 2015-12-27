@@ -11,9 +11,20 @@ ext $t2, $t3, 4, 2
 ins $t2, $t3, 4, 2
 lui $t1, 0x1234
 la $t3, 0x12341234
+lb $t3, 0x1234($t4)
+lbu $t3, 0x1234($t4)
+lh $t3, 0x1234($t4)
+lhu $t3, 0x1234($t4)
 li $t3, 0x12341234
+lw $t3, 0x1234($t4)
+lwl $t3, 0x1234($t4)
+lwr $t3, 0x1234($t4)
 madd $t3, $t4
 maddu $t3, $t4
+mflo $t3
+mfhi $t3
+mtlo $t3
+mthi $t3
 msub $t3, $t4
 msubu $t3, $t4
 mul $t3, $t4, $t5
@@ -31,6 +42,11 @@ ori $t3, $k0, 0x1234
 rotr $t3, $t4, 10
 rotr $t3, $t4, 31
 rotrv $t3, $t4, $t5
+sb $t3, 0x1234($t4)
+sh $t3, 0x1234($t4)
+sw $t3, 0x1234($t4)
+swl $t3, 0x1234($t4)
+swr $t3, 0x1234($t4)
 seb $t3, $t4
 seh $t3, $t4
 sll $t5, $t6, 5
