@@ -376,7 +376,11 @@ void disasm_range_mips32(struct _memory *memory, uint32_t start, uint32_t end)
 
   while(start < end)
   {
-    num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
+    // FIXME - Need to check endian
+    num = READ_RAM(start) |
+          (READ_RAM(start + 1) << 8) |
+          (READ_RAM(start + 2) << 16) |
+          (READ_RAM(start + 3) << 24);
 
     disasm_mips32(memory, start, instruction, &cycles_min, &cycles_max);
 
