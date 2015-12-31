@@ -252,6 +252,38 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
           break;
         }
       }
+        else
+      {
+        paren_flag = 0;
+
+        tokens_push(asm_context, token, token_type);
+        //tokens_push(asm_context, "(", TOKEN_SYMBOL);
+
+        if (asm_context->pass == 1)
+        {
+          eat_operand(asm_context);
+        }
+          else
+        {
+          if (eval_expression(asm_context, &num) != 0)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].type = OPERAND_IMMEDIATE;
+          operands[operand_count].value = num;
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (IS_NOT_TOKEN(token,')'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+        }
+
+        break;
+      }
 
       if (paren_flag == 1)
       {
@@ -319,6 +351,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
 
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
+
     if (IS_NOT_TOKEN(token,','))
     {
       print_error_unexp(token, asm_context);
