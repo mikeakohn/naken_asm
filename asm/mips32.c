@@ -528,7 +528,8 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
             print_error_range("Constant", -32768, 65535, asm_context); 
             return -1;
           }
-          opcode |= operands[r].value;
+
+          opcode |= (operands[r].value & 0xffff);
         }
           else
         if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
@@ -557,7 +558,11 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
           print_error_illegal_operands(instr, asm_context);
           return -1;
         }
-        opcode |= operands[r].value << shift_table[(int)mips32_i_table[n].operand[r]];
+
+        if (mips32_i_table[n].operand[r] != MIPS_OP_IMMEDIATE)
+        {
+          opcode |= operands[r].value << shift_table[(int)mips32_i_table[n].operand[r]];
+        }
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
