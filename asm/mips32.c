@@ -113,6 +113,91 @@ static uint32_t find_opcode(const char *instr_case)
   return 0xffffffff;
 }
 
+static int check_type(struct _asm_context *asm_context, char *instr, int user_type, int table_type, int value)
+{
+  if (table_type == MIPS_OP_RD ||
+      table_type == MIPS_OP_RS ||
+      table_type == MIPS_OP_RT)
+  {
+    if (user_type != OPERAND_TREG)
+    {
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+    }
+  }
+
+  if (table_type == MIPS_OP_LABEL)
+  {
+    if (user_type != OPERAND_IMMEDIATE)
+    {
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+    }
+  }
+
+  if (table_type == MIPS_OP_IMMEDIATE)
+  {
+    if (user_type != OPERAND_IMMEDIATE)
+    {
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+    }
+
+    if (value < 0 || value > 0xffff)
+    {
+      print_error_range("Constant", 0, 0xffff, asm_context);
+      return -1;
+    }
+  }
+
+  if (table_type == MIPS_OP_IMMEDIATE_SIGNED)
+  {
+    if (user_type != OPERAND_IMMEDIATE)
+    {
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+    }
+
+    if (value < -32768 || value > 32767)
+    {
+      print_error_range("Constant", -32768, 32767, asm_context);
+      return -1;
+    }
+  }
+
+  if (table_type == MIPS_OP_SA)
+  {
+    if (user_type != OPERAND_IMMEDIATE)
+    {
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+    }
+
+    if (value < 0 || value > 31)
+    {
+      print_error_range("Constant", 0, 31, asm_context);
+      return -1;
+    }
+  }
+
+  if (table_type == MIPS_OP_IMMEDIATE_RS)
+  {
+    if (user_type != OPERAND_IMMEDIATE_RS)
+    {
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+    }
+
+    if (value < -32768 || value > 32767)
+    {
+      print_error_range("Constant", -32768, 32767, asm_context);
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
 static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct _operand *operands, int *operand_count, char *instr_case)
 {
   // Check pseudo-instructions
@@ -395,17 +480,16 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
 
       for (r = 0; r < operand_count; r++)
       {
+        if (check_type(asm_context, instr, operands[r].type, mips32_r_table[n].operand[r], operands[r].value))
+        {
+          return -1;
+        }
+
         if (mips32_r_table[n].operand[r] == MIPS_OP_SA)
         {
           if (operands[r].type != OPERAND_IMMEDIATE)
           {
             printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
-            return -1;
-          }
-
-          if (operands[r].value < 0 || operands[r].value > 31)
-          {
-            print_error_range("Constant", 0, 31, asm_context); 
             return -1;
           }
         }
@@ -500,6 +584,11 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
 
       for (r = 0; r < mips32_i_table[n].operand_count; r++)
       {
+        if (check_type(asm_context, instr, operands[r].type, mips32_i_table[n].operand[r], operands[r].value))
+        {
+          return -1;
+        }
+
         if ((mips32_i_table[n].operand[r] == MIPS_OP_RT ||
              mips32_i_table[n].operand[r] == MIPS_OP_RS) &&
             operands[r].type == OPERAND_TREG)
@@ -521,24 +610,14 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
           opcode |= (offset >> 2) & 0xffff;
         }
           else
-        if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE)
+        if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE ||
+            mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_SIGNED)
         {
-          if (operands[r].value > 65535 || operands[r].value < -32768)
-          {
-            print_error_range("Constant", -32768, 65535, asm_context); 
-            return -1;
-          }
-
-          opcode |= (operands[r].value & 0xffff);
+          opcode |= operands[r].value & 0xffff;
         }
           else
         if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
         {
-          if (operands[r].value > 65535 || operands[r].value < -32768)
-          {
-            print_error_range("Constant", -32768, 65535, asm_context); 
-            return -1;
-          }
           opcode |= operands[r].value;
           opcode |= operands[r].reg2 << 21;
         }
@@ -559,7 +638,8 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-        if (mips32_i_table[n].operand[r] != MIPS_OP_IMMEDIATE)
+        if (mips32_i_table[n].operand[r] != MIPS_OP_IMMEDIATE &&
+            mips32_i_table[n].operand[r] != MIPS_OP_IMMEDIATE_SIGNED)
         {
           opcode |= operands[r].value << shift_table[(int)mips32_i_table[n].operand[r]];
         }
@@ -645,7 +725,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
               if (operands[operand_index].value < 1 ||
                   operands[operand_index].value > 32)
               {
-                print_error_range("Constant", 1, 32, asm_context); 
+                print_error_range("Constant", 1, 32, asm_context);
                 return -1;
               }
 
@@ -675,7 +755,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
             {
               if (operands[r].value < 0 || operands[r].value > 31)
               {
-                print_error_range("Constant", 0, 31, asm_context); 
+                print_error_range("Constant", 0, 31, asm_context);
                 return -1;
               }
             }

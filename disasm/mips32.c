@@ -301,6 +301,11 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
             sprintf(temp, "0x%x", immediate);
           }
             else
+          if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_SIGNED)
+          {
+            sprintf(temp, "0x%x (%d)", immediate, (int16_t)immediate);
+          }
+            else
           if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
           {
             sprintf(temp, "0x%x(%s)", immediate, reg[rs]);
