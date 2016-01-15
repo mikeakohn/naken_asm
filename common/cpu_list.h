@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -30,7 +30,7 @@ enum
   CPU_TYPE_MSP430X,
   CPU_TYPE_65XX,
   CPU_TYPE_65816,
-  CPU_TYPE_680X,
+  CPU_TYPE_6800,
   CPU_TYPE_68HC08,
   CPU_TYPE_680X0,
   CPU_TYPE_805X,

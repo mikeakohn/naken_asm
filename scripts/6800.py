@@ -26,15 +26,15 @@ print """
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2013 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
 #include <stdlib.h>
 
-#include "table_680x.h"
+#include "table_6800.h"
 
-struct _m680x_table m680x_table[] = {"""
+struct _m6800_table m6800_table[] = {"""
 
 count = 0
 

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -14,20 +14,20 @@
 #include <string.h>
 
 #include "disasm/common.h"
-#include "disasm/680x.h"
-#include "table/680x.h"
+#include "disasm/6800.h"
+#include "table/6800.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
 #define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
-extern struct _m680x_table m680x_table[];
+extern struct _m6800_table m6800_table[];
 
-int get_cycle_count_680x(unsigned short int opcode)
+int get_cycle_count_6800(unsigned short int opcode)
 {
   return -1;
 }
 
-int disasm_680x(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_6800(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   int opcode;
   int size = 1;
@@ -37,36 +37,36 @@ int disasm_680x(struct _memory *memory, uint32_t address, char *instruction, int
 
   opcode = READ_RAM(address);
 
-  switch(m680x_table[opcode].operand_type)
+  switch(m6800_table[opcode].operand_type)
   {
     case M6800_OP_UNDEF:
       strcpy(instruction, "???");
       break;
     case M6800_OP_NONE:
-      strcpy(instruction, m680x_table[opcode].instr);
+      strcpy(instruction, m6800_table[opcode].instr);
       break;
     case M6800_OP_IMM8:
-      sprintf(instruction, "%s #$%02x", m680x_table[opcode].instr, READ_RAM(address+1));
+      sprintf(instruction, "%s #$%02x", m6800_table[opcode].instr, READ_RAM(address+1));
       size = 2;
       break;
     case M6800_OP_IMM16:
-      sprintf(instruction, "%s #$%04x", m680x_table[opcode].instr, READ_RAM16(address + 1));
+      sprintf(instruction, "%s #$%04x", m6800_table[opcode].instr, READ_RAM16(address + 1));
       size = 3;
       break;
     case M6800_OP_DIR_PAGE_8:
-      sprintf(instruction, "%s $%02x", m680x_table[opcode].instr, READ_RAM(address + 1));
+      sprintf(instruction, "%s $%02x", m6800_table[opcode].instr, READ_RAM(address + 1));
       size = 2;
       break;
     case M6800_OP_ABSOLUTE_16:
-      sprintf(instruction, "%s $%04x", m680x_table[opcode].instr, READ_RAM16(address + 1));
+      sprintf(instruction, "%s $%04x", m6800_table[opcode].instr, READ_RAM16(address + 1));
       size = 3;
       break;
     case M6800_OP_NN_X:
-      sprintf(instruction, "%s $%04x,X (%d)", m680x_table[opcode].instr, (address + 2)+(char)(READ_RAM(address + 1)), (char)(READ_RAM(address + 1)));
+      sprintf(instruction, "%s $%04x,X (%d)", m6800_table[opcode].instr, (address + 2)+(char)(READ_RAM(address + 1)), (char)(READ_RAM(address + 1)));
       size = 2;
       break;
     case M6800_OP_REL_OFFSET:
-      sprintf(instruction, "%s $%04x,X  (%d)", m680x_table[opcode].instr, (address + 2)+(char)(READ_RAM(address + 1)), (char)READ_RAM(address + 1));
+      sprintf(instruction, "%s $%04x,X  (%d)", m6800_table[opcode].instr, (address + 2)+(char)(READ_RAM(address + 1)), (char)READ_RAM(address + 1));
       size=2;
       break;
   }
@@ -74,7 +74,7 @@ int disasm_680x(struct _memory *memory, uint32_t address, char *instruction, int
   return size;
 }
 
-void list_output_680x(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_6800(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
@@ -86,7 +86,7 @@ void list_output_680x(struct _asm_context *asm_context, uint32_t start, uint32_t
 
   while(start < end)
   {
-    count = disasm_680x(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_6800(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
     bytes[0] = 0;
     for (n = 0; n < count; n++)
@@ -107,7 +107,7 @@ void list_output_680x(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_680x(struct _memory *memory, uint32_t start, uint32_t end)
+void disasm_range_6800(struct _memory *memory, uint32_t start, uint32_t end)
 {
   char instruction[128];
   char bytes[10];
@@ -122,7 +122,7 @@ void disasm_range_680x(struct _memory *memory, uint32_t start, uint32_t end)
 
   while(start <= end)
   {
-    count = disasm_680x(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_6800(memory, start, instruction, &cycles_min, &cycles_max);
 
     bytes[0] = 0;
     for (n = 0; n < count; n++)

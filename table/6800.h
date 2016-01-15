@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
-#ifndef _TABLE_680X_H
-#define _TABLE_680X_H
+#ifndef _TABLE_6800_H
+#define _TABLE_6800_H
 
 enum
 {
@@ -24,7 +24,7 @@ enum
   M6800_OP_REL_OFFSET,
 };
 
-struct _m680x_table
+struct _m6800_table
 {
   const char *instr;
   char operand_type;

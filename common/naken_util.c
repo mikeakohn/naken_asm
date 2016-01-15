@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -24,7 +24,7 @@
 #include "common/version.h"
 #include "disasm/65xx.h"
 #include "disasm/65816.h"
-#include "disasm/680x.h"
+#include "disasm/6800.h"
 #include "disasm/68hc08.h"
 #include "disasm/680x0.h"
 #include "disasm/805x.h"
@@ -63,7 +63,7 @@ enum
 // FIXME - How to do this better?
 parse_instruction_t parse_instruction_65xx = NULL;
 parse_instruction_t parse_instruction_65816 = NULL;
-parse_instruction_t parse_instruction_680x = NULL;
+parse_instruction_t parse_instruction_6800 = NULL;
 parse_instruction_t parse_instruction_68hc08 = NULL;
 parse_instruction_t parse_instruction_680x0 = NULL;
 parse_instruction_t parse_instruction_805x = NULL;
@@ -665,7 +665,7 @@ int main(int argc, char *argv[])
            "ELF files can auto-pick a CPU, if a hex file use:\n"
            "   -65xx                        (65xx)\n"
            "   -65816                       (65816)\n"
-           "   -680x                        (680x)\n"
+           "   -6800                        (6800)\n"
            "   -68hc08                      (68hc08)\n"
            "   -680x0                       (680x0)\n"
            "   -8051 / -8052                (8051 / 8052)\n"

@@ -17,7 +17,7 @@ ASM_OBJS_ALL=""
 DISASM_OBJS_ALL=""
 TABLE_OBJS_ALL=""
 SIM_OBJS_ALL=""
-DFLAGS_ALL="-DENABLE_65XX -DENABLE_680X -DENABLE_65816 -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_805X -DENABLE_ARM -DENABLE_AVR8 -DENABLE_DSPIC -DENABLE_EPIPHANY -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_STM8 -DENABLE_THUMB -DENABLE_TMS1000 -DENABLE_TMS9900 -DENABLE_Z80"
+DFLAGS_ALL="-DENABLE_65XX -DENABLE_6800 -DENABLE_65816 -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_805X -DENABLE_ARM -DENABLE_AVR8 -DENABLE_DSPIC -DENABLE_EPIPHANY -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_STM8 -DENABLE_THUMB -DENABLE_TMS1000 -DENABLE_TMS9900 -DENABLE_Z80"
 ASM_OBJS="common.o"
 DISASM_OBJS="common.o"
 TABLE_OBJS=""
@@ -88,7 +88,7 @@ show_help()
   echo "  --enable-all              compile in support for all CPU's"
   echo "  --enable-65xx             compile in support for 6502/6510 etc"
   echo "  --enable-65816            compile in support for 65816"
-  echo "  --enable-680x             compile in support for 6800 series"
+  echo "  --enable-6800             compile in support for 6800"
   echo "  --enable-68hc08           compile in support for 68hc08 series"
   echo "  --enable-680x0            compile in support for 680x0 series"
   echo "  --enable-805x             compile in support for 8051/8052"
@@ -220,11 +220,11 @@ for option in $@; do
     TABLE_OBJS="${TABLE_OBJS} 65816.o"
     DFLAGS="${DFLAGS} -DENABLE_65816"
   ;;
-  --enable-680x)
-    ASM_OBJS="${ASM_OBJS} 680x.o"
-    DISASM_OBJS="${DISASM_OBJS} 680x.o"
-    TABLE_OBJS="${TABLE_OBJS} 680x.o"
-    DFLAGS="${DFLAGS} -DENABLE_680X"
+  --enable-6800)
+    ASM_OBJS="${ASM_OBJS} 6800.o"
+    DISASM_OBJS="${DISASM_OBJS} 6800.o"
+    TABLE_OBJS="${TABLE_OBJS} 6800.o"
+    DFLAGS="${DFLAGS} -DENABLE_6800"
   ;;
   --enable-68hc08)
     ASM_OBJS="${ASM_OBJS} 68hc08.o"

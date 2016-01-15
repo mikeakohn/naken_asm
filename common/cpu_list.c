@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -13,7 +13,7 @@
 
 #include "asm/65xx.h"
 #include "asm/65816.h"
-#include "asm/680x.h"
+#include "asm/6800.h"
 #include "asm/68hc08.h"
 #include "asm/680x0.h"
 #include "asm/805x.h"
@@ -32,7 +32,7 @@
 #include "asm/z80.h"
 #include "disasm/65xx.h"
 #include "disasm/65816.h"
-#include "disasm/680x.h"
+#include "disasm/6800.h"
 #include "disasm/68hc08.h"
 #include "disasm/680x0.h"
 #include "disasm/805x.h"
@@ -62,8 +62,8 @@ struct _cpu_list cpu_list[] =
 #ifdef ENABLE_65816
   { "65816", CPU_TYPE_65816, ENDIAN_LITTLE, 1, 1, 0, 0, parse_instruction_65816, NULL, list_output_65816, disasm_range_65816, NULL },
 #endif
-#ifdef ENABLE_680X
-  { "680x", CPU_TYPE_680X, ENDIAN_BIG, 1, 1, 0, 0, parse_instruction_680x, NULL, list_output_680x, disasm_range_680x, NULL },
+#ifdef ENABLE_6800
+  { "6800", CPU_TYPE_6800, ENDIAN_BIG, 1, 1, 0, 0, parse_instruction_6800, NULL, list_output_6800, disasm_range_6800, NULL },
 #endif
 #ifdef ENABLE_68HC08
   { "68hc08", CPU_TYPE_68HC08, ENDIAN_BIG, 1, 1, 0, 0, parse_instruction_68hc08, NULL, list_output_68hc08, disasm_range_68hc08, NULL },

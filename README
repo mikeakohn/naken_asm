@@ -9,7 +9,7 @@ SUPPORTED CPU'S
 
 CPU                 Author
 65xx                Joe Davisson
-680x                Michael Kohn 
+6800                Michael Kohn 
 68HC08              Michael Kohn 
 680x0               Michael Kohn 
 8051/8052           Michael Kohn
@@ -213,7 +213,7 @@ with some include files.
 CPU Selection:
 .65xx            6502, 6510, and any other 6500 series cpu
 .65816           W65C816
-.680x            6800
+.6800            6800
 .68hc08          68HC08
 .680x0           Motorola 68000
 .8051 or .8052   8051/8052/MCS-51

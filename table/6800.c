@@ -5,17 +5,17 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
 #include <stdlib.h>
 
-#include "table/680x.h"
+#include "table/6800.h"
 
 // Based on: http://mdfs.net/Docs/Comp/6800/OpList
 
-struct _m680x_table m680x_table[] = {
+struct _m6800_table m6800_table[] = {
   { NULL, M6800_OP_UNDEF },  // 0x00
   { "nop", M6800_OP_NONE },  // 0x01
   { NULL, M6800_OP_UNDEF },  // 0x02
