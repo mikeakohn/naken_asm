@@ -14,6 +14,7 @@ for line in fp:
   tokens[1] = "0x" + tokens[1].split()[0].lower().strip()
   instruction = tokens[2].lower().strip()
   tokens[3] = "M6809_OP_" + tokens[3].strip()
+  tokens[5] = tokens[5].strip()
 
   ops[tokens[3]] = 1
 
@@ -37,6 +38,7 @@ for line in fp:
   print "  { \"" + instruction + "\", " + \
                    tokens[1] + ", " + \
                    tokens[3] + ", " + \
+                   tokens[5] + ", " + \
                    cycles_min + ", " + \
                    cycles_max + " },"
 

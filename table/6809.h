@@ -31,6 +31,7 @@ struct _m6809_table
   const char *instr;
   uint16_t opcode;
   uint8_t operand_type;
+  uint8_t bytes;
   uint8_t cycles_min;
   uint8_t cycles_max;
 };

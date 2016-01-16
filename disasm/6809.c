@@ -28,7 +28,6 @@ int get_cycle_count_6809(unsigned short int opcode)
 int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   int opcode;
-  int size = 1;
   int n;
 
   *cycles_min = -1;
@@ -56,6 +55,15 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
             return 1;
           }
           case M6809_OP_IMMEDIATE:
+          {
+            if (m6809_table[n].bytes == 4)
+            {
+              sprintf(instruction, "%s #0x%02x", m6809_table[n].instr, READ_RAM16(address + 2));
+              return 4;
+            }
+
+            break;
+          }
           case M6809_OP_EXTENDED:
           case M6809_OP_RELATIVE:
           case M6809_OP_DIRECT:
@@ -79,7 +87,6 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
     {
       if (m6809_table[n].opcode == opcode)
       {
-        strcpy(instruction, m6809_table[n].instr);
         *cycles_min = m6809_table[n].cycles_min;
         *cycles_max = m6809_table[n].cycles_min;
 
@@ -87,9 +94,25 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
         {
           case M6809_OP_INHERENT:
           {
+            strcpy(instruction, m6809_table[n].instr);
             return 1;
           }
           case M6809_OP_IMMEDIATE:
+          {
+            if (m6809_table[n].bytes == 2)
+            {
+              sprintf(instruction, "%s #0x%02x", m6809_table[n].instr, READ_RAM(address + 1));
+              return 2;
+            }
+              else
+            if (m6809_table[n].bytes == 3)
+            {
+              sprintf(instruction, "%s #0x%02x", m6809_table[n].instr, READ_RAM16(address + 1));
+              return 3;
+            }
+
+            break;
+          }
           case M6809_OP_EXTENDED:
           case M6809_OP_RELATIVE:
           case M6809_OP_DIRECT:
@@ -107,7 +130,9 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
     }
   }
 
-  return size;
+  strcpy(instruction, "???");
+
+  return 1;
 }
 
 void list_output_6809(struct _asm_context *asm_context, uint32_t start, uint32_t end)
