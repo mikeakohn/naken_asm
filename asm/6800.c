@@ -46,7 +46,7 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
 
   do
   {
-    token_type=tokens_get(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
 
 #if 0
     if (strcasecmp(token, "a")==0)
@@ -101,7 +101,7 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
         return -1;
       }
 
-      if (expect_token_s(asm_context,"x") != 0) { return -1; }
+      if (expect_token_s(asm_context, "x") != 0) { return -1; }
       operand_type = OPERAND_ADDRESS_COMMA_X;
     }
   } while(0);
@@ -222,7 +222,7 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
     }
   }
 
-  if (opcode!=-1)
+  if (opcode != -1)
   {
     add_bin8(asm_context, address_size, IS_OPCODE);
     add_bin8(asm_context, address_size, IS_OPCODE);
