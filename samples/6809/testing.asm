@@ -8,3 +8,5 @@ start:
   lda #0xff
   cmpx #0xffff
 
+  lda 0xffd2
+

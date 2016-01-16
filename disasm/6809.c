@@ -65,6 +65,15 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
             break;
           }
           case M6809_OP_EXTENDED:
+          {
+            if (m6809_table[n].bytes == 4)
+            {
+              sprintf(instruction, "%s 0x%02x", m6809_table[n].instr, READ_RAM16(address + 2));
+              return 4;
+            }
+
+            break;
+          }
           case M6809_OP_RELATIVE:
           case M6809_OP_DIRECT:
           case M6809_OP_INDEXED:
@@ -114,6 +123,15 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
             break;
           }
           case M6809_OP_EXTENDED:
+          {
+            if (m6809_table[n].bytes == 3)
+            {
+              sprintf(instruction, "%s 0x%02x", m6809_table[n].instr, READ_RAM16(address + 1));
+              return 3;
+            }
+
+            break;
+          }
           case M6809_OP_RELATIVE:
           case M6809_OP_DIRECT:
           case M6809_OP_INDEXED:

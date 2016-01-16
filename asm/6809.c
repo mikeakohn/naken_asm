@@ -99,10 +99,10 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
   int operand_type;
   int operand_value;
   int operand_count = 0;
-  int address_size = 0;
+  //int address_size = 0;
   uint8_t value8;
   uint16_t value16;
-  int opcode = -1;
+  //int opcode = -1;
   int matched = 0;
   int n;
 
@@ -196,6 +196,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         }
         case M6809_OP_IMMEDIATE:
         {
+          if (operand_type != OPERAND_NUMBER) { break; }
           if (m6809_table[n].bytes == 2)
           {
             if (check_range(asm_context, "Immediate", operand_value, -128, 0xff) == -1) { return -1; }
@@ -210,7 +211,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
             if (check_range(asm_context, "Immediate", operand_value, -32768, 0xffff) == -1) { return -1; }
             value16 = (uint16_t)operand_value;
             add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
-            add_bin8(asm_context, value16, IS_OPCODE);
+            add_bin16(asm_context, value16, IS_OPCODE);
             return 3;
           }
 
@@ -218,6 +219,16 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         }
         case M6809_OP_EXTENDED:
         {
+          if (operand_type != OPERAND_ADDRESS) { break; }
+          if (m6809_table[n].bytes == 3)
+          {
+            if (check_range(asm_context, "Address", operand_value, 0, 0xffff) == -1) { return -1; }
+            value16 = (uint16_t)operand_value;
+            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, value16, IS_OPCODE);
+            return 3;
+          }
+
           break;
         }
         case M6809_OP_RELATIVE:
@@ -270,18 +281,30 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         }
         case M6809_OP_IMMEDIATE:
         {
+          if (operand_type != OPERAND_NUMBER) { break; }
           if (m6809_table_16[n].bytes == 4)
           {
             if (check_range(asm_context, "Immediate", operand_value, -32768, 0xffff) == -1) { return -1; }
             value16 = (uint16_t)operand_value;
             add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
             add_bin16(asm_context, value16, IS_OPCODE);
-            return 2;
+            return 4;
           }
+
           break;
         }
         case M6809_OP_EXTENDED:
         {
+          if (operand_type != OPERAND_ADDRESS) { break; }
+          if (m6809_table_16[n].bytes == 4)
+          {
+            if (check_range(asm_context, "Address", operand_value, 0, 0xffff) == -1) { return -1; }
+            value16 = (uint16_t)operand_value;
+            add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, value16, IS_OPCODE);
+            return 4;
+          }
+
           break;
         }
         case M6809_OP_RELATIVE:
