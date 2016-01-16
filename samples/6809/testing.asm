@@ -12,4 +12,5 @@ start:
 
   rol >0x30
   bne start
+  lbne start
 

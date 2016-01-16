@@ -74,6 +74,18 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
 
             break;
           }
+          case M6809_OP_RELATIVE:
+          {
+            if (m6809_table_16[n].bytes == 4)
+            {
+              int16_t offset = READ_RAM16(address + 2);
+
+              sprintf(instruction, "%s 0x%04x (%d)", m6809_table_16[n].instr, (address + 2 + offset) & 0xffff, offset);
+              return 4;
+            }
+
+            break;
+          }
           case M6809_OP_DIRECT:
           {
             if (m6809_table_16[n].bytes == 3)
@@ -183,7 +195,7 @@ void list_output_6809(struct _asm_context *asm_context, uint32_t start, uint32_t
 {
   int cycles_min, cycles_max;
   char instruction[128];
-  char bytes[10];
+  char bytes[16];
   int count;
   int n;
 
@@ -201,7 +213,7 @@ void list_output_6809(struct _asm_context *asm_context, uint32_t start, uint32_t
       strcat(bytes, temp);
     }
 
-    fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ", start, bytes, instruction);
+    fprintf(asm_context->list, "0x%04x: %-16s %-40s cycles: ", start, bytes, instruction);
 
     if (cycles_min == cycles_max)
     { fprintf(asm_context->list, "%d\n", cycles_min); }
@@ -215,7 +227,7 @@ void list_output_6809(struct _asm_context *asm_context, uint32_t start, uint32_t
 void disasm_range_6809(struct _memory *memory, uint32_t start, uint32_t end)
 {
   char instruction[128];
-  char bytes[10];
+  char bytes[16];
   int cycles_min = 0,cycles_max = 0;
   int count;
   int n;
@@ -239,16 +251,16 @@ void disasm_range_6809(struct _memory *memory, uint32_t start, uint32_t end)
 
     if (cycles_min < 1)
     {
-      printf("0x%04x: %-9s %-40s ?\n", start, bytes, instruction);
+      printf("0x%04x: %-16s %-40s ?\n", start, bytes, instruction);
     }
       else
     if (cycles_min==cycles_max)
     {
-      printf("0x%04x: %-9s %-40s %d\n", start, bytes, instruction, cycles_min);
+      printf("0x%04x: %-16s %-40s %d\n", start, bytes, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: %-9s %-40s %d-%d\n", start, bytes, instruction, cycles_min, cycles_max);
+      printf("0x%04x: %-16s %-40s %d-%d\n", start, bytes, instruction, cycles_min, cycles_max);
     }
 
     start = start + count;

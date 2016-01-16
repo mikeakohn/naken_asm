@@ -285,18 +285,18 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
   {
     if (m6809_table_16[n].instr == NULL) { break; }
 
-    if (strcmp(instr_case, m6809_table[n].instr) == 0)
+    if (strcmp(instr_case, m6809_table_16[n].instr) == 0)
     {
       matched = 1;
 
-      switch(m6809_table[n].operand_type)
+      switch(m6809_table_16[n].operand_type)
       {
         case M6809_OP_INHERENT:
         {
           if (operand_count == 0)
           {
             CHECK_BYTES_16(1);
-            add_bin16(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
             return 1;
           }
 
@@ -330,6 +330,20 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
 
           break;
         }
+        case M6809_OP_RELATIVE:
+        {
+          if (operand_type != OPERAND_ADDRESS) { break; }
+          if (m6809_table_16[n].bytes == 4)
+          {
+            uint32_t offset = operand_value - (asm_context->address + 2);
+            //if (check_range(asm_context, "Offset", offset, -32768, 32767) == -1) { return -1; }
+            add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, (uint16_t)offset, IS_OPCODE);
+            return 4;
+          }
+
+          break;
+        }
         case M6809_OP_DIRECT:
         {
           if (operand_type != OPERAND_DP_ADDRESS) { break; }
@@ -356,28 +370,6 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
     }
     n++;
   }
-
-#if 0
-  if (opcode != -1)
-  {
-    add_bin8(asm_context, address_size, IS_OPCODE);
-    add_bin8(asm_context, address_size, IS_OPCODE);
-    if (address_size == 2)
-    {
-      if (operand_value < 0 || operand_value > 0xffff)
-      {
-        print_error_range("Address", 0, 0xffff, asm_context);
-        return -1;
-      }
-      add_bin8(asm_context, address_size, IS_OPCODE);
-      return 3;
-    }
-      else
-    {
-      return 2;
-    }
-  }
-#endif
 
   if (matched == 1)
   {
