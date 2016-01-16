@@ -19,10 +19,222 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 #define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
+#define ADD_CYCLES(a) *cycles_min += a; *cycles_max += a;
 
 int get_cycle_count_6809(unsigned short int opcode)
 {
   return -1;
+}
+
+int get_indexed(struct _memory *memory, struct _m6809_table *table, char *instruction, uint32_t address, int *cycles_min, int *cycles_max)
+{
+  const char *name[] = { "x", "y", "u", "s" };
+  uint8_t post_byte = READ_RAM(address);
+  int reg = (post_byte >> 5) & 0x3;
+
+  if ((post_byte & 0x9f) == 0x84)
+  {
+    // ,R non-indirect
+    sprintf(instruction, "%s ,%s\n", table->instr, name[reg]);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x94)
+  {
+    // [,R] indirect
+    sprintf(instruction, "%s [,%s]\n", table->instr, name[reg]);
+    ADD_CYCLES(3);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x84)
+  {
+    // 5 bit offset, R non-indirect
+    int8_t offset = post_byte & 0x1f;
+    if ((offset & 0x10) != 0) { offset |= 0xe0; }
+    sprintf(instruction, "%s %d,%s\n", table->instr, offset, name[reg]);
+    ADD_CYCLES(1);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x88)
+  {
+    // 8 bit offset, R non-indirect
+    int8_t offset = READ_RAM(address + 1);
+    sprintf(instruction, "%s %d,%s\n", table->instr, offset, name[reg]);
+    ADD_CYCLES(1);
+    return 1;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x98)
+  {
+    // [8 bit offset, R] indirect
+    int8_t offset = READ_RAM(address + 1);
+    sprintf(instruction, "%s [%d,%s]\n", table->instr, offset, name[reg]);
+    ADD_CYCLES(4);
+    return 1;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x89)
+  {
+    // 16 bit offset, R non-indirect
+    int16_t offset = READ_RAM16(address + 1);
+    sprintf(instruction, "%s %d,%s\n", table->instr, offset, name[reg]);
+    ADD_CYCLES(4);
+    return 2;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x99)
+  {
+    // [16 bit offset, R] indirect
+    int16_t offset = READ_RAM16(address + 1);
+    sprintf(instruction, "%s [%d,%s]\n", table->instr, offset, name[reg]);
+    ADD_CYCLES(7);
+    return 2;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x86)
+  {
+    // A,R non-indirect
+    sprintf(instruction, "%s a,%s\n", table->instr, name[reg]);
+    ADD_CYCLES(1);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x96)
+  {
+    // [A,R] non-indirect
+    sprintf(instruction, "%s [a,%s]\n", table->instr, name[reg]);
+    ADD_CYCLES(4);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x85)
+  {
+    // B,R non-indirect
+    sprintf(instruction, "%s b,%s\n", table->instr, name[reg]);
+    ADD_CYCLES(1);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x95)
+  {
+    // [B,R] indirect
+    sprintf(instruction, "%s [b,%s]\n", table->instr, name[reg]);
+    ADD_CYCLES(4);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x8b)
+  {
+    // D,R non-indirect
+    sprintf(instruction, "%s d,%s\n", table->instr, name[reg]);
+    ADD_CYCLES(4);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x9b)
+  {
+    // [D,R] non-indirect
+    sprintf(instruction, "%s [d,%s]\n", table->instr, name[reg]);
+    ADD_CYCLES(7);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x80)
+  {
+    // ,R+ non-indirect
+    sprintf(instruction, "%s ,%s+\n", table->instr, name[reg]);
+    ADD_CYCLES(2);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x81)
+  {
+    // ,R++ non-indirect
+    sprintf(instruction, "%s ,%s++\n", table->instr, name[reg]);
+    ADD_CYCLES(3);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x91)
+  {
+    // [,R++] indirect
+    sprintf(instruction, "%s [,%s++]\n", table->instr, name[reg]);
+    ADD_CYCLES(6);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x82)
+  {
+    // ,-R non-indirect
+    sprintf(instruction, "%s ,-%s\n", table->instr, name[reg]);
+    ADD_CYCLES(2);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x83)
+  {
+    // ,--R non-indirect
+    sprintf(instruction, "%s ,-%s\n", table->instr, name[reg]);
+    ADD_CYCLES(3);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x93)
+  {
+    // [,--R] indirect
+    sprintf(instruction, "%s ,-%s\n", table->instr, name[reg]);
+    ADD_CYCLES(6);
+    return 0;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x8c)
+  {
+    // 16 bit offset, PCR non-indirect
+    int8_t offset = READ_RAM(address + 1);
+    sprintf(instruction, "%s %d,PCR\n", table->instr, offset);
+    ADD_CYCLES(1);
+    return 1;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x9c)
+  {
+    // [16 bit offset, PCR] indirect
+    int8_t offset = READ_RAM(address + 1);
+    sprintf(instruction, "%s [%d,PCR]\n", table->instr, offset);
+    ADD_CYCLES(4);
+    return 1;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x8d)
+  {
+    // 16 bit offset, PCR non-indirect
+    int16_t offset = READ_RAM16(address + 1);
+    sprintf(instruction, "%s %d, PCR\n", table->instr, offset);
+    ADD_CYCLES(5);
+    return 2;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x9d)
+  {
+    // [16 bit offset, PCR] non-indirect
+    int16_t offset = READ_RAM16(address + 1);
+    sprintf(instruction, "%s [%d, PCR]\n", table->instr, offset);
+    ADD_CYCLES(8);
+    return 2;
+  }
+    else
+  if ((post_byte & 0x9f) == 0x9f)
+  {
+    // [16 bit offset] non-indirect
+    int16_t offset = READ_RAM16(address + 1);
+    sprintf(instruction, "%s [%d]\n", table->instr, offset);
+    ADD_CYCLES(5);
+    return 2;
+  }
+
+  return 0;
 }
 
 int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
@@ -97,6 +309,11 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
             break;
           }
           case M6809_OP_INDEXED:
+          {
+            return get_indexed(memory, &m6809_table[n], instruction, address + 1, cycles_min, cycles_max) + 3;
+
+            break;
+          }
           default:
           {
             //print_error_internal(asm_context, __FILE__, __LINE__);
@@ -216,6 +433,8 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_INDEXED:
           {
+            return get_indexed(memory, &m6809_table[n], instruction, address + 1, cycles_min, cycles_max) + 2;
+
             break;
           }
           default:
