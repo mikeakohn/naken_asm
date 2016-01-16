@@ -10,3 +10,6 @@ start:
 
   lda 0xffd2
 
+  rol >0x30
+  bne start
+

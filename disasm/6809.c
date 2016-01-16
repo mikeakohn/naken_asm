@@ -56,9 +56,9 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_IMMEDIATE:
           {
-            if (m6809_table[n].bytes == 4)
+            if (m6809_table_16[n].bytes == 4)
             {
-              sprintf(instruction, "%s #0x%02x", m6809_table[n].instr, READ_RAM16(address + 2));
+              sprintf(instruction, "%s #0x%02x", m6809_table_16[n].instr, READ_RAM16(address + 2));
               return 4;
             }
 
@@ -66,18 +66,25 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_EXTENDED:
           {
-            if (m6809_table[n].bytes == 4)
+            if (m6809_table_16[n].bytes == 4)
             {
-              sprintf(instruction, "%s 0x%02x", m6809_table[n].instr, READ_RAM16(address + 2));
+              sprintf(instruction, "%s 0x%04x", m6809_table_16[n].instr, READ_RAM16(address + 2));
               return 4;
             }
 
             break;
           }
-          case M6809_OP_RELATIVE:
           case M6809_OP_DIRECT:
+          {
+            if (m6809_table_16[n].bytes == 3)
+            {
+              sprintf(instruction, "%s >0x%02x", m6809_table_16[n].instr, READ_RAM(address + 2));
+              return 3;
+            }
+
+            break;
+          }
           case M6809_OP_INDEXED:
-          case M6809_OP_VARIANT:
           default:
           {
             //print_error_internal(asm_context, __FILE__, __LINE__);
@@ -126,16 +133,35 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           {
             if (m6809_table[n].bytes == 3)
             {
-              sprintf(instruction, "%s 0x%02x", m6809_table[n].instr, READ_RAM16(address + 1));
+              sprintf(instruction, "%s 0x%04x", m6809_table[n].instr, READ_RAM16(address + 1));
               return 3;
             }
 
             break;
           }
           case M6809_OP_RELATIVE:
+          {
+            if (m6809_table[n].bytes == 2)
+            {
+              int8_t offset = READ_RAM(address + 1);
+
+              sprintf(instruction, "%s 0x%04x (%d)", m6809_table[n].instr, (address + 2 + offset) & 0xffff, offset);
+              return 2;
+            }
+
+            break;
+          }
           case M6809_OP_DIRECT:
+          {
+            if (m6809_table[n].bytes == 2)
+            {
+              sprintf(instruction, "%s >0x%02x", m6809_table[n].instr, READ_RAM(address + 1));
+              return 2;
+            }
+
+            break;
+          }
           case M6809_OP_INDEXED:
-          case M6809_OP_VARIANT:
           default:
           {
             //print_error_internal(asm_context, __FILE__, __LINE__);

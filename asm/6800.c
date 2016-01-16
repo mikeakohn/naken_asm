@@ -46,14 +46,6 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
-#if 0
-    if (strcasecmp(token, "a")==0)
-    {
-      strcat(instr_case, "a");
-      token_type=tokens_get(asm_context, token, TOKENLEN);
-    }
-#endif
-
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       operand_type = OPERAND_NONE;

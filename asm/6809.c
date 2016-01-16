@@ -40,6 +40,7 @@ enum
   OPERAND_NONE,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
+  OPERAND_DP_ADDRESS,
   OPERAND_REG,
 };
 
@@ -99,10 +100,8 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
   int operand_type;
   int operand_value;
   int operand_count = 0;
-  //int address_size = 0;
   uint8_t value8;
   uint16_t value16;
-  //int opcode = -1;
   int matched = 0;
   int n;
 
@@ -113,20 +112,29 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
-#if 0
-    if (strcasecmp(token, "a") == 0)
-    {
-      strcat(instr_case, "a");
-      token_type=tokens_get(asm_context, token, TOKENLEN);
-    }
-#endif
-
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       operand_type = OPERAND_NONE;
       break;
     }
 
+    if (IS_TOKEN(token,'>'))
+    {
+      if (eval_expression(asm_context, &operand_value) != 0)
+      {
+        if (asm_context->pass == 2)
+        {
+          print_error_illegal_expression(instr, asm_context);
+          return -1;
+        }
+
+        eat_operand(asm_context);
+        operand_value = 0x00;
+      }
+
+      operand_type = OPERAND_DP_ADDRESS;
+    }
+      else
     if (token_type == TOKEN_POUND)
     {
       operand_type = OPERAND_NUMBER;
@@ -233,17 +241,32 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         }
         case M6809_OP_RELATIVE:
         {
+          if (operand_type != OPERAND_ADDRESS) { break; }
+          if (m6809_table[n].bytes == 2)
+          {
+            uint32_t offset = operand_value - (asm_context->address + 2);
+            if (check_range(asm_context, "Offset", offset, -128, 127) == -1) { return -1; }
+            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, (uint8_t)offset, IS_OPCODE);
+            return 2;
+          }
+
           break;
         }
         case M6809_OP_DIRECT:
         {
+          if (operand_type != OPERAND_DP_ADDRESS) { break; }
+          if (m6809_table[n].bytes == 2)
+          {
+            if (check_range(asm_context, "Address", operand_value, 0, 0xff) == -1) { return -1; }
+            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, operand_value, IS_OPCODE);
+            return 2;
+          }
+
           break;
         }
         case M6809_OP_INDEXED:
-        {
-          break;
-        }
-        case M6809_OP_VARIANT:
         {
           break;
         }
@@ -307,19 +330,20 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
 
           break;
         }
-        case M6809_OP_RELATIVE:
-        {
-          break;
-        }
         case M6809_OP_DIRECT:
         {
+          if (operand_type != OPERAND_DP_ADDRESS) { break; }
+          if (m6809_table_16[n].bytes == 3)
+          {
+            if (check_range(asm_context, "Address", operand_value, 0, 0xff) == -1) { return -1; }
+            add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, operand_value, IS_OPCODE);
+            return 3;
+          }
+
           break;
         }
         case M6809_OP_INDEXED:
-        {
-          break;
-        }
-        case M6809_OP_VARIANT:
         {
           break;
         }

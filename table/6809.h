@@ -23,7 +23,6 @@ enum
   M6809_OP_RELATIVE,
   M6809_OP_DIRECT,
   M6809_OP_INDEXED,
-  M6809_OP_VARIANT,
 };
 
 struct _m6809_table
