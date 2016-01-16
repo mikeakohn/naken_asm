@@ -14,3 +14,8 @@ start:
   bne start
   lbne start
 
+  puls x, y
+  pulu pc, u, y, x, dp, b, a, cc
+  pshs pc, x, dp, b, a, cc
+  pshu cc
+

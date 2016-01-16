@@ -173,6 +173,32 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
 
             break;
           }
+          case M6809_OP_STACK:
+          {
+            if (m6809_table[n].bytes == 2)
+            {
+              uint8_t reg_list = READ_RAM(address + 1);
+              const char *reg_names[] = { "pc","u","y","x","dp","b","a","cc" };
+              uint8_t index = 0x80;
+              uint8_t count = 0;
+
+              sprintf(instruction, "%s", m6809_table[n].instr);
+              for (n = 0; n < 8; n++)
+              {
+                if ((reg_list & index) != 0)
+                {
+                  if (count != 0) { strcat(instruction, ", "); }
+                  else { strcat(instruction, " "); }
+                  strcat(instruction, reg_names[n]);
+                  count++;
+                }
+
+                index >>= 1;
+              }
+
+              return 2;
+            }
+          }
           case M6809_OP_INDEXED:
           default:
           {
