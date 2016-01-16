@@ -65,6 +65,7 @@ enum
 parse_instruction_t parse_instruction_65xx = NULL;
 parse_instruction_t parse_instruction_65816 = NULL;
 parse_instruction_t parse_instruction_6800 = NULL;
+parse_instruction_t parse_instruction_6809 = NULL;
 parse_instruction_t parse_instruction_68hc08 = NULL;
 parse_instruction_t parse_instruction_680x0 = NULL;
 parse_instruction_t parse_instruction_805x = NULL;

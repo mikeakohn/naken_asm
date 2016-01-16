@@ -29,21 +29,82 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
 {
   int opcode;
   int size = 1;
+  int n;
 
   *cycles_min = -1;
   *cycles_max = -1;
 
   opcode = READ_RAM(address);
 
-  switch(m6809_table[opcode].operand_type)
+  if (opcode == 0x10 || opcode == 0x11)
   {
-#if 0
-    case M6809_OP_UNDEF:
-      strcpy(instruction, "???");
-      break;
-#endif
-    default:
-      break;
+    opcode = READ_RAM16(address);
+
+    n = 0;
+    while(m6809_table_16[n].instr != NULL)
+    {
+      if (m6809_table_16[n].opcode == opcode)
+      {
+        strcpy(instruction, m6809_table_16[n].instr);
+        *cycles_min = m6809_table_16[n].cycles_min;
+        *cycles_max = m6809_table_16[n].cycles_min;
+
+        switch(m6809_table_16[n].operand_type)
+        {
+          case M6809_OP_INHERENT:
+          {
+            return 1;
+          }
+          case M6809_OP_IMMEDIATE:
+          case M6809_OP_EXTENDED:
+          case M6809_OP_RELATIVE:
+          case M6809_OP_DIRECT:
+          case M6809_OP_INDEXED:
+          case M6809_OP_VARIANT:
+          default:
+          {
+            //print_error_internal(asm_context, __FILE__, __LINE__);
+            break;
+          }
+        }
+      }
+
+      n++;
+    }
+  }
+  else
+  {
+    n = 0;
+    while(m6809_table[n].instr != NULL)
+    {
+      if (m6809_table[n].opcode == opcode)
+      {
+        strcpy(instruction, m6809_table[n].instr);
+        *cycles_min = m6809_table[n].cycles_min;
+        *cycles_max = m6809_table[n].cycles_min;
+
+        switch(m6809_table[n].operand_type)
+        {
+          case M6809_OP_INHERENT:
+          {
+            return 1;
+          }
+          case M6809_OP_IMMEDIATE:
+          case M6809_OP_EXTENDED:
+          case M6809_OP_RELATIVE:
+          case M6809_OP_DIRECT:
+          case M6809_OP_INDEXED:
+          case M6809_OP_VARIANT:
+          default:
+          {
+            //print_error_internal(asm_context, __FILE__, __LINE__);
+            break;
+          }
+        }
+      }
+
+      n++;
+    }
   }
 
   return size;

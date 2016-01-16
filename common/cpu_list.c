@@ -14,6 +14,7 @@
 #include "asm/65xx.h"
 #include "asm/65816.h"
 #include "asm/6800.h"
+#include "asm/6809.h"
 #include "asm/68hc08.h"
 #include "asm/680x0.h"
 #include "asm/805x.h"
@@ -33,6 +34,7 @@
 #include "disasm/65xx.h"
 #include "disasm/65816.h"
 #include "disasm/6800.h"
+#include "disasm/6809.h"
 #include "disasm/68hc08.h"
 #include "disasm/680x0.h"
 #include "disasm/805x.h"
@@ -64,6 +66,9 @@ struct _cpu_list cpu_list[] =
 #endif
 #ifdef ENABLE_6800
   { "6800", CPU_TYPE_6800, ENDIAN_BIG, 1, 1, 0, 0, parse_instruction_6800, NULL, list_output_6800, disasm_range_6800, NULL },
+#endif
+#ifdef ENABLE_6809
+  { "6809", CPU_TYPE_6809, ENDIAN_BIG, 1, 1, 0, 0, parse_instruction_6809, NULL, list_output_6809, disasm_range_6809, NULL },
 #endif
 #ifdef ENABLE_68HC08
   { "68hc08", CPU_TYPE_68HC08, ENDIAN_BIG, 1, 1, 0, 0, parse_instruction_68hc08, NULL, list_output_68hc08, disasm_range_68hc08, NULL },
