@@ -25,6 +25,7 @@
 #include "disasm/65xx.h"
 #include "disasm/65816.h"
 #include "disasm/6800.h"
+#include "disasm/6809.h"
 #include "disasm/68hc08.h"
 #include "disasm/680x0.h"
 #include "disasm/805x.h"
