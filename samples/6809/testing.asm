@@ -19,3 +19,6 @@ start:
   pshs pc, x, dp, b, a, cc
   pshu cc
 
+  tfr x, b
+  tfr d, u 
+

@@ -37,7 +37,7 @@ struct _m6809_table m6809_table[] = {
   { "andcc", 0x1c, M6809_OP_IMMEDIATE, 2, 3, 3 },
   { "sex", 0x1d, M6809_OP_INHERENT, 1, 2, 2 },
   { "exg", 0x1e, M6809_OP_INHERENT, 2, 8, 8 },
-  { "tfr", 0x1f, M6809_OP_INHERENT, 2, 7, 7 },
+  { "tfr", 0x1f, M6809_OP_TWO_REG, 2, 7, 7 },
   { "bra", 0x20, M6809_OP_RELATIVE, 2, 3, 3 },
   { "brn", 0x21, M6809_OP_RELATIVE, 2, 3, 3 },
   { "bhi", 0x22, M6809_OP_RELATIVE, 2, 3, 3 },

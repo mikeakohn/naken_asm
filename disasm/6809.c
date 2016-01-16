@@ -199,7 +199,25 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
               return 2;
             }
           }
+          case M6809_OP_TWO_REG:
+          {
+            const char *reg_post_byte[] = {
+              "d", "x", "y",  "u",  "s", "pc", "?", "?",
+              "a", "b", "cc", "dp", "?", "?",  "?", "?"
+            };
+            uint8_t post_byte = READ_RAM(address + 1);
+
+            const char *src = reg_post_byte[post_byte >> 4];
+            const char *dst = reg_post_byte[post_byte & 0xf];
+
+            sprintf(instruction, "%s %s, %s", m6809_table[n].instr, src, dst);
+
+            return 2;
+          }
           case M6809_OP_INDEXED:
+          {
+            break;
+          }
           default:
           {
             //print_error_internal(asm_context, __FILE__, __LINE__);

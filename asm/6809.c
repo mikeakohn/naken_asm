@@ -37,8 +37,11 @@
 
 struct _operand
 {
+  uint8_t count;
   uint8_t type;
-  uint8_t reg_list;
+  uint16_t reg_list;
+  uint16_t reg_src;
+  uint16_t reg_dst;
   int value;
 };
 
@@ -59,6 +62,9 @@ enum
 #define REG_FLAG_Y 0x20
 #define REG_FLAG_U 0x40
 #define REG_FLAG_PC 0x80
+
+#define REG_FLAG_D 0x100
+#define REG_FLAG_S 0x200
 
 enum
 {
@@ -119,7 +125,29 @@ static int get_register(char *s)
   if (strcasecmp(s, "u") == 0) { return REG_FLAG_U; }
   if (strcasecmp(s, "pc") == 0) { return REG_FLAG_PC; }
 
+  // Can't be used with stack instruction
+  if (strcasecmp(s, "d") == 0) { return REG_FLAG_D; }
+  if (strcasecmp(s, "s") == 0) { return REG_FLAG_S; }
+
   return 0;
+}
+
+uint8_t get_reg_postbyte(int reg)
+{
+  switch(reg)
+  {
+    case REG_FLAG_D: return 0x0;
+    case REG_FLAG_X: return 0x1;
+    case REG_FLAG_Y: return 0x2;
+    case REG_FLAG_U: return 0x3;
+    case REG_FLAG_S: return 0x4;
+    case REG_FLAG_PC: return 0x5;
+    case REG_FLAG_A: return 0x8;
+    case REG_FLAG_B: return 0x9;
+    case REG_FLAG_CC: return 0xa;
+    case REG_FLAG_DP: return 0xb;
+    default: return 0xff;
+  }
 }
 
 int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
@@ -161,6 +189,10 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         }
 
         operand.reg_list |= n;
+
+        if (operand.count == 0) { operand.reg_src = n; }
+        if (operand.count == 1) { operand.reg_dst = n; }
+        operand.count++;
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
         if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
@@ -326,11 +358,37 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         }
         case M6809_OP_STACK:
         {
-          if (operand.type != OPERAND_REG_LIST) { break; }
+          if (operand.type != OPERAND_REG_LIST ||
+              operand.reg_list > 0xff) { break; }
           if (m6809_table[n].bytes == 2)
           {
             add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
             add_bin8(asm_context, operand.reg_list, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case M6809_OP_TWO_REG:
+        {
+          if (operand.type != OPERAND_REG_LIST ||
+              operand.count != 2)
+          {
+            break;
+          }
+
+          if (m6809_table[n].bytes == 2)
+          {
+            uint8_t src = get_reg_postbyte(operand.reg_src);
+            uint8_t dst = get_reg_postbyte(operand.reg_dst);
+
+            if (src == 0xff) { break; }
+            if (dst == 0xff) { break; }
+
+            src = (src << 4) | dst;
+
+            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, src, IS_OPCODE);
             return 2;
           }
 
