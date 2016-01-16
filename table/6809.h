@@ -35,5 +35,8 @@ struct _m6809_table
   uint8_t cycles_max;
 };
 
+extern struct _m6809_table m6809_table[];
+extern struct _m6809_table m6809_table_16[];
+
 #endif
 

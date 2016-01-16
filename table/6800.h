@@ -30,5 +30,7 @@ struct _m6800_table
   char operand_type;
 };
 
+extern struct _m6800_table m6800_table[];
+
 #endif
 

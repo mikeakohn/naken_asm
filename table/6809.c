@@ -238,6 +238,7 @@ struct _m6809_table m6809_table[] = {
   { "std", 0xfd, M6809_OP_EXTENDED, 6, 6 },
   { "ldu", 0xfe, M6809_OP_EXTENDED, 6, 6 },
   { "stu", 0xff, M6809_OP_EXTENDED, 6, 6 },
+  { NULL, 0x00, M6809_OP_ILLEGAL, 0, 0 },
 };
 
 struct _m6809_table m6809_table_16[] = {
@@ -288,5 +289,6 @@ struct _m6809_table m6809_table_16[] = {
   { "cmps", 0x11ac, M6809_OP_INDEXED, 7, 7 },
   { "cmpu", 0x11b3, M6809_OP_EXTENDED, 8, 8 },
   { "cmps", 0x11bc, M6809_OP_EXTENDED, 8, 8 },
+  { NULL, 0x0000, M6809_OP_ILLEGAL, 0, 0 },
 };
 

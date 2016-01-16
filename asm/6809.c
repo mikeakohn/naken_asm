@@ -21,8 +21,6 @@
 #include "common/eval_expression.h"
 #include "table/6809.h"
 
-extern struct _m6809_table m6809_table[];
-
 enum
 {
   OPERAND_NONE,
@@ -30,6 +28,40 @@ enum
   OPERAND_ADDRESS,
   OPERAND_ADDRESS_COMMA_X,
 };
+
+struct _aliases
+{
+  const char *name;
+  const char *value;
+};
+
+static struct _aliases aliases[] =
+{
+  { "asl", "lsl" },
+  { "bcc", "bhs" },
+  { "bcs", "blo" },
+  { "asla", "lsla" },
+  { "aslb", "lslb" },
+  { "lbcc", "lbhs" },
+  { "lbcs", "lblo" },
+  { NULL, NULL }
+};
+
+static void check_alias(char *instr)
+{
+  int n = 0;
+
+  while(1)
+  {
+    if (strcmp(instr, aliases[n].name) == 0)
+    {
+      strcpy(instr, aliases[n].value);
+      break;
+    }
+
+    n++;
+  }
+}
 
 int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
 {
@@ -43,6 +75,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
   int n;
 
   lower_copy(instr_case, instr);
+  check_alias(instr_case);
 
   do
   {
@@ -108,13 +141,26 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
 
   printf("%d\n", operand_type);
 
-  for (n = 0; n < 256; n++)
+  n = 0;
+  while(1)
   {
-    if (m6809_table[n].instr == NULL) { continue; }
+    if (m6809_table[n].instr == NULL) { break; }
 
     if (strcmp(instr_case, m6809_table[n].instr) == 0)
     {
     }
+    n++;
+  }
+
+  n = 0;
+  while(1)
+  {
+    if (m6809_table_16[n].instr == NULL) { break; }
+
+    if (strcmp(instr_case, m6809_table[n].instr) == 0)
+    {
+    }
+    n++;
   }
 
   if (opcode != -1)

@@ -20,8 +20,6 @@
 #define READ_RAM(a) memory_read_m(memory, a)
 #define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
-extern struct _m6800_table m6800_table[];
-
 int get_cycle_count_6800(unsigned short int opcode)
 {
   return -1;

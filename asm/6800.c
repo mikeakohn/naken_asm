@@ -21,8 +21,6 @@
 #include "common/eval_expression.h"
 #include "table/6800.h"
 
-extern struct _m6800_table m6800_table[];
-
 enum
 {
   OPERAND_NONE,
