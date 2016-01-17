@@ -270,7 +270,7 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
     }
       else
     {
-      add_bin8(asm_context, post_byte | 0x01, IS_OPCODE);
+      add_bin8(asm_context, post_byte, IS_OPCODE);
       add_bin8(asm_context, operand->value & 0xff, IS_OPCODE);
       return 1;
     }
@@ -310,13 +310,13 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
     else
   if (operand->type == OPERAND_INDEX_REG_INC_1)
   {
-    add_bin8(asm_context, post_byte | 0x81, IS_OPCODE);
+    add_bin8(asm_context, post_byte | 0x80, IS_OPCODE);
     return 0;
   }
     else
   if (operand->type == OPERAND_INDEX_REG_INC_2)
   {
-    add_bin8(asm_context, post_byte | 0x82, IS_OPCODE);
+    add_bin8(asm_context, post_byte | 0x81, IS_OPCODE);
     return 0;
   }
     else

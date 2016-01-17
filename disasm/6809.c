@@ -176,7 +176,7 @@ int get_indexed(struct _memory *memory, struct _m6809_table *table, char *instru
   if ((post_byte & 0x9f) == 0x83)
   {
     // ,--R non-indirect
-    sprintf(instruction, "%s ,-%s", table->instr, name[reg]);
+    sprintf(instruction, "%s ,--%s", table->instr, name[reg]);
     ADD_CYCLES(3);
     return 0;
   }
@@ -184,25 +184,25 @@ int get_indexed(struct _memory *memory, struct _m6809_table *table, char *instru
   if ((post_byte & 0x9f) == 0x93)
   {
     // [,--R] indirect
-    sprintf(instruction, "%s ,-%s", table->instr, name[reg]);
+    sprintf(instruction, "%s [,--%s]", table->instr, name[reg]);
     ADD_CYCLES(6);
     return 0;
   }
     else
   if ((post_byte & 0x9f) == 0x8c)
   {
-    // 16 bit offset, PCR non-indirect
+    // 8 bit offset, PCR non-indirect
     int8_t offset = READ_RAM(address + 1);
-    sprintf(instruction, "%s %d,PCR", table->instr, offset);
+    sprintf(instruction, "%s %d,pc", table->instr, offset);
     ADD_CYCLES(1);
     return 1;
   }
     else
   if ((post_byte & 0x9f) == 0x9c)
   {
-    // [16 bit offset, PCR] indirect
+    // [8 bit offset, PCR] indirect
     int8_t offset = READ_RAM(address + 1);
-    sprintf(instruction, "%s [%d,PCR]", table->instr, offset);
+    sprintf(instruction, "%s [%d,pc]", table->instr, offset);
     ADD_CYCLES(4);
     return 1;
   }
@@ -211,7 +211,7 @@ int get_indexed(struct _memory *memory, struct _m6809_table *table, char *instru
   {
     // 16 bit offset, PCR non-indirect
     int16_t offset = READ_RAM16(address + 1);
-    sprintf(instruction, "%s %d, PCR", table->instr, offset);
+    sprintf(instruction, "%s %d,pc", table->instr, offset);
     ADD_CYCLES(5);
     return 2;
   }
@@ -220,7 +220,7 @@ int get_indexed(struct _memory *memory, struct _m6809_table *table, char *instru
   {
     // [16 bit offset, PCR] non-indirect
     int16_t offset = READ_RAM16(address + 1);
-    sprintf(instruction, "%s [%d, PCR]", table->instr, offset);
+    sprintf(instruction, "%s [%d,pc]", table->instr, offset);
     ADD_CYCLES(8);
     return 2;
   }

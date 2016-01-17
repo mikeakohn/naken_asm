@@ -36,4 +36,11 @@ start:
   lda 300,s
   lda -300,u
 
+  lda -300,pc
+  lda -5,pc
+
+  lda ,y+
+  lda ,s++
+  lda ,-y
+  lda ,--s
 
