@@ -27,4 +27,7 @@ start:
   lda ,u
   lda ,s
 
+  lda a,x
+  lda b,y
+  lda d,s
 

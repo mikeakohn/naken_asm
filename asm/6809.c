@@ -266,14 +266,14 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
     {
       add_bin8(asm_context, post_byte | 0x01, IS_OPCODE);
       add_bin16(asm_context, operand->value & 0xffff, IS_OPCODE);
+      return 2;
     }
       else
     {
       add_bin8(asm_context, post_byte | 0x01, IS_OPCODE);
-      add_bin16(asm_context, operand->value & 0xff, IS_OPCODE);
+      add_bin8(asm_context, operand->value & 0xff, IS_OPCODE);
+      return 1;
     }
-
-    return 0;
   }
 
   if (operand->is_indirect == 1) { post_byte |= 0x10; }
@@ -284,16 +284,19 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
     {
       add_bin8(asm_context, post_byte | 0x89, IS_OPCODE);
       add_bin16(asm_context, operand->value & 0xffff, IS_OPCODE);
+      return 2;
     }
       else
     if (operand->value < -16 || operand->value > 15 || operand->use_long == 1)
     {
       add_bin8(asm_context, post_byte | 0x88, IS_OPCODE);
       add_bin8(asm_context, operand->value & 0xff, IS_OPCODE);
+      return 1;
     }
       else
     {
       add_bin8(asm_context, post_byte | (operand->value & 0x1f), IS_OPCODE);
+      return 0;
     }
 
     return 0;
@@ -333,28 +336,32 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
   {
     switch(operand->reg_src)
     {
-      case REG_FLAG_A: post_byte |= 0x06;
-      case REG_FLAG_B: post_byte |= 0x05;
-      case REG_FLAG_D: post_byte |= 0x0b;
+      case REG_FLAG_A: post_byte |= 0x86; break;
+      case REG_FLAG_B: post_byte |= 0x85; break;
+      case REG_FLAG_D: post_byte |= 0x8b; break;
       default: return -1;
     }
 
     switch(operand->reg_dst)
     {
-      case REG_FLAG_X: post_byte |= 0x00;
-      case REG_FLAG_Y: post_byte |= 0x20;
-      case REG_FLAG_U: post_byte |= 0x40;
-      case REG_FLAG_S: post_byte |= 0x60;
+      case REG_FLAG_X: post_byte |= 0x00; break;
+      case REG_FLAG_Y: post_byte |= 0x20; break;
+      case REG_FLAG_U: post_byte |= 0x40; break;
+      case REG_FLAG_S: post_byte |= 0x60; break;
       default: return -1;
     }
 
+    if (operand->is_indirect == 1) { post_byte |= 0x10; }
+
     add_bin8(asm_context, post_byte, IS_OPCODE);
+    return 0;
   }
     else
   if (operand->type == OPERAND_INDEX_INDIRECT_ADDRESS)
   {
     add_bin8(asm_context, 0x9f, IS_OPCODE);
     add_bin16(asm_context, operand->value & 0xffff, IS_OPCODE);
+    return 2;
   }
 
   return -1;
@@ -681,7 +688,8 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
               operand.type == OPERAND_INDEX_REG_DEC_1 ||
               operand.type == OPERAND_INDEX_REG_DEC_2 ||
               operand.type == OPERAND_INDEX_OFFSET_REG ||
-              operand.type == OPERAND_INDEX_OFFSET_PC)
+              operand.type == OPERAND_INDEX_OFFSET_PC ||
+             (operand.type == OPERAND_REG_LIST && operand.count == 2))
           {
             add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
 
@@ -787,7 +795,8 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
               operand.type == OPERAND_INDEX_REG_DEC_1 ||
               operand.type == OPERAND_INDEX_REG_DEC_2 ||
               operand.type == OPERAND_INDEX_OFFSET_REG ||
-              operand.type == OPERAND_INDEX_OFFSET_PC)
+              operand.type == OPERAND_INDEX_OFFSET_PC ||
+             (operand.type == OPERAND_REG_LIST && operand.count == 2))
           {
             add_bin8(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
 
