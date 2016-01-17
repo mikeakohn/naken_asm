@@ -402,6 +402,24 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         if (parse_index(asm_context, instr, &operand) == -1) { return -1; }
       }
         else
+      if (get_register(token) != 0)
+      {
+        operand.type = OPERAND_REG_LIST;
+        operand.reg_src = get_register(token);
+
+        if (expect_token(asm_context, ',') == -1) { return -1; }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (get_register(token) != 0)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        operand.reg_dst = get_register(token);
+      }
+        else
       {
         tokens_push(asm_context, token, token_type);
         if (eval_expression(asm_context, &operand.value) != 0)
