@@ -244,6 +244,12 @@ int parse_index_with_offset(struct _asm_context *asm_context, char *instr, struc
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
 
+  if (operand->is_indirect && IS_TOKEN(token,']'))
+  {
+    tokens_push(asm_context, token, token_type);
+    return 0;
+  }
+
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
     print_error_unexp(token, asm_context);
@@ -287,7 +293,7 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
       return 2;
     }
       else
-    if (operand->value < -16 || operand->value > 15 || operand->use_long == 1)
+    if (operand->value < -16 || operand->value > 15 || operand->use_long == 1 || operand->is_indirect)
     {
       add_bin8(asm_context, post_byte | 0x88, IS_OPCODE);
       add_bin8(asm_context, operand->value & 0xff, IS_OPCODE);

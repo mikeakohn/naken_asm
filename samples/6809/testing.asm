@@ -47,3 +47,11 @@ start:
   lda [,s++]
   lda [,--s]
 
+  lda [-300,pc]
+  lda [-5,pc]
+
+  lda [-300,x]
+  lda [-5,s]
+
+  lda [,s]
+
