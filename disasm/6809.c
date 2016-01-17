@@ -410,6 +410,9 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
                   else { strcat(instruction, " "); }
                   strcat(instruction, reg_names[n]);
                   count++;
+                  // Each byte pushed adds 1 cycle to cycle counts
+                  if (n >= 4) { *cycles_min += 1; *cycles_max += 1; }
+                  else { *cycles_min += 2; *cycles_max += 2; }
                 }
 
                 index >>= 1;
