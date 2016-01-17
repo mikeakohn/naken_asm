@@ -312,7 +312,7 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_INDEXED:
           {
-            return get_indexed(memory, &m6809_table_16[n], instruction, address + 1, cycles_min, cycles_max) + 3;
+            return get_indexed(memory, &m6809_table_16[n], instruction, address + 2, cycles_min, cycles_max) + 3;
 
             break;
           }

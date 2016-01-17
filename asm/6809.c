@@ -468,6 +468,14 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
       }
 
       if (expect_token(asm_context, ']') == -1) { return -1; }
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
     }
       else
     if (get_register(token) != 0)
@@ -517,6 +525,14 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
       }
 
       operand.type = OPERAND_DP_ADDRESS;
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
     }
       else
     if (token_type == TOKEN_POUND)
@@ -820,11 +836,11 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
               operand.type == OPERAND_INDEX_OFFSET_PC ||
              (operand.type == OPERAND_REG_LIST && operand.count == 2))
           {
-            add_bin8(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
 
             int count = check_indexed(asm_context, &operand);
 
-            if (count > 0) { return count + 3; }
+            if (count >= 0) { return count + 3; }
           }
 
           break;

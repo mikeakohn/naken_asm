@@ -55,3 +55,5 @@ start:
 
   lda [,s]
 
+  cmpd -2,s
+
