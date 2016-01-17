@@ -533,6 +533,15 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         eat_operand(asm_context);
         operand.value = 0xffff;
       }
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
       break;
     }
       else
