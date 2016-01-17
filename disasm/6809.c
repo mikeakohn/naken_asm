@@ -47,7 +47,7 @@ int get_indexed(struct _memory *memory, struct _m6809_table *table, char *instru
     return 0;
   }
     else
-  if ((post_byte & 0x9f) == 0x84)
+  if ((post_byte & 0x80) == 0x00)
   {
     // 5 bit offset, R non-indirect
     int8_t offset = post_byte & 0x1f;

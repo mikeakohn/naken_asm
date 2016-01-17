@@ -278,7 +278,7 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
 
   if (operand->is_indirect == 1) { post_byte |= 0x10; }
 
-  if (operand->type == OPERAND_INDEX_OFFSET_PC)
+  if (operand->type == OPERAND_INDEX_OFFSET_REG)
   {
     if (operand->value < -128 || operand->value > 127 || operand->use_long == 1)
     {
@@ -380,6 +380,8 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
 
   lower_copy(instr_case, instr);
   check_alias(instr_case);
+
+//printf("%s %d\n", instr, asm_context->line);
 
   memset(&operand, 0, sizeof(operand));
 
@@ -523,6 +525,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         eat_operand(asm_context);
         operand.value = 0xffff;
       }
+      break;
     }
       else
     {
@@ -556,6 +559,8 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
       }
     }
   } while(0);
+
+//printf("%s %d\n", instr, operand.type);
 
   n = 0;
   while(1)

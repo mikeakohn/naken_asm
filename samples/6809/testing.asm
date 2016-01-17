@@ -31,3 +31,9 @@ start:
   lda b,y
   lda d,s
 
+  lda -1,x
+  lda 100,y
+  lda 300,s
+  lda -300,u
+
+
