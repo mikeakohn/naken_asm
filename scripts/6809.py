@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# http://techheap.packetizer.com/processors/6809/6809Instructions.html
+
 aliases = []
 ops = {}
 
