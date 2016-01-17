@@ -22,3 +22,9 @@ start:
   tfr x, b
   tfr d, u 
 
+  lda ,x
+  lda ,y
+  lda ,u
+  lda ,s
+
+

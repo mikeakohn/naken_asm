@@ -39,6 +39,9 @@ struct _operand
 {
   uint8_t count;
   uint8_t type;
+  uint8_t index_reg;
+  uint8_t is_indirect : 1;
+  uint8_t use_long : 1;
   uint16_t reg_list;
   uint16_t reg_src;
   uint16_t reg_dst;
@@ -52,6 +55,13 @@ enum
   OPERAND_ADDRESS,
   OPERAND_DP_ADDRESS,
   OPERAND_REG_LIST,
+  OPERAND_INDEX_REG,
+  OPERAND_INDEX_REG_INC_1,
+  OPERAND_INDEX_REG_INC_2,
+  OPERAND_INDEX_REG_DEC_1,
+  OPERAND_INDEX_REG_DEC_2,
+  OPERAND_INDEX_OFFSET_REG,
+  OPERAND_INDEX_OFFSET_PC,
 };
 
 #define REG_FLAG_CC 0x01
@@ -65,20 +75,6 @@ enum
 
 #define REG_FLAG_D 0x100
 #define REG_FLAG_S 0x200
-
-enum
-{
-  REG_D,
-  REG_X,
-  REG_Y,
-  REG_U,
-  REG_S,
-  REG_PC,
-  REG_A,
-  REG_B,
-  REG_CC,
-  REG_DP,
-};
 
 struct _aliases
 {
@@ -150,6 +146,157 @@ uint8_t get_reg_postbyte(int reg)
   }
 }
 
+int parse_index(struct _asm_context *asm_context, char *instr, struct _operand *operand)
+{
+  char token[TOKENLEN];
+  int token_type;
+  int modifier = 0;
+
+  operand->type = OPERAND_INDEX_REG;
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (IS_TOKEN(token,'-'))
+  {
+    modifier--;
+    operand->type = OPERAND_INDEX_REG_DEC_1;
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (IS_TOKEN(token,'-'))
+    {
+      modifier--;
+      operand->type = OPERAND_INDEX_REG_DEC_2;
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+    }
+  }
+
+  if (strcasecmp(token, "x") == 0) { operand->index_reg = 0; }
+  else if (strcasecmp(token, "y") == 0) { operand->index_reg = 1; }
+  else if (strcasecmp(token, "u") == 0) { operand->index_reg = 2; }
+  else if (strcasecmp(token, "s") == 0) { operand->index_reg = 3; }
+  //else if (strcasecmp(token, "pc") == 0) { operand->index_reg = 4; }
+  else
+  {
+    print_error_illegal_operands(instr, asm_context);
+    return -1;
+  }
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (IS_TOKEN(token,'+'))
+  {
+    if (modifier < 0)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    modifier++;
+    operand->type = OPERAND_INDEX_REG_INC_1;
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (IS_TOKEN(token,'+'))
+    {
+      modifier++;
+      operand->type = OPERAND_INDEX_REG_INC_2;
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+    }
+  }
+
+  if (operand->is_indirect && IS_TOKEN(token,']'))
+  {
+    tokens_push(asm_context, token, token_type);
+    return 0;
+  }
+
+  if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
+int parse_index_with_offset(struct _asm_context *asm_context, char *instr, struct _operand *operand)
+{
+  char token[TOKENLEN];
+  int token_type;
+
+  operand->type = OPERAND_INDEX_OFFSET_REG;
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (strcasecmp(token, "x") == 0) { operand->index_reg = 0; }
+  else if (strcasecmp(token, "y") == 0) { operand->index_reg = 1; }
+  else if (strcasecmp(token, "u") == 0) { operand->index_reg = 2; }
+  else if (strcasecmp(token, "s") == 0) { operand->index_reg = 3; }
+  else if (strcasecmp(token, "pc") == 0)
+  {
+    operand->type = OPERAND_INDEX_OFFSET_PC;
+    //operand->index_reg = 4;
+  }
+  else
+  {
+    print_error_illegal_operands(instr, asm_context);
+    return -1;
+  }
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  return 0;
+}
+
+static int check_indexed(struct _asm_context *asm_context, struct _operand *operand)
+{
+  uint8_t post_byte = operand->index_reg << 5;
+
+  if (operand->type == OPERAND_INDEX_OFFSET_PC)
+  {
+    return -1;
+  }
+
+  if (operand->is_indirect == 1) { post_byte |= 0x10; }
+
+  if (operand->type == OPERAND_INDEX_REG)
+  {
+    add_bin8(asm_context, post_byte | 0x84, IS_OPCODE);
+    return 0;
+  }
+    else
+  if (operand->type == OPERAND_INDEX_REG_INC_1)
+  {
+    add_bin8(asm_context, post_byte | 0x81, IS_OPCODE);
+    return 0;
+  }
+    else
+  if (operand->type == OPERAND_INDEX_REG_INC_2)
+  {
+    add_bin8(asm_context, post_byte | 0x82, IS_OPCODE);
+    return 0;
+  }
+    else
+  if (operand->type == OPERAND_INDEX_REG_DEC_1)
+  {
+    add_bin8(asm_context, post_byte | 0x82, IS_OPCODE);
+    return 0;
+  }
+    else
+  if (operand->type == OPERAND_INDEX_REG_DEC_2)
+  {
+    add_bin8(asm_context, post_byte | 0x83, IS_OPCODE);
+    return 0;
+  }
+
+  return -1;
+}
+
 int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];
@@ -176,6 +323,27 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
       break;
     }
 
+    if (IS_TOKEN(token,','))
+    {
+      if (parse_index(asm_context, instr, &operand) == -1) { return -1; }
+    }
+      else
+    if (IS_TOKEN(token,'['))
+    {
+      operand.is_indirect = 1;
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (IS_TOKEN(token,','))
+      {
+        if (parse_index(asm_context, instr, &operand) == -1) { return -1; }
+      }
+        else
+      {
+        return -1;
+      }
+    }
+      else
     if (get_register(token) != 0)
     {
       while(1)
@@ -252,21 +420,24 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
+        operand.use_long = 1;
         eat_operand(asm_context);
         operand.value = 0xffff;
       }
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
       if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
+
       if (IS_NOT_TOKEN(token, ','))
       {
         print_error_unexp(token, asm_context);
         return -1;
       }
 
-      if (expect_token_s(asm_context, "x") != 0) { return -1; }
-      //operand.type = OPERAND_REG;
-      operand.value = REG_X;
+      if (parse_index_with_offset(asm_context, instr, &operand) != 0)
+      {
+        return -1;
+      }
     }
   } while(0);
 
@@ -396,6 +567,21 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         }
         case M6809_OP_INDEXED:
         {
+          if (operand.type == OPERAND_INDEX_REG ||
+              operand.type == OPERAND_INDEX_REG_INC_1 ||
+              operand.type == OPERAND_INDEX_REG_INC_2 ||
+              operand.type == OPERAND_INDEX_REG_DEC_1 ||
+              operand.type == OPERAND_INDEX_REG_DEC_2 ||
+              operand.type == OPERAND_INDEX_OFFSET_REG ||
+              operand.type == OPERAND_INDEX_OFFSET_PC)
+          {
+            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+
+            int count = check_indexed(asm_context, &operand);
+
+            if (count >= 0) { return count + 2; }
+          }
+
           break;
         }
         default:
@@ -487,6 +673,21 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         }
         case M6809_OP_INDEXED:
         {
+          if (operand.type == OPERAND_INDEX_REG ||
+              operand.type == OPERAND_INDEX_REG_INC_1 ||
+              operand.type == OPERAND_INDEX_REG_INC_2 ||
+              operand.type == OPERAND_INDEX_REG_DEC_1 ||
+              operand.type == OPERAND_INDEX_REG_DEC_2 ||
+              operand.type == OPERAND_INDEX_OFFSET_REG ||
+              operand.type == OPERAND_INDEX_OFFSET_PC)
+          {
+            add_bin8(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
+
+            int count = check_indexed(asm_context, &operand);
+
+            if (count > 0) { return count + 3; }
+          }
+
           break;
         }
         default:
