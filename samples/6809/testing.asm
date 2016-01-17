@@ -44,3 +44,6 @@ start:
   lda ,-y
   lda ,--s
 
+  lda [,s++]
+  lda [,--s]
+

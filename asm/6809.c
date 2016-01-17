@@ -310,6 +310,7 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
     else
   if (operand->type == OPERAND_INDEX_REG_INC_1)
   {
+    if (operand->is_indirect == 1) { return -1; }
     add_bin8(asm_context, post_byte | 0x80, IS_OPCODE);
     return 0;
   }
@@ -322,6 +323,7 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
     else
   if (operand->type == OPERAND_INDEX_REG_DEC_1)
   {
+    if (operand->is_indirect == 1) { return -1; }
     add_bin8(asm_context, post_byte | 0x82, IS_OPCODE);
     return 0;
   }
