@@ -62,6 +62,7 @@ enum
   OPERAND_INDEX_REG_DEC_2,
   OPERAND_INDEX_OFFSET_REG,
   OPERAND_INDEX_OFFSET_PC,
+  OPERAND_INDEX_INDIRECT_ADDRESS,
 };
 
 #define REG_FLAG_CC 0x01
@@ -174,7 +175,6 @@ int parse_index(struct _asm_context *asm_context, char *instr, struct _operand *
   else if (strcasecmp(token, "y") == 0) { operand->index_reg = 1; }
   else if (strcasecmp(token, "u") == 0) { operand->index_reg = 2; }
   else if (strcasecmp(token, "s") == 0) { operand->index_reg = 3; }
-  //else if (strcasecmp(token, "pc") == 0) { operand->index_reg = 4; }
   else
   {
     print_error_illegal_operands(instr, asm_context);
@@ -259,11 +259,46 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
 
   if (operand->type == OPERAND_INDEX_OFFSET_PC)
   {
-    return -1;
+    post_byte = 0x8c;
+    if (operand->is_indirect == 1) { post_byte |= 0x10; }
+
+    if (operand->value < -128 || operand->value > 127 || operand->use_long == 1)
+    {
+      add_bin8(asm_context, post_byte | 0x01, IS_OPCODE);
+      add_bin16(asm_context, operand->value & 0xffff, IS_OPCODE);
+    }
+      else
+    {
+      add_bin8(asm_context, post_byte | 0x01, IS_OPCODE);
+      add_bin16(asm_context, operand->value & 0xff, IS_OPCODE);
+    }
+
+    return 0;
   }
 
   if (operand->is_indirect == 1) { post_byte |= 0x10; }
 
+  if (operand->type == OPERAND_INDEX_OFFSET_PC)
+  {
+    if (operand->value < -128 || operand->value > 127 || operand->use_long == 1)
+    {
+      add_bin8(asm_context, post_byte | 0x89, IS_OPCODE);
+      add_bin16(asm_context, operand->value & 0xffff, IS_OPCODE);
+    }
+      else
+    if (operand->value < -16 || operand->value > 15 || operand->use_long == 1)
+    {
+      add_bin8(asm_context, post_byte | 0x88, IS_OPCODE);
+      add_bin8(asm_context, operand->value & 0xff, IS_OPCODE);
+    }
+      else
+    {
+      add_bin8(asm_context, post_byte | (operand->value & 0x1f), IS_OPCODE);
+    }
+
+    return 0;
+  }
+    else
   if (operand->type == OPERAND_INDEX_REG)
   {
     add_bin8(asm_context, post_byte | 0x84, IS_OPCODE);
@@ -292,6 +327,34 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
   {
     add_bin8(asm_context, post_byte | 0x83, IS_OPCODE);
     return 0;
+  }
+    else
+  if (operand->type == OPERAND_REG_LIST && operand->count == 2)
+  {
+    switch(operand->reg_src)
+    {
+      case REG_FLAG_A: post_byte |= 0x06;
+      case REG_FLAG_B: post_byte |= 0x05;
+      case REG_FLAG_D: post_byte |= 0x0b;
+      default: return -1;
+    }
+
+    switch(operand->reg_dst)
+    {
+      case REG_FLAG_X: post_byte |= 0x00;
+      case REG_FLAG_Y: post_byte |= 0x20;
+      case REG_FLAG_U: post_byte |= 0x40;
+      case REG_FLAG_S: post_byte |= 0x60;
+      default: return -1;
+    }
+
+    add_bin8(asm_context, post_byte, IS_OPCODE);
+  }
+    else
+  if (operand->type == OPERAND_INDEX_INDIRECT_ADDRESS)
+  {
+    add_bin8(asm_context, 0x9f, IS_OPCODE);
+    add_bin16(asm_context, operand->value & 0xffff, IS_OPCODE);
   }
 
   return -1;
@@ -340,8 +403,36 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
       }
         else
       {
-        return -1;
+        tokens_push(asm_context, token, token_type);
+        if (eval_expression(asm_context, &operand.value) != 0)
+        {
+          if (asm_context->pass == 2)
+          {
+            print_error_illegal_expression(instr, asm_context);
+            return -1;
+          }
+
+          operand.use_long = 1;
+          eat_operand(asm_context);
+          operand.value = 0xffff;
+        }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
+
+        if (IS_NOT_TOKEN(token, ','))
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        if (parse_index_with_offset(asm_context, instr, &operand) != 0)
+        {
+          return -1;
+        }
       }
+
+      if (expect_token(asm_context, ']') == -1) { return -1; }
     }
       else
     if (get_register(token) != 0)
@@ -542,8 +633,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         }
         case M6809_OP_TWO_REG:
         {
-          if (operand.type != OPERAND_REG_LIST ||
-              operand.count != 2)
+          if (operand.type != OPERAND_REG_LIST || operand.count != 2)
           {
             break;
           }
