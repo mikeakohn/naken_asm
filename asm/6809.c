@@ -660,7 +660,13 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
           if (m6809_table[n].bytes == 2)
           {
             uint32_t offset = operand.value - (asm_context->address + 2);
-            if (check_range(asm_context, "Offset", offset, -128, 127) == -1) { return -1; }
+            if (asm_context->pass == 2)
+            {
+              if (check_range(asm_context, "Offset", offset, -128, 127) == -1)
+              {
+                return -1;
+              }
+            }
             add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
             add_bin8(asm_context, (uint8_t)offset, IS_OPCODE);
             return 2;
@@ -803,7 +809,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
           if (operand.type != OPERAND_ADDRESS) { break; }
           if (m6809_table_16[n].bytes == 4)
           {
-            uint32_t offset = operand.value - (asm_context->address + 2);
+            uint32_t offset = operand.value - (asm_context->address + 4);
             //if (check_range(asm_context, "Offset", offset, -32768, 32767) == -1) { return -1; }
             add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
             add_bin16(asm_context, (uint16_t)offset, IS_OPCODE);

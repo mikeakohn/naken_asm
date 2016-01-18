@@ -294,7 +294,7 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
             {
               int16_t offset = READ_RAM16(address + 2);
 
-              sprintf(instruction, "%s 0x%04x (%d)", m6809_table_16[n].instr, (address + 2 + offset) & 0xffff, offset);
+              sprintf(instruction, "%s 0x%04x (%d)", m6809_table_16[n].instr, (address + 4 + offset) & 0xffff, offset);
               return 4;
             }
 
