@@ -229,7 +229,7 @@ int get_indexed(struct _memory *memory, struct _m6809_table *table, char *instru
   {
     // [16 bit offset] non-indirect
     int16_t offset = READ_RAM16(address + 1);
-    sprintf(instruction, "%s [%d]", table->instr, offset);
+    sprintf(instruction, "%s [0x%04x]", table->instr, offset);
     ADD_CYCLES(5);
     return 2;
   }

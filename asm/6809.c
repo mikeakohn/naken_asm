@@ -453,7 +453,19 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         }
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
-        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
+
+        if (IS_TOKEN(token,']'))
+        {
+          operand.type = OPERAND_INDEX_INDIRECT_ADDRESS;
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+          break;
+        }
 
         if (IS_NOT_TOKEN(token, ','))
         {
@@ -733,6 +745,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
               operand.type == OPERAND_INDEX_REG_DEC_2 ||
               operand.type == OPERAND_INDEX_OFFSET_REG ||
               operand.type == OPERAND_INDEX_OFFSET_PC ||
+              operand.type == OPERAND_INDEX_INDIRECT_ADDRESS ||
              (operand.type == OPERAND_REG_LIST && operand.count == 2))
           {
             add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
@@ -840,6 +853,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
               operand.type == OPERAND_INDEX_REG_DEC_2 ||
               operand.type == OPERAND_INDEX_OFFSET_REG ||
               operand.type == OPERAND_INDEX_OFFSET_PC ||
+              operand.type == OPERAND_INDEX_INDIRECT_ADDRESS ||
              (operand.type == OPERAND_REG_LIST && operand.count == 2))
           {
             add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
