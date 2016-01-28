@@ -35,36 +35,36 @@ int disasm_6800(struct _memory *memory, uint32_t address, char *instruction, int
 
   opcode = READ_RAM(address);
 
-  switch(m6800_table[opcode].operand_type)
+  switch(table_6800[opcode].operand_type)
   {
     case M6800_OP_UNDEF:
       strcpy(instruction, "???");
       break;
     case M6800_OP_NONE:
-      strcpy(instruction, m6800_table[opcode].instr);
+      strcpy(instruction, table_6800[opcode].instr);
       break;
     case M6800_OP_IMM8:
-      sprintf(instruction, "%s #$%02x", m6800_table[opcode].instr, READ_RAM(address+1));
+      sprintf(instruction, "%s #$%02x", table_6800[opcode].instr, READ_RAM(address+1));
       size = 2;
       break;
     case M6800_OP_IMM16:
-      sprintf(instruction, "%s #$%04x", m6800_table[opcode].instr, READ_RAM16(address + 1));
+      sprintf(instruction, "%s #$%04x", table_6800[opcode].instr, READ_RAM16(address + 1));
       size = 3;
       break;
     case M6800_OP_DIR_PAGE_8:
-      sprintf(instruction, "%s $%02x", m6800_table[opcode].instr, READ_RAM(address + 1));
+      sprintf(instruction, "%s $%02x", table_6800[opcode].instr, READ_RAM(address + 1));
       size = 2;
       break;
     case M6800_OP_ABSOLUTE_16:
-      sprintf(instruction, "%s $%04x", m6800_table[opcode].instr, READ_RAM16(address + 1));
+      sprintf(instruction, "%s $%04x", table_6800[opcode].instr, READ_RAM16(address + 1));
       size = 3;
       break;
     case M6800_OP_NN_X:
-      sprintf(instruction, "%s $%04x,X (%d)", m6800_table[opcode].instr, (address + 2)+(char)(READ_RAM(address + 1)), (char)(READ_RAM(address + 1)));
+      sprintf(instruction, "%s $%04x,X (%d)", table_6800[opcode].instr, (address + 2)+(char)(READ_RAM(address + 1)), (char)(READ_RAM(address + 1)));
       size = 2;
       break;
     case M6800_OP_REL_OFFSET:
-      sprintf(instruction, "%s $%04x,X  (%d)", m6800_table[opcode].instr, (address + 2)+(char)(READ_RAM(address + 1)), (char)READ_RAM(address + 1));
+      sprintf(instruction, "%s $%04x,X  (%d)", table_6800[opcode].instr, (address + 2)+(char)(READ_RAM(address + 1)), (char)READ_RAM(address + 1));
       size=2;
       break;
   }

@@ -24,13 +24,13 @@ enum
   M6800_OP_REL_OFFSET,
 };
 
-struct _m6800_table
+struct _table_6800
 {
   const char *instr;
   char operand_type;
 };
 
-extern struct _m6800_table m6800_table[];
+extern struct _table_6800 table_6800[];
 
 #endif
 

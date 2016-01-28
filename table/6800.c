@@ -15,7 +15,7 @@
 
 // Based on: http://mdfs.net/Docs/Comp/6800/OpList
 
-struct _m6800_table m6800_table[] = {
+struct _table_6800 table_6800[] = {
   { NULL, M6800_OP_UNDEF },  // 0x00
   { "nop", M6800_OP_NONE },  // 0x01
   { NULL, M6800_OP_UNDEF },  // 0x02

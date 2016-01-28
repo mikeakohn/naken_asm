@@ -98,18 +98,18 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
 
   for (n = 0; n < 256; n++)
   {
-    if (m6800_table[n].instr == NULL) { continue; }
+    if (table_6800[n].instr == NULL) { continue; }
 
-    if (strcmp(instr_case, m6800_table[n].instr) == 0)
+    if (strcmp(instr_case, table_6800[n].instr) == 0)
     {
-      if (m6800_table[n].operand_type == M6800_OP_NONE &&
+      if (table_6800[n].operand_type == M6800_OP_NONE &&
           operand_type == OPERAND_NONE)
       {
         add_bin8(asm_context, n, IS_OPCODE);
         return 1;
       }
         else
-      if (m6800_table[n].operand_type == M6800_OP_REL_OFFSET &&
+      if (table_6800[n].operand_type == M6800_OP_REL_OFFSET &&
           operand_type == OPERAND_ADDRESS)
       {
         int offset = operand_value - (asm_context->address + 2);
@@ -127,7 +127,7 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
         return 1;
       }
         else
-      if (m6800_table[n].operand_type == M6800_OP_IMM16 &&
+      if (table_6800[n].operand_type == M6800_OP_IMM16 &&
           operand_type == OPERAND_NUMBER)
       {
         add_bin8(asm_context, n, IS_OPCODE);
@@ -136,7 +136,7 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
         return 3;
       }
         else
-      if (m6800_table[n].operand_type == M6800_OP_IMM8 &&
+      if (table_6800[n].operand_type == M6800_OP_IMM8 &&
           operand_type == OPERAND_NUMBER)
       {
         if (asm_context->pass != 1)
@@ -152,7 +152,7 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
         return 2;
       }
         else
-      if (m6800_table[n].operand_type == M6800_OP_NN_X &&
+      if (table_6800[n].operand_type == M6800_OP_NN_X &&
           operand_type == OPERAND_ADDRESS_COMMA_X)
       {
         int offset = operand_value-(asm_context->address + 2);
@@ -169,7 +169,7 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
         return 2;
       }
         else
-      if (m6800_table[n].operand_type == M6800_OP_DIR_PAGE_8 &&
+      if (table_6800[n].operand_type == M6800_OP_DIR_PAGE_8 &&
           operand_type == OPERAND_ADDRESS)
       {
         if (asm_context->pass == 1)
@@ -189,7 +189,7 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
         }
       }
         else
-      if (m6800_table[n].operand_type == M6800_OP_ABSOLUTE_16 &&
+      if (table_6800[n].operand_type == M6800_OP_ABSOLUTE_16 &&
           operand_type == OPERAND_ADDRESS)
       {
         if (asm_context->pass == 1)
