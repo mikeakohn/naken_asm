@@ -27,7 +27,7 @@ enum
   M6809_OP_INDEXED,
 };
 
-struct _m6809_table
+struct _table_6809
 {
   const char *instr;
   uint16_t opcode;
@@ -37,8 +37,8 @@ struct _m6809_table
   uint8_t cycles_max;
 };
 
-extern struct _m6809_table m6809_table[];
-extern struct _m6809_table m6809_table_16[];
+extern struct _table_6809 table_6809[];
+extern struct _table_6809 table_6809_16[];
 
 #endif
 

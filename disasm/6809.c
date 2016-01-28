@@ -26,7 +26,7 @@ int get_cycle_count_6809(unsigned short int opcode)
   return -1;
 }
 
-int get_indexed(struct _memory *memory, struct _m6809_table *table, char *instruction, uint32_t address, int *cycles_min, int *cycles_max)
+int get_indexed(struct _memory *memory, struct _table_6809 *table, char *instruction, uint32_t address, int *cycles_min, int *cycles_max)
 {
   const char *name[] = { "x", "y", "u", "s" };
   uint8_t post_byte = READ_RAM(address);
@@ -254,15 +254,15 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
     opcode = READ_RAM16(address);
 
     n = 0;
-    while(m6809_table_16[n].instr != NULL)
+    while(table_6809_16[n].instr != NULL)
     {
-      if (m6809_table_16[n].opcode == opcode)
+      if (table_6809_16[n].opcode == opcode)
       {
-        strcpy(instruction, m6809_table_16[n].instr);
-        *cycles_min = m6809_table_16[n].cycles_min;
-        *cycles_max = m6809_table_16[n].cycles_min;
+        strcpy(instruction, table_6809_16[n].instr);
+        *cycles_min = table_6809_16[n].cycles_min;
+        *cycles_max = table_6809_16[n].cycles_min;
 
-        switch(m6809_table_16[n].operand_type)
+        switch(table_6809_16[n].operand_type)
         {
           case M6809_OP_INHERENT:
           {
@@ -270,9 +270,9 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_IMMEDIATE:
           {
-            if (m6809_table_16[n].bytes == 4)
+            if (table_6809_16[n].bytes == 4)
             {
-              sprintf(instruction, "%s #0x%02x", m6809_table_16[n].instr, READ_RAM16(address + 2));
+              sprintf(instruction, "%s #0x%02x", table_6809_16[n].instr, READ_RAM16(address + 2));
               return 4;
             }
 
@@ -280,9 +280,9 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_EXTENDED:
           {
-            if (m6809_table_16[n].bytes == 4)
+            if (table_6809_16[n].bytes == 4)
             {
-              sprintf(instruction, "%s 0x%04x", m6809_table_16[n].instr, READ_RAM16(address + 2));
+              sprintf(instruction, "%s 0x%04x", table_6809_16[n].instr, READ_RAM16(address + 2));
               return 4;
             }
 
@@ -290,11 +290,11 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_RELATIVE:
           {
-            if (m6809_table_16[n].bytes == 4)
+            if (table_6809_16[n].bytes == 4)
             {
               int16_t offset = READ_RAM16(address + 2);
 
-              sprintf(instruction, "%s 0x%04x (%d)", m6809_table_16[n].instr, (address + 4 + offset) & 0xffff, offset);
+              sprintf(instruction, "%s 0x%04x (%d)", table_6809_16[n].instr, (address + 4 + offset) & 0xffff, offset);
               return 4;
             }
 
@@ -302,9 +302,9 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_DIRECT:
           {
-            if (m6809_table_16[n].bytes == 3)
+            if (table_6809_16[n].bytes == 3)
             {
-              sprintf(instruction, "%s >0x%02x", m6809_table_16[n].instr, READ_RAM(address + 2));
+              sprintf(instruction, "%s >0x%02x", table_6809_16[n].instr, READ_RAM(address + 2));
               return 3;
             }
 
@@ -312,7 +312,7 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_INDEXED:
           {
-            return get_indexed(memory, &m6809_table_16[n], instruction, address + 2, cycles_min, cycles_max) + 3;
+            return get_indexed(memory, &table_6809_16[n], instruction, address + 2, cycles_min, cycles_max) + 3;
 
             break;
           }
@@ -330,31 +330,31 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
   else
   {
     n = 0;
-    while(m6809_table[n].instr != NULL)
+    while(table_6809[n].instr != NULL)
     {
-      if (m6809_table[n].opcode == opcode)
+      if (table_6809[n].opcode == opcode)
       {
-        *cycles_min = m6809_table[n].cycles_min;
-        *cycles_max = m6809_table[n].cycles_min;
+        *cycles_min = table_6809[n].cycles_min;
+        *cycles_max = table_6809[n].cycles_min;
 
-        switch(m6809_table[n].operand_type)
+        switch(table_6809[n].operand_type)
         {
           case M6809_OP_INHERENT:
           {
-            strcpy(instruction, m6809_table[n].instr);
+            strcpy(instruction, table_6809[n].instr);
             return 1;
           }
           case M6809_OP_IMMEDIATE:
           {
-            if (m6809_table[n].bytes == 2)
+            if (table_6809[n].bytes == 2)
             {
-              sprintf(instruction, "%s #0x%02x", m6809_table[n].instr, READ_RAM(address + 1));
+              sprintf(instruction, "%s #0x%02x", table_6809[n].instr, READ_RAM(address + 1));
               return 2;
             }
               else
-            if (m6809_table[n].bytes == 3)
+            if (table_6809[n].bytes == 3)
             {
-              sprintf(instruction, "%s #0x%02x", m6809_table[n].instr, READ_RAM16(address + 1));
+              sprintf(instruction, "%s #0x%02x", table_6809[n].instr, READ_RAM16(address + 1));
               return 3;
             }
 
@@ -362,9 +362,9 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_EXTENDED:
           {
-            if (m6809_table[n].bytes == 3)
+            if (table_6809[n].bytes == 3)
             {
-              sprintf(instruction, "%s 0x%04x", m6809_table[n].instr, READ_RAM16(address + 1));
+              sprintf(instruction, "%s 0x%04x", table_6809[n].instr, READ_RAM16(address + 1));
               return 3;
             }
 
@@ -372,11 +372,11 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_RELATIVE:
           {
-            if (m6809_table[n].bytes == 2)
+            if (table_6809[n].bytes == 2)
             {
               int8_t offset = READ_RAM(address + 1);
 
-              sprintf(instruction, "%s 0x%04x (%d)", m6809_table[n].instr, (address + 2 + offset) & 0xffff, offset);
+              sprintf(instruction, "%s 0x%04x (%d)", table_6809[n].instr, (address + 2 + offset) & 0xffff, offset);
               return 2;
             }
 
@@ -384,9 +384,9 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_DIRECT:
           {
-            if (m6809_table[n].bytes == 2)
+            if (table_6809[n].bytes == 2)
             {
-              sprintf(instruction, "%s >0x%02x", m6809_table[n].instr, READ_RAM(address + 1));
+              sprintf(instruction, "%s >0x%02x", table_6809[n].instr, READ_RAM(address + 1));
               return 2;
             }
 
@@ -394,14 +394,14 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
           }
           case M6809_OP_STACK:
           {
-            if (m6809_table[n].bytes == 2)
+            if (table_6809[n].bytes == 2)
             {
               uint8_t reg_list = READ_RAM(address + 1);
               const char *reg_names[] = { "pc","u","y","x","dp","b","a","cc" };
               uint8_t index = 0x80;
               uint8_t count = 0;
 
-              sprintf(instruction, "%s", m6809_table[n].instr);
+              sprintf(instruction, "%s", table_6809[n].instr);
               for (n = 0; n < 8; n++)
               {
                 if ((reg_list & index) != 0)
@@ -432,13 +432,13 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
             const char *src = reg_post_byte[post_byte >> 4];
             const char *dst = reg_post_byte[post_byte & 0xf];
 
-            sprintf(instruction, "%s %s, %s", m6809_table[n].instr, src, dst);
+            sprintf(instruction, "%s %s, %s", table_6809[n].instr, src, dst);
 
             return 2;
           }
           case M6809_OP_INDEXED:
           {
-            return get_indexed(memory, &m6809_table[n], instruction, address + 1, cycles_min, cycles_max) + 2;
+            return get_indexed(memory, &table_6809[n], instruction, address + 1, cycles_min, cycles_max) + 2;
 
             break;
           }

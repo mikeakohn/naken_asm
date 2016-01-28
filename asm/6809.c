@@ -22,14 +22,14 @@
 #include "table/6809.h"
 
 #define CHECK_BYTES(a) \
-  if (m6809_table[n].bytes != a) \
+  if (table_6809[n].bytes != a) \
   { \
     print_error_internal(asm_context, __FILE__, __LINE__); \
     return -1; \
   }
 
 #define CHECK_BYTES_16(a) \
-  if (m6809_table_16[n].bytes != a) \
+  if (table_6809_16[n].bytes != a) \
   { \
     print_error_internal(asm_context, __FILE__, __LINE__); \
     return -1; \
@@ -610,20 +610,20 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(1)
   {
-    if (m6809_table[n].instr == NULL) { break; }
+    if (table_6809[n].instr == NULL) { break; }
 
-    if (strcmp(instr_case, m6809_table[n].instr) == 0)
+    if (strcmp(instr_case, table_6809[n].instr) == 0)
     {
       matched = 1;
 
-      switch(m6809_table[n].operand_type)
+      switch(table_6809[n].operand_type)
       {
         case M6809_OP_INHERENT:
         {
           if (operand.type == OPERAND_NONE)
           {
             CHECK_BYTES(1);
-            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, table_6809[n].opcode, IS_OPCODE);
             return 1;
           }
 
@@ -632,20 +632,20 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         case M6809_OP_IMMEDIATE:
         {
           if (operand.type != OPERAND_NUMBER) { break; }
-          if (m6809_table[n].bytes == 2)
+          if (table_6809[n].bytes == 2)
           {
             if (check_range(asm_context, "Immediate", operand.value, -128, 0xff) == -1) { return -1; }
             value8 = (uint8_t)operand.value;
-            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, table_6809[n].opcode, IS_OPCODE);
             add_bin8(asm_context, value8, IS_OPCODE);
             return 2;
           }
             else
-          if (m6809_table[n].bytes == 3)
+          if (table_6809[n].bytes == 3)
           {
             if (check_range(asm_context, "Immediate", operand.value, -32768, 0xffff) == -1) { return -1; }
             value16 = (uint16_t)operand.value;
-            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, table_6809[n].opcode, IS_OPCODE);
             add_bin16(asm_context, value16, IS_OPCODE);
             return 3;
           }
@@ -655,11 +655,11 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         case M6809_OP_EXTENDED:
         {
           if (operand.type != OPERAND_ADDRESS) { break; }
-          if (m6809_table[n].bytes == 3)
+          if (table_6809[n].bytes == 3)
           {
             if (check_range(asm_context, "Address", operand.value, 0, 0xffff) == -1) { return -1; }
             value16 = (uint16_t)operand.value;
-            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, table_6809[n].opcode, IS_OPCODE);
             add_bin16(asm_context, value16, IS_OPCODE);
             return 3;
           }
@@ -669,7 +669,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         case M6809_OP_RELATIVE:
         {
           if (operand.type != OPERAND_ADDRESS) { break; }
-          if (m6809_table[n].bytes == 2)
+          if (table_6809[n].bytes == 2)
           {
             uint32_t offset = operand.value - (asm_context->address + 2);
             if (asm_context->pass == 2)
@@ -679,7 +679,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
                 return -1;
               }
             }
-            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, table_6809[n].opcode, IS_OPCODE);
             add_bin8(asm_context, (uint8_t)offset, IS_OPCODE);
             return 2;
           }
@@ -689,10 +689,10 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         case M6809_OP_DIRECT:
         {
           if (operand.type != OPERAND_DP_ADDRESS) { break; }
-          if (m6809_table[n].bytes == 2)
+          if (table_6809[n].bytes == 2)
           {
             if (check_range(asm_context, "Address", operand.value, 0, 0xff) == -1) { return -1; }
-            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, table_6809[n].opcode, IS_OPCODE);
             add_bin8(asm_context, operand.value, IS_OPCODE);
             return 2;
           }
@@ -703,9 +703,9 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         {
           if (operand.type != OPERAND_REG_LIST ||
               operand.reg_list > 0xff) { break; }
-          if (m6809_table[n].bytes == 2)
+          if (table_6809[n].bytes == 2)
           {
-            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, table_6809[n].opcode, IS_OPCODE);
             add_bin8(asm_context, operand.reg_list, IS_OPCODE);
             return 2;
           }
@@ -719,7 +719,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
             break;
           }
 
-          if (m6809_table[n].bytes == 2)
+          if (table_6809[n].bytes == 2)
           {
             uint8_t src = get_reg_postbyte(operand.reg_src);
             uint8_t dst = get_reg_postbyte(operand.reg_dst);
@@ -729,7 +729,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
 
             src = (src << 4) | dst;
 
-            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, table_6809[n].opcode, IS_OPCODE);
             add_bin8(asm_context, src, IS_OPCODE);
             return 2;
           }
@@ -748,7 +748,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
               operand.type == OPERAND_INDEX_INDIRECT_ADDRESS ||
              (operand.type == OPERAND_REG_LIST && operand.count == 2))
           {
-            add_bin8(asm_context, m6809_table[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, table_6809[n].opcode, IS_OPCODE);
 
             int count = check_indexed(asm_context, &operand);
 
@@ -770,20 +770,20 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(1)
   {
-    if (m6809_table_16[n].instr == NULL) { break; }
+    if (table_6809_16[n].instr == NULL) { break; }
 
-    if (strcmp(instr_case, m6809_table_16[n].instr) == 0)
+    if (strcmp(instr_case, table_6809_16[n].instr) == 0)
     {
       matched = 1;
 
-      switch(m6809_table_16[n].operand_type)
+      switch(table_6809_16[n].operand_type)
       {
         case M6809_OP_INHERENT:
         {
           if (operand.type == OPERAND_NONE)
           {
             CHECK_BYTES_16(1);
-            add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, table_6809_16[n].opcode, IS_OPCODE);
             return 1;
           }
 
@@ -792,11 +792,11 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         case M6809_OP_IMMEDIATE:
         {
           if (operand.type != OPERAND_NUMBER) { break; }
-          if (m6809_table_16[n].bytes == 4)
+          if (table_6809_16[n].bytes == 4)
           {
             if (check_range(asm_context, "Immediate", operand.value, -32768, 0xffff) == -1) { return -1; }
             value16 = (uint16_t)operand.value;
-            add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, table_6809_16[n].opcode, IS_OPCODE);
             add_bin16(asm_context, value16, IS_OPCODE);
             return 4;
           }
@@ -806,11 +806,11 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         case M6809_OP_EXTENDED:
         {
           if (operand.type != OPERAND_ADDRESS) { break; }
-          if (m6809_table_16[n].bytes == 4)
+          if (table_6809_16[n].bytes == 4)
           {
             if (check_range(asm_context, "Address", operand.value, 0, 0xffff) == -1) { return -1; }
             value16 = (uint16_t)operand.value;
-            add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, table_6809_16[n].opcode, IS_OPCODE);
             add_bin16(asm_context, value16, IS_OPCODE);
             return 4;
           }
@@ -820,11 +820,11 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         case M6809_OP_RELATIVE:
         {
           if (operand.type != OPERAND_ADDRESS) { break; }
-          if (m6809_table_16[n].bytes == 4)
+          if (table_6809_16[n].bytes == 4)
           {
             uint32_t offset = operand.value - (asm_context->address + 4);
             //if (check_range(asm_context, "Offset", offset, -32768, 32767) == -1) { return -1; }
-            add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, table_6809_16[n].opcode, IS_OPCODE);
             add_bin16(asm_context, (uint16_t)offset, IS_OPCODE);
             return 4;
           }
@@ -834,10 +834,10 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         case M6809_OP_DIRECT:
         {
           if (operand.type != OPERAND_DP_ADDRESS) { break; }
-          if (m6809_table_16[n].bytes == 3)
+          if (table_6809_16[n].bytes == 3)
           {
             if (check_range(asm_context, "Address", operand.value, 0, 0xff) == -1) { return -1; }
-            add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, table_6809_16[n].opcode, IS_OPCODE);
             add_bin8(asm_context, operand.value, IS_OPCODE);
             return 3;
           }
@@ -856,7 +856,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
               operand.type == OPERAND_INDEX_INDIRECT_ADDRESS ||
              (operand.type == OPERAND_REG_LIST && operand.count == 2))
           {
-            add_bin16(asm_context, m6809_table_16[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, table_6809_16[n].opcode, IS_OPCODE);
 
             int count = check_indexed(asm_context, &operand);
 

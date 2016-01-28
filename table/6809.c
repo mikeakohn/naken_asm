@@ -13,7 +13,7 @@
 
 #include "table/6809.h"
 
-struct _m6809_table m6809_table[] = {
+struct _table_6809 table_6809[] = {
   { "neg", 0x00, M6809_OP_DIRECT, 2, 6, 6 },
   { "com", 0x03, M6809_OP_DIRECT, 2, 6, 6 },
   { "lsr", 0x04, M6809_OP_DIRECT, 2, 6, 6 },
@@ -241,7 +241,7 @@ struct _m6809_table m6809_table[] = {
   { NULL, 0x00, M6809_OP_ILLEGAL, 0, 0 },
 };
 
-struct _m6809_table m6809_table_16[] = {
+struct _table_6809 table_6809_16[] = {
   { "lbrn", 0x1021, M6809_OP_RELATIVE, 4, 5, 6 },
   { "lbhi", 0x1022, M6809_OP_RELATIVE, 4, 5, 6 },
   { "lbls", 0x1023, M6809_OP_RELATIVE, 4, 5, 6 },
