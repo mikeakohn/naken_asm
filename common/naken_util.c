@@ -35,6 +35,7 @@
 #include "disasm/epiphany.h"
 #include "disasm/mips32.h"
 #include "disasm/msp430.h"
+#include "disasm/propeller.h"
 #include "disasm/stm8.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
@@ -76,6 +77,7 @@ parse_instruction_t parse_instruction_epiphany = NULL;
 parse_instruction_t parse_instruction_mips32 = NULL;
 parse_instruction_t parse_instruction_msp430 = NULL;
 parse_instruction_t parse_instruction_powerpc = NULL;
+parse_instruction_t parse_instruction_propeller = NULL;
 parse_instruction_t parse_instruction_stm8 = NULL;
 parse_instruction_t parse_instruction_thumb = NULL;
 parse_instruction_t parse_instruction_tms1000 = NULL;

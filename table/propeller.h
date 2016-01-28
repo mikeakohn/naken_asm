@@ -19,6 +19,7 @@ enum
   PROPELLER_OP_NONE,
   PROPELLER_OP_DS,
   PROPELLER_OP_S,
+  PROPELLER_OP_D,
   PROPELLER_OP_IMMEDIATE,
 };
 
@@ -27,7 +28,7 @@ struct _table_propeller
   const char *instr;
   uint32_t opcode;
   uint32_t mask;
-  uint8_t operand_type;
+  uint8_t type;
   uint8_t cycles_min;
   uint8_t cycles_max;
 };
