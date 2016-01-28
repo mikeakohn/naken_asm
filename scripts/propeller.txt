@@ -1,0 +1,83 @@
+000000 000i 1111 ddddddddd sssssssss WRBYTE 8-23
+000000 001i 1111 ddddddddd sssssssss RDBYTE 8-23
+000001 000i 1111 ddddddddd sssssssss WRWORD 8-23
+000001 001i 1111 ddddddddd sssssssss RDWORD 8-23
+000010 000i 1111 ddddddddd sssssssss WRLONG 8-23
+000010 001i 1111 ddddddddd sssssssss RDLONG 8-23
+000011 000i 1111 ddddddddd sssssssss HUBOP 8-23
+000011 0001 1111 ddddddddd ------000 CLKSET 8-23
+000011 0011 1111 ddddddddd ------001 COGID 8-23
+000011 0001 1111 ddddddddd ------010 COGINIT 8-23
+000011 0001 1111 ddddddddd ------011 COGSTOP 8-23
+000011 0011 1111 ddddddddd ------100 LOCKNEW 8-23
+000011 0001 1111 ddddddddd ------101 LOCKRET 8-23
+000011 0001 1111 ddddddddd ------110 LOCKSET 8-23
+000011 0001 1111 ddddddddd ------111 LOCKCLR 8-23
+000100 001i 1111 ddddddddd sssssssss MUL ?
+000101 001i 1111 ddddddddd sssssssss MULS ?
+000110 001i 1111 ddddddddd sssssssss ENC ?
+000111 001i 1111 ddddddddd sssssssss ONES ?
+001000 001i 1111 ddddddddd sssssssss ROR
+001001 001i 1111 ddddddddd sssssssss ROL
+001010 001i 1111 ddddddddd sssssssss SHR
+001011 001i 1111 ddddddddd sssssssss SHL
+001100 001i 1111 ddddddddd sssssssss RCR
+001101 001i 1111 ddddddddd sssssssss RCL
+001110 001i 1111 ddddddddd sssssssss SAR
+001111 001i 1111 ddddddddd sssssssss REV
+010000 001i 1111 ddddddddd sssssssss MINS
+010001 001i 1111 ddddddddd sssssssss MAXS
+010010 001i 1111 ddddddddd sssssssss MIN
+010011 001i 1111 ddddddddd sssssssss MAX
+010100 001i 1111 ddddddddd sssssssss MOVS
+010101 001i 1111 ddddddddd sssssssss MOVD
+010110 001i 1111 ddddddddd sssssssss MOVI
+010111 001i 1111 ddddddddd sssssssss JMPRET
+010111 000i 1111 --------- sssssssss JMP
+010111 0011 1111 ????????? sssssssss CALL
+010111 0001 1111 --------- --------- RET
+011000 000i 1111 ddddddddd sssssssss TEST
+011001 000i 1111 ddddddddd sssssssss TESTN
+011000 001i 1111 ddddddddd sssssssss AND
+011001 001i 1111 ddddddddd sssssssss ANDN
+011010 001i 1111 ddddddddd sssssssss OR
+011011 001i 1111 ddddddddd sssssssss XOR
+011100 001i 1111 ddddddddd sssssssss MUXC
+011101 001i 1111 ddddddddd sssssssss MUXNC
+011110 001i 1111 ddddddddd sssssssss MUXZ
+011111 001i 1111 ddddddddd sssssssss MUXNZ
+100000 001i 1111 ddddddddd sssssssss ADD
+100001 001i 1111 ddddddddd sssssssss SUB
+100001 000i 1111 ddddddddd sssssssss CMP
+100010 001i 1111 ddddddddd sssssssss ADDABS
+100011 001i 1111 ddddddddd sssssssss SUBABS
+100100 001i 1111 ddddddddd sssssssss SUMC
+100101 001i 1111 ddddddddd sssssssss SUMNC
+100110 001i 1111 ddddddddd sssssssss SUMZ
+100111 001i 1111 ddddddddd sssssssss SUMNZ
+101000 001i 1111 ddddddddd sssssssss MOV
+101001 001i 1111 ddddddddd sssssssss NEG
+101010 001i 1111 ddddddddd sssssssss ABS
+101011 001i 1111 ddddddddd sssssssss ABSNEG
+101100 001i 1111 ddddddddd sssssssss NEGC
+101101 001i 1111 ddddddddd sssssssss NEGNC
+101110 001i 1111 ddddddddd sssssssss NEGZ
+101111 001i 1111 ddddddddd sssssssss NEGNZ
+110000 000i 1111 ddddddddd sssssssss CMPS
+110001 000i 1111 ddddddddd sssssssss CMPSX
+110010 001i 1111 ddddddddd sssssssss ADDX
+110011 001i 1111 ddddddddd sssssssss SUBX
+110011 000i 1111 ddddddddd sssssssss CMPX
+110100 001i 1111 ddddddddd sssssssss ADDS
+110101 001i 1111 ddddddddd sssssssss SUBS
+110110 001i 1111 ddddddddd sssssssss ADDSX
+110111 001i 1111 ddddddddd sssssssss SUBSX
+111000 001i 1111 ddddddddd sssssssss CMPSUB
+111001 001i 1111 ddddddddd sssssssss DJNZ 4,8
+111010 000i 1111 ddddddddd sssssssss TJNZ 4,8
+111011 000i 1111 ddddddddd sssssssss TJZ 4,8
+111100 000i 1111 ddddddddd sssssssss WAITPEQ 6+
+111101 000i 1111 ddddddddd sssssssss WAITPNE 6+
+111110 001i 1111 ddddddddd sssssssss WAITCNT 6+
+111111 000i 1111 ddddddddd sssssssss WAITVID 4+
+------ ---- 0000 --------- --------- NOP
