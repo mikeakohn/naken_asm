@@ -127,10 +127,26 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case PROPELLER_OP_DS:
+        case PROPELLER_OP_DS_15_1:
+        case PROPELLER_OP_DS_15_2:
         {
           if (operand_count != 2 || operands[0].type == OPERAND_IMMEDIATE)
           {
             print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (table_propeller[n].type == PROPELLER_OP_DS_15_1 &&
+              (operands[1].value & 0x1) != 0)
+          {
+            print_error_align(asm_context, 1);
+            return -1;
+          }
+
+          if (table_propeller[n].type == PROPELLER_OP_DS_15_2 &&
+              (operands[1].value & 0x3) != 0)
+          {
+            print_error_align(asm_context, 2);
             return -1;
           }
 
