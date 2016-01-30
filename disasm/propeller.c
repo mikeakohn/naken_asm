@@ -17,10 +17,10 @@
 #include "disasm/propeller.h"
 #include "table/propeller.h"
 
-#define READ_RAM32(a) (memory_read_m(memory, a) << 24) | \
+#define READ_RAM32(a) (memory_read_m(memory, a + 0) << 24) | \
                       (memory_read_m(memory, a + 1) << 16) | \
-                      (memory_read_m(memory, a + 1) << 8) | \
-                       memory_read_m(memory, a + 1)
+                      (memory_read_m(memory, a + 2) << 8) | \
+                       memory_read_m(memory, a + 3)
 
 int get_cycle_count_propeller(unsigned short int opcode)
 {
@@ -83,7 +83,7 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
         }
         case PROPELLER_OP_D:
         {
-          sprintf(instruction, "%s #0x%x", table_propeller[n].instr, d);
+          sprintf(instruction, "%s 0x%x", table_propeller[n].instr, d);
           return 4;
         }
         case PROPELLER_OP_IMMEDIATE:
