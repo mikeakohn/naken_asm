@@ -185,7 +185,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
         }
         case PROPELLER_OP_D:
         {
-          if (operand_count != 1 || operands[0].type != OPERAND_IMMEDIATE)
+          if (operand_count != 1 || operands[0].type == OPERAND_IMMEDIATE)
           {
             print_error_illegal_operands(instr, asm_context);
             return -1;
