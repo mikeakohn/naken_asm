@@ -679,6 +679,7 @@ int main(int argc, char *argv[])
            "   -epiphany                    (Epiphany III/IV)\n"
            "   -mips32                      (MIPS)\n"
            "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
+           "   -propeller                   (Parallax Propeller)\n"
            "   -stm8                        (STM8)\n"
            "   -tms1000                     (TMS1000)\n"
            "   -tms1100                     (TMS1100)\n"

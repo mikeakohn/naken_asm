@@ -107,7 +107,7 @@ struct _cpu_list cpu_list[] =
   { "powerpc", CPU_TYPE_POWERPC, ENDIAN_BIG, 1, 0, 0, 0, parse_instruction_powerpc, NULL, list_output_powerpc, disasm_range_powerpc, NULL },
 #endif
 #ifdef ENABLE_PROPELLER
-  { "propeller", CPU_TYPE_PROPELLER, ENDIAN_BIG, 4, 0, 0, 0, parse_instruction_propeller, NULL, list_output_propeller, disasm_range_propeller, NULL },
+  { "propeller", CPU_TYPE_PROPELLER, ENDIAN_LITTLE, 4, 0, 0, 0, parse_instruction_propeller, NULL, list_output_propeller, disasm_range_propeller, NULL },
 #endif
 #ifdef ENABLE_STM8
   { "stm8", CPU_TYPE_STM8, ENDIAN_BIG, 1, 1, 0, 1, parse_instruction_stm8, NULL, list_output_stm8, disasm_range_stm8, NULL },

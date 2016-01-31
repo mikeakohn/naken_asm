@@ -17,10 +17,10 @@
 #include "disasm/propeller.h"
 #include "table/propeller.h"
 
-#define READ_RAM32(a) (memory_read_m(memory, a + 0) << 24) | \
-                      (memory_read_m(memory, a + 1) << 16) | \
-                      (memory_read_m(memory, a + 2) << 8) | \
-                       memory_read_m(memory, a + 3)
+#define READ_RAM32(a) (memory_read_m(memory, a + 3) << 24) | \
+                      (memory_read_m(memory, a + 2) << 16) | \
+                      (memory_read_m(memory, a + 1) << 8) | \
+                       memory_read_m(memory, a + 0)
 
 int get_cycle_count_propeller(unsigned short int opcode)
 {
@@ -154,7 +154,6 @@ void disasm_range_propeller(struct _memory *memory, uint32_t start, uint32_t end
   char instruction[128];
   char bytes[16];
   int cycles_min = 0,cycles_max = 0;
-  int count;
 
   printf("\n");
 
@@ -163,7 +162,7 @@ void disasm_range_propeller(struct _memory *memory, uint32_t start, uint32_t end
 
   while(start <= end)
   {
-    count = disasm_propeller(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_propeller(memory, start, instruction, &cycles_min, &cycles_max);
 
     sprintf(bytes, "0x%08x", READ_RAM32(start));
     printf("0x%04x: %-16s %-40s ", start / 4, bytes, instruction);
@@ -187,7 +186,7 @@ void disasm_range_propeller(struct _memory *memory, uint32_t start, uint32_t end
       printf("%d-%d\n", cycles_min, cycles_max);
     }
 
-    start = start + count;
+    start = start + 4;
   }
 }
 
