@@ -157,8 +157,8 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
             opcode |= 0x00400000;
           }
 
-          opcode |= (operands[0].value & 0x1f) << 9;
-          opcode |= operands[1].value & 0x1f;
+          opcode |= (operands[0].value & 0x1ff) << 9;
+          opcode |= operands[1].value & 0x1ff;
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
@@ -178,7 +178,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
             opcode |= 0x00400000;
           }
 
-          opcode |= operands[0].value & 0x1f;
+          opcode |= operands[0].value & 0x1ff;
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
@@ -192,7 +192,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
           }
 
           opcode = table_propeller[n].opcode;
-          opcode |= (operands[0].value & 0x1f) << 9;
+          opcode |= (operands[0].value & 0x1ff) << 9;
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
@@ -206,7 +206,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
           }
 
           opcode = table_propeller[n].opcode;
-          opcode |= operands[0].value & 0x1f;
+          opcode |= operands[0].value & 0x1ff;
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;

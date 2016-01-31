@@ -39,8 +39,8 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
   opcode = READ_RAM32(address);
 
   i = (opcode & 0x00400000) >> 22;
-  s = opcode & 0x1f;
-  d = (opcode >> 9) & 0x1f;
+  s = opcode & 0x1ff;
+  d = (opcode >> 9) & 0x1ff;
 
   n = 0;
   while(table_propeller[n].instr != NULL)
