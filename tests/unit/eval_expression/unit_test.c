@@ -86,6 +86,12 @@ int main(int argc, char *argv[])
   test("~1 + 1", -1);
   test("~-1 + 5", 5);
   test("~-~1 + 5", 2);
+  test("6(", 6);
+  test("-6*(3+4)", -42);
+  test("6-4*(3+4)", -22);
+  test("6-4(3+4)", 2);
+  test("-6(", -6);
+  test("1+(((2*3)+5)+3)", 15);
   should_fail("23 23");
   should_fail("23~23");
 

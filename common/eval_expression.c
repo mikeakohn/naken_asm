@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -210,6 +210,7 @@ static int eval_expression_go(struct _asm_context *asm_context, int *num, struct
   int num_stack[3];
   int num_stack_ptr = 1;
   struct _operator operator;
+  int last_token_was_op = -1;
 
 #ifdef DEBUG
 printf("Enter eval_expression_go,  num=%d\n", *num);
@@ -230,7 +231,7 @@ printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
 #endif
 //printf("num_stack_ptr=%d operator=%d\n", num_stack_ptr, operator.operation);
 
-    // Issue 15: Return an error if a stack is full with noe operator.
+    // Issue 15: Return an error if a stack is full with no operator.
     if (num_stack_ptr == 3 && operator.operation == OPER_UNSET)
     {
       return -1;
@@ -265,6 +266,17 @@ printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
     // Open and close parenthesis
     if (IS_TOKEN(token,'('))
     {
+      if (last_token_was_op == 0 && operator.operation != OPER_UNSET)
+      {
+        num_stack[num_stack_ptr-2] = operate(num_stack[num_stack_ptr-2], num_stack[num_stack_ptr-1], last_operator);
+        num_stack_ptr--;
+        operator.operation = OPER_UNSET;
+
+        *num = num_stack[num_stack_ptr-1];
+        tokens_push(asm_context, token, token_type);
+        return 0;
+      }
+
       if (operator.operation == OPER_UNSET && num_stack_ptr == 2)
       {
         // This is probably the x(r12) case.. so this is actually okay
@@ -282,6 +294,8 @@ printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
       {
         return -1;
       }
+
+      last_token_was_op = 0;
 
 #ifdef DEBUG
 printf("Paren got back %d\n", paren_num);
@@ -321,6 +335,8 @@ printf("Paren got back %d\n", paren_num);
     // Read number
     if (token_type == TOKEN_NUMBER)
     {
+      last_token_was_op = 0;
+
       if (num_stack_ptr == 3)
       {
         print_error_unexp(token, asm_context);
@@ -336,6 +352,8 @@ PRINT_STACK()
       else
     if (token_type == TOKEN_SYMBOL)
     {
+      last_token_was_op = 1;
+
       struct _operator operator_prev;
       memcpy(&operator_prev, &operator, sizeof(struct _operator));
 
@@ -350,6 +368,7 @@ PRINT_STACK()
       if (operator.operation == OPER_NOT)
       {
         int num;
+
         if (parse_unary(asm_context, &num, OPER_NOT) != 0) { return -1; }
 
         if (num_stack_ptr == 3)
@@ -360,6 +379,8 @@ PRINT_STACK()
 
         num_stack[num_stack_ptr++] = num;
         memcpy(&operator, &operator_prev, sizeof(struct _operator));
+
+        last_token_was_op = 0;
 
         continue;
       }
@@ -389,16 +410,6 @@ printf("OPERATOR '%s': precedence last=%d this=%d\n", token, last_operator->prec
         }
       }
         else
-#if 0
-      if (last_operator->precedence < operator.precedence)
-      {
-        // The older operation has MORE precedence
-        tokens_push(asm_context, token, token_type);
-        *num = num_stack[num_stack_ptr-1];
-        return 0;
-      }
-        else
-#endif
       {
         num_stack[num_stack_ptr-2] = operate(num_stack[num_stack_ptr-2], num_stack[num_stack_ptr-1], last_operator);
         num_stack_ptr--;

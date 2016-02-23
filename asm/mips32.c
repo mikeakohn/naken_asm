@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -618,7 +618,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
           else
         if (mips32_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
         {
-          opcode |= operands[r].value;
+          opcode |= operands[r].value & 0xffff;
           opcode |= operands[r].reg2 << 21;
         }
           else
@@ -638,11 +638,13 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
+#if 0
         if (mips32_i_table[n].operand[r] != MIPS_OP_IMMEDIATE &&
             mips32_i_table[n].operand[r] != MIPS_OP_IMMEDIATE_SIGNED)
         {
           opcode |= operands[r].value << shift_table[(int)mips32_i_table[n].operand[r]];
         }
+#endif
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);

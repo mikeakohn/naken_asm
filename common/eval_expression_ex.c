@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -226,6 +226,7 @@ static int eval_expression_go(struct _asm_context *asm_context, struct _var *var
   struct _var var_stack[3];
   int var_stack_ptr = 1;
   struct _operator operator;
+  int last_token_was_op = -1;
 
 #ifdef DEBUG
 printf("Enter eval_expression_go,  var=%d/%f/%d\n", var_get_int32(var), var_get_float(var), var_get_type(var));
@@ -280,6 +281,17 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
     // Open and close parenthesis
     if (IS_TOKEN(token,'('))
     {
+      if (last_token_was_op == 0 && operator.operation != OPER_UNSET)
+      {
+        operate(&var_stack[var_stack_ptr-2], &var_stack[var_stack_ptr-1], last_operator);
+        var_stack_ptr--;
+        operator.operation = OPER_UNSET;
+
+        VAR_COPY(var, &var_stack[var_stack_ptr-1]);
+        tokens_push(asm_context, token, token_type);
+        return 0;
+      }
+
       if (operator.operation == OPER_UNSET && var_stack_ptr == 2)
       {
         // This is probably the x(r12) case.. so this is actually okay
@@ -300,9 +312,12 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
         return -1;
       }
 
+      last_token_was_op = 0;
+
 #ifdef DEBUG
 printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&paren_var), var_get_type(&paren_var));
 #endif
+
       VAR_COPY(&var_stack[var_stack_ptr++], &paren_var);
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -327,6 +342,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
       tokens_push(asm_context, token, token_type);
       break;
     }
+
     if (token_type == TOKEN_EOL)
     {
       //asm_context->line++;
@@ -337,6 +353,8 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
     // Read number
     if (token_type == TOKEN_NUMBER)
     {
+      last_token_was_op = 0;
+
       if (var_stack_ptr == 3)
       {
         print_error_unexp(token, asm_context);
@@ -359,6 +377,8 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
       else
     if (token_type == TOKEN_SYMBOL)
     {
+      last_token_was_op = 1;
+
       struct _operator operator_prev;
       memcpy(&operator_prev, &operator, sizeof(struct _operator));
 
@@ -375,14 +395,6 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
         int64_t num;
 
         if (parse_unary(asm_context, &num, OPER_NOT) != 0) { return -1; }
-#if 0
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-        if (token_type != TOKEN_NUMBER)
-        {
-          print_error_unexp(token, asm_context);
-          return -1;
-        }
-#endif
 
         if (var_stack_ptr == 3)
         {
@@ -392,6 +404,8 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
 
         var_set_int(&var_stack[var_stack_ptr++], num);
         memcpy(&operator, &operator_prev, sizeof(struct _operator));
+
+        last_token_was_op = 0;
 
         continue;
       }
@@ -420,15 +434,6 @@ printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, operato
         }
       }
         else
-#if 0
-      if (last_operator->precedence < operator.precedence)
-      {
-        tokens_push(asm_context, token, token_type);
-        VAR_COPY(var, &var_stack[var_stack_ptr-1]);
-        return 0;
-      }
-        else
-#endif
       {
         operate(&var_stack[var_stack_ptr-2], &var_stack[var_stack_ptr-1], last_operator);
         var_stack_ptr--;

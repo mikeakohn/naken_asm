@@ -62,6 +62,7 @@ sub $t3, $t4, $t5
 subu $t3, $t4, $t5
 sw $0, ($t1)
 sw $t3, 0x1234($t4)
+sw $t3, -8($t4)
 swl $t3, 0x1234($t4)
 swr $t3, 0x1234($t4)
 wsbh $t1, $t2

@@ -128,6 +128,16 @@ int main(int argc, char *argv[])
   test_int64("~1 + 1", -1);
   test_int64("~-1 + 5", 5);
   test_int64("~-~1 + 5", 2);
+  test_int("6(", 6);
+  test_int("-6*(3+4)", -42);
+  test_int("6-4*(3+4)", -22);
+  test_int("6-4(3+4)", 2);
+  test_int("-6(", -6);
+  test_int64("6(", 6);
+  test_int64("-6*(3+4)", -42);
+  test_int64("6-4*(3+4)", -22);
+  test_int64("6-4(3+4)", 2);
+  test_int64("-6(", -6);
   should_fail("23 23");
   should_fail("23~23");
 
