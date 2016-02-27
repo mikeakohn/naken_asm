@@ -1,0 +1,40 @@
+Name:		naken_asm
+Version:	#RPM_VERSION#
+Release:	1%{?dist}
+Summary:	Assembler, disassembler, and simulator for multiple CPU's including MSP430, AVR8, Z80, 68000, 6502, 65816, MIPS32, dsPIC, PIC24, 8051, STM8, TMS1000, TMS1100, and more
+Group:		Development/Tools
+License:	GPL+
+URL:		http://www.mikekohn.net/micro/naken_asm.php
+Source0:	naken_asm-#VERSION#.tar.gz
+
+BuildRequires:  readline-devel
+Requires:	readline
+
+%description
+
+Assembler, disassembler, and simulator for multiple CPU's including
+MSP430, AVR8, Z80, 68000, 6502, 65816, MIPS32, dsPIC, PIC24, 8051, STM8,
+TMS1000, TMS1100, and more.
+
+naken_asm serves as the assembler.
+naken_util serves as the disassembler and simulator.
+
+%prep
+%autosetup -n naken_asm-#VERSION#
+
+%build
+./configure --install-prefix=/usr
+make %{?_smp_mflags}
+
+%install
+#%make_install
+
+install -m 755 -d %{buildroot}/%{_bindir}
+cp naken_asm %{buildroot}/%{_bindir}
+cp naken_util %{buildroot}/%{_bindir}
+
+%files
+/usr/bin/naken_asm
+/usr/bin/naken_util
+
+
