@@ -1,6 +1,7 @@
 add $5, $6, $7
 add $k0, $s0, $t7
 addi $k0, $s0, 0x1234
+addi $sp, $sp, -12
 addiu $9, $sp, 0x1234
 addu $ra, $gp, $fp
 and $t5, $t6, $t7
@@ -63,8 +64,10 @@ subu $t3, $t4, $t5
 sw $0, ($t1)
 sw $t3, 0x1234($t4)
 sw $t3, -8($t4)
+sw $t0, 0x61a0($k0)
 swl $t3, 0x1234($t4)
 swr $t3, 0x1234($t4)
 wsbh $t1, $t2
 xor $t3, $k0, $k1
 xori $t3, $k0, 0x1234
+xori $t0, $t0, 0xff
