@@ -272,12 +272,12 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
 
         if (mips32_i_table[n].operand[2] == MIPS_OP_RT_IS_0)
         {
-          if (rt != 0) { continue; }
+          if (rt != 0) { n++; continue; }
         }
           else
         if (mips32_i_table[n].operand[2] == MIPS_OP_RT_IS_1)
         {
-          if (rt != 1) { continue; }
+          if (rt != 1) { n++; continue; }
         }
 
         strcpy(instruction, mips32_i_table[n].instr);
