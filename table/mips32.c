@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -49,12 +49,13 @@ struct _mips32_instr mips32_i_table[] = {
   { "addi", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED }, 0x08, 3 },
   { "addiu", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE }, 0x09, 3 },
   { "andi", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE }, 0x0c, 3 },
-  { "beq", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_LABEL }, 0x04, 3 },
-  { "bgez", { MIPS_OP_RS, MIPS_OP_LABEL, MIPS_OP_RT_IS_1 }, 0x01, 2 },
-  { "bgtz", { MIPS_OP_RS, MIPS_OP_LABEL, MIPS_OP_RT_IS_0 }, 0x07, 2 },
-  { "blez", { MIPS_OP_RS, MIPS_OP_LABEL, MIPS_OP_RT_IS_0 }, 0x06, 2 },
-  { "bltz", { MIPS_OP_RS, MIPS_OP_LABEL, MIPS_OP_RT_IS_0 }, 0x01, 2 },
-  { "bne", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_LABEL }, 0x05, 3 },
+  //{ "beq", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_LABEL }, 0x04, 3 },
+  //{ "bgez", { MIPS_OP_RS, MIPS_OP_LABEL, MIPS_OP_RT_IS_1 }, 0x01, 2 },
+  //{ "bgezal", { MIPS_OP_RS, MIPS_OP_LABEL, MIPS_OP_RT_IS_1 }, 0x11, 2 },
+  //{ "bgtz", { MIPS_OP_RS, MIPS_OP_LABEL, MIPS_OP_RT_IS_0 }, 0x07, 2 },
+  //{ "blez", { MIPS_OP_RS, MIPS_OP_LABEL, MIPS_OP_RT_IS_0 }, 0x06, 2 },
+  //{ "bltz", { MIPS_OP_RS, MIPS_OP_LABEL, MIPS_OP_RT_IS_0 }, 0x01, 2 },
+  //{ "bne", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_LABEL }, 0x05, 3 },
   { "lb", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x20, 2 },
   { "lbu", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x24, 2 },
   { "lh", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x21, 2 },
@@ -77,6 +78,26 @@ struct _mips32_instr mips32_i_table[] = {
   { "swc1", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x39, 2 },
   { "xori", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE }, 0x0e, 3 },
   { NULL, { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0x00, 0 }
+};
+
+struct _mips32_branch mips32_branch_table[] = {
+  { "beq", 0x04, -1, 0 },
+  { "beql", 0x14, -1, MIPS_II },
+  { "bgez", 0x01, 0x01, 0 },
+  { "bgezal", 0x01, 0x11, 0 },
+  { "bgezall", 0x01, 0x13, MIPS_II },
+  { "bgezl", 0x01, 0x03, MIPS_II },
+  { "bgtz", 0x07, 0x00, 0 },
+  { "bgtzl", 0x17, 0x00, MIPS_II },
+  { "blez", 0x06, 0x00, 0 },
+  { "blezl", 0x16, 0x00, MIPS_II },
+  { "bltz", 0x01, 0x00, 0 },
+  { "bltzal", 0x01, 0x10, 0 },
+  { "bltzall", 0x01, 0x12, MIPS_II },
+  { "bltzl", 0x01, 0x02, MIPS_II },
+  { "bne", 0x05, -1, 0 },
+  { "bnel", 0x15, -1, MIPS_II },
+  { NULL, 0, 0 }
 };
 
 struct _mips32_special_instr mips32_special_table[] = {

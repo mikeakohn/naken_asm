@@ -6,6 +6,18 @@ addiu $9, $sp, 0x1234
 addu $ra, $gp, $fp
 and $t5, $t6, $t7
 andi $t5, $t6, 0x1234
+b start 
+;bal start 
+beq $t6, $t7, start 
+beqz $t6, start
+bgez $t6, start
+bgezal $t6, start
+bgtz $t6, start
+blez $t6, start 
+bltz $t6, start
+bltzal $t6, start
+bne $t6, $t7, start 
+bnez $t6, start 
 clo $t0, $t1
 clz $t2, $t3
 ext $t2, $t3, 4, 2

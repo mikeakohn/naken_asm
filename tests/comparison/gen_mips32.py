@@ -23,6 +23,13 @@ for instruction in fp:
 
   fp1 = open("mips32_gnu.hex", "rb")
   hex = fp1.readline().strip()
+
+  #if instruction.startswith("b"):
+    #l = len(hex)
+    #old = hex + " " + hex[:l-10] + " " + hex[-2:]
+    #out.write(old + "\n")
+    #hex = hex[0:l-10] + hex[-2:]
+
   out.write(instruction + "|" + hex + "\n")
   fp1.close
 

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -140,6 +140,38 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
     }
   }
 
+  n = 0;
+  while(mips32_branch_table[n].instr != NULL)
+  {
+    if (mips32_branch_table[n].op_rt == -1)
+    {
+      if ((opcode >> 26) == mips32_branch_table[n].opcode)
+      {
+        int rs = (opcode >> 21) & 0x1f;
+        int rt = (opcode >> 16) & 0x1f;
+        int16_t offset = (opcode & 0xffff) << 2;
+
+        sprintf(instruction, "%s %s, %s, 0x%x (offset=%d)", mips32_branch_table[n].instr, reg[rs], reg[rt],  address + 4 + offset, offset);
+
+        return 4;
+      }
+    }
+      else
+    {
+      if ((opcode >> 26) == mips32_branch_table[n].opcode &&
+         ((opcode >> 16) & 0x1f) == mips32_branch_table[n].op_rt)
+      {
+        int rs = (opcode >> 21) & 0x1f;
+        int16_t offset = (opcode & 0xffff) << 2;
+
+        sprintf(instruction, "%s %s, 0x%x (offset=%d)", mips32_branch_table[n].instr, reg[rs], address + 4 + offset, offset);
+
+        return 4;
+      }
+    }
+    n++;
+  }
+
   if (format == 0)
   {
     // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
@@ -270,6 +302,7 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
         int rt = (opcode >> 16) & 0x1f;
         int immediate = opcode & 0xffff;
 
+#if 0
         if (mips32_i_table[n].operand[2] == MIPS_OP_RT_IS_0)
         {
           if (rt != 0) { n++; continue; }
@@ -279,6 +312,7 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
         {
           if (rt != 1) { n++; continue; }
         }
+#endif
 
         strcpy(instruction, mips32_i_table[n].instr);
 

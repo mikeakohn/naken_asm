@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -17,6 +17,10 @@
 #define FORMAT_SPECIAL0 0x00
 #define FORMAT_SPECIAL2 0x1c
 #define FORMAT_SPECIAL3 0x1f
+
+#define MIPS_II 1
+#define MIPS_III 2
+#define MIPS_IV 4
 
 enum
 {
@@ -37,8 +41,8 @@ enum
   MIPS_OP_IMMEDIATE,
   MIPS_OP_IMMEDIATE_SIGNED,
   MIPS_OP_IMMEDIATE_RS,
-  MIPS_OP_RT_IS_0,
-  MIPS_OP_RT_IS_1,
+  //MIPS_OP_RT_IS_0,
+  //MIPS_OP_RT_IS_1,
 };
 
 enum
@@ -55,6 +59,14 @@ struct _mips32_instr
   char operand[3];
   uint8_t function;
   int8_t operand_count;
+};
+
+struct _mips32_branch
+{
+  const char *instr;
+  uint8_t opcode;
+  int8_t op_rt;
+  uint16_t version;
 };
 
 struct _mips32_cop_instr
@@ -79,6 +91,7 @@ struct _mips32_special_instr
 
 extern struct _mips32_instr mips32_r_table[];
 extern struct _mips32_instr mips32_i_table[];
+extern struct _mips32_branch mips32_branch_table[];
 extern struct _mips32_special_instr mips32_special_table[];
 extern struct _mips32_cop_instr mips32_cop_table[];
 

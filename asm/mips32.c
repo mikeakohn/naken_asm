@@ -96,6 +96,21 @@ static int get_register_mips32(char *token, char letter)
   return -1;
 }
 
+static int add_offset(struct _asm_context *asm_context, int address, uint32_t *opcode)
+{
+  int32_t offset = address - (asm_context->address + 4);
+
+  if (offset < -(1 << 17) || offset > (1 << 17) - 1)
+  {
+    print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context); 
+    return -1;
+  }
+
+  *opcode |= (offset >> 2) & 0xffff;
+
+  return 0;
+}
+
 static uint32_t find_opcode(const char *instr_case)
 {
   int n = 0;
@@ -266,6 +281,43 @@ static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct
     operands[1].type = OPERAND_TREG;
     *operand_count = 3;
   }
+    else
+  if (strcmp(instr_case, "beqz") == 0 &&
+      *operand_count == 2 &&
+      operands[0].type == OPERAND_TREG &&
+      operands[1].type == OPERAND_IMMEDIATE)
+  {
+    strcpy(instr_case, "beq");
+    memcpy(&operands[2], &operands[1], sizeof(struct _operand));
+    operands[1].value = 0;
+    operands[1].type = OPERAND_TREG;
+    *operand_count = 3;
+  }
+    else
+  if (strcmp(instr_case, "bnez") == 0 &&
+      *operand_count == 2 &&
+      operands[0].type == OPERAND_TREG &&
+      operands[1].type == OPERAND_IMMEDIATE)
+  {
+    strcpy(instr_case, "bne");
+    memcpy(&operands[2], &operands[1], sizeof(struct _operand));
+    operands[1].value = 0;
+    operands[1].type = OPERAND_TREG;
+    *operand_count = 3;
+  }
+#if 0
+    else
+  if (strcmp(instr_case, "bal") == 0 &&
+      *operand_count == 1 &&
+      operands[0].type == OPERAND_IMMEDIATE)
+  {
+    strcpy(instr_case, "bgezal");
+    memcpy(&operands[1], &operands[0], sizeof(struct _operand));
+    operands[0].value = 0;
+    operands[0].type = OPERAND_TREG;
+    *operand_count = 2;
+  }
+#endif
 
   return 4;
 }
@@ -279,7 +331,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
   char instr_case[TOKENLEN];
   int paren_flag;
   int num,n,r;
-  int opcode;
+  uint32_t opcode;
   int opcode_size = 4;
 #if 0
   int n,cond,s=0;
@@ -621,6 +673,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
           opcode |= operands[r].value & 0xffff;
           opcode |= operands[r].reg2 << 21;
         }
+#if 0
           else
         if (mips32_i_table[n].operand[r] == MIPS_OP_RT_IS_0)
         {
@@ -632,6 +685,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
         {
           opcode |= 1 << 16;
         }
+#endif
           else
         {
           print_error_illegal_operands(instr, asm_context);
@@ -650,6 +704,72 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
       add_bin32(asm_context, opcode, IS_OPCODE);
 
       return opcode_size;
+    }
+    n++;
+  }
+
+  n = 0;
+  while(mips32_branch_table[n].instr != NULL)
+  {
+    if (strcmp(instr_case, mips32_branch_table[n].instr) == 0)
+    {
+      if (mips32_branch_table[n].op_rt == -1)
+      {
+        if (operand_count != 3)
+        {
+          print_error_opcount(instr, asm_context);
+          return -1;
+        }
+
+        if (operands[0].type != OPERAND_TREG ||
+            operands[1].type != OPERAND_TREG ||
+            operands[2].type != OPERAND_IMMEDIATE)
+        {
+          print_error_illegal_operands(instr, asm_context);
+          return -1;
+        }
+
+        opcode = (mips32_branch_table[n].opcode << 26) |
+                 (operands[0].value << 21) |
+                 (operands[1].value << 16);
+
+        if (add_offset(asm_context, operands[2].value, &opcode) == -1)
+        {
+          return -1;
+        }
+
+        add_bin32(asm_context, opcode, IS_OPCODE);
+
+        return opcode_size;
+      }
+        else
+      {
+        if (operand_count != 2)
+        {
+          print_error_opcount(instr, asm_context);
+          return -1;
+        }
+
+        if (operands[0].type != OPERAND_TREG ||
+            operands[1].type != OPERAND_IMMEDIATE)
+        {
+          print_error_illegal_operands(instr, asm_context);
+          return -1;
+        }
+
+        opcode = (mips32_branch_table[n].opcode << 26) |
+                 (operands[0].value << 21) |
+                 (mips32_branch_table[n].op_rt << 16);
+
+        if (add_offset(asm_context, operands[1].value, &opcode) == -1)
+        {
+          return -1;
+        }
+
+        add_bin32(asm_context, opcode, IS_OPCODE);
+
+        return opcode_size;
+      }
     }
     n++;
   }

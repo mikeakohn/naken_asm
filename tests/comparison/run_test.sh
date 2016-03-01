@@ -6,9 +6,14 @@ test_instr()
 
 cat >${cpu}.asm << EOF
 .${cpu}
-
+start:
   ${1}
 EOF
+
+  if [ "${cpu}" == "mips32" ] && [ "${1:0:1}" == "b" ]
+  then
+    echo " nop" >> ${cpu}.asm
+  fi
 
   ../../naken_asm -o ${cpu}_naken.hex ${cpu}.asm > /dev/null
 
