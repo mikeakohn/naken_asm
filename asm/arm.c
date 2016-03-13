@@ -1003,7 +1003,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(table_arm[n].instr != NULL)
   {
-    if (strncmp(table_arm[n].instr,instr_lower,table_arm[n].len) == 0)
+    if (strncmp(table_arm[n].instr, instr_lower, table_arm[n].len) == 0)
     {
       char *instr_cond = instr_lower + table_arm[n].len;
       matched = 1;
