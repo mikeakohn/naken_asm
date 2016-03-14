@@ -14,6 +14,7 @@
 struct _table_arm table_arm[] =
 {
   //{ "lsl", 0x02000000, 0x0e000000, OP_ALU, 3, 2 },
+  { "bx",  0x012fff10, 0x0ffffff0, OP_BRANCH_EXCHANGE, 2, -1 },
   { "and", 0x00000000, 0x0de00000, OP_ALU_3, 3, 2 },
   { "eor", 0x00200000, 0x0de00000, OP_ALU_3, 3, 2 },
   { "sub", 0x00400000, 0x0de00000, OP_ALU_3, 3, 2 },
@@ -41,7 +42,6 @@ struct _table_arm table_arm[] =
   { "???", 0x06000000, 0x0e000000, OP_UNDEFINED, 3, -1 },  // is this needed?
   { "ldm", 0x08100000, 0x0e100000, OP_LDM_STM, 3, -1 },  // LS = 1 load
   { "stm", 0x08000000, 0x0e100000, OP_LDM_STM, 3, -1 },  // LS = 0 store
-  { "bx", 0x012fff10, 0x0ffffff0, OP_BRANCH_EXCHANGE, 2, -1 },
   { "b", 0x0a000000, 0x0e000000, OP_BRANCH, 1, -1 },
   { "swi", 0x0f000000, 0x0f000000, OP_SWI, 3, -1 },
   { NULL, 0, 0, 0, 0, 0 }
