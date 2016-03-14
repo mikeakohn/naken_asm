@@ -78,7 +78,7 @@ static int compute_immediate(int immediate)
 
 static void arm_calc_shift(char *temp, int shift, int reg)
 {
-  if ((shift & 1) == 0)
+  if ((shift & 1) == 1)
   {
     sprintf(temp, "%s, %s %s",
       arm_reg[reg],
