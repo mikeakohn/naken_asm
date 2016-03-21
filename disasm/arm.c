@@ -353,8 +353,15 @@ printf("shift=%d is_reg=%d type=%d rm=%d rs=%d\n",
 
       if (pr == 1)
       {
-        sprintf(temp, "[%s, %s, %s #%d]",
-          arm_reg[rn], arm_reg[rm], arm_shift[type], shift_amount);
+        if (shift_amount != 0)
+        {
+          sprintf(temp, "[%s, %s, %s #%d]",
+            arm_reg[rn], arm_reg[rm], arm_shift[type], shift_amount);
+        }
+          else
+        {
+          sprintf(temp, "[%s, %s]", arm_reg[rn], arm_reg[rm]);
+        }
       }
         else
       {
