@@ -64,3 +64,6 @@ ldr r2, [r0, r1, lsl #2]
 ldr r2, [r0, r1, asl #13]
 sub r4, r5, r7, lsr #2
 bx lr
+ldrh r2, [r0, #255]
+ldrh r4, [r3, #255]
+ldr r7, [r2]
