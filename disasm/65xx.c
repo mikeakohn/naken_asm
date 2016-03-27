@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  * 65xx file by Joe Davisson
  *
@@ -156,14 +156,25 @@ void list_output_65xx(struct _asm_context *asm_context, uint32_t start, uint32_t
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  uint32_t opcode = get_opcode32(&asm_context->memory, start);
+  char bytes[16];
+  //uint32_t opcode = get_opcode32(&asm_context->memory, start);
+  int count;
+  int n;
 
-  opcode &= 0xFF;
+  //opcode &= 0xFF;
 
   fprintf(asm_context->list, "\n");
-  disasm_65xx(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+  count = disasm_65xx(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-  fprintf(asm_context->list, "0x%04x: 0x%02x %-40s cycles: ", start, opcode, instruction);
+  bytes[0] = 0; 
+  for (n = 0; n < count; n++)
+  { 
+    char temp[4]; 
+    sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, start + n));
+    strcat(bytes, temp);
+  }
+
+  fprintf(asm_context->list, "0x%04x: %-16s %-35s cycles: ", start, bytes, instruction);
 
   if (cycles_min==cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
