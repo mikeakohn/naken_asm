@@ -515,6 +515,16 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         if(GET_TOKEN() == TOKEN_EOL)
           break;
 
+        if(asm_context->pass == 2)
+        {
+          if((memory_read(asm_context, asm_context->address + 1) == 0) &&
+             (memory_read(asm_context, asm_context->address + 2) == 0) &&
+             (memory_read(asm_context, asm_context->address + 3) == 0))
+          {
+            op = OP_ADDRESS24;
+          }
+        }
+
         if(get_address(asm_context, token, &token_type, &num, &size) == -1)
           return -1;
 
@@ -524,12 +534,18 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-        op = OP_ADDRESS8;
+        if(op != OP_ADDRESS24)
+        {
+          op = OP_ADDRESS8;
 
-        if(num > 0xFF)
-          op = OP_ADDRESS16;
+          if(num > 0xFF)
+            op = OP_ADDRESS16;
 
-        if(num > 0xFFFF)
+          if(num > 0xFFFF)
+            op = OP_ADDRESS24;
+        }
+
+        if(asm_context->pass == 1 && num == 0)
           op = OP_ADDRESS24;
 
         if(size == 8)
