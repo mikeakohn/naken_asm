@@ -145,26 +145,41 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   // get instruction from string
   instr_enum = -1;
 
-  for(i = 0; i < 92; i++)
+  if(strcmp(instr_case, "jml") == 0)
   {
-    if(strcmp(instr_case, table_65816[i].name) == 0)
+    instr_enum = M65816_JMP;
+    op = OP_NONE;
+    size = 24;  
+  }
+  else if(strcmp(instr_case, "jsl") == 0)
+  {
+    instr_enum = M65816_JSR;
+    op = OP_NONE;
+    size = 24;
+  }
+  else
+  {
+    for(i = 0; i < 92; i++)
     {
-      instr_enum = i;
-      break;
+      if(strcmp(instr_case, table_65816[i].name) == 0)
+      {
+        instr_enum = i;
+        break;
+      }
     }
+
+    // no matching instruction
+    if(instr_enum == -1)
+    {
+     print_error_unexp(token, asm_context);
+     return -1;
+    }
+
+    // get default addressing mode
+    op = table_65816[instr_enum].op;
+
+    size = 0;
   }
-
-  // no matching instruction
-  if(instr_enum == -1)
-  {
-   print_error_unexp(token, asm_context);
-   return -1;
-  }
-
-  // get default addressing mode
-  op = table_65816[instr_enum].op;
-
-  size = 0;
 
   // parse
   while(1)
