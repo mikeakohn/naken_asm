@@ -191,7 +191,7 @@ int tokens_get_char(struct _asm_context *asm_context)
     if (asm_context->pass == 2 && asm_context->list != NULL &&
         asm_context->include_count==0)
     {
-      if (ch!=EOF) putc(ch, asm_context->list);
+      if (ch != EOF) { putc(ch, asm_context->list); }
     }
   }
     else
@@ -590,7 +590,7 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
         else
       {
         char *expanded = macros_expand_params(asm_context, macro, param_count);
-        if (expanded == NULL) return TOKEN_EOF;
+        if (expanded == NULL) { return TOKEN_EOF; }
         macros_push_define(&asm_context->macros, expanded);
       }
 

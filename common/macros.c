@@ -385,6 +385,7 @@ void macros_strip(char *macro)
 
   if (s != macro) { s--; }
 
+#if 0
   // Trim spaces from end of macro
   while (s != macro)
   {
@@ -392,6 +393,7 @@ void macros_strip(char *macro)
     *s = 0;
     s--;
   }
+#endif
 }
 
 int macros_parse(struct _asm_context *asm_context, int macro_type)
@@ -569,7 +571,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
         else
       {
         macro[ptr] = 0;
-        if (check_endm(macro, ptr) == 1) break;
+        if (check_endm(macro, ptr) == 1) { break; }
       }
     }
 
@@ -589,20 +591,24 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
     }
 
     macro[ptr++] = ch;
-    if (ptr >= MAX_MACRO_LEN - 1)
+    if (ptr >= MAX_MACRO_LEN - 2)
     {
       printf("Internal error: macro longer than %d bytes on line %d\n", MAX_MACRO_LEN, asm_context->line);
       return -1;
     }
   }
 
+  // Adding a single whitespace to the end to separate this macro
+  // from the next token.
+  macro[ptr++] = ' ';
   macro[ptr++] = 0;
+
+  macros_strip(macro);
 
 #ifdef DEBUG
 printf("debug> Adding macro '%s'\n", macro);
 #endif
 
-  macros_strip(macro);
   macros_append(asm_context, name, macro, param_count);
 
   return 0;
