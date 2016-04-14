@@ -58,7 +58,7 @@ void list_output_65816(struct _asm_context *asm_context, uint32_t start, uint32_
     strcat(bytes, temp);
   }
 
-  fprintf(asm_context->list, "0x%04x: 0x%-16s %-40s cycles: ?\n", start, bytes, instruction);
+  fprintf(asm_context->list, "0x%04x: %-16s %-40s cycles: ?\n", start, bytes, instruction);
 
 #if 0
   if (cycles_min==cycles_max)
