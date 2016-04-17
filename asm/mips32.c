@@ -87,6 +87,7 @@ static int get_register_mips32(char *token, char letter)
   if (token[1] == 'k' && num >= 0 && num <= 1) { return 26 + num; }
   if (token[1] == 's' && num == 8) { return 30; }
 
+  if (strcasecmp(token, "$at") == 0) { return 1; }
   if (strcasecmp(token, "$gp") == 0) { return 28; }
   if (strcasecmp(token, "$sp") == 0) { return 29; }
   if (strcasecmp(token, "$s8") == 0) { return 30; }
