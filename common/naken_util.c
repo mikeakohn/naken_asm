@@ -47,6 +47,7 @@
 #include "fileio/read_ti_txt.h"
 #include "simulate/avr8.h"
 #include "simulate/65xx.h"
+#include "simulate/mips.h"
 #include "simulate/msp430.h"
 #include "simulate/tms9900.h"
 #include "simulate/z80.h"
@@ -519,7 +520,7 @@ static void disasm(struct _util_context *util_context, char *token, int dbg_flag
 
 static void show_info(struct _util_context *util_context)
 {
-  struct _simulate *simulate=util_context->simulate;
+  struct _simulate *simulate = util_context->simulate;
 
   printf("Start address: 0x%04x (%d)\n", util_context->memory.low_address, util_context->memory.low_address);
   printf("  End address: 0x%04x (%d)\n", util_context->memory.high_address, util_context->memory.high_address);

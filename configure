@@ -278,6 +278,7 @@ for option in $@; do
   --enable-mips)
     ASM_OBJS="${ASM_OBJS} mips32.o"
     DISASM_OBJS="${DISASM_OBJS} mips32.o"
+    SIM_OBJS="${SIM_OBJS} mips.o"
     TABLE_OBJS="${TABLE_OBJS} mips32.o"
     DFLAGS="${DFLAGS} -DENABLE_MIPS"
   ;;
