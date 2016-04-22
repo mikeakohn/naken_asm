@@ -123,11 +123,12 @@ void simulate_dump_registers_mips(struct _simulate *simulate)
 
   for (n = 0; n < 32; n++)
   {
-    printf("%c%3s: 0x%02x", (n & 0x7) == 0 ? '\n' : ' ',
+    printf("%c%3s: 0x%08x", (n & 0x3) == 0 ? '\n' : ' ',
                             reg_string[n],
                             simulate_mips->reg[n]);
   }
 
+  printf("\n\n");
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }
 
