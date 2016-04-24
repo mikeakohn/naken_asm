@@ -127,7 +127,7 @@ static void sp_inc(int *sp)
 
 static uint16_t get_data(struct _simulate *simulate, int reg, int As, int bw)
 {
-struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
 
   if (reg == 3) // CG
   {
@@ -235,7 +235,7 @@ struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->
 
 static int put_data(struct _simulate *simulate, int PC, int reg, int Ad, int bw, uint32_t data)
 {
-struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
 
   if (Ad == 0) // Rn
   {
@@ -312,14 +312,14 @@ struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->
 
 static int one_operand_exe(struct _simulate *simulate, uint16_t opcode)
 {
-struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
-int o;
-int reg;
-int As,bw;
-int count = 1;
-uint32_t result;
-int src;
-int pc;
+  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  int o;
+  int reg;
+  int As,bw;
+  int count = 1;
+  uint32_t result;
+  int src;
+  int pc;
 
   o = (opcode & 0x0380) >> 7;
 
@@ -397,8 +397,8 @@ int pc;
 
 static int relative_jump_exe(struct _simulate *simulate, uint16_t opcode)
 {
-struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->context;
-int o;
+  struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->context;
+  int o;
 
   o = (opcode & 0x1c00) >> 10;
 
@@ -445,13 +445,13 @@ int o;
 
 static int two_operand_exe(struct _simulate *simulate, unsigned short int opcode)
 {
-struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
-int o;
-int src_reg,dst_reg;
-int Ad,As,bw;
-int dst,src;
-int pc;
-uint32_t result;
+  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  int o;
+  int src_reg,dst_reg;
+  int Ad,As,bw;
+  int dst,src;
+  int pc;
+  uint32_t result;
 
   o = opcode >> 12;
   Ad = (opcode & 0x0080) >> 7;
@@ -617,7 +617,7 @@ uint32_t result;
 
 struct _simulate *simulate_init_msp430(struct _memory *memory)
 {
-struct _simulate *simulate;
+  struct _simulate *simulate;
 
   simulate = (struct _simulate *)malloc(sizeof(struct _simulate_msp430) +
                                         sizeof(struct _simulate));
@@ -644,7 +644,7 @@ struct _simulate *simulate;
 
 void simulate_push_msp430(struct _simulate *simulate, uint32_t value)
 {
-struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
 
   simulate_msp430->reg[1] -= 2;
   WRITE_RAM(simulate_msp430->reg[1], value & 0xff);
@@ -656,8 +656,8 @@ static char *flags[] = { "C", "Z", "N", "GIE", "CPUOFF", "OSCOFF", "SCG0",
 
 int simulate_set_reg_msp430(struct _simulate *simulate, char *reg_string, uint32_t value)
 {
-struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
-int reg,n;
+  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  int reg,n;
 
   while(*reg_string == ' ') { reg_string++; }
   reg = get_register_msp430(reg_string);
@@ -684,8 +684,8 @@ int reg,n;
 
 uint32_t simulate_get_reg_msp430(struct _simulate *simulate, char *reg_string)
 {
-struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
-int reg;
+  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  int reg;
 
   reg = get_register_msp430(reg_string);
   if (reg == -1)
@@ -699,7 +699,7 @@ int reg;
 
 void simulate_reset_msp430(struct _simulate *simulate)
 {
-struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
 
   simulate->cycle_count = 0;
   simulate->nested_call_count = 0;
@@ -725,8 +725,8 @@ int simulate_dumpram_msp430(struct _simulate *simulate, int start, int end)
 
 void simulate_dump_registers_msp430(struct _simulate *simulate)
 {
-struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
-int n,sp = simulate_msp430->reg[1];
+  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  int n,sp = simulate_msp430->reg[1];
 
   printf("\nSimulation Register Dump                                  Stack\n");
   printf("-------------------------------------------------------------------\n");
@@ -778,14 +778,14 @@ int n,sp = simulate_msp430->reg[1];
 
 int simulate_run_msp430(struct _simulate *simulate, int max_cycles, int step)
 {
-struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
-char instruction[128];
-uint16_t opcode;
-int cycles = 0;
-int ret;
-int pc;
-int c;
-int n;
+  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  char instruction[128];
+  uint16_t opcode;
+  int cycles = 0;
+  int ret;
+  int pc;
+  int c;
+  int n;
 
   stop_running = 0;
   signal(SIGINT, handle_signal);
