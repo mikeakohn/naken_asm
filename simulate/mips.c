@@ -19,7 +19,7 @@
 
 static int stop_running = 0;
 
-static const char *reg_string[32] =
+static const char *reg_names[32] =
 {
   "$0", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
   "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
@@ -51,7 +51,6 @@ struct _simulate *simulate;
   simulate->simulate_dump_registers = simulate_dump_registers_mips;
   simulate->simulate_run = simulate_run_mips;
 
-  //memory_init(&simulate->memory, 65536, 0);
   simulate->memory = memory;
   simulate_reset_mips(simulate);
   simulate->usec = 1000000; // 1Hz
@@ -69,10 +68,32 @@ void simulate_push_mips(struct _simulate *simulate, uint32_t value)
 
 int simulate_set_reg_mips(struct _simulate *simulate, char *reg_string, uint32_t value)
 {
-//struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  int reg, n;
 
+  if (reg_string[0] != '$') { return -1; }
 
-  return 0;
+  if (reg_string[1] >= '0' && reg_string[1] <= '9' &&
+      reg_string[2] >= '0' && reg_string[2] <= '9' &&
+      reg_string[3] == 0)
+  {
+    reg = atoi(reg_string + 1);
+    if (reg < 0 || reg > 31) { return -1; }
+
+    simulate_mips->reg[reg] = value;
+    return 0;
+  }
+
+  for (n = 0; n < 32; n++)
+  {
+    if (strcmp(reg_string, reg_names[n]) == 0)
+    {
+      simulate_mips->reg[n] = value;
+      return 0;
+    }
+  }
+
+  return -1;
 }
 
 uint32_t simulate_get_reg_mips(struct _simulate *simulate, char *reg_string)
@@ -105,26 +126,12 @@ void simulate_dump_registers_mips(struct _simulate *simulate)
 
   printf("\nSimulation Register Dump\n");
   printf("-------------------------------------------------------------------\n");
-#if 0
-  printf(" PC: 0x%04x,  SP: 0x%04x, SREG: I T H S V N Z C = 0x%02x\n"
-         "                                %d %d %d %d %d %d %d %d\n",
-         simulate_mips->pc,
-         simulate_mips->sp,
-         simulate_mips->sreg,
-         GET_SREG(SREG_I),
-         GET_SREG(SREG_T),
-         GET_SREG(SREG_H),
-         GET_SREG(SREG_S),
-         GET_SREG(SREG_V),
-         GET_SREG(SREG_N),
-         GET_SREG(SREG_Z),
-         GET_SREG(SREG_C));
-#endif
+  printf(" PC: 0x%04x\n", simulate_mips->pc);
 
   for (n = 0; n < 32; n++)
   {
     printf("%c%3s: 0x%08x", (n & 0x3) == 0 ? '\n' : ' ',
-                            reg_string[n],
+                            reg_names[n],
                             simulate_mips->reg[n]);
   }
 
@@ -134,7 +141,7 @@ void simulate_dump_registers_mips(struct _simulate *simulate)
 
 int simulate_run_mips(struct _simulate *simulate, int max_cycles, int step)
 {
-//struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
 
   stop_running = 0;
   signal(SIGINT, handle_signal);
@@ -146,6 +153,9 @@ int simulate_run_mips(struct _simulate *simulate, int max_cycles, int step)
   } 
 
   signal(SIGINT, SIG_DFL);
+
+  printf("Stopped.  PC=0x%04x.\n", simulate_mips->pc);
+  printf("%d clock cycles have passed since last reset.\n", simulate->cycle_count);
 
   return 0;
 }

@@ -47,7 +47,7 @@ struct _simulate
   simulate_dump_registers_t simulate_dump_registers;
   simulate_run_t simulate_run;
 
-  unsigned char context[];
+  uint8_t context[];
 };
 
 
