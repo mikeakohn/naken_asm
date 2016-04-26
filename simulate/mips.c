@@ -182,18 +182,18 @@ static int simulate_execute_mips_r(struct _simulate *simulate, uint32_t opcode)
   switch(opcode)
   {
     case 0x20: // add
+      // FIXME - need to trap on overflow
       simulate_mips->reg[rd] = simulate_mips->reg[rs] + simulate_mips->reg[rt];
       break;
     case 0x21: // addu
-      simulate_mips->reg[rd] =
-        ((uint32_t)simulate_mips->reg[rs] + (uint32_t)simulate_mips->reg[rt]);
+      simulate_mips->reg[rd] = simulate_mips->reg[rs] + simulate_mips->reg[rt];
       break;
     case 0x22: // sub
+      // FIXME - need to trap on overflow
       simulate_mips->reg[rd] = simulate_mips->reg[rs] - simulate_mips->reg[rt];
       break;
     case 0x23: // subu
-      simulate_mips->reg[rd] =
-        ((uint32_t)simulate_mips->reg[rs] - (uint32_t)simulate_mips->reg[rt]);
+      simulate_mips->reg[rd] = simulate_mips->reg[rs] - simulate_mips->reg[rt];
       break;
     case 0x25: // or
       simulate_mips->reg[rd] = simulate_mips->reg[rs] | simulate_mips->reg[rt];
@@ -223,8 +223,18 @@ static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
 
   switch(opcode >> 26)
   {
+    case 0x08: // addi
+      // FIXME - need to trap on overflow
+      simulate_mips->reg[rt] = simulate_mips->reg[rs] + (int16_t)(opcode & 0xffff);
+      break;
+    case 0x09: // addiu
+      simulate_mips->reg[rt] = simulate_mips->reg[rs] + (int16_t)(opcode & 0xffff);
+      break;
     case 0x0d: // ori
       simulate_mips->reg[rt] = simulate_mips->reg[rs] | (opcode & 0xffff);
+      break;
+    case 0x0e: // xori
+      simulate_mips->reg[rt] = simulate_mips->reg[rs] ^ (opcode & 0xffff);
       break;
     case 0x0f: // lui
       if (rs != 0) { return -1; }
