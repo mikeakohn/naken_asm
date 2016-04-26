@@ -141,16 +141,124 @@ void simulate_dump_registers_mips(struct _simulate *simulate)
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }
 
+static int simulate_execute_mips_shift(struct _simulate *simulate, uint32_t opcode)
+{
+  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+
+  int sa = (opcode >> 6) & 0x1f;
+  int rd = (opcode >> 11) & 0x1f;
+  int rt = (opcode >> 16) & 0x1f;
+
+  switch(opcode & 0x3f)
+  {
+    case 0: // sll
+      simulate_mips->reg[rd] = simulate_mips->reg[rt] << sa;
+      break;
+    case 2: // srl
+      simulate_mips->reg[rd] = ((uint32_t)simulate_mips->reg[rt]) >> sa;
+      break;
+    case 3: // sra
+      simulate_mips->reg[rd] = simulate_mips->reg[rt] >> sa;
+      break;
+    default:
+      return -1;
+  }
+
+  //simulate_mips->reg[0] = 0;
+
+  return 0;
+}
+
+static int simulate_execute_mips_r(struct _simulate *simulate, uint32_t opcode)
+{
+  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+
+  int rd = (opcode >> 11) & 0x1f;
+  int rt = (opcode >> 16) & 0x1f;
+  int rs = (opcode >> 21) & 0x1f;
+
+  opcode = opcode & 0x3f;
+
+  switch(opcode)
+  {
+    case 0x20: // add
+      simulate_mips->reg[rd] = simulate_mips->reg[rs] + simulate_mips->reg[rt];
+      break;
+    case 0x21: // addu
+      simulate_mips->reg[rd] =
+        ((uint32_t)simulate_mips->reg[rs] + (uint32_t)simulate_mips->reg[rt]);
+      break;
+    case 0x22: // sub
+      simulate_mips->reg[rd] = simulate_mips->reg[rs] - simulate_mips->reg[rt];
+      break;
+    case 0x23: // subu
+      simulate_mips->reg[rd] =
+        ((uint32_t)simulate_mips->reg[rs] - (uint32_t)simulate_mips->reg[rt]);
+      break;
+    case 0x25: // or
+      simulate_mips->reg[rd] = simulate_mips->reg[rs] | simulate_mips->reg[rt];
+      break;
+    case 0x26: // xor
+      simulate_mips->reg[rd] = simulate_mips->reg[rs] ^ simulate_mips->reg[rt];
+      break;
+    case 0x27: // nor
+      simulate_mips->reg[rd] =
+        ~(simulate_mips->reg[rs] | simulate_mips->reg[rt]);
+      break;
+    default:
+      return -1;
+  }
+
+  //simulate_mips->reg[0] = 0;
+
+  return 0;
+}
+
+static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
+{
+  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+
+  int rs = (opcode >> 21) & 0x1f;
+  int rt = (opcode >> 16) & 0x1f;
+
+  switch(opcode >> 26)
+  {
+    case 0x0d: // ori
+      simulate_mips->reg[rt] = simulate_mips->reg[rs] | (opcode & 0xffff);
+      break;
+    case 0x0f: // lui
+      if (rs != 0) { return -1; }
+      simulate_mips->reg[rt] = (opcode & 0xffff) << 16;
+      break;
+    default:
+      return -1;
+  }
+
+  return 0;
+}
+
+
 static int simulate_execute_mips(struct _simulate *simulate)
 {
   struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
 
   uint32_t opcode = get_opcode32(simulate->memory, simulate_mips->pc);
-  //int32_t offset;
 
   switch(opcode >> 26)
   {
-    case 2:
+    case 0x00:
+      if (((opcode >> 6) & 0x1f) == 0)
+      {
+        if (simulate_execute_mips_r(simulate, opcode) == 0) { break; }
+      }
+        else
+      if (((opcode >> 21) & 0x1f) == 0)
+      {
+        if (simulate_execute_mips_shift(simulate, opcode) == 0) { break; }
+      }
+
+      return -1;
+    case 0x02:
 #if 0
       offset = opcode & 0x3ffffff;
       if ((offset & 0x2000000) != 0) { offset |= 0xfc000000; }
@@ -160,16 +268,18 @@ static int simulate_execute_mips(struct _simulate *simulate)
       simulate_mips->pc &= 0xfc000000;
       simulate_mips->pc |= ((opcode & 0x3ffffff) << 2);
       return 0;
-    case 3:
+    case 0x03:
       simulate_mips->reg[31] = simulate_mips->pc + 8;
       simulate_mips->pc &= 0xfc000000;
       simulate_mips->pc |= ((opcode & 0x3ffffff) << 2);
       return 0;
     default:
+      if (simulate_execute_mips_i(simulate, opcode) == 0) { break; }
       return -1;
       break;
   }
 
+  simulate_mips->reg[0] = 0;
   simulate_mips->pc += 4;
 
   return 0;
@@ -191,6 +301,8 @@ int simulate_run_mips(struct _simulate *simulate, int max_cycles, int step)
       printf("Illegal instruction at address 0x%04x\n", simulate_mips->pc);
       return -1;
     }
+
+    simulate->cycle_count++;
 
     if (simulate->show == 1)
     {

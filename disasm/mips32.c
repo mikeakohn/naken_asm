@@ -37,8 +37,8 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
     "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
   };
 
-  *cycles_min = -1;
-  *cycles_max = -1;
+  *cycles_min = 1;
+  *cycles_max = 1;
   opcode = get_opcode32(memory, address);
 
   instruction[0] = 0;
