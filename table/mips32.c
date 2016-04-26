@@ -47,7 +47,7 @@ struct _mips32_instr mips32_r_table[] = {
 
 struct _mips32_instr mips32_i_table[] = {
   { "addi", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED }, 0x08, 3 },
-  { "addiu", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE }, 0x09, 3 },
+  { "addiu", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED }, 0x09, 3 },
   { "andi", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE }, 0x0c, 3 },
   //{ "beq", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_LABEL }, 0x04, 3 },
   //{ "bgez", { MIPS_OP_RS, MIPS_OP_LABEL, MIPS_OP_RT_IS_1 }, 0x01, 2 },
