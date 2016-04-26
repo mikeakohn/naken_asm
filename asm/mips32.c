@@ -565,7 +565,7 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
   }
 
   // J-Type Instruction [ op 6, target 26 ]
-  if (strcmp(instr_case, "ja") == 0 || strcmp(instr_case, "jal") == 0)
+  if (strcmp(instr_case, "j") == 0 || strcmp(instr_case, "jal") == 0)
   {
     // FIXME - what to do with this
     //unsigned int upper = (address + 4) & 0xf0000000;
@@ -581,8 +581,14 @@ int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
       return -1;
     }
 
-    if (instr_case[2] == 'l')  { opcode = 2 << 26; }
-    else { opcode = 3 << 26; }
+    if (instr_case[2] == 'l')
+    {
+      opcode = 3 << 26;
+    }
+      else
+    {
+      opcode = 2 << 26;
+    }
 
     add_bin32(asm_context, opcode | operands[0].value >> 2, IS_OPCODE);
 

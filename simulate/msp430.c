@@ -817,7 +817,7 @@ int simulate_run_msp430(struct _simulate *simulate, int max_cycles, int step)
       ret = two_operand_exe(simulate, opcode);
     }
 
-    if (c > 0) cycles += c;
+    if (c > 0) { cycles += c; }
 
     if (simulate->show == 1)
     {
@@ -830,7 +830,7 @@ int simulate_run_msp430(struct _simulate *simulate, int max_cycles, int step)
         int num;
         num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
         int count = disasm_msp430(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
-        if (cycles_min == -1) break;
+        if (cycles_min == -1) { break; }
 
         if (pc == simulate->break_point) { printf("*"); }
         else { printf(" "); }

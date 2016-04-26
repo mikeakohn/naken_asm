@@ -16,6 +16,8 @@
 #include <signal.h>
 
 #include "simulate/mips.h"
+#include "disasm/common.h"
+#include "disasm/mips32.h"
 
 static int stop_running = 0;
 
@@ -139,6 +141,40 @@ void simulate_dump_registers_mips(struct _simulate *simulate)
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }
 
+static int simulate_execute_mips(struct _simulate *simulate)
+{
+  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+
+  uint32_t opcode = get_opcode32(simulate->memory, simulate_mips->pc);
+  //int32_t offset;
+
+  switch(opcode >> 26)
+  {
+    case 2:
+#if 0
+      offset = opcode & 0x3ffffff;
+      if ((offset & 0x2000000) != 0) { offset |= 0xfc000000; }
+      offset = offset << 2;
+      simulate_mips->pc += offset;
+#endif
+      simulate_mips->pc &= 0xfc000000;
+      simulate_mips->pc |= ((opcode & 0x3ffffff) << 2);
+      return 0;
+    case 3:
+      simulate_mips->reg[31] = simulate_mips->pc + 8;
+      simulate_mips->pc &= 0xfc000000;
+      simulate_mips->pc |= ((opcode & 0x3ffffff) << 2);
+      return 0;
+    default:
+      return -1;
+      break;
+  }
+
+  simulate_mips->pc += 4;
+
+  return 0;
+}
+
 int simulate_run_mips(struct _simulate *simulate, int max_cycles, int step)
 {
   struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
@@ -148,9 +184,31 @@ int simulate_run_mips(struct _simulate *simulate, int max_cycles, int step)
 
   while(stop_running == 0)
   {
-    printf("CPU not supported.\n");
-    break;
-  } 
+    int ret = simulate_execute_mips(simulate);
+
+    if (ret == -1)
+    {
+      printf("Illegal instruction at address 0x%04x\n", simulate_mips->pc);
+      return -1;
+    }
+
+    if (simulate->show == 1)
+    {
+      simulate_dump_registers_mips(simulate);
+    }
+
+    if (simulate->break_point == simulate_mips->pc)
+    {
+       printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
+      break;
+    }
+
+    if (simulate->usec == 0 || step == 1)
+    {
+      signal(SIGINT, SIG_DFL);
+      return 0;
+    }
+  }
 
   signal(SIGINT, SIG_DFL);
 
