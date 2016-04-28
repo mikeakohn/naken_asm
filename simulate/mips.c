@@ -106,8 +106,9 @@ uint32_t simulate_get_reg_mips(struct _simulate *simulate, char *reg_string)
 
 void simulate_reset_mips(struct _simulate *simulate)
 {
-//struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
 
+  simulate_mips->pc = simulate->memory->low_address;
 }
 
 void simulate_free_mips(struct _simulate *simulate)
@@ -323,6 +324,13 @@ static int simulate_execute_mips(struct _simulate *simulate)
         if (simulate_execute_mips_shift(simulate, opcode) == 0) { break; }
       }
 
+      if (((opcode >> 11) & 0x3ff) == 0 && (opcode & 0x3f) == 0x08)
+      {
+        // jr
+        simulate_mips->pc = simulate_mips->reg[(opcode >> 21) & 0x1f];
+        return 0;
+      }
+
       return -1;
     case 0x02:
 #if 0
@@ -354,12 +362,16 @@ static int simulate_execute_mips(struct _simulate *simulate)
 int simulate_run_mips(struct _simulate *simulate, int max_cycles, int step)
 {
   struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  char instruction[128];
+  int pc;
 
   stop_running = 0;
   signal(SIGINT, handle_signal);
 
   while(stop_running == 0)
   {
+    pc = simulate_mips->pc;
+
     int ret = simulate_execute_mips(simulate);
 
     if (ret == -1)
@@ -373,6 +385,32 @@ int simulate_run_mips(struct _simulate *simulate, int max_cycles, int step)
     if (simulate->show == 1)
     {
       simulate_dump_registers_mips(simulate);
+
+      int n = 0;
+      while(n < 6)
+      {
+        int cycles_min, cycles_max;
+
+        uint32_t opcode = memory_read32_m(simulate->memory, pc);
+        int count = disasm_mips32(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+
+        if (count < 1) { break; }
+
+        if (pc == simulate->break_point) { printf("*"); }
+        else { printf(" "); }
+
+        if (n == 0)
+        { printf("! "); }
+          else
+        if (pc == simulate_mips->pc) { printf("> "); }
+          else
+        { printf("  "); }
+
+        printf("0x%04x: 0x%08x %-40s %d\n", pc, opcode, instruction, cycles_min);
+
+        pc += 4;
+        n++;
+      }
     }
 
     if (simulate->break_point == simulate_mips->pc)
