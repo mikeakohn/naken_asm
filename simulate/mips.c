@@ -278,7 +278,6 @@ static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
       address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
       memory_write_m(simulate->memory, address, simulate_mips->reg[rt] & 0xff);
       break;
-#if 0
     case 0x29: // sh
       address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
       if ((address & 1) != 0)
@@ -286,7 +285,7 @@ static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
         printf("Alignment error.  Reading address 0x%04x\n", address);
         return -2;
       }
-      memory_write_m(simulate->memory, address, simulate_mips->reg[rt] & 0xff);
+      memory_write16_m(simulate->memory, address, simulate_mips->reg[rt] & 0xffff);
       break;
     case 0x2b: // sw
       address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
@@ -295,10 +294,8 @@ static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
         printf("Alignment error.  Reading address 0x%04x\n", address);
         return -2;
       }
-      memory_read32_m(simulate->memory, address);
-      simulate_mips->reg[rt]
+      memory_write32_m(simulate->memory, address, simulate_mips->reg[rt]);
       break;
-#endif
     default:
       return -1;
   }
