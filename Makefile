@@ -54,6 +54,7 @@ clean:
 	@rm -rf testing/unit/data/data_test
 	@rm -rf testing/unit/var/var_test
 	@rm -rf testing/unit/tokens/tokens_test
+	@rm -rf testing/unit/memory/memory_test
 	@echo "Clean!"
 
 .PHONY: tests
@@ -64,6 +65,7 @@ tests:
 	@cd tests/unit/var && make && ./var_test && make clean
 	@cd tests/unit/data && make && ./data_test && make clean
 	@cd tests/unit/tokens && make && ./tokens_test && make clean
+	@cd tests/unit/memory && make && ./memory_test && make clean
 	@cd tests/comparison && make
 	@cd tests/other/directives && python test.py
 
