@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -15,7 +15,6 @@
 #include <stdint.h>
 
 #include "disasm/arm.h"
-#include "disasm/common.h"
 #include "table/arm.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
@@ -500,7 +499,7 @@ int disasm_arm(struct _memory *memory, uint32_t address, char *instruction, int 
 
   *cycles_min = -1;
   *cycles_max = -1;
-  opcode = get_opcode32(memory, address);
+  opcode = memory_read32_m(memory, address);
   //printf("%08x: opcode=%08x\n", address, opcode);
 
   int n = 0;
@@ -590,7 +589,7 @@ void list_output_arm(struct _asm_context *asm_context, uint32_t start, uint32_t 
 
   while(start < end)
   {
-    uint32_t opcode = get_opcode32(&asm_context->memory, start);
+    uint32_t opcode = memory_read32_m(&asm_context->memory, start);
   
     fprintf(asm_context->list, "\n");
     count = disasm_arm(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);

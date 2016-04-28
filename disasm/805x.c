@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2014 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "disasm/common.h"
 #include "disasm/805x.h"
 #include "table/805x.h"
 

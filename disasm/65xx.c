@@ -15,10 +15,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "disasm/common.h"
 #include "disasm/65xx.h"
-
 #include "table/65xx.h"
+
 extern struct _table_65xx table_65xx[];
 extern struct _table_65xx_opcodes table_65xx_opcodes[];
 
@@ -157,7 +156,7 @@ void list_output_65xx(struct _asm_context *asm_context, uint32_t start, uint32_t
   int cycles_min,cycles_max;
   char instruction[128];
   char bytes[16];
-  //uint32_t opcode = get_opcode32(&asm_context->memory, start);
+  //uint32_t opcode = memory_read32_m(&asm_context->memory, start);
   int count;
   int n;
 

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -251,11 +251,6 @@ uint8_t memory_read_inc(struct _asm_context *asm_context)
   return read_byte(&asm_context->memory, asm_context->address++);
 }
 
-uint8_t memory_read_m(struct _memory *memory, uint32_t address)
-{
-  return read_byte(memory, address);
-}
-
 void memory_write(struct _asm_context *asm_context, uint32_t address, uint8_t data, int line)
 {
   if (address >= asm_context->memory.size)
@@ -273,11 +268,6 @@ void memory_write_inc(struct _asm_context *asm_context, uint8_t data, int line)
   write_byte(&asm_context->memory, asm_context->address, data);
   write_debug(&asm_context->memory, asm_context->address, line);
   asm_context->address++;
-}
-
-void memory_write_m(struct _memory *memory, uint32_t address, uint8_t data)
-{
-  write_byte(memory, address, data);
 }
 
 int memory_debug_line(struct _asm_context *asm_context, uint32_t address)
@@ -315,6 +305,80 @@ void memory_dump(struct _memory *memory)
   {
     printf("  page: %p next=%p address=0x%08x offset_min=%d offset_max=%d\n", page, page->next, page->address, page->offset_min, page->offset_max);
     page = page->next;
+  }
+}
+
+uint8_t memory_read_m(struct _memory *memory, uint32_t address)
+{
+  return read_byte(memory, address);
+}
+
+uint16_t memory_read16_m(struct _memory *memory, uint32_t address)
+{
+  if (memory->endian == ENDIAN_LITTLE)
+  {
+    return read_byte(memory, address) |
+          (read_byte(memory, address + 1) << 8);
+  }
+    else
+  {
+    return (read_byte(memory, address) << 8) |
+           (read_byte(memory, address + 1));
+  }
+}
+
+uint32_t memory_read32_m(struct _memory *memory, uint32_t address)
+{
+  if (memory->endian == ENDIAN_LITTLE)
+  {
+    return read_byte(memory, address) |
+          (read_byte(memory, address + 1) << 8) |
+          (read_byte(memory, address + 2) << 16) |
+          (read_byte(memory, address + 3) << 24);
+  }
+    else
+  {
+    return (read_byte(memory, address) << 24) |
+           (read_byte(memory, address + 1) << 16) |
+           (read_byte(memory, address + 2) << 8) |
+           (read_byte(memory, address + 3));
+  }
+}
+
+void memory_write_m(struct _memory *memory, uint32_t address, uint8_t data)
+{
+  write_byte(memory, address, data);
+}
+
+void memory_write16_m(struct _memory *memory, uint32_t address, uint16_t data)
+{
+  if (memory->endian == ENDIAN_LITTLE)
+  {
+    write_byte(memory, address + 0, data & 0xff);
+    write_byte(memory, address + 1, data >> 8);
+  }
+    else
+  {
+    write_byte(memory, address + 0, data >> 8);
+    write_byte(memory, address + 1, data & 0xff);
+  }
+}
+
+void memory_write32_m(struct _memory *memory, uint32_t address, uint32_t data)
+{
+  if (memory->endian == ENDIAN_LITTLE)
+  {
+    write_byte(memory, address + 0, data & 0xff);
+    write_byte(memory, address + 1, (data >> 8) & 0xff);
+    write_byte(memory, address + 2, (data >> 16) & 0xff);
+    write_byte(memory, address + 3, (data >> 24) & 0xff);
+  }
+    else
+  {
+    write_byte(memory, address + 0, (data >> 24) & 0xff);
+    write_byte(memory, address + 1, (data >> 16) & 0xff);
+    write_byte(memory, address + 2, (data >> 8) & 0xff);
+    write_byte(memory, address + 3, data & 0xff);
   }
 }
 

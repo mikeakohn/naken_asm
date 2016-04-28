@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "disasm/common.h"
 #include "disasm/propeller.h"
 #include "table/propeller.h"
 
@@ -121,7 +120,7 @@ void list_output_propeller(struct _asm_context *asm_context, uint32_t start, uin
   {
     count = disasm_propeller(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-    opcode = get_opcode32(&asm_context->memory, start);
+    opcode = memory_read32_m(&asm_context->memory, start);
     sprintf(bytes, "0x%08x", opcode);
 
     fprintf(asm_context->list, "0x%04x: %-16s %-40s cycles: ", start / 4, bytes, instruction);

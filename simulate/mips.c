@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -16,7 +16,6 @@
 #include <signal.h>
 
 #include "simulate/mips.h"
-#include "disasm/common.h"
 #include "disasm/mips32.h"
 
 static int stop_running = 0;
@@ -217,6 +216,7 @@ static int simulate_execute_mips_r(struct _simulate *simulate, uint32_t opcode)
 static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
 {
   struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  uint32_t address;
 
   int rs = (opcode >> 21) & 0x1f;
   int rt = (opcode >> 16) & 0x1f;
@@ -240,6 +240,65 @@ static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
       if (rs != 0) { return -1; }
       simulate_mips->reg[rt] = (opcode & 0xffff) << 16;
       break;
+    case 0x20: // lb
+      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
+      simulate_mips->reg[rt] = (int32_t)((int8_t)memory_read_m(simulate->memory, address));
+    case 0x21: // lh
+      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
+      if ((address & 1) != 0)
+      {
+        printf("Alignment error.  Reading address 0x%04x\n", address);
+        return -2;
+      }
+      simulate_mips->reg[rt] = (int32_t)((int16_t)memory_read16_m(simulate->memory, address));
+      break;
+    case 0x23: // lw
+      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
+      if ((address & 3) != 0)
+      {
+        printf("Alignment error.  Reading address 0x%04x\n", address);
+        return -2;
+      }
+      simulate_mips->reg[rt] = memory_read32_m(simulate->memory, address);
+      break;
+    case 0x24: // lbu
+      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
+      simulate_mips->reg[rt] = memory_read_m(simulate->memory, address);
+      break;
+    case 0x25: // lhu
+      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
+      if ((address & 1) != 0)
+      {
+        printf("Alignment error.  Reading address 0x%04x\n", address);
+        return -2;
+      }
+      simulate_mips->reg[rt] = (int32_t)((uint16_t)memory_read16_m(simulate->memory, address));
+      break;
+    case 0x28: // sb
+      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
+      memory_write_m(simulate->memory, address, simulate_mips->reg[rt] & 0xff);
+      break;
+#if 0
+    case 0x29: // sh
+      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
+      if ((address & 1) != 0)
+      {
+        printf("Alignment error.  Reading address 0x%04x\n", address);
+        return -2;
+      }
+      memory_write_m(simulate->memory, address, simulate_mips->reg[rt] & 0xff);
+      break;
+    case 0x2b: // sw
+      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
+      if ((address & 3) != 0)
+      {
+        printf("Alignment error.  Reading address 0x%04x\n", address);
+        return -2;
+      }
+      memory_read32_m(simulate->memory, address);
+      simulate_mips->reg[rt]
+      break;
+#endif
     default:
       return -1;
   }
@@ -252,7 +311,7 @@ static int simulate_execute_mips(struct _simulate *simulate)
 {
   struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
 
-  uint32_t opcode = get_opcode32(simulate->memory, simulate_mips->pc);
+  uint32_t opcode = memory_read32_m(simulate->memory, simulate_mips->pc);
 
   switch(opcode >> 26)
   {

@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "disasm/common.h"
 #include "disasm/powerpc.h"
 #include "table/powerpc.h"
 

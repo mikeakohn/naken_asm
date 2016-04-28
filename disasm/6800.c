@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "disasm/common.h"
 #include "disasm/6800.h"
 #include "table/6800.h"
 

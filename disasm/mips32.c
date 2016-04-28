@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "disasm/common.h"
 #include "disasm/mips32.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
@@ -39,7 +38,7 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
 
   *cycles_min = 1;
   *cycles_max = 1;
-  opcode = get_opcode32(memory, address);
+  opcode = memory_read32_m(memory, address);
 
   instruction[0] = 0;
 
@@ -387,7 +386,7 @@ void list_output_mips32(struct _asm_context *asm_context, uint32_t start, uint32
 
   while(start < end)
   {
-    opcode = get_opcode32(&asm_context->memory, start);
+    opcode = memory_read32_m(&asm_context->memory, start);
 
     disasm_mips32(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 

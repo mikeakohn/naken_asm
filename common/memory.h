@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -53,16 +53,21 @@ int memory_get_page_address_min(struct _memory *memory, uint32_t address);
 int memory_get_page_address_max(struct _memory *memory, uint32_t address);
 int memory_page_size();
 uint8_t memory_read(struct _asm_context *asm_context, uint32_t address);
-uint8_t memory_read_m(struct _memory *memory, uint32_t address);
 uint8_t memory_read_inc(struct _asm_context *asm_context);
 void memory_write(struct _asm_context *asm_context, uint32_t address, uint8_t data, int line);
 void memory_write_inc(struct _asm_context *asm_context, uint8_t data, int line);
-void memory_write_m(struct _memory *memory, uint32_t address, uint8_t data);
 int memory_debug_line(struct _asm_context *asm_context, uint32_t address);
 void memory_debug_line_set(struct _asm_context *asm_context, uint32_t address, int value);
 int memory_debug_line_m(struct _memory *memory, uint32_t address);
 void memory_debug_line_set_m(struct _memory *memory, uint32_t address, int value);
 void memory_dump(struct _memory *memory);
+
+uint8_t memory_read_m(struct _memory *memory, uint32_t address);
+uint16_t memory_read16_m(struct _memory *memory, uint32_t address);
+uint32_t memory_read32_m(struct _memory *memory, uint32_t address);
+void memory_write_m(struct _memory *memory, uint32_t address, uint8_t data);
+void memory_write16_m(struct _memory *memory, uint32_t address, uint16_t data);
+void memory_write32_m(struct _memory *memory, uint32_t address, uint32_t data);
 
 #endif
 

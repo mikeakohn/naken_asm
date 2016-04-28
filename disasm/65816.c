@@ -16,9 +16,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "disasm/common.h"
 #include "disasm/65816.h"
-
 #include "table/65816.h"
 
 int get_cycle_count_65816(uint16_t opcode)
@@ -35,7 +33,7 @@ void list_output_65816(struct _asm_context *asm_context, uint32_t start, uint32_
 {
 #if 0
   int cycles_min,cycles_max;
-  unsigned int opcode=get_opcode32(&asm_context->memory, address);
+  unsigned int opcode=memory_read32_m(&asm_context->memory, address);
 
   opcode &= 0xFF;
 
