@@ -109,6 +109,31 @@ void simulate_reset_mips(struct _simulate *simulate)
   struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
 
   simulate_mips->pc = simulate->memory->low_address;
+  simulate_mips->reg[29] = 0x80000000;
+
+  struct _memory *memory = simulate->memory;
+
+  // PIC32 kind of hack.  Need to figure out a better way to do this
+  // later.  Problem is PIC32 has virtual memory (where code addresses)
+  // and physical memory (where the hex file says the code is).
+  if (memory->low_address >= 0x1d000000 && memory->high_address <= 0x1d007fff)
+  {
+    uint32_t physical, virtual;
+    uint32_t low_address, high_address;
+
+    virtual = 0x9d000000 + (memory->low_address - 0x1d000000);
+
+    printf("Copying physical 0x%x-0x%x to virtual 0x%x\n", memory->low_address, memory->high_address, virtual);
+
+    simulate_mips->pc = virtual;
+    low_address = memory->low_address;
+    high_address = memory->high_address;
+
+    for (physical = low_address; physical <= high_address; physical++)
+    {
+      memory_write_m(memory, virtual++, memory_read_m(memory, physical));
+    }
+  }
 }
 
 void simulate_free_mips(struct _simulate *simulate)
@@ -303,7 +328,6 @@ static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
 
   return 0;
 }
-
 
 static int simulate_execute_mips(struct _simulate *simulate)
 {
