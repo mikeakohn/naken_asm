@@ -417,7 +417,7 @@ static int simulate_execute_mips(struct _simulate *simulate)
            (opcode & 0x3f) == 0x10)
       {
         // mfhi
-        simulate_mips->reg[rs] = simulate_mips->hi;
+        simulate_mips->reg[rd] = simulate_mips->hi;
         break;
       }
 
@@ -426,7 +426,7 @@ static int simulate_execute_mips(struct _simulate *simulate)
            (opcode & 0x3f) == 0x12)
       {
         // mflo
-        simulate_mips->reg[rs] = simulate_mips->lo;
+        simulate_mips->reg[rd] = simulate_mips->lo;
         break;
       }
 
