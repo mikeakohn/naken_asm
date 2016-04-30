@@ -21,6 +21,8 @@ struct _simulate_mips
 {
   int32_t reg[32];
   uint32_t pc;
+  uint32_t hi;
+  uint32_t lo;
 };
 
 struct _simulate *simulate_init_mips();

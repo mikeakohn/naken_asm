@@ -42,6 +42,12 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
 
   instruction[0] = 0;
 
+  if (opcode == 0)
+  {
+    strcpy(instruction, "nop");
+    return 4;
+  }
+
   format = (opcode >> 26) & 0x3f;
 
   if (format == FORMAT_SPECIAL0 ||

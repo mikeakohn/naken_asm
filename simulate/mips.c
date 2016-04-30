@@ -171,7 +171,10 @@ void simulate_dump_registers_mips(struct _simulate *simulate)
 
   printf("\nSimulation Register Dump\n");
   printf("-------------------------------------------------------------------\n");
-  printf(" PC: 0x%04x\n", simulate_mips->pc);
+  printf(" PC: 0x%08x  HI: 0x%08x  LO: 0x%08x\n",
+    simulate_mips->pc,
+    simulate_mips->hi,
+    simulate_mips->lo);
 
   for (n = 0; n < 32; n++)
   {
@@ -356,10 +359,77 @@ static int simulate_execute_mips(struct _simulate *simulate)
 
   int rs = (opcode >> 21) & 0x1f;
   int rt = (opcode >> 16) & 0x1f;
+  int rd = (opcode >> 11) & 0x1f;
 
   switch(opcode >> 26)
   {
     case 0x00:
+      if (((opcode >> 6) & 0x3ff) == 0 && (opcode & 0x3f) == 0x1a)
+      {
+        // div
+        simulate_mips->hi = simulate_mips->reg[rs] % simulate_mips->reg[rt];
+        simulate_mips->lo = simulate_mips->reg[rs] / simulate_mips->reg[rt];
+        break;
+      }
+
+      if (((opcode >> 6) & 0x3ff) == 0 && (opcode & 0x3f) == 0x1b)
+      {
+        // divu
+        simulate_mips->hi = simulate_mips->reg[rs] % simulate_mips->reg[rt];
+        simulate_mips->lo = simulate_mips->reg[rs] / simulate_mips->reg[rt];
+        break;
+      }
+
+      if (((opcode >> 6) & 0x1f) == 0 && (opcode & 0x3f) == 0x18)
+      {
+        // mult
+        uint64_t result = simulate_mips->reg[rs] * simulate_mips->reg[rt];
+        simulate_mips->hi = result >> 32;
+        simulate_mips->lo = result & 0xffffffff;
+        break;
+      }
+
+      if (((opcode >> 6) & 0x1f) == 0 && (opcode & 0x3f) == 0x19)
+      {
+        // multu
+        uint64_t result = simulate_mips->reg[rs] * simulate_mips->reg[rt];
+        simulate_mips->hi = result >> 32;
+        simulate_mips->lo = result & 0xffffffff;
+        break;
+      }
+
+      if (((opcode >> 6) & 0x7fff) == 0 && (opcode & 0x3f) == 0x11)
+      {
+        // mthi
+        simulate_mips->hi = simulate_mips->reg[rs];
+        break;
+      }
+
+      if (((opcode >> 6) & 0x7fff) == 0 && (opcode & 0x3f) == 0x13)
+      {
+        // mtlo
+        simulate_mips->lo = simulate_mips->reg[rs];
+        break;
+      }
+
+      if (((opcode >> 16) & 0x3ff) == 0 &&
+          ((opcode >> 6) & 0x1f) == 0 &&
+           (opcode & 0x3f) == 0x10)
+      {
+        // mfhi
+        simulate_mips->reg[rs] = simulate_mips->hi;
+        break;
+      }
+
+      if (((opcode >> 16) & 0x3ff) == 0 &&
+          ((opcode >> 6) & 0x1f) == 0 &&
+           (opcode & 0x3f) == 0x12)
+      {
+        // mflo
+        simulate_mips->reg[rs] = simulate_mips->lo;
+        break;
+      }
+
       if (((opcode >> 6) & 0x1f) == 0)
       {
         if (simulate_execute_mips_r(simulate, opcode) == 0) { break; }
@@ -428,6 +498,13 @@ static int simulate_execute_mips(struct _simulate *simulate)
         return 0;
       }
       break;
+    case 0x1c: // mul
+      if (((opcode >> 6) & 0x1f) == 0)
+      {
+        simulate_mips->reg[rd] = simulate_mips->reg[rs] * simulate_mips->reg[rt];
+        break;
+      }
+      return -1;
     default:
       if (simulate_execute_mips_i(simulate, opcode) == 0) { break; }
       return -1;
