@@ -28,11 +28,29 @@ static const char *reg_names[32] =
   "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
 };
 
-
 static void handle_signal(int sig)
 {
   stop_running = 1;
   signal(SIGINT, SIG_DFL);
+}
+
+#if 0
+static int32_t get_offset(uint32_t opcode)
+{
+  uint32_t offset = opcode & 0x3ffffff;
+  if ((offset & 0x2000000) != 0) { offset |= 0xfc000000; }
+  offset = offset << 2;
+
+  return offset;
+}
+#endif
+
+static int32_t get_offset16(uint32_t opcode)
+{
+  int32_t offset = (int32_t)((int16_t)(opcode & 0x3ffffff));
+  offset = offset << 2;
+
+  return offset;
 }
 
 struct _simulate *simulate_init_mips(struct _memory *memory)
@@ -269,6 +287,7 @@ static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
     case 0x20: // lb
       address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
       simulate_mips->reg[rt] = (int32_t)((int8_t)memory_read_m(simulate->memory, address));
+      break;
     case 0x21: // lh
       address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
       if ((address & 1) != 0)
@@ -335,6 +354,9 @@ static int simulate_execute_mips(struct _simulate *simulate)
 
   uint32_t opcode = memory_read32_m(simulate->memory, simulate_mips->pc);
 
+  int rs = (opcode >> 21) & 0x1f;
+  int rt = (opcode >> 16) & 0x1f;
+
   switch(opcode >> 26)
   {
     case 0x00:
@@ -342,7 +364,7 @@ static int simulate_execute_mips(struct _simulate *simulate)
       {
         if (simulate_execute_mips_r(simulate, opcode) == 0) { break; }
       }
-        else
+
       if (((opcode >> 21) & 0x1f) == 0)
       {
         if (simulate_execute_mips_shift(simulate, opcode) == 0) { break; }
@@ -356,13 +378,18 @@ static int simulate_execute_mips(struct _simulate *simulate)
       }
 
       return -1;
+    case 0x01:
+      if (rt == 1) // bgez
+      {
+        if (simulate_mips->reg[rs] >= 0)
+        {
+          simulate_mips->pc += 4 + get_offset16(opcode);
+          return 0;
+        }
+        break;
+      }
+      return -1;
     case 0x02:
-#if 0
-      offset = opcode & 0x3ffffff;
-      if ((offset & 0x2000000) != 0) { offset |= 0xfc000000; }
-      offset = offset << 2;
-      simulate_mips->pc += offset;
-#endif
       simulate_mips->pc &= 0xfc000000;
       simulate_mips->pc |= ((opcode & 0x3ffffff) << 2);
       return 0;
@@ -371,6 +398,36 @@ static int simulate_execute_mips(struct _simulate *simulate)
       simulate_mips->pc &= 0xfc000000;
       simulate_mips->pc |= ((opcode & 0x3ffffff) << 2);
       return 0;
+    case 0x04: // beq
+      if (rs == rt)
+      {
+        simulate_mips->pc += 4 + get_offset16(opcode);
+        return 0;
+      }
+      break;
+    case 0x05: // bne
+      if (rs != rt)
+      {
+        simulate_mips->pc += 4 + get_offset16(opcode);
+        return 0;
+      }
+      break;
+    case 0x06: // blez
+      if (rt != 0) { return -1; }
+      if (rs <= rt)
+      {
+        simulate_mips->pc += 4 + get_offset16(opcode);
+        return 0;
+      }
+      break;
+    case 0x07: // bgtz
+      if (rt != 0) { return -1; }
+      if (rs > rt)
+      {
+        simulate_mips->pc += 4 + get_offset16(opcode);
+        return 0;
+      }
+      break;
     default:
       if (simulate_execute_mips_i(simulate, opcode) == 0) { break; }
       return -1;
