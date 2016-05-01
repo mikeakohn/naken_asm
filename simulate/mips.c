@@ -241,6 +241,10 @@ static int simulate_execute_mips_r(struct _simulate *simulate, uint32_t opcode)
     case 0x23: // subu
       simulate_mips->reg[rd] = simulate_mips->reg[rs] - simulate_mips->reg[rt];
       break;
+    case 0x24: // and
+      // FIXME - need to trap on overflow
+      simulate_mips->reg[rd] = simulate_mips->reg[rs] & simulate_mips->reg[rt];
+      break;
     case 0x25: // or
       simulate_mips->reg[rd] = simulate_mips->reg[rs] | simulate_mips->reg[rt];
       break;
@@ -250,6 +254,14 @@ static int simulate_execute_mips_r(struct _simulate *simulate, uint32_t opcode)
     case 0x27: // nor
       simulate_mips->reg[rd] =
         ~(simulate_mips->reg[rs] | simulate_mips->reg[rt]);
+      break;
+    case 0x2a: // slt
+      simulate_mips->reg[rd] =
+        (simulate_mips->reg[rs] < simulate_mips->reg[rt]) ? 1 : 0;
+      break;
+    case 0x2b: // sltu
+      simulate_mips->reg[rd] =
+        (simulate_mips->reg[rs] < simulate_mips->reg[rt]) ? 1 : 0;
       break;
     default:
       return -1;
@@ -276,6 +288,17 @@ static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
       break;
     case 0x09: // addiu
       simulate_mips->reg[rt] = simulate_mips->reg[rs] + (int16_t)(opcode & 0xffff);
+      break;
+    case 0x0a: // slti
+      simulate_mips->reg[rt] =
+        (simulate_mips->reg[rs] < (int16_t)(opcode & 0xffff)) ? 1 : 0;
+      break;
+    case 0x0b: // sltiu
+      simulate_mips->reg[rt] =
+        (simulate_mips->reg[rs] < (int16_t)(opcode & 0xffff)) ? 1 : 0;
+      break;
+    case 0x0c: // andi
+      simulate_mips->reg[rt] = simulate_mips->reg[rs] & (opcode & 0xffff);
       break;
     case 0x0d: // ori
       simulate_mips->reg[rt] = simulate_mips->reg[rs] | (opcode & 0xffff);
@@ -469,14 +492,14 @@ static int simulate_execute_mips(struct _simulate *simulate)
       simulate_mips->pc |= ((opcode & 0x3ffffff) << 2);
       return 0;
     case 0x04: // beq
-      if (rs == rt)
+      if (simulate_mips->reg[rs] == simulate_mips->reg[rt])
       {
         simulate_mips->pc += 4 + get_offset16(opcode);
         return 0;
       }
       break;
     case 0x05: // bne
-      if (rs != rt)
+      if (simulate_mips->reg[rs] != simulate_mips->reg[rt])
       {
         simulate_mips->pc += 4 + get_offset16(opcode);
         return 0;
@@ -484,7 +507,7 @@ static int simulate_execute_mips(struct _simulate *simulate)
       break;
     case 0x06: // blez
       if (rt != 0) { return -1; }
-      if (rs <= rt)
+      if (simulate_mips->reg[rs] <= simulate_mips->reg[rt])
       {
         simulate_mips->pc += 4 + get_offset16(opcode);
         return 0;
@@ -492,7 +515,7 @@ static int simulate_execute_mips(struct _simulate *simulate)
       break;
     case 0x07: // bgtz
       if (rt != 0) { return -1; }
-      if (rs > rt)
+      if (simulate_mips->reg[rs] > simulate_mips->reg[rt])
       {
         simulate_mips->pc += 4 + get_offset16(opcode);
         return 0;
