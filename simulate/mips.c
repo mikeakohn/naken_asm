@@ -18,6 +18,8 @@
 #include "simulate/mips.h"
 #include "disasm/mips32.h"
 
+static int simulate_delay_slot_mips(struct _simulate *simulate);
+
 static int stop_running = 0;
 
 static const char *reg_names[32] =
@@ -466,6 +468,7 @@ static int simulate_execute_mips(struct _simulate *simulate)
       if (((opcode >> 11) & 0x3ff) == 0 && (opcode & 0x3f) == 0x08)
       {
         // jr
+        simulate_delay_slot_mips(simulate);
         simulate_mips->pc = simulate_mips->reg[(opcode >> 21) & 0x1f];
         return 0;
       }
@@ -476,17 +479,20 @@ static int simulate_execute_mips(struct _simulate *simulate)
       {
         if (simulate_mips->reg[rs] >= 0)
         {
+          simulate_delay_slot_mips(simulate);
           simulate_mips->pc += 4 + get_offset16(opcode);
           return 0;
         }
         break;
       }
       return -1;
-    case 0x02:
+    case 0x02: // j
+      simulate_delay_slot_mips(simulate);
       simulate_mips->pc &= 0xfc000000;
       simulate_mips->pc |= ((opcode & 0x3ffffff) << 2);
       return 0;
-    case 0x03:
+    case 0x03: // jal
+      simulate_delay_slot_mips(simulate);
       simulate_mips->reg[31] = simulate_mips->pc + 8;
       simulate_mips->pc &= 0xfc000000;
       simulate_mips->pc |= ((opcode & 0x3ffffff) << 2);
@@ -494,6 +500,7 @@ static int simulate_execute_mips(struct _simulate *simulate)
     case 0x04: // beq
       if (simulate_mips->reg[rs] == simulate_mips->reg[rt])
       {
+        simulate_delay_slot_mips(simulate);
         simulate_mips->pc += 4 + get_offset16(opcode);
         return 0;
       }
@@ -501,6 +508,7 @@ static int simulate_execute_mips(struct _simulate *simulate)
     case 0x05: // bne
       if (simulate_mips->reg[rs] != simulate_mips->reg[rt])
       {
+        simulate_delay_slot_mips(simulate);
         simulate_mips->pc += 4 + get_offset16(opcode);
         return 0;
       }
@@ -509,6 +517,7 @@ static int simulate_execute_mips(struct _simulate *simulate)
       if (rt != 0) { return -1; }
       if (simulate_mips->reg[rs] <= simulate_mips->reg[rt])
       {
+        simulate_delay_slot_mips(simulate);
         simulate_mips->pc += 4 + get_offset16(opcode);
         return 0;
       }
@@ -517,6 +526,7 @@ static int simulate_execute_mips(struct _simulate *simulate)
       if (rt != 0) { return -1; }
       if (simulate_mips->reg[rs] > simulate_mips->reg[rt])
       {
+        simulate_delay_slot_mips(simulate);
         simulate_mips->pc += 4 + get_offset16(opcode);
         return 0;
       }
@@ -536,6 +546,18 @@ static int simulate_execute_mips(struct _simulate *simulate)
 
   simulate_mips->reg[0] = 0;
   simulate_mips->pc += 4;
+
+  return 0;
+}
+
+static int simulate_delay_slot_mips(struct _simulate *simulate)
+{
+  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  uint32_t pc = simulate_mips->pc;
+
+  simulate_mips->pc += 4;
+  simulate_execute_mips(simulate);
+  simulate_mips->pc = pc;
 
   return 0;
 }
