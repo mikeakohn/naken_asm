@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -18,17 +18,20 @@
 
 struct _symbols_data
 {
-  uint8_t len;           // length of name[]
-  uint8_t flag_rw:1;     // can write to this
-  uint8_t flag_export:1; // ELF will export symbol
-  uint32_t address;      // address for this name
-  char name[];           // null terminated name of label:
+  uint8_t len;             // length of name[]
+  uint8_t flag_rw : 1;     // can write to this
+  uint8_t flag_export : 1; // ELF will export symbol
+  uint16_t scope;          // Up to 65535 local scopes.  0 = global.
+  uint32_t address;        // address for this name
+  char name[];             // null terminated name of label:
 };
 
 struct _symbols
 {
   struct _memory_pool *memory_pool;
-  int locked;
+  uint8_t locked : 1;
+  uint8_t in_scope : 1;
+  uint32_t current_scope;
 };
 
 struct _symbols_iter
@@ -39,7 +42,7 @@ struct _symbols_iter
   int ptr;
   int count;
   int end_flag;
-  uint8_t flag_export:1;
+  uint8_t flag_export : 1;
 };
 
 int symbols_init(struct _symbols *symbols);
@@ -54,6 +57,8 @@ int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter);
 int symbols_print(struct _symbols *symbols);
 int symbols_count(struct _symbols *symbols);
 int symbols_export_count(struct _symbols *symbols);
+int symbols_scope_start(struct _symbols *symbols);
+int symbols_scope_end(struct _symbols *symbols);
 
 #endif
 

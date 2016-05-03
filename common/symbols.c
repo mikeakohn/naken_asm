@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -21,6 +21,8 @@ int symbols_init(struct _symbols *symbols)
 {
   symbols->memory_pool = NULL;
   symbols->locked = 0;
+  symbols->in_scope = 0;
+  symbols->current_scope = 0;
 
   return 0;
 }
@@ -33,8 +35,8 @@ void symbols_free(struct _symbols *symbols)
 
 struct _symbols_data *symbols_find(struct _symbols *symbols, char *name)
 {
-struct _memory_pool *memory_pool = symbols->memory_pool;
-int ptr;
+  struct _memory_pool *memory_pool = symbols->memory_pool;
+  int ptr;
 
   while(memory_pool != NULL)
   {
@@ -61,8 +63,8 @@ int ptr;
 
 int symbols_append(struct _symbols *symbols, char *name, int address)
 {
-int token_len;
-struct _memory_pool *memory_pool = symbols->memory_pool;
+  int token_len;
+  struct _memory_pool *memory_pool = symbols->memory_pool;
 
   if (symbols->locked == 1) return 0;
 
@@ -178,7 +180,7 @@ int symbols_lookup(struct _symbols *symbols, char *name)
 
 int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter)
 {
-struct _memory_pool *memory_pool = symbols->memory_pool;
+  struct _memory_pool *memory_pool = symbols->memory_pool;
 
   if (iter->end_flag == 1) return -1;
   if (iter->memory_pool == NULL)
@@ -213,7 +215,7 @@ struct _memory_pool *memory_pool = symbols->memory_pool;
 
 int symbols_print(struct _symbols *symbols)
 {
-struct _symbols_iter iter;
+  struct _symbols_iter iter;
 
   memset(&iter, 0, sizeof(iter));
 
@@ -231,9 +233,9 @@ struct _symbols_iter iter;
 
 int symbols_count(struct _symbols *symbols)
 {
-struct _memory_pool *memory_pool = symbols->memory_pool;
-int ptr;
-int count = 0;
+  struct _memory_pool *memory_pool = symbols->memory_pool;
+  int ptr;
+  int count = 0;
 
   while(memory_pool != NULL)
   {
@@ -254,9 +256,9 @@ int count = 0;
 
 int symbols_export_count(struct _symbols *symbols)
 {
-struct _memory_pool *memory_pool = symbols->memory_pool;
-int ptr;
-int count = 0;
+  struct _memory_pool *memory_pool = symbols->memory_pool;
+  int ptr;
+  int count = 0;
 
   while(memory_pool != NULL)
   {
@@ -275,4 +277,24 @@ int count = 0;
   return count;
 }
 
+int symbols_scope_start(struct _symbols *symbols)
+{
+  if (symbols->in_scope == 1)
+  {
+    printf("Error: Nested scopes are not allowed.\n");
+    return -1;
+  }
+
+  symbols->in_scope = 1;
+  symbols->current_scope++;
+
+  return 0;
+}
+
+int symbols_scope_end(struct _symbols *symbols)
+{
+  symbols->in_scope = 0;
+
+  return 0;
+}
 
