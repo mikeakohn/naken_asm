@@ -77,7 +77,7 @@ static void configure_cpu(struct _asm_context *asm_context, int index)
 
 static int parse_org(struct _asm_context *asm_context)
 {
-int num;
+  int num;
 
   if (eval_expression(asm_context, &num) == -1)
   {
@@ -92,7 +92,7 @@ int num;
 
 static int parse_align(struct _asm_context *asm_context)
 {
-int num;
+  int num;
 
   if (eval_expression(asm_context, &num) == -1 || (num != 16 && num != 32))
   {
@@ -125,8 +125,8 @@ int num;
 
 static int parse_name(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-//int token_type;
+  char token[TOKENLEN];
+  //int token_type;
 
   tokens_get(asm_context, token, TOKENLEN);
 
@@ -137,8 +137,8 @@ char token[TOKENLEN];
 
 static int parse_public(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-//int token_type;
+  char token[TOKENLEN];
+  //int token_type;
 
   tokens_get(asm_context, token, TOKENLEN);
 
@@ -149,8 +149,8 @@ char token[TOKENLEN];
 
 static int parse_pragma(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-int token_type;
+  char token[TOKENLEN];
+  int token_type;
 
   while(1)
   {
@@ -165,8 +165,8 @@ int token_type;
 
 static int parse_device(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-int token_type;
+  char token[TOKENLEN];
+  int token_type;
 
   // FIXME - Do nothing right now
 
@@ -191,11 +191,11 @@ int token_type;
 
 static int parse_set(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-char name[TOKENLEN];
-//char value[TOKENLEN];
-int num;
-int token_type;
+  char token[TOKENLEN];
+  char name[TOKENLEN];
+  //char value[TOKENLEN];
+  int num;
+  int token_type;
 
   asm_context->no_symbols = 1;
   token_type = tokens_get(asm_context, name, TOKENLEN);
@@ -235,8 +235,8 @@ int token_type;
 
 static int parse_export(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-int token_type;
+  char token[TOKENLEN];
+  int token_type;
 
   asm_context->no_symbols = 1;
   token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -264,10 +264,10 @@ int token_type;
 
 static int parse_equ(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-char name[TOKENLEN];
-char value[TOKENLEN];
-int token_type;
+  char token[TOKENLEN];
+  char name[TOKENLEN];
+  char value[TOKENLEN];
+  int token_type;
 
   // Atmel's include files want:  .equ NAME = VALUE
 
