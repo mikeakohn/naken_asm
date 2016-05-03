@@ -324,7 +324,6 @@ int symbols_scope_start(struct _symbols *symbols)
 {
   if (symbols->in_scope == 1)
   {
-    printf("Error: Nested scopes are not allowed.\n");
     return -1;
   }
 

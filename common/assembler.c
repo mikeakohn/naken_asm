@@ -493,6 +493,59 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     asm_context->memory.endian = ENDIAN_LITTLE;
     return 1;
   }
+    else
+  if (strcasecmp(token, "scope") == 0)
+  {
+    if (symbols_scope_start(&asm_context->symbols) != 0)
+    {
+      printf("Error: Nested scopes are not allowed. %s:%d\n",
+        asm_context->filename,
+        asm_context->line);
+      return -1;
+    }
+
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "ends") == 0)
+  {
+    symbols_scope_end(&asm_context->symbols);
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "func") == 0)
+  {
+    char token[TOKENLEN];
+    //int token_type;
+
+    tokens_get(asm_context, token, TOKENLEN);
+    symbols_append(&asm_context->symbols, token, asm_context->address);
+
+#if 0
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    if (token_type != TOKEN_EOL)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+#endif
+
+    if (symbols_scope_start(&asm_context->symbols) != 0)
+    {
+      printf("Error: Nested scopes are not allowed. %s:%d\n",
+        asm_context->filename,
+        asm_context->line);
+      return -1;
+    }
+
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "endf") == 0)
+  {
+    symbols_scope_end(&asm_context->symbols);
+    return 1;
+  }
 
   if (asm_context->parse_directive != NULL)
   {

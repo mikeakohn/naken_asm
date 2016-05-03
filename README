@@ -235,14 +235,10 @@ CPU Selection:
 .tms9900         TMS9900
 .z80             Z80
 
-Assembler Directives:
-.align <16 or 32>           Align to 16 bit or 32 bit boundary
+Data Directives:
 .ascii <text>               Insert ASCII chars at memory address
 .asciiz <text>              Same as .ascii but zero padded
-.big_endian                 Store databytes in big endian format
-.binfile "binarydata.bin"   Read in binary file and insert at memory address
 .db <data bytes>            8 bit data bytes
-.define <macro>             Define a C style #define macro
 .dw <data words>            16 bit data bytes
 .dc.w <data words>          16 bit data bytes
 .dl <data words>            32 bit data bytes
@@ -254,16 +250,30 @@ Assembler Directives:
 .ds8 <data byte count>      Reserve <count> bytes
 .ds16 <data words count>    Reserve <count> 16 bit words
 .ds32 <data words count>    Reserve <count> 32 bit words
-.else <exression>           Else for .if or .ifdef
-.endif                      Close an .ifdef or .if
-.endm                       End of macro definition
-.export                     Export symbol so it shows up in ELF file
+.binfile "binarydata.bin"   Read in binary file and insert at memory address
+
+Macros and Define Directives:
 .if <exression>             Evaluate an expression and assemble code if true
 .ifdef <exression>          If defined, can be used with .define
 .ifndef <exression>         If not defined, can be used with .define
-.include "includefile.inc"  Include a file of asm source code
-.little_endian              Store databytes in little endian format
+.define <macro>             Define a C style #define macro
+.else <exression>           Else for .if or .ifdef
+.endif                      Close an .ifdef or .if
 .macro <name> (opt. params) Define a macro (should end with .endm
+.endm                       End of macro definition
+
+Scope Directives:
+.func <name>                Start a function (all labels will be local)
+.endf                       End a function
+.scope                      Start a local scope
+.ends                       End local scope
+
+Other Directives:
+.align <16 or 32>           Align next instr/data to 16 bit or 32 bit boundary
+.big_endian                 Store databytes in big endian format
+.little_endian              Store databytes in little endian format
+.export                     Export symbol so it shows up in ELF file
+.include "includefile.inc"  Include a file of asm source code
 .org <address>              Address where next assembled bytes are written to
 .set <symbol>=<value>       Create or modify symbol's value (excluding labels)
 
