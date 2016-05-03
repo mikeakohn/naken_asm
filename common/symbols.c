@@ -195,6 +195,12 @@ int symbols_export(struct _symbols *symbols, char *name)
 
   if (symbols_data == NULL) { return -1; }
 
+  if (symbols_data->scope != 0)
+  {
+    printf("Error: Cannot export local variable '%s'\n", name);
+    return -1;
+  }
+
   symbols_data->flag_export = 1;
 
   return 0;

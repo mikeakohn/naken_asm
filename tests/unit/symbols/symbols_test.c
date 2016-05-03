@@ -35,6 +35,17 @@ void check_value(struct _symbols *symbols, char *name, int expected)
   }
 }
 
+void check_export(struct _symbols *symbols, char *name, int expected)
+{
+  int value = symbols_export(symbols, name);
+
+  if (value != expected)
+  {
+    printf("Error: %s export %d (%d) %s:%d\n", name, expected, value, __FILE__, __LINE__);
+    errors++;
+  }
+}
+
 int main(int argc, char *argv[])
 {
   struct _symbols symbols;
@@ -76,9 +87,29 @@ int main(int argc, char *argv[])
   // Test to make sure global test4 didn't change
   check_value(&symbols, "test4", 100);
 
+  // Enter another scope
+  symbols_scope_start(&symbols);
+  check_value(&symbols, "test5", -1);
+  append(&symbols, "test5", 1000);
+  check_value(&symbols, "test5", 1000);
+  append(&symbols, "test4", 2000);
+  check_value(&symbols, "test4", 2000);
+  check_export(&symbols, "test4", -1);
+  symbols_scope_end(&symbols);
+
+  // Check test5 out of scope
+  check_value(&symbols, "test5", -1);
+
+  // Test to make sure global test4 didn't change
+  check_value(&symbols, "test4", 100);
+
+  // From a global context, test4 should export (and test1)
+  check_export(&symbols, "test4", 0);
+  check_export(&symbols, "test1", 0);
+
   symbols_lock(&symbols);
   append(&symbols, "test4", 50);
-  check_symbols_count(&symbols, 6);
+  check_symbols_count(&symbols, 8);
 
   if (errors != 0)
   {
