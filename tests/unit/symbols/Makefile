@@ -2,7 +2,7 @@ include ../../../config.mak
 
 INCLUDES=-I../../..
 BUILDDIR=../../../build
-CFLAGS=-Wall -g -DUNIT_TEST $(INCLUDES)
+CFLAGS=-Wall -g -DUNIT_TEST $(INCLUDES) -g
 LD_FLAGS=-L../../../build
 
 default:

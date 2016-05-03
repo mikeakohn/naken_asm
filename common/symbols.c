@@ -38,6 +38,34 @@ struct _symbols_data *symbols_find(struct _symbols *symbols, char *name)
   struct _memory_pool *memory_pool = symbols->memory_pool;
   int ptr;
 
+  // Check local scope.
+  if (symbols->in_scope != 0)
+  {
+    while(memory_pool != NULL)
+    {
+      ptr = 0;
+
+      while(ptr < memory_pool->ptr)
+      {
+        struct _symbols_data *symbols_data =
+          (struct _symbols_data *)(memory_pool->buffer + ptr);
+
+        if (symbols->current_scope == symbols_data->scope &&
+            strcmp(symbols_data->name, name) == 0)
+        {
+          return symbols_data;
+        }
+
+        ptr += symbols_data->len + sizeof(struct _symbols_data);
+      }
+
+      memory_pool = memory_pool->next;
+    }
+
+    memory_pool = symbols->memory_pool;
+  }
+
+  // Check global scope.
   while(memory_pool != NULL)
   {
     ptr = 0;
@@ -47,7 +75,7 @@ struct _symbols_data *symbols_find(struct _symbols *symbols, char *name)
       struct _symbols_data *symbols_data =
         (struct _symbols_data *)(memory_pool->buffer + ptr);
 
-      if (strcmp(symbols_data->name, name) == 0)
+      if (symbols_data->scope == 0 && strcmp(symbols_data->name, name) == 0)
       {
         return symbols_data;
       }
@@ -65,13 +93,19 @@ int symbols_append(struct _symbols *symbols, char *name, int address)
 {
   int token_len;
   struct _memory_pool *memory_pool = symbols->memory_pool;
+  struct _symbols_data *symbols_data;
 
   if (symbols->locked == 1) return 0;
 
-  if (symbols_find(symbols, name) != NULL)
+  symbols_data = symbols_find(symbols, name);
+
+  if (symbols_data != NULL)
   {
-    printf("Error: Label '%s' already defined.\n", name);
-    return -1;
+    if (symbols->in_scope == 0 || symbols_data->scope == symbols->current_scope)
+    {
+      printf("Error: Label '%s' already defined.\n", name);
+      return -1;
+    }
   }
 
   token_len = strlen(name) + 1;
@@ -110,7 +144,7 @@ int symbols_append(struct _symbols *symbols, char *name, int address)
   //address = address / asm_context->bytes_per_address;
 
   // Set the new label/address entry.
-  struct _symbols_data *symbols_data =
+  symbols_data =
     (struct _symbols_data *)(memory_pool->buffer + memory_pool->ptr);
 
   memcpy(symbols_data->name, name, token_len);
@@ -118,6 +152,7 @@ int symbols_append(struct _symbols *symbols, char *name, int address)
   symbols_data->flag_rw = 0;
   symbols_data->flag_export = 0;
   symbols_data->address = address;
+  symbols_data->scope = symbols->in_scope == 0 ? 0 : symbols->current_scope;
 
   memory_pool->ptr += token_len + sizeof(struct _symbols_data);
 
@@ -138,6 +173,7 @@ int symbols_set(struct _symbols *symbols, char *name, int address)
     }
 
     symbols_data = symbols_find(symbols, name);
+    symbols_data->scope = 0;
     symbols_data->flag_rw = 1;
   }
     else
@@ -200,6 +236,7 @@ int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter)
       iter->name = symbols_data->name;
       iter->ptr = iter->ptr + symbols_data->len + sizeof(struct _symbols_data);
       iter->flag_export = symbols_data->flag_export;
+      iter->scope = symbols_data->scope;
       iter->count++;
 
       return 0;
@@ -223,7 +260,7 @@ int symbols_print(struct _symbols *symbols)
 
   while(symbols_iterate(symbols, &iter) != -1)
   {
-    printf("%30s %08x (%d)%s\n", iter.name, iter.address, iter.address, iter.flag_export == 1 ? " EXPORTED" : "");
+    printf("%30s %08x (%d) %d%s\n", iter.name, iter.address, iter.address, iter.scope, iter.flag_export == 1 ? " EXPORTED" : "");
   }
 
   printf("Total %d.\n\n", iter.count);

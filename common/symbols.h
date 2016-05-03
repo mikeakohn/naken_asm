@@ -42,6 +42,7 @@ struct _symbols_iter
   int ptr;
   int count;
   int end_flag;
+  uint32_t scope;
   uint8_t flag_export : 1;
 };
 
