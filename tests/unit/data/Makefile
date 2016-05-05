@@ -6,7 +6,7 @@ CFLAGS=-Wall -g -DUNIT_TEST $(INCLUDES)
 LD_FLAGS=-L../../../build
 
 default:
-	gcc -o data_test data_test.c \
+	$(CC) -o data_test data_test.c \
 	  ../../../build/asm/*.o \
 	  ../../../build/common/assembler.o \
 	  ../../../build/common/cpu_list.o \

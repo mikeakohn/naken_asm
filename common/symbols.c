@@ -89,7 +89,7 @@ struct _symbols_data *symbols_find(struct _symbols *symbols, char *name)
   return NULL;
 }
 
-int symbols_append(struct _symbols *symbols, char *name, int address)
+int symbols_append(struct _symbols *symbols, char *name, uint32_t address)
 {
   int token_len;
   struct _memory_pool *memory_pool = symbols->memory_pool;
@@ -159,7 +159,7 @@ int symbols_append(struct _symbols *symbols, char *name, int address)
   return 0;
 } 
 
-int symbols_set(struct _symbols *symbols, char *name, int address)
+int symbols_set(struct _symbols *symbols, char *name, uint32_t address)
 {
   struct _symbols_data *symbols_data = NULL;
 
@@ -211,13 +211,19 @@ void symbols_lock(struct _symbols *symbols)
   symbols->locked = 1;
 }
 
-int symbols_lookup(struct _symbols *symbols, char *name)
+int symbols_lookup(struct _symbols *symbols, char *name, uint32_t *address)
 {
   struct _symbols_data *symbols_data = symbols_find(symbols, name);
 
-  if (symbols_data == NULL) { return -1; }
+  if (symbols_data == NULL)
+  {
+    *address = 0;
+    return -1;
+  }
 
-  return symbols_data->address;
+  *address = symbols_data->address;
+
+  return 0;
 }
 
 int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter)

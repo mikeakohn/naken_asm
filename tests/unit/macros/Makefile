@@ -6,7 +6,7 @@ CFLAGS=-Wall -g -DUNIT_TEST $(INCLUDES)
 LD_FLAGS=-L../../../build
 
 default:
-	gcc -o macro_test macro_test.c \
+	$(CC) -o macro_test macro_test.c \
           ../../../build/macros.o \
           ../../../build/memory_pool.o \
           ../../../build/print_error.o \

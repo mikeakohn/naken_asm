@@ -6,7 +6,7 @@ CFLAGS=-Wall -g -DUNIT_TEST $(INCLUDES)
 LD_FLAGS=-L../../../build
 
 default:
-	gcc -o var_test var_test.c \
+	$(CC) -o var_test var_test.c \
           ../../../build/common/var.o \
 	  $(CFLAGS)
 

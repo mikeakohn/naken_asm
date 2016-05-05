@@ -6,7 +6,7 @@
 
 int errors = 0;
 
-void append(struct _symbols *symbols, char *name, int address)
+void append(struct _symbols *symbols, char *name, uint32_t address)
 {
   if (symbols_append(symbols, name, address) != 0)
   {
@@ -24,24 +24,26 @@ void check_symbols_count(struct _symbols *symbols, int count)
   }
 }
 
-void check_value(struct _symbols *symbols, char *name, int expected)
+void check_lookup(struct _symbols *symbols, char *name, uint32_t expected, int expected_ret)
 {
-  int value = symbols_lookup(symbols, name);
+  uint32_t address = 0;
 
-  if (value != expected)
+  int ret = symbols_lookup(symbols, name, &address);
+
+  if (ret != expected_ret || address != expected)
   {
-    printf("Error: %s != %d (%d) %s:%d\n", name, expected, value, __FILE__, __LINE__);
+    printf("Error: %s != %d (%d) ret=%d %s:%d\n", name, expected, address, ret, __FILE__, __LINE__);
     errors++;
   }
 }
 
 void check_export(struct _symbols *symbols, char *name, int expected)
 {
-  int value = symbols_export(symbols, name);
+  int ret = symbols_export(symbols, name);
 
-  if (value != expected)
+  if (ret != expected)
   {
-    printf("Error: %s export %d (%d) %s:%d\n", name, expected, value, __FILE__, __LINE__);
+    printf("Error: %s export %d (%d) %s:%d\n", name, expected, ret, __FILE__, __LINE__);
     errors++;
   }
 }
@@ -58,50 +60,50 @@ int main(int argc, char *argv[])
 
   check_symbols_count(&symbols, 3);
 
-  check_value(&symbols, "test1", 100);
-  check_value(&symbols, "test2", 200);
-  check_value(&symbols, "test3", 300);
-  check_value(&symbols, "nothing", -1);
+  check_lookup(&symbols, "test1", 100, 0);
+  check_lookup(&symbols, "test2", 200, 0);
+  check_lookup(&symbols, "test3", 300, 0);
+  check_lookup(&symbols, "nothing", 0, -1);
 
   // If the symbol was never created with symbols_set() it shouldn't
   // change here.
   symbols_set(&symbols, "test1", 150);
-  check_value(&symbols, "test1", 100);
+  check_lookup(&symbols, "test1", 100, 0);
 
   // This symbol should change.
   symbols_set(&symbols, "test4", 150);
-  check_value(&symbols, "test4", 150);
+  check_lookup(&symbols, "test4", 150, 0);
   symbols_set(&symbols, "test4", 100);
-  check_value(&symbols, "test4", 100);
+  check_lookup(&symbols, "test4", 100, 0);
 
   symbols_scope_start(&symbols);
   append(&symbols, "test5", 333);
-  check_value(&symbols, "test5", 333);
+  check_lookup(&symbols, "test5", 333, 0);
   append(&symbols, "test4", 444);
-  check_value(&symbols, "test4", 444);
+  check_lookup(&symbols, "test4", 444, 0);
   symbols_scope_end(&symbols);
 
   // Check test5 out of scope
-  check_value(&symbols, "test5", -1);
+  check_lookup(&symbols, "test5", 0, -1);
 
   // Test to make sure global test4 didn't change
-  check_value(&symbols, "test4", 100);
+  check_lookup(&symbols, "test4", 100, 0);
 
   // Enter another scope
   symbols_scope_start(&symbols);
-  check_value(&symbols, "test5", -1);
+  check_lookup(&symbols, "test5", 0, -1);
   append(&symbols, "test5", 1000);
-  check_value(&symbols, "test5", 1000);
+  check_lookup(&symbols, "test5", 1000, 0);
   append(&symbols, "test4", 2000);
-  check_value(&symbols, "test4", 2000);
+  check_lookup(&symbols, "test4", 2000, 0);
   check_export(&symbols, "test4", -1);
   symbols_scope_end(&symbols);
 
   // Check test5 out of scope
-  check_value(&symbols, "test5", -1);
+  check_lookup(&symbols, "test5", 0, -1);
 
   // Test to make sure global test4 didn't change
-  check_value(&symbols, "test4", 100);
+  check_lookup(&symbols, "test4", 100, 0);
 
   // From a global context, test4 should export (and test1)
   check_export(&symbols, "test4", 0);

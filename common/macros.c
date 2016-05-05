@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -122,6 +122,7 @@ int macros_append(struct _asm_context *asm_context, char *name, char *value, int
 {
   struct _macros *macros = &asm_context->macros;
   struct _memory_pool *memory_pool = macros->memory_pool;
+  uint32_t address;
   int param_count_temp;
   int name_len;
   int value_len;
@@ -129,7 +130,7 @@ int macros_append(struct _asm_context *asm_context, char *name, char *value, int
   if (macros->locked == 1) { return 0; }
 
   if (macros_lookup(macros, name, &param_count_temp) != NULL ||
-      symbols_lookup(&asm_context->symbols, name) != -1)
+      symbols_lookup(&asm_context->symbols, name, &address) == 0)
   {
     printf("Error: Macro '%s' already defined.\n", name);
     return -1;

@@ -221,6 +221,7 @@ static int get_range(struct _util_context *util_context, char *token, uint32_t *
   char *start_string = NULL;
   char *end_string = NULL;
   char *s;
+  int ret;
 
   // Remove white space from start;
   while(*token == ' ') { token++; }
@@ -259,11 +260,12 @@ static int get_range(struct _util_context *util_context, char *token, uint32_t *
   }
 
   // Look up start_string in symbol table or use number
-  *start = symbols_lookup(&util_context->symbols, start_string);
-  if (*start == -1)
+  ret = symbols_lookup(&util_context->symbols, start_string, start);
+
+  if (ret != 0)
   {
     token = get_num(start_string, start);
-    if (*start < 0) *start = 0;
+    //if (*start < 0) *start = 0;
   }
 
   // If end_string is empty then end = start
@@ -274,11 +276,12 @@ static int get_range(struct _util_context *util_context, char *token, uint32_t *
   }
 
   // Look up end_string in symbol table or use number
-  *end = symbols_lookup(&util_context->symbols, end_string);
-  if (*end == -1)
+  ret = symbols_lookup(&util_context->symbols, end_string, end);
+
+  if (ret != 0)
   {
     token = get_num(end_string, end);
-    if (*end < 0) *end = 0;
+    //if (*end < 0) *end = 0;
   }
 
   return 0;

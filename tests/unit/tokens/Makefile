@@ -6,7 +6,7 @@ CFLAGS=-Wall -g -DUNIT_TEST $(INCLUDES)
 LD_FLAGS=-L../../../build
 
 default:
-	gcc -o tokens_test tokens_test.c \
+	$(CC) -o tokens_test tokens_test.c \
           ../../../build/common/macros.o \
           ../../../build/common/memory_pool.o \
           ../../../build/common/print_error.o \

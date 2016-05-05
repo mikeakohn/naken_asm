@@ -6,7 +6,7 @@ CFLAGS=-Wall -g -DUNIT_TEST $(INCLUDES)
 LD_FLAGS=-L../../../build
 
 default:
-	gcc -o unit_test unit_test.c \
+	$(CC) -o unit_test unit_test.c \
           ../../../build/common/eval_expression_ex.o \
           ../../../build/common/macros.o \
           ../../../build/common/memory_pool.o \

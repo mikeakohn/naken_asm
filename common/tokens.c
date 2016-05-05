@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -561,18 +561,19 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
   {
     int param_count = 0;
     char *macro = macros_lookup(&asm_context->macros, token, &param_count);
-    int address;
+    uint32_t address;
+    int ret = -1;
 
     if (asm_context->no_symbols == 0)
     {
-      address = symbols_lookup(&asm_context->symbols, token);
+      ret = symbols_lookup(&asm_context->symbols, token, &address);
     }
       else
     {
-      address = -1;
+      ret = -1;
     }
 
-    if (address != -1 && asm_context->parsing_ifdef == 0)
+    if (ret == 0 && asm_context->parsing_ifdef == 0)
     {
       sprintf(token, "%d", address);
       token_type = TOKEN_NUMBER;
