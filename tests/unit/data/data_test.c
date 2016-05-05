@@ -53,6 +53,7 @@ struct _tests_float tests_float[] =
 {
   { ".dq 1.2, -1.2", { 1.2, -1.2 }, 2, LITTLE },
   { ".dq 1.2, -1.2", { 1.2, -1.2 }, 2, BIG },
+  { NULL }
 };
 
 void test_int(const char *source, uint8_t *answer, int length, int endian)
