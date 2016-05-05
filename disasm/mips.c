@@ -13,16 +13,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "disasm/mips32.h"
+#include "disasm/mips.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-int get_cycle_count_mips32(unsigned short int opcode)
+int get_cycle_count_mips(unsigned short int opcode)
 {
   return -1;
 }
 
-int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
   int function, format, operation;
@@ -382,7 +382,7 @@ int disasm_mips32(struct _memory *memory, uint32_t address, char *instruction, i
   return 4;
 }
 
-void list_output_mips32(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_mips(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
@@ -394,7 +394,7 @@ void list_output_mips32(struct _asm_context *asm_context, uint32_t start, uint32
   {
     opcode = memory_read32_m(&asm_context->memory, start);
 
-    disasm_mips32(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_mips(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
     fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
@@ -407,7 +407,7 @@ void list_output_mips32(struct _asm_context *asm_context, uint32_t start, uint32
   }
 }
 
-void disasm_range_mips32(struct _memory *memory, uint32_t start, uint32_t end)
+void disasm_range_mips(struct _memory *memory, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0,cycles_max = 0;
@@ -426,7 +426,7 @@ void disasm_range_mips32(struct _memory *memory, uint32_t start, uint32_t end)
           (READ_RAM(start + 2) << 16) |
           (READ_RAM(start + 3) << 24);
 
-    disasm_mips32(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_mips(memory, start, instruction, &cycles_min, &cycles_max);
 
     if (cycles_min < 1)
     {

@@ -16,7 +16,7 @@
 #include <signal.h>
 
 #include "simulate/mips.h"
-#include "disasm/mips32.h"
+#include "disasm/mips.h"
 
 static int simulate_delay_slot_mips(struct _simulate *simulate);
 
@@ -595,7 +595,7 @@ int simulate_run_mips(struct _simulate *simulate, int max_cycles, int step)
         int cycles_min, cycles_max;
 
         uint32_t opcode = memory_read32_m(simulate->memory, pc);
-        int count = disasm_mips32(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+        int count = disasm_mips(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
 
         if (count < 1) { break; }
 

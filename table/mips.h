@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef _TABLE_MIPS32_H
-#define _TABLE_MIPS32_H
+#ifndef _TABLE_MIPS_H
+#define _TABLE_MIPS_H
 
 #include <stdint.h>
 
@@ -18,6 +18,7 @@
 #define FORMAT_SPECIAL2 0x1c
 #define FORMAT_SPECIAL3 0x1f
 
+#define MIPS_I 0
 #define MIPS_II 1
 #define MIPS_III 2
 #define MIPS_IV 4

@@ -15,11 +15,11 @@
 #include <ctype.h>
 
 #include "asm/common.h"
-#include "asm/mips32.h"
+#include "asm/mips.h"
 #include "common/assembler.h"
 #include "common/tokens.h"
 #include "common/eval_expression.h"
-#include "table/mips32.h"
+#include "table/mips.h"
 
 enum
 {
@@ -323,7 +323,7 @@ static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct
   return 4;
 }
 
-int parse_instruction_mips32(struct _asm_context *asm_context, char *instr)
+int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 {
   struct _operand operands[4];
   int operand_count = 0;

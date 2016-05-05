@@ -276,10 +276,10 @@ for option in $@; do
     DFLAGS="${DFLAGS} -DENABLE_EPIPHANY"
   ;;
   --enable-mips)
-    ASM_OBJS="${ASM_OBJS} mips32.o"
-    DISASM_OBJS="${DISASM_OBJS} mips32.o"
+    ASM_OBJS="${ASM_OBJS} mips.o"
+    DISASM_OBJS="${DISASM_OBJS} mips.o"
     SIM_OBJS="${SIM_OBJS} mips.o"
-    TABLE_OBJS="${TABLE_OBJS} mips32.o"
+    TABLE_OBJS="${TABLE_OBJS} mips.o"
     DFLAGS="${DFLAGS} -DENABLE_MIPS"
   ;;
   --enable-msp430)
