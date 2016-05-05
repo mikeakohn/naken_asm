@@ -53,7 +53,7 @@ enum
   MIPS_COP_FT,
 };
 
-struct _mips32_instr
+struct _mips_instr
 {
   const char *instr;
   char operand[3];
@@ -61,7 +61,7 @@ struct _mips32_instr
   int8_t operand_count;
 };
 
-struct _mips32_branch
+struct _mips_branch
 {
   const char *instr;
   uint8_t opcode;
@@ -69,7 +69,7 @@ struct _mips32_branch
   uint16_t version;
 };
 
-struct _mips32_cop_instr
+struct _mips_cop_instr
 {
   const char *instr;
   char operand[3];
@@ -78,7 +78,7 @@ struct _mips32_cop_instr
   int8_t operand_count;
 };
 
-struct _mips32_special_instr
+struct _mips_special_instr
 {
   const char *instr;
   char operand[4];
@@ -89,11 +89,11 @@ struct _mips32_special_instr
   uint8_t type;
 };
 
-extern struct _mips32_instr mips32_r_table[];
-extern struct _mips32_instr mips32_i_table[];
-extern struct _mips32_branch mips32_branch_table[];
-extern struct _mips32_special_instr mips32_special_table[];
-extern struct _mips32_cop_instr mips32_cop_table[];
+extern struct _mips_instr mips_r_table[];
+extern struct _mips_instr mips_i_table[];
+extern struct _mips_branch mips_branch_table[];
+extern struct _mips_special_instr mips_special_table[];
+extern struct _mips_cop_instr mips_cop_table[];
 
 #endif
 
