@@ -17,7 +17,7 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-int get_cycle_count_mips(unsigned short int opcode)
+int get_cycle_count_mips(uint32_t opcode)
 {
   return -1;
 }
