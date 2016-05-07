@@ -22,6 +22,8 @@
 #define MIPS_II 1
 #define MIPS_III 2
 #define MIPS_IV 4
+#define MIPS_32 8
+#define MIPS_FPU 16 
 
 enum
 {
@@ -60,6 +62,7 @@ struct _mips_instr
   char operand[3];
   uint8_t function;
   int8_t operand_count;
+  uint16_t version;
 };
 
 struct _mips_branch

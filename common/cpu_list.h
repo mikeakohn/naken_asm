@@ -65,6 +65,7 @@ struct _cpu_list
   list_output_t list_output;
   disasm_range_t disasm_range;
   simulate_init_t simulate_init;
+  uint32_t flags;
 };
 
 extern struct _cpu_list cpu_list[];
