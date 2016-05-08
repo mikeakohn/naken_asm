@@ -160,6 +160,16 @@ struct _mips_no_operands mips_no_operands[] = {
 struct _mips_other mips_other[] = {
   { "teq", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x00000034, 0xfc00003f, MIPS_II },
   { "teqi", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040c0000, 0xfc1f0000, MIPS_II },
+  { "tge", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x000000c0, 0xfc00003f, MIPS_II },
+  { "tgei", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x04080000, 0xfc1f0000, MIPS_II },
+  { "tgeiu", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x04090000, 0xfc1f0000, MIPS_II },
+  { "tgeu", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x000000c1, 0xfc00003f, MIPS_II },
+  { "tlt", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x000000c2, 0xfc00003f, MIPS_II },
+  { "tlti", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040a0000, 0xfc1f0000, MIPS_II },
+  { "tltiu", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040b0000, 0xfc1f0000, MIPS_II },
+  { "tltu", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x000000c3, 0xfc00003f, MIPS_II },
+  { "tne", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x000000c6, 0xfc00003f, MIPS_II },
+  { "tnei", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040e0000, 0xfc1f0000, MIPS_II },
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 

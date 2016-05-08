@@ -112,6 +112,17 @@ sync.p
 syscall
 teq $t3, $t4
 teqi $t3, 0x1234
+tge $t3, $t4
+tgei $t3, 0x1234
+tgeiu $t3, 0x1234
+tgeu $t3, $t4
+tlt $t3, $t4
+tlti $t3, 0x1234
+tltiu $t3, 0x1234
+tltu $t3, $t4
+tne $t3, $t4
+tnei $t3, 0x1234
+tneiu $t3, 0x1234
 wsbh $t1, $t2
 xor $t3, $k0, $k1
 xori $t3, $k0, 0x1234
