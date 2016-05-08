@@ -102,12 +102,23 @@ struct _mips_no_operands
   uint16_t version;
 };
 
+struct _mips_other
+{
+  const char *instr;
+  char operand[3];
+  int8_t operand_count;
+  uint32_t opcode;
+  uint32_t mask;
+  uint16_t version;
+};
+
 extern struct _mips_instr mips_r_table[];
 extern struct _mips_instr mips_i_table[];
 extern struct _mips_branch mips_branch_table[];
 extern struct _mips_special_instr mips_special_table[];
 extern struct _mips_cop_instr mips_cop_table[];
 extern struct _mips_no_operands mips_no_operands[];
+extern struct _mips_other mips_other[];
 
 #endif
 

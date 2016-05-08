@@ -924,6 +924,72 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
     n++;
   }
 
+  n = 0;
+  while(mips_other[n].instr != NULL)
+  {
+    if (strcmp(instr_case, mips_other[n].instr) == 0)
+    {
+      if (operand_count != mips_other[n].operand_count)
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
+      }
+
+      opcode = mips_other[n].opcode;
+
+      for (r = 0; r < mips_other[n].operand_count; r++)
+      {
+        switch(mips_other[n].operand[r])
+        {
+          case MIPS_OP_RS:
+            if (operands[r].type != OPERAND_TREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 21;
+
+            break;
+          case MIPS_OP_RT:
+            if (operands[r].type != OPERAND_TREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 16;
+
+            break;
+          case MIPS_OP_IMMEDIATE_SIGNED:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < -32768 || operands[r].value > 32767)
+            {
+              print_error_range("Constant", -32768, 32767, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value & 0xffff;
+
+            break;
+          default:
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+        }
+      }
+
+      add_bin32(asm_context, opcode, IS_OPCODE);
+      return opcode_size;
+    }
+
+    n++;
+  }
+
   print_error_unknown_instr(instr, asm_context);
 
   return -1;

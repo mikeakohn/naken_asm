@@ -127,11 +127,10 @@ struct _mips_special_instr mips_special_table[] = {
   { "maddu", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x01, SPECIAL_TYPE_REGS },
   { "msub", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x04, SPECIAL_TYPE_REGS },
   { "msubu", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x05, SPECIAL_TYPE_REGS },
-  //{ "movn", { 1, 2, 0, -1 }, 3, FORMAT_SPECIAL0, 0x00, 0x0b, SPECIAL_TYPE_REGS },
-  //{ "movz", { 1, 2, 0, -1 }, 3, FORMAT_SPECIAL0, 0x00, 0x0a, SPECIAL_TYPE_REGS },
   { "mul", { 1, 2, 0, -1 }, 3, FORMAT_SPECIAL2, 0x00, 0x02, SPECIAL_TYPE_REGS },
   { "seb", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x10, 0x20, SPECIAL_TYPE_REGS },
   { "seh", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x18, 0x20, SPECIAL_TYPE_REGS },
+  //{ "teq", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL0, 0x3f, 0x34, SPECIAL_TYPE_REGS },
   { "rotr", { 1, 0, 2, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x02, SPECIAL_TYPE_SA },
   { "rotrv", { 2, 1, 0, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x06, SPECIAL_TYPE_REGS },
   { "wsbh", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x02, 0x20, SPECIAL_TYPE_REGS },
@@ -156,5 +155,11 @@ struct _mips_no_operands mips_no_operands[] = {
   { "sync", 0x0000000f, MIPS_II },
   { "sync.p", 0x0000040f, MIPS_II },
   { NULL, 0, 0 }
+};
+
+struct _mips_other mips_other[] = {
+  { "teq", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x00000034, 0xfc00003f, MIPS_II },
+  { "teqi", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040c0000, 0xfc1f0000, MIPS_II },
+  { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 

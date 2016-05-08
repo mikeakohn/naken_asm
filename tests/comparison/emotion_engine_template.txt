@@ -109,6 +109,9 @@ swr $t3, 0x1234($t4)
 sync
 sync.l
 sync.p
+syscall
+teq $t3, $t4
+teqi $t3, 0x1234
 wsbh $t1, $t2
 xor $t3, $k0, $k1
 xori $t3, $k0, 0x1234

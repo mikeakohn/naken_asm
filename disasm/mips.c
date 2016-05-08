@@ -26,7 +26,7 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
 {
   uint32_t opcode;
   int function, format, operation;
-  int n,r;
+  int n, r;
   char temp[32];
   const char *reg[32] =
   {
@@ -35,6 +35,8 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
     "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7",
     "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
   };
+  int rs, rt, rd, sa;
+  int immediate;
 
   *cycles_min = 1;
   *cycles_max = 1;
@@ -158,14 +160,54 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
   }
 
   n = 0;
+  while(mips_other[n].instr != NULL)
+  {
+    if (mips_other[n].opcode == (opcode & mips_other[n].mask))
+    {
+      strcpy(instruction, mips_other[n].instr);
+
+      rs = (opcode >> 21) & 0x1f;
+      rt = (opcode >> 16) & 0x1f;
+      immediate = opcode & 0xffff;
+
+      for (r = 0; r < mips_other[n].operand_count; r++)
+      {
+        if (r != 0) { strcat(instruction, ","); }
+
+        switch(mips_other[n].operand[r])
+        {
+          case MIPS_OP_RS:
+            sprintf(temp, " %s", reg[rs]);
+            break;
+          case MIPS_OP_RT:
+            sprintf(temp, " %s", reg[rt]);
+            break;
+          case MIPS_OP_IMMEDIATE_SIGNED:
+            sprintf(temp, " %d", (int16_t)immediate);
+            break;
+          default:
+            strcpy(temp, " ?");
+            break;
+        }
+
+        strcat(instruction, temp);
+      }
+
+      return 4;
+    }
+
+    n++;
+  }
+
+  n = 0;
   while(mips_branch_table[n].instr != NULL)
   {
     if (mips_branch_table[n].op_rt == -1)
     {
       if ((opcode >> 26) == mips_branch_table[n].opcode)
       {
-        int rs = (opcode >> 21) & 0x1f;
-        int rt = (opcode >> 16) & 0x1f;
+        rs = (opcode >> 21) & 0x1f;
+        rt = (opcode >> 16) & 0x1f;
         int16_t offset = (opcode & 0xffff) << 2;
 
         sprintf(instruction, "%s %s, %s, 0x%x (offset=%d)", mips_branch_table[n].instr, reg[rs], reg[rt],  address + 4 + offset, offset);
@@ -178,7 +220,7 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
       if ((opcode >> 26) == mips_branch_table[n].opcode &&
          ((opcode >> 16) & 0x1f) == mips_branch_table[n].op_rt)
       {
-        int rs = (opcode >> 21) & 0x1f;
+        rs = (opcode >> 21) & 0x1f;
         int16_t offset = (opcode & 0xffff) << 2;
 
         sprintf(instruction, "%s %s, 0x%x (offset=%d)", mips_branch_table[n].instr, reg[rs], address + 4 + offset, offset);
@@ -198,10 +240,10 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
     {
       if (mips_r_table[n].function == function)
       {
-        int rs = (opcode >> 21) & 0x1f;
-        int rt = (opcode >> 16) & 0x1f;
-        int rd = (opcode >> 11) & 0x1f;
-        int sa = (opcode >> 6) & 0x1f;
+        rs = (opcode >> 21) & 0x1f;
+        rt = (opcode >> 16) & 0x1f;
+        rd = (opcode >> 11) & 0x1f;
+        sa = (opcode >> 6) & 0x1f;
 
         strcpy(instruction, mips_r_table[n].instr);
 
@@ -315,9 +357,9 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
     {
       if (mips_i_table[n].function == op)
       {
-        int rs = (opcode >> 21) & 0x1f;
-        int rt = (opcode >> 16) & 0x1f;
-        int immediate = opcode & 0xffff;
+        rs = (opcode >> 21) & 0x1f;
+        rt = (opcode >> 16) & 0x1f;
+        immediate = opcode & 0xffff;
 
 #if 0
         if (mips_i_table[n].operand[2] == MIPS_OP_RT_IS_0)
