@@ -97,6 +97,28 @@ not $t3, $t4
 or $t3, $k0, $k1
 ori $t3, $k0, 0x1234
 pref $0, 0x1234($t4)
+pbash $t2, $t3
+pbasw $t2, $t3
+paddb $t2, $t3, $t4
+paddh $t2, $t3, $t4
+paddsb $t2, $t3, $t4
+paddsh $t2, $t3, $t4
+paddsw $t2, $t3, $t4
+paddub $t2, $t3, $t4
+padduh $t2, $t3, $t4
+padduw $t2, $t3, $t4
+paddw $t2, $t3, $t4
+padsbh $t2, $t3, $t4
+pand $t2, $t3, $t4
+pceqb $t2, $t3, $t4
+pceqh $t2, $t3, $t4
+pceqw $t2, $t3, $t4
+pcgtb $t2, $t3, $t4
+pcgth $t2, $t3, $t4
+pcgtw $t2, $t3, $t4
+pcpyh $t2, $t3, $t4
+pcpyld $t2, $t3, $t4
+pcpyud $t2, $t3, $t4
 rotr $t3, $t4, 10
 rotr $t3, $t4, 31
 rotrv $t3, $t4, $t5
