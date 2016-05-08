@@ -138,6 +138,10 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   int bytes;
   int i;
   int src, dst;
+  int label;
+
+  // reset label flag
+  label = 0;
 
   // make lowercase
   lower_copy(instr_case, instr);
@@ -530,6 +534,10 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         if(GET_TOKEN() == TOKEN_EOL)
           break;
 
+        if(get_address(asm_context, token, &token_type, &num, &size) == -1)
+          return -1;
+
+        // if all zeros then this is a forward-label
         if(asm_context->pass == 2)
         {
           if((memory_read(asm_context, asm_context->address + 1) == 0) &&
@@ -537,11 +545,9 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
              (memory_read(asm_context, asm_context->address + 3) == 0))
           {
             op = OP_ADDRESS24;
+            label = 1;
           }
         }
-
-        if(get_address(asm_context, token, &token_type, &num, &size) == -1)
-          return -1;
 
         if(num < 0 || num > 0xFFFFFF)
         {
@@ -660,6 +666,19 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     }
   }
 
+  // add a NOP (0xEA) after 16-bit forward-label addresses 
+  if(label == 1 && size == 0)
+  {
+    if(((instr_enum == M65816_JMP) || (instr_enum == M65816_JSR))
+       && (num <= 0xFFFF))
+    {
+      num |= 0xEA0000; 
+      // temporarily change addressing mode
+      // so the proper instruction can be found
+      op = OP_ADDRESS16;
+    }
+  }
+
   opcode = -1;
 
   for(i = 0; i < 256; i++)
@@ -725,6 +744,10 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     print_error(temp, asm_context);
     return -1;
   }
+
+  // change addressing mode back so that storage size is correct
+  if(label == 1)
+      op = OP_ADDRESS24;
 
   if(size == 8 && op == OP_IMMEDIATE16)
     bytes = op_bytes[OP_IMMEDIATE8];
