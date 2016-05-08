@@ -24,6 +24,7 @@
 #define MIPS_IV 4
 #define MIPS_32 8
 #define MIPS_FPU 16 
+#define MIPS_EE_CORE 32
 
 enum
 {

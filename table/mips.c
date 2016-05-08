@@ -119,21 +119,20 @@ struct _mips_branch mips_branch_table[] = {
 };
 
 struct _mips_special_instr mips_special_table[] = {
-  { "clo", { 1, 0, 0, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x21, SPECIAL_TYPE_REGS },
-  { "clz", { 1, 0, 0, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x20, SPECIAL_TYPE_REGS },
+  { "clo", { 1, 0, 0, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x21, SPECIAL_TYPE_REGS, MIPS_32 },
+  { "clz", { 1, 0, 0, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x20, SPECIAL_TYPE_REGS, MIPS_32 },
   { "ext", { 1, 0, 3, 2 }, 4, FORMAT_SPECIAL3, 0x00, 0x00, SPECIAL_TYPE_BITS },
   { "ins", { 1, 0, 3, 2 }, 4, FORMAT_SPECIAL3, 0x00, 0x04, SPECIAL_TYPE_BITS2 },
-  { "madd", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x00, SPECIAL_TYPE_REGS },
-  { "maddu", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x01, SPECIAL_TYPE_REGS },
-  { "msub", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x04, SPECIAL_TYPE_REGS },
-  { "msubu", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x05, SPECIAL_TYPE_REGS },
-  { "mul", { 1, 2, 0, -1 }, 3, FORMAT_SPECIAL2, 0x00, 0x02, SPECIAL_TYPE_REGS },
-  { "seb", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x10, 0x20, SPECIAL_TYPE_REGS },
-  { "seh", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x18, 0x20, SPECIAL_TYPE_REGS },
-  //{ "teq", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL0, 0x3f, 0x34, SPECIAL_TYPE_REGS },
+  //{ "madd", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x00, SPECIAL_TYPE_REGS },
+  //{ "maddu", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x01, SPECIAL_TYPE_REGS },
+  //{ "msub", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x04, SPECIAL_TYPE_REGS },
+  //{ "msubu", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x05, SPECIAL_TYPE_REGS },
+  //{ "mul", { 1, 2, 0, -1 }, 3, FORMAT_SPECIAL2, 0x00, 0x02, SPECIAL_TYPE_REGS },
+  //{ "seb", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x10, 0x20, SPECIAL_TYPE_REGS },
+  //{ "seh", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x18, 0x20, SPECIAL_TYPE_REGS },
   { "rotr", { 1, 0, 2, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x02, SPECIAL_TYPE_SA },
   { "rotrv", { 2, 1, 0, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x06, SPECIAL_TYPE_REGS },
-  { "wsbh", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x02, 0x20, SPECIAL_TYPE_REGS },
+  //{ "wsbh", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x02, 0x20, SPECIAL_TYPE_REGS },
   { NULL, { 0, 0, 0, 0 }, 0, 0, 0x00 }
 };
 
@@ -158,6 +157,13 @@ struct _mips_no_operands mips_no_operands[] = {
 };
 
 struct _mips_other mips_other[] = {
+  { "madd", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000000, 0xfc00ffff, MIPS_32 },
+  { "maddu", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000001, 0xfc00ffff, MIPS_32 },
+  { "msub", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000004, 0xfc00ffff, MIPS_32 },
+  { "msubu", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000005, 0xfc00ffff, MIPS_32 },
+  { "mul", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x70000002, 0xfc0007ff, MIPS_32 },
+  { "seb", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7c000420, 0xfc0007ff, MIPS_32 },
+  { "seh", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7c000620, 0xfc0007ff, MIPS_32 },
   { "teq", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x00000034, 0xfc00003f, MIPS_II },
   { "teqi", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040c0000, 0xfc1f0000, MIPS_II },
   { "tge", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x000000c0, 0xfc00003f, MIPS_II },
@@ -170,6 +176,7 @@ struct _mips_other mips_other[] = {
   { "tltu", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x000000c3, 0xfc00003f, MIPS_II },
   { "tne", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x000000c6, 0xfc00003f, MIPS_II },
   { "tnei", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040e0000, 0xfc1f0000, MIPS_II },
+  { "wsbh", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7c0000a0, 0xffe007ff, MIPS_II },
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 

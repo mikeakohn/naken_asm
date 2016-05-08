@@ -334,6 +334,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   int num,n,r;
   uint32_t opcode;
   int opcode_size = 4;
+  int found = 0;
 #if 0
   int n,cond,s=0;
   int opcode=0;
@@ -929,10 +930,12 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   {
     if (strcmp(instr_case, mips_other[n].instr) == 0)
     {
+      found = 1;
+
       if (operand_count != mips_other[n].operand_count)
       {
-        print_error_illegal_operands(instr, asm_context);
-        return -1;
+        n++;
+        continue;
       }
 
       opcode = mips_other[n].opcode;
@@ -959,6 +962,16 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             }
 
             opcode |= operands[r].value << 16;
+
+            break;
+          case MIPS_OP_RD:
+            if (operands[r].type != OPERAND_TREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
 
             break;
           case MIPS_OP_IMMEDIATE_SIGNED:
@@ -990,7 +1003,14 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
     n++;
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  if (found == 1)
+  {
+    print_error_illegal_operands(instr, asm_context);
+  }
+    else
+  {
+    print_error_unknown_instr(instr, asm_context);
+  }
 
   return -1;
 }

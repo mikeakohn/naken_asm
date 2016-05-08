@@ -122,7 +122,6 @@ tltiu $t3, 0x1234
 tltu $t3, $t4
 tne $t3, $t4
 tnei $t3, 0x1234
-tneiu $t3, 0x1234
 wsbh $t1, $t2
 xor $t3, $k0, $k1
 xori $t3, $k0, 0x1234
