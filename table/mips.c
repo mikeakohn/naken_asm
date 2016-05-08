@@ -151,4 +151,10 @@ struct _mips_cop_instr mips_cop_table[] = {
   { NULL, { MIPS_COP_NONE, MIPS_COP_NONE, MIPS_COP_NONE }, 0x00, 0x00, 0 }
 };
 
+struct _mips_no_operands mips_no_operands[] = {
+  { "sync.l", 0x0000000f, MIPS_II },
+  { "sync", 0x0000000f, MIPS_II },
+  { "sync.p", 0x0000040f, MIPS_II },
+  { NULL, 0, 0 }
+};
 

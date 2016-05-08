@@ -146,6 +146,18 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
   }
 
   n = 0;
+  while(mips_no_operands[n].instr != NULL)
+  {
+    if (mips_no_operands[n].opcode == opcode)
+    {
+      strcpy(instruction, mips_no_operands[n].instr);
+      return 4;
+    }
+
+    n++;
+  }
+
+  n = 0;
   while(mips_branch_table[n].instr != NULL)
   {
     if (mips_branch_table[n].op_rt == -1)

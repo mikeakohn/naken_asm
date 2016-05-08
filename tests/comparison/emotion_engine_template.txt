@@ -1,0 +1,115 @@
+add $5, $6, $7
+add $k0, $s0, $t7
+addi $k0, $s0, 0x1234
+addi $sp, $sp, -12
+addiu $9, $sp, 0x1234
+addu $ra, $gp, $fp
+and $t5, $t6, $t7
+andi $t5, $t6, 0x1234
+b start
+;bal $t1, start
+beq $t6, $t7, start
+beqz $t6, start
+bgez $t6, start
+bgezal $t6, start
+bgtz $t6, start
+blez $t6, start
+bltz $t6, start
+bltzal $t6, start
+bne $t6, $t7, start
+bnez $t6, start
+clo $t0, $t1
+clz $t2, $t3
+dadd $k0, $s0, $t7
+daddi $k0, $s0, 0x1234
+daddiu $k0, $s0, 0x1234
+daddu $k0, $s0, $t7
+dsll $t5, $t6, 5
+dsll32 $t5, $t6, 5
+dsllv $t5, $t6, $t7
+dsra $t5, $t6, 5
+dsra32 $t5, $t6, 5
+dsrav $t5, $t6, $t7
+dsrl $t5, $t6, 5
+dsrl32 $t5, $t6, 5
+dsrlv $t5, $t6, $t7
+dsub $t3, $t4, $t5
+dsubu $t3, $t4, $t5
+ext $t2, $t3, 4, 2
+ins $t2, $t3, 4, 2
+j start
+jal start
+jalr $t2, $ra
+jr $t2
+lui $t1, 0x1234
+la $t3, 0x12341234
+lb $t3, 0x1234($t4)
+lbu $t3, 0x1234($t4)
+ld $t3, 0x1234($t4)
+ldl $t3, 0x1234($t4)
+ldr $t3, 0x1234($t4)
+lh $t3, 0x1234($t4)
+lhu $t3, 0x1234($t4)
+li $t3, 0x12341234
+ll $t3, 0x1234($t4)
+lw $t3, 0x1234($t4)
+lwl $t3, 0x1234($t4)
+lwr $t3, 0x1234($t4)
+lwu $t3, 0x1234($t4)
+madd $t3, $t4
+maddu $t3, $t4
+mflo $t3
+mfhi $t3
+mtlo $t3
+mthi $t3
+msub $t3, $t4
+msubu $t3, $t4
+mul $t3, $t4, $t5
+mult $t3, $t4
+multu $t3, $t4
+move $t3, $t4
+movn $t3, $t4, $t5
+movz $t3, $t4, $t5
+negu $t3, $t4
+nop
+nor $t3, $k1, $k0
+not $t3, $t4
+or $t3, $k0, $k1
+ori $t3, $k0, 0x1234
+pref $0, 0x1234($t4)
+rotr $t3, $t4, 10
+rotr $t3, $t4, 31
+rotrv $t3, $t4, $t5
+sc $t3, 0x1234($t4)
+sb $t3, 0x1234($t4)
+sd $t3, 0x1234($t4)
+sdl $t3, 0x1234($t4)
+sdr $t3, 0x1234($t4)
+seb $t3, $t4
+seh $t3, $t4
+sh $t3, 0x1234($t4)
+sll $t5, $t6, 5
+sllv $t5, $t6, $t7
+slt $t3, $t4, $t5
+slti $t3, $k0, 0x1234
+sltiu $t3, $k0, 0x1234
+sltu $t3, $t4, $t5
+sra $t5, $t6, 5
+srav $t5, $t6, $t7
+srl $t5, $t6, 5
+srlv $t5, $t6, $t7
+sub $t3, $t4, $t5
+subu $t3, $t4, $t5
+sw $0, ($t1)
+sw $t3, 0x1234($t4)
+sw $t3, -8($t4)
+sw $t0, 0x61a0($k0)
+swl $t3, 0x1234($t4)
+swr $t3, 0x1234($t4)
+sync
+sync.l
+sync.p
+wsbh $t1, $t2
+xor $t3, $k0, $k1
+xori $t3, $k0, 0x1234
+xori $t0, $t0, 0xff

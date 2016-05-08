@@ -80,6 +80,7 @@ struct _mips_cop_instr
   uint8_t function;
   uint8_t format;
   int8_t operand_count;
+  uint16_t version;
 };
 
 struct _mips_special_instr
@@ -91,6 +92,14 @@ struct _mips_special_instr
   uint8_t operation;
   uint8_t function;
   uint8_t type;
+  uint16_t version;
+};
+
+struct _mips_no_operands
+{
+  const char *instr;
+  uint32_t opcode;
+  uint16_t version;
 };
 
 extern struct _mips_instr mips_r_table[];
@@ -98,6 +107,7 @@ extern struct _mips_instr mips_i_table[];
 extern struct _mips_branch mips_branch_table[];
 extern struct _mips_special_instr mips_special_table[];
 extern struct _mips_cop_instr mips_cop_table[];
+extern struct _mips_no_operands mips_no_operands[];
 
 #endif
 
