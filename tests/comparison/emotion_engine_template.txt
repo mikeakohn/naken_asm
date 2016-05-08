@@ -119,6 +119,13 @@ pcgtw $t2, $t3, $t4
 pcpyh $t2, $t3, $t4
 pcpyld $t2, $t3, $t4
 pcpyud $t2, $t3, $t4
+pdivbw $t2, $t3
+pdivuw $t2, $t3
+pdivw $t2, $t3
+pexch $t2, $t3
+pexeh $t2, $t3
+pexew $t2, $t3
+pext5 $t2, $t3
 rotr $t3, $t4, 10
 rotr $t3, $t4, 31
 rotrv $t3, $t4, $t5
