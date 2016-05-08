@@ -78,9 +78,15 @@ mthi1 $t3
 mtlo1 $t3
 msub $t3, $t4
 msubu $t3, $t4
+mtsab $t3, 10
+mtsah $t3, 10
 mul $t3, $t4, $t5
 mult $t3, $t4
+mult $t3, $t4, $t5
+mult1 $t3, $t4
+mult1 $t3, $t4, $t5
 multu $t3, $t4
+multu $t3, $t4, $t5
 move $t3, $t4
 movn $t3, $t4, $t5
 movz $t3, $t4, $t5
