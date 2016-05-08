@@ -73,6 +73,7 @@ struct _mips_instr mips_i_table[] = {
   { "ldr", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x1b, 2, MIPS_III },
   { "lh", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x21, 2, MIPS_I },
   { "lhu", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x25, 2, MIPS_I },
+  { "lq", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x1e, 2, MIPS_EE_CORE },
   { "lui", { MIPS_OP_RT, MIPS_OP_IMMEDIATE, MIPS_OP_NONE }, 0x0f, 2, MIPS_I },
   { "ll", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x30, 2 },
   { "lw", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x23, 2, MIPS_I },
@@ -123,16 +124,8 @@ struct _mips_special_instr mips_special_table[] = {
   { "clz", { 1, 0, 0, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x20, SPECIAL_TYPE_REGS, MIPS_32 },
   { "ext", { 1, 0, 3, 2 }, 4, FORMAT_SPECIAL3, 0x00, 0x00, SPECIAL_TYPE_BITS },
   { "ins", { 1, 0, 3, 2 }, 4, FORMAT_SPECIAL3, 0x00, 0x04, SPECIAL_TYPE_BITS2 },
-  //{ "madd", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x00, SPECIAL_TYPE_REGS },
-  //{ "maddu", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x01, SPECIAL_TYPE_REGS },
-  //{ "msub", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x04, SPECIAL_TYPE_REGS },
-  //{ "msubu", { 0, 1, -1, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x05, SPECIAL_TYPE_REGS },
-  //{ "mul", { 1, 2, 0, -1 }, 3, FORMAT_SPECIAL2, 0x00, 0x02, SPECIAL_TYPE_REGS },
-  //{ "seb", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x10, 0x20, SPECIAL_TYPE_REGS },
-  //{ "seh", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x18, 0x20, SPECIAL_TYPE_REGS },
   { "rotr", { 1, 0, 2, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x02, SPECIAL_TYPE_SA },
   { "rotrv", { 2, 1, 0, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x06, SPECIAL_TYPE_REGS },
-  //{ "wsbh", { -1, 1, 0, -1 }, 2, FORMAT_SPECIAL3, 0x02, 0x20, SPECIAL_TYPE_REGS },
   { NULL, { 0, 0, 0, 0 }, 0, 0, 0x00 }
 };
 
@@ -157,8 +150,21 @@ struct _mips_no_operands mips_no_operands[] = {
 };
 
 struct _mips_other mips_other[] = {
+  { "div1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001a, 0xfc00ffff, MIPS_EE_CORE },
+  { "divu1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001b, 0xfc00ffff, MIPS_EE_CORE },
   { "madd", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000000, 0xfc00ffff, MIPS_32 },
+  { "madd", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 2, 0x70000000, 0xfc0007ff, MIPS_EE_CORE },
+  { "madd1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000020, 0xfc00ffff, MIPS_EE_CORE },
+  { "madd1", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 2, 0x70000020, 0xfc0007ff, MIPS_EE_CORE },
   { "maddu", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000001, 0xfc00ffff, MIPS_32 },
+  { "maddu", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 2, 0x70000001, 0xfc0007ff, MIPS_EE_CORE },
+  { "maddu1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000021, 0xfc00ffff, MIPS_32 },
+  { "maddu1", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 2, 0x70000021, 0xfc0007ff, MIPS_EE_CORE },
+  { "mfhi1", { MIPS_OP_RS, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x70000010, 0xffff07ff, MIPS_EE_CORE },
+  { "mflo1", { MIPS_OP_RS, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x70000012, 0xffff07ff, MIPS_EE_CORE },
+  { "mthi1", { MIPS_OP_RS, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x00000011, 0xffff07ff, MIPS_EE_CORE },
+  { "mtlo1", { MIPS_OP_RS, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x00000013, 0xffff07ff, MIPS_EE_CORE },
+  { "mtsa", { MIPS_OP_RS, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x00000029, 0xffff07ff, MIPS_EE_CORE },
   { "msub", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000004, 0xfc00ffff, MIPS_32 },
   { "msubu", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000005, 0xfc00ffff, MIPS_32 },
   { "mul", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x70000002, 0xfc0007ff, MIPS_32 },

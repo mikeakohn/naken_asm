@@ -24,6 +24,8 @@ dadd $k0, $s0, $t7
 daddi $k0, $s0, 0x1234
 daddiu $k0, $s0, 0x1234
 daddu $k0, $s0, $t7
+div1 $t3, $t4
+divu1 $t3, $t4
 dsll $t5, $t6, 5
 dsll32 $t5, $t6, 5
 dsllv $t5, $t6, $t7
@@ -56,12 +58,24 @@ lw $t3, 0x1234($t4)
 lwl $t3, 0x1234($t4)
 lwr $t3, 0x1234($t4)
 lwu $t3, 0x1234($t4)
+lq $t3, 0x1234($t4)
 madd $t3, $t4
+madd $t3, $t4, $t5
+madd1 $t3, $t4
+madd1 $t3, $t4, $t5
 maddu $t3, $t4
-mflo $t3
+maddu $t3, $t4, $t5
+maddu1 $t3, $t4
+maddu1 $t3, $t4, $t5
 mfhi $t3
-mtlo $t3
+mflo $t3
 mthi $t3
+mtlo $t3
+mfhi1 $t3
+mflo1 $t3
+mfsa $t3
+mthi1 $t3
+mtlo1 $t3
 msub $t3, $t4
 msubu $t3, $t4
 mul $t3, $t4, $t5
