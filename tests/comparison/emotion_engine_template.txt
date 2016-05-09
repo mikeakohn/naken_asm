@@ -126,6 +126,34 @@ pexch $t2, $t3
 pexeh $t2, $t3
 pexew $t2, $t3
 pext5 $t2, $t3
+pextlb $t2, $t3, $t4
+pextlh $t2, $t3, $t4
+pextlw $t2, $t3, $t4
+pextub $t2, $t3, $t4
+pextuh $t2, $t3, $t4
+pextuw $t2, $t3, $t4
+phmadh $t2, $t3, $t4
+phmsbh $t2, $t3, $t4
+pinteh $t2, $t3, $t4
+pinth $t2, $t3, $t4
+plzcw $t2, $t3
+pmaddh $t2, $t3, $t4
+pmadduw $t2, $t3, $t4
+pmaddw $t2, $t3, $t4
+pmaxh $t2, $t3, $t4
+pmaxw $t2, $t3, $t4
+pmfhi $t2
+pmfhl.lh $t2
+pmfhl.lw $t2
+pmfhl.sh $t2
+pmfhl.slw $t2
+pmfhl.uw $t2
+pmflo $t2
+pminh $t2, $t3, $t4
+pminw $t2, $t3, $t4
+pmsubh $t2, $t3, $t4
+pmsubw $t2, $t3, $t4
+pmthi $t2
 rotr $t3, $t4, 10
 rotr $t3, $t4, 31
 rotrv $t3, $t4, $t5
