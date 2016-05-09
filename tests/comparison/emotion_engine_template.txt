@@ -154,6 +154,20 @@ pminw $t2, $t3, $t4
 pmsubh $t2, $t3, $t4
 pmsubw $t2, $t3, $t4
 pmthi $t2
+pmthl.lw $t2
+pmtlo $t2
+pmulth $t2, $t3, $t4
+pmultuw $t2, $t3, $t4
+pmultw $t2, $t3, $t4
+pnor $t2, $t3, $t4
+por $t2, $t3, $t4
+ppac5 $t3, $t4
+ppacb $t3, $t4, $t5
+ppach $t3, $t4, $t5
+ppacw $t3, $t4, $t5
+prevh $t3, $t4
+prot3w $t3, $t4
+psllh $t3, $t4, 5
 rotr $t3, $t4, 10
 rotr $t3, $t4, 31
 rotrv $t3, $t4, $t5

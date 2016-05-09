@@ -169,6 +169,7 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
       rs = (opcode >> 21) & 0x1f;
       rt = (opcode >> 16) & 0x1f;
       rd = (opcode >> 11) & 0x1f;
+      sa = (opcode >> 6) & 0x1f;
       immediate = opcode & 0xffff;
 
       for (r = 0; r < mips_other[n].operand_count; r++)
@@ -185,6 +186,9 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
             break;
           case MIPS_OP_RD:
             sprintf(temp, " %s", reg[rd]);
+            break;
+          case MIPS_OP_SA:
+            sprintf(temp, " %d", sa);
             break;
           case MIPS_OP_IMMEDIATE_SIGNED:
             sprintf(temp, " %d", (int16_t)immediate);

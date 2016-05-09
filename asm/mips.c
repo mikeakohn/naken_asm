@@ -974,6 +974,22 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             opcode |= operands[r].value << 11;
 
             break;
+          case MIPS_OP_SA:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < 0 || operands[r].value > 31)
+            {
+              print_error_range("Constant", 0, 31, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 6;
+
+            break;
           case MIPS_OP_IMMEDIATE_SIGNED:
             if (operands[r].type != OPERAND_IMMEDIATE)
             {
