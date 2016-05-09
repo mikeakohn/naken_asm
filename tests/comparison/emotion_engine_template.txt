@@ -168,6 +168,24 @@ ppacw $t3, $t4, $t5
 prevh $t3, $t4
 prot3w $t3, $t4
 psllh $t3, $t4, 5
+psllvw $t3, $t4, $t5
+psllw $t3, $t4, 5
+psrah $t3, $t4, 5
+psravw $t3, $t4, $t5
+psraw $t3, $t4, 5
+psrlh $t3, $t4, 5
+psrlvw $t3, $t4, $t5
+psrlw $t3, $t4, 5
+psubb $t3, $t4, $t5
+psubh $t3, $t4, $t5
+psubsb $t3, $t4, $t5
+psubsh $t3, $t4, $t5
+psubsw $t3, $t4, $t5
+psubub $t3, $t4, $t5
+psubuh $t3, $t4, $t5
+psubuw $t3, $t4, $t5
+psubw $t3, $t4, $t5
+pxor $t3, $t4, $t5
 rotr $t3, $t4, 10
 rotr $t3, $t4, 31
 rotrv $t3, $t4, $t5
