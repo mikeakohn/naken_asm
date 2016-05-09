@@ -47,6 +47,7 @@ enum
   MIPS_OP_IMMEDIATE_RS,
   //MIPS_OP_RT_IS_0,
   //MIPS_OP_RT_IS_1,
+  MIPS_OP_PREG,
 };
 
 enum
@@ -111,6 +112,12 @@ struct _mips_other
   uint32_t opcode;
   uint32_t mask;
   uint16_t version;
+};
+
+struct _mips_cache
+{
+  const char *name;
+  uint8_t op;
 };
 
 extern struct _mips_instr mips_r_table[];

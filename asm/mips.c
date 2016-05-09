@@ -107,6 +107,12 @@ static int add_offset(struct _asm_context *asm_context, int address, uint32_t *o
     return -1;
   }
 
+  if ((offset & 0x3) != 0)
+  {
+    print_error_align(asm_context, 4);
+    return -1;
+  }
+
   *opcode |= (offset >> 2) & 0xffff;
 
   return 0;
@@ -668,6 +674,12 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
+          if ((offset & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
           opcode |= (offset >> 2) & 0xffff;
         }
           else
@@ -1006,6 +1018,33 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             opcode |= operands[r].value & 0xffff;
 
             break;
+          case MIPS_OP_LABEL:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (add_offset(asm_context, operands[r].value, &opcode) == -1)
+            {
+              return -1;
+            }
+
+            break;
+          case MIPS_OP_PREG:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < 0 || operands[r].value > 1)
+            {
+              print_error_range("Constant", 0, 1, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 1;
           default:
             print_error_illegal_operands(instr, asm_context);
             return -1;

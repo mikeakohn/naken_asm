@@ -13,7 +13,8 @@
 
 #include "table/mips.h"
 
-struct _mips_instr mips_r_table[] = {
+struct _mips_instr mips_r_table[] =
+{
   { "add", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 0x20, 3, MIPS_I },
   { "addu", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 0x21, 3, MIPS_I },
   { "and", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 0x24, 3, MIPS_I },
@@ -60,7 +61,8 @@ struct _mips_instr mips_r_table[] = {
   { NULL, { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0x00, 0 }
 };
 
-struct _mips_instr mips_i_table[] = {
+struct _mips_instr mips_i_table[] =
+{
   { "addi", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED }, 0x08, 3, MIPS_I },
   { "addiu", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED }, 0x09, 3, MIPS_I },
   { "andi", { MIPS_OP_RT, MIPS_OP_RS, MIPS_OP_IMMEDIATE }, 0x0c, 3, MIPS_I },
@@ -86,6 +88,7 @@ struct _mips_instr mips_i_table[] = {
   { "sb", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x28, 2, MIPS_I },
   { "sc", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x38, 2, MIPS_II },
   { "sd", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x3f, 2, MIPS_III },
+  { "sq", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x1f, 2, MIPS_III },
   { "sdl", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x2c, 2, MIPS_III },
   { "sdr", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x2d, 2, MIPS_III },
   { "sh", { MIPS_OP_RT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 0x29, 2, MIPS_I },
@@ -99,7 +102,8 @@ struct _mips_instr mips_i_table[] = {
   { NULL, { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0x00, 0 }
 };
 
-struct _mips_branch mips_branch_table[] = {
+struct _mips_branch mips_branch_table[] =
+{
   { "beq", 0x04, -1, MIPS_I },
   { "beql", 0x14, -1, MIPS_II },
   { "bgez", 0x01, 0x01, MIPS_I },
@@ -119,7 +123,8 @@ struct _mips_branch mips_branch_table[] = {
   { NULL, 0, 0, 0 }
 };
 
-struct _mips_special_instr mips_special_table[] = {
+struct _mips_special_instr mips_special_table[] =
+{
   { "clo", { 1, 0, 0, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x21, SPECIAL_TYPE_REGS, MIPS_32 },
   { "clz", { 1, 0, 0, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x20, SPECIAL_TYPE_REGS, MIPS_32 },
   { "ext", { 1, 0, 3, 2 }, 4, FORMAT_SPECIAL3, 0x00, 0x00, SPECIAL_TYPE_BITS },
@@ -129,7 +134,8 @@ struct _mips_special_instr mips_special_table[] = {
   { NULL, { 0, 0, 0, 0 }, 0, 0, 0x00 }
 };
 
-struct _mips_cop_instr mips_cop_table[] = {
+struct _mips_cop_instr mips_cop_table[] =
+{
   { "add.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x00, 0x10, 3 },
   { "cvt.s.w", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x20, 0x14, 3 },
   { "cvt.w.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x24, 0x10, 3 },
@@ -142,16 +148,25 @@ struct _mips_cop_instr mips_cop_table[] = {
   { NULL, { MIPS_COP_NONE, MIPS_COP_NONE, MIPS_COP_NONE }, 0x00, 0x00, 0 }
 };
 
-struct _mips_no_operands mips_no_operands[] = {
+struct _mips_no_operands mips_no_operands[] =
+{
   { "sync.l", 0x0000000f, MIPS_II },
   { "sync", 0x0000000f, MIPS_II },
   { "sync.p", 0x0000040f, MIPS_II },
   { NULL, 0, 0 }
 };
 
-struct _mips_other mips_other[] = {
+struct _mips_other mips_other[] =
+{
+  { "bc0f", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41000000, 0xffff0000, MIPS_I },
+  { "bc0fl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x21020000, 0xffff0000, MIPS_I },
+  { "bc0t", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41010000, 0xffff0000, MIPS_I },
+  { "bc0tl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41030000, 0xffff0000, MIPS_I },
+  { "di", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000039, 0xffffffff, MIPS_I },
   { "div1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001a, 0xfc00ffff, MIPS_EE_CORE },
   { "divu1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001b, 0xfc00ffff, MIPS_EE_CORE },
+  { "ei", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000038, 0xffffffff, MIPS_I },
+  { "eret", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000018, 0xffffffff, MIPS_I },
   { "madd", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000000, 0xfc00ffff, MIPS_32 },
   { "madd", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 2, 0x70000000, 0xfc0007ff, MIPS_EE_CORE },
   { "madd1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000020, 0xfc00ffff, MIPS_EE_CORE },
@@ -160,8 +175,28 @@ struct _mips_other mips_other[] = {
   { "maddu", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 2, 0x70000001, 0xfc0007ff, MIPS_EE_CORE },
   { "maddu1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000021, 0xfc00ffff, MIPS_32 },
   { "maddu1", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 2, 0x70000021, 0xfc0007ff, MIPS_EE_CORE },
+  { "mfbpc", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4000c000, 0xffff03ff, MIPS_I },
+  { "mfc0", { MIPS_OP_RT, MIPS_OP_RD, MIPS_OP_NONE }, 2, 0x40000021, 0xffe007ff, MIPS_I },
+  { "mfdab", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4000c004, 0xffe0ffff, MIPS_I },
+  { "mfdabm", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4000c005, 0xffe0ffff, MIPS_I },
+  { "mfdvb", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4000c006, 0xffe0ffff, MIPS_I },
+  { "mfdvbm", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4000c007, 0xffe0ffff, MIPS_I },
+  { "mfiab", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4000c002, 0xffe0ffff, MIPS_I },
+  { "mfiabm", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4000c003, 0xffe0ffff, MIPS_I },
   { "mfhi1", { MIPS_OP_RS, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x70000010, 0xffff07ff, MIPS_EE_CORE },
   { "mflo1", { MIPS_OP_RS, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x70000012, 0xffff07ff, MIPS_EE_CORE },
+  { "mfpc", { MIPS_OP_RT, MIPS_OP_PREG, MIPS_OP_NONE }, 2, 0x4000c801, 0xffe0ffc1, MIPS_I },
+  { "mfps", { MIPS_OP_RT, MIPS_OP_PREG, MIPS_OP_NONE }, 2, 0x4000c800, 0xffe0ffc1, MIPS_I },
+  { "mtbpc", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4080c000, 0xffe0ffff, MIPS_I },
+  { "mtc0", { MIPS_OP_RT, MIPS_OP_RD, MIPS_OP_NONE }, 2, 0x40800000, 0xffe007ff, MIPS_I },
+  { "mtdab", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4080c004, 0xffe0ffff, MIPS_I },
+  { "mtdabm", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4080c005, 0xffe0ffff, MIPS_I },
+  { "mtdvb", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4080c006, 0xffe0ffff, MIPS_I },
+  { "mtdvbm", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4080c007, 0xffe0ffff, MIPS_I },
+  { "mtiab", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4080c002, 0xffe0ffff, MIPS_I },
+  { "mtiabm", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x4080c003, 0xffe0ffff, MIPS_I },
+  { "mtpc", { MIPS_OP_RT, MIPS_OP_PREG, MIPS_OP_NONE }, 2, 0x4080c801, 0xffe0ffc1, MIPS_I },
+  { "mtps", { MIPS_OP_RT, MIPS_OP_PREG, MIPS_OP_NONE }, 2, 0x4080c800, 0xffe0ffc1, MIPS_I },
   { "mthi1", { MIPS_OP_RS, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x00000011, 0xffff07ff, MIPS_EE_CORE },
   { "mtlo1", { MIPS_OP_RS, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x00000013, 0xffff07ff, MIPS_EE_CORE },
   { "mtsa", { MIPS_OP_RS, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x00000029, 0xffff07ff, MIPS_EE_CORE },
@@ -265,6 +300,7 @@ struct _mips_other mips_other[] = {
   { "psubuw", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x70000468, 0xfc0007ff, MIPS_EE_CORE },
   { "psubw", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x70000048, 0xfc0007ff, MIPS_EE_CORE },
   { "pxor", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x700004c9, 0xfc0007ff, MIPS_EE_CORE },
+  { "qfsrv", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x700006e8, 0xfc0007ff, MIPS_EE_CORE },
   { "seb", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7c000420, 0xfc0007ff, MIPS_32 },
   { "seh", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7c000620, 0xfc0007ff, MIPS_32 },
   { "teq", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x00000034, 0xfc00003f, MIPS_II },
@@ -282,4 +318,31 @@ struct _mips_other mips_other[] = {
   { "wsbh", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7c0000a0, 0xffe007ff, MIPS_II },
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
+
+struct _mips_cache mips_cache[] =
+{
+  { "ixlrg", 0x00 },
+  { "ixldt", 0x01 },
+  { "bxlbt", 0x02 },
+  { "ixstg", 0x04 },
+  { "ixsdt", 0x05 },
+  { "bxsbt", 0x06 },
+  { "ixin", 0x07 },
+  { "bhinbt", 0x0a },
+  { "ihin", 0x0b },
+  { "bfh", 0x0c },
+  { "ifl", 0x0e },
+  { "dxltg", 0x10 },
+  { "dxldt", 0x11 },
+  { "dxstg", 0x12 },
+  { "dxsdt", 0x13 },
+  { "dxwbin", 0x14 },
+  { "dxin", 0x16 },
+  { "dhwbin", 0x18 },
+  { "dhin", 0x1a },
+  { "dhwoin", 0x1c },
+  { NULL, 0 },
+};
+
+
 

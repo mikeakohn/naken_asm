@@ -193,6 +193,14 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
           case MIPS_OP_IMMEDIATE_SIGNED:
             sprintf(temp, " %d", (int16_t)immediate);
             break;
+          case MIPS_OP_LABEL:
+            if ((immediate & 0x8000) != 0) { immediate |= 0xffff0000; }
+            immediate = immediate << 2;
+            sprintf(temp, " 0x%08x (%d)", address + 4 + immediate, immediate);
+            break;
+          case MIPS_OP_PREG:
+            sprintf(temp, " %d", (immediate >> 1) & 0x1f);
+            break;
           default:
             strcpy(temp, " ?");
             break;

@@ -7,6 +7,10 @@ addu $ra, $gp, $fp
 and $t5, $t6, $t7
 andi $t5, $t6, 0x1234
 b start
+bc0f start
+bc0fl start
+bc0t start
+bc0tl start
 ;bal $t1, start
 beq $t6, $t7, start
 beqz $t6, start
@@ -24,6 +28,7 @@ dadd $k0, $s0, $t7
 daddi $k0, $s0, 0x1234
 daddiu $k0, $s0, 0x1234
 daddu $k0, $s0, $t7
+di
 div1 $t3, $t4
 divu1 $t3, $t4
 dsll $t5, $t6, 5
@@ -37,6 +42,8 @@ dsrl32 $t5, $t6, 5
 dsrlv $t5, $t6, $t7
 dsub $t3, $t4, $t5
 dsubu $t3, $t4, $t5
+ei
+eret
 ext $t2, $t3, 4, 2
 ins $t2, $t3, 4, 2
 j start
@@ -67,6 +74,28 @@ maddu $t3, $t4
 maddu $t3, $t4, $t5
 maddu1 $t3, $t4
 maddu1 $t3, $t4, $t5
+mfbpc $t3
+mfc0 $t3, $t4
+mfdab $t3
+mfdabm $t3
+mfdvb $t3
+mfdvbm $t3
+mfiab $t3
+mfiabm $t3
+mfpc $t3, 0
+mfpc $t3, 1
+mfps $t3, 0
+mtbpc $t3
+mtc0 $t3, $t4
+mtdab $t3
+mtdabm $t3
+mtdvb $t3
+mtdvbm $t3
+mtiab $t3
+mtiabm $t3
+mtpc $t3, 0
+mtpc $t3, 1
+mfps $t3, 0
 mfhi $t3
 mflo $t3
 mthi $t3
@@ -186,12 +215,14 @@ psubuh $t3, $t4, $t5
 psubuw $t3, $t4, $t5
 psubw $t3, $t4, $t5
 pxor $t3, $t4, $t5
+qfsrv $t3, $t4, $t5
 rotr $t3, $t4, 10
 rotr $t3, $t4, 31
 rotrv $t3, $t4, $t5
 sc $t3, 0x1234($t4)
 sb $t3, 0x1234($t4)
 sd $t3, 0x1234($t4)
+sq $t3, 0x1234($t4)
 sdl $t3, 0x1234($t4)
 sdr $t3, 0x1234($t4)
 seb $t3, $t4
