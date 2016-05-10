@@ -127,10 +127,10 @@ struct _mips_special_instr mips_special_table[] =
 {
   { "clo", { 1, 0, 0, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x21, SPECIAL_TYPE_REGS, MIPS_32 },
   { "clz", { 1, 0, 0, -1 }, 2, FORMAT_SPECIAL2, 0x00, 0x20, SPECIAL_TYPE_REGS, MIPS_32 },
-  { "ext", { 1, 0, 3, 2 }, 4, FORMAT_SPECIAL3, 0x00, 0x00, SPECIAL_TYPE_BITS },
-  { "ins", { 1, 0, 3, 2 }, 4, FORMAT_SPECIAL3, 0x00, 0x04, SPECIAL_TYPE_BITS2 },
-  { "rotr", { 1, 0, 2, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x02, SPECIAL_TYPE_SA },
-  { "rotrv", { 2, 1, 0, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x06, SPECIAL_TYPE_REGS },
+  { "ext", { 1, 0, 3, 2 }, 4, FORMAT_SPECIAL3, 0x00, 0x00, SPECIAL_TYPE_BITS, MIPS_32 },
+  { "ins", { 1, 0, 3, 2 }, 4, FORMAT_SPECIAL3, 0x00, 0x04, SPECIAL_TYPE_BITS2, MIPS_32 },
+  { "rotr", { 1, 0, 2, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x02, SPECIAL_TYPE_SA, MIPS_32 },
+  { "rotrv", { 2, 1, 0, -1 }, 3, FORMAT_SPECIAL0, 0x01, 0x06, SPECIAL_TYPE_REGS, MIPS_32 },
   { NULL, { 0, 0, 0, 0 }, 0, 0, 0x00 }
 };
 
@@ -230,7 +230,7 @@ struct _mips_other mips_other[] =
   { "pcgtb", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x70000288, 0xfc0007ff, MIPS_EE_CORE },
   { "pcgth", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x70000188, 0xfc0007ff, MIPS_EE_CORE },
   { "pcgtw", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x70000088, 0xfc0007ff, MIPS_EE_CORE },
-  { "pcpyh", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x700006e9, 0xfc0007ff, MIPS_EE_CORE },
+  { "pcpyh", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 3, 0x700006e9, 0xffe007ff, MIPS_EE_CORE },
   { "pcpyld", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x70000389, 0xfc0007ff, MIPS_EE_CORE },
   { "pcpyud", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x700003a9, 0xfc0007ff, MIPS_EE_CORE },
   { "pdivbw", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000749, 0xfc00ffff, MIPS_EE_CORE },
@@ -315,7 +315,7 @@ struct _mips_other mips_other[] =
   { "tltu", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x000000c3, 0xfc00003f, MIPS_II },
   { "tne", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x000000c6, 0xfc00003f, MIPS_II },
   { "tnei", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040e0000, 0xfc1f0000, MIPS_II },
-  { "wsbh", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7c0000a0, 0xffe007ff, MIPS_II },
+  { "wsbh", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7c0000a0, 0xffe007ff, MIPS_32 },
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 

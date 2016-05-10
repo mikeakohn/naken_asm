@@ -6,24 +6,24 @@ addiu $9, $sp, 0x1234
 addu $ra, $gp, $fp
 and $t5, $t6, $t7
 andi $t5, $t6, 0x1234
-b start
-bc0f start
-bc0fl start
-bc0t start
-bc0tl start
+start: b start
+start: bc0f start
+start: bc0fl start
+start: bc0t start
+start: bc0tl start
 ;bal $t1, start
-beq $t6, $t7, start
-beqz $t6, start
-bgez $t6, start
-bgezal $t6, start
-bgtz $t6, start
-blez $t6, start
-bltz $t6, start
-bltzal $t6, start
-bne $t6, $t7, start
-bnez $t6, start
-clo $t0, $t1
-clz $t2, $t3
+start: beq $t6, $t7, start
+start: beqz $t6, start
+start: bgez $t6, start
+start: bgezal $t6, start
+start: bgtz $t6, start
+start: blez $t6, start
+start: bltz $t6, start
+start: bltzal $t6, start
+start: bne $t6, $t7, start
+start: bnez $t6, start
+;clo $t0, $t1
+;clz $t2, $t3
 dadd $k0, $s0, $t7
 daddi $k0, $s0, 0x1234
 daddiu $k0, $s0, 0x1234
@@ -44,10 +44,10 @@ dsub $t3, $t4, $t5
 dsubu $t3, $t4, $t5
 ei
 eret
-ext $t2, $t3, 4, 2
-ins $t2, $t3, 4, 2
-j start
-jal start
+;ext $t2, $t3, 4, 2
+;ins $t2, $t3, 4, 2
+start: j start
+start: jal start
 jalr $t2, $ra
 jr $t2
 lui $t1, 0x1234
@@ -75,7 +75,7 @@ maddu $t3, $t4, $t5
 maddu1 $t3, $t4
 maddu1 $t3, $t4, $t5
 mfbpc $t3
-mfc0 $t3, $t4
+mfc0 $t3, $12
 mfdab $t3
 mfdabm $t3
 mfdvb $t3
@@ -86,7 +86,7 @@ mfpc $t3, 0
 mfpc $t3, 1
 mfps $t3, 0
 mtbpc $t3
-mtc0 $t3, $t4
+mtc0 $t3, $4
 mtdab $t3
 mtdabm $t3
 mtdvb $t3
@@ -105,8 +105,8 @@ mflo1 $t3
 mfsa $t3
 mthi1 $t3
 mtlo1 $t3
-msub $t3, $t4
-msubu $t3, $t4
+;msub $t3, $t4
+;msubu $t3, $t4
 mtsab $t3, 10
 mtsah $t3, 10
 mul $t3, $t4, $t5
@@ -125,9 +125,9 @@ nor $t3, $k1, $k0
 not $t3, $t4
 or $t3, $k0, $k1
 ori $t3, $k0, 0x1234
-pref $0, 0x1234($t4)
-pbash $t2, $t3
-pbasw $t2, $t3
+pref 0, 0x1234($t4)
+pabsh $t2, $t3
+pabsw $t2, $t3
 paddb $t2, $t3, $t4
 paddh $t2, $t3, $t4
 paddsb $t2, $t3, $t4
@@ -145,7 +145,7 @@ pceqw $t2, $t3, $t4
 pcgtb $t2, $t3, $t4
 pcgth $t2, $t3, $t4
 pcgtw $t2, $t3, $t4
-pcpyh $t2, $t3, $t4
+pcpyh $t2, $t3
 pcpyld $t2, $t3, $t4
 pcpyud $t2, $t3, $t4
 pdivbw $t2, $t3
@@ -216,17 +216,17 @@ psubuw $t3, $t4, $t5
 psubw $t3, $t4, $t5
 pxor $t3, $t4, $t5
 qfsrv $t3, $t4, $t5
-rotr $t3, $t4, 10
-rotr $t3, $t4, 31
-rotrv $t3, $t4, $t5
+;rotr $t3, $t4, 10
+;rotr $t3, $t4, 31
+;rotrv $t3, $t4, $t5
 sc $t3, 0x1234($t4)
 sb $t3, 0x1234($t4)
 sd $t3, 0x1234($t4)
 sq $t3, 0x1234($t4)
 sdl $t3, 0x1234($t4)
 sdr $t3, 0x1234($t4)
-seb $t3, $t4
-seh $t3, $t4
+;seb $t3, $t4
+;seh $t3, $t4
 sh $t3, 0x1234($t4)
 sll $t5, $t6, 5
 sllv $t5, $t6, $t7
@@ -262,7 +262,7 @@ tltiu $t3, 0x1234
 tltu $t3, $t4
 tne $t3, $t4
 tnei $t3, 0x1234
-wsbh $t1, $t2
+;wsbh $t1, $t2
 xor $t3, $k0, $k1
 xori $t3, $k0, 0x1234
 xori $t0, $t0, 0xff
