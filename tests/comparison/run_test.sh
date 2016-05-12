@@ -20,6 +20,16 @@ EOF
     echo " nop" >> ${cpu}.asm
   fi
 
+  if [ "${cpu}" == "emotion_engine" ] && [ "${1:0:5}" == "main:" ]
+  then
+    echo " nop" >> ${cpu}.asm
+  fi
+
+  if [ "${cpu}" == "emotion_engine" ] && [ "${1:0:1}" == "j" ]
+  then
+    echo " nop" >> ${cpu}.asm
+  fi
+
   ../../naken_asm -o ${cpu}_naken.hex ${cpu}.asm > /dev/null
 
   a=`head -1 ${cpu}_naken.hex | tr -d '\n'`

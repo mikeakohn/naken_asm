@@ -6,22 +6,22 @@ addiu $9, $sp, 0x1234
 addu $ra, $gp, $fp
 and $t5, $t6, $t7
 andi $t5, $t6, 0x1234
-start: b start
-start: bc0f start
-start: bc0fl start
-start: bc0t start
-start: bc0tl start
-;bal $t1, start
-start: beq $t6, $t7, start
-start: beqz $t6, start
-start: bgez $t6, start
-start: bgezal $t6, start
-start: bgtz $t6, start
-start: blez $t6, start
-start: bltz $t6, start
-start: bltzal $t6, start
-start: bne $t6, $t7, start
-start: bnez $t6, start
+main: b main
+main: bc0f main
+main: bc0fl main
+main: bc0t main
+main: bc0tl main
+;bal $t1, main
+main: beq $t6, $t7, main
+main: beqz $t6, main
+main: bgez $t6, main
+main: bgezal $t6, main
+main: bgtz $t6, main
+main: blez $t6, main
+main: bltz $t6, main
+main: bltzal $t6, main
+main: bne $t6, $t7, main
+main: bnez $t6, main
 ;clo $t0, $t1
 ;clz $t2, $t3
 dadd $k0, $s0, $t7
@@ -46,8 +46,8 @@ ei
 eret
 ;ext $t2, $t3, 4, 2
 ;ins $t2, $t3, 4, 2
-start: j start
-start: jal start
+main: j main
+main: jal main
 jalr $t2, $ra
 jr $t2
 lui $t1, 0x1234
@@ -109,14 +109,13 @@ mtlo1 $t3
 ;msubu $t3, $t4
 mtsab $t3, 10
 mtsah $t3, 10
-mul $t3, $t4, $t5
 mult $t3, $t4
 mult $t3, $t4, $t5
 mult1 $t3, $t4
 mult1 $t3, $t4, $t5
 multu $t3, $t4
 multu $t3, $t4, $t5
-move $t3, $t4
+;move $t3, $t4
 movn $t3, $t4, $t5
 movz $t3, $t4, $t5
 negu $t3, $t4

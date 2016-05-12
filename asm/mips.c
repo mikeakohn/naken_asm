@@ -533,8 +533,11 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
       char shift_table[] = { 0, 11, 21, 16, 6 };
       if (mips_r_table[n].operand_count != operand_count)
       {
-        print_error_illegal_operands(instr, asm_context);
-        return -1;
+        //print_error_illegal_operands(instr, asm_context);
+        //return -1;
+        found = 1;
+        n++;
+        continue;
       }
 
       opcode = mips_r_table[n].function;
@@ -1045,6 +1048,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             }
 
             opcode |= operands[r].value << 1;
+            break;
           default:
             print_error_illegal_operands(instr, asm_context);
             return -1;
