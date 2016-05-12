@@ -147,7 +147,7 @@ static int check_type(struct _asm_context *asm_context, char *instr, int user_ty
       return -1;
     }
   }
-
+    else
   if (table_type == MIPS_OP_LABEL)
   {
     if (user_type != OPERAND_IMMEDIATE)
@@ -156,7 +156,7 @@ static int check_type(struct _asm_context *asm_context, char *instr, int user_ty
       return -1;
     }
   }
-
+    else
   if (table_type == MIPS_OP_IMMEDIATE)
   {
     if (user_type != OPERAND_IMMEDIATE)
@@ -171,7 +171,7 @@ static int check_type(struct _asm_context *asm_context, char *instr, int user_ty
       return -1;
     }
   }
-
+    else
   if (table_type == MIPS_OP_IMMEDIATE_SIGNED)
   {
     if (user_type != OPERAND_IMMEDIATE)
@@ -186,7 +186,7 @@ static int check_type(struct _asm_context *asm_context, char *instr, int user_ty
       return -1;
     }
   }
-
+    else
   if (table_type == MIPS_OP_SA)
   {
     if (user_type != OPERAND_IMMEDIATE)
@@ -201,7 +201,22 @@ static int check_type(struct _asm_context *asm_context, char *instr, int user_ty
       return -1;
     }
   }
+    else
+  if (table_type == MIPS_OP_HINT)
+  {
+    if (user_type != OPERAND_IMMEDIATE)
+    {
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+    }
 
+    if (value < 0 || value > 31)
+    {
+      print_error_range("Constant", 0, 31, asm_context);
+      return -1;
+    }
+  }
+    else
   if (table_type == MIPS_OP_IMMEDIATE_RS)
   {
     if (user_type != OPERAND_IMMEDIATE_RS)
@@ -696,6 +711,11 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         {
           opcode |= operands[r].value & 0xffff;
           opcode |= operands[r].reg2 << 21;
+        }
+          else
+        if (mips_i_table[n].operand[r] == MIPS_OP_HINT)
+        {
+          opcode |= operands[r].value << 16;
         }
 #if 0
           else
