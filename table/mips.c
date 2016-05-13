@@ -137,15 +137,15 @@ struct _mips_special_instr mips_special_table[] =
 
 struct _mips_cop_instr mips_cop_table[] =
 {
-  { "add.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x00, 0x10, 3 },
-  { "cvt.s.w", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x20, 0x14, 3 },
-  { "cvt.w.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x24, 0x10, 3 },
-  { "div.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x03, 0x10, 3 },
-  { "mfc1", { MIPS_COP_FT, MIPS_COP_FS, MIPS_OP_NONE }, 0x00, 0x00, 2 },
-  { "mov.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_OP_NONE }, 0x06, 0x10, 2 },
-  { "mtc1", { MIPS_COP_FT, MIPS_COP_FS, MIPS_OP_NONE }, 0x00, 0x04, 2 },
-  { "mul.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x02, 0x10, 3 },
-  { "sub.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x01, 0x10, 3 },
+  //{ "add.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x00, 0x10, 3 },
+  //{ "cvt.s.w", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x20, 0x14, 3 },
+  //{ "cvt.w.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x24, 0x10, 3 },
+  //{ "div.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x03, 0x10, 3 },
+  //{ "mfc1", { MIPS_COP_FT, MIPS_COP_FS, MIPS_OP_NONE }, 0x00, 0x00, 2 },
+  //{ "mov.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_OP_NONE }, 0x06, 0x10, 2 },
+  //{ "mtc1", { MIPS_COP_FT, MIPS_COP_FS, MIPS_OP_NONE }, 0x00, 0x04, 2 },
+  //{ "mul.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x02, 0x10, 3 },
+  //{ "sub.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x01, 0x10, 3 },
   { NULL, { MIPS_COP_NONE, MIPS_COP_NONE, MIPS_COP_NONE }, 0x00, 0x00, 0 }
 };
 
@@ -159,10 +159,22 @@ struct _mips_no_operands mips_no_operands[] =
 
 struct _mips_other mips_other[] =
 {
+  { "abs.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000005, 0xffff003f, MIPS_I },
+  { "add.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000000, 0xffe0003f, MIPS_I },
+  { "adda.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000018, 0xffe007ff, MIPS_I },
   { "bc0f", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41000000, 0xffff0000, MIPS_I },
+  { "bc1f", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45000000, 0xffff0000, MIPS_I },
   { "bc0fl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41020000, 0xffff0000, MIPS_I },
+  { "bc1fl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45020000, 0xffff0000, MIPS_I },
   { "bc0t", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41010000, 0xffff0000, MIPS_I },
+  { "bc1t", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45010000, 0xffff0000, MIPS_I },
   { "bc0tl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41030000, 0xffff0000, MIPS_I },
+  { "bc1tl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45030000, 0xffff0000, MIPS_I },
+  { "c.eq.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000032, 0xffe007ff, MIPS_I },
+  { "c.f.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000030, 0xffe007ff, MIPS_I },
+  { "c.le.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000036, 0xffe007ff, MIPS_I },
+  { "c.lt.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000034, 0xffe007ff, MIPS_I },
+  { "cfc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44400000, 0xffe007ff, MIPS_I },
   { "di", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000039, 0xffffffff, MIPS_I },
   { "div1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001a, 0xfc00ffff, MIPS_EE_CORE },
   { "divu1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001b, 0xfc00ffff, MIPS_EE_CORE },
@@ -311,10 +323,10 @@ struct _mips_other mips_other[] =
   { "tgei", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x04080000, 0xfc1f0000, MIPS_II },
   { "tgeiu", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x04090000, 0xfc1f0000, MIPS_II },
   { "tgeu", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x00000031, 0xfc00003f, MIPS_II },
-  { "tlbp", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000008, 0xffffffff, MIPS_II },
-  { "tlbr", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000001, 0xffffffff, MIPS_II },
-  { "tlbwi", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000002, 0xffffffff, MIPS_II },
-  { "tlbwr", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000006, 0xffffffff, MIPS_II },
+  { "tlbp", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000008, 0xffffffff, MIPS_I },
+  { "tlbr", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000001, 0xffffffff, MIPS_I },
+  { "tlbwi", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000002, 0xffffffff, MIPS_I },
+  { "tlbwr", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000006, 0xffffffff, MIPS_I },
   { "tlt", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x00000032, 0xfc00003f, MIPS_II },
   { "tlti", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040a0000, 0xfc1f0000, MIPS_II },
   { "tltiu", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040b0000, 0xfc1f0000, MIPS_II },

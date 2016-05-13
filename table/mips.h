@@ -48,6 +48,9 @@ enum
   MIPS_OP_PREG,
   MIPS_OP_HINT,
   MIPS_OP_CACHE,
+  MIPS_OP_FD,
+  MIPS_OP_FS,
+  MIPS_OP_FT,
 };
 
 enum

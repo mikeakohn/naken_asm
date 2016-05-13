@@ -1031,6 +1031,36 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             opcode |= operands[r].value << 11;
 
             break;
+          case MIPS_OP_FT:
+            if (operands[r].type != OPERAND_FREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 16;
+
+            break;
+          case MIPS_OP_FS:
+            if (operands[r].type != OPERAND_FREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
+
+            break;
+          case MIPS_OP_FD:
+            if (operands[r].type != OPERAND_FREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 6;
+
+            break;
           case MIPS_OP_SA:
             if (operands[r].type != OPERAND_IMMEDIATE)
             {
