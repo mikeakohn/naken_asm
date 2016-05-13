@@ -386,18 +386,6 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
         rt = (opcode >> 16) & 0x1f;
         immediate = opcode & 0xffff;
 
-#if 0
-        if (mips_i_table[n].operand[2] == MIPS_OP_RT_IS_0)
-        {
-          if (rt != 0) { n++; continue; }
-        }
-          else
-        if (mips_i_table[n].operand[2] == MIPS_OP_RT_IS_1)
-        {
-          if (rt != 1) { n++; continue; }
-        }
-#endif
-
         strcpy(instruction, mips_i_table[n].instr);
 
         for (r = 0; r < 3; r++)
@@ -418,6 +406,11 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
               mips_i_table[n].operand[r] == MIPS_OP_CACHE)
           {
             sprintf(temp, "%d", rt);
+          }
+            else
+          if (mips_i_table[n].operand[r] == MIPS_OP_FT)
+          {
+            sprintf(temp, "$f%d", rt);
           }
             else
           if (mips_i_table[n].operand[r] == MIPS_OP_IMMEDIATE)

@@ -79,20 +79,25 @@ lhu $t3, 0x1234($t4)
 li $t3, 0x12341234
 ll $t3, 0x1234($t4)
 lw $t3, 0x1234($t4)
+lwc1 $f18, 0x1234($t4)
 lwl $t3, 0x1234($t4)
 lwr $t3, 0x1234($t4)
 lwu $t3, 0x1234($t4)
 lq $t3, 0x1234($t4)
 madd $t3, $t4
 madd $t3, $t4, $t5
+madd.s $f10, $f11, $f13
+madda.s $f10, $f11
 madd1 $t3, $t4
 madd1 $t3, $t4, $t5
 maddu $t3, $t4
 maddu $t3, $t4, $t5
 maddu1 $t3, $t4
 maddu1 $t3, $t4, $t5
+max.s $f3, $f4, $f5
 mfbpc $t3
 mfc0 $t3, $12
+mfc1 $t3, $f17
 mfdab $t3
 mfdabm $t3
 mfdvb $t3
@@ -102,8 +107,13 @@ mfiabm $t3
 mfpc $t3, 0
 mfpc $t3, 1
 mfps $t3, 0
+min.s $f3, $f4, $f5
+mov.s $f3, $f4
+msub.s $f3, $f4, $f5
+msuba.s $f3, $f4
 mtbpc $t3
 mtc0 $t3, $4
+mtc1 $t3, $f4
 mtdab $t3
 mtdabm $t3
 mtdvb $t3
@@ -126,6 +136,8 @@ mtlo1 $t3
 ;msubu $t3, $t4
 mtsab $t3, 10
 mtsah $t3, 10
+mul.s $f7, $f8, $f9
+mula.s $f7, $f8
 mult $t3, $t4
 mult $t3, $t4, $t5
 mult1 $t3, $t4
@@ -135,6 +147,7 @@ multu $t3, $t4, $t5
 ;move $t3, $t4
 movn $t3, $t4, $t5
 movz $t3, $t4, $t5
+neg.s $f3, $f4
 negu $t3, $t4
 nop
 nor $t3, $k1, $k0
@@ -232,6 +245,7 @@ psubuw $t3, $t4, $t5
 psubw $t3, $t4, $t5
 pxor $t3, $t4, $t5
 qfsrv $t3, $t4, $t5
+rsqrt.s $f3, $f4, $f21
 ;rotr $t3, $t4, 10
 ;rotr $t3, $t4, 31
 ;rotrv $t3, $t4, $t5
@@ -250,16 +264,20 @@ slt $t3, $t4, $t5
 slti $t3, $k0, 0x1234
 sltiu $t3, $k0, 0x1234
 sltu $t3, $t4, $t5
+sqrt.s $f3, $f4
 sra $t5, $t6, 5
 srav $t5, $t6, $t7
 srl $t5, $t6, 5
 srlv $t5, $t6, $t7
 sub $t3, $t4, $t5
+sub.s $f10, $f11, $f12
+suba.s $f10, $f11
 subu $t3, $t4, $t5
 sw $0, ($t1)
 sw $t3, 0x1234($t4)
 sw $t3, -8($t4)
 sw $t0, 0x61a0($k0)
+swc1 $f3, 0x1234($t4)
 swl $t3, 0x1234($t4)
 swr $t3, 0x1234($t4)
 sync

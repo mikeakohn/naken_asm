@@ -679,7 +679,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   {
     if (strcmp(instr_case, mips_i_table[n].instr) == 0)
     {
-      char shift_table[] = { 0, 0, 21, 16, 0, 0, 0, 0, 0, 0, 16 };
+      char shift_table[] = { 0, 0, 21, 16, 0, 0, 0, 0, 0, 0, 16, 0, 6, 11, 16 };
       if (mips_i_table[n].operand_count != operand_count)
       {
         print_error_opcount(instr, asm_context);
@@ -697,7 +697,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
         if ((mips_i_table[n].operand[r] == MIPS_OP_RT ||
              mips_i_table[n].operand[r] == MIPS_OP_RS) &&
-            operands[r].type == OPERAND_TREG)
+             operands[r].type == OPERAND_TREG)
         {
           opcode |= operands[r].value << shift_table[(int)mips_i_table[n].operand[r]];
         }
@@ -739,32 +739,17 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         {
           opcode |= operands[r].value << 16;
         }
-#if 0
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_RT_IS_0)
+        if (mips_i_table[n].operand[r] == MIPS_OP_FT &&
+            operands[r].type == OPERAND_FREG)
         {
-          // Derr
-          print_error_internal(asm_context, __FILE__, __LINE__);
+          opcode |= operands[r].value << shift_table[(int)mips_i_table[n].operand[r]];
         }
-          else
-        if (mips_i_table[n].operand[r] == MIPS_OP_RT_IS_1)
-        {
-          opcode |= 1 << 16;
-        }
-#endif
           else
         {
           print_error_illegal_operands(instr, asm_context);
           return -1;
         }
-
-#if 0
-        if (mips_i_table[n].operand[r] != MIPS_OP_IMMEDIATE &&
-            mips_i_table[n].operand[r] != MIPS_OP_IMMEDIATE_SIGNED)
-        {
-          opcode |= operands[r].value << shift_table[(int)mips_i_table[n].operand[r]];
-        }
-#endif
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
