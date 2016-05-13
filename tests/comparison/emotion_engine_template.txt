@@ -256,6 +256,10 @@ tge $t3, $t4
 tgei $t3, 0x1234
 tgeiu $t3, 0x1234
 tgeu $t3, $t4
+tlbp
+tlbr
+tlbwi
+tlbwr
 tlt $t3, $t4
 tlti $t3, 0x1234
 tltiu $t3, 0x1234
