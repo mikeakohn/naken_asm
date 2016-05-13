@@ -47,6 +47,7 @@ enum
   MIPS_OP_IMMEDIATE_RS,
   MIPS_OP_PREG,
   MIPS_OP_HINT,
+  MIPS_OP_CACHE,
 };
 
 enum
@@ -126,6 +127,7 @@ extern struct _mips_special_instr mips_special_table[];
 extern struct _mips_cop_instr mips_cop_table[];
 extern struct _mips_no_operands mips_no_operands[];
 extern struct _mips_other mips_other[];
+extern struct _mips_cache mips_cache[];
 
 #endif
 

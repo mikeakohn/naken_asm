@@ -405,7 +405,8 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
             sprintf(temp, "%s", reg[rt]);
           }
             else
-          if (mips_i_table[n].operand[r] == MIPS_OP_HINT)
+          if (mips_i_table[n].operand[r] == MIPS_OP_HINT ||
+              mips_i_table[n].operand[r] == MIPS_OP_CACHE)
           {
             sprintf(temp, "%d", rt);
           }

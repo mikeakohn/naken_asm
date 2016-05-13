@@ -356,6 +356,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   uint32_t opcode;
   int opcode_size = 4;
   int found = 0;
+  int is_cache = 0;
 #if 0
   int n,cond,s=0;
   int opcode=0;
@@ -363,6 +364,8 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
   lower_copy(instr_case, instr);
   memset(operands, 0, sizeof(operands));
+
+  if (strcmp("cache", instr_case) == 0) { is_cache = 1; }
 
 //printf("%s %s\n", instr_case, instr);
 
@@ -386,6 +389,24 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
     do
     {
+      if (is_cache == 1 && operand_count == 0)
+      {
+        int i = 0;
+
+        while(mips_cache[i].name != NULL)
+        {
+          if (strcasecmp(token, mips_cache[i].name) == 0)
+          {
+            operands[operand_count].value = mips_cache[i].op;
+            break;
+          }
+
+          i++;
+        }
+
+        if (mips_cache[i].name != NULL) { break; }
+      }
+
       paren_flag = 0;
 
       if (IS_TOKEN(token,'('))
@@ -658,7 +679,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   {
     if (strcmp(instr_case, mips_i_table[n].instr) == 0)
     {
-      char shift_table[] = { 0, 0, 21, 16 };
+      char shift_table[] = { 0, 0, 21, 16, 0, 0, 0, 0, 0, 0, 16 };
       if (mips_i_table[n].operand_count != operand_count)
       {
         print_error_opcount(instr, asm_context);
@@ -713,7 +734,8 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           opcode |= operands[r].reg2 << 21;
         }
           else
-        if (mips_i_table[n].operand[r] == MIPS_OP_HINT)
+        if (mips_i_table[n].operand[r] == MIPS_OP_HINT ||
+            mips_i_table[n].operand[r] == MIPS_OP_CACHE)
         {
           opcode |= operands[r].value << 16;
         }

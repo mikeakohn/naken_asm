@@ -22,6 +22,7 @@ main: bltz $t6, main
 main: bltzal $t6, main
 main: bne $t6, $t7, main
 main: bnez $t6, main
+cache 0x0c, 10($t5)
 ;clo $t0, $t1
 ;clz $t2, $t3
 dadd $k0, $s0, $t7
