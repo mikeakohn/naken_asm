@@ -137,10 +137,6 @@ struct _mips_special_instr mips_special_table[] =
 
 struct _mips_cop_instr mips_cop_table[] =
 {
-  //{ "add.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x00, 0x10, 3 },
-  //{ "cvt.s.w", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x20, 0x14, 3 },
-  //{ "cvt.w.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x24, 0x10, 3 },
-  //{ "div.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x03, 0x10, 3 },
   //{ "mfc1", { MIPS_COP_FT, MIPS_COP_FS, MIPS_OP_NONE }, 0x00, 0x00, 2 },
   //{ "mov.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_OP_NONE }, 0x06, 0x10, 2 },
   //{ "mtc1", { MIPS_COP_FT, MIPS_COP_FS, MIPS_OP_NONE }, 0x00, 0x04, 2 },
@@ -175,7 +171,11 @@ struct _mips_other mips_other[] =
   { "c.le.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000036, 0xffe007ff, MIPS_I },
   { "c.lt.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000034, 0xffe007ff, MIPS_I },
   { "cfc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44400000, 0xffe007ff, MIPS_I },
+  { "ctc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44c00000, 0xffe007ff, MIPS_I },
+  { "cvt.s.w", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46800020, 0xffff003f, MIPS_I },
+  { "cvt.w.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000024, 0xffff003f, MIPS_I },
   { "di", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000039, 0xffffffff, MIPS_I },
+  { "div.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000003, 0xffe0003f, MIPS_I },
   { "div1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001a, 0xfc00ffff, MIPS_EE_CORE },
   { "divu1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001b, 0xfc00ffff, MIPS_EE_CORE },
   { "ei", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000038, 0xffffffff, MIPS_I },

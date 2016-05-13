@@ -35,6 +35,9 @@ c.f.s $f10, $f17
 c.le.s $f10, $f17
 c.lt.s $f10, $f17
 cfc1 $t5, $f17
+ctc1 $t5, $f17
+cvt.s.w $f5, $f17
+cvt.w.s $f5, $f17
 ;clo $t0, $t1
 ;clz $t2, $t3
 dadd $k0, $s0, $t7
@@ -42,6 +45,7 @@ daddi $k0, $s0, 0x1234
 daddiu $k0, $s0, 0x1234
 daddu $k0, $s0, $t7
 di
+div.s $f5, $f6, $f17
 div1 $t3, $t4
 divu1 $t3, $t4
 dsll $t5, $t6, 5
