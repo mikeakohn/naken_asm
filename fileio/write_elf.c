@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -26,6 +26,7 @@ struct _elf
   struct _sections_size sections_size;
   uint8_t e_ident[16];
   uint32_t e_flags;
+  uint16_t e_type;
   uint16_t e_machine;
   uint16_t e_shnum;
   uint16_t e_shstrndx;
@@ -107,14 +108,14 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
   if (memory->endian == ENDIAN_LITTLE)
   {
     elf->e_ident[EI_DATA] = 1;
-    elf->write_int32=write_int32_le;
-    elf->write_int16=write_int16_le;
+    elf->write_int32 = write_int32_le;
+    elf->write_int16 = write_int16_le;
   }
     else
   {
     elf->e_ident[EI_DATA] = 2;
-    elf->write_int32=write_int32_be;
-    elf->write_int16=write_int16_be;
+    elf->write_int32 = write_int32_be;
+    elf->write_int16 = write_int16_be;
   }
 
   // This probably should be 0 for Raspberry Pi, etc.
@@ -126,6 +127,9 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
   // mspgcc4/build/insight-6.8-1/include/elf/msp430.h (11)
   elf->e_flags = 0;
   elf->e_shnum = 4;
+
+  // Relocatable
+  elf->e_type = 1;
 
   // This could be a lookup table, but let's play it safe
   switch (elf->cpu_type)
@@ -158,6 +162,12 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
       elf->e_machine = 118;
       elf->e_flags = 1;
       break;
+    case CPU_TYPE_EMOTION_ENGINE:
+      elf->e_machine = 8;
+      elf->e_ident[EI_OSABI] = 0;
+      elf->e_flags = 0x20924001;
+      elf->e_type = 2;  // Executable
+      break;
     case CPU_TYPE_MIPS32:
       elf->e_machine = 8;
       break;
@@ -177,7 +187,7 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
 
   // Write Ehdr;
   fwrite(elf->e_ident, 1, 16, out);
-  elf->write_int16(out, 1);       // e_type 0=not relocatable 1=msp_32
+  elf->write_int16(out, elf->e_type);    // e_type 0=not relocatable 1=msp_32
   elf->write_int16(out, elf->e_machine); // e_machine EM_MSP430=0x69
   elf->write_int32(out, 1);       // e_version
   elf->write_int32(out, 0);       // e_entry (this could be 16 bit at 0xfffe)
@@ -454,10 +464,10 @@ static void elf_addr_align(FILE *out)
 
 int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const char *filename, int cpu_type)
 {
-struct _shdr shdr;
-struct _symtab symtab;
-struct _elf elf;
-int i;
+  struct _shdr shdr;
+  struct _symtab symtab;
+  struct _elf elf;
+  int i;
 
   memset(&elf, 0, sizeof(elf));
   elf.cpu_type = cpu_type;
