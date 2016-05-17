@@ -135,14 +135,6 @@ struct _mips_special_instr mips_special_table[] =
   { NULL, { 0, 0, 0, 0 }, 0, 0, 0x00 }
 };
 
-struct _mips_no_operands mips_no_operands[] =
-{
-  { "sync.l", 0x0000000f, MIPS_II },
-  { "sync", 0x0000000f, MIPS_II },
-  { "sync.p", 0x0000040f, MIPS_II },
-  { NULL, 0, 0 }
-};
-
 struct _mips_other mips_other[] =
 {
   { "abs.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000005, 0xffff003f, MIPS_I },
@@ -322,6 +314,9 @@ struct _mips_other mips_other[] =
   { "seh", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7c000620, 0xfc0007ff, MIPS_32 },
   { "sqrt.s", { MIPS_OP_FD, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000004, 0xffe0f83f, MIPS_IV },
   { "sub.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000001, 0xffe0003f, MIPS_I },
+  { "sync.l", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x0000000f, 0xffffffff, MIPS_II },
+  { "sync", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x0000000f, 0xffffffff, MIPS_II },
+  { "sync.p", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x0000040f, 0xffffffff, MIPS_II },
   { "suba.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000019, 0xffe007ff, MIPS_EE_CORE },
   { "teq", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x00000034, 0xfc00003f, MIPS_II },
   { "teqi", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040c0000, 0xfc1f0000, MIPS_II },

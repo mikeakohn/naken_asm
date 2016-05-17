@@ -919,24 +919,6 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   }
 
   n = 0;
-  while(mips_no_operands[n].instr != NULL)
-  {
-    if (strcmp(instr_case, mips_no_operands[n].instr) == 0)
-    {
-      if (operand_count != 0)
-      {
-        print_error_illegal_operands(instr, asm_context);
-        return -1;
-      }
-
-      add_bin32(asm_context, mips_no_operands[n].opcode, IS_OPCODE);
-      return opcode_size;
-    }
-
-    n++;
-  }
-
-  n = 0;
   while(mips_other[n].instr != NULL)
   {
     if (strcmp(instr_case, mips_other[n].instr) == 0)

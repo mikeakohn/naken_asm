@@ -92,13 +92,6 @@ struct _mips_special_instr
   uint16_t version;
 };
 
-struct _mips_no_operands
-{
-  const char *instr;
-  uint32_t opcode;
-  uint16_t version;
-};
-
 struct _mips_other
 {
   const char *instr;
@@ -119,7 +112,6 @@ extern struct _mips_instr mips_r_table[];
 extern struct _mips_instr mips_i_table[];
 extern struct _mips_branch mips_branch_table[];
 extern struct _mips_special_instr mips_special_table[];
-extern struct _mips_no_operands mips_no_operands[];
 extern struct _mips_other mips_other[];
 extern struct _mips_cache mips_cache[];
 
