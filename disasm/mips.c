@@ -325,55 +325,6 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
     }
   }
     else
-  if ((opcode >> 28) == 4)
-  {
-    // Coprocessor Instruction [ op 6, format 5, ft 5, fs 5, fd 5, funct 6 ]
-    function = opcode & 0x3f;
-    format = (opcode >> 21) & 0x1f;
-    n = 0;
-    while(mips_cop_table[n].instr != NULL)
-    {
-      if (mips_cop_table[n].function == function &&
-          mips_cop_table[n].format == format)
-      {
-        int ft = (opcode >> 16) & 0x1f;
-        int fs = (opcode >> 11) & 0x1f;
-        int fd = (opcode >> 6) & 0x1f;
-
-        strcpy(instruction, mips_cop_table[n].instr);
-
-        for (r = 0; r < 3; r++)
-        {
-          if (mips_cop_table[n].operand[r] == MIPS_COP_NONE) { break; }
-
-          if (mips_cop_table[n].operand[r] == MIPS_COP_FD)
-          {
-            sprintf(temp, "$f%d", fd);
-          }
-            else
-          if (mips_cop_table[n].operand[r] == MIPS_COP_FS)
-          {
-            sprintf(temp, "$f%d", fs);
-          }
-            else
-          if (mips_cop_table[n].operand[r] == MIPS_COP_FT)
-          {
-            sprintf(temp, "$f%d", ft);
-          }
-            else
-          { temp[0] = 0; }
-
-          if (r != 0) { strcat(instruction, ", "); }
-          strcat(instruction, temp);
-        }
-
-        break;
-      }
-
-      n++;
-    }
-  }
-    else
   {
     int op = opcode >> 26;
     // I-Type?  [ op 6, rs 5, rt 5, imm 16 ]

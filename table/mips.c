@@ -135,16 +135,6 @@ struct _mips_special_instr mips_special_table[] =
   { NULL, { 0, 0, 0, 0 }, 0, 0, 0x00 }
 };
 
-struct _mips_cop_instr mips_cop_table[] =
-{
-  //{ "mfc1", { MIPS_COP_FT, MIPS_COP_FS, MIPS_OP_NONE }, 0x00, 0x00, 2 },
-  //{ "mov.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_OP_NONE }, 0x06, 0x10, 2 },
-  //{ "mtc1", { MIPS_COP_FT, MIPS_COP_FS, MIPS_OP_NONE }, 0x00, 0x04, 2 },
-  //{ "mul.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x02, 0x10, 3 },
-  //{ "sub.s", { MIPS_COP_FD, MIPS_COP_FS, MIPS_COP_FT }, 0x01, 0x10, 3 },
-  { NULL, { MIPS_COP_NONE, MIPS_COP_NONE, MIPS_COP_NONE }, 0x00, 0x00, 0 }
-};
-
 struct _mips_no_operands mips_no_operands[] =
 {
   { "sync.l", 0x0000000f, MIPS_II },

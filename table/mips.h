@@ -53,6 +53,7 @@ enum
   MIPS_OP_FT,
 };
 
+#if 0
 enum
 {
   MIPS_COP_NONE,
@@ -60,6 +61,7 @@ enum
   MIPS_COP_FS,
   MIPS_COP_FT,
 };
+#endif
 
 struct _mips_instr
 {
@@ -75,16 +77,6 @@ struct _mips_branch
   const char *instr;
   uint8_t opcode;
   int8_t op_rt;
-  uint16_t version;
-};
-
-struct _mips_cop_instr
-{
-  const char *instr;
-  char operand[3];
-  uint8_t function;
-  uint8_t format;
-  int8_t operand_count;
   uint16_t version;
 };
 
@@ -127,7 +119,6 @@ extern struct _mips_instr mips_r_table[];
 extern struct _mips_instr mips_i_table[];
 extern struct _mips_branch mips_branch_table[];
 extern struct _mips_special_instr mips_special_table[];
-extern struct _mips_cop_instr mips_cop_table[];
 extern struct _mips_no_operands mips_no_operands[];
 extern struct _mips_other mips_other[];
 extern struct _mips_cache mips_cache[];

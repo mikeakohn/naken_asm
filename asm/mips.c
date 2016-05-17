@@ -642,37 +642,6 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
     return opcode_size;
   }
 
-  // Coprocessor Instruction [ op 6, format 5, ft 5, fs 5, fd 5, funct 6 ]
-  n = 0;
-  while(mips_cop_table[n].instr != NULL)
-  {
-    if (strcmp(instr_case, mips_cop_table[n].instr) == 0)
-    {
-      char shift_table[] = { 0, 5, 11, 16 };
-      if (mips_cop_table[n].operand_count != operand_count)
-      {
-        print_error_illegal_operands(instr, asm_context);
-        return -1;
-      }
-
-      opcode = (0x11 << 26) | (mips_cop_table[n].format << 21) | mips_cop_table[n].function;
-
-      for (r = 0; r < operand_count; r++)
-      {
-        if (operands[r].type != OPERAND_FREG)
-        {
-          printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
-          return -1;
-        }
-        opcode |= operands[r].value << shift_table[(int)mips_cop_table[n].operand[r]];
-      }
-
-      add_bin32(asm_context, opcode, IS_OPCODE);
-      return opcode_size;
-    }
-    n++;
-  }
-
   // I-Type?  [ op 6, rs 5, rt 5, imm 16 ]
   n = 0;
   while(mips_i_table[n].instr != NULL)
