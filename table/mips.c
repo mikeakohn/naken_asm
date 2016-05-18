@@ -396,6 +396,7 @@ struct _mips_other mips_msa[] =
   { "addv.h", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7820000e, 0xffe0003f, MIPS_MSA },
   { "addv.w", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7840000e, 0xffe0003f, MIPS_MSA },
   { "addv.d", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7860000e, 0xffe0003f, MIPS_MSA },
+  { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 
 

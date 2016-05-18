@@ -10,12 +10,22 @@ start:
   ${1}
 EOF
 
-  if [ "${cpu}" == "mips32" ] && [ "${1:0:1}" == "b" ]
+  #if [ "${cpu}" == "mips32" ] && [ "${1:0:1}" == "b" ]
+  #then
+  #  echo " nop" >> ${cpu}.asm
+  #fi
+
+  #if [ "${cpu}" == "mips32" ] && [ "${1:0:1}" == "j" ]
+  #then
+  #  echo " nop" >> ${cpu}.asm
+  #fi
+
+  if [ "${cpu}" == "pic32" ] && [ "${1:0:5}" == "main:" ]
   then
     echo " nop" >> ${cpu}.asm
   fi
 
-  if [ "${cpu}" == "mips32" ] && [ "${1:0:1}" == "j" ]
+  if [ "${cpu}" == "pic32" ] && [ "${1:0:1}" == "j" ]
   then
     echo " nop" >> ${cpu}.asm
   fi
