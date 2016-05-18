@@ -25,6 +25,7 @@ enum
 {
   OPERAND_TREG,
   OPERAND_FREG,
+  OPERAND_WREG,
   OPERAND_IMMEDIATE,
   OPERAND_IMMEDIATE_RS,
 };
@@ -59,10 +60,11 @@ static int get_register_mips(char *token, char letter)
     if (letter != 'f' && strcasecmp(token, "zero") == 0) return 0;
     return -1;
   }
+
   if (token[1] == 0) { return -1; }
 
   num = get_number(token + 2);
-  if (letter == 'f')
+  if (letter == 'f' || letter == 'w')
   {
     if (num >= 0 && num <= 31 && token[1] == letter)
     {
@@ -405,6 +407,14 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         }
 
         if (mips_cache[i].name != NULL) { break; }
+      }
+
+      num = get_register_mips(token, 'w');
+      if (num != -1)
+      {
+        operands[operand_count].value = num;
+        operands[operand_count].type = OPERAND_WREG;
+        break;
       }
 
       paren_flag = 0;
@@ -1056,6 +1066,69 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             }
 
             opcode |= operands[r].value << 1;
+            break;
+          default:
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+        }
+      }
+
+      add_bin32(asm_context, opcode, IS_OPCODE);
+      return opcode_size;
+    }
+
+    n++;
+  }
+
+  // FIXME - Put an if statment for MSA instructions here
+  n = 0;
+  while(mips_msa[n].instr != NULL)
+  {
+    if (strcmp(instr_case, mips_msa[n].instr) == 0)
+    {
+      found = 1;
+
+      if (operand_count != mips_msa[n].operand_count)
+      {
+        n++;
+        continue;
+      }
+
+      opcode = mips_msa[n].opcode;
+
+      for (r = 0; r < mips_msa[n].operand_count; r++)
+      {
+        switch(mips_msa[n].operand[r])
+        {
+          case MIPS_OP_WT:
+            if (operands[r].type != OPERAND_WREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 26;
+
+            break;
+          case MIPS_OP_WS:
+            if (operands[r].type != OPERAND_WREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
+
+            break;
+          case MIPS_OP_WD:
+            if (operands[r].type != OPERAND_WREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 6;
+
             break;
           default:
             print_error_illegal_operands(instr, asm_context);

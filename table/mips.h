@@ -18,13 +18,14 @@
 #define FORMAT_SPECIAL2 0x1c
 #define FORMAT_SPECIAL3 0x1f
 
-#define MIPS_I 0
-#define MIPS_II 1
-#define MIPS_III 2
-#define MIPS_IV 4
-#define MIPS_32 8
-#define MIPS_FPU 16 
-#define MIPS_EE_CORE 32
+#define MIPS_I 1
+#define MIPS_II 2
+#define MIPS_III 4
+#define MIPS_IV 8
+#define MIPS_32 16 
+#define MIPS_FPU 32 
+#define MIPS_EE_CORE 64
+#define MIPS_MSA 128
 
 enum
 {
@@ -51,6 +52,9 @@ enum
   MIPS_OP_FD,
   MIPS_OP_FS,
   MIPS_OP_FT,
+  MIPS_OP_WD,
+  MIPS_OP_WS,
+  MIPS_OP_WT,
 };
 
 #if 0
@@ -114,6 +118,7 @@ extern struct _mips_branch mips_branch_table[];
 extern struct _mips_special_instr mips_special_table[];
 extern struct _mips_other mips_other[];
 extern struct _mips_cache mips_cache[];
+extern struct _mips_other mips_msa[];
 
 #endif
 

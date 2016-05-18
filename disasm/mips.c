@@ -35,7 +35,7 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
     "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7",
     "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
   };
-  int rs, rt, rd, sa;
+  int rs, rt, rd, sa, wt, ws, wd;
   int immediate;
 
   *cycles_min = 1;
@@ -197,6 +197,46 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
             break;
           case MIPS_OP_PREG:
             sprintf(temp, " %d", (immediate >> 1) & 0x1f);
+            break;
+          default:
+            strcpy(temp, " ?");
+            break;
+        }
+
+        strcat(instruction, temp);
+      }
+
+      return 4;
+    }
+
+    n++;
+  }
+
+  n = 0;
+  while(mips_msa[n].instr != NULL)
+  {
+    if (mips_msa[n].opcode == (opcode & mips_msa[n].mask))
+    {
+      strcpy(instruction, mips_msa[n].instr);
+
+      wt = (opcode >> 16) & 0x1f;
+      ws = (opcode >> 11) & 0x1f;
+      wd = (opcode >> 6) & 0x1f;
+
+      for (r = 0; r < mips_msa[n].operand_count; r++)
+      {
+        if (r != 0) { strcat(instruction, ","); }
+
+        switch(mips_msa[n].operand[r])
+        {
+          case MIPS_OP_WT:
+            sprintf(temp, " $w%d", wt);
+            break;
+          case MIPS_OP_WS:
+            sprintf(temp, " $w%d", ws);
+            break;
+          case MIPS_OP_WD:
+            sprintf(temp, " $w%d", wd);
             break;
           default:
             strcpy(temp, " ?");

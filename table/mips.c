@@ -374,5 +374,12 @@ struct _mips_cache mips_cache[] =
   { NULL, 0 },
 };
 
+struct _mips_other mips_msa[] =
+{
+  { "add_a.b", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7c000010, 0xffe0003f, MIPS_MSA },
+  { "add_a.h", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7c200010, 0xffe0003f, MIPS_MSA },
+  { "add_a.w", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7c400010, 0xffe0003f, MIPS_MSA },
+  { "add_a.d", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7c600010, 0xffe0003f, MIPS_MSA },
+};
 
 
