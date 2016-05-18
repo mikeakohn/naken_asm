@@ -376,10 +376,26 @@ struct _mips_cache mips_cache[] =
 
 struct _mips_other mips_msa[] =
 {
-  { "add_a.b", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7c000010, 0xffe0003f, MIPS_MSA },
-  { "add_a.h", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7c200010, 0xffe0003f, MIPS_MSA },
-  { "add_a.w", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7c400010, 0xffe0003f, MIPS_MSA },
-  { "add_a.d", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7c600010, 0xffe0003f, MIPS_MSA },
+  { "add_a.b", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x78000010, 0xffe0003f, MIPS_MSA },
+  { "add_a.h", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x78200010, 0xffe0003f, MIPS_MSA },
+  { "add_a.w", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x78400010, 0xffe0003f, MIPS_MSA },
+  { "add_a.d", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x78600010, 0xffe0003f, MIPS_MSA },
+  { "adds_a.b", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x78800010, 0xffe0003f, MIPS_MSA },
+  { "adds_a.h", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x78a00010, 0xffe0003f, MIPS_MSA },
+  { "adds_a.w", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x78c00010, 0xffe0003f, MIPS_MSA },
+  { "adds_a.d", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x78e00010, 0xffe0003f, MIPS_MSA },
+  { "adds_s.b", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x79000010, 0xffe0003f, MIPS_MSA },
+  { "adds_s.h", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x79200010, 0xffe0003f, MIPS_MSA },
+  { "adds_s.w", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x79400010, 0xffe0003f, MIPS_MSA },
+  { "adds_s.d", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x79600010, 0xffe0003f, MIPS_MSA },
+  { "adds_u.b", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x79800010, 0xffe0003f, MIPS_MSA },
+  { "adds_u.h", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x79a00010, 0xffe0003f, MIPS_MSA },
+  { "adds_u.w", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x79c00010, 0xffe0003f, MIPS_MSA },
+  { "adds_u.d", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x79e00010, 0xffe0003f, MIPS_MSA },
+  { "addv.b", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7800000e, 0xffe0003f, MIPS_MSA },
+  { "addv.h", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7820000e, 0xffe0003f, MIPS_MSA },
+  { "addv.w", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7840000e, 0xffe0003f, MIPS_MSA },
+  { "addv.d", { MIPS_OP_WD, MIPS_OP_WS, MIPS_OP_WT }, 3, 0x7860000e, 0xffe0003f, MIPS_MSA },
 };
 
 
