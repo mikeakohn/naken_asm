@@ -9,8 +9,8 @@ def create_asm(instruction):
 
 # --------------------------------- fold here -------------------------------
 
-fp = open("emotion_engine_template.txt", "rb")
-out = open("emotion_engine.txt", "wb")
+fp = open("ps2_ee_template.txt", "rb")
+out = open("ps2_ee.txt", "wb")
 
 for instruction in fp:
   instruction = instruction.strip()

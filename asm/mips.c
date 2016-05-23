@@ -57,7 +57,7 @@ static int get_register_mips(char *token, char letter)
 
   if (token[0] != '$')
   {
-    if (letter != 'f' && strcasecmp(token, "zero") == 0) return 0;
+    if (letter != 'f' && strcasecmp(token, "zero") == 0) { return 0; }
     return -1;
   }
 

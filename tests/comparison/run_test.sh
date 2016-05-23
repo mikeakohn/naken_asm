@@ -30,12 +30,12 @@ EOF
     echo " nop" >> ${cpu}.asm
   fi
 
-  if [ "${cpu}" == "emotion_engine" ] && [ "${1:0:5}" == "main:" ]
+  if [ "${cpu}" == "ps2_ee" ] && [ "${1:0:5}" == "main:" ]
   then
     echo " nop" >> ${cpu}.asm
   fi
 
-  if [ "${cpu}" == "emotion_engine" ] && [ "${1:0:1}" == "j" ]
+  if [ "${cpu}" == "ps2_ee" ] && [ "${1:0:1}" == "j" ]
   then
     echo " nop" >> ${cpu}.asm
   fi
