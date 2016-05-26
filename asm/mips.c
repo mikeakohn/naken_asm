@@ -68,7 +68,7 @@ static int get_register_mips(char *token, char letter)
   {
     if (num >= 0 && num <= 31 && token[1] == letter)
     {
-      return num; 
+      return num;
     }
 
     return -1;
@@ -105,7 +105,7 @@ static int add_offset(struct _asm_context *asm_context, int address, uint32_t *o
 
   if (offset < -(1 << 17) || offset > (1 << 17) - 1)
   {
-    print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context); 
+    print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context);
     return -1;
   }
 
@@ -346,30 +346,16 @@ static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct
   return 4;
 }
 
-int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
+static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case)
 {
-  struct _operand operands[4];
   int operand_count = 0;
-  char token[TOKENLEN];
-  int token_type;
-  char instr_case[TOKENLEN];
-  int paren_flag;
-  int num,n,r;
-  uint32_t opcode;
-  int opcode_size = 4;
-  int found = 0;
   int is_cache = 0;
-#if 0
-  int n,cond,s=0;
-  int opcode=0;
-#endif
-
-  lower_copy(instr_case, instr);
-  memset(operands, 0, sizeof(operands));
+  int paren_flag = 0;
+  int n, num;
+  int token_type;
+  char token[TOKENLEN];
 
   if (strcmp("cache", instr_case) == 0) { is_cache = 1; }
-
-//printf("%s %s\n", instr_case, instr);
 
   while(1)
   {
@@ -557,6 +543,26 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
     }
   }
 
+  return operand_count;
+}
+
+int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
+{
+  struct _operand operands[4];
+  int operand_count = 0;
+  char instr_case[TOKENLEN];
+  int n, r;
+  uint32_t opcode;
+  int opcode_size = 4;
+  int found = 0;
+
+  lower_copy(instr_case, instr);
+  memset(operands, 0, sizeof(operands));
+
+  operand_count = get_operands(asm_context, operands, instr, instr_case);
+
+  if (operand_count < 0) { return -1; }
+
   n = check_for_pseudo_instruction(asm_context, operands, &operand_count, instr_case);
 
   if (n != 4)
@@ -638,13 +644,13 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
       return -1;
     }
 
-    if (instr_case[2] == 'l')
+    if (instr_case[1] == 0)
     {
-      opcode = 3 << 26;
+      opcode = 2 << 26;
     }
       else
     {
-      opcode = 2 << 26;
+      opcode = 3 << 26;
     }
 
     add_bin32(asm_context, opcode | operands[0].value >> 2, IS_OPCODE);
@@ -688,7 +694,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           if (offset < -(1 << 17) ||
               offset > (1 << 17) - 1)
           {
-            print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context); 
+            print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context);
             return -1;
           }
 
@@ -890,7 +896,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               if (operands[operand_index].value < 1 ||
                   operands[operand_index].value > 32)
               {
-                print_error_range("size", 1, 32, asm_context); 
+                print_error_range("size", 1, 32, asm_context);
                 return -1;
               }
 
@@ -899,7 +905,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               if (operands[operand_index].value < 1 ||
                   operands[operand_index].value > 32)
               {
-                print_error_range("pos+size", 1, 32, asm_context); 
+                print_error_range("pos+size", 1, 32, asm_context);
                 return -1;
               }
             }
