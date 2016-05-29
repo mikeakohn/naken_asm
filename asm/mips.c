@@ -370,7 +370,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       token_type = tokens_get(asm_context, token, TOKENLEN);
       strcat(instr, token);
       n = 0;
-      while(token[n] != 0) { token[n]=tolower(token[n]); n++; }
+      while(token[n] != 0) { token[n] = tolower(token[n]); n++; }
       strcat(instr_case, token);
       continue;
     }
