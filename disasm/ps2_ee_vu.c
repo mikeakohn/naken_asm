@@ -28,6 +28,8 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
   int function, format, operation;
   int n, r;
   char temp[32];
+  int ft, fs, fd, dest;
+  char bc;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -42,12 +44,47 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
     {
       strcpy(instruction, table_ps2_ee_vu[n].instr);
 
+      dest = (opcode >> 21) & 0xf;
+      ft = (opcode >> 16) & 0x1f;
+      fs = (opcode >> 11) & 0x1f;
+      fd = (opcode >> 6) & 0x1f;
+
+      if ((table_ps2_ee_vu[n].mask & 0x3) == 0)
+      {
+        char bc_xyzw[] = { 'x', 'y', 'z', 'w' };
+        bc = bc_xyzw[opcode & 0x3];
+      }
+
+      if ((table_ps2_ee_vu[n].flags & FLAG_DEST) != 0)
+      {
+        strcat(instruction, ".");
+        if ((dest & 8) != 0) { strcat(instruction, "x"); }
+        if ((dest & 4) != 0) { strcat(instruction, "y"); }
+        if ((dest & 2) != 0) { strcat(instruction, "z"); }
+        if ((dest & 1) != 0) { strcat(instruction, "w"); }
+      }
+
       for (r = 0; r < table_ps2_ee_vu[n].operand_count; r++)
       {
         if (r != 0) { strcat(instruction, ","); }
 
         switch(table_ps2_ee_vu[n].operand[r])
         {
+          case EE_VU_OP_FT:
+            sprintf(temp, " $vf%d", ft);
+            break;
+          case EE_VU_OP_FS:
+            sprintf(temp, " $vf%d", fs);
+            break;
+          case EE_VU_OP_FD:
+            sprintf(temp, " $vf%d", fd);
+            break;
+          case EE_VU_OP_I:
+            strcat(temp, " I");
+            break;
+          case EE_VU_OP_Q:
+            strcat(temp, " Q");
+            break;
           default:
             strcpy(temp, " ?");
             break;

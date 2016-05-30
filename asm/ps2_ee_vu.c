@@ -26,6 +26,8 @@
 enum
 {
   OPERAND_VREG,
+  OPERAND_I,
+  OPERAND_Q,
   OPERAND_IMMEDIATE,
 };
 
@@ -136,6 +138,16 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       }
     }
       else
+    if (IS_TOKEN(token, 'I') || IS_TOKEN(token, 'i'))
+    {
+      operands[operand_count].type = OPERAND_I;
+    }
+      else
+    if (IS_TOKEN(token, 'Q') || IS_TOKEN(token, 'q'))
+    {
+      operands[operand_count].type = OPERAND_Q;
+    }
+      else
     {
       print_error_unexp(token, asm_context);
       return -1;
@@ -159,9 +171,10 @@ int parse_instruction_ps2_ee_vu(struct _asm_context *asm_context, char *instr)
 {
   struct _operand operands[MAX_OPERANDS];
   int operand_count;
+  uint32_t opcode = 0;
   char instr_case[TOKENLEN];
   int dest = 0;
-  int n;
+  int n, r;
 
   lower_copy(instr_case, instr);
   memset(operands, 0, sizeof(operands));
@@ -178,6 +191,44 @@ int parse_instruction_ps2_ee_vu(struct _asm_context *asm_context, char *instr)
       operands[n].type, operands[n].value, operands[n].component_mask);
   }
 #endif
+
+  n = 0;
+  while(table_ps2_ee_vu[n].instr != NULL)
+  {
+    if (strcmp(instr_case, table_ps2_ee_vu[n].instr) == 0)
+    {
+      if (operand_count != table_ps2_ee_vu[n].operand_count)
+      {
+        n++;
+        continue;
+      }
+
+      opcode = table_ps2_ee_vu[n].opcode;
+
+      for (r = 0; r < table_ps2_ee_vu[n].operand_count; r++)
+      {
+        switch(table_ps2_ee_vu[n].operand[r])
+        {
+          case EE_VU_OP_FT:
+            opcode |= (operands[r].value << 16);
+            break;
+          case EE_VU_OP_FS:
+            opcode |= (operands[r].value << 11);
+            break;
+          case EE_VU_OP_FD:
+            opcode |= (operands[r].value << 6);
+            break;
+          default:
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+        }
+      }
+
+      add_bin32(asm_context, opcode, IS_OPCODE);
+      return 4;
+    }
+    n++;
+  }
 
   return -1;
 }

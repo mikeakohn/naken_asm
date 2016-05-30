@@ -1,0 +1,2 @@
+add.xyzw vf6,vf4,vf5 nop|:080000003C030080A821E5018A
+addy.x vf3x, vf4x, vf5 nop|:080000003C030080C120050152
