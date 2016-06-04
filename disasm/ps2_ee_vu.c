@@ -92,10 +92,13 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
             sprintf(temp, " vf%d", fd);
             break;
           case EE_VU_OP_I:
-            strcat(temp, " I");
+            strcpy(temp, " I");
             break;
           case EE_VU_OP_Q:
-            strcat(temp, " Q");
+            strcpy(temp, " Q");
+            break;
+          case EE_VU_OP_ACC:
+            strcpy(temp, " ACC");
             break;
           default:
             strcpy(temp, " ?");
@@ -132,7 +135,7 @@ void list_output_ps2_ee_vu(struct _asm_context *asm_context, uint32_t start, uin
     disasm_ps2_ee_vu(&asm_context->memory, start + 4, instruction_upper, &cycles_min, &cycles_max, 0);
     disasm_ps2_ee_vu(&asm_context->memory, start, instruction_lower, &cycles_min, &cycles_max, 1);
 
-    fprintf(asm_context->list, "0x%08x: 0x%08x 0x%08x %-20s %-20s", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
+    fprintf(asm_context->list, "0x%08x: 0x%08x 0x%08x %-20s %s\n", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
 
 #if 0
     fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
@@ -168,7 +171,7 @@ void disasm_range_ps2_ee_vu(struct _memory *memory, uint32_t start, uint32_t end
     disasm_ps2_ee_vu(memory, start + 4, instruction_upper, &cycles_min, &cycles_max, 0);
     disasm_ps2_ee_vu(memory, start, instruction_lower, &cycles_min, &cycles_max, 1);
 
-    printf("0x%08x: 0x%08x 0x%08x %-20s %-20s", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
+    printf("0x%08x: 0x%08x 0x%08x %-20s %s", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
 
 #if 0
     if (cycles_min < 1)

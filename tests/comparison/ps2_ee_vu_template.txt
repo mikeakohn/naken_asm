@@ -8,7 +8,36 @@ addz.x vf3x, vf4x, vf5 nop
 addw.x vf3x, vf4x, vf5 nop
 adda.xy acc, vf4, vf5  nop
 addai.xy acc, vf4, I  nop
+addaq.xz acc, vf4, Q  nop
+addax.xz acc, vf4, vf23  nop
+adday.xz acc, vf4, vf23  nop
+addaz.xz acc, vf4, vf23  nop
+addaw.xz acc, vf4, vf23  nop
 addw[em].x vf3x, vf4x, vf5 nop
+;clipw.x vf3, vf4 nop
+;clipw.w vf3, vf4 nop
+ftoi0.x vf3, vf30 nop
+ftoi4.yz vf3, vf4 nop
+ftoi12.w vf3, vf23 nop
+ftoi15.xw vf3, vf31 nop
+itof0.x vf3, vf30 nop
+itof4.yz vf3, vf4 nop
+itof12.w vf3, vf23 nop
+itof15.xw vf3, vf31 nop
+madd.xzw vf6,vf4,vf5 nop
+maddi.xy vf4, vf5, I nop
+maddq.xy vf4, vf5, Q nop
+maddx.x vf3, vf4, vf5 nop
+maddy.xy vf3, vf4, vf5 nop
+maddz.xz vf3, vf4, vf5 nop
+maddw.yw vf3, vf4, vf5 nop
+madda.xy acc, vf4, vf5  nop
+maddai.xy acc, vf4, I  nop
+maddaq.xz acc, vf4, Q  nop
+;maddax.xz acc, vf4, vf23  nop
+;madday.xz acc, vf4, vf23  nop
+;maddaz.xz acc, vf4, vf23  nop
+;maddaw.xz acc, vf4, vf23  nop
 nop nop
 nop[d] nop
 nop[iemdt] nop
