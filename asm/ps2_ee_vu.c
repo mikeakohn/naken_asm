@@ -84,7 +84,7 @@ static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *compo
   return 0;
 }
 
-static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, int *dest, int is_lower)
+static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, int *dest, int *iemdt_bits, int is_lower)
 {
   int operand_count = 0;
   int n;
@@ -122,6 +122,39 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         }
 
         n++;
+      }
+
+      continue;
+    }
+
+    if (operand_count == 0 && IS_TOKEN(token, '['))
+    {
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      n = 0;
+      while(token[n] != 0)
+      {
+        char c = tolower(token[n]);
+        if (c == 'i') { *iemdt_bits |= 16; }
+        else if (c == 'e') { *iemdt_bits |= 8; }
+        else if (c == 'm') { *iemdt_bits |= 4; }
+        else if (c == 'd') { *iemdt_bits |= 2; }
+        else if (c == 't') { *iemdt_bits |= 1; }
+        else
+        {
+          printf("Error: Unknown flag '%c' at %s:%d\n", token[n], asm_context->filename, asm_context->line);
+          return -1;
+        }
+
+        n++;
+      }
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (IS_NOT_TOKEN(token, ']'))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
       }
 
       continue;
@@ -200,12 +233,13 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
   uint32_t opcode = 0;
   char instr_case[TOKENLEN];
   int dest = 0;
+  int iemdt_bits = 0;
   int n, r;
 
   lower_copy(instr_case, instr);
   memset(operands, 0, sizeof(operands));
 
-  operand_count = get_operands(asm_context, operands, instr, instr_case, &dest, is_lower);
+  operand_count = get_operands(asm_context, operands, instr, instr_case, &dest, &iemdt_bits, is_lower);
 
   if (operand_count < 0) { return -1; }
 
@@ -250,7 +284,13 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
         }
       }
 
-      return opcode | (dest << 21);
+      if (is_lower == 1 && iemdt_bits != 0)
+      {
+        printf("Error: Cannot set IEMDT bits in lower instruction at %s:%d\n", asm_context->filename, asm_context->line);
+        return -1;
+      }
+
+      return opcode | (iemdt_bits << 27) | (dest << 21);
     }
     n++;
   }
