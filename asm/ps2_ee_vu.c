@@ -103,7 +103,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       return -1;
     }
 
-    if (operand_count == 0 && IS_TOKEN(token,'.'))
+    if (operand_count == 0 && IS_TOKEN(token, '.'))
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -157,6 +157,12 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
     }
       else
     {
+      if (is_lower == 0 && operand_count == 0)
+      {
+        tokens_push(asm_context, token, token_type);
+        break;
+      }
+
       print_error_unexp(token, asm_context);
       return -1;
     }
@@ -170,6 +176,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       if (IS_NOT_TOKEN(token,','))
       {
         tokens_push(asm_context, token, token_type);
+        break;
       }
     }
       else
