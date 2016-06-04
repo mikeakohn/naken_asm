@@ -50,6 +50,20 @@ minix.xz vf11, vf4, vf23  nop
 miniy.xz vf11, vf4, vf23  nop
 miniz.xz vf11, vf4, vf23  nop
 miniw.xz vf11, vf4, vf23  nop
+msub.xzw vf6,vf4,vf5 nop
+msubi.xy vf4, vf5, I nop
+msubq.xy vf4, vf5, Q nop
+msubx.x vf3, vf4, vf5 nop
+msuby.xy vf3, vf4, vf5 nop
+msubz.xz vf3, vf4, vf5 nop
+msubw.yw vf3, vf4, vf5 nop
+msuba.xy acc, vf4, vf5  nop
+msubai.xy acc, vf4, I  nop
+msubaq.xz acc, vf4, Q  nop
+msubax.xz acc, vf4, vf23  nop
+msubay.xz acc, vf4, vf23  nop
+msubaz.xz acc, vf4, vf23  nop
+msubaw.xz acc, vf4, vf23  nop
 nop nop
 nop[d] nop
 nop[iemdt] nop
