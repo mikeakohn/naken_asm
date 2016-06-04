@@ -64,6 +64,29 @@ msubax.xz acc, vf4, vf23  nop
 msubay.xz acc, vf4, vf23  nop
 msubaz.xz acc, vf4, vf23  nop
 msubaw.xz acc, vf4, vf23  nop
+mul.xzw vf6,vf4,vf5 nop
+muli.xy vf4, vf5, I nop
+mulq.xy vf4, vf5, Q nop
+mulx.x vf3, vf4, vf5 nop
+muly.xy vf3, vf4, vf5 nop
+mulz.xz vf3, vf4, vf5 nop
+mulw.yw vf3, vf4, vf5 nop
 nop nop
 nop[d] nop
 nop[iemdt] nop
+opmula.xyz acc, vf4, vf5 nop
+;opmsub.xyz vf7, vf4, vf5 nop
+sub.xyzw vf6,vf4,vf5 nop
+subi.xy vf4, vf5, I nop
+subq.xy vf4, vf5, Q nop
+subx.x vf3x, vf4x, vf5 nop
+suby.x vf3x, vf4x, vf5 nop
+subz.x vf3x, vf4x, vf5 nop
+subw.x vf3x, vf4x, vf5 nop
+suba.xy acc, vf4, vf5  nop
+subai.xy acc, vf4, I  nop
+subaq.xz acc, vf4, Q  nop
+subax.xz acc, vf4, vf23  nop
+subay.xz acc, vf4, vf23  nop
+subaz.xz acc, vf4, vf23  nop
+subaw.xz acc, vf4, vf23  nop

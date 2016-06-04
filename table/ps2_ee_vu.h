@@ -29,6 +29,7 @@ enum
 #define FLAG_DEST 1
 #define FLAG_BC 2
 #define FLAG_VU1_ONLY 4
+#define FLAG_XYZ 8
 
 struct _table_ps2_ee_vu
 {

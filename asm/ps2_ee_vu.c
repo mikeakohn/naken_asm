@@ -269,6 +269,12 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
         continue;
       }
 
+      if ((table_ps2_ee_vu[n].flags & FLAG_XYZ) != 0 && dest != 0xe)
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
+      }
+
       opcode = table_ps2_ee_vu[n].opcode;
 
       for (r = 0; r < table_ps2_ee_vu[n].operand_count; r++)
