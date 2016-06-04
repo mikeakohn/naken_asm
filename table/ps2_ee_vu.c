@@ -13,13 +13,20 @@
 
 #include "table/ps2_ee_vu.h"
 
-struct _table_ps2_ee_vu table_ps2_ee_vu[] =
+struct _table_ps2_ee_vu table_ps2_ee_vu_upper[] =
 {
-  { "add", { EE_VU_OP_FS, EE_VU_OP_FT, EE_VU_OP_NONE }, 2, 0x000001fd, 0x060007ff, FLAG_NONE, 1, IS_UPPER },
-  { "addx", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x01000000, 0xffe0003c, FLAG_DEST | FLAG_BC, 1, IS_UPPER },
-  { "addy", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00800000, 0xffe0003c, FLAG_DEST | FLAG_BC, 1, IS_UPPER },
-  { "addz", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00400000, 0xffe0003c, FLAG_DEST | FLAG_BC, 1, IS_UPPER },
-  { "addw", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00200000, 0xffe0003c, FLAG_DEST | FLAG_BC, 1, IS_UPPER },
-  { NULL, { 0, 0, 0 }, 0, 0, 0, 0, 0 }
+  { "add", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000028, 0x0600003f, FLAG_DEST },
+  { "addx", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000000, 0x0600003f, FLAG_DEST | FLAG_BC },
+  { "addy", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000001, 0x0600003f, FLAG_DEST | FLAG_BC },
+  { "addz", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000002, 0x0600003f, FLAG_DEST | FLAG_BC },
+  { "addw", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000003, 0x0600003f, FLAG_DEST | FLAG_BC },
+  { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x000002ff, 0x07ffffff, FLAG_NONE },
+  { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
+};
+
+struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
+{
+  { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE },
+  { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 

@@ -48,11 +48,12 @@ struct _operand
 
 static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *component_mask)
 {
-  int ptr = 3;
+  int ptr = 2;
 
-  if (token[0] != '$') { return -1; }
-  if (token[1] != 'v') { return -1; }
-  if (token[2] != 'f') { return -1; }
+  if (token[0] == '$') { token++; }
+
+  if (token[0] != 'v') { return -1; }
+  if (token[1] != 'f') { return -1; }
 
   *type = OPERAND_VREG;
   *value = 0;
@@ -64,7 +65,7 @@ static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *compo
     ptr++;
   }
 
-  if (token[ptr] == 2) { return -1; }
+  if (ptr == 2) { return -1; }
 
   while(token[ptr] != 0)
   {
@@ -83,7 +84,7 @@ static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *compo
   return 0;
 }
 
-static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, int *dest)
+static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, int *dest, int is_lower)
 {
   int operand_count = 0;
   int n;
@@ -126,9 +127,15 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       continue;
     }
 
-    if (token[0] == '$')
+    n = get_register_ps2_ee_vu(token,
+                               &operands[operand_count].type,
+                               &operands[operand_count].value,
+                               &operands[operand_count].component_mask);
+
+    if (n != -1)
     {
-      if (get_register_ps2_ee_vu(token,
+#if 0
+      if (get_register_ps2_ee_vu(&token[1],
                                 &operands[operand_count].type,
                                 &operands[operand_count].value,
                                 &operands[operand_count].component_mask) == -1)
@@ -136,6 +143,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         print_error_unexp(token, asm_context);
         return -1;
       }
+#endif
     }
       else
     if (IS_TOKEN(token, 'I') || IS_TOKEN(token, 'i'))
@@ -156,18 +164,29 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
     operand_count++;
 
     token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL) { break; }
-    if (IS_NOT_TOKEN(token,','))
+
+    if (is_lower == 0)
     {
-      print_error_unexp(token, asm_context);
-      return -1;
+      if (IS_NOT_TOKEN(token,','))
+      {
+        tokens_push(asm_context, token, token_type);
+      }
+    }
+      else
+    {
+      if (token_type == TOKEN_EOL) { break; }
+      if (IS_NOT_TOKEN(token,','))
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
     }
   }
 
   return operand_count;
 }
 
-int parse_instruction_ps2_ee_vu(struct _asm_context *asm_context, char *instr)
+static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu *table_ps2_ee_vu, char *instr, int is_lower)
 {
   struct _operand operands[MAX_OPERANDS];
   int operand_count;
@@ -179,7 +198,7 @@ int parse_instruction_ps2_ee_vu(struct _asm_context *asm_context, char *instr)
   lower_copy(instr_case, instr);
   memset(operands, 0, sizeof(operands));
 
-  operand_count = get_operands(asm_context, operands, instr, instr_case, &dest);
+  operand_count = get_operands(asm_context, operands, instr, instr_case, &dest, is_lower);
 
   if (operand_count < 0) { return -1; }
 
@@ -224,13 +243,41 @@ int parse_instruction_ps2_ee_vu(struct _asm_context *asm_context, char *instr)
         }
       }
 
-      add_bin32(asm_context, opcode, IS_OPCODE);
-      return 4;
+      return opcode | (dest << 21);
     }
     n++;
   }
 
   return -1;
+}
+
+int parse_instruction_ps2_ee_vu(struct _asm_context *asm_context, char *instr)
+{
+  uint32_t opcode_upper;
+  uint32_t opcode_lower;
+  int token_type;
+  char token[TOKENLEN];
+
+  opcode_upper = get_opcode(asm_context, table_ps2_ee_vu_upper, instr, 0);
+
+  if (opcode_upper == -1) { return -1; }
+
+  // Get lower instruction
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+  if (token_type != TOKEN_STRING)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  opcode_lower = get_opcode(asm_context, table_ps2_ee_vu_lower, token, 1);
+
+  if (opcode_lower == -1) { return -1; }
+
+  add_bin32(asm_context, opcode_lower, IS_OPCODE);
+  add_bin32(asm_context, opcode_upper, IS_OPCODE);
+
+  return 8;
 }
 
 

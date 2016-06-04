@@ -27,8 +27,7 @@ enum
 #define FLAG_NONE 0
 #define FLAG_DEST 1
 #define FLAG_BC 2
-#define IS_LOWER 0
-#define IS_UPPER 1
+#define FLAG_VU1_ONLY 4
 
 struct _table_ps2_ee_vu
 {
@@ -38,11 +37,10 @@ struct _table_ps2_ee_vu
   uint32_t opcode;
   uint32_t mask;
   int8_t flags;
-  int8_t vu1_only : 1;
-  int8_t is_upper : 1;
 };
 
-extern struct _table_ps2_ee_vu table_ps2_ee_vu[];
+extern struct _table_ps2_ee_vu table_ps2_ee_vu_upper[];
+extern struct _table_ps2_ee_vu table_ps2_ee_vu_lower[];
 
 #endif
 
