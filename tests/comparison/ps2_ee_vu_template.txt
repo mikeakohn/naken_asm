@@ -1,8 +1,14 @@
+abs.zw vf6zw,vf4 nop
 add.xyzw vf6,vf4,vf5 nop
+addi.xy vf4, vf5, I nop
+addq.xy vf4, vf5, Q nop
 addx.x vf3x, vf4x, vf5 nop
 addy.x vf3x, vf4x, vf5 nop
 addz.x vf3x, vf4x, vf5 nop
 addw.x vf3x, vf4x, vf5 nop
+adda.xy acc, vf4, vf5  nop
+addai.xy acc, vf4, I  nop
+addw[em].x vf3x, vf4x, vf5 nop
 nop nop
 nop[d] nop
 nop[iemdt] nop

@@ -22,6 +22,7 @@ enum
   EE_VU_OP_FD,
   EE_VU_OP_I,
   EE_VU_OP_Q,
+  EE_VU_OP_ACC,
 };
 
 #define FLAG_NONE 0

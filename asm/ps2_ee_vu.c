@@ -28,6 +28,7 @@ enum
   OPERAND_VREG,
   OPERAND_I,
   OPERAND_Q,
+  OPERAND_ACC,
   OPERAND_IMMEDIATE,
 };
 
@@ -189,6 +190,11 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       operands[operand_count].type = OPERAND_Q;
     }
       else
+    if (strcasecmp(token, "acc") == 0)
+    {
+      operands[operand_count].type = OPERAND_ACC;
+    }
+      else
     {
       if (is_lower == 0 && operand_count == 0)
       {
@@ -270,13 +276,49 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
         switch(table_ps2_ee_vu[n].operand[r])
         {
           case EE_VU_OP_FT:
+            if (operands[r].type != OPERAND_VREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
             opcode |= (operands[r].value << 16);
             break;
           case EE_VU_OP_FS:
+            if (operands[r].type != OPERAND_VREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
             opcode |= (operands[r].value << 11);
             break;
           case EE_VU_OP_FD:
+            if (operands[r].type != OPERAND_VREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
             opcode |= (operands[r].value << 6);
+            break;
+          case EE_VU_OP_I:
+            if (operands[r].type != OPERAND_I)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+            break;
+          case EE_VU_OP_Q:
+            if (operands[r].type != OPERAND_Q)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+            break;
+          case EE_VU_OP_ACC:
+            if (operands[r].type != OPERAND_ACC)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
             break;
           default:
             print_error_illegal_operands(instr, asm_context);
