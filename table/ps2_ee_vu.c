@@ -54,6 +54,18 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_upper[] =
   { "madday", { EE_VU_OP_ACC, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x0000023d, 0x060007ff, FLAG_DEST },
   { "maddaz", { EE_VU_OP_ACC, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x0000023e, 0x060007ff, FLAG_DEST },
   { "maddaw", { EE_VU_OP_ACC, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x0000023f, 0x060007ff, FLAG_DEST },
+  { "max", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x0000002b, 0x0600003f, FLAG_DEST },
+  { "maxi", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_I }, 3, 0x0000001d, 0x061f003f, FLAG_DEST },
+  { "maxx", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000010, 0x0600003f, FLAG_DEST | FLAG_BC },
+  { "maxy", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000011, 0x0600003f, FLAG_DEST | FLAG_BC },
+  { "maxz", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000012, 0x0600003f, FLAG_DEST | FLAG_BC },
+  { "maxw", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000013, 0x0600003f, FLAG_DEST | FLAG_BC },
+  { "mini", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x0000002f, 0x0600003f, FLAG_DEST },
+  { "minii", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_I }, 3, 0x0000001f, 0x061f003f, FLAG_DEST },
+  { "minix", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000014, 0x0600003f, FLAG_DEST | FLAG_BC },
+  { "miniy", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000015, 0x0600003f, FLAG_DEST | FLAG_BC },
+  { "miniz", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000016, 0x0600003f, FLAG_DEST | FLAG_BC },
+  { "miniw", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x00000017, 0x0600003f, FLAG_DEST | FLAG_BC },
   { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x000002ff, 0x07ffffff, FLAG_NONE },
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };

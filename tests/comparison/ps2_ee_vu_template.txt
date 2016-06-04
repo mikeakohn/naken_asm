@@ -38,6 +38,18 @@ maddaq.xz acc, vf4, Q  nop
 ;madday.xz acc, vf4, vf23  nop
 ;maddaz.xz acc, vf4, vf23  nop
 ;maddaw.xz acc, vf4, vf23  nop
+max.xz vf3, vf4, vf5 nop
+maxi.xy vf4, vf5, I nop
+maxx.xz vf11, vf4, vf23  nop
+maxy.xz vf11, vf4, vf23  nop
+maxz.xz vf11, vf4, vf23  nop
+maxw.xz vf11, vf4, vf23  nop
+mini.xz vf3, vf4, vf5 nop
+minii.xy vf4, vf5, I nop
+minix.xz vf11, vf4, vf23  nop
+miniy.xz vf11, vf4, vf23  nop
+miniz.xz vf11, vf4, vf23  nop
+miniw.xz vf11, vf4, vf23  nop
 nop nop
 nop[d] nop
 nop[iemdt] nop
