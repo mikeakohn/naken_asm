@@ -27,7 +27,8 @@
 
 enum
 {
-  OPERAND_VREG,
+  OPERAND_VFREG,
+  OPERAND_VIREG,
   OPERAND_I,
   OPERAND_Q,
   OPERAND_P,
@@ -57,9 +58,22 @@ static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *field
   if (token[0] == '$') { token++; }
 
   if (token[0] != 'v') { return -1; }
-  if (token[1] != 'f') { return -1; }
 
-  *type = OPERAND_VREG;
+
+  if (token[1] == 'f')
+  {
+    *type = OPERAND_VFREG;
+  }
+    else
+  if (token[1] == 'i')
+  {
+    *type = OPERAND_VIREG;
+  }
+    else
+  {
+    return -1;
+  }
+
   *value = 0;
 
   while(1)
@@ -92,7 +106,7 @@ static int get_field(int field_mask)
 {
   uint8_t value[16] =
   {
-    -1,  4,  3, -1,  // 0
+    -1,  3,  2, -1,  // 0
      1, -1, -1, -1,  // 4
      0, -1, -1, -1,  // 8
     -1, -1, -1, -1,  // 12
@@ -184,16 +198,6 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
 
     if (n != -1)
     {
-#if 0
-      if (get_register_ps2_ee_vu(&token[1],
-                                &operands[operand_count].type,
-                                &operands[operand_count].value,
-                                &operands[operand_count].field_mask) == -1)
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-#endif
     }
       else
     if (IS_TOKEN(token, 'I') || IS_TOKEN(token, 'i'))
@@ -330,7 +334,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
         switch(table_ps2_ee_vu[n].operand[r])
         {
           case EE_VU_OP_FT:
-            if (operands[r].type != OPERAND_VREG)
+            if (operands[r].type != OPERAND_VFREG)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;
@@ -346,7 +350,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
             }
             break;
           case EE_VU_OP_FS:
-            if (operands[r].type != OPERAND_VREG)
+            if (operands[r].type != OPERAND_VFREG)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;
@@ -362,12 +366,20 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
             }
             break;
           case EE_VU_OP_FD:
-            if (operands[r].type != OPERAND_VREG)
+            if (operands[r].type != OPERAND_VFREG)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;
             }
             opcode |= (operands[r].value << 6);
+            break;
+          case EE_VU_OP_VI:
+            if (operands[r].type != OPERAND_VIREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+            opcode |= (operands[r].value << 16);
             break;
           case EE_VU_OP_I:
             if (operands[r].type != OPERAND_I)

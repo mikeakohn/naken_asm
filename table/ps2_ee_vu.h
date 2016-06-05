@@ -20,6 +20,7 @@ enum
   EE_VU_OP_FT,
   EE_VU_OP_FS,
   EE_VU_OP_FD,
+  EE_VU_OP_VI,
   EE_VU_OP_I,
   EE_VU_OP_Q,
   EE_VU_OP_P,

@@ -92,6 +92,9 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
           case EE_VU_OP_FD:
             sprintf(temp, " vf%d", fd);
             break;
+          case EE_VU_OP_VI:
+            sprintf(temp, " vi%d", ft);
+            break;
           case EE_VU_OP_I:
             strcpy(temp, " I");
             break;

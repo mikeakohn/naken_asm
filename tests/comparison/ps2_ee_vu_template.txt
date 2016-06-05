@@ -14,8 +14,7 @@ adday.xz acc, vf4, vf23  nop
 addaz.xz acc, vf4, vf23  nop
 addaw.xz acc, vf4, vf23  nop
 addw[em].x vf3x, vf4x, vf5 nop
-;clipw.x vf3, vf4 nop
-;clipw.w vf3, vf4 nop
+clipw.xyz vf3, vf4 nop
 ftoi0.x vf3, vf30 nop
 ftoi4.yz vf3, vf4 nop
 ftoi12.w vf3, vf23 nop
@@ -34,10 +33,10 @@ maddw.yw vf3, vf4, vf5 nop
 madda.xy acc, vf4, vf5  nop
 maddai.xy acc, vf4, I  nop
 maddaq.xz acc, vf4, Q  nop
-;maddax.xz acc, vf4, vf23  nop
-;madday.xz acc, vf4, vf23  nop
-;maddaz.xz acc, vf4, vf23  nop
-;maddaw.xz acc, vf4, vf23  nop
+maddax.xz acc, vf4, vf23  nop
+madday.xz acc, vf4, vf23  nop
+maddaz.xz acc, vf4, vf23  nop
+maddaw.xz acc, vf4, vf23  nop
 max.xz vf3, vf4, vf5 nop
 maxi.xy vf4, vf5, I nop
 maxx.xz vf11, vf4, vf23  nop
@@ -75,7 +74,7 @@ nop nop
 nop[d] nop
 nop[iemdt] nop
 opmula.xyz acc, vf4, vf5 nop
-;opmsub.xyz vf7, vf4, vf5 nop
+opmsub.xyz vf7, vf4, vf5 nop
 sub.xyzw vf6,vf4,vf5 nop
 subi.xy vf4, vf5, I nop
 subq.xy vf4, vf5, Q nop
@@ -91,9 +90,13 @@ subay.xz acc, vf4, vf23  nop
 subaz.xz acc, vf4, vf23  nop
 subaw.xz acc, vf4, vf23  nop
 main: nop b main
-;main: nop bal main
-;nop div q, vf3y, vf7z
+main: nop bal vi4, main
+nop div q, vf3y, vf7z
 nop eatan p, vf3y
 nop eatanxy p, vf3
 nop eatanxz p, vf3
-;nop eexp p, vf28z
+nop eexp p, vf28z
+nop eleng p, vf27
+nop ercpr p, vf27w
+nop erleng p, vf27
+nop ersadd p, vf26
