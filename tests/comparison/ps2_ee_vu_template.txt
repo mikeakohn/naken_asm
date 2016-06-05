@@ -105,3 +105,5 @@ nop esadd p, vf26
 nop esin p, vf26y
 nop esqrt p, vf26y
 nop esum p, vf26
+nop fcand vi01, 0x123456
+nop fceq vi01, 0x123456

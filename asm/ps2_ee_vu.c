@@ -231,6 +231,8 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         }
           else
         {
+          tokens_push(asm_context, token, token_type);
+
           if (eval_expression(asm_context, &operands[operand_count].value) != 0)
           {
             print_error_unexp(token, asm_context);
@@ -381,6 +383,13 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
             }
             opcode |= (operands[r].value << 16);
             break;
+          case EE_VU_OP_VI01:
+            if (operands[r].type != OPERAND_VIREG || operands[r].value != 1)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+            break;
           case EE_VU_OP_I:
             if (operands[r].type != OPERAND_I)
             {
@@ -432,6 +441,22 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
             }
 
             opcode |= offset & 0x7ff;
+
+            break;
+          case EE_VU_OP_IMMEDIATE24:
+            if (operands[r].type != OPERAND_NUMBER)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < 0 || operands[r].value > 0xffffff)
+            {
+              print_error_range("Address", 0, 0xffffff, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value & 0xffffff;
 
             break;
           default:

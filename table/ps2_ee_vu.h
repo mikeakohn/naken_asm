@@ -21,11 +21,13 @@ enum
   EE_VU_OP_FS,
   EE_VU_OP_FD,
   EE_VU_OP_VI,
+  EE_VU_OP_VI01,
   EE_VU_OP_I,
   EE_VU_OP_Q,
   EE_VU_OP_P,
   EE_VU_OP_ACC,
   EE_VU_OP_OFFSET,
+  EE_VU_OP_IMMEDIATE24,
 };
 
 #define FLAG_NONE 0

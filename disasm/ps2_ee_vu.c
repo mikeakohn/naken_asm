@@ -26,12 +26,10 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
 {
   struct _table_ps2_ee_vu *table_ps2_ee_vu;
   uint32_t opcode;
-  int function, format, operation;
   int n, r;
   char temp[32];
   int ft, fs, fd, dest;
   int16_t offset;
-  char bc;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -60,14 +58,6 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
       fs = (opcode >> 11) & 0x1f;
       fd = (opcode >> 6) & 0x1f;
 
-#if 0
-      if ((table_ps2_ee_vu[n].mask & 0x3) == 0)
-      {
-        char bc_xyzw[] = { 'x', 'y', 'z', 'w' };
-        bc = bc_xyzw[opcode & 0x3];
-      }
-#endif
-
       if ((table_ps2_ee_vu[n].flags & FLAG_DEST) != 0)
       {
         strcat(instruction, ".");
@@ -95,6 +85,9 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
           case EE_VU_OP_VI:
             sprintf(temp, " vi%d", ft);
             break;
+          case EE_VU_OP_VI01:
+            sprintf(temp, " vi01");
+            break;
           case EE_VU_OP_I:
             strcpy(temp, " I");
             break;
@@ -111,6 +104,9 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
             offset = (opcode & 0x7ff) << 3;
             if ((offset & 0x400) != 0) { offset |= 0xf800; }
             sprintf(temp, " 0x%x (offset=%d)", address + 8 + offset, offset);
+            break;
+          case EE_VU_OP_IMMEDIATE24:
+            sprintf(temp, " 0x%06x", opcode & 0xffffff);
             break;
           default:
             strcpy(temp, " ?");
