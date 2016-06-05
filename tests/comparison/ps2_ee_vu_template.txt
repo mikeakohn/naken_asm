@@ -124,3 +124,8 @@ nop iaddi vi17, vi27, -5
 nop iaddiu vi17, vi27, 0x7123
 nop iaddiu vi17, vi27, 0x0123
 nop iaddiu vi17, vi27, 0x0823
+nop iand vi17, vi27, vi10
+main: nop ibeq vi17, vi27, main
+main: nop ibgez vi27, main
+main: nop ibgtz vi27, main
+main: nop iblez vi27, main
