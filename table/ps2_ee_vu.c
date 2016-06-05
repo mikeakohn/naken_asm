@@ -108,9 +108,14 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_upper[] =
 
 struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
 {
+  { "b", { EE_VU_OP_OFFSET, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x40000000, 0xfffff800, FLAG_NONE },
+  { "bal", { EE_VU_OP_OFFSET, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x42000000, 0xfffff800, FLAG_NONE },
+  { "div", { EE_VU_OP_Q, EE_VU_OP_FT, EE_VU_OP_FS }, 3, 0x800003bc, 0xfe0007ff, FLAG_TE | FLAG_SE },
+  { "eatan", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x800007fd, 0xff9f07ff, FLAG_SE | FLAG_VU1_ONLY },
+  { "eatanxy", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x8180077c, 0xffff07ff, FLAG_VU1_ONLY },
+  { "eatanxz", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x8140077d, 0xffff07ff, FLAG_VU1_ONLY },
+  { "eexp", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x800007fe, 0xff9f07ff, FLAG_SE | FLAG_VU1_ONLY },
   { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE }, // DAFUQ?
-  { "b", { EE_VU_OP_OFFSET, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x80000000, 0xfffff800, FLAG_NONE },
-  { "bal", { EE_VU_OP_OFFSET, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x82000000, 0xfffff800, FLAG_NONE },
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 

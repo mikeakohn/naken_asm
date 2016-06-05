@@ -90,3 +90,10 @@ subax.xz acc, vf4, vf23  nop
 subay.xz acc, vf4, vf23  nop
 subaz.xz acc, vf4, vf23  nop
 subaw.xz acc, vf4, vf23  nop
+main: nop b main
+;main: nop bal main
+;nop div q, vf3y, vf7z
+nop eatan p, vf3y
+nop eatanxy p, vf3
+nop eatanxz p, vf3
+;nop eexp p, vf28z

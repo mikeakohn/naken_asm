@@ -30,26 +30,27 @@ enum
   OPERAND_VREG,
   OPERAND_I,
   OPERAND_Q,
+  OPERAND_P,
   OPERAND_ACC,
   OPERAND_NUMBER,
 };
 
 enum
 {
-  COMPONENT_X = 8,
-  COMPONENT_Y = 4,
-  COMPONENT_Z = 2,
-  COMPONENT_W = 1,
+  FIELD_X = 8,
+  FIELD_Y = 4,
+  FIELD_Z = 2,
+  FIELD_W = 1,
 };
 
 struct _operand
 {
   int value;
   int type;
-  int component_mask;
+  int field_mask;
 };
 
-static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *component_mask)
+static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *field_mask)
 {
   int ptr = 2;
 
@@ -73,10 +74,10 @@ static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *compo
   while(token[ptr] != 0)
   {
     char c = tolower(token[ptr]);
-    if (c == 'x') { *component_mask |= COMPONENT_X; }
-    else if (c == 'y') { *component_mask |= COMPONENT_Y; }
-    else if (c == 'z') { *component_mask |= COMPONENT_Z; }
-    else if (c == 'w') { *component_mask |= COMPONENT_W; }
+    if (c == 'x') { *field_mask |= FIELD_X; }
+    else if (c == 'y') { *field_mask |= FIELD_Y; }
+    else if (c == 'z') { *field_mask |= FIELD_Z; }
+    else if (c == 'w') { *field_mask |= FIELD_W; }
     else
     {
       return -1;
@@ -85,6 +86,19 @@ static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *compo
   }
 
   return 0;
+}
+
+static int get_field(int field_mask)
+{
+  uint8_t value[16] =
+  {
+    -1,  4,  3, -1,  // 0
+     1, -1, -1, -1,  // 4
+     0, -1, -1, -1,  // 8
+    -1, -1, -1, -1,  // 12
+  };
+
+  return value[field_mask];
 }
 
 static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, int *dest, int *iemdt_bits, int is_lower)
@@ -114,10 +128,10 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       while(token[n] != 0)
       {
         char c = tolower(token[n]);
-        if (c == 'x') { *dest |= COMPONENT_X; }
-        else if (c == 'y') { *dest |= COMPONENT_Y; }
-        else if (c == 'z') { *dest |= COMPONENT_Z; }
-        else if (c == 'w') { *dest |= COMPONENT_W; }
+        if (c == 'x') { *dest |= FIELD_X; }
+        else if (c == 'y') { *dest |= FIELD_Y; }
+        else if (c == 'z') { *dest |= FIELD_Z; }
+        else if (c == 'w') { *dest |= FIELD_W; }
         else
         {
           printf("Error: Unknown component '%c' at %s:%d\n", token[n], asm_context->filename, asm_context->line);
@@ -166,7 +180,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
     n = get_register_ps2_ee_vu(token,
                                &operands[operand_count].type,
                                &operands[operand_count].value,
-                               &operands[operand_count].component_mask);
+                               &operands[operand_count].field_mask);
 
     if (n != -1)
     {
@@ -174,7 +188,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       if (get_register_ps2_ee_vu(&token[1],
                                 &operands[operand_count].type,
                                 &operands[operand_count].value,
-                                &operands[operand_count].component_mask) == -1)
+                                &operands[operand_count].field_mask) == -1)
       {
         print_error_unexp(token, asm_context);
         return -1;
@@ -190,6 +204,11 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
     if (IS_TOKEN(token, 'Q') || IS_TOKEN(token, 'q'))
     {
       operands[operand_count].type = OPERAND_Q;
+    }
+      else
+    if (IS_TOKEN(token, 'P') || IS_TOKEN(token, 'p'))
+    {
+      operands[operand_count].type = OPERAND_P;
     }
       else
     if (strcasecmp(token, "acc") == 0)
@@ -276,8 +295,8 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
   printf("operand_count=%d  dest=%d\n", operand_count, dest);
   for (n = 0; n < operand_count; n++)
   {
-    printf("  type=%d value=%d component_mask=%d\n",
-      operands[n].type, operands[n].value, operands[n].component_mask);
+    printf("  type=%d value=%d field_mask=%d\n",
+      operands[n].type, operands[n].value, operands[n].field_mask);
   }
 #endif
 
@@ -298,6 +317,12 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
         return -1;
       }
 
+      if ((table_ps2_ee_vu[n].flags & FLAG_DEST) == 0 && dest != 0x00)
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
+      }
+
       opcode = table_ps2_ee_vu[n].opcode;
 
       for (r = 0; r < table_ps2_ee_vu[n].operand_count; r++)
@@ -310,7 +335,15 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
               print_error_illegal_operands(instr, asm_context);
               return -1;
             }
+
             opcode |= (operands[r].value << 16);
+
+            if ((table_ps2_ee_vu[n].flags & FLAG_TE) != 0)
+            {
+              int field = get_field(operands[r].field_mask);
+              if (field == -1) { return -1; }
+              opcode |= field << 23;
+            }
             break;
           case EE_VU_OP_FS:
             if (operands[r].type != OPERAND_VREG)
@@ -318,7 +351,15 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
               print_error_illegal_operands(instr, asm_context);
               return -1;
             }
+
             opcode |= (operands[r].value << 11);
+
+            if ((table_ps2_ee_vu[n].flags & FLAG_SE) != 0)
+            {
+              int field = get_field(operands[r].field_mask);
+              if (field == -1) { return -1; }
+              opcode |= field << 21;
+            }
             break;
           case EE_VU_OP_FD:
             if (operands[r].type != OPERAND_VREG)
@@ -337,6 +378,13 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
             break;
           case EE_VU_OP_Q:
             if (operands[r].type != OPERAND_Q)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+            break;
+          case EE_VU_OP_P:
+            if (operands[r].type != OPERAND_P)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;

@@ -22,6 +22,7 @@ enum
   EE_VU_OP_FD,
   EE_VU_OP_I,
   EE_VU_OP_Q,
+  EE_VU_OP_P,
   EE_VU_OP_ACC,
   EE_VU_OP_OFFSET,
 };
@@ -31,6 +32,8 @@ enum
 #define FLAG_BC 2
 #define FLAG_VU1_ONLY 4
 #define FLAG_XYZ 8
+#define FLAG_TE 16
+#define FLAG_SE 32
 
 struct _table_ps2_ee_vu
 {
