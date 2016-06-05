@@ -35,6 +35,7 @@ enum
   OPERAND_ACC,
   OPERAND_NUMBER,
   OPERAND_OFFSET_BASE,
+  OPERAND_BASE,
 };
 
 enum
@@ -136,6 +137,54 @@ static int get_field_bits(struct _asm_context *asm_context, char *token, int *de
     }
 
     n++;
+  }
+
+  return 0;
+}
+
+int get_base(struct _asm_context *asm_context, struct _operand *operand)
+{
+  int type, n;
+  int token_type;
+  char token[TOKENLEN];
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  n = get_register_ps2_ee_vu(token, &type,
+                             &operand->base_reg,
+                             &operand->field_mask);
+
+  if (n != 0 || type != OPERAND_VIREG)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  if (expect_token(asm_context, ')') == -1) { return -1; }
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+  if (token_type == TOKEN_EOL ||
+      token_type == TOKEN_EOF ||
+      IS_TOKEN(token, ','))
+  {
+    tokens_push(asm_context, token, token_type);
+  }
+    else
+  {
+    if (get_field_bits(asm_context,
+                       token,
+                       &operand->field_mask) == -1)
+    {
+      return -1;
+    }
+
+    if (get_field_number(operand->field_mask == -1))
+    {
+      printf("Error: Only 1 dest field allowed at %s:%d\n",
+        asm_context->filename,
+        asm_context->line);
+      return -1;
+    }
   }
 
   return 0;
@@ -249,6 +298,16 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       operands[operand_count].type = OPERAND_ACC;
     }
       else
+    if (IS_TOKEN(token, '('))
+    {
+      if (get_base(asm_context, &operands[operand_count]) == -1)
+      {
+        return -1;
+      }
+
+      operands[operand_count].type = OPERAND_BASE;
+    }
+      else
     {
       if (is_lower == 1)
       {
@@ -272,47 +331,12 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
           token_type = tokens_get(asm_context, token, TOKENLEN);
           if (IS_TOKEN(token, '('))
           {
-            operands[operand_count].type = OPERAND_OFFSET_BASE;
-
-            token_type = tokens_get(asm_context, token, TOKENLEN);
-            int type;
-
-            n = get_register_ps2_ee_vu(token, &type,
-                                       &operands[operand_count].base_reg,
-                                       &operands[operand_count].field_mask);
-
-            if (type != OPERAND_VIREG)
+            if (get_base(asm_context, &operands[operand_count]) == -1)
             {
-              print_error_unexp(token, asm_context);
               return -1;
             }
 
-            if (expect_token(asm_context, ')') == -1) { return -1; }
-
-            token_type = tokens_get(asm_context, token, TOKENLEN);
-            if (token_type == TOKEN_EOL ||
-                token_type == TOKEN_EOF ||
-                IS_TOKEN(token, ','))
-            {
-              tokens_push(asm_context, token, token_type);
-            }
-              else
-            {
-              if (get_field_bits(asm_context,
-                                 token,
-                                 &operands[operand_count].field_mask) == -1)
-              {
-                return -1;
-              }
-
-              if (get_field_number(operands[operand_count].field_mask == -1))
-              {
-                printf("Error: Only 1 dest field allowed at %s:%d\n",
-                  asm_context->filename,
-                  asm_context->line);
-                return -1;
-              }
-            }
+            operands[operand_count].type = OPERAND_OFFSET_BASE;
           }
             else
           {
@@ -564,6 +588,22 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
 
             opcode |= operands[r].base_reg << 11;
             opcode |= offset & 0x7ff;
+
+            break;
+          case EE_VU_OP_BASE:
+            if (operands[r].type != OPERAND_BASE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (get_field_number(dest) == -1)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].base_reg << 11;
 
             break;
           case EE_VU_OP_IMMEDIATE24:

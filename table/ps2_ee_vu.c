@@ -146,6 +146,7 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
   { "iblez", { EE_VU_OP_VIS, EE_VU_OP_OFFSET, EE_VU_OP_NONE }, 2, 0x5c000000, 0xffff0000, FLAG_NONE },
   { "ibne", { EE_VU_OP_VIT, EE_VU_OP_VIS, EE_VU_OP_OFFSET }, 3, 0x52000000, 0xffe00000, FLAG_NONE },
   { "ilw", { EE_VU_OP_VIT, EE_VU_OP_OFFSET_BASE, EE_VU_OP_NONE }, 2, 0x08000000, 0xfe000000, FLAG_DEST },
+  { "ilwr", { EE_VU_OP_VIT, EE_VU_OP_BASE, EE_VU_OP_NONE }, 2, 0x800003fe, 0xfe0007ff, FLAG_DEST },
   { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE }, // DAFUQ?
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
