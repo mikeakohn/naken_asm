@@ -89,6 +89,9 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
           case EE_VU_OP_VIS:
             sprintf(temp, " vi%d", fs);
             break;
+          case EE_VU_OP_VID:
+            sprintf(temp, " vi%d", fd);
+            break;
           case EE_VU_OP_VI01:
             sprintf(temp, " vi01");
             break;
@@ -116,6 +119,11 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
             immediate = (opcode & (1 << 21)) >> 10;
             immediate |= opcode & 0x7ff;
             sprintf(temp, " 0x%03x", immediate);
+            break;
+          case EE_VU_OP_IMMEDIATE5:
+            immediate = (opcode >> 6) & 0x1f;
+            if ((immediate & 0x10) != 0) { immediate |= 0xfffffff0; }
+            sprintf(temp, " %d", immediate);
             break;
           default:
             strcpy(temp, " ?");
