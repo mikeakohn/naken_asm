@@ -375,13 +375,21 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
             }
             opcode |= (operands[r].value << 6);
             break;
-          case EE_VU_OP_VI:
+          case EE_VU_OP_VIT:
             if (operands[r].type != OPERAND_VIREG)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;
             }
             opcode |= (operands[r].value << 16);
+            break;
+          case EE_VU_OP_VIS:
+            if (operands[r].type != OPERAND_VIREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+            opcode |= (operands[r].value << 11);
             break;
           case EE_VU_OP_VI01:
             if (operands[r].type != OPERAND_VIREG || operands[r].value != 1)

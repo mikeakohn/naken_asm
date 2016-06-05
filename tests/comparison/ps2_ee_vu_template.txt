@@ -106,4 +106,11 @@ nop esin p, vf26y
 nop esqrt p, vf26y
 nop esum p, vf26
 nop fcand vi01, 0x123456
+nop fcand vi01, 0x123456
 nop fceq vi01, 0x123456
+nop fcget vi13
+nop fcor vi01, 0x123456
+nop fcset 0x123456
+nop fmand vi17, vi30
+nop fmeq vi17, vi30
+nop fmor vi17, vi30
