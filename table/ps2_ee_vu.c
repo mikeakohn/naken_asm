@@ -119,6 +119,11 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
   { "ercpr", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x800007be, 0xff9f07ff, FLAG_SE | FLAG_VU1_ONLY },
   { "erleng", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x81c0073f, 0xffff07ff, FLAG_VU1_ONLY },
   { "ersadd", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x81c0073d, 0xffff07ff, FLAG_VU1_ONLY },
+  { "ersqrt", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x800007bd, 0xff9f07ff, FLAG_SE | FLAG_VU1_ONLY },
+  { "esadd", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x81c0073c, 0xffff07ff, FLAG_VU1_ONLY },
+  { "esin", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x800007fc, 0xff9f07ff, FLAG_SE | FLAG_VU1_ONLY },
+  { "esqrt", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x800007bc, 0xff9f07ff, FLAG_SE | FLAG_VU1_ONLY },
+  { "esum", { EE_VU_OP_P, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x81e0077e, 0xffff07ff, FLAG_VU1_ONLY },
   { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE }, // DAFUQ?
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };

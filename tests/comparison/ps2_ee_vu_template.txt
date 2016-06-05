@@ -100,3 +100,8 @@ nop eleng p, vf27
 nop ercpr p, vf27w
 nop erleng p, vf27
 nop ersadd p, vf26
+nop ersqrt p, vf26y
+nop esadd p, vf26
+nop esin p, vf26y
+nop esqrt p, vf26y
+nop esum p, vf26
