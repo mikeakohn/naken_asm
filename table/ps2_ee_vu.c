@@ -30,7 +30,7 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_upper[] =
   { "adday", { EE_VU_OP_ACC, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x0000003d, 0x060007ff, FLAG_DEST },
   { "addaz", { EE_VU_OP_ACC, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x0000003e, 0x060007ff, FLAG_DEST },
   { "addaw", { EE_VU_OP_ACC, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x0000003f, 0x060007ff, FLAG_DEST },
-  { "clipw", { EE_VU_OP_FS, EE_VU_OP_FT, EE_VU_OP_NONE }, 2, 0x000001ff, 0x060003ff, FLAG_DEST },
+  { "clipw", { EE_VU_OP_FT, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x000001ff, 0x060003ff, FLAG_DEST },
   { "ftoi0", { EE_VU_OP_FT, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x0000017c, 0x060003ff, FLAG_DEST },
   { "ftoi4", { EE_VU_OP_FT, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x0000017d, 0x060003ff, FLAG_DEST },
   { "ftoi12", { EE_VU_OP_FT, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x0000017e, 0x060003ff, FLAG_DEST },
@@ -108,7 +108,9 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_upper[] =
 
 struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
 {
-  { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE },
+  { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE }, // DAFUQ?
+  { "b", { EE_VU_OP_OFFSET, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x80000000, 0xfffff800, FLAG_NONE },
+  { "bal", { EE_VU_OP_OFFSET, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x82000000, 0xfffff800, FLAG_NONE },
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 

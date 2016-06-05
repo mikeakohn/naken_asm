@@ -1,4 +1,4 @@
-abs.zw vf6zw,vf4 nop
+abs.zw vf6zw, vf4 nop
 add.xyzw vf6,vf4,vf5 nop
 addi.xy vf4, vf5, I nop
 addq.xy vf4, vf5, Q nop

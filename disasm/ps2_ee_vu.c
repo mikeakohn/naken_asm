@@ -30,6 +30,7 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
   int n, r;
   char temp[32];
   int ft, fs, fd, dest;
+  int16_t offset;
   char bc;
 
   *cycles_min = -1;
@@ -99,6 +100,11 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
             break;
           case EE_VU_OP_ACC:
             strcpy(temp, " ACC");
+            break;
+          case EE_VU_OP_OFFSET:
+            offset = (opcode & 0x7ff) << 3;
+            if ((offset & 0x400) != 0) { offset |= 0xf800; }
+            sprintf(temp, " 0x%x (offset=%d)", address + 8 + offset, offset);
             break;
           default:
             strcpy(temp, " ?");

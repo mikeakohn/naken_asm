@@ -22,6 +22,8 @@
 #include "table/ps2_ee_vu.h"
 
 #define MAX_OPERANDS 3
+#define OFFSET_MIN (-(1 << 10))
+#define OFFSET_MAX ((1 << 10) - 1)
 
 enum
 {
@@ -29,7 +31,7 @@ enum
   OPERAND_I,
   OPERAND_Q,
   OPERAND_ACC,
-  OPERAND_IMMEDIATE,
+  OPERAND_NUMBER,
 };
 
 enum
@@ -196,14 +198,34 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
     }
       else
     {
-      if (is_lower == 0 && operand_count == 0)
+      if (is_lower == 1)
       {
-        tokens_push(asm_context, token, token_type);
-        break;
-      }
+        operands[operand_count].type = OPERAND_NUMBER;
 
-      print_error_unexp(token, asm_context);
-      return -1;
+        if (asm_context->pass == 1)
+        {
+          eat_operand(asm_context);
+        }
+          else
+        {
+          if (eval_expression(asm_context, &operands[operand_count].value) != 0)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+        }
+      }
+        else
+      {
+        if (operand_count == 0)
+        {
+          tokens_push(asm_context, token, token_type);
+          break;
+        }
+
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
     }
 
     operand_count++;
@@ -237,6 +259,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
   struct _operand operands[MAX_OPERANDS];
   int operand_count;
   uint32_t opcode = 0;
+  int offset;
   char instr_case[TOKENLEN];
   int dest = 0;
   int iemdt_bits = 0;
@@ -325,6 +348,31 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
               print_error_illegal_operands(instr, asm_context);
               return -1;
             }
+            break;
+          case EE_VU_OP_OFFSET:
+            if (operands[r].type != OPERAND_NUMBER)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if ((operands[r].value & 0x7) != 0)
+            {
+              print_error_align(asm_context, 8);
+              return -1;
+            }
+
+            offset = operands[r].value - (asm_context->address + 8);
+            offset >>= 3;
+
+            if (offset < OFFSET_MIN || offset > OFFSET_MAX)
+            {
+              print_error_range("Address", OFFSET_MIN, OFFSET_MAX, asm_context);
+              return -1;
+            }
+
+            opcode |= offset & 0x7ff;
+
             break;
           default:
             print_error_illegal_operands(instr, asm_context);
