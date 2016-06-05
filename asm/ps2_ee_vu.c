@@ -34,6 +34,7 @@ enum
   OPERAND_P,
   OPERAND_ACC,
   OPERAND_NUMBER,
+  OPERAND_OFFSET_BASE,
 };
 
 enum
@@ -49,6 +50,7 @@ struct _operand
   int value;
   int type;
   int field_mask;
+  int base_reg;
 };
 
 static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *field_mask)
@@ -102,7 +104,7 @@ static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *field
   return 0;
 }
 
-static int get_field(int field_mask)
+static int get_field_number(int field_mask)
 {
   uint8_t value[16] =
   {
@@ -113,6 +115,30 @@ static int get_field(int field_mask)
   };
 
   return value[field_mask];
+}
+
+static int get_field_bits(struct _asm_context *asm_context, char *token, int *dest)
+{
+  int n;
+
+  n = 0;
+  while(token[n] != 0)
+  {
+    char c = tolower(token[n]);
+    if (c == 'x') { *dest |= FIELD_X; }
+    else if (c == 'y') { *dest |= FIELD_Y; }
+    else if (c == 'z') { *dest |= FIELD_Z; }
+    else if (c == 'w') { *dest |= FIELD_W; }
+    else
+    {
+      printf("Error: Unknown component '%c' at %s:%d\n", token[n], asm_context->filename, asm_context->line);
+      return -1;
+    }
+
+    n++;
+  }
+
+  return 0;
 }
 
 static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, int *dest, int *iemdt_bits, int is_lower)
@@ -138,6 +164,8 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
 
+      if (get_field_bits(asm_context, token, dest) == -1) { return -1; }
+#if 0
       n = 0;
       while(token[n] != 0)
       {
@@ -154,6 +182,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
 
         n++;
       }
+#endif
 
       continue;
     }
@@ -237,6 +266,57 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
           {
             print_error_unexp(token, asm_context);
             return -1;
+          }
+
+          // Check for base/offset
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (IS_TOKEN(token, '('))
+          {
+            operands[operand_count].type = OPERAND_OFFSET_BASE;
+
+            token_type = tokens_get(asm_context, token, TOKENLEN);
+            int type;
+
+            n = get_register_ps2_ee_vu(token, &type,
+                                       &operands[operand_count].base_reg,
+                                       &operands[operand_count].field_mask);
+
+            if (type != OPERAND_VIREG)
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+
+            if (expect_token(asm_context, ')') == -1) { return -1; }
+
+            token_type = tokens_get(asm_context, token, TOKENLEN);
+            if (token_type == TOKEN_EOL ||
+                token_type == TOKEN_EOF ||
+                IS_TOKEN(token, ','))
+            {
+              tokens_push(asm_context, token, token_type);
+            }
+              else
+            {
+              if (get_field_bits(asm_context,
+                                 token,
+                                 &operands[operand_count].field_mask) == -1)
+              {
+                return -1;
+              }
+
+              if (get_field_number(operands[operand_count].field_mask == -1))
+              {
+                printf("Error: Only 1 dest field allowed at %s:%d\n",
+                  asm_context->filename,
+                  asm_context->line);
+                return -1;
+              }
+            }
+          }
+            else
+          {
+            tokens_push(asm_context, token, token_type);
           }
         }
       }
@@ -331,6 +411,8 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
 
       opcode = table_ps2_ee_vu[n].opcode;
 
+      if (asm_context->pass == 1) { return opcode; }
+
       for (r = 0; r < table_ps2_ee_vu[n].operand_count; r++)
       {
         switch(table_ps2_ee_vu[n].operand[r])
@@ -346,7 +428,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
 
             if ((table_ps2_ee_vu[n].flags & FLAG_TE) != 0)
             {
-              int field = get_field(operands[r].field_mask);
+              int field = get_field_number(operands[r].field_mask);
               if (field == -1) { return -1; }
               opcode |= field << 23;
             }
@@ -362,7 +444,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
 
             if ((table_ps2_ee_vu[n].flags & FLAG_SE) != 0)
             {
-              int field = get_field(operands[r].field_mask);
+              int field = get_field_number(operands[r].field_mask);
               if (field == -1) { return -1; }
               opcode |= field << 21;
             }
@@ -456,6 +538,31 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
               return -1;
             }
 
+            opcode |= offset & 0x7ff;
+
+            break;
+          case EE_VU_OP_OFFSET_BASE:
+            if (operands[r].type != OPERAND_OFFSET_BASE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (get_field_number(dest) == -1)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            offset = operands[r].value;
+
+            if (offset < -0x400 || offset > 0x3ff)
+            {
+              print_error_range("Address", -0x400, 0x3ff, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].base_reg << 11;
             opcode |= offset & 0x7ff;
 
             break;

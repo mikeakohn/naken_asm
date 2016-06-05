@@ -112,6 +112,11 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
             if ((offset & 0x400) != 0) { offset |= 0xf800; }
             sprintf(temp, " 0x%x (offset=%d)", address + 8 + offset, offset);
             break;
+          case EE_VU_OP_OFFSET_BASE:
+            offset = opcode & 0x7ff;
+            if ((offset & 0x400) != 0) { offset |= 0xf800; }
+            sprintf(temp, " 0x%x(vi%d)", offset, (opcode >> 11) & 0x1f);
+            break;
           case EE_VU_OP_IMMEDIATE24:
             sprintf(temp, " 0x%06x", opcode & 0xffffff);
             break;
