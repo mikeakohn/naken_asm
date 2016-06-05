@@ -468,11 +468,28 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
 
             if (operands[r].value < 0 || operands[r].value > 0xffffff)
             {
-              print_error_range("Address", 0, 0xffffff, asm_context);
+              print_error_range("Immediate", 0, 0xffffff, asm_context);
               return -1;
             }
 
             opcode |= operands[r].value & 0xffffff;
+
+            break;
+          case EE_VU_OP_IMMEDIATE15:
+            if (operands[r].type != OPERAND_NUMBER)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < 0 || operands[r].value > 0x7fff)
+            {
+              print_error_range("Immediate", 0, 0x7fff, asm_context);
+              return -1;
+            }
+
+            opcode |= (operands[r].value & 0x7800) << 10;
+            opcode |= operands[r].value & 0x7ff;
 
             break;
           case EE_VU_OP_IMMEDIATE12:
@@ -484,7 +501,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
 
             if (operands[r].value < 0 || operands[r].value > 0xfff)
             {
-              print_error_range("Address", 0, 0xfff, asm_context);
+              print_error_range("Immediate", 0, 0xfff, asm_context);
               return -1;
             }
 
@@ -501,7 +518,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
 
             if (operands[r].value < -16 || operands[r].value > 15)
             {
-              print_error_range("Address", -16, 15, asm_context);
+              print_error_range("Immediate", -16, 15, asm_context);
               return -1;
             }
 

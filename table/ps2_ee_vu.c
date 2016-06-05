@@ -138,6 +138,7 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
   { "fsset", { EE_VU_OP_IMMEDIATE12, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x2a000000, 0xffdff800, FLAG_NONE },
   { "iadd", { EE_VU_OP_VID, EE_VU_OP_VIS, EE_VU_OP_VIT }, 3, 0x80000030, 0xffe0003f, FLAG_NONE },
   { "iaddi", { EE_VU_OP_VIT, EE_VU_OP_VIS, EE_VU_OP_IMMEDIATE5 }, 3, 0x80000032, 0xffe0003f, FLAG_NONE },
+  { "iaddiu", { EE_VU_OP_VIT, EE_VU_OP_VIS, EE_VU_OP_IMMEDIATE15 }, 3, 0x10000000, 0xfe000000, FLAG_NONE },
   { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE }, // DAFUQ?
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };

@@ -121,3 +121,6 @@ nop fsor vi17, 0x912
 nop fsset 0x900
 nop iadd vi17, vi27, vi10
 nop iaddi vi17, vi27, -5
+nop iaddiu vi17, vi27, 0x7123
+nop iaddiu vi17, vi27, 0x0123
+nop iaddiu vi17, vi27, 0x0823
