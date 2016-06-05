@@ -467,6 +467,23 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
             opcode |= operands[r].value & 0xffffff;
 
             break;
+          case EE_VU_OP_IMMEDIATE12:
+            if (operands[r].type != OPERAND_NUMBER)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < 0 || operands[r].value > 0xfff)
+            {
+              print_error_range("Address", 0, 0xfff, asm_context);
+              return -1;
+            }
+
+            opcode |= (operands[r].value & 0x800) << 10;
+            opcode |= operands[r].value & 0x7ff;
+
+            break;
           default:
             print_error_illegal_operands(instr, asm_context);
             return -1;

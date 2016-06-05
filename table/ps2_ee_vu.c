@@ -132,6 +132,10 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
   { "fmand", { EE_VU_OP_VIT, EE_VU_OP_VIS, EE_VU_OP_NONE }, 2, 0x34000000, 0xffe007ff, FLAG_NONE },
   { "fmeq", { EE_VU_OP_VIT, EE_VU_OP_VIS, EE_VU_OP_NONE }, 2, 0x30000000, 0xffe007ff, FLAG_NONE },
   { "fmor", { EE_VU_OP_VIT, EE_VU_OP_VIS, EE_VU_OP_NONE }, 2, 0x36000000, 0xffe007ff, FLAG_NONE },
+  { "fsand", { EE_VU_OP_VIT, EE_VU_OP_IMMEDIATE12, EE_VU_OP_NONE }, 2, 0x2c000000, 0xffc0f800, FLAG_NONE },
+  { "fseq", { EE_VU_OP_VIT, EE_VU_OP_IMMEDIATE12, EE_VU_OP_NONE }, 2, 0x28000000, 0xffc0f800, FLAG_NONE },
+  { "fsor", { EE_VU_OP_VIT, EE_VU_OP_IMMEDIATE12, EE_VU_OP_NONE }, 2, 0x2e000000, 0xffc0f800, FLAG_NONE },
+  { "fsset", { EE_VU_OP_IMMEDIATE12, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x2a000000, 0xffdff800, FLAG_NONE },
   { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE }, // DAFUQ?
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };

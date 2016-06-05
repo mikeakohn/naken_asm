@@ -30,6 +30,7 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
   char temp[32];
   int ft, fs, fd, dest;
   int16_t offset;
+  int immediate;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -110,6 +111,11 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
             break;
           case EE_VU_OP_IMMEDIATE24:
             sprintf(temp, " 0x%06x", opcode & 0xffffff);
+            break;
+          case EE_VU_OP_IMMEDIATE12:
+            immediate = (opcode & (1 << 21)) >> 10;
+            immediate |= opcode & 0x7ff;
+            sprintf(temp, " 0x%03x", immediate);
             break;
           default:
             strcpy(temp, " ?");
