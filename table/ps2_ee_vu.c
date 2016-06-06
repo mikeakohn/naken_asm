@@ -147,6 +147,14 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
   { "ibne", { EE_VU_OP_VIT, EE_VU_OP_VIS, EE_VU_OP_OFFSET }, 3, 0x52000000, 0xffe00000, FLAG_NONE },
   { "ilw", { EE_VU_OP_VIT, EE_VU_OP_OFFSET_BASE, EE_VU_OP_NONE }, 2, 0x08000000, 0xfe000000, FLAG_DEST },
   { "ilwr", { EE_VU_OP_VIT, EE_VU_OP_BASE, EE_VU_OP_NONE }, 2, 0x800003fe, 0xfe0007ff, FLAG_DEST },
+  { "ior", { EE_VU_OP_VID, EE_VU_OP_VIS, EE_VU_OP_VIT }, 3, 0x80000035, 0xffe0003f, FLAG_NONE },
+  { "isub", { EE_VU_OP_VID, EE_VU_OP_VIS, EE_VU_OP_VIT }, 3, 0x80000031, 0xffe0003f, FLAG_NONE },
+  { "isubiu", { EE_VU_OP_VIT, EE_VU_OP_VIS, EE_VU_OP_IMMEDIATE15 }, 3, 0x12000000, 0xfe000000, FLAG_NONE },
+  { "isw", { EE_VU_OP_VIT, EE_VU_OP_OFFSET_BASE, EE_VU_OP_NONE }, 2, 0x0a000000, 0xfe000000, FLAG_DEST },
+  { "iswr", { EE_VU_OP_VIT, EE_VU_OP_BASE, EE_VU_OP_NONE }, 2, 0x800003ff, 0xfe0007ff, FLAG_DEST },
+  { "jalr", { EE_VU_OP_VIT, EE_VU_OP_VIS, EE_VU_OP_NONE }, 2, 0x4a000000, 0xffe007ff, FLAG_NONE },
+  { "jr", { EE_VU_OP_VIS, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x48000000, 0xffff07ff, FLAG_NONE },
+  { "lq", { EE_VU_OP_VIT, EE_VU_OP_OFFSET_BASE, EE_VU_OP_NONE }, 2, 0x00000000, 0xfe000000, FLAG_DEST },
   { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE }, // DAFUQ?
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
