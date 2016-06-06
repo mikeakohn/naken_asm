@@ -154,7 +154,8 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
   { "iswr", { EE_VU_OP_VIT, EE_VU_OP_BASE, EE_VU_OP_NONE }, 2, 0x800003ff, 0xfe0007ff, FLAG_DEST },
   { "jalr", { EE_VU_OP_VIT, EE_VU_OP_VIS, EE_VU_OP_NONE }, 2, 0x4a000000, 0xffe007ff, FLAG_NONE },
   { "jr", { EE_VU_OP_VIS, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x48000000, 0xffff07ff, FLAG_NONE },
-  { "lq", { EE_VU_OP_VIT, EE_VU_OP_OFFSET_BASE, EE_VU_OP_NONE }, 2, 0x00000000, 0xfe000000, FLAG_DEST },
+  { "lq", { EE_VU_OP_FT, EE_VU_OP_OFFSET_BASE, EE_VU_OP_NONE }, 2, 0x00000000, 0xfe000000, FLAG_DEST },
+  { "lqd", { EE_VU_OP_FT, EE_VU_OP_BASE_DEC, EE_VU_OP_NONE }, 2, 0x8000037e, 0xfe0007ff, FLAG_DEST },
   { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE }, // DAFUQ?
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };

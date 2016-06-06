@@ -36,6 +36,7 @@ enum
   OPERAND_NUMBER,
   OPERAND_OFFSET_BASE,
   OPERAND_BASE,
+  OPERAND_BASE_DEC,
 };
 
 enum
@@ -300,12 +301,23 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       else
     if (IS_TOKEN(token, '('))
     {
+      operands[operand_count].type = OPERAND_BASE;
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token, '-'))
+      {
+        operands[operand_count].type = OPERAND_BASE_DEC;
+        if (expect_token(asm_context, '-') == -1) { return -1; }
+      }
+        else
+      {
+        tokens_push(asm_context, token, token_type);
+      }
+
       if (get_base(asm_context, &operands[operand_count]) == -1)
       {
         return -1;
       }
-
-      operands[operand_count].type = OPERAND_BASE;
     }
       else
     {
@@ -597,7 +609,19 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
               return -1;
             }
 
+#if 0
             if (get_field_number(dest) == -1)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+#endif
+
+            opcode |= operands[r].base_reg << 11;
+
+            break;
+          case EE_VU_OP_BASE_DEC:
+            if (operands[r].type != OPERAND_BASE_DEC)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;

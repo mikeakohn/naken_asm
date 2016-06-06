@@ -138,4 +138,5 @@ nop isw.y vi27, 101(vi21)
 nop iswr.y vi27, (vi21)
 nop jalr vi5, vi6
 nop jr vi15
-nop lq.y vi27, 101(vi21)
+nop lq.y vf27, 101(vi21)
+nop lqd.x vf27, (--vi21)
