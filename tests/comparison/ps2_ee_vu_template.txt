@@ -140,3 +140,4 @@ nop jalr vi5, vi6
 nop jr vi15
 nop lq.y vf27, 101(vi21)
 nop lqd.x vf27, (--vi21)
+nop lqi.x vf27, (vi21++)

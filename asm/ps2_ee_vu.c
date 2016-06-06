@@ -37,6 +37,7 @@ enum
   OPERAND_OFFSET_BASE,
   OPERAND_BASE,
   OPERAND_BASE_DEC,
+  OPERAND_BASE_INC,
 };
 
 enum
@@ -143,13 +144,22 @@ static int get_field_bits(struct _asm_context *asm_context, char *token, int *de
   return 0;
 }
 
-int get_base(struct _asm_context *asm_context, struct _operand *operand)
+int get_base(struct _asm_context *asm_context, struct _operand *operand, int *modifier)
 {
   int type, n;
   int token_type;
   char token[TOKENLEN];
 
+  *modifier = 0;
+
   token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (IS_TOKEN(token, '-'))
+  {
+    *modifier = -1;
+    if (expect_token(asm_context, '-') == -1) { return -1; }
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+  }
 
   n = get_register_ps2_ee_vu(token, &type,
                              &operand->base_reg,
@@ -161,9 +171,26 @@ int get_base(struct _asm_context *asm_context, struct _operand *operand)
     return -1;
   }
 
-  if (expect_token(asm_context, ')') == -1) { return -1; }
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (*modifier == 0)
+  {
+    if (IS_TOKEN(token, '+'))
+    {
+      *modifier = 1;
+      if (expect_token(asm_context, '+') == -1) { return -1; }
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+    }
+  }
+
+  if (IS_NOT_TOKEN(token, ')'))
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
+
   if (token_type == TOKEN_EOL ||
       token_type == TOKEN_EOF ||
       IS_TOKEN(token, ','))
@@ -194,6 +221,7 @@ int get_base(struct _asm_context *asm_context, struct _operand *operand)
 static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, int *dest, int *iemdt_bits, int is_lower)
 {
   int operand_count = 0;
+  int modifier;
   int n;
   int token_type;
   char token[TOKENLEN];
@@ -215,24 +243,6 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       token_type = tokens_get(asm_context, token, TOKENLEN);
 
       if (get_field_bits(asm_context, token, dest) == -1) { return -1; }
-#if 0
-      n = 0;
-      while(token[n] != 0)
-      {
-        char c = tolower(token[n]);
-        if (c == 'x') { *dest |= FIELD_X; }
-        else if (c == 'y') { *dest |= FIELD_Y; }
-        else if (c == 'z') { *dest |= FIELD_Z; }
-        else if (c == 'w') { *dest |= FIELD_W; }
-        else
-        {
-          printf("Error: Unknown component '%c' at %s:%d\n", token[n], asm_context->filename, asm_context->line);
-          return -1;
-        }
-
-        n++;
-      }
-#endif
 
       continue;
     }
@@ -303,21 +313,13 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
     {
       operands[operand_count].type = OPERAND_BASE;
 
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (IS_TOKEN(token, '-'))
-      {
-        operands[operand_count].type = OPERAND_BASE_DEC;
-        if (expect_token(asm_context, '-') == -1) { return -1; }
-      }
-        else
-      {
-        tokens_push(asm_context, token, token_type);
-      }
-
-      if (get_base(asm_context, &operands[operand_count]) == -1)
+      if (get_base(asm_context, &operands[operand_count], &modifier) == -1)
       {
         return -1;
       }
+
+      if (modifier == -1) { operands[operand_count].type = OPERAND_BASE_DEC; }
+      else if (modifier == 1) { operands[operand_count].type = OPERAND_BASE_INC; }
     }
       else
     {
@@ -343,9 +345,16 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
           token_type = tokens_get(asm_context, token, TOKENLEN);
           if (IS_TOKEN(token, '('))
           {
-            if (get_base(asm_context, &operands[operand_count]) == -1)
+            if (get_base(asm_context,
+                         &operands[operand_count],
+                         &modifier) == -1)
             {
               return -1;
+            }
+
+            if (modifier != 0)
+            {
+              printf("Error: Instruction cannot have modifier at %s:%d\n", asm_context->filename, asm_context->line);
             }
 
             operands[operand_count].type = OPERAND_OFFSET_BASE;
@@ -622,6 +631,16 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
             break;
           case EE_VU_OP_BASE_DEC:
             if (operands[r].type != OPERAND_BASE_DEC)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].base_reg << 11;
+
+            break;
+          case EE_VU_OP_BASE_INC:
+            if (operands[r].type != OPERAND_BASE_INC)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;
