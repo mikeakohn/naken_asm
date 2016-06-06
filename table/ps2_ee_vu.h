@@ -27,6 +27,7 @@ enum
   EE_VU_OP_I,
   EE_VU_OP_Q,
   EE_VU_OP_P,
+  EE_VU_OP_R,
   EE_VU_OP_ACC,
   EE_VU_OP_OFFSET,
   EE_VU_OP_OFFSET_BASE,

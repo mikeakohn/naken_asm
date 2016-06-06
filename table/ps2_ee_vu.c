@@ -157,7 +157,21 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
   { "lq", { EE_VU_OP_FT, EE_VU_OP_OFFSET_BASE, EE_VU_OP_NONE }, 2, 0x00000000, 0xfe000000, FLAG_DEST },
   { "lqd", { EE_VU_OP_FT, EE_VU_OP_BASE_DEC, EE_VU_OP_NONE }, 2, 0x8000037e, 0xfe0007ff, FLAG_DEST },
   { "lqi", { EE_VU_OP_FT, EE_VU_OP_BASE_INC, EE_VU_OP_NONE }, 2, 0x8000037c, 0xfe0007ff, FLAG_DEST },
+  { "mfir", { EE_VU_OP_FT, EE_VU_OP_VIS, EE_VU_OP_NONE }, 2, 0x800003fd, 0xfe0007ff, FLAG_DEST },
+  { "mfp", { EE_VU_OP_FT, EE_VU_OP_P, EE_VU_OP_NONE }, 2, 0x8000067c, 0xfe0007ff, FLAG_DEST },
+  { "move", { EE_VU_OP_FT, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x8000033c, 0xfe0007ff, FLAG_DEST },
+  { "mr32", { EE_VU_OP_FT, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x8000033d, 0xfe0007ff, FLAG_DEST },
+  { "mtir", { EE_VU_OP_VIT, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x800003fc, 0xff8007ff, FLAG_SE },
   { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE }, // DAFUQ?
+  { "rget", { EE_VU_OP_FT, EE_VU_OP_R, EE_VU_OP_NONE }, 2, 0x8000043d, 0xfe00ffff, FLAG_DEST },
+  { "rinit", { EE_VU_OP_R, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x8000043e, 0xff9f07ff, FLAG_SE },
+  { "rnext", { EE_VU_OP_FT, EE_VU_OP_R, EE_VU_OP_NONE }, 2, 0x8000043c, 0xfe00ffff, FLAG_DEST },
+  { "rsqrt", { EE_VU_OP_Q, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x800003be, 0xffe007ff, FLAG_TE | FLAG_SE },
+  { "rxor", { EE_VU_OP_R, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x8000043f, 0xff9f07ff, FLAG_SE },
+  { "sq", { EE_VU_OP_FS, EE_VU_OP_OFFSET_BASE, EE_VU_OP_NONE }, 2, 0x02000000, 0xfe000000, FLAG_DEST },
+  { "sqd", { EE_VU_OP_FS, EE_VU_OP_BASE_DEC, EE_VU_OP_NONE }, 2, 0x8000037f, 0xfe0007ff, FLAG_DEST },
+  { "sqi", { EE_VU_OP_FS, EE_VU_OP_BASE_INC, EE_VU_OP_NONE }, 2, 0x8000037d, 0xfe0007ff, FLAG_DEST },
+  { "sqrt", { EE_VU_OP_Q, EE_VU_OP_FT, EE_VU_OP_NONE }, 2, 0x800003bd, 0xfe60ffff, FLAG_TE },
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 

@@ -32,6 +32,7 @@ enum
   OPERAND_I,
   OPERAND_Q,
   OPERAND_P,
+  OPERAND_R,
   OPERAND_ACC,
   OPERAND_NUMBER,
   OPERAND_OFFSET_BASE,
@@ -304,6 +305,11 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       operands[operand_count].type = OPERAND_P;
     }
       else
+    if (IS_TOKEN(token, 'R') || IS_TOKEN(token, 'r'))
+    {
+      operands[operand_count].type = OPERAND_R;
+    }
+      else
     if (strcasecmp(token, "acc") == 0)
     {
       operands[operand_count].type = OPERAND_ACC;
@@ -554,6 +560,13 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
               return -1;
             }
             break;
+          case EE_VU_OP_R:
+            if (operands[r].type != OPERAND_R)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+            break;
           case EE_VU_OP_ACC:
             if (operands[r].type != OPERAND_ACC)
             {
@@ -607,7 +620,14 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
               return -1;
             }
 
-            opcode |= operands[r].base_reg << 11;
+            if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
+            {
+              opcode |= operands[r].base_reg << 16;
+            }
+              else
+            {
+              opcode |= operands[r].base_reg << 11;
+            }
             opcode |= offset & 0x7ff;
 
             break;
@@ -618,15 +638,14 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
               return -1;
             }
 
-#if 0
-            if (get_field_number(dest) == -1)
+            if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
             {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
+              opcode |= operands[r].base_reg << 16;
             }
-#endif
-
-            opcode |= operands[r].base_reg << 11;
+              else
+            {
+              opcode |= operands[r].base_reg << 11;
+            }
 
             break;
           case EE_VU_OP_BASE_DEC:
@@ -636,7 +655,14 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
               return -1;
             }
 
-            opcode |= operands[r].base_reg << 11;
+            if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
+            {
+              opcode |= operands[r].base_reg << 16;
+            }
+              else
+            {
+              opcode |= operands[r].base_reg << 11;
+            }
 
             break;
           case EE_VU_OP_BASE_INC:
@@ -646,7 +672,14 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
               return -1;
             }
 
-            opcode |= operands[r].base_reg << 11;
+            if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
+            {
+              opcode |= operands[r].base_reg << 16;
+            }
+              else
+            {
+              opcode |= operands[r].base_reg << 11;
+            }
 
             break;
           case EE_VU_OP_IMMEDIATE24:

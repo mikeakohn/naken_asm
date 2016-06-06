@@ -141,3 +141,17 @@ nop jr vi15
 nop lq.y vf27, 101(vi21)
 nop lqd.x vf27, (--vi21)
 nop lqi.x vf27, (vi21++)
+nop mfir.xy vf17, vi27
+nop mfp.xy vf17, P
+nop move.xy vf17, vf27
+nop mr32.xy vf17, vf27
+nop mtir vi17, vf27x
+nop rget.xy vf17, R
+nop rinit R, vf17x
+nop rnext.xy vf17, R
+nop rsqrt Q, vf17y, vf19x
+nop rxor R, vf17x
+nop sq.y vf27, 101(vi21)
+nop sqd.x vf27, (--vi21)
+nop sqi.x vf27, (vi21++)
+nop sqrt Q, vf17y
