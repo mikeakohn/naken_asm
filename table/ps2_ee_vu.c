@@ -172,6 +172,11 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
   { "sqd", { EE_VU_OP_FS, EE_VU_OP_BASE_DEC, EE_VU_OP_NONE }, 2, 0x8000037f, 0xfe0007ff, FLAG_DEST },
   { "sqi", { EE_VU_OP_FS, EE_VU_OP_BASE_INC, EE_VU_OP_NONE }, 2, 0x8000037d, 0xfe0007ff, FLAG_DEST },
   { "sqrt", { EE_VU_OP_Q, EE_VU_OP_FT, EE_VU_OP_NONE }, 2, 0x800003bd, 0xfe60ffff, FLAG_TE },
+  { "waitp", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x800007bf, 0xffffffff, FLAG_NONE },
+  { "waitq", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x800003bf, 0xffffffff, FLAG_NONE },
+  { "xgkick", { EE_VU_OP_VIS, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x800006fc, 0xffff07ff, FLAG_NONE },
+  { "xitop", { EE_VU_OP_VIT, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x800006bd, 0xffe0ffff, FLAG_NONE },
+  { "xtop", { EE_VU_OP_VIT, EE_VU_OP_NONE, EE_VU_OP_NONE }, 1, 0x800006bc, 0xffe0ffff, FLAG_NONE },
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 

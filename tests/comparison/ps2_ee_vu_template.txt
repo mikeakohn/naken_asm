@@ -155,3 +155,8 @@ nop sq.y vf27, 101(vi21)
 nop sqd.x vf27, (--vi21)
 nop sqi.x vf27, (vi21++)
 nop sqrt Q, vf17y
+nop waitp
+nop waitq
+nop xgkick vi10
+nop xitop vi10
+nop xtop vi10
