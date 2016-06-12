@@ -148,7 +148,7 @@ void list_output_propeller(struct _asm_context *asm_context, uint32_t start, uin
   }
 }
 
-void disasm_range_propeller(struct _memory *memory, uint32_t start, uint32_t end)
+void disasm_range_propeller(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
   char bytes[16];

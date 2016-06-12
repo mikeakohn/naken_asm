@@ -595,7 +595,7 @@ int simulate_run_mips(struct _simulate *simulate, int max_cycles, int step)
         int cycles_min, cycles_max;
 
         uint32_t opcode = memory_read32_m(simulate->memory, pc);
-        int count = disasm_mips(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+        int count = disasm_mips(simulate->memory, MIPS_I | MIPS_II | MIPS_III | MIPS_32, pc, instruction, &cycles_min, &cycles_max);
 
         if (count < 1) { break; }
 

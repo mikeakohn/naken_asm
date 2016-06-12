@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -26,6 +26,7 @@ struct _util_context
   long *debug_line_offset;
   FILE *src_fp;
   int fd;
+  uint32_t flags;
   disasm_range_t disasm_range;
 };
 

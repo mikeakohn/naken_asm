@@ -25,7 +25,8 @@
 #define MIPS_32 16 
 #define MIPS_FPU 32 
 #define MIPS_EE_CORE 64
-#define MIPS_MSA 128
+#define MIPS_EE_VU 128
+#define MIPS_MSA 256
 
 enum
 {
@@ -56,16 +57,6 @@ enum
   MIPS_OP_WS,
   MIPS_OP_WT,
 };
-
-#if 0
-enum
-{
-  MIPS_COP_NONE,
-  MIPS_COP_FD,
-  MIPS_COP_FS,
-  MIPS_COP_FT,
-};
-#endif
 
 struct _mips_instr
 {

@@ -22,7 +22,7 @@ int get_cycle_count_mips(uint32_t opcode)
   return -1;
 }
 
-int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
   int function, format, operation;
@@ -62,6 +62,8 @@ int disasm_mips(struct _memory *memory, uint32_t address, char *instruction, int
     n = 0;
     while(mips_special_table[n].instr != NULL)
     {
+      if (mips_special_table[n].version)
+
       if (mips_special_table[n].format == format &&
           mips_special_table[n].function == function)
       {
@@ -451,7 +453,7 @@ void list_output_mips(struct _asm_context *asm_context, uint32_t start, uint32_t
   {
     opcode = memory_read32_m(&asm_context->memory, start);
 
-    disasm_mips(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_mips(&asm_context->memory, asm_context->flags, start, instruction, &cycles_min, &cycles_max);
 
     fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
@@ -464,7 +466,7 @@ void list_output_mips(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_mips(struct _memory *memory, uint32_t start, uint32_t end)
+void disasm_range_mips(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0,cycles_max = 0;
@@ -483,7 +485,7 @@ void disasm_range_mips(struct _memory *memory, uint32_t start, uint32_t end)
           (READ_RAM(start + 2) << 16) |
           (READ_RAM(start + 3) << 24);
 
-    disasm_mips(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_mips(memory, flags, start, instruction, &cycles_min, &cycles_max);
 
     if (cycles_min < 1)
     {

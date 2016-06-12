@@ -475,8 +475,7 @@ static void disasm_range(struct _util_context *util_context, int start, int end)
       {
         address_min = memory_get_page_address_min(&util_context->memory, curr_start);
         address_max = memory_get_page_address_max(&util_context->memory, curr_end);
-        //util_context->disasm_range(&util_context->memory, curr_start, curr_end);
-        util_context->disasm_range(&util_context->memory, address_min, address_max);
+        util_context->disasm_range(&util_context->memory, util_context->flags, address_min, address_max);
         valid_page_start = 0;
       }
     }
@@ -487,7 +486,7 @@ static void disasm_range(struct _util_context *util_context, int start, int end)
 //printf("valid_page %x %x\n",curr_start, curr_end);
     address_min = memory_get_page_address_min(&util_context->memory, curr_start);
     address_max = memory_get_page_address_max(&util_context->memory, curr_end);
-    util_context->disasm_range(&util_context->memory, address_min, address_max);
+    util_context->disasm_range(&util_context->memory, util_context->flags, address_min, address_max);
   }
 //printf("%x %x %d\n", start, end, memory_in_use(&util_context->memory, curr_end));
 }
@@ -504,7 +503,7 @@ static void disasm(struct _util_context *util_context, char *token, int dbg_flag
     return;
   }
 
-  util_context->disasm_range(&util_context->memory, start, end);
+  util_context->disasm_range(&util_context->memory, util_context->flags, start, end);
 }
 
 static void show_info(struct _util_context *util_context)
@@ -687,9 +686,11 @@ int main(int argc, char *argv[])
 #ifndef NO_MSP430
   util_context.disasm_range = disasm_range_msp430;
   util_context.simulate = simulate_init_msp430(&util_context.memory);
+  util_context.flags = 0;
 #else
   util_context.disasm_range = cpu_list[0].disasm_range;
   util_context.simulate = simulate_init_null(&util_context.memory);
+  util_context.flags = cpu_list[0].flags;
 #endif
 
   for (i = 1; i < argc; i++)
@@ -699,9 +700,11 @@ int main(int argc, char *argv[])
       int n = 0;
       while (cpu_list[n].name != NULL)
       {
-        if (strcasecmp(argv[i] + 1, cpu_list[n].name)==0)
+        if (strcasecmp(argv[i] + 1, cpu_list[n].name) == 0)
         {
           util_context.disasm_range = cpu_list[n].disasm_range;
+          util_context.flags = cpu_list[n].flags;
+
           if (cpu_list[n].simulate_init != NULL)
           {
             util_context.simulate = cpu_list[n].simulate_init(&util_context.memory);
@@ -788,6 +791,8 @@ int main(int argc, char *argv[])
           if (cpu_type == cpu_list[n].type)
           {
             util_context.disasm_range = cpu_list[n].disasm_range;
+            util_context.flags = cpu_list[n].flags;
+
             if (cpu_list[n].simulate_init != NULL)
             {
               // FIXME - Remove this free by allocating the memory early
@@ -1167,7 +1172,7 @@ int main(int argc, char *argv[])
        }
          else
        {
-         disasm_range(&util_context, util_context.memory.low_address, util_context.memory.high_address);
+         disasm_range(&util_context, util_context.flags, util_context.memory.low_address, util_context.memory.high_address);
        }
     }
 #endif

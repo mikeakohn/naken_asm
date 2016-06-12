@@ -181,7 +181,7 @@ void list_output_tms1100(struct _asm_context *asm_context, uint32_t start, uint3
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
 }
 
-void disasm_range_tms1000(struct _memory *memory, uint32_t start, uint32_t end)
+void disasm_range_tms1000(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;
@@ -219,7 +219,7 @@ void disasm_range_tms1000(struct _memory *memory, uint32_t start, uint32_t end)
   }
 }
 
-void disasm_range_tms1100(struct _memory *memory, uint32_t start, uint32_t end)
+void disasm_range_tms1100(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;

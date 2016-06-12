@@ -281,7 +281,7 @@ void list_output_68hc08(struct _asm_context *asm_context, uint32_t start, uint32
   }
 }
 
-void disasm_range_68hc08(struct _memory *memory, uint32_t start, uint32_t end)
+void disasm_range_68hc08(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
   char bytes[14];

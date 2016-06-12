@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -844,12 +844,12 @@ void list_output_msp430x(struct _asm_context *asm_context, uint32_t start, uint3
   list_output_msp430_both(asm_context, start, end, 1);
 }
 
-void disasm_range_msp430(struct _memory *memory, uint32_t start, uint32_t end)
+void disasm_range_msp430(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   disasm_range_msp430_both(memory, start, end, 0);
 }
 
-void disasm_range_msp430x(struct _memory *memory, uint32_t start, uint32_t end)
+void disasm_range_msp430x(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   disasm_range_msp430_both(memory, start, end, 1);
 }

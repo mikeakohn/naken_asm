@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -78,6 +78,7 @@ struct _asm_context
   uint8_t msp430_cpu4:1;
   uint8_t no_symbols:1;
   uint8_t pass_1_write_disable:1;
+  uint32_t flags;
   uint32_t extra_context;
 };
 

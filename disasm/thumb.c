@@ -269,7 +269,7 @@ void list_output_thumb(struct _asm_context *asm_context, uint32_t start, uint32_
   }
 }
 
-void disasm_range_thumb(struct _memory *memory, uint32_t start, uint32_t end)
+void disasm_range_thumb(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;

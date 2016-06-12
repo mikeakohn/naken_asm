@@ -60,7 +60,7 @@ void list_output_NAME(struct _asm_context *asm_context, uint32_t start, uint32_t
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
 }
 
-void disasm_range_NAME(struct _memory *memory, uint32_t start, uint32_t end)
+void disasm_range_NAME(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
   char bytes[10];
