@@ -12,12 +12,16 @@ andi $t5, $t6, 0x1234
 main: b main
 main: bc0f main
 main: bc1f main
+main: bc2f main
 main: bc0fl main
 main: bc1fl main
+main: bc2fl main
 main: bc0t main
 main: bc1t main
+main: bc2t main
 main: bc0tl main
 main: bc1tl main
+main: bc2tl main
 ;bal $t1, main
 main: beq $t6, $t7, main
 main: beqz $t6, main
@@ -304,3 +308,9 @@ tnei $t3, 0x1234
 xor $t3, $k0, $k1
 xori $t3, $k0, 0x1234
 xori $t0, $t0, 0xff
+cfc2 $t0, $vi1
+cfc2.ni $t0, $vi1
+cfc2.i $t0, $vi16
+ctc2 $t0, $vi1
+ctc2.ni $t0, $vi1
+ctc2.i $t0, $vi16

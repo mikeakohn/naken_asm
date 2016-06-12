@@ -56,6 +56,7 @@ enum
   MIPS_OP_WD,
   MIPS_OP_WS,
   MIPS_OP_WT,
+  MIPS_OP_VI,
 };
 
 struct _mips_instr

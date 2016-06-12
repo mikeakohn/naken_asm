@@ -26,6 +26,7 @@ enum
   OPERAND_TREG,
   OPERAND_FREG,
   OPERAND_WREG,
+  OPERAND_VIREG,
   OPERAND_IMMEDIATE,
   OPERAND_IMMEDIATE_RS,
 };
@@ -58,6 +59,18 @@ static int get_register_mips(char *token, char letter)
   if (token[0] != '$')
   {
     if (letter != 'f' && strcasecmp(token, "zero") == 0) { return 0; }
+    return -1;
+  }
+
+  if (letter == 'v')
+  {
+    if (token[2] != 'i') { return -1; }
+    if (token[3] == 0) { return -1; }
+    num = get_number(token + 3);
+    if (num >= 0 && num <= 31)
+    {
+      return num;
+    }
     return -1;
   }
 
@@ -400,6 +413,14 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       {
         operands[operand_count].value = num;
         operands[operand_count].type = OPERAND_WREG;
+        break;
+      }
+
+      num = get_register_mips(token, 'v');
+      if (num != -1)
+      {
+        operands[operand_count].value = num;
+        operands[operand_count].type = OPERAND_VIREG;
         break;
       }
 
@@ -1046,6 +1067,16 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             }
 
             opcode |= operands[r].value << 6;
+
+            break;
+          case MIPS_OP_VI:
+            if (operands[r].type != OPERAND_VIREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
 
             break;
           case MIPS_OP_SA:

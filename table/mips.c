@@ -141,6 +141,10 @@ struct _mips_other mips_other[] =
   { "bc0fl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41020000, 0xffff0000, MIPS_I },
   { "bc0t", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41010000, 0xffff0000, MIPS_I },
   { "bc0tl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41030000, 0xffff0000, MIPS_I },
+  { "bc2f", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x49000000, 0xffff0000, MIPS_I },
+  { "bc2fl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x49020000, 0xffff0000, MIPS_I },
+  { "bc2t", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x49010000, 0xffff0000, MIPS_I },
+  { "bc2tl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x49030000, 0xffff0000, MIPS_I },
   { "di", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000039, 0xffffffff, MIPS_I },
   { "div1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001a, 0xfc00ffff, MIPS_EE_CORE },
   { "divu1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001b, 0xfc00ffff, MIPS_EE_CORE },
@@ -312,6 +316,14 @@ struct _mips_other mips_other[] =
   { "pxor", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x700004c9, 0xfc0007ff, MIPS_EE_CORE },
   { "qfsrv", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x700006e8, 0xfc0007ff, MIPS_EE_CORE },
 
+  // Emotion Engine VU0 instructions
+  { "cfc2", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48400000, 0xffe007ff, MIPS_EE_CORE },
+  { "cfc2.ni", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48400000, 0xffe007ff, MIPS_EE_CORE },
+  { "cfc2.i", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48400001, 0xffe007ff, MIPS_EE_CORE },
+  { "ctc2", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48c00000, 0xffe007ff, MIPS_EE_CORE },
+  { "ctc2.ni", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48c00000, 0xffe007ff, MIPS_EE_CORE },
+  { "ctc2.i", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48c00001, 0xffe007ff, MIPS_EE_CORE },
+
   // FPU instructions
   { "abs.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000005, 0xffff003f, MIPS_I },
   { "add.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000000, 0xffe0003f, MIPS_I },
@@ -399,4 +411,9 @@ struct _mips_other mips_msa[] =
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 
+#if 0
+struct _mips_other mips_ee_vector[] =
+{
+}
+#endif
 

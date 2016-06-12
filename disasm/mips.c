@@ -198,6 +198,9 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
           case MIPS_OP_FD:
             sprintf(temp, " $f%d", sa);
             break;
+          case MIPS_OP_VI:
+            sprintf(temp, " $vi%d", rd);
+            break;
           case MIPS_OP_SA:
             sprintf(temp, " %d", sa);
             break;
