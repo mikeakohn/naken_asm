@@ -16,6 +16,7 @@
 
 #include "asm/common.h"
 #include "asm/ps2_ee_vu.h"
+#include "disasm/ps2_ee_vu.h"
 #include "common/assembler.h"
 #include "common/tokens.h"
 #include "common/eval_expression.h"
@@ -442,6 +443,14 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
   {
     if (strcmp(instr_case, table_ps2_ee_vu[n].instr) == 0)
     {
+      if (asm_context->flags == PS2_EE_VU0 &&
+         (table_ps2_ee_vu[n].flags & FLAG_VU1_ONLY))
+      {
+        printf("Error: Instruction only valid in VU1 at %s:%d\n",
+               asm_context->filename, asm_context->line);
+        return -1;
+      }
+
       if (operand_count != table_ps2_ee_vu[n].operand_count)
       {
         n++;

@@ -12,7 +12,7 @@ default:
 	bash run_test.sh msp430x
 	bash run_test.sh pic32
 	bash run_test.sh ps2_ee
-	bash run_test.sh ps2_ee_vu
+	bash run_test.sh ps2_ee_vu1
 	bash run_test.sh stm8
 	bash run_test.sh z80
 

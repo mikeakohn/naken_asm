@@ -166,7 +166,7 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
   { "rget", { EE_VU_OP_FT, EE_VU_OP_R, EE_VU_OP_NONE }, 2, 0x8000043d, 0xfe00ffff, FLAG_DEST },
   { "rinit", { EE_VU_OP_R, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x8000043e, 0xff9f07ff, FLAG_SE },
   { "rnext", { EE_VU_OP_FT, EE_VU_OP_R, EE_VU_OP_NONE }, 2, 0x8000043c, 0xfe00ffff, FLAG_DEST },
-  { "rsqrt", { EE_VU_OP_Q, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x800003be, 0xffe007ff, FLAG_TE | FLAG_SE },
+  { "rsqrt", { EE_VU_OP_Q, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x800003be, 0xfe0007ff, FLAG_TE | FLAG_SE },
   { "rxor", { EE_VU_OP_R, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x8000043f, 0xff9f07ff, FLAG_SE },
   { "sq", { EE_VU_OP_FS, EE_VU_OP_OFFSET_BASE, EE_VU_OP_NONE }, 2, 0x02000000, 0xfe000000, FLAG_DEST },
   { "sqd", { EE_VU_OP_FS, EE_VU_OP_BASE_DEC, EE_VU_OP_NONE }, 2, 0x8000037f, 0xfe0007ff, FLAG_DEST },

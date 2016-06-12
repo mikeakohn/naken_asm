@@ -22,7 +22,7 @@ int get_cycle_count_ps2_ee_vu(uint32_t opcode)
   return -1;
 }
 
-int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max, int is_lower)
+int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, char *instruction, int *cycles_min, int *cycles_max, int is_lower)
 {
   struct _table_ps2_ee_vu *table_ps2_ee_vu;
   uint32_t opcode;
@@ -50,6 +50,12 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
   n = 0;
   while(table_ps2_ee_vu[n].instr != NULL)
   {
+    if (flags == PS2_EE_VU0 && (table_ps2_ee_vu[n].flags & FLAG_VU1_ONLY))
+    {
+      n++;
+      continue;
+    }
+
     if (table_ps2_ee_vu[n].opcode == (opcode & table_ps2_ee_vu[n].mask))
     {
       strcpy(instruction, table_ps2_ee_vu[n].instr);
@@ -161,6 +167,8 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t address, char *instruction
     n++;
   }
 
+  strcpy(instruction, "???");
+
   return 4;
 }
 
@@ -179,8 +187,8 @@ void list_output_ps2_ee_vu(struct _asm_context *asm_context, uint32_t start, uin
     opcode_upper = memory_read32_m(&asm_context->memory, start + 4);
     opcode_lower = memory_read32_m(&asm_context->memory, start);
 
-    disasm_ps2_ee_vu(&asm_context->memory, start + 4, instruction_upper, &cycles_min, &cycles_max, 0);
-    disasm_ps2_ee_vu(&asm_context->memory, start, instruction_lower, &cycles_min, &cycles_max, 1);
+    disasm_ps2_ee_vu(&asm_context->memory, asm_context->flags, start + 4, instruction_upper, &cycles_min, &cycles_max, 0);
+    disasm_ps2_ee_vu(&asm_context->memory, asm_context->flags, start, instruction_lower, &cycles_min, &cycles_max, 1);
 
     fprintf(asm_context->list, "0x%08x: 0x%08x 0x%08x %-20s %s\n", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
 
@@ -215,8 +223,8 @@ void disasm_range_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t sta
     opcode_upper = memory_read32_m(memory, start + 4);
     opcode_lower = memory_read32_m(memory, start);
 
-    disasm_ps2_ee_vu(memory, start + 4, instruction_upper, &cycles_min, &cycles_max, 0);
-    disasm_ps2_ee_vu(memory, start, instruction_lower, &cycles_min, &cycles_max, 1);
+    disasm_ps2_ee_vu(memory, flags, start + 4, instruction_upper, &cycles_min, &cycles_max, 0);
+    disasm_ps2_ee_vu(memory, flags, start, instruction_lower, &cycles_min, &cycles_max, 1);
 
     printf("0x%08x: 0x%08x 0x%08x %-20s %s", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
 
