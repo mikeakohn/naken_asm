@@ -72,6 +72,7 @@ static void configure_cpu(struct _asm_context *asm_context, int index)
   asm_context->parse_instruction = cpu_list[index].parse_instruction;
   asm_context->parse_directive = cpu_list[index].parse_directive;
   asm_context->list_output = cpu_list[index].list_output;
+  asm_context->flags = cpu_list[index].flags;
   asm_context->cpu_list_index = index;
 }
 

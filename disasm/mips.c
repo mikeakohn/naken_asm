@@ -62,7 +62,12 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
     n = 0;
     while(mips_special_table[n].instr != NULL)
     {
-      if (mips_special_table[n].version)
+      // Check of this specific MIPS chip uses this instruction.
+      if ((mips_special_table[n].version & flags) == 0)
+      {
+        n++;
+        continue;
+      }
 
       if (mips_special_table[n].format == format &&
           mips_special_table[n].function == function)
@@ -152,6 +157,13 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
   n = 0;
   while(mips_other[n].instr != NULL)
   {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_other[n].version & flags) == 0)
+    {
+      n++;
+      continue;
+    }
+
     if (mips_other[n].opcode == (opcode & mips_other[n].mask))
     {
       strcpy(instruction, mips_other[n].instr);
@@ -217,6 +229,13 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
   n = 0;
   while(mips_msa[n].instr != NULL)
   {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_msa[n].version & flags) == 0)
+    {
+      n++;
+      continue;
+    }
+
     if (mips_msa[n].opcode == (opcode & mips_msa[n].mask))
     {
       strcpy(instruction, mips_msa[n].instr);
@@ -257,6 +276,13 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
   n = 0;
   while(mips_branch_table[n].instr != NULL)
   {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_branch_table[n].version & flags) == 0)
+    {
+      n++;
+      continue;
+    }
+
     if (mips_branch_table[n].op_rt == -1)
     {
       if ((opcode >> 26) == mips_branch_table[n].opcode)
@@ -293,6 +319,13 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
     n = 0;
     while(mips_r_table[n].instr != NULL)
     {
+      // Check of this specific MIPS chip uses this instruction.
+      if ((mips_r_table[n].version & flags) == 0)
+      {
+        n++;
+        continue;
+      }
+
       if (mips_r_table[n].function == function)
       {
         rs = (opcode >> 21) & 0x1f;
@@ -361,6 +394,13 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
     n = 0;
     while(mips_i_table[n].instr != NULL)
     {
+      // Check of this specific MIPS chip uses this instruction.
+      if ((mips_i_table[n].version & flags) == 0)
+      {
+        n++;
+        continue;
+      }
+
       if (mips_i_table[n].function == op)
       {
         rs = (opcode >> 21) & 0x1f;

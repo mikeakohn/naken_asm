@@ -580,6 +580,13 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(mips_r_table[n].instr != NULL)
   {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_r_table[n].version & asm_context->flags) == 0)
+    {
+      n++;
+      continue;
+    }
+
     if (strcmp(instr_case, mips_r_table[n].instr) == 0)
     {
       char shift_table[] = { 0, 11, 21, 16, 6 };
@@ -662,6 +669,13 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(mips_i_table[n].instr != NULL)
   {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_i_table[n].version & asm_context->flags) == 0)
+    {
+      n++;
+      continue;
+    }
+
     if (strcmp(instr_case, mips_i_table[n].instr) == 0)
     {
       char shift_table[] = { 0, 0, 21, 16, 0, 0, 0, 0, 0, 0, 16, 0, 6, 11, 16 };
@@ -747,6 +761,13 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(mips_branch_table[n].instr != NULL)
   {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_branch_table[n].version & asm_context->flags) == 0)
+    {
+      n++;
+      continue;
+    }
+
     if (strcmp(instr_case, mips_branch_table[n].instr) == 0)
     {
       if (mips_branch_table[n].op_rt == -1)
@@ -814,6 +835,13 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(mips_special_table[n].instr != NULL)
   {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_special_table[n].version & asm_context->flags) == 0)
+    {
+      n++;
+      continue;
+    }
+
     if (strcmp(instr_case, mips_special_table[n].instr) == 0)
     {
       if (mips_special_table[n].operand_count != operand_count)
@@ -937,6 +965,13 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(mips_other[n].instr != NULL)
   {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_other[n].version & asm_context->flags) == 0)
+    {
+      n++;
+      continue;
+    }
+
     if (strcmp(instr_case, mips_other[n].instr) == 0)
     {
       found = 1;
@@ -1086,67 +1121,69 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
     n++;
   }
 
-  // FIXME - Put an if statment for MSA instructions here
-  n = 0;
-  while(mips_msa[n].instr != NULL)
+  if ((asm_context->flags & MIPS_MSA) != 0)
   {
-    if (strcmp(instr_case, mips_msa[n].instr) == 0)
+    n = 0;
+    while(mips_msa[n].instr != NULL)
     {
-      found = 1;
-
-      if (operand_count != mips_msa[n].operand_count)
+      if (strcmp(instr_case, mips_msa[n].instr) == 0)
       {
-        n++;
-        continue;
-      }
+        found = 1;
 
-      opcode = mips_msa[n].opcode;
-
-      for (r = 0; r < mips_msa[n].operand_count; r++)
-      {
-        switch(mips_msa[n].operand[r])
+        if (operand_count != mips_msa[n].operand_count)
         {
-          case MIPS_OP_WT:
-            if (operands[r].type != OPERAND_WREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 26;
-
-            break;
-          case MIPS_OP_WS:
-            if (operands[r].type != OPERAND_WREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 11;
-
-            break;
-          case MIPS_OP_WD:
-            if (operands[r].type != OPERAND_WREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 6;
-
-            break;
-          default:
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
+          n++;
+          continue;
         }
+
+        opcode = mips_msa[n].opcode;
+
+        for (r = 0; r < mips_msa[n].operand_count; r++)
+        {
+          switch(mips_msa[n].operand[r])
+          {
+            case MIPS_OP_WT:
+              if (operands[r].type != OPERAND_WREG)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              opcode |= operands[r].value << 26;
+
+              break;
+            case MIPS_OP_WS:
+              if (operands[r].type != OPERAND_WREG)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              opcode |= operands[r].value << 11;
+
+              break;
+            case MIPS_OP_WD:
+              if (operands[r].type != OPERAND_WREG)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              opcode |= operands[r].value << 6;
+
+              break;
+            default:
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+          }
+        }
+
+        add_bin32(asm_context, opcode, IS_OPCODE);
+        return opcode_size;
       }
 
-      add_bin32(asm_context, opcode, IS_OPCODE);
-      return opcode_size;
+      n++;
     }
-
-    n++;
   }
 
   if (found == 1)
