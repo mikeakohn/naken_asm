@@ -27,6 +27,7 @@ enum
   OPERAND_FREG,
   OPERAND_WREG,
   OPERAND_VIREG,
+  OPERAND_VFREG,
   OPERAND_IMMEDIATE,
   OPERAND_IMMEDIATE_RS,
 };
@@ -52,7 +53,7 @@ static int get_number(char *s)
   return n;
 }
 
-static int get_register_mips(char *token, char letter)
+static int get_register_mips(char *token, char letter, int *type)
 {
   int num;
 
@@ -64,7 +65,22 @@ static int get_register_mips(char *token, char letter)
 
   if (letter == 'v')
   {
-    if (token[2] != 'i') { return -1; }
+    if (token[1] != 'v') { return -1; }
+
+    if (token[2] == 'i')
+    {
+      *type = OPERAND_VIREG;
+    }
+      else
+    if (token[2] == 'f')
+    {
+      *type = OPERAND_VFREG;
+    }
+      else
+    {
+      return -1;
+    }
+
     if (token[3] == 0) { return -1; }
     num = get_number(token + 3);
     if (num >= 0 && num <= 31)
@@ -408,7 +424,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         if (mips_cache[i].name != NULL) { break; }
       }
 
-      num = get_register_mips(token, 'w');
+      num = get_register_mips(token, 'w', &operands[operand_count].type);
       if (num != -1)
       {
         operands[operand_count].value = num;
@@ -416,11 +432,10 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         break;
       }
 
-      num = get_register_mips(token, 'v');
+      num = get_register_mips(token, 'v', &operands[operand_count].type);
       if (num != -1)
       {
         operands[operand_count].value = num;
-        operands[operand_count].type = OPERAND_VIREG;
         break;
       }
 
@@ -432,7 +447,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         paren_flag = 1;
       }
 
-      num = get_register_mips(token, 't');
+      num = get_register_mips(token, 't', &operands[operand_count].type);
 
       if (num != -1)
       {
@@ -443,7 +458,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         else
       if (paren_flag == 0)
       {
-        num = get_register_mips(token, 'f');
+        num = get_register_mips(token, 'f', &operands[operand_count].type);
         if (num != -1)
         {
           operands[operand_count].value = num;
@@ -521,7 +536,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       if (IS_TOKEN(token,'('))
       {
         token_type = tokens_get(asm_context, token, TOKENLEN);
-        num = get_register_mips(token, 't');
+        num = get_register_mips(token, 't', &operands[operand_count].type);
         if (num == -1)
         {
           print_error_unexp(token, asm_context);
@@ -1079,6 +1094,16 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             opcode |= operands[r].value << 11;
 
             break;
+          case MIPS_OP_VFT:
+            if (operands[r].type != OPERAND_VFREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 16;
+
+            break;
           case MIPS_OP_SA:
             if (operands[r].type != OPERAND_IMMEDIATE)
             {
@@ -1109,6 +1134,23 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             }
 
             opcode |= operands[r].value & 0xffff;
+
+            break;
+          case MIPS_OP_IMMEDIATE_RS:
+            if (operands[r].type != OPERAND_IMMEDIATE_RS)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < -32768 || operands[r].value > 32767)
+            {
+              print_error_range("Constant", -32768, 32767, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value & 0xffff;
+            opcode |= operands[r].reg2 << 21;
 
             break;
           case MIPS_OP_LABEL:

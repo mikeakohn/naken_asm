@@ -201,11 +201,17 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
           case MIPS_OP_VI:
             sprintf(temp, " $vi%d", rd);
             break;
+          case MIPS_OP_VFT:
+            sprintf(temp, " $vf%d", rt);
+            break;
           case MIPS_OP_SA:
             sprintf(temp, " %d", sa);
             break;
           case MIPS_OP_IMMEDIATE_SIGNED:
             sprintf(temp, " %d", (int16_t)immediate);
+            break;
+          case MIPS_OP_IMMEDIATE_RS:
+            sprintf(temp, " %d(%s)", (int16_t)immediate, reg[rs]);
             break;
           case MIPS_OP_LABEL:
             if ((immediate & 0x8000) != 0) { immediate |= 0xffff0000; }
