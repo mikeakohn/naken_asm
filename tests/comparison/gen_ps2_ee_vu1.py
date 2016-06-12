@@ -10,8 +10,8 @@ def create_asm(instruction):
 
 # --------------------------------- fold here -------------------------------
 
-fp = open("ps2_ee_vu_template.txt", "rb")
-out = open("ps2_ee_vu.txt", "wb")
+fp = open("ps2_ee_vu1_template.txt", "rb")
+out = open("ps2_ee_vu1.txt", "wb")
 
 for instruction in fp:
   instruction = instruction.strip()
