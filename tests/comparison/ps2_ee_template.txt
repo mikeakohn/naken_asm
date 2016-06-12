@@ -315,3 +315,10 @@ ctc2 $t0, $vi1
 ctc2.ni $t0, $vi1
 ctc2.i $t0, $vi16
 lqc2 $vf1, 100($t3)
+qmfc2 $t0, $vi1
+qmfc2.ni $t0, $vi1
+qmfc2.i $t0, $vi16
+qmtc2 $t0, $vi1
+qmtc2.ni $t0, $vi1
+qmtc2.i $t0, $vi16
+sqc2 $vf1, 100($t3)

@@ -324,6 +324,13 @@ struct _mips_other mips_other[] =
   { "ctc2.ni", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48c00000, 0xffe007ff, MIPS_EE_CORE },
   { "ctc2.i", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48c00001, 0xffe007ff, MIPS_EE_CORE },
   { "lqc2", { MIPS_OP_VFT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 2, 0xd8000000, 0xfc000000, MIPS_EE_CORE },
+  { "qmfc2", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48200000, 0xffe007ff, MIPS_EE_CORE },
+  { "qmfc2.ni", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48200000, 0xffe007ff, MIPS_EE_CORE },
+  { "qmfc2.i", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48200001, 0xffe007ff, MIPS_EE_CORE },
+  { "qmtc2", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48a00000, 0xffe007ff, MIPS_EE_CORE },
+  { "qmtc2.ni", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48a00000, 0xffe007ff, MIPS_EE_CORE },
+  { "qmtc2.i", { MIPS_OP_RT, MIPS_OP_VI, MIPS_OP_NONE }, 2, 0x48a00001, 0xffe007ff, MIPS_EE_CORE },
+  { "sqc2", { MIPS_OP_VFT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 2, 0xf8000000, 0xfc000000, MIPS_EE_CORE },
 
   // FPU instructions
   { "abs.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000005, 0xffff003f, MIPS_I },
