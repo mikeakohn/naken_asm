@@ -326,3 +326,26 @@ vabs.xy $vf5, $vf10
 vadd.xyzw $vf6,$vf4,$vf5
 vaddi.xy $vf4, $vf5, I
 vaddq.xy $vf4, $vf5, Q
+vaddx.x $vf3x, $vf4x, $vf5
+vaddy.x $vf3x, $vf4x, $vf5
+vaddz.x $vf3x, $vf4x, $vf5
+vaddw.x $vf3x, $vf4x, $vf5
+;vadda.xy ACC, $vf4, $vf5
+vaddai.xy ACC, $vf4, I
+vaddaq.xz ACC, $vf4, Q
+vaddax.xz ACC, $vf4, $vf23
+vadday.xz ACC, $vf4, $vf23
+vaddaz.xz ACC, $vf4, $vf23
+vaddaw.xz ACC, $vf4, $vf23
+vcallms 1000
+vcallmsr $vi27
+vclipw.xyz $vf3, $vf4
+vdiv Q, $vf3y, $vf7z
+vftoi0.x $vf3, $vf30
+vftoi4.yz $vf3, $vf4
+vftoi12.w $vf3, $vf23
+vftoi15.xw $vf3, $vf31
+vitof0.x $vf3, $vf30
+vitof4.yz $vf3, $vf4
+vitof12.w $vf3, $vf23
+vitof15.xw $vf3, $vf31

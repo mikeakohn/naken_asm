@@ -222,7 +222,7 @@ void get_dest(char *instr_case, int *dest)
     instr_case++;
   }
 
-  if (instr_case == 0) { return; }
+  if (period == NULL) { return; }
 
   instr_case++;
   while(*instr_case != 0)
@@ -1450,6 +1450,13 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
                 return -1;
               }
               break;
+            case MIPS_OP_VI27:
+              if (operands[r].type != OPERAND_VIREG || operands[r].value != 27)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+              break;
             case MIPS_OP_I:
               if (operands[r].type != OPERAND_I)
               {
@@ -1484,6 +1491,36 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
                 print_error_illegal_operands(instr, asm_context);
                 return -1;
               }
+              break;
+            case MIPS_OP_IMMEDIATE15_2:
+              if (operands[r].type != OPERAND_IMMEDIATE)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              if (operands[r].type != OPERAND_IMMEDIATE)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              if ((operands[r].value & 0x7) != 0)
+              {
+                print_error_align(asm_context, 8);
+                return -1;
+              }
+
+              int immediate = operands[r].value >> 3;
+
+              if (operands[r].value < 0 || operands[r].value > 0x7fff)
+              {
+                print_error_range("Immediate", 0, 0x7fff << 8, asm_context);
+                return -1;
+              }
+
+              opcode |= (immediate & 0x7ff) << 6;
+
               break;
             default:
               print_error_illegal_operands(instr, asm_context);

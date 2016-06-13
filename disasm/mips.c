@@ -81,7 +81,10 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
             sprintf(temp, " $vi%d", fd);
             break;
           case MIPS_OP_VI01:
-            sprintf(temp, " vi01");
+            sprintf(temp, " $vi01");
+            break;
+          case MIPS_OP_VI27:
+            sprintf(temp, " $vi27");
             break;
           case MIPS_OP_I:
             strcpy(temp, " I");
@@ -126,6 +129,12 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
             immediate |= opcode & 0x7ff;
             sprintf(temp, " 0x%04x", immediate);
             break;
+#endif
+          case MIPS_OP_IMMEDIATE15_2:
+            immediate = (opcode >> 6) & 0x7ff;
+            sprintf(temp, " 0x%04x", immediate << 3);
+            break;
+#if 0
           case MIPS_OP_IMMEDIATE12:
             immediate = (opcode & (1 << 21)) >> 10;
             immediate |= opcode & 0x7ff;

@@ -68,6 +68,8 @@ enum
   MIPS_OP_R,
   MIPS_OP_ACC,
   MIPS_OP_VI01,
+  MIPS_OP_VI27,
+  MIPS_OP_IMMEDIATE15_2,
 };
 
 #define FLAG_NONE 0

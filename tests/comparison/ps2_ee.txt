@@ -312,3 +312,25 @@ vabs.xy $vf5, $vf10|:04000000FD51854BDE
 vadd.xyzw $vf6,$vf4,$vf5|:04000000A821E54B03
 vaddi.xy $vf4, $vf5, I|:040000002229804BE6
 vaddq.xy $vf4, $vf5, Q|:040000002029804BE8
+vaddx.x $vf3x, $vf4x, $vf5|:04000000C020054BCC
+vaddy.x $vf3x, $vf4x, $vf5|:04000000C120054BCB
+vaddz.x $vf3x, $vf4x, $vf5|:04000000C220054BCA
+vaddw.x $vf3x, $vf4x, $vf5|:04000000C320054BC9
+vaddai.xy ACC, $vf4, I|:040000003E22804BD1
+vaddaq.xz ACC, $vf4, Q|:040000003C22404B13
+vaddax.xz ACC, $vf4, $vf23|:040000003C20574BFE
+vadday.xz ACC, $vf4, $vf23|:040000003D20574BFD
+vaddaz.xz ACC, $vf4, $vf23|:040000003E20574BFC
+vaddaw.xz ACC, $vf4, $vf23|:040000003F20574BFB
+vcallms 1000|:04000000781F004A1B
+vcallmsr $vi27|:0400000039D8004AA1
+vclipw.xyz $vf3, $vf4|:04000000FF19C44BD5
+vdiv Q, $vf3y, $vf7z|:04000000BC1B274BB3
+vftoi0.x $vf3, $vf30|:040000007CF1034B41
+vftoi4.yz $vf3, $vf4|:040000007D21C34A51
+vftoi12.w $vf3, $vf23|:040000007EB9234A58
+vftoi15.xw $vf3, $vf31|:040000007FF9234B16
+vitof0.x $vf3, $vf30|:040000003CF1034B81
+vitof4.yz $vf3, $vf4|:040000003D21C34A91
+vitof12.w $vf3, $vf23|:040000003EB9234A98
+vitof15.xw $vf3, $vf31|:040000003FF9234B56
