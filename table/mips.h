@@ -56,9 +56,20 @@ enum
   MIPS_OP_WD,
   MIPS_OP_WS,
   MIPS_OP_WT,
-  MIPS_OP_VI,
+  MIPS_OP_VFD,
+  MIPS_OP_VFS,
   MIPS_OP_VFT,
+  MIPS_OP_VID,
+  MIPS_OP_VIS,
+  MIPS_OP_VIT,
 };
+
+#define FLAG_NONE 0
+#define FLAG_DEST 1
+#define FLAG_BC 2
+#define FLAG_XYZ 8
+#define FLAG_TE 16
+#define FLAG_SE 32
 
 struct _mips_instr
 {
@@ -99,6 +110,16 @@ struct _mips_other
   uint16_t version;
 };
 
+struct _mips_ee_vector
+{
+  const char *instr;
+  char operand[3];
+  int8_t operand_count;
+  uint32_t opcode;
+  uint32_t mask;
+  uint8_t flags;
+};
+
 struct _mips_cache
 {
   const char *name;
@@ -112,6 +133,7 @@ extern struct _mips_special_instr mips_special_table[];
 extern struct _mips_other mips_other[];
 extern struct _mips_cache mips_cache[];
 extern struct _mips_other mips_msa[];
+extern struct _mips_ee_vector mips_ee_vector[];
 
 #endif
 

@@ -22,6 +22,140 @@ int get_cycle_count_mips(uint32_t opcode)
   return -1;
 }
 
+static int disasm_vector(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+{
+  uint32_t opcode;
+  int n, r;
+  char temp[32];
+  int ft, fs, fd, dest;
+  int16_t offset;
+  int immediate;
+
+  opcode = memory_read32_m(memory, address);
+
+  instruction[0] = 0;
+
+  n = 0;
+  while(mips_ee_vector[n].instr != NULL)
+  {
+    if (mips_ee_vector[n].opcode == (opcode & mips_ee_vector[n].mask))
+    {
+      strcpy(instruction, mips_ee_vector[n].instr);
+
+      dest = (opcode >> 21) & 0xf;
+      ft = (opcode >> 16) & 0x1f;
+      fs = (opcode >> 11) & 0x1f;
+      fd = (opcode >> 6) & 0x1f;
+
+      if ((mips_ee_vector[n].flags & FLAG_DEST) != 0)
+      {
+        strcat(instruction, ".");
+        if ((dest & 8) != 0) { strcat(instruction, "x"); }
+        if ((dest & 4) != 0) { strcat(instruction, "y"); }
+        if ((dest & 2) != 0) { strcat(instruction, "z"); }
+        if ((dest & 1) != 0) { strcat(instruction, "w"); }
+      }
+
+      for (r = 0; r < mips_ee_vector[n].operand_count; r++)
+      {
+        if (r != 0) { strcat(instruction, ","); }
+
+        switch(mips_ee_vector[n].operand[r])
+        {
+          case MIPS_OP_VFT:
+            sprintf(temp, " $vf%d", ft);
+            break;
+          case MIPS_OP_VFS:
+            sprintf(temp, " $vf%d", fs);
+            break;
+          case MIPS_OP_VFD:
+            sprintf(temp, " $vf%d", fd);
+            break;
+          case MIPS_OP_VIT:
+            sprintf(temp, " $vi%d", ft);
+            break;
+          case MIPS_OP_VIS:
+            sprintf(temp, " $vi%d", fs);
+            break;
+          case MIPS_OP_VID:
+            sprintf(temp, " $vi%d", fd);
+            break;
+#if 0
+          case MIPS_OP_VI01:
+            sprintf(temp, " vi01");
+            break;
+          case MIPS_OP_I:
+            strcpy(temp, " I");
+            break;
+          case MIPS_OP_Q:
+            strcpy(temp, " Q");
+            break;
+          case MIPS_OP_P:
+            strcpy(temp, " P");
+            break;
+          case MIPS_OP_R:
+            strcpy(temp, " R");
+            break;
+          case MIPS_OP_ACC:
+            strcpy(temp, " ACC");
+            break;
+          case MIPS_OP_OFFSET:
+            offset = (opcode & 0x7ff) << 3;
+            if ((offset & 0x400) != 0) { offset |= 0xf800; }
+            sprintf(temp, " 0x%x (offset=%d)", address + 8 + offset, offset);
+            break;
+          case MIPS_OP_OFFSET_BASE:
+            offset = opcode & 0x7ff;
+            if ((offset & 0x400) != 0) { offset |= 0xf800; }
+            sprintf(temp, " %d(vi%d)", offset, (opcode >> 11) & 0x1f);
+            break;
+          case MIPS_OP_BASE:
+            sprintf(temp, " (vi%d)", fs);
+            break;
+          case MIPS_OP_BASE_DEC:
+            sprintf(temp, " (--vi%d)", fs);
+            break;
+          case MIPS_OP_BASE_INC:
+            sprintf(temp, " (vi%d++)", fs);
+            break;
+          case MIPS_OP_IMMEDIATE24:
+            sprintf(temp, " 0x%06x", opcode & 0xffffff);
+            break;
+          case MIPS_OP_IMMEDIATE15:
+            immediate = (opcode & (0xf << 21)) >> 10;
+            immediate |= opcode & 0x7ff;
+            sprintf(temp, " 0x%04x", immediate);
+            break;
+          case MIPS_OP_IMMEDIATE12:
+            immediate = (opcode & (1 << 21)) >> 10;
+            immediate |= opcode & 0x7ff;
+            sprintf(temp, " 0x%03x", immediate);
+            break;
+          case MIPS_OP_IMMEDIATE5:
+            immediate = (opcode >> 6) & 0x1f;
+            if ((immediate & 0x10) != 0) { immediate |= 0xfffffff0; }
+            sprintf(temp, " %d", immediate);
+            break;
+#endif
+          default:
+            strcpy(temp, " ?");
+            break;
+        }
+
+        strcat(instruction, temp);
+      }
+
+      return 4;
+    }
+
+    n++;
+  }
+
+  strcpy(instruction, "???");
+
+  return 4;
+}
+
 int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
@@ -198,8 +332,8 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
           case MIPS_OP_FD:
             sprintf(temp, " $f%d", sa);
             break;
-          case MIPS_OP_VI:
-            sprintf(temp, " $vi%d", rd);
+          case MIPS_OP_VIS:
+            sprintf(temp, " $vi%d", rs);
             break;
           case MIPS_OP_VFT:
             sprintf(temp, " $vf%d", rt);
@@ -395,6 +529,11 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
     {
       sprintf(instruction, "jal 0x%08x", ((opcode & 0x03ffffff) << 2) | upper);
     }
+  }
+    else
+  if ((flags & MIPS_EE_VU) && (opcode >> 26) == 0x12)
+  {
+    disasm_vector(memory, address, instruction, cycles_min, cycles_max);
   }
     else
   {

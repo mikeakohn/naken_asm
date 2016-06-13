@@ -37,6 +37,7 @@ struct _operand
   int value;
   int type;
   int reg2;
+  int field_mask;
 };
 
 static int get_number(char *s)
@@ -53,7 +54,20 @@ static int get_number(char *s)
   return n;
 }
 
-static int get_register_mips(char *token, char letter, int *type)
+static int get_field_number(int field_mask)
+{
+  uint8_t value[16] =
+  {
+    -1,  3,  2, -1,  // 0
+     1, -1, -1, -1,  // 4
+     0, -1, -1, -1,  // 8
+    -1, -1, -1, -1,  // 12
+  };
+
+  return value[field_mask];
+}
+
+static int get_register_mips(char *token, char letter, struct _operand *operand)
 {
   int num;
 
@@ -69,12 +83,12 @@ static int get_register_mips(char *token, char letter, int *type)
 
     if (token[2] == 'i')
     {
-      *type = OPERAND_VIREG;
+      operand->type = OPERAND_VIREG;
     }
       else
     if (token[2] == 'f')
     {
-      *type = OPERAND_VFREG;
+      operand->type = OPERAND_VFREG;
     }
       else
     {
@@ -82,11 +96,33 @@ static int get_register_mips(char *token, char letter, int *type)
     }
 
     if (token[3] == 0) { return -1; }
-    num = get_number(token + 3);
+
+    num = 0;
+    token = token + 3;
+
+    while(*token != 0)
+    {
+      if (*token < '0' || *token > '9') { break; }
+      num = (num * 10) + (*token - '0');
+      token++;
+    }
+
+    while(*token != 0)
+    {
+      if (*token == 'x') { operand->field_mask |= 0x8; }
+      else if (*token == 'y') { operand->field_mask |= 0x4; }
+      else if (*token == 'z') { operand->field_mask |= 0x2; }
+      else if (*token == 'w') { operand->field_mask |= 0x1; }
+      else { return -1; }
+      token++;
+    }
+
     if (num >= 0 && num <= 31)
     {
+      operand->value = num;
       return num;
     }
+
     return -1;
   }
 
@@ -164,6 +200,42 @@ static uint32_t find_opcode(const char *instr_case)
   }
 
   return 0xffffffff;
+}
+
+void get_dest(char *instr_case, int *dest)
+{
+  char *period = NULL;
+
+  while(*instr_case != 0)
+  {
+    if (*instr_case == '.')
+    {
+      period = instr_case;
+      break;
+    }
+
+    instr_case++;
+  }
+
+  if (instr_case == 0) { return; }
+
+  instr_case++;
+  while(*instr_case != 0)
+  {
+    if (*instr_case == 'x') { *dest |= 8; }
+    else if (*instr_case == 'y') { *dest |= 4; }
+    else if (*instr_case == 'z') { *dest |= 2; }
+    else if (*instr_case == 'w') { *dest |= 1; }
+    else
+    {
+      *dest = 0;
+      return;
+    }
+
+    instr_case++;
+  }
+
+  *period = 0;
 }
 
 static int check_type(struct _asm_context *asm_context, char *instr, int user_type, int table_type, int value)
@@ -424,7 +496,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         if (mips_cache[i].name != NULL) { break; }
       }
 
-      num = get_register_mips(token, 'w', &operands[operand_count].type);
+      num = get_register_mips(token, 'w', &operands[operand_count]);
       if (num != -1)
       {
         operands[operand_count].value = num;
@@ -432,10 +504,10 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         break;
       }
 
-      num = get_register_mips(token, 'v', &operands[operand_count].type);
+      num = get_register_mips(token, 'v', &operands[operand_count]);
       if (num != -1)
       {
-        operands[operand_count].value = num;
+        //operands[operand_count].value = num;
         break;
       }
 
@@ -447,7 +519,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         paren_flag = 1;
       }
 
-      num = get_register_mips(token, 't', &operands[operand_count].type);
+      num = get_register_mips(token, 't', &operands[operand_count]);
 
       if (num != -1)
       {
@@ -458,7 +530,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         else
       if (paren_flag == 0)
       {
-        num = get_register_mips(token, 'f', &operands[operand_count].type);
+        num = get_register_mips(token, 'f', &operands[operand_count]);
         if (num != -1)
         {
           operands[operand_count].value = num;
@@ -536,7 +608,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       if (IS_TOKEN(token,'('))
       {
         token_type = tokens_get(asm_context, token, TOKENLEN);
-        num = get_register_mips(token, 't', &operands[operand_count].type);
+        num = get_register_mips(token, 't', &operands[operand_count]);
         if (num == -1)
         {
           print_error_unexp(token, asm_context);
@@ -1084,7 +1156,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             opcode |= operands[r].value << 6;
 
             break;
-          case MIPS_OP_VI:
+          case MIPS_OP_VIS:
             if (operands[r].type != OPERAND_VIREG)
             {
               print_error_illegal_operands(instr, asm_context);
@@ -1102,6 +1174,16 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             }
 
             opcode |= operands[r].value << 16;
+
+            break;
+          case MIPS_OP_VFS:
+            if (operands[r].type != OPERAND_VFREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
 
             break;
           case MIPS_OP_SA:
@@ -1250,6 +1332,89 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               return -1;
           }
         }
+
+        add_bin32(asm_context, opcode, IS_OPCODE);
+        return opcode_size;
+      }
+
+      n++;
+    }
+  }
+
+  if ((asm_context->flags & MIPS_EE_VU) != 0)
+  {
+    int dest = 0;
+
+    get_dest(instr_case, &dest);
+
+    n = 0;
+    while(mips_ee_vector[n].instr != NULL)
+    {
+      if (strcmp(instr_case, mips_ee_vector[n].instr) == 0)
+      {
+        found = 1;
+
+        if (operand_count != mips_ee_vector[n].operand_count)
+        {
+          n++;
+          continue;
+        }
+
+        opcode = mips_ee_vector[n].opcode;
+
+        if (asm_context->pass == 1) { return 4; }
+
+        for (r = 0; r < mips_ee_vector[n].operand_count; r++)
+        {
+          switch(mips_ee_vector[n].operand[r])
+          {
+            case MIPS_OP_VFT:
+              if (operands[r].type != OPERAND_VFREG)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              opcode |= (operands[r].value << 16);
+
+              if ((mips_ee_vector[n].flags & FLAG_TE) != 0)
+              {
+                int field = get_field_number(operands[r].field_mask);
+                if (field == -1) { return -1; }
+                opcode |= field << 23;
+              }
+              break;
+            case MIPS_OP_VFS:
+              if (operands[r].type != OPERAND_VFREG)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              opcode |= (operands[r].value << 11);
+
+              if ((mips_ee_vector[n].flags & FLAG_SE) != 0)
+              {
+                int field = get_field_number(operands[r].field_mask);
+                if (field == -1) { return -1; }
+                opcode |= field << 21;
+              }
+              break;
+            case MIPS_OP_VFD:
+              if (operands[r].type != OPERAND_VFREG)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+              opcode |= (operands[r].value << 6);
+              break;
+            default:
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+          }
+        }
+
+        opcode |= dest << 21;
 
         add_bin32(asm_context, opcode, IS_OPCODE);
         return opcode_size;
