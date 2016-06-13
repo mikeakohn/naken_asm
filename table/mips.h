@@ -62,6 +62,12 @@ enum
   MIPS_OP_VID,
   MIPS_OP_VIS,
   MIPS_OP_VIT,
+  MIPS_OP_I,
+  MIPS_OP_Q,
+  MIPS_OP_P,
+  MIPS_OP_R,
+  MIPS_OP_ACC,
+  MIPS_OP_VI01,
 };
 
 #define FLAG_NONE 0

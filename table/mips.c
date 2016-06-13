@@ -422,5 +422,8 @@ struct _mips_other mips_msa[] =
 struct _mips_ee_vector mips_ee_vector[] =
 {
   { "vabs", { MIPS_OP_VFT, MIPS_OP_VFS, MIPS_OP_NONE }, 2, 0x4a0001fd, 0xfe0007ff, FLAG_DEST },
+  { "vadd", { MIPS_OP_VFD, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a000028, 0xfe00003f, FLAG_DEST },
+  { "vaddi", { MIPS_OP_VFD, MIPS_OP_VFS, MIPS_OP_I }, 3, 0x4a000022, 0xfe1f003f, FLAG_DEST },
+  { "vaddq", { MIPS_OP_VFD, MIPS_OP_VFS, MIPS_OP_Q }, 3, 0x4a000020, 0xfe1f003f, FLAG_DEST },
 };
 

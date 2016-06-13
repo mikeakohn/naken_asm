@@ -80,7 +80,6 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
           case MIPS_OP_VID:
             sprintf(temp, " $vi%d", fd);
             break;
-#if 0
           case MIPS_OP_VI01:
             sprintf(temp, " vi01");
             break;
@@ -99,6 +98,7 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
           case MIPS_OP_ACC:
             strcpy(temp, " ACC");
             break;
+#if 0
           case MIPS_OP_OFFSET:
             offset = (opcode & 0x7ff) << 3;
             if ((offset & 0x400) != 0) { offset |= 0xf800; }

@@ -30,6 +30,11 @@ enum
   OPERAND_VFREG,
   OPERAND_IMMEDIATE,
   OPERAND_IMMEDIATE_RS,
+  OPERAND_I,
+  OPERAND_Q,
+  OPERAND_P,
+  OPERAND_R,
+  OPERAND_ACC,
 };
 
 struct _operand
@@ -510,6 +515,36 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         //operands[operand_count].value = num;
         break;
       }
+
+      if (IS_TOKEN(token, 'I') || IS_TOKEN(token, 'i'))
+      {
+        operands[operand_count].type = OPERAND_I;
+        break;
+      }
+        else
+      if (IS_TOKEN(token, 'Q') || IS_TOKEN(token, 'q'))
+      {
+        operands[operand_count].type = OPERAND_Q;
+        break;
+      }
+        else
+      if (IS_TOKEN(token, 'P') || IS_TOKEN(token, 'p'))
+      {
+        operands[operand_count].type = OPERAND_P;
+        break;
+      }
+        else
+      if (IS_TOKEN(token, 'R') || IS_TOKEN(token, 'r'))
+      {
+        operands[operand_count].type = OPERAND_R;
+        break;
+      }
+        else
+      if (strcasecmp(token, "acc") == 0)
+      {
+        operands[operand_count].type = OPERAND_ACC;
+        break;
+      }    
 
       paren_flag = 0;
 
@@ -1407,6 +1442,48 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
                 return -1;
               }
               opcode |= (operands[r].value << 6);
+              break;
+            case MIPS_OP_VI01:
+              if (operands[r].type != OPERAND_VIREG || operands[r].value != 1)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+              break;
+            case MIPS_OP_I:
+              if (operands[r].type != OPERAND_I)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+              break;
+            case MIPS_OP_Q:
+              if (operands[r].type != OPERAND_Q)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+              break;
+            case MIPS_OP_P:
+              if (operands[r].type != OPERAND_P)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+              break;
+            case MIPS_OP_R:
+              if (operands[r].type != OPERAND_R)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+              break;
+            case MIPS_OP_ACC:
+              if (operands[r].type != OPERAND_ACC)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
               break;
             default:
               print_error_illegal_operands(instr, asm_context);

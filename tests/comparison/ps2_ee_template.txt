@@ -323,3 +323,6 @@ qmtc2.ni $t0, $vf1
 qmtc2.i $t0, $vf16
 sqc2 $vf1, 100($t3)
 vabs.xy $vf5, $vf10
+vadd.xyzw $vf6,$vf4,$vf5
+vaddi.xy $vf4, $vf5, I
+vaddq.xy $vf4, $vf5, Q
