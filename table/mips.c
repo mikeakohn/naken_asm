@@ -448,5 +448,8 @@ struct _mips_ee_vector mips_ee_vector[] =
   { "vitof4", { MIPS_OP_VFT, MIPS_OP_VFS, MIPS_OP_NONE }, 2, 0x4a00013d, 0xfe0003ff, FLAG_DEST },
   { "vitof12", { MIPS_OP_VFT, MIPS_OP_VFS, MIPS_OP_NONE }, 2, 0x4a00013e, 0xfe0003ff, FLAG_DEST },
   { "vitof15", { MIPS_OP_VFT, MIPS_OP_VFS, MIPS_OP_NONE }, 2, 0x4a00013f, 0xfe0003ff, FLAG_DEST },
+  { "viadd", { MIPS_OP_VID, MIPS_OP_VIS, MIPS_OP_VIT }, 3, 0x4a000030, 0xffe0003f, FLAG_NONE },
+  { "viaddi", { MIPS_OP_VIT, MIPS_OP_VIS, MIPS_OP_IMMEDIATE5 }, 3, 0x4a000032, 0xffe0003f, FLAG_NONE },
+  { "viand", { MIPS_OP_VID, MIPS_OP_VIS, MIPS_OP_VIT }, 3, 0x4a000034, 0xffe0003f, FLAG_NONE },
 };
 

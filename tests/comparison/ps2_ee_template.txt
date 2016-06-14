@@ -349,3 +349,6 @@ vitof0.x $vf3, $vf30
 vitof4.yz $vf3, $vf4
 vitof12.w $vf3, $vf23
 vitof15.xw $vf3, $vf31
+viadd $vi17, $vi27, $vi10
+viaddi $vi17, $vi27, -5
+viand $vi17, $vi27, $vi10

@@ -28,7 +28,7 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
   int n, r;
   char temp[32];
   int ft, fs, fd, dest;
-  int16_t offset;
+  //int16_t offset;
   int immediate;
 
   opcode = memory_read32_m(memory, address);
@@ -140,12 +140,12 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
             immediate |= opcode & 0x7ff;
             sprintf(temp, " 0x%03x", immediate);
             break;
+#endif
           case MIPS_OP_IMMEDIATE5:
             immediate = (opcode >> 6) & 0x1f;
             if ((immediate & 0x10) != 0) { immediate |= 0xfffffff0; }
             sprintf(temp, " %d", immediate);
             break;
-#endif
           default:
             strcpy(temp, " ?");
             break;

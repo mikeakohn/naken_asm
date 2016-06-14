@@ -1443,6 +1443,30 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               }
               opcode |= (operands[r].value << 6);
               break;
+            case MIPS_OP_VIT:
+              if (operands[r].type != OPERAND_VIREG)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+              opcode |= (operands[r].value << 16);
+              break;
+            case MIPS_OP_VIS:
+              if (operands[r].type != OPERAND_VIREG)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+              opcode |= (operands[r].value << 11);
+              break;
+            case MIPS_OP_VID:
+              if (operands[r].type != OPERAND_VIREG)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+              opcode |= (operands[r].value << 6);
+              break;
             case MIPS_OP_VI01:
               if (operands[r].type != OPERAND_VIREG || operands[r].value != 1)
               {
@@ -1499,12 +1523,6 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
                 return -1;
               }
 
-              if (operands[r].type != OPERAND_IMMEDIATE)
-              {
-                print_error_illegal_operands(instr, asm_context);
-                return -1;
-              }
-
               if ((operands[r].value & 0x7) != 0)
               {
                 print_error_align(asm_context, 8);
@@ -1520,6 +1538,22 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               }
 
               opcode |= (immediate & 0x7ff) << 6;
+
+              break;
+            case MIPS_OP_IMMEDIATE5:
+              if (operands[r].type != OPERAND_IMMEDIATE)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              if (operands[r].value < -16 || operands[r].value > 15)
+              {
+                print_error_range("Immediate", -16, 15, asm_context);
+                return -1;
+              }
+
+              opcode |= (operands[r].value & 0x1f) << 6;
 
               break;
             default:
