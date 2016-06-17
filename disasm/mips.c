@@ -112,9 +112,11 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
             if ((offset & 0x400) != 0) { offset |= 0xf800; }
             sprintf(temp, " %d(vi%d)", offset, (opcode >> 11) & 0x1f);
             break;
-          case MIPS_OP_BASE:
+#endif
+          case MIPS_OP_VBASE:
             sprintf(temp, " (vi%d)", fs);
             break;
+#if 0
           case MIPS_OP_BASE_DEC:
             sprintf(temp, " (--vi%d)", fs);
             break;

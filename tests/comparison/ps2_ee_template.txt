@@ -352,3 +352,4 @@ vitof15.xw $vf3, $vf31
 viadd $vi17, $vi27, $vi10
 viaddi $vi17, $vi27, -5
 viand $vi17, $vi27, $vi10
+vilwr.y $vi27, ($vi21)
