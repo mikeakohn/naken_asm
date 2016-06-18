@@ -364,3 +364,35 @@ vmaxy.x $vf3x, $vf4x, $vf5|:04000000D120054BBB
 vmaxz.x $vf3x, $vf4x, $vf5|:04000000D220054BBA
 vmaxw.x $vf3x, $vf4x, $vf5|:04000000D320054BB9
 vmfir.x $vf3, $vi17|:04000000FD8B034B26
+vmini.xw $vf3xw, $vf4xw, $vf5|:04000000EF20254B7D
+vminii.xw $vf3xw, $vf4xw, I|:04000000DF20204B92
+vminix.x $vf3x, $vf4x, $vf5|:04000000D420054BB8
+vminiy.x $vf3x, $vf4x, $vf5|:04000000D520054BB7
+vminiz.x $vf3x, $vf4x, $vf5|:04000000D620054BB6
+vminiw.x $vf3x, $vf4x, $vf5|:04000000D720054BB5
+vmove.x $vf3, $vf17|:040000003C8B034BE7
+vmr32.x $vf3, $vf17|:040000003D8B034BE6
+vsub.xyzw $vf6,$vf4,$vf5|:04000000AC21E54BFF
+vsubi.xy $vf4, $vf5, I|:040000002629804BE2
+vsubq.xy $vf4, $vf5, Q|:040000002429804BE4
+vsubx.x $vf3x, $vf4x, $vf5|:04000000C420054BC8
+vsuby.x $vf3x, $vf4x, $vf5|:04000000C520054BC7
+vsubz.x $vf3x, $vf4x, $vf5|:04000000C620054BC6
+vsubw.x $vf3x, $vf4x, $vf5|:04000000C720054BC5
+vsuba.xy ACC, $vf4, $vf5|:04000000FC22854B0E
+vsubai.xy ACC, $vf4, I|:040000007E22804B91
+vsubaq.xz ACC, $vf4, Q|:040000007C22404BD3
+vsubax.xz ACC, $vf4, $vf23|:040000007C20574BBE
+vsubay.xz ACC, $vf4, $vf23|:040000007D20574BBD
+vsubaz.xz ACC, $vf4, $vf23|:040000007E20574BBC
+vsubaw.xz ACC, $vf4, $vf23|:040000007F20574BBB
+vmtir $vi11, $vf17x|:04000000FC8B0B4A20
+vmul.xyzw $vf6,$vf4,$vf5|:04000000AA21E54B01
+vmuli.xy $vf4, $vf5, I|:040000001E29804BEA
+vmulq.xy $vf4, $vf5, Q|:040000001C29804BEC
+vmulx.x $vf3x, $vf4x, $vf5|:04000000D820054BB4
+vmuly.x $vf3x, $vf4x, $vf5|:04000000D920054BB3
+vmulz.x $vf3x, $vf4x, $vf5|:04000000DA20054BB2
+vmulw.x $vf3x, $vf4x, $vf5|:04000000DB20054BB1
+vmula.xy ACC, $vf4, $vf5|:04000000BE22854B4C
+vmulai.xy ACC, $vf4, I|:04000000FE21804B12

@@ -379,3 +379,35 @@ vmaxy.x $vf3x, $vf4x, $vf5
 vmaxz.x $vf3x, $vf4x, $vf5
 vmaxw.x $vf3x, $vf4x, $vf5
 vmfir.x $vf3, $vi17
+vmini.xw $vf3xw, $vf4xw, $vf5
+vminii.xw $vf3xw, $vf4xw, I
+vminix.x $vf3x, $vf4x, $vf5
+vminiy.x $vf3x, $vf4x, $vf5
+vminiz.x $vf3x, $vf4x, $vf5
+vminiw.x $vf3x, $vf4x, $vf5
+vmove.x $vf3, $vf17
+vmr32.x $vf3, $vf17
+vsub.xyzw $vf6,$vf4,$vf5
+vsubi.xy $vf4, $vf5, I
+vsubq.xy $vf4, $vf5, Q
+vsubx.x $vf3x, $vf4x, $vf5
+vsuby.x $vf3x, $vf4x, $vf5
+vsubz.x $vf3x, $vf4x, $vf5
+vsubw.x $vf3x, $vf4x, $vf5
+vsuba.xy ACC, $vf4, $vf5
+vsubai.xy ACC, $vf4, I
+vsubaq.xz ACC, $vf4, Q
+vsubax.xz ACC, $vf4, $vf23
+vsubay.xz ACC, $vf4, $vf23
+vsubaz.xz ACC, $vf4, $vf23
+vsubaw.xz ACC, $vf4, $vf23
+vmtir $vi11, $vf17x
+vmul.xyzw $vf6,$vf4,$vf5
+vmuli.xy $vf4, $vf5, I
+vmulq.xy $vf4, $vf5, Q
+vmulx.x $vf3x, $vf4x, $vf5
+vmuly.x $vf3x, $vf4x, $vf5
+vmulz.x $vf3x, $vf4x, $vf5
+vmulw.x $vf3x, $vf4x, $vf5
+vmula.xy ACC, $vf4, $vf5
+vmulai.xy ACC, $vf4, I
