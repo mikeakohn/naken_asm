@@ -36,6 +36,8 @@ enum
   OPERAND_R,
   OPERAND_ACC,
   OPERAND_OFFSET_VBASE,
+  OPERAND_OFFSET_VBASE_DEC,
+  OPERAND_OFFSET_VBASE_INC,
 };
 
 struct _operand
@@ -493,6 +495,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
   int n, num;
   int token_type;
   char token[TOKENLEN];
+  int inc_dec_flag;
 
   if (strcmp("cache", instr_case) == 0) { is_cache = 1; }
 
@@ -534,16 +537,6 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         if (mips_cache[i].name != NULL) { break; }
       }
 
-#if 0
-      num = get_register_mips(token, 'w', &operands[operand_count]);
-      if (num != -1)
-      {
-        operands[operand_count].value = num;
-        operands[operand_count].type = OPERAND_WREG;
-        break;
-      }
-#endif
-
       num = get_register_mips(token, &operands[operand_count]);
       if (num != -1)
       {
@@ -581,32 +574,41 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       }    
 
       paren_flag = 0;
+      inc_dec_flag = 0;
 
       if (IS_TOKEN(token,'('))
       {
         token_type = tokens_get(asm_context, token, TOKENLEN);
         paren_flag = 1;
+
+        if (IS_TOKEN(token, '-'))
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (IS_NOT_TOKEN(token, '-'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          inc_dec_flag = -1;
+        }
       }
 
-      //num = get_register_mips(token, 't', &operands[operand_count]);
       num = get_register_mips(token, &operands[operand_count]);
 
+      // dafuq?
       if (num != -1)
       {
-        //operands[operand_count].value = num;
-        //operands[operand_count].type = OPERAND_TREG;
         if (paren_flag == 0) { break; }
       }
         else
       if (paren_flag == 0)
       {
-        //num = get_register_mips(token, 'f', &operands[operand_count]);
         num = get_register_mips(token, &operands[operand_count]);
 
         if (num != -1)
         {
-          //operands[operand_count].value = num;
-          //operands[operand_count].type = OPERAND_FREG;
           break;
         }
       }
@@ -615,7 +617,6 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         paren_flag = 0;
 
         tokens_push(asm_context, token, token_type);
-        //tokens_push(asm_context, "(", TOKEN_SYMBOL);
 
         if (asm_context->pass == 1)
         {
@@ -646,6 +647,21 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       if (paren_flag == 1)
       {
         token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (IS_TOKEN(token, '+') &&
+            operands[operand_count].type == OPERAND_VIREG)
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (IS_NOT_TOKEN(token, '+'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          inc_dec_flag = 1;
+        }
+
         if (IS_NOT_TOKEN(token,')'))
         {
           print_error_unexp(token, asm_context);
@@ -662,7 +678,19 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
           else
         if (operands[operand_count].type == OPERAND_VIREG)
         {
-          operands[operand_count].type = OPERAND_OFFSET_VBASE;
+          if (inc_dec_flag == 1)
+          {
+            operands[operand_count].type = OPERAND_OFFSET_VBASE_INC;
+          }
+            else
+          if (inc_dec_flag == -1)
+          {
+            operands[operand_count].type = OPERAND_OFFSET_VBASE_DEC;
+          }
+            else
+          {
+            operands[operand_count].type = OPERAND_OFFSET_VBASE;
+          }
         }
           else
         {
@@ -682,6 +710,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       }
 
       tokens_push(asm_context, token, token_type);
+
       if (eval_expression(asm_context, &num) != 0)
       {
         print_error_unexp(token, asm_context);
@@ -696,7 +725,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         int value = operands[operand_count].value;
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
-        //num = get_register_mips(token, 't', &operands[operand_count]);
+
         num = get_register_mips(token, &operands[operand_count]);
 
         if (num == -1)
@@ -1637,7 +1666,42 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               }
 
               break;
+            case MIPS_OP_VBASE_DEC:
+              if (operands[r].type != OPERAND_OFFSET_VBASE_DEC ||
+                  operands[r].value != 0)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
 
+              if (mips_ee_vector[n].operand[0] == MIPS_OP_FS)
+              {
+                opcode |= operands[r].reg2 << 16;
+              }
+                else
+              {
+                opcode |= operands[r].reg2 << 11;
+              }
+
+              break;
+            case MIPS_OP_VBASE_INC:
+              if (operands[r].type != OPERAND_OFFSET_VBASE_INC ||
+                  operands[r].value != 0)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              if (mips_ee_vector[n].operand[0] == MIPS_OP_FS)
+              {
+                opcode |= operands[r].reg2 << 16;
+              }
+                else
+              {
+                opcode |= operands[r].reg2 << 11;
+              }
+
+              break;
             case MIPS_OP_IMMEDIATE15_2:
               if (operands[r].type != OPERAND_IMMEDIATE)
               {

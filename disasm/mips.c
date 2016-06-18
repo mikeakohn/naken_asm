@@ -30,6 +30,7 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
   int ft, fs, fd, dest;
   //int16_t offset;
   int immediate;
+  int32_t offset;
 
   opcode = memory_read32_m(memory, address);
 
@@ -107,22 +108,22 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
             if ((offset & 0x400) != 0) { offset |= 0xf800; }
             sprintf(temp, " 0x%x (offset=%d)", address + 8 + offset, offset);
             break;
-          case MIPS_OP_OFFSET_BASE:
+#endif
+          case MIPS_OP_OFFSET_VBASE:
             offset = opcode & 0x7ff;
             if ((offset & 0x400) != 0) { offset |= 0xf800; }
-            sprintf(temp, " %d(vi%d)", offset, (opcode >> 11) & 0x1f);
+            sprintf(temp, " %d($vi%d)", offset, (opcode >> 11) & 0x1f);
             break;
-#endif
           case MIPS_OP_VBASE:
-            sprintf(temp, " (vi%d)", fs);
+            sprintf(temp, " ($vi%d)", fs);
+            break;
+          case MIPS_OP_VBASE_DEC:
+            sprintf(temp, " (--$vi%d)", fs);
+            break;
+          case MIPS_OP_VBASE_INC:
+            sprintf(temp, " ($vi%d++)", fs);
             break;
 #if 0
-          case MIPS_OP_BASE_DEC:
-            sprintf(temp, " (--vi%d)", fs);
-            break;
-          case MIPS_OP_BASE_INC:
-            sprintf(temp, " (vi%d++)", fs);
-            break;
           case MIPS_OP_IMMEDIATE24:
             sprintf(temp, " 0x%06x", opcode & 0xffffff);
             break;
