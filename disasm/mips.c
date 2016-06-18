@@ -31,6 +31,7 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
   //int16_t offset;
   int immediate;
   int32_t offset;
+  char *scaler[] = { "x", "y", "z", "w" };
 
   opcode = memory_read32_m(memory, address);
 
@@ -65,9 +66,17 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
         {
           case MIPS_OP_VFT:
             sprintf(temp, " $vf%d", ft);
+            if ((mips_ee_vector[n].flags & FLAG_TE) != 0)
+            {
+              strcat(temp, scaler[(dest >> 2) & 0x3]);
+            }
             break;
           case MIPS_OP_VFS:
             sprintf(temp, " $vf%d", fs);
+            if ((mips_ee_vector[n].flags & FLAG_SE) != 0)
+            {
+              strcat(temp, scaler[dest & 0x3]);
+            }
             break;
           case MIPS_OP_VFD:
             sprintf(temp, " $vf%d", fd);

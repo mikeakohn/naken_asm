@@ -31,6 +31,7 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, c
   int ft, fs, fd, dest;
   int16_t offset;
   int immediate;
+  char *scaler[] = { "x", "y", "z", "w" };
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -82,9 +83,17 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, c
         {
           case EE_VU_OP_FT:
             sprintf(temp, " vf%d", ft);
+            if ((table_ps2_ee_vu[n].flags & FLAG_TE) != 0)
+            {
+              strcat(temp, scaler[(dest >> 2) & 0x3]);
+            }
             break;
           case EE_VU_OP_FS:
             sprintf(temp, " vf%d", fs);
+            if ((table_ps2_ee_vu[n].flags & FLAG_SE) != 0)
+            {
+              strcat(temp, scaler[dest & 0x3]);
+            }
             break;
           case EE_VU_OP_FD:
             sprintf(temp, " vf%d", fd);

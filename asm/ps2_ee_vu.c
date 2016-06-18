@@ -774,6 +774,12 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
     n++;
   }
 
+  printf("Error: Unknown %s instruction '%s' at %s:%d\n",
+         is_lower ? "lower" : "upper",
+         instr,
+         asm_context->filename,
+         asm_context->line);
+
   return -1;
 }
 
