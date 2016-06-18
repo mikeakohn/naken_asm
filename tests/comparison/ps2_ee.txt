@@ -341,3 +341,26 @@ vitof0.x $vf3, $vf30|:040000003CF1034B81
 vitof4.yz $vf3, $vf4|:040000003D21C34A91
 vitof12.w $vf3, $vf23|:040000003EB9234A98
 vitof15.xw $vf3, $vf31|:040000003FF9234B56
+vlqd.y $vi27, (--$vi21)|:040000007EAB9B4AEE
+vlqi.y $vi27, ($vi21++)|:040000007CAB9B4AF0
+vmadd.xz $vf5, $vf17, $vf27|:0400000069895B4B64
+vmaddi.xy $vf4, $vf27, I|:0400000023D9804B35
+vmaddq.xy $vf4, $vf26, Q|:0400000021D1804B3F
+vmaddx.x $vf3x, $vf4x, $vf5|:04000000C820054BC4
+vmaddy.x $vf3x, $vf4x, $vf5|:04000000C920054BC3
+vmaddz.x $vf3x, $vf4x, $vf5|:04000000CA20054BC2
+vmaddw.x $vf3x, $vf4x, $vf5|:04000000CB20054BC1
+vmadda.xy ACC, $vf4, $vf27|:04000000BD229B4B37
+vmaddai.xy ACC, $vf4, I|:040000003F22804BD0
+vmaddaq.xz ACC, $vf4, Q|:040000003D22404B12
+vmaddax.xz ACC, $vf4, $vf23|:04000000BC20574B7E
+vmadday.xz ACC, $vf4, $vf23|:04000000BD20574B7D
+vmaddaz.xz ACC, $vf4, $vf23|:04000000BE20574B7C
+vmaddaw.xz ACC, $vf4, $vf23|:04000000BF20574B7B
+vmax.xw $vf3xw, $vf4xw, $vf5|:04000000EB20254B81
+vmaxi.xw $vf3xw, $vf4xw, I|:04000000DD20204B94
+vmaxx.x $vf3x, $vf4x, $vf5|:04000000D020054BBC
+vmaxy.x $vf3x, $vf4x, $vf5|:04000000D120054BBB
+vmaxz.x $vf3x, $vf4x, $vf5|:04000000D220054BBA
+vmaxw.x $vf3x, $vf4x, $vf5|:04000000D320054BB9
+vmfir.x $vf3, $vi17|:04000000FD8B034B26

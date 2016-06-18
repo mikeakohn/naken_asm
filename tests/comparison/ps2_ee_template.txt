@@ -358,3 +358,24 @@ vitof12.w $vf3, $vf23
 vitof15.xw $vf3, $vf31
 vlqd.y $vi27, (--$vi21)
 vlqi.y $vi27, ($vi21++)
+vmadd.xz $vf5, $vf17, $vf27
+vmaddi.xy $vf4, $vf27, I
+vmaddq.xy $vf4, $vf26, Q
+vmaddx.x $vf3x, $vf4x, $vf5
+vmaddy.x $vf3x, $vf4x, $vf5
+vmaddz.x $vf3x, $vf4x, $vf5
+vmaddw.x $vf3x, $vf4x, $vf5
+vmadda.xy ACC, $vf4, $vf27
+vmaddai.xy ACC, $vf4, I
+vmaddaq.xz ACC, $vf4, Q
+vmaddax.xz ACC, $vf4, $vf23
+vmadday.xz ACC, $vf4, $vf23
+vmaddaz.xz ACC, $vf4, $vf23
+vmaddaw.xz ACC, $vf4, $vf23
+vmax.xw $vf3xw, $vf4xw, $vf5
+vmaxi.xw $vf3xw, $vf4xw, I
+vmaxx.x $vf3x, $vf4x, $vf5
+vmaxy.x $vf3x, $vf4x, $vf5
+vmaxz.x $vf3x, $vf4x, $vf5
+vmaxw.x $vf3x, $vf4x, $vf5
+vmfir.x $vf3, $vi17
