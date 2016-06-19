@@ -111,13 +111,6 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
           case MIPS_OP_ACC:
             strcpy(temp, " ACC");
             break;
-#if 0
-          case MIPS_OP_OFFSET:
-            offset = (opcode & 0x7ff) << 3;
-            if ((offset & 0x400) != 0) { offset |= 0xf800; }
-            sprintf(temp, " 0x%x (offset=%d)", address + 8 + offset, offset);
-            break;
-#endif
           case MIPS_OP_OFFSET_VBASE:
             offset = opcode & 0x7ff;
             if ((offset & 0x400) != 0) { offset |= 0xf800; }
@@ -127,32 +120,29 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
             sprintf(temp, " ($vi%d)", fs);
             break;
           case MIPS_OP_VBASE_DEC:
-            sprintf(temp, " (--$vi%d)", fs);
+            if (mips_ee_vector[n].operand[0] == MIPS_OP_VFS)
+            {
+              sprintf(temp, " (--$vi%d)", ft);
+            }
+              else
+            {
+              sprintf(temp, " (--$vi%d)", fs);
+            }
             break;
           case MIPS_OP_VBASE_INC:
-            sprintf(temp, " ($vi%d++)", fs);
+            if (mips_ee_vector[n].operand[0] == MIPS_OP_VFS)
+            {
+              sprintf(temp, " ($vi%d++)", ft);
+            }
+              else
+            {
+              sprintf(temp, " ($vi%d++)", fs);
+            }
             break;
-#if 0
-          case MIPS_OP_IMMEDIATE24:
-            sprintf(temp, " 0x%06x", opcode & 0xffffff);
-            break;
-          case MIPS_OP_IMMEDIATE15:
-            immediate = (opcode & (0xf << 21)) >> 10;
-            immediate |= opcode & 0x7ff;
-            sprintf(temp, " 0x%04x", immediate);
-            break;
-#endif
           case MIPS_OP_IMMEDIATE15_2:
             immediate = (opcode >> 6) & 0x7ff;
             sprintf(temp, " 0x%04x", immediate << 3);
             break;
-#if 0
-          case MIPS_OP_IMMEDIATE12:
-            immediate = (opcode & (1 << 21)) >> 10;
-            immediate |= opcode & 0x7ff;
-            sprintf(temp, " 0x%03x", immediate);
-            break;
-#endif
           case MIPS_OP_IMMEDIATE5:
             immediate = (opcode >> 6) & 0x1f;
             if ((immediate & 0x10) != 0) { immediate |= 0xfffffff0; }

@@ -139,10 +139,24 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, c
             sprintf(temp, " (vi%d)", fs);
             break;
           case EE_VU_OP_BASE_DEC:
-            sprintf(temp, " (--vi%d)", fs);
+            if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
+            {
+              sprintf(temp, " (--vi%d)", ft);
+            }
+              else
+            {
+              sprintf(temp, " (--vi%d)", fs);
+            }
             break;
           case EE_VU_OP_BASE_INC:
-            sprintf(temp, " (vi%d++)", fs);
+            if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
+            {
+              sprintf(temp, " (vi%d++)", ft);
+            }
+              else
+            {
+              sprintf(temp, " (vi%d++)", fs);
+            }
             break;
           case EE_VU_OP_IMMEDIATE24:
             sprintf(temp, " 0x%06x", opcode & 0xffffff);
