@@ -515,5 +515,8 @@ struct _mips_ee_vector mips_ee_vector[] =
   { "vmulay", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a0001bd, 0xfe0007ff, FLAG_DEST },
   { "vmulaz", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a0001be, 0xfe0007ff, FLAG_DEST },
   { "vmulaw", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a0001bf, 0xfe0007ff, FLAG_DEST },
+  { "vnop", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x4a0002ff, 0xffffffff, FLAG_DEST },
+  { "vopmula", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4bc002fe, 0xffe007ff, FLAG_DEST | FLAG_XYZ },
+  { "vopmsub", { MIPS_OP_VFD, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4bc0002e, 0xffe0003f, FLAG_DEST | FLAG_XYZ },
 };
 

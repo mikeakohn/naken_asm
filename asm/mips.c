@@ -1495,6 +1495,12 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           continue;
         }
 
+        if ((mips_ee_vector[n].flags & FLAG_XYZ) != 0 && dest != 0xe)
+        {
+          print_error_illegal_operands(instr, asm_context);
+          return -1;
+        }
+
         opcode = mips_ee_vector[n].opcode;
 
         if (asm_context->pass == 1) { return 4; }

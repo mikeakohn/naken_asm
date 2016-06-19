@@ -400,3 +400,6 @@ vmulax.xz ACC, $vf4, $vf23|:04000000BC21574B7D
 vmulay.xz ACC, $vf4, $vf23|:04000000BD21574B7C
 vmulaz.xz ACC, $vf4, $vf23|:04000000BE21574B7B
 vmulaw.xz ACC, $vf4, $vf23|:04000000BF21574B7A
+vnop|:04000000FF02004AB1
+vopmula.xyz ACC, $vf4, $vf23|:04000000FE22D74BBA
+vopmsub.xyz $vf17, $vf4, $vf23|:040000006E24D74B48

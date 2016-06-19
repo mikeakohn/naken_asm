@@ -416,3 +416,6 @@ vmulax.xz ACC, $vf4, $vf23
 vmulay.xz ACC, $vf4, $vf23
 vmulaz.xz ACC, $vf4, $vf23
 vmulaw.xz ACC, $vf4, $vf23
+vnop
+vopmula.xyz ACC, $vf4, $vf23
+vopmsub.xyz $vf17, $vf4, $vf23

@@ -94,7 +94,7 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_upper[] =
   { "mulaz", { EE_VU_OP_ACC, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x000001be, 0x060007ff, FLAG_DEST },
   { "mulaw", { EE_VU_OP_ACC, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x000001bf, 0x060007ff, FLAG_DEST },
   { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x000002ff, 0x07ffffff, FLAG_NONE },
-  { "opmula", { EE_VU_OP_ACC, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x000002fe, 0x07e007ff, FLAG_DEST | FLAG_XYZ },
+  { "opmula", { EE_VU_OP_ACC, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x01c002fe, 0x07e007ff, FLAG_DEST | FLAG_XYZ },
   { "opmsub", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x0000002e, 0x07e0003f, FLAG_DEST | FLAG_XYZ },
   { "sub", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_FT }, 3, 0x0000002c, 0x0600003f, FLAG_DEST },
   { "subi", { EE_VU_OP_FD, EE_VU_OP_FS, EE_VU_OP_I }, 3, 0x00000026, 0x061f003f, FLAG_DEST },
@@ -166,10 +166,10 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
   { "lqi", { EE_VU_OP_FT, EE_VU_OP_BASE_INC, EE_VU_OP_NONE }, 2, 0x8000037c, 0xfe0007ff, FLAG_DEST },
   { "mfir", { EE_VU_OP_FT, EE_VU_OP_VIS, EE_VU_OP_NONE }, 2, 0x800003fd, 0xfe0007ff, FLAG_DEST },
   { "mfp", { EE_VU_OP_FT, EE_VU_OP_P, EE_VU_OP_NONE }, 2, 0x8000067c, 0xfe0007ff, FLAG_DEST },
+  { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE }, // This is move vf0, vf0
   { "move", { EE_VU_OP_FT, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x8000033c, 0xfe0007ff, FLAG_DEST },
   { "mr32", { EE_VU_OP_FT, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x8000033d, 0xfe0007ff, FLAG_DEST },
   { "mtir", { EE_VU_OP_VIT, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x800003fc, 0xff8007ff, FLAG_SE },
-  { "nop", { EE_VU_OP_NONE, EE_VU_OP_NONE, EE_VU_OP_NONE }, 0, 0x8000033c, 0xffffffff, FLAG_NONE }, // DAFUQ?
   { "rget", { EE_VU_OP_FT, EE_VU_OP_R, EE_VU_OP_NONE }, 2, 0x8000043d, 0xfe00ffff, FLAG_DEST },
   { "rinit", { EE_VU_OP_R, EE_VU_OP_FS, EE_VU_OP_NONE }, 2, 0x8000043e, 0xff9f07ff, FLAG_SE },
   { "rnext", { EE_VU_OP_FT, EE_VU_OP_R, EE_VU_OP_NONE }, 2, 0x8000043c, 0xfe00ffff, FLAG_DEST },
