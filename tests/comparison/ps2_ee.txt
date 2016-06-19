@@ -396,3 +396,7 @@ vmulz.x $vf3x, $vf4x, $vf5|:04000000DA20054BB2
 vmulw.x $vf3x, $vf4x, $vf5|:04000000DB20054BB1
 vmula.xy ACC, $vf4, $vf5|:04000000BE22854B4C
 vmulai.xy ACC, $vf4, I|:04000000FE21804B12
+vmulax.xz ACC, $vf4, $vf23|:04000000BC21574B7D
+vmulay.xz ACC, $vf4, $vf23|:04000000BD21574B7C
+vmulaz.xz ACC, $vf4, $vf23|:04000000BE21574B7B
+vmulaw.xz ACC, $vf4, $vf23|:04000000BF21574B7A

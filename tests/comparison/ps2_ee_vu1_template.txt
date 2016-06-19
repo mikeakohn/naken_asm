@@ -70,6 +70,13 @@ mulx.x vf3, vf4, vf5 nop
 muly.xy vf3, vf4, vf5 nop
 mulz.xz vf3, vf4, vf5 nop
 mulw.yw vf3, vf4, vf5 nop
+mula.xy acc, vf4, vf5  nop
+mulai.xy acc, vf4, I  nop
+mulaq.xz acc, vf4, Q  nop
+mulax.xz acc, vf4, vf23  nop
+mulay.xz acc, vf4, vf23  nop
+mulaz.xz acc, vf4, vf23  nop
+mulaw.xz acc, vf4, vf23  nop
 nop nop
 nop[d] nop
 nop[iemdt] nop

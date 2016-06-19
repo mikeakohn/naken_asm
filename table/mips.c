@@ -510,5 +510,10 @@ struct _mips_ee_vector mips_ee_vector[] =
   { "vmulw", { MIPS_OP_VFD, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a00001b, 0xfe00003f, FLAG_DEST | FLAG_BC },
   { "vmula", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a0002be, 0xfe0007ff, FLAG_DEST },
   { "vmulai", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_I }, 3, 0x4a0001fe, 0xfe1f07ff, FLAG_DEST },
+  { "vmulaq", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_Q }, 3, 0x4a0001fc, 0xfe1f07ff, FLAG_DEST },
+  { "vmulax", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a0001bc, 0xfe0007ff, FLAG_DEST },
+  { "vmulay", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a0001bd, 0xfe0007ff, FLAG_DEST },
+  { "vmulaz", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a0001be, 0xfe0007ff, FLAG_DEST },
+  { "vmulaw", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a0001bf, 0xfe0007ff, FLAG_DEST },
 };
 
