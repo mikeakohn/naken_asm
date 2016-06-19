@@ -1501,6 +1501,12 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
+        if ((mips_ee_vector[n].flags & FLAG_DEST) == 0 && dest != 0x00)
+        {
+          print_error_illegal_operands(instr, asm_context);
+          return -1;
+        }
+
         opcode = mips_ee_vector[n].opcode;
 
         if (asm_context->pass == 1) { return 4; }
@@ -1680,7 +1686,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
                 return -1;
               }
 
-              if (mips_ee_vector[n].operand[0] == MIPS_OP_FS)
+              if (mips_ee_vector[n].operand[0] == MIPS_OP_VFS)
               {
                 opcode |= operands[r].reg2 << 16;
               }
@@ -1698,7 +1704,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
                 return -1;
               }
 
-              if (mips_ee_vector[n].operand[0] == MIPS_OP_FS)
+              if (mips_ee_vector[n].operand[0] == MIPS_OP_VFS)
               {
                 opcode |= operands[r].reg2 << 16;
               }

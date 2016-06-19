@@ -403,3 +403,25 @@ vmulaw.xz ACC, $vf4, $vf23|:04000000BF21574B7A
 vnop|:04000000FF02004AB1
 vopmula.xyz ACC, $vf4, $vf23|:04000000FE22D74BBA
 vopmsub.xyz $vf17, $vf4, $vf23|:040000006E24D74B48
+vrget.xw $vf17, R|:040000003D04314B3F
+vrinit R, $vf17y|:040000003E8C204AC8
+vrnext.xw $vf17, R|:040000003C04314B40
+vrsqrt Q, $vf17y, $vf27x|:04000000BE8B3B4A2E
+vrxor R, $vf17y|:040000003F8C204AC7
+vsqd.yz $vf17, (--$vi8)|:040000007F8BC84AE0
+vsqi.yz $vf17, ($vi8++)|:040000007D8BC84AE2
+vsub.xyzw $vf6,$vf4,$vf5|:04000000AC21E54BFF
+vsubi.xy $vf4, $vf5, I|:040000002629804BE2
+vsubq.xy $vf4, $vf5, Q|:040000002429804BE4
+vsubx.x $vf3x, $vf4x, $vf5|:04000000C420054BC8
+vsuby.x $vf3x, $vf4x, $vf5|:04000000C520054BC7
+vsubz.x $vf3x, $vf4x, $vf5|:04000000C620054BC6
+vsubw.x $vf3x, $vf4x, $vf5|:04000000C720054BC5
+vsuba.xy ACC, $vf4, $vf5|:04000000FC22854B0E
+vsubai.xy ACC, $vf4, I|:040000007E22804B91
+vsubaq.xz ACC, $vf4, Q|:040000007C22404BD3
+vsubax.xz ACC, $vf4, $vf23|:040000007C20574BBE
+vsubay.xz ACC, $vf4, $vf23|:040000007D20574BBD
+vsubaz.xz ACC, $vf4, $vf23|:040000007E20574BBC
+vsubaw.xz ACC, $vf4, $vf23|:040000007F20574BBB
+vwaitq|:04000000BF03004AF0

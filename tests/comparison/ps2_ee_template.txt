@@ -419,3 +419,26 @@ vmulaw.xz ACC, $vf4, $vf23
 vnop
 vopmula.xyz ACC, $vf4, $vf23
 vopmsub.xyz $vf17, $vf4, $vf23
+vrget.xw $vf17, R
+vrinit R, $vf17y
+vrnext.xw $vf17, R
+vrsqrt Q, $vf17y, $vf27x
+vrxor R, $vf17y
+vsqd.yz $vf17, (--$vi8)
+vsqi.yz $vf17, ($vi8++)
+;vsqrt Q, $vf17y
+vsub.xyzw $vf6,$vf4,$vf5
+vsubi.xy $vf4, $vf5, I
+vsubq.xy $vf4, $vf5, Q
+vsubx.x $vf3x, $vf4x, $vf5
+vsuby.x $vf3x, $vf4x, $vf5
+vsubz.x $vf3x, $vf4x, $vf5
+vsubw.x $vf3x, $vf4x, $vf5
+vsuba.xy ACC, $vf4, $vf5
+vsubai.xy ACC, $vf4, I
+vsubaq.xz ACC, $vf4, Q
+vsubax.xz ACC, $vf4, $vf23
+vsubay.xz ACC, $vf4, $vf23
+vsubaz.xz ACC, $vf4, $vf23
+vsubaw.xz ACC, $vf4, $vf23
+vwaitq
