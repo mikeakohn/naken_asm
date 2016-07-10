@@ -455,7 +455,7 @@ static void disasm_range(struct _util_context *util_context, int start, int end)
 
   page_size = memory_page_size(&util_context->memory);
   page_mask = page_size - 1;
-  curr_end = start|page_mask;
+  curr_end = start | page_mask;
 
   for (n = start; n <= end; n += page_size)
   {

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -321,7 +321,7 @@ get_int32_t get_int32;
       int n;
       for (n = 0; n < elf32_shdr.sh_size; n++)
       {
-        if (elf32_shdr.sh_addr + n >= memory->size) break;
+        //if (elf32_shdr.sh_addr + n >= memory->size) { break; }
         memory_write_m(memory, elf32_shdr.sh_addr + n, getc(in)); 
       }
 

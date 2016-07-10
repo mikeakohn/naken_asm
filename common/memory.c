@@ -64,6 +64,7 @@ int memory_in_use(struct _memory *memory, uint32_t address)
   struct _memory_page *page;
 
   page = memory->pages;
+
   while(page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
@@ -81,6 +82,7 @@ int memory_get_page_address_min(struct _memory *memory, uint32_t address)
   struct _memory_page *page;
 
   page = memory->pages;
+
   while(page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
@@ -91,6 +93,7 @@ int memory_get_page_address_min(struct _memory *memory, uint32_t address)
   }
 
   print_error_internal(NULL, __FILE__, __LINE__);
+
   return 0;
 }
 
@@ -99,6 +102,7 @@ int memory_get_page_address_max(struct _memory *memory, uint32_t address)
   struct _memory_page *page;
 
   page = memory->pages;
+
   while(page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
@@ -109,6 +113,7 @@ int memory_get_page_address_max(struct _memory *memory, uint32_t address)
   }
 
   print_error_internal(NULL, __FILE__, __LINE__);
+
   return 0;
 }
 
@@ -122,6 +127,7 @@ static uint8_t read_byte(struct _memory *memory, uint32_t address)
   struct _memory_page *page;
 
   page = memory->pages;
+
   while(page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
