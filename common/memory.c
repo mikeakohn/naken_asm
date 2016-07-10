@@ -20,6 +20,7 @@ void memory_init(struct _memory *memory, uint32_t size, int debug_flag)
 {
   memory->low_address = size - 1;
   memory->high_address = 0;
+  memory->entry_point = 0xffffffff;
   memory->endian = ENDIAN_LITTLE;
   memory->size = size;
   memory->debug_flag = debug_flag;

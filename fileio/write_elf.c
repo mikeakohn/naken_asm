@@ -25,6 +25,7 @@ struct _elf
   struct _sections_offset sections_offset;
   struct _sections_size sections_size;
   uint8_t e_ident[16];
+  uint32_t e_entry;
   uint32_t e_flags;
   uint16_t e_type;
   uint16_t e_machine;
@@ -118,6 +119,11 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
     elf->write_int16 = write_int16_be;
   }
 
+  if (memory->entry_point != 0xffffffff)
+  {
+    elf->e_entry = memory->entry_point;
+  }
+
   // This probably should be 0 for Raspberry Pi, etc.
   elf->e_ident[EI_OSABI] = 255;
 
@@ -189,17 +195,17 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
   fwrite(elf->e_ident, 1, 16, out);
   elf->write_int16(out, elf->e_type);    // e_type 0=not relocatable 1=msp_32
   elf->write_int16(out, elf->e_machine); // e_machine EM_MSP430=0x69
-  elf->write_int32(out, 1);       // e_version
-  elf->write_int32(out, 0);       // e_entry (this could be 16 bit at 0xfffe)
-  elf->write_int32(out, 0);       // e_phoff (program header offset)
-  elf->write_int32(out, 0);       // e_shoff (section header offset)
-  elf->write_int32(out, elf->e_flags); // e_flags (should be set to CPU model)
-  elf->write_int16(out, 0x34);    // e_ehsize (size of this struct)
-  elf->write_int16(out, 0);       // e_phentsize (program header size)
-  elf->write_int16(out, 0);       // e_phnum (number of program headers)
-  elf->write_int16(out, 40);      // e_shentsize (section header size)
-  elf->write_int16(out, elf->e_shnum); // e_shnum (number of section headers)
-  elf->write_int16(out, 2);       // e_shstrndx (section header string table index)
+  elf->write_int32(out, 1);              // e_version
+  elf->write_int32(out, elf->e_entry);   // e_entry (start address)
+  elf->write_int32(out, 0);              // e_phoff (program header offset)
+  elf->write_int32(out, 0);              // e_shoff (section header offset)
+  elf->write_int32(out, elf->e_flags);   // e_flags (should be set to CPU model)
+  elf->write_int16(out, 0x34);           // e_ehsize (size of this struct)
+  elf->write_int16(out, 0);              // e_phentsize (program header size)
+  elf->write_int16(out, 0);              // e_phnum (number of program headers)
+  elf->write_int16(out, 40);             // e_shentsize (section header size)
+  elf->write_int16(out, elf->e_shnum);   // e_shnum (number of section headers)
+  elf->write_int16(out, 2);              // e_shstrndx (section header string table index)
 }
 
 #if 0

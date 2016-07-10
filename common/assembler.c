@@ -91,6 +91,26 @@ static int parse_org(struct _asm_context *asm_context)
   return 0;
 }
 
+static int parse_entry_point(struct _asm_context *asm_context)
+{
+  int num;
+
+  if (asm_context->pass == 1)
+  {
+    eat_operand(asm_context);
+  }
+    else
+  if (eval_expression(asm_context, &num) == -1)
+  {
+    print_error("entry_point expects an address", asm_context);
+    return -1;
+  }
+
+  asm_context->memory.entry_point = num * asm_context->bytes_per_address;
+
+  return 0;
+}
+
 static int parse_align(struct _asm_context *asm_context)
 {
   int num;
@@ -382,25 +402,31 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
 {
   if (strcasecmp(token, "org") == 0)
   {
-    if (parse_org(asm_context) != 0) return -1;
+    if (parse_org(asm_context) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "entry_point") == 0)
+  {
+    if (parse_entry_point(asm_context) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "align") == 0)
   {
-    if (parse_align(asm_context) != 0) return -1;
+    if (parse_align(asm_context) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "name") == 0)
   {
-    if (parse_name(asm_context) != 0) return -1;
+    if (parse_name(asm_context) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "public") == 0)
   {
-    if (parse_public(asm_context) != 0) return -1;
+    if (parse_public(asm_context) != 0) { return -1; }
     return 1;
   }
     else
@@ -408,25 +434,25 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
       strcasecmp(token, "dc8") == 0 ||
       strcasecmp(token, "ascii") == 0)
   {
-    if (parse_db(asm_context, 0) != 0) return -1;
+    if (parse_db(asm_context, 0) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "asciiz") == 0)
   {
-    if (parse_db(asm_context, 1) != 0) return -1;
+    if (parse_db(asm_context, 1) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "dc") == 0)
   {
-    if (parse_dc(asm_context) != 0) return -1;
+    if (parse_dc(asm_context) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "dq") == 0)
   {
-    if (parse_dq(asm_context) != 0) return -1;
+    if (parse_dq(asm_context) != 0) { return -1; }
     return 1;
   }
     else
@@ -438,43 +464,43 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     else
   if (strcasecmp(token, "dl") == 0 || strcasecmp(token, "dc32") == 0)
   {
-    if (parse_dc32(asm_context) != 0) return -1;
+    if (parse_dc32(asm_context) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "dc64") == 0)
   {
-    if (parse_dc64(asm_context) != 0) return -1;
+    if (parse_dc64(asm_context) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "ds") == 0 || strcasecmp(token, "ds8") == 0)
   {
-    if (parse_ds(asm_context,1) != 0) return -1;
+    if (parse_ds(asm_context,1) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "ds16") == 0)
   {
-    if (parse_ds(asm_context,2) != 0) return -1;
+    if (parse_ds(asm_context,2) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "ds32") == 0)
   {
-    if (parse_ds(asm_context,4) != 0) return -1;
+    if (parse_ds(asm_context,4) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "resb") == 0)
   {
-    if (parse_resb(asm_context,1) != 0) return -1;
+    if (parse_resb(asm_context,1) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "resw") == 0)
   {
-    if (parse_resb(asm_context,2) != 0) return -1;
+    if (parse_resb(asm_context,2) != 0) { return -1; }
     return 1;
   }
     else

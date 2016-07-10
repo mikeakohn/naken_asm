@@ -273,6 +273,7 @@ Other Directives:
 .big_endian                 Store databytes in big endian format
 .little_endian              Store databytes in little endian format
 .export                     Export symbol so it shows up in ELF file
+.entry_point                ELF file entry point (address of execution) 
 .include "includefile.inc"  Include a file of asm source code
 .org <address>              Address where next assembled bytes are written to
 .set <symbol>=<value>       Create or modify symbol's value (excluding labels)

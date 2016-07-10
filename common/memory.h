@@ -38,6 +38,7 @@ struct _memory
   struct _memory_page *pages;
   uint32_t low_address;
   uint32_t high_address;
+  uint32_t entry_point;
   int endian;
   uint32_t size;
   int debug_flag;
