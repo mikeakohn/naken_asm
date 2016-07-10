@@ -26,7 +26,10 @@ struct _elf
   struct _sections_size sections_size;
   uint8_t e_ident[16];
   uint32_t e_entry;
+  uint32_t e_phoff;
   uint32_t e_flags;
+  uint32_t e_phentsize;
+  uint32_t e_phnum;
   uint16_t e_type;
   uint16_t e_machine;
   uint16_t e_shnum;
@@ -47,7 +50,7 @@ static const char magic_number[16] =
   0, 0, 0, 0,  0, 0, 0, 0
 };
 
-// For now we will only have .text, .shstrtab, .symtab, strtab
+// For now there will only be .text, .shstrtab, .symtab, strtab
 // I can't see a use for .data and .bss unless the bootloaders know elf?
 // I'm also not supporting relocations.  I can do it later if requested.
 
@@ -73,30 +76,30 @@ const char string_table_default[] =
 
 static void write_int32_le(FILE *out, uint32_t n)
 {
-  putc(n&0xff, out);
-  putc((n>>8)&0xff, out);
-  putc((n>>16)&0xff, out);
-  putc((n>>24)&0xff, out);
+  putc(n & 0xff, out);
+  putc((n >> 8) & 0xff, out);
+  putc((n >> 16) & 0xff, out);
+  putc((n >> 24) & 0xff, out);
 }
 
 static void write_int16_le(FILE *out, uint32_t n)
 {
-  putc(n&0xff, out);
-  putc((n>>8)&0xff, out);
+  putc(n & 0xff, out);
+  putc((n >> 8) & 0xff, out);
 }
 
 static void write_int32_be(FILE *out, uint32_t n)
 {
-  putc((n>>24)&0xff, out);
-  putc((n>>16)&0xff, out);
-  putc((n>>8)&0xff, out);
-  putc(n&0xff, out);
+  putc((n >> 24) & 0xff, out);
+  putc((n >> 16) & 0xff, out);
+  putc((n >> 8) & 0xff, out);
+  putc(n & 0xff, out);
 }
 
 static void write_int16_be(FILE *out, uint32_t n)
 {
-  putc((n>>8)&0xff, out);
-  putc(n&0xff, out);
+  putc((n >> 8) & 0xff, out);
+  putc(n & 0xff, out);
 }
 
 static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory)
@@ -122,6 +125,9 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
   if (memory->entry_point != 0xffffffff)
   {
     elf->e_entry = memory->entry_point;
+    elf->e_phoff = 0x34;
+    elf->e_phentsize = 32;
+    elf->e_phnum =1;
   }
 
   // This probably should be 0 for Raspberry Pi, etc.
@@ -188,8 +194,8 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
       break;
   }
 
-  //if (asm_context->debug_file==1) { elf->e_shnum+=4; }
-  elf->e_shnum++; // Null section to start...
+  // Null section to start...
+  elf->e_shnum++;
 
   // Write Ehdr;
   fwrite(elf->e_ident, 1, 16, out);
@@ -197,74 +203,16 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
   elf->write_int16(out, elf->e_machine); // e_machine EM_MSP430=0x69
   elf->write_int32(out, 1);              // e_version
   elf->write_int32(out, elf->e_entry);   // e_entry (start address)
-  elf->write_int32(out, 0);              // e_phoff (program header offset)
+  elf->write_int32(out, elf->e_phoff);   // e_phoff (program header offset)
   elf->write_int32(out, 0);              // e_shoff (section header offset)
   elf->write_int32(out, elf->e_flags);   // e_flags (should be set to CPU model)
   elf->write_int16(out, 0x34);           // e_ehsize (size of this struct)
-  elf->write_int16(out, 0);              // e_phentsize (program header size)
-  elf->write_int16(out, 0);              // e_phnum (number of program headers)
+  elf->write_int16(out, elf->e_phentsize); // e_phentsize (program header size)
+  elf->write_int16(out, elf->e_phnum);   // e_phnum (number of program headers)
   elf->write_int16(out, 40);             // e_shentsize (section header size)
   elf->write_int16(out, elf->e_shnum);   // e_shnum (number of section headers)
   elf->write_int16(out, 2);              // e_shstrndx (section header string table index)
 }
-
-#if 0
-static void optimize_memory(struct _memory *memory)
-{
-  int i = 0;
-
-  while (i <= memory->high_address)
-  {
-    if (memory_debug_line_m(memory, i) == -2)
-    {
-      // Fill gaps in data sections
-      while(memory_debug_line_m(memory, i) == -2)
-      {
-        //printf("Found data %02x\n", i);
-        while(i <= memory->high_address && memory_debug_line_m(memory, i) == -2)
-        { i += 2; }
-        //printf("End data %02x\n", i);
-        if (i == memory->high_address) break;
-        int marker = i;
-        while(i <= memory->high_address && memory_debug_line_m(memory, i) == -1)
-        { i += 2; }
-        if (i == memory->high_address) break;
-
-        if (i <= memory->high_address && memory_debug_line_m(memory, i)==-2)
-        {
-          while(marker != i) { memory_debug_line_set_m(memory, marker++, -2); }
-        }
-        if (i == memory->high_address) break;
-      }
-    }
-      else
-    if (memory_debug_line_m(memory, i) >= 0)
-    {
-      // Fill gaps in code sections
-      while(i<=memory->high_address && memory_debug_line_m(memory, i)>=0)
-      {
-        while(i <= memory->high_address && (memory_debug_line_m(memory, i)>=0 || memory_debug_line_m(memory, i) == -3))
-        { i += 2; }
-        if (i == memory->high_address) { break; }
-
-        int marker=i;
-        while(i <= memory->high_address && memory_debug_line_m(memory, i) == -1)
-        { i += 2; }
-
-        if (i == memory->high_address) { break; }
-
-        if (memory_debug_line_m(memory, i) >= 0)
-        {
-          while(marker != i) { memory_debug_line_set_m(memory, marker++, -3); }
-        }
-        if (i == memory->high_address) break;
-      }
-    }
-
-    i += 2;
-  }
-}
-#endif
 
 static int get_string_table_len(char *string_table)
 {
@@ -302,90 +250,15 @@ static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory 
     putc(memory_read_m(memory, i), out);
   }
 
-  elf->sections_size.text[elf->text_count] = ftell(out)-elf->sections_offset.text[elf->text_count];
+  // FIXME - Probably should align here.
+
+  elf->sections_size.text[elf->text_count] = ftell(out) - elf->sections_offset.text[elf->text_count];
 
   elf->text_count++;
   elf->e_shnum++;
 
-  elf->e_shstrndx = elf->data_count + elf->text_count+1;
+  elf->e_shstrndx = elf->data_count + elf->text_count + 1;
 }
-
-#if 0
-static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory *memory)
-{
-  int i = 0;
-
-  while (i <= memory->high_address)
-  {
-    char name[32];
-
-    if (memory_debug_line_m(memory, i) == -2)
-    {
-      if (elf->data_count >= ELF_TEXT_MAX)
-      {
-        printf("Too many elf .data sections (count=%d).  Internal error.\n", elf->data_count);
-        exit(1);
-      }
-
-      if (elf->data_count == 0) { strcpy(name, ".data"); }
-      else { sprintf(name, ".data%d", elf->data_count); }
-
-      elf->data_addr[elf->data_count] = i;
-      string_table_append(elf, name);
-      elf->sections_offset.data[elf->data_count] = ftell(out);
-
-      while(memory_debug_line_m(memory, i) == -2)
-      {
-        putc(memory_read_m(memory, i++), out);
-        putc(memory_read_m(memory, i++), out);
-      }
-
-      elf->sections_size.data[elf->data_count] = ftell(out)-elf->sections_offset.data[elf->data_count];
-
-      elf->data_count++;
-      elf->e_shnum++;
-    }
-      else
-    if (memory_debug_line_m(memory, i) != -1)
-    {
-      if (elf->text_count >= ELF_TEXT_MAX)
-      {
-        printf("Too many elf .text sections(%d).  Internal error.\n", elf->text_count);
-        exit(1);
-      }
-
-      if (elf->text_count == 0) { strcpy(name, ".text"); }
-      else { sprintf(name, ".text%d", elf->text_count); }
-
-      elf->text_addr[elf->text_count] = i;
-      string_table_append(elf, name);
-      elf->sections_offset.text[elf->text_count] = ftell(out);
-
-      while(1)
-      {
-        int debug_line = memory_debug_line_m(memory, i);
-
-        // Make sure this is executable code
-        if (!(debug_line >= 0 || debug_line == -3))
-        { break; }
-
-        // FIXME - This is 16 bit?
-        putc(memory_read_m(memory, i++), out);
-        putc(memory_read_m(memory, i++), out);
-      }
-
-      elf->sections_size.text[elf->text_count] = ftell(out)-elf->sections_offset.text[elf->text_count];
-
-      elf->text_count++;
-      elf->e_shnum++;
-    }
-
-    i++;
-  }
-
-  elf->e_shstrndx = elf->data_count + elf->text_count+1;
-}
-#endif
 
 static void write_arm_attribute(FILE *out, struct _elf *elf)
 {
@@ -418,6 +291,18 @@ static void write_arm_attribute(FILE *out, struct _elf *elf)
   putc(0x00, out); // null
   putc(0x00, out); // null
   putc(0x00, out); // null
+}
+
+static void write_phdr(FILE *out, struct _elf *elf, uint32_t address)
+{
+  elf->write_int32(out, 1);          // p_type: 1 (LOAD)
+  elf->write_int32(out, 0x1000);     // p_offset
+  elf->write_int32(out, address);    // p_vaddr
+  elf->write_int32(out, address);    // p_paddr
+  elf->write_int32(out, 0);          // p_filesz
+  elf->write_int32(out, 0);          // p_memsz
+  elf->write_int32(out, 7);          // p_flags: 7 RWX
+  elf->write_int32(out, 4096);       // p_align
 }
 
 static void write_shdr(FILE *out, struct _shdr *shdr, struct _elf *elf)
@@ -483,10 +368,17 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
 
   memcpy(elf.string_table, string_table_default, sizeof(string_table_default));
 
-  // Fill in blank to minimize text and data sections
-  //optimize_memory(memory);
-
   write_elf_header(out, &elf, memory);
+
+  // For Playstaiton 2 ELF to be executable, need this LOAD program header
+  if (elf.e_phnum > 0)
+  {
+    write_phdr(out, &elf, memory->low_address);
+
+    // Align 4096 for Playstation 2.
+    long marker = ftell(out);
+    while(marker < 4096 - 40) { putc(0, out); marker++; }
+  }
 
   // .text and .data sections
   write_elf_text_and_data(out, &elf, memory);
@@ -501,7 +393,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   elf.sections_offset.shstrtab = ftell(out);
   i = fwrite(elf.string_table, 1, get_string_table_len(elf.string_table), out);
   putc(0x00, out); // null
-  elf.sections_size.shstrtab = ftell(out)-elf.sections_offset.shstrtab;
+  elf.sections_size.shstrtab = ftell(out) - elf.sections_offset.shstrtab;
 
   {
     struct _symbols_iter iter;
@@ -560,8 +452,8 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
     if (elf.cpu_type == CPU_TYPE_ARM)
     {
       memset(&symtab, 0, sizeof(symtab));
-      symtab.st_info=3;
-      symtab.st_shndx=elf.e_shnum-1;
+      symtab.st_info = 3;
+      symtab.st_shndx = elf.e_shnum - 1;
       write_symtab(out, &symtab, &elf);
     }
 
@@ -589,13 +481,6 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   fprintf(out, "Created with naken_asm.  http://www.mikekohn.net/");
   elf.sections_size.comment = ftell(out) - elf.sections_offset.comment;
 
-#if 0
-  if (asm_context->debug_file==1)
-  {
-    // insert debug sections
-  }
-#endif
-
   // A little ex-lax to dump the SHT's
   long marker = ftell(out);
   fseek(out, 32, SEEK_SET);
@@ -607,7 +492,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
 
   // ------------------------ fold here -----------------------------
 
-  // Let's align this eventually
+  // Align this eventually
   //elf_addr_align(out);
 
   // NULL section
@@ -701,7 +586,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
     shdr.sh_name = find_section(elf.string_table, ".ARM.attributes", sizeof(elf.string_table));
     shdr.sh_type = 1879048195;  // wtf?
     shdr.sh_offset = elf.sections_offset.arm_attribute;
-    shdr.sh_size=elf.sections_size.arm_attribute;
+    shdr.sh_size = elf.sections_size.arm_attribute;
     shdr.sh_addralign = 1;
     write_shdr(out, &shdr, &elf);
   }
