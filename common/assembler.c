@@ -115,30 +115,19 @@ static int parse_align(struct _asm_context *asm_context)
 {
   int num;
 
-  if (eval_expression(asm_context, &num) == -1 || (num != 16 && num != 32))
+  if (eval_expression(asm_context, &num) == -1 ||
+     (num != 16 && num != 32 && num != 64 && num != 128))
   {
-    print_error("align expects 16 or 32", asm_context);
+    print_error("align expects 16, 32, 64, or 128 bytes", asm_context);
     return -1;
   }
 
-  if (num == 16)
+  num = num / 8;
+  int mask = num - 1;
+
+  while ((asm_context->address & mask) != 0)
   {
-    if ((asm_context->address&1) != 0)
-    {
-      memory_write_inc(asm_context, 0, DL_DATA);
-    }
-  }
-    else
-  if (num == 32)
-  {
-    if ((asm_context->address&3) != 0)
-    {
-      int n;
-      for (n = (asm_context->address&3); n < 4; n++)
-      {
-        memory_write_inc(asm_context, 0, DL_DATA);
-      }
-    }
+    memory_write_inc(asm_context, 0, DL_EMPTY);
   }
 
   return 0;

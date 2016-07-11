@@ -236,7 +236,7 @@ int len;
   *string_table = 0;
 }
 
-static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory *memory)
+static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory *memory, int alignment)
 {
   char *name = ".text";
   int i;
@@ -250,7 +250,17 @@ static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory 
     putc(memory_read_m(memory, i), out);
   }
 
-  // FIXME - Probably should align here.
+  if (alignment != 1)
+  {
+    int count = memory->high_address - memory->low_address + 1;
+    int mask = alignment - 1;
+
+    while((count & mask) != 0)
+    {
+      putc(0, out);
+      count++;
+    }
+  }
 
   elf->sections_size.text[elf->text_count] = ftell(out) - elf->sections_offset.text[elf->text_count];
 
@@ -353,7 +363,7 @@ static void elf_addr_align(FILE *out)
   while((marker%4)!=0) { putc(0x00, out); marker++; }
 }
 
-int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const char *filename, int cpu_type)
+int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const char *filename, int cpu_type, int alignment)
 {
   struct _shdr shdr;
   struct _symtab symtab;
@@ -381,7 +391,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   }
 
   // .text and .data sections
-  write_elf_text_and_data(out, &elf, memory);
+  write_elf_text_and_data(out, &elf, memory, alignment);
 
   // .ARM.attribute
   if (elf.cpu_type == CPU_TYPE_ARM)
@@ -503,15 +513,24 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   for (i = 0; i < elf.text_count; i++)
   {
     char name[32];
+    int size = elf.sections_size.text[i];
+
+    if (alignment != 1)
+    {
+      int mask = alignment - 1;
+      size += (alignment - size) & mask;
+    }
+
     if (i == 0) { strcpy(name, ".text"); }
     else { sprintf(name, ".text%d", i); }
+
     shdr.sh_name = find_section(elf.string_table, name, sizeof(elf.string_table));
     shdr.sh_type = 1;
     shdr.sh_flags = 6;
     shdr.sh_addr = elf.text_addr[i]; //asm_context->memory.low_address;
     shdr.sh_offset = elf.sections_offset.text[i];
     shdr.sh_size = elf.sections_size.text[i];
-    shdr.sh_addralign = 1;
+    shdr.sh_addralign = alignment;
     write_shdr(out, &shdr, &elf);
   }
 
@@ -519,15 +538,24 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   for (i = 0; i < elf.data_count; i++)
   {
     char name[32];
+    int size = elf.sections_size.data[i];
+
+    if (alignment != 1)
+    {
+      int mask = alignment - 1;
+      size += (alignment - size) & mask;
+    }
+
     if (i == 0) { strcpy(name, ".data"); }
     else { sprintf(name, ".data%d", i); }
+
     shdr.sh_name = find_section(elf.string_table, name, sizeof(elf.string_table));
     shdr.sh_type = 1;
     shdr.sh_flags = 3;
     shdr.sh_addr = elf.data_addr[i]; //asm_context->memory.low_address;
     shdr.sh_offset = elf.sections_offset.data[i];
-    shdr.sh_size = elf.sections_size.data[i];
-    shdr.sh_addralign = 1;
+    shdr.sh_size = size;
+    shdr.sh_addralign = alignment;
     write_shdr(out, &shdr, &elf);
   }
 

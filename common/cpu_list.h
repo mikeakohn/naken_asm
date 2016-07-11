@@ -24,6 +24,12 @@ typedef void (*list_output_t)(struct _asm_context *, uint32_t, uint32_t);
 typedef void (*disasm_range_t)(struct _memory *, uint32_t, uint32_t, uint32_t);
 //typedef struct _simulate *(*simulate_init_t)(struct _memory *memory);
 
+#define ALIGN_1 1
+#define ALIGN_2 2
+#define ALIGN_4 4
+#define ALIGN_8 8
+#define ALIGN_16 16 
+
 enum
 {
   CPU_TYPE_MSP430=0,
@@ -56,12 +62,13 @@ enum
 struct _cpu_list
 {
   char *name;
-  char type;
-  char default_endian;
-  char bytes_per_address;
-  char is_dollar_hex:1;
-  char can_tick_end_string:1;
-  char pass_1_write_disable:1;
+  int8_t type;
+  int8_t default_endian;
+  int8_t bytes_per_address;
+  int8_t alignment;
+  int8_t is_dollar_hex:1;
+  int8_t can_tick_end_string:1;
+  int8_t pass_1_write_disable:1;
   parse_instruction_t parse_instruction;
   parse_directive_t parse_directive;
   list_output_t list_output;

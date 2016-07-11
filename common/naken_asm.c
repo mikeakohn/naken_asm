@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -34,11 +34,12 @@ enum
 
 const char *credits =
   "\n"
-  "naken_asm - by Michael Kohn\n"
-  "               Joe Davisson\n"
-  "    CPU: MSP430, MSP430X, 65xx, 65816, 680x, 68HC08, 680x0, 805x\n"
-  "         ARM, AVR8, dsPIC, MIPS, STM8, THUMB, TMS1000, TMS1100\n"
-  "         TMS9900, Z80\n"
+  "naken_asm\n\n"
+  " Athors: Michael Kohn\n"
+  "         Joe Davisson\n"
+  "    CPU: MSP430, MSP430X, 6502, 65816, 6809, 68HC08, 68000, 8051\n"
+  "         ARM, AVR8, dsPIC, Emotion Engine, MIPS, PIC32, Propeller,\n"
+  "         STM8, THUMB, TMS1000, TMS1100, TMS9900, Z80\n"
   "    Web: http://www.mikekohn.net/\n"
   "  Email: mike@mikekohn.net\n"
   "Version: "VERSION"\n";
@@ -322,7 +323,7 @@ int main(int argc, char *argv[])
       else
     if (format == FORMAT_ELF)
     {
-      write_elf(&asm_context.memory, out, &asm_context.symbols, asm_context.filename, asm_context.cpu_type);
+      write_elf(&asm_context.memory, out, &asm_context.symbols, asm_context.filename, asm_context.cpu_type, cpu_list[asm_context.cpu_list_index].alignment);
     }
 #endif
 

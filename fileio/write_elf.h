@@ -80,7 +80,7 @@ struct _symtab
   uint16_t st_shndx;
 };
 
-int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const char *filename, int cpu_type);
+int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const char *filename, int cpu_type, int alignment);
 
 #endif
 
