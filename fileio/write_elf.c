@@ -303,14 +303,14 @@ static void write_arm_attribute(FILE *out, struct _elf *elf)
   putc(0x00, out); // null
 }
 
-static void write_phdr(FILE *out, struct _elf *elf, uint32_t address)
+static void write_phdr(FILE *out, struct _elf *elf, uint32_t address, uint32_t filesz)
 {
   elf->write_int32(out, 1);          // p_type: 1 (LOAD)
   elf->write_int32(out, 0x1000);     // p_offset
   elf->write_int32(out, address);    // p_vaddr
   elf->write_int32(out, address);    // p_paddr
-  elf->write_int32(out, 0);          // p_filesz
-  elf->write_int32(out, 0);          // p_memsz
+  elf->write_int32(out, filesz);     // p_filesz
+  elf->write_int32(out, filesz);     // p_memsz
   elf->write_int32(out, 7);          // p_flags: 7 RWX
   elf->write_int32(out, 4096);       // p_align
 }
@@ -383,11 +383,13 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   // For Playstaiton 2 ELF to be executable, need this LOAD program header
   if (elf.e_phnum > 0)
   {
-    write_phdr(out, &elf, memory->low_address);
+    uint32_t filesz = memory->high_address - memory->low_address + 1;
+
+    write_phdr(out, &elf, memory->low_address, filesz);
 
     // Align 4096 for Playstation 2.
     long marker = ftell(out);
-    while(marker < 4096 - 40) { putc(0, out); marker++; }
+    while(marker < 4096 - (0x34 + 0x20)) { putc(0, out); marker++; }
   }
 
   // .text and .data sections
