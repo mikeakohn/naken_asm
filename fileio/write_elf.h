@@ -18,9 +18,9 @@
 
 struct _sections_offset
 {
-  long text[ELF_TEXT_MAX];
+  long text;
   long rela_text;
-  long data[ELF_TEXT_MAX];
+  long data;
   long bss;
   long shstrtab;
   long symtab;
@@ -38,9 +38,9 @@ struct _sections_offset
 
 struct _sections_size
 {
-  int text[ELF_TEXT_MAX];
+  int text;
   int rela_text;
-  int data[ELF_TEXT_MAX];
+  int data;
   int bss;
   int shstrtab;
   int symtab;

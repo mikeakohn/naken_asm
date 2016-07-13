@@ -34,11 +34,11 @@ struct _elf
   uint16_t e_machine;
   uint16_t e_shnum;
   uint16_t e_shstrndx;
-  int text_count;
-  int data_count;
+  //int text_count;
+  //int data_count;
   int cpu_type;
-  int text_addr[ELF_TEXT_MAX];
-  int data_addr[ELF_TEXT_MAX];
+  int text_addr;
+  int data_addr;
   char string_table[1024];
   write_int32_t write_int32;
   write_int16_t write_int16;
@@ -241,9 +241,9 @@ static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory 
   char *name = ".text";
   int i;
 
-  elf->text_addr[elf->text_count] = memory->low_address;
+  elf->text_addr = memory->low_address;
   string_table_append(elf, name);
-  elf->sections_offset.text[elf->text_count] = ftell(out);
+  elf->sections_offset.text = ftell(out);
 
   for(i = memory->low_address; i <= memory->high_address; i++)
   {
@@ -262,12 +262,9 @@ static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory 
     }
   }
 
-  elf->sections_size.text[elf->text_count] = ftell(out) - elf->sections_offset.text[elf->text_count];
+  elf->sections_size.text = ftell(out) - elf->sections_offset.text;
 
-  elf->text_count++;
   elf->e_shnum++;
-
-  elf->e_shstrndx = elf->data_count + elf->text_count + 1;
 }
 
 static void write_arm_attribute(FILE *out, struct _elf *elf)
@@ -395,6 +392,9 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   // .text and .data sections
   write_elf_text_and_data(out, &elf, memory, alignment);
 
+  // string index should be next
+  elf.e_shstrndx = elf.e_shnum;
+
   // .ARM.attribute
   if (elf.cpu_type == CPU_TYPE_ARM)
   {
@@ -511,11 +511,12 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   memset(&shdr, 0, sizeof(shdr));
   write_shdr(out, &shdr, &elf);
 
+  char name[32];
+
   // SHT .text
-  for (i = 0; i < elf.text_count; i++)
+  if (elf.sections_offset.text != 0)
   {
-    char name[32];
-    int size = elf.sections_size.text[i];
+    int size = elf.sections_size.text;
 
     if (alignment != 1)
     {
@@ -529,18 +530,18 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
     shdr.sh_name = find_section(elf.string_table, name, sizeof(elf.string_table));
     shdr.sh_type = 1;
     shdr.sh_flags = 6;
-    shdr.sh_addr = elf.text_addr[i]; //asm_context->memory.low_address;
-    shdr.sh_offset = elf.sections_offset.text[i];
-    shdr.sh_size = elf.sections_size.text[i];
+    shdr.sh_addr = elf.text_addr; //asm_context->memory.low_address;
+    shdr.sh_offset = elf.sections_offset.text;
+    shdr.sh_size = elf.sections_size.text;
     shdr.sh_addralign = alignment;
     write_shdr(out, &shdr, &elf);
   }
 
   // SHT .data
-  for (i = 0; i < elf.data_count; i++)
+  if (elf.sections_offset.data != 0)
   {
     char name[32];
-    int size = elf.sections_size.data[i];
+    int size = elf.sections_size.data;
 
     if (alignment != 1)
     {
@@ -554,8 +555,8 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
     shdr.sh_name = find_section(elf.string_table, name, sizeof(elf.string_table));
     shdr.sh_type = 1;
     shdr.sh_flags = 3;
-    shdr.sh_addr = elf.data_addr[i]; //asm_context->memory.low_address;
-    shdr.sh_offset = elf.sections_offset.data[i];
+    shdr.sh_addr = elf.data_addr; //asm_context->memory.low_address;
+    shdr.sh_offset = elf.sections_offset.data;
     shdr.sh_size = size;
     shdr.sh_addralign = alignment;
     write_shdr(out, &shdr, &elf);
