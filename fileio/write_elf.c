@@ -357,7 +357,7 @@ int n = 0;
 static void elf_addr_align(FILE *out)
 {
   long marker = ftell(out);
-  while((marker%4)!=0) { putc(0x00, out); marker++; }
+  while((marker % 4) != 0) { putc(0x00, out); marker++; }
 }
 
 int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const char *filename, int cpu_type, int alignment)
@@ -393,7 +393,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   write_elf_text_and_data(out, &elf, memory, alignment);
 
   // string index should be next
-  elf.e_shstrndx = elf.e_shnum;
+  //elf.e_shstrndx = elf.e_shnum;
 
   // .ARM.attribute
   if (elf.cpu_type == CPU_TYPE_ARM)
@@ -493,23 +493,22 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   fprintf(out, "Created with naken_asm.  http://www.mikekohn.net/");
   elf.sections_size.comment = ftell(out) - elf.sections_offset.comment;
 
+  // Align sections
+  elf_addr_align(out);
+
   // A little ex-lax to dump the SHT's
   long marker = ftell(out);
   fseek(out, 32, SEEK_SET);
   elf.write_int32(out, marker);         // e_shoff (section header offset)
-  fseek(out, 0x30, SEEK_SET);
-  elf.write_int16(out, elf.e_shnum);    // e_shnum (section count)
-  elf.write_int16(out, elf.e_shstrndx); // e_shstrndx (string_table index)
   fseek(out, marker, SEEK_SET);
 
   // ------------------------ fold here -----------------------------
 
-  // Align this eventually
-  //elf_addr_align(out);
-
   // NULL section
   memset(&shdr, 0, sizeof(shdr));
   write_shdr(out, &shdr, &elf);
+
+  elf.e_shstrndx = 1;
 
   char name[32];
 
@@ -535,6 +534,8 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
     shdr.sh_size = elf.sections_size.text;
     shdr.sh_addralign = alignment;
     write_shdr(out, &shdr, &elf);
+
+    elf.e_shstrndx++;
   }
 
   // SHT .data
@@ -560,6 +561,8 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
     shdr.sh_size = size;
     shdr.sh_addralign = alignment;
     write_shdr(out, &shdr, &elf);
+
+    elf.e_shstrndx++;
   }
 
   // SHT .shstrtab
@@ -621,6 +624,13 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
     shdr.sh_addralign = 1;
     write_shdr(out, &shdr, &elf);
   }
+
+  marker = ftell(out);
+  fseek(out, 0x30, SEEK_SET);
+  elf.write_int16(out, elf.e_shnum);    // e_shnum (section count)
+  elf.write_int16(out, elf.e_shstrndx); // e_shstrndx (string_table index)
+  fseek(out, marker, SEEK_SET);
+
  
   return 0;
 }
