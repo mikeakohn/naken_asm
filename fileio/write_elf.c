@@ -386,7 +386,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
 
     // Align 4096 for Playstation 2.
     long marker = ftell(out);
-    while(marker < 4096 - (0x34 + 0x20)) { putc(0, out); marker++; }
+    while(marker < 4096) { putc(0, out); marker++; }
   }
 
   // .text and .data sections
