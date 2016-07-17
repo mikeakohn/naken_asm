@@ -31,8 +31,14 @@ for line in fp:
     if reg_num in instruction: ignore = True
   if ignore == True: continue
 
-  out.write(instruction + "\n")
+  if " " in instruction: name = instruction.split()[0]
+  else: name = instruction
 
+  if name in alias:
+    #print "Skipping: " + name
+    continue
+
+  out.write(instruction + "\n")
   instructions.append(instruction)
 
 fp.close()
@@ -56,8 +62,6 @@ for line in fp:
     name_a = a[0].split()[0]
     name_b = b[0].split()[0]
 
-    if name_a in alias: continue
-
     a[0] = a[0].split()[1]
     b[0] = b[0].split()[1]
 
@@ -72,6 +76,19 @@ for line in fp:
         b[j] = b[j].strip()
 
         if a[j] != b[j]:
+          if not " " in a[j] and "(" in a[j] and a[j][0] != '(' and \
+             not " " in b[j] and "(" in b[j] and b[j][0] != '(':
+            a[j] = a[j].replace("(", " (")
+            b[j] = b[j].replace("(", " (")
+            if a[j].split()[1] == b[j].split()[1]:
+              value_a = int(a[j].split()[0], 0)
+              value_b = int(b[j].split()[0], 0)
+
+              if value_a < 0: value_a = value_a + 1 + 0xffff
+              if value_b < 0: value_b = value_b + 1 + 0xffff
+
+              if value_a == value_b: continue
+
           operands = b[j].replace("(","").replace(")","").split()
 
           if len(operands) == 2:
