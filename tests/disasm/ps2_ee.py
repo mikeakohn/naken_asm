@@ -6,19 +6,19 @@ reg_nums = []
 instructions = []
 errors = 0
 
-alias = [ "move", "negu", "not" ]
+alias = [ ]
 
 # -------------------------- fold here -----------------------------
 
-print "Disassembler: PIC32"
+print "Disassembler: PS2 EE"
 
 for i in range(0, 32):
   reg_nums.append("$" + str(i))
 
-fp = open("../comparison/pic32.txt", "rb")
+fp = open("../comparison/ps2_ee.txt", "rb")
 out = open("test.asm", "wb")
 
-out.write(".pic32\n")
+out.write(".ps2_ee\n")
 
 for line in fp:
   instruction = line.split("|")[0].strip()
@@ -50,6 +50,12 @@ for line in fp:
   line = line[23:64].strip()
 
   if line != instructions[i]:
+    if line == "???":
+      print str(i) + ") " + line + " " + instructions[i]
+      errors += 1
+      i += 1
+      continue
+
     a = instructions[i].split(",")
     b = line.split(",")
 
@@ -58,8 +64,12 @@ for line in fp:
 
     if name_a in alias: continue
 
-    a[0] = a[0].split()[1]
-    b[0] = b[0].split()[1]
+    #print a
+    #print b
+
+    if " " in a and " " in b:
+      a[0] = a[0].split()[1]
+      b[0] = b[0].split()[1]
 
     broken = False
 
