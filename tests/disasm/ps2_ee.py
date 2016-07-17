@@ -67,7 +67,7 @@ for line in fp:
     #print a
     #print b
 
-    if " " in a and " " in b:
+    if " " in a[0] and " " in b[0]:
       a[0] = a[0].split()[1]
       b[0] = b[0].split()[1]
 
@@ -82,10 +82,24 @@ for line in fp:
         b[j] = b[j].strip()
 
         if a[j] != b[j]:
+          if a[j].startswith("$vf") and b[j].startswith("$vf"):
+            num_a = a[j][3:].replace("x","").replace("y","").replace("z","").replace("w","")
+            num_b = b[j][3:].replace("x","").replace("y","").replace("z","").replace("w","")
+
+            #print name_a + " " + name_b + " " + num_a + " " + num_b
+            if int(num_a) == int(num_b): continue
+
+          if not " " in a[j] and not "(" in a[j] and \
+             not " " in b[j] and not "(" in b[j]:
+            if a[j].startswith("0x"):
+              if str(int(a[j], 16)) == b[j]: continue
+            elif b[j].startswith("0x"):
+              if str(int(b[j], 16)) == a[j]: continue
+
           operands = b[j].replace("(","").replace(")","").split()
 
           if len(operands) == 2:
-            if str(a[j]) in operands: continue
+            if a[j] in operands: continue
 
           broken = True
 
