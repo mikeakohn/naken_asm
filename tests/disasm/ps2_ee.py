@@ -65,8 +65,8 @@ for line in fp:
     a = instructions[i].split(",")
     b = line.split(",")
 
-    name_a = a[0].split()[0]
-    name_b = b[0].split()[0]
+    name_a = a[0].split()[0].replace(".ni","").replace(".l","")
+    name_b = b[0].split()[0].replace(".ni","").replace(".l","")
 
     #print a
     #print b
@@ -74,11 +74,16 @@ for line in fp:
     if " " in a[0] and " " in b[0]:
       a[0] = a[0].split()[1]
       b[0] = b[0].split()[1]
+    else:
+      a[0] = ""
+      b[0] = ""
 
     broken = False
 
+    #print name_a + ": " + str(a) + " " + str(b)
+
     if len(a) != len(b) or name_a != name_b:
-      print name_a + " " + name_b
+      print name_a + " != " + name_b
       broken = True
     else:
       for j in range(0, len(a)):
@@ -121,7 +126,7 @@ for line in fp:
           broken = True
 
     if broken == True:
-      print str(i) + ") " + line + " " + instructions[i]
+      print str(i) + ") got: " + line + "    wanted: " + instructions[i]
       errors += 1
 
   i += 1
