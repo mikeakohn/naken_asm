@@ -366,6 +366,11 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
           case MIPS_OP_PREG:
             sprintf(temp, " %d", (immediate >> 1) & 0x1f);
             break;
+          case MIPS_OP_OPTIONAL:
+            immediate = (opcode >> 6) & 0xfffff;
+            if (immediate != 0) { sprintf(temp, " 0x%x", immediate); }
+            else { temp[0] = 0; }
+            break;
           default:
             strcpy(temp, " ?");
             break;

@@ -1219,7 +1219,8 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
     {
       found = 1;
 
-      if (operand_count != mips_other[n].operand_count)
+      if (operand_count != mips_other[n].operand_count &&
+          mips_other[n].operand[0] != MIPS_OP_OPTIONAL)
       {
         n++;
         continue;
@@ -1397,6 +1398,24 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             }
 
             opcode |= operands[r].value << 1;
+            break;
+          case MIPS_OP_OPTIONAL:
+            if (operand_count == 1)
+            {
+              if (operands[r].type != OPERAND_IMMEDIATE)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              if (operands[r].value < 0 || operands[r].value >= (1 << 20))
+              {
+                print_error_range("Constant", 0, (1 << 20) - 1, asm_context);
+                return -1;
+              }
+
+              opcode |= operands[r].value << 6;
+            }
             break;
           default:
             print_error_illegal_operands(instr, asm_context);

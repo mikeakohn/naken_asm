@@ -56,7 +56,6 @@ struct _mips_instr mips_r_table[] =
   { "srlv", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_RS }, 0x06, 3, MIPS_I },
   { "sub", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 0x22, 3, MIPS_I },
   { "subu", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 0x23, 3, MIPS_I },
-  { "syscall", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0x0c, 0, MIPS_I },
   { "xor", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 0x26, 3, MIPS_I },
   { NULL, { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0x00, 0 }
 };
@@ -205,6 +204,7 @@ struct _mips_other mips_other[] =
   { "mtps", { MIPS_OP_RT, MIPS_OP_PREG, MIPS_OP_NONE }, 2, 0x4080c800, 0xffe0ffc1, MIPS_I },
 
   // Trap instructions
+  { "syscall", { MIPS_OP_OPTIONAL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x0000000c, 0xfc00003f, MIPS_I },
   { "teq", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x00000034, 0xfc00003f, MIPS_II },
   { "teqi", { MIPS_OP_RS, MIPS_OP_IMMEDIATE_SIGNED, MIPS_OP_NONE }, 2, 0x040c0000, 0xfc1f0000, MIPS_II },
   { "tge", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x00000030, 0xfc00003f, MIPS_II },

@@ -83,6 +83,8 @@ sw $t3, -8($t4)
 sw $t0, 0x61a0($k0)
 swl $t3, 0x1234($t4)
 swr $t3, 0x1234($t4)
+syscall
+syscall 100
 wsbh $t1, $t2
 xor $t3, $k0, $k1
 xori $t3, $k0, 0x1234
