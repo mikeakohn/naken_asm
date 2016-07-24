@@ -1,3 +1,11 @@
+bpl 2
+bmi 2
+bvc 2
+bvs 2
+bcc 2
+bcs 2
+bne 2
+beq 2
 and #$44
 and $44
 and $44,X
@@ -13,14 +21,6 @@ asl $4400
 asl $4400,X
 bit $44
 bit $4400
-bpl 2
-bmi 2
-bvc 2
-bvs 2
-bcc 2
-bcs 2
-bne 2
-beq 2
 brk
 cmp #$44
 cmp $44
