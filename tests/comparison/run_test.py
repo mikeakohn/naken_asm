@@ -22,10 +22,14 @@ instructions = []
 cpu_type = sys.argv[1]
 count = 0
 need_nop = False
+multiline = False
 errors = 0
 
 if cpu_type in [ "pic32", "ps2_ee" ]:
   need_nop = True
+
+if cpu_type in [ "avr8", "msp430", "msp430x" ]:
+  multiline = True
 
 fp = open(cpu_type + ".txt", "rb")
 out = open("test.asm", "wb")
@@ -65,20 +69,32 @@ while(1):
   if not line: break
 
   if line.startswith("0x"):
-    code = line.split()[1][2:]
+    code = line.split()[1]
+    if code.startswith("0x"): code = code[2:]
 
     if len(instructions[index][1]) == 16:
       while(1):
         line = fp.readline()
-        if line.startswith("0x"): 
-          code += line.split()[1][2:]
+        if line.startswith("0x"):
+          a = line.split()[1]
+          if a.startswith("0x"): a = a[2:]
+          code += a
           break
 
+    if multiline == True:
+      while len(instructions[index][1]) > len(code):
+        a = fp.readline().strip()
+        if " " in a:
+          a = a.split()[1]
+          if a.startswith("0x"): a = a[2:]
+        code = a + code
+
     print "[" + cpu_type + "]testing " + instructions[index][0] + " ...",
+
     if instructions[index][1] == code:
       print "\x1b[32mPASS\x1b[0m"
     else:
-      print "\x1b[31mFAIL " + instructions[index][1] + " " + code + "\x1b[0m"
+      print "\x1b[31mFAIL " + instructions[index][1] + " >>" + code + "\x1b[0m"
       errors += 1
       #print instructions[index][1],
       #print code
@@ -86,9 +102,9 @@ while(1):
 
 fp.close()
 
-os.unlink("test.asm")
 os.unlink("out.hex")
 os.unlink("out.lst")
+os.unlink("test.asm")
 
 if errors != 0:
   print "errors: " + str(errors)
