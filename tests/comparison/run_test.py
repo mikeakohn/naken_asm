@@ -11,6 +11,14 @@ def little_endian_32(code):
 
   return data
 
+def reverse_endian(code):
+  data = ""
+
+  for i in range(0, len(code), 2):
+    data = code[i:i+2] + data
+
+  return data
+
 # ----------------------------- fold here -------------------------------
 
 if len(sys.argv) != 2:
@@ -24,12 +32,16 @@ count = 0
 need_nop = False
 multiline = False
 errors = 0
+spaced_line = False
 
 if cpu_type in [ "pic32", "ps2_ee" ]:
   need_nop = True
 
 if cpu_type in [ "avr8", "msp430", "msp430x" ]:
   multiline = True
+
+if cpu_type in [ "z80" ]:
+  spaced_line = True
 
 fp = open(cpu_type + ".txt", "rb")
 out = open("test.asm", "wb")
@@ -69,8 +81,13 @@ while(1):
   if not line: break
 
   if line.startswith("0x"):
-    code = line.split()[1]
-    if code.startswith("0x"): code = code[2:]
+    if spaced_line == True:
+      code = line.split(":")[1].strip()
+      code = code[:code.find("  ")].replace(" ", "")
+      code = reverse_endian(code)
+    else:
+      code = line.split()[1]
+      if code.startswith("0x"): code = code[2:]
 
     if len(instructions[index][1]) == 16:
       while(1):
@@ -94,7 +111,7 @@ while(1):
     if instructions[index][1] == code:
       print "\x1b[32mPASS\x1b[0m"
     else:
-      print "\x1b[31mFAIL " + instructions[index][1] + " >>" + code + "\x1b[0m"
+      print "\x1b[31mFAIL exp: " + instructions[index][1] + "  got: " + code + "\x1b[0m"
       errors += 1
       #print instructions[index][1],
       #print code

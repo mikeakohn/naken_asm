@@ -13,7 +13,7 @@ default:
 	python run_test.py ps2_ee
 	bash run_test.sh ps2_ee_vu1
 	bash run_test.sh stm8
-	bash run_test.sh z80
+	python run_test.py z80
 
 rebuild:
 	sh build_arm.sh

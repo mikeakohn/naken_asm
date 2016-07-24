@@ -518,9 +518,9 @@ indr|:02000000EDBA57
 ini|:02000000EDA26F
 inir|:02000000EDB25F
 ccf|:010000003FC0
-label: jr label|:0200000018FEE8
-label: jr C,label|:0200000038FEC8
-label: jr NC,label|:0200000030FED0
-label: jr NZ,label|:0200000020FEE0
-label: jr Z,label|:0200000028FED8
-label: djnz label|:0200000010FEF0
+main: jr main|:0200000018FEE8
+main: jr C,main|:0200000038FEC8
+main: jr NC,main|:0200000030FED0
+main: jr NZ,main|:0200000020FEE0
+main: jr Z,main|:0200000028FED8
+main: djnz main|:0200000010FEF0

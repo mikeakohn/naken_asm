@@ -519,9 +519,9 @@ indr
 ini
 inir
 ccf
-label: jr label
-label: jr C,label
-label: jr NC,label
-label: jr NZ,label
-label: jr Z,label
-label: djnz label
+main: jr main
+main: jr C,main
+main: jr NC,main
+main: jr NZ,main
+main: jr Z,main
+main: djnz main
