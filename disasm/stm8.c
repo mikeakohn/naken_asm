@@ -352,7 +352,7 @@ void list_output_stm8(struct _asm_context *asm_context, uint32_t start, uint32_t
       }
     }
 
-    fprintf(asm_context->list, " %-40s cycles: ", instruction);
+    fprintf(asm_context->list, "  %-40s cycles: ", instruction);
 
     if (cycles_min == cycles_max)
     { fprintf(asm_context->list, "%d\n", cycles_min); }

@@ -33,15 +33,25 @@ need_nop = False
 multiline = False
 errors = 0
 spaced_line = False
+need_reverse_endian = False
+need_little_endian32 = False
+need_stm8_org = False
 
 if cpu_type in [ "pic32", "ps2_ee" ]:
   need_nop = True
+  need_little_endian32 = True
 
 if cpu_type in [ "avr8", "msp430", "msp430x" ]:
   multiline = True
 
-if cpu_type in [ "z80" ]:
+if cpu_type in [ "stm8", "z80" ]:
   spaced_line = True
+
+if cpu_type in [ "avr8", "msp430", "msp430x" ]:
+  need_reverse_endian = True
+
+if cpu_type == "stm8":
+  need_stm8_org = True
 
 fp = open(cpu_type + ".txt", "rb")
 out = open("test.asm", "wb")
@@ -56,10 +66,17 @@ for line in fp:
 
   tokens = line.strip().split("|")
 
+  if need_stm8_org == True and \
+     (tokens[0].endswith("$2") or tokens[0].endswith("$3") or \
+      tokens[0].startswith("bt")):
+    out.write(".org 0\n")
+
   out.write(tokens[0] + "\n")
 
   code = tokens[1][:-2][9:].lower()
-  code = little_endian_32(code)
+
+  if need_little_endian32 == True:
+    code = little_endian_32(code)
 
   if len(code) == 16 and need_nop and \
     (line.startswith("main") or line[0] == 'j'):
@@ -84,10 +101,13 @@ while(1):
     if spaced_line == True:
       code = line.split(":")[1].strip()
       code = code[:code.find("  ")].replace(" ", "")
-      code = reverse_endian(code)
+      if need_reverse_endian == True:
+        code = reverse_endian(code)
     else:
       code = line.split()[1]
       if code.startswith("0x"): code = code[2:]
+      if need_reverse_endian == True:
+        code = reverse_endian(code)
 
     if len(instructions[index][1]) == 16:
       while(1):
@@ -104,7 +124,9 @@ while(1):
         if " " in a:
           a = a.split()[1]
           if a.startswith("0x"): a = a[2:]
-        code = a + code
+        if need_reverse_endian == True:
+          a = reverse_endian(a)
+        code = code + a
 
     print "[" + cpu_type + "]testing " + instructions[index][0] + " ...",
 
