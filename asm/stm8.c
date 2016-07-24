@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -21,35 +21,6 @@
 #include "common/eval_expression.h"
 #include "disasm/stm8.h"
 #include "table/stm8.h"
-
-#if 0
-enum
-{
-  OPERAND_NONE,
-  OPERAND_REG_A,
-  OPERAND_REG_X,
-  OPERAND_REG_Y,
-  OPERAND_SP,
-  OPERAND_NUMBER8,             // #$10
-  OPERAND_NUMBER16,            // #$1000
-  OPERAND_ADDRESS8,            // $10
-  OPERAND_ADDRESS16,           // $1000
-  OPERAND_ADDRESS24,           // REVIEW: Is this needed?
-  OPERAND_INDEX_X,             // (X)
-  OPERAND_INDEX_Y,             // (Y)
-  OPERAND_OFFSET8_INDEX_X,     // ($10, X)
-  OPERAND_OFFSET16_INDEX_X,    // ($1000,X)
-  OPERAND_OFFSET8_INDEX_Y,     // ($10,Y)
-  OPERAND_OFFSET16_INDEX_Y,    // ($1000,Y)
-  OPERAND_OFFSET8_INDEX_SP,    // ($10,SP)
-  OPERAND_OFFSET16_INDEX_SP,   // REVIEW: Is this needed?
-  OPERAND_INDIRECT8,           // [$10.w]
-  OPERAND_INDIRECT16,          // [$1000.w]
-  OPERAND_INDIRECT8_X,         // ([$10.w],X)
-  OPERAND_INDIRECT16_X,        // ([$1000.w],X)
-  OPERAND_INDIRECT8_Y,         // ([$10.w].Y)
-};
-#endif
 
 enum
 {
@@ -125,64 +96,6 @@ int find_bigger_instruction(int n)
 
   return n;
 }
-
-#if 0
-static int get_minimum_size(int instr_index)
-{
-  int n = 0;
-  int num_size = NUM_SIZE_SHORT;
-  int instr_enum = table_stm8[instr_index].instr_enum;
-  int count = 0;
-
-  while(table_stm8_opcodes[n].instr_enum != STM8_NONE)
-  {
-    if (table_stm8_opcodes[n].instr_enum == instr_enum)
-    {
-      switch(table_stm8_opcodes[n].type)
-      {
-        case OP_NUMBER8:
-        case OP_ADDRESS8:
-        case OP_OFFSET8_INDEX_X:
-        case OP_OFFSET8_INDEX_Y:
-        case OP_OFFSET8_INDEX_SP:
-        case OP_INDIRECT8:
-        case OP_INDIRECT8_X:
-        case OP_INDIRECT8_Y:
-          if (num_size < NUM_SIZE_SHORT) { num_size = NUM_SIZE_SHORT; }
-          count++;
-          break;
-        case OP_NUMBER16:
-        case OP_ADDRESS16:
-        case OP_OFFSET16_INDEX_X:
-        case OP_OFFSET16_INDEX_Y:
-        case OP_INDIRECT16:
-        case OP_INDIRECT16_E:
-        case OP_INDIRECT16_X:
-        case OP_INDIRECT16_Y:
-        case OP_INDIRECT16_E_X:
-        case OP_INDIRECT16_E_Y:
-          if (num_size < NUM_SIZE_WORD) { num_size = NUM_SIZE_WORD; }
-          count++;
-          break;
-        case OP_ADDRESS24:
-        case OP_OFFSET24_INDEX_X:
-        case OP_OFFSET24_INDEX_Y:
-          if (num_size < NUM_SIZE_EXTENDED) { num_size = NUM_SIZE_EXTENDED; }
-          count++;
-          break;
-        default:
-          break;
-      }
-    }
-
-    n++;
-  }
-
-  if (count < 2) { return 0; }
-
-  return num_size;
-}
-#endif
 
 static int ignore_expression(struct _asm_context *asm_context)
 {
