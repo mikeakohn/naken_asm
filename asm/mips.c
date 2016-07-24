@@ -378,7 +378,7 @@ static int check_type(struct _asm_context *asm_context, char *instr, int user_ty
   return 0;
 }
 
-static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct _operand *operands, int *operand_count, char *instr_case)
+static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct _operand *operands, int *operand_count, char *instr_case, const char *instr)
 {
   // Check pseudo-instructions
   if (strcmp(instr_case, "move") == 0 &&
@@ -393,10 +393,18 @@ static int check_for_pseudo_instruction(struct _asm_context *asm_context, struct
   }
     else
   if ((strcmp(instr_case, "li") == 0 || strcmp(instr_case, "la") == 0) &&
-      operands[0].type == OPERAND_TREG &&
-      operands[1].type == OPERAND_IMMEDIATE &&
       *operand_count == 2)
   {
+    if (asm_context->pass == 2)
+    {
+      if (operands[0].type != OPERAND_TREG ||
+          operands[1].type != OPERAND_IMMEDIATE)
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
+      }
+    }
+
     uint32_t opcode;
     opcode = find_opcode("lui");
     add_bin32(asm_context, opcode | (operands[0].value << 16) | ((operands[1].value >> 16) & 0xffff), IS_OPCODE);
@@ -806,7 +814,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
   if (operand_count < 0) { return -1; }
 
-  n = check_for_pseudo_instruction(asm_context, operands, &operand_count, instr_case);
+  n = check_for_pseudo_instruction(asm_context, operands, &operand_count, instr_case, instr);
 
   if (n != 4)
   {
