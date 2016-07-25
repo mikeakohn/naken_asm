@@ -1,0 +1,255 @@
+main: cjne a,#5,main
+main: cjne a,15,main
+main: cjne @r0,#10,main
+main: cjne @r1,#10,main
+main: cjne r0,#10,main
+main: cjne r1,#10,main
+main: cjne r2,#10,main
+main: cjne r3,#10,main
+main: cjne r4,#10,main
+main: cjne r5,#10,main
+main: cjne r6,#10,main
+main: cjne r7,#10,main
+main: djnz 13,main
+main: djnz r0,main
+main: main: djnz r1,main
+main: djnz r2,main
+main: djnz r3,main
+main: djnz r4,main
+main: djnz r5,maimain
+main: djnz r6,main
+main: djnz r7,main
+main: jb C,main
+main: jbc OV,main
+main: jc main
+main: jnb OV,main
+main: jnc main
+main: jnz main
+main: jz main
+main: sjmp main
+acall 0x019
+acall 0x120
+acall 0x210
+acall 0x313
+acall 0x412
+acall 0x510
+acall 0x612
+acall 0x711
+add a, #10
+add a, 25
+add a, @r0
+add a, @r1
+add a, r0
+add a, r1
+add a, r2
+add a, r3
+add a, r4
+add a, R5
+add a, r6
+add a, r7
+addc a, #10
+addc a, 25
+addc a, @r0
+addc a, @r1
+addc a, r0
+addc a, r1
+addc a, r2
+addc a, r3
+addc a, r4
+addc a, R5
+addc a, r6
+addc a, r7
+ajmp 0x019
+ajmp 0x120
+ajmp 0x210
+ajmp 0x313
+ajmp 0x412
+ajmp 0x510
+ajmp 0x612
+ajmp 0x711
+anl 23,a
+anl 23,#20
+anl a,#10
+anl a,25
+anl a,@r0
+anl a,@r1
+anl a,r0
+anl a,r1
+anl a,r2
+anl a,r3
+anl a,r4
+anl a,r5
+anl a,r6
+anl a,r7
+anl c,ACC.7
+anl c,/OV
+clr P1.0
+clr a
+clr c
+cpl P1.0
+cpl a
+cpl c
+da
+dec a
+dec 25
+dec @r0
+dec @r1
+dec r0
+dec r1
+dec r2
+dec r3
+dec r4
+dec r5
+dec r6
+dec r7
+div ab
+inc a
+inc 25
+inc @r0
+inc @r1
+inc r0
+inc r1
+inc r2
+inc r3
+inc r4
+inc r5
+inc r6
+inc r7
+inc dptr
+jmp @a+dptr
+lcall 0x01923
+ljmp 0x01923
+mov @r0,#21
+mov @r1,#21
+mov @r0,a
+mov @r1,a
+mov @r0,177
+mov @r1,177
+mov a,#21
+mov a,@r0
+mov a,@r1
+mov a,r0
+mov a,r1
+mov a,r2
+mov a,r3
+mov a,r4
+mov a,r5
+mov a,r6
+mov a,r7
+mov a,177
+mov C,OV
+mov DPTR,#0x1234
+mov r0,#21
+mov r1,#21
+mov r2,#21
+mov r3,#21
+mov r4,#21
+mov r5,#21
+mov r6,#21
+mov r7,#21
+mov r0,a
+mov r1,a
+mov r2,a
+mov r3,a
+mov r4,a
+mov r5,a
+mov r6,a
+mov R7,a
+mov r0,177
+mov r1,177
+mov r2,177
+mov r3,177
+mov r4,177
+mov r5,177
+mov r6,177
+mov r7,177
+mov OV,C
+mov 177,#21
+mov 177,@r0
+mov 177,@r1
+mov 177,r0
+mov 177,r1
+mov 177,r2
+mov 177,r3
+mov 177,r4
+mov 177,r5
+mov 177,r6
+mov 177,r7
+mov 177,a
+mov 177,100
+movc a,@a+DPTR
+movc a,@a+PC
+movx @DPTR,a
+movx @r0,a
+movx @r1,a
+movx a,@DPTR
+movx a,@r0
+movx a,@r1
+mul ab
+nop
+orl 23,a
+orl 23,#20
+orl a,#10
+orl a,25
+orl a,@r0
+orl a,@r1
+orl a,r0
+orl a,r1
+orl a,r2
+orl a,r3
+orl a,r4
+orl a,r5
+orl a,r6
+orl a,r7
+orl c,ACC.7
+orl c,/OV
+pop 11
+push 177
+ret
+reti
+rl a
+rlc a
+rr a
+rrc a
+setb C
+setb OV
+sub a, #10
+sub a, 25
+sub a, @r0
+sub a, @r1
+sub a, r0
+sub a, r1
+sub a, r2
+sub a, r3
+sub a, r4
+sub a, R5
+sub a, r6
+sub a, r7
+swap
+xch a, @r0
+xch a, @r1
+xch a, r0
+xch a, r1
+xch a, r2
+xch a, r3
+xch a, r4
+xch a, R5
+xch a, r6
+xch a, r7
+xch a, 177
+xchd a, @r0
+xchd a, @r1
+xrl 23,a
+xrl 23,#20
+xrl a,#10
+xrl a,25
+xrl a,@r0
+xrl a,@r1
+xrl a,r0
+xrl a,r1
+xrl a,r2
+xrl a,r3
+xrl a,r4
+xrl a,r5
+xrl a,r6
+xrl a,r7
