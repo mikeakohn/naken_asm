@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
-#ifndef _ASM_805X_H
-#define _ASM_805X_H
+#ifndef _ASM_8051_H
+#define _ASM_8051_H
 
 #include "common/assembler.h"
 

@@ -25,7 +25,7 @@ int get_cycle_count_805x(unsigned short int opcode)
 
 int disasm_805x(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
-  int count=1;
+  int count = 1;
   int opcode;
   char temp[32];
   int value;
@@ -124,7 +124,7 @@ int disasm_805x(struct _memory *memory, uint32_t address, char *instruction, int
 
 void list_output_805x(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
-  int cycles_min=-1,cycles_max=-1,count;
+  int cycles_min = -1, cycles_max = -1, count;
   char instruction[128];
   char temp[32];
   char temp2[4];
@@ -161,7 +161,7 @@ void disasm_range_805x(struct _memory *memory, uint32_t flags, uint32_t start, u
   char instruction[128];
   char temp[32];
   char temp2[4];
-  int cycles_min=0,cycles_max=0;
+  int cycles_min = 0, cycles_max = 0;
   int count;
   int n;
 
