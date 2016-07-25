@@ -15,13 +15,13 @@
 #include <stdint.h>
 #include <ctype.h>
 
-#include "asm/805x.h"
+#include "asm/8051.h"
 #include "asm/common.h"
 #include "common/assembler.h"
 #include "common/tokens.h"
 #include "common/eval_expression.h"
 #include "disasm/arm.h"
-#include "table/805x.h"
+#include "table/8051.h"
 
 enum
 {
@@ -46,7 +46,7 @@ struct _operand
   int type;
 };
 
-static int get_register_805x(char *token)
+static int get_register_8051(char *token)
 {
   if (token[0] != 'r' && token[0] != 'R') { return -1; }
   if (token[1] >= '0' && token[1] <= '7' && token[2] == 0)
@@ -57,7 +57,7 @@ static int get_register_805x(char *token)
   return -1;
 }
 
-int parse_instruction_805x(struct _asm_context *asm_context, char *instr)
+int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
 {
 char instr_lower_mem[TOKENLEN];
 char *instr_lower = instr_lower_mem;
@@ -85,7 +85,7 @@ int count = 1;
       break;
     }
 
-    num = get_register_805x(token);
+    num = get_register_8051(token);
     if (num != -1)
     {
       operands[operand_count].type = OPERAND_REG;
@@ -115,7 +115,7 @@ int count = 1;
     if (IS_TOKEN(token,'@'))
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
-      num = get_register_805x(token);
+      num = get_register_8051(token);
       if (num != -1)
       {
         operands[operand_count].type = OPERAND_AT_REG;
@@ -253,22 +253,22 @@ printf("\n");
 
   for (n = 0; n < 256; n++)
   {
-    if (strcmp(table_805x[n].name, instr_lower) == 0)
+    if (strcmp(table_8051[n].name, instr_lower) == 0)
     {
       matched = 1;
       for(r = 0; r < 3; r++)
       {
-        if (table_805x[n].op[r] == OP_NONE) { break; }
+        if (table_8051[n].op[r] == OP_NONE) { break; }
 
-        switch(table_805x[n].op[r])
+        switch(table_8051[n].op[r])
         {
           case OP_REG:
             if (operands[r].type != OPERAND_REG ||
-                operands[r].value != table_805x[n].range) { r = 4; }
+                operands[r].value != table_8051[n].range) { r = 4; }
             break;
           case OP_AT_REG:
             if (operands[r].type != OPERAND_AT_REG ||
-                operands[r].value != table_805x[n].range) { r = 4; }
+                operands[r].value != table_8051[n].range) { r = 4; }
             break;
           case OP_A:
             if (operands[r].type != OPERAND_A) { r = 4; }
@@ -315,7 +315,7 @@ printf("\n");
                  operands[r].value > 255)) { r = 4; }
             break;
           case OP_PAGE:
-            if ((operands[r].value >> 8) != table_805x[n].range)
+            if ((operands[r].value >> 8) != table_8051[n].range)
             {
               r = 4;
               break;
@@ -338,8 +338,8 @@ printf("\n");
         memory_write_inc(asm_context, n, asm_context->line);
         for(r = 0; r < 3; r++)
         {
-          if (table_805x[n].op[r] == OP_NONE) { break; }
-          switch(table_805x[n].op[r])
+          if (table_8051[n].op[r] == OP_NONE) { break; }
+          switch(table_8051[n].op[r])
           {
             case OP_DATA_16:
             case OP_CODE_ADDR:

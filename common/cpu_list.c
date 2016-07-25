@@ -17,7 +17,7 @@
 #include "asm/6809.h"
 #include "asm/68hc08.h"
 #include "asm/680x0.h"
-#include "asm/805x.h"
+#include "asm/8051.h"
 #include "asm/arm.h"
 #include "asm/avr8.h"
 #include "asm/common.h"
@@ -39,7 +39,7 @@
 #include "disasm/6809.h"
 #include "disasm/68hc08.h"
 #include "disasm/680x0.h"
-#include "disasm/805x.h"
+#include "disasm/8051.h"
 #include "disasm/arm.h"
 #include "disasm/avr8.h"
 #include "disasm/dspic.h"
@@ -83,8 +83,8 @@ struct _cpu_list cpu_list[] =
 #ifdef ENABLE_680X0
   { "680x0", CPU_TYPE_680X0, ENDIAN_BIG, 1, ALIGN_2, 1, 0, 1, parse_instruction_680x0, NULL, list_output_680x0, disasm_range_680x0, NULL, NO_FLAGS },
 #endif
-#ifdef ENABLE_805X
-  { "805x", CPU_TYPE_805X, ENDIAN_LITTLE, 1, ALIGN_1, 0, 0, 0, parse_instruction_805x, NULL, list_output_805x, disasm_range_805x, NULL, NO_FLAGS },
+#ifdef ENABLE_8051
+  { "8051", CPU_TYPE_8051, ENDIAN_LITTLE, 1, ALIGN_1, 0, 0, 0, parse_instruction_8051, NULL, list_output_8051, disasm_range_8051, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_ARM
   { "arm", CPU_TYPE_ARM, ENDIAN_LITTLE, 1, ALIGN_4, 0, 0, 0, parse_instruction_arm, NULL, list_output_arm, disasm_range_arm, NULL, NO_FLAGS },

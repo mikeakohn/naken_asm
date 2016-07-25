@@ -28,7 +28,7 @@
 #include "disasm/6809.h"
 #include "disasm/68hc08.h"
 #include "disasm/680x0.h"
-#include "disasm/805x.h"
+#include "disasm/8051.h"
 #include "disasm/arm.h"
 #include "disasm/avr8.h"
 #include "disasm/dspic.h"
@@ -71,7 +71,7 @@ parse_instruction_t parse_instruction_6800 = NULL;
 parse_instruction_t parse_instruction_6809 = NULL;
 parse_instruction_t parse_instruction_68hc08 = NULL;
 parse_instruction_t parse_instruction_680x0 = NULL;
-parse_instruction_t parse_instruction_805x = NULL;
+parse_instruction_t parse_instruction_8051 = NULL;
 parse_instruction_t parse_instruction_arm = NULL;
 parse_instruction_t parse_instruction_avr8 = NULL;
 parse_instruction_t parse_instruction_dspic = NULL;

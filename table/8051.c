@@ -5,15 +5,15 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "table/805x.h"
+#include "table/8051.h"
 
-struct _table_805x table_805x[] =
+struct _table_8051 table_8051[] =
 {
   { "nop", { OP_NONE, OP_NONE, OP_NONE }, -1 }, // 0x00
   { "ajmp", { OP_PAGE, OP_NONE, OP_NONE }, 0 }, // 0x01

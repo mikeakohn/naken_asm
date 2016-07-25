@@ -22,7 +22,7 @@ test_arch()
   rm -f out.hex out.lst
 }
 
-test_arch "805x"
+test_arch "8051"
 #test_arch "arm"
 test_arch "avr8"
 test_arch "dspic"

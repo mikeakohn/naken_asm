@@ -1,7 +1,7 @@
 
-.8052
+.8051
 
-.include "805x.inc"
+.include "8051.inc"
 
 .org 0
 

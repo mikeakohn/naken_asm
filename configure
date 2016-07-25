@@ -92,7 +92,7 @@ show_help()
   echo "  --enable-6809             compile in support for 6809"
   echo "  --enable-68hc08           compile in support for 68hc08 series"
   echo "  --enable-680x0            compile in support for 680x0 series"
-  echo "  --enable-805x             compile in support for 8051/8052"
+  echo "  --enable-8051             compile in support for 8051/8052"
   echo "  --enable-arm              compile in support for ARM"
   echo "  --enable-avr8             compile in support for Atmel AVR8"
   echo "  --enable-dspic            compile in support for dsPIC and PIC24"
@@ -247,11 +247,11 @@ for option in $@; do
     TABLE_OBJS="${TABLE_OBJS} 680x0.o"
     DFLAGS="${DFLAGS} -DENABLE_680X0"
   ;;
-  --enable-805x)
-    ASM_OBJS="${ASM_OBJS} 805x.o"
-    DISASM_OBJS="${DISASM_OBJS} 805x.o"
-    TABLE_OBJS="${TABLE_OBJS} 805x.o"
-    DFLAGS="${DFLAGS} -DENABLE_805X"
+  --enable-8051)
+    ASM_OBJS="${ASM_OBJS} 8051.o"
+    DISASM_OBJS="${DISASM_OBJS} 8051.o"
+    TABLE_OBJS="${TABLE_OBJS} 8051.o"
+    DFLAGS="${DFLAGS} -DENABLE_8051"
   ;;
   --enable-arm)
     ASM_OBJS="${ASM_OBJS} arm.o"

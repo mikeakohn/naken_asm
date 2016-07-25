@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
-#ifndef _TABLE_805X_H
-#define _TABLE_805X_H
+#ifndef _TABLE_8051_H
+#define _TABLE_8051_H
 
 #include "common/assembler.h"
 
@@ -36,14 +36,14 @@ enum
   OP_IRAM_ADDR,
 };
 
-struct _table_805x
+struct _table_8051
 {
   char *name;
   char op[3];
   char range;   // range of register or page (r0, r1, r2 etc)
 };
 
-extern struct _table_805x table_805x[];
+extern struct _table_8051 table_8051[];
 
 #endif
 

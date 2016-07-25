@@ -6,10 +6,10 @@ instructions = {}
 
 print "#include <stdio.h>"
 print "#include <stdlib.h>"
-print "#include \"table_805x.h\""
+print "#include \"table_8051.h\""
 print
 
-print "struct _table_805x table_805x[] ="
+print "struct _table_8051 table_8051[] ="
 print "{"
 
 fp = open("8052.txt", "rb")

@@ -218,7 +218,7 @@ CPU Selection:
 .6800            6800
 .68hc08          68HC08
 .680x0           Motorola 68000
-.8051 or .8052   8051/8052/MCS-51
+.8051            8051/8052/MCS-51
 .arm             All ARM CPU's
 .avr8            Atmel AVR8
 .dspic           dsPIC
