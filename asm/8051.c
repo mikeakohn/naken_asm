@@ -59,22 +59,23 @@ static int get_register_8051(char *token)
 
 int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
 {
-char instr_lower_mem[TOKENLEN];
-char *instr_lower = instr_lower_mem;
-char token[TOKENLEN];
-struct _operand operands[3];
-int operand_count = 0;
-int token_type;
-int matched = 0;
-int num, n, r;
-int count = 1;
+  char instr_lower_mem[TOKENLEN];
+  char *instr_lower = instr_lower_mem;
+  char token[TOKENLEN];
+  struct _operand operands[3];
+  int operand_count = 0;
+  int token_type;
+  int matched = 0;
+  int num, n, r;
+  int count = 1;
 
   lower_copy(instr_lower, instr);
-
   memset(&operands, 0, sizeof(operands));
+
   while(1)
   {
-    token_type=tokens_get(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       if (operand_count != 0)
@@ -86,18 +87,21 @@ int count = 1;
     }
 
     num = get_register_8051(token);
+
     if (num != -1)
     {
       operands[operand_count].type = OPERAND_REG;
       operands[operand_count].value = num;
     }
       else
-    if (token_type == TOKEN_STRING && IS_TOKEN(token,'A'))
+    if (token_type == TOKEN_STRING &&
+       (IS_TOKEN(token,'A') || IS_TOKEN(token,'a')))
     {
       operands[operand_count].type = OPERAND_A;
     }
       else
-    if (token_type == TOKEN_STRING && IS_TOKEN(token,'C'))
+    if (token_type == TOKEN_STRING &&
+       (IS_TOKEN(token,'C') || IS_TOKEN(token,'c')))
     {
       operands[operand_count].type = OPERAND_C;
     }
