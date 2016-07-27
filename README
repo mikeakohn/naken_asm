@@ -272,6 +272,7 @@ Other Directives:
 .align <16 or 32>           Align next instr/data to 16 bit or 32 bit boundary
 .big_endian                 Store databytes in big endian format
 .little_endian              Store databytes in little endian format
+.list                       Write included file into .lst file
 .export                     Export symbol so it shows up in ELF file
 .entry_point                ELF file entry point (address of execution) 
 .include "includefile.inc"  Include a file of asm source code

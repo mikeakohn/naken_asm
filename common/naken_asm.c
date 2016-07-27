@@ -87,7 +87,6 @@ int main(int argc, char *argv[])
 {
   FILE *out;
   FILE *dbg = NULL;
-  //FILE *list = NULL;
   int i;
   int format = FORMAT_HEX;
   int create_list = 0;
@@ -288,8 +287,10 @@ int main(int argc, char *argv[])
   macros_init(&asm_context.macros);
 
   asm_context.pass = 1;
-  assemble_init(&asm_context);
+  assembler_init(&asm_context);
+
   error_flag = assemble(&asm_context);
+
   if (error_flag != 0)
   {
     printf("** Errors... bailing out\n");
@@ -302,7 +303,10 @@ int main(int argc, char *argv[])
 
     if (asm_context.quiet_output == 0) { printf("Pass 2...\n"); }
     asm_context.pass = 2;
-    assemble_init(&asm_context);
+    assembler_init(&asm_context);
+
+    if (create_list == 1) { asm_context.write_list_file = 1; }
+
     error_flag = assemble(&asm_context);
 
     if (format == FORMAT_HEX)
@@ -384,10 +388,10 @@ int main(int argc, char *argv[])
     output_hex_text(asm_context.list, str, ptr);
     fprintf(asm_context.list, "\n\n");
 
-    assemble_print_info(&asm_context, asm_context.list);
+    assembler_print_info(&asm_context, asm_context.list);
   }
 
-  assemble_print_info(&asm_context, stdout);
+  assembler_print_info(&asm_context, stdout);
 
   //symbols_free(&asm_context.symbols);
   //macros_free(&asm_context.macros);
@@ -402,7 +406,7 @@ int main(int argc, char *argv[])
   }
 
   //memory_free(&asm_context.memory);
-  assemble_free(&asm_context);
+  assembler_free(&asm_context);
 
   if (error_flag != 0) { return -1; }
 

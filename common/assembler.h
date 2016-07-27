@@ -61,31 +61,31 @@ struct _asm_context
   int unget_ptr;
   int unget_stack[MAX_NESTED_MACROS+1];
   int unget_stack_ptr;
-  uint8_t is_dollar_hex:1;
-  uint8_t can_tick_end_string:1;
-  uint8_t quiet_output:1;
   // tokens_get end
   int debug_file;
   char def_param_stack_data[PARAM_STACK_LEN];
   int def_param_stack_ptr[MAX_NESTED_MACROS+1];
   int def_param_stack_count;
   char include_path[INCLUDE_PATH_LEN];
-  int include_count;
   int cpu_list_index;
   uint8_t cpu_type;
   uint8_t bytes_per_address;
-  uint8_t error:1;
-  uint8_t msp430_cpu4:1;
-  uint8_t no_symbols:1;
-  uint8_t pass_1_write_disable:1;
+  uint8_t is_dollar_hex : 1;
+  uint8_t can_tick_end_string : 1;
+  uint8_t quiet_output : 1;
+  uint8_t error : 1;
+  uint8_t msp430_cpu4 : 1;
+  uint8_t no_symbols : 1;
+  uint8_t pass_1_write_disable : 1;
+  uint8_t write_list_file : 1;
   uint32_t flags;
   uint32_t extra_context;
 };
 
 int add_to_include_path(struct _asm_context *asm_context, char *paths);
-void assemble_init(struct _asm_context *asm_context);
-void assemble_free(struct _asm_context *asm_context);
-void assemble_print_info(struct _asm_context *asm_context, FILE *out);
+void assembler_init(struct _asm_context *asm_context);
+void assembler_free(struct _asm_context *asm_context);
+void assembler_print_info(struct _asm_context *asm_context, FILE *out);
 int assemble(struct _asm_context *asm_context);
 
 #endif

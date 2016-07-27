@@ -309,7 +309,7 @@ static int parse_equ(struct _asm_context *asm_context)
   return 0;
 }
 
-void assemble_init(struct _asm_context *asm_context)
+void assembler_init(struct _asm_context *asm_context)
 {
   tokens_reset(asm_context);
 #ifndef NO_MSP430
@@ -329,6 +329,7 @@ void assemble_init(struct _asm_context *asm_context)
 
   macros_free(&asm_context->macros);
   asm_context->def_param_stack_count = 0;
+
   if (asm_context->pass == 1)
   {
     // FIXME - probably need to allow 32 bit data
@@ -337,14 +338,14 @@ void assemble_init(struct _asm_context *asm_context)
   }
 }
 
-void assemble_free(struct _asm_context *asm_context)
+void assembler_free(struct _asm_context *asm_context)
 {
   symbols_free(&asm_context->symbols);
   macros_free(&asm_context->macros);
   memory_free(&asm_context->memory);
 }
 
-void assemble_print_info(struct _asm_context *asm_context, FILE *out)
+void assembler_print_info(struct _asm_context *asm_context, FILE *out)
 {
   if (asm_context->quiet_output) { return; }
 
@@ -507,6 +508,16 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   if (strcasecmp(token, "little_endian") == 0)
   {
     asm_context->memory.endian = ENDIAN_LITTLE;
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "list") == 0)
+  {
+    if (asm_context->pass == 2 && asm_context->list != NULL)
+    {
+      asm_context->write_list_file = 1;
+      putc('\n', asm_context->list);
+    }
     return 1;
   }
     else
@@ -792,9 +803,7 @@ int assemble(struct _asm_context *asm_context)
 
           ret = asm_context->parse_instruction(asm_context, token);
 
-          if (asm_context->pass == 2 &&
-              asm_context->list != NULL &&
-              asm_context->include_count == 0)
+          if (asm_context->list != NULL && asm_context->write_list_file == 1)
           {
             asm_context->list_output(asm_context, start_address, asm_context->address);
             fprintf(asm_context->list, "\n");

@@ -188,8 +188,7 @@ int tokens_get_char(struct _asm_context *asm_context)
       }
     } while(ch == '\r');
 
-    if (asm_context->pass == 2 && asm_context->list != NULL &&
-        asm_context->include_count==0)
+    if (asm_context->list != NULL && asm_context->write_list_file == 1)
     {
       if (ch != EOF) { putc(ch, asm_context->list); }
     }

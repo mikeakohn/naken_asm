@@ -20,9 +20,9 @@
 
 int add_to_include_path(struct _asm_context *asm_context, char *paths)
 {
-int ptr = 0;
-int n = 0;
-char *s;
+  int ptr = 0;
+  int n = 0;
+  char *s;
 
   s = asm_context->include_path;
   while(!(s[ptr] == 0 && s[ptr+1] == 0)) { ptr++; }
@@ -48,12 +48,12 @@ char *s;
 
 int parse_binfile(struct _asm_context *asm_context)
 {
-FILE *in;
-char token[TOKENLEN];
-unsigned char buffer[8192];
-//int token_type;
-int len;
-int n;
+  FILE *in;
+  char token[TOKENLEN];
+  unsigned char buffer[8192];
+  //int token_type;
+  int len;
+  int n;
 
   if (asm_context->segment == SEGMENT_BSS)
   {
@@ -92,19 +92,21 @@ printf("binfile file %s.\n", token);
 
 int parse_include(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-//int token_type;
-const char *oldname;
-int oldline;
-FILE *oldfp;
-int ret;
+  char token[TOKENLEN];
+  //int token_type;
+  const char *oldname;
+  int oldline;
+  FILE *oldfp;
+  uint8_t write_list_file;
+  int ret;
 
   tokens_get(asm_context, token, TOKENLEN);
 #ifdef DEBUG
 printf("including file %s.\n", token);
 #endif
 
-  asm_context->include_count++;
+  write_list_file = asm_context->write_list_file;
+  asm_context->write_list_file = 0;
 
   oldfp = asm_context->in;
   oldname = asm_context->filename;
@@ -163,7 +165,7 @@ printf("including file %s.\n", token);
 
   asm_context->filename = oldname;
   asm_context->in = oldfp;
-  asm_context->include_count--;
+  asm_context->write_list_file = write_list_file;
 
   return ret;
 }
