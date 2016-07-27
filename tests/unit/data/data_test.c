@@ -93,7 +93,7 @@ void test_int(const char *source, uint8_t *answer, int length, int endian)
   }
 
   tokens_close(&asm_context);
-  assemble_free(&asm_context);
+  assembler_free(&asm_context);
 }
 
 void test_float(const char *source, float *answer, int length, int endian)
@@ -164,7 +164,7 @@ void test_float(const char *source, float *answer, int length, int endian)
   }
 
   tokens_close(&asm_context);
-  assemble_free(&asm_context);
+  assembler_free(&asm_context);
 }
 
 int main(int argc, char *argv[])
