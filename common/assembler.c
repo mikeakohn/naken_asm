@@ -93,7 +93,7 @@ static int parse_org(struct _asm_context *asm_context)
 
 static int parse_entry_point(struct _asm_context *asm_context)
 {
-  int num;
+  int num = 0;
 
   if (asm_context->pass == 1)
   {
