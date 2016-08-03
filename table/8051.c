@@ -227,7 +227,7 @@ struct _table_8051 table_8051[] =
   { "acall", { OP_PAGE, OP_NONE, OP_NONE }, 6 }, // 0xD1
   { "setb", { OP_BIT_ADDR, OP_NONE, OP_NONE }, -1 }, // 0xD2
   { "setb", { OP_C, OP_NONE, OP_NONE }, -1 }, // 0xD3
-  { "da", { OP_NONE, OP_NONE, OP_NONE }, -1 }, // 0xD4
+  { "da", { OP_A, OP_NONE, OP_NONE }, -1 }, // 0xD4
   { "djnz", { OP_IRAM_ADDR, OP_RELADDR, OP_NONE }, -1 }, // 0xD5
   { "xchd", { OP_A, OP_AT_REG, OP_NONE }, 0 }, // 0xD6
   { "xchd", { OP_A, OP_AT_REG, OP_NONE }, 1 }, // 0xD7

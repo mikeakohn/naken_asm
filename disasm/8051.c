@@ -33,6 +33,13 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
 
   opcode = READ_RAM(address);
 
+  // :(
+  if (opcode == 0x85)
+  {
+    sprintf(instruction, "%s 0x%02x, 0x%02x", table_8051[opcode].name, READ_RAM(address + 0), READ_RAM(address + 1));
+    return 3;
+  }
+
   strcpy(instruction, table_8051[opcode].name);
 
   for (n = 0; n < 3; n++)
@@ -79,17 +86,17 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
         count++;
         break;
       case OP_DATA_16:
-        sprintf(temp, "#0x%04x", READ_RAM(address + count) | (READ_RAM(address + count + 1) << 8));
+        sprintf(temp, "#0x%04x", READ_RAM(address + count + 1) | (READ_RAM(address + count) << 8));
         strcat(instruction, temp);
         count = 3;
         break;
       case OP_CODE_ADDR:
-        sprintf(temp, "0x%04x", READ_RAM(address + count) | (READ_RAM(address + count + 1) << 8));
+        sprintf(temp, "0x%04x", READ_RAM(address + count + 1) | (READ_RAM(address + count) << 8));
         strcat(instruction, temp);
         count=3;
         break;
       case OP_RELADDR:
-        value = READ_RAM(address+count);
+        value = READ_RAM(address + count);
         sprintf(temp, "0x%04x", (address + count + 1) + ((char)value));
         strcat(instruction, temp);
         count++;

@@ -36,7 +36,7 @@ enum
   OPERAND_AT_DPTR,
   OPERAND_DATA,
   OPERAND_NUM,
-  OPERAND_SLASH_NUM,
+  OPERAND_SLASH_BIT_ADDRESS,
   OPERAND_BIT_ADDRESS,
 };
 
@@ -44,6 +44,63 @@ struct _operand
 {
   int value;
   int type;
+};
+
+struct _address_map
+{
+  const char *name;
+  uint8_t address;
+  uint8_t is_bit_addressable;
+};
+
+static struct _address_map address_map[] =
+{
+  { "B", 0xf0, 1 },
+  { "ACC", 0xe0, 1 },
+  { "PSW", 0xd0, 1 },
+  { "T2CON", 0xc8, 0 },
+  { "T2MOD", 0xc9 , 0},
+  { "RCAP2L", 0xca, 0 },
+  { "RCAP2H", 0xcb, 0 },
+  { "TL2", 0xcc, 0 },
+  { "TH2", 0xcd, 0 },
+  { "IP", 0xb8, 1 },
+  { "P3", 0xb0, 1 },
+  { "IE", 0xa8, 1 },
+  { "P2", 0xa0, 1 },
+  { "AUXR1", 0xa2, 0 },
+  { "WDTRST", 0xa6, 0 },
+  { "SCON", 0x98, 1 },
+  { "SBUF", 0x99, 0 },
+  { "P1", 0x90, 1 },
+  { "TCON", 0x88, 1 },
+  { "TMOD", 0x89, 0 },
+  { "TL0", 0x8a, 0 },
+  { "TL1", 0x8b, 0 },
+  { "TH0", 0x8c, 0 },
+  { "TH1", 0x8d, 0 },
+  { "AUXR", 0x8e, 0 },
+  { "P0", 0x80, 1 },
+  { "SP", 0x81, 0 },
+  { "DPL", 0x82, 0 },
+  { "DPH", 0x83, 0 },
+  { "DP0L", 0x82, 0 },
+  { "DP0H", 0x83, 0 },
+  { "DP1L", 0x84, 0 },
+  { "DP1H", 0x85, 0 },
+  { "PCON", 0x87, 0 },
+};
+
+static struct _address_map address_map_psw[] =
+{
+  { "CY", 0xd7 },
+  { "AC", 0xd6 },
+  { "F0", 0xd5 },
+  { "RS1", 0xd4 },
+  { "RS0", 0xd3 },
+  { "OV", 0xd2 },
+  { "UD", 0xd1 },
+  { "P", 0xd0 },
 };
 
 static int get_register_8051(char *token)
@@ -57,12 +114,72 @@ static int get_register_8051(char *token)
   return -1;
 }
 
+static int get_address(struct _asm_context *asm_context, char *token, int *num, uint8_t *is_bit_address)
+{
+  int n;
+
+  *is_bit_address = 0;
+
+  for (n = 0; n < sizeof(address_map) / sizeof(struct _address_map); n++)
+  {
+    if (strcasecmp(token, address_map[n].name) == 0)
+    {
+      *num = address_map[n].address;
+
+      if (address_map[n].is_bit_addressable == 1)
+      {
+        char token[TOKENLEN];
+        int token_type;
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (IS_NOT_TOKEN(token, '.'))
+        {
+          tokens_push(asm_context, token, token_type);
+          return 0;
+        }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (token_type != TOKEN_NUMBER)
+        {
+          tokens_push(asm_context, token, token_type);
+          return 0;
+        }
+
+        int bit = atoi(token);
+        if (bit < 0 || bit > 7)
+        {
+          tokens_push(asm_context, token, token_type);
+          return 0;
+        }
+
+        *num += bit;
+        *is_bit_address = 1;
+      }
+
+      return 0;
+    }
+  }
+
+  for (n = 0; n < sizeof(address_map_psw) / sizeof(struct _address_map); n++)
+  {
+    if (strcasecmp(token, address_map_psw[n].name) == 0)
+    {
+      *num = address_map_psw[n].address;
+      *is_bit_address = 1;
+      return 0;
+    }
+  }
+
+  return -1;
+}
+
 int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
 {
   char instr_lower_mem[TOKENLEN];
   char *instr_lower = instr_lower_mem;
   char token[TOKENLEN];
   struct _operand operands[3];
+  uint8_t is_bit_address;
   int operand_count = 0;
   int token_type;
   int matched = 0;
@@ -114,6 +231,19 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
     if (strcasecmp(token, "dptr") == 0)
     {
       operands[operand_count].type = OPERAND_DPTR;
+    }
+      else
+    if (get_address(asm_context, token, &num, &is_bit_address) != -1)
+    {
+      operands[operand_count].value = num;
+      if (is_bit_address == 0)
+      {
+        operands[operand_count].type = OPERAND_NUM;
+      }
+        else
+      {
+        operands[operand_count].type = OPERAND_BIT_ADDRESS;
+      }
     }
       else
     if (IS_TOKEN(token,'@'))
@@ -174,11 +304,21 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
       token_type = tokens_get(asm_context, token, TOKENLEN);
       if (token_type != TOKEN_NUMBER)
       {
-        print_error_unexp(token, asm_context);
-        return -1;
+        if (get_address(asm_context, token, &num, &is_bit_address) == -1 ||
+            is_bit_address == 0)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        operands[operand_count].value = num;
       }
-      operands[operand_count].type = OPERAND_SLASH_NUM;
-      operands[operand_count].value = atoi(token);
+        else
+      {
+        operands[operand_count].value = atoi(token);
+      }
+
+      operands[operand_count].type = OPERAND_SLASH_BIT_ADDRESS;
     }
       else
     if (token_type == TOKEN_NUMBER)
@@ -314,8 +454,8 @@ printf("\n");
                  operands[r].value > 255)) { r = 4; }
             break;
           case OP_SLASH_BIT_ADDR:
-            if (operands[r].type != OPERAND_SLASH_NUM ||
-                (operands[r].value < -128 || 
+            if (operands[r].type != OPERAND_SLASH_BIT_ADDRESS ||
+                (operands[r].value < 0 || 
                  operands[r].value > 255)) { r = 4; }
             break;
           case OP_PAGE:
@@ -326,9 +466,13 @@ printf("\n");
             }
             break;
           case OP_BIT_ADDR:
+            if (operands[r].type != OPERAND_BIT_ADDRESS ||
+                (operands[r].value < 0 ||
+                 operands[r].value > 255)) { r = 4; }
+            break;
           case OP_IRAM_ADDR:
-            if (operands[r].type!=OPERAND_NUM ||
-                (operands[r].value < -128 ||
+            if (operands[r].type != OPERAND_NUM ||
+                (operands[r].value < 0 ||
                  operands[r].value > 255)) { r = 4; }
             break;
           default:
@@ -340,6 +484,15 @@ printf("\n");
       if (r == operand_count)
       {
         memory_write_inc(asm_context, n, asm_context->line);
+
+        // Holy crap :(
+        if (n == 0x85)
+        {
+          memory_write_inc(asm_context, (uint8_t)operands[1].value & 0xff, asm_context->line);
+          memory_write_inc(asm_context, (uint8_t)operands[0].value & 0xff, asm_context->line);
+          break;
+        }
+
         for(r = 0; r < 3; r++)
         {
           if (table_8051[n].op[r] == OP_NONE) { break; }
@@ -349,9 +502,9 @@ printf("\n");
             case OP_CODE_ADDR:
             {
               uint16_t value = operands[r].value & 0xffff;
-              memory_write_inc(asm_context, value & 0xff, asm_context->line);
               memory_write_inc(asm_context, value >> 8, asm_context->line);
-              count+=2;
+              memory_write_inc(asm_context, value & 0xff, asm_context->line);
+              count += 2;
               break;
             }
             case OP_RELADDR:
@@ -389,6 +542,8 @@ printf("\n");
     {
       print_error_unknown_instr(instr, asm_context);
     }
+
+    return -1;
   }
 
   return count; 

@@ -12,17 +12,22 @@ main: cjne r6,#10,main
 main: cjne r7,#10,main
 main: djnz 13,main
 main: djnz r0,main
-main: main: djnz r1,main
+main: djnz r1,main
 main: djnz r2,main
 main: djnz r3,main
 main: djnz r4,main
-main: djnz r5,maimain
+main: djnz r5,main
 main: djnz r6,main
 main: djnz r7,main
-main: jb C,main
+main: jb CY,main
+main: jb P1.1,main
 main: jbc OV,main
 main: jc main
-main: jnb OV,main
+main: jnb AC,main
+main: jnb F0,main
+main: jnb RS1,main
+main: jnb RS0,main
+main: jnb P,main
 main: jnc main
 main: jnz main
 main: jz main
@@ -83,13 +88,14 @@ anl a,r6
 anl a,r7
 anl c,ACC.7
 anl c,/OV
+anl c,/P2.5
 clr P1.0
 clr a
 clr c
 cpl P1.0
 cpl a
 cpl c
-da
+da a
 dec a
 dec 25
 dec @r0
@@ -213,19 +219,19 @@ rr a
 rrc a
 setb C
 setb OV
-sub a, #10
-sub a, 25
-sub a, @r0
-sub a, @r1
-sub a, r0
-sub a, r1
-sub a, r2
-sub a, r3
-sub a, r4
-sub a, R5
-sub a, r6
-sub a, r7
-swap
+subb a, #10
+subb a, 25
+subb a, @r0
+subb a, @r1
+subb a, r0
+subb a, r1
+subb a, r2
+subb a, r3
+subb a, r4
+subb a, R5
+subb a, r6
+subb a, r7
+swap a
 xch a, @r0
 xch a, @r1
 xch a, r0

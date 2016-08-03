@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os
+import os, sys
 
 def create_asm(instruction):
   out = open("temp.asm", "wb")
@@ -18,7 +18,11 @@ for instruction in fp:
   print instruction
   create_asm(instruction)
 
-  os.system("c51asm temp.asm")
+  a = os.system("c51asm temp.asm")
+
+  if a != 0:
+    print "Error!"
+    sys.exit(-1)
 
   fp1 = open("temp.hex", "rb")
   hex = fp1.readline().strip()
