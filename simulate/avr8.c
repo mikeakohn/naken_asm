@@ -622,15 +622,19 @@ static int simulate_execute_avr8_op_reg_imm(struct _simulate *simulate, struct _
     case AVR8_SBCI:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - k - GET_SREG(SREG_C);
       simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], k); 
+      break;
     case AVR8_SBR:
       simulate_avr8->reg[rd] &= k;
       simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k); 
+      break;
     case AVR8_SUBI:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - k;
       simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], k); 
+      break;
     case AVR8_CBR:
       simulate_avr8->reg[rd] &= k ^ 0xff;
       simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k); 
+      break;
   }
 
   return table_avr8->cycles_min;
@@ -823,8 +827,10 @@ static int simulate_execute_avr8_op_sreg_bit(struct _simulate *simulate, struct 
   {
     case AVR8_BSET:
       simulate_avr8->sreg |= (1 << k);
+      break;
     case AVR8_BCLR:
       simulate_avr8->sreg &= 0xff ^ (1 << k);
+      break;
   }
 
   return table_avr8->cycles_min;
