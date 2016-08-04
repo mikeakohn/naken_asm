@@ -438,12 +438,12 @@ printf("\n");
           case OP_DATA_16:
             if (operands[r].type != OPERAND_DATA ||
                 (operands[r].value < -32768 || 
-                 operands[r].value > 32767)) { r = 4; }
+                 operands[r].value > 0xffff)) { r = 4; }
             break;
           case OP_CODE_ADDR:
             if (operands[r].type != OPERAND_NUM ||
-                (operands[r].value < -32768 || 
-                 operands[r].value > 32767)) { r = 4; }
+                (operands[r].value < 0 || 
+                 operands[r].value > 0xffff)) { r = 4; }
             break;
           case OP_RELADDR:
             if (operands[r].type != OPERAND_NUM) { r = 4; }
