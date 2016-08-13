@@ -317,14 +317,22 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
       else
     if (token_type == TOKEN_POUND)
     {
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (token_type != TOKEN_NUMBER)
+      if (eval_expression(asm_context, &num) != 0)
       {
-        print_error_unexp(token, asm_context);
-        return -1;
+        if (asm_context->pass == 1)
+        {
+          eat_operand(asm_context);
+          num = 0;
+        }
+          else
+        {
+          print_error_illegal_expression(instr, asm_context);
+          return -1;
+        }
       }
+
       operands[operand_count].type = OPERAND_DATA;
-      operands[operand_count].value = atoi(token);
+      operands[operand_count].value = num;
     }
       else
     if (IS_TOKEN(token,'/'))
