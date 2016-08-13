@@ -102,7 +102,8 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
         count++;
         break;
       case OP_SLASH_BIT_ADDR:
-        sprintf(temp, "/0x%02x", READ_RAM(address + count));
+        value = READ_RAM(address + count);
+        sprintf(temp, "/0x%02x.%d [0x%02x]", value & 0xf8, value & 0x7, value);
         strcat(instruction, temp);
         count++;
         break;
@@ -113,7 +114,7 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
         break;
       case OP_BIT_ADDR:
         value = READ_RAM(address + count);
-        sprintf(temp, "0x%02x.%d [0x%02x]", ((value & 0x7f) >> 3) | ((value & 128) == 0 ? 0x20 : 0x80), value & 0x07, value);
+        sprintf(temp, "0x%02x.%d [0x%02x]", value & 0xf8, value & 0x07, value);
         strcat(instruction, temp);
         count++;
         break;
@@ -125,7 +126,6 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
     }
   }
 
-  //strcpy(instruction, "???");
   return count;
 }
 

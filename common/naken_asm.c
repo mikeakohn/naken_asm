@@ -37,7 +37,7 @@ const char *credits =
   "naken_asm\n\n"
   " Athors: Michael Kohn\n"
   "         Joe Davisson\n"
-  "    CPU: MSP430, MSP430X, 6502, 65816, 6809, 68HC08, 68000, 8051\n"
+  "    CPU: MSP430, MSP430X, 6502, 65816, 6809, 68HC08, 68000, 8051,\n"
   "         ARM, AVR8, dsPIC, Emotion Engine, MIPS, PIC32, Propeller,\n"
   "         STM8, THUMB, TMS1000, TMS1100, TMS9900, Z80\n"
   "    Web: http://www.mikekohn.net/\n"

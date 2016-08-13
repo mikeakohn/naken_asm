@@ -114,11 +114,55 @@ static int get_register_8051(char *token)
   return -1;
 }
 
-static int get_address(struct _asm_context *asm_context, char *token, int *num, uint8_t *is_bit_address)
+static int get_bit_address(struct _asm_context *asm_context, int *num, uint8_t *is_bit_address)
+{
+  char token[TOKENLEN];
+  int token_type;
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+  if (token_type != TOKEN_NUMBER)
+  {
+    tokens_push(asm_context, token, token_type);
+    return 0;
+  }
+
+  int bit = atoi(token);
+  if (bit < 0 || bit > 7)
+  {
+    tokens_push(asm_context, token, token_type);
+    return 0;
+  }
+
+  *num += bit;
+  *is_bit_address = 1;
+
+  return 0;
+}
+
+static int get_bit_address_alias(const char *token)
 {
   int n;
 
+  for (n = 0; n < sizeof(address_map_psw) / sizeof(struct _address_map); n++)
+  {
+    if (strcasecmp(token, address_map_psw[n].name) == 0)
+    {
+      return address_map_psw[n].address;
+    }
+  }
+
+  return -1;
+}
+
+static int get_address(struct _asm_context *asm_context, int *num, uint8_t *is_bit_address)
+{
+  char token[TOKENLEN];
+  int token_type;
+  int n;
+
   *is_bit_address = 0;
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
 
   for (n = 0; n < sizeof(address_map) / sizeof(struct _address_map); n++)
   {
@@ -138,39 +182,36 @@ static int get_address(struct _asm_context *asm_context, char *token, int *num, 
           return 0;
         }
 
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-        if (token_type != TOKEN_NUMBER)
-        {
-          tokens_push(asm_context, token, token_type);
-          return 0;
-        }
-
-        int bit = atoi(token);
-        if (bit < 0 || bit > 7)
-        {
-          tokens_push(asm_context, token, token_type);
-          return 0;
-        }
-
-        *num += bit;
-        *is_bit_address = 1;
+        return get_bit_address(asm_context, num, is_bit_address);
       }
 
       return 0;
     }
   }
 
-  for (n = 0; n < sizeof(address_map_psw) / sizeof(struct _address_map); n++)
+  *num = get_bit_address_alias(token);
+
+  if (*num != -1)
   {
-    if (strcasecmp(token, address_map_psw[n].name) == 0)
-    {
-      *num = address_map_psw[n].address;
-      *is_bit_address = 1;
-      return 0;
-    }
+    *is_bit_address = 1;
+    return 0;
   }
 
-  return -1;
+  tokens_push(asm_context, token, token_type);
+
+  if (eval_expression(asm_context, num) != 0)
+  {
+    return -1;
+  }
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+  if (IS_NOT_TOKEN(token, '.'))
+  {
+    tokens_push(asm_context, token, token_type);
+    return 0;
+  }
+
+  return get_bit_address(asm_context, num, is_bit_address);
 }
 
 int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
@@ -233,19 +274,6 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OPERAND_DPTR;
     }
       else
-    if (get_address(asm_context, token, &num, &is_bit_address) != -1)
-    {
-      operands[operand_count].value = num;
-      if (is_bit_address == 0)
-      {
-        operands[operand_count].type = OPERAND_NUM;
-      }
-        else
-      {
-        operands[operand_count].type = OPERAND_BIT_ADDRESS;
-      }
-    }
-      else
     if (IS_TOKEN(token,'@'))
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -301,85 +329,69 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
       else
     if (IS_TOKEN(token,'/'))
     {
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (token_type != TOKEN_NUMBER)
+      if (get_address(asm_context, &num, &is_bit_address) == -1 ||
+          is_bit_address == 0)
       {
-        if (get_address(asm_context, token, &num, &is_bit_address) == -1 ||
-            is_bit_address == 0)
+        return -1;
+      }
+
+      operands[operand_count].value = num;
+      operands[operand_count].type = OPERAND_SLASH_BIT_ADDRESS;
+    }
+      else
+    {
+      tokens_push(asm_context, token, token_type);
+
+      if (asm_context->pass == 1)
+      {
+        operands[operand_count].type = OPERAND_NUM;
+        operands[operand_count].value = 0;
+
+        // Ignore tokens for this operand unless it's a . or a flag.
+        while(1)
         {
-          print_error_unexp(token, asm_context);
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (IS_TOKEN(token, ',') ||
+              token_type == TOKEN_EOL ||
+              token_type == TOKEN_EOF)
+          {
+            break;
+          }
+            else
+          if (IS_TOKEN(token, '.') || get_bit_address_alias(token) != -1)
+          {
+            operands[operand_count].type = OPERAND_BIT_ADDRESS;
+          }
+        }
+
+        tokens_push(asm_context, token, token_type);
+      }
+        else
+      {
+        if (get_address(asm_context, &num, &is_bit_address) == -1)
+        {
           return -1;
+        }
+
+        if (is_bit_address == 0)
+        {
+          operands[operand_count].type = OPERAND_NUM;
+        }
+          else
+        {
+          operands[operand_count].type = OPERAND_BIT_ADDRESS;
         }
 
         operands[operand_count].value = num;
       }
-        else
-      {
-        operands[operand_count].value = atoi(token);
-      }
-
-      operands[operand_count].type = OPERAND_SLASH_BIT_ADDRESS;
-    }
-      else
-    if (token_type == TOKEN_NUMBER)
-    {
-      operands[operand_count].type = OPERAND_NUM;
-      operands[operand_count].value = atoi(token);
-
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (IS_TOKEN(token,'.'))
-      {
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-        if (token_type != TOKEN_NUMBER)
-        {
-          print_error_unexp(token, asm_context);
-          return -1;
-        }
-
-        num = atoi(token);
-        if (num < 0 || num > 7)
-        {
-          printf("Error: bit address out of range at %s:%d\n", asm_context->filename, asm_context->line);
-          return -1;
-        }
-
-        if (operands[operand_count].value >= 0x20 &&
-            operands[operand_count].value <= 0x2f)
-        {
-          operands[operand_count].value -= 0x20;
-          operands[operand_count].value <<= 3;
-        }
-          else
-        if (operands[operand_count].value >= 0x80 &&
-            operands[operand_count].value <= 0x8f)
-        {
-          operands[operand_count].value -= 0x80;
-          operands[operand_count].value <<= 3;
-          operands[operand_count].value |= 128;
-        }
-          else
-        {
-          printf("Error: bit address out of range at %s:%d\n", asm_context->filename, asm_context->line);
-          return -1;
-        }
-
-        operands[operand_count].value |= num;
-      }
-        else
-      {
-        tokens_push(asm_context, token, token_type);
-      }
-    }
-      else
-    {
-      print_error_unexp(token, asm_context);
-      return -1;
     }
 
     operand_count++;
     token_type = tokens_get(asm_context, token, TOKENLEN);
+
     if (token_type == TOKEN_EOL) break;
-    if (IS_NOT_TOKEN(token,',') || operand_count == 3)
+    if (IS_NOT_TOKEN(token, ',') || operand_count == 3)
     {
       print_error_unexp(token, asm_context);
       return -1;
