@@ -13,7 +13,7 @@ repeat:
   anl A, #100
   anl A, 0x55
 
-  cpl 1
+  cpl P1.1
 
-  jb 1, repeat
+  jb P1.2, repeat
 

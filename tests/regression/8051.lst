@@ -27,13 +27,13 @@ repeat:
 
 0x000b: 55 55      anl A, 0x55                              cycles: 
 
-  cpl 1
+  cpl P1.1
 
-0x000d: b2 01      cpl 0x20.1 [0x01]                        cycles: 
+0x000d: b2 91      cpl 0x90.1 [0x91]                        cycles: 
 
-  jb 1, repeat
+  jb P1.2, repeat
 
-0x000f: 20 01 f4   jb 0x20.1 [0x01], 0x0006                 cycles: 
+0x000f: 20 92 f4   jb 0x90.2 [0x92], 0x0006                 cycles: 
 
 data sections:
 
