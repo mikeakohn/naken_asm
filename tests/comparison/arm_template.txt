@@ -67,3 +67,16 @@ bx lr
 ;ldrh r2, [r0, #255]
 ;ldrh r4, [r3, #255]
 ldr r7, [r2]
+mrs r0, cpsr
+msr cpsr, r0
+msr cpsr, #0xf0000000
+msr cpsr_all, r0
+msr cpsr_all, #0xf0000000
+msr cpsr_flg, r0
+msr cpsr_flg, #0xf0000000
+msr spsr, r0
+msr spsr, #0xf00000
+msr spsr_all, r0
+msr spsr_all, #0xf0000000
+msr spsr_flg, r0
+msr spsr_flg, #0xf0000000

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -607,29 +607,43 @@ static int parse_msr(struct _asm_context *asm_context, struct _operand *operands
 {
   int ps = 0; // PS flag
 
+  //opcode = MSR_FLAG_OPCODE;
+
   // This is for MSR(all) and MSR(flag).
 
   int cond = parse_condition(&instr);
+
+  ps = operands[0].value;
+  opcode = MSR_FLAG_OPCODE | (cond << 28) | (ps << 22);
+
+  if (operands[0].type == OPERAND_PSR)
+  {
+    opcode |= (1 << 16);
+  }
+    else
+  {
+    operands[0].type = OPERAND_PSR;
+  }
 
   if (*instr == 0 && operand_count == 2 && operands[0].type == OPERAND_PSR)
   {
     if (operands[1].type == OPERAND_REG)
     {
-      ps = operands[0].value;
-      add_bin32(asm_context, MSR_ALL_OPCODE | (cond<<28) | (ps<<22) | (operands[1].value<<12), IS_OPCODE);
+      //ps = operands[0].value;
+      add_bin32(asm_context, opcode | (operands[1].value << 12), IS_OPCODE);
       return 4;
     }
       else
     if (operands[1].type == OPERAND_REG)
     {
-      ps = operands[0].value;
-      add_bin32(asm_context, MSR_FLAG_OPCODE | (cond<<28) | (ps<<22) | (operands[1].value), IS_OPCODE);
+      //ps = operands[0].value;
+      add_bin32(asm_context, opcode | (operands[1].value), IS_OPCODE);
       return 4;
     }
       else
     if (operands[1].type == OPERAND_IMMEDIATE)
     {
-      ps=operands[0].value;
+      //ps = operands[0].value;
       int source_operand = compute_immediate(operands[1].value);
       if (source_operand == -1)
       {
@@ -637,7 +651,7 @@ static int parse_msr(struct _asm_context *asm_context, struct _operand *operands
         return -1;
       }
 
-      add_bin32(asm_context, MSR_FLAG_OPCODE | (cond<<28) | (1<<25) | (ps<<22) | source_operand, IS_OPCODE);
+      add_bin32(asm_context, opcode | (1 << 25) | source_operand, IS_OPCODE);
       return 4;
     }
   }
@@ -649,7 +663,7 @@ static int parse_msr(struct _asm_context *asm_context, struct _operand *operands
   {
     int source_operand = imm_shift_to_immediate(asm_context, operands, operand_count, 1);
     if (source_operand < 0) { return -1; }
-    add_bin32(asm_context, MSR_FLAG_OPCODE | (cond<<28) | (1<<25) | (ps<<22) | source_operand, IS_OPCODE);
+    add_bin32(asm_context, opcode | (1 << 25) | source_operand, IS_OPCODE);
     return 4;
   }
 
@@ -830,13 +844,13 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
       }
     }
       else
-    if (strcasecmp(token, "cpsr")==0)
+    if (strcasecmp(token, "cpsr") == 0 || strcasecmp(token, "cpsr_all") == 0)
     {
       operands[operand_count].type = OPERAND_PSR;
       operands[operand_count].value = 0;
     }
       else
-    if (strcasecmp(token, "spsr") == 0)
+    if (strcasecmp(token, "spsr") == 0 || strcasecmp(token, "spsr_all") == 0)
     {
       operands[operand_count].type = OPERAND_PSR;
       operands[operand_count].value = 1;

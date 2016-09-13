@@ -250,7 +250,7 @@ static void process_swap(char *instruction, uint32_t opcode)
 
 static void process_mrs(char *instruction, uint32_t opcode)
 {
-  int ps=(opcode>>22)&1;
+  int ps = (opcode >> 22) & 1;
 
   sprintf(instruction, "mrs%s %s, %s",
     arm_cond[ARM_NIB(28)],
@@ -260,7 +260,7 @@ static void process_mrs(char *instruction, uint32_t opcode)
 
 static void process_msr_all(char *instruction, uint32_t opcode)
 {
-  int ps=(opcode>>22)&1;
+  int ps = (opcode >> 22) & 1;
 
   sprintf(instruction, "msr%s %s, %s",
     arm_cond[ARM_NIB(28)],
