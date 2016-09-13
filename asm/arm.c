@@ -679,13 +679,20 @@ static int parse_swi(struct _asm_context *asm_context, struct _operand *operands
     return ARM_UNKNOWN_INSTRUCTION;
   }
 
-  if (operand_count != 0)
+  if (operand_count != 1)
   {
     print_error_opcount(instr, asm_context);
     return -1;
   }
 
-  add_bin32(asm_context, CO_SWI_OPCODE | (cond<<28), IS_OPCODE);
+  if (operands[0].type != OPERAND_NUMBER ||
+      operands[0].value < 0 || operands[0].value > 0xffffff)
+  {
+    return ARM_ILLEGAL_OPERANDS;
+    return -1;
+  }
+
+  add_bin32(asm_context, CO_SWI_OPCODE | (cond << 28) | operands[0].value, IS_OPCODE);
   return 4;
 }
 

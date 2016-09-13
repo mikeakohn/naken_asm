@@ -27,6 +27,7 @@ rsb r2, r3, #1
 add r3, r6, r9 
 adds r3, r6, r9
 adc r4, r2, #512
+sbc r4, r2, #512
 rsc r5, r6, r0
 orr r10, r10, #9
 bic r1, r9, #512
@@ -80,3 +81,4 @@ msr spsr_all, r0
 msr spsr_all, #0xf0000000
 msr spsr_flg, r0
 msr spsr_flg, #0xf0000000
+swi 100
