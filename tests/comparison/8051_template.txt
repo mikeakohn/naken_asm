@@ -210,7 +210,11 @@ orl a,r7
 orl c,ACC.7
 orl c,/OV
 pop 11
+pop ACC
+pop PSW
 push 177
+push ACC
+push PSW
 ret
 reti
 rl a
