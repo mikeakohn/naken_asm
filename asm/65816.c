@@ -163,7 +163,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   }
   else
   {
-    for(i = 0; i < 92; i++)
+    for(i = 0; i < 90; i++)
     {
       if(strcmp(instr_case, table_65816[i].name) == 0)
       {
@@ -171,11 +171,10 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         break;
       }
     }
-
     // no matching instruction
     if(instr_enum == -1)
     {
-     print_error_unexp(token, asm_context);
+     printf("No matching instruction for \"%s\".\n", instr_case);
      return -1;
     }
 
