@@ -122,7 +122,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
   // no matching instruction
   if(instr_enum == -1)
   {
-   print_error_unexp(token, asm_context);
+   printf("No matching instruction for \"%s\".\n", instr_case);
    return -1;
   }
 
