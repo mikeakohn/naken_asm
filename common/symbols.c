@@ -209,12 +209,14 @@ int symbols_export(struct _symbols *symbols, char *name)
 void symbols_lock(struct _symbols *symbols)
 {
   symbols->locked = 1;
+printf("locked\n");
 }
 
 int symbols_lookup(struct _symbols *symbols, char *name, uint32_t *address)
 {
   struct _symbols_data *symbols_data = symbols_find(symbols, name);
 
+printf("find '%s' symbols_data=%p  current_scope=%d\n", name, symbols_data, symbols->current_scope);
   if (symbols_data == NULL)
   {
     *address = 0;
@@ -230,7 +232,7 @@ int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter)
 {
   struct _memory_pool *memory_pool = symbols->memory_pool;
 
-  if (iter->end_flag == 1) return -1;
+  if (iter->end_flag == 1) { return -1; }
   if (iter->memory_pool == NULL)
   {
     iter->memory_pool = symbols->memory_pool;
@@ -268,11 +270,11 @@ int symbols_print(struct _symbols *symbols)
 
   memset(&iter, 0, sizeof(iter));
 
-  printf("%30s ADDRESS\n", "LABEL");
+  printf("%30s ADDRESS  SCOPE\n", "LABEL");
 
   while(symbols_iterate(symbols, &iter) != -1)
   {
-    printf("%30s %08x (%d) %d%s\n", iter.name, iter.address, iter.address, iter.scope, iter.flag_export == 1 ? " EXPORTED" : "");
+    printf("%30s %08x %d%s\n", iter.name, iter.address, iter.scope, iter.flag_export == 1 ? " EXPORTED" : "");
   }
 
   printf("Total %d.\n\n", iter.count);
@@ -335,6 +337,13 @@ int symbols_scope_start(struct _symbols *symbols)
 
   symbols->in_scope = 1;
   symbols->current_scope++;
+
+  return 0;
+}
+
+int symbols_scope_reset(struct _symbols *symbols)
+{
+  symbols->current_scope = 0;
 
   return 0;
 }

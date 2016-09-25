@@ -59,6 +59,7 @@ int symbols_print(struct _symbols *symbols);
 int symbols_count(struct _symbols *symbols);
 int symbols_export_count(struct _symbols *symbols);
 int symbols_scope_start(struct _symbols *symbols);
+int symbols_scope_reset(struct _symbols *symbols);
 int symbols_scope_end(struct _symbols *symbols);
 
 #endif

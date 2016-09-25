@@ -311,6 +311,7 @@ int main(int argc, char *argv[])
     else
   {
     symbols_lock(&asm_context.symbols);
+    symbols_scope_reset(&asm_context.symbols);
     // macros_lock(&asm_context.defines_heap);
 
     if (asm_context.quiet_output == 0) { printf("Pass 2...\n"); }
