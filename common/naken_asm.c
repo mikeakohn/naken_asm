@@ -109,6 +109,8 @@ int main(int argc, char *argv[])
            "   -l             [create .lst listing file]\n"
            "   -I             [add to include path]\n"
            "   -q             Quiet (only output errors)\n"
+           "   -dump_symbols  Dump all symbols at end of assembly\n"
+           "   -dump_macros   Dump all macros at end of assembly\n"
            "\n");
     exit(0);
   }
@@ -180,6 +182,16 @@ int main(int argc, char *argv[])
     if (strcmp(argv[i], "-q") == 0)
     {
       asm_context.quiet_output = 1;
+    }
+      else
+    if (strcmp(argv[i], "-dump_symbols") == 0)
+    {
+      asm_context.dump_symbols = 1;
+    }
+      else
+    if (strcmp(argv[i], "-dump_macros") == 0)
+    {
+      asm_context.dump_macros = 1;
     }
       else
     {

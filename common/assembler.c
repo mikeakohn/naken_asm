@@ -350,10 +350,16 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
   if (asm_context->quiet_output) { return; }
 
   fprintf(out, "\nProgram Info:\n");
-#ifdef DEBUG
-  symbols_print(&asm_context->symbols);
-  macros_print(&asm_context->macros);
-#endif
+
+  if (asm_context->dump_symbols == 1)
+  {
+    symbols_print(&asm_context->symbols);
+  }
+
+  if (asm_context->dump_macros == 1)
+  {
+    macros_print(&asm_context->macros);
+  }
 
   fprintf(out, "Include Paths: .\n");
   int ptr = 0;
