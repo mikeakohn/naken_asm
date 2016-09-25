@@ -209,14 +209,12 @@ int symbols_export(struct _symbols *symbols, char *name)
 void symbols_lock(struct _symbols *symbols)
 {
   symbols->locked = 1;
-printf("locked\n");
 }
 
 int symbols_lookup(struct _symbols *symbols, char *name, uint32_t *address)
 {
   struct _symbols_data *symbols_data = symbols_find(symbols, name);
 
-printf("find '%s' symbols_data=%p  current_scope=%d\n", name, symbols_data, symbols->current_scope);
   if (symbols_data == NULL)
   {
     *address = 0;
