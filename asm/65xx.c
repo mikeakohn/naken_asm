@@ -33,6 +33,7 @@ static int get_num(struct _asm_context *asm_context,
 {
   char modifier = 0;
 
+  // check for modifiers
   if(IS_TOKEN(token, '<'))
     modifier = '<';
   else if(IS_TOKEN(token, '>'))
@@ -40,6 +41,7 @@ static int get_num(struct _asm_context *asm_context,
   else
     tokens_push(asm_context, token, *token_type);
 
+  // obtain number
   if(eval_expression(asm_context, num) != 0)
   {
     if(asm_context->pass == 1)
@@ -48,6 +50,7 @@ static int get_num(struct _asm_context *asm_context,
       return -1;
   }
 
+  // extract single byte
   if(modifier == '<')
   {
     *num &= 0xFF;
@@ -67,18 +70,45 @@ static int get_address(struct _asm_context *asm_context,
                        char *token, int *token_type,
                        int *num, int *size)
 {
-  // force absolute mode
-  if(IS_TOKEN(token, '!'))
-    *size = 16;
+  char modifier = 0;
+
+  // check for modifiers
+  if(IS_TOKEN(token, '<'))
+    modifier = '<';
+  else if(IS_TOKEN(token, '!'))
+    modifier = '!';
   else
     tokens_push(asm_context, token, *token_type);
 
+  // obtain address
   if(eval_expression(asm_context, num) != 0)
   {
     if(asm_context->pass == 1)
       eat_operand(asm_context);
     else
       return -1;
+  }
+
+  // try to guess addressing mode if one hasn't been forced
+  if(*size == 0)
+  {
+    *size = 8;
+
+    if(*num > 0xFF)
+      *size = 16;
+  }
+
+  if(modifier == '<')
+  {
+    // force direct-page mode
+    *num &= 0xFF;
+    *size = 8;
+  }
+  else if(modifier == '!')
+  {
+    // force absolute mode
+    *num &= 0xFFFF;
+    *size = 16;
   }
 
   return 0;
@@ -129,6 +159,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
   // get default addressing mode
   op = table_65xx[instr_enum].op;
 
+  // start with unknown number/address size
   size = 0;
 
   // parse
@@ -137,6 +168,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     if(GET_TOKEN() == TOKEN_EOL)
       break;
 
+    // dot suffix
     if(IS_TOKEN(token, '.'))
     {
       if(GET_TOKEN() == TOKEN_EOL)
@@ -304,6 +336,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
         if(GET_TOKEN() == TOKEN_EOL)
           break;
 
+/*
         if(asm_context->pass == 2)
         {
           if((memory_read(asm_context, asm_context->address + 1) == 0) &&
@@ -312,6 +345,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
             op = OP_ADDRESS16;
           }
         }
+*/
 
         if(get_address(asm_context, token, &token_type, &num, &size) == -1)
           return -1;
@@ -322,6 +356,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
+/*
         if(op != OP_ADDRESS16)
         {
           op = OP_ADDRESS8;
@@ -332,6 +367,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
         if(asm_context->pass == 1 && num == 0)
           op = OP_ADDRESS16;
+*/
 
         if(size == 8)
         {
@@ -405,6 +441,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     }
   }
 
+  // find opcode in table
   opcode = -1;
 
   for(i = 0; i < 256; i++)
@@ -444,6 +481,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
     return -1;
   }
 
+  // write output
   bytes = op_bytes[op];
 
   add_bin8(asm_context, opcode & 0xFF, IS_OPCODE);
