@@ -4,7 +4,7 @@ Contents
 * [Installing] (installing.md)
 * [Assembling] (assembling.md)
 * [Disassembling] (disassembling.md)
-* [simulating] (disassembling.md)
+* [Simulating] (simulating.md)
 * [Directives and Syntax] (directives.md)
 * [Examples] (examples.md)
 * CPU Specific
