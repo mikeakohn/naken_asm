@@ -336,17 +336,6 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
         if(GET_TOKEN() == TOKEN_EOL)
           break;
 
-/*
-        if(asm_context->pass == 2)
-        {
-          if((memory_read(asm_context, asm_context->address + 1) == 0) &&
-             (memory_read(asm_context, asm_context->address + 2) == 0))
-          {
-            op = OP_ADDRESS16;
-          }
-        }
-*/
-
         if(get_address(asm_context, token, &token_type, &num, &size) == -1)
           return -1;
 
@@ -356,18 +345,9 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-/*
-        if(op != OP_ADDRESS16)
-        {
-          op = OP_ADDRESS8;
-
-          if(num > 0xFF)
-            op = OP_ADDRESS16;
-        }
-
-        if(asm_context->pass == 1 && num == 0)
-          op = OP_ADDRESS16;
-*/
+        // forward label
+        if(num == 0)
+          size = 16;
 
         if(size == 8)
         {
