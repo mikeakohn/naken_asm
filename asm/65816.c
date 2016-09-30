@@ -129,19 +129,17 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   char token[TOKENLEN];
   char instr_case[TOKENLEN];
   char temp[256];
-  int token_type;
-  int opcode;
-  int op;
-  int instr_enum;
-  int num;
-  int size;
-  int bytes;
-  int i;
-  int src, dst;
-  int label;
-
-  // reset label flag
-  label = 0;
+  int token_type = 0;
+  int opcode = 0;
+  int op = 0;
+  int instr_enum = 0;
+  int num = 0;
+  int size = 0;
+  int bytes = 0;
+  int i = 0;
+  int src = 0, dst = 0;
+  int label = 0;
+  int found = 0;
 
   // make lowercase
   lower_copy(instr_case, instr);
@@ -739,9 +737,31 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
 
   if(asm_context->pass == 2 && opcode == -1)
   {
-    sprintf(temp, "No instruction found for addressing mode %d", op);
-    print_error(temp, asm_context);
-    return -1;
+    if(label == 1 && op == OP_ADDRESS24)
+    {
+      found = 0;
+      op = OP_ADDRESS16;
+
+      for(i = 0; i < 256; i++)
+      {
+        if(table_65816_opcodes[i].instr == instr_enum)
+        {
+          if(table_65816_opcodes[i].op == op)
+          {
+            opcode = i;
+            found = 1;
+            break;
+          }
+        }
+      }
+    }
+
+    if(found == 0)
+    {
+      sprintf(temp, "No instruction found for addressing mode %d", op);
+      print_error(temp, asm_context);
+      return -1;
+    }
   }
 
   // change addressing mode back so that storage size is correct
