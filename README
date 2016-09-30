@@ -61,7 +61,7 @@ Usage: naken_asm [options] <infile>
    -l             [create .lst listing file]
    -I             [add to include path]
 
-To compile a simple program, from the naken_asm directory type:
+To assemble a simple program, from the naken_asm directory type:
 
 ./naken_asm -I include/msp430_old -o launchpad_blink.hex -l testing/msp430/launchpad_blink.asm
 
@@ -80,10 +80,6 @@ MSP430 is the default CPU, although it's still recommended to the use the
 assemble against, for example if this was a dsPIC program, the directive
 .dspic can be placed at the top of the program.  All assembler directives
 are listed below.
-
-The -d option used to create a .ndbg file which will help naken_util when
-it disassembles to match addresses with symbols.  These features are being
-moved to .elf support instead.
 
 To disassemble a program:
 
