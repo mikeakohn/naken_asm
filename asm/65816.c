@@ -368,12 +368,10 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         if(get_num(asm_context, token, &token_type, &num, &size) == -1)
           return -1;
 
-        if(op == OP_IMMEDIATE8)
-          size = 8;
-        else
-          op = OP_IMMEDIATE16;
+        op = OP_IMMEDIATE16;
 
-        if(size == 8)
+        // value was forced with .b, .w, or .l
+	if(size == 8)
         {
           if(num < -128 || num > 0xFF)
           {
@@ -397,6 +395,17 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         {
           print_error("Cannot force long value in immediate mode.", asm_context);
           return -1;
+        }
+        else
+        {
+          // otherwise default to 16-bit
+          if(num < -32768 || num > 0xFFFF)
+          {
+            print_error("16-bit constant out of range.", asm_context);
+            return -1;
+          }
+
+          num = (uint16_t)num;
         }
       }
       else if(IS_TOKEN(token, '('))
@@ -679,6 +688,15 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         opcode = i;
         break;
       }
+      else if(op == OP_IMMEDIATE16)
+      {
+        if(table_65816_opcodes[i].op == OP_IMMEDIATE8)
+        {
+          op = OP_IMMEDIATE8;
+          opcode = i;
+          break;
+        }
+      }
       else if(op == OP_ADDRESS8)
       {
         if(table_65816_opcodes[i].op == OP_ADDRESS16)
@@ -725,8 +743,13 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     return -1;
   }
 
+  // fix for .b in immediate mode
+  if(size == 8 && op == OP_IMMEDIATE16)
+    bytes = op_bytes[OP_IMMEDIATE8];
+  else
+    bytes = op_bytes[op];
+
   // write output
-  bytes = op_bytes[op];
   add_bin8(asm_context, opcode & 0xFF, IS_OPCODE);
 
   if(bytes > 1)
