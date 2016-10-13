@@ -27,6 +27,9 @@ enum
   OP_FENCE,
   OP_FFFF,
   OP_READ,
+  OP_LR,
+  OP_STD_EXT,
+  OP_R_FP,
 };
 
 struct _table_riscv
