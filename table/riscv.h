@@ -17,7 +17,16 @@
 enum
 {
   OP_NONE,
-  OP_BRANCH,
+  OP_R_TYPE,
+  OP_I_TYPE,
+  OP_S_TYPE,
+  OP_SB_TYPE,
+  OP_U_TYPE,
+  OP_UJ_TYPE,
+  OP_SHIFT,
+  OP_FENCE,
+  OP_FFFF,
+  OP_READ,
 };
 
 struct _table_riscv
