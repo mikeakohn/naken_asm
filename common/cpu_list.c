@@ -28,6 +28,7 @@
 #include "asm/powerpc.h"
 #include "asm/propeller.h"
 #include "asm/ps2_ee_vu.h"
+#include "asm/riscv.h"
 #include "asm/stm8.h"
 #include "asm/thumb.h"
 #include "asm/tms1000.h"
@@ -49,6 +50,7 @@
 #include "disasm/powerpc.h"
 #include "disasm/propeller.h"
 #include "disasm/ps2_ee_vu.h"
+#include "disasm/riscv.h"
 #include "disasm/stm8.h"
 #include "disasm/thumb.h"
 #include "disasm/tms1000.h"
@@ -120,6 +122,9 @@ struct _cpu_list cpu_list[] =
 #ifdef ENABLE_EMOTION_ENGINE
   { "ps2_ee_vu0", CPU_TYPE_PS2_EE_VU, ENDIAN_LITTLE, 1, ALIGN_16, 0, 0, 0, parse_instruction_ps2_ee_vu, NULL, list_output_ps2_ee_vu, disasm_range_ps2_ee_vu, NULL, PS2_EE_VU0 },
   { "ps2_ee_vu1", CPU_TYPE_PS2_EE_VU, ENDIAN_LITTLE, 1, ALIGN_16, 0, 0, 0, parse_instruction_ps2_ee_vu, NULL, list_output_ps2_ee_vu, disasm_range_ps2_ee_vu, NULL, PS2_EE_VU1 },
+#endif
+#ifdef ENABLE_RISCV
+  { "riscv", CPU_TYPE_RISCV, ENDIAN_LITTLE, 1, ALIGN_4, 1, 0, 1, parse_instruction_riscv, NULL, list_output_riscv, disasm_range_riscv, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_STM8
   { "stm8", CPU_TYPE_STM8, ENDIAN_BIG, 1, ALIGN_1, 1, 0, 1, parse_instruction_stm8, NULL, list_output_stm8, disasm_range_stm8, NULL, NO_FLAGS },

@@ -37,6 +37,7 @@
 #include "disasm/msp430.h"
 #include "disasm/propeller.h"
 #include "disasm/ps2_ee_vu.h"
+#include "disasm/riscv.h"
 #include "disasm/stm8.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
@@ -81,6 +82,7 @@ parse_instruction_t parse_instruction_msp430 = NULL;
 parse_instruction_t parse_instruction_powerpc = NULL;
 parse_instruction_t parse_instruction_propeller = NULL;
 parse_instruction_t parse_instruction_ps2_ee_vu = NULL;
+parse_instruction_t parse_instruction_riscv = NULL;
 parse_instruction_t parse_instruction_stm8 = NULL;
 parse_instruction_t parse_instruction_thumb = NULL;
 parse_instruction_t parse_instruction_tms1000 = NULL;
@@ -669,6 +671,7 @@ int main(int argc, char *argv[])
            "   -mips32 / mips               (MIPS)\n"
            "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
            "   -propeller                   (Parallax Propeller)\n"
+           "   -riscv                       (RISCV)\n"
            "   -stm8                        (STM8)\n"
            "   -tms1000                     (TMS1000)\n"
            "   -tms1100                     (TMS1100)\n"

@@ -17,7 +17,7 @@ ASM_OBJS_ALL=""
 DISASM_OBJS_ALL=""
 TABLE_OBJS_ALL=""
 SIM_OBJS_ALL=""
-DFLAGS_ALL="-DENABLE_65XX -DENABLE_6800 -DENABLE_6809 -DENABLE_65816 -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_8051 -DENABLE_ARM -DENABLE_AVR8 -DENABLE_DSPIC -DENABLE_EMOTION_ENGINE -DENABLE_EPIPHANY -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_PROPELLER -DENABLE_STM8 -DENABLE_THUMB -DENABLE_TMS1000 -DENABLE_TMS9900 -DENABLE_Z80"
+DFLAGS_ALL="-DENABLE_65XX -DENABLE_6800 -DENABLE_6809 -DENABLE_65816 -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_8051 -DENABLE_ARM -DENABLE_AVR8 -DENABLE_DSPIC -DENABLE_EMOTION_ENGINE -DENABLE_EPIPHANY -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_PROPELLER -DENABLE_RISCV -DENABLE_STM8 -DENABLE_THUMB -DENABLE_TMS1000 -DENABLE_TMS9900 -DENABLE_Z80"
 ASM_OBJS="common.o"
 DISASM_OBJS=""
 TABLE_OBJS=""
@@ -101,6 +101,7 @@ show_help()
   echo "  --enable-msp430           compile in support for MSP430 and MSP430X"
   echo "  --enable-propeller        compile in support for Propeller"
   echo "  --enable-emotion-engine   compile in support for Emotion Engine"
+  echo "  --enable-riscv            compile in support for RISCV"
   echo "  --enable-stm8             compile in support for STM8"
   echo "  --enable-thumb            compile in support for thumb"
   echo "  --enable-tms1000          compile in support for tms1000/tms1100"
@@ -303,6 +304,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} ps2_ee_vu.o"
     TABLE_OBJS="${TABLE_OBJS} ps2_ee_vu.o"
     DFLAGS="${DFLAGS} -DENABLE_EMOTION_ENGINE"
+  ;;
+  --enable-riscv)
+    ASM_OBJS="${ASM_OBJS} riscv.o"
+    DISASM_OBJS="${DISASM_OBJS} riscv.o"
+    TABLE_OBJS="${TABLE_OBJS} riscv.o"
+    DFLAGS="${DFLAGS} -DENABLE_RISCV"
   ;;
   --enable-stm8)
     ASM_OBJS="${ASM_OBJS} stm8.o"
