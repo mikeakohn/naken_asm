@@ -74,7 +74,7 @@ int n;
 
       switch(table_riscv[n].type)
       {
-        case OP_BRANCH:
+        //case OP_BRANCH:
         default:
           break;
       }
