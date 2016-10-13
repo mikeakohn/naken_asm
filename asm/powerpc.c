@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -38,8 +38,8 @@ char token[TOKENLEN];
 int token_type;
 char instr_case[TOKENLEN];
 struct _operand operands[3];
-int operand_count=0;
-int matched=0;
+int operand_count = 0;
+int matched = 0;
 int n;
 
   lower_copy(instr_case, instr);
@@ -48,7 +48,7 @@ int n;
   while(1)
   {
     token_type=tokens_get(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL || token_type==TOKEN_EOF)
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       break;
     }
@@ -56,21 +56,21 @@ int n;
     // FIXME - FILL IN
 
     operand_count++;
-    token_type=tokens_get(asm_context, token, TOKENLEN);
-    if (token_type==TOKEN_EOL) break;
-    if (IS_NOT_TOKEN(token,',') || operand_count==3)
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL) break;
+    if (IS_NOT_TOKEN(token, ',') || operand_count == 3)
     {
       print_error_unexp(token, asm_context);
       return -1;
     }
   }
 
-  n=0;
-  while(table_powerpc[n].instr!=NULL)
+  n = 0;
+  while(table_powerpc[n].instr != NULL)
   {
-    if (strcmp(table_powerpc[n].instr,instr_case)==0)
+    if (strcmp(table_powerpc[n].instr,instr_case) == 0)
     {
-      matched=1;
+      matched = 1;
 
       switch(table_powerpc[n].type)
       {
@@ -83,7 +83,7 @@ int n;
     n++;
   }
 
-  if (matched==1)
+  if (matched == 1)
   {
     print_error_unknown_operand_combo(instr, asm_context); 
   }
