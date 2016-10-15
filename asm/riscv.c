@@ -315,12 +315,13 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
           }
 
           int32_t offset = 0;
+          uint32_t immediate;
 
           if (asm_context->pass == 2)
           {
             offset = (uint32_t)operands[2].value - (asm_context->address + 4);
 
-            if ((offset & 0x3) != 0)
+            if ((offset & 0x1) != 0)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;
@@ -331,16 +332,15 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
               print_error_range("Offset", -4096, 4095, asm_context);
               return -1;
             }
-
-            offset = ((offset >> 12) & 0x1) << 11;
-            offset |= (offset >> 11) & 0x1;
-            offset |= ((offset >> 5) & 0x3f) << 25;
-            offset |= ((offset >> 1) & 0xf) << 8;
           }
 
+          immediate = ((offset >> 12) & 0x1) << 31;
+          immediate |= ((offset >> 11) & 0x1) << 7;
+          immediate |= ((offset >> 5) & 0x3f) << 25;
+          immediate |= ((offset >> 1) & 0xf) << 8;
 
           opcode = table_riscv[n].opcode |
-                  (offset |
+                  (immediate |
                   (operands[1].value << 20) |
                   (operands[0].value << 15));
           add_bin32(asm_context, opcode, IS_OPCODE);
@@ -376,9 +376,91 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_UJ_TYPE:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          int32_t offset = 0;
+          uint32_t immediate;
+
+          if (asm_context->pass == 2)
+          {
+            offset = (uint32_t)operands[2].value - (asm_context->address + 4);
+
+            if ((offset & 0x1) != 0)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (offset < -(1 << 20) || offset >= (1 << 20))
+            {
+              print_error_range("Offset", -(1 << 20), (1 << 20) - 1, asm_context);
+              return -1;
+            }
+          }
+
+          immediate = ((offset >> 20) & 0x1) << 31;
+          immediate |= ((offset >> 12) & 0x7f) << 12;
+          immediate |= ((offset >> 11) & 0x1) << 20;
+          immediate |= ((offset >> 1) & 0x3ff) << 21;
+
+          opcode = table_riscv[n].opcode | immediate | (operands[0].value << 7);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         case OP_SHIFT:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_X_REGISTER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[2].value < 0 || operands[2].value > 31)
+          {
+            print_error_range("Immediate", 0, 31, asm_context);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+                  (operands[2].value << 20) |
+                  (operands[1].value << 15) |
+                  (operands[0].value << 7);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         case OP_FENCE:
+          // FIXME - not sure what to do here
         case OP_FFFF:
+          if (operand_count != 0)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+          opcode = table_riscv[n].opcode;
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
         case OP_READ:
         case OP_LR:
         case OP_STD_EXT:

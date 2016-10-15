@@ -79,9 +79,23 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           sprintf(instruction, "%s x%d, 0x%06x", instr, rd, immediate);
           break;
         case OP_UJ_TYPE:
+          immediate = ((opcode >> 31) & 0x1) << 20;
+          immediate |= ((opcode >> 12) & 0x3f) << 12;
+          immediate |= ((opcode >> 20) & 0x1) << 11;
+          immediate |= ((opcode >> 21) & 0x3ff) << 1;
+          if ((immediate & 0x1000000) != 0) { immediate |= 0xff000000; }
+          sprintf(instruction, "%s x%d, x%d, 0x%x (%d)", instr, rs1, rs2, address + 4 + immediate, immediate);
+          break;
         case OP_SHIFT:
+          immediate = (opcode >> 20) & 0x1f;
+          sprintf(instruction, "%s x%d, %d", instr, rd, immediate);
+          break;
         case OP_FENCE:
+          sprintf(instruction, "%s (%d %d)", instr, (opcode >> 24) & 0xf, (opcode >> 20) & 0xf);
+          break;
         case OP_FFFF:
+          sprintf(instruction, "%s", instr);
+          break;
         case OP_READ:
         case OP_LR:
         case OP_STD_EXT:
