@@ -34,13 +34,13 @@ struct _operand
 
 int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
 {
-char token[TOKENLEN];
-int token_type;
-char instr_case[TOKENLEN];
-struct _operand operands[3];
-int operand_count = 0;
-int matched = 0;
-int n;
+  char token[TOKENLEN];
+  int token_type;
+  char instr_case[TOKENLEN];
+  struct _operand operands[3];
+  int operand_count = 0;
+  int matched = 0;
+  int n;
 
   lower_copy(instr_case, instr);
 

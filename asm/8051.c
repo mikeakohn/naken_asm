@@ -398,7 +398,7 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
     operand_count++;
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
-    if (token_type == TOKEN_EOL) break;
+    if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token, ',') || operand_count == 3)
     {
       print_error_unexp(token, asm_context);
