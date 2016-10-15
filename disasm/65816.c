@@ -22,6 +22,15 @@
 extern struct _table_65816 table_65816[];
 extern struct _table_65816_opcodes table_65816_opcodes[];
 
+#define READ_RAM(a) (memory_read_m(memory, a) & 0xFF)
+
+// bytes for each addressing mode
+static int op_bytes[] =
+{
+  1, 2, 3, 2, 3, 4, 2, 2, 3, 3, 4, 2,
+  2, 3, 3, 2, 3, 2, 2, 3, 2, 3, 2, 2
+};
+
 int get_cycle_count_65816(uint16_t opcode)
 {
   return -1;
@@ -30,50 +39,158 @@ int get_cycle_count_65816(uint16_t opcode)
 int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max, int bytes)
 {
   char temp[128];
+  char num[8];
   uint8_t opcode = memory_read_m(memory, address);
-  int offset;
+//  int offset;
+
+  int op;
+  int lo, hi, bank;
+  int branch_address = 0;
+
+  *cycles_min=-1;
+  *cycles_max=-1;
+  opcode=READ_RAM(address);
+
+  sprintf(temp, " ");
 
   strcpy(instruction, table_65816[table_65816_opcodes[opcode].instr].name);
+  op = table_65816_opcodes[opcode].op;
 
-  switch(table_65816_opcodes[opcode].op)
+  if(op_bytes[op] > 1)
   {
-    case OP_NONE:
-      break;
-    case OP_IMMEDIATE8:
-    case OP_IMMEDIATE16:
-    case OP_ADDRESS8:
-    case OP_ADDRESS16:
-    case OP_ADDRESS24:
-    case OP_INDEXED8_X:
-    case OP_INDEXED8_Y:
-    case OP_INDEXED16_X:
-    case OP_INDEXED16_Y:
-    case OP_INDEXED24_X:
-    case OP_INDIRECT8:
-    case OP_INDIRECT8_LONG:
-    case OP_INDIRECT16:
-    case OP_INDIRECT16_LONG:
-    case OP_X_INDIRECT8:
-    case OP_X_INDIRECT16:
-    case OP_INDIRECT8_Y:
-    case OP_INDIRECT8_Y_LONG:
-    case OP_BLOCK_MOVE:
-      strcat(instruction, " ???");
-      break;
-    case OP_RELATIVE:
-      offset = (int8_t)memory_read_m(memory, address + 1);
-      sprintf(temp, " 0x%04x (%d)", address + 2 + offset, offset);
-      strcat(instruction, temp);
-      break;
-    case OP_RELATIVE_LONG:
-    case OP_SP_RELATIVE:
-    case OP_SP_INDIRECT_Y:
-    default:
-      strcat(instruction, " ???");
-      break;
+    if(op_bytes[op] == 2)
+    {
+      lo = READ_RAM(address + 1);
+
+      // special case for branches
+      if(op == OP_RELATIVE)
+      {
+        branch_address = (address + 2) + (signed char)lo;
+        sprintf(num, "0x%04x", branch_address);
+      }
+      else
+      {
+        sprintf(num, "0x%02x", lo);
+      }
+    }
+    else if(op_bytes[op] == 3)
+    {
+      lo = READ_RAM(address + 1);
+      hi = READ_RAM(address + 2);
+      // special case for long branch (BRL)
+      if(op == OP_RELATIVE_LONG)
+      {
+        branch_address = (address + 2) + (signed char)((hi << 8) | lo);
+        sprintf(num, "0x%04x", branch_address);
+      }
+      else
+      {
+        sprintf(num, "0x%04x", (hi << 8) | lo);
+      }
+    }
+    else if(op_bytes[op] == 4)
+    {
+      lo = READ_RAM(address + 1);
+      hi = READ_RAM(address + 2);
+      bank = READ_RAM(address + 3);
+      sprintf(num, "0x%06x", (bank << 16) | (hi << 8) | lo);
+    }
+
+    switch(op)
+    {
+      case OP_NONE:
+        sprintf(temp, " ");
+        break;
+      case OP_IMMEDIATE8:
+      case OP_IMMEDIATE16:
+        sprintf(temp, " #%s", num);
+        break;
+      case OP_ADDRESS8:
+      case OP_ADDRESS16:
+      case OP_ADDRESS24:
+        sprintf(temp, " %s", num);
+        break;
+      case OP_INDEXED8_X:
+      case OP_INDEXED16_X:
+      case OP_INDEXED24_X:
+        sprintf(temp, " %s,x", num);
+        break;
+      case OP_INDEXED8_Y:
+      case OP_INDEXED16_Y:
+        sprintf(temp, " %s,y", num);
+        break;
+      case OP_INDIRECT8:
+      case OP_INDIRECT16:
+        sprintf(temp, " (%s)", num);
+        break;
+      case OP_INDIRECT8_LONG:
+      case OP_INDIRECT16_LONG:
+        sprintf(temp, " [%s]", num);
+        break;
+      case OP_X_INDIRECT8:
+      case OP_X_INDIRECT16:
+        sprintf(temp, " (%s,x)", num);
+        break;
+      case OP_INDIRECT8_Y:
+        sprintf(temp, " (%s),y", num);
+        break;
+      case OP_INDIRECT8_Y_LONG:
+        sprintf(temp, " [%s],y", num);
+        break;
+      case OP_BLOCK_MOVE:
+//        strcat(instruction, " %0x02x,%0x02x", num & 0xff, num >> 8);
+        sprintf(temp, " %0x02x,%0x02x", lo, hi);
+        break;
+      case OP_RELATIVE:
+      case OP_RELATIVE_LONG:
+//        offset = (int8_t)memory_read_m(memory, address + 1);
+//        sprintf(temp, " 0x%04x (%d)", address + 2 + offset, offset);
+//        strcat(instruction, temp);
+        sprintf(temp, " %s", num);
+        break;
+      case OP_SP_RELATIVE:
+        sprintf(temp, " %s,s", num);
+        break;
+      case OP_SP_INDIRECT_Y:
+        sprintf(temp, " (%s,s),y", num);
+        break;
+      default:
+        strcat(instruction, " ???");
+        break;
+    }
+
+    // get cycle mode
+/*
+    int min = table_65xx_opcodes[opcode].cycles_min;
+    int max = table_65xx_opcodes[opcode].cycles_max;
+
+    if(op == OP_RELATIVE)
+    {
+      // branch, see if we're in the same page
+      int page1 = (address + 2) / 256;
+      int page2 = branch_address / 256;
+      if(page1 != page2)
+        max += 2;
+      else
+        max += 1;
+    }
+
+    *cycles_min = min;
+    *cycles_max = max;
+*/
+    strcat(instruction, temp);
+  }
+  else
+  {
+    // Could not figure out this opcode so return instruction as ???
+    strcpy(instruction, "???");
+    sprintf(temp, " 0x%02x", opcode);
+    strcat(instruction, temp);
+    return 0;
   }
 
-  return 0;
+  // set this to the number of bytes the operation took up
+  return op_bytes[op];
 }
 
 void list_output_65816(struct _asm_context *asm_context, uint32_t start, uint32_t end)
