@@ -234,7 +234,6 @@ void list_output_65816(struct _asm_context *asm_context, uint32_t start, uint32_
 
 void disasm_range_65816(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
-#if 0
 char instruction[128];
 //int vectors_flag=0;
 int cycles_min=0,cycles_max=0;
@@ -245,12 +244,14 @@ int num;
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start<=end)
+  while(start <= end)
   {
-    num=READ_RAM(start)|(READ_RAM(start+1)<<8);
+//    num=READ_RAM(start) | (READ_RAM(start+1) << 8);
 
-    int count=disasm_65816(memory, start, instruction, &cycles_min, &cycles_max);
+    int count=disasm_65816(memory, start, instruction, &cycles_min, &cycles_max, 0);
 
+    printf("0x%04x: 0x%02x %-40s ?\n", start, num & 0xFF, instruction);
+/*
     if (cycles_min<1)
     {
       printf("0x%04x: 0x%02x %-40s ?\n", start, num & 0xFF, instruction);
@@ -273,9 +274,9 @@ int num;
       printf("0x%04x: 0x%02x\n", start, num & 0xFF);
       count-=1;
     }
+*/
 
     start=start+1;
   }
-#endif
 }
 
