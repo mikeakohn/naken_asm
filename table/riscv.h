@@ -19,6 +19,7 @@ enum
   OP_NONE,
   OP_R_TYPE,
   OP_I_TYPE,
+  OP_UI_TYPE,
   OP_S_TYPE,
   OP_SB_TYPE,
   OP_U_TYPE,

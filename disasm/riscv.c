@@ -26,7 +26,8 @@ int get_cycle_count_riscv(unsigned short int opcode)
 int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
-  int32_t immediate;
+  uint32_t immediate;
+  int32_t simmediate;
   int n;
 
   *cycles_min = -1;
@@ -51,10 +52,27 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           break;
         case OP_I_TYPE:
           immediate = opcode >> 20;
-          sprintf(instruction, "%s x%d, 0x%06x", instr, rd, immediate);
+          simmediate = immediate;
+          if ((simmediate & 0xfff) != 0) { simmediate |= 0xfffff000; }
+          sprintf(instruction, "%s x%d, %d (0x%06x)", instr, rd, simmediate, immediate);
+          break;
+        case OP_UI_TYPE:
+          immediate = opcode >> 20;
+          sprintf(instruction, "%s x%d, 0x%x)", instr, rd, immediate);
           break;
         case OP_S_TYPE:
+          immediate = ((opcode >> 25) & 0x7f) << 5;
+          immediate |= ((opcode >> 7) & 0x1f);
+          if ((immediate & 0x800) != 0) { immediate |= 0xfffff000; }
+          sprintf(instruction, "%s x%d, x%d, %d", instr, rs1, rs2, immediate);
+          break;
         case OP_SB_TYPE:
+          immediate = ((opcode >> 31) & 0x1) << 12;
+          immediate |= ((opcode >> 8) & 0xf) << 1;
+          immediate |= ((opcode >> 7) & 0x1) << 11;
+          immediate |= ((opcode >> 25) & 0x3f) << 5;
+          if ((immediate & 0x1000) != 0) { immediate |= 0xffffe000; }
+          sprintf(instruction, "%s x%d, x%d, 0x%x (%d)", instr, rs1, rs2, address + 4 + immediate, immediate);
           break;
         case OP_U_TYPE:
           immediate = opcode >> 12;
