@@ -26,6 +26,7 @@ enum
   OPERAND_NONE,
   OPERAND_X_REGISTER,
   OPERAND_F_REGISTER,
+  OPERAND_NUMBER,
 };
 
 struct _operand
@@ -118,6 +119,25 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         break;
       }
 
+      if (asm_context->pass == 1)
+      {
+        eat_operand(asm_context);
+        n = 0;
+      }
+      else
+      {
+         tokens_push(asm_context, token, token_type);
+         if (eval_expression(asm_context, &n) != 0)
+         {
+           print_error_unexp(token, asm_context);
+           return -1;
+         }
+      }
+
+      operands[operand_count].type = OPERAND_NUMBER;
+      operands[operand_count].value = n;
+
+      break;
     } while(0);
 
     operand_count++;
@@ -164,6 +184,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
       switch(table_riscv[n].type)
       {
         case OP_R_TYPE:
+        {
           if (operand_count != 3)
           {
             print_error_opcount(instr, asm_context);
@@ -185,10 +206,68 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
           add_bin32(asm_context, opcode, IS_OPCODE);
 
           return 4;
+        }
         case OP_I_TYPE:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_X_REGISTER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[2].value < -2048 || operands[2].value >= 4096)
+          {
+            print_error_range("Immediate", -2048, 4095, asm_context);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+                  (operands[2].value << 20) |
+                  (operands[1].value << 15) |
+                  (operands[0].value << 7);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         case OP_S_TYPE:
         case OP_SB_TYPE:
+          break;
         case OP_U_TYPE:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[1].value < -(1 << 19) || operands[1].value >= (1 << 20))
+          {
+            print_error_range("Immediate", -(1 << 19), (1 << 20) - 1, asm_context);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+                  (operands[1].value << 12) |
+                  (operands[0].value << 7);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         case OP_UJ_TYPE:
         case OP_SHIFT:
         case OP_FENCE:

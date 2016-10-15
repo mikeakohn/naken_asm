@@ -26,6 +26,7 @@ int get_cycle_count_riscv(unsigned short int opcode)
 int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
+  int32_t immediate;
   int n;
 
   *cycles_min = -1;
@@ -46,12 +47,19 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
       switch(table_riscv[n].type)
       {
         case OP_R_TYPE:
-          sprintf(instruction, "%s r%d, r%d, r%d", instr, rd, rs1, rs2);
+          sprintf(instruction, "%s x%d, x%d, x%d", instr, rd, rs1, rs2);
           break;
         case OP_I_TYPE:
+          immediate = opcode >> 20;
+          sprintf(instruction, "%s x%d, 0x%06x", instr, rd, immediate);
+          break;
         case OP_S_TYPE:
         case OP_SB_TYPE:
+          break;
         case OP_U_TYPE:
+          immediate = opcode >> 12;
+          sprintf(instruction, "%s x%d, 0x%06x", instr, rd, immediate);
+          break;
         case OP_UJ_TYPE:
         case OP_SHIFT:
         case OP_FENCE:
