@@ -18,6 +18,18 @@
 
 #define READ_RAM(a) (memory_read_m(memory, a+3)<<24)|(memory_read_m(memory, a+2)<<16)|(memory_read_m(memory, a+1)<<8)|memory_read_m(memory, a)
 
+const char *rm_string[] =
+{
+  "rne",
+  "rtz",
+  "rdn",
+  "rup",
+  "rmm",
+  "[error]",
+  "[error]",
+  "[error]",
+};
+
 int get_cycle_count_riscv(unsigned short int opcode)
 {
   return -1;
@@ -44,6 +56,8 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
       uint32_t rd = (opcode >> 7) & 0x1f;
       uint32_t rs1 = (opcode >> 15) & 0x1f;
       uint32_t rs2 = (opcode >> 20) & 0x1f;
+      uint32_t rs3 = (opcode >> 27) & 0x1f;
+      uint32_t rm = (opcode >> 12) & 0x7;
       const char *instr = table_riscv[n].instr;
 
       switch(table_riscv[n].type)
@@ -113,11 +127,23 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           sprintf(instruction, "%s%s x%d, x%d, x%d", instr, temp, rd, rs1, rs2);
           break;
         case OP_R_FP1:
+          sprintf(instruction, "%s f%d", instr, rd);
+          break;
         case OP_R_FP2:
+          sprintf(instruction, "%s f%d, f%d", instr, rd, rs1);
+          break;
         case OP_R_FP3:
+          sprintf(instruction, "%s f%d, f%d, f%d", instr, rd, rs1, rs3);
+          break;
         case OP_R_FP2_RM:
+          sprintf(instruction, "%s f%d, f%d, %s", instr, rd, rs1, rm_string[rm]);
+          break;
         case OP_R_FP3_RM:
+          sprintf(instruction, "%s f%d, f%d, f%d, %s", instr, rd, rs1, rs2, rm_string[rm]);
+          break;
         case OP_R_FP4_RM:
+          sprintf(instruction, "%s f%d, f%d, f%d, f%d, %s", instr, rd, rs1, rs2, rs3, rm_string[rm]);
+          break;
         default:
           strcpy(instruction, "???");
           break;

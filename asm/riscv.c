@@ -27,7 +27,14 @@ enum
   OPERAND_X_REGISTER,
   OPERAND_F_REGISTER,
   OPERAND_NUMBER,
+  OPERAND_RM,
 };
+
+#define RM_RNE 0
+#define RM_RTZ 1
+#define RM_RDN 2
+#define RM_RUP 3
+#define RM_RMM 4
 
 struct _operand
 {
@@ -63,7 +70,7 @@ static int get_f_register_riscv(char *token)
   return get_register_number(token + 1);
 }
 
-static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, int *aq, int *rl)
+static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, int *aq, int *rl, int *rm)
 {
   char token[TOKENLEN];
   int token_type;
@@ -123,6 +130,42 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         break;
       }
 
+      if (strcasecmp(token, "rne") == 0)
+      {
+        operands[operand_count].type = OPERAND_RM;
+        *rm = RM_RNE;
+        break;
+      }
+
+      if (strcasecmp(token, "rdn") == 0)
+      {
+        operands[operand_count].type = OPERAND_RM;
+        *rm = RM_RDN;
+        break;
+      }
+
+      if (strcasecmp(token, "rup") == 0)
+      {
+        operands[operand_count].type = OPERAND_RM;
+        *rm = RM_RUP;
+        break;
+      }
+
+      if (strcasecmp(token, "rmm") == 0)
+      {
+        operands[operand_count].type = OPERAND_RM;
+        *rm = RM_RMM;
+        break;
+      }
+
+      if (strcasecmp(token, "rtz") == 0)
+      {
+        operands[operand_count].type = OPERAND_RM;
+        *rm = RM_RTZ;
+        break;
+      }
+
+
       if (asm_context->pass == 1)
       {
         eat_operand(asm_context);
@@ -168,16 +211,16 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
   int matched = 0;
   uint32_t opcode;
   int aq = 0, rl = 0;
+  int rm = -1;
   int n;
 
   lower_copy(instr_case, instr);
 
   memset(&operands, 0, sizeof(operands));
 
-  operand_count = get_operands(asm_context, operands, instr, instr_case, &aq, &rl);
+  operand_count = get_operands(asm_context, operands, instr, instr_case, &aq, &rl, &rm);
 
   if (operand_count < 0) { return -1; }
-
 
   n = 0;
   while(table_riscv[n].instr != NULL)
@@ -194,6 +237,22 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
           continue;
         }
       }
+
+      if (rm != -1)
+      {
+        if (operands[operand_count - 1].type != OPERAND_RM ||
+            (table_riscv[n].type != OP_R_FP2_RM &&
+             table_riscv[n].type != OP_R_FP3_RM &&
+             table_riscv[n].type != OP_R_FP4_RM))
+        {
+          n++;
+          continue;
+        }
+
+        operand_count--;
+      }
+
+      if (rm == -1) { rm = 0; }
 
       switch(table_riscv[n].type)
       {
@@ -552,11 +611,111 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_R_FP1:
+        {
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_F_REGISTER ||
+              operands[1].type != OPERAND_F_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+                  (operands[0].value << 7);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         case OP_R_FP2:
-        case OP_R_FP3:
         case OP_R_FP2_RM:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_F_REGISTER ||
+              operands[1].type != OPERAND_F_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+                  (operands[1].value << 15) |
+                  (operands[0].value << 7);
+
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          opcode |= (rm << 12);
+
+          return 4;
+        }
+        case OP_R_FP3:
         case OP_R_FP3_RM:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_F_REGISTER ||
+              operands[1].type != OPERAND_F_REGISTER ||
+              operands[2].type != OPERAND_F_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+                  (operands[2].value << 20) |
+                  (operands[1].value << 15) |
+                  (operands[0].value << 7);
+
+          opcode |= (rm << 12);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         case OP_R_FP4_RM:
+        {
+          if (operand_count != 4)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_F_REGISTER ||
+              operands[1].type != OPERAND_F_REGISTER ||
+              operands[2].type != OPERAND_F_REGISTER ||
+              operands[3].type != OPERAND_F_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+                  (operands[3].value << 27) |
+                  (operands[2].value << 20) |
+                  (operands[1].value << 15) |
+                  (operands[0].value << 7);
+
+          opcode |= (rm << 12);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
           break;
       }
