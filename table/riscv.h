@@ -29,7 +29,12 @@ enum
   OP_READ,
   OP_LR,
   OP_STD_EXT,
-  OP_R_FP,
+  OP_R_FP1,
+  OP_R_FP2,
+  OP_R_FP3,
+  OP_R_FP2_RM,
+  OP_R_FP3_RM,
+  OP_R_FP4_RM,
 };
 
 struct _table_riscv
