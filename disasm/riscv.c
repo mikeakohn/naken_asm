@@ -29,6 +29,7 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
   uint32_t immediate;
   int32_t simmediate;
   int n;
+  char temp[16];
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -97,8 +98,20 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           sprintf(instruction, "%s", instr);
           break;
         case OP_READ:
+          sprintf(instruction, "%s x%d", instr, rd);
+          break;
         case OP_LR:
+          temp[0] = 0;
+          if ((opcode & (1 << 26)) != 0) { strcat(temp, ".aq"); }
+          if ((opcode & (1 << 25)) != 0) { strcat(temp, ".rl"); }
+          sprintf(instruction, "%s%s x%d, x%d", instr, temp, rd, rs1);
+          break;
         case OP_STD_EXT:
+          temp[0] = 0;
+          if ((opcode & (1 << 26)) != 0) { strcat(temp, ".aq"); }
+          if ((opcode & (1 << 25)) != 0) { strcat(temp, ".rl"); }
+          sprintf(instruction, "%s%s x%d, x%d, x%d", instr, temp, rd, rs1, rs2);
+          break;
         case OP_R_FP1:
         case OP_R_FP2:
         case OP_R_FP3:
