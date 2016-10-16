@@ -42,6 +42,35 @@ struct _operand
   int type;
 };
 
+struct _modifiers
+{
+  int aq;
+  int rl;
+  int rm;
+  int fence;
+};
+
+static const char *rm_string[] =
+{
+  "rne",
+  "rtz",
+  "rdn",
+  "rup",
+  "rmm",
+};
+
+static const char *fence_string[] =
+{
+  "sw",
+  "sr",
+  "so",
+  "si",
+  "pw",
+  "pr",
+  "po",
+  "pi",
+};
+
 static int get_register_number(char *token)
 {
   int num;
@@ -70,7 +99,7 @@ static int get_f_register_riscv(char *token)
   return get_register_number(token + 1);
 }
 
-static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, int *aq, int *rl, int *rm)
+static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, struct _modifiers *modifiers)
 {
   char token[TOKENLEN];
   int token_type;
@@ -102,8 +131,8 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       n = 0;
       while(token[n] != 0) { token[n] = tolower(token[n]); n++; }
 
-      if (strcasecmp(token, "aq") == 0) { *aq = 1; continue; }
-      if (strcasecmp(token, "rl") == 0) { *rl = 1; continue; }
+      if (strcasecmp(token, "aq") == 0) { modifiers->aq = 1; continue; }
+      if (strcasecmp(token, "rl") == 0) { modifiers->rl = 1; continue; }
 
       strcat(instr_case, ".");
       strcat(instr_case, token);
@@ -112,6 +141,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
 
     do
     {
+      // Check for registers
       n = get_x_register_riscv(token);
 
       if (n != -1)
@@ -130,42 +160,33 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         break;
       }
 
-      if (strcasecmp(token, "rne") == 0)
+      // Check for FPU rounding mode
+      for (n = 0; n < 5; n++)
       {
-        operands[operand_count].type = OPERAND_RM;
-        *rm = RM_RNE;
-        break;
+        if (strcasecmp(token, rm_string[n]) == 0)
+        {
+          operands[operand_count].type = OPERAND_RM;
+          modifiers->rm = n;
+          break;
+        }
       }
 
-      if (strcasecmp(token, "rdn") == 0)
+      if (n != 5) { break; }
+
+      // Check for fence's operands
+      for (n = 0; n < 8; n++)
       {
-        operands[operand_count].type = OPERAND_RM;
-        *rm = RM_RDN;
-        break;
+        if (strcasecmp(token, fence_string[n]) == 0)
+        {
+          modifiers->fence |= 1 << n;
+          operand_count--;  // sorry :(
+          break;
+        }
       }
 
-      if (strcasecmp(token, "rup") == 0)
-      {
-        operands[operand_count].type = OPERAND_RM;
-        *rm = RM_RUP;
-        break;
-      }
+      if (n != 8) { break; }
 
-      if (strcasecmp(token, "rmm") == 0)
-      {
-        operands[operand_count].type = OPERAND_RM;
-        *rm = RM_RMM;
-        break;
-      }
-
-      if (strcasecmp(token, "rtz") == 0)
-      {
-        operands[operand_count].type = OPERAND_RM;
-        *rm = RM_RTZ;
-        break;
-      }
-
-
+      // Assume this is just a number
       if (asm_context->pass == 1)
       {
         eat_operand(asm_context);
@@ -210,15 +231,17 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
   int operand_count;
   int matched = 0;
   uint32_t opcode;
-  int aq = 0, rl = 0;
-  int rm = -1;
+  struct _modifiers modifiers;
   int n;
+
+  memset(&modifiers, 0, sizeof(modifiers));
+  modifiers.rm = -1;
 
   lower_copy(instr_case, instr);
 
   memset(&operands, 0, sizeof(operands));
 
-  operand_count = get_operands(asm_context, operands, instr, instr_case, &aq, &rl, &rm);
+  operand_count = get_operands(asm_context, operands, instr, instr_case, &modifiers);
 
   if (operand_count < 0) { return -1; }
 
@@ -229,7 +252,9 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
     {
       matched = 1;
 
-      if (aq != 0 || rl != 0)
+      // If aq or rl was set, make sure it was only done on the
+      // right instructions.
+      if (modifiers.aq != 0 || modifiers.rl != 0)
       {
         if (table_riscv[n].type != OP_LR && table_riscv[n].type != OP_STD_EXT)
         {
@@ -238,7 +263,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
         }
       }
 
-      if (rm != -1)
+      if (modifiers.rm != -1)
       {
         if (operands[operand_count - 1].type != OPERAND_RM ||
             (table_riscv[n].type != OP_R_FP2_RM &&
@@ -252,7 +277,16 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
         operand_count--;
       }
 
-      if (rm == -1) { rm = 0; }
+      if (modifiers.rm == -1) { modifiers.rm = 0; }
+
+      // If the fence operands were used, make sure they only happened
+      // with the fence instruction.
+
+      if (modifiers.fence != 0 && table_riscv[n].type != OP_FENCE)
+      {
+        n++;
+        continue;
+      }
 
       switch(table_riscv[n].type)
       {
@@ -524,7 +558,16 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_FENCE:
-          // FIXME - not sure what to do here
+        {
+          if (operand_count != 0)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+          opcode = table_riscv[n].opcode | (modifiers.fence << 20);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
+        }
         case OP_FFFF:
         {
           if (operand_count != 0)
@@ -575,8 +618,8 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
                   (operands[1].value << 15) |
                   (operands[0].value << 7);
 
-          if (aq == 1) { opcode |= (1 << 26); }
-          if (rl == 1) { opcode |= (1 << 25); }
+          if (modifiers.aq == 1) { opcode |= (1 << 26); }
+          if (modifiers.rl == 1) { opcode |= (1 << 25); }
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
@@ -603,8 +646,8 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
                   (operands[1].value << 15) |
                   (operands[0].value << 7);
 
-          if (aq == 1) { opcode |= (1 << 26); }
-          if (rl == 1) { opcode |= (1 << 25); }
+          if (modifiers.aq == 1) { opcode |= (1 << 26); }
+          if (modifiers.rl == 1) { opcode |= (1 << 25); }
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
@@ -655,7 +698,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
-          opcode |= (rm << 12);
+          opcode |= (modifiers.rm << 12);
 
           return 4;
         }
@@ -681,7 +724,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
                   (operands[1].value << 15) |
                   (operands[0].value << 7);
 
-          opcode |= (rm << 12);
+          opcode |= (modifiers.rm << 12);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
@@ -710,7 +753,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
                   (operands[1].value << 15) |
                   (operands[0].value << 7);
 
-          opcode |= (rm << 12);
+          opcode |= (modifiers.rm << 12);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
@@ -726,7 +769,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context); 
+    print_error_unknown_operand_combo(instr, asm_context);
   }
     else
   {

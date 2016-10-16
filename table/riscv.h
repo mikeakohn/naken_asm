@@ -32,8 +32,8 @@ enum
   OP_STD_EXT,
   OP_R_FP1,
   OP_R_FP2,
-  OP_R_FP3,
   OP_R_FP2_RM,
+  OP_R_FP3,
   OP_R_FP3_RM,
   OP_R_FP4_RM,
 };

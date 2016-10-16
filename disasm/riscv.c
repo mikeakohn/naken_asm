@@ -18,7 +18,7 @@
 
 #define READ_RAM(a) (memory_read_m(memory, a+3)<<24)|(memory_read_m(memory, a+2)<<16)|(memory_read_m(memory, a+1)<<8)|memory_read_m(memory, a)
 
-const char *rm_string[] =
+static const char *rm_string[] =
 {
   "rne",
   "rtz",
@@ -28,6 +28,18 @@ const char *rm_string[] =
   "[error]",
   "[error]",
   "[error]",
+};
+
+static const char *fence_string[] =
+{
+  "sw",
+  "sr",
+  "so",
+  "si",
+  "pw",
+  "pr",
+  "po",
+  "pi",
 };
 
 int get_cycle_count_riscv(unsigned short int opcode)
@@ -42,6 +54,7 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
   int32_t simmediate;
   int n;
   char temp[16];
+  int count, i;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -68,8 +81,8 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
         case OP_I_TYPE:
           immediate = opcode >> 20;
           simmediate = immediate;
-          if ((simmediate & 0xfff) != 0) { simmediate |= 0xfffff000; }
-          sprintf(instruction, "%s x%d, %d (0x%06x)", instr, rd, simmediate, immediate);
+          if ((simmediate & 0x800) != 0) { simmediate |= 0xfffff000; }
+          sprintf(instruction, "%s x%d, x%d, %d (0x%06x)", instr, rd, rs1, simmediate, immediate);
           break;
         case OP_UI_TYPE:
           immediate = opcode >> 20;
@@ -106,7 +119,19 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           sprintf(instruction, "%s x%d, %d", instr, rd, immediate);
           break;
         case OP_FENCE:
-          sprintf(instruction, "%s (%d %d)", instr, (opcode >> 24) & 0xf, (opcode >> 20) & 0xf);
+          immediate = (opcode >> 20) & 0xff;
+          count = 0;
+          sprintf(instruction, "%s", instr);
+          for (i = 7; i >= 0; i--)
+          {
+            if ((immediate & (1 << i)) != 0)
+            {
+              if (count == 0) { strcat(instruction, " "); }
+              else { strcat(instruction, ", "); }
+              strcat(instruction, fence_string[i]);
+              count++;
+            }
+          }
           break;
         case OP_FFFF:
           sprintf(instruction, "%s", instr);
