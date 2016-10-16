@@ -251,9 +251,9 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         if(get_num(asm_context, token, &token_type, &num, &size) == -1)
           return -1;
 
-        if(num < -128 || num > 0xFF)
+        if(num < -128 || num > 127)
         {
-          print_error("8-bit constant out of range.", asm_context);
+          print_error("8-bit signed constant out of range.", asm_context);
           return -1;
         }
 
@@ -287,27 +287,46 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     }
     else if(op == OP_RELATIVE_LONG)
     {
-      tokens_push(asm_context, token, token_type);
-
-      if(GET_TOKEN() == TOKEN_EOL)
-        break;
-
-      if(get_num(asm_context, token, &token_type, &num, &size) == -1)
-        return -1;
-
-      if(asm_context->pass == 2)
+      if(IS_TOKEN(token, '#'))
       {
-        // calculate branch offset, need to add 3 to current
-        // address, since thats where the program counter would be
-        num -= (asm_context->address + 3);
+        if(GET_TOKEN() == TOKEN_EOL)
+          break;
+
+        if(get_num(asm_context, token, &token_type, &num, &size) == -1)
+          return -1;
 
         if(num < -32768 || num > 32767)
         {
-          print_error("Relative long branch out of range", asm_context);
+          print_error("16-bit signed constant out of range.", asm_context);
           return -1;
         }
 
         num = (uint16_t)num;
+      }
+      else
+      {
+        tokens_push(asm_context, token, token_type);
+
+        if(GET_TOKEN() == TOKEN_EOL)
+          break;
+
+        if(get_num(asm_context, token, &token_type, &num, &size) == -1)
+          return -1;
+
+        if(asm_context->pass == 2)
+        {
+          // calculate branch offset, need to add 3 to current
+          // address, since thats where the program counter would be
+          num -= (asm_context->address + 3);
+
+          if(num < -32768 || num > 32767)
+          {
+            print_error("Relative long branch out of range", asm_context);
+            return -1;
+          }
+
+          num = (uint16_t)num;
+        }
       }
     }
     else if(op == OP_BLOCK_MOVE)
