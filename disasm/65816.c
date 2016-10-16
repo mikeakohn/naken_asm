@@ -41,7 +41,6 @@ int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, in
   char temp[128];
   char num[8];
   uint8_t opcode = memory_read_m(memory, address);
-//  int offset;
 
   int op;
   int lo, hi, bank;
@@ -138,14 +137,10 @@ int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, in
         sprintf(temp, " [%s],y", num);
         break;
       case OP_BLOCK_MOVE:
-//        strcat(instruction, " %0x02x,%0x02x", num & 0xff, num >> 8);
         sprintf(temp, " %0x02x,%0x02x", lo, hi);
         break;
       case OP_RELATIVE:
       case OP_RELATIVE_LONG:
-//        offset = (int8_t)memory_read_m(memory, address + 1);
-//        sprintf(temp, " 0x%04x (%d)", address + 2 + offset, offset);
-//        strcat(instruction, temp);
         sprintf(temp, " %s", num);
         break;
       case OP_SP_RELATIVE:
@@ -237,7 +232,7 @@ void disasm_range_65816(struct _memory *memory, uint32_t flags, uint32_t start, 
 char instruction[128];
 //int vectors_flag=0;
 int cycles_min=0,cycles_max=0;
-int num;
+int num = 0;
 
   printf("\n");
 
@@ -246,12 +241,10 @@ int num;
 
   while(start <= end)
   {
-//    num=READ_RAM(start) | (READ_RAM(start+1) << 8);
+    num=READ_RAM(start) | (READ_RAM(start+1) << 8);
 
     int count=disasm_65816(memory, start, instruction, &cycles_min, &cycles_max, 0);
 
-    printf("0x%04x: 0x%02x %-40s ?\n", start, num & 0xFF, instruction);
-/*
     if (cycles_min<1)
     {
       printf("0x%04x: 0x%02x %-40s ?\n", start, num & 0xFF, instruction);
@@ -274,7 +267,6 @@ int num;
       printf("0x%04x: 0x%02x\n", start, num & 0xFF);
       count-=1;
     }
-*/
 
     start=start+1;
   }
