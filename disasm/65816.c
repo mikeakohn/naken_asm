@@ -55,9 +55,14 @@ int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, in
   strcpy(instruction, table_65816[table_65816_opcodes[opcode].instr].name);
   op = table_65816_opcodes[opcode].op;
 
-  if(op_bytes[op] > 1)
+  if(bytes == 0)
+    bytes = op_bytes[op];
+  else
+    bytes = bytes - 1;
+
+  if(bytes > 1)
   {
-    if(op_bytes[op] == 2)
+    if(bytes == 2)
     {
       lo = READ_RAM(address + 1);
 
@@ -72,14 +77,14 @@ int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, in
         sprintf(num, "0x%02x", lo);
       }
     }
-    else if(op_bytes[op] == 3)
+    else if(bytes == 3)
     {
       lo = READ_RAM(address + 1);
       hi = READ_RAM(address + 2);
       // special case for long branch (BRL)
       if(op == OP_RELATIVE_LONG)
       {
-        branch_address = (address + 2) + (signed char)((hi << 8) | lo);
+        branch_address = (address + 3) + (signed char)((hi << 8) | lo);
         sprintf(num, "0x%04x", branch_address);
       }
       else
@@ -87,7 +92,7 @@ int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, in
         sprintf(num, "0x%04x", (hi << 8) | lo);
       }
     }
-    else if(op_bytes[op] == 4)
+    else if(bytes == 4)
     {
       lo = READ_RAM(address + 1);
       hi = READ_RAM(address + 2);
@@ -154,6 +159,12 @@ int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, in
         break;
     }
 
+    strcat(instruction, temp);
+  }
+
+  // set this to the number of bytes the operation took up
+  return bytes;
+
     // get cycle mode
 /*
     int min = table_65xx_opcodes[opcode].cycles_min;
@@ -173,19 +184,6 @@ int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, in
     *cycles_min = min;
     *cycles_max = max;
 */
-    strcat(instruction, temp);
-  }
-  else
-  {
-    // Could not figure out this opcode so return instruction as ???
-    strcpy(instruction, "???");
-    sprintf(temp, " 0x%02x", opcode);
-    strcat(instruction, temp);
-    return 0;
-  }
-
-  // set this to the number of bytes the operation took up
-  return op_bytes[op];
 }
 
 void list_output_65816(struct _asm_context *asm_context, uint32_t start, uint32_t end)
