@@ -16,9 +16,7 @@
 #include "disasm/powerpc.h"
 #include "table/powerpc.h"
 
-//#define READ_RAM(a) memory_read_m(memory, a)
-//#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
-#define READ_RAM(a) (memory_read_m(memory, a)<<24)|(memory_read_m(memory, a)<<16)|(memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
+#define READ_RAM(a) (memory_read_m(memory, a)<<24)|(memory_read_m(memory, a+1)<<16)|(memory_read_m(memory, a+2)<<8)|memory_read_m(memory, a+3)
 
 int get_cycle_count_powerpc(unsigned short int opcode)
 {
@@ -27,42 +25,69 @@ int get_cycle_count_powerpc(unsigned short int opcode)
 
 int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
+  uint32_t opcode;
+  int n;
+
   *cycles_min = -1;
   *cycles_max = -1;
 
-  return -1;
+  opcode = READ_RAM(address);
+
+  n = 0;
+  while(table_powerpc[n].instr != NULL)
+  {
+    if ((opcode & table_powerpc[n].mask) == table_powerpc[n].opcode)
+    {
+      uint32_t rd = (opcode >> 21) & 0x1f;
+      uint32_t ra = (opcode >> 16) & 0x1f;
+      uint32_t rb = (opcode >> 11) & 0x1f;
+      uint32_t rc = opcode & 0x1;
+      const char *instr = table_powerpc[n].instr;
+
+      switch(table_powerpc[n].type)
+      {
+        case OP_R_R_R:
+          sprintf(instruction, "%s%s r%d, r%d, r%d",
+            instr, (rc == 1) ? "." : "", rd, ra, rb);
+          break;
+        default:
+          strcpy(instruction, "???");
+          break;
+      }
+
+      return 4;
+    }
+
+    n++;
+  }
+
+  strcpy(instruction, "???");
+
+  return 0;
 }
 
 void list_output_powerpc(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
-  char bytes[10];
-  int count;
-  int n;
+  uint32_t opcode;
 
   fprintf(asm_context->list, "\n");
 
   while(start < end)
   {
-    count = disasm_powerpc(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    opcode = memory_read32_m(&asm_context->memory, start);
 
-    bytes[0] = 0;
-    for (n = 0; n < count; n++)
-    {
-      char temp[4];
-      sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, start + n));
-      strcat(bytes, temp);
-    }
+    disasm_powerpc(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-    fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ", start, bytes, instruction);
+    fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
     if (cycles_min == cycles_max)
     { fprintf(asm_context->list, "%d\n", cycles_min); }
       else
     { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
 
-    start += count;
+    start += 4;
   }
 }
 

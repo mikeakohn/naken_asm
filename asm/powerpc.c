@@ -21,9 +21,14 @@
 #include "common/eval_expression.h"
 #include "table/powerpc.h"
 
+#define MAX_OPERANDS 3
+
 enum
 {
-  OPERAND_NONE,
+  OPERAND_INVALID,
+  OPERAND_REGISTER,
+  OPERAND_LR,
+  OPERAND_CR,
 };
 
 struct _operand
@@ -32,38 +37,119 @@ struct _operand
   int type;
 };
 
-int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
+struct _modifiers
+{
+  int has_dot;
+};
+
+static int get_register_number(char *token)
+{ 
+  int num;
+  
+  if (token[0] < '0' || token[0] > '9') { return -1; }
+  if (token[1] == 0) { return token[0] - '0'; }
+  if (token[0] == '0' || token[2] != 0) { return -1; }
+  if (token[1] < '0' || token[1] > '9') { return -1; }
+  
+  num = ((token[0] - '0') << 10) + (token[1] - '0');
+  
+  return (num < 32) ? num : -1;
+}
+
+static int get_register_powerpc(char *token)
+{ 
+  if (token[0] != 'r') { return -1; }
+  
+  return get_register_number(token + 1);
+}
+
+static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, struct _modifiers *modifiers)
 {
   char token[TOKENLEN];
   int token_type;
-  char instr_case[TOKENLEN];
-  struct _operand operands[3];
   int operand_count = 0;
-  int matched = 0;
   int n;
 
-  lower_copy(instr_case, instr);
-
-  memset(&operands, 0, sizeof(operands));
   while(1)
   {
-    token_type=tokens_get(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       break;
     }
 
-    // FIXME - FILL IN
+    if (operand_count == 0 && IS_TOKEN(token, '.'))
+    {
+      //token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      //strcat(instr_case, ".");
+      //strcat(instr_case, token);
+
+      modifiers->has_dot = 1;
+      continue;
+    }
+
+    do
+    {
+      // Check for registers
+      n = get_register_powerpc(token);
+
+      if (n != -1)
+      {
+        operands[operand_count].type = OPERAND_REGISTER;
+        operands[operand_count].value = n;
+        break;
+      }
+
+      if (strcasecmp(token, "lr") == 0)
+      {
+        operands[operand_count].type = OPERAND_LR;
+        break;
+      }
+
+      if (strcasecmp(token, "cr") == 0)
+      {
+        operands[operand_count].type = OPERAND_CR;
+        break;
+      }
+
+      break;
+    } while(0);
 
     operand_count++;
+
     token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL) break;
-    if (IS_NOT_TOKEN(token, ',') || operand_count == 3)
+
+    if (token_type == TOKEN_EOL) { break; }
+
+    if (IS_NOT_TOKEN(token, ',') || operand_count == 5)
     {
       print_error_unexp(token, asm_context);
       return -1;
     }
   }
+
+  return operand_count;
+}
+
+int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
+{
+  char instr_case[TOKENLEN];
+  struct _operand operands[MAX_OPERANDS];
+  int operand_count;
+  int matched = 0;
+  uint32_t opcode;
+  struct _modifiers modifiers;
+  int n;
+
+  memset(&modifiers, 0, sizeof(modifiers));
+  memset(&operands, 0, sizeof(operands));
+
+  lower_copy(instr_case, instr);
+
+  operand_count = get_operands(asm_context, operands, instr, instr_case, &modifiers);
+
+  if (operand_count < 0) { return -1; }
 
   n = 0;
   while(table_powerpc[n].instr != NULL)
@@ -74,7 +160,36 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
 
       switch(table_powerpc[n].type)
       {
-        case OP_BRANCH:
+        case OP_R_R_R:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[0].value << 21) |
+                  (operands[1].value << 16) |
+                  (operands[2].value << 11);
+
+          if (modifiers.has_dot == 1)
+          {
+            opcode |= 1;
+          }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          
+          return 4;
+        }
         default:
           break;
       }

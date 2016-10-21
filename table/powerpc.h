@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -17,7 +17,7 @@
 enum
 {
   OP_NONE,
-  OP_BRANCH,
+  OP_R_R_R,
 };
 
 struct _table_powerpc
