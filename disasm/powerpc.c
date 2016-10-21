@@ -42,6 +42,7 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
       uint32_t ra = (opcode >> 16) & 0x1f;
       uint32_t rb = (opcode >> 11) & 0x1f;
       uint32_t rc = opcode & 0x1;
+      int16_t simm = opcode & 0xffff;
       const char *instr = table_powerpc[n].instr;
 
       switch(table_powerpc[n].type)
@@ -49,6 +50,9 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
         case OP_R_R_R:
           sprintf(instruction, "%s%s r%d, r%d, r%d",
             instr, (rc == 1) ? "." : "", rd, ra, rb);
+          break;
+        case OP_R_R_SIMM:
+          sprintf(instruction, "%s r%d, r%d, %d", instr, rd, ra, simm);
           break;
         default:
           strcpy(instruction, "???");

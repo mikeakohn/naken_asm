@@ -18,16 +18,24 @@ enum
 {
   OP_NONE,
   OP_R_R_R,
+  OP_R_R_SIMM,
+};
+
+enum
+{
+  FLAG_NONE = 0,
+  FLAG_DOT = 1,
 };
 
 struct _table_powerpc
 {
   char *instr;
-  unsigned int opcode;
-  unsigned int mask;
-  unsigned char type;
-  unsigned char cycles;
-  unsigned char cycles_max;
+  uint32_t opcode;
+  uint32_t mask;
+  uint8_t type;
+  uint8_t flags;
+  uint8_t cycles;
+  uint8_t cycles_max;
 };
 
 extern struct _table_powerpc table_powerpc[];

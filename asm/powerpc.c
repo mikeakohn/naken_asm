@@ -29,6 +29,7 @@ enum
   OPERAND_REGISTER,
   OPERAND_LR,
   OPERAND_CR,
+  OPERAND_NUMBER,
 };
 
 struct _operand
@@ -113,6 +114,25 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         break;
       }
 
+      // Assume this is just a number
+      if (asm_context->pass == 1)
+      {
+        eat_operand(asm_context);
+        n = 0;
+      }
+      else
+      {
+         tokens_push(asm_context, token, token_type);
+         if (eval_expression(asm_context, &n) != 0)
+         {
+           print_error_unexp(token, asm_context);
+           return -1;
+         }
+      }
+
+      operands[operand_count].type = OPERAND_NUMBER;
+      operands[operand_count].value = n;
+
       break;
     } while(0);
 
@@ -158,6 +178,12 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
     {
       matched = 1;
 
+      if (modifiers.has_dot == 1 && !(table_powerpc[n].flags & FLAG_DOT))
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
+      }
+
       switch(table_powerpc[n].type)
       {
         case OP_R_R_R:
@@ -185,6 +211,37 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           {
             opcode |= 1;
           }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          
+          return 4;
+        }
+        case OP_R_R_SIMM:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[2].value < -32768 || operands[2].value > 65535)
+          {
+            print_error_range("Immediate", -32768, 65535, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[0].value << 21) |
+                  (operands[1].value << 16) |
+                  (operands[2].value & 0xffff);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           
