@@ -33,6 +33,8 @@ extern struct _table_65816_opcodes table_65816_opcodes[];
 #define REG_SR simulate_65816->reg_sr
 #define REG_PC simulate_65816->reg_pc
 #define REG_SP simulate_65816->reg_sp
+#define REG_DP simulate_65816->reg_dp
+#define REG_DB simulate_65816->reg_db
 #define CYCLE_COUNT simulate->cycle_count
 
 // status register flags
@@ -40,8 +42,8 @@ extern struct _table_65816_opcodes table_65816_opcodes[];
 #define flag_z 1
 #define flag_i 2
 #define flag_d 3
-#define flag_b 4
-#define flag_g 5
+#define flag_x 4
+#define flag_m 5
 #define flag_v 6
 #define flag_n 7
 
@@ -70,12 +72,16 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
   {
     case OP_NONE:
       return address;
-    case OP_IMMEDIATE:
+    case OP_IMMEDIATE8:
+      return address;
+    case OP_IMMEDIATE16:
       return address;
     case OP_ADDRESS8:
       return lo & 0xFF;
     case OP_ADDRESS16:
       return lo + 256 * hi;
+    case OP_ADDRESS24:
+      return 0;
     case OP_INDEXED8_X:
       return (lo + REG_X) & 0xFF;
     case OP_INDEXED8_Y:
@@ -84,17 +90,38 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
       return ((lo + 256 * hi) + REG_X) & 0xFFFF;
     case OP_INDEXED16_Y:
       return ((lo + 256 * hi) + REG_Y) & 0xFFFF;
+    case OP_INDEXED24_X:
+      return 0;
+    case OP_INDIRECT8:
+      return 0;
+    case OP_INDIRECT8_LONG:
+      return 0;
     case OP_INDIRECT16:
       indirect = (lo + 256 * hi) & 0xFFFF;
       return (READ_RAM(indirect) + 256 * READ_RAM((indirect + 1) & 0xFFFF)) & 0xFFFF;
+      return 0;
+    case OP_INDIRECT16_LONG:
+      return 0;
     case OP_X_INDIRECT8:
       indirect = ((READ_RAM(lo) + REG_X) & 0xFF) + 256 * READ_RAM((lo + 1) & 0xFF);
       return (indirect) & 0xFFFF;
+    case OP_X_INDIRECT16:
+      return 0;
     case OP_INDIRECT8_Y:
       indirect = READ_RAM(lo) + 256 * READ_RAM((lo + 1) & 0xFF);
       return (indirect + REG_Y) & 0xFFFF;
+    case OP_INDIRECT8_Y_LONG:
+      return 0;
+    case OP_BLOCK_MOVE:
+      return 0;
     case OP_RELATIVE:
       return (address + ((signed char)READ_RAM(address) + 1)) & 0xFFFF;
+    case OP_RELATIVE_LONG:
+      return 0;
+    case OP_SP_RELATIVE:
+      return 0;
+    case OP_SP_INDIRECT_Y:
+      return 0;
     default:
       return -1;
   }
@@ -108,8 +135,6 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     return -1;
   
   int mode = table_65816_opcodes[opcode].op;
-  if(mode == M65XX_ERROR)
-    return -1;
 
   int address = calc_address(simulate, REG_PC + 1, mode);
   if(address == -1)
