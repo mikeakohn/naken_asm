@@ -18,6 +18,7 @@ enum
 {
   OP_NONE,
   OP_R_R_R,
+  OP_R_R,
   OP_R_R_SIMM,
 };
 
