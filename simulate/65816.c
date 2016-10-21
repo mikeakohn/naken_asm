@@ -828,17 +828,18 @@ int sp=REG_SP;
   printf("        7 6 5 4 3 2 1 0                          0x%03x: 0x%02x\n", SHOW_STACK);
   sp = (sp - 1) & 0xFF;
   
-  printf("Status: N V - B D I Z C                          0x%03x: 0x%02x\n", SHOW_STACK);
+  printf("Status: N V M X D I Z C                          0x%03x: 0x%02x\n", SHOW_STACK);
   sp = (sp - 1) & 0xFF;
   printf("        %d %d %d %d %d %d %d %d                          0x%03x: 0x%02x\n",
     READ_FLAG(flag_n),
     READ_FLAG(flag_v),
-    READ_FLAG(flag_g),
-    READ_FLAG(flag_b),
+    READ_FLAG(flag_m),
+    READ_FLAG(flag_x),
     READ_FLAG(flag_d),
     READ_FLAG(flag_i),
     READ_FLAG(flag_z),
     READ_FLAG(flag_c),
+
     SHOW_STACK);
   sp = (sp - 1) & 0xFF;
   
@@ -879,7 +880,7 @@ char instruction[128];
 
     // only increment if REG_PC not touched
     if(ret == 0)
-      REG_PC += disasm_65816(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+      REG_PC += disasm_65816(simulate->memory, pc, instruction, &cycles_min, &cycles_max, 0);
 
     if(simulate->show == 1)
     {
@@ -889,7 +890,7 @@ char instruction[128];
       int n = 0;
       while(n < 6)
       {
-        int count = disasm_65816(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+        int count = disasm_65816(simulate->memory, pc, instruction, &cycles_min, &cycles_max, 0);
 
         if(cycles_min == -1) break;
 
