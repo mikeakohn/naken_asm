@@ -21,11 +21,9 @@ enum
   OP_R_R_SIMM,
 };
 
-enum
-{
-  FLAG_NONE = 0,
-  FLAG_DOT = 1,
-};
+#define FLAG_NONE 0
+#define FLAG_DOT 1
+#define FLAG_REQUIRE_DOT 3
 
 struct _table_powerpc
 {

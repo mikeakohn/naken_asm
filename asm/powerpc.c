@@ -174,14 +174,21 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(table_powerpc[n].instr != NULL)
   {
-    if (strcmp(table_powerpc[n].instr,instr_case) == 0)
+    if (strcmp(table_powerpc[n].instr, instr_case) == 0)
     {
       matched = 1;
 
       if (modifiers.has_dot == 1 && !(table_powerpc[n].flags & FLAG_DOT))
       {
-        print_error_illegal_operands(instr, asm_context);
-        return -1;
+        n++;
+        continue;
+      }
+
+      if (modifiers.has_dot == 0 &&
+         ((table_powerpc[n].flags & FLAG_REQUIRE_DOT) == FLAG_REQUIRE_DOT))
+      {
+        n++;
+        continue;
       }
 
       switch(table_powerpc[n].type)

@@ -52,7 +52,10 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
             instr, (rc == 1) ? "." : "", rd, ra, rb);
           break;
         case OP_R_R_SIMM:
-          sprintf(instruction, "%s r%d, r%d, %d", instr, rd, ra, simm);
+          sprintf(instruction, "%s%s r%d, r%d, %d",
+            instr,
+            ((table_powerpc[n].flags & FLAG_REQUIRE_DOT) != 0) ? "." : "",
+            rd, ra, simm);
           break;
         default:
           strcpy(instruction, "???");
