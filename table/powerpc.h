@@ -17,9 +17,11 @@
 enum
 {
   OP_NONE,
-  OP_R_R_R,
-  OP_R_R,
-  OP_R_R_SIMM,
+  OP_RD_RA_RB,
+  OP_RA_RS_RB,
+  OP_RD_RA,
+  OP_RD_RA_SIMM,
+  OP_RA_RS_UIMM,
 };
 
 #define FLAG_NONE 0

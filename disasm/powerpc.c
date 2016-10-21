@@ -43,23 +43,34 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
       uint32_t rb = (opcode >> 11) & 0x1f;
       uint32_t rc = opcode & 0x1;
       int16_t simm = opcode & 0xffff;
+      uint16_t uimm = opcode & 0xffff;
       const char *instr = table_powerpc[n].instr;
 
       switch(table_powerpc[n].type)
       {
-        case OP_R_R_R:
+        case OP_RD_RA_RB:
           sprintf(instruction, "%s%s r%d, r%d, r%d",
             instr, (rc == 1) ? "." : "", rd, ra, rb);
           break;
-        case OP_R_R:
+        case OP_RA_RS_RB:
+          sprintf(instruction, "%s%s r%d, r%d, r%d",
+            instr, (rc == 1) ? "." : "", ra, rd, rb);
+          break;
+        case OP_RD_RA:
           sprintf(instruction, "%s%s r%d, r%d",
             instr, (rc == 1) ? "." : "", rd, ra);
           break;
-        case OP_R_R_SIMM:
-          sprintf(instruction, "%s%s r%d, r%d, %d",
+        case OP_RD_RA_SIMM:
+          sprintf(instruction, "%s%s r%d, r%d, %d (0x%04x)",
             instr,
             ((table_powerpc[n].flags & FLAG_REQUIRE_DOT) != 0) ? "." : "",
-            rd, ra, simm);
+            rd, ra, simm, simm);
+          break;
+        case OP_RA_RS_UIMM:
+          sprintf(instruction, "%s%s r%d, r%d, %d (0x%04x)",
+            instr,
+            ((table_powerpc[n].flags & FLAG_REQUIRE_DOT) != 0) ? "." : "",
+            ra, rd, uimm, uimm);
           break;
         default:
           strcpy(instruction, "???");

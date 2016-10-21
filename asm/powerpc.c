@@ -193,7 +193,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
 
       switch(table_powerpc[n].type)
       {
-        case OP_R_R_R:
+        case OP_RD_RA_RB:
         {
           if (operand_count != 3)
           {
@@ -223,7 +223,37 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           
           return 4;
         }
-        case OP_R_R:
+        case OP_RA_RS_RB:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[1].value << 21) |
+                  (operands[0].value << 16) |
+                  (operands[2].value << 11);
+
+          if (modifiers.has_dot == 1)
+          {
+            opcode |= 1;
+          }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          
+          return 4;
+        }
+        case OP_RD_RA:
         {
           if (operand_count != 2)
           {
@@ -251,7 +281,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           
           return 4;
         }
-        case OP_R_R_SIMM:
+        case OP_RD_RA_SIMM:
         {
           if (operand_count != 3)
           {
@@ -267,9 +297,40 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (operands[2].value < -32768 || operands[2].value > 65535)
+          if (operands[2].value < -32768 || operands[2].value > 0xffff)
           {
             print_error_range("Immediate", -32768, 65535, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[0].value << 21) |
+                  (operands[1].value << 16) |
+                  (operands[2].value & 0xffff);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          
+          return 4;
+        }
+        case OP_RA_RS_UIMM:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[2].value < 0 || operands[2].value > 0xffff)
+          {
+            print_error_range("Immediate", 0, 65535, asm_context);
             return -1;
           }
 
