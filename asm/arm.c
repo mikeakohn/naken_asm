@@ -686,7 +686,7 @@ static int parse_swi(struct _asm_context *asm_context, struct _operand *operands
   }
 
   if (operands[0].type != OPERAND_NUMBER ||
-      operands[0].value < 0 || operands[0].value > 0xffffff)
+      (int32_t)operands[0].value < 0 || operands[0].value > 0xffffff)
   {
     return ARM_ILLEGAL_OPERANDS;
     return -1;
