@@ -30,6 +30,7 @@ SUPPORTED CPU'S
 |MSP430/MSP430X      |Michael Kohn|
 |PIC32               |Michael Kohn|
 |Propeller           |Michael Kohn|
+|RISC-V              |Michael Kohn|
 |STM8                |Michael Kohn|
 |THUMB               |Michael Kohn|
 |TMS1000 / TMS1100   |Michael Kohn|

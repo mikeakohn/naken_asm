@@ -22,12 +22,19 @@ CPU this source file should be assembled for.
 |.avr8            |Atmel AVR8
 |.dspic           |dsPIC
 |.epiphany        |Ephiphany/Parallella
-|.mips            |MIPS including PIC32
+|.mips            |MIPS (32 bit)
+|.mips32          |MIPS (32 bit)
+|.pic32           |PIC32 MIPS
 |.msp430          |MSP430
 |.mps430x         |MSP430X
+|.powerpc         |PowerPC
 |.propeller       |Parallax Propeller
 |.pic24           |PIC24
+|.ps2_ee          |Sony Emotion Engine (Playstation 2)
+|.ps2_ee_v0       |Sony Emotion Engine Vector Unit 0
+|.ps2_ee_v1       |Sony Emotion Engine Vector Unit 1
 |.stm8            |STM8
+|.riscv           |RISC-V
 |.thumb           |THUMB
 |.tms1000         |TMS1000/TMS1200/TMS1070/TMS1270
 |.tms1100         |TMS1100/TMS1300
