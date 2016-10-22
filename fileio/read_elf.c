@@ -149,18 +149,18 @@ int ptr = 0;
 
 int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _symbols *symbols)
 {
-FILE *in;
-uint8_t e_ident[16];
-int e_shoff;
-int e_shentsize;
-int e_shnum;
-int e_shstrndx;
-int n;
-int start, end;
-struct _elf32_shdr elf32_shdr;
-long strtab_offset = 0;
-get_int16_t get_int16;
-get_int32_t get_int32;
+  FILE *in;
+  uint8_t e_ident[16];
+  int e_shoff;
+  int e_shentsize;
+  int e_shnum;
+  int e_shstrndx;
+  int n;
+  int start, end;
+  struct _elf32_shdr elf32_shdr;
+  long strtab_offset = 0;
+  get_int16_t get_int16;
+  get_int32_t get_int32;
 
   memory_clear(memory);
   //memset(dirty, 0, memory->size);
@@ -228,6 +228,9 @@ get_int32_t get_int32;
     case 8:
     case 10:
       *cpu_type = CPU_TYPE_MIPS32;
+      break;
+    case 20:
+      *cpu_type = CPU_TYPE_POWERPC;
       break;
     case 40:
       *cpu_type = CPU_TYPE_ARM;
