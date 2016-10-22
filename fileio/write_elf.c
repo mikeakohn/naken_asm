@@ -185,6 +185,7 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
       break;
     case CPU_TYPE_POWERPC:
       elf->e_machine = 20;
+      elf->e_ident[EI_OSABI] = 0;
       break;
     case CPU_TYPE_STM8:
       elf->e_machine = 186;
@@ -341,13 +342,13 @@ static void write_symtab(FILE *out, struct _symtab *symtab, struct _elf *elf)
 
 static int find_section(char *sections, char *name, int len)
 {
-int n = 0;
+  int n = 0;
 
   while(n < len)
   {
     if (sections[n] == '.')
     {
-      if (strcmp(sections+n, name) == 0) return n;
+      if (strcmp(sections + n, name) == 0) return n;
       n += strlen(sections+n);
     }
 
@@ -368,7 +369,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   struct _shdr shdr;
   struct _symtab symtab;
   struct _elf elf;
-  int i;
+  //int i;
 
   memset(&elf, 0, sizeof(elf));
   elf.cpu_type = cpu_type;
@@ -406,7 +407,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
 
   // .shstrtab section
   elf.sections_offset.shstrtab = ftell(out);
-  i = fwrite(elf.string_table, 1, get_string_table_len(elf.string_table), out);
+  fwrite(elf.string_table, 1, get_string_table_len(elf.string_table), out);
   putc(0x00, out); // null
   elf.sections_size.shstrtab = ftell(out) - elf.sections_offset.shstrtab;
 
@@ -526,8 +527,9 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
       size += (alignment - size) & mask;
     }
 
-    if (i == 0) { strcpy(name, ".text"); }
-    else { sprintf(name, ".text%d", i); }
+    //if (i == 0) { strcpy(name, ".text"); }
+    //else { sprintf(name, ".text%d", i); }
+    strcpy(name, ".text");
 
     shdr.sh_name = find_section(elf.string_table, name, sizeof(elf.string_table));
     shdr.sh_type = 1;
@@ -553,8 +555,9 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
       size += (alignment - size) & mask;
     }
 
-    if (i == 0) { strcpy(name, ".data"); }
-    else { sprintf(name, ".data%d", i); }
+    //if (i == 0) { strcpy(name, ".data"); }
+    //else { sprintf(name, ".data%d", i); }
+    strcpy(name, ".data");
 
     shdr.sh_name = find_section(elf.string_table, name, sizeof(elf.string_table));
     shdr.sh_type = 1;
