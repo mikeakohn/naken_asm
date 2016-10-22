@@ -42,8 +42,8 @@ int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, in
   char num[8];
   uint8_t opcode = memory_read_m(memory, address);
 
-  int op;
-  int lo, hi, bank;
+  int op = 0;
+  int lo = 0, hi = 0, bank = 0;
   int branch_address = 0;
 
   *cycles_min=-1;
