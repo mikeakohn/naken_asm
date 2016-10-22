@@ -201,6 +201,9 @@ void list_output_riscv(struct _asm_context *asm_context, uint32_t start, uint32_
 
     fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
+    if (cycles_min == -1)
+    { fprintf(asm_context->list, "\n"); }
+      else
     if (cycles_min == cycles_max)
     { fprintf(asm_context->list, "%d\n", cycles_min); }
       else
@@ -213,10 +216,9 @@ void list_output_riscv(struct _asm_context *asm_context, uint32_t start, uint32_
 void disasm_range_riscv(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
-  char bytes[10];
-  int cycles_min = 0,cycles_max = 0;
+  uint32_t opcode;
+  int cycles_min = 0, cycles_max = 0;
   int count;
-  int n;
 
   printf("\n");
 
@@ -225,29 +227,19 @@ void disasm_range_riscv(struct _memory *memory, uint32_t flags, uint32_t start, 
 
   while(start <= end)
   {
+    opcode = memory_read32_m(memory, start);
+
     count = disasm_riscv(memory, start, instruction, &cycles_min, &cycles_max);
 
-    bytes[0] = 0;
-    for (n = 0; n < count; n++)
-    {
-      char temp[4];
-      sprintf(temp, "%02x ", READ_RAM(start + n));
-      strcat(bytes, temp);
-    }
+    printf("0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
-    if (cycles_min < 1)
-    {
-      printf("0x%04x: %-9s %-40s ?\n", start, bytes, instruction);
-    }
+    if (cycles_min == -1)
+    { printf("\n"); }
       else
     if (cycles_min == cycles_max)
-    {
-      printf("0x%04x: %-9s %-40s %d\n", start, bytes, instruction, cycles_min);
-    }
+    { printf("%d\n", cycles_min); }
       else
-    {
-      printf("0x%04x: %-9s %-40s %d-%d\n", start, bytes, instruction, cycles_min, cycles_max);
-    }
+    { printf("%d-%d\n", cycles_min, cycles_max); }
 
     start = start + count;
   }
