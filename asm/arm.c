@@ -61,6 +61,7 @@ struct _operand
   uint32_t value;
   int type;
   int sub_type;
+  uint8_t set_cond : 1;
 };
 
 #if 0
@@ -92,7 +93,7 @@ static int get_register_arm(char *token)
   return -1;
 }
 
-int parse_condition(char **instr_lower)
+static int parse_condition(char **instr_lower)
 {
   int cond;
   char *instr = *instr_lower;
@@ -537,14 +538,41 @@ static int parse_ldm_stm(struct _asm_context *asm_context, struct _operand *oper
 {
   int pr = 1;  // gcc sets this to 1 if it's not used
   int u = 0;
-  int s = 0;
+  int ls = (opcode >> 20) & 1; // LS = 1 for load
   int w = (operands[0].type == OPERAND_REG_WRITE_BACK) ? 1 : 0;
 
   int cond = parse_condition(&instr);
 
-  // FIXME: Add post / pre inc
+  if (strncmp(instr, "fd", 2) == 0)
+  {
+    if (ls == 0) { instr[0] = 'd'; instr[1] = 'b'; }
+    else { instr[0] = 'i'; instr[1] = 'a'; }
+  }
+    else
+  if (strncmp(instr, "fa", 2) == 0)
+  {
+    if (ls == 0) { instr[0] = 'i'; instr[1] = 'b'; }
+    else { instr[0] = 'd'; instr[1] = 'a'; }
+  }
+    else
+  if (strncmp(instr, "ed", 2) == 0)
+  {
+    if (ls == 0) { instr[0] = 'd'; instr[1] = 'a'; }
+    else { instr[0] = 'i'; instr[1] = 'b'; }
+  }
+    else
+  if (strncmp(instr, "ea", 2) == 0)
+  {
+    if (ls == 0) { instr[0] = 'i'; instr[1] = 'a'; }
+    else { instr[0] = 'b'; instr[1] = 'b'; }
+  }
 
-  if (instr[0] == 's') { s = 1; instr++; }
+  //if (instr[0] == 's') { s = 1; instr++; }
+  if (strncmp(instr, "ia", 2) == 0) { instr += 2; pr = 0; u = 1; }
+  else if (strncmp(instr, "ib", 2) == 0) { instr += 2; pr = 1; u = 1; }
+  else if (strncmp(instr, "da", 2) == 0) { instr += 2; pr = 0; u = 0; }
+  else if (strncmp(instr, "db", 2) == 0) { instr += 2; pr = 1; u = 0; }
+
   if (*instr != 0)
   {
     print_error_unknown_instr(instr, asm_context);
@@ -556,7 +584,16 @@ static int parse_ldm_stm(struct _asm_context *asm_context, struct _operand *oper
        operands[0].type == OPERAND_REG_WRITE_BACK) &&
        operands[1].type == OPERAND_MULTIPLE_REG)
   {
-    add_bin32(asm_context, opcode | (cond<<28) | (pr<<24) | (u<<23) | (s<<22) | (w<<21) | (operands[0].value<<16) | operands[1].value, IS_OPCODE);
+    opcode |= (cond << 28) |
+              (pr << 24) |
+              (u << 23) |
+              (operands[1].set_cond << 22) |
+              (w << 21) |
+              (operands[0].value << 16) |
+              operands[1].value,
+
+    //add_bin32(asm_context, opcode | (cond << 28) | (pr << 24) | (u << 23) | (s << 22) | (w << 21) | (operands[0].value << 16) | operands[1].value, IS_OPCODE);
+    add_bin32(asm_context, opcode, IS_OPCODE);
 
      return 4;
   }
@@ -566,7 +603,7 @@ static int parse_ldm_stm(struct _asm_context *asm_context, struct _operand *oper
 
 static int parse_swap(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
 {
-int b = 0; // B flag
+  int b = 0; // B flag
 
   int cond = parse_condition(&instr);
 
@@ -578,7 +615,7 @@ int b = 0; // B flag
   {
     if (*instr == 'b') b = 1;
 
-    add_bin32(asm_context, SWAP_OPCODE | (cond<<28) | (b<<22) | (operands[2].value<<16) | (operands[0].value<<12) | operands[1].value, IS_OPCODE);
+    add_bin32(asm_context, SWAP_OPCODE | (cond << 28) | (b << 22) | (operands[2].value << 16) | (operands[0].value << 12) | operands[1].value, IS_OPCODE);
     return 4;
   }
 
@@ -917,6 +954,16 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
           print_error_unexp(token, asm_context);
           return -1;
         }
+      }
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token, '^'))
+      {
+        operands[operand_count].set_cond = 1;
+      }
+      else
+      {
+        tokens_push(asm_context, token, token_type);
       }
     }
       else
