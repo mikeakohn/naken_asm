@@ -348,7 +348,7 @@ static int find_section(char *sections, char *name, int len)
   {
     if (sections[n] == '.')
     {
-      if (strcmp(sections + n, name) == 0) return n;
+      if (strcmp(sections + n, name) == 0) { return n; }
       n += strlen(sections+n);
     }
 
@@ -411,9 +411,11 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   putc(0x00, out); // null
   elf.sections_size.shstrtab = ftell(out) - elf.sections_offset.shstrtab;
 
+  int symbol_count = 0;
+  const int strtab_extras = 2;
+
   {
     struct _symbols_iter iter;
-    int symbol_count;
     int sym_offset;
     int n;
 
@@ -427,7 +429,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
     putc(0x00, out); // none
 
     fprintf(out, "%s%c", filename, 0);
-    sym_offset = strlen(filename)+2;
+    sym_offset = strlen(filename) + 2;
 
     n = 0;
     memset(&iter, 0, sizeof(iter));
@@ -437,7 +439,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
 
       symbol_address[n++] = sym_offset;
       fprintf(out, "%s%c", iter.name, 0);
-      sym_offset += strlen((char *)iter.name)+1;
+      sym_offset += strlen((char *)iter.name) + 1;
     }
 
     elf.sections_size.strtab = ftell(out) - elf.sections_offset.strtab;
@@ -587,7 +589,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   shdr.sh_offset = elf.sections_offset.symtab;
   shdr.sh_size = elf.sections_size.symtab;
   shdr.sh_link = 4;
-  shdr.sh_info = 4;
+  shdr.sh_info = symbol_count + strtab_extras;
   shdr.sh_addralign = 4;
   shdr.sh_entsize = 16;
   write_shdr(out, &shdr, &elf);
