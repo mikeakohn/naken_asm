@@ -159,7 +159,9 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
   int operand_count;
   int matched = 0;
   uint32_t opcode;
+  int32_t offset;
   struct _modifiers modifiers;
+  int temp;
   int n;
 
   memset(&modifiers, 0, sizeof(modifiers));
@@ -193,6 +195,18 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
 
       switch(table_powerpc[n].type)
       {
+        case OP_NONE:
+        {
+          if (operand_count != 0)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          add_bin32(asm_context, table_powerpc[n].opcode, IS_OPCODE);
+          
+          return 4;
+        }
         case OP_RD_RA_RB:
         {
           if (operand_count != 3)
@@ -312,6 +326,35 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           
           return 4;
         }
+        case OP_RD_SIMM:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[1].value < -32768 || operands[1].value > 0xffff)
+          {
+            print_error_range("Immediate", -32768, 65535, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[0].value << 21) |
+                  (operands[1].value & 0xffff);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          
+          return 4;
+        }
         case OP_RA_RS_UIMM:
         {
           if (operand_count != 3)
@@ -341,6 +384,76 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           
+          return 4;
+        }
+        case OP_BRANCH:
+        {
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          offset = (uint32_t)operands[0].value - asm_context->address;
+
+          if ((offset & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          temp = (offset >> 26) & 0x3f;
+
+          if (temp != 0 && temp != 0x3f)
+          {
+            print_error_range("Offset", -(1 << 25), (1 << 25) - 1, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode | (offset & ((1 << 26) - 1));
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_JUMP:
+        {
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if ((operands[0].value & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          temp = (operands[2].value >> 26) & 0x3f;
+
+          if (temp != 0 && temp != 0x3f)
+          {
+            print_error_range("Address", -(1 << 25), (1 << 25) - 1, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode | (operands[2].value & ((1 << 26) - 1));
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
           return 4;
         }
         default:

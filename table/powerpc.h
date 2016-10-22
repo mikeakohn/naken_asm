@@ -21,7 +21,11 @@ enum
   OP_RA_RS_RB,
   OP_RD_RA,
   OP_RD_RA_SIMM,
+  OP_RD_SIMM,
   OP_RA_RS_UIMM,
+  OP_BRANCH,
+  OP_JUMP,
+  OP_BRANCH_COND,
 };
 
 #define FLAG_NONE 0

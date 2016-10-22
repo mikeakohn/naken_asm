@@ -26,6 +26,8 @@ int get_cycle_count_powerpc(unsigned short int opcode)
 int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
+  int32_t offset;
+  int32_t temp;
   int n;
 
   *cycles_min = -1;
@@ -48,6 +50,9 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
 
       switch(table_powerpc[n].type)
       {
+        case OP_NONE:
+          sprintf(instruction, "%s", instr);
+          break;
         case OP_RD_RA_RB:
           sprintf(instruction, "%s%s r%d, r%d, r%d",
             instr, (rc == 1) ? "." : "", rd, ra, rb);
@@ -66,11 +71,29 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
             ((table_powerpc[n].flags & FLAG_REQUIRE_DOT) != 0) ? "." : "",
             rd, ra, simm, simm);
           break;
+        case OP_RD_SIMM:
+          sprintf(instruction, "%s%s r%d, %d (0x%04x)",
+            instr,
+            ((table_powerpc[n].flags & FLAG_REQUIRE_DOT) != 0) ? "." : "",
+            rd, simm, simm);
+          break;
         case OP_RA_RS_UIMM:
           sprintf(instruction, "%s%s r%d, r%d, %d (0x%04x)",
             instr,
             ((table_powerpc[n].flags & FLAG_REQUIRE_DOT) != 0) ? "." : "",
             ra, rd, uimm, uimm);
+          break;
+        case OP_BRANCH:
+          offset = opcode & 0x03fffffc;
+          if ((offset & 0x02000000) != 0) { offset |= 0xfc000000; }
+
+          sprintf(instruction, "%s 0x%x (%d)", instr, address + offset, offset);
+          break;
+        case OP_JUMP:
+          temp = opcode & 0x03fffffc;
+          if ((temp & 0x02000000) != 0) { temp |= 0xfc000000; }
+
+          sprintf(instruction, "%s 0x%x", instr, temp);
           break;
         default:
           strcpy(instruction, "???");
