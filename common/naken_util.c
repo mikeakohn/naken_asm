@@ -50,6 +50,7 @@
 #include "fileio/read_ti_txt.h"
 #include "simulate/avr8.h"
 #include "simulate/65xx.h"
+#include "simulate/65816.h"
 #include "simulate/mips.h"
 #include "simulate/msp430.h"
 #include "simulate/tms9900.h"
