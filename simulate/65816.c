@@ -23,7 +23,7 @@
 
 extern struct _table_65816_opcodes table_65816_opcodes[];
 
-#define SHOW_STACK 0x100 + sp, memory_read_m(simulate->memory, 0x100 + sp)
+#define SHOW_STACK sp, memory_read_m(simulate->memory, sp)
 #define READ_RAM(a) memory_read_m(simulate->memory, a)
 #define WRITE_RAM(a, b) memory_write_m(simulate->memory, a, b)
 
@@ -33,8 +33,9 @@ extern struct _table_65816_opcodes table_65816_opcodes[];
 #define REG_SR simulate_65816->reg_sr
 #define REG_PC simulate_65816->reg_pc
 #define REG_SP simulate_65816->reg_sp
-#define REG_DP simulate_65816->reg_dp
 #define REG_DB simulate_65816->reg_db
+#define REG_PB simulate_65816->reg_pb
+
 #define CYCLE_COUNT simulate->cycle_count
 
 // status register flags
@@ -64,8 +65,9 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
 {
   struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
 
-  int lo = READ_RAM(address);
-  int hi = READ_RAM((address + 1) & 0xFFFF);
+  int lo =   READ_RAM((address + 0) & 0xFFFF);
+  int hi =   READ_RAM((address + 1) & 0xFFFF);
+//  int bank = READ_RAM((address + 2) & 0xFFFF);
   int indirect;
 
   switch(mode)
@@ -734,7 +736,7 @@ void simulate_push_65816(struct _simulate *simulate, unsigned int value)
 {
 struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
 
-  WRITE_RAM(0x100 + REG_SP, value & 0xFF);
+  WRITE_RAM(REG_SP, value & 0xFF);
   REG_SP--;
   REG_SP &= 0xFF;
 }
@@ -747,20 +749,22 @@ struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->conte
 
   while(*reg_string==' ') { reg_string++; }
 
-  char *pos = reg_string;
-
-  if(pos[0] == 'a' || pos[0] == 'A')
+  if(strcasecmp(reg_string, "a") == 0)
     REG_A = value & 0xFF;
-  else if(pos[0] == 'x' || pos[0] == 'X')
+  else if(strcasecmp(reg_string, "x") == 0)
     REG_X = value & 0xFF;
-  else if(pos[0] == 'y' || pos[0] == 'Y')
+  else if(strcasecmp(reg_string, "y") == 0)
     REG_Y = value & 0xFF;
-  else if((pos[0] == 's' || pos[0] == 'S') && (pos[1] == 'r' || pos[1] == 'R'))
+  else if(strcasecmp(reg_string, "sr") == 0)
     REG_SR = value & 0xFF;
-  else if((pos[0] == 'p' || pos[0] == 'P') && (pos[1] == 'c' || pos[1] == 'C'))
-    REG_PC = value & 0xFFFF;
-  else if((pos[0] == 's' || pos[0] == 'S') && (pos[1] == 'p' || pos[1] == 'P'))
+  else if(strcasecmp(reg_string, "pc") == 0)
+    REG_PC = value & 0xFF;
+  else if(strcasecmp(reg_string, "sp") == 0)
     REG_SP = value & 0xFF;
+  else if(strcasecmp(reg_string, "db") == 0)
+    REG_DB = value & 0xFF;
+  else if(strcasecmp(reg_string, "pb") == 0)
+    REG_PB = value & 0xFF;
   else
     return -1;
 
@@ -773,20 +777,22 @@ struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->conte
 
   while(*reg_string==' ') { reg_string++; }
 
-  char *pos = reg_string;
-
-  if(pos[0] == 'a' || pos[0] == 'A')
+  if(strcasecmp(reg_string, "a") == 0)
     return REG_A;
-  if(pos[0] == 'x' || pos[0] == 'X')
+  else if(strcasecmp(reg_string, "x") == 0)
     return REG_X;
-  if(pos[0] == 'y' || pos[0] == 'Y')
+  else if(strcasecmp(reg_string, "y") == 0)
     return REG_Y;
-  if((pos[0] == 's' || pos[0] == 'S') && (pos[1] == 'r' || pos[1] == 'R'))
+  else if(strcasecmp(reg_string, "sr") == 0)
     return REG_SR;
-  if((pos[0] == 'p' || pos[0] == 'P') && (pos[1] == 'c' || pos[1] == 'C'))
+  else if(strcasecmp(reg_string, "pc") == 0)
     return REG_PC;
-  if((pos[0] == 's' || pos[0] == 'S') && (pos[1] == 'p' || pos[1] == 'P'))
+  else if(strcasecmp(reg_string, "sp") == 0)
     return REG_SP;
+  else if(strcasecmp(reg_string, "db") == 0)
+    return REG_DB;
+  else if(strcasecmp(reg_string, "pb") == 0)
+    return REG_PB;
 
   return -1;
 }
@@ -797,13 +803,16 @@ struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->conte
 
   simulate->cycle_count=0;
   simulate->nested_call_count=0;
+  simulate->break_point=-1;
+
   REG_A = 0;
   REG_X = 0;
   REG_Y = 0;
   REG_SR = 0;
   REG_PC = 0;
-  REG_SP = 0xFF;
-  simulate->break_point=-1;
+  REG_SP = 0x1FF;
+  REG_DB = 0;
+  REG_PB = 0;
 }
 
 void simulate_free_65816(struct _simulate *simulate)
@@ -821,16 +830,16 @@ void simulate_dump_registers_65816(struct _simulate *simulate)
 {
 struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
 
-int sp=REG_SP;
+  int sp = REG_SP;
 
   printf("\nSimulation Register Dump                               Stack\n");
   printf("------------------------------------------------------------\n");
-  printf("        7 6 5 4 3 2 1 0                          0x%03x: 0x%02x\n", SHOW_STACK);
-  sp = (sp - 1) & 0xFF;
+  printf("        7 6 5 4 3 2 1 0                          0x%04x: 0x%04x\n", SHOW_STACK);
+  sp = (sp - 2) & 0xFFFF;
   
-  printf("Status: N V M X D I Z C                          0x%03x: 0x%02x\n", SHOW_STACK);
-  sp = (sp - 1) & 0xFF;
-  printf("        %d %d %d %d %d %d %d %d                          0x%03x: 0x%02x\n",
+  printf("Status: N V M X D I Z C                          0x%04x: 0x%04x\n", SHOW_STACK);
+  sp = (sp - 2) & 0xFFFF;
+  printf("        %d %d %d %d %d %d %d %d                          0x%04x: 0x%04x\n",
     READ_FLAG(flag_n),
     READ_FLAG(flag_v),
     READ_FLAG(flag_m),
@@ -839,16 +848,18 @@ int sp=REG_SP;
     READ_FLAG(flag_i),
     READ_FLAG(flag_z),
     READ_FLAG(flag_c),
-
     SHOW_STACK);
-  sp = (sp - 1) & 0xFF;
-  
-  printf("                                                 0x%03x: 0x%02x\n", SHOW_STACK);
-  sp = (sp - 1) & 0xFF;
 
-  printf("  A=0x%02x   X=0x%02x   Y=0x%02x                       0x%03x: 0x%02x\n", REG_A, REG_X, REG_Y, SHOW_STACK);
-  sp = (sp - 1) & 0xFF;
-  printf(" SR=0x%02x  SP=0x%02x  PC=0x%04x                     0x%03x: 0x%02x\n", REG_SR, REG_SP, REG_PC, SHOW_STACK);
+  sp = (sp - 2) & 0xFFFF;
+  printf("                                                 0x%04x: 0x%04x\n", SHOW_STACK);
+  sp = (sp - 2) & 0xFFFF;
+
+  printf("  A=0x%04x   X=0x%04x   Y=0x%04x                       0x%04x: 0x%04x\n", REG_A, REG_X, REG_Y, SHOW_STACK);
+  sp = (sp - 2) & 0xFFFF;
+  printf(" SR=0x%02x  SP=0x%04x  PC=0x%04x                     0x%04x: 0x%04x\n", REG_SR, REG_SP, REG_PC, SHOW_STACK);
+
+  sp = (sp - 2) & 0xFFFF;
+  printf(" DB=0x%02x  PB=0x%02x                     0x%04x: 0x%04x\n", REG_DB, REG_PB, SHOW_STACK);
 
   printf("\n\n");
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
