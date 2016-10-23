@@ -38,10 +38,14 @@ struct _table_powerpc table_powerpc[] =
   { "ba",     0x48000002, 0xfc000003, OP_JUMP, FLAG_NONE, 0, 0 },
   { "bl",     0x48000001, 0xfc000003, OP_BRANCH, FLAG_NONE, 0, 0 },
   { "bla",    0x48000003, 0xfc000003, OP_JUMP, FLAG_NONE, 0, 0 },
-  { "bc",     0x40000000, 0xfc000003, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
-  { "bca",    0x40000002, 0xfc000003, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
-  { "bcl",    0x40000001, 0xfc000003, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
-  { "bcla",   0x40000003, 0xfc000003, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
+  { "bc",     0x40000000, 0xfc000003, OP_BRANCH_COND_BD, FLAG_NONE, 0, 0 },
+  { "bca",    0x40000002, 0xfc000003, OP_JUMP_COND_BD, FLAG_NONE, 0, 0 },
+  { "bcl",    0x40000001, 0xfc000003, OP_BRANCH_COND_BD, FLAG_NONE, 0, 0 },
+  { "bcla",   0x40000003, 0xfc000003, OP_JUMP_COND_BD, FLAG_NONE, 0, 0 },
+  { "bcctr",  0x4c000000, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
+  { "bcctrl", 0x4c000001, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
+  { "bclr",   0x4c000040, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
+  { "bclrl",  0x4c000041, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
 
 // blt, bne, bdnz
   //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },

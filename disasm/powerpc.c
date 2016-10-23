@@ -44,6 +44,8 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
       uint32_t ra = (opcode >> 16) & 0x1f;
       uint32_t rb = (opcode >> 11) & 0x1f;
       uint32_t rc = opcode & 0x1;
+      uint32_t bo = rd;
+      uint32_t bi = ra;
       int16_t simm = opcode & 0xffff;
       uint16_t uimm = opcode & 0xffff;
       const char *instr = table_powerpc[n].instr;
@@ -86,14 +88,25 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
         case OP_BRANCH:
           offset = opcode & 0x03fffffc;
           if ((offset & 0x02000000) != 0) { offset |= 0xfc000000; }
-
-          sprintf(instruction, "%s 0x%x (%d)", instr, address + offset, offset);
+          sprintf(instruction, "%s 0x%x (offset=%d)", instr, address + offset, offset);
           break;
         case OP_JUMP:
           temp = opcode & 0x03fffffc;
           if ((temp & 0x02000000) != 0) { temp |= 0xfc000000; }
-
           sprintf(instruction, "%s 0x%x", instr, temp);
+          break;
+        case OP_BRANCH_COND_BD:
+          offset = opcode & 0xfffc;
+          if ((offset & 0x8000) != 0) { offset |= 0xffff0000; }
+          sprintf(instruction, "%s %d, %d, 0x%x (offset=%d)", instr, bo, bi, address + offset, offset);
+          break;
+        case OP_JUMP_COND_BD:
+          temp = opcode & 0xfffc;
+          if ((temp & 0x8000) != 0) { temp |= 0xffff0000; }
+          sprintf(instruction, "%s %d, %d, 0x%x", instr, bo, bi, temp);
+          break;
+        case OP_BRANCH_COND:
+          sprintf(instruction, "%s %d, %d", instr, bo, bi);
           break;
         default:
           strcpy(instruction, "???");
