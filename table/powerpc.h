@@ -42,6 +42,7 @@ enum
   OP_SPR_RS,
   OP_RD_TBR,
   OP_CRM_RS,
+  OP_RA_RS_SH_MB_ME,
 };
 
 #define FLAG_NONE 0

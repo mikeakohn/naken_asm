@@ -21,7 +21,7 @@
 #include "common/eval_expression.h"
 #include "table/powerpc.h"
 
-#define MAX_OPERANDS 3
+#define MAX_OPERANDS 5
 
 enum
 {
@@ -55,7 +55,7 @@ static int get_register_number(char *token)
   if (token[0] == '0' || token[2] != 0) { return -1; }
   if (token[1] < '0' || token[1] > '9') { return -1; }
   
-  num = ((token[0] - '0') << 10) + (token[1] - '0');
+  num = ((token[0] - '0') * 10) + (token[1] - '0');
   
   return (num < 32) ? num : -1;
 }
@@ -1015,6 +1015,47 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                   (operands[1].value << 21) |
                   (operands[0].value << 12);
           add_bin32(asm_context, opcode, IS_OPCODE);
+          
+          return 4;
+        }
+        case OP_RA_RS_SH_MB_ME:
+        {
+          if (operand_count != 5)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_NUMBER ||
+              operands[3].type != OPERAND_NUMBER ||
+              operands[4].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[2].value < 0 || operands[2].value > 31 ||
+              operands[3].value < 0 || operands[3].value > 31 ||
+              operands[4].value < 0 || operands[4].value > 31)
+          {
+            print_error_range("Constant", 0, 31, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[1].value << 21) |
+                  (operands[0].value << 16) |
+                  (operands[2].value << 11) |
+                  (operands[3].value << 6) |
+                  (operands[4].value << 1);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          if (modifiers.has_dot == 1)
+          {
+            opcode |= 1;
+          }
           
           return 4;
         }

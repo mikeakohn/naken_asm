@@ -104,6 +104,11 @@ struct _table_powerpc table_powerpc[] =
   { "orc",    0x7c000338, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
   { "ori",    0x60000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
   { "oris",   0x64000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
+  { "rlwimi", 0x50000000, 0xfc000000, OP_RA_RS_SH_MB_ME, FLAG_DOT, 0, 0 },
+  { "rlwinm", 0x54000000, 0xfc000000, OP_RA_RS_SH_MB_ME, FLAG_DOT, 0, 0 },
+  { "rlwnm",  0x5c000000, 0xfc000000, OP_RA_RS_SH_MB_ME, FLAG_DOT, 0, 0 },
+  { "slw",    0x7c000030, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
+  { "sraw",   0x7c000630, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
 
 // blt, bne, bdnz
   //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },
