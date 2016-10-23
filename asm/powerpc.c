@@ -28,6 +28,7 @@ enum
   OPERAND_INVALID,
   OPERAND_REGISTER,
   OPERAND_SPR,
+  OPERAND_TBR,
   OPERAND_CR,
   OPERAND_NUMBER,
   OPERAND_REGISTER_OFFSET,
@@ -128,6 +129,21 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       {
         operands[operand_count].type = OPERAND_SPR;
         operands[operand_count].value = n;
+        break;
+      }
+
+      // Check for TBR
+      if (strcasecmp(token, "tbl") == 0)
+      {
+        operands[operand_count].type = OPERAND_TBR;
+        operands[operand_count].value = 268;
+        break;
+      }
+
+      if (strcasecmp(token, "tbu") == 0)
+      {
+        operands[operand_count].type = OPERAND_TBR;
+        operands[operand_count].value = 269;
         break;
       }
 
@@ -908,6 +924,96 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                   (operands[0].value << 21) |
                  ((operands[1].value & 0x1f) << 16) |
                  ((operands[1].value >> 5) << 11);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          
+          return 4;
+        }
+        case OP_SPR_RS:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type == OPERAND_NUMBER)
+          {
+            if (operands[0].value >= 0 && operands[1].value < 1024)
+            {
+              operands[0].type = OPERAND_SPR;
+            }
+          }
+
+          if (operands[0].type != OPERAND_SPR ||
+              operands[1].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[1].value << 21) |
+                 ((operands[0].value & 0x1f) << 16) |
+                 ((operands[0].value >> 5) << 11);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          
+          return 4;
+        }
+        case OP_RD_TBR:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[1].type == OPERAND_NUMBER)
+          {
+            if (operands[1].value >= 0 && operands[1].value < 1024)
+            {
+              operands[1].type = OPERAND_TBR;
+            }
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_TBR)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[0].value << 21) |
+                 ((operands[1].value & 0x1f) << 16) |
+                 ((operands[1].value >> 5) << 11);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          
+          return 4;
+        }
+        case OP_CRM_RS:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 0xff)
+          {
+            print_error_range("Constant", 0, 0xff, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[1].value << 21) |
+                  (operands[0].value << 12);
           add_bin32(asm_context, opcode, IS_OPCODE);
           
           return 4;

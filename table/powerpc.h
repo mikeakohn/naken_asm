@@ -39,6 +39,9 @@ enum
   OP_CRD_CRS,
   OP_CRD,
   OP_RD_SPR,
+  OP_SPR_RS,
+  OP_RD_TBR,
+  OP_CRM_RS,
 };
 
 #define FLAG_NONE 0

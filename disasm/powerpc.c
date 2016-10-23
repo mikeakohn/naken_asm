@@ -23,8 +23,22 @@ int get_cycle_count_powerpc(unsigned short int opcode)
   return -1;
 }
 
+const char *get_spr_name(int value)
+{
+  int n = 0;
+
+  while(powerpc_spr[n].name != NULL)
+  {
+    if (value == powerpc_spr[n].value) { return powerpc_spr[n].name; }
+    n++;
+  }
+
+  return NULL;
+}
+
 int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
+  const char *name;
   uint32_t opcode;
   int32_t offset;
   int32_t temp;
@@ -142,21 +156,48 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
           break;
         case OP_RD_SPR:
           temp = (rb << 5) | ra;
-          n = 0;
-          while(powerpc_spr[n].name != NULL)
-          {
-            if (temp == powerpc_spr[n].value) { break; }
-            n++;
-          }
+          name = get_spr_name(temp);
 
-          if (powerpc_spr[n].name != NULL)
+          if (name != NULL)
           {
-            sprintf(instruction, "%s r%d, %s (spr=%d)", instr, rd, powerpc_spr[n].name, temp);
+            sprintf(instruction, "%s r%d, %s (spr=%d)", instr, rd, name, temp);
           }
             else
           {
             sprintf(instruction, "%s r%d, %d", instr, rd, temp);
           }
+          break;
+        case OP_SPR_RS:
+          temp = (rb << 5) | ra;
+          name = get_spr_name(temp);
+
+          if (name != NULL)
+          {
+            sprintf(instruction, "%s  %s (spr=%d), r%d", instr, name, temp, rs);
+          }
+            else
+          {
+            sprintf(instruction, "%s %d, r%d", instr, temp, rs);
+          }
+          break;
+        case OP_RD_TBR:
+          temp = (rb << 5) | ra;
+
+          if (temp == 268) { name = "tbl"; }
+          else if (temp == 269) { name = "tbu"; }
+          else { name = NULL; }
+
+          if (name != NULL)
+          {
+            sprintf(instruction, "%s r%d, %s (tbr=%d)", instr, rd, name, temp);
+          }
+            else
+          {
+            sprintf(instruction, "%s r%d, %d", instr, rd, temp);
+          }
+          break;
+        case OP_CRM_RS:
+          sprintf(instruction, "%s 0x%02x, r%d", instr, (opcode >> 12) & 0xff, rs);
           break;
         default:
           strcpy(instruction, "???");

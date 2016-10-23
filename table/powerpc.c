@@ -91,6 +91,9 @@ struct _table_powerpc table_powerpc[] =
   { "mcrxr",  0x7c000400, 0xfc7fffff, OP_CRD, FLAG_NONE, 0, 0 },
   { "mfcr",   0x7c000026, 0xfc1fffff, OP_RD, FLAG_NONE, 0, 0 },
   { "mfspr",  0x7c0002a6, 0xfc0007ff, OP_RD_SPR, FLAG_NONE, 0, 0 },
+  { "mftb",   0x7c0002e6, 0xfc0007ff, OP_RD_TBR, FLAG_NONE, 0, 0 },
+  { "mtcrf",  0x7c000120, 0xfc100fff, OP_CRM_RS, FLAG_NONE, 0, 0 },
+  { "mtspr",  0x7c0003a6, 0xfc0007ff, OP_SPR_RS, FLAG_NONE, 0, 0 },
 
 // blt, bne, bdnz
   //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },
