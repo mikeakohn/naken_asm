@@ -73,6 +73,9 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
           sprintf(instruction, "%s%s r%d, r%d",
             instr, (rc == 1) ? "." : "", ra, rs);
           break;
+        case OP_RD:
+          sprintf(instruction, "%s r%d", instr, rd);
+          break;
         case OP_RD_RA_SIMM:
           sprintf(instruction, "%s%s r%d, r%d, %d (0x%04x)",
             instr,
@@ -133,6 +136,27 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
           break;
         case OP_CRD_CRS:
           sprintf(instruction, "%s cr%d, cr%d", instr, rd >> 2, ra >> 2);
+          break;
+        case OP_CRD:
+          sprintf(instruction, "%s cr%d", instr, rd >> 2);
+          break;
+        case OP_RD_SPR:
+          temp = (rb << 5) | ra;
+          n = 0;
+          while(powerpc_spr[n].name != NULL)
+          {
+            if (temp == powerpc_spr[n].value) { break; }
+            n++;
+          }
+
+          if (powerpc_spr[n].name != NULL)
+          {
+            sprintf(instruction, "%s r%d, %s (spr=%d)", instr, rd, powerpc_spr[n].name, temp);
+          }
+            else
+          {
+            sprintf(instruction, "%s r%d, %d", instr, rd, temp);
+          }
           break;
         default:
           strcpy(instruction, "???");

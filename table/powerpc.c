@@ -88,10 +88,52 @@ struct _table_powerpc table_powerpc[] =
   { "lwzux",  0x7c00006e, 0xfc0007ff, OP_RD_RA_RB, FLAG_NONE, 0, 0 },
   { "lwzx",   0x7c00002e, 0xfc0007ff, OP_RD_RA_RB, FLAG_NONE, 0, 0 },
   { "mcrf",   0x4c000000, 0xfc63ffff, OP_CRD_CRS, FLAG_NONE, 0, 0 },
+  { "mcrxr",  0x7c000400, 0xfc7fffff, OP_CRD, FLAG_NONE, 0, 0 },
+  { "mfcr",   0x7c000026, 0xfc1fffff, OP_RD, FLAG_NONE, 0, 0 },
+  { "mfspr",  0x7c0002a6, 0xfc0007ff, OP_RD_SPR, FLAG_NONE, 0, 0 },
 
 // blt, bne, bdnz
   //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },
   //{ "blcrl", 0x4c000001, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },
   { NULL, 0, 0, 0, 0 }
 };
+
+struct _powerpc_spr powerpc_spr[] =
+{
+  { "xer",    1 },
+  { "lr",     8 },
+  { "ctr",    9 },
+  { "dsisr",  18 },
+  { "dar",    19 },
+  { "dec",    22 },
+  { "sdr1",   25 },
+  { "srr0",   26 },
+  { "srr1",   27 },
+  { "sprg0",  272 },
+  { "sprg1",  273 },
+  { "sprg2",  274 },
+  { "sprg3",  275 },
+  { "asr",    280 },
+  { "ear",    282 },
+  { "pvr",    287 },
+  { "ibat0u", 528 },
+  { "ibat0l", 529 },
+  { "ibat1u", 530 },
+  { "ibat1l", 531 },
+  { "ibat2u", 532 },
+  { "ibat2l", 533 },
+  { "ibat3u", 534 },
+  { "ibat3l", 535 },
+  { "dbat0u", 536 },
+  { "dbat0l", 537 },
+  { "dbat1u", 538 },
+  { "dbat1l", 539 },
+  { "dbat2u", 540 },
+  { "dbat2l", 541 },
+  { "dbat3u", 542 },
+  { "dbat3l", 543 },
+  { "dabr",   1013 },
+  { NULL,     -1 }
+};
+
 

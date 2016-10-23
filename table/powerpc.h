@@ -21,6 +21,7 @@ enum
   OP_RA_RS_RB,
   OP_RD_RA,
   OP_RA_RS,
+  OP_RD,
   OP_RD_RA_SIMM,
   OP_RD_SIMM,
   OP_RA_RS_UIMM,
@@ -36,6 +37,8 @@ enum
   OP_RD_OFFSET_RA,
   OP_RD_RA_NB,
   OP_CRD_CRS,
+  OP_CRD,
+  OP_RD_SPR,
 };
 
 #define FLAG_NONE 0
@@ -53,7 +56,14 @@ struct _table_powerpc
   uint8_t cycles_max;
 };
 
+struct _powerpc_spr
+{
+  char *name;
+  int value;
+};
+
 extern struct _table_powerpc table_powerpc[];
+extern struct _powerpc_spr powerpc_spr[];
 
 #endif
 
