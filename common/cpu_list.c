@@ -57,6 +57,7 @@
 #include "disasm/tms9900.h"
 #include "disasm/z80.h"
 #include "simulate/65xx.h"
+#include "simulate/65816.h"
 #include "simulate/avr8.h"
 #include "simulate/mips.h"
 #include "simulate/msp430.h"
@@ -71,7 +72,7 @@ struct _cpu_list cpu_list[] =
   { "65xx", CPU_TYPE_65XX, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, parse_instruction_65xx, NULL, list_output_65xx, disasm_range_65xx, simulate_init_65xx, NO_FLAGS },
 #endif
 #ifdef ENABLE_65816
-  { "65816", CPU_TYPE_65816, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, parse_instruction_65816, NULL, list_output_65816, disasm_range_65816, NULL, NO_FLAGS },
+  { "65816", CPU_TYPE_65816, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, parse_instruction_65816, NULL, list_output_65816, disasm_range_65816, simulate_init_65816, NO_FLAGS },
 #endif
 #ifdef ENABLE_6800
   { "6800", CPU_TYPE_6800, ENDIAN_BIG, 1, ALIGN_1, 1, 0, 0, parse_instruction_6800, NULL, list_output_6800, disasm_range_6800, NULL, NO_FLAGS },
