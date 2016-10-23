@@ -287,6 +287,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_RD_RA_RB:
+        case OP_RS_RA_RB:
         {
           if (operand_count != 3)
           {
@@ -329,6 +330,42 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
               operands[2].type != OPERAND_REGISTER)
           {
             print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[1].value << 21) |
+                  (operands[0].value << 16) |
+                  (operands[2].value << 11);
+
+          if (modifiers.has_dot == 1)
+          {
+            opcode |= 1;
+          }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          
+          return 4;
+        }
+        case OP_RA_RS_SH:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[2].value < 0 || operands[2].value > 31)
+          {
+            print_error_range("Immediate", -32768, 65535, asm_context);
             return -1;
           }
 
@@ -796,6 +833,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_RD_OFFSET_RA:
+        case OP_RS_OFFSET_RA:
         {
           if (operand_count != 2)
           {
@@ -826,6 +864,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_RD_RA_NB:
+        case OP_RS_RA_NB:
         {
           if (operand_count != 3)
           {
