@@ -22,7 +22,7 @@
 struct _simulate_65816
 {
   // Define registers and anything 65816 specific here
-  int reg_a, reg_x, reg_y, reg_sr, reg_pc, reg_sp, reg_dp, reg_db;
+  int reg_a, reg_x, reg_y, reg_sr, reg_pc, reg_sp, reg_db, reg_pb;
 };
 
 struct _simulate *simulate_init_65816(struct _memory *memory);
