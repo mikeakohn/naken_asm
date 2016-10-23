@@ -80,6 +80,7 @@ struct _table_powerpc table_powerpc[] =
   { "lhzux",  0x7c00026e, 0xfc0007ff, OP_RD_RA_RB, FLAG_NONE, 0, 0 },
   { "lhzx",   0x7c00022e, 0xfc0007ff, OP_RD_RA_RB, FLAG_NONE, 0, 0 },
   { "lmw",    0x5c000000, 0xfc000000, OP_RD_OFFSET_RA, FLAG_NONE, 0, 0 },
+  { "lswi",   0x7c0004aa, 0xfc0007ff, OP_RD_RA_NB, FLAG_NONE, 0, 0 },
 
 // blt, bne, bdnz
   //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },

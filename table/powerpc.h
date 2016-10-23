@@ -34,6 +34,7 @@ enum
   OP_CMPI,
   OP_CRB_CRB_CRB,
   OP_RD_OFFSET_RA,
+  OP_RD_RA_NB,
 };
 
 #define FLAG_NONE 0
