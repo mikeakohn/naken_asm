@@ -32,6 +32,7 @@ enum
   OP_BRANCH_COND_ALIAS,
   OP_CMP,
   OP_CMPI,
+  OP_CRB_CRB_CRB,
 };
 
 #define FLAG_NONE 0

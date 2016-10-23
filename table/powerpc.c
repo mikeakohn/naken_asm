@@ -51,6 +51,7 @@ struct _table_powerpc table_powerpc[] =
   { "cmpwi",  0x2c000000, 0xfc600000, OP_CMPI, FLAG_NONE, 0, 0 },
   { "cmpdi",  0x2c200000, 0xfc600000, OP_CMPI, FLAG_NONE, 0, 0 },
   { "cntlzw", 0x7c000034, 0xfc0007fe, OP_RA_RS, FLAG_DOT, 0, 0 },
+  { "crand",  0x4c000404, 0xfc0007ff, OP_CRB_CRB_CRB, FLAG_NONE, 0, 0 },
 
 // blt, bne, bdnz
   //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },
