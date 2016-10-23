@@ -745,22 +745,20 @@ int simulate_set_reg_65816(struct _simulate *simulate, char *reg_string, unsigne
 {
 struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
 
-  // a, x, y, sr, pc, sp
-
   while(*reg_string==' ') { reg_string++; }
 
   if(strcasecmp(reg_string, "a") == 0)
-    REG_A = value & 0xFF;
+    REG_A = value & 0xFFFF;
   else if(strcasecmp(reg_string, "x") == 0)
-    REG_X = value & 0xFF;
+    REG_X = value & 0xFFFF;
   else if(strcasecmp(reg_string, "y") == 0)
-    REG_Y = value & 0xFF;
+    REG_Y = value & 0xFFFF;
   else if(strcasecmp(reg_string, "sr") == 0)
     REG_SR = value & 0xFF;
   else if(strcasecmp(reg_string, "pc") == 0)
-    REG_PC = value & 0xFF;
+    REG_PC = value & 0xFFFF;
   else if(strcasecmp(reg_string, "sp") == 0)
-    REG_SP = value & 0xFF;
+    REG_SP = value & 0xFFFF;
   else if(strcasecmp(reg_string, "db") == 0)
     REG_DB = value & 0xFF;
   else if(strcasecmp(reg_string, "pb") == 0)
@@ -774,8 +772,6 @@ struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->conte
 unsigned int simulate_get_reg_65816(struct _simulate *simulate, char *reg_string)
 {
 struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
-
-  while(*reg_string==' ') { reg_string++; }
 
   if(strcasecmp(reg_string, "a") == 0)
     return REG_A;
@@ -832,8 +828,8 @@ struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->conte
 
   int sp = REG_SP;
 
-  printf("\nSimulation Register Dump                               Stack\n");
-  printf("------------------------------------------------------------\n");
+  printf("\nSimulation Register Dump                                  Stack\n");
+  printf("---------------------------------------------------------------\n");
   printf("        7 6 5 4 3 2 1 0                          0x%04x: 0x%04x\n", SHOW_STACK);
   sp = (sp - 2) & 0xFFFF;
   
@@ -852,14 +848,15 @@ struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->conte
 
   sp = (sp - 2) & 0xFFFF;
   printf("                                                 0x%04x: 0x%04x\n", SHOW_STACK);
-  sp = (sp - 2) & 0xFFFF;
-
-  printf("  A=0x%04x   X=0x%04x   Y=0x%04x                       0x%04x: 0x%04x\n", REG_A, REG_X, REG_Y, SHOW_STACK);
-  sp = (sp - 2) & 0xFFFF;
-  printf(" SR=0x%02x  SP=0x%04x  PC=0x%04x                     0x%04x: 0x%04x\n", REG_SR, REG_SP, REG_PC, SHOW_STACK);
 
   sp = (sp - 2) & 0xFFFF;
-  printf(" DB=0x%02x  PB=0x%02x                     0x%04x: 0x%04x\n", REG_DB, REG_PB, SHOW_STACK);
+  printf("  A=0x%04x    X=0x%04x    Y=0x%04x               0x%04x: 0x%04x\n", REG_A, REG_X, REG_Y, SHOW_STACK);
+
+  sp = (sp - 2) & 0xFFFF;
+  printf(" SR=0x%02x     SP=0x%04x   PC=0x%04x               0x%04x: 0x%04x\n", REG_SR, REG_SP, REG_PC, SHOW_STACK);
+
+  sp = (sp - 2) & 0xFFFF;
+  printf(" DB=0x%02x     PB=0x%02x                             0x%04x: 0x%04x\n", REG_DB, REG_PB, SHOW_STACK);
 
   printf("\n\n");
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
