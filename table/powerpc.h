@@ -18,7 +18,9 @@ enum
 {
   OP_NONE,
   OP_RD_RA_RB,
+  OP_RS_RA_RB,
   OP_RA_RS_RB,
+  OP_RA_RS_SH,
   OP_RD_RA,
   OP_RA_RS,
   OP_RD,
@@ -35,13 +37,16 @@ enum
   OP_CMPI,
   OP_CRB_CRB_CRB,
   OP_RD_OFFSET_RA,
+  OP_RS_OFFSET_RA,
   OP_RD_RA_NB,
+  OP_RS_RA_NB,
   OP_CRD_CRS,
   OP_CRD,
   OP_RD_SPR,
   OP_SPR_RS,
   OP_RD_TBR,
   OP_CRM_RS,
+  OP_RA_RS_SH_MB_ME,
 };
 
 #define FLAG_NONE 0

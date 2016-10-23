@@ -72,11 +72,16 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
           sprintf(instruction, "%s", instr);
           break;
         case OP_RD_RA_RB:
+        case OP_RS_RA_RB:
           sprintf(instruction, "%s%s r%d, r%d, r%d",
             instr, (rc == 1) ? "." : "", rd, ra, rb);
           break;
         case OP_RA_RS_RB:
           sprintf(instruction, "%s%s r%d, r%d, r%d",
+            instr, (rc == 1) ? "." : "", ra, rd, rb);
+          break;
+        case OP_RA_RS_SH:
+          sprintf(instruction, "%s%s r%d, r%d, %d",
             instr, (rc == 1) ? "." : "", ra, rd, rb);
           break;
         case OP_RD_RA:
@@ -143,9 +148,11 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
           sprintf(instruction, "%s %d, %d, %d", instr, rd, ra, rb);
           break;
         case OP_RD_OFFSET_RA:
+        case OP_RS_OFFSET_RA:
           sprintf(instruction, "%s r%d, %d(r%d)", instr, rd, simm, ra);
           break;
         case OP_RD_RA_NB:
+        case OP_RS_RA_NB:
           sprintf(instruction, "%s r%d, r%d, %d", instr, rd, ra, rb);
           break;
         case OP_CRD_CRS:
@@ -198,6 +205,11 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
           break;
         case OP_CRM_RS:
           sprintf(instruction, "%s 0x%02x, r%d", instr, (opcode >> 12) & 0xff, rs);
+          break;
+        case OP_RA_RS_SH_MB_ME:
+          sprintf(instruction, "%s%s r%d, r%d, %d, %d, %d",
+            instr, (rc == 1) ? "." : "", ra, rs, rb,
+            (opcode >> 6) & 0x1f, (opcode >> 1) & 0x1f);
           break;
         default:
           strcpy(instruction, "???");
