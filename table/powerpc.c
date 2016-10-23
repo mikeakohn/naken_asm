@@ -94,6 +94,16 @@ struct _table_powerpc table_powerpc[] =
   { "mftb",   0x7c0002e6, 0xfc0007ff, OP_RD_TBR, FLAG_NONE, 0, 0 },
   { "mtcrf",  0x7c000120, 0xfc100fff, OP_CRM_RS, FLAG_NONE, 0, 0 },
   { "mtspr",  0x7c0003a6, 0xfc0007ff, OP_SPR_RS, FLAG_NONE, 0, 0 },
+  { "mulhw",  0x7c000096, 0xfc0007fe, OP_RD_RA_RB, FLAG_DOT, 0, 0 },
+  { "mulhwu", 0x7c000016, 0xfc0007fe, OP_RD_RA_RB, FLAG_DOT, 0, 0 },
+  { "mulli",  0x1c000000, 0xfc000000, OP_RD_RA_SIMM, FLAG_NONE, 0, 0 },
+  { "mulhw",  0x7c0001d6, 0xfc0007fe, OP_RD_RA_RB, FLAG_DOT, 0, 0 },
+  { "mulhwo", 0x7c0005d6, 0xfc0007fe, OP_RD_RA_RB, FLAG_DOT, 0, 0 },
+  { "nand",   0x7c0003b8, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
+  { "nor",    0x7c0000f8, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
+  { "orc",    0x7c000338, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
+  { "ori",    0x60000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
+  { "oris",   0x64000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
 
 // blt, bne, bdnz
   //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },
