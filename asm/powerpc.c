@@ -800,6 +800,28 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           
           return 4;
         }
+        case OP_CRD_CRS:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_CR || operands[1].type != OPERAND_CR)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[0].value << 23) |
+                  (operands[1].value << 18);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          
+          return 4;
+        }
         default:
           break;
       }

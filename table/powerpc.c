@@ -42,8 +42,8 @@ struct _table_powerpc table_powerpc[] =
   { "bca",    0x40000002, 0xfc000003, OP_JUMP_COND_BD, FLAG_NONE, 0, 0 },
   { "bcl",    0x40000001, 0xfc000003, OP_BRANCH_COND_BD, FLAG_NONE, 0, 0 },
   { "bcla",   0x40000003, 0xfc000003, OP_JUMP_COND_BD, FLAG_NONE, 0, 0 },
-  { "bcctr",  0x4c000000, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
-  { "bcctrl", 0x4c000001, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
+  { "bcctr",  0x4c000420, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
+  { "bcctrl", 0x4c000421, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
   { "bclr",   0x4c000040, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
   { "bclrl",  0x4c000041, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
   { "cmpd",   0x7c000000, 0xfc6007ff, OP_CMP, FLAG_NONE, 0, 0 },
@@ -87,6 +87,7 @@ struct _table_powerpc table_powerpc[] =
   { "lwzu",   0x84000000, 0xfc000000, OP_RD_OFFSET_RA, FLAG_NONE, 0, 0 },
   { "lwzux",  0x7c00006e, 0xfc0007ff, OP_RD_RA_RB, FLAG_NONE, 0, 0 },
   { "lwzx",   0x7c00002e, 0xfc0007ff, OP_RD_RA_RB, FLAG_NONE, 0, 0 },
+  { "mcrf",   0x4c000000, 0xfc63ffff, OP_CRD_CRS, FLAG_NONE, 0, 0 },
 
 // blt, bne, bdnz
   //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },
