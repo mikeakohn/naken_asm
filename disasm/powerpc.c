@@ -136,6 +136,11 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
         case OP_BRANCH_COND:
           sprintf(instruction, "%s %d, %d", instr, bo, bi);
           break;
+        case OP_BRANCH_COND_ALIAS:
+          temp = opcode & 0xfffc;
+          if ((temp & 0x8000) != 0) { temp |= 0xffff0000; }
+          sprintf(instruction, "%s %d, 0x%x", instr, bi, temp);
+          break;
         case OP_CMP:
           cr = (opcode >> 23) & 0x7;
           sprintf(instruction, "%s cr%d, r%d, r%d", instr, cr, ra, rb);

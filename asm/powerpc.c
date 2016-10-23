@@ -661,7 +661,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           opcode = table_powerpc[n].opcode |
                    (operands[0].value << 21) |
                    (operands[1].value << 16) |
-                   (offset & ((1 << 26) - 1));
+                   (offset & 0xfffc);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
@@ -707,7 +707,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           opcode = table_powerpc[n].opcode |
                    (operands[0].value << 21) |
                    (operands[1].value << 16) |
-                   (operands[2].value & 0xffff);
+                   (operands[2].value & 0xfffc);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
@@ -738,6 +738,59 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           opcode = table_powerpc[n].opcode |
                    (operands[0].value << 21) |
                    (operands[1].value << 16);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_BRANCH_COND_ALIAS:
+        {
+          if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)
+          {
+            memcpy(&operands[1], &operands[0], sizeof(struct _operand));
+            memset(&operands[0], 0, sizeof(struct _operand));
+            operands[0].type = OPERAND_NUMBER;
+            operand_count = 2;
+          }
+
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          offset = (uint32_t)operands[1].value - asm_context->address;
+
+          if ((offset & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          temp = offset & 0xffff0000;
+
+          if (temp != 0 && temp != 0xffff0000)
+          {
+            print_error_range("Offset", -(1 << 15), (1 << 15) - 1, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 31)
+          {
+            print_error_range("Constant", 0, 31, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                   (operands[0].value << 16) |
+                   (offset & 0xfffc);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 

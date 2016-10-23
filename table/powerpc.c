@@ -16,6 +16,18 @@ struct _table_powerpc table_powerpc[] =
   // Aliases
   { "blr",    0x4e800020, 0xffffffff, OP_NONE, FLAG_NONE, 0, 0 },
   { "li",     0x38000000, 0xfc0f0000, OP_RD_SIMM, FLAG_NONE, 0, 0 },
+  { "blt",    0x41800000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
+  { "ble",    0x40810000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
+  { "beq",    0x41820000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
+  { "bge",    0x40800000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
+  { "bgt",    0x41810000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
+  { "bnl",    0x40800000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
+  { "bne",    0x40820000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
+  { "bng",    0x40810000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
+  { "bso",    0x41830000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
+  { "bns",    0x40830000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
+  { "bun",    0x41830000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
+  { "bnu",    0x40830000, 0xffe30003, OP_BRANCH_COND_ALIAS, FLAG_NONE, 0, 0 },
 
   // Instructions
   { "add",    0x7c000214, 0xfc0007fe, OP_RD_RA_RB, FLAG_DOT, 0, 0 },
@@ -143,10 +155,6 @@ struct _table_powerpc table_powerpc[] =
   { "xor",    0x7c000278, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
   { "xori",   0x68000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
   { "xoris",  0x6c000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
-
-// blt, bne, bdnz
-  //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },
-  //{ "blcrl", 0x4c000001, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },
   { NULL, 0, 0, 0, 0 }
 };
 
