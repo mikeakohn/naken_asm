@@ -30,12 +30,14 @@ enum
   OPERAND_LR,
   OPERAND_CR,
   OPERAND_NUMBER,
+  OPERAND_REGISTER_OFFSET,
 };
 
 struct _operand
 {
   int value;
   int type;
+  int16_t offset;
 };
 
 struct _modifiers
@@ -119,23 +121,59 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       }
 
       // Assume this is just a number
+      operands[operand_count].type = OPERAND_NUMBER;
+
       if (asm_context->pass == 1)
       {
         eat_operand(asm_context);
-        n = 0;
+        operands[operand_count].value = 0;
       }
       else
       {
-         tokens_push(asm_context, token, token_type);
-         if (eval_expression(asm_context, &n) != 0)
-         {
-           print_error_unexp(token, asm_context);
-           return -1;
-         }
-      }
+        tokens_push(asm_context, token, token_type);
+        if (eval_expression(asm_context, &n) != 0)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
 
-      operands[operand_count].type = OPERAND_NUMBER;
-      operands[operand_count].value = n;
+        operands[operand_count].value = n;
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (IS_TOKEN(token, '('))
+        {
+          if (operands[operand_count].value < -32768 ||
+              operands[operand_count].value > 32767)
+          {
+            print_error_range("Offset", -32768, 32767, asm_context);
+            return -1;
+          }
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          n = get_register_powerpc(token);
+          if (n == -1)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].offset = (uint16_t)operands[operand_count].value;
+          operands[operand_count].type = OPERAND_REGISTER_OFFSET;
+          operands[operand_count].value = n;
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (IS_NOT_TOKEN(token, ')'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+        }
+          else
+        {
+          tokens_push(asm_context, token, token_type);
+        }
+      }
 
       break;
     } while(0);
@@ -696,6 +734,36 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                    (operands[0].value << 21) |
                    (operands[1].value << 16) |
                    (operands[2].value << 11);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_RD_OFFSET_RA:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            add_bin32(asm_context, table_powerpc[n].opcode, IS_OPCODE);
+            return 4;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER_OFFSET)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                   (operands[0].value << 21) |
+                   (operands[1].value << 16) |
+                   (operands[1].offset & 0xffff);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 

@@ -66,6 +66,7 @@ struct _table_powerpc table_powerpc[] =
   { "eqv",    0x7c000238, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
   { "extsb",  0x7c000774, 0xfc0007fe, OP_RA_RS, FLAG_DOT, 0, 0 },
   { "extsh",  0x7c000734, 0xfc0007fe, OP_RA_RS, FLAG_DOT, 0, 0 },
+  { "lbz",    0x88000000, 0xfc000000, OP_RD_OFFSET_RA, FLAG_DOT, 0, 0 },
 
 // blt, bne, bdnz
   //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },

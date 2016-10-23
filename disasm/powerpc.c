@@ -125,6 +125,9 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
         case OP_CRB_CRB_CRB:
           sprintf(instruction, "%s %d, %d, %d", instr, rd, ra, rb);
           break;
+        case OP_RD_OFFSET_RA:
+          sprintf(instruction, "%s r%d, %d(r%d)", instr, rd, simm, ra);
+          break;
         default:
           strcpy(instruction, "???");
           break;
