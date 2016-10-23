@@ -46,6 +46,10 @@ struct _table_powerpc table_powerpc[] =
   { "bcctrl", 0x4c000001, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
   { "bclr",   0x4c000040, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
   { "bclrl",  0x4c000041, 0xfc00ffff, OP_BRANCH_COND, FLAG_NONE, 0, 0 },
+  { "cmpd",   0x7c000000, 0xfc6007ff, OP_CMP, FLAG_NONE, 0, 0 },
+  { "cmpw",   0x7c200000, 0xfc6007ff, OP_CMP, FLAG_NONE, 0, 0 },
+  { "cmpwi",  0x2c000000, 0xfc600000, OP_CMPI, FLAG_NONE, 0, 0 },
+  { "cmpdi",  0x2c200000, 0xfc600000, OP_CMPI, FLAG_NONE, 0, 0 },
 
 // blt, bne, bdnz
   //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },

@@ -29,6 +29,8 @@ enum
   OP_JUMP_COND_BD,
   OP_BRANCH_COND,
   OP_BRANCH_COND_ALIAS,
+  OP_CMP,
+  OP_CMPI,
 };
 
 #define FLAG_NONE 0

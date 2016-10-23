@@ -28,6 +28,7 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
   uint32_t opcode;
   int32_t offset;
   int32_t temp;
+  int cr;
   int n;
 
   *cycles_min = -1;
@@ -107,6 +108,14 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
           break;
         case OP_BRANCH_COND:
           sprintf(instruction, "%s %d, %d", instr, bo, bi);
+          break;
+        case OP_CMP:
+          cr = (opcode >> 23) & 0x7;
+          sprintf(instruction, "%s cr%d, r%d, r%d", instr, cr, ra, rb);
+          break;
+        case OP_CMPI:
+          cr = (opcode >> 23) & 0x7;
+          sprintf(instruction, "%s cr%d, r%d, %d", instr, cr, ra, simm);
           break;
         default:
           strcpy(instruction, "???");
