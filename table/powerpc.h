@@ -20,6 +20,7 @@ enum
   OP_RD_RA_RB,
   OP_RA_RS_RB,
   OP_RD_RA,
+  OP_RA_RS,
   OP_RD_RA_SIMM,
   OP_RD_SIMM,
   OP_RA_RS_UIMM,

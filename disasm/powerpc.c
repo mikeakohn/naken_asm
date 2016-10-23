@@ -41,14 +41,15 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
   {
     if ((opcode & table_powerpc[n].mask) == table_powerpc[n].opcode)
     {
-      uint32_t rd = (opcode >> 21) & 0x1f;
-      uint32_t ra = (opcode >> 16) & 0x1f;
-      uint32_t rb = (opcode >> 11) & 0x1f;
-      uint32_t rc = opcode & 0x1;
-      uint32_t bo = rd;
-      uint32_t bi = ra;
-      int16_t simm = opcode & 0xffff;
-      uint16_t uimm = opcode & 0xffff;
+      const uint32_t rd = (opcode >> 21) & 0x1f;
+      const uint32_t ra = (opcode >> 16) & 0x1f;
+      const uint32_t rb = (opcode >> 11) & 0x1f;
+      const uint32_t rc = opcode & 0x1;
+      const uint32_t bo = rd;
+      const uint32_t rs = rd;
+      const uint32_t bi = ra;
+      const int16_t simm = opcode & 0xffff;
+      const uint16_t uimm = opcode & 0xffff;
       const char *instr = table_powerpc[n].instr;
 
       switch(table_powerpc[n].type)
@@ -67,6 +68,10 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
         case OP_RD_RA:
           sprintf(instruction, "%s%s r%d, r%d",
             instr, (rc == 1) ? "." : "", rd, ra);
+          break;
+        case OP_RA_RS:
+          sprintf(instruction, "%s%s r%d, r%d",
+            instr, (rc == 1) ? "." : "", ra, rs);
           break;
         case OP_RD_RA_SIMM:
           sprintf(instruction, "%s%s r%d, r%d, %d (0x%04x)",
