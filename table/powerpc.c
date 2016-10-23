@@ -59,6 +59,13 @@ struct _table_powerpc table_powerpc[] =
   { "cror",   0x4c000382, 0xfc0007ff, OP_CRB_CRB_CRB, FLAG_NONE, 0, 0 },
   { "crorc",  0x4c000342, 0xfc0007ff, OP_CRB_CRB_CRB, FLAG_NONE, 0, 0 },
   { "crxor",  0x4c000182, 0xfc0007ff, OP_CRB_CRB_CRB, FLAG_NONE, 0, 0 },
+  { "divw",   0x7c0003d6, 0xfc0007fe, OP_RD_RA_RB, FLAG_DOT, 0, 0 },
+  { "divwo",  0x7c0007d6, 0xfc0007fe, OP_RD_RA_RB, FLAG_DOT, 0, 0 },
+  { "divwu",  0x7c000396, 0xfc0007fe, OP_RD_RA_RB, FLAG_DOT, 0, 0 },
+  { "divwuo", 0x7c000796, 0xfc0007fe, OP_RD_RA_RB, FLAG_DOT, 0, 0 },
+  { "eqv",    0x7c000238, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
+  { "extsb",  0x7c000774, 0xfc0007fe, OP_RA_RS, FLAG_DOT, 0, 0 },
+  { "extsh",  0x7c000734, 0xfc0007fe, OP_RA_RS, FLAG_DOT, 0, 0 },
 
 // blt, bne, bdnz
   //{ "blcr", 0x4c000000, 0xfc00f801, OP_BRANCH, FLAG_NONE, 0, 0 },
