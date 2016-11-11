@@ -254,7 +254,7 @@ static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory 
     putc(memory_read_m(memory, i), out);
   }
 
-  if (alignment != 1)
+  if (alignment > 1)
   {
     int count = memory->high_address - memory->low_address + 1;
     int mask = alignment - 1;
