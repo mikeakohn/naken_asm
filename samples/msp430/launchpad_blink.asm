@@ -1,6 +1,8 @@
 
 .include "msp430x2xx.inc"
 
+.entry_point start
+
   org 0xf800
 start:
   ;mov.w #0x5a80, &WDTCTL
