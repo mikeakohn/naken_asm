@@ -639,6 +639,8 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
   {
     ch = tokens_get_char(asm_context);
     if (ch == '\r') continue;
+    // skip whitespace immediately after opening parenthesis or a comma
+    if ((ch == ' ' || ch == '\t') && (ptr == 0 || params[ptr-1] == 0)) continue;
     if (ch == '"') { in_string = in_string ^ 1; }
     if (ch == ')' && in_string == 0) break;
     if (ch == '\n' || ch == EOF)
