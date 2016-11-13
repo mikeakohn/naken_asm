@@ -24,9 +24,9 @@ CPU this source file should be assembled for.
 |.epiphany        |Ephiphany/Parallella
 |.mips            |MIPS (32 bit)
 |.mips32          |MIPS (32 bit)
-|.pic32           |PIC32 MIPS
 |.msp430          |MSP430
 |.mps430x         |MSP430X
+|.pic32           |PIC32 MIPS
 |.powerpc         |PowerPC
 |.propeller       |Parallax Propeller
 |.pic24           |PIC24
