@@ -646,7 +646,7 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
       print_error("Macro expects ')'", asm_context);
       return NULL;
     }
-    if (ch == ',')
+    if (ch == ',' && !in_string)
     {
       params[ptr++] = 0;
       params_ptr[++count] = ptr;
