@@ -541,8 +541,8 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           }
 
           opcode = table_powerpc[n].opcode |
-                  (operands[0].value << 21) |
-                  (operands[1].value << 16) |
+                  (operands[1].value << 21) |
+                  (operands[0].value << 16) |
                   (operands[2].value & 0xffff);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
