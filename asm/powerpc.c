@@ -1142,12 +1142,13 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                   (operands[2].value << 11) |
                   (operands[3].value << 6) |
                   (operands[4].value << 1);
-          add_bin32(asm_context, opcode, IS_OPCODE);
 
           if (modifiers.has_dot == 1)
           {
             opcode |= 1;
           }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
           
           return 4;
         }
