@@ -153,7 +153,7 @@ struct _table_powerpc table_powerpc[] =
   { "subfmeo",0x7c0005d0, 0xfc00fffe, OP_RD_RA, FLAG_DOT, 0, 0 },
   { "subfze", 0x7c000190, 0xfc00fffe, OP_RD_RA, FLAG_DOT, 0, 0 },
   { "subfzeo",0x7c000590, 0xfc00fffe, OP_RD_RA, FLAG_DOT, 0, 0 },
-  { "sync",   0x7c000958, 0xffffffff, OP_NONE, FLAG_NONE, 0, 0 },
+  { "sync",   0x7c0004ac, 0xffffffff, OP_NONE, FLAG_NONE, 0, 0 },
   { "xor",    0x7c000278, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
   { "xori",   0x68000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
   { "xoris",  0x6c000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
