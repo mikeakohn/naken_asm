@@ -31,6 +31,7 @@
 #include "disasm/8051.h"
 #include "disasm/arm.h"
 #include "disasm/avr8.h"
+#include "disasm/cell.h"
 #include "disasm/dspic.h"
 #include "disasm/epiphany.h"
 #include "disasm/mips.h"
@@ -77,6 +78,7 @@ parse_instruction_t parse_instruction_680x0 = NULL;
 parse_instruction_t parse_instruction_8051 = NULL;
 parse_instruction_t parse_instruction_arm = NULL;
 parse_instruction_t parse_instruction_avr8 = NULL;
+parse_instruction_t parse_instruction_cell = NULL;
 parse_instruction_t parse_instruction_dspic = NULL;
 parse_instruction_t parse_instruction_epiphany = NULL;
 parse_instruction_t parse_instruction_mips = NULL;

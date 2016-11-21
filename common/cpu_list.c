@@ -20,6 +20,7 @@
 #include "asm/8051.h"
 #include "asm/arm.h"
 #include "asm/avr8.h"
+#include "asm/cell.h"
 #include "asm/common.h"
 #include "asm/dspic.h"
 #include "asm/epiphany.h"
@@ -43,6 +44,7 @@
 #include "disasm/8051.h"
 #include "disasm/arm.h"
 #include "disasm/avr8.h"
+#include "disasm/cell.h"
 #include "disasm/dspic.h"
 #include "disasm/epiphany.h"
 #include "disasm/mips.h"
@@ -94,6 +96,9 @@ struct _cpu_list cpu_list[] =
 #endif
 #ifdef ENABLE_AVR8
   { "avr8", CPU_TYPE_AVR8, ENDIAN_LITTLE, 2, ALIGN_2, 0, 0, 0, parse_instruction_avr8, NULL, list_output_avr8, disasm_range_avr8, simulate_init_avr8, NO_FLAGS },
+#endif
+#ifdef ENABLE_CELL
+  { "cell", CPU_TYPE_CELL, ENDIAN_BIG, 1, ALIGN_4, 0, 0, 0, parse_instruction_cell, NULL, list_output_cell, disasm_range_cell, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_DSPIC
   { "dspic", CPU_TYPE_DSPIC, ENDIAN_LITTLE, 2, ALIGN_2, 0, 0, 0, parse_instruction_dspic, NULL, list_output_dspic, disasm_range_dspic, NULL, NO_FLAGS },
