@@ -47,23 +47,26 @@ struct _modifiers
 };
 
 static int get_register_number(char *token)
-{ 
-  int num;
-  
-  if (token[0] < '0' || token[0] > '9') { return -1; }
-  if (token[1] == 0) { return token[0] - '0'; }
-  if (token[0] == '0' || token[2] != 0) { return -1; }
-  if (token[1] < '0' || token[1] > '9') { return -1; }
-  
-  num = ((token[0] - '0') * 10) + (token[1] - '0');
-  
-  return (num < 32) ? num : -1;
+{
+  int num = 0;
+
+  while(*token != 0)
+  {
+    if (*token < '0' || *token > '9') { return -1; }
+
+    num = (num * 10) + (*token - '0');
+    token++;
+
+    if (num > 31) { return -1; }
+  }
+
+  return num;
 }
 
 static int get_register_powerpc(char *token)
-{ 
+{
   if (token[0] != 'r') { return -1; }
-  
+
   return get_register_number(token + 1);
 }
 
@@ -283,7 +286,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           }
 
           add_bin32(asm_context, table_powerpc[n].opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RD_RA_RB:
@@ -314,7 +317,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           }
 
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RA_RS_RB:
@@ -344,7 +347,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           }
 
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RA_RS_SH:
@@ -380,7 +383,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           }
 
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RD_RA:
@@ -408,7 +411,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           }
 
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RA_RS:
@@ -436,7 +439,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           }
 
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RD:
@@ -455,7 +458,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
 
           opcode = table_powerpc[n].opcode | (operands[0].value << 21);
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RD_RA_SIMM:
@@ -486,7 +489,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                   (operands[2].value & 0xffff);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RD_SIMM:
@@ -515,7 +518,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                   (operands[1].value & 0xffff);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RA_RS_UIMM:
@@ -546,7 +549,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                   (operands[2].value & 0xffff);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_BRANCH:
@@ -945,7 +948,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                   (operands[2].value << 11);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_CRD_CRS:
@@ -967,7 +970,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                   (operands[1].value << 18);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_CRD:
@@ -986,7 +989,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
 
           opcode = table_powerpc[n].opcode | (operands[0].value << 23);
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RD_SPR:
@@ -1017,7 +1020,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                  ((operands[1].value & 0x1f) << 16) |
                  ((operands[1].value >> 5) << 11);
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_SPR_RS:
@@ -1048,7 +1051,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                  ((operands[0].value & 0x1f) << 16) |
                  ((operands[0].value >> 5) << 11);
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RD_TBR:
@@ -1079,7 +1082,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                  ((operands[1].value & 0x1f) << 16) |
                  ((operands[1].value >> 5) << 11);
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_CRM_RS:
@@ -1107,7 +1110,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                   (operands[1].value << 21) |
                   (operands[0].value << 12);
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         case OP_RA_RS_SH_MB_ME:
@@ -1149,7 +1152,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
           }
 
           add_bin32(asm_context, opcode, IS_OPCODE);
-          
+
           return 4;
         }
         default:
@@ -1162,7 +1165,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context); 
+    print_error_unknown_operand_combo(instr, asm_context);
   }
     else
   {
