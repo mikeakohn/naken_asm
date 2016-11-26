@@ -73,16 +73,19 @@ static const char *fence_string[] =
 
 static int get_register_number(char *token)
 {
-  int num;
+  int num = 0;
 
-  if (token[0] < '0' || token[0] > '9') { return -1; }
-  if (token[1] == 0) { return token[0] - '0'; }
-  if (token[0] == '0' || token[2] != 0) { return -1; }
-  if (token[1] < '0' || token[1] > '9') { return -1; }
+  while(*token != 0)
+  {
+    if (*token < '0' || *token > '9') { return -1; }
 
-  num = ((token[0] - '0') << 10) + (token[1] - '0');
+    num = (num * 10) + (*token - '0');
+    token++;
 
-  return (num < 32) ? num : -1;
+    if (num > 31) { return -1; }
+  }
+
+  return num;
 }
 
 static int get_x_register_riscv(char *token)
