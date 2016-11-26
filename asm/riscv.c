@@ -266,9 +266,9 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
       if (modifiers.rm != -1)
       {
         if (operands[operand_count - 1].type != OPERAND_RM ||
-            (table_riscv[n].type != OP_R_FP2_RM &&
-             table_riscv[n].type != OP_R_FP3_RM &&
-             table_riscv[n].type != OP_R_FP4_RM))
+            (table_riscv[n].type != OP_FP_FP_RM &&
+             table_riscv[n].type != OP_FP_FP_FP_RM &&
+             table_riscv[n].type != OP_FP_FP_FP_FP_RM))
         {
           n++;
           continue;
@@ -653,7 +653,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
-        case OP_R_FP1:
+        case OP_FP:
         {
           if (operand_count != 1)
           {
@@ -675,8 +675,8 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
-        case OP_R_FP2:
-        case OP_R_FP2_RM:
+        case OP_FP_FP:
+        case OP_FP_FP_RM:
         {
           if (operand_count != 2)
           {
@@ -702,8 +702,8 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
-        case OP_R_FP3:
-        case OP_R_FP3_RM:
+        case OP_FP_FP_FP:
+        case OP_FP_FP_FP_RM:
         {
           if (operand_count != 3)
           {
@@ -730,7 +730,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
-        case OP_R_FP4_RM:
+        case OP_FP_FP_FP_FP_RM:
         {
           if (operand_count != 4)
           {

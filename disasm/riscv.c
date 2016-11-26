@@ -151,22 +151,22 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           if ((opcode & (1 << 25)) != 0) { strcat(temp, ".rl"); }
           sprintf(instruction, "%s%s x%d, x%d, x%d", instr, temp, rd, rs1, rs2);
           break;
-        case OP_R_FP1:
+        case OP_FP:
           sprintf(instruction, "%s f%d", instr, rd);
           break;
-        case OP_R_FP2:
+        case OP_FP_FP:
           sprintf(instruction, "%s f%d, f%d", instr, rd, rs1);
           break;
-        case OP_R_FP3:
+        case OP_FP_FP_FP:
           sprintf(instruction, "%s f%d, f%d, f%d", instr, rd, rs1, rs3);
           break;
-        case OP_R_FP2_RM:
+        case OP_FP_FP_RM:
           sprintf(instruction, "%s f%d, f%d, %s", instr, rd, rs1, rm_string[rm]);
           break;
-        case OP_R_FP3_RM:
+        case OP_FP_FP_FP_RM:
           sprintf(instruction, "%s f%d, f%d, f%d, %s", instr, rd, rs1, rs2, rm_string[rm]);
           break;
-        case OP_R_FP4_RM:
+        case OP_FP_FP_FP_FP_RM:
           sprintf(instruction, "%s f%d, f%d, f%d, f%d, %s", instr, rd, rs1, rs2, rs3, rm_string[rm]);
           break;
         default:
