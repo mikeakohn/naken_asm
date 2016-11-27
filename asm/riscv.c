@@ -338,6 +338,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
         if (operands[operand_count - 1].type != OPERAND_RM ||
             (table_riscv[n].type != OP_FP_FP_RM &&
              table_riscv[n].type != OP_R_FP_RM &&
+             table_riscv[n].type != OP_FP_R_RM &&
              table_riscv[n].type != OP_FP_FP_FP_RM &&
              table_riscv[n].type != OP_FP_FP_FP_FP_RM))
         {
@@ -932,6 +933,35 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
                   (operands[0].value << 7);
 
           if (table_riscv[n].type == OP_FP_FP_RM)
+          {
+            opcode |= (modifiers.rm << 12);
+          }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_FP_R:
+        case OP_FP_R_RM:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_F_REGISTER ||
+              operands[1].type != OPERAND_X_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+                  (operands[1].value << 15) |
+                  (operands[0].value << 7);
+
+          if (table_riscv[n].type == OP_FP_R_RM)
           {
             opcode |= (modifiers.rm << 12);
           }

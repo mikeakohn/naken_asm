@@ -188,6 +188,12 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
         case OP_FP_FP_RM:
           sprintf(instruction, "%s f%d, f%d%s", instr, rd, rs1, rm_string[rm]);
           break;
+        case OP_FP_R:
+          sprintf(instruction, "%s f%d, x%d", instr, rd, rs1);
+          break;
+        case OP_FP_R_RM:
+          sprintf(instruction, "%s f%d, x%d%s", instr, rd, rs1, rm_string[rm]);
+          break;
         case OP_FP_FP_FP_RM:
           sprintf(instruction, "%s f%d, f%d, f%d%s", instr, rd, rs1, rs2, rm_string[rm]);
           break;
