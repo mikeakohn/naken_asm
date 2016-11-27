@@ -28,6 +28,7 @@ enum
   OPERAND_F_REGISTER,
   OPERAND_NUMBER,
   OPERAND_RM,
+  OPERAND_REGISTER_OFFSET,
 };
 
 #define RM_RNE 0
@@ -40,6 +41,7 @@ struct _operand
 {
   int value;
   int type;
+  int16_t offset;
 };
 
 struct _modifiers
@@ -190,23 +192,59 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       if (n != 8) { break; }
 
       // Assume this is just a number
+      operands[operand_count].type = OPERAND_NUMBER;
+
       if (asm_context->pass == 1)
       {
         eat_operand(asm_context);
-        n = 0;
+        operands[operand_count].value = 0;
       }
       else
       {
-         tokens_push(asm_context, token, token_type);
-         if (eval_expression(asm_context, &n) != 0)
-         {
-           print_error_unexp(token, asm_context);
-           return -1;
-         }
-      }
+        tokens_push(asm_context, token, token_type);
+        if (eval_expression(asm_context, &n) != 0)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
 
-      operands[operand_count].type = OPERAND_NUMBER;
-      operands[operand_count].value = n;
+        operands[operand_count].value = n;
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+        if (IS_TOKEN(token, '('))
+        {
+          if (operands[operand_count].value < -32768 ||
+              operands[operand_count].value > 32767)
+          {
+            print_error_range("Offset", -32768, 32767, asm_context);
+            return -1;
+          }
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          n = get_x_register_riscv(token);
+          if (n == -1)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].offset = (uint16_t)operands[operand_count].value;
+          operands[operand_count].type = OPERAND_REGISTER_OFFSET;
+          operands[operand_count].value = n;
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (IS_NOT_TOKEN(token, ')'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+        }
+          else
+        {
+          tokens_push(asm_context, token, token_type);
+        }
+      }
 
       break;
     } while(0);
@@ -598,6 +636,65 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 
           opcode = table_riscv[n].opcode |
                   (operands[0].value << 7);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_R_INDEX_R:
+        {
+          int offset;
+          int rd, rs1;
+
+          if (operand_count == 2)
+          {
+
+            if (asm_context->pass == 1)
+            {
+              add_bin32(asm_context, table_riscv[n].opcode, IS_OPCODE);
+              return 4;
+            }
+
+            if (operands[0].type != OPERAND_X_REGISTER ||
+                operands[1].type != OPERAND_REGISTER_OFFSET)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            offset = operands[1].offset;
+          }
+            else
+          if (operand_count == 3)
+          {
+            if (operands[0].type != OPERAND_X_REGISTER ||
+                operands[1].type != OPERAND_X_REGISTER ||
+                operands[2].type != OPERAND_NUMBER)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            offset = operands[2].value;
+          }
+            else
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          rd = operands[0].value;
+          rs1 = operands[1].value;
+
+          if (offset < -2048 || offset >= 2048)
+          {
+            print_error_range("Offset", -2048, 2047, asm_context);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+                  ((offset & 0xfff) << 20) |
+                  (rs1 << 15) |
+                  (rd << 7);
           add_bin32(asm_context, opcode, IS_OPCODE);
 
           return 4;
