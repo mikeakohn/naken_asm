@@ -92,14 +92,76 @@ static int get_register_number(char *token)
 
 static int get_x_register_riscv(char *token)
 {
-  if (token[0] != 'x') { return -1; }
+  if (token[0] != 'x' && token[0] != 'X')
+  {
+    if (strcasecmp(token, "zero") == 0) { return 0; }
+    if (strcasecmp(token, "ra") == 0) { return 1; }
+    if (strcasecmp(token, "fp") == 0) { return 2; }
+    if (strcasecmp(token, "sp") == 0) { return 14; }
+    if (strcasecmp(token, "tp") == 0) { return 15; }
+    if (strcasecmp(token, "gp") == 0) { return 31; }
+
+    if (token[2] == 0)
+    {
+      if (token[0] == 't' && token[1] >= '0' && token[1] <= '4')
+      {
+        return (token[1] - '0') + 26;
+      }
+      else if (token[0] == 'a' && token[1] >= '0' && token[1] <= '7')
+      {
+        return (token[1] - '0') + 18;
+      }
+      else if (token[0] == 'v' && token[1] >= '0' && token[1] <= '1')
+      {
+        return (token[1] - '0') + 16;
+      }
+    }
+
+    if (token[0] == 's')
+    {
+      int n = get_register_number(token + 1);
+      if (n >= 0 && n <= 11) { return n + 2; }
+    }
+
+    return -1;
+  }
 
   return get_register_number(token + 1);
 }
 
 static int get_f_register_riscv(char *token)
 {
+  int n;
+
   if (token[0] != 'f') { return -1; }
+
+  if (token[1] == 's')
+  {
+    n = get_register_number(token + 2);
+    if (n >= 0 && n <= 15) { return n; }
+    return -1;
+  }
+
+  if (token[1] == 'v')
+  {
+    n = get_register_number(token + 2);
+    if (n >= 0 && n <= 1) { return n + 16; }
+    return -1;
+  }
+
+  if (token[1] == 'a')
+  {
+    n = get_register_number(token + 2);
+    if (n >= 0 && n <= 7) { return n + 18; }
+    return -1;
+  }
+
+  if (token[1] == 't')
+  {
+    n = get_register_number(token + 2);
+    if (n >= 0 && n <= 5) { return n + 26; }
+    return -1;
+  }
 
   return get_register_number(token + 1);
 }
