@@ -78,6 +78,9 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
         case OP_R_TYPE:
           sprintf(instruction, "%s x%d, x%d, x%d", instr, rd, rs1, rs2);
           break;
+        case OP_R_R:
+          sprintf(instruction, "%s x%d, x%d", instr, rd, rs1);
+          break;
         case OP_I_TYPE:
           immediate = opcode >> 20;
           simmediate = immediate;
