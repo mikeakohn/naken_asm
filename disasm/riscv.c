@@ -139,11 +139,23 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           if ((simmediate & 0x800) != 0) { simmediate |= 0xfffff000; }
           sprintf(instruction, "%s x%d, %d(x%d)", instr, rd, simmediate, rs1);
           break;
+        case OP_FD_INDEX_R:
+          immediate = opcode >> 20;
+          simmediate = immediate;
+          if ((simmediate & 0x800) != 0) { simmediate |= 0xfffff000; }
+          sprintf(instruction, "%s f%d, %d(x%d)", instr, rd, simmediate, rs1);
+          break;
         case OP_RS_INDEX_R:
           immediate = ((opcode >> 25) & 0x7f) << 5;
           immediate |= ((opcode >> 7) & 0x1f);
           if ((immediate & 0x800) != 0) { immediate |= 0xfffff000; }
           sprintf(instruction, "%s x%d, %d(x%d)", instr, rs2, immediate, rs1);
+          break;
+        case OP_FS_INDEX_R:
+          immediate = ((opcode >> 25) & 0x7f) << 5;
+          immediate |= ((opcode >> 7) & 0x1f);
+          if ((immediate & 0x800) != 0) { immediate |= 0xfffff000; }
+          sprintf(instruction, "%s f%d, %d(x%d)", instr, rs2, immediate, rs1);
           break;
         case OP_LR:
           temp[0] = 0;

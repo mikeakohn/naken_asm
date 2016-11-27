@@ -126,7 +126,7 @@ for line in fp:
     operands = " " + str(r1) + ", " + str(r2) + ", -"  + str(u)
     print instr + operands
     continue
-  elif op == "OP_F_INDEX_R":
+  elif op in [ "OP_FD_INDEX_R", "OP_FS_INDEX_R" ]:
     operands = " " + str(f1) + ", " + str(u) + "("  + str(r2) + ")"
     print instr + operands
     operands = " " + str(f1) + ", -" + str(u) + "("  + str(r2) + ")"

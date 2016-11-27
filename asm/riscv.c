@@ -318,7 +318,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(table_riscv[n].instr != NULL)
   {
-    if (strcmp(table_riscv[n].instr,instr_case) == 0)
+    if (strcmp(table_riscv[n].instr, instr_case) == 0)
     {
       matched = 1;
 
@@ -639,9 +639,19 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_RD_INDEX_R:
+        case OP_FD_INDEX_R:
         {
           int offset;
           int rd, rs1;
+
+          if ((table_riscv[n].type == OP_RD_INDEX_R &&
+               operands[0].type != OPERAND_X_REGISTER) ||
+              (table_riscv[n].type == OP_FD_INDEX_R &&
+               operands[0].type != OPERAND_F_REGISTER))
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
 
           if (operand_count == 2)
           {
@@ -651,8 +661,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
               return 4;
             }
 
-            if (operands[0].type != OPERAND_X_REGISTER ||
-                operands[1].type != OPERAND_REGISTER_OFFSET)
+            if (operands[1].type != OPERAND_REGISTER_OFFSET)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;
@@ -663,8 +672,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
             else
           if (operand_count == 3)
           {
-            if (operands[0].type != OPERAND_X_REGISTER ||
-                operands[1].type != OPERAND_X_REGISTER ||
+            if (operands[1].type != OPERAND_X_REGISTER ||
                 operands[2].type != OPERAND_NUMBER)
             {
               print_error_illegal_operands(instr, asm_context);
@@ -697,9 +705,19 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_RS_INDEX_R:
+        case OP_FS_INDEX_R:
         {
           int offset;
           int rs1, rs2;
+
+          if ((table_riscv[n].type == OP_RS_INDEX_R &&
+               operands[0].type != OPERAND_X_REGISTER) ||
+              (table_riscv[n].type == OP_FS_INDEX_R &&
+               operands[0].type != OPERAND_F_REGISTER))
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
 
           if (operand_count == 2)
           {
@@ -709,8 +727,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
               return 4;
             }
 
-            if (operands[0].type != OPERAND_X_REGISTER ||
-                operands[1].type != OPERAND_REGISTER_OFFSET)
+            if (operands[1].type != OPERAND_REGISTER_OFFSET)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;
@@ -721,8 +738,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
             else
           if (operand_count == 3)
           {
-            if (operands[0].type != OPERAND_X_REGISTER ||
-                operands[1].type != OPERAND_X_REGISTER ||
+            if (operands[1].type != OPERAND_X_REGISTER ||
                 operands[2].type != OPERAND_NUMBER)
             {
               print_error_illegal_operands(instr, asm_context);
