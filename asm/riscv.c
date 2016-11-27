@@ -415,37 +415,6 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
-        case OP_S_TYPE:
-        {
-          if (operand_count != 3)
-          {
-            print_error_opcount(instr, asm_context);
-            return -1;
-          }
-
-          if (operands[0].type != OPERAND_X_REGISTER ||
-              operands[1].type != OPERAND_X_REGISTER ||
-              operands[2].type != OPERAND_NUMBER)
-          {
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
-          }
-
-          if (operands[2].value < -2048 || operands[2].value >= 2048)
-          {
-            print_error_range("Immediate", -2048, 2047, asm_context);
-            return -1;
-          }
-
-          opcode = table_riscv[n].opcode |
-                (((operands[2].value >> 5) & 0x7f) << 25) |
-                  (operands[1].value << 20) |
-                  (operands[0].value << 15) |
-                 ((operands[2].value & 0x1f) << 7);
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
-        }
         case OP_SB_TYPE:
         {
           if (operand_count != 3)
@@ -640,14 +609,13 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
-        case OP_R_INDEX_R:
+        case OP_RD_INDEX_R:
         {
           int offset;
           int rd, rs1;
 
           if (operand_count == 2)
           {
-
             if (asm_context->pass == 1)
             {
               add_bin32(asm_context, table_riscv[n].opcode, IS_OPCODE);
@@ -695,6 +663,67 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
                   ((offset & 0xfff) << 20) |
                   (rs1 << 15) |
                   (rd << 7);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_RS_INDEX_R:
+        {
+          int offset;
+          int rs1, rs2;
+
+          if (operand_count == 2)
+          {
+            if (asm_context->pass == 1)
+            {
+              add_bin32(asm_context, table_riscv[n].opcode, IS_OPCODE);
+              return 4;
+            }
+
+            if (operands[0].type != OPERAND_X_REGISTER ||
+                operands[1].type != OPERAND_REGISTER_OFFSET)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            offset = operands[1].offset;
+          }
+            else
+          if (operand_count == 3)
+          {
+            if (operands[0].type != OPERAND_X_REGISTER ||
+                operands[1].type != OPERAND_X_REGISTER ||
+                operands[2].type != OPERAND_NUMBER)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            offset = operands[2].value;
+          }
+            else
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          rs2 = operands[0].value;
+          rs1 = operands[1].value;
+
+          if (offset < -2048 || offset >= 2048)
+          {
+            print_error_range("Immediate", -2048, 2047, asm_context);
+            return -1;
+          }
+
+          offset = offset & 0xfff;
+
+          opcode = table_riscv[n].opcode |
+                (((offset >> 5) & 0x7f) << 25) |
+                  (rs2 << 20) |
+                  (rs1 << 15) |
+                 ((offset & 0x1f) << 7);
           add_bin32(asm_context, opcode, IS_OPCODE);
 
           return 4;

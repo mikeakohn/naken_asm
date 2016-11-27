@@ -88,12 +88,6 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           immediate = opcode >> 20;
           sprintf(instruction, "%s x%d, 0x%x)", instr, rd, immediate);
           break;
-        case OP_S_TYPE:
-          immediate = ((opcode >> 25) & 0x7f) << 5;
-          immediate |= ((opcode >> 7) & 0x1f);
-          if ((immediate & 0x800) != 0) { immediate |= 0xfffff000; }
-          sprintf(instruction, "%s x%d, x%d, %d", instr, rs1, rs2, immediate);
-          break;
         case OP_SB_TYPE:
           immediate = ((opcode >> 31) & 0x1) << 12;
           immediate |= ((opcode >> 8) & 0xf) << 1;
@@ -139,11 +133,17 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
         case OP_READ:
           sprintf(instruction, "%s x%d", instr, rd);
           break;
-        case OP_R_INDEX_R:
+        case OP_RD_INDEX_R:
           immediate = opcode >> 20;
           simmediate = immediate;
           if ((simmediate & 0x800) != 0) { simmediate |= 0xfffff000; }
           sprintf(instruction, "%s x%d, %d(x%d)", instr, rd, simmediate, rs1);
+          break;
+        case OP_RS_INDEX_R:
+          immediate = ((opcode >> 25) & 0x7f) << 5;
+          immediate |= ((opcode >> 7) & 0x1f);
+          if ((immediate & 0x800) != 0) { immediate |= 0xfffff000; }
+          sprintf(instruction, "%s x%d, %d(x%d)", instr, rs2, immediate, rs1);
           break;
         case OP_LR:
           temp[0] = 0;

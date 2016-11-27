@@ -134,13 +134,13 @@ for line in fp:
     continue
   elif op == "OP_UI_TYPE":
     operands = " " + str(r1) + ", " + str(r2) + ", "  + str(u)
-  elif op == "OP_S_TYPE":
-    operands = " " + str(r1) + ", " + str(r2) + ", "  + str(u)
-    print instr + operands
-    operands = " " + str(r1) + ", " + str(r2) + ", -"  + str(u)
-    print instr + operands
-    continue
-  elif op == "OP_R_INDEX_R":
+  #elif op == "OP_S_TYPE":
+  #  operands = " " + str(r1) + ", " + str(r2) + ", "  + str(u)
+  #  print instr + operands
+  #  operands = " " + str(r1) + ", " + str(r2) + ", -"  + str(u)
+  #  print instr + operands
+  #  continue
+  elif op in [ "OP_RD_INDEX_R", "OP_RS_INDEX_R" ]:
     operands = " " + str(r1) + ", " + str(u) + "(" + str(r2) + ")"
     print instr + operands
     operands = " " + str(r1) + ", -"  + str(u) + "(" + str(r2) + ")"
