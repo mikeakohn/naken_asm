@@ -792,17 +792,24 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
+          if (operands[2].type == OPERAND_X_REGISTER)
+          {
+            operands[2].type = OPERAND_REGISTER_OFFSET;
+          }
+
           if (operands[0].type != OPERAND_X_REGISTER ||
               operands[1].type != OPERAND_X_REGISTER ||
-              operands[2].type != OPERAND_X_REGISTER)
+              operands[2].type != OPERAND_REGISTER_OFFSET ||
+              operands[2].offset != 0)
           {
             print_error_illegal_operands(instr, asm_context);
             return -1;
           }
 
+          // FIXME - The docs say rs2 and rs1 are reversed. gnu-as is like this.
           opcode = table_riscv[n].opcode |
-                  (operands[2].value << 20) |
-                  (operands[1].value << 15) |
+                  (operands[1].value << 20) |
+                  (operands[2].value << 15) |
                   (operands[0].value << 7);
 
           if (modifiers.aq == 1) { opcode |= (1 << 26); }

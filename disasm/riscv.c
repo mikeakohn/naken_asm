@@ -155,7 +155,8 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           temp[0] = 0;
           if ((opcode & (1 << 26)) != 0) { strcat(temp, ".aq"); }
           if ((opcode & (1 << 25)) != 0) { strcat(temp, ".rl"); }
-          sprintf(instruction, "%s%s x%d, x%d, x%d", instr, temp, rd, rs1, rs2);
+          // FIXME - The docs say rs2 and rs1 are reversed. gnu-as is like this.
+          sprintf(instruction, "%s%s x%d, x%d, (x%d)", instr, temp, rd, rs2, rs1);
           break;
         case OP_FP:
           sprintf(instruction, "%s f%d", instr, rd);
