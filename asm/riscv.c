@@ -539,7 +539,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
         }
         case OP_SHIFT:
         {
-          if (operand_count != 2)
+          if (operand_count != 3)
           {
             print_error_opcount(instr, asm_context);
             return -1;

@@ -110,7 +110,7 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           break;
         case OP_SHIFT:
           immediate = (opcode >> 20) & 0x1f;
-          sprintf(instruction, "%s x%d, %d", instr, rd, immediate);
+          sprintf(instruction, "%s x%d, x%d, %d", instr, rd, rs1, immediate);
           break;
         case OP_FENCE:
           immediate = (opcode >> 20) & 0xff;
