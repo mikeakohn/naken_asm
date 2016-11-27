@@ -5,9 +5,8 @@ import random
 rounding_methods = [ "rne", "rtz", "rdn", "rup", "rmm" ]
 
 def add_rm(instr, operands):
-  return
   for rm in rounding_methods:
-    print instr + "." + rm + operands
+    print instr + operands + ", " + rm
 
 # -------------------------- fold here ----------------------------
 

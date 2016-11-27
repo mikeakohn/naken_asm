@@ -347,7 +347,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
         operand_count--;
       }
 
-      if (modifiers.rm == -1) { modifiers.rm = 0; }
+      if (modifiers.rm == -1) { modifiers.rm = 7; }
 
       // If the fence operands were used, make sure they only happened
       // with the fence instruction.

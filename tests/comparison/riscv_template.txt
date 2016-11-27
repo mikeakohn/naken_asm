@@ -1,248 +1,428 @@
-lui x30, 704
-auipc x12, 392
+lui x7, 317
+auipc x26, 833
 main: jal x10, main
-jalr x14, x17, 158
-jalr x14, x17, -158
+jalr x13, x30, 836
+jalr x13, x30, -836
 main: beq x10, x11, main
 main: bne x10, x11, main
 main: blt x10, x11, main
 main: bge x10, x11, main
 main: bltu x10, x11, main
 main: bgeu x10, x11, main
-lb x16, 780(x4)
-lb x16, -780(x4)
-lh x9, 954(x6)
-lh x9, -954(x6)
-lw x29, 458(x10)
-lw x29, -458(x10)
-lbu x22, 10(x9)
-lbu x22, -10(x9)
-lhu x21, 962(x2)
-lhu x21, -962(x2)
-sb x7, 423(x13)
-sb x7, -423(x13)
-sh x11, 255(x16)
-sh x11, -255(x16)
-sw x14, 391(x12)
-sw x14, -391(x12)
-addi x24, x16, 80
-addi x24, x16, -80
-slti x15, x21, 689
-sltiu x6, x26, 423
-xori x15, x31, 347
-ori x5, x14, 880
-andi x24, x3, 358
-slli x2, x31, 13
-srli x21, x6, 8
-srai x7, x5, 17
-add x7, x20, x17
-sub x23, x28, x11
-sll x4, x19, x11
-slt x3, x28, x2
-sltu x3, x5, x10
-xor x1, x6, x2
-srl x16, x4, x6
-sra x26, x12, x9
-or x3, x15, x26
-and x12, x24, x21
+lb x21, 980(x31)
+lb x21, -980(x31)
+lh x26, 436(x24)
+lh x26, -436(x24)
+lw x4, 697(x17)
+lw x4, -697(x17)
+lbu x25, 99(x1)
+lbu x25, -99(x1)
+lhu x8, 837(x7)
+lhu x8, -837(x7)
+sb x13, 743(x3)
+sb x13, -743(x3)
+sh x29, 540(x25)
+sh x29, -540(x25)
+sw x26, 351(x6)
+sw x26, -351(x6)
+addi x30, x18, 500
+addi x30, x18, -500
+slti x7, x13, 735
+sltiu x15, x21, 137
+xori x25, x30, 760
+ori x12, x3, 212
+andi x26, x10, 980
+slli x17, x26, 8
+srli x7, x5, 4
+srai x20, x28, 4
+add x29, x15, x29
+sub x11, x16, x5
+sll x6, x28, x3
+slt x10, x12, x21
+sltu x14, x16, x26
+xor x30, x20, x31
+srl x30, x6, x7
+sra x6, x17, x13
+or x19, x22, x24
+and x3, x10, x23
 fence.i
 scall
 sbreak
-rdcycle x29
-;rdcycleh x18
-rdtime x26
-;rdtimeh x20
-rdinstret x14
-;rdinstreth x28
-lwu x26, 71(x10)
-lwu x26, -71(x10)
-ld x30, 452(x20)
-ld x30, -452(x20)
-sd x27, 628(x9)
-sd x27, -628(x9)
-addiw x16, x15, 92
-addiw x16, x15, -92
-slliw x23, x5, 27
-srliw x16, x12, 5
-sraiw x13, x31, 19
-addw x29, x11, x1
-subw x5, x22, x8
-sllw x1, x18, x22
-srlw x22, x3, x8
-sraw x20, x1, x11
-mul x27, x8, x3
-mulh x20, x23, x9
-mulhsu x1, x7, x3
-mulhu x31, x11, x12
-div x19, x27, x3
-divu x1, x17, x13
-rem x12, x22, x1
-remu x18, x29, x10
-mulw x16, x20, x23
-divw x26, x29, x25
-divuw x31, x22, x18
-remw x4, x3, x25
-remuw x22, x25, x30
-lr.w x2, (x12)
-lr.w.aq x2, (x12)
-;lr.w.aq.rl x2, (x12)
-lr.w.rl x2, (x12)
-sc.w x30, x12, (x26)
-sc.w.aq x30, x12, (x26)
-;sc.w.aq.rl x30, x12, (x26)
-sc.w.rl x30, x12, (x26)
-amoswap.w x30, x20, (x14)
-amoswap.w.aq x30, x20, (x14)
-;amoswap.w.aq.rl x30, x20, (x14)
-amoswap.w.rl x30, x20, (x14)
-amoadd.w x12, x8, (x22)
-amoadd.w.aq x12, x8, (x22)
-;amoadd.w.aq.rl x12, x8, (x22)
-amoadd.w.rl x12, x8, (x22)
-amoxor.w x8, x31, (x10)
-amoxor.w.aq x8, x31, (x10)
-;amoxor.w.aq.rl x8, x31, (x10)
-amoxor.w.rl x8, x31, (x10)
-amoand.w x1, x18, (x29)
-amoand.w.aq x1, x18, (x29)
-;amoand.w.aq.rl x1, x18, (x29)
-amoand.w.rl x1, x18, (x29)
-amoor.w x6, x27, (x15)
-amoor.w.aq x6, x27, (x15)
-;amoor.w.aq.rl x6, x27, (x15)
-amoor.w.rl x6, x27, (x15)
-amomin.w x22, x29, (x14)
-amomin.w.aq x22, x29, (x14)
-;amomin.w.aq.rl x22, x29, (x14)
-amomin.w.rl x22, x29, (x14)
-amomax.w x14, x23, (x4)
-amomax.w.aq x14, x23, (x4)
-;amomax.w.aq.rl x14, x23, (x4)
-amomax.w.rl x14, x23, (x4)
-amominu.w x9, x13, (x10)
-amominu.w.aq x9, x13, (x10)
-;amominu.w.aq.rl x9, x13, (x10)
-amominu.w.rl x9, x13, (x10)
-amomaxu.w x4, x17, (x16)
-amomaxu.w.aq x4, x17, (x16)
-;amomaxu.w.aq.rl x4, x17, (x16)
-amomaxu.w.rl x4, x17, (x16)
-lr.d x5, (x23)
-lr.d.aq x5, (x23)
-;lr.d.aq.rl x5, (x23)
-lr.d.rl x5, (x23)
-sc.d x21, x19, (x11)
-sc.d.aq x21, x19, (x11)
-;sc.d.aq.rl x21, x19, (x11)
-sc.d.rl x21, x19, (x11)
-amoswap.d x3, x5, (x17)
-amoswap.d.aq x3, x5, (x17)
-;amoswap.d.aq.rl x3, x5, (x17)
-amoswap.d.rl x3, x5, (x17)
-amoadd.d x10, x17, (x20)
-amoadd.d.aq x10, x17, (x20)
-;amoadd.d.aq.rl x10, x17, (x20)
-amoadd.d.rl x10, x17, (x20)
-amoxor.d x7, x17, (x24)
-amoxor.d.aq x7, x17, (x24)
-;amoxor.d.aq.rl x7, x17, (x24)
-amoxor.d.rl x7, x17, (x24)
-amoand.d x13, x18, (x28)
-amoand.d.aq x13, x18, (x28)
-;amoand.d.aq.rl x13, x18, (x28)
-amoand.d.rl x13, x18, (x28)
-amoor.d x13, x8, (x29)
-amoor.d.aq x13, x8, (x29)
-;amoor.d.aq.rl x13, x8, (x29)
-amoor.d.rl x13, x8, (x29)
-amomin.d x30, x28, (x30)
-amomin.d.aq x30, x28, (x30)
-;amomin.d.aq.rl x30, x28, (x30)
-amomin.d.rl x30, x28, (x30)
-amomax.d x20, x19, (x3)
-amomax.d.aq x20, x19, (x3)
-;amomax.d.aq.rl x20, x19, (x3)
-amomax.d.rl x20, x19, (x3)
-amominu.d x14, x5, (x24)
-amominu.d.aq x14, x5, (x24)
-;amominu.d.aq.rl x14, x5, (x24)
-amominu.d.rl x14, x5, (x24)
-amomaxu.d x1, x25, (x14)
-amomaxu.d.aq x1, x25, (x14)
-;amomaxu.d.aq.rl x1, x25, (x14)
-amomaxu.d.rl x1, x25, (x14)
-flw f24, 238(x24)
-flw f24, -238(x24)
-fsw f2, 147(x31)
-fsw f2, -147(x31)
-fmadd.s f15, f17, f13, f7
-fmsub.s f7, f4, f15, f23
-fnmsub.s f24, f14, f11, f24
-fnmadd.s f29, f30, f8, f10
-fadd.s f6, f6, f25
-fsub.s f18, f13, f1
-fmul.s f19, f27, f26
-fdiv.s f2, f13, f28
-fsqrt.s f29, f20
-fsgnj.s f24, f15, f8
-fsgnjn.s f4, f5, f12
-fsgnjx.s f16, f14, f31
-fmin.s f26, f7, f7
-fmax.s f20, f25, f23
-fcvt.w.s x15, f7
-fcvt.wu.s x14, f30
-fmv.x.s x23, f13
-feq.s x19, f1, f4
-flt.s x5, f6, f3
-fle.s x22, f22, f6
-fclass.s x30, f4
-fcvt.s.w f26, x27
-fcvt.s.wu f26, x13
-fmv.s.x f29, x28
-frcsr x27
-frrm x6
-frflags x26
-fscsr x27, x4
-fsrm x15, x30
-fsflags x19, x4
-fcvt.l.s x22, f22
-fcvt.lu.s x18, f1
-fcvt.s.l f11, x25
-fcvt.s.lu f3, x20
-fld f23, 261(x5)
-fld f23, -261(x5)
-fsd f31, 147(x25)
-fsd f31, -147(x25)
-fmadd.d f7, f31, f4, f29
-fmsub.d f24, f30, f3, f27
-fnmsub.d f30, f3, f5, f5
-fnmadd.d f30, f21, f15, f16
-fadd.d f19, f16, f1
-fsub.d f20, f13, f3
-fmul.d f7, f16, f26
-fdiv.d f12, f9, f28
-fsqrt.d f6, f15
-fsgnj.d f18, f15, f16
-fsgnjn.d f30, f18, f10
-fsgnjx.d f1, f15, f10
-fmin.d f18, f4, f4
-fmax.d f20, f22, f7
-fcvt.s.d f1, f9
-fcvt.d.s f5, f25
-feq.d x13, f7, f20
-flt.d x9, f31, f12
-fle.d x15, f28, f21
-fclass.d x25, f4
-fcvt.w.d x14, f7
-fcvt.wu.d x10, f22
-fcvt.d.w f4, x15
-fcvt.d.wu f2, x3
-fcvt.l.d x30, f7
-fcvt.lu.d x23, f31
-fmv.x.d x14, f21
-fcvt.d.l f29, x16
-fcvt.d.lu f1, x9
-fmv.d.x f3, x3
+rdcycle x27
+;rdcycleh x31
+rdtime x11
+;rdtimeh x31
+rdinstret x12
+;rdinstreth x14
+lwu x5, 453(x6)
+lwu x5, -453(x6)
+ld x25, 94(x15)
+ld x25, -94(x15)
+sd x24, 804(x2)
+sd x24, -804(x2)
+addiw x15, x4, 400
+addiw x15, x4, -400
+slliw x31, x28, 10
+srliw x22, x3, 5
+sraiw x1, x7, 26
+addw x7, x21, x12
+subw x7, x22, x17
+sllw x25, x9, x7
+srlw x15, x27, x5
+sraw x2, x10, x4
+mul x6, x10, x20
+mulh x30, x19, x4
+mulhsu x7, x24, x25
+mulhu x20, x5, x7
+div x29, x24, x26
+divu x20, x22, x8
+rem x27, x23, x15
+remu x26, x2, x2
+mulw x24, x14, x23
+divw x19, x17, x24
+divuw x19, x16, x30
+remw x7, x26, x26
+remuw x1, x11, x26
+lr.w x29, (x5)
+lr.w.aq x29, (x5)
+;lr.w.aq.rl x29, (x5)
+lr.w.rl x29, (x5)
+sc.w x22, x8, (x30)
+sc.w.aq x22, x8, (x30)
+;sc.w.aq.rl x22, x8, (x30)
+sc.w.rl x22, x8, (x30)
+amoswap.w x7, x8, (x15)
+amoswap.w.aq x7, x8, (x15)
+;amoswap.w.aq.rl x7, x8, (x15)
+amoswap.w.rl x7, x8, (x15)
+amoadd.w x24, x12, (x7)
+amoadd.w.aq x24, x12, (x7)
+;amoadd.w.aq.rl x24, x12, (x7)
+amoadd.w.rl x24, x12, (x7)
+amoxor.w x23, x1, (x10)
+amoxor.w.aq x23, x1, (x10)
+;amoxor.w.aq.rl x23, x1, (x10)
+amoxor.w.rl x23, x1, (x10)
+amoand.w x8, x30, (x27)
+amoand.w.aq x8, x30, (x27)
+;amoand.w.aq.rl x8, x30, (x27)
+amoand.w.rl x8, x30, (x27)
+amoor.w x5, x31, (x15)
+amoor.w.aq x5, x31, (x15)
+;amoor.w.aq.rl x5, x31, (x15)
+amoor.w.rl x5, x31, (x15)
+amomin.w x20, x20, (x22)
+amomin.w.aq x20, x20, (x22)
+;amomin.w.aq.rl x20, x20, (x22)
+amomin.w.rl x20, x20, (x22)
+amomax.w x11, x9, (x14)
+amomax.w.aq x11, x9, (x14)
+;amomax.w.aq.rl x11, x9, (x14)
+amomax.w.rl x11, x9, (x14)
+amominu.w x13, x24, (x8)
+amominu.w.aq x13, x24, (x8)
+;amominu.w.aq.rl x13, x24, (x8)
+amominu.w.rl x13, x24, (x8)
+amomaxu.w x25, x19, (x19)
+amomaxu.w.aq x25, x19, (x19)
+;amomaxu.w.aq.rl x25, x19, (x19)
+amomaxu.w.rl x25, x19, (x19)
+lr.d x23, (x1)
+lr.d.aq x23, (x1)
+;lr.d.aq.rl x23, (x1)
+lr.d.rl x23, (x1)
+sc.d x14, x17, (x12)
+sc.d.aq x14, x17, (x12)
+;sc.d.aq.rl x14, x17, (x12)
+sc.d.rl x14, x17, (x12)
+amoswap.d x16, x14, (x18)
+amoswap.d.aq x16, x14, (x18)
+;amoswap.d.aq.rl x16, x14, (x18)
+amoswap.d.rl x16, x14, (x18)
+amoadd.d x9, x22, (x18)
+amoadd.d.aq x9, x22, (x18)
+;amoadd.d.aq.rl x9, x22, (x18)
+amoadd.d.rl x9, x22, (x18)
+amoxor.d x16, x1, (x21)
+amoxor.d.aq x16, x1, (x21)
+;amoxor.d.aq.rl x16, x1, (x21)
+amoxor.d.rl x16, x1, (x21)
+amoand.d x24, x6, (x31)
+amoand.d.aq x24, x6, (x31)
+;amoand.d.aq.rl x24, x6, (x31)
+amoand.d.rl x24, x6, (x31)
+amoor.d x28, x30, (x2)
+amoor.d.aq x28, x30, (x2)
+;amoor.d.aq.rl x28, x30, (x2)
+amoor.d.rl x28, x30, (x2)
+amomin.d x26, x14, (x24)
+amomin.d.aq x26, x14, (x24)
+;amomin.d.aq.rl x26, x14, (x24)
+amomin.d.rl x26, x14, (x24)
+amomax.d x1, x6, (x14)
+amomax.d.aq x1, x6, (x14)
+;amomax.d.aq.rl x1, x6, (x14)
+amomax.d.rl x1, x6, (x14)
+amominu.d x28, x5, (x22)
+amominu.d.aq x28, x5, (x22)
+;amominu.d.aq.rl x28, x5, (x22)
+amominu.d.rl x28, x5, (x22)
+amomaxu.d x20, x21, (x26)
+amomaxu.d.aq x20, x21, (x26)
+;amomaxu.d.aq.rl x20, x21, (x26)
+amomaxu.d.rl x20, x21, (x26)
+flw f19, 894(x17)
+flw f19, -894(x17)
+fsw f2, 797(x2)
+fsw f2, -797(x2)
+fmadd.s f2, f1, f13, f1
+fmadd.s f2, f1, f13, f1, rne
+fmadd.s f2, f1, f13, f1, rtz
+fmadd.s f2, f1, f13, f1, rdn
+fmadd.s f2, f1, f13, f1, rup
+fmadd.s f2, f1, f13, f1, rmm
+fmsub.s f1, f18, f28, f6
+fmsub.s f1, f18, f28, f6, rne
+fmsub.s f1, f18, f28, f6, rtz
+fmsub.s f1, f18, f28, f6, rdn
+fmsub.s f1, f18, f28, f6, rup
+fmsub.s f1, f18, f28, f6, rmm
+fnmsub.s f2, f25, f11, f22
+fnmsub.s f2, f25, f11, f22, rne
+fnmsub.s f2, f25, f11, f22, rtz
+fnmsub.s f2, f25, f11, f22, rdn
+fnmsub.s f2, f25, f11, f22, rup
+fnmsub.s f2, f25, f11, f22, rmm
+fnmadd.s f18, f9, f17, f15
+fnmadd.s f18, f9, f17, f15, rne
+fnmadd.s f18, f9, f17, f15, rtz
+fnmadd.s f18, f9, f17, f15, rdn
+fnmadd.s f18, f9, f17, f15, rup
+fnmadd.s f18, f9, f17, f15, rmm
+fadd.s f3, f7, f4
+fadd.s f3, f7, f4, rne
+fadd.s f3, f7, f4, rtz
+fadd.s f3, f7, f4, rdn
+fadd.s f3, f7, f4, rup
+fadd.s f3, f7, f4, rmm
+fsub.s f29, f19, f11
+fsub.s f29, f19, f11, rne
+fsub.s f29, f19, f11, rtz
+fsub.s f29, f19, f11, rdn
+fsub.s f29, f19, f11, rup
+fsub.s f29, f19, f11, rmm
+fmul.s f30, f4, f8
+fmul.s f30, f4, f8, rne
+fmul.s f30, f4, f8, rtz
+fmul.s f30, f4, f8, rdn
+fmul.s f30, f4, f8, rup
+fmul.s f30, f4, f8, rmm
+fdiv.s f9, f22, f1
+fdiv.s f9, f22, f1, rne
+fdiv.s f9, f22, f1, rtz
+fdiv.s f9, f22, f1, rdn
+fdiv.s f9, f22, f1, rup
+fdiv.s f9, f22, f1, rmm
+fsqrt.s f7, f20
+fsqrt.s f7, f20, rne
+fsqrt.s f7, f20, rtz
+fsqrt.s f7, f20, rdn
+fsqrt.s f7, f20, rup
+fsqrt.s f7, f20, rmm
+fsgnj.s f15, f1, f14
+fsgnjn.s f28, f18, f2
+fsgnjx.s f28, f6, f27
+fmin.s f27, f6, f5
+fmax.s f22, f15, f22
+fcvt.w.s x24, f4
+fcvt.w.s x24, f4, rne
+fcvt.w.s x24, f4, rtz
+fcvt.w.s x24, f4, rdn
+fcvt.w.s x24, f4, rup
+fcvt.w.s x24, f4, rmm
+fcvt.wu.s x7, f18
+fcvt.wu.s x7, f18, rne
+fcvt.wu.s x7, f18, rtz
+fcvt.wu.s x7, f18, rdn
+fcvt.wu.s x7, f18, rup
+fcvt.wu.s x7, f18, rmm
+fmv.x.s x18, f21
+feq.s x18, f22, f2
+flt.s x25, f14, f29
+fle.s x14, f16, f30
+fclass.s x31, f26
+fcvt.s.w f22, x7
+fcvt.s.w f22, x7, rne
+fcvt.s.w f22, x7, rtz
+fcvt.s.w f22, x7, rdn
+fcvt.s.w f22, x7, rup
+fcvt.s.w f22, x7, rmm
+fcvt.s.wu f27, x29
+fcvt.s.wu f27, x29, rne
+fcvt.s.wu f27, x29, rtz
+fcvt.s.wu f27, x29, rdn
+fcvt.s.wu f27, x29, rup
+fcvt.s.wu f27, x29, rmm
+fmv.s.x f23, x9
+frcsr x29
+frrm x22
+frflags x22
+fscsr x1, x29
+fsrm x27, x29
+fsflags x9, x29
+fcvt.l.s x22, f19
+fcvt.l.s x22, f19, rne
+fcvt.l.s x22, f19, rtz
+fcvt.l.s x22, f19, rdn
+fcvt.l.s x22, f19, rup
+fcvt.l.s x22, f19, rmm
+fcvt.lu.s x2, f9
+fcvt.lu.s x2, f9, rne
+fcvt.lu.s x2, f9, rtz
+fcvt.lu.s x2, f9, rdn
+fcvt.lu.s x2, f9, rup
+fcvt.lu.s x2, f9, rmm
+fcvt.s.l f10, x8
+fcvt.s.l f10, x8, rne
+fcvt.s.l f10, x8, rtz
+fcvt.s.l f10, x8, rdn
+fcvt.s.l f10, x8, rup
+fcvt.s.l f10, x8, rmm
+fcvt.s.lu f8, x17
+fcvt.s.lu f8, x17, rne
+fcvt.s.lu f8, x17, rtz
+fcvt.s.lu f8, x17, rdn
+fcvt.s.lu f8, x17, rup
+fcvt.s.lu f8, x17, rmm
+fld f18, 112(x20)
+fld f18, -112(x20)
+fsd f30, 203(x10)
+fsd f30, -203(x10)
+fmadd.d f16, f14, f16, f7
+fmadd.d f16, f14, f16, f7, rne
+fmadd.d f16, f14, f16, f7, rtz
+fmadd.d f16, f14, f16, f7, rdn
+fmadd.d f16, f14, f16, f7, rup
+fmadd.d f16, f14, f16, f7, rmm
+fmsub.d f4, f31, f19, f21
+fmsub.d f4, f31, f19, f21, rne
+fmsub.d f4, f31, f19, f21, rtz
+fmsub.d f4, f31, f19, f21, rdn
+fmsub.d f4, f31, f19, f21, rup
+fmsub.d f4, f31, f19, f21, rmm
+fnmsub.d f13, f24, f18, f11
+fnmsub.d f13, f24, f18, f11, rne
+fnmsub.d f13, f24, f18, f11, rtz
+fnmsub.d f13, f24, f18, f11, rdn
+fnmsub.d f13, f24, f18, f11, rup
+fnmsub.d f13, f24, f18, f11, rmm
+fnmadd.d f19, f17, f5, f17
+fnmadd.d f19, f17, f5, f17, rne
+fnmadd.d f19, f17, f5, f17, rtz
+fnmadd.d f19, f17, f5, f17, rdn
+fnmadd.d f19, f17, f5, f17, rup
+fnmadd.d f19, f17, f5, f17, rmm
+fadd.d f1, f4, f12
+fadd.d f1, f4, f12, rne
+fadd.d f1, f4, f12, rtz
+fadd.d f1, f4, f12, rdn
+fadd.d f1, f4, f12, rup
+fadd.d f1, f4, f12, rmm
+fsub.d f13, f31, f16
+fsub.d f13, f31, f16, rne
+fsub.d f13, f31, f16, rtz
+fsub.d f13, f31, f16, rdn
+fsub.d f13, f31, f16, rup
+fsub.d f13, f31, f16, rmm
+fmul.d f18, f13, f12
+fmul.d f18, f13, f12, rne
+fmul.d f18, f13, f12, rtz
+fmul.d f18, f13, f12, rdn
+fmul.d f18, f13, f12, rup
+fmul.d f18, f13, f12, rmm
+fdiv.d f22, f19, f2
+fdiv.d f22, f19, f2, rne
+fdiv.d f22, f19, f2, rtz
+fdiv.d f22, f19, f2, rdn
+fdiv.d f22, f19, f2, rup
+fdiv.d f22, f19, f2, rmm
+fsqrt.d f7, f6
+fsqrt.d f7, f6, rne
+fsqrt.d f7, f6, rtz
+fsqrt.d f7, f6, rdn
+fsqrt.d f7, f6, rup
+fsqrt.d f7, f6, rmm
+fsgnj.d f14, f3, f13
+fsgnjn.d f18, f28, f9
+fsgnjx.d f28, f4, f23
+fmin.d f5, f6, f29
+fmax.d f11, f19, f17
+fcvt.s.d f7, f1
+fcvt.s.d f7, f1, rne
+fcvt.s.d f7, f1, rtz
+fcvt.s.d f7, f1, rdn
+fcvt.s.d f7, f1, rup
+fcvt.s.d f7, f1, rmm
+fcvt.d.s f9, f6
+;fcvt.d.s f9, f6, rne
+;fcvt.d.s f9, f6, rtz
+;fcvt.d.s f9, f6, rdn
+;fcvt.d.s f9, f6, rup
+;fcvt.d.s f9, f6, rmm
+feq.d x28, f6, f8
+flt.d x30, f3, f15
+fle.d x25, f5, f14
+fclass.d x24, f31
+fcvt.w.d x5, f18
+fcvt.w.d x5, f18, rne
+fcvt.w.d x5, f18, rtz
+fcvt.w.d x5, f18, rdn
+fcvt.w.d x5, f18, rup
+fcvt.w.d x5, f18, rmm
+fcvt.wu.d x27, f20
+fcvt.wu.d x27, f20, rne
+fcvt.wu.d x27, f20, rtz
+fcvt.wu.d x27, f20, rdn
+fcvt.wu.d x27, f20, rup
+fcvt.wu.d x27, f20, rmm
+fcvt.d.w f1, x21
+;fcvt.d.w f1, x21, rne
+;fcvt.d.w f1, x21, rtz
+;fcvt.d.w f1, x21, rdn
+;fcvt.d.w f1, x21, rup
+;fcvt.d.w f1, x21, rmm
+fcvt.d.wu f29, x13
+;fcvt.d.wu f29, x13, rne
+;fcvt.d.wu f29, x13, rtz
+;fcvt.d.wu f29, x13, rdn
+;fcvt.d.wu f29, x13, rup
+;fcvt.d.wu f29, x13, rmm
+fcvt.l.d x14, f5
+fcvt.l.d x14, f5, rne
+fcvt.l.d x14, f5, rtz
+fcvt.l.d x14, f5, rdn
+fcvt.l.d x14, f5, rup
+fcvt.l.d x14, f5, rmm
+fcvt.lu.d x2, f28
+fcvt.lu.d x2, f28, rne
+fcvt.lu.d x2, f28, rtz
+fcvt.lu.d x2, f28, rdn
+fcvt.lu.d x2, f28, rup
+fcvt.lu.d x2, f28, rmm
+fmv.x.d x18, f24
+fcvt.d.l f2, x15
+fcvt.d.l f2, x15, rne
+fcvt.d.l f2, x15, rtz
+fcvt.d.l f2, x15, rdn
+fcvt.d.l f2, x15, rup
+fcvt.d.l f2, x15, rmm
+fcvt.d.lu f14, x27
+fcvt.d.lu f14, x27, rne
+fcvt.d.lu f14, x27, rtz
+fcvt.d.lu f14, x27, rdn
+fcvt.d.lu f14, x27, rup
+fcvt.d.lu f14, x27, rmm
+fmv.d.x f4, x20
 fence
 ;fence pi, so
 ;fence si, po, pr, pw, pi, so, sr, sw

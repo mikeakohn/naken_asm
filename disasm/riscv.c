@@ -20,14 +20,14 @@
 
 static const char *rm_string[] =
 {
-  "rne",
-  "rtz",
-  "rdn",
-  "rup",
-  "rmm",
-  "[error]",
-  "[error]",
-  "[error]",
+  ", rne",
+  ", rtz",
+  ", rdn",
+  ", rup",
+  ", rmm",
+  ", [error]",
+  ", [error]",
+  "",
 };
 
 static const char *fence_string[] =
@@ -180,13 +180,13 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           sprintf(instruction, "%s f%d, f%d, f%d", instr, rd, rs1, rs3);
           break;
         case OP_FP_FP_RM:
-          sprintf(instruction, "%s f%d, f%d, %s", instr, rd, rs1, rm_string[rm]);
+          sprintf(instruction, "%s f%d, f%d%s", instr, rd, rs1, rm_string[rm]);
           break;
         case OP_FP_FP_FP_RM:
-          sprintf(instruction, "%s f%d, f%d, f%d, %s", instr, rd, rs1, rs2, rm_string[rm]);
+          sprintf(instruction, "%s f%d, f%d, f%d%s", instr, rd, rs1, rs2, rm_string[rm]);
           break;
         case OP_FP_FP_FP_FP_RM:
-          sprintf(instruction, "%s f%d, f%d, f%d, f%d, %s", instr, rd, rs1, rs2, rs3, rm_string[rm]);
+          sprintf(instruction, "%s f%d, f%d, f%d, f%d%s", instr, rd, rs1, rs2, rs3, rm_string[rm]);
           break;
         default:
           strcpy(instruction, "???");
