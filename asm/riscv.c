@@ -191,6 +191,35 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
 
       if (n != 8) { break; }
 
+      // Check if this is (reg)
+      if (IS_TOKEN(token, '('))
+      {
+        char token[TOKENLEN];
+        int token_type;
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        n = get_x_register_riscv(token);
+
+        if (n != -1)
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (IS_NOT_TOKEN(token, ')'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].offset = 0;
+          operands[operand_count].type = OPERAND_REGISTER_OFFSET;
+          operands[operand_count].value = n;
+
+          break;
+        }
+
+        tokens_push(asm_context, token, token_type);
+      }
+
       // Assume this is just a number
       operands[operand_count].type = OPERAND_NUMBER;
 
@@ -737,7 +766,8 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
           }
 
           if (operands[0].type != OPERAND_X_REGISTER ||
-              operands[1].type != OPERAND_X_REGISTER)
+              operands[1].type != OPERAND_REGISTER_OFFSET ||
+              operands[1].offset != 0)
           {
             print_error_illegal_operands(instr, asm_context);
             return -1;

@@ -149,7 +149,7 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           temp[0] = 0;
           if ((opcode & (1 << 26)) != 0) { strcat(temp, ".aq"); }
           if ((opcode & (1 << 25)) != 0) { strcat(temp, ".rl"); }
-          sprintf(instruction, "%s%s x%d, x%d", instr, temp, rd, rs1);
+          sprintf(instruction, "%s%s x%d, (x%d)", instr, temp, rd, rs1);
           break;
         case OP_STD_EXT:
           temp[0] = 0;
