@@ -56,7 +56,9 @@ struct _asm_context
   const char *filename;
   struct _token_buffer token_buffer;
   char pushback[TOKENLEN];
+  char pushback2[TOKENLEN];
   int pushback_type;
+  int pushback2_type;
   char unget[512];
   int unget_ptr;
   int unget_stack[MAX_NESTED_MACROS+1];

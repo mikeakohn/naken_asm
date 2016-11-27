@@ -63,6 +63,7 @@ void tokens_reset(struct _asm_context *asm_context)
 
   asm_context->line = 1;
   asm_context->pushback[0] = 0;
+  asm_context->pushback2[0] = 0;
   asm_context->unget[0] = 0;
   asm_context->unget_ptr = 0;
   asm_context->unget_stack_ptr = 0;
@@ -223,13 +224,17 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
 
   token[0] = 0;
 
+  if (asm_context->pushback2[0] != 0)
+  {
+    strcpy(token, asm_context->pushback2);
+    asm_context->pushback2[0] = 0;
+    return asm_context->pushback2_type;
+  }
+
   if (asm_context->pushback[0] != 0)
   {
     strcpy(token, asm_context->pushback);
     asm_context->pushback[0] = 0;
-#ifdef DEBUG
-//printf("debug> tokens_get pushback: '%s'\n",token);
-#endif
     return asm_context->pushback_type;
   }
 
