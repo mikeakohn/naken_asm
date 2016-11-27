@@ -170,6 +170,12 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           // FIXME - The docs say rs2 and rs1 are reversed. gnu-as is like this.
           sprintf(instruction, "%s%s x%d, x%d, (x%d)", instr, temp, rd, rs2, rs1);
           break;
+        case OP_R_FP_RM:
+          sprintf(instruction, "%s x%d, f%d%s", instr, rd, rs1, rm_string[rm]);
+          break;
+        case OP_R_FP_FP:
+          sprintf(instruction, "%s x%d, f%d, f%d", instr, rd, rs1, rs2);
+          break;
         case OP_FP:
           sprintf(instruction, "%s f%d", instr, rd);
           break;
