@@ -622,30 +622,31 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          int32_t offset = 0;
+          int32_t address = 0;
           uint32_t immediate;
 
           if (asm_context->pass == 2)
           {
-            offset = (uint32_t)operands[2].value - (asm_context->address + 4);
+            //offset = (uint32_t)operands[1].value - (asm_context->address + 4);
+            address = operands[1].value;
 
-            if ((offset & 0x1) != 0)
+            if ((address & 0x1) != 0)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;
             }
 
-            if (offset < -(1 << 20) || offset >= (1 << 20))
+            if (address < 0 || address >= (1 << 21))
             {
-              print_error_range("Offset", -(1 << 20), (1 << 20) - 1, asm_context);
+              print_error_range("Offset", 0, (1 << 21) - 1, asm_context);
               return -1;
             }
           }
 
-          immediate = ((offset >> 20) & 0x1) << 31;
-          immediate |= ((offset >> 12) & 0x7f) << 12;
-          immediate |= ((offset >> 11) & 0x1) << 20;
-          immediate |= ((offset >> 1) & 0x3ff) << 21;
+          immediate = ((address >> 20) & 0x1) << 31;
+          immediate |= ((address >> 12) & 0xff) << 12;
+          immediate |= ((address >> 11) & 0x1) << 20;
+          immediate |= ((address >> 1) & 0x3ff) << 21;
 
           opcode = table_riscv[n].opcode | immediate | (operands[0].value << 7);
           add_bin32(asm_context, opcode, IS_OPCODE);
