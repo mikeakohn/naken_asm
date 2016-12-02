@@ -38,7 +38,7 @@ struct _operand
 {
   int value;
   int type;
-  int16_t offset;
+  int32_t offset;
 };
 
 struct _modifiers
@@ -48,16 +48,19 @@ struct _modifiers
 
 static int get_register_number(char *token)
 { 
-  int num;
-  
-  if (token[0] < '0' || token[0] > '9') { return -1; }
-  if (token[1] == 0) { return token[0] - '0'; }
-  if (token[0] == '0' || token[2] != 0) { return -1; }
-  if (token[1] < '0' || token[1] > '9') { return -1; }
-  
-  num = ((token[0] - '0') * 10) + (token[1] - '0');
-  
-  return (num < 32) ? num : -1;
+  int num = 0;
+
+  while(*token != 0)
+  {
+    if (*token < '0' || *token > '9') { return -1; }
+
+    num = (num * 10) + (*token - '0');
+    token++;
+
+    if (num > 127) { return -1; }
+  }
+
+  return num;
 }
 
 static int get_register_cell(char *token)
@@ -132,7 +135,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
             return -1;
           }
 
-          operands[operand_count].offset = (uint16_t)operands[operand_count].value;
+          operands[operand_count].offset = operands[operand_count].value;
           operands[operand_count].type = OPERAND_REGISTER_OFFSET;
           operands[operand_count].value = n;
 
@@ -174,8 +177,8 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
   struct _operand operands[MAX_OPERANDS];
   int operand_count;
   int matched = 0;
-  //uint32_t opcode;
-  //int32_t offset;
+  uint32_t opcode;
+  int32_t offset;
   //int temp;
   int n;
 
@@ -196,6 +199,51 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
       switch(table_cell[n].type)
       {
+        case OP_RT_SYMBOL_RA:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            return 4;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER_OFFSET)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          offset = operands[1].offset;
+
+          if (offset < -(1 << 13) || offset >= (1 << 13))
+          {
+            print_error_range("Offset", -(1 << 13), (1 << 13), asm_context);
+            return -1;
+          }
+
+          if ((offset & 0xf) != 0)
+          {
+            print_error_align(asm_context, 16);
+            return -1;
+          }
+
+          offset = (offset >> 4) & 0x3ff;
+
+          opcode = table_cell[n].opcode |
+                  (operands[0].value << 0) |
+                  (operands[1].value << 7) |
+                  (offset << 14);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
           break;
       }

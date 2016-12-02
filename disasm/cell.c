@@ -42,9 +42,15 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
     if ((opcode & table_cell[n].mask) == table_cell[n].opcode)
     {
       //const char *instr = table_cell[n].instr;
+      uint32_t offset = ((opcode >> 14) & 0x3ff) << 4;
+      int ra = (opcode >> 7) & 0x7f;
+      int rt = (opcode >> 0) & 0x7f;
 
       switch(table_cell[n].type)
       {
+        case OP_RT_SYMBOL_RA:
+          sprintf(instruction, "%s r%d, %d(r%d)", table_cell[n].instr, rt, offset, ra);
+          break;
         default:
           strcpy(instruction, "???");
           break;
