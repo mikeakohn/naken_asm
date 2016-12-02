@@ -207,6 +207,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
   int operand_count;
   int matched = 0;
   uint32_t opcode;
+  int32_t address;
   int32_t offset;
   //int temp;
   int n;
@@ -293,6 +294,45 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
                   (operands[0].value << 0) |
                   (operands[1].value << 7) |
                   (operands[2].value << 14);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_RT_SYMBOL:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          address = operands[1].value;
+
+          if (address < 0 || address >= (1 << 18))
+          {
+            print_error_range("Offset", 0, (1 << 18), asm_context);
+            return -1;
+          }
+
+          if ((address & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          address = (address >> 2) & 0xffff;
+
+          opcode = table_cell[n].opcode |
+                  (operands[0].value << 0) |
+                  (address << 7);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 

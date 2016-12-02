@@ -42,10 +42,13 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
     if ((opcode & table_cell[n].mask) == table_cell[n].opcode)
     {
       //const char *instr = table_cell[n].instr;
-      uint32_t offset = ((opcode >> 14) & 0x3ff) << 4;
+      int32_t offset = ((opcode >> 14) & 0x3ff) << 4;
+      uint32_t address = ((opcode >> 7) & 0xffff) << 2;
       int rb = (opcode >> 14) & 0x7f;
       int ra = (opcode >> 7) & 0x7f;
       int rt = (opcode >> 0) & 0x7f;
+
+      if ((offset & (1 << 13)) != 0) { offset |= 0xffffc000; }
 
       switch(table_cell[n].type)
       {
@@ -54,6 +57,9 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
           break;
         case OP_RT_RA_RB:
           sprintf(instruction, "%s r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb);
+          break;
+        case OP_RT_SYMBOL:
+          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, address, address);
           break;
         default:
           strcpy(instruction, "???");
