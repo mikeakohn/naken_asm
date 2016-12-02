@@ -299,7 +299,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
-        case OP_RT_SYMBOL:
+        case OP_RT_ADDRESS:
         {
           if (operand_count != 2)
           {
@@ -372,6 +372,51 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           opcode = table_cell[n].opcode |
                   (operands[0].value << 0) |
                   (address << 7);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_RT_SIGNED16:
+        case OP_RT_UNSIGNED16:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          int32_t data = operands[1].value;
+
+          if (table_cell[n].type == OP_RT_SIGNED16)
+          {
+            if (data < -(1 << 15) || data >= (1 << 15))
+            {
+              print_error_range("Immediate", -(1 << 15), (1 << 15) - 1, asm_context);
+              return -1;
+            }
+          }
+            else
+          {
+            if (data < -(1 << 15) || data >= (1 << 16))
+            {
+              print_error_range("Immediate", -(1 << 15), (1 << 16) - 1, asm_context);
+              return -1;
+            }
+          }
+
+          data = data & 0xffff;
+
+          opcode = table_cell[n].opcode |
+                  (operands[0].value << 0) |
+                  (data << 7);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 

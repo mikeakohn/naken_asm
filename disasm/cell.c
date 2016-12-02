@@ -43,13 +43,11 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
     {
       //const char *instr = table_cell[n].instr;
       int32_t offset;
-      uint32_t address = ((opcode >> 7) & 0xffff) << 2;
-      int32_t relative = ((opcode >> 7) & 0xffff) << 2;
+      uint32_t u16;
+      int32_t i16;
       int rb = (opcode >> 14) & 0x7f;
       int ra = (opcode >> 7) & 0x7f;
       int rt = (opcode >> 0) & 0x7f;
-
-      if ((relative & (1 << 17)) != 0) { relative |= 0xfffc0000; }
 
       switch(table_cell[n].type)
       {
@@ -61,11 +59,22 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
         case OP_RT_RA_RB:
           sprintf(instruction, "%s r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb);
           break;
-        case OP_RT_SYMBOL:
-          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, address, address);
+        case OP_RT_ADDRESS:
+          u16 = ((opcode >> 7) & 0xffff) << 2;
+          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, u16, u16);
           break;
         case OP_RT_RELATIVE:
-          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, relative, relative);
+          i16 = ((opcode >> 7) & 0xffff) << 2;
+          if ((i16 & (1 << 17)) != 0) { i16 |= 0xfffc0000; }
+          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, i16, i16);
+          break;
+        case OP_RT_SIGNED16:
+          i16 = ((opcode >> 7) & 0xffff);
+          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, (int32_t)((int16_t)i16), (int16_t)i16);
+          break;
+        case OP_RT_UNSIGNED16:
+          u16 = ((opcode >> 7) & 0xffff);
+          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, u16, u16);
           break;
         case OP_RT_I7_RA:
           offset = ((opcode >> 14) & 0x7f);
