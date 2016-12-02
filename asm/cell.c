@@ -97,6 +97,35 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         break;
       }
 
+      // Check if this is (reg)
+      if (IS_TOKEN(token, '('))
+      {
+        char token[TOKENLEN];
+        int token_type;
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        n = get_register_cell(token);
+
+        if (n != -1)
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (IS_NOT_TOKEN(token, ')'))
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].offset = 0;
+          operands[operand_count].type = OPERAND_REGISTER_OFFSET;
+          operands[operand_count].value = n;
+
+          break;
+        }
+
+        tokens_push(asm_context, token, token_type);
+      }
+
       // Assume this is just a number
       operands[operand_count].type = OPERAND_NUMBER;
 
