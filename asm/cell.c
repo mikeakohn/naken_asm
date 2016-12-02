@@ -229,7 +229,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
       switch(table_cell[n].type)
       {
-        case OP_RT_SYMBOL_RA:
+        case OP_RT_I10_RA:
         {
           if (operand_count != 2)
           {
@@ -253,7 +253,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           if (offset < -(1 << 13) || offset >= (1 << 13))
           {
-            print_error_range("Offset", -(1 << 13), (1 << 13), asm_context);
+            print_error_range("Offset", -(1 << 13), (1 << 13) - 1, asm_context);
             return -1;
           }
 
@@ -318,7 +318,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           if (address < 0 || address >= (1 << 18))
           {
-            print_error_range("Offset", 0, (1 << 18), asm_context);
+            print_error_range("Offset", 0, (1 << 18) - 1, asm_context);
             return -1;
           }
 
@@ -333,6 +333,92 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           opcode = table_cell[n].opcode |
                   (operands[0].value << 0) |
                   (address << 7);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_RT_RELATIVE:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          address = operands[1].value;
+
+          if (address < -(1 << 17) || address >= (1 << 17))
+          {
+            print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context);
+            return -1;
+          }
+
+          if ((address & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          address = (address >> 2) & 0xffff;
+
+          opcode = table_cell[n].opcode |
+                  (operands[0].value << 0) |
+                  (address << 7);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_RT_I7_RA:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            return 4;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER_OFFSET)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          offset = operands[1].offset;
+
+          if (offset < -(1 << 6) || offset >= (1 << 6))
+          {
+            print_error_range("Offset", -(1 << 6), (1 << 6), asm_context);
+            return -1;
+          }
+
+#if 0
+          if ((offset & 0xf) != 0)
+          {
+            print_error_align(asm_context, 16);
+            return -1;
+          }
+#endif
+
+          offset = offset & 0x7f;
+
+          opcode = table_cell[n].opcode |
+                  (operands[0].value << 0) |
+                  (operands[1].value << 7) |
+                  (offset << 14);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 

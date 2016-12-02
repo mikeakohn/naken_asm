@@ -42,17 +42,20 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
     if ((opcode & table_cell[n].mask) == table_cell[n].opcode)
     {
       //const char *instr = table_cell[n].instr;
-      int32_t offset = ((opcode >> 14) & 0x3ff) << 4;
+      int32_t offset;
       uint32_t address = ((opcode >> 7) & 0xffff) << 2;
+      int32_t relative = ((opcode >> 7) & 0xffff) << 2;
       int rb = (opcode >> 14) & 0x7f;
       int ra = (opcode >> 7) & 0x7f;
       int rt = (opcode >> 0) & 0x7f;
 
-      if ((offset & (1 << 13)) != 0) { offset |= 0xffffc000; }
+      if ((relative & (1 << 17)) != 0) { relative |= 0xfffc0000; }
 
       switch(table_cell[n].type)
       {
-        case OP_RT_SYMBOL_RA:
+        case OP_RT_I10_RA:
+          offset = ((opcode >> 14) & 0x3ff) << 4;
+          if ((offset & (1 << 13)) != 0) { offset |= 0xffffc000; }
           sprintf(instruction, "%s r%d, %d(r%d)", table_cell[n].instr, rt, offset, ra);
           break;
         case OP_RT_RA_RB:
@@ -60,6 +63,14 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
           break;
         case OP_RT_SYMBOL:
           sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, address, address);
+          break;
+        case OP_RT_RELATIVE:
+          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, relative, relative);
+          break;
+        case OP_RT_I7_RA:
+          offset = ((opcode >> 14) & 0x7f);
+          if ((offset & (1 << 6)) != 0) { offset |= 0xffffff80; }
+          sprintf(instruction, "%s r%d, %d(r%d)", table_cell[n].instr, rt, offset, ra);
           break;
         default:
           strcpy(instruction, "???");

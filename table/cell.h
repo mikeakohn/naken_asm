@@ -9,17 +9,19 @@
  *
  */
 
-#ifndef _TABLE_POWERPC_H
-#define _TABLE_POWERPC_H
+#ifndef _TABLE_CELL_H
+#define _TABLE_CELL_H
 
 #include "common/assembler.h"
 
 enum
 {
   OP_NONE,
-  OP_RT_SYMBOL_RA,
+  OP_RT_I10_RA,
   OP_RT_RA_RB,
   OP_RT_SYMBOL,
+  OP_RT_RELATIVE,
+  OP_RT_I7_RA,
 };
 
 struct _table_cell
