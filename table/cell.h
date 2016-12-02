@@ -18,6 +18,7 @@ enum
 {
   OP_NONE,
   OP_RT_SYMBOL_RA,
+  OP_RT_RA_RB,
 };
 
 struct _table_cell
