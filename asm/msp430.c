@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2016 by Michael Kohn
  *
  */
 
@@ -269,7 +269,7 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
 
 static int add_instruction(struct _asm_context *asm_context, struct _data *data, int error, int opcode)
 {
-int n;
+  int n;
 
   //asm_context->instruction_count++;
 
@@ -293,10 +293,10 @@ int n;
 
 static uint16_t get_prefix(struct _asm_context *asm_context, int zc)
 {
-char token[TOKENLEN];
-//int token_type;
-uint16_t prefix = 0xffff;
-int num;
+  char token[TOKENLEN];
+  //int token_type;
+  uint16_t prefix = 0xffff;
+  int num;
 
   tokens_get(asm_context, token, TOKENLEN);
   if (IS_TOKEN(token,'#'))
@@ -304,7 +304,7 @@ int num;
     if (eval_expression(asm_context, &num) != 0)
     {
       print_error_unexp(token, asm_context);
-      return 0xffff; 
+      return 0xffff;
     }
 
     if (num < 1 || num > 16)
@@ -335,19 +335,19 @@ int num;
 
 int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 {
-struct _operand operands[3];
-struct _data data;
-int operand_count = 0;
-char token[TOKENLEN];
-char instr_lower_mem[TOKENLEN];
-char *instr_lower;
-int token_type;
-int size = 0;
-int num,n;
-int bw = 0;
-int opcode;
-int msp430x = 0;
-int prefix = 0;
+  struct _operand operands[3];
+  struct _data data;
+  int operand_count = 0;
+  char token[TOKENLEN];
+  char instr_lower_mem[TOKENLEN];
+  char *instr_lower;
+  int token_type;
+  int size = 0;
+  int num,n;
+  int bw = 0;
+  int opcode;
+  int msp430x = 0;
+  int prefix = 0;
 
   lower_copy(instr_lower_mem, instr);
   instr_lower = instr_lower_mem;
@@ -439,6 +439,33 @@ int prefix = 0;
       }
     }
 
+#if 0
+    if (IS_TOKEN(token,'('))
+    {
+      char token_reg[TOKENLEN];
+      int token_type_reg;
+
+      token_type_reg = tokens_get(asm_context, token_reg, TOKENLEN);
+      num = get_register_msp430(token_reg);
+
+      if (num >= 0)
+      {
+        operands[operand_count].type = OPTYPE_INDEXED;
+        operands[operand_count].value = 0;
+        operands[operand_count].reg = num;
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (expect_token_s(asm_context, ")") == -1) { return -1; }
+
+        break;
+      }
+
+      tokens_push(asm_context, token_reg, token_type_reg);
+      tokens_push(asm_context, token, token_type);
+    }
+#endif
+
     if (IS_TOKEN(token,'#'))
     {
       operands[operand_count].type = OPTYPE_IMMEDIATE;
@@ -465,7 +492,7 @@ int prefix = 0;
       token_type = tokens_get(asm_context, token, TOKENLEN);
       num = get_register_msp430(token);
 
-      if (num<0)
+      if (num < 0)
       {
         print_error_unexp(token, asm_context);
         return -1;
