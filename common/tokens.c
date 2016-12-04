@@ -675,8 +675,15 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
 
 void tokens_push(struct _asm_context *asm_context, char *token, int token_type)
 {
-  strcpy(asm_context->pushback, token);
-  asm_context->pushback_type = token_type;
+  if (asm_context->pushback[0] == 0)
+  {
+    strcpy(asm_context->pushback, token);
+    asm_context->pushback_type = token_type;
+    return;
+  }
+
+  strcpy(asm_context->pushback2, token);
+  asm_context->pushback2_type = token_type;
 }
 
 // Returns the number of chars eaten by this function or 0 for error
