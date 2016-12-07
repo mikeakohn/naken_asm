@@ -21,6 +21,8 @@
 #include "common/eval_expression.h"
 #include "table/riscv.h"
 
+#define MAX_OPERANDS 5
+
 enum
 {
   OPERAND_NONE,
@@ -351,6 +353,12 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       print_error_unexp(token, asm_context);
       return -1;
     }
+
+    if (operand_count == MAX_OPERANDS)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
   }
 
   return operand_count;
@@ -359,7 +367,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
 int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
-  struct _operand operands[5];
+  struct _operand operands[MAX_OPERANDS];
   int operand_count;
   int matched = 0;
   uint32_t opcode;

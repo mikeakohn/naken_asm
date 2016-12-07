@@ -258,6 +258,12 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       print_error_unexp(token, asm_context);
       return -1;
     }
+
+    if (operand_count == MAX_OPERANDS)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
   }
 
   return operand_count;
