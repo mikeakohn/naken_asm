@@ -229,7 +229,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
       switch(table_cell[n].type)
       {
-        case OP_RT_I10_RA:
+        case OP_RT_S10_RA:
         {
           if (operand_count != 2)
           {
@@ -377,8 +377,8 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
-        case OP_RT_SIGNED16:
-        case OP_RT_UNSIGNED16:
+        case OP_RT_S16:
+        case OP_RT_U16:
         {
           if (operand_count != 2)
           {
@@ -395,7 +395,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           int32_t data = operands[1].value;
 
-          if (table_cell[n].type == OP_RT_SIGNED16)
+          if (table_cell[n].type == OP_RT_S16)
           {
             if (data < -(1 << 15) || data >= (1 << 15))
             {
@@ -422,7 +422,40 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
-        case OP_RT_I7_RA:
+        case OP_RT_U18:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          int32_t data = operands[1].value;
+
+          if (data < 0 || data >= (1 << 18))
+          {
+            print_error_range("Immediate", 0, (1 << 18) - 1, asm_context);
+            return -1;
+          }
+
+          data = data & 0x3ffff;
+
+          opcode = table_cell[n].opcode |
+                  (operands[0].value << 0) |
+                  (data << 7);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_RT_S7_RA:
         {
           if (operand_count != 2)
           {

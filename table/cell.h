@@ -17,13 +17,14 @@
 enum
 {
   OP_NONE,
-  OP_RT_I10_RA,
+  OP_RT_S10_RA,
   OP_RT_RA_RB,
   OP_RT_ADDRESS,
   OP_RT_RELATIVE,
-  OP_RT_SIGNED16,
-  OP_RT_UNSIGNED16,
-  OP_RT_I7_RA,
+  OP_RT_S16,
+  OP_RT_U16,
+  OP_RT_U18,
+  OP_RT_S7_RA,
 };
 
 struct _table_cell

@@ -51,7 +51,7 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
 
       switch(table_cell[n].type)
       {
-        case OP_RT_I10_RA:
+        case OP_RT_S10_RA:
           offset = ((opcode >> 14) & 0x3ff) << 4;
           if ((offset & (1 << 13)) != 0) { offset |= 0xffffc000; }
           sprintf(instruction, "%s r%d, %d(r%d)", table_cell[n].instr, rt, offset, ra);
@@ -68,15 +68,19 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
           if ((i16 & (1 << 17)) != 0) { i16 |= 0xfffc0000; }
           sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, i16, i16);
           break;
-        case OP_RT_SIGNED16:
+        case OP_RT_S16:
           i16 = ((opcode >> 7) & 0xffff);
           sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, (int32_t)((int16_t)i16), (int16_t)i16);
           break;
-        case OP_RT_UNSIGNED16:
+        case OP_RT_U16:
           u16 = ((opcode >> 7) & 0xffff);
           sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, u16, u16);
           break;
-        case OP_RT_I7_RA:
+        case OP_RT_U18:
+          u16 = ((opcode >> 7) & 0x3ffff);
+          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, u16, u16);
+          break;
+        case OP_RT_S7_RA:
           offset = ((opcode >> 14) & 0x7f);
           if ((offset & (1 << 6)) != 0) { offset |= 0xffffff80; }
           sprintf(instruction, "%s r%d, %d(r%d)", table_cell[n].instr, rt, offset, ra);
