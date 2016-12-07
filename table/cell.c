@@ -41,6 +41,7 @@ struct _table_cell table_cell[] =
   { "lqr",    0x33800000, 0xff800000, OP_RT_RELATIVE,  FLAG_NONE, 0, 0 },
   { "lqx",    0x38800000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
   { "mpy",    0x78800000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "mpya",   0xc0000000, 0xf0000000, OP_RT_RA_RB_RC,  FLAG_NONE, 0, 0 },
   { "mpyi",   0x74000000, 0xff000000, OP_RT_S10_RA,    FLAG_NONE, 0, 0 },
   { "mpyu",   0x79800000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
   { "mpyui",  0x75000000, 0xff000000, OP_RT_S10_RA,    FLAG_NONE, 0, 0 },

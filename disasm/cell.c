@@ -48,6 +48,7 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
       int rb = (opcode >> 14) & 0x7f;
       int ra = (opcode >> 7) & 0x7f;
       int rt = (opcode >> 0) & 0x7f;
+      int rc;
 
       switch(table_cell[n].type)
       {
@@ -58,6 +59,11 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
           break;
         case OP_RT_RA_RB:
           sprintf(instruction, "%s r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb);
+          break;
+        case OP_RT_RA_RB_RC:
+          rc = rt;
+          rt = (opcode >> 21) & 0x7f;
+          sprintf(instruction, "%s r%d, r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb, rc);
           break;
         case OP_RT_ADDRESS:
           u16 = ((opcode >> 7) & 0xffff) << 2;
