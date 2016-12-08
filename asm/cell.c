@@ -280,6 +280,51 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_RT_RA_S10:
+        case OP_RT_RA_U10:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          int value = operands[2].value;
+
+          if (table_cell[n].type == OP_RT_RA_S10)
+          {
+            if (value < -(1 << 9) || value >= (1 << 9))
+            {
+              print_error_range("Value", -(1 << 9), (1 << 9) - 1, asm_context);
+              return -1;
+            }
+          }
+            else
+          {
+            if (value < 0 || value >= (1 << 10))
+            {
+              print_error_range("Value", 0, (1 << 10) - 1, asm_context);
+              return -1;
+            }
+          }
+
+          opcode = table_cell[n].opcode |
+                  (operands[0].value << 0) |
+                  (operands[1].value << 7) |
+                  (value << 14);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         case OP_RT_RA:
         {
           if (operand_count != 2)
