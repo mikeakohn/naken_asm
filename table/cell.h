@@ -18,6 +18,7 @@ enum
 {
   OP_NONE,
   OP_RT_S10_RA,
+  OP_RT_RA,
   OP_RT_RA_RB,
   OP_RT_RA_RB_RC,
   OP_RT_ADDRESS,

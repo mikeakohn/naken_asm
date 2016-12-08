@@ -57,6 +57,9 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
           if ((offset & (1 << 13)) != 0) { offset |= 0xffffc000; }
           sprintf(instruction, "%s r%d, %d(r%d)", table_cell[n].instr, rt, offset, ra);
           break;
+        case OP_RT_RA:
+          sprintf(instruction, "%s r%d, r%d", table_cell[n].instr, rt, ra);
+          break;
         case OP_RT_RA_RB:
           sprintf(instruction, "%s r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb);
           break;
