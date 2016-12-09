@@ -100,6 +100,13 @@ struct _table_cell table_cell[] =
   // Shift and rotate instructions
   { "shlh",   0x0be00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
   { "shlhi",  0x0fe00000, 0xffe00000, OP_RT_RA_U7,     FLAG_NONE, 0, 0 },
+  { "shl",    0x0bb00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "shli",   0x0f600000, 0xffe00000, OP_RT_RA_U7,     FLAG_NONE, 0, 0 },
+  { "shlqbi", 0x3bb00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "shlqbii",0x3fb00000, 0xffe00000, OP_RT_RA_U7,     FLAG_NONE, 0, 0 },
+  { "shlqby", 0x3be00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "shlqbyi",0x3fe00000, 0xffe00000, OP_RT_RA_U7,     FLAG_NONE, 0, 0 },
+  { "shlqbybi",0x39e00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
 
   { NULL, 0, 0, 0, 0 }
 };
