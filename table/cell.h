@@ -31,6 +31,7 @@ enum
   OP_RT_U16,
   OP_RT_U18,
   OP_RT_S7_RA,
+  OP_RA_S10,
 };
 
 struct _table_cell

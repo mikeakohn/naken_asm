@@ -630,6 +630,44 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_RA_S10:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            return 4;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          int value = operands[1].value;
+
+          if (value < -(1 << 13) || value >= (1 << 13))
+          {
+            print_error_range("Offset", -(1 << 13), (1 << 13) - 1, asm_context);
+            return -1;
+          }
+
+          value &= 0x3ff;
+
+          opcode = table_cell[n].opcode |
+                  (operands[0].value << 7) |
+                  (value << 14);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
           break;
       }

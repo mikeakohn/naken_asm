@@ -110,6 +110,11 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
           if ((offset & (1 << 6)) != 0) { offset |= 0xffffff80; }
           sprintf(instruction, "%s r%d, %d(r%d)", table_cell[n].instr, rt, offset, ra);
           break;
+        case OP_RA_S10:
+          i16 = (opcode >> 14) & 0x3ff;
+          if ((i16 & (1 << 9)) != 0) { i16 |= 0xfffffc00; }
+          sprintf(instruction, "%s r%d, %d", table_cell[n].instr, ra, i16);
+          break;
         default:
           strcpy(instruction, "???");
           break;
