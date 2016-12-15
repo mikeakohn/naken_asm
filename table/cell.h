@@ -22,6 +22,7 @@ enum
   OP_RT_RA_U10,
   OP_RT_RA_U7,
   OP_RT_RA,
+  OP_RA_RB,
   OP_RT_RA_RB,
   OP_RT_RA_RB_RC,
   OP_RT_ADDRESS,

@@ -343,6 +343,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_RT_RA:
+        case OP_RA_RB:
         {
           if (operand_count != 2)
           {
@@ -357,9 +358,18 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          opcode = table_cell[n].opcode |
-                  (operands[0].value << 0) |
-                  (operands[1].value << 7);
+          if (table_cell[n].type == OP_RT_RA)
+          {
+            opcode = table_cell[n].opcode |
+                    (operands[0].value << 0) |
+                    (operands[1].value << 7);
+          }
+            else
+          {
+            opcode = table_cell[n].opcode |
+                    (operands[0].value << 7) |
+                    (operands[1].value << 14);
+          }
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
