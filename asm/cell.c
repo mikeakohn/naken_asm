@@ -739,8 +739,8 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
-        case OP_BRANCH_RELATIVE_LINK:
-        case OP_BRANCH_ABSOLUTE_LINK:
+        case OP_BRANCH_RELATIVE_RT:
+        case OP_BRANCH_ABSOLUTE_RT:
         {
           if (operand_count != 2)
           {
@@ -755,7 +755,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (table_cell[n].type == OP_BRANCH_RELATIVE_LINK)
+          if (table_cell[n].type == OP_BRANCH_RELATIVE_RT)
           {
             address = operands[1].value - asm_context->address;
 

@@ -129,13 +129,13 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
           u16 <<= 2;
           sprintf(instruction, "%s 0x%x", table_cell[n].instr, u16);
           break;
-        case OP_BRANCH_RELATIVE_LINK:
+        case OP_BRANCH_RELATIVE_RT:
           i16 = ((opcode >> 7) & 0xffff);
           if ((i16 & 0x8000) != 0) { i16 |= 0xffff0000; }
           i16 <<= 2;
           sprintf(instruction, "%s r%d, 0x%x (offset=%d)", table_cell[n].instr, rt, address + i16, i16);
           break;
-        case OP_BRANCH_ABSOLUTE_LINK:
+        case OP_BRANCH_ABSOLUTE_RT:
           u16 = ((opcode >> 7) & 0xffff);
           u16 <<= 2;
           sprintf(instruction, "%s r%d, 0x%x", table_cell[n].instr, rt, u16);

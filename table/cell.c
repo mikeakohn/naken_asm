@@ -157,9 +157,20 @@ struct _table_cell table_cell[] =
   // Branch
   { "br",     0x32000000, 0xff800000, OP_BRANCH_RELATIVE, FLAG_NONE, 0, 0 },
   { "bra",    0x30000000, 0xff800000, OP_BRANCH_ABSOLUTE, FLAG_NONE, 0, 0 },
-  { "brsl",   0x33000000, 0xff800000, OP_BRANCH_RELATIVE_LINK,FLAG_NONE, 0, 0 },
-  { "brasl",  0x31000000, 0xff800000, OP_BRANCH_ABSOLUTE_LINK,FLAG_NONE, 0, 0 },
+  { "brsl",   0x33000000, 0xff800000, OP_BRANCH_RELATIVE_RT,FLAG_NONE, 0, 0 },
+  { "brasl",  0x31000000, 0xff800000, OP_BRANCH_ABSOLUTE_RT,FLAG_NONE, 0, 0 },
   { "bi",     0x35000000, 0xffe00000, OP_RA,           FLAG_NONE, 0, 0 },
+  { "iret",   0x35400000, 0xffe00000, OP_RA,           FLAG_NONE, 0, 0 },
+  { "bisled", 0x35600000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
+  { "bisl",   0x35200000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
+  { "brnz",   0x21000000, 0xff800000, OP_BRANCH_ABSOLUTE_RT,FLAG_NONE, 0, 0 },
+  { "brz",    0x20000000, 0xff800000, OP_BRANCH_ABSOLUTE_RT,FLAG_NONE, 0, 0 },
+  { "brhnz",  0x23000000, 0xff800000, OP_BRANCH_ABSOLUTE_RT,FLAG_NONE, 0, 0 },
+  { "brhz",   0x22000000, 0xff800000, OP_BRANCH_ABSOLUTE_RT,FLAG_NONE, 0, 0 },
+  { "biz",    0x25000000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
+  { "binz",   0x25200000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
+  { "bihz",   0x25400000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
+  { "bihnz",  0x25600000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
   { NULL, 0, 0, 0, 0 }
 };
 
