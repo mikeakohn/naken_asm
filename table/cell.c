@@ -154,6 +154,12 @@ struct _table_cell table_cell[] =
   { "clgthi", 0x5d000000, 0xff000000, OP_RT_RA_S10,    FLAG_NONE, 0, 0 },
   { "clgt",   0x58000000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
   { "clgti",  0x5c000000, 0xff000000, OP_RT_RA_S10,    FLAG_NONE, 0, 0 },
+  // Branch
+  { "br",     0x32000000, 0xff800000, OP_BRANCH_RELATIVE, FLAG_NONE, 0, 0 },
+  { "bra",    0x30000000, 0xff800000, OP_BRANCH_ABSOLUTE, FLAG_NONE, 0, 0 },
+  { "brsl",   0x33000000, 0xff800000, OP_BRANCH_RELATIVE_LINK,FLAG_NONE, 0, 0 },
+  { "brasl",  0x31000000, 0xff800000, OP_BRANCH_ABSOLUTE_LINK,FLAG_NONE, 0, 0 },
+  { "bi",     0x35000000, 0xffe00000, OP_RA,           FLAG_NONE, 0, 0 },
   { NULL, 0, 0, 0, 0 }
 };
 

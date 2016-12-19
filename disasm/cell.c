@@ -76,6 +76,9 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
         case OP_RA_RB:
           sprintf(instruction, "%s r%d, r%d", table_cell[n].instr, ra, rb);
           break;
+        case OP_RA:
+          sprintf(instruction, "%s r%d", table_cell[n].instr, ra);
+          break;
         case OP_RT_RA_RB:
           sprintf(instruction, "%s r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb);
           break;
@@ -114,6 +117,28 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
           i16 = (opcode >> 14) & 0x3ff;
           if ((i16 & (1 << 9)) != 0) { i16 |= 0xfffffc00; }
           sprintf(instruction, "%s r%d, %d", table_cell[n].instr, ra, i16);
+          break;
+        case OP_BRANCH_RELATIVE:
+          i16 = ((opcode >> 7) & 0xffff);
+          if ((i16 & 0x8000) != 0) { i16 |= 0xffff0000; }
+          i16 <<= 2;
+          sprintf(instruction, "%s 0x%x (offset=%d)", table_cell[n].instr, address + i16, i16);
+          break;
+        case OP_BRANCH_ABSOLUTE:
+          u16 = ((opcode >> 7) & 0xffff);
+          u16 <<= 2;
+          sprintf(instruction, "%s 0x%x", table_cell[n].instr, u16);
+          break;
+        case OP_BRANCH_RELATIVE_LINK:
+          i16 = ((opcode >> 7) & 0xffff);
+          if ((i16 & 0x8000) != 0) { i16 |= 0xffff0000; }
+          i16 <<= 2;
+          sprintf(instruction, "%s r%d, 0x%x (offset=%d)", table_cell[n].instr, rt, address + i16, i16);
+          break;
+        case OP_BRANCH_ABSOLUTE_LINK:
+          u16 = ((opcode >> 7) & 0xffff);
+          u16 <<= 2;
+          sprintf(instruction, "%s r%d, 0x%x", table_cell[n].instr, rt, u16);
           break;
         default:
           strcpy(instruction, "???");

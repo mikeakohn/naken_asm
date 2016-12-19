@@ -23,6 +23,7 @@ enum
   OP_RT_RA_U7,
   OP_RT_RA,
   OP_RA_RB,
+  OP_RA,
   OP_RT_RA_RB,
   OP_RT_RA_RB_RC,
   OP_RT_ADDRESS,
@@ -32,6 +33,10 @@ enum
   OP_RT_U18,
   OP_RT_S7_RA,
   OP_RA_S10,
+  OP_BRANCH_RELATIVE,
+  OP_BRANCH_ABSOLUTE,
+  OP_BRANCH_RELATIVE_LINK,
+  OP_BRANCH_ABSOLUTE_LINK,
 };
 
 struct _table_cell

@@ -375,6 +375,26 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_RA:
+        {
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_cell[n].opcode | (operands[0].value << 7);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         case OP_RT_RA_RB:
         {
           if (operand_count != 3)
@@ -446,7 +466,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           if (address < 0 || address >= (1 << 18))
           {
-            print_error_range("Offset", 0, (1 << 18) - 1, asm_context);
+            print_error_range("Address", 0, (1 << 18) - 1, asm_context);
             return -1;
           }
 
@@ -663,6 +683,110 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           opcode = table_cell[n].opcode |
                   (operands[0].value << 7) |
                   (value << 14);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_BRANCH_RELATIVE:
+        case OP_BRANCH_ABSOLUTE:
+        {
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (table_cell[n].type == OP_BRANCH_RELATIVE)
+          {
+            address = operands[0].value - asm_context->address;
+
+            if (address < -(1 << 17) || address >= (1 << 17))
+            {
+              print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context);
+              return -1;
+            }
+          }
+            else
+          {
+            address = operands[0].value;
+
+            if (address < 0 || address >= (1 << 18))
+            {
+              print_error_range("Address", 0, (1 << 18) - 1, asm_context);
+              return -1;
+            }
+          }
+
+
+          if ((address & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          address = (address >> 2) & 0xffff;
+
+          opcode = table_cell[n].opcode | (address << 7);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_BRANCH_RELATIVE_LINK:
+        case OP_BRANCH_ABSOLUTE_LINK:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (table_cell[n].type == OP_BRANCH_RELATIVE_LINK)
+          {
+            address = operands[1].value - asm_context->address;
+
+            if (address < -(1 << 17) || address >= (1 << 17))
+            {
+              print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context);
+              return -1;
+            }
+          }
+            else
+          {
+            address = asm_context->address;
+
+            if (address < 0 || address >= (1 << 18))
+            {
+              print_error_range("Address", 0, (1 << 18) - 1, asm_context);
+              return -1;
+            }
+          }
+
+          if ((address & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          address = (address >> 2) & 0xffff;
+
+          opcode = table_cell[n].opcode |
+                  (operands[0].value << 0) |
+                  (address << 7);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
