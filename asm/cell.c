@@ -942,6 +942,49 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_RT_RA_SCALE155:
+        case OP_RT_RA_SCALE173:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          int scale;
+
+          if (table_cell[n].type == OP_RT_RA_SCALE155)
+          {
+            scale = 155 - operands[2].value;
+          }
+            else
+          {
+            scale = 173 - operands[2].value;
+          }
+
+          if (scale < 0 || scale > 255)
+          {
+            print_error_range("Scale", 0, 255, asm_context);
+            return -1;
+          }
+
+          opcode = table_cell[n].opcode |
+                  (scale << 14) |
+                  (operands[1].value << 7) |
+                  (operands[0].value << 0);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
           break;
       }

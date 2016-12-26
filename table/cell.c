@@ -177,6 +177,27 @@ struct _table_cell table_cell[] =
   { "hbra",   0x10000000, 0xfe000000, OP_HINT_ABSOLUTE_RO_I16,FLAG_NONE, 0, 0 },
   { "hbrr",   0x12000000, 0xfe000000, OP_HINT_RELATIVE_RO_I16,FLAG_NONE, 0, 0 },
   // Floating point
+  { "fa",     0x58800000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "dfa",    0x59800000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "fs",     0x58a00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "dfs",    0x59a00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "fm",     0x58c00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "dfm",    0x59c00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "fma",    0xe0000000, 0xf0000000, OP_RT_RA_RB_RC,  FLAG_NONE, 0, 0 },
+  { "dfma",   0x6b800000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "fnms",   0xd0000000, 0xf0000000, OP_RT_RA_RB_RC,  FLAG_NONE, 0, 0 },
+  { "dfnms",  0x6bc00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "fms",    0xf0000000, 0xf0000000, OP_RT_RA_RB_RC,  FLAG_NONE, 0, 0 },
+  { "dfms",   0x6ba00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "dfnma",  0x6be00000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "frest",  0x37000000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
+  { "frsqest",0x37200000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
+  { "fi",     0x7a800000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "csflt",  0x76800000, 0xffc00000, OP_RT_RA_SCALE155,FLAG_NONE, 0, 0 },
+  { "cflts",  0x76000000, 0xffc00000, OP_RT_RA_SCALE173,FLAG_NONE, 0, 0 },
+  { "cuflt",  0x76c00000, 0xffc00000, OP_RT_RA_SCALE155,FLAG_NONE, 0, 0 },
+  { "cfltu",  0x76400000, 0xffc00000, OP_RT_RA_SCALE173,FLAG_NONE, 0, 0 },
+  { "frds",   0x77200000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
   { NULL, 0, 0, 0, 0 }
 };
 

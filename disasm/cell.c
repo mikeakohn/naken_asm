@@ -167,6 +167,14 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
           i16 <<= 2;
           sprintf(instruction, "%s 0x%x (offset=%d), 0x%x (offset=%d)", table_cell[n].instr, address + ro, ro, address + i16, i16);
           break;
+        case OP_RT_RA_SCALE155:
+          i16 = 155 - ((opcode >> 14) & 0xff);
+          sprintf(instruction, "%s r%d, r%d, %d", table_cell[n].instr, rt, ra, i16);
+          break;
+        case OP_RT_RA_SCALE173:
+          i16 = 173 - ((opcode >> 14) & 0xff);
+          sprintf(instruction, "%s r%d, r%d, %d", table_cell[n].instr, rt, ra, i16);
+          break;
         default:
           strcpy(instruction, "???");
           break;
