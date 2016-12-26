@@ -198,6 +198,18 @@ struct _table_cell table_cell[] =
   { "cuflt",  0x76c00000, 0xffc00000, OP_RT_RA_SCALE155,FLAG_NONE, 0, 0 },
   { "cfltu",  0x76400000, 0xffc00000, OP_RT_RA_SCALE173,FLAG_NONE, 0, 0 },
   { "frds",   0x77200000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
+  { "fesd",   0x77000000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
+  { "dfceq",  0x78600000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "dfcmeq", 0x79600000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "dfcgt",  0x58600000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "dfcmgt", 0x59600000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "dftsv",  0x77e00000, 0xffe00000, OP_RT_RA_U7,     FLAG_NONE, 0, 0 },
+  { "fceq",   0x78400000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "fcmeq",  0x79400000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "fcgt",   0x58400000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "fcmgt",  0x59400000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
+  { "fscrwr", 0x77400000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
+  { "fscrrd", 0x73000000, 0xffe00000, OP_RT,           FLAG_NONE, 0, 0 },
   { NULL, 0, 0, 0, 0 }
 };
 

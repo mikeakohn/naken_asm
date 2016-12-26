@@ -337,7 +337,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
             else
           if (table_cell[n].type == OP_RT_RA_U7)
           {
-            if (value < 0 || value >= (1 << 10))
+            if (value < 0 || value >= (1 << 7))
             {
               print_error_range("Value", 0, (1 << 7) - 1, asm_context);
               return -1;
@@ -389,6 +389,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_RA:
+        case OP_RT:
         {
           if (operand_count != 1)
           {
@@ -402,7 +403,14 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          opcode = table_cell[n].opcode | (operands[0].value << 7);
+          if (table_cell[n].type == OP_RT_RA)
+          {
+            opcode = table_cell[n].opcode | (operands[0].value << 7);
+          }
+            else
+          {
+            opcode = table_cell[n].opcode | operands[0].value;
+          }
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
