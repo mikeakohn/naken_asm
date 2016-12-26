@@ -154,7 +154,7 @@ struct _table_cell table_cell[] =
   { "clgthi", 0x5d000000, 0xff000000, OP_RT_RA_S10,    FLAG_NONE, 0, 0 },
   { "clgt",   0x58000000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
   { "clgti",  0x5c000000, 0xff000000, OP_RT_RA_S10,    FLAG_NONE, 0, 0 },
-  // Branch
+  // Branch instructions
   { "br",     0x32000000, 0xff800000, OP_BRANCH_RELATIVE, FLAG_NONE, 0, 0 },
   { "bra",    0x30000000, 0xff800000, OP_BRANCH_ABSOLUTE, FLAG_NONE, 0, 0 },
   { "brsl",   0x33000000, 0xff800000, OP_BRANCH_RELATIVE_RT,FLAG_NONE, 0, 0 },
@@ -171,6 +171,12 @@ struct _table_cell table_cell[] =
   { "binz",   0x25200000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
   { "bihz",   0x25400000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
   { "bihnz",  0x25600000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
+  // Hint for branch instructions
+  { "hbr",    0x35800000, 0xfff00000, OP_HINT_RELATIVE_RO_RA, FLAG_NONE, 0, 0 },
+  { "hbrp",   0x35900000, 0xffffffff, OP_NONE,                FLAG_NONE, 0, 0 },
+  { "hbra",   0x10000000, 0xfe000000, OP_HINT_ABSOLUTE_RO_I16,FLAG_NONE, 0, 0 },
+  { "hbrr",   0x12000000, 0xfe000000, OP_HINT_RELATIVE_RO_I16,FLAG_NONE, 0, 0 },
+  // Floating point
   { NULL, 0, 0, 0, 0 }
 };
 

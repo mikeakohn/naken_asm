@@ -47,7 +47,7 @@ struct _modifiers
 };
 
 static int get_register_number(char *token)
-{ 
+{
   int num = 0;
 
   while(*token != 0)
@@ -64,9 +64,9 @@ static int get_register_number(char *token)
 }
 
 static int get_register_cell(char *token)
-{ 
+{
   if (token[0] != 'r') { return -1; }
-  
+
   return get_register_number(token + 1);
 }
 
@@ -235,6 +235,18 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
       switch(table_cell[n].type)
       {
+        case OP_NONE:
+        {
+          if (operand_count != 0)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          add_bin32(asm_context, table_cell[n].opcode, IS_OPCODE);
+
+          return 4;
+        }
         case OP_RT_S10_RA:
         {
           if (operand_count != 2)
@@ -245,6 +257,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           if (asm_context->pass == 1)
           {
+            add_bin32(asm_context, 0, IS_OPCODE);
             return 4;
           }
 
@@ -613,6 +626,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           if (asm_context->pass == 1)
           {
+            add_bin32(asm_context, 0, IS_OPCODE);
             return 4;
           }
 
@@ -660,6 +674,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           if (asm_context->pass == 1)
           {
+            add_bin32(asm_context, 0, IS_OPCODE);
             return 4;
           }
 
@@ -695,6 +710,12 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           {
             print_error_opcount(instr, asm_context);
             return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            add_bin32(asm_context, 0, IS_OPCODE);
+            return 4;
           }
 
           if (operands[0].type != OPERAND_NUMBER)
@@ -748,6 +769,12 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
+          if (asm_context->pass == 1)
+          {
+            add_bin32(asm_context, 0, IS_OPCODE);
+            return 4;
+          }
+
           if (operands[0].type != OPERAND_REGISTER ||
               operands[1].type != OPERAND_NUMBER)
           {
@@ -767,7 +794,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           }
             else
           {
-            address = asm_context->address;
+            address = operands[1].value;
 
             if (address < 0 || address >= (1 << 18))
             {
@@ -792,6 +819,129 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_HINT_RELATIVE_RO_RA:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            add_bin32(asm_context, 0, IS_OPCODE);
+            return 4;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          offset = operands[0].value - asm_context->address;
+
+          if (offset < -(1 << 17) || offset >= (1 << 17))
+          {
+            print_error_range("Offset", -(1 << 10), (1 << 10) - 1, asm_context);
+            return -1;
+          }
+
+          if ((offset & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          offset = (offset >> 2) & 0x01ff;
+
+          opcode = table_cell[n].opcode |
+                  (((offset >> 7) & 0x3) << 14) |
+                  (operands[1].value << 7) |
+                  (offset & 0x7f);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_HINT_ABSOLUTE_RO_I16:
+        case OP_HINT_RELATIVE_RO_I16:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            add_bin32(asm_context, 0, IS_OPCODE);
+            return 4;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          offset = operands[0].value - asm_context->address;
+
+          if (offset < -(1 << 17) || offset >= (1 << 17))
+          {
+            print_error_range("Offset", -(1 << 10), (1 << 10) - 1, asm_context);
+            return -1;
+          }
+
+          if ((offset & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          offset = (offset >> 2) & 0x01ff;
+
+          opcode = table_cell[n].opcode |
+                  (((offset >> 7) & 0x3) << 23) |
+                  (offset & 0x7f);
+
+          if (table_cell[n].type == OP_HINT_RELATIVE_RO_I16)
+          {
+            address = operands[1].value - asm_context->address;
+
+            if (address < -(1 << 17) || address >= (1 << 17))
+            {
+              print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context);
+              return -1;
+            }
+          }
+            else
+          {
+            address = operands[1].value;
+
+            if (address < 0 || address >= (1 << 18))
+            {
+              print_error_range("Address", 0, (1 << 18) - 1, asm_context);
+              return -1;
+            }
+          }
+
+          if ((address & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          address = (address >> 2) & 0xffff;
+
+          opcode |= (address << 7);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
           break;
       }
@@ -802,7 +952,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context); 
+    print_error_unknown_operand_combo(instr, asm_context);
   }
     else
   {

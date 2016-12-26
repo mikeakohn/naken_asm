@@ -45,6 +45,7 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
       int32_t offset;
       uint32_t u16;
       int32_t i16;
+      int32_t ro;
       int rb = (opcode >> 14) & 0x7f;
       int ra = (opcode >> 7) & 0x7f;
       int rt = (opcode >> 0) & 0x7f;
@@ -52,6 +53,9 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
 
       switch(table_cell[n].type)
       {
+        case OP_NONE:
+          sprintf(instruction, "%s", table_cell[n].instr);
+          break;
         case OP_RT_S10_RA:
           offset = ((opcode >> 14) & 0x3ff) << 4;
           if ((offset & (1 << 13)) != 0) { offset |= 0xffffc000; }
@@ -139,6 +143,29 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
           u16 = ((opcode >> 7) & 0xffff);
           u16 <<= 2;
           sprintf(instruction, "%s r%d, 0x%x", table_cell[n].instr, rt, u16);
+          break;
+        case OP_HINT_RELATIVE_RO_RA:
+          ro = (((opcode >> 14) & 0x3) << 7) | (opcode & 0x7f);
+          if ((ro & 0x100) != 0) { ro |= 0xffffff00; }
+          ro <<= 2;
+          sprintf(instruction, "%s 0x%x (offset=%d), r%d", table_cell[n].instr, address + ro, ro, ra);
+          break;
+        case OP_HINT_ABSOLUTE_RO_I16:
+          ro = (((opcode >> 23) & 0x3) << 7) | (opcode & 0x7f);
+          if ((ro & 0x100) != 0) { ro |= 0xffffff00; }
+          ro <<= 2;
+          u16 = ((opcode >> 7) & 0xffff);
+          u16 <<= 2;
+          sprintf(instruction, "%s 0x%x (offset=%d), 0x%x", table_cell[n].instr, address + ro, ro, u16);
+          break;
+        case OP_HINT_RELATIVE_RO_I16:
+          ro = (((opcode >> 23) & 0x3) << 7) | (opcode & 0x7f);
+          if ((ro & 0x100) != 0) { ro |= 0xffffff00; }
+          ro <<= 2;
+          i16 = ((opcode >> 7) & 0xffff);
+          if ((i16 & 0x8000) != 0) { i16 |= 0xffff0000; }
+          i16 <<= 2;
+          sprintf(instruction, "%s 0x%x (offset=%d), 0x%x (offset=%d)", table_cell[n].instr, address + ro, ro, address + i16, i16);
           break;
         default:
           strcpy(instruction, "???");
