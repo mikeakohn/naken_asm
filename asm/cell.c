@@ -441,6 +441,31 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_RA_RB_RC:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_cell[n].opcode |
+                  (operands[2].value << 0) |
+                  (operands[0].value << 7) |
+                  (operands[1].value << 14);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         case OP_RT_RA_RB_RC:
         {
           if (operand_count != 4)
@@ -988,6 +1013,32 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
                   (scale << 14) |
                   (operands[1].value << 7) |
                   (operands[0].value << 0);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_U14:
+        {
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value >= (1 << 14))
+          {
+            print_error_range("Offset", 0, (1 << 14) - 1, asm_context);
+            return -1;
+          }
+
+          opcode = table_cell[n].opcode | operands[0].value;
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 

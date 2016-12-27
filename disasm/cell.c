@@ -89,6 +89,9 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
         case OP_RT_RA_RB:
           sprintf(instruction, "%s r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb);
           break;
+        case OP_RA_RB_RC:
+          sprintf(instruction, "%s r%d, r%d, r%d", table_cell[n].instr, ra, rb, rt);
+          break;
         case OP_RT_RA_RB_RC:
           rc = rt;
           rt = (opcode >> 21) & 0x7f;
@@ -177,6 +180,10 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
         case OP_RT_RA_SCALE173:
           i16 = 173 - ((opcode >> 14) & 0xff);
           sprintf(instruction, "%s r%d, r%d, %d", table_cell[n].instr, rt, ra, i16);
+          break;
+        case OP_U14:
+          u16 = opcode & 0x3fff;
+          sprintf(instruction, "%s 0x%04x", table_cell[n].instr, u16);
           break;
         default:
           strcpy(instruction, "???");

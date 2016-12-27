@@ -210,6 +210,14 @@ struct _table_cell table_cell[] =
   { "fcmgt",  0x59400000, 0xffe00000, OP_RT_RA_RB,     FLAG_NONE, 0, 0 },
   { "fscrwr", 0x77400000, 0xffe00000, OP_RT_RA,        FLAG_NONE, 0, 0 },
   { "fscrrd", 0x73000000, 0xffe00000, OP_RT,           FLAG_NONE, 0, 0 },
+  // Stop and signal
+  { "stop",   0x00000000, 0xffe00000, OP_U14,          FLAG_NONE, 0, 0 },
+  { "stopd",  0x28000000, 0xffe00000, OP_RA_RB_RC,     FLAG_NONE, 0, 0 },
+  { "lnop",   0x00200000, 0xffe00000, OP_NONE,         FLAG_NONE, 0, 0 },
+  { "nop",    0x40200000, 0xffe00000, OP_RT,           FLAG_NONE, 0, 0 },
+  { "sync",   0x00400000, 0xfff00000, OP_NONE,           FLAG_NONE, 0, 0 },
+  { "syncc",  0x00500000, 0xfff00000, OP_NONE,           FLAG_NONE, 0, 0 },
+  { "dsync",  0x00600000, 0xffe00000, OP_NONE,           FLAG_NONE, 0, 0 },
   { NULL, 0, 0, 0, 0 }
 };
 

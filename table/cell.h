@@ -26,6 +26,7 @@ enum
   OP_RA,
   OP_RT,
   OP_RT_RA_RB,
+  OP_RA_RB_RC,
   OP_RT_RA_RB_RC,
   OP_RT_ADDRESS,
   OP_RT_RELATIVE,
@@ -43,6 +44,7 @@ enum
   OP_HINT_RELATIVE_RO_I16,
   OP_RT_RA_SCALE155,
   OP_RT_RA_SCALE173,
+  OP_U14,
 };
 
 struct _table_cell
