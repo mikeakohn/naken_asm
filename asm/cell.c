@@ -1044,6 +1044,68 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_RT_SA:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          int32_t data = operands[1].value;
+
+          if (data < 0 || data >= 128)
+          {
+            print_error_range("Immediate", 0, 127, asm_context);
+            return -1;
+          }
+
+          opcode = table_cell[n].opcode |
+                  (operands[0].value << 0) |
+                  (data << 7);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_SA_RT:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          int32_t data = operands[0].value;
+
+          if (data < 0 || data >= 128)
+          {
+            print_error_range("Immediate", 0, 127, asm_context);
+            return -1;
+          }
+
+          opcode = table_cell[n].opcode |
+                  (operands[1].value << 0) |
+                  (data << 7);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
           break;
       }

@@ -215,9 +215,11 @@ struct _table_cell table_cell[] =
   { "stopd",  0x28000000, 0xffe00000, OP_RA_RB_RC,     FLAG_NONE, 0, 0 },
   { "lnop",   0x00200000, 0xffe00000, OP_NONE,         FLAG_NONE, 0, 0 },
   { "nop",    0x40200000, 0xffe00000, OP_RT,           FLAG_NONE, 0, 0 },
-  { "sync",   0x00400000, 0xfff00000, OP_NONE,           FLAG_NONE, 0, 0 },
-  { "syncc",  0x00500000, 0xfff00000, OP_NONE,           FLAG_NONE, 0, 0 },
-  { "dsync",  0x00600000, 0xffe00000, OP_NONE,           FLAG_NONE, 0, 0 },
+  { "sync",   0x00400000, 0xfff00000, OP_NONE,         FLAG_NONE, 0, 0 },
+  { "syncc",  0x00500000, 0xfff00000, OP_NONE,         FLAG_NONE, 0, 0 },
+  { "dsync",  0x00600000, 0xffe00000, OP_NONE,         FLAG_NONE, 0, 0 },
+  { "mfspr",  0x01800000, 0xffe00000, OP_RT_SA,        FLAG_NONE, 0, 0 },
+  { "mtspr",  0x21800000, 0xffe00000, OP_SA_RT,        FLAG_NONE, 0, 0 },
   { NULL, 0, 0, 0, 0 }
 };
 
