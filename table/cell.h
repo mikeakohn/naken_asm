@@ -46,7 +46,9 @@ enum
   OP_RT_RA_SCALE173,
   OP_U14,
   OP_RT_SA,
+  OP_RT_CA,
   OP_SA_RT,
+  OP_CA_RT,
 };
 
 struct _table_cell

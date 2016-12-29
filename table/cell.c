@@ -220,6 +220,10 @@ struct _table_cell table_cell[] =
   { "dsync",  0x00600000, 0xffe00000, OP_NONE,         FLAG_NONE, 0, 0 },
   { "mfspr",  0x01800000, 0xffe00000, OP_RT_SA,        FLAG_NONE, 0, 0 },
   { "mtspr",  0x21800000, 0xffe00000, OP_SA_RT,        FLAG_NONE, 0, 0 },
+  // Read Channel
+  { "rdch",   0x01a00000, 0xffe00000, OP_RT_CA,        FLAG_NONE, 0, 0 },
+  { "rchcnt", 0x01e00000, 0xffe00000, OP_RT_CA,        FLAG_NONE, 0, 0 },
+  { "wrch",   0x21a00000, 0xffe00000, OP_CA_RT,        FLAG_NONE, 0, 0 },
   { NULL, 0, 0, 0, 0 }
 };
 

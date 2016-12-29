@@ -1045,6 +1045,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_RT_SA:
+        case OP_RT_CA:
         {
           if (operand_count != 2)
           {
@@ -1076,6 +1077,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_SA_RT:
+        case OP_CA_RT:
         {
           if (operand_count != 2)
           {
