@@ -1,0 +1,201 @@
+lqd r55, -368(r67)
+lqx r126, r121, r82
+lqa r91, main
+lqr r64, main
+stqd r64, -480(r42)
+stqx r3, r104, r117
+stqa r71, main
+stqr r27, main
+cbd r97, 16(r108)
+cbx r16, r82, r55
+chd r48, 16(r17)
+chx r78, r89, r82
+cwd r3, 0(r59)
+cwx r44, r31, r57
+cdd r10, 32(r73)
+cdx r19, r2, r4
+ilh r82, -12609
+ilhu r4, 35818
+il r87, -3726
+ila r5, 250578
+iohl r23, 54699
+ah r82, r27, r19
+ahi r6, r115, 67
+a r51, r110, r116
+ai r121, r41, -163
+sfh r54, r74, r121
+sfhi r28, r64, -263
+sf r91, r1, r105
+sfi r97, r5, -315
+addx r28, r6, r108
+cg r13, r121, r74
+cgx r60, r12, r101
+sfx r23, r38, r17
+bg r111, r38, r64
+bgx r76, r14, r11
+mpy r121, r88, r18
+mpyu r3, r25, r32
+mpyi r96, r13, -337
+mpyui r69, r111, 59
+mpya r29, r107, r1, r93
+mpyh r69, r115, r116
+mpys r76, r59, r64
+mpyhh r108, r82, r117
+mpyhha r110, r100, r89
+mpyhhu r96, r21, r10
+mpyhhau r6, r61, r124
+clz r6, r64
+cntb r118, r41
+fsmb r32, r8
+fsmh r5, r72
+fsm r122, r54
+fsmbi r72, 56521
+gbb r26, r13
+gbh r108, r19
+gb r39, r118
+avgb r62, r109, r111
+absdb r112, r97, r108
+sumb r34, r32, r117
+xsbh r123, r72
+xshw r51, r109
+xswd r103, r2
+and r106, r71, r103
+andc r69, r68, r27
+andbi r73, r29, -45
+andhi r38, r8, -154
+andi r77, r37, 403
+or r35, r13, r76
+orc r5, r37, r61
+orbi r23, r43, 249
+orhi r84, r49, 176
+ori r124, r7, 171
+orx r79, r34
+xor r41, r89, r6
+xorbi r29, r4, -41
+xorhi r38, r84, -30
+xori r57, r11, 424
+nand r116, r10, r114
+nor r31, r69, r5
+eqv r104, r116, r67
+selb r72, r43, r57, r39
+shufb r43, r21, r99, r48
+shlh r41, r93, r74
+shlhi r18, r33, 46
+shl r78, r124, r60
+shli r33, r85, 7
+shlqbi r75, r36, r69
+shlqbii r66, r106, 6
+shlqby r42, r118, r33
+shlqbyi r55, r89, 7
+shlqbybi r98, r35, r110
+roth r7, r37, r107
+rothi r51, r124, 50
+rot r79, r13, r28
+roti r113, r48, 97
+rotqby r46, r10, r33
+rotqbyi r2, r87, 3
+rotqbybi r83, r21, r94
+rotqbi r53, r49, r63
+rotqbii r20, r122, 62
+rothm r117, r40, r26
+rothmi r108, r76, -4
+rotm r85, r53, r101
+rotmi r35, r13, 1
+rotqmby r51, r93, r47
+rotqmbyi r78, r1, -3
+rotqmbybi r56, r80, r94
+rotqmbi r56, r125, r122
+rotqmbii r88, r114, 5
+rotmah r54, r83, r44
+rotmahi r31, r99, -22
+rotma r69, r51, r89
+rotmai r27, r89, 20
+heq r100, r112
+heqi r59, 204
+hgt r16, r109
+hgti r85, 253
+hlgt r48, r109
+hlgti r46, 317
+ceqb r64, r90, r9
+ceqbi r30, r83, 251
+ceqh r3, r37, r103
+ceqhi r100, r78, -330
+ceq r121, r62, r78
+ceqi r113, r27, 277
+cgtb r127, r106, r7
+cgtbi r36, r110, 183
+cgth r10, r47, r90
+cgthi r96, r40, 64
+cgt r18, r2, r108
+cgti r84, r87, 322
+clgtb r77, r2, r30
+clgtbi r63, r119, 466
+clgth r31, r63, r98
+clgthi r127, r44, 10
+clgt r91, r13, r34
+clgti r59, r103, -39
+br main
+bra main
+brsl r24, main
+brasl r108, main
+bi r77
+iret r109
+bisled r24, r65
+bisl r30, r62
+brnz r49, main
+brz r78, main
+brhnz r7, main
+brhz r8, main
+biz r9, r101
+binz r96, r53
+bihz r78, r12
+bihnz r67, r16
+hbr main, r93
+hbrp 
+hbra main, main
+hbrr main, main
+fa r71, r87, r95
+dfa r58, r95, r41
+fs r43, r76, r22
+dfs r24, r95, r107
+fm r27, r110, r36
+dfm r83, r44, r8
+fma r77, r28, r122, r108
+dfma r30, r100, r104
+fnms r53, r118, r39, r65
+dfnms r102, r8, r37
+fms r55, r102, r26, r80
+dfms r82, r15, r15
+dfnma r118, r45, r61
+frest r91, r25
+frsqest r15, r104
+fi r106, r35, r119
+csflt r112, r95, 11
+cflts r4, r96, 13
+cuflt r46, r104, 33
+cfltu r88, r85, 43
+frds r12, r29
+fesd r97, r109
+dfceq r126, r74, r63
+dfcmeq r50, r34, r15
+dfcgt r2, r115, r98
+dfcmgt r112, r17, r10
+dftsv r99, r9, 46
+fceq r114, r42, r15
+fcmeq r74, r88, r61
+fcgt r29, r91, r49
+fcmgt r41, r74, r22
+fscrwr r77, r92
+fscrrd r38
+stop 16146
+stopd r7, r11, r58
+lnop 
+nop r33
+sync 
+syncc 
+dsync 
+mfspr r82, 81
+mtspr 111, r119
+rdch r118, 92
+rchcnt r16, 104
+wrch 28, r99
