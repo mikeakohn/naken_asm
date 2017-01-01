@@ -296,6 +296,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
         case OP_RT_RA_S10:
         case OP_RT_RA_U10:
         case OP_RT_RA_U7:
+        case OP_RT_RA_S6:
         {
           if (operand_count != 3)
           {
@@ -317,7 +318,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           {
             if (value < -(1 << 9) || value >= (1 << 9))
             {
-              print_error_range("Value", -(1 << 9), (1 << 9) - 1, asm_context);
+              print_error_range("Constant", -(1 << 9), (1 << 9) - 1, asm_context);
               return -1;
             }
 
@@ -328,7 +329,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           {
             if (value < 0 || value >= (1 << 10))
             {
-              print_error_range("Value", 0, (1 << 10) - 1, asm_context);
+              print_error_range("Constant", 0, (1 << 10) - 1, asm_context);
               return -1;
             }
 
@@ -339,7 +340,18 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           {
             if (value < 0 || value >= (1 << 7))
             {
-              print_error_range("Value", 0, (1 << 7) - 1, asm_context);
+              print_error_range("Constant", 0, (1 << 7) - 1, asm_context);
+              return -1;
+            }
+
+            value &= 0x7f;
+          }
+            else
+          if (table_cell[n].type == OP_RT_RA_S6)
+          {
+            if (value < -32 || value >= 32)
+            {
+              print_error_range("Constant", -32, 31, asm_context);
               return -1;
             }
 

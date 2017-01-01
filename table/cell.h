@@ -21,6 +21,7 @@ enum
   OP_RT_RA_S10,
   OP_RT_RA_U10,
   OP_RT_RA_U7,
+  OP_RT_RA_S6,
   OP_RT_RA,
   OP_RA_RB,
   OP_RA,

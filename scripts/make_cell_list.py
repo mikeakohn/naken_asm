@@ -31,6 +31,16 @@ for line in fp:
     operand_list = [ "main", get_register() ]
   elif op in [ "OP_HINT_ABSOLUTE_RO_I16", "OP_HINT_RELATIVE_RO_I16" ]:
     operand_list = [ "main", "main" ]
+  elif op in [ "OP_BRANCH_RELATIVE_RT", "OP_BRANCH_ABSOLUTE_RT" ]:
+    operand_list = [ get_register(), "main" ]
+  elif op == "OP_RT_S10_RA":
+    s = random.randint(-512, 511) / 16 * 16
+    offset_reg = str(s) + "(" + get_register() + ")"
+    operand_list = [ get_register(), offset_reg ]
+  elif op == "OP_RT_S7_RA":
+    s = random.randint(-64, 63) / 16 * 16
+    offset_reg = str(s) + "(" + get_register() + ")"
+    operand_list = [ get_register(), offset_reg ]
   else:
     operands = op.split("_")
 
