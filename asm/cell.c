@@ -415,7 +415,7 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (table_cell[n].type == OP_RT_RA)
+          if (table_cell[n].type == OP_RA)
           {
             opcode = table_cell[n].opcode | (operands[0].value << 7);
           }
@@ -469,10 +469,11 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
+          // This is disagreeing with documentation
           opcode = table_cell[n].opcode |
-                  (operands[2].value << 0) |
-                  (operands[0].value << 7) |
-                  (operands[1].value << 14);
+                  (operands[0].value << 0) |
+                  (operands[1].value << 7) |
+                  (operands[2].value << 14);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 

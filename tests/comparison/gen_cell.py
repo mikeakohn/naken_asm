@@ -39,6 +39,8 @@ for instruction in fp:
     #out.write(old + "\n")
     #hex = hex[0:l-10] + hex[-2:]
 
+  if "main" in instruction: original = "main: " + original
+
   out.write(original + "|" + hex + "\n")
   fp1.close
 
