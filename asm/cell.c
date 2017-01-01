@@ -349,9 +349,9 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
             else
           if (table_cell[n].type == OP_RT_RA_S6)
           {
-            if (value < -32 || value >= 32)
+            if (value < -64 || value >= 64)
             {
-              print_error_range("Constant", -32, 31, asm_context);
+              print_error_range("Constant", -64, 63, asm_context);
               return -1;
             }
 
