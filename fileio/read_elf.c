@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -231,6 +231,9 @@ int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _
       break;
     case 20:
       *cpu_type = CPU_TYPE_POWERPC;
+      break;
+    case 23:
+      *cpu_type = CPU_TYPE_CELL;
       break;
     case 40:
       *cpu_type = CPU_TYPE_ARM;

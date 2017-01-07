@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -169,6 +169,10 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
       elf->e_machine = 0x53;
       elf->e_flags = 0x85;
       elf->e_shnum++;
+      break;
+    case CPU_TYPE_CELL:
+      elf->e_machine = 23;
+      elf->e_ident[EI_OSABI] = 0;
       break;
     case CPU_TYPE_DSPIC:
       elf->e_machine = 118;
