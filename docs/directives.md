@@ -20,6 +20,7 @@ CPU this source file should be assembled for.
 |.8051            |8051/8052/MCS-51
 |.arm             |All ARM CPUs
 |.avr8            |Atmel AVR8
+|.cell            |IBM Cell BE
 |.dspic           |dsPIC
 |.epiphany        |Ephiphany/Parallella
 |.mips            |MIPS (32 bit)
