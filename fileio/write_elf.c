@@ -173,6 +173,7 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
     case CPU_TYPE_CELL:
       elf->e_machine = 23;
       elf->e_ident[EI_OSABI] = 0;
+      elf->e_type = 2;  // Executable
       break;
     case CPU_TYPE_DSPIC:
       elf->e_machine = 118;
