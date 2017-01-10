@@ -95,6 +95,7 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
           sprintf(instruction, "%s r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb);
           break;
         case OP_RA_RB_RC:
+          rc = rt;
           sprintf(instruction, "%s r%d, r%d, r%d", table_cell[n].instr, rc, ra, rb);
           break;
         case OP_RT_RA_RB_RC:
