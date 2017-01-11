@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -20,7 +20,6 @@
 #include "common/assembler.h"
 #include "common/tokens.h"
 #include "common/eval_expression.h"
-#include "disasm/arm.h"
 #include "table/8051.h"
 
 enum
