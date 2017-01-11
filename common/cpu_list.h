@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -48,6 +48,7 @@ enum
   CPU_TYPE_EMOTION_ENGINE,
   CPU_TYPE_EPIPHANY,
   CPU_TYPE_MIPS32,
+  CPU_TYPE_PIC14,
   CPU_TYPE_PIC24,
   CPU_TYPE_POWERPC,
   CPU_TYPE_PROPELLER,

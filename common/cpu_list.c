@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -26,6 +26,7 @@
 #include "asm/epiphany.h"
 #include "asm/mips.h"
 #include "asm/msp430.h"
+#include "asm/pic14.h"
 #include "asm/powerpc.h"
 #include "asm/propeller.h"
 #include "asm/ps2_ee_vu.h"
@@ -49,6 +50,7 @@
 #include "disasm/epiphany.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
+#include "disasm/pic14.h"
 #include "disasm/powerpc.h"
 #include "disasm/propeller.h"
 #include "disasm/ps2_ee_vu.h"
@@ -115,6 +117,9 @@ struct _cpu_list cpu_list[] =
 #ifdef ENABLE_MSP430
   { "msp430", CPU_TYPE_MSP430, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 0, parse_instruction_msp430, NULL, list_output_msp430, disasm_range_msp430, simulate_init_msp430, NO_FLAGS },
   { "msp430x", CPU_TYPE_MSP430X, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 0, parse_instruction_msp430, NULL, list_output_msp430x, disasm_range_msp430x, simulate_init_msp430, NO_FLAGS },
+#endif
+#ifdef ENABLE_PIC14
+  { "pic14", CPU_TYPE_PIC14, ENDIAN_LITTLE, 2, ALIGN_2, 0, 0, 0, parse_instruction_pic14, NULL, list_output_pic14, disasm_range_pic14, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_DSPIC
   { "pic24", CPU_TYPE_PIC24, ENDIAN_LITTLE, 2, ALIGN_2, 0, 0, 0, parse_instruction_dspic, NULL, list_output_dspic, disasm_range_dspic, NULL, NO_FLAGS },

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -36,6 +36,7 @@
 #include "disasm/epiphany.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
+#include "disasm/pic14.h"
 #include "disasm/powerpc.h"
 #include "disasm/propeller.h"
 #include "disasm/ps2_ee_vu.h"
@@ -83,6 +84,7 @@ parse_instruction_t parse_instruction_dspic = NULL;
 parse_instruction_t parse_instruction_epiphany = NULL;
 parse_instruction_t parse_instruction_mips = NULL;
 parse_instruction_t parse_instruction_msp430 = NULL;
+parse_instruction_t parse_instruction_pic14 = NULL;
 parse_instruction_t parse_instruction_powerpc = NULL;
 parse_instruction_t parse_instruction_propeller = NULL;
 parse_instruction_t parse_instruction_ps2_ee_vu = NULL;

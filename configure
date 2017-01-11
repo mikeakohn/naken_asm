@@ -17,7 +17,7 @@ ASM_OBJS_ALL=""
 DISASM_OBJS_ALL=""
 TABLE_OBJS_ALL=""
 SIM_OBJS_ALL=""
-DFLAGS_ALL="-DENABLE_65XX -DENABLE_6800 -DENABLE_6809 -DENABLE_65816 -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_8051 -DENABLE_ARM -DENABLE_AVR8 -DENABLE_CELL -DENABLE_DSPIC -DENABLE_EMOTION_ENGINE -DENABLE_EPIPHANY -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_POWERPC -DENABLE_PROPELLER -DENABLE_RISCV -DENABLE_STM8 -DENABLE_THUMB -DENABLE_TMS1000 -DENABLE_TMS9900 -DENABLE_Z80"
+DFLAGS_ALL="-DENABLE_65XX -DENABLE_6800 -DENABLE_6809 -DENABLE_65816 -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_8051 -DENABLE_ARM -DENABLE_AVR8 -DENABLE_CELL -DENABLE_DSPIC -DENABLE_EMOTION_ENGINE -DENABLE_EPIPHANY -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_PIC14 -DENABLE_POWERPC -DENABLE_PROPELLER -DENABLE_RISCV -DENABLE_STM8 -DENABLE_THUMB -DENABLE_TMS1000 -DENABLE_TMS9900 -DENABLE_Z80"
 ASM_OBJS="common.o"
 DISASM_OBJS=""
 TABLE_OBJS=""
@@ -100,6 +100,7 @@ show_help()
   echo "  --enable-epiphany         compile in support for Ephiphany-III/IV"
   echo "  --enable-mips             compile in support for MIPS"
   echo "  --enable-msp430           compile in support for MSP430 and MSP430X"
+  echo "  --enable-pic14            compile in support for PIC14"
   echo "  --enable-powerpc          compile in support for PowerPC"
   echo "  --enable-propeller        compile in support for Propeller"
   echo "  --enable-emotion-engine   compile in support for Emotion Engine"
@@ -300,6 +301,12 @@ for option in $@; do
     TABLE_OBJS="${TABLE_OBJS} msp430.o"
     DFLAGS="${DFLAGS} -DENABLE_MSP430"
     NO_MSP430=""
+  ;;
+  --enable-pic14)
+    ASM_OBJS="${ASM_OBJS} pic14.o"
+    DISASM_OBJS="${DISASM_OBJS} pic14.o"
+    TABLE_OBJS="${TABLE_OBJS} pic14.o"
+    DFLAGS="${DFLAGS} -DENABLE_PIC14"
   ;;
   --enable-powerpc)
     ASM_OBJS="${ASM_OBJS} powerpc.o"
