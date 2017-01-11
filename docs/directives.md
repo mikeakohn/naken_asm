@@ -27,6 +27,7 @@ CPU this source file should be assembled for.
 |.mips32          |MIPS (32 bit)
 |.msp430          |MSP430
 |.mps430x         |MSP430X
+|.pic14           |PIC w/ 14 bit opcodes
 |.pic32           |PIC32 MIPS
 |.powerpc         |PowerPC
 |.propeller       |Parallax Propeller
