@@ -118,7 +118,7 @@ void list_output_pic14(struct _asm_context *asm_context, uint32_t start, uint32_
     opcode = memory_read16_m(&asm_context->memory, start);
     sprintf(bytes, "0x%04x", opcode);
 
-    fprintf(asm_context->list, "0x%04x: %-16s %-40s cycles: ", start / 4, bytes, instruction);
+    fprintf(asm_context->list, "0x%04x: %-16s %-40s cycles: ", start / 2, bytes, instruction);
 
     if (cycles_min == 0)
     {
@@ -157,7 +157,7 @@ void disasm_range_pic14(struct _memory *memory, uint32_t flags, uint32_t start, 
     opcode = memory_read16_m(memory, start);
 
     sprintf(bytes, "0x%04x", opcode);
-    printf("0x%04x: %-16s %-40s ", start / 4, bytes, instruction);
+    printf("0x%04x: %-16s %-40s ", start / 2, bytes, instruction);
 
     if (cycles_min == 0)
     {
