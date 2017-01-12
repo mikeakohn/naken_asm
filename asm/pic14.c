@@ -50,6 +50,12 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
 
   if (asm_context->pass == 1)
   {
+    while(1)
+    {
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
+    }
+
     add_bin16(asm_context, 0, IS_OPCODE);
     return 2;
   }
@@ -150,13 +156,13 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
 
           if (operands[1].type == OPERAND_F)
           {
-            add_bin32(asm_context, opcode | 0x80, IS_OPCODE);
+            add_bin16(asm_context, opcode | 0x80, IS_OPCODE);
             return 2;
           }
 
           if (operands[1].type == OPERAND_W)
           {
-            add_bin32(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;
           }
 
@@ -184,7 +190,7 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
           }
 
           opcode = table_pic14[n].opcode | (operands[0].value & 0x7f);
-          add_bin32(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
         }
@@ -216,7 +222,7 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
           }
 
           opcode = table_pic14[n].opcode | (operands[0].value & 0x7f);
-          add_bin32(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
         }
@@ -241,7 +247,7 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
           }
 
           opcode = table_pic14[n].opcode | (operands[0].value & 0xff);
-          add_bin32(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
         }
@@ -266,7 +272,7 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
           }
 
           opcode = table_pic14[n].opcode | (operands[0].value & 0x7ff);
-          add_bin32(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
         }
