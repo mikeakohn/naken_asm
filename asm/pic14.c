@@ -215,13 +215,15 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (operands[0].value < 0 || operands[0].value > 7)
+          if (operands[1].value < 0 || operands[1].value > 7)
           {
             print_error_range("Bit", 0, 7, asm_context);
             return -1;
           }
 
-          opcode = table_pic14[n].opcode | (operands[0].value & 0x7f);
+          opcode = table_pic14[n].opcode |
+                  (operands[0].value & 0x7f) |
+                  (operands[1].value << 7);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;

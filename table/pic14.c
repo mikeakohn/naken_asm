@@ -19,7 +19,7 @@ struct _table_pic14 table_pic14[] =
   { "addwf",  0x0700, 0xff00, OP_F_D,  1, 1 },
   { "andwf",  0x0500, 0xff00, OP_F_D,  1, 1 },
   { "clrf",   0x0180, 0xff80, OP_F,    1, 1 },
-  { "clrw",   0x0100, 0xff80, OP_NONE, 1, 1 },
+  { "clrw",   0x0103, 0xff80, OP_NONE, 1, 1 },
   { "comf",   0x0900, 0xff00, OP_F_D,  1, 1 },
   { "decf",   0x0300, 0xff00, OP_F_D,  1, 1 },
   { "decfsz", 0x0b00, 0xff00, OP_F_D,  1, 2 },

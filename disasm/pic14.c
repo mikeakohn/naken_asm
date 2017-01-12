@@ -57,7 +57,7 @@ int disasm_pic14(struct _memory *memory, uint32_t address, char *instruction, in
         {
           f = opcode & 0x7f;
           d = (opcode >> 7) & 1;
-          sprintf(instruction, "%s 0x%02x, %c", table_pic14[n].instr, f, d == 0 ? 'f':'w');
+          sprintf(instruction, "%s 0x%02x, %c", table_pic14[n].instr, f, d == 1 ? 'f':'w');
           return 2;
         }
         case OP_F:
