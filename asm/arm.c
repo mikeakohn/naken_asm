@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -93,15 +93,15 @@ static int get_register_arm(char *token)
   return -1;
 }
 
-static int parse_condition(char **instr_lower)
+static int parse_condition(char **instr_case)
 {
   int cond;
-  char *instr = *instr_lower;
+  char *instr = *instr_case;
 
   for (cond = 0; cond < 16; cond++)
   {
     if (strncmp(instr, arm_cond_a[cond], 2) == 0)
-    { *instr_lower += 2; break; }
+    { *instr_case += 2; break; }
   }
   if (cond == 16) { cond = 14; }
 
@@ -253,7 +253,7 @@ static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operan
       operands[1].type == OPERAND_IMMEDIATE &&
       operands[1].value == 0xffffffff)
   {
-    //strncpy(instr_lower, "mvn", 3);
+    //strncpy(instr_case, "mvn", 3);
     opcode = 0x01e00000,
     operands[1].value = 0x0;
   }
@@ -264,7 +264,7 @@ static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operan
       operands[1].type == OPERAND_IMMEDIATE &&
       operands[1].value == 0xffffffff)
   {
-    //strncpy(instr_lower, "mov", 3);
+    //strncpy(instr_case, "mov", 3);
     opcode = 0x01a00000;
     operands[1].value = 0;
   }
@@ -782,15 +782,15 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
 {
   struct _operand operands[4];
   int operand_count;
-  char instr_lower_mem[TOKENLEN];
-  char *instr_lower=instr_lower_mem;
+  char instr_case_mem[TOKENLEN];
+  char *instr_case = instr_case_mem;
   char token[TOKENLEN];
   int token_type;
   int n;
   int matched = 0;
   int bytes = -1;
 
-  lower_copy(instr_lower, instr);
+  lower_copy(instr_case, instr);
   memset(operands, 0, sizeof(operands));
   operand_count = 0;
 
@@ -1071,9 +1071,9 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(table_arm[n].instr != NULL)
   {
-    if (strncmp(table_arm[n].instr, instr_lower, table_arm[n].len) == 0)
+    if (strncmp(table_arm[n].instr, instr_case, table_arm[n].len) == 0)
     {
-      char *instr_cond = instr_lower + table_arm[n].len;
+      char *instr_cond = instr_case + table_arm[n].len;
       matched = 1;
 
       switch(table_arm[n].type)

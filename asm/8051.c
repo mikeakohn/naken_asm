@@ -215,8 +215,8 @@ static int get_address(struct _asm_context *asm_context, int *num, uint8_t *is_b
 
 int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
 {
-  char instr_lower_mem[TOKENLEN];
-  char *instr_lower = instr_lower_mem;
+  char instr_case_mem[TOKENLEN];
+  char *instr_case = instr_case_mem;
   char token[TOKENLEN];
   struct _operand operands[3];
   uint8_t is_bit_address;
@@ -226,7 +226,7 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
   int num, n, r;
   int count = 1;
 
-  lower_copy(instr_lower, instr);
+  lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
 
   while(1)
@@ -416,7 +416,7 @@ printf("\n");
 
   for (n = 0; n < 256; n++)
   {
-    if (strcmp(table_8051[n].name, instr_lower) == 0)
+    if (strcmp(table_8051[n].name, instr_case) == 0)
     {
       matched = 1;
       for(r = 0; r < 3; r++)

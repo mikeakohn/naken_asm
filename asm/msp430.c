@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -339,8 +339,8 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   struct _data data;
   int operand_count = 0;
   char token[TOKENLEN];
-  char instr_lower_mem[TOKENLEN];
-  char *instr_lower;
+  char instr_case_mem[TOKENLEN];
+  char *instr_case;
   int token_type;
   int size = 0;
   int num,n;
@@ -349,8 +349,8 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   int msp430x = 0;
   int prefix = 0;
 
-  lower_copy(instr_lower_mem, instr);
-  instr_lower = instr_lower_mem;
+  lower_copy(instr_case_mem, instr);
+  instr_case = instr_case_mem;
 
   // Not sure if this is a good area for this.  If there isn't an instruction
   // here then it pads for no reason.
@@ -369,7 +369,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
     n=0;
     while(msp430x_rpt[n] != NULL)
     {
-      if (strcmp(instr_lower, msp430x_rpt[n]) == 0)
+      if (strcmp(instr_case, msp430x_rpt[n]) == 0)
       {
         prefix = get_prefix(asm_context, n & 1);
         if (prefix == 0xffff) return -1;
@@ -385,7 +385,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
           asm_context->line++;
         }
 
-        lower_copy(instr_lower_mem, instr);
+        lower_copy(instr_case_mem, instr);
 
         break;
       }
@@ -620,7 +620,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(aliases[n].instr != NULL)
   {
-    if (strcmp(instr_lower, aliases[n].instr) == 0)
+    if (strcmp(instr_case, aliases[n].instr) == 0)
     {
       if (aliases[n].operand_count != operand_count)
       {
@@ -667,8 +667,8 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
       }
 
       operand_count = 2;
-      //instr_lower = (char *)aliases[n].alt;
-      strcpy(instr_lower, (char *)aliases[n].alt);
+      //instr_case = (char *)aliases[n].alt;
+      strcpy(instr_case, (char *)aliases[n].alt);
       break;
     }
 
@@ -684,7 +684,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
     while(msp430x_ext[n] != NULL)
     {
-      if (strcmp(instr_lower, msp430x_ext[n]) == 0)
+      if (strcmp(instr_case, msp430x_ext[n]) == 0)
       {
         uint32_t src19_16 = 0;
         uint32_t dst19_16 = 0;
@@ -692,7 +692,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
         // Strip the 'x' off of the end of the instruction so it can
         // be processed below as a regular msp430 instruction.
-        instr_lower[strlen(instr_lower) - 1] = 0;
+        instr_case[strlen(instr_case) - 1] = 0;
 
         if (size == 8) { al = 1; bw = 1; }
         else if (size == 16) { al = 1; bw = 0; }
@@ -736,7 +736,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(one_oper[n] != NULL)
   {
-    if (strcmp(instr_lower,one_oper[n]) == 0)
+    if (strcmp(instr_case,one_oper[n]) == 0)
     {
       if (msp430x == 0 && size > 16)
       {
@@ -797,7 +797,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(two_oper[n] != NULL)
   {
-    if (strcmp(instr_lower,two_oper[n]) == 0)
+    if (strcmp(instr_case,two_oper[n]) == 0)
     {
       if (msp430x == 0 && size > 16)
       {
@@ -851,7 +851,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   {
     int offset;
 
-    if (strcmp(instr_lower,jumps[n]) == 0 || (jumps_a[n] != NULL && strcmp(instr_lower,jumps_a[n]) == 0))
+    if (strcmp(instr_case,jumps[n]) == 0 || (jumps_a[n] != NULL && strcmp(instr_case,jumps_a[n]) == 0))
     {
       if (operand_count != 1)
       {
@@ -912,7 +912,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   }
 
   // Do reti
-  if (strcmp(instr_lower, "reti") == 0)
+  if (strcmp(instr_case, "reti") == 0)
   {
     if (size != 0)
     {
@@ -938,7 +938,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   }
 
   // MSP430X CALLA
-  if (strcmp(instr_lower, "calla") == 0)
+  if (strcmp(instr_case, "calla") == 0)
   {
     if (operand_count != 1)
     {
@@ -1032,7 +1032,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(msp430x_shift[n] != NULL)
   {
-    if (strcmp(instr_lower,msp430x_shift[n]) == 0)
+    if (strcmp(instr_case,msp430x_shift[n]) == 0)
     {
       if (operand_count != 2 || operands[0].type != OPTYPE_IMMEDIATE ||
           operands[1].type != OPTYPE_REGISTER)
@@ -1066,7 +1066,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(msp430x_alu[n] != NULL)
   {
-    if (strcmp(instr_lower, msp430x_alu[n]) == 0)
+    if (strcmp(instr_case, msp430x_alu[n]) == 0)
     {
       int count = 2;
 
@@ -1130,7 +1130,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(msp430x_stack[n] != NULL)
   {
-    if (strcmp(instr_lower, msp430x_stack[n]) == 0)
+    if (strcmp(instr_case, msp430x_stack[n]) == 0)
     {
       if (operand_count != 2 || operands[0].type != OPTYPE_IMMEDIATE ||
           operands[1].type != OPTYPE_REGISTER)
@@ -1164,7 +1164,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   }
 
   // MSP430X MOVA
-  if (strcmp(instr_lower, "mova") == 0)
+  if (strcmp(instr_case, "mova") == 0)
   {
     if (operand_count != 2)
     {

@@ -39,8 +39,8 @@ struct _operand
 
 int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
 {
-  char instr_lower_mem[TOKENLEN];
-  char *instr_lower = instr_lower_mem;
+  char instr_case_mem[TOKENLEN];
+  char *instr_case = instr_case_mem;
   char token[TOKENLEN];
   struct _operand operands[MAX_OPERANDS];
   int operand_count = 0;
@@ -60,7 +60,7 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
     return 2;
   }
 
-  lower_copy(instr_lower, instr);
+  lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
 
   while(1)
@@ -116,7 +116,7 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
   n = 0;
   while(table_pic14[n].instr != NULL)
   {
-    if (strcmp(table_pic14[n].instr, instr_lower) == 0)
+    if (strcmp(table_pic14[n].instr, instr_case) == 0)
     {
       switch(table_pic14[n].type)
       {
