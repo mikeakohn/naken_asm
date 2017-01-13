@@ -17,7 +17,7 @@ ASM_OBJS_ALL=""
 DISASM_OBJS_ALL=""
 TABLE_OBJS_ALL=""
 SIM_OBJS_ALL=""
-DFLAGS_ALL="-DENABLE_65XX -DENABLE_6800 -DENABLE_6809 -DENABLE_65816 -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_8051 -DENABLE_ARM -DENABLE_AVR8 -DENABLE_CELL -DENABLE_DSPIC -DENABLE_EMOTION_ENGINE -DENABLE_EPIPHANY -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_PIC14 -DENABLE_POWERPC -DENABLE_PROPELLER -DENABLE_RISCV -DENABLE_STM8 -DENABLE_THUMB -DENABLE_TMS1000 -DENABLE_TMS9900 -DENABLE_Z80"
+DFLAGS_ALL="-DENABLE_65XX -DENABLE_6800 -DENABLE_6809 -DENABLE_65816 -DENABLE_68HC08 -DENABLE_680X0 -DENABLE_8051 -DENABLE_ARM -DENABLE_AVR8 -DENABLE_CELL -DENABLE_DSPIC -DENABLE_EMOTION_ENGINE -DENABLE_EPIPHANY -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_PIC14 -DENABLE_POWERPC -DENABLE_PROPELLER -DENABLE_RISCV -DENABLE_STM8 -DENABLE_SUPER_FX -DENABLE_THUMB -DENABLE_TMS1000 -DENABLE_TMS9900 -DENABLE_Z80"
 ASM_OBJS="common.o"
 DISASM_OBJS=""
 TABLE_OBJS=""
@@ -106,6 +106,7 @@ show_help()
   echo "  --enable-emotion-engine   compile in support for Emotion Engine"
   echo "  --enable-riscv            compile in support for RISCV"
   echo "  --enable-stm8             compile in support for STM8"
+  echo "  --enable-super-fx         compile in support for Super FX"
   echo "  --enable-thumb            compile in support for thumb"
   echo "  --enable-tms1000          compile in support for tms1000/tms1100"
   echo "  --enable-tms9900          compile in support for tms9900"
@@ -337,6 +338,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} stm8.o"
     TABLE_OBJS="${TABLE_OBJS} stm8.o"
     DFLAGS="${DFLAGS} -DENABLE_STM8"
+  ;;
+  --enable-super-fx)
+    ASM_OBJS="${ASM_OBJS} super_fx.o"
+    DISASM_OBJS="${DISASM_OBJS} super_fx.o"
+    TABLE_OBJS="${TABLE_OBJS} super_fx.o"
+    DFLAGS="${DFLAGS} -DENABLE_SUPER_FX"
   ;;
   --enable-thumb)
     ASM_OBJS="${ASM_OBJS} thumb"

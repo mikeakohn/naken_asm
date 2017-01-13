@@ -32,6 +32,7 @@
 #include "asm/ps2_ee_vu.h"
 #include "asm/riscv.h"
 #include "asm/stm8.h"
+#include "asm/super_fx.h"
 #include "asm/thumb.h"
 #include "asm/tms1000.h"
 #include "asm/tms9900.h"
@@ -56,6 +57,7 @@
 #include "disasm/ps2_ee_vu.h"
 #include "disasm/riscv.h"
 #include "disasm/stm8.h"
+#include "disasm/super_fx.h"
 #include "disasm/thumb.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
@@ -139,6 +141,9 @@ struct _cpu_list cpu_list[] =
 #endif
 #ifdef ENABLE_STM8
   { "stm8", CPU_TYPE_STM8, ENDIAN_BIG, 1, ALIGN_1, 1, 0, 1, parse_instruction_stm8, NULL, list_output_stm8, disasm_range_stm8, NULL, NO_FLAGS },
+#endif
+#ifdef ENABLE_SUPER_FX
+  { "super_fx", CPU_TYPE_SUPER_FX, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 1, parse_instruction_super_fx, NULL, list_output_super_fx, disasm_range_super_fx, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_THUMB
   { "thumb", CPU_TYPE_THUMB, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 0, parse_instruction_thumb, NULL, list_output_thumb, disasm_range_thumb, NULL, NO_FLAGS },

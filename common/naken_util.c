@@ -42,6 +42,7 @@
 #include "disasm/ps2_ee_vu.h"
 #include "disasm/riscv.h"
 #include "disasm/stm8.h"
+#include "disasm/super_fx.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
 #include "disasm/z80.h"
@@ -90,6 +91,7 @@ parse_instruction_t parse_instruction_propeller = NULL;
 parse_instruction_t parse_instruction_ps2_ee_vu = NULL;
 parse_instruction_t parse_instruction_riscv = NULL;
 parse_instruction_t parse_instruction_stm8 = NULL;
+parse_instruction_t parse_instruction_super_fx = NULL;
 parse_instruction_t parse_instruction_thumb = NULL;
 parse_instruction_t parse_instruction_tms1000 = NULL;
 parse_instruction_t parse_instruction_tms1100 = NULL;

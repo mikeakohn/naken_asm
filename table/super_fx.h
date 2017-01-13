@@ -21,8 +21,11 @@ enum
   OP_NUM,
   OP_OFFSET,
   OP_REG_NUM,
+  OP_REG_WORD,
   OP_REG_MEM,
-  OP_MEM_MEM,
+  OP_MEM_REG,
+  OP_REG_SMEM,
+  OP_SMEM_REG,
 };
 
 struct _table_super_fx
@@ -30,6 +33,7 @@ struct _table_super_fx
   char *instr;
   uint8_t opcode;
   uint8_t alt;
+  uint8_t mask;
   uint8_t type;
   uint16_t reg_mask;
 };

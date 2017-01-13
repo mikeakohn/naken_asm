@@ -36,6 +36,7 @@ CPU this source file should be assembled for.
 |.ps2_ee_v0       |Sony Emotion Engine Vector Unit 0
 |.ps2_ee_v1       |Sony Emotion Engine Vector Unit 1
 |.stm8            |STM8
+|.super_fx        |Super FX
 |.riscv           |RISC-V
 |.thumb           |THUMB
 |.tms1000         |TMS1000/TMS1200/TMS1070/TMS1270
