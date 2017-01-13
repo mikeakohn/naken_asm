@@ -66,6 +66,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
   int operand_count = 0;
   int token_type;
   int num, n;
+  int count;
   uint16_t opcode;
 
   lower_copy(instr_case, instr);
@@ -156,6 +157,24 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
   {
     if (strcmp(table_super_fx[n].instr, instr_case) == 0)
     {
+      if (table_super_fx[n].alt == 1)
+      {
+        add_bin8(asm_context, 0x3d, IS_OPCODE);
+        count = 1;
+      }
+        else
+      if (table_super_fx[n].alt == 2)
+      {
+        add_bin8(asm_context, 0x3e, IS_OPCODE);
+        count = 1;
+      }
+        else
+      if (table_super_fx[n].alt == 3)
+      {
+        add_bin8(asm_context, 0x3f, IS_OPCODE);
+        count = 1;
+      }
+
       switch(table_super_fx[n].type)
       {
         case OP_NONE:
@@ -168,7 +187,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
 
           add_bin8(asm_context, table_super_fx[n].opcode, IS_OPCODE);
 
-          return 1;
+          return count + 1;
         }
         case OP_REG:
         {
@@ -194,7 +213,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
 
           add_bin8(asm_context, opcode, IS_OPCODE);
 
-          return 1;
+          return count + 1;
         }
         case OP_NUM:
         {
@@ -219,7 +238,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
           add_bin8(asm_context, table_super_fx[n].opcode, IS_OPCODE);
           add_bin8(asm_context, operands[0].value & 0xff, IS_OPCODE);
 
-          return 2;
+          return count + 2;
         }
         case OP_OFFSET:
         {
@@ -246,7 +265,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
           add_bin8(asm_context, table_super_fx[n].opcode, IS_OPCODE);
           add_bin8(asm_context, offset & 0xff, IS_OPCODE);
 
-          return 2;
+          return count + 2;
         }
         case OP_REG_NUM:
         {
@@ -280,7 +299,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
           add_bin8(asm_context, opcode, IS_OPCODE);
           add_bin8(asm_context, operands[1].value & 0xff, IS_OPCODE);
 
-          return 1;
+          return count + 1;
         }
         case OP_REG_WORD:
         {
@@ -315,7 +334,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
           add_bin8(asm_context, operands[0].value & 0xff, IS_OPCODE);
           add_bin8(asm_context, (operands[0].value >> 8) & 0xff, IS_OPCODE);
 
-          return 3;
+          return count + 3;
         }
         case OP_REG_MEM:
         {
@@ -350,7 +369,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
           add_bin8(asm_context, operands[1].value & 0xff, IS_OPCODE);
           add_bin8(asm_context, (operands[1].value >> 8) & 0xff, IS_OPCODE);
 
-          return 1;
+          return count + 1;
         }
         case OP_MEM_REG:
         {
@@ -385,7 +404,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
           add_bin8(asm_context, operands[0].value & 0xff, IS_OPCODE);
           add_bin8(asm_context, (operands[0].value >> 8) & 0xff, IS_OPCODE);
 
-          return 1;
+          return count + 1;
         }
         case OP_REG_SMEM:
         {
@@ -419,7 +438,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
           add_bin8(asm_context, opcode, IS_OPCODE);
           add_bin8(asm_context, operands[1].value & 0xff, IS_OPCODE);
 
-          return 1;
+          return count + 1;
         }
         case OP_SMEM_REG:
         {
@@ -453,7 +472,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
           add_bin8(asm_context, opcode, IS_OPCODE);
           add_bin8(asm_context, operands[0].value & 0xff, IS_OPCODE);
 
-          return 1;
+          return count + 1;
         }
         default:
           break; 
