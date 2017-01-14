@@ -1096,6 +1096,7 @@ int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
           }
           break;
         case OP_F_BIT4_2:
+          if (flag == FLAG_NONE) { flag = FLAG_Z; }
           if (flag != FLAG_C && flag != FLAG_Z) { break; }
           if (operand_count == 2 && operands[0].type == OPTYPE_REGISTER &&
               operands[1].type == OPTYPE_LIT)
@@ -1699,6 +1700,7 @@ int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
           }
           break;
         case OP_WS_WB:
+          if (flag == FLAG_NONE) { flag = FLAG_Z; }
           if (flag != FLAG_C && flag != FLAG_Z) { break; }
           if (operand_count == 2 &&
               operands[0].type == OPTYPE_REGISTER &&

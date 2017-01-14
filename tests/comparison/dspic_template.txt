@@ -1,3 +1,10 @@
+add 0x100
+add.b 0x100, wreg
+add.b w3, #30, w5
+add.b w3, #11, w5
+add.b w3, #5, [w5]
+add.b w3, #7, [w5++]
+add.b w3, #9, [--w5]
 add w0, w8, w9
 add.b w0, w8, w9
 add.w w0, [w8], w9
@@ -5,5 +12,35 @@ add.w w0, w8, [w9]
 add.w w0, w8, [w9++]
 add.w w0, [--w8], [w9--]
 add.w w0, [++w8], [w9--]
+add a
+add b
+add [w5], #5, b
+add [w5], a
+addc 0x100, wreg
+addc w9, #11, w5
+addc.b w9, #3, [--w5]
+addc.w w0, w8, [w9++]
+and 0x100, wreg
+and w9, #11, w5
+and.b w9, #3, [--w5]
+and.w w0, w11, [w9++]
+asr 0x100, wreg
+asr w9, #11, w5
+bclr 0x300, #7
+bclr.b w13, #2
+bset 0x300, #7
+bset [++w7], #1
+bsw.c [++w7], w9
+bsw.z [w7--], w9
+btg 0x134, #7
+btg [w10], #5
+btsc 0x134, #7
+btsc [w10++], #5
+btss 0x132, #7
+btss [w0++], #2
+btst 0x40, #7
+btst w9, #2
+btst.c [++w7], w9
+btst.z [w7--], w9
 exch w5, w7
 push 0x1234
