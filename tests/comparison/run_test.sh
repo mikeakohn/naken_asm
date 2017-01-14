@@ -48,7 +48,7 @@ EOF
   then
     echo -e "\x1b[32mPASS\x1b[0m"
   else
-    echo -e "\x1b[31mFAIL ${a} ${b}\x1b[0m"
+    echo -e "\x1b[31mFAIL ${a} ${b} -> ${2}\x1b[0m"
     exit 1
   fi
 

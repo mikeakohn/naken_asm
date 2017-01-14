@@ -1,0 +1,9 @@
+add w0, w8, w9
+add.b w0, w8, w9
+add.w w0, [w8], w9
+add.w w0, w8, [w9]
+add.w w0, w8, [w9++]
+add.w w0, [--w8], [w9--]
+add.w w0, [++w8], [w9--]
+exch w5, w7
+push 0x1234
