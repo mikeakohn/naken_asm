@@ -129,6 +129,8 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
       }
         else
       {
+        tokens_push(asm_context, token, token_type);
+
         if (eval_expression(asm_context, &num) != 0)
         {
           if (asm_context->pass == 1)
@@ -142,12 +144,12 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
             return -1;
           }
         }
+
+        operands[operand_count].value = num;
+        operands[operand_count].type = OPERAND_AT_ADDRESS;
       }
 
       if (expect_token(asm_context, ')') == -1) { return -1; }
-
-      operands[operand_count].value = num;
-      operands[operand_count].type = OPERAND_AT_ADDRESS;
     }
       else
     {
@@ -326,28 +328,48 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
             reg = operands[0].value;
           }
 
+          value = operands[1].value;
+          type = operands[1].type;
+
           switch(table_super_fx[n].type)
           {
-            case OP_REG_XX:
+            case OP_REG_PP:
               min = -128; max = 255;
               needed_type = OPERAND_NUMBER;
+              break;
+            case OP_REG_XX:
+              min = -32768; max = 0xffff;
+              needed_type = OPERAND_NUMBER;
+              break;
             case OP_REG_ATXX:
               min = 0; max = 0xffff;
               needed_type = OPERAND_AT_ADDRESS;
+              break;
             case OP_REG_ATYY:
-              min = 0; max = 0xff;
+              min = 0; max = 0x1fe;
               needed_type = OPERAND_AT_ADDRESS;
-              value = operands[1].value;
-              type = operands[1].type;
+              if ((value & 1) == 1)
+              {
+                printf("Error: Short address must be even at %s:%d.\n", asm_context->filename, asm_context->line);
+                return -1;
+              }
               break;
             case OP_ATXX_REG:
               min = 0; max = 0xffff;
               needed_type = OPERAND_AT_ADDRESS;
+              value = operands[0].value;
+              type = operands[0].type;
+              break;
             case OP_ATYY_REG:
-              min = 0; max = 0xff;
+              min = 0; max = 0x1fe;
               needed_type = OPERAND_AT_ADDRESS;
               value = operands[0].value;
               type = operands[0].type;
+              if ((value & 1) == 1)
+              {
+                printf("Error: Short address must be even at %s:%d.\n", asm_context->filename, asm_context->line);
+                return -1;
+              }
               break;
           }
 
@@ -369,13 +391,20 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
+          if (table_super_fx[n].type == OP_REG_ATYY ||
+              table_super_fx[n].type == OP_ATYY_REG)
+          {
+            value = value >> 1;
+          }
+
           opcode = table_super_fx[n].opcode | reg;
 
           add_bin8(asm_context, opcode, IS_OPCODE);
           add_bin8(asm_context, value & 0xff, IS_OPCODE);
 
           if (table_super_fx[n].type == OP_REG_ATXX ||
-              table_super_fx[n].type == OP_ATXX_REG)
+              table_super_fx[n].type == OP_ATXX_REG ||
+              table_super_fx[n].type == OP_REG_XX)
           {
             add_bin8(asm_context, (value >> 8) & 0xff, IS_OPCODE);
             count++;
