@@ -28,7 +28,8 @@ enum
 {
   OPERAND_REG,
   OPERAND_NUMBER,
-  OPERAND_ADDRESS,
+  OPERAND_AT_ADDRESS,
+  OPERAND_AT_REG,
 };
 
 struct _operand
@@ -68,6 +69,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
   int num, n;
   int count;
   uint16_t opcode;
+  int min, max;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -116,24 +118,36 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
       else
     if (IS_TOKEN(token,'('))
     {
-      if (eval_expression(asm_context, &num) != 0)
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      num = get_register_super_fx(token);
+
+      if (num != -1)
       {
-        if (asm_context->pass == 1)
+        operands[operand_count].value = num;
+        operands[operand_count].type = OPERAND_AT_REG;
+      }
+        else
+      {
+        if (eval_expression(asm_context, &num) != 0)
         {
-          eat_operand(asm_context);
-          num = 0;
-        }
-          else
-        {
-          print_error_illegal_expression(instr, asm_context);
-          return -1;
+          if (asm_context->pass == 1)
+          {
+            eat_operand(asm_context);
+            num = 0;
+          }
+            else
+          {
+            print_error_illegal_expression(instr, asm_context);
+            return -1;
+          }
         }
       }
 
       if (expect_token(asm_context, ')') == -1) { return -1; }
 
       operands[operand_count].value = num;
-      operands[operand_count].type = OPERAND_ADDRESS;
+      operands[operand_count].type = OPERAND_AT_ADDRESS;
     }
       else
     {
@@ -190,6 +204,8 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
           return count + 1;
         }
         case OP_REG:
+        case OP_ATREG:
+        case OP_N:
         {
           if (operand_count != 1)
           {
@@ -197,16 +213,46 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (operands[0].type != OPERAND_REG)
+          if (table_super_fx[n].type == OP_N)
           {
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
-          }
+            min = 0; max = 15;
 
-          if (((1 << operands[0].value) & table_super_fx[n].reg_mask) == 0)
+            if (table_super_fx[n].reg_mask != 0)
+            {
+              min = table_super_fx[n].reg_mask >> 8;
+              max = table_super_fx[n].reg_mask & 0xff;
+            }
+
+            if (operands[0].value < min || operands[0].value > max)
+            {
+              print_error_range("Literal", min, max, asm_context);
+              return -1;
+            }
+          }
+            else
           {
-            printf("Error: Cannot use r%d with this instruction.\n", operands[0].value);
-            return -1;
+            if (table_super_fx[n].type == OP_REG)
+            {
+              if (operands[0].type != OPERAND_REG)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+            }
+              else
+            {
+              if (operands[0].type != OPERAND_AT_REG)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+            }
+
+            if (((1 << operands[0].value) & table_super_fx[n].reg_mask) == 0)
+            {
+              printf("Error: Cannot use r%d with this instruction.\n", operands[0].value);
+              return -1;
+            }
           }
 
           opcode = table_super_fx[n].opcode | operands[0].value;
@@ -214,31 +260,6 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
           add_bin8(asm_context, opcode, IS_OPCODE);
 
           return count + 1;
-        }
-        case OP_NUM:
-        {
-          if (operand_count != 1)
-          {
-            print_error_opcount(instr, asm_context);
-            return -1;
-          }
-
-          if (operands[0].type != OPERAND_NUMBER)
-          {
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
-          }
-
-          if (operands[0].value < -128 || operands[0].value > 255)
-          {
-            print_error_range("Literal", -128, 255, asm_context);
-            return -1;
-          }
-
-          add_bin8(asm_context, table_super_fx[n].opcode, IS_OPCODE);
-          add_bin8(asm_context, operands[0].value & 0xff, IS_OPCODE);
-
-          return count + 2;
         }
         case OP_OFFSET:
         {
@@ -267,7 +288,12 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
 
           return count + 2;
         }
-        case OP_REG_NUM:
+        case OP_REG_PP:
+        case OP_REG_XX:
+        case OP_REG_ATXX:
+        case OP_REG_ATYY:
+        case OP_ATXX_REG:
+        case OP_ATYY_REG:
         {
           if (operand_count != 2)
           {
@@ -275,207 +301,90 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (operands[0].type != OPERAND_REG ||
-              operands[1].type != OPERAND_NUMBER)
+          int reg;
+          int value = 0;
+          int type = -1;
+          int needed_type = -2;
+
+          if (table_super_fx[n].type == OP_ATXX_REG ||
+              table_super_fx[n].type == OP_ATYY_REG)
+          {
+            if (operands[1].type != OPERAND_REG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+            reg = operands[1].value;
+          }
+            else
+          {
+            if (operands[0].type != OPERAND_REG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+            reg = operands[0].value;
+          }
+
+          switch(table_super_fx[n].type)
+          {
+            case OP_REG_XX:
+              min = -128; max = 255;
+              needed_type = OPERAND_NUMBER;
+            case OP_REG_ATXX:
+              min = 0; max = 0xffff;
+              needed_type = OPERAND_AT_ADDRESS;
+            case OP_REG_ATYY:
+              min = 0; max = 0xff;
+              needed_type = OPERAND_AT_ADDRESS;
+              value = operands[1].value;
+              type = operands[1].type;
+              break;
+            case OP_ATXX_REG:
+              min = 0; max = 0xffff;
+              needed_type = OPERAND_AT_ADDRESS;
+            case OP_ATYY_REG:
+              min = 0; max = 0xff;
+              needed_type = OPERAND_AT_ADDRESS;
+              value = operands[0].value;
+              type = operands[0].type;
+              break;
+          }
+
+          if (type != needed_type)
           {
             print_error_illegal_operands(instr, asm_context);
             return -1;
           }
 
-          if (((1 << operands[0].value) & table_super_fx[n].reg_mask) == 0)
+          if (((1 << reg) & table_super_fx[n].reg_mask) == 0)
           {
             printf("Error: Cannot use r%d with this instruction.\n", operands[0].value);
             return -1;
           }
 
-          if (operands[1].value < -128 || operands[1].value > 255)
+          if (value < min || value > max)
           {
-            print_error_range("Literal", -128, 255, asm_context);
+            print_error_range("Literal", min, max, asm_context);
             return -1;
           }
 
-          opcode = table_super_fx[n].opcode | operands[0].value;
+          opcode = table_super_fx[n].opcode | reg;
 
           add_bin8(asm_context, opcode, IS_OPCODE);
-          add_bin8(asm_context, operands[1].value & 0xff, IS_OPCODE);
+          add_bin8(asm_context, value & 0xff, IS_OPCODE);
 
-          return count + 1;
-        }
-        case OP_REG_WORD:
-        {
-          if (operand_count != 2)
+          if (table_super_fx[n].type == OP_REG_ATXX ||
+              table_super_fx[n].type == OP_ATXX_REG)
           {
-            print_error_opcount(instr, asm_context);
-            return -1;
+            add_bin8(asm_context, (value >> 8) & 0xff, IS_OPCODE);
+            count++;
           }
 
-          if (operands[0].type != OPERAND_REG ||
-              operands[1].type != OPERAND_NUMBER)
-          {
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
-          }
-
-          if (((1 << operands[0].value) & table_super_fx[n].reg_mask) == 0)
-          {
-            printf("Error: Cannot use r%d with this instruction.\n", operands[0].value);
-            return -1;
-          }
-
-          if (operands[0].value < -32768 || operands[0].value > 0xffff)
-          {
-            print_error_range("Literal", -32768, 0xffff, asm_context);
-            return -1;
-          }
-
-          opcode = table_super_fx[n].opcode | operands[0].value;
-
-          add_bin8(asm_context, opcode, IS_OPCODE);
-          add_bin8(asm_context, operands[0].value & 0xff, IS_OPCODE);
-          add_bin8(asm_context, (operands[0].value >> 8) & 0xff, IS_OPCODE);
-
-          return count + 3;
-        }
-        case OP_REG_MEM:
-        {
-          if (operand_count != 2)
-          {
-            print_error_opcount(instr, asm_context);
-            return -1;
-          }
-
-          if (operands[0].type != OPERAND_REG ||
-              operands[1].type != OPERAND_ADDRESS)
-          {
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
-          }
-
-          if (((1 << operands[0].value) & table_super_fx[n].reg_mask) == 0)
-          {
-            printf("Error: Cannot use r%d with this instruction.\n", operands[0].value);
-            return -1;
-          }
-
-          if (operands[1].value < 0 || operands[1].value > 0xffff)
-          {
-            print_error_range("Literal", 0, 0xffff, asm_context);
-            return -1;
-          }
-
-          opcode = table_super_fx[n].opcode | operands[0].value;
-
-          add_bin8(asm_context, opcode, IS_OPCODE);
-          add_bin8(asm_context, operands[1].value & 0xff, IS_OPCODE);
-          add_bin8(asm_context, (operands[1].value >> 8) & 0xff, IS_OPCODE);
-
-          return count + 1;
-        }
-        case OP_MEM_REG:
-        {
-          if (operand_count != 2)
-          {
-            print_error_opcount(instr, asm_context);
-            return -1;
-          }
-
-          if (operands[0].type != OPERAND_ADDRESS ||
-              operands[1].type != OPERAND_REG)
-          {
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
-          }
-
-          if (((1 << operands[1].value) & table_super_fx[n].reg_mask) == 0)
-          {
-            printf("Error: Cannot use r%d with this instruction.\n", operands[1].value);
-            return -1;
-          }
-
-          if (operands[0].value < 0 || operands[0].value > 0xffff)
-          {
-            print_error_range("Literal", 0, 0xffff, asm_context);
-            return -1;
-          }
-
-          opcode = table_super_fx[n].opcode | operands[1].value;
-
-          add_bin8(asm_context, opcode, IS_OPCODE);
-          add_bin8(asm_context, operands[0].value & 0xff, IS_OPCODE);
-          add_bin8(asm_context, (operands[0].value >> 8) & 0xff, IS_OPCODE);
-
-          return count + 1;
-        }
-        case OP_REG_SMEM:
-        {
-          if (operand_count != 2)
-          {
-            print_error_opcount(instr, asm_context);
-            return -1;
-          }
-
-          if (operands[0].type != OPERAND_REG ||
-              operands[1].type != OPERAND_ADDRESS)
-          {
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
-          }
-
-          if (((1 << operands[0].value) & table_super_fx[n].reg_mask) == 0)
-          {
-            printf("Error: Cannot use r%d with this instruction.\n", operands[0].value);
-            return -1;
-          }
-
-          if (operands[1].value < 0 || operands[1].value > 255)
-          {
-            print_error_range("Literal", 0, 255, asm_context);
-            return -1;
-          }
-
-          opcode = table_super_fx[n].opcode | operands[0].value;
-
-          add_bin8(asm_context, opcode, IS_OPCODE);
-          add_bin8(asm_context, operands[1].value & 0xff, IS_OPCODE);
-
-          return count + 1;
-        }
-        case OP_SMEM_REG:
-        {
-          if (operand_count != 2)
-          {
-            print_error_opcount(instr, asm_context);
-            return -1;
-          }
-
-          if (operands[0].type != OPERAND_ADDRESS ||
-              operands[1].type != OPERAND_REG)
-          {
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
-          }
-
-          if (((1 << operands[1].value) & table_super_fx[n].reg_mask) == 0)
-          {
-            printf("Error: Cannot use r%d with this instruction.\n", operands[1].value);
-            return -1;
-          }
-
-          if (operands[0].value < 0 || operands[0].value > 255)
-          {
-            print_error_range("Literal", 0, 255, asm_context);
-            return -1;
-          }
-
-          opcode = table_super_fx[n].opcode | operands[1].value;
-
-          add_bin8(asm_context, opcode, IS_OPCODE);
-          add_bin8(asm_context, operands[0].value & 0xff, IS_OPCODE);
-
-          return count + 1;
+          return count + 2;
         }
         default:
-          break; 
+          break;
       }
     }
 
@@ -484,7 +393,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
 
   print_error_unknown_instr(instr, asm_context);
 
-  return -1; 
+  return -1;
 }
 
 

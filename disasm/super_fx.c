@@ -85,33 +85,49 @@ int disasm_super_fx(struct _memory *memory, uint32_t address, char *instruction,
           sprintf(instruction, "%s r%d", table_super_fx[n].instr, reg);
           return count + 1;
         }
-        case OP_NUM:
+        case OP_ATREG:
+        {
+          reg = opcode & 0xf;
+          if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
+          sprintf(instruction, "%s (r%d)", table_super_fx[n].instr, reg);
+          return count + 1;
+        }
+        case OP_N:
+        {
+          num = opcode & 0xf;
+          sprintf(instruction, "%s #%d", table_super_fx[n].instr, num);
+          return count + 1;
+        }
+#if 0
+        case OP_XX:
         {
           num = memory_read_m(memory, address + 1);
           sprintf(instruction, "%s #%d", table_super_fx[n].instr, num);
           return count + 2;
         }
-        case OP_REG_WORD:
-        {
-          num = memory_read_m(memory, address + 1);
-          num |= memory_read_m(memory, address + 2) << 8;
-          sprintf(instruction, "%s #%d", table_super_fx[n].instr, num);
-          return count + 2;
-        }
+#endif
         case OP_OFFSET:
         {
           offset = (int8_t)memory_read_m(memory, address + 1);
           sprintf(instruction, "%s 0x%04x (offset=%d)", table_super_fx[n].instr, address + 2 + offset, offset);
           return count + 2;
         }
-        case OP_REG_NUM:
+        case OP_REG_PP:
         {
           reg = opcode & 0xf;
           num = memory_read_m(memory, address + 1);
           sprintf(instruction, "%s r%d, #%d", table_super_fx[n].instr, reg, num);
+          return count + 1;
+        }
+        case OP_REG_XX:
+        {
+          reg = opcode & 0xf;
+          num = memory_read_m(memory, address + 1);
+          num |= memory_read_m(memory, address + 2) << 8;
+          sprintf(instruction, "%s r%d, #%d", table_super_fx[n].instr, reg, num);
           return count + 2;
         }
-        case OP_REG_MEM:
+        case OP_REG_ATXX:
         {
           reg = opcode & 0xf;
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
@@ -120,7 +136,15 @@ int disasm_super_fx(struct _memory *memory, uint32_t address, char *instruction,
           sprintf(instruction, "%s r%d, (0x%04x)", table_super_fx[n].instr, reg, num);
           return count + 3;
         }
-        case OP_MEM_REG:
+        case OP_REG_ATYY:
+        {
+          reg = opcode & 0xf;
+          if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
+          num = memory_read_m(memory, address + 1);
+          sprintf(instruction, "%s r%d, (0x%04x)", table_super_fx[n].instr, reg, num);
+          return count + 2;
+        }
+        case OP_ATXX_REG:
         {
           reg = opcode & 0xf;
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
@@ -129,15 +153,7 @@ int disasm_super_fx(struct _memory *memory, uint32_t address, char *instruction,
           sprintf(instruction, "%s (0x%04x), r%d", table_super_fx[n].instr, num, reg);
           return count + 3;
         }
-        case OP_REG_SMEM:
-        {
-          reg = opcode & 0xf;
-          if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
-          num = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s r%d, (0x%04x)", table_super_fx[n].instr, reg, num);
-          return count + 2;
-        }
-        case OP_SMEM_REG:
+        case OP_ATYY_REG:
         {
           reg = opcode & 0xf;
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }

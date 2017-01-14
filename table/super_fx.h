@@ -17,15 +17,17 @@
 enum
 {
   OP_NONE,
-  OP_REG,
-  OP_NUM,
+  OP_REG,      // Rn
+  OP_ATREG,    // (Rn)
+  OP_N,        // #nybble
+  //OP_XX,
   OP_OFFSET,
-  OP_REG_NUM,
-  OP_REG_WORD,
-  OP_REG_MEM,
-  OP_MEM_REG,
-  OP_REG_SMEM,
-  OP_SMEM_REG,
+  OP_REG_PP,   // Rn, #byte
+  OP_REG_XX,   // Rn, #word
+  OP_REG_ATXX, // Rn, (word)
+  OP_REG_ATYY, // Rn, (byte)
+  OP_ATXX_REG, // (word), Rn
+  OP_ATYY_REG, // (byte), Rn
 };
 
 struct _table_super_fx
