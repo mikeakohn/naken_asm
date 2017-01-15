@@ -519,7 +519,7 @@ int disasm_dspic(struct _memory *memory, uint32_t address, char *instruction, in
         case OP_WM_WM_ACC_WX_WY:
           a = (opcode >> 15) & 0x1;
           d = ((opcode >> 16) & 0x3) + 4;
-          sprintf(instruction, "%s w%d*w%d, %c", table_dspic[n].name, d, d, accum[a]);
+          sprintf(instruction, "%s w%d*w%d, %c", table_dspic[n].name, d + 4, d + 4, accum[a]);
           parse_dsp(instruction, opcode, 0);
           return 4;
         case OP_WM_WN_ACC_WX_WY:
@@ -532,7 +532,7 @@ int disasm_dspic(struct _memory *memory, uint32_t address, char *instruction, in
         case OP_WM_WM_ACC_WX_WY_WXD:
           a = (opcode >> 15) & 0x1;
           d = (opcode >> 16) & 0x3;
-          sprintf(instruction, "%s w%d*w%d, %c", table_dspic[n].name, d, d, accum[a]);
+          sprintf(instruction, "%s w%d*w%d, %c", table_dspic[n].name, d + 4, d + 4, accum[a]);
           get_prefetch_half(temp, 8, (opcode >> 6) & 0xf);
           strcat(instruction, temp);
           get_prefetch_half(temp, 10, (opcode >> 2) & 0xf);

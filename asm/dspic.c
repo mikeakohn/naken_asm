@@ -253,6 +253,7 @@ static int parse_mm(struct _asm_context *asm_context, struct _operand *operands,
   if (operands->type != OPTYPE_W_MUL_W) { return -1; }
   if (operands->value != operands->reg2) { return -1; }
   if (operands->value < 4 || operands->reg2 > 7) { return -1; }
+
   *mm=operands->value - 4;
 
   return 0;
@@ -366,13 +367,11 @@ static int parse_mac_m_m(struct _asm_context *asm_context, struct _operand *oper
   int xx = 0, yy = 0, iiii = 4, jjjj = 4, mm = 0;
 
   if (operand >= operand_count) { return -1; }
-
   if (parse_mm(asm_context, operands, &mm) == -1) { return -1; }
 
   operand++;
 
   if (operand >= operand_count) { return -1; }
-
   if (operands[operand].type != OPTYPE_ACCUM) { return -1; }
 
   opcode |= (operands[operand++].value << 15);
@@ -417,10 +416,9 @@ static int parse_ed_m_m(struct _asm_context *asm_context, struct _operand *opera
   int xx = 0, iiii = 4, jjjj = 4, mm = 0;
 
   if (operand_count != 5) { return -1; }
-
   if (parse_mm(asm_context, operands, &mm) == -1) { return -1; }
-
   if (operands[1].type != OPTYPE_ACCUM) { return -1; }
+
   opcode |= (operands[1].value << 15);
 
   if (operands[2].value != 8 && operands[2].value != 9) { return -1; }
@@ -730,17 +728,19 @@ int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
       if (IS_TOKEN(token,'-') || IS_TOKEN(token,'+'))
       {
         operands[operand_count].type = OPTYPE_W_OP_EQ_NUM;
-        int a = 0;
-        if (IS_TOKEN(token,'+')) { a = 1; }
+        int a = 1;
+
+        if (IS_TOKEN(token,'-')) { a = -1; }
         if (expect_token(asm_context, '=') == -1) { return -1; }
 
-        if (eval_expression(asm_context, &a) != 0)
+        int temp;
+        if (eval_expression(asm_context, &temp) != 0)
         {
           print_error_unexp(token, asm_context);
           return -1;
         }
 
-        operands[operand_count].attribute = a;
+        operands[operand_count].attribute = a * temp;
       }
         else
       {

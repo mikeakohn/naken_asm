@@ -83,13 +83,15 @@ div.ud w2, w9
 divf w9, w3
 ;do #100, 0x120
 ;do w7, 0x120
-ed w4*w4, A, [w8]+=2, [w10]-=2, w4
-edac w4*w4, A, [w8]+=2, [w10]-=2, w4
+ed w4*w4, A, [w8]+=2, [w10]-=4, w4
+ed w4*w4, A, [w9+w12], [w11+w12], w4
+edac w4*w4, A, [w8]-=2, [w10]+=6, w4
+edac w4*w4, A, [w8], [w10], w4
 exch w5, w7
 fbcl w3, w9
 ff1l w9, w11
 ff1r w1, w11
-goto 0x120
+goto 0
 goto w14
 inc.b 0x124
 inc.b 0x124, wreg
@@ -151,7 +153,6 @@ push [--w8]
 push.d w6
 push.s
 pwrsav #1
-rcall 0
 rcall w9
 repeat #7
 repeat w10
