@@ -42,5 +42,165 @@ btst 0x40, #7
 btst w9, #2
 btst.c [++w7], w9
 btst.z [w7--], w9
+btsts.b 0x1201, #0x3
+btsts.w 0x1201, #0x3
+btsts 0x1202, #0x3
+btsts.c [w0++], #0x3
+call 0
+call w7
+clr 0x1234
+clr.b wreg
+clr.b [w5++]
+clr A, [w8]+=2, W4, w13
+clrwdt
+com.b 0x124
+com.b [w0++], [w1++]
+cp 0x124
+cp.b w5, #3
+cp w4, [--w5]
+cp0 0x124
+cp0 w4
+cpb 0x124
+cpb.b w5, #3
+cpb w3, [w5++]
+cpseq w5, w7
+cpsgt.b w7, w12
+cpslt w15, w11
+cpsne w15, w14
+daw.b w7
+dec.b 0x124
+dec.b 0x124, wreg
+dec [w3], [w7]
+dec2 0x124
+dec2 [w3++], [--w7]
+disi #27
+div.s w7, w8
+div.sw w2, w8
+div.sd w2, w9
+div.u w7, w8
+div.uw w2, w8
+div.ud w2, w9
+divf w9, w3
+;do #100, 0x120
+;do w7, 0x120
+ed w4*w4, A, [w8]+=2, [w10]-=2, w4
+edac w4*w4, A, [w8]+=2, [w10]-=2, w4
 exch w5, w7
+fbcl w3, w9
+ff1l w9, w11
+ff1r w1, w11
+goto 0x120
+goto w14
+inc.b 0x124
+inc.b 0x124, wreg
+inc [w3], [w7]
+inc2 0x124
+inc2 [w3++], [--w7]
+ior 0x124, wreg
+ior #63, w9
+ior.b w7, #3, w9
+ior.w w0, [--w8], [w9--]
+lac [w4++], #-3, B
+lnk #0xa0
+lsr 0x100, wreg
+lsr w9, [w10]
+lsr w9, #11, w5
+lsr w0, w1, w2
+mac w4*w5, A, [w8]+=6, w4, [w10]+=2, w5
+mac w4*w5, A, [w8]-=2, w4, [w10]+=2, w5, w13
+mac w4*w4, B, [w9+w12], W4, [w10]-=2, w5
+mov 0x800
+mov wreg, 0x120
+mov 0x140, w8
+mov w7, 0x110
+mov.b #55, w9
+mov #5534, w9
+mov.b [w8+0x13], w10
+mov.b w0, [w1+0x7]
+mov.b [w0--], w4
+mov.d w2, w6
+mov.d w10, [w9--]
+movsac B, [w9], w6, [w11]+=4, w7, w13
+movsac A, [w9]-=2, w4, [w11+w12], w6, [w13]+=2
+mpy w4*w5, A, [w8]+=2, w6, [w10]-=2, w7
+mpy w6*w7, B, [w8]+=2, w4, [w10]-=2, w5
+mpy w6*w6, A, [w9]+=2, w6
+mpy w4*w4, B, [w9+w12], w4, [w10]+=2, w5
+mpy.n w4*w5, A, [w8]+=2, w4, [w10]+=2, w5
+mpy.n w4*w5, A, [w8]+=2, w4, [w10]+=2, w5
+msc w6*w7, A, [w8]-=4, w6, [w10]-=4, w7
+msc w4*w5, B, [w11+w12], w5, w13
+mul.b 0x800
+mul.ss w0, w1, w12
+mul.su w0, #0x1f, w2
+mul.su w8, [w9], w0
+mul.us w0, [w1], w2
+mul.uu w0, #0xf, w4
+mul.uu w4, w0, w2
+neg.b 0x880, wreg
+neg.b w3, [w4++]
+neg A
+nop
+nopr
+pop 0x1234
+pop [w8]
+pop.d w8
+pop.s
 push 0x1234
+push [--w8]
+push.d w6
+push.s
+pwrsav #1
+rcall 0
+rcall w9
+repeat #7
+repeat w10
+reset
+retfie
+retlw #23, w9
+return
+rlc 0x100, wreg
+rlc [--w9], [w10]
+rlnc 0x100, wreg
+rlnc [w9], [w10++]
+rrc 0x120, wreg
+rrc [++w5], [w1--]
+rrnc 0x120, wreg
+rrnc [++w7], [w9--]
+sac A, #4, w5
+sac.r A, #4, w5
+se [w3], w9
+setm 0x100
+setm [w3++]
+sftac A, #12
+sftac B, w9
+sl 0x100, wreg
+sl [--w9], [w10]
+sl w4, #11, w9
+sl w4, w6, w15
+sub.b 0x100
+sub.b #23, w8
+sub.b w3, #23, [w8]
+sub.b w3, [w4++], [w8]
+sub B
+subb 0x100
+subb.b #23, w8
+subb w3, #23, [w8]
+subb.b w3, [w4++], [w8]
+subbr 0x100
+subbr w3, #23, [w8]
+subbr.b w3, [w4++], [w8]
+subr 0x100, wreg
+subr w3, #23, [w8]
+subr.b w3, [w4++], [w8]
+swap w9
+tblrdh.b [w0], [w1++]
+tblrdl.b [w0++], w1
+tblwth.b [w0++], [w1]
+tblwtl.b w0, [w1++]
+ulnk
+xor 0x120
+xor.b #29, w2
+xor w3, #21, [w3]
+xor.b w3, [w7++], [w1]
+ze [--w9], w10
