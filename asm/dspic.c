@@ -895,6 +895,23 @@ int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
             return 4;
           }
           break;
+        case OP_F_OR_WREG:
+          if (flag != FLAG_NONE && flag != FLAG_B && flag != FLAG_W) { break; }
+          if (operand_count == 1 && operands[0].type == OPTYPE_NUM)
+          {
+            if (check_f_flag(asm_context, operands[0].value, flag) == -1)
+            {
+              return -1;
+            }
+            add_bin32(asm_context, table_dspic[n].opcode | (flag == FLAG_B ? (1 << 14) : 0) | (1 << 13) | operands[0].value, IS_OPCODE);
+            return 4;
+          }
+          if (operand_count == 1 && operands[0].type == OPTYPE_WREG)
+          {
+            add_bin32(asm_context, table_dspic[n].opcode | (flag == FLAG_B ? (1 << 14) : 0) | operands[0].value, IS_OPCODE);
+            return 4;
+          }
+          break;
         case OP_WREG_F:
           if (flag != FLAG_NONE && flag != FLAG_B && flag != FLAG_W) { break; }
           if (operand_count == 2 &&

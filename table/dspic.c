@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -75,7 +75,7 @@ struct _table_dspic table_dspic[] = {
   { "btsts", 0xa40000, 0xff0780, OP_F_BIT4_2, 1, 1, ALL },
   { "call", 0x020000, 0xff0001, OP_GOTO, 2, 2, ALL },
   { "call", 0x010000, 0xfffff0, OP_WN, 2, 2, ALL },
-  { "clr", 0xef0000, 0xff8000, OP_F_WREG, 1, 1, ALL },
+  { "clr", 0xef0000, 0xff8000, OP_F_OR_WREG, 1, 1, ALL },
   { "clr", 0xeb0000, 0xff807f, OP_WD, 1, 1, ALL },
   { "clr", 0xc30000, 0xff4000, OP_A_WX_WY_AWB, 1, 1, ALL },
   { "clrwdt", 0xfe6000, 0xffffff, OP_NONE, 1, 1, ALL },

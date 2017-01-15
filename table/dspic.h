@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -40,6 +40,7 @@ enum
   OP_NONE,
   OP_F,
   OP_F_WREG,
+  OP_F_OR_WREG,
   OP_WREG_F,
   OP_ACC,
   OP_ACC_LIT4_WD,

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -149,6 +149,19 @@ int disasm_dspic(struct _memory *memory, uint32_t address, char *instruction, in
           d = (opcode >> 13) & 1;
           f = opcode & 0x1fff;
           sprintf(instruction, "%s%s 0x%04x%s", table_dspic[n].name, bflag[b], f, (d == 0 ? ", wreg" : ""));
+          return 4;
+        case OP_F_OR_WREG:
+          b = (opcode >> 14) & 1;
+          d = (opcode >> 13) & 1;
+          f = opcode & 0x1fff;
+          if (d == 0)
+          {
+            sprintf(instruction, "%s%s wreg", table_dspic[n].name, bflag[b]);
+          }
+            else
+          {
+            sprintf(instruction, "%s%s 0x%04x", table_dspic[n].name, bflag[b], f);
+          }
           return 4;
         case OP_WREG_F:
           b = (opcode >> 14) & 1;
