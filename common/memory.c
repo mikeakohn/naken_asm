@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -118,7 +118,7 @@ int memory_get_page_address_max(struct _memory *memory, uint32_t address)
   return 0;
 }
 
-int memory_page_size()
+int memory_page_size(struct _memory *memory)
 {
   return PAGE_SIZE;
 }

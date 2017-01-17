@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -52,7 +52,7 @@ void memory_clear(struct _memory *memory);
 int memory_in_use(struct _memory *memory, uint32_t address);
 int memory_get_page_address_min(struct _memory *memory, uint32_t address);
 int memory_get_page_address_max(struct _memory *memory, uint32_t address);
-int memory_page_size();
+int memory_page_size(struct _memory *memory);
 uint8_t memory_read(struct _asm_context *asm_context, uint32_t address);
 uint8_t memory_read_inc(struct _asm_context *asm_context);
 void memory_write(struct _asm_context *asm_context, uint32_t address, uint8_t data, int line);
