@@ -59,13 +59,16 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
       }
 
       int num = atoi(token);
+
       if (num < 0 || num > 3)
       {
         print_error_range("Constant", 0, 3, asm_context);
         return -1;
       }
 
-      add_bin8(asm_context, ((0xc+n)<<2)|num, IS_OPCODE);
+      num = tms1000_reverse_bit_address[num];
+
+      add_bin8(asm_context, ((0xc + n) << 2) | num, IS_OPCODE);
 
       return 1;
     }
@@ -199,6 +202,8 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
+        num = tms1000_reverse_bit_address[num];
+
         add_bin8(asm_context, (0x5 << 3) | num, IS_OPCODE);
       }
         else
@@ -208,6 +213,8 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
           print_error_range("Constant", 0, 3, asm_context);
           return -1;
         }
+
+        num = tms1000_reverse_constant[num] >> 5;
 
         add_bin8(asm_context, ((0xc + n) << 2) | num, IS_OPCODE);
       }

@@ -51,13 +51,15 @@ int disasm_tms1000(struct _memory *memory, uint32_t address, char *instruction, 
   }
 
   bit_instr = opcode >> 2;
-  if (bit_instr == 0xc) { sprintf(instruction, "sbit %d", opcode & 0x3); return 1; }
+  c = tms1000_reverse_bit_address[opcode & 0x3];
+
+  if (bit_instr == 0xc) { sprintf(instruction, "sbit %d", c); return 1; }
     else
-  if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", opcode & 0x3); return 1; }
+  if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", c); return 1; }
     else
-  if (bit_instr == 0xe) { sprintf(instruction, "tbiti %d", opcode & 0x3); return 1;}
+  if (bit_instr == 0xe) { sprintf(instruction, "tbiti %d", c); return 1;}
     else
-  if (bit_instr == 0xf) { sprintf(instruction, "ldx %d", opcode & 0x3); return 1; }
+  if (bit_instr == 0xf) { sprintf(instruction, "ldx %d", c); return 1; }
 
   bit_instr = opcode >> 4;
   c = tms1000_reverse_constant[opcode & 0xf];
@@ -111,14 +113,18 @@ int disasm_tms1100(struct _memory *memory, uint32_t address, char *instruction, 
   }
 
   bit_instr = opcode >> 2;
-  if (bit_instr == 0xc) { sprintf(instruction, "sbit %d", opcode & 0x3); return 1; }
+  c = tms1000_reverse_bit_address[opcode & 0x3];
+
+  if (bit_instr == 0xc) { sprintf(instruction, "sbit %d", c); return 1; }
     else
-  if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", opcode & 0x3); return 1; }
+  if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", c); return 1; }
     else
-  if (bit_instr == 0xe) { sprintf(instruction, "tbiti %d", opcode & 0x3); return 1;}
+  if (bit_instr == 0xe) { sprintf(instruction, "tbiti %d", c); return 1;}
 
   bit_instr = opcode >> 3;
-  if (bit_instr ==0x5) { sprintf(instruction, "ldx %d", opcode & 0x7); return 1; }
+  c = tms1000_reverse_constant[opcode & 0x7] >> 5;;
+
+  if (bit_instr ==0x5) { sprintf(instruction, "ldx %d", c); return 1; }
 
   bit_instr = opcode >> 4;
   c = tms1000_reverse_constant[opcode & 0xf];

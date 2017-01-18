@@ -95,4 +95,12 @@ int tms1000_reverse_constant[] =
   0xf,
 };
 
+int tms1000_reverse_bit_address[] =
+{
+  0x0,
+  0x2,
+  0x1,
+  0x3,
+};
+
 
