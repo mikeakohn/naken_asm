@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -86,13 +86,15 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
       int num = atoi(token);
       if (num < 0 || num > 15)
       {
-        print_error_range("Constant", 0, 3, asm_context);
+        print_error_range("Constant", 0, 15, asm_context);
         return -1;
       }
 
+      num = tms1000_reverse_constant[num];
+
       if (n < 4)
       {
-        add_bin8(asm_context, ((0x4 + n) << 4)|num, IS_OPCODE);
+        add_bin8(asm_context, ((0x4 + n) << 4) | num, IS_OPCODE);
       }
         else
       {
@@ -230,9 +232,11 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
       int num = atoi(token);
       if (num < 0 || num > 15)
       {
-        print_error_range("Constant", 0, 3, asm_context);
+        print_error_range("Constant", 0, 15, asm_context);
         return -1;
       }
+
+      num = tms1000_reverse_constant[num];
 
       if (n < 4)
       {

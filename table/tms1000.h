@@ -22,6 +22,7 @@ struct _table_tms1000
 };
 
 extern struct _table_tms1000 table_tms1000[];
+extern int tms1000_reverse_constant[];
 
 #endif
 

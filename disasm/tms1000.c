@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -32,7 +32,7 @@ int disasm_tms1000(struct _memory *memory, uint32_t address, char *instruction, 
 {
   int bit_instr;
   int opcode;
-  int n;
+  int n, c;
 
   *cycles_min = 6;
   *cycles_max = 6;
@@ -51,26 +51,28 @@ int disasm_tms1000(struct _memory *memory, uint32_t address, char *instruction, 
   }
 
   bit_instr = opcode >> 2;
-  if (bit_instr == 0xc) { sprintf(instruction, "sbit %d", opcode&0x3); return 1; }
+  if (bit_instr == 0xc) { sprintf(instruction, "sbit %d", opcode & 0x3); return 1; }
     else
-  if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", opcode&0x3); return 1; }
+  if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", opcode & 0x3); return 1; }
     else
-  if (bit_instr == 0xe) { sprintf(instruction, "tbiti %d", opcode&0x3); return 1;}
+  if (bit_instr == 0xe) { sprintf(instruction, "tbiti %d", opcode & 0x3); return 1;}
     else
-  if (bit_instr == 0xf) { sprintf(instruction, "ldx %d", opcode&0x3); return 1; }
+  if (bit_instr == 0xf) { sprintf(instruction, "ldx %d", opcode & 0x3); return 1; }
 
   bit_instr = opcode >> 4;
-  if (bit_instr == 0x4) { sprintf(instruction, "tcy %d", opcode&0xf); return 1; }
-    else
-  if (bit_instr == 0x6) { sprintf(instruction, "tcmiy %d", opcode&0xf); return 1;}
-    else
-  if (bit_instr == 0x1) { sprintf(instruction, "ldp %d", opcode&0xf); return 1; }
-    else
-  if (bit_instr == 0x7) { sprintf(instruction, "alec %d", opcode&0xf); return 1; }
-    else
-  if (bit_instr == 0x5) { sprintf(instruction, "ylec %d", opcode&0xf); return 1; }
+  c = tms1000_reverse_constant[opcode & 0xf];
 
-  bit_instr=opcode>>6;
+  if (bit_instr == 0x4) { sprintf(instruction, "tcy %d", c); return 1; }
+    else
+  if (bit_instr == 0x6) { sprintf(instruction, "tcmiy %d", c); return 1;}
+    else
+  if (bit_instr == 0x1) { sprintf(instruction, "ldp %d", c); return 1; }
+    else
+  if (bit_instr == 0x7) { sprintf(instruction, "alec %d", c); return 1; }
+    else
+  if (bit_instr == 0x5) { sprintf(instruction, "ynec %d", c); return 1; }
+
+  bit_instr = opcode >> 6;
   uint8_t branch_address = opcode & 0x3f;
   //if ((offset & 0x20) != 0) { offset |= 0xc0; }
   //int branch_address = (address + 1) + ((char)offset);
@@ -90,7 +92,7 @@ int disasm_tms1100(struct _memory *memory, uint32_t address, char *instruction, 
 {
   int bit_instr;
   int opcode;
-  int n;
+  int n, c;
 
   *cycles_min = 6;
   *cycles_max = 6;
@@ -109,23 +111,25 @@ int disasm_tms1100(struct _memory *memory, uint32_t address, char *instruction, 
   }
 
   bit_instr = opcode >> 2;
-  if (bit_instr == 0xc) { sprintf(instruction, "sbit %d", opcode&0x3); return 1; }
+  if (bit_instr == 0xc) { sprintf(instruction, "sbit %d", opcode & 0x3); return 1; }
     else
-  if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", opcode&0x3); return 1; }
+  if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", opcode & 0x3); return 1; }
     else
-  if (bit_instr == 0xe) { sprintf(instruction, "tbiti %d", opcode&0x3); return 1;}
+  if (bit_instr == 0xe) { sprintf(instruction, "tbiti %d", opcode & 0x3); return 1;}
 
   bit_instr = opcode >> 3;
-  if (bit_instr ==0x5) { sprintf(instruction, "ldx %d", opcode&0x7); return 1; }
+  if (bit_instr ==0x5) { sprintf(instruction, "ldx %d", opcode & 0x7); return 1; }
 
   bit_instr = opcode >> 4;
-  if (bit_instr == 0x4) { sprintf(instruction, "tcy %d", opcode&0xf); return 1; }
+  c = tms1000_reverse_constant[opcode & 0xf];
+
+  if (bit_instr == 0x4) { sprintf(instruction, "tcy %d", c); return 1; }
     else
-  if (bit_instr == 0x6) { sprintf(instruction, "tcmiy %d", opcode&0xf); return 1;}
+  if (bit_instr == 0x6) { sprintf(instruction, "tcmiy %d", c); return 1;}
     else
-  if (bit_instr == 0x1) { sprintf(instruction, "ldp %d", opcode&0xf); return 1; }
+  if (bit_instr == 0x1) { sprintf(instruction, "ldp %d", c); return 1; }
     else
-  if (bit_instr == 0x5) { sprintf(instruction, "ylec %d", opcode&0xf); return 1; }
+  if (bit_instr == 0x5) { sprintf(instruction, "ynec %d", c); return 1; }
 
   bit_instr = opcode >> 6;
   uint8_t branch_address = opcode & 0x3f;
