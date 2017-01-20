@@ -148,7 +148,7 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
         add_bin8(asm_context, (0x10) | (page & 0xf), IS_OPCODE);
       }
 
-      add_bin8(asm_context, (0x80 | (n << 6)) | (address & 0x3f), IS_OPCODE);
+      add_bin8(asm_context, (0x80 | (n << 6)) | tms1000_address_to_lsfr[(address & 0x3f)], IS_OPCODE);
 
       return 1;
     }
@@ -297,7 +297,7 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
         add_bin8(asm_context, (0x10) | (page & 0xf), IS_OPCODE);
       }
 
-      add_bin8(asm_context, (0x80 | (n << 6)) | (address & 0x3f), IS_OPCODE);
+      add_bin8(asm_context, (0x80 | (n << 6)) | tms1000_address_to_lsfr[(address & 0x3f)], IS_OPCODE);
 
       return 1;
     }

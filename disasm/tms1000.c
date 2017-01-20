@@ -76,14 +76,22 @@ int disasm_tms1000(struct _memory *memory, uint32_t address, char *instruction, 
 
   bit_instr = opcode >> 6;
   uint8_t branch_address = opcode & 0x3f;
-  //if ((offset & 0x20) != 0) { offset |= 0xc0; }
-  //int branch_address = (address + 1) + ((char)offset);
 
   if (bit_instr == 0x2)
-  { sprintf(instruction, "br 0x%02x", branch_address); return 1; }
+  {
+    sprintf(instruction, "br 0x%02x  (linear_address=0x%02x)",
+      branch_address,
+      tms1000_lsfr_to_address[branch_address]);
+    return 1;
+  }
     else
   if (bit_instr == 0x3)
-  { sprintf(instruction, "call 0x%02x", branch_address); return 1; }
+  {
+    sprintf(instruction, "call 0x%02x  (linear_address=0x%02x)",
+      branch_address,
+      tms1000_lsfr_to_address[branch_address]);
+    return 1;
+  }
 
   strcpy(instruction, "???");
 
@@ -143,10 +151,20 @@ int disasm_tms1100(struct _memory *memory, uint32_t address, char *instruction, 
   //int branch_address = (address + 1) + offset;
 
   if (bit_instr == 0x2)
-  { sprintf(instruction, "br 0x%02x", branch_address); return 1; }
+  {
+     sprintf(instruction, "br 0x%02x (linear_address=0x%02x)",
+       branch_address,
+       tms1000_lsfr_to_address[branch_address]);
+     return 1;
+  }
     else
   if (bit_instr == 0x3)
-  { sprintf(instruction, "call 0x%02x", branch_address); return 1; }
+  {
+    sprintf(instruction, "call 0x%02x (linear_address=0x%02x)",
+      branch_address,
+      tms1000_lsfr_to_address[branch_address]);
+    return 1;
+  }
 
   strcpy(instruction, "???");
 
@@ -160,11 +178,14 @@ void list_output_tms1000(struct _asm_context *asm_context, uint32_t start, uint3
   uint32_t opcode = memory_read_m(&asm_context->memory, start);
   uint8_t page = start >> 6;
   uint8_t pc = start & 0x3f;
+  uint8_t lsfr;
 
   fprintf(asm_context->list, "\n");
   disasm_tms1000(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-  fprintf(asm_context->list, "%02x/%02x: %02x %-40s cycles: ", page, pc, opcode, instruction);
+  lsfr = tms1000_address_to_lsfr[pc];
+
+  fprintf(asm_context->list, "%03x %x/%02x: %02x %-40s cycles: ", start, page, lsfr, opcode, instruction);
 
   if (cycles_min == cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
@@ -177,13 +198,17 @@ void list_output_tms1100(struct _asm_context *asm_context, uint32_t start, uint3
   int cycles_min,cycles_max;
   char instruction[128];
   uint16_t opcode = memory_read_m(&asm_context->memory, start);
-  uint8_t page = start >> 6;
+  uint8_t page = (start >> 6) & 0x3;
+  uint8_t chapter = (start >> 8) & 0x1;
   uint8_t pc = start & 0x3f;
+  uint8_t lsfr;
 
   fprintf(asm_context->list, "\n");
   disasm_tms1100(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-  fprintf(asm_context->list, "%02x/%02x: %02x %-40s cycles: ", page, pc, opcode, instruction);
+  lsfr = tms1000_address_to_lsfr[pc];
+
+  fprintf(asm_context->list, "%03x %d/%x/%02x: %02x %-40s cycles: ", start, chapter, page, lsfr, opcode, instruction);
 
   if (cycles_min == cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
@@ -199,7 +224,7 @@ void disasm_range_tms1000(struct _memory *memory, uint32_t flags, uint32_t start
 
   printf("\n");
 
-  printf("%-3s %-4s %-5s %-40s Cycles\n", "Page", "Addr", "Opcode", "Instruction");
+  printf("%-4s %-4s %-5s %-40s Cycles\n", "Linr", "Addr", "Opcode", "Instruction");
   printf("---- ---- ------ ----------------------------------       ------\n");
 
   while(start <= end)
@@ -210,19 +235,20 @@ void disasm_range_tms1000(struct _memory *memory, uint32_t flags, uint32_t start
 
     uint8_t page = start >> 6;
     uint8_t pc = start & 0x3f;
+    uint8_t lsfr = tms1000_address_to_lsfr[pc];
 
     if (cycles_min < 1)
     {
-      printf("%02x   %02x:  %02x     %-40s ?\n", page, pc, num, instruction);
+      printf("%03x  %x/%02x: %02x    %-40s ?\n", start, page, lsfr, num, instruction);
     }
       else
-    if (cycles_min==cycles_max)
+    if (cycles_min == cycles_max)
     {
-      printf("%02x   %02x:  %02x     %-40s %d\n", page, pc, num, instruction, cycles_min);
+      printf("%03x  %x/%02x: %02x    %-40s %d\n", start, page, lsfr, num, instruction, cycles_min);
     }
       else
     {
-      printf("%02x   %02x:  %02x     %-40s %d-%d\n", page, pc, num, instruction, cycles_min, cycles_max);
+      printf("%03x  %x/%02x: %02x    %-40s %d-%d\n", start, page, lsfr, num, instruction, cycles_min, cycles_max);
     }
 
     start++;
@@ -237,8 +263,8 @@ void disasm_range_tms1100(struct _memory *memory, uint32_t flags, uint32_t start
 
   printf("\n");
 
-  printf("%-3s %-4s %-5s %-40s Cycles\n", "Page", "Addr", "Opcode", "Instruction");
-  printf("---- ---- ------ ----------------------------------       ------\n");
+  printf("%-4s %-4s   %-5s %-40s Cycles\n", "Linr", "Addr", "Opcode", "Instruction");
+  printf("---- ------ ------ ----------------------------------       ------\n");
 
   while(start <= end)
   {
@@ -246,21 +272,23 @@ void disasm_range_tms1100(struct _memory *memory, uint32_t flags, uint32_t start
 
     disasm_tms1100(memory, start, instruction, &cycles_min, &cycles_max);
 
-    uint8_t page = start >> 6;
+    uint8_t chapter = (start >> 8) & 1;
+    uint8_t page = (start >> 6) & 3;
     uint8_t pc = start & 0x3f;
+    uint8_t lsfr = tms1000_address_to_lsfr[pc];
 
     if (cycles_min < 1)
     {
-      printf("%02x   %02x:  %02x     %-40s ?\n", page, pc, num, instruction);
+      printf("%03x %d/%x/%02x: %02x     %-40s ?\n", start, chapter, page, lsfr, num, instruction);
     }
       else
-    if (cycles_min==cycles_max)
+    if (cycles_min == cycles_max)
     {
-      printf("%02x   %02x:  %02x     %-40s %d\n", page, pc, num, instruction, cycles_min);
+      printf("%03x %d/%x/%02x: %02x     %-40s %d\n", start, chapter, page, lsfr, num, instruction, cycles_min);
     }
       else
     {
-      printf("%02x   %02x:  %02x     %-40s %d-%d\n", page, pc, num, instruction, cycles_min, cycles_max);
+      printf("%03x %d/%x/%02x: %02x     %-40s %d-%d\n", start, chapter, page, lsfr, num, instruction, cycles_min, cycles_max);
     }
 
     start++;
