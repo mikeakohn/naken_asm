@@ -5,16 +5,16 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "table/680x0.h"
+#include "table/68000.h"
 
-struct _table_680x0 table_680x0[] =
+struct _table_68000 table_68000[] =
 {
   { "abcd", 0xc100, 0xf1f0, OP_BCD, 0, 0, OMIT_W|OMIT_L, DEFAULT_B },
   { "add", 0xd000, 0xf000, OP_REG_AND_EA, 0, MODE_DN|MODE_AN|MODE_D16_PC|MODE_D8_PC_XN, 0, 0 },
@@ -110,7 +110,7 @@ struct _table_680x0 table_680x0[] =
   { NULL, 0x0000, 0x0000, OP_NONE },
 };
 
-char *table_680x0_condition_codes[] =
+char *table_68000_condition_codes[] =
 {
   "t",
   "f",

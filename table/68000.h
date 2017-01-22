@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
-#ifndef _TABLE_680x0_H
-#define _TABLE_680x0_H
+#ifndef _TABLE_68000_H
+#define _TABLE_68000_H
 
 #include <stdint.h>
 
@@ -76,7 +76,7 @@ enum
 #define DEFAULT_W 2
 #define DEFAULT_L 3
 
-struct _table_680x0
+struct _table_68000
 {
   char *instr;
   uint16_t opcode;

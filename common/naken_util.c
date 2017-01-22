@@ -27,7 +27,7 @@
 #include "disasm/6800.h"
 #include "disasm/6809.h"
 #include "disasm/68hc08.h"
-#include "disasm/680x0.h"
+#include "disasm/68000.h"
 #include "disasm/8051.h"
 #include "disasm/arm.h"
 #include "disasm/avr8.h"
@@ -76,7 +76,7 @@ parse_instruction_t parse_instruction_65816 = NULL;
 parse_instruction_t parse_instruction_6800 = NULL;
 parse_instruction_t parse_instruction_6809 = NULL;
 parse_instruction_t parse_instruction_68hc08 = NULL;
-parse_instruction_t parse_instruction_680x0 = NULL;
+parse_instruction_t parse_instruction_68000 = NULL;
 parse_instruction_t parse_instruction_8051 = NULL;
 parse_instruction_t parse_instruction_arm = NULL;
 parse_instruction_t parse_instruction_avr8 = NULL;
@@ -670,7 +670,7 @@ int main(int argc, char *argv[])
            "   -65816                       (65816)\n"
            "   -6800                        (6800)\n"
            "   -68hc08                      (68hc08)\n"
-           "   -680x0                       (680x0)\n"
+           "   -68000                       (68000)\n"
            "   -8051 / -8052                (8051 / 8052)\n"
            "   -arm                         (ARM)\n"
            "   -avr8                        (Atmel AVR8)\n"

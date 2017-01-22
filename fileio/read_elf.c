@@ -223,7 +223,7 @@ int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _
   switch(n)
   {
     case 4:
-      *cpu_type = CPU_TYPE_680X0;
+      *cpu_type = CPU_TYPE_68000;
       break;
     case 8:
     case 10:

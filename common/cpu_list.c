@@ -16,7 +16,7 @@
 #include "asm/6800.h"
 #include "asm/6809.h"
 #include "asm/68hc08.h"
-#include "asm/680x0.h"
+#include "asm/68000.h"
 #include "asm/8051.h"
 #include "asm/arm.h"
 #include "asm/avr8.h"
@@ -42,7 +42,7 @@
 #include "disasm/6800.h"
 #include "disasm/6809.h"
 #include "disasm/68hc08.h"
-#include "disasm/680x0.h"
+#include "disasm/68000.h"
 #include "disasm/8051.h"
 #include "disasm/arm.h"
 #include "disasm/avr8.h"
@@ -74,8 +74,8 @@
 
 struct _cpu_list cpu_list[] =
 {
-#ifdef ENABLE_65XX
-  { "6502", CPU_TYPE_65XX, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, parse_instruction_6502, NULL, list_output_6502, disasm_range_6502, simulate_init_6502, NO_FLAGS },
+#ifdef ENABLE_6502
+  { "6502", CPU_TYPE_6502, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, parse_instruction_6502, NULL, list_output_6502, disasm_range_6502, simulate_init_6502, NO_FLAGS },
 #endif
 #ifdef ENABLE_65816
   { "65816", CPU_TYPE_65816, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, parse_instruction_65816, NULL, list_output_65816, disasm_range_65816, simulate_init_65816, NO_FLAGS },
@@ -89,8 +89,8 @@ struct _cpu_list cpu_list[] =
 #ifdef ENABLE_68HC08
   { "68hc08", CPU_TYPE_68HC08, ENDIAN_BIG, 1, ALIGN_1, 1, 0, 0, parse_instruction_68hc08, NULL, list_output_68hc08, disasm_range_68hc08, NULL, NO_FLAGS },
 #endif
-#ifdef ENABLE_680X0
-  { "680x0", CPU_TYPE_680X0, ENDIAN_BIG, 1, ALIGN_2, 1, 0, 1, parse_instruction_680x0, NULL, list_output_680x0, disasm_range_680x0, NULL, NO_FLAGS },
+#ifdef ENABLE_68000
+  { "68000", CPU_TYPE_68000, ENDIAN_BIG, 1, ALIGN_2, 1, 0, 1, parse_instruction_68000, NULL, list_output_68000, disasm_range_68000, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_8051
   { "8051", CPU_TYPE_8051, ENDIAN_LITTLE, 1, ALIGN_1, 0, 0, 0, parse_instruction_8051, NULL, list_output_8051, disasm_range_8051, NULL, NO_FLAGS },
