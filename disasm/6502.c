@@ -5,9 +5,9 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn, Joe Davisson
  *
- * 65xx file by Joe Davisson
+ * 6502 file by Joe Davisson
  *
  */
 
@@ -15,23 +15,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "disasm/65xx.h"
-#include "table/65xx.h"
+#include "disasm/6502.h"
+#include "table/6502.h"
 
-extern struct _table_65xx table_65xx[];
-extern struct _table_65xx_opcodes table_65xx_opcodes[];
+extern struct _table_6502 table_6502[];
+extern struct _table_6502_opcodes table_6502_opcodes[];
 
 #define READ_RAM(a) (memory_read_m(memory, a) & 0xFF)
 
 // bytes for each addressing mode
 static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2 };
 
-int get_cycle_count_65xx(unsigned short int opcode)
+int get_cycle_count_6502(unsigned short int opcode)
 {
   return -1;
 }
 
-int disasm_65xx(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_6502(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
   //int n,r;
@@ -48,10 +48,10 @@ int disasm_65xx(struct _memory *memory, uint32_t address, char *instruction, int
 
   sprintf(temp, " ");
 
-  if(table_65xx_opcodes[opcode].instr != M65XX_ERROR)
+  if(table_6502_opcodes[opcode].instr != M65XX_ERROR)
   {
-    strcpy(instruction, table_65xx[table_65xx_opcodes[opcode].instr].name);
-    op = table_65xx_opcodes[opcode].op;
+    strcpy(instruction, table_6502[table_6502_opcodes[opcode].instr].name);
+    op = table_6502_opcodes[opcode].op;
 
     if(op_bytes[op] > 1)
     {
@@ -119,8 +119,8 @@ int disasm_65xx(struct _memory *memory, uint32_t address, char *instruction, int
     }
 
     // get cycle mode
-    int min = table_65xx_opcodes[opcode].cycles_min;
-    int max = table_65xx_opcodes[opcode].cycles_max;
+    int min = table_6502_opcodes[opcode].cycles_min;
+    int max = table_6502_opcodes[opcode].cycles_max;
 
     if(op == OP_RELATIVE)
     {
@@ -151,7 +151,7 @@ int disasm_65xx(struct _memory *memory, uint32_t address, char *instruction, int
   return op_bytes[op];
 }
 
-void list_output_65xx(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_6502(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
@@ -163,7 +163,7 @@ void list_output_65xx(struct _asm_context *asm_context, uint32_t start, uint32_t
   //opcode &= 0xFF;
 
   fprintf(asm_context->list, "\n");
-  count = disasm_65xx(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+  count = disasm_6502(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
   bytes[0] = 0; 
   for (n = 0; n < count; n++)
@@ -182,7 +182,7 @@ void list_output_65xx(struct _asm_context *asm_context, uint32_t start, uint32_t
 
 }
 
-void disasm_range_65xx(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_6502(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
   //int vectors_flag=0;
@@ -194,18 +194,18 @@ void disasm_range_65xx(struct _memory *memory, uint32_t flags, uint32_t start, u
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start<=end)
+  while(start <= end)
   {
-    num=READ_RAM(start)|(READ_RAM(start+1)<<8);
+    num = READ_RAM(start)|(READ_RAM(start+1)<<8);
 
-    int count=disasm_65xx(memory, start, instruction, &cycles_min, &cycles_max);
+    int count = disasm_6502(memory, start, instruction, &cycles_min, &cycles_max);
 
-    if (cycles_min<1)
+    if (cycles_min < 1)
     {
       printf("0x%04x: 0x%02x %-40s ?\n", start, num & 0xFF, instruction);
     }
       else
-    if (cycles_min==cycles_max)
+    if (cycles_min == cycles_max)
     {
       printf("0x%04x: 0x%02x %-40s %d\n", start, num & 0xFF, instruction, cycles_min);
     }
@@ -214,16 +214,16 @@ void disasm_range_65xx(struct _memory *memory, uint32_t flags, uint32_t start, u
       printf("0x%04x: 0x%02x %-40s %d-%d\n", start, num & 0xFF, instruction, cycles_min, cycles_max);
     }
 
-    count-=1;
-    while (count>0)
+    count -= 1;
+    while (count > 0)
     {
-      start=start+1;
-      num=READ_RAM(start)|(READ_RAM(start+1)<<8);
+      start = start + 1;
+      num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
       printf("0x%04x: 0x%02x\n", start, num & 0xFF);
-      count-=1;
+      count -= 1;
     }
 
-    start=start+1;
+    start = start + 1;
   }
 }
 

@@ -22,7 +22,7 @@
 #include "common/assembler.h"
 #include "common/naken_util.h"
 #include "common/version.h"
-#include "disasm/65xx.h"
+#include "disasm/6502.h"
 #include "disasm/65816.h"
 #include "disasm/6800.h"
 #include "disasm/6809.h"
@@ -52,7 +52,7 @@
 #include "fileio/read_srec.h"
 #include "fileio/read_ti_txt.h"
 #include "simulate/avr8.h"
-#include "simulate/65xx.h"
+#include "simulate/6502.h"
 #include "simulate/65816.h"
 #include "simulate/mips.h"
 #include "simulate/msp430.h"
@@ -71,7 +71,7 @@ enum
 };
 
 // FIXME - How to do this better?
-parse_instruction_t parse_instruction_65xx = NULL;
+parse_instruction_t parse_instruction_6502 = NULL;
 parse_instruction_t parse_instruction_65816 = NULL;
 parse_instruction_t parse_instruction_6800 = NULL;
 parse_instruction_t parse_instruction_6809 = NULL;
@@ -666,7 +666,7 @@ int main(int argc, char *argv[])
            "   -address <start_address>     (for bin files: binary placed at this address)\n"
            "   -bin                         (file is binary)\n"
            "ELF files can auto-pick a CPU, if a hex file use:\n"
-           "   -65xx                        (65xx)\n"
+           "   -6502                        (6502)\n"
            "   -65816                       (65816)\n"
            "   -6800                        (6800)\n"
            "   -68hc08                      (68hc08)\n"

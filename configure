@@ -86,7 +86,7 @@ show_help()
   echo "  --enable-debug            compile in debug code"
   #echo "  --disable-elf             disable elf file option"
   echo "  --enable-all              compile in support for all CPU's"
-  echo "  --enable-65xx             compile in support for 6502/6510 etc"
+  echo "  --enable-6502             compile in support for 6502/6510 etc"
   echo "  --enable-65816            compile in support for 65816"
   echo "  --enable-6800             compile in support for 6800"
   echo "  --enable-6809             compile in support for 6809"
@@ -215,11 +215,11 @@ for option in $@; do
     TABLE_OBJS="${TABLE_OBJS_ALL}"
     DFLAGS="${DFLAGS_ALL}"
   ;;
-  --enable-65xx)
-    ASM_OBJS="${ASM_OBJS} 65xx.o"
-    DISASM_OBJS="${DISASM_OBJS} 65xx.o"
-    SIM_OBJS="${SIM_OBJS} 65xx.o"
-    TABLE_OBJS="${TABLE_OBJS} 65xx.o"
+  --enable-6502)
+    ASM_OBJS="${ASM_OBJS} 6502.o"
+    DISASM_OBJS="${DISASM_OBJS} 6502.o"
+    SIM_OBJS="${SIM_OBJS} 6502.o"
+    TABLE_OBJS="${TABLE_OBJS} 6502.o"
     DFLAGS="${DFLAGS} -DENABLE_65XX"
   ;;
   --enable-65816)

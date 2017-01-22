@@ -5,25 +5,25 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2017 by Michael Kohn, Joe Davisson
  *
- * 65816 by Joe Davisson
+ * 6502 by Joe Davisson
  *
  */
 
-#ifndef _TABLE_65XX_H
-#define _TABLE_65XX_H
+#ifndef _TABLE_6502_H
+#define _TABLE_6502_H
 
 #include "common/assembler.h"
 
-struct _table_65xx
+struct _table_6502
 {
   char *name;
   uint8_t instr;
   uint8_t op;
 };
 
-struct _table_65xx_opcodes
+struct _table_6502_opcodes
 {
   uint8_t instr;
   uint8_t op;

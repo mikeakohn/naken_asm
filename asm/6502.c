@@ -5,9 +5,9 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2017 by Michael Kohn, Joe Davisson
  *
- * 65816 by Joe Davisson
+ * 6502 by Joe Davisson
  *
  */
 
@@ -17,13 +17,13 @@
 #include <ctype.h>
 
 #include "asm/common.h"
-#include "asm/65xx.h"
+#include "asm/6502.h"
 #include "common/assembler.h"
-//#include "disasm/65xx.h"
+//#include "disasm/6502.h"
 #include "common/tokens.h"
 #include "common/eval_expression.h"
 
-#include "table/65xx.h"
+#include "table/6502.h"
 
 #define GET_TOKEN() (token_type = tokens_get(asm_context, token, TOKENLEN))
 
@@ -114,13 +114,13 @@ static int get_address(struct _asm_context *asm_context,
   return 0;
 }
 
-extern struct _table_65xx table_65xx[];
-extern struct _table_65xx_opcodes table_65xx_opcodes[];
+extern struct _table_6502 table_6502[];
+extern struct _table_6502_opcodes table_6502_opcodes[];
 
 // bytes for each addressing mode
 static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2 };
 
-int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
+int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];
   char instr_case[TOKENLEN];
@@ -142,7 +142,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
   for(i = 0; i < 56; i++)
   {
-    if(strcmp(instr_case, table_65xx[i].name) == 0)
+    if(strcmp(instr_case, table_6502[i].name) == 0)
     {
       instr_enum = i;
       break;
@@ -157,7 +157,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
   }
 
   // get default addressing mode
-  op = table_65xx[instr_enum].op;
+  op = table_6502[instr_enum].op;
 
   // start with unknown number/address size
   size = 0;
@@ -426,16 +426,16 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
 
   for(i = 0; i < 256; i++)
   {
-    if(table_65xx_opcodes[i].instr == instr_enum)
+    if(table_6502_opcodes[i].instr == instr_enum)
     {
-      if(table_65xx_opcodes[i].op == op)
+      if(table_6502_opcodes[i].op == op)
       {
         opcode = i;
         break;
       }
       else if(op == OP_ADDRESS8)
       {
-        if(table_65xx_opcodes[i].op == OP_ADDRESS16)
+        if(table_6502_opcodes[i].op == OP_ADDRESS16)
         {
           op = OP_ADDRESS16;
           opcode = i;
@@ -444,7 +444,7 @@ int parse_instruction_65xx(struct _asm_context *asm_context, char *instr)
       }
       else if(op == OP_INDEXED8_Y)
       {
-        if(table_65xx_opcodes[i].op == OP_INDEXED16_Y)
+        if(table_6502_opcodes[i].op == OP_INDEXED16_Y)
         {
           op = OP_INDEXED16_Y;
           opcode = i;

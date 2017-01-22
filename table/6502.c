@@ -5,15 +5,15 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2017 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
  */
 
-#include "table/65xx.h"
+#include "table/6502.h"
 
-struct _table_65xx table_65xx[] =
+struct _table_6502 table_6502[] =
 {
   { "adc", M65XX_ADC, OP_NONE },
   { "and", M65XX_AND, OP_NONE },
@@ -73,7 +73,7 @@ struct _table_65xx table_65xx[] =
   { "tya", M65XX_TYA, OP_NONE },
 };
 
-struct _table_65xx_opcodes table_65xx_opcodes[] =
+struct _table_6502_opcodes table_6502_opcodes[] =
 {
   /* 0x00 */ { M65XX_BRK, OP_NONE, 0, 0 },
   /* 0x01 */ { M65XX_ORA, OP_X_INDIRECT8, 0, 0 },

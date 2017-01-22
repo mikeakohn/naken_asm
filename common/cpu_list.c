@@ -11,7 +11,7 @@
 
 #include "cpu_list.h"
 
-#include "asm/65xx.h"
+#include "asm/6502.h"
 #include "asm/65816.h"
 #include "asm/6800.h"
 #include "asm/6809.h"
@@ -37,7 +37,7 @@
 #include "asm/tms1000.h"
 #include "asm/tms9900.h"
 #include "asm/z80.h"
-#include "disasm/65xx.h"
+#include "disasm/6502.h"
 #include "disasm/65816.h"
 #include "disasm/6800.h"
 #include "disasm/6809.h"
@@ -62,7 +62,7 @@
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
 #include "disasm/z80.h"
-#include "simulate/65xx.h"
+#include "simulate/6502.h"
 #include "simulate/65816.h"
 #include "simulate/avr8.h"
 #include "simulate/mips.h"
@@ -75,7 +75,7 @@
 struct _cpu_list cpu_list[] =
 {
 #ifdef ENABLE_65XX
-  { "65xx", CPU_TYPE_65XX, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, parse_instruction_65xx, NULL, list_output_65xx, disasm_range_65xx, simulate_init_65xx, NO_FLAGS },
+  { "6502", CPU_TYPE_65XX, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, parse_instruction_6502, NULL, list_output_6502, disasm_range_6502, simulate_init_6502, NO_FLAGS },
 #endif
 #ifdef ENABLE_65816
   { "65816", CPU_TYPE_65816, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, parse_instruction_65816, NULL, list_output_65816, disasm_range_65816, simulate_init_65816, NO_FLAGS },

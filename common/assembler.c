@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "asm/65xx.h"
+#include "asm/6502.h"
 #include "asm/65816.h"
 #include "asm/6800.h"
 #include "asm/6809.h"
@@ -43,7 +43,7 @@
 #include "common/macros.h"
 #include "common/symbols.h"
 #include "common/print_error.h"
-#include "disasm/65xx.h"
+#include "disasm/6502.h"
 #include "disasm/6800.h"
 #include "disasm/6809.h"
 #include "disasm/68hc08.h"
