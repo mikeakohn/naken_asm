@@ -19,6 +19,7 @@ void print_error_unknown_instr(const char *instr, struct _asm_context *asm_conte
 void print_error_opcount(const char *instr, struct _asm_context *asm_context);
 void print_error_illegal_operands(const char *instr, struct _asm_context *asm_context);
 void print_error_illegal_expression(const char *instr, struct _asm_context *asm_context);
+void print_error_illegal_register(const char *instr, struct _asm_context *asm_context);
 void print_error_range(const char *s, int r1, int r2, struct _asm_context *asm_context);
 void print_error_unknown_operand_combo(const char *instr, struct _asm_context *asm_context);
 void print_error_internal(struct _asm_context *asm_context, const char *filename, int line);

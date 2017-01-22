@@ -50,11 +50,7 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
 
   if (asm_context->pass == 1)
   {
-    while(1)
-    {
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
-    }
+    ignore_line(asm_context);
 
     add_bin16(asm_context, 0, IS_OPCODE);
     return 2;

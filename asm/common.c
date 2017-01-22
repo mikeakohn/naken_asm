@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -101,6 +101,20 @@ int eat_operand(struct _asm_context *asm_context)
   }
 
   return -1;
+}
+
+int ignore_line(struct _asm_context *asm_context)
+{
+  char token[TOKENLEN];
+  int token_type;
+
+  while(1)
+  {
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
+  }
+
+  return 0;
 }
 
 void lower_copy(char *d, const char *s)

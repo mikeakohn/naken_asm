@@ -17,13 +17,13 @@
 enum
 {
   OP_NONE,
-  OP_ADDR12,
-  OP_COND,
-  OP_DATA,
-  OP_P,
-  OP_P_DATA,
   OP_R,
+  OP_P,
+  OP_ADDR12,
+  OP_DATA,
+  OP_P_DATA,
   OP_R_ADDR8,
+  OP_COND,
 };
 
 struct _table_4004

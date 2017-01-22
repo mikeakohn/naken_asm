@@ -26,29 +26,72 @@ int disasm_4004(struct _memory *memory, uint32_t address, char *instruction, int
 {
   int opcode;
   int n;
-  int f, d, b, k;
+  int r, p, a, c, d;
 
   *cycles_min = -1;
   *cycles_max = -1;
 
-  //opcode = READ_RAM16(address);
-  opcode = memory_read16_m(memory, address);
+  opcode = memory_read_m(memory, address);
 
   n = 0;
   while(table_4004[n].instr != NULL)
   {
     if ((opcode & table_4004[n].mask) == table_4004[n].opcode)
     {
-      //*cycles_min = table_4004[n].cycles_min;
-      //*cycles_max = table_4004[n].cycles_min;
-      *cycles_min = 6;
-      *cycles_max = 6;
+      *cycles_min = 16;
+      *cycles_max = 16;
 
       switch(table_4004[n].type)
       {
         case OP_NONE:
         {
+          *cycles_min = 8;
+          *cycles_max = 8;
           strcpy(instruction, table_4004[n].instr);
+          return 1;
+        }
+        case OP_R:
+        case OP_DATA:
+        {
+          *cycles_min = 8;
+          *cycles_max = 8;
+          r = opcode & 0xf;
+          sprintf(instruction, "%s %d", table_4004[n].instr, r);
+          return 1;
+        }
+        case OP_P:
+        {
+          *cycles_min = 8;
+          *cycles_max = 8;
+          p = opcode & 0xe;
+          sprintf(instruction, "%s %d", table_4004[n].instr, p);
+          return 1;
+        }
+        case OP_ADDR12:
+        {
+          a = ((opcode & 0xf) << 8) | memory_read_m(memory, address + 1);
+          sprintf(instruction, "%s 0x%x", table_4004[n].instr, a);
+          return 2;
+        }
+        case OP_P_DATA:
+        {
+          p = opcode & 0xe;
+          d = memory_read_m(memory, address + 1);
+          sprintf(instruction, "%s %d 0x%x", table_4004[n].instr, d, a);
+          return 2;
+        }
+        case OP_R_ADDR8:
+        {
+          r = opcode & 0xf;
+          a = memory_read_m(memory, address + 1);
+          sprintf(instruction, "%s %d 0x%x", table_4004[n].instr, r, a);
+          return 2;
+        }
+        case OP_COND:
+        {
+          c = opcode & 0xf;
+          a = memory_read_m(memory, address + 1);
+          sprintf(instruction, "%s %d 0x%x", table_4004[n].instr, c, a);
           return 2;
         }
         default:
@@ -72,6 +115,7 @@ void list_output_4004(struct _asm_context *asm_context, uint32_t start, uint32_t
   int cycles_min, cycles_max;
   uint32_t opcode;
   char instruction[128];
+  char temp[32];
   int count;
 
   fprintf(asm_context->list, "\n");
@@ -80,9 +124,17 @@ void list_output_4004(struct _asm_context *asm_context, uint32_t start, uint32_t
   {
     count = disasm_4004(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-    opcode = memory_read16_m(&asm_context->memory, start);
+    opcode = memory_read_m(&asm_context->memory, start);
+    sprintf(temp, "%02x", opcode);
 
-    fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: ", start / 2, opcode, instruction);
+    if (count == 2)
+    {
+      char temp2[4];
+      sprintf(temp2, " %02x", memory_read_m(&asm_context->memory, start + 1));
+      strcat(temp, temp2);
+    }
+
+    fprintf(asm_context->list, "0x%04x: %-6s %-40s cycles: ", start / 2, temp, instruction);
 
     if (cycles_min == 0)
     {

@@ -64,6 +64,13 @@ void print_error_illegal_expression(const char *instr, struct _asm_context *asm_
     asm_context->line);
 }
 
+void print_error_illegal_register(const char *instr, struct _asm_context *asm_context)
+{
+  printf("Error: Illegal register for '%s' at %s:%d\n", instr,
+    asm_context->filename,
+    asm_context->line);
+}
+
 void print_error_range(const char *s, int r1, int r2, struct _asm_context *asm_context)
 {
   printf("Error: %s out of range (%d,%d) at %s:%d\n", s, r1, r2,
