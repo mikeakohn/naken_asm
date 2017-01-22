@@ -11,6 +11,7 @@
 
 #include "cpu_list.h"
 
+#include "asm/4004.h"
 #include "asm/6502.h"
 #include "asm/65816.h"
 #include "asm/6800.h"
@@ -37,6 +38,7 @@
 #include "asm/tms1000.h"
 #include "asm/tms9900.h"
 #include "asm/z80.h"
+#include "disasm/4004.h"
 #include "disasm/6502.h"
 #include "disasm/65816.h"
 #include "disasm/6800.h"
@@ -74,6 +76,9 @@
 
 struct _cpu_list cpu_list[] =
 {
+#ifdef ENABLE_4004
+  { "4004", CPU_TYPE_4004, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, parse_instruction_4004, NULL, list_output_4004, disasm_range_4004, NULL, NO_FLAGS },
+#endif
 #ifdef ENABLE_6502
   { "6502", CPU_TYPE_6502, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, parse_instruction_6502, NULL, list_output_6502, disasm_range_6502, simulate_init_6502, NO_FLAGS },
 #endif

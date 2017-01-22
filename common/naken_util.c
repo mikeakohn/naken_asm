@@ -22,6 +22,7 @@
 #include "common/assembler.h"
 #include "common/naken_util.h"
 #include "common/version.h"
+#include "disasm/4004.h"
 #include "disasm/6502.h"
 #include "disasm/65816.h"
 #include "disasm/6800.h"
@@ -71,6 +72,7 @@ enum
 };
 
 // FIXME - How to do this better?
+parse_instruction_t parse_instruction_4004 = NULL;
 parse_instruction_t parse_instruction_6502 = NULL;
 parse_instruction_t parse_instruction_65816 = NULL;
 parse_instruction_t parse_instruction_6800 = NULL;
@@ -666,6 +668,7 @@ int main(int argc, char *argv[])
            "   -address <start_address>     (for bin files: binary placed at this address)\n"
            "   -bin                         (file is binary)\n"
            "ELF files can auto-pick a CPU, if a hex file use:\n"
+           "   -4004                        (4004)\n"
            "   -6502                        (6502)\n"
            "   -65816                       (65816)\n"
            "   -6800                        (6800)\n"
@@ -674,10 +677,12 @@ int main(int argc, char *argv[])
            "   -8051 / -8052                (8051 / 8052)\n"
            "   -arm                         (ARM)\n"
            "   -avr8                        (Atmel AVR8)\n"
+           "   -cell                        (IBM Cell BE)\n"
            "   -dspic                       (dsPIC)\n"
            "   -epiphany                    (Epiphany III/IV)\n"
            "   -mips32 / mips               (MIPS)\n"
            "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
+           "   -pic14                       (PIC14 8 bit PIC / 14 bit opcode)\n"
            "   -powerpc                     (PowerPC)\n"
            "   -propeller                   (Parallax Propeller)\n"
            "   -riscv                       (RISCV)\n"

@@ -1,0 +1,64 @@
+/**
+ *  naken_asm assembler.
+ *  Author: Michael Kohn
+ *   Email: mike@mikekohn.net
+ *     Web: http://www.mikekohn.net/
+ * License: GPL
+ *
+ * Copyright 2010-2017 by Michael Kohn
+ *
+ */
+
+#include "table/4004.h"
+
+struct _table_4004 table_4004[] =
+{
+  { "nop", 0x00, 0xff, OP_NONE },
+  { "jcn", 0x10, 0xf0, OP_COND },
+  { "fim", 0x20, 0xf1, OP_P_DATA },
+  { "src", 0x21, 0xf1, OP_P },
+  { "fin", 0x30, 0xf1, OP_P },
+  { "jin", 0x31, 0xf1, OP_P },
+  { "jun", 0x40, 0xf0, OP_ADDR12 },
+  { "jms", 0x50, 0xf0, OP_ADDR12 },
+  { "inc", 0x60, 0xf0, OP_R },
+  { "isz", 0x70, 0xf0, OP_R_ADDR8 },
+  { "add", 0x80, 0xf0, OP_R },
+  { "sub", 0x90, 0xf0, OP_R },
+  { "ld",  0xa0, 0xf0, OP_R },
+  { "xch", 0xb0, 0xf0, OP_R },
+  { "bbl", 0xc0, 0xf0, OP_DATA },
+  { "ldm", 0xd0, 0xf0, OP_DATA },
+  { "wrm", 0xe0, 0xff, OP_NONE },
+  { "wmp", 0xe1, 0xff, OP_NONE },
+  { "wrr", 0xe2, 0xff, OP_NONE },
+  { "wr0", 0xe4, 0xff, OP_NONE },
+  { "wr1", 0xe5, 0xff, OP_NONE },
+  { "wr2", 0xe6, 0xff, OP_NONE },
+  { "wr3", 0xe7, 0xff, OP_NONE },
+  { "sbm", 0xe8, 0xff, OP_NONE },
+  { "rdm", 0xe9, 0xff, OP_NONE },
+  { "rdr", 0xea, 0xff, OP_NONE },
+  { "adm", 0xeb, 0xff, OP_NONE },
+  { "rd0", 0xec, 0xff, OP_NONE },
+  { "rd1", 0xed, 0xff, OP_NONE },
+  { "rd2", 0xee, 0xff, OP_NONE },
+  { "rd3", 0xef, 0xff, OP_NONE },
+  { "clb", 0xf0, 0xff, OP_NONE },
+  { "clc", 0xf1, 0xff, OP_NONE },
+  { "iac", 0xf2, 0xff, OP_NONE },
+  { "cmc", 0xf3, 0xff, OP_NONE },
+  { "cma", 0xf4, 0xff, OP_NONE },
+  { "ral", 0xf5, 0xff, OP_NONE },
+  { "rar", 0xf6, 0xff, OP_NONE },
+  { "tcc", 0xf7, 0xff, OP_NONE },
+  { "dac", 0xf8, 0xff, OP_NONE },
+  { "tcs", 0xf9, 0xff, OP_NONE },
+  { "stc", 0xfa, 0xff, OP_NONE },
+  { "daa", 0xfb, 0xff, OP_NONE },
+  { "kbp", 0xfc, 0xff, OP_NONE },
+  { "dcl", 0xfd, 0xff, OP_NONE },
+  { NULL, 0, 0 }
+};
+
+
