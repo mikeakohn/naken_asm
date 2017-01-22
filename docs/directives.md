@@ -12,7 +12,7 @@ CPU this source file should be assembled for.
 
 |                 |                                      |
 |-----------------|--------------------------------------|
-|.65xx            |6502, 6510, and any other 6500 cpu
+|.6502            |6502, 6510, and any other 65xx CPUs
 |.65816           |W65C816
 |.6800            |6800
 |.68hc08          |68HC08
