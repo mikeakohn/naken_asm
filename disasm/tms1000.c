@@ -211,9 +211,13 @@ void list_output_tms1100(struct _asm_context *asm_context, uint32_t start, uint3
   fprintf(asm_context->list, "%03x %d/%x/%02x: %02x %-40s cycles: ", start, chapter, page, lsfr, opcode, instruction);
 
   if (cycles_min == cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
+  {
+    fprintf(asm_context->list, "%d\n", cycles_min);
+  }
     else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+  {
+    fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+  }
 }
 
 void disasm_range_tms1000(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
