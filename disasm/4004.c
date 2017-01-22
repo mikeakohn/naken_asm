@@ -77,7 +77,7 @@ int disasm_4004(struct _memory *memory, uint32_t address, char *instruction, int
         {
           p = opcode & 0xe;
           d = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s %d 0x%x", table_4004[n].instr, d, a);
+          sprintf(instruction, "%s %d 0x%x", table_4004[n].instr, p, d);
           return 2;
         }
         case OP_R_ADDR8:
@@ -92,6 +92,12 @@ int disasm_4004(struct _memory *memory, uint32_t address, char *instruction, int
           c = opcode & 0xf;
           a = memory_read_m(memory, address + 1);
           sprintf(instruction, "%s %d 0x%x", table_4004[n].instr, c, a);
+          return 2;
+        }
+        case OP_COND_ALIAS:
+        {
+          a = memory_read_m(memory, address + 1);
+          sprintf(instruction, "%s 0x%x", table_4004[n].instr, a);
           return 2;
         }
         default:
@@ -134,7 +140,7 @@ void list_output_4004(struct _asm_context *asm_context, uint32_t start, uint32_t
       strcat(temp, temp2);
     }
 
-    fprintf(asm_context->list, "0x%04x: %-6s %-40s cycles: ", start / 2, temp, instruction);
+    fprintf(asm_context->list, "0x%04x: %-6s %-40s cycles: ", start, temp, instruction);
 
     if (cycles_min == 0)
     {

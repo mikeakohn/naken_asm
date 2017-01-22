@@ -24,6 +24,7 @@ enum
   OP_P_DATA,
   OP_R_ADDR8,
   OP_COND,
+  OP_COND_ALIAS,
 };
 
 struct _table_4004

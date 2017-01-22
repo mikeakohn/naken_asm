@@ -136,6 +136,8 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
           if (asm_context->pass == 1)
           {
             ignore_line(asm_context);
+            add_bin8(asm_context, 0, IS_OPCODE);
+            add_bin8(asm_context, 0, IS_OPCODE);
             return 2;
           }
 
@@ -161,6 +163,7 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
           if (asm_context->pass == 1)
           {
             ignore_line(asm_context);
+            add_bin8(asm_context, 0, IS_OPCODE);
             return 1;
           }
 
@@ -186,6 +189,8 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
           if (asm_context->pass == 1)
           {
             ignore_line(asm_context);
+            add_bin8(asm_context, 0, IS_OPCODE);
+            add_bin8(asm_context, 0, IS_OPCODE);
             return 2;
           }
 
@@ -224,40 +229,46 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
           return 2;
         }
         case OP_COND:
+        case OP_COND_ALIAS:
         {
           if (asm_context->pass == 1)
           {
             ignore_line(asm_context);
+            add_bin8(asm_context, 0, IS_OPCODE);
+            add_bin8(asm_context, 0, IS_OPCODE);
             return 2;
           }
 
-          r = -1;
+          r = 0;
 
-          token_type = tokens_get(asm_context, token, TOKENLEN);
+          if (table_4004[n].type == OP_COND)
+          {
+            token_type = tokens_get(asm_context, token, TOKENLEN);
 
 #if 0
-          if (strcasecmp(token, "Z") == 0) { r = 0x4; }
-          else if (strcasecmp(token, "NZ") == 0) { r = 0xc; }
-          else if (strcasecmp(token, "C") == 0) { r = 0x2; }
-          else if (strcasecmp(token, "NC") == 0) { r = 0xa; }
-          else if (strcasecmp(token, "TN") == 0) { r = 0x1; }
-          else if (strcasecmp(token, "T") == 0) { r = 0x9; }
-            else
+            if (strcasecmp(token, "Z") == 0) { r = 0x4; }
+            else if (strcasecmp(token, "NZ") == 0) { r = 0xc; }
+            else if (strcasecmp(token, "C") == 0) { r = 0x2; }
+            else if (strcasecmp(token, "NC") == 0) { r = 0xa; }
+            else if (strcasecmp(token, "TN") == 0) { r = 0x1; }
+            else if (strcasecmp(token, "T") == 0) { r = 0x9; }
+              else
 #endif
-          if (token_type == TOKEN_NUMBER)
-          {
-            r = atoi(token);
-          }
-            else
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
+            if (token_type == TOKEN_NUMBER)
+            {
+              r = atoi(token);
+            }
+              else
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
 
-          if (r < 0 || r > 15)
-          {
-            print_error_range("Condition", 0, 0xfff, asm_context);
-            return -1;
+            if (r < 0 || r > 15)
+            {
+              print_error_range("Condition", 0, 0xfff, asm_context);
+              return -1;
+            }
           }
 
           if (eval_expression(asm_context, &num) != 0)

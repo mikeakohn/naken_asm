@@ -13,6 +13,12 @@
 
 struct _table_4004 table_4004[] =
 {
+  { "jnt", 0x11, 0xff, OP_COND_ALIAS },
+  { "jc",  0x12, 0xff, OP_COND_ALIAS },
+  { "jz",  0x14, 0xff, OP_COND_ALIAS },
+  { "jt",  0x19, 0xff, OP_COND_ALIAS },
+  { "jnc", 0x1a, 0xff, OP_COND_ALIAS },
+  { "jnz", 0x1c, 0xff, OP_COND_ALIAS },
   { "nop", 0x00, 0xff, OP_NONE },
   { "jcn", 0x10, 0xf0, OP_COND },
   { "fim", 0x20, 0xf1, OP_P_DATA },
