@@ -1,8 +1,8 @@
 
 
 default:
-	python run_test.py 65xx
-	bash run_test.sh 680x0
+	python run_test.py 6502
+	bash run_test.sh 68000
 	bash run_test.sh 8051
 	bash run_test.sh arm
 	python run_test.py avr8

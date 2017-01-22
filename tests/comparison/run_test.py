@@ -36,7 +36,7 @@ spaced_line = False
 need_reverse_endian = False
 need_little_endian32 = False
 need_stm8_org = False
-need_65xx_org = False
+need_6502_org = False
 need_org = False
 
 if cpu_type in [ "pic32", "ps2_ee" ]:
@@ -46,17 +46,17 @@ if cpu_type in [ "pic32", "ps2_ee" ]:
 if cpu_type in [ "avr8", "msp430", "msp430x" ]:
   multiline = True
 
-if cpu_type in [ "65xx", "stm8", "z80" ]:
+if cpu_type in [ "6502", "stm8", "z80" ]:
   spaced_line = True
 
 if cpu_type in [ "avr8", "msp430", "msp430x" ]:
   need_reverse_endian = True
 
-#if cpu_type in [ "65xx" ]:
+#if cpu_type in [ "6502" ]:
 #  need_org = True
 
 if cpu_type == "stm8": need_stm8_org = True
-if cpu_type == "65xx": need_65xx_org = True
+if cpu_type == "6502": need_6502_org = True
 
 fp = open(cpu_type + ".txt", "rb")
 out = open("test.asm", "wb")
@@ -79,7 +79,7 @@ for line in fp:
   if need_org:
     out.write(".org 0\n")
 
-  if need_65xx_org == True and \
+  if need_6502_org == True and \
      (tokens[0].endswith("2") and tokens[0].startswith("b")):
     out.write(".org 0\n")
 

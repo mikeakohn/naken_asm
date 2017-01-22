@@ -10,8 +10,8 @@ def create_asm(instruction):
 
 # --------------------------------- fold here -------------------------------
 
-fp = open("65xx_template.txt", "rb")
-out = open("65xx.txt", "wb")
+fp = open("6502_template.txt", "rb")
+out = open("6502.txt", "wb")
 
 for instruction in fp:
   instruction = instruction.strip()
