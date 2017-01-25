@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -80,7 +80,7 @@ int write_hex(struct _memory *memory, FILE *out)
   {
     if (memory_debug_line_m(memory, n) == DL_EMPTY)
     {
-      if (len>0)
+      if (len > 0)
       {
         write_hex_line(out, address, data, len, &segment);
         len = -1;
@@ -92,7 +92,7 @@ int write_hex(struct _memory *memory, FILE *out)
     if ((n & 0x0ffff) == 0 && len > 0)
     {
       write_hex_line(out, address, data, len, &segment);
-      len=-1;
+      len = -1;
     }
 
     if (len == -1)
