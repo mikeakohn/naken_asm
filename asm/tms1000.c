@@ -25,6 +25,27 @@ static char *tmsinstr_1[] = { "sbit", "rbit", "tbit1", "ldx" };
 static char *tmsinstr_2[] = { "tcy", "ynec", "tcmiy", "alec", "ldp" };
 static char *tms_branch[] = { "br", "call" };
 
+static void add_bin_lsfr(struct _asm_context *asm_context, uint8_t data, int flags)
+{
+  int line = DL_NO_CG;
+
+  if (asm_context->pass == 2 && flags == IS_OPCODE)
+  {
+    line = asm_context->line;
+  }
+
+  if (asm_context->pass == 1 && asm_context->pass_1_write_disable == 1)
+  {
+    asm_context->address++;
+    return;
+  }
+
+  memory_write_m(&asm_context->memory, tms1000_address_to_lsfr[asm_context->address], data);
+  memory_debug_line_set(asm_context, tms1000_address_to_lsfr[asm_context->address], line);
+
+  asm_context->address++;
+}
+
 int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];
@@ -40,7 +61,7 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
     if (strcmp(instr_case, table_tms1000[n].instr) == 0 &&
         table_tms1000[n].op1000 != 0xffff)
     {
-      add_bin8(asm_context, table_tms1000[n].op1000, IS_OPCODE);
+      add_bin_lsfr(asm_context, table_tms1000[n].op1000, IS_OPCODE);
       return 1;
     }
     n++;
@@ -68,7 +89,7 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
 
       num = tms1000_reverse_bit_address[num];
 
-      add_bin8(asm_context, ((0xc + n) << 2) | num, IS_OPCODE);
+      add_bin_lsfr(asm_context, ((0xc + n) << 2) | num, IS_OPCODE);
 
       return 1;
     }
@@ -97,11 +118,11 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
 
       if (n < 4)
       {
-        add_bin8(asm_context, ((0x4 + n) << 4) | num, IS_OPCODE);
+        add_bin_lsfr(asm_context, ((0x4 + n) << 4) | num, IS_OPCODE);
       }
         else
       {
-        add_bin8(asm_context, 0x10 | num, IS_OPCODE);
+        add_bin_lsfr(asm_context, 0x10 | num, IS_OPCODE);
       }
 
       return 1;
@@ -145,10 +166,10 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
 
       if (is_forward == 1 || page != curr_page)
       {
-        add_bin8(asm_context, (0x10) | (page & 0xf), IS_OPCODE);
+        add_bin_lsfr(asm_context, (0x10) | (page & 0xf), IS_OPCODE);
       }
 
-      add_bin8(asm_context, (0x80 | (n << 6)) | tms1000_address_to_lsfr[(address & 0x3f)], IS_OPCODE);
+      add_bin_lsfr(asm_context, (0x80 | (n << 6)) | tms1000_address_to_lsfr[(address & 0x3f)], IS_OPCODE);
 
       return 1;
     }
@@ -174,7 +195,7 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
     if (strcmp(instr_case, table_tms1000[n].instr) == 0 &&
         table_tms1000[n].op1100 != 0xffff)
     {
-      add_bin8(asm_context, table_tms1000[n].op1100, IS_OPCODE);
+      add_bin_lsfr(asm_context, table_tms1000[n].op1100, IS_OPCODE);
       return 1;
     }
     n++;
@@ -204,7 +225,7 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
 
         num = tms1000_reverse_bit_address[num];
 
-        add_bin8(asm_context, (0x5 << 3) | num, IS_OPCODE);
+        add_bin_lsfr(asm_context, (0x5 << 3) | num, IS_OPCODE);
       }
         else
       {
@@ -216,7 +237,7 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
 
         num = tms1000_reverse_constant[num] >> 5;
 
-        add_bin8(asm_context, ((0xc + n) << 2) | num, IS_OPCODE);
+        add_bin_lsfr(asm_context, ((0xc + n) << 2) | num, IS_OPCODE);
       }
 
       return 1;
@@ -247,11 +268,11 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
 
       if (n < 4)
       {
-        add_bin8(asm_context, ((0x4 + n) << 4) | num, IS_OPCODE);
+        add_bin_lsfr(asm_context, ((0x4 + n) << 4) | num, IS_OPCODE);
       }
         else
       {
-        add_bin8(asm_context, 0x10 | num, IS_OPCODE);
+        add_bin_lsfr(asm_context, 0x10 | num, IS_OPCODE);
       }
 
       return 1;
@@ -294,10 +315,10 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
 
       if (is_forward == 1 || page != curr_page)
       {
-        add_bin8(asm_context, (0x10) | (page & 0xf), IS_OPCODE);
+        add_bin_lsfr(asm_context, (0x10) | (page & 0xf), IS_OPCODE);
       }
 
-      add_bin8(asm_context, (0x80 | (n << 6)) | tms1000_address_to_lsfr[(address & 0x3f)], IS_OPCODE);
+      add_bin_lsfr(asm_context, (0x80 | (n << 6)) | tms1000_address_to_lsfr[(address & 0x3f)], IS_OPCODE);
 
       return 1;
     }
