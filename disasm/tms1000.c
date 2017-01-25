@@ -57,7 +57,7 @@ int disasm_tms1000(struct _memory *memory, uint32_t address, char *instruction, 
     else
   if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", c); return 1; }
     else
-  if (bit_instr == 0xe) { sprintf(instruction, "tbiti %d", c); return 1;}
+  if (bit_instr == 0xe) { sprintf(instruction, "tbit1 %d", c); return 1;}
     else
   if (bit_instr == 0xf) { sprintf(instruction, "ldx %d", c); return 1; }
 
@@ -127,7 +127,7 @@ int disasm_tms1100(struct _memory *memory, uint32_t address, char *instruction, 
     else
   if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", c); return 1; }
     else
-  if (bit_instr == 0xe) { sprintf(instruction, "tbiti %d", c); return 1;}
+  if (bit_instr == 0xe) { sprintf(instruction, "tbit1 %d", c); return 1;}
 
   bit_instr = opcode >> 3;
   c = tms1000_reverse_constant[opcode & 0x7] >> 5;;
