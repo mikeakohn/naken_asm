@@ -21,7 +21,10 @@ void add_bin8(struct _asm_context *asm_context, uint8_t b, int flags)
 {
   int line = DL_NO_CG;
 
-  if (asm_context->pass == 2 && flags == IS_OPCODE) { line = asm_context->line; }
+  if (asm_context->pass == 2 && flags == IS_OPCODE)
+  {
+    line = asm_context->line;
+  }
 
   if (asm_context->pass == 1 && asm_context->pass_1_write_disable == 1)
   {
@@ -36,7 +39,10 @@ void add_bin16(struct _asm_context *asm_context, uint16_t b, int flags)
 {
   int line = DL_NO_CG;
 
-  if (asm_context->pass == 2 && flags == IS_OPCODE) { line = asm_context->line; }
+  if (asm_context->pass == 2 && flags == IS_OPCODE)
+  {
+    line = asm_context->line;
+  }
 
   if (asm_context->pass == 1 && asm_context->pass_1_write_disable == 1)
   {
