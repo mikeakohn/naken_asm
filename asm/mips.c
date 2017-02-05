@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -101,6 +101,7 @@ static int get_tregister(char *token)
   if (token[1] == 'k' && num >= 0 && num <= 1) { return 26 + num; }
   if (token[1] == 's' && num == 8) { return 30; }
 
+  if (strcasecmp(token, "$zero") == 0) { return 0; }
   if (strcasecmp(token, "$at") == 0) { return 1; }
   if (strcasecmp(token, "$gp") == 0) { return 28; }
   if (strcasecmp(token, "$sp") == 0) { return 29; }
