@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -83,11 +83,19 @@ static int macros_parse_token(struct _asm_context *asm_context, char *token, int
   return 0;
 }
 
+// Note to self: This is not the best way to take care of this.
 static int check_endm(char *macro, int ptr)
 {
   ptr--;
 
-  while(ptr > 0 && macro[ptr] != '\n')
+  // Ignore white space at start of the line
+  while(ptr > 0 && (macro[ptr] == ' ' || macro[ptr] == '\t'))
+  {
+    ptr--;
+  }
+
+  // Ignore white space before a possible .endm
+  while(ptr > 0 && !(macro[ptr] == '\n' || macro[ptr] == ' ' || macro[ptr] == '\t'))
   {
     ptr--;
   }
