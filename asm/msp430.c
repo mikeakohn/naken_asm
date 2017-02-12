@@ -216,7 +216,7 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
         printf("Error: Immediate not allowed for dest operand at %s:%d.\n", asm_context->filename, asm_context->line);
         return -1;
       }
-      if (memory_read(asm_context, asm_context->address)!=0 ||
+      if (memory_read(asm_context, asm_context->address) != 0 ||
           operand->error != 0)
       {
         operand->a = 3;
