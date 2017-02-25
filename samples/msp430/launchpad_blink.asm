@@ -3,7 +3,7 @@
 
 .entry_point start
 
-  org 0xf800
+.org 0xf800
 start:
   ;mov.w #0x5a80, &WDTCTL
   mov.w #WDTPW|WDTHOLD, &WDTCTL
@@ -18,7 +18,7 @@ waiter:
   jnz waiter
   jmp repeat
 
-  org 0xfffe
+.org 0xfffe
   dw start             ; set reset vector to 'init' label
 
 

@@ -11,7 +11,7 @@
 
 .include "msp430x2xx.inc"
 
-  org 0xf800
+.org 0xf800
 start:
   ;; Turn off watchdog
   mov.w #0x5a80, &WDTCTL
@@ -97,7 +97,7 @@ spi_interrupt:
   ;; shouldn't happen
   reti
 
-  org 0xffe8
+.org 0xffe8
 vectors:
   dw spi_interrupt
   dw 0
