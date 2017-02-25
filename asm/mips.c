@@ -532,6 +532,8 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
         print_error_unexp(token, asm_context);
         return -1;
       }
+
+      eat_operand(asm_context);
     }
       else
     {
@@ -560,11 +562,13 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
     }
       else
     {
+#if 0
       if (optimize != memory_read(asm_context, asm_context->address))
       {
         print_error_internal(asm_context, __FILE__, __LINE__);
         exit(1);
       }
+#endif
 
       optimize = memory_read(asm_context, asm_context->address);
     }

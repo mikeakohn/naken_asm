@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -94,6 +94,10 @@ int symbols_append(struct _symbols *symbols, char *name, uint32_t address)
   int token_len;
   struct _memory_pool *memory_pool = symbols->memory_pool;
   struct _symbols_data *symbols_data;
+
+#ifdef DEBUG
+//printf("symbols_append(%s, %d);\n", name, address);
+#endif
 
   if (symbols->locked == 1) return 0;
 
