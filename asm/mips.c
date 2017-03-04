@@ -517,7 +517,11 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
     }
 
     num = get_register_mips(token, &operands[operand_count]);
-    if (num == -1) { return -1; }
+    if (num == -1)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
 
     operands[0].type = OPERAND_TREG;
     operands[0].value = num;
@@ -553,7 +557,7 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
       add_bin32(asm_context, optimize, IS_OPCODE);
 
       if (optimize == 0)
-      { 
+      {
         add_bin32(asm_context, 0, IS_OPCODE);
         return 8;
       }
@@ -587,7 +591,7 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
   if (optimize == 0)
   {
     opcode = find_opcode("lui");
-    add_bin32(asm_context, opcode | (operands[0].value << 16) | ((operands[1].value >> 16) & 0xffff), IS_OPCODE); 
+    add_bin32(asm_context, opcode | (operands[0].value << 16) | ((operands[1].value >> 16) & 0xffff), IS_OPCODE);
 
     opcode = find_opcode("ori");
     add_bin32(asm_context, opcode | (operands[0].value << 21) |(operands[0].value << 16) | (operands[1].value & 0xffff), IS_OPCODE);
@@ -603,7 +607,7 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
     else
   {
     opcode = find_opcode("lui");
-    add_bin32(asm_context, opcode | (operands[0].value << 16) | ((operands[1].value >> 16) & 0xffff), IS_OPCODE); 
+    add_bin32(asm_context, opcode | (operands[0].value << 16) | ((operands[1].value >> 16) & 0xffff), IS_OPCODE);
   }
 
   return 4;
@@ -693,7 +697,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       {
         operands[operand_count].type = OPERAND_ACC;
         break;
-      }    
+      }
 
       paren_flag = 0;
       inc_dec_flag = 0;
@@ -1778,13 +1782,13 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               break;
             case MIPS_OP_OFFSET_VBASE:
               if (operands[r].type != OPERAND_OFFSET_VBASE)
-              { 
+              {
                 print_error_illegal_operands(instr, asm_context);
                 return -1;
               }
 
               if (get_field_number(dest) == -1)
-              { 
+              {
                 print_error_illegal_operands(instr, asm_context);
                 return -1;
               }
