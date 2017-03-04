@@ -267,7 +267,7 @@ static int parse_export(struct _asm_context *asm_context)
     }
   }
 
-  asm_context->line++;
+  //asm_context->line++;
 
   return 0;
 }
