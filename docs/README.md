@@ -5,7 +5,8 @@ Contents
 * [Assembling] (assembling.md)
 * [Disassembling] (disassembling.md)
 * [Simulating] (simulating.md)
-* [Directives and Syntax] (directives.md)
+* [Literals] (literals.md)
+* [Directives] (directives.md)
 * [Examples] (examples.md)
 * CPU Specific
   * [65C816] (65C816.md)
