@@ -11,9 +11,7 @@ Hexadecimal
 Hexadecimals values can be prefixed with 0x or postfixed with h.  For
 example the following are valid and the same:
 
-0x1234
-1234h
-0x12_34
+0x1234, 1234h, 0x12_34
 
 Binary
 ------
@@ -21,9 +19,7 @@ Binary
 Binary numbers can be prefixed with 0b or postfixed with b.  For
 example the following are valid and the same:
 
-0b1001
-1001b
-0xb10_01
+0b1001, 1001b, 0xb10_01
 
 Octal
 -----
