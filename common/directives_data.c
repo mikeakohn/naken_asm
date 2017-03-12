@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -254,6 +254,11 @@ int parse_dc64(struct _asm_context *asm_context)
 
     if (eval_expression_ex(asm_context, &var) == -1)
     {
+      if (asm_context->pass == 2)
+      {
+        return -1;
+      }
+
       eat_operand(asm_context);
     }
     udata64 = (uint64_t)var_get_int64(&var);
@@ -283,7 +288,8 @@ int parse_dc64(struct _asm_context *asm_context)
 
     asm_context->data_count += 8;
     token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
     if (IS_NOT_TOKEN(token, ','))
     {
