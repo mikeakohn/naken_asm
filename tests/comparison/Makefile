@@ -11,9 +11,11 @@ default:
 	python run_test.py msp430
 	python run_test.py msp430x
 	bash run_test.sh pic14
-	python run_test.py pic32
+	bash run_test.sh pic32
+	#python run_test.py pic32
 	bash run_test.sh powerpc
-	python run_test.py ps2_ee
+	#python run_test.py ps2_ee
+	bash run_test.sh ps2_ee
 	bash run_test.sh ps2_ee_vu1
 	python run_test.py stm8
 	python run_test.py z80
