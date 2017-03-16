@@ -1,0 +1,70 @@
+;;
+;; This is an include file for the Western Design Center W65C265 chips.
+;;
+;; For more info:
+;; http://www.westerndesigncenter.com/
+;;
+
+ARTD0 equ 0xdf71
+ARTD1 equ 0xdf73
+ARTD2 equ 0xdf75
+ARTD3 equ 0xdf77
+ACSR0 equ 0xdf70
+ACSR1 equ 0xdf72
+ACSR2 equ 0xdf74
+ACSR3 equ 0xdf76
+UIFR equ 0xdf48
+UIER equ 0xdf49
+PD5 equ 0xdf21
+PD6 equ 0xdf22
+PD7 equ 0xdf23
+PDD5 equ 0xdf25
+PDD6 equ 0xdf26
+BCR equ 0xdf40
+TCR equ 0xdf42
+TER equ 0xdf43
+TIER equ 0xdf46
+TIFR equ 0xdf44
+T7CH equ 0xdf6f
+T7CL equ 0xdf6e
+T6CH equ 0xdf6d
+T6CL equ 0xdf6c
+T5CH equ 0xdf6b
+T5CL equ 0xdf6a
+T4CH equ 0xdf69
+T4CL equ 0xdf68
+T3CH equ 0xdf67
+T3CL equ 0xdf66
+T2CH equ 0xdf65
+T2CL equ 0xdf64
+T1CH equ 0xdf63
+T1CL equ 0xdf62
+T0CH equ 0xdf61
+T0CL equ 0xdf60
+T7LH equ 0xdf5f
+T7LL equ 0xdf5e
+T6LH equ 0xdf5d
+T6LL equ 0xdf5c
+T5LH equ 0xdf5b
+T5LL equ 0xdf5a
+T4LH equ 0xdf59
+T4LL equ 0xdf58
+T3LH equ 0xdf57
+T3LL equ 0xdf56
+T2LH equ 0xdf55
+T2LL equ 0xdf54
+T1LH equ 0xdf53
+T1LL equ 0xdf52
+T0LH equ 0xdf51
+T0LL equ 0xdf50
+
+; Native mode vector table
+IRQT7 equ 0xff8e
+IRQT6 equ 0xff8c
+IRQT5 equ 0xff8a
+IRQT4 equ 0xff88
+IRQT3 equ 0xff86
+IRQT2 equ 0xff84
+IRQT1 equ 0xff82
+IRQT0 equ 0xff80
+
