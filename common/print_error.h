@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -20,7 +20,7 @@ void print_error_opcount(const char *instr, struct _asm_context *asm_context);
 void print_error_illegal_operands(const char *instr, struct _asm_context *asm_context);
 void print_error_illegal_expression(const char *instr, struct _asm_context *asm_context);
 void print_error_illegal_register(const char *instr, struct _asm_context *asm_context);
-void print_error_range(const char *s, int r1, int r2, struct _asm_context *asm_context);
+void print_error_range(const char *s, int64_t r1, int64_t r2, struct _asm_context *asm_context);
 void print_error_unknown_operand_combo(const char *instr, struct _asm_context *asm_context);
 void print_error_internal(struct _asm_context *asm_context, const char *filename, int line);
 void print_already_defined(struct _asm_context *asm_context, char *name);

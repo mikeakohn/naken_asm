@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -71,9 +71,9 @@ void print_error_illegal_register(const char *instr, struct _asm_context *asm_co
     asm_context->line);
 }
 
-void print_error_range(const char *s, int r1, int r2, struct _asm_context *asm_context)
+void print_error_range(const char *s, int64_t r1, int64_t r2, struct _asm_context *asm_context)
 {
-  printf("Error: %s out of range (%d,%d) at %s:%d\n", s, r1, r2,
+  printf("Error: %s out of range (%ld,%ld) at %s:%d\n", s, r1, r2,
     asm_context->filename,
     asm_context->line);
 }

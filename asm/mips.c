@@ -19,6 +19,7 @@
 #include "common/assembler.h"
 #include "common/tokens.h"
 #include "common/eval_expression.h"
+#include "common/eval_expression_ex.h"
 #include "table/mips.h"
 
 enum
@@ -506,6 +507,8 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
   int num;
   int token_type;
   char token[TOKENLEN];
+  struct _var var;
+  uint64_t temp;
 
   do
   {
@@ -529,7 +532,7 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
 
     if (expect_token(asm_context, ',') == -1) { return -1; }
 
-    if (eval_expression(asm_context, &num) != 0)
+    if (eval_expression_ex(asm_context, &var) != 0)
     {
       if (asm_context->pass == 2)
       {
@@ -538,9 +541,24 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
       }
 
       eat_operand(asm_context);
+
+      //temp = var_get_int64(&var);
+
+      num = 0;
     }
       else
     {
+      temp = var_get_int64(&var);
+      uint64_t mask = temp & 0xffffffff00000000;
+
+      if (mask != 0xffffffff00000000 && mask != 0)
+      {
+        print_error_range("Constant", -0x80000000LL, 0xffffffff, asm_context);
+        return -1;
+      }
+
+      num = temp;
+
       if ((num & 0xffff) == num)
       {
         optimize = 1;
