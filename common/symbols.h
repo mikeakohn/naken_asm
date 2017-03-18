@@ -31,6 +31,7 @@ struct _symbols
   struct _memory_pool *memory_pool;
   uint8_t locked : 1;
   uint8_t in_scope : 1;
+  uint8_t debug : 1;
   uint32_t current_scope;
 };
 
