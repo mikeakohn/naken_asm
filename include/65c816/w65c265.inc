@@ -14,8 +14,6 @@ ACSR0 equ 0xdf70
 ACSR1 equ 0xdf72
 ACSR2 equ 0xdf74
 ACSR3 equ 0xdf76
-UIFR equ 0xdf48
-UIER equ 0xdf49
 
 ;; I/O Data pins
 PD0 equ 0xdf00
@@ -39,13 +37,31 @@ PDD6 equ 0xdf26
 ;; Port 7 Chip Select
 PCS7 equ 0xdf27
 
+;; Bus and speed control
 BCR equ 0xdf40
+SSCR equ 0xdf41
+
+;; Interrupt registers
+UIER equ 0xdf49
+UIFR equ 0xdf48
+EIER equ 0xdf47
+TIER equ 0xdf46
+EIFR equ 0xdf45
+TIFR equ 0xdf44
+PIBER equ 0xdf79
+PIBFR equ 0xdf77
+
+;; Parallel Interface
+PIR7 equ 0xdf7f
+PIR6 equ 0xdf7e
+PIR5 equ 0xdf7d
+PIR4 equ 0xdf7c
+PIR3 equ 0xdf7b
+PIR2 equ 0xdf7a
 
 ;; Timers
 TCR equ 0xdf42
 TER equ 0xdf43
-TIER equ 0xdf46
-TIFR equ 0xdf44
 T7CH equ 0xdf6f
 T7CL equ 0xdf6e
 T6CH equ 0xdf6d
