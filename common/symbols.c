@@ -266,20 +266,20 @@ int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter)
   return -1;
 }
 
-int symbols_print(struct _symbols *symbols)
+int symbols_print(struct _symbols *symbols, FILE *out)
 {
   struct _symbols_iter iter;
 
   memset(&iter, 0, sizeof(iter));
 
-  printf("%30s ADDRESS  SCOPE\n", "LABEL");
+  fprintf(out, "%30s ADDRESS  SCOPE\n", "LABEL");
 
   while(symbols_iterate(symbols, &iter) != -1)
   {
-    printf("%30s %08x %d%s\n", iter.name, iter.address, iter.scope, iter.flag_export == 1 ? " EXPORTED" : "");
+    fprintf(out, "%30s %08x %d%s\n", iter.name, iter.address, iter.scope, iter.flag_export == 1 ? " EXPORTED" : "");
   }
 
-  printf("Total %d.\n\n", iter.count);
+  fprintf(out, " -> Total symbols: %d\n\n", iter.count);
 
   return 0;
 }

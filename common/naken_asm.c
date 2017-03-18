@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -35,11 +35,12 @@ enum
 const char *credits =
   "\n"
   "naken_asm\n\n"
-  " Athors: Michael Kohn\n"
+  "Authors: Michael Kohn\n"
   "         Joe Davisson\n"
-  "    CPU: MSP430, MSP430X, 6502, 65816, 6809, 68HC08, 68000, 8051,\n"
-  "         ARM, AVR8, dsPIC, Emotion Engine, MIPS, PIC32, Propeller,\n"
-  "         STM8, THUMB, TMS1000, TMS1100, TMS9900, Z80\n"
+  "    CPU: 4004, MSP430, MSP430X, 6502, 65816, 6809, 68HC08, 68000,\n"
+  "         8051, ARM, AVR8, Cell BE, dsPIC, Emotion Engine, MIPS, PIC14,\n"
+  "         PIC32, PowerPC, Propeller, STM8, THUMB, TMS1000, TMS1100,\n"
+  "         TMS9900, Z80\n"
   "    Web: http://www.mikekohn.net/\n"
   "  Email: mike@mikekohn.net\n"
   "Version: "VERSION"\n";

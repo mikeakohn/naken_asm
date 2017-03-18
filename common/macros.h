@@ -65,7 +65,7 @@ int macros_append(struct _asm_context *asm_context, char *name, char *value, int
 void macros_lock(struct _macros *macros);
 char *macros_lookup(struct _macros *macros, char *name, int *param_count);
 int macros_iterate(struct _macros *macros, struct _macros_iter *iter);
-int macros_print(struct _macros *macros);
+int macros_print(struct _macros *macros, FILE *out);
 int macros_push_define(struct _macros *macros, char *define);
 int macros_get_char(struct _asm_context *asm_context);
 void macros_strip(char *macro);

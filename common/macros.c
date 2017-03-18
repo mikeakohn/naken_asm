@@ -270,46 +270,47 @@ int macros_iterate(struct _macros *macros, struct _macros_iter *iter)
   return -1;
 }
 
-int macros_print(struct _macros *macros)
+int macros_print(struct _macros *macros, FILE *out)
 {
   struct _macros_iter iter;
 
   memset(&iter, 0, sizeof(iter));
 
-  printf("%18s %s\n", "NAME", "VALUE");
+  fprintf(out, "%18s %s\n", "NAME", "VALUE");
 
   while(macros_iterate(macros, &iter) != -1)
   {
     if (iter.param_count == 0)
     {
-      printf("%30s=", iter.name);
+      fprintf(out, "%30s=", iter.name);
     }
       else
     {
       int n;
 
-      printf("%30s(", iter.name);
+      fprintf(out, "%30s(", iter.name);
+
       for (n = 0; n < iter.param_count; n++)
       {
-        if (n != 0) { printf(","); }
-        printf("{%d}", n + 1);
+        if (n != 0) { fprintf(out, ","); }
+        fprintf(out, "{%d}", n + 1);
       }
-      printf(")=");
+      fprintf(out, ")=");
     }
 
     char *value = iter.value;
     while (*value != 0)
     {
-      if (*value < 10) { printf("{%d}", *value); }
-      else { printf("%c", *value); }
+      if (*value < 10) { fprintf(out, "{%d}", *value); }
+      else { fprintf(out, "%c", *value); }
 
       value++;
     }
 
-    printf("\n");
+    fprintf(out, "\n");
   }
 
-  printf("Total %d.\n\n", iter.count);
+  fprintf(out, "Total %d.\n\n", iter.count);
 
   return 0;
 }

@@ -1151,7 +1151,7 @@ int main(int argc, char *argv[])
       else
     if (strcmp(command, "symbols") == 0)
     {
-      symbols_print(&util_context.symbols);
+      symbols_print(&util_context.symbols, stdout);
     }
       else
     if (strncmp(command, "dumpram", 7) == 0)

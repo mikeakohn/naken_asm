@@ -351,14 +351,14 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
 
   fprintf(out, "\nProgram Info:\n");
 
-  if (asm_context->dump_symbols == 1)
+  if (asm_context->dump_symbols == 1 || out != stdout)
   {
-    symbols_print(&asm_context->symbols);
+    symbols_print(&asm_context->symbols, out);
   }
 
   if (asm_context->dump_macros == 1)
   {
-    macros_print(&asm_context->macros);
+    macros_print(&asm_context->macros, out);
   }
 
   fprintf(out, "Include Paths: .\n");
