@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
   if (errors != 0)
   {
-    symbols_print(&symbols);
+    symbols_print(&symbols, stdout);
   }
 
   symbols_free(&symbols);
