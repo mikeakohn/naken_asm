@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "assembler.h"
-#include "macros.h"
-#include "tokens.h"
+#include "common/assembler.h"
+#include "common/macros.h"
+#include "common/tokens.h"
 
 int errors = 0;
 
