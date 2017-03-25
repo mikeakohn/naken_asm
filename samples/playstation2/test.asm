@@ -72,7 +72,7 @@ main:
 
   ;; GS_DISPLAY2 with 0x000d_f9ff_0182_4290
   ;;         x position vck units (dx): 656
-  ;;      y position raster units (dx): 36
+  ;;      y position raster units (dy): 36
   ;;        horiz magnification (magh): 3 (x8)
   ;;         vert magnification (magv): 0 (x1)
   ;;     display width - 1 in vck (dw): 2559
