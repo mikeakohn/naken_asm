@@ -52,9 +52,9 @@ main:
   ;; interlaced on (bit 0), frame mode (bit 1), DPMS (bit 3:2) = 0
   ;; seems like this should already be set from the SetGsCrt call
   ;; UPDATE: this seems to get set to 3 no matter what.. remove later.
-  li $v1, GS_SMODE2
-  li $v0, 0x03
-  sd $v0, ($v1)
+  ;li $v1, GS_SMODE2
+  ;li $v0, 0x03
+  ;sd $v0, ($v1)
 
   ;; GS_DISPFB2 with 0x1400
   ;;         base pointer (fbp): 0x0 (0x0)
@@ -98,20 +98,13 @@ main:
   ;li $v0, 0x004400ff
   ;sd $v0, ($v1)
 
-  li $s4, 0
-
 while_1:
-  ;b while_1
-  ;nop
-
+  ;; Draw picture
   jal draw_screen
   nop
 
-  addi $s4, $s4, 1
-
+  ;; Wait for vsync
   li $v1, GS_CSR
-  ;lw $v0, ($v1)
-  ;andi $v0, $v0, 8  ; generate vsync
   li $v0, 8
   sw $v0, ($v1)
 vsync_wait:
@@ -123,22 +116,19 @@ vsync_wait:
   nop
 
 draw_screen:
+  ;; Save return address register
   move $s3, $ra
 
   ;; Setup draw environment
   jal dma02_wait
   nop
   li $v0, D2_CHCR
-  ;li $v1, setup_screen_fb3
   li $v1, red_screen
   sw $v1, 0x10($v0)         ; DMA02 ADDRESS
-  ;li $v1, (setup_screen_fb3_end - setup_screen_fb3) / 16
   li $v1, (red_screen_end - red_screen) / 16
   sw $v1, 0x20($v0)         ; DMA02 SIZE
   li $v1, 0x101
   sw $v1, ($v0)             ; start
-  ;jal dma02_wait
-  ;nop
 
   ;; Draw Triangle
   jal dma02_wait
@@ -155,6 +145,7 @@ draw_screen:
   jal dma02_wait
   nop
 
+  ;; Restore return address register
   move $ra, $s3
   jr $ra
   nop
