@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "common/assembler.h"
 #include "common/print_error.h"
@@ -73,7 +74,8 @@ void print_error_illegal_register(const char *instr, struct _asm_context *asm_co
 
 void print_error_range(const char *s, int64_t r1, int64_t r2, struct _asm_context *asm_context)
 {
-  printf("Error: %s out of range (%ld,%ld) at %s:%d\n", s, r1, r2,
+  printf("Error: %s out of range (%" PRId64 ",%" PRId64 ") at %s:%d\n",
+    s, r1, r2,
     asm_context->filename,
     asm_context->line);
 }
