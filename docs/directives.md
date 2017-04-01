@@ -29,10 +29,10 @@ CPU this source file should be assembled for.
 |.msp430          |MSP430
 |.mps430x         |MSP430X
 |.pic14           |PIC w/ 14 bit opcodes
+|.pic24           |PIC24
 |.pic32           |PIC32 MIPS
 |.powerpc         |PowerPC
 |.propeller       |Parallax Propeller
-|.pic24           |PIC24
 |.ps2_ee          |Sony Emotion Engine (Playstation 2)
 |.ps2_ee_v0       |Sony Emotion Engine Vector Unit 0
 |.ps2_ee_v1       |Sony Emotion Engine Vector Unit 1
