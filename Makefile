@@ -12,6 +12,8 @@ default:
 	@mkdir -p build/prog
 	@$(MAKE) -C build
 
+all: default
+
 %.o: %.c *.h
 	$(CC) -c $*.c $(CFLAGS) $(LDFLAGS)
 
