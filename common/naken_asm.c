@@ -39,8 +39,8 @@ const char *credits =
   "         Joe Davisson\n"
   "    CPU: 4004, 6502, 65816, 6809, 68HC08, 68000, 8051, ARM, AVR8\n"
   "         Cell BE, dsPIC, MIPS, MSP430, PIC14, PIC24, PIC32,\n"
-  "         Playstation 2 EE, PowerPC, Propeller, STM8, SuperFX, THUMB,\n"
-  "         TMS1000, TMS1100, TMS9900, Z80\n"
+  "         Playstation 2 EE, PowerPC, Propeller, RISC-V, STM8, SuperFX,\n"
+  "         THUMB, TMS1000, TMS1100, TMS9900, Z80\n"
   "    Web: http://www.mikekohn.net/\n"
   "  Email: mike@mikekohn.net\n"
   "Version: "VERSION"\n";
