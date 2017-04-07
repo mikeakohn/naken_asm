@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -26,24 +26,24 @@ int get_cycle_count_thumb(unsigned short int opcode)
 
 static void get_rlist(char *s, int rlist)
 {
-  int i,comma;
+  int i, comma;
   char temp[32];
 
-  s[0]=0;
+  s[0] = 0;
 
-  for (i=0; i<8; i++)
+  for (i = 0; i < 8; i++)
   {
-    if ((rlist&(1<<i))!=0)
+    if ((rlist & (1 << i)) != 0)
     {
-      if (comma==0)
+      if (comma == 0)
       {
         sprintf(temp, " r%d", i);
-        comma=1;
+        comma = 1;
       }
         else
       {
         sprintf(temp, ", r%d", i);
-        comma=1;
+        comma = 1;
       }
 
       strcat(s, temp);
@@ -54,145 +54,145 @@ static void get_rlist(char *s, int rlist)
 int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint16_t opcode;
-  int rd,rs,rn,offset;
-  int h1,h2;
+  int rd, rs, rn, offset;
+  int h1, h2;
   int immediate;
   char temp[128];
   int n;
 
-  *cycles_min=-1;
-  *cycles_max=-1;
+  *cycles_min = -1;
+  *cycles_max = -1;
 
-  opcode=READ_RAM16(address);
+  opcode = READ_RAM16(address);
 
-  n=0;
-  while(table_thumb[n].instr!=NULL)
+  n = 0;
+  while(table_thumb[n].instr != NULL)
   {
-    if (table_thumb[n].opcode==(opcode&table_thumb[n].mask))
+    if (table_thumb[n].opcode == (opcode & table_thumb[n].mask))
     {
-      *cycles_min=table_thumb[n].cycles;
-      *cycles_max=table_thumb[n].cycles;
+      *cycles_min = table_thumb[n].cycles;
+      *cycles_max = table_thumb[n].cycles;
 
       switch(table_thumb[n].type)
       {
         case OP_SHIFT:
-          rd=opcode&0x7;
-          rs=(opcode>>3)&0x7;
-          offset=(opcode>>6)&0x1f;
+          rd = opcode & 0x7;
+          rs = (opcode >> 3) & 0x7;
+          offset = (opcode >> 6) & 0x1f;
           sprintf(instruction, "%s r%d, r%d, #%d", table_thumb[n].instr, rd, rs, offset);
           return 2;
         case OP_ADD_SUB:
-          immediate=(opcode>>10)&1;
-          rd=opcode&0x7;
-          rs=(opcode>>3)&0x7;
-          if (immediate==0)
+          immediate = (opcode >> 10) & 1;
+          rd = opcode & 0x7;
+          rs = (opcode >> 3) & 0x7;
+          if (immediate == 0)
           {
             rn=(opcode>>6)&7;
             sprintf(instruction, "%s r%d, r%d, r%d", table_thumb[n].instr, rd, rs, rn);
           }
             else
           {
-            offset=(opcode>>6)&7;
+            offset = (opcode >> 6) & 7;
             sprintf(instruction, "%s r%d, r%d, #%d", table_thumb[n].instr, rd, rs, offset);
           }
           return 2;
         case OP_IMM:
-          immediate=opcode&0xff;
-          rd=(opcode>>8)&0x7;
+          immediate = opcode & 0xff;
+          rd = (opcode >> 8) & 0x7;
           sprintf(instruction, "%s r%d, #0x%02x", table_thumb[n].instr, rd, immediate);
           return 2;
         case OP_ALU:
-          rd=opcode&0x7;
-          rs=(opcode>>3)&0x7;
+          rd = opcode & 0x7;
+          rs = (opcode >> 3) & 0x7;
           sprintf(instruction, "%s r%d, r%d", table_thumb[n].instr, rd, rs);
           return 2;
         case OP_HI:
-          rd=opcode&0x7;
-          rs=(opcode>>3)&0x7;
-          h1=(opcode>>7)&0x1;
-          h2=(opcode>>6)&0x1;
-          sprintf(instruction, "%s r%d, r%d", table_thumb[n].instr, rd+(h1*8), rs+(h2*8));
+          rd = opcode & 0x7;
+          rs = (opcode >> 3) & 0x7;
+          h1 = (opcode >> 7) & 0x1;
+          h2 = (opcode >> 6) & 0x1;
+          sprintf(instruction, "%s r%d, r%d", table_thumb[n].instr, rd + (h1 * 8), rs + (h2 * 8));
           return 2;
         case OP_HI_BX:
-          rs=(opcode>>3)&0x7;
-          h2=(opcode>>6)&0x1;
-          sprintf(instruction, "%s r%d", table_thumb[n].instr, rs+(h2*8));
+          rs = (opcode >> 3) & 0x7;
+          h2 = (opcode >> 6) & 0x1;
+          sprintf(instruction, "%s r%d", table_thumb[n].instr, rs + (h2 * 8));
           return 2;
         case OP_PC_RELATIVE_LOAD:
-          rd=(opcode>>8)&0x7;
-          offset=(opcode&0xff)<<2;
-          sprintf(instruction, "%s r%d, [PC, #%d]  (0x%x)", table_thumb[n].instr, rd, offset, ((address+4)&0xfffffffc)+offset);
+          rd = (opcode >> 8) & 0x7;
+          offset=(opcode & 0xff) << 2;
+          sprintf(instruction, "%s r%d, [PC, #%d]  (0x%x)", table_thumb[n].instr, rd, offset, ((address + 4) & 0xfffffffc) + offset);
           return 2;
         case OP_LOAD_STORE:
-          rd=opcode&0x7;
-          rs=(opcode>>3)&0x7;  // rb
-          rn=(opcode>>6)&0x7;  // ro
+          rd = opcode & 0x7;
+          rs = (opcode >> 3) & 0x7;  // rb
+          rn = (opcode >> 6) & 0x7;  // ro
           sprintf(instruction, "%s r%d, [r%d, r%d]", table_thumb[n].instr, rd, rs, rn);
           return 2;
         case OP_LOAD_STORE_SIGN_EXT_HALF_WORD:
-          rd=opcode&0x7;
-          rs=(opcode>>3)&0x7;  // rb
-          rn=(opcode>>6)&0x7;  // ro
+          rd = opcode & 0x7;
+          rs = (opcode >> 3) & 0x7;  // rb
+          rn = (opcode >> 6) & 0x7;  // ro
           sprintf(instruction, "%s r%d, [r%d, r%d]", table_thumb[n].instr, rd, rs, rn);
           return 2;
         case OP_LOAD_STORE_IMM_OFFSET_WORD:
-          rd=opcode&0x7;
-          rs=(opcode>>3)&0x7;  // rb
-          offset=(opcode>>6)&0x1f;
-          sprintf(instruction, "%s r%d, [r%d, #%d]", table_thumb[n].instr, rd, rs, offset<<2);
+          rd = opcode & 0x7;
+          rs = (opcode >> 3) & 0x7;  // rb
+          offset = (opcode >> 6) & 0x1f;
+          sprintf(instruction, "%s r%d, [r%d, #%d]", table_thumb[n].instr, rd, rs, offset << 2);
           return 2;
         case OP_LOAD_STORE_IMM_OFFSET:
-          rd=opcode&0x7;
-          rs=(opcode>>3)&0x7;  // rb
-          offset=(opcode>>6)&0x1f;
+          rd = opcode & 0x7;
+          rs = (opcode >> 3) & 0x7;  // rb
+          offset = (opcode >> 6) & 0x1f;
           sprintf(instruction, "%s r%d, [r%d, #%d]", table_thumb[n].instr, rd, rs, offset);
           return 2;
         case OP_LOAD_STORE_IMM_OFFSET_HALF_WORD:
-          rd=opcode&0x7;
-          rs=(opcode>>3)&0x7;  // rb
-          offset=(opcode>>6)&0x1f;
-          sprintf(instruction, "%s r%d, [r%d, #%d]", table_thumb[n].instr, rd, rs, offset<<1);
+          rd = opcode & 0x7;
+          rs = (opcode >> 3) & 0x7;  // rb
+          offset = (opcode >> 6) & 0x1f;
+          sprintf(instruction, "%s r%d, [r%d, #%d]", table_thumb[n].instr, rd, rs, offset << 1);
           return 2;
         case OP_LOAD_STORE_SP_RELATIVE:
-          rd=(opcode>>8)&0x7;
-          offset=opcode&0xff;
-          sprintf(instruction, "%s r%d, [SP, #%d]", table_thumb[n].instr, rd, offset<<2);
+          rd = (opcode >> 8) & 0x7;
+          offset = opcode & 0xff;
+          sprintf(instruction, "%s r%d, [SP, #%d]", table_thumb[n].instr, rd, offset << 2);
           return 2;
         case OP_LOAD_ADDRESS:
-          rd=(opcode>>8)&0x7;
-          offset=opcode&0xff;
-          rs=(opcode>>11)&0x1;  // SP (0=PC,1=SP)
-          sprintf(instruction, "%s r%d, %s, #%d", table_thumb[n].instr, rd, (rs==0)?"PC":"SP",offset<<2);
+          rd = (opcode >> 8) & 0x7;
+          offset = opcode & 0xff;
+          rs = (opcode >> 11) & 0x1;  // SP (0=PC,1=SP)
+          sprintf(instruction, "%s r%d, %s, #%d", table_thumb[n].instr, rd, (rs == 0) ? "PC" : "SP", offset << 2);
           return 2;
         case OP_ADD_OFFSET_TO_SP:
-          rs=(opcode>>11)&0x1;  // S (0=positive,1=negative)
-          offset=opcode&0xff;
-          sprintf(instruction, "%s SP, #%s%d", table_thumb[n].instr, (rs==0)?"":"-",offset<<2);
+          rs = (opcode >> 11) & 0x1;  // S (0=positive,1=negative)
+          offset = opcode & 0xff;
+          sprintf(instruction, "%s SP, #%s%d", table_thumb[n].instr, (rs == 0) ? "" : "-", offset << 2);
           return 2;
         case OP_PUSH_POP_REGISTERS:
-          rs=opcode&0xff;      // Rlist
-          rn=opcode>>8&0x1;    // PC or LR
+          rs = opcode & 0xff;      // Rlist
+          rn = opcode >> 8 & 0x1;    // PC or LR
           get_rlist(temp, rs);
-          if (rn==1)
+          if (rn == 1)
           {
-            if (temp[0]!=0) { strcat(temp, ","); }
-            if (((opcode>>11)&1)==0) { strcat(temp, " LR"); }
+            if (temp[0] != 0) { strcat(temp, ","); }
+            if (((opcode >> 11) & 1) == 0) { strcat(temp, " LR"); }
             else { strcat(temp, " PC"); }
           }
           sprintf(instruction, "%s {%s }", table_thumb[n].instr, temp);
           return 2;
         case OP_MULTIPLE_LOAD_STORE:
-          rd=opcode>>8&0x7;    // Rb!
-          rs=opcode&0xff;      // Rlist
+          rd = opcode >> 8 & 0x7;    // Rb!
+          rs = opcode & 0xff;        // Rlist
           get_rlist(temp, rs);
           sprintf(instruction, "%s r%d!, {%s }", table_thumb[n].instr, rd, temp);
           return 2;
         case OP_CONDITIONAL_BRANCH:
-          offset=((int8_t)(opcode&0xff))<<1;
-          sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address+4+offset, offset);
+          offset = ((int8_t)(opcode & 0xff)) << 1;
+          sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address + 4 + offset, offset);
           return 2;
         case OP_SOFTWARE_INTERRUPT:
-          offset=opcode&0xff;
+          offset = opcode & 0xff;
           sprintf(instruction, "%s 0x%02x", table_thumb[n].instr, offset);
           return 2;
         case OP_UNCONDITIONAL_BRANCH:
@@ -201,25 +201,25 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
           {
             offset=-((offset^0x3ff)+1);
           }
-          offset<<=1;
+          offset <<= 1;
           sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address+4+offset, offset);
           return 2;
         case OP_LONG_BRANCH_WITH_LINK:
-          offset=READ_RAM16(address+2);
-          if ((offset&0xf800)!=0xf800)
+          offset = READ_RAM16(address + 2);
+          if ((offset & 0xf800) != 0xf800)
           {
             sprintf(instruction, "%s ???", table_thumb[n].instr);
           }
             else
           {
-            rn=opcode&0x7ff;
-            offset=(rn<<11)|(offset&0x7ff);
-            if ((offset&0x200000)!=0)
+            rn = opcode & 0x7ff;
+            offset = (rn << 11) | (offset  &0x7ff);
+            if ((offset & 0x200000) != 0)
             {
-              offset=-((offset^0x3fffff)+1);
+              offset = -((offset ^ 0x3fffff) + 1);
             }
-            offset<<=1;
-            sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address+4+offset, offset);
+            offset <<= 1;
+            sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address + 4 + offset, offset);
           }
           return 4;
         default:
