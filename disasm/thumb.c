@@ -165,8 +165,8 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
           sprintf(instruction, "%s r%d, %s, #%d", table_thumb[n].instr, rd, (rs == 0) ? "PC" : "SP", offset << 2);
           return 2;
         case OP_ADD_OFFSET_TO_SP:
-          rs = (opcode >> 11) & 0x1;  // S (0=positive,1=negative)
-          offset = opcode & 0xff;
+          rs = (opcode >> 7) & 0x1;  // S (0=positive,1=negative)
+          offset = opcode & 0x7f;
           sprintf(instruction, "%s SP, #%s%d", table_thumb[n].instr, (rs == 0) ? "" : "-", offset << 2);
           return 2;
         case OP_PUSH_POP_REGISTERS:

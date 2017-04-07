@@ -625,7 +625,7 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
 	      s = 1;
 	    }
             if (is_4_byte_aligned(asm_context, operands[1].value) == -1) { return -1; }
-            add_bin16(asm_context, table_thumb[n].opcode | (s << 8) | (operands[1].value >> 2), IS_OPCODE);
+            add_bin16(asm_context, table_thumb[n].opcode | (s << 7) | (operands[1].value >> 2), IS_OPCODE);
             return 2;
           }
           break;
