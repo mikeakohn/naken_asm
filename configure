@@ -209,6 +209,8 @@ for option in $@; do
   ;;
   --install-prefix=*) INSTALL_PREFIX="$optval"
   ;;
+  --prefix=*) INSTALL_PREFIX="$optval"
+  ;;
   --enable-all)
     ASM_OBJS="${ASM_OBJS_ALL}"
     DISASM_OBJS="${DISASM_OBJS_ALL}"
