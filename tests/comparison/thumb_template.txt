@@ -1,3 +1,83 @@
 lsl r2, r4, #5
 lsr r7, r3, #5
 asr r5, r6, #5
+add r2, r3, r4
+add r2, r4, #4
+sub r3, r3, r4
+sub r7, r1, #4
+mov r3, #253
+cmp r7, #123
+add r3, #111
+sub r3, #107
+and r3, r4
+eor r2, r2
+lsl r1, r7
+lsr r7, r6
+asr r3, r4
+adc r3, r3
+sbc r1, r5
+ror r3, r2
+tst r2, r1
+neg r7, r0
+cmp r1, r1
+cmn r2, r4
+orr r4, r3
+mul r7, r7
+bic r4, r6
+mvn r7, r4
+add r3, r15
+add r15, r3
+add r11, r12
+cmp r4, r13
+cmp r15, r7
+cmp r13, r11
+mov r1, r11
+mov r13, r2
+mov r12, r14
+bx r3
+bx r13
+add pc, r5
+ldr r5, [pc, #844]
+str r3, [r3, r4]
+strb r1, [r2, r7]
+ldr r3, [r1, r4]
+ldrb r4, [r7, r3]
+strh r1, [r7, r4]
+ldrh r3, [r1, r7]
+ldsb r6, [r3, r4]
+ldsh r1, [r2, r7]
+str r3, [r3, #32]
+ldr r4, [r7, #64]
+strb r1, [r3, #31]
+ldrb r7, [r1, #17]
+strh r6, [r7, #22]
+ldrh r5, [r3, #24]
+str r3, [sp, #16]
+ldr r4, [sp, #48]
+add r3, pc, #96
+add r7, sp, #512
+add sp, #128
+add sp, #-104
+push {r2, r4, r7}
+push {r2-r7, LR}
+pop {r2, r4, r7}
+pop {r2, r4, r7, PC}
+stmia r4!, {r5, r7}
+ldmia r7!, {r5-r7,r1}
+main: beq main
+main: bne main
+main: bcs main
+main: bcc main
+main: bmi main
+main: bpl main
+main: bvs main
+main: bvc main
+main: bhi main
+main: bls main
+main: bge main
+main: blt main
+main: bgt main
+main: ble main
+swi 234
+main: b main
+main: bl main
