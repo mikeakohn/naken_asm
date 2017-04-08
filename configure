@@ -64,6 +64,7 @@ do
 done
 
 targetos=`uname -s`
+
 case $targetos in
 MINGW*)
 #CFLAGS="${CFLAGS} -DWINDOWS -mwindows"
@@ -383,6 +384,11 @@ for option in $@; do
   ;;
   esac
 done
+
+if [ -e /usr/local/include/readline ]
+then
+  CFLAGS="${CFLAGS} -I/usr/local/include/readline"
+fi
 
 if [ "${ASM_OBJS}" == "common.o" ]
 then
