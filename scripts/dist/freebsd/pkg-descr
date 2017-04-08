@@ -1,0 +1,13 @@
+Assembler, disassembler, and for select CPU's simulator for:
+
+4004, 6502, 65816, 6809, 68HC08, 68000, 8051, ARM, AVR8
+Cell BE, dsPIC, MIPS, MSP430, PIC14, PIC24, PIC32,
+Playstation 2 EE, PowerPC, Propeller, RISC-V, STM8, SuperFX, THUMB,
+TMS1000, TMS1100, TMS9900, Z80.
+
+The purpose of naken_asm is to be as stripped down and simple as
+possible so it's easy to compile and easy to use.
+
+WWW: http://www.mikekohn.net/micro/naken_asm.php
+
+
