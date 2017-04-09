@@ -39,7 +39,7 @@ int get_cycle_count_65816(uint16_t opcode)
 int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max, int bytes)
 {
   char temp[128];
-  char num[8];
+  char num[64];
   uint8_t opcode = memory_read_m(memory, address);
 
   int op = 0;
@@ -69,8 +69,10 @@ int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, in
       // special case for branches
       if(op == OP_RELATIVE)
       {
-        branch_address = (address + 2) + (signed char)lo;
-        sprintf(num, "0x%04x", branch_address);
+        int8_t offset = (int8_t)lo;
+
+        branch_address = (address + 2) + offset;
+        sprintf(num, "0x%04x (offset=%d)", branch_address, offset);
       }
       else
       {
@@ -84,8 +86,10 @@ int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, in
       // special case for long branch (BRL)
       if(op == OP_RELATIVE_LONG)
       {
-        branch_address = (address + 3) + (signed char)((hi << 8) | lo);
-        sprintf(num, "0x%04x", branch_address);
+        int16_t offset = (int16_t)((hi << 8) | lo);
+
+        branch_address = (address + 3) + offset;
+        sprintf(num, "0x%04x (offset=%d)", branch_address, offset);
       }
       else
       {
