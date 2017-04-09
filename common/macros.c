@@ -513,7 +513,7 @@ printf("debug> macros_parse() param count=%d\n", param_count);
     }
       else
     if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
-          (ch >= '0' && ch <= '9')))
+          (ch >= '0' && ch <= '9') || ch == '_'))
     {
       if (name_test != NULL)
       {
