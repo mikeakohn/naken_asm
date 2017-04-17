@@ -1,0 +1,4 @@
+setc
+clrc
+rrc.b r8
+rrc.w r8
