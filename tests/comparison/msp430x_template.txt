@@ -1,0 +1,29 @@
+pushm #1, r5
+pushm.w #1, r5
+pushm.a #1, r5
+rrcm.w #3, r5
+rrcm.a #3, r5
+rrcm #3, r5
+rram #3, r7
+rlam.w #1, r9
+rrum.a #2, r10
+mova @r10, r11
+mova @r10+, r11
+mova &0x12344, r11
+mova 5(r10), r11
+mova r11, &0x12344
+mova r11, 5(r10)
+mova #0x12345, r10
+cmpa #0x12345, r10
+adda #0x12345, r10
+suba #0x12345, r10
+mova r11, r10
+calla &0x12346
+calla 10(r9)
+calla 10(r0)
+calla #0x12346
+movx r5, r6
+addx.b  &0x1234, r5
+addx.b  &0x12345, r5
+;movx.a  #-1, r7
+movx.a  #-3, r7
