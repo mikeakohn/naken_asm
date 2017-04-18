@@ -1,4 +1,57 @@
+rrc.b r5
+rrc.b 2(r5)
+rrc.w 100(r5)
+rrc.w r8
+swpb r11
+swpb &0x1000
+rra.w r9
+rra.b 0x1234
+rra.w &0x4310
+rra.w &0x4310
+sxt r7
+sxt r15
+push.w r8
+push.w #0x2345
+push.b r4
+call &1234
+reti
+rrc.b @r8
+rrc.w @r8+
+mov.w r6, r7
+mov.b r9, 3(r8)
+mov.w r4, 6(r4)
+add.b @r4, r7
+add.w #4, r7
+addc.w @r4, 6(r7)
+addc.w @r4+, 6(r6)
+subc.b #1, 6(r5)
+sub.b #8, &100
+cmp.b #-1, 6(r4)
+dadd.b @r4+, 6(r11)
+bit.b @r4+, 6(r7)
+bis.w @r4+, 6(r9)
+xor.b @r9+, 6(r7)
+and.b #0, 6(r7)
+adc.w r9
+clr.b r8
 setc
 clrc
-rrc.b r8
-rrc.w r8
+clrz
+dadc.w r8
+dec.b r7
+decd.b 100(r9)
+dint
+eint
+inc.w r8
+incd.w r9
+inv.w r10
+inv.w &0x1000
+pop.w r9
+ret
+rla.b r9
+rlc.w r10
+sbc.b r11
+setc
+setn
+setz
+tst.w r9

@@ -8,8 +8,8 @@ default:
 	python run_test.py avr8
 	bash run_test.sh dspic
 	bash run_test.sh epiphany
-	python run_test.py msp430
-	python run_test.py msp430x
+	bash run_test.sh msp430
+	bash run_test.sh msp430x
 	bash run_test.sh pic14
 	bash run_test.sh pic32
 	#python run_test.py pic32

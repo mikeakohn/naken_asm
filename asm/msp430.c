@@ -439,33 +439,6 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
       }
     }
 
-#if 0
-    if (IS_TOKEN(token,'('))
-    {
-      char token_reg[TOKENLEN];
-      int token_type_reg;
-
-      token_type_reg = tokens_get(asm_context, token_reg, TOKENLEN);
-      num = get_register_msp430(token_reg);
-
-      if (num >= 0)
-      {
-        operands[operand_count].type = OPTYPE_INDEXED;
-        operands[operand_count].value = 0;
-        operands[operand_count].reg = num;
-
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-
-        if (expect_token_s(asm_context, ")") == -1) { return -1; }
-
-        break;
-      }
-
-      tokens_push(asm_context, token_reg, token_type_reg);
-      tokens_push(asm_context, token, token_type);
-    }
-#endif
-
     if (IS_TOKEN(token,'#'))
     {
       operands[operand_count].type = OPTYPE_IMMEDIATE;
@@ -710,12 +683,30 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
         if (operand_count > 0)
         {
-          src19_16 = (((uint32_t)operands[0].value) & 0xf0000) >> 16;
+          int32_t value = operands[0].value;
+
+          src19_16 = ((uint32_t)value & 0xf0000) >> 16;
+
+          value = value >> 24;
+
+          if (value == 0 || value == -1)
+          {
+            operands[0].value &= 0xffff;
+          }
         }
 
         if (operand_count > 1)
         {
-          dst19_16 = (((uint32_t)operands[1].value) & 0xf0000) >> 16;
+          int32_t value = operands[1].value;
+
+          dst19_16 = ((uint32_t)value & 0xf0000) >> 16;
+
+          value = value >> 24;
+
+          if (value == 0 || value == -1)
+          {
+            operands[1].value &= 0xffff;
+          }
         }
 
         add_bin16(asm_context, 0x1800 | (src19_16 << 7) | (al << 6) | (dst19_16), IS_OPCODE);
@@ -829,7 +820,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
         return -1;
       }
 
-      opcode=((n + 4) << 12) | (operands[0].reg << 8) | (operands[1].a << 7) |
+      opcode = ((n + 4) << 12) | (operands[0].reg << 8) | (operands[1].a << 7) |
               (bw << 6)| (operands[0].a << 4) | (operands[1].reg);
       add_instruction(asm_context, &data, operands[0].error, opcode);
 
