@@ -34,11 +34,11 @@ enum
 
 struct _operand
 {
-  int reg;     // register
-  int value;   // number value
-  int type;    // OPTYPE
-  int error;   // if expression can't be evaluated on pass 1
-  int a;       // As or Ad
+  int32_t value; // number value
+  uint8_t reg;   // register
+  uint8_t type;  // OPTYPE
+  uint8_t error; // if expression can't be evaluated on pass 1
+  uint8_t a;     // As or Ad
 };
 
 struct _data

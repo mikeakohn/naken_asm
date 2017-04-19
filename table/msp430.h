@@ -39,13 +39,20 @@ enum
   OP_POP,
 };
 
+enum
+{
+  VERSION_MSP430,
+  VERSION_MSP430X,
+  VERSION_MSP430X_EXT,
+};
+
 struct _table_msp430
 {
   char *instr;
   uint16_t opcode;
   uint16_t mask;
   uint8_t type;
-  //uint8_t cycles;
+  uint8_t version;
 };
 
 extern struct _table_msp430 table_msp430[];

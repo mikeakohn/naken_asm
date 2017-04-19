@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -548,6 +548,8 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
   n = 0;
   while(table_msp430[n].instr != NULL)
   {
+    if (table_msp430[n].version == VERSION_MSP430X_EXT) { n++; continue; }
+
     char mode[] = { 'a','w' };
     if ((opcode & table_msp430[n].mask) == table_msp430[n].opcode)
     {

@@ -27,3 +27,4 @@ addx.b  &0x1234, r5
 addx.b  &0x12345, r5
 ;movx.a  #-1, r7
 movx.a  #-3, r7
+decx.a r8
