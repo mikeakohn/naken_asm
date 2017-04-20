@@ -39,7 +39,7 @@ struct _operand
   uint8_t reg;   // register
   uint8_t type;  // OPTYPE
   uint8_t error; // if expression can't be evaluated on pass 1
-  uint8_t a;     // As or Ad
+  uint8_t mode;  // As or Ad
 };
 
 struct _data
@@ -93,14 +93,17 @@ static struct _aliases
   { NULL, 0, 0, NULL, 0 },
 };
 
-static char *one_oper[] = { "rrc", "swpb", "rra", "sxt", "push", "call", NULL };
-static char *jumps[] = { "jne", "jeq", "jlo", "jhs", "jn", "jge", "jl", "jmp", NULL };
-static char *jumps_a[] = { "jnz", "jz", "jnc", "jc", NULL, NULL, NULL, NULL, NULL };
+//static char *one_oper[] = { "rrc", "swpb", "rra", "sxt", "push", "call", NULL };
+//static char *jumps[] = { "jne", "jeq", "jlo", "jhs", "jn", "jge", "jl", "jmp", NULL };
+//static char *jumps_a[] = { "jnz", "jz", "jnc", "jc", NULL, NULL, NULL, NULL, NULL };
+/*
 static char *two_oper[] =
 {
   "mov", "add", "addc", "subc", "sub", "cmp", "dadd", "bit",
   "bic", "bis", "xor", "and", NULL
 };
+*/
+
 static char *msp430x_ext[] =
 {
   "rrcx", "swpbx", "rrax", "sxtx", "pushx", "movx", "addx", "addcx", "subcx",
@@ -120,8 +123,6 @@ static void print_operand_error(const char *s, int count, struct _asm_context *a
 
 static void operand_to_cg(struct _asm_context *asm_context, struct _operand *operand, int bw)
 {
-  //int num = operand->value;
-
   if (operand->type != OPTYPE_IMMEDIATE) { return; }
 
   if (memory_read(asm_context, asm_context->address) == 1) { return; }
@@ -133,32 +134,32 @@ static void operand_to_cg(struct _asm_context *asm_context, struct _operand *ope
   {
     case -1:
       operand->type = OPTYPE_REGISTER;
-      operand->a = 3;
+      operand->mode = 3;
       operand->reg = 3;
       break;
     case 0:
       operand->type = OPTYPE_REGISTER;
-      operand->a = 0;
+      operand->mode = 0;
       operand->reg = 3;
       break;
     case 1:
       operand->type = OPTYPE_REGISTER;
-      operand->a = 1;
+      operand->mode = 1;
       operand->reg = 3;
       break;
     case 2:
       operand->type = OPTYPE_REGISTER;
-      operand->a = 2;
+      operand->mode = 2;
       operand->reg = 3;
       break;
     case 4:
       operand->type = OPTYPE_REGISTER;
-      operand->a = 2;
+      operand->mode = 2;
       operand->reg = 2;
       break;
     case 8:
       operand->type = OPTYPE_REGISTER;
-      operand->a = 3;
+      operand->mode = 3;
       operand->reg = 2;
       break;
     default:
@@ -166,6 +167,12 @@ static void operand_to_cg(struct _asm_context *asm_context, struct _operand *ope
   }
 }
 
+static int process_operand(struct _asm_context *asm_context, struct _operand *operand, int bw)
+{
+  return -1;
+}
+
+#if 0
 static int process_operand(struct _asm_context *asm_context, struct _operand *operand, struct _data *data, int size, int is_dest)
 {
   if (size == 0) { size = 16; }
@@ -315,6 +322,7 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
 
   return 0;
 }
+#endif
 
 static int add_instruction(struct _asm_context *asm_context, struct _data *data, int error, int opcode)
 {
@@ -769,7 +777,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           if (operands[0].type == OPTYPE_REGISTER)
           {
-            opcode |= (operands[0].a << 4) | operands[0].reg;
+            opcode |= (operands[0].mode << 4) | operands[0].reg;
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;
           }
@@ -821,7 +829,6 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             add_bin16(asm_context, value & 0xffff, IS_OPCODE);
             return 4;
           }
-
 
           print_error_illegal_operands(instr, asm_context);
           return -1;
@@ -880,6 +887,10 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             print_error_opcount(instr, asm_context);
             return -1;
           }
+
+          operand_to_cg(asm_context, &operands[0], bw);
+
+          opcode |= bw << 6;
 
           print_error_illegal_operands(instr, asm_context);
           return -1;
