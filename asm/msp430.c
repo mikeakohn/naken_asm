@@ -118,6 +118,54 @@ static void print_operand_error(const char *s, int count, struct _asm_context *a
 }
 #endif
 
+static void operand_to_cg(struct _asm_context *asm_context, struct _operand *operand, int bw)
+{
+  //int num = operand->value;
+
+  if (operand->type != OPTYPE_IMMEDIATE) { return; }
+
+  if (memory_read(asm_context, asm_context->address) == 1) { return; }
+
+  if (bw == 1 && operand->value == 0xff) { operand->value = -1; }
+  if (bw == 0 && operand->value == 0xffff) { operand->value = -1; }
+
+  switch(operand->value)
+  {
+    case -1:
+      operand->type = OPTYPE_REGISTER;
+      operand->a = 3;
+      operand->reg = 3;
+      break;
+    case 0:
+      operand->type = OPTYPE_REGISTER;
+      operand->a = 0;
+      operand->reg = 3;
+      break;
+    case 1:
+      operand->type = OPTYPE_REGISTER;
+      operand->a = 1;
+      operand->reg = 3;
+      break;
+    case 2:
+      operand->type = OPTYPE_REGISTER;
+      operand->a = 2;
+      operand->reg = 3;
+      break;
+    case 4:
+      operand->type = OPTYPE_REGISTER;
+      operand->a = 2;
+      operand->reg = 2;
+      break;
+    case 8:
+      operand->type = OPTYPE_REGISTER;
+      operand->a = 3;
+      operand->reg = 2;
+      break;
+    default:
+      break;
+  }
+}
+
 static int process_operand(struct _asm_context *asm_context, struct _operand *operand, struct _data *data, int size, int is_dest)
 {
   if (size == 0) { size = 16; }
@@ -337,11 +385,11 @@ static uint16_t get_prefix(struct _asm_context *asm_context, int zc)
 int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 {
   struct _operand operands[3];
-  struct _data data;
+  //struct _data data;
   int operand_count = 0;
   char token[TOKENLEN];
-  char instr_case_mem[TOKENLEN];
-  char *instr_case;
+  char instr_case[TOKENLEN];
+  //char *instr_case;
   int token_type;
   int size = 0;
   int num,n;
@@ -349,9 +397,10 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   int opcode;
   int msp430x = 0;
   int prefix = 0;
+  int offset;
 
-  lower_copy(instr_case_mem, instr);
-  instr_case = instr_case_mem;
+  lower_copy(instr_case, instr);
+  //instr_case = instr_case_mem;
 
   // Not sure if this is a good area for this.  If there isn't an instruction
   // here then it pads for no reason.
@@ -373,7 +422,9 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
       if (strcmp(instr_case, msp430x_rpt[n]) == 0)
       {
         prefix = get_prefix(asm_context, n & 1);
-        if (prefix == 0xffff) return -1;
+
+        if (prefix == 0xffff) { return -1; }
+
         while(1)
         {
           token_type = tokens_get(asm_context, instr, TOKENLEN);
@@ -386,7 +437,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
           asm_context->line++;
         }
 
-        lower_copy(instr_case_mem, instr);
+        lower_copy(instr_case, instr);
 
         break;
       }
@@ -396,7 +447,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   }
 
   memset(&operands, 0, sizeof(operands));
-  data.count = 0;
+  //data.count = 0;
 
   while(1)
   {
@@ -450,6 +501,10 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
         {
           eat_operand(asm_context);
           operands[operand_count].error = 1;
+
+          // Store a flag in this address to remind on pass 2 that this
+          // instruction can't use CG.
+          memory_write(asm_context, asm_context->address, 1, asm_context->line);
         }
           else
         {
@@ -457,7 +512,9 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
           return -1;
         }
       }
-      operands[operand_count].value=num;
+
+      operands[operand_count].value = num;
+      operands[operand_count].error = memory_read(asm_context, asm_context->address);
     }
       else
     if (IS_TOKEN(token,'@'))
@@ -522,6 +579,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
         {
           // In pass 1 it will always be 2 words long, so who cares
           eat_operand(asm_context);
+          operands[operand_count].value = 0;
         }
           else
         {
@@ -571,7 +629,8 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
       }
     }
 
-    operands[operand_count++].value = num;
+    //operands[operand_count++].value = num;
+    operand_count++;
 
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
@@ -682,25 +741,35 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (table_msp430[n].type == OP_ONE_OPERAND_W && size != 0)
+          if (table_msp430[n].type == OP_ONE_OPERAND_W)
           {
-            printf("Error: Instruction '%s' can't be used with .b at %s:%d\n",
-              instr, asm_context->filename, asm_context->line);
-            return -1;
+            if (size != 0 && size != 16)
+            {
+              printf("Error: Instruction '%s' can't be used with .b at %s:%d\n",
+                instr, asm_context->filename, asm_context->line);
+              return -1;
+            }
           }
-
+            else
           if (table_msp430[n].type == OP_ONE_OPERAND_X && size != 0)
           {
-            printf("Error: Instruction '%s' can't be used with .b/w at %s:%d\n",
-               instr, asm_context->filename, asm_context->line);
-            return -1;
+            if (size != 0)
+            {
+              printf("Error: Instruction '%s' can't be used with .b/w at %s:%d\n",
+                 instr, asm_context->filename, asm_context->line);
+              return -1;
+            }
+          }
+            else
+          {
+            operand_to_cg(asm_context, &operands[0], bw);
           }
 
           opcode |= bw << 6;
 
           if (operands[0].type == OPTYPE_REGISTER)
           {
-            opcode |= operands[0].a << 4 | operands[0].value;
+            opcode |= (operands[0].a << 4) | operands[0].reg;
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;
           }
@@ -709,25 +778,42 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
               operands[0].type == OPTYPE_ABSOLUTE ||
               operands[0].type == OPTYPE_SYMBOLIC)
           {
-            int low = 0;
+            int low = 0, high = 0xffff;
             int as = 1;
             int value = operands[0].value;
             int reg = 0;
+            const char *num_type = "Address";
 
             //if (asm_context->pass == 1) { value = 0; }
 
-            if (operands[0].type == OPTYPE_IMMEDIATE) { low = -32768; as = 3; }
+            if (operands[0].type == OPTYPE_IMMEDIATE)
+            {
+              num_type = "Immediate";
+
+              if (size == 8)
+              {
+                low = -128;
+                high = 0xff;
+              }
+                else
+              {
+                low = -32768;
+              }
+
+              as = 3;
+            }
+
             if (operands[0].type == OPTYPE_ABSOLUTE) { reg = 2; }
 
-            if (value < low || value > 0xffff)
+            if (value < low || value > high)
             {
-              print_error_range("Index", low, 0xffff, asm_context);
+              print_error_range(num_type, low, high, asm_context);
               return -1;
             }
 
             if (operands[0].type == OPTYPE_SYMBOLIC)
             { 
-              value = (asm_context->address + 2);
+              value = value - (asm_context->address + 2);
             }
 
             opcode |= (as << 4) | reg;
@@ -746,8 +832,48 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          print_error_illegal_operands(instr, asm_context);
-          return -1;
+          if (size != 0)
+          {
+            print_error("Instruction doesn't take a size.", asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            offset = asm_context->address;
+          }
+            else
+          {
+            if (operands[0].type != OPTYPE_SYMBOLIC)
+            {
+              print_error("Expecting a branch address", asm_context);
+              return -1;
+            }
+
+            offset = operands[0].value;
+          }
+
+          if ((offset & 1) == 1)
+          {
+            print_error("Jump offset is odd", asm_context);
+            return -1;
+          }
+
+          offset = offset - (asm_context->address + 2);
+
+          if (offset < -1024 || offset > 1023)
+          {
+            print_error_range("Offset", -1024, 1022, asm_context);
+            return -1;
+          }
+
+          offset = offset >> 1;
+
+          opcode |= ((uint32_t)offset) & 0x03ff;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
         case OP_TWO_OPERAND:
           if (operand_count != 2)
           {
