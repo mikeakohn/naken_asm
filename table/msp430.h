@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -20,6 +20,8 @@ enum
 {
   OP_NONE,
   OP_ONE_OPERAND,
+  OP_ONE_OPERAND_W,
+  OP_ONE_OPERAND_X,
   OP_JUMP,
   OP_TWO_OPERAND,
   OP_MOVA_AT_REG_REG,
@@ -37,6 +39,8 @@ enum
   OP_CALLA_IMMEDIATE,
   OP_PUSH,
   OP_POP,
+  OP_X_ONE_OPERAND,
+  OP_X_TWO_OPERAND,
 };
 
 enum

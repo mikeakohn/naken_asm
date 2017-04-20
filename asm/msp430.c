@@ -19,6 +19,7 @@
 #include "common/eval_expression.h"
 #include "common/tokens.h"
 #include "disasm/msp430.h"
+#include "table/msp430.h"
 
 enum
 {
@@ -590,6 +591,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 #endif
 
   // Do aliases first
+#if 0
   n = 0;
   while(aliases[n].instr != NULL)
   {
@@ -647,10 +649,143 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
     n++;
   }
+#endif
 
   if (size == 8) { bw = 1; }
 
+  n = 0;
+
+  while(table_msp430[n].instr != NULL)
+  {
+    if (asm_context->cpu_type != CPU_TYPE_MSP430X &&
+        table_msp430[n].version != VERSION_MSP430)
+    {
+      n++;
+      continue;
+    }
+
+    if (strcmp(table_msp430[n].instr, instr_case) == 0)
+    {
+      opcode = table_msp430[n].opcode;
+
+      switch(table_msp430[n].type)
+      {
+        case OP_NONE:
+          add_bin16(asm_context, table_msp430[n].opcode, IS_OPCODE);
+          return 2;
+        case OP_ONE_OPERAND:
+        case OP_ONE_OPERAND_W:
+        case OP_ONE_OPERAND_X:
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (table_msp430[n].type == OP_ONE_OPERAND_W && size != 0)
+          {
+            printf("Error: Instruction '%s' can't be used with .b at %s:%d\n",
+              instr, asm_context->filename, asm_context->line);
+            return -1;
+          }
+
+          if (table_msp430[n].type == OP_ONE_OPERAND_X && size != 0)
+          {
+            printf("Error: Instruction '%s' can't be used with .b/w at %s:%d\n",
+               instr, asm_context->filename, asm_context->line);
+            return -1;
+          }
+
+          opcode |= bw << 6;
+
+          if (operands[0].type == OPTYPE_REGISTER)
+          {
+            opcode |= operands[0].a << 4 | operands[0].value;
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          if (operands[0].type == OPTYPE_IMMEDIATE ||
+              operands[0].type == OPTYPE_ABSOLUTE ||
+              operands[0].type == OPTYPE_SYMBOLIC)
+          {
+            int low = 0;
+            int as = 1;
+            int value = operands[0].value;
+            int reg = 0;
+
+            //if (asm_context->pass == 1) { value = 0; }
+
+            if (operands[0].type == OPTYPE_IMMEDIATE) { low = -32768; as = 3; }
+            if (operands[0].type == OPTYPE_ABSOLUTE) { reg = 2; }
+
+            if (value < low || value > 0xffff)
+            {
+              print_error_range("Index", low, 0xffff, asm_context);
+              return -1;
+            }
+
+            if (operands[0].type == OPTYPE_SYMBOLIC)
+            { 
+              value = (asm_context->address + 2);
+            }
+
+            opcode |= (as << 4) | reg;
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, value & 0xffff, IS_OPCODE);
+            return 4;
+          }
+
+
+          print_error_illegal_operands(instr, asm_context);
+          return -1;
+        case OP_JUMP:
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          print_error_illegal_operands(instr, asm_context);
+          return -1;
+        case OP_TWO_OPERAND:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          print_error_illegal_operands(instr, asm_context);
+          return -1;
+        case OP_MOVA_AT_REG_REG:
+        case OP_MOVA_AT_REG_PLUS_REG:
+        case OP_MOVA_ABS20_REG:
+        case OP_MOVA_INDIRECT_REG:
+        case OP_SHIFT20:
+        case OP_MOVA_REG_ABS:
+        case OP_MOVA_REG_INDIRECT:
+        case OP_IMMEDIATE_REG:
+        case OP_REG_REG:
+        case OP_CALLA_SOURCE:
+        case OP_CALLA_ABS20:
+        case OP_CALLA_INDIRECT_PC:
+        case OP_CALLA_IMMEDIATE:
+        case OP_PUSH:
+        case OP_POP:
+        case OP_X_ONE_OPERAND:
+        case OP_X_TWO_OPERAND:
+        default:
+          print_error_illegal_operands(instr, asm_context);
+          return -1;
+      }
+    }
+
+    n++;
+  }
+
+
   // Check for MSP430X version of MSP430 instruction
+#if 0
   if (asm_context->cpu_type == CPU_TYPE_MSP430X)
   {
     n = 0;
@@ -1283,6 +1418,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
     print_error("Unknown addressing mode for mova", asm_context);
     return -1;
   }
+#endif
 
   print_error_unknown_instr(instr, asm_context);
 
