@@ -99,6 +99,7 @@ static struct _aliases
   { NULL, 0, 0, NULL, 0 },
 };
 
+#if 0
 static char *msp430x_ext[] =
 {
   "rrcx", "swpbx", "rrax", "sxtx", "pushx", "movx", "addx", "addcx", "subcx",
@@ -107,6 +108,8 @@ static char *msp430x_ext[] =
 static char *msp430x_shift[] = { "rrcm", "rram", "rlam", "rrum", NULL };
 static char *msp430x_stack[] = { "pushm", "popm", NULL };
 static char *msp430x_alu[] = { "mova", "cmpa", "adda", "suba", NULL };
+#endif
+
 static char *msp430x_rpt[] = { "rpt", "rptz", "rptc",  NULL };
 
 static void operand_to_cg(struct _asm_context *asm_context, struct _operand *operand, int bw)
@@ -490,9 +493,9 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   int num,n;
   int bw = 0;
   int opcode;
-  int msp430x = 0;
+  //int msp430x = 0;
   int prefix = 0;
-  int offset;
+  int offset, value, wa;
   int count;
 
   lower_copy(instr_case, instr);
@@ -970,10 +973,120 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           return count;
         case OP_MOVA_AT_REG_REG:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPTYPE_REGISTER_INDIRECT ||
+              operands[1].type != OPTYPE_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode |= (operands[0].reg << 8) | operands[1].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          return 2;
         case OP_MOVA_AT_REG_PLUS_REG:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPTYPE_REGISTER_INDIRECT_INC ||
+              operands[1].type != OPTYPE_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode |= (operands[0].reg << 8) | operands[1].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          return 2;
         case OP_MOVA_ABS20_REG:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPTYPE_REGISTER_INDIRECT_INC ||
+              operands[1].type != OPTYPE_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          value = operands[0].value;
+
+          if (value < 0 || value > 0xfffff)
+          {
+            print_error_range("Address", 0, 0xfffff, asm_context);
+            return -1;
+          }
+
+          opcode |= (((operands[0].value >> 16) & 0xf) << 8) | operands[1].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
+          return 4;
         case OP_MOVA_INDIRECT_REG:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPTYPE_INDEXED ||
+              operands[1].type != OPTYPE_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          value = operands[0].value;
+
+          if (value < 0 || value > 0xffff)
+          {
+            print_error_range("Index", 0, 0xffff, asm_context);
+            return -1;
+          }
+
+          opcode |= (((operands[0].value >> 16) & 0xf) << 8) | operands[1].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
+          return 4;
         case OP_SHIFT20:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPTYPE_IMMEDIATE ||
+              operands[1].type != OPTYPE_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          value = operands[0].value;
+
+          if (value < 1 || value > 4)
+          {
+            print_error_range("Constant", 0, 4, asm_context);
+            return -1;
+          }
+
+          wa = (size == 16 || size == 0) ? 1 : 0;
+
+          opcode |= ((operands[0].value - 1) << 12) |
+                     (wa << 8) |
+                      operands[1].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          return 2;
         case OP_MOVA_REG_ABS:
         case OP_MOVA_REG_INDIRECT:
         case OP_IMMEDIATE_REG:
@@ -982,8 +1095,37 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
         case OP_CALLA_ABS20:
         case OP_CALLA_INDIRECT_PC:
         case OP_CALLA_IMMEDIATE:
+          break;
         case OP_PUSH:
         case OP_POP:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPTYPE_IMMEDIATE ||
+              operands[1].type != OPTYPE_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          value = operands[0].value;
+
+          if (value < 1 || value > 4)
+          {
+            print_error_range("Constant", 0, 4, asm_context);
+            return -1;
+          }
+
+          wa = (size == 16 || size == 0) ? 1 : 0;
+
+          opcode |= (wa << 8) |
+                   ((operands[0].value - 1) << 4) |
+                     operands[1].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          return 2;
         case OP_X_ONE_OPERAND:
         case OP_X_TWO_OPERAND:
         default:

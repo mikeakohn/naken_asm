@@ -1,12 +1,13 @@
 pushm #1, r5
-pushm.w #1, r5
-pushm.a #1, r5
+pushm.w #4, r5
+pushm.a #3, r5
 rrcm.w #3, r5
 rrcm.a #3, r5
 rrcm #3, r5
 rram #3, r7
 rlam.w #1, r9
 rrum.a #2, r10
+rrum #2, r10
 mova @r10, r11
 mova @r10+, r11
 mova &0x12344, r11
