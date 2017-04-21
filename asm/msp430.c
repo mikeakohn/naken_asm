@@ -748,7 +748,6 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 #endif
 
   // Do aliases first
-#if 0
   n = 0;
   while(aliases[n].instr != NULL)
   {
@@ -806,7 +805,6 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
     n++;
   }
-#endif
 
   if (size == 8) { bw = 1; }
 
