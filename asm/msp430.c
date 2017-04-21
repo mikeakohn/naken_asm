@@ -44,7 +44,13 @@ struct _operand
 
 struct _data
 {
-  int data[2];
+  struct _params
+  {
+    int value;
+    int reg;
+    int mode;
+    int add_value;
+  } params[2]; 
   int count;
 };
 
@@ -167,8 +173,66 @@ static void operand_to_cg(struct _asm_context *asm_context, struct _operand *ope
   }
 }
 
-static int process_operand(struct _asm_context *asm_context, struct _operand *operand, int bw)
+static int process_operand(struct _asm_context *asm_context, struct _operand *operand, struct _data *data, const char *instr, int size, int is_src)
 {
+  int count = data->count++;
+
+  if (operand->type == OPTYPE_REGISTER)
+  {
+    data->params[count].reg = operand->reg;
+    data->params[count].mode = operand->mode;
+    return 0;
+  }
+
+  if (operand->type == OPTYPE_IMMEDIATE ||
+      operand->type == OPTYPE_ABSOLUTE ||
+      operand->type == OPTYPE_SYMBOLIC)
+  {
+    int low = 0, high = 0xffff;
+    int mode = 1;
+    int value = operand->value;
+    int reg = 0;
+    const char *num_type = "Address";
+
+    if (operand->type == OPTYPE_IMMEDIATE)
+    {
+      num_type = "Immediate";
+
+      if (size == 8)
+      {
+        low = -128;
+        high = 0xff;
+      }
+        else
+      {
+        low = -32768;
+      }
+
+      mode = 3;
+    }
+
+    if (operand->type == OPTYPE_ABSOLUTE) { reg = 2; }
+
+    if (value < low || value > high)
+    {
+      print_error_range(num_type, low, high, asm_context);
+      return -1;
+    }
+
+    if (operand->type == OPTYPE_SYMBOLIC)
+    { 
+      value = value - (asm_context->address + 2);
+    }
+
+    data->params[count].reg = reg;
+    data->params[count].mode = mode;
+    data->params[count].value = value;
+    data->params[count].add_value = 1;
+
+    return 0;
+  }
+
+  print_error_illegal_operands(instr, asm_context);
   return -1;
 }
 
@@ -324,6 +388,7 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
 }
 #endif
 
+#if 0
 static int add_instruction(struct _asm_context *asm_context, struct _data *data, int error, int opcode)
 {
   int n;
@@ -347,6 +412,7 @@ static int add_instruction(struct _asm_context *asm_context, struct _data *data,
 
   return 0;
 }
+#endif
 
 static uint16_t get_prefix(struct _asm_context *asm_context, int zc)
 {
@@ -393,7 +459,7 @@ static uint16_t get_prefix(struct _asm_context *asm_context, int zc)
 int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 {
   struct _operand operands[3];
-  //struct _data data;
+  struct _data data;
   int operand_count = 0;
   char token[TOKENLEN];
   char instr_case[TOKENLEN];
@@ -406,9 +472,12 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   int msp430x = 0;
   int prefix = 0;
   int offset;
+  int count;
 
   lower_copy(instr_case, instr);
   //instr_case = instr_case_mem;
+
+  memset(&data, 0, sizeof(data));
 
   // Not sure if this is a good area for this.  If there isn't an instruction
   // here then it pads for no reason.
@@ -775,63 +844,21 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           opcode |= bw << 6;
 
-          if (operands[0].type == OPTYPE_REGISTER)
+          if (process_operand(asm_context, &operands[0], &data, instr, size, 1) != 0)
           {
-            opcode |= (operands[0].mode << 4) | operands[0].reg;
-            add_bin16(asm_context, opcode, IS_OPCODE);
-            return 2;
+            return -1;
           }
 
-          if (operands[0].type == OPTYPE_IMMEDIATE ||
-              operands[0].type == OPTYPE_ABSOLUTE ||
-              operands[0].type == OPTYPE_SYMBOLIC)
+          opcode |= (data.params[0].mode << 4) | data.params[0].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          if (data.params[0].add_value == 1)
           {
-            int low = 0, high = 0xffff;
-            int as = 1;
-            int value = operands[0].value;
-            int reg = 0;
-            const char *num_type = "Address";
-
-            //if (asm_context->pass == 1) { value = 0; }
-
-            if (operands[0].type == OPTYPE_IMMEDIATE)
-            {
-              num_type = "Immediate";
-
-              if (size == 8)
-              {
-                low = -128;
-                high = 0xff;
-              }
-                else
-              {
-                low = -32768;
-              }
-
-              as = 3;
-            }
-
-            if (operands[0].type == OPTYPE_ABSOLUTE) { reg = 2; }
-
-            if (value < low || value > high)
-            {
-              print_error_range(num_type, low, high, asm_context);
-              return -1;
-            }
-
-            if (operands[0].type == OPTYPE_SYMBOLIC)
-            { 
-              value = value - (asm_context->address + 2);
-            }
-
-            opcode |= (as << 4) | reg;
-            add_bin16(asm_context, opcode, IS_OPCODE);
-            add_bin16(asm_context, value & 0xffff, IS_OPCODE);
+            add_bin16(asm_context, data.params[0].value, IS_OPCODE);
             return 4;
           }
 
-          print_error_illegal_operands(instr, asm_context);
-          return -1;
+          return 2;
         case OP_JUMP:
           if (operand_count != 1)
           {
@@ -892,8 +919,37 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           opcode |= bw << 6;
 
-          print_error_illegal_operands(instr, asm_context);
-          return -1;
+          if (process_operand(asm_context, &operands[0], &data, instr, size, 1) != 0)
+          {
+            return -1;
+          }
+
+          if (process_operand(asm_context, &operands[1], &data, instr, size, 0) != 0)
+          {
+            return -1;
+          }
+
+          opcode |= (data.params[0].mode << 4) |
+                    (data.params[1].mode << 7) |
+                    (data.params[0].reg << 8) |
+                     data.params[1].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          count = 2;
+
+          if (data.params[0].add_value)
+          {
+            add_bin16(asm_context, data.params[0].value, IS_OPCODE);
+            count += 2;
+          }
+
+          if (data.params[1].add_value)
+          {
+            add_bin16(asm_context, data.params[1].value, IS_OPCODE);
+            count += 2;
+          }
+
+          return count;
         case OP_MOVA_AT_REG_REG:
         case OP_MOVA_AT_REG_PLUS_REG:
         case OP_MOVA_ABS20_REG:
