@@ -99,17 +99,6 @@ static struct _aliases
   { NULL, 0, 0, NULL, 0 },
 };
 
-//static char *one_oper[] = { "rrc", "swpb", "rra", "sxt", "push", "call", NULL };
-//static char *jumps[] = { "jne", "jeq", "jlo", "jhs", "jn", "jge", "jl", "jmp", NULL };
-//static char *jumps_a[] = { "jnz", "jz", "jnc", "jc", NULL, NULL, NULL, NULL, NULL };
-/*
-static char *two_oper[] =
-{
-  "mov", "add", "addc", "subc", "sub", "cmp", "dadd", "bit",
-  "bic", "bis", "xor", "and", NULL
-};
-*/
-
 static char *msp430x_ext[] =
 {
   "rrcx", "swpbx", "rrax", "sxtx", "pushx", "movx", "addx", "addcx", "subcx",
@@ -119,13 +108,6 @@ static char *msp430x_shift[] = { "rrcm", "rram", "rlam", "rrum", NULL };
 static char *msp430x_stack[] = { "pushm", "popm", NULL };
 static char *msp430x_alu[] = { "mova", "cmpa", "adda", "suba", NULL };
 static char *msp430x_rpt[] = { "rpt", "rptz", "rptc",  NULL };
-
-#if 0
-static void print_operand_error(const char *s, int count, struct _asm_context *asm_context)
-{
-  printf("Error: Instruction '%s' takes %d operand%s at %s:%d\n", s, count, count==1?"":"s", asm_context->filename, asm_context->line);
-}
-#endif
 
 static void operand_to_cg(struct _asm_context *asm_context, struct _operand *operand, int bw)
 {
@@ -184,9 +166,35 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
     return 0;
   }
 
+  if (operand->type == OPTYPE_REGISTER_INDIRECT)
+  {
+    if (is_src == 1)
+    {
+      data->params[count].reg = operand->reg;
+      data->params[count].mode = 2;
+      return 0;
+    }
+
+    operand->type = OPTYPE_INDEXED;
+  }
+
+  if (operand->type == OPTYPE_REGISTER_INDIRECT_INC)
+  {
+    if (is_src == 0)
+    {
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
+    }
+
+    data->params[count].reg = operand->reg;
+    data->params[count].mode = 3;
+    return 0;
+  }
+
   if (operand->type == OPTYPE_IMMEDIATE ||
       operand->type == OPTYPE_ABSOLUTE ||
-      operand->type == OPTYPE_SYMBOLIC)
+      operand->type == OPTYPE_SYMBOLIC ||
+      operand->type == OPTYPE_INDEXED)
   {
     int low = 0, high = 0xffff;
     int mode = 1;
@@ -211,6 +219,13 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
       mode = 3;
     }
 
+    if (operand->type == OPTYPE_INDEXED)
+    {
+      low = -32768;
+      mode = 1;
+      reg = operand->reg;
+    }
+
     if (operand->type == OPTYPE_ABSOLUTE) { reg = 2; }
 
     if (value < low || value > high)
@@ -222,6 +237,12 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
     if (operand->type == OPTYPE_SYMBOLIC)
     { 
       value = value - (asm_context->address + 2);
+    }
+
+    if (is_src == 0 && mode > 1)
+    {
+      print_error_illegal_operands(instr, asm_context);
+      return -1;
     }
 
     data->params[count].reg = reg;
