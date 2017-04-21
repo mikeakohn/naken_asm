@@ -129,7 +129,7 @@ static int get_source_reg(struct _memory *memory, uint32_t address, int reg, int
     {
       uint16_t a = (READ_RAM(address + 3) << 8) | READ_RAM(address + 2);
       count += 2;
-      sprintf(reg_str, "0x%x(%s)", a | extra, regs[reg]);
+      sprintf(reg_str, "%d(%s)", (int16_t)(a | extra), regs[reg]);
     }
       else
     if (As == 2)
@@ -196,7 +196,7 @@ static int get_dest_reg(struct _memory *memory, uint32_t address, int reg, int A
     {
       uint16_t a = (READ_RAM(address + count + 3) << 8)|READ_RAM(address + count + 2);
       count += 2;
-      sprintf(reg_str, "0x%x(%s)", a|extra, regs[reg]);
+      sprintf(reg_str, "%d(%s)", (int16_t)(a | extra), regs[reg]);
     }
   }
 
@@ -437,36 +437,36 @@ int get_cycle_count(uint16_t opcode)
 
     if (o == 5) // CALL
     {
-      if (As == 1) return 5;        // x(Rn), EDE, &EDE
-      if (As == 2) return 4;        // @Rn
+      if (As == 1) { return 5; }    // x(Rn), EDE, &EDE
+      if (As == 2) { return 4; }    // @Rn
       if (As == 3)
       {
         if (src_reg == 0) return 5; // #value
         return 5;                   // @Rn+
       }
 
-      return 4;                   // Rn
+      return 4;                     // Rn
     }
 
     if (o == 4) // PUSH
     {
-      if (As == 1) return 5;        // x(Rn), EDE, &EDE
-      if (As == 2) return 4;        // @Rn
+      if (As == 1) { return 5; }    // x(Rn), EDE, &EDE
+      if (As == 2) { return 4; }    // @Rn
       if (As == 3)
       {
         if (src_reg == 0) return 4; // #value
         return 5;                   // @Rn+
       }
 
-      return 3;                   // Rn
+      return 3;                     // Rn
     }
 
     // RRA, RRC, SWPB, SXT
-    if (As == 1) return 4;        // x(Rn), EDE, &EDE
-    if (As == 2) return 3;        // @Rn
+    if (As == 1) { return 4; }      // x(Rn), EDE, &EDE
+    if (As == 2) { return 3; }      // @Rn
     if (As == 3)
     {
-      if (src_reg == 0) return -1; // #value
+      if (src_reg == 0) { return -1; } // #value
       return 3;                    // @Rn+
     }
 
@@ -489,32 +489,32 @@ int get_cycle_count(uint16_t opcode)
     if (src_reg == 3 || (src_reg == 2 && (As & 2) == 2)) { As = 0; }
     if (dst_reg == 3) { Ad = 0; }
 
-    if ((opcode >> 12) < 4) return -1;
+    if ((opcode >> 12) < 4) { return -1; }
 
     // Cycle counts
     if (As == 1) //Src EDE, &EDE, x(Rn)
     {
-      if (Ad == 1) return 6; // Dest x(Rn) and TONI and &TONI
+      if (Ad == 1) { return 6; } // Dest x(Rn) and TONI and &TONI
       return 3;  // Dest
     }
       else
     if (As == 3)  // #value and @Rn+
     {
-      if (dst_reg == 0) return 3;   // Dest PC
-      if (Ad == 0) return 2;        // Dest Rm
-      return 5;                     // Dest x(Rm), EDE, &EDE
+      if (dst_reg == 0) { return 3; } // Dest PC
+      if (Ad == 0) { return 2; }      // Dest Rm
+      return 5;                       // Dest x(Rm), EDE, &EDE
     }
       else
     if (As  ==  2)  // @Rn
     {
-      if (dst_reg  ==  0) return 2;   // Dest PC
-      if (Ad  ==  0) return 2;        // Dest Rm
+      if (dst_reg  ==  0) { return 2; } // Dest PC
+      if (Ad  ==  0) { return 2; }    // Dest Rm
       return 5;                       // Dest x(Rm), EDE, &EDE
     }
       else     // Rn
     {
-      if (dst_reg == 0) return 2;   // Dest PC
-      if (Ad == 0) return 1;        // Dest Rm
+      if (dst_reg == 0) { return 2; } // Dest PC
+      if (Ad == 0) { return 1; }    // Dest Rm
       return 4;                     // Dest x(Rm), EDE, &EDE
     }
   }
@@ -585,11 +585,21 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
           dst = opcode & 0xf;
           sprintf(instruction, "mova &0x%x, %s", num, regs[dst]);
           return 4;
-        case OP_MOVA_INDIRECT_REG:
+        case OP_MOVA_INDEXED_REG:
           num = READ_RAM16(address + 2);
           src = (opcode >> 8) & 0xf;
           dst = opcode & 0xf;
-          sprintf(instruction, "mova 0x%x(%s), %s", num, regs[src], regs[dst]);
+
+          if (src != 0)
+          {
+            sprintf(instruction, "mova %d(%s), %s",
+              (int16_t)num, regs[src], regs[dst]);
+          }
+            else
+          {
+            int symbolic = (address + 4) + num;
+            sprintf(instruction, "mova 0x%04x, %s", symbolic, regs[dst]);
+          }
           return 4;
         case OP_SHIFT20:
           num = ((opcode >> 10) & 0x3) + 1;

@@ -260,184 +260,6 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
   return -1;
 }
 
-#if 0
-static int process_operand(struct _asm_context *asm_context, struct _operand *operand, struct _data *data, int size, int is_dest)
-{
-  if (size == 0) { size = 16; }
-
-  if (operand->type == OPTYPE_IMMEDIATE)
-  {
-    if (size == 8)
-    {
-      if (operand->value > 0xff || operand->value < -128)
-      {
-        print_error("Constant larger than 8 bit.", asm_context);
-        return -1;
-      }
-
-      operand->value = (((uint16_t)operand->value) & 0xff);
-    }
-      else
-    if (size == 16)
-    {
-      if (operand->value > 0xffff || operand->value < -32768)
-      {
-        print_error("Constant larger than 16 bit.", asm_context);
-        return -1;
-      }
-
-      operand->value = (((uint32_t)operand->value) & 0xffff);
-    }
-      else
-    if (size == 20)
-    {
-      if (operand->value > 0xfffff || operand->value < -524288)
-      {
-        print_error("Constant larger than 20 bit.", asm_context);
-        return -1;
-      }
-
-      operand->value = (((uint32_t)operand->value) & 0xfffff);
-    }
-  }
-    else
-  if (operand->type >= OPTYPE_ABSOLUTE ||
-      operand->type >= OPTYPE_INDEXED ||
-      operand->type >= OPTYPE_SYMBOLIC)
-  {
-    if (operand->value > 0xffff || operand->value < -32768)
-    {
-      print_error("Constant larger than 16 bit.", asm_context);
-      return -1;
-    }
-
-    operand->value = (((uint32_t)operand->value) & 0xffff);
-  }
-
-  switch(operand->type)
-  {
-    case OPTYPE_REGISTER:
-      operand->a = 0;
-      break;
-    case OPTYPE_INDEXED:
-      operand->a = 1;
-      data->data[data->count++] = operand->value;
-      break;
-    case OPTYPE_REGISTER_INDIRECT:
-      if (is_dest == 1)
-      {
-        if (asm_context->pass == 2)
-        {
-          printf("Warning: Addressing mode of @r%d being changed to 0(r%d) at %s:%d.\n", operand->reg, operand->reg, asm_context->filename, asm_context->line);
-        }
-
-        data->data[data->count++] = 0;
-        operand->a = 1;
-        operand->value = 0;
-      }
-        else
-      {
-        operand->a = 2;
-      }
-      break;
-    case OPTYPE_REGISTER_INDIRECT_INC:
-      if (is_dest == 1)
-      {
-        printf("Error: Indirect autoincrement not allowed for dest operand at %s:%d.\n", asm_context->filename, asm_context->line);
-        return -1;
-      }
-      operand->a = 3;
-      break;
-    case OPTYPE_SYMBOLIC:
-      operand->a = 1;
-      operand->reg = 0;
-      data->data[data->count] = (operand->value - (asm_context->address + (data->count * 2 + 2))) & 0xffff;
-      data->count++;
-      break;
-    case OPTYPE_IMMEDIATE:
-      if (is_dest == 1)
-      {
-        printf("Error: Immediate not allowed for dest operand at %s:%d.\n", asm_context->filename, asm_context->line);
-        return -1;
-      }
-      if (memory_read(asm_context, asm_context->address) != 0 ||
-          operand->error != 0)
-      {
-        operand->a = 3;
-        operand->reg = 0;
-        data->data[data->count++] = operand->value;
-      }
-        else
-      if (operand->value == 0) { operand->reg = 3; operand->a = 0; }
-      else if (operand->value == 1) { operand->reg = 3; operand->a = 1; }
-      else if (operand->value == 2) { operand->reg = 3; operand->a = 2; }
-      else if (operand->value == 4) { operand->reg = 2; operand->a = 2; }
-      else if (operand->value == 8) { operand->reg = 2; operand->a = 3; }
-        else
-      if (operand->value == 0xff && size == 8)
-      {
-        operand->a = 3;
-        operand->reg = 3;
-      }
-        else
-      if (operand->value == 0xffff && size == 16)
-      {
-        operand->a = 3;
-        operand->reg = 3;
-      }
-        else
-      if (operand->value == 0xfffff && size == 20)
-      {
-        operand->a = 3;
-        operand->reg = 3;
-      }
-        else
-      {
-        operand->a = 3;
-        operand->reg = 0;
-        data->data[data->count++] = operand->value;
-      }
-      break;
-    case OPTYPE_ABSOLUTE:
-      operand->a = 1;
-      operand->reg = 2;
-      data->data[data->count++] = operand->value;
-      break;
-    default:
-      print_error_internal(asm_context, __FILE__, __LINE__);
-      break;
-  }
-
-  return 0;
-}
-#endif
-
-#if 0
-static int add_instruction(struct _asm_context *asm_context, struct _data *data, int error, int opcode)
-{
-  int n;
-
-  //asm_context->instruction_count++;
-
-  if (asm_context->pass == 1)
-  {
-    if (error == 1) { add_bin16(asm_context, 1, IS_DATA); }
-    else { add_bin16(asm_context, 0, IS_DATA); }
-  }
-    else
-  {
-    add_bin16(asm_context, opcode, IS_OPCODE);
-  }
-
-  for (n = 0; n < data->count; n++)
-  {
-    add_bin16(asm_context, data->data[n], IS_DATA);
-  }
-
-  return 0;
-}
-#endif
-
 static uint16_t get_prefix(struct _asm_context *asm_context, int zc)
 {
   char token[TOKENLEN];
@@ -495,8 +317,8 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   int opcode;
   //int msp430x = 0;
   int prefix = 0;
-  int offset, value, wa;
-  int count;
+  int offset, value, wa, reg;
+  int count, found;
 
   lower_copy(instr_case, instr);
   //instr_case = instr_case_mem;
@@ -825,6 +647,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
     if (strcmp(table_msp430[n].instr, instr_case) == 0)
     {
       opcode = table_msp430[n].opcode;
+      found = 1;
 
       switch(table_msp430[n].type)
       {
@@ -979,11 +802,16 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
+          if (size != 0)
+          {
+            print_error("mova doesn't take a size flag", asm_context);
+            return -1;
+          }
+
           if (operands[0].type != OPTYPE_REGISTER_INDIRECT ||
               operands[1].type != OPTYPE_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
+            break;
           }
 
           opcode |= (operands[0].reg << 8) | operands[1].reg;
@@ -996,11 +824,16 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
+          if (size != 0)
+          {
+            print_error("mova doesn't take a size flag", asm_context);
+            return -1;
+          }
+
           if (operands[0].type != OPTYPE_REGISTER_INDIRECT_INC ||
               operands[1].type != OPTYPE_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
+            break;
           }
 
           opcode |= (operands[0].reg << 8) | operands[1].reg;
@@ -1013,11 +846,16 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (operands[0].type != OPTYPE_REGISTER_INDIRECT_INC ||
+          if (size != 0)
+          {
+            print_error("mova doesn't take a size flag", asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPTYPE_ABSOLUTE ||
               operands[1].type != OPTYPE_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
+            break;
           }
 
           value = operands[0].value;
@@ -1032,31 +870,45 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
           add_bin16(asm_context, opcode, IS_OPCODE);
           add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
           return 4;
-        case OP_MOVA_INDIRECT_REG:
+        case OP_MOVA_INDEXED_REG:
           if (operand_count != 2)
           {
             print_error_opcount(instr, asm_context);
             return -1;
           }
 
-          if (operands[0].type != OPTYPE_INDEXED ||
-              operands[1].type != OPTYPE_REGISTER)
+          if (size != 0)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error("mova doesn't take a size flag", asm_context);
             return -1;
           }
 
           value = operands[0].value;
 
-          if (value < 0 || value > 0xffff)
+          if (operands[0].type == OPTYPE_SYMBOLIC &&
+              operands[1].type == OPTYPE_REGISTER)
           {
-            print_error_range("Index", 0, 0xffff, asm_context);
+            operands[0].type = OPTYPE_INDEXED;
+            operands[0].reg = 0;
+
+            value = value - (asm_context->address + 4);
+          }
+
+          if (operands[0].type != OPTYPE_INDEXED ||
+              operands[1].type != OPTYPE_REGISTER)
+          {
+            break;
+          }
+
+          if (value < -32768 || value > 32767)
+          {
+            print_error_range("Index", -32768, 32768, asm_context);
             return -1;
           }
 
-          opcode |= (((operands[0].value >> 16) & 0xf) << 8) | operands[1].reg;
+          opcode |= (operands[0].reg << 8) | operands[1].reg;
           add_bin16(asm_context, opcode, IS_OPCODE);
-          add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
+          add_bin16(asm_context, value & 0xffff, IS_OPCODE);
           return 4;
         case OP_SHIFT20:
           if (operand_count != 2)
@@ -1082,19 +934,267 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           wa = (size == 16 || size == 0) ? 1 : 0;
 
-          opcode |= ((operands[0].value - 1) << 12) |
-                     (wa << 8) |
+          opcode |= ((operands[0].value - 1) << 10) |
+                     (wa << 4) |
                       operands[1].reg;
           add_bin16(asm_context, opcode, IS_OPCODE);
           return 2;
         case OP_MOVA_REG_ABS:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (size != 0)
+          {
+            print_error("calla doesn't take a size flag", asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPTYPE_REGISTER ||
+              operands[1].type != OPTYPE_ABSOLUTE)
+          {
+            break;
+          }
+
+          value = operands[1].value;
+
+          if (value < 0 || value > 0xfffff)
+          {
+            print_error_range("Address", 0, 0xfffff, asm_context);
+            return -1;
+          }
+
+          opcode |= (operands[1].reg << 8) | ((operands[1].value >> 16) & 0xf);
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
+          return 4;
         case OP_MOVA_REG_INDIRECT:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (size != 0)
+          {
+            print_error("calla doesn't take a size flag", asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPTYPE_REGISTER ||
+              operands[1].type != OPTYPE_INDEXED)
+          {
+            break;
+          }
+
+          value = operands[1].value;
+
+          if (value < -524288 || value > 0xfffff)
+          {
+            print_error_range("Index", -524288, 0xfffff, asm_context);
+            return -1;
+          }
+
+          opcode |= (operands[0].reg << 8) | ((operands[1].value >> 16) & 0xf);
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
+          return 4;
         case OP_IMMEDIATE_REG:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (size != 0)
+          {
+            print_error("calla doesn't take a size flag", asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPTYPE_IMMEDIATE ||
+              operands[1].type != OPTYPE_REGISTER)
+          {
+            break;
+          }
+
+          value = operands[1].value;
+
+          if (value < -524288 || value > 0xfffff)
+          {
+            print_error_range("Index", -524288, 0xfffff, asm_context);
+            return -1;
+          }
+
+          opcode |= (((operands[0].value >> 16) & 0xf) << 8) | operands[1].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
+          return 4;
         case OP_REG_REG:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (size != 0)
+          {
+            print_error("calla doesn't take a size flag", asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPTYPE_REGISTER ||
+              operands[1].type != OPTYPE_REGISTER)
+          {
+            break;
+          }
+
+          opcode |= (operands[0].reg << 8) | operands[1].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          return 2;
         case OP_CALLA_SOURCE:
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (size != 0)
+          {
+            print_error("calla doesn't take a size flag", asm_context);
+            return -1;
+          }
+
+          if (operands[0].type == OPTYPE_REGISTER)
+          {
+            opcode |= operands[0].reg;
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          if (operands[0].type == OPTYPE_REGISTER_INDIRECT)
+          {
+            opcode |= (2 << 4) | operands[0].reg;
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          if (operands[0].type == OPTYPE_REGISTER_INDIRECT_INC)
+          {
+            opcode |= (3 << 4) | operands[0].reg;
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
         case OP_CALLA_ABS20:
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (size != 0)
+          {
+            print_error("calla doesn't take a size flag", asm_context);
+            return -1;
+          }
+
+          if (operands[0].type == OPTYPE_ABSOLUTE)
+          {
+            value = operands[0].value;
+
+            if (value < 0 || value > 0xfffff)
+            {
+              print_error_range("Address", 0, 0xfffff, asm_context);
+              return -1;
+            }
+
+            opcode |= ((value >> 16) & 0xf) | operands[1].reg;
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, value & 0xffff, IS_OPCODE);
+            return 4;
+          }
+
+          break;
         case OP_CALLA_INDIRECT_PC:
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (size != 0)
+          {
+            print_error("calla doesn't take a size flag", asm_context);
+            return -1;
+          }
+
+          value = operands[0].value;
+
+          if (operands[0].type == OPTYPE_INDEXED &&
+              operands[0].reg == 0)
+          {
+            if (value < -524288 || value > 0xfffff)
+            {
+              print_error_range("Index", -524288, 0xfffff, asm_context);
+              return -1;
+            }
+
+            opcode |= ((value >> 16) & 0xf) | operands[1].reg;
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, value & 0xffff, IS_OPCODE);
+            return 4;
+          }
+
+          if (operands[0].type == OPTYPE_SYMBOLIC)
+          {
+            if (value < 0 || value > 0xfffff)
+            {
+              print_error_range("Address", 0, 0xfffff, asm_context);
+              return -1;
+            }
+
+            value = value - (asm_context->address + 2);
+
+            opcode |= ((value >> 16) & 0xf) | operands[1].reg;
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, value & 0xffff, IS_OPCODE);
+            return 4;
+          }
+
+          break;
         case OP_CALLA_IMMEDIATE:
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (size != 0)
+          {
+            print_error("calla doesn't take a size flag", asm_context);
+            return -1;
+          }
+
+          if (operands[0].type == OPTYPE_IMMEDIATE)
+          {
+            value = operands[0].value;
+
+            if (value < 0 || value > 0xfffff)
+            {
+              print_error_range("Immediate", 0, 0xfffff, asm_context);
+              return -1;
+            }
+
+            opcode |= ((value >> 16) & 0xf) | operands[1].reg;
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, value & 0xffff, IS_OPCODE);
+            return 4;
+          }
+
           break;
         case OP_PUSH:
         case OP_POP:
@@ -1121,13 +1221,105 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           wa = (size == 16 || size == 0) ? 1 : 0;
 
-          opcode |= (wa << 8) |
-                   ((operands[0].value - 1) << 4) |
-                     operands[1].reg;
+          if (table_msp430[n].type == OP_POP)
+          {
+            reg = operands[1].reg - (operands[0].value - 1);
+          }
+            else
+          {
+            reg = operands[1].reg;
+          }
+
+          if (reg < 0 || reg > 15)
+          {
+            print_error_illegal_register(instr, asm_context);
+            return -1;
+          }
+
+          opcode |= (wa << 8) | ((operands[0].value - 1) << 4) | reg;
           add_bin16(asm_context, opcode, IS_OPCODE);
           return 2;
         case OP_X_ONE_OPERAND:
+        case OP_X_ONE_OPERAND_W:
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (table_msp430[n].type == OP_X_ONE_OPERAND_W)
+          {
+            if (size != 0 && size != 16)
+            {
+              printf("Error: Instruction '%s' can't be used with .b at %s:%d\n",
+                instr, asm_context->filename, asm_context->line);
+              return -1;
+            }
+          }
+            else
+          {
+            operand_to_cg(asm_context, &operands[0], bw);
+          }
+
+          opcode |= bw << 6;
+
+          if (process_operand(asm_context, &operands[0], &data, instr, size, 1) != 0)
+          {
+            return -1;
+          }
+
+          opcode |= (data.params[0].mode << 4) | data.params[0].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          if (data.params[0].add_value == 1)
+          {
+            add_bin16(asm_context, data.params[0].value, IS_OPCODE);
+            return 4;
+          }
+
+          return 2;
         case OP_X_TWO_OPERAND:
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          operand_to_cg(asm_context, &operands[0], bw);
+
+          opcode |= bw << 6;
+
+          if (process_operand(asm_context, &operands[0], &data, instr, size, 1) != 0)
+          {
+            return -1;
+          }
+
+          if (process_operand(asm_context, &operands[1], &data, instr, size, 0) != 0)
+          {
+            return -1;
+          }
+
+          opcode |= (data.params[0].mode << 4) |
+                    (data.params[1].mode << 7) |
+                    (data.params[0].reg << 8) |
+                     data.params[1].reg;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          count = 2;
+
+          if (data.params[0].add_value)
+          {
+            add_bin16(asm_context, data.params[0].value, IS_OPCODE);
+            count += 2;
+          }
+
+          if (data.params[1].add_value)
+          {
+            add_bin16(asm_context, data.params[1].value, IS_OPCODE);
+            count += 2;
+          }
+
+          return count;
         default:
           print_error_illegal_operands(instr, asm_context);
           return -1;
@@ -1224,195 +1416,6 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
     return -1;
   }
 
-  // MSP430X CALLA
-  if (strcmp(instr_case, "calla") == 0)
-  {
-    if (operand_count != 1)
-    {
-      print_error("calla takes exactly one operand", asm_context);
-      return -1;
-    }
-
-    if (size != 0)
-    {
-      print_error("calla doesn't take a size flag", asm_context);
-      return -1;
-    }
-
-    int value = operands[0].value;
-    if (value > 0xfffff || value < -524288)
-    {
-      print_error("Constant larger than 20 bit.", asm_context);
-      return -1;
-    }
-
-    opcode = 0x1300;
-
-    switch(operands[0].type)
-    {
-      case OPTYPE_ABSOLUTE:
-        add_bin16(asm_context, opcode | 0x80 | ((value >> 16) & 0xf), IS_OPCODE);
-        add_bin16(asm_context, value & 0xffff, IS_OPCODE);
-        return 4;
-      case OPTYPE_INDEXED:
-        if (operands[0].reg == 0)
-        {
-          if (value > 0xfffff || value < -524288)
-          {
-            print_error_range("Index", -524288, 0x7ffff, asm_context);
-            return -1;
-          }
-          add_bin16(asm_context, opcode | 0x90 | ((value >> 16) & 0xf), IS_OPCODE);
-        }
-          else
-        {
-          if (value > 0xffff || value < -32768)
-          {
-            print_error_range("Index", -32768, 32767, asm_context);
-            return -1;
-          }
-          add_bin16(asm_context, opcode | 0x50 | operands[0].reg, IS_OPCODE);
-        }
-
-        add_bin16(asm_context, value & 0xffff, IS_OPCODE);
-        return 4;
-      case OPTYPE_SYMBOLIC:
-        if (asm_context->pass == 1)
-        {
-          add_bin16(asm_context, opcode | 0x90 | 0, IS_OPCODE);
-          add_bin16(asm_context, value & 0xffff, IS_OPCODE);
-          return 4;
-        }
-
-        int offset = operands[0].value - (asm_context->address + 4);
-
-        if (offset > 0xfffff || offset < -524288)
-        {
-          print_error_range("Offset", -524288, 0x7ffff, asm_context);
-          return -1;
-        }
-        add_bin16(asm_context, opcode | 0x90 | ((offset >> 16) & 0xf), IS_OPCODE);
-        add_bin16(asm_context, offset & 0xffff, IS_OPCODE);
-        return 4;
-      case OPTYPE_IMMEDIATE:
-        add_bin16(asm_context, opcode | 0xb0 | ((value >> 16) & 0xf), IS_OPCODE);
-        add_bin16(asm_context, value & 0xffff, IS_OPCODE);
-        return 4;
-      case OPTYPE_REGISTER:
-        add_bin16(asm_context, opcode | 0x40 | value, IS_OPCODE);
-        return 2;
-      case OPTYPE_REGISTER_INDIRECT:
-        add_bin16(asm_context, opcode | 0x60 | value, IS_OPCODE);
-        return 2;
-      case OPTYPE_REGISTER_INDIRECT_INC:
-        add_bin16(asm_context, opcode | 0x70 | value, IS_OPCODE);
-        return 2;
-      default:
-        break;
-    }
-
-    print_error("Unknown addressing mode for calla", asm_context);
-    return -1;
-  }
-
-  // MSP430X SHIFT
-  n = 0;
-  while(msp430x_shift[n] != NULL)
-  {
-    if (strcmp(instr_case,msp430x_shift[n]) == 0)
-    {
-      if (operand_count != 2 || operands[0].type != OPTYPE_IMMEDIATE ||
-          operands[1].type != OPTYPE_REGISTER)
-      {
-        print_error("rotate expects an immediate and register", asm_context);
-        return -1;
-      }
-
-      if (operands[0].value < 1 || operands[0].value > 4)
-      {
-        print_error("rotate can only shift between 1 and 4", asm_context);
-        return -1;
-      }
-
-      if (size == 8)
-      {
-        print_error("msp430x rotate can only be 16 or 20 bit", asm_context);
-        return -1;
-      }
-
-      int al = (size == 20) ? 0:1;
-      opcode = ((operands[0].value - 1) << 10) | (n << 8) | (1 << 6) | (al << 4) | operands[1].value;
-      add_bin16(asm_context, opcode, IS_OPCODE);
-      return 2;
-    }
-
-    n++;
-  }
-
-  // MSP430X ALU
-  n = 0;
-  while(msp430x_alu[n] != NULL)
-  {
-    if (strcmp(instr_case, msp430x_alu[n]) == 0)
-    {
-      int count = 2;
-
-      if (operand_count != 2)
-      {
-        print_error("Instruction takes exactly two operands", asm_context);
-        return -1;
-      }
-
-      // FIXME - Hack. This should probably all be done using the table
-      // instead.  Fix later.
-      if (n == 0)
-      {
-        if (operands[1].type != OPTYPE_REGISTER) { n++; continue; }
-        if (operands[0].type != OPTYPE_IMMEDIATE &&
-            operands[0].type != OPTYPE_REGISTER) { n++; continue; }
-      }
-
-      if (size!=0)
-      {
-        print_error("Instruction doesn't take a size", asm_context);
-        return -1;
-      }
-
-      int value = operands[0].value;
-      if (value > 0xfffff || value < -524288)
-      {
-        print_error("Constant larger than 20 bit.", asm_context);
-        return -1;
-      }
-
-      if (operands[0].type == OPTYPE_IMMEDIATE &&
-          operands[1].type == OPTYPE_REGISTER)
-      {
-        opcode = ((((uint32_t)value) & 0xf0000) >> 8) | (2 << 6) | (n << 4) | operands[1].reg;
-        add_bin16(asm_context, opcode, IS_OPCODE);
-        add_bin16(asm_context, ((uint32_t)value) & 0xffff, IS_DATA);
-        count = 4;
-      }
-        else
-      if (operands[0].type == OPTYPE_REGISTER &&
-          operands[1].type == OPTYPE_REGISTER)
-      {
-        opcode = (operands[0].reg << 8) | (3 << 6) | (n << 4) | operands[1].reg;
-        add_bin16(asm_context, opcode, IS_OPCODE);
-      }
-
-      if (count == 0)
-      {
-        print_error("Unknown addressing mode", asm_context);
-        return -1;
-      }
-
-      return count;
-    }
-
-    n++;
-  }
-
   // MSP430X PUSH AND POP
   n = 0;
   while(msp430x_stack[n] != NULL)
@@ -1449,139 +1452,17 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
     n++;
   }
-
-  // MSP430X MOVA
-  if (strcmp(instr_case, "mova") == 0)
-  {
-    if (operand_count != 2)
-    {
-      print_error("Instruction takes exactly two operands", asm_context);
-      return -1;
-    }
-
-    if (size != 0)
-    {
-      print_error("mova doesn't take a size", asm_context);
-      return -1;
-    }
-
-    if (operands[1].type == OPTYPE_REGISTER)
-    {
-      opcode = operands[1].reg;
-
-      if (operands[0].type == OPTYPE_REGISTER_INDIRECT)
-      {
-        opcode |= (operands[0].reg << 8);
-        add_bin16(asm_context, opcode, IS_OPCODE);
-        return 2;
-      }
-
-      if (operands[0].type == OPTYPE_REGISTER_INDIRECT_INC)
-      {
-        opcode |= (1 << 4) | (operands[0].reg << 8);
-        add_bin16(asm_context, opcode, IS_OPCODE);
-        return 2;
-      }
-
-      if (operands[0].type == OPTYPE_ABSOLUTE)
-      {
-        if (operands[0].value > 0xfffff || operands[0].value < -524288)
-        {
-          print_error("Constant larger than 20 bit.", asm_context);
-          return -1;
-        }
-
-        opcode |= (2 << 4) | (((uint32_t)operands[0].value & 0xf0000) >> 8);
-        add_bin16(asm_context, opcode, IS_OPCODE);
-        add_bin16(asm_context, operands[0].value & 0xffff, IS_DATA);
-        return 4;
-      }
-
-      if (operands[0].type == OPTYPE_SYMBOLIC)
-      {
-        // Assembler thinks this is symbolic, but it's really indexed.
-        if (asm_context->pass == 1)
-        {
-          opcode |= (3 << 4) | (operands[0].reg << 8);
-          add_bin16(asm_context, opcode, IS_OPCODE);
-          add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
-          return 4;
-        }
-      }
-
-      if (operands[0].type == OPTYPE_INDEXED)
-      {
-        if (operands[0].value > 0xffff || operands[0].value < -32768)
-        {
-          print_error("Constant larger than 16 bit.", asm_context);
-          return -1;
-        }
-
-        opcode |= (3 << 4) | (operands[0].reg << 8);
-        add_bin16(asm_context, opcode, IS_OPCODE);
-        add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
-        return 4;
-      }
-
-      print_error("Unknown addressing mode for mova", asm_context);
-
-      return -1;
-    }
-      else
-    if (operands[0].type == OPTYPE_REGISTER)
-    {
-      opcode = 0x0040 | (operands[0].reg << 8);
-
-      if (operands[1].type == OPTYPE_ABSOLUTE)
-      {
-        if (operands[1].value > 0xfffff || operands[1].value < -524288)
-        {
-          print_error("Constant larger than 20 bit.", asm_context);
-          return -1;
-        }
-
-        opcode |= 0x0020 | ((operands[1].value & 0xf0000) >> 16);
-        add_bin16(asm_context, opcode, IS_OPCODE);
-        add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
-        return 4;
-      }
-
-      if (operands[1].type == OPTYPE_SYMBOLIC)
-      {
-        // This is probably really INDEXED.
-        if (asm_context->pass == 1)
-        {
-          opcode |= 0x0030 | operands[1].reg;
-          add_bin16(asm_context, opcode, IS_OPCODE);
-          add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
-          return 4;
-        }
-      }
-
-      if (operands[1].type == OPTYPE_INDEXED)
-      {
-        if (operands[1].value > 0xffff || operands[1].value < -32768)
-        {
-          print_error("Constant larger than 16 bit.", asm_context);
-          return -1;
-        }
-
-        opcode |= 0x0030 | operands[1].reg;
-        add_bin16(asm_context, opcode, IS_OPCODE);
-        add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
-        return 4;
-      }
-
-      print_error("Unknown addressing mode for mova", asm_context);
-      return -1;
-    }
-
-    print_error("Unknown addressing mode for mova", asm_context);
-    return -1;
-  }
 #endif
 
-  print_error_unknown_instr(instr, asm_context);
+  if (found == 1)
+  {
+    print_error_illegal_operands(instr, asm_context);
+    return -1;
+  }
+    else
+  {
+    print_error_unknown_instr(instr, asm_context);
+  }
 
   return -1;
 }
