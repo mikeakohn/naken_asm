@@ -113,17 +113,6 @@ static struct _aliases
   { NULL, 0, 0, NULL, 0 },
 };
 
-#if 0
-static char *msp430x_ext[] =
-{
-  "rrcx", "swpbx", "rrax", "sxtx", "pushx", "movx", "addx", "addcx", "subcx",
-  "subx", "cmpx", "daddx", "bitx", "bicx", "bisx", "xorx", "andx", NULL
-};
-static char *msp430x_shift[] = { "rrcm", "rram", "rlam", "rrum", NULL };
-static char *msp430x_stack[] = { "pushm", "popm", NULL };
-static char *msp430x_alu[] = { "mova", "cmpa", "adda", "suba", NULL };
-#endif
-
 static char *msp430x_rpt[] = { "rpt", "rptz", "rptc",  NULL };
 
 static int ignore_and_check_indexed(struct _asm_context *asm_context)
@@ -133,7 +122,8 @@ static int ignore_and_check_indexed(struct _asm_context *asm_context)
   int reg = -1;
   int count = 0;
 
-  // Eat all tokens until an ',' or EOL
+  // Ignore all tokens until an ',' or EOL while checking if there is
+  // (reg) pattern.
   while(1)
   {
     token_type=tokens_get(asm_context, token, TOKENLEN);
@@ -1497,28 +1487,6 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
     n++;
   }
-
-  // Check for MSP430X version of MSP430 instruction
-#if 0
-  if (msp430x == 0 && prefix != 0)
-  {
-    print_error("Instruction doesn't support RPT", asm_context);
-    return -1;
-  }
-
-  if (prefix != 0)
-  {
-    print_error("Instruction doesn't support RPT", asm_context);
-    return -1;
-  }
-
-  if (asm_context->cpu_type != CPU_TYPE_MSP430X)
-  {
-    print_error_unknown_instr(instr, asm_context);
-    return -1;
-  }
-
-#endif
 
   if (found == 1)
   {
