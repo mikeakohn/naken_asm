@@ -41,3 +41,53 @@ rrax.a r11
 rrax.w r9
 rrax.b r4
 rrax r7
+rrcx.b r5
+rrcx.b 2(r5)
+rrcx.w 100(r5)
+rrcx.w r8
+swpbx r11
+swpbx &0x1000
+rrax.w r9
+rrax.b 0x1234
+rrax.w &0x4310
+rrax.w &0x4310
+sxtx r7
+sxtx r15
+pushx.w r8
+pushx.w #0x2345
+pushx.b r4
+rrcx.b @r8
+rrcx.w @r8+
+movx.w r6, r7
+movx.b r9, 3(r8)
+movx.w r4, 6(r4)
+movx.w 0x1234, 0x5678
+movx.w &0x1234, 0x5678
+movx.w #0x1234, 0x5678
+movx.w 0x34(r7), 0x5678
+addx.b @r4, r7
+addx.w #4, r7
+addcx.w @r4, 6(r7)
+addcx.w @r4+, 6(r6)
+subcx.b #1, 6(r5)
+subx.a #8, &100
+cmpx.b #-1, 6(r4)
+daddx.b @r4+, 6(r11)
+bitx.a @r4+, 6(r7)
+bisx.w @r4+, 6(r9)
+xorx.b @r9+, 6(r7)
+andx.b #0, 6(r7)
+adcx.a r9
+clrx.b r8
+dadcx.w r8
+decx.b r7
+decdx.b 100(r9)
+incx.w r8
+incdx.w r9
+invx.w r10
+invx.w &0x1000
+popx.w r9
+rlax.a r9
+rlcx.w r10
+sbcx.b r11
+tstx.a r9

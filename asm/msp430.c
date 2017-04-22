@@ -96,6 +96,20 @@ static struct _aliases
   { "setz", 0, 0xd322, NULL, 0 },
   { "tst", 1, 0, "cmp", 0 },
   { "clr", 1, 0, "mov", 0 },
+  // MSP430X
+  { "adcx", 1, 0, "addcx", 0 },
+  { "clrx", 1, 0, "movx", 0 },
+  { "dadcx", 1, 0, "daddx", 0 },
+  { "decx", 1, 0, "subx", 1 },
+  { "decdx", 1, 0, "subx", 2 },
+  { "incdx", 1, 0, "addx", 2 },
+  { "invx", 1, 0, "xorx", -1 },
+  { "popx", 1, 0, "movx", CMD_SP_INC },
+  { "rlax", 1, 0, "addx", CMD_DST_DST },
+  { "rlcx", 1, 0, "addcx", CMD_DST_DST },
+  { "sbcx", 1, 0, "subcx", 0 },
+  { "sbbx", 2, 0, "subcx", CMD_SRC_DST },
+  { "tstx", 1, 0, "cmpx", 0 },
   { NULL, 0, 0, NULL, 0 },
 };
 
