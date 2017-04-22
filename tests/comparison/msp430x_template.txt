@@ -26,10 +26,18 @@ calla &0x12346
 calla 10(r9)
 calla 10(r0)
 calla #0x12346
+movx.b r9, r6
+movx.w r9, r6
+movx.a #1, r6
 movx r5, r6
+addx.a  #0x12345, r5
 addx.b  &0x1234, r5
 addx.b  &0x12345, r5
-;movx.a  #-1, r7
+movx.a  #-1, r7
 movx.a  #-3, r7
 decx.a r8
 addx.b  0x65432, r5
+rrax.a r11
+rrax.w r9
+rrax.b r4
+rrax r7

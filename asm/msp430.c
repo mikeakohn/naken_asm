@@ -200,7 +200,7 @@ static void operand_to_cg(struct _asm_context *asm_context, struct _operand *ope
   }
 }
 
-static int process_operand(struct _asm_context *asm_context, struct _operand *operand, struct _data *data, const char *instr, int size, int is_src)
+static int process_operand(struct _asm_context *asm_context, struct _operand *operand, struct _data *data, const char *instr, int size, int is_src, int is_extended)
 {
   int count = data->count++;
 
@@ -247,6 +247,8 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
     int reg = 0;
     const char *num_type = "Address";
 
+    if (is_extended == 1) { high = 0xfffff; }
+
     if (operand->type == OPTYPE_IMMEDIATE)
     {
       num_type = "Immediate";
@@ -255,6 +257,12 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
       {
         low = -128;
         high = 0xff;
+      }
+        else
+      if (size == 20 && is_extended == 1)
+      {
+        low = -524288;
+        high = 0xfffff;
       }
         else
       {
@@ -269,6 +277,12 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
       low = -32768;
       mode = 1;
       reg = operand->reg;
+
+      if (is_extended == 1)
+      {
+        low = -524288;
+        high = 0xfffff;
+      }
     }
 
     if (operand->type == OPTYPE_ABSOLUTE) { reg = 2; }
@@ -281,13 +295,15 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
 
     if (operand->type == OPTYPE_SYMBOLIC)
     {
+      int len = (is_extended == 0) ? 2 : 4;
+
       if (count == 1 && data->params[0].add_value == 1)
       {
-        value = value - (asm_context->address + 4);
+        value = value - (asm_context->address + len + 2);
       }
         else
       {
-        value = value - (asm_context->address + 2);
+        value = value - (asm_context->address + len);
       }
     }
 
@@ -362,7 +378,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   int token_type;
   int size = 0;
   int num,n;
-  int bw = 0;
+  int bw = 0, al = 0;
   int opcode;
   //int msp430x = 0;
   int prefix = 0;
@@ -706,6 +722,12 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
       opcode = table_msp430[n].opcode;
       found = 1;
 
+      if (prefix != 0 && table_msp430[n].version == VERSION_MSP430X_EXT)
+      {
+        print_error("Instruction doesn't support RPT", asm_context);
+        return -1;
+      }
+
       switch(table_msp430[n].type)
       {
         case OP_NONE:
@@ -746,7 +768,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           opcode |= bw << 6;
 
-          if (process_operand(asm_context, &operands[0], &data, instr, size, 1) != 0)
+          if (process_operand(asm_context, &operands[0], &data, instr, size, 1, 0) != 0)
           {
             return -1;
           }
@@ -770,7 +792,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           if (size != 0)
           {
-            print_error("Instruction doesn't take a size.", asm_context);
+            print_error("Jump doesn't take a size.", asm_context);
             return -1;
           }
 
@@ -821,12 +843,12 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           opcode |= bw << 6;
 
-          if (process_operand(asm_context, &operands[0], &data, instr, size, 1) != 0)
+          if (process_operand(asm_context, &operands[0], &data, instr, size, 1, 0) != 0)
           {
             return -1;
           }
 
-          if (process_operand(asm_context, &operands[1], &data, instr, size, 0) != 0)
+          if (process_operand(asm_context, &operands[1], &data, instr, size, 0, 0) != 0)
           {
             return -1;
           }
@@ -1011,7 +1033,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           if (size != 0)
           {
-            print_error("calla doesn't take a size flag", asm_context);
+            print_error("mova doesn't take a size flag", asm_context);
             return -1;
           }
 
@@ -1088,7 +1110,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           if (size != 0)
           {
-            print_error("calla doesn't take a size flag", asm_context);
+            print_error("Instruction doesn't take a size flag", asm_context);
             return -1;
           }
 
@@ -1119,7 +1141,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           if (size != 0)
           {
-            print_error("calla doesn't take a size flag", asm_context);
+            print_error("Instruction doesn't take a size flag", asm_context);
             return -1;
           }
 
@@ -1359,12 +1381,27 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             operand_to_cg(asm_context, &operands[0], bw);
           }
 
+          if (size == 8) { al = 1; bw = 1; }
+          else if (size == 16) { al = 1; bw = 0; }
+          else if (size == 20) { al = 0; bw = 1; }
+          else { al = 1; bw = 0; }
+
           opcode |= bw << 6;
 
-          if (process_operand(asm_context, &operands[0], &data, instr, size, 1) != 0)
+          if (process_operand(asm_context, &operands[0], &data, instr, size, 1, 1) != 0)
           {
             return -1;
           }
+
+          prefix = 0x1800;
+          prefix |= (al << 6);
+
+          if (data.params[0].add_value)
+          {
+            prefix |= ((data.params[0].value >> 16) & 0xf) << 7;
+          }
+
+          add_bin16(asm_context, prefix, IS_OPCODE);
 
           opcode |= (data.params[0].mode << 4) | data.params[0].reg;
           add_bin16(asm_context, opcode, IS_OPCODE);
@@ -1385,17 +1422,37 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           operand_to_cg(asm_context, &operands[0], bw);
 
+          if (size == 8) { al = 1; bw = 1; }
+          else if (size == 16) { al = 1; bw = 0; }
+          else if (size == 20) { al = 0; bw = 1; }
+          else { al = 1; bw = 0; }
+
           opcode |= bw << 6;
 
-          if (process_operand(asm_context, &operands[0], &data, instr, size, 1) != 0)
+          if (process_operand(asm_context, &operands[0], &data, instr, size, 1, 1) != 0)
           {
             return -1;
           }
 
-          if (process_operand(asm_context, &operands[1], &data, instr, size, 0) != 0)
+          if (process_operand(asm_context, &operands[1], &data, instr, size, 0, 1) != 0)
           {
             return -1;
           }
+
+          prefix = 0x1800;
+          prefix |= (al << 6);
+
+          if (data.params[0].add_value)
+          {
+            prefix |= ((data.params[0].value >> 16) & 0xf) << 7;
+          }
+
+          if (data.params[1].add_value)
+          {
+            prefix |= (data.params[1].value >> 16) & 0xf;
+          }
+
+          add_bin16(asm_context, prefix, IS_OPCODE);
 
           opcode |= (data.params[0].mode << 4) |
                     (data.params[1].mode << 7) |
@@ -1427,75 +1484,8 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
     n++;
   }
 
-
   // Check for MSP430X version of MSP430 instruction
 #if 0
-  if (asm_context->cpu_type == CPU_TYPE_MSP430X)
-  {
-    n = 0;
-
-    while(msp430x_ext[n] != NULL)
-    {
-      if (strcmp(instr_case, msp430x_ext[n]) == 0)
-      {
-        uint32_t src19_16 = 0;
-        uint32_t dst19_16 = 0;
-        int al;
-
-        // Strip the 'x' off of the end of the instruction so it can
-        // be processed below as a regular msp430 instruction.
-        instr_case[strlen(instr_case) - 1] = 0;
-
-        if (size == 8) { al = 1; bw = 1; }
-        else if (size == 16) { al = 1; bw = 0; }
-        else if (size == 20) { al = 0; bw = 1; }
-        else { al = 1; bw = 0; }
-
-        if (prefix != 0)
-        {
-          add_bin16(asm_context, prefix | (al << 6), IS_OPCODE);
-          msp430x = 2;
-          break;
-        }
-
-        msp430x = 1;
-
-        if (operand_count > 0)
-        {
-          int32_t value = operands[0].value;
-
-          src19_16 = ((uint32_t)value & 0xf0000) >> 16;
-
-          value = value >> 24;
-
-          if (value == 0 || value == -1)
-          {
-            operands[0].value &= 0xffff;
-          }
-        }
-
-        if (operand_count > 1)
-        {
-          int32_t value = operands[1].value;
-
-          dst19_16 = ((uint32_t)value & 0xf0000) >> 16;
-
-          value = value >> 24;
-
-          if (value == 0 || value == -1)
-          {
-            operands[1].value &= 0xffff;
-          }
-        }
-
-        add_bin16(asm_context, 0x1800 | (src19_16 << 7) | (al << 6) | (dst19_16), IS_OPCODE);
-        break;
-      }
-
-      n++;
-    }
-  }
-
   if (msp430x == 0 && prefix != 0)
   {
     print_error("Instruction doesn't support RPT", asm_context);
@@ -1514,42 +1504,6 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
     return -1;
   }
 
-  // MSP430X PUSH AND POP
-  n = 0;
-  while(msp430x_stack[n] != NULL)
-  {
-    if (strcmp(instr_case, msp430x_stack[n]) == 0)
-    {
-      if (operand_count != 2 || operands[0].type != OPTYPE_IMMEDIATE ||
-          operands[1].type != OPTYPE_REGISTER)
-      {
-        print_error("Excpecting an immediate and register", asm_context);
-        return -1;
-      }
-
-      if (operands[0].value < 1 || operands[0].value > 16)
-      {
-        print_error("Constant can only be between 1 and 16", asm_context);
-        return -1;
-      }
-
-      if (size == 8)
-      {
-        printf("Error: Instruction '%s' can't be used with .b at %s:%d\n", instr, asm_context->filename, asm_context->line);
-        return -1;
-      }
-
-      int reg = operands[1].reg;
-      int num = operands[0].value - 1;
-      int al = (size == 20) ? 0:1;
-
-      opcode = 0x1400 | (n << 9) | (al << 8) | (num << 4) | reg;
-      add_bin16(asm_context, opcode, IS_OPCODE);
-      return 2;
-    }
-
-    n++;
-  }
 #endif
 
   if (found == 1)
