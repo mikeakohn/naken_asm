@@ -281,7 +281,14 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
 
     if (operand->type == OPTYPE_SYMBOLIC)
     {
-      value = value - (asm_context->address + 2);
+      if (count == 1 && data->params[0].add_value == 1)
+      {
+        value = value - (asm_context->address + 4);
+      }
+        else
+      {
+        value = value - (asm_context->address + 2);
+      }
     }
 
     if (is_src == 0 && mode > 1)
