@@ -11,5 +11,6 @@ Contents
 * CPU Specific
   * [65C816] (65C816.md)
   * [ARM] (ARM.md)
+  * [MSP430] (MSP430.md)
   * [TMS9900] (TMS9900.md)
 

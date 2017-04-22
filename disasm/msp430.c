@@ -574,17 +574,20 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
           src = (opcode >> 8) & 0xf;
           dst = opcode & 0xf;
           sprintf(instruction, "mova @%s, %s", regs[src], regs[dst]);
-          return 2;
+          count += 2;
+          break;
         case OP_MOVA_AT_REG_PLUS_REG:
           src = (opcode>>8) & 0xf;
           dst = opcode&0xf;
           sprintf(instruction, "mova @%s+, %s", regs[src], regs[dst]);
-          return 2;
+          count += 2;
+          break;
         case OP_MOVA_ABS20_REG:
           num = (((opcode >> 8) & 0xf) << 16)|(READ_RAM16(address + 2));
           dst = opcode & 0xf;
           sprintf(instruction, "mova &0x%x, %s", num, regs[dst]);
-          return 4;
+          count += 4;
+          break;
         case OP_MOVA_INDEXED_REG:
           num = READ_RAM16(address + 2);
           src = (opcode >> 8) & 0xf;
@@ -600,7 +603,8 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
             int symbolic = (address + 2) + (int16_t)num;
             sprintf(instruction, "mova 0x%04x, %s", symbolic, regs[dst]);
           }
-          return 4;
+          count += 4;
+          break;
         case OP_SHIFT20:
           num = ((opcode >> 10) & 0x3) + 1;
           wa = (opcode >> 4) & 0x1;
@@ -608,28 +612,33 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
           *cycles_min = num;
           *cycles_max = num;
           sprintf(instruction, "%s.%c #%d, %s", table_msp430[n].instr, mode[wa], num, regs[dst]);
-          return 2;
+          count += 2;
+          break;
         case OP_MOVA_REG_ABS:
           num = ((opcode & 0xf) << 16) | READ_RAM16(address + 2);
           src = (opcode >> 8) & 0xf;
           sprintf(instruction, "mova %s, &0x%x", regs[src], num);
-          return 4;
+          count += 4;
+          break;
         case OP_MOVA_REG_INDEXED:
           num = READ_RAM16(address+2);
           src = (opcode >> 8) & 0xf;
           dst = opcode & 0xf;
           sprintf(instruction, "mova %s, %d(%s)", regs[src], (int16_t)num, regs[dst]);
-          return 4;
+          count += 4;
+          break;
         case OP_IMMEDIATE_REG:
           num = ((opcode&0x0f00)<<8)|READ_RAM16(address+2);
           dst = opcode & 0xf;
           sprintf(instruction, "%s #0x%x, %s", table_msp430[n].instr, num, regs[dst]);
-          return 4;
+          count += 4;
+          break;
         case OP_REG_REG:
           src = (opcode >> 8) & 0xf;
           dst = opcode & 0xf;
           sprintf(instruction, "%s %s, %s", table_msp430[n].instr, regs[src], regs[dst]);
-          return 2;
+          count += 2;
+          break;
         case OP_CALLA_SOURCE:
         {
           char temp[32];
@@ -654,27 +663,31 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
           else if (as == 3) { sprintf(temp, "@%s+", regs[dst]); *cycles_min = 5; }
           sprintf(instruction, "%s %s", table_msp430[n].instr, temp);
           *cycles_max = *cycles_min;
-          return (as == 1) ? 4:2;
+          count += (as == 1) ? 4 : 2;
+          break;
         }
         case OP_CALLA_ABS20:
           num = ((opcode & 0xf) << 16) | READ_RAM16(address + 2);
           sprintf(instruction, "%s &0x%x", table_msp430[n].instr, num);
           *cycles_min = 6;
           *cycles_max = *cycles_min;
-          return 4;
+          count += 4;
+          break;
         case OP_CALLA_INDIRECT_PC:
           num = ((opcode & 0xf) << 16) | READ_RAM16(address + 2);
           if ((num & 0x80000) != 0) { num |= 0xfff0000; }
           sprintf(instruction, "%s 0x%x(%d)", table_msp430[n].instr, address + 4 + num, num);
           *cycles_min = 6;
           *cycles_max = *cycles_min;
-          return 4;
+          count += 4;
+          break;
         case OP_CALLA_IMMEDIATE:
           num = ((opcode & 0xf) << 16) | READ_RAM16(address + 2);
           sprintf(instruction, "%s #0x%x", table_msp430[n].instr, num);
           *cycles_min = 4;
           *cycles_max = *cycles_min;
-          return 4;
+          count += 4;
+          break;
         case OP_PUSH:
           src = opcode & 0xf;
           num = (opcode >> 4) & 0xf;
@@ -682,7 +695,8 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
           sprintf(instruction, "pushm.%c #%d, %s", mode[wa], num+1, regs[src]);
           *cycles_min = 2 + (num + 1) * (wa + 1);
           *cycles_max = *cycles_min;
-          return 2;
+          count += 2;
+          break;
         case OP_POP:
           dst = opcode & 0xf;
           num = (opcode >> 4) & 0xf;
@@ -690,7 +704,8 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
           sprintf(instruction, "popm.%c #%d, %s", mode[wa], num+1, regs[dst]);
           *cycles_min = 2 + (num + 1) * (wa + 1);
           *cycles_max = *cycles_min;
-          return 2;
+          count += 2;
+          break;
         default:
           sprintf(instruction, "%s << wtf", table_msp430[n].instr);
           break;
@@ -704,12 +719,35 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
 
   if (table_msp430[n].instr == NULL) { strcpy(instruction, "???"); }
 
+  if (prefix != -1)
+  {
+    char rpt[128];
+    char zc = (((prefix >> 8) & 1) == 1) ? 'z' : 'c';
+    int n = prefix & 0xf;
+
+    if ((prefix & 0xfeb0) == 0x1800)
+    {
+      snprintf(rpt, sizeof(rpt), "rpt%c #%d, %s", zc, n + 1, instruction);
+      strcpy(instruction, rpt);
+    }
+      else
+    if ((prefix & 0xfeb0) == 0x1880)
+    {
+      snprintf(rpt, sizeof(rpt), "rpt%c r%d, %s", zc, n, instruction);
+      strcpy(instruction, rpt);
+    }
+
+    *cycles_min = -1;
+    *cycles_max = -1;
+  }
+
   return count;
 }
 
 int disasm_msp430x(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint16_t opcode = READ_RAM16(address);
+
   if (opcode == 0x1300)
   {
     sprintf(instruction, "reti");

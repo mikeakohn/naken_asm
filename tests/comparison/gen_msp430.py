@@ -4,6 +4,7 @@ import os
 
 def create_asm(instruction):
   out = open("temp.asm", "wb")
+  out.write(".msp430x\n")
   out.write("  " + instruction + "\n")
   out.close()
 
@@ -18,7 +19,7 @@ for instruction in fp:
   print instruction
   create_asm(instruction)
 
-  os.system("msp430-as temp.asm")
+  os.system("msp430-as temp.asm -mmsp430x2619 -mcpu=430x")
   os.system("msp430-objcopy -F ihex a.out msp430_gnu.hex")
 
   fp1 = open("msp430_gnu.hex", "rb")

@@ -337,6 +337,7 @@ static uint16_t get_prefix(struct _asm_context *asm_context, int zc)
   int num;
 
   tokens_get(asm_context, token, TOKENLEN);
+
   if (IS_TOKEN(token,'#'))
   {
     if (eval_expression(asm_context, &num) != 0)
@@ -356,6 +357,7 @@ static uint16_t get_prefix(struct _asm_context *asm_context, int zc)
     else
   {
     num = get_register_msp430(token);
+
     if (num >= 0)
     {
       prefix = 0x1880 | (zc << 8) | num;
@@ -364,8 +366,13 @@ static uint16_t get_prefix(struct _asm_context *asm_context, int zc)
 
   if (prefix == 0xffff)
   {
-    print_error("expecting register or immediate", asm_context);
+    print_error("Expecting register or immediate", asm_context);
     return -1;
+  }
+
+  if (expect_token(asm_context, ',') != 0)
+  {
+    return 0xffff;
   }
 
   return prefix;
@@ -726,10 +733,16 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
       opcode = table_msp430[n].opcode;
       found = 1;
 
-      if (prefix != 0 && table_msp430[n].version == VERSION_MSP430X_EXT)
+      if (prefix != 0)
       {
-        print_error("Instruction doesn't support RPT", asm_context);
-        return -1;
+        if (table_msp430[n].version == VERSION_MSP430X_EXT)
+        {
+          print_error("Instruction doesn't support RPT", asm_context);
+          return -1;
+        }
+
+        add_bin16(asm_context, prefix, IS_OPCODE);
+        prefix = 0;
       }
 
       switch(table_msp430[n].type)
