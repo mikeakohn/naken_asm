@@ -53,7 +53,7 @@ struct _table_msp430 table_msp430[] =
   { "rlam",  0x0240, 0xf3e0, OP_SHIFT20, VERSION_MSP430X },
   { "rrum",  0x0340, 0xf3e0, OP_SHIFT20, VERSION_MSP430X },
   { "mova",  0x0060, 0xf0f0, OP_MOVA_REG_ABS, VERSION_MSP430X },
-  { "mova",  0x0070, 0xf0f0, OP_MOVA_REG_INDIRECT, VERSION_MSP430X },
+  { "mova",  0x0070, 0xf0f0, OP_MOVA_REG_INDEXED, VERSION_MSP430X },
   { "mova",  0x0080, 0xf0f0, OP_IMMEDIATE_REG, VERSION_MSP430X },
   { "cmpa",  0x0090, 0xf0f0, OP_IMMEDIATE_REG, VERSION_MSP430X },
   { "adda",  0x00a0, 0xf0f0, OP_IMMEDIATE_REG, VERSION_MSP430X },

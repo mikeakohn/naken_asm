@@ -13,6 +13,7 @@ mova @r10+, r11
 mova &0x12344, r11
 mova 5(r10), r11
 mova -32767(r10), r11
+mova 0, r7
 mova 0x1234, r7
 mova r11, &0x12344
 mova r11, 5(r10)

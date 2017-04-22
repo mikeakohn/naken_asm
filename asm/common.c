@@ -97,7 +97,7 @@ int eat_operand(struct _asm_context *asm_context)
   // Eat all tokens until an ',' or EOL
   while(1)
   {
-    token_type=tokens_get(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
 
     if (IS_TOKEN(token,',') || token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {

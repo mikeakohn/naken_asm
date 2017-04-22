@@ -50,7 +50,7 @@ struct _data
     int reg;
     int mode;
     int add_value;
-  } params[2]; 
+  } params[2];
   int count;
 };
 
@@ -111,6 +111,48 @@ static char *msp430x_alu[] = { "mova", "cmpa", "adda", "suba", NULL };
 #endif
 
 static char *msp430x_rpt[] = { "rpt", "rptz", "rptc",  NULL };
+
+static int ignore_and_check_indexed(struct _asm_context *asm_context)
+{
+  char token[TOKENLEN];
+  int token_type;
+  int reg = -1;
+  int count = 0;
+
+  // Eat all tokens until an ',' or EOL
+  while(1)
+  {
+    token_type=tokens_get(asm_context, token, TOKENLEN);
+
+    if (IS_TOKEN(token, ',') || token_type == TOKEN_EOL || token_type == TOKEN_EOF)
+    {
+      tokens_push(asm_context, token, token_type);
+      if (count == 3) { return reg; }
+      return -1;
+    }
+
+    if (count == 0 && IS_TOKEN(token, '('))
+    {
+      count++;
+    }
+      else
+    if (count == 1 && (token[0] == 'r' || token[1] == 'R'))
+    {
+      reg = get_register_msp430(token);
+      count++;
+    }
+      else
+    if (count == 2 && IS_TOKEN(token, ')'))
+    {
+      count++;
+    }
+      else
+    {
+      reg = -1;
+      count = 0;
+    }
+  }
+}
 
 static void operand_to_cg(struct _asm_context *asm_context, struct _operand *operand, int bw)
 {
@@ -238,7 +280,7 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
     }
 
     if (operand->type == OPTYPE_SYMBOLIC)
-    { 
+    {
       value = value - (asm_context->address + 2);
     }
 
@@ -501,8 +543,16 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
         if (asm_context->pass == 1)
         {
           // In pass 1 it will always be 2 words long, so who cares
-          eat_operand(asm_context);
+          int reg = ignore_and_check_indexed(asm_context);
+
           operands[operand_count].value = 0;
+
+          if (reg != 0)
+          {
+            operands[operand_count].type = OPTYPE_INDEXED;
+            operands[operand_count].reg = reg;
+            operands[operand_count].value = 0;
+          }
         }
           else
         {
@@ -885,13 +935,19 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           value = operands[0].value;
 
-          if (operands[0].type == OPTYPE_SYMBOLIC &&
-              operands[1].type == OPTYPE_REGISTER)
+          if (operands[0].type == OPTYPE_SYMBOLIC)
           {
             operands[0].type = OPTYPE_INDEXED;
             operands[0].reg = 0;
 
-            value = value - (asm_context->address + 4);
+            if (asm_context->pass == 1)
+            {
+              value = 0;
+            }
+              else
+            {
+              value = value - (asm_context->address + 2);
+            }
           }
 
           if (operands[0].type != OPTYPE_INDEXED ||
@@ -966,11 +1022,11 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          opcode |= (operands[1].reg << 8) | ((operands[1].value >> 16) & 0xf);
+          opcode |= (operands[0].reg << 8) | ((operands[1].value >> 16) & 0xf);
           add_bin16(asm_context, opcode, IS_OPCODE);
           add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
           return 4;
-        case OP_MOVA_REG_INDIRECT:
+        case OP_MOVA_REG_INDEXED:
           if (operand_count != 2)
           {
             print_error_opcount(instr, asm_context);
@@ -979,8 +1035,25 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           if (size != 0)
           {
-            print_error("calla doesn't take a size flag", asm_context);
+            print_error("mova doesn't take a size flag", asm_context);
             return -1;
+          }
+
+          value = operands[1].value;
+
+          if (operands[1].type == OPTYPE_SYMBOLIC)
+          {
+            operands[1].type = OPTYPE_INDEXED;
+            operands[1].reg = 0;
+
+            if (asm_context->pass == 1)
+            {
+              value = 0;
+            }
+              else
+            {
+              value = value - (asm_context->address + 2);
+            }
           }
 
           if (operands[0].type != OPTYPE_REGISTER ||
@@ -989,15 +1062,13 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             break;
           }
 
-          value = operands[1].value;
-
-          if (value < -524288 || value > 0xfffff)
+          if (value < -32768 || value > 32767)
           {
-            print_error_range("Index", -524288, 0xfffff, asm_context);
+            print_error_range("Index", -32768, 32767, asm_context);
             return -1;
           }
 
-          opcode |= (operands[0].reg << 8) | ((operands[1].value >> 16) & 0xf);
+          opcode |= (operands[0].reg << 8) | operands[1].reg;
           add_bin16(asm_context, opcode, IS_OPCODE);
           add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
           return 4;
@@ -1085,6 +1156,26 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
           {
             opcode |= (3 << 4) | operands[0].reg;
             add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          if (operands[0].type == OPTYPE_INDEXED)
+          {
+            // Optimization.  Use x(PC) instead of reg == PC.
+            if (operands[0].reg == 0)
+            {
+              break;
+            }
+
+            if (operands[0].value < -32768 || operands[0].value > 32767)
+            {
+              print_error_range("Index", -32768, 32767, asm_context);
+              return -1;
+            }
+
+            opcode |= (1 << 4) | operands[0].reg;
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
             return 2;
           }
 

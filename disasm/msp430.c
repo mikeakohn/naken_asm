@@ -597,7 +597,7 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
           }
             else
           {
-            int symbolic = (address + 4) + num;
+            int symbolic = (address + 2) + (int16_t)num;
             sprintf(instruction, "mova 0x%04x, %s", symbolic, regs[dst]);
           }
           return 4;
@@ -614,11 +614,11 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
           src = (opcode >> 8) & 0xf;
           sprintf(instruction, "mova %s, &0x%x", regs[src], num);
           return 4;
-        case OP_MOVA_REG_INDIRECT:
+        case OP_MOVA_REG_INDEXED:
           num = READ_RAM16(address+2);
           src = (opcode >> 8) & 0xf;
           dst = opcode & 0xf;
-          sprintf(instruction, "mova %s, 0x%x(%s)", regs[src], num, regs[dst]);
+          sprintf(instruction, "mova %s, %d(%s)", regs[src], (int16_t)num, regs[dst]);
           return 4;
         case OP_IMMEDIATE_REG:
           num = ((opcode&0x0f00)<<8)|READ_RAM16(address+2);
@@ -641,11 +641,11 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
             if (dst == 0)
             {
               int16_t offset = READ_RAM16(address + 2);
-              sprintf(temp, "0x%x(%s) -- 0x%x", READ_RAM16(address + 2), regs[dst], (address + 4) + offset);
+              sprintf(temp, "%d(%s) -- 0x%x", (int16_t)(READ_RAM16(address + 2)), regs[dst], (address + 4) + offset);
             }
               else
             {
-              sprintf(temp, "0x%x(%s)", READ_RAM16(address + 2), regs[dst]);
+              sprintf(temp, "%d(%s)", (int16_t)(READ_RAM16(address + 2)), regs[dst]);
             }
             *cycles_min = 6;
             if (dst == 1) (*cycles_min)++; // if Rn=SP increment by 1
