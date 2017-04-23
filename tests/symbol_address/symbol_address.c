@@ -5,6 +5,7 @@
 #include "msp430_test.h"
 #include "65c816_test.h"
 #include "6502_test.h"
+#include "68000_test.h"
 
 int test_symbols(const char *label, const char *code)
 {
@@ -109,6 +110,7 @@ int main(int argc, char *argv[])
   errors += test_symbols("MSP430 3", msp430_3);
   errors += test_symbols("65c816", w65c816);
   errors += test_symbols("6502", w6502);
+  errors += test_symbols("68000", mc68000);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
