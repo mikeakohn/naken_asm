@@ -745,6 +745,13 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
         prefix = 0;
       }
 
+      if (table_msp430[n].version == VERSION_MSP430 && size == 20)
+      {
+        print_error("Instruction doesn't support .a", asm_context);
+        return -1;
+      }
+
+
       switch(table_msp430[n].type)
       {
         case OP_NONE:
