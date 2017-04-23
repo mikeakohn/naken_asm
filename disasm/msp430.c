@@ -22,9 +22,9 @@
 
 static char *regs[] = { "PC", "SP", "SR", "CG", "r4", "r5", "r6", "r7", "r8",
                         "r9", "r10", "r11", "r12", "r13", "r14", "r15" };
-static char *rpt[] = { "rptc", "rptz" };
+//static char *rpt[] = { "rptc", "rptz" };
 
-// FIXME - let's move this somewhee more sane
+// FIXME - Move this somewhere else
 int get_register_msp430(char *token)
 {
   if (token[0] == 'r' || token[0] == 'R')
@@ -61,18 +61,22 @@ static int get_source_reg(struct _memory *memory, uint32_t address, int reg, int
   if (reg == 0)
   {
     if (As == 0)
-    { strcat(reg_str, regs[reg]); }
+    {
+      strcat(reg_str, regs[reg]);
+    }
       else
     if (As == 1)
     {
-      uint16_t a = (READ_RAM(address + 3) << 8) | READ_RAM(address + 2);
+      uint32_t a = (READ_RAM(address + 3) << 8) | READ_RAM(address + 2);
       count += 2;
-      a = a + (address + count);
-      sprintf(reg_str, "0x%04x", a | extra);
+      a = (a | extra) + (address + count);
+      sprintf(reg_str, "0x%04x", a);
     }
       else
     if (As == 2)
-    { strcpy(reg_str, "@PC"); }
+    {
+      strcpy(reg_str, "@PC");
+    }
       else
     if (As == 3)
     {
@@ -88,7 +92,9 @@ static int get_source_reg(struct _memory *memory, uint32_t address, int reg, int
   if (reg == 2)
   {
     if (As == 0)
-    { strcat(reg_str, regs[reg]); }
+    {
+      strcat(reg_str, regs[reg]);
+    }
       else
     if (As == 1)
     {
@@ -98,10 +104,14 @@ static int get_source_reg(struct _memory *memory, uint32_t address, int reg, int
     }
       else
     if (As == 2)
-    { strcat(reg_str, "#4"); }
+    {
+      strcat(reg_str, "#4");
+    }
       else
     if (As == 3)
-    { strcat(reg_str, "#8"); }
+    {
+      strcat(reg_str, "#8");
+    }
   }
     else
   if (reg == 3)
@@ -221,13 +231,21 @@ static int one_operand(struct _memory *memory, uint32_t address, char *instructi
   {
     if (As == 0)
     {
+#if 0
       char temp[64];
       int r = (prefix >> 8) & 1;
+
       if ((prefix & 0x0080) == 0)
-      { sprintf(temp, "%s #%d %s", rpt[r], (prefix & 0xf) + 1, instruction); }
+      {
+        sprintf(temp, "%s #%d %s", rpt[r], (prefix & 0xf) + 1, instruction);
+      }
         else
-      { sprintf(temp, "%s r%d %s", rpt[r], prefix & 0xf, instruction); }
+      {
+        sprintf(temp, "%s r%d %s", rpt[r], prefix & 0xf, instruction);
+      }
+
       strcpy(instruction, temp);
+#endif
     }
       else
     {
@@ -332,13 +350,21 @@ static int two_operand(struct _memory *memory, uint32_t address, char *instructi
   {
     if (Ad == 0 && (As == 0 || src == 3 || (src == 2 && As != 1)) )
     {
+#if 0
       char temp[64];
       int r = (prefix >> 8) & 1;
+
       if ((prefix & 0x0080) == 0)
-      { sprintf(temp, "%s #%d %s", rpt[r], (prefix & 0xf) + 1, instruction); }
+      {
+        sprintf(temp, "%s #%d %s", rpt[r], (prefix & 0xf) + 1, instruction);
+      }
         else
-      { sprintf(temp, "%s r%d %s", rpt[r], prefix & 0xf, instruction); }
+      {
+        sprintf(temp, "%s r%d %s", rpt[r], prefix & 0xf, instruction);
+      }
+
       strcpy(instruction, temp);
+#endif
     }
       else
     {
@@ -349,9 +375,15 @@ static int two_operand(struct _memory *memory, uint32_t address, char *instructi
   }
 
   if ((opcode & 0x0040) == 0)
-  { strcpy(ext, ".w"); bw = 0; }
+  {
+    strcpy(ext, ".w");
+    bw = 0;
+  }
     else
-  { strcpy(ext, ".b"); bw = 1; }
+  {
+    strcpy(ext, ".b");
+    bw = 1;
+  }
 
   if (prefix == 0xffff)
   {
@@ -561,6 +593,7 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
         case OP_ONE_OPERAND:
           strcpy(instruction, table_msp430[n].instr);
           count += one_operand(memory, address, instruction, opcode, prefix);
+          prefix = 0xffff;
           break;
         case OP_JUMP:
           strcpy(instruction, table_msp430[n].instr);
@@ -569,6 +602,7 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
         case OP_TWO_OPERAND:
           strcpy(instruction, table_msp430[n].instr);
           count += two_operand(memory, address, instruction, opcode, prefix);
+          prefix = 0xffff;
           break;
         case OP_MOVA_AT_REG_REG:
           src = (opcode >> 8) & 0xf;
@@ -719,7 +753,7 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
 
   if (table_msp430[n].instr == NULL) { strcpy(instruction, "???"); }
 
-  if (prefix != -1)
+  if (prefix != 0xffff)
   {
     char rpt[128];
     char zc = (((prefix >> 8) & 1) == 1) ? 'z' : 'c';

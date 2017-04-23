@@ -1456,6 +1456,17 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
           else if (size == 20) { al = 0; bw = 1; }
           else { al = 1; bw = 0; }
 
+          if (size == 20 &&
+              operands[0].type == OPTYPE_IMMEDIATE &&
+              operands[0].value == 0xfffff &&
+              operands[0].error == 0)
+          {
+            operands[0].value = -1;
+            operands[0].type = OPTYPE_REGISTER;
+            operands[0].mode = 3;
+            operands[0].reg = 3;
+          }
+
           opcode |= bw << 6;
 
           if (process_operand(asm_context, &operands[0], &data, instr, size, 1, 1) != 0)
