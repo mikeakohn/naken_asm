@@ -2,10 +2,11 @@
 #include <stdlib.h>
 
 #include "common/assembler.h"
-#include "msp430_test.h"
 #include "65c816_test.h"
 #include "6502_test.h"
 #include "68000_test.h"
+#include "mips_test.h"
+#include "msp430_test.h"
 
 int test_symbols(const char *label, const char *code)
 {
@@ -30,7 +31,12 @@ int test_symbols(const char *label, const char *code)
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
   error_flag = assemble(&asm_context);
-  if (error_flag != 0) { printf("error_flag=%d\n", error_flag); }
+
+  if (error_flag != 0)
+  {
+    printf("error_flag=%d\n", error_flag);
+    errors++;
+  }
 
   symbols_lookup(&asm_context.symbols, "first", &first_address_1);
   symbols_lookup(&asm_context.symbols, "second", &second_address_1);
@@ -45,7 +51,12 @@ int test_symbols(const char *label, const char *code)
   symbols_scope_reset(&asm_context.symbols);
   assembler_init(&asm_context);
   error_flag = assemble(&asm_context);
-  if (error_flag != 0) { printf("error_flag=%d\n", error_flag); }
+
+  if (error_flag != 0)
+  {
+    printf("error_flag=%d\n", error_flag);
+    errors++;
+  }
 
   symbols_lookup(&asm_context.symbols, "first", &first_address_2);
   symbols_lookup(&asm_context.symbols, "second", &second_address_2);
@@ -105,12 +116,13 @@ int main(int argc, char *argv[])
 {
   int errors = 0;
 
-  errors += test_symbols("MSP430 1", msp430_1);
-  errors += test_symbols("MSP430 2", msp430_2);
-  errors += test_symbols("MSP430 3", msp430_3);
   errors += test_symbols("65c816", w65c816);
   errors += test_symbols("6502", w6502);
   errors += test_symbols("68000", mc68000);
+  errors += test_symbols("MSP430 1", msp430_1);
+  errors += test_symbols("MSP430 2", msp430_2);
+  errors += test_symbols("MSP430 3", msp430_3);
+  errors += test_symbols("MIPS", mips);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
