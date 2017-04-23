@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2017 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
@@ -79,6 +79,7 @@ static int get_address(struct _asm_context *asm_context,
                        int *num, int *size)
 {
   char modifier = 0;
+  int worst_case = 0;
 
   // check for modifiers
   if(IS_TOKEN(token, '<'))
@@ -97,7 +98,15 @@ static int get_address(struct _asm_context *asm_context,
       eat_operand(asm_context);
     else
       return -1;
+
+    // Store a flag in this address to remind on pass 2 that this
+    // instruction can't use zero page.
+    memory_write(asm_context, asm_context->address, 1, asm_context->line);
+    worst_case = 1;
   }
+
+  // On pass 2, figure out if the size of the operand was unknown in pass 1
+  worst_case = memory_read(asm_context, asm_context->address);
 
   // try to guess addressing mode if one hasn't been forced
   if(*size == 0)
@@ -109,6 +118,8 @@ static int get_address(struct _asm_context *asm_context,
 
     if(*num > 0xFFFF)
       *size = 24;
+
+    if (*size == 8 && worst_case == 1) { *size = 16; }
   }
 
   if(modifier == '<')

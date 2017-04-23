@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2017 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
