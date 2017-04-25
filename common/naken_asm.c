@@ -162,6 +162,7 @@ int main(int argc, char *argv[])
     if (strncmp(argv[i], "-I", 2) == 0)
     {
       char *s = argv[i];
+
       if (s[2] == 0)
       {
         if (add_to_include_path(&asm_context, argv[++i]) != 0)

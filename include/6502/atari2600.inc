@@ -1,0 +1,82 @@
+;;
+;; This is an include file for the Atari 2600 game console.
+;; This is a part of the naken_asm assembler
+;;
+;; For more info:
+;; http://www.mikekohn.net/micro/naken_asm.php
+;;
+
+;;TIA
+VSYNC  equ 0x00
+VBLANK equ 0x01
+WSYNC  equ 0x02
+RSYNC  equ 0x03
+NUSIZ0 equ 0x04
+NUSIZ1 equ 0x05
+COLUP0 equ 0x06
+COLUP1 equ 0x07
+COLUPF equ 0x08
+COLUBK equ 0x09
+CTRLPF equ 0x0A
+REFP0  equ 0x0B
+REFP1  equ 0x0C
+PF0    equ 0x0D
+PF1    equ 0x0E
+PF2    equ 0x0F
+RESP0  equ 0x10
+RESP1  equ 0x11
+RESM0  equ 0x12
+RESM1  equ 0x13
+RESBL  equ 0x14
+AUDC0  equ 0x15
+AUDC1  equ 0x16
+AUDF0  equ 0x17
+AUDF1  equ 0x18
+AUDV0  equ 0x19
+AUDV1  equ 0x1A
+GRP0   equ 0x1B
+GRP1   equ 0x1C
+ENAM0  equ 0x1D
+ENAM1  equ 0x1E
+ENABL  equ 0x1F
+HMP0   equ 0x20
+HMP1   equ 0x21
+HMM0   equ 0x22
+HMM1   equ 0x23
+HMBL   equ 0x24
+VDELP0 equ 0x25
+VDELP1 equ 0x26
+VDELBL equ 0x27
+RESMP0 equ 0x28
+RESMP1 equ 0x29
+HMOVE  equ 0x2A
+HMCLR  equ 0x2B
+CXCLR  equ 0x2C
+CXM0P  equ 0x00
+CXM1P  equ 0x01
+CXP0FB equ 0x02
+CXP1FB equ 0x03
+CXM0FB equ 0x04
+CXM1FB equ 0x05
+CXBLPF equ 0x06
+CXPPMM equ 0x07
+INPT0  equ 0x08
+INPT1  equ 0x09
+INPT2  equ 0x0a
+INPT3  equ 0x0b
+INPT4  equ 0x0c
+INPT5  equ 0x0d
+
+;; PIA
+SWCHA  equ 0x280
+SWACNT equ 0x281
+SWCHB  equ 0x282
+SWBCNT equ 0x283
+INTIM  equ 0x284
+TIMINT equ 0x285
+TIM1T  equ 0x294
+TIM8T  equ 0x295
+TIM64T equ 0x296
+T1024T equ 0x297
+
+
