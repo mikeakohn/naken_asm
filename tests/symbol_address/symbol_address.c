@@ -7,6 +7,7 @@
 #include "68000_test.h"
 #include "mips_test.h"
 #include "msp430_test.h"
+#include "stm8_test.h"
 
 int test_symbols(const char *label, const char *code)
 {
@@ -123,6 +124,7 @@ int main(int argc, char *argv[])
   errors += test_symbols("MSP430 2", msp430_2);
   errors += test_symbols("MSP430 3", msp430_3);
   errors += test_symbols("MIPS", mips);
+  errors += test_symbols("STM8", stm8);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
