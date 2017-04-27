@@ -1,5 +1,11 @@
 add r1,r2,r3
 add r10,r11,r63
+add a1,a2,a3
+add a4,v1,v2
+add v3,v4,v5
+add v6,sb,v7
+add sl,v8,fp
+add sp,lr,r27
 add r1,r2,#2
 add r1,r2,#-2
 add r10,r11,#2
