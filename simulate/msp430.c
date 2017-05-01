@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -931,7 +931,10 @@ int simulate_run_msp430(struct _simulate *simulate, int max_cycles, int step)
       }
     }
 
-    if (simulate->auto_run == 1 && simulate->nested_call_count < 0) { return 0; }
+    if (simulate->auto_run == 1 && simulate->nested_call_count < 0)
+    {
+      return 0;
+    }
 
     if (ret == -1)
     {
@@ -939,10 +942,11 @@ int simulate_run_msp430(struct _simulate *simulate, int max_cycles, int step)
       return -1;
     }
 
-    if (max_cycles != -1 && cycles > max_cycles) break;
+    if (max_cycles != -1 && cycles > max_cycles) { break; }
+
     if (simulate->break_point == simulate_msp430->reg[0])
     {
-       printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
+      printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
       break;
     }
 

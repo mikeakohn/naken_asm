@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -525,12 +525,27 @@ static void show_info(struct _util_context *util_context)
   printf("Start address: 0x%04x (%d)\n", util_context->memory.low_address, util_context->memory.low_address);
   printf("  End address: 0x%04x (%d)\n", util_context->memory.high_address, util_context->memory.high_address);
   printf("  Break Point: ");
-  if (simulate->break_point == -1) { printf("<not set>\n"); }
-  else { printf("0x%04x (%d)\n", simulate->break_point, simulate->break_point); }
+
+  if (simulate->break_point == -1)
+  {
+    printf("<not set>\n");
+  }
+    else
+  {
+    printf("0x%04x (%d)\n", simulate->break_point, simulate->break_point);
+  }
 
   printf("  Instr Delay: ");
-  if (simulate->usec == 0) { printf("<step mode>\n"); }
-  else { printf("%d us\n", simulate->usec); }
+
+  if (simulate->usec == 0)
+  {
+    printf("<step mode>\n");
+  }
+    else
+  {
+    printf("%d us\n", simulate->usec);
+  }
+
   printf("      Display: %s\n", simulate->show == 1 ? "On":"Off");
 }
 
@@ -650,6 +665,7 @@ int main(int argc, char *argv[])
   int i;
   char *hexfile = NULL;
   int mode = MODE_INTERACTIVE;
+  int error = 0;
 
   printf("\nnaken_util - by Michael Kohn\n"
          "                Joe Davisson\n"
@@ -973,12 +989,23 @@ int main(int argc, char *argv[])
     }
       else
     if (strncmp(command, "run", 3) == 0 &&
-        (command[3] == 0 ||command[3] == ' '))
+        (command[3] == 0 || command[3] == ' '))
     {
       state = state_running;
-      if (util_context.simulate->usec == 0) { util_context.simulate->step_mode = 1; }
-      util_context.simulate->simulate_run(util_context.simulate, (command[3] == 0) ? -1 : atoi(command+4), 0);
+
+      if (util_context.simulate->usec == 0)
+      {
+        util_context.simulate->step_mode = 1;
+      }
+
+      int ret = util_context.simulate->simulate_run(util_context.simulate, (command[3] == 0) ? -1 : atoi(command + 4), 0);
+
       state = state_stopped;
+
+      if (util_context.simulate->auto_run == 1 && ret != 0)
+      {
+         error = 1;
+      }
 
       if (mode == MODE_RUN) { break; }
       continue;
@@ -1257,6 +1284,8 @@ int main(int argc, char *argv[])
   { util_context.simulate->simulate_free(util_context.simulate); }
 
   memory_free(&util_context.memory);
+
+  if (error != 0) { return -1; }
 
   return 0;
 }
