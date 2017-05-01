@@ -665,13 +665,13 @@ int main(int argc, char *argv[])
   int i;
   char *hexfile = NULL;
   int mode = MODE_INTERACTIVE;
-  int error = 0;
+  int error_flag = 0;
 
   printf("\nnaken_util - by Michael Kohn\n"
          "                Joe Davisson\n"
          "    Web: http://www.mikekohn.net/\n"
          "  Email: mike@mikekohn.net\n\n"
-         "Version: "VERSION"\n\n");
+         "Version: " VERSION "\n\n");
 
   if (argc<2)
   {
@@ -1004,7 +1004,7 @@ int main(int argc, char *argv[])
 
       if (util_context.simulate->auto_run == 1 && ret != 0)
       {
-         error = 1;
+         error_flag = 1;
       }
 
       if (mode == MODE_RUN) { break; }
@@ -1285,9 +1285,7 @@ int main(int argc, char *argv[])
 
   memory_free(&util_context.memory);
 
-  if (error != 0) { return -1; }
-
-  return 0;
+  return error_flag == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 

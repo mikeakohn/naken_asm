@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -423,9 +423,7 @@ int main(int argc, char *argv[])
   //memory_free(&asm_context.memory);
   assembler_free(&asm_context);
 
-  if (error_flag != 0) { return -1; }
-
-  return 0;
+  return error_flag == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 
