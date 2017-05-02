@@ -1449,10 +1449,10 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
           if (data.params[0].add_value == 1)
           {
             add_bin16(asm_context, data.params[0].value, IS_OPCODE);
-            return 4;
+            return 6;
           }
 
-          return 2;
+          return 4;
         case OP_X_TWO_OPERAND:
           if (operand_count != 2)
           {

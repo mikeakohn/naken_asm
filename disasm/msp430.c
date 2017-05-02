@@ -631,6 +631,7 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
     if (table_msp430[n].version == VERSION_MSP430X_EXT) { n++; continue; }
 
     char mode[] = { 'a','w' };
+
     if ((opcode & table_msp430[n].mask) == table_msp430[n].opcode)
     {
       switch(table_msp430[n].type)
@@ -639,6 +640,8 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
           strcpy(instruction, table_msp430[n].instr);
           break;
         case OP_ONE_OPERAND:
+        case OP_ONE_OPERAND_W:
+        case OP_ONE_OPERAND_X:
           strcpy(instruction, table_msp430[n].instr);
           count += one_operand(memory, address, instruction, opcode, prefix);
           prefix = 0xffff;
