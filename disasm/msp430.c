@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -67,9 +67,20 @@ static int get_source_reg(struct _memory *memory, uint32_t address, int reg, int
       else
     if (As == 1)
     {
-      uint32_t a = (READ_RAM(address + 3) << 8) | READ_RAM(address + 2);
+      int32_t a = (READ_RAM(address + 3) << 8) | READ_RAM(address + 2);
       count += 2;
-      a = (a | extra) + (address + count);
+
+      if (prefix == 0xffff)
+      {
+        if ((a & 0x8000) != 0) { a |= 0xffff0000; }
+      }
+        else
+      {
+        a |= extra;
+        if ((a & 0x80000) != 0) { a |= 0xfff00000; }
+      }
+
+      a = a + (address + count);
       sprintf(reg_str, "0x%04x", a);
     }
       else
@@ -137,9 +148,20 @@ static int get_source_reg(struct _memory *memory, uint32_t address, int reg, int
       else
     if (As == 1)
     {
-      uint16_t a = (READ_RAM(address + 3) << 8) | READ_RAM(address + 2);
+      int32_t a = (READ_RAM(address + 3) << 8) | READ_RAM(address + 2);
       count += 2;
-      sprintf(reg_str, "%d(%s)", (int16_t)(a | extra), regs[reg]);
+
+      if (prefix == 0xffff)
+      {
+        if ((a & 0x8000) != 0) { a |= 0xffff0000; }
+      }
+        else
+      {
+        a |= extra;
+        if ((a & 0x80000) != 0) { a |= 0xfff00000; }
+      }
+
+      sprintf(reg_str, "%d(%s)", a, regs[reg]);
     }
       else
     if (As == 2)
@@ -167,21 +189,36 @@ static int get_dest_reg(struct _memory *memory, uint32_t address, int reg, int A
   if (reg == 0)
   {
     if (Ad == 0)
-    { strcat(reg_str, regs[reg]); }
+    {
+      strcat(reg_str, regs[reg]);
+    }
       else
     if (Ad == 1)
     {
-      uint16_t  a = (READ_RAM(address + count + 3) << 8) | READ_RAM(address + (count + 2));
+      int32_t a = (READ_RAM(address + count + 3) << 8) | READ_RAM(address + (count + 2));
       count += 2;
+
+      if (prefix == 0xffff)
+      {
+        if ((a & 0x8000) != 0) { a |= 0xffff0000; }
+      }
+        else
+      {
+        a |= extra;
+        if ((a & 0x80000) != 0) { a |= 0xfff00000; }
+      }
+
       a = a + (address + count);
-      sprintf(reg_str, "0x%04x", a | extra);
+      sprintf(reg_str, "0x%04x", a);
     }
   }
     else
   if (reg == 2)
   {
     if (Ad == 0)
-    { strcat(reg_str, regs[reg]); }
+    {
+      strcat(reg_str, regs[reg]);
+    }
       else
     if (Ad == 1)
     {
@@ -204,9 +241,20 @@ static int get_dest_reg(struct _memory *memory, uint32_t address, int reg, int A
       else
     if (Ad == 1)
     {
-      uint16_t a = (READ_RAM(address + count + 3) << 8)|READ_RAM(address + count + 2);
+      int32_t a = (READ_RAM(address + count + 3) << 8)|READ_RAM(address + count + 2);
       count += 2;
-      sprintf(reg_str, "%d(%s)", (int16_t)(a | extra), regs[reg]);
+
+      if (prefix == 0xffff)
+      {
+        if ((a & 0x8000) != 0) { a |= 0xffff0000; }
+      }
+        else
+      {
+        a |= extra;
+        if ((a & 0x80000) != 0) { a |= 0xfff00000; }
+      }
+
+      sprintf(reg_str, "%d(%s)", a, regs[reg]);
     }
   }
 
