@@ -900,8 +900,8 @@ static void disasm_range_msp430_both(struct _memory *memory, int start, int end,
                         "Reset/Watchdog/Flash" };
   char instruction[128];
   int vectors_flag = 0;
-  int cycles_min = 0,cycles_max = 0;
-  int num,count;
+  int cycles_min = 0, cycles_max = 0;
+  int num, count;
 
   printf("\n");
 
@@ -928,7 +928,8 @@ static void disasm_range_msp430_both(struct _memory *memory, int start, int end,
         else
       {
         printf("0x%04x: 0x%04x  Vector %2d {%s}\n", start, num, (start - 0xffe0) / 2, vectors[(start - 0xffe0) / 2]);
-        start+=2;
+
+        start += 2;
         continue;
       }
     }

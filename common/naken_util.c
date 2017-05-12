@@ -147,18 +147,23 @@ static char *get_num(char *token, uint32_t *num)
 
   *num = 0;
 
-  while (*token == ' ' && *token != 0) token++;
-  if (*token == 0) return NULL;
+  // Skip spaces at beginning.
+  while (*token == ' ' && *token != 0) { token++; }
 
+  if (*token == 0) { return NULL; }
+
+  // Check if number is hex.
   if (token[0] == '0' && token[1] == 'x')
   {
     return get_hex(token + 2, num);
   }
 
-  // Look for end so we can see if there is an h there
+  // Look for end incase there is an h there.
   s = 0;
-  while(token[s] != 0) s++;
-  if (s == 0) return NULL;
+  while(token[s] != 0) { s++; }
+
+  if (s == 0) { return NULL; }
+
   if (token[s-1] == 'h')
   {
     return get_hex(token, num);
@@ -194,12 +199,32 @@ static char *get_num(char *token, uint32_t *num)
   return token + s;
 }
 
+static char *get_address(char *token, uint32_t *address, struct _symbols *symbols)
+{
+  int ret;
+
+  // Skip spaces at beginning.
+  while (*token == ' ' && *token != 0) { token++; }
+
+  // Search symbol table
+  ret = symbols_lookup(symbols, token, address);
+
+  if (ret == 0)
+  {
+    while (*token != ' ' && *token != 0) { token++; }
+    return token;
+  }
+
+  return get_num(token, address);
+}
+
 static void load_debug_offsets(struct _util_context *util_context)
 {
   int line_count = 0;
   int ch, n;
 
   fseek(util_context->src_fp, 0, SEEK_SET);
+
   while(1)
   {
     ch=getc(util_context->src_fp);
@@ -235,7 +260,6 @@ static int get_range(struct _util_context *util_context, char *token, uint32_t *
   char *start_string = NULL;
   char *end_string = NULL;
   char *s;
-  int ret;
 
   // Remove white space from start;
   while(*token == ' ') { token++; }
@@ -274,13 +298,9 @@ static int get_range(struct _util_context *util_context, char *token, uint32_t *
   }
 
   // Look up start_string in symbol table or use number
-  ret = symbols_lookup(&util_context->symbols, start_string, start);
+  token = get_address(start_string, start, &util_context->symbols);
 
-  if (ret != 0)
-  {
-    token = get_num(start_string, start);
-    //if (*start < 0) *start = 0;
-  }
+  if (token == NULL) { return -1; }
 
   // If end_string is empty then end = start
   if (end_string == NULL || *end_string == 0)
@@ -290,13 +310,9 @@ static int get_range(struct _util_context *util_context, char *token, uint32_t *
   }
 
   // Look up end_string in symbol table or use number
-  ret = symbols_lookup(&util_context->symbols, end_string, end);
+  token = get_address(end_string, end, &util_context->symbols);
 
-  if (ret != 0)
-  {
-    token = get_num(end_string, end);
-    //if (*end < 0) *end = 0;
-  }
+  if (token == NULL) { return -1; }
 
   return 0;
 }
@@ -308,10 +324,8 @@ static void bprint(struct _util_context *util_context, char *token)
   int ptr = 0;
 
   // FIXME - is this right?
-  if (get_range(util_context, token, &start, &end) == -1) return;
-  //if (start > util_context->memory.size) start = util_context->memory.size;
-  if (start <= end) end = start + 128;
-  //if (end > util_context->memory.size) end = util_context->memory.size;
+  if (get_range(util_context, token, &start, &end) == -1) { return; }
+  if (start <= end) { end = start + 128; }
 
   while(start < end)
   {
@@ -350,10 +364,8 @@ static void wprint(struct _util_context *util_context, char *token)
   uint32_t start, end;
   int ptr = 0;
 
-  if (get_range(util_context, token, &start, &end) == -1) return;
-  //if (start > util_context->memory.size) start = util_context->memory.size;
-  if (start <= end) end = start + 128;
-  //if (end > util_context->memory.size) end = util_context->memory.size;
+  if (get_range(util_context, token, &start, &end) == -1) { return; }
+  if (start <= end) { end = start + 128; }
 
   if ((start & 0x01) != 0)
   {
@@ -371,18 +383,27 @@ static void wprint(struct _util_context *util_context, char *token)
       printf("0x%04x:", start);
     }
 
-    unsigned char data0 = READ_RAM(start);
-    unsigned char data1 = READ_RAM(start+1);
+    uint8_t data0 = READ_RAM(start);
+    uint8_t data1 = READ_RAM(start+1);
 
     int num = data0 | (data1 << 8);
     if (data0 >= ' ' && data0 <= 126)
-    { chars[ptr++] = data0; }
+    {
+      chars[ptr++] = data0;
+    }
       else
-    { chars[ptr++] = '.'; }
+    {
+      chars[ptr++] = '.';
+    }
+
     if (data1 >= ' ' && data1 <= 126)
-    { chars[ptr++] = data1; }
+    {
+      chars[ptr++] = data1;
+    }
       else
-    { chars[ptr++] = '.'; }
+    {
+      chars[ptr++] = '.';
+    }
 
     printf(" %04x", num);
 
@@ -394,7 +415,7 @@ static void wprint(struct _util_context *util_context, char *token)
   if (ptr != 0)
   {
     int n;
-    for (n = ptr; n < 16; n += 2) printf("     ");
+    for (n = ptr; n < 16; n += 2) { printf("     "); }
     printf(" %s\n", chars);
   }
 }
@@ -405,9 +426,12 @@ static void bwrite(struct _util_context *util_context, char *token)
   uint32_t num;
   int count = 0;
 
-  while(*token == ' ' && *token != 0) token++;
+  while(*token == ' ' && *token != 0) { token++; }
+
   if (token == 0) { printf("Syntax error: no address given.\n"); }
-  token = get_num(token, &address);
+
+  token = get_address(token, &address, &util_context->symbols);
+
   if (token == NULL) { printf("Syntax error: bad address\n"); }
 
   int n = address;
@@ -430,9 +454,12 @@ static void wwrite(struct _util_context *util_context, char *token)
   uint32_t num;
   int count = 0;
 
-  while(*token == ' ' && *token != 0) token++;
+  while(*token == ' ' && *token != 0) { token++; }
+
   if (token == 0) { printf("Syntax error: no address given.\n"); }
-  token = get_num(token, &address);
+
+  token = get_address(token, &address, &util_context->symbols);
+
   if (token == NULL) { printf("Syntax error: bad address\n"); }
 
   if ((address & 0x01) != 0)
@@ -507,7 +534,7 @@ static void disasm(struct _util_context *util_context, char *token, int dbg_flag
 {
   uint32_t start, end;
 
-  if (get_range(util_context, token, &start, &end) == -1) return;
+  if (get_range(util_context, token, &start, &end) == -1) { return; }
 
   if ((start % 2) != 0 || (end % 2) != 0)
   {
@@ -1029,7 +1056,15 @@ int main(int argc, char *argv[])
 
       // FIXME: This it's MSP430 specific
       uint32_t num;
-      get_num(command + 5, &num);
+
+      char *end = get_address(command + 5, &num, &util_context.symbols);
+
+      if (end == NULL)
+      {
+        printf("Error: Unknown address '%s'\n", command + 5);
+        continue;
+      }
+
       util_context.simulate->simulate_push(util_context.simulate, 0xffff);
       util_context.simulate->simulate_set_reg(util_context.simulate, "r0", num);
       util_context.simulate->simulate_run(util_context.simulate, -1, 0);
@@ -1056,7 +1091,15 @@ int main(int argc, char *argv[])
     if (strncmp(command, "break ", 6) == 0)
     {
       uint32_t address;
-      get_num(command + 6, &address);
+
+      char *end = get_address(command + 6, &address, &util_context.symbols);
+
+      if (end == NULL)
+      {
+        printf("Error: Unknown address '%s'\n", command + 6);
+        continue;
+      }
+
       if ((address & 1) == 0)
       {
         printf("Breakpoint added at 0x%04x.\n", address);
@@ -1278,10 +1321,14 @@ int main(int argc, char *argv[])
   symbols_free(&util_context.symbols);
 
   if (util_context.debug_line_offset !=NULL)
-  { free(util_context.debug_line_offset); }
+  {
+    free(util_context.debug_line_offset);
+  }
 
   if (util_context.simulate != NULL)
-  { util_context.simulate->simulate_free(util_context.simulate); }
+  {
+    util_context.simulate->simulate_free(util_context.simulate);
+  }
 
   memory_free(&util_context.memory);
 
