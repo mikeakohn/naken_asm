@@ -796,13 +796,6 @@ int main(int argc, char *argv[])
         {
           printf("Could not open source file %s\n", argv[i]);
         }
-#if 0
-          else
-        {
-          util_context.src_fp = src;
-          load_debug_offsets(&util_context);
-        }
-#endif
       }
     }
       else
@@ -913,43 +906,6 @@ int main(int argc, char *argv[])
   }
 
   util_context.simulate->simulate_reset(util_context.simulate);
-
-#if 0
-  if (loaded_debug == 0)
-  {
-    char filename[1024];
-    strcpy(filename, hexfile);
-    i = strlen(filename) - 1;
-    while(i > 0)
-    {
-      if (filename[i] == '.')
-      {
-        strcpy(filename + i, ".ndbg");
-        break;
-      }
-
-      i--;
-    }
-
-    if (i == 0)
-    {
-      strcat(filename, ".ndbg");
-    }
-
-    printf("Attempting to load debug file %s\n", filename);
-
-    //if (load_debug(&src, filename, util_context.debug_line, &util_context)==0)
-    if (load_debug(&src, filename, &util_context) == 0)
-    {
-      printf("Loaded.\n");
-      loaded_debug = 1;
-    }
-      else
-    {
-      printf("Debug file not found.\n");
-    }
-  }
-#endif
 
   if (mode == MODE_RUN)
   {
@@ -1237,32 +1193,6 @@ int main(int argc, char *argv[])
         printf("This arch doesn't support dumpram.  Use bprint / wprint.\n");
       }
     }
-#if 0
-      else
-    if (strncmp(command, "list ", 7) == 0)
-    {
-       if (util_context.debug_line_offset == NULL)
-       {
-         printf("Error: Must load debug file first.\n");
-       }
-         else
-       {
-         disasm(&util_context, command+7, 1);
-       }
-    }
-      else
-    if (strcmp(command, "list") == 0)
-    {
-       if (util_context.debug_line_offset == NULL)
-       {
-         printf("Error: Must load debug file first.\n");
-       }
-         else
-       {
-         disasm_range(&util_context, util_context.flags, util_context.memory.low_address, util_context.memory.high_address);
-       }
-    }
-#endif
       else
     if (strcmp(command, "info") == 0)
     {
