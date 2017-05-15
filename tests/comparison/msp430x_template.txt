@@ -46,8 +46,9 @@ rrcx.b r5
 rrcx.b 2(r5)
 rrcx.w 100(r5)
 rrcx.w r8
-swpbx r11
+swpbx r7
 swpbx &0x1000
+;swpbx &0x12340
 rrax.w r9
 rrax.b 0x1234
 rrax.w &0x4310
@@ -104,3 +105,17 @@ rlax.a r9
 rlcx.w r10
 sbcx.b r11
 tstx.a r9
+pushm.w #5,r7
+popm.w  #5,r6
+bra r7
+bra @r6
+bra @r6+
+bra &0x12346
+bra 0x2345(r6)
+bra #0x12346
+bra $+0x100
+reta
+;clra r7
+;decda r7
+;incda r7
+;tsta r7

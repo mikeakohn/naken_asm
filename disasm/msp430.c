@@ -41,10 +41,10 @@ int get_register_msp430(char *token)
     }
   }
 
-  if (strcasecmp(token, "pc") == 0) return 0;
-  if (strcasecmp(token, "sp") == 0) return 1;
-  if (strcasecmp(token, "sr") == 0) return 2;
-  if (strcasecmp(token, "cg") == 0) return 3;
+  if (strcasecmp(token, "pc") == 0) { return 0; }
+  if (strcasecmp(token, "sp") == 0) { return 1; }
+  if (strcasecmp(token, "sr") == 0) { return 2; }
+  if (strcasecmp(token, "cg") == 0) { return 3; }
 
   return -1;
 }
@@ -615,6 +615,12 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
   // FIXME - this doesn't work for MSP430X
   *cycles_min = get_cycle_count(opcode);
   *cycles_max = *cycles_min;
+
+  if (opcode == 0x0110)
+  {
+    sprintf(instruction, "reta  --  mova @SP+, PC");
+    return 2;
+  }
 
   // 20 bit prefix to 16 bit instructions 
   if ((opcode & 0xf830) == 0x1800)
