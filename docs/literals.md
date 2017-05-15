@@ -29,5 +29,11 @@ a valid octal number:
 
 17q
 
+Special Characters
+------------------
+
+As with other assemblers, $ means "current address".  So a jmp $ will be
+an infinite loop.
+
 
 
