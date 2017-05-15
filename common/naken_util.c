@@ -1003,8 +1003,6 @@ int main(int argc, char *argv[])
       else
     if (strncmp(command, "call ", 4) == 0)
     {
-      state = state_running;
-
       if (util_context.simulate->usec == 0)
       {
         util_context.simulate->step_mode = 1;
@@ -1021,6 +1019,7 @@ int main(int argc, char *argv[])
         continue;
       }
 
+      state = state_running;
       util_context.simulate->simulate_push(util_context.simulate, 0xffff);
       util_context.simulate->simulate_set_reg(util_context.simulate, "r0", num);
       util_context.simulate->simulate_run(util_context.simulate, -1, 0);
