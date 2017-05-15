@@ -394,7 +394,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   //int msp430x = 0;
   int prefix = 0;
   int offset, value, wa, reg;
-  int count, found;
+  int count, found = 0;
 
   lower_copy(instr_case, instr);
   //instr_case = instr_case_mem;
@@ -1362,9 +1362,9 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           value = operands[0].value;
 
-          if (value < 1 || value > 4)
+          if (value < 1 || value > 16)
           {
-            print_error_range("Constant", 0, 4, asm_context);
+            print_error_range("Constant", 1, 16, asm_context);
             return -1;
           }
 
@@ -1387,6 +1387,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           opcode |= (wa << 8) | ((operands[0].value - 1) << 4) | reg;
           add_bin16(asm_context, opcode, IS_OPCODE);
+
           return 2;
         case OP_X_ONE_OPERAND:
         case OP_X_ONE_OPERAND_W:
