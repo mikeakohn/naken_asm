@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -184,6 +184,11 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
       elf->e_ident[EI_OSABI] = 0;
       elf->e_flags = 0x20924001;
       elf->e_type = 2;  // Executable
+      break;
+    case CPU_TYPE_EPIPHANY:
+      elf->e_machine = 0x1223;
+      elf->e_ident[EI_OSABI] = 0;
+      elf->e_type = 1;  // Relocatable
       break;
     case CPU_TYPE_MIPS32:
       elf->e_machine = 8;

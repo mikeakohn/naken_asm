@@ -28,8 +28,10 @@ _sync_interrupt:
 
 main:
   mov v1, #0
+  mov v2, #data
 loop:
   add v1, v1, #1
+  str v1, [v2]
   b loop
 
 _sw_exception_interrupt:
@@ -43,4 +45,6 @@ _wand_interrupt:
 _user_interrupt:
   rti
 
+.org 0x6000
+data:
 
