@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -71,6 +71,7 @@ int read_srec(char *filename, struct _memory *memory)
   end = -1;
 
   in = fopen(filename, "rb");
+
   if (in == 0)
   {
     return -1;
@@ -91,8 +92,14 @@ int read_srec(char *filename, struct _memory *memory)
 
     record_type = getc(in);
 
-    if (record_type >= '0' && record_type <= '9') { record_type -= '0'; }
-    else { record_type = 10; }
+    if (record_type >= '0' && record_type <= '9')
+    {
+      record_type -= '0';
+    }
+      else
+    {
+      record_type = 10;
+    }
 
     // SREC's header has no data and ignore any headers with no data
     if (record_type == 0 || record_type > 3)
@@ -152,16 +159,16 @@ int read_srec(char *filename, struct _memory *memory)
 #endif
     }
 
-    #ifdef DEBUG1
+#ifdef DEBUG1
     printf("\n");
-    #endif
+#endif
 
     checksum = get_hex(in, 2);
     checksum_calc = ((checksum_calc & 0xff) ^ 0xff) & 0xff;
 
-    #ifdef DEBUG1
+#ifdef DEBUG1
     printf("   checksum: %02x [%02x]\n\n",checksum, checksum_calc);
-    #endif
+#endif
 
     if (checksum != checksum_calc)
     {
@@ -181,5 +188,4 @@ int read_srec(char *filename, struct _memory *memory)
 
   return start_address;
 }
-
 

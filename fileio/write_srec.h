@@ -3,16 +3,16 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
 #ifndef _WRITE_SREC_H
 #define _WRITE_SREC_H
 
-int write_srec(struct _memory *memory, FILE *out);
+int write_srec(struct _memory *memory, FILE *out, int srec_size);
 
 #endif
 

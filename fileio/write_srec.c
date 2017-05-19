@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -16,6 +16,7 @@
 #include <time.h>
 
 #include "common/memory.h"
+#include "common/cpu_list.h"
 #include "fileio/write_srec.h"
 
 #define LINE_LENGTH 16
@@ -27,15 +28,26 @@ static void write_srec_line(FILE *out, int type, uint32_t address, uint8_t *data
 
   if (type == -1)
   {
-    if (address <= 0xffff) { type = 1; }
-    else if (address <= 0xffffff) { type = 2; }
-    else { type = 3; }
+    if (address <= 0xffff)
+    {
+      type = 1;
+    }
+      else
+    if (address <= 0xffffff)
+    {
+      type = 2;
+    }
+      else
+    {
+      type = 3;
+    }
   }
 
   if (type <= 1)
   {
     address &= 0xffff;
     fprintf(out, "S%c%02X%04X", '0' + type, len + 3, address);
+
     checksum = (len + 3) + (address >> 8) + (address & 0xff);
   }
     else
@@ -43,6 +55,7 @@ static void write_srec_line(FILE *out, int type, uint32_t address, uint8_t *data
   {
     address &= 0xffffff;
     fprintf(out, "S%c%02X%06X", '0' + type, len + 4, address);
+
     checksum = (len + 4) + (address >> 16) + ((address >> 24) & 0xff) +
       (address & 0xff);
   }
@@ -50,6 +63,7 @@ static void write_srec_line(FILE *out, int type, uint32_t address, uint8_t *data
   if (type == 3)
   {
     fprintf(out, "S%c%02X%08X", '0' + type, len + 5, address);
+
     checksum = (len + 5) + (address >> 24) + ((address >> 16) & 0xff) +
       ((address >> 8) & 0xff) + (address & 0xff);
   }
@@ -93,12 +107,26 @@ static void write_srec_header(FILE *out)
   write_srec_line(out, 0, 0, data, 7);
 }
 
-int write_srec(struct _memory *memory, FILE *out)
+int write_srec(struct _memory *memory, FILE *out, int srec_size)
 {
   uint8_t data[LINE_LENGTH];
   uint32_t address = 0;
   uint32_t n;
-  int len;
+  int len, type;
+
+  if (srec_size == SREC_24)
+  {
+    type = 2;
+  }
+    else
+  if (srec_size == SREC_32)
+  {
+    type = 3;
+  }
+    else
+  {
+    type = -1;
+  }
 
   write_srec_header(out);
 
@@ -110,22 +138,17 @@ int write_srec(struct _memory *memory, FILE *out)
     {
       if (len > 0)
       {
-        write_srec_line(out, -1, address, data, len);
+        write_srec_line(out, type, address, data, len);
         len = -1;
       }
+
       continue;
     }
 
     if ((n & 0xffff) == 0 && len > 0)
     {
-      write_srec_line(out, -1, address, data, len);
-      len=-1;
-    }
-
-    if (len == -1)
-    {
-      address = n;
-      len = 0;
+      write_srec_line(out, type, address, data, len);
+      len = -1;
     }
 
     if (len == -1)
@@ -138,14 +161,14 @@ int write_srec(struct _memory *memory, FILE *out)
 
     if (len == LINE_LENGTH)
     {
-      write_srec_line(out, -1, address, data, len);
+      write_srec_line(out, type, address, data, len);
       len = -1;
     }
   }
 
   if (len > 0)
   {
-    write_srec_line(out, -1, address, data, len);
+    write_srec_line(out, type, address, data, len);
   }
 
   return 0;

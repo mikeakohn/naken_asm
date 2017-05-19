@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -29,6 +29,10 @@ typedef void (*disasm_range_t)(struct _memory *, uint32_t, uint32_t, uint32_t);
 #define ALIGN_4 4
 #define ALIGN_8 8
 #define ALIGN_16 16 
+
+#define SREC_16 0
+#define SREC_24 1
+#define SREC_32 2
 
 enum
 {
@@ -71,9 +75,10 @@ struct _cpu_list
   int8_t default_endian;
   int8_t bytes_per_address;
   int8_t alignment;
-  int8_t is_dollar_hex:1;
-  int8_t can_tick_end_string:1;
-  int8_t pass_1_write_disable:1;
+  int8_t is_dollar_hex : 1;
+  int8_t can_tick_end_string : 1;
+  int8_t pass_1_write_disable : 1;
+  uint8_t srec_size : 2;
   parse_instruction_t parse_instruction;
   parse_directive_t parse_directive;
   list_output_t list_output;

@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
       else
     if (format == FORMAT_SREC)
     {
-      write_srec(&asm_context.memory, out);
+      write_srec(&asm_context.memory, out, cpu_list[asm_context.cpu_list_index].srec_size);
     }
 #ifndef DISABLE_ELF
       else
@@ -367,7 +367,9 @@ int main(int argc, char *argv[])
     int ch = 0;
     char str[17];
     int ptr = 0;
+
     fprintf(asm_context.list, "data sections:");
+
     for (i = asm_context.memory.low_address; i <= asm_context.memory.high_address; i++)
     {
       if (memory_debug_line(&asm_context, i) == -2)
