@@ -30,16 +30,23 @@ int main(int argc, char *argv[])
 
   printf("e_open() return value is %d\n", n);
 
-  n = e_load("epiphany.elf", &dev, 0, 0, E_TRUE);
+  n = e_load("epiphany.srec", &dev, 0, 0, E_FALSE);
 
   printf("e_load() return value is %d\n", n);
+
+  n = e_start(&dev, 0, 0);
+
+  printf("e_start() return value is %d\n", n);
 
   sleep(1);
 
   n = e_read(&dev, 0, 0, 0x6000, &data, 4);
-  printf("data=%d n=%d\n", data, n);
+  printf("data=0x%x n=%d\n", data, n);
+
   sleep(1);
-  printf("data=%d n=%d\n", data, n);
+
+  n = e_read(&dev, 0, 0, 0x6000, &data, 4);
+  printf("data=0x%x n=%d\n", data, n);
 
   e_close(&dev);
   e_finalize();

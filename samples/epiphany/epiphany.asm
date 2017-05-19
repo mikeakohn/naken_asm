@@ -22,12 +22,11 @@
 .org 0x24
   b _user_interrupt
 
-
-.org 0x40
+.org 0x2000
 _sync_interrupt:
 
 main:
-  mov v1, #0
+  mov v1, #10
   mov v2, #data
 loop:
   add v1, v1, #1
@@ -47,4 +46,5 @@ _user_interrupt:
 
 .org 0x6000
 data:
+  dc32 0
 
