@@ -1,6 +1,5 @@
 .epiphany
 
-.org 0
 .org 0x00
   b _sync_interrupt
 .org 0x04
@@ -28,6 +27,7 @@ _sync_interrupt:
 main:
   mov v1, #10
   mov v2, #data
+  str v2, [v2,#1]
 loop:
   add v1, v1, #1
   str v1, [v2]
@@ -46,5 +46,7 @@ _user_interrupt:
 
 .org 0x6000
 data:
+  dc32 0
+address:
   dc32 0
 

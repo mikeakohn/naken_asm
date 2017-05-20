@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
   e_platform_t platform;
   e_epiphany_t dev;
-  uint32_t data;
+  uint32_t data, address;
   int n;
 
   e_init(NULL);
@@ -27,15 +27,12 @@ int main(int argc, char *argv[])
   printf("\n");
 
   n = e_open(&dev, 0, 0, 1, 1);
-
   printf("e_open() return value is %d\n", n);
 
   n = e_load("epiphany.srec", &dev, 0, 0, E_FALSE);
-
   printf("e_load() return value is %d\n", n);
 
   n = e_start(&dev, 0, 0);
-
   printf("e_start() return value is %d\n", n);
 
   sleep(1);
@@ -47,6 +44,9 @@ int main(int argc, char *argv[])
 
   n = e_read(&dev, 0, 0, 0x6000, &data, 4);
   printf("data=0x%x n=%d\n", data, n);
+
+  n = e_read(&dev, 0, 0, 0x6004, &address, 4);
+  printf("address=0x%x n=%d\n", address, n);
 
   e_close(&dev);
   e_finalize();
