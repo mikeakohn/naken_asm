@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -129,6 +129,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
   uint32_t reg_combo;
   uint32_t value;
   uint32_t sub;
+  int found = 0;
   int n;
 
   lower_copy(instr_case, instr);
@@ -336,6 +337,8 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
   {
     if (strcmp(table_epiphany[n].instr, instr_case) == 0)
     {
+      found = 1;
+
       switch(table_epiphany[n].type)
       {
         case OP_NONE:
@@ -788,7 +791,16 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
     n++;
   }
 
-  print_error_unknown_operand_combo(instr, asm_context);
+  if (found == 1)
+  {
+    print_error_unknown_operand_combo(instr, asm_context);
+    return -1;
+  }
+    else
+  {
+    print_error_unknown_instr(instr, asm_context);
+  }
+
 
   return -1;
 }
