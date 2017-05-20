@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -319,16 +319,17 @@ int parse_dc(struct _asm_context *asm_context)
   return -1;
 }
 
+#if 0
 int parse_dq(struct _asm_context *asm_context)
 {
   char token[TOKENLEN];
   int token_type;
   struct _var var;
-  uint32_t udata32;
+  uint32_t udata64;
   union
   {
-    float f32;
-    uint32_t u32;
+    double f64;
+    uint64_t u64;
   } data;
 
   if (asm_context->segment == SEGMENT_BSS)
@@ -348,16 +349,10 @@ int parse_dq(struct _asm_context *asm_context)
     {
       eat_operand(asm_context);
     }
-    data.f32 = var_get_float(&var);
-    udata32 = data.u32;
 
-#ifdef __ORDER_LITTLE_ENDIAN__
-    //int swap = (asm_context->memory.endian == ENDIAN_LITTLE) ? 
-#else
-    //int swap = 1;
-#endif
+    data.f64 = var_get_float(&var);
+    udata64 = data.u64;
 
-    //if (swap == 0)
     if (asm_context->memory.endian == ENDIAN_LITTLE)
     {
       memory_write_inc(asm_context, udata32 & 0xff, DL_DATA);
@@ -388,6 +383,7 @@ int parse_dq(struct _asm_context *asm_context)
 
   return 0;
 }
+#endif
 
 int parse_ds(struct _asm_context *asm_context, int n)
 {

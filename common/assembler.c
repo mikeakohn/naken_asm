@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -446,25 +446,22 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
-  if (strcasecmp(token, "dq") == 0)
-  {
-    if (parse_dq(asm_context) != 0) { return -1; }
-    return 1;
-  }
-    else
   if (strcasecmp(token, "dw") == 0 || strcasecmp(token, "dc16") == 0)
   {
     if (parse_dc16(asm_context) != 0) return -1;
     return 1;
   }
     else
-  if (strcasecmp(token, "dl") == 0 || strcasecmp(token, "dc32") == 0)
+  if (strcasecmp(token, "dl") == 0 ||
+      strcasecmp(token, "dc32") == 0 ||
+      strcasecmp(token, "dd") == 0)
   {
     if (parse_dc32(asm_context) != 0) { return -1; }
     return 1;
   }
     else
-  if (strcasecmp(token, "dc64") == 0)
+  if (strcasecmp(token, "dc64") == 0 ||
+      strcasecmp(token, "dq") == 0)
   {
     if (parse_dc64(asm_context) != 0) { return -1; }
     return 1;
