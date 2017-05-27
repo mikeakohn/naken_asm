@@ -90,11 +90,13 @@ int disasm_epiphany(struct _memory *memory, uint32_t address, char *instr, int *
       {
         case OP_BRANCH_16:
           offset = (int8_t)(opcode16 >> 8);
-          sprintf(instr, "%s 0x%x  (offset=%d)", table_epiphany[n].instr, (address + 2) + offset, offset);
+          offset = offset << 1;
+          sprintf(instr, "%s 0x%x  (offset=%d)", table_epiphany[n].instr, address + offset, offset);
           return 2;
         case OP_BRANCH_32:
-          offset = ((int)opcode32) >> 8;
-          sprintf(instr, "%s 0x%x  (offset=%d)", table_epiphany[n].instr, (address + 2) + offset, offset);
+          offset = ((int32_t)opcode32) >> 8;
+          offset = offset << 1;
+          sprintf(instr, "%s 0x%x  (offset=%d)", table_epiphany[n].instr, address + offset, offset);
           return 4;
         case OP_DISP_IMM3_16:
           imm = (opcode16 >> 7) & 0x7;

@@ -9,6 +9,9 @@ default:
 	   ${CFLAGS} \
 	   ${LDFLAGS}
 
+mandelbrot:
+	../../naken_asm -l -s -o mandelbrot.srec mandelbrot.asm
+
 clean:
 	@rm -f *.lst *.hex test_parallella *.elf *.srec
 	@echo "Clean!"

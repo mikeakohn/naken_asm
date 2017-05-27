@@ -259,6 +259,9 @@ int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _
     case 220:
       *cpu_type = CPU_TYPE_Z80;
       break;
+    case 0x1223:
+      *cpu_type = CPU_TYPE_EPIPHANY;
+      break;
     default:
       printf("ELF Error: e_machine unknown\n");
       fclose(in);
