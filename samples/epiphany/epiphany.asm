@@ -25,10 +25,21 @@
 _sync_interrupt:
 
 main:
+  ;; v1 will hold the data to write to local memory
+  ;; v2 will point to local memory
+  ;; v3 will point to the first location in external memory (0x8e000000)
   mov v1, #10
   mov v2, #data
+  mov v3, #0x0000
+  movt v3, #0x8e00
+
+  ;; Store the local address pointer in local memory indexed by 1 word
+  ;; Store the local address pointer in external memory
   str v2, [v2,#1]
+  str v2, [v3]
+
 loop:
+  ;; Increment counter and store in local memory
   add v1, v1, #1
   str v1, [v2]
   b loop
