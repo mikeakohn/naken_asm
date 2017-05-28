@@ -154,7 +154,7 @@ int disasm_epiphany(struct _memory *memory, uint32_t address, char *instr, int *
           return 4;
         case OP_REG_IMM_16:
           imm = ((opcode32 >> 5) & 0xff);
-          sprintf(instr, "%s r%d, #0x%02x", table_epiphany[n].instr, rd, imm);
+          sprintf(instr, "%s r%d, #0x%04x", table_epiphany[n].instr, rd, imm);
           return 2;
         case OP_REG_IMM_32:
           imm = ((opcode32 >> 5) & 0xff);

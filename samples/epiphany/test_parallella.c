@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
   n = e_read(&dev, 0, 0, 0x6004, &address, 4);
   printf("external=0x%x n=%d\n", address, n);
 
-  // Close everyone.
+  // Close everything.
   e_free(&ext_mem);
   e_close(&dev);
   e_finalize();
