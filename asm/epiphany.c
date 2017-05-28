@@ -129,8 +129,10 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
   uint32_t reg_combo;
   uint32_t value;
   uint32_t sub;
+  uint32_t special;
+  uint32_t opcode;
   int found = 0;
-  int n;
+  int n, m;
 
   lower_copy(instr_case, instr);
   operand_count = 0;
@@ -777,6 +779,128 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           if (operand_count == 0)
           {
             add_bin32(asm_context, table_epiphany[n].opcode, IS_OPCODE);
+            return 4;
+          }
+          break;
+        }
+        case OP_SPECIAL_RN_16:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_ADDRESS &&
+              operands[1].type == OPERAND_REG)
+          {
+            if (operands[1].reg > 7) { break; }
+            if ((operands[0].value & 0xffffff00) != 0xf0400) { break; }
+
+            if ((operands[0].value & 0x3) != 0)
+            {
+              print_error("Unknown special register", asm_context);
+              return -1;
+            }
+
+            special = (operands[0].value & 0xff) / 4;
+
+            if (special > 7) { break; }
+
+            opcode = table_epiphany[n].opcode |
+                     special << 10 |
+                     operands[1].reg << 13;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+          break;
+        }
+        case OP_RD_SPECIAL_16:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_ADDRESS)
+          {
+            if (operands[0].reg > 7) { break; }
+            if ((operands[1].value & 0xffffff00) != 0xf0400) { break; }
+
+            if ((operands[1].value & 0x3) != 0)
+            {
+              print_error("Unknown special register", asm_context);
+              return -1;
+            }
+
+            special = (operands[1].value & 0xff) / 4;
+
+            if (special > 7) { break; }
+
+            opcode = table_epiphany[n].opcode |
+                     operands[0].reg << 13 |
+                     special << 10;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+          break;
+        }
+        case OP_SPECIAL_RN_32:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_ADDRESS &&
+              operands[1].type == OPERAND_REG)
+          {
+            m = (operands[0].value >> 8) & 0xf;
+            special = (operands[0].value & 0xff) / 4;
+
+            if ((operands[0].value & 0x3) != 0 ||
+                (operands[0].value & 0xfffff000) != 0x000f0000 ||
+                 m < 4 || m > 7 || special > 63)
+            {
+              print_error("Unknown special register", asm_context);
+              return -1;
+            }
+
+            m = m - 4;
+
+            opcode = table_epiphany[n].opcode |
+                     m << 20 |
+                     (special & 0x7) << 10 |
+                     (special >> 3) << 26 |
+                     (operands[1].reg & 0x7) << 13 |
+                     (operands[1].reg >> 3) << 29;
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+          break;
+        }
+        case OP_RD_SPECIAL_32:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_ADDRESS)
+          {
+            m = (operands[1].value >> 8) & 0xf;
+            special = (operands[1].value & 0xff) / 4;
+
+            if ((operands[1].value & 0x3) != 0 ||
+                (operands[1].value & 0xfffff000) != 0x000f0000 ||
+                 m < 4 || m > 7 || special > 63)
+            {
+              print_error("Unknown special register", asm_context);
+              return -1;
+            }
+
+            m = m - 4;
+
+            opcode = table_epiphany[n].opcode |
+                     m << 20 |
+                     (special & 0x7) << 10 |
+                     (special >> 3) << 26 |
+                     (operands[0].reg & 0x7) << 13 |
+                     (operands[0].reg >> 3) << 29;
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
             return 4;
           }
           break;

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -24,6 +24,16 @@ struct _table_epiphany
   uint8_t cycles_min;
   uint8_t cycles_max;
 };
+
+#if 0
+// Can't decide if I want to burn the register names into the code
+
+struct _epiphany_specials
+{
+  char *name;
+  uint32_t address;
+};
+#endif
 
 enum
 {
@@ -54,9 +64,14 @@ enum
   OP_NONE_16,
   OP_NUM6_16,
   OP_NONE_32,
+  OP_SPECIAL_RN_16,
+  OP_RD_SPECIAL_16,
+  OP_SPECIAL_RN_32,
+  OP_RD_SPECIAL_32,
 };
 
 extern struct _table_epiphany table_epiphany[];
+//extern struct _epiphany_specials epiphany_specials[];
 
 #endif
 

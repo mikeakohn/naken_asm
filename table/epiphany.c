@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -205,11 +205,10 @@ struct _table_epiphany table_epiphany[] = {
   { "mov",     0x000200ef, 0x03ff03ff, OP_REG_2_32, 32, 0, 0 },
   //{ "movl",    0x000200ff, 0x03ff03ff, OP_REG_2_32, 32, 0, 0 },
 
-  // dafuq?
-  //{ "movts",    0x0102, 0x03ff, OP_REG_2_16, 16, 0, 0 },
-  //{ "movfs",    0x0112, 0x03ff, OP_REG_2_16, 16, 0, 0 },
-  //{ "movts",    0x0002010f, 0x03ff03ff, OP_REG_2_32, 32, 0, 0 },
-  //{ "movfs",    0x0002011f, 0x03ff03ff, OP_REG_2_32, 32, 0, 0 },
+  { "movts",    0x0102, 0x03ff, OP_SPECIAL_RN_16, 16, 0, 0 },
+  { "movfs",    0x0112, 0x03ff, OP_RD_SPECIAL_16, 16, 0, 0 },
+  { "movts",    0x0002010f, 0x03ff03ff, OP_SPECIAL_RN_32, 32, 0, 0 },
+  { "movfs",    0x0002011f, 0x03ff03ff, OP_RD_SPECIAL_32, 32, 0, 0 },
 
   { "jr",    0x0142, 0xe3ff, OP_REG_1_16, 16, 0, 0 },
   { "jalr",  0x0152, 0xe3ff, OP_REG_1_16, 16, 0, 0 },

@@ -3,9 +3,16 @@
 test_instr()
 {
   echo -n "[${3}]testing ${1} ... "
+  extra=""
+
+  if [ "${cpu}" == "epiphany" ]
+  then
+  extra='.include "../../include/epiphany/epiphany.inc"'
+  fi
 
 cat >${cpu}.asm << EOF
 .${cpu}
+${extra}
 start:
   ${1}
 EOF

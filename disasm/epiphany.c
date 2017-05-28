@@ -51,11 +51,12 @@ int disasm_epiphany(struct _memory *memory, uint32_t address, char *instr, int *
 {
   uint32_t opcode32;
   uint16_t opcode16;
+  uint32_t special;
   int offset;
   int imm;
   //int count = 1;
-  int rd,rn,rm;
-  int n;
+  int rd, rn, rm;
+  int n, m;
 
   instr[0] = 0;
 
@@ -213,6 +214,26 @@ int disasm_epiphany(struct _memory *memory, uint32_t address, char *instr, int *
           return 2;
         case OP_NONE_32:
           sprintf(instr, "%s", table_epiphany[n].instr);
+          return 4;
+        case OP_SPECIAL_RN_16:
+          special = 0xf0400 + (rn * 4);
+          sprintf(instr, "%s 0x%05x, r%d", table_epiphany[n].instr, special, rd);
+          return 2;
+        case OP_RD_SPECIAL_16:
+          special = 0xf0400 + (rn * 4);
+          sprintf(instr, "%s r%d, 0x%05x", table_epiphany[n].instr, rd, special);
+          return 2;
+        case OP_SPECIAL_RN_32:
+          m = (opcode32 >> 20) & 0x3;
+          m = m + 4;
+          special = (0xf0000 + (rn * 4)) | (m << 8);
+          sprintf(instr, "%s 0x%05x, r%d", table_epiphany[n].instr, special, rd);
+          return 4;
+        case OP_RD_SPECIAL_32:
+          m = (opcode32 >> 20) & 0x3;
+          m = m + 4;
+          special = (0xf0000 + (rn * 4)) | (m << 8);
+          sprintf(instr, "%s r%d, 0x%05x", table_epiphany[n].instr, rd, special);
           return 4;
         default:
           break;

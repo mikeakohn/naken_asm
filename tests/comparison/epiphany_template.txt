@@ -192,3 +192,43 @@ bblt 4000
 bblte 4000
 b 4000
 bl 4000
+movts CONFIG, r1
+movfs r0, STATUS
+movts PC, r2
+;movfs r3, DEBUGSTATUS
+movts LC, r4
+movfs r5, LS
+movts LE, r6
+movfs r7, IRET
+movts IMASK, r8
+movfs r0, ILAT
+movts ILATST, r1
+movfs r2, ILATCL
+movts IPEND, r3
+;movfs r4, FSTATUS
+movts CTIMER0, r5
+movfs r6, CTIMER1
+movts MEMSTATUS, r7
+movfs r8, MEMPROTECT
+movts DMA0CONFIG, r0
+movfs r1, DMA0STRIDE
+movts DMA0COUNT, r2
+movfs r3, DMA0SRCADDR
+movts DMA0DSTADDR, r4
+movfs r5, DMA0AUTO0
+movts DMA0AUTO1, r6
+movfs r7, DMA0STATUS
+movts DMA1CONFIG, r8
+movfs r0, DMA1STRIDE
+movts DMA1COUNT, r1
+movfs r2, DMA1SRCADDR
+movts DMA1DSTADDR, r3
+movfs r4, DMA1AUTO0
+movts DMA1AUTO1, r5
+movfs r6, DMA1STATUS
+movts MESHCONFIG, r7
+movfs r8, COREID
+;movts MULTICAST, r0
+;movfs r1, CMESHROUTE
+;movts XMESHROUTE, r2
+;movfs r3, RMESHROUTE
