@@ -26,14 +26,30 @@
 .org 0x2000
 _sync_interrupt:
 
-;; Wait here until receiving a user interrupt signal from the Parallella
 main:
+  ;; r19 = base of shared memory for this core.
+  ;; Core seems to be based row=32, col=8.
+  ;; Substract 32 from row and 8 from column.
+  mov r20, #0x3f
+  movfs r1, COREID
+  lsr r0, r1, #6
+  and r0, r0, r20
+  sub r0, r0, #32
+  and r1, r1, r20
+  sub r1, r1, #8
+
   ;; r16 = base register mandel_params
-  ;; r17 = base register image
-  ;mov r16, #mandel_params
-  mov r16, #0x0000
-  movt r16, #0x8e00
-  ;mov r17, #image
+  ;; r16 = ((row * 4) + col) * 2048
+  mov r20, #0x0000
+  movt r20, #0x8e00
+  lsl r0, r0, #2
+  add r16, r0, r1
+  lsl r16, r16, #11
+  add r16, r16, r20
+
+  ;; r21 = base register image
+  mov r20, #1024
+  add r21, r16, r20
 
   ;; r18 signals that the next row should start
   mov r18, #0
@@ -44,18 +60,13 @@ main:
   mov r0, #0x3ff
   movts ILATCL, r0
 
-  ;; DEBUG
-  mov r0, #3
-  str r0, [r16,#5]
-
   gie
 
+;; Wait here until receiving a user interrupt signal from the Parallella
 wait_for_host:
   ;movfs r0, IRET
-  ;mov r0, #111
   ;; DEBUG
-  str r2, [r16, #5]
-  ;add r19, r19, #1
+  ;str r2, [r16, #5]
 
   sub r0, r18, #1
   bne wait_for_host
@@ -80,9 +91,8 @@ next_row:
   ldr r2, [r16,#2]
   ldr r3, [r16,#3]
 
-  ;; r17 = picture
-  mov r17, #0x0400
-  movt r17, #0x8e00
+  ;; r17 = picture (precalculated from r21)
+  mov r17, r21
 
   ;; r8 = 4.0
   mov r8, #4
@@ -171,23 +181,5 @@ _wand_interrupt:
 _user_interrupt:
   mov r18, #1
   rti
-
-.org 0x4000
-mandel_params:
-real_start:
-  dc32 0
-imaginary_start:
-  dc32 0
-real_inc:
-  dc32 0
-count:
-  dc32 0
-done_flag:
-  dc32 1
-debug:
-  dc32 0
-
-.org 0x6000
-image:
 
 

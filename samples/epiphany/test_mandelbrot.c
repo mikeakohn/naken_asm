@@ -132,7 +132,9 @@ int main(int argc, char *argv[])
   e_epiphany_t dev;
   e_mem_t ext_mem;
   struct _mandel_params mandel_params;
-  uint32_t done;
+  uint32_t done[16];
+  uint32_t line[16];
+  int busy = 0;
   uint8_t picture[WIDTH * HEIGHT];
   float real_start = 0.37 - 0.00;
   float real_end = 0.37 + 0.04;
@@ -141,7 +143,8 @@ int main(int argc, char *argv[])
   float real_inc = (real_end - real_start) / WIDTH;
   float imaginary_inc = (imaginary_end - imaginary_start) / HEIGHT;
   struct timeval tv_start, tv_end;
-  int n, y;
+  int n, y, i;
+  int row, col;
 
   e_init(NULL);
   e_reset_system();
@@ -158,61 +161,118 @@ int main(int argc, char *argv[])
   printf("\n");
 
   // Open a link to the Epiphany and load it with mandelbrot.asm and
-  // signal the core to start running.
-  n = e_open(&dev, 0, 0, 1, 1);
+  // signal the cores to start running.
+  n = e_open(&dev, 0, 0, 4, 4);
   printf("e_open() return value is %d\n", n);
 
-  n = e_load("mandelbrot.srec", &dev, 0, 0, E_FALSE);
-  printf("e_load() return value is %d\n", n);
+#if 0
+  for (i = 0; i < 16; i++)
+  {
+    row = i / 4;
+    col = i % 4;
+
+    n = e_load("mandelbrot.srec", &dev, row, col, E_FALSE);
+    printf("e_load(%d, %d) return value is %d\n", row, col, n);
+  }
+#endif
+
+  n = e_load_group("mandelbrot.srec", &dev, 0, 0, 4, 4, E_FALSE);
+  printf("e_load_group() return value is %d\n", n);
 
   // Get a pointer to external (shared) memory.
-  n = e_alloc(&ext_mem, 0, 2048);
+  n = e_alloc(&ext_mem, 0, 32768);
   printf("e_alloc() return value is %d\n", n);
 
-  n = e_start(&dev, 0, 0);
-  printf("e_start() return value is %d\n", n);
+  for (i = 0; i < 16; i++)
+  {
+    row = i / 4;
+    col = i % 4;
+
+    n = e_start(&dev, row, col);
+    printf("e_start(%d, %d) return value is %d\n", row, col, n);
+  }
+
+  for (i = 0; i < 16; i++) { done[i] = 1; }
 
   // Start timer.
   gettimeofday(&tv_start, NULL);
 
-  // Tell a core on the Epiphany to calculate 1 line of the mandelbrot image.
-  for (y = 0; y < HEIGHT; y++)
-  {
-    mandel_params.real_start = real_start;
-    mandel_params.imaginary_start = imaginary_start;
-    mandel_params.real_inc = real_inc;
-    mandel_params.count = WIDTH;
-    mandel_params.done = 0;
-    mandel_params.debug = 10;
+  y = 0;
 
-    n = e_write(&ext_mem, 0, 0, 0x0000, &mandel_params, sizeof(mandel_params));
-    n = e_signal(&dev, 0, 0);
+  //for (y = 0; y < HEIGHT; y++)
+  while(1)
+  {
+    if (y < HEIGHT && busy < 16)
+    {
+      // Find a free core on the Epiphany and tell it to calculate 1 line
+      // of the mandelbrot image.
+
+      for (i = 0; i < 16; i++)
+      {
+        if (done[i] != 1) { continue; }
+
+        mandel_params.real_start = real_start;
+        mandel_params.imaginary_start = imaginary_start;
+        mandel_params.real_inc = real_inc;
+        mandel_params.count = WIDTH;
+        mandel_params.done = 0;
+        mandel_params.debug = 10;
+
+        row = i / 4;
+        col = i % 4;
+
+        n = e_write(&ext_mem, 0, 0, i * 2048, &mandel_params, sizeof(mandel_params));
+        n = e_signal(&dev, row, col);
 
 #if 0
-    printf("y=%d real_start=%f imaginary_start=%f r_inc=%f i_inc=%f\n",
-      y,
-      mandel_params.real_start,
-      mandel_params.imaginary_start,
-      mandel_params.real_inc,
-      imaginary_inc);
+        printf("y=%d real_start=%f imaginary_start=%f r_inc=%f i_inc=%f\n",
+          y,
+          mandel_params.real_start,
+          mandel_params.imaginary_start,
+          mandel_params.real_inc,
+          imaginary_inc);
 #endif
 
-    while(1)
+        done[i] = 0;
+        line[i] = y++;
+        imaginary_start += imaginary_inc;
+        busy++;
+
+        // printf("core %d,%d is busy=%d\n", row, col, busy);
+      }
+    }
+
+    for (i = 0; i < 16; i++)
     {
-      n = e_read(&ext_mem, 0, 0, 0x0010, &done, sizeof(done));
-      if (done != 0) { break; }
+      if (done[i] != 0) { continue; }
+
+      row = i / 4;
+      col = i % 4;
+
+      n = e_read(&ext_mem, 0, 0, (i * 2048) + 0x0010, &done[i], sizeof(uint32_t));
+
+      if (done[i] != 0)
+      {
+        // Copy image data from shared memory to process's memory.
+        n = e_read(&ext_mem, 0, 0, (i * 2048) + 0x0400, picture + (line[i] * WIDTH), WIDTH);
+        busy--;
+
+        // printf("core %d,%d is done busy=%d %d\n", row, col, busy, line[i]);
+
+        if (y == HEIGHT)
+        {
+          done[i] = -1;
+        }
+      }
 
 #if 0
       uint32_t debug;
-      n = e_read(&ext_mem, 0, 0, 0x0014, &debug, sizeof(debug));
+      n = e_read(&ext_mem, row, col, 0x0014, &debug, sizeof(debug));
       printf("debug=%d 0x%04x n=%d\n", debug, debug, n);
 #endif
     }
 
-    // Copy image data from shared memory to process's memory.
-    n = e_read(&ext_mem, 0, 0, 0x0400, picture + (y * WIDTH), WIDTH);
-
-    imaginary_start += imaginary_inc;
+    if (y == HEIGHT && busy == 0) { break; }
   }
 
   // Print how long it took to render.
