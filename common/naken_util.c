@@ -35,6 +35,7 @@
 #include "disasm/cell.h"
 #include "disasm/dspic.h"
 #include "disasm/epiphany.h"
+#include "disasm/lc3.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
 #include "disasm/pic14.h"
@@ -85,6 +86,7 @@ parse_instruction_t parse_instruction_avr8 = NULL;
 parse_instruction_t parse_instruction_cell = NULL;
 parse_instruction_t parse_instruction_dspic = NULL;
 parse_instruction_t parse_instruction_epiphany = NULL;
+parse_instruction_t parse_instruction_lc3 = NULL;
 parse_instruction_t parse_instruction_mips = NULL;
 parse_instruction_t parse_instruction_msp430 = NULL;
 parse_instruction_t parse_instruction_pic14 = NULL;

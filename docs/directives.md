@@ -24,6 +24,7 @@ CPU this source file should be assembled for.
 |.cell            |IBM Cell BE
 |.dspic           |dsPIC
 |.epiphany        |Ephiphany/Parallella
+|.lc3             |LC-3
 |.mips            |MIPS (32 bit)
 |.mips32          |MIPS (32 bit)
 |.msp430          |MSP430
