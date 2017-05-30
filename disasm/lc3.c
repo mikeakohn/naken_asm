@@ -157,7 +157,7 @@ void list_output_lc3(struct _asm_context *asm_context, uint32_t start, uint32_t 
     opcode = (memory_read_m(&asm_context->memory, start + 0) << 8) |
               memory_read_m(&asm_context->memory, start + 1);
 
-    fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start, opcode, instruction);
+    fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start / 2, opcode, instruction);
 
     start += count;
   }
@@ -181,7 +181,7 @@ void disasm_range_lc3(struct _memory *memory, uint32_t flags, uint32_t start, ui
 
     opcode = READ_RAM16(start);
 
-    printf("0x%04x: %04x %-40s\n", start, opcode, instruction);
+    printf("0x%04x: %04x %-40s\n", start / 2, opcode, instruction);
 
     start = start + count;
   }
