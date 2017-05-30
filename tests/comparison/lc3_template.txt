@@ -1,0 +1,20 @@
+add r3, r4, r5
+add r3, r4, #7
+add r3, r4, #-10
+and r7, r2, r5
+and r3, r1, #7
+;br 8
+jmp r4
+;jsr 100
+jsrr r4
+;ld r3, 100
+;ldi r7, 120
+ldr r4, r2, #-4
+;lea r4, 100
+not r4, r2
+ret
+rti
+;st r3, 100
+;sti r7, 120
+str r4, r2, #-4
+trap 50

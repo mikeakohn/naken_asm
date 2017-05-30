@@ -118,7 +118,7 @@ struct _cpu_list cpu_list[] =
   { "epiphany", CPU_TYPE_EPIPHANY, ENDIAN_LITTLE, 1, ALIGN_4, 0, 0, 1, SREC_32, parse_instruction_epiphany, NULL, list_output_epiphany, disasm_range_epiphany, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_LC3
-  { "lc3", CPU_TYPE_LC3, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 0, SREC_16, parse_instruction_lc3, NULL, list_output_lc3, disasm_range_lc3, NULL, NO_FLAGS },
+  { "lc3", CPU_TYPE_LC3, ENDIAN_BIG, 1, ALIGN_2, 0, 0, 0, SREC_16, parse_instruction_lc3, NULL, list_output_lc3, disasm_range_lc3, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_MIPS
   { "mips", CPU_TYPE_MIPS32, ENDIAN_LITTLE, 1, ALIGN_4, 0, 0, 0, SREC_32, parse_instruction_mips, NULL, list_output_mips, disasm_range_mips, simulate_init_mips, MIPS_I | MIPS_II | MIPS_III },

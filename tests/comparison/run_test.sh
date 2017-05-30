@@ -7,7 +7,12 @@ test_instr()
 
   if [ "${cpu}" == "epiphany" ]
   then
-  extra='.include "../../include/epiphany/epiphany.inc"'
+    extra='.include "../../include/epiphany/epiphany.inc"'
+  fi
+
+  if [ "${cpu}" == "lc3" ]
+  then
+    extra='.dc16 0'
   fi
 
 cat >${cpu}.asm << EOF

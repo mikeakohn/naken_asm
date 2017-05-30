@@ -255,11 +255,21 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
               offset = 0;
             }
 
+#if 0
+            if ((offset & 1) != 0)
+            {
+              print_error_align(asm_context, 2);
+              return -1;
+            }
+#endif
+
             if (offset < -256 || offset > 255)
             {
               print_error_range("Offset", -256, 255, asm_context);
               return -1;
             }
+
+            if (nzp == 0) { nzp = 7; }
 
             opcode = table_lc3[n].opcode |
                      (nzp << 9) |
@@ -342,8 +352,9 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
           if (operand_count == 3 &&
               operands[0].type == OPERAND_REG &&
               operands[1].type == OPERAND_REG &&
-              operands[2].type == OPERAND_ADDRESS)
+              operands[2].type == OPERAND_NUMBER)
           {
+#if 0
             if (asm_context->pass == 2)
             {
               offset = operands[2].value - (asm_context->address + 2);
@@ -352,8 +363,9 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
             {
               offset = 0;
             }
+#endif
 
-            if (offset < -32 || offset > 31)
+            if (operands[2].value < -32 || operands[2].value > 31)
             {
               print_error_range("Offset", -32, 31, asm_context);
               return -1;
@@ -362,7 +374,7 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
             opcode = table_lc3[n].opcode |
                      (operands[0].value << 9) |
                      (operands[1].value << 6) |
-                     (offset & 0x1ff);
+                     (operands[2].value & 0x3f);
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;
           }

@@ -16,19 +16,19 @@
 #include "disasm/lc3.h"
 #include "table/lc3.h"
 
-#define READ_RAM16(a) (memory_read_m(memory, a + 1) << 8) | \
-                       memory_read_m(memory, a + 0)
+#define READ_RAM16(a) (memory_read_m(memory, a + 0) << 8) | \
+                       memory_read_m(memory, a + 1)
 
 static char *br[] =
 {
-  "",
+  "???",
   "p",
   "z",
   "zp",
   "n",
   "np",
   "nz",
-  "nzp",
+  "",
 };
 
 int get_cycle_count_lc3(unsigned short int opcode)
@@ -111,7 +111,7 @@ int disasm_lc3(struct _memory *memory, uint32_t address, char *instruction, int 
           uint16_t offset6 = opcode & 0x03f;
           if ((offset6 & 0x20) != 0) { offset6 |= 0xffc0; }
 
-          sprintf(instruction, "%s r%d, r%d, %d", table_lc3[n].instr, r0, r1, offset6);
+          sprintf(instruction, "%s r%d, r%d, #%d", table_lc3[n].instr, r0, r1, offset6);
           return 2;
         }
         case OP_R_R:
@@ -154,8 +154,8 @@ void list_output_lc3(struct _asm_context *asm_context, uint32_t start, uint32_t 
   {
     count = disasm_lc3(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-    opcode = (memory_read_m(&asm_context->memory, start + 1) << 8) |
-              memory_read_m(&asm_context->memory, start + 0);
+    opcode = (memory_read_m(&asm_context->memory, start + 0) << 8) |
+              memory_read_m(&asm_context->memory, start + 1);
 
     fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start, opcode, instruction);
 
