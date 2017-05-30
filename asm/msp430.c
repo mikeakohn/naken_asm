@@ -132,7 +132,7 @@ static int ignore_and_check_indexed(struct _asm_context *asm_context)
   // (reg) pattern.
   while(1)
   {
-    token_type=tokens_get(asm_context, token, TOKENLEN);
+    token_type = tokens_get(asm_context, token, TOKENLEN);
 
     if (IS_TOKEN(token, ',') || token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
