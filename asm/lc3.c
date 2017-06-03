@@ -248,20 +248,12 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
           {
             if (asm_context->pass == 2)
             {
-              offset = operands[0].value - (asm_context->address + 2);
+              offset = operands[0].value - ((asm_context->address / 2) + 1);
             }
               else
             {
               offset = 0;
             }
-
-#if 0
-            if ((offset & 1) != 0)
-            {
-              print_error_align(asm_context, 2);
-              return -1;
-            }
-#endif
 
             if (offset < -256 || offset > 255)
             {
@@ -299,7 +291,7 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
           {
             if (asm_context->pass == 2)
             {
-              offset = operands[0].value - (asm_context->address + 2);
+              offset = operands[0].value - ((asm_context->address / 2) + 1);
             }
               else
             {
@@ -326,7 +318,7 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
           {
             if (asm_context->pass == 2)
             {
-              offset = operands[1].value - (asm_context->address + 2);
+              offset = operands[1].value - ((asm_context->address / 2) + 1);
             }
               else
             {
@@ -354,17 +346,6 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
               operands[1].type == OPERAND_REG &&
               operands[2].type == OPERAND_NUMBER)
           {
-#if 0
-            if (asm_context->pass == 2)
-            {
-              offset = operands[2].value - (asm_context->address + 2);
-            }
-              else
-            {
-              offset = 0;
-            }
-#endif
-
             if (operands[2].value < -32 || operands[2].value > 31)
             {
               print_error_range("Offset", -32, 31, asm_context);

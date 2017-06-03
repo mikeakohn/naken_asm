@@ -78,10 +78,10 @@ int disasm_lc3(struct _memory *memory, uint32_t address, char *instruction, int 
         case OP_BR:
         {
           char *nzp = br[(opcode >> 9) & 0x7];
-          uint16_t offset9 = opcode & 0x1ff;
+          int16_t offset9 = opcode & 0x1ff;
           if ((offset9 & 0x100) != 0) { offset9 |= 0xfe00; }
 
-          sprintf(instruction, "%s%s %d (offset=%d)", table_lc3[n].instr, nzp, address + 2 + offset9, offset9);
+          sprintf(instruction, "%s%s 0x%04x (offset=%d)", table_lc3[n].instr, nzp, (address / 2) + 1 + offset9, offset9);
 
           return 2;
         }
@@ -95,7 +95,7 @@ int disasm_lc3(struct _memory *memory, uint32_t address, char *instruction, int 
           uint16_t offset11 = opcode & 0x7ff;
           if ((offset11 & 0x400) != 0) { offset11 |= 0xfc00; }
 
-          sprintf(instruction, "%s %d (offset=%d)", table_lc3[n].instr, address + 2 + offset11, offset11);
+          sprintf(instruction, "%s 0x%04x (offset=%d)", table_lc3[n].instr, (address / 2) + 1 + offset11, offset11);
           return 2;
         }
         case OP_R_OFFSET9:
@@ -103,12 +103,12 @@ int disasm_lc3(struct _memory *memory, uint32_t address, char *instruction, int 
           uint16_t offset9 = opcode & 0x1ff;
           if ((offset9 & 0x100) != 0) { offset9 |= 0xfe00; }
 
-          sprintf(instruction, "%s r%d, %d (offset=%d)", table_lc3[n].instr, r0, address + 2 + offset9, offset9);
+          sprintf(instruction, "%s r%d, 0x%04x (offset=%d)", table_lc3[n].instr, r0, (address / 2) + 1 + offset9, offset9);
           return 2;
         }
         case OP_R_R_OFFSET6:
         {
-          uint16_t offset6 = opcode & 0x03f;
+          int16_t offset6 = opcode & 0x03f;
           if ((offset6 & 0x20) != 0) { offset6 |= 0xffc0; }
 
           sprintf(instruction, "%s r%d, r%d, #%d", table_lc3[n].instr, r0, r1, offset6);
