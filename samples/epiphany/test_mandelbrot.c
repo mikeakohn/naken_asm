@@ -199,7 +199,6 @@ int main(int argc, char *argv[])
 
   y = 0;
 
-  //for (y = 0; y < HEIGHT; y++)
   while(1)
   {
     if (y < HEIGHT && busy < 16)
@@ -237,6 +236,8 @@ int main(int argc, char *argv[])
         line[i] = y++;
         imaginary_start += imaginary_inc;
         busy++;
+
+        if (y == HEIGHT) { break; }
 
         // printf("core %d,%d is busy=%d\n", row, col, busy);
       }
