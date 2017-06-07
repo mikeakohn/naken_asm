@@ -56,6 +56,7 @@
 #include "simulate/avr8.h"
 #include "simulate/6502.h"
 #include "simulate/65816.h"
+#include "simulate/lc3.h"
 #include "simulate/mips.h"
 #include "simulate/msp430.h"
 #include "simulate/tms9900.h"
@@ -494,6 +495,9 @@ static void disasm_range(struct _util_context *util_context, int start, int end)
   int curr_end;
   int n;
 
+  start = start * util_context->bytes_per_address;
+  end = end * util_context->bytes_per_address;
+
   page_size = memory_page_size(&util_context->memory);
   page_mask = page_size - 1;
   curr_end = start | page_mask;
@@ -538,11 +542,16 @@ static void disasm(struct _util_context *util_context, char *token, int dbg_flag
 
   if (get_range(util_context, token, &start, &end) == -1) { return; }
 
+  start = start * util_context->bytes_per_address;
+  end = end * util_context->bytes_per_address;
+
+#if 0
   if ((start % 2) != 0 || (end % 2) != 0)
   {
     printf("Address range 0x%04x to 0x%04x must be on a 2 byte boundary.\n", start, end);
     return;
   }
+#endif
 
   util_context->disasm_range(&util_context->memory, util_context->flags, start, end);
 }
@@ -550,9 +559,11 @@ static void disasm(struct _util_context *util_context, char *token, int dbg_flag
 static void show_info(struct _util_context *util_context)
 {
   struct _simulate *simulate = util_context->simulate;
+  uint32_t start = util_context->memory.low_address / util_context->bytes_per_address;
+  uint32_t end = util_context->memory.high_address / util_context->bytes_per_address;
 
-  printf("Start address: 0x%04x (%d)\n", util_context->memory.low_address, util_context->memory.low_address);
-  printf("  End address: 0x%04x (%d)\n", util_context->memory.high_address, util_context->memory.high_address);
+  printf("Start address: 0x%04x (%d)\n", start, start);
+  printf("  End address: 0x%04x (%d)\n", end, end);
   printf("  Break Point: ");
 
   if (simulate->break_point == -1)
@@ -725,6 +736,7 @@ int main(int argc, char *argv[])
            "   -cell                        (IBM Cell BE)\n"
            "   -dspic                       (dsPIC)\n"
            "   -epiphany                    (Epiphany III/IV)\n"
+           "   -lc3                         (LC-3)\n"
            "   -mips32 / mips               (MIPS)\n"
            "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
            "   -pic14                       (PIC14 8 bit PIC / 14 bit opcode)\n"
@@ -749,10 +761,12 @@ int main(int argc, char *argv[])
   util_context.disasm_range = disasm_range_msp430;
   util_context.simulate = simulate_init_msp430(&util_context.memory);
   util_context.flags = 0;
+  util_context.bytes_per_address = 1;
 #else
   util_context.disasm_range = cpu_list[0].disasm_range;
   util_context.simulate = simulate_init_null(&util_context.memory);
   util_context.flags = cpu_list[0].flags;
+  util_context.bytes_per_address = cpu_list[0].bytes_per_address;
 #endif
 
   for (i = 1; i < argc; i++)
@@ -760,12 +774,14 @@ int main(int argc, char *argv[])
     if (argv[i][0] == '-')
     {
       int n = 0;
+
       while (cpu_list[n].name != NULL)
       {
         if (strcasecmp(argv[i] + 1, cpu_list[n].name) == 0)
         {
           util_context.disasm_range = cpu_list[n].disasm_range;
           util_context.flags = cpu_list[n].flags;
+          util_context.bytes_per_address = cpu_list[n].bytes_per_address;
 
           if (cpu_list[n].simulate_init != NULL)
           {
@@ -794,6 +810,7 @@ int main(int argc, char *argv[])
       {
         fclose(src);
         src = fopen(argv[++i], "rb");
+
         if (src == NULL)
         {
           printf("Could not open source file %s\n", argv[i]);
@@ -832,6 +849,7 @@ int main(int argc, char *argv[])
     {
       uint8_t cpu_type;
       char *extension = argv[i] + strlen(argv[i]) - 1;
+
       while(extension != argv[i])
       {
         if (*extension == '.') { extension++; break; }
@@ -841,12 +859,14 @@ int main(int argc, char *argv[])
       if (read_elf(argv[i], &util_context.memory, &cpu_type, &util_context.symbols)>=0)
       {
         int n = 0;
+
         while (cpu_list[n].name != NULL)
         {
           if (cpu_type == cpu_list[n].type)
           {
             util_context.disasm_range = cpu_list[n].disasm_range;
             util_context.flags = cpu_list[n].flags;
+            util_context.bytes_per_address = cpu_list[n].bytes_per_address;
 
             if (cpu_list[n].simulate_init != NULL)
             {
@@ -865,34 +885,49 @@ int main(int argc, char *argv[])
         }
 
         hexfile = argv[i];
-        printf("Loaded elf %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
+        printf("Loaded elf %s from 0x%04x to 0x%04x\n",
+          argv[i],
+          util_context.memory.low_address,
+          util_context.memory.high_address);
       }
         else
       if (strcmp(extension, "txt") == 0 &&
           read_ti_txt(argv[i], &util_context.memory) >= 0)
       {
         hexfile = argv[i];
-        printf("Loaded ti_txt %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
+        printf("Loaded ti_txt %s from 0x%04x to 0x%04x\n",
+          argv[i],
+          util_context.memory.low_address,
+          util_context.memory.high_address);
       }
         else
       if ((strcmp(extension, "bin") == 0 || force_bin == 1) &&
           read_bin(argv[i], &util_context.memory, start_address) >= 0)
       {
         hexfile = argv[i];
-        printf("Loaded bin %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
+        printf("Loaded bin %s from 0x%04x to 0x%04x\n",
+          argv[i],
+          util_context.memory.low_address,
+          util_context.memory.high_address);
       }
         else
       if (strcmp(extension, "srec") == 0 &&
           read_srec(argv[i], &util_context.memory) >= 0)
       {
         hexfile = argv[i];
-        printf("Loaded srec %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
+        printf("Loaded srec %s from 0x%04x to 0x%04x\n",
+          argv[i],
+          util_context.memory.low_address,
+          util_context.memory.high_address);
       }
         else
       if (read_hex(argv[i], &util_context.memory) >= 0)
       {
         hexfile = argv[i];
-        printf("Loaded hexfile %s from 0x%04x to 0x%04x\n", argv[i], util_context.memory.low_address, util_context.memory.high_address);
+        printf("Loaded hexfile %s from 0x%04x to 0x%04x\n",
+          argv[i],
+          util_context.memory.low_address,
+          util_context.memory.high_address);
       }
         else
       {
@@ -1172,7 +1207,6 @@ int main(int argc, char *argv[])
       else
     if (strcmp(command, "disasm") == 0)
     {
-       //util_context.disasm_range(&util_context.memory, util_context.memory.low_address, util_context.memory.high_address);
        disasm_range(&util_context, util_context.memory.low_address, util_context.memory.high_address);
     }
       else

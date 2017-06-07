@@ -16,8 +16,6 @@
 #include "common/memory.h"
 #include "simulate/msp430.h"
 
-//typedef void (*disasm_range_t)(struct _memory *, int, int);
-
 struct _util_context
 {
   struct _memory memory;
@@ -27,6 +25,7 @@ struct _util_context
   FILE *src_fp;
   int fd;
   uint32_t flags;
+  int bytes_per_address;
   disasm_range_t disasm_range;
 };
 

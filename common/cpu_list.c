@@ -69,6 +69,7 @@
 #include "simulate/6502.h"
 #include "simulate/65816.h"
 #include "simulate/avr8.h"
+#include "simulate/lc3.h"
 #include "simulate/mips.h"
 #include "simulate/msp430.h"
 #include "simulate/tms9900.h"
@@ -118,7 +119,7 @@ struct _cpu_list cpu_list[] =
   { "epiphany", CPU_TYPE_EPIPHANY, ENDIAN_LITTLE, 1, ALIGN_4, 0, 0, 1, SREC_32, parse_instruction_epiphany, NULL, list_output_epiphany, disasm_range_epiphany, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_LC3
-  { "lc3", CPU_TYPE_LC3, ENDIAN_BIG, 2, ALIGN_2, 0, 0, 0, SREC_16, parse_instruction_lc3, NULL, list_output_lc3, disasm_range_lc3, NULL, NO_FLAGS },
+  { "lc3", CPU_TYPE_LC3, ENDIAN_BIG, 2, ALIGN_2, 0, 0, 0, SREC_16, parse_instruction_lc3, NULL, list_output_lc3, disasm_range_lc3,  simulate_init_lc3, NO_FLAGS },
 #endif
 #ifdef ENABLE_MIPS
   { "mips", CPU_TYPE_MIPS32, ENDIAN_LITTLE, 1, ALIGN_4, 0, 0, 0, SREC_32, parse_instruction_mips, NULL, list_output_mips, disasm_range_mips, simulate_init_mips, MIPS_I | MIPS_II | MIPS_III },
