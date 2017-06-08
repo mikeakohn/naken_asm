@@ -17,16 +17,16 @@
 #include "common/memory.h"
 #include "simulate/common.h"
 
+#define FLAG_PRIV 0x8000
+#define FLAG_N 0x0004
+#define FLAG_Z 0x0002
+#define FLAG_P 0x0001
+
 struct _simulate_lc3
 {
   uint16_t reg[8];
-  int pc;
-  struct
-  {
-    uint8_t n;
-    uint8_t z;
-    uint8_t p;
-  } flags;
+  uint16_t pc;
+  uint16_t psr;
 };
 
 struct _simulate *simulate_init_lc3();

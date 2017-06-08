@@ -21,10 +21,17 @@
 #define READ_RAM(a) (memory_read_m(simulate->memory, a * 2)) | memory_read_m(simulate->memory, (a * 2) + 1)
 #define WRITE_RAM(a,b) memory_write_m(simulate->memory, a, b)
 
+#define GET_N() ((simulate_lc3->psr >> 2) & 1)
+#define GET_Z() ((simulate_lc3->psr >> 1) & 1)
+#define GET_P() ((simulate_lc3->psr) & 1)
+#define GET_PRIV() ((simulate_lc3->psr >> 15) & 1)
+#define GET_PRIORITY() ((simulate_lc3->psr >> 8) & 7)
+
 #define CHECK_FLAGS() \
-    if (result < 0) { simulate_lc3->flags.n = 1; } \
-    if (result == 0) { simulate_lc3->flags.z = 1; } \
-    if (result > 0) { simulate_lc3->flags.p = 1; }
+    simulate_lc3->psr &= 0xfff8; \
+    if (result < 0) { simulate_lc3->psr |= 0x4; } \
+    if (result == 0) {  simulate_lc3->psr |= 0x2; } \
+    if (result > 0) {  simulate_lc3->psr |= 0x1; }
 
 static int stop_running = 0;
 
@@ -38,9 +45,11 @@ static int execute_instruction(struct _simulate *simulate, uint16_t opcode)
 {
   struct _simulate_lc3 *simulate_lc3 = (struct _simulate_lc3 *)simulate->context;
   int r0, r1, r2;
+  uint16_t address;
   int16_t result;
   int16_t simm;
   int n, z, p;
+  int offset6;
   int offset9;
   int offset11;
 
@@ -112,9 +121,9 @@ static int execute_instruction(struct _simulate *simulate, uint16_t opcode)
     offset9 = opcode & 0x1ff;
     if ((offset9 & 0x100) != 0) { offset9 |= 0xff00; }
 
-    if ((n == 1 && simulate_lc3->flags.n == 1) ||
-        (z == 1 && simulate_lc3->flags.z == 1) ||
-        (p == 1 && simulate_lc3->flags.p == 1))
+    if ((n == 1 && GET_N() == 1) ||
+        (z == 1 && GET_Z() == 1) ||
+        (p == 1 && GET_P() == 1))
     {
       simulate_lc3->pc += offset9;
     }
@@ -147,21 +156,45 @@ static int execute_instruction(struct _simulate *simulate, uint16_t opcode)
     result = simulate_lc3->reg[r1];
     simulate_lc3->reg[7] = simulate_lc3->pc;
     simulate_lc3->pc = result;
+
+    return 0;
   }
     else
   if ((opcode & 0xf000) == 0x2000)
   {
     // ld
+    offset9 = opcode & 0x1ff;
+    if ((offset9 & 0x100) != 0) { offset9 |= 0xff00; }
+
+    address = simulate_lc3->pc + offset9;
+    simulate_lc3->reg[r0] = READ_RAM(address);
+
+    return 0;
   }
     else
   if ((opcode & 0xf000) == 0xa000)
   {
     // ldi
+    offset9 = opcode & 0x1ff;
+    if ((offset9 & 0x100) != 0) { offset9 |= 0xff00; }
+
+    address = simulate_lc3->pc + offset9;
+    address = READ_RAM(address);
+    simulate_lc3->reg[r0] = READ_RAM(address);
+
+    return 0;
   }
     else
   if ((opcode & 0xf000) == 0x6000)
   {
     // ldr
+    offset6 = opcode & 0x3ff;
+    if ((offset6 & 0x200) != 0) { offset6 |= 0xfe00; }
+
+    address = simulate_lc3->reg[r1] + offset6;
+    simulate_lc3->reg[r0] = READ_RAM(address);
+
+    return 0;
   }
     else
   if ((opcode & 0xf000) == 0xe000)
@@ -194,21 +227,49 @@ static int execute_instruction(struct _simulate *simulate, uint16_t opcode)
   if ((opcode & 0xf000) == 0x3000)
   {
     // st
+    offset9 = opcode & 0x1ff;
+    if ((offset9 & 0x100) != 0) { offset9 |= 0xff00; }
+
+    address = simulate_lc3->pc + offset9;
+    WRITE_RAM(address, simulate_lc3->reg[r0]);
+
+    return 0;
   }
     else
   if ((opcode & 0xf000) == 0xb000)
   {
     // sti
+    offset9 = opcode & 0x1ff;
+    if ((offset9 & 0x100) != 0) { offset9 |= 0xff00; }
+
+    address = simulate_lc3->pc + offset9;
+    address = READ_RAM(address);
+    WRITE_RAM(address, simulate_lc3->reg[r0]);
+
+    return 0;
   }
     else
   if ((opcode & 0xf000) == 0x7000)
   {
     // str
+    offset6 = opcode & 0x3ff;
+    if ((offset6 & 0x200) != 0) { offset6 |= 0xfe00; }
+
+    address = simulate_lc3->reg[r1] + offset6;
+    WRITE_RAM(address, simulate_lc3->reg[r0]);
+
+    return 0;
   }
     else
   if ((opcode & 0xff00) == 0xf000)
   {
     // trap
+    simm = opcode & 0xff;
+
+    simulate_lc3->reg[7] = simulate_lc3->pc;
+    simulate_lc3->pc = READ_RAM(simm);
+
+    return 0;
   }
 
   return -1;
@@ -288,9 +349,7 @@ void simulate_reset_lc3(struct _simulate *simulate)
   memset(simulate_lc3->reg, 0, sizeof(uint16_t) * 8);
 
   simulate_lc3->pc = 0;
-  simulate_lc3->flags.n = 0;
-  simulate_lc3->flags.z = 0;
-  simulate_lc3->flags.p = 0;
+  simulate_lc3->psr = 0;
 }
 
 void simulate_free_lc3(struct _simulate *simulate)
@@ -308,11 +367,13 @@ void simulate_dump_registers_lc3(struct _simulate *simulate)
   struct _simulate_lc3 *simulate_lc3 = (struct _simulate_lc3 *)simulate->context;
   int reg;
 
-  printf("PC=0x%04x    N=%d Z=%d P=%d\n",
+  printf("PC=0x%04x  N=%d Z=%d P=%d   PRIV=%d  PRIORITY=%d\n",
     simulate_lc3->pc,
-    simulate_lc3->flags.n,
-    simulate_lc3->flags.z,
-    simulate_lc3->flags.p);
+    GET_N(),
+    GET_Z(),
+    GET_P(),
+    GET_PRIV(),
+    GET_PRIORITY());
 
   for (reg = 0; reg < 8; reg++)
   {
