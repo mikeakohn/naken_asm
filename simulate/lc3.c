@@ -18,8 +18,10 @@
 #include "disasm/lc3.h"
 #include "simulate/lc3.h"
 
-#define READ_RAM(a) (memory_read_m(simulate->memory, a * 2)) | memory_read_m(simulate->memory, (a * 2) + 1)
-#define WRITE_RAM(a,b) memory_write_m(simulate->memory, a, b)
+#define READ_RAM(a) (memory_read_m(simulate->memory, a * 2)) | \
+                    memory_read_m(simulate->memory, (a * 2) + 1)
+#define WRITE_RAM(a,b) memory_write_m(simulate->memory, a * 2, b >> 8); \
+                       memory_write_m(simulate->memory, ((a * 2) + 1), b & 0xff)
 
 #define GET_N() ((simulate_lc3->psr >> 2) & 1)
 #define GET_Z() ((simulate_lc3->psr >> 1) & 1)
@@ -200,6 +202,13 @@ static int execute_instruction(struct _simulate *simulate, uint16_t opcode)
   if ((opcode & 0xf000) == 0xe000)
   {
     // lea
+    offset9 = opcode & 0x1ff;
+    if ((offset9 & 0x100) != 0) { offset9 |= 0xff00; }
+
+    address = simulate_lc3->pc + offset9;
+    simulate_lc3->reg[r0] = address;
+
+    return 0;
   }
     else
   if ((opcode & 0xf03f) == 0x903f)
@@ -210,6 +219,8 @@ static int execute_instruction(struct _simulate *simulate, uint16_t opcode)
     CHECK_FLAGS();
 
     simulate_lc3->reg[r0] = (uint16_t)result;
+
+    return 0;
   }
     else
   if ((opcode & 0xffff) == 0xc1c0)
@@ -222,6 +233,18 @@ static int execute_instruction(struct _simulate *simulate, uint16_t opcode)
   if ((opcode & 0xffff) == 0x8000)
   {
     // rti
+    if (GET_PRIV() != 0)
+    {
+      printf("Error: Privilege mode exception\n");
+      return -1;
+    }
+
+    simulate_lc3->pc = simulate_lc3->reg[6];
+    simulate_lc3->reg[6]--;
+    simulate_lc3->psr = simulate_lc3->reg[6];
+    simulate_lc3->reg[6]--;
+
+    return 0;
   }
     else
   if ((opcode & 0xf000) == 0x3000)
