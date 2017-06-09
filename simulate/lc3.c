@@ -18,7 +18,7 @@
 #include "disasm/lc3.h"
 #include "simulate/lc3.h"
 
-#define READ_RAM(a) (memory_read_m(simulate->memory, a * 2)) | \
+#define READ_RAM(a) (memory_read_m(simulate->memory, a * 2) << 8) | \
                     memory_read_m(simulate->memory, (a * 2) + 1)
 #define WRITE_RAM(a,b) memory_write_m(simulate->memory, a * 2, b >> 8); \
                        memory_write_m(simulate->memory, ((a * 2) + 1), b & 0xff)
@@ -371,7 +371,7 @@ void simulate_reset_lc3(struct _simulate *simulate)
 
   memset(simulate_lc3->reg, 0, sizeof(uint16_t) * 8);
 
-  simulate_lc3->pc = 0;
+  simulate_lc3->pc = 0x3000;
   simulate_lc3->psr = 0;
 }
 
@@ -403,6 +403,8 @@ void simulate_dump_registers_lc3(struct _simulate *simulate)
     printf(" r%d: 0x%04x,", reg, simulate_lc3->reg[reg]);
     if ((reg & 0x3) == 0x3) { printf("\n"); }
   }
+
+  printf("\n");
 }
 
 int simulate_run_lc3(struct _simulate *simulate, int max_cycles, int step)
@@ -425,7 +427,7 @@ int simulate_run_lc3(struct _simulate *simulate, int max_cycles, int step)
   {
     pc = simulate_lc3->pc;
 
-    opcode = (READ_RAM(pc) << 8) | READ_RAM(pc + 1);
+    opcode = READ_RAM(pc);
 
 #if 0
     c = get_cycle_count(opcode);
@@ -433,7 +435,7 @@ int simulate_run_lc3(struct _simulate *simulate, int max_cycles, int step)
     if (c > 0)  { simulate->cycle_count += c; }
 #endif
 
-    simulate_lc3->pc += 2;
+    simulate_lc3->pc += 1;
 
     if (simulate->show == 1) printf("\x1b[1J\x1b[1;1H");
 
@@ -444,15 +446,15 @@ int simulate_run_lc3(struct _simulate *simulate, int max_cycles, int step)
       simulate_dump_registers_lc3(simulate);
 
       n = 0;
+
       while(n < 12)
       {
         int cycles_min,cycles_max;
         int num, count;
 
-        num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
+        num = READ_RAM(pc);
 
-        count = disasm_lc3(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
-        if (cycles_min == -1) { break; }
+        count = disasm_lc3(simulate->memory, pc * 2, instruction, &cycles_min, &cycles_max);
 
         if (pc == simulate->break_point) { printf("*"); }
         else { printf(" "); }
@@ -467,7 +469,7 @@ int simulate_run_lc3(struct _simulate *simulate, int max_cycles, int step)
         printf("0x%04x: 0x%04x %-40s\n", pc, num, instruction);
 
         n = n + count;
-        pc += 2;
+        pc += 1;
         count -= 2;
 
         while (count > 0)
@@ -477,7 +479,7 @@ int simulate_run_lc3(struct _simulate *simulate, int max_cycles, int step)
 
           num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
           printf("  0x%04x: 0x%04x\n", pc, num);
-          pc += 2;
+          pc += 1;
           count -= 2;
         }
       }
@@ -490,13 +492,15 @@ int simulate_run_lc3(struct _simulate *simulate, int max_cycles, int step)
 
     if (ret == -1)
     {
-      printf("Illegal instruction at address 0x%04x\n", pc);
+      printf("Illegal instruction 0x%04x at address 0x%04x\n", opcode, pc);
       return -1;
     }
 
     if (max_cycles != -1 && cycles > max_cycles) { break; }
 
-    if (simulate->break_point == simulate_lc3->reg[0])
+    printf("\n");
+
+    if (simulate->break_point == simulate_lc3->pc)
     {
       printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
       break;
@@ -522,7 +526,7 @@ int simulate_run_lc3(struct _simulate *simulate, int max_cycles, int step)
   }
 
   signal(SIGINT, SIG_DFL);
-  printf("Stopped.  PC=0x%04x.\n", simulate_lc3->reg[0]);
+  printf("Stopped.  PC=0x%04x.\n", simulate_lc3->pc);
   printf("%d clock cycles have passed since last reset.\n", simulate->cycle_count);
 
   return 0;
