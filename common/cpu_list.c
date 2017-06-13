@@ -19,6 +19,7 @@
 #include "asm/68hc08.h"
 #include "asm/68000.h"
 #include "asm/8051.h"
+#include "asm/arc.h"
 #include "asm/arm.h"
 #include "asm/avr8.h"
 #include "asm/cell.h"
@@ -47,6 +48,7 @@
 #include "disasm/68hc08.h"
 #include "disasm/68000.h"
 #include "disasm/8051.h"
+#include "disasm/arc.h"
 #include "disasm/arm.h"
 #include "disasm/avr8.h"
 #include "disasm/cell.h"
@@ -102,6 +104,9 @@ struct _cpu_list cpu_list[] =
 #endif
 #ifdef ENABLE_8051
   { "8051", CPU_TYPE_8051, ENDIAN_LITTLE, 1, ALIGN_1, 0, 0, 0, SREC_16, parse_instruction_8051, NULL, list_output_8051, disasm_range_8051, NULL, NO_FLAGS },
+#endif
+#ifdef ENABLE_ARC
+  { "arc", CPU_TYPE_ARC, ENDIAN_BIG, 1, ALIGN_4, 0, 0, 0, SREC_32, parse_instruction_arc, NULL, list_output_arc, disasm_range_arc, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_ARM
   { "arm", CPU_TYPE_ARM, ENDIAN_LITTLE, 1, ALIGN_4, 0, 0, 0, SREC_32, parse_instruction_arm, NULL, list_output_arm, disasm_range_arm, NULL, NO_FLAGS },
