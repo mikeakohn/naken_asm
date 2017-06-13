@@ -37,6 +37,12 @@ struct _operand
   int type;
 };
 
+static void add_bin(struct _asm_context *asm_context, uint32_t opcode, int flags)
+{
+  add_bin16(asm_context, opcode >> 16, flags);
+  add_bin16(asm_context, opcode & 0xffff, flags);
+}
+
 static int get_register_arc(char *token)
 {
   if (token[0] == 'r' || token[1] == 'R')
@@ -79,8 +85,8 @@ static int map_16bit_reg(int r32)
   // Page 40 of the ARCompact Instruction Set Architecture... looks
   // like for 16 bit instructions, only 8 of the ARC's registers can
   // be used and they aren't in numerical order.
-  if (r32 >=0 && r32 <= 3) { return r32; }
-  if (r32 >=12 && r32 <= 15) { return r32 - 12; }
+  if (r32 >= 0 && r32 <= 3) { return r32; }
+  if (r32 >= 12 && r32 <= 15) { return r32 - 8; }
 
   return -1;
 }
@@ -94,7 +100,7 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
   int operand_count = 0;
   int token_type;
   int num, n;
-  uint16_t opcode;
+  uint32_t opcode;
   int found = 0;
   int f_flag = 0;
 
@@ -189,7 +195,7 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
         {
           if (operand_count == 0)
           {
-            add_bin32(asm_context, table_arc[n].opcode, IS_OPCODE);
+            add_bin(asm_context, table_arc[n].opcode, IS_OPCODE);
             return 4;
           }
 
@@ -207,7 +213,7 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
                     (operands[1].value << 6) |
                     (f_flag << 15);
 
-            add_bin32(asm_context, opcode, IS_OPCODE);
+            add_bin(asm_context, opcode, IS_OPCODE);
 
             return 4;
           }
@@ -227,7 +233,7 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
                     (operands[1].value << 6) |
                     (f_flag << 15);
 
-            add_bin32(asm_context, opcode, IS_OPCODE);
+            add_bin(asm_context, opcode, IS_OPCODE);
 
             return 4;
           }
@@ -245,7 +251,7 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
                   (((operands[0].value >> 3) & 0x7) << 12) |
                     (f_flag << 15);
 
-            add_bin32(asm_context, opcode, IS_OPCODE);
+            add_bin(asm_context, opcode, IS_OPCODE);
 
             return 4;
           }
@@ -267,7 +273,7 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
     {
       found = 1;
 
-      switch(table_arc[n].type)
+      switch(table_arc16[n].type)
       {
         case OP_NONE:
         {
@@ -290,9 +296,7 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
 
             if (b < 0 || c < 0) { break; }
 
-            opcode = table_arc[n].opcode |
-                    (operands[0].value << 8) |
-                    (operands[1].value << 5);
+            opcode = table_arc16[n].opcode | (b << 8) | (c << 5);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
 

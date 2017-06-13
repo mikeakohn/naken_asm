@@ -1,0 +1,5 @@
+abs r3, r4
+;abs r3, 5
+;abs r3, -5
+;abs r3, -600
+abs_s r3, r12

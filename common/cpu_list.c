@@ -106,7 +106,7 @@ struct _cpu_list cpu_list[] =
   { "8051", CPU_TYPE_8051, ENDIAN_LITTLE, 1, ALIGN_1, 0, 0, 0, SREC_16, parse_instruction_8051, NULL, list_output_8051, disasm_range_8051, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_ARC
-  { "arc", CPU_TYPE_ARC, ENDIAN_BIG, 1, ALIGN_4, 0, 0, 0, SREC_32, parse_instruction_arc, NULL, list_output_arc, disasm_range_arc, NULL, NO_FLAGS },
+  { "arc", CPU_TYPE_ARC, ENDIAN_LITTLE, 1, ALIGN_4, 0, 0, 0, SREC_32, parse_instruction_arc, NULL, list_output_arc, disasm_range_arc, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_ARM
   { "arm", CPU_TYPE_ARM, ENDIAN_LITTLE, 1, ALIGN_4, 0, 0, 0, SREC_32, parse_instruction_arm, NULL, list_output_arm, disasm_range_arm, NULL, NO_FLAGS },
