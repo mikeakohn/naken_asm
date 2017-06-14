@@ -12,3 +12,9 @@ abs.f r23, 5
 abs.f r3, -5
 abs.f 0, r17
 abs.f 0, 5
+abss r3, r4
+abss.f r23, 5
+abss r3, -600
+abss 0, r17
+abss.f 0, 5
+abss 0, -5
