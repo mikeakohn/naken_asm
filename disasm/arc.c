@@ -101,6 +101,45 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
 
           return 8;
         }
+        case OP_0_C:
+        {
+          c = (opcode >> 6) & 0x3f;
+          f = (opcode >> 15) & 0x1;
+
+          sprintf(instruction, "%s%s 0, r%d",
+            table_arc[n].instr,
+            f == 0 ? "" : ".f",
+            c);
+
+          return 4;
+        }
+        case OP_0_U6:
+        {
+          u = (opcode >> 6) & 0x3f;
+          f = (opcode >> 15) & 0x1;
+
+          sprintf(instruction, "%s%s 0, %d",
+            table_arc[n].instr,
+            f == 0 ? "" : ".f",
+            u);
+
+          return 4;
+        }
+        case OP_0_LIMM:
+        {
+          b = (((opcode >> 12) & 0x7) << 3) | ((opcode >> 24) & 0x7);
+          f = (opcode >> 15) & 0x1;
+
+          limm = (memory_read16_m(memory, address + 4) << 16) |
+                  memory_read16_m(memory, address + 6);
+
+          sprintf(instruction, "%s%s 0, %d",
+            table_arc[n].instr,
+            f == 0 ? "" : ".f",
+            limm);
+
+          return 8;
+        }
         default:
         {
           break;

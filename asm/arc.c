@@ -238,6 +238,60 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
 
           break;
         }
+        case OP_0_C:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_NUMBER &&
+              operands[0].value == 0 &&
+              operands[1].type == OPERAND_REG)
+          {
+            opcode = table_arc[n].opcode |
+                    (operands[1].value << 6) |
+                    (f_flag << 15);
+
+            add_bin(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          break;
+        }
+        case OP_0_U6:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_NUMBER &&
+              operands[0].value == 0 &&
+              operands[1].type == OPERAND_NUMBER &&
+              operands[1].value >= 0 && operands[1].value <= 63)
+          {
+            opcode = table_arc[n].opcode |
+                    (operands[1].value << 6) |
+                    (f_flag << 15);
+
+            add_bin(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          break;
+        }
+        case OP_0_LIMM:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_NUMBER &&
+              operands[0].value == 0 &&
+              operands[1].type == OPERAND_NUMBER)
+          {
+            opcode = table_arc[n].opcode | (f_flag << 15);
+
+            add_bin(asm_context, opcode, IS_OPCODE);
+            add_bin(asm_context, operands[1].value, IS_OPCODE);
+
+            return 8;
+          }
+
+          break;
+        }
         default:
           break;
       }

@@ -1,5 +1,9 @@
 abs r3, r4
-abs r3, 5
+abs r23, 5
 abs r3, -5
 abs r3, -600
 abs_s r3, r12
+abs 0, r17
+abs 0, 5
+abs 0, -5
+abs 0, -600
