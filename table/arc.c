@@ -15,9 +15,9 @@
 
 struct _table_arc table_arc[] =
 {
+  { "abs",  0x202f0f89, 0xf8ff0fff, OP_B_LIMM },
   { "abs",  0x202f0009, 0xf8ff003f, OP_B_C },
   { "abs",  0x206f0009, 0xf8ff003f, OP_B_U6 },
-  { "abs",  0x202f0f89, 0xf8ff0fff, OP_B_LIMM },
 };
 
 struct _table_arc16 table_arc16[] =

@@ -28,7 +28,6 @@ enum
 {
   OPERAND_REG,
   OPERAND_NUMBER,
-  OPERAND_ADDRESS,
 };
 
 struct _operand
@@ -129,26 +128,6 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OPERAND_REG;
     }
       else
-    if (IS_TOKEN(token,'#'))
-    {
-      if (eval_expression(asm_context, &num) != 0)
-      {
-        if (asm_context->pass == 1)
-        {
-          eat_operand(asm_context);
-          num = 0;
-        }
-          else
-        {
-          print_error_illegal_expression(instr, asm_context);
-          return -1;
-        }
-      }
-
-      operands[operand_count].type = OPERAND_NUMBER;
-      operands[operand_count].value = num;
-    }
-      else
     {
       tokens_push(asm_context, token, token_type);
 
@@ -166,7 +145,7 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
         }
       }
 
-      operands[operand_count].type = OPERAND_ADDRESS;
+      operands[operand_count].type = OPERAND_NUMBER;
       operands[operand_count].value = num;
     }
 
@@ -252,8 +231,9 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
                     (f_flag << 15);
 
             add_bin(asm_context, opcode, IS_OPCODE);
+            add_bin(asm_context, operands[1].value, IS_OPCODE);
 
-            return 4;
+            return 8;
           }
 
           break;

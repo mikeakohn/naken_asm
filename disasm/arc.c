@@ -42,7 +42,8 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
   int n, c, b, f, u;
   int limm;
 
-  opcode = READ_RAM32(address);
+  opcode = (memory_read16_m(memory, address) << 16) |
+            memory_read16_m(memory, address + 2);
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -90,7 +91,8 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
           b = (((opcode >> 12) & 0x7) << 3) | ((opcode >> 24) & 0x7);
           f = (opcode >> 15) & 0x1;
 
-          limm = READ_RAM32(address + 4);
+          limm = (memory_read16_m(memory, address + 4) << 16) |
+                  memory_read16_m(memory, address + 6);
 
           sprintf(instruction, "%s%s r%d, %d",
             table_arc[n].instr,
@@ -109,7 +111,7 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
     n++;
   }
 
-  opcode = READ_RAM16(address);
+  opcode = memory_read16_m(memory, address);
 
   n = 0;
   while(table_arc16[n].instr != NULL)
@@ -120,7 +122,7 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
       {
         case OP_NONE:
         {
-          strcpy(instruction, table_arc[n].instr);
+          strcpy(instruction, table_arc16[n].instr);
           return 2;
         }
         case OP_B_C:
@@ -129,10 +131,10 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
           b = map16_bit_register((opcode >> 8) & 0x7);
 
           sprintf(instruction, "%s r%d, r%d",
-            table_arc[n].instr,
+            table_arc16[n].instr,
             b, c);
 
-          return 4;
+          return 2;
         }
         default:
         {
@@ -154,7 +156,7 @@ void list_output_arc(struct _asm_context *asm_context, uint32_t start, uint32_t 
   char instruction[128];
   int cycles_min, cycles_max;
   uint32_t opcode;
-  int count;
+  int count, n;
 
   fprintf(asm_context->list, "\n");
 
@@ -164,9 +166,25 @@ void list_output_arc(struct _asm_context *asm_context, uint32_t start, uint32_t 
 
     count = disasm_arc(memory, start, instruction, &cycles_min, &cycles_max);
 
-    opcode = READ_RAM32(start);
+    if (count < 4)
+    {
+      opcode = memory_read16_m(memory, start);
+      fprintf(asm_context->list, "0x%04x: %04x     %-40s\n", start, opcode, instruction);
+    }
+      else
+    {
+      opcode = (memory_read16_m(memory, start) << 16) |
+                memory_read16_m(memory, start + 2);
+      fprintf(asm_context->list, "0x%04x: %08x %-40s\n", start, opcode, instruction);
+    }
 
-    fprintf(asm_context->list, "0x%04x: %08x %-40s\n", start, opcode, instruction);
+    for (n = 4; n < count; n = n + 4)
+    {
+      opcode = (memory_read16_m(memory, start + n) << 16) |
+                memory_read16_m(memory, start + n + 2);
+
+      fprintf(asm_context->list, "        %08x\n", opcode);
+    }
 
     start += count;
   }
@@ -188,7 +206,8 @@ void disasm_range_arc(struct _memory *memory, uint32_t flags, uint32_t start, ui
   {
     count = disasm_arc(memory, start, instruction, &cycles_min, &cycles_max);
 
-    opcode = READ_RAM32(start);
+    opcode = (memory_read16_m(memory, start) << 16) |
+              memory_read16_m(memory, start + 2);
 
     printf("0x%04x: %04x %-40s\n", start, opcode, instruction);
 
