@@ -7,3 +7,8 @@ abs 0, r17
 abs 0, 5
 abs 0, -5
 abs 0, -600
+abs.f r3, r4
+abs.f r23, 5
+abs.f r3, -5
+abs.f 0, r17
+abs.f 0, 5

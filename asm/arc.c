@@ -110,6 +110,22 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
+    if (operand_count == 0 && IS_TOKEN(token, '.'))
+    {
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token, 'f'))
+      {
+        f_flag = 1;
+      }
+        else
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      continue;
+    }
+
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       if (operand_count != 0)
