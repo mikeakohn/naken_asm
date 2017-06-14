@@ -15,6 +15,12 @@ abs.f 0, 5
 abss r3, r4
 abss.f r23, 5
 abss r3, -600
-abss 0, r17
-abss.f 0, 5
-abss 0, -5
+abss 0, r33
+abss.f 0, 7
+abss 0, -9
+;abssw r3, r4
+;abssw.f r60, 5
+;abssw r3, -600
+;abssw 0, r60
+;abssw 0, 5
+;abssw.f 0, -5
