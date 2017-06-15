@@ -23,7 +23,22 @@ enum
   OP_0_C,
   OP_0_U6,
   OP_0_LIMM,
+  OP_A_B_C,
+  OP_A_B_U6,
+  OP_B_B_S12,
+  OP_B_B_C,
+  OP_B_B_U6,
+  OP_A_LIMM_C,
+  OP_A_B_LIMM,
+  OP_B_B_LIMM,
+  OP_0_B_C,
+  OP_0_B_U6,
+  OP_0_B_LIMM,
+  OP_0_LIMM_C,
 };
+
+#define F_F  1
+#define F_CC 2
 
 struct _table_arc
 {
@@ -31,6 +46,7 @@ struct _table_arc
   uint32_t opcode;
   uint32_t mask;
   uint8_t type;
+  uint8_t flags;
 };
 
 struct _table_arc16

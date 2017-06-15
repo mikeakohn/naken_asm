@@ -24,6 +24,26 @@
                        (memory_read_m(memory, a + 2) << 8) | \
                        (memory_read_m(memory, a + 3)))
 
+static char *condition_codes[] =
+{
+ "",
+ ".eq",
+ ".ne",
+ ".pl",
+ ".mi",
+ ".cs",
+ ".cc",
+ ".vs",
+ ".vc",
+ ".gt",
+ ".ge",
+ ".lt",
+ ".le",
+ ".hi",
+ ".ls",
+ ".pnz",
+};
+
 int map16_bit_register(int r)
 {
   if (r <= 3) { return r; }
@@ -39,11 +59,21 @@ int get_cycle_count_arc(unsigned short int opcode)
 int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
-  int n, c, b, f, u;
+  int n, a, c, b, q, f, u6, s12;
   int limm;
+  char *cc = "";
 
   opcode = (memory_read16_m(memory, address) << 16) |
             memory_read16_m(memory, address + 2);
+
+  a = opcode & 0x3f;
+  c = (opcode >> 6) & 0x3f;
+  b = (((opcode >> 12) & 0x7) << 3) | ((opcode >> 24) & 0x7);
+  f = (opcode >> 15) & 0x1;
+  q = opcode & 0x1f;
+  u6 = (opcode >> 6) & 0x3f;
+
+  if (q <= 0xf) { cc = condition_codes[q]; }
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -62,10 +92,6 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_B_C:
         {
-          c = (opcode >> 6) & 0x3f;
-          b = (((opcode >> 12) & 0x7) << 3) | ((opcode >> 24) & 0x7);
-          f = (opcode >> 15) & 0x1;
-
           sprintf(instruction, "%s%s r%d, r%d",
             table_arc[n].instr,
             f == 0 ? "" : ".f",
@@ -75,22 +101,15 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_B_U6:
         {
-          u = (opcode >> 6) & 0x3f;
-          b = (((opcode >> 12) & 0x7) << 3) | ((opcode >> 24) & 0x7);
-          f = (opcode >> 15) & 0x1;
-
           sprintf(instruction, "%s%s r%d, %d",
             table_arc[n].instr,
             f == 0 ? "" : ".f",
-            b, u);
+            b, u6);
 
           return 4;
         }
         case OP_B_LIMM:
         {
-          b = (((opcode >> 12) & 0x7) << 3) | ((opcode >> 24) & 0x7);
-          f = (opcode >> 15) & 0x1;
-
           limm = (memory_read16_m(memory, address + 4) << 16) |
                   memory_read16_m(memory, address + 6);
 
@@ -103,9 +122,6 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_0_C:
         {
-          c = (opcode >> 6) & 0x3f;
-          f = (opcode >> 15) & 0x1;
-
           sprintf(instruction, "%s%s 0, r%d",
             table_arc[n].instr,
             f == 0 ? "" : ".f",
@@ -115,21 +131,15 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_0_U6:
         {
-          u = (opcode >> 6) & 0x3f;
-          f = (opcode >> 15) & 0x1;
-
           sprintf(instruction, "%s%s 0, %d",
             table_arc[n].instr,
             f == 0 ? "" : ".f",
-            u);
+            u6);
 
           return 4;
         }
         case OP_0_LIMM:
         {
-          b = (((opcode >> 12) & 0x7) << 3) | ((opcode >> 24) & 0x7);
-          f = (opcode >> 15) & 0x1;
-
           limm = (memory_read16_m(memory, address + 4) << 16) |
                   memory_read16_m(memory, address + 6);
 
@@ -137,6 +147,137 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
             table_arc[n].instr,
             f == 0 ? "" : ".f",
             limm);
+
+          return 8;
+        }
+        case OP_A_B_C:
+        {
+          sprintf(instruction, "%s%s r%d, r%d, r%d",
+            table_arc[n].instr,
+            f == 0 ? "" : ".f",
+            a, b, c);
+
+          return 4;
+        }
+        case OP_A_B_U6:
+        {
+          sprintf(instruction, "%s%s r%d, r%d, %d",
+            table_arc[n].instr,
+            f == 0 ? "" : ".f",
+            a, b, u6);
+
+          return 4;
+        }
+        case OP_B_B_S12:
+        {
+          s12 = opcode & 0xfff;
+
+          if ((s12 & 0x800) != 0) { s12 |= 0xfffff000; }
+
+          sprintf(instruction, "%s%s r%d, r%d, %d",
+            table_arc[n].instr,
+            f == 0 ? "" : ".f",
+            a, b, u6);
+
+          return 4;
+        }
+        case OP_B_B_C:
+        {
+          sprintf(instruction, "%s%s%s r%d, r%d, r%d",
+            table_arc[n].instr,
+            cc,
+            f == 0 ? "" : ".f",
+            b, b, c);
+
+          return 4;
+        }
+        case OP_B_B_U6:
+        {
+          sprintf(instruction, "%s%s%s r%d, r%d, %d",
+            table_arc[n].instr,
+            cc,
+            f == 0 ? "" : ".f",
+            b, b, u6);
+
+          return 4;
+        }
+        case OP_A_LIMM_C:
+        {
+          limm = (memory_read16_m(memory, address + 4) << 16) |
+                  memory_read16_m(memory, address + 6);
+
+          sprintf(instruction, "%s%s r%d, %d, r%d",
+            table_arc[n].instr,
+            f == 0 ? "" : ".f",
+            a, limm, c);
+
+          return 8;
+        }
+        case OP_A_B_LIMM:
+        {
+          limm = (memory_read16_m(memory, address + 4) << 16) |
+                  memory_read16_m(memory, address + 6);
+
+          sprintf(instruction, "%s%s r%d, r%d, %d",
+            table_arc[n].instr,
+            f == 0 ? "" : ".f",
+            a, b, limm);
+
+          return 8;
+        }
+        case OP_B_B_LIMM:
+        {
+          limm = (memory_read16_m(memory, address + 4) << 16) |
+                  memory_read16_m(memory, address + 6);
+
+          sprintf(instruction, "%s%s%s r%d, r%d, %d",
+            table_arc[n].instr,
+            cc,
+            f == 0 ? "" : ".f",
+            b, b, limm);
+
+          return 8;
+        }
+        case OP_0_B_C:
+        {
+          sprintf(instruction, "%s%s 0, r%d, r%d",
+            table_arc[n].instr,
+            f == 0 ? "" : ".f",
+            b, c);
+
+          return 4;
+        }
+        case OP_0_B_U6:
+        {
+          sprintf(instruction, "%s%s 0, r%d, %d",
+            table_arc[n].instr,
+            f == 0 ? "" : ".f",
+            b, u6);
+
+          return 4;
+        }
+        case OP_0_B_LIMM:
+        {
+          limm = (memory_read16_m(memory, address + 4) << 16) |
+                  memory_read16_m(memory, address + 6);
+
+          sprintf(instruction, "%s%s 0, r%d, %d",
+            table_arc[n].instr,
+            f == 0 ? "" : ".f",
+            b, limm);
+
+          return 8;
+        }
+        case OP_0_LIMM_C:
+        {
+          limm = (memory_read16_m(memory, address + 4) << 16) |
+                  memory_read16_m(memory, address + 6);
+
+          sprintf(instruction, "%s%s%s 0, %d, r%d",
+            table_arc[n].instr,
+            cc,
+            f == 0 ? "" : ".f",
+            limm, c);
 
           return 8;
         }
