@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -17,6 +17,7 @@
 enum
 {
   PROPELLER_OP_NONE,
+  PROPELLER_OP_NOP,
   PROPELLER_OP_DS,
   PROPELLER_OP_DS_15_1,
   PROPELLER_OP_DS_15_2,

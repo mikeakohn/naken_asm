@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -21,6 +21,26 @@
                       (memory_read_m(memory, a + 1) << 8) | \
                        memory_read_m(memory, a + 0)
 
+static const char *conditions[] =
+{
+  "if_never ",
+  "if_a ",
+  "if_z_and_nc ",
+  "if_nc ",
+  "if_c_and_nz ",
+  "if_ne ",
+  "if_c_ne_z ",
+  "if_nc_or_nz ",
+  "if_z_and_c ",
+  "if_z_eq_c ",
+  "if_e ",
+  "if_z_or_nc ",
+  "if_c ",
+  "if_c_or_nz ",
+  "if_be ",
+  "",
+};
+
 int get_cycle_count_propeller(unsigned short int opcode)
 {
   return -1;
@@ -30,7 +50,8 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
 {
   int opcode;
   int n;
-  int i,d,s;
+  int i, d, s;
+  int cond;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -40,6 +61,8 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
   i = (opcode & 0x00400000) >> 22;
   s = opcode & 0x1ff;
   d = (opcode >> 9) & 0x1ff;
+  cond = (opcode >> 18) & 0xf;
+  const char *condition = conditions[cond];
 
   n = 0;
   while(table_propeller[n].instr != NULL)
@@ -53,6 +76,11 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
       {
         case PROPELLER_OP_NONE:
         {
+          sprintf(instruction, "%s%s", condition, table_propeller[n].instr);
+          return 4;
+        }
+        case PROPELLER_OP_NOP:
+        {
           strcpy(instruction, table_propeller[n].instr);
           return 4;
         }
@@ -60,11 +88,11 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
         {
           if (i == 0)
           {
-            sprintf(instruction, "%s 0x%x, 0x%x", table_propeller[n].instr, d, s);
+            sprintf(instruction, "%s%s 0x%x, 0x%x", condition, table_propeller[n].instr, d, s);
           }
             else
           {
-            sprintf(instruction, "%s 0x%x, #0x%x", table_propeller[n].instr, d, s);
+            sprintf(instruction, "%s%s 0x%x, #0x%x", condition, table_propeller[n].instr, d, s);
           }
           return 4;
         }
@@ -72,22 +100,22 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
         {
           if (i == 0)
           {
-            sprintf(instruction, "%s 0x%x", table_propeller[n].instr, s);
+            sprintf(instruction, "%s%s 0x%x", condition, table_propeller[n].instr, s);
           }
             else
           {
-            sprintf(instruction, "%s #0x%x", table_propeller[n].instr, s);
+            sprintf(instruction, "%s%s #0x%x", condition, table_propeller[n].instr, s);
           }
           return 4;
         }
         case PROPELLER_OP_D:
         {
-          sprintf(instruction, "%s 0x%x", table_propeller[n].instr, d);
+          sprintf(instruction, "%s%s 0x%x", condition, table_propeller[n].instr, d);
           return 4;
         }
         case PROPELLER_OP_IMMEDIATE:
         {
-          sprintf(instruction, "%s #0x%x", table_propeller[n].instr, s);
+          sprintf(instruction, "%s%s #0x%x", condition, table_propeller[n].instr, s);
           return 4;
         }
         default:
