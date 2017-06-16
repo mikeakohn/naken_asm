@@ -100,7 +100,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
       token_type = tokens_get(asm_context, instr, TOKENLEN);
       lower_copy(instr_case, instr);
 
-      cond = n;
+      cond = conditions[n].value;
       break;
     }
   }
