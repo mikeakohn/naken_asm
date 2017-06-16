@@ -14,6 +14,7 @@ default:
 	bash run_test.sh pic32
 	#python run_test.py pic32
 	bash run_test.sh powerpc
+	bash run_test.sh propeller
 	#python run_test.py ps2_ee
 	bash run_test.sh ps2_ee
 	bash run_test.sh ps2_ee_vu1
