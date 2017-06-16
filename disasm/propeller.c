@@ -85,6 +85,8 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
           return 4;
         }
         case PROPELLER_OP_DS:
+        case PROPELLER_OP_DS_15_1:
+        case PROPELLER_OP_DS_15_2:
         {
           if (i == 0)
           {
@@ -129,9 +131,9 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
     n++;
   }
 
-  strcpy(instruction, "???");
+  sprintf(instruction, "%s???", condition);
 
-  return 1;
+  return 4;
 }
 
 void list_output_propeller(struct _asm_context *asm_context, uint32_t start, uint32_t end)
