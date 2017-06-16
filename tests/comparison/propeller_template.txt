@@ -12,7 +12,73 @@ if_nc_or_nz addsx 0x24, #0x123
 if_c addx 0x24, #0x123
 if_e and 0x24, #0x123
 if_ne andn 0x24, #0x123
-;if_nc_or_z call 50
+;if_nc_or_z call 80
+clkset 5
 if_z_ne_c cmp 0x24, #0x34
+if_z_ne_c cmps 0x24, 0x123
 if_z_eq_c cmpsub 0x24, #0x99
 if_z_eq_c cmpsx 0x24, #0x111
+cogid 5
+coginit 7
+cogstop 3
+djnz 5, 100
+hubop 1, 5
+jmp 234
+jmpret 3,2
+lockclr 123
+locknew 54
+lockret 0x23
+lockset 0x29
+max 0x24, 0x32
+maxs 0x27, 0x31
+min 0x14, 0x82
+mins 0x17, 0x71
+mov 0x17, 0x71
+movd 0x17, 0x71
+movi 0x17, 0x71
+movs 0x17, 0x71
+muxc 0x17, 0x71
+muxnc 0x17, 0x71
+muxnz 0x17, 0x71
+muxz 0x17, 0x71
+neg 0x17, 0x71
+negc 0x17, #0x71
+negnc 0x17, 0x71
+negnz 0x17, #0x71
+negz 0x17, 0x71
+nop
+or 24,32
+rcl 4,100
+rcr 32,43
+rdbyte 23,234
+rdlong 23,234
+rdlong 23,#234
+rdword 23,234
+ret
+rev 34,23
+rol 4,100
+ror 4,#100
+sar 7,100
+if_nz_and_c shl 4,100
+shr 4,#100
+if_z_or_c sub 9,100
+subabs 4,100
+subs 101,100
+subsx 4,100
+subx 4,123
+if_nz_or_nc sumc 13,100
+if_nz_or_c sumnc 4,99
+if_z_or_nc sumnz 4,100
+sumz 7,1
+test 4,100
+;testn 4,#100
+tjnz 4,100
+tjz 4,100
+waitcnt 4,55
+waitpeq 4,100
+if_c_or_nz waitpne 4,23
+waitvid 4,100
+wrbyte 11,234
+wrlong 13,111
+wrword 19,234
+xor 4,100

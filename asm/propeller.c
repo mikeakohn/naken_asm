@@ -208,6 +208,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
+#if 0
           if (table_propeller[n].type == PROPELLER_OP_DS_15_1 &&
               (operands[1].value & 0x1) != 0)
           {
@@ -221,6 +222,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
             print_error_align(asm_context, 2);
             return -1;
           }
+#endif
 
           opcode = table_propeller[n].opcode | (cond << 18);
 
