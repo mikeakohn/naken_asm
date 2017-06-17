@@ -59,7 +59,7 @@ int get_cycle_count_arc(unsigned short int opcode)
 int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
-  int n, a, c, b, q, f, u6, s12;
+  int n, a, c, b, q, h, f, u5, u6, s12;
   int limm;
   char *cc = "";
 
@@ -292,6 +292,11 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
   }
 
   opcode = memory_read16_m(memory, address);
+  c = map16_bit_register((opcode >> 5) & 0x7);
+  b = map16_bit_register((opcode >> 8) & 0x7);
+  a = map16_bit_register(opcode & 0x7);
+  h = ((opcode >> 5) & 0x7) | ((opcode & 0x7) << 3);
+  u5 = opcode & 0x1f;
 
   n = 0;
   while(table_arc16[n].instr != NULL)
@@ -307,12 +312,80 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_B_C:
         {
-          c = map16_bit_register((opcode >> 5) & 0x7);
-          b = map16_bit_register((opcode >> 8) & 0x7);
-
           sprintf(instruction, "%s r%d, r%d",
             table_arc16[n].instr,
             b, c);
+
+          return 2;
+        }
+        case OP_A_B_C:
+        {
+          sprintf(instruction, "%s r%d, r%d, r%d",
+            table_arc16[n].instr,
+            a, b, c);
+
+          return 2;
+        }
+        case OP_C_B_U3:
+        {
+          int u3 = opcode & 0x7;
+          sprintf(instruction, "%s r%d, r%d, %d",
+            table_arc16[n].instr,
+            a, b, u3);
+
+          return 2;
+        }
+        case OP_B_B_LIMM:
+        {
+          limm = (memory_read16_m(memory, address + 2) << 16) |
+                  memory_read16_m(memory, address + 4);
+
+          sprintf(instruction, "%s r%d, r%d, %d",
+            table_arc16[n].instr,
+            b, b, limm);
+
+          return 6;
+        }
+        case OP_B_B_H:
+        {
+          sprintf(instruction, "%s r%d, r%d, r%d",
+            table_arc16[n].instr,
+            b, b, h);
+
+          return 2;
+        }
+        case OP_B_B_U7:
+        {
+          int u7 = opcode & 0x7f;
+
+          sprintf(instruction, "%s r%d, r%d, %d",
+            table_arc16[n].instr,
+            b, b, u7);
+
+          return 2;
+        }
+        case OP_B_SP_U5:
+        {
+          sprintf(instruction, "%s r%d, sp, %d",
+            table_arc16[n].instr,
+            b, u5);
+
+          return 2;
+        }
+        case OP_SP_SP_U5:
+        {
+          sprintf(instruction, "%s sp, sp, %d",
+            table_arc16[n].instr, u5);
+
+          return 2;
+        }
+        case OP_R0_GP_S9:
+        {
+          int s9 = opcode & 0x1ff;
+          if ((s9 & 0x100) != 0) { s9 |= 0xffffff00; }
+
+          sprintf(instruction, "%s r0, gp, %d",
+            table_arc16[n].instr, s9);
 
           return 2;
         }

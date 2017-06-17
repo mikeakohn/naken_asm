@@ -35,6 +35,14 @@ enum
   OP_0_B_U6,
   OP_0_B_LIMM,
   OP_0_LIMM_C,
+  // 16 bit
+  OP_C_B_U3,
+  OP_B_B_H,
+  OP_B_B_U,
+  OP_B_SP_U5,
+  OP_SP_SP_U5,
+  OP_R0_GP_S9,
+  OP_B_B_U7, 
 };
 
 #define F_F  1

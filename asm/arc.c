@@ -26,6 +26,13 @@
 
 #define COMPUTE_B(a) (((a & 0x7) << 24) | (((a >> 3) & 0x7) << 12))
 
+#define REG_GP 26
+#define REG_FP 27
+#define REG_SP 28
+#define REG_BLINK 31
+#define REG_LP_COUNT 60
+#define REG_LONG_IMMEDIATE 62
+
 enum
 {
   OPERAND_REG,
@@ -142,6 +149,7 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
   int found = 0;
   int f_flag = 0;
   int cc_flag = 0;
+  int a, b, c, h;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -653,12 +661,196 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
               operands[0].type == OPERAND_REG &&
               operands[1].type == OPERAND_REG)
           {
-            int b = map_16bit_reg(operands[0].value);
-            int c = map_16bit_reg(operands[1].value);
+            b = map_16bit_reg(operands[0].value);
+            c = map_16bit_reg(operands[1].value);
 
             if (b < 0 || c < 0) { break; }
 
             opcode = table_arc16[n].opcode | (b << 8) | (c << 5);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+
+          break;
+        }
+        case OP_A_B_C:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[2].type == OPERAND_REG)
+          {
+            a = map_16bit_reg(operands[0].value);
+            b = map_16bit_reg(operands[1].value);
+            c = map_16bit_reg(operands[2].value);
+
+            if (a < 0 || b < 0 || c < 0) { break; }
+
+            opcode = table_arc16[n].opcode | a | (b << 8) | (c << 5);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+
+          break;
+        }
+        case OP_C_B_U3:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[2].type == OPERAND_NUMBER &&
+              operands[2].value >= 0 && operands[2].value <= 7)
+          {
+            b = map_16bit_reg(operands[1].value);
+            c = map_16bit_reg(operands[0].value);
+            int u3 = operands[2].value & 0x7;
+
+            if (b < 0 || c < 0) { break; }
+
+            opcode = table_arc16[n].opcode | u3 | (b << 8) | (c << 5);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+
+          break;
+        }
+        case OP_B_B_H:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[0].value == operands[1].value &&
+              operands[2].type == OPERAND_REG)
+          {
+            b = map_16bit_reg(operands[1].value);
+            h = operands[2].value;
+
+            if (b < 0) { break; }
+
+            opcode = table_arc16[n].opcode |
+                     ((h & 0x7) << 5) | (h >> 3) | (b << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+
+          break;
+        }
+        case OP_B_B_U7:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[0].value == operands[1].value &&
+              operands[2].type == OPERAND_NUMBER &&
+              operands[2].value >= 0 && operands[2].value <= 127)
+          {
+            b = map_16bit_reg(operands[1].value);
+            int u7 = operands[2].value;
+
+            if (b < 0) { break; }
+
+            opcode = table_arc16[n].opcode | (b << 8) | u7;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+
+          break;
+        }
+        case OP_B_B_LIMM:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[0].value == operands[1].value &&
+              operands[2].type == OPERAND_NUMBER)
+          {
+            b = map_16bit_reg(operands[1].value);
+
+            if (b < 0) { break; }
+
+            opcode = table_arc16[n].opcode | (b << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin(asm_context, operands[2].value, IS_OPCODE);
+
+            return 6;
+          }
+
+          break;
+        }
+        case OP_B_SP_U5:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[1].value == REG_SP &&
+              operands[2].type == OPERAND_NUMBER &&
+              operands[2].value >= 0 && operands[2].value <= 31)
+          {
+            b = map_16bit_reg(operands[0].value);
+            int u5 = operands[2].value;
+
+            if (b < 0) { break; }
+
+            opcode = table_arc16[n].opcode | (b << 8) | u5;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+
+          break;
+        }
+        case OP_SP_SP_U5:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[0].value == REG_SP &&
+              operands[1].type == OPERAND_REG &&
+              operands[1].value == REG_SP &&
+              operands[2].type == OPERAND_NUMBER &&
+              operands[2].value >= 0 && operands[2].value <= 31)
+          {
+            int u5 = operands[2].value;
+
+            opcode = table_arc16[n].opcode | u5;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+
+          break;
+        }
+        case OP_R0_GP_S9:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[0].value == 0 &&
+              operands[1].type == OPERAND_REG &&
+              operands[1].value == REG_GP &&
+              operands[2].type == OPERAND_NUMBER &&
+              operands[2].value >= -1024 && operands[2].value <= 1023)
+          {
+            int s9 = (operands[2].value >> 2) & 0x1ff;
+
+            if ((operands[2].value & 0x3) != 0)
+            {
+              print_error_align(asm_context, 4);
+              return -1;
+            }
+
+            opcode = table_arc16[n].opcode | s9;
 
             add_bin16(asm_context, opcode, IS_OPCODE);
 
