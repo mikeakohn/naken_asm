@@ -59,7 +59,7 @@ int get_cycle_count_arc(unsigned short int opcode)
 int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
-  int n, a, c, b, q, h, f, u5, u6, s12;
+  int n, a, c, b, q, h, f, u6, s12;
   int limm;
   char *cc = "";
 
@@ -296,7 +296,6 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
   b = map16_bit_register((opcode >> 8) & 0x7);
   a = map16_bit_register(opcode & 0x7);
   h = ((opcode >> 5) & 0x7) | ((opcode & 0x7) << 3);
-  u5 = opcode & 0x1f;
 
   n = 0;
   while(table_arc16[n].instr != NULL)
@@ -364,18 +363,22 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
 
           return 2;
         }
-        case OP_B_SP_U5:
+        case OP_B_SP_U7:
         {
+          int u7 = (opcode & 0x1f) * 4;
+
           sprintf(instruction, "%s r%d, sp, %d",
             table_arc16[n].instr,
-            b, u5);
+            b, u7);
 
           return 2;
         }
-        case OP_SP_SP_U5:
+        case OP_SP_SP_U7:
         {
+          int u7 = (opcode & 0x1f) * 4;
+
           sprintf(instruction, "%s sp, sp, %d",
-            table_arc16[n].instr, u5);
+            table_arc16[n].instr, u7);
 
           return 2;
         }

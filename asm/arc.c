@@ -788,17 +788,23 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
 
           break;
         }
-        case OP_B_SP_U5:
+        case OP_B_SP_U7:
         {
           if (operand_count == 3 &&
               operands[0].type == OPERAND_REG &&
               operands[1].type == OPERAND_REG &&
               operands[1].value == REG_SP &&
               operands[2].type == OPERAND_NUMBER &&
-              operands[2].value >= 0 && operands[2].value <= 31)
+              operands[2].value >= 0 && operands[2].value <= 127)
           {
             b = map_16bit_reg(operands[0].value);
-            int u5 = operands[2].value;
+            int u5 = operands[2].value / 4;
+
+            if ((operands[2].value & 0x3) != 0)
+            {
+              print_error_align(asm_context, 4);
+              return -1;
+            }
 
             if (b < 0) { break; }
 
@@ -811,7 +817,7 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
 
           break;
         }
-        case OP_SP_SP_U5:
+        case OP_SP_SP_U7:
         {
           if (operand_count == 3 &&
               operands[0].type == OPERAND_REG &&
@@ -819,9 +825,15 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
               operands[1].type == OPERAND_REG &&
               operands[1].value == REG_SP &&
               operands[2].type == OPERAND_NUMBER &&
-              operands[2].value >= 0 && operands[2].value <= 31)
+              operands[2].value >= 0 && operands[2].value <= 127)
           {
-            int u5 = operands[2].value;
+            int u5 = operands[2].value / 4;
+
+            if ((operands[2].value & 0x3) != 0)
+            {
+              print_error_align(asm_context, 4);
+              return -1;
+            }
 
             opcode = table_arc16[n].opcode | u5;
 

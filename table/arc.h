@@ -39,8 +39,8 @@ enum
   OP_C_B_U3,
   OP_B_B_H,
   OP_B_B_U,
-  OP_B_SP_U5,
-  OP_SP_SP_U5,
+  OP_B_SP_U7,
+  OP_SP_SP_U7,
   OP_R0_GP_S9,
   OP_B_B_U7, 
 };

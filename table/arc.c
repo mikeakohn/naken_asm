@@ -66,8 +66,8 @@ struct _table_arc16 table_arc16[] =
   { "add_s",  0x6800, 0xf818, OP_C_B_U3 },
   { "add_s",  0x70c7, 0xf8ff, OP_B_B_LIMM },
   { "add_s",  0x7000, 0xf818, OP_B_B_H },
-  { "add_s",  0xc080, 0xf8e0, OP_B_SP_U5 },
-  { "add_s",  0xc0a0, 0xffe0, OP_SP_SP_U5 },
+  { "add_s",  0xc080, 0xf8e0, OP_B_SP_U7 },
+  { "add_s",  0xc0a0, 0xffe0, OP_SP_SP_U7 },
   { "add_s",  0xce00, 0xfe00, OP_R0_GP_S9 },
   { "add_s",  0xe000, 0xf880, OP_B_B_U7 },
 };

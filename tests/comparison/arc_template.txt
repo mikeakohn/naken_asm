@@ -52,8 +52,8 @@ add_s r1,r2,r12
 add_s r1,r2,4
 add_s r3,r3,r4
 ;add_s r3,r3,0x12345
-;add_s r0,sp,5
-;add_s sp,sp,5
+add_s r0,sp,8
+add_s sp,sp,8
 add_s r0,gp,512
 ;add_s r12,r12,4
 ;add_s r1,r1,127
