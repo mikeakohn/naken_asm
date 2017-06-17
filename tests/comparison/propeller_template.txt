@@ -24,6 +24,7 @@ cogstop 3
 djnz 5, 100
 hubop 1, 5
 jmp 234
+jmp 234
 jmpret 3,2
 lockclr 123
 locknew 54
@@ -57,13 +58,16 @@ rdword 23,234
 ret
 rev 34,23
 rol 4,100
+rol 4,100 wz
 ror 4,#100
 sar 7,100
+sar 7,100 nr
 if_nz_and_c shl 4,100
 shr 4,#100
 if_z_or_c sub 9,100
 subabs 4,100
 subs 101,100
+subs 101,100 wz
 subsx 4,100
 subx 4,123
 if_nz_or_nc sumc 13,100

@@ -23,6 +23,18 @@ for instruction in fp:
 
   fp1 = open("propeller_gnu.hex", "rb")
   hex = fp1.readline().strip()
+
+  effects = []
+
+  for b in [ "wc", "wz", "wr", "nr" ]:
+    a = instruction.find(b)
+    if a > 0: effects.append(a)
+
+  if len(effects) != 0:
+    effects.sort()
+    a = effects[0] - 1
+    instruction = instruction[:a] + "," + instruction[a:]
+
   out.write(instruction + "|" + hex + "\n")
   fp1.close
 

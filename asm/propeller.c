@@ -21,6 +21,12 @@
 #include "common/eval_expression.h"
 #include "table/propeller.h"
 
+#define SET_EFFECTS() \
+  if (wz == 1) { opcode |= 0x02000000; } \
+  if (wc == 1) { opcode |= 0x01000000; } \
+  if (wr == 1) { opcode |= 0x00800000; } \
+  if (wr == 0) { opcode &= 0xff7fffff; }
+
 enum
 {
   OPERAND_NUMBER,
@@ -85,6 +91,8 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
   uint32_t opcode;
   int n, i;
   int8_t cond = 0xf;
+  int wr = -1, wc = -1, wz = -1;
+  int has_effect = 0;
 
   lower_copy(instr_case, instr);
 
@@ -112,6 +120,64 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       break;
+    }
+
+    if (strcmp(token, "wr") == 0)
+    {
+      if (wr != -1)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      has_effect = 1;
+      wr = 1;
+      continue;
+    }
+      else
+    if (strcmp(token, "nr") == 0)
+    {
+      if (wr != -1)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      has_effect = 1;
+      wr = 0;
+      continue;
+    }
+      else
+    if (strcmp(token, "wc") == 0)
+    {
+      if (wc != -1)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      has_effect = 1;
+      wc = 1;
+      continue;
+    }
+      else
+    if (strcmp(token, "wz") == 0)
+    {
+      if (wz != -1)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      has_effect = 1;
+      wz = 1;
+      continue;
+    }
+
+    if (has_effect == 1 || operand_count >= 2)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
     }
 
     if (token_type == TOKEN_POUND)
@@ -148,6 +214,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
     if (IS_NOT_TOKEN(token,','))
     {
       print_error_unexp(token, asm_context);
+      return -1;
     }
   }
 
@@ -161,12 +228,33 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
       {
         if (operands[i].type == OPERAND_NUMBER)
         {
-          if (check_range(asm_context, "Address", operands[0].value, 0, 511) == -1) { return -1; }
+          if (check_range(asm_context, "Address", operands[i].value, 0, 511) == -1) { return -1; }
         }
           else
         if (operands[i].type == OPERAND_IMMEDIATE)
         {
-          if (check_range(asm_context, "Address", operands[0].value, -256, 511) == -1) { return -1; }
+          if (check_range(asm_context, "Immediate", operands[i].value, -256, 511) == -1) { return -1; }
+        }
+      }
+
+      if (has_effect != 0)
+      {
+        if ((table_propeller[n].mask & 0x02000000) != 0 && wz != -1)
+        {
+          print_error("Error: Instruction doesn't take WZ effect\n", asm_context);
+          return -1;
+        }
+
+        if ((table_propeller[n].mask & 0x01000000) != 0 && wc != -1)
+        {
+          print_error("Error: Instruction doesn't take WC effect\n", asm_context);
+          return -1;
+        }
+
+        if ((table_propeller[n].mask & 0x00800000) != 0 && wr != -1)
+        {
+          print_error("Error: Instruction doesn't take WR effect\n", asm_context);
+          return -1;
         }
       }
 
@@ -181,6 +269,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
           }
 
           opcode = table_propeller[n].opcode | (cond << 18);
+          SET_EFFECTS();
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
@@ -194,6 +283,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
           }
 
           opcode = table_propeller[n].opcode;
+          SET_EFFECTS();
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
@@ -233,6 +323,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
 
           opcode |= (operands[0].value & 0x1ff) << 9;
           opcode |= operands[1].value & 0x1ff;
+          SET_EFFECTS();
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
@@ -253,6 +344,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
           }
 
           opcode |= operands[0].value & 0x1ff;
+          SET_EFFECTS();
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
@@ -267,6 +359,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
 
           opcode = table_propeller[n].opcode | (cond << 18);
           opcode |= (operands[0].value & 0x1ff) << 9;
+          SET_EFFECTS();
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
@@ -281,6 +374,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
 
           opcode = table_propeller[n].opcode | (cond << 18);
           opcode |= operands[0].value & 0x1ff;
+          SET_EFFECTS();
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;

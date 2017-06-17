@@ -52,6 +52,7 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
   int n;
   int i, d, s;
   int cond;
+  int wz, wc, wr;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -61,27 +62,63 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
   i = (opcode & 0x00400000) >> 22;
   s = opcode & 0x1ff;
   d = (opcode >> 9) & 0x1ff;
+  wz = (opcode >> 25) & 1;
+  wc = (opcode >> 24) & 1;
+  wr = (opcode >> 23) & 1;
+  char effects[32];
   cond = (opcode >> 18) & 0xf;
   const char *condition = conditions[cond];
+
+  effects[0] = 0;
+
 
   n = 0;
   while(table_propeller[n].instr != NULL)
   {
-    if ((opcode & table_propeller[n].mask) == table_propeller[n].opcode)
+    int op_no_effects = table_propeller[n].opcode & //0xfc7fffff;
+       ((table_propeller[n].mask & 0x03800000) ^ 0xfc7fffff);
+
+    if ((opcode & table_propeller[n].mask) == op_no_effects)
     {
       *cycles_min = table_propeller[n].cycles_min;
       *cycles_max = table_propeller[n].cycles_min;
+
+      if (wz == 1 && (table_propeller[n].opcode & 0x02000000) == 0)
+      {
+        if (effects[0] == 0) { strcat(effects, ","); }
+        strcat(effects, " wz");
+      }
+
+      if (wc == 1 && (table_propeller[n].opcode & 0x01000000) == 0)
+      {
+        if (effects[0] == 0) { strcat(effects, ","); }
+        strcat(effects, " wc");
+      }
+
+      if (wr == 1 && (table_propeller[n].opcode & 0x00800000) == 0)
+      {
+        if (effects[0] == 0) { strcat(effects, ","); }
+        strcat(effects, " wr");
+      }
+
+      if (wr == 0 && (table_propeller[n].opcode & 0x00800000) != 0)
+      {
+        if (effects[0] == 0) { strcat(effects, ","); }
+        strcat(effects, " nr");
+      }
 
       switch(table_propeller[n].type)
       {
         case PROPELLER_OP_NONE:
         {
           sprintf(instruction, "%s%s", condition, table_propeller[n].instr);
+          strcat(instruction, effects);
           return 4;
         }
         case PROPELLER_OP_NOP:
         {
           strcpy(instruction, table_propeller[n].instr);
+          strcat(instruction, effects);
           return 4;
         }
         case PROPELLER_OP_DS:
@@ -96,6 +133,7 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
           {
             sprintf(instruction, "%s%s 0x%x, #0x%x", condition, table_propeller[n].instr, d, s);
           }
+          strcat(instruction, effects);
           return 4;
         }
         case PROPELLER_OP_S:
@@ -108,16 +146,19 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
           {
             sprintf(instruction, "%s%s #0x%x", condition, table_propeller[n].instr, s);
           }
+          strcat(instruction, effects);
           return 4;
         }
         case PROPELLER_OP_D:
         {
           sprintf(instruction, "%s%s 0x%x", condition, table_propeller[n].instr, d);
+          strcat(instruction, effects);
           return 4;
         }
         case PROPELLER_OP_IMMEDIATE:
         {
           sprintf(instruction, "%s%s #0x%x", condition, table_propeller[n].instr, s);
+          strcat(instruction, effects);
           return 4;
         }
         default:
