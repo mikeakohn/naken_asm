@@ -1,7 +1,7 @@
 
 default:
 	../../naken_asm -I ../../include/propeller -l -b \
-	   -o flip_blink.bin flip_blink.asm
+	   -o flip_blink_code.bin flip_blink_code.asm
 
 program:
 	openspin flip_blink.spin
