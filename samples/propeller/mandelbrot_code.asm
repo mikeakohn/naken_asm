@@ -41,23 +41,40 @@ repeat_mul:
   if_e neg dest, dest
 .endm
 
+
 main:
   mov dira, port_dir
   mov outa, port_start
 
-.if 0
-  ;; Write 5 lines of some color
-  mov count, #96*5
-for_each:
-  mov data, #0xf8
-  call send_data_ret, #send_data
-  mov data, #0x00
-  call send_data_ret, #send_data
+repeat_mandel:
+  mov r_start, r_start_0
+  mov i_start, i_start_0
+  mov dx, dx_0
+  mov dy, dy_0
+  call mandelbrot_ret, #mandelbrot
 
-  sub count, #1, wz
-  if_nz jmp #for_each
-.endif
+  mov r_start, r_start_1
+  mov i_start, i_start_1
+  mov dx, dx_1
+  mov dy, dy_1
+  call mandelbrot_ret, #mandelbrot
 
+  mov r_start, r_start_2
+  mov i_start, i_start_2
+  mov dx, dx_2
+  mov dy, dy_2
+  call mandelbrot_ret, #mandelbrot
+  jmp #repeat_mandel
+
+while_1:
+  mov count, counter_top
+repeat:
+  sub count, #1, wz 
+  if_nz jmp #repeat
+  xor outa, led_xor
+  jmp #while_1
+
+mandelbrot:
   mov line, #64
   mov curr_i, i_start
 next_line:
@@ -122,14 +139,8 @@ get_color:
   adds curr_i, dy
   sub line, #1, wz
   if_nz jmp #next_line
-
-while_1:
-  mov count, counter_top
-repeat:
-  sub count, #1, wz 
-  if_nz jmp #repeat
-  xor outa, led_xor
-  jmp #while_1
+mandelbrot_ret:
+  ret
 
 send_data:
   or outa, #0x08     ; DS = 1
@@ -176,14 +187,38 @@ line:
   dc32 0
 row:
   dc32 0
-r_start:
+r_start_0:
   dc32 (-2 << 10)
-i_start:
+i_start_0:
   dc32 (-1 << 10)
-dx:
+dx_0:
   dc32 ((1 << 10) - (-2 << 10)) / 96
-dy:
+dy_0:
   dc32 ((1 << 10) - (-1 << 10)) / 64
+r_start_1:
+  dc32 (-1 << 10)
+i_start_1:
+  dc32 (-1 << 9)
+dx_1:
+  dc32 ((1 << 9) - (-1 << 10)) / 96
+dy_1:
+  dc32 ((1 << 9) - (-1 << 9)) / 64
+r_start_2:
+  dc32 (-2 << 9)
+i_start_2:
+  dc32 (-1<< 9)
+dx_2:
+  dc32 ((0 << 10) - (-2 << 9)) / 96
+dy_2:
+  dc32 ((0 << 10) - (-1 << 9)) / 64
+r_start:
+  dc32 0
+i_start:
+  dc32 0
+dx:
+  dc32 0
+dy:
+  dc32 0
 zr:
   dc32 0
 zi:
