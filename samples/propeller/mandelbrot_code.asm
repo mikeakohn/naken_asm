@@ -41,7 +41,6 @@ repeat_mul:
   if_e neg dest, dest
 .endm
 
-
 main:
   mov dira, port_dir
   mov outa, port_start
@@ -122,6 +121,7 @@ exit_iteration:
   shr count, #3
   add count, #colors
   movs get_color, count
+  nop
 get_color: 
   mov temp0, colors
 
@@ -143,7 +143,7 @@ mandelbrot_ret:
   ret
 
 send_data:
-  or outa, #0x08     ; DS = 1
+  or outa, #0x08     ; DC = 1
   andn outa, #0x04   ; CS = 0
 
   rol data, #24
