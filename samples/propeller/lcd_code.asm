@@ -6,10 +6,10 @@ main:
   mov dira, port_dir
   mov outa, port_start
 
-  ;; Signal is start of buffer + (cogid * 4)
+  ;; Signal is start of buffer + (cogid * 16)
   mov signal, par
   cogid temp
-  shl temp, #2
+  shl temp, #4
   add signal, temp
 
   ;; Image is start of buffer + (signal buffer)

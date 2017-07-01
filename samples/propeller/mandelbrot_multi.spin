@@ -54,8 +54,8 @@ VAR
   ' word 5: Row number
   ' word 6: reserved
   ' word 7: reserved
-  byte image[(96 * 64) + (8 * 16)]
-  byte mandel_cog[6]
+  byte image[(8 * 16) + (96 * 64)]
+  'byte mandel_cog[6]
   byte lcd_cog
   byte row
 
@@ -122,23 +122,43 @@ Pub Main | index,ptr
   outa[cs] := 0
   outa[dc] := 0
 
-  lcd_cog := cognew(@lcd_code, @image)
-  mandel_cog[0] := cognew(@mandelbrot, @image)
-  mandel_cog[1] := cognew(@mandelbrot, @image)
-  mandel_cog[2] := cognew(@mandelbrot, @image)
-  mandel_cog[3] := cognew(@mandelbrot, @image)
-  mandel_cog[4] := cognew(@mandelbrot, @image)
-  mandel_cog[5] := cognew(@mandelbrot, @image)
+  lcd_cog := 1
+  'mandel_cog[0] := 2
+  'mandel_cog[1] := 3
+  'mandel_cog[2] := 4
+  'mandel_cog[3] := 5
+  'mandel_cog[4] := 6
+  'mandel_cog[5] := 7
+
+  coginit(lcd_cog, @lcd_code, @image)
+  coginit(2, @mandelbrot, @image)
+  coginit(3, @mandelbrot, @image)
+  coginit(4, @mandelbrot, @image)
+  coginit(5, @mandelbrot, @image)
+  coginit(6, @mandelbrot, @image)
+  coginit(7, @mandelbrot, @image)
+
+  'lcd_cog := cognew(@lcd_code, @image)
+  'mandel_cog[0] := cognew(@mandelbrot, @image)
+  'mandel_cog[1] := cognew(@mandelbrot, @image)
+  'mandel_cog[2] := cognew(@mandelbrot, @image)
+  'mandel_cog[3] := cognew(@mandelbrot, @image)
+  'mandel_cog[4] := cognew(@mandelbrot, @image)
+  'mandel_cog[5] := cognew(@mandelbrot, @image)
 
   ' Signal LCD cog it's time to write
-  image[lcd_cog * 8] := 1
+  image[lcd_cog * 16] := 1
 
-  repeat while image[lcd_cog * 8] == 1
+  repeat while image[lcd_cog * 16] == 1
+
+  bytefill(@image, 0, (96 * 64) + (8 * 16))
+  image[lcd_cog * 16] := 1
+  repeat while image[lcd_cog * 16] == 1
 
   ComputeMandelbrot((-2 << 10), (-1 << 10), (1 << 10), (1 << 10))
 
   ' Signal LCD cog it's time to write
-  image[lcd_cog * 8] := 1
+  image[lcd_cog * 16] := 1
 
   repeat
 
@@ -152,7 +172,8 @@ Pub ComputeMandelbrot(r0, i0, r1, i1) | dx, dy, spinning, n, index, ptr
   repeat row from 0 to 63
     ' Find free cog
     repeat index from 0 to 5
-      ptr := mandel_cog[index] * 8
+      'ptr := mandel_cog[index] * 8
+      ptr := index * 8
 
       if image[ptr] == 0
         image[ptr+2] := r0 & 255
@@ -174,7 +195,8 @@ Pub ComputeMandelbrot(r0, i0, r1, i1) | dx, dy, spinning, n, index, ptr
     spinning := 0
 
     repeat n from 0 to 5
-      ptr := mandel_cog[index] * 8
+      'ptr := mandel_cog[index] * 8
+      ptr := index * 8
 
       if image[ptr] == 1
         spinning := spinning + 1

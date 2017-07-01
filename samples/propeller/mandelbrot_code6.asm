@@ -42,9 +42,6 @@ repeat_mul:
 .endm
 
 main:
-  mov dira, port_dir
-  mov outa, port_start
-
   ;; Signal is start of buffer + (cogid * 4)
   mov signal, par
   cogid temp0
@@ -155,40 +152,13 @@ exit_iteration:
   jmp #wait_signal
 
   ;; Some debug LED blinking that doesn't get called
-while_1:
-  mov count, counter_top
-repeat:
-  sub count, #1, wz 
-  if_nz jmp #repeat
-  xor outa, led_xor
-  jmp #while_1
-
-send_data:
-  or outa, #0x08     ; DC = 1
-  andn outa, #0x04   ; CS = 0
-
-  rol data, #24
-  mov bit_count, #8
-
-send_data_next_bit:
-  ; data := data << 1
-  rol data, #1, wc
-
-  if_c or outa, #1
-  if_nc andn outa, #1
-
-  ;or outa, #1
-
-  andn outa, #0x02 ; CLK = 0
-  or outa, #0x02   ; CLK = 1
-
-  sub bit_count, #1, wz
-  if_nz jmp #send_data_next_bit
-
-  or outa, #0x04 ; CS = 1
-
-send_data_ret:
-  ret
+;while_1:
+;  mov count, counter_top
+;repeat:
+;  sub count, #1, wz 
+;  if_nz jmp #repeat
+;  xor outa, led_xor
+;  jmp #while_1
 
 count:
   dc32 0
@@ -196,14 +166,14 @@ bit_count:
   dc32 0
 data:
   dc32 0x0
-port_dir:
-  dc32 (0x1f) | (1 << 26) | (1 << 27) 
-port_start:
-  dc32 (0x1f) | (1 << 26)
-led_xor:
-  dc32 (1 << 26) | (1 << 27) 
-counter_top:
-  dc32 0xfffff
+;port_dir:
+;  dc32 (0x1f) | (1 << 26) | (1 << 27) 
+;port_start:
+;  dc32 (0x1f) | (1 << 26)
+;led_xor:
+;  dc32 (1 << 26) | (1 << 27) 
+;counter_top:
+;  dc32 0xfffff
 line:
   dc32 0
 column:
