@@ -53,8 +53,10 @@ rcl 4,100
 rcr 32,43
 rdbyte 23,234
 rdlong 23,234
-rdlong 23,#234
 rdword 23,234
+rdbyte 100,#77
+rdlong 200,#234
+rdword 300,#99
 ret
 rev 34,23
 rol 4,100
@@ -85,4 +87,7 @@ waitvid 4,100
 wrbyte 11,234
 wrlong 13,111
 wrword 19,234
+wrbyte 100,#111
+wrlong 200,#222
+wrword 300,#333
 xor 4,100
