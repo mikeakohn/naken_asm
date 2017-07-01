@@ -5,6 +5,7 @@
 #include "65c816_test.h"
 #include "6502_test.h"
 #include "68000_test.h"
+#include "epiphany_test.h"
 #include "mips_test.h"
 #include "msp430_test.h"
 #include "stm8_test.h"
@@ -120,6 +121,7 @@ int main(int argc, char *argv[])
   errors += test_symbols("65c816", w65c816);
   errors += test_symbols("6502", w6502);
   errors += test_symbols("68000", mc68000);
+  errors += test_symbols("Epiphany", epiphany);
   errors += test_symbols("MSP430 1", msp430_1);
   errors += test_symbols("MSP430 2", msp430_2);
   errors += test_symbols("MSP430 3", msp430_3);

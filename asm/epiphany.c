@@ -39,7 +39,6 @@ struct _operand
   uint8_t type;
   uint8_t reg;
   int value;
-  uint8_t use_32_bit_instruction;
   uint8_t reg_is_negative;
 };
 
@@ -124,6 +123,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
   char token[TOKENLEN];
   int token_type;
   struct _operand operands[3];
+  uint8_t use_32_bit_instruction = 0;
   int operand_count;
   int offset;
   uint32_t reg_combo;
@@ -148,7 +148,22 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
       break;
     }
 
-    // if (IS_TOKEN(token,';')) { break; }
+    if (IS_TOKEN(token, '.'))
+    {
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (IS_TOKEN(token, 'l') || IS_TOKEN(token, 'L'))
+      {
+        memory_write(asm_context, asm_context->address, 1, asm_context->line);
+        use_32_bit_instruction = 1;
+      }
+        else
+      {
+        print_error_unexp(token, asm_context);
+      }
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+    }
 
     if (operand_count != 0)
     {
@@ -199,18 +214,13 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         {
           eat_operand(asm_context);
           memory_write(asm_context, asm_context->address, 1, asm_context->line);
-          operands[operand_count].use_32_bit_instruction = 1;
+          use_32_bit_instruction = 1;
         }
           else
         {
           print_error_illegal_expression(instr, asm_context);
           return -1;
         }
-      }
-
-      if (memory_read(asm_context, asm_context->address) != 0)
-      {
-        operands[operand_count].use_32_bit_instruction = 1;
       }
 
       operands[operand_count].type = OPERAND_NUMBER;
@@ -245,18 +255,13 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
             {
               eat_operand(asm_context);
               memory_write(asm_context, asm_context->address, 1, asm_context->line);
-              operands[operand_count].use_32_bit_instruction = 1;
+              use_32_bit_instruction = 1;
             }
               else
             {
               print_error_illegal_expression(instr, asm_context);
               return -1;
             }
-          }
-
-          if (memory_read(asm_context, asm_context->address) != 0)
-          {
-            operands[operand_count].use_32_bit_instruction = 1;
           }
 
           operands[operand_count].type = OPERAND_INDEX_REG_IMM;
@@ -312,18 +317,13 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         {
           eat_operand(asm_context);
           memory_write(asm_context, asm_context->address, 1, asm_context->line);
-          operands[operand_count].use_32_bit_instruction = 1;
+          use_32_bit_instruction = 1;
         }
           else
         {
           print_error_illegal_expression(instr, asm_context);
           return -1;
         }
-      }
-
-      if (memory_read(asm_context, asm_context->address) != 0)
-      {
-        operands[operand_count].use_32_bit_instruction = 1;
       }
 
       operands[operand_count].type = OPERAND_ADDRESS;
@@ -333,6 +333,11 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
     operand_count++;
   }
 
+  if (memory_read(asm_context, asm_context->address) != 0)
+  {
+    use_32_bit_instruction = 1;
+  }
+
   // Get opcodes
   n = 0;
   while(table_epiphany[n].instr != NULL)
@@ -340,6 +345,12 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
     if (strcmp(table_epiphany[n].instr, instr_case) == 0)
     {
       found = 1;
+
+      if (use_32_bit_instruction == 1 && table_epiphany[n].size == 16)
+      {
+        n++;
+        continue;
+      }
 
       switch(table_epiphany[n].type)
       {
@@ -352,7 +363,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         {
           if (operand_count == 1 && operands[0].type == OPERAND_ADDRESS)
           {
-            if (operands[0].use_32_bit_instruction == 1) { break; }
+            //if (use_32_bit_instruction == 1) { break; }
 
             offset = operands[0].value - asm_context->address;
 
@@ -403,7 +414,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
               operands[0].type == OPERAND_REG &&
               operands[1].type == OPERAND_INDEX_REG_IMM)
           {
-            if (operands[1].use_32_bit_instruction == 1) { break; }
+            //if (use_32_bit_instruction == 1) { break; }
             if (operands[1].value < 0 || operands[1].value > 7) { break; }
             if (operands[0].reg > 7) { break; }
             if (operands[1].reg > 7) { break; }
@@ -543,7 +554,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
               operands[0].type == OPERAND_REG &&
               operands[1].type == OPERAND_NUMBER)
           {
-            if (operands[1].use_32_bit_instruction == 1) { break; }
+            //if (use_32_bit_instruction == 1) { break; }
             if (operands[0].reg > 7) { break; }
             if (operands[1].value < 0 || operands[1].value > 0xff) { break; }
 
@@ -579,7 +590,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
               operands[1].type == OPERAND_REG &&
               operands[2].type == OPERAND_NUMBER)
           {
-            if (operands[1].use_32_bit_instruction == 1) { break; }
+            //if (use_32_bit_instruction == 1) { break; }
             if (operands[0].reg > 7) { break; }
             if (operands[1].reg > 7) { break; }
             if (operands[2].value < -4 || operands[2].value > 3) { break; }

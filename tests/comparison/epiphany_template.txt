@@ -6,6 +6,7 @@ add v3,v4,v5
 add v6,sb,v7
 add sl,v8,fp
 add sp,lr,r27
+add.l r1,r2,r3
 add r1,r2,#2
 add r1,r2,#-2
 add r10,r11,#2
@@ -13,28 +14,44 @@ add r10,r11,#-2
 add r10,r11,#100
 add r10,r11,#-100
 and r1,r2,r3
+and.l r1,r2,r3
 and r48,r50,r53
 asr r3,r5,r7
+asr.l r3,r5,r7
 asr r48,r50,r53
+asr r1,r2,#1
+asr.l r1,r2,#1
 asr r48,r50,#31
 bitr r3,r7
+bitr.l r3,r7
 bitr r10,r11
 eor r1,r2,r3
+eor.l r1,r2,r3
 eor r63,r2,r3
 ;fabs r4,r5
+fabs.l r4,r5
 fabs r41,r5
 fadd r1,r2,r1
+fadd.l r1,r2,r1
 fadd r41,r42,r2
 fix r1,r2
+fix.l r1,r2
 fix r15,r21
 float r1,r2
+float.l r1,r2
 float r19,r20
 fmadd r1,r2,r3
+fmadd.l r1,r2,r3
 fmadd r41,r2,r3
 fmsub r3,r4,r5
+fmsub.l r3,r4,r5
 fmsub r41,r42,r43
 fsub r3,r4,r5
+fsub.l r3,r4,r5
 fsub r41,r42,r43
+fmul r1,r4,r5
+fmul.l r3,r1,r5
+fmul r41,r47,r43
 iadd r3,r4,r3
 iadd r31,r41,r3
 imadd r1,r2,r3
@@ -88,12 +105,16 @@ str r2,[r1],#-1024
 strh r1,[r2],#99
 strh r1,[r2],#-300
 lsl r1,r2,r3
+lsl.l r1,r2,r3
 lsl r63,r63,r63
 lsl r1,r2,#31
+lsl.l r1,r2,#31
 lsl r63,r63,#31
 lsr r1,r2,r3
+lsr.l r1,r2,r3
 lsr r63,r63,r63
 lsr r1,r2,#31
+lsr.l r1,r2,#31
 lsr r63,r63,#31
 moveq r5,r1
 movne r1,r2
@@ -134,8 +155,10 @@ movt r8, #0xff
 movt r8, #0xff
 mov r63, #0xffff
 orr r1,r2,r3
+orr.l r1,r2,r3
 orr r48,r50,r53
 sub r1,r2,r3
+sub.l r1,r2,r3
 sub r48,r50,r53
 sub r1,r7,#-4
 sub r1,r8,#2
@@ -193,7 +216,10 @@ bblte 4000
 b 4000
 bl 4000
 movts CONFIG, r1
+movts.l CONFIG, r1
 movfs r0, STATUS
+movfs.l r0, STATUS
+movfs r31, STATUS
 movts PC, r2
 ;movfs r3, DEBUGSTATUS
 movts LC, r4
