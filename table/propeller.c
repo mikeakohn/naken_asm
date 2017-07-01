@@ -14,12 +14,12 @@
 #include "table/propeller.h"
 
 struct _table_propeller table_propeller[] = {
-  { "wrbyte",  0x00000000, 0xfc000000, PROPELLER_OP_DS, 8, 23 },
-  { "rdbyte",  0x00800000, 0xfc000000, PROPELLER_OP_DS, 8, 23 },
-  { "wrword",  0x04000000, 0xfc000000, PROPELLER_OP_DS_15_1, 8, 23 },
-  { "rdword",  0x04800000, 0xfc000000, PROPELLER_OP_DS_15_1, 8, 23 },
-  { "wrlong",  0x08000000, 0xfc000000, PROPELLER_OP_DS_15_2, 8, 23 },
-  { "rdlong",  0x08800000, 0xfc000000, PROPELLER_OP_DS_15_2, 8, 23 },
+  { "wrbyte",  0x00000000, 0xfc800000, PROPELLER_OP_DS, 8, 23 },
+  { "rdbyte",  0x00800000, 0xfc800000, PROPELLER_OP_DS, 8, 23 },
+  { "wrword",  0x04000000, 0xfc800000, PROPELLER_OP_DS_15_1, 8, 23 },
+  { "rdword",  0x04800000, 0xfc800000, PROPELLER_OP_DS_15_1, 8, 23 },
+  { "wrlong",  0x08000000, 0xfc800000, PROPELLER_OP_DS_15_2, 8, 23 },
+  { "rdlong",  0x08800000, 0xfc800000, PROPELLER_OP_DS_15_2, 8, 23 },
   { "clkset",  0x0c400000, 0xfc400007, PROPELLER_OP_D, 8, 23 },
   { "cogid",   0x0cc00001, 0xfc400007, PROPELLER_OP_D, 8, 23 },
   { "coginit", 0x0c400002, 0xfc400007, PROPELLER_OP_D, 8, 23 },
