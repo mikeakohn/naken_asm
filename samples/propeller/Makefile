@@ -13,6 +13,12 @@ mandel:
 	openspin mandelbrot.spin
 	propeller-load -r -p /dev/ttyUSB0 mandelbrot.binary
 
+multi:
+	../../naken_asm -I ../../include/propeller -l -b \
+	   -o lcd_code.bin lcd_code.asm
+	openspin mandelbrot_multi.spin
+	propeller-load -r -p /dev/ttyUSB0 mandelbrot_multi.binary
+
 clean:
 	@rm -f flip_blink_code.bin flip_blink_code.lst flip_blink.binary
 	@rm -f mandelbrot_code.bin mandelbrot_code.lst mandelbrot.binary
