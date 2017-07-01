@@ -4,7 +4,7 @@
 
 main:
   mov dira, port_dir
-  mov outa, port_start
+  mov outa, port_state0
 
   ;; Signal is start of buffer + (cogid * 16)
   mov signal, par
@@ -20,6 +20,8 @@ wait_signal:
   ;; Wait for spin code to signal this cog to read the image
   rdbyte temp, signal, wz
   if_z jmp #wait_signal
+
+  mov outa, port_state0
 
   ;; Point to image and set a counter for 96 * 64 pixels
   mov count, const_6144
@@ -52,6 +54,8 @@ pixel_array:
 
   ;; Reset the the signal so the SPIN cog knows the LCD is done
   wrbyte signal, #0
+
+  mov outa, port_state1
 
   jmp #wait_signal
 
@@ -87,11 +91,11 @@ bit_count:
 data:
   dc32 0x0
 port_dir:
-  dc32 (0x1f) | (1 << 26) | (1 << 27) 
-port_start:
+  dc32 (0x1f) | (1 << 26) | (1 << 27)
+port_state0:
   dc32 (0x1f) | (1 << 26)
-led_xor:
-  dc32 (1 << 26) | (1 << 27) 
+port_state1:
+  dc32 (0x1f) | (1 << 27)
 temp:
   dc32 0
 signal:
@@ -99,13 +103,13 @@ signal:
 image:
   dc32 0
 const_6144:
-  dc32 6144 
+  dc32 6144
 count:
-  dc32 6144 
+  dc32 0
 image_ptr:
-  dc32 6144 
+  dc32 0
 pixel:
-  dc32 6144 
+  dc32 0
 colors:
   dc32 0x0000
   dc32 0x000c
