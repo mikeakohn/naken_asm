@@ -45,11 +45,21 @@ CON
 '  Mandelbrot: "mandelbrot_code"
 
 VAR
-  byte image[(96 * 64) + (16 * 4)]
-  byte cog_map[8]
+  ' 96 * 64 bytes of image, 6 words for signalling where
+  ' word 0: start_signal=1
+  ' word 1: 16 bit fixed point real
+  ' word 2: 16 bit fixed point imaginary
+  ' word 3: dx
+  ' word 4: dy
+  ' word 5: Row number
+  ' word 6: reserved
+  ' word 7: reserved
+  byte image[(96 * 64) + (8 * 16)]
+  byte mandel_cog[6]
   byte lcd_cog
+  byte row
 
-Pub Main | count
+Pub Main | index,ptr
   dira := $1f
   dira[led1] := 1
   dira[led0] := 1
@@ -105,7 +115,7 @@ Pub Main | count
   '  sendData($1)
   '  sendData(0)
 
-  bytefill(@image, 0, (96 * 64) + (16 * 4))
+  bytefill(@image, 15, (96 * 64) + (8 * 16))
 
   outa[dout] := 0
   outa[clk] := 0
@@ -113,12 +123,61 @@ Pub Main | count
   outa[dc] := 0
 
   lcd_cog := cognew(@lcd_code, @image)
+  mandel_cog[0] := cognew(@mandelbrot, @image)
+  mandel_cog[1] := cognew(@mandelbrot, @image)
+  mandel_cog[2] := cognew(@mandelbrot, @image)
+  mandel_cog[3] := cognew(@mandelbrot, @image)
+  mandel_cog[4] := cognew(@mandelbrot, @image)
+  mandel_cog[5] := cognew(@mandelbrot, @image)
 
   ' Signal LCD cog it's time to write
-  image[lcd_cog * 4] := 1
+  image[lcd_cog * 8] := 1
+
+  repeat while image[lcd_cog * 8] == 1
+
+  ComputeMandelbrot((-2 << 10), (-1 << 10), (1 << 10), (1 << 10))
+
+  ' Signal LCD cog it's time to write
+  image[lcd_cog * 8] := 1
 
   repeat
-    count := count + 1
+
+Pub ComputeMandelbrot(r0, i0, r1, i1) | dx, dy, spinning, n, index, ptr
+
+  dx := (r1 - r0) / 96
+  dy := (i1 - i0) / 64
+
+  spinning := 1
+
+  repeat row from 0 to 63
+    ' Find free cog
+    repeat index from 0 to 5
+      ptr := mandel_cog[index] * 8
+
+      if image[ptr] == 0
+        image[ptr+2] := r0 & 255
+        image[ptr+3] := r0 >> 8
+        image[ptr+4] := i0 & 255
+        image[ptr+5] := i0 >> 8
+        image[ptr+6] := dx & 255
+        image[ptr+7] := dx >> 8
+        image[ptr+8] := dy & 255
+        image[ptr+9] := dy >> 8
+        image[ptr+10] := row & 255
+        image[ptr+11] := row >> 8
+        image[ptr] := 1 
+
+        i0 := i0 + dy
+
+  ' Wait for all cores to finish
+  repeat until spinning == 0
+    spinning := 0
+
+    repeat n from 0 to 5
+      ptr := mandel_cog[index] * 8
+
+      if image[ptr] == 1
+        spinning := spinning + 1
 
 Pub SendCommand(command)
   outa[led0] := 1
@@ -160,6 +219,7 @@ Pub SendData(data)
 
 DAT
   lcd_code file "lcd_code.bin"
+  mandelbrot file "mandelbrot_code6.bin"
 
 
 

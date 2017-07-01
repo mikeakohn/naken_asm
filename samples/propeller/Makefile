@@ -16,6 +16,8 @@ mandel:
 multi:
 	../../naken_asm -I ../../include/propeller -l -b \
 	   -o lcd_code.bin lcd_code.asm
+	../../naken_asm -I ../../include/propeller -l -b \
+	   -o mandelbrot_code6.bin mandelbrot_code6.asm
 	openspin mandelbrot_multi.spin
 	propeller-load -r -p /dev/ttyUSB0 mandelbrot_multi.binary
 

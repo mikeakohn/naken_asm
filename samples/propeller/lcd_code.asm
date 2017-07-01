@@ -14,15 +14,12 @@ main:
 
   ;; Image is start of buffer + (signal buffer)
   mov image, par
-  add image, #16*4
+  add image, #8*16
 
 wait_signal:
   ;; Wait for spin code to signal this cog to read the image
   rdbyte temp, signal, wz
   if_z jmp #wait_signal
-
-  ;; Reset the the signal so it only happens once
-  wrbyte signal, #0
 
   ;; Point to image and set a counter for 96 * 64 pixels
   mov count, const_6144
@@ -52,6 +49,9 @@ pixel_array:
   ;; count--
   sub count, #1, wz
   if_nz jmp #next_pixel
+
+  ;; Reset the the signal so the SPIN cog knows the LCD is done
+  wrbyte signal, #0
 
   jmp #wait_signal
 

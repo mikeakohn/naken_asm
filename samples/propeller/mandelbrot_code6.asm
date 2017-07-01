@@ -45,42 +45,64 @@ main:
   mov dira, port_dir
   mov outa, port_start
 
-repeat_mandel:
-  mov r_start, r_start_0
-  mov i_start, i_start_0
-  mov dx, dx_0
-  mov dy, dy_0
-  call mandelbrot_ret, #mandelbrot
+  ;; Signal is start of buffer + (cogid * 4)
+  mov signal, par
+  cogid temp0
+  shl temp0, #2
+  add signal, temp0
 
-  mov r_start, r_start_1
-  mov i_start, i_start_1
-  mov dx, dx_1
-  mov dy, dy_1
-  call mandelbrot_ret, #mandelbrot
+  ;; Image is start of buffer + (signal buffer)
+  mov image, par
+  add image, #8*16
 
-  mov r_start, r_start_2
-  mov i_start, i_start_2
-  mov dx, dx_2
-  mov dy, dy_2
-  call mandelbrot_ret, #mandelbrot
-  jmp #repeat_mandel
+wait_signal:
+  ;; Wait for spin code to signal this cog to read the image
+  rdbyte temp0, signal, wz
+  if_z jmp #wait_signal
 
-while_1:
-  mov count, counter_top
-repeat:
-  sub count, #1, wz 
-  if_nz jmp #repeat
-  xor outa, led_xor
-  jmp #while_1
+  ;; temp0 points to the next element in the signal array
+  mov temp0, signal
 
-mandelbrot:
-  mov line, #64
-  mov curr_i, i_start
-next_line:
-  mov row, #96
-  mov curr_r, r_start
-next_row:
+  ;; curr_r = sign_ext(signal[1])
+  add temp0, #2
+  rdword curr_r, temp0
+  and curr_r, const_8000, wz nr
+  if_nz or curr_r, const_ffff0000
 
+  ;; curr_i = sign_ext(signal[2])
+  add temp0, #2
+  rdword curr_i, temp0
+  and curr_i, const_8000, wz nr
+  if_nz or curr_i, const_ffff0000
+
+  ;; dx = sign_ext(signal[3])
+  add temp0, #2
+  rdword dx, temp0
+  and dx, const_8000, wz nr
+  if_nz or dx, const_ffff0000
+
+  ;; dy = sign_ext(signal[4])
+  add temp0, #2
+  rdword dy, temp0
+  and dy, const_8000, wz nr
+  if_nz or dy, const_ffff0000
+
+  ;; Calculate row offset to image_ptr
+  ;; temp0 = row * 96
+  ;; image_ptr = image + temp0
+  mov image_ptr, image
+  add temp0, #2
+  rdword temp1, temp0
+  shl temp1, #5
+  mov temp0, temp1
+  shl temp1, #1
+  add temp0, temp1
+  add image_ptr, temp0
+
+  ;; Do mandelbrot row
+  mov column, #96
+
+next_x:
   mov zr, #0
   mov zi, #0
 
@@ -117,30 +139,29 @@ next_iteration:
   if_nz jmp #next_iteration
 exit_iteration:
 
-  ;; temp0 = colors[count >> 3]
+  ;; count = count >> 3 and then write that to shared memory
   shr count, #3
-  add count, #colors
-  movs get_color, count
-  nop
-get_color: 
-  mov temp0, colors
-
-  mov data, temp0
-  shr data, #8
-  call send_data_ret, #send_data
-  mov data, temp0
-  and data, #0xff
-  call send_data_ret, #send_data
+  wrbyte image_ptr, count
+  add image_ptr, #1
 
   adds curr_r, dx
-  sub row, #1, wz
-  if_nz jmp #next_row
+  sub column, #1, wz
+  if_nz jmp #next_x
 
-  adds curr_i, dy
-  sub line, #1, wz
-  if_nz jmp #next_line
-mandelbrot_ret:
-  ret
+  ;; Reset the the signal so the SPIN cog knows this cog is ready
+  ;; for more data.
+  wrbyte signal, #0
+
+  jmp #wait_signal
+
+  ;; Some debug LED blinking that doesn't get called
+while_1:
+  mov count, counter_top
+repeat:
+  sub count, #1, wz 
+  if_nz jmp #repeat
+  xor outa, led_xor
+  jmp #while_1
 
 send_data:
   or outa, #0x08     ; DC = 1
@@ -185,32 +206,12 @@ counter_top:
   dc32 0xfffff
 line:
   dc32 0
-row:
+column:
   dc32 0
 r_start_0:
   dc32 (-2 << 10)
 i_start_0:
   dc32 (-1 << 10)
-dx_0:
-  dc32 ((1 << 10) - (-2 << 10)) / 96
-dy_0:
-  dc32 ((1 << 10) - (-1 << 10)) / 64
-r_start_1:
-  dc32 (-1 << 10)
-i_start_1:
-  dc32 (-1 << 9)
-dx_1:
-  dc32 ((1 << 9) - (-1 << 10)) / 96
-dy_1:
-  dc32 ((1 << 9) - (-1 << 9)) / 64
-r_start_2:
-  dc32 (-2 << 9)
-i_start_2:
-  dc32 (-1<< 9)
-dx_2:
-  dc32 ((0 << 10) - (-2 << 9)) / 96
-dy_2:
-  dc32 ((0 << 10) - (-1 << 9)) / 64
 r_start:
   dc32 0
 i_start:
@@ -245,27 +246,15 @@ four:
   dc32 (4 << 10)
 mask16:
   dc32 0xffff
-colors:
-  dc32 0x0000
-  dc32 0x000c
-  dc32 0x0013
-  dc32 0x0015
-  dc32 0x0195
-  dc32 0x0335
-  dc32 0x04d5
-  dc32 0x34c0
-  dc32 0x64c0
-  dc32 0x9cc0
-  dc32 0x6320
-  dc32 0xa980
-  dc32 0xaaa0
-  dc32 0xcaa0
-  dc32 0xe980
-  dc32 0xf800
-
-;delay_count:
-;  dc32 0x0
-;delay_count_top:
-;  dc32 10
+signal:
+  dc32 0
+image:
+  dc32 0
+image_ptr:
+  dc32 0
+const_8000:
+  dc32 0x8000
+const_ffff0000:
+  dc32 0xffff0000
 
 
