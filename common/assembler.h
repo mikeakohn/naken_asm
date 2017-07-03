@@ -24,7 +24,7 @@
 
 #define TOKENLEN 512
 #define PARAM_STACK_LEN 4096
-#define INCLUDE_PATH_LEN 1024
+#define INCLUDE_PATH_LEN 4096
 
 //#define DL_EMPTY -1
 //#define DL_DATA -2

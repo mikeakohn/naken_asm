@@ -362,10 +362,13 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
   }
 
   fprintf(out, "Include Paths: .\n");
+
   int ptr = 0;
+
   if (asm_context->include_path[ptr] != 0)
   {
     fprintf(out, "               ");
+
     while(1)
     {
       if (asm_context->include_path[ptr] == 0 &&

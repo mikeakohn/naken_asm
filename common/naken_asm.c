@@ -232,6 +232,12 @@ int main(int argc, char *argv[])
   }
 #endif
 
+  if (add_to_include_path(&asm_context, "include") != 0)
+  {
+    printf("Internal Error:  Too many include paths\n");
+    exit(1);
+  }
+
   if (tokens_open_file(&asm_context, infile) != 0)
   {
     printf("Couldn't open %s for reading.\n", infile);
