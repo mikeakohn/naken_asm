@@ -105,7 +105,7 @@ Other Directives:
 |.little_endian             |Store databytes in little endian format
 |.list                      |Write included file into .lst file
 |.export                    |Export symbol so it shows up in ELF file
-|.entry_point               |ELF file entry point (address of execution)
+|.entry_point               |ELF file / SREC entry point (address of execution)
 |.include "includefile.inc" |Include a file of asm source code
 |.org {address}             |Address where next assembled bytes are written to
 |.set {symbol}={value}      |Create or modify symbol's value (excluding labels)

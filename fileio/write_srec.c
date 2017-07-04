@@ -171,6 +171,17 @@ int write_srec(struct _memory *memory, FILE *out, int srec_size)
     write_srec_line(out, type, address, data, len);
   }
 
+  if (memory->entry_point != 0xffffffff)
+  {
+    int checksum = 3 + ((memory->entry_point >> 8) & 0xff) +
+                        (memory->entry_point & 0xff);
+
+    checksum = (checksum & 0xff) ^ 0xff;
+
+    fprintf(out, "S903%04x%02x\n", memory->entry_point, checksum);
+  }
+
+
   return 0;
 }
 
