@@ -15,11 +15,25 @@
 
 #include "fileio/read_wdc.h"
 
-int read_wdc(char *filename, struct _memory *memory, uint32_t start_address)
+int read_int24(FILE *in)
+{
+  int num;
+
+  num = getc(in);
+
+  if (num == EOF) { return 0; }
+
+  num |= (getc(in) << 8);
+  num |= (getc(in) << 16);
+
+  return num;
+}
+
+int read_wdc(char *filename, struct _memory *memory)
 {
   FILE *in;
-  int ch;
-  int address = start_address;
+  int ch, n;
+  //int address = start_address;
 
   memory_clear(memory);
 
@@ -29,12 +43,38 @@ int read_wdc(char *filename, struct _memory *memory, uint32_t start_address)
     return -1;
   }
 
+  ch = getc(in);
+
+  if (ch != 'Z')
+  {
+    return -1;
+  }
+
   while(1)
   {
-    ch = getc(in);
-    if (ch == EOF) break;
+    int address = read_int24(in);
+    int length = read_int24(in);
 
-    memory_write_m(memory, address++, ch);
+    if (address < memory->low_address)
+    {
+      memory->low_address = address;
+    }
+
+    if (length == 0) { break; }
+
+    for (n = 0; n < length; n++)
+    {
+      ch = getc(in);
+
+      if (ch == EOF) break;
+
+      if (address > memory->high_address)
+      {
+        memory->low_address = address;
+      }
+
+      memory_write_m(memory, address++, ch);
+    }
   }
 
   if (in != NULL)
@@ -42,10 +82,7 @@ int read_wdc(char *filename, struct _memory *memory, uint32_t start_address)
     fclose(in);
   }
 
-  memory->low_address = start_address;
-  memory->high_address = address - 1;
-
-  return start_address;
+  return memory->low_address;
 }
 
 

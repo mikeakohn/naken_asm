@@ -16,7 +16,7 @@
 
 #include "common/memory.h"
 
-int read_wdc(char *filename, struct _memory *memory, uint32_t start_address);
+int read_wdc(char *filename, struct _memory *memory);
 
 #endif
 

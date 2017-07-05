@@ -54,6 +54,7 @@
 #include "fileio/read_hex.h"
 #include "fileio/read_srec.h"
 #include "fileio/read_ti_txt.h"
+#include "fileio/read_wdc.h"
 #include "simulate/avr8.h"
 #include "simulate/6502.h"
 #include "simulate/65816.h"
@@ -859,7 +860,7 @@ int main(int argc, char *argv[])
         extension--;
       }
 
-      if (read_elf(argv[i], &util_context.memory, &cpu_type, &util_context.symbols)>=0)
+      if (read_elf(argv[i], &util_context.memory, &cpu_type, &util_context.symbols) >= 0)
       {
         int n = 0;
 
@@ -919,6 +920,16 @@ int main(int argc, char *argv[])
       {
         hexfile = argv[i];
         printf("Loaded srec %s from 0x%04x to 0x%04x\n",
+          argv[i],
+          util_context.memory.low_address,
+          util_context.memory.high_address);
+      }
+        else
+      if ((strcmp(extension, "wdc") == 0) &&
+          read_wdc(argv[i], &util_context.memory) >= 0)
+      {
+        hexfile = argv[i];
+        printf("Loaded WDC binary %s from 0x%04x to 0x%04x\n",
           argv[i],
           util_context.memory.low_address,
           util_context.memory.high_address);

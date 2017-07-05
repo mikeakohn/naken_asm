@@ -23,6 +23,7 @@
 #include "fileio/write_elf.h"
 #include "fileio/write_hex.h"
 #include "fileio/write_srec.h"
+#include "fileio/write_wdc.h"
 
 enum
 {
@@ -229,6 +230,7 @@ int main(int argc, char *argv[])
       case FORMAT_BIN: outfile = "out.bin"; break;
       case FORMAT_ELF: outfile = "out.elf"; break;
       case FORMAT_SREC: outfile = "out.srec"; break;
+      case FORMAT_WDC: outfile = "out.wdc"; break;
       default: outfile = "out.err"; break;
     }
   }
@@ -360,6 +362,11 @@ int main(int argc, char *argv[])
       write_elf(&asm_context.memory, out, &asm_context.symbols, asm_context.filename, asm_context.cpu_type, cpu_list[asm_context.cpu_list_index].alignment);
     }
 #endif
+      else
+    if (format == FORMAT_WDC)
+    {
+      write_wdc(&asm_context.memory, out);
+    }
 
     if (dbg != NULL)
     {
