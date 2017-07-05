@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "fileio/read_hex.h"
+#include "fileio/read_bin.h"
 
 int read_bin(char *filename, struct _memory *memory, uint32_t start_address)
 {
