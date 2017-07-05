@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -38,7 +38,7 @@ void memory_free(struct _memory *memory)
   {
     next = page->next;
     free(page);
-    page = next; 
+    page = next;
   }
 
   memory->pages = NULL;
@@ -56,7 +56,7 @@ void memory_clear(struct _memory *memory)
     memset(page->bin, 0, PAGE_SIZE);
     page->offset_min = PAGE_SIZE;
     page->offset_max = 0;
-    page = next; 
+    page = next;
   }
 }
 
@@ -72,6 +72,7 @@ int memory_in_use(struct _memory *memory, uint32_t address)
     {
       return 1;
     }
+
     page = page->next;
   }
 
@@ -90,6 +91,7 @@ int memory_get_page_address_min(struct _memory *memory, uint32_t address)
     {
       return page->address + page->offset_min;
     }
+
     page = page->next;
   }
 
@@ -110,6 +112,7 @@ int memory_get_page_address_max(struct _memory *memory, uint32_t address)
     {
       return page->address + page->offset_max;
     }
+
     page = page->next;
   }
 
@@ -209,7 +212,9 @@ static void write_byte(struct _memory *memory, uint32_t address, uint8_t data)
   int offset = address-page->address;
   if (page->offset_min > offset) { page->offset_min = offset; }
   if (page->offset_max < offset) { page->offset_max = offset; }
+
   page->bin[offset] = data;
+  //page->debug_line[offset] = 1;
 }
 
 static void write_debug(struct _memory *memory, uint32_t address, int data)

@@ -34,6 +34,7 @@ int read_wdc(char *filename, struct _memory *memory)
   FILE *in;
   int ch, n;
   //int address = start_address;
+  memory->low_address = 0xffffffff;
 
   memory_clear(memory);
 
@@ -55,12 +56,12 @@ int read_wdc(char *filename, struct _memory *memory)
     int address = read_int24(in);
     int length = read_int24(in);
 
+    if (length == 0) { break; }
+
     if (address < memory->low_address)
     {
       memory->low_address = address;
     }
-
-    if (length == 0) { break; }
 
     for (n = 0; n < length; n++)
     {
@@ -70,7 +71,7 @@ int read_wdc(char *filename, struct _memory *memory)
 
       if (address > memory->high_address)
       {
-        memory->low_address = address;
+        memory->high_address = address;
       }
 
       memory_write_m(memory, address++, ch);
