@@ -30,6 +30,7 @@ enum
   FORMAT_BIN,
   FORMAT_ELF,
   FORMAT_SREC,
+  FORMAT_WDC,
 };
 
 const char *credits =
@@ -103,10 +104,13 @@ int main(int argc, char *argv[])
            "   -o <outfile>\n"
            "   -h             [output hex file]\n"
 #ifndef DISABLE_ELF
-           "   -e             [output elf file]\n"
+           "   -elf           [output elf file]\n"
 #endif
-           "   -b             [output binary file]\n"
-           "   -s             [output srec file]\n"
+           "   -bin           [output binary file]\n"
+           "   -srec          [output srec file]\n"
+#ifndef DISABLE_WDC
+           "   -wdc           [WDC binary file]\n"
+#endif
            "   -l             [create .lst listing file]\n"
            "   -I             [add to include path]\n"
            "   -q             Quiet (only output errors)\n"
@@ -130,22 +134,27 @@ int main(int argc, char *argv[])
       format = FORMAT_HEX;
     }
       else
-    if (strcmp(argv[i], "-b") == 0)
+    if (strcmp(argv[i], "-bin") == 0 || strcmp(argv[i], "-b") == 0)
     {
       format = FORMAT_BIN;
     }
       else
-    if (strcmp(argv[i], "-s") == 0)
+    if (strcmp(argv[i], "-srec") == 0 || strcmp(argv[i], "-s") == 0)
     {
       format = FORMAT_SREC;
     }
 #ifndef DISABLE_ELF
       else
-    if (strcmp(argv[i], "-e") == 0)
+    if (strcmp(argv[i], "-elf") == 0 || strcmp(argv[i], "-e") == 0)
     {
       format = FORMAT_ELF;
     }
 #endif
+      else
+    if (strcmp(argv[i], "-wdc") == 0)
+    {
+      format = FORMAT_WDC;
+    }
 #if 0
       else
     if (strcmp(argv[i], "-d") == 0)

@@ -7,6 +7,7 @@ Contents
 * [Simulating](simulating.md)
 * [Literals](literals.md)
 * [Directives](directives.md)
+* [File Formats](file_formats.md)
 * [Examples](examples.md)
 * CPU Specific
   * [65C816](65C816.md)
