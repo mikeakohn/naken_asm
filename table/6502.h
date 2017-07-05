@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn, Joe Davisson
  *
@@ -83,6 +83,7 @@ enum
   M65XX_STA,
   M65XX_STX,
   M65XX_STY,
+  M65XX_STZ,
   M65XX_TAX,
   M65XX_TAY,
   M65XX_TSX,

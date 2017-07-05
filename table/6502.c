@@ -3,11 +3,11 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn, Joe Davisson
  *
- * 65816 by Joe Davisson
+ * 6502 by Joe Davisson
  *
  */
 
@@ -65,6 +65,7 @@ struct _table_6502 table_6502[] =
   { "sta", M65XX_STA, OP_NONE },
   { "stx", M65XX_STX, OP_NONE },
   { "sty", M65XX_STY, OP_NONE },
+  { "stz", M65XX_STZ, OP_NONE },
   { "tax", M65XX_TAX, OP_NONE },
   { "tay", M65XX_TAY, OP_NONE },
   { "tsx", M65XX_TSX, OP_NONE },
@@ -181,7 +182,7 @@ struct _table_6502_opcodes table_6502_opcodes[] =
   /* 0x61 */ { M65XX_ADC, OP_X_INDIRECT8, 0, 0 },
   /* 0x62 */ { M65XX_ERROR, OP_NONE, 0, 0 },
   /* 0x63 */ { M65XX_ERROR, OP_NONE, 0, 0 },
-  /* 0x64 */ { M65XX_ERROR, OP_NONE, 0, 0 },
+  /* 0x64 */ { M65XX_STZ, OP_ADDRESS8, 0, 0 },
   /* 0x65 */ { M65XX_ADC, OP_ADDRESS8, 0, 0 },
   /* 0x66 */ { M65XX_ROR, OP_ADDRESS8, 0, 0 },
   /* 0x67 */ { M65XX_ERROR, OP_NONE, 0, 0 },
@@ -198,7 +199,7 @@ struct _table_6502_opcodes table_6502_opcodes[] =
   /* 0x71 */ { M65XX_ADC, OP_INDIRECT8_Y, 0, 0 },
   /* 0x72 */ { M65XX_ERROR, OP_NONE, 0, 0 },
   /* 0x73 */ { M65XX_ERROR, OP_NONE, 0, 0 },
-  /* 0x74 */ { M65XX_ERROR, OP_NONE, 0, 0 },
+  /* 0x74 */ { M65XX_STZ, OP_INDEXED8_X, 0, 0 },
   /* 0x75 */ { M65XX_ADC, OP_INDEXED8_X, 0, 0 },
   /* 0x76 */ { M65XX_ROR, OP_INDEXED8_X, 0, 0 },
   /* 0x77 */ { M65XX_ERROR, OP_NONE, 0, 0 },
@@ -240,9 +241,9 @@ struct _table_6502_opcodes table_6502_opcodes[] =
   /* 0x99 */ { M65XX_STA, OP_INDEXED16_Y, 0, 0 },
   /* 0x9A */ { M65XX_TXS, OP_NONE, 0, 0 },
   /* 0x9B */ { M65XX_ERROR, OP_NONE, 0, 0 },
-  /* 0x9C */ { M65XX_ERROR, OP_NONE, 0, 0 },
+  /* 0x9C */ { M65XX_STZ, OP_ADDRESS16, 0, 0 },
   /* 0x9D */ { M65XX_STA, OP_INDEXED16_X, 0, 0 },
-  /* 0x9E */ { M65XX_ERROR, OP_NONE, 0, 0 },
+  /* 0x9E */ { M65XX_STZ, OP_INDEXED16_X, 0, 0 },
   /* 0x9F */ { M65XX_ERROR, OP_NONE, 0, 0 },
 
   /* 0xA0 */ { M65XX_LDY, OP_IMMEDIATE, 0, 0 },
