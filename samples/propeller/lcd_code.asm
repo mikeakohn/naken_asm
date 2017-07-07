@@ -53,7 +53,7 @@ pixel_array:
   if_nz jmp #next_pixel
 
   ;; Reset the the signal so the SPIN cog knows the LCD is done
-  wrbyte signal, #0
+  wrbyte zero, signal
 
   mov outa, port_state1
 
@@ -109,6 +109,8 @@ count:
 image_ptr:
   dc32 0
 pixel:
+  dc32 0
+zero:
   dc32 0
 colors:
   dc32 0x0000

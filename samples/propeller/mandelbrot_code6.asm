@@ -42,10 +42,10 @@ repeat_mul:
 .endm
 
 main:
-  ;; Signal is start of buffer + (cogid * 4)
+  ;; Signal is start of buffer + (cogid * 16)
   mov signal, par
   cogid temp0
-  shl temp0, #2
+  shl temp0, #4
   add signal, temp0
 
   ;; Image is start of buffer + (signal buffer)
@@ -138,7 +138,7 @@ exit_iteration:
 
   ;; count = count >> 3 and then write that to shared memory
   shr count, #3
-  wrbyte image_ptr, count
+  wrbyte count, image_ptr
   add image_ptr, #1
 
   adds curr_r, dx
@@ -147,7 +147,7 @@ exit_iteration:
 
   ;; Reset the the signal so the SPIN cog knows this cog is ready
   ;; for more data.
-  wrbyte signal, #0
+  wrbyte zero, signal
 
   jmp #wait_signal
 
@@ -221,6 +221,8 @@ signal:
 image:
   dc32 0
 image_ptr:
+  dc32 0
+zero:
   dc32 0
 const_8000:
   dc32 0x8000

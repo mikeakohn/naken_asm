@@ -136,9 +136,9 @@ Pub Main | index,ptr
 
   repeat while image[lcd_cog * 16] <> 0
 
-  bytefill(@image + (8 * 16), 15, (96 * 64))
-  image[lcd_cog * 16] := 1
-  repeat while image[lcd_cog * 16] <> 0
+  'bytefill(@image + (8 * 16), 15, (96 * 64))
+  'image[lcd_cog * 16] := 1
+  'repeat while image[lcd_cog * 16] <> 0
 
   ComputeMandelbrot((-2 << 10), (-1 << 10), (1 << 10), (1 << 10))
 
