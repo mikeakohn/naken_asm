@@ -1,5 +1,5 @@
 {{ Propeller Mandelbrots         }}
-{{ Copyright 2017 - Michael Kohn }} 
+{{ Copyright 2017 - Michael Kohn }}
 {{ http://www.mikekohn.net/      }}
 {{                               }}
 {{ P0 - DOUT                     }}
@@ -58,7 +58,7 @@ VAR
   byte lcd_cog
   byte row
 
-Pub Main | index,ptr
+Pub Main | index, ptr, r0, r1, i0, i1, dr0, dr1, di0, di1
   dira := $1f
   dira[led1] := 1
   dira[led0] := 1
@@ -131,33 +131,44 @@ Pub Main | index,ptr
   coginit(6, @mandelbrot, @image)
   coginit(7, @mandelbrot, @image)
 
-  ' Signal LCD cog it's time to write
+  ' Signal LCD cog it's time to write and wait till it's finished
   image[lcd_cog * 16] := 1
-
   repeat while image[lcd_cog * 16] <> 0
 
-  'bytefill(@image + (8 * 16), 15, (96 * 64))
-  'image[lcd_cog * 16] := 1
-  'repeat while image[lcd_cog * 16] <> 0
-
-  ComputeMandelbrot((-2 << 10), (-1 << 10), (1 << 10), (1 << 10))
-
-  ' Signal LCD cog it's time to write
-  image[lcd_cog * 16] := 1
-
   repeat
+    repeat 4
+      ComputeMandelbrot((-2 << 10), (-1 << 10), (1 << 10), (1 << 10))
+      ComputeMandelbrot((-1 << 10), (-1 << 9), (1 << 9), (1 << 9))
+      ComputeMandelbrot((-2 << 9), (-1 << 9), (0 << 10), (0 << 10))
+
+    r0 := (-2 << 10)
+    r1 := (1 << 10)
+    i0 := (-1 << 10)
+    i1 := (1 << 10)
+
+    dr0 := ((-2 << 9) - r0) / 64
+    dr1 := ((0 << 10) - r1) / 64
+    di0 := ((-1 << 9) - i0) / 64
+    di1 := ((0 << 10) - i1) / 64
+
+    repeat 64
+      r0 := r0 + dr0
+      r1 := r1 - dr1
+      i0 := i0 + di0
+      i1 := i1 - di1
+
+      ComputeMandelbrot(r0, i0, r1, i1)
 
 Pub ComputeMandelbrot(r0, i0, r1, i1) | dx, dy, spinning, n, index, ptr
 
   dx := (r1 - r0) / 96
   dy := (i1 - i0) / 64
+  row := 0
 
-  spinning := 1
-
-  repeat row from 0 to 63
+  repeat while row < 63
     ' Find free cog
-    repeat index from 0 to 5
-      ptr := (index + 2) * 8
+    repeat index from 2 to 7
+      ptr := index * 16
 
       if image[ptr] == 0
         image[ptr+2] := r0 & 255
@@ -170,19 +181,26 @@ Pub ComputeMandelbrot(r0, i0, r1, i1) | dx, dy, spinning, n, index, ptr
         image[ptr+9] := dy >> 8
         image[ptr+10] := row & 255
         image[ptr+11] := row >> 8
-        image[ptr] := 1 
+        image[ptr] := 1
 
         i0 := i0 + dy
+        row := row + 1
+
+  spinning := 1
 
   ' Wait for all cores to finish
   repeat until spinning == 0
     spinning := 0
 
-    repeat n from 0 to 5
-      ptr := (index + 2) * 8
+    repeat n from 2 to 7
+      ptr := n * 16
 
       if image[ptr] == 1
         spinning := spinning + 1
+
+  ' Signal LCD cog it's time to write and wait till it's finished
+  image[lcd_cog * 16] := 1
+  repeat while image[lcd_cog * 16] <> 0
 
 Pub SendCommand(command)
   outa[led0] := 1
