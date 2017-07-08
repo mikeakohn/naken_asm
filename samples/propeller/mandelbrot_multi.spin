@@ -152,12 +152,12 @@ Pub Main | index, ptr, r0, r1, i0, i1, dr0, dr1, di0, di1
     di1 := ((0 << 10) - i1) / 64
 
     repeat 64
-      r0 := r0 + dr0
-      r1 := r1 - dr1
-      i0 := i0 + di0
-      i1 := i1 - di1
-
       ComputeMandelbrot(r0, i0, r1, i1)
+
+      r0 := r0 + dr0
+      r1 := r1 + dr1
+      i0 := i0 + di0
+      i1 := i1 + di1
 
 Pub ComputeMandelbrot(r0, i0, r1, i1) | dx, dy, spinning, n, index, ptr
 
