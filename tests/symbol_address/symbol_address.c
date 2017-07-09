@@ -119,7 +119,8 @@ int main(int argc, char *argv[])
   int errors = 0;
 
   errors += test_symbols("65c816", w65c816);
-  errors += test_symbols("6502", w6502);
+  errors += test_symbols("6502 1", w6502_1);
+  errors += test_symbols("6502 2", w6502_2);
   errors += test_symbols("68000", mc68000);
   errors += test_symbols("Epiphany", epiphany);
   errors += test_symbols("MSP430 1", msp430_1);

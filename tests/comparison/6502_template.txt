@@ -206,4 +206,6 @@ stz $3456
 stz $3456, X
 tsb $12
 tsb $3456
+trb $12
+trb $3456
 wai
