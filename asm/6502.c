@@ -129,7 +129,7 @@ extern struct _table_6502 table_6502[];
 extern struct _table_6502_opcodes table_6502_opcodes[];
 
 // bytes for each addressing mode
-static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2, 3, 2 };
+static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2, 3, 2, 3 };
 
 int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
 {
@@ -140,6 +140,7 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
   int opcode;
   int op;
   int instr_enum;
+  int offset = 0;
   int num;
   int size;
   int bytes;
@@ -421,8 +422,29 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
           }
           else
           {
-            print_error_unexp(token, asm_context);
-            return -1;
+            tokens_push(asm_context, token, token_type);
+
+            if (asm_context->pass == 1)
+            {
+              eat_operand(asm_context);
+              offset = 0;
+            }
+              else
+            {
+              int address;
+
+              if (eval_expression(asm_context, &address) != 0)
+              {
+                return -1;
+              }
+
+              offset = address - (asm_context->address + 2);
+            }
+
+            op = OP_ADDRESS8_RELATIVE;
+            break;
+            //print_error_unexp(token, asm_context);
+            //return -1;
           }
         }
         else
@@ -521,6 +543,23 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
         return -1;
       }
       break;
+    case OP_ADDRESS8_RELATIVE:
+      if (num < 0 || num > 0xffff)
+      {
+        print_error_range("Address", 0, 0xffff, asm_context);
+        return -1;
+      }
+
+      if (offset < -128 || offset > 127)
+      {
+        print_error_range("Offset", -128, 127, asm_context);
+        return -1;
+      }
+
+      add_bin8(asm_context, opcode & 0xFF, IS_OPCODE);
+      add_bin8(asm_context, num & 0xFF, IS_OPCODE);
+      add_bin8(asm_context, offset & 0xFF, IS_OPCODE);
+      return 3;
     default:
       break;
   }

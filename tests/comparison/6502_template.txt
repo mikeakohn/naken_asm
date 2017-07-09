@@ -1,3 +1,19 @@
+bbr0 $12, $20
+bbr1 $12, $20
+bbr2 $12, $20
+bbr3 $12, $20
+bbr4 $12, $20
+bbr5 $12, $20
+bbr6 $12, $20
+bbr7 $12, $20
+bbs0 $12, $20
+bbs1 $12, $20
+bbs2 $12, $20
+bbs3 $12, $20
+bbs4 $12, $20
+bbs5 $12, $20
+bbs6 $12, $20
+bbs7 $12, $20
 bpl 2
 bmi 2
 bvc 2
@@ -122,6 +138,14 @@ inx
 tay
 tya
 dey
+rmb0 $12
+rmb1 $12
+rmb2 $12
+rmb3 $12
+rmb4 $12
+rmb5 $12
+rmb6 $12
+rmb7 $12
 rol
 rol $44
 rol $44,X
@@ -143,6 +167,14 @@ sbc $4400,Y
 sbc ($44,X)
 sbc ($44),Y
 sbc ($12)
+smb0 $12
+smb1 $12
+smb2 $12
+smb3 $12
+smb4 $12
+smb5 $12
+smb6 $12
+smb7 $12
 sta $44
 sta $44,X
 sta $4400
@@ -161,6 +193,7 @@ phx
 phy
 plx
 ply
+stp
 stx $44
 stx $44,Y
 stx $4400
@@ -173,3 +206,4 @@ stz $3456
 stz $3456, X
 tsb $12
 tsb $3456
+wai
