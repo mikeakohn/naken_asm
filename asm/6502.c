@@ -129,7 +129,7 @@ extern struct _table_6502 table_6502[];
 extern struct _table_6502_opcodes table_6502_opcodes[];
 
 // bytes for each addressing mode
-static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2 };
+static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2, 3, 2 };
 
 int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
 {
@@ -151,7 +151,7 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
   // get instruction from string
   instr_enum = -1;
 
-  for(i = 0; i < 56; i++)
+  for(i = 0; i < table_6502_len; i++)
   {
     if(strcmp(instr_case, table_6502[i].name) == 0)
     {
@@ -163,8 +163,8 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
   // no matching instruction
   if(instr_enum == -1)
   {
-   printf("No matching instruction for \"%s\".\n", instr_case);
-   return -1;
+    print_error_unknown_operand_combo(instr_case, asm_context);
+    return -1;
   }
 
   // get default addressing mode
@@ -198,7 +198,7 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
         print_error_unexp(token, asm_context);
         return -1;
       }
- 
+
       if(GET_TOKEN() == TOKEN_EOL)
         break;
     }
@@ -290,11 +290,13 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
 
             if(IS_TOKEN(token, ')'))
             {
+#if 0
               if(num < 0 || num > 0xFF || size == 16)
               {
                 print_error("Address out of range.", asm_context);
                 return -1;
               }
+#endif
 
               op = OP_X_INDIRECT8;
             }
@@ -444,6 +446,27 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
         opcode = i;
         break;
       }
+      else if(op == OP_INDIRECT16)
+      {
+        // FIXME - If any instruction has both OP_INDIRECT8 and OP_INDIRECT16
+        // modes, this will be incorrect.
+        if(table_6502_opcodes[i].op == OP_INDIRECT8)
+        {
+          op = OP_INDIRECT8;
+          opcode = i;
+          break;
+        }
+      }
+      else if(op == OP_X_INDIRECT8)
+      {
+        // FIXME - This could also possibly collide with different opcodes.
+        if(table_6502_opcodes[i].op == OP_X_INDIRECT16)
+        {
+          op = OP_X_INDIRECT16;
+          opcode = i;
+          break;
+        }
+      }
       else if(op == OP_ADDRESS8)
       {
         if(table_6502_opcodes[i].op == OP_ADDRESS16)
@@ -470,6 +493,36 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
     sprintf(temp, "No instruction found for addressing mode %d", op);
     print_error(temp, asm_context);
     return -1;
+  }
+
+  // Make sure all numbers are checked to be in bounds
+  switch(op)
+  {
+    case OP_ADDRESS8:
+    case OP_INDEXED8_X:
+    case OP_INDEXED8_Y:
+    case OP_X_INDIRECT8:
+    case OP_INDIRECT8_Y:
+    case OP_INDIRECT8:
+      if (num < 0 || num > 0xff)
+      {
+        print_error_range("Address", 0, 0xff, asm_context);
+        return -1;
+      }
+      break;
+    case OP_ADDRESS16:
+    case OP_INDEXED16_X:
+    case OP_INDEXED16_Y:
+    case OP_INDIRECT16:
+    case OP_X_INDIRECT16:
+      if (num < 0 || num > 0xffff)
+      {
+        print_error_range("Address", 0, 0xffff, asm_context);
+        return -1;
+      }
+      break;
+    default:
+      break;
   }
 
   // write output

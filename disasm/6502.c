@@ -24,7 +24,7 @@ extern struct _table_6502_opcodes table_6502_opcodes[];
 #define READ_RAM(a) (memory_read_m(memory, a) & 0xFF)
 
 // bytes for each addressing mode
-static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2 };
+static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2, 3, 2 };
 
 int get_cycle_count_6502(unsigned short int opcode)
 {
@@ -42,9 +42,9 @@ int disasm_6502(struct _memory *memory, uint32_t address, char *instruction, int
   int lo, hi;
   int branch_address = 0;
 
-  *cycles_min=-1;
-  *cycles_max=-1;
-  opcode=READ_RAM(address);
+  *cycles_min = -1;
+  *cycles_max = -1;
+  opcode = READ_RAM(address);
 
   sprintf(temp, " ");
 
@@ -111,6 +111,12 @@ int disasm_6502(struct _memory *memory, uint32_t address, char *instruction, int
           break;
         case OP_INDIRECT8_Y:
           sprintf(temp, " (%s),y", num);
+          break;
+        case OP_INDIRECT8:
+          sprintf(temp, " (%s)", num);
+          break;
+        case OP_X_INDIRECT16:
+          sprintf(temp, " (%s,x)", num);
           break;
         case OP_RELATIVE:
           sprintf(temp, " %s", num);

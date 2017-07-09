@@ -46,6 +46,7 @@ enum
   M65XX_BRK,
   M65XX_BVC,
   M65XX_BVS,
+  M65XX_BRA,
   M65XX_CLC,
   M65XX_CLD,
   M65XX_CLI,
@@ -70,8 +71,12 @@ enum
   M65XX_ORA,
   M65XX_PHA,
   M65XX_PHP,
+  M65XX_PHX,
+  M65XX_PHY,
   M65XX_PLA,
   M65XX_PLP,
+  M65XX_PLX,
+  M65XX_PLY,
   M65XX_ROL,
   M65XX_ROR,
   M65XX_RTI,
@@ -86,6 +91,7 @@ enum
   M65XX_STZ,
   M65XX_TAX,
   M65XX_TAY,
+  M65XX_TSB,
   M65XX_TSX,
   M65XX_TXA,
   M65XX_TXS,
@@ -95,7 +101,7 @@ enum
 
 enum
 {
-  OP_NONE,             //            A 
+  OP_NONE,             //            A
 
   OP_IMMEDIATE,        // #$10       #
 
@@ -107,12 +113,16 @@ enum
   OP_INDEXED16_X,      // $1000,x    a,x
   OP_INDEXED16_Y,      // $1000,y    a,y
 
-  OP_INDIRECT16,       // ($1000)    (a) 
-  OP_X_INDIRECT8,      // ($10,x)    (d,x) 
-  OP_INDIRECT8_Y,      // ($10),y    (d),y 
+  OP_INDIRECT16,       // ($1000)    (a)
+  OP_X_INDIRECT8,      // ($10,x)    (d,x)
+  OP_INDIRECT8_Y,      // ($10),y    (d),y
+  OP_INDIRECT8,        // ($10),y    (d)
+  OP_X_INDIRECT16,     // ($1000,x)  (d,x)
 
   OP_RELATIVE,         // $10        r
 };
+
+extern int table_6502_len;
 
 #endif
 

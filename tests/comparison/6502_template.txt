@@ -6,6 +6,15 @@ bcc 2
 bcs 2
 bne 2
 beq 2
+adc #$44
+adc $44
+adc $44,X
+adc $4400
+adc $4400,X
+adc $4400,Y
+adc ($44,X)
+adc ($44),Y
+adc ($12)
 and #$44
 and $44
 and $44,X
@@ -14,6 +23,7 @@ and $4400,X
 and $4400,Y
 and ($44,X)
 and ($44),Y
+and ($12)
 asl
 asl $44
 asl $44,X
@@ -21,6 +31,9 @@ asl $4400
 asl $4400,X
 bit $44
 bit $4400
+bit #$12
+bit $34, X
+bit $5678, X
 brk
 cmp #$44
 cmp $44
@@ -30,12 +43,14 @@ cmp $4400,X
 cmp $4400,Y
 cmp ($44,X)
 cmp ($44),Y
+cmp ($12)
 cpx #$44
 cpx $44
 cpx $4400
 cpy #$44
 cpy $44
 cpy $4400
+dec
 dec $44
 dec $44,X
 dec $4400
@@ -48,6 +63,7 @@ eor $4400,X
 eor $4400,Y
 eor ($44,X)
 eor ($44),Y
+eor ($12)
 clc
 sec
 cli
@@ -55,12 +71,16 @@ sei
 clv
 cld
 sed
+inc
 inc $44
 inc $44,X
 inc $4400
 inc $4400,X
 jmp $5597
 jmp ($5597)
+jmp ($55)
+jmp ($5597,x)
+jmp ($55,x)
 jsr $5597
 lda #$44
 lda $44
@@ -70,6 +90,7 @@ lda $4400,X
 lda $4400,Y
 lda ($44,X)
 lda ($44),Y
+lda ($12)
 ldx #$44
 ldx $44
 ldx $44,Y
@@ -93,6 +114,7 @@ ora $4400,X
 ora $4400,Y
 ora ($44,X)
 ora ($44),Y
+ora ($12)
 tax
 txa
 dex
@@ -120,6 +142,7 @@ sbc $4400,X
 sbc $4400,Y
 sbc ($44,X)
 sbc ($44),Y
+sbc ($12)
 sta $44
 sta $44,X
 sta $4400
@@ -127,15 +150,26 @@ sta $4400,X
 sta $4400,Y
 sta ($44,X)
 sta ($44),Y
+sta ($12)
 txs
 tsx
 pha
 pla
 php
 plp
+phx
+phy
+plx
+ply
 stx $44
 stx $44,Y
 stx $4400
 sty $44
 sty $44,X
 sty $4400
+stz $12
+stz $12, X
+stz $3456
+stz $3456, X
+tsb $12
+tsb $3456
