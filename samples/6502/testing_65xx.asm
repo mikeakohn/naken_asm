@@ -4,7 +4,7 @@
 ; set pc=0x816, speed=999999, run
 ; bprint 0x400-0x500, an asterisk (0x2a) should appear at location 0x4cd
 
-.65xx
+.6502
 
 // zp locations required for indirection
 .define resultlo 0xfb
