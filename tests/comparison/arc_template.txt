@@ -57,3 +57,15 @@ add_s sp,sp,8
 add_s r0,gp,512
 ;add_s r12,r12,4
 ;add_s r1,r1,127
+add1.f r4, r20, r30
+add1.f r4, r20, 30
+add1.f r4, r4, 100
+add1.ne r4, r4, r5
+add1.ne.f r4, r4, 30
+add1 r4, 1234, r7
+add1 r4, r7, 1234
+add1 r4, r4, 1234
+add1.f 0, r4, r7
+add1.f 0, r4, 12
+;add1.f 0, 12343, r7
+add1_s r3, r3, r14

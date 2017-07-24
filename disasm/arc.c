@@ -44,6 +44,14 @@ static char *condition_codes[] =
  ".pnz",
 };
 
+static int compute_s12(int data)
+{
+  int s12 = ((data & 0x3f) << 6) | ((data >> 6) & 0x3f);
+  if ((s12 & 0x800) != 0) { s12 |= 0xfffff000; }
+
+  return s12;
+}
+
 int map16_bit_register(int r)
 {
   if (r <= 3) { return r; }
@@ -152,6 +160,32 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_A_B_C:
         {
+          if (b == 62)
+          {
+             limm = (memory_read16_m(memory, address + 4) << 16) |
+                     memory_read16_m(memory, address + 6);
+
+             sprintf(instruction, "%s%s r%d, %d, r%d",
+               table_arc[n].instr,
+               f == 0 ? "" : ".f",
+               a, limm, c);
+
+             return 8;
+          }
+
+          if (c == 62)
+          {
+            limm = (memory_read16_m(memory, address + 4) << 16) |
+                    memory_read16_m(memory, address + 6);
+
+            sprintf(instruction, "%s%s r%d, r%d, %d",
+              table_arc[n].instr,
+              f == 0 ? "" : ".f",
+              a, b, limm);
+
+            return 8;
+          }
+
           sprintf(instruction, "%s%s r%d, r%d, r%d",
             table_arc[n].instr,
             f == 0 ? "" : ".f",
@@ -170,19 +204,43 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_B_B_S12:
         {
-          s12 = opcode & 0xfff;
-
-          if ((s12 & 0x800) != 0) { s12 |= 0xfffff000; }
+          s12 = compute_s12(opcode & 0xfff);
 
           sprintf(instruction, "%s%s r%d, r%d, %d",
             table_arc[n].instr,
             f == 0 ? "" : ".f",
-            a, b, u6);
+            b, b, s12);
 
           return 4;
         }
         case OP_B_B_C:
         {
+          if (b == 62)
+          {
+             limm = (memory_read16_m(memory, address + 4) << 16) |
+                     memory_read16_m(memory, address + 6);
+
+             sprintf(instruction, "%s%s%s 0, %d, r%d",
+               table_arc[n].instr,
+               cc,
+               f == 0 ? "" : ".f",
+               limm, c);
+
+             return 8;
+          }
+
+          if (c == 62)
+          {
+             limm = (memory_read16_m(memory, address + 2) << 16) |
+                     memory_read16_m(memory, address + 4);
+
+             sprintf(instruction, "%s r%d, r%d, %d",
+               table_arc16[n].instr,
+               b, b, limm);
+
+             return 6;
+          }
+
           sprintf(instruction, "%s%s%s r%d, r%d, r%d",
             table_arc[n].instr,
             cc,
@@ -322,6 +380,14 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
           sprintf(instruction, "%s r%d, r%d, r%d",
             table_arc16[n].instr,
             a, b, c);
+
+          return 2;
+        }
+        case OP_B_B_C:
+        {
+          sprintf(instruction, "%s r%d, r%d, r%d",
+            table_arc16[n].instr,
+            b, b, c);
 
           return 2;
         }

@@ -82,6 +82,17 @@ static struct _condition_codes condition_codes[] =
   { 0x0f, "pnz" },
 };
 
+static int compute_s12(int s12)
+{
+  int data;
+
+  s12 = s12 & 0xfff;
+
+  data = ((s12 & 0x3f) << 6) | ((s12 >> 6) & 0x3f);
+
+  return data;
+}
+
 static void add_bin(struct _asm_context *asm_context, uint32_t opcode, int flags)
 {
   add_bin16(asm_context, opcode >> 16, flags);
@@ -234,6 +245,13 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
       return -1;
     }
   }
+
+#if 0
+for (n = 0; n < operand_count; n++)
+{
+  printf("%d) type=%d value=%d\n", n, operands[n].type, operands[n].value);
+}
+#endif
 
   n = 0;
   while(table_arc[n].instr != NULL)
@@ -425,11 +443,11 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
               operands[1].type == OPERAND_REG &&
               operands[0].value == operands[1].value &&
               operands[2].type == OPERAND_NUMBER &&
-              operands[2].value >= -2048 && operands[1].value <= 2047)
+              operands[2].value >= -2048 && operands[2].value <= 2047)
           {
             opcode = table_arc[n].opcode |
                      COMPUTE_B(operands[1].value) |
-                    (operands[2].value & 0xfff) |
+                   compute_s12(operands[2].value) |
                     (f_flag << 15);
 
             add_bin(asm_context, opcode, IS_OPCODE);
@@ -689,6 +707,29 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
             if (a < 0 || b < 0 || c < 0) { break; }
 
             opcode = table_arc16[n].opcode | a | (b << 8) | (c << 5);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+
+          break;
+        }
+        case OP_B_B_C:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[0].value == operands[1].value &&
+              operands[2].type == OPERAND_REG)
+          {
+            //a = map_16bit_reg(operands[0].value);
+            b = map_16bit_reg(operands[1].value);
+            c = map_16bit_reg(operands[2].value);
+
+            if (b < 0 || c < 0) { break; }
+
+            opcode = table_arc16[n].opcode | (b << 8) | (c << 5);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
 
