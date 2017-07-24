@@ -429,6 +429,16 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
 
           return 2;
         }
+        case OP_B_B_U5:
+        {
+          int u5 = opcode & 0x1f;
+
+          sprintf(instruction, "%s r%d, r%d, %d",
+            table_arc16[n].instr,
+            b, b, u5);
+
+          return 2;
+        }
         case OP_B_SP_U7:
         {
           int u7 = (opcode & 0x1f) * 4;

@@ -43,6 +43,7 @@ enum
   OP_SP_SP_U7,
   OP_R0_GP_S9,
   OP_B_B_U7, 
+  OP_B_B_U5, 
 };
 
 #define F_F  1

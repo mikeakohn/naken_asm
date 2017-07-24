@@ -807,6 +807,29 @@ for (n = 0; n < operand_count; n++)
 
           break;
         }
+        case OP_B_B_U5:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[0].value == operands[1].value &&
+              operands[2].type == OPERAND_NUMBER &&
+              operands[2].value >= 0 && operands[2].value <= 31)
+          {
+            b = map_16bit_reg(operands[1].value);
+            int u5 = operands[2].value;
+
+            if (b < 0) { break; }
+
+            opcode = table_arc16[n].opcode | (b << 8) | u5;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+
+          break;
+        }
         case OP_B_B_LIMM:
         {
           if (operand_count == 3 &&
