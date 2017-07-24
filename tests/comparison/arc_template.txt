@@ -115,3 +115,15 @@ adds.f 0, r4, 12
 ;addsdw.f 0, r4, r7
 ;addsdw.f 0, r4, 12
 ;addsdw.f 0, 12343, r7
+and.f r4, r20, r30
+and.f r4, r20, 30
+and.f r4, r4, 100
+and.ne r4, r4, r5
+and.ne.f r4, r4, 30
+and r4, 1234, r7
+and r4, r7, 1234
+and r4, r4, 1234
+and.f 0, r4, r7
+and.f 0, r4, 1234
+;and.f 0, 1234, r4
+and_s r1, r1, r2

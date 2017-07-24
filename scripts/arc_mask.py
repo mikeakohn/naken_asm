@@ -40,7 +40,7 @@ def create_table(entry):
   if bits == 32:
     print "  { %-9s 0x%08x, 0x%08x, %s, %s }," % (name, opcode, mask, operands, flags)
   else:
-    print "  { %9s 0x%04x, 0x%04x, %s }," % (name, opcode, mask, operands)
+    print "  { %-9s 0x%04x, 0x%04x, %s }," % (name, opcode, mask, operands)
 
 # --------------------------- fold here ---------------------------
 

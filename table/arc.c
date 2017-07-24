@@ -116,6 +116,18 @@ struct _table_arc table_arc[] =
   { "addsdw", 0x2828003e, 0xf8ff003f, OP_0_B_C, F_F },
   { "addsdw", 0x2868003e, 0xf8ff003f, OP_0_B_U6, F_F },
   { "addsdw", 0x2ee87000, 0xffff7020, OP_0_LIMM_C, F_F | F_CC },
+  { "and",    0x20040000, 0xf8ff0000, OP_A_B_C, F_F },
+  { "and",    0x20440000, 0xf8ff0000, OP_A_B_U6, F_F },
+  { "and",    0x20840000, 0xf8ff0000, OP_B_B_S12, F_F },
+  { "and",    0x20c40000, 0xf8ff0020, OP_B_B_C, F_F | F_CC },
+  { "and",    0x20c40020, 0xf8ff0020, OP_B_B_U6, F_F | F_CC },
+  { "and",    0x26047000, 0xffff7000, OP_A_LIMM_C, F_F },
+  { "and",    0x20040f80, 0xf8ff0fc0, OP_A_B_LIMM, F_F },
+  { "and",    0x20c40f80, 0xf8ff0fe0, OP_B_B_LIMM, F_F | F_CC },
+  { "and",    0x2004003e, 0xf8ff003f, OP_0_B_C, F_F },
+  { "and",    0x2044003e, 0xf8ff003f, OP_0_B_U6, F_F },
+  { "and",    0x20040fbe, 0xf8ff0fff, OP_0_B_LIMM, F_F },
+  { "and",    0x26c47000, 0xffff7020, OP_0_LIMM_C, F_F | F_CC },
   { NULL, 0, 0, 0, 0 },
 };
 
@@ -133,6 +145,7 @@ struct _table_arc16 table_arc16[] =
   { "add1_s", 0x7814, 0xf81f, OP_B_B_C },
   { "add2_s", 0x7815, 0xf81f, OP_B_B_C },
   { "add3_s", 0x7816, 0xf81f, OP_B_B_C },
+  { "and_s",  0x7804, 0xf81f, OP_B_B_C },
   { NULL, 0, 0, 0 },
 };
 
