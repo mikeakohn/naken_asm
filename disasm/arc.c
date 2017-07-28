@@ -64,10 +64,25 @@ int get_cycle_count_arc(unsigned short int opcode)
   return -1;
 }
 
+uint32_t calc_address(struct _memory *memory, uint32_t address, int offset, int d)
+{
+  //int cycles_min, cycles_max;
+  //char instruction[128];
+
+  if (d == 1)
+  {
+    //address += disasm_arc(memory, address + 4, instruction, &cycles_min, & cycles_max);
+    address += 4;
+  }
+
+  return address + 4 + offset;
+}
+
 int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
-  int n, a, c, b, q, h, f, u6, s12;
+  int offset;
+  int n, a, c, b, d, q, h, f, u6, s12;
   int limm;
   char *cc = "";
 
@@ -339,6 +354,36 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
 
           return 8;
         }
+        case OP_B_C_O9:
+        {
+          offset = (opcode >> 17) & 0x1ff;
+          d = (opcode >> 5) & 0x1;
+
+          if ((offset & 0x100) != 0) { offset = 0xfffffff0 | offset; }
+
+          sprintf(instruction, "%s%s r%d, r%d, 0x%d (offset=%d)",
+            table_arc[n].instr,
+            d == 0 ? "" : ".d",
+            b, c,
+            calc_address(memory, address, offset, d), offset);
+
+          return 4;
+        }
+        case OP_B_U6_O9:
+        {
+          offset = (opcode >> 17) & 0x1ff;
+          d = (opcode >> 5) & 0x1;
+
+          if ((offset & 0x100) != 0) { offset = 0xfffffff0 | offset; }
+
+          sprintf(instruction, "%s%s r%d, 0x%x, 0x%d (offset=%d)",
+            table_arc[n].instr,
+            d == 0 ? "" : ".d",
+            u6, c,
+            calc_address(memory, address, offset, d), offset);
+
+          return 4;
+        }
         default:
         {
           break;
@@ -526,22 +571,39 @@ void disasm_range_arc(struct _memory *memory, uint32_t flags, uint32_t start, ui
 {
   char instruction[128];
   int cycles_min, cycles_max;
-  uint16_t opcode;
+  uint32_t opcode;
   int count;
+  int n;
 
   printf("\n");
 
-  printf("%-7s %-5s %-40s\n", "Addr", "Opcode", "Instruction");
-  printf("------- ------ ----------------------------------       ------\n");
+  printf("%-7s %-7s  %-40s\n", "Addr", "Opcode", "Instruction");
+  printf("------- -------- ----------------------------------       ------\n");
 
   while(start <= end)
   {
     count = disasm_arc(memory, start, instruction, &cycles_min, &cycles_max);
 
-    opcode = (memory_read16_m(memory, start) << 16) |
-              memory_read16_m(memory, start + 2);
+    if (count < 4)
+    {
+      opcode = memory_read16_m(memory, start);
+      printf("0x%04x: %04x     %-40s\n", start, opcode, instruction);
+    }
+      else
+    {
+      opcode = (memory_read16_m(memory, start) << 16) |
+                memory_read16_m(memory, start + 2);
 
-    printf("0x%04x: %04x %-40s\n", start, opcode, instruction);
+      printf("0x%04x: %08x %-40s\n", start, opcode, instruction);
+    }
+
+    for (n = 4; n < count; n = n + 4)
+    {
+      opcode = (memory_read16_m(memory, start + n) << 16) |
+                memory_read16_m(memory, start + n + 2);
+
+      printf("        %08x\n", opcode);
+    }
 
     start = start + count;
   }

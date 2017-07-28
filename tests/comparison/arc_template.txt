@@ -189,3 +189,7 @@ asrs.f r43, r43, 5000
 asrs 0, r3, r4
 asrs 0, r3, 17
 ;asrs 0, 12343, r20
+;main: bbit0 r2, r4, main
+;main: bbit0 r2, 5, main
+;main: bbit1 r2, r7, main
+;main: bbit1 r2, 7, main

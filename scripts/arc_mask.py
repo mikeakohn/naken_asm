@@ -10,6 +10,7 @@ def create_table(entry):
 
   if ".f" in entry["flags"]: flags.append("F_F")
   if ".cc" in entry["flags"]: flags.append("F_CC")
+  if ".d" in entry["flags"]: flags.append("F_D")
 
   flags = " | ".join(flags)
 

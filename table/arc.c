@@ -184,6 +184,10 @@ struct _table_arc table_arc[] =
   { "asrs",   0x280b003e, 0xf8ff003f, OP_0_B_C, F_F },
   { "asrs",   0x284b003e, 0xf8ff003f, OP_0_B_U6, F_F },
   { "asrs",   0x2ecb7000, 0xffff7020, OP_0_LIMM_C, F_F | F_CC },
+  { "bbit0",  0x0801000e, 0xf801001f, OP_B_C_O9, F_D },
+  { "bbit0",  0x0801001e, 0xf801001f, OP_B_U6_O9, F_D },
+  { "bbit1",  0x0801000f, 0xf801001f, OP_B_C_O9, F_D },
+  { "bbit1",  0x0801001f, 0xf801001f, OP_B_U6_O9, F_D },
   { NULL, 0, 0, 0, 0 },
 };
 

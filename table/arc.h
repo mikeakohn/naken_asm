@@ -35,6 +35,8 @@ enum
   OP_0_B_U6,
   OP_0_B_LIMM,
   OP_0_LIMM_C,
+  OP_B_C_O9,    // offset 9 rather than S9
+  OP_B_U6_O9,
   // 16 bit
   OP_C_B_U3,
   OP_B_B_H,
@@ -48,6 +50,7 @@ enum
 
 #define F_F  1
 #define F_CC 2
+#define F_D 3
 
 struct _table_arc
 {

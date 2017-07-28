@@ -160,7 +160,9 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
   int found = 0;
   int f_flag = 0;
   int cc_flag = 0;
+  int d_flag = 0;
   int a, b, c, h;
+  int offset;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -172,9 +174,16 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
     if (operand_count == 0 && IS_TOKEN(token, '.'))
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (IS_TOKEN(token, 'f'))
+
+      if (IS_TOKEN(token, 'f') || IS_TOKEN(token, 'F'))
       {
         f_flag = 1;
+        continue;
+      }
+
+      if (IS_TOKEN(token, 'd') || IS_TOKEN(token, 'D'))
+      {
+        d_flag = 1;
         continue;
       }
 
@@ -269,6 +278,13 @@ for (n = 0; n < operand_count; n++)
 
       // If instruction has .cc but doesn't support it, ignore.
       if (cc_flag != 0 && (table_arc[n].flags & F_CC) == 0)
+      {
+        n++;
+        continue;
+      }
+
+      // If instruction has .d but doesn't support it, ignore.
+      if (d_flag == 1 && (table_arc[n].flags & F_D) == 0)
       {
         n++;
         continue;
@@ -639,6 +655,68 @@ for (n = 0; n < operand_count; n++)
 
           break;
         }
+        case OP_B_C_O9:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG &&
+              operands[2].type == OPERAND_NUMBER)
+          {
+            offset = operands[2].value - (asm_context->address + 4 + (d_flag * 4));
+
+            if (offset < -256 || offset > 255)
+            {
+              print_error_range("Offset", -256, -255, asm_context);
+              return -1;
+            }
+
+            opcode = table_arc[n].opcode |
+                     COMPUTE_B(operands[0].value) |
+                   ((operands[1].value & 0x3f) << 6) |
+                   ((offset & 0x1ff) << 17) |
+                    (d_flag << 5);
+
+            add_bin(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          break;
+        }
+        case OP_B_U6_O9:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_NUMBER &&
+              operands[2].type == OPERAND_NUMBER)
+          {
+            offset = operands[2].value - (asm_context->address + 4 + (d_flag * 4));
+
+            if (offset < -256 || offset > 255)
+            {
+              print_error_range("Offset", -256, -255, asm_context);
+              return -1;
+            }
+
+            if (operands[1].value < 0 || operands[1].value > 0x3f)
+            {
+              print_error_range("Constant", 0, 0x3f, asm_context);
+              return -1;
+            }
+
+            opcode = table_arc[n].opcode |
+                     COMPUTE_B(operands[0].value) |
+                    ((operands[1].value & 0x3f) << 6) |
+                    ((offset & 0x1ff) << 17) |
+                    (d_flag << 5);
+
+            add_bin(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          break;
+        }
         default:
           break;
       }
@@ -655,7 +733,7 @@ for (n = 0; n < operand_count; n++)
       found = 1;
 
       // If instruction has .f but doesn't support it, ignore.
-      if (f_flag == 1)
+      if (f_flag == 1 || cc_flag != 0 || d_flag == 1)
       {
         n++;
         continue;
