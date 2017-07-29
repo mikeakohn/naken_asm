@@ -28,7 +28,7 @@ start:
   ;; Turn off watchdog
   mov.w #(WDTPW|WDTHOLD), &WDTCTL
 
-  ;; Please don't interrupt me
+  ;; Interrupts off
   dint
 
   ;; Setup stack pointer
@@ -55,7 +55,7 @@ start:
   mov.b #0x05, &UCA0BR1
   bic.b #UCSWRST, &UCA0CTL1
 
-  ;; Okay, I can be interrupted now
+  ;; Interrupts on
   eint
 
   ;; send a bunch of A's

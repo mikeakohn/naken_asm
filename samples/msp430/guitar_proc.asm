@@ -16,7 +16,7 @@ start:
   ;; Turn off watchdog
   mov.w #0x5a80, &WDTCTL
 
-  ;; Please don't interrupt me
+  ;; Interrupts off
   dint
 
   ;; Set up stack pointer
@@ -48,7 +48,7 @@ start:
   mov.w #CCIE, &TACCTL0
   mov.w #0, &TACCTL1
 
-  ;; Okay, I can be interrupted now
+  ;; Interrupts on
   eint
 
 main:
