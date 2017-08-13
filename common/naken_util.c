@@ -838,7 +838,7 @@ int main(int argc, char *argv[])
         printf("Error: -address needs an address\n");
         exit(1);
       }
-      start_address = atoi(argv[i]);
+      start_address = strtol(argv[i], NULL, 0);
     }
       else
     if (strcmp(argv[i], "-set_pc") == 0)
