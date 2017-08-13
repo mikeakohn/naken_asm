@@ -202,7 +202,7 @@ def show_prim(data):
   if (data >> 10) & 1 == 0: fix = "Fragment Value Control Unfixed (0)"
   else: fix = "Fragment Value Control Fixed (1)"
 
-  print "PRIM: " + prim_desc[data & 0x7]
+  print "PRIM: " + prim_desc[data & 0x7] + " (" + str(data & 0x7) + ")"
   print " IIP: " + iip
   print " TME: " + tme
   print " FGE: " + fge

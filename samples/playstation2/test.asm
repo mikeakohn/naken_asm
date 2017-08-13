@@ -9,9 +9,6 @@
 .export vsync_count
 .export vsync_id
 
-.define SETREG_RGBAQ(r,g,b,a,q) (q<<32)|(a<<24)|(b<<16)|(g<<8)|r
-.define SETREG_XYZ2(x,y,z) (z<<32)|(y<<16)|x
-
 .org 0x100000
 start:
 main:
@@ -244,9 +241,8 @@ vsync_id:
 
 .align 128
 draw_triangle:
-  dc64 0x1000000000008007, REG_A_D
-  ;dc64 (1 << 9) | (1<<3) | 3, REG_PRIM
-  dc64 (1 << 10) | (1<<3) | 3, REG_PRIM
+  dc64 GIF_TAG(7, 1, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
+  dc64 PRIM_SETTING(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 0, 1), REG_PRIM
   dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
   dc64 SETREG_XYZ2(1800 << 4, 2000 << 4, 128), REG_XYZ2
   dc64 SETREG_RGBAQ(0,255,0,0,0x3f80_0000), REG_RGBAQ

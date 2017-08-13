@@ -281,5 +281,25 @@ _DisableIntc equ 21
 GsGetIMR equ 112
 GsPutIMR equ 113
 
+;; Primitive types
+PRIM_POINT equ 0
+PRIM_LINE equ 1
+PRIM_LINE_STRIP equ 2
+PRIM_TRIANGLE equ 3
+PRIM_TRIANGLE_STRIP equ 4
+PRIM_TRIANGLE_FAN equ 5
+PRIM_SPRITE equ 6
 
+;; Macros to help with GIF data formatting
+.define SETREG_RGBAQ(r,g,b,a,q) (q<<32)|(a<<24)|(b<<16)|(g<<8)|r
+
+.define SETREG_XYZ2(x,y,z) (z<<32)|(y<<16)|x
+
+.define PRIM_SETTING(prim,shading,texture_mapping,fogging,alpha_blend,anti_alias,texture_coords,context,fix) (fix<<10)|(context<<9)|(texture_coords<<8)|(anti_alias<<7)|(alpha_blend<<6)|(fogging<<5)|(texture_mapping<<4)|(shading<<3)|prim
+
+.define GIF_TAG(nloop,eop,pre,prim,flg,nreg,regs) (regs<<64)|(nreg<<60)|(flg<<58)|(prim<<47)|(pre<<46)|(eop<<15)|nloop
+
+FLG_PACKED equ 0
+FLG_REGIST equ 1
+FLG_IMAGE equ 2
 
