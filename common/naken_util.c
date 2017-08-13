@@ -704,6 +704,7 @@ int main(int argc, char *argv[])
   char *line = NULL;
 #endif
   uint32_t start_address = 0;
+  uint32_t set_pc = -1;
   uint8_t force_bin = 0;
   int i;
   char *hexfile = NULL;
@@ -725,6 +726,7 @@ int main(int argc, char *argv[])
            "   -disasm                      (disassemble all or part of program)\n"
            "   -exe                         (execute program and dump registers)\n"
            "   -address <start_address>     (for bin files: binary placed at this address)\n"
+           "   -set_pc <address>            (Sets program counter after loading program)\n"
            "   -bin                         (file is binary)\n"
            "ELF files can auto-pick a CPU, if a hex file use:\n"
            "   -4004                        (4004)\n"
@@ -837,6 +839,17 @@ int main(int argc, char *argv[])
         exit(1);
       }
       start_address = atoi(argv[i]);
+    }
+      else
+    if (strcmp(argv[i], "-set_pc") == 0)
+    {
+      i++;
+      if (i >= argc)
+      {
+        printf("Error: -set_pc needs an address\n");
+        exit(1);
+      }
+      set_pc = strtol(argv[i], NULL, 0);
     }
       else
     if (strcmp(argv[i], "-bin") == 0)
@@ -963,6 +976,11 @@ int main(int argc, char *argv[])
     util_context.simulate->usec = 1;
     util_context.simulate->show = 0;
     util_context.simulate->auto_run = 1;
+  }
+
+  if (set_pc != -1)
+  {
+    util_context.simulate->simulate_set_pc(util_context.simulate, set_pc);
   }
 
   printf("Type help for a list of commands.\n");

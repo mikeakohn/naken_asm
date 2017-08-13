@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -68,8 +68,8 @@ static void handle_signal(int sig)
 
 static int get_q(struct _simulate *simulate, int reg16)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int value = 0;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int value = 0;
 
   if (reg16 == 0)
   {
@@ -96,8 +96,8 @@ int value = 0;
 
 static int get_p(struct _simulate *simulate, int reg16)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int value = 0;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int value = 0;
 
   if (reg16 == 0)
   {
@@ -124,8 +124,8 @@ int value = 0;
 
 static int set_p(struct _simulate *simulate, int reg16, int value)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  
   if (reg16 == 0)
   {
     simulate_z80->reg[REG_B] = value >> 8;
@@ -155,7 +155,7 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
 static void set_q(struct _simulate *simulate, int reg16, int value)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   if (reg16 == 3)
   {
@@ -169,7 +169,7 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
 static void set_xy(struct _simulate *simulate, int xy, int value)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   if (xy == 0) { simulate_z80->ix = value; }
   else { simulate_z80->iy = value; }
@@ -177,7 +177,7 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
 static uint16_t get_xy(struct _simulate *simulate, int xy)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   if (xy == 0) { return simulate_z80->ix; }
   else { return simulate_z80->iy; }
@@ -186,7 +186,7 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 #if 0
 static int get_reg16_half(struct _simulate *simulate, int reg16)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 int value;
 
   if (reg16 == 0) { value = simulate_z80->ix >> 8; }
@@ -199,7 +199,7 @@ int value;
 
 static void set_reg16_half(struct _simulate *simulate, int reg16, int value)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   value = value & 0xff;
 
@@ -224,8 +224,8 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
 static void set_parity(struct _simulate *simulate, uint8_t a)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int parity;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int parity;
 
   // Hmm is 4 bit look-up table better?
   parity = ((a & 0x01) >> 0) ^
@@ -241,7 +241,7 @@ int parity;
 
 static void set_flags_a(struct _simulate *simulate, int a, int number, uint8_t vflag)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   if (vflag == VFLAG_OVERFLOW)
   {
@@ -272,7 +272,7 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 #if 0
 static void set_flags8(struct _simulate *simulate, int new, int old, int number, uint8_t vflag)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   if (vflag == VFLAG_OVERFLOW)
   {
@@ -303,7 +303,7 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
 static void set_flags16(struct _simulate *simulate, int new, int old, int number, uint8_t vflag)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   if (vflag == VFLAG_OVERFLOW)
   {
@@ -333,9 +333,9 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
 static void add_reg16(struct _simulate *simulate, int xy, int reg16)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int number;
-int new, old;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int number;
+  int new, old;
 
   number = get_q(simulate, reg16);
 
@@ -378,6 +378,7 @@ struct _simulate *simulate;
   simulate->simulate_push = simulate_push_z80;
   simulate->simulate_set_reg = simulate_set_reg_z80;
   simulate->simulate_get_reg = simulate_get_reg_z80;
+  simulate->simulate_set_pc = simulate_set_pc_z80;
   simulate->simulate_reset = simulate_reset_z80;
   simulate->simulate_dump_registers = simulate_dump_registers_z80;
   simulate->simulate_run = simulate_run_z80;
@@ -394,7 +395,7 @@ struct _simulate *simulate;
 
 void simulate_push_z80(struct _simulate *simulate, uint32_t value)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   simulate_z80->reg[1] -= 2;
   WRITE_RAM(simulate_z80->reg[1], value & 0xff);
@@ -403,8 +404,8 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
 int simulate_set_reg_z80(struct _simulate *simulate, char *reg_string, uint32_t value)
 {
-//struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-//int reg,n;
+  //struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  //int reg,n;
 
   while(*reg_string == ' ') { reg_string++; }
 #if 0
@@ -434,8 +435,8 @@ int simulate_set_reg_z80(struct _simulate *simulate, char *reg_string, uint32_t 
 
 uint32_t simulate_get_reg_z80(struct _simulate *simulate, char *reg_string)
 {
-//struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-//int reg;
+  //struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  //int reg;
 
 #if 0
   reg = get_register_z80(reg_string);
@@ -450,9 +451,16 @@ uint32_t simulate_get_reg_z80(struct _simulate *simulate, char *reg_string)
   return 0;
 }
 
+void simulate_set_pc_z80(struct _simulate *simulate, uint32_t value)
+{
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+
+  simulate_z80->pc = value;
+}
+
 void simulate_reset_z80(struct _simulate *simulate)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   simulate->cycle_count = 0;
   simulate->nested_call_count = 0;
@@ -481,9 +489,9 @@ int simulate_dumpram_z80(struct _simulate *simulate, int start, int end)
 // cat table/table_z80.c | grep OP_REG8 | awk -F, '{ print "    case" $5 ":" }'
 static int simulate_z80_execute_op_none(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int tmp;
-int a4,tmp4;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int tmp;
+  int a4,tmp4;
 
   switch(table_z80->instr_enum)
   {
@@ -563,10 +571,10 @@ int a4,tmp4;
 
 static int simulate_z80_execute_op_a_reg8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int a = simulate_z80->reg[REG_A];
-int rrr = opcode & 0x7;
-int number = simulate_z80->reg[rrr];
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int a = simulate_z80->reg[REG_A];
+  int rrr = opcode & 0x7;
+  int number = simulate_z80->reg[rrr];
 
   switch(table_z80->instr_enum)
   {
@@ -591,12 +599,12 @@ int number = simulate_z80->reg[rrr];
 
 static int simulate_z80_execute_op_reg8(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int a = simulate_z80->reg[REG_A];
-int rrr = opcode & 0x7;
-int number = simulate_z80->reg[rrr];
-int vflag = VFLAG_CLEAR;
-int tmp;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int a = simulate_z80->reg[REG_A];
+  int rrr = opcode & 0x7;
+  int number = simulate_z80->reg[rrr];
+  int vflag = VFLAG_CLEAR;
+  int tmp;
 
   switch(table_z80->instr_enum)
   {
@@ -637,9 +645,9 @@ int tmp;
 
 static int simulate_z80_execute_op_a_number8(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode16)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int a = simulate_z80->reg[REG_A];
-int number = opcode16 & 0xff;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int a = simulate_z80->reg[REG_A];
+  int number = opcode16 & 0xff;
 
   switch(table_z80->instr_enum)
   {
@@ -664,11 +672,11 @@ int number = opcode16 & 0xff;
 
 static int simulate_z80_execute_op_number8(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode16)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int a = simulate_z80->reg[REG_A];
-int number = opcode16 & 0xff;
-int vflag = VFLAG_CLEAR;
-int tmp;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int a = simulate_z80->reg[REG_A];
+  int number = opcode16 & 0xff;
+  int vflag = VFLAG_CLEAR;
+  int tmp;
 
   switch(table_z80->instr_enum)
   {
@@ -716,11 +724,11 @@ int tmp;
 
 static int simulate_z80_execute_op_reg8_v2(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int a = simulate_z80->reg[REG_A];
-int rrr = (opcode >> 3) & 0x7;
-int number = 1;
-int vflag = VFLAG_OVERFLOW;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int a = simulate_z80->reg[REG_A];
+  int rrr = (opcode >> 3) & 0x7;
+  int number = 1;
+  int vflag = VFLAG_OVERFLOW;
 
   switch(table_z80->instr_enum)
   {
@@ -741,12 +749,12 @@ int vflag = VFLAG_OVERFLOW;
 
 static int simulate_z80_execute_op_reg16(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-uint16_t new;
-uint16_t old;
-int reg16 = (opcode >> 4) & 0x3;
-int number = 1;
-int vflag = VFLAG_OVERFLOW;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  uint16_t new;
+  uint16_t old;
+  int reg16 = (opcode >> 4) & 0x3;
+  int number = 1;
+  int vflag = VFLAG_OVERFLOW;
 
   //old = get_reg16_half(simulate, reg16);
   old = get_q(simulate, reg16);
@@ -776,9 +784,9 @@ int vflag = VFLAG_OVERFLOW;
 
 static int simulate_z80_execute_op_reg16p(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int reg16 = (opcode >> 4) & 0x3;
-int value;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int reg16 = (opcode >> 4) & 0x3;
+  int value;
 
   if (table_z80->instr_enum == Z80_PUSH)
   {
@@ -805,12 +813,12 @@ int value;
 
 static int simulate_z80_execute_op_hl_reg16_2(struct _simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-uint16_t new;
-uint16_t old;
-int reg16 = (opcode >> 4) & 0x3;
-int number;
-int value;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  uint16_t new;
+  uint16_t old;
+  int reg16 = (opcode >> 4) & 0x3;
+  int number;
+  int value;
 
   number = get_p(simulate, reg16);
   old = get_p(simulate, 2);
@@ -841,9 +849,9 @@ int value;
 
 static int simulate_z80_execute_op_xy(struct _simulate *simulate, struct _table_z80 *table_z80, uint16_t opcode16)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int xy = (opcode16 >> 13) & 0x1;
-int value;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int xy = (opcode16 >> 13) & 0x1;
+  int value;
 
   if (table_z80->instr_enum == Z80_PUSH)
   {
@@ -871,11 +879,11 @@ int value;
 
 int simulate_z80_execute(struct _simulate *simulate)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-int reg,n;
-int reg16,xy;
-int offset;
-int address;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  int reg,n;
+  int reg16,xy;
+  int offset;
+  int address;
 
   uint16_t opcode = READ_RAM(simulate_z80->pc);
   uint16_t opcode16 = READ_OPCODE16(simulate_z80->pc);
@@ -1057,7 +1065,7 @@ int address;
 
 void simulate_dump_registers_z80(struct _simulate *simulate)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
   printf("\nSimulation Register Dump                                  Stack\n");
   printf("-------------------------------------------------------------------\n");
@@ -1086,14 +1094,14 @@ struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
 
 int simulate_run_z80(struct _simulate *simulate, int max_cycles, int step)
 {
-struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
-char instruction[128];
-//uint16_t opcode;
-int cycles = 0;
-int ret;
-int pc;
-//int c;
-int n;
+  struct _simulate_z80 *simulate_z80 = (struct _simulate_z80 *)simulate->context;
+  char instruction[128];
+  //uint16_t opcode;
+  int cycles = 0;
+  int ret;
+  int pc;
+  //int c;
+  int n;
 
   stop_running = 0;
   signal(SIGINT, handle_signal);

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  * 65816 file by Joe Davisson
  *
@@ -63,7 +63,7 @@ static int stop_running=0;
 // return calculated address for each mode
 static int calc_address(struct _simulate *simulate, int address, int mode)
 {
-  struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
+  struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
 
   int lo =   READ_RAM((address + 0) & 0xFFFF);
   int hi =   READ_RAM((address + 1) & 0xFFFF);
@@ -131,7 +131,7 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
 
 static int operand_exe(struct _simulate *simulate, int opcode)
 {
-  struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
+  struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
 
   if(opcode < 0 || opcode > 0xFF)
     return -1;
@@ -703,38 +703,39 @@ static int operand_exe(struct _simulate *simulate, int opcode)
 
 static void handle_signal(int sig)
 {
-  stop_running=1;
+  stop_running = 1;
   signal(SIGINT, SIG_DFL);
 }
 
 struct _simulate *simulate_init_65816(struct _memory *memory)
 {
-struct _simulate *simulate;
+  struct _simulate *simulate;
 
-  simulate=(struct _simulate *)malloc(sizeof(struct _simulate_65816)+sizeof(struct _simulate));
+  simulate = (struct _simulate *)malloc(sizeof(struct _simulate_65816)+sizeof(struct _simulate));
 
-  simulate->simulate_init=simulate_init_65816;
-  simulate->simulate_free=simulate_free_65816;
-  simulate->simulate_dumpram=simulate_dumpram_65816;
-  simulate->simulate_push=simulate_push_65816;
-  simulate->simulate_set_reg=simulate_set_reg_65816;
-  simulate->simulate_get_reg=simulate_get_reg_65816;
-  simulate->simulate_reset=simulate_reset_65816;
-  simulate->simulate_dump_registers=simulate_dump_registers_65816;
-  simulate->simulate_run=simulate_run_65816;
+  simulate->simulate_init = simulate_init_65816;
+  simulate->simulate_free = simulate_free_65816;
+  simulate->simulate_dumpram = simulate_dumpram_65816;
+  simulate->simulate_push = simulate_push_65816;
+  simulate->simulate_set_reg = simulate_set_reg_65816;
+  simulate->simulate_get_reg = simulate_get_reg_65816;
+  simulate->simulate_set_pc = simulate_set_pc_65816;
+  simulate->simulate_reset = simulate_reset_65816;
+  simulate->simulate_dump_registers = simulate_dump_registers_65816;
+  simulate->simulate_run = simulate_run_65816;
 
   simulate_reset_65816(simulate);
-  simulate->usec=1000000; // 1Hz
-  simulate->show=1; // Show simulation
-  simulate->step_mode=0;
-  simulate->memory=memory;
+  simulate->usec = 1000000; // 1Hz
+  simulate->show = 1; // Show simulation
+  simulate->step_mode = 0;
+  simulate->memory = memory;
 
   return simulate;
 }
 
-void simulate_push_65816(struct _simulate *simulate, unsigned int value)
+void simulate_push_65816(struct _simulate *simulate, uint32_t value)
 {
-struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
+  struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
 
   WRITE_RAM(REG_SP, value & 0xFF);
   REG_SP--;
@@ -743,7 +744,7 @@ struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->conte
 
 int simulate_set_reg_65816(struct _simulate *simulate, char *reg_string, unsigned int value)
 {
-struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
+  struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
 
   while(*reg_string==' ') { reg_string++; }
 
@@ -771,7 +772,7 @@ struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->conte
 
 unsigned int simulate_get_reg_65816(struct _simulate *simulate, char *reg_string)
 {
-struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
+  struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
 
   if(strcasecmp(reg_string, "a") == 0)
     return REG_A;
@@ -793,13 +794,20 @@ struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->conte
   return -1;
 }
 
+void simulate_set_pc_65816(struct _simulate *simulate, uint32_t value)
+{
+  struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
+
+  REG_PC = value;
+}
+
 void simulate_reset_65816(struct _simulate *simulate)
 {
-struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
+  struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
 
-  simulate->cycle_count=0;
-  simulate->nested_call_count=0;
-  simulate->break_point=-1;
+  simulate->cycle_count = 0;
+  simulate->nested_call_count = 0;
+  simulate->break_point = -1;
 
   REG_A = 0;
   REG_X = 0;
@@ -824,7 +832,7 @@ int simulate_dumpram_65816(struct _simulate *simulate, int start, int end)
 
 void simulate_dump_registers_65816(struct _simulate *simulate)
 {
-struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
+  struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
 
   int sp = REG_SP;
 
@@ -864,12 +872,11 @@ struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->conte
 
 int simulate_run_65816(struct _simulate *simulate, int max_cycles, int step)
 {
-struct _simulate_65816 *simulate_65816=(struct _simulate_65816 *)simulate->context;
+  struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
 
-char instruction[128];
- 
+  char instruction[128];
 
-  stop_running=0;
+  stop_running = 0;
   signal(SIGINT, handle_signal);
 
   printf("Running... Press Ctl-C to break.\n");

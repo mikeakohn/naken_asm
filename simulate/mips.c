@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -68,6 +68,7 @@ struct _simulate *simulate;
   simulate->simulate_push = simulate_push_mips;
   simulate->simulate_set_reg = simulate_set_reg_mips;
   simulate->simulate_get_reg = simulate_get_reg_mips;
+  simulate->simulate_set_pc = simulate_set_pc_mips;
   simulate->simulate_reset = simulate_reset_mips;
   simulate->simulate_dump_registers = simulate_dump_registers_mips;
   simulate->simulate_run = simulate_run_mips;
@@ -122,6 +123,13 @@ uint32_t simulate_get_reg_mips(struct _simulate *simulate, char *reg_string)
 //struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
 
   return 0;
+}
+
+void simulate_set_pc_mips(struct _simulate *simulate, uint32_t value)
+{
+  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+
+  simulate_mips->pc = value; 
 }
 
 void simulate_reset_mips(struct _simulate *simulate)

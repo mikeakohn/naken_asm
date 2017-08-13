@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -166,6 +166,7 @@ struct _simulate *simulate;
   simulate->simulate_push = simulate_push_tms9900;
   simulate->simulate_set_reg = simulate_set_reg_tms9900;
   simulate->simulate_get_reg = simulate_get_reg_tms9900;
+  simulate->simulate_set_pc = simulate_set_pc_tms9900;
   simulate->simulate_reset = simulate_reset_tms9900;
   simulate->simulate_dump_registers = simulate_dump_registers_tms9900;
   simulate->simulate_run = simulate_run_tms9900;
@@ -223,8 +224,8 @@ int reg,n;
 
 uint32_t simulate_get_reg_tms9900(struct _simulate *simulate, char *reg_string)
 {
-struct _simulate_tms9900 *simulate_tms9900 = (struct _simulate_tms9900 *)simulate->context;
-int reg;
+  struct _simulate_tms9900 *simulate_tms9900 = (struct _simulate_tms9900 *)simulate->context;
+  int reg;
 
   reg = get_register_tms9900(reg_string);
   if (reg == -1)
@@ -236,9 +237,16 @@ int reg;
   return READ_REG(reg);
 }
 
+void simulate_set_pc_tms9900(struct _simulate *simulate, uint32_t value)
+{
+  struct _simulate_tms9900 *simulate_tms9900 = (struct _simulate_tms9900 *)simulate->context;
+
+  simulate_tms9900->pc = 0;
+}
+
 void simulate_reset_tms9900(struct _simulate *simulate)
 {
-struct _simulate_tms9900 *simulate_tms9900 = (struct _simulate_tms9900 *)simulate->context;
+  struct _simulate_tms9900 *simulate_tms9900 = (struct _simulate_tms9900 *)simulate->context;
 
   simulate->cycle_count = 0;
   simulate->nested_call_count = 0;
@@ -267,8 +275,8 @@ int simulate_dumpram_tms9900(struct _simulate *simulate, int start, int end)
 
 void simulate_dump_registers_tms9900(struct _simulate *simulate)
 {
-struct _simulate_tms9900 *simulate_tms9900 = (struct _simulate_tms9900 *)simulate->context;
-int n;
+  struct _simulate_tms9900 *simulate_tms9900 = (struct _simulate_tms9900 *)simulate->context;
+  int n;
 
   printf("\nSimulation Register Dump                                  Stack\n");
   printf("-------------------------------------------------------------------\n");
@@ -318,14 +326,14 @@ int n;
 
 int simulate_run_tms9900(struct _simulate *simulate, int max_cycles, int step)
 {
-struct _simulate_tms9900 *simulate_tms9900 = (struct _simulate_tms9900 *)simulate->context;
-char instruction[128];
-uint16_t opcode;
-int cycles = 0;
-int ret;
-int pc;
-int c = 0; // FIXME - broken
-int n;
+  struct _simulate_tms9900 *simulate_tms9900 = (struct _simulate_tms9900 *)simulate->context;
+  char instruction[128];
+  uint16_t opcode;
+  int cycles = 0;
+  int ret;
+  int pc;
+  int c = 0; // FIXME - broken
+  int n;
 
   stop_running = 0;
   signal(SIGINT, handle_signal);

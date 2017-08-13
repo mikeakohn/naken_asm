@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -128,6 +128,7 @@ struct _simulate *simulate_init_avr8(struct _memory *memory)
   simulate->simulate_push = simulate_push_avr8;
   simulate->simulate_set_reg = simulate_set_reg_avr8;
   simulate->simulate_get_reg = simulate_get_reg_avr8;
+  simulate->simulate_set_pc = simulate_set_pc_avr8;
   simulate->simulate_reset = simulate_reset_avr8;
   simulate->simulate_dump_registers = simulate_dump_registers_avr8;
   simulate->simulate_run = simulate_run_avr8;
@@ -199,6 +200,13 @@ uint32_t simulate_get_reg_avr8(struct _simulate *simulate, char *reg_string)
   }
 
   return simulate_avr8->reg[reg];
+}
+
+void simulate_set_pc_avr8(struct _simulate *simulate, uint32_t value)
+{
+  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+
+  simulate_avr8->pc = value; 
 }
 
 void simulate_reset_avr8(struct _simulate *simulate)

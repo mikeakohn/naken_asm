@@ -688,6 +688,7 @@ struct _simulate *simulate_init_msp430(struct _memory *memory)
   simulate->simulate_push = simulate_push_msp430;
   simulate->simulate_set_reg = simulate_set_reg_msp430;
   simulate->simulate_get_reg = simulate_get_reg_msp430;
+  simulate->simulate_set_pc = simulate_set_pc_msp430;
   simulate->simulate_reset = simulate_reset_msp430;
   simulate->simulate_dump_registers = simulate_dump_registers_msp430;
   simulate->simulate_run = simulate_run_msp430;
@@ -755,6 +756,13 @@ uint32_t simulate_get_reg_msp430(struct _simulate *simulate, char *reg_string)
   }
 
   return simulate_msp430->reg[reg];
+}
+
+void simulate_set_pc_msp430(struct _simulate *simulate, uint32_t value)
+{
+  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+
+  simulate_msp430->reg[0] = value; 
 }
 
 void simulate_reset_msp430(struct _simulate *simulate)

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -27,7 +27,7 @@ static void handle_signal(int sig)
 
 struct _simulate *simulate_init_null(struct _memory *memory)
 {
-struct _simulate *simulate;
+  struct _simulate *simulate;
 
   simulate = (struct _simulate *)malloc(sizeof(struct _simulate_null) +
                                         sizeof(struct _simulate));
@@ -38,6 +38,7 @@ struct _simulate *simulate;
   simulate->simulate_push = simulate_push_null;
   simulate->simulate_set_reg = simulate_set_reg_null;
   simulate->simulate_get_reg = simulate_get_reg_null;
+  simulate->simulate_set_pc = simulate_set_pc_null;
   simulate->simulate_reset = simulate_reset_null;
   simulate->simulate_dump_registers = simulate_dump_registers_null;
   simulate->simulate_run = simulate_run_null;
@@ -54,28 +55,33 @@ struct _simulate *simulate;
 
 void simulate_push_null(struct _simulate *simulate, uint32_t value)
 {
-//struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
+  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
 
 }
 
 int simulate_set_reg_null(struct _simulate *simulate, char *reg_string, uint32_t value)
 {
-//struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
-
+  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
 
   return 0;
 }
 
 uint32_t simulate_get_reg_null(struct _simulate *simulate, char *reg_string)
 {
-//struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
+  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
 
   return 0;
 }
 
+void simulate_set_pc_null(struct _simulate *simulate, uint32_t value)
+{
+  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
+
+}
+
 void simulate_reset_null(struct _simulate *simulate)
 {
-//struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
+  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
 
 }
 
@@ -91,12 +97,12 @@ int simulate_dumpram_null(struct _simulate *simulate, int start, int end)
 
 void simulate_dump_registers_null(struct _simulate *simulate)
 {
-//struct _simulate_null *simulate_null = (struct _simulate_msp430 *)simulate->context;
+  //struct _simulate_null *simulate_null = (struct _simulate_msp430 *)simulate->context;
 }
 
 int simulate_run_null(struct _simulate *simulate, int max_cycles, int step)
 {
-//struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
+  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
 
   stop_running = 0;
   signal(SIGINT, handle_signal);

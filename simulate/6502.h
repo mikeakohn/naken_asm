@@ -28,9 +28,10 @@ struct _simulate_6502
 struct _simulate *simulate_init_6502(struct _memory *memory);
 void simulate_free_6502(struct _simulate *simulate);
 int simulate_dumpram_6502(struct _simulate *simulate, int start, int end);
-void simulate_push_6502(struct _simulate *simulate, unsigned int value);
+void simulate_push_6502(struct _simulate *simulate, uint32_t value);
 int simulate_set_reg_6502(struct _simulate *simulate, char *reg_string, unsigned int value);
 uint32_t simulate_get_reg_6502(struct _simulate *simulate, char *reg_string);
+void simulate_set_pc_6502(struct _simulate *simulate, uint32_t value);
 void simulate_reset_6502(struct _simulate *simulate);
 void simulate_dump_registers_6502(struct _simulate *simulate);
 int simulate_run_6502(struct _simulate *simulate, int max_cycles, int step);

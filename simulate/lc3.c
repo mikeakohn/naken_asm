@@ -322,6 +322,7 @@ struct _simulate *simulate;
   simulate->simulate_push = simulate_push_lc3;
   simulate->simulate_set_reg = simulate_set_reg_lc3;
   simulate->simulate_get_reg = simulate_get_reg_lc3;
+  simulate->simulate_set_pc = simulate_set_pc_lc3;
   simulate->simulate_reset = simulate_reset_lc3;
   simulate->simulate_dump_registers = simulate_dump_registers_lc3;
   simulate->simulate_run = simulate_run_lc3;
@@ -363,6 +364,13 @@ uint32_t simulate_get_reg_lc3(struct _simulate *simulate, char *reg_string)
   if (reg < 0) { return -1; }
 
   return simulate_lc3->reg[reg];
+}
+
+void simulate_set_pc_lc3(struct _simulate *simulate, uint32_t value)
+{
+  struct _simulate_lc3 *simulate_lc3 = (struct _simulate_lc3 *)simulate->context;
+
+  simulate_lc3->pc = value; 
 }
 
 void simulate_reset_lc3(struct _simulate *simulate)
