@@ -1,6 +1,9 @@
 
 default:
-	../../naken_asm -l -e -I../../include/playstation2 -o test.elf test.asm
+	../../naken_asm -l -e -I../../include/playstation2 -o test2.elf test2.asm
+
+triangle:
+	../../naken_asm -l -e -I../../include/playstation2 -o triangle.elf triangle.asm
 
 show_gif:
 	python show_gif.py test.lst `grep 'red_screen ' test.lst | sed 's/^.* 00//' | sed 's/ .*$$//'`
