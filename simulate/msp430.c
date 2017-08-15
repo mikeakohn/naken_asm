@@ -28,7 +28,15 @@ Status: V SCG1 SCG0 OSCOFF CPUOFF GIE N Z C
 
 #define SHOW_STACK sp, memory_read_m(simulate->memory, sp+1), memory_read_m(simulate->memory, sp)
 #define READ_RAM(a) memory_read_m(simulate->memory, a)
-#define WRITE_RAM(a,b) memory_write_m(simulate->memory, a, b)
+#define WRITE_RAM(a,b) \
+  if (a == simulate->break_io) \
+  { \
+    exit(b); \
+  } \
+    else \
+  { \
+     memory_write_m(simulate->memory, a, b); \
+  }
 
 #define GET_V() ((simulate_msp430->reg[2] >>  8) & 1)
 #define GET_SCG1() ((simulate_msp430->reg[2] >> 7) & 1)
@@ -155,7 +163,7 @@ static uint16_t get_data(struct _simulate *simulate, int reg, int As, int bw)
   if (As == 0) // Rn
   {
     return (bw == 0) ?
-       simulate_msp430->reg[reg] : simulate_msp430->reg[reg] & 0xff;
+      simulate_msp430->reg[reg] : simulate_msp430->reg[reg] & 0xff;
   }
 
   if (reg == 2)
@@ -900,15 +908,25 @@ int simulate_run_msp430(struct _simulate *simulate, int max_cycles, int step)
         int count = disasm_msp430(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
         if (cycles_min == -1) { break; }
 
+        printf("%s", pc == simulate->break_point ? "*" : " ");
+/*
         if (pc == simulate->break_point) { printf("*"); }
         else { printf(" "); }
+*/
 
         if (n == 0)
-        { printf("! "); }
+        {
+          printf("! ");
+        }
           else
-        if (pc == simulate_msp430->reg[0]) { printf("> "); }
+        if (pc == simulate_msp430->reg[0])
+        {
+          printf("> ");
+        }
           else
-        { printf("  "); }
+        {
+          printf("  ");
+        }
 
         if (cycles_min < 1)
         {
@@ -929,8 +947,18 @@ int simulate_run_msp430(struct _simulate *simulate, int max_cycles, int step)
         count -= 2;
         while (count > 0)
         {
-          if (pc == simulate->break_point) { printf("*"); }
-          else { printf(" "); }
+          printf("%s", pc == simulate->break_point ? "*" : " ");
+/*
+          if (pc == simulate->break_point)
+          {
+            printf("*");
+          }
+          else
+          {
+            printf(" ");
+          }
+*/
+
           num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
           printf("  0x%04x: 0x%04x\n", pc, num);
           pc += 2;

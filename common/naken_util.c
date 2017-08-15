@@ -709,6 +709,7 @@ int main(int argc, char *argv[])
   int i;
   char *hexfile = NULL;
   int mode = MODE_INTERACTIVE;
+  int break_io = -1;
   int error_flag = 0;
 
   printf("\nnaken_util - by Michael Kohn\n"
@@ -723,10 +724,11 @@ int main(int argc, char *argv[])
            "   -s      <source file>\n"
            "   -d      <debug file>\n"
            "    // The following options turn off interactive mode\n"
-           "   -disasm                      (disassemble all or part of program)\n"
-           "   -exe                         (execute program and dump registers)\n"
-           "   -address <start_address>     (for bin files: binary placed at this address)\n"
+           "   -disasm                      (Disassemble all or part of program)\n"
+           "   -run                         (Simulate program and dump registers)\n"
+           "   -address <start_address>     (For bin files: binary placed at this address)\n"
            "   -set_pc <address>            (Sets program counter after loading program)\n"
+           "   -break_io                    (In -run mode writing to an i/o port exits sim)\n"
            "   -bin                         (file is binary)\n"
            "ELF files can auto-pick a CPU, if a hex file use:\n"
            "   -4004                        (4004)\n"
@@ -850,6 +852,17 @@ int main(int argc, char *argv[])
         exit(1);
       }
       set_pc = strtol(argv[i], NULL, 0);
+    }
+      else
+    if (strcmp(argv[i], "-break_io") == 0)
+    {
+      i++;
+      if (i >= argc)
+      {
+        printf("Error: -break_io needs an address\n");
+        exit(1);
+      }
+      break_io = strtol(argv[i], NULL, 0);
     }
       else
     if (strcmp(argv[i], "-bin") == 0)
@@ -976,6 +989,7 @@ int main(int argc, char *argv[])
     util_context.simulate->usec = 1;
     util_context.simulate->show = 0;
     util_context.simulate->auto_run = 1;
+    util_context.simulate->break_io = break_io;
   }
 
   if (set_pc != -1)

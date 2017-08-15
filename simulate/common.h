@@ -34,6 +34,7 @@ struct _simulate
   int nested_call_count;
   useconds_t usec;
   int break_point;
+  int break_io;
   uint8_t step_mode : 1;
   uint8_t show : 1;
   uint8_t auto_run : 1;
