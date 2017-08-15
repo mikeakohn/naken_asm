@@ -42,6 +42,9 @@ static int macros_parse_token(struct _asm_context *asm_context, char *token, int
   while(1)
   {
     ch = tokens_get_char(asm_context);
+
+    if (ch == '\t') { ch = ' '; }
+
     if (ch == ' ')
     {
       if (ptr == 0) continue;
@@ -542,6 +545,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
       while(1)
       {
         ch = tokens_get_char(asm_context);
+        if (ch == '\t') { ch = ' '; }
         if (ch == '\n' || ch == EOF) break;
       }
 
@@ -634,6 +638,8 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
 
   ch = tokens_get_char(asm_context);
 
+  if (ch == '\t') { ch = ' '; }
+
   if (ch != '(')
   {
     print_error("Macro expects params", asm_context);
@@ -647,6 +653,7 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
   while(1)
   {
     ch = tokens_get_char(asm_context);
+    if (ch == '\t') { ch = ' '; }
     if (ch == '\r') continue;
     // skip whitespace immediately after opening parenthesis or a comma
     if ((ch == ' ' || ch == '\t') && (ptr == 0 || params[ptr-1] == 0)) continue;
@@ -735,6 +742,7 @@ printf("debug> macros_strip_comment()\n");
   while(1)
   {
     ch = tokens_get_char(asm_context);
+    if (ch == '\t') { ch = ' '; }
     if (ch == EOF) break;
     if (ch == '\n') asm_context->line++;
     if (ch == '/' && last == '*') { break; }
