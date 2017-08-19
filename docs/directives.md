@@ -116,4 +116,37 @@ Other Directives:
 |.org {address}             |Address where next assembled bytes are written to
 |.set {symbol}={value}      |Create or modify symbol's value (excluding labels)
 
+Examples
+--------
+
+    .macro PAUSE
+    .scope
+      ldx #0
+      stx interrupt_count
+      ldx #200
+    wait:
+      cpx interrupt_count
+      bpl wait
+    .ends
+    .endm
+
+Since the "wait" label is inside a .scope block, this macro can safely be used
+many times over in the same source file.
+
+    .func something
+       mov.w #1000, r4
+     delay:
+       dec.w r4
+       jnz delay
+    .endf
+
+Because the "delay" label is used inside of a .func function block, this label
+can be safely redefined anywhere in the program.
+
+    ESTAT equ 0x1d
+    ECON2 equ 0x1e
+    ECON1 equ 0x1f
+
+The equ directive is used to set symbols to numerical values.
+
 
