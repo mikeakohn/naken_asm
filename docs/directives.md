@@ -53,8 +53,8 @@ Directives for inserting text or numerical data in a program.
 
 |                          |                                       |
 |--------------------------|---------------------------------------|
-|.ascii {text}             |Insert ASCII chars at memory address
-|.asciiz {text}            |Same as .ascii but zero padded
+|.ascii {text}             |Insert ASCII chars at memory address (no NULL term)
+|.asciiz {text}            |Same as .ascii but NULL terminated
 |.db {data bytes}          |8 bit data bytes
 |.dw {data words}          |16 bit data bytes
 |.dc.w {data words}        |16 bit data bytes
@@ -67,6 +67,14 @@ Directives for inserting text or numerical data in a program.
 |.resb {data byte count}   |Reserve {count} bytes
 |.resw {data words count}  |Reserve {count} 16 bit words
 |.binfile "binarydata.bin" |Read in binary file and insert at memory address
+
+Data Formatting:
+-----------------
+|                           |                              |
+|---------------------------|------------------------------|
+|.align {16 or 32}          |Align next instr/data to 16 bit or 32 bit boundary
+|.big_endian                |Store data / code in big endian format
+|.little_endian             |Store data / code in little endian format
 
 Macros and Define Directives:
 -----------------------------
@@ -100,13 +108,11 @@ Other Directives:
 -----------------
 |                           |                              |
 |---------------------------|------------------------------|
-|.align {16 or 32}          |Align next instr/data to 16 bit or 32 bit boundary
-|.big_endian                |Store databytes in big endian format
-|.little_endian             |Store databytes in little endian format
-|.list                      |Write included file into .lst file
+|.equ                       |Set symbol to numerical value (similar to .set)
 |.export                    |Export symbol so it shows up in ELF file
 |.entry_point               |ELF file / SREC entry point (address of execution)
 |.include "includefile.inc" |Include a file of asm source code
+|.list                      |Write included file into .lst file
 |.org {address}             |Address where next assembled bytes are written to
 |.set {symbol}={value}      |Create or modify symbol's value (excluding labels)
 
