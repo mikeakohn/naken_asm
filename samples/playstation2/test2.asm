@@ -60,7 +60,7 @@ main:
   ;;           position x (dbx): 0 (0x0)
   ;;           position y (dby): 0 (0x0)
   li $v1, GS_DISPFB2
-  li $v0, 0x1400
+  li $v0, SET_DISPFB(0, 10, FMT_PSMCT32, 0, 0)
   sd $v0, ($v1)
 
   ;li $v1, GS_DISPFB1
@@ -75,25 +75,15 @@ main:
   ;;     display width - 1 in vck (dw): 2559
   ;; display height - 1 in pixels (dh): 223
   li $v1, GS_DISPLAY2
-  li $at, 0xdf9ff
+  ;li $at, 0xdf9ff
+  ;li $at, 0x1bf9ff
+  li $at, 0x1bf9ff
+  ;li $at, SET_DISPLAY(656, 36, 3, 0, 2559, 223) >> 32
   dsll32 $at, $at, 0
-  li $v0, 0x0182_4290
+  ;li $v0, 0x0182_4290
+  li $v0, 0x0082_4290
   or $at, $at, $v0
   sd $at, ($v1)
-
-  ;li $v1, GS_DISPLAY1
-  ;li $at, 0xdf9ff
-  ;dsll32 $at, $at, 0
-  ;li $v0, 0x0182_4290
-  ;or $at, $at, $v0
-  ;sd $at, ($v1)
-
-  ;jal install_vsync_handler
-  ;nop
-
-  ;li $v1, GS_BGCOLOR
-  ;li $v0, 0x004400ff
-  ;sd $v0, ($v1)
 
 while_1:
   ;; Draw picture
@@ -139,6 +129,18 @@ draw_screen:
   ;ori $v1, $v1, 0x105
   li $v1, 0x101
   sw $v1, ($v0)             ; start
+
+  ;; Draw Image
+  jal dma02_wait
+  nop
+  li $v0, D2_CHCR
+  li $v1, image_packet
+  sw $v1, 0x10($v0)         ; DMA02 ADDRESS
+  li $v1, (image_packet_end - image_packet) / 16
+  sw $v1, 0x20($v0)         ; DMA02 SIZE
+  li $v1, 0x101
+  sw $v1, ($v0)             ; start
+
   jal dma02_wait
   nop
 
@@ -273,5 +275,24 @@ red_screen:
   dc64 0x87009400, REG_XYZ2              ; (2368.0, 2160.0, 0)
   dc64 0x70000, REG_TEST_1
 red_screen_end:
+
+.align 128
+trx_setting:
+  dc64 SETREG_BITBLTBUF(0, 0, 0, 3145728 / 64, 256 / 64, FMT_PSMCT24)
+  dc64 SETREG_TRXPOS(0, 0, 1800 << 4, 1950 << 4, DIR_UL_LR)
+  ;dc64 SETREG_TRXPOS(0, 0, 0, 0, DIR_UL_LR)
+  dc64 SETREG_TRXREG(256, 256)
+  dc64 SETREG_TRXDIR(XDIR_HOST_TO_LOCAL)
+
+.align 128
+image_packet:
+  dc64 GIF_TAG(4, 0, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
+  dc64 SETREG_BITBLTBUF(0, 0, 0, 0 / 64, 256 / 64, FMT_PSMCT24), REG_BITBLTBUF
+  dc64 SETREG_TRXPOS(0, 0, 256, 0, DIR_UL_LR), REG_TRXPOS
+  dc64 SETREG_TRXREG(256, 256), REG_TRXREG
+  dc64 SETREG_TRXDIR(XDIR_HOST_TO_LOCAL), REG_TRXDIR
+  dc64 GIF_TAG(12288, 1, 0, 0, FLG_IMAGE, 1, 0x0), REG_A_D
+.binfile "image.raw"
+image_packet_end:
 
 
