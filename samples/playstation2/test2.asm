@@ -80,8 +80,8 @@ main:
   li $at, 0x1bf9ff
   ;li $at, SET_DISPLAY(656, 36, 3, 0, 2559, 223) >> 32
   dsll32 $at, $at, 0
-  ;li $v0, 0x0182_4290
-  li $v0, 0x0082_4290
+  li $v0, 0x0182_4290
+  ;li $v0, 0x0082_4290
   or $at, $at, $v0
   sd $at, ($v1)
 
