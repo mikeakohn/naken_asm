@@ -111,28 +111,6 @@ static int parse_entry_point(struct _asm_context *asm_context)
   return 0;
 }
 
-static int parse_align(struct _asm_context *asm_context)
-{
-  int num;
-
-  if (eval_expression(asm_context, &num) == -1 ||
-     (num != 16 && num != 32 && num != 64 && num != 128))
-  {
-    print_error("align expects 16, 32, 64, or 128 bytes", asm_context);
-    return -1;
-  }
-
-  num = num / 8;
-  int mask = num - 1;
-
-  while ((asm_context->address & mask) != 0)
-  {
-    memory_write_inc(asm_context, 0, DL_EMPTY);
-  }
-
-  return 0;
-}
-
 static int parse_name(struct _asm_context *asm_context)
 {
   char token[TOKENLEN];
@@ -411,9 +389,15 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
-  if (strcasecmp(token, "align") == 0)
+  if (strcasecmp(token, "align") == 0 || strcasecmp(token, "align_bits") == 0)
   {
-    if (parse_align(asm_context) != 0) { return -1; }
+    if (parse_align_bits(asm_context) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "align_bytes") == 0)
+  {
+    if (parse_align_bytes(asm_context) != 0) { return -1; }
     return 1;
   }
     else

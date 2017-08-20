@@ -428,7 +428,6 @@ int parse_ds(struct _asm_context *asm_context, int n)
   return 0;
 }
 
-// Thanks Mark.
 int parse_resb(struct _asm_context *asm_context, int size)
 {
   int num;
@@ -447,5 +446,52 @@ int parse_resb(struct _asm_context *asm_context, int size)
   asm_context->address += (num * size);
 
   return 0;
+}
+
+static int parse_align(struct _asm_context *asm_context, int num)
+{
+  int mask;
+
+  if (num > 1024)
+  {
+    print_error("align constant too large", asm_context);
+    return -1;
+  }
+
+  mask = num - 1;
+
+  while ((asm_context->address & mask) != 0)
+  {
+    memory_write_inc(asm_context, 0, DL_EMPTY);
+  }
+
+  return 0;
+}
+
+int parse_align_bits(struct _asm_context *asm_context)
+{
+  int num;
+
+  if (eval_expression(asm_context, &num) == -1 || (num % 8) != 0)
+  {
+    print_error("align expects 16, 32, 64, 128, etc bits", asm_context);
+    return -1;
+  }
+
+  num = num / 8;
+
+  return parse_align(asm_context, num);
+}
+
+int parse_align_bytes(struct _asm_context *asm_context)
+{
+  int num;
+
+  if (eval_expression(asm_context, &num) == -1)
+  {
+    return -1;
+  }
+
+  return parse_align(asm_context, num);
 }
 

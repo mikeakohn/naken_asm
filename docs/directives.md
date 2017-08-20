@@ -72,7 +72,9 @@ Data Formatting:
 -----------------
 |                           |                              |
 |---------------------------|------------------------------|
-|.align {16 or 32}          |Align next instr/data to 16 bit or 32 bit boundary
+|.align {16, 32, 64, 128..} |Align next instr/data to a bit boundary
+|.align_bits                |Align by bits (same as .align)
+|.align_bytes               |Align by bytes (align instr/data to byte boundary)
 |.big_endian                |Store data / code in big endian format
 |.little_endian             |Store data / code in little endian format
 
