@@ -140,6 +140,15 @@ int main(int argc, char *argv[])
   test_int64("-6(", -6);
   should_fail("23 23");
   should_fail("23~23");
+  test_int("((1 << 6)+(2 << 5)) >> 1", 64);
+  test_int64("(1 << 6)+(2 << 5) >> 1", 64);
+  test_int("(1 << 6)|(2 << 5) >> 1", 96);
+  test_int64("((1) << 6)|((2) << 5) >> 1", 96);
+  test_int("((1) << 6)|((2) << 5) >> 32", 64);
+  test_int64("((1) << 6)|((2) << 5) >> 32", 64);
+  test_int64("(1 << 6)|(2 << 5) >> 1", 96);
+  test_int64("((1 << 6)|(2 << 5)) >> 1", 32);
+  test_int64("((1 << 6)|(2 << 5)) >> 32", 0);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");

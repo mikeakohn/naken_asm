@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -33,10 +33,10 @@ enum
   OPER_MUL,
   OPER_DIV,
   OPER_MOD,
-  OPER_PLUS,
-  OPER_MINUS,
   OPER_LEFT_SHIFT,
   OPER_RIGHT_SHIFT,
+  OPER_PLUS,
+  OPER_MINUS,
   OPER_AND,
   OPER_XOR,
   OPER_OR

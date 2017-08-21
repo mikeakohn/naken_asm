@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPL
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -23,7 +23,7 @@
 #define PRINT_STACK() \
 { \
   int i; \
-  for (i = 0; i < num_stack_ptr; i++) printf("%d) %d <-\n", i, num_stack[i]); \
+  for (i = 0; i < var_stack_ptr; i++) printf("%d) %lx <-\n", i, var_stack[i].value_int); \
 }
 
 struct _operator
