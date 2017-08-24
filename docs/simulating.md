@@ -48,4 +48,12 @@ call instruction, the program will stop and the registers will be dumped
 along with number of cycles passed.  This was added for automated testing
 in Java Grinder but could be pretty useful other places.
 
+To assist with testing software there is a newer option "break_io"
+which allows the user to set an address as an I/O port that will
+exit the simulator if written so:
+
+    naken_util -msp430 -break_io 0x0000 -run program.hex
+
+So now if the running program.hex does a mov.b #5, 0x0000 then the
+simulator exit with a return code of 5.
 

@@ -34,7 +34,7 @@ Also .macro / .endm works like the following:
     .macro BLAH
       mov.w #5, r10
       mov.w #6, r11
-     .endm
+    .endm
 
 or also:
 
