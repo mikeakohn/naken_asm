@@ -16,6 +16,7 @@ CPU this source file should be assembled for.
 |.6502            |6502, 6510, and any other 65xx CPUs
 |.65816           |W65C816
 |.6800            |6800
+|.6809            |6809
 |.68hc08          |68HC08
 |.68000           |Motorola 68000 series
 |.8051            |8051/8052/MCS-51
