@@ -312,16 +312,16 @@ DIR_LL_UR equ 1
 DIR_UR_LL equ 2
 DIR_LR_UL equ 3
 
-.define SETREG_TRXREG(width,height) (height<<32)|width
+.define SETREG_TRXREG(width,height) ((height<<32)|width)
 
-.define SETREG_TRXDIR(dir) dir
+.define SETREG_TRXDIR(dir) (dir)
 
 XDIR_HOST_TO_LOCAL equ 0
 XDIR_LOCAL_TO_HOST equ 1
 XDIR_LOCAL_TO_LOCAL equ 2
 XDIR_DEACTIVATED equ 3
 
-.define SETREG_BITBLTBUF(src_base,src_width,src_format,dst_base,dst_width,dst_format) ((dst_format)<<56)|((dst_width)<<48)|((dst_base)<<32)|((src_format)<<24)|((src_width)<<16)|(src_base)
+.define SETREG_BITBLTBUF(src_base,src_width,src_format,dst_base,dst_width,dst_format) (((dst_format)<<56)|((dst_width)<<48)|((dst_base)<<32)|((src_format)<<24)|((src_width)<<16)|(src_base))
 
 FMT_PSMCT32 equ 0x00
 FMT_PSMCT24 equ 0x01
@@ -338,7 +338,7 @@ FMT_PSMZ24 equ 0x31
 FMT_PSMZ16 equ 0x32
 FMT_PSMZ16S equ 0x3a
 
-.define SET_DISPLAY(dx,dy,magh,magv,dw,dh) ((dh)<<44)|((dw)<<32)|((magv)<<27)|((magh)<<23)|((dy)<<12)|(dx)
+.define SET_DISPLAY(dx,dy,magh,magv,dw,dh) (((dh)<<44)|((dw)<<32)|((magv)<<27)|((magh)<<23)|((dy)<<12)|(dx))
 
-.define SET_DISPFB(fpb,fbw,psm,dbx,dby) ((dby)<<43)|((dbx)<<32)|((psm)<<15)|((fbw)<<9)|(fpb)
+.define SET_DISPFB(fpb,fbw,psm,dbx,dby) (((dby)<<43)|((dbx)<<32)|((psm)<<15)|((fbw)<<9)|(fpb))
 

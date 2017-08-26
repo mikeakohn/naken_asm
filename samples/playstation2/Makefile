@@ -1,6 +1,6 @@
 
 default:
-	../../naken_asm -l -e -I../../include/playstation2 -o test2.elf test2.asm
+	../../naken_asm -l -e -I../../include/playstation2 -o draw_image.elf draw_image.asm
 
 triangle:
 	../../naken_asm -l -e -I../../include/playstation2 -o triangle.elf triangle.asm
