@@ -79,13 +79,9 @@ main:
   ;;     display width - 1 in vck (dw): 2559
   ;; display height - 1 in pixels (dh): 223
   li $v1, GS_DISPLAY2
-  ;li $at, 0xdf9ff
-  ;li $at, 0x1bf9ff
-  li $at, 0x1bf9ff
-  ;li $at, SET_DISPLAY(656, 36, 3, 0, 2559, 223) >> 32
+  li $at, SET_DISPLAY(656, 36, 3, 0, 2559, 444 - 1) >> 32
   dsll32 $at, $at, 0
-  li $v0, 0x0182_4290
-  ;li $v0, 0x0082_4290
+  li $v0, SET_DISPLAY(656, 36, 3, 0, 2559, 444 - 1) & 0xffffffff
   or $at, $at, $v0
   sd $at, ($v1)
 
@@ -125,9 +121,9 @@ draw_screen:
   jal dma02_wait
   nop
   li $v0, D2_CHCR
-  li $v1, draw_triangle
+  li $v1, draw_square
   sw $v1, 0x10($v0)         ; DMA02 ADDRESS
-  li $v1, (draw_triangle_end - draw_triangle) / 16
+  li $v1, (draw_square_end - draw_square) / 16
   sw $v1, 0x20($v0)         ; DMA02 SIZE
   ;lw $v1, ($v0)             ; start
   ;ori $v1, $v1, 0x105
@@ -246,7 +242,7 @@ vsync_id:
   dc64 0
 
 .align 128
-draw_triangle:
+draw_square:
   dc64 GIF_TAG(9, 1, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
   dc64 PRIM_SETTING(PRIM_TRIANGLE_FAN, 1, 0, 0, 0, 0, 0, 0, 1), REG_PRIM
   dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
@@ -257,7 +253,7 @@ draw_triangle:
   dc64 SETREG_XYZ2(2100 << 4, 2010 << 4, 128), REG_XYZ2
   dc64 SETREG_RGBAQ(0,255,255,0,0x3f80_0000), REG_RGBAQ
   dc64 SETREG_XYZ2(2100 << 4, 1950 << 4, 128), REG_XYZ2
-draw_triangle_end:
+draw_square_end:
 
 .align 128
 red_screen:
@@ -279,14 +275,6 @@ red_screen:
   dc64 0x87009400, REG_XYZ2              ; (2368.0, 2160.0, 0)
   dc64 0x70000, REG_TEST_1
 red_screen_end:
-
-.align 128
-trx_setting:
-  dc64 SETREG_BITBLTBUF(0, 0, 0, 3145728 / 64, 256 / 64, FMT_PSMCT24)
-  dc64 SETREG_TRXPOS(0, 0, 1800 << 4, 1950 << 4, DIR_UL_LR)
-  ;dc64 SETREG_TRXPOS(0, 0, 0, 0, DIR_UL_LR)
-  dc64 SETREG_TRXREG(256, 256)
-  dc64 SETREG_TRXDIR(XDIR_HOST_TO_LOCAL)
 
 .align 128
 image_packet:
