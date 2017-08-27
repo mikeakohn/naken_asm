@@ -1,5 +1,5 @@
 ;;
-;; Playstation 2 include
+;; Playstation 2 Emotion Engine Registers
 ;;
 ;; A part of the naken_asm assembler 
 ;;
@@ -186,27 +186,6 @@ D_ENABLEW equ 0x1000_f590
 ;VU1_MICRO equ 0x1100_8000
 ;VU1_VU equ 0x1101_4000
 
-;; GS registers
-GS_PMODE equ 0x1200_0000
-GS_SMODE1 equ 0x1200_0010
-GS_SMODE2 equ 0x1200_0020
-GS_SRFSH equ 0x1200_0030
-GS_SYNCH1 equ 0x1200_0040
-GS_SYNCH2 equ 0x1200_0050
-GS_SYNCV equ 0x1200_0060
-GS_DISPFB1 equ 0x1200_0070
-GS_DISPLAY1 equ 0x1200_0080
-GS_DISPFB2 equ 0x1200_0090
-GS_DISPLAY2 equ 0x1200_00a0
-GS_EXTBUF equ 0x1200_00b0
-GS_EXTDATA equ 0x1200_00c0
-GS_EXTWRITE equ 0x1200_00d0
-GS_BGCOLOR equ 0x1200_00e0
-GS_CSR equ 0x1200_1000
-GS_IMR equ 0x1200_1010
-GS_BUSDIR equ 0x1200_1040
-GS_SIGLBLID equ 0x1200_1080
-
 ;; Interrupt causes
 INTC_GS equ 0
 INTC_SBUS equ 1
@@ -219,126 +198,4 @@ INTC_VU1 equ 7
 INTC_IPU equ 8
 INTC_TIM0 equ 9
 INTC_TIM1 equ 10
-
-;; GS General Purpose Registers
-REG_PRIM equ 0x00
-REG_RGBAQ equ 0x01
-REG_ST equ 0x02
-REG_UV equ 0x03
-REG_XYZF2 equ 0x04
-REG_XYZ2 equ 0x05
-REG_TEX0_1 equ 0x06
-REG_TEX0_2 equ 0x07
-REG_CLAMP_1 equ 0x08
-REG_CLAMP_2 equ 0x09
-REG_FOG equ 0x0a
-REG_XYZF3 equ 0x0c
-REG_XYZ3 equ 0x0d
-REG_A_D equ 0x0e      ; for GIFtag only
-REG_NOP equ 0x0f      ; for GIFtag only
-REG_TEX1_1 equ 0x14
-REG_TEX1_2 equ 0x15
-REG_TEX2_1 equ 0x16
-REG_TEX2_2 equ 0x17
-REG_XYOFFSET_1 equ 0x18
-REG_XYOFFSET_2 equ 0x19
-REG_PRMODECONT equ 0x1a
-REG_PRMODE equ 0x1b
-REG_TEXCLUT equ 0x1c
-REG_SCANMSK equ 0x22
-REG_MIPTBP1_1 equ 0x34
-REG_MIPTBP1_2 equ 0x35
-REG_MIPTBP2_1 equ 0x36
-REG_MIPTBP2_2 equ 0x37
-REG_TEXA equ 0x3b
-REG_FOGCOL equ 0x3d
-REG_TEXFLUSH equ 0x3f
-REG_SCISSOR_1 equ 0x40
-REG_SCISSOR_2 equ 0x41
-REG_ALPHA_1 equ 0x42
-REG_ALPHA_2 equ 0x43
-REG_DIMX equ 0x44
-REG_DTHE equ 0x45
-REG_COLCLAMP equ 0x46
-REG_TEST_1 equ 0x47
-REG_TEST_2 equ 0x48
-REG_PABE equ 0x49
-REG_FBA_1 equ 0x4a
-REG_FBA_2 equ 0x4b
-REG_FRAME_1 equ 0x4c
-REG_FRAME_2 equ 0x4d
-REG_ZBUF_1 equ 0x4e
-REG_ZBUF_2 equ 0x4f
-REG_BITBLTBUF equ 0x50
-REG_TRXPOS equ 0x51
-REG_TRXREG equ 0x52
-REG_TRXDIR equ 0x53
-
-;; System calls
-SetGsCrt equ 2
-AddIntcHandler equ 16
-RemoveIntcHandler equ 17
-_EnableIntc equ 20
-_DisableIntc equ 21
-GsGetIMR equ 112
-GsPutIMR equ 113
-
-;; Primitive types
-PRIM_POINT equ 0
-PRIM_LINE equ 1
-PRIM_LINE_STRIP equ 2
-PRIM_TRIANGLE equ 3
-PRIM_TRIANGLE_STRIP equ 4
-PRIM_TRIANGLE_FAN equ 5
-PRIM_SPRITE equ 6
-
-;; Macros to help with GIF data formatting
-.define SETREG_RGBAQ(r,g,b,a,q) (q<<32)|(a<<24)|(b<<16)|(g<<8)|r
-
-.define SETREG_XYZ2(x,y,z) (z<<32)|(y<<16)|x
-
-.define PRIM_SETTING(prim,shading,texture_mapping,fogging,alpha_blend,anti_alias,texture_coords,context,fix) ((fix)<<10)|((context)<<9)|((texture_coords)<<8)|((anti_alias)<<7)|((alpha_blend)<<6)|((fogging)<<5)|((texture_mapping)<<4)|((shading)<<3)|(prim)
-
-.define GIF_TAG(nloop,eop,pre,prim,flg,nreg,regs) ((regs)<<64)|((nreg)<<60)|((flg)<<58)|((prim)<<47)|((pre)<<46)|((eop)<<15)|(nloop)
-
-FLG_PACKED equ 0
-FLG_REGIST equ 1
-FLG_IMAGE equ 2
-
-.define SETREG_TRXPOS(src_x,src_y,dst_x,dst_y,dir) ((dir)<<59)|((dst_y)<<48)|((dst_x)<<32)|((src_y)<<16)|(src_x)
-
-DIR_UL_LR equ 0
-DIR_LL_UR equ 1
-DIR_UR_LL equ 2
-DIR_LR_UL equ 3
-
-.define SETREG_TRXREG(width,height) ((height<<32)|width)
-
-.define SETREG_TRXDIR(dir) (dir)
-
-XDIR_HOST_TO_LOCAL equ 0
-XDIR_LOCAL_TO_HOST equ 1
-XDIR_LOCAL_TO_LOCAL equ 2
-XDIR_DEACTIVATED equ 3
-
-.define SETREG_BITBLTBUF(src_base,src_width,src_format,dst_base,dst_width,dst_format) (((dst_format)<<56)|((dst_width)<<48)|((dst_base)<<32)|((src_format)<<24)|((src_width)<<16)|(src_base))
-
-FMT_PSMCT32 equ 0x00
-FMT_PSMCT24 equ 0x01
-FMT_PSMCT16 equ 0x02
-FMT_PCMCT16S equ 0x0a
-FMT_PCGPU24 equ 0x12     ; for DISPFB
-FMT_PSMT8 equ 0x13
-FMT_PSMT4 equ 0x14
-FMT_PSMT8H equ 0x1b
-FMT_PSMT4HL equ 0x24
-FMT_PSMT4HH equ 0x2c
-FMT_PSMZ32 equ 0x30
-FMT_PSMZ24 equ 0x31
-FMT_PSMZ16 equ 0x32
-FMT_PSMZ16S equ 0x3a
-
-.define SET_DISPLAY(dx,dy,magh,magv,dw,dh) (((dh)<<44)|((dw)<<32)|((magv)<<27)|((magh)<<23)|((dy)<<12)|(dx))
-
-.define SET_DISPFB(fpb,fbw,psm,dbx,dby) (((dby)<<43)|((dbx)<<32)|((psm)<<15)|((fbw)<<9)|(fpb))
 

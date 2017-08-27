@@ -1,6 +1,10 @@
 .ps2_ee
 
-.include "playstation2.inc"
+.include "playstation2/registers_ee.inc"
+.include "playstation2/registers_gs_gp.inc"
+.include "playstation2/registers_gs_priv.inc"
+.include "playstation2/system_calls.inc"
+.include "playstation2/macros.inc"
 
 .entry_point main
 .export start
