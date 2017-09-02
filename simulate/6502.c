@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn, Joe Davisson
  *
@@ -108,7 +108,8 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     return -1;
   
   int mode = table_6502_opcodes[opcode].op;
-  if(mode == M65XX_ERROR)
+
+  if(table_6502_opcodes[opcode].instr == M65XX_ERROR)
     return -1;
 
   int address = calc_address(simulate, REG_PC + 1, mode);
