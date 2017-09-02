@@ -728,7 +728,7 @@ int main(int argc, char *argv[])
            "   -run                         (Simulate program and dump registers)\n"
            "   -address <start_address>     (For bin files: binary placed at this address)\n"
            "   -set_pc <address>            (Sets program counter after loading program)\n"
-           "   -break_io                    (In -run mode writing to an i/o port exits sim)\n"
+           "   -break_io <address>          (In -run mode writing to an i/o port exits sim)\n"
            "   -bin                         (file is binary)\n"
            "ELF files can auto-pick a CPU, if a hex file use:\n"
            "   -4004                        (4004)\n"

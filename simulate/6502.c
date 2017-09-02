@@ -25,7 +25,12 @@ extern struct _table_6502_opcodes table_6502_opcodes[];
 
 #define SHOW_STACK 0x100 + sp, memory_read_m(simulate->memory, 0x100 + sp)
 #define READ_RAM(a) memory_read_m(simulate->memory, a)
-#define WRITE_RAM(a, b) memory_write_m(simulate->memory, a, b)
+#define WRITE_RAM(a, b) \
+  if (a == simulate->break_io) \
+  { \
+    exit(b); \
+  } \
+  memory_write_m(simulate->memory, a, b)
 
 #define REG_A simulate_6502->reg_a
 #define REG_X simulate_6502->reg_x
