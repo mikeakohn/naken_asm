@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -104,7 +104,7 @@ int disasm_stm8(struct _memory *memory, uint32_t address, char *instr, int *cycl
 
   opcode = READ_RAM(address);
 
-  if (opcode==0x90 || opcode==0x91 || opcode==0x92 || opcode==0x72)
+  if (opcode == 0x90 || opcode == 0x91 || opcode == 0x92 || opcode == 0x72)
   {
     prefix = opcode;
     opcode = READ_RAM(address + count);
@@ -142,7 +142,7 @@ int disasm_stm8(struct _memory *memory, uint32_t address, char *instr, int *cycl
   if (table_stm8_opcodes[n].instr_enum == STM8_NONE)
   {
     strcpy(instr, "???");
-    return 1 + count;
+    return count;
   }
 
   *cycles_min = table_stm8_opcodes[n].cycles_min;
