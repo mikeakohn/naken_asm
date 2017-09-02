@@ -842,8 +842,8 @@ void simulate_dump_registers_6502(struct _simulate *simulate)
 int simulate_run_6502(struct _simulate *simulate, int max_cycles, int step)
 {
   struct _simulate_6502 *simulate_6502 = (struct _simulate_6502 *)simulate->context;
-
   char instruction[128];
+  char bytes[16];
  
 
   stop_running = 0;
@@ -876,6 +876,15 @@ int simulate_run_6502(struct _simulate *simulate, int max_cycles, int step)
       while(n < 6)
       {
         int count = disasm_6502(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+        int i;
+
+        bytes[0] = 0;
+        for (i = 0; i < count; i++)
+        {
+          char temp[4];
+          sprintf(temp, "%02x ", READ_RAM(pc + i));
+          strcat(bytes, temp);
+        }
 
         if(cycles_min == -1) break;
 
@@ -889,10 +898,14 @@ int simulate_run_6502(struct _simulate *simulate, int max_cycles, int step)
           else
         { printf("  "); }
 
-        printf("0x%04x: %-40s %d-%d\n", pc, instruction, cycles_min, cycles_max);
-        n += count;
+        printf("0x%04x: %-10s %-40s %d-%d\n", pc, bytes, instruction, cycles_min, cycles_max);
+
+        if (count == 0) { break; }
+
+        n++;
         pc += count;
 
+#if 0
         count--;
         while(count > 0)
         {
@@ -902,6 +915,7 @@ int simulate_run_6502(struct _simulate *simulate, int max_cycles, int step)
           pc += count;
           count--;
         }
+#endif
       }
     }
 
