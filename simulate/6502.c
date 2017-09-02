@@ -177,7 +177,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x0E:
     case 0x16:
     case 0x1E:
-      if(mode == 4)
+      if(mode == OP_NONE)
       {
         FLAG(READ_BIT(REG_A, 7), flag_c);
         REG_A <<= 1;
@@ -432,7 +432,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x4E:
     case 0x56:
     case 0x5E:
-      if(mode == 4)
+      if(mode == OP_NONE)
       {
         FLAG(READ_BIT(REG_A, 0), flag_c);
         REG_A >>= 1;
@@ -496,7 +496,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x2E:
     case 0x36:
     case 0x3E:
-      if(mode == 4)
+      if(mode == OP_NONE)
       {
         FLAG(READ_BIT(REG_A, 7), flag_c);
         REG_A <<= 1;
@@ -522,7 +522,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x6E:
     case 0x76:
     case 0x7E:
-      if(mode == 4)
+      if(mode == OP_NONE)
       {
         temp = READ_BIT(REG_A, 0);
         REG_A >>= 1;
