@@ -33,10 +33,7 @@ Status: V SCG1 SCG0 OSCOFF CPUOFF GIE N Z C
   { \
     exit(b); \
   } \
-    else \
-  { \
-     memory_write_m(simulate->memory, a, b); \
-  }
+  memory_write_m(simulate->memory, a, b);
 
 #define GET_V() ((simulate_msp430->reg[2] >>  8) & 1)
 #define GET_SCG1() ((simulate_msp430->reg[2] >> 7) & 1)
