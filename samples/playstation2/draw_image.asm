@@ -64,7 +64,7 @@ main:
   ;;           position x (dbx): 0 (0x0)
   ;;           position y (dby): 0 (0x0)
   li $v1, GS_DISPFB2
-  li $v0, SET_DISPFB(0, 10, FMT_PSMCT32, 0, 0)
+  li $v0, SETREG_DISPFB(0, 10, FMT_PSMCT32, 0, 0)
   sd $v0, ($v1)
 
   ;li $v1, GS_DISPFB1
@@ -79,9 +79,9 @@ main:
   ;;     display width - 1 in vck (dw): 2559
   ;; display height - 1 in pixels (dh): 223
   li $v1, GS_DISPLAY2
-  li $at, SET_DISPLAY(656, 36, 3, 0, 2559, 444 - 1) >> 32
+  li $at, SETREG_DISPLAY(656, 36, 3, 0, 2559, 444 - 1) >> 32
   dsll32 $at, $at, 0
-  li $v0, SET_DISPLAY(656, 36, 3, 0, 2559, 444 - 1) & 0xffffffff
+  li $v0, SETREG_DISPLAY(656, 36, 3, 0, 2559, 444 - 1) & 0xffffffff
   or $at, $at, $v0
   sd $at, ($v1)
 

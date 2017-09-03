@@ -62,7 +62,27 @@ FMT_PSMZ24 equ 0x31
 FMT_PSMZ16 equ 0x32
 FMT_PSMZ16S equ 0x3a
 
-.define SET_DISPLAY(dx,dy,magh,magv,dw,dh) (((dh)<<44)|((dw)<<32)|((magv)<<27)|((magh)<<23)|((dy)<<12)|(dx))
+.define SETREG_DISPLAY(dx,dy,magh,magv,dw,dh) (((dh)<<44)|((dw)<<32)|((magv)<<27)|((magh)<<23)|((dy)<<12)|(dx))
 
-.define SET_DISPFB(fpb,fbw,psm,dbx,dby) (((dby)<<43)|((dbx)<<32)|((psm)<<15)|((fbw)<<9)|(fpb))
+.define SETREG_DISPFB(fpb,fbw,psm,dbx,dby) (((dby)<<43)|((dbx)<<32)|((psm)<<15)|((fbw)<<9)|(fpb))
+
+.define SETREG_TEX0(tbp0,tbw,psm,tw,th,tcc,tfx,cbp,cpsm,csm,csa,cld) (((cld)<<61)|((csa)<<56)|((csm)<<55)|((cpsm)<<51)|((cbp)<<37)|((tfx)<<35)|((tcc)<<34)|((th)<<30)|((tw)<<26)|((psm)<<20)|((tbw)<<14)|(tbp0))
+
+.define TEX_MODULATE 0
+.define TEX_DECAL 1
+.define TEX_HIGHLIGHT 2
+.define TEX_HIGHLIGHT2 3
+
+.define SETREG_TEX1(lcm,mxl,mmag,mmin,mtba,l,k) ((k<<32)|(l<<19)|(mtba<<9)|(mmin<<6)|(mmag<<5)|(mxl<<2)|(lcm))
+
+.define FILTER_NEAREST 0
+.define FILTER_LINEAR 1
+.define FILTER_NEAREST_MIPMAP_NEAREST 2
+.define FILTER_NEAREST_MIPMAP_LINEAR 3
+.define FILTER_LINEAR_MIPMAP_NEAREST 4
+.define FILTER_LINEAR_MIPMAP_LINEAR 5
+
+.define SETREG_TEX2(psm,cbp,cpsm,csm,csa,cld) ((cld<<61)|(csa<<56)|(csm<<55)|(cpsm<<51)|(cbp<<37)|(psm<<20))
+
+.define SETREG_TEXA(ta0,aem,ta1) ((ta1<<32)|(aem<<15)|(ta0))
 
