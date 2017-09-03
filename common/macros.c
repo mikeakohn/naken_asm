@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -419,7 +419,6 @@ int macros_parse(struct _asm_context *asm_context, int macro_type)
   int ptr = 0;
   int token_type;
   int ch;
-  int cont = 0;
   int parens = 0;
   int param_count = 0;
 
@@ -546,7 +545,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
       {
         ch = tokens_get_char(asm_context);
         if (ch == '\t') { ch = ' '; }
-        if (ch == '\n' || ch == EOF) break;
+        if (ch == '\n' || ch == EOF) { break; }
       }
 
       while(ptr > 0)
@@ -556,13 +555,27 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
       }
     }
 
-    if (ch == '\r') continue;
-    if (ch == ' ' && (ptr == 0 || cont != 0)) continue;
-    if (ch == '\\' && cont == 0)
+    if (ch == '\r') { continue; }
+    if (ch == ' ' && ptr == 0) { continue; }
+
+    if (ch == '\\')
     {
       if (macro_type == IS_DEFINE)
       {
-        cont = 1;
+        while(1)
+        {
+          ch = tokens_get_char(asm_context);
+          if (ch != '\r') { break; }
+        }
+
+        if (ch != '\n')
+        {
+          print_error("Error: Expected end-of_line", asm_context);
+          return -1;
+        }
+
+        asm_context->line++;
+
         continue;
       }
     }
@@ -573,13 +586,6 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
 
       if (macro_type == IS_DEFINE)
       {
-        if (cont == 1)
-        {
-          macro[ptr++] = ch;
-          cont = 2;
-          continue;
-        }
-
         break;
       }
         else
@@ -588,14 +594,6 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
         if (check_endm(macro, ptr) == 1) { break; }
       }
     }
-
-    if (cont == 1)
-    {
-      printf("Parse error: Expecting end-of-line on line %d\n", asm_context->line);
-      return -1;
-    }
-
-    cont = 0;
 
     if (ch == '*' && ptr > 0 && macro[ptr-1] == '/')
     {
