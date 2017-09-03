@@ -640,7 +640,7 @@ int assemble(struct _asm_context *asm_context)
 
       if (strcasecmp(token, "define") == 0)
       {
-        if (macros_parse(asm_context, IS_DEFINE) != 0) return -1;
+        if (macros_parse(asm_context, IS_DEFINE) != 0) { return -1; }
       }
         else
       if (strcasecmp(token, "ifdef") == 0)
@@ -705,22 +705,22 @@ int assemble(struct _asm_context *asm_context)
         else
       if (strcasecmp(token, "macro") == 0)
       {
-        if (macros_parse(asm_context, IS_MACRO) != 0) return -1;
+        if (macros_parse(asm_context, IS_MACRO) != 0) { return -1; }
       }
         else
       if (strcasecmp(token, "pragma") == 0)
       {
-        if (parse_pragma(asm_context) != 0) return -1;
+        if (parse_pragma(asm_context) != 0) { return -1; }
       }
         else
       if (strcasecmp(token, "device") == 0)
       {
-        if (parse_device(asm_context) != 0) return -1;
+        if (parse_device(asm_context) != 0) { return -1; }
       }
         else
       if (strcasecmp(token, "set") == 0)
       {
-        if (parse_set(asm_context) != 0) return -1;
+        if (parse_set(asm_context) != 0) { return -1; }
       }
         else
       if (strcasecmp(token, "export") == 0)
