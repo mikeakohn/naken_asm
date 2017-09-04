@@ -117,7 +117,7 @@ draw_screen:
   li $v1, 0x101
   sw $v1, ($v0)             ; start
 
-  ;; Draw Triangle
+  ;; Draw square
   jal dma02_wait
   nop
   li $v0, D2_CHCR
@@ -244,7 +244,7 @@ vsync_id:
 .align 128
 draw_square:
   dc64 GIF_TAG(9, 1, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
-  dc64 PRIM_SETTING(PRIM_TRIANGLE_FAN, 1, 0, 0, 0, 0, 0, 0, 1), REG_PRIM
+  dc64 SETREG_PRIM(PRIM_TRIANGLE_FAN, 1, 0, 0, 0, 0, 0, 0, 1), REG_PRIM
   dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
   dc64 SETREG_XYZ2(1800 << 4, 1950 << 4, 128), REG_XYZ2
   dc64 SETREG_RGBAQ(0,255,0,0,0x3f80_0000), REG_RGBAQ

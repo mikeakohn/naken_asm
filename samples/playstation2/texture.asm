@@ -64,7 +64,7 @@ main:
   ;;           position x (dbx): 0 (0x0)
   ;;           position y (dby): 0 (0x0)
   li $v1, GS_DISPFB2
-  li $v0, 0x1400
+  li $v0, SETREG_DISPFB(0, 10, FMT_PSMCT32, 0, 0)
   sd $v0, ($v1)
 
   ;li $v1, GS_DISPFB1
@@ -79,25 +79,11 @@ main:
   ;;     display width - 1 in vck (dw): 2559
   ;; display height - 1 in pixels (dh): 223
   li $v1, GS_DISPLAY2
-  li $at, 0xdf9ff
+  li $at, SETREG_DISPLAY(656, 36, 3, 0, 2559, 444 - 1) >> 32
   dsll32 $at, $at, 0
-  li $v0, 0x0182_4290
+  li $v0, SETREG_DISPLAY(656, 36, 3, 0, 2559, 444 - 1) & 0xffffffff
   or $at, $at, $v0
   sd $at, ($v1)
-
-  ;li $v1, GS_DISPLAY1
-  ;li $at, 0xdf9ff
-  ;dsll32 $at, $at, 0
-  ;li $v0, 0x0182_4290
-  ;or $at, $at, $v0
-  ;sd $at, ($v1)
-
-  ;jal install_vsync_handler
-  ;nop
-
-  ;li $v1, GS_BGCOLOR
-  ;li $v0, 0x004400ff
-  ;sd $v0, ($v1)
 
 while_1:
   ;; Draw picture
@@ -124,25 +110,48 @@ draw_screen:
   jal dma02_wait
   nop
   li $v0, D2_CHCR
-  li $v1, red_screen
+  li $v1, black_screen
   sw $v1, 0x10($v0)         ; DMA02 ADDRESS
-  li $v1, (red_screen_end - red_screen) / 16
+  li $v1, (black_screen_end - black_screen) / 16
   sw $v1, 0x20($v0)         ; DMA02 SIZE
   li $v1, 0x101
   sw $v1, ($v0)             ; start
 
-  ;; Draw Triangle
+  ;; Transfer Texture
   jal dma02_wait
   nop
   li $v0, D2_CHCR
-  li $v1, draw_triangle
+  li $v1, texture_packet
   sw $v1, 0x10($v0)         ; DMA02 ADDRESS
-  li $v1, (draw_triangle_end - draw_triangle) / 16
+  li $v1, (texture_packet_end - texture_packet) / 16
+  sw $v1, 0x20($v0)         ; DMA02 SIZE
+  li $v1, 0x101
+  sw $v1, ($v0)             ; start
+
+  ;; Texture Flush
+  jal dma02_wait
+  nop
+  li $v0, D2_CHCR
+  li $v1, texture_flush
+  sw $v1, 0x10($v0)         ; DMA02 ADDRESS
+  li $v1, (texture_flush_end - texture_flush) / 16
+  sw $v1, 0x20($v0)         ; DMA02 SIZE
+  li $v1, 0x101
+  sw $v1, ($v0)             ; start
+
+  ;; Draw square
+  jal dma02_wait
+  nop
+  li $v0, D2_CHCR
+  li $v1, draw_square
+  sw $v1, 0x10($v0)         ; DMA02 ADDRESS
+  li $v1, (draw_square_end - draw_square) / 16
   sw $v1, 0x20($v0)         ; DMA02 SIZE
   ;lw $v1, ($v0)             ; start
   ;ori $v1, $v1, 0x105
   li $v1, 0x101
   sw $v1, ($v0)             ; start
+
   jal dma02_wait
   nop
 
@@ -244,19 +253,21 @@ vsync_id:
   dc64 0
 
 .align 128
-draw_triangle:
-  dc64 GIF_TAG(7, 1, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
-  dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 0, 1), REG_PRIM
+draw_square:
+  dc64 GIF_TAG(9, 1, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
+  dc64 SETREG_PRIM(PRIM_TRIANGLE_FAN, 0, 1, 0, 0, 0, 0, 0, 1), REG_PRIM
   dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
-  dc64 SETREG_XYZ2(1800 << 4, 2000 << 4, 128), REG_XYZ2
+  dc64 SETREG_XYZ2(1800 << 4, 1950 << 4, 128), REG_XYZ2
   dc64 SETREG_RGBAQ(0,255,0,0,0x3f80_0000), REG_RGBAQ
   dc64 SETREG_XYZ2(1800 << 4, 2010 << 4, 128), REG_XYZ2
   dc64 SETREG_RGBAQ(0,0,255,0,0x3f80_0000), REG_RGBAQ
-  dc64 SETREG_XYZ2(1900 << 4, 2010 << 4, 128), REG_XYZ2
-draw_triangle_end:
+  dc64 SETREG_XYZ2(2100 << 4, 2010 << 4, 128), REG_XYZ2
+  dc64 SETREG_RGBAQ(0,255,255,0,0x3f80_0000), REG_RGBAQ
+  dc64 SETREG_XYZ2(2100 << 4, 1950 << 4, 128), REG_XYZ2
+draw_square_end:
 
 .align 128
-red_screen:
+black_screen:
   dc64 0x100000000000800e, REG_A_D 
   dc64 0x00a0000, REG_FRAME_1            ; framebuffer width = 640/64
   dc64 0x8c, REG_ZBUF_1              ; 0-8 Zbuffer base, 24-27 Z format (32bit)
@@ -264,16 +275,35 @@ red_screen:
   dc64 REG_XYOFFSET_1 
   dc16 0,639, 0,223                      ; x1,y1,x2,y2 - scissor window
   dc64 REG_SCISSOR_1 
-  dc64 1, REG_PRMODECONT                 ; refer to prim attributes
+  dc64 SETREG_PRMODECONT(1), REG_PRMODECONT
   dc64 1, REG_COLCLAMP
   dc64 0, REG_DTHE                       ; Dither off
   dc64 0x70000, REG_TEST_1 
   dc64 0x30000, REG_TEST_1 
-  dc64 6, REG_PRIM 
-  dc64 0x3f80_0000_0000_0010, REG_RGBAQ  ; Background RGBA
+  dc64 SETREG_PRIM(PRIM_SPRITE, 0, 1, 0, 0, 0, 0, 0, 1), REG_PRIM
+  dc64 0x3f80_0000_0000_0000, REG_RGBAQ  ; Background RGBA
   dc64 0x79006c00, REG_XYZ2              ; (1728.0, 1936.0, 0)
   dc64 0x87009400, REG_XYZ2              ; (2368.0, 2160.0, 0)
   dc64 0x70000, REG_TEST_1
-red_screen_end:
+black_screen_end:
 
+.align 128
+texture_packet:
+  dc64 GIF_TAG(7, 0, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
+  dc64 SETREG_BITBLTBUF(0, 0, 0, 0 / 64, 0x200000 / 64, FMT_PSMCT24), REG_BITBLTBUF
+  dc64 SETREG_TEX0(0x200000 / 64, 64 / 64, FMT_PSMCT24, 1, 1, 0, TEX_MODULATE, 0, 0, 0, 0, 0), REG_TEX0_1
+  dc64 SETREG_TEX1(0, 0, FILTER_NEAREST, 0, 0, 0, 0), REG_TEX1_1
+  dc64 SETREG_TEX2(FMT_PSMCT24, 0, 0, 0, 0, 0), REG_TEX2_1
+  dc64 SETREG_TRXPOS(0, 0, 0, 0, DIR_UL_LR), REG_TRXPOS
+  dc64 SETREG_TRXREG(64, 64), REG_TRXREG
+  dc64 SETREG_TRXDIR(XDIR_HOST_TO_LOCAL), REG_TRXDIR
+  dc64 GIF_TAG(768, 1, 0, 0, FLG_IMAGE, 1, 0x0), REG_A_D
+.binfile "image.raw"
+texture_packet_end:
+
+.align 128
+texture_flush:
+  dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
+  dc64 0, REG_TEXFLUSH
+texture_flush_end:
 

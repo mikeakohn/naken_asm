@@ -1,12 +1,15 @@
 
+#DUMP_MACROS=-dump_macros
+FLAGS=-l -e -I../../include $(DUMP_MACROS)
+
 default:
-	../../naken_asm -l -e -I../../include -o texture.elf texture.asm
+	../../naken_asm $(FLAGS) -o texture.elf texture.asm
 
 triangle:
-	../../naken_asm -l -e -I../../include -o triangle.elf triangle.asm
+	../../naken_asm $(FLAGS) -o triangle.elf triangle.asm
 
 draw_image:
-	../../naken_asm -l -e -I../../include -o draw_image.elf draw_image.asm
+	../../naken_asm $(FLAGS) -o draw_image.elf draw_image.asm
 
 show_gif:
 	python show_gif.py test.lst `grep 'red_screen ' test.lst | sed 's/^.* 00//' | sed 's/ .*$$//'`
