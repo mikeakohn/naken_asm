@@ -165,6 +165,13 @@ struct _table_powerpc table_powerpc[] =
   { "dstst",  0x7c0002ec, 0xff8007ff, OP_RA_RB_STRM, FLAG_NONE, 0, 0 },
   { "dststt", 0x7e0002ec, 0xff8007ff, OP_RA_RB_STRM, FLAG_NONE, 0, 0 },
   { "dstt",   0x7e0002ac, 0xff8007ff, OP_RA_RB_STRM, FLAG_NONE, 0, 0 }, // ??
+  { "lvebx",  0x7c00000e, 0xfc0007ff, OP_VD_RA_RB, FLAG_NONE, 0, 0 },
+  { "lvehx",  0x7c00004e, 0xfc0007ff, OP_VD_RA_RB, FLAG_NONE, 0, 0 },
+  { "lvewx",  0x7c00008e, 0xfc0007ff, OP_VD_RA_RB, FLAG_NONE, 0, 0 },
+  { "lvsl",   0x7c00000c, 0xfc0007ff, OP_VD_RA_RB, FLAG_NONE, 0, 0 },
+  { "lvsr",   0x7c00004c, 0xfc0007ff, OP_VD_RA_RB, FLAG_NONE, 0, 0 },
+  { "lvx",    0x7c0000ce, 0xfc0007ff, OP_VD_RA_RB, FLAG_NONE, 0, 0 },
+  { "lvxl",   0x7c0002ce, 0xfc0007ff, OP_VD_RA_RB, FLAG_NONE, 0, 0 },
   { NULL, 0, 0, 0, 0 }
 };
 

@@ -189,3 +189,10 @@ dst r4, r5, 2
 dstt r4, r5, 2
 dstst r4, r5, 2
 dststt r4, r5, 2
+lvebx v9, r15, r11
+lvehx v30, r18, r20
+lvewx v11, r17, r27
+lvsl v13, r21, r25
+lvsr v17, r27, r18
+lvx v9, r30, r11
+lvxl v7, r23, r9

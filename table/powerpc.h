@@ -49,6 +49,7 @@ enum
   OP_RA_RS_SH_MB_ME,
   OP_STRM,
   OP_RA_RB_STRM,
+  OP_VD_RA_RB,
 };
 
 #define FLAG_NONE 0
