@@ -1281,6 +1281,57 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_VD:
+        case OP_VB:
+        {
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_VECTOR)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (table_powerpc[n].type == OP_VD)
+          {
+            opcode = table_powerpc[n].opcode | (operands[0].value << 21);
+          }
+          else
+          {
+            opcode = table_powerpc[n].opcode | (operands[0].value << 11);
+          }
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_VD_VA_VB:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_VECTOR ||
+              operands[1].type != OPERAND_VECTOR ||
+              operands[2].type != OPERAND_VECTOR)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+            (operands[2].value << 11) |
+            (operands[1].value << 16) |
+            (operands[0].value << 21);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
           break;
       }

@@ -196,3 +196,29 @@ lvsl v13, r21, r25
 lvsr v17, r27, r18
 lvx v9, r30, r11
 lvxl v7, r23, r9
+mfvscr v21
+mtvscr v21
+stvebx v9, r15, r11
+stvehx v30, r18, r20
+stvewx v11, r17, r27
+stvx v9, r30, r11
+stvxl v7, r23, r9
+vaddcuw v31, v21, v17
+vaddfp v31, v21, v11
+vaddsbs v11, v21, v13
+vaddshs v31, v21, v1
+vaddsws v21, v21, v19
+vaddubm v11, v21, v11
+vaddubs v1, v1, v11
+vadduhm v31, v21, v11
+vadduhs v31, v21, v11
+vadduwm v31, v21, v1
+vadduws v1, v21, v17
+vand v31, v21, v11
+vandc v11, v21, v11
+vavgsb v21, v21, v11
+vavgsh v31, v21, v11
+vavgsw v23, v21, v11
+vavgub v14, v2, v11
+vavguh v11, v21, v11
+vavguw v31, v1, v11

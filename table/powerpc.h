@@ -50,6 +50,10 @@ enum
   OP_STRM,
   OP_RA_RB_STRM,
   OP_VD_RA_RB,
+  OP_VS_RA_RB,
+  OP_VD,
+  OP_VB,
+  OP_VD_VA_VB,
 };
 
 #define FLAG_NONE 0
