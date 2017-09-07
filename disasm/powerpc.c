@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -215,6 +215,13 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
           sprintf(instruction, "%s%s r%d, r%d, %d, %d, %d",
             instr, (rc == 1) ? "." : "", ra, rs, rb,
             (opcode >> 6) & 0x1f, (opcode >> 1) & 0x1f);
+          break;
+        case OP_STRM:
+          sprintf(instruction, "%s %d", instr, (opcode >> 21) & 0x3);
+          break;
+        case OP_RA_RB_STRM:
+          sprintf(instruction, "%s r%d, r%d, %d",
+            instr, ra, rb, (opcode >> 21) & 0x3);
           break;
         default:
           strcpy(instruction, "???");

@@ -183,3 +183,9 @@ xor r22, r12, r9
 xor. r22, r12, r9
 xori r26, r21, 513
 xoris r7, r5, 954
+dss 1
+dssall
+dst r4, r5, 2
+dstt r4, r5, 2
+dstst r4, r5, 2
+dststt r4, r5, 2

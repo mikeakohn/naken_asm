@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -47,6 +47,8 @@ enum
   OP_RD_TBR,
   OP_CRM_RS,
   OP_RA_RS_SH_MB_ME,
+  OP_STRM,
+  OP_RA_RB_STRM,
 };
 
 #define FLAG_NONE 0

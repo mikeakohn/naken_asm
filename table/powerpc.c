@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -157,6 +157,14 @@ struct _table_powerpc table_powerpc[] =
   { "xor",    0x7c000278, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
   { "xori",   0x68000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
   { "xoris",  0x6c000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
+
+  // Altivec
+  { "dss",    0x7c00066c, 0xff9fffff, OP_STRM, FLAG_NONE, 0, 0 },
+  { "dssall", 0x7e00066c, 0xffffffff, OP_NONE, FLAG_NONE, 0, 0 },
+  { "dst",    0x7c0002ac, 0xff8007ff, OP_RA_RB_STRM, FLAG_NONE, 0, 0 },
+  { "dstst",  0x7c0002ec, 0xff8007ff, OP_RA_RB_STRM, FLAG_NONE, 0, 0 },
+  { "dststt", 0x7e0002ec, 0xff8007ff, OP_RA_RB_STRM, FLAG_NONE, 0, 0 },
+  { "dstt",   0x7e0002ac, 0xff8007ff, OP_RA_RB_STRM, FLAG_NONE, 0, 0 }, // ??
   { NULL, 0, 0, 0, 0 }
 };
 

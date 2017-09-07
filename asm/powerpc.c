@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -32,6 +32,7 @@ enum
   OPERAND_CR,
   OPERAND_NUMBER,
   OPERAND_REGISTER_OFFSET,
+  OPERAND_VECTOR,
 };
 
 struct _operand
@@ -66,6 +67,13 @@ static int get_register_number(char *token)
 static int get_register_powerpc(char *token)
 {
   if (token[0] != 'r') { return -1; }
+
+  return get_register_number(token + 1);
+}
+
+static int get_register_altivec(char *token)
+{
+  if (token[0] != 'v') { return -1; }
 
   return get_register_number(token + 1);
 }
@@ -115,12 +123,22 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
 
     do
     {
-      // Check for registers
+      // Check for PowerPC registers
       n = get_register_powerpc(token);
 
       if (n != -1)
       {
         operands[operand_count].type = OPERAND_REGISTER;
+        operands[operand_count].value = n;
+        break;
+      }
+
+      // Check for Altivec registers
+      n = get_register_altivec(token);
+
+      if (n != -1)
+      {
+        operands[operand_count].type = OPERAND_VECTOR;
         operands[operand_count].value = n;
         break;
       }
@@ -1186,6 +1204,55 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
             opcode |= 1;
           }
 
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_STRM:
+        {
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 3)
+          {
+            print_error_range("Constant", 0, 3, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode | (operands[0].value << 21);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_RA_RB_STRM:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_REGISTER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+            (operands[1].value << 11) |
+            (operands[0].value << 16) |
+            (operands[2].value << 21);
           add_bin32(asm_context, opcode, IS_OPCODE);
 
           return 4;

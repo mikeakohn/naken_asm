@@ -34,7 +34,7 @@ for instruction in fp:
 
   create_asm(instruction)
 
-  os.system("as temp.asm")
+  os.system("as -maltivec temp.asm")
   os.system("objcopy -F ihex a.out powerpc_gnu.hex")
 
   fp1 = open("powerpc_gnu.hex", "rb")
