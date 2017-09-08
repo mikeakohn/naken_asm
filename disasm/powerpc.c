@@ -65,6 +65,8 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
       const int16_t simm = opcode & 0xffff;
       const uint16_t uimm = opcode & 0xffff;
       const char *instr = table_powerpc[n].instr;
+      uint32_t vc;
+      int8_t vsimm;
 
       switch(table_powerpc[n].type)
       {
@@ -235,6 +237,34 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
           break;
         case OP_VD_VA_VB:
           sprintf(instruction, "%s v%d, v%d, v%d", instr, rd, ra, rb);
+          break;
+        case OP_VD_VA_VB_VC:
+          vc = (opcode >> 6) & 0x1f;
+          sprintf(instruction, "%s v%d, v%d, v%d, v%d", instr, rd, ra, rb, vc);
+          break;
+        case OP_VD_VA_VC_VB:
+          vc = (opcode >> 6) & 0x1f;
+          sprintf(instruction, "%s v%d, v%d, v%d, v%d", instr, rd, ra, vc, rb);
+          break;
+        case OP_VD_VB_UIMM:
+          sprintf(instruction, "%s v%d, %d, v%d", instr, rd, ra, rb);
+          break;
+        case OP_VD_VB_SIMM:
+          vsimm = ra;
+          if ((ra & 0x10) != 0) { vsimm |= 0xf0; }
+          sprintf(instruction, "%s v%d, %d, v%d", instr, rd, vsimm, rb);
+          break;
+        case OP_VD_SIMM:
+          vsimm = ra;
+          if ((ra & 0x10) != 0) { vsimm |= 0xf0; }
+          sprintf(instruction, "%s v%d, %d", instr, rd, vsimm);
+          break;
+        case OP_VD_VB:
+          sprintf(instruction, "%s v%d, v%d", instr, rd, ra);
+          break;
+        case OP_VD_VA_VB_SH:
+          vc = (opcode >> 6) & 0xf;
+          sprintf(instruction, "%s v%d, v%d, v%d, %d", instr, rd, ra, rb, vc);
           break;
         default:
           strcpy(instruction, "???");

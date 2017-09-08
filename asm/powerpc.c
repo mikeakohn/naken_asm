@@ -1332,6 +1332,174 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_VD_VA_VB_VC:
+        {
+          if (operand_count != 4)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_VECTOR ||
+              operands[1].type != OPERAND_VECTOR ||
+              operands[2].type != OPERAND_VECTOR ||
+              operands[3].type != OPERAND_VECTOR)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+            (operands[3].value << 6) |
+            (operands[2].value << 11) |
+            (operands[1].value << 16) |
+            (operands[0].value << 21);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_VD_VA_VC_VB:
+        {
+          if (operand_count != 4)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_VECTOR ||
+              operands[1].type != OPERAND_VECTOR ||
+              operands[2].type != OPERAND_VECTOR ||
+              operands[3].type != OPERAND_VECTOR)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+            (operands[2].value << 6) |
+            (operands[3].value << 11) |
+            (operands[1].value << 16) |
+            (operands[0].value << 21);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_VD_VB_UIMM:
+        case OP_VD_VB_SIMM:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_VECTOR ||
+              operands[1].type != OPERAND_VECTOR ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          int lo = table_powerpc[n].type == OP_VD_VB_UIMM ? 0 : -16;
+          int hi = table_powerpc[n].type == OP_VD_VB_UIMM ? 31 : 15;
+
+          if (operands[2].value < lo || operands[2].value > hi)
+          {
+            print_error_range("Constant", lo, hi, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+            (operands[1].value << 11) |
+           ((operands[2].value & 0x1f) << 16) |
+            (operands[0].value << 21);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_VD_SIMM:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_VECTOR ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[1].value < -16 || operands[1].value > 15)
+          {
+            print_error_range("Constant", -16, 15, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+           ((operands[1].value & 0x1f) << 16) |
+            (operands[0].value << 21);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_VD_VB:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_VECTOR ||
+              operands[1].type != OPERAND_VECTOR)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+            (operands[1].value << 11) |
+            (operands[0].value << 21);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_VD_VA_VB_SH:
+        {
+          if (operand_count != 4)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_VECTOR ||
+              operands[1].type != OPERAND_VECTOR ||
+              operands[2].type != OPERAND_VECTOR ||
+              operands[3].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[3].value < 0 || operands[3].value > 15)
+          {
+            print_error_range("Constant", -16, 15, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+           ((operands[3].value & 0xf) << 6) |
+            (operands[2].value << 11) |
+            (operands[1].value << 16) |
+            (operands[0].value << 21);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
           break;
       }

@@ -222,3 +222,139 @@ vavgsw v23, v21, v11
 vavgub v14, v2, v11
 vavguh v11, v21, v11
 vavguw v31, v1, v11
+vcfsx v15, v24, 9
+vcfux v11, v22, 9
+;vcmpbfpx v19, v21, v11
+;vcmpbfpx. v19, v21, v11
+;vcmpeqfpx v17, v21, v11
+;vcmpeqfpx. v17, v21, v11
+;vcmpequbx v7, v11, v7
+;vcmpequbx. v7, v11, v7
+;vcmpequhx v13, v23, v11
+;vcmpequhx. v13, v23, v11
+;vcmpequwx v23, v21, v1
+;vcmpequwx. v23, v21, v1
+;vcmpgefpx v3, v27, v11
+;vcmpgefpx. v3, v27, v11
+;vcmpgtfpx v23, v21, v8
+;vcmpgtfpx. v23, v21, v8
+;vcmpgtsbx v21, v29, v11
+;vcmpgtsbx. v21, v29, v11
+;vcmpgtshx v3, v21, v11
+;vcmpgtshx. v3, v21, v11
+;vcmpgtswx v23, v31, v21
+;vcmpgtswx. v23, v31, v21
+;vcmpgtubx v3, v21, v11
+;vcmpgtubx. v3, v21, v11
+;vcmpgtuhx v23, v10, v31
+;vcmpgtuhx. v23, v10, v31
+;vcmpgtuwx v11, v7, v11
+;vcmpgtuwx. v11, v7, v11
+vctsxs v15, v22, 9
+vctuxs v17, v21, 9
+vexptefp v11, v17
+vlogefp v9, v31
+vmaddfp v11, v7, v11, v3
+vmaxfp v11, v7, v11
+vmaxsb v11, v7, v11
+vmaxsh v11, v7, v11
+vmaxsw v11, v7, v11
+vmaxub v11, v7, v11
+vmaxuh v11, v7, v11
+vmaxuw v11, v7, v11
+vmhaddshs v11, v7, v11, v3
+vmhraddshs v11, v7, v11, v21
+vminfp v11, v7, v11
+vminsb v11, v7, v11
+vminsh v11, v7, v11
+vminsw v0, v6, v4
+vminub v0, v13, v10
+vminuh v19, v23, v4
+vminuw v4, v16, v14
+vmladduhm v4, v29, v14, v3
+vmrghb v9, v20, v21
+vmrghh v27, v0, v10
+vmrghw v26, v15, v2
+vmrglb v12, v2, v10
+vmrglh v2, v12, v8
+vmrglw v30, v26, v28
+vmsummbm v29, v21, v21, v5
+vmsumshm v25, v5, v24, v11
+vmsumshs v28, v6, v4, v17
+vmsumubm v5, v20, v19, v31
+vmsumuhm v20, v22, v29, v21
+vmsumuhs v21, v14, v10, v27
+vmulesb v23, v23, v1
+vmulesh v17, v13, v14
+vmuleub v1, v22, v1
+vmuleuh v13, v26, v8
+vmulosb v14, v19, v21
+vmulosh v27, v28, v3
+vmuloub v10, v9, v28
+vmulouh v22, v7, v30
+vnmsubfp v17, v3, v12, v11
+vnor v6, v8, v10
+vor v16, v8, v18
+vperm v29, v21, v19, v17
+vpkpx v14, v18, v23
+vpkshss v11, v24, v14
+vpkshus v11, v17, v10
+vpkswss v22, v12, v9
+vpkswus v9, v8, v25
+vpkuhum v7, v11, v14
+vpkuhus v5, v16, v21
+vpkuwum v24, v18, v5
+vpkuwus v30, v19, v23
+vrefp v12, v19
+vrfim v0, v14
+vrfin v17, v30
+vrfip v26, v19
+vrfiz v3, v28
+vrlb v21, v27, v3
+vrlh v15, v24, v9
+vrlw v30, v19, v29
+vrsqrtefp v6, v2
+vsel v28, v2, v25, v13
+vsl v21, v20, v23
+vslb v24, v19, v0
+vsldoi v18, v29, v27, 15
+vslh v9, v14, v30
+vslo v2, v5, v18
+vslw v18, v12, v5
+vspltb v2, v25, 8
+vsplth v9, v6, 16
+vspltisb v20, -5
+vspltish v4, 7
+vspltisw v2, -3
+vspltw v8, v23, 17
+vsr v9, v4, v16
+vsrab v27, v11, v22
+vsrah v16, v0, v12
+vsraw v26, v21, v9
+vsrb v20, v7, v6
+vsrh v0, v11, v14
+vsro v10, v20, v15
+vsrw v16, v14, v24
+vsubcuw v26, v3, v17
+vsubfp v24, v12, v2
+vsubsbs v7, v13, v12
+vsubshs v8, v1, v2
+vsubsws v26, v20, v11
+vsububm v20, v4, v18
+vsububs v2, v13, v20
+vsubuhm v11, v9, v6
+vsubuhs v27, v17, v13
+vsubuwm v19, v14, v5
+vsubuws v16, v4, v28
+vsumsws v30, v4, v26
+vsum2sws v11, v20, v27
+vsum4sbs v30, v15, v9
+vsum4shs v15, v26, v13
+vsum4ubs v30, v16, v17
+vupkhpx v7, v29
+vupkhsb v30, v14
+vupkhsh v17, v29
+vupklpx v29, v5
+vupklsb v21, v21
+vupklsh v4, v8
+vxor v7, v0, v23

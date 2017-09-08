@@ -54,6 +54,13 @@ enum
   OP_VD,
   OP_VB,
   OP_VD_VA_VB,
+  OP_VD_VA_VB_VC,
+  OP_VD_VA_VC_VB,
+  OP_VD_VB_UIMM,
+  OP_VD_VB_SIMM,
+  OP_VD_SIMM,
+  OP_VD_VB,
+  OP_VD_VA_VB_SH,
 };
 
 #define FLAG_NONE 0
