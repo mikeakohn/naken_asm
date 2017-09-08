@@ -29,6 +29,7 @@
 #include "asm/lc3.h"
 #include "asm/mips.h"
 #include "asm/msp430.h"
+#include "asm/pdp8.h"
 #include "asm/pic14.h"
 #include "asm/powerpc.h"
 #include "asm/propeller.h"
@@ -57,6 +58,7 @@
 #include "disasm/lc3.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
+#include "disasm/pdp8.h"
 #include "disasm/pic14.h"
 #include "disasm/powerpc.h"
 #include "disasm/propeller.h"
@@ -135,6 +137,9 @@ struct _cpu_list cpu_list[] =
 #ifdef ENABLE_MSP430
   { "msp430", CPU_TYPE_MSP430, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 1, SREC_16, parse_instruction_msp430, NULL, list_output_msp430, disasm_range_msp430, simulate_init_msp430, NO_FLAGS },
   { "msp430x", CPU_TYPE_MSP430X, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 1, SREC_24, parse_instruction_msp430, NULL, list_output_msp430x, disasm_range_msp430x, simulate_init_msp430, NO_FLAGS },
+#endif
+#ifdef ENABLE_PDP8
+  { "pdp8", CPU_TYPE_PDP8, ENDIAN_LITTLE, 2, ALIGN_2, 0, 0, 0, SREC_16, parse_instruction_pdp8, NULL, list_output_pdp8, disasm_range_pdp8, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_PIC14
   { "pic14", CPU_TYPE_PIC14, ENDIAN_LITTLE, 2, ALIGN_2, 0, 0, 0, SREC_16, parse_instruction_pic14, NULL, list_output_pic14, disasm_range_pic14, NULL, NO_FLAGS },
