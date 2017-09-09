@@ -67,6 +67,7 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
       const char *instr = table_powerpc[n].instr;
       uint32_t vc;
       int8_t vsimm;
+      const char *dot = "";
 
       switch(table_powerpc[n].type)
       {
@@ -236,7 +237,12 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
           sprintf(instruction, "%s v%d", instr, rb);
           break;
         case OP_VD_VA_VB:
-          sprintf(instruction, "%s v%d, v%d, v%d", instr, rd, ra, rb);
+          if ((table_powerpc[n].flags & FLAG_DOT) &&
+             (((opcode >> 10) & 1) != 0))
+          {
+            dot = ".";
+          }
+          sprintf(instruction, "%s%s v%d, v%d, v%d", instr, dot, rd, ra, rb);
           break;
         case OP_VD_VA_VB_VC:
           vc = (opcode >> 6) & 0x1f;
