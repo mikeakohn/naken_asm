@@ -173,7 +173,8 @@ int parse_dc32(struct _asm_context *asm_context)
 {
   char token[TOKENLEN];
   int token_type;
-  int data32;
+  //int data32;
+  struct _var var;
   uint32_t udata32;
 
   if (asm_context->segment == SEGMENT_BSS)
@@ -186,9 +187,22 @@ int parse_dc32(struct _asm_context *asm_context)
   {
     // if the user has a comma at the end, but no data, this is okay
     token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
     tokens_push(asm_context, token, token_type);
 
+    if (eval_expression_ex(asm_context, &var) == -1)
+    {
+      if (asm_context->pass == 2)
+      {
+        return -1;
+      }
+
+      eat_operand(asm_context);
+    }
+
+    udata32 = var_get_bin32(&var);
+
+#if 0
     if (eval_expression(asm_context, &data32) != 0)
     {
       if (asm_context->pass == 2)
@@ -200,6 +214,7 @@ int parse_dc32(struct _asm_context *asm_context)
       data32 = 0;
     }
     udata32 = (uint32_t)data32;
+#endif
 
     if (asm_context->memory.endian == ENDIAN_LITTLE)
     {
@@ -261,6 +276,7 @@ int parse_dc64(struct _asm_context *asm_context)
 
       eat_operand(asm_context);
     }
+
     udata64 = (uint64_t)var_get_int64(&var);
 
     if (asm_context->memory.endian == ENDIAN_LITTLE)

@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -32,6 +32,8 @@ struct _var
 
 void var_set_int(struct _var *var, int64_t value);
 void var_set_float(struct _var *var, double value);
+uint32_t var_get_bin32(struct _var *var);
+uint64_t var_get_bin64(struct _var *var);
 int32_t var_get_int32(struct _var *var);
 int64_t var_get_int64(struct _var *var);
 float var_get_float(struct _var *var);

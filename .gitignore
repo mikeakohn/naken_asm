@@ -8,3 +8,4 @@ naken_prog
 *.swp
 *.bin
 *~
+*.elf

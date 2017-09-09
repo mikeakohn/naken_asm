@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -38,6 +38,41 @@ void var_set_float(struct _var *var, double value)
 {
   var->value_float = value;
   var->type = VAR_FLOAT;
+}
+
+uint32_t var_get_bin32(struct _var *var)
+{
+  uint32_t *data;
+  float data_f;
+
+  if (var->type == VAR_FLOAT)
+  {
+    data_f = (float)var->value_float;
+    data = (uint32_t *)&data_f;
+
+    return *data;
+  }
+    else
+  {
+    return (uint32_t)(var->value_int & 0xffffffff);
+  }
+}
+
+uint64_t var_get_bin64(struct _var *var)
+{
+  uint64_t *data;
+  double data_d;
+
+  if (var->type == VAR_FLOAT)
+  {
+    data_d = (double)var->value_float;
+    data = (uint64_t *)&data_d;
+    return *data;
+  }
+    else
+  {
+    return var->value_int;
+  }
 }
 
 int32_t var_get_int32(struct _var *var)
@@ -164,7 +199,8 @@ int var_shift_left(struct _var *var_d, struct _var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
-    var_d->value_int = (int64_t)var_d->value_float;
+    //var_d->value_int = (int64_t)var_d->value_float;
+    var_d->value_int = var_get_bin32(var_d);
     var_d->type = VAR_INT;
   }
 
@@ -183,7 +219,8 @@ int var_shift_right(struct _var *var_d, struct _var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
-    var_d->value_int = (int64_t)var_d->value_float;
+    //var_d->value_int = (int64_t)var_d->value_float;
+    var_d->value_int = var_get_bin32(var_d);
     var_d->type = VAR_INT;
   }
 
@@ -202,7 +239,8 @@ int var_shift_right_unsigned(struct _var *var_d, struct _var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
-    var_d->value_int = (int64_t)var_d->value_float;
+    //var_d->value_int = (int64_t)var_d->value_float;
+    var_d->value_int = var_get_bin32(var_d);
     var_d->type = VAR_INT;
   }
 
@@ -221,13 +259,15 @@ int var_and(struct _var *var_d, struct _var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
-    var_d->value_int = (int64_t)var_d->value_float;
+    //var_d->value_int = (int64_t)var_d->value_float;
+    var_d->value_int = var_get_bin32(var_d);
     var_d->type = VAR_INT;
   }
 
   if (var_s->type == VAR_FLOAT)
   {
-    var_s->value_int = (int64_t)var_s->value_float;
+    //var_s->value_int = (int64_t)var_s->value_float;
+    var_s->value_int = var_get_bin32(var_s);
     var_s->type = VAR_INT;
   }
 
@@ -240,13 +280,15 @@ int var_or(struct _var *var_d, struct _var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
-    var_d->value_int = (int64_t)var_d->value_float;
+    //var_d->value_int = (int64_t)var_d->value_float;
+    var_d->value_int = var_get_bin32(var_d);
     var_d->type = VAR_INT;
   }
 
   if (var_s->type == VAR_FLOAT)
   {
-    var_s->value_int = (int64_t)var_s->value_float;
+    //var_s->value_int = (int64_t)var_s->value_float;
+    var_s->value_int = var_get_bin32(var_s);
     var_s->type = VAR_INT;
   }
 
@@ -259,13 +301,15 @@ int var_xor(struct _var *var_d, struct _var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
-    var_d->value_int = (int64_t)var_d->value_float;
+    //var_d->value_int = (int64_t)var_d->value_float;
+    var_d->value_int = var_get_bin32(var_d);
     var_d->type = VAR_INT;
   }
 
   if (var_s->type == VAR_FLOAT)
   {
-    var_s->value_int = (int64_t)var_s->value_float;
+    //var_s->value_int = (int64_t)var_s->value_float;
+    var_s->value_int = var_get_bin32(var_s);
     var_s->type = VAR_INT;
   }
 
@@ -278,7 +322,8 @@ int var_not(struct _var *var)
 {
   if (var->type == VAR_FLOAT)
   {
-    var->value_int = (int64_t)var->value_float;
+    //var->value_int = (int64_t)var->value_float;
+    var->value_int = var_get_bin32(var);
     var->type = VAR_INT;
   }
 
