@@ -12,7 +12,8 @@ Contents
 * CPU Specific
   * [65C816](65C816.md)
   * [ARM](ARM.md)
-  * [Propeller](Propeller.md)
   * [MSP430](MSP430.md)
+  * [PowerPC](PowerPC.md)
+  * [Propeller](Propeller.md)
   * [TMS9900](TMS9900.md)
 
