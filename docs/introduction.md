@@ -28,6 +28,7 @@ SUPPORTED CPU'S
 |Epiphany/Parallela  |Michael Kohn|
 |MIPS32              |Michael Kohn|
 |MSP430/MSP430X      |Michael Kohn|
+|PDP-8               |Lars Brinkhoff|
 |PIC32               |Michael Kohn|
 |Propeller           |Michael Kohn|
 |RISC-V              |Michael Kohn|

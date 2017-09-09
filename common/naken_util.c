@@ -39,6 +39,7 @@
 #include "disasm/lc3.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
+#include "disasm/pdp8.h"
 #include "disasm/pic14.h"
 #include "disasm/powerpc.h"
 #include "disasm/propeller.h"
@@ -93,6 +94,7 @@ parse_instruction_t parse_instruction_epiphany = NULL;
 parse_instruction_t parse_instruction_lc3 = NULL;
 parse_instruction_t parse_instruction_mips = NULL;
 parse_instruction_t parse_instruction_msp430 = NULL;
+parse_instruction_t parse_instruction_pdp8 = NULL;
 parse_instruction_t parse_instruction_pic14 = NULL;
 parse_instruction_t parse_instruction_powerpc = NULL;
 parse_instruction_t parse_instruction_propeller = NULL;
@@ -714,6 +716,7 @@ int main(int argc, char *argv[])
 
   printf("\nnaken_util - by Michael Kohn\n"
          "                Joe Davisson\n"
+         "                Lars Brinkhoff\n"
          "    Web: http://www.mikekohn.net/\n"
          "  Email: mike@mikekohn.net\n\n"
          "Version: " VERSION "\n\n");
@@ -747,6 +750,7 @@ int main(int argc, char *argv[])
            "   -lc3                         (LC-3)\n"
            "   -mips32 / mips               (MIPS)\n"
            "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
+           "   -pdp8                        (PDP-8)\n"
            "   -pic14                       (PIC14 8 bit PIC / 14 bit opcode)\n"
            "   -powerpc                     (PowerPC)\n"
            "   -propeller                   (Parallax Propeller)\n"
