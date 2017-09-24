@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -249,7 +249,7 @@ void disasm_range_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t sta
     disasm_ps2_ee_vu(memory, flags, start + 4, instruction_upper, &cycles_min, &cycles_max, 0);
     disasm_ps2_ee_vu(memory, flags, start, instruction_lower, &cycles_min, &cycles_max, 1);
 
-    printf("0x%08x: 0x%08x 0x%08x %-20s %s", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
+    printf("0x%08x: 0x%08x 0x%08x %-20s %s\n", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
 
 #if 0
     if (cycles_min < 1)
