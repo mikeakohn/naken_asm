@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -151,6 +151,7 @@ struct _table_ps2_ee_vu table_ps2_ee_vu_lower[] =
   { "ibgez", { EE_VU_OP_VIS, EE_VU_OP_OFFSET, EE_VU_OP_NONE }, 2, 0x5e000000, 0xffff0000, FLAG_NONE },
   { "ibgtz", { EE_VU_OP_VIS, EE_VU_OP_OFFSET, EE_VU_OP_NONE }, 2, 0x5a000000, 0xffff0000, FLAG_NONE },
   { "iblez", { EE_VU_OP_VIS, EE_VU_OP_OFFSET, EE_VU_OP_NONE }, 2, 0x5c000000, 0xffff0000, FLAG_NONE },
+  { "ibltz", { EE_VU_OP_VIS, EE_VU_OP_OFFSET, EE_VU_OP_NONE }, 2, 0x58000000, 0xffff0000, FLAG_NONE },
   { "ibne", { EE_VU_OP_VIT, EE_VU_OP_VIS, EE_VU_OP_OFFSET }, 3, 0x52000000, 0xffe00000, FLAG_NONE },
   { "ilw", { EE_VU_OP_VIT, EE_VU_OP_OFFSET_BASE, EE_VU_OP_NONE }, 2, 0x08000000, 0xfe000000, FLAG_DEST },
   { "ilwr", { EE_VU_OP_VIT, EE_VU_OP_BASE, EE_VU_OP_NONE }, 2, 0x800003fe, 0xfe0007ff, FLAG_DEST },

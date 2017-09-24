@@ -136,6 +136,8 @@ main: nop ibeq vi17, vi27, main
 main: nop ibgez vi27, main
 main: nop ibgtz vi27, main
 main: nop iblez vi27, main
+main: nop ibltz vi27, main
+main: nop ibne vi13, vi27, main
 nop ilw.y vi27, 101(vi21)
 nop ilwr.y vi27, (vi21)
 nop ior vi17, vi27, vi10
