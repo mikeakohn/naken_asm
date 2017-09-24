@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -420,6 +420,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
   char instr_case[TOKENLEN];
   int dest = 0;
   int iemdt_bits = 0;
+  int wrong_operand_count = 0;
   int n, r;
 
   lower_copy(instr_case, instr);
@@ -453,6 +454,9 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
 
       if (operand_count != table_ps2_ee_vu[n].operand_count)
       {
+        // REVIEW: Does this chip have instructions with the same name
+        //         different operand count?
+        wrong_operand_count = 1;
         n++;
         continue;
       }
@@ -774,11 +778,22 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
     n++;
   }
 
-  printf("Error: Unknown %s instruction '%s' at %s:%d\n",
-         is_lower ? "lower" : "upper",
-         instr,
-         asm_context->filename,
-         asm_context->line);
+  if (wrong_operand_count == 0)
+  {
+    printf("Error: Unknown %s instruction '%s' at %s:%d\n",
+           is_lower ? "lower" : "upper",
+           instr,
+           asm_context->filename,
+           asm_context->line);
+  }
+    else
+  {
+    printf("Error: Wrong operand count for %s instruction '%s' at %s:%d\n",
+           is_lower ? "lower" : "upper",
+           instr,
+           asm_context->filename,
+           asm_context->line);
+  }
 
   return -1;
 }
