@@ -7,7 +7,7 @@
 ;; Sound board: https://www.sparkfun.com/products/13720
 ;; W65C256SXB: http://wdc65xx.com/boards/w65c265sxb-engineering-development-system/
 ;;
-;; Video:
+;; Video: https://youtu.be/CZB954vQRqU
 ;;
 ;; A friend of mine 3D printed a Bender (from Futurama) head so
 ;; I could put some electronics around it.  Since the Bender on
