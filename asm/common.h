@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -25,6 +25,7 @@ void add_bin16(struct _asm_context *asm_context, uint16_t b, int flags);
 void add_bin24(struct _asm_context *asm_context, uint32_t b, int flags);
 void add_bin32(struct _asm_context *asm_context, uint32_t b, int flags);
 int eat_operand(struct _asm_context *asm_context);
+int ignore_paren_expression(struct _asm_context *asm_context);
 int ignore_line(struct _asm_context *asm_context);
 void lower_copy(char *d, const char *s);
 int expect_token(struct _asm_context *asm_context, char ch);

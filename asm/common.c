@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -109,6 +109,39 @@ int eat_operand(struct _asm_context *asm_context)
   return -1;
 }
 
+int ignore_paren_expression(struct _asm_context *asm_context)
+{
+  char token[TOKENLEN];
+  int token_type;
+  int paren_count = 0;
+
+  // Remove expression that starts with (.
+  while(1)
+  {
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (IS_TOKEN(token,'('))
+    {
+      paren_count++;
+    }
+      else
+    if (IS_TOKEN(token,')'))
+    {
+      paren_count--;
+    }
+      else
+    if (token_type == TOKEN_EOL)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    if (paren_count == 0) { break; }
+  }
+
+  return 0;
+}
+
 int ignore_line(struct _asm_context *asm_context)
 {
   char token[TOKENLEN];
@@ -174,5 +207,4 @@ int check_range(struct _asm_context *asm_context, char *type, int num, int min, 
 
   return 0;
 }
-
 
