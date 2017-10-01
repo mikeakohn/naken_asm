@@ -1,6 +1,7 @@
 
 #DUMP_MACROS=-dump_macros
-FLAGS=-l -e -I../../include $(DUMP_MACROS)
+INCLUDES=-I../../include
+FLAGS=-l -e $(INCLUDES) $(DUMP_MACROS)
 
 default:
 	../../naken_asm $(FLAGS) -o texture.elf texture.asm
@@ -10,6 +11,10 @@ triangle:
 
 draw_image:
 	../../naken_asm $(FLAGS) -o draw_image.elf draw_image.asm
+
+mandel:
+	../../naken_asm $(iNCLUDES) -l -b -o mandelbrot_vu0.bin mandelbrot_vu0.asm
+
 
 show_gif:
 	python show_gif.py test.lst `grep 'red_screen ' test.lst | sed 's/^.* 00//' | sed 's/ .*$$//'`
@@ -23,6 +28,6 @@ old:
 	mkisofs -l -o cdr.iso test.elf SYSTEM.CNF
 
 clean:
-	@rm -f *.elf *.lst cdr.iso
+	@rm -f *.elf *.lst *.bin cdr.iso
 	@echo "Clean!"
 
