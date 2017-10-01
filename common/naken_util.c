@@ -716,7 +716,6 @@ int main(int argc, char *argv[])
 
   printf("\nnaken_util - by Michael Kohn\n"
          "                Joe Davisson\n"
-         "                Lars Brinkhoff\n"
          "    Web: http://www.mikekohn.net/\n"
          "  Email: mike@mikekohn.net\n\n"
          "Version: " VERSION "\n\n");
