@@ -203,8 +203,25 @@ stvehx v30, r18, r20
 stvewx v11, r17, r27
 stvx v9, r30, r11
 stvxl v7, r23, r9
-vaddcuw v31, v21, v17
-vaddfp v31, v21, v11
+lfs fp21, 128(r7)
+lfsx fp11, r22, r13
+lfsu fp17, -32(r11)
+lfsux fp11, r31, r24
+lfd fp23, 128(r23)
+lfdx fp15, r17, r16
+lfdu fp9, 196(r31)
+lfdux fp21, r2, r17
+stfs fp10, -4096(r11)
+stfsx fp10, r19, r3
+stfsu fp31, 1024(r22)
+stfsux fp17, r18, r23
+stfd fp17, 1000(r23)
+stfdx fp21, r17, r17
+stfdu fp7, 1000(r25)
+stfdux fp18, r19, r23
+stfiwx fp18, r19, r23
+vaddcuw v31, v27, v17
+vaddfp v11, v21, v11
 vaddsbs v11, v21, v13
 vaddshs v31, v21, v1
 vaddsws v21, v21, v19
