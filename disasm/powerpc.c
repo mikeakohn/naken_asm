@@ -278,6 +278,38 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
         case OP_FRT_RA_RB:
           sprintf(instruction, "%s fp%d, r%d, r%d", instr, rd, ra, rb);
           break;
+        case OP_FRT_FRB:
+          if ((table_powerpc[n].flags & FLAG_DOT) &&
+             ((opcode & 1) != 0))
+          {
+            dot = ".";
+          }
+          sprintf(instruction, "%s%s fp%d, fp%d", instr, dot, rd, rb);
+          break;
+        case OP_FRT_FRA_FRB:
+          if ((table_powerpc[n].flags & FLAG_DOT) &&
+             ((opcode & 1) != 0))
+          {
+            dot = ".";
+          }
+          sprintf(instruction, "%s%s fp%d, fp%d, fp%d", dot, instr, rd, ra, rb);
+          break;
+        case OP_FRT_FRA_FRC:
+          if ((table_powerpc[n].flags & FLAG_DOT) &&
+             ((opcode & 1) != 0))
+          {
+            dot = ".";
+          }
+          sprintf(instruction, "%s%s fp%d, fp%d, fp%d", dot, instr, rd, ra, rc);
+          break;
+        case OP_FRT_FRA_FRC_FRB:
+          if ((table_powerpc[n].flags & FLAG_DOT) &&
+             ((opcode & 1) != 0))
+          {
+            dot = ".";
+          }
+          sprintf(instruction, "%s%s fp%d, fp%d, fp%d, fp%d", instr, dot, rd, ra, rc, rb);
+          break;
         default:
           strcpy(instruction, "???");
           break;

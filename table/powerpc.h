@@ -63,6 +63,10 @@ enum
   OP_VD_VA_VB_SH,
   OP_FRT_OFFSET_RA,
   OP_FRT_RA_RB,
+  OP_FRT_FRB,
+  OP_FRT_FRA_FRB,
+  OP_FRT_FRA_FRC,
+  OP_FRT_FRA_FRC_FRB,
 };
 
 #define FLAG_NONE 0
