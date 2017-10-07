@@ -33,6 +33,7 @@ enum
   OPERAND_NUMBER,
   OPERAND_REGISTER_OFFSET,
   OPERAND_VECTOR,
+  OPERAND_FPU_REGISTER,
 };
 
 struct _operand
@@ -66,16 +67,24 @@ static int get_register_number(char *token)
 
 static int get_register_powerpc(char *token)
 {
-  if (token[0] != 'r') { return -1; }
+  if (tolower(token[0]) != 'r') { return -1; }
 
   return get_register_number(token + 1);
 }
 
 static int get_register_altivec(char *token)
 {
-  if (token[0] != 'v') { return -1; }
+  if (tolower(token[0]) != 'v') { return -1; }
 
   return get_register_number(token + 1);
+}
+
+static int get_register_fpu(char *token)
+{
+  if (tolower(token[0]) != 'f') { return -1; }
+  if (tolower(token[1]) != 'p') { return -1; }
+
+  return get_register_number(token + 2);
 }
 
 static int get_spr_powerpc(char *token)
@@ -139,6 +148,16 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       if (n != -1)
       {
         operands[operand_count].type = OPERAND_VECTOR;
+        operands[operand_count].value = n;
+        break;
+      }
+
+      // Check for FPU registers
+      n = get_register_fpu(token);
+
+      if (n != -1)
+      {
+        operands[operand_count].type = OPERAND_FPU_REGISTER;
         operands[operand_count].value = n;
         break;
       }
@@ -1502,6 +1521,66 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
             (operands[2].value << 11) |
             (operands[1].value << 16) |
             (operands[0].value << 21);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_FRT_OFFSET_RA:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            add_bin32(asm_context, table_powerpc[n].opcode, IS_OPCODE);
+            return 4;
+          }
+
+          if (operands[0].type != OPERAND_FPU_REGISTER ||
+              operands[1].type != OPERAND_REGISTER_OFFSET)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                   (operands[0].value << 21) |
+                   (operands[1].value << 16) |
+                   (operands[1].offset & 0xffff);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_FRT_RA_RB:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_FPU_REGISTER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[0].value << 21) |
+                  (operands[1].value << 16) |
+                  (operands[2].value << 11);
+
+          if (modifiers.has_dot == 1)
+          {
+            opcode |= 1;
+          }
+
           add_bin32(asm_context, opcode, IS_OPCODE);
 
           return 4;

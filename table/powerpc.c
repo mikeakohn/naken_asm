@@ -158,6 +158,25 @@ struct _table_powerpc table_powerpc[] =
   { "xori",   0x68000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
   { "xoris",  0x6c000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
 
+  // FPU
+  { "lfs",    0xc0000000, 0xfc000000, OP_FRT_OFFSET_RA,  FLAG_NONE, 0, 0 },
+  { "lfsx",   0x7c00042e, 0xfc0007fe, OP_FRT_RA_RB, FLAG_NONE, 0, 0 },
+  { "lfsu",   0xc4000000, 0xfc000000, OP_FRT_OFFSET_RA,  FLAG_NONE, 0, 0 },
+  { "lfsux",  0x7c00046e, 0xfc0007fe, OP_FRT_RA_RB, FLAG_NONE, 0, 0 },
+  { "lfd",    0xc8000000, 0xfc000000, OP_FRT_OFFSET_RA,  FLAG_NONE, 0, 0 },
+  { "lfdx",   0x7c0004ae, 0xfc0007fe, OP_FRT_RA_RB, FLAG_NONE, 0, 0 },
+  { "lfdu",   0xcc000000, 0xfc000000, OP_FRT_OFFSET_RA,  FLAG_NONE, 0, 0 },
+  { "lfdux",  0x7c0004ee, 0xfc0007fe, OP_FRT_RA_RB, FLAG_NONE, 0, 0 },
+  { "stfs",   0xd0000000, 0xfc000000, OP_FRT_OFFSET_RA,  FLAG_NONE, 0, 0 },
+  { "stfsx",  0x7c00052e, 0xfc0007fe, OP_FRT_RA_RB, FLAG_NONE, 0, 0 },
+  { "stfsu",  0xd4000000, 0xfc000000, OP_FRT_OFFSET_RA,  FLAG_NONE, 0, 0 },
+  { "stfsux", 0x7c00056e, 0xfc0007fe, OP_FRT_RA_RB, FLAG_NONE, 0, 0 },
+  { "stfd",   0xd8000000, 0xfc000000, OP_FRT_OFFSET_RA,  FLAG_NONE, 0, 0 },
+  { "stfdx",  0x7c0005ae, 0xfc0007fe, OP_FRT_RA_RB, FLAG_NONE, 0, 0 },
+  { "stfdu",  0xdc000000, 0xfc000000, OP_FRT_OFFSET_RA,  FLAG_NONE, 0, 0 },
+  { "stfdux", 0x7c0005ee, 0xfc0007fe, OP_FRT_RA_RB, FLAG_NONE, 0, 0 },
+  { "stfiwx", 0x7c0007ae, 0xfc0007fe, OP_FRT_RA_RB, FLAG_NONE, 0, 0 },
+
   // Altivec
   { "dss",    0x7c00066c, 0xff9fffff, OP_STRM, FLAG_NONE, 0, 0 },
   { "dssall", 0x7e00066c, 0xffffffff, OP_NONE, FLAG_NONE, 0, 0 },

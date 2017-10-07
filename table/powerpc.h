@@ -61,6 +61,8 @@ enum
   OP_VD_SIMM,
   OP_VD_VB,
   OP_VD_VA_VB_SH,
+  OP_FRT_OFFSET_RA,
+  OP_FRT_RA_RB,
 };
 
 #define FLAG_NONE 0
