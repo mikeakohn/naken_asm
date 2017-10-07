@@ -34,6 +34,16 @@ for instruction in fp:
       instruction = instruction.replace(" v" + str(i), " " + str(i))
     if (" fp" + str(i)) in instruction:
       instruction = instruction.replace(" fp" + str(i), " " + str(i))
+
+  if (" fl") in instruction:
+    instruction = instruction.replace(" fl", " 0")
+  if (" fg") in instruction:
+    instruction = instruction.replace(" fg", " 1")
+  if (" fe") in instruction:
+    instruction = instruction.replace(" fe", " 2")
+  if (" fu") in instruction:
+    instruction = instruction.replace(" fu", " 3")
+
   print " -> " + instruction
 
   create_asm(instruction)
