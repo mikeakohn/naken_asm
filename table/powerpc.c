@@ -210,6 +210,13 @@ struct _table_powerpc table_powerpc[] =
   { "mtfsf",  0xfc00058e, 0xfe0107fe, OP_FLM_FRB, FLAG_DOT, 0, 0 },
   { "mtfsb0", 0xfc00008c, 0xfc1ffffe, OP_BT, FLAG_DOT, 0, 0 },
   { "mtfsb1", 0xfc00004c, 0xfc1ffffe, OP_BT, FLAG_DOT, 0, 0 },
+  { "fsqrt",  0xfc00002c, 0xfc1f07fe, OP_FRT_FRB, FLAG_DOT, 0, 0 },
+  { "fre",    0xfc000030, 0xfc1f07fe, OP_FRT_FRB, FLAG_DOT, 0, 0 },
+  { "fsqrts", 0xec00002c, 0xfc1f07fe, OP_FRT_FRB, FLAG_DOT, 0, 0 },
+  { "fres",   0xec000030, 0xfc1f07fe, OP_FRT_FRB, FLAG_DOT, 0, 0 },
+  { "frsqrte",  0xfc000034, 0xfc1f07fe, OP_FRT_FRB, FLAG_DOT, 0, 0 },
+  { "frsqrtes", 0xec000034, 0xfc1f07fe, OP_FRT_FRB, FLAG_DOT, 0, 0 },
+  { "fsel",   0xfc00002e, 0xfc00003e, OP_FRT_FRA_FRC_FRB, FLAG_DOT, 0, 0 },
 
   // Altivec
   { "dss",    0x7c00066c, 0xff9fffff, OP_STRM, FLAG_NONE, 0, 0 },

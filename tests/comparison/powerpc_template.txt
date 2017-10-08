@@ -266,6 +266,12 @@ mtfsb0 17
 mtfsb0. 21
 mtfsb1 11
 mtfsb1. 29
+fsqrt fp19, fp30
+;fre fp11, fp27
+;fres fp11, fp27
+frsqrte fp13, fp29
+frsqrte. fp13, fp29
+fsel fp13, fp29, fp3, fp21
 vaddcuw v31, v27, v17
 vaddfp v11, v21, v11
 vaddsbs v11, v21, v13
