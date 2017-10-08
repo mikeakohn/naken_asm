@@ -251,6 +251,21 @@ fnmsub fp22, fp12, fp3, fp4
 fnmadds fp12, fp17, fp3, fp4
 fnmadds. fp12, fp17, fp3, fp4
 fnmsubs fp1, fp17, fp3, fp22
+fcmpu fl, fp5, fp11
+fcmpu fg, fp5, fp11
+fcmpu fe, fp5, fp11
+fcmpu fu, fp5, fp11
+mffs fp11
+mffs. fp27
+mcrfs fg, 5
+mtfsfi fu, 15
+mtfsfi. fu, 5
+mtfsf 128, fp12
+mtfsf. 53, fp21
+mtfsb0 17
+mtfsb0. 21
+mtfsb1 11
+mtfsb1. 29
 vaddcuw v31, v27, v17
 vaddfp v11, v21, v11
 vaddsbs v11, v21, v13

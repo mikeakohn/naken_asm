@@ -34,6 +34,7 @@ enum
   OPERAND_REGISTER_OFFSET,
   OPERAND_VECTOR,
   OPERAND_FPU_REGISTER,
+  OPERAND_BF,
 };
 
 struct _operand
@@ -104,6 +105,16 @@ static int get_spr_powerpc(char *token)
   return -1;
 }
 
+static int get_bf_powerpc(char *token)
+{
+  if (strcasecmp(token, "fl") == 0) { return 0; }
+  if (strcasecmp(token, "fg") == 0) { return 1; }
+  if (strcasecmp(token, "fe") == 0) { return 2; }
+  if (strcasecmp(token, "fu") == 0) { return 3; }
+
+  return -1;
+}
+
 static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, struct _modifiers *modifiers)
 {
   char token[TOKENLEN];
@@ -168,6 +179,16 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       if (n != -1)
       {
         operands[operand_count].type = OPERAND_SPR;
+        operands[operand_count].value = n;
+        break;
+      }
+
+      // Check for BF
+      n = get_bf_powerpc(token);
+
+      if (n != -1)
+      {
+        operands[operand_count].type = OPERAND_BF;
         operands[operand_count].value = n;
         break;
       }
@@ -1669,6 +1690,177 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
                   (operands[1].value << 16) |
                   (operands[2].value << 6) |
                   (operands[3].value << 11);
+
+          if (modifiers.has_dot == 1)
+          {
+            opcode |= 1;
+          }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_BF_FRA_FRB:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if ((operands[0].type != OPERAND_BF && 
+               operands[0].type != OPERAND_NUMBER) ||
+               operands[1].type != OPERAND_FPU_REGISTER ||
+               operands[2].type != OPERAND_FPU_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 15)
+          {
+            print_error_range("Constant", 0, 15, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[0].value << 23) |
+                  (operands[1].value << 16) |
+                  (operands[2].value << 11);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_FRT:
+        {
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_FPU_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode | (operands[0].value << 21);
+
+          if (modifiers.has_dot == 1)
+          {
+            opcode |= 1;
+          }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_BF_BFA:
+        case OP_BF_U:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if ((operands[0].type != OPERAND_BF && 
+               operands[0].type != OPERAND_NUMBER) ||
+               operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 15)
+          {
+            print_error_range("Constant", 0, 15, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode | (operands[0].value << 23);
+
+          if (table_powerpc[n].type == OP_BF_BFA)
+          {
+            if (operands[1].value < 0 || operands[1].value > 7)
+            {
+              print_error_range("Constant", 0, 7, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[1].value << 18;
+          }
+          else
+          {
+            if (operands[1].value < 0 || operands[1].value > 15)
+            {
+              print_error_range("Constant", 0, 15, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[1].value << 12;
+          }
+
+          if (modifiers.has_dot == 1)
+          {
+            opcode |= 1;
+          }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_FLM_FRB:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_FPU_REGISTER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 255)
+          {
+            print_error_range("Constant", 0, 255, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+                  (operands[0].value << 17) |
+                  (operands[1].value << 11);
+
+          if (modifiers.has_dot == 1)
+          {
+            opcode |= 1;
+          }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_BT:
+        {
+          if (operand_count != 1)
+          {
+            print_error_opcount(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 31)
+          {
+            print_error_range("Constant", 0, 31, asm_context);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode | (operands[0].value << 21);
 
           if (modifiers.has_dot == 1)
           {

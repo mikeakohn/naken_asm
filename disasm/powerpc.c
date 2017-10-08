@@ -18,6 +18,8 @@
 
 #define READ_RAM(a) (memory_read_m(memory, a)<<24)|(memory_read_m(memory, a+1)<<16)|(memory_read_m(memory, a+2)<<8)|memory_read_m(memory, a+3)
 
+static char *cmp_bits[] = { "fl", "fg", "fe", "fu", "4", "5", "6", "7" };
+
 int get_cycle_count_powerpc(unsigned short int opcode)
 {
   return -1;
@@ -42,7 +44,7 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
   uint32_t opcode;
   int32_t offset;
   int32_t temp;
-  int cr;
+  int cr, bf, u, bfa;
   int n;
 
   *cycles_min = -1;
@@ -309,6 +311,50 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
             dot = ".";
           }
           sprintf(instruction, "%s%s fp%d, fp%d, fp%d, fp%d", instr, dot, rd, ra, rc, rb);
+          break;
+        case OP_BF_FRA_FRB:
+          bf = (opcode >> 23) & 0x7;
+          sprintf(instruction, "%s %s, fp%d, fp%d", instr, cmp_bits[bf], ra, rb);
+          break;
+        case OP_FRT:
+          if ((table_powerpc[n].flags & FLAG_DOT) &&
+             ((opcode & 1) != 0))
+          {
+            dot = ".";
+          }
+          sprintf(instruction, "%s%s fp%d", instr, dot, rd);
+          break;
+        case OP_BF_BFA:
+          bf = (opcode >> 23) & 0x7;
+          bfa = (opcode >> 18) & 0x7;
+          sprintf(instruction, "%s %s, %d", instr, cmp_bits[bf], bfa);
+          break;
+        case OP_BF_U:
+          if ((table_powerpc[n].flags & FLAG_DOT) &&
+             ((opcode & 1) != 0))
+          {
+            dot = ".";
+          }
+          bf = (opcode >> 23) & 0x7;
+          u = (opcode >> 12) & 0xf;
+          sprintf(instruction, "%s%s %s, %d", instr, dot, cmp_bits[bf], u);
+          break;
+        case OP_FLM_FRB:
+          if ((table_powerpc[n].flags & FLAG_DOT) &&
+             ((opcode & 1) != 0))
+          {
+            dot = ".";
+          }
+          temp = (opcode >> 17) & 0xff;
+          sprintf(instruction, "%s%s 0x%02x, fp%d", instr, dot, temp, rb);
+          break;
+        case OP_BT:
+          if ((table_powerpc[n].flags & FLAG_DOT) &&
+             ((opcode & 1) != 0))
+          {
+            dot = ".";
+          }
+          sprintf(instruction, "%s%s %d", instr, dot, rd);
           break;
         default:
           strcpy(instruction, "???");

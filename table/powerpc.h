@@ -67,6 +67,12 @@ enum
   OP_FRT_FRA_FRB,
   OP_FRT_FRA_FRC,
   OP_FRT_FRA_FRC_FRB,
+  OP_BF_FRA_FRB,
+  OP_FRT,
+  OP_BF_BFA,
+  OP_BF_U,
+  OP_FLM_FRB,
+  OP_BT,
 };
 
 #define FLAG_NONE 0
