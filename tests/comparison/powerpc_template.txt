@@ -122,6 +122,7 @@ nand r20, r18, r19
 nand. r20, r18, r19
 nor r4, r21, r24
 nor. r4, r21, r24
+or r14, r20, r21
 orc r1, r21, r26
 orc. r1, r21, r26
 ori r11, r4, 129

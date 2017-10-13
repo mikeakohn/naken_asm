@@ -115,6 +115,7 @@ struct _table_powerpc table_powerpc[] =
   { "mullwo", 0x7c0005d6, 0xfc0007fe, OP_RD_RA_RB, FLAG_DOT, 0, 0 },
   { "nand",   0x7c0003b8, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
   { "nor",    0x7c0000f8, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
+  { "or",     0x7c000378, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
   { "orc",    0x7c000338, 0xfc0007fe, OP_RA_RS_RB, FLAG_DOT, 0, 0 },
   { "ori",    0x60000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },
   { "oris",   0x64000000, 0xfc000000, OP_RA_RS_UIMM, FLAG_NONE, 0, 0 },

@@ -428,6 +428,8 @@ void disasm_range_powerpc(struct _memory *memory, uint32_t flags, uint32_t start
       else
     { printf("%d-%d\n", cycles_min, cycles_max); }
 
+    if (count == 0) { count = 4; }
+
     start = start + count;
   }
 }
