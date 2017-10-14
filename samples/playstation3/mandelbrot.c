@@ -49,7 +49,7 @@ void render_mandelbrot_altivec(int *picture, struct _mandel_info *mandel_info);
 
 int mandel_calc_altivec(int *picture, int width, int height, float real_start, float real_end, float imaginary_start, float imaginary_end)
 {
-  struct _mandel_info mandel_info;
+  struct _mandel_info mandel_info __attribute__ ((aligned (16)));
 
   mandel_info.r_step4 = (real_end - real_start) * 4 / (float)width;
   mandel_info.r_step = (real_end - real_start) / (float)width;
@@ -218,7 +218,7 @@ void write_bmp(int *picture, int width, int height)
 int main(int argc, char *argv[])
 {
   struct timeval tv_start, tv_end;
-  int picture[WIDTH * HEIGHT];
+  int picture[WIDTH * HEIGHT] __attribute__ ((aligned (16)));
 #if 0
   float real_start = -0.1592 - 0.01;
   float real_end = -0.1592 + 0.01;
@@ -246,6 +246,9 @@ int main(int argc, char *argv[])
   }
 
   if (strcmp(argv[1], "normal") == 0) { do_altivec = 0; }
+
+  printf("colors=%p\n", colors);
+  printf("picture=%p\n", picture);
 
   gettimeofday(&tv_start, NULL);
 

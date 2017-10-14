@@ -9,7 +9,7 @@ render_mandelbrot_altivec:
   ; [ r, r, r, r ] 0
   ; [ i, i, i, i ] 16
   ; x              32
-  ; y              36 
+  ; y              36
   ;
   ;
   ; [ temp, temp, temp, temp] 48
@@ -36,14 +36,15 @@ render_mandelbrot_altivec:
   vspltisw v17, 2
 
   ; v18 = [ 3, 3, 3, 3 ]
-  vspltisw v17, 3
+  vspltisw v18, 3
 
   ; r5 = int colors[]
-  or r5, r4, r4
-  addi r5, r5, 112
+  ;or r5, r4, r4
+  ;addi r5, r5, 112
+  lwz r5, 112(r4)
 
   ; v11 = [ r_step4, r_step4, r_step4, r_step4 ]
-  xor r6, r6, r6 
+  xor r6, r6, r6
   lvx v11, r6, r4
   vspltw v11, v11, 0
 
@@ -86,7 +87,7 @@ for_x:
   ; counts = [ 0, 0, 0, 0 ]
   vor v10, v10, v10
 
-  ori r8, r8, 127
+  ori r10, r0, 127
 mandel_sse_for_loop:
   ; v7 = ti = (2 * zr * zi);
   vor v7, v4, v4
@@ -99,8 +100,8 @@ mandel_sse_for_loop:
 
   ; v4 = zr = tr + r;
   ; v5 = zi = ti + i;
-  vaddfp v4, v4, v0 
-  vaddfp v5, v7, v1 
+  vaddfp v4, v4, v0
+  vaddfp v5, v7, v1
 
   ; if ((tr * tr) + (ti * ti) > 4) break;
   vmaddfp v6, v4, v4, v16
@@ -114,37 +115,37 @@ mandel_sse_for_loop:
   vsumsws v6, v2, v2
   addi r6, r0, 96
   stvx v6, r6, r4
-  lwz r9, 108(r6)
+  lwz r9, 108(r4)
   or. r9, r9, r9
   beq exit_mandel
 
-  addic. r8, r8, -1
+  addic. r10, r10, -1
   bne mandel_sse_for_loop
 
 exit_mandel:
-  vsraw v10, v10, v17 
-  vslw v10, v10, v18 
+  vsraw v10, v10, v18
+  vslw v10, v10, v17
 
   addi r6, r0, 96
-  stvx v6, r6, r4
+  stvx v10, r6, r4
 
-  ; map colors into picture 
-  lwz r9, 96(r6)
+  ; map colors into picture
+  lwz r9, 96(r4)
   add r9, r9, r5
   lwz r9, 0(r9)
   stw r9, 0(r3)
 
-  lwz r9, 100(r6)
+  lwz r9, 100(r4)
   add r9, r9, r5
   lwz r9, 0(r9)
   stw r9, 4(r3)
 
-  lwz r9, 104(r6)
+  lwz r9, 104(r4)
   add r9, r9, r5
   lwz r9, 0(r9)
   stw r9, 8(r3)
 
-  lwz r9, 108(r6)
+  lwz r9, 108(r4)
   add r9, r9, r5
   lwz r9, 0(r9)
   stw r9, 12(r3)
@@ -168,7 +169,7 @@ exit_mandel:
   addi r7, r7, 1
   lwz r6, 24(r4)
   subf. r6, r6, r7
-  bne for_x
+  bne for_y
 
   ; return
   blr
