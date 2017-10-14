@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/time.h>
 
@@ -30,12 +31,12 @@ struct _mandel_info
 {
   float r_step4;         // 0
   float r_step;          // 4
-  float reserved;        // 8
+  float reserved_1;      // 8
   float real_start;      // 12
   float imaginary_start; // 16
   int width;             // 20
   int height;            // 24
-  int reserved;
+  int reserved_2;
   float real_start4[4];  // 32
   float constant_4_0[4]; // 48
   float constant_2_0[4]; // 64
