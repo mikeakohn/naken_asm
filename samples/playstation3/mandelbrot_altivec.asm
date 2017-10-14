@@ -27,7 +27,7 @@ render_mandelbrot_altivec:
   vspltw v8, v8, 0
 
   ; v16 = [ 0.0, 0.0, 0.0, 0.0 ] constant
-  vor v16, v16, v16
+  vxor v16, v16, v16
 
   ; v14 = [ 1, 1, 1, 1 ]
   vspltisw v14, 1
@@ -79,8 +79,8 @@ for_x:
 
   ; v4 = zr = [ 0.0, 0.0, 0.0, 0.0 ]
   ; v5 = zi = [ 0.0, 0.0, 0.0, 0.0 ]
-  vor v4, v4, v4
-  vor v5, v5, v5
+  vxor v4, v4, v4
+  vxor v5, v5, v5
 
   ; counts = [ 0, 0, 0, 0 ]
   vxor v10, v10, v10
@@ -88,30 +88,34 @@ for_x:
   ori r10, r0, 127
 mandel_sse_for_loop:
   ; v7 = ti = (2 * zr * zi);
-  vor v7, v4, v4
+  ;vor v7, v4, v4
+  ;vmaddfp v7, v7, v5, v16
+  vaddfp v7, v4, v4
   vmaddfp v7, v7, v5, v16
-  vmaddfp v7, v7, v8, v16
 
   ; v4 = tr = ((zr * zr) - (zi * zi));
-  vmaddfp v4, v4, v4, v16
-  vmaddfp v4, v5, v5, v4
+  ;vmaddfp v4, v4, v4, v16
+  ;vmaddfp v5, v5, v5, v16
+  ;vsubfp v4, v4, v5
+  vmaddfp v5, v5, v5, v16
+  vnmsubfp v4, v4, v4, v5
 
   ; v4 = zr = tr + r;
   ; v5 = zi = ti + i;
   vaddfp v4, v4, v0
   vaddfp v5, v7, v1
 
-  ; if ((tr * tr) + (ti * ti) > 4) break;
+  ; if ((zr * zr) + (zi * zi) > 4) break;
   vmaddfp v6, v4, v4, v16
   vmaddfp v7, v5, v5, v6
-  vcmpgefpx v6, v7, v3
+  vcmpgtfpx v6, v3, v7
 
   ; count const = 0 if less than
   vand v2, v2, v6
   vaddsws v10, v10, v2
 
   vsumsws v6, v2, v2
-  addi r6, r0, 96
+  ori r6, r0, 96
   stvx v6, r6, r4
   lwz r9, 108(r4)
   or. r9, r9, r9
@@ -168,6 +172,11 @@ exit_mandel:
   lwz r6, 24(r4)
   subf. r6, r6, r7
   bne for_y
+
+;; DEBUG DEBUG
+  ;addi r6, r0, 96
+  ;stvx v14, r6, r4
+;; DEBUG
 
   ; return
   blr
