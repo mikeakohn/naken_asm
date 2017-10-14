@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <inttypes.h>
 
 #include "common/var.h"
 
 #define PRINT_VAR(var) \
-  printf("int32=%d/%x int64=%ld/%lx float=%f double=%f   (%d)\n", \
+  printf("int32=%d/%x int64=%" PRId64 "/%" PRIx64 " float=%f double=%f   (%d)\n", \
     var_get_int32(&var), \
     var_get_int32(&var), \
     var_get_int64(&var), \
