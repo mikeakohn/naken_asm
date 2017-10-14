@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <string.h>
 #include <sys/time.h>
 
@@ -36,11 +37,14 @@ struct _mandel_info
   float imaginary_start; // 16
   int width;             // 20
   int height;            // 24
-  int reserved_2;
+  int reserved_2;        // 28
   float real_start4[4];  // 32
   float constant_4_0[4]; // 48
   float constant_2_0[4]; // 64
   float i_step;          // 80
+  int reserved_3;        // 84
+  int reserved_4;        // 88
+  int reserved_5;        // 92
   uint32_t temp[4];      // 96
   int *colors;           // 112
 };
@@ -76,6 +80,11 @@ int mandel_calc_altivec(int *picture, int width, int height, float real_start, f
   //mandel_info.constant_1[1] = 1;
   //mandel_info.constant_1[2] = 1;
   //mandel_info.constant_1[3] = 1;
+
+  mandel_info.colors = colors;
+
+  //printf("offsetof=%d\n", offsetof(struct _mandel_info, constant_2_0));
+  //printf("offsetof=%d\n", offsetof(struct _mandel_info, colors));
 
   render_mandelbrot_altivec(picture, &mandel_info);
 

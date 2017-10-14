@@ -39,8 +39,6 @@ render_mandelbrot_altivec:
   vspltisw v18, 3
 
   ; r5 = int colors[]
-  ;or r5, r4, r4
-  ;addi r5, r5, 112
   lwz r5, 112(r4)
 
   ; v11 = [ r_step4, r_step4, r_step4, r_step4 ]
@@ -85,7 +83,7 @@ for_x:
   vor v5, v5, v5
 
   ; counts = [ 0, 0, 0, 0 ]
-  vor v10, v10, v10
+  vxor v10, v10, v10
 
   ori r10, r0, 127
 mandel_sse_for_loop:
@@ -131,22 +129,22 @@ exit_mandel:
 
   ; map colors into picture
   lwz r9, 96(r4)
-  add r9, r9, r5
+  add r9, r5, r9
   lwz r9, 0(r9)
   stw r9, 0(r3)
 
   lwz r9, 100(r4)
-  add r9, r9, r5
+  add r9, r5, r9
   lwz r9, 0(r9)
   stw r9, 4(r3)
 
   lwz r9, 104(r4)
-  add r9, r9, r5
+  add r9, r5, r9
   lwz r9, 0(r9)
   stw r9, 8(r3)
 
   lwz r9, 108(r4)
-  add r9, r9, r5
+  add r9, r5, r9
   lwz r9, 0(r9)
   stw r9, 12(r3)
 
