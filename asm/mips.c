@@ -549,9 +549,9 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
       else
     {
       temp = var_get_int64(&var);
-      uint64_t mask = temp & 0xffffffff00000000;
+      uint64_t mask = temp & 0xffffffff00000000ULL;
 
-      if (mask != 0xffffffff00000000 && mask != 0)
+      if (mask != 0xffffffff00000000ULL && mask != 0)
       {
         print_error_range("Constant", -0x80000000LL, 0xffffffff, asm_context);
         return -1;

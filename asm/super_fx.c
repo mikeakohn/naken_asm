@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -371,6 +371,9 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
                 return -1;
               }
               break;
+            default:
+              // Should never hit here.
+              min = 0; max = 0;
           }
 
           if (type != needed_type)

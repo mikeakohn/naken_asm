@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -164,13 +164,13 @@ int disasm_epiphany(struct _memory *memory, uint32_t address, char *instr, int *
           return 4;
         case OP_REG_2_IMM_16:
           imm = ((opcode32 >> 7) & 0x7);
-          if ((imm & 0x4) != 0) { imm = imm | 0xffffffff8; }
+          if ((imm & 0x4) != 0) { imm = imm | 0xfffffff8; }
           sprintf(instr, "%s r%d, r%d, #%d", table_epiphany[n].instr, rd, rn, imm);
           return 2;
         case OP_REG_2_IMM_32:
           imm = ((opcode32 >> 7) & 0x7);
           imm |= ((opcode32 >> 16) & 0xff) << 3;
-          if ((imm & 0x400) != 0) { imm = imm | 0xffffff800; }
+          if ((imm & 0x400) != 0) { imm = imm | 0xfffff800; }
           sprintf(instr, "%s r%d, r%d, #%d", table_epiphany[n].instr, rd, rn, imm);
           return 4;
         case OP_REG_2_IMM5_16:
