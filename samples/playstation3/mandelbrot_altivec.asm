@@ -107,11 +107,11 @@ mandel_sse_for_loop:
   vand v2, v2, v6
   vaddsws v10, v10, v2
 
-  vsumsws v6, v2, v2
-  ori r6, r0, 80
-  stvx v6, r6, r4
-  lwz r9, 92(r4)
-  or. r9, r9, r9
+  ;vsumsws v6, v2, v2
+  ;ori r6, r0, 80
+  ;stvx v6, r6, r4
+  ;lwz r9, 92(r4)
+  ;or. r9, r9, r9
   beq exit_mandel
 
   addic. r10, r10, -1
