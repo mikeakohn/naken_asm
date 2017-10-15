@@ -39,26 +39,22 @@ render_mandelbrot_altivec:
   vspltisw v18, 3
 
   ; r5 = int colors[]
-  lwz r5, 112(r4)
+  lwz r5, 96(r4)
 
   ; v11 = [ r_step4, r_step4, r_step4, r_step4 ]
   addi r6, r0, 0
-  lvx v11, r6, r4
-  vspltw v11, v11, 0
+  lvx v1, r6, r4
+  vspltw v11, v1, 0
+
+  ; v12 = [ i_step, i_step, i_step, i_step ]
+  vspltw v12, v1, 1
 
   ; v1 = [ i0, i1, i2, i3 ]  imaginary_start
-  addi r6, r0, 16
-  lvx v1, r6, r4
-  vspltw v1, v1, 0
+  vspltw v1, v1, 2
 
   ; v13 = [ r0, r1, r2, r3 ]
   addi r6, r0, 32
   lvx v13, r6, r4
-
-  ; v12 = [ i_step, i_step, i_step, i_step ]
-  addi r6, r0, 80
-  lvx v12, r6, r4
-  vspltw v12, v12, 0
 
   ; y = 0
   xor r7, r7, r7
@@ -94,13 +90,6 @@ mandel_sse_for_loop:
   vmaddfp v7, v7, v5, v16
 
   ; v4 = tr = ((zr * zr) - (zi * zi));
-  ;vmaddfp v4, v4, v4, v16
-  ;vmaddfp v5, v5, v5, v16
-  ;vsubfp v4, v4, v5
-
-  ;vmaddfp v5, v5, v5, v16
-  ;vnmsubfp v4, v4, v4, v5
-
   vnmsubfp v5, v5, v5, v16
   vmaddfp v4, v4, v4, v5
 
@@ -119,9 +108,9 @@ mandel_sse_for_loop:
   vaddsws v10, v10, v2
 
   vsumsws v6, v2, v2
-  ori r6, r0, 96
+  ori r6, r0, 80
   stvx v6, r6, r4
-  lwz r9, 108(r4)
+  lwz r9, 92(r4)
   or. r9, r9, r9
   beq exit_mandel
 
@@ -132,26 +121,26 @@ exit_mandel:
   vsraw v10, v10, v18
   vslw v10, v10, v17
 
-  addi r6, r0, 96
+  addi r6, r0, 80
   stvx v10, r6, r4
 
   ; map colors into picture
-  lwz r9, 96(r4)
+  lwz r9, 80(r4)
   add r9, r5, r9
   lwz r9, 0(r9)
   stw r9, 0(r3)
 
-  lwz r9, 100(r4)
+  lwz r9, 84(r4)
   add r9, r5, r9
   lwz r9, 0(r9)
   stw r9, 4(r3)
 
-  lwz r9, 104(r4)
+  lwz r9, 88(r4)
   add r9, r5, r9
   lwz r9, 0(r9)
   stw r9, 8(r3)
 
-  lwz r9, 108(r4)
+  lwz r9, 92(r4)
   add r9, r5, r9
   lwz r9, 0(r9)
   stw r9, 12(r3)

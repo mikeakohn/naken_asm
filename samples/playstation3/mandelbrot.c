@@ -31,23 +31,18 @@ static int colors[] =
 struct _mandel_info
 {
   float r_step4;         // 0
-  float r_step;          // 4
-  float reserved_1;      // 8
+  float i_step;          // 4
+  float imaginary_start; // 8
   float real_start;      // 12
-  float imaginary_start; // 16
+  float r_step;          // 16
   int width;             // 20
   int height;            // 24
-  int reserved_2;        // 28
+  int reserved_1;        // 28
   float real_start4[4];  // 32
   float constant_4_0[4]; // 48
   float constant_2_0[4]; // 64
-  float i_step;          // 80
-  int reserved_3;        // 84
-  int reserved_4;        // 88
-  int reserved_5;        // 92
-  //uint32_t temp[4];      // 96
-  float temp[4];      // 96
-  int *colors;           // 112
+  float temp[4];         // 80
+  int *colors;           // 96
 };
 
 void render_mandelbrot_altivec(int *picture, struct _mandel_info *mandel_info);
