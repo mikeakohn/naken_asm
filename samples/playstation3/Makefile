@@ -5,6 +5,8 @@ FLAGS=-l -e $(INCLUDES) $(DUMP_MACROS)
 
 default:
 	../../naken_asm $(FLAGS) -o mandelbrot_altivec.o mandelbrot_altivec.asm
+	$(CC) -o mandelbrot mandelbrot.c mandelbrot_altivec.o \
+	   -O3 -Wall -g
 
 mandel:
 	$(CC) -o mandelbrot mandelbrot.c mandelbrot_altivec.o \

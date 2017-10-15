@@ -45,8 +45,8 @@ struct _mandel_info
   int reserved_3;        // 84
   int reserved_4;        // 88
   int reserved_5;        // 92
-  uint32_t temp[4];      // 96
-  //float temp[4];      // 96
+  //uint32_t temp[4];      // 96
+  float temp[4];      // 96
   int *colors;           // 112
 };
 
@@ -79,13 +79,12 @@ int mandel_calc_altivec(int *picture, int width, int height, float real_start, f
 
   render_mandelbrot_altivec(picture, &mandel_info);
 
-#if 0
-printf("%d %d %d %d\n",
+printf("%f %f %f %f  %f\n",
   mandel_info.temp[0],
   mandel_info.temp[1],
   mandel_info.temp[2],
-  mandel_info.temp[3]);
-#endif
+  mandel_info.temp[3],
+  mandel_info.r_step);
 
   return 0;
 }

@@ -42,7 +42,7 @@ render_mandelbrot_altivec:
   lwz r5, 112(r4)
 
   ; v11 = [ r_step4, r_step4, r_step4, r_step4 ]
-  xor r6, r6, r6
+  addi r6, r0, 0
   lvx v11, r6, r4
   vspltw v11, v11, 0
 
@@ -97,8 +97,12 @@ mandel_sse_for_loop:
   ;vmaddfp v4, v4, v4, v16
   ;vmaddfp v5, v5, v5, v16
   ;vsubfp v4, v4, v5
-  vmaddfp v5, v5, v5, v16
-  vnmsubfp v4, v4, v4, v5
+
+  ;vmaddfp v5, v5, v5, v16
+  ;vnmsubfp v4, v4, v4, v5
+
+  vnmsubfp v5, v5, v5, v16
+  vmaddfp v4, v4, v4, v5
 
   ; v4 = zr = tr + r;
   ; v5 = zi = ti + i;
@@ -175,7 +179,7 @@ exit_mandel:
 
 ;; DEBUG DEBUG
   ;addi r6, r0, 96
-  ;stvx v14, r6, r4
+  ;stvx v11, r6, r4
 ;; DEBUG
 
   ; return
