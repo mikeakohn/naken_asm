@@ -74,12 +74,14 @@ int mandel_calc_altivec(int *picture, int width, int height, float real_start, f
 
   render_mandelbrot_altivec(picture, &mandel_info);
 
+#if 0
 printf("%f %f %f %f  %f\n",
   mandel_info.temp[0],
   mandel_info.temp[1],
   mandel_info.temp[2],
   mandel_info.temp[3],
   mandel_info.r_step);
+#endif
 
   return 0;
 }
