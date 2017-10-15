@@ -5,15 +5,6 @@
 ; mandel_altivec(r3=picture, r4=struct _mandel_info)
 render_mandelbrot_altivec:
 
-  ; local variables are:
-  ; [ r, r, r, r ] 0
-  ; [ i, i, i, i ] 16
-  ; x              32
-  ; y              36
-  ;
-  ;
-  ; [ temp, temp, temp, temp] 48
-
   ;; Create zero constant from r0.
   xor r0, r0, r0
 
@@ -82,7 +73,7 @@ for_x:
   vxor v10, v10, v10
 
   ori r10, r0, 127
-mandel_sse_for_loop:
+mandel_for_loop:
   ; v7 = ti = (2 * zr * zi);
   ;vor v7, v4, v4
   ;vmaddfp v7, v7, v5, v16
@@ -115,7 +106,7 @@ mandel_sse_for_loop:
   beq exit_mandel
 
   addic. r10, r10, -1
-  bne mandel_sse_for_loop
+  bne mandel_for_loop
 
 exit_mandel:
   vsraw v10, v10, v18
