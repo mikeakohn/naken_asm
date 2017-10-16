@@ -16,8 +16,10 @@ void *spe_thread(void *context)
 
   printf("Running SPE\n");
 
-  //entry = SPE_DEFAULT_ENTRY;
-  entry = 0;
+  // Seems default entry picks up the entry point from the ELF file.
+  // If I set this to 0 with sync, stop as the first two instructions
+  // before main:, it hangs.
+  entry = SPE_DEFAULT_ENTRY;
 
   if (spe_context_run(spe_info->spe, &entry, 0, NULL, NULL, &stop_info) < 0)
   {
