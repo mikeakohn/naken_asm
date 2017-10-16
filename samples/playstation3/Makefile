@@ -12,10 +12,15 @@ mandel:
 	$(CC) -o mandelbrot mandelbrot.c mandelbrot_altivec.o \
 	   -O3 -Wall -g
 
+cell:
+	../../naken_asm $(FLAGS) -elf -o spe_test.elf spe_test.asm
+	ppu-gcc -o host_to_cell host_to_cell.c -lspe2
+	chmod 755 spe_test.elf
+
 test:
 	../../naken_asm $(FLAGS) -o test_function.o test_function.asm
 
 clean:
-	@rm -f *.o *.lst mandelbrot
+	@rm -f *.o *.lst mandelbrot host_to_cell
 	@echo "Clean!"
 
