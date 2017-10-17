@@ -27,14 +27,87 @@ main:
   ; r20 = [ picture, ?, ?, ? ]
   il r20, picture
 
-  ;; Wait for data on channel 29 
+  ; Wait for data on channel 29 
+  ; r13 = [ r0, r1, r2, r3 ]
+  ; r1  = [ i0, i0, i0, i0 ]
+  ; r11 = [ r_step, r_step, r_step, r_step ]
+  ; r12 = [ i_step, i_step, i_step, i_step ]
+  rdch r13, 29 
   rdch r1, 29 
+  rdch r11, 29 
+  rdch r12, 29 
 
-  ;; Add: r1 = r1 + r2
-  a r1, r1, r2
+  ; y = 720
+  il r21, 720
 
-  ;; Write back to PPE
-  wrch 28, r1
+  ; for (y = 0; y < height; y++)
+for_y:
+
+  ; r0 = [ r0, r1, r2, r3 ]
+  or r0, r13, r13
+
+  ; x = 1024
+  il r22, 1024
+
+  ; for (x = 0; x < width; y++)
+for_x:
+  ; r2 = [ 1, 1, 1, 1 ]
+  il r2, 1
+
+  ; r4 = zr = [ 0.0, 0.0, 0.0, 0.0 ]
+  ; r5 = zi = [ 0.0, 0.0, 0.0, 0.0 ]
+  il r4, 0
+  il r5, 0
+
+  ; counts = [ 0, 0, 0, 0 ]
+  il r10, 0
+
+  ; loop_counter = [ 127, ?, ?, ? ]
+  il r23, 127
+mandel_for_loop:
+
+
+
+  sfi r23, r23, 1
+  ;a r23, r23, -1
+  brz r23, exit_mandel
+
+exit_mandel:
+  ; r10 = (r10 >> 3) << 2
+  rotmai r10, r10, 3
+  shli r10, r10, 2
+
+  ; map colors into picture
+  ;; FILL IN
+
+  ; picture += 4 pixels (16 bytes)
+  ai r20, r20, 16
+
+  ; [ r0, r1, r2, r3 ] += rstep4;
+  fa r0, r0, r11
+
+  ; next x
+  ; Sub: r22 = r22 - 1 
+  sfi r22, r22, 1
+  ; The docs have a subtract from word immediate instruction but then
+  ; claim it doesn't exist.  Nice one IBM!
+  ;a r22, r22, -1
+  brnz r21, for_x
+
+  ; [ i0, i0, i0, i9 ] += istep;
+  fa r1, r1, r12
+
+  ; next y
+  ; Sub: r21 = r21 - 1 
+  sfi r21, r21, 1
+  ; The docs have a subtract from word immediate instruction but then
+  ; claim it doesn't exist.  Nice one IBM!
+  ;a r21, r21, -1
+  brnz r21, for_y
+
+
+  ; Write back to PPE
+  wrch 28, r20
 
   ;bra main
 
