@@ -14,10 +14,10 @@ main:
   ; r14 = [ 1, 1, 1, 1 ]
   ; r17 = [ 2, 2, 2, 2 ]
   ; r18 = [ 3, 3, 3, 3 ]
-  il r16, 0
-  il r14, 1
-  il r17, 2
-  il r18, 3
+  ;il r16, 0
+  ;il r14, 1
+  ;il r17, 2
+  ;il r18, 3
 
   ; r3 = [ 4.0, 4.0, 4.0, 4.0 ]
   ; r8 = [ 2.0, 2.0, 2.0, 2.0 ]
@@ -65,8 +65,30 @@ for_x:
   ; loop_counter = [ 127, ?, ?, ? ]
   il r23, 127
 mandel_for_loop:
+  ; r7 = ti = (2 * zr * zi);
+  fa r7, r4, r4
+  fma r7, r7, r5, r16
 
+  ; v4 = tr = ((zr * zr) - (zi * zi));
+  fm r5, r5, r5
+  fms r4, r4, r4, r5
 
+  ; v4 = zr = tr + r;
+  ; v5 = zi = ti + i;
+  fa r4, r4, r0
+  fa r5, r7, r1
+
+  ; if ((zr * zr) + (zi * zi) > 4) break;
+  fm r6, r4, r4
+  fma r7, r5, r5, r6
+  fcgt r6, r3, r7
+
+  ; count const = 0 if less than
+  and r2, r2, r6
+  a r10, r10, r2
+
+  gb r6, r6
+  brz r6, exit_mandel
 
   sfi r23, r23, 1
   ;a r23, r23, -1
@@ -105,8 +127,8 @@ exit_mandel:
   ;a r21, r21, -1
   brnz r21, for_y
 
-
   ; Write back to PPE
+  il r20, picture
   wrch 28, r20
 
   ;bra main
