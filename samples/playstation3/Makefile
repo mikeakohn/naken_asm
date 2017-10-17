@@ -9,8 +9,7 @@ default:
 	   -O3 -Wall -g
 
 mandel:
-	$(CC) -o mandelbrot mandelbrot.c mandelbrot_altivec.o \
-	   -O3 -Wall -g
+	../../naken_asm $(FLAGS) -elf -o mandelbrot_spe.elf mandelbrot_spe.asm
 
 cell:
 	../../naken_asm $(FLAGS) -elf -o spe_test.elf spe_test.asm
