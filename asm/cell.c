@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -807,7 +807,6 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case OP_BRANCH_RELATIVE_RT:
-        case OP_BRANCH_ABSOLUTE_RT:
         {
           if (operand_count != 2)
           {
@@ -828,25 +827,12 @@ int parse_instruction_cell(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (table_cell[n].type == OP_BRANCH_RELATIVE_RT)
-          {
-            address = operands[1].value - asm_context->address;
+          address = operands[1].value - asm_context->address;
 
-            if (address < -(1 << 17) || address >= (1 << 17))
-            {
-              print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context);
-              return -1;
-            }
-          }
-            else
+          if (address < -(1 << 17) || address >= (1 << 17))
           {
-            address = operands[1].value;
-
-            if (address < 0 || address >= (1 << 18))
-            {
-              print_error_range("Address", 0, (1 << 18) - 1, asm_context);
-              return -1;
-            }
+            print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context);
+            return -1;
           }
 
           if ((address & 0x3) != 0)

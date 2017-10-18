@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -39,7 +39,7 @@ enum
   OP_BRANCH_RELATIVE,
   OP_BRANCH_ABSOLUTE,
   OP_BRANCH_RELATIVE_RT,
-  OP_BRANCH_ABSOLUTE_RT,
+  //OP_BRANCH_ABSOLUTE_RT,
   OP_HINT_RELATIVE_RO_RA,
   OP_HINT_ABSOLUTE_RO_I16,
   OP_HINT_RELATIVE_RO_I16,
