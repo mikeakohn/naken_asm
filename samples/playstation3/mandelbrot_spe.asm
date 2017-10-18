@@ -7,17 +7,40 @@ mandel_max:
 mul_by_2:
   dd 2.0, 2.0, 2.0, 2.0
 
+mask0:
+  dd 0xffffffff, 0x00000000, 0x00000000, 0x00000000
+mask1:
+  dd 0x00000000, 0xffffffff, 0x00000000, 0x00000000
+mask2:
+  dd 0x00000000, 0x00000000, 0xffffffff, 0x00000000
+mask3:
+  dd 0x00000000, 0x00000000, 0x00000000, 0xffffffff
+
+colors:
+  dd 0xff0000, 0xff0000, 0xff0000, 0xff0000 ; f
+  dd 0xee3300, 0xee3300, 0xee3300, 0xee3300 ; e
+  dd 0xcc5500, 0xcc5500, 0xcc5500, 0xcc5500 ; d
+  dd 0xaa5500, 0xaa5500, 0xaa5500, 0xaa5500 ; c
+  dd 0xaa3300, 0xaa3300, 0xaa3300, 0xaa3300 ; b
+  dd 0x666600, 0x666600, 0x666600, 0x666600 ; a
+  dd 0x999900, 0x999900, 0x999900, 0x999900 ; 9
+  dd 0x669900, 0x669900, 0x669900, 0x669900 ; 8
+  dd 0x339900, 0x339900, 0x339900, 0x339900 ; 7
+  dd 0x0099aa, 0x0099aa, 0x0099aa, 0x0099aa ; 6
+  dd 0x0066aa, 0x0066aa, 0x0066aa, 0x0066aa ; 5
+  dd 0x0033aa, 0x0033aa, 0x0033aa, 0x0033aa ; 4
+  dd 0x0000aa, 0x0000aa, 0x0000aa, 0x0000aa ; 3
+  dd 0x000099, 0x000099, 0x000099, 0x000099 ; 2
+  dd 0x000066, 0x000066, 0x000066, 0x000066 ; 1
+  dd 0x000000, 0x000000, 0x000000, 0x000000 ; 0
+
 main:
   ; Load some constants
 
-  ; r16 = [ 0.0, 0.0, 0.0, 0.0 ]
-  ; r14 = [ 1, 1, 1, 1 ]
-  ; r17 = [ 2, 2, 2, 2 ]
-  ; r18 = [ 3, 3, 3, 3 ]
-  ;il r16, 0
-  ;il r14, 1
-  ;il r17, 2
-  ;il r18, 3
+  lqa r16, mask0
+  lqa r17, mask1
+  lqa r18, mask2
+  lqa r19, mask3
 
   ; r3 = [ 4.0, 4.0, 4.0, 4.0 ]
   ; r8 = [ 2.0, 2.0, 2.0, 2.0 ]
@@ -67,7 +90,7 @@ for_x:
 mandel_for_loop:
   ; r7 = ti = (2 * zr * zi);
   fa r7, r4, r4
-  fma r7, r7, r5, r16
+  fm r7, r5, r7
 
   ; v4 = tr = ((zr * zr) - (zi * zi));
   fm r5, r5, r5
@@ -100,7 +123,24 @@ exit_mandel:
   shli r10, r10, 2
 
   ; map colors into picture
-  ;; FILL IN
+  lqd r26, colors(r10)
+  shlqbyi r10, 4
+  lqd r27, colors(r10)
+  shlqbyi r10, 4
+  lqd r28, colors(r10)
+  shlqbyi r10, 4
+  lqd r29, colors(r10)
+
+  and r26, r26, r16
+  and r27, r27, r17
+  and r28, r28, r18
+  and r29, r29, r19
+
+  or r26, r26, r27
+  or r28, r28, r29
+  or r26, r26, r28
+
+  stqd r26, 0(r20)
 
   ; picture += 4 pixels (16 bytes)
   ai r20, r20, 16
