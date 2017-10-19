@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <string.h>
 #include <sys/time.h>
+#include <pthread.h>
+#include <libspe2.h>
 
 #define WIDTH 1024
 #define HEIGHT 768
@@ -45,7 +47,125 @@ struct _mandel_info
   int *colors;           // 96
 };
 
+struct _spe_info
+{
+  spe_context_ptr_t spe;
+};
+
 void render_mandelbrot_altivec(int *picture, struct _mandel_info *mandel_info);
+
+void *spe_thread(void *context)
+{
+  struct _spe_info *spe_info= (struct _spe_info *)context;
+  spe_stop_info_t stop_info;
+  uint32_t entry;
+
+  printf("Running SPE\n");
+
+  // Seems default entry picks up the entry point from the ELF file.
+  // If I set this to 0 with sync, stop as the first two instructions
+  // before main:, it hangs.
+  entry = SPE_DEFAULT_ENTRY;
+
+  if (spe_context_run(spe_info->spe, &entry, 0, NULL, NULL, &stop_info) < 0)
+  {
+    printf("Context run failed.\n");
+    exit(1);
+  }
+
+  return NULL;
+}
+
+int mandel_calc_cell(int *picture, int width, int height, float real_start, float real_end, float imaginary_start, float imaginary_end)
+{
+  struct _spe_info spe_info;
+  spe_context_ptr_t spe;
+  spe_program_handle_t *prog;
+  uint32_t data;
+  pthread_t pid;
+  int count;
+
+  prog = spe_image_open("mandelbrot_spe.elf");
+
+  if (prog == NULL)
+  {
+    perror("Can't load spe module.");
+    exit(1);
+  }
+
+  spe = spe_context_create(0, NULL);
+
+  if (spe == NULL)
+  {
+    perror("Can't create context.");
+    exit(1);
+  }
+
+  if (spe_program_load(spe, prog) != 0)
+  {
+    perror("Program load failed.");
+    exit(1);
+  }
+
+  // Need to fork out a thread since the function that starts code running
+  // on an SPE will block until it finishes.
+
+  spe_info.spe = spe;
+  pthread_create(&pid, NULL, &spe_thread, &spe_info);
+
+  sleep(1);
+
+  float r_step4 = (real_end - real_start) * 4 / (float)width;
+  float i_step = (imaginary_end - imaginary_start) / (float)height;
+
+  // Send 32 bits of data to the SPE
+  // Send real_start, imaginary_start, real_step, imaginary_step
+
+  int okay = 0;
+
+  do
+  {
+    if (spe_in_mbox_write(spe, (void *)&real_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+    if (spe_in_mbox_write(spe, (void *)&imaginary_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+    if (spe_in_mbox_write(spe, (void *)&r_step4, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+    if (spe_in_mbox_write(spe, (void *)&i_step, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+    okay = 1;
+  } while(0);
+
+  if (okay == 0)
+  {
+    perror("Could not write mbox data.");
+    exit(1);
+  }
+
+printf("sent data\n");
+
+  // Wait for data to come back from the SPE
+
+  while(1)
+  {
+    count = spe_out_mbox_read(spe, &data, 1);
+    if (count != 0) { break; }
+  }
+
+printf("%x\n", data);
+
+  if (count < 0)
+  {
+    perror("Could not read mbox data.");
+    exit(1);
+  }
+
+  if (spe_context_destroy(spe) != 0)
+  {
+    perror("Destroy failed.");
+    exit(1);
+  }
+
+  spe_image_close(prog);
+
+  return 0;
+}
 
 int mandel_calc_altivec(int *picture, int width, int height, float real_start, float real_end, float imaginary_start, float imaginary_end)
 {
@@ -241,28 +361,35 @@ int main(int argc, char *argv[])
   float imaginary_start = -1.00;
   float imaginary_end = 1.00;
 #endif
-  int do_altivec = 1;
+  int arch = 0;
 
   if (argc != 2)
   {
-    printf("Usage: %s <sse/normal>\n", argv[0]);
+    printf("Usage: %s <altivec/cell/normal>\n", argv[0]);
     exit(0);
   }
 
-  if (strcmp(argv[1], "normal") == 0) { do_altivec = 0; }
+  if (strcmp(argv[1], "normal") == 0) { arch = 0; }
+  if (strcmp(argv[1], "altivec") == 0) { arch = 1; }
+  if (strcmp(argv[1], "cell") == 0) { arch = 2; }
 
   printf("colors=%p\n", colors);
   printf("picture=%p\n", picture);
 
   gettimeofday(&tv_start, NULL);
 
-  if (do_altivec == 1)
+  if (arch == 0)
+  {
+    mandel_calc(picture, WIDTH, HEIGHT, real_start, real_end, imaginary_start, imaginary_end);
+  }
+    else
+  if (arch == 1)
   {
     mandel_calc_altivec(picture, WIDTH, HEIGHT, real_start, real_end, imaginary_start, imaginary_end);
   }
     else
   {
-    mandel_calc(picture, WIDTH, HEIGHT, real_start, real_end, imaginary_start, imaginary_end);
+    mandel_calc_cell(picture, WIDTH, HEIGHT, real_start, real_end, imaginary_start, imaginary_end);
   }
 
   gettimeofday(&tv_end, NULL);

@@ -1,5 +1,5 @@
 .cell
-.entry_point main
+.entry_point render_mandelbrot_cell
 
 mandel_max:
   dd 4.0, 4.0, 4.0, 4.0
@@ -34,7 +34,7 @@ colors:
   dd 0x000066, 0x000066, 0x000066, 0x000066 ; 1
   dd 0x000000, 0x000000, 0x000000, 0x000000 ; 0
 
-main:
+render_mandelbrot_cell:
   ; Load some constants
 
   lqa r16, mask0
@@ -61,7 +61,7 @@ main:
   rdch r12, 29 
 
   ; y = 720
-  il r21, 720
+  il r21, 20
 
   ; for (y = 0; y < height; y++)
 for_y:
@@ -74,16 +74,15 @@ for_y:
 
   ; for (x = 0; x < width; y++)
 for_x:
-  ; r2 = [ 1, 1, 1, 1 ]
-  il r2, 1
-
   ; r4 = zr = [ 0.0, 0.0, 0.0, 0.0 ]
   ; r5 = zi = [ 0.0, 0.0, 0.0, 0.0 ]
   il r4, 0
   il r5, 0
 
   ; counts = [ 0, 0, 0, 0 ]
+  ; inc = [ 1, 1, 1, 1 ]
   il r10, 0
+  il r2, 1
 
   ; loop_counter = [ 127, ?, ?, ? ]
   il r23, 127
@@ -113,22 +112,23 @@ mandel_for_loop:
   gb r6, r6
   brz r6, exit_mandel
 
-  sfi r23, r23, 1
-  ;a r23, r23, -1
-  brz r23, exit_mandel
+  ;sfi r23, r23, 1
+  ai r23, r23, -1
+  brnz r23, mandel_for_loop
 
 exit_mandel:
   ; r10 = (r10 >> 3) << 2
-  rotmai r10, r10, 3
-  shli r10, r10, 2
+  ;rotmai r10, r10, 3
+  andi r10, r10, 0x00f8
+  shli r10, r10, 1
 
   ; map colors into picture
   lqd r26, colors(r10)
-  shlqbyi r10, 4
+  shlqbyi r10, r10, 4
   lqd r27, colors(r10)
-  shlqbyi r10, 4
+  shlqbyi r10, r10, 4
   lqd r28, colors(r10)
-  shlqbyi r10, 4
+  shlqbyi r10, r10, 4
   lqd r29, colors(r10)
 
   and r26, r26, r16
@@ -150,28 +150,28 @@ exit_mandel:
 
   ; next x
   ; Sub: r22 = r22 - 1 
-  sfi r22, r22, 1
+  ;sfi r22, r22, 1
   ; The docs have a subtract from word immediate instruction but then
-  ; claim it doesn't exist.  Nice one IBM!
-  ;a r22, r22, -1
-  brnz r21, for_x
+  ; claim it doesn't exist.
+  ai r22, r22, -4
+  brnz r22, for_x
 
   ; [ i0, i0, i0, i9 ] += istep;
   fa r1, r1, r12
 
   ; next y
   ; Sub: r21 = r21 - 1 
-  sfi r21, r21, 1
+  ;sfi r21, r21, 1
   ; The docs have a subtract from word immediate instruction but then
-  ; claim it doesn't exist.  Nice one IBM!
-  ;a r21, r21, -1
+  ; claim it doesn't exist.
+  ai r21, r21, -1
   brnz r21, for_y
 
   ; Write back to PPE
-  il r20, picture
+  ;il r20, picture
   wrch 28, r20
 
-  ;bra main
+  ;bra render_mandelbrot_cell
 
   ;; Stop the cell program
   sync
