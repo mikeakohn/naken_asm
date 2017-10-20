@@ -84,6 +84,11 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
   uint32_t data;
   pthread_t pid;
   int count;
+  int y;
+
+  int spus = spe_cpu_info_get(SPE_COUNT_USABLE_SPES, 0);
+
+printf("spus=%d\n", spus);
 
   prog = spe_image_open("mandelbrot_spe.elf");
 
@@ -121,40 +126,63 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
   // Send 32 bits of data to the SPE
   // Send real_start, imaginary_start, real_step, imaginary_step
 
-  int okay = 0;
-
-  do
+  for (y = 0; y < 720; y++)
   {
-    if (spe_in_mbox_write(spe, (void *)&real_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-    if (spe_in_mbox_write(spe, (void *)&imaginary_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-    if (spe_in_mbox_write(spe, (void *)&r_step4, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-    if (spe_in_mbox_write(spe, (void *)&i_step, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-    okay = 1;
-  } while(0);
+    int okay = 0;
 
-  if (okay == 0)
-  {
-    perror("Could not write mbox data.");
-    exit(1);
-  }
+    do
+    {
+      if (spe_in_mbox_write(spe, (void *)&real_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+      if (spe_in_mbox_write(spe, (void *)&imaginary_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+      if (spe_in_mbox_write(spe, (void *)&r_step4, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+      //if (spe_in_mbox_write(spe, (void *)&i_step, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+
+      imaginary_start += i_step;
+
+      okay = 1;
+    } while(0);
+
+    if (okay == 0)
+    {
+      perror("Could not write mbox data.");
+      exit(1);
+    }
 
 printf("sent data\n");
 
-  // Wait for data to come back from the SPE
+    // Wait for data to come back from the SPE
 
-  while(1)
-  {
-    count = spe_out_mbox_read(spe, &data, 1);
-    if (count != 0) { break; }
+    while(1)
+    {
+      count = spe_out_mbox_read(spe, &data, 1);
+      if (count != 0) { break; }
+    }
+
+printf("local storage address: 0x%x\n", data);
+#if 0
+      int tag = 30;  
+      int tag_mask = 1 << tag;
+
+      mfc_get((volatile void*)original_piece,
+              (uint64_t)originalPieceAddrAsInt, 
+               4096, tag, 0, 0);    
+
+      mfc_write_tag_mask(tag_mask);
+      mfc_read_tag_status_any();
+#endif
+    uint32_t tag = 0;
+    spe_mfcio_put(spe, data, picture + (y * 1024), 4096, tag, 0, 0);
+    spe_mssync_start(spe);
+    spe_mssync_status(spe);
   }
-
-printf("%x\n", data);
 
   if (count < 0)
   {
     perror("Could not read mbox data.");
     exit(1);
   }
+
+  pthread_join(pid, NULL);
 
   if (spe_context_destroy(spe) != 0)
   {

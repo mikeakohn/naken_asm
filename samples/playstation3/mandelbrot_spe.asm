@@ -47,21 +47,22 @@ render_mandelbrot_cell:
   lqa r3, mandel_max
   lqa r8, mul_by_2
 
-  ; r20 = [ picture, ?, ?, ? ]
-  il r20, picture
-
-  ; Wait for data on channel 29 
+do_next_row:
+  ; Wait for data on channel 29
   ; r13 = [ r0, r1, r2, r3 ]
   ; r1  = [ i0, i0, i0, i0 ]
   ; r11 = [ r_step, r_step, r_step, r_step ]
   ; r12 = [ i_step, i_step, i_step, i_step ]
-  rdch r13, 29 
-  rdch r1, 29 
-  rdch r11, 29 
-  rdch r12, 29 
+  rdch r13, 29
+  rdch r1, 29
+  rdch r11, 29
+  ;rdch r12, 29
+
+  ; r20 = [ picture, ?, ?, ? ]
+  il r20, picture
 
   ; y = 720
-  il r21, 20
+  ;il r21, 720
 
   ; for (y = 0; y < height; y++)
 for_y:
@@ -149,7 +150,7 @@ exit_mandel:
   fa r0, r0, r11
 
   ; next x
-  ; Sub: r22 = r22 - 1 
+  ; Sub: r22 = r22 - 1
   ;sfi r22, r22, 1
   ; The docs have a subtract from word immediate instruction but then
   ; claim it doesn't exist.
@@ -160,15 +161,15 @@ exit_mandel:
   fa r1, r1, r12
 
   ; next y
-  ; Sub: r21 = r21 - 1 
+  ; Sub: r21 = r21 - 1
   ;sfi r21, r21, 1
   ; The docs have a subtract from word immediate instruction but then
   ; claim it doesn't exist.
-  ai r21, r21, -1
-  brnz r21, for_y
+  ;ai r21, r21, -1
+  ;brnz r21, for_y
 
   ; Write back to PPE
-  ;il r20, picture
+  il r20, picture
   wrch 28, r20
 
   ;bra render_mandelbrot_cell
@@ -177,6 +178,6 @@ exit_mandel:
   sync
   stop 0
 
-.align_bytes 16
+.align_bytes 128
 picture:
 
