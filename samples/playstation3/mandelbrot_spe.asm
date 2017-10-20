@@ -172,7 +172,7 @@ exit_mandel:
   il r20, picture
   wrch 28, r20
 
-  ;bra render_mandelbrot_cell
+  bra do_next_row
 
   ;; Stop the cell program
   sync
