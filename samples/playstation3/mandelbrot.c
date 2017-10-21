@@ -58,9 +58,10 @@ struct _mandel_info
 struct _spe_info
 {
   spe_context_ptr_t spe;
+  int state;
+  int y;
   spe_program_handle_t *prog;
   pthread_t pid;
-  int state;
 };
 
 void render_mandelbrot_altivec(int *picture, struct _mandel_info *mandel_info);
@@ -166,6 +167,7 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
         if (spe_in_mbox_write(spe_info[n].spe, (void *)&real_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { return -1; }
         if (spe_in_mbox_write(spe_info[n].spe, (void *)&imaginary_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { return -1; }
 
+        spe_info[n].y = y;
         spe_info[n].state = STATE_RENDERING;
 
         imaginary_start += i_step;
@@ -185,7 +187,7 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
         // printf("local storage address: 0x%x  (%d)\n", data, y);
         uint32_t tag = n;
 
-        if (spe_mfcio_put(spe_info[n].spe, data, picture + (y * 1024), 4096, tag, 0, 0) != 0)
+        if (spe_mfcio_put(spe_info[n].spe, data, picture + (spe_info[n].y * 1024), 4096, tag, 0, 0) != 0)
         {
           perror("put problem");
         }
@@ -455,6 +457,9 @@ int main(int argc, char *argv[])
 
   gettimeofday(&tv_end, NULL);
 
+  printf("done\n");
+  fflush(stdout);
+
   if (arch == 2)
   {
     int n;
@@ -493,6 +498,8 @@ int main(int argc, char *argv[])
   while(time_diff < 0) { tv_end.tv_sec--; time_diff += 1000000; }
   time_diff += (tv_end.tv_sec - tv_start.tv_sec) * 1000000;
   printf("time=%f\n", (float)time_diff / 1000000);
+
+  fflush(stdout);
 
   write_bmp(picture, WIDTH, HEIGHT);
 
