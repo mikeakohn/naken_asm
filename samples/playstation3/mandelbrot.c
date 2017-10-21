@@ -51,13 +51,15 @@ struct _mandel_info
 struct _spe_info
 {
   spe_context_ptr_t spe;
+  spe_program_handle_t *prog;
+  pthread_t pid;
 };
 
 void render_mandelbrot_altivec(int *picture, struct _mandel_info *mandel_info);
 
 void *spe_thread(void *context)
 {
-  struct _spe_info *spe_info= (struct _spe_info *)context;
+  struct _spe_info *spe_info = (struct _spe_info *)context;
   spe_stop_info_t stop_info;
   uint32_t entry;
 
@@ -77,49 +79,53 @@ void *spe_thread(void *context)
   return NULL;
 }
 
-int mandel_calc_cell(int *picture, int width, int height, float real_start, float real_end, float imaginary_start, float imaginary_end)
+int load_spus(struct _spe_info *spe_info, int max_spus)
 {
-  struct _spe_info spe_info;
-  spe_context_ptr_t spe;
-  spe_program_handle_t *prog;
+  int spus = spe_cpu_info_get(SPE_COUNT_USABLE_SPES, 0);
+  int n;
+
+  printf("spus=%d\n", spus);
+
+  if (spus > max_spus) { spus = max_spus; }
+
+  for (n = 0; n < max_spus; n++)
+  {
+    spe_info[n].prog = spe_image_open("mandelbrot_spe.elf");
+
+    if (spe_info[n].prog == NULL)
+    {
+      perror("Can't load spe module.");
+      exit(1);
+    }
+
+    spe_info[n].spe = spe_context_create(0, NULL);
+
+    if (spe_info[n].spe == NULL)
+    {
+      perror("Can't create context.");
+      exit(1);
+    }
+
+    if (spe_program_load(spe_info[n].spe, spe_info[n].prog) != 0)
+    {
+      perror("Program load failed.");
+      exit(1);
+    }
+
+    // Need to fork out a thread since the function that starts code running
+    // on an SPE will block until it finishes.
+    pthread_create(&spe_info[n].pid, NULL, &spe_thread, &spe_info[n]);
+  }
+
+  return max_spus;
+}
+
+int mandel_calc_cell(int *picture, int width, int height, float real_start, float real_end, float imaginary_start, float imaginary_end, struct _spe_info *spe_info, int spus)
+{
   uint32_t data;
-  pthread_t pid;
   int count;
   int y;
-
-  int spus = spe_cpu_info_get(SPE_COUNT_USABLE_SPES, 0);
-
-  //printf("spus=%d\n", spus);
-
-  prog = spe_image_open("mandelbrot_spe.elf");
-
-  if (prog == NULL)
-  {
-    perror("Can't load spe module.");
-    exit(1);
-  }
-
-  spe = spe_context_create(0, NULL);
-
-  if (spe == NULL)
-  {
-    perror("Can't create context.");
-    exit(1);
-  }
-
-  if (spe_program_load(spe, prog) != 0)
-  {
-    perror("Program load failed.");
-    exit(1);
-  }
-
-  // Need to fork out a thread since the function that starts code running
-  // on an SPE will block until it finishes.
-
-  spe_info.spe = spe;
-  pthread_create(&pid, NULL, &spe_thread, &spe_info);
-
-  //sleep(1);
+  int n = 0;
 
   float r_step4 = (real_end - real_start) * 4 / (float)width;
   float r_step = (real_end - real_start) / (float)width;
@@ -134,12 +140,12 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
 
     do
     {
-      if (spe_in_mbox_write(spe, (void *)&real_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-      if (spe_in_mbox_write(spe, (void *)&imaginary_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+      if (spe_in_mbox_write(spe_info[n].spe, (void *)&real_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+      if (spe_in_mbox_write(spe_info[n].spe, (void *)&imaginary_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
 
       // These things can be sent at start-up time to speed things up
-      if (spe_in_mbox_write(spe, (void *)&r_step4, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-      if (spe_in_mbox_write(spe, (void *)&r_step, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+      if (spe_in_mbox_write(spe_info[n].spe, (void *)&r_step4, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+      if (spe_in_mbox_write(spe_info[n].spe, (void *)&r_step, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
 
       imaginary_start += i_step;
 
@@ -158,37 +164,32 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
 
     while(1)
     {
-      count = spe_out_mbox_read(spe, &data, 1);
+      count = spe_out_mbox_read(spe_info[n].spe, &data, 1);
       if (count != 0) { break; }
+    }
+
+    if (count < 0)
+    {
+      perror("Could not read mbox data.");
+      exit(1);
     }
 
     // printf("local storage address: 0x%x  (%d)\n", data, y);
     uint32_t tag = 0;
 
-#if 0
-    int tag_mask = 1 << tag;
-
-    mfc_put((volatile void*)original_piece,
-            (uint64_t)originalPieceAddrAsInt, 
-             4096, tag, 0, 0);    
-
-    mfc_write_tag_mask(tag_mask);
-    mfc_read_tag_status_any();
-#endif
-
-    if (spe_mfcio_put(spe, data, picture + (y * 1024), 4096, tag, 0, 0) != 0)
+    if (spe_mfcio_put(spe_info[n].spe, data, picture + (y * 1024), 4096, tag, 0, 0) != 0)
     {
       perror("put problem");
     }
 #if 0
-    if (spe_mssync_start(spe) != 0) { perror("sync start issue"); }
-    if (spe_mssync_status(spe) != 0) { perror("sync status issue"); }
+    if (spe_mssync_start(spe_info[n].spe) != 0) { perror("sync start issue"); }
+    if (spe_mssync_status(spe_info[n].spe) != 0) { perror("sync status issue"); }
 #endif
     uint32_t tag_status;
 
     while(1)
     {
-      if (spe_mfcio_tag_status_read(spe, 0xf, SPE_TAG_IMMEDIATE, &tag_status) != 0)
+      if (spe_mfcio_tag_status_read(spe_info[n].spe, 0xf, SPE_TAG_IMMEDIATE, &tag_status) != 0)
       {
         perror("tag status");
       }
@@ -198,22 +199,6 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
 
     //printf("tag_status=%d\n", tag_status);
   }
-
-  if (count < 0)
-  {
-    perror("Could not read mbox data.");
-    exit(1);
-  }
-
-  //pthread_join(pid, NULL);
-
-  if (spe_context_destroy(spe) != 0)
-  {
-    perror("Destroy failed.");
-    exit(1);
-  }
-
-  spe_image_close(prog);
 
   return 0;
 }
@@ -393,12 +378,17 @@ void write_bmp(int *picture, int width, int height)
 int main(int argc, char *argv[])
 {
   struct timeval tv_start, tv_end;
-  int picture[WIDTH * HEIGHT] __attribute__ ((aligned (16)));
+  struct _spe_info spe_info[8];
+  int spus = 0;
+  int *picture;
+
+  posix_memalign((void *)&picture, 16, WIDTH * HEIGHT * 4);
+
 #if 0
   float real_start = -0.1592 - 0.01;
   float real_end = -0.1592 + 0.01;
-  float imaginary_start = -1.0317 - 0.01; 
-  float imaginary_end = -1.0317 + 0.01; 
+  float imaginary_start = -1.0317 - 0.01;
+  float imaginary_end = -1.0317 + 0.01;
 #endif
 
   float real_start = 0.37 - 0.00;
@@ -427,6 +417,11 @@ int main(int argc, char *argv[])
   printf("colors=%p\n", colors);
   printf("picture=%p\n", picture);
 
+  if (arch == 2)
+  {
+    spus = load_spus(spe_info, 1);
+  }
+
   gettimeofday(&tv_start, NULL);
 
   if (arch == 0)
@@ -440,10 +435,28 @@ int main(int argc, char *argv[])
   }
     else
   {
-    mandel_calc_cell(picture, WIDTH, HEIGHT, real_start, real_end, imaginary_start, imaginary_end);
+    mandel_calc_cell(picture, WIDTH, HEIGHT, real_start, real_end, imaginary_start, imaginary_end, spe_info, spus);
   }
 
   gettimeofday(&tv_end, NULL);
+
+  if (arch == 2)
+  {
+    int n;
+
+    for (n = 0; n < spus; n++)
+    {
+      //pthread_join(pid, NULL);
+
+      if (spe_context_destroy(spe_info[n].spe) != 0)
+      {
+        perror("Destroy failed.");
+        exit(1);
+      }
+
+      spe_image_close(spe_info[n].prog);
+    }
+  }
 
 #if 0
   int picture2[WIDTH * HEIGHT];
@@ -468,7 +481,8 @@ int main(int argc, char *argv[])
 
   write_bmp(picture, WIDTH, HEIGHT);
 
+  free(picture);
+
   return 0;
 }
-
 
