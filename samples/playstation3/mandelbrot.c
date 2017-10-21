@@ -121,6 +121,7 @@ printf("spus=%d\n", spus);
   sleep(1);
 
   float r_step4 = (real_end - real_start) * 4 / (float)width;
+  float r_step = (real_end - real_start) / (float)width;
   float i_step = (imaginary_end - imaginary_start) / (float)height;
 
   // Send 32 bits of data to the SPE
@@ -134,8 +135,10 @@ printf("spus=%d\n", spus);
     {
       if (spe_in_mbox_write(spe, (void *)&real_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
       if (spe_in_mbox_write(spe, (void *)&imaginary_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+
+      // These things can be sent at start-up time to speed things up
       if (spe_in_mbox_write(spe, (void *)&r_step4, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-      //if (spe_in_mbox_write(spe, (void *)&i_step, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+      if (spe_in_mbox_write(spe, (void *)&r_step, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
 
       imaginary_start += i_step;
 

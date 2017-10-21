@@ -50,35 +50,44 @@ do_next_row:
   ; Wait for data on channel 29
   ; r0 = [ r0, r1, r2, r3 ]
   ; r1  = [ i0, i0, i0, i0 ]
-  ; r11 = [ r_step, r_step, r_step, r_step ]
-  ; r12 = [ i_step, i_step, i_step, i_step ]
+  ; r11 = [ r_step4, r_step4, r_step4, r_step4 ]
+  ; r12 = [ 0, r_step1, r_step2, r_step3 ]
   rdch r0, 29
   rdch r1, 29
   rdch r11, 29
-  ;rdch r12, 29
+  rdch r12, 29
 
-  ;; Holy crap, there must be a better way to do this?
-  rotqmbyi r20, r0, 4
-  rotqmbyi r21, r1, 4
-  rotqmbyi r22, r11, 4
-  ;rotqbii r20, r0, 32
-  ;rotqbii r21, r1, 32
-  ;rotqbii r22, r11, 32
+  ; r12 = [ r_step1, 0, 0, 0 ]
+  rotqbyi r20, r12, 4
+  or r21, r20, r12
+  fa r21, r21, r12
+  ; r21 = [ r_step2, 0, 0, r_step1 ]
+  and r22, r21, r16
+  rotqbyi r21, r21, 4
+  or r21, r22, r21
+  fa r21, r21, r12
+  ; r21 = [ r_step3, 0, r_step1, r_step2 ]
+  rotqbyi r12, r21, 4
+  ; r12 = [ 0, r_step1, r_step2, r_step3 ]
+
+  ; Holy crap, there must be a better way to do this?
+  rotqbyi r20, r0, 12
+  rotqbyi r21, r1, 12
+  rotqbyi r22, r11, 12
 
   or r0, r0, r20
   or r1, r1, r21
   or r11, r11, r22
 
-  rotqmbyi r20, r0, 8
-  rotqmbyi r21, r1, 8
-  rotqmbyi r22, r11, 8
-  ;rotqbii r20, r0, 64
-  ;rotqbii r21, r1, 64
-  ;rotqbii r22, r11, 64
+  rotqbyi r20, r0, 8
+  rotqbyi r21, r1, 8
+  rotqbyi r22, r11, 8
 
   or r0, r0, r20
   or r1, r1, r21
   or r11, r11, r22
+
+  fa r0, r0, r12
 
   ; r20 = [ picture, ?, ?, ? ]
   il r20, picture
@@ -177,7 +186,7 @@ exit_mandel:
   brnz r22, for_x
 
   ; [ i0, i0, i0, i9 ] += istep;
-  fa r1, r1, r12
+  ;fa r1, r1, r12
 
   ; next y
   ; Sub: r21 = r21 - 1
