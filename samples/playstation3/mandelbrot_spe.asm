@@ -40,14 +40,8 @@ render_mandelbrot_cell:
   il r3, 2
   csflt r3, r3, 0
 
-do_next_row:
-  ; Wait for data on channel 29
-  ; r0 = [ r0, r1, r2, r3 ]
-  ; r1  = [ i0, i0, i0, i0 ]
   ; r11 = [ r_step4, r_step4, r_step4, r_step4 ]
   ; r12 = [ 0, r_step1, r_step2, r_step3 ]
-  rdch r0, 29
-  rdch r1, 29
   rdch r11, 29
   rdch r12, 29
 
@@ -64,22 +58,30 @@ do_next_row:
   rotqbyi r12, r21, 4
   ; r12 = [ 0, r_step1, r_step2, r_step3 ]
 
+  rotqbyi r22, r11, 12
+  or r11, r11, r22
+  rotqbyi r22, r11, 8
+  or r11, r11, r22
+
+do_next_row:
+  ; Wait for data on channel 29
+  ; r0 = [ r0, r1, r2, r3 ]
+  ; r1  = [ i0, i0, i0, i0 ]
+  rdch r0, 29
+  rdch r1, 29
+
   ; Holy crap, there must be a better way to do this?
   rotqbyi r20, r0, 12
   rotqbyi r21, r1, 12
-  rotqbyi r22, r11, 12
 
   or r0, r0, r20
   or r1, r1, r21
-  or r11, r11, r22
 
   rotqbyi r20, r0, 8
   rotqbyi r21, r1, 8
-  rotqbyi r22, r11, 8
 
   or r0, r0, r20
   or r1, r1, r21
-  or r11, r11, r22
 
   fa r0, r0, r12
 

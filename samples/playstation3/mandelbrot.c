@@ -131,8 +131,14 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
   float r_step = (real_end - real_start) / (float)width;
   float i_step = (imaginary_end - imaginary_start) / (float)height;
 
-  // Send 32 bits of data to the SPE
-  // Send real_start, imaginary_start, real_step, imaginary_step
+  for (n = 0; n < spus; n++)
+  {
+    // These things can be sent at start-up time to speed things up
+    if (spe_in_mbox_write(spe_info[n].spe, (void *)&r_step4, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+    if (spe_in_mbox_write(spe_info[n].spe, (void *)&r_step, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+  }
+
+  n = 0;
 
   for (y = 0; y < 768; y++)
   {
@@ -140,12 +146,9 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
 
     do
     {
+      // Send 32 bits of data to the SPE: real_start, imaginary_start
       if (spe_in_mbox_write(spe_info[n].spe, (void *)&real_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
       if (spe_in_mbox_write(spe_info[n].spe, (void *)&imaginary_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-
-      // These things can be sent at start-up time to speed things up
-      if (spe_in_mbox_write(spe_info[n].spe, (void *)&r_step4, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-      if (spe_in_mbox_write(spe_info[n].spe, (void *)&r_step, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
 
       imaginary_start += i_step;
 
@@ -161,7 +164,6 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
     //printf("sent data\n");
 
     // Wait for data to come back from the SPE
-
     while(1)
     {
       count = spe_out_mbox_read(spe_info[n].spe, &data, 1);
