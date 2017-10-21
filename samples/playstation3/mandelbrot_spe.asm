@@ -1,12 +1,6 @@
 .cell
 .entry_point render_mandelbrot_cell
 
-;mandel_max:
-;  dd 4.0, 4.0, 4.0, 4.0
-
-;mul_by_2:
-;  dd 2.0, 2.0, 2.0, 2.0
-
 mask0:
   dd 0xffffffff, 0x00000000, 0x00000000, 0x00000000
 mask1:
@@ -92,12 +86,6 @@ do_next_row:
   ; r20 = [ picture, ?, ?, ? ]
   il r20, picture
 
-  ; y = 720
-  ;il r21, 720
-
-  ; for (y = 0; y < height; y++)
-for_y:
-
   ; x = 1024
   il r22, 1024
 
@@ -141,7 +129,6 @@ mandel_for_loop:
   gb r6, r6
   brz r6, exit_mandel
 
-  ;sfi r23, r23, 1
   ai r23, r23, -1
   brnz r23, mandel_for_loop
 
@@ -179,22 +166,10 @@ exit_mandel:
 
   ; next x
   ; Sub: r22 = r22 - 1
-  ;sfi r22, r22, 1
-  ; The docs have a subtract from word immediate instruction but then
-  ; claim it doesn't exist.
   ai r22, r22, -4
   brnz r22, for_x
 
-  ; [ i0, i0, i0, i9 ] += istep;
-  ;fa r1, r1, r12
-
-  ; next y
-  ; Sub: r21 = r21 - 1
-  ;sfi r21, r21, 1
-  ; The docs have a subtract from word immediate instruction but then
-  ; claim it doesn't exist.
-  ;ai r21, r21, -1
-  ;brnz r21, for_y
+  dsync
 
   ; Write back to PPE
   il r20, picture
@@ -206,6 +181,6 @@ exit_mandel:
   sync
   stop 0
 
-.align_bytes 128
+.align_bytes 16
 picture:
 

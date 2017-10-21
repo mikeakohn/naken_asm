@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <sys/time.h>
+#include <unistd.h>
 #include <pthread.h>
 #include <libspe2.h>
 
@@ -60,7 +61,7 @@ void *spe_thread(void *context)
   spe_stop_info_t stop_info;
   uint32_t entry;
 
-  printf("Running SPE\n");
+  //printf("Running SPE\n");
 
   // Seems default entry picks up the entry point from the ELF file.
   // If I set this to 0 with sync, stop as the first two instructions
@@ -88,7 +89,7 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
 
   int spus = spe_cpu_info_get(SPE_COUNT_USABLE_SPES, 0);
 
-printf("spus=%d\n", spus);
+  //printf("spus=%d\n", spus);
 
   prog = spe_image_open("mandelbrot_spe.elf");
 
@@ -118,7 +119,7 @@ printf("spus=%d\n", spus);
   spe_info.spe = spe;
   pthread_create(&pid, NULL, &spe_thread, &spe_info);
 
-  sleep(1);
+  //sleep(1);
 
   float r_step4 = (real_end - real_start) * 4 / (float)width;
   float r_step = (real_end - real_start) / (float)width;
@@ -151,7 +152,7 @@ printf("spus=%d\n", spus);
       exit(1);
     }
 
-printf("sent data\n");
+    //printf("sent data\n");
 
     // Wait for data to come back from the SPE
 
@@ -161,22 +162,41 @@ printf("sent data\n");
       if (count != 0) { break; }
     }
 
-printf("local storage address: 0x%x  (%d)\n", data, y);
-#if 0
-      int tag = 30;  
-      int tag_mask = 1 << tag;
-
-      mfc_get((volatile void*)original_piece,
-              (uint64_t)originalPieceAddrAsInt, 
-               4096, tag, 0, 0);    
-
-      mfc_write_tag_mask(tag_mask);
-      mfc_read_tag_status_any();
-#endif
+    // printf("local storage address: 0x%x  (%d)\n", data, y);
     uint32_t tag = 0;
-    spe_mfcio_put(spe, data, picture + (y * 1024), 4096, tag, 0, 0);
-    spe_mssync_start(spe);
-    spe_mssync_status(spe);
+
+#if 0
+    int tag_mask = 1 << tag;
+
+    mfc_put((volatile void*)original_piece,
+            (uint64_t)originalPieceAddrAsInt, 
+             4096, tag, 0, 0);    
+
+    mfc_write_tag_mask(tag_mask);
+    mfc_read_tag_status_any();
+#endif
+
+    if (spe_mfcio_put(spe, data, picture + (y * 1024), 4096, tag, 0, 0) != 0)
+    {
+      perror("put problem");
+    }
+#if 0
+    if (spe_mssync_start(spe) != 0) { perror("sync start issue"); }
+    if (spe_mssync_status(spe) != 0) { perror("sync status issue"); }
+#endif
+    uint32_t tag_status;
+
+    while(1)
+    {
+      if (spe_mfcio_tag_status_read(spe, 0xf, SPE_TAG_IMMEDIATE, &tag_status) != 0)
+      {
+        perror("tag status");
+      }
+
+      if (tag_status != 0) { break; }
+    }
+
+    //printf("tag_status=%d\n", tag_status);
   }
 
   if (count < 0)
