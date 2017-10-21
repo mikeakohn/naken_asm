@@ -1,11 +1,11 @@
 .cell
 .entry_point render_mandelbrot_cell
 
-mandel_max:
-  dd 4.0, 4.0, 4.0, 4.0
+;mandel_max:
+;  dd 4.0, 4.0, 4.0, 4.0
 
-mul_by_2:
-  dd 2.0, 2.0, 2.0, 2.0
+;mul_by_2:
+;  dd 2.0, 2.0, 2.0, 2.0
 
 mask0:
   dd 0xffffffff, 0x00000000, 0x00000000, 0x00000000
@@ -43,20 +43,42 @@ render_mandelbrot_cell:
   lqa r19, mask3
 
   ; r3 = [ 4.0, 4.0, 4.0, 4.0 ]
-  ; r8 = [ 2.0, 2.0, 2.0, 2.0 ]
-  lqa r3, mandel_max
-  lqa r8, mul_by_2
+  il r3, 2
+  csflt r3, r3, 0
 
 do_next_row:
   ; Wait for data on channel 29
-  ; r13 = [ r0, r1, r2, r3 ]
+  ; r0 = [ r0, r1, r2, r3 ]
   ; r1  = [ i0, i0, i0, i0 ]
   ; r11 = [ r_step, r_step, r_step, r_step ]
   ; r12 = [ i_step, i_step, i_step, i_step ]
-  rdch r13, 29
+  rdch r0, 29
   rdch r1, 29
   rdch r11, 29
   ;rdch r12, 29
+
+  ;; Holy crap, there must be a better way to do this?
+  rotqmbyi r20, r0, 4
+  rotqmbyi r21, r1, 4
+  rotqmbyi r22, r11, 4
+  ;rotqbii r20, r0, 32
+  ;rotqbii r21, r1, 32
+  ;rotqbii r22, r11, 32
+
+  or r0, r0, r20
+  or r1, r1, r21
+  or r11, r11, r22
+
+  rotqmbyi r20, r0, 8
+  rotqmbyi r21, r1, 8
+  rotqmbyi r22, r11, 8
+  ;rotqbii r20, r0, 64
+  ;rotqbii r21, r1, 64
+  ;rotqbii r22, r11, 64
+
+  or r0, r0, r20
+  or r1, r1, r21
+  or r11, r11, r22
 
   ; r20 = [ picture, ?, ?, ? ]
   il r20, picture
@@ -66,9 +88,6 @@ do_next_row:
 
   ; for (y = 0; y < height; y++)
 for_y:
-
-  ; r0 = [ r0, r1, r2, r3 ]
-  or r0, r13, r13
 
   ; x = 1024
   il r22, 1024
@@ -92,7 +111,7 @@ mandel_for_loop:
   fa r7, r4, r4
   fm r7, r5, r7
 
-  ; v4 = tr = ((zr * zr) - (zi * zi));
+  ; r4 = tr = ((zr * zr) - (zi * zi));
   fm r5, r5, r5
   fms r4, r4, r4, r5
 

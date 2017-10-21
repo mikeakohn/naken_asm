@@ -126,7 +126,7 @@ printf("spus=%d\n", spus);
   // Send 32 bits of data to the SPE
   // Send real_start, imaginary_start, real_step, imaginary_step
 
-  for (y = 0; y < 720; y++)
+  for (y = 0; y < 768; y++)
   {
     int okay = 0;
 
@@ -158,7 +158,7 @@ printf("sent data\n");
       if (count != 0) { break; }
     }
 
-printf("local storage address: 0x%x\n", data);
+printf("local storage address: 0x%x  (%d)\n", data, y);
 #if 0
       int tag = 30;  
       int tag_mask = 1 << tag;
@@ -182,7 +182,7 @@ printf("local storage address: 0x%x\n", data);
     exit(1);
   }
 
-  pthread_join(pid, NULL);
+  //pthread_join(pid, NULL);
 
   if (spe_context_destroy(spe) != 0)
   {
