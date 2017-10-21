@@ -11,6 +11,13 @@
 #define WIDTH 1024
 #define HEIGHT 768
 
+enum
+{
+  STATE_IDLE,
+  STATE_RENDERING,
+  STATE_DMA,
+};
+
 static int colors[] =
 {
   0xff0000,  // f
@@ -53,6 +60,7 @@ struct _spe_info
   spe_context_ptr_t spe;
   spe_program_handle_t *prog;
   pthread_t pid;
+  int state;
 };
 
 void render_mandelbrot_altivec(int *picture, struct _mandel_info *mandel_info);
@@ -91,6 +99,7 @@ int load_spus(struct _spe_info *spe_info, int max_spus)
   for (n = 0; n < max_spus; n++)
   {
     spe_info[n].prog = spe_image_open("mandelbrot_spe.elf");
+    spe_info[n].state = STATE_IDLE;
 
     if (spe_info[n].prog == NULL)
     {
@@ -123,6 +132,8 @@ int load_spus(struct _spe_info *spe_info, int max_spus)
 int mandel_calc_cell(int *picture, int width, int height, float real_start, float real_end, float imaginary_start, float imaginary_end, struct _spe_info *spe_info, int spus)
 {
   uint32_t data;
+  int finished;
+  uint32_t tag_status;
   int count;
   int y;
   int n = 0;
@@ -134,72 +145,74 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
   for (n = 0; n < spus; n++)
   {
     // These things can be sent at start-up time to speed things up
-    if (spe_in_mbox_write(spe_info[n].spe, (void *)&r_step4, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-    if (spe_in_mbox_write(spe_info[n].spe, (void *)&r_step, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
+    if (spe_in_mbox_write(spe_info[n].spe, (void *)&r_step4, 1, SPE_MBOX_ANY_BLOCKING) < 0) { return -1; }
+    if (spe_in_mbox_write(spe_info[n].spe, (void *)&r_step, 1, SPE_MBOX_ANY_BLOCKING) < 0) { return -1; }
   }
 
-  n = 0;
+  y = 0;
+  finished = 0;
 
-  for (y = 0; y < 768; y++)
+  while(finished < 768)
   {
-    int okay = 0;
-
-    do
+    // Is there any more of the picture left to generate?
+    if (y < 768)
     {
-      // Send 32 bits of data to the SPE: real_start, imaginary_start
-      if (spe_in_mbox_write(spe_info[n].spe, (void *)&real_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-      if (spe_in_mbox_write(spe_info[n].spe, (void *)&imaginary_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { break; }
-
-      imaginary_start += i_step;
-
-      okay = 1;
-    } while(0);
-
-    if (okay == 0)
-    {
-      perror("Could not write mbox data.");
-      exit(1);
-    }
-
-    //printf("sent data\n");
-
-    // Wait for data to come back from the SPE
-    while(1)
-    {
-      count = spe_out_mbox_read(spe_info[n].spe, &data, 1);
-      if (count != 0) { break; }
-    }
-
-    if (count < 0)
-    {
-      perror("Could not read mbox data.");
-      exit(1);
-    }
-
-    // printf("local storage address: 0x%x  (%d)\n", data, y);
-    uint32_t tag = 0;
-
-    if (spe_mfcio_put(spe_info[n].spe, data, picture + (y * 1024), 4096, tag, 0, 0) != 0)
-    {
-      perror("put problem");
-    }
-#if 0
-    if (spe_mssync_start(spe_info[n].spe) != 0) { perror("sync start issue"); }
-    if (spe_mssync_status(spe_info[n].spe) != 0) { perror("sync status issue"); }
-#endif
-    uint32_t tag_status;
-
-    while(1)
-    {
-      if (spe_mfcio_tag_status_read(spe_info[n].spe, 0xf, SPE_TAG_IMMEDIATE, &tag_status) != 0)
+      // Find any free SPUs and send them coordinates to start
+      for (n = 0; n < spus; n++)
       {
-        perror("tag status");
-      }
+        if (spe_info[n].state != STATE_IDLE) { continue; }
 
-      if (tag_status != 0) { break; }
+        // Send 32 bits of data to the SPE: real_start, imaginary_start
+        if (spe_in_mbox_write(spe_info[n].spe, (void *)&real_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { return -1; }
+        if (spe_in_mbox_write(spe_info[n].spe, (void *)&imaginary_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { return -1; }
+
+        spe_info[n].state = STATE_RENDERING;
+
+        imaginary_start += i_step;
+        y++;
+      }
     }
 
-    //printf("tag_status=%d\n", tag_status);
+    // Check for a finished line on all SPUs
+    for (n = 0; n < spus; n++)
+    {
+      if (spe_info[n].state != STATE_RENDERING) { continue; }
+
+      count = spe_out_mbox_read(spe_info[n].spe, &data, 1);
+
+      if (count != 0)
+      {
+        // printf("local storage address: 0x%x  (%d)\n", data, y);
+        uint32_t tag = n;
+
+        if (spe_mfcio_put(spe_info[n].spe, data, picture + (y * 1024), 4096, tag, 0, 0) != 0)
+        {
+          perror("put problem");
+        }
+
+#if 0
+        if (spe_mssync_start(spe_info[n].spe) != 0) { perror("sync start issue"); }
+        if (spe_mssync_status(spe_info[n].spe) != 0) { perror("sync status issue"); }
+#endif
+        spe_info[n].state = STATE_DMA;
+      }
+    }
+
+    // Check for finished DMA transfer
+    for (n = 0; n < spus; n++)
+    {
+      if (spe_info[n].state != STATE_DMA) { continue; }
+
+      if (spe_mfcio_tag_status_read(spe_info[n].spe, 0xff, SPE_TAG_IMMEDIATE, &tag_status) != 0) { perror("tag status"); }
+
+      if (tag_status != 0)
+      {
+        //printf("tag_status=%d\n", tag_status);
+
+        finished++;
+        spe_info[n].state = STATE_IDLE;
+      }
+    }
   }
 
   return 0;
@@ -421,7 +434,7 @@ int main(int argc, char *argv[])
 
   if (arch == 2)
   {
-    spus = load_spus(spe_info, 1);
+    spus = load_spus(spe_info, 6);
   }
 
   gettimeofday(&tv_start, NULL);
