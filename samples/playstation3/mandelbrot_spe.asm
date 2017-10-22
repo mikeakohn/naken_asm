@@ -63,6 +63,16 @@ render_mandelbrot_cell:
   rotqbyi r22, r11, 8
   or r11, r11, r22
 
+  ; Create a ring buffer for the calculated images
+  ; r32 = picture
+  ; r33 = r32 + 128k
+  ; r34 = 4096
+  il r32, picture
+  il r33, 256
+  shli r34, r33, 4
+  shli r33, r33, 9
+  a r33, r33, r32
+
 do_next_row:
   ; Wait for data on channel 29
   ; r0 = [ r0, r1, r2, r3 ]
@@ -85,8 +95,8 @@ do_next_row:
 
   fa r0, r0, r12
 
-  ; r20 = [ picture, ?, ?, ? ]
-  il r20, picture
+  ; r20 = picture
+  or r20, r32, r32
 
   ; x = 1024
   il r22, 1024
@@ -174,9 +184,15 @@ exit_mandel:
   dsync
 
   ; Write back to PPE
-  il r20, picture
-  wrch 28, r20
+  ;or r20, r32, r32
+  wrch 28, r32
 
+  ; if r32 == r33 then set r32 back to picture
+  a r32, r32, r34
+  sf r35, r32, r33
+  brnz r35, do_next_row
+
+  il r32, picture
   bra do_next_row
 
   ;; Stop the cell program

@@ -196,11 +196,14 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
         if (spe_mssync_start(spe_info[n].spe) != 0) { perror("sync start issue"); }
         if (spe_mssync_status(spe_info[n].spe) != 0) { perror("sync status issue"); }
 #endif
-        spe_info[n].state = STATE_DMA;
+        //spe_info[n].state = STATE_DMA;
+        spe_info[n].state = STATE_IDLE;
+        finished++;
       }
     }
 
     // Check for finished DMA transfer
+#if 0
     for (n = 0; n < spus; n++)
     {
       if (spe_info[n].state != STATE_DMA) { continue; }
@@ -213,6 +216,21 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
 
         finished++;
         spe_info[n].state = STATE_IDLE;
+      }
+    }
+#endif
+  }
+
+  for (n = 0; n < spus; n++)
+  {
+    while(1)
+    {
+      if (spe_mfcio_tag_status_read(spe_info[n].spe, 0xff, SPE_TAG_IMMEDIATE, &tag_status) != 0) { perror("tag status"); }
+
+      if (tag_status != 0)
+      {
+        //printf("tag_status=%d\n", tag_status);
+        break;
       }
     }
   }
@@ -436,7 +454,7 @@ int main(int argc, char *argv[])
 
   if (arch == 2)
   {
-    spus = load_spus(spe_info, 6);
+    spus = load_spus(spe_info, 1);
   }
 
   gettimeofday(&tv_start, NULL);
