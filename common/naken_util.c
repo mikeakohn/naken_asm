@@ -793,6 +793,7 @@ int main(int argc, char *argv[])
           util_context.disasm_range = cpu_list[n].disasm_range;
           util_context.flags = cpu_list[n].flags;
           util_context.bytes_per_address = cpu_list[n].bytes_per_address;
+          util_context.memory.endian = cpu_list[n].default_endian;
 
           if (cpu_list[n].simulate_init != NULL)
           {
