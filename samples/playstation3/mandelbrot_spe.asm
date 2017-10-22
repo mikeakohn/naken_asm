@@ -73,6 +73,9 @@ render_mandelbrot_cell:
   shli r33, r33, 9
   a r33, r33, r32
 
+  hbra branch_for_x, for_x
+  hbra branch_mandel_for_loop, mandel_for_loop
+
 do_next_row:
   ; Wait for data on channel 29
   ; r0 = [ r0, r1, r2, r3 ]
@@ -142,6 +145,7 @@ mandel_for_loop:
   brz r6, exit_mandel
 
   ai r23, r23, -1
+branch_mandel_for_loop:
   brnz r23, mandel_for_loop
 
 exit_mandel:
@@ -179,6 +183,7 @@ exit_mandel:
   ; next x
   ; Sub: r22 = r22 - 1
   ai r22, r22, -4
+branch_for_x:
   brnz r22, for_x
 
   dsync

@@ -454,7 +454,7 @@ int main(int argc, char *argv[])
 
   if (arch == 2)
   {
-    spus = load_spus(spe_info, 1);
+    spus = load_spus(spe_info, 6);
   }
 
   gettimeofday(&tv_start, NULL);
