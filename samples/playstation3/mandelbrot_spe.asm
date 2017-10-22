@@ -119,6 +119,12 @@ for_x:
   ; loop_counter = [ 127, ?, ?, ? ]
   il r23, 127
 mandel_for_loop:
+.if 0
+  ;; This is the code written cleanly, but it runs slower
+  ;; because of .. I believe stalls due to using a register
+  ;; as a source directly after it has been changed.  The
+  ;; speed increase is pretty noticable.
+
   ; r7 = ti = (2 * zr * zi);
   fa r7, r4, r4
   fm r7, r5, r7
@@ -145,6 +151,36 @@ mandel_for_loop:
   brz r6, exit_mandel
 
   ai r23, r23, -1
+.endif
+
+  ; r7 = ti = (2 * zr * zi);
+  fm r40, r5, r5
+  fa r7, r4, r4
+
+  ; r4 = tr = ((zr * zr) - (zi * zi));
+  fms r4, r4, r4, r40
+  ;fm r7, r5, r7
+  fma r5, r5, r7, r1
+
+  ; v4 = zr = tr + r;
+  ; v5 = zi = ti + i;
+  fa r4, r4, r0
+  ;fa r5, r7, r1
+
+  fm r6, r4, r4
+  fma r7, r5, r5, r6
+  ai r23, r23, -1
+
+  ; if ((zr * zr) + (zi * zi) > 4) break;
+  fcgt r6, r3, r7
+
+  ; count const = 0 if less than
+  and r2, r2, r6
+  a r10, r10, r2
+
+  gb r6, r6
+  brz r6, exit_mandel
+
 branch_mandel_for_loop:
   brnz r23, mandel_for_loop
 
