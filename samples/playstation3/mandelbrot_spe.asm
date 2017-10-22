@@ -145,9 +145,9 @@ mandel_for_loop:
 
   ; count const = 0 if less than
   and r2, r2, r6
+  gb r6, r6
   a r10, r10, r2
 
-  gb r6, r6
   brz r6, exit_mandel
 
   ai r23, r23, -1
