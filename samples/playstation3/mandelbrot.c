@@ -62,6 +62,7 @@ struct _spe_info
   int y;
   spe_program_handle_t *prog;
   pthread_t pid;
+  int count;
 };
 
 void render_mandelbrot_altivec(int *picture, struct _mandel_info *mandel_info);
@@ -101,6 +102,7 @@ int load_spus(struct _spe_info *spe_info, int max_spus)
   {
     spe_info[n].prog = spe_image_open("mandelbrot_spe.elf");
     spe_info[n].state = STATE_IDLE;
+    spe_info[n].count = 0;
 
     if (spe_info[n].prog == NULL)
     {
@@ -167,11 +169,14 @@ int mandel_calc_cell(int *picture, int width, int height, float real_start, floa
         if (spe_in_mbox_write(spe_info[n].spe, (void *)&real_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { return -1; }
         if (spe_in_mbox_write(spe_info[n].spe, (void *)&imaginary_start, 1, SPE_MBOX_ANY_BLOCKING) < 0) { return -1; }
 
+        // printf("n=%d y=%d count=%d\n", n, y, spe_info[n].count);
         spe_info[n].y = y;
         spe_info[n].state = STATE_RENDERING;
+        spe_info[n].count++;
 
         imaginary_start += i_step;
         y++;
+        if (y >= 768) { break; }
       }
     }
 
@@ -481,10 +486,14 @@ int main(int argc, char *argv[])
   if (arch == 2)
   {
     int n;
+    int total = 0;
 
     for (n = 0; n < spus; n++)
     {
       //pthread_join(pid, NULL);
+
+      printf("%d) count=%d  y=%d\n", n, spe_info[n].count, spe_info[n].y);
+      total += spe_info[n].count;
 
       if (spe_context_destroy(spe_info[n].spe) != 0)
       {
@@ -494,6 +503,8 @@ int main(int argc, char *argv[])
 
       spe_image_close(spe_info[n].prog);
     }
+
+    printf("total=%d\n", total);
   }
 
 #if 0
