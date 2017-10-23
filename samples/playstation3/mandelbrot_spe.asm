@@ -78,8 +78,8 @@ render_mandelbrot_cell:
 
 do_next_row:
   ; Wait for data on channel 29
-  ; r0 = [ r0, r1, r2, r3 ]
-  ; r1  = [ i0, i0, i0, i0 ]
+  ; r0 = [ real0, real1, real2, real3 ]
+  ; r1  = [ imaginary0, imaginary0, imaginary0, imaginary0 ]
   rdch r0, 29
   rdch r1, 29
 
@@ -98,6 +98,9 @@ do_next_row:
 
   fa r0, r0, r12
 
+  ; r100 = [ real4, real5, real6, real7 ]
+  fa r100, r0, r11
+
   ; r20 = picture
   or r20, r32, r32
 
@@ -111,10 +114,15 @@ for_x:
   il r4, 0
   il r5, 0
 
+  il r104, 0
+  il r105, 0
+
   ; counts = [ 0, 0, 0, 0 ]
   ; inc = [ 1, 1, 1, 1 ]
   il r10, 0
   il r2, 1
+  il r103, 0
+  il r102, 1
 
   ; loop_counter = [ 127, ?, ?, ? ]
   il r23, 127
@@ -147,6 +155,7 @@ mandel_for_loop:
   and r2, r2, r6
   gb r6, r6
   a r10, r10, r2
+  or r6, r6, r106
 
   brz r6, exit_mandel
 
@@ -155,30 +164,43 @@ mandel_for_loop:
 
   ; r7 = ti = (2 * zr * zi);
   fm r40, r5, r5
+  fm r41, r105, r105
   fa r7, r4, r4
+  fa r107, r104, r104
 
   ; r4 = tr = ((zr * zr) - (zi * zi));
   fms r4, r4, r4, r40
+  fms r104, r104, r104, r41
   ;fm r7, r5, r7
   fma r5, r5, r7, r1
+  fma r105, r105, r107, r1
 
   ; v4 = zr = tr + r;
   ; v5 = zi = ti + i;
   fa r4, r4, r0
+  fa r104, r104, r100
   ;fa r5, r7, r1
 
   fm r6, r4, r4
+  fm r106, r104, r104
   fma r7, r5, r5, r6
+  fma r107, r105, r105, r106
   ai r23, r23, -1
 
   ; if ((zr * zr) + (zi * zi) > 4) break;
   fcgt r6, r3, r7
+  fcgt r106, r3, r107
 
   ; count const = 0 if less than
   and r2, r2, r6
+  and r102, r102, r106
   a r10, r10, r2
+  a r103, r103, r102
 
   gb r6, r6
+  gb r106, r106
+  or r6, r6, r106
+
   brz r6, exit_mandel
 
 branch_mandel_for_loop:
@@ -188,37 +210,57 @@ exit_mandel:
   ; r10 = (r10 >> 3) << 2
   ;rotmai r10, r10, 3
   andi r10, r10, 0x00f8
+  andi r103, r103, 0x00f8
   shli r10, r10, 1
+  shli r103, r103, 1
 
   ; map colors into picture
   lqd r26, colors(r10)
+  lqd r116, colors(r103)
   shlqbyi r10, r10, 4
+  shlqbyi r103, r103, 4
   lqd r27, colors(r10)
+  lqd r117, colors(r103)
   shlqbyi r10, r10, 4
+  shlqbyi r103, r103, 4
   lqd r28, colors(r10)
+  lqd r118, colors(r103)
   shlqbyi r10, r10, 4
+  shlqbyi r103, r103, 4
   lqd r29, colors(r10)
+  lqd r119, colors(r103)
 
   and r26, r26, r16
+  and r116, r116, r16
   and r27, r27, r17
+  and r117, r117, r17
   and r28, r28, r18
+  and r118, r118, r18
   and r29, r29, r19
+  and r119, r119, r19
 
   or r26, r26, r27
+  or r116, r116, r117
   or r28, r28, r29
+  or r118, r118, r119
   or r26, r26, r28
+  or r116, r116, r118
 
   stqd r26, 0(r20)
+  stqd r116, 16(r20)
 
   ; picture += 4 pixels (16 bytes)
-  ai r20, r20, 16
+  ai r20, r20, 32
 
-  ; [ r0, r1, r2, r3 ] += rstep4;
+  ; [ real0, real1, real2, real3 ] += rstep4;
   fa r0, r0, r11
+  fa r0, r0, r11
+  fa r100, r100, r11
+  fa r100, r100, r11
 
   ; next x
   ; Sub: r22 = r22 - 1
-  ai r22, r22, -4
+  ai r22, r22, -8
 branch_for_x:
   brnz r22, for_x
 
