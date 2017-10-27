@@ -128,6 +128,8 @@ int main(int argc, char *argv[])
   errors += test_symbols("MSP430 3", msp430_3);
   errors += test_symbols("MSP430 4", msp430_4);
   errors += test_symbols("MSP430 5", msp430_5);
+  errors += test_symbols("MSP430 6", msp430_6);
+  errors += test_symbols("MSP430 7", msp430_7);
   errors += test_symbols("MIPS", mips);
   errors += test_symbols("STM8", stm8);
 
