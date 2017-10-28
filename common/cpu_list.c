@@ -83,6 +83,10 @@
 
 struct _cpu_list cpu_list[] =
 {
+#ifdef ENABLE_MSP430
+  { "msp430", CPU_TYPE_MSP430, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 1, SREC_16, parse_instruction_msp430, NULL, list_output_msp430, disasm_range_msp430, simulate_init_msp430, NO_FLAGS },
+  { "msp430x", CPU_TYPE_MSP430X, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 1, SREC_24, parse_instruction_msp430, NULL, list_output_msp430x, disasm_range_msp430x, simulate_init_msp430, NO_FLAGS },
+#endif
 #ifdef ENABLE_4004
   { "4004", CPU_TYPE_4004, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, SREC_16, parse_instruction_4004, NULL, list_output_4004, disasm_range_4004, NULL, NO_FLAGS },
 #endif
@@ -133,10 +137,6 @@ struct _cpu_list cpu_list[] =
   { "mips32", CPU_TYPE_MIPS32, ENDIAN_LITTLE, 1, ALIGN_4, 0, 0, 0, SREC_32, parse_instruction_mips, NULL, list_output_mips, disasm_range_mips, simulate_init_mips, MIPS_I | MIPS_II | MIPS_III | MIPS_FPU | MIPS_MSA },
   { "pic32", CPU_TYPE_MIPS32, ENDIAN_LITTLE, 1, ALIGN_4, 0, 0, 0, SREC_32, parse_instruction_mips, NULL, list_output_mips, disasm_range_mips, simulate_init_mips, MIPS_I | MIPS_II | MIPS_III | MIPS_32 },
   { "ps2_ee", CPU_TYPE_EMOTION_ENGINE, ENDIAN_LITTLE, 1, ALIGN_16, 0, 0, 0, SREC_32, parse_instruction_mips, NULL, list_output_mips, disasm_range_mips, simulate_init_mips, MIPS_I | MIPS_II | MIPS_III | MIPS_IV | MIPS_FPU | MIPS_EE_CORE | MIPS_EE_VU },
-#endif
-#ifdef ENABLE_MSP430
-  { "msp430", CPU_TYPE_MSP430, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 1, SREC_16, parse_instruction_msp430, NULL, list_output_msp430, disasm_range_msp430, simulate_init_msp430, NO_FLAGS },
-  { "msp430x", CPU_TYPE_MSP430X, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 1, SREC_24, parse_instruction_msp430, NULL, list_output_msp430x, disasm_range_msp430x, simulate_init_msp430, NO_FLAGS },
 #endif
 #ifdef ENABLE_PDP8
   { "pdp8", CPU_TYPE_PDP8, ENDIAN_LITTLE, 2, ALIGN_2, 0, 0, 0, SREC_16, parse_instruction_pdp8, NULL, list_output_pdp8, disasm_range_pdp8, NULL, NO_FLAGS },
