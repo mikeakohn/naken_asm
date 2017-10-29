@@ -277,7 +277,7 @@ int parse_dc64(struct _asm_context *asm_context)
       eat_operand(asm_context);
     }
 
-    udata64 = (uint64_t)var_get_int64(&var);
+    udata64 = (uint64_t)var_get_bin64(&var);
 
     if (asm_context->memory.endian == ENDIAN_LITTLE)
     {
