@@ -9,7 +9,7 @@ const char *msp430_1 =
   "  mov.w #fifth, &100\n"
   "fourth:\n"
   "  mov.b #1, &100\n"
-  ".org 2\n"
+  ".org 10\n"
   "fifth:\n"
   "  mov.w #fourth, &100\n\n";
 
@@ -17,7 +17,7 @@ const char *msp430_2 =
   ".msp430x\n"
   ".org 0x200\n"
   "first:\n"
-  "  mov.w #1, &100\n"
+  "  mov.w #fifth, &100\n"
   "second:\n"
   "  mova &first, r7\n"
   "third:\n"
@@ -107,7 +107,7 @@ const char *msp430_7 =
   "  mova 0(r4), r5\n"
   "fourth:\n"
   "  mova fifth(r4), r4\n"
-  ".org 2\n"
+  ".org 0\n"
   "fifth:\n"
   "  mov.w #fourth, blah4(r5)\n"
   ".org 0xffff\n"
