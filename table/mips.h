@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -105,7 +105,7 @@ struct _mips_branch
 struct _mips_special_instr
 {
   const char *instr;
-  char operand[4];
+  int8_t operand[4];
   int8_t operand_count;
   uint8_t format;
   uint8_t operation;
@@ -117,7 +117,7 @@ struct _mips_special_instr
 struct _mips_other
 {
   const char *instr;
-  char operand[3];
+  int8_t operand[3];
   int8_t operand_count;
   uint32_t opcode;
   uint32_t mask;
@@ -127,7 +127,7 @@ struct _mips_other
 struct _mips_ee_vector
 {
   const char *instr;
-  char operand[3];
+  int8_t operand[3];
   int8_t operand_count;
   uint32_t opcode;
   uint32_t mask;
