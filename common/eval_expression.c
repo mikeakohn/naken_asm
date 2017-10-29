@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -176,7 +176,7 @@ static int parse_unary(struct _asm_context *asm_context, int *num, int operation
     else
   if (token_type == TOKEN_NUMBER)
   {
-    temp = atoi(token);
+    temp = atoll(token);
   }
     else
   if (IS_TOKEN(token, '('))
@@ -343,7 +343,7 @@ printf("Paren got back %d\n", paren_num);
         return -1;
       }
 
-      num_stack[num_stack_ptr++] = atoi(token);
+      num_stack[num_stack_ptr++] = atoll(token);
 #ifdef DEBUG
 printf("pushed\n");
 PRINT_STACK()
