@@ -86,7 +86,7 @@ int32_t var_get_int32(struct _var *var)
 
 int64_t var_get_int64(struct _var *var)
 {
-  VAR_RETURN_VALUE(var,uint64_t);
+  VAR_RETURN_VALUE(var,int64_t);
 
   assert(0);
 
