@@ -149,6 +149,7 @@ int main(int argc, char *argv[])
   test_int64("(1 << 6)|(2 << 5) >> 1", 96);
   test_int64("((1 << 6)|(2 << 5)) >> 1", 32);
   test_int64("((1 << 6)|(2 << 5)) >> 32", 0);
+  test_int64("0xffffffff", 0xffffffff);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");

@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
   test("(1 << 6)|(2 << 5) >> 1", 96);
   test("((1) << 6)|((2) << 5) >> 1", 96);
   test("((1 << 6)|(2 << 5)) >> 1", 32);
+  test("0xffffffff", -1);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
