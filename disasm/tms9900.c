@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2017 by Michael Kohn
  *
  */
 
@@ -241,7 +241,7 @@ void disasm_range_tms9900(struct _memory *memory, uint32_t flags, uint32_t start
     bytes[0] = 0;
     for (n = 0; n < count; n++)
     {
-      char temp[4];
+      char temp[8];
       sprintf(temp, "%04x ", READ_RAM16(start + n));
       strcat(bytes, temp);
     }
