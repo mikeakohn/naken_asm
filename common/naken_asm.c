@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
            "   -q             Quiet (only output errors)\n"
            "   -dump_symbols  Dump all symbols at end of assembly\n"
            "   -dump_macros   Dump all macros at end of assembly\n"
+           "   -optimize      Optimize instructions (see docs for info)\n"
            "\n");
     exit(0);
   }
@@ -204,6 +205,11 @@ int main(int argc, char *argv[])
     if (strcmp(argv[i], "-dump_macros") == 0)
     {
       asm_context.dump_macros = 1;
+    }
+      else
+    if (strcmp(argv[i], "-optimize") == 0)
+    {
+      asm_context.optimize = 1;
     }
       else
     {

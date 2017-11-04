@@ -13,6 +13,7 @@ Assembling
        -q             Quite (only output errors)
        -dump_symbols  Dump all symbols at end of assembly
        -dump_macros   Dump all macros at end of assembly
+       -optimize      Optimize instructions (see docs for info)
 
 To compile a simple program, from the naken_asm directory type:
 
@@ -20,6 +21,14 @@ To compile a simple program, from the naken_asm directory type:
         -l testing/msp430/launchpad_blink.asm
 
 The -h option is not needed since the default output file type is hex format.
+
+The -optimize command line argument is a hint sent to the assemblers that
+they can try to optimize things.  An example is: mov.w 0(r4), r6 with MSP430
+is supposed to use up 4 bytes, but this is equivalent to mov.w @r4, r6.
+If the -optimize argument is set, naken_asm will automatically convert it
+to mov.w @r4, r6.  As of this writing, this is the only optimization that
+is supported.  See documentation for each CPU to see what -optimize will
+do if set for those assemblers.
 
 If ELF is desired the -e option can be used with -o launchpad_blink.elf.
 In order to assemble launchpad_blink.asm, an include file is required.

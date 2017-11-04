@@ -82,6 +82,7 @@ struct _asm_context
   uint8_t write_list_file : 1;
   uint8_t dump_symbols : 1;
   uint8_t dump_macros : 1;
+  uint8_t optimize : 1;
   uint32_t flags;
   uint32_t extra_context;
 };

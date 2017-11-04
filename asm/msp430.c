@@ -121,49 +121,6 @@ static struct _aliases
 
 static char *msp430x_rpt[] = { "rpt", "rptz", "rptc",  NULL };
 
-static int ignore_and_check_indexed(struct _asm_context *asm_context)
-{
-  char token[TOKENLEN];
-  int token_type;
-  int reg = -1;
-  int count = 0;
-
-  // Ignore all tokens until an ',' or EOL while checking if there is
-  // (reg) pattern.
-  while(1)
-  {
-    token_type = tokens_get(asm_context, token, TOKENLEN);
-
-    if (IS_TOKEN(token, ',') || token_type == TOKEN_EOL || token_type == TOKEN_EOF)
-    {
-      tokens_push(asm_context, token, token_type);
-      if (count == 3) { return reg; }
-      return -1;
-    }
-
-    if (count == 0 && IS_TOKEN(token, '('))
-    {
-      count++;
-    }
-      else
-    if (count == 1 && (token[0] == 'r' || token[1] == 'R'))
-    {
-      reg = get_register_msp430(token);
-      count++;
-    }
-      else
-    if (count == 2 && IS_TOKEN(token, ')'))
-    {
-      count++;
-    }
-      else
-    {
-      reg = -1;
-      count = 0;
-    }
-  }
-}
-
 static void operand_to_cg(struct _asm_context *asm_context, struct _operand *operand, int bw)
 {
   if (operand->type != OPTYPE_IMMEDIATE) { return; }
@@ -230,6 +187,7 @@ static int process_operand(struct _asm_context *asm_context, struct _operand *op
       return 0;
     }
 
+    // If this is a destination, then turn @reg to 0(reg)
     operand->type = OPTYPE_INDEXED;
   }
 
@@ -580,37 +538,38 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
       {
         operands[operand_count].type = OPTYPE_SYMBOLIC;
 
-        if (asm_context->pass == 1)
+        // Issue #36: Instead of assuming this a 16 bit instruction
+        // with 16 bits of data going with it, try and evaluate
+        // the expression.  If it fails then mark it as 16 + 16 bit
+        // no matter what.  If it's 0(reg) then it can be optimized
+        // later to @reg.
+
+        tokens_push(asm_context, token, token_type);
+
+        int eval_error = eval_expression(asm_context, &num);
+
+        if (asm_context->pass == 2 && eval_error != 0)
         {
-          // In pass 1 it will always be 2 words long, so who cares
-          int reg = ignore_and_check_indexed(asm_context);
-
-          operands[operand_count].value = 0;
-
-          if (reg != 0)
+          if (asm_context->pass == 2)
           {
-            operands[operand_count].type = OPTYPE_INDEXED;
-            operands[operand_count].reg = reg;
-            operands[operand_count].value = 0;
+            return -1;
           }
+        }
+
+        if (asm_context->pass == 1 && eval_error != 0)
+        {
+          eat_operand(asm_context);
+
+          // Set this operand up as something that can't be optimized.
+          // It shouldn't matter what it is.
+          operands[operand_count].value = 101;
         }
           else
         {
-          // FIXME - Ugly fix. The real problem is in eval_expression.
-          int neg = 1;
-          if (IS_TOKEN(token,'-')) { neg = -1; }
-          else { tokens_push(asm_context, token, token_type); }
-
-          if (eval_expression(asm_context, &num) != 0)
-          {
-            //print_error_unexp(token, asm_context);
-            return -1;
-          }
-
-          num = num * neg;
           operands[operand_count].value = num;
 
           token_type = tokens_get(asm_context, token, TOKENLEN);
+
           if (IS_TOKEN(token,'('))
           {
             operands[operand_count].type = OPTYPE_INDEXED;
@@ -661,6 +620,31 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
     printf("operand %d: value=%d type=%d error=%d\n", n, operands[n].value, operands[n].type, operands[n].error);
   }
 #endif
+
+  // Issue #36: If this instruction is 0(reg) and -optimize is turned
+  // on then turn into @reg.
+  if (asm_context->optimize == 1)
+  {
+    if (operands[0].type == OPTYPE_INDEXED)
+    {
+      if (asm_context->pass == 1)
+      {
+        if (operands[0].value == 0)
+        {
+          memory_write(asm_context, asm_context->address, 1, asm_context->line);
+          operands[0].type = OPTYPE_REGISTER_INDIRECT;
+        }
+      }
+        else
+      {
+        if (operands[0].value == 0 &&
+            memory_read(asm_context, asm_context->address) == 1)
+        {
+          operands[0].type = OPTYPE_REGISTER_INDIRECT;
+        }
+      }
+    }
+  }
 
   // Do aliases first
   n = 0;
