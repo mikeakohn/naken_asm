@@ -213,11 +213,18 @@ int main(int argc, char *argv[])
     }
       else
     {
-      if (infile != NULL)
+      if (argv[i][0] == '-')
       {
-        printf("Error: Cannot use %s as input file since %s was already chosen.\n", argv[1], infile);
+        printf("Error: Unknown command line argument '%s'\n", argv[i]);
         exit(1);
       }
+
+      if (infile != NULL)
+      {
+        printf("Error: Cannot use %s as input file since %s was already chosen.\n", argv[i], infile);
+        exit(1);
+      }
+
       infile = argv[i];
     }
   }
