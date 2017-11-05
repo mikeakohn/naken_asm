@@ -478,7 +478,10 @@ static int parse_align(struct _asm_context *asm_context, int num)
 
   while ((asm_context->address & mask) != 0)
   {
-    memory_write_inc(asm_context, 0, DL_EMPTY);
+    // Issue #38: Can't actually write a byte here incase this is
+    // aligning resb/w directives which don't write any data out.
+    //memory_write_inc(asm_context, 0, DL_EMPTY);
+    asm_context->address++;
   }
 
   return 0;
