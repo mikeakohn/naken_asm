@@ -443,8 +443,11 @@ static int two_operand(struct _memory *memory, uint32_t address, char *instructi
     if (opcode == 0x4130)
     { sprintf(instruction, "ret   --  %s", instr); }
       else
-    if ((opcode & 0xff30) == 0x4130)
+    if ((opcode & 0xffb0) == 0x4130)
     { sprintf(instruction, "pop.%c r%d   --  %s", bw == 0 ? 'w':'b', opcode & 0x000f, instr); }
+      else
+    if ((opcode & 0xffb0) == 0x41b0)
+    { sprintf(instruction, "pop.%c %d(r%d)   --  %s", bw == 0 ? 'w':'b', (int16_t)READ_RAM16(address + 2), opcode & 0x000f, instr); }
       else
     if (opcode == 0xc312)
     { sprintf(instruction, "clrc  --  %s", instr); }
