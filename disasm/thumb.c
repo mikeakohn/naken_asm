@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -75,6 +75,9 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
 
       switch(table_thumb[n].type)
       {
+        case OP_NONE:
+          strcpy(instruction, table_thumb[n].instr);
+          return 2;
         case OP_SHIFT:
           rd = opcode & 0x7;
           rs = (opcode >> 3) & 0x7;
@@ -222,6 +225,9 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
             sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address + 4 + offset, offset);
           }
           return 4;
+        case OP_SP_SP_IMM:
+          sprintf(instruction, "%s SP, SP, #%d", table_thumb[n].instr, (opcode & 0x3f) * 4);
+          return 2;
         default:
           strcpy(instruction, "???");
           return 2;

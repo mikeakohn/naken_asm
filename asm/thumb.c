@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -20,6 +20,10 @@
 #include "common/tokens.h"
 #include "common/eval_expression.h"
 #include "table/thumb.h"
+
+#define REG_SP (13 - 8)
+#define REG_LR (14 - 8)
+#define REG_PC (15 - 8)
 
 enum
 {
@@ -74,9 +78,9 @@ static int get_h_register_thumb(char *token)
     }
   }
 
-  if (strcasecmp("sp", token) == 0) { return 13 - 8; }
-  if (strcasecmp("lr", token) == 0) { return 14 - 8; }
-  if (strcasecmp("pc", token) == 0) { return 15 - 8; }
+  if (strcasecmp("sp", token) == 0) { return REG_SP; }
+  if (strcasecmp("lr", token) == 0) { return REG_LR; }
+  if (strcasecmp("pc", token) == 0) { return REG_PC; }
 
   return -1;
 }
@@ -364,6 +368,13 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
 
       switch(table_thumb[n].type)
       {
+        case OP_NONE:
+          if (operand_count == 0)
+          {
+            add_bin16(asm_context, table_thumb[n].opcode, IS_OPCODE);
+            return 2;
+          }
+          break;
         case OP_SHIFT:
           if (operand_count == 3 &&
               operands[0].type == OPERAND_REGISTER &&
@@ -715,6 +726,26 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
             add_bin16(asm_context, table_thumb[n].opcode | ((offset >> 11) & 0x7ff), IS_OPCODE);
             add_bin16(asm_context, table_thumb[n].opcode | (1 << 11) | (offset & 0x7ff), IS_OPCODE);
             return 4;
+          }
+          break;
+        case OP_SP_SP_IMM:
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_H_REGISTER &&
+              operands[1].type == OPERAND_H_REGISTER &&
+              operands[0].value == REG_SP &&
+              operands[1].value == REG_SP &&
+              operands[2].type == OPERAND_NUMBER)
+          {
+            if (check_range(asm_context, "immediate", operands[2].value, 0, 508) == -1) { return -1; }
+
+            if ((operands[2].value & 0x3) != 0)
+            {
+              print_error("Immediate not a multiple of 4 bytes.", asm_context);
+              return -1;
+            }
+
+            add_bin16(asm_context, table_thumb[n].opcode | ((operands[2].value >> 2) & 0x3f), IS_OPCODE);
+            return 2;
           }
           break;
         default:

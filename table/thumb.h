@@ -3,7 +3,7 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
  * Copyright 2010-2017 by Michael Kohn
  *
@@ -18,6 +18,7 @@
 
 enum
 {
+  OP_NONE,
   OP_SHIFT,
   OP_ADD_SUB,
   OP_IMM,
@@ -39,6 +40,13 @@ enum
   OP_SOFTWARE_INTERRUPT,
   OP_UNCONDITIONAL_BRANCH,
   OP_LONG_BRANCH_WITH_LINK,
+  OP_SP_SP_IMM,
+};
+
+enum
+{
+  VERSION_THUMB,
+  VERSION_THUMB_2,
 };
 
 struct _table_thumb
@@ -47,6 +55,7 @@ struct _table_thumb
   uint16_t opcode;
   uint16_t mask;
   uint8_t type;
+  uint8_t version;
   int8_t cycles;
 };
 
