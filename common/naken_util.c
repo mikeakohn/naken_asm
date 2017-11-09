@@ -273,6 +273,7 @@ static int get_range(struct _util_context *util_context, char *token, uint32_t *
   while(*token == ' ') { token++; }
 
   start_string = token;
+
   while(*token != '-' && *token != 0)
   {
     token++;
@@ -280,6 +281,7 @@ static int get_range(struct _util_context *util_context, char *token, uint32_t *
 
   // Remove white space from end of start_string
   s = token - 1;
+
   while(s >= start_string)
   {
     if (*s != ' ') { break; }
@@ -333,7 +335,7 @@ static void bprint(struct _util_context *util_context, char *token)
 
   // FIXME - is this right?
   if (get_range(util_context, token, &start, &end) == -1) { return; }
-  if (start <= end) { end = start + 128; }
+  if (start >= end) { end = start + 128; }
 
   while(start < end)
   {
@@ -373,7 +375,7 @@ static void wprint(struct _util_context *util_context, char *token)
   int ptr = 0;
 
   if (get_range(util_context, token, &start, &end) == -1) { return; }
-  if (start <= end) { end = start + 128; }
+  if (start >= end) { end = start + 128; }
 
   if ((start & 0x01) != 0)
   {
@@ -1202,7 +1204,7 @@ int main(int argc, char *argv[])
     {
       if (util_context.simulate->simulate_set_reg(util_context.simulate, command+6, 0) == 0)
       {
-        printf("Flag %s set.\n", command+4);
+        printf("Flag %s set.\n", command+6);
       }
         else
       {
@@ -1268,7 +1270,8 @@ int main(int argc, char *argv[])
     if (strncmp(command, "dumpram", 7) == 0)
     {
       uint32_t start, end;
-      if (get_range(&util_context, command+7, &start, &end) == -1)
+
+      if (get_range(&util_context, command + 7, &start, &end) == -1)
       {
         printf("Illegal range.\n");
       }
