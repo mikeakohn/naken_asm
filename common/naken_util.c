@@ -1204,7 +1204,7 @@ int main(int argc, char *argv[])
     {
       if (util_context.simulate->simulate_set_reg(util_context.simulate, command+6, 0) == 0)
       {
-        printf("Flag %s set.\n", command+6);
+        printf("Flag %s cleared.\n", command+6);
       }
         else
       {
