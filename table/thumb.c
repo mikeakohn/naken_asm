@@ -90,11 +90,11 @@ struct _table_thumb table_thumb[] =
   { "sub",   0xb080, 0xff80, OP_SP_SP_IMM, VERSION_THUMB, -1 },
   // Thumb 2:
   { "blx",   0x4780, 0xff80, OP_HI_BX, VERSION_THUMB_2, -1 },
+  { "sxth",  0xb200, 0xffc0, OP_REG_REG, VERSION_THUMB_2, -1 },
+  { "sxtb",  0xb240, 0xffc0, OP_REG_REG, VERSION_THUMB_2, -1 },
+  { "uxth",  0xb280, 0xffc0, OP_REG_REG, VERSION_THUMB_2, -1 },
+  { "uxtb",  0xb2c0, 0xffc0, OP_REG_REG, VERSION_THUMB_2, -1 },
 
-  // sxth
-  // sxtb
-  // uxth
-  // uxtb
   // push (multiple?)
   // cps
   // rev

@@ -228,6 +228,9 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
         case OP_SP_SP_IMM:
           sprintf(instruction, "%s SP, SP, #%d", table_thumb[n].instr, (opcode & 0x3f) * 4);
           return 2;
+        case OP_REG_REG:
+          sprintf(instruction, "%s r%d, r%d", table_thumb[n].instr, opcode & 7, (opcode >> 3) & 7);
+          return 2;
         default:
           strcpy(instruction, "???");
           return 2;

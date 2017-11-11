@@ -87,8 +87,12 @@ blx r9
 blx r3
 ldrsh r4, [r7, r3]
 ldrsb r4, [r7, r3]
-nop
+sxth r3, r7
+sxtb r3, r7
+uxth r2, r4
+uxtb r7, r1
 yield
 wfe
 wfi
 sev
+nop
