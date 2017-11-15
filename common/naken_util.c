@@ -111,6 +111,110 @@ parse_instruction_t parse_instruction_z80 = NULL;
 static char *state_stopped = "stopped";
 static char *state_running = "running";
 
+#ifdef READLINE
+static const char *command_names[] = {
+    "help",
+    "quit",
+    "exit",
+    "run",
+    "step",
+    "call",
+    "stop",
+    "reset",
+    "break",
+    "push",
+    "set",
+    "clear",
+    "speed",
+    "bprint",
+    "wprint",
+    "bwrite",
+    "wwrite",
+    "print",
+    "disasm",
+    "symbols",
+    "dumpram",
+    "info",
+    "registers",
+    "display",
+    "read",
+};
+
+static const char *find_partial_command(const char *text, int *index) {
+    int len = strlen(text);
+    const char *name;
+
+    while (*index < sizeof(command_names)/sizeof(char*)) {
+        name = command_names[*index];
+        ++*index;
+        if (strncmp(name, text, len) == 0) {
+            return name;
+        }
+    }
+
+    return NULL;
+}
+
+static const char *find_command(const char *text) {
+    const char *name;
+    int index = 0;
+
+    while (index < sizeof(command_names)/sizeof(char*)) {
+        name = command_names[index];
+        ++index;
+        if (strcmp(name, text) == 0) {
+            return name;
+        }
+    }
+
+    return NULL;
+}
+
+static char *command_name_generator(const char *text, int state)
+{
+    static int index;
+    const char *name;
+
+    if (!state) {
+        index = 0;
+    }
+
+    name = find_partial_command(text, &index);
+    if (name != NULL) {
+        return strdup(name);
+    }
+
+    return NULL;
+}
+
+static char **command_name_completion(const char *text, int start, int end)
+{
+    char *str, *token;
+    const char *name;
+    int has_command;
+
+    rl_attempted_completion_over = 1; // suppress default completion
+
+    // check if buffer already contains a command
+    str = strdup(rl_line_buffer);
+    if (str != NULL) {
+        token = strtok(str, " ");
+        has_command = 0;
+        name = NULL;
+        if (token != NULL) {
+            name = find_command(token);
+            has_command = (name != NULL);
+        }
+        free(str);
+        if (has_command) {
+            return NULL; // no completion once command was entered
+        }
+    }
+
+    return rl_completion_matches(text, command_name_generator);
+}
+#endif
+
 static char *get_hex(char *token, uint32_t *num)
 {
   int s = 0;
@@ -1018,6 +1122,7 @@ int main(int argc, char *argv[])
 #else
       char prompt[32];
       sprintf(prompt, "%s> ", state);
+      rl_attempted_completion_function = command_name_completion;
       line = readline(prompt);
       if (!(line == NULL || line[0] == 0))
       {
@@ -1039,6 +1144,13 @@ int main(int argc, char *argv[])
       if (command[i] == '\n' || command[i] == '\r')
       { command[i] = 0; break; }
       i++;
+    }
+    // trim trailing whitespace
+    i = strlen(command) - 1;
+    while (i >= 0 && isspace(command[i]))
+    {
+      command[i] = 0;
+      i--;
     }
 
     if (command[0] == 0)
