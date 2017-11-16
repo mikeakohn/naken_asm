@@ -112,106 +112,118 @@ static char *state_stopped = "stopped";
 static char *state_running = "running";
 
 #ifdef READLINE
-static const char *command_names[] = {
-    "help",
-    "quit",
-    "exit",
-    "run",
-    "step",
-    "call",
-    "stop",
-    "reset",
-    "break",
-    "push",
-    "set",
-    "clear",
-    "speed",
-    "bprint",
-    "wprint",
-    "bwrite",
-    "wwrite",
-    "print",
-    "disasm",
-    "symbols",
-    "dumpram",
-    "info",
-    "registers",
-    "display",
-    "read",
+static const char *command_names[] =
+{
+  "help",
+  "quit",
+  "exit",
+  "run",
+  "step",
+  "call",
+  "stop",
+  "reset",
+  "break",
+  "push",
+  "set",
+  "clear",
+  "speed",
+  "bprint",
+  "wprint",
+  "bwrite",
+  "wwrite",
+  "print",
+  "disasm",
+  "symbols",
+  "dumpram",
+  "info",
+  "registers",
+  "display",
+  "read",
 };
 
-static const char *find_partial_command(const char *text, int *index) {
-    int len = strlen(text);
-    const char *name;
+static const char *find_partial_command(const char *text, int *index)
+{
+  int len = strlen(text);
+  const char *name;
 
-    while (*index < sizeof(command_names)/sizeof(char*)) {
-        name = command_names[*index];
-        ++*index;
-        if (strncmp(name, text, len) == 0) {
-            return name;
-        }
+  while (*index < sizeof(command_names)/sizeof(char*))
+  {
+    name = command_names[*index];
+    ++*index;
+    if (strncmp(name, text, len) == 0)
+    {
+      return name;
     }
+  }
 
-    return NULL;
+  return NULL;
 }
 
-static const char *find_command(const char *text) {
-    const char *name;
-    int index = 0;
+static const char *find_command(const char *text)
+{
+  const char *name;
+  int index = 0;
 
-    while (index < sizeof(command_names)/sizeof(char*)) {
-        name = command_names[index];
-        ++index;
-        if (strcmp(name, text) == 0) {
-            return name;
-        }
+  while (index < sizeof(command_names)/sizeof(char*))
+  {
+    name = command_names[index];
+    ++index;
+    if (strcmp(name, text) == 0)
+    {
+      return name;
     }
+  }
 
-    return NULL;
+  return NULL;
 }
 
 static char *command_name_generator(const char *text, int state)
 {
-    static int index;
-    const char *name;
+  static int index;
+  const char *name;
 
-    if (!state) {
-        index = 0;
-    }
+  if (!state)
+  {
+    index = 0;
+  }
 
-    name = find_partial_command(text, &index);
-    if (name != NULL) {
-        return strdup(name);
-    }
+  name = find_partial_command(text, &index);
+  if (name != NULL)
+  {
+    return strdup(name);
+  }
 
-    return NULL;
+  return NULL;
 }
 
 static char **command_name_completion(const char *text, int start, int end)
 {
-    char *str, *token;
-    const char *name;
-    int has_command;
+  char *str, *token;
+  const char *name;
+  int has_command;
 
-    rl_attempted_completion_over = 1; // suppress default completion
+  rl_attempted_completion_over = 1; // suppress default completion
 
-    // check if buffer already contains a command
-    str = strdup(rl_line_buffer);
-    if (str != NULL) {
-        token = strtok(str, " ");
-        has_command = 0;
-        name = NULL;
-        if (token != NULL) {
-            name = find_command(token);
-            has_command = (name != NULL);
-        }
-        free(str);
-        if (has_command) {
-            return NULL; // no completion once command was entered
-        }
+  // check if buffer already contains a command
+  str = strdup(rl_line_buffer);
+  if (str != NULL)
+  {
+    token = strtok(str, " ");
+    has_command = 0;
+    name = NULL;
+    if (token != NULL)
+    {
+      name = find_command(token);
+      has_command = (name != NULL);
     }
+    free(str);
+    if (has_command)
+    {
+      return NULL; // no completion once command was entered
+    }
+  }
 
-    return rl_completion_matches(text, command_name_generator);
+  return rl_completion_matches(text, command_name_generator);
 }
 #endif
 
