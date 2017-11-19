@@ -469,12 +469,14 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
             return 2;
           }
           break;
-        case OP_IMM:
+        case OP_REG_IMM:
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REGISTER &&
               operands[1].type == OPERAND_NUMBER)
           {
-            add_bin16(asm_context, table_thumb[n].opcode | (operands[0].value << 8) | (operands[1].value), IS_OPCODE);
+            if (check_range(asm_context, "Immediate", operands[1].value, -128, 255) == -1) { return -1; }
+
+            add_bin16(asm_context, table_thumb[n].opcode | (operands[0].value << 8) | (operands[1].value & 0xff), IS_OPCODE);
             return 2;
           }
           break;
@@ -811,6 +813,15 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
             add_bin16(asm_context, table_thumb[n].opcode | (operands[1].value << 3) | operands[0].value, IS_OPCODE);
             return 2;
           }
+        case OP_UINT8:
+          if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)
+          {
+            if (check_range(asm_context, "Immediate", operands[0].value, 0, 255) == -1) { return -1; }
+
+            add_bin16(asm_context, table_thumb[n].opcode | (operands[0].value & 0xff), IS_OPCODE);
+            return 2;
+          }
+          break;
         default:
           break;
       }

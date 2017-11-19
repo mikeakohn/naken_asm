@@ -21,7 +21,7 @@ enum
   OP_NONE,
   OP_SHIFT,
   OP_ADD_SUB,
-  OP_IMM,
+  OP_REG_IMM,
   OP_ALU,
   OP_HI,
   OP_HI_BX,
@@ -43,6 +43,7 @@ enum
   OP_SP_SP_IMM,
   OP_REG_REG,
   OP_CPS,
+  OP_UINT8,
 };
 
 enum

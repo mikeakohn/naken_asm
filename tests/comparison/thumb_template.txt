@@ -63,7 +63,7 @@ push {r2-r7, LR}
 pop {r2, r4, r7}
 pop {r2, r4, r7, PC}
 stmia r4!, {r5, r7}
-ldmia r7!, {r5-r7,r1}
+ldmia r2!, {r1,r4-r6}
 main: beq main
 main: bne main
 main: bcs main
@@ -97,8 +97,12 @@ cpsie f
 cpsid f
 cpsie if
 cpsid if
+rev r3, r7
+rev16 r7, r5
+revsh r2, r3
 yield
 wfe
 wfi
 sev
+bkpt #129
 ;nop

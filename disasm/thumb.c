@@ -99,7 +99,7 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
             sprintf(instruction, "%s r%d, r%d, #%d", table_thumb[n].instr, rd, rs, offset);
           }
           return 2;
-        case OP_IMM:
+        case OP_REG_IMM:
           immediate = opcode & 0xff;
           rd = (opcode >> 8) & 0x7;
           sprintf(instruction, "%s r%d, #0x%02x", table_thumb[n].instr, rd, immediate);
@@ -235,6 +235,10 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
           sprintf(instruction, "%s %s%s", table_thumb[n].instr,
             (opcode & 0x2) == 1 ? "i" : "",
             (opcode & 0x1) == 1 ? "f" : "");
+          return 2;
+        case OP_UINT8:
+          immediate = opcode & 0xff;
+          sprintf(instruction, "%s #0x%02x", table_thumb[n].instr, immediate);
           return 2;
         default:
           strcpy(instruction, "???");

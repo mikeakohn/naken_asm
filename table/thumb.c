@@ -18,10 +18,10 @@ struct _table_thumb table_thumb[] =
   { "asr",   0x1000, 0xf800, OP_SHIFT, VERSION_THUMB, 2 },
   { "add",   0x1800, 0xfa00, OP_ADD_SUB, VERSION_THUMB, 2 },
   { "sub",   0x1a00, 0xfa00, OP_ADD_SUB, VERSION_THUMB, 2 },
-  { "mov",   0x2000, 0xf800, OP_IMM, VERSION_THUMB, 2 },
-  { "cmp",   0x2800, 0xf800, OP_IMM, VERSION_THUMB, 2 },
-  { "add",   0x3000, 0xf800, OP_IMM, VERSION_THUMB, 2 },
-  { "sub",   0x3800, 0xf800, OP_IMM, VERSION_THUMB, 2 },
+  { "mov",   0x2000, 0xf800, OP_REG_IMM, VERSION_THUMB, 2 },
+  { "cmp",   0x2800, 0xf800, OP_REG_IMM, VERSION_THUMB, 2 },
+  { "add",   0x3000, 0xf800, OP_REG_IMM, VERSION_THUMB, 2 },
+  { "sub",   0x3800, 0xf800, OP_REG_IMM, VERSION_THUMB, 2 },
   { "and",   0x4000, 0xffc0, OP_ALU, VERSION_THUMB, 2 },
   { "eor",   0x4040, 0xffc0, OP_ALU, VERSION_THUMB, 2 },
   { "lsl",   0x4080, 0xffc0, OP_ALU, VERSION_THUMB, 2 },
@@ -96,12 +96,10 @@ struct _table_thumb table_thumb[] =
   { "uxtb",  0xb2c0, 0xffc0, OP_REG_REG, VERSION_THUMB_2, -1 },
   { "cpsie", 0xb660, 0xffe0, OP_CPS, VERSION_THUMB_2, -1 },
   { "cpsid", 0xb670, 0xffe0, OP_CPS, VERSION_THUMB_2, -1 },
-
-  // cps
-  // rev
-  // rev16
-  // revsh
-  // bkpt
+  { "rev",   0xba00, 0xffc0, OP_REG_REG, VERSION_THUMB_2, -1 },
+  { "rev16", 0xba40, 0xffc0, OP_REG_REG, VERSION_THUMB_2, -1 },
+  { "revsh", 0xbac0, 0xffc0, OP_REG_REG, VERSION_THUMB_2, -1 },
+  { "bkpt",  0xbe00, 0xff00, OP_UINT8, VERSION_THUMB_2, -1 },
   { "nop",   0xbf00, 0xffff, OP_NONE, VERSION_THUMB_2, -1 },
   { "yield", 0xbf10, 0xffff, OP_NONE, VERSION_THUMB_2, -1 },
   { "wfe",   0xbf20, 0xffff, OP_NONE, VERSION_THUMB_2, -1 },
