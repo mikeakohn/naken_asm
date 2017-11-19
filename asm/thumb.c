@@ -187,6 +187,49 @@ static int read_register_list(struct _asm_context *asm_context, struct _operand 
   return 0;
 }
 
+int parse_cps(struct _asm_context *asm_context, int disable)
+{
+  char token[TOKENLEN];
+  int token_type;
+  int n, value;
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  n = 0;
+  value = 0;
+
+  while(token[n] != 0)
+  {
+    if (token[n] == 'i')
+    {
+      value |= 2;
+    }
+    else if (token[n] == 'f')
+    {
+      value |= 1;
+    }
+    else
+    {
+      printf("Error: Unknown flag '%c'\n", token[n]);
+      return -1;
+    }
+
+    n++;
+  }
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  add_bin16(asm_context, 0xb660 | (disable << 4) | value , IS_OPCODE);
+
+  return 2;
+}
+
 int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];
@@ -200,10 +243,22 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
 
   lower_copy(instr_case, instr);
 
+  if (strcmp(instr_case, "cpsie") == 0)
+  {
+    return parse_cps(asm_context, 0);
+  }
+    else
+  if (strcmp(instr_case, "cpsid") == 0)
+  {
+    return parse_cps(asm_context, 1);
+  }
+
   memset(&operands, 0, sizeof(operands));
+
   while(1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
+
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       break;

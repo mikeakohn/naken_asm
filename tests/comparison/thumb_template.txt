@@ -91,8 +91,14 @@ sxth r3, r7
 sxtb r3, r7
 uxth r2, r4
 uxtb r7, r1
+cpsie i
+cpsid i
+cpsie f
+cpsid f
+cpsie if
+cpsid if
 yield
 wfe
 wfi
 sev
-nop
+;nop

@@ -94,13 +94,13 @@ struct _table_thumb table_thumb[] =
   { "sxtb",  0xb240, 0xffc0, OP_REG_REG, VERSION_THUMB_2, -1 },
   { "uxth",  0xb280, 0xffc0, OP_REG_REG, VERSION_THUMB_2, -1 },
   { "uxtb",  0xb2c0, 0xffc0, OP_REG_REG, VERSION_THUMB_2, -1 },
+  { "cpsie", 0xb660, 0xffe0, OP_CPS, VERSION_THUMB_2, -1 },
+  { "cpsid", 0xb670, 0xffe0, OP_CPS, VERSION_THUMB_2, -1 },
 
-  // push (multiple?)
   // cps
   // rev
   // rev16
   // revsh
-  // pop
   // bkpt
   { "nop",   0xbf00, 0xffff, OP_NONE, VERSION_THUMB_2, -1 },
   { "yield", 0xbf10, 0xffff, OP_NONE, VERSION_THUMB_2, -1 },
@@ -117,6 +117,4 @@ struct _table_thumb table_thumb[] =
  
   { NULL, 0, 0, 0, 0, 0 }
 };
-
-
 

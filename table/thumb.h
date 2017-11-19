@@ -42,6 +42,7 @@ enum
   OP_LONG_BRANCH_WITH_LINK,
   OP_SP_SP_IMM,
   OP_REG_REG,
+  OP_CPS,
 };
 
 enum

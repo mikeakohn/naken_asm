@@ -19,7 +19,7 @@ for instruction in fp:
   print instruction
   create_asm(instruction)
 
-  os.system("arm-linux-gnueabi-as temp.asm")
+  os.system("arm-linux-gnueabi-as -march=armv7-m temp.asm")
   os.system("arm-linux-gnueabi-objcopy -F ihex a.out thumb_gnu.hex")
 
   fp1 = open("thumb_gnu.hex", "rb")
