@@ -208,17 +208,23 @@ static char **command_name_completion(const char *text, int start, int end)
   // suppress default completion
   rl_attempted_completion_over = 1;
 
+  char *s = rl_line_buffer;
+  while(*s != 0 && *s == ' ') { s++; }
+
   // check if buffer already contains a command
   n = 0;
 
-  while (n < sizeof(command))
+  while (n < sizeof(command) - 1)
   {
-    command[n] = rl_line_buffer[n];
-    if (command[n] == 0) { break; }
+    command[n] = s[n];
+
+    if (s[n] == 0) { break; }
     n++;
   }
 
-  if (n == sizeof(command)) { return NULL; }
+  command[n] = 0;
+
+  if (n >= sizeof(command) - 1) { return NULL; }
 
   name = find_command(command);
 
@@ -1331,6 +1337,7 @@ int main(int argc, char *argv[])
     while(i >= 0 && command[i] == ' ')
     {
       command[i] = 0;
+      i--;
     }
 
     if (command[0] == 0)
