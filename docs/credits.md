@@ -8,3 +8,5 @@ Credits
   * 65C816 assembler, disassembler.
 * Lars Brinkhoff (https://github.com/larsbrinkhoff)
   * PDP-8 assembler, disasssembler.
+* Zoltan Csahok (https://github.com/zcsahok)
+
