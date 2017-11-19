@@ -450,6 +450,12 @@ static void bprint(struct _util_context *util_context, char *token)
   uint32_t start, end;
   int ptr = 0;
 
+  if (*token != ' ')
+  {
+    printf("Syntax error: no address given.\n");
+    return;
+  }
+
   // FIXME - is this right?
   if (get_range(util_context, token, &start, &end) == -1) { return; }
   if (start >= end) { end = start + 128; }
@@ -490,6 +496,12 @@ static void wprint(struct _util_context *util_context, char *token)
   char chars[17];
   uint32_t start, end;
   int ptr = 0;
+
+  if (*token != ' ')
+  {
+    printf("Syntax error: no address given.\n");
+    return;
+  }
 
   if (get_range(util_context, token, &start, &end) == -1) { return; }
   if (start >= end) { end = start + 128; }
@@ -553,6 +565,12 @@ static void bwrite(struct _util_context *util_context, char *token)
   uint32_t num;
   int count = 0;
 
+  if (*token != ' ')
+  {
+    printf("Syntax error: no address given.\n");
+    return;
+  }
+
   while(*token == ' ' && *token != 0) { token++; }
 
   if (token == 0) { printf("Syntax error: no address given.\n"); }
@@ -580,6 +598,12 @@ static void wwrite(struct _util_context *util_context, char *token)
   uint32_t address = 0;
   uint32_t num;
   int count = 0;
+
+  if (*token != ' ')
+  {
+    printf("Syntax error: no address given.\n");
+    return;
+  }
 
   while(*token == ' ' && *token != 0) { token++; }
 
@@ -713,6 +737,141 @@ static void show_info(struct _util_context *util_context)
   printf("      Display: %s\n", simulate->show == 1 ? "On":"Off");
 }
 
+static int set_register(struct _util_context *util_context, char *command)
+{
+  if (command[3] != ' ')
+  {
+    printf("Syntax error: set requires register=value\n");
+    return -1;
+  }
+
+  char *s = command + 4;
+
+  while(*s != 0)
+  {
+    if (*s == '=')
+    {
+      *s = 0;
+      s++;
+      uint32_t num;
+      get_num(s, &num);
+
+      if (util_context->simulate->simulate_set_reg(util_context->simulate, command + 4, num) == 0)
+      {
+        printf("Register %s set to 0x%04x.\n", command + 4, num);
+      }
+      else
+      {
+        printf("Syntax error.\n");
+      }
+      break;
+    }
+    s++;
+  }
+
+  if (*s == 0)
+  {
+    if (util_context->simulate->simulate_set_reg(util_context->simulate, command + 4, 1) == 0)
+    {
+      printf("Flag %s set.\n", command + 4);
+    }
+      else
+    {
+      printf("Syntax error.\n");
+    }
+  }
+
+  return 0;
+}
+
+static int clear_flag(struct _util_context *util_context, char *command)
+{
+  if (command[5] != ' ')
+  {
+    printf("Syntax error: set requires flag\n");
+    return -1;
+  }
+
+  if (util_context->simulate->simulate_set_reg(util_context->simulate, command + 6, 0) == 0)
+  {
+    printf("Flag %s cleared.\n", command + 6);
+  }
+    else
+  {
+    printf("Syntax error: Unknown flag %s\n", command + 6);
+  }
+
+  return 0;
+}
+
+static int set_speed(struct _util_context *util_context, char *command)
+{
+  if (command[5] != ' ')
+  {
+    util_context->simulate->usec = 0;
+    printf("Simulator now in single step mode.\n");
+
+    return 0;
+  }
+
+  int a = atoi(command + 6);
+
+  if (a == 0)
+  {
+    util_context->simulate->usec = 0;
+    printf("Simulator now in single step mode.\n");
+  }
+    else
+  {
+    util_context->simulate->usec = (1000000 / a);
+    printf("Instruction delay is now %dus\n", util_context->simulate->usec);
+  }
+
+  return 0;
+}
+
+static int stack_push(struct _util_context *util_context, char *command)
+{
+  uint32_t num;
+
+  if (command[4] != ' ')
+  {
+    printf("Syntax error: push requires a value\n");
+    return -1;
+  }
+
+  get_num(command + 5, &num);
+  util_context->simulate->simulate_push(util_context->simulate, num);
+  printf("Pushed 0x%04x.\n", num);
+
+  return 0;
+}
+
+static int set_breakpoint(struct _util_context *util_context, char *command)
+{
+  if (command[5] == 0)
+  {
+    printf("Breakpoint removed.\n");
+    util_context->simulate->break_point = -1;
+    return 0;
+  }
+
+  uint32_t address;
+
+  char *end = get_address(command + 6, &address, &util_context->symbols);
+
+  if (end == NULL)
+  {
+    printf("Error: Unknown address '%s'\n", command + 6);
+    return -1;
+  }
+
+  printf("Breakpoint added at 0x%04x.\n", address);
+  util_context->simulate->break_point = address;
+
+  return 0;
+}
+
 static void print_help()
 {
   printf("Commands:\n");
@@ -720,7 +879,7 @@ static void print_help()
   printf("  wprint <start>-<end>     [ print words at start address (opt. to end) ]\n");
   printf("  bwrite <address> <data>..[ write multiple bytes to RAM starting at address]\n");
   printf("  wwrite <address> <data>..[ write multiple words to RAM starting at address]\n");
-  printf("  dumpram <address> <data> [ Dump RAM of AVR8 during simulation]\n");
+  printf("  dumpram <start>-<end>    [ Dump RAM of AVR8 during simulation]\n");
   printf("  registers                [ dump registers ]\n");
   printf("  run, stop, step          [ simulation run, stop, step ]\n");
   printf("  call <address>           [ call function at address ]\n");
@@ -1223,14 +1382,20 @@ int main(int argc, char *argv[])
       continue;
     }
       else
-    if (strncmp(command, "call ", 4) == 0)
+    if (strncmp(command, "call", 4) == 0)
     {
+      if (command[4] != ' ')
+      {
+        printf("Syntax error: call requires an address\n");
+        continue;
+      }
+
       if (util_context.simulate->usec == 0)
       {
         util_context.simulate->step_mode = 1;
       }
 
-      // FIXME: This it's MSP430 specific
+      // FIXME: This is MSP430 specific
       uint32_t num;
 
       char *end = get_address(command + 5, &num, &util_context.symbols);
@@ -1259,82 +1424,26 @@ int main(int argc, char *argv[])
       util_context.simulate->simulate_reset(util_context.simulate);
     }
       else
-    if (strcmp(command, "break") == 0)
+    if (strncmp(command, "break", 5) == 0)
     {
-      printf("Breakpoint removed.\n");
-      util_context.simulate->break_point = -1;
+      set_breakpoint(&util_context, command);
     }
       else
-    if (strncmp(command, "break ", 6) == 0)
+    if (strncmp(command, "push", 4) == 0)
     {
-      uint32_t address;
-
-      char *end = get_address(command + 6, &address, &util_context.symbols);
-
-      if (end == NULL)
-      {
-        printf("Error: Unknown address '%s'\n", command + 6);
-        continue;
-      }
-
-      if ((address & 1) == 0)
-      {
-        printf("Breakpoint added at 0x%04x.\n", address);
-        util_context.simulate->break_point = address;
-      }
-        else
-      {
-        printf("Address 0x%04x is not 16 bit aligned.  Breakpoint not set.\n", address);
-      }
+      stack_push(&util_context, command);
     }
       else
-    if (strncmp(command, "push ", 5) == 0)
+    if (strncmp(command, "set", 3) == 0)
     {
-      uint32_t num;
-      get_num(command + 5, &num);
-      util_context.simulate->simulate_push(util_context.simulate, num);
-      printf("Pushed 0x%04x.\n", num);
+      set_register(&util_context, command);
     }
       else
-    if (strncmp(command, "set ", 4)==0)
+    if (strncmp(command, "clear", 5) == 0)
     {
-      char *s = command + 4;
-      while(*s != 0)
-      {
-        if (*s == '=')
-        {
-          *s = 0;
-          s++;
-          uint32_t num;
-          get_num(s, &num);
-          if (util_context.simulate->simulate_set_reg(util_context.simulate, command+4, num) == 0)
-          {
-            printf("Register %s set to 0x%04x.\n", command+4, num);
-          }
-          else
-          {
-            printf("Syntax error.\n");
-          }
-          break;
-        }
-        s++;
-      }
+      clear_flag(&util_context, command);
 
-      if (*s == 0)
-      {
-        if (util_context.simulate->simulate_set_reg(util_context.simulate, command+4, 1) == 0)
-        {
-          printf("Flag %s set.\n", command+4);
-        }
-          else
-        {
-          printf("Syntax error.\n");
-        }
-      }
-    }
-      else
-    if (strncmp(command, "clear ", 6) == 0)
-    {
+#if 0
       if (util_context.simulate->simulate_set_reg(util_context.simulate, command+6, 0) == 0)
       {
         printf("Flag %s cleared.\n", command+6);
@@ -1343,46 +1452,37 @@ int main(int argc, char *argv[])
       {
         printf("Syntax error.\n");
       }
+#endif
     }
       else
-    if (strncmp(command, "speed ", 6) == 0)
+    if (strncmp(command, "speed", 5) == 0)
     {
-      int a = atoi(command + 6);
-      if (a == 0)
-      {
-        util_context.simulate->usec = 0;
-        printf("Simulator now in single step mode.\n");
-      }
-        else
-      {
-        util_context.simulate->usec = (1000000 / a);
-        printf("Instruction delay is now %dus\n", util_context.simulate->usec);
-      }
+      set_speed(&util_context, command);
     }
       else
-    if (strncmp(command, "bprint ", 7) == 0)
+    if (strncmp(command, "bprint", 6) == 0)
     {
-       bprint(&util_context, command + 7);
+       bprint(&util_context, command + 6);
     }
       else
-    if (strncmp(command, "wprint ", 7) == 0)
-    {
-       wprint(&util_context, command + 7);
-    }
-      else
-    if (strncmp(command, "bwrite ", 7) == 0)
-    {
-       bwrite(&util_context, command + 7);
-    }
-      else
-    if (strncmp(command, "wwrite ", 7) == 0)
-    {
-       wwrite(&util_context, command + 7);
-    }
-      else
-    if (strncmp(command, "print ", 6) == 0)
+    if (strncmp(command, "wprint", 6) == 0)
     {
        wprint(&util_context, command + 6);
+    }
+      else
+    if (strncmp(command, "bwrite", 6) == 0)
+    {
+       bwrite(&util_context, command + 6);
+    }
+      else
+    if (strncmp(command, "wwrite", 6) == 0)
+    {
+       wwrite(&util_context, command + 6);
+    }
+      else
+    if (strncmp(command, "print", 5) == 0)
+    {
+       bprint(&util_context, command + 5);
     }
       else
     if (strncmp(command, "disasm ", 7) == 0)
