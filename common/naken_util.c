@@ -146,10 +146,11 @@ static const char *find_partial_command(const char *text, int *index)
   int len = strlen(text);
   const char *name;
 
-  while (*index < sizeof(command_names)/sizeof(char*))
+  while (*index < sizeof(command_names) / sizeof(char*))
   {
     name = command_names[*index];
     ++*index;
+
     if (strncmp(name, text, len) == 0)
     {
       return name;
@@ -164,10 +165,11 @@ static const char *find_command(const char *text)
   const char *name;
   int index = 0;
 
-  while (index < sizeof(command_names)/sizeof(char*))
+  while (index < sizeof(command_names) / sizeof(char*))
   {
     name = command_names[index];
     ++index;
+
     if (strcmp(name, text) == 0)
     {
       return name;
@@ -188,6 +190,7 @@ static char *command_name_generator(const char *text, int state)
   }
 
   name = find_partial_command(text, &index);
+
   if (name != NULL)
   {
     return strdup(name);
@@ -198,30 +201,28 @@ static char *command_name_generator(const char *text, int state)
 
 static char **command_name_completion(const char *text, int start, int end)
 {
-  char *str, *token;
   const char *name;
-  int has_command;
+  char command[128];
+  int n;
 
-  rl_attempted_completion_over = 1; // suppress default completion
+  // suppress default completion
+  rl_attempted_completion_over = 1;
 
   // check if buffer already contains a command
-  str = strdup(rl_line_buffer);
-  if (str != NULL)
+  n = 0;
+
+  while (n < sizeof(command))
   {
-    token = strtok(str, " ");
-    has_command = 0;
-    name = NULL;
-    if (token != NULL)
-    {
-      name = find_command(token);
-      has_command = (name != NULL);
-    }
-    free(str);
-    if (has_command)
-    {
-      return NULL; // no completion once command was entered
-    }
+    command[n] = rl_line_buffer[n];
+    if (command[n] == 0) { break; }
+    n++;
   }
+
+  if (n == sizeof(command)) { return NULL; }
+
+  name = find_command(command);
+
+  if (name != NULL) { return NULL; }
 
   return rl_completion_matches(text, command_name_generator);
 }
@@ -1136,6 +1137,7 @@ int main(int argc, char *argv[])
       sprintf(prompt, "%s> ", state);
       rl_attempted_completion_function = command_name_completion;
       line = readline(prompt);
+
       if (!(line == NULL || line[0] == 0))
       {
         add_history(line);
@@ -1145,24 +1147,31 @@ int main(int argc, char *argv[])
       }
         else
       {
-        command[0]=0;
+        command[0] = 0;
       }
 #endif
     }
 
-    i=0;
+    // Trim CR/LF and whitespace at end of line
+    i = 0;
+
     while(command[i] != 0)
     {
       if (command[i] == '\n' || command[i] == '\r')
-      { command[i] = 0; break; }
+      {
+        command[i] = 0;
+        break;
+      }
+
       i++;
     }
-    // trim trailing whitespace
-    i = strlen(command) - 1;
-    while (i >= 0 && isspace(command[i]))
+
+    // Trim trailing whitespace
+    i--;
+
+    while(i >= 0 && command[i] == ' ')
     {
       command[i] = 0;
-      i--;
     }
 
     if (command[0] == 0)
@@ -1353,32 +1362,32 @@ int main(int argc, char *argv[])
       else
     if (strncmp(command, "bprint ", 7) == 0)
     {
-       bprint(&util_context, command+7);
+       bprint(&util_context, command + 7);
     }
       else
     if (strncmp(command, "wprint ", 7) == 0)
     {
-       wprint(&util_context, command+7);
+       wprint(&util_context, command + 7);
     }
       else
     if (strncmp(command, "bwrite ", 7) == 0)
     {
-       bwrite(&util_context, command+7);
+       bwrite(&util_context, command + 7);
     }
       else
     if (strncmp(command, "wwrite ", 7) == 0)
     {
-       wwrite(&util_context, command+7);
+       wwrite(&util_context, command + 7);
     }
       else
     if (strncmp(command, "print ", 6) == 0)
     {
-       wprint(&util_context, command+6);
+       wprint(&util_context, command + 6);
     }
       else
     if (strncmp(command, "disasm ", 7) == 0)
     {
-       disasm(&util_context, command+7, 0);
+       disasm(&util_context, command + 7, 0);
     }
       else
     if (strcmp(command, "disasm") == 0)
