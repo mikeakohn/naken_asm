@@ -105,8 +105,8 @@ struct _table_thumb table_thumb[] =
   { "wfe",   0xbf20, 0xffff, OP_NONE, VERSION_THUMB_2, -1 },
   { "wfi",   0xbf30, 0xffff, OP_NONE, VERSION_THUMB_2, -1 },
   { "sev",   0xbf40, 0xffff, OP_NONE, VERSION_THUMB_2, -1 },
-  // udf
-  // svc
+  { "udf",   0xde00, 0xff00, OP_UINT8, VERSION_THUMB_2, -1 },
+  { "svc",   0xdf00, 0xff00, OP_UINT8, VERSION_THUMB_2, -1 },
   // msr
   // mrs
   // dsb
