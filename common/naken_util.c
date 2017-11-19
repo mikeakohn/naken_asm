@@ -218,7 +218,7 @@ static char **command_name_completion(const char *text, int start, int end)
   {
     command[n] = s[n];
 
-    if (s[n] == 0) { break; }
+    if (s[n] == 0 || s[n] == ' ') { break; }
     n++;
   }
 
