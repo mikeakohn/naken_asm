@@ -180,11 +180,11 @@ SB_SMFLG equ 0x1000_f230
 D_ENABLER equ 0x1000_f520
 D_ENABLEW equ 0x1000_f590
 
-;; VU Memory
-;VU0_MICRO equ 0x1100_0000
-;VU0_VU equ 0x1100_4000
-;VU1_MICRO equ 0x1100_8000
-;VU1_VU equ 0x1101_4000
+;; VU Memory (VU mem is for data, MICRO mem is for instructions)
+VU0_MICRO_MEM equ 0x1100_0000
+VU0_VU_MEM equ 0x1100_4000
+VU1_MICRO_MEM equ 0x1100_8000
+VU1_VU_MEM equ 0x1100_c000
 
 ;; Interrupt causes
 INTC_GS equ 0
