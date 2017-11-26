@@ -31,7 +31,10 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, c
   int ft, fs, fd, dest;
   int16_t offset;
   int immediate;
-  char *scaler[] = { "x", "y", "z", "w" };
+  char *scalar[] = { "x", "y", "z", "w" };
+  char bits[8];
+
+  bits[0] = 0;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -40,6 +43,18 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, c
   if (is_lower == 0)
   {
     table_ps2_ee_vu = table_ps2_ee_vu_upper;
+
+    int temp = opcode >> 27;
+
+    if (temp != 0)
+    {
+      snprintf(bits, sizeof(bits), "[%s%s%s%s%s]",
+        (temp & 0x10) != 0 ? "I" : "",
+        (temp & 0x08) != 0 ? "E" : "",
+        (temp & 0x04) != 0 ? "M" : "",
+        (temp & 0x02) != 0 ? "D" : "",
+        (temp & 0x01) != 0 ? "T" : "");
+    }
   }
     else
   {
@@ -60,6 +75,11 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, c
     if (table_ps2_ee_vu[n].opcode == (opcode & table_ps2_ee_vu[n].mask))
     {
       strcpy(instruction, table_ps2_ee_vu[n].instr);
+
+      if (bits[0] != 0)
+      {
+        strcat(instruction, bits);
+      }
 
       dest = (opcode >> 21) & 0xf;
       ft = (opcode >> 16) & 0x1f;
@@ -85,14 +105,14 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, c
             sprintf(temp, " vf%d", ft);
             if ((table_ps2_ee_vu[n].flags & FLAG_TE) != 0)
             {
-              strcat(temp, scaler[(dest >> 2) & 0x3]);
+              strcat(temp, scalar[(dest >> 2) & 0x3]);
             }
             break;
           case EE_VU_OP_FS:
             sprintf(temp, " vf%d", fs);
             if ((table_ps2_ee_vu[n].flags & FLAG_SE) != 0)
             {
-              strcat(temp, scaler[dest & 0x3]);
+              strcat(temp, scalar[dest & 0x3]);
             }
             break;
           case EE_VU_OP_FD:
