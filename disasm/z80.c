@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -560,5 +560,4 @@ void disasm_range_z80(struct _memory *memory, uint32_t flags, uint32_t start, ui
     start = start + count;
   }
 }
-
 

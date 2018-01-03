@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -110,8 +110,8 @@ struct _operand
 
 static int get_cond(char *token)
 {
-char *cond[] = { "nz","z","nc","c", "po","pe","p","m" };
-int n;
+  char *cond[] = { "nz","z","nc","c", "po","pe","p","m" };
+  int n;
 
   for (n = 0; n < 8; n++)
   {
@@ -149,8 +149,8 @@ int n;
 
 static int get_reg_index(char *token)
 {
-char *reg_index[] = { "ix","iy" };
-int n;
+  char *reg_index[] = { "ix","iy" };
+  int n;
 
   for (n = 0; n < 2; n++)
   {
@@ -162,8 +162,8 @@ int n;
 
 static int get_reg16(char *token)
 {
-char *reg16[] = { "bc","de","hl","sp" };
-int n;
+  char *reg16[] = { "bc","de","hl","sp" };
+  int n;
 
   for (n = 0; n < 4; n++)
   {
@@ -175,8 +175,8 @@ int n;
 
 static int get_reg_special(char *token)
 {
-char *reg_special[] = { "af","af'","f" };
-int n;
+  char *reg_special[] = { "af","af'","f" };
+  int n;
 
   for (n = 0; n < 3; n++)
   {
@@ -266,16 +266,16 @@ static int check_bit(struct _asm_context *asm_context, struct _operand *operand)
 
 int parse_instruction_z80(struct _asm_context *asm_context, char *instr)
 {
-char token[TOKENLEN];
-int token_type;
-char instr_case[TOKENLEN];
-struct _operand operands[3];
-int operand_count=0;
-int offset=0;
-int matched=0;
-int instr_enum;
-int num;
-int n,reg;
+  char token[TOKENLEN];
+  int token_type;
+  char instr_case[TOKENLEN];
+  struct _operand operands[3];
+  int operand_count=0;
+  int offset=0;
+  int matched=0;
+  int instr_enum;
+  int num;
+  int n,reg;
 
   lower_copy(instr_case, instr);
 
@@ -1480,6 +1480,4 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
 
   return -1;
 }
-
-
 

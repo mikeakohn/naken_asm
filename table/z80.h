@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -194,5 +194,4 @@ extern struct _table_z80 table_z80[];
 extern struct _table_z80 table_z80_4_byte[];
 
 #endif
-
 
