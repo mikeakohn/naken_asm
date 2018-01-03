@@ -40,8 +40,11 @@ static void add_bin_lsfr(struct _asm_context *asm_context, uint8_t data, int fla
     return;
   }
 
-  memory_write_m(&asm_context->memory, tms1000_address_to_lsfr[asm_context->address], data);
-  memory_debug_line_set(asm_context, tms1000_address_to_lsfr[asm_context->address], line);
+  int page = asm_context->address & 0x3c0;
+  int address = asm_context->address & 0x3f;
+
+  memory_write_m(&asm_context->memory, page | tms1000_address_to_lsfr[address], data);
+  memory_debug_line_set(asm_context, page | tms1000_address_to_lsfr[address], line);
 
   asm_context->address++;
 }
