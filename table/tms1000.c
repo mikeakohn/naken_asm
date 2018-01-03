@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -126,6 +126,4 @@ uint8_t tms1000_lsfr_to_address[] =
   0x19, 0x22, 0x37, 0x0f, 0x2a, 0x14, 0x27, 0x0a,
   0x21, 0x0e, 0x13, 0x09, 0x0d, 0x08, 0x07, 0x06,
 };
-
-
 

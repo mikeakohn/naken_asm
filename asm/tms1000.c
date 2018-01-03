@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -62,6 +62,15 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
         table_tms1000[n].op1000 != 0xffff)
     {
       add_bin_lsfr(asm_context, table_tms1000[n].op1000, IS_OPCODE);
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
       return 1;
     }
     n++;
@@ -90,6 +99,14 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
       num = tms1000_reverse_bit_address[num];
 
       add_bin_lsfr(asm_context, ((0xc + n) << 2) | num, IS_OPCODE);
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
 
       return 1;
     }
@@ -123,6 +140,14 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
         else
       {
         add_bin_lsfr(asm_context, 0x10 | num, IS_OPCODE);
+      }
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
       }
 
       return 1;
@@ -168,6 +193,14 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
 
       add_bin_lsfr(asm_context, (0x80 | (n << 6)) | tms1000_address_to_lsfr[(address & 0x3f)], IS_OPCODE);
 
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
       return 1;
     }
   }
@@ -193,6 +226,15 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
         table_tms1000[n].op1100 != 0xffff)
     {
       add_bin_lsfr(asm_context, table_tms1000[n].op1100, IS_OPCODE);
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
       return 1;
     }
     n++;
@@ -237,6 +279,14 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
         add_bin_lsfr(asm_context, ((0xc + n) << 2) | num, IS_OPCODE);
       }
 
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
       return 1;
     }
   }
@@ -270,6 +320,14 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
         else
       {
         add_bin_lsfr(asm_context, 0x10 | num, IS_OPCODE);
+      }
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
       }
 
       return 1;
@@ -314,6 +372,14 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
 
       add_bin_lsfr(asm_context, (0x80 | (n << 6)) | tms1000_address_to_lsfr[(address & 0x3f)], IS_OPCODE);
 
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
       return 1;
     }
   }
@@ -322,5 +388,4 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
 
   return -1;
 }
-
 
