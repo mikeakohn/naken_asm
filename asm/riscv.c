@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -98,31 +98,46 @@ static int get_x_register_riscv(char *token)
   {
     if (strcasecmp(token, "zero") == 0) { return 0; }
     if (strcasecmp(token, "ra") == 0) { return 1; }
-    if (strcasecmp(token, "fp") == 0) { return 2; }
-    if (strcasecmp(token, "sp") == 0) { return 14; }
-    if (strcasecmp(token, "tp") == 0) { return 15; }
-    if (strcasecmp(token, "gp") == 0) { return 31; }
+    if (strcasecmp(token, "sp") == 0) { return 2; }
+    if (strcasecmp(token, "gp") == 0) { return 3; }
+    if (strcasecmp(token, "tp") == 0) { return 4; }
+    if (strcasecmp(token, "fp") == 0) { return 8; }
 
     if (token[2] == 0)
     {
-      if (token[0] == 't' && token[1] >= '0' && token[1] <= '4')
+      if (token[0] == 't')
       {
-        return (token[1] - '0') + 26;
+        if (token[1] >= '0' && token[1] <= '2')
+        {
+          return (token[1] - '0') + 5;
+        }
+          else
+        if (token[1] >= '3' && token[1] <= '6')
+        {
+          return (token[1] - '0') - 3 + 28;
+        }
+
       }
       else if (token[0] == 'a' && token[1] >= '0' && token[1] <= '7')
       {
-        return (token[1] - '0') + 18;
+        return (token[1] - '0') + 10;
       }
+      else if (token[0] == 's' && token[1] >= '0' && token[1] <= '1')
+      {
+        return (token[1] - '0') + 8;
+      }
+#if 0
       else if (token[0] == 'v' && token[1] >= '0' && token[1] <= '1')
       {
         return (token[1] - '0') + 16;
       }
+#endif
     }
 
     if (token[0] == 's')
     {
       int n = get_register_number(token + 1);
-      if (n >= 0 && n <= 11) { return n + 2; }
+      if (n >= 2 && n <= 11) { return n - 2 + 18; }
     }
 
     return -1;
@@ -140,28 +155,32 @@ static int get_f_register_riscv(char *token)
   if (token[1] == 's')
   {
     n = get_register_number(token + 2);
-    if (n >= 0 && n <= 15) { return n; }
+    if (n >= 0 && n <= 1) { return n + 8; }
+    if (n >= 2 && n <= 11) { return n - 2 + 18; }
     return -1;
   }
 
+#if 0
   if (token[1] == 'v')
   {
     n = get_register_number(token + 2);
     if (n >= 0 && n <= 1) { return n + 16; }
     return -1;
   }
+#endif
 
   if (token[1] == 'a')
   {
     n = get_register_number(token + 2);
-    if (n >= 0 && n <= 7) { return n + 18; }
+    if (n >= 0 && n <= 7) { return n + 10; }
     return -1;
   }
 
   if (token[1] == 't')
   {
     n = get_register_number(token + 2);
-    if (n >= 0 && n <= 5) { return n + 26; }
+    if (n >= 0 && n <= 7) { return n + 0; }
+    if (n >= 8 && n <= 11) { return n - 8 + 28; }
     return -1;
   }
 
@@ -559,7 +578,8 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 
           if (asm_context->pass == 2)
           {
-            offset = (uint32_t)operands[2].value - (asm_context->address + 4);
+            //offset = (uint32_t)operands[2].value - (asm_context->address + 4);
+            offset = (uint32_t)operands[2].value - (asm_context->address);
 
             if ((offset & 0x1) != 0)
             {
@@ -630,31 +650,37 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          int32_t address = 0;
+          int32_t offset = 0;
           uint32_t immediate;
 
           if (asm_context->pass == 2)
           {
+            offset = (uint32_t)operands[1].value - (asm_context->address);
             //offset = (uint32_t)operands[1].value - (asm_context->address + 4);
-            address = operands[1].value;
+            //address = operands[1].value;
 
-            if ((address & 0x1) != 0)
+            if ((offset & 0x1) != 0)
             {
               print_error_illegal_operands(instr, asm_context);
               return -1;
             }
 
-            if (address < 0 || address >= (1 << 21))
+            const int low = -(1 << 20);
+            const int high = (1 << 20) - 1;
+
+            if (offset < low || offset > high)
             {
-              print_error_range("Offset", 0, (1 << 21) - 1, asm_context);
+              print_error_range("Offset", low, high, asm_context);
               return -1;
             }
           }
 
-          immediate = ((address >> 20) & 0x1) << 31;
-          immediate |= ((address >> 12) & 0xff) << 12;
-          immediate |= ((address >> 11) & 0x1) << 20;
-          immediate |= ((address >> 1) & 0x3ff) << 21;
+          offset &= 0x1fffff;
+
+          immediate = ((offset >> 20) & 0x1) << 31;
+          immediate |= ((offset >> 12) & 0xff) << 12;
+          immediate |= ((offset >> 11) & 0x1) << 20;
+          immediate |= ((offset >> 1) & 0x3ff) << 21;
 
           opcode = table_riscv[n].opcode | immediate | (operands[0].value << 7);
           add_bin32(asm_context, opcode, IS_OPCODE);

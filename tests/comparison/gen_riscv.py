@@ -3,6 +3,11 @@
 import os
 
 def create_asm(instruction):
+  if instruction.startswith("main:"):
+    if "ja" in instruction:
+      instruction = "." + instruction
+    #print instruction
+
   out = open("temp.asm", "wb")
   out.write("  " + instruction + "\n")
   out.close()
@@ -20,6 +25,8 @@ for instruction in fp:
 
   os.system("riscv64-unknown-elf-as temp.asm")
   os.system("riscv64-unknown-elf-objcopy -F ihex a.out riscv_gnu.hex")
+  #os.system("as-new temp.asm")
+  #os.system("objcopy -F ihex a.out riscv_gnu.hex")
 
   fp1 = open("riscv_gnu.hex", "rb")
   hex = fp1.readline().strip()

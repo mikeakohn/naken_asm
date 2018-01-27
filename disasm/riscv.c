@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -51,6 +51,7 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
 {
   uint32_t opcode;
   uint32_t immediate;
+  int32_t offset;
   int32_t simmediate;
   int n;
   char temp[16];
@@ -97,19 +98,19 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           immediate |= ((opcode >> 7) & 0x1) << 11;
           immediate |= ((opcode >> 25) & 0x3f) << 5;
           if ((immediate & 0x1000) != 0) { immediate |= 0xffffe000; }
-          sprintf(instruction, "%s x%d, x%d, 0x%x (%d)", instr, rs1, rs2, address + 4 + immediate, immediate);
+          sprintf(instruction, "%s x%d, x%d, 0x%x (%d)", instr, rs1, rs2, address + immediate, immediate);
           break;
         case OP_U_TYPE:
           immediate = opcode >> 12;
           sprintf(instruction, "%s x%d, 0x%06x", instr, rd, immediate);
           break;
         case OP_UJ_TYPE:
-          immediate = ((opcode >> 31) & 0x1) << 20;
-          immediate |= ((opcode >> 12) & 0xff) << 12;
-          immediate |= ((opcode >> 20) & 0x1) << 11;
-          immediate |= ((opcode >> 21) & 0x3ff) << 1;
-          if ((immediate & 0x100000) != 0) { immediate |= 0xfff00000; }
-          sprintf(instruction, "%s x%d, 0x%x", instr, rd, immediate);
+          offset = ((opcode >> 31) & 0x1) << 20;
+          offset |= ((opcode >> 12) & 0xff) << 12;
+          offset |= ((opcode >> 20) & 0x1) << 11;
+          offset |= ((opcode >> 21) & 0x3ff) << 1;
+          if ((offset & 0x100000) != 0) { offset |= 0xfff00000; }
+          sprintf(instruction, "%s x%d, 0x%x (offset=%d)", instr, rd, address + offset, offset);
           break;
         case OP_SHIFT:
           immediate = (opcode >> 20) & 0x1f;

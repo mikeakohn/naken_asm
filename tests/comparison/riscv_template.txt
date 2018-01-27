@@ -28,23 +28,23 @@ sw x14, -508(x31)
 addi x14, x25, 713
 addi x14, x25, -713
 slti x17, x4, 836
-sltiu x19, x29, 168
+sltiu x19, a1, 168
 xori x13, x5, 13
 ori x11, x2, 134
 andi x13, x30, 6
 slli x29, x11, 8
-srli x11, x22, 29
-srai x19, x19, 30
-add x7, x19, x3
-sub x4, x3, x19
-sll x3, x30, x16
-slt x16, x17, x25
+srli x11, a7, 29
+srai a2, a0, 15
+add s11, s2, s3
+sub t6, t4, t5
+sll x3, t3, t2
+slt x16, t0, t1
 sltu x17, x30, x22
 xor x16, x30, x10
 srl x2, x5, x17
 sra x11, x6, x5
-or x2, x19, x1
-and x30, x15, x11
+or x2, s0, s1
+and x5, x2, x11
 fence.i
 scall
 sbreak
@@ -408,7 +408,7 @@ fcvt.d.lu f31, x15, rdn
 fcvt.d.lu f31, x15, rup
 fcvt.d.lu f31, x15, rmm
 fmv.d.x f24, x14
-fence
+;fence
 ;fence pi, so
 ;fence si, po, pr, pw, pi, so, sr, sw
 or zero, ra, s0
