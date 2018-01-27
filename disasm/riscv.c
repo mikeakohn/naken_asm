@@ -90,7 +90,7 @@ int disasm_riscv(struct _memory *memory, uint32_t address, char *instruction, in
           break;
         case OP_UI_TYPE:
           immediate = opcode >> 20;
-          sprintf(instruction, "%s x%d, 0x%x)", instr, rd, immediate);
+          sprintf(instruction, "%s x%d, 0x%x", instr, rd, immediate);
           break;
         case OP_SB_TYPE:
           immediate = ((opcode >> 31) & 0x1) << 12;

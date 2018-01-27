@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -258,6 +258,9 @@ int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _
       break;
     case 220:
       *cpu_type = CPU_TYPE_Z80;
+      break;
+    case 243:
+      *cpu_type = CPU_TYPE_RISCV;
       break;
     case 0x1223:
       *cpu_type = CPU_TYPE_EPIPHANY;

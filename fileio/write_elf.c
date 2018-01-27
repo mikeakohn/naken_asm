@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -127,7 +127,7 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
     elf->e_entry = memory->entry_point;
     elf->e_phoff = 0x34;
     elf->e_phentsize = 32;
-    elf->e_phnum =1;
+    elf->e_phnum = 1;
   }
 
   // This probably should be 0 for Raspberry Pi, etc.
@@ -196,6 +196,11 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
     case CPU_TYPE_POWERPC:
       elf->e_machine = 20;
       elf->e_ident[EI_OSABI] = 0;
+      break;
+    case CPU_TYPE_RISCV:
+      elf->e_machine = 243;
+      elf->e_ident[EI_OSABI] = 0;
+      elf->e_type = 2;  // Executable
       break;
     case CPU_TYPE_STM8:
       elf->e_machine = 186;
