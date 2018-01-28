@@ -2,7 +2,7 @@
 
 default:
 	python run_test.py 6502
-	python run_test.py 65816
+	bash run_test.sh 65816
 	bash run_test.sh 68000
 	bash run_test.sh 8051
 	bash run_test.sh arm
