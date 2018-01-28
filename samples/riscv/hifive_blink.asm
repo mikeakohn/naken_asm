@@ -8,7 +8,7 @@
 ;; LED's on the board.
 
 .riscv
-.entry_point 0x2040_0000
+.entry_point start
 
 .org 0x2040_0000
 start:
