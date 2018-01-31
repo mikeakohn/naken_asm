@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2018 by Michael Kohn, Joe Davisson
  *
  * 6502 by Joe Davisson
  *
@@ -396,7 +396,7 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
           {
             op = OP_INDEXED8_X;
 
-            if(num > 0xFF)
+            if(num > 0xFF || size == 16)
               op = OP_INDEXED16_X;
 
             if(num > 0xFFFF)
@@ -410,7 +410,7 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
           {
             op = OP_INDEXED8_Y;
 
-            if(num > 0xFF)
+            if(num > 0xFF || size == 16)
               op = OP_INDEXED16_Y;
 
             if(num > 0xFFFF)
