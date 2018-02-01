@@ -1,0 +1,330 @@
+neg 115
+com 141
+lsr 215
+ror 71
+asr 105
+lsl 46
+rol 45
+dec 236
+inc 148
+tst 35
+jmp 235
+clr 90
+nop
+sync
+main: lbra main
+main: lbsr main
+daa
+orcc #173
+andcc #90
+sex
+exg X, Y
+exg B, A
+tfr X, Y
+tfr B, A
+main: bra main
+main: brn main
+main: bhi main
+main: bls main
+main: bhs main
+main: blo main
+main: bne main
+main: beq main
+main: bvc main
+main: bvs main
+main: bpl main
+main: bmi main
+main: bge main
+main: blt main
+main: bgt main
+main: ble main
+leax 116, X
+leax 126, Y
+leay 126, X
+leay 223, Y
+leas 50, X
+leas 124, Y
+leau 141, X
+leau 156, Y
+pshs X, Y
+pshs A, B
+puls X, Y
+puls A, B
+pshu X, Y
+pshu A, B
+pulu X, Y
+pulu A, B
+rts
+abx
+rti
+cwai #124
+mul
+swi
+nega
+coma
+lsra
+rora
+asra
+lsla
+rola
+deca
+inca
+tsta
+clra
+negb
+comb
+lsrb
+rorb
+asrb
+lslb
+rolb
+decb
+incb
+tstb
+clrb
+neg 97, X
+neg 156, Y
+com 4, X
+com 252, Y
+lsr 77, X
+lsr 182, Y
+ror 13, X
+ror 253, Y
+asr 8, X
+asr 23, Y
+lsl 72, X
+lsl 148, Y
+rol 183, X
+rol 78, Y
+dec 39, X
+dec 230, Y
+inc 104, X
+inc 95, Y
+tst 222, X
+tst 10, Y
+jmp 69, X
+jmp 103, Y
+clr 130, X
+clr 159, Y
+neg 26831
+com 55989
+lsr 52805
+ror 3899
+asr 13597
+lsl 1586
+rol 9706
+dec 55311
+inc 14557
+tst 40415
+jmp 44848
+clr 24449
+suba #44
+cmpa #66
+sbca #172
+subd #253
+anda #253
+bita #247
+lda #131
+eora #131
+adca #47
+ora #55
+adda #203
+cmpx #31
+main: bsr main
+ldx #199
+suba 59
+cmpa 30
+sbca 72
+subd 208
+anda 225
+bita 27
+lda 9
+sta 59
+eora 162
+adca 180
+ora 241
+adda 35
+cmpx 51
+jsr 186
+ldx 143
+stx 0
+suba 132, X
+suba 246, Y
+cmpa 205, X
+cmpa 87, Y
+sbca 148, X
+sbca 104, Y
+subd 0, X
+subd 40, Y
+anda 20, X
+anda 148, Y
+bita 57, X
+bita 19, Y
+lda 224, X
+lda 204, Y
+sta 154, X
+sta 179, Y
+eora 248, X
+eora 163, Y
+adca 246, X
+adca 157, Y
+ora 169, X
+ora 169, Y
+adda 185, X
+adda 206, Y
+cmpx 123, X
+cmpx 32, Y
+jsr 184, X
+jsr 222, Y
+ldx 170, X
+ldx 219, Y
+stx 69, X
+stx 97, Y
+suba 63976
+cmpa 58279
+sbca 12340
+subd 47191
+anda 17083
+bita 50656
+lda 44376
+sta 59042
+eora 2307
+adca 50262
+ora 48141
+adda 17383
+cmpx 4680
+jsr 61975
+ldx 8352
+stx 40329
+subb #60
+cmpb #118
+sbcb #0
+addd #73
+andb #147
+bitb #177
+ldb #127
+eorb #115
+adcb #252
+orb #64
+addb #98
+ldd #34
+ldu #252
+subb 54
+cmpb 216
+sbcb 217
+addd 41
+andb 73
+bitb 203
+ldb 170
+stb 224
+eorb 20
+adcb 128
+orb 23
+addb 234
+ldd 40
+std 212
+ldu 242
+stu 192
+subb 127, X
+subb 23, Y
+cmpb 189, X
+cmpb 64, Y
+sbcb 225, X
+sbcb 50, Y
+addd 196, X
+addd 250, Y
+andb 23, X
+andb 193, Y
+bitb 175, X
+bitb 108, Y
+ldb 4, X
+ldb 9, Y
+stb 102, X
+stb 18, Y
+eorb 174, X
+eorb 202, Y
+adcb 18, X
+adcb 66, Y
+orb 0, X
+orb 226, Y
+addb 154, X
+addb 51, Y
+ldd 133, X
+ldd 58, Y
+std 153, X
+std 110, Y
+ldu 212, X
+ldu 210, Y
+stu 54, X
+stu 155, Y
+subb 23182
+cmpb 41101
+sbcb 31549
+addd 15256
+andb 54489
+bitb 4773
+ldb 54711
+stb 12803
+eorb 64700
+adcb 26247
+orb 18640
+addb 7454
+ldd 26523
+std 52783
+ldu 1424
+stu 5846
+main: lbrn main
+main: lbhi main
+main: lbls main
+main: lbhs main
+main: lblo main
+main: lbne main
+main: lbeq main
+main: lbvc main
+main: lbvs main
+main: lbpl main
+main: lbmi main
+main: lbge main
+main: lblt main
+main: lbgt main
+main: lble main
+swi2
+cmpd #177
+cmpy #3
+ldy #10
+cmpd 70
+cmpy 75
+ldy 162
+sty 118
+cmpd 247, X
+cmpd 38, Y
+cmpy 47, X
+cmpy 247, Y
+ldy 189, X
+ldy 153, Y
+sty 94, X
+sty 197, Y
+cmpd 40903
+cmpy 714
+ldy 14725
+sty 8052
+lds #105
+lds 9
+sts 1
+lds 210, X
+lds 100, Y
+sts 55, X
+sts 219, Y
+lds 64859
+sts 58334
+swi3
+cmpu #58
+cmps #21
+cmpu 44
+cmps 137
+cmpu 164, X
+cmpu 169, Y
+cmps 104, X
+cmps 2, Y
+cmpu 14560
+cmps 46963
