@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -265,7 +265,7 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
         {
           case M6809_OP_INHERENT:
           {
-            return 1;
+            return 2;
           }
           case M6809_OP_IMMEDIATE:
           {
@@ -376,6 +376,18 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
               int8_t offset = READ_RAM(address + 1);
 
               sprintf(instruction, "%s 0x%04x (%d)", table_6809[n].instr, (address + 2 + offset) & 0xffff, offset);
+              return 2;
+            }
+
+            break;
+          }
+          case M6809_OP_LONG_RELATIVE:
+          {
+            if (table_6809[n].bytes == 3)
+            {
+              int16_t offset = (READ_RAM(address + 1) << 8) | READ_RAM(address + 2);
+
+              sprintf(instruction, "%s 0x%04x (%d)", table_6809[n].instr, (address + 3 + offset) & 0xffff, offset);
               return 2;
             }
 

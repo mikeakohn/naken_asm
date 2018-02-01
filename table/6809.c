@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -30,8 +30,8 @@ struct _table_6809 table_6809[] = {
   //{ "page2+", 0x11, M6809_OP_VARIANT, 1, 1, 1 },
   { "nop", 0x12, M6809_OP_INHERENT, 1, 2, 2 },
   { "sync", 0x13, M6809_OP_INHERENT, 1, 2, 2 },
-  { "lbra", 0x16, M6809_OP_RELATIVE, 3, 5, 5 },
-  { "lbsr", 0x17, M6809_OP_RELATIVE, 3, 9, 9 },
+  { "lbra", 0x16, M6809_OP_LONG_RELATIVE, 3, 5, 5 },
+  { "lbsr", 0x17, M6809_OP_LONG_RELATIVE, 3, 9, 9 },
   { "daa", 0x19, M6809_OP_INHERENT, 1, 2, 2 },
   { "orcc", 0x1a, M6809_OP_IMMEDIATE, 2, 3, 3 },
   { "andcc", 0x1c, M6809_OP_IMMEDIATE, 2, 3, 3 },
@@ -65,9 +65,9 @@ struct _table_6809 table_6809[] = {
   { "rts", 0x39, M6809_OP_INHERENT, 1, 5, 5 },
   { "abx", 0x3a, M6809_OP_INHERENT, 1, 3, 3 },
   { "rti", 0x3b, M6809_OP_INHERENT, 1, 6, 15 },
-  { "cwai", 0x3c, M6809_OP_INHERENT, 2, 21, 21 },
+  { "cwai", 0x3c, M6809_OP_IMMEDIATE, 2, 21, 21 },
   { "mul", 0x3d, M6809_OP_INHERENT, 1, 11, 11 },
-  { "reset", 0x3e, M6809_OP_INHERENT, 1, 0, 0 },
+  //{ "reset", 0x3e, M6809_OP_INHERENT, 1, 0, 0 },
   { "swi", 0x3f, M6809_OP_INHERENT, 1, 19, 19 },
   { "nega", 0x40, M6809_OP_INHERENT, 1, 2, 2 },
   { "coma", 0x43, M6809_OP_INHERENT, 1, 2, 2 },

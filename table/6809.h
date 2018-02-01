@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2016 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -21,6 +21,7 @@ enum
   M6809_OP_IMMEDIATE,
   M6809_OP_EXTENDED,
   M6809_OP_RELATIVE,
+  M6809_OP_LONG_RELATIVE,
   M6809_OP_DIRECT,
   M6809_OP_STACK,
   M6809_OP_TWO_REG,

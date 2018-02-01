@@ -154,7 +154,8 @@ cmpa 205, X
 cmpa 87, Y
 sbca 148, X
 sbca 104, Y
-subd 0, X
+subd 120, X
+;subd 0, X
 subd 40, Y
 anda 20, X
 anda 148, Y
@@ -245,7 +246,7 @@ eorb 174, X
 eorb 202, Y
 adcb 18, X
 adcb 66, Y
-orb 0, X
+;orb 0, X
 orb 226, Y
 addb 154, X
 addb 51, Y
