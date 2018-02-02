@@ -54,17 +54,3 @@ const char *w6502_4 =
   "fifth:\n"
   "  db 0x10, 0x20\n";
 
-const char *w6502_5 =
-  ".6502\n"
-  ".org 0xff00\n"
-  "first:\n"
-  "  lda (fifth, x)\n"
-  "second:\n"
-  "  lda (first, x)\n"
-  "third:\n"
-  "  lda (fifth, y)\n"
-  "fourth:\n"
-  ".org 0xfffc\n"
-  "fifth:\n"
-  "  db 0x10, 0x20\n";
-
