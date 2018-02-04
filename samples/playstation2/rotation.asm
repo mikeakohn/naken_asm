@@ -167,7 +167,6 @@ repeat_vu1_data_copy:
   bnez $a1, repeat_vu1_data_copy
   nop
 
-.if 0
   ;; Start the VU1 with a VIF packet
   li $v0, D1_CHCR
   li $v1, vu1_start
@@ -176,7 +175,6 @@ repeat_vu1_data_copy:
   sw $v1, 0x20($v0)         ; DMA01 SIZE
   li $v1, 0x101
   sw $v1, ($v0)             ; start
-.endif
 
   ;li $v0, D2_CHCR
   ;li $v1, draw_triangle
