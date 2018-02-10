@@ -62,7 +62,7 @@ int disasm_6502(struct _memory *memory, uint32_t address, char *instruction, int
         // special case for branches
         if(op == OP_RELATIVE)
         {
-          branch_address = (address + 2) + (uint8_t)lo;
+          branch_address = (address + 2) + (int8_t)lo;
           sprintf(num, "0x%04x", branch_address);
         }
           else
