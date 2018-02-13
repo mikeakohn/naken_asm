@@ -245,7 +245,7 @@ vsync_id:
 
 .align 128
 draw_triangle:
-  dc64 GIF_TAG(7, 1, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
+  dc64 GIF_TAG(7, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 0, 1), REG_PRIM
   dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
   dc64 SETREG_XYZ2(1800 << 4, 2000 << 4, 128), REG_XYZ2

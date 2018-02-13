@@ -9,6 +9,9 @@ default:
 triangle:
 	../../naken_asm $(FLAGS) -o triangle.elf triangle.asm
 
+reglist:
+	../../naken_asm $(FLAGS) -o reglist.elf reglist.asm
+
 draw_image:
 	../../naken_asm $(FLAGS) -o draw_image.elf draw_image.asm
 

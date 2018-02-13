@@ -243,7 +243,7 @@ vsync_id:
 
 .align 128
 draw_square:
-  dc64 GIF_TAG(9, 1, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
+  dc64 GIF_TAG(9, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE_FAN, 1, 0, 0, 0, 0, 0, 0, 1), REG_PRIM
   dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
   dc64 SETREG_XYZ2(1800 << 4, 1950 << 4, 128), REG_XYZ2
@@ -278,12 +278,12 @@ red_screen_end:
 
 .align 128
 image_packet:
-  dc64 GIF_TAG(4, 0, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
+  dc64 GIF_TAG(4, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_BITBLTBUF(0, 0, 0, 0 / 64, 64 / 64, FMT_PSMCT24), REG_BITBLTBUF
   dc64 SETREG_TRXPOS(0, 0, 64, 0, DIR_UL_LR), REG_TRXPOS
   dc64 SETREG_TRXREG(64, 64), REG_TRXREG
   dc64 SETREG_TRXDIR(XDIR_HOST_TO_LOCAL), REG_TRXDIR
-  dc64 GIF_TAG(768, 1, 0, 0, FLG_IMAGE, 1, 0x0), REG_A_D
+  dc64 GIF_TAG(768, 1, 0, 0, FLG_IMAGE, 1), REG_A_D
 .binfile "image.raw"
 image_packet_end:
 

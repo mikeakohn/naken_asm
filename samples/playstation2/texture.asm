@@ -273,7 +273,7 @@ black_screen_end:
 
 .align 128
 draw_square:
-  dc64 GIF_TAG(14, 1, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
+  dc64 GIF_TAG(14, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE_FAN, 0, 1, 0, 0, 0, 0, 0, 1), REG_PRIM
   dc64 SETREG_TEX0(0x200000 / 256, 64 / 64, FMT_PSMCT24, 6, 6, 0, TEX_MODULATE, 0, 0, 0, 0, 0), REG_TEX0_1
   ;dc64 SETREG_TEX1(0, 0, FILTER_NEAREST, 0, 0, 0, 0), REG_TEX1_1
@@ -298,7 +298,7 @@ draw_square_end:
 
 .align 128
 texture_packet:
-  dc64 GIF_TAG(7, 0, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
+  dc64 GIF_TAG(7, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_BITBLTBUF(0, 0, 0, 0x200000 / 256, 64 / 64, FMT_PSMCT24), REG_BITBLTBUF
   dc64 SETREG_TEX0(0x200000 / 64, 64 / 64, FMT_PSMCT24, 6, 6, 0, TEX_MODULATE, 0, 0, 0, 0, 0), REG_TEX0_1
   dc64 SETREG_TEX1(0, 0, FILTER_NEAREST, 0, 0, 0, 0), REG_TEX1_1
@@ -306,13 +306,13 @@ texture_packet:
   dc64 SETREG_TRXPOS(0, 0, 0, 0, DIR_UL_LR), REG_TRXPOS
   dc64 SETREG_TRXREG(64, 64), REG_TRXREG
   dc64 SETREG_TRXDIR(XDIR_HOST_TO_LOCAL), REG_TRXDIR
-  dc64 GIF_TAG(768, 1, 0, 0, FLG_IMAGE, 1, 0x0), REG_A_D
+  dc64 GIF_TAG(768, 1, 0, 0, FLG_IMAGE, 1), REG_A_D
 .binfile "image.raw"
 texture_packet_end:
 
 .align 128
 texture_flush:
-  dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
+  dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0, REG_TEXFLUSH
 texture_flush_end:
 

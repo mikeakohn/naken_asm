@@ -7,9 +7,8 @@
 ;; http://www.mikekohn.net/
 ;;
 
-.define GIF_TAG(nloop,eop,pre,prim,flg,nreg,regs) \
-  (((regs) << 64) | \
-   ((nreg) << 60) | \
+.define GIF_TAG(nloop,eop,pre,prim,flg,nreg) \
+  (((nreg) << 60) | \
    ((flg)  << 58) | \
    ((prim) << 47) | \
    ((pre)  << 46) | \
@@ -17,7 +16,7 @@
     (nloop))
 
 FLG_PACKED equ 0
-FLG_REGIST equ 1
+FLG_REGLIST equ 1
 FLG_IMAGE equ 2
 
 .define SETREG_FRAME(fbp,fbw,psm,fbmsk) \

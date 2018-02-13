@@ -139,9 +139,9 @@ draw_screen:
   jal dma02_wait
   nop
   li $v0, D2_CHCR
-  li $v1, red_screen
+  li $v1, black_screen
   sw $v1, 0x10($v0)         ; DMA02 ADDRESS
-  li $v1, (red_screen_end - red_screen) / 16
+  li $v1, (black_screen_end - black_screen) / 16
   sw $v1, 0x20($v0)         ; DMA02 SIZE
   li $v1, 0x101
   sw $v1, ($v0)             ; start
@@ -285,6 +285,9 @@ vsync_id:
 
 .align 128
 draw_triangle:
+  dc32 0, 0, 0, 0      ; (rx,ry,rz) rotation
+  dc32 0, 0, 0, 0      ; (x,y,z)    position
+  dc32 3, 0, 0, 0      ; vertex count
   dc64 GIF_TAG(7, 1, 0, 0, FLG_PACKED, 1, 0x0), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 0, 1), REG_PRIM
   dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
@@ -296,7 +299,7 @@ draw_triangle:
 draw_triangle_end:
 
 .align 128
-red_screen:
+black_screen:
   dc64 0x100000000000800e, REG_A_D 
   dc64 0x00a0000, REG_FRAME_1            ; framebuffer width = 640/64
   dc64 0x8c, REG_ZBUF_1              ; 0-8 Zbuffer base, 24-27 Z format (32bit)
@@ -310,11 +313,11 @@ red_screen:
   dc64 0x70000, REG_TEST_1 
   dc64 0x30000, REG_TEST_1 
   dc64 6, REG_PRIM 
-  dc64 0x3f80_0000_0000_00ff, REG_RGBAQ  ; Background RGBA
+  dc64 0x3f80_0000_0000_0000, REG_RGBAQ  ; Background RGBA (A, blue, green, red)
   dc64 0x79006c00, REG_XYZ2              ; (1728.0, 1936.0, 0)
   dc64 0x87009400, REG_XYZ2              ; (2368.0, 2160.0, 0)
   dc64 0x70000, REG_TEST_1
-red_screen_end:
+black_screen_end:
 
 .align 128
 vu1_start:
