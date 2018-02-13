@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -102,30 +102,30 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, c
         switch(table_ps2_ee_vu[n].operand[r])
         {
           case EE_VU_OP_FT:
-            sprintf(temp, " vf%d", ft);
+            sprintf(temp, " vf%02d", ft);
             if ((table_ps2_ee_vu[n].flags & FLAG_TE) != 0)
             {
               strcat(temp, scalar[(dest >> 2) & 0x3]);
             }
             break;
           case EE_VU_OP_FS:
-            sprintf(temp, " vf%d", fs);
+            sprintf(temp, " vf%02d", fs);
             if ((table_ps2_ee_vu[n].flags & FLAG_SE) != 0)
             {
               strcat(temp, scalar[dest & 0x3]);
             }
             break;
           case EE_VU_OP_FD:
-            sprintf(temp, " vf%d", fd);
+            sprintf(temp, " vf%02d", fd);
             break;
           case EE_VU_OP_VIT:
-            sprintf(temp, " vi%d", ft);
+            sprintf(temp, " vi%02d", ft);
             break;
           case EE_VU_OP_VIS:
-            sprintf(temp, " vi%d", fs);
+            sprintf(temp, " vi%02d", fs);
             break;
           case EE_VU_OP_VID:
-            sprintf(temp, " vi%d", fd);
+            sprintf(temp, " vi%02d", fd);
             break;
           case EE_VU_OP_VI01:
             sprintf(temp, " vi01");
@@ -153,29 +153,29 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, c
           case EE_VU_OP_OFFSET_BASE:
             offset = opcode & 0x7ff;
             if ((offset & 0x400) != 0) { offset |= 0xf800; }
-            sprintf(temp, " %d(vi%d)", offset, (opcode >> 11) & 0x1f);
+            sprintf(temp, " %d(vi%02d)", offset, (opcode >> 11) & 0x1f);
             break;
           case EE_VU_OP_BASE:
-            sprintf(temp, " (vi%d)", fs);
+            sprintf(temp, " (vi%02d)", fs);
             break;
           case EE_VU_OP_BASE_DEC:
             if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
             {
-              sprintf(temp, " (--vi%d)", ft);
+              sprintf(temp, " (--vi%02d)", ft);
             }
               else
             {
-              sprintf(temp, " (--vi%d)", fs);
+              sprintf(temp, " (--vi%02d)", fs);
             }
             break;
           case EE_VU_OP_BASE_INC:
             if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
             {
-              sprintf(temp, " (vi%d++)", ft);
+              sprintf(temp, " (vi%02d++)", ft);
             }
               else
             {
-              sprintf(temp, " (vi%d++)", fs);
+              sprintf(temp, " (vi%02d++)", fs);
             }
             break;
           case EE_VU_OP_IMMEDIATE24:
