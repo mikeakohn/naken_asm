@@ -12,6 +12,9 @@ triangle:
 reglist:
 	../../naken_asm $(FLAGS) -o reglist.elf reglist.asm
 
+long:
+	../../naken_asm $(FLAGS) -o packed_long.elf packed_long.asm
+
 draw_image:
 	../../naken_asm $(FLAGS) -o draw_image.elf draw_image.asm
 
