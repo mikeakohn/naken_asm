@@ -57,7 +57,7 @@ next_point:
   nop                         lq.xyzw vf10, 0(vi04)
 
   ;; Convert point 12/4 bit fixed point to float.
-  itof4.xyzw vf10, vf10       nop
+  ;itof4.xyzw vf10, vf10       nop
 
   ;; Transpose point by { 0, dz, dy, dx } vector.
   add.xyz vf10, vf10, vf02    nop
