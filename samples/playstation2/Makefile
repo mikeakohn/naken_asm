@@ -4,18 +4,10 @@ INCLUDES=-I../../include
 FLAGS=-l -e $(INCLUDES) $(DUMP_MACROS)
 
 default:
-	../../naken_asm $(FLAGS) -o texture.elf texture.asm
-
-triangle:
 	../../naken_asm $(FLAGS) -o triangle.elf triangle.asm
-
-reglist:
 	../../naken_asm $(FLAGS) -o reglist.elf reglist.asm
-
-long:
 	../../naken_asm $(FLAGS) -o packed_long.elf packed_long.asm
-
-draw_image:
+	../../naken_asm $(FLAGS) -o texture.elf texture.asm
 	../../naken_asm $(FLAGS) -o draw_image.elf draw_image.asm
 
 rotation:
