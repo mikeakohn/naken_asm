@@ -287,7 +287,7 @@ vsync_id:
 draw_triangle:
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rx), cos(rx), sin(ry), cos(ry)
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rz), cos(rz)
-  dc32 2048.0, 2048.0, 128.0, 0.0 ; (x,y,z)    position
+  dc32 1900.0, 1900.0, 128.0, 0.0 ; (x,y,z)    position
   dc32 3, 0, 0, 0                 ; vertex count, do_rot_x, do_rot_y, do_rot_z
   dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 0, 1), REG_PRIM
@@ -295,9 +295,9 @@ draw_triangle:
   dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
   dc32 -100.0, 100.0, 0.0, 0
   dc64 SETREG_RGBAQ(0,255,0,0,0x3f80_0000), REG_RGBAQ
-  dc32 -100.0, -100.0, 0.0, 0
+  dc32 -100.0, 110.0, 0.0, 0
   dc64 SETREG_RGBAQ(0,0,255,0,0x3f80_0000), REG_RGBAQ
-  dc32 100.0, -100.0, 0.0, 0
+  dc32 0.0, 110.0, 0.0, 0
 draw_triangle_end:
 
 .align 128

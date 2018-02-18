@@ -9,7 +9,7 @@
 ;;   int count, should_rotate, unused_2, unused_3;
 ;;   struct _data
 ;;   {
-;;     float 0, z, y, x;
+;;     float x, y, x, 0;
 ;;     struct _color
 ;;     {
 ;;       uint8_t r;
@@ -22,9 +22,7 @@
 ;;   } data[count];
 ;; }
 ;;
-;; This structure will start at location 0 in data and starting at location
-;; 3 (3 * 16 bytes into data memory) it will be copied to location
-;; 512 (8192 bytes into memory).
+;; This structure will start at location 0 in data.
 ;;
 ;; In a register loaded from memory is:
 ;;                          { w,   z, y, x }
