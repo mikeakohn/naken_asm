@@ -302,22 +302,20 @@ draw_triangle_end:
 
 .align 128
 black_screen:
-  dc64 0x100000000000800e, REG_A_D
+  dc64 GIF_TAG(14, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0x00a0000, REG_FRAME_1            ; framebuffer width = 640/64
   dc64 0x8c, REG_ZBUF_1              ; 0-8 Zbuffer base, 24-27 Z format (32bit)
-  dc32 27648, 30976                      ; X,Y offset
-  dc64 REG_XYOFFSET_1
-  dc16 0,639, 0,223                      ; x1,y1,x2,y2 - scissor window
-  dc64 REG_SCISSOR_1
+  dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_1
+  dc64 SETREG_SCISSOR(0,639,0,223), REG_SCISSOR_1
   dc64 1, REG_PRMODECONT                 ; refer to prim attributes
   dc64 1, REG_COLCLAMP
   dc64 0, REG_DTHE                       ; Dither off
   dc64 0x70000, REG_TEST_1
   dc64 0x30000, REG_TEST_1
-  dc64 6, REG_PRIM
+  dc64 PRIM_SPRITE, REG_PRIM
   dc64 0x3f80_0000_0000_0000, REG_RGBAQ  ; Background RGBA (A, blue, green, red)
-  dc64 0x79006c00, REG_XYZ2              ; (1728.0, 1936.0, 0)
-  dc64 0x87009400, REG_XYZ2              ; (2368.0, 2160.0, 0)
+  dc64 SETREG_XYZ2(1728 << 4, 1936 << 4, 0), REG_XYZ2
+  dc64 SETREG_XYZ2(2368 << 4, 2160 << 4, 0), REG_XYZ2
   dc64 0x70000, REG_TEST_1
 black_screen_end:
 
