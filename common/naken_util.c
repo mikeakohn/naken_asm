@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -1007,20 +1007,12 @@ int main(int argc, char *argv[])
   if (argc<2)
   {
     printf("Usage: naken_util [options] <infile>\n"
-           "   -s      <source file>\n"
-           "   -d      <debug file>\n"
-           "    // The following options turn off interactive mode\n"
-           "   -disasm                      (Disassemble all or part of program)\n"
-           "   -run                         (Simulate program and dump registers)\n"
-           "   -address <start_address>     (For bin files: binary placed at this address)\n"
-           "   -set_pc <address>            (Sets program counter after loading program)\n"
-           "   -break_io <address>          (In -run mode writing to an i/o port exits sim)\n"
-           "   -bin                         (file is binary)\n"
-           "ELF files can auto-pick a CPU, if a hex file use:\n"
+           "   // ELF files can auto-pick a CPU, if a hex file use:\n"
            "   -4004                        (4004)\n"
            "   -6502                        (6502)\n"
            "   -65816                       (65816)\n"
            "   -6800                        (6800)\n"
+           "   -6809                        (6809)\n"
            "   -68hc08                      (68hc08)\n"
            "   -68000                       (68000)\n"
            "   -8051 / -8052                (8051 / 8052)\n"
@@ -1037,13 +1029,23 @@ int main(int argc, char *argv[])
            "   -pic14                       (PIC14 8 bit PIC / 14 bit opcode)\n"
            "   -powerpc                     (PowerPC)\n"
            "   -propeller                   (Parallax Propeller)\n"
+           "   -ps2ee                       (Playstation 2 EE)\n"
+           "   -ps2ee_v0                    (Playstation 2 VU0)\n"
+           "   -ps2ee_v1                    (Playstation 2 VU1)\n"
            "   -riscv                       (RISCV)\n"
            "   -stm8                        (STM8)\n"
+           "   -superfx                     (SuperFX)\n"
            "   -tms1000                     (TMS1000)\n"
            "   -tms1100                     (TMS1100)\n"
            "   -tms9900                     (TMS9900)\n"
            "   -z80                         (z80)\n"
-           //"   -list                        (like -disasm, but adds source code)\n");
+           "   -bin                         (file is binary)\n"
+           "   // The following options turn off interactive mode\n"
+           "   -disasm                      (Disassemble all or part of program)\n"
+           "   -run                         (Simulate program and dump registers)\n"
+           "   -address <start_address>     (For bin files: binary placed at this address)\n"
+           "   -set_pc <address>            (Sets program counter after loading program)\n"
+           "   -break_io <address>          (In -run mode writing to an i/o port exits sim)\n"
            "\n");
     exit(0);
   }
