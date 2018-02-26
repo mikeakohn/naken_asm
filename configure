@@ -209,6 +209,8 @@ for option in $@; do
   ;;
   --ldflags=*) LDFLAGS="${LDFLAGS} $optval"
   ;;
+  --include-path=*) INCLUDE_PATH="$optval"
+  ;;
   --compiler-prefix=*) COMPILER_PREFIX="$optval"
   ;;
   --install-prefix=*) INSTALL_PREFIX="$optval"
@@ -528,7 +530,3 @@ echo "        BINS: naken_asm${CONFIG_EXT}, naken_util${CONFIG_EXT}, naken_prog$
 echo
 echo "Now type: make"
 echo
-
-
-
-
