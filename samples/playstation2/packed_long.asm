@@ -44,7 +44,7 @@ main:
   li $v1, SetGsCrt
   li $a0, 1
   li $a1, 2
-  li $a2, 1
+  li $a2, 0
   syscall
   nop
 
@@ -82,7 +82,7 @@ main:
   ;;     display width - 1 in vck (dw): 2559
   ;; display height - 1 in pixels (dh): 223
   li $v1, GS_DISPLAY2
-  li $at, 0xdf9ff
+  li $at, 0x1bf_9ff
   dsll32 $at, $at, 0
   li $v0, 0x0182_4290
   or $at, $at, $v0
@@ -265,7 +265,7 @@ black_screen:
   dc64 0x00a0000, REG_FRAME_1            ; framebuffer width = 640/64
   dc64 0x8c, REG_ZBUF_1              ; 0-8 Zbuffer base, 24-27 Z format (32bit)
   dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_1
-  dc64 SETREG_SCISSOR(0,639,0,223), REG_SCISSOR_1
+  dc64 SETREG_SCISSOR(0,639,0,447), REG_SCISSOR_1
   dc64 1, REG_PRMODECONT                 ; refer to prim attributes
   dc64 1, REG_COLCLAMP
   dc64 0, REG_DTHE                       ; Dither off
@@ -274,7 +274,7 @@ black_screen:
   dc64 PRIM_SPRITE, REG_PRIM
   dc64 0x3f80_0000_0000_0000, REG_RGBAQ  ; Background RGBA (A, blue, green, red)
   dc64 SETREG_XYZ2(1728 << 4, 1936 << 4, 0), REG_XYZ2
-  dc64 SETREG_XYZ2(2368 << 4, 2160 << 4, 0), REG_XYZ2
+  dc64 SETREG_XYZ2(2368 << 4, 2384 << 4, 0), REG_XYZ2
   dc64 0x70000, REG_TEST_1
 black_screen_end:
 
