@@ -21,6 +21,7 @@ install:
 	@mkdir -p $(INSTALL_BIN)
 	@cp naken_asm $(INSTALL_BIN)
 	@cp naken_util $(INSTALL_BIN)
+	@cp naken_prog $(INSTALL_BIN)
 
 install_old:
 	#@mkdir -p $(INSTALL_INCLUDES)/include
@@ -33,6 +34,7 @@ uninstall:
 	@echo "Scary stuff.  Just erase these things by hand."
 	#@rm -f $(INSTALL_BIN)/naken_asm
 	#@rm -f $(INSTALL_BIN)/naken_util
+	#@rm -f $(INSTALL_BIN)/naken_prog
 	#@rm -rf $(INSTALL_INCLUDES)
 
 testing: launchpad_blink.asm
@@ -78,5 +80,3 @@ tests:
 
 distclean: clean
 	@rm -f config.mak *.asm
-
-
