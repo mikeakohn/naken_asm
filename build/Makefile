@@ -18,11 +18,14 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
 	   common/cpu_list.o common/memory.o common/memory_pool.o \
 	   common/print_error.o common/symbols.o -I.. \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
+
+prog:
 	$(CC) -o ../naken_prog$(CONFIG_EXT) ../common/naken_prog.c \
 	   prog/lpc.o common/memory.o common/memory_pool.o fileio/read_elf.o \
 	   fileio/read_hex.o fileio/write_hex.o common/print_error.o \
 	   prog/serial.o common/symbols.o -I.. \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
+
 
 common/assembler.o: common/assembler.c common/assembler.h
 	$(CC) -c $< -o $*.o $(CFLAGS) $(DFLAGS) -I..
