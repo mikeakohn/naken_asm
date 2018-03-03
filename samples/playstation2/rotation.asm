@@ -119,6 +119,32 @@ while_1:
   jal draw_screen
   nop
 
+  ;; Calculate next rotation
+  li $v1, angle
+  lw $v0, ($v1)
+  addiu $v0, $v0, 1
+  addiu $t0, $v0, -512
+  bne $t0, $0, angle_not_zero
+  nop
+  xor $v0, $v0, $v0
+angle_not_zero:
+  sw $v0, ($v1)
+  sll $v0, $v0, 2
+
+  ;; Update cosine
+  li $v1, _cos_table_512
+  add $v1, $v1, $v0
+  lw $t0, 0($v1)
+  li $v1, draw_triangle
+  sw $t0, 20($v1)
+
+  ;; Update sine
+  li $v1, _sin_table_512
+  add $v1, $v1, $v0
+  lw $t0, 0($v1)
+  li $v1, draw_triangle
+  sw $t0, 16($v1)
+
   ;; Wait for vsync
   li $v1, GS_CSR
   li $v0, 8
@@ -289,11 +315,13 @@ vsync_count:
   dc64 0
 vsync_id:
   dc64 0
+angle:
+  dc64 0
 
 .align 128
 draw_triangle:
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rx), cos(rx), sin(ry), cos(ry)
-  dc32   1.0, 0.0, 0.0, 0.0       ; sin(rz), cos(rz)
+  dc32   0.0, 0.0, 0.0, 0.0       ; sin(rz), cos(rz)
   dc32 1900.0, 2100.0, 128.0, 0.0 ; (x,y,z)    position
   dc32 3, 0, 0, 1                 ; vertex count, do_rot_x, do_rot_y, do_rot_z
   dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
@@ -331,7 +359,7 @@ vu1_start:
   dc64 0x0, (VIF_MSCAL << 24)
 
 .align 32
-_sin_table:
+_sin_table_512:
   dc32  0.0000,  0.0123,  0.0245,  0.0368,
   dc32  0.0490,  0.0613,  0.0735,  0.0858,
   dc32  0.0980,  0.1102,  0.1223,  0.1345,
@@ -461,7 +489,7 @@ _sin_table:
   dc32 -0.1011, -0.0889, -0.0767, -0.0645,
   dc32 -0.0522, -0.0400, -0.0277, -0.0155,
 
-_cos_table:
+_cos_table_512:
   dc32  1.0000,  0.9999,  0.9997,  0.9993,
   dc32  0.9988,  0.9981,  0.9973,  0.9963,
   dc32  0.9952,  0.9939,  0.9925,  0.9909,
