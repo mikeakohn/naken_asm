@@ -104,8 +104,32 @@ next_point:
 skip_rot_x:
 
   ;; Check if rotation Y should be done
-  ;nop                         ibeq vi11, vi00, skip_rot_y
-  ;nop                         nop
+  nop                         ibeq vi11, vi00, skip_rot_y
+  nop                         nop
+
+  ;; Do Y Rotation
+  ;; Build Y rotational matrix
+  nop                         move.xyzw vf11, vf00
+  nop                         move.xyzw vf12, vf00
+  nop                         move.xyzw vf13, vf00
+  addw.x vf11, vf00, vf05w    nop
+  addz.z vf11, vf00, vf05z    nop
+  addw.y vf12, vf00, vf00w    nop
+  subz.x vf13, vf00, vf05z    nop
+  addw.z vf13, vf00, vf05w    nop
+
+  ;; Multiply Y rotation matrix with points
+  mul.xyzw vf14, vf11, vf10   move vf15, vf00
+  nop                         esum P, vf14
+  nop                         waitp
+  mul.xyzw vf14, vf12, vf10   mfp.x vf15, P
+  nop                         esum P, vf14
+  nop                         waitp
+  mul.xyzw vf14, vf13, vf10   mfp.y vf15, P
+  nop                         esum P, vf14
+  nop                         waitp
+  nop                         mfp.z vf15, P
+  nop                         move vf10, vf15
 skip_rot_y:
 
   ;; Check if rotation Z should be done
