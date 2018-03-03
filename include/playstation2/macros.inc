@@ -50,6 +50,7 @@ PRIM_SPRITE equ 6
 .define SETREG_RGBAQ(r,g,b,a,q) (q<<32)|(a<<24)|(b<<16)|(g<<8)|r
 
 .define SETREG_XYZ2(x,y,z) (z<<32)|(y<<16)|x
+.define SETREG_XYZ3(x,y,z) (z<<32)|(y<<16)|x
 
 .define SETREG_PRIM(prim,shading,texture_mapping,fogging,alpha_blend,anti_alias,texture_coords,context,fix) \
   (((fix)             << 10) | \

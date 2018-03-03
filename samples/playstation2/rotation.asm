@@ -153,7 +153,14 @@ draw_screen:
   jal dma02_wait
   nop
 
-  ;; This an be done with DMA, but trying it with the main CPU
+  li $v1, VIF1_STAT
+wait_on_vu1:
+  lw $v0, ($v1)
+  andi $v0, $s0, 0x04
+  bne $v0, $0, wait_on_vu1
+  nop
+
+  ;; This can be done with DMA, but trying it with the main CPU
   ;; for now.  Copy GIF packet to VU1's data memory segment.
   li $v0, VU1_VU_MEM
   li $a1, (draw_triangle_end - draw_triangle) / 16
@@ -287,13 +294,13 @@ vsync_id:
 draw_triangle:
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rx), cos(rx), sin(ry), cos(ry)
   dc32   1.0, 0.0, 0.0, 0.0       ; sin(rz), cos(rz)
-  dc32 1900.0, 2000.0, 128.0, 0.0 ; (x,y,z)    position
+  dc32 1900.0, 2100.0, 128.0, 0.0 ; (x,y,z)    position
   dc32 3, 0, 0, 0                 ; vertex count, do_rot_x, do_rot_y, do_rot_z
   dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
-  dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 0, 1), REG_PRIM
+  dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 0, 0), REG_PRIM
   dc64 GIF_TAG(3, 1, 0, 0, FLG_PACKED, 2), (REG_A_D|(REG_XYZ2<<4))
   dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
-  dc32 -100.0, 100.0, 0.0, 0
+  dc32 -100.0, -100.0, 0.0, 0
   dc64 SETREG_RGBAQ(0,255,0,0,0x3f80_0000), REG_RGBAQ
   dc32 -100.0, 110.0, 0.0, 0
   dc64 SETREG_RGBAQ(0,0,255,0,0x3f80_0000), REG_RGBAQ

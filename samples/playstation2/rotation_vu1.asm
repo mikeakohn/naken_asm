@@ -141,38 +141,26 @@ skip_rot_z:
 
   ;; Transpose point by { 0, dz, dy, dx } vector.
   add.xyz vf10, vf10, vf02    nop
-  nop nop
-  nop nop
-  nop nop
-  nop nop
 
   ;; Convert to X and Y to fixed point 12:4 and Z to just an integer.
   ftoi4.xy vf10, vf10         nop
-  nop nop
-  nop nop
-  nop nop
   ftoi0.z  vf10, vf10         nop
-  nop nop
-  nop nop
-  nop nop
 
   ;; Save back into GIF packet.
   nop                         sq.xyzw vf10, 0(vi04)
-  nop                         nop
-  nop                         nop
-  nop                         nop
 
   ;; Increment registers and finish for loop.
   nop                         isubiu vi03, vi03, 1
   nop                         iaddiu vi04, vi04, 2
-  nop nop
-  nop nop
-  nop nop
+
   nop                         ibne vi03, vi00, next_point
   nop                         nop
 
   ;; Send GIF packet to the GS
   nop                         xgkick vi01
   nop                         nop
+
+  ;; End micro program
   nop[E]                      nop
+  nop                         nop
 
