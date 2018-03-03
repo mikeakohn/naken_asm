@@ -74,7 +74,6 @@ next_point:
   ;; Load next point from data RAM.
   nop                         lq.xyzw vf10, 0(vi04)
 
-.if 0
   ;; Check if rotation X should be done
   nop                         ibeq vi10, vi00, skip_rot_x
   nop                         nop
@@ -135,7 +134,6 @@ skip_rot_y:
   nop                         waitp
   nop                         mfp.z vf15, P
   nop                         move.xyz vf10, vf15
-.endif
 
 skip_rot_z:
 
