@@ -49,11 +49,17 @@ start:
   ;; vf05 sin(rx), cos(rx), sin(ry), cos(ry)
   ;; vf06 sin(rz), cos(rz), 0.0, 0.0
   ;; vf10 is the next point being processed>
-  ;; vf11 row 0 of transformation matrix
-  ;; vf12 row 1 of transformation matrix
-  ;; vf13 row 2 of transformation matrix
-  ;; vf14 temp for rotations
-  ;; vf15 temp for rotations
+  ;; vf11 row 0 of transformation matrix X
+  ;; vf12 row 1 of transformation matrix X
+  ;; vf13 row 2 of transformation matrix X
+  ;; vf14 row 0 of transformation matrix Y
+  ;; vf15 row 1 of transformation matrix Y
+  ;; vf16 row 2 of transformation matrix Y
+  ;; vf17 row 0 of transformation matrix Z
+  ;; vf18 row 1 of transformation matrix Z
+  ;; vf19 row 2 of transformation matrix Z
+  ;; vf30 temp for rotations
+  ;; vf31 temp for rotations
   nop                         iaddiu vi01, vi00, 4
   nop                         iaddiu vi04, vi00, 8
 
@@ -70,15 +76,12 @@ start:
   ;; vf02 = { 0, dz, dy, dx }
   nop                         lq.xyzw vf02, 2(vi00)
 
-next_point:
-  ;; Load next point from data RAM.
-  nop                         lq.xyzw vf10, 0(vi04)
+  ;; Build rotation matrixes if needed
 
-  ;; Check if rotation X should be done
-  nop                         ibeq vi10, vi00, skip_rot_x
+  ;; Check if rotation X matrix should be made
+  nop                         ibeq vi10, vi00, skip_rot_matrix_x
   nop                         nop
 
-  ;; Do X Rotation
   ;; Build X rotational matrix
   nop                         move.xyzw vf11, vf00
   nop                         move.xyzw vf12, vf00
@@ -89,76 +92,95 @@ next_point:
   addy.z vf13, vf00, vf05y    nop
   addy.y vf13, vf00, vf05y    nop
 
+skip_rot_matrix_x:
+
+  ;; Check if rotation Y matrix should be made
+  nop                         ibeq vi11, vi00, skip_rot_matrix_y
+  nop                         nop
+
+  ;; Build Y rotational matrix
+  nop                         move.xyzw vf14, vf00
+  nop                         move.xyzw vf15, vf00
+  nop                         move.xyzw vf16, vf00
+  addw.x vf14, vf00, vf05w    nop
+  addz.z vf14, vf00, vf05z    nop
+  addw.y vf15, vf00, vf00w    nop
+  subz.x vf16, vf00, vf05z    nop
+  addw.z vf16, vf00, vf05w    nop
+
+skip_rot_matrix_y:
+
+  ;; Check if rotation Z matrix should be made
+  nop                         ibeq vi12, vi00, skip_rot_matrix_z
+  nop                         nop
+
+  ;; Build Z rotational matrix
+  nop                         move.xyzw vf17, vf00
+  nop                         move.xyzw vf18, vf00
+  nop                         move.xyzw vf19, vf00
+  addy.x vf17, vf00, vf06y    nop
+  subx.y vf17, vf00, vf06x    nop
+  addx.x vf18, vf00, vf06x    nop
+  addy.y vf18, vf00, vf06y    nop
+  addw.z vf19, vf00, vf00w    nop
+skip_rot_matrix_z:
+
+next_point:
+  ;; Load next point from data RAM.
+  nop                         lq.xyzw vf10, 0(vi04)
+
+  ;; Check if rotation X should be done
+  nop                         ibeq vi10, vi00, skip_rot_x
+  nop                         nop
+
   ;; Multiply X rotation matrix with points
-  mul.xyzw vf14, vf11, vf10   move vf15, vf00
-  nop                         esum P, vf14
+  mul.xyzw vf30, vf11, vf10   move vf31, vf00
+  nop                         esum P, vf30
   nop                         waitp
-  mul.xyzw vf14, vf12, vf10   mfp.x vf15, P
-  nop                         esum P, vf14
+  mul.xyzw vf30, vf12, vf10   mfp.x vf31, P
+  nop                         esum P, vf30
   nop                         waitp
-  mul.xyzw vf14, vf13, vf10   mfp.y vf15, P
-  nop                         esum P, vf14
+  mul.xyzw vf30, vf13, vf10   mfp.y vf31, P
+  nop                         esum P, vf30
   nop                         waitp
-  nop                         mfp.z vf15, P
-  nop                         move vf10, vf15
+  nop                         mfp.z vf31, P
+  nop                         move vf10, vf31
 skip_rot_x:
 
   ;; Check if rotation Y should be done
   nop                         ibeq vi11, vi00, skip_rot_y
   nop                         nop
 
-  ;; Do Y Rotation
-  ;; Build Y rotational matrix
-  nop                         move.xyzw vf11, vf00
-  nop                         move.xyzw vf12, vf00
-  nop                         move.xyzw vf13, vf00
-  addw.x vf11, vf00, vf05w    nop
-  addz.z vf11, vf00, vf05z    nop
-  addw.y vf12, vf00, vf00w    nop
-  subz.x vf13, vf00, vf05z    nop
-  addw.z vf13, vf00, vf05w    nop
-
   ;; Multiply Y rotation matrix with points
-  mul.xyzw vf14, vf11, vf10   move vf15, vf00
-  nop                         esum P, vf14
+  mul.xyzw vf30, vf14, vf10   move vf31, vf00
+  nop                         esum P, vf30
   nop                         waitp
-  mul.xyzw vf14, vf12, vf10   mfp.x vf15, P
-  nop                         esum P, vf14
+  mul.xyzw vf30, vf15, vf10   mfp.x vf31, P
+  nop                         esum P, vf30
   nop                         waitp
-  mul.xyzw vf14, vf13, vf10   mfp.y vf15, P
-  nop                         esum P, vf14
+  mul.xyzw vf30, vf16, vf10   mfp.y vf31, P
+  nop                         esum P, vf30
   nop                         waitp
-  nop                         mfp.z vf15, P
-  nop                         move vf10, vf15
+  nop                         mfp.z vf31, P
+  nop                         move vf10, vf31
 skip_rot_y:
 
   ;; Check if rotation Z should be done
   nop                         ibeq vi12, vi00, skip_rot_z
   nop                         nop
 
-  ;; Build Z rotational matrix
-  sub.xyzw vf11, vf11, vf11   nop
-  sub.xyzw vf12, vf12, vf12   nop
-  sub.xyzw vf13, vf13, vf13   nop
-  addy.x vf11, vf00, vf06y    nop
-  subx.y vf11, vf00, vf06x    nop
-  addx.x vf12, vf00, vf06x    nop
-  addy.y vf12, vf00, vf06y    nop
-  addw.z vf13, vf00, vf00w    nop
-
   ;; Multiply Z rotation matrix with points
-  mul.xyzw vf14, vf11, vf10   move vf15, vf00
-  nop                         esum P, vf14
+  mul.xyzw vf30, vf17, vf10   move vf31, vf00
+  nop                         esum P, vf30
   nop                         waitp
-  mul.xyzw vf14, vf12, vf10   mfp.x vf15, P
-  nop                         esum P, vf14
+  mul.xyzw vf30, vf18, vf10   mfp.x vf31, P
+  nop                         esum P, vf30
   nop                         waitp
-  mul.xyzw vf14, vf13, vf10   mfp.y vf15, P
-  nop                         esum P, vf14
+  mul.xyzw vf30, vf19, vf10   mfp.y vf31, P
+  nop                         esum P, vf30
   nop                         waitp
-  nop                         mfp.z vf15, P
-  nop                         move.xyz vf10, vf15
-
+  nop                         mfp.z vf31, P
+  nop                         move.xyz vf10, vf31
 skip_rot_z:
 
   ;; Transpose point by { 0, dz, dy, dx } vector.
