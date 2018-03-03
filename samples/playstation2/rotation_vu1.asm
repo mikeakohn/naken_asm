@@ -84,10 +84,8 @@ start:
 
   ;; Build X rotational matrix
   nop                         move.xyzw vf11, vf00
-  nop                         move.xyzw vf12, vf00
-  nop                         move.xyzw vf13, vf00
-  addw.x vf11, vf00, vf00w    nop
-  addy.y vf12, vf00, vf05y    nop
+  addw.x vf11, vf00, vf00w    move.xyzw vf12, vf00
+  addy.y vf12, vf00, vf05y    move.xyzw vf13, vf00
   subx.z vf12, vf00, vf05x    nop
   addy.z vf13, vf00, vf05y    nop
   addy.y vf13, vf00, vf05y    nop
@@ -100,10 +98,8 @@ skip_rot_matrix_x:
 
   ;; Build Y rotational matrix
   nop                         move.xyzw vf14, vf00
-  nop                         move.xyzw vf15, vf00
-  nop                         move.xyzw vf16, vf00
-  addw.x vf14, vf00, vf05w    nop
-  addz.z vf14, vf00, vf05z    nop
+  addw.x vf14, vf00, vf05w    move.xyzw vf15, vf00
+  addz.z vf14, vf00, vf05z    move.xyzw vf16, vf00
   addw.y vf15, vf00, vf00w    nop
   subz.x vf16, vf00, vf05z    nop
   addw.z vf16, vf00, vf05w    nop
@@ -116,10 +112,8 @@ skip_rot_matrix_y:
 
   ;; Build Z rotational matrix
   nop                         move.xyzw vf17, vf00
-  nop                         move.xyzw vf18, vf00
-  nop                         move.xyzw vf19, vf00
-  addy.x vf17, vf00, vf06y    nop
-  subx.y vf17, vf00, vf06x    nop
+  addy.x vf17, vf00, vf06y    move.xyzw vf18, vf00
+  subx.y vf17, vf00, vf06x    move.xyzw vf19, vf00
   addx.x vf18, vf00, vf06x    nop
   addy.y vf18, vf00, vf06y    nop
   addw.z vf19, vf00, vf00w    nop
@@ -184,7 +178,8 @@ skip_rot_y:
 skip_rot_z:
 
   ;; Transpose point by { 0, dz, dy, dx } vector.
-  add.xyz vf10, vf10, vf02    nop
+  ;; Also subtract 1 from count.
+  add.xyz vf10, vf10, vf02    isubiu vi03, vi03, 1
 
   ;; Convert to X and Y to fixed point 12:4 and Z to just an integer.
   ftoi4.xy vf10, vf10         nop
@@ -194,7 +189,6 @@ skip_rot_z:
   nop                         sq.xyzw vf10, 0(vi04)
 
   ;; Increment registers and finish for loop.
-  nop                         isubiu vi03, vi03, 1
   nop                         iaddiu vi04, vi04, 2
 
   nop                         ibne vi03, vi00, next_point
