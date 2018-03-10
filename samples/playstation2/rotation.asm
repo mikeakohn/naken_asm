@@ -209,16 +209,6 @@ repeat_vu1_data_copy:
   li $v1, 0x101
   sw $v1, ($v0)             ; start
 
-  ;li $v0, D2_CHCR
-  ;li $v1, draw_triangle
-  ;sw $v1, 0x10($v0)         ; DMA02 ADDRESS
-  ;li $v1, (draw_triangle_end - draw_triangle) / 16
-  ;sw $v1, 0x20($v0)         ; DMA02 SIZE
-  ;li $v1, 0x101
-  ;sw $v1, ($v0)             ; start
-  ;jal dma02_wait
-  ;nop
-
   ;; Restore return address register
   move $ra, $s3
   jr $ra
@@ -269,8 +259,14 @@ interrupt_vsync:
   nop
 
 dma_reset:
+  li $s0, D1_CHCR
+  sw $zero, 0x00($s0)    ; D1_CHCR
+  sw $zero, 0x30($s0)    ; D1_TADR
+  sw $zero, 0x10($s0)    ; D1_MADR
+  sw $zero, 0x50($s0)    ; D1_ASR1
+  sw $zero, 0x40($s0)    ; D1_ASR0
+
   li $s0, D2_CHCR
-  ;sw $zero, 0x80($s0)    ; um, why?
   sw $zero, 0x00($s0)    ; D2_CHCR
   sw $zero, 0x30($s0)    ; D2_TADR
   sw $zero, 0x10($s0)    ; D2_MADR
@@ -294,9 +290,7 @@ dma_reset:
 
   lw $s1, 0x00($s0)      ; DMA_CTRL
   ori $s1, $s1, 1
-  nop
   sw $s1, 0x00($s0)      ; DMA_CTRL
-  nop
 
   jr $ra
   nop
@@ -356,7 +350,7 @@ black_screen_end:
 
 .align 128
 vu1_start:
-  dc64 0x0, (VIF_MSCAL << 24)
+  dc32 0x0, 0x0, 0x0, (VIF_MSCAL << 24)
 
 .align 32
 _sin_table_512:
