@@ -102,16 +102,28 @@ main:
 
   ;; This an be done with DMA, but trying it with the main CPU
   ;; for now.  Copy GIF packet to VU1's data memory segment.
-  li $v0, VU1_MICRO_MEM
-  li $a1, (rotation_vu1_end - rotation_vu1) / 16
-  li $v1, rotation_vu1
+  ;li $v0, VU1_MICRO_MEM
+  ;li $a1, (rotation_vu1_end - rotation_vu1_start) / 16
+  ;li $v1, rotation_vu1_start
 repeat_vu1_prog_copy:
-  lq $a0, ($v1)
-  sq $a0, ($v0)
-  addi $v1, $v1, 16
-  addi $v0, $v0, 16
-  addi $a1, $a1, -1
-  bnez $a1, repeat_vu1_prog_copy
+  ;lq $a0, ($v1)
+  ;sq $a0, ($v0)
+  ;addi $v1, $v1, 16
+  ;addi $v0, $v0, 16
+  ;addi $a1, $a1, -1
+  ;bnez $a1, repeat_vu1_prog_copy
+  ;nop
+
+  ;; Send VU1 code (VIF_MPG)
+  li $v0, D1_CHCR
+  li $v1, vif_packet_mpg_start
+  sw $v1, 0x10($v0)                   ; DMA01 ADDRESS
+  li $v1, ((vif_packet_mpg_end - vif_packet_mpg_start) / 16)
+  sw $v1, 0x20($v0)                   ; DMA01 SIZE
+  li $v1, 0x101
+  sw $v1, ($v0)                       ; start
+
+  jal dma01_wait
   nop
 
 while_1:
@@ -188,26 +200,26 @@ wait_on_vu1:
 
   ;; This can be done with DMA, but trying it with the main CPU
   ;; for now.  Copy GIF packet to VU1's data memory segment.
-  li $v0, VU1_VU_MEM
-  li $a1, (draw_triangle_end - draw_triangle) / 16
-  li $v1, draw_triangle
+  ;li $v0, VU1_VU_MEM
+  ;li $a1, (draw_triangle_end - draw_triangle) / 16
+  ;li $v1, draw_triangle
 repeat_vu1_data_copy:
-  lq $a0, ($v1)
-  sq $a0, ($v0)
-  addi $v1, $v1, 16
-  addi $v0, $v0, 16
-  addi $a1, $a1, -1
-  bnez $a1, repeat_vu1_data_copy
-  nop
+  ;lq $a0, ($v1)
+  ;sq $a0, ($v0)
+  ;addi $v1, $v1, 16
+  ;addi $v0, $v0, 16
+  ;addi $a1, $a1, -1
+  ;bnez $a1, repeat_vu1_data_copy
+  ;nop
 
-  ;; Start the VU1 with a VIF packet
+  ;; Send data (VIF_UNPACK) and start VU1 (VIF_MSCAL)
   li $v0, D1_CHCR
-  li $v1, vu1_start
-  sw $v1, 0x10($v0)         ; DMA01 ADDRESS
-  li $v1, 1                 ; Length is only 1 qword
-  sw $v1, 0x20($v0)         ; DMA01 SIZE
+  li $v1, vif_packet_start
+  sw $v1, 0x10($v0)                   ; DMA01 ADDRESS
+  li $v1, ((vif_packet_end - vif_packet_start) / 16)
+  sw $v1, 0x20($v0)                   ; DMA01 SIZE
   li $v1, 0x101
-  sw $v1, ($v0)             ; start
+  sw $v1, ($v0)                       ; start
 
   ;; Restore return address register
   move $ra, $s3
@@ -295,6 +307,15 @@ dma_reset:
   jr $ra
   nop
 
+dma01_wait:
+  li $s1, D1_CHCR
+  lw $s0, ($s1)
+  andi $s0, $s0, 0x100
+  bnez $s0, dma01_wait
+  nop
+  jr $ra
+  nop
+
 dma02_wait:
   li $s1, D2_CHCR
   lw $s0, ($s1)
@@ -304,7 +325,7 @@ dma02_wait:
   jr $ra
   nop
 
-.align 64
+.align 128
 vsync_count:
   dc64 0
 vsync_id:
@@ -313,6 +334,8 @@ angle:
   dc64 0
 
 .align 128
+vif_packet_start:
+  dc32 0x0, 0x0, 0x0, (VIF_UNPACK_V4_32 << 24)|(((draw_triangle_end - draw_triangle) / 16) << 16)|(1 << 14)
 draw_triangle:
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rx), cos(rx), sin(ry), cos(ry)
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rz), cos(rz)
@@ -328,6 +351,9 @@ draw_triangle:
   dc64 SETREG_RGBAQ(0,0,255,0,0x3f80_0000), REG_RGBAQ
   dc32 0.0, 110.0, 0.0, 0
 draw_triangle_end:
+vu1_start:
+  dc32 0x0, 0x0, 0x0, (VIF_MSCAL << 24)
+vif_packet_end:
 
 .align 128
 black_screen:
@@ -347,10 +373,6 @@ black_screen:
   dc64 SETREG_XYZ2(2368 << 4, 2384 << 4, 0), REG_XYZ2
   dc64 0x70000, REG_TEST_1
 black_screen_end:
-
-.align 128
-vu1_start:
-  dc32 0x0, 0x0, 0x0, (VIF_MSCAL << 24)
 
 .align 32
 _sin_table_512:
@@ -614,7 +636,10 @@ _cos_table_512:
   dc32  0.9986,  0.9992,  0.9996,  0.9999,
 
 .align 128
-rotation_vu1:
+vif_packet_mpg_start:
+  dc32 0x0, 0x0, 0x0, (VIF_MPG << 24)|(((rotation_vu1_end - rotation_vu1_start) / 8) << 16)
+rotation_vu1_start:
   .binfile "rotation_vu1.bin"
 rotation_vu1_end:
+vif_packet_mpg_end:
 
