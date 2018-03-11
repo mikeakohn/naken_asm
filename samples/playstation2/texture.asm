@@ -254,7 +254,7 @@ vsync_id:
 
 .align 128
 black_screen:
-  dc64 GIF_TAG(14, 0, 0, 0, FLG_PACKED, 1), REG_A_D
+  dc64 GIF_TAG(14, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0x00a0000, REG_FRAME_1            ; framebuffer width = 640/64
   dc64 0x8c, REG_ZBUF_1              ; 0-8 Zbuffer base, 24-27 Z format (32bit)
   dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_1
@@ -298,7 +298,7 @@ draw_square_end:
 
 .align 128
 texture_packet:
-  dc64 GIF_TAG(7, 0, 0, 0, FLG_PACKED, 1), REG_A_D
+  dc64 GIF_TAG(7, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_BITBLTBUF(0, 0, 0, 0x200000 / 256, 64 / 64, FMT_PSMCT24), REG_BITBLTBUF
   dc64 SETREG_TEX0(0x200000 / 64, 64 / 64, FMT_PSMCT24, 6, 6, 0, TEX_MODULATE, 0, 0, 0, 0, 0), REG_TEX0_1
   dc64 SETREG_TEX1(0, 0, FILTER_NEAREST, 0, 0, 0, 0), REG_TEX1_1
@@ -312,7 +312,7 @@ texture_packet_end:
 
 .align 128
 texture_flush:
-  dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
+  dc64 GIF_TAG(1, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0, REG_TEXFLUSH
 texture_flush_end:
 

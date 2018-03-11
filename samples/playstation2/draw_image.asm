@@ -257,7 +257,7 @@ draw_square_end:
 
 .align 128
 red_screen:
-  dc64 GIF_TAG(14, 0, 0, 0, FLG_PACKED, 1), REG_A_D
+  dc64 GIF_TAG(14, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0x00a0000, REG_FRAME_1            ; framebuffer width = 640/64
   dc64 0x8c, REG_ZBUF_1              ; 0-8 Zbuffer base, 24-27 Z format (32bit)
   dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_1
@@ -276,7 +276,7 @@ red_screen_end:
 
 .align 128
 image_packet:
-  dc64 GIF_TAG(4, 0, 0, 0, FLG_PACKED, 1), REG_A_D
+  dc64 GIF_TAG(4, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_BITBLTBUF(0, 0, 0, 0 / 64, 64 / 64, FMT_PSMCT24), REG_BITBLTBUF
   dc64 SETREG_TRXPOS(0, 0, 64, 0, DIR_UL_LR), REG_TRXPOS
   dc64 SETREG_TRXREG(64, 64), REG_TRXREG

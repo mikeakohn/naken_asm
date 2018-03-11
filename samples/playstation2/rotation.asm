@@ -100,6 +100,21 @@ main:
   ;li $v0, 0x004400ff
   ;sd $v0, ($v1)
 
+  ;; Reset VIF1
+  li $v0, VIF1_STAT
+  li $v1, 0xf
+  sw $v1, 0x10($v0)     ; FBRST
+  li $v1, 0x0
+  sw $v1, 0x00($v0)     ; STAT
+  sw $v1, 0x50($v0)     ; MODE
+  sw $v1, 0x80($v0)     ; CODE
+  sw $v1, 0x90($v0)     ; ITOPS
+  sw $v1, 0xa0($v0)     ; BASE
+  sw $v1, 0xb0($v0)     ; OFST
+  sw $v1, 0xc0($v0)     ; TOPS
+  sw $v1, 0xd0($v0)     ; ITOP
+  sw $v1, 0xe0($v0)     ; TOP
+
   ;; This an be done with DMA, but trying it with the main CPU
   ;; for now.  Copy GIF packet to VU1's data memory segment.
   ;li $v0, VU1_MICRO_MEM
@@ -288,10 +303,10 @@ dma_reset:
   li $s0, D_CTRL
   li $s1, 0xff1f
   sw $s1, 0x10($s0)      ; DMA_STAT
-  ;lw $s1, 0x10($s0)      ; DMA_STAT
-  ;li $s2, 0xff1f
-  ;and $s1, $s1, $s2
-  ;sw $s1, 0x10($s0)      ; DMA_STAT
+
+  lw $s1, 0x10($s0)      ; DMA_STAT
+  andi $s1, $s1, 0xff1f
+  sw $s1, 0x10($s0)      ; DMA_STAT
 
   ;sw $zero, 0x10($s0)    ; DMA_STAT
   sw $zero, 0x00($s0)    ; DMA_CTRL
@@ -335,7 +350,10 @@ angle:
 
 .align 128
 vif_packet_start:
-  dc32 0x0, 0x0, 0x0, (VIF_UNPACK_V4_32 << 24)|(((draw_triangle_end - draw_triangle) / 16) << 16)|(1 << 14)
+  dc32 (VIF_FLUSHE << 24)
+  dc32 (VIF_STMOD << 24)
+  dc32 (VIF_STCYCL << 24)|(1 << 8)|1
+  dc32 (VIF_UNPACK_V4_32 << 24)|(((draw_triangle_end - draw_triangle) / 16) << 16)
 draw_triangle:
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rx), cos(rx), sin(ry), cos(ry)
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rz), cos(rz)
@@ -352,12 +370,12 @@ draw_triangle:
   dc32 0.0, 110.0, 0.0, 0
 draw_triangle_end:
 vu1_start:
-  dc32 0x0, 0x0, 0x0, (VIF_MSCAL << 24)
+  dc32 (VIF_MSCAL << 24), 0, 0, 0
 vif_packet_end:
 
 .align 128
 black_screen:
-  dc64 GIF_TAG(14, 0, 0, 0, FLG_PACKED, 1), REG_A_D
+  dc64 GIF_TAG(14, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0x00a0000, REG_FRAME_1            ; framebuffer width = 640/64
   dc64 0x8c, REG_ZBUF_1              ; 0-8 Zbuffer base, 24-27 Z format (32bit)
   dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_1
