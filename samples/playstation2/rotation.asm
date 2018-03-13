@@ -172,6 +172,17 @@ angle_not_zero:
   li $v1, draw_triangle
   sw $t0, 16($v1)
 
+  ;; Flush cache
+  lui $a0, 0
+  li $v1, FlushCache
+  syscall
+
+  ;; Should be able to flush the cache with instructions...
+  ;li $v1, draw_triangle
+  ;cache dhwoin, 0($v1)
+  ;cache dhwbin, 0($v1)
+  ;sync.l
+
   ;; Wait for vsync
   li $v1, GS_CSR
   li $v0, 8
