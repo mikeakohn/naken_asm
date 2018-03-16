@@ -1,14 +1,16 @@
 .ps2_ee_vu0
 
 start:
-  nop iaddiu vi1, vi0, variables / 16
-
-  ; vf3 = [ 4.0, 4.0, 4.0, 4.0 ]
-  ; vf8 = [ 2.0, 2.0, 2.0, 2.0 ]
-  ;nop lq.xyzw vf3, 8(vi1)
-  ;nop lq.xyzw vf3, (mul_by_2 - variables)(vi1)
-  nop lq.xyzw vf3, ((mandel_max - variables) / 16)(vi1)
-  nop lq.xyzw vf8, ((mul_by_2 - variables) / 16)(vi1)
+  ; vf04 = [ 4.0, 4.0, 4.0, 4.0 ]
+  ; vf02 = [ 2.0, 2.0, 2.0, 2.0 ]
+  sub.xyzw vf01, vf01, vf01  iaddiu vi04, 4
+  nop                        mfir.x vf04, vi03
+  nop                        iaddiu vi02, 2
+  nop                        mfir.x vf02, vi02
+  itof0.x vf04, vf04         nop
+  itof0.x vf02, vf02         nop
+  addx.yzw vf04, vf01, vf04  nop
+  addx.yzw vf02, vf01, vf02  nop
 
   nop iaddiu vi3, vi0, 240
 for_y:
@@ -71,14 +73,8 @@ next_iteration:
   nop nop
 
 variables:
-mandel_max:
-  dc32 4.0, 4.0, 4.0, 4.0
-
 add_count:
   dc32 1, 1, 1, 1
-
-mul_by_2:
-  dc32 2.0, 2.0, 2.0, 2.0
 
 vect_3:
   dc32 3, 3, 3, 3
@@ -100,5 +96,4 @@ colors:
   dd 0x000099  ; 2
   dd 0x000066  ; 1
   dd 0x000000  ; 0
-
 
