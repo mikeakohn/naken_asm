@@ -164,6 +164,7 @@ angle_not_zero:
   lw $t0, 0($v1)
   li $v1, draw_triangle
   sw $t0, 20($v1)
+  ;sw $t0, 4($v1)
 
   ;; Update sine
   li $v1, _sin_table_512
@@ -171,6 +172,7 @@ angle_not_zero:
   lw $t0, 0($v1)
   li $v1, draw_triangle
   sw $t0, 16($v1)
+  ;sw $t0, 0($v1)
 
   ;; Flush cache
   lui $a0, 0
@@ -368,7 +370,7 @@ vif_packet_start:
 draw_triangle:
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rx), cos(rx), sin(ry), cos(ry)
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rz), cos(rz)
-  dc32 1900.0, 2100.0, 128.0, 0.0 ; (x,y,z)    position
+  dc32 1900.0, 2100.0, 2048.0, 0.0 ; (x,y,z)    position
   dc32 3, 0, 0, 1                 ; vertex count, do_rot_x, do_rot_y, do_rot_z
   dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 0, 0), REG_PRIM
