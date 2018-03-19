@@ -58,9 +58,12 @@ start:
   ;; vf17 row 0 of transformation matrix Z
   ;; vf18 row 1 of transformation matrix Z
   ;; vf19 row 2 of transformation matrix Z
+  ;; vf20 is [ -d, -d, ?, ? ]
+  ;; vf21 is [  z,  z, ?, ? ]
+  ;; vf29 is [  0,  0, 0, 0 ]
   ;; vf30 temp for rotations
   ;; vf31 temp for rotations
-  nop                         iaddiu vi01, vi00, 4
+  sub.xyzw vf29, vf29, vf29   iaddiu vi01, vi00, 4
   nop                         iaddiu vi04, vi00, 8
 
   ;; Setup count/vi03, vi10=do_rot_x, vi11=do_rot_y, vi12=do_rot_z
@@ -83,12 +86,15 @@ start:
   nop                         nop
 
   ;; Build X rotational matrix
-  nop                         move.xyzw vf11, vf00
-  addw.x vf11, vf00, vf00w    move.xyzw vf12, vf00
-  addy.y vf12, vf00, vf05y    move.xyzw vf13, vf00
+  ;; [ 1    0       0    ]
+  ;; [ 0  cos(r) -sin(r) ]
+  ;; [ 0  sin(r)  cos(r) ]
+  nop                         move.xyzw vf11, vf29
+  addw.x vf11, vf00, vf00w    move.xyzw vf12, vf29
+  addy.y vf12, vf00, vf05y    move.xyzw vf13, vf29
   subx.z vf12, vf00, vf05x    nop
   addy.z vf13, vf00, vf05y    nop
-  addy.y vf13, vf00, vf05y    nop
+  addx.y vf13, vf00, vf05x    nop
 
 skip_rot_matrix_x:
 
@@ -97,9 +103,12 @@ skip_rot_matrix_x:
   nop                         nop
 
   ;; Build Y rotational matrix
-  nop                         move.xyzw vf14, vf00
-  addw.x vf14, vf00, vf05w    move.xyzw vf15, vf00
-  addz.z vf14, vf00, vf05z    move.xyzw vf16, vf00
+  ;; [  cos(r)  0   sin(r) ]
+  ;; [   0      1     0    ]
+  ;; [ -sin(r)  0   cos(r) ]
+  nop                         move.xyzw vf14, vf29
+  addw.x vf14, vf00, vf05w    move.xyzw vf15, vf29
+  addz.z vf14, vf00, vf05z    move.xyzw vf16, vf29
   addw.y vf15, vf00, vf00w    nop
   subz.x vf16, vf00, vf05z    nop
   addw.z vf16, vf00, vf05w    nop
@@ -111,9 +120,12 @@ skip_rot_matrix_y:
   nop                         nop
 
   ;; Build Z rotational matrix
-  nop                         move.xyzw vf17, vf00
-  addy.x vf17, vf00, vf06y    move.xyzw vf18, vf00
-  subx.y vf17, vf00, vf06x    move.xyzw vf19, vf00
+  ;; [ cos(r) -sin(r)  0 ]
+  ;; [ sin(r)  cos(r)  0 ]
+  ;; [   0       0     1 ]
+  nop                         move.xyzw vf17, vf29
+  addy.x vf17, vf00, vf06y    move.xyzw vf18, vf29
+  subx.y vf17, vf00, vf06x    move.xyzw vf19, vf29
   addx.x vf18, vf00, vf06x    nop
   addy.y vf18, vf00, vf06y    nop
   addw.z vf19, vf00, vf00w    nop
@@ -128,7 +140,7 @@ next_point:
   nop                         nop
 
   ;; Multiply X rotation matrix with points
-  mul.xyzw vf30, vf11, vf10   move vf31, vf00
+  mul.xyzw vf30, vf11, vf10   move.xyzw vf31, vf29
   nop                         esum P, vf30
   nop                         waitp
   mul.xyzw vf30, vf12, vf10   mfp.x vf31, P
@@ -138,7 +150,7 @@ next_point:
   nop                         esum P, vf30
   nop                         waitp
   nop                         mfp.z vf31, P
-  nop                         move vf10, vf31
+  nop                         move.xyz vf10, vf31
 skip_rot_x:
 
   ;; Check if rotation Y should be done
@@ -146,7 +158,7 @@ skip_rot_x:
   nop                         nop
 
   ;; Multiply Y rotation matrix with points
-  mul.xyzw vf30, vf14, vf10   move vf31, vf00
+  mul.xyzw vf30, vf14, vf10   move.xyzw vf31, vf29
   nop                         esum P, vf30
   nop                         waitp
   mul.xyzw vf30, vf15, vf10   mfp.x vf31, P
@@ -156,7 +168,7 @@ skip_rot_x:
   nop                         esum P, vf30
   nop                         waitp
   nop                         mfp.z vf31, P
-  nop                         move vf10, vf31
+  nop                         move.xyz vf10, vf31
 skip_rot_y:
 
   ;; Check if rotation Z should be done
@@ -164,7 +176,7 @@ skip_rot_y:
   nop                         nop
 
   ;; Multiply Z rotation matrix with points
-  mul.xyzw vf30, vf17, vf10   move vf31, vf00
+  mul.xyzw vf30, vf17, vf10   move.xyzw vf31, vf29
   nop                         esum P, vf30
   nop                         waitp
   mul.xyzw vf30, vf18, vf10   mfp.x vf31, P
@@ -180,6 +192,19 @@ skip_rot_z:
   ;; Transpose point by { 0, dz, dy, dx } vector.
   ;; Also subtract 1 from count.
   add.xyz vf10, vf10, vf02    isubiu vi03, vi03, 1
+
+  ;; Project 3D (x,y,z) to 2D (x,y)
+  ;; x = -d * (x / z)
+  ;; y = -d * (y / z)
+  ;; Going to try d as 2048.
+  nop                         iaddiu vi13, vi00, 2048
+  nop                         mfir.xy vf20, vi13
+  nop                         ercpr P, vf10z
+  nop                         waitp
+  nop                         mfp.xy vf22, P
+  itof0.xy vf20, vf20         nop
+  mul.xy vf10, vf10, vf20     nop
+  mul.xy vf10, vf10, vf22     nop
 
   ;; Convert to X and Y to fixed point 12:4 and Z to just an integer.
   ftoi4.xy vf10, vf10         nop
