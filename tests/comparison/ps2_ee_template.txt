@@ -127,6 +127,7 @@ mtiabm $t3
 mtpc $t3, 0
 mtpc $t3, 1
 mfps $t3, 0
+mtps $t5, 0
 mfhi $t3
 mflo $t3
 mthi $t3
