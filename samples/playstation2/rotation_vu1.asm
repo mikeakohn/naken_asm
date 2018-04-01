@@ -45,6 +45,8 @@ start:
   ;; vi10 do_rotation_x
   ;; vi11 do_rotation_y
   ;; vi12 do_rotation_z
+  ;; vi13 temp
+  ;; vi14 length of vertex (2 if no texture and 3 for texture)
   ;; vf02 position change { 0, dz, dy, dx }
   ;; vf05 sin(rx), cos(rx), sin(ry), cos(ry)
   ;; vf06 sin(rz), cos(rz), 0.0, 0.0
@@ -64,13 +66,19 @@ start:
   ;; vf30 temp for rotations
   ;; vf31 temp for rotations
   sub.xyzw vf29, vf29, vf29   iaddiu vi01, vi00, 4
-  nop                         iaddiu vi04, vi00, 8
+  nop                         iaddiu vi04, vi00, 6
 
   ;; Setup count/vi03, vi10=do_rot_x, vi11=do_rot_y, vi12=do_rot_z
   nop                         ilw.x vi03, 3(vi00)
-  nop                         ilw.y vi10, 3(vi00)
-  nop                         ilw.z vi11, 3(vi00)
-  nop                         ilw.w vi12, 3(vi00)
+  nop                         ilw.y vi15, 3(vi00)
+  nop                         iaddiu vi13, vi00, 1
+  nop                         iand vi10, vi15, vi13
+  nop                         iaddiu vi13, vi00, 2
+  nop                         iand vi11, vi15, vi13
+  nop                         iaddiu vi13, vi00, 4
+  nop                         iand vi12, vi15, vi13
+  nop                         ilw.z vi14, 3(vi00)
+  nop                         iadd vi04, vi04, vi14
 
   ;; Load sin / cos from the data sent from EE
   nop                         lq.xyzw vf05, 0(vi00)
@@ -214,7 +222,8 @@ skip_rot_z:
   nop                         sq.xyzw vf10, 0(vi04)
 
   ;; Increment registers and finish for loop.
-  nop                         iaddiu vi04, vi04, 2
+  ;nop                         iaddiu vi04, vi04, 2
+  nop                         iadd vi04, vi04, vi14
 
   nop                         ibne vi03, vi00, next_point
   nop                         nop
