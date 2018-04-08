@@ -1568,6 +1568,38 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               opcode |= operands[r].value << 6;
             }
             break;
+          case MIPS_OP_ID_REG:
+            if (operands[r].type == OPERAND_IMMEDIATE)
+            {
+              if (operands[r].value < 0 || operands[r].value > 0x1f)
+              {
+                print_error_range("Constant", 0, 0x1f, asm_context);
+                return -1;
+              }
+            }
+              else
+            if (operands[r].type == OPERAND_R)
+            {
+              operands[r].value = 20;
+            }
+              else
+            if (operands[r].type == OPERAND_I)
+            {
+              operands[r].value = 21;
+            }
+              else
+            if (operands[r].type == OPERAND_Q)
+            {
+              operands[r].value = 22;
+            }
+              else
+            if (operands[r].type == OPERAND_VIREG)
+            {
+            }
+
+            opcode |= (operands[r].value & 0x1f) << 11;
+
+            break;
           default:
             print_error_illegal_operands(instr, asm_context);
             return -1;

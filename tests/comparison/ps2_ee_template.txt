@@ -311,10 +311,10 @@ xori $t3, $k0, 0x1234
 xori $t0, $t0, 0xff
 cfc2 $t0, $vi1
 cfc2.ni $t0, $vi1
-cfc2.i $t0, $vi16
+cfc2.i $t0, $vi15
 ctc2 $t0, $vi1
 ctc2.ni $t0, $vi1
-ctc2.i $t0, $vi16
+ctc2.i $t0, $vi15
 lqc2 $vf1, 100($t3)
 qmfc2 $t0, $vf1
 qmfc2.ni $t0, $vf1
@@ -339,7 +339,7 @@ vadday.xz ACC, $vf4, $vf23
 vaddaz.xz ACC, $vf4, $vf23
 vaddaw.xz ACC, $vf4, $vf23
 vcallms 1000
-vcallmsr $vi27
+;vcallmsr
 vclipw.xyz $vf3, $vf4
 vdiv Q, $vf3y, $vf7z
 vftoi0.x $vf3, $vf30

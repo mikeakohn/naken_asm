@@ -17,6 +17,26 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
+static char *id_reg[] =
+{
+  "STATUS_FLAG",
+  "MAC_FLAG",
+  "CLIPPING_FLAG",
+  "RES",
+  "R",
+  "I",
+  "Q",
+  "RES",
+  "RES",
+  "RES",
+  "TPC",
+  "CMSAR0",
+  "FBRST",
+  "VPU_STAT",
+  "RES",
+  "CMSAR1",
+};
+
 int get_cycle_count_mips(uint32_t opcode)
 {
   return -1;
@@ -368,6 +388,16 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
             break;
           case MIPS_OP_PREG:
             sprintf(temp, " %d", (immediate >> 1) & 0x1f);
+            break;
+          case MIPS_OP_ID_REG:
+            if (rd < 16)
+            {
+              sprintf(temp, " $vi%d [%d]", rd, rd);
+            }
+              else
+            {
+              sprintf(temp, " %s [%d]", id_reg[rd - 16], rd);
+            }
             break;
           case MIPS_OP_OPTIONAL:
             immediate = (opcode >> 6) & 0xfffff;
