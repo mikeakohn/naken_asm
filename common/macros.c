@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -649,6 +649,7 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
   int params_ptr[256];
   int count,ptr;
   uint8_t in_string = 0;
+  uint8_t open_parens = 0;
 
   ch = tokens_get_char(asm_context);
 
@@ -673,7 +674,7 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
     // skip whitespace immediately after opening parenthesis or a comma
     if ((ch == ' ' || ch == '\t') && (ptr == 0 || params[ptr-1] == 0)) { continue; }
     if (ch == '"') { in_string = in_string ^ 1; }
-    if (ch == ')' && in_string == 0) { break; }
+    if (ch == ')' && in_string == 0 && open_parens == 0) { break; }
 
     if (ch == '\n' || ch == EOF)
     {
@@ -681,12 +682,15 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
       return NULL;
     }
 
-    if (ch == ',' && !in_string)
+    if (ch == ',' && !in_string && open_parens == 0)
     {
       params[ptr++] = 0;
       params_ptr[++count] = ptr;
       continue;
     }
+
+    if (ch == '(' && !in_string) { open_parens++; }
+    if (ch == ')' && !in_string) { open_parens--; }
 
     params[ptr++] = ch;
   }
