@@ -524,8 +524,7 @@ init_video_end:
 
 .align 128
 black_screen_1:
-  dc64 GIF_TAG(7, 1, 0, 0, FLG_PACKED, 1), REG_A_D
-  dc64 0x70000, REG_TEST_1
+  dc64 GIF_TAG(6, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0x30000, REG_TEST_1
   dc64 SETREG_PRIM(PRIM_SPRITE, 0, 0, 0, 0, 0, 0, 0, 0), REG_PRIM
   dc64 0x3f80_0000_0000_0000, REG_RGBAQ  ; Background RGBA (A, blue, green, red)
@@ -536,8 +535,7 @@ black_screen_1_end:
 
 .align 128
 black_screen_2:
-  dc64 GIF_TAG(7, 1, 0, 0, FLG_PACKED, 1), REG_A_D
-  dc64 0x70000, REG_TEST_2
+  dc64 GIF_TAG(6, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0x30000, REG_TEST_2
   dc64 SETREG_PRIM(PRIM_SPRITE, 0, 0, 0, 0, 0, 0, 1, 0), REG_PRIM
   dc64 0x3f80_0000_0000_0000, REG_RGBAQ  ; Background RGBA (A, blue, green, red)
