@@ -118,19 +118,16 @@ main:
   sw $v1, 0xd0($v0)     ; ITOP
   sw $v1, 0xe0($v0)     ; TOP
 
-  ;; This an be done with DMA, but trying it with the main CPU
-  ;; for now.  Copy GIF packet to VU1's data memory segment.
-  ;li $v0, VU1_MICRO_MEM
-  ;li $a1, (rotation_vu1_end - rotation_vu1_start) / 16
-  ;li $v1, rotation_vu1_start
-repeat_vu1_prog_copy:
-  ;lq $a0, ($v1)
-  ;sq $a0, ($v0)
-  ;addi $v1, $v1, 16
-  ;addi $v0, $v0, 16
-  ;addi $a1, $a1, -1
-  ;bnez $a1, repeat_vu1_prog_copy
-  ;nop
+  li $v0, D2_CHCR
+  li $v1, init_video
+  sw $v1, 0x10($v0)         ; DMA02 ADDRESS
+  li $v1, (init_video_end - init_video) / 16
+  sw $v1, 0x20($v0)         ; DMA02 SIZE
+  li $v1, 0x101
+  sw $v1, ($v0)             ; start
+
+  jal dma02_wait
+  nop
 
   ;; Send VU1 code (VIF_MPG)
   li $v0, D1_CHCR
@@ -221,6 +218,7 @@ draw_screen_1:
   ;; Copy the DMA packet to VU1 Mem
   jal dma02_wait
   nop
+
   li $v0, D2_CHCR
   li $v1, black_screen_1
   sw $v1, 0x10($v0)         ; DMA02 ADDRESS
@@ -509,16 +507,24 @@ vif_packet_2_end:
 ; Textures     = 2293760
 
 .align 128
-black_screen_1:
-  dc64 GIF_TAG(14, 1, 0, 0, FLG_PACKED, 1), REG_A_D
+init_video:
+  dc64 GIF_TAG(11, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_FRAME(0, 10, 0, 0), REG_FRAME_1
-  ;dc64 SETREG_ZBUF(140, 0, 0), REG_ZBUF_1
+  dc64 SETREG_FRAME(560, 10, 0, 0), REG_FRAME_2
   dc64 SETREG_ZBUF(280, 0, 0), REG_ZBUF_1
+  dc64 SETREG_ZBUF(840, 0, 0), REG_ZBUF_2
   dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_1
+  dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_2
+  dc64 SETREG_SCISSOR(0,639,0,447), REG_SCISSOR_2
   dc64 SETREG_SCISSOR(0,639,0,447), REG_SCISSOR_1
   dc64 1, REG_PRMODECONT                 ; refer to prim attributes
   dc64 1, REG_COLCLAMP
   dc64 0, REG_DTHE                       ; Dither off
+init_video_end:
+
+.align 128
+black_screen_1:
+  dc64 GIF_TAG(7, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0x70000, REG_TEST_1
   dc64 0x30000, REG_TEST_1
   dc64 SETREG_PRIM(PRIM_SPRITE, 0, 0, 0, 0, 0, 0, 0, 0), REG_PRIM
@@ -530,14 +536,7 @@ black_screen_1_end:
 
 .align 128
 black_screen_2:
-  dc64 GIF_TAG(14, 1, 0, 0, FLG_PACKED, 1), REG_A_D
-  dc64 SETREG_FRAME(560, 10, 0, 0), REG_FRAME_2
-  dc64 SETREG_ZBUF(840, 0, 0), REG_ZBUF_2
-  dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_2
-  dc64 SETREG_SCISSOR(0,639,0,447), REG_SCISSOR_2
-  dc64 1, REG_PRMODECONT                 ; refer to prim attributes
-  dc64 1, REG_COLCLAMP
-  dc64 0, REG_DTHE                       ; Dither off
+  dc64 GIF_TAG(7, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0x70000, REG_TEST_2
   dc64 0x30000, REG_TEST_2
   dc64 SETREG_PRIM(PRIM_SPRITE, 0, 0, 0, 0, 0, 0, 1, 0), REG_PRIM
