@@ -146,7 +146,7 @@ repeat_vu1_prog_copy:
 
 while_1:
   ;; First context
-  jal set_context_2
+  jal set_context_1
   nop
 
   ;; Draw picture
@@ -322,7 +322,7 @@ set_context_2:
   ;;           position x (dbx): 0 (0x0)
   ;;           position y (dby): 0 (0x0)
   li $v1, GS_DISPFB2
-  li $v0, SETREG_DISPFB(0, 10, 0, 0, 0)
+  li $v0, SETREG_DISPFB(560, 10, 0, 0, 0)
   sd $v0, ($v1)
   jr $ra
   nop
@@ -486,7 +486,7 @@ draw_triangle_2:
   dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 1, 0), REG_PRIM
   dc64 GIF_TAG(3, 1, 0, 0, FLG_PACKED, 2), (REG_A_D|(REG_XYZ2<<4))
-  dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
+  dc64 SETREG_RGBAQ(255,0,255,0,0x3f80_0000), REG_RGBAQ
   dc32 -100.0, -100.0, 0.0, 0
   dc64 SETREG_RGBAQ(0,255,0,0,0x3f80_0000), REG_RGBAQ
   dc32 -100.0, 110.0, 0.0, 0
@@ -521,7 +521,7 @@ black_screen_1:
   dc64 0, REG_DTHE                       ; Dither off
   dc64 0x70000, REG_TEST_1
   dc64 0x30000, REG_TEST_1
-  dc64 PRIM_SPRITE, REG_PRIM
+  dc64 SETREG_PRIM(PRIM_SPRITE, 0, 0, 0, 0, 0, 0, 0, 0), REG_PRIM
   dc64 0x3f80_0000_0000_0000, REG_RGBAQ  ; Background RGBA (A, blue, green, red)
   dc64 SETREG_XYZ2(1728 << 4, 1936 << 4, 0), REG_XYZ2
   dc64 SETREG_XYZ2(2368 << 4, 2384 << 4, 0), REG_XYZ2
@@ -540,7 +540,7 @@ black_screen_2:
   dc64 0, REG_DTHE                       ; Dither off
   dc64 0x70000, REG_TEST_2
   dc64 0x30000, REG_TEST_2
-  dc64 PRIM_SPRITE, REG_PRIM
+  dc64 SETREG_PRIM(PRIM_SPRITE, 0, 0, 0, 0, 0, 0, 1, 0), REG_PRIM
   dc64 0x3f80_0000_0000_0000, REG_RGBAQ  ; Background RGBA (A, blue, green, red)
   dc64 SETREG_XYZ2(1728 << 4, 1936 << 4, 0), REG_XYZ2
   dc64 SETREG_XYZ2(2368 << 4, 2384 << 4, 0), REG_XYZ2
