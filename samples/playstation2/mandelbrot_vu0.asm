@@ -1,32 +1,44 @@
 .ps2_ee_vu0
 
+  ; struct _mandel_data
+  ; {
+  ;   float r_step, r_step, r_step, r_step;
+  ;   float i_step, i_step, i_step, i_step;
+  ;   float r0, r1, r2, r3;
+  ;   float i0, i1, i2, i3;
+  ; };
+
 start:
+  ; vf05 = [ r_step, r_step, r_step, r_step ]
+  ; vf06 = [ i_step, i_step, i_step, i_step ]
+  ; vf07 = [ r0, r1, r2, r3 ]
+  ; vf08 = [ i0, i1, i2, i3 ]
   ; vf04 = [ 4.0, 4.0, 4.0, 4.0 ]
   ; vf02 = [ 2.0, 2.0, 2.0, 2.0 ]
-  sub.xyzw vf01, vf01, vf01  iaddiu vi04, 4
-  nop                        mfir.x vf04, vi03
-  nop                        iaddiu vi02, 2
-  nop                        mfir.x vf02, vi02
-  itof0.x vf04, vf04         nop
-  itof0.x vf02, vf02         nop
-  addx.yzw vf04, vf01, vf04  nop
-  addx.yzw vf02, vf01, vf02  nop
+  ; vf01 = [ 0.0, 0.0, 0.0, 0.0 ]
+  sub.xyzw vf01, vf01, vf01   lq.xyzw vf05, 0(vi00)
+  addw.xyzw vf02, vf01, vf00w lq.xyzw vf06, 1(vi00)
+  add.xyzw vf02, vf02, vf02   lq.xyzw vf07, 2(vi00)
+  add.xyzw vf04, vf02, vf02   lq.xyzw vf08, 3(vi00)
 
-  nop iaddiu vi3, vi0, 240
+  ; vi03 = 8
+  nop                         iaddiu vi03, vi00, 8
 for_y:
 
-  nop iaddiu vi2, vi0, 320
+  ; vi02 = 64
+  nop                         iaddiu vi02, vi00, 64
 for_x:
-  ; vf2 = [ 1, 1, 1, 1 ]
-  nop lq vf2, ((add_count-variables)/16)(vi1)
 
-  ; vf4 = zr = [ 0.0, 0.0, 0.0, 0.0 ]
-  ; vf5 = zi = [ 0.0, 0.0, 0.0, 0.0 ]
-  sub.xyzw vf4, vf4, vf4 nop
-  sub.xyzw vf5, vf5, vf5 nop
+  ; vf03 = [ 1.0, 1.0, 1.0, 1.0 ] = count_dec
+  ; vf11 = [ 127.0, 127.0, 127.0, 127.0 ] = count
+  addw.xyzw vf03, vf01, vf00w iaddiu vi04, vi00, 127
+  nop                         mfir.xyzw vf11, vi04
+  itof0.xyzw vf11, vf11, vf11 nop
 
-  ; count = 100
-  nop iaddiu vi4, vi0, 127
+  ; vf09 = zr = [ 0.0, 0.0, 0.0, 0.0 ]
+  ; vf10 = zi = [ 0.0, 0.0, 0.0, 0.0 ]
+  sub.xyzw vf09, vf09, vf09   nop
+  sub.xyzw vf10, vf10, vf10   nop
 
 next_iteration:
   ; z = z^2 + c
@@ -34,50 +46,56 @@ next_iteration:
   ;     = x^2 + 2xyi - y^2
   ;     = (x^2 - y^2) + 2xyi
 
-  ; vf7 = ti = (2 * zr * zi);
-  mul.xyzw vf7, vf4, vf5 nop
-  mul.xyzw vf7, vf7, vf8 nop
+  ; vf12 = ti = (2 * zr * zi);
+  mul.xyzw vf12, vf09, vf10    nop
+  mul.xyzw vf12, vf12, vf02    nop
 
-  ; vf4 = tr = ((zr * zr) - (zi * zi));
-  mul.xyzw vf4, vf4, vf4 nop
-  mul.xyzw vf5, vf5, vf5 nop
-  mul.xyzw vf4, vf4, vf5 nop
+  ; vf13 = tr = ((zr * zr) - (zi * zi));
+  mul.xyzw vf13, vf09, vf09   nop
+  mul.xyzw vf14, vf10, vf10   nop
+  sub.xyzw vf13, vf09, vf10   nop
 
-  ; vf4 = zr = tr + r;
-  ; vf5 = zi = ti + i;
-  add.xyzw vf4, vf4, vf20 nop
-  add.xyzw vf5, vf7, vf1 nop
+  ; vf09 = zr = tr + r;
+  ; vf10 = zi = ti + i;
+  add.xyzw vf09, vf13, vf07   nop
+  add.xyzw vf10, vf12, vf08   nop
 
   ; if ((zr * zr) + (zi * zi) > 4) break;
-  mul.xyzw vf6, vf4, vf4 nop
-  mul.xyzw vf7, vf5, vf5 nop
-  add.xyzw vf6, vf6, vf7 nop
-  ;cmpleps xmm6, xmm3
-  sub.xyzw vf21, vf6, vf3 nop
+  mul.xyzw vf13, vf09, vf09   nop
+  mul.xyzw vf14, vf10, vf10   nop
+  add.xyzw vf13, vf13, vf14   nop
+
+  ; if [ l0, l1, l2, l3 ] > 4, count = 0
+  ; vf03 = [ 1.0/0.0 1.0/0.0 1.0/0.0 1.0/0.0 ]
+  ftoi.xyzw vf13, vf13, vf13
+  ;sub.xyzw vf13, vf04, vf13   nop
+  ;max.xyzw vf13, vf01, vf13   nop
+  ;nop                         esum P, vf13
+  ;(if above 0, make 1)        waitp
+  ;add.xyzw vf02, vf13, vf01   mfp.x vf14
+  ;ftoi0.xyzw vf14, vf14       nop
+  ;sub.xyzw vf11, vf11, vf03   mtir.x vi05, vf14
+  
 
   ; count = count - 1
-  nop isubiu vi4, vi4, 1
+  nop                         isubiu vi04, vi04, 1
+  nop                         ibeq vi05, vi00, break_iteration
+  nop                         ibne vi04, vi00, next_iteration
 
-  nop ibne vi0, vi4, next_iteration
-
+break_iteration:
   ; [ r0, r1, r2, r3 ] += rstep4
-  add.xyzw vf20, vf20, vf11 nop
+  add.xyzw vf20, vf20, vf11   nop
 
-  nop ibne vi0, vi2, for_x
+  nop                         ibne vi0, vi02, for_x
 
   ; [ i0, i1, i2, i3 ] += istep
-  add.xyzw vf1, vf1, vf12 nop
+  add.xyzw vf01, vf01, vf12   nop
 
-  nop ibne vi0, vi3, for_y
+  nop                         ibne vi0, vi03, for_y
 
-  nop nop
-
-variables:
-add_count:
-  dc32 1, 1, 1, 1
-
-vect_3:
-  dc32 3, 3, 3, 3
+  nop                         nop
+  nop[E]                      nop
+  nop                         nop
 
 colors:
   dd 0xff0000  ; f

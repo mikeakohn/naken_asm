@@ -9,10 +9,11 @@ default:
 	../../naken_asm $(FLAGS) -o packed_long.elf packed_long.asm
 	../../naken_asm $(FLAGS) -o texture.elf texture.asm
 	../../naken_asm $(FLAGS) -o draw_image.elf draw_image.asm
-
-rotation:
 	../../naken_asm $(FLAGS) -l -b -o rotation_vu1.bin rotation_vu1.asm
 	../../naken_asm $(FLAGS) -l -o rotation.elf rotation.asm
+
+double:
+	../../naken_asm $(FLAGS) -l -o double_buffer.elf double_buffer.asm
 
 mandel:
 	../../naken_asm $(iNCLUDES) -l -b -o mandelbrot_vu0.bin mandelbrot_vu0.asm

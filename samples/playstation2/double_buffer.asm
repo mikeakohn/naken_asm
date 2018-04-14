@@ -64,9 +64,12 @@ main:
   ;; pixel storage format (psm): 0 (PSMCT32)
   ;;           position x (dbx): 0 (0x0)
   ;;           position y (dby): 0 (0x0)
-  li $v1, GS_DISPFB2
-  li $v0, 0x1400
-  sd $v0, ($v1)
+  ;li $v1, GS_DISPFB2
+  ;li $v0, 0x1400
+  ;sd $v0, ($v1)
+
+  jal set_context_1
+  nop
 
   ;li $v1, GS_DISPFB1
   ;li $v0, 0x1200
@@ -142,10 +145,40 @@ repeat_vu1_prog_copy:
   nop
 
 while_1:
-  ;; Draw picture
-  jal draw_screen
+  ;; First context
+  jal set_context_2
   nop
 
+  ;; Draw picture
+  jal draw_screen_1
+  nop
+
+  li $a0, draw_triangle_1
+  jal rotate
+  nop
+
+  jal wait_for_vsync
+  nop
+
+  ;; Do page flip
+  jal set_context_2
+  nop
+
+  ;; Draw picture
+  jal draw_screen_2
+  nop
+
+  li $a0, draw_triangle_2
+  jal rotate
+  nop
+
+  jal wait_for_vsync
+  nop
+
+  b while_1
+  nop
+
+rotate:
   ;; Calculate next rotation
   li $v1, angle
   lw $v0, ($v1)
@@ -162,29 +195,139 @@ angle_not_zero:
   li $v1, _cos_table_512
   add $v1, $v1, $v0
   lw $t0, 0($v1)
-  li $v1, draw_triangle
-  sw $t0, 20($v1)
-  ;sw $t0, 4($v1)
+  sw $t0, 20($a0)
 
   ;; Update sine
   li $v1, _sin_table_512
   add $v1, $v1, $v0
   lw $t0, 0($v1)
-  li $v1, draw_triangle
-  sw $t0, 16($v1)
-  ;sw $t0, 0($v1)
+  sw $t0, 16($a0)
 
   ;; Flush cache
   lui $a0, 0
   li $v1, FlushCache
   syscall
 
-  ;; Should be able to flush the cache with instructions...
-  ;li $v1, draw_triangle
-  ;cache dhwoin, 0($v1)
-  ;cache dhwbin, 0($v1)
-  ;sync.l
+  jr $ra
+  nop
 
+draw_screen_1:
+  ;; Save return address register
+  move $s3, $ra
+
+  ;; Copy triangle to VU1 so it can go through transformations.
+  ;; Start by waiting for DMA to finish (shouldn't need this)
+  ;; Point to VU1 Mem (the data memory segment in VU1)
+  ;; Copy the DMA packet to VU1 Mem
+  jal dma02_wait
+  nop
+  li $v0, D2_CHCR
+  li $v1, black_screen_1
+  sw $v1, 0x10($v0)         ; DMA02 ADDRESS
+  li $v1, (black_screen_1_end - black_screen_1) / 16
+  sw $v1, 0x20($v0)         ; DMA02 SIZE
+  li $v1, 0x101
+  sw $v1, ($v0)             ; start
+
+  jal dma02_wait
+  nop
+
+  ;; If VU1 is busy, wait for it to finish.
+.scope
+  li $v1, VIF1_STAT
+wait_on_vu1:
+  lw $v0, ($v1)
+  andi $v0, $s0, 0x04
+  bne $v0, $0, wait_on_vu1
+  nop
+.ends
+
+  ;; Send data (VIF_UNPACK) and start VU1 (VIF_MSCAL)
+  li $v0, D1_CHCR
+  li $v1, vif_packet_1_start
+  sw $v1, 0x10($v0)                   ; DMA01 ADDRESS
+  li $v1, ((vif_packet_1_end - vif_packet_1_start) / 16)
+  sw $v1, 0x20($v0)                   ; DMA01 SIZE
+  li $v1, 0x101
+  sw $v1, ($v0)                       ; start
+
+  ;; Restore return address register
+  move $ra, $s3
+  jr $ra
+  nop
+
+draw_screen_2:
+  ;; Save return address register
+  move $s3, $ra
+
+  ;; Copy triangle to VU1 so it can go through transformations.
+  ;; Start by waiting for DMA to finish (shouldn't need this)
+  ;; Point to VU1 Mem (the data memory segment in VU1)
+  ;; Copy the DMA packet to VU1 Mem
+  jal dma02_wait
+  nop
+  li $v0, D2_CHCR
+  li $v1, black_screen_2
+  sw $v1, 0x10($v0)         ; DMA02 ADDRESS
+  li $v1, (black_screen_2_end - black_screen_2) / 16
+  sw $v1, 0x20($v0)         ; DMA02 SIZE
+  li $v1, 0x101
+  sw $v1, ($v0)             ; start
+
+  jal dma02_wait
+  nop
+
+  ;; If VU1 is busy, wait for it to finish.
+.scope
+  li $v1, VIF1_STAT
+wait_on_vu1:
+  lw $v0, ($v1)
+  andi $v0, $s0, 0x04
+  bne $v0, $0, wait_on_vu1
+  nop
+.ends
+
+  ;; Send data (VIF_UNPACK) and start VU1 (VIF_MSCAL)
+  li $v0, D1_CHCR
+  li $v1, vif_packet_2_start
+  sw $v1, 0x10($v0)                   ; DMA01 ADDRESS
+  li $v1, ((vif_packet_2_end - vif_packet_2_start) / 16)
+  sw $v1, 0x20($v0)                   ; DMA01 SIZE
+  li $v1, 0x101
+  sw $v1, ($v0)                       ; start
+
+  ;; Restore return address register
+  move $ra, $s3
+  jr $ra
+  nop
+
+set_context_1:
+  ;; GS_DISPFB2 with 0x1400
+  ;;         base pointer (fbp): 0x0 (0x0)
+  ;;   frame buffer width (fbw): 10 (640)
+  ;; pixel storage format (psm): 0 (PSMCT32)
+  ;;           position x (dbx): 0 (0x0)
+  ;;           position y (dby): 0 (0x0)
+  li $v1, GS_DISPFB2
+  li $v0, SETREG_DISPFB(0, 10, 0, 0, 0)
+  sd $v0, ($v1)
+  jr $ra
+  nop
+
+set_context_2:
+  ;; GS_DISPFB2 with 0x1400
+  ;;         base pointer (fbp): 0x0 (0x0)
+  ;;   frame buffer width (fbw): 10 (640)
+  ;; pixel storage format (psm): 0 (PSMCT32)
+  ;;           position x (dbx): 0 (0x0)
+  ;;           position y (dby): 0 (0x0)
+  li $v1, GS_DISPFB2
+  li $v0, SETREG_DISPFB(0, 10, 0, 0, 0)
+  sd $v0, ($v1)
+  jr $ra
+  nop
+
+wait_for_vsync:
   ;; Wait for vsync
   li $v1, GS_CSR
   li $v0, 8
@@ -194,63 +337,6 @@ vsync_wait:
   andi $v0, $v0, 8
   beqz $v0, vsync_wait
   nop
-  b while_1
-  nop
-
-draw_screen:
-  ;; Save return address register
-  move $s3, $ra
-
-  ;; Setup draw environment
-  jal dma02_wait
-  nop
-  li $v0, D2_CHCR
-  li $v1, black_screen
-  sw $v1, 0x10($v0)         ; DMA02 ADDRESS
-  li $v1, (black_screen_end - black_screen) / 16
-  sw $v1, 0x20($v0)         ; DMA02 SIZE
-  li $v1, 0x101
-  sw $v1, ($v0)             ; start
-
-  ;; Copy triangle to VU1 so it can go through transformations.
-  ;; Start by waiting for DMA to finish (shouldn't need this)
-  ;; Point to VU1 Mem (the data memory segment in VU1)
-  ;; Copy the DMA packet to VU1 Mem
-  jal dma02_wait
-  nop
-
-  li $v1, VIF1_STAT
-wait_on_vu1:
-  lw $v0, ($v1)
-  andi $v0, $s0, 0x04
-  bne $v0, $0, wait_on_vu1
-  nop
-
-  ;; This can be done with DMA, but trying it with the main CPU
-  ;; for now.  Copy GIF packet to VU1's data memory segment.
-  ;li $v0, VU1_VU_MEM
-  ;li $a1, (draw_triangle_end - draw_triangle) / 16
-  ;li $v1, draw_triangle
-repeat_vu1_data_copy:
-  ;lq $a0, ($v1)
-  ;sq $a0, ($v0)
-  ;addi $v1, $v1, 16
-  ;addi $v0, $v0, 16
-  ;addi $a1, $a1, -1
-  ;bnez $a1, repeat_vu1_data_copy
-  ;nop
-
-  ;; Send data (VIF_UNPACK) and start VU1 (VIF_MSCAL)
-  li $v0, D1_CHCR
-  li $v1, vif_packet_start
-  sw $v1, 0x10($v0)                   ; DMA01 ADDRESS
-  li $v1, ((vif_packet_end - vif_packet_start) / 16)
-  sw $v1, 0x20($v0)                   ; DMA01 SIZE
-  li $v1, 0x101
-  sw $v1, ($v0)                       ; start
-
-  ;; Restore return address register
-  move $ra, $s3
   jr $ra
   nop
 
@@ -362,12 +448,12 @@ angle:
   dc64 0
 
 .align 128
-vif_packet_start:
+vif_packet_1_start:
   dc32 (VIF_FLUSHE << 24)
   dc32 (VIF_STMOD << 24)
   dc32 (VIF_STCYCL << 24)|(1 << 8)|1
-  dc32 (VIF_UNPACK_V4_32 << 24)|(((draw_triangle_end - draw_triangle) / 16) << 16)
-draw_triangle:
+  dc32 (VIF_UNPACK_V4_32 << 24)|(((draw_triangle_1_end - draw_triangle_1) / 16) << 16)
+draw_triangle_1:
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rx), cos(rx), sin(ry), cos(ry)
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rz), cos(rz)
   dc32 1900.0, 2100.0, 2048.0, 0.0 ; (x,y,z)    position
@@ -381,16 +467,53 @@ draw_triangle:
   dc32 -100.0, 110.0, 0.0, 0
   dc64 SETREG_RGBAQ(0,0,255,0,0x3f80_0000), REG_RGBAQ
   dc32 0.0, 110.0, 0.0, 0
-draw_triangle_end:
-vu1_start:
+draw_triangle_1_end:
+vu1_1_start:
   dc32 (VIF_MSCAL << 24), 0, 0, 0
-vif_packet_end:
+vif_packet_1_end:
 
 .align 128
-black_screen:
+vif_packet_2_start:
+  dc32 (VIF_FLUSHE << 24)
+  dc32 (VIF_STMOD << 24)
+  dc32 (VIF_STCYCL << 24)|(1 << 8)|1
+  dc32 (VIF_UNPACK_V4_32 << 24)|(((draw_triangle_2_end - draw_triangle_2) / 16) << 16)
+draw_triangle_2:
+  dc32   0.0, 0.0, 0.0, 0.0       ; sin(rx), cos(rx), sin(ry), cos(ry)
+  dc32   0.0, 0.0, 0.0, 0.0       ; sin(rz), cos(rz)
+  dc32 1900.0, 2100.0, 2048.0, 0.0 ; (x,y,z)    position
+  dc32 3, 4, 2, 0                 ; vertex count, do_rot_xyz, vertex_len, 0 
+  dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
+  dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 1, 0), REG_PRIM
+  dc64 GIF_TAG(3, 1, 0, 0, FLG_PACKED, 2), (REG_A_D|(REG_XYZ2<<4))
+  dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
+  dc32 -100.0, -100.0, 0.0, 0
+  dc64 SETREG_RGBAQ(0,255,0,0,0x3f80_0000), REG_RGBAQ
+  dc32 -100.0, 110.0, 0.0, 0
+  dc64 SETREG_RGBAQ(0,0,255,0,0x3f80_0000), REG_RGBAQ
+  dc32 0.0, 110.0, 0.0, 0
+draw_triangle_2_end:
+vu1_2_start:
+  dc32 (VIF_MSCAL << 24), 0, 0, 0
+vif_packet_2_end:
+
+; 640*224*4 = 573,440
+; zbuf = 140 * 20488 = 286,720 ?
+; 640*224*2 = 286,720
+; The original code I had here seems kind of wrong. To be safe I
+; I'm going to use my new calculations
+; Context 1 FB = 0
+; Context 1 Z  = 573440
+; Context 2 FB = 1146880
+; Context 2 Z  = 1720320
+; Textures     = 2293760
+
+.align 128
+black_screen_1:
   dc64 GIF_TAG(14, 1, 0, 0, FLG_PACKED, 1), REG_A_D
-  dc64 0x00a0000, REG_FRAME_1            ; framebuffer width = 640/64
-  dc64 0x8c, REG_ZBUF_1              ; 0-8 Zbuffer base, 24-27 Z format (32bit)
+  dc64 SETREG_FRAME(0, 10, 0, 0), REG_FRAME_1
+  ;dc64 SETREG_ZBUF(140, 0, 0), REG_ZBUF_1
+  dc64 SETREG_ZBUF(280, 0, 0), REG_ZBUF_1
   dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_1
   dc64 SETREG_SCISSOR(0,639,0,447), REG_SCISSOR_1
   dc64 1, REG_PRMODECONT                 ; refer to prim attributes
@@ -403,7 +526,26 @@ black_screen:
   dc64 SETREG_XYZ2(1728 << 4, 1936 << 4, 0), REG_XYZ2
   dc64 SETREG_XYZ2(2368 << 4, 2384 << 4, 0), REG_XYZ2
   dc64 0x70000, REG_TEST_1
-black_screen_end:
+black_screen_1_end:
+
+.align 128
+black_screen_2:
+  dc64 GIF_TAG(14, 1, 0, 0, FLG_PACKED, 1), REG_A_D
+  dc64 SETREG_FRAME(560, 10, 0, 0), REG_FRAME_2
+  dc64 SETREG_ZBUF(840, 0, 0), REG_ZBUF_2
+  dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_2
+  dc64 SETREG_SCISSOR(0,639,0,447), REG_SCISSOR_2
+  dc64 1, REG_PRMODECONT                 ; refer to prim attributes
+  dc64 1, REG_COLCLAMP
+  dc64 0, REG_DTHE                       ; Dither off
+  dc64 0x70000, REG_TEST_2
+  dc64 0x30000, REG_TEST_2
+  dc64 PRIM_SPRITE, REG_PRIM
+  dc64 0x3f80_0000_0000_0000, REG_RGBAQ  ; Background RGBA (A, blue, green, red)
+  dc64 SETREG_XYZ2(1728 << 4, 1936 << 4, 0), REG_XYZ2
+  dc64 SETREG_XYZ2(2368 << 4, 2384 << 4, 0), REG_XYZ2
+  dc64 0x70000, REG_TEST_2
+black_screen_2_end:
 
 .include "sin_cos_table.inc"
 

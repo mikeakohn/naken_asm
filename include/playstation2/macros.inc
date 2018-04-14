@@ -184,3 +184,8 @@ FMT_PSMZ16S equ 0x3a
 .define SETREG_ST(s,t) (((t)<<32) | (s))
 .define SETREG_UV(u,v) (((t)<<16) | (u))
 
+.define SETREG_ZBUF(zbp,psm,zmsk) \
+  (((zmsk) << 32) | \
+   ((psm)  << 24) | \
+    (zbp))
+
