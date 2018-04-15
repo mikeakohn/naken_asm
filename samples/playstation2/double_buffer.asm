@@ -314,7 +314,7 @@ set_context_1:
 
 set_context_2:
   ;; GS_DISPFB2 with 0x1400
-  ;;         base pointer (fbp): 0x0 (0x0)
+  ;;         base pointer (fbp): 0x118000 (0x230)
   ;;   frame buffer width (fbw): 10 (640)
   ;; pixel storage format (psm): 0 (PSMCT32)
   ;;           position x (dbx): 0 (0x0)
