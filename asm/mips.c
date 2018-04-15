@@ -572,6 +572,13 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
 
     if (asm_context->pass == 1)
     {
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
       add_bin32(asm_context, optimize, IS_OPCODE);
 
       if (optimize == 0)
