@@ -52,7 +52,7 @@ struct _table_1802 table_1802[] = {
   { "req",  0x7a, 0xff, RCA1802_OP_NONE,   2 },
   { "seq",  0x7b, 0xff, RCA1802_OP_NONE,   2 },
   { "adci", 0x7c, 0xff, RCA1802_OP_IMMEDIATE, 2 },
-  { "sbdi", 0x7d, 0xff, RCA1802_OP_IMMEDIATE, 2 },
+  { "sdbi", 0x7d, 0xff, RCA1802_OP_IMMEDIATE, 2 },
   { "shlc", 0x7e, 0xff, RCA1802_OP_NONE,   2 },
   { "smbi", 0x7f, 0xff, RCA1802_OP_IMMEDIATE, 2 },
   { "glo",  0x80, 0xf0, RCA1802_OP_REG,    2 },

@@ -1,0 +1,79 @@
+idl
+ldn 9
+inc D
+dec 8
+br 191
+bq 106
+bz 61
+bdf 8
+b1 216
+b2 244
+b3 124
+b4 194
+skp
+bnq 157
+bnz 6
+bnf 221
+bn1 146
+bn2 237
+bn3 100
+bn4 161
+lda 7
+str 9
+irx
+out 3
+inp 1
+ret
+dis
+ldxa
+stxd
+adc
+sdb
+shrc
+smb
+sav
+mark
+req
+seq
+adci 14
+sdbi 54
+shlc
+smbi 7
+glo D
+ghi 4
+plo D
+phi F
+lbr 49782
+lbq 62210
+lbz 34093
+lbdf 36255
+nop
+lsnq
+lsnz
+lsnf
+lskp
+lbnq 10321
+lbnz 21195
+lbnf 18890
+lsie
+lsq
+lsz
+lsdf
+sep C
+sex 8
+ldx
+or
+and
+xor
+add
+sd
+shr
+sm
+ldi 164
+ori 99
+ani 214
+xri 91
+adi 247
+sdi 154
+shl
+smi 12

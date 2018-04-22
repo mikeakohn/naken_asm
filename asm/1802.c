@@ -73,15 +73,16 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
         {
           int reg = -1;
 
-          tokens_get(asm_context, token, TOKENLEN);
+          token_type = tokens_get(asm_context, token, TOKENLEN);
 
+          if (token_type == TOKEN_NUMBER)
+          {
+            reg = atoi(token);
+            if (reg < 0 || reg > 15) { reg = -1; }
+          }
+            else
           if (token[1] == 0)
           {
-            if (token[0] >= '0' && token[0] <= '9')
-            {
-              reg = token[0] - '0';
-            }
-              else
             if (token[0] >= 'a' && token[0] <= 'f')
             {
               reg = (token[0] - 'a') + 10;
@@ -108,7 +109,7 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
           int num = -1;
 
           tokens_get(asm_context, token, TOKENLEN);
-
+         
           if (token[1] == 0 && token[0] >= '1' && token[0] <= '7')
           {
             num = token[0] - '0';
