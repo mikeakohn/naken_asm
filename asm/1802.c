@@ -159,37 +159,29 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
             else
           if (table_1802[n].type == RCA1802_OP_BRANCH)
           {
-            int offset = num - (asm_context->address + 2);
-
-            if (asm_context->pass == 1) { offset = 0; }
-
-            if (offset < -128 || offset > 127)
+            if ((num >> 8) != (asm_context->address >> 8))
             {
-              print_error_range("Offset", -128, 127, asm_context);
+              print_error("Branch address must be on the the same page.\n", asm_context);
               return -1;
             }
 
             add_bin8(asm_context, table_1802[n].opcode, IS_OPCODE);
-            add_bin8(asm_context, offset & 0xff, IS_OPCODE);
+            add_bin8(asm_context, num & 0xff, IS_OPCODE);
             len = 2;
             break;
           }
             else
           if (table_1802[n].type == RCA1802_OP_LONG_BRANCH)
           {
-            int offset = num - (asm_context->address + 3);
-
-            if (asm_context->pass == 1) { offset = 0; }
-
-            if (offset < -32768 || offset > 32767)
+            if (num < 0 || num > 0xffff)
             {
-              print_error_range("Offset", -32768, 32767, asm_context);
+              print_error_range("Address", 0, 0xffff, asm_context);
               return -1;
             }
 
             add_bin8(asm_context, table_1802[n].opcode, IS_OPCODE);
-            add_bin8(asm_context, offset & 0xff, IS_OPCODE);
-            add_bin8(asm_context, (offset >> 8) & 0xff, IS_OPCODE);
+            add_bin8(asm_context, (num >> 8) & 0xff, IS_OPCODE);
+            add_bin8(asm_context, num & 0xff, IS_OPCODE);
             len = 2;
             break;
           }

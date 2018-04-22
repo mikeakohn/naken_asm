@@ -67,17 +67,17 @@ int disasm_1802(struct _memory *memory, uint32_t address, char *instruction, int
         }
         case RCA1802_OP_BRANCH:
         {
-          data = (int)((int8_t)memory_read_m(memory, address + 1));
-          sprintf(instruction, "%s 0x%04x (offset=%d)",
-            table_1802[n].instr, (address + 2) + data, data);
+          data = memory_read_m(memory, address + 1);
+          sprintf(instruction, "%s 0x%04x",
+            table_1802[n].instr, (address & 0xff00) | data);
           return 2;
         }
         case RCA1802_OP_LONG_BRANCH:
         {
-          data = (int)((int16_t)((memory_read_m(memory, address + 1)) |
-                                  memory_read_m(memory, address + 2) << 8));
-          sprintf(instruction, "%s 0x%04x (offset=%d)",
-            table_1802[n].instr, (address + 3) + data, data);
+          data = ((memory_read_m(memory, address + 1) << 8) |
+                   memory_read_m(memory, address + 2));
+          sprintf(instruction, "%s 0x%04x",
+            table_1802[n].instr, data);
           return 3;
         }
         default:
@@ -117,11 +117,11 @@ void list_output_1802(struct _asm_context *asm_context, uint32_t start, uint32_t
     for (n = 1; n < count; n++)
     {
       char temp2[4];
-      sprintf(temp2, " %02x", memory_read_m(&asm_context->memory, start + 1));
+      sprintf(temp2, " %02x", memory_read_m(&asm_context->memory, start + n));
       strcat(temp, temp2);
     }
 
-    fprintf(asm_context->list, "0x%04x: %-6s %-40s cycles: ", start, temp, instruction);
+    fprintf(asm_context->list, "0x%04x: %-8s %-40s cycles: ", start, temp, instruction);
 
     if (cycles_min == 0)
     {
