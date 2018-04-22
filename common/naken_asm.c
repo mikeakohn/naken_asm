@@ -39,7 +39,7 @@ const char *credits =
   "naken_asm\n\n"
   "Authors: Michael Kohn\n"
   "         Joe Davisson\n"
-  "    CPU: 4004, 6502, 65816, 6809, 68HC08, 68000, 8051, ARM, AVR8\n"
+  "    CPU: 1802, 4004, 6502, 65816, 6809, 68HC08, 68000, 8051, ARM, AVR8\n"
   "         Cell BE, dsPIC, Epiphany, LC-3, MIPS, MSP430, PIC14, PIC24,\n"
   "         PIC32, Playstation 2 EE, PowerPC, Propeller, RISC-V,\n"
   "         STM8, SuperFX, THUMB, TMS1000, TMS1100, TMS9900, Z80\n"

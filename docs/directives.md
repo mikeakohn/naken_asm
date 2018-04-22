@@ -12,6 +12,7 @@ CPU this source file should be assembled for.
 
 |                 |                                      |
 |-----------------|--------------------------------------|
+|.1802            |RCA 1802
 |.4004            |Intel 4004
 |.6502            |6502, 6510, and any other 65xx CPUs
 |.65816           |W65C816

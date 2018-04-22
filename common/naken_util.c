@@ -1010,8 +1010,8 @@ int main(int argc, char *argv[])
   {
     printf("Usage: naken_util [options] <infile>\n"
            "   // ELF files can auto-pick a CPU, if a hex file use:\n"
-           "   -1802                        (1802)\n"
-           "   -4004                        (4004)\n"
+           "   -1802                        (RCA 1802)\n"
+           "   -4004                        (Intel 4004)\n"
            "   -6502                        (6502)\n"
            "   -65816                       (65816)\n"
            "   -6800                        (6800)\n"
