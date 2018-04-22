@@ -143,8 +143,6 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
             }
           }
 
-          add_bin8(asm_context, table_1802[n].opcode, IS_OPCODE);
-
           if (table_1802[n].type == RCA1802_OP_IMMEDIATE)
           {
             if (num < -128 || num > 255)
@@ -153,6 +151,7 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
               return -1;
             }
 
+            add_bin8(asm_context, table_1802[n].opcode, IS_OPCODE);
             add_bin8(asm_context, num & 0xff, IS_OPCODE);
             len = 2;
             break;
@@ -162,12 +161,15 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
           {
             int offset = num - (asm_context->address + 2);
 
+            if (asm_context->pass == 1) { offset = 0; }
+
             if (offset < -128 || offset > 127)
             {
               print_error_range("Offset", -128, 127, asm_context);
               return -1;
             }
 
+            add_bin8(asm_context, table_1802[n].opcode, IS_OPCODE);
             add_bin8(asm_context, offset & 0xff, IS_OPCODE);
             len = 2;
             break;
@@ -177,14 +179,17 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
           {
             int offset = num - (asm_context->address + 3);
 
+            if (asm_context->pass == 1) { offset = 0; }
+
             if (offset < -32768 || offset > 32767)
             {
               print_error_range("Offset", -32768, 32767, asm_context);
               return -1;
             }
 
-            add_bin8(asm_context, num & 0xff, IS_OPCODE);
-            add_bin8(asm_context, (num >> 8) & 0xff, IS_OPCODE);
+            add_bin8(asm_context, table_1802[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, offset & 0xff, IS_OPCODE);
+            add_bin8(asm_context, (offset >> 8) & 0xff, IS_OPCODE);
             len = 2;
             break;
           }

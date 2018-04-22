@@ -103,6 +103,7 @@ void list_output_1802(struct _asm_context *asm_context, uint32_t start, uint32_t
   char instruction[128];
   char temp[32];
   int count;
+  int n;
 
   fprintf(asm_context->list, "\n");
 
@@ -113,7 +114,7 @@ void list_output_1802(struct _asm_context *asm_context, uint32_t start, uint32_t
     opcode = memory_read_m(&asm_context->memory, start);
     sprintf(temp, "%02x", opcode);
 
-    if (count == 2)
+    for (n = 1; n < count; n++)
     {
       char temp2[4];
       sprintf(temp2, " %02x", memory_read_m(&asm_context->memory, start + 1));
