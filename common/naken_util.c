@@ -22,6 +22,7 @@
 #include "common/assembler.h"
 #include "common/naken_util.h"
 #include "common/version.h"
+#include "disasm/1802.h"
 #include "disasm/4004.h"
 #include "disasm/6502.h"
 #include "disasm/65816.h"
@@ -77,6 +78,7 @@ enum
 };
 
 // FIXME - How to do this better?
+parse_instruction_t parse_instruction_1802 = NULL;
 parse_instruction_t parse_instruction_4004 = NULL;
 parse_instruction_t parse_instruction_6502 = NULL;
 parse_instruction_t parse_instruction_65816 = NULL;
@@ -1008,6 +1010,7 @@ int main(int argc, char *argv[])
   {
     printf("Usage: naken_util [options] <infile>\n"
            "   // ELF files can auto-pick a CPU, if a hex file use:\n"
+           "   -1802                        (1802)\n"
            "   -4004                        (4004)\n"
            "   -6502                        (6502)\n"
            "   -65816                       (65816)\n"

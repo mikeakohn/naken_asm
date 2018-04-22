@@ -11,6 +11,7 @@
 
 #include "cpu_list.h"
 
+#include "asm/1802.h"
 #include "asm/4004.h"
 #include "asm/6502.h"
 #include "asm/65816.h"
@@ -41,6 +42,7 @@
 #include "asm/tms1000.h"
 #include "asm/tms9900.h"
 #include "asm/z80.h"
+#include "disasm/1802.h"
 #include "disasm/4004.h"
 #include "disasm/6502.h"
 #include "disasm/65816.h"
@@ -86,6 +88,9 @@ struct _cpu_list cpu_list[] =
 #ifdef ENABLE_MSP430
   { "msp430", CPU_TYPE_MSP430, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 1, SREC_16, parse_instruction_msp430, NULL, list_output_msp430, disasm_range_msp430, simulate_init_msp430, NO_FLAGS },
   { "msp430x", CPU_TYPE_MSP430X, ENDIAN_LITTLE, 1, ALIGN_2, 0, 0, 1, SREC_24, parse_instruction_msp430, NULL, list_output_msp430x, disasm_range_msp430x, simulate_init_msp430, NO_FLAGS },
+#endif
+#ifdef ENABLE_1802
+  { "1802", CPU_TYPE_1802, ENDIAN_BIG, 1, ALIGN_1, 1, 0, 0, SREC_16, parse_instruction_1802, NULL, list_output_1802, disasm_range_1802, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_4004
   { "4004", CPU_TYPE_4004, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 0, SREC_16, parse_instruction_4004, NULL, list_output_4004, disasm_range_4004, NULL, NO_FLAGS },
