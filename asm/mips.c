@@ -94,6 +94,8 @@ static int get_tregister(char *token)
 
   num = get_number(token + 2);
 
+  if (token[2] == 0) { num = -1; }
+
   if (token[1] == 'v' && num >= 0 && num <= 1) { return 2 + num; }
   if (token[1] == 'a' && num >= 0 && num <= 3) { return 4 + num; }
   if (token[1] == 't' && num >= 0 && num <= 7) { return 8 + num; }
