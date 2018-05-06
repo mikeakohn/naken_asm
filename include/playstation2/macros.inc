@@ -36,6 +36,7 @@ FLG_IMAGE equ 2
 .define SETREG_COLCLAMP(clamp) (clamp)
 
 .define SETREG_DTHE(dthe) (dthe)
+.define SETREG_FBA(fba) (fba)
 
 ;; Primitive types
 PRIM_POINT equ 0
@@ -52,6 +53,23 @@ PRIM_SPRITE equ 6
 .define SETREG_XYZ2(x,y,z) (z<<32)|(y<<16)|x
 .define SETREG_XYZ3(x,y,z) (z<<32)|(y<<16)|x
 
+.define SETREG_ALPHA(a,b,c,d,fix) \
+  (((fix) << 32) | \
+   ((d)   << 6)  | \
+   ((c)   << 4)  | \
+   ((b)   << 2)  | \
+    (a))
+
+.define SETREG_TEST(ate,atst,aref,afail,date,datm,zte,ztst) \
+  (((ztst)  << 17) | \
+   ((zte)   << 16) | \
+   ((datm)  << 15) | \
+   ((date)  << 14) | \
+   ((afail) << 12) | \
+   ((aref)  << 4)  | \
+   ((atst)  << 1)  | \
+    (ate))
+
 .define SETREG_PRIM(prim,shading,texture_mapping,fogging,alpha_blend,anti_alias,texture_coords,context,fix) \
   (((fix)             << 10) | \
    ((context)         << 9) | \
@@ -63,7 +81,7 @@ PRIM_SPRITE equ 6
    ((shading)         << 3) | \
     (prim))
 
-.define SETREG_MODECONT(ip,tme,fge,abe,aa1,fst,ctxt,fix) \
+.define SETREG_PRMODE(iip,tme,fge,abe,aa1,fst,ctxt,fix) \
   (((fix)  << 10) | \
    ((ctxt) << 9) | \
    ((fst)  << 8) | \
@@ -75,21 +93,19 @@ PRIM_SPRITE equ 6
 
 .define SETREG_PRMODECONT(ac) (ac)
 
-.define SETREG_PRMODECOUNT
-
-.define SETREG_TRXPOS(src_x,src_y,dst_x,dst_y,dir) \
-  (((dir)   << 59) | \
-   ((dst_y) << 48) | \
-   ((dst_x) << 32) | \
-   ((src_y) << 16) | \
-    (src_x))
+.define SETREG_TRXPOS(ssax,ssay,dsax,dsay,dir) \
+  (((dir)  << 59) | \
+   ((dsay) << 48) | \
+   ((dsax) << 32) | \
+   ((ssay) << 16) | \
+    (ssax))
 
 DIR_UL_LR equ 0
 DIR_LL_UR equ 1
 DIR_UR_LL equ 2
 DIR_LR_UL equ 3
 
-.define SETREG_TRXREG(width,height) (((height) << 32) | (width))
+.define SETREG_TRXREG(rrw,rrh) (((rrh) << 32) | (rrw))
 
 .define SETREG_TRXDIR(dir) (dir)
 
