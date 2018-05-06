@@ -53,12 +53,35 @@ PRIM_SPRITE equ 6
 .define SETREG_XYZ2(x,y,z) (z<<32)|(y<<16)|x
 .define SETREG_XYZ3(x,y,z) (z<<32)|(y<<16)|x
 
+ALPHA_SRC equ 0
+ALPHA_FB equ 1
+ALPHA_FIX equ 2
+
 .define SETREG_ALPHA(a,b,c,d,fix) \
   (((fix) << 32) | \
    ((d)   << 6)  | \
    ((c)   << 4)  | \
    ((b)   << 2)  | \
     (a))
+
+ATST_NEVER equ 0
+ATST_ALWAYS equ 1
+ATST_LESS equ 2
+ATST_LEQUAL equ 3
+ATST_EQUAL equ 4
+ATST_GEQUAL equ 5
+ATST_GREATER equ 6
+ATST_NOTEQUAL equ 7
+
+AFAIL_KEEP equ 0
+AFAIL_FB_ONLY equ 1
+AFAIL_ZB_ONLY equ 2
+AFAIL_RGB_ONLY equ 3
+
+ZTST_NEVER equ 0
+ZTST_ALWAYS equ 1
+ZTST_GEQUAL equ 2
+ZTST_GREATER equ 3
 
 .define SETREG_TEST(ate,atst,aref,afail,date,datm,zte,ztst) \
   (((ztst)  << 17) | \
