@@ -13,6 +13,7 @@ SUPPORTED CPU'S
 ---------------
 |CPU                 |Author      |
 |--------------------|------------|
+|1802                |Michael Kohn|
 |6502 / 6510         |Joe Davisson|
 |65C816              |Joe Davisson|
 |6800                |Michael Kohn|
