@@ -197,9 +197,9 @@ skip_rot_y:
   nop                         move.xyz vf10, vf31
 skip_rot_z:
 
-  ;; Transpose point by { 0, dz, dy, dx } vector.
+  ;; Transpose point by { 0, dz, 0, 0 } vector.
   ;; Also subtract 1 from count.
-  add.xyz vf10, vf10, vf02    isubiu vi03, vi03, 1
+  add.z   vf10, vf10, vf02    isubiu vi03, vi03, 1
 
   ;; Project 3D (x,y,z) to 2D (x,y)
   ;; x = -d * (x / z)
@@ -210,9 +210,14 @@ skip_rot_z:
   nop                         ercpr P, vf10z
   nop                         waitp
   nop                         mfp.xy vf22, P
-  itof0.xy vf20, vf20         nop
+  itof0.xy vf20, vf20         iaddiu vi13, vi00, 4096
   mul.xy vf10, vf10, vf20     nop
-  mul.xy vf10, vf10, vf22     nop
+  mul.xy vf10, vf10, vf22     mfir.z vf20, vi13
+  itof0.z vf20, vf20          nop
+  sub.z vf10, vf20, vf10      nop
+
+  ;; Transpose point by { 0, 0, dy, dx } vector.
+  add.xy vf10, vf10, vf02    nop
 
   ;; Convert to X and Y to fixed point 12:4 and Z to just an integer.
   ftoi4.xy vf10, vf10         nop
