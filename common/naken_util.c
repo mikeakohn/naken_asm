@@ -48,6 +48,7 @@
 #include "disasm/riscv.h"
 #include "disasm/stm8.h"
 #include "disasm/super_fx.h"
+#include "disasm/sweet16.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
 #include "disasm/z80.h"
@@ -104,6 +105,7 @@ parse_instruction_t parse_instruction_ps2_ee_vu = NULL;
 parse_instruction_t parse_instruction_riscv = NULL;
 parse_instruction_t parse_instruction_stm8 = NULL;
 parse_instruction_t parse_instruction_super_fx = NULL;
+parse_instruction_t parse_instruction_sweet16 = NULL;
 parse_instruction_t parse_instruction_thumb = NULL;
 parse_instruction_t parse_instruction_tms1000 = NULL;
 parse_instruction_t parse_instruction_tms1100 = NULL;
@@ -1033,11 +1035,12 @@ int main(int argc, char *argv[])
            "   -powerpc                     (PowerPC)\n"
            "   -propeller                   (Parallax Propeller)\n"
            "   -ps2ee                       (Playstation 2 EE)\n"
-           "   -ps2ee_v0                    (Playstation 2 VU0)\n"
-           "   -ps2ee_v1                    (Playstation 2 VU1)\n"
+           "   -ps2ee_vu0                   (Playstation 2 VU0)\n"
+           "   -ps2ee_vu1                   (Playstation 2 VU1)\n"
            "   -riscv                       (RISCV)\n"
            "   -stm8                        (STM8)\n"
-           "   -superfx                     (SuperFX)\n"
+           "   -super_fx                    (SuperFX)\n"
+           "   -sweet16                     (sweet16)\n"
            "   -tms1000                     (TMS1000)\n"
            "   -tms1100                     (TMS1100)\n"
            "   -tms9900                     (TMS9900)\n"

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -65,6 +65,7 @@ enum
   CPU_TYPE_RISCV,
   CPU_TYPE_STM8,
   CPU_TYPE_SUPER_FX,
+  CPU_TYPE_SWEET16,
   CPU_TYPE_THUMB,
   CPU_TYPE_TMS1000,
   CPU_TYPE_TMS1100,

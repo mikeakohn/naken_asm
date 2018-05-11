@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -42,7 +42,7 @@ const char *credits =
   "    CPU: 1802, 4004, 6502, 65816, 6809, 68HC08, 68000, 8051, ARM, AVR8\n"
   "         Cell BE, dsPIC, Epiphany, LC-3, MIPS, MSP430, PIC14, PIC24,\n"
   "         PIC32, Playstation 2 EE, PowerPC, Propeller, RISC-V,\n"
-  "         STM8, SuperFX, THUMB, TMS1000, TMS1100, TMS9900, Z80\n"
+  "         STM8, SuperFX, sweet16, THUMB, TMS1000, TMS1100, TMS9900, Z80\n"
   "    Web: http://www.mikekohn.net/\n"
   "  Email: mike@mikekohn.net\n"
   "Version: " VERSION "\n";
@@ -79,7 +79,7 @@ static void new_extension(char *filename, char *ext, int len)
 
 static void output_hex_text(FILE *fp, char *s, int ptr)
 {
-  if (ptr == 0) return;
+  if (ptr == 0) { return; }
   s[ptr] = 0;
   int n;
   for (n = 0; n < ((16 - ptr) * 3) + 2; n++) { putc(' ', fp); }
