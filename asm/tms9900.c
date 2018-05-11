@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -61,15 +61,15 @@ static int get_register_tms9900(char *token)
 
 int parse_instruction_tms9900(struct _asm_context *asm_context, char *instr)
 {
-char token[TOKENLEN];
-int token_type;
-char instr_case[TOKENLEN];
-struct _operand operands[2];
-int operand_count;
-int count=2;
-int offset;
-int opcode;
-int n;
+  char token[TOKENLEN];
+  int token_type;
+  char instr_case[TOKENLEN];
+  struct _operand operands[2];
+  int operand_count;
+  int count=2;
+  int offset;
+  int opcode;
+  int n;
 
   lower_copy(instr_case, instr);
   operand_count = 0;
@@ -475,6 +475,4 @@ int n;
 
   return -1;
 }
-
-
 
