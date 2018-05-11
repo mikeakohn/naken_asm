@@ -18,4 +18,3 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr);
 
 #endif
 
-

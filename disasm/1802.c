@@ -93,7 +93,7 @@ int disasm_1802(struct _memory *memory, uint32_t address, char *instruction, int
 
   strcpy(instruction, "???");
 
-  return 2;
+  return 1;
 }
 
 void list_output_1802(struct _asm_context *asm_context, uint32_t start, uint32_t end)
@@ -146,6 +146,7 @@ void disasm_range_1802(struct _memory *memory, uint32_t flags, uint32_t start, u
   char instruction[128];
   int cycles_min = 0,cycles_max = 0;
   uint16_t opcode;
+  int count;
 
   printf("\n");
 
@@ -154,7 +155,7 @@ void disasm_range_1802(struct _memory *memory, uint32_t flags, uint32_t start, u
 
   while(start <= end)
   {
-    disasm_1802(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_1802(memory, start, instruction, &cycles_min, &cycles_max);
 
     opcode = memory_read16_m(memory, start);
 
@@ -174,7 +175,7 @@ void disasm_range_1802(struct _memory *memory, uint32_t flags, uint32_t start, u
       printf("%d-%d\n", cycles_min, cycles_max);
     }
 
-    start = start + 2;
+    start = start + count;
   }
 }
 

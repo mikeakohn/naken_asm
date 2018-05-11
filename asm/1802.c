@@ -22,35 +22,19 @@
 #include "common/eval_expression.h"
 #include "table/1802.h"
 
-#define MAX_OPERANDS 2
-
-enum
-{
-  OPERAND_NUMBER,
-  OPERAND_REG,
-};
-
-struct _operand
-{
-  int value;
-  int type;
-};
-
 int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
   char *instr_case = instr_case_mem;
   char token[TOKENLEN];
-  struct _operand operands[MAX_OPERANDS];
-  int operand_count = 0;
   int token_type;
   int len = -1;
   int n;
 
   lower_copy(instr_case, instr);
-  memset(&operands, 0, sizeof(operands));
 
   n = 0;
+
   while(table_1802[n].instr != NULL)
   {
     if (strcmp(table_1802[n].instr, instr_case) == 0)
@@ -59,12 +43,6 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
       {
         case RCA1802_OP_NONE:
         {
-          if (operand_count != 0)
-          {
-            print_error_opcount(instr, asm_context);
-            return -1;
-          }
-
           add_bin8(asm_context, table_1802[n].opcode, IS_OPCODE);
           len = 1;
           break;
@@ -109,7 +87,7 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
           int num = -1;
 
           tokens_get(asm_context, token, TOKENLEN);
-         
+
           if (token[1] == 0 && token[0] >= '1' && token[0] <= '7')
           {
             num = token[0] - '0';
@@ -189,8 +167,10 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
 
         }
         default:
-          break; 
+          break;
       }
+
+      break;
     }
 
     n++;
@@ -210,7 +190,7 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
     return -1;
   }
 
-  return len; 
+  return len;
 }
 
 
