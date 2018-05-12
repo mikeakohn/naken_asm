@@ -106,6 +106,8 @@ int parse_instruction_sweet16(struct _asm_context *asm_context, char *instr)
 
       if (n == -1)
       {
+        tokens_push(asm_context, token, token_type);
+
         if (asm_context->pass == 1)
         {
           eat_operand(asm_context);
