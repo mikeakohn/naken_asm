@@ -41,6 +41,7 @@ SUPPORTED CPU'S
 |RISC-V              |Michael Kohn|
 |STM8                |Michael Kohn|
 |SuperFX             |Michael Kohn|
+|SWEET16             |Michael Kohn|
 |THUMB               |Michael Kohn|
 |TMS1000 / TMS1100   |Michael Kohn|
 |TMS9900             |Michael Kohn|
