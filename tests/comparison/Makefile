@@ -25,6 +25,7 @@ default:
 	bash run_test.sh ps2_ee_vu1
 	bash run_test.sh riscv
 	python run_test.py stm8
+	bash run_test.sh sweet16
 	bash run_test.sh thumb
 	python run_test.py z80
 

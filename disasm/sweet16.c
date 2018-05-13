@@ -67,7 +67,7 @@ int disasm_sweet16(struct _memory *memory, uint32_t address, char *instruction, 
         {
           data = ((memory_read_m(memory, address + 2) << 8) |
                    memory_read_m(memory, address + 1));
-          sprintf(instruction, "%s r%d 0x%04x",
+          sprintf(instruction, "%s r%d, 0x%04x",
             table_sweet16[n].instr, opcode & 0xf, data);
           return 3;
         }

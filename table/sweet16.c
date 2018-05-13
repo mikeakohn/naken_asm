@@ -28,7 +28,7 @@ struct _table_sweet16 table_sweet16[] =
   { "sub",  0xb0, 0xf0, SWEET16_OP_REG },
   { "popd", 0xc0, 0xf0, SWEET16_OP_AT_REG },
   { "cpr",  0xd0, 0xf0, SWEET16_OP_REG },
-  { "inc",  0xe0, 0xf0, SWEET16_OP_REG },
+  { "inr",  0xe0, 0xf0, SWEET16_OP_REG },
   { "dcr",  0xf0, 0xf0, SWEET16_OP_REG },
   { "rtn",  0x00, 0xff, SWEET16_OP_NONE },
   { "br",   0x01, 0xff, SWEET16_OP_EA },

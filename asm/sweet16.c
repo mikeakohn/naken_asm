@@ -130,6 +130,13 @@ int parse_instruction_sweet16(struct _asm_context *asm_context, char *instr)
       {
         operands[operand_count].type = OPERAND_REG;
         operands[operand_count].value = n;
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (IS_NOT_TOKEN(token, ','))
+        {
+          tokens_push(asm_context, token, token_type);
+        }
       }
     }
 

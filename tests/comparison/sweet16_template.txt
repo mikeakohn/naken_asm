@@ -1,0 +1,27 @@
+set r15, 0x1234
+set r3, 0x1234
+ld r5
+st r10
+ld @r7
+st @r13
+ldd @r1
+std @r14
+add r6
+sub r7
+popd @r9
+cpr r10
+inr r3
+dcr r4
+rtn
+main: br main
+main: bnc main
+main: bc main
+main: bp main
+main: bm main
+main: bz main
+main: bnz main
+main: bm1 main
+main: bnm1 main
+bk
+rs
+main: bs main
