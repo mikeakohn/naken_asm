@@ -201,9 +201,22 @@ angle_not_zero:
   sw $t0, 16($a0)
 
   ;; Flush cache
-  lui $a0, 0
-  li $v1, FlushCache
-  syscall
+  ;lui $a0, 0
+  ;li $v1, FlushCache
+  ;syscall
+
+  ;; Should be able to flush the cache with instructions...
+  li $v1, vif_packet_1_start
+  sync.l
+  cache dhwoin, 0($v1)
+  cache dhwoin, 64($v1)
+  sync.l
+
+  li $v1, vif_packet_2_start
+  sync.l
+  cache dhwoin, 0($v1)
+  cache dhwoin, 64($v1)
+  sync.l
 
   jr $ra
   nop
