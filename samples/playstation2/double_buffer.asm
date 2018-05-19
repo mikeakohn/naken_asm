@@ -307,7 +307,7 @@ set_context_1:
   ;;           position x (dbx): 0 (0x0)
   ;;           position y (dby): 0 (0x0)
   li $v1, GS_DISPFB2
-  li $v0, SETREG_DISPFB(0, 10, 0, 0, 0)
+  li $v0, SETREG_DISPFB(0, 10, FMT_PSMCT24, 0, 0)
   sd $v0, ($v1)
   jr $ra
   nop
@@ -320,7 +320,7 @@ set_context_2:
   ;;           position x (dbx): 0 (0x0)
   ;;           position y (dby): 0 (0x0)
   li $v1, GS_DISPFB2
-  li $v0, SETREG_DISPFB(560, 10, 0, 0, 0)
+  li $v0, SETREG_DISPFB(210, 10, FMT_PSMCT24, 0, 0)
   sd $v0, ($v1)
   jr $ra
   nop
@@ -484,7 +484,7 @@ draw_triangle_2:
   dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 1, 0), REG_PRIM
   dc64 GIF_TAG(3, 1, 0, 0, FLG_PACKED, 2), (REG_A_D|(REG_XYZ2<<4))
-  dc64 SETREG_RGBAQ(255,0,255,0,0x3f80_0000), REG_RGBAQ
+  dc64 SETREG_RGBAQ(255,0, 0,0,0x3f80_0000), REG_RGBAQ
   dc32 -100.0, -100.0, 0.0, 0
   dc64 SETREG_RGBAQ(0,255,0,0,0x3f80_0000), REG_RGBAQ
   dc32 -100.0, 110.0, 0.0, 0
@@ -510,9 +510,9 @@ vif_packet_2_end:
 init_video:
   dc64 GIF_TAG(11, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_FRAME(0, 10, 0, 0), REG_FRAME_1
-  dc64 SETREG_FRAME(560, 10, 0, 0), REG_FRAME_2
-  dc64 SETREG_ZBUF(280, 0, 0), REG_ZBUF_1
-  dc64 SETREG_ZBUF(840, 0, 0), REG_ZBUF_2
+  dc64 SETREG_FRAME(210, 10, 0, 0), REG_FRAME_2
+  dc64 SETREG_ZBUF(420, 0, 0), REG_ZBUF_1
+  dc64 SETREG_ZBUF(420, 0, 0), REG_ZBUF_2
   dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_1
   dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_2
   dc64 SETREG_SCISSOR(0,639,0,447), REG_SCISSOR_2

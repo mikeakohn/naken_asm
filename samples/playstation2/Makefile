@@ -11,8 +11,6 @@ default:
 	../../naken_asm $(FLAGS) -o draw_image.elf draw_image.asm
 	../../naken_asm $(FLAGS) -l -b -o rotation_vu1.bin rotation_vu1.asm
 	../../naken_asm $(FLAGS) -l -o rotation.elf rotation.asm
-
-double:
 	../../naken_asm $(FLAGS) -l -o double_buffer.elf double_buffer.asm
 
 mandel:
