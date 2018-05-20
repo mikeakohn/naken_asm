@@ -472,11 +472,11 @@ draw_triangle_1:
   dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 0, 0), REG_PRIM
   dc64 GIF_TAG(3, 1, 0, 0, FLG_PACKED, 2), (REG_A_D|(REG_XYZ2<<4))
-  dc64 SETREG_RGBAQ(255,0,0,0,0x3f80_0000), REG_RGBAQ
+  dc64 SETREG_RGBAQ(255, 0, 0, 0, 1.0), REG_RGBAQ
   dc32 -100.0, -100.0, 0.0, 0
-  dc64 SETREG_RGBAQ(0,255,0,0,0x3f80_0000), REG_RGBAQ
+  dc64 SETREG_RGBAQ(0, 255, 0, 0, 1.0), REG_RGBAQ
   dc32 -100.0, 110.0, 0.0, 0
-  dc64 SETREG_RGBAQ(0,0,255,0,0x3f80_0000), REG_RGBAQ
+  dc64 SETREG_RGBAQ(0, 0, 255, 0, 1.0), REG_RGBAQ
   dc32 0.0, 110.0, 0.0, 0
 draw_triangle_1_end:
 vu1_1_start:
@@ -497,26 +497,24 @@ draw_triangle_2:
   dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 1, 0), REG_PRIM
   dc64 GIF_TAG(3, 1, 0, 0, FLG_PACKED, 2), (REG_A_D|(REG_XYZ2<<4))
-  dc64 SETREG_RGBAQ(255,0, 0,0,0x3f80_0000), REG_RGBAQ
+  dc64 SETREG_RGBAQ(255, 0, 0, 0, 1.0), REG_RGBAQ
   dc32 -100.0, -100.0, 0.0, 0
-  dc64 SETREG_RGBAQ(0,255,0,0,0x3f80_0000), REG_RGBAQ
+  dc64 SETREG_RGBAQ(0, 255, 0, 0, 1.0), REG_RGBAQ
   dc32 -100.0, 110.0, 0.0, 0
-  dc64 SETREG_RGBAQ(0,0,255,0,0x3f80_0000), REG_RGBAQ
+  dc64 SETREG_RGBAQ(0, 0, 255, 0, 1.0), REG_RGBAQ
   dc32 0.0, 110.0, 0.0, 0
 draw_triangle_2_end:
 vu1_2_start:
   dc32 (VIF_MSCAL << 24), 0, 0, 0
 vif_packet_2_end:
 
-; 640*224*4 = 573,440
-; zbuf = 140 * 20488 = 286,720 ?
-; 640*224*2 = 286,720
-; The original code I had here seems kind of wrong. To be safe I
-; I'm going to use my new calculations
-; Context 1 FB = 0
-; Context 1 Z  = 573440
-; Context 2 FB = 1146880
-; Context 2 Z  = 1720320
+; 640*224*3 = 430,080
+; FB is 24 bit and Z buffer is still 32 bit, but shared by
+; both contexts.
+; Context 1 FB = 0        (divided by 2048 is 0)
+; Context 2 FB = 430080   (divided by 2048 is 210)
+; Context 1 Z  = 860160   (divided by 2048 is 420)
+; Context 2 Z  = 860160   (divided by 2048 is 420)
 ; Textures     = 2293760
 
 .align 128
@@ -528,8 +526,8 @@ init_video:
   dc64 SETREG_ZBUF(420, 0, 0), REG_ZBUF_2
   dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_1
   dc64 SETREG_XYOFFSET(1728 << 4, 1936 << 4), REG_XYOFFSET_2
-  dc64 SETREG_SCISSOR(0,639,0,447), REG_SCISSOR_2
   dc64 SETREG_SCISSOR(0,639,0,447), REG_SCISSOR_1
+  dc64 SETREG_SCISSOR(0,639,0,447), REG_SCISSOR_2
   dc64 1, REG_PRMODECONT                 ; refer to prim attributes
   dc64 1, REG_COLCLAMP
   dc64 0, REG_DTHE                       ; Dither off
@@ -537,10 +535,12 @@ init_video_end:
 
 .align 128
 black_screen_1:
+; FB is 24 bit and Z buffer is still 32 bit, but shared by
+; both contexts.
   dc64 GIF_TAG(6, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0x30000, REG_TEST_1
   dc64 SETREG_PRIM(PRIM_SPRITE, 0, 0, 0, 0, 0, 0, 0, 0), REG_PRIM
-  dc64 0x3f80_0000_0000_0000, REG_RGBAQ  ; Background RGBA (A, blue, green, red)
+  dc64 SETREG_RGBAQ(0, 0, 0, 0, 1.0), REG_RGBAQ
   dc64 SETREG_XYZ2(1728 << 4, 1936 << 4, 0), REG_XYZ2
   dc64 SETREG_XYZ2(2368 << 4, 2384 << 4, 0), REG_XYZ2
   dc64 0x70000, REG_TEST_1
@@ -551,7 +551,7 @@ black_screen_2:
   dc64 GIF_TAG(6, 1, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 0x30000, REG_TEST_2
   dc64 SETREG_PRIM(PRIM_SPRITE, 0, 0, 0, 0, 0, 0, 1, 0), REG_PRIM
-  dc64 0x3f80_0000_0000_0000, REG_RGBAQ  ; Background RGBA (A, blue, green, red)
+  dc64 SETREG_RGBAQ(0, 0, 0, 0, 1.0), REG_RGBAQ
   dc64 SETREG_XYZ2(1728 << 4, 1936 << 4, 0), REG_XYZ2
   dc64 SETREG_XYZ2(2368 << 4, 2384 << 4, 0), REG_XYZ2
   dc64 0x70000, REG_TEST_2
