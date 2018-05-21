@@ -460,7 +460,7 @@ angle:
 
 .align 128
 vif_packet_1_start:
-  dc32 (VIF_FLUSHE << 24)
+  dc32 (VIF_FLUSH << 24)
   dc32 (VIF_STMOD << 24)
   dc32 (VIF_STCYCL << 24)|(1 << 8)|1
   dc32 (VIF_UNPACK_V4_32 << 24)|(((draw_triangle_1_end - draw_triangle_1) / 16) << 16)
@@ -485,7 +485,7 @@ vif_packet_1_end:
 
 .align 128
 vif_packet_2_start:
-  dc32 (VIF_FLUSHE << 24)
+  dc32 (VIF_FLUSH << 24)
   dc32 (VIF_STMOD << 24)
   dc32 (VIF_STCYCL << 24)|(1 << 8)|1
   dc32 (VIF_UNPACK_V4_32 << 24)|(((draw_triangle_2_end - draw_triangle_2) / 16) << 16)
