@@ -17,7 +17,39 @@ ASM_OBJS_ALL=""
 DISASM_OBJS_ALL=""
 TABLE_OBJS_ALL=""
 SIM_OBJS_ALL=""
-DFLAGS_ALL="-DENABLE_1802 -DENABLE_4004 -DENABLE_6502 -DENABLE_6800 -DENABLE_6809 -DENABLE_65816 -DENABLE_68HC08 -DENABLE_68000 -DENABLE_8051 -DENABLE_ARC -DENABLE_ARM -DENABLE_AVR8 -DENABLE_CELL -DENABLE_DSPIC -DENABLE_EMOTION_ENGINE -DENABLE_EPIPHANY -DENABLE_LC3 -DENABLE_MIPS -DENABLE_MSP430 -DENABLE_PDP8 -DENABLE_PIC14 -DENABLE_POWERPC -DENABLE_PROPELLER -DENABLE_RISCV -DENABLE_STM8 -DENABLE_SUPER_FX -DENABLE_SWEET16 -DENABLE_THUMB -DENABLE_TMS1000 -DENABLE_TMS9900 -DENABLE_Z80"
+CPUS=" \
+  1802
+  4004
+  6502
+  6800
+  6809
+  65816
+  68HC08
+  68000
+  8051
+  ARC
+  ARM
+  AVR8
+  CELL
+  CP1610
+  DSPIC
+  EMOTION_ENGINE
+  EPIPHANY
+  LC3
+  MIPS
+  MSP430
+  PDP8
+  PIC14
+  POWERPC
+  PROPELLER
+  RISCV
+  STM8
+  SUPER_FX
+  SWEET16
+  THUMB
+  TMS1000
+  TMS9900
+  Z80"
 ASM_OBJS="common.o"
 DISASM_OBJS=""
 TABLE_OBJS=""
@@ -26,6 +58,15 @@ COMMON_OBJS="assembler.o cpu_list.o directives_data.o directives_if.o directives
 FILEIO_OBJS="read_bin.o read_elf.o read_hex.o read_srec.o read_ti_txt.o read_wdc.o write_bin.o write_elf.o write_hex.o write_srec.o write_wdc.o"
 PROG_OBJS="lpc.o serial.o"
 NO_MSP430="-DNO_MSP430"
+
+DFLAGS_ALL=""
+
+for cpu in ${CPUS}
+do
+  DFLAGS_ALL="${DFLAGS_ALL} -DENABLE_${cpu}"
+done
+
+DFLAGS_ALL=`echo ${DFLAGS_ALL} | sed 's/^ *//'`
 
 for file in asm/*.c
 do
@@ -100,6 +141,7 @@ show_help()
   echo "  --enable-arm              compile in support for ARM"
   echo "  --enable-avr8             compile in support for Atmel AVR8"
   echo "  --enable-cell             compile in support for Broadband Cell SPU"
+  echo "  --enable-cp1610           compile in support for CP1610"
   echo "  --enable-dspic            compile in support for dsPIC and PIC24"
   echo "  --enable-epiphany         compile in support for Ephiphany-III/IV"
   echo "  --enable-lc3              compile in support for LC-3"
@@ -305,6 +347,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} cell.o"
     TABLE_OBJS="${TABLE_OBJS} cell.o"
     DFLAGS="${DFLAGS} -DENABLE_CELL"
+  ;;
+  --enable-cp1610)
+    ASM_OBJS="${ASM_OBJS} cp1610.o"
+    DISASM_OBJS="${DISASM_OBJS} cp1610.o"
+    TABLE_OBJS="${TABLE_OBJS} cp1610.o"
+    DFLAGS="${DFLAGS} -DENABLE_CP1610"
   ;;
   --enable-dspic)
     ASM_OBJS="${ASM_OBJS} dspic.o"

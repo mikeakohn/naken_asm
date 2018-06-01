@@ -24,6 +24,7 @@ CPU this source file should be assembled for.
 |.arm             |All ARM CPUs
 |.avr8            |Atmel AVR8
 |.cell            |IBM Cell BE (Playstation 3)
+|.cp1610          |CP1610 (General Instruments)
 |.dspic           |dsPIC
 |.epiphany        |Ephiphany/Parallella
 |.lc3             |LC-3
