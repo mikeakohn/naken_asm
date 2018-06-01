@@ -87,7 +87,6 @@ int disasm_cp1610(struct _memory *memory, uint32_t address, char *instruction, i
         }
         default:
         {
-printf("FUCK\n");
           //print_error_internal(asm_context, __FILE__, __LINE__);
           break;
         }
