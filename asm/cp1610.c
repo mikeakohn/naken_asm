@@ -27,6 +27,7 @@
 enum
 {
   OPERAND_NUMBER,
+  OPERAND_ADDRESS,
   OPERAND_REG,
 };
 
@@ -109,14 +110,21 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OPERAND_REG;
       operands[operand_count].value = n;
     }
-      else
+    else
     {
-      tokens_push(asm_context, token, token_type);
+      if (IS_TOKEN(token, '#'))
+      {
+        operands[operand_count].type = OPERAND_NUMBER;
+      }
+      else
+      {
+        operands[operand_count].type = OPERAND_ADDRESS;
+        tokens_push(asm_context, token, token_type);
+      }
 
       if (asm_context->pass == 1)
       {
         eat_operand(asm_context);
-        operands[operand_count].type = OPERAND_NUMBER;
         operands[operand_count].value = 0;
       }
         else
@@ -127,7 +135,6 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-        operands[operand_count].type = OPERAND_NUMBER;
         operands[operand_count].value = n;
       }
     }
@@ -191,11 +198,82 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
         }
         case CP1610_OP_IMMEDIATE_REG:
         {
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_REG)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < -32768 || operands[0].value > 65535)
+          {
+            print_error_range("Immediate", -32768, 65535, asm_context);
+            return -1;
+          }
+
+          opcode = table_cp1610[n].opcode | operands[1].value;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
+
           return 4;
         }
         case CP1610_OP_ADDRESS_REG:
         {
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REG ||
+              operands[1].type != OPERAND_ADDRESS)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[1].value < 0 || operands[1].value > 65535)
+          {
+            print_error_range("Address", 0, 65535, asm_context);
+            return -1;
+          }
+
+          opcode = table_cp1610[n].opcode | operands[0].value;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
+
           return 4;
+        }
+        case CP1610_OP_1OP:
+        {
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REG ||
+              operands[1].type != OPERAND_ADDRESS)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value > 3)
+          {
+            print_error_range("Register", 0, 3, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 2)
+          {
+            if (operands[1].value < 1 || operands[1].value > 2)
+            {
+              print_error_range("Constant", 1, 2, asm_context);
+              return -1;
+            }
+          }
+
+          opcode = table_cp1610[n].opcode |
+                   operands[0].value |
+                 ((operands[1].value - 1) << 2);
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
         }
         case CP1610_OP_BRANCH:
         {
@@ -204,10 +282,6 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
         case CP1610_OP_JUMP:
         {
           return 6;
-        }
-        case CP1610_OP_1OP:
-        {
-          return 2;
         }
         default:
           break;
