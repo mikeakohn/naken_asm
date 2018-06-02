@@ -28,7 +28,7 @@ int disasm_cp1610(struct _memory *memory, uint32_t address, char *instruction, i
 {
   int opcode;
   int data;
-  int o, d, r;
+  int o, d, r, z;
   int n;
 
   *cycles_min = -1;
@@ -50,7 +50,7 @@ int disasm_cp1610(struct _memory *memory, uint32_t address, char *instruction, i
         case CP1610_OP_NONE:
         {
           strcpy(instruction, table_cp1610[n].instr);
-          return 1;
+          return 2;
         }
         case CP1610_OP_REG:
         {
@@ -98,10 +98,50 @@ int disasm_cp1610(struct _memory *memory, uint32_t address, char *instruction, i
         }
         case CP1610_OP_BRANCH:
         {
+          z = (opcode >> 5) & 1;
+          data = READ_RAM16(address + 2);
+
+          sprintf(instruction, "%s %d (offset=%d z=%d)", table_cp1610[n].instr,
+            address + (data ^ ((z == 1) ? -1 : 0)),
+            data,
+            z);
+
           return 4;
         }
         case CP1610_OP_JUMP:
         {
+          opcode = READ_RAM16(address + 2);
+          data = READ_RAM16(address + 4);
+
+          int bb = (opcode >> 8) & 0x3;
+          int ii = opcode & 0x3;
+          int j;
+
+          data |= ((opcode >> 2) & 0x3f) << 10;
+
+          for (j = 0; j < 6; j++)
+          {
+            if (table_cp1610_jump[j].ii == ii)
+            {
+              if (table_cp1610_jump[j].bb != 3 && bb != 3)
+              {
+                sprintf(instruction, "%s r%d, 0x%04x",
+                  table_cp1610[n].instr,
+                  bb,
+                  address);
+                break;
+              }
+                else
+              if (bb == table_cp1610_jump[j].bb && bb == 3)
+              {
+                sprintf(instruction, "%s 0x%04x",
+                  table_cp1610[n].instr,
+                  address);
+                break;
+              }
+            }
+          }
+
           return 6;
         }
         default:

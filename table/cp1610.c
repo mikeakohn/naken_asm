@@ -98,3 +98,13 @@ struct _table_cp1610 table_cp1610[] =
   { NULL,   0x0000, 0x00ff, CP1610_OP_ILLEGAL, 0, 0 },
 };
 
+struct _table_cp1610_jump table_cp1610_jump[] =
+{
+  { "j",    3, 0, 0 },
+  { "je",   3, 1, 0 },
+  { "jd",   3, 2, 0 },
+  { "jsr",  0, 0, 1 },
+  { "jsre", 0, 1, 1 },
+  { "jsrd", 0, 2, 1 },
+};
+

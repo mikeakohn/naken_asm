@@ -277,10 +277,95 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
         }
         case CP1610_OP_BRANCH:
         {
+          if (operand_count != 1 || operands[0].type != OPERAND_ADDRESS)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 65535)
+          {
+            print_error_range("Address", 0, 65535, asm_context);
+            return -1;
+          }
+
+          int z;
+          int offset;
+
+          if (operands[0].value >= asm_context->address + 2)
+          {
+            z = 0;
+            offset = operands[0].value - (asm_context->address + 2);
+          }
+          else
+          {
+            z = 1;
+            offset = (asm_context->address + 1) - operands[0].value;
+          }
+
+          opcode = table_cp1610[n].opcode | operands[0].value | (z << 5);
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, offset & 0xffff, IS_OPCODE);
+
           return 4;
         }
         case CP1610_OP_JUMP:
         {
+          int address;
+          int bb;
+          int ii;
+          int j;
+
+          for (j = 0; j < 6; j++)
+          {
+            ii = table_cp1610_jump[j].ii;
+            bb = table_cp1610_jump[j].bb;
+
+            if (strcmp(instr, table_cp1610_jump[j].instr) == 0)
+            {
+              if (table_cp1610_jump[j].use_reg == 0)
+              {
+                if (operand_count != 1 || operands[0].type != OPERAND_ADDRESS)
+                {
+                  print_error_illegal_operands(instr, asm_context);
+                  return -1;
+                }
+
+                bb = operands[0].value;
+                address = operands[1].value;
+
+                break;
+              }
+                else
+              {
+                if (operand_count != 2 ||
+                    operands[0].type != OPERAND_REG ||
+                    operands[1].type != OPERAND_ADDRESS)
+                {
+                  print_error_illegal_operands(instr, asm_context);
+                  return -1;
+                }
+
+                address = operands[1].value;
+              }
+            }
+          }
+
+          if (j == 6) { break; }
+
+          if (address < 0 || address > 65535)
+          {
+            print_error_range("Address", 0, 65535, asm_context);
+            return -1;
+          }
+
+          opcode = (bb << 8) | (((address >> 10) & 0x3f) << 2) | ii;
+
+          add_bin16(asm_context, table_cp1610[n].opcode, IS_OPCODE);
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, address & 0x3ff, IS_OPCODE);
+
           return 6;
         }
         default:

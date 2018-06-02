@@ -38,7 +38,16 @@ struct _table_cp1610
   //uint8_t words;
 };
 
+struct _table_cp1610_jump
+{
+  const char *instr;
+  uint8_t bb;
+  uint8_t ii;
+  uint8_t use_reg;
+};
+
 extern struct _table_cp1610 table_cp1610[];
+extern struct _table_cp1610_jump table_cp1610_jump[];
 
 #endif
 
