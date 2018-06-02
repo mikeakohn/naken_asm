@@ -332,7 +332,13 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
                   return -1;
                 }
 
-                bb = operands[0].value;
+                if (operands[0].value < 4 || operands[0].value < 6)
+                {
+                  print_error_range("Register", 4, 6, asm_context);
+                  return -1;
+                }
+
+                bb = operands[0].value - 4;
                 address = operands[1].value;
 
                 break;

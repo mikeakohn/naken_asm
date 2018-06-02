@@ -133,7 +133,7 @@ struct _cpu_list cpu_list[] =
   { "cell", CPU_TYPE_CELL, ENDIAN_BIG, 1, ALIGN_4, 0, 0, 0, SREC_32, parse_instruction_cell, NULL, list_output_cell, disasm_range_cell, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_CP1610
-  { "cp1610", CPU_TYPE_CP1610, ENDIAN_LITTLE, 1, ALIGN_1, 1, 0, 1, SREC_16, parse_instruction_cp1610, NULL, list_output_cp1610, disasm_range_cp1610, NULL, NO_FLAGS },
+  { "cp1610", CPU_TYPE_CP1610, ENDIAN_BIG, 1, ALIGN_2, 1, 0, 1, SREC_16, parse_instruction_cp1610, NULL, list_output_cp1610, disasm_range_cp1610, NULL, NO_FLAGS },
 #endif
 #ifdef ENABLE_DSPIC
   { "dspic", CPU_TYPE_DSPIC, ENDIAN_LITTLE, 2, ALIGN_2, 0, 0, 0, SREC_16, parse_instruction_dspic, NULL, list_output_dspic, disasm_range_dspic, NULL, NO_FLAGS },
