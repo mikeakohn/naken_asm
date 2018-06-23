@@ -28,11 +28,10 @@ struct _imports
   uint8_t code[];
 };
 
-//struct _imports *imports_add_file(const char *file_name);
 int imports_verify(struct _imports *linker);
 struct _imports *imports_find_code_for_symbol(const char *symbol, uint32_t *code, uint32_t *size);
 const char *imports_find_name_from_offset(struct _imports *linker, uint32_t offset);
-void imports_free(struct _imports *linker);
+//void imports_free(struct _imports *linker);
 
 #endif
 

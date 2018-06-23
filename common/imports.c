@@ -59,7 +59,9 @@ const char *imports_find_name_from_offset(
   return NULL;
 }
 
+#if 0
 void imports_free(struct _imports *imports)
 {
 }
+#endif
 
