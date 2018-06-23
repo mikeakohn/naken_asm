@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -26,12 +26,23 @@ struct _symbols_data
   char name[];             // null terminated name of label:
 };
 
+// FIXME: Might be nicer to switch this to a memory pool.  Currently
+// this is just for the linker to figure out what symbols need to be
+// searched for in the .o and .a files.
+struct _unfound_list
+{
+  char *buffer;
+  uint32_t size;
+};
+
 struct _symbols
 {
   struct _memory_pool *memory_pool;
+  struct _unfound_list *unfound_list;
   uint8_t locked : 1;
   uint8_t in_scope : 1;
   uint8_t debug : 1;
+  uint8_t need_unfound_symbols : 1;
   uint32_t current_scope;
 };
 
@@ -62,6 +73,9 @@ int symbols_export_count(struct _symbols *symbols);
 int symbols_scope_start(struct _symbols *symbols);
 int symbols_scope_reset(struct _symbols *symbols);
 int symbols_scope_end(struct _symbols *symbols);
+int symbols_need_unfound_symbols(struct _symbols *symbols);
+int symbols_add_to_unfound(struct _symbols *symbols, const char *name);
+int symbols_print_unfound(struct _symbols *symbols);
 
 #endif
 

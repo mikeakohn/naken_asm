@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -23,6 +23,7 @@ int symbols_init(struct _symbols *symbols)
   symbols->locked = 0;
   symbols->in_scope = 0;
   symbols->debug = 0;
+  symbols->need_unfound_symbols = 0;
   symbols->current_scope = 0;
 
   return 0;
@@ -361,6 +362,79 @@ int symbols_scope_reset(struct _symbols *symbols)
 int symbols_scope_end(struct _symbols *symbols)
 {
   symbols->in_scope = 0;
+
+  return 0;
+}
+
+int symbols_need_unfound_symbols(struct _symbols *symbols)
+{
+  symbols->need_unfound_symbols = 1;
+
+  return 0;
+}
+
+int symbols_add_to_unfound(struct _symbols *symbols, const char *name)
+{
+  int ptr;
+
+  if (symbols->need_unfound_symbols == 0) { return 0; }
+
+  struct _unfound_list *unfound_list = symbols->unfound_list;
+
+  // Allocate buffer if needed.
+  if (unfound_list->buffer == NULL)
+  {
+    unfound_list->size = 0x10000;
+    unfound_list->buffer = (char *)malloc(unfound_list->size);
+    unfound_list->buffer[0] = 0;
+  }
+
+  // Search to see if symbol is already in the list.
+  char *buffer = unfound_list->buffer;
+  ptr = 0;
+
+  while(buffer[ptr] != 0)
+  {
+    if (strcmp(buffer + ptr, name) == 0) { return 0; }
+    ptr += strlen(buffer + ptr) + 1;
+  }
+
+  // Check if buffer needs to be realloac'd.
+  int len = strlen(name);
+
+  if (ptr + len + 2 >= unfound_list->size)
+  {
+    unfound_list->size += 0x10000;
+    unfound_list->buffer = (char *)realloc(unfound_list->buffer, unfound_list->size);
+    buffer = unfound_list->buffer;
+  }
+
+  strcpy(buffer + ptr, name);
+
+  ptr += len + 1;
+  buffer[ptr] = 0;
+
+  return 0;
+}
+
+int symbols_print_unfound(struct _symbols *symbols)
+{
+  int ptr, count;
+  char *buffer = symbols->unfound_list->buffer;
+
+  if (buffer == NULL) { return 0; }
+
+  printf("Unfound list:\n");
+
+  ptr = 0;
+  count = 0;
+
+  while(buffer[ptr] != 0)
+  {
+    printf("  %d) %s\n", count, buffer + ptr);
+    ptr += strlen(buffer + ptr) + 1;
+    count++;
+  }
 
   return 0;
 }

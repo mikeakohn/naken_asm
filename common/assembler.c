@@ -434,6 +434,7 @@ int assembler_link(struct _asm_context *asm_context, const char *filename)
   }
 
   asm_context->linker = linker;
+  symbols_need_unfound_symbols(&asm_context->symbols);
 
   fclose(fp);
 
