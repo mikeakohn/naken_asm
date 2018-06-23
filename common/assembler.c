@@ -376,14 +376,28 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
 
 int assembler_link(struct _asm_context *asm_context, const char *filename)
 {
+  int n;
+
+  // FIXME: Checking the extension is redundant.
+  n = strlen(filename);
+
+  while(n >= 0)
+  { 
+    n--;
+    if (filename[n] == '.') { break; }
+  }
+
+  if (strcmp(filename + n, ".a") != 0 && strcmp(filename + n, ".o") != 0)
+  {
+    return -1;
+  }
+
   if (asm_context->linker == NULL)
   {
     asm_context->linker = (struct _linker *)malloc(sizeof(struct _linker));
   }
 
-  linker_add_file(asm_context->linker, filename);
-
-  return 0;
+  return linker_add_file(asm_context->linker, filename);
 }
 
 int check_for_directive(struct _asm_context *asm_context, char *token)
