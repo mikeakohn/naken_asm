@@ -23,7 +23,6 @@ int symbols_init(struct _symbols *symbols)
   symbols->locked = 0;
   symbols->in_scope = 0;
   symbols->debug = 0;
-  symbols->need_unfound_symbols = 0;
   symbols->current_scope = 0;
 
   return 0;
@@ -366,13 +365,7 @@ int symbols_scope_end(struct _symbols *symbols)
   return 0;
 }
 
-int symbols_need_unfound_symbols(struct _symbols *symbols)
-{
-  symbols->need_unfound_symbols = 1;
-
-  return 0;
-}
-
+#if 0
 int symbols_add_to_unfound(struct _symbols *symbols, const char *name)
 {
   int ptr;
@@ -438,4 +431,5 @@ int symbols_print_unfound(struct _symbols *symbols)
 
   return 0;
 }
+#endif
 

@@ -12,28 +12,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "linker.h"
+#include "imports.h"
 #include "imports_ar.h"
 #include "imports_obj.h"
 
-struct _linker *imports_add_file(const char *file_name)
+#if 0
+struct _imports *imports_add_file(const char *file_name)
 {
   return NULL;
 }
+#endif
 
-int imports_verify(struct _linker *linker)
+int imports_verify(struct _imports *imports)
 {
-  if (linker->type == IMPORT_TYPE_AR)
+  if (imports->type == IMPORT_TYPE_AR)
   {
-    if (imports_ar_verify(linker->code, linker->size) != 0)
+    if (imports_ar_verify(imports->code, imports->size) != 0)
     {
       return -1;
     }
   }
     else
-  if (linker->type == IMPORT_TYPE_AR)
+  if (imports->type == IMPORT_TYPE_AR)
   {
-    if (imports_obj_verify(linker->code, linker->size) != 0)
+    if (imports_obj_verify(imports->code, imports->size) != 0)
     {
       return -1;
     }
@@ -42,7 +44,7 @@ int imports_verify(struct _linker *linker)
   return 0;
 }
 
-struct _linker *imports_find_code_for_symbol(
+struct _imports *imports_find_code_for_symbol(
   const char *symbol,
   uint32_t *code,
   uint32_t *size)
@@ -51,13 +53,13 @@ struct _linker *imports_find_code_for_symbol(
 }
 
 const char *imports_find_name_from_offset(
-  struct _linker *linker,
+  struct _imports *imports,
   uint32_t offset)
 {
   return NULL;
 }
 
-void imports_free(struct _linker *linker)
+void imports_free(struct _imports *imports)
 {
 }
 

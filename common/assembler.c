@@ -376,67 +376,12 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
 
 int assembler_link(struct _asm_context *asm_context, const char *filename)
 {
-  FILE *fp;
-  int type = -1, n;
-
-  n = strlen(filename);
-
-  while(n >= 0)
+  if (asm_context->linker == NULL)
   {
-    n--;
-    if (filename[n] == '.') { break; }
+    asm_context->linker = (struct _linker *)malloc(sizeof(struct _linker));
   }
 
-  if (strcmp(filename + n, ".a") == 0)
-  {
-    type = IMPORT_TYPE_AR;
-  }
-    else
-  if (strcmp(filename + n, ".o") == 0)
-  {
-    type = IMPORT_TYPE_OBJ;
-  }
-    else
-  {
-    return -1;
-  }
-
-  fp = fopen(filename, "rb");
-
-  if (fp == NULL)
-  {
-    printf("Error: File not found %s\n", filename);
-    return -2;
-  }
-
-  fseek(fp, 0, SEEK_END);
-  n = ftell(fp);
-  fseek(fp, 0, SEEK_SET);
-
-  struct _linker *linker = (struct _linker *)malloc(sizeof(struct _linker) + n);
-
-  linker->next = asm_context->linker;
-  linker->size = n;
-  linker->type = type;
-
-  if (fread(linker->code, n, 1, fp) != 1)
-  {
-    printf("Error: Couldn't read file %s\n", filename);
-    free(linker);
-    fclose(fp);
-    return -2;
-  }
-
-  if (import_verify(linker) != 0)
-  {
-    printf("Error: Not a supported file %s\n", filename);
-    return -2;
-  }
-
-  asm_context->linker = linker;
-  symbols_need_unfound_symbols(&asm_context->symbols);
-
-  fclose(fp);
+  linker_add_file(asm_context->linker, filename);
 
   return 0;
 }

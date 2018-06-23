@@ -1,3 +1,14 @@
+/**
+ *  naken_asm assembler.
+ *  Author: Michael Kohn
+ *   Email: mike@mikekohn.net
+ *     Web: http://www.mikekohn.net/
+ * License: GPLv3
+ *
+ * Copyright 2010-2018 by Michael Kohn
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
