@@ -1,6 +1,6 @@
 
-#ifndef ELF_H
-#define ELF_H
+#ifndef _IMPORTS_OBJ_H
+#define _IMPORTS_OBJ_H
 
 struct _elf_header32
 {
@@ -122,16 +122,16 @@ struct _elf_symbol64
   uint8_t st_size[8];
 };
 
-int linker_obj_verify(uint8_t *buffer, int file_size);
+int imports_obj_verify(uint8_t *buffer, int file_size);
 
-uint32_t linker_obj_find_code_from_symbol(
+uint32_t imports_obj_find_code_from_symbol(
   uint8_t *buffer,
   int file_size,
   const char *symbol,
   uint32_t *function_size,
   uint32_t *file_offset);
 
-const char *linker_obj_find_name_from_offset(
+const char *imports_obj_find_name_from_offset(
   uint8_t *buffer,
   int file_size,
   uint32_t offset);

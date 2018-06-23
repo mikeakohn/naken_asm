@@ -4,13 +4,13 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "linker_get_int.h"
-#include "linker_obj.h"
+#include "imports_get_int.h"
+#include "imports_obj.h"
 
 #define SHT_SYMTAB 0x2
 #define SHT_STRTAB 0x3
 
-int linker_obj_verify(uint8_t *buffer, int file_size)
+int imports_obj_verify(uint8_t *buffer, int file_size)
 {
   int i;
 
@@ -25,7 +25,7 @@ int linker_obj_verify(uint8_t *buffer, int file_size)
 }
 
 #ifdef DEBUG
-static void linker_obj_elf_print_header32(struct _elf_header32 *elf_header)
+static void imports_obj_elf_print_header32(struct _elf_header32 *elf_header)
 {
   printf("  e_ident_class=%d\n", elf_header->e_ident_class);
   printf("   e_ident_data=%d\n", elf_header->e_ident_data);
@@ -47,7 +47,7 @@ static void linker_obj_elf_print_header32(struct _elf_header32 *elf_header)
 #endif
 
 #ifdef DEBUG
-static void linker_obj_elf_print_section32(
+static void imports_obj_elf_print_section32(
   struct _elf_section32 *section,
   int i,
   const char *name)
@@ -67,7 +67,7 @@ static void linker_obj_elf_print_section32(
 #endif
 
 #if DEBUG
-static void linker_obj_elf_print_symbol32(
+static void imports_obj_elf_print_symbol32(
   struct _elf_symbol32 *symbol,
   const char *name)
 {
@@ -80,7 +80,7 @@ static void linker_obj_elf_print_symbol32(
 }
 #endif
 
-static uint32_t linker_obj_symbol_table_lookup_by_name(
+static uint32_t imports_obj_symbol_table_lookup_by_name(
   const uint8_t *symbol_table,
   int symbol_table_size,
   const uint8_t *symbol_string_table,
@@ -102,7 +102,7 @@ static uint32_t linker_obj_symbol_table_lookup_by_name(
     if (st_name > symbol_string_table_size) { st_name = 0; }
 
 #ifdef DEBUG
-    linker_obj_elf_print_symbol32(elf_symbol32, name);
+    imports_obj_elf_print_symbol32(elf_symbol32, name);
 #endif
 
     if (strcmp(name, symbol) == 0)
@@ -117,7 +117,7 @@ static uint32_t linker_obj_symbol_table_lookup_by_name(
   return 0;
 }
 
-static const char *linker_obj_symbol_table_lookup_by_offset(
+static const char *imports_obj_symbol_table_lookup_by_offset(
   const uint8_t *symbol_table,
   int symbol_table_size,
   const uint8_t *symbol_string_table,
@@ -138,7 +138,7 @@ static const char *linker_obj_symbol_table_lookup_by_offset(
     if (st_name > symbol_string_table_size) { st_name = 0; }
 
 #ifdef DEBUG
-    linker_obj_elf_print_symbol32(elf_symbol32, name);
+    imports_obj_elf_print_symbol32(elf_symbol32, name);
 #endif
 
     //if (offset >= st_value && offset < st_value + st_size)
@@ -153,7 +153,7 @@ static const char *linker_obj_symbol_table_lookup_by_offset(
   return NULL;
 }
 
-uint32_t linker_obj_find_code_from_symbol(
+uint32_t imports_obj_find_code_from_symbol(
   uint8_t *buffer,
   int file_size,
   const char *symbol,
@@ -167,7 +167,7 @@ uint32_t linker_obj_find_code_from_symbol(
   *function_size = 0;
   *file_offset = 0;
 
-  if (linker_obj_verify(buffer, file_size) == -1)
+  if (imports_obj_verify(buffer, file_size) == -1)
   {
     printf("Not an ELF\n");
     return -1;
@@ -231,7 +231,7 @@ uint32_t linker_obj_find_code_from_symbol(
 
   if (symbol_table != NULL && symbol_string_table != NULL)
   {
-    uint32_t address = linker_obj_symbol_table_lookup_by_name(
+    uint32_t address = imports_obj_symbol_table_lookup_by_name(
        symbol_table,
        symbol_table_size,
        symbol_string_table,
@@ -247,7 +247,7 @@ uint32_t linker_obj_find_code_from_symbol(
   return 0;
 }
 
-const char *linker_obj_find_name_from_offset(
+const char *imports_obj_find_name_from_offset(
   uint8_t *buffer,
   int file_size,
   uint32_t offset)
@@ -256,7 +256,7 @@ const char *linker_obj_find_name_from_offset(
   struct _elf_section32 *section;
   int sh_offset;
 
-  if (linker_obj_verify(buffer, file_size) == -1)
+  if (imports_obj_verify(buffer, file_size) == -1)
   {
     printf("Not an ELF\n");
     return NULL;
@@ -314,7 +314,7 @@ const char *linker_obj_find_name_from_offset(
 
   if (symbol_table != NULL && symbol_string_table != NULL)
   {
-    const char *name = linker_obj_symbol_table_lookup_by_offset(
+    const char *name = imports_obj_symbol_table_lookup_by_offset(
        symbol_table,
        symbol_table_size,
        symbol_string_table,

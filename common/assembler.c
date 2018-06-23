@@ -389,12 +389,12 @@ int assembler_link(struct _asm_context *asm_context, const char *filename)
 
   if (strcmp(filename + n, ".a") == 0)
   {
-    type = LINKER_TYPE_AR;
+    type = IMPORT_TYPE_AR;
   }
     else
   if (strcmp(filename + n, ".o") == 0)
   {
-    type = LINKER_TYPE_OBJ;
+    type = IMPORT_TYPE_OBJ;
   }
     else
   {
@@ -427,7 +427,7 @@ int assembler_link(struct _asm_context *asm_context, const char *filename)
     return -2;
   }
 
-  if (linker_verify(linker) != 0)
+  if (import_verify(linker) != 0)
   {
     printf("Error: Not a supported file %s\n", filename);
     return -2;

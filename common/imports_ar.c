@@ -4,9 +4,9 @@
 #include <string.h>
 
 #include "elf.h"
-#include "linker_get_int.h"
-#include "linker_ar.h"
-#include "linker_obj.h"
+#include "imports_get_int.h"
+#include "imports_ar.h"
+#include "imports_obj.h"
 
 struct _header
 {
@@ -19,7 +19,7 @@ struct _header
   char end[2];
 };
 
-static int linker_ar_read_signature(uint8_t *buffer, int file_size)
+static int imports_ar_read_signature(uint8_t *buffer, int file_size)
 {
   const char *header = "!<arch>\n";
   int i;
@@ -42,7 +42,7 @@ static int linker_ar_read_signature(uint8_t *buffer, int file_size)
   return 0;
 }
 
-static int linker_ar_read_lookup_table(uint8_t *buffer, int size)
+static int imports_ar_read_lookup_table(uint8_t *buffer, int size)
 {
   int entry_count;
   int ptr_offset;
@@ -69,9 +69,9 @@ static int linker_ar_read_lookup_table(uint8_t *buffer, int size)
   return 0;
 }
 
-int linker_ar_verify(uint8_t *buffer, int file_size)
+int imports_ar_verify(uint8_t *buffer, int file_size)
 {
-  if (linker_ar_read_signature(buffer, file_size) != 0)
+  if (imports_ar_read_signature(buffer, file_size) != 0)
   {
     return -1;
   }
@@ -79,13 +79,13 @@ int linker_ar_verify(uint8_t *buffer, int file_size)
   return 0;
 }
 
-int linker_ar_read(uint8_t *buffer, int file_size)
+int imports_ar_read(uint8_t *buffer, int file_size)
 {
   struct _header *header;
   int i, size;
   int ptr = 8;
 
-  if (linker_ar_read_signature(buffer, file_size) != 0) { return -1; }
+  if (imports_ar_read_signature(buffer, file_size) != 0) { return -1; }
 
   while(ptr < file_size)
   {
@@ -111,7 +111,7 @@ int linker_ar_read(uint8_t *buffer, int file_size)
 
     if (strncmp(header->file_identifier, "/               ", 16) == 0)
     {
-      linker_ar_read_lookup_table(buffer + ptr, size);
+      imports_ar_read_lookup_table(buffer + ptr, size);
     }
 
     ptr += size;
@@ -120,7 +120,7 @@ int linker_ar_read(uint8_t *buffer, int file_size)
   return 0;
 }
 
-static int linker_ar_find_lookup_table(uint8_t *buffer, int file_size)
+static int imports_ar_find_lookup_table(uint8_t *buffer, int file_size)
 {
   struct _header *header;
   int ptr = 8;
@@ -149,7 +149,7 @@ static int linker_ar_find_lookup_table(uint8_t *buffer, int file_size)
   return -1;
 }
 
-int linker_ar_find_symbol_section_offset(
+int imports_ar_find_symbol_section_offset(
   uint8_t *buffer,
   int file_size,
   const char *symbol)
@@ -159,7 +159,7 @@ int linker_ar_find_symbol_section_offset(
   int ptr_name;
   int n;
 
-  int lookup_table = linker_ar_find_lookup_table(buffer, file_size);
+  int lookup_table = imports_ar_find_lookup_table(buffer, file_size);
 
   if (lookup_table == -1)
   {
@@ -192,7 +192,7 @@ int linker_ar_find_symbol_section_offset(
   return -1;
 }
 
-uint32_t linker_ar_find_code_from_symbol(
+uint32_t imports_ar_find_code_from_symbol(
   uint8_t *buffer,
   int file_size,
   const char *symbol,
@@ -204,9 +204,9 @@ uint32_t linker_ar_find_code_from_symbol(
   *function_size = 0;
   *file_offset = 0;
 
-  if (linker_ar_read_signature(buffer, file_size) != 0) { return -1; }
+  if (imports_ar_read_signature(buffer, file_size) != 0) { return -1; }
 
-  section_offset = linker_ar_find_symbol_section_offset(buffer, file_size, symbol);
+  section_offset = imports_ar_find_symbol_section_offset(buffer, file_size, symbol);
 
   if (section_offset == -1)
   {
@@ -219,14 +219,14 @@ uint32_t linker_ar_find_code_from_symbol(
   // FIXME: Get the correct size.
   int section_size = file_size;
 
-  uint32_t offset = linker_obj_find_code_from_symbol(buffer + section_offset + 60, section_size, symbol, function_size, file_offset);
+  uint32_t offset = imports_obj_find_code_from_symbol(buffer + section_offset + 60, section_size, symbol, function_size, file_offset);
 
   *file_offset += section_offset + 60;
 
   return offset;
 }
 
-const char *linker_ar_find_name_from_offset(
+const char *imports_ar_find_name_from_offset(
   uint8_t *buffer,
   int file_size,
   uint32_t offset)
@@ -236,7 +236,7 @@ const char *linker_ar_find_name_from_offset(
   int ptr = 8;
   int i;
 
-  if (linker_ar_read_signature(buffer, file_size) != 0) { return NULL; }
+  if (imports_ar_read_signature(buffer, file_size) != 0) { return NULL; }
 
   while(ptr < file_size)
   {
@@ -252,7 +252,7 @@ const char *linker_ar_find_name_from_offset(
 
     if (strncmp(header->file_identifier, "/               ", 16) != 0)
     {
-      name = linker_obj_find_name_from_offset(buffer + ptr + 60, size, offset);
+      name = imports_obj_find_name_from_offset(buffer + ptr + 60, size, offset);
       if (name != NULL) { return name; }
     }
 
