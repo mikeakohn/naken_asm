@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -15,6 +15,7 @@
 #include <stdio.h>
 
 #include "common/cpu_list.h"
+#include "common/linker.h"
 #include "common/macros.h"
 #include "common/memory.h"
 #include "common/memory_pool.h"
@@ -64,6 +65,7 @@ struct _asm_context
   int unget_stack[MAX_NESTED_MACROS+1];
   int unget_stack_ptr;
   // tokens_get end
+  struct _linker *linker;
   int debug_file;
   char def_param_stack_data[PARAM_STACK_LEN];
   int def_param_stack_ptr[MAX_NESTED_MACROS+1];

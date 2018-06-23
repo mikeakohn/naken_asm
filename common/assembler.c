@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -245,8 +245,6 @@ static int parse_export(struct _asm_context *asm_context)
     }
   }
 
-  //asm_context->line++;
-
   return 0;
 }
 
@@ -318,6 +316,7 @@ void assembler_init(struct _asm_context *asm_context)
 
 void assembler_free(struct _asm_context *asm_context)
 {
+  linker_free(asm_context->linker);
   symbols_free(&asm_context->symbols);
   macros_free(&asm_context->macros);
   memory_free(&asm_context->memory);
