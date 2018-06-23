@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include "common/assembler.h"
+#include "common/directives_include.h"
 #include "common/macros.h"
 #include "common/symbols.h"
 #include "common/tokens.h"
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
   int create_list = 0;
   char *infile = NULL, *outfile = NULL;
   struct _asm_context asm_context;
-  int error_flag=0;
+  int error_flag = 0;
 
   puts(credits);
 
@@ -176,7 +177,7 @@ int main(int argc, char *argv[])
 
       if (s[2] == 0)
       {
-        if (add_to_include_path(&asm_context, argv[++i]) != 0)
+        if (include_add_path(&asm_context, argv[++i]) != 0)
         {
           printf("Internal Error:  Too many include paths\n");
           exit(1);
@@ -184,7 +185,7 @@ int main(int argc, char *argv[])
       }
         else
       {
-        if (add_to_include_path(&asm_context, s+2) != 0)
+        if (include_add_path(&asm_context, s+2) != 0)
         {
           printf("Internal Error:  Too many include paths\n");
           exit(1);
@@ -219,6 +220,16 @@ int main(int argc, char *argv[])
         exit(1);
       }
 
+      int n = assembler_link(&asm_context, argv[i]);
+
+      if (n == 0) { continue; }
+
+      if (n != -1)
+      {
+        error_flag = 1;
+        continue;
+      }
+
       if (infile != NULL)
       {
         printf("Error: Cannot use %s as input file since %s was already chosen.\n", argv[i], infile);
@@ -227,6 +238,11 @@ int main(int argc, char *argv[])
 
       infile = argv[i];
     }
+  }
+
+  if (error_flag != 0)
+  {
+    exit(1);
   }
 
   if (infile == NULL)
@@ -249,14 +265,14 @@ int main(int argc, char *argv[])
   }
 
 #ifdef INCLUDE_PATH
-  if (add_to_include_path(&asm_context, INCLUDE_PATH) != 0)
+  if (include_add_path(&asm_context, INCLUDE_PATH) != 0)
   {
     printf("Internal Error:  Too many include paths\n");
     exit(1);
   }
 #endif
 
-  if (add_to_include_path(&asm_context, "include") != 0)
+  if (include_add_path(&asm_context, "include") != 0)
   {
     printf("Internal Error:  Too many include paths\n");
     exit(1);
@@ -462,5 +478,4 @@ int main(int argc, char *argv[])
 
   return error_flag == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-
 

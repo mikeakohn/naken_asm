@@ -12,9 +12,9 @@
 #ifndef _DIRECTIVES_INCLUDE_H
 #define _DIRECTIVES_INCLUDE_H
 
-int add_to_include_path(struct _asm_context *asm_context, char *paths);
-int parse_binfile(struct _asm_context *asm_context);
-int parse_include(struct _asm_context *asm_context);
+int binfile_parse(struct _asm_context *asm_context);
+int include_parse(struct _asm_context *asm_context);
+int include_add_path(struct _asm_context *asm_context, char *paths);
 
 #endif
 

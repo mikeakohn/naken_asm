@@ -89,10 +89,10 @@ struct _asm_context
   uint32_t extra_context;
 };
 
-int add_to_include_path(struct _asm_context *asm_context, char *paths);
 void assembler_init(struct _asm_context *asm_context);
 void assembler_free(struct _asm_context *asm_context);
 void assembler_print_info(struct _asm_context *asm_context, FILE *out);
+int assembler_link(struct _asm_context *asm_context, const char *filename);
 int assemble(struct _asm_context *asm_context);
 
 #endif

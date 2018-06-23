@@ -13,10 +13,33 @@
 #include <stdlib.h>
 
 #include "linker.h"
+#include "linker_ar.h"
+#include "linker_obj.h"
 
 struct _linker *linker_add_file(const char *file_name)
 {
   return NULL;
+}
+
+int linker_verify(struct _linker *linker)
+{
+  if (linker->type == LINKER_TYPE_AR)
+  {
+    if (linker_ar_verify(linker->code, linker->size) != 0)
+    {
+      return -1;
+    }
+  }
+    else
+  if (linker->type == LINKER_TYPE_AR)
+  {
+    if (linker_obj_verify(linker->code, linker->size) != 0)
+    {
+      return -1;
+    }
+  }
+
+  return 0;
 }
 
 struct _linker *linker_find_code_for_symbol(

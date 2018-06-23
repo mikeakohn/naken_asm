@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -18,7 +18,7 @@
 #include "common/tokens.h"
 #include "common/print_error.h"
 
-int add_to_include_path(struct _asm_context *asm_context, char *paths)
+int include_add_path(struct _asm_context *asm_context, char *paths)
 {
   int ptr = 0;
   int n = 0;
@@ -46,7 +46,7 @@ int add_to_include_path(struct _asm_context *asm_context, char *paths)
   return 0;
 }
 
-int parse_binfile(struct _asm_context *asm_context)
+int binfile_parse(struct _asm_context *asm_context)
 {
   FILE *in;
   char token[TOKENLEN];
@@ -90,7 +90,7 @@ printf("binfile file %s.\n", token);
   return 0;
 }
 
-int parse_include(struct _asm_context *asm_context)
+int include_parse(struct _asm_context *asm_context)
 {
   char token[TOKENLEN];
   //int token_type;
