@@ -1993,4 +1993,9 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   return -1;
 }
 
+int link_mips(struct _asm_context *asm_context, uint8_t *code, int len)
+{
+
+  return 0;
+}
 

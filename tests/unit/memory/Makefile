@@ -23,6 +23,10 @@ default:
 	  ../../../build/common/symbols.o \
 	  ../../../build/common/tokens.o \
 	  ../../../build/common/var.o \
+          ../../../build/common/linker.o \
+          ../../../build/common/imports_ar.o \
+          ../../../build/common/imports_get_int.o \
+          ../../../build/common/imports_obj.o \
 	  ../../../build/disasm/*.o \
 	  ../../../build/simulate/*.o \
 	  ../../../build/table/*.o \

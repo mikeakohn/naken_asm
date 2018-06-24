@@ -55,6 +55,8 @@ const char *linker_find_name_from_offset(
   struct _linker *linker,
   uint32_t offset);
 
+int linker_get_symbol_count(struct _linker *linker);
+const char *linker_get_symbol_at_index(struct _linker *linker, int index);
 void linker_print_symbol_list(struct _linker *linker);
 void linker_free(struct _linker *linker);
 

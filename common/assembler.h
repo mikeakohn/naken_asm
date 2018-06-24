@@ -92,7 +92,8 @@ struct _asm_context
 void assembler_init(struct _asm_context *asm_context);
 void assembler_free(struct _asm_context *asm_context);
 void assembler_print_info(struct _asm_context *asm_context, FILE *out);
-int assembler_link(struct _asm_context *asm_context, const char *filename);
+int assembler_link_file(struct _asm_context *asm_context, const char *filename);
+int assembler_link(struct _asm_context *asm_context);
 int assemble(struct _asm_context *asm_context);
 
 #endif

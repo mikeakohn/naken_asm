@@ -374,7 +374,7 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
   fprintf(out, "\n");
 }
 
-int assembler_link(struct _asm_context *asm_context, const char *filename)
+int assembler_link_file(struct _asm_context *asm_context, const char *filename)
 {
   int n;
 
@@ -400,6 +400,22 @@ int assembler_link(struct _asm_context *asm_context, const char *filename)
   }
 
   return linker_add_file(asm_context->linker, filename);
+}
+
+int assembler_link(struct _asm_context *asm_context)
+{
+  if (asm_context->linker == NULL) { return 0; }
+
+  int count = linker_get_symbol_count(asm_context->linker);
+  int index;
+
+  for (index = 0; index < count; index++)
+  {
+    const char *symbol = linker_get_symbol_at_index(asm_context->linker, index);
+    symbols_append(&asm_context->symbols, symbol, asm_context->address);
+  }
+
+  return 0;
 }
 
 int check_for_directive(struct _asm_context *asm_context, char *token)

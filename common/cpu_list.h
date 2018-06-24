@@ -20,6 +20,7 @@ struct _simulate;
 
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
 typedef int (*parse_directive_t)(struct _asm_context *, const char *);
+typedef int (*link_function_t)(struct _asm_context *, const uint8_t *, int size);
 typedef void (*list_output_t)(struct _asm_context *, uint32_t, uint32_t);
 typedef void (*disasm_range_t)(struct _memory *, uint32_t, uint32_t, uint32_t);
 //typedef struct _simulate *(*simulate_init_t)(struct _memory *memory);
@@ -87,6 +88,7 @@ struct _cpu_list
   uint8_t srec_size : 2;
   parse_instruction_t parse_instruction;
   parse_directive_t parse_directive;
+  link_function_t link_function;
   list_output_t list_output;
   disasm_range_t disasm_range;
   simulate_init_t simulate_init;

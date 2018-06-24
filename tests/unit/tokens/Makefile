@@ -12,6 +12,10 @@ default:
           ../../../build/common/print_error.o \
           ../../../build/common/symbols.o \
           ../../../build/common/tokens.o \
+          ../../../build/common/linker.o \
+          ../../../build/common/imports_ar.o \
+          ../../../build/common/imports_get_int.o \
+          ../../../build/common/imports_obj.o \
 	  $(CFLAGS)
 
 clean:

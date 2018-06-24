@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
         exit(1);
       }
 
-      int n = assembler_link(&asm_context, argv[i]);
+      int n = assembler_link_file(&asm_context, argv[i]);
 
       if (n == 0) { continue; }
 
@@ -358,6 +358,8 @@ int main(int argc, char *argv[])
   }
     else
   {
+    assembler_link(&asm_context);
+
     symbols_lock(&asm_context.symbols);
     symbols_scope_reset(&asm_context.symbols);
     // macros_lock(&asm_context.defines_heap);
@@ -408,7 +410,6 @@ int main(int argc, char *argv[])
 
       fclose(dbg);
     }
-
   }
 
   fclose(out);

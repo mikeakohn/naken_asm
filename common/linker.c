@@ -305,6 +305,44 @@ const char *linker_find_name_from_offset(
   return NULL;
 }
 
+int linker_get_symbol_count(struct _linker *linker)
+{
+  struct _symbol_list *symbol_list;
+  uint8_t *buffer = linker->symbol_list_buffer;
+  int ptr = 0, end = linker->symbol_list_buffer_end, count = 0;
+
+  while(ptr < end)
+  {
+    symbol_list = (struct _symbol_list *)(buffer + ptr);
+    ptr += sizeof(struct _symbol_list *) + strlen(symbol_list->name) + 1;
+    count++;
+  }
+
+  return count;
+}
+
+const char *linker_get_symbol_at_index(struct _linker *linker, int index)
+{
+  struct _symbol_list *symbol_list;
+  uint8_t *buffer = linker->symbol_list_buffer;
+  int ptr = 0, end = linker->symbol_list_buffer_end, count = 0;
+
+  while(ptr < end)
+  {
+    symbol_list = (struct _symbol_list *)(buffer + ptr);
+
+    if (count == index)
+    {
+      return symbol_list->name;
+    }
+
+    ptr += sizeof(struct _symbol_list *) + strlen(symbol_list->name) + 1;
+    count++;
+  }
+
+  return NULL;
+}
+
 void linker_print_symbol_list(struct _linker *linker)
 {
   struct _symbol_list *symbol_list;

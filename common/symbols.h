@@ -59,8 +59,8 @@ struct _symbols_iter
 
 int symbols_init(struct _symbols *symbols);
 void symbols_free(struct _symbols *symbols);
-struct _symbols_data *symbols_find(struct _symbols *symbols, char *name);
-int symbols_append(struct _symbols *symbols, char *name, uint32_t address);
+struct _symbols_data *symbols_find(struct _symbols *symbols, const char *name);
+int symbols_append(struct _symbols *symbols, const char *name, uint32_t address);
 int symbols_set(struct _symbols *symbols, char *name, uint32_t address);
 int symbols_export(struct _symbols *symbols, char *name);
 void symbols_lock(struct _symbols *symbols);

@@ -34,7 +34,7 @@ void symbols_free(struct _symbols *symbols)
   symbols->memory_pool = NULL;
 }
 
-struct _symbols_data *symbols_find(struct _symbols *symbols, char *name)
+struct _symbols_data *symbols_find(struct _symbols *symbols, const char *name)
 {
   struct _memory_pool *memory_pool = symbols->memory_pool;
   int ptr;
@@ -90,7 +90,7 @@ struct _symbols_data *symbols_find(struct _symbols *symbols, char *name)
   return NULL;
 }
 
-int symbols_append(struct _symbols *symbols, char *name, uint32_t address)
+int symbols_append(struct _symbols *symbols, const char *name, uint32_t address)
 {
   int token_len;
   struct _memory_pool *memory_pool = symbols->memory_pool;
