@@ -72,7 +72,7 @@ static void linker_add_to_symbol_list(
   }
 
   // If this symbol is already in the list, then don't add it again.
-  if (linker_get_from_symbol_list(linker, name) != NULL) { return; }
+  //if (linker_get_from_symbol_list(linker, name) != NULL) { return; }
 
   const int len = sizeof(struct _imports *) + strlen(name) + 1;
 
@@ -161,18 +161,76 @@ int linker_add_file(struct _linker *linker, const char *filename)
   return 0;
 }
 
-uint32_t linker_find_code_from_symbol(
+int linker_search_code_from_symbol(
   struct _linker *linker,
-  const char *symbol,
-  uint32_t *function_size,
-  uint32_t *file_offset)
+  const char *symbol)
 {
   if (linker == NULL) { return -1; }
 
   struct _imports *imports = linker->imports;
   uint32_t offset;
+  uint32_t function_size;
+  uint32_t file_offset;
 
-  // FIXME: Deal with duplicate symbols.
+  // If this symbol is already in the list, then don't search it again.
+  if (linker_get_from_symbol_list(linker, symbol) != NULL) { return 1; }
+
+  // FIXME: Deal with duplicate symbols in .a / .o files.  Currently
+  // this will find the first match and not check to see if it's a dup.
+
+  while(imports != NULL)
+  {
+    if (imports->type == IMPORT_TYPE_AR)
+    {
+      offset = imports_ar_find_code_from_symbol(
+        imports->code,
+        imports->size,
+        symbol,
+        &function_size,
+        &file_offset);
+    }
+      else
+    if (imports->type == IMPORT_TYPE_OBJ)
+    {
+      offset = imports_obj_find_code_from_symbol(
+        imports->code,
+        imports->size,
+        symbol,
+        &function_size,
+        &file_offset);
+    }
+
+    if (offset != -1)
+    {
+      linker_add_to_symbol_list(linker, imports, symbol);
+
+      return 1;
+    }
+
+    imports = imports->next;
+  }
+
+  return 0;
+}
+
+uint8_t *linker_get_code_from_symbol(
+  struct _linker *linker,
+  const char *symbol,
+  uint32_t *function_size)
+{
+  if (linker == NULL) { return NULL; }
+
+  struct _imports *imports;
+  uint32_t offset;
+  uint32_t file_offset;
+
+  // If this symbol is already in the list, then point directly to it.
+  imports = linker_get_from_symbol_list(linker, symbol);
+
+  if (linker_get_from_symbol_list(linker, symbol) == NULL)
+  {
+    imports = linker->imports;
+  }
 
   while(imports != NULL)
   {
@@ -183,7 +241,7 @@ uint32_t linker_find_code_from_symbol(
         imports->size,
         symbol,
         function_size,
-        file_offset);
+        &file_offset);
     }
       else
     if (imports->type == IMPORT_TYPE_OBJ)
@@ -193,15 +251,18 @@ uint32_t linker_find_code_from_symbol(
         imports->size,
         symbol,
         function_size,
-        file_offset);
+        &file_offset);
     }
 
-    if (offset != -1) { return offset; }
+    if (offset != -1)
+    {
+      return imports->code + file_offset;
+    }
 
     imports = imports->next;
   }
 
-  return -1;
+  return NULL;
 }
 
 const char *linker_find_name_from_offset(

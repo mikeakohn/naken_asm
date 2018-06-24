@@ -13,7 +13,7 @@
 #define _LINKER_H
 
 enum
-{ 
+{
   IMPORT_TYPE_AR,
   IMPORT_TYPE_OBJ,
 };
@@ -42,11 +42,14 @@ struct _symbol_list
 
 int linker_add_file(struct _linker *linker, const char *filename);
 
-uint32_t linker_find_code_from_symbol(
+int linker_search_code_from_symbol(
+  struct _linker *linker,
+  const char *symbol);
+
+uint8_t *linker_find_code_from_symbol(
   struct _linker *linker,
   const char *symbol,
-  uint32_t *function_size,
-  uint32_t *file_offset);
+  uint32_t *function_size);
 
 const char *linker_find_name_from_offset(
   struct _linker *linker,
