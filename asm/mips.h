@@ -15,6 +15,7 @@
 #include "common/assembler.h"
 
 int parse_instruction_mips(struct _asm_context *asm_context, char *instr);
+int link_function_mips(struct _asm_context *asm_context, const uint8_t *code, int size);
 
 #endif
 

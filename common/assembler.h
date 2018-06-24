@@ -42,6 +42,7 @@ struct _asm_context
   struct _macros macros;
   parse_instruction_t parse_instruction;
   parse_directive_t parse_directive;
+  link_function_t link_function;
   list_output_t list_output;
   int address;
   int segment;

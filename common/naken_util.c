@@ -113,6 +113,7 @@ parse_instruction_t parse_instruction_tms1000 = NULL;
 parse_instruction_t parse_instruction_tms1100 = NULL;
 parse_instruction_t parse_instruction_tms9900 = NULL;
 parse_instruction_t parse_instruction_z80 = NULL;
+link_function_t link_function_mips = NULL;
 
 static char *state_stopped = "stopped";
 static char *state_running = "running";

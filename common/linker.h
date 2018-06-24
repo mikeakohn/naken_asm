@@ -46,7 +46,7 @@ int linker_search_code_from_symbol(
   struct _linker *linker,
   const char *symbol);
 
-uint8_t *linker_find_code_from_symbol(
+uint8_t *linker_get_code_from_symbol(
   struct _linker *linker,
   const char *symbol,
   uint32_t *function_size);

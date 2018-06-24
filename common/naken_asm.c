@@ -351,14 +351,19 @@ int main(int argc, char *argv[])
 
   error_flag = assemble(&asm_context);
 
-  if (error_flag != 0)
+  do
   {
-    printf("** Errors... bailing out\n");
-    unlink(outfile);
-  }
-    else
-  {
-    assembler_link(&asm_context);
+    if (error_flag == 0 && assembler_link(&asm_context) != 0)
+    {
+      error_flag = 1;
+    }
+
+    if (error_flag != 0)
+    {
+      printf("** Errors... bailing out\n");
+      unlink(outfile);
+      break;
+    }
 
     symbols_lock(&asm_context.symbols);
     symbols_scope_reset(&asm_context.symbols);
@@ -371,6 +376,14 @@ int main(int argc, char *argv[])
     if (create_list == 1) { asm_context.write_list_file = 1; }
 
     error_flag = assemble(&asm_context);
+
+    if (error_flag != 0) { break; }
+
+    if (assembler_link(&asm_context) != 0)
+    {
+      error_flag = 1;
+      break;
+    }
 
     if (format == FORMAT_HEX)
     {
@@ -386,13 +399,11 @@ int main(int argc, char *argv[])
     {
       write_srec(&asm_context.memory, out, cpu_list[asm_context.cpu_list_index].srec_size);
     }
-#ifndef DISABLE_ELF
       else
     if (format == FORMAT_ELF)
     {
       write_elf(&asm_context.memory, out, &asm_context.symbols, asm_context.filename, asm_context.cpu_type, cpu_list[asm_context.cpu_list_index].alignment);
     }
-#endif
       else
     if (format == FORMAT_WDC)
     {
@@ -410,7 +421,7 @@ int main(int argc, char *argv[])
 
       fclose(dbg);
     }
-  }
+  } while(0);
 
   fclose(out);
 

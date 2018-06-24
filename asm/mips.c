@@ -1993,8 +1993,30 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   return -1;
 }
 
-int link_mips(struct _asm_context *asm_context, uint8_t *code, int len)
+int link_function_mips(struct _asm_context *asm_context, const uint8_t *code, int size)
 {
+  uint32_t opcode;
+  int n;
+
+  for (n = 0; n < size; n = n + 4)
+  {
+    if (asm_context->memory.endian == ENDIAN_LITTLE)
+    {
+      opcode = code[n + 0] |
+              (code[n + 1] << 8) |
+              (code[n + 2] << 16) |
+              (code[n + 3] << 24);
+    }
+      else
+    {
+      opcode = code[n + 3] |
+              (code[n + 2] << 8) |
+              (code[n + 1] << 16) |
+              (code[n + 0] << 24);
+    }
+
+    add_bin32(asm_context, opcode, IS_OPCODE);
+  }
 
   return 0;
 }

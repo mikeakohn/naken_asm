@@ -71,6 +71,7 @@ static void configure_cpu(struct _asm_context *asm_context, int index)
   asm_context->pass_1_write_disable = cpu_list[index].pass_1_write_disable;
   asm_context->parse_instruction = cpu_list[index].parse_instruction;
   asm_context->parse_directive = cpu_list[index].parse_directive;
+  asm_context->link_function = cpu_list[index].link_function;
   asm_context->list_output = cpu_list[index].list_output;
   asm_context->flags = cpu_list[index].flags;
   asm_context->cpu_list_index = index;
@@ -413,6 +414,38 @@ int assembler_link(struct _asm_context *asm_context)
   {
     const char *symbol = linker_get_symbol_at_index(asm_context->linker, index);
     symbols_append(&asm_context->symbols, symbol, asm_context->address);
+
+    uint8_t *code;
+    uint32_t function_size;
+
+    code = linker_get_code_from_symbol(
+      asm_context->linker,
+      symbol,
+      &function_size);
+
+    if (asm_context->pass == 1)
+    {
+      if (asm_context->link_function(asm_context, code, function_size) != 0)
+      {
+        return -1;
+      }
+    }
+      else
+    {
+      if (asm_context->list != NULL && asm_context->write_list_file == 1)
+      {
+        uint32_t address;
+
+        fprintf(asm_context->list, "%s:\n", symbol);
+
+        // FIXME: make symbols_lookup inputs const char *
+        if (symbols_lookup(&asm_context->symbols, (char *)symbol, &address) == 0)
+        {
+          asm_context->list_output(asm_context, address, address + function_size);
+          fprintf(asm_context->list, "\n");
+        }
+      }
+    }
   }
 
   return 0;
