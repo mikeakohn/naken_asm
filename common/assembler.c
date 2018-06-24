@@ -394,7 +394,9 @@ int assembler_link(struct _asm_context *asm_context, const char *filename)
 
   if (asm_context->linker == NULL)
   {
-    asm_context->linker = (struct _linker *)malloc(sizeof(struct _linker));
+    const int len = sizeof(struct _linker);
+    asm_context->linker = (struct _linker *)malloc(len);
+    memset(asm_context->linker, 0, len);
   }
 
   return linker_add_file(asm_context->linker, filename);
