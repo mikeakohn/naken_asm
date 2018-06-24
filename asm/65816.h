@@ -3,9 +3,9 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2018 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
@@ -20,5 +20,4 @@ int parse_directive_65816(struct _asm_context *asm_context, const char *directiv
 int parse_instruction_65816(struct _asm_context *asm_context, char *instr);
 
 #endif
-
 

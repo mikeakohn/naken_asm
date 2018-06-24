@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -451,5 +451,4 @@ int eval_expression(struct _asm_context *asm_context, int *num)
   operator.operation = OPER_UNSET;
   return eval_expression_go(asm_context, num, &operator);
 }
-
 
