@@ -185,9 +185,9 @@ static int parse_set(struct _asm_context *asm_context)
   int num;
   int token_type;
 
-  asm_context->no_symbols = 1;
+  asm_context->ignore_symbols = 1;
   token_type = tokens_get(asm_context, name, TOKENLEN);
-  asm_context->no_symbols = 0;
+  asm_context->ignore_symbols = 0;
 
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
@@ -226,9 +226,9 @@ static int parse_export(struct _asm_context *asm_context)
   char token[TOKENLEN];
   int token_type;
 
-  asm_context->no_symbols = 1;
+  asm_context->ignore_symbols = 1;
   token_type = tokens_get(asm_context, token, TOKENLEN);
-  asm_context->no_symbols = 0;
+  asm_context->ignore_symbols = 0;
 
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
@@ -257,9 +257,9 @@ static int parse_equ(struct _asm_context *asm_context)
 
   // Atmel's include files want:  .equ NAME = VALUE
 
-  asm_context->no_symbols = 1;
+  asm_context->ignore_symbols = 1;
   token_type = tokens_get(asm_context, name, TOKENLEN);
-  asm_context->no_symbols = 0;
+  asm_context->ignore_symbols = 0;
 
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {

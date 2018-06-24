@@ -51,6 +51,11 @@ static struct _imports *linker_get_from_symbol_list(
   {
     symbol_list = (struct _symbol_list *)(buffer + ptr);
 
+    if (strcmp(name, symbol_list->name) == 0)
+    {
+      return symbol_list->imports;
+    }
+
     ptr += sizeof(struct _symbol_list *) + strlen(symbol_list->name) + 1;
   }
 
@@ -200,7 +205,7 @@ int linker_search_code_from_symbol(
         &file_offset);
     }
 
-    if (offset != -1)
+    if (offset != 0)
     {
       linker_add_to_symbol_list(linker, imports, symbol);
 
@@ -221,13 +226,13 @@ uint8_t *linker_get_code_from_symbol(
   if (linker == NULL) { return NULL; }
 
   struct _imports *imports;
-  uint32_t offset;
   uint32_t file_offset;
+  int ret;
 
   // If this symbol is already in the list, then point directly to it.
   imports = linker_get_from_symbol_list(linker, symbol);
 
-  if (linker_get_from_symbol_list(linker, symbol) == NULL)
+  if (linker_get_from_symbol_list(linker, symbol) != NULL)
   {
     imports = linker->imports;
   }
@@ -236,7 +241,7 @@ uint8_t *linker_get_code_from_symbol(
   {
     if (imports->type == IMPORT_TYPE_AR)
     {
-      offset = imports_ar_find_code_from_symbol(
+      ret = imports_ar_find_code_from_symbol(
         imports->code,
         imports->size,
         symbol,
@@ -246,7 +251,7 @@ uint8_t *linker_get_code_from_symbol(
       else
     if (imports->type == IMPORT_TYPE_OBJ)
     {
-      offset = imports_obj_find_code_from_symbol(
+      ret = imports_obj_find_code_from_symbol(
         imports->code,
         imports->size,
         symbol,
@@ -254,7 +259,7 @@ uint8_t *linker_get_code_from_symbol(
         &file_offset);
     }
 
-    if (offset != -1)
+    if (ret != -1)
     {
       return imports->code + file_offset;
     }
@@ -300,9 +305,30 @@ const char *linker_find_name_from_offset(
   return NULL;
 }
 
+void linker_print_symbol_list(struct _linker *linker)
+{
+  struct _symbol_list *symbol_list;
+  uint8_t *buffer = linker->symbol_list_buffer;
+  int ptr = 0, end = linker->symbol_list_buffer_end, count = 0;
+
+  printf(" -- linker symbol list --\n");
+
+  while(ptr < end)
+  {
+    symbol_list = (struct _symbol_list *)(buffer + ptr);
+
+    printf(" %d) %p %s\n", count, symbol_list->imports, symbol_list->name);
+
+    ptr += sizeof(struct _symbol_list *) + strlen(symbol_list->name) + 1;
+    count++;
+  }
+}
+
 void linker_free(struct _linker *linker)
 {
   if (linker == NULL) { return; }
+
+  //linker_print_symbol_list(linker);
 
   struct _imports *imports = linker->imports;
 

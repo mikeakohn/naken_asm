@@ -79,7 +79,7 @@ struct _asm_context
   uint8_t quiet_output : 1;
   uint8_t error : 1;
   uint8_t msp430_cpu4 : 1;
-  uint8_t no_symbols : 1;
+  uint8_t ignore_symbols : 1;
   uint8_t pass_1_write_disable : 1;
   uint8_t write_list_file : 1;
   uint8_t dump_symbols : 1;

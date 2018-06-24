@@ -134,7 +134,7 @@ struct _elf_symbol64
 
 int imports_obj_verify(uint8_t *buffer, int file_size);
 
-uint32_t imports_obj_find_code_from_symbol(
+int imports_obj_find_code_from_symbol(
   uint8_t *buffer,
   int file_size,
   const char *symbol,

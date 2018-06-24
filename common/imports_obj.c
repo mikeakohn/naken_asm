@@ -21,6 +21,8 @@
 #define SHT_SYMTAB 0x2
 #define SHT_STRTAB 0x3
 
+//#define DEBUG 1
+
 int imports_obj_verify(uint8_t *buffer, int file_size)
 {
   int i;
@@ -38,6 +40,8 @@ int imports_obj_verify(uint8_t *buffer, int file_size)
 #ifdef DEBUG
 static void imports_obj_elf_print_header32(struct _elf_header32 *elf_header)
 {
+  printf(" -- elf32 --\n");
+  printf("        e_ident=%.4s\n", elf_header->e_ident + 1);
   printf("  e_ident_class=%d\n", elf_header->e_ident_class);
   printf("   e_ident_data=%d\n", elf_header->e_ident_data);
   printf("e_ident_version=%d\n", elf_header->e_ident_version);
@@ -82,6 +86,7 @@ static void imports_obj_elf_print_symbol32(
   struct _elf_symbol32 *symbol,
   const char *name)
 {
+  printf(" -- symbol --\n");
   printf("st_name=%d %s\n", get_int32_le(symbol->st_name), name);
   printf("st_value=%d\n", get_int32_le(symbol->st_value));
   printf("st_size=%d\n", get_int32_le(symbol->st_size));
@@ -91,12 +96,13 @@ static void imports_obj_elf_print_symbol32(
 }
 #endif
 
-static uint32_t imports_obj_symbol_table_lookup_by_name(
+static int imports_obj_symbol_table_lookup_by_name(
   const uint8_t *symbol_table,
   int symbol_table_size,
   const uint8_t *symbol_string_table,
   int symbol_string_table_size,
   const char *symbol,
+  uint32_t *offset,
   uint32_t *function_size)
 {
   int ptr = 0;
@@ -119,13 +125,14 @@ static uint32_t imports_obj_symbol_table_lookup_by_name(
     if (strcmp(name, symbol) == 0)
     {
       *function_size = st_size;
-      return get_int32_le(elf_symbol32->st_value);
+      *offset = get_int32_le(elf_symbol32->st_value);
+      return 0;
     }
 
     ptr += 16;
   }
 
-  return 0;
+  return -1;
 }
 
 static const char *imports_obj_symbol_table_lookup_by_offset(
@@ -149,7 +156,7 @@ static const char *imports_obj_symbol_table_lookup_by_offset(
     if (st_name > symbol_string_table_size) { st_name = 0; }
 
 #ifdef DEBUG
-    imports_obj_elf_print_symbol32(elf_symbol32, name);
+    imports_obj_elf_print_symbol32(elf_symbol32, (const char *)(symbol_string_table + st_name));
 #endif
 
     //if (offset >= st_value && offset < st_value + st_size)
@@ -164,7 +171,7 @@ static const char *imports_obj_symbol_table_lookup_by_offset(
   return NULL;
 }
 
-uint32_t imports_obj_find_code_from_symbol(
+int imports_obj_find_code_from_symbol(
   uint8_t *buffer,
   int file_size,
   const char *symbol,
@@ -186,7 +193,7 @@ uint32_t imports_obj_find_code_from_symbol(
 
   elf_header = (struct _elf_header32 *)buffer;
 #if DEBUG
-  elf_print_header32(elf_header);
+  imports_obj_elf_print_header32(elf_header);
 #endif
 
   int section_count = get_int16_le(elf_header->e_shnum);
@@ -217,7 +224,7 @@ uint32_t imports_obj_find_code_from_symbol(
     const char *name = (char *)(section_string_table + sh_name);
 
 #ifdef DEBUG
-    elf_print_section32(section, i, name);
+    imports_obj_elf_print_section32(section, i, name);
 #endif
 
     if (sh_type == SHT_SYMTAB)
@@ -242,17 +249,23 @@ uint32_t imports_obj_find_code_from_symbol(
 
   if (symbol_table != NULL && symbol_string_table != NULL)
   {
-    uint32_t address = imports_obj_symbol_table_lookup_by_name(
+    uint32_t offset = 0;
+
+    int ret = imports_obj_symbol_table_lookup_by_name(
        symbol_table,
        symbol_table_size,
        symbol_string_table,
        symbol_string_table_size,
        symbol,
+       &offset,
        function_size);
 
-     *file_offset = text_offset + address;
+     if (ret == 0)
+     {
+       *file_offset = text_offset + offset;
 
-     if (address != 0) { return address; }
+       return 1;
+     }
   }
 
   return 0;
@@ -275,7 +288,7 @@ const char *imports_obj_find_name_from_offset(
 
   elf_header = (struct _elf_header32 *)buffer;
 #ifdef DEBUG
-  elf_print_header32(elf_header);
+  imports_obj_elf_print_header32(elf_header);
 #endif
 
   int section_count = get_int16_le(elf_header->e_shnum);
@@ -305,7 +318,7 @@ const char *imports_obj_find_name_from_offset(
     const char *name = (char *)(section_string_table + sh_name);
 
 #ifdef DEBUG
-    elf_print_section32(section, i, name);
+    imports_obj_elf_print_section32(section, i, name);
 #endif
 
     if (sh_type == SHT_SYMTAB)

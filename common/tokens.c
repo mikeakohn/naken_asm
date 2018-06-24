@@ -570,9 +570,22 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
     uint32_t address;
     int ret = -1;
 
-    if (asm_context->no_symbols == 0)
+    if (asm_context->ignore_symbols == 0)
     {
       ret = symbols_lookup(&asm_context->symbols, token, &address);
+
+      // FIXME: This is going to be slow.  There are ways to make this
+      // a lot faster.
+      if (ret == -1 && asm_context->linker != NULL && asm_context->pass == 1)
+      {
+        // If this is a symbol in an object file, pretend it's a string for
+        // now so expressions fail.  On pass 2 it should be in the
+        // symbols_lookup table.
+        if (linker_search_code_from_symbol(asm_context->linker, token) == 1)
+        {
+          return token_type;
+        }
+      }
     }
       else
     {

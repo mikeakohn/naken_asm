@@ -203,7 +203,7 @@ int imports_ar_find_symbol_section_offset(
   return -1;
 }
 
-uint32_t imports_ar_find_code_from_symbol(
+int imports_ar_find_code_from_symbol(
   uint8_t *buffer,
   int file_size,
   const char *symbol,
@@ -221,20 +221,20 @@ uint32_t imports_ar_find_code_from_symbol(
 
   if (section_offset == -1)
   {
-    printf("Error: Could not find symbol\n");
+    //printf("Error: Could not find symbol %s\n", symbol);
     return -1;
   }
 
-  printf("section_offset=0x%x\n", section_offset);
+  //printf("section_offset=0x%x\n", section_offset);
 
   // FIXME: Get the correct size.
   int section_size = file_size;
 
-  uint32_t offset = imports_obj_find_code_from_symbol(buffer + section_offset + 60, section_size, symbol, function_size, file_offset);
+  int ret = imports_obj_find_code_from_symbol(buffer + section_offset + 60, section_size, symbol, function_size, file_offset);
 
   *file_offset += section_offset + 60;
 
-  return offset;
+  return ret;
 }
 
 const char *imports_ar_find_name_from_offset(

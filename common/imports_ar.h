@@ -16,7 +16,7 @@ int imports_ar_verify(uint8_t *buffer, int file_size);
 
 int imports_ar_read(uint8_t *buffer, int file_size);
 
-uint32_t imports_ar_find_code_from_symbol(
+int imports_ar_find_code_from_symbol(
   uint8_t *buffer,
   int file_size,
   const char *symbol,
