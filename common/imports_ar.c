@@ -14,7 +14,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "elf.h"
 #include "imports_get_int.h"
 #include "imports_ar.h"
 #include "imports_obj.h"
