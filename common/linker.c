@@ -56,7 +56,7 @@ static struct _imports *linker_get_from_symbol_list(
       return symbol_list->imports;
     }
 
-    ptr += sizeof(struct _symbol_list *) + strlen(symbol_list->name) + 1;
+    ptr += sizeof(struct _symbol_list) + strlen(symbol_list->name) + 1;
   }
 
   return NULL;
@@ -79,7 +79,7 @@ static void linker_add_to_symbol_list(
   // If this symbol is already in the list, then don't add it again.
   //if (linker_get_from_symbol_list(linker, name) != NULL) { return; }
 
-  const int len = sizeof(struct _imports *) + strlen(name) + 1;
+  const int len = sizeof(struct _symbol_list) + strlen(name) + 1;
 
   if (linker->symbol_list_buffer_end + len >= linker->symbol_list_buffer_size)
   {
@@ -220,10 +220,13 @@ int linker_search_code_from_symbol(
 
 uint8_t *linker_get_code_from_symbol(
   struct _linker *linker,
+  struct _imports **ret_imports,
   const char *symbol,
   uint32_t *function_size)
 {
   if (linker == NULL) { return NULL; }
+
+  *ret_imports = NULL;
 
   struct _imports *imports;
   uint32_t file_offset;
@@ -261,6 +264,7 @@ uint8_t *linker_get_code_from_symbol(
 
     if (ret != -1)
     {
+      *ret_imports = imports;
       return imports->code + file_offset;
     }
 
@@ -314,7 +318,7 @@ int linker_get_symbol_count(struct _linker *linker)
   while(ptr < end)
   {
     symbol_list = (struct _symbol_list *)(buffer + ptr);
-    ptr += sizeof(struct _symbol_list *) + strlen(symbol_list->name) + 1;
+    ptr += sizeof(struct _symbol_list) + strlen(symbol_list->name) + 1;
     count++;
   }
 
@@ -336,7 +340,7 @@ const char *linker_get_symbol_at_index(struct _linker *linker, int index)
       return symbol_list->name;
     }
 
-    ptr += sizeof(struct _symbol_list *) + strlen(symbol_list->name) + 1;
+    ptr += sizeof(struct _symbol_list) + strlen(symbol_list->name) + 1;
     count++;
   }
 
@@ -357,7 +361,7 @@ void linker_print_symbol_list(struct _linker *linker)
 
     printf(" %d) %p %s\n", count, symbol_list->imports, symbol_list->name);
 
-    ptr += sizeof(struct _symbol_list *) + strlen(symbol_list->name) + 1;
+    ptr += sizeof(struct _symbol_list) + strlen(symbol_list->name) + 1;
     count++;
   }
 }

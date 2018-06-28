@@ -12,6 +12,7 @@
 #ifndef _CPU_LIST_H
 #define _CPU_LIST_H
 
+#include "common/linker.h"
 #include "simulate/common.h"
 
 struct _asm_context;
@@ -20,7 +21,7 @@ struct _simulate;
 
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
 typedef int (*parse_directive_t)(struct _asm_context *, const char *);
-typedef int (*link_function_t)(struct _asm_context *, const uint8_t *, int size);
+typedef int (*link_function_t)(struct _asm_context *, struct _imports *, const uint8_t *, int size);
 typedef void (*list_output_t)(struct _asm_context *, uint32_t, uint32_t);
 typedef void (*disasm_range_t)(struct _memory *, uint32_t, uint32_t, uint32_t);
 //typedef struct _simulate *(*simulate_init_t)(struct _memory *memory);

@@ -223,7 +223,7 @@ void symbols_lock(struct _symbols *symbols)
   symbols->locked = 1;
 }
 
-int symbols_lookup(struct _symbols *symbols, char *name, uint32_t *address)
+int symbols_lookup(struct _symbols *symbols, const char *name, uint32_t *address)
 {
   struct _symbols_data *symbols_data = symbols_find(symbols, name);
 

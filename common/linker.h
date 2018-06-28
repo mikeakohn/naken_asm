@@ -12,6 +12,8 @@
 #ifndef _LINKER_H
 #define _LINKER_H
 
+#include <stdint.h>
+
 enum
 {
   IMPORT_TYPE_AR,
@@ -48,6 +50,7 @@ int linker_search_code_from_symbol(
 
 uint8_t *linker_get_code_from_symbol(
   struct _linker *linker,
+  struct _imports **imports,
   const char *symbol,
   uint32_t *function_size);
 

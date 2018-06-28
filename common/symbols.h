@@ -64,7 +64,7 @@ int symbols_append(struct _symbols *symbols, const char *name, uint32_t address)
 int symbols_set(struct _symbols *symbols, char *name, uint32_t address);
 int symbols_export(struct _symbols *symbols, char *name);
 void symbols_lock(struct _symbols *symbols);
-int symbols_lookup(struct _symbols *symbols, char *name, uint32_t *address);
+int symbols_lookup(struct _symbols *symbols, const char *name, uint32_t *address);
 int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter);
 int symbols_print(struct _symbols *symbols, FILE *out);
 int symbols_count(struct _symbols *symbols);

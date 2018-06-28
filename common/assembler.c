@@ -407,12 +407,15 @@ int assembler_link(struct _asm_context *asm_context)
 {
   if (asm_context->linker == NULL) { return 0; }
 
-  int count = linker_get_symbol_count(asm_context->linker);
-  int index;
+  struct _imports *imports;
+  int index = 0;
 
-  for (index = 0; index < count; index++)
+  while(1)
   {
     const char *symbol = linker_get_symbol_at_index(asm_context->linker, index);
+
+    if (symbol == NULL) { break; }
+
     symbols_append(&asm_context->symbols, symbol, asm_context->address);
 
     uint8_t *code;
@@ -420,23 +423,22 @@ int assembler_link(struct _asm_context *asm_context)
 
     code = linker_get_code_from_symbol(
       asm_context->linker,
+      &imports,
       symbol,
       &function_size);
 
-    if (asm_context->pass == 1)
+    if (asm_context->link_function(asm_context, imports, code, function_size) != 0)
     {
-      if (asm_context->link_function(asm_context, code, function_size) != 0)
-      {
-        return -1;
-      }
+      return -1;
     }
-      else
+
+    if (asm_context->pass == 2)
     {
       if (asm_context->list != NULL && asm_context->write_list_file == 1)
       {
         uint32_t address;
 
-        fprintf(asm_context->list, "%s:\n", symbol);
+        fprintf(asm_context->list, "[import]\n%s:", symbol);
 
         // FIXME: make symbols_lookup inputs const char *
         if (symbols_lookup(&asm_context->symbols, (char *)symbol, &address) == 0)
@@ -446,6 +448,8 @@ int assembler_link(struct _asm_context *asm_context)
         }
       }
     }
+
+    index++;
   }
 
   return 0;

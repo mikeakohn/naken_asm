@@ -132,7 +132,7 @@ struct _elf_symbol64
   uint8_t st_size[8];
 };
 
-int imports_obj_verify(uint8_t *buffer, int file_size);
+int imports_obj_verify(const uint8_t *buffer, int file_size);
 
 int imports_obj_find_code_from_symbol(
   uint8_t *buffer,
@@ -142,7 +142,7 @@ int imports_obj_find_code_from_symbol(
   uint32_t *file_offset);
 
 const char *imports_obj_find_name_from_offset(
-  uint8_t *buffer,
+  const uint8_t *buffer,
   int file_size,
   uint32_t offset);
 

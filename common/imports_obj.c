@@ -23,7 +23,7 @@
 
 //#define DEBUG 1
 
-int imports_obj_verify(uint8_t *buffer, int file_size)
+int imports_obj_verify(const uint8_t *buffer, int file_size)
 {
   int i;
 
@@ -122,7 +122,7 @@ static int imports_obj_symbol_table_lookup_by_name(
     imports_obj_elf_print_symbol32(elf_symbol32, name);
 #endif
 
-    if (strcmp(name, symbol) == 0)
+    if (st_size != 0 && strcmp(name, symbol) == 0)
     {
       *function_size = st_size;
       *offset = get_int32_le(elf_symbol32->st_value);
@@ -152,6 +152,7 @@ static const char *imports_obj_symbol_table_lookup_by_offset(
     int st_name = get_int32_le(elf_symbol32->st_name);
     int st_value = get_int32_le(elf_symbol32->st_value);
     //int st_size = get_int32_le(elf_symbol32->st_size);
+    int st_info = elf_symbol32->st_info;
 
     if (st_name > symbol_string_table_size) { st_name = 0; }
 
@@ -160,7 +161,7 @@ static const char *imports_obj_symbol_table_lookup_by_offset(
 #endif
 
     //if (offset >= st_value && offset < st_value + st_size)
-    if (offset == st_value)
+    if (offset == st_value && (st_info >> 4) == 1)
     {
       return (const char *)(symbol_string_table + st_name);
     }
@@ -272,7 +273,7 @@ int imports_obj_find_code_from_symbol(
 }
 
 const char *imports_obj_find_name_from_offset(
-  uint8_t *buffer,
+  const uint8_t *buffer,
   int file_size,
   uint32_t offset)
 {

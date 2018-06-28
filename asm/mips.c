@@ -20,6 +20,7 @@
 #include "common/tokens.h"
 #include "common/eval_expression.h"
 #include "common/eval_expression_ex.h"
+#include "common/imports_obj.h"
 #include "table/mips.h"
 
 enum
@@ -1993,9 +1994,10 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   return -1;
 }
 
-int link_function_mips(struct _asm_context *asm_context, const uint8_t *code, int size)
+int link_function_mips(struct _asm_context *asm_context, struct _imports *imports, const uint8_t *code, int size)
 {
   uint32_t opcode;
+  uint32_t offset;
   int n;
 
   for (n = 0; n < size; n = n + 4)
@@ -2013,6 +2015,40 @@ int link_function_mips(struct _asm_context *asm_context, const uint8_t *code, in
               (code[n + 2] << 8) |
               (code[n + 1] << 16) |
               (code[n + 0] << 24);
+    }
+
+    if ((opcode & 0xfc000000) == 0x0c000000)
+    {
+      //printf("jal detected @ 0x%04x\n", asm_context->address);
+
+      offset = opcode & 0x03000000;
+
+      const char *symbol = imports_obj_find_name_from_offset(
+        imports->code, imports->size, offset);
+
+      //printf("call to %s\n", symbol);
+
+      if (asm_context->pass == 1)
+      {
+        if (linker_search_code_from_symbol(asm_context->linker, symbol) == 0)
+        {
+          printf("Error: Symbol not found %s\n", symbol);
+          return -1;
+        }
+      }
+        else
+      {
+        uint32_t address;
+
+        if (symbols_lookup(&asm_context->symbols, symbol, &address) != 0)
+        {
+          printf("Error: Symbol not found %s\n", symbol);
+          return -1;
+        }
+
+        opcode = opcode & 0xfc000000;
+        opcode |= address >> 2;
+      }
     }
 
     add_bin32(asm_context, opcode, IS_OPCODE);
