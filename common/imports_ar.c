@@ -124,6 +124,8 @@ int imports_ar_read(uint8_t *buffer, int file_size)
       imports_ar_read_lookup_table(buffer + ptr, size);
     }
 
+    if ((size & 1) != 0) { size++; }
+
     ptr += size;
   }
 
@@ -152,6 +154,8 @@ static int imports_ar_find_lookup_table(uint8_t *buffer, int file_size)
     {
       return ptr;
     }
+
+    if ((size & 1) != 0) { size++; }
 
     ptr += 60 + size;
   }
@@ -265,6 +269,8 @@ const char *imports_ar_find_name_from_offset(
       name = imports_obj_find_name_from_offset(buffer + ptr + 60, size, offset);
       if (name != NULL) { return name; }
     }
+
+    if ((size & 1) != 0) { size++; }
 
     ptr += 60 + size;
   }
