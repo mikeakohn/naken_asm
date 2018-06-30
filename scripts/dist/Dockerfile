@@ -5,4 +5,6 @@ RUN yum -y install gcc-c++ git-all make readline-devel rpmdevtools wget
 RUN mkdir -p /storage/git
 RUN cd /storage/git && git clone https://github.com/mikeakohn/naken_asm.git
 RUN cd /storage/git && git clone https://github.com/mikeakohn/java_grinder.git
+ADD naken_asm.spec.templ /home/makerpm/
+ADD build.sh /home/makerpm/
 

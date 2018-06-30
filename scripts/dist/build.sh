@@ -46,4 +46,3 @@ then
   cp rpmbuild/RPMS/x86_64/naken_asm-${RPM_VERSION}-1.el7.centos.x86_64.rpm /dist/
 fi
 
-
