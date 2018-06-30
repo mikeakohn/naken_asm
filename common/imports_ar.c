@@ -211,7 +211,9 @@ int imports_ar_find_code_from_symbol(
   int file_size,
   const char *symbol,
   uint32_t *function_size,
-  uint32_t *file_offset)
+  uint32_t *file_offset,
+  uint8_t **obj_file,
+  uint32_t *obj_size)
 {
   //int section_offset;
   struct _header *header;
@@ -221,6 +223,8 @@ int imports_ar_find_code_from_symbol(
 
   *function_size = 0;
   *file_offset = 0;
+  *obj_file = NULL;
+  *obj_size = 0;
 
   if (imports_ar_read_signature(buffer, file_size) != 0) { return -1; }
 
@@ -257,6 +261,8 @@ int imports_ar_find_code_from_symbol(
       if (ret == 0)
       {
         *file_offset += ptr + 60;
+        *obj_file = buffer + ptr + 60;
+        *obj_size = size;
 
 #if 0
 printf("linker_get_code_from_symbol(%s) file_offset=%d ret=%d function_size=%d\n",

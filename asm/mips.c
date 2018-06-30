@@ -1994,7 +1994,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   return -1;
 }
 
-int link_function_mips(struct _asm_context *asm_context, struct _imports *imports, const uint8_t *code, int size)
+int link_function_mips(struct _asm_context *asm_context, struct _imports *imports, const uint8_t *code, int size, uint8_t *obj_file, uint32_t obj_size)
 {
   uint32_t opcode;
   uint32_t offset;
@@ -2023,13 +2023,15 @@ int link_function_mips(struct _asm_context *asm_context, struct _imports *import
 
       offset = opcode & 0x03000000;
 
-#if 0
-      const char *symbol = imports_obj_find_name_from_offset(
-        imports->code, imports->size, offset);
-#endif
+      // This needs to be from the same .o file as this function.
+      //const char *symbol = imports_obj_find_name_from_offset(
+      //  imports->code, imports->size, offset);
 
-      const char *symbol = linker_find_name_from_offset(
-        asm_context->linker, offset);
+      const char *symbol = imports_obj_find_name_from_offset(
+        obj_file, obj_size, offset);
+
+      //const char *symbol = linker_find_name_from_offset(
+      //  asm_context->linker, offset);
 
       if (symbol == NULL)
       {

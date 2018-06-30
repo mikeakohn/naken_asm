@@ -21,7 +21,9 @@ int imports_ar_find_code_from_symbol(
   int file_size,
   const char *symbol,
   uint32_t *function_size,
-  uint32_t *file_offset);
+  uint32_t *file_offset,
+  uint8_t **obj_file,
+  uint32_t *obj_size);
 
 const char *imports_ar_find_name_from_offset(
   uint8_t *buffer,

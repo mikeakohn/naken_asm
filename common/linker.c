@@ -187,12 +187,17 @@ int linker_search_code_from_symbol(
   {
     if (imports->type == IMPORT_TYPE_AR)
     {
+      uint8_t *obj_file;
+      uint32_t obj_size;
+
       ret = imports_ar_find_code_from_symbol(
         imports->code,
         imports->size,
         symbol,
         &function_size,
-        &file_offset);
+        &file_offset,
+        &obj_file,
+        &obj_size);
     }
       else
     if (imports->type == IMPORT_TYPE_OBJ)
@@ -222,7 +227,9 @@ uint8_t *linker_get_code_from_symbol(
   struct _linker *linker,
   struct _imports **ret_imports,
   const char *symbol,
-  uint32_t *function_size)
+  uint32_t *function_size,
+  uint8_t **obj_file,
+  uint32_t *obj_size)
 {
   if (linker == NULL) { return NULL; }
 
@@ -249,7 +256,9 @@ uint8_t *linker_get_code_from_symbol(
         imports->size,
         symbol,
         function_size,
-        &file_offset);
+        &file_offset,
+        obj_file,
+        obj_size);
     }
       else
     if (imports->type == IMPORT_TYPE_OBJ)
@@ -260,6 +269,9 @@ uint8_t *linker_get_code_from_symbol(
         symbol,
         function_size,
         &file_offset);
+
+      *obj_file = imports->code;
+      *obj_size = imports->size;
     }
 
     if (ret != -1)

@@ -420,14 +420,18 @@ int assembler_link(struct _asm_context *asm_context)
 
     uint8_t *code;
     uint32_t function_size;
+    uint8_t *obj_file;
+    uint32_t obj_size;
 
     code = linker_get_code_from_symbol(
       asm_context->linker,
       &imports,
       symbol,
-      &function_size);
+      &function_size,
+      &obj_file,
+      &obj_size);
 
-    if (asm_context->link_function(asm_context, imports, code, function_size) != 0)
+    if (asm_context->link_function(asm_context, imports, code, function_size, obj_file, obj_size) != 0)
     {
       return -1;
     }

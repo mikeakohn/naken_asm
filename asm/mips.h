@@ -15,7 +15,7 @@
 #include "common/assembler.h"
 
 int parse_instruction_mips(struct _asm_context *asm_context, char *instr);
-int link_function_mips(struct _asm_context *asm_context, struct _imports *imports, const uint8_t *code, int size);
+int link_function_mips(struct _asm_context *asm_context, struct _imports *imports, const uint8_t *code, int size, uint8_t *obj_file, uint32_t obj_size);
 
 #endif
 
