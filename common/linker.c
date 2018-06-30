@@ -173,9 +173,9 @@ int linker_search_code_from_symbol(
   if (linker == NULL) { return -1; }
 
   struct _imports *imports = linker->imports;
-  uint32_t offset;
   uint32_t function_size;
   uint32_t file_offset;
+  int ret;
 
   // If this symbol is already in the list, then don't search it again.
   if (linker_get_from_symbol_list(linker, symbol) != NULL) { return 1; }
@@ -187,7 +187,7 @@ int linker_search_code_from_symbol(
   {
     if (imports->type == IMPORT_TYPE_AR)
     {
-      offset = imports_ar_find_code_from_symbol(
+      ret = imports_ar_find_code_from_symbol(
         imports->code,
         imports->size,
         symbol,
@@ -197,7 +197,7 @@ int linker_search_code_from_symbol(
       else
     if (imports->type == IMPORT_TYPE_OBJ)
     {
-      offset = imports_obj_find_code_from_symbol(
+      ret = imports_obj_find_code_from_symbol(
         imports->code,
         imports->size,
         symbol,
@@ -205,7 +205,7 @@ int linker_search_code_from_symbol(
         &file_offset);
     }
 
-    if (offset != 0)
+    if (ret != -1)
     {
       linker_add_to_symbol_list(linker, imports, symbol);
 
