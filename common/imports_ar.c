@@ -213,31 +213,68 @@ int imports_ar_find_code_from_symbol(
   uint32_t *function_size,
   uint32_t *file_offset)
 {
-  int section_offset;
+  //int section_offset;
+  struct _header *header;
+  int ptr = 8;
+  int i;
+  int ret = -1;
 
   *function_size = 0;
   *file_offset = 0;
 
   if (imports_ar_read_signature(buffer, file_size) != 0) { return -1; }
 
-  section_offset = imports_ar_find_symbol_section_offset(buffer, file_size, symbol);
-
-  if (section_offset == -1)
+  while(ptr < file_size)
   {
-    //printf("Error: Could not find symbol %s\n", symbol);
-    return -1;
+    header = (struct _header *)(buffer + ptr);
+
+#if 0
+    printf("file_identifier: %.16s\n", header->file_identifier);
+    printf("      timestamp: %.12s\n", header->timestamp);
+    printf("       owner_id: %.6s\n", header->owner_id);
+    printf("       group_id: %.6s\n", header->group_id);
+    printf("           mode: %.8s\n", header->mode);
+    printf("           size: %.10s\n", header->size);
+    printf("            end: %02x %02x\n", header->end[0], header->end[1]);
+#endif
+
+    int size = 0;
+
+    for (i = 0; i < 10; i++)
+    {
+      if (header->size[i] == ' ') { break; }
+      size = (size * 10) + (header->size[i] - '0');
+    }
+
+    if (strncmp(header->file_identifier, "/               ", 16) != 0 &&
+        buffer[ptr + 60] == 0x7f &&
+        buffer[ptr + 61] == 'E' &&
+        buffer[ptr + 62] == 'L' &&
+        buffer[ptr + 63] == 'F')
+    {
+      ret = imports_obj_find_code_from_symbol(buffer + ptr + 60, size, symbol, function_size, file_offset);
+
+      if (ret == 0)
+      {
+        *file_offset += ptr + 60;
+
+#if 0
+printf("linker_get_code_from_symbol(%s) file_offset=%d ret=%d function_size=%d\n",
+  symbol,
+  *file_offset += ptr + 60,
+  ret,
+  *function_size);
+#endif
+        return ret;
+      }
+    }
+
+    if ((size & 1) != 0) { size++; }
+
+    ptr += 60 + size;
   }
 
-  //printf("section_offset=0x%x\n", section_offset);
-
-  // FIXME: Get the correct size.
-  int section_size = file_size;
-
-  int ret = imports_obj_find_code_from_symbol(buffer + section_offset + 60, section_size, symbol, function_size, file_offset);
-
-  *file_offset += section_offset + 60;
-
-  return ret;
+  return -1;
 }
 
 const char *imports_ar_find_name_from_offset(

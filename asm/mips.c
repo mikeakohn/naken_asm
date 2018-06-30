@@ -2023,8 +2023,19 @@ int link_function_mips(struct _asm_context *asm_context, struct _imports *import
 
       offset = opcode & 0x03000000;
 
+#if 0
       const char *symbol = imports_obj_find_name_from_offset(
         imports->code, imports->size, offset);
+#endif
+
+      const char *symbol = linker_find_name_from_offset(
+        asm_context->linker, offset);
+
+      if (symbol == NULL)
+      {
+        printf("Error: Couldn't find symbol name from offset.\n");
+        return -1;
+      }
 
       //printf("call to %s\n", symbol);
 
