@@ -253,23 +253,23 @@ int imports_obj_find_code_from_symbol(
     uint32_t offset = 0;
 
     int ret = imports_obj_symbol_table_lookup_by_name(
-       symbol_table,
-       symbol_table_size,
-       symbol_string_table,
-       symbol_string_table_size,
-       symbol,
-       &offset,
-       function_size);
+      symbol_table,
+      symbol_table_size,
+      symbol_string_table,
+      symbol_string_table_size,
+      symbol,
+      &offset,
+      function_size);
 
-     if (ret == 0)
-     {
-       *file_offset = text_offset + offset;
+    if (ret == 0)
+    {
+      *file_offset = text_offset + offset;
 
-       return 1;
-     }
+      return 0;
+    }
   }
 
-  return 0;
+  return -1;
 }
 
 const char *imports_obj_find_name_from_offset(
