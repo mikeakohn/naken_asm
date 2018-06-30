@@ -8,16 +8,16 @@
 ;;
 
 ;; System calls
-RFU000_FullReset equ 0
-ResetEE equ 1
-SetGsCrt equ 2
-AddIntcHandler equ 16
-RemoveIntcHandler equ 17
-_EnableIntc equ 20
-_DisableIntc equ 21
-EnableCache equ 97
-DisableCache equ 98
-FlushCache equ 100
-GsGetIMR equ 112
-GsPutIMR equ 113
+_RFU000_FullReset equ 0
+_ResetEE equ 1
+_SetGsCrt equ 2
+_AddIntcHandler equ 16
+_RemoveIntcHandler equ 17
+__EnableIntc equ 20
+__DisableIntc equ 21
+_EnableCache equ 97
+_DisableCache equ 98
+_FlushCache equ 100
+_GsGetIMR equ 112
+_GsPutIMR equ 113
 

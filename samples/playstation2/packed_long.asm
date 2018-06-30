@@ -31,7 +31,7 @@ main:
   sd $v0, ($v1)
 
   ;; Interrupt mask register
-  li $v1, GsPutIMR
+  li $v1, _GsPutIMR
   li $a0, 0xff00
   syscall
   nop
@@ -41,7 +41,7 @@ main:
   ;; frame          { PS2_FRAME = 1, PS2_FIELD = 0 };
 
   ;; SetGsCrt(s16 interlace, s16 pal_ntsc, s16 field);
-  li $v1, SetGsCrt
+  li $v1, _SetGsCrt
   li $a0, 1
   li $a1, 2
   li $a2, 0
@@ -158,7 +158,7 @@ install_vsync_handler:
   di
 
   ;; Add Vertical Blank End interrupt handler
-  li $v1, AddIntcHandler
+  li $v1, _AddIntcHandler
   li $a0, INTC_VBLANK_E
   li $a1, interrupt_vsync
   li $a2, 0
@@ -170,7 +170,7 @@ install_vsync_handler:
   sw $v0, ($v1)
 
   ;; Enable Vercial Blank interrupt
-  li $v1, _EnableIntc
+  li $v1, __EnableIntc
   li $a0, INTC_VBLANK_E
   syscall
   nop
