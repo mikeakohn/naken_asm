@@ -20,6 +20,7 @@
 
 #define SHT_SYMTAB 0x2
 #define SHT_STRTAB 0x3
+#define SHT_REL 0x9
 
 //#define DEBUG 1
 
@@ -135,7 +136,7 @@ static int imports_obj_symbol_table_lookup_by_name(
   return -1;
 }
 
-static const char *imports_obj_symbol_table_lookup_by_offset(
+static const char *imports_obj_symbol_table_lookup_by_local_offset(
   const uint8_t *symbol_table,
   int symbol_table_size,
   const uint8_t *symbol_string_table,
@@ -172,10 +173,74 @@ static const char *imports_obj_symbol_table_lookup_by_offset(
   return NULL;
 }
 
+static const char *imports_obj_symbol_table_lookup_by_offset(
+  const uint8_t *symbol_table,
+  int symbol_table_size,
+  const uint8_t *symbol_string_table,
+  int symbol_string_table_size,
+  const uint8_t *relocation_table,
+  int relocation_table_size,
+  uint32_t function_offset,
+  uint32_t local_offset)
+{
+  int ptr = 0;
+  struct _elf_relocation32 *elf_relocation32;
+
+  while(ptr < relocation_table_size)
+  {
+    elf_relocation32 = (struct _elf_relocation32 *)(relocation_table + ptr);
+
+    int r_offset = get_int32_le(elf_relocation32->r_offset);
+    int r_info = get_int32_le(elf_relocation32->r_info);
+
+#if DEBUG
+int r_type = r_info & 0xff;
+printf("r_offset=0x%04x offset=0x%04x type=%d\n", r_offset, function_offset, r_type);
+#endif
+
+    if (r_offset == function_offset)
+    {
+      int r_sym = r_info >> 8;
+
+      r_sym *= 16;
+
+      if (r_sym < symbol_table_size)
+      {
+        int symbol = get_int32_le(symbol_table + r_sym);
+
+        if (symbol < symbol_string_table_size)
+        {
+          const char *name = (const char *)(symbol_string_table + symbol);
+
+          if (name[0] != 0)
+          {
+            return name;
+          }
+
+          // Please excuse the long function name :(
+          name = imports_obj_symbol_table_lookup_by_local_offset(
+            symbol_table,
+            symbol_table_size,
+            symbol_string_table,
+            symbol_string_table_size,
+            local_offset);
+
+          return name;
+        }
+      }
+    }
+
+    ptr += 8;
+  }
+
+  return NULL;
+}
+
 int imports_obj_find_code_from_symbol(
   uint8_t *buffer,
   int file_size,
   const char *symbol,
+  uint32_t *function_offset,
   uint32_t *function_size,
   uint32_t *file_offset)
 {
@@ -264,6 +329,7 @@ int imports_obj_find_code_from_symbol(
     if (ret == 0)
     {
       *file_offset = text_offset + offset;
+      *function_offset = offset;
 
       return 0;
     }
@@ -275,7 +341,8 @@ int imports_obj_find_code_from_symbol(
 const char *imports_obj_find_name_from_offset(
   const uint8_t *buffer,
   int file_size,
-  uint32_t offset)
+  uint32_t function_offset,
+  uint32_t local_offset)
 {
   struct _elf_header32 *elf_header;
   struct _elf_section32 *section;
@@ -299,8 +366,10 @@ const char *imports_obj_find_name_from_offset(
 
   const uint8_t *symbol_table = NULL;
   const uint8_t *symbol_string_table = NULL;
+  const uint8_t *relocation_table = NULL;
   int symbol_table_size = 0;
   int symbol_string_table_size = 0;
+  int relocation_table_size = 0;
 
   // Point to strtab for section names.
   int e_shstrndx = get_int16_le(elf_header->e_shstrndx);
@@ -333,6 +402,12 @@ const char *imports_obj_find_name_from_offset(
       symbol_string_table = buffer + sh_offset;
       symbol_string_table_size = sh_size;
     }
+      else
+    if (sh_type == SHT_REL && strcmp(name, ".rel.text") == 0)
+    {
+      relocation_table = buffer + sh_offset;
+      relocation_table_size = sh_size;
+    }
 
     ptr += section_size;
   }
@@ -344,7 +419,10 @@ const char *imports_obj_find_name_from_offset(
        symbol_table_size,
        symbol_string_table,
        symbol_string_table_size,
-       offset);
+       relocation_table,
+       relocation_table_size,
+       function_offset,
+       local_offset);
 
     if (name != NULL) { return name; }
   }

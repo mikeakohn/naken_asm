@@ -173,6 +173,7 @@ int linker_search_code_from_symbol(
   if (linker == NULL) { return -1; }
 
   struct _imports *imports = linker->imports;
+  uint32_t function_offset;
   uint32_t function_size;
   uint32_t file_offset;
   int ret;
@@ -194,6 +195,7 @@ int linker_search_code_from_symbol(
         imports->code,
         imports->size,
         symbol,
+        &function_offset,
         &function_size,
         &file_offset,
         &obj_file,
@@ -206,6 +208,7 @@ int linker_search_code_from_symbol(
         imports->code,
         imports->size,
         symbol,
+        &function_offset,
         &function_size,
         &file_offset);
     }
@@ -228,6 +231,7 @@ uint8_t *linker_get_code_from_symbol(
   struct _imports **ret_imports,
   const char *symbol,
   uint32_t *function_size,
+  uint32_t *function_offset,
   uint8_t **obj_file,
   uint32_t *obj_size)
 {
@@ -256,6 +260,7 @@ uint8_t *linker_get_code_from_symbol(
         imports->size,
         symbol,
         function_size,
+        function_offset,
         &file_offset,
         obj_file,
         obj_size);
@@ -267,6 +272,7 @@ uint8_t *linker_get_code_from_symbol(
         imports->code,
         imports->size,
         symbol,
+        function_offset,
         function_size,
         &file_offset);
 
@@ -307,10 +313,13 @@ const char *linker_find_name_from_offset(
       else
     if (imports->type == IMPORT_TYPE_OBJ)
     {
+      const uint32_t local_offset = -1;
+
       name = imports_obj_find_name_from_offset(
         imports->code,
         imports->size,
-        offset);
+        offset,
+        local_offset);
     }
 
     if (name != NULL) { return name; }

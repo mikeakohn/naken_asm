@@ -52,6 +52,7 @@ uint8_t *linker_get_code_from_symbol(
   struct _linker *linker,
   struct _imports **imports,
   const char *symbol,
+  uint32_t *function_offset,
   uint32_t *function_size,
   uint8_t **obj_file,
   uint32_t *obj_size);

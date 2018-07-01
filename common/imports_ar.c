@@ -210,6 +210,7 @@ int imports_ar_find_code_from_symbol(
   uint8_t *buffer,
   int file_size,
   const char *symbol,
+  uint32_t *function_offset,
   uint32_t *function_size,
   uint32_t *file_offset,
   uint8_t **obj_file,
@@ -221,6 +222,7 @@ int imports_ar_find_code_from_symbol(
   int i;
   int ret = -1;
 
+  *function_offset = 0;
   *function_size = 0;
   *file_offset = 0;
   *obj_file = NULL;
@@ -256,7 +258,13 @@ int imports_ar_find_code_from_symbol(
         buffer[ptr + 62] == 'L' &&
         buffer[ptr + 63] == 'F')
     {
-      ret = imports_obj_find_code_from_symbol(buffer + ptr + 60, size, symbol, function_size, file_offset);
+      ret = imports_obj_find_code_from_symbol(
+        buffer + ptr + 60,
+        size,
+        symbol,
+        function_offset,
+        function_size,
+        file_offset);
 
       if (ret == 0)
       {
@@ -309,7 +317,10 @@ const char *imports_ar_find_name_from_offset(
 
     if (strncmp(header->file_identifier, "/               ", 16) != 0)
     {
-      name = imports_obj_find_name_from_offset(buffer + ptr + 60, size, offset);
+      const uint32_t local_offset = -1;
+
+      name = imports_obj_find_name_from_offset(buffer + ptr + 60, size, offset, local_offset);
+
       if (name != NULL) { return name; }
     }
 

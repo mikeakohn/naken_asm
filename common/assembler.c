@@ -419,6 +419,7 @@ int assembler_link(struct _asm_context *asm_context)
     symbols_append(&asm_context->symbols, symbol, asm_context->address);
 
     uint8_t *code;
+    uint32_t function_offset;
     uint32_t function_size;
     uint8_t *obj_file;
     uint32_t obj_size;
@@ -427,11 +428,23 @@ int assembler_link(struct _asm_context *asm_context)
       asm_context->linker,
       &imports,
       symbol,
+      &function_offset,
       &function_size,
       &obj_file,
       &obj_size);
 
-    if (asm_context->link_function(asm_context, imports, code, function_size, obj_file, obj_size) != 0)
+//printf("function_offset=%x function_size=%d symbol=%s\n", function_offset, function_size, symbol);
+
+    int ret = asm_context->link_function(
+      asm_context,
+      imports,
+      code,
+      function_offset,
+      function_size,
+      obj_file,
+      obj_size);
+
+    if (ret != 0)
     {
       return -1;
     }

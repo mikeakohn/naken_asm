@@ -20,6 +20,7 @@ int imports_ar_find_code_from_symbol(
   uint8_t *buffer,
   int file_size,
   const char *symbol,
+  uint32_t *function_offset,
   uint32_t *function_size,
   uint32_t *file_offset,
   uint8_t **obj_file,

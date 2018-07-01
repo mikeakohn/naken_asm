@@ -1994,10 +1994,17 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   return -1;
 }
 
-int link_function_mips(struct _asm_context *asm_context, struct _imports *imports, const uint8_t *code, int size, uint8_t *obj_file, uint32_t obj_size)
+int link_function_mips(
+  struct _asm_context *asm_context,
+  struct _imports *imports,
+  const uint8_t *code,
+  uint32_t function_offset,
+  int size,
+  uint8_t *obj_file,
+  uint32_t obj_size)
 {
   uint32_t opcode;
-  uint32_t offset;
+  uint32_t local_offset;
   int n;
 
   for (n = 0; n < size; n = n + 4)
@@ -2019,19 +2026,13 @@ int link_function_mips(struct _asm_context *asm_context, struct _imports *import
 
     if ((opcode & 0xfc000000) == 0x0c000000)
     {
-      //printf("jal detected @ 0x%04x\n", asm_context->address);
+      //printf("jal detected @ 0x%04x function_offset=0x%04x rel=0x%04x\n", asm_context->address, function_offset, function_offset + n);
 
-      offset = opcode & 0x03000000;
+      local_offset = opcode & 0x03000000;
 
       // This needs to be from the same .o file as this function.
-      //const char *symbol = imports_obj_find_name_from_offset(
-      //  imports->code, imports->size, offset);
-
       const char *symbol = imports_obj_find_name_from_offset(
-        obj_file, obj_size, offset);
-
-      //const char *symbol = linker_find_name_from_offset(
-      //  asm_context->linker, offset);
+        obj_file, obj_size, function_offset + n, local_offset);
 
       if (symbol == NULL)
       {
@@ -2039,7 +2040,7 @@ int link_function_mips(struct _asm_context *asm_context, struct _imports *import
         return -1;
       }
 
-      //printf("call to %s\n", symbol);
+      //printf("-> call to %s\n", symbol);
 
       if (asm_context->pass == 1)
       {

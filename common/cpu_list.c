@@ -87,7 +87,14 @@
 
 #define NO_FLAGS 0
 
-int link_not_supported(struct _asm_context *asm_context, struct _imports *imports, const uint8_t *code, int size, uint8_t *obj_file, uint32_t obj_size)
+int link_not_supported(
+  struct _asm_context *asm_context,
+  struct _imports *imports,
+  const uint8_t *code,
+  uint32_t function_offset,
+  int size,
+  uint8_t *obj_file,
+  uint32_t obj_size)
 {
   printf("Error: This platform doesn't support linking.\n");
   return -1;
