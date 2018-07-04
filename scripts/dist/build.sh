@@ -7,8 +7,9 @@ VERSION_H=`date +"%B %d, %Y"`
 PROGRAM=naken_asm
 FULLNAME=${PROGRAM}-${VERSION}
 
-cd ${SOURCEDIR}/${PROGRAM}
-git pull
+cd ${SOURCEDIR}
+#git pull
+cd /storage/git && git clone https://github.com/mikeakohn/naken_asm.git
 cd
 
 rm -rf rpmbuild
@@ -43,6 +44,6 @@ rpmbuild -ba naken_asm.spec
 if [ -d /dist ]
 then
   cp rpmbuild/SOURCES/${FULLNAME}.tar.gz /dist/
-  cp rpmbuild/RPMS/x86_64/naken_asm-${RPM_VERSION}-1.el7.centos.x86_64.rpm /dist/
+  cp rpmbuild/RPMS/x86_64/naken_asm-${RPM_VERSION}-1.el7.x86_64.rpm /dist/
 fi
 
