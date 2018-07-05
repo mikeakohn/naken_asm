@@ -344,7 +344,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
-    { 
+    {
       break;
     }
 
@@ -449,7 +449,9 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         operands[operand_count].value = n;
         operands[operand_count].num_size = num_size;
 
-        int is_w = 1;
+        uint8_t is_w = 1;
+        uint8_t is_e = 0;
+        uint8_t skip_case = 0;
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
         if (IS_TOKEN(token,'.'))
@@ -457,7 +459,9 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           token_type = tokens_get(asm_context, token, TOKENLEN);
           if (strcasecmp(token, "e") == 0)
           {
+            // REVIEW: Look over why these are set like this.
             is_w = 0;
+            is_e = 1;
           }
             else
           if (strcasecmp(token, "w") != 0)
@@ -478,35 +482,50 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         if (strcasecmp(token,"X") == 0)
         {
           operands[operand_count].type = OP_INDIRECT8_X;
+
+          if (is_e == 1)
+          {
+            operands[operand_count].type = OP_INDIRECT16_E_X;
+            skip_case = 1;
+          }
         }
           else
         if (strcasecmp(token,"Y") == 0)
         {
           operands[operand_count].type = OP_INDIRECT8_Y;
+
+          if (is_e == 1)
+          {
+            operands[operand_count].type = OP_INDIRECT16_E_Y;
+            skip_case = 1;
+          }
         }
           else
         {
           print_error_unexp(token, asm_context);
         }
 
-        switch(num_size)
+        if (skip_case == 0)
         {
-          case NUM_SIZE_SHORT:
-            if (is_w == 0)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-            break;
-          case NUM_SIZE_WORD:
-            operands[operand_count].type++;
-            if (is_w == 0) { operands[operand_count].type++; }
-            break;
-          default:
-            // FIXME - bad error message
-            //print_error_range(instr, 0, 0xffff, asm_context);
-            //return -1;
-            break;
+          switch(num_size)
+          {
+            case NUM_SIZE_SHORT:
+              if (is_w == 0 && is_e != 1)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+              break;
+            case NUM_SIZE_WORD:
+              operands[operand_count].type++;
+              if (is_w == 0) { operands[operand_count].type++; }
+              break;
+            default:
+              // FIXME - bad error message
+              //print_error_range(instr, 0, 0xffff, asm_context);
+              //return -1;
+              break;
+          }
         }
       }
         else
@@ -816,7 +835,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_OFFSET24_INDEX_X:
         {
-          if (operand_count <= 2 && 
+          if (operand_count <= 2 &&
               (operands[0].type == OP_OFFSET24_INDEX_X ||
                operands[0].type == OP_OFFSET16_INDEX_X ||
                operands[0].type == OP_OFFSET8_INDEX_X))
@@ -875,7 +894,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
         case OP_OFFSET24_INDEX_Y:
         {
-          if (operand_count <= 2 && 
+          if (operand_count <= 2 &&
               (operands[0].type == OP_OFFSET24_INDEX_Y ||
                operands[0].type == OP_OFFSET16_INDEX_Y ||
                operands[0].type == OP_OFFSET8_INDEX_Y))
@@ -1122,7 +1141,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         case OP_ADDRESS8_ADDRESS8:
         {
           if (operand_count == 2 &&
-              operands[0].type == OP_ADDRESS8 && 
+              operands[0].type == OP_ADDRESS8 &&
               operands[1].type == OP_ADDRESS8)
           {
             return add_bin_num8_num8(asm_context, n, operands[0].value, operands[1].value);
