@@ -487,6 +487,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           {
             operands[operand_count].type = OP_INDIRECT16_E_X;
             skip_case = 1;
+            if (check_range(asm_context, "address", operands[operand_count].value, 0, 0xffff) == -1) { return -1; }
           }
         }
           else
@@ -498,6 +499,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           {
             operands[operand_count].type = OP_INDIRECT16_E_Y;
             skip_case = 1;
+            if (check_range(asm_context, "address", operands[operand_count].value, 0, 0xffff) == -1) { return -1; }
           }
         }
           else
