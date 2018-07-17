@@ -47,7 +47,7 @@ struct _asm_context
   FILE *list;
   int address;
   int segment;
-  int line;
+  //int line;
   int pass;
   int instruction_count;
   int data_count;

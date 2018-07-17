@@ -327,7 +327,7 @@ printf("Paren got back %d\n", paren_num);
 
     if (token_type == TOKEN_EOL)
     {
-      //asm_context->line++;
+      //asm_context->tokens.line++;
       tokens_push(asm_context, token, token_type);
       break;
     }
@@ -388,7 +388,7 @@ PRINT_STACK()
       // Stack pointer probably shouldn't be less than 2
       if (num_stack_ptr == 0)
       {
-        printf("Error: Unexpected operator '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->line);
+        printf("Error: Unexpected operator '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->tokens.line);
         return -1;
       }
 

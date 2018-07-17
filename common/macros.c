@@ -445,7 +445,7 @@ printf("debug> macros_parse() param %s\n", token);
       if (token_type != TOKEN_STRING)
       {
         printf("Error: Expected a param name but got '%s' at %s:%d.\n", token,
-          asm_context->tokens.filename, asm_context->line);
+          asm_context->tokens.filename, asm_context->tokens.line);
         return -1;
       }
 
@@ -499,7 +499,7 @@ printf("debug> macros_parse() param %s\n", token);
       return -1;
     }
 
-    asm_context->line++;
+    asm_context->tokens.line++;
   }
 
 #ifdef DEBUG
@@ -590,7 +590,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
           return -1;
         }
 
-        asm_context->line++;
+        asm_context->tokens.line++;
 
         continue;
       }
@@ -598,7 +598,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
 
     if (ch == '\n' || ch == EOF)
     {
-      asm_context->line++;
+      asm_context->tokens.line++;
 
       if (macro_type == IS_DEFINE)
       {
@@ -621,7 +621,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
     macro[ptr++] = ch;
     if (ptr >= MAX_MACRO_LEN - 2)
     {
-      printf("Internal error: macro longer than %d bytes on line %d\n", MAX_MACRO_LEN, asm_context->line);
+      printf("Internal error: macro longer than %d bytes on line %d\n", MAX_MACRO_LEN, asm_context->tokens.line);
       return -1;
     }
   }
@@ -701,7 +701,7 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
   if (count != param_count)
   {
     printf("Error: Macro expects %d params, but got only %d at %s:%d.\n",
-      param_count, count, asm_context->tokens.filename, asm_context->line);
+      param_count, count, asm_context->tokens.filename, asm_context->tokens.line);
     return NULL;
   }
 
@@ -770,7 +770,7 @@ printf("debug> macros_strip_comment()\n");
     ch = tokens_get_char(asm_context);
     if (ch == '\t') { ch = ' '; }
     if (ch == EOF) break;
-    if (ch == '\n') asm_context->line++;
+    if (ch == '\n') asm_context->tokens.line++;
     if (ch == '/' && last == '*') { break; }
     last = ch;
   }

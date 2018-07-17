@@ -165,7 +165,7 @@ int parse_instruction_tms9900(struct _asm_context *asm_context, char *instr)
           }
           if (n == 0)
           {
-            printf("Error: r0 cannot be used in a table at %s:%d.\n", asm_context->tokens.filename, asm_context->line);
+            printf("Error: r0 cannot be used in a table at %s:%d.\n", asm_context->tokens.filename, asm_context->tokens.line);
             return -1;
           }
           if (expect_token_s(asm_context,")") != 0) { return -1; }

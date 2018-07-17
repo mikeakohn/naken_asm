@@ -371,7 +371,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   {
     if (asm_context->pass == 2)
     {
-      printf("Warning: Instruction doesn't start on 16 bit boundary at %s:%d.  Padding with a 0.\n", asm_context->tokens.filename, asm_context->line);
+      printf("Warning: Instruction doesn't start on 16 bit boundary at %s:%d.  Padding with a 0.\n", asm_context->tokens.filename, asm_context->tokens.line);
     }
     memory_write_inc(asm_context, 0, DL_NO_CG);
   }
@@ -397,7 +397,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             print_error("Unexpected end of file", asm_context);
             return -1;
           }
-          asm_context->line++;
+          asm_context->tokens.line++;
         }
 
         lower_copy(instr_case, instr);
@@ -467,7 +467,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
           // Store a flag in this address to remind on pass 2 that this
           // instruction can't use CG.
-          memory_write(asm_context, asm_context->address, 1, asm_context->line);
+          memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
         }
           else
         {
@@ -614,7 +614,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   }
 
 #ifdef DEBUG
-  printf("-------- line=%d instr=%s bw=%d\n", asm_context->line, instr, bw);
+  printf("-------- line=%d instr=%s bw=%d\n", asm_context->tokens.line, instr, bw);
   for (n = 0; n < operand_count; n++)
   {
     printf("operand %d: value=%d type=%d error=%d\n", n, operands[n].value, operands[n].type, operands[n].error);
@@ -631,7 +631,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
       {
         if (operands[0].value == 0)
         {
-          memory_write(asm_context, asm_context->address, 1, asm_context->line);
+          memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
           operands[0].type = OPTYPE_REGISTER_INDIRECT;
         }
       }
@@ -766,7 +766,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             if (size != 0 && size != 16)
             {
               printf("Error: Instruction '%s' can't be used with .b at %s:%d\n",
-                instr, asm_context->tokens.filename, asm_context->line);
+                instr, asm_context->tokens.filename, asm_context->tokens.line);
               return -1;
             }
           }
@@ -776,7 +776,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             if (size != 0)
             {
               printf("Error: Instruction '%s' can't be used with .b/w at %s:%d\n",
-                 instr, asm_context->tokens.filename, asm_context->line);
+                 instr, asm_context->tokens.filename, asm_context->tokens.line);
               return -1;
             }
           }
@@ -1392,7 +1392,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             if (size != 0 && size != 16)
             {
               printf("Error: Instruction '%s' can't be used with .b at %s:%d\n",
-                instr, asm_context->tokens.filename, asm_context->line);
+                instr, asm_context->tokens.filename, asm_context->tokens.line);
               return -1;
             }
           }

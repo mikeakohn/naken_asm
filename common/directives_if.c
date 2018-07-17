@@ -38,7 +38,7 @@ int ifdef_ignore(struct _asm_context *asm_context)
 
     if (token_type == TOKEN_EOL)
     {
-      asm_context->line++;
+      asm_context->tokens.line++;
     }
       else
     if (token_type == TOKEN_POUND || IS_TOKEN(token,'.'))

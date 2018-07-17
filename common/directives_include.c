@@ -57,7 +57,7 @@ int binfile_parse(struct _asm_context *asm_context)
 
   if (asm_context->segment == SEGMENT_BSS)
   {
-    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->line);
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
     return -1;
   }
 
@@ -69,7 +69,7 @@ printf("binfile file %s.\n", token);
   in = fopen(token, "rb");
   if (in == NULL)
   {
-    printf("Cannot open binfile file '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->line);
+    printf("Cannot open binfile file '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->tokens.line);
     return -1;
   }
 
@@ -146,19 +146,19 @@ printf("including file %s.\n", token);
 
   if (asm_context->tokens.in == NULL)
   {
-    printf("Cannot open include file '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->line);
+    printf("Cannot open include file '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->tokens.line);
     ret = -1;
   }
     else
   {
-    oldline = asm_context->line;
+    oldline = asm_context->tokens.line;
 
     asm_context->tokens.filename = token;
-    asm_context->line = 1;
+    asm_context->tokens.line = 1;
 
     ret = assemble(asm_context);
 
-    asm_context->line = oldline;
+    asm_context->tokens.line = oldline;
   }
 
   if (asm_context->tokens.in != NULL) { fclose(asm_context->tokens.in); }

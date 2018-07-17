@@ -251,7 +251,7 @@ uint8_t memory_read(struct _asm_context *asm_context, uint32_t address)
 {
   if (address >= asm_context->memory.size)
   {
-    printf("Warning: Data read address %d overran %d byte boundary at %s:%d\n", address, asm_context->memory.size, asm_context->tokens.filename, asm_context->line);
+    printf("Warning: Data read address %d overran %d byte boundary at %s:%d\n", address, asm_context->memory.size, asm_context->tokens.filename, asm_context->tokens.line);
     return 0;
   }
 
@@ -267,7 +267,7 @@ void memory_write(struct _asm_context *asm_context, uint32_t address, uint8_t da
 {
   if (address >= asm_context->memory.size)
   {
-    printf("Warning: Data write address %d overran %d byte boundary at %s:%d\n", address, asm_context->memory.size, asm_context->tokens.filename, asm_context->line);
+    printf("Warning: Data write address %d overran %d byte boundary at %s:%d\n", address, asm_context->memory.size, asm_context->tokens.filename, asm_context->tokens.line);
     return;
   }
 

@@ -345,7 +345,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
 
     if (token_type == TOKEN_EOL)
     {
-      //asm_context->line++;
+      //asm_context->tokens.line++;
       tokens_push(asm_context, token, token_type);
       break;
     }
@@ -413,7 +413,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
       // Stack pointer probably shouldn't be less than 2
       if (var_stack_ptr == 0)
       {
-        printf("Error: Unexpected operator '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->line);
+        printf("Error: Unexpected operator '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->tokens.line);
         return -1;
       }
 

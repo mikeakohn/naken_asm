@@ -101,7 +101,7 @@ static int get_address(struct _asm_context *asm_context,
 
     // Store a flag in this address to remind on pass 2 that this
     // instruction can't use zero page.
-    memory_write(asm_context, asm_context->address, 1, asm_context->line);
+    memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
     worst_case = 1;
   }
 

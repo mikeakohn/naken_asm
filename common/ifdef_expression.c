@@ -380,7 +380,7 @@ printf("debug> parse_ifdef_expression() result is %d\n", num);
     print_error_unexp(token, asm_context);
   }
     else
-  { asm_context->line++; }
+  { asm_context->tokens.line++; }
 
   return num;
 }

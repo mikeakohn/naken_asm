@@ -154,7 +154,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
 
       if (IS_TOKEN(token, 'l') || IS_TOKEN(token, 'L'))
       {
-        memory_write(asm_context, asm_context->address, 1, asm_context->line);
+        memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
         use_32_bit_instruction = 1;
       }
         else
@@ -213,7 +213,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         if (asm_context->pass == 1)
         {
           eat_operand(asm_context);
-          memory_write(asm_context, asm_context->address, 1, asm_context->line);
+          memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
           use_32_bit_instruction = 1;
         }
           else
@@ -254,7 +254,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
             if (asm_context->pass == 1)
             {
               eat_operand(asm_context);
-              memory_write(asm_context, asm_context->address, 1, asm_context->line);
+              memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
               use_32_bit_instruction = 1;
             }
               else
@@ -316,7 +316,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         if (asm_context->pass == 1)
         {
           eat_operand(asm_context);
-          memory_write(asm_context, asm_context->address, 1, asm_context->line);
+          memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
           use_32_bit_instruction = 1;
         }
           else

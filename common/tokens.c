@@ -61,7 +61,7 @@ void tokens_reset(struct _asm_context *asm_context)
 
   asm_context->tokens.token_buffer.ptr = 0;
 
-  asm_context->line = 1;
+  asm_context->tokens.line = 1;
   asm_context->tokens.pushback[0] = 0;
   asm_context->tokens.pushback2[0] = 0;
   asm_context->tokens.unget[0] = 0;
@@ -451,7 +451,7 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
 
                 if (ch == '\n')
                 {
-                  asm_context->line++;
+                  asm_context->tokens.line++;
                 }
                   else
                 if (ch== '*')
@@ -724,7 +724,7 @@ int tokens_escape_char(struct _asm_context *asm_context, unsigned char *s)
     case 'x':
       // FIXME - probably need to add this...
     default:
-      printf("Unknown escape char '\\%c' on line %s:%d.\n", s[ptr], asm_context->tokens.filename, asm_context->line);
+      printf("Unknown escape char '\\%c' on line %s:%d.\n", s[ptr], asm_context->tokens.filename, asm_context->tokens.line);
       return 0;
   }
 

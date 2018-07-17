@@ -1496,13 +1496,13 @@ int n;
             token_type = tokens_get(asm_context, token, TOKENLEN);
             if (strcasecmp(token, "w") == 0)
             {
-              //memory_write(asm_context, asm_context->address, 2, asm_context->line);
+              //memory_write(asm_context, asm_context->address, 2, asm_context->tokens.line);
               operands[operand_count].type = OPERAND_ADDRESS_W;
             }
               else
             if (strcasecmp(token, "l") == 0)
             {
-              memory_write(asm_context, asm_context->address, 4, asm_context->line);
+              memory_write(asm_context, asm_context->address, 4, asm_context->tokens.line);
               operands[operand_count].type = OPERAND_ADDRESS_L;
             }
               else
@@ -1516,12 +1516,12 @@ int n;
             if (eval_error == 1 || num > 0xffff)
             {
               // Can't figure out the size, so assume 32 bit :(
-              memory_write(asm_context, asm_context->address, 4, asm_context->line);
+              memory_write(asm_context, asm_context->address, 4, asm_context->tokens.line);
               operands[operand_count].type = OPERAND_ADDRESS_L;
             }
               else
             {
-              //memory_write(asm_context, asm_context->address, 2, asm_context->line);
+              //memory_write(asm_context, asm_context->address, 2, asm_context->tokens.line);
               operands[operand_count].type = OPERAND_ADDRESS_W;
             }
 
@@ -1646,7 +1646,7 @@ int n;
 
           if (eval_error == 1)
           {
-            memory_write(asm_context, asm_context->address, 4, asm_context->line);
+            memory_write(asm_context, asm_context->address, 4, asm_context->tokens.line);
           }
 
           token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -1701,7 +1701,7 @@ int n;
         if (asm_context->pass == 1)
         {
           eat_operand(asm_context);
-          //memory_write(asm_context, asm_context->address, 4, asm_context->line);
+          //memory_write(asm_context, asm_context->address, 4, asm_context->tokens.line);
           //eval_error = 1;
         }
           else
@@ -1868,7 +1868,7 @@ printf("\n");
 
       if (operand_size != SIZE_NONE)
       {
-        printf("Error: %s doesn't take a size attribute at %s:%d\n", instr, asm_context->tokens.filename, asm_context->line);
+        printf("Error: %s doesn't take a size attribute at %s:%d\n", instr, asm_context->tokens.filename, asm_context->tokens.line);
         return -1;
       }
 

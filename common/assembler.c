@@ -147,7 +147,7 @@ static int parse_pragma(struct _asm_context *asm_context)
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
   }
 
-  asm_context->line++;
+  asm_context->tokens.line++;
 
   return 0;
 }
@@ -173,7 +173,7 @@ static int parse_device(struct _asm_context *asm_context)
     return -1;
   }
 
-  asm_context->line++;
+  asm_context->tokens.line++;
 
   return 0;
 }
@@ -217,7 +217,7 @@ static int parse_set(struct _asm_context *asm_context)
   // REVIEW - should num be divided by bytes_per_address for dsPIC and avr8?
   symbols_set(&asm_context->symbols, name, num);
 
-  asm_context->line++;
+  asm_context->tokens.line++;
 
   return 0;
 }
@@ -281,7 +281,7 @@ static int parse_equ(struct _asm_context *asm_context)
 
   macros_append(asm_context, name, value, 0);
 
-  asm_context->line++;
+  asm_context->tokens.line++;
 
   return 0;
 }
@@ -614,7 +614,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     {
       printf("Error: Nested scopes are not allowed. %s:%d\n",
         asm_context->tokens.filename,
-        asm_context->line);
+        asm_context->tokens.line);
       return -1;
     }
 
@@ -648,7 +648,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     {
       printf("Error: Nested scopes are not allowed. %s:%d\n",
         asm_context->tokens.filename,
-        asm_context->line);
+        asm_context->tokens.line);
       return -1;
     }
 
@@ -703,13 +703,13 @@ int assemble(struct _asm_context *asm_context)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 #ifdef DEBUG
-    printf("%d: <%d> %s\n", asm_context->line, token_type, token);
+    printf("%d: <%d> %s\n", asm_context->tokens.line, token_type, token);
 #endif
     if (token_type == TOKEN_EOF) break;
 
     if (token_type == TOKEN_EOL)
     {
-      if (asm_context->macros.stack_ptr == 0) { asm_context->line++; }
+      if (asm_context->macros.stack_ptr == 0) { asm_context->tokens.line++; }
     }
       else
     if (token_type == TOKEN_LABEL)
@@ -731,7 +731,7 @@ int assemble(struct _asm_context *asm_context)
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
 #ifdef DEBUG
-    printf("%d: <%d> %s\n", asm_context->line, token_type, token);
+    printf("%d: <%d> %s\n", asm_context->tokens.line, token_type, token);
 #endif
       if (token_type == TOKEN_EOF) break;
 
@@ -836,7 +836,7 @@ int assemble(struct _asm_context *asm_context)
         if (ret == -1) return -1;
         if (ret != 1)
         {
-          printf("Error: Unknown directive '%s' at %s:%d.\n", token, asm_context->tokens.filename, asm_context->line);
+          printf("Error: Unknown directive '%s' at %s:%d.\n", token, asm_context->tokens.filename, asm_context->tokens.line);
           return -1;
         }
       }
@@ -898,7 +898,7 @@ int assemble(struct _asm_context *asm_context)
 
           if (ret < 0) return -1;
 
-          if (asm_context->macros.stack_ptr == 0) { asm_context->line++; }
+          if (asm_context->macros.stack_ptr == 0) { asm_context->tokens.line++; }
           asm_context->instruction_count++;
 
           if (asm_context->address > start_address)

@@ -502,13 +502,13 @@ printf("\n");
 
       if (r == operand_count)
       {
-        memory_write_inc(asm_context, n, asm_context->line);
+        memory_write_inc(asm_context, n, asm_context->tokens.line);
 
         // Holy crap :(
         if (n == 0x85)
         {
-          memory_write_inc(asm_context, (uint8_t)operands[1].value & 0xff, asm_context->line);
-          memory_write_inc(asm_context, (uint8_t)operands[0].value & 0xff, asm_context->line);
+          memory_write_inc(asm_context, (uint8_t)operands[1].value & 0xff, asm_context->tokens.line);
+          memory_write_inc(asm_context, (uint8_t)operands[0].value & 0xff, asm_context->tokens.line);
           break;
         }
 
@@ -521,15 +521,15 @@ printf("\n");
             case OP_CODE_ADDR:
             {
               uint16_t value = operands[r].value & 0xffff;
-              memory_write_inc(asm_context, value >> 8, asm_context->line);
-              memory_write_inc(asm_context, value & 0xff, asm_context->line);
+              memory_write_inc(asm_context, value >> 8, asm_context->tokens.line);
+              memory_write_inc(asm_context, value & 0xff, asm_context->tokens.line);
               count += 2;
               break;
             }
             case OP_RELADDR:
             {
               num = operands[r].value - (asm_context->address + 1);
-              memory_write_inc(asm_context, (uint8_t)num, asm_context->line);
+              memory_write_inc(asm_context, (uint8_t)num, asm_context->tokens.line);
               count++;
               break;
             }
@@ -539,7 +539,7 @@ printf("\n");
             case OP_BIT_ADDR:
             case OP_IRAM_ADDR:
             {
-              memory_write_inc(asm_context, (uint8_t)operands[r].value & 0xff, asm_context->line);
+              memory_write_inc(asm_context, (uint8_t)operands[r].value & 0xff, asm_context->tokens.line);
               count++;
               break;
             }

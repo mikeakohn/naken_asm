@@ -28,7 +28,7 @@ int parse_db(struct _asm_context *asm_context, int null_term_flag)
 
   if (asm_context->segment == SEGMENT_BSS)
   {
-    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->line);
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
     return -1;
   }
 
@@ -98,7 +98,7 @@ int parse_db(struct _asm_context *asm_context, int null_term_flag)
     }
   }
 
-  asm_context->line++;
+  asm_context->tokens.line++;
 
   return 0;
 }
@@ -112,7 +112,7 @@ int parse_dc16(struct _asm_context *asm_context)
 
   if (asm_context->segment == SEGMENT_BSS)
   {
-    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->line);
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
     return -1;
   }
 
@@ -164,7 +164,7 @@ int parse_dc16(struct _asm_context *asm_context)
     }
   }
 
-  asm_context->line++;
+  asm_context->tokens.line++;
 
   return 0;
 }
@@ -179,7 +179,7 @@ int parse_dc32(struct _asm_context *asm_context)
 
   if (asm_context->segment == SEGMENT_BSS)
   {
-    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->line);
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
     return -1;
   }
 
@@ -237,12 +237,12 @@ int parse_dc32(struct _asm_context *asm_context)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
+      printf("Parse error: expecting a ',' on line %d.\n", asm_context->tokens.line);
       return -1;
     }
   }
 
-  asm_context->line++;
+  asm_context->tokens.line++;
 
   return 0;
 }
@@ -256,7 +256,7 @@ int parse_dc64(struct _asm_context *asm_context)
 
   if (asm_context->segment == SEGMENT_BSS)
   {
-    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->line);
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
     return -1;
   }
 
@@ -309,12 +309,12 @@ int parse_dc64(struct _asm_context *asm_context)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
+      printf("Parse error: expecting a ',' on line %d.\n", asm_context->tokens.line);
       return -1;
     }
   }
 
-  asm_context->line++;
+  asm_context->tokens.line++;
 
   return 0;
 }
@@ -350,7 +350,7 @@ int parse_dq(struct _asm_context *asm_context)
 
   if (asm_context->segment == SEGMENT_BSS)
   {
-    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->line);
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
     return -1;
   }
 
@@ -390,12 +390,12 @@ int parse_dq(struct _asm_context *asm_context)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      printf("Parse error: expecting a ',' on line %d.\n", asm_context->line);
+      printf("Parse error: expecting a ',' on line %d.\n", asm_context->tokens.line);
       return -1;
     }
   }
 
-  asm_context->line++;
+  asm_context->tokens.line++;
 
   return 0;
 }
@@ -410,7 +410,7 @@ int parse_ds(struct _asm_context *asm_context, int n)
   token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type != TOKEN_NUMBER)
   {
-    printf("Parse error: memory length on line %d.\n", asm_context->line);
+    printf("Parse error: memory length on line %d.\n", asm_context->tokens.line);
     return -1;
   }
 
@@ -418,7 +418,7 @@ int parse_ds(struct _asm_context *asm_context, int n)
 
   if (num == 0 && asm_context->pass == 1)
   {
-    printf("Warning: Reserving %d byte at %s:%d\n", num, asm_context->tokens.filename, asm_context->line);
+    printf("Warning: Reserving %d byte at %s:%d\n", num, asm_context->tokens.filename, asm_context->tokens.line);
   }
 
   for (n = 0; n < num; n++)
@@ -434,7 +434,7 @@ int parse_ds(struct _asm_context *asm_context, int n)
 
     if (asm_context->address >= asm_context->memory.size)
     {
-       printf("Error: ds overran %d boundary at %s:%d", asm_context->memory.size, asm_context->tokens.filename, asm_context->line);
+       printf("Error: ds overran %d boundary at %s:%d", asm_context->memory.size, asm_context->tokens.filename, asm_context->tokens.line);
        return -1;
     }
   }
