@@ -12,6 +12,7 @@ default:
 	../../naken_asm $(FLAGS) -l -b -o rotation_vu1.bin rotation_vu1.asm
 	../../naken_asm $(FLAGS) -l -o rotation.elf rotation.asm
 	../../naken_asm $(FLAGS) -l -o double_buffer.elf double_buffer.asm
+	../../naken_asm $(FLAGS) -l -o iop_example.elf iop_example.asm
 
 mandel:
 	../../naken_asm $(iNCLUDES) -l -b -o mandelbrot_vu0.bin mandelbrot_vu0.asm
