@@ -388,7 +388,7 @@ PRINT_STACK()
       // Stack pointer probably shouldn't be less than 2
       if (num_stack_ptr == 0)
       {
-        printf("Error: Unexpected operator '%s' at %s:%d\n", token, asm_context->filename, asm_context->line);
+        printf("Error: Unexpected operator '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->line);
         return -1;
       }
 

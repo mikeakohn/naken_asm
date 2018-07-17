@@ -1412,7 +1412,7 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             if ((operands[0].value % 8) != 0 || operands[0].value > 0x38 ||
                 operands[0].value < 0)
             {
-              printf("Error: Illegal restart address at %s:%d\n", asm_context->filename, asm_context->line);
+              printf("Error: Illegal restart address at %s:%d\n", asm_context->tokens.filename, asm_context->line);
               return -1;
             }
             int i = operands[0].value / 8;

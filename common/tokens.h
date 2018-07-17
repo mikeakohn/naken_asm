@@ -14,6 +14,8 @@
 
 //#include "assembler.h"
 
+#define TOKENLEN 512
+
 #define IS_TOKEN(t,a) (t[0]==a && t[1]==0)
 #define IS_NOT_TOKEN(t,a) (t[0]!=a || t[1]!=0)
 
@@ -23,6 +25,21 @@ struct _token_buffer
 {
   const char *code;
   int ptr;
+};
+
+struct _tokens
+{
+  FILE *in;
+  const char *filename;
+  struct _token_buffer token_buffer;
+  char pushback[TOKENLEN];
+  char pushback2[TOKENLEN];
+  int pushback_type;
+  int pushback2_type;
+  char unget[512];
+  int unget_ptr;
+  int unget_stack[MAX_NESTED_MACROS+1];
+  int unget_stack_ptr;
 };
 
 int tokens_open_file(struct _asm_context *asm_context, char *filename);

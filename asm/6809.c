@@ -898,7 +898,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
 
   if (matched == 1)
   {
-    printf("Error: Unknown operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+    print_error_unknown_operand_combo(instr, asm_context);
   }
     else
   {

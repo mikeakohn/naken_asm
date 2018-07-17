@@ -57,7 +57,7 @@ int binfile_parse(struct _asm_context *asm_context)
 
   if (asm_context->segment == SEGMENT_BSS)
   {
-    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->filename, asm_context->line);
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->line);
     return -1;
   }
 
@@ -69,7 +69,7 @@ printf("binfile file %s.\n", token);
   in = fopen(token, "rb");
   if (in == NULL)
   {
-    printf("Cannot open binfile file '%s' at %s:%d\n", token, asm_context->filename, asm_context->line);
+    printf("Cannot open binfile file '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->line);
     return -1;
   }
 
@@ -108,8 +108,8 @@ printf("including file %s.\n", token);
   write_list_file = asm_context->write_list_file;
   asm_context->write_list_file = 0;
 
-  oldfp = asm_context->in;
-  oldname = asm_context->filename;
+  oldfp = asm_context->tokens.in;
+  oldname = asm_context->tokens.filename;
 
   if (tokens_open_file(asm_context, token) != 0)
   {
@@ -144,16 +144,16 @@ printf("including file %s.\n", token);
     }
   }
 
-  if (asm_context->in == NULL)
+  if (asm_context->tokens.in == NULL)
   {
-    printf("Cannot open include file '%s' at %s:%d\n", token, asm_context->filename, asm_context->line);
+    printf("Cannot open include file '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->line);
     ret = -1;
   }
     else
   {
     oldline = asm_context->line;
 
-    asm_context->filename = token;
+    asm_context->tokens.filename = token;
     asm_context->line = 1;
 
     ret = assemble(asm_context);
@@ -161,10 +161,10 @@ printf("including file %s.\n", token);
     asm_context->line = oldline;
   }
 
-  if (asm_context->in != NULL) { fclose(asm_context->in); }
+  if (asm_context->tokens.in != NULL) { fclose(asm_context->tokens.in); }
 
-  asm_context->filename = oldname;
-  asm_context->in = oldfp;
+  asm_context->tokens.filename = oldname;
+  asm_context->tokens.in = oldfp;
   asm_context->write_list_file = write_list_file;
 
   return ret;

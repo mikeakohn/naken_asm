@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -416,7 +416,7 @@ int rd,rr,k;
             if (operands[0].value < 24 || operands[0].value > 30 ||
                 (operands[0].value & 0x1) == 1)
             {
-              printf("Error: Register must be r24,r26,r28,r30 for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+              printf("Error: Register must be r24,r26,r28,r30 for '%s' at %s:%d.\n", instr, asm_context->tokens.filename, asm_context->line);
               return -1;
             }
             if (operands[1].value < 0 || operands[1].value > 63)
@@ -513,7 +513,7 @@ int rd,rr,k;
             if ((operands[0].value & 0x1) != 0 &&
                 (operands[1].value & 0x1) != 0)
             {
-              printf("Error: Register must be even for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+              printf("Error: Register must be even for '%s' at %s:%d.\n", instr, asm_context->tokens.filename, asm_context->line);
               return -1;
             }
             rd = (operands[0].value >> 1) << 4;
@@ -885,7 +885,7 @@ int rd,rr,k;
 
   if (matched == 1)
   {
-    printf("Error: Unknown flag/operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+    print_error_unknown_operand_combo(instr, asm_context);
   }
     else
   {
@@ -894,6 +894,4 @@ int rd,rr,k;
 
   return -1;
 }
-
-
 

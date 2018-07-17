@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
       else
     if (format == FORMAT_ELF)
     {
-      write_elf(&asm_context.memory, out, &asm_context.symbols, asm_context.filename, asm_context.cpu_type, cpu_list[asm_context.cpu_list_index].alignment);
+      write_elf(&asm_context.memory, out, &asm_context.symbols, asm_context.tokens.filename, asm_context.cpu_type, cpu_list[asm_context.cpu_list_index].alignment);
     }
       else
     if (format == FORMAT_WDC)
@@ -477,7 +477,7 @@ int main(int argc, char *argv[])
   //macros_free(&asm_context.macros);
 
   if (asm_context.list != NULL) { fclose(asm_context.list); }
-  fclose(asm_context.in);
+  fclose(asm_context.tokens.in);
 
   if (error_flag != 0)
   {

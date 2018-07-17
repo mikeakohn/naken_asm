@@ -380,15 +380,15 @@ printf("debug> macros_get_char() asm_context->def_param_stack_count=%d\n",asm_co
 #endif
     }
     macros->stack_ptr--;
-    asm_context->unget_stack_ptr--;
+    asm_context->tokens.unget_stack_ptr--;
 
     // Check if something need to be ungetted
-    if (asm_context->unget_ptr > asm_context->unget_stack[asm_context->unget_stack_ptr])
+    if (asm_context->tokens.unget_ptr > asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr])
     {
 #ifdef DEBUG
-printf("debug> macros_get_char() tokens_get_char(?) ungetc %d %d '%c'\n", asm_context->unget_stack_ptr, asm_context->unget_stack[asm_context->unget_stack_ptr], asm_context->unget[asm_context->unget_ptr-1]);
+printf("debug> macros_get_char() tokens_get_char(?) ungetc %d %d '%c'\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr], asm_context->tokens.unget[asm_context->tokens.unget_ptr-1]);
 #endif
-      return asm_context->unget[--asm_context->unget_ptr];
+      return asm_context->tokens.unget[--asm_context->tokens.unget_ptr];
     }
   }
 
@@ -445,7 +445,7 @@ printf("debug> macros_parse() param %s\n", token);
       if (token_type != TOKEN_STRING)
       {
         printf("Error: Expected a param name but got '%s' at %s:%d.\n", token,
-          asm_context->filename, asm_context->line);
+          asm_context->tokens.filename, asm_context->line);
         return -1;
       }
 
@@ -701,7 +701,7 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
   if (count != param_count)
   {
     printf("Error: Macro expects %d params, but got only %d at %s:%d.\n",
-      param_count, count, asm_context->filename, asm_context->line);
+      param_count, count, asm_context->tokens.filename, asm_context->line);
     return NULL;
   }
 

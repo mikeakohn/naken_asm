@@ -191,7 +191,7 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
       if (asm_context->pass == 2 && page != curr_page)
       {
         //add_bin_lsfr(asm_context, (0x10) | (page & 0xf), IS_OPCODE);
-        printf("Warning: Branch crosses page boundary at %s:%d\n", asm_context->filename, asm_context->line);
+        printf("Warning: Branch crosses page boundary at %s:%d\n", asm_context->tokens.filename, asm_context->line);
       }
 
       add_bin_lsfr(asm_context, (0x80 | (n << 6)) | tms1000_address_to_lsfr[(address & 0x3f)], IS_OPCODE);
@@ -370,7 +370,7 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
       if (asm_context->pass == 2 && page != curr_page)
       {
         //add_bin_lsfr(asm_context, (0x10) | (page & 0xf), IS_OPCODE);
-        printf("Warning: Branch crosses page boundary at %s:%d\n", asm_context->filename, asm_context->line);
+        printf("Warning: Branch crosses page boundary at %s:%d\n", asm_context->tokens.filename, asm_context->line);
       }
 
       add_bin_lsfr(asm_context, (0x80 | (n << 6)) | tms1000_address_to_lsfr[(address & 0x3f)], IS_OPCODE);

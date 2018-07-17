@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -350,7 +350,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
               needed_type = OPERAND_AT_ADDRESS;
               if ((value & 1) == 1)
               {
-                printf("Error: Short address must be even at %s:%d.\n", asm_context->filename, asm_context->line);
+                printf("Error: Short address must be even at %s:%d.\n", asm_context->tokens.filename, asm_context->line);
                 return -1;
               }
               break;
@@ -367,7 +367,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
               type = operands[0].type;
               if ((value & 1) == 1)
               {
-                printf("Error: Short address must be even at %s:%d.\n", asm_context->filename, asm_context->line);
+                printf("Error: Short address must be even at %s:%d.\n", asm_context->tokens.filename, asm_context->line);
                 return -1;
               }
               break;
@@ -427,5 +427,4 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
 
   return -1;
 }
-
 

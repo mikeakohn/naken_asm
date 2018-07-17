@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -371,7 +371,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   {
     if (asm_context->pass == 2)
     {
-      printf("Warning: Instruction doesn't start on 16 bit boundary at %s:%d.  Padding with a 0.\n", asm_context->filename, asm_context->line);
+      printf("Warning: Instruction doesn't start on 16 bit boundary at %s:%d.  Padding with a 0.\n", asm_context->tokens.filename, asm_context->line);
     }
     memory_write_inc(asm_context, 0, DL_NO_CG);
   }
@@ -766,7 +766,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             if (size != 0 && size != 16)
             {
               printf("Error: Instruction '%s' can't be used with .b at %s:%d\n",
-                instr, asm_context->filename, asm_context->line);
+                instr, asm_context->tokens.filename, asm_context->line);
               return -1;
             }
           }
@@ -776,7 +776,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             if (size != 0)
             {
               printf("Error: Instruction '%s' can't be used with .b/w at %s:%d\n",
-                 instr, asm_context->filename, asm_context->line);
+                 instr, asm_context->tokens.filename, asm_context->line);
               return -1;
             }
           }
@@ -1392,7 +1392,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
             if (size != 0 && size != 16)
             {
               printf("Error: Instruction '%s' can't be used with .b at %s:%d\n",
-                instr, asm_context->filename, asm_context->line);
+                instr, asm_context->tokens.filename, asm_context->line);
               return -1;
             }
           }
@@ -1538,5 +1538,4 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
   return -1;
 }
-
 

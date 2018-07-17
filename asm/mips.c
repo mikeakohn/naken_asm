@@ -1016,7 +1016,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         {
           if (operands[r].type != OPERAND_IMMEDIATE)
           {
-            printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
+            printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->tokens.filename, asm_context->line);
             return -1;
           }
         }
@@ -1024,7 +1024,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         {
           if (operands[r].type != OPERAND_TREG)
           {
-            printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
+            printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->tokens.filename, asm_context->line);
             return -1;
           }
         }
@@ -1051,7 +1051,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
     if (operands[0].type != OPERAND_IMMEDIATE)
     {
-      printf("Error: Expecting address for '%s' at %s:%d\n", instr, asm_context->filename, asm_context->line);
+      printf("Error: Expecting address for '%s' at %s:%d\n", instr, asm_context->tokens.filename, asm_context->line);
       return -1;
     }
 
@@ -1296,7 +1296,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           {
             if (operands[operand_index].type != OPERAND_TREG)
             {
-              printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->filename, asm_context->line);
+              printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->tokens.filename, asm_context->line);
               return -1;
             }
           }
@@ -1305,7 +1305,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             // SPECIAL_TYPE_SA and SPECIAL_TYPE_BITS
             if (operands[operand_index].type != OPERAND_IMMEDIATE)
             {
-              printf("Error: '%s' expects immediate %s:%d\n", instr, asm_context->filename, asm_context->line);
+              printf("Error: '%s' expects immediate %s:%d\n", instr, asm_context->tokens.filename, asm_context->line);
               return -1;
             }
 

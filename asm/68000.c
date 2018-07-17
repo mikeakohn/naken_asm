@@ -1868,7 +1868,7 @@ printf("\n");
 
       if (operand_size != SIZE_NONE)
       {
-        printf("Error: %s doesn't take a size attribute at %s:%d\n", instr, asm_context->filename, asm_context->line);
+        printf("Error: %s doesn't take a size attribute at %s:%d\n", instr, asm_context->tokens.filename, asm_context->line);
         return -1;
       }
 
@@ -2099,7 +2099,7 @@ printf("\n");
 
   if (matched == 1)
   {
-    printf("Error: Unknown flag/operands combo for '%s' at %s:%d.\n", instr, asm_context->filename, asm_context->line);
+    print_error_unknown_operand_combo(instr, asm_context);
   }
     else
   {

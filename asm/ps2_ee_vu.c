@@ -136,7 +136,7 @@ static int get_field_bits(struct _asm_context *asm_context, char *token, int *de
     else if (c == 'w') { *dest |= FIELD_W; }
     else
     {
-      printf("Error: Unknown component '%c' at %s:%d\n", token[n], asm_context->filename, asm_context->line);
+      printf("Error: Unknown component '%c' at %s:%d\n", token[n], asm_context->tokens.filename, asm_context->line);
       return -1;
     }
 
@@ -211,7 +211,7 @@ int get_base(struct _asm_context *asm_context, struct _operand *operand, int *mo
     if (get_field_number(operand->field_mask == -1))
     {
       printf("Error: Only 1 dest field allowed at %s:%d\n",
-        asm_context->filename,
+        asm_context->tokens.filename,
         asm_context->line);
       return -1;
     }
@@ -264,7 +264,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         else if (c == 't') { *iemdt_bits |= 1; }
         else
         {
-          printf("Error: Unknown flag '%c' at %s:%d\n", token[n], asm_context->filename, asm_context->line);
+          printf("Error: Unknown flag '%c' at %s:%d\n", token[n], asm_context->tokens.filename, asm_context->line);
           return -1;
         }
 
@@ -414,7 +414,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
 
             if (modifier != 0)
             {
-              printf("Error: Instruction cannot have modifier at %s:%d\n", asm_context->filename, asm_context->line);
+              printf("Error: Instruction cannot have modifier at %s:%d\n", asm_context->tokens.filename, asm_context->line);
             }
 
             operands[operand_count].type = OPERAND_OFFSET_BASE;
@@ -501,7 +501,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
          (table_ps2_ee_vu[n].flags & FLAG_VU1_ONLY))
       {
         printf("Error: Instruction only valid in VU1 at %s:%d\n",
-               asm_context->filename, asm_context->line);
+               asm_context->tokens.filename, asm_context->line);
         return -1;
       }
 
@@ -822,7 +822,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
 
       if (is_lower == 1 && iemdt_bits != 0)
       {
-        printf("Error: Cannot set IEMDT bits in lower instruction at %s:%d\n", asm_context->filename, asm_context->line);
+        printf("Error: Cannot set IEMDT bits in lower instruction at %s:%d\n", asm_context->tokens.filename, asm_context->line);
         return -1;
       }
 
@@ -836,7 +836,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
     printf("Error: Unknown %s instruction '%s' at %s:%d\n",
            is_lower ? "lower" : "upper",
            instr,
-           asm_context->filename,
+           asm_context->tokens.filename,
            asm_context->line);
   }
     else
@@ -844,7 +844,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
     printf("Error: Wrong operand count for %s instruction '%s' at %s:%d\n",
            is_lower ? "lower" : "upper",
            instr,
-           asm_context->filename,
+           asm_context->tokens.filename,
            asm_context->line);
   }
 

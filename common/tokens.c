@@ -26,48 +26,48 @@
 
 int tokens_open_file(struct _asm_context *asm_context, char *filename)
 {
-  asm_context->in = fopen(filename, "rb");
+  asm_context->tokens.in = fopen(filename, "rb");
 
-  if (asm_context->in == NULL)
+  if (asm_context->tokens.in == NULL)
   {
     return -1;
   }
 
-  asm_context->filename = filename;
+  asm_context->tokens.filename = filename;
 
   return 0;
 }
 
 void tokens_open_buffer(struct _asm_context *asm_context, const char *buffer)
 {
-  asm_context->token_buffer.code = buffer;
-  asm_context->token_buffer.ptr = 0;
+  asm_context->tokens.token_buffer.code = buffer;
+  asm_context->tokens.token_buffer.ptr = 0;
 }
 
 void tokens_close(struct _asm_context *asm_context)
 {
-  if (asm_context->in != NULL)
+  if (asm_context->tokens.in != NULL)
   {
-    fclose(asm_context->in);
+    fclose(asm_context->tokens.in);
   }
 }
 
 void tokens_reset(struct _asm_context *asm_context)
 {
-  if (asm_context->in != NULL)
+  if (asm_context->tokens.in != NULL)
   {
-    fseek(asm_context->in, 0, SEEK_SET);
+    fseek(asm_context->tokens.in, 0, SEEK_SET);
   }
 
-  asm_context->token_buffer.ptr = 0;
+  asm_context->tokens.token_buffer.ptr = 0;
 
   asm_context->line = 1;
-  asm_context->pushback[0] = 0;
-  asm_context->pushback2[0] = 0;
-  asm_context->unget[0] = 0;
-  asm_context->unget_ptr = 0;
-  asm_context->unget_stack_ptr = 0;
-  asm_context->unget_stack[0] = 0;
+  asm_context->tokens.pushback[0] = 0;
+  asm_context->tokens.pushback2[0] = 0;
+  asm_context->tokens.unget[0] = 0;
+  asm_context->tokens.unget_ptr = 0;
+  asm_context->tokens.unget_stack_ptr = 0;
+  asm_context->tokens.unget_stack[0] = 0;
 }
 
 static int tokens_hex_string_to_int(char *s, uint64_t *num, int prefixed)
@@ -152,12 +152,12 @@ int tokens_get_char(struct _asm_context *asm_context)
 #endif
 
   // Check if something need to be ungetted
-  if (asm_context->unget_ptr > asm_context->unget_stack[asm_context->unget_stack_ptr])
+  if (asm_context->tokens.unget_ptr > asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr])
   {
 #ifdef DEBUG
-//printf("debug> tokens_get_char(?) ungetc %d %d '%c'\n", asm_context->unget_stack_ptr, asm_context->unget_stack[asm_context->unget_stack_ptr], asm_context->unget[asm_context->unget_ptr-1]);
+//printf("debug> tokens_get_char(?) ungetc %d %d '%c'\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr], asm_context->tokens.unget[asm_context->tokens.unget_ptr-1]);
 #endif
-    return asm_context->unget[--asm_context->unget_ptr];
+    return asm_context->tokens.unget[--asm_context->tokens.unget_ptr];
   }
 
   ch = macros_get_char(asm_context);
@@ -165,12 +165,12 @@ int tokens_get_char(struct _asm_context *asm_context)
   // Check if defines is empty
   if (ch == CHAR_EOF)
   {
-    if (asm_context->unget_ptr > asm_context->unget_stack[asm_context->unget_stack_ptr])
+    if (asm_context->tokens.unget_ptr > asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr])
     {
 #ifdef DEBUG
-//printf("debug> tokens_get_char(FILE ungetc %d %d '%c'\n", asm_context->unget_stack_ptr, asm_context->unget_stack[asm_context->unget_stack_ptr], asm_context->unget[asm_context->unget_ptr-1]);
+//printf("debug> tokens_get_char(FILE ungetc %d %d '%c'\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr], asm_context->tokens.unget[asm_context->tokens.unget_ptr-1]);
 #endif
-      return asm_context->unget[--asm_context->unget_ptr];
+      return asm_context->tokens.unget[--asm_context->tokens.unget_ptr];
     }
 #ifdef DEBUG
 //printf("debug> tokens_get_char(FILE)='%c'\n", ch);
@@ -179,15 +179,15 @@ int tokens_get_char(struct _asm_context *asm_context)
     // Why do people still use DOS :(
     do
     {
-      if (asm_context->token_buffer.code != NULL)
+      if (asm_context->tokens.token_buffer.code != NULL)
       {
-        ch = asm_context->token_buffer.code[asm_context->token_buffer.ptr];
+        ch = asm_context->tokens.token_buffer.code[asm_context->tokens.token_buffer.ptr];
         if (ch == 0) { ch = EOF; }
-        else { asm_context->token_buffer.ptr++; }
+        else { asm_context->tokens.token_buffer.ptr++; }
       }
         else
       {
-        ch = getc(asm_context->in);
+        ch = getc(asm_context->tokens.in);
       }
     } while(ch == '\r');
 
@@ -208,7 +208,7 @@ int tokens_get_char(struct _asm_context *asm_context)
 
 int tokens_unget_char(struct _asm_context *asm_context, int ch)
 {
-  asm_context->unget[asm_context->unget_ptr++] = ch;
+  asm_context->tokens.unget[asm_context->tokens.unget_ptr++] = ch;
   return 0;
 }
 
@@ -224,18 +224,18 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
 
   token[0] = 0;
 
-  if (asm_context->pushback2[0] != 0)
+  if (asm_context->tokens.pushback2[0] != 0)
   {
-    strcpy(token, asm_context->pushback2);
-    asm_context->pushback2[0] = 0;
-    return asm_context->pushback2_type;
+    strcpy(token, asm_context->tokens.pushback2);
+    asm_context->tokens.pushback2[0] = 0;
+    return asm_context->tokens.pushback2_type;
   }
 
-  if (asm_context->pushback[0] != 0)
+  if (asm_context->tokens.pushback[0] != 0)
   {
-    strcpy(token, asm_context->pushback);
-    asm_context->pushback[0] = 0;
-    return asm_context->pushback_type;
+    strcpy(token, asm_context->tokens.pushback);
+    asm_context->tokens.pushback[0] = 0;
+    return asm_context->tokens.pushback_type;
   }
 
   while(1)
@@ -614,10 +614,10 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
         macros_push_define(&asm_context->macros, expanded);
       }
 
-      asm_context->unget_stack[++asm_context->unget_stack_ptr] = asm_context->unget_ptr;
+      asm_context->tokens.unget_stack[++asm_context->tokens.unget_stack_ptr] = asm_context->tokens.unget_ptr;
 
 #ifdef DEBUG
-//printf("debug> unget_stack_ptr=%d unget_ptr=%d\n", asm_context->unget_stack_ptr, asm_context->unget_ptr);
+//printf("debug> unget_stack_ptr=%d unget_ptr=%d\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_ptr);
 #endif
 
       token_type = tokens_get(asm_context, token, len);
@@ -688,15 +688,15 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
 
 void tokens_push(struct _asm_context *asm_context, char *token, int token_type)
 {
-  if (asm_context->pushback[0] == 0)
+  if (asm_context->tokens.pushback[0] == 0)
   {
-    strcpy(asm_context->pushback, token);
-    asm_context->pushback_type = token_type;
+    strcpy(asm_context->tokens.pushback, token);
+    asm_context->tokens.pushback_type = token_type;
     return;
   }
 
-  strcpy(asm_context->pushback2, token);
-  asm_context->pushback2_type = token_type;
+  strcpy(asm_context->tokens.pushback2, token);
+  asm_context->tokens.pushback2_type = token_type;
 }
 
 // Returns the number of chars eaten by this function or 0 for error
@@ -724,7 +724,7 @@ int tokens_escape_char(struct _asm_context *asm_context, unsigned char *s)
     case 'x':
       // FIXME - probably need to add this...
     default:
-      printf("Unknown escape char '\\%c' on line %s:%d.\n", s[ptr], asm_context->filename, asm_context->line);
+      printf("Unknown escape char '\\%c' on line %s:%d.\n", s[ptr], asm_context->tokens.filename, asm_context->line);
       return 0;
   }
 

@@ -613,7 +613,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     if (symbols_scope_start(&asm_context->symbols) != 0)
     {
       printf("Error: Nested scopes are not allowed. %s:%d\n",
-        asm_context->filename,
+        asm_context->tokens.filename,
         asm_context->line);
       return -1;
     }
@@ -647,7 +647,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     if (symbols_scope_start(&asm_context->symbols) != 0)
     {
       printf("Error: Nested scopes are not allowed. %s:%d\n",
-        asm_context->filename,
+        asm_context->tokens.filename,
         asm_context->line);
       return -1;
     }
@@ -759,7 +759,7 @@ int assemble(struct _asm_context *asm_context)
       {
         if (asm_context->ifdef_count < 1)
         {
-          printf("Error: unmatched .endif at %s:%d\n", asm_context->filename, asm_context->ifdef_count);
+          printf("Error: unmatched .endif at %s:%d\n", asm_context->tokens.filename, asm_context->ifdef_count);
           return -1;
         }
         return 0;
@@ -769,7 +769,7 @@ int assemble(struct _asm_context *asm_context)
       {
         if (asm_context->ifdef_count < 1)
         {
-          printf("Error: unmatched .else at %s:%d\n", asm_context->filename, asm_context->ifdef_count);
+          printf("Error: unmatched .else at %s:%d\n", asm_context->tokens.filename, asm_context->ifdef_count);
           return -1;
         }
         return 2;
@@ -836,7 +836,7 @@ int assemble(struct _asm_context *asm_context)
         if (ret == -1) return -1;
         if (ret != 1)
         {
-          printf("Error: Unknown directive '%s' at %s:%d.\n", token, asm_context->filename, asm_context->line);
+          printf("Error: Unknown directive '%s' at %s:%d.\n", token, asm_context->tokens.filename, asm_context->line);
           return -1;
         }
       }

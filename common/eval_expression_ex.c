@@ -413,7 +413,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
       // Stack pointer probably shouldn't be less than 2
       if (var_stack_ptr == 0)
       {
-        printf("Error: Unexpected operator '%s' at %s:%d\n", token, asm_context->filename, asm_context->line);
+        printf("Error: Unexpected operator '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->line);
         return -1;
       }
 

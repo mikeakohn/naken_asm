@@ -67,7 +67,7 @@ struct _operand
 #if 0
 static void print_error_extra_condition(asm_context, char *instr)
 {
-  printf("Error: Instruction '%s' takes no conditionals at %s:%d\n", instr, asm_context->filename, asm_context->line);
+  printf("Error: Instruction '%s' takes no conditionals at %s:%d\n", instr, asm_context->tokens.filename, asm_context->line);
 }
 #endif
 
@@ -126,14 +126,14 @@ static int imm_shift_to_immediate(struct _asm_context *asm_context, struct _oper
 {
   if (operands[pos].value >= 256 || (int32_t)operands[pos].value < 0)
   {
-    printf("Error: Immediate out of range for #imm, shift at %s:%d\n", asm_context->filename, asm_context->line);
+    printf("Error: Immediate out of range for #imm, shift at %s:%d\n", asm_context->tokens.filename, asm_context->line);
     return -1;
   }
 
   if ((operands[pos+1].value&1) == 1 || (operands[pos+1].sub_type != 3) ||
        operands[pos+1].value > 30 || (int32_t)operands[pos+1].value < 0)
   {
-    printf("Error: Bad shift value for #imm, shift at %s:%d\n", asm_context->filename, asm_context->line);
+    printf("Error: Bad shift value for #imm, shift at %s:%d\n", asm_context->tokens.filename, asm_context->line);
     return -1;
   }
 
@@ -684,7 +684,7 @@ static int parse_msr(struct _asm_context *asm_context, struct _operand *operands
       int source_operand = compute_immediate(operands[1].value);
       if (source_operand == -1)
       {
-        printf("Error: Can't create a constant for immediate value %d at %s:%d\n", operands[1].value, asm_context->filename, asm_context->line);
+        printf("Error: Can't create a constant for immediate value %d at %s:%d\n", operands[1].value, asm_context->tokens.filename, asm_context->line);
         return -1;
       }
 

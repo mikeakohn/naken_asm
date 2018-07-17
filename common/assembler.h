@@ -23,7 +23,7 @@
 #include "common/symbols.h"
 #include "common/tokens.h"
 
-#define TOKENLEN 512
+//#define TOKENLEN 512
 #define PARAM_STACK_LEN 4096
 #define INCLUDE_PATH_LEN 4096
 
@@ -36,14 +36,15 @@
 
 struct _asm_context
 {
-  FILE *list;
   struct _memory memory;
+  struct _tokens tokens;
   struct _symbols symbols;
   struct _macros macros;
   parse_instruction_t parse_instruction;
   parse_directive_t parse_directive;
   link_function_t link_function;
   list_output_t list_output;
+  FILE *list;
   int address;
   int segment;
   int line;
@@ -53,19 +54,6 @@ struct _asm_context
   int code_count;
   int ifdef_count;
   int parsing_ifdef;
-  // tokens_get start - maybe move into its own struct
-  FILE *in;
-  const char *filename;
-  struct _token_buffer token_buffer;
-  char pushback[TOKENLEN];
-  char pushback2[TOKENLEN];
-  int pushback_type;
-  int pushback2_type;
-  char unget[512];
-  int unget_ptr;
-  int unget_stack[MAX_NESTED_MACROS+1];
-  int unget_stack_ptr;
-  // tokens_get end
   struct _linker *linker;
   int debug_file;
   char def_param_stack_data[PARAM_STACK_LEN];
