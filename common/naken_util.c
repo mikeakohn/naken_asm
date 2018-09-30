@@ -1176,6 +1176,12 @@ int main(int argc, char *argv[])
        mode = MODE_RUN;
     }
       else
+    if (argv[i][0] == '-')
+    {
+      printf("Unknown option %s\n", argv[i]);
+      exit(1);
+    }
+      else
     {
       uint8_t cpu_type;
       char *extension = argv[i] + strlen(argv[i]) - 1;
