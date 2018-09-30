@@ -200,15 +200,15 @@ int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _
   if (e_ident[EI_DATA] == 1)
   {
     memory->endian = ENDIAN_LITTLE;
-    get_int16 = get_int16_le; 
-    get_int32 = get_int32_le; 
+    get_int16 = get_int16_le;
+    get_int32 = get_int32_le;
   }
     else
   if (e_ident[EI_DATA] == 2)
   {
     memory->endian = ENDIAN_BIG;
-    get_int16 = get_int16_be; 
-    get_int32 = get_int32_be; 
+    get_int16 = get_int16_be;
+    get_int32 = get_int32_be;
   }
     else
   {
@@ -330,16 +330,16 @@ int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _
       long marker = ftell(in);
       fseek(in, elf32_shdr.sh_offset, SEEK_SET);
 
-      int n;
-      for (n = 0; n < elf32_shdr.sh_size; n++)
+      int i;
+      for (i = 0; i < elf32_shdr.sh_size; i++)
       {
-        //if (elf32_shdr.sh_addr + n >= memory->size) { break; }
-        memory_write_m(memory, elf32_shdr.sh_addr + n, getc(in)); 
+        //if (elf32_shdr.sh_addr + i >= memory->size) { break; }
+        memory_write_m(memory, elf32_shdr.sh_addr + i, getc(in));
       }
 
       fseek(in, marker, SEEK_SET);
 
-      printf("Loaded %d %s bytes from 0x%04x\n", n, name, elf32_shdr.sh_addr);
+      printf("Loaded %d %s bytes from 0x%04x\n", i, name, elf32_shdr.sh_addr);
     }
       else
     if (elf32_shdr.sh_type == SHT_SYMTAB && symbols != NULL)
@@ -347,7 +347,8 @@ int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _
       long marker = ftell(in);
       fseek(in, elf32_shdr.sh_offset, SEEK_SET);
 
-      for (n = 0; n < elf32_shdr.sh_size; n += 16)
+      int i;
+      for (i = 0; i < elf32_shdr.sh_size; i += 16)
       {
         char name[128];
 
@@ -369,6 +370,7 @@ int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _
           symbols_append(symbols, name, elf32_sym.st_value);
         }
       }
+
       fseek(in, marker, SEEK_SET);
     }
   }
