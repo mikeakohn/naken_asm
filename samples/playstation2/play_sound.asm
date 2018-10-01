@@ -85,8 +85,8 @@ wait_spucnt_on:
 
   ;; Block Size 16, Words * Blocks = 294 (25126 bytes total)
   ;; DMA send sound data.
-  li $t0, (394 << 16) | 4
-  ;li $t0, (1576 << 16) | 4
+  ;li $t0, (394 << 16) | 4
+  li $t0, (1576 << 16) | 4
   ;li $t0, (1912 << 16) | 4
   sw $t0, 4($v1)
   li $t0, 0x0100_0201

@@ -92,8 +92,23 @@ main:
   ;or $at, $at, $v0
   ;sd $at, ($v1)
 
+  ;; Enter kernel mode
+  mfc0 $s2, $12
+  li $at, 0xffffffe7
+  and $v0, $s2, $at
+  mtc0 $v0, $12
+  sync.p
+
+  ;li $v1, 0xbf80_10f0
+  ;lw $t0, 0($v1)
+  ;li $t1, 0x0008_0000
+  ;or $t0, $t0, $t1
+  ;sw $t0, 0($v1)
+
   ;; Upload data to IOP
+
   li $v0, 0xbc01_0000 + 0x10000
+  ;li $v0, 0x1c01_0000 + 0x10000
   li $a0, sound_data
   li $a1, (sound_data_end - sound_data) / 4
 copy_sound_data:
@@ -104,6 +119,13 @@ copy_sound_data:
   addiu $a1, $a1, -1
   bnez $a1, copy_sound_data
   nop
+
+  ; Exit kernel mode
+  li $at, 0xffffffe7
+  and $s2, $s2, $at
+  ori $s2, $s2, 8
+  mtc0 $s2, $12
+  sync.p
 
   ;; Send TO IOP (SIF1 sends to IOP)
   li $v0, D6_CHCR
@@ -222,13 +244,13 @@ dma_reset:
   sw $zero, 0x50($s0)    ; D2_ASR1
   sw $zero, 0x40($s0)    ; D2_ASR0
 
-  li $s0, D6_CHCR
+  ;li $s0, D6_CHCR
   ;sw $zero, 0x80($s0)    ; um, why?
-  sw $zero, 0x00($s0)    ; D2_CHCR
-  sw $zero, 0x30($s0)    ; D2_TADR
-  sw $zero, 0x10($s0)    ; D2_MADR
-  sw $zero, 0x50($s0)    ; D2_ASR1
-  sw $zero, 0x40($s0)    ; D2_ASR0
+  ;sw $zero, 0x00($s0)    ; D2_CHCR
+  ;sw $zero, 0x30($s0)    ; D2_TADR
+  ;sw $zero, 0x10($s0)    ; D2_MADR
+  ;sw $zero, 0x50($s0)    ; D2_ASR1
+  ;sw $zero, 0x40($s0)    ; D2_ASR0
 
   li $s0, D_CTRL
   li $s1, 0xff1f
