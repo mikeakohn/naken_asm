@@ -1004,6 +1004,7 @@ int main(int argc, char *argv[])
   int mode = MODE_INTERACTIVE;
   int break_io = -1;
   int error_flag = 0;
+  uint8_t cpu_type_set = 0;
 
   printf("\nnaken_util - by Michael Kohn\n"
          "                Joe Davisson\n"
@@ -1096,11 +1097,14 @@ int main(int argc, char *argv[])
             util_context.simulate = cpu_list[n].simulate_init(&util_context.memory);
           }
 
+          cpu_type_set = 1;
+
           break;
         }
 
         n++;
       }
+
       if (cpu_list[n].name != NULL) { continue; }
     }
 
@@ -1198,6 +1202,8 @@ int main(int argc, char *argv[])
 
         while (cpu_list[n].name != NULL)
         {
+          if (cpu_type_set == 1) { break; }
+
           if (cpu_type == cpu_list[n].type)
           {
             util_context.disasm_range = cpu_list[n].disasm_range;
@@ -1212,8 +1218,10 @@ int main(int argc, char *argv[])
               {
                 free(util_context.simulate);
               }
+
               util_context.simulate = cpu_list[n].simulate_init(&util_context.memory);
             }
+
             break;
           }
 
