@@ -92,7 +92,7 @@ For examples on how to use macros, see some of the examples in the documentation
 |.ifdef {exression}          |If defined, can be used with .define
 |.ifndef {exression}         |If not defined, can be used with .define
 |.define {macro}             |Define a C style #define macro
-|.else {exression}           |Else for .if or .ifdef
+|.else                       |Else for .if or .ifdef
 |.endif                      |Close an .ifdef or .if
 |.macro {name} (opt. params) |Define a macro (should end with .endm
 |.endm                       |End of macro definition
