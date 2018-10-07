@@ -49,7 +49,25 @@ static int macros_parse_token(struct _asm_context *asm_context, char *token, int
 
     if (ch == ' ')
     {
-      if (ptr == 0) continue;
+      if (ptr == 0) { continue; }
+
+      // Check for (
+      while(1)
+      {
+        ch = tokens_get_char(asm_context);
+        if (ch == '\t') { ch = ' '; }
+
+        if (ch == ' ') { continue; }
+
+        if (ch == '(')
+        {
+          token[ptr] = 0;
+          return 1;
+        }
+
+        tokens_unget_char(asm_context, ch);
+        break;
+      }
       break;
     }
 
@@ -80,7 +98,7 @@ static int macros_parse_token(struct _asm_context *asm_context, char *token, int
       break;
     }
 
-    if (ptr == len-1) break;
+    if (ptr == len - 1) { break; }
   }
 
   token[ptr] = 0;
@@ -190,7 +208,7 @@ int macros_append(struct _asm_context *asm_context, char *name, char *value, int
   }
 
   // Set the new macro entry.
-  // FIXME - probably should align by 4 for RISC machines.
+  // FIXME - probably should align by sizeof(void *) for RISC machines.
   struct _macro_data *macro_data =
     (struct _macro_data *)(memory_pool->buffer + memory_pool->ptr);
   macro_data->param_count = (uint8_t)param_count;

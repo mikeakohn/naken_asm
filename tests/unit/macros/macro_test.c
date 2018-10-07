@@ -77,6 +77,8 @@ int main(int argc, char *argv[])
 
   test(".macro blah\none\ntwo\nthree\n.endm\nblah\n", answer_1);
   test(".macro blah(param_underscore)\nparam_underscore\ntwo\nthree\n.endm\nblah(ten)\n", answer_2);
+  test(".macro blah (param_underscore)\nparam_underscore\ntwo\nthree\n.endm\nblah (ten)\n", answer_2);
+  test(".macro blah\t( param_underscore ) \nparam_underscore\ntwo\nthree\n.endm\nblah ( ten )\n", answer_2);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
@@ -85,5 +87,4 @@ int main(int argc, char *argv[])
 
   return 0;
 }
-
 
