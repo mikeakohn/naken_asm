@@ -75,10 +75,33 @@ int main(int argc, char *argv[])
 {
   printf("macros.o test\n");
 
-  test(".macro blah\none\ntwo\nthree\n.endm\nblah\n", answer_1);
-  test(".macro blah(param_underscore)\nparam_underscore\ntwo\nthree\n.endm\nblah(ten)\n", answer_2);
-  test(".macro blah (param_underscore)\nparam_underscore\ntwo\nthree\n.endm\nblah (ten)\n", answer_2);
-  test(".macro blah\t( param_underscore ) \nparam_underscore\ntwo\nthree\n.endm\nblah ( ten )\n", answer_2);
+  test(".macro blah\n"
+       "one\n"
+       "two\n"
+       "three\n"
+       ".endm\n"
+       "blah\n", answer_1);
+
+  test(".macro blah(param_underscore)\n"
+       "param_underscore\n"
+       "two\n"
+       "three\n"
+       ".endm\n"
+       "blah(ten)\n", answer_2);
+
+  test(".macro blah (param_underscore)\n"
+       "param_underscore\n"
+       "two\n"
+       "three\n"
+       ".endm\n"
+       "blah (ten)\n", answer_2);
+
+  test(".macro blah\t( param_underscore ) \n"
+       "param_underscore\n"
+       "two\n"
+       "three\n"
+       ".endm\n"
+       "blah ( ten )\n", answer_2);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
