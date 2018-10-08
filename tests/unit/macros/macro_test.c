@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "common/assembler.h"
+#include "common/ifdef_expression.h"
 #include "common/macros.h"
 #include "common/tokens.h"
 
@@ -11,7 +12,7 @@ int errors = 0;
 const char *answer_1[] = { "one", "two", "three", NULL };
 const char *answer_2[] = { "ten", "two", "three", NULL };
 
-void test(const char *macro, const char **answer)
+void test_macro(const char *macro, const char **answer)
 {
   struct _asm_context asm_context = { 0 };
   char token[TOKENLEN];
@@ -71,37 +72,88 @@ void test(const char *macro, const char **answer)
   tokens_close(&asm_context);
 }
 
+void test_if(const char *statement, int answer)
+{
+  char token[TOKENLEN];
+  int token_type;
+  struct _asm_context asm_context = { 0 };
+
+  printf("Testing: %s ... ", statement);
+
+  tokens_open_buffer(&asm_context, statement);
+  tokens_reset(&asm_context);
+
+  while(1)
+  {
+    token_type = tokens_get(&asm_context, token, TOKENLEN);
+
+    if (token_type == TOKEN_EOF) { break; }
+    if (token_type == TOKEN_EOL) { continue; }
+
+    if (strcmp(token, ".") == 0) { continue; }
+
+    if (strcasecmp(token, "if") == 0)
+    {
+      int value = eval_ifdef_expression(&asm_context);
+
+      if (value != answer)
+      {
+        printf("FAIL\n");
+        errors++;
+      }
+        else
+      {
+        printf("PASS\n");
+      }
+
+      return;
+    }
+  }
+}
+
 int main(int argc, char *argv[])
 {
   printf("macros.o test\n");
 
-  test(".macro blah\n"
+  test_macro(".macro blah\n"
        "one\n"
        "two\n"
        "three\n"
        ".endm\n"
        "blah\n", answer_1);
 
-  test(".macro blah(param_underscore)\n"
+  test_macro(".macro blah(param_underscore)\n"
        "param_underscore\n"
        "two\n"
        "three\n"
        ".endm\n"
        "blah(ten)\n", answer_2);
 
-  test(".macro blah (param_underscore)\n"
+  test_macro(".macro blah (param_underscore)\n"
        "param_underscore\n"
        "two\n"
        "three\n"
        ".endm\n"
        "blah (ten)\n", answer_2);
 
-  test(".macro blah\t( param_underscore ) \n"
+  test_macro(".macro blah\t( param_underscore ) \n"
        "param_underscore\n"
        "two\n"
        "three\n"
        ".endm\n"
        "blah ( ten )\n", answer_2);
+
+  test_macro(".macro blah\t( param_underscore ) \n"
+       "param_underscore\n"
+       "two\n"
+       "three\n"
+       ".endm\n"
+       "blah ( ten )\n", answer_2);
+
+  test_if(".if (15 < 256)\n", 1);
+  test_if(".if (257 < 256)\n", 0);
+  test_if(".if 15 < 256\n", 1);
+  test_if(".if 257 < 256\n", 0);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");

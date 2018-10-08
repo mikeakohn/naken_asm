@@ -7,6 +7,7 @@ LD_FLAGS=-L../../../build
 
 default:
 	$(CC) -o macro_test macro_test.c \
+          ../../../build/common/ifdef_expression.o \
           ../../../build/common/macros.o \
           ../../../build/common/memory_pool.o \
           ../../../build/common/print_error.o \

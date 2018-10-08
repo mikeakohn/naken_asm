@@ -89,7 +89,7 @@ static int get_operator(char *token, struct _operator *operator)
   }
     else
   {
-    printf("Internal Error: Unknown equals_type %s:%d\n", __FILE__, __LINE__);
+    printf("Internal Error: Unknown equals_type '%s' %s:%d\n", token, __FILE__, __LINE__);
     return -1;
   }
 
@@ -214,11 +214,13 @@ printf("debug> #if: %d) %s   n=%d paren_count=%d precedence=%d state=%d\n", toke
     {
       tokens_push(asm_context, token, token_type);
 
+#if 0
       if (paren_count != 0)
       {
         print_error("Unbalanced parentheses.", asm_context);
         return -1;
       }
+#endif
 
       if (state != 1)
       {
@@ -226,7 +228,7 @@ printf("debug> #if: %d) %s   n=%d paren_count=%d precedence=%d state=%d\n", toke
         return -1;
       }
 
-      if (operator.operation!=OPER_NONE)
+      if (operator.operation != OPER_NONE)
       {
         n = eval_operation(operator.operation, n1, n);
 #ifdef DEBUG
@@ -278,7 +280,7 @@ printf("debug> #if eval_operation() @EOL  n=%d precedence=%d state=%d\n", n, pre
 
           if (operator.operation != OPER_NONE)
           {
-            n=eval_operation(operator.operation,n1,n);
+            n = eval_operation(operator.operation, n1, n);
 #ifdef DEBUG
 printf("debug> #if eval_operation() @paren  n=%d\n", n);
 #endif
@@ -337,11 +339,31 @@ printf("debug> #if: parse_defined()=%d\n", n);
       continue;
     }
 
+    if (token_type == TOKEN_SYMBOL && IS_TOKEN(token, ')'))
+    {
+      if (paren_count == 0)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      if (operator.operation != OPER_NONE)
+      {
+          n = eval_operation(operator.operation, n1, n);
+
+          if (n == -1) { return -1; }
+      }
+
+      *num = n;
+
+      return 0;
+    }
+
     if (token_type == TOKEN_SYMBOL || token_type == TOKEN_EQUALITY)
     {
       struct _operator next_operator;
 
-      if (get_operator(token, &next_operator)==-1)
+      if (get_operator(token, &next_operator) == -1)
       {
         print_error_unexp(token, asm_context);
         return -1;
@@ -354,7 +376,11 @@ printf("debug> #if get_operator() token=%s operation=%d precedence=%d\n", token,
       if (next_operator.precedence > precedence)
       {
         tokens_push(asm_context, token, token_type);
-        if (parse_ifdef_expression(asm_context, &n, paren_count, next_operator.precedence, 1) == -1) return -1;
+
+        if (parse_ifdef_expression(asm_context, &n, paren_count, next_operator.precedence, 1) == -1)
+        {
+          return -1;
+        }
       }
         else
       if (next_operator.precedence < precedence)
@@ -410,7 +436,9 @@ printf("debug> parse_ifdef_expression() result is %d\n", num);
     print_error_unexp(token, asm_context);
   }
     else
-  { asm_context->tokens.line++; }
+  {
+    asm_context->tokens.line++;
+  }
 
   return num;
 }
