@@ -53,7 +53,7 @@
                   simulate_avr8->reg[31] = (a >> 8) & 0xff; }
 
 #define PUSH_STACK(n) \
-  simulate_avr8->ram[simulate_avr8->sp--] = (n) && 0xff;
+  simulate_avr8->ram[simulate_avr8->sp--] = (n) & 0xff;
 
 #define POP_STACK(n) \
   simulate_avr8->ram[++simulate_avr8->sp];
