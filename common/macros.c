@@ -669,9 +669,13 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
   uint8_t in_string = 0;
   uint8_t open_parens = 0;
 
-  ch = tokens_get_char(asm_context);
+  while(1)
+  {
+    ch = tokens_get_char(asm_context);
 
-  if (ch == '\t') { ch = ' '; }
+    if (ch == '\t') { ch = ' '; }
+    if (ch != ' ') { break; }
+  }
 
   if (ch != '(')
   {
