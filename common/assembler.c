@@ -769,7 +769,7 @@ int assemble(struct _asm_context *asm_context)
       {
         if (asm_context->ifdef_count < 1)
         {
-          printf("Error: unmatched .else at %s:%d\n", asm_context->tokens.filename, asm_context->ifdef_count);
+          printf("Error: Unmatched .else at %s:%d\n", asm_context->tokens.filename, asm_context->ifdef_count);
           return -1;
         }
         return 2;

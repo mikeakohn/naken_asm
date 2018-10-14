@@ -676,6 +676,7 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
   if (ch != '(')
   {
     print_error("Macro expects params", asm_context);
+    asm_context->error = 1;
     return NULL;
   }
 
