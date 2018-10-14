@@ -88,16 +88,16 @@ int r;
 
 int parse_instruction_avr8(struct _asm_context *asm_context, char *instr)
 {
-char token[TOKENLEN];
-int token_type;
-char instr_case_mem[TOKENLEN];
-char *instr_case = instr_case_mem;
-struct _operand operands[2];
-int operand_count = 0;
-int matched = 0;
-int offset;
-int n,num;
-int rd,rr,k;
+  char token[TOKENLEN];
+  int token_type;
+  char instr_case_mem[TOKENLEN];
+  char *instr_case = instr_case_mem;
+  struct _operand operands[2];
+  int operand_count = 0;
+  int matched = 0;
+  int offset;
+  int n,num;
+  int rd, rr, k;
 
   lower_copy(instr_case, instr);
 
@@ -205,6 +205,7 @@ int rd,rr,k;
     {
       operands[operand_count].type = OPERAND_MINUS_REG16;
       token_type = tokens_get(asm_context, token, TOKENLEN);
+
       if (IS_TOKEN(token,'x') || IS_TOKEN(token,'X'))
       {
         operands[operand_count].value = REG16_X;
@@ -223,6 +224,7 @@ int rd,rr,k;
       {
         //double pushback, or?
         tokens_push(asm_context, token, token_type);
+
         if (asm_context->pass == 1)
         {
           eat_operand(asm_context);
@@ -262,7 +264,9 @@ int rd,rr,k;
 
     operand_count++;
     token_type = tokens_get(asm_context, token, TOKENLEN);
+
     if (token_type == TOKEN_EOL) break;
+
     if (IS_NOT_TOKEN(token,',') || operand_count == 3)
     {
       print_error_unexp(token, asm_context);
@@ -271,7 +275,8 @@ int rd,rr,k;
   }
 
   // Check for aliases:
-  n=0;
+  n = 0;
+
   while(alias[n].instr != NULL)
   {
     if (strcmp(alias[n].instr, instr_case) == 0)
@@ -298,6 +303,7 @@ int rd,rr,k;
   }
 
   n = 0;
+
   while(table_avr8[n].instr != NULL)
   {
     if (strcmp(table_avr8[n].instr, instr_case) == 0)
