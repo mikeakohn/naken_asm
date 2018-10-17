@@ -69,9 +69,6 @@
 #include "simulate/z80.h"
 #include "simulate/null.h"
 
-#define READ_RAM(a) memory_read_m(&util_context->memory, a)
-#define WRITE_RAM(a,b) memory_write_m(&util_context->memory, a, b)
-
 enum
 {
   MODE_INTERACTIVE,
@@ -478,12 +475,13 @@ static void bprint(struct _util_context *util_context, char *token)
     if ((ptr & 0x0f) == 0)
     {
       chars[ptr] = 0;
-      if (ptr != 0) printf(" %s\n", chars);
-      ptr=0;
+      if (ptr != 0) { printf(" %s\n", chars); }
+      ptr = 0;
       printf("0x%04x:", start);
     }
 
-    unsigned char data = READ_RAM(start);
+    uint8_t data = memory_read_m(&util_context->memory, start);
+
     printf(" %02x", data);
 
     if (data >= ' ' && data <= 126)
@@ -535,10 +533,11 @@ static void wprint(struct _util_context *util_context, char *token)
       printf("0x%04x:", start);
     }
 
-    uint8_t data0 = READ_RAM(start);
-    uint8_t data1 = READ_RAM(start+1);
+    int num = memory_read16_m(&util_context->memory, start);
 
-    int num = data0 | (data1 << 8);
+    uint8_t data0 = num & 0xff;
+    uint8_t data1 = (num >> 8) & 0xff;
+
     if (data0 >= ' ' && data0 <= 126)
     {
       chars[ptr++] = data0;
@@ -599,7 +598,7 @@ static void bwrite(struct _util_context *util_context, char *token)
     while(*token == ' ' && *token != 0) token++;
     token = get_num(token, &num);
     if (token == 0) break;
-    WRITE_RAM(address++, num);
+    memory_write_m(&util_context->memory, address++, num);
     count++;
   }
 
@@ -633,14 +632,15 @@ static void wwrite(struct _util_context *util_context, char *token)
   }
 
   int n = address;
+
   while(1)
   {
     if (address >= util_context->memory.size) break;
     while(*token == ' ' && *token != 0) token++;
     token = get_num(token, &num);
     if (token == 0) break;
-    WRITE_RAM(address++, num & 0xff);
-    WRITE_RAM(address++, num >> 8);
+    memory_write16_m(&util_context->memory, address, num);
+    address += 2;
     count++;
   }
 
