@@ -57,5 +57,3 @@ the assembler, which is not used everywhere.  Drop me an email if
 something doesn't make sense and I can straighten it out with either
 an answer or a code change.
 
-
-
