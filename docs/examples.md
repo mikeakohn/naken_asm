@@ -66,4 +66,7 @@ can be reused:
 
     call #pause
 
+The $ can be used as the current address, so to make an infinite loop:
+
+    jmp $
 
