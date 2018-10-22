@@ -40,15 +40,18 @@ int parse_db(struct _asm_context *asm_context, int null_term_flag)
     if (token_type == TOKEN_QUOTED)
     {
       uint8_t *s = (uint8_t *)token;
+
       while(*s != 0)
       {
         if (*s == '\\')
         {
           int e = tokens_escape_char(asm_context, s);
+
           if (e == 0)
           {
             return -1;
           }
+
           s = s + e;
         }
 
@@ -67,10 +70,12 @@ int parse_db(struct _asm_context *asm_context, int null_term_flag)
       else
     {
       tokens_push(asm_context, token, token_type);
+
       if (eval_expression(asm_context, &data32) != 0)
       {
         if (asm_context->pass == 2)
         {
+          print_error_illegal_expression("db", asm_context);
           return -1;
         }
 
@@ -89,6 +94,7 @@ int parse_db(struct _asm_context *asm_context, int null_term_flag)
     }
 
     token_type = tokens_get(asm_context, token, TOKENLEN);
+
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
     if (IS_NOT_TOKEN(token,','))
@@ -127,6 +133,7 @@ int parse_dc16(struct _asm_context *asm_context)
     {
       if (asm_context->pass == 2)
       {
+        print_error_illegal_expression("dc16", asm_context);
         return -1;
       }
 
@@ -194,6 +201,7 @@ int parse_dc32(struct _asm_context *asm_context)
     {
       if (asm_context->pass == 2)
       {
+        print_error_illegal_expression("dc32", asm_context);
         return -1;
       }
 
@@ -271,6 +279,7 @@ int parse_dc64(struct _asm_context *asm_context)
     {
       if (asm_context->pass == 2)
       {
+        print_error_illegal_expression("dc64", asm_context);
         return -1;
       }
 
@@ -452,6 +461,7 @@ int parse_resb(struct _asm_context *asm_context, int size)
   {
     if (asm_context->pass == 2)
     {
+      print_error_illegal_expression("resb", asm_context);
       return -1;
     }
 
@@ -508,6 +518,7 @@ int parse_align_bytes(struct _asm_context *asm_context)
 
   if (eval_expression(asm_context, &num) == -1)
   {
+    print_error_illegal_expression("align", asm_context);
     return -1;
   }
 
