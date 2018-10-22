@@ -131,10 +131,13 @@ static const char *command_names[] =
   "set",
   "clear",
   "speed",
-  "bprint",
-  "wprint",
-  "bwrite",
-  "wwrite",
+  "print",
+  "print",
+  "print16",
+  "print32",
+  "write",
+  "write16",
+  "write32",
   "print",
   "disasm",
   "symbols",
@@ -454,9 +457,9 @@ static int get_range(struct _util_context *util_context, char *token, uint32_t *
   return 0;
 }
 
-static void bprint(struct _util_context *util_context, char *token)
+static void print8(struct _util_context *util_context, char *token)
 {
-  char chars[17];
+  char chars[20];
   uint32_t start, end;
   int ptr = 0;
 
@@ -502,9 +505,9 @@ static void bprint(struct _util_context *util_context, char *token)
   }
 }
 
-static void wprint(struct _util_context *util_context, char *token)
+static void print16(struct _util_context *util_context, char *token)
 {
-  char chars[17];
+  char chars[20];
   uint32_t start, end;
   int ptr = 0;
 
@@ -571,7 +574,76 @@ static void wprint(struct _util_context *util_context, char *token)
   }
 }
 
-static void bwrite(struct _util_context *util_context, char *token)
+static void print32(struct _util_context *util_context, char *token)
+{
+  char chars[20];
+  uint32_t start, end;
+  int ptr = 0;
+
+  if (*token != ' ')
+  {
+    printf("Syntax error: no address given.\n");
+    return;
+  }
+
+  if (get_range(util_context, token, &start, &end) == -1) { return; }
+  if (start >= end) { end = start + 128; }
+
+  if ((start & 0x03) != 0)
+  {
+    printf("Address range 0x%04x to 0x%04x must start on a 4 byte boundary.\n", start, end);
+    return;
+  }
+
+  while(start < end)
+  {
+    if ((ptr & 0x0f) == 0)
+    {
+      chars[ptr] = 0;
+      if (ptr != 0) printf(" %s\n", chars);
+      ptr = 0;
+      printf("0x%04x:", start);
+    }
+
+    uint32_t num = memory_read32_m(&util_context->memory, start);
+
+    uint8_t data0 = num & 0xff;
+    uint8_t data1 = (num >> 8) & 0xff;
+
+    if (data0 >= ' ' && data0 <= 126)
+    {
+      chars[ptr++] = data0;
+    }
+      else
+    {
+      chars[ptr++] = '.';
+    }
+
+    if (data1 >= ' ' && data1 <= 126)
+    {
+      chars[ptr++] = data1;
+    }
+      else
+    {
+      chars[ptr++] = '.';
+    }
+
+    printf(" %08x", num);
+
+    start = start + 4;
+  }
+
+  chars[ptr] = 0;
+
+  if (ptr != 0)
+  {
+    int n;
+    for (n = ptr; n < 16; n += 2) { printf("     "); }
+    printf(" %s\n", chars);
+  }
+}
+
+static void write8(struct _util_context *util_context, char *token)
 {
   uint32_t address = 0;
   uint32_t num;
@@ -605,7 +677,7 @@ static void bwrite(struct _util_context *util_context, char *token)
   printf("Wrote %d bytes starting at address 0x%04x\n", count, n);
 }
 
-static void wwrite(struct _util_context *util_context, char *token)
+static void write16(struct _util_context *util_context, char *token)
 {
   uint32_t address = 0;
   uint32_t num;
@@ -627,7 +699,7 @@ static void wwrite(struct _util_context *util_context, char *token)
 
   if ((address & 0x01) != 0)
   {
-    printf("Error: wwrite address is not 16 bit aligned\n");
+    printf("Error: write16 address is not 16 bit aligned\n");
     return;
   }
 
@@ -636,7 +708,7 @@ static void wwrite(struct _util_context *util_context, char *token)
   while(1)
   {
     if (address >= util_context->memory.size) break;
-    while(*token == ' ' && *token != 0) token++;
+    while(*token == ' ' && *token != 0) { token++; }
     token = get_num(token, &num);
     if (token == 0) break;
     memory_write16_m(&util_context->memory, address, num);
@@ -644,7 +716,49 @@ static void wwrite(struct _util_context *util_context, char *token)
     count++;
   }
 
-  printf("Wrote %d words starting at address %04x\n", count, n);
+  printf("Wrote %d int16's starting at address 0x%04x\n", count, n);
+}
+
+static void write32(struct _util_context *util_context, char *token)
+{
+  uint32_t address = 0;
+  uint32_t num;
+  int count = 0;
+
+  if (*token != ' ')
+  {
+    printf("Syntax error: no address given.\n");
+    return;
+  }
+
+  while(*token == ' ' && *token != 0) { token++; }
+
+  if (token == 0) { printf("Syntax error: no address given.\n"); }
+
+  token = get_address(token, &address, &util_context->symbols);
+
+  if (token == NULL) { printf("Syntax error: bad address\n"); }
+
+  if ((address & 0x03) != 0)
+  {
+    printf("Error: write32 address is not 32 bit aligned\n");
+    return;
+  }
+
+  int n = address;
+
+  while(1)
+  {
+    if (address >= util_context->memory.size) break;
+    while(*token == ' ' && *token != 0) { token++; }
+    token = get_num(token, &num);
+    if (token == 0) break;
+    memory_write32_m(&util_context->memory, address, num);
+    address += 4;
+    count++;
+  }
+
+  printf("Wrote %d int32's starting at address 0x%04x\n", count, n);
 }
 
 static void disasm_range(struct _util_context *util_context, int start, int end)
@@ -888,26 +1002,28 @@ static int set_breakpoint(struct _util_context *util_context, char *command)
 static void print_help()
 {
   printf("Commands:\n");
-  printf("  bprint <start>-<end>     [ print bytes at start address (opt. to end) ]\n");
-  printf("  wprint <start>-<end>     [ print words at start address (opt. to end) ]\n");
-  printf("  bwrite <address> <data>..[ write multiple bytes to RAM starting at address]\n");
-  printf("  wwrite <address> <data>..[ write multiple words to RAM starting at address]\n");
-  printf("  dumpram <start>-<end>    [ Dump RAM of AVR8 during simulation]\n");
-  printf("  registers                [ dump registers ]\n");
-  printf("  run, stop, step          [ simulation run, stop, step ]\n");
-  printf("  call <address>           [ call function at address ]\n");
-  printf("  push <value>             [ push value on stack ]\n");
-  printf("  set <reg>=<value>        [ set register to value ]\n");
-  printf("  set,clear <status flag>  [ set or clear a bit in the status register]\n");
-  printf("  reset                    [ reset program ]\n");
-  printf("  display                  [ toggle display cpu info while simulating ]\n");
-  printf("  speed <speed in Hz>      [ simulation speed or 0 for single step ]\n");
-  printf("  break <address>          [ break at address ]\n");
+  printf("  print <start>-<end>       [ print bytes at start address (opt. to end) ]\n");
+  printf("  print16 <start>-<end>     [ print int16's at start address (opt. to end) ]\n");
+  printf("  print32 <start>-<end>     [ print int32's at start address (opt. to end) ]\n");
+  printf("  write <address> <data>..  [ write multiple bytes to RAM starting at address]\n");
+  printf("  write16 <address> <data>..[ write multiple int16's to RAM starting at address]\n");
+  printf("  write32 <address> <data>..[ write multiple int32's to RAM starting at address]\n");
+  printf("  dumpram <start>-<end>     [ Dump RAM of AVR8 during simulation]\n");
+  printf("  registers                 [ dump registers ]\n");
+  printf("  run, stop, step           [ simulation run, stop, step ]\n");
+  printf("  call <address>            [ call function at address ]\n");
+  printf("  push <value>              [ push value on stack ]\n");
+  printf("  set <reg>=<value>         [ set register to value ]\n");
+  printf("  set,clear <status flag>   [ set or clear a bit in the status register]\n");
+  printf("  reset                     [ reset program ]\n");
+  printf("  display                   [ toggle display cpu info while simulating ]\n");
+  printf("  speed <speed in Hz>       [ simulation speed or 0 for single step ]\n");
+  printf("  break <address>           [ break at address ]\n");
   //printf("  flash                    [ flash device ]\n");
-  printf("  info                     [ general info ]\n");
-  printf("  disasm                   [ disassemble at address ]\n");
-  printf("  disasm <start>-<end>     [ disassemble range of addresses ]\n");
-  printf("  symbols                  [ show symbols ]\n");
+  printf("  info                      [ general info ]\n");
+  printf("  disasm                    [ disassemble at address ]\n");
+  printf("  disasm <start>-<end>      [ disassemble range of addresses ]\n");
+  printf("  symbols                   [ show symbols ]\n");
   //printf("  list <start>-<end>       [ disassemble wth debug listing ]\n");
 }
 
@@ -1493,29 +1609,54 @@ int main(int argc, char *argv[])
       set_speed(&util_context, command);
     }
       else
-    if (strncmp(command, "bprint", 6) == 0)
+    if (strncmp(command, "print ", 6) == 0)
     {
-       bprint(&util_context, command + 6);
+       print8(&util_context, command + 5);
     }
       else
-    if (strncmp(command, "wprint", 6) == 0)
+    if (strncmp(command, "bprint ", 7) == 0)
     {
-       wprint(&util_context, command + 6);
+       print8(&util_context, command + 6);
     }
       else
-    if (strncmp(command, "bwrite", 6) == 0)
+    if (strncmp(command, "print16", 7) == 0)
     {
-       bwrite(&util_context, command + 6);
+       print16(&util_context, command + 7);
     }
       else
-    if (strncmp(command, "wwrite", 6) == 0)
+    if (strncmp(command, "wprint ", 7) == 0)
     {
-       wwrite(&util_context, command + 6);
+       print16(&util_context, command + 6);
     }
       else
-    if (strncmp(command, "print", 5) == 0)
+    if (strncmp(command, "print32", 7) == 0)
     {
-       bprint(&util_context, command + 5);
+       print32(&util_context, command + 7);
+    }
+      else
+    if (strncmp(command, "write ", 6) == 0)
+    {
+       write8(&util_context, command + 5);
+    }
+      else
+    if (strncmp(command, "bwrite ", 7) == 0)
+    {
+       write8(&util_context, command + 6);
+    }
+      else
+    if (strncmp(command, "write16 ", 8) == 0)
+    {
+       write16(&util_context, command + 7);
+    }
+      else
+    if (strncmp(command, "wwrite ", 7) == 0)
+    {
+       write16(&util_context, command + 6);
+    }
+      else
+    if (strncmp(command, "write32 ", 8) == 0)
+    {
+       write32(&util_context, command + 7);
     }
       else
     if (strncmp(command, "disasm ", 7) == 0)
@@ -1544,7 +1685,7 @@ int main(int argc, char *argv[])
         else
       if (util_context.simulate->simulate_dumpram(util_context.simulate, start, end) == -1)
       {
-        printf("This arch doesn't support dumpram.  Use bprint / wprint.\n");
+        printf("This arch doesn't support dumpram.  Use print / print16.\n");
       }
     }
       else
