@@ -361,7 +361,7 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
 
         // forward label
         if(num == 0)
-          size = 16;
+          size = 8;
 
         if(size == 8)
         {
