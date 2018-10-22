@@ -559,7 +559,7 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
 
   if (IS_TOKEN(token, '$'))
   {
-    sprintf(token, "%d", asm_context->address);
+    sprintf(token, "%d", asm_context->address / asm_context->bytes_per_address);
     token_type = TOKEN_NUMBER;
   }
 
