@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -129,7 +129,7 @@ int disasm_stm8(struct _memory *memory, uint32_t address, char *instr, int *cycl
         break;
       }
 
-      if (prefix != 0 && (table_stm8_opcodes[n].opcode & 0xf0) == 0x00 &&
+      if (prefix == 0x72 && (table_stm8_opcodes[n].opcode & 0xf0) == 0x00 &&
           table_stm8_opcodes[n].opcode == (opcode & 0xf1))
       {
         break;
