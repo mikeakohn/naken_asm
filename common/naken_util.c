@@ -520,7 +520,9 @@ static void print16(struct _util_context *util_context, char *token)
   if (get_range(util_context, token, &start, &end) == -1) { return; }
   if (start >= end) { end = start + 128; }
 
-  if ((start & 0x01) != 0)
+  int mask = (util_context->alignment - 1) & 0x1;
+
+  if ((start & mask) != 0)
   {
     printf("Address range 0x%04x to 0x%04x must start on a 2 byte boundary.\n", start, end);
     return;
@@ -589,7 +591,7 @@ static void print32(struct _util_context *util_context, char *token)
   if (get_range(util_context, token, &start, &end) == -1) { return; }
   if (start >= end) { end = start + 128; }
 
-  if ((start & 0x03) != 0)
+  if ((start & (util_context->alignment - 1)) != 0)
   {
     printf("Address range 0x%04x to 0x%04x must start on a 4 byte boundary.\n", start, end);
     return;
@@ -697,7 +699,9 @@ static void write16(struct _util_context *util_context, char *token)
 
   if (token == NULL) { printf("Syntax error: bad address\n"); }
 
-  if ((address & 0x01) != 0)
+  int mask = (util_context->alignment - 1) & 0x1;
+
+  if ((address & mask) != 0)
   {
     printf("Error: write16 address is not 16 bit aligned\n");
     return;
@@ -739,7 +743,7 @@ static void write32(struct _util_context *util_context, char *token)
 
   if (token == NULL) { printf("Syntax error: bad address\n"); }
 
-  if ((address & 0x03) != 0)
+  if ((address & (util_context->alignment - 1)) != 0)
   {
     printf("Error: write32 address is not 32 bit aligned\n");
     return;
@@ -1178,7 +1182,7 @@ int main(int argc, char *argv[])
   }
 
   memset(&util_context, 0, sizeof(struct _util_context));
-  memory_init(&util_context.memory, 1<<20, 1);
+  memory_init(&util_context.memory, 1 << 20, 1);
   symbols_init(&util_context.symbols);
 
 #ifndef NO_MSP430
@@ -1186,11 +1190,13 @@ int main(int argc, char *argv[])
   util_context.simulate = simulate_init_msp430(&util_context.memory);
   util_context.flags = 0;
   util_context.bytes_per_address = 1;
+  util_context.alignment = 1;
 #else
   util_context.disasm_range = cpu_list[0].disasm_range;
   util_context.simulate = simulate_init_null(&util_context.memory);
   util_context.flags = cpu_list[0].flags;
   util_context.bytes_per_address = cpu_list[0].bytes_per_address;
+  util_context.alignment = cpu_list[0].alignment;
 #endif
 
   for (i = 1; i < argc; i++)
@@ -1207,6 +1213,7 @@ int main(int argc, char *argv[])
           util_context.flags = cpu_list[n].flags;
           util_context.bytes_per_address = cpu_list[n].bytes_per_address;
           util_context.memory.endian = cpu_list[n].default_endian;
+          util_context.alignment = cpu_list[n].alignment;
 
           if (cpu_list[n].simulate_init != NULL)
           {
@@ -1325,6 +1332,7 @@ int main(int argc, char *argv[])
             util_context.disasm_range = cpu_list[n].disasm_range;
             util_context.flags = cpu_list[n].flags;
             util_context.bytes_per_address = cpu_list[n].bytes_per_address;
+            util_context.alignment = cpu_list[n].alignment;
 
             if (cpu_list[n].simulate_init != NULL)
             {

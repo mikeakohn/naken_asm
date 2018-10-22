@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2018 by Michael Kohn
  *
  */
 
@@ -25,7 +25,8 @@ struct _util_context
   FILE *src_fp;
   int fd;
   uint32_t flags;
-  int bytes_per_address;
+  uint8_t bytes_per_address;
+  uint8_t alignment;
   disasm_range_t disasm_range;
 };
 
