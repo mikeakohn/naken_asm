@@ -361,7 +361,10 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
 
         // forward label
         if(num == 0)
-          size = 16;
+        {
+          int worst_case = memory_read(asm_context, asm_context->address);
+          if(worst_case == 1) { size = 16; }
+        }
 
         if(size == 8)
         {
