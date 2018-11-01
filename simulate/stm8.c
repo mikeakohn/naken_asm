@@ -17,6 +17,7 @@
  *  - STM7 instructions are not supported
  *
  * Reference: STMicroelectronics PM0044: STM8 CPU Programming Manual (Rev. 3 - September 2011)
+ *            STMicroelectronics ES0102: STM8S001J3/003xx/103xx/903xx Errata sheet (Rev. 5 - July 2017)
  */
 
 #include <stdio.h>
@@ -2396,10 +2397,11 @@ static int simulate_execute_stm8_op_relative(struct _simulate * simulate, struct
         return table_stm8->cycles_min;
       }
     case STM8_JRIH:
-      // DLK TODO:
+      // see Errata
       return table_stm8->cycles_min;
     case STM8_JRIL:
-      // DLK TODO:
+      // see Errata
+      REG_PC = (uint32_t)pc;
       return table_stm8->cycles_min;
     case STM8_JRM:
       if ((GET_I1() != 0) && (GET_I0() != 0))   // interrupts masked
