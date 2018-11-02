@@ -13,11 +13,11 @@ Effects
 In the Parallax assembler, effects are put at the end of the line
 with no comma seperating them from the instruction:
 
-add dest, #immediate wz wc
+    add dest, #immediate wz wc
 
 In naken_asm a comma is needed:
 
-add dest, #immediate, wz ec
+    add dest, #immediate, wz ec
 
 Calls
 -----
@@ -30,24 +30,18 @@ modified:
 
 call #myfunction
 
-myfunction:
-  mov something, #value
-myfunction_ret:
-  ret
+    myfunction:
+      mov something, #value
+    myfunction_ret:
+      ret
 
 With naken_asm, it won't automatically scan for myfunction_ret and
 needs to be specified.  The positive part is the label can be named
 anything:
 
-call myfunction_ret, #myfunction
+    call myfunction_ret, #myfunction
 
-myfunction:
-  mov something, #value
-myfunction_ret:
-  ret
-
-
-
-
-
-
+    myfunction:
+      mov something, #value
+    myfunction_ret:
+      ret
