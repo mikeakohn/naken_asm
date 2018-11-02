@@ -82,6 +82,7 @@
 #include "simulate/lc3.h"
 #include "simulate/mips.h"
 #include "simulate/msp430.h"
+#include "simulate/stm8.h"
 #include "simulate/tms9900.h"
 #include "simulate/z80.h"
 
@@ -728,7 +729,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_stm8,
     disasm_range_stm8,
-    NULL,
+    simulate_init_stm8,
     NO_FLAGS,
   },
 #endif
