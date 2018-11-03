@@ -426,6 +426,7 @@ for option in $@; do
   --enable-stm8)
     ASM_OBJS="${ASM_OBJS} stm8.o"
     DISASM_OBJS="${DISASM_OBJS} stm8.o"
+    SIM_OBJS="${SIM_OBJS} stm8.o"
     TABLE_OBJS="${TABLE_OBJS} stm8.o"
     DFLAGS="${DFLAGS} -DENABLE_STM8"
   ;;
