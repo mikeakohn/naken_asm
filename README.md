@@ -8,3 +8,9 @@ check the [documentation](docs/).
 
 Website: http://www.mikekohn.net/micro/naken_asm.php
 
+Authors
+=======
+* Michael Kohn
+* Joe Davisson (6502, 65C816)
+* Lars Brinkoff (PDP-8)
+* D.L. Karmann (STM8 simulator)
