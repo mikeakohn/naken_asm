@@ -1427,8 +1427,9 @@ int main(int argc, char *argv[])
     util_context.simulate->usec = 1;
     util_context.simulate->show = 0;
     util_context.simulate->auto_run = 1;
-    util_context.simulate->break_io = break_io;
   }
+
+  util_context.simulate->break_io = break_io;
 
   if (set_pc != -1)
   {
