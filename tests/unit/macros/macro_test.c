@@ -109,6 +109,47 @@ void test_if(const char *statement, int answer)
       return;
     }
   }
+
+  tokens_close(&asm_context);
+}
+
+void test_define(const char *macro, uint8_t answer)
+{
+  struct _asm_context asm_context = { 0 };
+  int i;
+
+  printf("Testing: %s ... ", macro);
+
+  tokens_open_buffer(&asm_context, macro);
+  tokens_reset(&asm_context);
+
+  while(1)
+  {
+    i = assemble(&asm_context);
+
+    if (i != 0)
+    {
+      printf("FAIL %s .. assembler error\n", macro);
+      errors++;
+      break;
+    }
+
+    i = memory_read_m(&asm_context.memory, 0);
+
+    if (i != answer)
+    {
+      printf("FAIL %s .. expected %d but got %d\n", macro, answer, i);
+      errors++;
+      break;
+    }
+
+    printf(" PASS\n");
+
+    break;
+  }
+
+  tokens_close(&asm_context);
+  assembler_free(&asm_context);
 }
 
 int main(int argc, char *argv[])
@@ -154,6 +195,11 @@ int main(int argc, char *argv[])
   test_if(".if (257 < 256)\n", 0);
   test_if(".if 15 < 256\n", 1);
   test_if(".if 257 < 256\n", 0);
+
+  test_define(".define blah(a) a\n.db blah(5)\n", 5);
+  test_define(".define blah(a) a + 1\n.db blah(5)\n", 6);
+  test_define(".define blah(a) (a + 1)\n.db blah(5)\n", 6);
+  test_define(".define blah (5 + 1)\n.db blah\n", 6);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");

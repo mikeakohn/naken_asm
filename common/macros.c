@@ -36,7 +36,7 @@ static int get_param_index(char *params, char *name)
   return 0;
 }
 
-static int macros_parse_token(struct _asm_context *asm_context, char *token, int len)
+static int macros_parse_token(struct _asm_context *asm_context, char *token, int len, int macro_type)
 {
   int ptr = 0;
   char ch;
@@ -51,12 +51,18 @@ static int macros_parse_token(struct _asm_context *asm_context, char *token, int
     {
       if (ptr == 0) { continue; }
 
+      if (macro_type == IS_DEFINE)
+      {
+        token[ptr] = 0;
+        return 0;
+      }
+
       // Check for (
       while(1)
       {
         ch = tokens_get_char(asm_context);
-        if (ch == '\t') { ch = ' '; }
 
+        if (ch == '\t') { ch = ' '; }
         if (ch == ' ') { continue; }
 
         if (ch == '(')
@@ -68,6 +74,7 @@ static int macros_parse_token(struct _asm_context *asm_context, char *token, int
         tokens_unget_char(asm_context, ch);
         break;
       }
+
       break;
     }
 
@@ -442,7 +449,7 @@ int macros_parse(struct _asm_context *asm_context, int macro_type)
   int param_count = 0;
 
   // First pull the name out
-  parens = macros_parse_token(asm_context, name, 128);
+  parens = macros_parse_token(asm_context, name, 128, macro_type);
   if (parens == -1) { return -1; }
 
 #ifdef DEBUG

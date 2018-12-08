@@ -4,19 +4,14 @@ VPATH=../asm:../disasm:../common:../simulate:../table:../prog:../fileio:..
 
 default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
          $(FILEIO_OBJS) $(PROG_OBJS)
+	@ar cr naken_asm.a $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) $(FILEIO_OBJS) $(PROG_OBJS)
 	$(CC) -o ../naken_asm$(CONFIG_EXT) ../common/naken_asm.c $(ASM_OBJS) \
-	   $(DISASM_OBJS) $(FILEIO_OBJS) $(COMMON_OBJS) $(SIM_OBJS) \
-	   $(TABLE_OBJS) \
+	   naken_asm.a \
 	    -DINCLUDE_PATH="\"$(INCLUDE_PATH)\"" \
 	   $(CFLAGS) $(LDFLAGS) -I..
 	$(CC) -o ../naken_util$(CONFIG_EXT) ../common/naken_util.c \
-	   $(DISASM_OBJS) \
-	   $(TABLE_OBJS) \
-	   $(SIM_OBJS) \
-	   $(FILEIO_OBJS) \
-	   $(DFLAGS) \
-	   common/cpu_list.o common/memory.o common/memory_pool.o \
-	   common/print_error.o common/symbols.o -I.. \
+	   naken_asm.a \
+	   $(DFLAGS) -I.. \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
 prog:
@@ -38,6 +33,4 @@ common/cpu_list.o: common/cpu_list.c common/cpu_list.h
 
 %.o: %.c
 	$(CC) -c $< -o $*.o $(CFLAGS) -I..
-
-
 
