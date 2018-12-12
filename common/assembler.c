@@ -217,7 +217,7 @@ static int parse_set(struct _asm_context *asm_context)
   // REVIEW - should num be divided by bytes_per_address for dsPIC and avr8?
   symbols_set(&asm_context->symbols, name, num);
 
-  asm_context->tokens.line++;
+  //asm_context->tokens.line++;
 
   return 0;
 }
@@ -688,6 +688,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
 
       return 1;
     }
+
     n++;
   }
 
@@ -705,7 +706,7 @@ int assemble(struct _asm_context *asm_context)
 #ifdef DEBUG
     printf("%d: <%d> %s\n", asm_context->tokens.line, token_type, token);
 #endif
-    if (token_type == TOKEN_EOF) break;
+    if (token_type == TOKEN_EOF) { break; }
 
     if (token_type == TOKEN_EOL)
     {
@@ -733,7 +734,7 @@ int assemble(struct _asm_context *asm_context)
 #ifdef DEBUG
     printf("%d: <%d> %s\n", asm_context->tokens.line, token_type, token);
 #endif
-      if (token_type == TOKEN_EOF) break;
+      if (token_type == TOKEN_EOF) { break; }
 
       if (strcasecmp(token, "define") == 0)
       {
@@ -777,12 +778,12 @@ int assemble(struct _asm_context *asm_context)
         else
       if (strcasecmp(token, "include") == 0)
       {
-        if (include_parse(asm_context) != 0) return -1;
+        if (include_parse(asm_context) != 0) { return -1; }
       }
         else
       if (strcasecmp(token, "binfile") == 0)
       {
-        if (binfile_parse(asm_context) != 0) return -1;
+        if (binfile_parse(asm_context) != 0) { return -1; }
       }
         else
       if (strcasecmp(token, "code") == 0)
@@ -822,12 +823,12 @@ int assemble(struct _asm_context *asm_context)
         else
       if (strcasecmp(token, "export") == 0)
       {
-        if (parse_export(asm_context) != 0) return -1;
+        if (parse_export(asm_context) != 0) { return -1; }
       }
         else
-      if (strcasecmp(token, "equ") == 0 || strcasecmp(token, "def")==0)
+      if (strcasecmp(token, "equ") == 0 || strcasecmp(token, "def") == 0)
       {
-        if (parse_equ(asm_context) != 0) return -1;
+        if (parse_equ(asm_context) != 0) { return -1; }
       }
         else
       {
