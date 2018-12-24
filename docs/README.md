@@ -16,5 +16,6 @@ Contents
   * [PowerPC](PowerPC.md)
   * [Propeller](Propeller.md)
   * [TMS9900](TMS9900.md)
+* [Developer Guidelines](developer.md)
 * [Credits](credits.md)
 
