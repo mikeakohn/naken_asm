@@ -35,6 +35,7 @@
 #include "disasm/arm.h"
 #include "disasm/avr8.h"
 #include "disasm/cell.h"
+#include "disasm/copper.h"
 #include "disasm/cp1610.h"
 #include "disasm/dspic.h"
 #include "disasm/epiphany.h"
@@ -90,6 +91,7 @@ parse_instruction_t parse_instruction_arc = NULL;
 parse_instruction_t parse_instruction_arm = NULL;
 parse_instruction_t parse_instruction_avr8 = NULL;
 parse_instruction_t parse_instruction_cell = NULL;
+parse_instruction_t parse_instruction_common = NULL;
 parse_instruction_t parse_instruction_cp1610 = NULL;
 parse_instruction_t parse_instruction_dspic = NULL;
 parse_instruction_t parse_instruction_epiphany = NULL;
@@ -1149,6 +1151,7 @@ int main(int argc, char *argv[])
            "   -arm                         (ARM)\n"
            "   -avr8                        (Atmel AVR8)\n"
            "   -cell                        (IBM Cell BE)\n"
+           "   -copper                      (Amiga Copper)\n"
            "   -cp1610                      (General Instruments CP1610)\n"
            "   -dspic                       (dsPIC)\n"
            "   -epiphany                    (Epiphany III/IV)\n"

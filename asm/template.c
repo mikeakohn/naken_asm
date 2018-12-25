@@ -28,10 +28,10 @@ enum
 
 int parse_instruction_NAME(struct _asm_context *asm_context, char *instr)
 {
-char token[TOKENLEN];
-int token_type;
-char instr_case[TOKENLEN];
-int n;
+  char token[TOKENLEN];
+  int token_type;
+  char instr_case[TOKENLEN];
+  int n;
 
   lower_copy(instr_case, instr);
 

@@ -31,6 +31,7 @@ CPUS=" \
   ARM
   AVR8
   CELL
+  COPPER
   CP1610
   DSPIC
   EMOTION_ENGINE
@@ -141,6 +142,7 @@ show_help()
   echo "  --enable-arm              compile in support for ARM"
   echo "  --enable-avr8             compile in support for Atmel AVR8"
   echo "  --enable-cell             compile in support for Broadband Cell SPU"
+  echo "  --enable-copper           compile in support for Amiga Copper"
   echo "  --enable-cp1610           compile in support for CP1610"
   echo "  --enable-dspic            compile in support for dsPIC and PIC24"
   echo "  --enable-epiphany         compile in support for Ephiphany-III/IV"
@@ -347,6 +349,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} cell.o"
     TABLE_OBJS="${TABLE_OBJS} cell.o"
     DFLAGS="${DFLAGS} -DENABLE_CELL"
+  ;;
+  --enable-copper)
+    ASM_OBJS="${ASM_OBJS} copper.o"
+    DISASM_OBJS="${DISASM_OBJS} copper.o"
+    #TABLE_OBJS="${TABLE_OBJS} copper.o"
+    DFLAGS="${DFLAGS} -DENABLE_COPPER"
   ;;
   --enable-cp1610)
     ASM_OBJS="${ASM_OBJS} cp1610.o"

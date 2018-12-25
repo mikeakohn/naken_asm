@@ -26,6 +26,7 @@
 #include "asm/cell.h"
 #include "asm/cp1610.h"
 #include "asm/common.h"
+#include "asm/copper.h"
 #include "asm/dspic.h"
 #include "asm/epiphany.h"
 #include "asm/lc3.h"
@@ -57,6 +58,7 @@
 #include "disasm/arm.h"
 #include "disasm/avr8.h"
 #include "disasm/cell.h"
+#include "disasm/copper.h"
 #include "disasm/cp1610.h"
 #include "disasm/dspic.h"
 #include "disasm/epiphany.h"
@@ -397,6 +399,26 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_cell,
     disasm_range_cell,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_COPPER
+  {
+    "copper",
+    CPU_TYPE_COPPER,
+    ENDIAN_BIG,
+    1,
+    ALIGN_2,
+    1,
+    0,
+    1,
+    SREC_16,
+    parse_instruction_copper,
+    NULL,
+    link_not_supported,
+    list_output_copper,
+    disasm_range_copper,
     NULL,
     NO_FLAGS,
   },

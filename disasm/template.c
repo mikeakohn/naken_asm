@@ -34,7 +34,7 @@ int disasm_NAME(struct _memory *memory, uint32_t address, char *instruction, int
 
 void list_output_NAME(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
-  int cycles_min,cycles_max;
+  int cycles_min, cycles_max;
   char instruction[128];
   char bytes[10];
   int count;
@@ -42,7 +42,7 @@ void list_output_NAME(struct _asm_context *asm_context, uint32_t start, uint32_t
   //unsigned int opcode=memory_read_m(&asm_context->memory, address);
 
   fprintf(asm_context->list, "\n");
-  count=disasm_NAME(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
+  count = disasm_NAME(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
 
   bytes[0] = 0;
   for (n = 0; n < count; n++)
@@ -64,7 +64,7 @@ void disasm_range_NAME(struct _memory *memory, uint32_t flags, uint32_t start, u
 {
   char instruction[128];
   char bytes[10];
-  int cycles_min=0,cycles_max=0;
+  int cycles_min = 0, cycles_max = 0;
   int count;
   int n;
 

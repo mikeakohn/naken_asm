@@ -53,6 +53,7 @@ enum
   CPU_TYPE_ARM,
   CPU_TYPE_AVR8,
   CPU_TYPE_CELL,
+  CPU_TYPE_COPPER,
   CPU_TYPE_CP1610,
   CPU_TYPE_DSPIC,
   CPU_TYPE_EMOTION_ENGINE,
@@ -75,6 +76,23 @@ enum
   CPU_TYPE_TMS9900,
   CPU_TYPE_Z80
 };
+
+// The options in this structure:
+// name: If this is set to "mycpu", the assembler will use a .mycpu directive 
+// default_endian: ENDIAN_BIG or ENDIAN_LITTLE
+// bytes_per_address: Some odd CPU's (AVR8 and PIC24) aren't 1 byte per address
+// alignment: How many bytes to align on.  MIPS for example is 4 byte per instr
+// is_dollar_hex: Some old CPU's have assemblers that represent hex as $100 ..
+//                even if this is set, naken_asm will still allow 0x100
+// can_tick_end_string: Some wierd z80 syntax
+// srec_size: size of data in an srec file
+// parse_instruction: function name to assemble the next instruction.
+// parse_directive: extra function for special directives
+// link_function: function used for doing ELF linking with .o's.
+// list_output: function that write to the -l option listing file
+// disasm_range: function that disassembles code and writes to stdout
+// simulate_init: function that inializes the simulator.
+// flags: extra flags the assembler can use.
 
 struct _cpu_list
 {
