@@ -118,7 +118,7 @@ static int get_register_special_68000(char *token)
 #if 0
 static int calc_branch_size(int address, int new_address)
 {
-int offset;
+  int offset;
 
   offset = new_address - (address + 2);
   if (offset >= -128 && offset <= 127) { return SIZE_B; }
@@ -1151,12 +1151,12 @@ static int write_div_mul(struct _asm_context *asm_context, char *instr, struct _
   if (size != SIZE_W) { return 0; }
   if (operands[1].type != OPERAND_D_REG) { return 0; }
 
-  return ea_generic_all(asm_context, &operands[0], instr, opcode|(operands[1].value<<9), 0, EA_NO_A, NO_EXTRA_IMM);
+  return ea_generic_all(asm_context, &operands[0], instr, opcode|(operands[1].value << 9), 0, EA_NO_A, NO_EXTRA_IMM);
 }
 
 static int write_movep(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
-int opmode;
+  int opmode;
 
   if (operand_count != 2) { return 0; }
   if (size != SIZE_W && size != SIZE_L) { return 0; }
@@ -1194,9 +1194,9 @@ int opmode;
 
 static int write_movem(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
-struct _operand *operand = &operands[1];
-int mask=0;
-int dir=0;
+  struct _operand *operand = &operands[1];
+  int mask = 0;
+  int dir = 0;
 
   if (operand_count != 2) { return 0; }
   if (size != SIZE_W && size != SIZE_L) { return 0; }
@@ -1238,14 +1238,14 @@ int dir=0;
 
 static int write_move(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
 {
-const int move_size[] = { 1, 3, 2, 0 };
-uint32_t address;
-uint16_t ea_src_bytes[32];
-uint16_t ea_dst_bytes[32];
-int src_len;
-int dst_len;
-int len=2;
-int n;
+  const int move_size[] = { 1, 3, 2, 0 };
+  uint32_t address;
+  uint16_t ea_src_bytes[32];
+  uint16_t ea_dst_bytes[32];
+  int src_len;
+  int dst_len;
+  int len = 2;
+  int n;
 
   if (size == SIZE_NONE) { return 0; }
 
@@ -1263,6 +1263,7 @@ int n;
   address = asm_context->address;
 
   src_len = ea_generic_all(asm_context, &operands[0], instr, opcode, size, 0, NO_EXTRA_IMM);
+
   if (src_len == 0) { return 0; }
 
   for (n = 0; n < src_len; n++)
@@ -1332,19 +1333,17 @@ static int write_jump(struct _asm_context *asm_context, char *instr, struct _ope
 
 int parse_instruction_68000(struct _asm_context *asm_context, char *instr)
 {
-char token[TOKENLEN];
-int token_type;
-char instr_case_c[TOKENLEN];
-char *instr_case = instr_case_c;
-struct _operand operands[3];
-int operand_count=0;
-int operand_size=SIZE_NONE;
-int matched=0;
-int num;
-int ret;
-//int n,r;
-//int count = 1;
-int n;
+  char token[TOKENLEN];
+  int token_type;
+  char instr_case_c[TOKENLEN];
+  char *instr_case = instr_case_c;
+  struct _operand operands[3];
+  int operand_count = 0;
+  int operand_size = SIZE_NONE;
+  int matched = 0;
+  int num;
+  int ret;
+  int n;
 
   lower_copy(instr_case, instr);
   memset(operands, 0, sizeof(operands));
@@ -1354,6 +1353,7 @@ int n;
   else if (strcmp("dbra", instr_case) == 0) { instr_case = "dbf"; }
 
   memset(&operands, 0, sizeof(operands));
+
   while(1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
