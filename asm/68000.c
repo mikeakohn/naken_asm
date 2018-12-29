@@ -1264,6 +1264,7 @@ static int write_move(struct _asm_context *asm_context, char *instr, struct _ope
 
   src_len = ea_generic_all(asm_context, &operands[0], instr, opcode, size, 0, NO_EXTRA_IMM);
 
+  if (src_len == -1) { return -1; }
   if (src_len == 0) { return 0; }
 
   for (n = 0; n < src_len; n++)
@@ -1275,6 +1276,7 @@ static int write_move(struct _asm_context *asm_context, char *instr, struct _ope
 
   dst_len = ea_generic_all(asm_context, &operands[1], instr, opcode, size, EA_NO_A | EA_NO_IMM | EA_NO_PC, NO_EXTRA_IMM);
 
+  if (dst_len == -1) { return -1; }
   if (dst_len == 0) { return 0; }
 
   for (n = 0; n < dst_len; n++)
