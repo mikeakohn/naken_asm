@@ -10,6 +10,8 @@
 
 ;; exec.library
 
+ExexBase       equ 4
+
 Supervisor     equ -30 ; Supervisor ()
 ExitIntr       equ -36 ; Exitlntr ()
 Schedule       equ -42 ; Schedule ()
