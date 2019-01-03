@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2019 by Michael Kohn, Joe Davisson
  *
  * 6502 file by Joe Davisson
  *
  */
 
-#ifndef _DISASM_6502_H
-#define _DISASM_6502_H
+#ifndef NAKEN_ASM_DISASM_6502_H
+#define NAKEN_ASM_DISASM_6502_H
 
 #include "common/assembler.h"
 

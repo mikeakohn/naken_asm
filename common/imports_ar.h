@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _IMPORTS_AR_H
-#define _IMPORTS_AR_H
+#ifndef NAKEN_ASM_IMPORTS_AR_H
+#define NAKEN_ASM_IMPORTS_AR_H
 
 int imports_ar_verify(uint8_t *buffer, int file_size);
 

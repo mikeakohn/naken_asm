@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _SIMULATE_Z80_H
-#define _SIMULATE_Z80_H
+#ifndef NAKEN_ASM__SIMULATE_Z80_H
+#define NAKEN_ASM__SIMULATE_Z80_H
 
 #include <unistd.h>
 

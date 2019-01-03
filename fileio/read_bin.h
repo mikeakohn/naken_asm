@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _READ_BIN_H
-#define _READ_BIN_H
+#ifndef NAKEN_ASM_READ_BIN_H
+#define NAKEN_ASM_READ_BIN_H
 
 #include <stdint.h>
 

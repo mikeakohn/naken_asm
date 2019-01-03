@@ -3,14 +3,14 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _SERIAL_H
-#define _SERIAL_H
+#ifndef NAKEN_ASM_SERIAL_H
+#define NAKEN_ASM_SERIAL_H
 
 #ifndef WIN32
 #include <termios.h>

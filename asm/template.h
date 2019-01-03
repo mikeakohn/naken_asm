@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _ASM__H
-#define _ASM__H
+#ifndef NAKEN_ASM_ASM__H
+#define NAKEN_ASM_ASM__H
 
 #include "common/assembler.h"
 

@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  * 65816 file by Joe Davisson
  *
  */
 
-#ifndef _SIMULATE_65816_H
-#define _SIMULATE_65816_H
+#ifndef NAKEN_ASM__SIMULATE_65816_H
+#define NAKEN_ASM__SIMULATE_65816_H
 
 #include <unistd.h>
 

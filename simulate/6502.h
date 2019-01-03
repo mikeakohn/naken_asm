@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2019 by Michael Kohn, Joe Davisson
  *
  * 6502 file by Joe Davisson
  *
  */
 
-#ifndef _SIMULATE_6502_H
-#define _SIMULATE_6502_H
+#ifndef NAKEN_ASM__SIMULATE_6502_H
+#define NAKEN_ASM__SIMULATE_6502_H
 
 #include <unistd.h>
 

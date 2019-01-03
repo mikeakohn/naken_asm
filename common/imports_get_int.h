@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _GET_INT_H
-#define _GET_INT_H
+#ifndef NAKEN_ASM_GET_INT_H
+#define NAKEN_ASM_GET_INT_H
 
 int get_int32_be(const uint8_t *buffer);
 int get_int16_be(const uint8_t *buffer);

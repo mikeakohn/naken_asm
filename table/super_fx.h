@@ -3,14 +3,14 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _TABLE_SUPER_FX_H
-#define _TABLE_SUPER_FX_H
+#ifndef NAKEN_ASM_TABLE_SUPER_FX_H
+#define NAKEN_ASM_TABLE_SUPER_FX_H
 
 #include "common/assembler.h"
 

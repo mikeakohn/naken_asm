@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _ASM_PROPELLER_H
-#define _ASM_PROPELLER_H
+#ifndef NAKEN_ASM_ASM_PROPELLER_H
+#define NAKEN_ASM_ASM_PROPELLER_H
 
 #include "common/assembler.h"
 

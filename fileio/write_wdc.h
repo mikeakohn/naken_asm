@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _WRITE_WDC_H
-#define _WRITE_WDC_H
+#ifndef NAKEN_ASM_WRITE_WDC_H
+#define NAKEN_ASM_WRITE_WDC_H
 
 int write_wdc(struct _memory *memory, FILE *out);
 

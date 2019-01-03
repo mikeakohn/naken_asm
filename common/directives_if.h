@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _DIRECTIVES_IF_H
-#define _DIRECTIVES_IF_H
+#ifndef NAKEN_ASM_DIRECTIVES_IF_H
+#define NAKEN_ASM_DIRECTIVES_IF_H
 
 int ifdef_ignore(struct _asm_context *asm_context);
 int parse_ifdef_ignore(struct _asm_context *asm_context, int ignore_section);

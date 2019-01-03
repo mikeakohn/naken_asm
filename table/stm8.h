@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _TABLE_STM8_H
-#define _TABLE_STM8_H
+#ifndef NAKEN_ASM_TABLE_STM8_H
+#define NAKEN_ASM_TABLE_STM8_H
 
 #include "common/assembler.h"
 

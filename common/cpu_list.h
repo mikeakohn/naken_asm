@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _CPU_LIST_H
-#define _CPU_LIST_H
+#ifndef NAKEN_ASM_CPU_LIST_H
+#define NAKEN_ASM_CPU_LIST_H
 
 #include "common/linker.h"
 #include "simulate/common.h"

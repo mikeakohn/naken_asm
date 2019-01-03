@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _MEMORY_POOL_H
-#define _MEMORY_POOL_H
+#ifndef NAKEN_ASM_MEMORY_POOL_H
+#define NAKEN_ASM_MEMORY_POOL_H
 
 struct _naken_heap
 {

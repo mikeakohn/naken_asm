@@ -3,14 +3,14 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _TABLE_68HC08
-#define _TABLE_68HC08
+#ifndef NAKEN_ASM_TABLE_68HC08
+#define NAKEN_ASM_TABLE_68HC08
 
 // cat table/table_68hc08.c  | grep CPU08 | sed 's/^.*CPU/CPU/' | sed 's/,.*$/,/' | sort | uniq
 

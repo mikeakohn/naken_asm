@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _READ_ELF_H
-#define _READ_ELF_H
+#ifndef NAKEN_ASM_READ_ELF_H
+#define NAKEN_ASM_READ_ELF_H
 
 #include "common/memory.h"
 #include "common/symbols.h"

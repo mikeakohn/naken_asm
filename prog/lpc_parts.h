@@ -3,14 +3,14 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _LPC_PARTS
-#define _LPC_PARTS
+#ifndef NAKEN_ASM_LPC_PARTS
+#define NAKEN_ASM_LPC_PARTS
 
 #include <stdint.h>
 

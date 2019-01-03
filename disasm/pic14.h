@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _DISASM_PIC14_H
-#define _DISASM_PIC14_H
+#ifndef NAKEN_ASM_DISASM_PIC14_H
+#define NAKEN_ASM_DISASM_PIC14_H
 
 #include "common/assembler.h"
 

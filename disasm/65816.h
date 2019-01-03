@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2019 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
  */
 
-#ifndef _DISASM_65816_H
-#define _DISASM_65816_H
+#ifndef NAKEN_ASM_DISASM_65816_H
+#define NAKEN_ASM_DISASM_65816_H
 
 #include <stdint.h>
 

@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _DIRECTIVES_DATA_H
-#define _DIRECTIVES_DATA_H
+#ifndef NAKEN_ASM_DIRECTIVES_DATA_H
+#define NAKEN_ASM_DIRECTIVES_DATA_H
 
 #include "common/assembler.h"
 

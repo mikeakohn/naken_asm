@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _DIRECTIVES_INCLUDE_H
-#define _DIRECTIVES_INCLUDE_H
+#ifndef NAKEN_ASM_DIRECTIVES_INCLUDE_H
+#define NAKEN_ASM_DIRECTIVES_INCLUDE_H
 
 int binfile_parse(struct _asm_context *asm_context);
 int include_parse(struct _asm_context *asm_context);

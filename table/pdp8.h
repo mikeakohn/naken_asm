@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn, Lars Brinkhoff
+ * Copyright 2010-2019 by Michael Kohn, Lars Brinkhoff
  *
  * PDP-8 by Lars Brinkhoff
  *
  */
 
-#ifndef _TABLE_PDP8_H
-#define _TABLE_PDP8_H
+#ifndef NAKEN_ASM_TABLE_PDP8_H
+#define NAKEN_ASM_TABLE_PDP8_H
 
 #include "common/assembler.h"
 

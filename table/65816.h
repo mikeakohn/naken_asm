@@ -3,16 +3,16 @@
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
  *     Web: http://www.mikekohn.net/
- * License: GPL
+ * License: GPLv3
  *
- * Copyright 2010-2015 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2019 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
  */
 
-#ifndef _TABLE_65816_H
-#define _TABLE_65816_H
+#ifndef NAKEN_ASM_TABLE_65816_H
+#define NAKEN_ASM_TABLE_65816_H
 
 #include "common/assembler.h"
 

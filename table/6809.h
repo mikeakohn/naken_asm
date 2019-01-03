@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _TABLE_6809_H
-#define _TABLE_6809_H
+#ifndef NAKEN_ASM_TABLE_6809_H
+#define NAKEN_ASM_TABLE_6809_H
 
 #include <stdint.h>
 

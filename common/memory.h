@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _MEMORY_H
-#define _MEMORY_H
+#ifndef NAKEN_ASM_MEMORY_H
+#define NAKEN_ASM_MEMORY_H
 
 #include <stdint.h>
 

@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2018 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _PRINT_ERROR_H
-#define _PRINT_ERROR_H
+#ifndef NAKEN_ASM_PRINT_ERROR_H
+#define NAKEN_ASM_PRINT_ERROR_H
 
 void print_error(const char *s, struct _asm_context *asm_context);
 void print_error_unexp(const char *s, struct _asm_context *asm_context);

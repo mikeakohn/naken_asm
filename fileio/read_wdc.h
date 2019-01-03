@@ -5,12 +5,12 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2017 by Michael Kohn
+ * Copyright 2010-2019 by Michael Kohn
  *
  */
 
-#ifndef _READ_WDC_H
-#define _READ_WDC_H
+#ifndef NAKEN_ASM_READ_WDC_H
+#define NAKEN_ASM_READ_WDC_H
 
 #include <stdint.h>
 
