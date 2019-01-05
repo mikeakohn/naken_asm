@@ -52,6 +52,7 @@ int disasm_java(struct _memory *memory, uint32_t address, char *instruction, int
   uint16_t index;
   uint8_t opcode;
   int8_t const8;
+  int8_t index8;
   int16_t offset16;
   int offset;
   int wide = 0;
@@ -74,10 +75,14 @@ int disasm_java(struct _memory *memory, uint32_t address, char *instruction, int
       // Note: These instructions should never be wide.
       sprintf(instruction, "%s", table_java[opcode].instr);
       return wide + 1;
+    case JAVA_OP_CONSTANT_INDEX8:
+      // Note: These instructions should never be wide.
+      index8 = memory_read_m(memory, address + wide + 1);
+      sprintf(instruction, "%s %d", table_java[opcode].instr, index8);
+      return wide + 2;
     case JAVA_OP_CONSTANT_INDEX:
     case JAVA_OP_FIELD_INDEX:
     case JAVA_OP_INTERFACE_INDEX:
-    case JAVA_OP_LOCAL_INDEX:
     case JAVA_OP_METHOD_INDEX:
     case JAVA_OP_CLASS_INDEX:
     case JAVA_OP_SPECIAL_INDEX:
@@ -87,7 +92,21 @@ int disasm_java(struct _memory *memory, uint32_t address, char *instruction, int
       index = memory_read16_m(memory, address + wide + 1);
       sprintf(instruction, "%s %d", table_java[opcode].instr, index);
       return wide + 3;
-    case JAVA_OP_INDEX_LOCAL_CONST:
+    case JAVA_OP_LOCAL_INDEX:
+      if (wide == 0)
+      {
+        index = memory_read_m(memory, address + wide + 1);
+        sprintf(instruction, "%s %d", table_java[opcode].instr, index);
+        return wide + 2;
+      }
+        else
+      {
+        index = memory_read16_m(memory, address + wide + 1);
+        sprintf(instruction, "%s %d", table_java[opcode].instr, index);
+        return wide + 3;
+      }
+
+    case JAVA_OP_LOCAL_INDEX_CONST:
       if (wide == 0)
       {
         index = memory_read_m(memory, address + wide + 1);
@@ -155,7 +174,7 @@ void list_output_java(struct _asm_context *asm_context, uint32_t start, uint32_t
 
   for (n = 0; n < count; n++)
   {
-    opcode = memory_read_m(&asm_context->memory, start);
+    opcode = memory_read_m(&asm_context->memory, start + n);
 
     sprintf(temp, "%02x ", opcode);
     strcat(hex, temp);
@@ -186,7 +205,7 @@ void disasm_range_java(struct _memory *memory, uint32_t flags, uint32_t start, u
 
      for (n = 0; n < count; n++)
      {
-       opcode = memory_read_m(memory, start);
+       opcode = memory_read_m(memory, start + n);
 
        sprintf(temp, "%02x ", opcode);
        strcat(hex, temp);

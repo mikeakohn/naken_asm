@@ -21,23 +21,62 @@
 #include "common/eval_expression.h"
 #include "table/java.h"
 
-static int parse_index(struct _asm_context *asm_context, const char *instr)
+static int parse_index8(struct _asm_context *asm_context, const char *instr)
 {
   int index;
 
+  if (asm_context->pass == 1)
+  {
+    add_bin8(asm_context, 0, IS_OPCODE);
+    ignore_line(asm_context);
+    return 3;
+  }
+
   if (eval_expression(asm_context, &index) != 0)
   {
-    if (asm_context->pass == 1)
-    {
-      ignore_line(asm_context);
-      return 0;
-    }
-
     print_error_illegal_expression(instr, asm_context);
     return -1;
   }
 
-  return 0;
+  if (index < 0 && index > 0xff)
+  {
+    print_error_range("Offset", 0, 0xff, asm_context);
+    return -1;
+  }
+
+  add_bin8(asm_context, index & 0xff, IS_OPCODE);
+
+  return 3;
+}
+
+static int parse_index(struct _asm_context *asm_context, const char *instr)
+{
+  int index;
+
+  if (asm_context->pass == 1)
+  {
+    add_bin8(asm_context, 0, IS_OPCODE);
+    add_bin8(asm_context, 0, IS_OPCODE);
+    ignore_line(asm_context);
+    return 3;
+  }
+
+  if (eval_expression(asm_context, &index) != 0)
+  {
+    print_error_illegal_expression(instr, asm_context);
+    return -1;
+  }
+
+  if (index < 0 && index > 0xffff)
+  {
+    print_error_range("Offset", 0, 0xffff, asm_context);
+    return -1;
+  }
+
+  add_bin8(asm_context, (index >> 8) & 0xff, IS_OPCODE);
+  add_bin8(asm_context, index & 0xff, IS_OPCODE);
+
+  return 3;
 }
 
 int parse_instruction_java(struct _asm_context *asm_context, char *instr)
@@ -70,18 +109,19 @@ int parse_instruction_java(struct _asm_context *asm_context, char *instr)
 
           return 1;
         case JAVA_OP_CONSTANT_INDEX:
+          add_bin8(asm_context, n, IS_OPCODE);
+          return parse_index8(asm_context, instr);
         case JAVA_OP_FIELD_INDEX:
         case JAVA_OP_INTERFACE_INDEX:
-        case JAVA_OP_LOCAL_INDEX:
         case JAVA_OP_METHOD_INDEX:
         case JAVA_OP_CLASS_INDEX:
         case JAVA_OP_SPECIAL_INDEX:
         case JAVA_OP_STATIC_INDEX:
         case JAVA_OP_VIRTUAL_INDEX:
+          add_bin8(asm_context, n, IS_OPCODE);
           return parse_index(asm_context, instr);
-
-        case JAVA_OP_CLASS_INDEX_TYPE:
-        case JAVA_OP_INDEX_LOCAL_CONST:
+        case JAVA_OP_LOCAL_INDEX:
+        case JAVA_OP_LOCAL_INDEX_CONST:
         case JAVA_OP_ARRAY_TYPE:
         case JAVA_OP_CONSTANT16:
         case JAVA_OP_CONSTANT8:
