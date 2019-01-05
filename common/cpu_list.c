@@ -27,8 +27,10 @@
 #include "asm/cp1610.h"
 #include "asm/common.h"
 #include "asm/copper.h"
+#include "asm/dotnet.h"
 #include "asm/dspic.h"
 #include "asm/epiphany.h"
+#include "asm/java.h"
 #include "asm/lc3.h"
 #include "asm/mips.h"
 #include "asm/msp430.h"
@@ -60,8 +62,10 @@
 #include "disasm/cell.h"
 #include "disasm/copper.h"
 #include "disasm/cp1610.h"
+#include "disasm/dotnet.h"
 #include "disasm/dspic.h"
 #include "disasm/epiphany.h"
+#include "disasm/java.h"
 #include "disasm/lc3.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
@@ -443,6 +447,26 @@ struct _cpu_list cpu_list[] =
     NO_FLAGS,
   },
 #endif
+#ifdef ENABLE_DOTNET
+  {
+    "dotnet",
+    CPU_TYPE_DOTNET,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_1,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_dotnet,
+    NULL,
+    link_not_supported,
+    list_output_dotnet,
+    disasm_range_dotnet,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
 #ifdef ENABLE_DSPIC
   {
     "dspic",
@@ -479,6 +503,26 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_epiphany,
     disasm_range_epiphany,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_JAVA
+  {
+    "java",
+    CPU_TYPE_JAVA,
+    ENDIAN_BIG,
+    1,
+    ALIGN_1,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_java,
+    NULL,
+    link_not_supported,
+    list_output_java,
+    disasm_range_java,
     NULL,
     NO_FLAGS,
   },

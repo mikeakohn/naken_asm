@@ -33,9 +33,11 @@ CPUS=" \
   CELL
   COPPER
   CP1610
+  DOTNET
   DSPIC
   EMOTION_ENGINE
   EPIPHANY
+  JAVA
   LC3
   MIPS
   MSP430
@@ -144,8 +146,10 @@ show_help()
   echo "  --enable-cell             compile in support for Broadband Cell SPU"
   echo "  --enable-copper           compile in support for Amiga Copper"
   echo "  --enable-cp1610           compile in support for CP1610"
+  echo "  --enable-dotnet           compile in support for .NET CIL"
   echo "  --enable-dspic            compile in support for dsPIC and PIC24"
   echo "  --enable-epiphany         compile in support for Ephiphany-III/IV"
+  echo "  --enable-java             compile in support for Java"
   echo "  --enable-lc3              compile in support for LC-3"
   echo "  --enable-mips             compile in support for MIPS"
   echo "  --enable-msp430           compile in support for MSP430 and MSP430X"
@@ -362,6 +366,12 @@ for option in $@; do
     TABLE_OBJS="${TABLE_OBJS} cp1610.o"
     DFLAGS="${DFLAGS} -DENABLE_CP1610"
   ;;
+  --enable-dotnet)
+    ASM_OBJS="${ASM_OBJS} dotnet.o"
+    DISASM_OBJS="${DISASM_OBJS} dotnet.o"
+    TABLE_OBJS="${TABLE_OBJS} dotnet.o"
+    DFLAGS="${DFLAGS} -DENABLE_DOTNET"
+  ;;
   --enable-dspic)
     ASM_OBJS="${ASM_OBJS} dspic.o"
     DISASM_OBJS="${DISASM_OBJS} dspic.o"
@@ -373,6 +383,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} epiphany.o"
     TABLE_OBJS="${TABLE_OBJS} epiphany.o"
     DFLAGS="${DFLAGS} -DENABLE_EPIPHANY"
+  ;;
+  --enable-java)
+    ASM_OBJS="${ASM_OBJS} java.o"
+    DISASM_OBJS="${DISASM_OBJS} java.o"
+    TABLE_OBJS="${TABLE_OBJS} java.o"
+    DFLAGS="${DFLAGS} -DENABLE_JAVA"
   ;;
   --enable-lc3)
     ASM_OBJS="${ASM_OBJS} lc3.o"

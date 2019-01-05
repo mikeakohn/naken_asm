@@ -37,8 +37,10 @@
 #include "disasm/cell.h"
 #include "disasm/copper.h"
 #include "disasm/cp1610.h"
+#include "disasm/dotnet.h"
 #include "disasm/dspic.h"
 #include "disasm/epiphany.h"
+#include "disasm/java.h"
 #include "disasm/lc3.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
@@ -93,8 +95,10 @@ parse_instruction_t parse_instruction_avr8 = NULL;
 parse_instruction_t parse_instruction_cell = NULL;
 parse_instruction_t parse_instruction_common = NULL;
 parse_instruction_t parse_instruction_cp1610 = NULL;
+parse_instruction_t parse_instruction_dotnet = NULL;
 parse_instruction_t parse_instruction_dspic = NULL;
 parse_instruction_t parse_instruction_epiphany = NULL;
+parse_instruction_t parse_instruction_java = NULL;
 parse_instruction_t parse_instruction_lc3 = NULL;
 parse_instruction_t parse_instruction_mips = NULL;
 parse_instruction_t parse_instruction_msp430 = NULL;
@@ -1153,8 +1157,10 @@ int main(int argc, char *argv[])
            "   -cell                        (IBM Cell BE)\n"
            "   -copper                      (Amiga Copper)\n"
            "   -cp1610                      (General Instruments CP1610)\n"
+           "   -dotnet                      (.NET CIL)\n"
            "   -dspic                       (dsPIC)\n"
            "   -epiphany                    (Epiphany III/IV)\n"
+           "   -java                        (Java)\n"
            "   -lc3                         (LC-3)\n"
            "   -mips32 / mips               (MIPS)\n"
            "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
