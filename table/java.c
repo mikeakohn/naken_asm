@@ -204,7 +204,7 @@ struct _table_java table_java[] =
   { "invokedynamic",   4,  0,  JAVA_OP_METHOD_INDEX },  // invokedynamic (0xba)
   { "new",             3,  0,  JAVA_OP_CLASS_INDEX },  // new (0xbb)
   { "newarray",        2,  0,  JAVA_OP_ARRAY_TYPE },  // newarray (0xbc)
-  { "anewarray",       3,  0,  JAVA_OP_CLASS_INDEX_TYPE },  // anewarray (0xbd)
+  { "anewarray",       3,  0,  JAVA_OP_CLASS_INDEX },  // anewarray (0xbd)
   { "arraylength",     1,  0,  JAVA_OP_NONE },  // arraylength (0xbe)
   { "athrow",          1,  0,  JAVA_OP_NONE },  // athrow (0xbf)
   { "checkcast",       1,  0,  JAVA_OP_NONE },  // checkcast (0xc0)
