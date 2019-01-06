@@ -166,7 +166,7 @@ void list_output_java(struct _asm_context *asm_context, uint32_t start, uint32_t
   char temp[16];
   int n;
 
-  fprintf(asm_context->list, "\n");
+  //fprintf(asm_context->list, "\n");
 
   count = disasm_java(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -180,7 +180,7 @@ void list_output_java(struct _asm_context *asm_context, uint32_t start, uint32_t
     strcat(hex, temp);
   }
 
-  fprintf(asm_context->list, "0x%04x: %-20s %-40s", start, hex, instruction);
+  fprintf(asm_context->list, "0x%04x: %-20s %-40s\n", start, hex, instruction);
 }
 
 void disasm_range_java(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)

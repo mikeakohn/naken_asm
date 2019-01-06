@@ -79,6 +79,56 @@ static int parse_index(struct _asm_context *asm_context, const char *instr)
   return 3;
 }
 
+static int parse_index_w(struct _asm_context *asm_context, const char *instr, int opcode)
+{
+  int index;
+  int wide = 0;
+
+  if (eval_expression(asm_context, &index) != 0)
+  {
+    if (asm_context->pass == 1)
+    {
+      add_bin8(asm_context, 0xc4, IS_OPCODE);
+      add_bin8(asm_context, opcode, IS_OPCODE);
+      add_bin8(asm_context, 0, IS_OPCODE);
+      add_bin8(asm_context, 0, IS_OPCODE);
+      ignore_line(asm_context);
+      return 4;
+    }
+
+    print_error_illegal_expression(instr, asm_context);
+    return -1;
+  }
+
+  if (memory_read_m(&asm_context->memory, asm_context->address) == 0xc4)
+  {
+    wide = 1;
+  }
+
+  if (index < 0 && index > 0xffff)
+  {
+    print_error_range("Offset", 0, 0xffff, asm_context);
+    return -1;
+  }
+
+  if (index > 0xff || wide == 1)
+  {
+    add_bin8(asm_context, 0xc4, IS_OPCODE);
+    add_bin8(asm_context, opcode, IS_OPCODE);
+    add_bin8(asm_context, (index >> 8) & 0xff, IS_OPCODE);
+    add_bin8(asm_context, index & 0xff, IS_OPCODE);
+
+    return 4;
+  }
+    else
+  {
+    add_bin8(asm_context, opcode, IS_OPCODE);
+    add_bin8(asm_context, index & 0xff, IS_OPCODE);
+
+    return 2;
+  }
+}
+
 int parse_instruction_java(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];
@@ -121,6 +171,7 @@ int parse_instruction_java(struct _asm_context *asm_context, char *instr)
           add_bin8(asm_context, n, IS_OPCODE);
           return parse_index(asm_context, instr);
         case JAVA_OP_LOCAL_INDEX:
+          return parse_index_w(asm_context, instr, n);
         case JAVA_OP_LOCAL_INDEX_CONST:
         case JAVA_OP_ARRAY_TYPE:
         case JAVA_OP_CONSTANT16:
