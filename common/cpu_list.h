@@ -26,19 +26,9 @@ typedef void (*list_output_t)(struct _asm_context *, uint32_t, uint32_t);
 typedef void (*disasm_range_t)(struct _memory *, uint32_t, uint32_t, uint32_t);
 //typedef struct _simulate *(*simulate_init_t)(struct _memory *memory);
 
-#define ALIGN_1 1
-#define ALIGN_2 2
-#define ALIGN_4 4
-#define ALIGN_8 8
-#define ALIGN_16 16 
-
-#define SREC_16 0
-#define SREC_24 1
-#define SREC_32 2
-
 enum
 {
-  CPU_TYPE_MSP430=0,
+  CPU_TYPE_MSP430 = 0,
   CPU_TYPE_MSP430X,
   CPU_TYPE_1802,
   CPU_TYPE_4004,
@@ -79,8 +69,19 @@ enum
   CPU_TYPE_Z80
 };
 
+#define ALIGN_1 1
+#define ALIGN_2 2
+#define ALIGN_4 4
+#define ALIGN_8 8
+#define ALIGN_16 16
+
+#define SREC_16 0
+#define SREC_24 1
+#define SREC_32 2
+
+
 // The options in this structure:
-// name: If this is set to "mycpu", the assembler will use a .mycpu directive 
+// name: If this is set to "mycpu", the assembler will use a .mycpu directive
 // default_endian: ENDIAN_BIG or ENDIAN_LITTLE
 // bytes_per_address: Some odd CPU's (AVR8 and PIC24) aren't 1 byte per address
 // alignment: How many bytes to align on.  MIPS for example is 4 byte per instr
