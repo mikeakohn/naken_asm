@@ -265,7 +265,7 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
         break;
       }
 
-      token_type=TOKEN_STRING;
+      token_type = TOKEN_STRING;
     }
 
     if (ch == ';')
@@ -274,13 +274,13 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
       {
         tokens_unget_char(asm_context, ch);
         break;
-        //int n;
-        //for(n=0; n<ptr; n++) printf("%c\n", token[n]);
-        //printf("\n");
       }
 
       while(1)
-      { ch = tokens_get_char(asm_context); if (ch == '\n' || ch == EOF) break; }
+      {
+        ch = tokens_get_char(asm_context);
+        if (ch == '\n' || ch == EOF) { break; }
+      }
 
       assert(ptr == 0);
       token[0] = '\n';
@@ -291,20 +291,32 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
     // Nasty, but some CPU's like Z80 need this
     if (ch == '\'')
     {
-      if (asm_context->can_tick_end_string &&
-          //ch=='\'' &&
-          token_type == TOKEN_STRING)
+      if (asm_context->can_tick_end_string && token_type == TOKEN_STRING)
       {
         token[ptr++] = ch;
         break;
       }
     }
 
+    if (ch == '.' && ptr != 0 &&
+        token_type == TOKEN_STRING && asm_context->strings_have_dots)
+    {
+      token[ptr++] = ch;
+      continue;
+    }
+
     if (ch == '"' || ch == '\'')
     {
       char quote = ch;
-      if (ch == '"' ) { token_type = TOKEN_QUOTED; }
-      else { token_type = TOKEN_TICKED; }
+
+      if (ch == '"' )
+      {
+        token_type = TOKEN_QUOTED;
+      }
+        else
+      {
+        token_type = TOKEN_TICKED;
+      }
 
       while(1)
       {
@@ -323,6 +335,7 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
         }
 
         token[ptr++] = ch;
+
         if (ptr >= len || (token_type == TOKEN_TICKED && ptr > 1))
         {
           print_error("Unterminated quote", asm_context);
@@ -372,8 +385,15 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
 
       if (ptr == 0 && ch == '$')
       {
-        if (asm_context->is_dollar_hex) { token_type = TOKEN_DOLLAR; }
-        else { token_type = TOKEN_STRING; }
+        if (asm_context->is_dollar_hex)
+        {
+          token_type = TOKEN_DOLLAR;
+        }
+          else
+        {
+          token_type = TOKEN_STRING;
+        }
+
         token[ptr++] = ch;
         continue;
       }
@@ -423,7 +443,6 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
         else
       if (ch == '.' && token_type == TOKEN_NUMBER)
       {
-        //token[ptr++] = ch;
         token_type = TOKEN_FLOAT;
       }
         else
@@ -532,11 +551,12 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
     }
   }
 
+  // After building a token, possibly post process it.
   token[ptr] = 0;
 
   if (token_type == TOKEN_FLOAT)
   {
-    if (token[ptr-1] == '.')
+    if (token[ptr - 1] == '.')
     {
       tokens_unget_char(asm_context, '.');
       token_type = TOKEN_NUMBER;

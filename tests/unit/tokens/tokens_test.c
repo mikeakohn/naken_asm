@@ -167,6 +167,36 @@ void test_pushback()
   tokens_close(&asm_context);
 }
 
+void test_strings_with_dots()
+{
+  struct _asm_context asm_context = { 0 };
+  char *test = { "mov.w" };
+  char token[TOKENLEN];
+  int token_type;
+
+  tokens_open_buffer(&asm_context, test);
+  tokens_reset(&asm_context);
+
+  asm_context.strings_have_dots = 1;
+
+  token_type = tokens_get(&asm_context, token, TOKENLEN);
+
+  if (strcmp(token, "mov.w") != 0)
+  {
+    printf("FAIL: Expected mov.w but got %s %s:%d\n",
+      token, __FILE__, __LINE__);
+    errors++;
+  }
+
+  if (token_type != TOKEN_STRING)
+  {
+    printf("FAIL: Expected TOKEN_STRING %s:%d\n", __FILE__, __LINE__);
+    errors++;
+  }
+
+  tokens_close(&asm_context);
+}
+
 int main(int argc, char *argv[])
 {
   printf("tokens.o test\n");
@@ -174,6 +204,7 @@ int main(int argc, char *argv[])
   test_1();
   test_constants();
   test_pushback();
+  test_strings_with_dots();
 
   printf("Testing: tokens.o ... ");
 

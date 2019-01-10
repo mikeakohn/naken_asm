@@ -67,6 +67,7 @@ static void configure_cpu(struct _asm_context *asm_context, int index)
   asm_context->memory.endian = cpu_list[index].default_endian;
   asm_context->bytes_per_address = cpu_list[index].bytes_per_address;
   asm_context->is_dollar_hex = cpu_list[index].is_dollar_hex;
+  asm_context->strings_have_dots = cpu_list[index].strings_have_dots;
   asm_context->can_tick_end_string = cpu_list[index].can_tick_end_string;
   asm_context->pass_1_write_disable = cpu_list[index].pass_1_write_disable;
   asm_context->parse_instruction = cpu_list[index].parse_instruction;

@@ -37,7 +37,7 @@ struct _tokens
   int pushback2_type;
   int unget_ptr;
   int unget_stack_ptr;
-  int unget_stack[MAX_NESTED_MACROS+1];
+  int unget_stack[MAX_NESTED_MACROS + 1];
   char unget[512];
   char pushback[TOKENLEN];
   char pushback2[TOKENLEN];
