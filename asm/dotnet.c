@@ -24,8 +24,52 @@
 int parse_instruction_dotnet(struct _asm_context *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
+  int n;
 
   lower_copy(instr_case, instr);
+
+  n = 0;
+  while(table_dotnet[n].instr != NULL)
+  {
+    if (strcmp(table_dotnet[n].instr, instr_case) != 0)
+    {
+      n++;
+      continue;
+    }
+
+    switch(table_dotnet[n].type)
+    {
+      case DOTNET_OP_NONE:
+        add_bin8(asm_context, table_dotnet[n].opcode, IS_OPCODE);
+        return 1;
+      default:
+        n++;
+        continue;
+    }
+  }
+
+  n = 0;
+  while(table_dotnet_fe[n].instr != NULL)
+  {
+    if (strcmp(table_dotnet_fe[n].instr, instr_case) != 0)
+    {
+      n++;
+      continue;
+    }
+
+    switch(table_dotnet[n].type)
+    {
+      case DOTNET_OP_NONE:
+        add_bin8(asm_context, 0xfe, IS_OPCODE);
+        add_bin8(asm_context, table_dotnet_fe[n].opcode, IS_OPCODE);
+        return 2;
+      default:
+        n++;
+        continue;
+    }
+  }
+
+  print_error_unknown_instr(instr, asm_context);
 
   return -1;
 }

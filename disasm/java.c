@@ -166,8 +166,6 @@ void list_output_java(struct _asm_context *asm_context, uint32_t start, uint32_t
   char temp[16];
   int n;
 
-  //fprintf(asm_context->list, "\n");
-
   count = disasm_java(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
   hex[0] = 0;
