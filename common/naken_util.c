@@ -55,6 +55,7 @@
 #include "disasm/sweet16.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
+#include "disasm/xtensa.h"
 #include "disasm/z80.h"
 #include "fileio/read_bin.h"
 #include "fileio/read_elf.h"
@@ -115,6 +116,7 @@ parse_instruction_t parse_instruction_thumb = NULL;
 parse_instruction_t parse_instruction_tms1000 = NULL;
 parse_instruction_t parse_instruction_tms1100 = NULL;
 parse_instruction_t parse_instruction_tms9900 = NULL;
+parse_instruction_t parse_instruction_xtensa = NULL;
 parse_instruction_t parse_instruction_z80 = NULL;
 link_function_t link_function_mips = NULL;
 
@@ -1178,6 +1180,7 @@ int main(int argc, char *argv[])
            "   -tms1000                     (TMS1000)\n"
            "   -tms1100                     (TMS1100)\n"
            "   -tms9900                     (TMS9900)\n"
+           "   -xtensa                      (Xtensa)\n"
            "   -z80                         (z80)\n"
            "   -bin                         (file is binary)\n"
            "   // The following options turn off interactive mode\n"

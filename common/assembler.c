@@ -31,6 +31,7 @@
 #include "asm/thumb.h"
 #include "asm/tms1000.h"
 #include "asm/tms9900.h"
+#include "asm/xtensa.h"
 #include "asm/z80.h"
 #include "common/assembler.h"
 #include "common/cpu_list.h"
@@ -59,6 +60,7 @@
 #include "disasm/thumb.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
+#include "disasm/xtensa.h"
 #include "disasm/z80.h"
 
 static void configure_cpu(struct _asm_context *asm_context, int index)

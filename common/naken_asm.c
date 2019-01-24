@@ -44,7 +44,7 @@ const char *credits =
   "         Copper, Cell BE, dsPIC, Epiphany, Java, LC-3, MIPS, MSP430,\n"
   "         PIC14, PIC24, PIC32, Playstation 2 EE, PowerPC, Propeller,\n"
   "         RISC-V, STM8, SuperFX, SWEET16, THUMB, TMS1000, TMS1100, TMS9900,\n"
-  "         Z80\n"
+  "         Xtensa, Z80\n"
   "    Web: http://www.mikekohn.net/\n"
   "  Email: mike@mikekohn.net\n"
   "Version: " VERSION "\n";
