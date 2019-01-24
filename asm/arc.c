@@ -101,7 +101,7 @@ static void add_bin(struct _asm_context *asm_context, uint32_t opcode, int flags
 
 static int get_register_arc(char *token)
 {
-  if (token[0] == 'r' || token[1] == 'R')
+  if (token[0] == 'r' || token[0] == 'R')
   { 
     const char *s = token + 1;
     int n = 0, count = 0;
