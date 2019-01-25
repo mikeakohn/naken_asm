@@ -21,8 +21,9 @@ enum
   XTENSA_OP_FR_FS,
   XTENSA_OP_FR_FS_FT,
   XTENSA_OP_AR_AS_AT,
-  XTENSA_OP_AT_AS_IMM8,
+  XTENSA_OP_AT_AS_I8,
   XTENSA_OP_N_AR_AS_AT,
+  XTENSA_OP_N_AR_AS_I4,
 };
 
 struct _table_xtensa

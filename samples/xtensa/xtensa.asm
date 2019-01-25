@@ -7,4 +7,6 @@ main:
   add a5, a6, a9
   add.n a5, a6, a9
   add.s f9, f15, f2
+  addi.n a9, a15, -1
+  addi.n a9, a15, 9
 

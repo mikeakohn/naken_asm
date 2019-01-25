@@ -27,7 +27,7 @@ int get_cycle_count_xtensa(unsigned short int opcode)
 static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode, opcode16;
-  int at, as, ar, ft, fs, fr, imm8;
+  int at, as, ar, ft, fs, fr, i;
   int n;
 
   opcode = memory_read_m(memory, address) |
@@ -69,12 +69,12 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
             ar = (opcode >> 12) & 0xf;
             sprintf(instruction, "%s a%d, a%d, a%d", table_xtensa[n].instr, ar, as, at);
             return 3;
-          case XTENSA_OP_AT_AS_IMM8:
+          case XTENSA_OP_AT_AS_I8:
             at = (opcode >> 4) & 0xf;
             as = (opcode >> 8) & 0xf;
-            imm8 = (opcode >> 16) & 0xff;
+            i = (opcode >> 16) & 0xff;
             sprintf(instruction, "%s a%d, a%d, %d",
-              table_xtensa[n].instr, at, as, imm8);
+              table_xtensa[n].instr, at, as, i);
             return 3;
           default:
             return -1;
@@ -93,6 +93,15 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
             ar = (opcode >> 12) & 0xf;
             sprintf(instruction, "%s a%d, a%d, a%d", table_xtensa[n].instr, ar, as, at);
             return 2;
+          case XTENSA_OP_N_AR_AS_I4:
+            i = (opcode >> 4) & 0xf;
+            as = (opcode >> 8) & 0xf;
+            ar = (opcode >> 12) & 0xf;
+
+            if (i == 0) { i = -1; }
+
+            sprintf(instruction, "%s a%d, a%d, %d", table_xtensa[n].instr, ar, as, i);
+            return 2;
           default:
             return -1;
         }
@@ -110,7 +119,7 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
 static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode, opcode16;
-  int at, as, ar, ft, fs, fr, imm8;
+  int at, as, ar, ft, fs, fr, i;
   int n;
 
   opcode = memory_read_m(memory, address + 2) |
@@ -152,12 +161,12 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
             ar = (opcode >> 8) & 0xf;
             sprintf(instruction, "%s a%d, a%d, %d", table_xtensa[n].instr, ar, as, at);
             return 3;
-          case XTENSA_OP_AT_AS_IMM8:
+          case XTENSA_OP_AT_AS_I8:
             at = (opcode >> 16) & 0xf;
             as = (opcode >> 12) & 0xf;
-            imm8 = opcode & 0xff;
+            i = opcode & 0xff;
             sprintf(instruction, "%s a%d, a%d, %d",
-            table_xtensa[n].instr, at, as, imm8);
+            table_xtensa[n].instr, at, as, i);
             return 3;
           default:
             return -1;
@@ -175,6 +184,15 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
             as = (opcode >> 4) & 0xf;
             ar = opcode & 0xf;
             sprintf(instruction, "%s a%d, a%d, %d", table_xtensa[n].instr, ar, as, at);
+            return 2;
+          case XTENSA_OP_N_AR_AS_I4:
+            i = (opcode >> 8) & 0xf;
+            as = (opcode >> 4) & 0xf;
+            ar = opcode & 0xf;
+
+            if (i == 0) { i = -1; }
+
+            sprintf(instruction, "%s a%d, a%d, %d", table_xtensa[n].instr, ar, as, i);
             return 2;
           default:
             return -1;
