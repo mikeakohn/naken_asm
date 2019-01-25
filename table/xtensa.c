@@ -11,19 +11,11 @@
 
 #include "table/xtensa.h"
 
-// Little endian
-struct _table_xtensa table_xtensa_le[] =
+struct _table_xtensa table_xtensa[] =
 {
   // Instructions
-  { "addi",   0x00c002, 0x00f00f, XTENSA_OP_AT_AS_IMM8, 24, 0, 0 },
-  { NULL, 0, 0, 0, 0, 0 }
-};
-
-// Big endian
-struct _table_xtensa table_xtensa_be[] =
-{
-  // Instructions
-  { "addi",   0x200c00, 0xf00f00, XTENSA_OP_AT_AS_IMM8, 24, 0, 0 },
+  { "abs",  0x060100, 0xff0f0f, 0x001006, 0xf0f0ff, 24, XTENSA_OP_AR_AT },
+  { "addi", 0x00c002, 0x00f00f, 0x200c00, 0xf00f00, 24, XTENSA_OP_AT_AS_IMM8 },
   { NULL, 0, 0, 0, 0, 0 }
 };
 

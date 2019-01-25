@@ -22,7 +22,7 @@
 
 void add_bin8(struct _asm_context *asm_context, uint8_t b, int flags);
 void add_bin16(struct _asm_context *asm_context, uint16_t b, int flags);
-void add_bin24(struct _asm_context *asm_context, uint32_t b, int flags);
+//void add_bin24(struct _asm_context *asm_context, uint32_t b, int flags);
 void add_bin32(struct _asm_context *asm_context, uint32_t b, int flags);
 int eat_operand(struct _asm_context *asm_context);
 int ignore_paren_expression(struct _asm_context *asm_context);

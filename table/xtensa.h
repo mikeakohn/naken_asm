@@ -17,22 +17,22 @@
 enum
 {
   XTENSA_OP_NONE,
+  XTENSA_OP_AR_AT,
   XTENSA_OP_AT_AS_IMM8,
 };
 
 struct _table_xtensa
 {
   char *instr;
-  uint32_t opcode;
-  uint32_t mask;
-  uint8_t type;
+  uint32_t opcode_le;
+  uint32_t mask_le;
+  uint32_t opcode_be;
+  uint32_t mask_be;
   uint8_t bits;
-  uint8_t cycles;
-  uint8_t cycles_max;
+  uint8_t type;
 };
 
-extern struct _table_xtensa table_xtensa_le[];
-extern struct _table_xtensa table_xtensa_be[];
+extern struct _table_xtensa table_xtensa[];
 
 #endif
 

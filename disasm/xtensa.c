@@ -27,7 +27,7 @@ int get_cycle_count_xtensa(unsigned short int opcode)
 static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
-  int at, as, imm8;
+  int at, as, ar, imm8;
   int n;
 
   opcode = memory_read_m(memory, address) |
@@ -36,18 +36,23 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
 
   n = 0;
 
-  while(table_xtensa_le[n].instr != NULL)
+  while(table_xtensa[n].instr != NULL)
   {
-    if ((opcode & table_xtensa_le[n].mask) == table_xtensa_le[n].opcode)
+    if ((opcode & table_xtensa[n].mask_le) == table_xtensa[n].opcode_le)
     {
-      switch(table_xtensa_le[n].type)
+      switch(table_xtensa[n].type)
       {
+        case XTENSA_OP_AR_AT:
+          at = (opcode >> 4) & 0xf;
+          ar = (opcode >> 12) & 0xf;
+          sprintf(instruction, "%s a%d, a%d", table_xtensa[n].instr, ar, at);
+          return 3;
         case XTENSA_OP_AT_AS_IMM8:
           at = (opcode >> 4) & 0xf;
           as = (opcode >> 8) & 0xf;
           imm8 = (opcode >> 16) & 0xff;
           sprintf(instruction, "%s a%d, a%d, %d",
-            table_xtensa_le[n].instr, at, as, imm8);
+            table_xtensa[n].instr, at, as, imm8);
           return 3;
         default:
           return -1;
@@ -63,7 +68,7 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
 static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
-  int at, as, imm8;
+  int at, as, ar, imm8;
   int n;
 
   opcode = memory_read_m(memory, address + 2) |
@@ -72,18 +77,23 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
 
   n = 0;
 
-  while(table_xtensa_be[n].instr != NULL)
+  while(table_xtensa[n].instr != NULL)
   {
-    if ((opcode & table_xtensa_be[n].mask) == table_xtensa_be[n].opcode)
+    if ((opcode & table_xtensa[n].mask_be) == table_xtensa[n].opcode_be)
     {
-      switch(table_xtensa_be[n].type)
+      switch(table_xtensa[n].type)
       {
+        case XTENSA_OP_AR_AT:
+          at = (opcode >> 16) & 0xf;
+          ar = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s a%d, a%d", table_xtensa[n].instr, ar, at);
+          return 3;
         case XTENSA_OP_AT_AS_IMM8:
           at = (opcode >> 16) & 0xf;
           as = (opcode >> 12) & 0xf;
           imm8 = opcode & 0xff;
           sprintf(instruction, "%s a%d, a%d, %d",
-            table_xtensa_be[n].instr, at, as, imm8);
+            table_xtensa[n].instr, at, as, imm8);
           return 3;
         default:
           return -1;
@@ -117,13 +127,13 @@ static void get_bytes(struct _memory *memory, int address, int count, char *byte
   {
     if (memory->endian == ENDIAN_LITTLE)
     {
-      sprintf(bytes, "  %02x%02x\n",
+      sprintf(bytes, "  %02x%02x",
         memory_read_m(memory, address + 1),
         memory_read_m(memory, address + 0));
     }
       else
     {
-      sprintf(bytes, "  %02x%02x\n",
+      sprintf(bytes, "  %02x%02x",
         memory_read_m(memory, address + 0),
         memory_read_m(memory, address + 1));
     }
@@ -132,14 +142,14 @@ static void get_bytes(struct _memory *memory, int address, int count, char *byte
   {
     if (memory->endian == ENDIAN_LITTLE)
     {
-      sprintf(bytes, "%02x%02x%02x\n",
+      sprintf(bytes, "%02x%02x%02x",
         memory_read_m(memory, address + 2),
         memory_read_m(memory, address + 1),
         memory_read_m(memory, address + 0));
     }
       else
     {
-      sprintf(bytes, "%02x%02x%02x\n",
+      sprintf(bytes, "%02x%02x%02x",
         memory_read_m(memory, address + 0),
         memory_read_m(memory, address + 1),
         memory_read_m(memory, address + 2));
@@ -162,7 +172,7 @@ void list_output_xtensa(struct _asm_context *asm_context, uint32_t start, uint32
 
   get_bytes(memory, start, count, bytes);
 
-  fprintf(asm_context->list, "0x%04x: %s %-40s", start, bytes, instruction);
+  fprintf(asm_context->list, "0x%04x: %s  %-40s", start, bytes, instruction);
 }
 
 void disasm_range_xtensa(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
@@ -183,7 +193,7 @@ void disasm_range_xtensa(struct _memory *memory, uint32_t flags, uint32_t start,
 
     get_bytes(memory, start, count, bytes);
 
-    printf("0x%04x: %s %-40s\n", start, bytes, instruction);
+    printf("0x%04x: %s  %-40s\n", start, bytes, instruction);
 
     start += count;
   }
