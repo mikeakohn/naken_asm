@@ -15,4 +15,5 @@ main:
   addx8 a5, a6, a9
   all4 b3, b4
   all8 b3, b8
+  andb b3, b4, b5
 

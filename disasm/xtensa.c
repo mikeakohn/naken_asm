@@ -27,7 +27,7 @@ int get_cycle_count_xtensa(unsigned short int opcode)
 static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode, opcode16;
-  int at, as, ar, ft, fs, fr, bt, bs, i;
+  int at, as, ar, ft, fs, fr, bt, bs, br, i;
   int n;
 
   opcode = memory_read_m(memory, address) |
@@ -87,11 +87,17 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
             sprintf(instruction, "%s a%d, a%d, %d",
               table_xtensa[n].instr, at, as, i);
             return 3;
-          case XTENSA_OP_BOOL4:
-          case XTENSA_OP_BOOL8:
+          case XTENSA_OP_BT_BS4:
+          case XTENSA_OP_BT_BS8:
             bt = (opcode >> 4) & 0xf;
             bs = (opcode >> 8) & 0xf;
             sprintf(instruction, "%s b%d, b%d", table_xtensa[n].instr, bt, bs);
+            return 3;
+          case XTENSA_OP_BR_BS_BT:
+            bt = (opcode >> 4) & 0xf;
+            bs = (opcode >> 8) & 0xf;
+            br = (opcode >> 12) & 0xf;
+            sprintf(instruction, "%s b%d, b%d, b%d", table_xtensa[n].instr, br, bs, bt);
             return 3;
           default:
             return -1;
@@ -136,7 +142,7 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
 static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode, opcode16;
-  int at, as, ar, ft, fs, fr, bt, bs, i;
+  int at, as, ar, ft, fs, fr, bt, bs, br, i;
   int n;
 
   opcode = memory_read_m(memory, address + 2) |
@@ -196,11 +202,17 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
             sprintf(instruction, "%s a%d, a%d, %d",
             table_xtensa[n].instr, at, as, i);
             return 3;
-          case XTENSA_OP_BOOL4:
-          case XTENSA_OP_BOOL8:
+          case XTENSA_OP_BT_BS4:
+          case XTENSA_OP_BT_BS8:
             bt = (opcode >> 16) & 0xf;
             bs = (opcode >> 12) & 0xf;
             sprintf(instruction, "%s b%d, b%d", table_xtensa[n].instr, bt, bs);
+            return 3;
+          case XTENSA_OP_BR_BS_BT:
+            bt = (opcode >> 16) & 0xf;
+            bs = (opcode >> 12) & 0xf;
+            br = (opcode >> 8) & 0xf;
+            sprintf(instruction, "%s b%d, b%d, b%d", table_xtensa[n].instr, br, bs, bt);
             return 3;
           default:
             return -1;
