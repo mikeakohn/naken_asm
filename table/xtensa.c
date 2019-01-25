@@ -33,6 +33,9 @@ struct _table_xtensa table_xtensa[] =
   { "any4",  0x008000, 0x000800, 24, XTENSA_OP_BT_BS4 },
   { "any8",  0x00a000, 0x000a00, 24, XTENSA_OP_BT_BS8 },
   { "ball",  0x004007, 0x700400, 24, XTENSA_OP_BRANCH_I8 },
+  { "bany",  0x008007, 0x700800, 24, XTENSA_OP_BRANCH_I8 },
+  { "bbc",   0x005007, 0x700500, 24, XTENSA_OP_BRANCH_I8 },
+  { "bbci",  0x006007, 0x700600, 24, XTENSA_OP_BRANCH_B5_I8 },
   { NULL, 0, 0, 0, 0 }
 };
 
@@ -51,5 +54,6 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xfff00f, 0xf00fff },  // XTENSA_OP_BT_BS8
   { 0xff000f, 0xf000ff },  // XTENSA_OP_BR_BS_BT
   { 0x00f00f, 0xf00f00 },  // XTENSA_OP_BRANCH_I8
+  { 0x00e00f, 0xf00e00 },  // XTENSA_OP_BRANCH_B5_I8
 };
 

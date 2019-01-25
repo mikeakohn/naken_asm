@@ -18,4 +18,5 @@ here:
   all8 b3, b8
   andb b3, b4, b5
   ball a4, a5, here
+  bbci a4, 9, here
 
