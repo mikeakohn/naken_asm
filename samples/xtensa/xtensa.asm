@@ -10,4 +10,7 @@ main:
   addi.n a9, a15, -1
   addi.n a9, a15, 9
   addmi a5, a6, -32768
+  addx2 a5, a6, a9
+  addx4 a5, a6, a9
+  addx8 a5, a6, a9
 
