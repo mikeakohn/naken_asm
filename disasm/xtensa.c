@@ -99,6 +99,14 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
             br = (opcode >> 12) & 0xf;
             sprintf(instruction, "%s b%d, b%d, b%d", table_xtensa[n].instr, br, bs, bt);
             return 3;
+          case XTENSA_OP_BRANCH_I8:
+            at = (opcode >> 4) & 0xf;
+            as = (opcode >> 8) & 0xf;
+            i = (opcode >> 16) & 0xff;
+            i = (int32_t)((int8_t)i);
+            sprintf(instruction, "%s a%d, a%d, 0x%04x (offset=%d)",
+              table_xtensa[n].instr, at, as, address + i, i);
+            return 3;
           default:
             return -1;
         }
@@ -192,7 +200,7 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
             i = opcode & 0xff;
             i = (int32_t)((int8_t)i);
             sprintf(instruction, "%s a%d, a%d, %d",
-            table_xtensa[n].instr, at, as, i);
+              table_xtensa[n].instr, at, as, i);
             return 3;
           case XTENSA_OP_AT_AS_IM8:
             at = (opcode >> 16) & 0xf;
@@ -200,7 +208,7 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
             i = (opcode & 0xff) << 8;
             i = (int32_t)((int16_t)i);
             sprintf(instruction, "%s a%d, a%d, %d",
-            table_xtensa[n].instr, at, as, i);
+              table_xtensa[n].instr, at, as, i);
             return 3;
           case XTENSA_OP_BT_BS4:
           case XTENSA_OP_BT_BS8:
@@ -213,6 +221,15 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
             bs = (opcode >> 12) & 0xf;
             br = (opcode >> 8) & 0xf;
             sprintf(instruction, "%s b%d, b%d, b%d", table_xtensa[n].instr, br, bs, bt);
+            return 3;
+          case XTENSA_OP_BRANCH_I8:
+            at = (opcode >> 16) & 0xf;
+            as = (opcode >> 12) & 0xf;
+            i = opcode & 0xff;
+            i = (int32_t)((int8_t)i);
+            sprintf(instruction, "%s a%d, a%d, 0x%04x (offset=%d)",
+              table_xtensa[n].instr, at, as, address + i, i);
+            return 3;
             return 3;
           default:
             return -1;

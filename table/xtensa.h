@@ -28,6 +28,7 @@ enum
   XTENSA_OP_BT_BS4,
   XTENSA_OP_BT_BS8,
   XTENSA_OP_BR_BS_BT,
+  XTENSA_OP_BRANCH_I8,
 };
 
 struct _table_xtensa
