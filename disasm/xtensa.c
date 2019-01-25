@@ -26,41 +26,76 @@ int get_cycle_count_xtensa(unsigned short int opcode)
 
 static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
-  uint32_t opcode;
-  int at, as, ar, fs, fr, imm8;
+  uint32_t opcode, opcode16;
+  int at, as, ar, ft, fs, fr, imm8;
   int n;
 
   opcode = memory_read_m(memory, address) |
           (memory_read_m(memory, address + 1) << 8) |
           (memory_read_m(memory, address + 2) << 16);
 
+  opcode16 = memory_read_m(memory, address) |
+            (memory_read_m(memory, address + 1) << 8);
+
   n = 0;
 
   while(table_xtensa[n].instr != NULL)
   {
-    if ((opcode & table_xtensa[n].mask_le) == table_xtensa[n].opcode_le)
+    if (table_xtensa[n].bits == 24)
     {
-      switch(table_xtensa[n].type)
+      if ((opcode & table_xtensa[n].mask_le) == table_xtensa[n].opcode_le)
       {
-        case XTENSA_OP_AR_AT:
-          at = (opcode >> 4) & 0xf;
-          ar = (opcode >> 12) & 0xf;
-          sprintf(instruction, "%s a%d, a%d", table_xtensa[n].instr, ar, at);
-          return 3;
-        case XTENSA_OP_FR_FS:
-          fs = (opcode >> 8) & 0xf;
-          fr = (opcode >> 12) & 0xf;
-          sprintf(instruction, "%s f%d, f%d", table_xtensa[n].instr, fr, fs);
-          return 3;
-        case XTENSA_OP_AT_AS_IMM8:
-          at = (opcode >> 4) & 0xf;
-          as = (opcode >> 8) & 0xf;
-          imm8 = (opcode >> 16) & 0xff;
-          sprintf(instruction, "%s a%d, a%d, %d",
-            table_xtensa[n].instr, at, as, imm8);
-          return 3;
-        default:
-          return -1;
+        switch(table_xtensa[n].type)
+        {
+          case XTENSA_OP_AR_AT:
+            at = (opcode >> 4) & 0xf;
+            ar = (opcode >> 12) & 0xf;
+            sprintf(instruction, "%s a%d, a%d", table_xtensa[n].instr, ar, at);
+            return 3;
+          case XTENSA_OP_FR_FS:
+            fs = (opcode >> 8) & 0xf;
+            fr = (opcode >> 12) & 0xf;
+            sprintf(instruction, "%s f%d, f%d", table_xtensa[n].instr, fr, fs);
+            return 3;
+          case XTENSA_OP_FR_FS_FT:
+            ft = (opcode >> 4) & 0xf;
+            fs = (opcode >> 8) & 0xf;
+            fr = (opcode >> 12) & 0xf;
+            sprintf(instruction, "%s f%d, f%d, f%d", table_xtensa[n].instr, fr, fs, ft);
+            return 3;
+          case XTENSA_OP_AR_AS_AT:
+            at = (opcode >> 4) & 0xf;
+            as = (opcode >> 8) & 0xf;
+            ar = (opcode >> 12) & 0xf;
+            sprintf(instruction, "%s a%d, a%d, a%d", table_xtensa[n].instr, ar, as, at);
+            return 3;
+          case XTENSA_OP_AT_AS_IMM8:
+            at = (opcode >> 4) & 0xf;
+            as = (opcode >> 8) & 0xf;
+            imm8 = (opcode >> 16) & 0xff;
+            sprintf(instruction, "%s a%d, a%d, %d",
+              table_xtensa[n].instr, at, as, imm8);
+            return 3;
+          default:
+            return -1;
+        }
+      }
+    }
+      else
+    {
+      if ((opcode16 & table_xtensa[n].mask_le) == table_xtensa[n].opcode_le)
+      {
+        switch(table_xtensa[n].type)
+        {
+          case XTENSA_OP_N_AR_AS_AT:
+            at = (opcode >> 4) & 0xf;
+            as = (opcode >> 8) & 0xf;
+            ar = (opcode >> 12) & 0xf;
+            sprintf(instruction, "%s a%d, a%d, a%d", table_xtensa[n].instr, ar, as, at);
+            return 2;
+          default:
+            return -1;
+        }
       }
     }
 
@@ -74,41 +109,76 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
 
 static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
-  uint32_t opcode;
-  int at, as, ar, fs, fr, imm8;
+  uint32_t opcode, opcode16;
+  int at, as, ar, ft, fs, fr, imm8;
   int n;
 
   opcode = memory_read_m(memory, address + 2) |
           (memory_read_m(memory, address + 1) << 8) |
           (memory_read_m(memory, address) << 16);
 
+  opcode16 = memory_read_m(memory, address + 1) |
+            (memory_read_m(memory, address) << 8);
+
   n = 0;
 
   while(table_xtensa[n].instr != NULL)
   {
-    if ((opcode & table_xtensa[n].mask_be) == table_xtensa[n].opcode_be)
+    if (table_xtensa[n].bits == 24)
     {
-      switch(table_xtensa[n].type)
+      if ((opcode & table_xtensa[n].mask_be) == table_xtensa[n].opcode_be)
       {
-        case XTENSA_OP_AR_AT:
-          at = (opcode >> 16) & 0xf;
-          ar = (opcode >> 8) & 0xf;
-          sprintf(instruction, "%s a%d, a%d", table_xtensa[n].instr, ar, at);
-          return 3;
-        case XTENSA_OP_FR_FS:
-          fs = (opcode >> 12) & 0xf;
-          fr = (opcode >> 8) & 0xf;
-          sprintf(instruction, "%s f%d, f%d", table_xtensa[n].instr, fr, fs);
-          return 3;
-        case XTENSA_OP_AT_AS_IMM8:
-          at = (opcode >> 16) & 0xf;
-          as = (opcode >> 12) & 0xf;
-          imm8 = opcode & 0xff;
-          sprintf(instruction, "%s a%d, a%d, %d",
+        switch(table_xtensa[n].type)
+        {
+          case XTENSA_OP_AR_AT:
+            at = (opcode >> 16) & 0xf;
+            ar = (opcode >> 8) & 0xf;
+            sprintf(instruction, "%s a%d, a%d", table_xtensa[n].instr, ar, at);
+            return 3;
+          case XTENSA_OP_FR_FS:
+            fs = (opcode >> 12) & 0xf;
+            fr = (opcode >> 8) & 0xf;
+            sprintf(instruction, "%s f%d, f%d", table_xtensa[n].instr, fr, fs);
+            return 3;
+          case XTENSA_OP_FR_FS_FT:
+            ft = (opcode >> 16) & 0xf;
+            fs = (opcode >> 12) & 0xf;
+            fr = (opcode >> 8) & 0xf;
+            sprintf(instruction, "%s f%d, f%d, f%d", table_xtensa[n].instr, fr, fs, ft);
+            return 3;
+          case XTENSA_OP_AR_AS_AT:
+            at = (opcode >> 16) & 0xf;
+            as = (opcode >> 12) & 0xf;
+            ar = (opcode >> 8) & 0xf;
+            sprintf(instruction, "%s a%d, a%d, %d", table_xtensa[n].instr, ar, as, at);
+            return 3;
+          case XTENSA_OP_AT_AS_IMM8:
+            at = (opcode >> 16) & 0xf;
+            as = (opcode >> 12) & 0xf;
+            imm8 = opcode & 0xff;
+            sprintf(instruction, "%s a%d, a%d, %d",
             table_xtensa[n].instr, at, as, imm8);
-          return 3;
-        default:
-          return -1;
+            return 3;
+          default:
+            return -1;
+        }
+      }
+    }
+      else
+    {
+      if ((opcode16 & table_xtensa[n].mask_be) == table_xtensa[n].opcode_be)
+      {
+        switch(table_xtensa[n].type)
+        {
+          case XTENSA_OP_N_AR_AS_AT:
+            at = (opcode >> 8) & 0xf;
+            as = (opcode >> 4) & 0xf;
+            ar = opcode & 0xf;
+            sprintf(instruction, "%s a%d, a%d, %d", table_xtensa[n].instr, ar, as, at);
+            return 2;
+          default:
+            return -1;
+        }
       }
     }
 
