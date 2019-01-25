@@ -21,6 +21,7 @@ struct _table_xtensa table_xtensa[] =
   { "add.n", 0x00000a, 0x00000f, 0x00a000, 0x00f000, 16, XTENSA_OP_N_AR_AS_AT },
   { "add.s", 0x0a0000, 0xff000f, 0x0000a0, 0xf000ff, 24, XTENSA_OP_FR_FS_FT },
   { "addi.n",0x00000b, 0x00000f, 0x00b000, 0x00f000, 16, XTENSA_OP_N_AR_AS_I4 },
+  { "addmi", 0x00d002, 0x00f00f, 0x200d00, 0xf00f00, 24, XTENSA_OP_AT_AS_IM8 },
   { NULL, 0, 0, 0, 0, 0 }
 };
 

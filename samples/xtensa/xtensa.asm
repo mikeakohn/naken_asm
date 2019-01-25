@@ -9,4 +9,5 @@ main:
   add.s f9, f15, f2
   addi.n a9, a15, -1
   addi.n a9, a15, 9
+  addmi a5, a6, -32768
 

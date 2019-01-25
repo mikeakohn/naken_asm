@@ -373,6 +373,49 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
+        case XTENSA_OP_AT_AS_IM8:
+          if (operand_count != 3 ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_REGISTER_AR ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[2].value < -32768 || operands[2].value > 32512)
+          {
+            print_error_range("Constant", -32768, 32512, asm_context);
+            return -1;
+          }
+
+          if ((operands[2].value & 0xff) != 0)
+          {
+            printf("Error: Constant cannot be shifted by 8 at %s:%d\n",
+              asm_context->tokens.filename, asm_context->tokens.line);
+            return -1;
+          }
+
+          operands[2].value >>= 8;
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 4) |
+                    (operands[1].value << 8) |
+                   ((operands[2].value & 0xff) << 16);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 16) |
+                    (operands[1].value << 12) |
+                    (operands[2].value & 0xff);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
         case XTENSA_OP_N_AR_AS_AT:
           if (operand_count != 3 ||
               operands[0].type != OPERAND_REGISTER_AR ||
