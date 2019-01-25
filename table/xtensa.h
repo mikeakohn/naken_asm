@@ -18,6 +18,7 @@ enum
 {
   XTENSA_OP_NONE,
   XTENSA_OP_AR_AT,
+  XTENSA_OP_FR_FS,
   XTENSA_OP_AT_AS_IMM8,
 };
 

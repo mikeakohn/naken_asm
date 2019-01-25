@@ -27,7 +27,7 @@ int get_cycle_count_xtensa(unsigned short int opcode)
 static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
-  int at, as, ar, imm8;
+  int at, as, ar, fs, fr, imm8;
   int n;
 
   opcode = memory_read_m(memory, address) |
@@ -47,6 +47,11 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
           ar = (opcode >> 12) & 0xf;
           sprintf(instruction, "%s a%d, a%d", table_xtensa[n].instr, ar, at);
           return 3;
+        case XTENSA_OP_FR_FS:
+          fs = (opcode >> 8) & 0xf;
+          fr = (opcode >> 12) & 0xf;
+          sprintf(instruction, "%s f%d, f%d", table_xtensa[n].instr, fr, fs);
+          return 3;
         case XTENSA_OP_AT_AS_IMM8:
           at = (opcode >> 4) & 0xf;
           as = (opcode >> 8) & 0xf;
@@ -62,13 +67,15 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
     n++;
   }
 
+  sprintf(instruction, "???");
+
   return -1;
 }
 
 static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
-  int at, as, ar, imm8;
+  int at, as, ar, fs, fr, imm8;
   int n;
 
   opcode = memory_read_m(memory, address + 2) |
@@ -88,6 +95,11 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
           ar = (opcode >> 8) & 0xf;
           sprintf(instruction, "%s a%d, a%d", table_xtensa[n].instr, ar, at);
           return 3;
+        case XTENSA_OP_FR_FS:
+          fs = (opcode >> 12) & 0xf;
+          fr = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s f%d, f%d", table_xtensa[n].instr, fr, fs);
+          return 3;
         case XTENSA_OP_AT_AS_IMM8:
           at = (opcode >> 16) & 0xf;
           as = (opcode >> 12) & 0xf;
@@ -102,6 +114,8 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
 
     n++;
   }
+
+  sprintf(instruction, "???");
 
   return -1;
 }
@@ -166,13 +180,12 @@ void list_output_xtensa(struct _asm_context *asm_context, uint32_t start, uint32
 
   struct _memory *memory = &asm_context->memory;
 
-  fprintf(asm_context->list, "\n");
-
   count = disasm_xtensa(memory, start, instruction, &cycles_min, &cycles_max);
 
   get_bytes(memory, start, count, bytes);
 
   fprintf(asm_context->list, "0x%04x: %s  %-40s", start, bytes, instruction);
+  fprintf(asm_context->list, "\n");
 }
 
 void disasm_range_xtensa(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)

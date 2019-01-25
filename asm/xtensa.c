@@ -26,7 +26,8 @@
 enum
 {
   OPERAND_NONE,
-  OPERAND_REGISTER,
+  OPERAND_REGISTER_AR,
+  OPERAND_REGISTER_FR,
   OPERAND_NUMBER,
 };
 
@@ -37,9 +38,40 @@ struct _operand
   //int16_t offset;
 };
 
-static int get_register_xtensa(const char *token)
+static int get_register_ar_xtensa(const char *token)
 {
   if (token[0] == 'a' || token[0] == 'A')
+  {
+    const char *s = token + 1;
+    int n = 0, count = 0;
+
+    while(*s != 0)
+    {
+      if (*s < '0' || *s > '9') { return -1; }
+      n = (n * 10) + (*s - '0');
+      count++;
+
+      // Disallow leading 0's on registers.
+      if (n == 0 && count > 1) { return -1; }
+
+      s++;
+    }
+
+    // This token was just a or A.
+    if (count == 0) { return -1; }
+
+    // Valid registers are a0 to a15.
+    if (n > 15) { return -1; }
+
+    return n;
+  }
+
+  return -1;
+}
+
+static int get_register_fr_xtensa(const char *token)
+{
+  if (token[0] == 'f' || token[0] == 'F')
   {
     const char *s = token + 1;
     int n = 0, count = 0;
@@ -113,11 +145,20 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
     do
     {
       // Check for registers
-      n = get_register_xtensa(token);
+      n = get_register_ar_xtensa(token);
 
       if (n != -1)
       {
-        operands[operand_count].type = OPERAND_REGISTER;
+        operands[operand_count].type = OPERAND_REGISTER_AR;
+        operands[operand_count].value = n;
+        break;
+      }
+
+      n = get_register_fr_xtensa(token);
+
+      if (n != -1)
+      {
+        operands[operand_count].type = OPERAND_REGISTER_FR;
         operands[operand_count].value = n;
         break;
       }
@@ -194,8 +235,8 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
       {
         case XTENSA_OP_AR_AT:
           if (operand_count != 2 ||
-              operands[0].type != OPERAND_REGISTER ||
-              operands[1].type != OPERAND_REGISTER)
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_REGISTER_AR)
           {
             print_error_illegal_operands(instr, asm_context);
             return -1;
@@ -217,10 +258,35 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
+        case XTENSA_OP_FR_FS:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REGISTER_FR ||
+              operands[1].type != OPERAND_REGISTER_FR)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 12) |
+                    (operands[1].value << 8);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 8) |
+                    (operands[1].value << 12);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
         case XTENSA_OP_AT_AS_IMM8:
           if (operand_count != 3 ||
-              operands[0].type != OPERAND_REGISTER ||
-              operands[1].type != OPERAND_REGISTER ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_REGISTER_AR ||
               operands[2].type != OPERAND_NUMBER)
           {
             print_error_illegal_operands(instr, asm_context);
