@@ -13,4 +13,6 @@ main:
   addx2 a5, a6, a9
   addx4 a5, a6, a9
   addx8 a5, a6, a9
+  all4 b3, b4
+  all8 b3, b8
 

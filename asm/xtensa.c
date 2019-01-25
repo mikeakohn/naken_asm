@@ -28,6 +28,7 @@ enum
   OPERAND_NONE,
   OPERAND_REGISTER_AR,
   OPERAND_REGISTER_FR,
+  OPERAND_REGISTER_BR,
   OPERAND_NUMBER,
 };
 
@@ -38,9 +39,9 @@ struct _operand
   //int16_t offset;
 };
 
-static int get_register_ar_xtensa(const char *token)
+static int get_register_xtensa(const char *token, char lo, char up)
 {
-  if (token[0] == 'a' || token[0] == 'A')
+  if (token[0] == lo || token[0] == up)
   {
     const char *s = token + 1;
     int n = 0, count = 0;
@@ -69,6 +70,7 @@ static int get_register_ar_xtensa(const char *token)
   return -1;
 }
 
+#if 0
 static int get_register_fr_xtensa(const char *token)
 {
   if (token[0] == 'f' || token[0] == 'F')
@@ -99,6 +101,7 @@ static int get_register_fr_xtensa(const char *token)
 
   return -1;
 }
+#endif
 
 // Not sure if this would be okay in other assemblers, so leaving here
 // for now.
@@ -145,7 +148,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
     do
     {
       // Check for registers
-      n = get_register_ar_xtensa(token);
+      n = get_register_xtensa(token, 'a', 'A');
 
       if (n != -1)
       {
@@ -154,11 +157,20 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         break;
       }
 
-      n = get_register_fr_xtensa(token);
+      n = get_register_xtensa(token, 'f', 'F');
 
       if (n != -1)
       {
         operands[operand_count].type = OPERAND_REGISTER_FR;
+        operands[operand_count].value = n;
+        break;
+      }
+
+      n = get_register_xtensa(token, 'b', 'B');
+
+      if (n != -1)
+      {
+        operands[operand_count].type = OPERAND_REGISTER_BR;
         operands[operand_count].value = n;
         break;
       }
@@ -484,6 +496,51 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
+        case XTENSA_OP_BOOL4:
+        case XTENSA_OP_BOOL8:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REGISTER_BR ||
+              operands[1].type != OPERAND_REGISTER_BR)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (table_xtensa[n].type == XTENSA_OP_BOOL4)
+          {
+            if ((operands[1].value & 0x3) != 0)
+            {
+              printf("Error: Source register must be {b0,b4,b8,b12} at %s:%d\n",
+                asm_context->tokens.filename, asm_context->tokens.line);
+              return -1;
+            }
+          }
+            else
+          {
+            if ((operands[1].value & 0x7) != 0)
+            {
+              printf("Error: Source register must be {b0,b8} at %s:%d\n",
+                asm_context->tokens.filename, asm_context->tokens.line);
+              return -1;
+            }
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 4) |
+                    (operands[1].value << 8);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 16) |
+                    (operands[1].value << 12);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
         default:
           print_error_internal(asm_context, __FILE__, __LINE__);
           return -1;
