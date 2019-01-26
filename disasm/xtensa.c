@@ -115,6 +115,21 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
             sprintf(instruction, "%s a%d, %d, 0x%04x (offset=%d)",
               table_xtensa[n].instr, as, x, address + i, i);
             return 3;
+          case XTENSA_OP_BRANCH_AS_C4_I8:
+            ar = (opcode >> 12) & 0xf;
+            as = (opcode >> 8) & 0xf;
+            i = (opcode >> 16) & 0xff;
+            i = (int32_t)((int8_t)i);
+            sprintf(instruction, "%s a%d, %d, 0x%04x (offset=%d)",
+              table_xtensa[n].instr, as, xtensa_b4const[ar], address + i, i);
+            return 3;
+          case XTENSA_OP_BRANCH_AS_I12:
+            as = (opcode >> 8) & 0xf;
+            i = (opcode >> 12) & 0xfff;
+            if ((i & 0x800) == 0x800) { i |= 0xfffff000; }
+            sprintf(instruction, "%s a%d, 0x%04x (offset=%d)",
+              table_xtensa[n].instr, as, address + i, i);
+            return 3;
           default:
             return -1;
         }
@@ -245,6 +260,21 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
             i = (int32_t)((int8_t)i);
             sprintf(instruction, "%s a%d, %d, 0x%04x (offset=%d)",
               table_xtensa[n].instr, as, x, address + i, i);
+            return 3;
+          case XTENSA_OP_BRANCH_AS_C4_I8:
+            ar = (opcode >> 8) & 0xf;
+            as = (opcode >> 12) & 0xf;
+            i = opcode & 0xff;
+            i = (int32_t)((int8_t)i);
+            sprintf(instruction, "%s a%d, %d, 0x%04x (offset=%d)",
+              table_xtensa[n].instr, as, xtensa_b4const[ar], address + i, i);
+            return 3;
+          case XTENSA_OP_BRANCH_AS_I12:
+            as = (opcode >> 12) & 0xf;
+            i = opcode & 0xfff;
+            if ((i & 0x800) == 0x800) { i |= 0xfffff000; }
+            sprintf(instruction, "%s a%d, 0x%04x (offset=%d)",
+              table_xtensa[n].instr, as, address + i, i);
             return 3;
           default:
             return -1;

@@ -30,6 +30,8 @@ enum
   XTENSA_OP_BR_BS_BT,
   XTENSA_OP_BRANCH_I8,
   XTENSA_OP_BRANCH_B5_I8,
+  XTENSA_OP_BRANCH_AS_C4_I8,
+  XTENSA_OP_BRANCH_AS_I12,
 };
 
 struct _table_xtensa
@@ -49,6 +51,8 @@ struct _mask_xtensa
 
 extern struct _table_xtensa table_xtensa[];
 extern struct _mask_xtensa mask_xtensa[];
+extern int xtensa_b4const[];
+extern int xtensa_b4constu[];
 
 #endif
 

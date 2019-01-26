@@ -225,7 +225,8 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
   struct _operand operands[MAX_OPERANDS];
-  int operand_count, n, offset;
+  int operand_count, offset;
+  int n, i;
   uint32_t opcode;
 
   lower_copy(instr_case, instr);
@@ -657,6 +658,102 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
                    ((operands[1].value & 0xf) << 16) |
                   (((operands[1].value >> 4) & 0x1) << 8) |
                     (offset & 0xff);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
+        case XTENSA_OP_BRANCH_AS_C4_I8:
+          if (operand_count != 3 ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_NUMBER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            offset = 0;
+            i = 0;
+          }
+            else
+          {
+            offset = operands[2].value - asm_context->address;
+
+            for (i = 0; i < 16; i++)
+            {
+              if (operands[1].value == xtensa_b4const[i]) { break; }
+            }
+          }
+
+          if (offset < -128 || offset > 127)
+          {
+            print_error_range("Offset", -128, 127, asm_context);
+            return -1;
+          }
+
+          if (i == 16)
+          {
+            printf("Error: Constant must be { -1, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 16, 32, 64, 128, 256} at %s:%d\n",
+              asm_context->tokens.filename, asm_context->tokens.line);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 8) |
+                    (i << 12) |
+                   ((offset & 0xff) << 16);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 12) |
+                    (i << 8) |
+                    (offset & 0xff);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
+        case XTENSA_OP_BRANCH_AS_I12:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            offset = 0;
+          }
+            else
+          {
+            offset = operands[2].value - asm_context->address;
+          }
+
+          if (offset < -2048 || offset > 2047)
+          {
+            print_error_range("Offset", -2048, 2047, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 8) |
+                   ((offset & 0xfff) << 12);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 12) |
+                    (offset & 0xfff);
           }
 
           add_bin24(asm_context, opcode);
