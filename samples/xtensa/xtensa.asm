@@ -21,4 +21,5 @@ here:
   beqi a4, 128, here
   beqz a4, here
   beqz.n a4, here
+  bf b3, here
 
