@@ -43,6 +43,7 @@ struct _table_xtensa table_xtensa[] =
   { "beq",   0x001007, 0x700100, 24, XTENSA_OP_BRANCH_I8 },
   { "beqi",  0x000026, 0x620000, 24, XTENSA_OP_BRANCH_AS_C4_I8 },
   { "beqz",  0x000016, 0x610000, 24, XTENSA_OP_BRANCH_AS_I12 },
+  { "beqz.n",0x00008c, 0x00c800, 16, XTENSA_OP_BRANCH_N_AS_I6 },
   { NULL, 0, 0, 0, 0 }
 };
 
@@ -64,6 +65,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0x00e00f, 0xf00e00 },  // XTENSA_OP_BRANCH_B5_I8
   { 0x0000ff, 0xff0000 },  // XTENSA_OP_BRANCH_AS_C4_I8
   { 0x0000ff, 0xff0000 },  // XTENSA_OP_BRANCH_AS_I12
+  { 0x0000cf, 0x00fc00 },  // XTENSA_OP_BRANCH_N_AS_I6
 };
 
 int xtensa_b4const[] =

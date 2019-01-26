@@ -103,6 +103,37 @@ static int get_register_fr_xtensa(const char *token)
 }
 #endif
 
+static void compute_offset(struct _asm_context *asm_context, int *offset, int n)
+{
+  if (asm_context->pass == 1)
+  {
+    *offset = 0;
+  }
+    else
+  {
+    *offset = n - asm_context->address;
+  }
+}
+
+static void get_b4const(struct _asm_context *asm_context, int *c, int value)
+{
+  int n;
+
+  if (asm_context->pass == 1)
+  {
+    *c = 0;
+  }
+    else
+  {
+    for (n = 0; n < 16; n++)
+    {
+      if (value == xtensa_b4const[n]) { break; }
+    }
+
+    *c = n;
+  }
+}
+
 // Not sure if this would be okay in other assemblers, so leaving here
 // for now.
 static void add_bin24(struct _asm_context *asm_context, uint32_t b)
@@ -579,14 +610,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (asm_context->pass == 1)
-          {
-            offset = 0;
-          }
-            else
-          {
-            offset = operands[2].value - asm_context->address;
-          }
+          compute_offset(asm_context, &offset, operands[2].value);
 
           if (offset < -128 || offset > 127)
           {
@@ -622,14 +646,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (asm_context->pass == 1)
-          {
-            offset = 0;
-          }
-            else
-          {
-            offset = operands[2].value - asm_context->address;
-          }
+          compute_offset(asm_context, &offset, operands[2].value);
 
           if (offset < -128 || offset > 127)
           {
@@ -673,20 +690,8 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (asm_context->pass == 1)
-          {
-            offset = 0;
-            i = 0;
-          }
-            else
-          {
-            offset = operands[2].value - asm_context->address;
-
-            for (i = 0; i < 16; i++)
-            {
-              if (operands[1].value == xtensa_b4const[i]) { break; }
-            }
-          }
+          compute_offset(asm_context, &offset, operands[2].value);
+          get_b4const(asm_context, &i, operands[1].value);
 
           if (offset < -128 || offset > 127)
           {
@@ -728,14 +733,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (asm_context->pass == 1)
-          {
-            offset = 0;
-          }
-            else
-          {
-            offset = operands[2].value - asm_context->address;
-          }
+          compute_offset(asm_context, &offset, operands[2].value);
 
           if (offset < -2048 || offset > 2047)
           {
@@ -759,6 +757,41 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
+        case XTENSA_OP_BRANCH_N_AS_I6:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          compute_offset(asm_context, &offset, operands[1].value);
+
+          if (offset < -32 || offset > 31)
+          {
+            print_error_range("Offset", -32, 31, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 8) |
+                   ((offset & 0xf) << 12) |
+                   (((offset >> 4) & 0x3) << 4);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 12) |
+                    (offset & 0xf) |
+                  (((offset >> 4) & 0x3) << 8);
+          }
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
         default:
           print_error_internal(asm_context, __FILE__, __LINE__);
           return -1;

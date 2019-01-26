@@ -32,6 +32,7 @@ enum
   XTENSA_OP_BRANCH_B5_I8,
   XTENSA_OP_BRANCH_AS_C4_I8,
   XTENSA_OP_BRANCH_AS_I12,
+  XTENSA_OP_BRANCH_N_AS_I6,
 };
 
 struct _table_xtensa

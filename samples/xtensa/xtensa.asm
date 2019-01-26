@@ -20,4 +20,5 @@ here:
   ball a4, a5, here
   beqi a4, 128, here
   beqz a4, here
+  beqz.n a4, here
 
