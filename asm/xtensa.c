@@ -600,7 +600,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
 
           add_bin24(asm_context, opcode);
           return 3;
-        case XTENSA_OP_BRANCH_I8:
+        case XTENSA_OP_BRANCH_AS_AT_I8:
           if (operand_count != 3 ||
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_REGISTER_AR ||
