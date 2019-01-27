@@ -39,10 +39,12 @@ here:
   float.s f5, a8, 7
   ill.n
   l8ui a4, a11, 9
+there:
   l16si a9, a12, 230
   l16ui a13, a10, 110
   l32ai a7, a15, 240
   l32e a2, a12, -64
   l32e a9, a13, -8
   l32i.n a3, a6, 32
+  l32r a5, there
 

@@ -1416,6 +1416,49 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
+        case XTENSA_OP_AT_I16:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          offset = operands[1].value - (asm_context->address + 3);
+
+          if (asm_context->pass == 1) { offset = -4; }
+
+          if (offset < -262141 || offset > -4)
+          {
+            print_error_range("Offset", 0, 15, asm_context);
+            return -1;
+          }
+
+          if ((offset & 0x3) != 0)
+          {
+            printf("Error: Offset must be a multiple of 4 at %s:%d\n",
+              asm_context->tokens.filename,
+              asm_context->tokens.line);
+            return -1;
+          }
+
+          offset = (offset >> 2) & 0xffff;
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 4) | (offset << 8);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 16) | offset;
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
         default:
           print_error_internal(asm_context, __FILE__, __LINE__);
           return -1;

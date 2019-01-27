@@ -51,6 +51,7 @@ enum
   XTENSA_OP_AT_AS_0_1020,
   XTENSA_OP_AT_AS_N64_N4,
   XTENSA_OP_N_AT_AS_0_60,
+  XTENSA_OP_AT_I16,
 };
 
 struct _table_xtensa

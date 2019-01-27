@@ -114,6 +114,7 @@ struct _table_xtensa table_xtensa[] =
   { "l32e",     0x090000, 0x090000, XTENSA_OP_AT_AS_N64_N4 },
   { "l32i",     0x002002, 0x200200, XTENSA_OP_AT_AS_0_1020 },
   { "l32i.n",   0x000008, 0x008000, XTENSA_OP_N_AT_AS_0_60 },
+  { "l32r",     0x000001, 0x100000, XTENSA_OP_AT_I16 },
   { NULL, 0, 0, 0 }
 };
 
@@ -154,6 +155,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_AT_AS_0_1020
   { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AT_AS_N64_N4
   { 0x00000f, 0xf0f000, 16 },  // XTENSA_OP_N_AT_AS_0_60
+  { 0x00000f, 0xf00000, 24 },  // XTENSA_OP_AT_I16
 };
 
 int xtensa_b4const[] =

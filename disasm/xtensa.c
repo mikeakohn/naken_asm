@@ -228,6 +228,13 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
             sprintf(instruction, "%s a%d, a%d, %d",
               table_xtensa[n].instr, at, as, i * 4);
             return 3;
+          case XTENSA_OP_AT_I16:
+            at = (opcode >> 4) & 0xf;
+            i = ((opcode >> 8) & 0xffff) | 0xffff0000;
+            i = i * 4;
+            sprintf(instruction, "%s a%d, 0x%04x (offset=%d)",
+              table_xtensa[n].instr, at, address + 3 + i, i);
+            return 3;
           default:
             strcpy(instruction, "<error>");
             return -1;
@@ -494,6 +501,13 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
             i = (int32_t)((int8_t)(0xf0 | ((opcode >> 8) & 0xf)));
             sprintf(instruction, "%s a%d, a%d, %d",
               table_xtensa[n].instr, at, as, i * 4);
+            return 3;
+          case XTENSA_OP_AT_I16:
+            at = (opcode >> 16) & 0xf;
+            i = (opcode & 0xffff) | 0xffff0000;
+            i = i * 4;
+            sprintf(instruction, "%s a%d, 0x%04x (offset=%d)",
+              table_xtensa[n].instr, at, address + 3 + i, i);
             return 3;
           default:
             strcpy(instruction, "<error>");
