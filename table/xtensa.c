@@ -61,6 +61,9 @@ struct _table_xtensa table_xtensa[] =
   { "bnez",  0x000056, 0x650000, 24, XTENSA_OP_BRANCH_AS_I12 },
   { "bnez.n",0x0000cc, 0x00cc00, 16, XTENSA_OP_BRANCH_N_AS_I6 },
   { "bnone", 0x000007, 0x700000, 24, XTENSA_OP_BRANCH_AS_AT_I8 },
+  { "break", 0x002000, 0x000200, 24, XTENSA_OP_NUM_NUM },
+  { "break.n",0x00f02d, 0x00d20f, 24, XTENSA_OP_N_NUM_NUM },
+  { "bt",    0x001076, 0x670100, 16, XTENSA_OP_BRANCH_BS_I8 },
   { NULL, 0, 0, 0, 0 }
 };
 
@@ -84,6 +87,8 @@ struct _mask_xtensa mask_xtensa[] =
   { 0x0000ff, 0xff0000 },  // XTENSA_OP_BRANCH_AS_I12
   { 0x0000cf, 0x00fc00 },  // XTENSA_OP_BRANCH_N_AS_I6
   { 0x00f0ff, 0xff0f00 },  // XTENSA_OP_BRANCH_BS_I8
+  { 0xfff00f, 0xf00fff },  // XTENSA_OP_NUM_NUM
+  { 0x00f0ff, 0x00ff0f },  // XTENSA_OP_N_NUM_NUM
 };
 
 int xtensa_b4const[] =

@@ -137,6 +137,11 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
             sprintf(instruction, "%s b%d, 0x%04x (offset=%d)",
               table_xtensa[n].instr, bs, address + i, i);
             return 3;
+          case XTENSA_OP_NUM_NUM:
+            at = (opcode >> 4) & 0xf;
+            as = (opcode >> 8) & 0xf;
+            sprintf(instruction, "%s %d, %d", table_xtensa[n].instr, at, as);
+            return 3;
           default:
             return -1;
         }
@@ -169,6 +174,10 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
             if ((i & 0x20) == 0x20) { i |= 0xffffffc0; }
             sprintf(instruction, "%s a%d, 0x%04x (offset=%d)",
               table_xtensa[n].instr, as, address + i, i);
+            return 2;
+          case XTENSA_OP_N_NUM_NUM:
+            as = (opcode >> 8) & 0xf;
+            sprintf(instruction, "%s %d", table_xtensa[n].instr, as);
             return 2;
           default:
             return -1;
@@ -297,6 +306,11 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
             sprintf(instruction, "%s b%d, 0x%04x (offset=%d)",
               table_xtensa[n].instr, bs, address + i, i);
             return 3;
+          case XTENSA_OP_NUM_NUM:
+            at = (opcode >> 16) & 0xf;
+            as = (opcode >> 12) & 0xf;
+            sprintf(instruction, "%s %d, %d", table_xtensa[n].instr, at, as);
+            return 3;
           default:
             return -1;
         }
@@ -329,6 +343,10 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
             if ((i & 0x20) == 0x20) { i |= 0xffffffc0; }
             sprintf(instruction, "%s a%d, 0x%04x (offset=%d)",
               table_xtensa[n].instr, as, address + i, i);
+            return 2;
+          case XTENSA_OP_N_NUM_NUM:
+            as = (opcode >> 4) & 0xf;
+            sprintf(instruction, "%s %d", table_xtensa[n].instr, as);
             return 2;
           default:
             return -1;

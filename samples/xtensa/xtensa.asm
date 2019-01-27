@@ -22,4 +22,6 @@ here:
   beqz a4, here
   beqz.n a4, here
   bf b3, here
+  break 3, 7
+  break.n 12 
 
