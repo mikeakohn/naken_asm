@@ -28,4 +28,10 @@ here:
   callx0 a5
   ceil.s a5, f8, 7
   clamps a7, a9, 15
+  dsync
+  dii a5, 1020
+  dpfl a13, 240
+  dii a5, 1020
+  diwb a13, 96
+  dpfro a5, 20
 

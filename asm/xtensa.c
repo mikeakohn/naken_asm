@@ -256,7 +256,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
   struct _operand operands[MAX_OPERANDS];
-  int operand_count, offset;
+  int operand_count, offset, immediate;
   int n, i;
   uint32_t opcode;
 
@@ -277,6 +277,25 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
     {
       switch(table_xtensa[n].type)
       {
+        case XTENSA_OP_NONE:
+          if (operand_count != 0)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le;
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be;
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
         case XTENSA_OP_AR_AT:
           if (operand_count != 2 ||
               operands[0].type != OPERAND_REGISTER_AR ||
@@ -972,11 +991,11 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
 
           if (asm_context->pass == 2)
           {
-             if (operands[2].value < 7 || operands[2].value > 22)
-             {
-               print_error_range("Constant", 7, 22, asm_context);
-               return -1;
-             }
+            if (operands[2].value < 7 || operands[2].value > 22)
+            {
+              print_error_range("Constant", 7, 22, asm_context);
+              return -1;
+            }
           }
 
           operands[2].value -= 7;
@@ -994,6 +1013,73 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
                     (operands[0].value << 8) |
                     (operands[1].value << 12) |
                     (operands[2].value << 16);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
+        case XTENSA_OP_AS_0_1020:
+        case XTENSA_OP_AS_0_240:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            immediate = 0;
+          }
+            else
+          {
+            immediate = operands[1].value;
+
+            int hi = table_xtensa[n].type == XTENSA_OP_AS_0_1020 ? 1020 : 240;
+
+            if (immediate < 0 || immediate > hi)
+            {
+              print_error_range("Immediate", 0, hi, asm_context);
+              return -1;
+            }
+          }
+
+          if (table_xtensa[n].type == XTENSA_OP_AS_0_1020)
+          {
+            if ((immediate & 0x3) != 0)
+            {
+              printf("Error: Immediate must be a multiple of 4 at %s:%d\n",
+                asm_context->tokens.filename, asm_context->tokens.line);
+              return -1;
+            }
+
+            immediate = immediate >> 2;
+          }
+            else
+          {
+            if ((immediate & 0x3) != 0)
+            {
+              printf("Error: Immediate must be a multiple of 16 at %s:%d\n",
+                asm_context->tokens.filename, asm_context->tokens.line);
+              return -1;
+            }
+
+            if (asm_context->memory.endian == ENDIAN_BIG)
+            {
+              immediate = immediate >> 4;
+            }
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 8) | (immediate << 16);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 12) | immediate;
           }
 
           add_bin24(asm_context, opcode);
