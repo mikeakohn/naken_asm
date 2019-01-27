@@ -55,6 +55,7 @@ enum
   XTENSA_OP_AT_I16,
   XTENSA_OP_MW_AS,
   XTENSA_OP_LOOP_AS_LABEL,
+  XTENSA_OP_FT_AS_0_1020,
 };
 
 struct _table_xtensa

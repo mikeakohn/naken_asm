@@ -123,6 +123,8 @@ struct _table_xtensa table_xtensa[] =
   { "loop",     0x008076, 0x670800, XTENSA_OP_LOOP_AS_LABEL },
   { "loopgtz",  0x00a076, 0x670a00, XTENSA_OP_LOOP_AS_LABEL },
   { "loopnez",  0x009076, 0x670900, XTENSA_OP_LOOP_AS_LABEL },
+  { "lsi",      0x000003, 0x300000, XTENSA_OP_FT_AS_0_1020 },
+  { "lsiu",     0x008003, 0x300800, XTENSA_OP_FT_AS_0_1020 },
   { NULL, 0, 0, 0 }
 };
 
@@ -167,6 +169,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0x00000f, 0xf00000, 24 },  // XTENSA_OP_AT_I16
   { 0xffc0ff, 0xff0cff, 24 },  // XTENSA_OP_MW_AS
   { 0x00f0ff, 0xff0f00, 24 },  // XTENSA_OP_LOOP_AS_LABEL
+  { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_FT_AS_0_1020
 };
 
 int xtensa_b4const[] =

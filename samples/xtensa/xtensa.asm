@@ -50,4 +50,5 @@ there:
   l32r a5, there
   ldct a5, a7
   lddec m3, a13
+  lsi f5, a10, 240
 

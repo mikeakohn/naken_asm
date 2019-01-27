@@ -1552,6 +1552,41 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
+        case XTENSA_OP_FT_AS_0_1020:
+          if (operand_count != 3 ||
+              operands[0].type != OPERAND_REGISTER_FR ||
+              operands[1].type != OPERAND_REGISTER_AR ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          immediate = operands[2].value;
+
+          if (check_immediate(asm_context, &immediate, 2) != 0)
+          {
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 4) |
+                    (operands[1].value << 8) |
+                    (immediate << 16);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 16) |
+                    (operands[1].value << 12) |
+                     immediate;
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
         default:
           print_error_internal(asm_context, __FILE__, __LINE__);
           return -1;
