@@ -38,6 +38,7 @@ here:
   extui a6, a7, 17, 4
   float.s f5, a8, 7
   ill.n
+  loop a5, there
   l8ui a4, a11, 9
 there:
   l16si a9, a12, 230
@@ -47,4 +48,6 @@ there:
   l32e a9, a13, -8
   l32i.n a3, a6, 32
   l32r a5, there
+  ldct a5, a7
+  lddec m3, a13
 

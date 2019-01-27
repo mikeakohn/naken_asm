@@ -90,7 +90,7 @@ struct _table_xtensa table_xtensa[] =
   { "entry",    0x000036, 0x6c0000, XTENSA_OP_AS_0_32760 },
   { "esync",    0x002020, 0x020200, XTENSA_OP_NONE },
   { "excw",     0x002080, 0x080200, XTENSA_OP_NONE },
-  { "extui",    0x000000, 0x000000, XTENSA_OP_AR_AT_SHIFT_MASK },
+  { "extui",    0x040000, 0x000040, XTENSA_OP_AR_AT_SHIFT_MASK },
   { "extw",     0x0020d0, 0x0d0200, XTENSA_OP_NONE },
   { "float.s",  0xca0000, 0x0000ac, XTENSA_OP_FR_AS_0_15 },
   { "float.s",  0xaa0000, 0x0000aa, XTENSA_OP_AR_FS_0_15 },
@@ -115,6 +115,14 @@ struct _table_xtensa table_xtensa[] =
   { "l32i",     0x002002, 0x200200, XTENSA_OP_AT_AS_0_1020 },
   { "l32i.n",   0x000008, 0x008000, XTENSA_OP_N_AT_AS_0_60 },
   { "l32r",     0x000001, 0x100000, XTENSA_OP_AT_I16 },
+  { "ldct",     0xf18000, 0x00081f, XTENSA_OP_AT_AS },
+  { "lddec",    0x900004, 0x400009, XTENSA_OP_MW_AS },
+  { "ldinc",    0x800004, 0x400008, XTENSA_OP_MW_AS },
+  { "lict",     0xf10000, 0x00001f, XTENSA_OP_AT_AS },
+  { "licw",     0xf12000, 0x00021f, XTENSA_OP_AT_AS },
+  { "loop",     0x008076, 0x670800, XTENSA_OP_LOOP_AS_LABEL },
+  { "loopgtz",  0x00a076, 0x670a00, XTENSA_OP_LOOP_AS_LABEL },
+  { "loopnez",  0x009076, 0x670900, XTENSA_OP_LOOP_AS_LABEL },
   { NULL, 0, 0, 0 }
 };
 
@@ -123,6 +131,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xffffff, 0xffffff, 24 },  // XTENSA_OP_NONE
   { 0x00ffff, 0x00ffff, 16 },  // XTENSA_OP_N_NONE
   { 0xff0f0f, 0xf0f0ff, 24 },  // XTENSA_OP_AR_AT
+  { 0xfff00f, 0xf00fff, 24 },  // XTENSA_OP_AT_AS
   { 0xff00ff, 0xff00ff, 24 },  // XTENSA_OP_FR_FS
   { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_FR_FS_FT
   { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AR_AS_AT
@@ -156,6 +165,8 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AT_AS_N64_N4
   { 0x00000f, 0xf0f000, 16 },  // XTENSA_OP_N_AT_AS_0_60
   { 0x00000f, 0xf00000, 24 },  // XTENSA_OP_AT_I16
+  { 0xffc0ff, 0xff0cff, 24 },  // XTENSA_OP_MW_AS
+  { 0x00f0ff, 0xff0f00, 24 },  // XTENSA_OP_LOOP_AS_LABEL
 };
 
 int xtensa_b4const[] =
