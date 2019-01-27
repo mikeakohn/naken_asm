@@ -44,6 +44,7 @@ enum
   XTENSA_OP_AS_0_240,
   XTENSA_OP_AS_0_32760,
   XTENSA_OP_AR_AT_SHIFT_MASK,
+  XTENSA_OP_FR_AS_0_15,
 };
 
 struct _table_xtensa
