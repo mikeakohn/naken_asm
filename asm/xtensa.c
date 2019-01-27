@@ -161,6 +161,48 @@ static int check_immediate(struct _asm_context *asm_context, int *immediate, int
   return 0;
 }
 
+static int check_immediate_n(struct _asm_context *asm_context, int *immediate, int shift)
+{
+  if (asm_context->pass == 1)
+  {
+    *immediate = 0;
+    return 0;
+  }
+    else
+  {
+    int hi;
+
+    switch(shift)
+    {
+      case 0: hi = 15; break;
+      case 1: hi = 30; break;
+      case 2: hi = 60; break;
+      default: hi = 0; break;
+    }
+
+    if (*immediate < 0 || *immediate > hi)
+    {
+      print_error_range("Immediate", 0, hi, asm_context);
+      return -1;
+    }
+  }
+
+  int mask = (1 << shift) - 1;
+
+  if ((*immediate & mask) != 0)
+  {
+    printf("Error: Immediate must be a multiple of %d at %s:%d\n",
+      1 << shift,
+      asm_context->tokens.filename,
+      asm_context->tokens.line);
+    return -1;
+  }
+
+  *immediate = (*immediate >> shift) & 0xf;
+
+  return 0;
+}
+
 // Not sure if this would be okay in other assemblers, so leaving here
 // for now.
 static void add_bin24(struct _asm_context *asm_context, uint32_t b)
@@ -1339,6 +1381,41 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
+        case XTENSA_OP_N_AT_AS_0_60:
+          if (operand_count != 3 ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_REGISTER_AR ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          immediate = operands[2].value;
+
+          if (check_immediate_n(asm_context, &immediate, 2) != 0)
+          {
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 4) |
+                    (operands[1].value << 8) |
+                    (immediate << 12);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 8) |
+                    (operands[1].value << 4) |
+                     immediate;
+          }
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
         default:
           print_error_internal(asm_context, __FILE__, __LINE__);
           return -1;
