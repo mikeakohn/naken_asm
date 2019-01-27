@@ -877,6 +877,54 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
 
           add_bin16(asm_context, opcode, IS_OPCODE);
 
+          return 2;
+        case XTENSA_OP_CALL_I18:
+          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          compute_offset(asm_context, &offset, operands[0].value);
+
+          if (offset < -131072 || offset > 131071)
+          {
+            print_error_range("Offset", -131072, 131071, asm_context);
+            return -1;
+          }
+
+          offset = offset & 0x3ffff;
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le | (offset << 6);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be | offset;
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
+        case XTENSA_OP_CALL_AS:
+          if (operand_count != 1 || operands[0].type != OPERAND_REGISTER_AR)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le | (operands[0].value << 8);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be | (operands[0].value << 12);
+          }
+
+          add_bin24(asm_context, opcode);
+
           return 3;
         default:
           print_error_internal(asm_context, __FILE__, __LINE__);

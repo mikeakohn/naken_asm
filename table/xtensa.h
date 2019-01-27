@@ -36,6 +36,8 @@ enum
   XTENSA_OP_BRANCH_BS_I8,
   XTENSA_OP_NUM_NUM,
   XTENSA_OP_N_NUM_NUM,
+  XTENSA_OP_CALL_I18,
+  XTENSA_OP_CALL_AS,
 };
 
 struct _table_xtensa

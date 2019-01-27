@@ -63,7 +63,14 @@ struct _table_xtensa table_xtensa[] =
   { "bnone",    0x000007, 0x700000, XTENSA_OP_BRANCH_AS_AT_I8 },
   { "break",    0x002000, 0x000200, XTENSA_OP_NUM_NUM },
   { "break.n",  0x00f02d, 0x00d20f, XTENSA_OP_N_NUM_NUM },
-  { "bt",       0x001076, 0x670100, XTENSA_OP_BRANCH_BS_I8 },
+  { "call0",    0x000005, 0x500000, XTENSA_OP_CALL_I18 },
+  { "call4",    0x000015, 0x540000, XTENSA_OP_CALL_I18 },
+  { "call8",    0x000025, 0x580000, XTENSA_OP_CALL_I18 },
+  { "call12",   0x000035, 0x5c0000, XTENSA_OP_CALL_I18 },
+  { "callx0",   0x0000c0, 0x030000, XTENSA_OP_CALL_AS },
+  { "callx4",   0x0000d0, 0x070000, XTENSA_OP_CALL_AS },
+  { "callx8",   0x0000e0, 0x0b0000, XTENSA_OP_CALL_AS },
+  { "callx12",  0x0000f0, 0x0f0000, XTENSA_OP_CALL_AS },
   { NULL, 0, 0, 0 }
 };
 
@@ -89,6 +96,8 @@ struct _mask_xtensa mask_xtensa[] =
   { 0x00f0ff, 0xff0f00, 24 },  // XTENSA_OP_BRANCH_BS_I8
   { 0xfff00f, 0xf00fff, 24 },  // XTENSA_OP_NUM_NUM
   { 0x00f0ff, 0x00ff0f, 16 },  // XTENSA_OP_N_NUM_NUM
+  { 0x00003f, 0xfc0000, 24 },  // XTENSA_OP_CALL_I18
+  { 0xfff0ff, 0xff0fff, 24 },  // XTENSA_OP_CALL_AS
 };
 
 int xtensa_b4const[] =

@@ -24,4 +24,6 @@ here:
   bf b3, here
   break 3, 7
   break.n 12 
+  call0 here
+  callx0 a5
 
