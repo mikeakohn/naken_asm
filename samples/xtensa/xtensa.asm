@@ -31,11 +31,17 @@ here:
   dsync
   dii a5, 1020
   dpfl a13, 240
-  dii a5, 1020
+  dii a5, 240
   diwb a13, 96
   dpfro a5, 20
   entry a5, 256
   extui a6, a7, 17, 4
   float.s f5, a8, 7
   ill.n
+  l8ui a4, a11, 9
+  l16si a9, a12, 230
+  l16ui a13, a10, 110
+  l32ai a7, a15, 240
+  l32e a2, a12, -64
+  l32e a9, a13, -8
 

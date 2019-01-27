@@ -200,6 +200,34 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
             sprintf(instruction, "%s f%d, a%d, %d",
               table_xtensa[n].instr, fr, as, i);
             return 3;
+          case XTENSA_OP_AT_AS_0_255:
+            at = (opcode >> 4) & 0xf;
+            as = (opcode >> 8) & 0xf;
+            i = (opcode >> 16) & 0xff;
+            sprintf(instruction, "%s a%d, a%d, %d",
+              table_xtensa[n].instr, at, as, i);
+            return 3;
+          case XTENSA_OP_AT_AS_0_510:
+            at = (opcode >> 4) & 0xf;
+            as = (opcode >> 8) & 0xf;
+            i = (opcode >> 16) & 0xff;
+            sprintf(instruction, "%s a%d, a%d, %d",
+              table_xtensa[n].instr, at, as, i << 1);
+            return 3;
+          case XTENSA_OP_AT_AS_0_1020:
+            at = (opcode >> 4) & 0xf;
+            as = (opcode >> 8) & 0xf;
+            i = (opcode >> 16) & 0xff;
+            sprintf(instruction, "%s a%d, a%d, %d",
+              table_xtensa[n].instr, at, as, i << 2);
+            return 3;
+          case XTENSA_OP_AT_AS_N64_N4:
+            at = (opcode >> 4) & 0xf;
+            as = (opcode >> 8) & 0xf;
+            i = (int32_t)((int8_t)(0xf0 | ((opcode >> 12) & 0xf)));
+            sprintf(instruction, "%s a%d, a%d, %d",
+              table_xtensa[n].instr, at, as, i * 4);
+            return 3;
           default:
             strcpy(instruction, "<error>");
             return -1;
@@ -431,6 +459,34 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
             i = (opcode >> 16) & 0xf;
             sprintf(instruction, "%s f%d, a%d, %d",
               table_xtensa[n].instr, fr, as, i);
+            return 3;
+          case XTENSA_OP_AT_AS_0_255:
+            at = (opcode >> 16) & 0xf;
+            as = (opcode >> 12) & 0xf;
+            i = opcode & 0xff;
+            sprintf(instruction, "%s a%d, a%d, %d",
+              table_xtensa[n].instr, at, as, i);
+            return 3;
+          case XTENSA_OP_AT_AS_0_510:
+            at = (opcode >> 16) & 0xf;
+            as = (opcode >> 12) & 0xf;
+            i = opcode & 0xff;
+            sprintf(instruction, "%s a%d, a%d, %d",
+              table_xtensa[n].instr, at, as, i << 1);
+            return 3;
+          case XTENSA_OP_AT_AS_0_1020:
+            at = (opcode >> 16) & 0xf;
+            as = (opcode >> 12) & 0xf;
+            i = opcode & 0xff;
+            sprintf(instruction, "%s a%d, a%d, %d",
+              table_xtensa[n].instr, at, as, i << 2);
+            return 3;
+          case XTENSA_OP_AT_AS_N64_N4:
+            at = (opcode >> 16) & 0xf;
+            as = (opcode >> 12) & 0xf;
+            i = (int32_t)((int8_t)(0xf0 | ((opcode >> 8) & 0xf)));
+            sprintf(instruction, "%s a%d, a%d, %d",
+              table_xtensa[n].instr, at, as, i * 4);
             return 3;
           default:
             strcpy(instruction, "<error>");

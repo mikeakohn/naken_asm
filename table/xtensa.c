@@ -99,9 +99,19 @@ struct _table_xtensa table_xtensa[] =
   { "ihu",      0x0270B2, 0x2B0720, XTENSA_OP_AS_0_240 },
   { "iii",      0x0070f2, 0x2f0700, XTENSA_OP_AS_0_1020 },
   { "iitlb",    0x504000, 0x000405, XTENSA_OP_CALL_AS },
-  { "iiu",      0x0370D2, 0x2D0730, XTENSA_OP_AS_0_240 },
+  { "iiu",      0x0370d2, 0x2d0730, XTENSA_OP_AS_0_240 },
   { "ill",      0x000000, 0x000000, XTENSA_OP_NONE },
   { "ill.n",    0x00f06d, 0x00d60f, XTENSA_OP_N_NONE },
+  { "ipf",      0x0070c2, 0x2c0700, XTENSA_OP_AS_0_1020 },
+  { "ipfl",     0x0070d2, 0x2d0700, XTENSA_OP_AS_0_240 },
+  { "isync",    0x002000, 0x000200, XTENSA_OP_NONE },
+  { "j",        0x000006, 0x600000, XTENSA_OP_CALL_I18 },
+  { "jx",       0x0000a0, 0x0a0000, XTENSA_OP_CALL_AS },
+  { "l8ui",     0x000002, 0x200000, XTENSA_OP_AT_AS_0_255 },
+  { "l16si",    0x009002, 0x200900, XTENSA_OP_AT_AS_0_510 },
+  { "l16ui",    0x001002, 0x200100, XTENSA_OP_AT_AS_0_510 },
+  { "l32ai",    0x00b002, 0x200b00, XTENSA_OP_AT_AS_0_1020 },
+  { "l32e",     0x090000, 0x090000, XTENSA_OP_AT_AS_N64_N4 },
   { NULL, 0, 0, 0 }
 };
 
@@ -137,6 +147,10 @@ struct _mask_xtensa mask_xtensa[] =
   { 0x0000ff, 0xff0000, 24 },  // XTENSA_OP_AS_0_32760
   { 0x0e000f, 0xf000e0, 24 },  // XTENSA_OP_AR_AT_SHIFT_MASK
   { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_FR_AS_0_15
+  { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_AT_AS_0_255
+  { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_AT_AS_0_510
+  { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_AT_AS_0_1020
+  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AT_AS_N64_N4
 };
 
 int xtensa_b4const[] =
