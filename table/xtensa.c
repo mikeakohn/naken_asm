@@ -88,6 +88,9 @@ struct _table_xtensa table_xtensa[] =
   { "dpfwo",    0x007032, 0x230700, XTENSA_OP_AS_0_1020 },
   { "dsync",    0x002030, 0x030200, XTENSA_OP_NONE },
   { "entry",    0x000036, 0x6c0000, XTENSA_OP_AS_0_32760 },
+  { "esync",    0x002020, 0x020200, XTENSA_OP_NONE },
+  { "excw",     0x002080, 0x080200, XTENSA_OP_NONE },
+  { "extui",    0x000000, 0x000000, XTENSA_OP_AR_AT_SHIFT_MASK },
   { NULL, 0, 0, 0 }
 };
 
@@ -120,6 +123,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0x00f0ff, 0xff0f00, 24 },  // XTENSA_OP_AS_0_1020
   { 0x0ff0ff, 0xff0ff0, 24 },  // XTENSA_OP_AS_0_240
   { 0x0000ff, 0xff0000, 24 },  // XTENSA_OP_AS_0_32760
+  { 0x0e000f, 0xf000e0, 24 },  // XTENSA_OP_AR_AT_SHIFT_MASK
 };
 
 int xtensa_b4const[] =

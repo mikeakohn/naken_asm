@@ -35,4 +35,5 @@ here:
   diwb a13, 96
   dpfro a5, 20
   entry a5, 256
+  extui a6, a7, 17, 4
 
