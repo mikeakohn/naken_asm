@@ -296,6 +296,25 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
+        case XTENSA_OP_N_NONE:
+          if (operand_count != 0)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le;
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be;
+          }
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
         case XTENSA_OP_AR_AT:
           if (operand_count != 2 ||
               operands[0].type != OPERAND_REGISTER_AR ||

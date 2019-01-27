@@ -37,4 +37,5 @@ here:
   entry a5, 256
   extui a6, a7, 17, 4
   float.s f5, a8, 7
+  ill.n
 
