@@ -71,6 +71,8 @@ struct _table_xtensa table_xtensa[] =
   { "callx4",   0x0000d0, 0x070000, XTENSA_OP_CALL_AS },
   { "callx8",   0x0000e0, 0x0b0000, XTENSA_OP_CALL_AS },
   { "callx12",  0x0000f0, 0x0f0000, XTENSA_OP_CALL_AS },
+  { "ceil.s",   0xba0000, 0x0000ab, XTENSA_OP_AR_FS_0_15 },
+  { "clamps",   0x330000, 0x000033, XTENSA_OP_AR_AS_7_22 },
   { NULL, 0, 0, 0 }
 };
 
@@ -98,6 +100,8 @@ struct _mask_xtensa mask_xtensa[] =
   { 0x00f0ff, 0x00ff0f, 16 },  // XTENSA_OP_N_NUM_NUM
   { 0x00003f, 0xfc0000, 24 },  // XTENSA_OP_CALL_I18
   { 0xfff0ff, 0xff0fff, 24 },  // XTENSA_OP_CALL_AS
+  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AR_FS_0_15
+  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AR_AS_7_22
 };
 
 int xtensa_b4const[] =

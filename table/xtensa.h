@@ -38,6 +38,8 @@ enum
   XTENSA_OP_N_NUM_NUM,
   XTENSA_OP_CALL_I18,
   XTENSA_OP_CALL_AS,
+  XTENSA_OP_AR_FS_0_15,
+  XTENSA_OP_AR_AS_7_22,
 };
 
 struct _table_xtensa

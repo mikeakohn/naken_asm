@@ -26,4 +26,6 @@ here:
   break.n 12 
   call0 here
   callx0 a5
+  ceil.s a5, f8, 7
+  clamps a7, a9, 15
 
