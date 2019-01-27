@@ -42,8 +42,9 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
   while(table_xtensa[n].instr != NULL)
   {
     uint32_t mask = mask_xtensa[table_xtensa[n].type].mask_le;
+    int bits = mask_xtensa[table_xtensa[n].type].bits;
 
-    if (table_xtensa[n].bits == 24)
+    if (bits == 24)
     {
       if ((opcode & mask) == table_xtensa[n].opcode_le)
       {
@@ -211,8 +212,9 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
   while(table_xtensa[n].instr != NULL)
   {
     uint32_t mask = mask_xtensa[table_xtensa[n].type].mask_be;
+    int bits = mask_xtensa[table_xtensa[n].type].bits;
 
-    if (table_xtensa[n].bits == 24)
+    if (bits == 24)
     {
       if ((opcode & mask) == table_xtensa[n].opcode_be)
       {

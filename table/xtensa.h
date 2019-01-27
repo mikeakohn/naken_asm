@@ -43,7 +43,6 @@ struct _table_xtensa
   char *instr;
   uint32_t opcode_le;
   uint32_t opcode_be;
-  uint8_t bits;
   uint8_t type;
 };
 
@@ -51,6 +50,7 @@ struct _mask_xtensa
 {
   uint32_t mask_le;
   uint32_t mask_be;
+  uint8_t bits;
 };
 
 extern struct _table_xtensa table_xtensa[];
