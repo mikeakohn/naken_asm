@@ -1085,6 +1085,52 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
+        case XTENSA_OP_AS_0_32760:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->pass == 1)
+          {
+            immediate = 0;
+          }
+            else
+          {
+            immediate = operands[1].value;
+
+            if ((immediate & 0x7) != 0)
+            {
+              printf("Error: Immediate must be a multiple of 4 at %s:%d\n",
+                asm_context->tokens.filename, asm_context->tokens.line);
+              return -1;
+            }
+
+            if (immediate < 0 || immediate > 32760)
+            {
+              print_error_range("Immediate", 0, 32760, asm_context);
+              return -1;
+            }
+
+            immediate = (immediate >> 3) & 0xfff;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 8) | (immediate << 12);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 12) | immediate;
+          }
+          add_bin24(asm_context, opcode);
+
+          return 3;
         default:
           print_error_internal(asm_context, __FILE__, __LINE__);
           return -1;

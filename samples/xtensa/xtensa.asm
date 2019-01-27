@@ -34,4 +34,5 @@ here:
   dii a5, 1020
   diwb a13, 96
   dpfro a5, 20
+  entry a5, 256
 

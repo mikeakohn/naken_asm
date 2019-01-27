@@ -42,6 +42,7 @@ enum
   XTENSA_OP_AR_AS_7_22,
   XTENSA_OP_AS_0_1020,
   XTENSA_OP_AS_0_240,
+  XTENSA_OP_AS_0_32760,
 };
 
 struct _table_xtensa
