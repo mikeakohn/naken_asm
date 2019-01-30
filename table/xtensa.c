@@ -219,8 +219,20 @@ struct _table_xtensa table_xtensa[] =
   { "muls.dd.hl",       0x2d0004, 0x4000d2, XTENSA_OP_MX_MY },
   { "muls.dd.lh",       0x2e0004, 0x4000e2, XTENSA_OP_MX_MY },
   { "muls.dd.hh",       0x2f0004, 0x4000f2, XTENSA_OP_MX_MY },
-
+  { "mulsh",    0xb20000, 0x00002b, XTENSA_OP_AR_AS_AT },
+  { "muluh",    0xa20000, 0x00002a, XTENSA_OP_AR_AS_AT },
+  { "neg",      0x600000, 0x000006, XTENSA_OP_AR_AT },
+  { "neg.s",    0xfa0060, 0x0600af, XTENSA_OP_FR_FS },
+  { "nop",      0x0020f0, 0x0f0200, XTENSA_OP_NONE },
+  { "nop.n",    0x00f03d, 0x00d30f, XTENSA_OP_N_NONE },
+  { "nsa",      0x40e000, 0x000e04, XTENSA_OP_AT_AS },
+  { "nsau",     0x40f000, 0x000f04, XTENSA_OP_AT_AS },
+  { "oeq.s",    0x2b0000, 0x0000b2, XTENSA_OP_BR_FS_FT },
+  { "ole.s",    0x6b0000, 0x0000b6, XTENSA_OP_BR_FS_FT },
+  { "olt.s",    0x4b0000, 0x0000b4, XTENSA_OP_BR_FS_FT },
   { "or",       0x200000, 0x000002, XTENSA_OP_AR_AS_AT },
+  { "orb",      0x220000, 0x000022, XTENSA_OP_BR_BS_BT },
+
   { "mov",      0x200000, 0x000002, XTENSA_OP_AR_AS_AS },
   { NULL, 0, 0, 0 }
 };
@@ -289,6 +301,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xffb0bf, 0xfb0bff, 24, MW, MW,  0 },  // XTENSA_OP_MX_MY
   { 0xfc800f, 0xf008cf, 24, MW, AR, MW },  // XTENSA_OP_MW_AS_MX_AT
   { 0xfc80bf, 0xfb08cf, 24, MW, AR, MW },  // XTENSA_OP_MW_AS_MX_MY
+  { 0xff000f, 0xf000ff, 24, BR, FR, FR },  // XTENSA_OP_BR_FS_FT
 };
 
 int xtensa_b4const[] =

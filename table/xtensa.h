@@ -78,6 +78,7 @@ enum
   XTENSA_OP_MX_MY,
   XTENSA_OP_MW_AS_MX_AT,
   XTENSA_OP_MW_AS_MX_MY,
+  XTENSA_OP_BR_FS_FT,
 };
 
 struct _table_xtensa
