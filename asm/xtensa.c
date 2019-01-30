@@ -1739,6 +1739,86 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
+        case XTENSA_OP_MW_AS_MX_AT:
+          if (operand_count != 4 ||
+              operands[0].type != OPERAND_REGISTER_MW ||
+              operands[1].type != OPERAND_REGISTER_AR ||
+              operands[2].type != OPERAND_REGISTER_MW ||
+              operands[3].type != OPERAND_REGISTER_AR)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[2].value > 1)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 12) |
+                    (operands[1].value << 8) |
+                    (operands[2].value << 14) |
+                    (operands[3].value << 4);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 8) |
+                    (operands[1].value << 12) |
+                    (operands[2].value << 10) |
+                    (operands[3].value << 16);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
+        case XTENSA_OP_MW_AS_MX_MY:
+          if (operand_count != 4 ||
+              operands[0].type != OPERAND_REGISTER_MW ||
+              operands[1].type != OPERAND_REGISTER_AR ||
+              operands[2].type != OPERAND_REGISTER_MW ||
+              operands[3].type != OPERAND_REGISTER_MW)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[2].value > 1)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[3].value < 2)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 12) |
+                    (operands[1].value << 8) |
+                    (operands[2].value << 14) |
+                   ((operands[3].value - 2) << 6);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 8) |
+                    (operands[1].value << 12) |
+                    (operands[2].value << 10) |
+                   ((operands[3].value - 2) << 18);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
         default:
           print_error_internal(asm_context, __FILE__, __LINE__);
           return -1;

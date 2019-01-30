@@ -64,4 +64,6 @@ there:
   mul.ad.ll a5, m3
   mul.da.lh m1, a11
   mul.dd.hh m1, m3
+  mula.da.hl.lddec m3, a5, m1, a11
+  mula.dd.hl.lddec m3, a5, m1, m3
 
