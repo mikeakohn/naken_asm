@@ -1794,6 +1794,31 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
+        case XTENSA_OP_0_15:
+          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 15)
+          {
+            print_error_range("Constant", 0, 15, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le | (operands[0].value << 8);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be | (operands[0].value << 12);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
         default:
           print_error_internal(asm_context, __FILE__, __LINE__);
           return -1;

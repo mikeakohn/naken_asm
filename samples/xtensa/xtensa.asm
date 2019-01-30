@@ -68,4 +68,5 @@ there:
   mula.dd.hl.lddec m3, a5, m1, m3
   oeq.s b3, f9, f11
   orb b1, b7, b13
+  rfi 8
 
