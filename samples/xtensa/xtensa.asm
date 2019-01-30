@@ -56,4 +56,6 @@ there:
   mov a9, a11
   mov.n a9, a11
   moveqz.s f9, f11, a3
+  movf a3, a9, b9
+  movf.s f3, f9, b9
 

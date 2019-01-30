@@ -138,6 +138,7 @@ struct _table_xtensa table_xtensa[] =
   { "moveqz",   0x830000, 0x000038, XTENSA_OP_FR_FS },
   { "moveqz.s", 0x830000, 0x000038, XTENSA_OP_FR_FS_AT },
   { "movf",     0xc30000, 0x000038, XTENSA_OP_AR_AS_BT },
+  { "movf.s",   0xcb0000, 0x0000bc, XTENSA_OP_FR_FS_BT },
 
   { "or",       0x200000, 0x000002, XTENSA_OP_AR_AS_AT },
   { "mov",      0x200000, 0x000002, XTENSA_OP_AR_AS_AS },
@@ -146,51 +147,52 @@ struct _table_xtensa table_xtensa[] =
 
 struct _mask_xtensa mask_xtensa[] =
 {
-  { 0xffffff, 0xffffff, 24 },  // XTENSA_OP_NONE
-  { 0x00ffff, 0x00ffff, 16 },  // XTENSA_OP_N_NONE
-  { 0xff0f0f, 0xf0f0ff, 24 },  // XTENSA_OP_AR_AT
-  { 0xfff00f, 0xf00fff, 24 },  // XTENSA_OP_AT_AS
-  { 0xff00ff, 0xff00ff, 24 },  // XTENSA_OP_FR_FS
-  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_FR_FS_FT
-  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AR_AS_AT
-  { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_AT_AS_I8
-  { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_AT_AS_IM8
-  { 0x00000f, 0x00f000, 16 },  // XTENSA_OP_N_AR_AS_AT
-  { 0x00000f, 0x00f000, 16 },  // XTENSA_OP_N_AR_AS_I4
-  { 0xfff00f, 0xf00fff, 24 },  // XTENSA_OP_BT_BS4
-  { 0xfff00f, 0xf00fff, 24 },  // XTENSA_OP_BT_BS8
-  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_BR_BS_BT
-  { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_BRANCH_AS_AT_I8
-  { 0x00e00f, 0xf00e00, 24 },  // XTENSA_OP_BRANCH_B5_I8
-  { 0x0000ff, 0xff0000, 24 },  // XTENSA_OP_BRANCH_AS_C4_I8
-  { 0x0000ff, 0xff0000, 24 },  // XTENSA_OP_BRANCH_AS_I12
-  { 0x0000cf, 0x00fc00, 16 },  // XTENSA_OP_BRANCH_N_AS_I6
-  { 0x00f0ff, 0xff0f00, 24 },  // XTENSA_OP_BRANCH_BS_I8
-  { 0xfff00f, 0xf00fff, 24 },  // XTENSA_OP_NUM_NUM
-  { 0x00f0ff, 0x00ff0f, 16 },  // XTENSA_OP_N_NUM_NUM
-  { 0x00003f, 0xfc0000, 24 },  // XTENSA_OP_CALL_I18
-  { 0xfff0ff, 0xff0fff, 24 },  // XTENSA_OP_CALL_AS
-  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AR_FS_0_15
-  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AR_AS_7_22
-  { 0x00f0ff, 0xff0f00, 24 },  // XTENSA_OP_AS_0_1020
-  { 0x0ff0ff, 0xff0ff0, 24 },  // XTENSA_OP_AS_0_240
-  { 0x0000ff, 0xff0000, 24 },  // XTENSA_OP_AS_0_32760
-  { 0x0e000f, 0xf000e0, 24 },  // XTENSA_OP_AR_AT_SHIFT_MASK
-  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_FR_AS_0_15
-  { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_AT_AS_0_255
-  { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_AT_AS_0_510
-  { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_AT_AS_0_1020
-  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AT_AS_N64_N4
-  { 0x00000f, 0xf0f000, 16 },  // XTENSA_OP_N_AT_AS_0_60
-  { 0x00000f, 0xf00000, 24 },  // XTENSA_OP_AT_I16
-  { 0xffc0ff, 0xff0cff, 24 },  // XTENSA_OP_MW_AS
-  { 0x00f0ff, 0xff0f00, 24 },  // XTENSA_OP_LOOP_AS_LABEL
-  { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_FT_AS_0_1020
-  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_FR_AS_AT
-  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AR_AS_AS
-  { 0x00f00f, 0x00f00f, 16 },  // XTENSA_OP_N_AT_AS
-  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_FR_FS_AT
-  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AR_AS_BT
+  { 0xffffff, 0xffffff, 24, 0, 0, 0 },  // XTENSA_OP_NONE
+  { 0x00ffff, 0x00ffff, 16, 0, 0, 0 },  // XTENSA_OP_N_NONE
+  { 0xff0f0f, 0xf0f0ff, 24, 1, 1, 0 },  // XTENSA_OP_AR_AT
+  { 0xfff00f, 0xf00fff, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS
+  { 0xff00ff, 0xff00ff, 24, 2, 2, 0 },  // XTENSA_OP_FR_FS
+  { 0xff000f, 0xf000ff, 24, 2, 2, 2 },  // XTENSA_OP_FR_FS_FT
+  { 0xff000f, 0xf000ff, 24, 1, 1, 1 },  // XTENSA_OP_AR_AS_AT
+  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_I8
+  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_IM8
+  { 0x00000f, 0x00f000, 16, 1, 1, 1 },  // XTENSA_OP_N_AR_AS_AT
+  { 0x00000f, 0x00f000, 16, 1, 1, 0 },  // XTENSA_OP_N_AR_AS_I4
+  { 0xfff00f, 0xf00fff, 24, 3, 0, 0 },  // XTENSA_OP_BT_BS4
+  { 0xfff00f, 0xf00fff, 24, 3, 0, 0 },  // XTENSA_OP_BT_BS8
+  { 0xff000f, 0xf000ff, 24, 3, 3, 3 },  // XTENSA_OP_BR_BS_BT
+  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_BRANCH_AS_AT_I8
+  { 0x00e00f, 0xf00e00, 24, 0, 0, 0 },  // XTENSA_OP_BRANCH_B5_I8
+  { 0x0000ff, 0xff0000, 24, 1, 0, 0 },  // XTENSA_OP_BRANCH_AS_C4_I8
+  { 0x0000ff, 0xff0000, 24, 1, 0, 0 },  // XTENSA_OP_BRANCH_AS_I12
+  { 0x0000cf, 0x00fc00, 16, 1, 0, 0 },  // XTENSA_OP_BRANCH_N_AS_I6
+  { 0x00f0ff, 0xff0f00, 24, 0, 0, 0 },  // XTENSA_OP_BRANCH_BS_I8
+  { 0xfff00f, 0xf00fff, 24, 0, 0, 0 },  // XTENSA_OP_NUM_NUM
+  { 0x00f0ff, 0x00ff0f, 16, 0, 0, 0 },  // XTENSA_OP_N_NUM_NUM
+  { 0x00003f, 0xfc0000, 24, 0, 0, 0 },  // XTENSA_OP_CALL_I18
+  { 0xfff0ff, 0xff0fff, 24, 0, 0, 0 },  // XTENSA_OP_CALL_AS
+  { 0xff000f, 0xf000ff, 24, 1, 2, 0 },  // XTENSA_OP_AR_FS_0_15
+  { 0xff000f, 0xf000ff, 24, 1, 1, 0 },  // XTENSA_OP_AR_AS_7_22
+  { 0x00f0ff, 0xff0f00, 24, 1, 0, 0 },  // XTENSA_OP_AS_0_1020
+  { 0x0ff0ff, 0xff0ff0, 24, 1, 0, 0 },  // XTENSA_OP_AS_0_240
+  { 0x0000ff, 0xff0000, 24, 1, 0, 0 },  // XTENSA_OP_AS_0_32760
+  { 0x0e000f, 0xf000e0, 24, 1, 1, 0 },  // XTENSA_OP_AR_AT_SHIFT_MASK
+  { 0xff000f, 0xf000ff, 24, 2, 1, 0 },  // XTENSA_OP_FR_AS_0_15
+  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_0_255
+  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_0_510
+  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_0_1020
+  { 0xff000f, 0xf000ff, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_N64_N4
+  { 0x00000f, 0xf0f000, 16, 1, 1, 0 },  // XTENSA_OP_N_AT_AS_0_60
+  { 0x00000f, 0xf00000, 24, 1, 0, 0 },  // XTENSA_OP_AT_I16
+  { 0xffc0ff, 0xff0cff, 24, 0, 0, 0 },  // XTENSA_OP_MW_AS
+  { 0x00f0ff, 0xff0f00, 24, 0, 0, 0 },  // XTENSA_OP_LOOP_AS_LABEL
+  { 0x00f00f, 0xf00f00, 24, 2, 1, 0 },  // XTENSA_OP_FT_AS_0_1020
+  { 0xff000f, 0xf000ff, 24, 2, 1, 1 },  // XTENSA_OP_FR_AS_AT
+  { 0xff000f, 0xf000ff, 24, 1, 1, 1 },  // XTENSA_OP_AR_AS_AS
+  { 0x00f00f, 0x00f00f, 16, 0, 0, 0 },  // XTENSA_OP_N_AT_AS
+  { 0xff000f, 0xf000ff, 24, 2, 2, 1 },  // XTENSA_OP_FR_FS_AT
+  { 0xff000f, 0xf000ff, 24, 1, 1, 3 },  // XTENSA_OP_AR_AS_BT
+  { 0xff000f, 0xf000ff, 24, 2, 2, 3 },  // XTENSA_OP_FR_FS_BT
 };
 
 int xtensa_b4const[] =
