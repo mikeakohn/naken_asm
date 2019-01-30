@@ -60,4 +60,8 @@ there:
   movf.s f3, f9, b9
   movi a5, -99
   movi.n a5, -15
+  mul.aa.hl a5, a11
+  mul.ad.ll a5, m3
+  mul.da.lh m1, a11
+  mul.dd.hh m1, m3
 

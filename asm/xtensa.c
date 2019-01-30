@@ -29,7 +29,7 @@ enum
   OPERAND_REGISTER_AR = 1,
   OPERAND_REGISTER_FR = 2,
   OPERAND_REGISTER_BR = 3,
-  OPERAND_REGISTER_MW,
+  OPERAND_REGISTER_MW = 4,
   OPERAND_NUMBER,
 };
 
@@ -336,7 +336,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
   char instr_case[TOKENLEN];
   struct _operand operands[MAX_OPERANDS];
   int operand_count, offset, immediate, shift;
-  int n, i;
+  int n, i, r, s, t;
   uint32_t opcode;
 
   lower_copy(instr_case, instr);
@@ -1684,6 +1684,61 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
+        case XTENSA_OP_AS_AT:
+        case XTENSA_OP_AS_MY:
+        case XTENSA_OP_MX_AT:
+        case XTENSA_OP_MX_MY:
+          if (operand_count != 2 ||
+              operands[0].type != mask_xtensa[table_xtensa[n].type].reg_0 ||
+              operands[1].type != mask_xtensa[table_xtensa[n].type].reg_1)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          r = 0;
+          s = 0;
+          t = 0;
+
+          if (operands[0].type == OPERAND_REGISTER_MW)
+          {
+            if (operands[0].value > 1)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            r = operands[0].value << 2;
+          }
+
+          if (operands[1].type == OPERAND_REGISTER_MW)
+          {
+            if (operands[1].value < 2)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            t = operands[1].value != 0 ? 4 : 0;
+          }
+
+          if (operands[0].type == OPERAND_REGISTER_AR) { s = operands[0].value; }
+          if (operands[1].type == OPERAND_REGISTER_AR) { t = operands[1].value; }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (r << 12) | (s << 8) | (t << 4);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (r << 8) | (s << 12) | (t << 16);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
         default:
           print_error_internal(asm_context, __FILE__, __LINE__);
           return -1;

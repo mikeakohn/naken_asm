@@ -19,6 +19,7 @@ enum
   XTENSA_REG_AR = 1,
   XTENSA_REG_FR = 2,
   XTENSA_REG_BR = 3,
+  XTENSA_REG_MW = 4,
 };
 
 enum
@@ -71,6 +72,10 @@ enum
   XTENSA_OP_FR_FS_BT,
   XTENSA_OP_AT_N2048_2047,
   XTENSA_OP_N_AS_N2048_2047,
+  XTENSA_OP_AS_AT,
+  XTENSA_OP_AS_MY,
+  XTENSA_OP_MX_AT,
+  XTENSA_OP_MX_MY,
 };
 
 struct _table_xtensa

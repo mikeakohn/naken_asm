@@ -137,68 +137,104 @@ struct _table_xtensa table_xtensa[] =
   { "mov.s",    0xfa0000, 0x0000af, XTENSA_OP_FR_FS },
   { "moveqz",   0x830000, 0x000038, XTENSA_OP_FR_FS },
   { "moveqz.s", 0x830000, 0x000038, XTENSA_OP_FR_FS_AT },
-  { "movf",     0xc30000, 0x000038, XTENSA_OP_AR_AS_BT },
+  { "movf",     0xc30000, 0x00003c, XTENSA_OP_AR_AS_BT },
   { "movf.s",   0xcb0000, 0x0000bc, XTENSA_OP_FR_FS_BT },
   { "movgez",   0xb30000, 0x00003b, XTENSA_OP_AR_AS_AT },
   { "movgez.s", 0xbb0000, 0x0000bb, XTENSA_OP_FR_FS_AT },
   { "movi",     0x00a002, 0x200a00, XTENSA_OP_AT_N2048_2047 },
   { "movi.n",   0x00000c, 0x00c000, XTENSA_OP_N_AS_N2048_2047 },
+  { "movltz",   0xa30000, 0x00003a, XTENSA_OP_AR_AS_AT },
+  { "movltz.s", 0xab0000, 0x0000ba, XTENSA_OP_FR_FS_AT },
+  { "movnez",   0x930000, 0x000039, XTENSA_OP_AR_AS_AT },
+  { "movnez.s", 0x9b0000, 0x0000b9, XTENSA_OP_FR_FS_AT },
+  { "movsp",    0x001000, 0x000100, XTENSA_OP_AT_AS },
+  { "movt",     0xd30000, 0x00003d, XTENSA_OP_AR_AS_BT },
+  { "movt.s",   0xdb0000, 0x0000bd, XTENSA_OP_FR_FS_BT },
+  { "msub.s",   0x5a0000, 0x0000a5, XTENSA_OP_FR_FS_FT },
+  { "mul.aa.ll",0x740004, 0x400047, XTENSA_OP_AS_AT },
+  { "mul.aa.hl",0x750004, 0x400057, XTENSA_OP_AS_AT },
+  { "mul.aa.lh",0x760004, 0x400067, XTENSA_OP_AS_AT },
+  { "mul.aa.hh",0x770004, 0x400077, XTENSA_OP_AS_AT },
+  { "mul.ad.ll",0x340004, 0x400043, XTENSA_OP_AS_MY },
+  { "mul.ad.hl",0x350004, 0x400053, XTENSA_OP_AS_MY },
+  { "mul.ad.lh",0x360004, 0x400063, XTENSA_OP_AS_MY },
+  { "mul.ad.hh",0x370004, 0x400073, XTENSA_OP_AS_MY },
+  { "mul.da.ll",0x640004, 0x400046, XTENSA_OP_MX_AT },
+  { "mul.da.hl",0x650004, 0x400056, XTENSA_OP_MX_AT },
+  { "mul.da.lh",0x660004, 0x400066, XTENSA_OP_MX_AT },
+  { "mul.da.hh",0x670004, 0x400076, XTENSA_OP_MX_AT },
+  { "mul.dd.ll",0x540004, 0x400045, XTENSA_OP_MX_MY },
+  { "mul.dd.hl",0x550004, 0x400055, XTENSA_OP_MX_MY },
+  { "mul.dd.lh",0x560004, 0x400065, XTENSA_OP_MX_MY },
+  { "mul.dd.hh",0x570004, 0x400075, XTENSA_OP_MX_MY },
 
   { "or",       0x200000, 0x000002, XTENSA_OP_AR_AS_AT },
   { "mov",      0x200000, 0x000002, XTENSA_OP_AR_AS_AS },
   { NULL, 0, 0, 0 }
 };
 
+enum
+{
+  AR = 1,
+  FR = 2,
+  BR = 3,
+  MW = 4,
+};
+
 struct _mask_xtensa mask_xtensa[] =
 {
-  { 0xffffff, 0xffffff, 24, 0, 0, 0 },  // XTENSA_OP_NONE
-  { 0x00ffff, 0x00ffff, 16, 0, 0, 0 },  // XTENSA_OP_N_NONE
-  { 0xff0f0f, 0xf0f0ff, 24, 1, 1, 0 },  // XTENSA_OP_AR_AT
-  { 0xfff00f, 0xf00fff, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS
-  { 0xff00ff, 0xff00ff, 24, 2, 2, 0 },  // XTENSA_OP_FR_FS
-  { 0xff000f, 0xf000ff, 24, 2, 2, 2 },  // XTENSA_OP_FR_FS_FT
-  { 0xff000f, 0xf000ff, 24, 1, 1, 1 },  // XTENSA_OP_AR_AS_AT
-  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_I8
-  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_IM8
-  { 0x00000f, 0x00f000, 16, 1, 1, 1 },  // XTENSA_OP_N_AR_AS_AT
-  { 0x00000f, 0x00f000, 16, 1, 1, 0 },  // XTENSA_OP_N_AR_AS_I4
-  { 0xfff00f, 0xf00fff, 24, 3, 0, 0 },  // XTENSA_OP_BT_BS4
-  { 0xfff00f, 0xf00fff, 24, 3, 0, 0 },  // XTENSA_OP_BT_BS8
-  { 0xff000f, 0xf000ff, 24, 3, 3, 3 },  // XTENSA_OP_BR_BS_BT
-  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_BRANCH_AS_AT_I8
-  { 0x00e00f, 0xf00e00, 24, 0, 0, 0 },  // XTENSA_OP_BRANCH_B5_I8
-  { 0x0000ff, 0xff0000, 24, 1, 0, 0 },  // XTENSA_OP_BRANCH_AS_C4_I8
-  { 0x0000ff, 0xff0000, 24, 1, 0, 0 },  // XTENSA_OP_BRANCH_AS_I12
-  { 0x0000cf, 0x00fc00, 16, 1, 0, 0 },  // XTENSA_OP_BRANCH_N_AS_I6
-  { 0x00f0ff, 0xff0f00, 24, 0, 0, 0 },  // XTENSA_OP_BRANCH_BS_I8
-  { 0xfff00f, 0xf00fff, 24, 0, 0, 0 },  // XTENSA_OP_NUM_NUM
-  { 0x00f0ff, 0x00ff0f, 16, 0, 0, 0 },  // XTENSA_OP_N_NUM_NUM
-  { 0x00003f, 0xfc0000, 24, 0, 0, 0 },  // XTENSA_OP_CALL_I18
-  { 0xfff0ff, 0xff0fff, 24, 0, 0, 0 },  // XTENSA_OP_CALL_AS
-  { 0xff000f, 0xf000ff, 24, 1, 2, 0 },  // XTENSA_OP_AR_FS_0_15
-  { 0xff000f, 0xf000ff, 24, 1, 1, 0 },  // XTENSA_OP_AR_AS_7_22
-  { 0x00f0ff, 0xff0f00, 24, 1, 0, 0 },  // XTENSA_OP_AS_0_1020
-  { 0x0ff0ff, 0xff0ff0, 24, 1, 0, 0 },  // XTENSA_OP_AS_0_240
-  { 0x0000ff, 0xff0000, 24, 1, 0, 0 },  // XTENSA_OP_AS_0_32760
-  { 0x0e000f, 0xf000e0, 24, 1, 1, 0 },  // XTENSA_OP_AR_AT_SHIFT_MASK
-  { 0xff000f, 0xf000ff, 24, 2, 1, 0 },  // XTENSA_OP_FR_AS_0_15
-  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_0_255
-  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_0_510
-  { 0x00f00f, 0xf00f00, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_0_1020
-  { 0xff000f, 0xf000ff, 24, 1, 1, 0 },  // XTENSA_OP_AT_AS_N64_N4
-  { 0x00000f, 0xf0f000, 16, 1, 1, 0 },  // XTENSA_OP_N_AT_AS_0_60
-  { 0x00000f, 0xf00000, 24, 1, 0, 0 },  // XTENSA_OP_AT_I16
-  { 0xffc0ff, 0xff0cff, 24, 0, 0, 0 },  // XTENSA_OP_MW_AS
-  { 0x00f0ff, 0xff0f00, 24, 0, 0, 0 },  // XTENSA_OP_LOOP_AS_LABEL
-  { 0x00f00f, 0xf00f00, 24, 2, 1, 0 },  // XTENSA_OP_FT_AS_0_1020
-  { 0xff000f, 0xf000ff, 24, 2, 1, 1 },  // XTENSA_OP_FR_AS_AT
-  { 0xff000f, 0xf000ff, 24, 1, 1, 1 },  // XTENSA_OP_AR_AS_AS
-  { 0x00f00f, 0x00f00f, 16, 0, 0, 0 },  // XTENSA_OP_N_AT_AS
-  { 0xff000f, 0xf000ff, 24, 2, 2, 1 },  // XTENSA_OP_FR_FS_AT
-  { 0xff000f, 0xf000ff, 24, 1, 1, 3 },  // XTENSA_OP_AR_AS_BT
-  { 0xff000f, 0xf000ff, 24, 2, 2, 3 },  // XTENSA_OP_FR_FS_BT
-  { 0x00f00f, 0x00f00f, 24, 1, 0, 0 },  // XTENSA_OP_AT_N2048_2047
-  { 0x00008f, 0x00f800, 16, 1, 0, 0 },  // XTENSA_OP_N_AS_N2048_2047
+  { 0xffffff, 0xffffff, 24,  0,  0,  0 },  // XTENSA_OP_NONE
+  { 0x00ffff, 0x00ffff, 16,  0,  0,  0 },  // XTENSA_OP_N_NONE
+  { 0xff0f0f, 0xf0f0ff, 24, AR, AR,  0 },  // XTENSA_OP_AR_AT
+  { 0xfff00f, 0xf00fff, 24, AR, AR,  0 },  // XTENSA_OP_AT_AS
+  { 0xff00ff, 0xff00ff, 24, FR, FR,  0 },  // XTENSA_OP_FR_FS
+  { 0xff000f, 0xf000ff, 24, FR, FR, FR },  // XTENSA_OP_FR_FS_FT
+  { 0xff000f, 0xf000ff, 24, AR, AR, AR },  // XTENSA_OP_AR_AS_AT
+  { 0x00f00f, 0xf00f00, 24, AR, AR,  0 },  // XTENSA_OP_AT_AS_I8
+  { 0x00f00f, 0xf00f00, 24, AR, AR,  0 },  // XTENSA_OP_AT_AS_IM8
+  { 0x00000f, 0x00f000, 16, AR, AR, AR },  // XTENSA_OP_N_AR_AS_AT
+  { 0x00000f, 0x00f000, 16, AR, AR,  0 },  // XTENSA_OP_N_AR_AS_I4
+  { 0xfff00f, 0xf00fff, 24, BR,  0,  0 },  // XTENSA_OP_BT_BS4
+  { 0xfff00f, 0xf00fff, 24, BR,  0,  0 },  // XTENSA_OP_BT_BS8
+  { 0xff000f, 0xf000ff, 24, BR, BR, BR },  // XTENSA_OP_BR_BS_BT
+  { 0x00f00f, 0xf00f00, 24, AR, AR,  0 },  // XTENSA_OP_BRANCH_AS_AT_I8
+  { 0x00e00f, 0xf00e00, 24,  0,  0,  0 },  // XTENSA_OP_BRANCH_B5_I8
+  { 0x0000ff, 0xff0000, 24, AR,  0,  0 },  // XTENSA_OP_BRANCH_AS_C4_I8
+  { 0x0000ff, 0xff0000, 24, AR,  0,  0 },  // XTENSA_OP_BRANCH_AS_I12
+  { 0x0000cf, 0x00fc00, 16, AR,  0,  0 },  // XTENSA_OP_BRANCH_N_AS_I6
+  { 0x00f0ff, 0xff0f00, 24,  0,  0,  0 },  // XTENSA_OP_BRANCH_BS_I8
+  { 0xfff00f, 0xf00fff, 24,  0,  0,  0 },  // XTENSA_OP_NUM_NUM
+  { 0x00f0ff, 0x00ff0f, 16,  0,  0,  0 },  // XTENSA_OP_N_NUM_NUM
+  { 0x00003f, 0xfc0000, 24,  0,  0,  0 },  // XTENSA_OP_CALL_I18
+  { 0xfff0ff, 0xff0fff, 24,  0,  0,  0 },  // XTENSA_OP_CALL_AS
+  { 0xff000f, 0xf000ff, 24, AR, FR,  0 },  // XTENSA_OP_AR_FS_0_15
+  { 0xff000f, 0xf000ff, 24, AR, AR,  0 },  // XTENSA_OP_AR_AS_7_22
+  { 0x00f0ff, 0xff0f00, 24, AR,  0,  0 },  // XTENSA_OP_AS_0_1020
+  { 0x0ff0ff, 0xff0ff0, 24, AR,  0,  0 },  // XTENSA_OP_AS_0_240
+  { 0x0000ff, 0xff0000, 24, AR,  0,  0 },  // XTENSA_OP_AS_0_32760
+  { 0x0e000f, 0xf000e0, 24, AR, AR,  0 },  // XTENSA_OP_AR_AT_SHIFT_MASK
+  { 0xff000f, 0xf000ff, 24, FR, AR,  0 },  // XTENSA_OP_FR_AS_0_15
+  { 0x00f00f, 0xf00f00, 24, AR, AR,  0 },  // XTENSA_OP_AT_AS_0_255
+  { 0x00f00f, 0xf00f00, 24, AR, AR,  0 },  // XTENSA_OP_AT_AS_0_510
+  { 0x00f00f, 0xf00f00, 24, AR, AR,  0 },  // XTENSA_OP_AT_AS_0_1020
+  { 0xff000f, 0xf000ff, 24, AR, AR,  0 },  // XTENSA_OP_AT_AS_N64_N4
+  { 0x00000f, 0xf0f000, 16, AR, AR,  0 },  // XTENSA_OP_N_AT_AS_0_60
+  { 0x00000f, 0xf00000, 24, AR,  0,  0 },  // XTENSA_OP_AT_I16
+  { 0xffc0ff, 0xff0cff, 24,  0,  0,  0 },  // XTENSA_OP_MW_AS
+  { 0x00f0ff, 0xff0f00, 24,  0,  0,  0 },  // XTENSA_OP_LOOP_AS_LABEL
+  { 0x00f00f, 0xf00f00, 24, FR, AR,  0 },  // XTENSA_OP_FT_AS_0_1020
+  { 0xff000f, 0xf000ff, 24, FR, AR, AR },  // XTENSA_OP_FR_AS_AT
+  { 0xff000f, 0xf000ff, 24, AR, AR, AR },  // XTENSA_OP_AR_AS_AS
+  { 0x00f00f, 0x00f00f, 16, AR, AR,  0 },  // XTENSA_OP_N_AT_AS
+  { 0xff000f, 0xf000ff, 24, FR, FR, AR },  // XTENSA_OP_FR_FS_AT
+  { 0xff000f, 0xf000ff, 24, AR, AR, BR },  // XTENSA_OP_AR_AS_BT
+  { 0xff000f, 0xf000ff, 24, FR, FR, BR },  // XTENSA_OP_FR_FS_BT
+  { 0x00f00f, 0x00f00f, 24, AR,  0,  0 },  // XTENSA_OP_AT_N2048_2047
+  { 0x00008f, 0x00f800, 16, AR,  0,  0 },  // XTENSA_OP_N_AS_N2048_2047
+  { 0xfff00f, 0xf00fff, 24, AR, AR,  0 },  // XTENSA_OP_AS_AT
+  { 0xfff0bf, 0xfb0fff, 24, AR, MW,  0 },  // XTENSA_OP_AS_MY
+  { 0xffbf0f, 0xf0fbff, 24, MW, AR,  0 },  // XTENSA_OP_MX_AT
+  { 0xffb0bf, 0xfb0bff, 24, MW, MW,  0 },  // XTENSA_OP_MX_MY
 };
 
 int xtensa_b4const[] =
