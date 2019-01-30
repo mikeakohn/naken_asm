@@ -139,6 +139,10 @@ struct _table_xtensa table_xtensa[] =
   { "moveqz.s", 0x830000, 0x000038, XTENSA_OP_FR_FS_AT },
   { "movf",     0xc30000, 0x000038, XTENSA_OP_AR_AS_BT },
   { "movf.s",   0xcb0000, 0x0000bc, XTENSA_OP_FR_FS_BT },
+  { "movgez",   0xb30000, 0x00003b, XTENSA_OP_AR_AS_AT },
+  { "movgez.s", 0xbb0000, 0x0000bb, XTENSA_OP_FR_FS_AT },
+  { "movi",     0x00a002, 0x200a00, XTENSA_OP_AT_N2048_2047 },
+  { "movi.n",   0x00000c, 0x00c000, XTENSA_OP_N_AS_N2048_2047 },
 
   { "or",       0x200000, 0x000002, XTENSA_OP_AR_AS_AT },
   { "mov",      0x200000, 0x000002, XTENSA_OP_AR_AS_AS },
@@ -193,6 +197,8 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xff000f, 0xf000ff, 24, 2, 2, 1 },  // XTENSA_OP_FR_FS_AT
   { 0xff000f, 0xf000ff, 24, 1, 1, 3 },  // XTENSA_OP_AR_AS_BT
   { 0xff000f, 0xf000ff, 24, 2, 2, 3 },  // XTENSA_OP_FR_FS_BT
+  { 0x00f00f, 0x00f00f, 24, 1, 0, 0 },  // XTENSA_OP_AT_N2048_2047
+  { 0x00008f, 0x00f800, 16, 1, 0, 0 },  // XTENSA_OP_N_AS_N2048_2047
 };
 
 int xtensa_b4const[] =
