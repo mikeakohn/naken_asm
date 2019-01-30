@@ -16,6 +16,13 @@
 
 enum
 {
+  XTENSA_REG_AR = 1,
+  XTENSA_REG_FR = 2,
+  XTENSA_REG_BR = 3,
+};
+
+enum
+{
   XTENSA_OP_NONE,
   XTENSA_OP_N_NONE,
   XTENSA_OP_AR_AT,
@@ -56,6 +63,11 @@ enum
   XTENSA_OP_MW_AS,
   XTENSA_OP_LOOP_AS_LABEL,
   XTENSA_OP_FT_AS_0_1020,
+  XTENSA_OP_FR_AS_AT,
+  XTENSA_OP_AR_AS_AS,
+  XTENSA_OP_N_AT_AS,
+  XTENSA_OP_FR_FS_AT,
+  XTENSA_OP_AR_AS_BT,
 };
 
 struct _table_xtensa
@@ -71,6 +83,9 @@ struct _mask_xtensa
   uint32_t mask_le;
   uint32_t mask_be;
   uint8_t bits;
+  uint8_t reg_0;
+  uint8_t reg_1;
+  uint8_t reg_2;
 };
 
 extern struct _table_xtensa table_xtensa[];

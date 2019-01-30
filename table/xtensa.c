@@ -125,6 +125,22 @@ struct _table_xtensa table_xtensa[] =
   { "loopnez",  0x009076, 0x670900, XTENSA_OP_LOOP_AS_LABEL },
   { "lsi",      0x000003, 0x300000, XTENSA_OP_FT_AS_0_1020 },
   { "lsiu",     0x008003, 0x300800, XTENSA_OP_FT_AS_0_1020 },
+  { "lsx",      0x080000, 0x000080, XTENSA_OP_FR_AS_AT },
+  { "lsxu",     0x180000, 0x000081, XTENSA_OP_FR_AS_AT },
+  { "madd.s",   0x2a0000, 0x0000a2, XTENSA_OP_FR_FS_FT },
+  { "max",      0x530000, 0x000035, XTENSA_OP_AR_AS_AT },
+  { "maxu",     0x730000, 0x000037, XTENSA_OP_AR_AS_AT },
+  { "memw",     0x0020c0, 0x0c0200, XTENSA_OP_NONE },
+  { "min",      0x430000, 0x000034, XTENSA_OP_AR_AS_AT },
+  { "minu",     0x630000, 0x000036, XTENSA_OP_AR_AS_AT },
+  { "mov.n",    0x00000d, 0x00d000, XTENSA_OP_N_AT_AS },
+  { "mov.s",    0xfa0000, 0x0000af, XTENSA_OP_FR_FS },
+  { "moveqz",   0x830000, 0x000038, XTENSA_OP_FR_FS },
+  { "moveqz.s", 0x830000, 0x000038, XTENSA_OP_FR_FS_AT },
+  { "movf",     0xc30000, 0x000038, XTENSA_OP_AR_AS_BT },
+
+  { "or",       0x200000, 0x000002, XTENSA_OP_AR_AS_AT },
+  { "mov",      0x200000, 0x000002, XTENSA_OP_AR_AS_AS },
   { NULL, 0, 0, 0 }
 };
 
@@ -170,6 +186,11 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xffc0ff, 0xff0cff, 24 },  // XTENSA_OP_MW_AS
   { 0x00f0ff, 0xff0f00, 24 },  // XTENSA_OP_LOOP_AS_LABEL
   { 0x00f00f, 0xf00f00, 24 },  // XTENSA_OP_FT_AS_0_1020
+  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_FR_AS_AT
+  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AR_AS_AS
+  { 0x00f00f, 0x00f00f, 16 },  // XTENSA_OP_N_AT_AS
+  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_FR_FS_AT
+  { 0xff000f, 0xf000ff, 24 },  // XTENSA_OP_AR_AS_BT
 };
 
 int xtensa_b4const[] =

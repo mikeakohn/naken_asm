@@ -51,4 +51,9 @@ there:
   ldct a5, a7
   lddec m3, a13
   lsi f5, a10, 240
+  lsiu f9, a11, 1020
+  lsx f9, a11, a13
+  mov a9, a11
+  mov.n a9, a11
+  moveqz.s f9, f11, a3
 
