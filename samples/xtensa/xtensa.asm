@@ -69,4 +69,6 @@ there:
   oeq.s b3, f9, f11
   orb b1, b7, b13
   rfi 8
+  rfr a8, f13
+  rotw -7
 

@@ -80,6 +80,8 @@ enum
   XTENSA_OP_MW_AS_MX_MY,
   XTENSA_OP_BR_FS_FT,
   XTENSA_OP_0_15,
+  XTENSA_OP_AR_FS,
+  XTENSA_OP_N8_7,
 };
 
 struct _table_xtensa

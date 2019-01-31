@@ -251,6 +251,14 @@ struct _table_xtensa table_xtensa[] =
   { "rfdo",     0xf1e000, 0x000e1f, XTENSA_OP_NONE },
   { "rfe",      0x003000, 0x000300, XTENSA_OP_NONE },
   { "rfi",      0x003010, 0x010300, XTENSA_OP_0_15 },
+  { "rfme",     0x003020, 0x020300, XTENSA_OP_NONE },
+  { "rfr",      0xfa0040, 0x0400af, XTENSA_OP_AR_FS },
+  { "rfue",     0x003100, 0x001300, XTENSA_OP_NONE },
+  { "rfwo",     0x003400, 0x004300, XTENSA_OP_NONE },
+  { "rfwu",     0x003500, 0x005300, XTENSA_OP_NONE },
+  { "ritlb0",   0x503000, 0x000305, XTENSA_OP_AT_AS },
+  { "ritlb1",   0x507000, 0x000705, XTENSA_OP_AT_AS },
+  { "rotw",     0x408000, 0x000804, XTENSA_OP_N8_7 },
 
   { "mov",      0x200000, 0x000002, XTENSA_OP_AR_AS_AS },
   { NULL, 0, 0, 0 }
@@ -322,6 +330,8 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xfc80bf, 0xfb08cf, 24, MW, AR, MW },  // XTENSA_OP_MW_AS_MX_MY
   { 0xff000f, 0xf000ff, 24, BR, FR, FR },  // XTENSA_OP_BR_FS_FT
   { 0xfff0ff, 0xff0fff, 24,  0,  0,  0 },  // XTENSA_OP_0_15
+  { 0xff00ff, 0xff00ff, 24, AR, FR,  0 },  // XTENSA_OP_AR_FS
+  { 0xffff0f, 0xf0ffff, 24,  0,  0,  0 },  // XTENSA_OP_N8_7
 };
 
 int xtensa_b4const[] =
