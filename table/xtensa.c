@@ -259,6 +259,9 @@ struct _table_xtensa table_xtensa[] =
   { "ritlb0",   0x503000, 0x000305, XTENSA_OP_AT_AS },
   { "ritlb1",   0x507000, 0x000705, XTENSA_OP_AT_AS },
   { "rotw",     0x408000, 0x000804, XTENSA_OP_N8_7 },
+  { "round.s",  0x8a0000, 0x0000a8, XTENSA_OP_AR_FS_0_15 },
+  { "rsil",     0x006000, 0x000600, XTENSA_OP_AT_0_15 },
+  { "rsr",      0x030000, 0x000030, XTENSA_OP_AT_SPR },
 
   { "mov",      0x200000, 0x000002, XTENSA_OP_AR_AS_AS },
   { NULL, 0, 0, 0 }
@@ -332,6 +335,8 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xfff0ff, 0xff0fff, 24,  0,  0,  0 },  // XTENSA_OP_0_15
   { 0xff00ff, 0xff00ff, 24, AR, FR,  0 },  // XTENSA_OP_AR_FS
   { 0xffff0f, 0xf0ffff, 24,  0,  0,  0 },  // XTENSA_OP_N8_7
+  { 0xfff00f, 0xf00fff, 24, AR,  0,  0 },  // XTENSA_OP_AT_0_15
+  { 0xff000f, 0xf000ff, 24, AR,  0,  0 },  // XTENSA_OP_AT_SPR
 };
 
 int xtensa_b4const[] =

@@ -31,6 +31,7 @@ enum
   OPERAND_REGISTER_BR = 3,
   OPERAND_REGISTER_MW = 4,
   OPERAND_NUMBER,
+  OPERAND_REGISTER_SAR,
 };
 
 struct _operand
@@ -285,6 +286,13 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         break;
       }
 
+      if (strcasecmp(token, "sar") == 0)
+      {
+        operands[operand_count].type = OPERAND_REGISTER_SAR;
+        operands[operand_count].value = 3;
+        break;
+      }
+
       // Assume this is just a number
       operands[operand_count].type = OPERAND_NUMBER;
 
@@ -299,7 +307,6 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
 
         if (eval_expression(asm_context, &n) != 0)
         {
-          print_error_unexp(token, asm_context);
           return -1;
         }
 
@@ -325,6 +332,17 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
     {
       print_error_unexp(token, asm_context);
       return -1;
+    }
+  }
+
+  if (strncmp(instr_case, "rsr.", 4) == 0)
+  {
+    if (strcasecmp(instr_case + 4, "sar") == 0)
+    {
+      instr_case[3] = 0;
+      operands[operand_count].type = OPERAND_REGISTER_SAR;
+      operands[operand_count].value = 3;
+      operand_count++;
     }
   }
 
@@ -1842,6 +1860,65 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             else
           {
             opcode = table_xtensa[n].opcode_be | (immediate << 16);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
+        case XTENSA_OP_AT_0_15:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[1].value < 0 || operands[1].value > 15)
+          {
+            print_error_range("Constant", 0, 15, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 4) | (operands[1].value << 8);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 16) | (operands[1].value << 12);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
+        case XTENSA_OP_AT_SPR:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+             (operands[1].type != OPERAND_NUMBER &&
+              operands[1].type != OPERAND_REGISTER_SAR))
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[1].value < 0 || operands[1].value > 255)
+          {
+            print_error_range("SPR", 0, 255, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 4) | (operands[1].value << 8);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 16) | (operands[1].value << 8);
           }
 
           add_bin24(asm_context, opcode);

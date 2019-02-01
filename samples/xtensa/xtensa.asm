@@ -71,4 +71,8 @@ there:
   rfi 8
   rfr a8, f13
   rotw -7
+  rsil a9, 7
+  rsr a9, 100
+  rsr a9, sar
+  rsr.sar a9
 
