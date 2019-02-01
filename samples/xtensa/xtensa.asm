@@ -77,4 +77,5 @@ there:
   rsr.sar a9
   sll a7, a9
   slli a7, a9, 19
+  srai a3, a10, 21
 
