@@ -76,4 +76,5 @@ there:
   rsr a9, sar
   rsr.sar a9
   sll a7, a9
+  slli a7, a9, 19
 

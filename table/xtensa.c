@@ -277,6 +277,7 @@ struct _table_xtensa table_xtensa[] =
   { "sicw",     0xf13000, 0x00031f, XTENSA_OP_AT_AS },
   { "simcall",  0x005100, 0x001500, XTENSA_OP_NONE },
   { "sll",      0xa10000, 0x00001a, XTENSA_OP_AR_AS },
+  { "slli",     0xa10000, 0x00001a, XTENSA_OP_AR_AS_1_31 },
 
   { "mov",      0x200000, 0x000002, XTENSA_OP_AR_AS_AS },
   { NULL, 0, 0, 0 }
@@ -353,6 +354,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xfff00f, 0xf00fff, 24, AR,  0,  0 },  // XTENSA_OP_AT_0_15
   { 0xff000f, 0xf000ff, 24, AR,  0,  0 },  // XTENSA_OP_AT_SPR
   { 0xff00ff, 0xff00ff, 24, AR,  AR, 0 },  // XTENSA_OP_AR_AS
+  { 0xef000f, 0xf000fe, 24, AR,  AR, 0 },  // XTENSA_OP_AR_AS_1_31
 };
 
 int xtensa_b4const[] =
