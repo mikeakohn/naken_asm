@@ -79,4 +79,6 @@ there:
   slli a7, a9, 19
   srai a3, a10, 21
   srli a9, a11, 9
+  ssai 19
+  wfr f9, a3
 

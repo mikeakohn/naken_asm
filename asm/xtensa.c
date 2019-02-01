@@ -336,7 +336,10 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
   }
 
   if (strncmp(instr_case, "rsr.", 4) == 0 ||
-      strncmp(instr_case, "rur.", 4) == 0)
+      strncmp(instr_case, "rur.", 4) == 0 ||
+      strncmp(instr_case, "wsr.", 4) == 0 ||
+      strncmp(instr_case, "wur.", 4) == 0 ||
+      strncmp(instr_case, "xsr.", 4) == 0)
   {
     if (strcasecmp(instr_case + 4, "sar") == 0)
     {
@@ -466,6 +469,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
         case XTENSA_OP_FR_FS:
         case XTENSA_OP_AR_FS:
         case XTENSA_OP_AR_AS:
+        case XTENSA_OP_FR_AS:
           if (operand_count != 2 ||
               operands[0].type != mask_xtensa[table_xtensa[n].type].reg_0 ||
               operands[1].type != mask_xtensa[table_xtensa[n].type].reg_1)
@@ -1022,7 +1026,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
-        case XTENSA_OP_CALL_AS:
+        case XTENSA_OP_AS:
           if (operand_count != 1 || operands[0].type != OPERAND_REGISTER_AR)
           {
             print_error_illegal_operands(instr, asm_context);
@@ -1968,6 +1972,35 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
                     (operands[0].value << 8) |
                     (operands[1].value << 16) |
                     (operands[2].value << 12);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
+        case XTENSA_OP_0_31:
+          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 31)
+          {
+            print_error_range("Immediate", 0, 31, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                   ((operands[0].value & 0xf) << 8) |
+                   ((operands[0].value >> 4) << 4);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                   ((operands[0].value & 0xf) << 12) |
+                   ((operands[0].value >> 4) << 16);
           }
 
           add_bin24(asm_context, opcode);
