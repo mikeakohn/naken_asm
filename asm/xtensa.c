@@ -335,7 +335,8 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
     }
   }
 
-  if (strncmp(instr_case, "rsr.", 4) == 0)
+  if (strncmp(instr_case, "rsr.", 4) == 0 ||
+      strncmp(instr_case, "rur.", 4) == 0)
   {
     if (strcasecmp(instr_case + 4, "sar") == 0)
     {
@@ -464,6 +465,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           return 3;
         case XTENSA_OP_FR_FS:
         case XTENSA_OP_AR_FS:
+        case XTENSA_OP_AR_AS:
           if (operand_count != 2 ||
               operands[0].type != mask_xtensa[table_xtensa[n].type].reg_0 ||
               operands[1].type != mask_xtensa[table_xtensa[n].type].reg_1)

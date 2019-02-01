@@ -75,4 +75,5 @@ there:
   rsr a9, 100
   rsr a9, sar
   rsr.sar a9
+  sll a7, a9
 

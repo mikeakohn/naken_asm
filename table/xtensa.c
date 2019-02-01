@@ -262,6 +262,21 @@ struct _table_xtensa table_xtensa[] =
   { "round.s",  0x8a0000, 0x0000a8, XTENSA_OP_AR_FS_0_15 },
   { "rsil",     0x006000, 0x000600, XTENSA_OP_AT_0_15 },
   { "rsr",      0x030000, 0x000030, XTENSA_OP_AT_SPR },
+  { "rsync",    0x002010, 0x010200, XTENSA_OP_NONE },
+  { "rur",      0xe30000, 0x00003e, XTENSA_OP_AT_SPR },
+  { "s8i",      0x004002, 0x200400, XTENSA_OP_AT_AS_0_255 },
+  { "s16i",     0x004002, 0x200400, XTENSA_OP_AT_AS_0_510 },
+  { "s32c1i",   0x00e002, 0x200e00, XTENSA_OP_AT_AS_0_1020 },
+  { "s32e",     0x490000, 0x000094, XTENSA_OP_AT_AS_N64_N4 },
+  { "s32i",     0x006002, 0x200600, XTENSA_OP_AT_AS_0_1020 },
+  { "s32i.n",   0x000009, 0x009000, XTENSA_OP_N_AT_AS_0_60 },
+  { "s32ri",    0x00f002, 0x200f00, XTENSA_OP_AT_AS_0_1020 },
+  { "sdct",     0xf19000, 0x00091f, XTENSA_OP_AT_AS },
+  { "sext",     0x230000, 0x000032, XTENSA_OP_AR_AS_7_22 },
+  { "sict",     0xf11000, 0x00011f, XTENSA_OP_AT_AS },
+  { "sicw",     0xf13000, 0x00031f, XTENSA_OP_AT_AS },
+  { "simcall",  0x005100, 0x001500, XTENSA_OP_NONE },
+  { "sll",      0xa10000, 0x00001a, XTENSA_OP_AR_AS },
 
   { "mov",      0x200000, 0x000002, XTENSA_OP_AR_AS_AS },
   { NULL, 0, 0, 0 }
@@ -337,6 +352,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xffff0f, 0xf0ffff, 24,  0,  0,  0 },  // XTENSA_OP_N8_7
   { 0xfff00f, 0xf00fff, 24, AR,  0,  0 },  // XTENSA_OP_AT_0_15
   { 0xff000f, 0xf000ff, 24, AR,  0,  0 },  // XTENSA_OP_AT_SPR
+  { 0xff00ff, 0xff00ff, 24, AR,  AR, 0 },  // XTENSA_OP_AR_AS
 };
 
 int xtensa_b4const[] =
