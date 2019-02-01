@@ -280,6 +280,9 @@ struct _table_xtensa table_xtensa[] =
   { "slli",     0xa10000, 0x00001a, XTENSA_OP_AR_AS_1_31 },
   { "sra",      0xb10000, 0x00001b, XTENSA_OP_AR_AT },
   { "srai",     0x210000, 0x000012, XTENSA_OP_AR_AT_1_31 },
+  { "src",      0x810000, 0x000018, XTENSA_OP_AR_AS_AT },
+  { "srl",      0x910000, 0x000019, XTENSA_OP_AR_AT },
+  { "srli",     0x410000, 0x000014, XTENSA_OP_AR_AT_0_15 },
 
   { "mov",      0x200000, 0x000002, XTENSA_OP_AR_AS_AS },
   { NULL, 0, 0, 0 }
@@ -358,6 +361,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xff00ff, 0xff00ff, 24, AR,  AR, 0 },  // XTENSA_OP_AR_AS
   { 0xef000f, 0xf000fe, 24, AR,  AR, 0 },  // XTENSA_OP_AR_AS_1_31
   { 0xef000f, 0xf000fe, 24, AR,  AR, 0 },  // XTENSA_OP_AR_AT_1_31
+  { 0xff000f, 0xf000ff, 24, AR,  AR, 0 },  // XTENSA_OP_AR_AT_0_15
 };
 
 int xtensa_b4const[] =

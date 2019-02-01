@@ -78,4 +78,5 @@ there:
   sll a7, a9
   slli a7, a9, 19
   srai a3, a10, 21
+  srli a9, a11, 9
 
