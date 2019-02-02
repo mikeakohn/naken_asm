@@ -80,7 +80,7 @@ static void compute_offset(struct _asm_context *asm_context, int *offset, int n)
   }
     else
   {
-    *offset = n - asm_context->address;
+    *offset = n - (asm_context->address + 3);
   }
 }
 
@@ -885,11 +885,18 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          compute_offset(asm_context, &offset, operands[1].value);
-
-          if (offset < -32 || offset > 31)
+          if (asm_context->pass == 1)
           {
-            print_error_range("Offset", -32, 31, asm_context);
+            offset = 0;
+          }
+            else
+          {
+            offset = operands[1].value - (asm_context->address + 4);
+          }
+
+          if (offset < 0 || offset > 63)
+          {
+            print_error_range("Offset", 0, 63, asm_context);
             return -1;
           }
 

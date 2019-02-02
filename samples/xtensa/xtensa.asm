@@ -20,11 +20,12 @@ here:
   ball a4, a5, here
   beqi a4, 128, here
   beqz a4, here
-  beqz.n a4, here
+  beqz.n a4, forward
   bf b3, here
   break 3, 7
   break.n 12 
   call0 here
+forward:
   callx0 a5
   ceil.s a5, f8, 7
   clamps a7, a9, 15
