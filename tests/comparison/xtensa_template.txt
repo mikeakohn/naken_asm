@@ -1,0 +1,306 @@
+abs a2, a15
+abs.s f14, f6
+add a4, a1, a3
+addi a8, a12, -27
+add.n a4, a8, a7
+add.s f10, f6, f5
+addi.n a6, a10, 12
+addmi a9, a4, 27136
+addx2 a13, a13, a9
+addx4 a7, a8, a10
+addx8 a3, a14, a0
+all4 b12, b8
+all8 b14, b8
+and a0, a0, a13
+andb b0, b12, b14
+andbc b5, b14, b12
+any4 b3, b12
+any8 b9, b8
+main: ball a7, a14, main
+main: bany a7, a1, main
+main: bbc a12, a8, main
+main: bbci a5, 21, main
+main: bbci.l a9, 23, main
+main: bbs a12, a1, main
+main: bbsi a16, 21, main
+main: bbsi.l a3, 30, main
+main: beq a13, a8, main
+main: beqi a3, 7, main
+main: beqz a16, main
+;main: beqz.n a6, 11
+main: bf b8, main
+main: bge a10, a0, main
+main: bgei a14, 128, main
+main: bgeu a9, a10, main
+main: bgeui a16, 7, main
+main: bgez a8, main
+main: blt a8, a14, main
+main: blti a15, 4, main
+main: bltu a11, a3, main
+main: bltui a14, 32, main
+main: bltz a3, main
+main: bnall a3, a2, main
+main: bne a13, a16, main
+main: bnei a0, 128, main
+main: bnez a10, main
+;main: bnez.n a12, 8
+main: bnone a16, a10, main
+break 3, 4
+break.n 12
+main: call0 main
+main: call4 main
+main: call8 main
+main: call12 main
+callx0 a7
+callx4 a15
+callx8 a15
+callx12 a12
+ceil.s a1, f6, 15
+clamps a6, a14, 7
+;dhi a12, 0
+;dhu a1, 176
+;dhwb a3, 16
+;dhwbi a1, 64
+;dii a5, 96
+;diu a12, 192
+;diwb a0, 48
+;diwbi a5, 16
+;dpfl a8, 208
+;dpfr a6, 128
+;dpfro a13, 80
+;dpfw a8, 96
+;dpfwo a1, 0
+dsync
+entry a5, 2208
+esync
+excw
+extui a10, a0, 19, 7
+extw
+float.s f1, a2, 1
+floor.s a14, f12, 4
+idtlb a9
+;ihi a10, 32
+;ihu a5, 192
+;iii a8, 16
+;iitlb a13
+;iiu a1, 80
+ill
+ill.n
+;ipf a15, 64
+;ipfl a14, 240
+isync
+main: j main
+jx a11
+l8ui a15, a9, 210
+l16si a5, a9, 24
+l16ui a6, a12, 24
+l32ai a3, a0, 16
+l32e a12, a2, -60
+l32i a12, a9, 96
+l32i.n a12, a8, 50
+;main: l32r a9, main
+;ldct a2, a7
+lddec m0, a12
+ldinc m3, a8
+;lict a3, a10
+;licw a2, a0
+;main: loop a9, main
+;main: loopgtz a14, main
+;main: loopnez a8, main
+lsi f0, a14, 96
+;lsiu f3, a1, 128
+lsx f1, a0, a11
+;lsxu f6, a4, a1
+madd.s f5, f9, f0
+max a1, a6, a12
+maxu a14, a6, a5
+memw
+min a7, a10, a7
+minu a14, a5, a12
+mov.n a14, a10
+mov.s f6, f15
+moveqz a3, a9, a13
+moveqz.s f3, f4, a6
+movf a2, a13, b8
+movf.s f0, f6, b0
+movgez a3, a14, a9
+movgez.s f10, f0, a10
+movi a3, -579
+movi.n a10, -918
+movltz a1, a3, a13
+movltz.s f2, f11, a3
+movnez a1, a2, a10
+movnez.s f15, f9, a11
+movsp a9, a9
+movt a3, a7, b2
+movt.s f4, f14, b14
+msub.s f7, f14, f4
+mul.aa.ll a8, a13
+mul.aa.hl a13, a1
+mul.aa.lh a8, a9
+mul.aa.hh a13, a12
+mul.ad.ll a6, m3
+mul.ad.hl a12, m3
+mul.ad.lh a9, m3
+mul.ad.hh a6, m3
+mul.da.ll m1, a1
+mul.da.hl m1, a1
+mul.da.lh m1, a0
+mul.da.hh m1, a9
+mul.dd.ll m1, m3
+mul.dd.hl m1, m3
+mul.dd.lh m1, m3
+mul.dd.hh m1, m3
+mul.s f14, f13, f8
+mul16s a15, a3, a3
+mul16u a6, a11, a7
+mula.aa.ll a8, a5
+mula.aa.hl a9, a8
+mula.aa.lh a1, a14
+mula.aa.hh a12, a14
+mula.ad.ll a1, m3
+mula.ad.hl a12, m3
+mula.ad.lh a4, m3
+mula.ad.hh a1, m3
+mula.da.ll m1, a10
+mula.da.hl m1, a0
+mula.da.lh m1, a7
+mula.da.hh m1, a0
+mula.da.ll.lddec m3, a14, m1, a5
+mula.da.hl.lddec m1, a6, m1, a6
+mula.da.lh.lddec m3, a1, m1, a1
+mula.da.hh.lddec m0, a5, m1, a3
+mula.da.ll.ldinc m3, a8, m1, a10
+mula.da.hl.ldinc m0, a2, m1, a11
+mula.da.lh.ldinc m3, a15, m1, a10
+mula.da.hh.ldinc m1, a14, m1, a3
+mula.dd.ll m1, m3
+mula.dd.hl m1, m3
+mula.dd.lh m1, m3
+mula.dd.hh m1, m3
+mula.dd.ll.lddec m3, a12, m1, m3
+mula.dd.hl.lddec m1, a0, m1, m3
+mula.dd.lh.lddec m2, a1, m1, m3
+mula.dd.hh.lddec m3, a13, m1, m3
+mula.dd.ll.ldinc m0, a7, m1, m3
+mula.dd.hl.ldinc m3, a11, m1, m3
+mula.dd.lh.ldinc m1, a5, m1, m3
+mula.dd.hh.ldinc m3, a9, m1, m3
+mull a15, a11, a5
+muls.aa.ll a2, a10
+muls.aa.hl a7, a2
+mula.aa.lh a11, a14
+muls.aa.hh a10, a8
+muls.ad.ll a2, m3
+muls.ad.hl a8, m3
+muls.ad.lh a12, m3
+muls.ad.hh a12, m3
+muls.da.ll m1, a4
+muls.da.hl m1, a2
+muls.da.lh m1, a1
+muls.da.hh m1, a8
+muls.dd.ll m1, m3
+muls.dd.hl m1, m3
+muls.dd.lh m1, m3
+muls.dd.hh m1, m3
+mulsh a3, a5, a10
+muluh a14, a10, a13
+neg a4, a7
+neg.s f10, f15
+nop
+nop.n
+nsa a14, a5
+nsau a6, a13
+oeq.s b5, f12, f12
+ole.s b3, f1, f1
+olt.s b13, f11, f6
+or a4, a9, a4
+orb b5, b13, b0
+orbc b0, b0, b11
+pdtlb a15, a4
+pitlb a2, a1
+quos a9, a2, a2
+quou a0, a10, a9
+rdtlb0 a10, a1
+rdtlb1 a14, a6
+rems a13, a12, a9
+remu a13, a14, a12
+rer a14, a13
+ret
+ret.n
+retw
+retw.n
+rfdd
+rfde
+;rfdo
+rfe
+rfi 15
+;rfme
+rfr a4, f11
+;rfue
+rfwo
+rfwu
+ritlb0 a15, a3
+ritlb1 a0, a11
+rotw 6
+round.s a12, f14, 13
+rsil a4, 9
+rsr a1, 3
+rsync
+rur a4, 231
+s8i a11, a11, 133
+s16i a4, a6, 4
+s32c1i a11, a11, 128
+s32e a5, a3, -60
+s32i a2, a1, 96
+s32i.n a4, a9, 4
+s32ri a9, a4, 80
+;sdct a8, a5
+sext a3, a8, 10
+;sict a7, a4
+;sicw a10, a14
+simcall
+sll a4, a10
+slli a5, a3, 7
+sra a10, a7
+srai a6, a11, 9
+src a13, a5, a0
+srl a8, a15
+srli a9, a6, 1
+ssa8b a2
+ssa8l a12
+ssai 24
+ssi f0, a1, 48
+;ssiu f6, a11, 1020
+ssl a8
+ssr a4
+ssx f8, a12, a12
+;ssxu f7, a12, a1
+sub a13, a14, a12
+sub.s f14, f11, f11
+subx2 a0, a3, a13
+subx4 a1, a11, a10
+subx8 a10, a2, a4
+syscall
+trunc.s a14, f1, 12
+ueq.s b8, f12, f5
+ufloat.s f2, a7, 0
+ule.s b2, f15, f9
+ult.s b8, f9, f13
+umul.aa.ll a6, a13
+umul.aa.hl a10, a12
+umul.aa.lh a12, a1
+umul.aa.hh a4, a12
+un.s b2, f5, f1
+utrunc.s a12, f4, 8
+waiti 13
+wdtlb a6, a1
+wer a1, a2
+wfr f8, a10
+witlb a4, a14
+wsr a14, 3
+wur a11, 231
+xor a7, a7, a6
+xorb b10, b1, b4
+xsr a14, SAR
+mov a4, a13
