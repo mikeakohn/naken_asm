@@ -27,6 +27,7 @@ default:
 	python run_test.py stm8
 	bash run_test.sh sweet16
 	bash run_test.sh thumb
+	bash run_test.sh xtensa
 	python run_test.py z80
 
 rebuild:

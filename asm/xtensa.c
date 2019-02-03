@@ -756,6 +756,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
 
           return 3;
         case XTENSA_OP_BRANCH_AS_B5_I8:
+        case XTENSA_OP_BRANCH_AS_B5_I8_L:
           if (operand_count != 3 ||
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER ||
@@ -779,7 +780,8 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          if (asm_context->memory.endian == ENDIAN_LITTLE ||
+              table_xtensa[n].type == XTENSA_OP_BRANCH_AS_B5_I8_L)
           {
             opcode = table_xtensa[n].opcode_le |
                     (operands[0].value << 8) |

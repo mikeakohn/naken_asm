@@ -36,10 +36,10 @@ struct _table_xtensa table_xtensa[] =
   { "bany",     0x008007, 0x700800, XTENSA_OP_BRANCH_AS_AT_I8 },
   { "bbc",      0x005007, 0x700500, XTENSA_OP_BRANCH_AS_AT_I8 },
   { "bbci",     0x006007, 0x700600, XTENSA_OP_BRANCH_AS_B5_I8 },
-  { "bbci.l",   0x006007, 0x700600, XTENSA_OP_BRANCH_AS_B5_I8 },
+  { "bbci.l",   0x006007, 0x700600, XTENSA_OP_BRANCH_AS_B5_I8_L },
   { "bbs",      0x00d007, 0x700d00, XTENSA_OP_BRANCH_AS_AT_I8 },
   { "bbsi",     0x00e007, 0x700e00, XTENSA_OP_BRANCH_AS_B5_I8 },
-  { "bbsi.l",   0x00e007, 0x700e00, XTENSA_OP_BRANCH_AS_B5_I8 },
+  { "bbsi.l",   0x00e007, 0x700e00, XTENSA_OP_BRANCH_AS_B5_I8_L },
   { "beq",      0x001007, 0x700100, XTENSA_OP_BRANCH_AS_AT_I8 },
   { "beqi",     0x000026, 0x620000, XTENSA_OP_BRANCH_AS_C4_I8 },
   { "beqz",     0x000016, 0x610000, XTENSA_OP_BRANCH_AS_I12 },
@@ -349,6 +349,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xff000f, 0xf000ff, 24, BR, BR, BR },  // XTENSA_OP_BR_BS_BT
   { 0x00f00f, 0xf00f00, 24, AR, AR,  0 },  // XTENSA_OP_BRANCH_AS_AT_I8
   { 0x00e00f, 0xf00e00, 24,  0,  0,  0 },  // XTENSA_OP_BRANCH_AS_B5_I8
+  { 0x00e00f, 0xf00e00, 24,  0,  0,  0 },  // XTENSA_OP_BRANCH_AS_B5_I8_L
   { 0x0000ff, 0xff0000, 24, AR,  0,  0 },  // XTENSA_OP_BRANCH_AS_C4_I8
   { 0x0000ff, 0xff0000, 24, AR,  0,  0 },  // XTENSA_OP_BRANCH_AS_I12
   { 0x0000cf, 0x00fc00, 16, AR,  0,  0 },  // XTENSA_OP_BRANCH_N_AS_I6
