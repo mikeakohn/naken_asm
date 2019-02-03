@@ -72,7 +72,7 @@ static int get_register_xtensa(const char *token, char lo, char up)
   return -1;
 }
 
-static void compute_offset(struct _asm_context *asm_context, int *offset, int n)
+static void compute_offset(struct _asm_context *asm_context, int *offset, int n, int increment)
 {
   if (asm_context->pass == 1)
   {
@@ -80,7 +80,7 @@ static void compute_offset(struct _asm_context *asm_context, int *offset, int n)
   }
     else
   {
-    *offset = n - (asm_context->address + 3);
+    *offset = n - (asm_context->address + increment);
   }
 }
 
@@ -729,7 +729,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          compute_offset(asm_context, &offset, operands[2].value);
+          compute_offset(asm_context, &offset, operands[2].value, 4);
 
           if (offset < -128 || offset > 127)
           {
@@ -740,15 +740,15 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           if (asm_context->memory.endian == ENDIAN_LITTLE)
           {
             opcode = table_xtensa[n].opcode_le |
-                    (operands[0].value << 4) |
-                    (operands[1].value << 8) |
+                    (operands[0].value << 8) |
+                    (operands[1].value << 4) |
                    ((offset & 0xff) << 16);
           }
             else
           {
             opcode = table_xtensa[n].opcode_be |
-                    (operands[0].value << 16) |
-                    (operands[1].value << 12) |
+                    (operands[0].value << 12) |
+                    (operands[1].value << 16) |
                     (offset & 0xff);
           }
 
@@ -765,7 +765,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          compute_offset(asm_context, &offset, operands[2].value);
+          compute_offset(asm_context, &offset, operands[2].value, 4);
 
           if (offset < -128 || offset > 127)
           {
@@ -809,7 +809,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          compute_offset(asm_context, &offset, operands[2].value);
+          compute_offset(asm_context, &offset, operands[2].value, 4);
           get_b4const(asm_context, &i, operands[1].value);
 
           if (offset < -128 || offset > 127)
@@ -852,7 +852,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          compute_offset(asm_context, &offset, operands[2].value);
+          compute_offset(asm_context, &offset, operands[2].value, 4);
 
           if (offset < -2048 || offset > 2047)
           {
@@ -885,14 +885,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (asm_context->pass == 1)
-          {
-            offset = 0;
-          }
-            else
-          {
-            offset = operands[1].value - (asm_context->address + 4);
-          }
+          compute_offset(asm_context, &offset, operands[1].value, 4);
 
           if (offset < 0 || offset > 63)
           {
@@ -927,7 +920,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          compute_offset(asm_context, &offset, operands[1].value);
+          compute_offset(asm_context, &offset, operands[1].value, 4);
 
           if (offset < -128 || offset > 127)
           {
@@ -968,12 +961,12 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           if (asm_context->memory.endian == ENDIAN_LITTLE)
           {
             opcode = table_xtensa[n].opcode_le |
-                    (operands[0].value << 4) | (operands[1].value << 8);
+                    (operands[0].value << 8) | (operands[1].value << 4);
           }
             else
           {
             opcode = table_xtensa[n].opcode_be |
-                    (operands[0].value << 16) | (operands[1].value << 12);
+                    (operands[0].value << 12) | (operands[1].value << 16);
           }
 
           add_bin24(asm_context, opcode);
@@ -1005,13 +998,16 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
 
           return 2;
         case XTENSA_OP_CALL_I18:
+        case XTENSA_OP_JUMP_I18:
           if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
             print_error_illegal_operands(instr, asm_context);
             return -1;
           }
 
-          compute_offset(asm_context, &offset, operands[0].value);
+          i = table_xtensa[n].type == XTENSA_OP_CALL_I18 ? 1 : 4;
+
+          compute_offset(asm_context, &offset, operands[0].value, i);
 
           if (offset < -131072 || offset > 131071)
           {
@@ -1899,6 +1895,35 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           {
             opcode = table_xtensa[n].opcode_be |
                     (operands[0].value << 16) | (operands[1].value << 8);
+          }
+
+          add_bin24(asm_context, opcode);
+
+          return 3;
+        case XTENSA_OP_AR_UR:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REGISTER_AR ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[1].value < 0 || operands[1].value > 255)
+          {
+            print_error_range("User register", 0, 255, asm_context);
+            return -1;
+          }
+
+          if (asm_context->memory.endian == ENDIAN_LITTLE)
+          {
+            opcode = table_xtensa[n].opcode_le |
+                    (operands[0].value << 12) | (operands[1].value << 4);
+          }
+            else
+          {
+            opcode = table_xtensa[n].opcode_be |
+                    (operands[0].value << 8) | (operands[1].value << 12);
           }
 
           add_bin24(asm_context, opcode);

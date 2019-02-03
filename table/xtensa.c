@@ -14,7 +14,7 @@
 struct _table_xtensa table_xtensa[] =
 {
   // Instructions
-  { "abs",      0x060100, 0x001006, XTENSA_OP_AR_AT },
+  { "abs",      0x600100, 0x001006, XTENSA_OP_AR_AT },
   { "abs.s",    0xfa0010, 0x0100af, XTENSA_OP_FR_FS },
   { "add",      0x800000, 0x000008, XTENSA_OP_AR_AS_AT },
   { "addi",     0x00c002, 0x200c00, XTENSA_OP_AT_AS_N128_127 },
@@ -39,7 +39,7 @@ struct _table_xtensa table_xtensa[] =
   { "bbci.l",   0x006007, 0x700600, XTENSA_OP_BRANCH_AS_B5_I8 },
   { "bbs",      0x00d007, 0x700d00, XTENSA_OP_BRANCH_AS_AT_I8 },
   { "bbsi",     0x00e007, 0x700e00, XTENSA_OP_BRANCH_AS_B5_I8 },
-  { "bbsi.l",   0x006007, 0x700600, XTENSA_OP_BRANCH_AS_B5_I8 },
+  { "bbsi.l",   0x00e007, 0x700e00, XTENSA_OP_BRANCH_AS_B5_I8 },
   { "beq",      0x001007, 0x700100, XTENSA_OP_BRANCH_AS_AT_I8 },
   { "beqi",     0x000026, 0x620000, XTENSA_OP_BRANCH_AS_C4_I8 },
   { "beqz",     0x000016, 0x610000, XTENSA_OP_BRANCH_AS_I12 },
@@ -105,7 +105,7 @@ struct _table_xtensa table_xtensa[] =
   { "ipf",      0x0070c2, 0x2c0700, XTENSA_OP_AS_0_1020 },
   { "ipfl",     0x0070d2, 0x2d0700, XTENSA_OP_AS_0_240 },
   { "isync",    0x002000, 0x000200, XTENSA_OP_NONE },
-  { "j",        0x000006, 0x600000, XTENSA_OP_CALL_I18 },
+  { "j",        0x000006, 0x600000, XTENSA_OP_JUMP_I18 },
   { "jx",       0x0000a0, 0x0a0000, XTENSA_OP_AS },
   { "l8ui",     0x000002, 0x200000, XTENSA_OP_AT_AS_0_255 },
   { "l16si",    0x009002, 0x200900, XTENSA_OP_AT_AS_0_510 },
@@ -127,7 +127,7 @@ struct _table_xtensa table_xtensa[] =
   { "lsiu",     0x008003, 0x300800, XTENSA_OP_FT_AS_0_1020 },
   { "lsx",      0x080000, 0x000080, XTENSA_OP_FR_AS_AT },
   { "lsxu",     0x180000, 0x000081, XTENSA_OP_FR_AS_AT },
-  { "madd.s",   0x2a0000, 0x0000a2, XTENSA_OP_FR_FS_FT },
+  { "madd.s",   0x4a0000, 0x0000a4, XTENSA_OP_FR_FS_FT },
   { "max",      0x530000, 0x000035, XTENSA_OP_AR_AS_AT },
   { "maxu",     0x730000, 0x000037, XTENSA_OP_AR_AS_AT },
   { "memw",     0x0020c0, 0x0c0200, XTENSA_OP_NONE },
@@ -136,7 +136,7 @@ struct _table_xtensa table_xtensa[] =
   { "mov.n",    0x00000d, 0x00d000, XTENSA_OP_N_AT_AS },
   { "mov.s",    0xfa0000, 0x0000af, XTENSA_OP_FR_FS },
   { "moveqz",   0x830000, 0x000038, XTENSA_OP_AR_AS_AT },
-  { "moveqz.s", 0x830000, 0x000038, XTENSA_OP_FR_FS_AT },
+  { "moveqz.s", 0x8b0000, 0x0000b8, XTENSA_OP_FR_FS_AT },
   { "movf",     0xc30000, 0x00003c, XTENSA_OP_AR_AS_BT },
   { "movf.s",   0xcb0000, 0x0000bc, XTENSA_OP_FR_FS_BT },
   { "movgez",   0xb30000, 0x00003b, XTENSA_OP_AR_AS_AT },
@@ -163,10 +163,10 @@ struct _table_xtensa table_xtensa[] =
   { "mul.da.hl",0x650004, 0x400056, XTENSA_OP_MX_AT },
   { "mul.da.lh",0x660004, 0x400066, XTENSA_OP_MX_AT },
   { "mul.da.hh",0x670004, 0x400076, XTENSA_OP_MX_AT },
-  { "mul.dd.ll",0x540004, 0x400045, XTENSA_OP_MX_MY },
-  { "mul.dd.hl",0x550004, 0x400055, XTENSA_OP_MX_MY },
-  { "mul.dd.lh",0x560004, 0x400065, XTENSA_OP_MX_MY },
-  { "mul.dd.hh",0x570004, 0x400075, XTENSA_OP_MX_MY },
+  { "mul.dd.ll",0x240004, 0x400042, XTENSA_OP_MX_MY },
+  { "mul.dd.hl",0x250004, 0x400052, XTENSA_OP_MX_MY },
+  { "mul.dd.lh",0x260004, 0x400062, XTENSA_OP_MX_MY },
+  { "mul.dd.hh",0x270004, 0x400072, XTENSA_OP_MX_MY },
   { "mul.s",    0x2a0000, 0x0000a2, XTENSA_OP_FR_FS_FT },
   { "mul16s",   0xd10000, 0x00001d, XTENSA_OP_AR_AS_AT },
   { "mul16u",   0xc10000, 0x00001c, XTENSA_OP_AR_AS_AT },
@@ -263,9 +263,9 @@ struct _table_xtensa table_xtensa[] =
   { "rsil",     0x006000, 0x000600, XTENSA_OP_AT_0_15 },
   { "rsr",      0x030000, 0x000030, XTENSA_OP_AT_SPR },
   { "rsync",    0x002010, 0x010200, XTENSA_OP_NONE },
-  { "rur",      0xe30000, 0x00003e, XTENSA_OP_AT_SPR },
+  { "rur",      0xe30000, 0x00003e, XTENSA_OP_AR_UR },
   { "s8i",      0x004002, 0x200400, XTENSA_OP_AT_AS_0_255 },
-  { "s16i",     0x004002, 0x200400, XTENSA_OP_AT_AS_0_510 },
+  { "s16i",     0x005002, 0x200500, XTENSA_OP_AT_AS_0_510 },
   { "s32c1i",   0x00e002, 0x200e00, XTENSA_OP_AT_AS_0_1020 },
   { "s32e",     0x490000, 0x000094, XTENSA_OP_AT_AS_N64_N4 },
   { "s32i",     0x006002, 0x200600, XTENSA_OP_AT_AS_0_1020 },
@@ -277,7 +277,7 @@ struct _table_xtensa table_xtensa[] =
   { "sicw",     0xf13000, 0x00031f, XTENSA_OP_AT_AS },
   { "simcall",  0x005100, 0x001500, XTENSA_OP_NONE },
   { "sll",      0xa10000, 0x00001a, XTENSA_OP_AR_AS },
-  { "slli",     0xa10000, 0x00001a, XTENSA_OP_AR_AS_1_31 },
+  { "slli",     0x010000, 0x000010, XTENSA_OP_AR_AS_1_31 },
   { "sra",      0xb10000, 0x00001b, XTENSA_OP_AR_AT },
   { "srai",     0x210000, 0x000012, XTENSA_OP_AR_AT_1_31 },
   { "src",      0x810000, 0x000018, XTENSA_OP_AR_AS_AT },
@@ -301,7 +301,7 @@ struct _table_xtensa table_xtensa[] =
   { "trunc.s",  0x9a0000, 0x0000a9, XTENSA_OP_AR_FS_0_15 },
   { "ueq.s",    0x3b0000, 0x0000b3, XTENSA_OP_BR_FS_FT },
   { "ufloat.s", 0xda0000, 0x0000ad, XTENSA_OP_FR_AS_0_15 },
-  { "ule.s",    0xed0000, 0x0000de, XTENSA_OP_BR_FS_FT },
+  { "ule.s",    0x7b0000, 0x0000b7, XTENSA_OP_BR_FS_FT },
   { "ult.s",    0x5b0000, 0x0000b5, XTENSA_OP_BR_FS_FT },
   { "umul.aa.ll", 0x700004, 0x400007, XTENSA_OP_AS_AT },
   { "umul.aa.hl", 0x710004, 0x400017, XTENSA_OP_AS_AT },
@@ -356,6 +356,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xfff00f, 0xf00fff, 24,  0,  0,  0 },  // XTENSA_OP_NUM_NUM
   { 0x00f0ff, 0x00ff0f, 16,  0,  0,  0 },  // XTENSA_OP_N_NUM
   { 0x00003f, 0xfc0000, 24,  0,  0,  0 },  // XTENSA_OP_CALL_I18
+  { 0x00003f, 0xfc0000, 24,  0,  0,  0 },  // XTENSA_OP_JUMP_I18
   { 0xfff0ff, 0xff0fff, 24, AR,  0,  0 },  // XTENSA_OP_AS
   { 0xff000f, 0xf000ff, 24, AR, FR,  0 },  // XTENSA_OP_AR_FS_0_15
   { 0xff000f, 0xf000ff, 24, AR, AR,  0 },  // XTENSA_OP_AR_AS_7_22
@@ -393,6 +394,7 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xffff0f, 0xf0ffff, 24,  0,  0,  0 },  // XTENSA_OP_N8_7
   { 0xfff00f, 0xf00fff, 24, AR,  0,  0 },  // XTENSA_OP_AT_0_15
   { 0xff000f, 0xf000ff, 24, AR,  0,  0 },  // XTENSA_OP_AT_SPR
+  { 0xff000f, 0xf000ff, 24, AR,  0,  0 },  // XTENSA_OP_AR_UR
   { 0xff00ff, 0xff00ff, 24, AR,  AR, 0 },  // XTENSA_OP_AR_AS
   { 0xef000f, 0xf000fe, 24, AR,  AR, 0 },  // XTENSA_OP_AR_AS_1_31
   { 0xef000f, 0xf000fe, 24, AR,  AR, 0 },  // XTENSA_OP_AR_AT_1_31

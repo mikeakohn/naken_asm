@@ -22,17 +22,17 @@ main: bbc a12, a8, main
 main: bbci a5, 21, main
 main: bbci.l a9, 23, main
 main: bbs a12, a1, main
-main: bbsi a16, 21, main
+main: bbsi a13, 21, main
 main: bbsi.l a3, 30, main
 main: beq a13, a8, main
 main: beqi a3, 7, main
-main: beqz a16, main
+main: beqz a11, main
 ;main: beqz.n a6, 11
 main: bf b8, main
 main: bge a10, a0, main
 main: bgei a14, 128, main
 main: bgeu a9, a10, main
-main: bgeui a16, 7, main
+main: bgeui a9, 7, main
 main: bgez a8, main
 main: blt a8, a14, main
 main: blti a15, 4, main
@@ -40,11 +40,11 @@ main: bltu a11, a3, main
 main: bltui a14, 32, main
 main: bltz a3, main
 main: bnall a3, a2, main
-main: bne a13, a16, main
+main: bne a13, a12, main
 main: bnei a0, 128, main
 main: bnez a10, main
 ;main: bnez.n a12, 8
-main: bnone a16, a10, main
+main: bnone a14, a10, main
 break 3, 4
 break.n 12
 main: call0 main
@@ -97,7 +97,7 @@ l16ui a6, a12, 24
 l32ai a3, a0, 16
 l32e a12, a2, -60
 l32i a12, a9, 96
-l32i.n a12, a8, 50
+l32i.n a12, a8, 60
 ;main: l32r a9, main
 ;ldct a2, a7
 lddec m0, a12
@@ -126,7 +126,7 @@ movf.s f0, f6, b0
 movgez a3, a14, a9
 movgez.s f10, f0, a10
 movi a3, -579
-movi.n a10, -918
+movi.n a10, -31
 movltz a1, a3, a13
 movltz.s f2, f11, a3
 movnez a1, a2, a10
@@ -261,7 +261,7 @@ sext a3, a8, 10
 ;sicw a10, a14
 simcall
 sll a4, a10
-slli a5, a3, 7
+;slli a5, a3, 7
 sra a10, a7
 srai a6, a11, 9
 src a13, a5, a0
