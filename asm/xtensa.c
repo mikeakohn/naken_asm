@@ -755,7 +755,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
-        case XTENSA_OP_BRANCH_B5_I8:
+        case XTENSA_OP_BRANCH_AS_B5_I8:
           if (operand_count != 3 ||
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER ||
@@ -979,7 +979,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
-        case XTENSA_OP_N_NUM_NUM:
+        case XTENSA_OP_N_NUM:
           if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
             print_error_illegal_operands(instr, asm_context);
