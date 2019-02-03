@@ -529,7 +529,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
-        case XTENSA_OP_AT_AS_I8:
+        case XTENSA_OP_AT_AS_N128_127:
           if (operand_count != 3 ||
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_REGISTER_AR ||
@@ -563,7 +563,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin24(asm_context, opcode);
 
           return 3;
-        case XTENSA_OP_AT_AS_IM8:
+        case XTENSA_OP_AT_AS_N32768_32512:
           if (operand_count != 3 ||
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_REGISTER_AR ||
@@ -634,7 +634,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
-        case XTENSA_OP_N_AR_AS_I4:
+        case XTENSA_OP_N_AR_AS_N1_15:
           if (operand_count != 3 ||
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_REGISTER_AR ||

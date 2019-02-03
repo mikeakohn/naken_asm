@@ -17,11 +17,11 @@ struct _table_xtensa table_xtensa[] =
   { "abs",      0x060100, 0x001006, XTENSA_OP_AR_AT },
   { "abs.s",    0xfa0010, 0x0100af, XTENSA_OP_FR_FS },
   { "add",      0x800000, 0x000008, XTENSA_OP_AR_AS_AT },
-  { "addi",     0x00c002, 0x200c00, XTENSA_OP_AT_AS_I8 },
+  { "addi",     0x00c002, 0x200c00, XTENSA_OP_AT_AS_N128_127 },
   { "add.n",    0x00000a, 0x00a000, XTENSA_OP_N_AR_AS_AT },
   { "add.s",    0x0a0000, 0x0000a0, XTENSA_OP_FR_FS_FT },
-  { "addi.n",   0x00000b, 0x00b000, XTENSA_OP_N_AR_AS_I4 },
-  { "addmi",    0x00d002, 0x200d00, XTENSA_OP_AT_AS_IM8 },
+  { "addi.n",   0x00000b, 0x00b000, XTENSA_OP_N_AR_AS_N1_15 },
+  { "addmi",    0x00d002, 0x200d00, XTENSA_OP_AT_AS_N32768_32512 },
   { "addx2",    0x900000, 0x000009, XTENSA_OP_AR_AS_AT },
   { "addx4",    0xa00000, 0x00000a, XTENSA_OP_AR_AS_AT },
   { "addx8",    0xb00000, 0x00000b, XTENSA_OP_AR_AS_AT },
@@ -340,10 +340,10 @@ struct _mask_xtensa mask_xtensa[] =
   { 0xff00ff, 0xff00ff, 24, FR, FR,  0 },  // XTENSA_OP_FR_FS
   { 0xff000f, 0xf000ff, 24, FR, FR, FR },  // XTENSA_OP_FR_FS_FT
   { 0xff000f, 0xf000ff, 24, AR, AR, AR },  // XTENSA_OP_AR_AS_AT
-  { 0x00f00f, 0xf00f00, 24, AR, AR,  0 },  // XTENSA_OP_AT_AS_I8
-  { 0x00f00f, 0xf00f00, 24, AR, AR,  0 },  // XTENSA_OP_AT_AS_IM8
+  { 0x00f00f, 0xf00f00, 24, AR, AR,  0 },  // XTENSA_OP_AT_AS_N128_127
+  { 0x00f00f, 0xf00f00, 24, AR, AR,  0 },  // XTENSA_OP_AT_AS_N32768_32512
   { 0x00000f, 0x00f000, 16, AR, AR, AR },  // XTENSA_OP_N_AR_AS_AT
-  { 0x00000f, 0x00f000, 16, AR, AR,  0 },  // XTENSA_OP_N_AR_AS_I4
+  { 0x00000f, 0x00f000, 16, AR, AR,  0 },  // XTENSA_OP_N_AR_AS_N1_15
   { 0xfff00f, 0xf00fff, 24, BR,  0,  0 },  // XTENSA_OP_BT_BS4
   { 0xfff00f, 0xf00fff, 24, BR,  0,  0 },  // XTENSA_OP_BT_BS8
   { 0xff000f, 0xf000ff, 24, BR, BR, BR },  // XTENSA_OP_BR_BS_BT
