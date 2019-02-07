@@ -1952,6 +1952,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
 
           if (table_xtensa[n].type == XTENSA_OP_AR_AS_1_31)
           {
+            operands[2].value = (32 - operands[2].value) & 0x1f;
             s = operands[1].value;
             t = operands[2].value & 0xf;
           }

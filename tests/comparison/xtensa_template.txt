@@ -261,7 +261,7 @@ sext a3, a8, 10
 ;sicw a10, a14
 simcall
 sll a4, a10
-;slli a5, a3, 7
+slli a5, a3, 7
 sra a10, a7
 srai a6, a11, 9
 src a13, a5, a0
