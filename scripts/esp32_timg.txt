@@ -1,0 +1,31 @@
+TIMGn_T0CONFIG_REG Timer 0 configuration register 0x3FF5F000 0x3FF60000 R/W
+TIMGn_T0LO_REG Timer 0 current value, low 32 bits 0x3FF5F004 0x3FF60004 RO
+TIMGn_T0HI_REG Timer 0 current value, high 32 bits 0x3FF5F008 0x3FF60008 RO
+TIMGn_T0UPDATE_REG Write to copy current timer value to TIMGn_T0_(LO/HI)_REG 0x3FF5F00C 0x3FF6000C WO
+TIMGn_T0ALARMLO_REG Timer 0 alarm value, low 32 bits 0x3FF5F010 0x3FF60010 R/W
+TIMGn_T0ALARMHI_REG Timer 0 alarm value, high bits 0x3FF5F014 0x3FF60014 R/W
+TIMGn_T0LOADLO_REG Timer 0 reload value, low 32 bits 0x3FF5F018 0x3FF60018 R/W
+
+TIMGn_T0LOAD_REG Write to reload timer from TIMGn_T0_(LOADLOLOADHI)_REG 0x3FF5F020 0x3FF60020 WO
+TIMGn_T1CONFIG_REG Timer 1 configuration register 0x3FF5F024 0x3FF60024 R/W
+TIMGn_T1LO_REG Timer 1 current value, low 32 bits 0x3FF5F028 0x3FF60028 RO
+TIMGn_T1HI_REG Timer 1 current value, high 32 bits 0x3FF5F02C 0x3FF6002C RO
+TIMGn_T1UPDATE_REG Write to copy current timer value to TIMGn_T1_(LO/HI)_REG 0x3FF5F030 0x3FF60030 WO
+TIMGn_T1ALARMLO_REG Timer 1 alarm value, low 32 bits 0x3FF5F034 0x3FF60034 R/W
+TIMGn_T1ALARMHI_REG Timer 1 alarm value, high 32 bits 0x3FF5F038 0x3FF60038 R/W
+TIMGn_T1LOADLO_REG Timer 1 reload value, low 32 bits 0x3FF5F03C 0x3FF6003C R/W
+TIMGn_T1LOAD_REG Write to reload timer from TIMGn_T1_(LOADLOLOADHI)_REG 0x3FF5F044 0x3FF60044 WO
+TIMGn_Tx_WDTCONFIG0_REG Watchdog timer configuration register 0x3FF5F048 0x3FF60048 R/W
+TIMGn_Tx_WDTCONFIG1_REG Watchdog timer prescaler register 0x3FF5F04C 0x3FF6004C R/W
+TIMGn_Tx_WDTCONFIG2_REG Watchdog timer stage 0 timeout value 0x3FF5F050 0x3FF60050 R/W
+TIMGn_Tx_WDTCONFIG3_REG Watchdog timer stage 1 timeout value 0x3FF5F054 0x3FF60054 R/W
+TIMGn_Tx_WDTCONFIG4_REG Watchdog timer stage 2 timeout value 0x3FF5F058 0x3FF60058 R/W
+TIMGn_Tx_WDTCONFIG5_REG Watchdog timer stage 3 timeout value 0x3FF5F05C 0x3FF6005C R/W
+TIMGn_Tx_WDTFEED_REG Write to feed the watchdog timer 0x3FF5F060 0x3FF60060 WO
+TIMGn_Tx_WDTWPROTECT_REG Watchdog write protect register
+0x3FF5F064 0x3FF60064 R/W
+TIMGn_Tx_INT_RAW_REG Raw interrupt status 0x3FF5F09C 0x3FF6009C RO
+TIMGn_Tx_INT_ST_REG Masked interrupt status 0x3FF5F0A0 0x3FF600A0 RO
+TIMGn_Tx_INT_ENA_REG Interrupt enable bits 0x3FF5F098 0x3FF60098 R/W
+TIMGn_Tx_INT_CLR_REG Interrupt clear bits 0x3FF5F0A4 0x3FF600A4 WO
+

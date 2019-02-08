@@ -1,0 +1,159 @@
+I2C_SLAVE_ADDR_REG Configures the I 2 C slave address 0x3FF53010 0x3FF67010 R/W
+I2C_RXFIFO_ST_REG FIFO status register 0x3FF53014 0x3FF67014 RO
+I2C_FIFO_CONF_REG FIFO configuration register 0x3FF53018 0x3FF67018 R/W
+I2C_SDA_HOLD_REG Configures the hold time after a negative SCL edge 0x3FF53030 0x3FF67030 R/W
+I2C_SDA_SAMPLE_REG Configures the sample time after a positive SCL edge 0x3FF53034 0x3FF67034 R/W
+I2C_SCL_LOW_PERIOD_REG Configures the low level width of the SCL clock 0x3FF53000 0x3FF67000 R/W
+I2C_SCL_HIGH_PERIOD_REG Configures the high level width of the SCL clock 0x3FF53038 0x3FF67038 R/W
+I2C_SCL_START_HOLD_REG Configures the delay between the SDA and SCL negative edge for a start condition 0x3FF53040 0x3FF67040 R/W
+I2C_SCL_RSTART_SETUP_REG Configures the delay between the positive edge of SCL and the negative edge of SDA 0x3FF53044 0x3FF67044 R/W
+I2C_SCL_STOP_HOLD_REG Configures the delay after the SCL clock edge for a stop condition 0x3FF53048 0x3FF67048 R/W
+I2C_SCL_STOP_SETUP_REG Configures the delay between the SDA and SCL positive edge for a stop condition 0x3FF5304C 0x3FF6704C R/W
+I2C_SCL_FILTER_CFG_REG SCL filter configuration register 0x3FF53050 0x3FF67050 R/W
+I2C_SDA_FILTER_CFG_REG SDA filter configuration register 0x3FF53054 0x3FF67054 R/W
+I2C_INT_RAW_REG Raw interrupt status 0x3FF53020 0x3FF67020 RO
+I2C_INT_ENA_REG Interrupt enable bits 0x3FF53028 0x3FF67028 R/W
+I2C_INT_CLR_REG Interrupt clear bits 0x3FF53024 0x3FF67024 WO
+
+I2C_COMD0_REG I2C command register 0 0x3FF53058 0x3FF67058 R/W
+I2C_COMD1_REG I2C command register 1 0x3FF5305C 0x3FF6705C R/W
+I2C_COMD2_REG I2C command register 2 0x3FF53060 0x3FF67060 R/W
+I2C_COMD3_REG I2C command register 3 0x3FF53064 0x3FF67064 R/W
+I2C_COMD4_REG I2C command register 4 0x3FF53068 0x3FF67068 R/W
+I2C_COMD5_REG I2C command register 5 0x3FF5306C 0x3FF6706C R/W
+I2C_COMD6_REG I2C command register 6 0x3FF53070 0x3FF67070 R/W
+I2C_COMD7_REG I2C command register 7 0x3FF53074 0x3FF67074 R/W
+I2C_COMD8_REG I2C command register 8 0x3FF53078 0x3FF67078 R/W
+I2C_COMD9_REG I2C command register 9 0x3FF5307C 0x3FF6707C R/W
+I2C_COMD10_REG I2C command register 10 0x3FF53080 0x3FF67080 R/W
+I2C_COMD11_REG I2C command register 11 0x3FF53084 0x3FF67084 R/W
+I2C_COMD12_REG I2C command register 12 0x3FF53088 0x3FF67088 R/W
+I2C_COMD13_REG I2C command register 13 0x3FF5308C 0x3FF6708C R/W
+I2C_COMD14_REG I2C command register 14 0x3FF53090 0x3FF67090 R/W
+I2C_COMD15_REG I2C command register 15 0x3FF53094 0x3FF67094 R/W
+
+I2S_FIFO_WR_REG Writes the data sent by I2S into FIFO 0x3FF4F000 0x3FF6D000 WO
+I2S_FIFO_RD_REG Stores the data that I2S receives from FIFO 0x3FF4F004 0x3FF6D004 RO
+I2S_CONF_REG Configuration and start/stop bits 0x3FF4F008 0x3FF6D008 R/W
+I2S_CONF1_REG PCM configuration register 0x3FF4F0A0 0x3FF6D0A0 R/W
+I2S_CONF2_REG ADC/LCD/camera configuration register 0x3FF4F0A8 0x3FF6D0A8 R/W
+I2S_TIMING_REG Signal delay and timing parame-ters 0x3FF4F01C 0x3FF6D01C R/W
+I2S_FIFO_CONF_REG FIFO configuration 0x3FF4F020 0x3FF6D020 R/W
+I2S_CONF_SINGLE_DATA_REG Static channel output value 0x3FF4F028 0x3FF6D028 R/W
+I2S_CONF_CHAN_REG Channel configuration 0x3FF4F02C 0x3FF6D02C R/W
+I2S_LC_HUNG_CONF_REG Timeout detection configuration 0x3FF4F074 0x3FF6D074 I2S_CLKM_CONF_REG Bitclock configuration 0x3FF4F0AC 0x3FF6D0AC R/W
+I2S_SAMPLE_RATE_CONF_REG Sample rate configuration 0x3FF4F0B0 0x3FF6D0B0 R/W
+I2S_PD_CONF_REG Power-down register 0x3FF4F0A4 0x3FF6D0A4 R/W
+I2S_STATE_REG I2S status register 0x3FF4F0BC 0x3FF6D0BC RO
+I2S_LC_CONF_REG DMA configuration register 0x3FF4F060 0x3FF6D060 R/W
+I2S_RXEOF_NUM_REG Receive data count 0x3FF4F024 0x3FF6D024 R/W
+
+
+I2S_OUT_LINK_REG DMA transmit linked list configuration and address 0x3FF4F030 0x3FF6D030 R/W
+I2S_IN_LINK_REG DMA receive linked list configuration and address 0x3FF4F034 0x3FF6D034 R/W
+I2S_OUT_EOF_DES_ADDR_REG The address of transmit link descriptor producing EOF 0x3FF4F038 0x3FF6D038 RO
+I2S_IN_EOF_DES_ADDR_REG The address of receive link descriptor producing EOF 0x3FF4F03C 0x3FF6D03C RO
+I2S_OUT_EOF_BFR_DES_ADDR_REG The address of transmit buffer producing EOF 0x3FF4F040 0x3FF6D040 RO
+I2S_INLINK_DSCR_REG The address of current inlink descriptor 0x3FF4F048 0x3FF6D048 RO
+I2S_INLINK_DSCR_BF0_REG The address of next inlink descriptor 0x3FF4F04C 0x3FF6D04C RO
+I2S_INLINK_DSCR_BF1_REG The address of next inlink data buffer 0x3FF4F050 0x3FF6D050 RO
+I2S_OUTLINK_DSCR_REG The address of current outlink descriptor 0x3FF4F054 0x3FF6D054 RO
+I2S_OUTLINK_DSCR_BF0_REG The address of next outlink descriptor 0x3FF4F058 0x3FF6D058 RO
+I2S_OUTLINK_DSCR_BF1_REG The address of next outlink data buffer 0x3FF4F05C 0x3FF6D05C RO
+I2S_LC_STATE0_REG DMA receive status 0x3FF4F06C 0x3FF6D06C RO
+I2S_LC_STATE1_REG DMA transmit status 0x3FF4F070 0x3FF6D070 RO
+I2S_PDM_CONF_REG PDM configuration 0x3FF4F0B4 0x3FF6D0B4 R/W
+I2S_PDM_FREQ_CONF_REG PDM frequencies 0x3FF4F0B8 0x3FF6D0B8 R/W
+I2S_INT_RAW_REG Raw interrupt status 0x3FF4F00C 0x3FF6D00C RO
+I2S_INT_ST_REG Masked interrupt status 0x3FF4F010 0x3FF6D010 RO
+I2S_INT_ENA_REG Interrupt enable bits 0x3FF4F014 0x3FF6D014 R/W
+I2S_INT_CLR_REG Interrupt clear bits 0x3FF4F018 0x3FF6D018 WO
+
+
+UHCI_CONF0_REG UART and frame separation config 0x3FF54000 0x3FF4C000 R/W
+UHCI_CONF1_REG UHCI config register 0x3FF5402C 0x3FF4C02C R/W
+UHCI_ESCAPE_CONF_REG Escape characters configuration 0x3FF54064 0x3FF4C064 R/W
+UHCI_HUNG_CONF_REG Timeout configuration 0x3FF54068 0x3FF4C068 R/W
+UHCI_ESC_CONF0_REG Escape sequence configuration register 0 0x3FF540B0 0x3FF4C0B0 R/W
+UHCI_ESC_CONF1_REG Escape sequence configuration register 1 0x3FF540B4 0x3FF4C0B4 R/W
+UHCI_ESC_CONF2_REG Escape sequence configuration register 2 0x3FF540B8 0x3FF4C0B8 R/W
+UHCI_ESC_CONF3_REG Escape sequence configuration register 3 0x3FF540BC 0x3FF4C0BC R/W
+UHCI_DMA_OUT_LINK_REG Link descriptor address and control 0x3FF54024 0x3FF4C024 R/W
+UHCI_DMA_IN_LINK_REG Link descriptor address and control 0x3FF54028 0x3FF4C028 R/W
+UHCI_DMA_OUT_PUSH_REG FIFO data push register 0x3FF54018 0x3FF4C018 R/W
+UHCI_DMA_IN_POP_REG FIFO data pop register 0x3FF54020 0x3FF4C020 RO
+UHCI_DMA_OUT_STATUS_REG DMA FIFO status 0x3FF54014 0x3FF4C014 RO
+UHCI_DMA_OUT_EOF_DES_ADDR_REG Out EOF link descriptor address on success 0x3FF54038 0x3FF4C038 RO
+UHCI_DMA_OUT_EOF_BFR_DES_ADDR_REG Out EOF link descriptor address on error 0x3FF54044 0x3FF4C044 RO
+UHCI_DMA_IN_SUC_EOF_DES_ADDR_REG In EOF link descriptor address on success 0x3FF5403C 0x3FF4C03C RO
+
+UHCI_DMA_IN_ERR_EOF_DES_ADDR_REG In EOF link descriptor address on error 0x3FF54040 0x3FF4C040 RO
+UHCI_DMA_IN_DSCR_REG Current inlink descriptor, first word 0x3FF5404C 0x3FF4C04C RO
+UHCI_DMA_IN_DSCR_BF0_REG Current inlink descriptor, second word 0x3FF54050 0x3FF4C050 RO
+UHCI_DMA_IN_DSCR_BF1_REG Current inlink descriptor, third word 0x3FF54054 0x3FF4C054 RO
+UHCI_DMA_OUT_DSCR_REG Current outlink descriptor, first word 0x3FF54058 0x3FF4C058 RO
+UHCI_DMA_OUT_DSCR_BF0_REG Current outlink descriptor, second word 0x3FF5405C 0x3FF4C05C RO
+UHCI_DMA_OUT_DSCR_BF1_REG Current outlink descriptor, third word 0x3FF54060 0x3FF4C060 RO
+UHCI_INT_RAW_REG Raw interrupt status 0x3FF54004 0x3FF4C004 RO
+UHCI_INT_ST_REG Masked interrupt status 0x3FF54008 0x3FF4C008 RO
+UHCI_INT_ENA_REG Interrupt enable bits 0x3FF5400C 0x3FF4C00C R/W
+UHCI_INT_CLR_REG Interrupt clear bits 0x3FF54010 0x3FF4C010 WO
+
+PWM_CLK_CFG_REG Configuration of the prescaler 0x3FF5E000 0x3FF6C000 R/W
+PWM_TIMER0_CFG0_REG Timer period and update method 0x3FF5E004 0x3FF6C004 R/W
+PWM_TIMER0_CFG1_REG Working mode and start/stop control 0x3FF5E008 0x3FF6C008 R/W
+PWM_TIMER0_SYNC_REG Synchronization settings 0x3FF5E00C 0x3FF6C00C R/W
+PWM_TIMER0_STATUS_REG Timer status 0x3FF5E010 0x3FF6C010 RO
+PWM_TIMER1_CFG0_REG Timer update method and period 0x3FF5E014 0x3FF6C014 R/W
+PWM_TIMER1_CFG1_REG Working mode and start/stop control 0x3FF5E018 0x3FF6C018 R/W
+PWM_TIMER1_SYNC_REG Synchronization settings 0x3FF5E01C 0x3FF6C01C R/W
+PWM_TIMER1_STATUS_REG Timer status 0x3FF5E020 0x3FF6C020 RO
+PWM_TIMER2_CFG0_REG Timer update method and period 0x3FF5E024 0x3FF6C024 R/W
+PWM_TIMER2_CFG1_REG Working mode and start/stop control 0x3FF5E028 0x3FF6C028 R/W
+PWM_TIMER2_SYNC_REG Synchronization settings 0x3FF5E02C 0x3FF6C02C R/W
+PWM_TIMER2_STATUS_REG Timer status 0x3FF5E030 0x3FF6C030 RO
+PWM_TIMER_SYNCI_CFG_REG Synchronization input selection for timers 0x3FF5E034 0x3FF6C034 R/W
+PWM_OPERATOR_TIMERSEL_REG Select specific timer for PWM operators 0x3FF5E038 0x3FF6C038 R/W
+PWM_GEN0_STMP_CFG_REG Transfer status and update method for time stamp registers A and B
+
+PWM_GEN1_STMP_CFG_REG Transfer status and update method for time stamp registers A and B 0x3FF5E074 0x3FF6C074 R/W
+PWM_GEN1_TSTMP_A_REG Shadow register for register A 0x3FF5E078 0x3FF6C078 R/W
+PWM_GEN1_TSTMP_B_REG Shadow register for register B 0x3FF5E07C 0x3FF6C07C R/W
+PWM_GEN1_CFG0_REG Fault event T0 and T1 handling 0x3FF5E080 0x3FF6C080 R/W
+PWM_GEN1_FORCE_REG Permissives to force PWM1A and PWM1B outputs by software 0x3FF5E084 0x3FF6C084 R/W
+PWM_DT1_CFG_REG Dead time type selection and configuration 0x3FF5E090 0x3FF6C090 R/W
+PWM_DT1_FED_CFG_REG Shadow register for FED 0x3FF5E094 0x3FF6C094 R/W
+PWM_DT1_RED_CFG_REG Shadow register for RED 0x3FF5E098 0x3FF6C098 R/W
+PWM_CARRIER1_CFG_REG Carrier enable and configuration 0x3FF5E09C 0x3FF6C09C R/W
+PWM_FH1_CFG0_REG Actions on PWM1A and PWM1B on fault events 0x3FF5E0A0 0x3FF6C0A0 R/W
+PWM_FH1_CFG1_REG Software triggers for fault handler actions 0x3FF5E0A4 0x3FF6C0A4 R/W
+PWM_FH1_STATUS_REG Status of fault events 0x3FF5E0A8 0x3FF6C0A8 RO
+PWM_GEN2_STMP_CFG_REG Transfer status and updating method for time stamp registers A and B PWM_GEN2_TSTMP_A_REG Shadow register for register A 0x3FF5E0B0 0x3FF6C0B0 R/W
+PWM_GEN2_TSTMP_B_REG Shadow register for register B 0x3FF5E0B4 0x3FF6C0B4 R/W
+PWM_GEN2_CFG0_REG Fault event T0 and T1 handling 0x3FF5E080 0x3FF6C080 R/W0x3FF5E0AC 0x3FF6C0AC R/W
+PWM_GEN2_FORCE_REG Permissives to force PWM2A and PWM2B outputs by software 0x3FF5E0BC 0x3FF6C0BC R/W
+PWM_GEN2_A_REG Actions triggered by events on PWM2A 0x3FF5E0C0 0x3FF6C0C0 R/W
+PWM_GEN2_B_REG Actions triggered by events on PWM2B 0x3FF5E0C4 0x3FF6C0C4 R/W
+PWM_DT2_CFG_REG Dead time type selection and configuration 0x3FF5E0C8 0x3FF6C0C8 R/W
+PWM_DT2_FED_CFG_REG Shadow register for FED 0x3FF5E0CC 0x3FF6C0CC R/W
+PWM_DT2_RED_CFG_REG Shadow register for RED 0x3FF5E0D0 0x3FF6C0D0 R/W
+PWM_CARRIER2_CFG_REG Carrier enable and configuration 0x3FF5E0D4 0x3FF6C0D4 R/W
+PWM_FH2_CFG0_REG Actions at PWM2A and PWM2B on trip events 0x3FF5E0D8 0x3FF6C0D8 R/W
+PWM_FH2_CFG1_REG Software triggers for fault handler actions 0x3FF5E0DC 0x3FF6C0DC R/W
+PWM_FH2_STATUS_REG Status of fault events 0x3FF5E0E0 0x3FF6C0E0 RO
+PWM_FAULT_DETECT_REG Fault detection configuration and status 0x3FF5E0E4 0x3FF6C0E4 R/W
+PWM_CAP_TIMER_CFG_REG Configure capture timer 0x3FF5E0E8 0x3FF6C0E8 R/W
+PWM_CAP_TIMER_PHASE_REG Phase for capture timer sync 0x3FF5E0EC 0x3FF6C0EC R/W
+PWM_CAP_CH0_CFG_REG Capture channel 0 configuration and enable 0x3FF5E0F0 0x3FF6C0F0 R/W
+PWM_CAP_CH1_CFG_REG Capture channel 1 configuration and enable 0x3FF5E0F4 0x3FF6C0F4 R/W
+PWM_CAP_CH2_CFG_REG Capture channel 2 configuration and enable 0x3FF5E0F8 0x3FF6C0F8 R/W
+PWM_CAP_CH0_REG Value of last capture on channel 0 0x3FF5E0FC 0x3FF6C0FC RO
+PWM_CAP_CH1_REG Value of last capture on channel 1 0x3FF5E100 0x3FF6C100 RO
+PWM_CAP_CH2_REG Value of last capture on channel 2 0x3FF5E104 0x3FF6C104 RO
+PWM_CAP_STATUS_REG Edge of last capture trigger 0x3FF5E108 0x3FF6C108 RO
+PWM_UPDATE_CFG_REG Enable update 0x3FF5E10C 0x3FF6C10C R/W
+INT_ENA_PWM_REG Interrupt enable bits 0x3FF5E110 0x3FF6C110 R/W
+INT_RAW_PWM_REG Raw interrupt status 0x3FF5E114 0x3FF6C114 RO
+INT_ST_PWM_REG Masked interrupt status 0x3FF5E118 0x3FF6C118 RO
+INT_CLR_PWM_REG Interrupt clear bits 0x3FF5E11C 0x3FF6C11C WO
+
