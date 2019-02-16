@@ -120,5 +120,7 @@ Other Directives:
 |.include "includefile.inc" |Include a file of asm source code
 |.list                      |Write included file into .lst file
 |.org {address}             |Address where next assembled bytes are written to
+|.low_address {address}     |Low address of memory written to output file
+|.high_address {address}    |High address of memory written to output file
 |.set {symbol}={value}      |Create or modify symbol's value (excluding labels)
 

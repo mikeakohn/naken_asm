@@ -95,6 +95,36 @@ static int parse_org(struct _asm_context *asm_context)
   return 0;
 }
 
+static int parse_low_address(struct _asm_context *asm_context)
+{
+  int num;
+
+  if (eval_expression(asm_context, &num) == -1)
+  {
+    print_error("low_address expects an address", asm_context);
+    return -1;
+  }
+
+  asm_context->memory.low_address = num * asm_context->bytes_per_address;
+
+  return 0;
+}
+
+static int parse_high_address(struct _asm_context *asm_context)
+{
+  int num;
+
+  if (eval_expression(asm_context, &num) == -1)
+  {
+    print_error("high_address expects an address", asm_context);
+    return -1;
+  }
+
+  asm_context->memory.high_address = num * asm_context->bytes_per_address;
+
+  return 0;
+}
+
 static int parse_entry_point(struct _asm_context *asm_context)
 {
   int num = 0;
@@ -661,6 +691,18 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   if (strcasecmp(token, "endf") == 0)
   {
     symbols_scope_end(&asm_context->symbols);
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "low_address") == 0)
+  {
+    if (parse_low_address(asm_context) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "high_address") == 0)
+  {
+    if (parse_high_address(asm_context) != 0) { return -1; }
     return 1;
   }
 
