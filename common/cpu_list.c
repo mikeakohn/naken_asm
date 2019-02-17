@@ -46,6 +46,7 @@
 #include "asm/thumb.h"
 #include "asm/tms1000.h"
 #include "asm/tms9900.h"
+#include "asm/webasm.h"
 #include "asm/xtensa.h"
 #include "asm/z80.h"
 #include "disasm/1802.h"
@@ -82,6 +83,7 @@
 #include "disasm/thumb.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
+#include "disasm/webasm.h"
 #include "disasm/xtensa.h"
 #include "disasm/z80.h"
 #include "simulate/6502.h"
@@ -957,6 +959,27 @@ struct _cpu_list cpu_list[] =
     list_output_tms9900,
     disasm_range_tms9900,
     simulate_init_tms9900,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_WEBASM
+  {
+    "webasm",
+    CPU_TYPE_WEBASM,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_1,
+    0,
+    0,
+    0,
+    1,
+    SREC_16,
+    parse_instruction_webasm,
+    NULL,
+    link_not_supported,
+    list_output_webasm,
+    disasm_range_webasm,
+    NULL,
     NO_FLAGS,
   },
 #endif

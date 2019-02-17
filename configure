@@ -52,6 +52,7 @@ CPUS=" \
   THUMB
   TMS1000
   TMS9900
+  WEBASM
   XTENSA
   Z80"
 ASM_OBJS="common.o"
@@ -166,6 +167,7 @@ show_help()
   echo "  --enable-thumb            compile in support for thumb"
   echo "  --enable-tms1000          compile in support for tms1000/tms1100"
   echo "  --enable-tms9900          compile in support for tms9900"
+  echo "  --enable-webasm           compile in support for WebAssembly"
   echo "  --enable-xtensa           compile in support for Xtensa"
   echo "  --enable-z80              compile in support for z80"
   echo
@@ -486,6 +488,12 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} tms9900.o"
     TABLE_OBJS="${TABLE_OBJS} tms9900.o"
     DFLAGS="${DFLAGS} -DENABLE_TMS9900"
+  ;;
+  --enable-webasm)
+    ASM_OBJS="${ASM_OBJS} webasm.o"
+    DISASM_OBJS="${DISASM_OBJS} webasm.o"
+    TABLE_OBJS="${TABLE_OBJS} webasm.o"
+    DFLAGS="${DFLAGS} -DENABLE_WEBASM"
   ;;
   --enable-xtensa)
     ASM_OBJS="${ASM_OBJS} xtensa.o"

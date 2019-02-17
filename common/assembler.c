@@ -31,6 +31,7 @@
 #include "asm/thumb.h"
 #include "asm/tms1000.h"
 #include "asm/tms9900.h"
+#include "asm/webasm.h"
 #include "asm/xtensa.h"
 #include "asm/z80.h"
 #include "common/assembler.h"
@@ -60,6 +61,7 @@
 #include "disasm/thumb.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
+#include "disasm/webasm.h"
 #include "disasm/xtensa.h"
 #include "disasm/z80.h"
 
