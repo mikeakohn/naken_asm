@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>naken_asm</title>
+<meta charset="utf-8" />
+</head>
+<body>
+
+<p>Function in WebAssembly is add_nums(a, b) { return a + b; }</p>
+<p>Enter in the first and second text boxes your numbers and press
+the button to run the WebAssembly add_nums() on them populating the
+3rd text box.</p>
+
+<script type="text/javascript">
+
+let add_nums;
+
+function test()
+{
+  var num_1 = document.getElementById("num_1").value;
+  var num_2 = document.getElementById("num_2").value;
+
+  document.getElementById("result").value = add_nums(num_1, num_2);
+}
+
+function loadWebAssembly(filename)
+{
+  return fetch(filename)
+    .then(response =>  response.arrayBuffer())
+    .then(buffer => WebAssembly.compile(buffer))
+    .then(module => { return new WebAssembly.Instance(module) });
+};
+  
+loadWebAssembly('math.wasm')
+  .then(instance => { add_nums = instance.exports.add_nums; });
+
+</script>
+
+<form>
+<input type="text" id="num_1"> +
+<input type="text" id="num_2"> =
+<input type="text" id="result">
+</form>
+
+<br><br>
+
+<button onclick="test();">add_nums()</button>
+
+</body>
+</html>
+

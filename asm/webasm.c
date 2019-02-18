@@ -18,13 +18,46 @@
 #include "asm/webasm.h"
 #include "common/assembler.h"
 #include "common/tokens.h"
-#include "common/eval_expression.h"
+#include "common/eval_expression_ex.h"
 #include "table/webasm.h"
+
+static int get_uint(struct _asm_context *asm_context, uint64_t *value, int as_bin)
+{
+  struct _var var;
+
+  if (eval_expression_ex(asm_context, &var) == -1)
+  {
+    if (asm_context->pass == 2)
+    {
+      print_error_illegal_expression("Constant", asm_context);
+      return -1;
+    }
+
+    eat_operand(asm_context);
+
+    *value = 0;
+  }
+    else
+  {
+    if (as_bin == 0)
+    {
+      *value = var_get_int64(&var);
+    }
+      else
+    {
+      *value = var_get_bin64(&var);
+    }
+  }
+
+  return 0;
+}
 
 int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
-  int n;
+  uint64_t value;
+  int64_t i;
+  int length, n;
 
   lower_copy(instr_case, instr);
 
@@ -42,6 +75,69 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
       case WEBASM_OP_NONE:
         add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
         return 1;
+      case WEBASM_OP_UINT32:
+        if (get_uint(asm_context, &value, 1) != 0) { return -1; }
+
+        if (value < 0 || value > 0xffffffff)
+        {
+          print_error_range("Constant", 0, 0xffffffff, asm_context);
+          return -1;
+        }
+
+        add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
+        add_bin32(asm_context, value, 0);
+
+        return 5;
+      case WEBASM_OP_UINT64:
+        if (get_uint(asm_context, &value, 1) != 0) { return -1; }
+
+        add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
+        add_bin32(asm_context, value & 0xffffffff, 0);
+        add_bin32(asm_context, value >> 32, 0);
+
+        return 9;
+      case WEBASM_OP_VARINT64:
+        if (get_uint(asm_context, &value, 0) != 0) { return -1; }
+
+        add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
+        length = add_bin_varuint(asm_context, value, 0);
+
+        return length + 1;
+      case WEBASM_OP_VARINT32:
+        if (get_uint(asm_context, &value, 0) != 0) { return -1; }
+
+        i = (int64_t)value;
+
+        if (i < -0x80000000 || i > 0x7fffffff)
+        {
+          print_error_range("Constant", -0x80000000, 0x7fffffff, asm_context);
+          return -1;
+        }
+
+        add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
+        length = add_bin_varint(asm_context, value & 0xffffffff, 0);
+
+        return length + 1;
+      case WEBASM_OP_FUNCTION_INDEX:
+      case WEBASM_OP_LOCAL_INDEX:
+      case WEBASM_OP_GLOBAL_INDEX:
+        if (get_uint(asm_context, &value, 0) != 0) { return -1; }
+
+        if (value < 0 || value > 0xffffffff)
+        {
+          print_error_range("Constant", 0, 0xffffffff, asm_context);
+          return -1;
+        }
+
+        add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
+        length = add_bin_varuint(asm_context, value, 0);
+
+        return length + 1;
+      case WEBASM_OP_BLOCK_TYPE:
+      case WEBASM_OP_RELATIVE_DEPTH:
+      case WEBASM_OP_TABLE:
+      case WEBASM_OP_INDIRECT:
+      case WEBASM_OP_MEMORY_IMMEDIATE:
       default:
         n++;
         continue;

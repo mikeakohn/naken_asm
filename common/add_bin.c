@@ -89,7 +89,42 @@ void add_bin32(struct _asm_context *asm_context, uint32_t b, int flags)
   }
 }
 
-int add_bin_varuint(struct _asm_context *asm_context, uint32_t b, int fixed_size)
+int add_bin_varuint(struct _asm_context *asm_context, uint64_t b, int fixed_size)
+{
+  uint32_t num;
+  int count = 0;
+  int line = asm_context->tokens.line;
+
+  if (asm_context->memory.endian == ENDIAN_BIG)
+  {
+    printf("Warning: varuint only works with little endian at %s:%d\n",
+      asm_context->tokens.filename,
+      asm_context->tokens.line);
+  }
+
+  while(1)
+  {
+    fixed_size--;
+
+    num = b & 0x7f;
+    b = b >> 7;
+
+    if (b != 0 || fixed_size > 0)
+    {
+      num |= 0x80;
+    }
+
+    memory_write_inc(asm_context, num, line);
+
+    count++;
+
+    if (b == 0 && fixed_size <= 0) { break; }
+  }
+
+  return count;
+}
+
+int add_bin_varint(struct _asm_context *asm_context, uint64_t b, int fixed_size)
 {
   uint32_t num;
   int count = 0;

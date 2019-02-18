@@ -305,6 +305,13 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
       continue;
     }
 
+    if (ch == '/' && ptr != 0 &&
+        token_type == TOKEN_STRING && asm_context->strings_have_slashes)
+    {
+      token[ptr++] = ch;
+      continue;
+    }
+
     if (ch == '"' || ch == '\'')
     {
       char quote = ch;

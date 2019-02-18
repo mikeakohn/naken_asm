@@ -65,6 +65,7 @@ struct _asm_context
   uint8_t bytes_per_address;
   uint8_t is_dollar_hex : 1;
   uint8_t strings_have_dots : 1;
+  uint8_t strings_have_slashes : 1;
   uint8_t can_tick_end_string : 1;
   uint8_t quiet_output : 1;
   uint8_t error : 1;

@@ -21,10 +21,81 @@ int get_cycle_count_webasm(unsigned short int opcode)
   return -1;
 }
 
+static uint64_t get_varuint(
+  struct _memory *memory,
+  uint32_t address,
+  int *length)
+{
+  uint8_t ch;
+  int shift = 0;
+  int done = 0;
+  uint64_t num = 0;
+
+  *length = 0;
+
+  while (done == 0)
+  {
+    ch = memory_read_m(memory, address++);
+
+    *length += 1;
+
+    if ((ch & 0x80) == 0)
+    {
+      done = 1;
+    }
+
+    ch = ch & 0x7f;
+
+    num |= ch << shift;
+    shift += 7;
+  }
+
+  return num;
+}
+
+static int64_t get_varint(
+  struct _memory *memory,
+  uint32_t address,
+  int *length)
+{
+  uint8_t ch;
+  int shift = 0;
+  int done = 0;
+  int64_t num = 0;
+
+  *length = 0;
+
+  while (done == 0)
+  {
+    ch = memory_read_m(memory, address++);
+
+    *length += 1;
+
+    if ((ch & 0x80) == 0)
+    {
+      done = 1;
+    }
+
+    ch = ch & 0x7f;
+
+    num |= ch << shift;
+    shift += 7;
+  }
+
+  if ((num & (1ULL << (shift - 1))) != 0)
+  {
+    num |= ~((1ULL << shift) - 1);
+  }
+
+  return num;
+}
+
 int disasm_webasm(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint8_t opcode;
-  int n;
+  uint64_t i;
+  int64_t v;
+  int n, length;
 
   instruction[0] = 0;
 
@@ -47,6 +118,34 @@ int disasm_webasm(struct _memory *memory, uint32_t address, char *instruction, i
       case WEBASM_OP_NONE:
         sprintf(instruction, "%s", table_webasm[n].instr);
         return 1;
+      case WEBASM_OP_UINT32:
+        i = memory_read32_m(memory, address + 1);
+        sprintf(instruction, "%s 0x%04lx", table_webasm[n].instr, i);
+        return 5;
+      case WEBASM_OP_UINT64:
+        i = memory_read32_m(memory, address + 1);
+        i |= ((uint64_t)memory_read32_m(memory, address + 5)) << 32;
+        sprintf(instruction, "%s 0x%04lx", table_webasm[n].instr, i);
+        return 9;
+      case WEBASM_OP_VARINT64:
+        v = get_varint(memory, address + 1, &length);
+        sprintf(instruction, "%s 0x%04lx", table_webasm[n].instr, v);
+        return length + 1;
+      case WEBASM_OP_VARINT32:
+        v = get_varint(memory, address + 1, &length);
+        sprintf(instruction, "%s 0x%04lx", table_webasm[n].instr, v);
+        return length + 1;
+      case WEBASM_OP_FUNCTION_INDEX:
+      case WEBASM_OP_LOCAL_INDEX:
+      case WEBASM_OP_GLOBAL_INDEX:
+        i = get_varuint(memory, address + 1, &length);
+        sprintf(instruction, "%s 0x%04lx", table_webasm[n].instr, i);
+        return length + 1;
+      case WEBASM_OP_BLOCK_TYPE:
+      case WEBASM_OP_RELATIVE_DEPTH:
+      case WEBASM_OP_TABLE:
+      case WEBASM_OP_INDIRECT:
+      case WEBASM_OP_MEMORY_IMMEDIATE:
       default:
         return 1;
     }

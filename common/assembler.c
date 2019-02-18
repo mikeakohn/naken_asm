@@ -72,6 +72,7 @@ static void configure_cpu(struct _asm_context *asm_context, int index)
   asm_context->bytes_per_address = cpu_list[index].bytes_per_address;
   asm_context->is_dollar_hex = cpu_list[index].is_dollar_hex;
   asm_context->strings_have_dots = cpu_list[index].strings_have_dots;
+  asm_context->strings_have_slashes = cpu_list[index].strings_have_slashes;
   asm_context->can_tick_end_string = cpu_list[index].can_tick_end_string;
   asm_context->pass_1_write_disable = cpu_list[index].pass_1_write_disable;
   asm_context->parse_instruction = cpu_list[index].parse_instruction;
@@ -628,8 +629,9 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
-  if (strcasecmp(token, "end") == 0)
+  if (asm_context->cpu_type != CPU_TYPE_WEBASM && strcasecmp(token, "end") == 0)
   {
+    // This is breaking webasm which has an "end" instruction.
     return 2;
   }
     else
