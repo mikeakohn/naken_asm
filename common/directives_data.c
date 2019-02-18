@@ -28,7 +28,9 @@ int parse_db(struct _asm_context *asm_context, int null_term_flag)
 
   if (asm_context->segment == SEGMENT_BSS)
   {
-    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n",
+      asm_context->tokens.filename,
+      asm_context->tokens.line);
     return -1;
   }
 
@@ -97,7 +99,7 @@ int parse_db(struct _asm_context *asm_context, int null_term_flag)
 
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
-    if (IS_NOT_TOKEN(token,','))
+    if (IS_NOT_TOKEN(token, ','))
     {
       print_error_expecting(",", token, asm_context);
       return -1;
@@ -164,7 +166,7 @@ int parse_dc16(struct _asm_context *asm_context)
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
 
-    if (IS_NOT_TOKEN(token,','))
+    if (IS_NOT_TOKEN(token, ','))
     {
       print_error_expecting(",", token, asm_context);
       return -1;
@@ -245,7 +247,7 @@ int parse_dc32(struct _asm_context *asm_context)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      printf("Parse error: expecting a ',' on line %d.\n", asm_context->tokens.line);
+      print_error_expecting(",", token, asm_context);
       return -1;
     }
   }
@@ -318,7 +320,7 @@ int parse_dc64(struct _asm_context *asm_context)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      printf("Parse error: expecting a ',' on line %d.\n", asm_context->tokens.line);
+      print_error_expecting(",", token, asm_context);
       return -1;
     }
   }
@@ -332,13 +334,13 @@ int parse_dc(struct _asm_context *asm_context)
 {
   char token[TOKENLEN];
 
-  if (expect_token_s(asm_context,".") != 0) { return -1; }
+  if (expect_token_s(asm_context, ".") != 0) { return -1; }
   tokens_get(asm_context, token, TOKENLEN);
 
-  if (strcasecmp(token,"b") == 0) { return parse_db(asm_context,0); }
-  if (strcasecmp(token,"w") == 0) { return parse_dc16(asm_context); }
-  if (strcasecmp(token,"l") == 0) { return parse_dc32(asm_context); }
-  if (strcasecmp(token,"d") == 0) { return parse_dc64(asm_context); }
+  if (strcasecmp(token, "b") == 0) { return parse_db(asm_context,0); }
+  if (strcasecmp(token, "w") == 0) { return parse_dc16(asm_context); }
+  if (strcasecmp(token, "l") == 0) { return parse_dc32(asm_context); }
+  if (strcasecmp(token, "d") == 0) { return parse_dc64(asm_context); }
 
   print_error_unexp(token, asm_context);
   return -1;
@@ -399,7 +401,7 @@ int parse_dq(struct _asm_context *asm_context)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      printf("Parse error: expecting a ',' on line %d.\n", asm_context->tokens.line);
+      print_error_expecting(",", token, asm_context);
       return -1;
     }
   }
@@ -453,6 +455,51 @@ int parse_ds(struct _asm_context *asm_context, int n)
   return 0;
 }
 
+int parse_varuint(struct _asm_context *asm_context, int fixed_size)
+{
+  char token[TOKENLEN];
+  int token_type;
+  struct _var var;
+  uint32_t udata32;
+  int length;
+
+  while(1)
+  {
+    // if the user has a comma at the end, but no data, this is okay
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+    tokens_push(asm_context, token, token_type);
+
+    if (eval_expression_ex(asm_context, &var) == -1)
+    {
+      if (asm_context->pass == 2 || fixed_size == 0)
+      {
+        print_error_illegal_expression("varuint", asm_context);
+        return -1;
+      }
+
+      eat_operand(asm_context);
+    }
+
+    udata32 = (uint32_t)var_get_bin64(&var);
+
+    length = add_bin_varuint(asm_context, udata32, fixed_size);
+
+    asm_context->data_count += length;
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
+
+    if (IS_NOT_TOKEN(token, ','))
+    {
+      print_error_expecting(",", token, asm_context);
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
 int parse_resb(struct _asm_context *asm_context, int size)
 {
   int num;
@@ -468,7 +515,7 @@ int parse_resb(struct _asm_context *asm_context, int size)
     print_error("Parse Error: Expected data count.", asm_context);
     return -1;
   }
-  
+
   asm_context->address += (num * size);
 
   return 0;

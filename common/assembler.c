@@ -588,31 +588,43 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     else
   if (strcasecmp(token, "ds") == 0 || strcasecmp(token, "ds8") == 0)
   {
-    if (parse_ds(asm_context,1) != 0) { return -1; }
+    if (parse_ds(asm_context, 1) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "ds16") == 0)
   {
-    if (parse_ds(asm_context,2) != 0) { return -1; }
+    if (parse_ds(asm_context, 2) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "ds32") == 0)
   {
-    if (parse_ds(asm_context,4) != 0) { return -1; }
+    if (parse_ds(asm_context, 4) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "varuint") == 0)
+  {
+    if (parse_varuint(asm_context, 0) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "varuint32") == 0)
+  {
+    if (parse_varuint(asm_context, 5) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "resb") == 0)
   {
-    if (parse_resb(asm_context,1) != 0) { return -1; }
+    if (parse_resb(asm_context, 1) != 0) { return -1; }
     return 1;
   }
     else
   if (strcasecmp(token, "resw") == 0)
   {
-    if (parse_resb(asm_context,2) != 0) { return -1; }
+    if (parse_resb(asm_context, 2) != 0) { return -1; }
     return 1;
   }
     else

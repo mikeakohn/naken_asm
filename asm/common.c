@@ -17,78 +17,6 @@
 #include "asm/common.h"
 #include "common/memory.h"
 
-void add_bin8(struct _asm_context *asm_context, uint8_t b, int flags)
-{
-  int line = DL_NO_CG;
-
-  if (asm_context->pass == 2 && flags == IS_OPCODE)
-  {
-    line = asm_context->tokens.line;
-  }
-
-  if (asm_context->pass == 1 && asm_context->pass_1_write_disable == 1)
-  {
-    asm_context->address++;
-    return;
-  }
-
-  memory_write_inc(asm_context, b, line);
-}
-
-void add_bin16(struct _asm_context *asm_context, uint16_t b, int flags)
-{
-  int line = DL_NO_CG;
-
-  if (asm_context->pass == 2 && flags == IS_OPCODE)
-  {
-    line = asm_context->tokens.line;
-  }
-
-  if (asm_context->pass == 1 && asm_context->pass_1_write_disable == 1)
-  {
-    asm_context->address += 2;
-    return;
-  }
-
-  if (asm_context->memory.endian == ENDIAN_LITTLE)
-  {
-    // 1 little, 2 little, 3 little endian
-    memory_write_inc(asm_context, b & 0xff, line);
-    memory_write_inc(asm_context, b >> 8, DL_NO_CG);
-  }
-    else
-  {
-    memory_write_inc(asm_context, b >> 8, DL_NO_CG);
-    memory_write_inc(asm_context, b & 0xff, line);
-  }
-}
-
-void add_bin32(struct _asm_context *asm_context, uint32_t b, int flags)
-{
-  int line = asm_context->tokens.line;
-
-  if (asm_context->pass == 1 && asm_context->pass_1_write_disable == 1)
-  {
-    asm_context->address += 4;
-    return;
-  }
-
-  if (asm_context->memory.endian == ENDIAN_LITTLE)
-  {
-    memory_write_inc(asm_context, b & 0xff, line);
-    memory_write_inc(asm_context, (b >> 8) & 0xff, line);
-    memory_write_inc(asm_context, (b >> 16) & 0xff, line);
-    memory_write_inc(asm_context, (b >> 24) & 0xff, line);
-  }
-    else
-  {
-    memory_write_inc(asm_context, (b >> 24) & 0xff, line);
-    memory_write_inc(asm_context, (b >> 16) & 0xff, line);
-    memory_write_inc(asm_context, (b >> 8) & 0xff, line);
-    memory_write_inc(asm_context, b & 0xff, line);
-  }
-}
-
 int eat_operand(struct _asm_context *asm_context)
 {
   char token[TOKENLEN];
@@ -199,7 +127,7 @@ int expect_token_s(struct _asm_context *asm_context, char *s)
 
 int check_range(struct _asm_context *asm_context, char *type, int num, int min, int max)
 {
-  if (num<min || num>max)
+  if (num < min || num > max)
   {
     print_error_range(type, min, max, asm_context);
     return -1;

@@ -21,6 +21,7 @@ int parse_dc64(struct _asm_context *asm_context);
 int parse_dc(struct _asm_context *asm_context);
 int parse_dq(struct _asm_context *asm_context);
 int parse_ds(struct _asm_context *asm_context, int size);
+int parse_varuint(struct _asm_context *asm_context, int fixed_size);
 int parse_resb(struct _asm_context *asm_context, int size);
 int parse_align_bits(struct _asm_context *asm_context);
 int parse_align_bytes(struct _asm_context *asm_context);
