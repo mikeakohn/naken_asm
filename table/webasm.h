@@ -39,7 +39,14 @@ struct _table_webasm
   uint8_t type;
 };
 
+struct _webasm_types
+{
+  const char *name;
+  uint8_t type;
+};
+
 extern struct _table_webasm table_webasm[];
+extern struct _webasm_types webasm_types[];
 
 #endif
 

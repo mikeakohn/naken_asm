@@ -52,11 +52,31 @@ static int get_uint(struct _asm_context *asm_context, uint64_t *value, int as_bi
   return 0;
 }
 
+static int get_type(const char *token)
+{
+  int n = 0;
+
+  while (webasm_types[n].name != NULL)
+  {
+    if (strcmp(webasm_types[n].name, token) == 0)
+    {
+      return webasm_types[n].type;
+    }
+
+    n++;
+  }
+
+  return -1;
+}
+
 int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
 {
+  int token_type;
+  char token[TOKENLEN];
   char instr_case[TOKENLEN];
   uint64_t value;
   int64_t i;
+  int type;
   int length, n;
 
   lower_copy(instr_case, instr);
@@ -74,7 +94,9 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
     {
       case WEBASM_OP_NONE:
         add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
-        return 1;
+
+        length = 1;
+        break;
       case WEBASM_OP_UINT32:
         if (get_uint(asm_context, &value, 1) != 0) { return -1; }
 
@@ -87,7 +109,8 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
         add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
         add_bin32(asm_context, value, 0);
 
-        return 5;
+        length = 5;
+        break;
       case WEBASM_OP_UINT64:
         if (get_uint(asm_context, &value, 1) != 0) { return -1; }
 
@@ -95,14 +118,16 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
         add_bin32(asm_context, value & 0xffffffff, 0);
         add_bin32(asm_context, value >> 32, 0);
 
-        return 9;
+        length = 9;
+        break;
       case WEBASM_OP_VARINT64:
         if (get_uint(asm_context, &value, 0) != 0) { return -1; }
 
         add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
         length = add_bin_varuint(asm_context, value, 0);
 
-        return length + 1;
+        length += 1;
+        break;
       case WEBASM_OP_VARINT32:
         if (get_uint(asm_context, &value, 0) != 0) { return -1; }
 
@@ -117,7 +142,8 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
         add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
         length = add_bin_varint(asm_context, value & 0xffffffff, 0);
 
-        return length + 1;
+        length += 1;
+        break;
       case WEBASM_OP_FUNCTION_INDEX:
       case WEBASM_OP_LOCAL_INDEX:
       case WEBASM_OP_GLOBAL_INDEX:
@@ -132,8 +158,31 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
         add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
         length = add_bin_varuint(asm_context, value, 0);
 
-        return length + 1;
+        length += 1;
+        break;
       case WEBASM_OP_BLOCK_TYPE:
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (token_type == TOKEN_EOF || token_type == TOKEN_EOL)
+        {
+          type = 0x40;
+        }
+          else
+        {
+          type = get_type(token);
+        }
+
+        if (type == -1)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
+        add_bin8(asm_context, type, IS_OPCODE);
+
+        length = 2;
+        break;
       case WEBASM_OP_RELATIVE_DEPTH:
       case WEBASM_OP_TABLE:
       case WEBASM_OP_INDIRECT:
@@ -142,6 +191,16 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
         n++;
         continue;
     }
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (token_type != TOKEN_EOF && token_type != TOKEN_EOL)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    return length;
   }
 
   print_error_unknown_instr(instr, asm_context);

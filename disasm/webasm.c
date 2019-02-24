@@ -90,6 +90,23 @@ static int64_t get_varint(
   return num;
 }
 
+static const char *get_type(int type)
+{
+  int n = 0;
+
+  while (webasm_types[n].name != NULL)
+  {
+    if (webasm_types[n].type == type)
+    {
+      return webasm_types[n].name;
+    }
+
+    n++;
+  }
+
+  return "???";
+}
+
 int disasm_webasm(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint8_t opcode;
@@ -142,6 +159,9 @@ int disasm_webasm(struct _memory *memory, uint32_t address, char *instruction, i
         sprintf(instruction, "%s 0x%04lx", table_webasm[n].instr, i);
         return length + 1;
       case WEBASM_OP_BLOCK_TYPE:
+        i = get_varuint(memory, address + 1, &length);
+        sprintf(instruction, "%s %s", table_webasm[n].instr, get_type(i));
+        return length + 1;
       case WEBASM_OP_RELATIVE_DEPTH:
       case WEBASM_OP_TABLE:
       case WEBASM_OP_INDIRECT:
