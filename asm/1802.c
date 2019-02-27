@@ -138,10 +138,14 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
             else
           if (table_1802[n].type == RCA1802_OP_BRANCH)
           {
-            if ((num >> 8) != (asm_context->address >> 8))
+            if (asm_context->pass == 2)
             {
-              print_error("Branch address must be on the the same page.\n", asm_context);
-              return -1;
+              if ((num >> 8) != (asm_context->address >> 8))
+              {
+                print_error("Branch address must be on the the same page.\n",
+                  asm_context);
+                return -1;
+              }
             }
 
             add_bin8(asm_context, table_1802[n].opcode, IS_OPCODE);
