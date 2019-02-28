@@ -352,7 +352,7 @@ static int parse_branch(struct _asm_context *asm_context, struct _operand *opera
       return ARM_ERROR_ADDRESS;
     }
 
-    offset>>=2;
+    offset >>= 2;
 
     add_bin32(asm_context, opcode | (cond << 28) | (offset & 0x00ffffff), IS_OPCODE);
     return 4;
@@ -789,10 +789,51 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
   int n;
   int matched = 0;
   int bytes = -1;
+  int num;
 
   lower_copy(instr_case, instr);
   memset(operands, 0, sizeof(operands));
   operand_count = 0;
+
+  // FIXME: Checking for a b<cond> instruction first and do all
+  // processing here.
+  if (instr_case[0] == 'b' && instr_case[1] != 'x' && instr_case[1] != 'i')
+  {
+    if (asm_context->pass == 1)
+    {
+      ignore_line(asm_context);
+      add_bin32(asm_context, 0, IS_OPCODE);
+      return 4;
+    }
+
+    if (eval_expression(asm_context, &num) != 0)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    operands[0].type = OPERAND_NUMBER;
+    operands[0].value = num;
+
+    uint32_t opcode = 0x0a000000;
+    char *instr_cond = instr_case + 1;
+
+    if (instr_case[1] == 'l')
+    {
+      opcode = 0x0b000000;
+      instr_cond = instr_case + 2;
+    }
+
+    return parse_branch(asm_context, operands, 1, instr_cond, opcode);
+  }
 
   // First parse instruction into the operands structures.
   while(1)
@@ -811,13 +852,14 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OPERAND_REG;
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (IS_TOKEN(token,']'))
+
+      if (IS_TOKEN(token, ']'))
       {
         operands[operand_count].type = OPERAND_REG_INDEXED_CLOSE;
         token_type = tokens_get(asm_context, token, TOKENLEN);
       }
 
-      if (IS_TOKEN(token,'!'))
+      if (IS_TOKEN(token, '!'))
       {
         operands[operand_count].type = OPERAND_REG_WRITE_BACK;
       }
@@ -827,15 +869,8 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
       }
     }
       else
-    if (token_type==TOKEN_NUMBER)
+    if (IS_TOKEN(token, '#'))
     {
-      operands[operand_count].value = atoi(token);
-      operands[operand_count].type = OPERAND_NUMBER;
-    }
-      else
-    if (IS_TOKEN(token,'#'))
-    {
-      int num;
       operands[operand_count].type = OPERAND_IMMEDIATE;
 
       if (eval_expression(asm_context, &num) != 0)
@@ -854,7 +889,8 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
       operands[operand_count].value = num;
 
       token_type=tokens_get(asm_context, token, TOKENLEN);
-      if (IS_TOKEN(token,']'))
+
+      if (IS_TOKEN(token, ']'))
       {
         operands[operand_count].type = OPERAND_IMM_INDEXED_CLOSE;
       }
@@ -864,11 +900,12 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
       }
     }
       else
-    if (IS_TOKEN(token,'['))
+    if (IS_TOKEN(token, '['))
     {
       operands[operand_count].type = OPERAND_REG_INDEXED_OPEN;
       token_type = tokens_get(asm_context, token, TOKENLEN);
       n = get_register_arm(token);
+
       if (n == -1)
       {
         print_error_unexp(token, asm_context);
@@ -878,7 +915,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
       operands[operand_count].value = n;
       token_type = tokens_get(asm_context, token, TOKENLEN);
 
-      if (IS_TOKEN(token,']'))
+      if (IS_TOKEN(token, ']'))
       {
         operands[operand_count].type = OPERAND_REG_INDEXED;
       }
@@ -912,13 +949,13 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
       operands[operand_count].value = 1;
     }
       else
-    if (IS_TOKEN(token,'{'))
+    if (IS_TOKEN(token, '{'))
     {
       operands[operand_count].type = OPERAND_MULTIPLE_REG;
       operands[operand_count].value = 0;
       while(1)
       {
-        token_type=tokens_get(asm_context, token, TOKENLEN);
+        token_type = tokens_get(asm_context, token, TOKENLEN);
         int r1 = get_register_arm(token);
         int r2;
         if (r1 == -1)
@@ -928,11 +965,12 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
         }
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
-        if (IS_TOKEN(token,'-'))
+        if (IS_TOKEN(token, '-'))
         {
           token_type = tokens_get(asm_context, token, TOKENLEN);
 
           r2 = get_register_arm(token);
+
           if (r2 == -1)
           {
             print_error_unexp(token, asm_context);
@@ -948,8 +986,8 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
 
         operands[operand_count].value |= compute_range(r1,r2);
 
-        if (IS_TOKEN(token,'}')) { break; }
-        if (IS_NOT_TOKEN(token,','))
+        if (IS_TOKEN(token, '}')) { break; }
+        if (IS_NOT_TOKEN(token, ','))
         {
           print_error_unexp(token, asm_context);
           return -1;
@@ -957,6 +995,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
       }
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
+
       if (IS_TOKEN(token, '^'))
       {
         operands[operand_count].set_cond = 1;
@@ -965,6 +1004,12 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
       {
         tokens_push(asm_context, token, token_type);
       }
+    }
+      else
+    if (token_type == TOKEN_NUMBER)
+    {
+      operands[operand_count].value = atoi(token);
+      operands[operand_count].type = OPERAND_NUMBER;
     }
       else
     {
@@ -980,7 +1025,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
           token_type = tokens_get(asm_context, token, TOKENLEN);
           operands[operand_count].sub_type = n;
 
-          if (IS_TOKEN(token,'#'))
+          if (IS_TOKEN(token, '#'))
           {
             token_type = tokens_get(asm_context, token, TOKENLEN);
             if (token_type != TOKEN_NUMBER)
@@ -1015,7 +1060,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
 
           token_type = tokens_get(asm_context, token, TOKENLEN);
 
-          if (IS_TOKEN(token,']'))
+          if (IS_TOKEN(token, ']'))
           {
             if (operands[operand_count].type == OPERAND_SHIFT_REG)
             {
@@ -1036,7 +1081,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
         }
       }
 
-      if (n==4)
+      if (n == 4)
       {
         print_error_unexp(token, asm_context);
         return -1;
@@ -1047,7 +1092,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
 
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
-    if (IS_NOT_TOKEN(token,','))
+    if (IS_NOT_TOKEN(token, ','))
     {
       print_error_unexp(token, asm_context);
       return -1;
