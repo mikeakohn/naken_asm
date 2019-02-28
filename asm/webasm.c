@@ -77,7 +77,7 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
   uint64_t value, count;
   int64_t i;
   int type;
-  int length, n;
+  int length, n, j;
 
   lower_copy(instr_case, instr);
 
@@ -200,11 +200,29 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
         length += 1;
         break;
       case WEBASM_OP_TABLE:
-        if (get_uint(asm_context, &count, 0) != 0) { return -1; }
+        if (get_uint(asm_context, &value, 0) != 0) { return -1; }
 
-        for (i = 0; i < count; i++)
+        add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);
+        length = add_bin_varint(asm_context, value & 0xffffffff, 0);
+
+        count = value;
+
+        for (j = 0; j < count; j++)
         {
+          if (expect_token(asm_context, ',') == -1) { return -1; }
+          if (get_uint(asm_context, &value, 0) != 0) { return -1; }
+          length += add_bin_varint(asm_context, value & 0xffffffff, 0);
         }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (token_type != TOKEN_EOF && token_type != TOKEN_EOL)
+        {
+          print_error_unexp(token, asm_context);
+        }
+
+        length += 1;
+        break;
       case WEBASM_OP_INDIRECT:
       case WEBASM_OP_MEMORY_IMMEDIATE:
       default:

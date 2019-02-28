@@ -11,7 +11,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "disasm/webasm.h"
 #include "table/webasm.h"
@@ -107,11 +109,34 @@ static const char *get_type(int type)
   return "???";
 }
 
+static int print_table(struct _memory *memory, uint32_t address, FILE *out)
+{
+  int length, total_length, entry, n, count = 0;
+
+  count = get_varint(memory, address, &total_length);
+
+  address += total_length;
+  length += count;
+
+  for (n = 0; n < count; n++)
+  {
+    entry = get_varint(memory, address, &length);
+
+    fprintf(out, "    %04x\n", entry);
+
+    address += length;
+    total_length += length;
+  }
+
+  return total_length;
+}
+
 int disasm_webasm(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint8_t opcode;
   uint64_t i;
   int64_t v;
+  uint32_t count;
   int n, length;
 
   instruction[0] = 0;
@@ -137,33 +162,41 @@ int disasm_webasm(struct _memory *memory, uint32_t address, char *instruction, i
         return 1;
       case WEBASM_OP_UINT32:
         i = memory_read32_m(memory, address + 1);
-        sprintf(instruction, "%s 0x%04lx", table_webasm[n].instr, i);
+        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
         return 5;
       case WEBASM_OP_UINT64:
         i = memory_read32_m(memory, address + 1);
         i |= ((uint64_t)memory_read32_m(memory, address + 5)) << 32;
-        sprintf(instruction, "%s 0x%04lx", table_webasm[n].instr, i);
+        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
         return 9;
       case WEBASM_OP_VARINT64:
         v = get_varint(memory, address + 1, &length);
-        sprintf(instruction, "%s 0x%04lx", table_webasm[n].instr, v);
+        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
         return length + 1;
       case WEBASM_OP_VARINT32:
         v = get_varint(memory, address + 1, &length);
-        sprintf(instruction, "%s 0x%04lx", table_webasm[n].instr, v);
+        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
         return length + 1;
       case WEBASM_OP_FUNCTION_INDEX:
       case WEBASM_OP_LOCAL_INDEX:
       case WEBASM_OP_GLOBAL_INDEX:
         i = get_varuint(memory, address + 1, &length);
-        sprintf(instruction, "%s 0x%04lx", table_webasm[n].instr, i);
+        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
         return length + 1;
       case WEBASM_OP_BLOCK_TYPE:
         i = get_varuint(memory, address + 1, &length);
         sprintf(instruction, "%s %s", table_webasm[n].instr, get_type(i));
         return length + 1;
       case WEBASM_OP_RELATIVE_DEPTH:
+        v = get_varint(memory, address + 1, &length);
+        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
+        return length + 1;
       case WEBASM_OP_TABLE:
+        count = get_varint(memory, address + 1, &length);
+
+        sprintf(instruction, "%s %d ...", table_webasm[n].instr, count);
+
+        return length + 1;
       case WEBASM_OP_INDIRECT:
       case WEBASM_OP_MEMORY_IMMEDIATE:
       default:
@@ -196,6 +229,13 @@ void list_output_webasm(struct _asm_context *asm_context, uint32_t start, uint32
   }
 
   fprintf(asm_context->list, "0x%04x: %-20s %-40s\n", start, hex, instruction);
+
+  opcode = memory_read_m(&asm_context->memory, start);
+
+  if (opcode == 0x0e)
+  {
+    start += print_table(&asm_context->memory, start + 1, asm_context->list);
+  }
 }
 
 void disasm_range_webasm(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
@@ -216,17 +256,24 @@ void disasm_range_webasm(struct _memory *memory, uint32_t flags, uint32_t start,
   {
     count = disasm_webasm(memory, start, instruction, &cycles_min, &cycles_max);
 
-     hex[0] = 0;
+    hex[0] = 0;
 
-     for (n = 0; n < count; n++)
-     {
-       opcode = memory_read_m(memory, start + n);
+    for (n = 0; n < count; n++)
+    {
+      opcode = memory_read_m(memory, start + n);
 
-       sprintf(temp, "%02x ", opcode);
-       strcat(hex, temp);
-     }
+      sprintf(temp, "%02x ", opcode);
+      strcat(hex, temp);
+    }
 
     printf("0x%04x: %-20s %-40s\n", start, hex, instruction);
+
+    opcode = memory_read_m(memory, start);
+
+    if (opcode == 0x0e)
+    {
+      start += print_table(memory, start + 1, stdout);
+    }
 
     start += count;
   }

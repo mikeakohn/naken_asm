@@ -101,7 +101,7 @@ int expect_token(struct _asm_context *asm_context, char ch)
 
   tokens_get(asm_context, token, TOKENLEN);
 
-  if (IS_NOT_TOKEN(token,ch))
+  if (IS_NOT_TOKEN(token, ch))
   {
     print_error_unexp(token, asm_context);
     return -1;
