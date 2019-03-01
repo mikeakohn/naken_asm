@@ -333,6 +333,12 @@ static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operan
 
 static int parse_branch(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
 {
+  if (asm_context->pass == 1)
+  {
+    add_bin32(asm_context, opcode, IS_OPCODE);
+    return 4;
+  }
+
   if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)
   {
     int cond = parse_condition(&instr);
@@ -795,58 +801,6 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
   memset(operands, 0, sizeof(operands));
   operand_count = 0;
 
-  // FIXME: Quick fix for a part of a problem.  This won't work if the
-  // address is an expression rather than just a number.
-  if (strncmp(instr_case, "ldr", 3) == 0 || strncmp(instr_case, "str", 3) == 0)
-  {
-    if (asm_context->pass == 1)
-    {
-      ignore_line(asm_context);
-      add_bin32(asm_context, 0, IS_OPCODE);
-      return 4;
-    }
-  }
-
-  // FIXME: Checking for a b<cond> instruction first and do all
-  // processing here.
-  if (instr_case[0] == 'b' && instr_case[1] != 'x' && instr_case[1] != 'i')
-  {
-    if (asm_context->pass == 1)
-    {
-      ignore_line(asm_context);
-      add_bin32(asm_context, 0, IS_OPCODE);
-      return 4;
-    }
-
-    if (eval_expression(asm_context, &num) != 0)
-    {
-      print_error_unexp(token, asm_context);
-      return -1;
-    }
-
-    token_type = tokens_get(asm_context, token, TOKENLEN);
-
-    if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
-    {
-      print_error_unexp(token, asm_context);
-      return -1;
-    }
-
-    operands[0].type = OPERAND_NUMBER;
-    operands[0].value = num;
-
-    uint32_t opcode = 0x0a000000;
-    char *instr_cond = instr_case + 1;
-
-    if (instr_case[1] == 'l')
-    {
-      opcode = 0x0b000000;
-      instr_cond = instr_case + 2;
-    }
-
-    return parse_branch(asm_context, operands, 1, instr_cond, opcode);
-  }
-
   // First parse instruction into the operands structures.
   while(1)
   {
@@ -1018,12 +972,6 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
       }
     }
       else
-    if (token_type == TOKEN_NUMBER)
-    {
-      operands[operand_count].value = atoi(token);
-      operands[operand_count].type = OPERAND_NUMBER;
-    }
-      else
     {
       if (strcasecmp(token, "asl") == 0)
       {
@@ -1095,8 +1043,25 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
 
       if (n == 4)
       {
-        print_error_unexp(token, asm_context);
-        return -1;
+        operands[operand_count].type = OPERAND_NUMBER;
+
+        if (asm_context->pass == 1)
+        {
+          operands[operand_count].value = 0;
+          eat_operand(asm_context);
+        }
+          else
+        {
+          tokens_push(asm_context, token, token_type);
+
+          if (eval_expression(asm_context, &num) != 0)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].value = num;
+        }
       }
     }
 
