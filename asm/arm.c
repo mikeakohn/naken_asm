@@ -795,6 +795,18 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
   memset(operands, 0, sizeof(operands));
   operand_count = 0;
 
+  // FIXME: Quick fix for a part of a problem.  This won't work if the
+  // address is an expression rather than just a number.
+  if (strncmp(instr_case, "ldr", 3) == 0 || strncmp(instr_case, "str", 3) == 0)
+  {
+    if (asm_context->pass == 1)
+    {
+      ignore_line(asm_context);
+      add_bin32(asm_context, 0, IS_OPCODE);
+      return 4;
+    }
+  }
+
   // FIXME: Checking for a b<cond> instruction first and do all
   // processing here.
   if (instr_case[0] == 'b' && instr_case[1] != 'x' && instr_case[1] != 'i')
