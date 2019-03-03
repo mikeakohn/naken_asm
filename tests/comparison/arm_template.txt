@@ -84,6 +84,7 @@ stmda r9, {r5-r15}
 stmdb r10, {r0-r15}
 str r2, [r1]
 str r1, [r1, r2, lsl #2]
+str r7, [r1, r2, lsl #2]!
 str r0, [r1], r2, lsl #2
 str r0, [r1], #-12
 strb r0, [r1], #-12

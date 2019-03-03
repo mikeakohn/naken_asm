@@ -53,7 +53,9 @@ enum
   OPERAND_REG_INDEXED_CLOSE,
   OPERAND_IMM_INDEXED_CLOSE,
   OPERAND_SHIFT_IMM_INDEXED_CLOSE,
+  OPERAND_SHIFT_IMM_INDEXED_CLOSE_WB,
   OPERAND_SHIFT_REG_INDEXED_CLOSE,
+  OPERAND_SHIFT_REG_INDEXED_CLOSE_WB,
 };
 
 struct _operand
@@ -412,9 +414,27 @@ printf("%d  %d %d %d\n",
     return -1;
   }
 
+  if (operands[1].type == OPERAND_REG_WRITE_BACK)
+  {
+    operands[1].type = OPERAND_REG_INDEXED_CLOSE;
+    w = 1;
+  }
+    else
   if (operands[2].type == OPERAND_REG_WRITE_BACK)
   {
     operands[2].type = OPERAND_REG_INDEXED_CLOSE;
+    w = 1;
+  }
+    else
+  if (operands[3].type == OPERAND_SHIFT_IMM_INDEXED_CLOSE_WB)
+  {
+    operands[3].type = OPERAND_SHIFT_IMM_INDEXED_CLOSE;
+    w = 1;
+  }
+    else
+  if (operands[3].type == OPERAND_SHIFT_REG_INDEXED_CLOSE_WB)
+  {
+    operands[3].type = OPERAND_SHIFT_REG_INDEXED_CLOSE;
     w = 1;
   }
 
@@ -1053,6 +1073,17 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
             if (operands[operand_count].type == OPERAND_SHIFT_IMMEDIATE)
             {
               operands[operand_count].type = OPERAND_SHIFT_IMM_INDEXED_CLOSE;
+            }
+
+            token_type = tokens_get(asm_context, token, TOKENLEN);
+
+            if (IS_TOKEN(token, '!'))
+            {
+              operands[operand_count].type++;
+            }
+              else
+            {
+              tokens_push(asm_context, token, token_type);
             }
           }
             else
