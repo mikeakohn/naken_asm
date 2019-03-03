@@ -387,6 +387,8 @@ static int parse_branch_exchange(struct _asm_context *asm_context, struct _opera
 static int parse_ldr_str(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
 {
   int offset = 0;
+  int reg_base = 0;
+  int reg_sd = 0;
   int i = 0;
   int pr = 0;
   int u = 1;
@@ -410,15 +412,32 @@ printf("%d  %d %d %d\n",
     return -1;
   }
 
+  reg_sd = operands[0].value;
+  reg_base = operands[1].value;
+
   if (operand_count == 2 &&
       operands[0].type == OPERAND_REG &&
       operands[1].type == OPERAND_NUMBER)
   {
-    offset = operands[1].value;
-    if (offset < 0 || offset > 4095)
+    offset = operands[1].value - (asm_context->address + 8);
+    pr = 1;
+
+    if (offset < -4095 || offset > 4095)
     {
-      print_error_range("Offset", 0, 4095, asm_context);
+      print_error_range("Offset", -4095, 4095, asm_context);
     }
+
+    if (offset < 0)
+    {
+      offset = -offset;
+      u = 0;
+    }
+      else
+    {
+      u = 1;
+    }
+
+    reg_base = 15;
   }
     else
   if (operand_count == 2 &&
@@ -481,8 +500,8 @@ printf("%d  %d %d %d\n",
       operands[0].type == OPERAND_REG &&
       operands[1].type == OPERAND_REG_INDEXED &&
       operands[2].type == OPERAND_REG &&
-      (operands[3].type == OPERAND_SHIFT_IMMEDIATE ||
-       operands[3].type == OPERAND_SHIFT_REG))
+     (operands[3].type == OPERAND_SHIFT_IMMEDIATE ||
+      operands[3].type == OPERAND_SHIFT_REG))
   {
     offset = operands[2].value;
 
@@ -506,8 +525,8 @@ printf("%d  %d %d %d\n",
       operands[0].type == OPERAND_REG &&
       operands[1].type == OPERAND_REG_INDEXED_OPEN &&
       operands[2].type == OPERAND_REG &&
-      (operands[3].type == OPERAND_SHIFT_IMM_INDEXED_CLOSE ||
-       operands[3].type == OPERAND_SHIFT_REG_INDEXED_CLOSE))
+     (operands[3].type == OPERAND_SHIFT_IMM_INDEXED_CLOSE ||
+      operands[3].type == OPERAND_SHIFT_REG_INDEXED_CLOSE))
   {
     offset = operands[2].value;
     pr = 1;
@@ -534,8 +553,8 @@ printf("%d  %d %d %d\n",
   }
 
   add_bin32(asm_context, opcode | (cond << 28) | (i << 25) | (pr << 24) |
-            (u << 23) | (b << 22) | (w << 21) | (operands[1].value << 16) |
-            (operands[0].value << 12) | offset, IS_OPCODE);
+            (u << 23) | (b << 22) | (w << 21) | (reg_base << 16) |
+            (reg_sd << 12) | offset, IS_OPCODE);
 
   return 4;
 }
