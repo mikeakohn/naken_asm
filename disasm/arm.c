@@ -281,7 +281,7 @@ static void process_msr_flag(char *instruction, uint32_t opcode)
   }
 }
 
-static void process_ldr_str(char *instruction, uint32_t opcode, int index)
+static void process_ldr_str(char *instruction, uint32_t opcode, int index, uint32_t address)
 {
   int w = (opcode >> 21) & 1;
   int b = (opcode >> 22) & 1;
@@ -290,7 +290,7 @@ static void process_ldr_str(char *instruction, uint32_t opcode, int index)
   int i = (opcode >> 25) & 1;
   int offset = opcode & 0xfff;
   int rn = ARM_NIB(16);
-  char temp[32];
+  char temp[64];
 
   if (i == 0)
   {
@@ -302,7 +302,17 @@ static void process_ldr_str(char *instruction, uint32_t opcode, int index)
     {
       if (pr == 1)
       {
-        sprintf(temp, "[%s, #%s%d]", arm_reg[rn], (u == 0) ? "-" : "", offset);
+        if (u == 0) { offset = -offset; }
+
+        if (rn != 15)
+        {
+          sprintf(temp, "[%s, #%d]", arm_reg[rn], offset);
+        }
+          else
+        {
+          sprintf(temp, "[%s, #%d] ; 0x%04x",
+            arm_reg[rn], offset, address + 8 + offset);
+        }
       }
         else
       {
@@ -534,7 +544,7 @@ int disasm_arm(struct _memory *memory, uint32_t address, char *instruction, int 
           process_msr_flag(instruction, opcode);
           return 4;
         case OP_LDR_STR:
-          process_ldr_str(instruction, opcode, n);
+          process_ldr_str(instruction, opcode, n, address);
           return 4;
         case OP_UNDEFINED:
           process_undefined(instruction, opcode);

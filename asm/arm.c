@@ -451,6 +451,7 @@ printf("%d  %d %d %d\n",
     if (offset < -4095 || offset > 4095)
     {
       print_error_range("Offset", -4095, 4095, asm_context);
+      return -1;
     }
 
     if (offset < 0)
@@ -485,6 +486,7 @@ printf("%d  %d %d %d\n",
     if (offset < 0 || offset > 4095)
     {
       print_error_range("Offset", 0, 4095, asm_context);
+      return -1;
     }
   }
     else
@@ -498,6 +500,7 @@ printf("%d  %d %d %d\n",
     if (offset < 0 || offset > 4095)
     {
       print_error_range("Offset", 0, 4095, asm_context);
+      return -1;
     }
   }
     else
@@ -1214,7 +1217,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
         print_error_illegal_operands(instr, asm_context);
       }
 
-      if (bytes != ARM_ERROR_OPCOMBO) return bytes;
+      if (bytes != ARM_ERROR_OPCOMBO) { return bytes; }
     }
 
     n++;
