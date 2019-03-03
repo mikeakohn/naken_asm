@@ -604,16 +604,9 @@ void list_output_arm(struct _asm_context *asm_context, uint32_t start, uint32_t 
 
 void disasm_range_arm(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
-  // Are these correct and the same for all chips?
-  char *vectors[16] = { "", "", "", "", "", "",
-                        "", "", "", "",
-                        "", "", "", "",
-                        "",
-                        "Reset/Watchdog/Flash" };
   char instruction[128];
-  int vectors_flag = 0;
   int cycles_min = 0,cycles_max = 0;
-  uint32_t num;
+  uint32_t opcode;
 
   printf("\n");
 
@@ -622,41 +615,28 @@ void disasm_range_arm(struct _memory *memory, uint32_t flags, uint32_t start, ui
 
   while(start <= end)
   {
-    if (start >= 0xffe0 && vectors_flag == 0)
-    {
-      printf("Vectors:\n");
-      vectors_flag = 1;
-    }
-
     disasm_arm(memory, start, instruction, &cycles_min, &cycles_max);
 
-    if (vectors_flag == 1)
-    {
-      num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
-
-      printf("0x%04x: 0x%04x  Vector %2d {%s}\n",
-        start, num, (start - 0xffe0) / 2, vectors[(start - 0xffe0) / 2]);
-      start += 2;
-      continue;
-    }
-
+    opcode = memory_read32_m(memory, start);
+#if 0
     num = READ_RAM(start) |
          (READ_RAM(start + 1) << 8) |
          (READ_RAM(start + 2) << 16) |
          (READ_RAM(start + 3) << 24);
+#endif
 
     if (cycles_min < 1)
     {
-      printf("0x%04x: %08x  %-40s ?\n", start, num, instruction);
+      printf("0x%04x: %08x  %-40s ?\n", start, opcode, instruction);
     }
       else
     if (cycles_min == cycles_max)
     {
-      printf("0x%04x: %08x  %-40s %d\n", start, num, instruction, cycles_min);
+      printf("0x%04x: %08x  %-40s %d\n", start, opcode, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: %08x  %-40s %d-%d\n", start, num, instruction, cycles_min, cycles_max);
+      printf("0x%04x: %08x  %-40s %d-%d\n", start, opcode, instruction, cycles_min, cycles_max);
     }
 
     start = start + 4;
