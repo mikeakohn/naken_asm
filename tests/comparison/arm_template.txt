@@ -5,7 +5,9 @@ adds r7, r2, r3, asl #2
 addnes r7, r2, r3, lsr #3
 addeqs r7, r2, r3, asr #4
 addals r7, r2, r3, ror #5
-add r3, r6, r9 
+add r3, r6, r9
+andmi r1, r1, r0
+andmi r1, r1, r0, lsl r0
 adds r3, r6, r9
 andlt r5, r6, #512
 andeq r5, r6, #1024
@@ -51,6 +53,7 @@ main: ldr r4, main
 ;ldrh r4, [r3, #255]
 mov r11, r1
 mov r4, #0xffffffff
+movs pc, lr
 mrs r0, cpsr
 msr cpsr, r0
 msr cpsr, #0xf0000000
@@ -71,6 +74,7 @@ mvn r4, #0xffffffff
 mvn r0, #7
 orr r5, r6, #256
 orr r10, r10, #9
+orr r5, r5, #0x200000
 rsbles r4, r5, #5
 rsb r2,r3,r3,lsl #4
 rsb r2, r3, #1
