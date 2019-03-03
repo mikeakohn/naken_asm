@@ -412,6 +412,12 @@ printf("%d  %d %d %d\n",
     return -1;
   }
 
+  if (operands[2].type == OPERAND_REG_WRITE_BACK)
+  {
+    operands[2].type = OPERAND_REG_INDEXED_CLOSE;
+    w = 1;
+  }
+
   reg_sd = operands[0].value;
   reg_base = operands[1].value;
 
