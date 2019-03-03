@@ -480,7 +480,7 @@ printf("%d  %d %d %d\n",
       operands[1].type == OPERAND_REG_INDEXED &&
       operands[2].type == OPERAND_REG)
   {
-    offset = operands[2].value | (1 << 4);
+    offset = operands[2].value | (0 << 4);
     i = 1;
   }
     else
@@ -489,9 +489,7 @@ printf("%d  %d %d %d\n",
       operands[1].type == OPERAND_REG_INDEXED_OPEN &&
       operands[2].type == OPERAND_REG_INDEXED_CLOSE)
   {
-    //dafuq?
-    //offset = operands[2].value | (1 << 4);
-    offset = operands[2].value;
+    offset = operands[2].value | (0 << 4);
     pr = 1;
     i = 1;
   }
