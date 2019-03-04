@@ -405,6 +405,12 @@ printf("%d  %d %d %d\n",
   operands[2].type);
 #endif
 
+  if (asm_context->pass == 1)
+  {
+    add_bin32(asm_context, opcode, IS_OPCODE);
+    return 4;
+  }
+
   int cond = parse_condition(&instr);
 
   if (instr[0] == 'b') { b = 1; instr++; }
