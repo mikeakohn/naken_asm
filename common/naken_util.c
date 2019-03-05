@@ -42,6 +42,7 @@
 #include "disasm/epiphany.h"
 #include "disasm/java.h"
 #include "disasm/lc3.h"
+#include "disasm/mcs48.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
 #include "disasm/pdp8.h"
@@ -102,6 +103,7 @@ parse_instruction_t parse_instruction_dspic = NULL;
 parse_instruction_t parse_instruction_epiphany = NULL;
 parse_instruction_t parse_instruction_java = NULL;
 parse_instruction_t parse_instruction_lc3 = NULL;
+parse_instruction_t parse_instruction_mcs48 = NULL;
 parse_instruction_t parse_instruction_mips = NULL;
 parse_instruction_t parse_instruction_msp430 = NULL;
 parse_instruction_t parse_instruction_pdp8 = NULL;
@@ -1166,6 +1168,7 @@ int main(int argc, char *argv[])
            "   -epiphany                    (Epiphany III/IV)\n"
            "   -java                        (Java)\n"
            "   -lc3                         (LC-3)\n"
+           "   -mcse48                      (MCS48, 8048)\n"
            "   -mips32 / mips               (MIPS)\n"
            "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
            "   -pdp8                        (PDP-8)\n"

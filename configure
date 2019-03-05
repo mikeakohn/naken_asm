@@ -39,6 +39,7 @@ CPUS=" \
   EPIPHANY
   JAVA
   LC3
+  MCS48
   MIPS
   MSP430
   PDP8
@@ -399,6 +400,13 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} lc3.o"
     TABLE_OBJS="${TABLE_OBJS} lc3.o"
     DFLAGS="${DFLAGS} -DENABLE_LC3"
+  ;;
+  --enable-mcs48)
+    ASM_OBJS="${ASM_OBJS} mcs48.o"
+    DISASM_OBJS="${DISASM_OBJS} mcs48.o"
+    SIM_OBJS="${SIM_OBJS} mcs48.o"
+    TABLE_OBJS="${TABLE_OBJS} mcs48.o"
+    DFLAGS="${DFLAGS} -DENABLE_MCS48"
   ;;
   --enable-mips)
     ASM_OBJS="${ASM_OBJS} mips.o"

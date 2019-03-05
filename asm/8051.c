@@ -312,6 +312,11 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
           return -1;
         }
       }
+        else
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
     }
       else
     if (token_type == TOKEN_POUND)
@@ -456,12 +461,12 @@ printf("\n");
             break;
           case OP_DATA_16:
             if (operands[r].type != OPERAND_DATA ||
-                (operands[r].value < -32768 || 
+                (operands[r].value < -32768 ||
                  operands[r].value > 0xffff)) { r = 4; }
             break;
           case OP_CODE_ADDR:
             if (operands[r].type != OPERAND_NUM ||
-                (operands[r].value < 0 || 
+                (operands[r].value < 0 ||
                  operands[r].value > 0xffff)) { r = 4; }
             break;
           case OP_RELADDR:
@@ -469,12 +474,12 @@ printf("\n");
             break;
           case OP_DATA:
             if (operands[r].type != OPERAND_DATA ||
-                (operands[r].value < -128 || 
+                (operands[r].value < -128 ||
                  operands[r].value > 255)) { r = 4; }
             break;
           case OP_SLASH_BIT_ADDR:
             if (operands[r].type != OPERAND_SLASH_BIT_ADDRESS ||
-                (operands[r].value < 0 || 
+                (operands[r].value < 0 ||
                  operands[r].value > 255)) { r = 4; }
             break;
           case OP_PAGE:
@@ -565,6 +570,6 @@ printf("\n");
     return -1;
   }
 
-  return count; 
+  return count;
 }
 

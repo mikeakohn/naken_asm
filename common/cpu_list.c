@@ -32,6 +32,7 @@
 #include "asm/epiphany.h"
 #include "asm/java.h"
 #include "asm/lc3.h"
+#include "asm/mcs48.h"
 #include "asm/mips.h"
 #include "asm/msp430.h"
 #include "asm/pdp8.h"
@@ -69,6 +70,7 @@
 #include "disasm/epiphany.h"
 #include "disasm/java.h"
 #include "disasm/lc3.h"
+#include "disasm/mcs48.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
 #include "disasm/pdp8.h"
@@ -592,6 +594,28 @@ struct _cpu_list cpu_list[] =
     list_output_lc3,
     disasm_range_lc3,
     simulate_init_lc3,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_MCS48
+  {
+    "MCS48",
+    CPU_TYPE_MCS48,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_mcs48,
+    NULL,
+    link_not_supported,
+    list_output_mcs48,
+    disasm_range_mcs48,
+    NULL,
     NO_FLAGS,
   },
 #endif
