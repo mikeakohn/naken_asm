@@ -47,6 +47,87 @@ static int get_register_mcs48(char *token)
   return -1;
 }
 
+static int process_op(
+  struct _asm_context *asm_context,
+  struct _operand *operand,
+  uint8_t type,
+  uint8_t *data)
+{
+  if (operand->operand == OPERAND_CONST)
+  {
+    switch (type)
+    {
+      case OP_A:
+      case OP_C:
+      case OP_I:
+      case OP_T:
+      case OP_F0:
+      case OP_F1:
+      case OP_BUS:
+      case OP_CLK:
+      case OP_CNT:
+      case OP_MBK:
+      case OP_RBK:
+      case OP_PSW:
+      case OP_TCNT:
+      case OP_TCNTI:
+      case OP_AT_A:
+        return 1;
+      case OP_PP:
+        data[0] |= (operand->value & 0x3);
+        return 1;
+      case OP_RR:
+        data[0] |= (operand->value & 0x7);
+        return 1;
+      case OP_AT_R:
+        data[0] |= (operand->value & 0x1);
+        return 1;
+      default:
+        return -1;
+    }
+  }
+    else
+  if (operand->operand == OPERAND_NUMBER && type == OP_NUM)
+  {
+    data[1] = operand->value;
+    return 2;
+  }
+    else
+  if (operand->operand == OPERAND_ADDRESS)
+  {
+    if (type == OP_ADDR)
+    {
+      if (operand->value < 0 || operand->value > 2047)
+      {
+        print_error_range("Address", 0, 2047, asm_context);
+        return -1;
+      }
+
+      data[0] |= (operand->value >> 8) << 5;
+      data[1] = operand->value & 0xff;
+
+      return 2;
+    }
+      else
+    if (type == OP_PADDR)
+    {
+      int address = operand->value;
+
+      if ((address & 0xff00) != (asm_context->address & 0xff00))
+      {
+        print_error("Address isn't on same page", asm_context);
+        return -1;
+      }
+
+      data[1] = operand->value & 0xff;
+
+      return 2;
+    }
+  }
+
+  return -1;
+}
+
 int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
@@ -55,7 +136,9 @@ int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
   int operand_count = 0;
   int token_type;
   int matched = 0;
-  int num, n;
+  uint8_t data[2];
+  int length;
+  int num, n, r;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -256,18 +339,52 @@ printf("\n");
     {
       matched = 1;
 
-#if 0
-      switch(table_mcs48[n].op[r])
+      do
       {
-        case OP_RR:
-          if (operands[r].type != OPERAND_REG ||
-              operands[r].value != table_mcs48[n].range) { r = 4; }
-          break;
-        default:
-          print_error_internal(asm_context, __FILE__, __LINE__);
-          return -1;
-      }
-#endif
+        if (operand_count == table_mcs48[n].operand_count)
+        {
+          if (operand_count == 0)
+          {
+            add_bin8(asm_context, table_mcs48[n].opcode, IS_OPCODE);
+          }
+            else
+          if (operand_count == 1)
+          {
+            data[0] = table_mcs48[n].opcode;
+
+            r = process_op(asm_context, &operands[0], table_mcs48[n].operand_1,  data);
+            if (r == -1) { break; }
+            length = r;
+
+            for (r = 0; r < length; r++)
+            {
+              add_bin8(asm_context, data[r], IS_OPCODE);
+            }
+
+            return length;
+          }
+            else
+          if (operand_count == 2)
+          {
+            data[0] = table_mcs48[n].opcode;
+
+            r = process_op(asm_context, &operands[0], table_mcs48[n].operand_1,  data);
+            if (r == -1) { break; }
+            length = r;
+
+            r = process_op(asm_context, &operands[1], table_mcs48[n].operand_2, data);
+            if (r == -1) { break; }
+            length = r > length ? r : length;
+
+            for (r = 0; r < length; r++)
+            {
+              add_bin8(asm_context, data[r], IS_OPCODE);
+            }
+
+            return length;
+          }
+        }
+      } while (0);
     }
 
     n++;
