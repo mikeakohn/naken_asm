@@ -44,6 +44,7 @@ enum
   OP_REG_REG,
   OP_CPS,
   OP_UINT8,
+  OP_REGISTER_ADDRESS,
 };
 
 enum

@@ -1,69 +1,21 @@
-lsl r2, r4, #5
-lsr r7, r3, #5
-asr r5, r6, #5
 add r2, r3, r4
 add r2, r4, #4
-sub r3, r3, r4
-sub r7, r1, #4
-mov r3, #253
-cmp r7, #123
-add r3, #111
-sub r3, #107
-and r3, r4
-eor r2, r2
-lsl r1, r7
-lsr r7, r6
-asr r3, r4
-adc r3, r3
-sbc r1, r5
-ror r3, r2
-tst r2, r1
-neg r7, r0
-cmp r1, r1
-cmn r2, r4
-orr r4, r3
-mul r7, r7
-bic r4, r6
-mvn r7, r4
 add r3, r15
 add r15, r3
 add r11, r12
-cmp r4, r13
-cmp r15, r7
-cmp r13, r11
-mov r1, r11
-mov r13, r2
-mov r12, r14
-bx r3
-bx r13
 add pc, r5
-ldr r5, [pc, #844]
-str r3, [r3, r4]
-strb r1, [r2, r7]
-ldr r3, [r1, r4]
-ldrb r4, [r7, r3]
-strh r1, [r7, r4]
-ldrh r3, [r1, r7]
-ldsb r6, [r3, r4]
-ldsh r1, [r2, r7]
-str r3, [r3, #32]
-ldr r4, [r7, #64]
-strb r1, [r3, #31]
-ldrb r7, [r1, #17]
-strh r6, [r7, #22]
-ldrh r5, [r3, #24]
-str r3, [sp, #16]
-ldr r4, [sp, #48]
+add r3, #111
+add sp, sp, #8
 add r3, pc, #96
 add r7, sp, #512
 add sp, #128
 add sp, #-104
-push {r2, r4, r7}
-push {r2-r7, LR}
-pop {r2, r4, r7}
-pop {r2, r4, r7, PC}
-stmia r4!, {r5, r7}
-ldmia r2!, {r1,r4-r6}
+;adr r4, 16
+;adr r7, PC, #8
+and r3, r4
+asr r5, r6, #5
+asr r3, r4
+adc r3, r3
 main: beq main
 main: bne main
 main: bcs main
@@ -78,33 +30,83 @@ main: bge main
 main: blt main
 main: bgt main
 main: ble main
-swi 234
 main: b main
 main: bl main
-add sp, sp, #8
-sub sp, sp, #32
+bic r4, r6
+bkpt #129
 blx r9
 blx r3
-ldrsh r4, [r7, r3]
-ldrsb r4, [r7, r3]
-sxth r3, r7
-sxtb r3, r7
-uxth r2, r4
-uxtb r7, r1
+bx r3
+bx r13
+cmp r1, r1
+cmn r2, r4
+cmp r7, #123
+cmp r4, r13
+cmp r15, r7
+cmp r13, r11
 cpsie i
 cpsid i
 cpsie f
 cpsid f
 cpsie if
 cpsid if
+eor r2, r2
+ldr r5, [pc, #844]
+lsl r1, r7
+lsl r2, r4, #5
+lsr r7, r6
+lsr r7, r3, #5
+ldr r3, [r1, r4]
+ldrb r4, [r7, r3]
+strh r1, [r7, r4]
+ldrh r3, [r1, r7]
+ldsb r6, [r3, r4]
+ldsh r1, [r2, r7]
+ldr r4, [r7, #64]
+ldmia r2!, {r1,r4-r6}
+ldrsh r4, [r7, r3]
+ldrsb r4, [r7, r3]
+ldrb r7, [r1, #17]
+ldrh r5, [r3, #24]
+ldr r4, [sp, #48]
+mul r7, r7
+mvn r7, r4
+mov r1, r11
+mov r13, r2
+mov r12, r14
+mov r3, #253
+neg r7, r0
+;nop
+orr r4, r3
+pop {r2, r4, r7}
+pop {r2, r4, r7, PC}
+push {r2, r4, r7}
+push {r2-r7, LR}
 rev r3, r7
 rev16 r7, r5
 revsh r2, r3
-yield
+sbc r1, r5
+ror r3, r2
+sev
+stmia r4!, {r5, r7}
+str r3, [sp, #16]
+strb r1, [r3, #31]
+strh r6, [r7, #22]
+sub sp, sp, #32
+str r3, [r3, r4]
+strb r1, [r2, r7]
+sxth r3, r7
+sxtb r3, r7
+str r3, [r3, #32]
+sub r3, r3, r4
+sub r7, r1, #4
+sub r3, #107
+svc #129
+swi 234
+tst r2, r1
+udf #129
+uxth r2, r4
+uxtb r7, r1
 wfe
 wfi
-sev
-bkpt #129
-udf #129
-svc #129
-;nop
+yield

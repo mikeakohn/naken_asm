@@ -515,15 +515,13 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
           }
           break;
         case OP_HI_BX:
-          if (operand_count == 1 &&
-              operands[0].type == OPERAND_REGISTER)
+          if (operand_count == 1 && operands[0].type == OPERAND_REGISTER)
           {
             add_bin16(asm_context, table_thumb[n].opcode | (operands[0].value << 3), IS_OPCODE);
             return 2;
           }
             else
-          if (operand_count == 1 &&
-              operands[0].type == OPERAND_H_REGISTER)
+          if (operand_count == 1 && operands[0].type == OPERAND_H_REGISTER)
           {
             add_bin16(asm_context, table_thumb[n].opcode | (1 << 6) | (operands[0].value << 3), IS_OPCODE);
             return 2;
@@ -698,8 +696,7 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
           }
           break;
         case OP_PUSH_POP_REGISTERS:
-          if (operand_count == 1 &&
-              operands[0].type == OPERAND_REGISTER_LIST)
+          if (operand_count == 1 && operands[0].type == OPERAND_REGISTER_LIST)
           {
             int opcode = table_thumb[n].opcode | operands[0].value;
             if (operands[0].second_value == 1)
@@ -728,8 +725,7 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
           }
           break;
         case OP_CONDITIONAL_BRANCH:
-          if (operand_count == 1 &&
-              operands[0].type == OPERAND_ADDRESS)
+          if (operand_count == 1 && operands[0].type == OPERAND_ADDRESS)
           {
             // From the docs: The branch offset must take account of the
             // prefetch operation, which causes the PC to be 1 word (4 bytes)
@@ -753,8 +749,7 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
           }
           break;
         case OP_UNCONDITIONAL_BRANCH:
-          if (operand_count == 1 &&
-              operands[0].type == OPERAND_ADDRESS)
+          if (operand_count == 1 && operands[0].type == OPERAND_ADDRESS)
           {
             // From the docs: The branch offset must take account of the
             // prefetch operation, which causes the PC to be 1 word (4 bytes)
@@ -822,6 +817,21 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
             return 2;
           }
           break;
+        case OP_REGISTER_ADDRESS:
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REGISTER &&
+              operands[1].type == OPERAND_ADDRESS)
+          {
+            int offset = operands[1].value - (asm_context->address + 4);
+            if (asm_context->pass == 1) { offset = 0; }
+            if (check_range(asm_context, "Offset", offset, 0, 1020) == -1) { return -1; }
+            if (is_4_byte_aligned(asm_context, offset) == -1) { return -1; }
+            offset >>= 2;
+
+            add_bin16(asm_context, table_thumb[n].opcode | (operands[0].value << 8) | offset, IS_OPCODE);
+            return 2;
+          }
+          break;
         default:
           break;
       }
@@ -841,6 +851,4 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
 
   return -1;
 }
-
-
 
