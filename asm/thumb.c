@@ -825,7 +825,12 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
             int offset = operands[1].value - (asm_context->address + 4);
             if (asm_context->pass == 1) { offset = 0; }
             if (check_range(asm_context, "Offset", offset, 0, 1020) == -1) { return -1; }
-            if (is_4_byte_aligned(asm_context, offset) == -1) { return -1; }
+            if (is_4_byte_aligned(asm_context, offset) == -1)
+            {
+              printf("       %s address: %d, data address: %d, offset: %d\n",
+                instr, asm_context->address, operands[1].value, offset);
+              return -1;
+            }
             offset >>= 2;
 
             add_bin16(asm_context, table_thumb[n].opcode | (operands[0].value << 8) | offset, IS_OPCODE);
