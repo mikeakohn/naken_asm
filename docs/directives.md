@@ -24,10 +24,13 @@ CPU this source file should be assembled for.
 |.arm             |All ARM CPUs
 |.avr8            |Atmel AVR8
 |.cell            |IBM Cell BE (Playstation 3)
+|.copper          |Amiga Copper
 |.cp1610          |CP1610 (General Instruments)
 |.dspic           |dsPIC
 |.epiphany        |Ephiphany/Parallella
+|.java            |Java
 |.lc3             |LC-3
+|.mcs48           |MCS-48 (8048 and others)
 |.mips            |MIPS (32 bit)
 |.mips32          |MIPS (32 bit)
 |.msp430          |MSP430
@@ -48,6 +51,8 @@ CPU this source file should be assembled for.
 |.tms1000         |TMS1000/TMS1200/TMS1070/TMS1270
 |.tms1100         |TMS1100/TMS1300
 |.tms9900         |TMS9900
+|.webasm          |WebAssembly
+|.xtensa          |Xtensa (ESP32, ESP8266)
 |.z80             |Z80
 
 Data Directives:
