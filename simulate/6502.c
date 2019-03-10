@@ -543,7 +543,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
       {
         temp = READ_BIT(m, 0);
         m >>= 1;
-        REG_A |= READ_FLAG(flag_c) << 7;
+        m |= READ_FLAG(flag_c) << 7;
         FLAG(temp, flag_c);
         FLAG(m > 127, flag_n);
         FLAG(m == 0, flag_z);
