@@ -40,6 +40,7 @@ enum
   OPERAND_SP_AND_REG_IN_BRACKETS,   // [ SP, Rb ]
   OPERAND_SP_AND_NUM_IN_BRACKETS,   // [ SP, #IMM ]
   OPERAND_REGISTER_LIST,
+  OPERAND_SPECIAL_REG,
 };
 
 struct _operand
@@ -81,6 +82,23 @@ static int get_h_register_thumb(char *token)
   if (strcasecmp("sp", token) == 0) { return REG_SP; }
   if (strcasecmp("lr", token) == 0) { return REG_LR; }
   if (strcasecmp("pc", token) == 0) { return REG_PC; }
+
+  return -1;
+}
+
+static int get_special_register(char *token)
+{
+  int n = 0;
+
+  while (special_reg_thumb[n].name != NULL)
+  {
+    if (strcasecmp(special_reg_thumb[n].name, token) == 0)
+    {
+      return special_reg_thumb[n].value;
+    }
+
+    n++;
+  }
 
   return -1;
 }
@@ -275,6 +293,7 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OPERAND_REGISTER;
       operands[operand_count].value = num;
       token_type = tokens_get(asm_context, token, TOKENLEN);
+
       if (IS_TOKEN(token, '!'))
       {
         operands[operand_count].type = OPERAND_REGISTER_INC;
@@ -385,23 +404,33 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
     }
       else
     {
-      tokens_push(asm_context, token, token_type);
+      num = get_special_register(token);
 
-      if (eval_expression(asm_context, &num) != 0)
+      if (num != -1)
       {
-        if (asm_context->pass == 1)
-        {
-          eat_operand(asm_context);
-        }
-          else
-        {
-          print_error_illegal_expression(instr, asm_context);
-          return -1;
-        }
+        operands[operand_count].value = num;
+        operands[operand_count].type = OPERAND_SPECIAL_REG;
       }
+        else
+      {
+        tokens_push(asm_context, token, token_type);
 
-      operands[operand_count].value = num;
-      operands[operand_count].type = OPERAND_ADDRESS;
+        if (eval_expression(asm_context, &num) != 0)
+        {
+          if (asm_context->pass == 1)
+          {
+            eat_operand(asm_context);
+          }
+            else
+          {
+            print_error_illegal_expression(instr, asm_context);
+            return -1;
+          }
+        }
+
+        operands[operand_count].value = num;
+        operands[operand_count].type = OPERAND_ADDRESS;
+      }
     }
 
     operand_count++;
@@ -835,6 +864,37 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
 
             add_bin16(asm_context, table_thumb[n].opcode | (operands[0].value << 8) | offset, IS_OPCODE);
             return 2;
+          }
+          break;
+        case OP_MRS:
+          if (operand_count == 2 &&
+             (operands[0].type == OPERAND_REGISTER ||
+              operands[0].type == OPERAND_H_REGISTER) &&
+             (operands[1].type == OPERAND_ADDRESS ||
+              operands[1].type == OPERAND_SPECIAL_REG))
+          {
+            if (check_range(asm_context, "Special Register", operands[0].value, 0, 15) == -1) { return -1; }
+
+            add_bin16(asm_context, table_thumb[n].opcode, IS_OPCODE);
+            add_bin16(asm_context, 0x8000 |
+                                   (operands[0].value << 8) |
+                                    operands[1].value, IS_OPCODE);
+            return 4;
+          }
+          break;
+        case OP_MSR:
+          if (operand_count == 2 &&
+             (operands[0].type == OPERAND_ADDRESS ||
+              operands[0].type == OPERAND_SPECIAL_REG) &&
+             (operands[1].type == OPERAND_REGISTER ||
+              operands[1].type == OPERAND_H_REGISTER))
+          {
+            if (check_range(asm_context, "Special Register", operands[1].value, 0, 15) == -1) { return -1; }
+
+            add_bin16(asm_context, table_thumb[n].opcode |
+                                   operands[1].value, IS_OPCODE);
+            add_bin16(asm_context, 0x8800 | operands[0].value, IS_OPCODE);
+            return 4;
           }
           break;
         default:

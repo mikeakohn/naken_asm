@@ -108,12 +108,28 @@ struct _table_thumb table_thumb[] =
   { "udf",   0xde00, 0xff00, OP_UINT8, VERSION_THUMB_2, -1 },
   { "svc",   0xdf00, 0xff00, OP_UINT8, VERSION_THUMB_2, -1 },
   { "adr",   0xa000, 0xf800, OP_REGISTER_ADDRESS, VERSION_THUMB, -1 },
-  // msr
-  // mrs
+  { "mrs",   0xf3ef, 0xffff, OP_MRS, VERSION_THUMB, -1 },
+  { "msr",   0xf380, 0xfff0, OP_MSR, VERSION_THUMB, -1 },
   // dsb
   // dmb
   // isb
  
   { NULL, 0, 0, 0, 0, 0 }
+};
+
+struct _special_reg_thumb special_reg_thumb[] =
+{
+  { "apsr",     0 },
+  { "iapsr",    1 },
+  { "eapsr",    2 },
+  { "xpsr",     3 },
+  { "ipsr",     5 },
+  { "epsr",     6 },
+  { "iepsr",    7 },
+  { "msp",      8 },
+  { "psp",      9 },
+  { "primask", 16 },
+  { "control", 20 },
+  { NULL,       0 }
 };
 

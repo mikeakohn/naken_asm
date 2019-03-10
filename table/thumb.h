@@ -45,6 +45,8 @@ enum
   OP_CPS,
   OP_UINT8,
   OP_REGISTER_ADDRESS,
+  OP_MRS,
+  OP_MSR,
 };
 
 enum
@@ -63,8 +65,14 @@ struct _table_thumb
   int8_t cycles;
 };
 
+struct _special_reg_thumb
+{
+  char *name;
+  uint8_t value;
+};
+
 extern struct _table_thumb table_thumb[];
+extern struct _special_reg_thumb special_reg_thumb[];
 
 #endif
-
 

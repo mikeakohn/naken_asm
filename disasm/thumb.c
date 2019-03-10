@@ -51,6 +51,24 @@ static void get_rlist(char *s, int rlist)
   }
 }
 
+static void get_special_register(char *name, int value)
+{
+  int n = 0;
+
+  while (special_reg_thumb[n].name != NULL)
+  {
+    if (special_reg_thumb[n].value == value)
+    {
+      strcpy(name, special_reg_thumb[n].name);
+      return;
+    }
+
+    n++;
+  }
+
+  sprintf(name, "%d", value);
+}
+
 int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint16_t opcode;
@@ -209,21 +227,21 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
           return 2;
         case OP_LONG_BRANCH_WITH_LINK:
           offset = READ_RAM16(address + 2);
+
           if ((offset & 0xf800) != 0xf800)
           {
-            sprintf(instruction, "%s ???", table_thumb[n].instr);
+            n++;
+            continue;
           }
-            else
+
+          rn = opcode & 0x7ff;
+          offset = (rn << 11) | (offset  &0x7ff);
+          if ((offset & 0x200000) != 0)
           {
-            rn = opcode & 0x7ff;
-            offset = (rn << 11) | (offset  &0x7ff);
-            if ((offset & 0x200000) != 0)
-            {
-              offset = -((offset ^ 0x3fffff) + 1);
-            }
-            offset <<= 1;
-            sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address + 4 + offset, offset);
+            offset = -((offset ^ 0x3fffff) + 1);
           }
+          offset <<= 1;
+          sprintf(instruction, "%s 0x%04x (%d)", table_thumb[n].instr, address + 4 + offset, offset);
           return 4;
         case OP_SP_SP_IMM:
           sprintf(instruction, "%s SP, SP, #%d", table_thumb[n].instr, (opcode & 0x3f) * 4);
@@ -244,6 +262,28 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
           immediate = opcode & 0xff;
           sprintf(instruction, "%s r%d, 0x%04x", table_thumb[n].instr, (opcode >> 8) & 0x7, address + 4 + immediate);
           return 2;
+        case OP_MRS:
+          immediate = opcode = READ_RAM16(address + 2);
+          if ((immediate & 0xf000) != 0x8000)
+          {
+            n++;
+            continue;
+          }
+          rd = (immediate >> 8) & 0xf;
+          get_special_register(temp, immediate & 0xff);
+          sprintf(instruction, "%s r%d, %s", table_thumb[n].instr, rd, temp);
+          return 4;
+        case OP_MSR:
+          immediate = opcode = READ_RAM16(address + 2);
+          if ((immediate & 0xff00) != 0x8800)
+          {
+            n++;
+            continue;
+          }
+          rn = (opcode >> 8) & 0xf;
+          get_special_register(temp, immediate & 0xff);
+          sprintf(instruction, "%s %s, r%d", table_thumb[n].instr, temp, rn);
+          return 4;
         default:
           strcpy(instruction, "???");
           return 2;
