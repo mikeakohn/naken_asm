@@ -339,6 +339,7 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
           if (ch == 'n') { ch = '\n'; }
           else if (ch == 'r') { ch = '\r'; }
           else if (ch == 't') { ch = '\t'; }
+          else { tokens_unget_char(asm_context, ch); ch = '\\'; }
         }
 
         token[ptr++] = ch;
@@ -727,7 +728,7 @@ void tokens_push(struct _asm_context *asm_context, char *token, int token_type)
 }
 
 // Returns the number of chars eaten by this function or 0 for error
-int tokens_escape_char(struct _asm_context *asm_context, unsigned char *s)
+int tokens_escape_char(struct _asm_context *asm_context, uint8_t *s)
 {
   int ptr = 1;
 

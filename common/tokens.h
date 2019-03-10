@@ -51,7 +51,7 @@ int tokens_get_char(struct _asm_context *asm_context);
 int tokens_unget_char(struct _asm_context *asm_context, int ch);
 int tokens_get(struct _asm_context *asm_context, char *token, int len);
 void tokens_push(struct _asm_context *asm_context, char *token, int token_type);
-int tokens_escape_char(struct _asm_context *asm_context, unsigned char *s);
+int tokens_escape_char(struct _asm_context *asm_context, uint8_t *s);
 
 enum
 {

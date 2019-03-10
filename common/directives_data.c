@@ -47,14 +47,11 @@ int parse_db(struct _asm_context *asm_context, int null_term_flag)
       {
         if (*s == '\\')
         {
-          int e = tokens_escape_char(asm_context, s);
-
-          if (e == 0)
+          if (s[1] == '0')
           {
-            return -1;
+            s++;
+            *s = 0;
           }
-
-          s = s + e;
         }
 
         memory_write_inc(asm_context, *s, DL_DATA);
