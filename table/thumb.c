@@ -108,6 +108,7 @@ struct _table_thumb table_thumb[] =
   { "udf",   0xde00, 0xff00, OP_UINT8, VERSION_THUMB_2, -1 },
   { "svc",   0xdf00, 0xff00, OP_UINT8, VERSION_THUMB_2, -1 },
   { "adr",   0xa000, 0xf800, OP_REGISTER_ADDRESS, VERSION_THUMB, -1 },
+  { "mov",   0x1c00, 0xf800, OP_REG_LOW, VERSION_THUMB, -1 },
   { "mrs",   0xf3ef, 0xffff, OP_MRS, VERSION_THUMB, -1 },
   { "msr",   0xf380, 0xfff0, OP_MSR, VERSION_THUMB, -1 },
   // dsb

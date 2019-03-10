@@ -47,6 +47,7 @@ enum
   OP_REGISTER_ADDRESS,
   OP_MRS,
   OP_MSR,
+  OP_REG_LOW,
 };
 
 enum

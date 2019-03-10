@@ -897,6 +897,17 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
             return 4;
           }
           break;
+        case OP_REG_LOW:
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REGISTER && operands[0].value <= 7 &&
+              operands[1].type == OPERAND_REGISTER && operands[1].value <= 7)
+          {
+            add_bin16(asm_context, table_thumb[n].opcode |
+                                   operands[0].value |
+                                  (operands[1].value << 3), IS_OPCODE);
+            return 2;
+          }
+          break;
         default:
           break;
       }

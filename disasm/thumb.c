@@ -284,6 +284,11 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
           get_special_register(temp, immediate & 0xff);
           sprintf(instruction, "%s %s, r%d", table_thumb[n].instr, temp, rn);
           return 4;
+        case OP_REG_LOW:
+          rd = opcode & 0x7;
+          rn = (opcode >> 3) & 0x7;
+          sprintf(instruction, "%s r%d, r%d", table_thumb[n].instr, rd, rn);
+          return 2;
         default:
           strcpy(instruction, "???");
           return 2;
