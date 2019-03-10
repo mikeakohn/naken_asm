@@ -120,17 +120,19 @@ struct _table_thumb table_thumb[] =
 
 struct _special_reg_thumb special_reg_thumb[] =
 {
-  { "apsr",     0 },
-  { "iapsr",    1 },
-  { "eapsr",    2 },
-  { "xpsr",     3 },
-  { "ipsr",     5 },
-  { "epsr",     6 },
-  { "iepsr",    7 },
-  { "msp",      8 },
-  { "psp",      9 },
-  { "primask", 16 },
-  { "control", 20 },
-  { NULL,       0 }
+  { "apsr",       0 },
+  { "iapsr",      1 },
+  { "eapsr",      2 },
+  { "xpsr",       3 },
+  { "ipsr",       5 },
+  { "epsr",       6 },
+  { "iepsr",      7 },
+  { "msp",        8 },
+  { "psp",        9 },
+  { "primask",   16 },
+  { "basepri",   17 },
+  { "faultmask", 19 },
+  { "control",   20 },
+  { NULL,         0 }
 };
 
