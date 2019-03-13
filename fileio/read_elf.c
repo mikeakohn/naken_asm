@@ -244,6 +244,9 @@ int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _
     case 83:
       *cpu_type = CPU_TYPE_AVR8;
       break;
+    case 94:
+      *cpu_type = CPU_TYPE_XTENSA;
+      break;
     case 105:
       *cpu_type = CPU_TYPE_MSP430;
       break;
