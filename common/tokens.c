@@ -312,26 +312,15 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
       continue;
     }
 
-    if (ch == '"' || ch == '\'')
+    if (ch == '"')
     {
-      char quote = ch;
-
-      if (ch == '"' )
-      {
-        token_type = TOKEN_QUOTED;
-      }
-        else
-      {
-        token_type = TOKEN_TICKED;
-      }
+      token_type = TOKEN_QUOTED;
 
       while(1)
       {
         ch = tokens_get_char(asm_context);
-        if (ch == quote)
-        {
-          break;
-        }
+
+        if (ch == '"') { break; }
 
         if (ch == '\\')
         {
@@ -344,11 +333,46 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
 
         token[ptr++] = ch;
 
-        if (ptr >= len || (token_type == TOKEN_TICKED && ptr > 1))
+        if (ptr >= len - 1)
         {
           print_error("Unterminated quote", asm_context);
-          exit(1);
+          asm_context->error_count++;
+          break;
         }
+      }
+
+      break;
+    }
+      else
+    if (ch == '\'')
+    {
+      token_type = TOKEN_TICKED;
+
+      while(1)
+      {
+        ch = tokens_get_char(asm_context);
+
+        if (ptr > 1)
+        {
+          print_error("Unterminated ticks", asm_context);
+          asm_context->error_count++;
+          break;
+        }
+
+        if (ch == '\'') { break; }
+
+        if (ch == '\\')
+        {
+          ch = tokens_get_char(asm_context);
+          if (ch == 'n') { ch = '\n'; }
+          else if (ch == 'r') { ch = '\r'; }
+          else if (ch == 't') { ch = '\t'; }
+          else if (ch == '0') { ch = '\0'; }
+          else { tokens_unget_char(asm_context, ch); ch = '\\'; }
+        }
+
+        token[ptr++] = ch;
+
       }
 
       break;
@@ -473,6 +497,7 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
                 if (ch == EOF)
                 {
                   print_error("Unterminated comment", asm_context);
+                  asm_context->error_count++;
                   return TOKEN_EOF;
                 }
 

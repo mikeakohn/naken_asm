@@ -13,8 +13,8 @@ void test_constants()
   char token[TOKENLEN];
   int token_type;
   int i;
-  char *test = { "1234 0x12 0b11001001 0100b 20h" };
-  char *answer[] = { "1234", "18", "201", "4", "32", NULL };
+  char *test = { "1234 0x12 0b11001001 0100b 20h \"\\n\\t\\r\"" };
+  char *answer[] = { "1234", "18", "201", "4", "32", "\n\t\r", NULL };
 
   tokens_open_buffer(&asm_context, test);
   tokens_reset(&asm_context);
@@ -197,6 +197,202 @@ void test_strings_with_dots()
   tokens_close(&asm_context);
 }
 
+void test_ascii_with_null()
+{
+  struct _asm_context asm_context = { 0 };
+  const char *code = ".ascii \"test\\n\\r\\t\\0\"";
+  const char result[] = { 't', 'e', 's', 't', '\n', '\r', '\t', 0 };
+  int error_flag, i;
+
+  asm_context.pass = 1;
+  assembler_init(&asm_context);
+
+  tokens_open_buffer(&asm_context, code);
+  tokens_reset(&asm_context);
+  error_flag = assemble(&asm_context);
+
+  if (error_flag != 0)
+  {
+    printf("error_flag=%d\n", error_flag);
+    errors++;
+  }
+
+  for (i = 0; i < 8; i++)
+  {
+    char c = memory_read_m(&asm_context.memory, i);
+    if (c != result[i])
+    {
+      printf("Error at position %d, got %02x but expected %02x\n",
+        i, c, result[i]);
+      errors++;
+    }
+  }
+}
+
+void test_asciiz()
+{
+  struct _asm_context asm_context = { 0 };
+  const char *code = ".asciiz \"test\"\n.db 5\n";
+  const char result[] = { 't', 'e', 's', 't', 0 };
+  int error_flag, i;
+
+  asm_context.pass = 1;
+  assembler_init(&asm_context);
+
+  tokens_open_buffer(&asm_context, code);
+  tokens_reset(&asm_context);
+  error_flag = assemble(&asm_context);
+
+  if (error_flag != 0)
+  {
+    printf("error_flag=%d\n", error_flag);
+    errors++;
+  }
+
+  for (i = 0; i < 5; i++)
+  {
+    char c = memory_read_m(&asm_context.memory, i);
+    if (c != result[i])
+    {
+      printf("Error at position %d, got %02x but expected %02x\n",
+        i, c, result[i]);
+      errors++;
+    }
+  }
+}
+
+void test_escape_chars_in_db()
+{
+  struct _asm_context asm_context = { 0 };
+  const char *code = ".db '\\n', '\\r', '\\t', '\\0', 5\n";
+  const char result[] = { '\n', '\r', '\t', '\0' };
+  int error_flag, i;
+
+  //printf("code: %s\n", code);
+
+  asm_context.pass = 1;
+  assembler_init(&asm_context);
+
+  tokens_open_buffer(&asm_context, code);
+  tokens_reset(&asm_context);
+  error_flag = assemble(&asm_context);
+
+  if (error_flag != 0)
+  {
+    printf("error_flag=%d\n", error_flag);
+    errors++;
+  }
+
+  for (i = 0; i < 4; i++)
+  {
+    char c = memory_read_m(&asm_context.memory, i);
+    if (c != result[i])
+    {
+      printf("Error at position %d, got %02x but expected %02x\n",
+        i, c, result[i]);
+      errors++;
+    }
+  }
+}
+
+void test_escape_chars_in_code_const()
+{
+  struct _asm_context asm_context = { 0 };
+  const char *code = ".6502\nlda #'\\n'\nlda #'\\0'\n";
+  int error_flag;
+  uint8_t c;
+
+  //printf("code: %s\n", code);
+
+  asm_context.pass = 1;
+  assembler_init(&asm_context);
+  asm_context.pass = 2;
+  assembler_init(&asm_context);
+
+  tokens_open_buffer(&asm_context, code);
+  tokens_reset(&asm_context);
+  error_flag = assemble(&asm_context);
+
+  if (error_flag != 0)
+  {
+    printf("error_flag=%d\n", error_flag);
+    errors++;
+  }
+
+  c = memory_read_m(&asm_context.memory, 1);
+
+  if (c != '\n')
+  {
+    printf("Error at position 1, got 0x%02x but expected 0x%02x\n", c, '\n');
+    errors++;
+  }
+
+  c = memory_read_m(&asm_context.memory, 3);
+
+  if (c != '\0')
+  {
+    printf("Error at position 3, got 0x%02x but expected 0x%02x\n", c, '\0');
+    errors++;
+  }
+}
+
+void test_db_quote_error()
+{
+  struct _asm_context asm_context = { 0 };
+  const char *code = ".ascii \"hello\n";
+  int error_flag;
+
+  asm_context.pass = 1;
+  assembler_init(&asm_context);
+  tokens_open_buffer(&asm_context, code);
+  tokens_reset(&asm_context);
+  error_flag = assemble(&asm_context);
+
+  if (error_flag == 0)
+  {
+    printf("Error: error_flag=%d\n", error_flag);
+    errors++;
+  }
+}
+
+void test_db_tick_error()
+{
+  struct _asm_context asm_context = { 0 };
+  const char *code = ".db '\\n\n";
+  int error_flag;
+
+  asm_context.pass = 1;
+  assembler_init(&asm_context);
+  tokens_open_buffer(&asm_context, code);
+  tokens_reset(&asm_context);
+  error_flag = assemble(&asm_context);
+
+  if (error_flag == 0)
+  {
+    printf("Error: error_flag=%d\n", error_flag);
+    errors++;
+  }
+}
+
+void test_code_tick_error()
+{
+  struct _asm_context asm_context = { 0 };
+  const char *code = ".6502\nlda #'\\n\n";
+  int error_flag;
+
+  asm_context.pass = 1;
+  assembler_init(&asm_context);
+  tokens_open_buffer(&asm_context, code);
+  tokens_reset(&asm_context);
+  error_flag = assemble(&asm_context);
+
+  if (error_flag == 0)
+  {
+    printf("Error: error_flag=%d\n", error_flag);
+    errors++;
+  }
+}
+
 int main(int argc, char *argv[])
 {
   printf("tokens.o test\n");
@@ -205,6 +401,16 @@ int main(int argc, char *argv[])
   test_constants();
   test_pushback();
   test_strings_with_dots();
+
+  // These might be more of data tests... although the tokenizer is involved
+  // in much of this.
+  test_ascii_with_null();
+  test_asciiz();
+  test_escape_chars_in_db();
+  test_escape_chars_in_code_const();
+  test_db_quote_error();
+  test_db_tick_error();
+  test_code_tick_error();
 
   printf("Testing: tokens.o ... ");
 

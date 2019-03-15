@@ -763,10 +763,14 @@ int assemble(struct _asm_context *asm_context)
 
   while(1)
   {
+    if (asm_context->error_count > 0) { return -1; }
+
     token_type = tokens_get(asm_context, token, TOKENLEN);
+
 #ifdef DEBUG
     printf("%d: <%d> %s\n", asm_context->tokens.line, token_type, token);
 #endif
+
     if (token_type == TOKEN_EOF) { break; }
 
     if (token_type == TOKEN_EOL)
