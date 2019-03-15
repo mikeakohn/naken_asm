@@ -98,6 +98,28 @@ static int tokens_hex_string_to_int(char *s, uint64_t *num, int prefixed)
   return 0;
 }
 
+static int process_escape(struct _asm_context *asm_context, int process_zero)
+{
+  int ch = tokens_get_char(asm_context);
+
+  switch (ch)
+  {
+    case 'n': return '\n';
+    case 'r': return '\r';
+    case 't': return '\t';
+    case '"': return '"';
+    case '\\': return '\\';
+    case '\'': return '\'';
+    case '0':
+      if (process_zero == 1) { return'\0'; }
+      break;
+  }
+
+  tokens_unget_char(asm_context, ch);
+
+  return '\\';
+}
+
 static int tokens_octal_string_to_int(char *s, uint64_t *num)
 {
   uint64_t n = 0;
@@ -324,11 +346,7 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
 
         if (ch == '\\')
         {
-          ch = tokens_get_char(asm_context);
-          if (ch == 'n') { ch = '\n'; }
-          else if (ch == 'r') { ch = '\r'; }
-          else if (ch == 't') { ch = '\t'; }
-          else { tokens_unget_char(asm_context, ch); ch = '\\'; }
+          ch = process_escape(asm_context, 0);
         }
 
         token[ptr++] = ch;
@@ -363,16 +381,10 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
 
         if (ch == '\\')
         {
-          ch = tokens_get_char(asm_context);
-          if (ch == 'n') { ch = '\n'; }
-          else if (ch == 'r') { ch = '\r'; }
-          else if (ch == 't') { ch = '\t'; }
-          else if (ch == '0') { ch = '\0'; }
-          else { tokens_unget_char(asm_context, ch); ch = '\\'; }
+          ch = process_escape(asm_context, 1);
         }
 
         token[ptr++] = ch;
-
       }
 
       break;
