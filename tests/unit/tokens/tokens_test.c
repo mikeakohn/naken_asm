@@ -208,7 +208,7 @@ void test_strings_with_dots()
 void test_ascii_with_null()
 {
   struct _asm_context asm_context = { 0 };
-  const char *code = ".ascii \"test\\n\\r\\t\\0\"";
+  const char *code = ".ascii \"test\\n\\r\\t\\0\"\n.db 5";
   const char result[] = { 't', 'e', 's', 't', '\n', '\r', '\t', 0 };
   int error_flag, i;
 
@@ -227,7 +227,7 @@ void test_ascii_with_null()
     errors++;
   }
 
-  for (i = 0; i < 8; i++)
+  for (i = 0; i < sizeof(result); i++)
   {
     char c = memory_read_m(&asm_context.memory, i);
     if (c != result[i])
@@ -312,8 +312,15 @@ void test_escape_chars_in_db()
 void test_escape_chars_in_code_const()
 {
   struct _asm_context asm_context = { 0 };
-  const char *code = ".6502\nlda #'\\n'\nlda #'\\0'\n";
-  int error_flag;
+  const char *code = ".6502\n"
+                     "lda #'\\n'\n"
+                     "lda #'\\0'\n"
+                     "lda #'\\\\'\n"
+                     "lda #'\\''\n"
+                     "lda #'\\\"'\n"
+                     "lda #'\"'\n";
+  const char result[] = { '\n', '\0', '\\', '\'', '"', '"' };
+  int error_flag, ptr, i;
   uint8_t c;
 
   printf(" - test_escape_chars_in_code_const - \n");
@@ -335,20 +342,20 @@ void test_escape_chars_in_code_const()
     errors++;
   }
 
-  c = memory_read_m(&asm_context.memory, 1);
+  ptr = 1;
 
-  if (c != '\n')
+  for (i = 0; i < sizeof(result); i++)
   {
-    printf("Error at position 1, got 0x%02x but expected 0x%02x\n", c, '\n');
-    errors++;
-  }
+    c = memory_read_m(&asm_context.memory, ptr);
 
-  c = memory_read_m(&asm_context.memory, 3);
+    if (c != result[i])
+    {
+      printf("Error at position %d, got 0x%02x but expected 0x%02x\n",
+        i, c, result[i]);
+      errors++;
+    }
 
-  if (c != '\0')
-  {
-    printf("Error at position 3, got 0x%02x but expected 0x%02x\n", c, '\0');
-    errors++;
+    ptr += 2;
   }
 }
 
