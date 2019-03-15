@@ -80,23 +80,23 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
     case OP_ADDRESS8:
       return lo & 0xFF;
     case OP_ADDRESS16:
-      return lo + 256 * hi;
+      return lo | (hi << 8);
     case OP_INDEXED8_X:
       return (lo + REG_X) & 0xFF;
     case OP_INDEXED8_Y:
       return (lo + REG_Y) & 0xFFFF;
     case OP_INDEXED16_X:
-      return ((lo + 256 * hi) + REG_X) & 0xFFFF;
+      return ((lo | (hi << 8)) + REG_X) & 0xFFFF;
     case OP_INDEXED16_Y:
-      return ((lo + 256 * hi) + REG_Y) & 0xFFFF;
+      return ((lo | (hi << 8)) + REG_Y) & 0xFFFF;
     case OP_INDIRECT16:
-      indirect = (lo + 256 * hi) & 0xFFFF;
-      return (READ_RAM(indirect) + 256 * READ_RAM((indirect + 1) & 0xFFFF)) & 0xFFFF;
+      indirect = (lo | (hi << 8)) & 0xFFFF;
+      return (READ_RAM(indirect) | ((READ_RAM((indirect + 1) & 0xFFFF) << 8) & 0xFFFF));
     case OP_X_INDIRECT8:
-      indirect = ((READ_RAM(lo) + REG_X) & 0xFF) + 256 * READ_RAM((lo + 1) & 0xFF);
+      indirect = ((READ_RAM(lo + REG_X)) & 0xFF) | (READ_RAM((lo + 1 + REG_X) & 0xFF) << 8);
       return (indirect) & 0xFFFF;
     case OP_INDIRECT8_Y:
-      indirect = READ_RAM(lo) + 256 * READ_RAM((lo + 1) & 0xFF);
+      indirect = READ_RAM(lo) | (READ_RAM((lo + 1) & 0xFF) << 8);
       return (indirect + REG_Y) & 0xFFFF;
     case OP_RELATIVE:
       return (address + ((signed char)READ_RAM(address) + 1)) & 0xFFFF;
