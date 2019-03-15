@@ -218,11 +218,11 @@ int parse_cps(struct _asm_context *asm_context, int disable)
 
   while(token[n] != 0)
   {
-    if (token[n] == 'i')
+    if (token[n] == 'i' || token[n] == 'I' )
     {
       value |= 2;
     }
-    else if (token[n] == 'f')
+    else if ( token[n] == 'f' || token[n] == 'F' )
     {
       value |= 1;
     }
