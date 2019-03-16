@@ -47,11 +47,11 @@ struct _asm_context
   FILE *list;
   int address;
   int segment;
-  //int line;
   int pass;
   int instruction_count;
   int data_count;
   int code_count;
+  int error_count;
   int ifdef_count;
   int parsing_ifdef;
   struct _linker *linker;

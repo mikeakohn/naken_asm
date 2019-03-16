@@ -98,6 +98,28 @@ static int tokens_hex_string_to_int(char *s, uint64_t *num, int prefixed)
   return 0;
 }
 
+static int process_escape(struct _asm_context *asm_context, int process_zero)
+{
+  int ch = tokens_get_char(asm_context);
+
+  switch (ch)
+  {
+    case 'n': return '\n';
+    case 'r': return '\r';
+    case 't': return '\t';
+    case '"': return '"';
+    case '\\': return '\\';
+    case '\'': return '\'';
+    case '0':
+      if (process_zero == 1) { return'\0'; }
+      break;
+  }
+
+  tokens_unget_char(asm_context, ch);
+
+  return '\\';
+}
+
 static int tokens_octal_string_to_int(char *s, uint64_t *num)
 {
   uint64_t n = 0;
@@ -312,43 +334,57 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
       continue;
     }
 
-    if (ch == '"' || ch == '\'')
+    if (ch == '"')
     {
-      char quote = ch;
-
-      if (ch == '"' )
-      {
-        token_type = TOKEN_QUOTED;
-      }
-        else
-      {
-        token_type = TOKEN_TICKED;
-      }
+      token_type = TOKEN_QUOTED;
 
       while(1)
       {
         ch = tokens_get_char(asm_context);
-        if (ch == quote)
-        {
-          break;
-        }
+
+        if (ch == '"') { break; }
 
         if (ch == '\\')
         {
-          ch = tokens_get_char(asm_context);
-          if (ch == 'n') { ch = '\n'; }
-          else if (ch == 'r') { ch = '\r'; }
-          else if (ch == 't') { ch = '\t'; }
-          else { tokens_unget_char(asm_context, ch); ch = '\\'; }
+          ch = process_escape(asm_context, 0);
         }
 
         token[ptr++] = ch;
 
-        if (ptr >= len || (token_type == TOKEN_TICKED && ptr > 1))
+        if (ptr >= len - 1)
         {
           print_error("Unterminated quote", asm_context);
-          exit(1);
+          asm_context->error_count++;
+          break;
         }
+      }
+
+      break;
+    }
+      else
+    if (ch == '\'')
+    {
+      token_type = TOKEN_TICKED;
+
+      while(1)
+      {
+        ch = tokens_get_char(asm_context);
+
+        if (ptr > 1)
+        {
+          print_error("Unterminated ticks", asm_context);
+          asm_context->error_count++;
+          break;
+        }
+
+        if (ch == '\'') { break; }
+
+        if (ch == '\\')
+        {
+          ch = process_escape(asm_context, 1);
+        }
+
+        token[ptr++] = ch;
       }
 
       break;
@@ -473,6 +509,7 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
                 if (ch == EOF)
                 {
                   print_error("Unterminated comment", asm_context);
+                  asm_context->error_count++;
                   return TOKEN_EOF;
                 }
 
