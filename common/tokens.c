@@ -339,8 +339,6 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
           if (ch == 'n') { ch = '\n'; }
           else if (ch == 'r') { ch = '\r'; }
           else if (ch == 't') { ch = '\t'; }
-          else if (ch == '\"') { ch = '\"'; }
-          else if (ch == '\'') { ch = '\''; }
           else { tokens_unget_char(asm_context, ch); ch = '\\'; }
         }
 
