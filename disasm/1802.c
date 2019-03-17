@@ -154,7 +154,6 @@ int disasm_1802(struct _memory *memory, uint32_t address, char *instruction, int
 void list_output_1802(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min, cycles_max;
-  uint32_t opcode;
   char instruction[128];
   char temp[32];
   int count;
@@ -166,10 +165,9 @@ void list_output_1802(struct _asm_context *asm_context, uint32_t start, uint32_t
   {
     count = disasm_1802(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-    opcode = memory_read_m(&asm_context->memory, start);
-    sprintf(temp, "%02x", opcode);
+    temp[0] = 0;
 
-    for (n = 1; n < count; n++)
+    for (n = 0; n < count; n++)
     {
       char temp2[4];
       sprintf(temp2, " %02x", memory_read_m(&asm_context->memory, start + n));
@@ -199,22 +197,33 @@ void list_output_1802(struct _asm_context *asm_context, uint32_t start, uint32_t
 void disasm_range_1802(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
+  //uint16_t opcode;
+  char temp[32];
   int cycles_min = 0,cycles_max = 0;
-  uint16_t opcode;
   int count;
+  int n;
 
   printf("\n");
 
-  printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
-  printf("------- ------ ----------------------------------       ------\n");
+  printf("%-8s %-9s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
+  printf("-------  --------- ------------------------------           ------\n");
 
   while(start <= end)
   {
     count = disasm_1802(memory, start, instruction, &cycles_min, &cycles_max);
 
-    opcode = memory_read16_m(memory, start);
+    //opcode = memory_read16_m(memory, start);
 
-    printf("0x%04x: 0x%04x %-40s ", start / 2, opcode, instruction);
+    temp[0] = 0;
+
+    for (n = 0; n < count; n++)
+    {
+      char temp2[4];
+      sprintf(temp2, " %02x", memory_read_m(memory, start + n));
+      strcat(temp, temp2);
+    }
+
+    printf("0x%04x: %-10s %-40s ", start, temp, instruction);
 
     if (cycles_min == 0)
     {
