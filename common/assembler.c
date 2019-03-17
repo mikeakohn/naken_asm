@@ -395,7 +395,7 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
         ptr++;
         continue;
       }
-      putc(asm_context->include_path[ptr++], out); 
+      putc(asm_context->include_path[ptr++], out);
     }
   }
 
@@ -419,7 +419,7 @@ int assembler_link_file(struct _asm_context *asm_context, const char *filename)
   n = strlen(filename);
 
   while(n >= 0)
-  { 
+  {
     n--;
     if (filename[n] == '.') { break; }
   }
@@ -841,7 +841,7 @@ int assemble(struct _asm_context *asm_context)
         return 2;
       }
         else
-      if (strcasecmp(token, "include") == 0)
+      if (strcasecmp(token, "include") == 0 || strcasecmp(token, "inc") == 0)
       {
         if (include_parse(asm_context) != 0) { return -1; }
       }
@@ -913,7 +913,7 @@ int assemble(struct _asm_context *asm_context)
       int ret = check_for_directive(asm_context, token);
       if (ret == 2) break;
       if (ret == -1) return -1;
-      if (ret != 1) 
+      if (ret != 1)
       {
         int start_address = asm_context->address;
         char token2[TOKENLEN];
