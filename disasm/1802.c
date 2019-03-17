@@ -33,6 +33,61 @@ int disasm_1802(struct _memory *memory, uint32_t address, char *instruction, int
 
   opcode = memory_read_m(memory, address);
 
+  if (opcode == 0x68)
+  {
+    opcode = memory_read_m(memory, address + 1);
+
+    n = 0;
+    while(table_1802_16[n].instr != NULL)
+    {
+      if ((opcode & table_1802_16[n].mask) == table_1802_16[n].opcode)
+      {
+        // According to Wikipedia, every machine cycle is 8 clock cycles.
+        *cycles_min = table_1802_16[n].cycles * 8;
+        *cycles_max = *cycles_min;
+
+        switch(table_1802_16[n].type)
+        {
+          case RCA1802_OP_NONE:
+          {
+            strcpy(instruction, table_1802_16[n].instr);
+            return 2;
+          }
+          case RCA1802_OP_REG:
+          {
+            sprintf(instruction, "%s %d", table_1802_16[n].instr, opcode & 0xf);
+            return 2;
+          }
+          case RCA1802_OP_IMMEDIATE:
+          {
+            data = memory_read_m(memory, address + 2);
+            sprintf(instruction, "%s 0x%02x", table_1802_16[n].instr, data);
+            return 3;
+          }
+          case RCA1802_OP_BRANCH:
+          {
+            data = memory_read_m(memory, address + 2);
+            sprintf(instruction, "%s 0x%04x",
+              table_1802_16[n].instr, (address & 0xff00) | data);
+            return 3;
+          }
+          case RCA1802_OP_REG_BRANCH:
+          {
+            data = memory_read_m(memory, address + 2);
+            sprintf(instruction, "%s %d, 0x%04x",
+              table_1802_16[n].instr, opcode & 0xf, (address & 0xff00) | data);
+            return 3;
+          }
+        }
+      }
+
+      n++;
+    }
+
+    strcpy(instruction, "???");
+    return 1;
+  }
+
   n = 0;
   while(table_1802[n].instr != NULL)
   {
@@ -51,7 +106,7 @@ int disasm_1802(struct _memory *memory, uint32_t address, char *instruction, int
         }
         case RCA1802_OP_REG:
         {
-          sprintf(instruction, "%s %X", table_1802[n].instr, opcode & 0xf);
+          sprintf(instruction, "%s %d", table_1802[n].instr, opcode & 0xf);
           return 1;
         }
         case RCA1802_OP_NUM_1_TO_7:

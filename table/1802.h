@@ -23,6 +23,7 @@ enum
   RCA1802_OP_IMMEDIATE,
   RCA1802_OP_BRANCH,
   RCA1802_OP_LONG_BRANCH,
+  RCA1802_OP_REG_BRANCH,
 };
 
 struct _table_1802
@@ -35,6 +36,7 @@ struct _table_1802
 };
 
 extern struct _table_1802 table_1802[];
+extern struct _table_1802 table_1802_16[];
 
 #endif
 
