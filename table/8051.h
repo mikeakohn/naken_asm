@@ -45,5 +45,16 @@ struct _table_8051
 
 extern struct _table_8051 table_8051[];
 
+struct _address_map
+{
+  const char *name;
+  uint8_t address;
+  uint8_t is_bit_addressable;
+};
+
+extern struct _address_map address_map[];
+
+extern struct _address_map address_map_psw[];
+
 #endif
 
