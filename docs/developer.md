@@ -1,10 +1,19 @@
 Developer Guidelines
 ====================
 
-For anyone interested in adding a new assembler to naken_asm,
-fixing bugs, or adding features, this document gives coding
-standards that I will accept when doing a merge request and a
-small tutorial on how to add a new CPU from scratch.
+I typically would rather work on this project myself.. I put
+the source code out so it's easy to compile on whatever system
+people want it on.  However, if someone has a bug fix or added
+a new assembler, I do accept merge requests.
+
+I'm quite picky on coding style, I do my best to avoid inconsistency
+in the way the code looks, so this page is for coding standard
+guidelines used in naken_asm and information on how to add a new
+CPU and such.
+
+When sending a merge request, please only make it on fix or feature
+at a time so I can pick which ones appear appropriate.  This also
+makes it easier for me understand what exactly I'm merging in.
 
 Adding A New CPU
 ----------------
@@ -42,6 +51,7 @@ assemblers can be used as an example, but here is the basic coding
 standard:
 
 * Indentation is 2 spaces (no tabs).
+* Comments should be done with // and not /\* \*/
 * Make sure there are no trailing spaces at the end of lines.
 * 1 space always after the keyword "if" and "for".  For example:
 
@@ -89,6 +99,45 @@ Not okay:
     {
     }
 
+* Use the word NULL when appropriate.
+
+This is okay:
+
+    if (name != NULL)
+    {
+    }
+
+Not okay:
+
+    if (name)
+    {
+    }
+
+* Always wrap if-statements in { }
+
+This is okay:
+
+   if (number == 3) { do_something(); }
+
+   if (something == 1)
+   {
+     do_something();
+   }
+     else
+   {
+     do_something_else();
+   }
+
+Not okay:
+
+   if (number == 3) do_something();
+
+   if (something == 1)
+     do_something();
+   else
+     do_something_else();
+
 * Function names are always lowercase with _ separating words.
 * Variable names are always lowercase with _ separating words.
+
 
