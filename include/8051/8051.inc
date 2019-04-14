@@ -42,6 +42,3 @@ DP1L equ 0x84
 DP1H equ 0x85
 PCON equ 0x87
 
-
-
-
