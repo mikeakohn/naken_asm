@@ -16,6 +16,40 @@
 #include "disasm/8051.h"
 #include "table/8051.h"
 
+static const char *get_address_alias(uint8_t address)
+{
+  int n;
+  const char *result = NULL;
+
+  for (n = 0; address_map[n].name; n++)
+  {
+    if (address == address_map[n].address)
+    {
+      result = address_map[n].name;
+      break;
+    }
+  }
+
+  return result;
+}
+
+static const char *get_bit_address_alias(uint8_t address)
+{
+  int n;
+  const char *result = NULL;
+
+  for (n = 0; address_map_psw[n].name; n++)
+  {
+    if (address == address_map_psw[n].address)
+    {
+      result = address_map_psw[n].name;
+      break;
+    }
+  }
+
+  return result;
+}
+
 #define READ_RAM(a) memory_read_m(memory, a)
 
 int get_cycle_count_8051(unsigned short int opcode)
@@ -30,16 +64,9 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
   char temp[32];
   int value;
   int n;
+  const char *alias;
 
   opcode = READ_RAM(address);
-
-  // :(
-  if (opcode == 0x85)
-  {
-    sprintf(instruction, "%s 0x%02x, 0x%02x", table_8051[opcode].name, READ_RAM(address + 0), READ_RAM(address + 1));
-    return 3;
-  }
-
   strcpy(instruction, table_8051[opcode].name);
 
   for (n = 0; n < 3; n++)
@@ -102,24 +129,38 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
         count++;
         break;
       case OP_SLASH_BIT_ADDR:
+        strcat(instruction, "/");
+        /* fall through */
+      case OP_BIT_ADDR:
         value = READ_RAM(address + count);
-        sprintf(temp, "/0x%02x.%d [0x%02x]", value & 0xf8, value & 0x7, value);
+        alias = get_bit_address_alias(value);
+        if (alias)
+        {
+          strcpy(temp, alias);
+        }
+        else
+        {
+          alias = get_address_alias(value & 0xf8);
+          if (alias)
+            sprintf(temp, "%s.%d", alias, value & 0x07);
+          else
+            sprintf(temp, "0x%02x.%d", value & 0xf8, value & 0x07);
+        }
+        strcat(instruction, temp);
+        count++;
+        break;
+      case OP_IRAM_ADDR:
+        value = READ_RAM(address + count);
+        alias = get_address_alias(value);
+        if (alias)
+          strcpy(temp, alias);
+        else
+          sprintf(temp, "0x%02x", value);
         strcat(instruction, temp);
         count++;
         break;
       case OP_PAGE:
         sprintf(temp, "0x%04x", READ_RAM(address + count) | (table_8051[opcode].range << 8));
-        strcat(instruction, temp);
-        count++;
-        break;
-      case OP_BIT_ADDR:
-        value = READ_RAM(address + count);
-        sprintf(temp, "0x%02x.%d [0x%02x]", value & 0xf8, value & 0x07, value);
-        strcat(instruction, temp);
-        count++;
-        break;
-      case OP_IRAM_ADDR:
-        sprintf(temp, "0x%02x", READ_RAM(address + count));
         strcat(instruction, temp);
         count++;
         break;

@@ -45,63 +45,6 @@ struct _operand
   int type;
 };
 
-struct _address_map
-{
-  const char *name;
-  uint8_t address;
-  uint8_t is_bit_addressable;
-};
-
-static struct _address_map address_map[] =
-{
-  { "B", 0xf0, 1 },
-  { "ACC", 0xe0, 1 },
-  { "PSW", 0xd0, 1 },
-  { "T2CON", 0xc8, 0 },
-  { "T2MOD", 0xc9 , 0},
-  { "RCAP2L", 0xca, 0 },
-  { "RCAP2H", 0xcb, 0 },
-  { "TL2", 0xcc, 0 },
-  { "TH2", 0xcd, 0 },
-  { "IP", 0xb8, 1 },
-  { "P3", 0xb0, 1 },
-  { "IE", 0xa8, 1 },
-  { "P2", 0xa0, 1 },
-  { "AUXR1", 0xa2, 0 },
-  { "WDTRST", 0xa6, 0 },
-  { "SCON", 0x98, 1 },
-  { "SBUF", 0x99, 0 },
-  { "P1", 0x90, 1 },
-  { "TCON", 0x88, 1 },
-  { "TMOD", 0x89, 0 },
-  { "TL0", 0x8a, 0 },
-  { "TL1", 0x8b, 0 },
-  { "TH0", 0x8c, 0 },
-  { "TH1", 0x8d, 0 },
-  { "AUXR", 0x8e, 0 },
-  { "P0", 0x80, 1 },
-  { "SP", 0x81, 0 },
-  { "DPL", 0x82, 0 },
-  { "DPH", 0x83, 0 },
-  { "DP0L", 0x82, 0 },
-  { "DP0H", 0x83, 0 },
-  { "DP1L", 0x84, 0 },
-  { "DP1H", 0x85, 0 },
-  { "PCON", 0x87, 0 },
-};
-
-static struct _address_map address_map_psw[] =
-{
-  { "CY", 0xd7 },
-  { "AC", 0xd6 },
-  { "F0", 0xd5 },
-  { "RS1", 0xd4 },
-  { "RS0", 0xd3 },
-  { "OV", 0xd2 },
-  { "UD", 0xd1 },
-  { "P", 0xd0 },
-};
-
 static int get_register_8051(char *token)
 {
   if (token[0] != 'r' && token[0] != 'R') { return -1; }
@@ -142,7 +85,7 @@ static int get_bit_address_alias(const char *token)
 {
   int n;
 
-  for (n = 0; n < sizeof(address_map_psw) / sizeof(struct _address_map); n++)
+  for (n = 0; address_map_psw[n].name; n++)
   {
     if (strcasecmp(token, address_map_psw[n].name) == 0)
     {
@@ -163,7 +106,7 @@ static int get_address(struct _asm_context *asm_context, int *num, uint8_t *is_b
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
 
-  for (n = 0; n < sizeof(address_map) / sizeof(struct _address_map); n++)
+  for (n = 0; address_map[n].name; n++)
   {
     if (strcasecmp(token, address_map[n].name) == 0)
     {
