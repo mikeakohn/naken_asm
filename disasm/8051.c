@@ -33,10 +33,11 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
 
   opcode = READ_RAM(address);
 
-  // :(
+  // The mov iram_addr, iram_addr instruction didn't fit the format of
+  // the table and how the rest of the instructions were done.
   if (opcode == 0x85)
   {
-    sprintf(instruction, "%s 0x%02x, 0x%02x", table_8051[opcode].name, READ_RAM(address + 0), READ_RAM(address + 1));
+    sprintf(instruction, "%s 0x%02x, 0x%02x", table_8051[opcode].name, READ_RAM(address + 1), READ_RAM(address + 2));
     return 3;
   }
 
