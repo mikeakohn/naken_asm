@@ -506,7 +506,7 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
 
   sprintf(instruction, "???");
 
-  return -1;
+  return 1;
 }
 
 static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
@@ -991,7 +991,7 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
 
   sprintf(instruction, "???");
 
-  return -1;
+  return 1;
 }
 
 int disasm_xtensa(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
