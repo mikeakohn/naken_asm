@@ -40,4 +40,3 @@ extern struct _table_lc3 table_lc3[];
 
 #endif
 
-
