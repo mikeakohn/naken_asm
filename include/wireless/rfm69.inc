@@ -59,7 +59,7 @@ RFM69_SYNC_VALUE5    equ 0x33 ; Sync Word Byte 5
 RFM69_SYNC_VALUE6    equ 0x34 ; Sync Word Byte 6
 RFM69_SYNC_VALUE7    equ 0x35 ; Sync Word Byte 7
 RFM69_SYNC_VALUE8    equ 0x36 ; Sync Word Byte 8
-RFM69_PACKET_CONFIG  equ 0x37 ; Packet mode setting
+RFM69_PACKET_CONFIG1 equ 0x37 ; Packet mode setting
 RFM69_PAYLOAD_LENGTH equ 0x38 ; Payload length setting
 RFM69_NODE_ADRS      equ 0x39 ; Node address
 RFM69_BROADCAST_ADRS equ 0x3a ; Broadcast address
