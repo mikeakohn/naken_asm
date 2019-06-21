@@ -44,7 +44,8 @@ RFM69_FEI_LSB        equ 0x22 ; LSB of the calculated frequency error
 RFM69_RSSI_CONFIG    equ 0x23 ; RSSI-related settings
 RFM69_RSSI_VALUE     equ 0x24 ; RSSI value in dBm
 RFM69_DIO_MAPPING1   equ 0x25 ; Mapping of pins DIO0 to DIO3
-RFM69_DIO_MAPPING2   equ 0x26 ; RegIrqFlags1 0x80 Status register: PLL Lock state, Timeout, RSSI > Threshold...
+RFM69_DIO_MAPPING2   equ 0x26 ; Mapping of pins DIO4 and DIO5, ClkOut frequency
+RFM69_IRQ_FLAGS1     equ 0x27 ; Status register: PLL Lock state, Timeout, RSSI > Threshold...
 RFM69_IRQ_FLAGS2     equ 0x28 ; Status register: FIFO handling flags...
 RFM69_RSSI_THRESH    equ 0x29 ; RegRxTimeout1 0x00 Timeout duration between Rx request and RSSI detection
 RFM69_RX_TIMEOUT2    equ 0x2b ; Timeout duration between RSSI detection and PayloadReady
