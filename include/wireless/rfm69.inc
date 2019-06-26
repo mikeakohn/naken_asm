@@ -34,7 +34,8 @@ RFM69_RESERVED16     equ 0x16 ; -
 RFM69_RESERVED17     equ 0x17 ; -
 RFM69_LNA            equ 0x18 ; LNA settings
 RFM69_RX_BW          equ 0x19 ; Channel Filter BW Control
-RFM69_AFC_BW         equ 0x1a ; RegOokPeak 0x40 OOK demodulator selection and control in peak mode
+RFM69_AFC_BW         equ 0x1a ; Channel Filter BW control during the AFC routine
+RFM69_OOK_PEAK       equ 0x1b ; OOK demodulator selection and control in peak mode
 RFM69_OOK_AVG        equ 0x1c ; Average threshold control of the OOK demodulator
 RFM69_OOK_FIX        equ 0x1d ; Fixed threshold control of the OOK demodulator
 RFM69_AFC_FEI        equ 0x1e ; AFC and FEI control and status
