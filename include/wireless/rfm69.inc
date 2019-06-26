@@ -24,7 +24,8 @@ RFM69_RESERVED0_C    equ 0x0c ; -
 RFM69_LISTEN1        equ 0x0d ; Listen Mode settings
 RFM69_LISTEN2        equ 0x0e ; Listen Mode Idle duration
 RFM69_LISTEN3        equ 0x0f ; Listen Mode Rx duration
-RFM69_VERSION        equ 0x10 ; RegPaLevel 0x9F PA selection and Output Power control
+RFM69_VERSION        equ 0x10 ; Chip version.
+RFM69_PA_LEVEL       equ 0x11 ; RegPaLevel 0x9F PA selection and Output Power control
 RFM69_PA_RAMP        equ 0x12 ; Control of the PA ramp time in FSK mode
 RFM69_OCP            equ 0x13 ; Over Current Protection control
 RFM69_RESERVED14     equ 0x14 ; -
