@@ -332,6 +332,10 @@ UCB0STAT equ 0x6d   ; USCI_B0 status register
 UCB0RXBUF equ 0x6e  ; USCI_B0 receive buffer register
 UCB0TXBUF equ 0x6f  ; USCI_B0 transmit buffer register
 
+UCB0I2CIE equ 0x6c  ; USCI_B0 I2C interrupt enable register
+UCB0I2COA equ 0x118 ; USCI_B0 I2C own address register
+UCB0I2CSA equ 0x11a ; USCI_B0 I2C slave address register
+
 UCPEN equ 128
 UCPAR equ 64
 UCMSB equ 32
@@ -347,6 +351,10 @@ UCSSEL_0 equ 0x00
 UCSSEL_1 equ 0x40
 UCSSEL_2 equ 0x80
 UCSSEL_3 equ 0xc0
+UCTR equ 0x10
+UCTXNACK equ 0x08
+UCTXSTP equ 0x04
+UCTXSTT equ 0x02
 UCRXEIE equ 0x20
 UCBRKIE equ 0x10
 UCDORM equ 0x08
