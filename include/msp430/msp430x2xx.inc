@@ -248,6 +248,7 @@ WDTIFG equ 0x01
 ;; ADC10
 
 ADC10AE0 equ 0x004a       ; ADC analog enable
+ADC10AE1 equ 0x004b       ; ADC analog enable
 ADC10DTC1 equ 0x0049      ; ADC data transfer control 1
 ADC10DTC0 equ 0x0048      ; ADC data transfer control 0
 
@@ -681,7 +682,6 @@ RSEL_13 equ 0x0d
 RSEL_14 equ 0x0e
 RSEL_15 equ 0x0f
 
-
 SELM_0  equ 0   ; MCLK is DOCLK
 SELM_1  equ 64  ; MCLK is DCOLK
 SELM_2  equ 128 ; MCLK is XT2CLK, LFXT1CLK, or VLOCLK
@@ -815,6 +815,13 @@ IE1 equ 0x0000            ; SFR interrupt enable 1
 
 OSCOFF equ 32
 OFIFG   equ 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Comparitor_A+
+
+CAPD equ 0x5b
+CACTL2 equ 0x5a
+CACTL1 equ 0x59
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
