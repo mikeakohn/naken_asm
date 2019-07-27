@@ -5,8 +5,7 @@
 ;; Email: mike@mikekohn.net
 ;; Web: http://www.mikekohn.net/
 ;;
-;; Part of the naken430asm project
-
+;; Part of the naken_asm project
 
 ;; All Banks
 EIE equ 0x1b
