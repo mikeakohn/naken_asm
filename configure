@@ -282,7 +282,7 @@ for option in $@; do
   --enable-1802)
     ASM_OBJS="${ASM_OBJS} 1802.o"
     DISASM_OBJS="${DISASM_OBJS} 1802.o"
-    #SIM_OBJS="${SIM_OBJS} 1802.o"
+    SIM_OBJS="${SIM_OBJS} 1802.o"
     TABLE_OBJS="${TABLE_OBJS} 1802.o"
     DFLAGS="${DFLAGS} -DENABLE_1802"
   ;;

@@ -88,6 +88,7 @@
 #include "disasm/webasm.h"
 #include "disasm/xtensa.h"
 #include "disasm/z80.h"
+#include "simulate/1802.h"
 #include "simulate/6502.h"
 #include "simulate/65816.h"
 #include "simulate/avr8.h"
@@ -175,7 +176,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_1802,
     disasm_range_1802,
-    NULL,
+    simulate_init_1802,
     NO_FLAGS,
   },
 #endif
