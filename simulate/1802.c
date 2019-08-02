@@ -1,3 +1,16 @@
+/**
+ *  naken_asm assembler.
+ *  Author: Michael Kohn
+ *   Email: mike@mikekohn.net
+ *     Web: http://www.mikekohn.net/
+ * License: GPLv3
+ *
+ * Copyright 2010-2019 by Michael Kohn
+ *
+ * 1802 file by Malik Enes Safak
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -66,11 +79,13 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
-void simulate_push_1802(struct _simulate *simulate, uint32_t value){
+void simulate_push_1802(struct _simulate *simulate, uint32_t value)
+{
   return;
 }
 
-static int operand_exe(struct _simulate *simulate, int opcode){
+static int operand_exe(struct _simulate *simulate, int opcode)
+{
   struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
   
   REG_N = opcode & 0xF;
@@ -89,14 +104,17 @@ static int operand_exe(struct _simulate *simulate, int opcode){
   }
   
   int i;
-  for (i = 0; i < table_1802_len; i++){
-    if((opcode & table_1802[i].mask) == table_1802[i].opcode){
+  for (i = 0; i < table_1802_len; i++)
+  {
+    if ((opcode & table_1802[i].mask) == table_1802[i].opcode)
+    {
       simulate->cycle_count += table_1802[i].cycles;
       break;
     }
   }
   
-  switch(REG_I){
+  switch(REG_I)
+  {
     case 0x0: //LDN(M[R])
       REG_D = READ_IND(REG_N);
       break;
@@ -109,8 +127,9 @@ static int operand_exe(struct _simulate *simulate, int opcode){
     case 0x3: //SHORT BRANCH
       ++PC;
       uint8_t branch = READ_RAM(PC);
-      if(branch > 0xFF || branch < 0x00) return -1;
-      switch(REG_N){
+      if (branch > 0xFF || branch < 0x00) return -1;
+      switch(REG_N)
+      {
         case 0x0: //BR
           PC = (PC & 0xFF00) | branch;
           break;
@@ -154,7 +173,8 @@ static int operand_exe(struct _simulate *simulate, int opcode){
       WRITE_IND(REG_N, REG_D);
       break;
     case 0x6: // MISC
-      switch(REG_N){
+      switch(REG_N)
+      {
         case 0x0: //IRX
           ++REG(REG_X);
           break;
@@ -180,7 +200,8 @@ static int operand_exe(struct _simulate *simulate, int opcode){
           return -1;
       }
     case 0x7: //MOSTLY ARITHMETIC
-      switch(REG_N){
+      switch(REG_N)
+      {
         case 0x0: //RET
           temp = READ_IND(REG_X);
           REG_X = (temp & 0xF0) >> 4;
@@ -283,7 +304,8 @@ static int operand_exe(struct _simulate *simulate, int opcode){
     case 0xC: //LONG BRANCH
       PC += 2;
       uint16_t address = (READ_RAM(PC - 1) << 8) | (READ_RAM(PC));
-      switch(REG_N){
+      switch(REG_N)
+      {
         case 0x0:
           PC = address;
           break;
@@ -341,7 +363,8 @@ static int operand_exe(struct _simulate *simulate, int opcode){
       REG_X = REG_N;
       break;
     case 0xF: //MOSTLY LOGIC
-      switch(REG_N){
+      switch(REG_N)
+      {
         case 0x0: //LDX
           REG_D = READ_IND(REG_X);
           break;
@@ -474,33 +497,37 @@ void simulate_dump_registers_1802(struct _simulate *simulate)
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }
 
-int simulate_run_1802(struct _simulate *simulate, int cycles, int step){
+int simulate_run_1802(struct _simulate *simulate, int cycles, int step)
+{
   struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
   char instruction[128];
   char bytes[16];
   
   stop_running = 0;
   signal(SIGINT, handle_signal);
+  
   printf("Running... Press Ctl-C to break.\n");
-  while(stop_running == 0){
+  
+  while (stop_running == 0)
+  {
     int pc = PC;
     int opcode = READ_RAM(pc);
     int ret = operand_exe(simulate, opcode);
     
-    if(ret == -1)
+    if (ret == -1)
     {
       printf("Illegal instruction at address 0x%04x\n", pc);
       return -1;
     }
     
-    if(simulate->show == 1)
+    if (simulate->show == 1)
     {
       printf("\x1b[1J\x1b[1;1H");
       simulate_dump_registers_1802(simulate);
       
       int cycles_min, cycles_max;
       int n = 0;
-      while(n < 6)
+      while (n < 6)
       {
         int count = disasm_1802(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
         int i;
@@ -513,17 +540,17 @@ int simulate_run_1802(struct _simulate *simulate, int cycles, int step){
           strcat(bytes, temp);
         }
 
-        if(cycles_min == -1) break;
+        if (cycles_min == -1) break;
 
-        if(pc == simulate->break_point) { printf("*"); }
+        if (pc == simulate->break_point) { printf("*"); }
         else { printf(" "); }
 
-        if(n == 0)
-        { printf("! "); }
-          else
-        if(pc == PC) { printf("> "); }
-          else
-        { printf("  "); }
+        if (n == 0)
+          { printf("! "); }
+        else if (pc == PC) 
+          { printf("> "); }
+        else
+          { printf("  "); }
 
         printf("0x%04x: %-10s %-40s %d-%d\n", pc, bytes, instruction, cycles_min, cycles_max);
 
@@ -534,13 +561,13 @@ int simulate_run_1802(struct _simulate *simulate, int cycles, int step){
       }
     }
     
-    if(simulate->break_point == PC)
+    if (simulate->break_point == PC)
     {
       printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
       break;
     }
     
-    if((simulate->usec == 0) || (step == 1))
+    if ((simulate->usec == 0) || (step == 1))
     {
       signal(SIGINT, SIG_DFL);
       return 0;
@@ -564,162 +591,118 @@ int simulate_dumpram_1802(struct _simulate *simulate, int start, int end)
   printf("       x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xA  xB  xC  xD  xE  xF\n");
   
   int i = 0;
-  while(i != (end - start))
+  while (i != (end - start))
   {
-    if(i % 16 == 0)
+    if (i % 16 == 0)
     {
       printf("%04x:", start + i);
     }
+    
     printf("  %02x", READ_RAM(start + i));
-    if(i % 16 == 15)
+    
+    if (i % 16 == 15)
     {
       printf("\n");
     }
+    
     ++i;
   }
   printf("\n\n");
   return 0;
 }
 
-int simulate_set_reg_1802(struct _simulate *simulate, char *reg_string, unsigned int value){
+int simulate_set_reg_1802(struct _simulate *simulate, char *reg_string, unsigned int value)
+{
   struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
   
-  while(*reg_string==' ') { reg_string++; }
+  while (*reg_string==' ') { reg_string++; }
   
   char *pos = reg_string;
   
   // d, p, x, t, i, n, r0, r1, r2..., df, ie, q
   
-  if(pos[0] == 'd' || pos[0] == 'D')
-    REG_D = value & 0xFF;
-  else if(pos[0] == 'p' || pos[0] == 'P')
-    REG_P = value & 0xF;
-  else if(pos[0] == 'x' || pos[0] == 'X')
-    REG_X = value & 0xF;
-  else if(pos[0] == 't' || pos[0] == 'T')
-    REG_T = value & 0xFF;
-  else if(pos[0] == 'i' || pos[0] == 'I')
-    REG_I = value & 0xF;
-  else if(pos[0] == 'n' || pos[0] == 'N')
-    REG_N = value & 0xF;
+  if (pos[0] == 'd' || pos[0] == 'D') { REG_D = value & 0xFF; }
+  else if (pos[0] == 'p' || pos[0] == 'P') { REG_P = value & 0xF; }
+  else if (pos[0] == 'x' || pos[0] == 'X') { REG_X = value & 0xF; }
+  else if (pos[0] == 't' || pos[0] == 'T') { REG_T = value & 0xFF; }
+  else if (pos[0] == 'i' || pos[0] == 'I') { REG_I = value & 0xF; }
+  else if (pos[0] == 'n' || pos[0] == 'N') { REG_N = value & 0xF; }
     
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '0'))
-    REG(10) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '1'))
-    REG(11) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '2'))
-    REG(12) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '3'))
-    REG(13) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '4'))
-    REG(14) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '5'))
-    REG(15) = value & 0xFFFF;
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '0')) { REG(10) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '1')) { REG(11) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '2')) { REG(12) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '3')) { REG(13) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '4')) { REG(14) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '5')) { REG(15) = value & 0xFFFF; }
     
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '0'))
-    REG(0) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1'))
-    REG(1) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '2'))
-    REG(2) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '3'))
-    REG(3) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '4'))
-    REG(4) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '5'))
-    REG(5) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '6'))
-    REG(6) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '7'))
-    REG(7) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '8'))
-    REG(8) = value & 0xFFFF;
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '9'))
-    REG(9) = value & 0xFFFF;
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '0')) { REG(0) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1')) { REG(1) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '2')) { REG(2) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '3')) { REG(3) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '4')) { REG(4) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '5')) { REG(5) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '6')) { REG(6) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '7')) { REG(7) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '8')) { REG(8) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '9')) { REG(9) = value & 0xFFFF; }
   
-  else if((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F'))
-    FLAG_DF = value & 0x1;
-  else if((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E'))
-    FLAG_IE = value & 0x1;
-  else if((pos[0] == 'q' || pos[0] == 'Q'))
-    FLAG_Q = value & 0x1;
-  else
-    return -1;
-   return 0;
+  else if ((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F')) { FLAG_DF = value & 0x1; }
+  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { FLAG_IE = value & 0x1; }
+  else if ((pos[0] == 'q' || pos[0] == 'Q')) { FLAG_Q = value & 0x1; }
+  else { return -1; }
+  
+  return 0;
 }
 
-uint32_t simulate_get_reg_1802(struct _simulate *simulate, char *reg_string){
+uint32_t simulate_get_reg_1802(struct _simulate *simulate, char *reg_string)
+{
   struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
   
-  while(*reg_string==' ') { reg_string++; }
+  while (*reg_string==' ') { reg_string++; }
   
   char *pos = reg_string;
   
   // d, p, x, t, i, n, r0, r1, r2..., df, ie, q
   
-  if(pos[0] == 'd' || pos[0] == 'D')
-    return REG_D;
-  else if(pos[0] == 'p' || pos[0] == 'P')
-    return REG_P;
-  else if(pos[0] == 'x' || pos[0] == 'X')
-    return REG_X;
-  else if(pos[0] == 't' || pos[0] == 'T')
-    return REG_T;
-  else if(pos[0] == 'i' || pos[0] == 'I')
-    return REG_I;
-  else if(pos[0] == 'n' || pos[0] == 'N')
-    return REG_N;
+  if (pos[0] == 'd' || pos[0] == 'D') { return REG_D; }
+  else if (pos[0] == 'p' || pos[0] == 'P') { return REG_P; }
+  else if (pos[0] == 'x' || pos[0] == 'X') { return REG_X; }
+  else if (pos[0] == 't' || pos[0] == 'T') { return REG_T; }
+  else if (pos[0] == 'i' || pos[0] == 'I') { return REG_I; }
+  else if (pos[0] == 'n' || pos[0] == 'N') { return REG_N; }
     
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '0'))
-    return REG(0);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1'))
-    return REG(1);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '2'))
-    return REG(2);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '3'))
-    return REG(3);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '4'))
-    return REG(4);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '5'))
-    return REG(5);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '6'))
-    return REG(6);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '7'))
-    return REG(7);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '8'))
-    return REG(8);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '9'))
-    return REG(9);
-    
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '0'))
-    return REG(10);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '1'))
-    return REG(11);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '2'))
-    return REG(12);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '3'))
-    return REG(13);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '4'))
-    return REG(14);
-  else if((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '5'))
-    return REG(15);
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '0')) { return REG(10); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '1')) { return REG(11); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '2')) { return REG(12); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '3')) { return REG(13); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '4')) { return REG(14); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '5')) { return REG(15); }
   
-  else if((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F'))
-    return FLAG_DF;
-  else if((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E'))
-    return FLAG_IE;
-  else if((pos[0] == 'q' || pos[0] == 'Q'))
-    return FLAG_Q;
-  else
-    return -1;
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '0')) { return REG(0); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1')) { return REG(1); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '2')) { return REG(2); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '3')) { return REG(3); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '4')) { return REG(4); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '5')) { return REG(5); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '6')) { return REG(6); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '7')) { return REG(7); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '8')) { return REG(8); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '9')) { return REG(9); }
+  
+  else if ((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F')) { return FLAG_DF; }
+  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { return FLAG_IE; }
+  else if ((pos[0] == 'q' || pos[0] == 'Q')) { return FLAG_Q; }
+  else { return -1; }
 }
 
-void simulate_set_pc_1802(struct _simulate *simulate, uint32_t value){
+void simulate_set_pc_1802(struct _simulate *simulate, uint32_t value)
+{
   struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
   PC = value;
 }
 
-void simulate_reset_1802(struct _simulate *simulate){
+void simulate_reset_1802(struct _simulate *simulate)
+{
   struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
   
   simulate->cycle_count = 0;
@@ -732,10 +715,13 @@ void simulate_reset_1802(struct _simulate *simulate){
   REG_T = 0;
   REG_I = 0;
   REG_N = 0;
+  
   int i;
-  for(i = 0; i < 16; i++){
+  for (i = 0; i < 16; i++)
+  {
     REG(i) = 0;
   }
+  
   FLAG_DF = 0;
   FLAG_IE = 0;
   FLAG_Q = 0;

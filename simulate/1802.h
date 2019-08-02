@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2019 by Michael Kohn
  *
  * 1802 file by Malik Enes Safak
  *
