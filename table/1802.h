@@ -38,5 +38,7 @@ struct _table_1802
 extern struct _table_1802 table_1802[];
 extern struct _table_1802 table_1802_16[];
 
+extern int table_1802_len;
+
 #endif
 
