@@ -36,9 +36,20 @@
 #define REG_P simulate_1802->reg_p
 #define REG_X simulate_1802->reg_x
 #define REG_T simulate_1802->reg_t
+#define REG_B simulate_1802->reg_b
+
+#define REG_CNTR simulate_1802->reg_cntr
+#define REG_CN simulate_1802->reg_cn
+
 #define FLAG_DF simulate_1802->flag_df
-#define FLAG_IE simulate_1802->flag_ie
 #define FLAG_Q simulate_1802->flag_q
+#define FLAG_MIE simulate_1802->flag_mie
+#define FLAG_CIE simulate_1802->flag_cie
+#define FLAG_XIE simulate_1802->flag_xie
+#define FLAG_CIL simulate_1802->flag_cil
+#define FLAG_ETQ simulate_1802->flag_etq
+#define IRQ_CI FLAG_CIL
+//#define IRQ_XI simulate_1802->irq_xi
 
 #define PC simulate_1802->reg_r[REG_P]
 #define DP simulate_1802->reg_r[REG_D]
@@ -91,6 +102,8 @@ static int operand_exe(struct _simulate *simulate, int opcode)
   REG_N = opcode & 0xF;
   REG_I = (opcode & 0xF0) >> 4;
   uint16_t temp;
+  int _temp;
+  uint16_t address;
   
   if (opcode < 0x00 || opcode > 0xFF)
   {
@@ -104,12 +117,27 @@ static int operand_exe(struct _simulate *simulate, int opcode)
   }
   
   int i;
-  for (i = 0; i < table_1802_len; i++)
+  if (opcode == 0x68)
   {
-    if ((opcode & table_1802[i].mask) == table_1802[i].opcode)
+    int _opcode = READ_RAM(PC + 1);
+    for (i = 0; i < table_1802_16_len; i++)
     {
-      simulate->cycle_count += table_1802[i].cycles;
-      break;
+      if ((_opcode & table_1802_16[i].mask) == table_1802_16[i].opcode)
+      {
+        simulate->cycle_count += table_1802_16[i].cycles * 8; //Every machine cycle is 8 cycle
+        break;
+      }
+    }
+  }
+  else
+  {
+    for (i = 0; i < table_1802_len; i++)
+    {
+      if ((opcode & table_1802[i].mask) == table_1802[i].opcode)
+      {
+        simulate->cycle_count += table_1802[i].cycles * 8; //Every machine cycle is 8 cycle
+        break;
+      }
     }
   }
   
@@ -118,45 +146,55 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x0: //LDN(M[R])
       REG_D = READ_IND(REG_N);
       break;
+   
     case 0x1: //INC(R)
       ++REG(REG_N);
       break;
+   
     case 0x2: //DEC(R)
       --REG(REG_N);
       break;
+   
     case 0x3: //SHORT BRANCH
       ++PC;
-      uint8_t branch = READ_RAM(PC);
-      if (branch > 0xFF || branch < 0x00) return -1;
+      address = (PC & 0xFF00) | READ_RAM(PC);
       switch(REG_N)
       {
         case 0x0: //BR
-          PC = (PC & 0xFF00) | branch;
+          PC = address;
           break;
+       
         case 0x1: //BQ
-          PC = FLAG_Q == 0 ? (PC & 0xFF00) | branch : PC;
+          PC = FLAG_Q == 0 ? address : PC;
           break;
+       
         case 0x2: //BZ
-          PC = REG_D == 0 ? (PC & 0xFF00) | branch : PC;
+          PC = REG_D == 0 ? address : PC;
           break;
+       
         case 0x3: //BDF
-          PC = FLAG_DF != 0 ? (PC & 0xFF00) | branch : PC;
+          PC = FLAG_DF != 0 ? address : PC;
           break;
+       
         case 0x4: //B1
         case 0x5: //B2
         case 0x6: //B3
         case 0x7: //B4
         case 0x8: //NBR
           break;
+       
         case 0x9: //BNQ
-          PC = FLAG_Q != 0 ? (PC & 0xFF00) | branch : PC;
+          PC = FLAG_Q != 0 ? address : PC;
           break;
+       
         case 0xA: //BNZ
-          PC = REG_D != 0 ? (PC & 0xFF00) | branch : PC;
+          PC = REG_D != 0 ? address : PC;
           break;
+       
         case 0xB: //BNF
-          PC = FLAG_DF == 0 ? (PC & 0xFF00) | branch : PC;
+          PC = FLAG_DF == 0 ? address : PC;
           break;
+       
         case 0xC: //BN1
         case 0xD: //BN2
         case 0xE: //BN3
@@ -169,15 +207,18 @@ static int operand_exe(struct _simulate *simulate, int opcode)
       REG_D = READ_IND(REG_N);
       ++REG(REG_N);
       break;
+   
     case 0x5: //STR
       WRITE_IND(REG_N, REG_D);
       break;
+   
     case 0x6: // MISC
       switch(REG_N)
       {
         case 0x0: //IRX
           ++REG(REG_X);
           break;
+       
         case 0x1:
         case 0x2:
         case 0x3:
@@ -186,8 +227,219 @@ static int operand_exe(struct _simulate *simulate, int opcode)
         case 0x6:
         case 0x7:
           break;
+       
         case 0x8:
-          return -1;
+          ++PC;
+          uint8_t _extinstr = READ_RAM(PC);
+          uint8_t _I = (_extinstr & 0xF0) >> 4;
+          uint8_t _N = _extinstr & 0xF;
+          switch(_I){
+            case 0x0: //MOSTLY COUNTER INSTRUCTIONS. Counter is always in stop mode, only software decrementing using DTC is possible.
+              switch(_N){ 
+                case 0x0: //STPC
+                  break;
+               
+                case 0x1: //DTC
+                  if (REG_CNTR == 1)
+                  {
+                    if (FLAG_ETQ == 1) { FLAG_Q = !FLAG_Q; }
+                    IRQ_CI = 1;
+                    REG_CNTR = REG_CN;
+                  }
+                  else { --REG_CNTR; }
+                  break;
+               
+                case 0x2: //SPM2
+                case 0x3: //SCM2
+                case 0x4: //SPM1
+                case 0x5: //SCM1
+                  break;
+               
+                case 0x6: //LDC
+                  REG_CNTR = REG_D;
+                  REG_CN = REG_D;
+                  FLAG_ETQ = 0;
+                  break;
+               
+                case 0x7: //STM
+                  break;
+               
+                case 0x8: //GEC
+                  REG_D = REG_CNTR;
+                  break;
+               
+                case 0x9: //ETQ
+                  FLAG_ETQ = 1;
+                  break;
+               
+                case 0xA: //XIE
+                  FLAG_XIE = 1;
+                  break;
+               
+                case 0xB: //XID
+                  FLAG_XIE = 0;
+                  break;
+               
+                case 0xC: //CIE
+                  FLAG_CIE = 1;
+                  break;
+               
+                case 0xD: //CID
+                  FLAG_CIE = 0;
+                  break;
+                default:
+                  return -1;
+              }
+            case 0x1: //ILLEGAL
+              return -1;
+            case 0x2: //DBNZ
+              PC += 2;
+              address = (READ_RAM(PC - 1) << 8) | (READ_RAM(PC));
+              PC = --REG(_N) != 0 ? address : PC;
+              break;
+           
+            case 0x3:
+              ++PC;
+              address = (PC & 0xFF00) | READ_RAM(PC);
+              switch(_N)
+              {
+                case 0xE: //BCI
+                  PC = IRQ_CI == 0 ? address : PC;
+                  break;
+               
+                case 0xF: //BXI
+                  //PC = IRQ_XI == 0 ? address : PC;
+                  break;
+                default:
+                  return -1;
+              }
+            case 0x6: //RLXA
+              REG(_N) = READ_IND(REG_X) << 8;
+              ++REG(REG_X);
+              REG(_N) |= READ_IND(REG_X);
+              ++REG(REG_X);
+              break;
+           
+            case 0x7:
+              switch(_N)
+              {
+                case 0x4: //DADC
+                  _temp =  REG_D + READ_IND(REG_X) + FLAG_DF;
+                  FLAG_DF = (_temp > 99) | (_temp < 0) ? 1 : 0;
+                  _temp = _temp > 99 ? _temp - 100 : _temp < 0 ? 100 + _temp : _temp;
+                  REG_D = (_temp % 10) | (_temp / 10) << 4;
+                  break;
+               
+                case 0x6: //DSAV
+                  --REG(REG_X);
+                  WRITE_IND(REG_X, REG_T);
+                  --REG(REG_X);
+                  WRITE_IND(REG_X, REG_D);
+                  --REG(REG_X);
+                  REG_D >>= 1;
+                  REG_D |= FLAG_DF << 7;
+                  WRITE_IND(REG_X, REG_D);
+                  break;
+               
+                case 0x7: //DSMB
+                  _temp =  REG_D - READ_IND(REG_X) - !FLAG_DF;
+                  FLAG_DF = (_temp > 99) | (_temp < 0) ? 0 : 1;
+                  _temp = _temp > 99 ? _temp - 100 : _temp < 0 ? 100 + _temp : _temp;
+                  REG_D = (_temp % 10) | (_temp / 10) << 4;
+                  break;
+               
+                case 0xC: //DACI
+                  ++PC;
+                  _temp =  REG_D + READ_RAM(PC) + FLAG_DF;
+                  FLAG_DF = (_temp > 99) | (_temp < 0) ? 1 : 0;
+                  _temp = _temp > 99 ? _temp - 100 : _temp < 0 ? 100 + _temp : _temp;
+                  REG_D = (_temp % 10) | (_temp / 10) << 4;
+                  break;
+               
+                case 0xF: //DSBI
+                  ++PC;
+                  _temp =  REG_D - READ_RAM(PC) - !FLAG_DF;
+                  FLAG_DF = (_temp > 99) | (_temp < 0) ? 0 : 1;
+                  _temp = _temp > 99 ? _temp - 100 : _temp < 0 ? 100 + _temp : _temp;
+                  REG_D = (_temp % 10) | (_temp / 10) << 4;
+                  break;
+                default:
+                  return -1;
+              }
+            case 0x8: //SCAL
+              WRITE_IND(REG_X, REG(_N) & 0xFF);
+              --REG(REG_X);
+              WRITE_IND(REG_X, (REG(_N) & 0xFF00) >> 8);
+              --REG(REG_X);
+              REG(_N) = REG(REG_P);
+              REG(REG_P) = READ_IND(_N) << 8;
+              ++REG(_N);
+              REG(REG_P) |= READ_IND(_N);
+              ++REG(_N);
+              break;
+           
+            case 0x9: //SRET
+              REG(REG_P) = REG(_N);
+              ++REG(REG_X);
+              REG(_N) = READ_IND(REG_X) << 8;
+              ++REG(REG_X);
+              REG(_N) |= READ_IND(REG_X);
+            case 0xA: //RSXD
+              WRITE_IND(REG_X, REG(_N) & 0xFF);
+              --REG(REG_X);
+              WRITE_IND(REG_X, (REG(_N) & 0xFF00) >> 8);
+              --REG(REG_X);
+              break;
+           
+            case 0xB: //RNX
+              REG(REG_X) = REG(_N);
+              break;
+           
+            case 0xC: //RLDI
+              ++PC;
+              REG(_N) = READ_RAM(PC) << 8;
+              ++PC;
+              REG(_N) |= READ_RAM(PC);
+              break;
+           
+            case 0xF:
+              switch(_N)
+              {
+                case 0x4: //DADD
+                  _temp =  REG_D + READ_IND(REG_X);
+                  FLAG_DF = (_temp > 99) | (_temp < 0) ? 1 : 0;
+                  _temp = _temp > 99 ? _temp - 100 : _temp < 0 ? 100 + _temp : _temp;
+                  REG_D = (_temp % 10) | (_temp / 10) << 4;
+                  break;
+               
+                case 0x7: //DSM
+                  _temp =  REG_D - READ_IND(REG_X);
+                  FLAG_DF = (_temp > 99) | (_temp < 0) ? 0 : 1;
+                  _temp = _temp > 99 ? _temp - 100 : _temp < 0 ? 100 + _temp : _temp;
+                  REG_D = (_temp % 10) | (_temp / 10) << 4;
+                  break;
+               
+                case 0xC: //DADI
+                  ++PC;
+                  _temp =  REG_D + READ_RAM(PC);
+                  FLAG_DF = (_temp > 99) | (_temp < 0) ? 1 : 0;
+                  _temp = _temp > 99 ? _temp - 100 : _temp < 0 ? 100 + _temp : _temp;
+                  REG_D = (_temp % 10) | (_temp / 10) << 4;
+                  break;
+               
+                case 0xF: //DSMI
+                  ++PC;
+                  _temp =  REG_D - READ_RAM(PC);
+                  FLAG_DF = (_temp > 99) | (_temp < 0) ? 0 : 1;
+                  _temp = _temp > 99 ? _temp - 100 : _temp < 0 ? 100 + _temp : _temp;
+                  REG_D = (_temp % 10) | (_temp / 10) << 4;
+                  break;
+                default:
+                  return -1;
+              }
+            default:
+              return -1;
+          }
         case 0x9:
         case 0xA:
         case 0xB:
@@ -207,77 +459,92 @@ static int operand_exe(struct _simulate *simulate, int opcode)
           REG_X = (temp & 0xF0) >> 4;
           REG_P = temp & 0xF;
           ++REG(REG_X);
-          FLAG_IE = 1;
+          FLAG_MIE = 1;
           break;
+          
         case 0x1: //DIS
           temp = READ_IND(REG_X);
           REG_X = (temp & 0xF0) >> 4;
           REG_P = temp & 0xF;
           ++REG(REG_X);
-          FLAG_IE = 0;
+          FLAG_MIE = 0;
           break;
+          
         case 0x2: //LDXA
           REG_D = READ_IND(REG_X);
           ++REG(REG_X);
           break;
+          
         case 0x3: //STXD
           WRITE_IND(REG_X, REG_D);
           --REG(REG_X);
           break;
+          
         case 0x4: //ADC
           temp = READ_IND(REG_X) + REG_D + FLAG_DF;
           FLAG_DF = temp & 0x100 ? 1 : 0;
           REG_D = temp;
           break;
+          
         case 0x5: //SDB
           temp = READ_IND(REG_X) - REG_D - !FLAG_DF;
           FLAG_DF = temp & 0x100 ? 0 : 1;
           REG_D = temp;
           break;
+          
         case 0x6: //SHRC
           temp = REG_D & 0x1;
           REG_D >>= 1;
           REG_D |= FLAG_DF << 7;
           FLAG_DF = temp;
           break;
+          
         case 0x7: //SMB
           temp = REG_D - READ_IND(REG_X) - !FLAG_DF;
           FLAG_DF = temp & 0x100 ? 0 : 1;
           REG_D = temp;
           break;
+          
         case 0x8: //SAV
           WRITE_IND(REG_X, REG_T);
           break;
+          
         case 0x9: //MARK
           REG_T = REG_X << 4 | REG_P;
           WRITE_IND(0x2, REG_T);
           REG_X = REG_P;
           --REG(2);
           break;
+          
         case 0xA: //REQ
           FLAG_Q = 0;
           break;
+       
         case 0xB: //SEQ
           FLAG_Q = 1;
           break;
+       
         case 0xC: //ADCI
           ++PC;
           temp = READ_RAM(PC) + REG_D + FLAG_DF;
           FLAG_DF = temp & 0x100 ? 1 : 0;
           REG_D = temp;
           break;
+       
         case 0xD: //SDBI
           ++PC;
           temp = READ_RAM(PC) - REG_D - !FLAG_DF;
           FLAG_DF = temp & 0x100 ? 0 : 1;
           REG_D = temp;
           break;
+       
         case 0xE: //SHLC
           temp = REG_D && 0x80;
           REG_D <<= 1;
           REG_D |= FLAG_DF;
           FLAG_DF = temp;
           break;
+       
         case 0xF: //SMBI
           ++PC;
           temp = REG_D - READ_RAM(PC) - !FLAG_DF;
@@ -290,66 +557,85 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x8: //GLO
       REG_D = REG(REG_N) & 0xFF;
       break;
+   
     case 0x9: //GHI
       REG_D = (REG(REG_N) & 0xFF00) >> 8;
       break;
+    
     case 0xA: //PLO
       REG(REG_N) &= 0xFF00;
       REG(REG_N) |= REG_D;
       break;
+    
     case 0xB: //PHI
       REG(REG_N) &= 0xFF;
       REG(REG_N) |= REG_D << 8;
       break;
+   
     case 0xC: //LONG BRANCH
       PC += 2;
-      uint16_t address = (READ_RAM(PC - 1) << 8) | (READ_RAM(PC));
+      address = (READ_RAM(PC - 1) << 8) | (READ_RAM(PC));
       switch(REG_N)
       {
         case 0x0:
           PC = address;
           break;
+       
         case 0x1: //LBQ
           PC = FLAG_Q == 0 ? address : PC;
           break;
+       
         case 0x2: //LBZ
           PC = REG_D == 0 ? address : PC;
           break;
+       
         case 0x3: //LBDF
           PC = FLAG_DF != 0 ? address : PC;
           break;
+       
         case 0x4: //NOP
           PC -= 2;
           break;
+       
         case 0x5: //LSNQ
           PC = FLAG_Q == 0 ? PC : PC - 2;
           break;
+       
         case 0x6: //LSNZ
           PC = REG_D != 0 ? PC : PC - 2;
           break;
+       
         case 0x7: //LSNF
           PC = FLAG_DF == 0 ? PC : PC - 2;
           break;
+       
         case 0x8: //LSKP
           break;
+       
         case 0x9: //LBNQ
           PC = FLAG_Q == 0 ? address : PC;
           break;
+       
         case 0xA: //LBNZ
           PC = REG_D != 0 ? address : PC;
           break;
+       
         case 0xB: //LBNF
           PC = FLAG_DF == 0 ? address : PC;
           break;
+       
         case 0xC: //LSIE
-          PC = FLAG_IE != 0 ? PC : PC - 2;
+          PC = FLAG_MIE != 0 ? PC : PC - 2;
           break;
+       
         case 0xD: //LSQ
           PC = FLAG_Q != 0 ? PC : PC - 2;
           break;
+       
         case 0xE: //LSZ
           PC = REG_D == 0 ? PC : PC - 2;
           break;
+       
         case 0xF: //LSDF
           PC = FLAG_DF != 0 ? PC : PC - 2;
           break;
@@ -359,76 +645,93 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0xD: //SEP
       REG_P = REG_N;
       break;
+   
     case 0xE: //SEX
       REG_X = REG_N;
       break;
+   
     case 0xF: //MOSTLY LOGIC
       switch(REG_N)
       {
         case 0x0: //LDX
           REG_D = READ_IND(REG_X);
           break;
+       
         case 0x1: //OR
           REG_D = READ_IND(REG_X) | REG_D;
           break;
+       
         case 0x2: //AND
           REG_D = READ_IND(REG_X) & REG_D;
           break;
+       
         case 0x3: //XOR
           REG_D = READ_IND(REG_X) ^ REG_D;
           break;
+       
         case 0x4: //ADD
           temp = READ_IND(REG_X) + REG_D;
           FLAG_DF = temp & 0x100 ? 1 : 0;
           REG_D = temp;
           break;
+       
         case 0x5: //SD
           temp = READ_IND(REG_X) - REG_D;
           FLAG_DF = temp & 0x100 ? 0 : 1;
           REG_D = temp;
           break;
+       
         case 0x6: //SHR
           FLAG_DF = REG_D & 0x1;
           REG_D >>= 1;
           break;
+       
         case 0x7: //SM
           temp = REG_D - READ_IND(REG_X);
           FLAG_DF = temp & 0x100 ? 0 : 1;
           REG_D = temp;
           break;
+       
         case 0x8: //LDI
           ++PC;
           REG_D = READ_RAM(PC);
           break;
+       
         case 0x9: //ORI
           ++PC;
           REG_D = READ_RAM(PC) | REG_D;
           break;
+       
         case 0xA: //ANI
           ++PC;
           REG_D = READ_RAM(PC) & REG_D;
           break;
+       
         case 0xB: //XRI
           ++PC;
           REG_D = READ_RAM(PC) ^ REG_D;
           break;
+       
         case 0xC: //ADI
           ++PC;
           temp = READ_RAM(PC) + REG_D;
           FLAG_DF = temp & 0x100 ? 1 : 0;
           REG_D = temp;
           break;
+       
         case 0xD: //SDI
           ++PC;
           temp = READ_RAM(PC) - REG_D;
           FLAG_DF = temp & 0x100 ? 0 : 1;
           REG_D = temp;
           break;
+       
         case 0xE: //SHL
           temp = REG_D && 0x80;
           REG_D <<= 1;
           FLAG_DF = temp;
           break;
+       
         case 0xF: //SMI
           ++PC;
           temp = REG_D - READ_RAM(PC);
@@ -489,7 +792,7 @@ void simulate_dump_registers_1802(struct _simulate *simulate)
     
   printf(" DF = %d,     IE = %d,      Q = %d      PC = %04x\n",
     FLAG_DF,
-    FLAG_IE,
+    FLAG_MIE,
     FLAG_Q,
     PC);
     
@@ -647,7 +950,7 @@ int simulate_set_reg_1802(struct _simulate *simulate, char *reg_string, unsigned
   else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '9')) { REG(9) = value & 0xFFFF; }
   
   else if ((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F')) { FLAG_DF = value & 0x1; }
-  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { FLAG_IE = value & 0x1; }
+  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { FLAG_MIE = value & 0x1; }
   else if ((pos[0] == 'q' || pos[0] == 'Q')) { FLAG_Q = value & 0x1; }
   else { return -1; }
   
@@ -690,7 +993,7 @@ uint32_t simulate_get_reg_1802(struct _simulate *simulate, char *reg_string)
   else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '9')) { return REG(9); }
   
   else if ((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F')) { return FLAG_DF; }
-  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { return FLAG_IE; }
+  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { return FLAG_MIE; }
   else if ((pos[0] == 'q' || pos[0] == 'Q')) { return FLAG_Q; }
   else { return -1; }
 }
@@ -708,8 +1011,9 @@ void simulate_reset_1802(struct _simulate *simulate)
   simulate->cycle_count = 0;
   simulate->nested_call_count = 0;
   
-  // d, p, x, t, i, n, r0, r1, r2..., df, ie, q
+  // d, b, p, x, t, i, n, r0, r1, r2..., df, ie, q
   REG_D = 0;
+  REG_B = 0;
   REG_P = 0;
   REG_X = 0;
   REG_T = 0;
@@ -722,8 +1026,14 @@ void simulate_reset_1802(struct _simulate *simulate)
     REG(i) = 0;
   }
   
+  REG_CNTR = 0;
+  REG_CN = 0;
+  
   FLAG_DF = 0;
-  FLAG_IE = 0;
+  FLAG_MIE = 1;
+  FLAG_CIE = 1;
+  FLAG_XIE = 1;
+  FLAG_CIL = 0;
   FLAG_Q = 0;
   simulate->break_point = -1;
 }

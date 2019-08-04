@@ -22,9 +22,10 @@
 struct _simulate_1802
 {
   // Define registers and anything 1802 specific here
-  uint8_t reg_d, reg_p, reg_x, reg_t, reg_n, reg_i;
+  uint8_t reg_d, reg_p, reg_x, reg_t, reg_n, reg_i, reg_b;
   uint16_t reg_r[16];
-  uint8_t flag_df, flag_ie, flag_q;
+  uint8_t reg_cntr, reg_cn;
+  uint8_t flag_df, flag_q, flag_mie, flag_cie, flag_xie, flag_cil, flag_etq;
 };
 
 struct _simulate *simulate_init_1802(struct _memory *memory);
