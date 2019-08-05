@@ -158,7 +158,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
    
     case 0x3: //SHORT BRANCH
       ++PC;
-      address = (PC & 0xFF00) | READ_RAM(PC);
+      address = ((PC & 0xFF00) | READ_RAM(PC)) - 1;
       switch(REG_N)
       {
         case 0x0: //BR
@@ -201,9 +201,12 @@ static int operand_exe(struct _simulate *simulate, int opcode)
         case 0xE: //BN3
         case 0xF: //BN4
           break;
+          
         default:
           return -1;
       }
+      break;
+      
     case 0x4: //LDA
       REG_D = READ_IND(REG_N);
       ++REG(REG_N);
@@ -291,19 +294,21 @@ static int operand_exe(struct _simulate *simulate, int opcode)
                 case 0xD: //CID
                   FLAG_CIE = 0;
                   break;
+                  
                 default:
                   return -1;
               }
+              break;
             
             case 0x2: //DBNZ
               PC += 2;
-              address = (READ_RAM(PC - 1) << 8) | (READ_RAM(PC));
+              address = ((READ_RAM(PC - 1) << 8) | (READ_RAM(PC))) - 1;
               PC = --REG(_N) != 0 ? address : PC;
               break;
             
             case 0x3:
               ++PC;
-              address = (PC & 0xFF00) | READ_RAM(PC);
+              address = ((PC & 0xFF00) | READ_RAM(PC)) - 1;
               switch(_N)
               {
                 case 0xE: //BCI
@@ -313,9 +318,12 @@ static int operand_exe(struct _simulate *simulate, int opcode)
                 case 0xF: //BXI
                   //PC = IRQ_XI == 0 ? address : PC;
                   break;
+                  
                 default:
                   return -1;
               }
+              break;
+              
             case 0x6: //RLXA
               REG(_N) = READ_IND(REG_X) << 8;
               ++REG(REG_X);
@@ -366,9 +374,12 @@ static int operand_exe(struct _simulate *simulate, int opcode)
                   _temp = _temp > 99 ? _temp - 100 : _temp < 0 ? 100 + _temp : _temp;
                   REG_D = (_temp % 10) | (_temp / 10) << 4;
                   break;
+                  
                 default:
                   return -1;
               }
+              break;
+              
             case 0x8: //SCAL
               WRITE_IND(REG_X, REG(_N) & 0xFF);
               --REG(REG_X);
@@ -440,9 +451,12 @@ static int operand_exe(struct _simulate *simulate, int opcode)
                 default:
                   return -1;
               }
+              break;
             default:
               return -1;
           }
+          break;
+          
         case 0x9: //IN1
         case 0xA: //IN2
         case 0xB: //IN3
@@ -451,9 +465,12 @@ static int operand_exe(struct _simulate *simulate, int opcode)
         case 0xE: //IN6
         case 0xF: //IN7
           break;
+          
         default:
           return -1;
       }
+      break;
+      
     case 0x7: //MOSTLY ARITHMETIC
       switch(REG_N)
       {
@@ -557,6 +574,8 @@ static int operand_exe(struct _simulate *simulate, int opcode)
         default:
           return -1;
       }
+      break;
+      
     case 0x8: //GLO
       REG_D = REG(REG_N) & 0xFF;
       break;
@@ -577,7 +596,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
    
     case 0xC: //LONG BRANCH
       PC += 2;
-      address = (READ_RAM(PC - 1) << 8) | (READ_RAM(PC));
+      address = ((READ_RAM(PC - 1) << 8) | (READ_RAM(PC))) - 1;
       switch(REG_N)
       {
         case 0x0:
@@ -645,6 +664,8 @@ static int operand_exe(struct _simulate *simulate, int opcode)
         default:
           return -1;
       }
+      break;
+      
     case 0xD: //SEP
       REG_P = REG_N;
       break;
@@ -745,6 +766,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
           return -1;
       }
       break;
+      
     default:
       return -1;
   }
@@ -927,7 +949,11 @@ int simulate_set_reg_1802(struct _simulate *simulate, char *reg_string, unsigned
   
   // d, p, x, t, i, n, r0, r1, r2..., df, ie, q
   
-  if (pos[0] == 'd' || pos[0] == 'D') { REG_D = value & 0xFF; }
+  if ((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F')) { FLAG_DF = value & 0x1; }
+  else if (pos[0] == 'd' || pos[0] == 'D') { REG_D = value & 0xFF; }
+  else if ((pos[0] == 'p' || pos[0] == 'P') && (pos[1] == 'c' || pos[1] == 'C')) { PC = value & 0xFFFF; }
+  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { FLAG_MIE = value & 0x1; }
+  else if ((pos[0] == 'q' || pos[0] == 'Q')) { FLAG_Q = value & 0x1; }
   else if (pos[0] == 'p' || pos[0] == 'P') { REG_P = value & 0xF; }
   else if (pos[0] == 'x' || pos[0] == 'X') { REG_X = value & 0xF; }
   else if (pos[0] == 't' || pos[0] == 'T') { REG_T = value & 0xFF; }
@@ -952,9 +978,6 @@ int simulate_set_reg_1802(struct _simulate *simulate, char *reg_string, unsigned
   else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '8')) { REG(8) = value & 0xFFFF; }
   else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '9')) { REG(9) = value & 0xFFFF; }
   
-  else if ((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F')) { FLAG_DF = value & 0x1; }
-  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { FLAG_MIE = value & 0x1; }
-  else if ((pos[0] == 'q' || pos[0] == 'Q')) { FLAG_Q = value & 0x1; }
   else { return -1; }
   
   return 0;
