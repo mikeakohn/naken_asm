@@ -111,7 +111,8 @@ static int operand_exe(struct _simulate *simulate, int opcode)
   }
   
   if (opcode == 0x00)
-  {  //since we are not handling any dma or irq
+  {  
+    //Since we are not handling any dma or irq.
     ++PC;
     return 0;
   }
@@ -219,13 +220,13 @@ static int operand_exe(struct _simulate *simulate, int opcode)
           ++REG(REG_X);
           break;
        
-        case 0x1:
-        case 0x2:
-        case 0x3:
-        case 0x4:
-        case 0x5:
-        case 0x6:
-        case 0x7:
+        case 0x1: //OUT1
+        case 0x2: //OUT2
+        case 0x3: //OUT3
+        case 0x4: //OUT4
+        case 0x5: //OUT5
+        case 0x6: //OUT6
+        case 0x7: //OUT7
           break;
        
         case 0x8:
@@ -233,9 +234,12 @@ static int operand_exe(struct _simulate *simulate, int opcode)
           uint8_t _extinstr = READ_RAM(PC);
           uint8_t _I = (_extinstr & 0xF0) >> 4;
           uint8_t _N = _extinstr & 0xF;
-          switch(_I){
-            case 0x0: //MOSTLY COUNTER INSTRUCTIONS. Counter is always in stop mode, only software decrementing using DTC is possible.
-              switch(_N){ 
+          switch(_I)
+          {
+            case 0x0: //MOSTLY COUNTER INSTRUCTIONS. 
+            //Counter is always in stop mode, only software decrementing using DTC is possible.
+              switch(_N)
+              {
                 case 0x0: //STPC
                   break;
                
@@ -290,14 +294,13 @@ static int operand_exe(struct _simulate *simulate, int opcode)
                 default:
                   return -1;
               }
-            case 0x1: //ILLEGAL
-              return -1;
+            
             case 0x2: //DBNZ
               PC += 2;
               address = (READ_RAM(PC - 1) << 8) | (READ_RAM(PC));
               PC = --REG(_N) != 0 ? address : PC;
               break;
-           
+            
             case 0x3:
               ++PC;
               address = (PC & 0xFF00) | READ_RAM(PC);
@@ -319,7 +322,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
               REG(_N) |= READ_IND(REG_X);
               ++REG(REG_X);
               break;
-           
+            
             case 0x7:
               switch(_N)
               {
@@ -440,13 +443,13 @@ static int operand_exe(struct _simulate *simulate, int opcode)
             default:
               return -1;
           }
-        case 0x9:
-        case 0xA:
-        case 0xB:
-        case 0xC:
-        case 0xD:
-        case 0xE:
-        case 0xF:
+        case 0x9: //IN1
+        case 0xA: //IN2
+        case 0xB: //IN3
+        case 0xC: //IN4
+        case 0xD: //IN5
+        case 0xE: //IN6
+        case 0xF: //IN7
           break;
         default:
           return -1;
