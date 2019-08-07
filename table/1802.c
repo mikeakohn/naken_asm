@@ -131,3 +131,5 @@ struct _table_1802 table_1802_16[] = {
   { NULL,   0x00, 0xff, RCA1802_OP_ILLEGAL, 0 },
 };
 
+int table_1802_len = sizeof(table_1802) / sizeof(struct _table_1802);
+int table_1802_16_len = sizeof(table_1802_16) / sizeof(struct _table_1802);
