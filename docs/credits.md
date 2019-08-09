@@ -11,4 +11,6 @@ Credits
 * Zoltan Csahok (https://github.com/zcsahok)
 * D.L. Karmann
   * STM8 simulator
+* Malik Enes Safak
+  * 1802 simulator
 
