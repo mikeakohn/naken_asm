@@ -709,11 +709,12 @@ int disasm_68000(struct _memory *memory, uint32_t address, char *instruction, in
 
 void list_output_68000(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
-  int cycles_min=-1,cycles_max=-1;
+  int cycles_min = -1, cycles_max = -1;
   int count;
   char instruction[128];
   int n;
 
+  strcpy(instruction, "???");
   fprintf(asm_context->list, "\n");
 
   while(start < end)
@@ -721,6 +722,8 @@ void list_output_68000(struct _asm_context *asm_context, uint32_t start, uint32_
     count = disasm_68000(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
     fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start, (memory_read_m(&asm_context->memory, start) << 8) | memory_read_m(&asm_context->memory, start + 1), instruction);
+
+    if (count < 0) { count = 2; }
 
     for (n = 2; n < count; n += 2)
     {
@@ -736,7 +739,7 @@ void disasm_range_68000(struct _memory *memory, uint32_t flags, uint32_t start, 
   char instruction[128];
   char temp[32];
   char temp2[4];
-  int cycles_min=0,cycles_max=0;
+  int cycles_min = 0, cycles_max = 0;
   int count;
   int n;
 

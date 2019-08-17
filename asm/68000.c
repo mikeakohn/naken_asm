@@ -182,7 +182,11 @@ static int check_reg(int type, uint8_t omit_mode)
   return 0;
 }
 
-static int ea_immediate(struct _asm_context *asm_context, int opcode, int size, struct _operand *operand)
+static int ea_immediate(
+  struct _asm_context *asm_context,
+  int opcode,
+  int size,
+  struct _operand *operand)
 {
   add_bin16(asm_context, opcode | (operand->type << 3) | 0x4, IS_OPCODE);
 
@@ -203,7 +207,12 @@ static int ea_immediate(struct _asm_context *asm_context, int opcode, int size, 
   }
 }
 
-static int ea_address(struct _asm_context *asm_context, int opcode, struct _operand *operand, uint32_t extra_imm, int size)
+static int ea_address(
+  struct _asm_context *asm_context,
+  int opcode,
+  struct _operand *operand,
+  uint32_t extra_imm,
+  int size)
 {
   uint32_t value;
   int len;
@@ -255,47 +264,6 @@ static int ea_address(struct _asm_context *asm_context, int opcode, struct _oper
   }
 
   return len;
-
-#if 0
-  if (memory_read(asm_context, asm_context->address) == 1)
-  {
-    len=6;
-    add_bin16(asm_context, opcode | (0x7 << 3) | 0x1, IS_OPCODE);
-    if (extra_imm != NO_EXTRA_IMM)
-    {
-      add_bin16(asm_context, extra_imm, IS_OPCODE);
-      len += 2;
-    }
-    add_bin32(asm_context, value, IS_OPCODE);
-    return len;
-  }
-    else
-  if ((value & 0x00ff8000) == 0x00000000 ||
-      (value & 0xffff8000) == 0x00ff8000)
-  {
-    len = 4;
-    add_bin16(asm_context, opcode | (0x7 << 3) | 0x0, IS_OPCODE);
-    if (extra_imm != NO_EXTRA_IMM)
-    {
-      add_bin16(asm_context, extra_imm, IS_OPCODE);
-      len += 2;
-    }
-    add_bin16(asm_context, value, IS_OPCODE);
-    return len;
-  }
-    else
-  {
-    len = 6;
-    add_bin16(asm_context, opcode | (0x7 << 3) | 0x1, IS_OPCODE);
-    if (extra_imm != NO_EXTRA_IMM)
-    {
-      add_bin16(asm_context, extra_imm, IS_OPCODE);
-      len += 2;
-    }
-    add_bin32(asm_context, operand->value, IS_OPCODE);
-    return len;
-  }
-#endif
 }
 
 static int ea_displacement(struct _asm_context *asm_context, int opcode, struct _operand *operand)
@@ -401,7 +369,15 @@ static int ea_generic_all(struct _asm_context *asm_context, struct _operand *ope
 // This should replace ea_generic_all since it gets its information from
 // table_68000 on which modes are valid.  Wish I would have done it this
 // way from the start.
-static int ea_generic_new(struct _asm_context *asm_context, struct _operand *operand, char *instr, int size, struct _table_68000 *table, int is_dst, uint32_t extra_imm, int opcode_extra)
+static int ea_generic_new(
+  struct _asm_context *asm_context,
+  struct _operand *operand,
+  char *instr,
+  int size,
+  struct _table_68000 *table,
+  int is_dst,
+  uint32_t extra_imm,
+  int opcode_extra)
 {
   int omit_mode = (is_dst == 1) ? table->omit_dst : table->omit_src;
   int opcode = table->opcode | opcode_extra;
@@ -449,8 +425,13 @@ static int ea_generic_new(struct _asm_context *asm_context, struct _operand *ope
   return -1;
 }
 
-//static int write_single_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
-static int write_single_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_single_ea(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 1) { return 0; }
 
@@ -466,7 +447,13 @@ static int write_single_ea_no_size(struct _asm_context *asm_context, char *instr
   return ea_generic_new(asm_context, &operands[0], instr, 0, table, 0, NO_EXTRA_IMM, 0);
 }
 
-static int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_reg_and_ea(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (size == SIZE_NONE) { return 0; }
@@ -496,7 +483,13 @@ static int write_reg_and_ea(struct _asm_context *asm_context, char *instr, struc
   }
 }
 
-static int write_dreg_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_dreg_ea(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (size == SIZE_NONE) { return 0; }
@@ -513,8 +506,16 @@ static int write_dreg_ea(struct _asm_context *asm_context, char *instr, struct _
   return ea_generic_new(asm_context, &operands[1], instr, size, table, 1, NO_EXTRA_IMM, opcode_extra);
 }
 
-static int write_immediate(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_immediate(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table_68000,
+  int size)
 {
+  uint16_t opcode = table_68000->opcode;
+
   if (operand_count != 2) { return 0; }
   if (size == SIZE_NONE) { return 0; }
   if (operands[0].type != OPERAND_IMMEDIATE) { return 0; }
@@ -523,6 +524,31 @@ static int write_immediate(struct _asm_context *asm_context, char *instr, struct
   int len = 2;
 
   opcode |= (size << 6);
+
+  switch (operands[1].type)
+  {
+    case OPERAND_A_REG:
+      if ((table_68000->omit_dst & MODE_AN) != 0)
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
+      }
+      break;
+    case OPERAND_INDEX_DATA16_PC:
+      if ((table_68000->omit_dst & MODE_D16_PC) != 0)
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
+      }
+      break;
+    case OPERAND_INDEX_DATA8_PC_XN:
+      if ((table_68000->omit_dst & MODE_D8_PC_XN) != 0)
+      {
+        print_error_illegal_operands(instr, asm_context);
+        return -1;
+      }
+      break;
+  }
 
   switch(operands[1].type)
   {
@@ -599,7 +625,13 @@ static int write_immediate(struct _asm_context *asm_context, char *instr, struct
   return len;
 }
 
-static int write_shift(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_shift(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size)
 {
   if (operand_count != 2) { return 0; }
 
@@ -626,7 +658,14 @@ static int write_shift(struct _asm_context *asm_context, char *instr, struct _op
   return 2;
 }
 
-static int write_vector(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size, int type)
+static int write_vector(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size,
+  int type)
 {
   if (operand_count != 1) { return 0; }
   if (size != SIZE_NONE) { return 0; }
@@ -654,7 +693,13 @@ static int write_vector(struct _asm_context *asm_context, char *instr, struct _o
   return 2;
 }
 
-static int write_areg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_areg(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size)
 {
   if (operand_count != 1) { return 0; }
   if (size != SIZE_NONE) { return 0; }
@@ -664,7 +709,13 @@ static int write_areg(struct _asm_context *asm_context, char *instr, struct _ope
   return 2;
 }
 
-static int write_reg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_reg(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size)
 {
   if (operand_count != 1) { return 0; }
 
@@ -685,7 +736,13 @@ static int write_reg(struct _asm_context *asm_context, char *instr, struct _oper
   return 2;
 }
 
-static int write_ea_areg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_ea_areg(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (size == SIZE_NONE || size == SIZE_B) { return 0; }
@@ -701,7 +758,13 @@ static int write_ea_areg(struct _asm_context *asm_context, char *instr, struct _
   return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM, opcode_extra);
 }
 
-static int write_ea_dreg(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_ea_dreg(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (check_size(size, table->omit_size) != 0) { return 0; }
@@ -718,7 +781,13 @@ static int write_ea_dreg(struct _asm_context *asm_context, char *instr, struct _
   return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM, opcode_extra);
 }
 
-static int write_load_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_load_ea(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   //if (size != SIZE_NONE) { return 0; }
@@ -730,7 +799,13 @@ static int write_load_ea(struct _asm_context *asm_context, char *instr, struct _
   return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM, opcode_extra);
 }
 
-static int write_quick(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_quick(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (operands[0].type != OPERAND_IMMEDIATE) { return 0; }
@@ -762,7 +837,13 @@ static int write_quick(struct _asm_context *asm_context, char *instr, struct _op
   return ea_generic_new(asm_context, &operands[1], instr, size, table, 1, NO_EXTRA_IMM, opcode_extra);
 }
 
-static int write_move_special(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_move_special(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
 
@@ -790,7 +871,13 @@ static int write_move_special(struct _asm_context *asm_context, char *instr, str
   return 0;
 }
 
-static int write_movea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_movea(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (operands[1].type != OPERAND_A_REG) { return 0; }
@@ -802,7 +889,13 @@ static int write_movea(struct _asm_context *asm_context, char *instr, struct _op
   return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM, opcode_extra);
 }
 
-static int write_cmpm(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_cmpm(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (size == SIZE_NONE) { return 0; }
@@ -813,7 +906,12 @@ static int write_cmpm(struct _asm_context *asm_context, char *instr, struct _ope
   return 2;
 }
 
-static int write_bcd(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table)
+static int write_bcd(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table)
 {
   if (operand_count != 2) { return 0; }
 
@@ -838,7 +936,13 @@ static int write_bcd(struct _asm_context *asm_context, char *instr, struct _oper
   return 2;
 }
 
-static int write_extended(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_extended(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (size == SIZE_NONE) { return 0; }
@@ -864,7 +968,14 @@ static int write_extended(struct _asm_context *asm_context, char *instr, struct 
   return 2;
 }
 
-static int write_rox(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size, int type)
+static int write_rox(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size,
+  int type)
 {
   if (type == OP_ROX_MEM)
   {
@@ -897,7 +1008,13 @@ static int write_rox(struct _asm_context *asm_context, char *instr, struct _oper
   return 0;
 }
 
-static int write_exchange(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_exchange(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
 
@@ -922,7 +1039,13 @@ static int write_exchange(struct _asm_context *asm_context, char *instr, struct 
   return 0;
 }
 
-static int write_bit_reg_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_bit_reg_ea(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   //if (size != SIZE_NONE) { return 0; }
@@ -936,7 +1059,13 @@ static int write_bit_reg_ea(struct _asm_context *asm_context, char *instr, struc
   return 0;
 }
 
-static int write_bit_imm_ea(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_bit_imm_ea(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   //if (size != SIZE_NONE) { return 0; }
@@ -994,7 +1123,13 @@ static int write_bit_imm_ea(struct _asm_context *asm_context, char *instr, struc
   return 0;
 }
 
-static int write_ea_dreg_wl(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_ea_dreg_wl(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (check_size(size, table->omit_size) != 0) { return 0; }
@@ -1007,7 +1142,13 @@ static int write_ea_dreg_wl(struct _asm_context *asm_context, char *instr, struc
   return ea_generic_all(asm_context, &operands[0], instr, opcode | (operands[1].value << 9) | (size_a << 7), 0, EA_NO_A, NO_EXTRA_IMM);
 }
 
-static int write_logic_ccr(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_logic_ccr(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (check_size(size, table->omit_size) != 0) { return 0; }
@@ -1027,7 +1168,13 @@ static int write_logic_ccr(struct _asm_context *asm_context, char *instr, struct
   return 4;
 }
 
-static int write_branch(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_branch(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size)
 {
   if (operand_count != 1) { return 0; }
   if (operands[0].type != OPERAND_ADDRESS) { return 0; }
@@ -1088,7 +1235,13 @@ static int write_branch(struct _asm_context *asm_context, char *instr, struct _o
   }
 }
 
-static int write_ext(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_ext(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size)
 {
   if (operand_count != 1) { return 0; }
   if (operands[0].type != OPERAND_D_REG) { return 0; }
@@ -1108,7 +1261,13 @@ static int write_ext(struct _asm_context *asm_context, char *instr, struct _oper
   return 0;
 }
 
-static int write_link(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_link(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (operands[0].type != OPERAND_A_REG) { return 0; }
@@ -1145,7 +1304,13 @@ static int write_link(struct _asm_context *asm_context, char *instr, struct _ope
   return 0;
 }
 
-static int write_div_mul(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_div_mul(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size)
 {
   if (operand_count != 2) { return 0; }
   if (size != SIZE_W) { return 0; }
@@ -1154,7 +1319,13 @@ static int write_div_mul(struct _asm_context *asm_context, char *instr, struct _
   return ea_generic_all(asm_context, &operands[0], instr, opcode|(operands[1].value << 9), 0, EA_NO_A, NO_EXTRA_IMM);
 }
 
-static int write_movep(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_movep(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size)
 {
   int opmode;
 
@@ -1192,7 +1363,13 @@ static int write_movep(struct _asm_context *asm_context, char *instr, struct _op
   return 0;
 }
 
-static int write_movem(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_movem(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size)
 {
   struct _operand *operand = &operands[1];
   int mask = 0;
@@ -1236,7 +1413,13 @@ static int write_movem(struct _asm_context *asm_context, char *instr, struct _op
   }
 }
 
-static int write_move(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, int opcode, int size)
+static int write_move(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  int opcode,
+  int size)
 {
   const int move_size[] = { 1, 3, 2, 0 };
   uint32_t address;
@@ -1313,7 +1496,13 @@ static int write_move(struct _asm_context *asm_context, char *instr, struct _ope
   return len;
 }
 
-static int write_jump(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table, int size)
+static int write_jump(
+  struct _asm_context *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table,
+  int size)
 {
   int32_t offset = 0;
 
@@ -1987,7 +2176,7 @@ printf("\n");
           ret = write_single_ea_no_size(asm_context, instr, operands, operand_count, &table_68000[n]);
           break;
         case OP_IMMEDIATE:
-          ret = write_immediate(asm_context, instr, operands, operand_count, table_68000[n].opcode, operand_size);
+          ret = write_immediate(asm_context, instr, operands, operand_count, &table_68000[n], operand_size);
           break;
         case OP_SHIFT_EA:
           ret = write_single_ea(asm_context, instr, operands, operand_count, &table_68000[n], 3);
@@ -2108,6 +2297,6 @@ printf("\n");
     print_error_unknown_instr(instr, asm_context);
   }
 
-  return -1; 
+  return -1;
 }
 
