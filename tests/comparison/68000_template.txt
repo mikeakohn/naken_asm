@@ -127,6 +127,8 @@ lsr.l #5, %d2
 lsl.w (%a5)
 movea.l %d5, %a3
 movea.w (1000), %a3
+movea.l (4), %a2
+movea.l (400000), %a2
 move.l %d5, (%a1)+
 move.w %d5, %d6
 move.w %d5, (5,%a4)
