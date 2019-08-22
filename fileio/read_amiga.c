@@ -42,7 +42,7 @@ static long read_hunk_header(FILE *in)
     //printf("%c", ch);
   }
 
-  printf("\n");
+  //printf("\n");
 
   uint32_t table_length = read_int32(in);
   //uint32_t first_hunk = read_int32(in);
@@ -70,8 +70,6 @@ static long read_hunk_header(FILE *in)
 static int read_code(FILE *in, struct _memory *memory)
 {
   int n;
-
-  read_int32(in);
   uint32_t length = read_int32(in) * 4;
 
   for (n = 0; n < length; n++)
@@ -88,7 +86,6 @@ static int read_code(FILE *in, struct _memory *memory)
 int read_amiga(char *filename, struct _memory *memory)
 {
   FILE *in;
-  int address = 0;
 
   memory_clear(memory);
 
@@ -131,8 +128,9 @@ int read_amiga(char *filename, struct _memory *memory)
     {
       case HUNK_HEADER:
         table_offset = read_hunk_header(in);
+        break;
       case HUNK_CODE:
-        address = read_code(in, memory);
+        read_code(in, memory);
         running = 0;
         break;
       default:
@@ -148,13 +146,7 @@ int read_amiga(char *filename, struct _memory *memory)
     }
   }
 
-  if (in != NULL)
-  {
-    fclose(in);
-  }
-
-  memory->low_address = 0;
-  memory->high_address = address - 1;
+  fclose(in);
 
   return 0;
 }

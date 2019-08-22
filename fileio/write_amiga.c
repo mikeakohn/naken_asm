@@ -29,7 +29,7 @@ static void write_uint32(FILE *out, uint32_t value)
 int write_amiga(struct _memory *memory, FILE *out)
 {
   uint32_t n;
-  uint32_t length = memory->high_address - memory->low_address;
+  uint32_t length = (memory->high_address + 1) - memory->low_address;
 
   // Hunk file header.
   write_uint32(out, HUNK_HEADER); // magic_cookie
