@@ -59,6 +59,7 @@
 #include "disasm/webasm.h"
 #include "disasm/xtensa.h"
 #include "disasm/z80.h"
+#include "fileio/read_amiga.h"
 #include "fileio/read_bin.h"
 #include "fileio/read_elf.h"
 #include "fileio/read_hex.h"
@@ -1120,6 +1121,36 @@ static int load_debug(FILE **srcfile, char *filename, struct _util_context *util
   return 0;
 }
 
+static int set_cpu_by_name(const char *name, struct _util_context *util_context)
+{
+  int n = 0;
+
+  while (cpu_list[n].name != NULL)
+  {
+    if (strcasecmp(name, cpu_list[n].name) == 0)
+    {
+      util_context->disasm_range = cpu_list[n].disasm_range;
+      util_context->flags = cpu_list[n].flags;
+      util_context->bytes_per_address = cpu_list[n].bytes_per_address;
+      util_context->memory.endian = cpu_list[n].default_endian;
+      util_context->alignment = cpu_list[n].alignment;
+
+      if (cpu_list[n].simulate_init != NULL)
+      {
+        util_context->simulate = cpu_list[n].simulate_init(&util_context->memory);
+      }
+
+      return 1;
+
+      break;
+    }
+
+    n++;
+  }
+
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
   FILE *src = NULL;
@@ -1222,32 +1253,10 @@ int main(int argc, char *argv[])
   {
     if (argv[i][0] == '-')
     {
-      int n = 0;
-
-      while (cpu_list[n].name != NULL)
+      if (set_cpu_by_name(argv[i] + 1, &util_context) == 1)
       {
-        if (strcasecmp(argv[i] + 1, cpu_list[n].name) == 0)
-        {
-          util_context.disasm_range = cpu_list[n].disasm_range;
-          util_context.flags = cpu_list[n].flags;
-          util_context.bytes_per_address = cpu_list[n].bytes_per_address;
-          util_context.memory.endian = cpu_list[n].default_endian;
-          util_context.alignment = cpu_list[n].alignment;
-
-          if (cpu_list[n].simulate_init != NULL)
-          {
-            util_context.simulate = cpu_list[n].simulate_init(&util_context.memory);
-          }
-
-          cpu_type_set = 1;
-
-          break;
-        }
-
-        n++;
+        continue;
       }
-
-      if (cpu_list[n].name != NULL) { continue; }
     }
 
     if (strcmp(argv[i], "-d") == 0)
@@ -1413,6 +1422,17 @@ int main(int argc, char *argv[])
       {
         hexfile = argv[i];
         printf("Loaded WDC binary %s from 0x%04x to 0x%04x\n",
+          argv[i],
+          util_context.memory.low_address,
+          util_context.memory.high_address);
+      }
+        else
+      if (read_amiga(argv[i], &util_context.memory) >= 0)
+      {
+        set_cpu_by_name("68000", &util_context);
+
+        hexfile = argv[i];
+        printf("Loaded Amiga (hunk) exe %s from 0x%04x to 0x%04x\n",
           argv[i],
           util_context.memory.low_address,
           util_context.memory.high_address);

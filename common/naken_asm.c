@@ -20,6 +20,7 @@
 #include "common/symbols.h"
 #include "common/tokens.h"
 #include "common/version.h"
+#include "fileio/write_amiga.h"
 #include "fileio/write_bin.h"
 #include "fileio/write_elf.h"
 #include "fileio/write_hex.h"
@@ -33,6 +34,7 @@ enum
   FORMAT_ELF,
   FORMAT_SREC,
   FORMAT_WDC,
+  FORMAT_AMIGA,
 };
 
 const char *credits =
@@ -159,6 +161,11 @@ int main(int argc, char *argv[])
     {
       format = FORMAT_WDC;
     }
+      else
+    if (strcmp(argv[i], "-amiga") == 0)
+    {
+      format = FORMAT_AMIGA;
+    }
 #if 0
       else
     if (strcmp(argv[i], "-d") == 0)
@@ -261,6 +268,7 @@ int main(int argc, char *argv[])
       case FORMAT_ELF: outfile = "out.elf"; break;
       case FORMAT_SREC: outfile = "out.srec"; break;
       case FORMAT_WDC: outfile = "out.wdc"; break;
+      case FORMAT_AMIGA: outfile = "out"; break;
       default: outfile = "out.err"; break;
     }
   }
@@ -409,6 +417,11 @@ int main(int argc, char *argv[])
     if (format == FORMAT_WDC)
     {
       write_wdc(&asm_context.memory, out);
+    }
+      else
+    if (format == FORMAT_AMIGA)
+    {
+      write_amiga(&asm_context.memory, out);
     }
 
     if (dbg != NULL)

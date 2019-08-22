@@ -24,7 +24,8 @@ int read_bin(char *filename, struct _memory *memory, uint32_t start_address)
   memory_clear(memory);
 
   in = fopen(filename, "rb");
-  if (in == 0)
+
+  if (in == NULL)
   {
     return -1;
   }
@@ -37,15 +38,11 @@ int read_bin(char *filename, struct _memory *memory, uint32_t start_address)
     memory_write_m(memory, address++, ch);
   }
 
-  if (in != NULL)
-  {
-    fclose(in);
-  }
+  fclose(in);
 
   memory->low_address = start_address;
   memory->high_address = address - 1;
 
   return start_address;
 }
-
 
