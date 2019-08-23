@@ -111,7 +111,7 @@ static const char *get_type(int type)
 
 static int print_table(struct _memory *memory, uint32_t address, FILE *out)
 {
-  int length, total_length, entry, n, count = 0;
+  int length = 0, total_length, entry, n, count = 0;
 
   count = get_varint(memory, address, &total_length);
 
