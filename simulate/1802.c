@@ -86,7 +86,7 @@ struct _simulate *simulate_init_1802(struct _memory *memory)
 
 static void handle_signal(int sig)
 {
-  stop_running=1;
+  stop_running = 1;
   signal(SIGINT, SIG_DFL);
 }
 
@@ -112,7 +112,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
   
   if (opcode == 0x00)
   {  
-    //Since we are not handling any dma or irq.
+    //Since this is not handling any dma or irq.
     ++PC;
     return 0;
   }
@@ -121,22 +121,25 @@ static int operand_exe(struct _simulate *simulate, int opcode)
   if (opcode == 0x68)
   {
     int _opcode = READ_RAM(PC + 1);
-    for (i = 0; i < table_1802_16_len; i++)
+
+    for (i = 0; table_1802_16[i].instr != NULL; i++)
     {
       if ((_opcode & table_1802_16[i].mask) == table_1802_16[i].opcode)
       {
-        simulate->cycle_count += table_1802_16[i].cycles * 8; //Every machine cycle is 8 cycle
+        // Every machine cycle is 8 cycle
+        simulate->cycle_count += table_1802_16[i].cycles * 8;
         break;
       }
     }
   }
   else
   {
-    for (i = 0; i < table_1802_len; i++)
+    for (i = 0; table_1802[i].instr != NULL; i++)
     {
       if ((opcode & table_1802[i].mask) == table_1802[i].opcode)
       {
-        simulate->cycle_count += table_1802[i].cycles * 8; //Every machine cycle is 8 cycle
+        // Every machine cycle is 8 cycle
+        simulate->cycle_count += table_1802[i].cycles * 8;
         break;
       }
     }
@@ -240,7 +243,8 @@ static int operand_exe(struct _simulate *simulate, int opcode)
           switch(_I)
           {
             case 0x0: //MOSTLY COUNTER INSTRUCTIONS. 
-            //Counter is always in stop mode, only software decrementing using DTC is possible.
+              //Counter is always in stop mode, only software decrementing
+              // using DTC is possible.
               switch(_N)
               {
                 case 0x0: //STPC
@@ -559,7 +563,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
           break;
        
         case 0xE: //SHLC
-          temp = REG_D && 0x80;
+          temp = REG_D & 0x80;
           REG_D <<= 1;
           REG_D |= FLAG_DF;
           FLAG_DF = temp;
@@ -751,7 +755,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
           break;
        
         case 0xE: //SHL
-          temp = REG_D && 0x80;
+          temp = REG_D & 0x80;
           REG_D <<= 1;
           FLAG_DF = temp;
           break;
@@ -1063,3 +1067,4 @@ void simulate_reset_1802(struct _simulate *simulate)
   FLAG_Q = 0;
   simulate->break_point = -1;
 }
+
