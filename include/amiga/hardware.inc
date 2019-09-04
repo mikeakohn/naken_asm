@@ -249,34 +249,34 @@ BPLHPTL  equ 0x1ee ; VRam (UHRES) bitplane pointer (lo 15 bits) (ECS)
 FMODE    equ 0x1fc ; Fetch mode register (AGA)
 
 ;; CIAA / CIAB
-ciaa_pra    equ 0x001 ; /FIR1 /FIR0 /RDY /TK0 /WPRO /CHNG /LED OVL
-ciaa_prb    equ 0x101 ; Parallel port
-ciaa_ddra   equ 0x201 ; Direction for port A (BFE001); 1=output (set to 0x03)
-ciaa_ddrb   equ 0x301 ; Direction for port B (BFE101); 1=output (can be in or out)
-ciaa_talo   equ 0x401 ; CIAA timer A low byte (.715909 Mhz NTSC; .709379 Mhz PAL)
-ciaa_tahi   equ 0x501 ; CIAA timer A high byte
-ciaa_tblo   equ 0x601 ; CIAA timer B low byte (.715909 Mhz NTSC; .709379 Mhz PAL)
-ciaa_tbhi   equ 0x701 ; CIAA timer B high byte
-ciaa_todlo  equ 0x801 ; 50/60 Hz event counter bits 7-0 (VSync or line tick)
-ciaa_todmid equ 0x901 ; 50/60 Hz event counter bits 15-8
-ciaa_todhi  equ 0xa01 ; 50/60 Hz event counter bits 23-16
-ciaa_sdr    equ 0xc01 ; CIAA serial data register (connected to keyboard)
-ciaa_icr    equ 0xd01 ; CIAA interrupt control register
-ciaa_cra    equ 0xe01 ; CIAA control register A
-ciaa_crb    equ 0xf01 ; CIAA control register B
-ciab_pra    equ 0x000 ; /DTR /RTS /CD /CTS /DSR SEL POUT BUSY
-ciab_prb    equ 0x100 ; /MTR /SEL3 /SEL2 /SEL1 /SEL0 /SIDE DIR /STEP
-ciab_ddra   equ 0x200 ; Direction for Port A (BFD000); 1 = output (set to 0xFF)
-ciab_ddrb   equ 0x300 ; Direction for Port B (BFD100); 1 = output (set to 0xFF)
-ciab_talo   equ 0x400 ; CIAB timer A low byte (.715909 Mhz NTSC; .709379 Mhz PAL)
-ciab_tahi   equ 0x500 ; CIAB timer A high byte
-ciab_tblo   equ 0x600 ; CIAB timer B low byte (.715909 Mhz NTSC; .709379 Mhz PAL)
-ciab_tbhi   equ 0x700 ; CIAB timer B high byte
-ciab_todlo  equ 0x800 ; Horizontal sync event counter bits 7-0
-ciab_todmid equ 0x900 ; Horizontal sync event counter bits 15-8
-ciab_todhi  equ 0xa00 ; Horizontal sync event counter bits 23-16
-ciab_sdr    equ 0xc00 ; CIAB serial data register (unused)
-ciab_icr    equ 0xd00 ; CIAB interrupt control register
-ciab_cra    equ 0xe00 ; CIAB Control register A
-ciab_crb    equ 0xf00 ; CIAB Control register B
+CIAA_PRA    equ 0x001 ; /FIR1 /FIR0 /RDY /TK0 /WPRO /CHNG /LED OVL
+CIAA_PRB    equ 0x101 ; Parallel port
+CIAA_DDRA   equ 0x201 ; Direction for port A (BFE001); 1=output (set to 0x03)
+CIAA_DDRB   equ 0x301 ; Direction for port B (BFE101); 1=output (can be in or out)
+CIAA_TALO   equ 0x401 ; CIAA timer A low byte (.715909 Mhz NTSC; .709379 Mhz PAL)
+CIAA_TAHI   equ 0x501 ; CIAA timer A high byte
+CIAA_TBLO   equ 0x601 ; CIAA timer B low byte (.715909 Mhz NTSC; .709379 Mhz PAL)
+CIAA_TBHI   equ 0x701 ; CIAA timer B high byte
+CIAA_TODLO  equ 0x801 ; 50/60 Hz event counter bits 7-0 (VSync or line tick)
+CIAA_TODMID equ 0x901 ; 50/60 Hz event counter bits 15-8
+CIAA_TODHI  equ 0xa01 ; 50/60 Hz event counter bits 23-16
+CIAA_SDR    equ 0xc01 ; CIAA serial data register (connected to keyboard)
+CIAA_ICR    equ 0xd01 ; CIAA interrupt control register
+CIAA_CRA    equ 0xe01 ; CIAA control register A
+CIAA_CRB    equ 0xf01 ; CIAA control register B
+CIAB_PRA    equ 0x000 ; /DTR /RTS /CD /CTS /DSR SEL POUT BUSY
+CIAB_PRB    equ 0x100 ; /MTR /SEL3 /SEL2 /SEL1 /SEL0 /SIDE DIR /STEP
+CIAB_DDRA   equ 0x200 ; Direction for Port A (BFD000); 1 = output (set to 0xFF)
+CIAB_DDRB   equ 0x300 ; Direction for Port B (BFD100); 1 = output (set to 0xFF)
+CIAB_TALO   equ 0x400 ; CIAB timer A low byte (.715909 Mhz NTSC; .709379 Mhz PAL)
+CIAB_TAHI   equ 0x500 ; CIAB timer A high byte
+CIAB_TBLO   equ 0x600 ; CIAB timer B low byte (.715909 Mhz NTSC; .709379 Mhz PAL)
+CIAB_TBHI   equ 0x700 ; CIAB timer B high byte
+CIAB_TODLO  equ 0x800 ; Horizontal sync event counter bits 7-0
+CIAB_TODMID equ 0x900 ; Horizontal sync event counter bits 15-8
+CIAB_TODHI  equ 0xa00 ; Horizontal sync event counter bits 23-16
+CIAB_SDR    equ 0xc00 ; CIAB serial data register (unused)
+CIAB_ICR    equ 0xd00 ; CIAB interrupt control register
+CIAB_CRA    equ 0xe00 ; CIAB Control register A
+CIAB_CRB    equ 0xf00 ; CIAB Control register B
 
