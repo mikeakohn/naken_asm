@@ -17,13 +17,13 @@ example:
       ldi r16, 0
     test:
 
-In this case test is at byte offset 4, but the assembler writes it
-as jmp 2.
+In this case test is at byte offset 6, but the assembler writes it
+as jmp 3.
 
 This can cause an issue when, for example, loading the Z register
 (the combination of r31:r30) with a pointer to a data section in
 flash.  So to point Z to some data the address needs to be multiplied
-by two:
+by two to load Z with the byte address and not the instruction address:
 
       ldi r30, (speech_init * 2) & 0xff
       ldi r31, (speech_init * 2) >> 8
