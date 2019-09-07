@@ -45,3 +45,4 @@ anything:
       mov something, #value
     myfunction_ret:
       ret
+
