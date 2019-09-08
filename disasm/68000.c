@@ -126,13 +126,13 @@ static int get_ea_68000(struct _memory *memory, uint32_t address, char *ea, uint
       if (reg==0)
       {
         int16_t value = READ_RAM16(address + 2 + skip);
-        if (value > 0) { sprintf(ea, "($%x)", value); }
-        else { sprintf(ea, "($%x)", ((uint32_t)value) & 0xffffff); }
+        if (value > 0) { sprintf(ea, "(0x%x)", value); }
+        else { sprintf(ea, "(0x%x)", ((uint32_t)value) & 0xffffff); }
         return 4;
       }
       else if (reg == 1)
       {
-        sprintf(ea, "($%x)", READ_RAM32(address + 2 + skip));
+        sprintf(ea, "(0x%x)", READ_RAM32(address + 2 + skip));
         return 6;
       }
       else if (reg == 2)
@@ -144,19 +144,19 @@ static int get_ea_68000(struct _memory *memory, uint32_t address, char *ea, uint
       {
         if (size == SIZE_B)
         {
-          sprintf(ea, "#$%x", READ_RAM(address + 3 + skip));
+          sprintf(ea, "#0x%x", READ_RAM(address + 3 + skip));
           return 4;
         }
           else
         if (size == SIZE_W)
         {
-          sprintf(ea, "#$%x", READ_RAM16(address + 2 + skip));
+          sprintf(ea, "#0x%x", READ_RAM16(address + 2 + skip));
           return 4;
         }
           else
         if (size == SIZE_L)
         {
-          sprintf(ea, "#$%x", READ_RAM32(address + 2 + skip));
+          sprintf(ea, "#0x%x", READ_RAM32(address + 2 + skip));
           return 6;
         }
           else
@@ -334,20 +334,20 @@ int disasm_68000(struct _memory *memory, uint32_t address, char *instruction, in
           if (size == SIZE_B)
           {
             immediate = READ_RAM(address + 3);
-            sprintf(instruction, "%s.%c #$%02x, %s", table_68000[n].instr, sizes[size], immediate, ea);
+            sprintf(instruction, "%s.%c #0x%02x, %s", table_68000[n].instr, sizes[size], immediate, ea);
             len += 2;
           }
             else
           if (size == SIZE_W)
           {
             immediate = READ_RAM16(address + 2);
-            sprintf(instruction, "%s.%c #$%04x, %s", table_68000[n].instr, sizes[size], immediate, ea);
+            sprintf(instruction, "%s.%c #0x%04x, %s", table_68000[n].instr, sizes[size], immediate, ea);
             len += 2;
           }
             else
           {
             immediate = READ_RAM32(address + 2);
-            sprintf(instruction, "%s.%c #$%08x, %s", table_68000[n].instr, sizes[size], immediate, ea);
+            sprintf(instruction, "%s.%c #0x%08x, %s", table_68000[n].instr, sizes[size], immediate, ea);
             len += 4;
           }
 
@@ -544,27 +544,27 @@ int disasm_68000(struct _memory *memory, uint32_t address, char *instruction, in
           sprintf(instruction, "%s.%c %s, d%d", table_68000[n].instr, sizes[size], ea, reg);
           return len;
         case OP_LOGIC_CCR:
-          sprintf(instruction, "%s #$%02x, CCR", table_68000[n].instr, READ_RAM16(address + 2));
+          sprintf(instruction, "%s #0x%02x, CCR", table_68000[n].instr, READ_RAM16(address + 2));
           return 4;
         case OP_BRANCH:
           offset = (opcode & 0xff);
           if (offset == 0)
           {
             offset = (int16_t)READ_RAM16(address + 2);
-            sprintf(instruction, "%s.w $%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
+            sprintf(instruction, "%s.w 0x%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
             return 4;
           }
             else
           if (offset == 0xff)
           {
             offset = READ_RAM32(address + 2);
-            sprintf(instruction, "%s.l $%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
+            sprintf(instruction, "%s.l 0x%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
             return 6;
           }
             else
           {
             offset = (int)((char)offset);
-            sprintf(instruction, "%s.s $%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
+            sprintf(instruction, "%s.s 0x%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
             return 2;
           }
         case OP_EXT:
@@ -667,7 +667,7 @@ int disasm_68000(struct _memory *memory, uint32_t address, char *instruction, in
       cond_code = "ra";  // if false, then always branch
     }
 
-    sprintf(instruction, "db%s d%d, $%x (%d)", cond_code, opcode & 0x7, (address + 2) + offset, offset);
+    sprintf(instruction, "db%s d%d, 0x%x (%d)", cond_code, opcode & 0x7, (address + 2) + offset, offset);
     return 4;
   }
     else
@@ -677,20 +677,20 @@ int disasm_68000(struct _memory *memory, uint32_t address, char *instruction, in
     if (offset == 0)
     {
       offset = (int16_t)READ_RAM16(address + 2);
-      sprintf(instruction, "b%s.w $%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 4 + offset, offset);
+      sprintf(instruction, "b%s.w 0x%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 4 + offset, offset);
       return 4;
     }
       else
     if (offset == 0xff)
     {
       offset = READ_RAM32(address + 2);
-      sprintf(instruction, "b%s.l $%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 6 + offset, offset);
+      sprintf(instruction, "b%s.l 0x%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 6 + offset, offset);
       return 6;
     }
       else
     {
       offset = (int)((char)offset);
-      sprintf(instruction, "b%s.s $%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 2 + offset, offset);
+      sprintf(instruction, "b%s.s 0x%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 2 + offset, offset);
       return 2;
     }
     return 4;
