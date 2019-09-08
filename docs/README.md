@@ -11,6 +11,7 @@ Contents
 * [Examples](examples.md)
 * CPU Specific
   * [65C816](65C816.md)
+  * [68000](68000.md)
   * [ARM](ARM.md)
   * [AVR8](AVR8.md)
   * [Copper (Amiga)](Copper.md)
