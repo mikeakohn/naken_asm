@@ -131,7 +131,7 @@ struct _cpu_list cpu_list[] =
     SREC_16,
     parse_instruction_msp430,
     NULL,
-    link_not_supported,
+    link_function_msp430,
     list_output_msp430,
     disasm_range_msp430,
     simulate_init_msp430,

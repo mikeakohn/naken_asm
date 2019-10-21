@@ -27,4 +27,3 @@ int link_function_mips(
 
 #endif
 
-

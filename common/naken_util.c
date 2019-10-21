@@ -125,6 +125,7 @@ parse_instruction_t parse_instruction_webasm = NULL;
 parse_instruction_t parse_instruction_xtensa = NULL;
 parse_instruction_t parse_instruction_z80 = NULL;
 link_function_t link_function_mips = NULL;
+link_function_t link_function_msp430 = NULL;
 
 static char *state_stopped = "stopped";
 static char *state_running = "running";
