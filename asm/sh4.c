@@ -365,13 +365,9 @@ printf("%d %d %d\n",
       {
         case OP_NONE:
         {
-          if (operand_count == 0)
-          {
-            add_bin16(asm_context, table_sh4[n].opcode, IS_OPCODE);
-            return 2;
-          }
+          add_bin16(asm_context, table_sh4[n].opcode, IS_OPCODE);
 
-          break;
+          return 2;
         }
         case OP_REG:
         case OP_FREG:
@@ -413,8 +409,7 @@ printf("%d %d %d\n",
         }
         case OP_IMM_REG:
         {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_NUMBER &&
+          if (operands[0].type == OPERAND_NUMBER &&
               operands[1].type == OPERAND_REG)
           {
             value = (asm_context->pass == 2) ? operands[0].value : 0;
@@ -437,8 +432,7 @@ printf("%d %d %d\n",
         }
         case OP_IMM_R0:
         {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_NUMBER &&
+          if (operands[0].type == OPERAND_NUMBER &&
               operands[1].type == OPERAND_REG &&
               operands[1].value == 0)
           {
@@ -460,8 +454,7 @@ printf("%d %d %d\n",
         }
         case OP_IMM_AT_R0_GBR:
         {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_NUMBER &&
+          if (operands[0].type == OPERAND_NUMBER &&
               operands[1].type == OPERAND_AT_R0_GBR)
           {
             value = (asm_context->pass == 2) ? operands[0].value : 0;
@@ -482,7 +475,7 @@ printf("%d %d %d\n",
         }
         case OP_BRANCH_S9:
         {
-          if (operand_count == 1 && operands[0].type == OPERAND_ADDRESS)
+          if (operands[0].type == OPERAND_ADDRESS)
           {
             offset = (asm_context->pass == 2) ?
               operands[0].value - (asm_context->address + 4) : 0;
@@ -511,7 +504,7 @@ printf("%d %d %d\n",
         }
         case OP_BRANCH_S13:
         {
-          if (operand_count == 1 && operands[0].type == OPERAND_ADDRESS)
+          if (operands[0].type == OPERAND_ADDRESS)
           {
             offset = (asm_context->pass == 2) ?
               operands[0].value - (asm_context->address + 4) : 0;
@@ -540,8 +533,7 @@ printf("%d %d %d\n",
         }
         case OP_DREG_FPUL:
         {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_DREG &&
+          if (operands[0].type == OPERAND_DREG &&
               operands[1].type == OPERAND_SPECIAL_REG &&
               operands[1].value == SPECIAL_REG_FPUL)
           {
@@ -555,8 +547,7 @@ printf("%d %d %d\n",
         }
         case OP_FREG_FPUL:
         {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_FREG &&
+          if (operands[0].type == OPERAND_FREG &&
               operands[1].type == OPERAND_SPECIAL_REG &&
               operands[1].value == SPECIAL_REG_FPUL)
           {
@@ -570,8 +561,7 @@ printf("%d %d %d\n",
         }
         case OP_FPUL_FREG:
         {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_SPECIAL_REG &&
+          if (operands[0].type == OPERAND_SPECIAL_REG &&
               operands[0].value == SPECIAL_REG_FPUL &&
               operands[1].type == OPERAND_FREG)
           {
@@ -585,8 +575,7 @@ printf("%d %d %d\n",
         }
         case OP_FPUL_DREG:
         {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_SPECIAL_REG &&
+          if (operands[0].type == OPERAND_SPECIAL_REG &&
               operands[0].value == SPECIAL_REG_FPUL &&
               operands[1].type == OPERAND_DREG)
           {
@@ -600,8 +589,7 @@ printf("%d %d %d\n",
         }
         case OP_FR0_FREG_FREG:
         {
-          if (operand_count == 3 &&
-              operands[0].type == OPERAND_FREG &&
+          if (operands[0].type == OPERAND_FREG &&
               operands[0].value == 0 &&
               operands[1].type == OPERAND_FREG &&
               operands[2].type == OPERAND_FREG)
@@ -618,8 +606,7 @@ printf("%d %d %d\n",
         }
         case OP_FREG_AT_R0_REG:
         {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_FREG &&
+          if (operands[0].type == OPERAND_FREG &&
               operands[1].type == OPERAND_AT_R0_REG)
           {
             opcode = table_sh4[n].opcode |
@@ -634,8 +621,7 @@ printf("%d %d %d\n",
         }
         case OP_DREG_AT_R0_REG:
         {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_DREG &&
+          if (operands[0].type == OPERAND_DREG &&
               operands[1].type == OPERAND_AT_R0_REG)
           {
             opcode = table_sh4[n].opcode |
