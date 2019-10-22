@@ -29,6 +29,7 @@ enum
   OPERAND_REG,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
+  OPERAND_AT_R0_GBR,
 };
 
 struct _operand
@@ -68,8 +69,7 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
   int operand_count = 0;
   int token_type;
   int num, n;
-  //int offset;
-  int value;
+  int value, offset;
   uint16_t opcode;
   int found = 0;
 
@@ -98,7 +98,7 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OPERAND_REG;
     }
       else
-    if (IS_TOKEN(token,'#'))
+    if (IS_TOKEN(token, '#'))
     {
       if (eval_expression(asm_context, &num) != 0)
       {
@@ -116,6 +116,48 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
 
       operands[operand_count].type = OPERAND_NUMBER;
       operands[operand_count].value = num;
+    }
+      else
+    if (IS_TOKEN(token, '@'))
+    {
+      int error = 0;
+
+      if (expect_token(asm_context, '(') == -1) { return -1; }
+
+      do
+      {
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        num = get_register_sh4(token);
+
+        if (num != 0)
+        {
+          error = 1;
+          break;
+        }
+
+        if (expect_token(asm_context, ',') == -1) { return -1; }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (strcasecmp(token, "gbr") != 0)
+        {
+          error = 1;
+          break;
+        }
+
+        if (expect_token(asm_context, ')') == -1) { return -1; }
+
+      } while(0);
+
+      if (error == 1)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      operands[operand_count].type = OPERAND_AT_R0_GBR;
+      operands[operand_count].value = 0;
     }
       else
     {
@@ -200,22 +242,17 @@ printf("%d %d %d\n",
               operands[0].type == OPERAND_NUMBER &&
               operands[1].type == OPERAND_REG)
           {
-            if (asm_context->pass == 2)
-            {
-              if (operands[0].value < -128 || operands[0].value > 0xff)
-              {
-                print_error_range("Constant", -128, 0xff, asm_context);
-                return -1;
-              }
+            value = (asm_context->pass == 2) ? operands[0].value : 0;
 
-              value = operands[0].value & 0xff;
-            }
-              else
+            if (operands[0].value < -128 || operands[0].value > 0xff)
             {
-              value = 0;
+              print_error_range("Constant", -128, 0xff, asm_context);
+              return -1;
             }
 
-            opcode = table_sh4[n].opcode | value | (operands[1].value << 8);
+            opcode = table_sh4[n].opcode |
+                    (value & 0xff) |
+                    (operands[1].value << 8);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;
@@ -230,22 +267,59 @@ printf("%d %d %d\n",
               operands[1].type == OPERAND_REG &&
               operands[1].value == 0)
           {
-            if (asm_context->pass == 2)
-            {
-              if (operands[0].value < 0 || operands[0].value > 0xff)
-              {
-                print_error_range("Constant", 0, 0xff, asm_context);
-                return -1;
-              }
+            value = (asm_context->pass == 2) ? operands[0].value : 0;
 
-              value = operands[0].value & 0xff;
-            }
-              else
+            if (value < 0 || value > 0xff)
             {
-              value = 0;
+              print_error_range("Constant", 0, 0xff, asm_context);
+              return -1;
             }
 
-            opcode = table_sh4[n].opcode | value;
+            opcode = table_sh4[n].opcode | (value & 0xff);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_IMM_AT_R0_GBR:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_NUMBER &&
+              operands[1].type == OPERAND_AT_R0_GBR)
+          {
+            value = (asm_context->pass == 2) ? operands[0].value : 0;
+
+            if (value < 0 || value > 0xff)
+            {
+              print_error_range("Constant", 0, 0xff, asm_context);
+              return -1;
+            }
+
+            opcode = table_sh4[n].opcode | (value & 0xff);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_BRANCH_S8:
+        {
+          if (operand_count == 1 &&
+              operands[0].type == OPERAND_ADDRESS)
+          {
+            offset = (asm_context->pass == 2) ?
+              operands[0].value - (asm_context->address + 4) : 0;
+
+            if (offset < -128 || offset > 127)
+            {
+              print_error_range("Offset", -128, 127, asm_context);
+              return -1;
+            }
+
+            opcode = table_sh4[n].opcode | (offset & 0xff);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;

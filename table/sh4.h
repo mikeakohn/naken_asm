@@ -20,6 +20,8 @@ enum
   OP_REG_REG,
   OP_IMM_REG,
   OP_IMM_R0,
+  OP_IMM_AT_R0_GBR,
+  OP_BRANCH_S8,
 };
 
 struct _table_sh4

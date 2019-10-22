@@ -63,8 +63,22 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_IMM_R0:
         {
-          imm_u8 = (uint16_t)(opcode & 0xff);
+          imm_u8 = (uint8_t)(opcode & 0xff);
           sprintf(instruction, "%s #0x%02x, r0", table_sh4[n].instr, imm_u8);
+          return 2;
+        }
+        case OP_IMM_AT_R0_GBR:
+        {
+          imm_u8 = (uint16_t)(opcode & 0xff);
+          sprintf(instruction, "%s #0x%02x, @(r0, gbr)",
+            table_sh4[n].instr, imm_u8);
+          return 2;
+        }
+        case OP_BRANCH_S8:
+        {
+          imm_s8 = (int8_t)(opcode & 0xff);
+          sprintf(instruction, "%s 0x%04x (offset=%d)",
+            table_sh4[n].instr, address + 4 + imm_s8, imm_s8);
           return 2;
         }
         default:
@@ -98,7 +112,7 @@ void list_output_sh4(struct _asm_context *asm_context, uint32_t start, uint32_t 
 
     opcode = memory_read16_m(&asm_context->memory, start);
 
-    fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start / 2, opcode, instruction);
+    fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start, opcode, instruction);
 
     start += count;
   }
@@ -122,7 +136,7 @@ void disasm_range_sh4(struct _memory *memory, uint32_t flags, uint32_t start, ui
 
     opcode = memory_read16_m(memory, start);
 
-    printf("0x%04x: %04x %-40s\n", start / 2, opcode, instruction);
+    printf("0x%04x: %04x %-40s\n", start, opcode, instruction);
 
     start = start + count;
   }
