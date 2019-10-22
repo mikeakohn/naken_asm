@@ -18,4 +18,3 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr);
 
 #endif
 
-

@@ -400,6 +400,7 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
 
     n++;
   }
+
   if (found == 1)
   {
     print_error_illegal_operands(instr, asm_context);
@@ -412,5 +413,4 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
 
   return -1;
 }
-
 
