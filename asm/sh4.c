@@ -26,6 +26,7 @@
 
 enum
 {
+  OPERAND_NA,
   OPERAND_REG,
   OPERAND_FREG,
   OPERAND_DREG,
@@ -348,6 +349,13 @@ printf("%d %d %d\n",
     {
       found = 1;
 
+#if 0
+      switch(table_sh4[n].type)
+      {
+        default:
+      }
+#endif
+
       switch(table_sh4[n].type)
       {
         case OP_NONE:
@@ -448,6 +456,38 @@ printf("%d %d %d\n",
         {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_DREG &&
+              operands[1].type == OPERAND_XDREG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 5) |
+                    (operands[1].value << 9);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_XDREG_DREG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_XDREG &&
+              operands[1].type == OPERAND_DREG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 5) |
+                    (operands[1].value << 9);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_XDREG_XDREG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_XDREG &&
               operands[1].type == OPERAND_XDREG)
           {
             opcode = table_sh4[n].opcode |

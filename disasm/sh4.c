@@ -94,6 +94,20 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
           sprintf(instruction, "%s dr%d, xd%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
+        case OP_XDREG_DREG:
+        {
+          rm = (opcode >> 5) & 0x7;
+          rn = (opcode >> 9) & 0x7;
+          sprintf(instruction, "%s xdr%d, dr%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_XDREG_XDREG:
+        {
+          rm = (opcode >> 5) & 0x7;
+          rn = (opcode >> 9) & 0x7;
+          sprintf(instruction, "%s xdr%d, xd%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
         case OP_FVREG_FVREG:
         {
           rm = (opcode >> 8) & 0x3;
