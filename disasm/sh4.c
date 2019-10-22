@@ -169,6 +169,13 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
           sprintf(instruction, "%s fr0, fr%d, fr%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
+        case OP_FREG_AT_REG:
+        {
+          rm = (opcode >> 4) & 0xf;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s fr%d, @r%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
         case OP_DREG_AT_REG:
         {
           rm = (opcode >> 5) & 0x7;
@@ -176,11 +183,25 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
           sprintf(instruction, "%s dr%d, @r%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
+        case OP_FREG_AT_MINUS_REG:
+        {
+          rm = (opcode >> 4) & 0xf;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s fr%d, @-r%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
         case OP_DREG_AT_MINUS_REG:
         {
           rm = (opcode >> 5) & 0x7;
           rn = (opcode >> 8) & 0xf;
           sprintf(instruction, "%s dr%d, @-r%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_FREG_AT_R0_REG:
+        {
+          rm = (opcode >> 4) & 0xf;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s fr%d, @(r0, r%d)", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_DREG_AT_R0_REG:

@@ -681,6 +681,22 @@ printf("%d %d %d\n",
 
           break;
         }
+        case OP_FREG_AT_REG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_FREG &&
+              operands[1].type == OPERAND_AT_REG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 4) |
+                    (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
         case OP_DREG_AT_REG:
         {
           if (operand_count == 2 &&
@@ -697,6 +713,22 @@ printf("%d %d %d\n",
 
           break;
         }
+        case OP_FREG_AT_MINUS_REG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_FREG &&
+              operands[1].type == OPERAND_AT_MINUS_REG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 4) |
+                    (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
         case OP_DREG_AT_MINUS_REG:
         {
           if (operand_count == 2 &&
@@ -705,6 +737,22 @@ printf("%d %d %d\n",
           {
             opcode = table_sh4[n].opcode |
                     (operands[0].value << 5) |
+                    (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_FREG_AT_R0_REG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_FREG &&
+              operands[1].type == OPERAND_AT_R0_REG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 4) |
                     (operands[1].value << 8);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
