@@ -18,12 +18,21 @@ enum
 {
   OP_NONE,
   OP_REG,
+  OP_FREG,
+  OP_DREG,
   OP_REG_REG,
+  OP_FREG_FREG,
+  OP_DREG_DREG,
+  OP_FVREG_FVREG,
   OP_IMM_REG,
   OP_IMM_R0,
   OP_IMM_AT_R0_GBR,
   OP_BRANCH_S9,
   OP_BRANCH_S13,
+  OP_FREG_FPUL,
+  OP_DREG_FPUL,
+  OP_FPUL_FREG,
+  OP_FPUL_DREG,
 };
 
 struct _table_sh4

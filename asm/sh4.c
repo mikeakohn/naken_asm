@@ -27,9 +27,18 @@
 enum
 {
   OPERAND_REG,
+  OPERAND_FREG,
+  OPERAND_DREG,
+  OPERAND_FVREG,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
   OPERAND_AT_R0_GBR,
+  OPERAND_SPECIAL_REG,
+};
+
+enum
+{
+  SPECIAL_REG_FPUL,
 };
 
 struct _operand
@@ -58,6 +67,33 @@ static int get_register_sh4(char *token)
   }
 
   return -1;
+}
+
+static int get_f_register_sh4(char *token)
+{
+  if (token[0] != 'f' && token[0] != 'F') { return -1; }
+
+  return get_register_sh4(token + 1);
+}
+
+static int get_d_register_sh4(char *token)
+{
+  if (token[0] != 'd' && token[0] != 'D') { return -1; }
+
+  int num = get_register_sh4(token + 1);
+
+  return num <= 7 ? num : -1;
+}
+
+static int get_fv_register_sh4(char *token)
+{
+  if (token[0] != 'f' && token[0] != 'F') { return -1; }
+  if (token[1] != 'v' && token[1] != 'V') { return -1; }
+
+  if (token[3] != 0) { return -1; }
+  if (token[2] < '0' || token[2] > '3') { return -1; }
+
+  return token[2] - '0';
 }
 
 int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
@@ -96,6 +132,24 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
     {
       operands[operand_count].value = num;
       operands[operand_count].type = OPERAND_REG;
+    }
+      else
+    if ((num = get_f_register_sh4(token)) != -1)
+    {
+      operands[operand_count].value = num;
+      operands[operand_count].type = OPERAND_FREG;
+    }
+      else
+    if ((num = get_d_register_sh4(token)) != -1)
+    {
+      operands[operand_count].value = num;
+      operands[operand_count].type = OPERAND_DREG;
+    }
+      else
+    if ((num = get_fv_register_sh4(token)) != -1)
+    {
+      operands[operand_count].value = num;
+      operands[operand_count].type = OPERAND_FVREG;
     }
       else
     if (IS_TOKEN(token, '#'))
@@ -158,6 +212,12 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
 
       operands[operand_count].type = OPERAND_AT_R0_GBR;
       operands[operand_count].value = 0;
+    }
+      else
+    if (strcasecmp(token, "fpul") == 0)
+    {
+      operands[operand_count].type = OPERAND_SPECIAL_REG;
+      operands[operand_count].value = SPECIAL_REG_FPUL;
     }
       else
     {
@@ -232,6 +292,30 @@ printf("%d %d %d\n",
 
           break;
         }
+        case OP_FREG:
+        {
+          if (operand_count == 1 && operands[0].type == OPERAND_FREG)
+          {
+            opcode = table_sh4[n].opcode | (operands[0].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_DREG:
+        {
+          if (operand_count == 1 && operands[0].type == OPERAND_DREG)
+          {
+            opcode = table_sh4[n].opcode | (operands[0].value << 9);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
         case OP_REG_REG:
         {
           if (operand_count == 2 &&
@@ -241,6 +325,54 @@ printf("%d %d %d\n",
             opcode = table_sh4[n].opcode |
                     (operands[0].value << 4) |
                     (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_FREG_FREG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_FREG &&
+              operands[1].type == OPERAND_FREG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 4) |
+                    (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_DREG_DREG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_DREG &&
+              operands[1].type == OPERAND_DREG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 5) |
+                    (operands[1].value << 9);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_FVREG_FVREG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_FVREG &&
+              operands[1].type == OPERAND_FVREG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 8) |
+                    (operands[1].value << 10);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;
@@ -368,6 +500,66 @@ printf("%d %d %d\n",
             offset = offset >> 1;
 
             opcode = table_sh4[n].opcode | (offset & 0xfff);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_DREG_FPUL:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_DREG &&
+              operands[1].type == OPERAND_SPECIAL_REG &&
+              operands[1].value == SPECIAL_REG_FPUL)
+          {
+            opcode = table_sh4[n].opcode | (operands[0].value << 9);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_FREG_FPUL:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_FREG &&
+              operands[1].type == OPERAND_SPECIAL_REG &&
+              operands[1].value == SPECIAL_REG_FPUL)
+          {
+            opcode = table_sh4[n].opcode | (operands[0].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_FPUL_FREG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_SPECIAL_REG &&
+              operands[0].value == SPECIAL_REG_FPUL &&
+              operands[1].type == OPERAND_FREG)
+          {
+            opcode = table_sh4[n].opcode | (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_FPUL_DREG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_SPECIAL_REG &&
+              operands[0].value == SPECIAL_REG_FPUL &&
+              operands[1].type == OPERAND_DREG)
+          {
+            opcode = table_sh4[n].opcode | (operands[1].value << 9);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;

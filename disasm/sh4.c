@@ -54,11 +54,44 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
           sprintf(instruction, "%s r%d", table_sh4[n].instr, rn);
           return 2;
         }
+        case OP_FREG:
+        {
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s fr%d", table_sh4[n].instr, rn);
+          return 2;
+        }
+        case OP_DREG:
+        {
+          rn = (opcode >> 9) & 0x7;
+          sprintf(instruction, "%s dr%d", table_sh4[n].instr, rn);
+          return 2;
+        }
         case OP_REG_REG:
         {
           rm = (opcode >> 4) & 0xf;
           rn = (opcode >> 8) & 0xf;
           sprintf(instruction, "%s r%d, r%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_FREG_FREG:
+        {
+          rm = (opcode >> 4) & 0xf;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s fr%d, fr%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_DREG_DREG:
+        {
+          rm = (opcode >> 5) & 0x7;
+          rn = (opcode >> 9) & 0x7;
+          sprintf(instruction, "%s dr%d, dr%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_FVREG_FVREG:
+        {
+          rm = (opcode >> 8) & 0x3;
+          rn = (opcode >> 10) & 0x3;
+          sprintf(instruction, "%s fv%d, fv%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_IMM_REG:
@@ -98,6 +131,30 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
             table_sh4[n].instr, address + 4 + offset, offset);
           return 2;
         }
+        case OP_FREG_FPUL:
+        {
+          rm = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s fr%d, FPUL", table_sh4[n].instr, rm);
+          return 2;
+        }
+        case OP_DREG_FPUL:
+        {
+          rn = (opcode >> 9) & 0x7;
+          sprintf(instruction, "%s dr%d, FPUL", table_sh4[n].instr, rn);
+          return 2;
+        }
+        case OP_FPUL_FREG:
+        {
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s FPUL, fr%d", table_sh4[n].instr, rn);
+          return 2;
+        }
+        case OP_FPUL_DREG:
+        {
+          rn = (opcode >> 9) & 0x7;
+          sprintf(instruction, "%s FPUL, dr%d", table_sh4[n].instr, rn);
+          return 2;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);
@@ -129,7 +186,7 @@ void list_output_sh4(struct _asm_context *asm_context, uint32_t start, uint32_t 
 
     opcode = memory_read16_m(&asm_context->memory, start);
 
-    fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start, opcode, instruction);
+    fprintf(asm_context->list, "0x%04x: %04x   %-40s\n", start, opcode, instruction);
 
     start += count;
   }
@@ -153,7 +210,7 @@ void disasm_range_sh4(struct _memory *memory, uint32_t flags, uint32_t start, ui
 
     opcode = memory_read16_m(memory, start);
 
-    printf("0x%04x: %04x %-40s\n", start, opcode, instruction);
+    printf("0x%04x: %04x   %-40s\n", start, opcode, instruction);
 
     start = start + count;
   }
