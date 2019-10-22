@@ -27,6 +27,7 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
   int rm, rn;
   int8_t imm_s8;
   uint8_t imm_u8;
+  int offset;
   int n;
 
   opcode = memory_read16_m(memory, address);
@@ -74,11 +75,12 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
             table_sh4[n].instr, imm_u8);
           return 2;
         }
-        case OP_BRANCH_S8:
+        case OP_BRANCH_S9:
         {
-          imm_s8 = (int8_t)(opcode & 0xff);
+          offset = (int8_t)(opcode & 0xff);
+          offset *= 2;
           sprintf(instruction, "%s 0x%04x (offset=%d)",
-            table_sh4[n].instr, address + 4 + imm_s8, imm_s8);
+            table_sh4[n].instr, address + 4 + offset, offset);
           return 2;
         }
         default:

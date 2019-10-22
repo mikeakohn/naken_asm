@@ -7,4 +7,5 @@ loop:
   and #0x93, r0
   and.b #0x17, @(r0, gbr)
   bf loop
+  bf/s loop
 
