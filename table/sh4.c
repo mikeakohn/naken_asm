@@ -15,7 +15,8 @@
 
 struct _table_sh4 table_sh4[] =
 {
-  { "add",  0x1000, 0xf038, OP_REG_REG },
-  { NULL,  0x0000, 0x0000, 0 },
+  { "add",  0x300c, 0xf00f, OP_REG_REG },
+  { "add",  0x7000, 0xf000, OP_IMM_REG },
+  { NULL,   0x0000, 0x0000, 0 },
 };
 

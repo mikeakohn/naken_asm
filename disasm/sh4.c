@@ -16,9 +16,6 @@
 #include "disasm/sh4.h"
 #include "table/sh4.h"
 
-#define READ_RAM16(a) (memory_read_m(memory, a + 0) << 8) | \
-                       memory_read_m(memory, a + 1)
-
 int get_cycle_count_sh4(unsigned short int opcode)
 {
   return -1;
@@ -27,14 +24,17 @@ int get_cycle_count_sh4(unsigned short int opcode)
 int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint16_t opcode;
+  int rm, rn;
+  int8_t imm;
   int n;
 
-  opcode = READ_RAM16(address);
+  opcode = memory_read16_m(memory, address);
 
   *cycles_min = -1;
   *cycles_max = -1;
 
   n = 0;
+
   while (table_sh4[n].instr != NULL)
   {
     if ((opcode & table_sh4[n].mask) == table_sh4[n].opcode)
@@ -44,6 +44,20 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         case OP_NONE:
         {
           strcpy(instruction, table_sh4[n].instr);
+          return 2;
+        }
+        case OP_REG_REG:
+        {
+          rm = (opcode >> 4) & 0xf;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s r%d, r%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_IMM_REG:
+        {
+          imm = (int8_t)(opcode & 0xff);
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s #%d, r%d", table_sh4[n].instr, imm, rn);
           return 2;
         }
         default:
@@ -71,12 +85,11 @@ void list_output_sh4(struct _asm_context *asm_context, uint32_t start, uint32_t 
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_sh4(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-    opcode = (memory_read_m(&asm_context->memory, start + 0) << 8) |
-              memory_read_m(&asm_context->memory, start + 1);
+    opcode = memory_read16_m(&asm_context->memory, start);
 
     fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start / 2, opcode, instruction);
 
@@ -96,11 +109,11 @@ void disasm_range_sh4(struct _memory *memory, uint32_t flags, uint32_t start, ui
   printf("%-7s %-5s %-40s\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_sh4(memory, start, instruction, &cycles_min, &cycles_max);
 
-    opcode = READ_RAM16(start);
+    opcode = memory_read16_m(memory, start);
 
     printf("0x%04x: %04x %-40s\n", start / 2, opcode, instruction);
 

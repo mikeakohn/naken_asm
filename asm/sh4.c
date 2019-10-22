@@ -28,6 +28,7 @@ enum
 {
   OPERAND_REG,
   OPERAND_NUMBER,
+  OPERAND_ADDRESS,
 };
 
 struct _operand
@@ -43,9 +44,16 @@ static int get_register_sh4(char *token)
 
   if (token[0] != 0 && token[1] == 0)
   {
-    if (*token < '0' || *token > '7') { return -1; }
+    if (*token < '0' || *token > '9') { return -1; }
 
     return (*token) - '0';
+  }
+
+  if (token[0] == '1' && token[1] >= '0' && token[1] <= '5' && token[2] == 0)
+  {
+    if (*token < '0' || *token > '7') { return -1; }
+
+    return (token[1]) - '0' + 10;
   }
 
   return -1;
@@ -60,8 +68,9 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
   int operand_count = 0;
   int token_type;
   int num, n;
-  //int offset, value;
-  //uint16_t opcode;
+  //int offset;
+  int value;
+  uint16_t opcode;
   int found = 0;
 
   lower_copy(instr_case, instr);
@@ -89,9 +98,8 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OPERAND_REG;
     }
       else
+    if (IS_TOKEN(token,'#'))
     {
-      tokens_push(asm_context, token, token_type);
-
       if (eval_expression(asm_context, &num) != 0)
       {
         if (asm_context->pass == 1)
@@ -109,6 +117,27 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OPERAND_NUMBER;
       operands[operand_count].value = num;
     }
+      else
+    {
+      tokens_push(asm_context, token, token_type);
+
+      if (eval_expression(asm_context, &num) != 0)
+      {
+        if (asm_context->pass == 1)
+        {
+          eat_operand(asm_context);
+          num = 0;
+        }
+          else
+        {
+          print_error_illegal_expression(instr, asm_context);
+          return -1;
+        }
+      }
+
+      operands[operand_count].type = OPERAND_ADDRESS;
+      operands[operand_count].value = num;
+    }
 
     operand_count++;
     token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -123,7 +152,8 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
   }
 
   n = 0;
-  while(table_sh4[n].instr != NULL)
+
+  while (table_sh4[n].instr != NULL)
   {
     if (strcmp(table_sh4[n].instr, instr_case) == 0)
     {
@@ -136,6 +166,51 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
           if (operand_count == 0)
           {
             add_bin16(asm_context, table_sh4[n].opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_REG_REG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_REG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 4) |
+                    (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_IMM_REG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_NUMBER &&
+              operands[1].type == OPERAND_REG)
+          {
+            if (asm_context->pass == 2)
+            {
+              value = operands[0].value & 0xff;
+            }
+              else
+            {
+              value = 0;
+            }
+
+            if (value < -128 || value > 0xff)
+            {
+              print_error_range("Constant", -128, 0xff, asm_context);
+              return -1;
+            }
+
+            opcode = table_sh4[n].opcode | value | (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;
           }
 
