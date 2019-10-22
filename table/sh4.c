@@ -107,7 +107,7 @@ struct _operand_type_sh4 operand_type_sh4[] =
   { 2,         0, 0,                0,  0 }, // OP_FPUL_FREG
   { 2,         0, 0,                0,  0 }, // OP_FPUL_DREG
   { 3,         0, 0,                0,  0 }, // OP_FR0_FREG_FREG
-  { 2,  SH4_FREG, 4,          SH4_REG,  8 }, // OP_FREG_AT_REG
+  { 2,  SH4_FREG, 4,       SH4_AT_REG,  8 }, // OP_FREG_AT_REG
   { 2,  SH4_DREG, 5,       SH4_AT_REG,  8 }, // OP_DREG_AT_REG
   { 2,  SH4_FREG, 4, SH4_AT_MINUS_REG,  8 }, // OP_FREG_AT_MINUS_REG
   { 2,  SH4_DREG, 5, SH4_AT_MINUS_REG,  8 }, // OP_DREG_AT_MINUS_REG

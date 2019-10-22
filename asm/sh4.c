@@ -394,6 +394,10 @@ printf("%d %d %d\n",
         case OP_XDREG_DREG:
         case OP_XDREG_XDREG:
         case OP_FVREG_FVREG:
+        case OP_FREG_AT_REG:
+        case OP_DREG_AT_REG:
+        case OP_FREG_AT_MINUS_REG:
+        case OP_DREG_AT_MINUS_REG:
         {
           if (operands[0].type == type_0 && operands[1].type == type_1)
           {
@@ -605,70 +609,6 @@ printf("%d %d %d\n",
             opcode = table_sh4[n].opcode |
                     (operands[1].value << 4) |
                     (operands[2].value << 8);
-
-            add_bin16(asm_context, opcode, IS_OPCODE);
-            return 2;
-          }
-
-          break;
-        }
-        case OP_FREG_AT_REG:
-        {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_FREG &&
-              operands[1].type == OPERAND_AT_REG)
-          {
-            opcode = table_sh4[n].opcode |
-                    (operands[0].value << 4) |
-                    (operands[1].value << 8);
-
-            add_bin16(asm_context, opcode, IS_OPCODE);
-            return 2;
-          }
-
-          break;
-        }
-        case OP_DREG_AT_REG:
-        {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_DREG &&
-              operands[1].type == OPERAND_AT_REG)
-          {
-            opcode = table_sh4[n].opcode |
-                    (operands[0].value << 5) |
-                    (operands[1].value << 8);
-
-            add_bin16(asm_context, opcode, IS_OPCODE);
-            return 2;
-          }
-
-          break;
-        }
-        case OP_FREG_AT_MINUS_REG:
-        {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_FREG &&
-              operands[1].type == OPERAND_AT_MINUS_REG)
-          {
-            opcode = table_sh4[n].opcode |
-                    (operands[0].value << 4) |
-                    (operands[1].value << 8);
-
-            add_bin16(asm_context, opcode, IS_OPCODE);
-            return 2;
-          }
-
-          break;
-        }
-        case OP_DREG_AT_MINUS_REG:
-        {
-          if (operand_count == 2 &&
-              operands[0].type == OPERAND_DREG &&
-              operands[1].type == OPERAND_AT_MINUS_REG)
-          {
-            opcode = table_sh4[n].opcode |
-                    (operands[0].value << 5) |
-                    (operands[1].value << 8);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;
