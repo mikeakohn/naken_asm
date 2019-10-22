@@ -24,6 +24,7 @@ struct _table_sh4 table_sh4[] =
   { "and.b", 0xcd00, 0xff00, OP_IMM_AT_R0_GBR },
   { "bf",    0x8b00, 0xff00, OP_BRANCH_S9 },
   { "bf/s",  0x8f00, 0xff00, OP_BRANCH_S9 },
+  { "bra",   0xa000, 0xf000, OP_BRANCH_S13 },
   { NULL,    0x0000, 0x0000, 0 },
 };
 

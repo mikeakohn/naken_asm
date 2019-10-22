@@ -307,8 +307,7 @@ printf("%d %d %d\n",
         }
         case OP_BRANCH_S9:
         {
-          if (operand_count == 1 &&
-              operands[0].type == OPERAND_ADDRESS)
+          if (operand_count == 1 && operands[0].type == OPERAND_ADDRESS)
           {
             offset = (asm_context->pass == 2) ?
               operands[0].value - (asm_context->address + 4) : 0;
@@ -328,6 +327,35 @@ printf("%d %d %d\n",
             offset = offset >> 1;
 
             opcode = table_sh4[n].opcode | (offset & 0xff);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_BRANCH_S13:
+        {
+          if (operand_count == 1 && operands[0].type == OPERAND_ADDRESS)
+          {
+            offset = (asm_context->pass == 2) ?
+              operands[0].value - (asm_context->address + 4) : 0;
+
+            if (offset < -4096 || offset > 4095)
+            {
+              print_error_range("Offset", -4096, 4095, asm_context);
+              return -1;
+            }
+
+            if ((offset & 1) != 0)
+            {
+              print_error_align(asm_context, 2);
+              return -1;
+            }
+
+            offset = offset >> 1;
+
+            opcode = table_sh4[n].opcode | (offset & 0xfff);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;

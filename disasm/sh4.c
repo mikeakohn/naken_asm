@@ -83,6 +83,15 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
             table_sh4[n].instr, address + 4 + offset, offset);
           return 2;
         }
+        case OP_BRANCH_S13:
+        {
+          offset = opcode & 0xfff;
+          if ((offset & 0x800) != 0) { offset |= 0xfffff000; }
+          offset *= 2;
+          sprintf(instruction, "%s 0x%04x (offset=%d)",
+            table_sh4[n].instr, address + 4 + offset, offset);
+          return 2;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);
