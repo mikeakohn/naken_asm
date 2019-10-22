@@ -25,7 +25,8 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
 {
   uint16_t opcode;
   int rm, rn;
-  int8_t imm;
+  int8_t imm_s8;
+  uint8_t imm_u8;
   int n;
 
   opcode = memory_read16_m(memory, address);
@@ -55,9 +56,15 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_IMM_REG:
         {
-          imm = (int8_t)(opcode & 0xff);
+          imm_s8 = (int8_t)(opcode & 0xff);
           rn = (opcode >> 8) & 0xf;
-          sprintf(instruction, "%s #%d, r%d", table_sh4[n].instr, imm, rn);
+          sprintf(instruction, "%s #%d, r%d", table_sh4[n].instr, imm_s8, rn);
+          return 2;
+        }
+        case OP_IMM_R0:
+        {
+          imm_u8 = (uint16_t)(opcode & 0xff);
+          sprintf(instruction, "%s #0x%02x, r0", table_sh4[n].instr, imm_u8);
           return 2;
         }
         default:

@@ -153,6 +153,13 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
 
   n = 0;
 
+#if 0
+printf("%d %d %d\n",
+  operands[0].type,
+  operands[1].type,
+  operands[1].value);
+#endif
+
   while (table_sh4[n].instr != NULL)
   {
     if (strcmp(table_sh4[n].instr, instr_case) == 0)
@@ -195,6 +202,12 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
           {
             if (asm_context->pass == 2)
             {
+              if (operands[0].value < -128 || operands[0].value > 0xff)
+              {
+                print_error_range("Constant", -128, 0xff, asm_context);
+                return -1;
+              }
+
               value = operands[0].value & 0xff;
             }
               else
@@ -202,13 +215,37 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
               value = 0;
             }
 
-            if (value < -128 || value > 0xff)
+            opcode = table_sh4[n].opcode | value | (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_IMM_R0:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_NUMBER &&
+              operands[1].type == OPERAND_REG &&
+              operands[1].value == 0)
+          {
+            if (asm_context->pass == 2)
             {
-              print_error_range("Constant", -128, 0xff, asm_context);
-              return -1;
+              if (operands[0].value < 0 || operands[0].value > 0xff)
+              {
+                print_error_range("Constant", 0, 0xff, asm_context);
+                return -1;
+              }
+
+              value = operands[0].value & 0xff;
+            }
+              else
+            {
+              value = 0;
             }
 
-            opcode = table_sh4[n].opcode | value | (operands[1].value << 8);
+            opcode = table_sh4[n].opcode | value;
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;

@@ -19,6 +19,7 @@ enum
   OP_NONE,
   OP_REG_REG,
   OP_IMM_REG,
+  OP_IMM_R0,
 };
 
 struct _table_sh4
