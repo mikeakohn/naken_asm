@@ -84,3 +84,34 @@ struct _table_sh4 table_sh4[] =
   { NULL,      0x0000, 0x0000, 0 },
 };
 
+struct _operand_type_sh4 operand_type_sh4[] =
+{
+  { 0,         0, 0,                0,  0 }, // OP_NONE
+  { 1,   SH4_REG, 8,                0,  0 }, // OP_REG
+  { 1,  SH4_FREG, 8,                0,  0 }, // OP_FREG
+  { 1,  SH4_DREG, 9,                0,  0 }, // OP_DREG
+  { 2,   SH4_REG, 4,          SH4_REG,  8 }, // OP_REG_REG
+  { 2,  SH4_FREG, 4,         SH4_FREG,  8 }, // OP_FREG_FREG
+  { 2,  SH4_DREG, 5,         SH4_DREG,  9 }, // OP_DREG_DREG
+  { 2,  SH4_DREG, 5,        SH4_XDREG,  9 }, // OP_DREG_XDREG
+  { 2, SH4_XDREG, 5,         SH4_DREG,  9 }, // OP_XDREG_DREG
+  { 2, SH4_XDREG, 5,        SH4_XDREG,  9 }, // OP_XDREG_XDREG
+  { 2, SH4_FVREG, 8,        SH4_FVREG, 10 }, // OP_FVREG_FVREG
+  { 2,         0, 0,                0,  0 }, // OP_IMM_REG
+  { 2,         0, 0,                0,  0 }, // OP_IMM_R0
+  { 2,         0, 0,                0,  0 }, // OP_IMM_AT_R0_GBR
+  { 1,         0, 0,                0,  0 }, // OP_BRANCH_S9
+  { 1,         0, 0,                0,  0 }, // OP_BRANCH_S13
+  { 2,         0, 0,                0,  0 }, // OP_FREG_FPUL
+  { 2,         0, 0,                0,  0 }, // OP_DREG_FPUL
+  { 2,         0, 0,                0,  0 }, // OP_FPUL_FREG
+  { 2,         0, 0,                0,  0 }, // OP_FPUL_DREG
+  { 3,         0, 0,                0,  0 }, // OP_FR0_FREG_FREG
+  { 2,  SH4_FREG, 4,          SH4_REG,  8 }, // OP_FREG_AT_REG
+  { 2,  SH4_DREG, 5,       SH4_AT_REG,  8 }, // OP_DREG_AT_REG
+  { 2,  SH4_FREG, 4, SH4_AT_MINUS_REG,  8 }, // OP_FREG_AT_MINUS_REG
+  { 2,  SH4_DREG, 5, SH4_AT_MINUS_REG,  8 }, // OP_DREG_AT_MINUS_REG
+  { 2,         0, 0,                0,  0 }, // OP_FREG_AT_R0_REG
+  { 2,         0, 0,                0,  0 }, // OP_DREG_AT_R0_REG
+};
+
