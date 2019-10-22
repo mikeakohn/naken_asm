@@ -20,4 +20,6 @@ loop:
   fipr fv3, fv1
   flds fr13, fpul
   float fpul, fr9
+  fmac fr0, fr9, fr13
+  fmov dr5, xd7
 

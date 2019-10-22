@@ -69,6 +69,9 @@ struct _table_sh4 table_sh4[] =
   { "fldi1",   0xf09d, 0xf0ff, OP_FREG },
   { "float",   0xf02d, 0xf1ff, OP_FPUL_DREG },
   { "float",   0xf02d, 0xf0ff, OP_FPUL_FREG },
+  { "fmac",    0xf00e, 0xf00f, OP_FR0_FREG_FREG },
+  { "fmov",    0xf00c, 0xf11f, OP_DREG_DREG },
+  { "fmov",    0xf10c, 0xf11f, OP_DREG_XDREG },
   { NULL,      0x0000, 0x0000, 0 },
 };
 

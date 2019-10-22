@@ -87,6 +87,13 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
           sprintf(instruction, "%s dr%d, dr%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
+        case OP_DREG_XDREG:
+        {
+          rm = (opcode >> 5) & 0x7;
+          rn = (opcode >> 9) & 0x7;
+          sprintf(instruction, "%s dr%d, xd%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
         case OP_FVREG_FVREG:
         {
           rm = (opcode >> 8) & 0x3;
@@ -153,6 +160,13 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         {
           rn = (opcode >> 9) & 0x7;
           sprintf(instruction, "%s FPUL, dr%d", table_sh4[n].instr, rn);
+          return 2;
+        }
+        case OP_FR0_FREG_FREG:
+        {
+          rm = (opcode >> 4) & 0xf;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s fr0, fr%d, fr%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         default:

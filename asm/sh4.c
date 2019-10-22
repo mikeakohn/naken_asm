@@ -22,13 +22,14 @@
 #include "common/eval_expression.h"
 #include "table/sh4.h"
 
-#define MAX_OPERANDS 2
+#define MAX_OPERANDS 3
 
 enum
 {
   OPERAND_REG,
   OPERAND_FREG,
   OPERAND_DREG,
+  OPERAND_XDREG,
   OPERAND_FVREG,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
@@ -79,10 +80,12 @@ static int get_f_register_sh4(char *token)
 static int get_d_register_sh4(char *token)
 {
   if (token[0] != 'd' && token[0] != 'D') { return -1; }
+  if (token[1] != 'r' && token[1] != 'R') { return -1; }
 
-  int num = get_register_sh4(token + 1);
+  if (token[3] != 0) { return -1; }
+  if (token[2] < '0' || token[2] > '7') { return -1; }
 
-  return num <= 7 ? num : -1;
+  return token[2] - '0';
 }
 
 static int get_fv_register_sh4(char *token)
@@ -92,6 +95,17 @@ static int get_fv_register_sh4(char *token)
 
   if (token[3] != 0) { return -1; }
   if (token[2] < '0' || token[2] > '3') { return -1; }
+
+  return token[2] - '0';
+}
+
+static int get_xd_register_sh4(char *token)
+{
+  if (token[0] != 'x' && token[0] != 'X') { return -1; }
+  if (token[1] != 'd' && token[1] != 'D') { return -1; }
+
+  if (token[3] != 0) { return -1; }
+  if (token[2] < '0' || token[2] > '7') { return -1; }
 
   return token[2] - '0';
 }
@@ -150,6 +164,12 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
     {
       operands[operand_count].value = num;
       operands[operand_count].type = OPERAND_FVREG;
+    }
+      else
+    if ((num = get_xd_register_sh4(token)) != -1)
+    {
+      operands[operand_count].value = num;
+      operands[operand_count].type = OPERAND_XDREG;
     }
       else
     if (IS_TOKEN(token, '#'))
@@ -364,6 +384,22 @@ printf("%d %d %d\n",
 
           break;
         }
+        case OP_DREG_XDREG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_DREG &&
+              operands[1].type == OPERAND_XDREG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 5) |
+                    (operands[1].value << 9);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
         case OP_FVREG_FVREG:
         {
           if (operand_count == 2 &&
@@ -560,6 +596,24 @@ printf("%d %d %d\n",
               operands[1].type == OPERAND_DREG)
           {
             opcode = table_sh4[n].opcode | (operands[1].value << 9);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_FR0_FREG_FREG:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_FREG &&
+              operands[0].value == 0 &&
+              operands[1].type == OPERAND_FREG &&
+              operands[2].type == OPERAND_FREG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[1].value << 4) |
+                    (operands[2].value << 8);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;

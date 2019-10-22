@@ -23,6 +23,7 @@ enum
   OP_REG_REG,
   OP_FREG_FREG,
   OP_DREG_DREG,
+  OP_DREG_XDREG,
   OP_FVREG_FVREG,
   OP_IMM_REG,
   OP_IMM_R0,
@@ -33,6 +34,7 @@ enum
   OP_DREG_FPUL,
   OP_FPUL_FREG,
   OP_FPUL_DREG,
+  OP_FR0_FREG_FREG,
 };
 
 struct _table_sh4
