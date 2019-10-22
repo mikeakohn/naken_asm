@@ -35,6 +35,8 @@ enum
   OP_FPUL_FREG,
   OP_FPUL_DREG,
   OP_FR0_FREG_FREG,
+  OP_DREG_AT_REG,
+  OP_DREG_AT_MINUS_REG,
 };
 
 struct _table_sh4

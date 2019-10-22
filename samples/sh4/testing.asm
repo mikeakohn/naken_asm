@@ -22,4 +22,6 @@ loop:
   float fpul, fr9
   fmac fr0, fr9, fr13
   fmov dr5, xd7
+  fmov dr6, @r13
+  fmov dr6, @-r13
 

@@ -72,6 +72,8 @@ struct _table_sh4 table_sh4[] =
   { "fmac",    0xf00e, 0xf00f, OP_FR0_FREG_FREG },
   { "fmov",    0xf00c, 0xf11f, OP_DREG_DREG },
   { "fmov",    0xf10c, 0xf11f, OP_DREG_XDREG },
+  { "fmov",    0xf00a, 0xf01f, OP_DREG_AT_REG },
+  { "fmov",    0xf00b, 0xf01f, OP_DREG_AT_MINUS_REG },
   { NULL,      0x0000, 0x0000, 0 },
 };
 

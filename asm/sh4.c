@@ -35,6 +35,9 @@ enum
   OPERAND_ADDRESS,
   OPERAND_AT_R0_GBR,
   OPERAND_SPECIAL_REG,
+  OPERAND_AT_REG,
+  OPERAND_AT_MINUS_REG,
+  OPERAND_AT_REG_PLUS,
 };
 
 enum
@@ -108,6 +111,88 @@ static int get_xd_register_sh4(char *token)
   if (token[2] < '0' || token[2] > '7') { return -1; }
 
   return token[2] - '0';
+}
+
+static int parse_at(struct _asm_context *asm_context, struct _operand *operand)
+{
+  char token[TOKENLEN];
+  int token_type;
+  int num;
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (IS_TOKEN(token, '('))
+  {
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    num = get_register_sh4(token);
+
+    if (num != 0)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    if (expect_token(asm_context, ',') == -1) { return -1; }
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (strcasecmp(token, "gbr") != 0)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    if (expect_token(asm_context, ')') == -1) { return -1; }
+
+    operand->type = OPERAND_AT_R0_GBR;
+    operand->value = 0;
+
+    return 0;
+  }
+
+  if (IS_TOKEN(token, '-'))
+  {
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    num = get_register_sh4(token);
+
+    if (num == -1)
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    operand->value = num;
+    operand->type = OPERAND_AT_MINUS_REG;
+
+    return 0;
+  }
+
+  num = get_register_sh4(token);
+
+  if (num != -1)
+  {
+    operand->value = num;
+    operand->type = OPERAND_AT_REG;
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (IS_TOKEN(token, '+'))
+    {
+      operand->type = OPERAND_AT_REG_PLUS;
+    }
+      else
+    {
+      tokens_push(asm_context, token, token_type);
+    }
+
+    return 0;
+  }
+
+  print_error_unexp(token, asm_context);
+
+  return -1;
 }
 
 int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
@@ -194,44 +279,10 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
       else
     if (IS_TOKEN(token, '@'))
     {
-      int error = 0;
-
-      if (expect_token(asm_context, '(') == -1) { return -1; }
-
-      do
+      if (parse_at(asm_context, &operands[operand_count]) == -1)
       {
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-
-        num = get_register_sh4(token);
-
-        if (num != 0)
-        {
-          error = 1;
-          break;
-        }
-
-        if (expect_token(asm_context, ',') == -1) { return -1; }
-
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-
-        if (strcasecmp(token, "gbr") != 0)
-        {
-          error = 1;
-          break;
-        }
-
-        if (expect_token(asm_context, ')') == -1) { return -1; }
-
-      } while(0);
-
-      if (error == 1)
-      {
-        print_error_unexp(token, asm_context);
         return -1;
       }
-
-      operands[operand_count].type = OPERAND_AT_R0_GBR;
-      operands[operand_count].value = 0;
     }
       else
     if (strcasecmp(token, "fpul") == 0)
@@ -614,6 +665,38 @@ printf("%d %d %d\n",
             opcode = table_sh4[n].opcode |
                     (operands[1].value << 4) |
                     (operands[2].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_DREG_AT_REG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_DREG &&
+              operands[1].type == OPERAND_AT_REG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 5) |
+                    (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_DREG_AT_MINUS_REG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_DREG &&
+              operands[1].type == OPERAND_AT_MINUS_REG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 5) |
+                    (operands[1].value << 8);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;
