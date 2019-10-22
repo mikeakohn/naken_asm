@@ -34,6 +34,7 @@ enum
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
   OPERAND_AT_R0_GBR,
+  OPERAND_AT_R0_REG,
   OPERAND_SPECIAL_REG,
   OPERAND_AT_REG,
   OPERAND_AT_MINUS_REG,
@@ -137,16 +138,24 @@ static int parse_at(struct _asm_context *asm_context, struct _operand *operand)
 
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
-    if (strcasecmp(token, "gbr") != 0)
+    if (strcasecmp(token, "gbr") == 0)
+    {
+      operand->type = OPERAND_AT_R0_GBR;
+      operand->value = 0;
+    }
+      else
+    if ((num = get_register_sh4(token)) != -1)
+    {
+      operand->type = OPERAND_AT_R0_REG;
+      operand->value = num;
+    }
+      else
     {
       print_error_unexp(token, asm_context);
       return -1;
     }
 
     if (expect_token(asm_context, ')') == -1) { return -1; }
-
-    operand->type = OPERAND_AT_R0_GBR;
-    operand->value = 0;
 
     return 0;
   }
@@ -693,6 +702,22 @@ printf("%d %d %d\n",
           if (operand_count == 2 &&
               operands[0].type == OPERAND_DREG &&
               operands[1].type == OPERAND_AT_MINUS_REG)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 5) |
+                    (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_DREG_AT_R0_REG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_DREG &&
+              operands[1].type == OPERAND_AT_R0_REG)
           {
             opcode = table_sh4[n].opcode |
                     (operands[0].value << 5) |

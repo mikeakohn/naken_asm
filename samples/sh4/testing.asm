@@ -24,4 +24,5 @@ loop:
   fmov dr5, xd7
   fmov dr6, @r13
   fmov dr6, @-r13
+  fmov dr6, @(r0, r14)
 
