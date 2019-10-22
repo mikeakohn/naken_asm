@@ -41,6 +41,7 @@
 #include "asm/propeller.h"
 #include "asm/ps2_ee_vu.h"
 #include "asm/riscv.h"
+#include "asm/sh4.h"
 #include "asm/stm8.h"
 #include "asm/super_fx.h"
 #include "asm/sweet16.h"
@@ -79,6 +80,7 @@
 #include "disasm/propeller.h"
 #include "disasm/ps2_ee_vu.h"
 #include "disasm/riscv.h"
+#include "disasm/sh4.h"
 #include "disasm/stm8.h"
 #include "disasm/super_fx.h"
 #include "disasm/sweet16.h"
@@ -872,6 +874,28 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_riscv,
     disasm_range_riscv,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_SH4
+  {
+    "sh4",
+    CPU_TYPE_SH4,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_2,
+    0,
+    0,
+    1,
+    1,
+    1,
+    SREC_16,
+    parse_instruction_sh4,
+    NULL,
+    link_not_supported,
+    list_output_sh4,
+    disasm_range_sh4,
     NULL,
     NO_FLAGS,
   },

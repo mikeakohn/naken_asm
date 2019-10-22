@@ -51,6 +51,7 @@
 #include "disasm/propeller.h"
 #include "disasm/ps2_ee_vu.h"
 #include "disasm/riscv.h"
+#include "disasm/sh4.h"
 #include "disasm/stm8.h"
 #include "disasm/super_fx.h"
 #include "disasm/sweet16.h"
@@ -114,6 +115,7 @@ parse_instruction_t parse_instruction_powerpc = NULL;
 parse_instruction_t parse_instruction_propeller = NULL;
 parse_instruction_t parse_instruction_ps2_ee_vu = NULL;
 parse_instruction_t parse_instruction_riscv = NULL;
+parse_instruction_t parse_instruction_sh4 = NULL;
 parse_instruction_t parse_instruction_stm8 = NULL;
 parse_instruction_t parse_instruction_super_fx = NULL;
 parse_instruction_t parse_instruction_sweet16 = NULL;
@@ -1212,6 +1214,7 @@ int main(int argc, char *argv[])
            "   -ps2ee_vu0                   (Playstation 2 VU0)\n"
            "   -ps2ee_vu1                   (Playstation 2 VU1)\n"
            "   -riscv                       (RISCV)\n"
+           "   -sh4                         (SH4)\n"
            "   -stm8                        (STM8)\n"
            "   -super_fx                    (SuperFX)\n"
            "   -sweet16                     (sweet16)\n"
