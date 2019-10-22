@@ -220,6 +220,18 @@ printf("%d %d %d\n",
 
           break;
         }
+        case OP_REG:
+        {
+          if (operand_count == 1 && operands[0].type == OPERAND_REG)
+          {
+            opcode = table_sh4[n].opcode | (operands[0].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
         case OP_REG_REG:
         {
           if (operand_count == 2 &&

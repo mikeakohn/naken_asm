@@ -9,4 +9,6 @@ loop:
   bf loop
   bf/s loop
   bra loop
+  brk
+  braf r11
 

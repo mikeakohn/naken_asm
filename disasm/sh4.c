@@ -48,6 +48,12 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
           strcpy(instruction, table_sh4[n].instr);
           return 2;
         }
+        case OP_REG:
+        {
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s r%d", table_sh4[n].instr, rn);
+          return 2;
+        }
         case OP_REG_REG:
         {
           rm = (opcode >> 4) & 0xf;

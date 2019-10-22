@@ -17,6 +17,7 @@
 enum
 {
   OP_NONE,
+  OP_REG,
   OP_REG_REG,
   OP_IMM_REG,
   OP_IMM_R0,
