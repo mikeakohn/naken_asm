@@ -36,10 +36,10 @@ enum
   OPERAND_AT_REG,
   OPERAND_AT_MINUS_REG,
   OPERAND_AT_REG_PLUS,
+  OPERAND_AT_R0_REG,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
   OPERAND_AT_R0_GBR,
-  OPERAND_AT_R0_REG,
   OPERAND_SPECIAL_REG,
 };
 
@@ -394,6 +394,20 @@ printf("%d %d %d\n",
         case OP_DREG_AT_REG:
         case OP_FREG_AT_MINUS_REG:
         case OP_DREG_AT_MINUS_REG:
+        case OP_FREG_AT_R0_REG:
+        case OP_DREG_AT_R0_REG:
+        case OP_XDREG_AT_REG:
+        case OP_XDREG_AT_MINUS_REG:
+        case OP_XDREG_AT_R0_REG:
+        case OP_AT_REG_DREG:
+        case OP_AT_REG_PLUS_DREG:
+        case OP_AT_R0_REG_DREG:
+        case OP_AT_REG_FREG:
+        case OP_AT_REG_PLUS_FREG:
+        case OP_AT_R0_REG_FREG:
+        case OP_AT_REG_XDREG:
+        case OP_AT_REG_PLUS_XDREG:
+        case OP_AT_R0_REG_XDREG:
         {
           if (operands[0].type == type_0 && operands[1].type == type_1)
           {
@@ -604,6 +618,7 @@ printf("%d %d %d\n",
 
           break;
         }
+#if 0
         case OP_FREG_AT_R0_REG:
         {
           if (operands[0].type == OPERAND_FREG &&
@@ -634,6 +649,7 @@ printf("%d %d %d\n",
 
           break;
         }
+#endif
         default:
         {
           break;

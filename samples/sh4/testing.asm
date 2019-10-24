@@ -5,7 +5,7 @@ main:
   add #-127, r9
 loop:
   and #0x93, r0
-  and.b #0x17, @(r0, gbr)
+  and.b #0x17, @(r0,gbr)
   bf loop
   bf/s loop
   bra loop
@@ -26,8 +26,20 @@ loop:
   fmov xd5, xd7
   fmov dr6, @r13
   fmov dr6, @-r13
-  fmov dr6, @(r0, r14)
+  fmov dr6, @(r0,r14)
   fmov.s fr9, @r13
   fmov.s fr9, @-r13
-  fmov.s fr9, @(r0, r11)
+  fmov.s fr9, @(r0,r11)
+  fmov xd4, @r11
+  fmov xd4, @-r11
+  fmov xd4, @(r0,r11)
+  fmov @r9, dr7
+  fmov @r9+, dr7
+  fmov @(r0,r9), dr7
+  fmov.s @r9, fr7
+  fmov.s @r9+, fr7
+  fmov.s @(r0,r9), fr7
+  fmov @r9, xd6
+  fmov @r9+, xd6
+  fmov @(r0,r9), xd6
 

@@ -81,37 +81,61 @@ struct _table_sh4 table_sh4[] =
   { "fmov.s",  0xf007, 0xf00f, OP_FREG_AT_R0_REG },
   { "fmov",    0xf01c, 0xf11f, OP_XDREG_DREG },
   { "fmov",    0xf11c, 0xf11f, OP_XDREG_XDREG },
+  { "fmov",    0xf01a, 0xf01f, OP_XDREG_AT_REG },
+  { "fmov",    0xf01b, 0xf01f, OP_XDREG_AT_MINUS_REG },
+  { "fmov",    0xf017, 0xf01f, OP_XDREG_AT_R0_REG },
+  { "fmov",    0xf008, 0xf10f, OP_AT_REG_DREG },
+  { "fmov",    0xf009, 0xf10f, OP_AT_REG_PLUS_DREG },
+  { "fmov",    0xf006, 0xf10f, OP_AT_R0_REG_DREG },
+  { "fmov.s",  0xf008, 0xf00f, OP_AT_REG_FREG },
+  { "fmov.s",  0xf009, 0xf00f, OP_AT_REG_PLUS_FREG },
+  { "fmov.s",  0xf006, 0xf00f, OP_AT_R0_REG_FREG },
+  { "fmov",    0xf108, 0xf10f, OP_AT_REG_XDREG },
+  { "fmov",    0xf109, 0xf10f, OP_AT_REG_PLUS_XDREG },
+  { "fmov",    0xf106, 0xf10f, OP_AT_R0_REG_XDREG },
   { NULL,      0x0000, 0x0000, 0 },
 };
 
 struct _operand_type_sh4 operand_type_sh4[] =
 {
-  { 0,         0, 0,                0,  0 }, // OP_NONE
-  { 1,   SH4_REG, 8,                0,  0 }, // OP_REG
-  { 1,  SH4_FREG, 8,                0,  0 }, // OP_FREG
-  { 1,  SH4_DREG, 9,                0,  0 }, // OP_DREG
-  { 2,   SH4_REG, 4,          SH4_REG,  8 }, // OP_REG_REG
-  { 2,  SH4_FREG, 4,         SH4_FREG,  8 }, // OP_FREG_FREG
-  { 2,  SH4_DREG, 5,         SH4_DREG,  9 }, // OP_DREG_DREG
-  { 2,  SH4_DREG, 5,        SH4_XDREG,  9 }, // OP_DREG_XDREG
-  { 2, SH4_XDREG, 5,         SH4_DREG,  9 }, // OP_XDREG_DREG
-  { 2, SH4_XDREG, 5,        SH4_XDREG,  9 }, // OP_XDREG_XDREG
-  { 2, SH4_FVREG, 8,        SH4_FVREG, 10 }, // OP_FVREG_FVREG
-  { 2,         0, 0,                0,  0 }, // OP_IMM_REG
-  { 2,         0, 0,                0,  0 }, // OP_IMM_R0
-  { 2,         0, 0,                0,  0 }, // OP_IMM_AT_R0_GBR
-  { 1,         0, 0,                0,  0 }, // OP_BRANCH_S9
-  { 1,         0, 0,                0,  0 }, // OP_BRANCH_S13
-  { 2,         0, 0,                0,  0 }, // OP_FREG_FPUL
-  { 2,         0, 0,                0,  0 }, // OP_DREG_FPUL
-  { 2,         0, 0,                0,  0 }, // OP_FPUL_FREG
-  { 2,         0, 0,                0,  0 }, // OP_FPUL_DREG
-  { 3,         0, 0,                0,  0 }, // OP_FR0_FREG_FREG
-  { 2,  SH4_FREG, 4,       SH4_AT_REG,  8 }, // OP_FREG_AT_REG
-  { 2,  SH4_DREG, 5,       SH4_AT_REG,  8 }, // OP_DREG_AT_REG
-  { 2,  SH4_FREG, 4, SH4_AT_MINUS_REG,  8 }, // OP_FREG_AT_MINUS_REG
-  { 2,  SH4_DREG, 5, SH4_AT_MINUS_REG,  8 }, // OP_DREG_AT_MINUS_REG
-  { 2,         0, 0,                0,  0 }, // OP_FREG_AT_R0_REG
-  { 2,         0, 0,                0,  0 }, // OP_DREG_AT_R0_REG
+  { 0,               0, 0,                0,  0 }, // OP_NONE
+  { 1,         SH4_REG, 8,                0,  0 }, // OP_REG
+  { 1,        SH4_FREG, 8,                0,  0 }, // OP_FREG
+  { 1,        SH4_DREG, 9,                0,  0 }, // OP_DREG
+  { 2,         SH4_REG, 4,          SH4_REG,  8 }, // OP_REG_REG
+  { 2,        SH4_FREG, 4,         SH4_FREG,  8 }, // OP_FREG_FREG
+  { 2,        SH4_DREG, 5,         SH4_DREG,  9 }, // OP_DREG_DREG
+  { 2,        SH4_DREG, 5,        SH4_XDREG,  9 }, // OP_DREG_XDREG
+  { 2,       SH4_XDREG, 5,         SH4_DREG,  9 }, // OP_XDREG_DREG
+  { 2,       SH4_XDREG, 5,        SH4_XDREG,  9 }, // OP_XDREG_XDREG
+  { 2,       SH4_FVREG, 8,        SH4_FVREG, 10 }, // OP_FVREG_FVREG
+  { 2,               0, 0,                0,  0 }, // OP_IMM_REG
+  { 2,               0, 0,                0,  0 }, // OP_IMM_R0
+  { 2,               0, 0,                0,  0 }, // OP_IMM_AT_R0_GBR
+  { 1,               0, 0,                0,  0 }, // OP_BRANCH_S9
+  { 1,               0, 0,                0,  0 }, // OP_BRANCH_S13
+  { 2,               0, 0,                0,  0 }, // OP_FREG_FPUL
+  { 2,               0, 0,                0,  0 }, // OP_DREG_FPUL
+  { 2,               0, 0,                0,  0 }, // OP_FPUL_FREG
+  { 2,               0, 0,                0,  0 }, // OP_FPUL_DREG
+  { 3,               0, 0,                0,  0 }, // OP_FR0_FREG_FREG
+  { 2,        SH4_FREG, 4,       SH4_AT_REG,  8 }, // OP_FREG_AT_REG
+  { 2,        SH4_DREG, 5,       SH4_AT_REG,  8 }, // OP_DREG_AT_REG
+  { 2,        SH4_FREG, 4, SH4_AT_MINUS_REG,  8 }, // OP_FREG_AT_MINUS_REG
+  { 2,        SH4_DREG, 5, SH4_AT_MINUS_REG,  8 }, // OP_DREG_AT_MINUS_REG
+  { 2,        SH4_FREG, 4,    SH4_AT_R0_REG,  8 }, // OP_FREG_AT_R0_REG
+  { 2,        SH4_DREG, 5,    SH4_AT_R0_REG,  8 }, // OP_DREG_AT_R0_REG
+  { 2,       SH4_XDREG, 5,       SH4_AT_REG,  8 }, // OP_XDREG_AT_REG
+  { 2,       SH4_XDREG, 5, SH4_AT_MINUS_REG,  8 }, // OP_XDREG_AT_MINUS_REG
+  { 2,       SH4_XDREG, 5,    SH4_AT_R0_REG,  8 }, // OP_XDREG_AT_R0_REG
+  { 2,      SH4_AT_REG, 4,         SH4_DREG,  9 }, // OP_AT_REG_DREG
+  { 2, SH4_AT_REG_PLUS, 4,         SH4_DREG,  9 }, // OP_AT_REG_PLUS_DREG
+  { 2,   SH4_AT_R0_REG, 4,         SH4_DREG,  9 }, // OP_AT_R0_REG_DREG
+  { 2,      SH4_AT_REG, 4,         SH4_FREG,  8 }, // OP_AT_REG_FREG
+  { 2, SH4_AT_REG_PLUS, 4,         SH4_FREG,  8 }, // OP_AT_REG_PLUS_FREG
+  { 2,   SH4_AT_R0_REG, 4,         SH4_FREG,  8 }, // OP_AT_R0_REG_FREG
+  { 2,      SH4_AT_REG, 4,        SH4_XDREG,  9 }, // OP_AT_REG_XDREG
+  { 2, SH4_AT_REG_PLUS, 4,        SH4_XDREG,  9 }, // OP_AT_REG_PLUS_XDREG
+  { 2,   SH4_AT_R0_REG, 4,        SH4_XDREG,  9 }, // OP_AT_R0_REG_XDREG
 };
 

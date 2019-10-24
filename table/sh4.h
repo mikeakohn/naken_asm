@@ -43,6 +43,18 @@ enum
   OP_DREG_AT_MINUS_REG,
   OP_FREG_AT_R0_REG,
   OP_DREG_AT_R0_REG,
+  OP_XDREG_AT_REG,
+  OP_XDREG_AT_MINUS_REG,
+  OP_XDREG_AT_R0_REG,
+  OP_AT_REG_DREG,
+  OP_AT_REG_PLUS_DREG,
+  OP_AT_R0_REG_DREG,
+  OP_AT_REG_FREG,
+  OP_AT_REG_PLUS_FREG,
+  OP_AT_R0_REG_FREG,
+  OP_AT_REG_XDREG,
+  OP_AT_REG_PLUS_XDREG,
+  OP_AT_R0_REG_XDREG,
 };
 
 // This needs to be in sync with the table/sh4.h SH4_ enums.
@@ -57,6 +69,7 @@ enum
   SH4_AT_REG,
   SH4_AT_MINUS_REG,
   SH4_AT_REG_PLUS,
+  SH4_AT_R0_REG,
 };
 
 struct _table_sh4
