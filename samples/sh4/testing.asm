@@ -47,5 +47,9 @@ loop:
   ldc r9, SPC
   ldc.l @r9+, SPC
   ldc r9, r7_bank
-  ldc @r9+, r13_bank
+  ldc.l @r9+, r3_bank
+  mac.l @r10+, @r11+
+  mov.b r5, @r9
+  mov.b r11, @-r3
+  mov.b r11, @(r0,r3)
 

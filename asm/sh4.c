@@ -38,6 +38,7 @@ enum
   OPERAND_AT_REG_PLUS,
   OPERAND_AT_R0_REG,
   OPERAND_SPECIAL_REG,
+  OPERAND_REG_BANK,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
   OPERAND_AT_R0_GBR,
@@ -119,6 +120,27 @@ int get_special_reg(const char *token)
   {
     if (strcasecmp(token, sh4_specials[n]) == 0) { return n; }
   }
+
+  return -1;
+}
+
+static int get_register_bank_sh4(char *token)
+{
+  int num = 0, count = 0;
+
+  if (token[0] != 'r' && token[0] != 'R') { return -1; }
+  token++;
+
+  while (*token >= '0' && *token <= '9')
+  {
+    num = (num * 10)  + (*token - '0');
+    count++;
+    token++;
+  }
+
+  if (count == 0 || num > 7) { return -1; }
+
+  if (strcasecmp(token, "_bank") == 0) { return num; }
 
   return -1;
 }
@@ -275,6 +297,12 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OPERAND_XDREG;
     }
       else
+    if ((num = get_register_bank_sh4(token)) != -1)
+    {
+      operands[operand_count].value = num;
+      operands[operand_count].type = OPERAND_REG_BANK;
+    }
+      else
     if (IS_TOKEN(token, '#'))
     {
       if (eval_expression(asm_context, &num) != 0)
@@ -416,6 +444,10 @@ printf("%d %d %d\n",
         case OP_AT_REG_XDREG:
         case OP_AT_REG_PLUS_XDREG:
         case OP_AT_R0_REG_XDREG:
+        case OP_AT_REG_PLUS_AT_REG_PLUS:
+        case OP_REG_AT_REG:
+        case OP_REG_AT_MINUS_REG:
+        case OP_REG_AT_R0_REG:
         {
           if (operands[0].type == type_0 && operands[1].type == type_1)
           {
@@ -648,6 +680,22 @@ printf("%d %d %d\n",
               operands[1].value == table_sh4[n].special)
           {
             opcode = table_sh4[n].opcode | (operands[0].value << shift_0);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_REG_REG_BANK:
+        case OP_AT_REG_PLUS_REG_BANK:
+        {
+          if (operands[0].type == type_0 &&
+              operands[1].type == OPERAND_REG_BANK)
+          {
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << shift_0) |
+                    (operands[1].value << 4);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;

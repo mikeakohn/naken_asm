@@ -133,6 +133,14 @@ struct _table_sh4 table_sh4[] =
   { "ldc.l",   0x4016, 0xf0ff, OP_AT_REG_PLUS_SPECIAL, SPECIAL_REG_MACL },
   { "ldc",     0x402a, 0xf0ff, OP_REG_SPECIAL, SPECIAL_REG_PR },
   { "ldc.l",   0x4026, 0xf0ff, OP_AT_REG_PLUS_SPECIAL, SPECIAL_REG_PR },
+  { "ldtlb",   0x0038, 0xffff, OP_NONE, 0 },
+  { "mac.l",   0x000f, 0xf00f, OP_AT_REG_PLUS_AT_REG_PLUS, 0 },
+  { "mac.w",   0x400f, 0xf00f, OP_AT_REG_PLUS_AT_REG_PLUS, 0 },
+  { "mov",     0x6003, 0xf00f, OP_REG_REG, 0 },
+  { "mov",     0xe000, 0xf000, OP_IMM_REG, 0 },
+  { "mov.b",   0x2000, 0xf00f, OP_REG_AT_REG, 0 },
+  { "mov.b",   0x2004, 0xf00f, OP_REG_AT_MINUS_REG, 0 },
+  { "mov.b",   0x0004, 0xf00f, OP_REG_AT_R0_REG, 0 },
   { NULL,      0x0000, 0x0000, 0, 0 },
 };
 
@@ -183,6 +191,10 @@ struct _operand_type_sh4 operand_type_sh4[] =
   { 2,         SH4_REG, 8,                0,  0 }, // OP_REG_REG_BANK
   { 2, SH4_AT_REG_PLUS, 8,      SH4_SPECIAL,  0 }, // OP_AT_REG_PLUS_SPECIAL
   { 2, SH4_AT_REG_PLUS, 8,                0,  0 }, // OP_AT_REG_PLUS_REG_BANK
+  { 2, SH4_AT_REG_PLUS, 4,  SH4_AT_REG_PLUS,  8 }, // OP_AT_REG_PLUS_AT_REG_PLUS
+  { 2,         SH4_REG, 4,       SH4_AT_REG,  8 }, // OP_REG_AT_REG
+  { 2,         SH4_REG, 4, SH4_AT_MINUS_REG,  8 }, // OP_REG_AT_MINUS_REG
+  { 2,         SH4_REG, 4,    SH4_AT_R0_REG,  8 }, // OP_REG_AT_R0_REG
 };
 
 char *sh4_specials[] =
