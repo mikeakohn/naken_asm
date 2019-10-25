@@ -42,4 +42,10 @@ loop:
   fmov @r9, xd6
   fmov @r9+, xd6
   fmov @(r0,r9), xd6
+  ftrv XMTRX, fv1
+  jmp @r9
+  ldc r9, SPC
+  ldc.l @r9+, SPC
+  ldc r9, r7_bank
+  ldc @r9+, r13_bank
 

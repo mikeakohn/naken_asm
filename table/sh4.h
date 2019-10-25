@@ -55,6 +55,12 @@ enum
   OP_AT_REG_XDREG,
   OP_AT_REG_PLUS_XDREG,
   OP_AT_R0_REG_XDREG,
+  OP_XMTRX_FVREG,
+  OP_AT_REG,
+  OP_REG_SPECIAL,
+  OP_REG_REG_BANK,
+  OP_AT_REG_PLUS_SPECIAL,
+  OP_AT_REG_PLUS_REG_BANK,
 };
 
 // This needs to be in sync with the table/sh4.h SH4_ enums.
@@ -70,6 +76,7 @@ enum
   SH4_AT_MINUS_REG,
   SH4_AT_REG_PLUS,
   SH4_AT_R0_REG,
+  SH4_SPECIAL,
 };
 
 struct _table_sh4
@@ -78,6 +85,24 @@ struct _table_sh4
   uint16_t opcode;
   uint16_t mask;
   uint8_t type;
+  uint8_t special;
+};
+
+enum
+{
+  SPECIAL_REG_NONE,
+  SPECIAL_REG_FPUL,
+  SPECIAL_REG_GBR,
+  SPECIAL_REG_SR,
+  SPECIAL_REG_VBR,
+  SPECIAL_REG_SSR,
+  SPECIAL_REG_SPC,
+  SPECIAL_REG_DBR,
+  SPECIAL_REG_FPSCR,
+  SPECIAL_REG_MACL,
+  SPECIAL_REG_MACH,
+  SPECIAL_REG_PR,
+  SPECIAL_REG_XMTRX,
 };
 
 struct _operand_type_sh4
@@ -91,6 +116,7 @@ struct _operand_type_sh4
 
 extern struct _table_sh4 table_sh4[];
 extern struct _operand_type_sh4 operand_type_sh4[];
+extern char *sh4_specials[];
 
 #endif
 

@@ -24,6 +24,7 @@ int get_cycle_count_sh4(unsigned short int opcode)
 int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint16_t opcode;
+  const char *special;
   int rm, rn;
   int8_t imm_s8;
   uint8_t imm_u8;
@@ -307,6 +308,48 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
           rm = (opcode >> 4) & 0xf;
           rn = (opcode >> 9) & 0x7;
           sprintf(instruction, "%s @(r0,r%d), xd%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_XMTRX_FVREG:
+        {
+          rn = (opcode >> 10) & 0x3;
+          sprintf(instruction, "%s XMTRX, fv%d", table_sh4[n].instr, rn);
+          return 2;
+        }
+        case OP_AT_REG:
+        {
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s @r%d", table_sh4[n].instr, rn);
+          return 2;
+        }
+        case OP_REG_SPECIAL:
+        {
+          special = sh4_specials[table_sh4[n].special];
+          rm = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s r%d, %s", table_sh4[n].instr, rm, special);
+          return 2;
+        }
+        case OP_REG_REG_BANK:
+        {
+          special = sh4_specials[table_sh4[n].special];
+          rm = (opcode >> 8) & 0xf;
+          rn = (opcode >> 4) & 0x7;
+          sprintf(instruction, "%s r%d, r%d_bank", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_AT_REG_PLUS_SPECIAL:
+        {
+          special = sh4_specials[table_sh4[n].special];
+          rm = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s @r%d+, %s", table_sh4[n].instr, rm, special);
+          return 2;
+        }
+        case OP_AT_REG_PLUS_REG_BANK:
+        {
+          special = sh4_specials[table_sh4[n].special];
+          rm = (opcode >> 8) & 0xf;
+          rn = (opcode >> 4) & 0x7;
+          sprintf(instruction, "%s @r%d+, r%d_bank", table_sh4[n].instr, rm, rn);
           return 2;
         }
         default:
