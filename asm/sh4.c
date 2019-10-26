@@ -43,6 +43,7 @@ enum
   OPERAND_ADDRESS,
   OPERAND_AT_R0_GBR,
   OPERAND_AT_DISP_GBR,
+  OPERAND_AT_DISP_PC,
   OPERAND_AT_DISP_REG,
 };
 
@@ -148,6 +149,32 @@ static int get_register_bank_sh4(char *token)
   return -1;
 }
 
+static int get_displacement(
+  struct _asm_context *asm_context,
+  struct _operand *operands,
+  int align,
+  int mask,
+  int operand)
+{
+  int value = (asm_context->pass == 2) ? operands[operand].value : 4;
+
+  if ((value % align) != 0)
+  {
+    print_error_align(asm_context, align);
+    return -1;
+  }
+
+  const int upper_value = mask * align;
+
+  if (value < 0 || value > upper_value)
+  {
+    print_error_range("Displacement", 0, upper_value, asm_context);
+    return -1;
+  }
+
+  return value;
+}
+
 static int parse_at(struct _asm_context *asm_context, struct _operand *operand, const char *instr)
 {
   char token[TOKENLEN];
@@ -189,6 +216,15 @@ static int parse_at(struct _asm_context *asm_context, struct _operand *operand, 
       if (strcasecmp(token, "gbr") == 0)
       {
         operand->type = OPERAND_AT_DISP_GBR;
+
+        if (expect_token(asm_context, ')') == -1) { return -1; }
+
+        return 0;
+      }
+        else
+      if (strcasecmp(token, "pc") == 0)
+      {
+        operand->type = OPERAND_AT_DISP_PC;
 
         if (expect_token(asm_context, ')') == -1) { return -1; }
 
@@ -756,13 +792,11 @@ printf("%d %d %d\n",
               operands[0].value == 0 &&
               operands[1].type == OPERAND_AT_DISP_GBR)
           {
-            value = (asm_context->pass == 2) ? operands[1].value : 0;
+            value = get_displacement(asm_context, operands, table_sh4[n].special, 0xff, 1);
 
-            if (value < 0 || value > 0xff)
-            {
-              print_error_range("Constant", 0, 0xff, asm_context);
-              return -1;
-            }
+            if (value == -1) { return - 1; }
+
+            value = value / table_sh4[n].special;
 
             opcode = table_sh4[n].opcode | value;
 
@@ -778,16 +812,13 @@ printf("%d %d %d\n",
               operands[0].value == 0 &&
               operands[1].type == OPERAND_AT_DISP_REG)
           {
-            value = (asm_context->pass == 2) ? operands[1].value : 0;
+            value = get_displacement(asm_context, operands, table_sh4[n].special, 0xf, 1);
 
-            if (value < 0 || value > 0xf)
-            {
-              print_error_range("Constant", 0, 0xf, asm_context);
-              return -1;
-            }
+            if (value == -1) { return - 1; }
 
-            opcode = table_sh4[n].opcode |
-                    (operands[1].disp_reg << 4) | value;
+            value = value / table_sh4[n].special;
+
+            opcode = table_sh4[n].opcode | (operands[1].disp_reg << 4) | value;
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;
@@ -801,13 +832,11 @@ printf("%d %d %d\n",
               operands[1].type == OPERAND_REG &&
               operands[1].value == 0)
           {
-            value = (asm_context->pass == 2) ? operands[0].value : 0;
+            value = get_displacement(asm_context, operands, table_sh4[n].special, 0xff, 0);
 
-            if (value < 0 || value > 0xff)
-            {
-              print_error_range("Constant", 0, 0xff, asm_context);
-              return -1;
-            }
+            if (value == -1) { return - 1; }
+
+            value = value / table_sh4[n].special;
 
             opcode = table_sh4[n].opcode | value;
 
@@ -823,16 +852,54 @@ printf("%d %d %d\n",
               operands[1].type == OPERAND_REG &&
               operands[1].value == 0)
           {
-            value = (asm_context->pass == 2) ? operands[0].value : 0;
+            value = get_displacement(asm_context, operands, table_sh4[n].special, 0xf, 0);
 
-            if (value < 0 || value > 0xf)
-            {
-              print_error_range("Constant", 0, 0xf, asm_context);
-              return -1;
-            }
+            if (value == -1) { return - 1; }
+
+            value = value / table_sh4[n].special;
+
+            opcode = table_sh4[n].opcode | (operands[0].disp_reg << 4) | value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_AT_DISP_PC_REG:
+        {
+          if (operands[0].type == OPERAND_AT_DISP_PC &&
+              operands[1].type == OPERAND_REG)
+          {
+            value = get_displacement(asm_context, operands, table_sh4[n].special, 0xff, 0);
+
+            if (value == -1) { return - 1; }
+
+            value = value / table_sh4[n].special;
+
+            opcode = table_sh4[n].opcode | (operands[1].value << 8) | value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_AT_DISP_REG_REG:
+        {
+          if (operands[0].type == OPERAND_AT_DISP_REG &&
+              operands[1].type == OPERAND_REG)
+          {
+            value = get_displacement(asm_context, operands, table_sh4[n].special, 0xf, 0);
+
+            if (value == -1) { return - 1; }
+
+            value = value / table_sh4[n].special;
 
             opcode = table_sh4[n].opcode |
-                    (operands[0].disp_reg << 4) | value;
+                    (operands[0].disp_reg << 4) |
+                    (operands[1].value << 8) |
+                     value;
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             return 2;

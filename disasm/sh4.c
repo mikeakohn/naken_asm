@@ -27,8 +27,8 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
   const char *special;
   int rm, rn;
   int8_t imm_s8;
-  uint8_t imm_u8, imm_u4;
-  int offset;
+  uint8_t imm_u8;
+  int offset, disp;
   int n;
 
   opcode = memory_read16_m(memory, address);
@@ -382,15 +382,15 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_R0_AT_DISP_GBR:
         {
-          imm_u8 = (uint8_t)(opcode & 0xff);
-          sprintf(instruction, "%s r0, @(%d,GBR)", table_sh4[n].instr, imm_u8);
+          disp = (opcode & 0xff) * table_sh4[n].special;
+          sprintf(instruction, "%s r0, @(%d,GBR)", table_sh4[n].instr, disp);
           return 2;
         }
         case OP_R0_AT_DISP_REG:
         {
-          imm_u4 = (uint8_t)(opcode & 0xf);
+          disp = (opcode & 0xf) * table_sh4[n].special;
           rn = (opcode >> 4) & 0xf;
-          sprintf(instruction, "%s r0, @(%d,r%d)", table_sh4[n].instr, imm_u4, rn);
+          sprintf(instruction, "%s r0, @(%d,r%d)", table_sh4[n].instr, disp, rn);
           return 2;
         }
         case OP_AT_REG_REG:
@@ -416,15 +416,30 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_AT_DISP_GBR_R0:
         {
-          imm_u8 = (uint8_t)(opcode & 0xff);
-          sprintf(instruction, "%s @(%d,GBR), r0", table_sh4[n].instr, imm_u8);
+          disp = (opcode & 0xff) * table_sh4[n].special;
+          sprintf(instruction, "%s @(%d,GBR), r0", table_sh4[n].instr, disp);
           return 2;
         }
         case OP_AT_DISP_REG_R0:
         {
-          imm_u4 = (uint8_t)(opcode & 0xf);
+          disp = (opcode & 0xf) * table_sh4[n].special;
           rm = (opcode >> 4) & 0xf;
-          sprintf(instruction, "%s @(%d,r%d), r0", table_sh4[n].instr, imm_u4, rm);
+          sprintf(instruction, "%s @(%d,r%d), r0", table_sh4[n].instr, disp, rm);
+          return 2;
+        }
+        case OP_AT_DISP_PC_REG:
+        {
+          disp = (opcode & 0xff) * table_sh4[n].special;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s @(%d,PC), r%d", table_sh4[n].instr, disp, rn);
+          return 2;
+        }
+        case OP_AT_DISP_REG_REG:
+        {
+          disp = (opcode & 0xf) * table_sh4[n].special;
+          rm = (opcode >> 4) & 0xf;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s @(%d,r%d), r%d", table_sh4[n].instr, disp, rm, rn);
           return 2;
         }
         default:

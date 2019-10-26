@@ -59,4 +59,6 @@ loop:
   mov.b @(r0,r13), r0
   mov.b @(123,GBR), r0
   mov.b @(10,r9), r0
+  mov.l @(400,PC), r9
+  mov.l @(60,r4), r9
 

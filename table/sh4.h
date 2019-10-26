@@ -72,6 +72,8 @@ enum
   OP_AT_R0_REG_REG,
   OP_AT_DISP_GBR_R0,
   OP_AT_DISP_REG_R0,
+  OP_AT_DISP_PC_REG,
+  OP_AT_DISP_REG_REG,
 };
 
 // This needs to be in sync with the table/sh4.h SH4_ enums.
