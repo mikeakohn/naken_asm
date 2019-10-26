@@ -80,6 +80,7 @@ enum
   OP_REG_BANK_REG,
   OP_SPECIAL_AT_MINUS_REG,
   OP_REG_BANK_AT_MINUS_REG,
+  OP_IMM,
 };
 
 // This needs to be in sync with the table/sh4.h SH4_ enums.

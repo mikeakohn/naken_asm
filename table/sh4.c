@@ -240,6 +240,14 @@ struct _table_sh4 table_sh4[] =
   { "swap.b",  0x6008, 0xf00f, OP_REG_REG, 0 },
   { "swap.w",  0x6009, 0xf00f, OP_REG_REG, 0 },
   { "tas.b",   0x401b, 0xf0ff, OP_AT_REG, 0 },
+  { "trapa",   0xc300, 0xff00, OP_IMM, 0 },
+  { "tst",     0x2008, 0xf00f, OP_REG_REG, 0 },
+  { "tst",     0xc800, 0xff00, OP_IMM_R0, 0 },
+  { "tst.b",   0xcc00, 0xff00, OP_IMM_AT_R0_GBR, 0 },
+  { "xor",     0x200a, 0xf00f, OP_REG_REG, 0 },
+  { "xor",     0xca00, 0xff00, OP_IMM_R0, 0 },
+  { "xor.b",   0xce00, 0xff00, OP_IMM_AT_R0_GBR, 0 },
+  { "xtrct",   0x200d, 0xf00f, OP_REG_REG, 0 },
   { NULL,      0x0000, 0x0000, 0, 0 },
 };
 
@@ -309,6 +317,7 @@ struct _operand_type_sh4 operand_type_sh4[] =
   { 2,       SH4_REG_BANK, 4,       SH4_REG,  8 }, // OP_REG_BANK_REG
   { 2,     SH4_SPECIAL, 4, SH4_AT_MINUS_REG,  8 }, // OP_SPECIAL_AT_MINUS_REG
   { 2,    SH4_REG_BANK, 4, SH4_AT_MINUS_REG,  8 }, // OP_REG_BANK_AT_MINUS_REG
+  { 1,               0, 0,                0,  0 }, // OP_IMM
 };
 
 char *sh4_specials[] =

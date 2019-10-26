@@ -67,4 +67,5 @@ loop:
   stc r7_bank, r9
   stc.l DBR, @-r9
   stc.l r3_bank, @-r11
+  trapa #0x43
 

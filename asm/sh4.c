@@ -958,6 +958,26 @@ printf("%d %d %d\n",
 
           break;
         }
+        case OP_IMM:
+        {
+          if (operands[0].type == OPERAND_NUMBER)
+          {
+            value = (asm_context->pass == 2) ? operands[0].value : 0;
+
+            if (value < 0 || value > 0xff)
+            {
+              print_error_range("Constant", 0, 0xff, asm_context);
+              return -1;
+            }
+
+            opcode = table_sh4[n].opcode | (value & 0xff);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
         default:
         {
           break;
