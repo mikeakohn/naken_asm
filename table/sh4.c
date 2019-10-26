@@ -159,6 +159,62 @@ struct _table_sh4 table_sh4[] =
   { "mov.l",   0xc600, 0xff00, OP_AT_DISP_GBR_R0, 4 },
   { "mov.l",   0xd000, 0xf000, OP_AT_DISP_PC_REG, 4 },
   { "mov.l",   0x5000, 0xf000, OP_AT_DISP_REG_REG, 4 },
+  { "mov.w",   0x2001, 0xf00f, OP_REG_AT_REG, 0 },
+  { "mov.w",   0x2005, 0xf00f, OP_REG_AT_MINUS_REG, 0 },
+  { "mov.w",   0x0005, 0xf00f, OP_REG_AT_R0_REG, 0 },
+  { "mov.w",   0xc100, 0xff00, OP_R0_AT_DISP_GBR, 2 },
+  { "mov.w",   0x8100, 0xff00, OP_R0_AT_DISP_REG, 2 },
+  { "mov.w",   0x6001, 0xf00f, OP_AT_REG_REG, 0 },
+  { "mov.w",   0x6005, 0xf00f, OP_AT_REG_PLUS_REG, 0 },
+  { "mov.w",   0x000d, 0xf00f, OP_AT_R0_REG_REG, 0 },
+  { "mov.w",   0xc500, 0xff00, OP_AT_DISP_GBR_R0, 2 },
+  { "mov.w",   0x9000, 0xf000, OP_AT_DISP_PC_REG, 2 },
+  { "mov.w",   0x8500, 0xff00, OP_AT_DISP_REG_R0, 2 },
+  { "mova",    0xc700, 0xff00, OP_AT_DISP_PC_R0, 4 },
+  { "movca.l", 0x00c3, 0xf0ff, OP_R0_AT_REG, 0 },
+  { "movt",    0x0029, 0xf0ff, OP_REG, 0 },
+  { "mul.l",   0x0007, 0xf00f, OP_REG_REG, 0 },
+  { "muls.w",  0x200f, 0xf00f, OP_REG_REG, 0 },
+  { "mulu.w",  0x200e, 0xf00f, OP_REG_REG, 0 },
+  { "neg",     0x600b, 0xf00f, OP_REG_REG, 0 },
+  { "negc",    0x600a, 0xf00f, OP_REG_REG, 0 },
+  { "nop",     0x0009, 0xffff, OP_NONE, 0 },
+  { "not",     0x6007, 0xf00f, OP_REG_REG, 0 },
+  { "ocbi",    0x0093, 0xf0ff, OP_AT_REG, 0 },
+  { "ocbp",    0x00a3, 0xf0ff, OP_AT_REG, 0 },
+  { "ocbwb",   0x00b3, 0xf0ff, OP_AT_REG, 0 },
+  { "or",      0x200b, 0xf00f, OP_REG_REG, 0 },
+  { "or",      0xcb00, 0xff00, OP_IMM_R0, 0 },
+  { "or.b",    0xcf00, 0xff00, OP_IMM_AT_R0_GBR, 0 },
+  { "pref",    0x0083, 0xf0ff, OP_AT_REG, 0 },
+  { "rotcl",   0x4024, 0xf0ff, OP_REG, 0 },
+  { "rotcr",   0x4025, 0xf0ff, OP_REG, 0 },
+  { "rotl",    0x4004, 0xf0ff, OP_REG, 0 },
+  { "rotr",    0x4005, 0xf0ff, OP_REG, 0 },
+  { "rte",     0x002b, 0xffff, OP_NONE, 0 },
+  { "rts",     0x000b, 0xffff, OP_NONE, 0 },
+  { "sets",    0x0058, 0xffff, OP_NONE, 0 },
+  { "sett",    0x0018, 0xffff, OP_NONE, 0 },
+  { "shad",    0x400c, 0xf00f, OP_REG_REG, 0 },
+  { "shal",    0x4020, 0xf0ff, OP_REG, 0 },
+  { "shar",    0x4021, 0xf0ff, OP_REG, 0 },
+  { "shld",    0x400d, 0xf00f, OP_REG_REG, 0 },
+  { "shll",    0x4000, 0xf0ff, OP_REG, 0 },
+  { "shll2",   0x4008, 0xf0ff, OP_REG, 0 },
+  { "shll8",   0x4018, 0xf0ff, OP_REG, 0 },
+  { "shll16",  0x4028, 0xf0ff, OP_REG, 0 },
+  { "shlr",    0x4001, 0xf0ff, OP_REG, 0 },
+  { "shlr2",   0x4009, 0xf0ff, OP_REG, 0 },
+  { "shlr8",   0x4019, 0xf0ff, OP_REG, 0 },
+  { "shlr16",  0x4029, 0xf0ff, OP_REG, 0 },
+  { "sleep",   0x001b, 0xffff, OP_NONE, 0 },
+  { "stc",     0x0002, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_SR },
+  { "stc",     0x0022, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_VBR },
+  { "stc",     0x0032, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_SSR },
+  { "stc",     0x0042, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_SPC },
+  { "stc",     0x003a, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_SGR },
+  { "stc",     0x00ea, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_DBR },
+  { "ldc",     0x408e, 0xf08f, OP_REG_BANK_REG, 0 },
   { NULL,      0x0000, 0x0000, 0, 0 },
 };
 
@@ -222,6 +278,10 @@ struct _operand_type_sh4 operand_type_sh4[] =
   { 2,                  0, 0,             0,  0 }, // OP_AT_DISP_REG_R0
   { 2,                  0, 0,             0,  0 }, // OP_AT_DISP_PC_REG
   { 2,                  0, 0,             0,  0 }, // OP_AT_DISP_REG_REG
+  { 2,                  0, 0,             0,  0 }, // OP_AT_DISP_PC_R0
+  { 2,                  0, 0,    SH4_AT_REG,  8 }, // OP_R0_AT_REG
+  { 2,        SH4_SPECIAL, 0,       SH4_REG,  8 }, // OP_SPECIAL_REG
+  { 2,                  0, 0,       SH4_REG,  8 }, // OP_REG_BANK_REG
 };
 
 char *sh4_specials[] =
@@ -238,6 +298,7 @@ char *sh4_specials[] =
   "MACL",
   "MACH",
   "PR",
+  "SGR",
   "XMTRX",
   NULL,
 };

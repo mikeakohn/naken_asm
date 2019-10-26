@@ -61,4 +61,7 @@ loop:
   mov.b @(10,r9), r0
   mov.l @(400,PC), r9
   mov.l @(60,r4), r9
+  mov.w @(60,PC), R0
+  movca.l r0, @r9
+  stc DBR, r13
 

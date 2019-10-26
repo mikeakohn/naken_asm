@@ -74,6 +74,10 @@ enum
   OP_AT_DISP_REG_R0,
   OP_AT_DISP_PC_REG,
   OP_AT_DISP_REG_REG,
+  OP_AT_DISP_PC_R0,
+  OP_R0_AT_REG,
+  OP_SPECIAL_REG,
+  OP_REG_BANK_REG,
 };
 
 // This needs to be in sync with the table/sh4.h SH4_ enums.
@@ -115,6 +119,7 @@ enum
   SPECIAL_REG_MACL,
   SPECIAL_REG_MACH,
   SPECIAL_REG_PR,
+  SPECIAL_REG_SGR,
   SPECIAL_REG_XMTRX,
 };
 

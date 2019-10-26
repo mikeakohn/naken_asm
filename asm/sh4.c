@@ -907,6 +907,54 @@ printf("%d %d %d\n",
 
           break;
         }
+        case OP_AT_DISP_PC_R0:
+        {
+          if (operands[0].type == OPERAND_AT_DISP_PC &&
+              operands[1].type == OPERAND_REG &&
+              operands[1].value == 0)
+          {
+            value = get_displacement(asm_context, operands, table_sh4[n].special, 0xff, 0);
+
+            if (value == -1) { return - 1; }
+
+            value = value / table_sh4[n].special;
+
+            opcode = table_sh4[n].opcode | value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_R0_AT_REG:
+        {
+          if (operands[0].type == OPERAND_REG &&
+              operands[0].value == 0 &&
+              operands[1].type == OPERAND_AT_REG)
+          {
+            opcode = table_sh4[n].opcode | (operands[1].value << 8);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case OP_SPECIAL_REG:
+        {
+          if (operands[0].type == type_0 &&
+              operands[0].value == table_sh4[n].special &&
+              operands[1].type == type_1)
+          {
+            opcode = table_sh4[n].opcode | (operands[1].value << shift_1);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
         default:
         {
           break;

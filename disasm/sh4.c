@@ -442,6 +442,25 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
           sprintf(instruction, "%s @(%d,r%d), r%d", table_sh4[n].instr, disp, rm, rn);
           return 2;
         }
+        case OP_AT_DISP_PC_R0:
+        {
+          disp = (opcode & 0xff) * table_sh4[n].special;
+          sprintf(instruction, "%s @(%d,PC), r0", table_sh4[n].instr, disp);
+          return 2;
+        }
+        case OP_R0_AT_REG:
+        {
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s r0, @r%d", table_sh4[n].instr, rn);
+          return 2;
+        }
+        case OP_SPECIAL_REG:
+        {
+          special = sh4_specials[table_sh4[n].special];
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s %s, r%d", table_sh4[n].instr, special, rn);
+          return 2;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);
