@@ -78,6 +78,8 @@ enum
   OP_R0_AT_REG,
   OP_SPECIAL_REG,
   OP_REG_BANK_REG,
+  OP_SPECIAL_AT_MINUS_REG,
+  OP_REG_BANK_AT_MINUS_REG,
 };
 
 // This needs to be in sync with the table/sh4.h SH4_ enums.
@@ -94,6 +96,7 @@ enum
   SH4_AT_REG_PLUS,
   SH4_AT_R0_REG,
   SH4_SPECIAL,
+  SH4_REG_BANK,
 };
 
 struct _table_sh4

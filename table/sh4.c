@@ -214,7 +214,32 @@ struct _table_sh4 table_sh4[] =
   { "stc",     0x0042, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_SPC },
   { "stc",     0x003a, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_SGR },
   { "stc",     0x00ea, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_DBR },
-  { "ldc",     0x408e, 0xf08f, OP_REG_BANK_REG, 0 },
+  { "stc",     0x0082, 0xf08f, OP_REG_BANK_REG, 0 },
+  { "stc.l",   0x4003, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_SR },
+  { "stc.l",   0x4023, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_VBR },
+  { "stc.l",   0x4033, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_SSR },
+  { "stc.l",   0x4044, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_SPC },
+  { "stc.l",   0x4032, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_SGR },
+  { "stc.l",   0x40f2, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_DBR },
+  { "stc.l",   0x4083, 0xf08f, OP_REG_BANK_AT_MINUS_REG, 0 },
+  { "stc",     0x0012, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_GBR },
+  { "stc.l",   0x4013, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_GBR },
+  { "sts",     0x006a, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_FPSCR },
+  { "sts.l",   0x4062, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_FPSCR },
+  { "sts",     0x005a, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_FPUL },
+  { "sts.l",   0x4052, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_FPUL },
+  { "sts",     0x000a, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_MACH },
+  { "sts.l",   0x4002, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_MACH },
+  { "sts",     0x001a, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_MACL },
+  { "sts.l",   0x4012, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_MACL },
+  { "sts",     0x002a, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_PR },
+  { "sts.l",   0x4022, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_PR },
+  { "sub",     0x3008, 0xf00f, OP_REG_REG, 0 },
+  { "subc",    0x300a, 0xf00f, OP_REG_REG, 0 },
+  { "subv",    0x300b, 0xf00f, OP_REG_REG, 0 },
+  { "swap.b",  0x6008, 0xf00f, OP_REG_REG, 0 },
+  { "swap.w",  0x6009, 0xf00f, OP_REG_REG, 0 },
+  { "tas.b",   0x401b, 0xf0ff, OP_AT_REG, 0 },
   { NULL,      0x0000, 0x0000, 0, 0 },
 };
 
@@ -262,7 +287,7 @@ struct _operand_type_sh4 operand_type_sh4[] =
   { 2,               0, 0,        SH4_FVREG, 10 }, // OP_XMTRX_FVREG
   { 1,      SH4_AT_REG, 8,                0,  0 }, // OP_AT_REG
   { 2,         SH4_REG, 8,      SH4_SPECIAL,  0 }, // OP_REG_SPECIAL
-  { 2,         SH4_REG, 8,                0,  0 }, // OP_REG_REG_BANK
+  { 2,         SH4_REG, 8,     SH4_REG_BANK,  4 }, // OP_REG_REG_BANK
   { 2, SH4_AT_REG_PLUS, 8,      SH4_SPECIAL,  0 }, // OP_AT_REG_PLUS_SPECIAL
   { 2, SH4_AT_REG_PLUS, 8,                0,  0 }, // OP_AT_REG_PLUS_REG_BANK
   { 2, SH4_AT_REG_PLUS, 4,  SH4_AT_REG_PLUS,  8 }, // OP_AT_REG_PLUS_AT_REG_PLUS
@@ -281,7 +306,9 @@ struct _operand_type_sh4 operand_type_sh4[] =
   { 2,                  0, 0,             0,  0 }, // OP_AT_DISP_PC_R0
   { 2,                  0, 0,    SH4_AT_REG,  8 }, // OP_R0_AT_REG
   { 2,        SH4_SPECIAL, 0,       SH4_REG,  8 }, // OP_SPECIAL_REG
-  { 2,                  0, 0,       SH4_REG,  8 }, // OP_REG_BANK_REG
+  { 2,       SH4_REG_BANK, 4,       SH4_REG,  8 }, // OP_REG_BANK_REG
+  { 2,     SH4_SPECIAL, 4, SH4_AT_MINUS_REG,  8 }, // OP_SPECIAL_AT_MINUS_REG
+  { 2,    SH4_REG_BANK, 4, SH4_AT_MINUS_REG,  8 }, // OP_REG_BANK_AT_MINUS_REG
 };
 
 char *sh4_specials[] =

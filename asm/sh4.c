@@ -531,6 +531,8 @@ printf("%d %d %d\n",
         case OP_AT_REG_REG:
         case OP_AT_REG_PLUS_REG:
         case OP_AT_R0_REG_REG:
+        case OP_REG_BANK_REG:
+        case OP_REG_BANK_AT_MINUS_REG:
         {
           if (operands[0].type == type_0 && operands[1].type == type_1)
           {
@@ -942,6 +944,7 @@ printf("%d %d %d\n",
           break;
         }
         case OP_SPECIAL_REG:
+        case OP_SPECIAL_AT_MINUS_REG:
         {
           if (operands[0].type == type_0 &&
               operands[0].value == table_sh4[n].special &&

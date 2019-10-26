@@ -331,7 +331,6 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_REG_REG_BANK:
         {
-          special = sh4_specials[table_sh4[n].special];
           rm = (opcode >> 8) & 0xf;
           rn = (opcode >> 4) & 0x7;
           sprintf(instruction, "%s r%d, r%d_bank", table_sh4[n].instr, rm, rn);
@@ -459,6 +458,27 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
           special = sh4_specials[table_sh4[n].special];
           rn = (opcode >> 8) & 0xf;
           sprintf(instruction, "%s %s, r%d", table_sh4[n].instr, special, rn);
+          return 2;
+        }
+        case OP_REG_BANK_REG:
+        {
+          rm = (opcode >> 4) & 0x7;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s r%d_bank, r%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_SPECIAL_AT_MINUS_REG:
+        {
+          special = sh4_specials[table_sh4[n].special];
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s %s, @-r%d", table_sh4[n].instr, special, rn);
+          return 2;
+        }
+        case OP_REG_BANK_AT_MINUS_REG:
+        {
+          rm = (opcode >> 4) & 0x7;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s r%d_bank, @-r%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         default:
