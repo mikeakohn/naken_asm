@@ -43,6 +43,7 @@ CPU this source file should be assembled for.
 |.ps2_ee          |Sony Emotion Engine (Playstation 2)
 |.ps2_ee_vu0      |Sony Emotion Engine Vector Unit 0
 |.ps2_ee_vu1      |Sony Emotion Engine Vector Unit 1
+|.sh4             |Hitachi SH-4
 |.stm8            |STM8
 |.super_fx        |Super FX
 |.sweet16         |SWEET16
