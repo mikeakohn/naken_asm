@@ -27,7 +27,7 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
   const char *special;
   int rm, rn;
   int8_t imm_s8;
-  uint8_t imm_u8;
+  uint8_t imm_u8, imm_u4;
   int offset;
   int n;
 
@@ -132,7 +132,7 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         case OP_IMM_AT_R0_GBR:
         {
           imm_u8 = (uint16_t)(opcode & 0xff);
-          sprintf(instruction, "%s #0x%02x, @(r0,gbr)",
+          sprintf(instruction, "%s #0x%02x, @(r0,GBR)",
             table_sh4[n].instr, imm_u8);
           return 2;
         }
@@ -378,6 +378,53 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
           rm = (opcode >> 4) & 0xf;
           rn = (opcode >> 8) & 0xf;
           sprintf(instruction, "%s r%d, @(r0,r%d)", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_R0_AT_DISP_GBR:
+        {
+          imm_u8 = (uint8_t)(opcode & 0xff);
+          sprintf(instruction, "%s r0, @(%d,GBR)", table_sh4[n].instr, imm_u8);
+          return 2;
+        }
+        case OP_R0_AT_DISP_REG:
+        {
+          imm_u4 = (uint8_t)(opcode & 0xf);
+          rn = (opcode >> 4) & 0xf;
+          sprintf(instruction, "%s r0, @(%d,r%d)", table_sh4[n].instr, imm_u4, rn);
+          return 2;
+        }
+        case OP_AT_REG_REG:
+        {
+          rm = (opcode >> 4) & 0xf;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s @r%d, r%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_AT_REG_PLUS_REG:
+        {
+          rm = (opcode >> 4) & 0xf;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s @r%d+, r%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_AT_R0_REG_REG:
+        {
+          rm = (opcode >> 4) & 0xf;
+          rn = (opcode >> 8) & 0xf;
+          sprintf(instruction, "%s @(r0,r%d), r%d", table_sh4[n].instr, rm, rn);
+          return 2;
+        }
+        case OP_AT_DISP_GBR_R0:
+        {
+          imm_u8 = (uint8_t)(opcode & 0xff);
+          sprintf(instruction, "%s @(%d,GBR), r0", table_sh4[n].instr, imm_u8);
+          return 2;
+        }
+        case OP_AT_DISP_REG_R0:
+        {
+          imm_u4 = (uint8_t)(opcode & 0xf);
+          rm = (opcode >> 4) & 0xf;
+          sprintf(instruction, "%s @(%d,r%d), r0", table_sh4[n].instr, imm_u4, rm);
           return 2;
         }
         default:

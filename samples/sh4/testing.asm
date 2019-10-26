@@ -52,4 +52,11 @@ loop:
   mov.b r5, @r9
   mov.b r11, @-r3
   mov.b r11, @(r0,r3)
+  mov.b r0, @(32,GBR)
+  mov.b r0, @(12,r9)
+  mov.b @r8, r9
+  mov.b @r7+, r9
+  mov.b @(r0,r13), r0
+  mov.b @(123,GBR), r0
+  mov.b @(10,r9), r0
 

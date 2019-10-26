@@ -141,6 +141,13 @@ struct _table_sh4 table_sh4[] =
   { "mov.b",   0x2000, 0xf00f, OP_REG_AT_REG, 0 },
   { "mov.b",   0x2004, 0xf00f, OP_REG_AT_MINUS_REG, 0 },
   { "mov.b",   0x0004, 0xf00f, OP_REG_AT_R0_REG, 0 },
+  { "mov.b",   0xc000, 0xff00, OP_R0_AT_DISP_GBR, 0 },
+  { "mov.b",   0x8000, 0xff00, OP_R0_AT_DISP_REG, 0 },
+  { "mov.b",   0x6000, 0xf00f, OP_AT_REG_REG, 0 },
+  { "mov.b",   0x6004, 0xf00f, OP_AT_REG_PLUS_REG, 0 },
+  { "mov.b",   0x000c, 0xf00f, OP_AT_R0_REG_REG, 0 },
+  { "mov.b",   0xc400, 0xff00, OP_AT_DISP_GBR_R0, 0 },
+  { "mov.b",   0x8400, 0xff00, OP_AT_DISP_REG_R0, 0 },
   { NULL,      0x0000, 0x0000, 0, 0 },
 };
 
@@ -195,6 +202,13 @@ struct _operand_type_sh4 operand_type_sh4[] =
   { 2,         SH4_REG, 4,       SH4_AT_REG,  8 }, // OP_REG_AT_REG
   { 2,         SH4_REG, 4, SH4_AT_MINUS_REG,  8 }, // OP_REG_AT_MINUS_REG
   { 2,         SH4_REG, 4,    SH4_AT_R0_REG,  8 }, // OP_REG_AT_R0_REG
+  { 2,                  0, 4,             0,  8 }, // OP_R0_AT_DISP_GBR
+  { 2,                  0, 4,             0,  8 }, // OP_R0_AT_DISP_REG
+  { 2,         SH4_AT_REG, 4,       SH4_REG,  8 }, // OP_AT_REG_REG
+  { 2,    SH4_AT_REG_PLUS, 4,       SH4_REG,  8 }, // OP_AT_REG_PLUS_REG
+  { 2,      SH4_AT_R0_REG, 4,       SH4_REG,  8 }, // OP_AT_R0_REG_REG
+  { 2,                  0, 4,             0,  8 }, // OP_AT_DISP_GBR_R0
+  { 2,                  0, 4,             0,  8 }, // OP_AT_DISP_REG_R0
 };
 
 char *sh4_specials[] =
