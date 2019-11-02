@@ -18,6 +18,7 @@ Contents
   * [MSP430](MSP430.md)
   * [PowerPC](PowerPC.md)
   * [Propeller](Propeller.md)
+  * [SH-4](SH4.md)
   * [TMS9900](TMS9900.md)
 * [Developer Guidelines](developer.md)
 * [Credits](credits.md)
