@@ -63,7 +63,7 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_DREG:
         {
-          rn = (opcode >> 9) & 0x7;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s dr%d", table_sh4[n].instr, rn);
           return 2;
         }
@@ -83,36 +83,36 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_DREG_DREG:
         {
-          rm = (opcode >> 5) & 0x7;
-          rn = (opcode >> 9) & 0x7;
+          rm = ((opcode >> 5) & 0x7) * 2;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s dr%d, dr%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_DREG_XDREG:
         {
-          rm = (opcode >> 5) & 0x7;
-          rn = (opcode >> 9) & 0x7;
+          rm = ((opcode >> 5) & 0x7) * 2;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s dr%d, xd%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_XDREG_DREG:
         {
-          rm = (opcode >> 5) & 0x7;
-          rn = (opcode >> 9) & 0x7;
+          rm = ((opcode >> 5) & 0x7) * 2;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s xdr%d, dr%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_XDREG_XDREG:
         {
-          rm = (opcode >> 5) & 0x7;
-          rn = (opcode >> 9) & 0x7;
+          rm = ((opcode >> 5) & 0x7) * 2;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s xdr%d, xd%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_FVREG_FVREG:
         {
-          rm = (opcode >> 8) & 0x3;
-          rn = (opcode >> 10) & 0x3;
+          rm = ((opcode >> 8) & 0x3) * 4;
+          rn = ((opcode >> 10) & 0x3) * 4;
           sprintf(instruction, "%s fv%d, fv%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
@@ -161,7 +161,7 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_DREG_FPUL:
         {
-          rn = (opcode >> 9) & 0x7;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s dr%d, FPUL", table_sh4[n].instr, rn);
           return 2;
         }
@@ -173,7 +173,7 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_FPUL_DREG:
         {
-          rn = (opcode >> 9) & 0x7;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s FPUL, dr%d", table_sh4[n].instr, rn);
           return 2;
         }
@@ -193,7 +193,7 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_DREG_AT_REG:
         {
-          rm = (opcode >> 5) & 0x7;
+          rm = ((opcode >> 5) & 0x7) * 2;
           rn = (opcode >> 8) & 0xf;
           sprintf(instruction, "%s dr%d, @r%d", table_sh4[n].instr, rm, rn);
           return 2;
@@ -207,7 +207,7 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_DREG_AT_MINUS_REG:
         {
-          rm = (opcode >> 5) & 0x7;
+          rm = ((opcode >> 5) & 0x7) * 2;
           rn = (opcode >> 8) & 0xf;
           sprintf(instruction, "%s dr%d, @-r%d", table_sh4[n].instr, rm, rn);
           return 2;
@@ -221,28 +221,28 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         }
         case OP_DREG_AT_R0_REG:
         {
-          rm = (opcode >> 5) & 0x7;
+          rm = ((opcode >> 5) & 0x7) * 2;
           rn = (opcode >> 8) & 0xf;
           sprintf(instruction, "%s dr%d, @(r0,r%d)", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_XDREG_AT_REG:
         {
-          rm = (opcode >> 5) & 0x7;
+          rm = ((opcode >> 5) & 0x7) * 2;
           rn = (opcode >> 8) & 0xf;
           sprintf(instruction, "%s dr%d, @r%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_XDREG_AT_MINUS_REG:
         {
-          rm = (opcode >> 5) & 0x7;
+          rm = ((opcode >> 5) & 0x7) * 2;
           rn = (opcode >> 8) & 0xf;
           sprintf(instruction, "%s dr%d, @-r%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_XDREG_AT_R0_REG:
         {
-          rm = (opcode >> 5) & 0x7;
+          rm = ((opcode >> 5) & 0x7) * 2;
           rn = (opcode >> 8) & 0xf;
           sprintf(instruction, "%s dr%d, @(r0,r%d)", table_sh4[n].instr, rm, rn);
           return 2;
@@ -250,21 +250,21 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         case OP_AT_REG_DREG:
         {
           rm = (opcode >> 4) & 0xf;
-          rn = (opcode >> 9) & 0x7;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s @r%d, dr%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_AT_REG_PLUS_DREG:
         {
           rm = (opcode >> 4) & 0xf;
-          rn = (opcode >> 9) & 0x7;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s @r%d+, dr%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_AT_R0_REG_DREG:
         {
           rm = (opcode >> 4) & 0xf;
-          rn = (opcode >> 9) & 0x7;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s @(r0,r%d), dr%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
@@ -292,27 +292,27 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         case OP_AT_REG_XDREG:
         {
           rm = (opcode >> 4) & 0xf;
-          rn = (opcode >> 9) & 0x7;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s @r%d, xd%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_AT_REG_PLUS_XDREG:
         {
           rm = (opcode >> 4) & 0xf;
-          rn = (opcode >> 9) & 0x7;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s @r%d+, xd%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_AT_R0_REG_XDREG:
         {
           rm = (opcode >> 4) & 0xf;
-          rn = (opcode >> 9) & 0x7;
+          rn = ((opcode >> 9) & 0x7) * 2;
           sprintf(instruction, "%s @(r0,r%d), xd%d", table_sh4[n].instr, rm, rn);
           return 2;
         }
         case OP_XMTRX_FVREG:
         {
-          rn = (opcode >> 10) & 0x3;
+          rn = ((opcode >> 10) & 0x3) * 4;
           sprintf(instruction, "%s XMTRX, fv%d", table_sh4[n].instr, rn);
           return 2;
         }

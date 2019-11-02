@@ -54,33 +54,44 @@ struct _operand
   uint8_t disp_reg;
 };
 
+static int get_num(char *token)
+{
+  int num = 0;
+
+  if (token[0] == 0) { return -1; }
+
+  while (*token != 0)
+  {
+    if (*token < '0' || *token > '9') { return -1; }
+    num = (num * 10) + (*token - '0');
+
+    token++;
+  }
+
+  return num;
+}
+
 static int get_register_sh4(char *token)
 {
   if (token[0] != 'r' && token[0] != 'R') { return -1; }
-  token++;
 
-  if (token[0] != 0 && token[1] == 0)
-  {
-    if (*token < '0' || *token > '9') { return -1; }
+  int num = get_num(token + 1);
 
-    return (*token) - '0';
-  }
+  if (num < 0 || num > 15) { return -1; }
 
-  if (token[0] == '1' && token[1] >= '0' && token[1] <= '5' && token[2] == 0)
-  {
-    if (*token < '0' || *token > '7') { return -1; }
-
-    return (token[1]) - '0' + 10;
-  }
-
-  return -1;
+  return num;
 }
 
 static int get_f_register_sh4(char *token)
 {
   if (token[0] != 'f' && token[0] != 'F') { return -1; }
+  if (token[1] != 'r' && token[1] != 'R') { return -1; }
 
-  return get_register_sh4(token + 1);
+  int num = get_num(token + 2);
+
+  if (num < 0 || num > 15) { return -1; }
+
+  return num;
 }
 
 static int get_d_register_sh4(char *token)
@@ -88,10 +99,11 @@ static int get_d_register_sh4(char *token)
   if (token[0] != 'd' && token[0] != 'D') { return -1; }
   if (token[1] != 'r' && token[1] != 'R') { return -1; }
 
-  if (token[3] != 0) { return -1; }
-  if (token[2] < '0' || token[2] > '7') { return -1; }
+  int num = get_num(token + 2);
 
-  return token[2] - '0';
+  if (num < 0 || num > 15 || (num & 1) != 0) { return -1; }
+
+  return num / 2;
 }
 
 static int get_fv_register_sh4(char *token)
@@ -99,10 +111,11 @@ static int get_fv_register_sh4(char *token)
   if (token[0] != 'f' && token[0] != 'F') { return -1; }
   if (token[1] != 'v' && token[1] != 'V') { return -1; }
 
-  if (token[3] != 0) { return -1; }
-  if (token[2] < '0' || token[2] > '3') { return -1; }
+  int num = get_num(token + 2);
 
-  return token[2] - '0';
+  if (num < 0 || num > 15 || (num & 0x3) != 0) { return -1; }
+
+  return num / 4;
 }
 
 static int get_xd_register_sh4(char *token)
@@ -110,10 +123,11 @@ static int get_xd_register_sh4(char *token)
   if (token[0] != 'x' && token[0] != 'X') { return -1; }
   if (token[1] != 'd' && token[1] != 'D') { return -1; }
 
-  if (token[3] != 0) { return -1; }
-  if (token[2] < '0' || token[2] > '7') { return -1; }
+  int num = get_num(token + 2);
 
-  return token[2] - '0';
+  if (num < 0 || num > 15 || (num & 1) != 0) { return -1; }
+
+  return num / 2;
 }
 
 int get_special_reg(const char *token)

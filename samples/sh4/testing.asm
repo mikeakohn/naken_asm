@@ -11,19 +11,19 @@ loop:
   bra loop
   brk
   braf r11
-  fabs dr7
+  fabs dr8
   fabs fr11
   fadd fr11, fr7
-  fadd dr3, dr7
-  fcnvds dr3, fpul
-  fcnvsd fpul, dr7
-  fipr fv3, fv1
+  fadd dr12, dr2
+  fcnvds dr4, fpul
+  fcnvsd fpul, dr8
+  fipr fv8, fv4
   flds fr13, fpul
   float fpul, fr9
   fmac fr0, fr9, fr13
-  fmov dr5, xd7
-  fmov xd5, dr7
-  fmov xd5, xd7
+  fmov dr6, xd8
+  fmov xd4, dr14
+  fmov xd8, xd12
   fmov dr6, @r13
   fmov dr6, @-r13
   fmov dr6, @(r0,r14)
@@ -33,16 +33,16 @@ loop:
   fmov xd4, @r11
   fmov xd4, @-r11
   fmov xd4, @(r0,r11)
-  fmov @r9, dr7
-  fmov @r9+, dr7
-  fmov @(r0,r9), dr7
+  fmov @r9, dr8
+  fmov @r9+, dr8
+  fmov @(r0,r9), dr8
   fmov.s @r9, fr7
   fmov.s @r9+, fr7
   fmov.s @(r0,r9), fr7
   fmov @r9, xd6
   fmov @r9+, xd6
   fmov @(r0,r9), xd6
-  ftrv XMTRX, fv1
+  ftrv XMTRX, fv12
   jmp @r9
   ldc r9, SPC
   ldc.l @r9+, SPC
