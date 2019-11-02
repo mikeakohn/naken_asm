@@ -125,22 +125,22 @@ mov.b r9, @r10
 mov.b r5, @-r7
 mov.b r4, @(r0,r9)
 mov.b r0, @(60, GBR)
-mov.b r0, @(32, r15)
+mov.b r0, @(15, r11)
 mov.b @r1, r14
 mov.b @r6+, r9
 mov.b @(r0,r13),  r11
 mov.b @(24, GBR), r0
-mov.b @(24, r13), r0
+mov.b @(12, r13), r0
 mov.l r9, @r9
 mov.l r11, @-r13
 mov.l r12, @(r0,r2)
 mov.l r0, @(20, GBR)
-mov.l r0, @(32, r3)
+mov.l r11, @(32, r3)
 mov.l @r1, r2
 mov.l @r9+, r1
 mov.l @(r0,r9),  r15
 mov.l @(60, GBR), r0
-mov.l @(16,PC), r4
+;mov.l @(16,PC), r4
 mov.l @(16,r6), r4
 mov.w r5, @r12
 mov.w r12, @-r8
@@ -151,9 +151,9 @@ mov.w @r11, r13
 mov.w @r2+, r8
 mov.w @(r0,r11),  r8
 mov.w @(24, GBR), r0
-mov.w @(12,PC), r5
-mov.w @(36, r13), r0
-mova @(20, PC), r0
+;mov.w @(12,PC), r5
+mov.w @(28, r13), r0
+;mova @(20, PC), r0
 movca.l r0, @r11
 movt r14
 mul.l r3, r6

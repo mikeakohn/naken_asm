@@ -992,6 +992,28 @@ printf("%d %d %d\n",
 
           break;
         }
+        case OP_REG_AT_DISP_REG:
+        {
+          if (operands[0].type == OPERAND_REG &&
+              operands[1].type == OPERAND_AT_DISP_REG)
+          {
+            value = get_displacement(asm_context, operands, table_sh4[n].special, 0xf, 1);
+
+            if (value == -1) { return - 1; }
+
+            value = value / table_sh4[n].special;
+
+            opcode = table_sh4[n].opcode |
+                    (operands[0].value << 4) |
+                    (operands[1].disp_reg << 8) |
+                     value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
         default:
         {
           break;

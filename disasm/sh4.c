@@ -487,6 +487,14 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
           sprintf(instruction, "%s #0x%02x", table_sh4[n].instr, imm_u8);
           return 2;
         }
+        case OP_REG_AT_DISP_REG:
+        {
+          rm = (opcode >> 4) & 0xf;
+          rn = (opcode >> 8) & 0xf;
+          imm_u8 = (opcode & 0xf) * 4;
+          sprintf(instruction, "%s r%d, @(%d,r%d)", table_sh4[n].instr, rm, imm_u8, rn);
+          return 2;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);

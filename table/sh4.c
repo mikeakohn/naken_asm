@@ -99,7 +99,7 @@ struct _table_sh4 table_sh4[] =
   { "fneg",    0xf04d, 0xf0ff, OP_FREG, 0 },
   { "frchg",   0xfbfd, 0xffff, OP_NONE, 0 },
   { "fschg",   0xf3fd, 0xffff, OP_NONE, 0 },
-  { "fsqrt",   0xf04d, 0xf1ff, OP_DREG, 0 },
+  { "fsqrt",   0xf06d, 0xf1ff, OP_DREG, 0 },
   { "fsqrt",   0xf06d, 0xf0ff, OP_FREG, 0 },
   { "fsts",    0xf00d, 0xf0ff, OP_FPUL_FREG, 0 },
   { "fsub",    0xf001, 0xf11f, OP_DREG_DREG, 0 },
@@ -152,7 +152,7 @@ struct _table_sh4 table_sh4[] =
   { "mov.l",   0x2006, 0xf00f, OP_REG_AT_MINUS_REG, 0 },
   { "mov.l",   0x0006, 0xf00f, OP_REG_AT_R0_REG, 0 },
   { "mov.l",   0xc200, 0xff00, OP_R0_AT_DISP_GBR, 4 },
-  { "mov.l",   0x1000, 0xff00, OP_R0_AT_DISP_REG, 4 },
+  { "mov.l",   0x1000, 0xf000, OP_REG_AT_DISP_REG, 4 },
   { "mov.l",   0x6002, 0xf00f, OP_AT_REG_REG, 0 },
   { "mov.l",   0x6006, 0xf00f, OP_AT_REG_PLUS_REG, 0 },
   { "mov.l",   0x000e, 0xf00f, OP_AT_R0_REG_REG, 0 },
@@ -213,12 +213,12 @@ struct _table_sh4 table_sh4[] =
   { "stc",     0x0032, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_SSR },
   { "stc",     0x0042, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_SPC },
   { "stc",     0x003a, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_SGR },
-  { "stc",     0x00ea, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_DBR },
+  { "stc",     0x00fa, 0xf0ff, OP_SPECIAL_REG, SPECIAL_REG_DBR },
   { "stc",     0x0082, 0xf08f, OP_REG_BANK_REG, 0 },
   { "stc.l",   0x4003, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_SR },
   { "stc.l",   0x4023, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_VBR },
   { "stc.l",   0x4033, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_SSR },
-  { "stc.l",   0x4044, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_SPC },
+  { "stc.l",   0x4043, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_SPC },
   { "stc.l",   0x4032, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_SGR },
   { "stc.l",   0x40f2, 0xf0ff, OP_SPECIAL_AT_MINUS_REG, SPECIAL_REG_DBR },
   { "stc.l",   0x4083, 0xf08f, OP_REG_BANK_AT_MINUS_REG, 0 },
@@ -318,6 +318,7 @@ struct _operand_type_sh4 operand_type_sh4[] =
   { 2,     SH4_SPECIAL, 4, SH4_AT_MINUS_REG,  8 }, // OP_SPECIAL_AT_MINUS_REG
   { 2,    SH4_REG_BANK, 4, SH4_AT_MINUS_REG,  8 }, // OP_REG_BANK_AT_MINUS_REG
   { 1,               0, 0,                0,  0 }, // OP_IMM
+  { 2,               0, 4,          SH4_REG,  8 }, // OP_REG_AT_DISP_REG
 };
 
 char *sh4_specials[] =
