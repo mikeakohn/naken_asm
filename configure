@@ -129,7 +129,7 @@ show_help()
   echo "  --help                    list options"
   echo "  --cflags=CFLAGS           extra compiler flags"
   echo "  --ldflags=LDFLAGS         extra linker flags"
-  echo "  --install-prefix=PATH     base path to install to (${INSTALL_PREFIX})"
+  echo "  --prefix=PATH             base path to install to (${INSTALL_PREFIX})"
   echo "  --include-path=PATH       default: (${INSTALL_PREFIX}/share/naken_asm/includes)"
   echo "  --compiler-prefix=PREFIX  for cross-compilers"
   echo "  --enable-debug            compile in debug code"
@@ -619,6 +619,7 @@ echo "CFLAGS=${CFLAGS}" >> config.mak
 echo "DFLAGS=${DFLAGS}" >> config.mak
 echo "INSTALL_BIN=${INSTALL_BIN}" >> config.mak
 echo "INSTALL_INCLUDES=${INSTALL_INCLUDES}" >> config.mak
+echo "INSTALL_PREFIX=${INSTALL_PREFIX}" >> config.mak
 echo "INCLUDE_PATH=${INCLUDE_PATH}" >> config.mak
 echo "CONFIG_EXT=${CONFIG_EXT}" >> config.mak
 #echo "ASM_OBJS=${ASM_OBJS}" >> config.mak

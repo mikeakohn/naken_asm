@@ -18,22 +18,19 @@ all: default
 	$(CC) -c $*.c $(CFLAGS) $(LDFLAGS)
 
 install:
-	@mkdir -p $(INSTALL_BIN)
-	@cp naken_asm $(INSTALL_BIN)
-	@cp naken_util $(INSTALL_BIN)
-
-install_old:
-	#@mkdir -p $(INSTALL_INCLUDES)/include
-	#@cp -r include/*.inc $(INSTALL_INCLUDES)/include
+	install -t $(INSTALL_BIN) naken_asm
+	install -t $(INSTALL_BIN) naken_util
+	install -d $(INSTALL_PREFIX)/share/naken_asm
+	cp -r include $(INSTALL_PREFIX)/share/naken_asm
 
 objs:
 	@mkdir -f objs
 
 uninstall:
-	@echo "Scary stuff.  Just erase these things by hand."
-	#@rm -f $(INSTALL_BIN)/naken_asm
-	#@rm -f $(INSTALL_BIN)/naken_util
-	#@rm -rf $(INSTALL_INCLUDES)
+	@echo "Removing:"
+	rm -f $(INSTALL_BIN)/naken_asm
+	rm -f $(INSTALL_BIN)/naken_util
+	rm -rf $(INSTALL_PREFIX)/share/naken_asm
 
 testing: launchpad_blink.asm
 	msp430-as launchpad_blink.asm
