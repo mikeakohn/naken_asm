@@ -251,7 +251,7 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
           return 2;
         case OP_CPS:
           sprintf(instruction, "%s %s%s", table_thumb[n].instr,
-            (opcode & 0x2) == 1 ? "i" : "",
+            (opcode & 0x2) == 2 ? "i" : "",
             (opcode & 0x1) == 1 ? "f" : "");
           return 2;
         case OP_UINT8:

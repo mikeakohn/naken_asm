@@ -115,15 +115,15 @@ printf("including file %s.\n", token);
   {
     int ptr = 0;
     char *s = asm_context->include_path;
-    char filename[1024];
+    char filename[8192];
 
-    while(1)
+    while (1)
     {
-      if (s[ptr] == 0) break;
+      if (s[ptr] == 0) { break; }
 
-      if (strlen(token) + strlen(s+ptr) < 1022)
+      if (strlen(token) + strlen(s + ptr) < 1022)
       {
-        sprintf(filename, "%s/%s", s+ptr, token);
+        snprintf(filename, sizeof(filename), "%s/%s", s + ptr, token);
 #ifdef DEBUG
         printf("Trying %s\n", filename);
 #endif
@@ -131,7 +131,7 @@ printf("including file %s.\n", token);
 
         if (asm_context->cpu_list_index != -1)
         {
-          sprintf(filename, "%s/%s/%s", s+ptr, cpu_list[asm_context->cpu_list_index].name, token);
+          snprintf(filename, sizeof(filename), "%s/%s/%s", s + ptr, cpu_list[asm_context->cpu_list_index].name, token);
 #ifdef DEBUG
           printf("Trying %s\n", filename);
 #endif
@@ -139,7 +139,7 @@ printf("including file %s.\n", token);
         }
       }
 
-      while (s[ptr] != 0) ptr++;
+      while (s[ptr] != 0) { ptr++; }
       ptr++;
     }
   }

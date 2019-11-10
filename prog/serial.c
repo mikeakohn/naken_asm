@@ -20,6 +20,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#else
+#include <io.h>
 #endif
 
 #include "prog/serial.h"
@@ -27,8 +29,9 @@
 int serial_open(struct _serial *serial, char *device)
 {
 #ifndef WIN32
-  serial->fd=open(device, O_RDWR|O_NOCTTY);
-  if (serial->fd==-1)
+  serial->fd = open(device, O_RDWR|O_NOCTTY);
+
+  if (serial->fd == -1)
   {
     printf("Couldn't open serial device.\n");
   }
@@ -37,12 +40,12 @@ int serial_open(struct _serial *serial, char *device)
     tcgetattr(serial->fd, &serial->oldtio);
 
     memset(&serial->newtio, 0, sizeof(struct termios));
-    serial->newtio.c_cflag=B9600|CS8|CLOCAL|CREAD;
-    serial->newtio.c_iflag=IGNPAR;
-    serial->newtio.c_oflag=0;
-    serial->newtio.c_lflag=0;
-    serial->newtio.c_cc[VTIME]=0;
-    serial->newtio.c_cc[VMIN]=1;
+    serial->newtio.c_cflag = B9600 | CS8 | CLOCAL | CREAD;
+    serial->newtio.c_iflag = IGNPAR;
+    serial->newtio.c_oflag = 0;
+    serial->newtio.c_lflag = 0;
+    serial->newtio.c_cc[VTIME] = 0;
+    serial->newtio.c_cc[VMIN] = 1;
 
     tcflush(serial->fd, TCIFLUSH);
     tcsetattr(serial->fd, TCSANOW, &serial->newtio);
@@ -55,40 +58,56 @@ int serial_open(struct _serial *serial, char *device)
 int serial_send(struct _serial *serial, uint8_t *buffer, int len, int do_flow)
 {
 #ifndef WIN32
-struct timeval timeout;
-fd_set readset;
-int i,n;
-int wait_for_chip=0;
+  struct timeval timeout;
+  fd_set readset;
+  int i, n;
+  int wait_for_chip = 0;
 
-  i=0;
-  while(i<len)
+  i = 0;
+
+  while(i < len)
   {
-    // If we need to do XON/XOFF flow control
-    while(do_flow)
+    // If XON/XOFF flow control is needed.
+    while (do_flow)
     {
       memset(&timeout, 0, sizeof(timeout));
       FD_ZERO(&readset);
       FD_SET(serial->fd, &readset);
-      n=select(serial->fd+1, &readset, NULL, NULL, &timeout);
-      if (n<0) { perror("select() failed\n"); return -1; }
-      if (n==1)
+      n = select(serial->fd+1, &readset, NULL, NULL, &timeout);
+
+      if (n < 0)
+      {
+        perror("select() failed\n");
+        return -1;
+      }
+
+      if (n == 1)
       {
         char ch;
-        n=read(serial->fd, &ch, 1);
+        n = read(serial->fd, &ch, 1);
 
-        if (ch==0x13) { wait_for_chip=1; } // DC3 XOFF
-        else if (ch==0x11) { wait_for_chip=0; } // DC1 XON
+        if (ch == 0x13)
+        {
+          // DC3 XOFF
+          wait_for_chip = 1;
+        }
+        else if (ch == 0x11)
+        {
+          // DC1 XON
+          wait_for_chip = 0;
+        }
 
         // DEBUG - Remove this
         printf("wait_for_chip=%d ch=%02x\n", wait_for_chip, ch);
       }
 
-      if (wait_for_chip==0) { break; }
+      if (wait_for_chip == 0) { break; }
     };
 
-    n=write(serial->fd, buffer+i, len-i);
-    if (n<0) { return -1; }
-    i+=n;
+    n = write(serial->fd, buffer + i, len - i);
+
+    if (n < 0) { return -1; }
+    i += n;
   }
 #endif
 
@@ -97,18 +116,21 @@ int wait_for_chip=0;
 
 int serial_readln(struct _serial *serial, char *buffer, int len)
 {
-int i,n;
+int i, n;
 
   // FIXME - Don't leave this like this
-  i=0;
+  i = 0;
+
   while(1)
   {
-    n=read(serial->fd, buffer+i, 1);
+    n = read(serial->fd, buffer + i, 1);
     // printf("n=%d i=%d 0x%02x\n", n, i, buffer[i]);
-    if (n<0) { return -1; }
+
     i++;
-    if (i==len) { break; }
-    if (buffer[i-1]=='\n') { break; }
+
+    if (n < 0) { return -1; }
+    if (i == len) { break; }
+    if (buffer[i - 1] == '\n') { break; }
   }
 
   buffer[i]=0;
@@ -127,5 +149,4 @@ void serial_close(struct _serial *serial)
 
   serial->fd = 0;
 }
-
 
