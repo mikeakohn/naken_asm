@@ -1,0 +1,32 @@
+name: naken-asm
+version: 2019-11-10
+summary: Simple assembler for many different CPUs.
+description: |
+  Simple assembler for:
+    1802, 4004, 6502, 65C816, 68HC08, 6809, 68000, 8051, ARM, AVR8
+    Cell BE, Copper, CP1610, dsPIC, Epiphany, Java, LC-3, MCS-48,
+    MIPS, MSP430, PIC14, PIC24, PIC32, Playstation 2 EE, PowerPC,
+    Propeller, RISC-V, SH-4, STM8, SuperFX, SWEET16, THUMB, TMS1000,
+    TMS1100, TMS9900, WebAssembly, Xtensa, Z80.
+
+grade: stable
+confinement: classic
+
+parts:
+  naken-asm:
+    source: http://www.mikekohn.net/downloads/naken_asm/naken_asm-2019-11-10.tar.gz
+    plugin: dump
+    override-build: |
+      ./configure --prefix=. --include-path=/snap/naken-asm/current/share/naken_asm/include
+      make
+      make install
+    override-prime: |
+      cp -r ../parts/naken-asm/build/bin .
+      cp -r ../parts/naken-asm/build/share .
+
+apps:
+  naken-asm:
+    command: bin/naken_asm
+  naken-util:
+    command: bin/naken_util
+

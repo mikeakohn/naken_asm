@@ -592,6 +592,11 @@ fi
 
 if ! instr "WINDOWS" "${CFLAGS}"
 then
+  if [ "${INSTALL_PREFIX}" = "" ]
+  then
+    INSTALL_PREFIX="."
+  fi
+
   INSTALL_BIN=${INSTALL_PREFIX}/bin
   INSTALL_INCLUDES=${INSTALL_PREFIX}/share/naken_asm
 else

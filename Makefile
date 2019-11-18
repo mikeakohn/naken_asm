@@ -18,8 +18,9 @@ all: default
 	$(CC) -c $*.c $(CFLAGS) $(LDFLAGS)
 
 install:
-	install -t $(INSTALL_BIN) naken_asm
-	install -t $(INSTALL_BIN) naken_util
+	install -d $(INSTALL_PREFIX)/bin
+	install -t $(INSTALL_PREFIX)/bin naken_asm
+	install -t $(INSTALL_PREFIX)/bin naken_util
 	install -d $(INSTALL_PREFIX)/share/naken_asm
 	cp -r include $(INSTALL_PREFIX)/share/naken_asm
 
@@ -28,8 +29,8 @@ objs:
 
 uninstall:
 	@echo "Removing:"
-	rm -f $(INSTALL_BIN)/naken_asm
-	rm -f $(INSTALL_BIN)/naken_util
+	rm -f $(INSTALL_PREFIX)/bin/naken_asm
+	rm -f $(INSTALL_PREFIX)/bin/naken_util
 	rm -rf $(INSTALL_PREFIX)/share/naken_asm
 
 testing: launchpad_blink.asm
