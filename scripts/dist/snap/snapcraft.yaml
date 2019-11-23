@@ -1,5 +1,5 @@
 name: naken-asm
-version: 2019-11-10
+version: 2019.11.18
 summary: Simple assembler for many different CPUs.
 description: |
   Simple assembler for:
@@ -10,7 +10,7 @@ description: |
     TMS1100, TMS9900, WebAssembly, Xtensa, Z80.
 
 grade: stable
-confinement: classic
+confinement: strict
 
 parts:
   naken-asm:
