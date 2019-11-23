@@ -74,15 +74,15 @@ asr.w #5, %d4
 asl.w (100) 
 asr.w (1000)
 asr.w (%a4)
-bchg.b %d4, (%a4)
-bchg.l #5, (8,%a2)
-bclr.b %d4, (%a4)+
-bclr.l #2, -(%a4)
+bchg %d4, (%a4)
+bchg #5, (8,%a2)
+bclr %d4, (%a4)+
+bclr #2, -(%a4)
 bkpt #3
-bset.b %d1, (%a3)
-bset.l #5, %d1
-btst.b %d6, (100)
-btst.l #5, (1000)
+bset %d1, (%a3)
+bset #5, %d1
+btst %d6, (100)
+btst #5, (1000)
 chk.w (%a4), %d5
 clr.b %d7
 clr.w (%a5)
