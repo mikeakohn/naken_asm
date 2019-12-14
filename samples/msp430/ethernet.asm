@@ -26,7 +26,7 @@
 .define CS_DESELECT bis.b #SPI_CS, &P2OUT
 
 ; 000_aaaaa
-.macro READ_EREG(a) 
+.macro READ_EREG(a)
   mov.b #a, r15
   call #read_control_reg
 .endm
@@ -65,7 +65,7 @@
   call #write_control_reg
 .endm
 
-.macro READ_MREG(a) 
+.macro READ_MREG(a)
   mov.b #a, r15
   call #read_control_reg_m
 .endm
@@ -99,7 +99,7 @@ start:
   ;; Set up stack pointer
   mov.w #0x0400, SP
 
-  ;; Set MCLK to 8 MHz with DCO 
+  ;; Set MCLK to 8 MHz with DCO
   mov.b #DCO_5, &DCOCTL
   mov.b #RSEL_13, &BCSCTL1
   mov.b #0, &BCSCTL2
@@ -298,7 +298,7 @@ spi_send_char_wait:
   mov.b &UCB0RXBUF, r15
   ret
 
-; read_control_reg(r15)  000_aaaaa 
+; read_control_reg(r15)  000_aaaaa
 read_control_reg:
   CS_SELECT
   call #spi_send_char
@@ -331,7 +331,7 @@ write_buffer_memory:
   CS_SELECT
   mov.b #0x7a, r15   ; 011_11010
   call #spi_send_char
-  mov.b r14, r15 
+  mov.b r14, r15
   call #spi_send_char
   CS_DESELECT
   ret
