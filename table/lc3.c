@@ -34,5 +34,6 @@ struct _table_lc3 table_lc3[] =
   { "sti",  0xb000, 0xf000, OP_R_OFFSET9 },
   { "str",  0x7000, 0xf000, OP_R_R_OFFSET6 },
   { "trap", 0xf000, 0xff00, OP_VECTOR },
+  { NULL,   0x0000, 0x0000, OP_NONE },
 };
 
