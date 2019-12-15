@@ -1,0 +1,817 @@
+ADC
+A, expr
+A ← A + k + CF
+0x09
+4
+2
+ADC
+A, [expr]
+A ← A + RAM[k] + CF
+0x0A
+6
+2
+ADC
+A, [X+expr]
+A ← A + RAM[X + k] + CF
+0x0B
+7
+2
+ADC
+[expr], A
+RAM[k] ← RAM[k] + A + CF
+0x0C
+7
+2
+ADC
+[X+expr], A
+RAM[X + k] ← RAM[X + k] + A + CF
+0x0D
+8
+2
+ADC
+[expr], expr
+RAM[k1] ← RAM[k1] + k2 + CF
+0x0E
+9
+3
+ADC
+[X+expr], expr
+RAM[X+k1]←RAM[X+k1]+k2 +CF
+0x0F
+10
+3
+ADD
+A, expr
+A←A+k
+0x01
+4
+2
+ADD
+A, [expr]
+A ← A + RAM[k]
+0x02
+6
+2
+ADD
+A, [X+expr]
+A ← A + RAM[X + k]
+0x03
+7
+2
+ADD
+[expr], A
+RAM[k] ← RAM[k] + A
+0x04
+7
+2
+ADD
+[X+expr], A
+RAM[X + k] ← RAM[X + k] + A
+0x05
+8
+2
+ADD
+[expr], expr
+RAM[k1] ← RAM[k1] + k2
+0x06
+9
+3
+ADD
+[X+expr], expr
+RAM[X + k1] ← RAM[X + k1] + k2
+0x07
+10
+3
+ADD
+SP, expr
+SP ← SP + k
+0x38
+5
+2
+AND
+A, expr
+A←A&k
+0x21
+4
+2
+AND
+A, [expr]
+A←A& ram[k]
+0x22
+6
+2
+AND
+A, [X+expr]
+A ← A & ram[X+k]
+0x23
+7
+2
+AND
+[expr], A
+ram[k] ← ram[k] & A
+0x24
+7
+2
+AND
+[X+expr], A
+ram[X+k]←ram[X+k]& A
+0x25
+8
+2
+AND
+[expr], expr
+ram[k1] ← ram[k1] & k2
+0x26
+9
+3
+AND
+[X+expr], expr
+ram[X+k1]←ram[X+k1]& k2
+0x27
+10
+3
+AND
+REG[expr], expr
+reg[k1] ← reg[k1] & k2
+0x41
+9
+3
+AND
+REG[X+expr], expr
+reg[X+k1]←reg[X+k1]& k2
+0x42
+10
+3
+AND
+F, expr
+F←F&k
+0x70
+4
+2
+ASL
+A
+CF ← A:7 A:7 ← A:6 A:6 ← A:5 A:5 ← A4
+0x64
+4
+1
+ASL
+[expr]
+CF ← ram[k]:7 ram[k]:7 ← ram[k]:6 ram[k]:6 ← ram[k]:5 ram[k]:5 ← ram[k]:4 ram[k]:4 ← ram[k]:3 ram[k]:3 ← ram[k]:2 ram[k]:2 ← ram[k]:1 ram[k]:1 ← ram[k]:0 ram[k]:0 ← 0
+0x65
+7
+2
+ASL
+[X+expr]
+CF ← ram[(X + k)]:7 ram[(X + k)]:7 ← ram[(X + ram[(X + k)]:6 ← ram[(X + ram[(X + k)]:5 ← ram[(X + ram[(X + k)]:4 ← ram[(X + ram[(X + k)]:3 ← ram[(X + ram[(X + k)]:2 ← ram[(X + ram[(X + k)]:1 ← ram[(X +
+0x66
+8
+2
+ASR
+A
+CF←A:0, A:0←A:1, A:1←A:2 A← A:2←A:3, A:3←A:4, A:4←A:5
+0x67
+4
+1
+ASR
+[expr]
+CF ← ram[(k)]:0 ram[k]:0 ← ram[k]:1 ram[k]:1 ← ram[k]:2 ram[k]:2 ← ram[k]:3 ram[k]:3 ← ram[k]:4 ram[k]:4 ← ram[k]:5 ram[k]:5 ← ram[k]:6 ram[k]:6 ← ram[k]:7
+0x68
+7
+2
+ASR
+[X+expr]
+CF ← ram[(X + k)]:0 ram[(X + k)]:0 ← ram[(X + ram[(X + k)]:1 ← ram[(X + ram[(X + k)]:2 ← ram[(X + ram[(X + k)]:3 ← ram[(X + ram[(X + k)]:4 ← ram[(X + ram[(X + k)]:5 ← ram[(X + ram[(X + k)]:6 ← ram[(X +
+0x69
+8
+2
+CALL
+expr
+asdf
+0x9x
+11
+2
+CMP
+A, expr
+A–k
+0x39
+5
+2
+CMP
+A, [expr]
+A – ram[k]
+0x3A
+7
+2
+CMP
+A, [X+expr]
+A – ram[X + k]
+0x3B
+8
+2
+CMP
+[expr], expr
+ram[k1] – k2
+0x3C
+8
+3
+CMP
+[X+expr], expr
+ram[X + k1] – k2
+0x3D
+9
+3
+CPL
+A
+A←A
+0x73
+4
+1
+DEC
+A
+A←A–1
+0x78
+4
+1
+DEC
+X
+X←X–1
+0x79
+4
+1
+DEC
+[expr]
+ram[k] ← ram[k] – 1
+0x7A
+7
+2
+DEC
+[X+expr]
+ram[X + k] ← ram[X + k] – 1
+0x7B
+8
+2
+HALT
+
+reg[CPU_SCR] ← reg[CPU_SCR] + 1
+0x30
+9
+1
+NC
+A
+A←A+1
+0x74
+4
+1
+INC
+X
+X←X+1
+0x75
+4
+1
+INC
+[expr]
+ram[k] ← ram[k] + 1
+0x76
+7
+2
+INC
+[X+expr]
+ram[X + k] ← ram[X + k]
+0x77
+8
+2
+INDEX
+expr
+A ← rom[k + A], (–2048 ≤ k ≤ 2047)
+0xFx
+13
+2
+JACC
+expr
+PC ← (PC + 1) + k + A
+0xEx
+7
+2
+JC
+expr
+PC ← (PC + 1) + k, (–2048 ≤ k ≤ 2047)
+0xCx
+5
+2
+JMP
+expr
+PC ← (PC + 1) + k, (–2048 ≤ k ≤ 2047)
+0x8x
+5
+2
+JNC
+expr
+PC ← (PC + 1) + k, (–2048 ≤ k ≤ 2047)
+0xdx
+5
+2
+JNZ
+expr
+PC ← (PC + 1) + k, (–2048 ≤ k ≤ 2047)
+0xBx
+5
+2
+JZ
+expr
+PC ← (PC + 1) + k, (–2048 ≤ k ≤ 2047)
+0xAx
+5
+2
+LCALL
+expr
+ram[SP] ← PC[15:8] SP ← SP + 1 ram[SP] ← PC[7:0] SP ← SP + 1
+0x7C
+13
+3
+JMP
+expr
+PC ← K, (0 ≤ k ≤ 65535)
+0x7D
+7
+3
+MOV
+X, SP
+X ← SP
+0x4F
+4
+1
+MOV
+A, expr
+A←k
+0x50
+4
+2
+MOV
+A, [expr]
+A ← ram[k]
+0x51
+5
+2
+MOV
+A, [X+expr]
+A ← ram[X + k]
+0x52
+6
+2
+MOV
+[expr], A
+ram[k] ← A
+0x53
+5
+2
+MOV
+[X+expr], A
+ram[X + k] ← A
+0x54
+6
+2
+MOV
+[expr], expr
+ram[k1] ← k2
+0x55
+8
+3
+MOV
+[X+expr], expr
+ram[X + k1] ← k2
+0x56
+9
+3
+MOV
+X, expr
+X←k
+0x57
+4
+2
+MOV
+X, [expr]
+X ← ram[k]
+0x58
+6
+2
+MOV
+X, [X+expr]
+X ← ram[X + k]
+0x59
+7
+2
+MOV
+[expr], X
+ram[k] ← X
+0x5A
+5
+2
+MOV
+A, X
+A←X
+0x5B
+4
+1
+MOV
+X, A
+X←A
+0x5C
+4
+1
+MOV
+A, REG[expr]
+A ← reg[k]
+0x5D
+6
+2
+MOV
+A, REG[X+expr]
+A ← reg[X + k]
+0x5E
+7
+2
+MOV
+[expr], [expr]
+ram[k1] ← ram[k2]
+0x5F
+10
+3
+MOV
+REG[expr], A
+reg[k] ← A
+0x60
+5
+2
+MOV
+REG[X+expr], A
+reg[X + k] ← A
+0x61
+6
+2
+MOV
+REG[expr], expr
+reg[k1] ← k2
+0x62
+8
+3
+MOV
+REG[X+expr], expr
+reg[X + k1] ← k2
+0x63
+9
+3
+MVI
+A, [[expr]++]
+A ← ram[ram[k]] ram[k] ← ram[k] + 1
+0x3E
+10
+2
+MVI
+[[expr]++], A
+ram[ram[k]] ← A ram[k] ← ram[k] + 1
+0x3F
+10
+2
+NOP
+
+None
+0x40
+4
+1
+OR
+A, expr
+A←Ak
+0x29
+4
+2
+OR
+A, [expr]
+A←A ram[k]
+0x2A
+6
+2
+OR
+A, [X+expr]
+A←A ram[X+k]
+0x2B
+7
+2
+OR
+[expr], A
+ram[k] ← ram[k] A
+0x2C
+7
+2
+OR
+[X+expr], A
+ram[X+k]←ram[X+k] A
+0x2D
+8
+2
+OR
+[expr], expr
+ram[k1] ← ram[k1] k2
+0x2E
+9
+3
+OR
+[X+expr], expr
+ram[X+k1]←ram[X+k1] k2
+0x2F
+10
+3
+OR
+REG[expr], expr
+reg[k1] ← reg[k1] k2
+0x43
+9
+3
+OR
+REG[X+expr], expr
+reg[X+k1]←reg[X+k1] k2
+0x44
+10
+3
+OR
+F, expr
+F←Fk
+0x71
+4
+2
+POP
+A
+A ← ram[SP – 1] SP ← SP – 1
+0x18
+5
+1
+POP
+X
+X ← ram[SP – 1] SP ← SP – 1
+0x20
+5
+1
+PUSH
+A
+ram[SP] ← A SP ← SP + 1
+0x08
+4
+1
+PUSH
+X
+ram[SP] ← X SP ← SP + 1
+0x10
+4
+1
+RET
+
+SP ← SP – 1
+0x7F
+8
+1
+RETI
+
+PC[7:0] ← ram[SP] SP ← SP – 1 PC[15:8] ← ram[SP]
+0x7E
+10
+1
+RLC
+A
+  CF ← A:7 A:7 ← A:6 A:6 ← A:5 A:5 ← A4
+0x6A
+4
+1
+RLC
+[expr]
+CF ← ram[k]:7 ram[k]:7 ← ram[k]:6 ram[k]:6 ← ram[k]:5 ram[k]:5 ← ram[k]:4 ram[k]:4 ← ram[k]:3 ram[k]:3 ← ram[k]:2 ram[k]:2 ← ram[k]:1 ram[k]:1 ← ram[k]:0 ram[k[0]] ← CF
+0x6B
+7
+2
+RLC
+[X+expr]
+CF ← ram[(X + k)]:7 ram[(X + k)]:7 ← ram[(X + ram[(X + k)]:6 ← ram[(X + ram[(X + k)]:5 ← ram[(X + ram[(X + k)]:4 ← ram[(X + ram[(X + k)]:3 ← ram[(X + ram[(X + k)]:2 ← ram[(X + ram[(X + k)]:1 ← ram[(X +
+0x6C
+8
+2
+ROMX
+
+t1 ← PC[7:0] PC[7:0] ← X t2 ← PC[15:8] PC[15:8] ← A A ← rom[PC] PC[7:0] ← t1 PC[15:8] ← t2
+0x28
+11
+1
+RRC
+A
+CF←A:0, A:0←A:1, A:1←A:2 A← A:2←A:3, A:3←A:4, A:4←A:5 A:5←A:6, A:6←A:7, A:7←CF
+0x6D
+4
+1
+RRC
+[expr]
+CF ← ram[(k)]:0 ram[k]:0 ← ram[k]:1 ram[k]:1 ← ram[k]:2 ram[k]:2 ← ram[k]:3 ram[k]:3 ← ram[k]:4 ram[k]:4 ← ram[k]:5 ram[k]:5 ← ram[k]:6 ram[k]:6 ← ram[k]:7 ram[k]:7 ← CF
+0x6E
+7
+2
+RRC
+[X+expr]
+CF ← ram[(X + k)]:0 ram[(X + k)]:0 ← ram[(X + ram[(X + k)]:1 ← ram[(X + ram[(X + k)]:2 ← ram[(X + ram[(X + k)]:3 ← ram[(X + ram[(X + k)]:4 ← ram[(X + ram[(X + k)]:5 ← ram[(X + ram[(X + k)]:6 ← ram[(X +
+0x6F
+8
+2
+SBB
+A, expr
+A ← A – (K + CF)
+0x19
+4
+2
+SBB
+A, [expr]
+A ← A – (ram[k] + CF)
+0x1A
+6
+2
+SBB
+A, [X+expr]
+A ← A – (ram[X + k] + CF)
+0x1B
+7
+2
+SBB
+[expr], A
+ram[k] ← ram[k] – (A + CF)
+0x1C
+7
+2
+SBB
+[X+expr], A
+ram[X + k] ← ram[X + k] – (A + CF)
+0x1D
+8
+2
+SBB
+[expr], expr
+ram[k1] ← ram[k1] – (k2 + CF)
+0x1E
+9
+3
+SBB
+[X+expr], expr
+ram[X+k1]←ram[X+k1]–(k2 +CF)
+0x1F
+10
+3
+SUB
+A, expr
+A←A–K
+0x11
+4
+2
+SUB
+A, [expr]
+A ← A – ram[k]
+0x12
+6
+2
+SUB
+A, [X+expr]
+A ← A – ram[X + k]
+0x13
+7
+2
+SUB
+[expr], A
+ram[k] ← ram[k] – A
+0x14
+7
+2
+SUB
+[X+expr], A
+ram[X + k] ← ram[X + k] – A
+0x15
+8
+2
+SUB
+[expr], expr
+ram[k1] ← ram[k1] – k2
+0x16
+9
+3
+SUB
+[X+expr], expr
+ram[X + k1] ← ram[X + k1] – k2
+0x17
+10
+3
+SWAP
+A, X
+t←X X←A A←t
+0x4B
+5
+1
+SWAP
+A, [expr]
+t ← ram[k] ram[k] ← A A←t
+0x4C
+7
+2
+SWAP
+X, [expr]
+t ← ram[k] ram[k] ← X X←t
+0x4D
+7
+2
+SWAP
+A, SP
+t ← SP SP ← A A←t
+0x4E
+5
+1
+SSC
+
+ram[SP] ← PC[15:8] SP ← SP + 1 ram[SP] ← PC[7:0] SP ← SP + 1 ram[SP] ← F
+0x00
+15
+1
+TST
+[expr], expr
+ram[k1] & k2
+0x47
+8
+3
+TST
+[X+expr], expr
+ram[X+k1]& k2
+0x48
+9
+3
+TST
+REG[expr], expr
+reg[k1] & k2
+0x49
+9
+3
+TST
+REG[X+expr], expr
+reg[X+k1]& k2
+0x4A
+10
+3
+XOR
+A, expr
+A←A⊕k
+0x31
+4
+2
+XOR
+A, [expr]
+A ← A ⊕ ram[k]
+0x32
+6
+2
+XOR
+A, [X+expr]
+A ← A ⊕ ram[X + k]
+0x33
+7
+2
+XOR
+[expr], A
+ram[k] ← ram[k] ⊕ A
+0x34
+7
+2
+XOR
+[X+expr], A
+ram[X + k] ← ram[X + k] ⊕ A
+0x35
+8
+2
+XOR
+[expr], expr
+ram[k1] ← ram[k1] ⊕ k2
+0x36
+9
+3
+XOR
+[X+expr], expr
+ram[X + k1] ← ram[X + k1] ⊕ k2
+0x37
+10
+3
+XOR
+REG[expr], expr
+reg[k1] ← reg[k1] ⊕ k2
+0x45
+9
+3
+XOR
+REG[X+expr], expr
+reg[X + k1] ← reg[X + k1] ⊕ k2
+0x46
+10
+3
+XOR
+F, expr
+F←F⊕k
+0x72
+4
+2
+
