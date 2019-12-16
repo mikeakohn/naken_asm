@@ -32,6 +32,7 @@
 #include "asm/epiphany.h"
 #include "asm/java.h"
 #include "asm/lc3.h"
+#include "asm/m8c.h"
 #include "asm/mcs48.h"
 #include "asm/mips.h"
 #include "asm/msp430.h"
@@ -71,6 +72,7 @@
 #include "disasm/epiphany.h"
 #include "disasm/java.h"
 #include "disasm/lc3.h"
+#include "disasm/m8c.h"
 #include "disasm/mcs48.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
@@ -597,6 +599,28 @@ struct _cpu_list cpu_list[] =
     list_output_lc3,
     disasm_range_lc3,
     simulate_init_lc3,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_M8C
+  {
+    "m8c",
+    CPU_TYPE_M8C,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_m8c,
+    NULL,
+    link_not_supported,
+    list_output_m8c,
+    disasm_range_m8c,
+    NULL,
     NO_FLAGS,
   },
 #endif
