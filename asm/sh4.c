@@ -1023,10 +1023,10 @@ printf("%d %d %d\n",
 
     n++;
   }
+
   if (found == 1)
   {
     print_error_illegal_operands(instr, asm_context);
-    return -1;
   }
     else
   {
