@@ -30,7 +30,7 @@ struct _operand
 int add_operand(
   struct _asm_context *asm_context,
   struct _operand *operand,
-  uint8_t opcode) 
+  uint8_t opcode)
 {
   switch (operand->type)
   {
@@ -54,6 +54,28 @@ int add_operand(
   return -1;
 }
 
+int ignore_expression(struct _asm_context *asm_context)
+{
+  char token[TOKENLEN];
+  int token_type;
+
+  while (1)
+  {
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (token_type == TOKEN_EOF || token_type == TOKEN_EOL) { break; }
+
+    if (IS_TOKEN(token, ']') || IS_TOKEN(token, ','))
+    {
+      break;
+    }
+  }
+
+  tokens_push(asm_context, token, token_type);
+
+  return 0;
+}
+
 int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
@@ -62,7 +84,7 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
   int token_type;
   int operand_count = 0;
   int found = 0;
-  int n;
+  int n, num;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -97,9 +119,99 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OP_F;
     }
       else
+    if (strcasecmp(token, "SP") == 0)
     {
-      print_error_unexp(token, asm_context);
-      return -1;
+      operands[operand_count].type = OP_SP;
+    }
+      else
+    if (IS_TOKEN(token, '['))
+    {
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (IS_TOKEN(token, 'X'))
+      {
+        if (expect_token(asm_context, '+') == -1) { return -1; }
+
+        if (asm_context->pass == 1)
+        {
+          ignore_expression(asm_context);
+        }
+          else
+        {
+          if (eval_expression(asm_context, &num) != 0)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].type = OP_INDEX_X_EXPR;
+          operands[operand_count].value = num;
+        }
+
+        if (expect_token(asm_context, ']') == -1) { return -1; }
+      }
+        else
+      if (IS_TOKEN(token, '['))
+      {
+        if (asm_context->pass == 1)
+        {
+          ignore_expression(asm_context);
+        }
+          else
+        {
+          if (eval_expression(asm_context, &num) != 0)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].type = OP_INDEX_EXPR_INC;
+          operands[operand_count].value = num;
+        }
+
+        if (expect_token(asm_context, ']') == -1) { return -1; }
+        if (expect_token(asm_context, '+') == -1) { return -1; }
+        if (expect_token(asm_context, '+') == -1) { return -1; }
+        if (expect_token(asm_context, ']') == -1) { return -1; }
+      }
+        else
+      {
+        if (asm_context->pass == 1)
+        {
+          ignore_expression(asm_context);
+        }
+          else
+        {
+          if (eval_expression(asm_context, &num) != 0)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].type = OP_INDEX_EXPR;
+          operands[operand_count].value = num;
+        }
+
+        if (expect_token(asm_context, ']') == -1) { return -1; }
+      }
+    }
+      else
+    {
+      if (asm_context->pass == 1)
+      {
+        ignore_expression(asm_context);
+      }
+        else
+      {
+        if (eval_expression(asm_context, &num) != 0)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        operands[operand_count].type = OP_INDEX_EXPR;
+        operands[operand_count].value = num;
+      }
     }
 
     operand_count++;
@@ -123,7 +235,7 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
     }
 
     if (table_m8c[n].operand_0 == operands[0].type &&
-        table_m8c[n].operand_1 == operands[1].type) 
+        table_m8c[n].operand_1 == operands[1].type)
     {
       uint32_t address = asm_context->address;
       const uint8_t opcode = table_m8c[n].opcode;

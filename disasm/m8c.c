@@ -119,19 +119,19 @@ void list_output_m8c(struct _asm_context *asm_context, uint32_t start, uint32_t 
   char hex[80];
   char temp[16];
   int n;
-  
+
   count = disasm_m8c(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
-  
+
   hex[0] = 0;
 
   for (n = 0; n < count; n++)
   {
     opcode = memory_read_m(&asm_context->memory, start + n);
-    
+
     sprintf(temp, "%02x ", opcode);
     strcat(hex, temp);
-  } 
-  
+  }
+
   fprintf(asm_context->list, "0x%04x: %-12s %-30s cycles=%d\n", start, hex, instruction, cycles_min);
 }
 
