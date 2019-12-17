@@ -43,7 +43,7 @@ int add_operand(
     case OP_EXPR:
     case OP_INDEX_EXPR:
     case OP_INDEX_X_EXPR:
-      add_bin8(asm_context, opcode, IS_OPCODE);
+      add_bin8(asm_context, operand->value & 0xff, IS_OPCODE);
       return 0;
     case OP_INDEX_EXPR_INC:
     case OP_REG_INDEX_EXPR:
@@ -130,6 +130,8 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
 
       if (IS_TOKEN(token, 'X'))
       {
+        operands[operand_count].type = OP_INDEX_X_EXPR;
+
         if (expect_token(asm_context, '+') == -1) { return -1; }
 
         if (asm_context->pass == 1)
@@ -144,7 +146,6 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          operands[operand_count].type = OP_INDEX_X_EXPR;
           operands[operand_count].value = num;
         }
 
@@ -153,6 +154,8 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
         else
       if (IS_TOKEN(token, '['))
       {
+        operands[operand_count].type = OP_INDEX_EXPR_INC;
+
         if (asm_context->pass == 1)
         {
           ignore_expression(asm_context);
@@ -165,7 +168,6 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          operands[operand_count].type = OP_INDEX_EXPR_INC;
           operands[operand_count].value = num;
         }
 
@@ -176,19 +178,22 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
       }
         else
       {
+        operands[operand_count].type = OP_INDEX_EXPR;
+
         if (asm_context->pass == 1)
         {
           ignore_expression(asm_context);
         }
           else
         {
+          tokens_push(asm_context, token, token_type);
+
           if (eval_expression(asm_context, &num) != 0)
           {
             print_error_unexp(token, asm_context);
             return -1;
           }
 
-          operands[operand_count].type = OP_INDEX_EXPR;
           operands[operand_count].value = num;
         }
 
@@ -197,19 +202,22 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
     }
       else
     {
+      operands[operand_count].type = OP_EXPR;
+
       if (asm_context->pass == 1)
       {
         ignore_expression(asm_context);
       }
         else
       {
+        tokens_push(asm_context, token, token_type);
+
         if (eval_expression(asm_context, &num) != 0)
         {
           print_error_unexp(token, asm_context);
           return -1;
         }
 
-        operands[operand_count].type = OP_INDEX_EXPR;
         operands[operand_count].value = num;
       }
     }

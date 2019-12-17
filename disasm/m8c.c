@@ -27,6 +27,9 @@ int append_operand(
   uint8_t operand,
   uint32_t address)
 {
+  char temp[32];
+  uint8_t data8;
+
   switch (operand)
   {
     case OP_A:
@@ -42,9 +45,25 @@ int append_operand(
       strcat(instruction, "SP");
       return 0;
     case OP_EXPR:
+      data8 = memory_read_m(memory, address);
+      sprintf(temp, "0x%02x", data8);
+      strcat(instruction, temp);
+      return 0;
     case OP_INDEX_EXPR:
+      data8 = memory_read_m(memory, address);
+      sprintf(temp, "[0x%02x]", data8);
+      strcat(instruction, temp);
+      return 0;
     case OP_INDEX_X_EXPR:
+      data8 = memory_read_m(memory, address);
+      sprintf(temp, "[X+0x%02x]", data8);
+      strcat(instruction, temp);
+      return 0;
     case OP_INDEX_EXPR_INC:
+      data8 = memory_read_m(memory, address);
+      sprintf(temp, "[[0x%02x]++]", data8);
+      strcat(instruction, temp);
+      return 0;
     case OP_REG_INDEX_EXPR:
     case OP_REG_INDEX_X_EXPR:
       break;
