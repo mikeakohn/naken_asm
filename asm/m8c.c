@@ -30,9 +30,10 @@ struct _operand
 int add_operand(
   struct _asm_context *asm_context,
   struct _operand *operand,
+  uint8_t type,
   uint8_t opcode)
 {
-  switch (operand->type)
+  switch (type)
   {
     case OP_NONE:
     case OP_A:
@@ -43,12 +44,33 @@ int add_operand(
     case OP_EXPR:
     case OP_INDEX_EXPR:
     case OP_INDEX_X_EXPR:
-      add_bin8(asm_context, operand->value & 0xff, IS_OPCODE);
-      return 0;
     case OP_INDEX_EXPR_INC:
     case OP_REG_INDEX_EXPR:
     case OP_REG_INDEX_X_EXPR:
-      break;
+      if (operand->value < -128 || operand->value > 0xff)
+      {
+        print_error_range("Constant", -128, 0xff, asm_context);
+        return -1;
+      }
+
+      add_bin8(asm_context, operand->value & 0xff, IS_OPCODE);
+
+      return 0;
+    case OP_EXPR_S12:
+      // Should never get in here.
+
+      return -1;
+    case OP_EXPR_U16:
+      if (operand->value < 0 || operand->value > 0xffff)
+      {
+        print_error_range("Constant", 0, 0xffff, asm_context);
+        return -1;
+      }
+
+      add_bin8(asm_context, (operand->value >> 8) & 0xff, IS_OPCODE);
+      add_bin8(asm_context, operand->value & 0xff, IS_OPCODE);
+
+      return 0;
   }
 
   return -1;
@@ -241,12 +263,60 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
     {
       found = 1;
     }
+      else
+    {
+      n++;
+      continue;
+    }
 
-    if (table_m8c[n].operand_0 == operands[0].type &&
-        table_m8c[n].operand_1 == operands[1].type)
+    const uint8_t opcode = table_m8c[n].opcode;
+
+    if (operands[0].type == OP_EXPR &&
+        operands[1].type == OP_NONE &&
+        table_m8c[n].operand_0 == OP_EXPR_S12 &&
+        table_m8c[n].operand_1 == OP_NONE)
+    {
+      int offset;
+
+      if (asm_context->pass == 1)
+      {
+        offset = 0;
+      }
+        else
+      {
+        offset = operands[0].value - (asm_context->address + 1);
+      }
+
+      if (offset < -2048 || offset > 0x7ff)
+      {
+        print_error_range("Offset", -2048, 0x7ff, asm_context);
+        return -1;
+      }
+
+      offset &= 0xfff;
+
+      add_bin8(asm_context, opcode | (offset >> 8), IS_OPCODE);
+      add_bin8(asm_context, offset & 0xff, IS_OPCODE);
+
+      return 2;
+    }
+
+    int is_single_integer = 0;
+
+    if (operands[0].type == OP_EXPR &&
+        operands[1].type == OP_NONE &&
+        table_m8c[n].operand_1 == OP_NONE &&
+       (table_m8c[n].operand_0 == OP_EXPR ||
+        table_m8c[n].operand_0 == OP_EXPR_U16))
+    {
+      is_single_integer = 1;
+    }
+
+    if ((table_m8c[n].operand_0 == operands[0].type &&
+         table_m8c[n].operand_1 == operands[1].type) ||
+         is_single_integer == 1)
     {
       uint32_t address = asm_context->address;
-      const uint8_t opcode = table_m8c[n].opcode;
 
       add_bin8(asm_context, opcode, IS_OPCODE);
 
@@ -255,12 +325,12 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
         return 1;
       }
 
-      if (add_operand(asm_context, &operands[0], opcode) != 0)
+      if (add_operand(asm_context, &operands[0], table_m8c[n].operand_0, opcode) != 0)
       {
         return -1;
       }
 
-      if (add_operand(asm_context, &operands[1], opcode) != 0)
+      if (add_operand(asm_context, &operands[1], table_m8c[n].operand_1, opcode) != 0)
       {
         return -1;
       }

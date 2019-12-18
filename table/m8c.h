@@ -27,6 +27,8 @@ enum
   OP_INDEX_EXPR_INC,
   OP_REG_INDEX_EXPR,
   OP_REG_INDEX_X_EXPR,
+  OP_EXPR_S12,
+  OP_EXPR_U16,
 };
 
 struct _table_m8c

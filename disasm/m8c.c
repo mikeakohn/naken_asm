@@ -25,10 +25,13 @@ int append_operand(
   struct _memory *memory,
   char *instruction,
   uint8_t operand,
-  uint32_t address)
+  uint32_t address,
+  uint8_t opcode)
 {
   char temp[32];
   uint8_t data8;
+  uint16_t data16;
+  int16_t offset;
 
   switch (operand)
   {
@@ -65,8 +68,28 @@ int append_operand(
       strcat(instruction, temp);
       return 0;
     case OP_REG_INDEX_EXPR:
+      data8 = memory_read_m(memory, address);
+      sprintf(temp, "REG[0x%02x]", data8);
+      strcat(instruction, temp);
+      return 0;
     case OP_REG_INDEX_X_EXPR:
-      break;
+      data8 = memory_read_m(memory, address);
+      sprintf(temp, "REG[X+0x%02x]", data8);
+      strcat(instruction, temp);
+      return 0;
+    case OP_EXPR_S12:
+      offset = memory_read_m(memory, address);
+      offset |= (opcode & 0xf) << 8;
+      if ((offset & 0x800) != 0) { offset |= 0xf000; }
+      sprintf(temp, "0x%04x (offset=%d)", address + offset, offset);
+      strcat(instruction, temp);
+      return 0;
+    case OP_EXPR_U16:
+      data16 = (memory_read_m(memory, address) << 8) |
+                memory_read_m(memory, address + 1);
+      sprintf(temp, "0x%04x", data16);
+      strcat(instruction, temp);
+      return 0;
   }
 
   return 0;
@@ -79,14 +102,13 @@ int disasm_m8c(
   int *cycles_min,
   int *cycles_max)
 {
-  uint8_t opcode;
   uint32_t op_address = address + 1;
   int n;
 
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = memory_read_m(memory, address);
+  uint8_t opcode = memory_read_m(memory, address);
 
   // memory_read_m(memory, address);
 
@@ -94,7 +116,7 @@ int disasm_m8c(
 
   while (table_m8c[n].instr != NULL)
   {
-    if (table_m8c[n].opcode != opcode)
+    if (table_m8c[n].opcode != (opcode & table_m8c[n].mask))
     {
       n++;
       continue;
@@ -111,7 +133,7 @@ int disasm_m8c(
 
     strcat(instruction, " ");
 
-    op_address += append_operand(memory, instruction, table_m8c[n].operand_0, op_address);
+    op_address += append_operand(memory, instruction, table_m8c[n].operand_0, op_address, opcode);
 
     if (table_m8c[n].operand_1 == OP_NONE)
     {
@@ -120,7 +142,7 @@ int disasm_m8c(
 
     strcat(instruction, ", ");
 
-    op_address += append_operand(memory, instruction, table_m8c[n].operand_1, op_address);
+    op_address += append_operand(memory, instruction, table_m8c[n].operand_1, op_address, opcode);
 
     return table_m8c[n].byte_count;
   }
