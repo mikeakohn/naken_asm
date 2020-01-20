@@ -6,6 +6,7 @@ default:
 	bash run_test.sh 65816
 	bash run_test.sh 68000
 	bash run_test.sh 6809
+	bash run_test.sh 8048
 	bash run_test.sh 8051
 	bash run_test.sh arm
 	python run_test.py avr8
@@ -13,7 +14,6 @@ default:
 	bash run_test.sh dspic
 	bash run_test.sh epiphany
 	bash run_test.sh lc3
-	bash run_test.sh mcs48
 	bash run_test.sh msp430
 	bash run_test.sh msp430x
 	bash run_test.sh pic14

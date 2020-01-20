@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef NAKEN_ASM_TABLE_MCS48_H
-#define NAKEN_ASM_TABLE_MCS48_H
+#ifndef NAKEN_ASM_TABLE_8048_H
+#define NAKEN_ASM_TABLE_8048_H
 
 #include "common/assembler.h"
 
@@ -45,7 +45,7 @@ enum
   OP_PADDR,
 };
 
-struct _table_mcs48
+struct _table_8048
 {
   char *name;
   uint8_t opcode;
@@ -56,7 +56,7 @@ struct _table_mcs48
   uint8_t cycles;
 };
 
-extern struct _table_mcs48 table_mcs48[];
+extern struct _table_8048 table_8048[];
 
 #endif
 

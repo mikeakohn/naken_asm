@@ -13,17 +13,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "disasm/mcs48.h"
-#include "table/mcs48.h"
+#include "disasm/8048.h"
+#include "table/8048.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-int get_cycle_count_mcs48(unsigned short int opcode)
+int get_cycle_count_8048(unsigned short int opcode)
 {
   return -1;
 }
 
-int disasm_mcs48(
+int disasm_8048(
   struct _memory *memory,
   uint32_t address,
   char *instruction,
@@ -41,16 +41,16 @@ int disasm_mcs48(
 
   n = 0;
 
-  while(table_mcs48[n].name != NULL)
+  while(table_8048[n].name != NULL)
   { 
-    if (table_mcs48[n].opcode == (opcode & table_mcs48[n].mask))
+    if (table_8048[n].opcode == (opcode & table_8048[n].mask))
     {
-      sprintf(instruction, "%s", table_mcs48[n].name);
+      sprintf(instruction, "%s", table_8048[n].name);
 
-      *cycles_min = table_mcs48[n].cycles;
-      *cycles_max = table_mcs48[n].cycles;
+      *cycles_min = table_8048[n].cycles;
+      *cycles_max = table_8048[n].cycles;
 
-      if (table_mcs48[n].operand_count == 0)
+      if (table_8048[n].operand_count == 0)
       {
         return 1;
       }
@@ -59,12 +59,12 @@ int disasm_mcs48(
 
       strcat(instruction, " ");
 
-      for (r = 0; r < table_mcs48[n].operand_count; r++)
+      for (r = 0; r < table_8048[n].operand_count; r++)
       {
         if (r == 1) { strcat(instruction, ", "); }
 
-        int type = (r == 0) ? table_mcs48[n].operand_1 :
-                              table_mcs48[n].operand_2;
+        int type = (r == 0) ? table_8048[n].operand_1 :
+                              table_8048[n].operand_2;
 
         switch (type)
         {
@@ -166,7 +166,7 @@ int disasm_mcs48(
   return 1;
 }
 
-void list_output_mcs48(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_8048(struct _asm_context *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min = -1, cycles_max = -1, count;
   char instruction[128];
@@ -176,7 +176,7 @@ void list_output_mcs48(struct _asm_context *asm_context, uint32_t start, uint32_
 
   while(start < end)
   {
-    count = disasm_mcs48(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_8048(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
     temp[0] = 0;
 
@@ -193,7 +193,7 @@ void list_output_mcs48(struct _asm_context *asm_context, uint32_t start, uint32_
   }
 }
 
-void disasm_range_mcs48(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_8048(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
   char temp[32];
@@ -209,7 +209,7 @@ void disasm_range_mcs48(struct _memory *memory, uint32_t flags, uint32_t start, 
 
   while(start <= end)
   {
-    count = disasm_mcs48(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_8048(memory, start, instruction, &cycles_min, &cycles_max);
 
     temp[0] = 0;
     for (n = 0; n < count; n++)

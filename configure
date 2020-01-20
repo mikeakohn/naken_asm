@@ -26,6 +26,7 @@ CPUS=" \
   65816
   68HC08
   68000
+  8048
   8051
   ARC
   ARM
@@ -40,7 +41,6 @@ CPUS=" \
   JAVA
   LC3
   M8C
-  MCS48
   MIPS
   MSP430
   PDP8
@@ -144,6 +144,7 @@ show_help()
   echo "  --enable-6809             compile in support for 6809"
   echo "  --enable-68hc08           compile in support for 68hc08 series"
   echo "  --enable-680x0            compile in support for 680x0 series"
+  echo "  --enable-8048             compile in support for 8048/MCS-48"
   echo "  --enable-8051             compile in support for 8051/8052/MCS-51"
   echo "  --enable-arc              compile in support for ARC"
   echo "  --enable-arm              compile in support for ARM"
@@ -334,6 +335,13 @@ for option in $@; do
     TABLE_OBJS="${TABLE_OBJS} 68000.o"
     DFLAGS="${DFLAGS} -DENABLE_68000"
   ;;
+  --enable-8048)
+    ASM_OBJS="${ASM_OBJS} 8048.o"
+    DISASM_OBJS="${DISASM_OBJS} 8048.o"
+    SIM_OBJS="${SIM_OBJS} 8048.o"
+    TABLE_OBJS="${TABLE_OBJS} 8048.o"
+    DFLAGS="${DFLAGS} -DENABLE_8048"
+  ;;
   --enable-8051)
     ASM_OBJS="${ASM_OBJS} 8051.o"
     DISASM_OBJS="${DISASM_OBJS} 8051.o"
@@ -410,13 +418,6 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} m8c.o"
     TABLE_OBJS="${TABLE_OBJS} m8c.o"
     DFLAGS="${DFLAGS} -DENABLE_M8C"
-  ;;
-  --enable-mcs48)
-    ASM_OBJS="${ASM_OBJS} mcs48.o"
-    DISASM_OBJS="${DISASM_OBJS} mcs48.o"
-    SIM_OBJS="${SIM_OBJS} mcs48.o"
-    TABLE_OBJS="${TABLE_OBJS} mcs48.o"
-    DFLAGS="${DFLAGS} -DENABLE_MCS48"
   ;;
   --enable-mips)
     ASM_OBJS="${ASM_OBJS} mips.o"

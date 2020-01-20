@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -38,6 +38,7 @@ enum
   CPU_TYPE_6809,
   CPU_TYPE_68HC08,
   CPU_TYPE_68000,
+  CPU_TYPE_8048,
   CPU_TYPE_8051,
   CPU_TYPE_ARC,
   CPU_TYPE_ARM,
@@ -52,7 +53,6 @@ enum
   CPU_TYPE_JAVA,
   CPU_TYPE_LC3,
   CPU_TYPE_M8C,
-  CPU_TYPE_MCS48,
   CPU_TYPE_MIPS32,
   CPU_TYPE_PDP8,
   CPU_TYPE_PIC14,
@@ -83,7 +83,6 @@ enum
 #define SREC_16 0
 #define SREC_24 1
 #define SREC_32 2
-
 
 // The options in this structure:
 // name: If this is set to "mycpu", the assembler will use a .mycpu directive

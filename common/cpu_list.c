@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -19,6 +19,7 @@
 #include "asm/6809.h"
 #include "asm/68hc08.h"
 #include "asm/68000.h"
+#include "asm/8048.h"
 #include "asm/8051.h"
 #include "asm/arc.h"
 #include "asm/arm.h"
@@ -33,7 +34,6 @@
 #include "asm/java.h"
 #include "asm/lc3.h"
 #include "asm/m8c.h"
-#include "asm/mcs48.h"
 #include "asm/mips.h"
 #include "asm/msp430.h"
 #include "asm/pdp8.h"
@@ -60,6 +60,7 @@
 #include "disasm/6809.h"
 #include "disasm/68hc08.h"
 #include "disasm/68000.h"
+#include "disasm/8048.h"
 #include "disasm/8051.h"
 #include "disasm/arc.h"
 #include "disasm/arm.h"
@@ -73,7 +74,6 @@
 #include "disasm/java.h"
 #include "disasm/lc3.h"
 #include "disasm/m8c.h"
-#include "disasm/mcs48.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
 #include "disasm/pdp8.h"
@@ -334,6 +334,28 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_68000,
     disasm_range_68000,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_8048
+  {
+    "8048",
+    CPU_TYPE_8048,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_8048,
+    NULL,
+    link_not_supported,
+    list_output_8048,
+    disasm_range_8048,
     NULL,
     NO_FLAGS,
   },
@@ -620,28 +642,6 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_m8c,
     disasm_range_m8c,
-    NULL,
-    NO_FLAGS,
-  },
-#endif
-#ifdef ENABLE_MCS48
-  {
-    "MCS48",
-    CPU_TYPE_MCS48,
-    ENDIAN_LITTLE,
-    1,
-    ALIGN_1,
-    0,
-    0,
-    0,
-    0,
-    0,
-    SREC_16,
-    parse_instruction_mcs48,
-    NULL,
-    link_not_supported,
-    list_output_mcs48,
-    disasm_range_mcs48,
     NULL,
     NO_FLAGS,
   },

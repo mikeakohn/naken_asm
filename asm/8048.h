@@ -9,12 +9,12 @@
  *
  */
 
-#ifndef NAKEN_ASM_ASM_MCS48_H
-#define NAKEN_ASM_ASM_MCS48_H
+#ifndef NAKEN_ASM_ASM_8048_H
+#define NAKEN_ASM_ASM_8048_H
 
 #include "common/assembler.h"
 
-int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr);
+int parse_instruction_8048(struct _asm_context *asm_context, char *instr);
 
 #endif
 

@@ -30,6 +30,7 @@
 #include "disasm/6809.h"
 #include "disasm/68hc08.h"
 #include "disasm/68000.h"
+#include "disasm/8048.h"
 #include "disasm/8051.h"
 #include "disasm/arc.h"
 #include "disasm/arm.h"
@@ -43,7 +44,6 @@
 #include "disasm/java.h"
 #include "disasm/lc3.h"
 #include "disasm/m8c.h"
-#include "disasm/mcs48.h"
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
 #include "disasm/pdp8.h"
@@ -95,6 +95,7 @@ parse_instruction_t parse_instruction_6800 = NULL;
 parse_instruction_t parse_instruction_6809 = NULL;
 parse_instruction_t parse_instruction_68hc08 = NULL;
 parse_instruction_t parse_instruction_68000 = NULL;
+parse_instruction_t parse_instruction_8048 = NULL;
 parse_instruction_t parse_instruction_8051 = NULL;
 parse_instruction_t parse_instruction_arc = NULL;
 parse_instruction_t parse_instruction_arm = NULL;
@@ -108,7 +109,6 @@ parse_instruction_t parse_instruction_epiphany = NULL;
 parse_instruction_t parse_instruction_java = NULL;
 parse_instruction_t parse_instruction_lc3 = NULL;
 parse_instruction_t parse_instruction_m8c = NULL;
-parse_instruction_t parse_instruction_mcs48 = NULL;
 parse_instruction_t parse_instruction_mips = NULL;
 parse_instruction_t parse_instruction_msp430 = NULL;
 parse_instruction_t parse_instruction_pdp8 = NULL;
@@ -1193,7 +1193,8 @@ int main(int argc, char *argv[])
            "   -6809                        (6809)\n"
            "   -68hc08                      (68hc08)\n"
            "   -68000                       (68000)\n"
-           "   -8051 / -8052                (8051 / 8052)\n"
+           "   -8048                        (8048 / MCS-48)\n"
+           "   -8051 / -8052                (8051 / 8052 / MCS-51)\n"
            "   -arc                         (ARC)\n"
            "   -arm                         (ARM)\n"
            "   -avr8                        (Atmel AVR8)\n"
@@ -1206,7 +1207,6 @@ int main(int argc, char *argv[])
            "   -java                        (Java)\n"
            "   -lc3                         (LC-3)\n"
            "   -m8c                         (PSoC M8C)\n"
-           "   -mcse48                      (MCS48, 8048)\n"
            "   -mips32 / mips               (MIPS)\n"
            "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
            "   -pdp8                        (PDP-8)\n"

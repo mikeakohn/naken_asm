@@ -15,12 +15,12 @@
 #include <stdint.h>
 #include <ctype.h>
 
-#include "asm/mcs48.h"
+#include "asm/8048.h"
 #include "asm/common.h"
 #include "common/assembler.h"
 #include "common/tokens.h"
 #include "common/eval_expression.h"
-#include "table/mcs48.h"
+#include "table/8048.h"
 
 enum
 {
@@ -39,7 +39,7 @@ struct _operand
   int type;
 };
 
-static int get_register_mcs48(char *token)
+static int get_register_8048(char *token)
 {
   if (token[0] != 'r' && token[0] != 'R') { return -1; }
   if (token[1] >= '0' && token[1] <= '7' && token[2] == 0)
@@ -208,7 +208,7 @@ static int process_op(
   return -1;
 }
 
-int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
+int parse_instruction_8048(struct _asm_context *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
   char token[TOKENLEN];
@@ -237,7 +237,7 @@ int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
       break;
     }
 
-    num = get_register_mcs48(token);
+    num = get_register_8048(token);
 
     if (num != -1)
     {
@@ -277,7 +277,7 @@ int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
     if (IS_TOKEN(token,'@'))
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
-      num = get_register_mcs48(token);
+      num = get_register_8048(token);
 
       if (num != -1)
       {
@@ -428,19 +428,19 @@ printf("\n");
 
   n = 0;
 
-  while (table_mcs48[n].name != NULL)
+  while (table_8048[n].name != NULL)
   {
-    if (strcmp(table_mcs48[n].name, instr_case) == 0)
+    if (strcmp(table_8048[n].name, instr_case) == 0)
     {
       matched = 1;
 
       do
       {
-        if (operand_count == table_mcs48[n].operand_count)
+        if (operand_count == table_8048[n].operand_count)
         {
           if (operand_count == 0)
           {
-            add_bin8(asm_context, table_mcs48[n].opcode, IS_OPCODE);
+            add_bin8(asm_context, table_8048[n].opcode, IS_OPCODE);
 
             return 1;
           }
@@ -449,14 +449,14 @@ printf("\n");
           {
             if (check_match(operands[0].type,
                             operands[0].operand,
-                            table_mcs48[n].operand_1) == -1)
+                            table_8048[n].operand_1) == -1)
             {
               break;
             }
 
-            data[0] = table_mcs48[n].opcode;
+            data[0] = table_8048[n].opcode;
 
-            r = process_op(asm_context, &operands[0], table_mcs48[n].operand_1,  data);
+            r = process_op(asm_context, &operands[0], table_8048[n].operand_1,  data);
             if (r == -1) { break; }
             length = r;
 
@@ -472,33 +472,33 @@ printf("\n");
           {
 #if 0
 printf("here %d == %d, %d == %d\n",
-operands[0].type, table_mcs48[n].operand_1,
-operands[1].type, table_mcs48[n].operand_2
+operands[0].type, table_8048[n].operand_1,
+operands[1].type, table_8048[n].operand_2
 );
 #endif
 
             if (check_match(operands[0].type,
                             operands[0].operand,
-                            table_mcs48[n].operand_1) == -1)
+                            table_8048[n].operand_1) == -1)
             {
               break;
             }
 
             if (check_match(operands[1].type,
                             operands[1].operand,
-                            table_mcs48[n].operand_2) == -1)
+                            table_8048[n].operand_2) == -1)
             {
               break;
             }
 
 
-            data[0] = table_mcs48[n].opcode;
+            data[0] = table_8048[n].opcode;
 
-            r = process_op(asm_context, &operands[0], table_mcs48[n].operand_1,  data);
+            r = process_op(asm_context, &operands[0], table_8048[n].operand_1,  data);
             if (r == -1) { break; }
             length = r;
 
-            r = process_op(asm_context, &operands[1], table_mcs48[n].operand_2, data);
+            r = process_op(asm_context, &operands[1], table_8048[n].operand_2, data);
             if (r == -1) { break; }
             length = r > length ? r : length;
 

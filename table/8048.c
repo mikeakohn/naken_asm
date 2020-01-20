@@ -11,9 +11,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "table/mcs48.h"
+#include "table/8048.h"
 
-struct _table_mcs48 table_mcs48[] =
+struct _table_8048 table_8048[] =
 {
   { "add",   0x68, 0xf8, 2, OP_A,     OP_RR,     1 },
   { "add",   0x60, 0xfe, 2, OP_A,     OP_AT_R,   1 },
