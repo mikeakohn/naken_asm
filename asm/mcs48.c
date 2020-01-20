@@ -68,6 +68,16 @@ static int check_match(int type, int operand, int table_type)
       }
     }
       else
+    if (operand == OPERAND_ADDRESS)
+    {
+      if (table_type == OP_PADDR || table_type == OP_ADDR)
+      {
+        return 0;
+      }
+
+      return -1;
+    }
+      else
     {
       return -1;
     }
@@ -314,7 +324,7 @@ int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
       else
     if (strcasecmp(token, "bus") == 0)
     {
-      operands[operand_count].type = OP_NUM;
+      operands[operand_count].type = OP_BUS;
     }
       else
     if (strcasecmp(token, "clk") == 0)
