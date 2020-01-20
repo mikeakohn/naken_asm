@@ -20,7 +20,8 @@ CPU this source file should be assembled for.
 |.6809            |6809
 |.68hc08          |68HC08
 |.68000           |Motorola 68000 series
-|.8051            |8051/8052/MCS-51
+|.8048            |8048/MCS-48 (and similar)
+|.8051            |8051/8052/MCS-51 (and similar)
 |.arm             |All ARM CPUs
 |.avr8            |Atmel AVR8
 |.cell            |IBM Cell BE (Playstation 3)
@@ -30,7 +31,6 @@ CPU this source file should be assembled for.
 |.epiphany        |Ephiphany/Parallella
 |.java            |Java
 |.lc3             |LC-3
-|.mcs48           |MCS-48 (8048 and others)
 |.mips            |MIPS (32 bit)
 |.mips32          |MIPS (32 bit)
 |.msp430          |MSP430

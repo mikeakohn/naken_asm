@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -42,8 +42,8 @@ const char *credits =
   "naken_asm\n\n"
   "Authors: Michael Kohn\n"
   "         Joe Davisson\n"
-  "    CPU: 1802, 4004, 6502, 65C816, 68HC08, 6809, 68000, 8051, ARM, AVR8\n"
-  "         Cell BE, Copper, CP1610, dsPIC, Epiphany, Java, LC-3, MCS-48,\n"
+  "    CPU: 1802, 4004, 6502, 65C816, 68HC08, 6809, 68000, 8048, 8051, ARM,\n"
+  "         AVR8, Cell BE, Copper, CP1610, dsPIC, Epiphany, Java, LC-3,\n"
   "         MIPS, MSP430, PIC14, PIC24, PIC32, Playstation 2 EE, PowerPC,\n"
   "         Propeller, PSoC M8C, RISC-V, SH-4, STM8, SuperFX, SWEET16,\n"
   "         THUMB, TMS1000, TMS1100, TMS9900, WebAssembly, Xtensa, Z80\n"
