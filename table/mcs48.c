@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -24,7 +24,7 @@ struct _table_mcs48 table_mcs48[] =
   { "anl",   0x58, 0xf8, 2, OP_A,     OP_RR,     1 },
   { "anl",   0x50, 0xfe, 2, OP_A,     OP_AT_R,   1 },
   { "anl",   0x53, 0xff, 2, OP_A,     OP_NUM,    2 },
-  { "anl",   0x98, 0xff, 2, OP_PP,    OP_NUM,    2 },
+  { "anl",   0x98, 0xfc, 2, OP_P12,   OP_NUM,    2 },
   { "anld",  0x9c, 0xfc, 2, OP_PP,    OP_A,      2 },
   { "call",  0x14, 0x1f, 1, OP_ADDR,  OP_NONE,   2 },
   { "clr",   0x27, 0xff, 1, OP_A,     OP_NONE,   1 },
@@ -44,12 +44,19 @@ struct _table_mcs48 table_mcs48[] =
   { "en",    0x05, 0xff, 1, OP_I,     OP_NONE,   1 },
   { "en",    0x25, 0xff, 1, OP_TCNTI, OP_NONE,   1 },
   { "ent0",  0x75, 0xff, 1, OP_CLK,   OP_NONE,   1 },
-  { "in",    0x08, 0xfc, 2, OP_A,     OP_PP,     2 },
+  { "in",    0x08, 0xfc, 2, OP_A,     OP_P03,    2 },
   { "inc",   0x17, 0xff, 1, OP_A,     OP_NONE,   1 },
   { "inc",   0x18, 0xf8, 1, OP_RR,    OP_NONE,   1 },
   { "inc",   0x10, 0xfe, 1, OP_AT_R,  OP_NONE,   1 },
   { "ins",   0x08, 0xff, 2, OP_A,     OP_BUS,    2 },
-  { "jbn",   0x12, 0xff, 1, OP_PADDR, OP_NONE,   2 },
+  { "jb0",   0x12, 0xff, 1, OP_PADDR, OP_NONE,   2 },
+  { "jb1",   0x32, 0xff, 1, OP_PADDR, OP_NONE,   2 },
+  { "jb2",   0x52, 0xff, 1, OP_PADDR, OP_NONE,   2 },
+  { "jb3",   0x72, 0xff, 1, OP_PADDR, OP_NONE,   2 },
+  { "jb4",   0x92, 0xff, 1, OP_PADDR, OP_NONE,   2 },
+  { "jb5",   0xb2, 0xff, 1, OP_PADDR, OP_NONE,   2 },
+  { "jb6",   0xd2, 0xff, 1, OP_PADDR, OP_NONE,   2 },
+  { "jb7",   0xf2, 0xff, 1, OP_PADDR, OP_NONE,   2 },
   { "jc",    0xf6, 0xff, 1, OP_PADDR, OP_NONE,   2 },
   { "jf0",   0xb6, 0xff, 1, OP_PADDR, OP_NONE,   2 },
   { "jf1",   0x76, 0xff, 1, OP_PADDR, OP_NONE,   2 },
@@ -86,10 +93,10 @@ struct _table_mcs48 table_mcs48[] =
   { "orl",   0x48, 0xf8, 2, OP_A,     OP_RR,     1 },
   { "orl",   0x40, 0xfe, 2, OP_A,     OP_AT_R,   1 },
   { "orl",   0x43, 0xff, 2, OP_A,     OP_NUM,    2 },
-  { "orl",   0x88, 0xff, 2, OP_PP,    OP_NUM,    2 },
+  { "orl",   0x88, 0xff, 2, OP_P12,   OP_NUM,    2 },
   { "orld",  0x8c, 0xfc, 2, OP_PP,    OP_A,      2 },
   { "outl",  0x02, 0xff, 2, OP_BUS,   OP_A,      2 },
-  { "outl",  0x38, 0xfc, 2, OP_PP,    OP_A,      2 },
+  { "outl",  0x38, 0xfc, 2, OP_P0,    OP_A,      2 },
   { "ret",   0x83, 0xff, 0, OP_NONE,  OP_NONE,   2 },
   { "retr",  0x93, 0xff, 0, OP_NONE,  OP_NONE,   2 },
   { "rl",    0xe7, 0xff, 1, OP_A,     OP_NONE,   1 },

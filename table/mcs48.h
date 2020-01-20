@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -33,6 +33,9 @@ enum
   OP_TCNTI,
   OP_AT_A,
   OP_PP,
+  OP_P0,
+  OP_P03,
+  OP_P12,
   OP_RR,
   OP_AT_R,
   OP_NUM,

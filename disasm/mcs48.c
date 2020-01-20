@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -23,12 +23,19 @@ int get_cycle_count_mcs48(unsigned short int opcode)
   return -1;
 }
 
-int disasm_mcs48(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_mcs48(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   char temp[32];
   int value, length;
   int n, r;
+
+  strcpy(instruction, "???");
 
   opcode = memory_read_m(memory, address);
 
@@ -107,8 +114,13 @@ int disasm_mcs48(struct _memory *memory, uint32_t address, char *instruction, in
             strcat(instruction, "@A");
             break;
           case OP_PP:
+          case OP_P03:
+          case OP_P12:
             sprintf(temp, "p%d", opcode & 0x3);
             strcat(instruction, temp);
+            break;
+          case OP_P0:
+            strcat(instruction, "p0");
             break;
           case OP_RR:
             sprintf(temp, "r%d", opcode & 0x7);
@@ -145,7 +157,7 @@ int disasm_mcs48(struct _memory *memory, uint32_t address, char *instruction, in
     n++;
   }
 
-  return 0;
+  return 1;
 }
 
 void list_output_mcs48(struct _asm_context *asm_context, uint32_t start, uint32_t end)

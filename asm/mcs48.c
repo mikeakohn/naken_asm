@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -27,6 +27,9 @@ enum
   OPERAND_CONST,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
+  OPERAND_P,
+  OPERAND_R,
+  OPERAND_AT_R,
 };
 
 struct _operand
@@ -45,6 +48,32 @@ static int get_register_mcs48(char *token)
   }
 
   return -1;
+}
+
+static int check_match(int type, int operand, int table_type)
+{
+  if (type != table_type)
+  {
+    if (operand == OPERAND_P)
+    {
+      switch (table_type)
+      {
+        case OP_PP:
+        case OP_P0:
+        case OP_P03:
+        case OP_P12:
+          return 0;
+        default:
+          return -1;
+      }
+    }
+      else
+    {
+      return -1;
+    }
+  }
+
+  return 0;
 }
 
 static int process_op(
@@ -73,18 +102,57 @@ static int process_op(
       case OP_TCNTI:
       case OP_AT_A:
         return 1;
-      case OP_PP:
-        data[0] |= (operand->value & 0x3);
-        return 1;
-      case OP_RR:
-        data[0] |= (operand->value & 0x7);
-        return 1;
-      case OP_AT_R:
-        data[0] |= (operand->value & 0x1);
-        return 1;
       default:
         return -1;
     }
+  }
+    else
+  if (operand->operand == OPERAND_P)
+  {
+    if (type == OP_PP && operand->value >= 4 && operand->value <= 7)
+    {
+      data[0] |= ((operand->value - 4) & 0x3);
+      return 1;
+    }
+
+    if (type == OP_P12 && operand->value >= 1 && operand->value <= 2)
+    {
+      data[0] |= (operand->value & 0x3);
+      return 1;
+    }
+
+    if (type == OP_P03 && operand->value >= 0 && operand->value <= 3)
+    {
+      data[0] |= (operand->value & 0x3);
+      return 1;
+    }
+
+    if (type == OP_P0 && operand->value == 0)
+    {
+      data[0] |= (operand->value & 0x3);
+      return 1;
+    }
+
+    return -1;
+  }
+    else
+  if (operand->operand == OPERAND_R)
+  {
+    if (type != OP_RR) { return -1; }
+
+    data[0] |= (operand->value & 0x7);
+
+    return 1;
+  }
+    else
+  if (operand->operand == OPERAND_AT_R)
+  {
+    if (type != OP_AT_R) { return -1; }
+    if (operand->value > 1) { return -1; }
+
+    data[0] |= (operand->value & 0x1);
+
+    return 1;
   }
     else
   if (operand->operand == OPERAND_NUMBER && type == OP_NUM)
@@ -161,6 +229,7 @@ int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
 
     if (num != -1)
     {
+      operands[operand_count].operand = OPERAND_R;
       operands[operand_count].type = OP_RR;
       operands[operand_count].value = num;
     }
@@ -186,10 +255,11 @@ int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
     }
       else
     if ((token[0] == 'P' || token[0] == 'p') && token[2] == 0 &&
-         token[1] >= '0' && token[2] <= 3)
+         token[1] >= '0' && token[2] <= 7)
     {
+      operands[operand_count].operand = OPERAND_P;
       operands[operand_count].type = OP_PP;
-      operands[operand_count].value = token[0] - '0';
+      operands[operand_count].value = token[1] - '0';
     }
       else
     if (IS_TOKEN(token,'@'))
@@ -205,6 +275,7 @@ int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
+        operands[operand_count].operand = OPERAND_AT_R;
         operands[operand_count].type = OP_AT_R;
         operands[operand_count].value = num;
       }
@@ -333,7 +404,7 @@ printf("\n");
 
   n = 0;
 
-  while(table_mcs48[n].name != NULL)
+  while (table_mcs48[n].name != NULL)
   {
     if (strcmp(table_mcs48[n].name, instr_case) == 0)
     {
@@ -346,10 +417,17 @@ printf("\n");
           if (operand_count == 0)
           {
             add_bin8(asm_context, table_mcs48[n].opcode, IS_OPCODE);
+
+            return 1;
           }
             else
           if (operand_count == 1)
           {
+            if (operands[0].type != table_mcs48[n].operand_1)
+            {
+              break;
+            }
+
             data[0] = table_mcs48[n].opcode;
 
             r = process_op(asm_context, &operands[0], table_mcs48[n].operand_1,  data);
@@ -366,6 +444,28 @@ printf("\n");
             else
           if (operand_count == 2)
           {
+#if 0
+printf("here %d == %d, %d == %d\n",
+operands[0].type, table_mcs48[n].operand_1,
+operands[1].type, table_mcs48[n].operand_2
+);
+#endif
+
+            if (check_match(operands[0].type,
+                            operands[0].operand,
+                            table_mcs48[n].operand_1) == -1)
+            {
+              break;
+            }
+
+            if (check_match(operands[1].type,
+                            operands[1].operand,
+                            table_mcs48[n].operand_2) == -1)
+            {
+              break;
+            }
+
+
             data[0] = table_mcs48[n].opcode;
 
             r = process_op(asm_context, &operands[0], table_mcs48[n].operand_1,  data);
