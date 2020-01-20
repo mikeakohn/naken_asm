@@ -363,8 +363,8 @@ int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
     }
       else
     {
+      operands[operand_count].type = OP_ADDR;
       operands[operand_count].operand = OPERAND_ADDRESS;
-
 
       if (asm_context->pass == 1)
       {
@@ -379,6 +379,8 @@ int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
         {
           return -1;
         }
+
+        operands[operand_count].value = n;
       }
     }
 
