@@ -62,11 +62,13 @@ int append_operand(
       sprintf(temp, "[X+0x%02x]", data8);
       strcat(instruction, temp);
       return 1;
+#if 0
     case OP_INDEX_EXPR_INC:
       data8 = memory_read_m(memory, address);
       sprintf(temp, "[[0x%02x]++]", data8);
       strcat(instruction, temp);
       return 1;
+#endif
     case OP_REG_INDEX_EXPR:
       data8 = memory_read_m(memory, address);
       sprintf(temp, "REG[0x%02x]", data8);

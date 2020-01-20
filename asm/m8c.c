@@ -75,7 +75,7 @@ int add_operand(
     case OP_EXPR:
     case OP_INDEX_EXPR:
     case OP_INDEX_X_EXPR:
-    case OP_INDEX_EXPR_INC:
+    //case OP_INDEX_EXPR_INC:
     case OP_REG_INDEX_EXPR:
     case OP_REG_INDEX_X_EXPR:
       if (operand->value < -128 || operand->value > 0xff)
@@ -243,6 +243,7 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
         if (expect_token(asm_context, ']') == -1) { return -1; }
       }
         else
+#if 0
       if (IS_TOKEN(token, '['))
       {
         operands[operand_count].type = OP_INDEX_EXPR_INC;
@@ -268,6 +269,7 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
         if (expect_token(asm_context, ']') == -1) { return -1; }
       }
         else
+#endif
       {
         operands[operand_count].type = OP_INDEX_EXPR;
 
