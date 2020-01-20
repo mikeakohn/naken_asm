@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -59,17 +59,17 @@ struct _table_m8c table_m8c[] =
   { "dec",  0x7a, 0xff, OP_INDEX_EXPR, OP_NONE, 2, 7 },
   { "dec",  0x7b, 0xff, OP_INDEX_X_EXPR, OP_NONE, 2, 8 },
   { "halt", 0x30, 0xff, OP_NONE, OP_NONE, 1, 9 },
-  { "nc",   0x74, 0xff, OP_A, OP_NONE, 1, 4 },
+  { "inc",  0x74, 0xff, OP_A, OP_NONE, 1, 4 },
   { "inc",  0x75, 0xff, OP_X, OP_NONE, 1, 4 },
   { "inc",  0x76, 0xff, OP_INDEX_EXPR, OP_NONE, 2, 7 },
   { "inc",  0x77, 0xff, OP_INDEX_X_EXPR, OP_NONE, 2, 8 },
   { "index",0xf0, 0xf0, OP_EXPR_S12, OP_NONE, 2, 13 },
-  { "jacc", 0xe0, 0xf0, OP_EXPR_S12, OP_NONE, 2, 7 },
-  { "jc",   0xc0, 0xf0, OP_EXPR_S12, OP_NONE, 2, 5 },
-  { "jmp",  0x80, 0xf0, OP_EXPR_S12, OP_NONE, 2, 5 },
-  { "jnc",  0xd0, 0xf0, OP_EXPR_S12, OP_NONE, 2, 5 },
-  { "jnz",  0xb0, 0xf0, OP_EXPR_S12, OP_NONE, 2, 5 },
-  { "jz",   0xa0, 0xf0, OP_EXPR_S12, OP_NONE, 2, 5 },
+  { "jacc", 0xe0, 0xf0, OP_EXPR_S12_JUMP, OP_NONE, 2, 7 },
+  { "jc",   0xc0, 0xf0, OP_EXPR_S12_JUMP, OP_NONE, 2, 5 },
+  { "jmp",  0x80, 0xf0, OP_EXPR_S12_JUMP, OP_NONE, 2, 5 },
+  { "jnc",  0xd0, 0xf0, OP_EXPR_S12_JUMP, OP_NONE, 2, 5 },
+  { "jnz",  0xb0, 0xf0, OP_EXPR_S12_JUMP, OP_NONE, 2, 5 },
+  { "jz",   0xa0, 0xf0, OP_EXPR_S12_JUMP, OP_NONE, 2, 5 },
   { "lcall",0x7c, 0xff, OP_EXPR_U16, OP_NONE, 3, 13 },
   { "ljmp", 0x7d, 0xff, OP_EXPR_U16, OP_NONE, 3, 7 },
   { "mov",  0x4f, 0xff, OP_X, OP_SP, 1, 4 },

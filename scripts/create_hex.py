@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
 
-fp = open("mcs48_start.txt", "r")
+fp = open("m8c_start.txt", "r")
 
 for line in fp:
   line = line.strip()
 
-  tokens = line.split("|")
+  instruction = line.split()[2:]
+  data = line.split()[1]
 
-  instruction = tokens[0].strip()
-  opcodes = tokens[1].strip().split()[1:]
+  instruction = " ".join(instruction)
+
+  #print(instruction + " " + data)
+
+  opcodes = []
+
+  for a in range(0, len(data), 2):
+    opcodes.append(data[a:a+2])
 
   #print(instruction + " " + str(opcodes))
 

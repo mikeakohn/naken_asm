@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -26,6 +26,37 @@ struct _operand
   uint8_t type;
   int value;
 };
+
+int add_branch(
+  struct _asm_context *asm_context,
+  struct _operand *operand,
+  int opcode,
+  int length)
+{
+  int offset;
+
+  if (asm_context->pass == 1)
+  {
+    offset = 0;
+  }
+    else
+  {
+    offset = operand->value - (asm_context->address + length);
+  }
+
+  if (offset < -2048 || offset > 0x7ff)
+  {
+    print_error_range("Offset", -2048, 0x7ff, asm_context);
+    return -1;
+  }
+
+  offset &= 0xfff;
+
+  add_bin8(asm_context, opcode | (offset >> 8), IS_OPCODE);
+  add_bin8(asm_context, offset & 0xff, IS_OPCODE);
+
+  return 2;
+}
 
 int add_operand(
   struct _asm_context *asm_context,
@@ -144,6 +175,44 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
     if (strcasecmp(token, "SP") == 0)
     {
       operands[operand_count].type = OP_SP;
+    }
+      else
+    if (strcasecmp(token, "REG") == 0)
+    {
+      operands[operand_count].type = OP_REG_INDEX_EXPR;
+      operands[operand_count].value = 0;
+
+      if (asm_context->pass == 1)
+      {
+        ignore_expression(asm_context);
+      }
+        else
+      {
+        if (expect_token(asm_context, '[') == -1) { return -1; }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (IS_TOKEN(token, 'X'))
+        {
+          operands[operand_count].type = OP_REG_INDEX_X_EXPR;
+
+          if (expect_token(asm_context, '+') == -1) { return -1; }
+        }
+          else
+        {
+          tokens_push(asm_context, token, token_type);
+        }
+
+        if (eval_expression(asm_context, &num) != 0)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        operands[operand_count].value = num;
+      }
+
+      if (expect_token(asm_context, ']') == -1) { return -1; }
     }
       else
     if (IS_TOKEN(token, '['))
@@ -271,34 +340,18 @@ int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
 
     const uint8_t opcode = table_m8c[n].opcode;
 
-    if (operands[0].type == OP_EXPR &&
-        operands[1].type == OP_NONE &&
-        table_m8c[n].operand_0 == OP_EXPR_S12 &&
-        table_m8c[n].operand_1 == OP_NONE)
+    if (operand_count == 1 &&
+        operands[0].type == OP_EXPR &&
+        table_m8c[n].operand_0 == OP_EXPR_S12)
     {
-      int offset;
+      return add_branch(asm_context, &operands[0], opcode, 2);
+    }
 
-      if (asm_context->pass == 1)
-      {
-        offset = 0;
-      }
-        else
-      {
-        offset = operands[0].value - (asm_context->address + 1);
-      }
-
-      if (offset < -2048 || offset > 0x7ff)
-      {
-        print_error_range("Offset", -2048, 0x7ff, asm_context);
-        return -1;
-      }
-
-      offset &= 0xfff;
-
-      add_bin8(asm_context, opcode | (offset >> 8), IS_OPCODE);
-      add_bin8(asm_context, offset & 0xff, IS_OPCODE);
-
-      return 2;
+    if (operand_count == 1 &&
+        operands[0].type == OP_EXPR &&
+        table_m8c[n].operand_0 == OP_EXPR_S12_JUMP)
+    {
+      return add_branch(asm_context, &operands[0], opcode, 1);
     }
 
     int is_single_integer = 0;

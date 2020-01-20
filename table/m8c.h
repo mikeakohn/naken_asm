@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -28,6 +28,7 @@ enum
   OP_REG_INDEX_EXPR,
   OP_REG_INDEX_X_EXPR,
   OP_EXPR_S12,
+  OP_EXPR_S12_JUMP,
   OP_EXPR_U16,
 };
 

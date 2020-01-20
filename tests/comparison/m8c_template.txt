@@ -1,0 +1,136 @@
+adc A, 10
+adc A, [0x55]
+adc A, [X+0x15]
+adc [0xe0], A
+adc [X+0x10], A
+adc [0x10], 0x42
+adc [X+0x11], 0x99
+add A, 10
+add A, [0x55]
+add A, [X+0x15]
+add [0xe0], A
+add [X+0x10], A
+add [0x10], 0x42
+add [X+0x11], 0x99
+add SP, 4
+and A, 10
+and A, [0x55]
+and A, [X+0x15]
+and [0xe0], A
+and [X+0x10], A
+and [0x10], 0x42
+and [X+0x11], 0x99
+and REG[0xe0], 0x33
+and REG[X+0xe0], 0x22
+and F, 0x87
+asl A
+asl [0x33]
+asl [X+0x33]
+asr A
+asr [0x99]
+asr [X+0x88]
+call 0x0003
+cmp A, 123
+cmp A, [123]
+cmp A, [X+123]
+cmp [123], 13
+cmp [X+123], 13
+cpl A
+dec A
+dec X
+dec [23]
+dec [X+23]
+halt
+inc A
+inc X
+inc [99]
+inc [X+73]
+index 5
+jacc 0
+jc 5 
+jmp 10
+jnc 3
+jnz 7
+jz 100
+lcall 100
+ljmp 2000
+mov X, SP
+mov A, 234
+mov A, [0x55]
+mov A, [X+0x15]
+mov [0xe0], A
+mov [X+0x10], A
+mov [0x10], 0x42
+mov [X+0x11], 0x99
+mov X, 234
+mov X, [0x55]
+mov X, [X+0x15]
+mov [23], X
+mov A, X
+mov X, A
+mov A, REG[12]
+mov A, REG[X+12]
+mov [91], [11]
+mov REG[34], A
+mov REG[X+34], A
+mov REG[34], 67
+mov REG[X+34], -5
+mvi A, [33]
+mvi [33], A
+nop
+or A, 10
+or A, [0x55]
+or A, [X+0x15]
+or [0xe0], A
+or [X+0x10], A
+or [0x10], 0x42
+or [X+0x11], 0x99
+or REG[0xe0], 0x33
+or REG[X+0xe0], 0x22
+or F, 0x87
+pop A
+pop X
+push A
+push X
+ret
+reti
+rlc A
+rlc [12]
+rlc [X+91]
+romx
+rrc A
+rrc [12]
+rrc [X+91]
+sbb A, 10
+sbb A, [0x55]
+sbb A, [X+0x15]
+sbb [0xe0], A
+sbb [X+0x10], A
+sbb [0x10], 0x42
+sbb [X+0x11], 0x99
+sub A, 10
+sub A, [0x55]
+sub A, [X+0x15]
+sub [0xe0], A
+sub [X+0x10], A
+sub [0x10], 0x42
+sub [X+0x11], 0x99
+swap A, X
+swap A, [23]
+swap X, [23]
+swap A, SP
+ssc
+tst [23], 123
+tst [X+23], 123
+tst REG[23], 123
+tst REG[X+23], 123
+xor A, 10
+xor A, [0x55]
+xor A, [X+0x15]
+xor [0xe0], A
+xor [X+0x10], A
+xor [0x10], 0x42
+xor [X+0x11], 0x99
+xor REG[0xe0], 0x33
+xor REG[X+0xe0], 0x22
+xor F, 0x87
