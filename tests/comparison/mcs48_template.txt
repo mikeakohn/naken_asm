@@ -1,0 +1,99 @@
+add A, r4
+add A, @r1
+add A, #68
+addc A, r6
+addc A, @r1
+addc A, #88
+anl A, r1
+anl A, @r1
+anl A, #163
+anl p2, #33
+anld p7, A
+call 1276
+clr A
+clr C
+clr f0
+clr f1
+cpl A
+cpl C
+cpl f0
+cpl f1
+da A
+dec A
+dec r5
+dis I
+dis TCNTI
+djnz r3, 65
+en I
+en TCNTI
+ent0 CLK
+in A, p2
+inc A
+inc r1
+inc @r1
+ins A, BUS
+jb0 143
+jb1 145
+jb2 76
+jb3 137
+jb4 92
+jb5 214
+jb6 117
+jb7 185
+jc 188
+jf0 69
+jf1 14
+jmp 1244
+jmpp @A
+jnc 155
+jni 75
+jnt0 148
+jnt1 175
+jnz 113
+jtf 161
+jt0 138
+jt1 40
+jz 62
+mov A, #160
+mov A, PSW
+mov A, r5
+mov A, @r1
+mov A, T
+mov PSW, A
+mov r6, A
+mov r7, #250
+mov @r0, A
+mov @r0, #52
+mov T, A
+movd A, p6
+movd p6, A
+movp A, @A
+movp3 A, @A
+movx A, @r1
+movx @r0, A
+nop
+orl A, r1
+orl A, @r0
+orl A, #129
+orl p1, #253
+orld p4, A
+outl BUS, A
+outl p0, A
+ret
+retr
+rl A
+rlc A
+rr A
+rrc A
+sel MB1
+sel RB1
+stop TCNT
+strt CNT
+strt T
+swap A
+xch A, r6
+xch A, @r0
+xchd A, @r1
+xrl A, r6
+xrl A, @r1
+xrl A, #115

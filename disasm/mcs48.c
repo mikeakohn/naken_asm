@@ -95,11 +95,17 @@ int disasm_mcs48(
           case OP_CNT:
             strcat(instruction, "CNT");
             break;
-          case OP_MBK:
-            strcat(instruction, "MBK");
+          case OP_MB0:
+            strcat(instruction, "MB0");
             break;
-          case OP_RBK:
-            strcat(instruction, "RBK");
+          case OP_MB1:
+            strcat(instruction, "MB1");
+            break;
+          case OP_RB0:
+            strcat(instruction, "RB0");
+            break;
+          case OP_RB1:
+            strcat(instruction, "RB1");
             break;
           case OP_PSW:
             strcat(instruction, "PSW");

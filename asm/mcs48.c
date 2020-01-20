@@ -105,8 +105,10 @@ static int process_op(
       case OP_BUS:
       case OP_CLK:
       case OP_CNT:
-      case OP_MBK:
-      case OP_RBK:
+      case OP_MB0:
+      case OP_MB1:
+      case OP_RB0:
+      case OP_RB1:
       case OP_PSW:
       case OP_TCNT:
       case OP_TCNTI:
@@ -362,14 +364,24 @@ int parse_instruction_mcs48(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OP_F1;
     }
       else
-    if (strcasecmp(token, "mbk") == 0)
+    if (strcasecmp(token, "mb0") == 0)
     {
-      operands[operand_count].type = OP_MBK;
+      operands[operand_count].type = OP_MB0;
     }
       else
-    if (strcasecmp(token, "rbk") == 0)
+    if (strcasecmp(token, "mb1") == 0)
     {
-      operands[operand_count].type = OP_RBK;
+      operands[operand_count].type = OP_MB1;
+    }
+      else
+    if (strcasecmp(token, "rb0") == 0)
+    {
+      operands[operand_count].type = OP_RB0;
+    }
+      else
+    if (strcasecmp(token, "rb1") == 0)
+    {
+      operands[operand_count].type = OP_RB1;
     }
       else
     {
@@ -435,7 +447,9 @@ printf("\n");
             else
           if (operand_count == 1)
           {
-            if (operands[0].type != table_mcs48[n].operand_1)
+            if (check_match(operands[0].type,
+                            operands[0].operand,
+                            table_mcs48[n].operand_1) == -1)
             {
               break;
             }
