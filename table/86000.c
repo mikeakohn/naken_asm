@@ -42,7 +42,7 @@ struct _table_86000 table_86000[] =
   { "callr", 0x10, 0xff, OP_RELATIVE16,                 4 },
   { "clr1",  0xc8, 0xe8, OP_ADDRESS_BIT,                1 },
   { "dbnz",  0x52, 0xfe, OP_ADDRESS_RELATIVE8,          2 },
-  { "dbnz",  0x54, 0xfc, OP_AT_REG_I_RELATIVE8,         2 },
+  { "dbnz",  0x54, 0xfc, OP_AT_REG_RELATIVE8,         2 },
   { "dec",   0x72, 0xfe, OP_ADDRESS,                    1 },
   { "dec",   0x74, 0xfc, OP_AT_REG,                     1 },
   { "div",   0x40, 0xff, OP_NONE,                       7 },
