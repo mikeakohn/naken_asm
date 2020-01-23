@@ -32,6 +32,7 @@
 #include "disasm/68000.h"
 #include "disasm/8048.h"
 #include "disasm/8051.h"
+#include "disasm/86000.h"
 #include "disasm/arc.h"
 #include "disasm/arm.h"
 #include "disasm/avr8.h"
@@ -97,6 +98,7 @@ parse_instruction_t parse_instruction_68hc08 = NULL;
 parse_instruction_t parse_instruction_68000 = NULL;
 parse_instruction_t parse_instruction_8048 = NULL;
 parse_instruction_t parse_instruction_8051 = NULL;
+parse_instruction_t parse_instruction_86000 = NULL;
 parse_instruction_t parse_instruction_arc = NULL;
 parse_instruction_t parse_instruction_arm = NULL;
 parse_instruction_t parse_instruction_avr8 = NULL;
@@ -1195,6 +1197,7 @@ int main(int argc, char *argv[])
            "   -68000                       (68000)\n"
            "   -8048                        (8048 / MCS-48)\n"
            "   -8051 / -8052                (8051 / 8052 / MCS-51)\n"
+           "   -86000                       (86000 / VMU)\n"
            "   -arc                         (ARC)\n"
            "   -arm                         (ARM)\n"
            "   -avr8                        (Atmel AVR8)\n"

@@ -22,6 +22,7 @@ CPU this source file should be assembled for.
 |.68000           |Motorola 68000 series
 |.8048            |8048/MCS-48 (and similar)
 |.8051            |8051/8052/MCS-51 (and similar)
+|.86000           |86000
 |.arm             |All ARM CPUs
 |.avr8            |Atmel AVR8
 |.cell            |IBM Cell BE (Playstation 3)

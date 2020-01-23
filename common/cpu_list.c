@@ -21,6 +21,7 @@
 #include "asm/68000.h"
 #include "asm/8048.h"
 #include "asm/8051.h"
+#include "asm/86000.h"
 #include "asm/arc.h"
 #include "asm/arm.h"
 #include "asm/avr8.h"
@@ -62,6 +63,7 @@
 #include "disasm/68000.h"
 #include "disasm/8048.h"
 #include "disasm/8051.h"
+#include "disasm/86000.h"
 #include "disasm/arc.h"
 #include "disasm/arm.h"
 #include "disasm/avr8.h"
@@ -378,6 +380,28 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_8051,
     disasm_range_8051,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_86000
+  {
+    "86000",
+    CPU_TYPE_86000,
+    ENDIAN_BIG,
+    1,
+    ALIGN_1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_86000,
+    NULL,
+    link_not_supported,
+    list_output_86000,
+    disasm_range_86000,
     NULL,
     NO_FLAGS,
   },

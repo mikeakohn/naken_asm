@@ -28,6 +28,7 @@ CPUS=" \
   68000
   8048
   8051
+  86000
   ARC
   ARM
   AVR8
@@ -146,6 +147,7 @@ show_help()
   echo "  --enable-680x0            compile in support for 680x0 series"
   echo "  --enable-8048             compile in support for 8048/MCS-48"
   echo "  --enable-8051             compile in support for 8051/8052/MCS-51"
+  echo "  --enable-86000            compile in support for 86000"
   echo "  --enable-arc              compile in support for ARC"
   echo "  --enable-arm              compile in support for ARM"
   echo "  --enable-avr8             compile in support for Atmel AVR8"
@@ -347,6 +349,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} 8051.o"
     TABLE_OBJS="${TABLE_OBJS} 8051.o"
     DFLAGS="${DFLAGS} -DENABLE_8051"
+  ;;
+  --enable-86000)
+    ASM_OBJS="${ASM_OBJS} 86000.o"
+    DISASM_OBJS="${DISASM_OBJS} 86000.o"
+    TABLE_OBJS="${TABLE_OBJS} 86000.o"
+    DFLAGS="${DFLAGS} -DENABLE_86000"
   ;;
   --enable-arc)
     ASM_OBJS="${ASM_OBJS} arc.o"
