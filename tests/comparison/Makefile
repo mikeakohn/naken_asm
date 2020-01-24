@@ -8,6 +8,7 @@ default:
 	bash run_test.sh 6809
 	bash run_test.sh 8048
 	bash run_test.sh 8051
+	bash run_test.sh 86000
 	bash run_test.sh arm
 	python run_test.py avr8
 	bash run_test.sh cell

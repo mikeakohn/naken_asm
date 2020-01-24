@@ -81,12 +81,6 @@ int parse_instruction_86000(struct _asm_context *asm_context, char *instr)
 
       if (num != -1)
       {
-        if (num > 1)
-        {
-          print_error_range("@reg", 0, 1, asm_context);
-          return -1;
-        }
-
         operands[operand_count].type = OPERAND_AT_REG;
         operands[operand_count].value = num;
       }
@@ -249,7 +243,7 @@ printf("\n");
 
             if (asm_context->pass == 1) { offset = 0; }
 
-            if (check_range(asm_context, "Offset", num, -128, 127) != 0)
+            if (check_range(asm_context, "Offset", offset, -128, 127) != 0)
             {
               return -1;
             }
@@ -282,7 +276,7 @@ printf("\n");
 
             if (asm_context->pass == 1) { offset = 0; }
 
-            if (check_range(asm_context, "Offset", num, -128, 127) != 0)
+            if (check_range(asm_context, "Offset", offset, -128, 127) != 0)
             {
               return -1;
             }
@@ -314,7 +308,7 @@ printf("\n");
 
             if (asm_context->pass == 1) { offset = 0; }
 
-            if (check_range(asm_context, "Offset", num, -128, 127) != 0)
+            if (check_range(asm_context, "Offset", offset, -128, 127) != 0)
             {
               return -1;
             }
@@ -355,7 +349,7 @@ printf("\n");
 
             if (asm_context->pass == 1) { offset = 0; }
 
-            if (check_range(asm_context, "Offset", num, -128, 127) != 0)
+            if (check_range(asm_context, "Offset", offset, -128, 127) != 0)
             {
               return -1;
             }
@@ -379,7 +373,7 @@ printf("\n");
 
             if (asm_context->pass == 1) { offset = 0; }
 
-            if (check_range(asm_context, "Offset", num, -128, 127) != 0)
+            if (check_range(asm_context, "Offset", offset, -128, 127) != 0)
             {
               return -1;
             }
@@ -396,11 +390,13 @@ printf("\n");
         {
           if (operand_count == 1 && operands[0].type == OPERAND_ADDRESS)
           {
-            offset = operands[0].value - (asm_context->address + 3);
+            // FIXME: Look into this.
+            //offset = operands[0].value - (asm_context->address + 3);
+            offset = operands[0].value - (asm_context->address + 2);
 
             if (asm_context->pass == 1) { offset = 0; }
 
-            if (check_range(asm_context, "Offset", num, -32768, 32767) != 0)
+            if (check_range(asm_context, "Offset", offset, -32768, 32767) != 0)
             {
               return -1;
             }
@@ -425,7 +421,9 @@ printf("\n");
               return -1;
             }
 
-            opcode = table_86000[n].opcode | ((num & 0x800) << 1) | (num && 0x700);
+            opcode = table_86000[n].opcode |
+                     ((num & 0x800) >> 7) |
+                     ((num & 0x700) >> 8);
 
             add_bin8(asm_context, opcode, IS_OPCODE);
             add_bin8(asm_context, num & 0xff, IS_OPCODE);
@@ -465,7 +463,7 @@ printf("\n");
           {
             num = operands[0].value;
 
-            if (check_range(asm_context, "Address", num, 0, 0xffff) != 0)
+            if (check_range(asm_context, "Address", num, 0, 0xfff) != 0)
             {
               return -1;
             }
@@ -477,7 +475,7 @@ printf("\n");
               return -1;
             }
 
-            opcode = table_86000[n].opcode | ((num & 0x100) << 4) | bit;
+            opcode = table_86000[n].opcode | ((num & 0x100) >> 4) | bit;
 
             add_bin8(asm_context, opcode, IS_OPCODE);
             add_bin8(asm_context, num & 0xff, IS_OPCODE);
@@ -497,7 +495,7 @@ printf("\n");
 
             if (asm_context->pass == 1) { offset = 0; }
 
-            if (check_range(asm_context, "Offset", num, -128, 127) != 0)
+            if (check_range(asm_context, "Offset", offset, -128, 127) != 0)
             {
               return -1;
             }
@@ -536,7 +534,7 @@ printf("\n");
 
             add_bin8(asm_context, opcode, IS_OPCODE);
             add_bin8(asm_context, num & 0xff, IS_OPCODE);
-            add_bin8(asm_context, operands[0].type & 0xff, IS_OPCODE);
+            add_bin8(asm_context, operands[0].value & 0xff, IS_OPCODE);
 
             return 3;
           }

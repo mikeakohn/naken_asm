@@ -38,7 +38,7 @@ int disasm_86000(
 
   opcode = memory_read_m(memory, address);
 
-  strcpy(instruction, table_86000[opcode].name);
+  strcpy(instruction, "???");
 
   n = 0;
  
@@ -122,16 +122,18 @@ int disasm_86000(
             offset);
           return 2;
         case OP_RELATIVE16:
-          offset16 = (memory_read_m(memory, address + 1) << 8) |
-                      memory_read_m(memory, address + 2);
+          offset16 = (memory_read_m(memory, address + 2) << 8) |
+                      memory_read_m(memory, address + 1);
 
           sprintf(instruction, "%s 0x%04x (offset=%d)",
             table_86000[n].name,
-            address + 3 + offset16,
+            address + 2 + offset16,
             offset16);
           return 3;
         case OP_ADDRESS12:
-          offset16 = ((opcode & 0xf) << 8) | memory_read_m(memory, address + 1);
+          value = ((opcode & 0x10) << 7) |
+                  ((opcode & 0x07) << 8) |
+                  memory_read_m(memory, address + 1);
 
           sprintf(instruction, "%s 0x%04x",
             table_86000[n].name,
@@ -147,7 +149,7 @@ int disasm_86000(
           return 3;
         case OP_ADDRESS_BIT:
           bit = opcode & 0x7;
-          value = ((opcode >> 4) & 1) | memory_read_m(memory, address + 1);
+          value = (((opcode >> 4) & 1) << 8) | memory_read_m(memory, address + 1);
 
           sprintf(instruction, "%s 0x%04x, %d",
             table_86000[n].name,
