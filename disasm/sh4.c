@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -430,7 +430,9 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         {
           disp = (opcode & 0xff) * table_sh4[n].special;
           rn = (opcode >> 8) & 0xf;
-          sprintf(instruction, "%s @(%d,PC), r%d", table_sh4[n].instr, disp, rn);
+          sprintf(instruction, "%s @(%d,PC), r%d (address=0x%04x)",
+            table_sh4[n].instr, disp, rn,
+            address + 4 + disp);
           return 2;
         }
         case OP_AT_DISP_REG_REG:
@@ -444,7 +446,8 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         case OP_AT_DISP_PC_R0:
         {
           disp = (opcode & 0xff) * table_sh4[n].special;
-          sprintf(instruction, "%s @(%d,PC), r0", table_sh4[n].instr, disp);
+          sprintf(instruction, "%s @(%d,PC), r0 (address=0x%04x)",
+            table_sh4[n].instr, disp, address + 4 + disp);
           return 2;
         }
         case OP_R0_AT_REG:

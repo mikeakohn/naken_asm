@@ -68,4 +68,11 @@ loop:
   stc.l DBR, @-r9
   stc.l r3_bank, @-r11
   trapa #0x43
+  mov.l data, r1
+  mov.w data, r1
+  mova data, r0
+
+.align 32
+data:
+  .dc32 1234
 

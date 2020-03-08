@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -179,6 +179,44 @@ static int get_displacement(
   }
 
   const int upper_value = mask * align;
+
+  if (value < 0 || value > upper_value)
+  {
+    print_error_range("Displacement", 0, upper_value, asm_context);
+    return -1;
+  }
+
+  return value;
+}
+
+static int calc_displacement(
+  struct _asm_context *asm_context,
+  struct _operand *operands,
+  int align)
+{
+  int address = asm_context->address + 4;
+  int value = operands[0].value - address;
+
+  if (asm_context->pass == 1) { return 0; }
+
+  if (align == 2)
+  {
+    if ((value & 1) != 0)
+    {
+      print_error_align(asm_context, 2);
+      return -1;
+    }
+  }
+    else
+  {
+    if ((value & 3) != 0)
+    {
+      print_error_align(asm_context, 4);
+      return -1;
+    }
+  }
+
+  const int upper_value = 0xff * align;
 
   if (value < 0 || value > upper_value)
   {
@@ -899,6 +937,21 @@ printf("%d %d %d\n",
             return 2;
           }
 
+          if (operands[0].type == OPERAND_ADDRESS &&
+              operands[1].type == OPERAND_REG)
+          {
+            value = calc_displacement(asm_context, operands, table_sh4[n].special);
+
+            if (value == -1) { return - 1; }
+
+            value = value / table_sh4[n].special;
+
+            opcode = table_sh4[n].opcode | (operands[1].value << 8) | value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
           break;
         }
         case OP_AT_DISP_REG_REG:
@@ -930,6 +983,22 @@ printf("%d %d %d\n",
               operands[1].value == 0)
           {
             value = get_displacement(asm_context, operands, table_sh4[n].special, 0xff, 0);
+
+            if (value == -1) { return - 1; }
+
+            value = value / table_sh4[n].special;
+
+            opcode = table_sh4[n].opcode | value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          if (operands[0].type == OPERAND_ADDRESS &&
+              operands[1].type == OPERAND_REG &&
+              operands[1].value == 0)
+          {
+            value = calc_displacement(asm_context, operands, table_sh4[n].special);
 
             if (value == -1) { return - 1; }
 
