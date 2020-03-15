@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -369,7 +369,7 @@ int disasm_powerpc(struct _memory *memory, uint32_t address, char *instruction, 
 
   strcpy(instruction, "???");
 
-  return 0;
+  return 4;
 }
 
 void list_output_powerpc(struct _asm_context *asm_context, uint32_t start, uint32_t end)
