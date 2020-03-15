@@ -404,10 +404,10 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
   fprintf(out, " Instructions: %d\n", asm_context->instruction_count);
   fprintf(out, "   Code Bytes: %d\n", asm_context->code_count);
   fprintf(out, "   Data Bytes: %d\n", asm_context->data_count);
-  fprintf(out, "  Low Address: %04x (%d)\n",
+  fprintf(out, "  Low Address: %04x (%u)\n",
     asm_context->memory.low_address / asm_context->bytes_per_address,
     asm_context->memory.low_address / asm_context->bytes_per_address);
-  fprintf(out, " High Address: %04x (%d)\n",
+  fprintf(out, " High Address: %04x (%u)\n",
     asm_context->memory.high_address / asm_context->bytes_per_address,
     asm_context->memory.high_address / asm_context->bytes_per_address);
   fprintf(out, "\n");
