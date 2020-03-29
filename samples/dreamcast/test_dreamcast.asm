@@ -45,11 +45,6 @@ ccr_data:
   .dc16 0x090d
 
 main:
-  ;; Setup border color
-  mov.l border_col, r1
-  mov #127, r2
-  mov.l r2, @r1
-
   ;; Setup NTSC and turn on video output enable.
   mov.l sync_cfg, r1
   mov.l sync_cfg_value, r2
@@ -90,8 +85,14 @@ main:
   mov.l display_size_value, r2
   mov.l r2, @r1
 
+  ;; Setup misc setting.
+  mov.l video_config, r1
+  mov.l video_config_value, r2
+  mov.l r2, @r1
+
   ;; Setup display memory region.
   mov.l display_memory_1, r1
+  ;mov.l display_memory_1_value, r2
   mov #0, r2
   mov.l r2, @r1
 
@@ -99,16 +100,22 @@ main:
   mov #0, r2
   mov.l r2, @r1
 
+  ;; Setup border color
+  mov.l border_col, r1
+  mov #127, r2
+  mov.l r2, @r1
+
   ;; Put some stuff in the frame buffer.
   mov.l frame_buffer, r1
   mov #0, r2
-  mov #10, r0
+  mov #100, r0
 frame_buffer_loop:
   mov.l r2, @r1
   add #4, r1
   add #-1, r0
   cmp/eq #0, r0
   bt frame_buffer_loop
+  nop
 
 while_1:
   bra while_1
@@ -127,6 +134,8 @@ display_mode_value:
   .dc32 (3 << 2) | 1
 display_memory_1:
   .dc32 POWERVR_FB_DISPLAY_ADDR1
+display_memory_1_value:
+  .dc32 0xa500_0000
 display_memory_value_1:
   .dc32 0
 display_memory_2:
@@ -159,4 +168,8 @@ display_size:
   .dc32 POWERVR_FB_DISPLAY_SIZE
 display_size_value:
   .dc32 (1 << 20) | (239 << 10) | 639
+video_config:
+  .dc32 POWERVR_VIDEO_CFG
+video_config_value:
+  .dc32 (22 << 16)
 
