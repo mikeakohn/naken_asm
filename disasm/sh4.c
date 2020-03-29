@@ -430,9 +430,12 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         {
           disp = (opcode & 0xff) * table_sh4[n].special;
           rn = (opcode >> 8) & 0xf;
+          int calc_address = table_sh4[n].special == 2 ?
+            address + 4 : (address + 4) & 0xfffffffc;
+
           sprintf(instruction, "%s @(%d,PC), r%d (address=0x%04x)",
             table_sh4[n].instr, disp, rn,
-            address + 4 + disp);
+            calc_address + disp);
           return 2;
         }
         case OP_AT_DISP_REG_REG:
@@ -447,7 +450,7 @@ int disasm_sh4(struct _memory *memory, uint32_t address, char *instruction, int 
         {
           disp = (opcode & 0xff) * table_sh4[n].special;
           sprintf(instruction, "%s @(%d,PC), r0 (address=0x%04x)",
-            table_sh4[n].instr, disp, address + 4 + disp);
+            table_sh4[n].instr, disp, ((address + 4) & 0xfffffffc) + disp);
           return 2;
         }
         case OP_R0_AT_REG:

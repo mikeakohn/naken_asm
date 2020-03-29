@@ -9,7 +9,6 @@
 start:
   ; First, make sure to run in the P2 area (privileged mode, no cache).
   mov.l setup_cache_addr, r0
-  nop
   mov.l p2_mask, r1
   or r1, r0
   jmp @r0
@@ -22,7 +21,6 @@ setup_cache:
   mov.l r1, @r0
   ; After changing CCR, eight instructions must be executed before it's
   ; safe to enter a cached area such as P1.
-  nop
   mov.l main_addr, r0 ; 1
   mov #0, r1          ; 2
   nop                 ; 3
@@ -48,57 +46,47 @@ ccr_data:
 
 main:
   ;; Setup border color
-  nop
   mov.l border_col, r1
   mov #127, r2
   mov.l r2, @r1
 
   ;; Setup NTSC and turn on video output enable.
-  nop
   mov.l sync_cfg, r1
-  nop
   mov.l sync_cfg_value, r2
   mov.l r2, @r1
 
   ;; Setup video size.
   mov.l full_video_size, r1
-  nop
   mov.l full_video_size_value, r2
   mov.l r2, @r1
 
   ;; Setup display mode.
   mov.l display_mode, r1
-  nop
   mov.l display_mode_value, r2
   mov.l r2, @r1
 
   ;; Setup hborder.
   mov.l hborder, r1
-  nop
   mov.l hborder_value, r2
   mov.l r2, @r1
 
   ;; Setup vborder.
   mov.l vborder, r1
-  nop
   mov.l vborder_value, r2
   mov.l r2, @r1
 
   ;; Setup hposition.
   mov.l vposition, r1
-  nop
   mov.l hposition_value, r2
   mov.l r2, @r1
 
   ;; Setup vposition.
   mov.l vposition, r1
-  nop
   mov.l vposition_value, r2
   mov.l r2, @r1
 
   ;; Setup display size.
   mov.l display_size, r1
-  nop
   mov.l display_size_value, r2
   mov.l r2, @r1
 
@@ -107,13 +95,11 @@ main:
   mov #0, r2
   mov.l r2, @r1
 
-  nop
   mov.l display_memory_2, r1
   mov #0, r2
   mov.l r2, @r1
 
   ;; Put some stuff in the frame buffer.
-  nop
   mov.l frame_buffer, r1
   mov #0, r2
   mov #10, r0

@@ -195,12 +195,14 @@ static int calc_displacement(
   int align)
 {
   int address = asm_context->address + 4;
-  int value = operands[0].value - address;
+  int value;
 
   if (asm_context->pass == 1) { return 0; }
 
   if (align == 2)
   {
+    value = operands[0].value - address;
+
     if ((value & 1) != 0)
     {
       print_error_align(asm_context, 2);
@@ -209,6 +211,8 @@ static int calc_displacement(
   }
     else
   {
+    value = operands[0].value - (address & 0xfffffffc);
+
     if ((value & 3) != 0)
     {
       print_error_align(asm_context, 4);
