@@ -31,6 +31,7 @@ CPUS=" \
   86000
   ARC
   ARM
+  ARM64
   AVR8
   CELL
   COPPER
@@ -150,6 +151,7 @@ show_help()
   echo "  --enable-86000            compile in support for 86000"
   echo "  --enable-arc              compile in support for ARC"
   echo "  --enable-arm              compile in support for ARM"
+  echo "  --enable-arm64            compile in support for ARM64"
   echo "  --enable-avr8             compile in support for Atmel AVR8"
   echo "  --enable-cell             compile in support for Broadband Cell SPU"
   echo "  --enable-copper           compile in support for Amiga Copper"
@@ -365,6 +367,11 @@ for option in $@; do
     ASM_OBJS="${ASM_OBJS} arm.o"
     DISASM_OBJS="${DISASM_OBJS} arm.o"
     DFLAGS="${DFLAGS} -DENABLE_ARM"
+  ;;
+  --enable-arm64)
+    ASM_OBJS="${ASM_OBJS} arm64.o"
+    DISASM_OBJS="${DISASM_OBJS} arm64.o"
+    DFLAGS="${DFLAGS} -DENABLE_ARM64"
   ;;
   --enable-avr8)
     ASM_OBJS="${ASM_OBJS} avr8.o"

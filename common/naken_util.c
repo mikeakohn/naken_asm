@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -35,6 +35,7 @@
 #include "disasm/86000.h"
 #include "disasm/arc.h"
 #include "disasm/arm.h"
+#include "disasm/arm64.h"
 #include "disasm/avr8.h"
 #include "disasm/cell.h"
 #include "disasm/copper.h"
@@ -100,7 +101,7 @@ parse_instruction_t parse_instruction_8048 = NULL;
 parse_instruction_t parse_instruction_8051 = NULL;
 parse_instruction_t parse_instruction_86000 = NULL;
 parse_instruction_t parse_instruction_arc = NULL;
-parse_instruction_t parse_instruction_arm = NULL;
+parse_instruction_t parse_instruction_arm64 = NULL;
 parse_instruction_t parse_instruction_avr8 = NULL;
 parse_instruction_t parse_instruction_cell = NULL;
 parse_instruction_t parse_instruction_common = NULL;
@@ -1200,6 +1201,7 @@ int main(int argc, char *argv[])
            "   -86000                       (86000 / VMU)\n"
            "   -arc                         (ARC)\n"
            "   -arm                         (ARM)\n"
+           "   -arm64                       (ARM64)\n"
            "   -avr8                        (Atmel AVR8)\n"
            "   -cell                        (IBM Cell BE)\n"
            "   -copper                      (Amiga Copper)\n"

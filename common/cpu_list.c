@@ -24,6 +24,7 @@
 #include "asm/86000.h"
 #include "asm/arc.h"
 #include "asm/arm.h"
+#include "asm/arm64.h"
 #include "asm/avr8.h"
 #include "asm/cell.h"
 #include "asm/cp1610.h"
@@ -66,6 +67,7 @@
 #include "disasm/86000.h"
 #include "disasm/arc.h"
 #include "disasm/arm.h"
+#include "disasm/arm64.h"
 #include "disasm/avr8.h"
 #include "disasm/cell.h"
 #include "disasm/copper.h"
@@ -446,6 +448,28 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_arm,
     disasm_range_arm,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_ARM64
+  {
+    "arm64",
+    CPU_TYPE_ARM64,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_4,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_32,
+    parse_instruction_arm64,
+    NULL,
+    link_not_supported,
+    list_output_arm64,
+    disasm_range_arm64,
     NULL,
     NO_FLAGS,
   },

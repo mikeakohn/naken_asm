@@ -50,9 +50,13 @@ main:
   mov.l sync_cfg_value, r2
   mov.l r2, @r1
 
-  ;; Setup video size.
-  mov.l full_video_size, r1
-  mov.l full_video_size_value, r2
+  ;; Setup video sync.
+  mov.l display_sync_load, r1
+  mov.l display_sync_load_value, r2
+  mov.l r2, @r1
+
+  mov.l display_sync_width, r1
+  mov.l display_sync_width_value, r2
   mov.l r2, @r1
 
   ;; Setup display mode.
@@ -88,6 +92,15 @@ main:
   ;; Setup misc setting.
   mov.l video_config, r1
   mov.l video_config_value, r2
+  mov.l r2, @r1
+
+  ;; Unknown...
+  mov.l unknown_1, r1
+  mov.l unknown_1_value, r2
+  mov.l r2, @r1
+
+  mov.l unknown_2, r1
+  mov.l unknown_2_value, r2
   mov.l r2, @r1
 
   ;; Setup display memory region.
@@ -131,7 +144,8 @@ sync_cfg_value:
 display_mode:
   .dc32 POWERVR_FB_DISPLAY_CFG
 display_mode_value:
-  .dc32 (3 << 2) | 1
+  ;.dc32 (3 << 2) | 1
+  .dc32 (0xff << 8) | (3 << 2) | 1
 display_memory_1:
   .dc32 POWERVR_FB_DISPLAY_ADDR1
 display_memory_1_value:
@@ -141,13 +155,17 @@ display_memory_value_1:
 display_memory_2:
   .dc32 POWERVR_FB_DISPLAY_ADDR1
 display_memory_value_2:
-  .dc32 0
+  .dc32 2560
 frame_buffer:
   .dc32 0xa500_0000
-full_video_size:
+display_sync_load:
   .dc32 POWERVR_SYNC_LOAD
-full_video_size_value:
+display_sync_load_value:
   .dc32 (524 << 16) | 857
+display_sync_width:
+  .dc32 POWERVR_SYNC_WIDTH
+display_sync_width_value:
+  .dc32 (0x1f << 22) | (364 << 12) | (0x06 << 8) | 0x3f
 hborder:
   .dc32 POWERVR_HBORDER
 hborder_value:
@@ -167,9 +185,17 @@ vposition_value:
 display_size:
   .dc32 POWERVR_FB_DISPLAY_SIZE
 display_size_value:
-  .dc32 (1 << 20) | (239 << 10) | 639
+  .dc32 (641 << 20) | (239 << 10) | 639
 video_config:
   .dc32 POWERVR_VIDEO_CFG
 video_config_value:
-  .dc32 (22 << 16)
+  .dc32 (0x16 << 16)
+unknown_1:
+  .dc32 0xa05f8110
+unknown_1_value:
+  .dc32 0x00093f39
+unknown_2:
+  .dc32 0xa05f8114
+unknown_2_value:
+  .dc32 0x00200000
 
