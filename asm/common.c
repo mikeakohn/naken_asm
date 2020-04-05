@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -134,5 +134,21 @@ int check_range(struct _asm_context *asm_context, char *type, int num, int min, 
   }
 
   return 0;
+}
+
+int get_reg_number(char *token, int max)
+{
+  int num = 0;
+
+  while(*token != 0)
+  {
+    if (*token < '0' || *token > '9') { return -1; }
+    num = (num * 10) + (*token - '0');
+    token++;
+  }
+
+  if (num > max) { return -1; }
+
+  return num;
 }
 

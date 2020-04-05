@@ -25,23 +25,211 @@
 
 enum
 {
-  OPERAND_REG,
+  OPERAND_REG_32,
+  OPERAND_REG_64,
+  OPERAND_REG_VECTOR,
+  OPERAND_REG_VECTOR_ELEMENT,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
+};
+
+enum
+{
+  SIZE_8B,
+  SIZE_16B,
+  SIZE_4H,
+  SIZE_8H,
+  SIZE_2S,
+  SIZE_4S,
+  SIZE_1D,
+  SIZE_2D,
+  SIZE_B,
+  SIZE_H,
+  SIZE_S,
+  SIZE_D,
 };
 
 struct _operand
 {
   int value;
   int type;
+  int attribute;
 };
 
-static int get_register_arm64(char *token)
+static int get_register_arm64(
+  struct _asm_context *asm_context,
+  struct _operand *operand,
+  char *s)
 {
-  if (token[0] != 'w' && token[0] != 'W') { return -1; }
-  token++;
+  char token[TOKENLEN];
+  int token_type;
+  int num, size, type;
 
-  return -1;
+  if (s[0] != 'w' && s[0] != 'W')
+  {
+    type = OPERAND_REG_32;
+  }
+    else
+  if (s[0] != 'x' && s[0] != 'X')
+  {
+    type = OPERAND_REG_64;
+  }
+    else
+  if (s[0] != 'v' && s[0] != 'V')
+  {
+    type = OPERAND_REG_VECTOR;
+  }
+    else
+  {
+    return -1;
+  }
+
+  num = get_reg_number(s + 1, 31);
+
+  if (num < 0 || num > 31) { return -1; }
+
+  if (type != OPERAND_REG_VECTOR)
+  {
+    operand->type = type;
+    operand->value = num;
+    return 0;
+  }
+
+  if (expect_token(asm_context, '.') == -1) { return -2; }
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (strcasecmp(token, "8b") == 0)
+  {
+    size = SIZE_8B;
+  }
+    else
+  if (strcasecmp(token, "16b") == 0)
+  {
+    size = SIZE_16B;
+  }
+    else
+  if (strcasecmp(token, "4h") == 0)
+  {
+    size = SIZE_4H;
+  }
+    else
+  if (strcasecmp(token, "8h") == 0)
+  {
+    size = SIZE_8H;
+  }
+    else
+  if (strcasecmp(token, "2s") == 0)
+  {
+    size = SIZE_2S;
+  }
+    else
+  if (strcasecmp(token, "4s") == 0)
+  {
+    size = SIZE_4S;
+  }
+    else
+  if (strcasecmp(token, "1d") == 0)
+  {
+    size = SIZE_1D;
+  }
+    else
+  if (strcasecmp(token, "2d") == 0)
+  {
+    size = SIZE_2D;
+  }
+    else
+  if (strcasecmp(token, "b") == 0)
+  {
+    size = SIZE_B;
+  }
+    else
+  if (strcasecmp(token, "h") == 0)
+  {
+    size = SIZE_H;
+  }
+    else
+  if (strcasecmp(token, "s") == 0)
+  {
+    size = SIZE_S;
+  }
+    else
+  if (strcasecmp(token, "d") == 0)
+  {
+    size = SIZE_D;
+  }
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (IS_NOT_TOKEN(token, '['))
+  {
+    tokens_push(asm_context, token, token_type);
+
+    if (size > SIZE_2D) { return -2; }
+
+    operand->type = type;
+    operand->value = num;
+    operand->attribute = size;
+    return 0;
+  }
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  int element = atoi(token);
+
+  switch (size)
+  {
+    case SIZE_8B:
+    case SIZE_16B:
+    case SIZE_B:
+      if (element < 1 || element > 16)
+      {
+        print_error_range("Element", 1, 16, asm_context);
+        return -2;
+      }
+      size = SIZE_B;
+      break;
+    case SIZE_4H:
+    case SIZE_8H:
+    case SIZE_H:
+      if (element < 1 || element > 8)
+      {
+        print_error_range("Element", 1, 8, asm_context);
+        return -2;
+      }
+      size = SIZE_H;
+      break;
+    case SIZE_2S:
+    case SIZE_4S:
+    case SIZE_S:
+      if (element < 1 || element > 4)
+      {
+        print_error_range("Element", 1, 4, asm_context);
+        return -2;
+      }
+      size = SIZE_S;
+      break;
+    case SIZE_1D:
+    case SIZE_2D:
+    case SIZE_D:
+      if (element < 1 || element > 2)
+      {
+        print_error_range("Element", 1, 2, asm_context);
+        return -2;
+      }
+      size = SIZE_D;
+      break;
+    default:
+      break;
+  };
+
+  if (expect_token(asm_context, ']') == -1) { return -2; }
+
+  operand->type = OPERAND_REG_VECTOR_ELEMENT;
+  operand->value = num;
+  operand->attribute = size;
+
+  return 0;
 }
 
 int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
@@ -74,12 +262,16 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
       break;
     }
 
-    num = get_register_arm64(token);
+    num = get_register_arm64(asm_context, &operands[operand_count], token);
+
+    if (num == -2)
+    {
+      return -1;
+    }
 
     if (num != -1)
     {
-      operands[operand_count].value = num;
-      operands[operand_count].type = OPERAND_REG;
+      // PASS
     }
       else
     if (IS_TOKEN(token,'#'))

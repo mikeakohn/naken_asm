@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -25,6 +25,7 @@ void lower_copy(char *d, const char *s);
 int expect_token(struct _asm_context *asm_context, char ch);
 int expect_token_s(struct _asm_context *asm_context, char *s);
 int check_range(struct _asm_context *asm_context, char *type, int num, int min, int max);
+int get_reg_number(char *token, int max);
 
 #endif
 

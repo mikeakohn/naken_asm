@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -56,7 +56,7 @@ static int get_number(char *s)
 
   while(*s != 0)
   {
-    if (*s < '0' || *s > '9') return -1;
+    if (*s < '0' || *s > '9') { return -1; }
     n = (n * 10) + (*s - '0');
     s++;
   }
