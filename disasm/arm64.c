@@ -25,11 +25,16 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
 {
   uint32_t opcode;
   int n;
+  int rm, rn, rd;
 
   opcode = memory_read32_m(memory, address);
 
   *cycles_min = -1;
   *cycles_max = -1;
+
+  rm = (opcode >> 16) & 0x1f;
+  rn = (opcode >> 5) & 0x1f;
+  rd = opcode & 0x1f;
 
   n = 0;
   while (table_arm64[n].instr != NULL)
@@ -41,7 +46,19 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
         case OP_NONE:
         {
           strcpy(instruction, table_arm64[n].instr);
-          return 2;
+          return 4;
+        }
+        case OP_MATH_R32_R32_R32:
+        {
+          sprintf(instruction, "%s w%d, w%d, w%d",
+            table_arm64[n].instr, rd, rn, rm);
+          return 4;
+        }
+        case OP_MATH_R64_R64_R64:
+        {
+          sprintf(instruction, "%s w%d, w%d, w%d",
+            table_arm64[n].instr, rd, rn, rm);
+          return 4;
         }
         default:
         {
@@ -56,7 +73,7 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
 
   strcpy(instruction, "???");
 
-  return 2;
+  return 4;
 }
 
 void list_output_arm64(struct _asm_context *asm_context, uint32_t start, uint32_t end)

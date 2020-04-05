@@ -31,6 +31,7 @@ enum
   OPERAND_REG_VECTOR_ELEMENT,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
+  OPERAND_SXTW,
 };
 
 enum
@@ -242,7 +243,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
   int token_type;
   int num, n;
   //int offset, value;
-  //uint32_t opcode;
+  uint32_t opcode;
   int found = 0;
 
   lower_copy(instr_case, instr);
@@ -271,7 +272,11 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
     if (num != -1)
     {
-      // PASS
+    }
+      else
+    if (strcasecmp(token, "sxtw") == 0)
+    {
+      operands[operand_count].type = OPERAND_SXTW;
     }
       else
     if (IS_TOKEN(token,'#'))
@@ -341,7 +346,41 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
           if (operand_count == 0)
           {
             add_bin32(asm_context, table_arm64[n].opcode, IS_OPCODE);
-            return 2;
+            return 4;
+          }
+
+          break;
+        }
+        case OP_MATH_R32_R32_R32:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG_32 &&
+              operands[1].type == OPERAND_REG_32 &&
+              operands[2].type == OPERAND_REG_32)
+          {
+            opcode = table_arm64[n].opcode |
+                     operands[0].value |
+                     (operands[1].value << 5) |
+                     (operands[2].value << 16);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+
+          break;
+        }
+        case OP_MATH_R64_R64_R64:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REG_64 &&
+              operands[1].type == OPERAND_REG_64 &&
+              operands[2].type == OPERAND_REG_64)
+          {
+            opcode = table_arm64[n].opcode |
+                     operands[0].value |
+                     (operands[1].value << 5) |
+                     (operands[2].value << 16);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
           }
 
           break;

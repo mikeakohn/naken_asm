@@ -17,6 +17,8 @@
 enum
 {
   OP_NONE,
+  OP_MATH_R32_R32_R32,
+  OP_MATH_R64_R64_R64,
 };
 
 struct _table_arm64
