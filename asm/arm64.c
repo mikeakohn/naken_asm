@@ -66,17 +66,45 @@ static int get_register_arm64(
   int token_type;
   int num, size, type;
 
-  if (s[0] != 'w' && s[0] != 'W')
+  if (strcasecmp(token, "wzr") == 0)
+  {
+    operand->type = OPERAND_REG_32;
+    operand->value = 31;
+    return 0;
+  }
+    else
+  if (strcasecmp(token, "xzr") == 0)
+  {
+    operand->type = OPERAND_REG_64;
+    operand->value = 31;
+    return 0;
+  }
+    else
+  if (strcasecmp(token, "wsp") == 0)
+  {
+    operand->type = OPERAND_REG_32;
+    operand->value = 31;
+    return 0;
+  }
+    else
+  if (strcasecmp(token, "sp") == 0)
+  {
+    operand->type = OPERAND_REG_64;
+    operand->value = 31;
+    return 0;
+  }
+
+  if (s[0] == 'w' || s[0] == 'W')
   {
     type = OPERAND_REG_32;
   }
     else
-  if (s[0] != 'x' && s[0] != 'X')
+  if (s[0] == 'x' || s[0] == 'X')
   {
     type = OPERAND_REG_64;
   }
     else
-  if (s[0] != 'v' && s[0] != 'V')
+  if (s[0] == 'v' || s[0] == 'V')
   {
     type = OPERAND_REG_VECTOR;
   }
@@ -158,6 +186,11 @@ static int get_register_arm64(
   if (strcasecmp(token, "d") == 0)
   {
     size = SIZE_D;
+  }
+    else
+  {
+    print_error_unexp(token, asm_context);
+    return -2;
   }
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -241,10 +274,11 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
   struct _operand operands[MAX_OPERANDS];
   int operand_count = 0;
   int token_type;
-  int num, n;
+  int num, n, i, r;
   //int offset, value;
   uint32_t opcode;
   int found = 0;
+  int size = 0;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -332,36 +366,77 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
     }
   }
 
-  n = 0;
-  while(table_arm64[n].instr != NULL)
+  for (n = 0; table_arm64[n].instr != NULL; n++)
   {
     if (strcmp(table_arm64[n].instr, instr_case) == 0)
     {
       found = 1;
 
-      switch(table_arm64[n].type)
+      int type = table_arm64[n].type;
+
+      if (operand_type_arm64[type].operand_count != operand_count)
+      {
+        continue;
+      }
+
+      if (operand_type_arm64[type].size_match == 1)
+      {
+        r = operand_type_arm64[type].register_map;
+
+        for (i = 0; i < operand_type_arm64[type].operand_count; i++)
+        {
+          if ((r & 0x8) != 0)
+          {
+            if (operands[0].type != operands[i].type) { break; }
+            if (operands[0].attribute != operands[i].attribute) { break; }
+
+            if (i == 0)
+            {
+              if (operands[i].type == OPERAND_REG_64)
+              {
+                size = 1;
+              }
+                else
+              if (operands[i].type == OPERAND_REG_VECTOR)
+              {
+                size = operands[i].attribute;
+              }
+                else
+              if (operands[i].type == OPERAND_REG_VECTOR_ELEMENT)
+              {
+                size = operands[i].attribute - SIZE_B;
+              }
+            }
+          }
+
+          r = r << 1;
+        }
+
+        if (i != operand_type_arm64[type].operand_count) { continue; }
+      }
+
+      switch (type)
       {
         case OP_NONE:
         {
-          if (operand_count == 0)
-          {
-            add_bin32(asm_context, table_arm64[n].opcode, IS_OPCODE);
-            return 4;
-          }
+          add_bin32(asm_context, table_arm64[n].opcode, IS_OPCODE);
+          return 4;
 
           break;
         }
         case OP_MATH_R32_R32_R32:
         {
-          if (operand_count == 3 &&
-              operands[0].type == OPERAND_REG_32 &&
+#if 0
+          if (operands[0].type == OPERAND_REG_32 &&
               operands[1].type == OPERAND_REG_32 &&
               operands[2].type == OPERAND_REG_32)
+#endif
+          if (operands[0].type == OPERAND_REG_32)
           {
             opcode = table_arm64[n].opcode |
                      operands[0].value |
-                     (operands[1].value << 5) |
-                     (operands[2].value << 16);
+                    (operands[1].value << 5) |
+                    (operands[2].value << 16);
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
@@ -370,15 +445,48 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
         }
         case OP_MATH_R64_R64_R64:
         {
-          if (operand_count == 3 &&
-              operands[0].type == OPERAND_REG_64 &&
+#if 0
+          if (operands[0].type == OPERAND_REG_64 &&
               operands[1].type == OPERAND_REG_64 &&
               operands[2].type == OPERAND_REG_64)
+#endif
+          if (operands[0].type == OPERAND_REG_64)
           {
             opcode = table_arm64[n].opcode |
                      operands[0].value |
-                     (operands[1].value << 5) |
-                     (operands[2].value << 16);
+                    (operands[1].value << 5) |
+                    (operands[2].value << 16);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+
+          break;
+        }
+        case OP_SCALAR_R_R:
+        {
+          if (operands[0].type == OPERAND_REG_32 ||
+              operands[0].type == OPERAND_REG_64)
+          {
+            opcode = table_arm64[n].opcode |
+                     operands[0].value |
+                    (operands[1].value << 5) |
+                    (size << 22);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+          break;
+        }
+        case OP_VECTOR_V_V:
+        {
+          if (size == 6) { continue; }
+
+          if (operands[0].type == OPERAND_REG_VECTOR)
+          {
+            opcode = table_arm64[n].opcode |
+                     operands[0].value |
+                    (operands[1].value << 5) |
+                    ((size >> 1) << 22) |
+                    ((size & 1) << 30);
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
@@ -391,8 +499,6 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
         }
       }
     }
-
-    n++;
   }
 
   if (found == 1)

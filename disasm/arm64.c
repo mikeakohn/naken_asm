@@ -16,6 +16,9 @@
 #include "disasm/arm64.h"
 #include "table/arm64.h"
 
+static char reg_size[] = { 'w', 'x' };
+static char *vec_size[] = { "8b", "16b", "4h", "8h", "2s", "4s", "1d", "2d" };
+
 int get_cycle_count_arm64(unsigned short int opcode)
 {
   return -1;
@@ -26,6 +29,7 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
   uint32_t opcode;
   int n;
   int rm, rn, rd;
+  int size;
 
   opcode = memory_read32_m(memory, address);
 
@@ -35,9 +39,9 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
   rm = (opcode >> 16) & 0x1f;
   rn = (opcode >> 5) & 0x1f;
   rd = opcode & 0x1f;
+  size = (opcode >> 22) & 0x3;
 
-  n = 0;
-  while (table_arm64[n].instr != NULL)
+  for (n = 0; table_arm64[n].instr != NULL; n++)
   {
     if ((opcode & table_arm64[n].mask) == table_arm64[n].opcode)
     {
@@ -60,6 +64,24 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
             table_arm64[n].instr, rd, rn, rm);
           return 4;
         }
+        case OP_SCALAR_R_R:
+        {
+          if (size > 1) { continue; }
+
+          sprintf(instruction, "%s %c%d, %c%d",
+            table_arm64[n].instr, reg_size[size], rd, reg_size[size], rn);
+
+          return 4;
+        }
+        case OP_VECTOR_V_V:
+        {
+          size = (size << 1) | ((opcode >> 30) & 1);
+
+          sprintf(instruction, "%s v%d.%s, v%d.%s",
+            table_arm64[n].instr, rd, vec_size[size], rn, vec_size[size]);
+
+          return 4;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);
@@ -67,8 +89,6 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
         }
       }
     }
-
-    n++;
   }
 
   strcpy(instruction, "???");
