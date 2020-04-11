@@ -17,6 +17,7 @@
 #include "table/arm64.h"
 
 static char reg_size[] = { 'w', 'x' };
+static char scalar_size[] = { 'b', 'h', 's', 'd' };
 static char *vec_size[] = { "8b", "16b", "4h", "8h", "2s", "4s", "1d", "2d" };
 
 int get_cycle_count_arm64(unsigned short int opcode)
@@ -29,7 +30,7 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
   uint32_t opcode;
   int n;
   int rm, rn, rd;
-  int size;
+  int size, sf;
 
   opcode = memory_read32_m(memory, address);
 
@@ -40,6 +41,7 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
   rn = (opcode >> 5) & 0x1f;
   rd = opcode & 0x1f;
   size = (opcode >> 22) & 0x3;
+  sf = (opcode >> 31) & 0x1;
 
   for (n = 0; table_arm64[n].instr != NULL; n++)
   {
@@ -53,23 +55,28 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
           return 4;
         }
         case OP_MATH_R32_R32_R32:
-        {
-          sprintf(instruction, "%s w%d, w%d, w%d",
-            table_arm64[n].instr, rd, rn, rm);
-          return 4;
-        }
         case OP_MATH_R64_R64_R64:
         {
-          sprintf(instruction, "%s w%d, w%d, w%d",
-            table_arm64[n].instr, rd, rn, rm);
+          sprintf(instruction, "%s %c%d, %c%d, %c%d",
+            table_arm64[n].instr,
+            reg_size[sf], rd,
+            reg_size[sf], rn,
+            reg_size[sf], rm);
           return 4;
         }
         case OP_SCALAR_R_R:
         {
-          if (size > 1) { continue; }
+          sprintf(instruction, "%s %c%d, %c%d",
+            table_arm64[n].instr, scalar_size[size], rd, scalar_size[size], rn);
+
+          return 4;
+        }
+        case OP_SCALAR_D_D:
+        {
+          if (size != 3) { continue; }
 
           sprintf(instruction, "%s %c%d, %c%d",
-            table_arm64[n].instr, reg_size[size], rd, reg_size[size], rn);
+            table_arm64[n].instr, scalar_size[size], rd, scalar_size[size], rn);
 
           return 4;
         }

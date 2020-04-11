@@ -29,6 +29,7 @@ enum
   OPERAND_REG_64,
   OPERAND_REG_VECTOR,
   OPERAND_REG_VECTOR_ELEMENT,
+  OPERAND_REG_SCALAR,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
   OPERAND_SXTW,
@@ -64,7 +65,7 @@ static int get_register_arm64(
 {
   char token[TOKENLEN];
   int token_type;
-  int num, size, type;
+  int num, size = 0, type;
 
   if (strcasecmp(token, "wzr") == 0)
   {
@@ -109,6 +110,30 @@ static int get_register_arm64(
     type = OPERAND_REG_VECTOR;
   }
     else
+  if (s[0] == 'b' || s[0] == 'B')
+  {
+    type = OPERAND_REG_SCALAR;
+    size = 0;
+  }
+    else
+  if (s[0] == 'h' || s[0] == 'H')
+  {
+    type = OPERAND_REG_SCALAR;
+    size = 1;
+  }
+    else
+  if (s[0] == 's' || s[0] == 'S')
+  {
+    type = OPERAND_REG_SCALAR;
+    size = 2;
+  }
+    else
+  if (s[0] == 'd' || s[0] == 'D')
+  {
+    type = OPERAND_REG_SCALAR;
+    size = 3;
+  }
+    else
   {
     return -1;
   }
@@ -121,12 +146,15 @@ static int get_register_arm64(
   {
     operand->type = type;
     operand->value = num;
+    operand->attribute = size;
     return 0;
   }
 
+printf("token=%s\n", token);
   if (expect_token(asm_context, '.') == -1) { return -2; }
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
+printf("token=%s\n", token);
 
   if (strcasecmp(token, "8b") == 0)
   {
@@ -397,7 +425,8 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
                 size = 1;
               }
                 else
-              if (operands[i].type == OPERAND_REG_VECTOR)
+              if (operands[i].type == OPERAND_REG_VECTOR ||
+                  operands[i].type == OPERAND_REG_SCALAR)
               {
                 size = operands[i].attribute;
               }
@@ -426,11 +455,6 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
         }
         case OP_MATH_R32_R32_R32:
         {
-#if 0
-          if (operands[0].type == OPERAND_REG_32 &&
-              operands[1].type == OPERAND_REG_32 &&
-              operands[2].type == OPERAND_REG_32)
-#endif
           if (operands[0].type == OPERAND_REG_32)
           {
             opcode = table_arm64[n].opcode |
@@ -445,11 +469,6 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
         }
         case OP_MATH_R64_R64_R64:
         {
-#if 0
-          if (operands[0].type == OPERAND_REG_64 &&
-              operands[1].type == OPERAND_REG_64 &&
-              operands[2].type == OPERAND_REG_64)
-#endif
           if (operands[0].type == OPERAND_REG_64)
           {
             opcode = table_arm64[n].opcode |
@@ -464,8 +483,22 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
         }
         case OP_SCALAR_R_R:
         {
-          if (operands[0].type == OPERAND_REG_32 ||
-              operands[0].type == OPERAND_REG_64)
+          if (operands[0].type == OPERAND_REG_SCALAR)
+          {
+            opcode = table_arm64[n].opcode |
+                     operands[0].value |
+                    (operands[1].value << 5) |
+                    (size << 22);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+          break;
+        }
+        case OP_SCALAR_D_D:
+        {
+          if (size != 3) { continue; }
+
+          if (operands[0].type == OPERAND_REG_SCALAR)
           {
             opcode = table_arm64[n].opcode |
                      operands[0].value |
