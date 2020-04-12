@@ -32,7 +32,7 @@ enum
   OPERAND_REG_SCALAR,
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
-  OPERAND_SXTW,
+  OPERAND_OPTION,
 };
 
 enum
@@ -49,6 +49,19 @@ enum
   SIZE_H,
   SIZE_S,
   SIZE_D,
+};
+
+enum
+{
+  OPTION_UXTB,
+  OPTION_UXTH,
+  OPTION_UXTW,
+  OPTION_UXTX,
+  OPTION_SXTB,
+  OPTION_SXTH,
+  OPTION_SXTW,
+  OPTION_SXTX,
+  OPTION_LSL,
 };
 
 struct _operand
@@ -150,11 +163,9 @@ static int get_register_arm64(
     return 0;
   }
 
-printf("token=%s\n", token);
   if (expect_token(asm_context, '.') == -1) { return -2; }
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
-printf("token=%s\n", token);
 
   if (strcasecmp(token, "8b") == 0)
   {
@@ -294,6 +305,56 @@ printf("token=%s\n", token);
   return 0;
 }
 
+static int get_option(char *token)
+{
+  if (strcasecmp(token, "uxtb") == 0)
+  {
+    return OPTION_UXTB;
+  }
+    else
+  if (strcasecmp(token, "uxth") == 0)
+  {
+    return OPTION_UXTH;
+  }
+    else
+  if (strcasecmp(token, "uxtw") == 0)
+  {
+    return OPTION_UXTW;
+  }
+    else
+  if (strcasecmp(token, "uxtx") == 0)
+  {
+    return OPTION_UXTX;
+  }
+    else
+  if (strcasecmp(token, "sxtb") == 0)
+  {
+    return OPTION_SXTB;
+  }
+    else
+  if (strcasecmp(token, "sxth") == 0)
+  {
+    return OPTION_SXTH;
+  }
+    else
+  if (strcasecmp(token, "sxtw") == 0)
+  {
+    return OPTION_SXTW;
+  }
+    else
+  if (strcasecmp(token, "sxtx") == 0)
+  {
+    return OPTION_SXTX;
+  }
+    else
+  if (strcasecmp(token, "lsl") == 0)
+  {
+    return OPTION_LSL;
+  }
+
+  return -1;
+}
+
 int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
@@ -336,9 +397,10 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
     {
     }
       else
-    if (strcasecmp(token, "sxtw") == 0)
+    if ((num = get_option(token)) != -1)
     {
-      operands[operand_count].type = OPERAND_SXTW;
+      operands[operand_count].type = OPERAND_OPTION;
+      operands[operand_count].attribute = num;
     }
       else
     if (IS_TOKEN(token,'#'))

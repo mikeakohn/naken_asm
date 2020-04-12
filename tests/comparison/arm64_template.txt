@@ -1,8 +1,10 @@
-adc w3, w19, w30
-adc x30, x1, x17
 abs d7, d30
 abs d17, d1
 abs v9.16b, v18.16b
 abs v9.2s, v18.2s
 abs v9.4h, v18.4h
+adc w3, w19, w30
+adc x30, x1, x17
+adcs w1, w11, w21
+adcs x2, x21, x7
 nop

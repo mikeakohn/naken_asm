@@ -20,6 +20,8 @@ struct _table_arm64 table_arm64[] =
   { "abs",     0x0e20b800, 0xbf3ffc00, OP_VECTOR_V_V },
   { "adc",     0x1a000000, 0x7fe0fc00, OP_MATH_R32_R32_R32 },
   { "adc",     0x9a000000, 0x7fe0fc00, OP_MATH_R64_R64_R64 },
+  { "adcs",    0x3a000000, 0x7fe0fc00, OP_MATH_R32_R32_R32 },
+  { "adcs",    0xba000000, 0x7fe0fc00, OP_MATH_R64_R64_R64 },
 };
 
 struct _operand_type_arm64 operand_type_arm64[] =
