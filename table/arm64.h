@@ -22,6 +22,7 @@ enum
   OP_SCALAR_R_R,
   OP_SCALAR_D_D,
   OP_VECTOR_V_V,
+  OP_MATH_R_R_R_OPTION,
 };
 
 struct _table_arm64

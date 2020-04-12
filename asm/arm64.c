@@ -305,7 +305,36 @@ static int get_register_arm64(
   return 0;
 }
 
-static int get_option(char *token)
+static int get_shift_value(struct _asm_context *asm_context)
+{
+  int num;
+
+  if (expect_token(asm_context, '#') == -1) { return -2; }
+
+  if (asm_context->pass == 1)
+  {
+    eat_operand(asm_context);
+    return 1;
+  }
+
+  if (eval_expression(asm_context, &num) != 0)
+  {
+    return -2;
+  }
+
+  if (num < 0 || num > 7)
+  {
+    print_error_range("Shift", 0, 7, asm_context);
+    return -2;
+  }
+
+  return num;
+}
+
+static int get_option(
+  struct _asm_context *asm_context,
+  struct _operand *operand,
+  char *token)
 {
   if (strcasecmp(token, "uxtb") == 0)
   {
@@ -349,6 +378,12 @@ static int get_option(char *token)
     else
   if (strcasecmp(token, "lsl") == 0)
   {
+    int num = get_shift_value(asm_context);
+
+    if (num == -2) { return -2; }
+
+    operand->value = num;
+
     return OPTION_LSL;
   }
 
@@ -397,8 +432,10 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
     {
     }
       else
-    if ((num = get_option(token)) != -1)
+    if ((num = get_option(asm_context, &operands[operand_count], token)) != -1)
     {
+      if (num == -2) { return -1; }
+
       operands[operand_count].type = OPERAND_OPTION;
       operands[operand_count].attribute = num;
     }
@@ -586,6 +623,11 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
             return 4;
           }
 
+          break;
+        }
+        case OP_MATH_R_R_R_OPTION:
+        {
+          return -1;
           break;
         }
         default:

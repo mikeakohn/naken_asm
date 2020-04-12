@@ -89,6 +89,16 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
 
           return 4;
         }
+        case OP_MATH_R_R_R_OPTION:
+        {
+          sprintf(instruction, "%s %c%d, %c%d, %c%d",
+            table_arm64[n].instr,
+            reg_size[sf], rd,
+            reg_size[sf], rn,
+            reg_size[sf], rm);
+
+          return 4;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);

@@ -22,6 +22,7 @@ struct _table_arm64 table_arm64[] =
   { "adc",     0x9a000000, 0x7fe0fc00, OP_MATH_R64_R64_R64 },
   { "adcs",    0x3a000000, 0x7fe0fc00, OP_MATH_R32_R32_R32 },
   { "adcs",    0xba000000, 0x7fe0fc00, OP_MATH_R64_R64_R64 },
+  { "add",     0x0b200000, 0x7fe00000, OP_MATH_R_R_R_OPTION },
 };
 
 struct _operand_type_arm64 operand_type_arm64[] =
@@ -32,5 +33,6 @@ struct _operand_type_arm64 operand_type_arm64[] =
   { 2, 0xc, 1, ATTR_SIZE_BOTH }, // OP_SCALAR_R_R
   { 2, 0xc, 1, ATTR_SIZE_BOTH }, // OP_SCALAR_D_D
   { 2, 0xc, 1, ATTR_SIZE_BOTH }, // OP_VECTOR_V_V
+  { 3, 0xe, 0, ATTR_SIZE_BOTH }, // OP_MATH_R_R_R_OPTION
 };
 
