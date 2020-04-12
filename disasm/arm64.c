@@ -54,8 +54,7 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
           strcpy(instruction, table_arm64[n].instr);
           return 4;
         }
-        case OP_MATH_R32_R32_R32:
-        case OP_MATH_R64_R64_R64:
+        case OP_MATH_R_R_R:
         {
           sprintf(instruction, "%s %c%d, %c%d, %c%d",
             table_arm64[n].instr,
