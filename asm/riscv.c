@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -513,9 +513,9 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if (operands[2].value < -2048 || operands[2].value >= 2047)
+          if (operands[2].value < -2048 || operands[2].value > 0xfff)
           {
-            print_error_range("Immediate", -2048, 2047, asm_context);
+            print_error_range("Immediate", -2048, 0xfff, asm_context);
             return -1;
           }
 
@@ -811,7 +811,7 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
           rd = operands[0].value;
           rs1 = operands[1].value;
 
-          if (offset < -2048 || offset >= 2048)
+          if (offset < -2048 || offset > 2047)
           {
             print_error_range("Offset", -2048, 2047, asm_context);
             return -1;
@@ -877,9 +877,9 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
           rs2 = operands[0].value;
           rs1 = operands[1].value;
 
-          if (offset < -2048 || offset >= 2048)
+          if (offset < -2048 || offset > 2047)
           {
-            print_error_range("Immediate", -2048, 2047, asm_context);
+            print_error_range("Offset", -2048, 2047, asm_context);
             return -1;
           }
 
@@ -1171,6 +1171,4 @@ int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
 
   return -1;
 }
-
-
 
