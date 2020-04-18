@@ -71,6 +71,49 @@ struct _operand
   int attribute;
 };
 
+static int get_vector_number(char **p, int *num)
+{
+  int value = 0;
+  char *s = *p;
+
+  while (*s != 0)
+  {
+    if (*s < '0' || *s > '9') { break; }
+
+    value = (value * 10) + (*s - '0');
+
+    s++;
+  }
+
+  if (s == *p) { return -1; }
+
+  *num = value;
+  *p = s;
+
+  return 0;
+}
+
+static int get_vector_size(char **p, char *token, int length)
+{
+  int ptr = 0;
+  char *s = *p;
+
+  for (ptr = 0; ptr < length - 2; ptr++)
+  {
+    if (s[ptr] == 0) { break; }
+    if (s[ptr] < '0' || s[ptr] > '9') { break; }
+
+    token[ptr] = s[ptr];
+  }
+
+  token[ptr] = s[ptr];
+  token[ptr + 1] = 0;
+
+  *p = s + ptr + 1;
+
+  return 0;
+}
+
 static int get_register_arm64(
   struct _asm_context *asm_context,
   struct _operand *operand,
@@ -151,21 +194,38 @@ static int get_register_arm64(
     return -1;
   }
 
-  num = get_reg_number(s + 1, 31);
-
-  if (num < 0 || num > 31) { return -1; }
-
   if (type != OPERAND_REG_VECTOR)
   {
+    num = get_reg_number(s + 1, 31);
+    if (num < 0 || num > 31) { return -1; }
     operand->type = type;
     operand->value = num;
     operand->attribute = size;
     return 0;
   }
 
-  if (expect_token(asm_context, '.') == -1) { return -2; }
+  char *orig = s;
+  s++;
 
-  token_type = tokens_get(asm_context, token, TOKENLEN);
+  if (get_vector_number(&s, &num) == -1)
+  {
+    print_error_unexp(orig, asm_context);
+    return -2;
+  }
+
+  if (*s != '.')
+  {
+    print_error_unexp(orig, asm_context);
+    return -2;
+  }
+
+  s++;
+
+  if (get_vector_size(&s, token, TOKENLEN) == -1)
+  {
+    print_error_unexp(orig, asm_context);
+    return -2;
+  }
 
   if (strcasecmp(token, "8b") == 0)
   {
