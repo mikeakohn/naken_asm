@@ -22,6 +22,7 @@ enum
   OP_SCALAR_D_D,
   OP_VECTOR_V_V,
   OP_MATH_R_R_R_OPTION,
+  OP_MATH_R_R_R_SHIFT,
 };
 
 struct _table_arm64
@@ -42,6 +43,7 @@ struct _operand_type_arm64
   uint16_t operand_count : 2;
   uint16_t register_map : 4;
   uint16_t size_match : 1;
+  uint16_t operand_count_match : 1;
   uint16_t sizes : 2;
 };
 

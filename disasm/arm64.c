@@ -19,6 +19,7 @@
 static char reg_size[] = { 'w', 'x' };
 static char scalar_size[] = { 'b', 'h', 's', 'd' };
 static char *vec_size[] = { "8b", "16b", "4h", "8h", "2s", "4s", "1d", "2d" };
+static char *shift[] = { "lsl", "lsr", "asr", "???" };
 
 int get_cycle_count_arm64(unsigned short int opcode)
 {
@@ -30,7 +31,7 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
   uint32_t opcode;
   int n;
   int rm, rn, rd;
-  int size, sf;
+  int size, sf, imm;
 
   opcode = memory_read32_m(memory, address);
 
@@ -95,6 +96,30 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
             reg_size[sf], rd,
             reg_size[sf], rn,
             reg_size[sf], rm);
+
+          return 4;
+        }
+        case OP_MATH_R_R_R_SHIFT:
+        {
+          imm = (opcode & 10) & 0x3f;
+
+          if (imm == 0)
+          {
+            sprintf(instruction, "%s %c%d, %c%d, %c%d",
+              table_arm64[n].instr,
+              reg_size[sf], rd,
+              reg_size[sf], rn,
+              reg_size[sf], rm);
+          }
+            else
+          {
+            sprintf(instruction, "%s %c%d, %c%d, %c%d, %s #%d",
+              table_arm64[n].instr,
+              reg_size[sf], rd,
+              reg_size[sf], rn,
+              reg_size[sf], rm,
+              shift[(opcode >> 22) & 0x3], imm);
+          }
 
           return 4;
         }

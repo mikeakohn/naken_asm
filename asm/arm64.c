@@ -62,6 +62,8 @@ enum
   OPTION_SXTW,
   OPTION_SXTX,
   OPTION_LSL,
+  OPTION_LSR,
+  OPTION_ASR,
 };
 
 struct _operand
@@ -446,6 +448,28 @@ static int get_option(
 
     return OPTION_LSL;
   }
+    else
+  if (strcasecmp(token, "lsr") == 0)
+  {
+    int num = get_shift_value(asm_context);
+
+    if (num == -2) { return -2; }
+
+    operand->value = num;
+
+    return OPTION_LSL;
+  }
+    else
+  if (strcasecmp(token, "asr") == 0)
+  {
+    int num = get_shift_value(asm_context);
+
+    if (num == -2) { return -2; }
+
+    operand->value = num;
+
+    return OPTION_ASR;
+  }
 
   return -1;
 }
@@ -561,7 +585,8 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
       int type = table_arm64[n].type;
 
-      if (operand_type_arm64[type].operand_count != operand_count)
+      if (operand_type_arm64[type].operand_count != operand_count &&
+          operand_type_arm64[type].operand_count_match == 1)
       {
         continue;
       }
@@ -609,8 +634,6 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
         {
           add_bin32(asm_context, table_arm64[n].opcode, IS_OPCODE);
           return 4;
-
-          break;
         }
         case OP_MATH_R_R_R:
         {
@@ -639,6 +662,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
+
           break;
         }
         case OP_SCALAR_D_D:
@@ -654,6 +678,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;
           }
+
           break;
         }
         case OP_VECTOR_V_V:
@@ -675,11 +700,105 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
         }
         case OP_MATH_R_R_R_OPTION:
         {
-          return -1;
+          if (operands[0].type != OPERAND_REG_32 &&
+              operands[0].type != OPERAND_REG_64)
+          {
+            break;
+          }
+
+          if (operands[2].type != OPERAND_REG_32 &&
+              operands[2].type != OPERAND_REG_64)
+          {
+            break;
+          }
+
+          if (operands[0].type == operands[2].type)
+          {
+            break;
+          }
+
+          if (operands[0].type == OPERAND_REG_64) { size = 1; }
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                  (operands[2].value << 16) |
+                 ((size & 1) << 31);
+
+          if (operand_count == 3)
+          {
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4; 
+          }
+            else
+          if (operand_count == 4)
+          {
+            if (operands[3].type != OPERAND_OPTION) { break; }
+
+            if (operands[3].attribute == OPTION_LSL)
+            {
+              opcode |= operands[3].value << 10;
+              opcode |= size == 0 ? (2 << 13) : (3 << 13);
+            }
+              else
+            {
+              opcode |= operands[3].attribute << 13;
+            }
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+
+          break;
+        }
+        case OP_MATH_R_R_R_SHIFT:
+        {
+          if (operands[0].type != OPERAND_REG_32 &&
+              operands[0].type != OPERAND_REG_64)
+          {
+            break;
+          }
+
+          if (operands[0].type != operands[1].type ||
+              operands[0].type != operands[2].type)
+          {
+            break;
+          }
+
+          if (operands[0].type == OPERAND_REG_64) { size = 1; }
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                  (operands[2].value << 16) |
+                 ((size & 1) << 31);
+
+          if (operand_count == 3)
+          {
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4; 
+          }
+            else
+          if (operand_count == 4)
+          {
+            if (operands[3].type != OPERAND_OPTION) { break; }
+            if (operands[3].attribute < OPTION_LSL) { break; }
+
+            if (check_range(asm_context, "Shift", operands[3].value, 0, 64) == -1) { return -1; }
+
+            r = operands[3].attribute - OPTION_LSL;
+            opcode |= r << 22;
+            opcode |= operands[3].value << 10;
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+
           break;
         }
         default:
         {
+          print_error_internal(asm_context, __FILE__, __LINE__);
           break;
         }
       }
