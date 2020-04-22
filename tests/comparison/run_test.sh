@@ -61,7 +61,6 @@ EOF
     echo -e "\x1b[32mPASS\x1b[0m"
   else
     echo -e "\x1b[31mFAIL\n  (exp) ${2}\n  (got) ${a}\x1b[0m"
-    python3 print_binary.py ${2} ${a}
     exit 1
   fi
 
