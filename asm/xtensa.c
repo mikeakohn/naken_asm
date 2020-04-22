@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -854,7 +854,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          compute_offset(asm_context, &offset, operands[2].value, 4);
+          compute_offset(asm_context, &offset, operands[1].value, 4);
 
           if (offset < -2048 || offset > 2047)
           {
