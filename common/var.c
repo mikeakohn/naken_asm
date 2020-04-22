@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -48,7 +48,7 @@ uint32_t var_get_bin32(struct _var *var)
   if (var->type == VAR_FLOAT)
   {
     data_f = (float)var->value_float;
-    data = (uint32_t *)&data_f;
+    data = (uint32_t *)(void *)&data_f;
 
     return *data;
   }
@@ -66,7 +66,7 @@ uint64_t var_get_bin64(struct _var *var)
   if (var->type == VAR_FLOAT)
   {
     data_d = (double)var->value_float;
-    data = (uint64_t *)&data_d;
+    data = (uint64_t *)(void *)&data_d;
     return *data;
   }
     else

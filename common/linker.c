@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -299,7 +299,7 @@ const char *linker_find_name_from_offset(
   if (linker == NULL) { return NULL; }
 
   struct _imports *imports = linker->imports;
-  const char *name;
+  const char *name = NULL;
 
   while(imports != NULL)
   {

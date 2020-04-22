@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -312,7 +312,7 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
         }
         case CP1610_OP_JUMP:
         {
-          int address;
+          int address = -1;
           int bb;
           int ii;
           int j;

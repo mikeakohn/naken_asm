@@ -14,7 +14,7 @@ iso:
 record: iso
 	cdrecord dev=4,0,0 -multi -audio audio.raw
 	cdrecord dev=4,0,0 -msinfo
-	cdrecord dev=4,0,0 -multi -xa1 data.raw
+	cdrecord dev=4,0,0 -multi -xa1 -data data.raw
 
 clean:
 	@rm -f audio.raw test_dreamcast.iso test_dreamcast.bin IP.BIN
