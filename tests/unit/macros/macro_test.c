@@ -14,11 +14,13 @@ const char *answer_2[] = { "ten", "two", "three", NULL };
 
 void test_macro(const char *macro, const char **answer)
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   char token[TOKENLEN];
   int token_type;
   int index = 0;
   //int num;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf("Testing: %s ... ", macro);
 
@@ -76,7 +78,9 @@ void test_if(const char *statement, int answer)
 {
   char token[TOKENLEN];
   int token_type;
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf("Testing: %s ... ", statement);
 
@@ -115,8 +119,10 @@ void test_if(const char *statement, int answer)
 
 void test_define(const char *macro, uint8_t answer)
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   int i;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf("Testing: %s ... ", macro);
 

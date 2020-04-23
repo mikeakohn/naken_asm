@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "common/assembler.h"
 #include "65c816_test.h"
@@ -12,7 +13,7 @@
 
 int test_symbols(const char *label, const char *code)
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   int error_flag;
   uint32_t first_address_1, first_address_2;
   uint32_t second_address_1, second_address_2;
@@ -20,6 +21,8 @@ int test_symbols(const char *label, const char *code)
   uint32_t fourth_address_1, fourth_address_2;
   uint32_t fifth_address_1, fifth_address_2;
   int errors = 0;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf("---- %s ----\n", label);
 

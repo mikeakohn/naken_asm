@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "common/eval_expression.h"
 #include "common/tokens.h"
@@ -8,8 +9,10 @@ int errors = 0;
 
 void test(const char *expression, int answer)
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   int num;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf("Testing: %s ... ", expression);
 
@@ -38,8 +41,10 @@ void test(const char *expression, int answer)
 
 void should_fail(const char *expression)
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   int num;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf("Testing: %s ... ", expression);
 

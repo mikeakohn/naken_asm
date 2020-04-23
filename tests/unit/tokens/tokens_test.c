@@ -9,12 +9,14 @@ int errors = 0;
 
 void test_constants()
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   char token[TOKENLEN];
   int token_type;
   int i;
   char *test = { "1234 0x12 0b11001001 0100b 20h \"\\n\\t\\r\"" };
   char *answer[] = { "1234", "18", "201", "4", "32", "\n\t\r", NULL };
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_constants - \n");
 
@@ -61,7 +63,7 @@ void test_constants()
 
 void test_1()
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   char token[TOKENLEN];
   int token_type;
   int i;
@@ -69,6 +71,8 @@ void test_1()
   char *answer[] = { "1234", "1234", ".", "w", "[", "(", "1234.5", ")", "]",
                      "asdf55", "[", "33", "]", "1", "&", "2", "|", "3",
                      "^", "3", "\n", "f", "*", "e", "#", "234", NULL };
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_1 - \n");
 
@@ -116,10 +120,12 @@ void test_1()
 
 void test_pushback()
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   char *test = { "1234 5 20" };
   char token[TOKENLEN];
   int token_type;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_pushback - \n");
 
@@ -175,10 +181,12 @@ void test_pushback()
 
 void test_strings_with_dots()
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   char *test = { "mov.w" };
   char token[TOKENLEN];
   int token_type;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_strings_with_dots - \n");
 
@@ -207,10 +215,12 @@ void test_strings_with_dots()
 
 void test_ascii_with_null()
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   const char *code = ".ascii \"test\\n\\r\\t\\0\"\n.db 5";
   const char result[] = { 't', 'e', 's', 't', '\n', '\r', '\t', 0 };
   int error_flag, i;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_ascii_with_null - \n");
 
@@ -241,10 +251,12 @@ void test_ascii_with_null()
 
 void test_asciiz()
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   const char *code = ".asciiz \"test\"\n.db 5\n";
   const char result[] = { 't', 'e', 's', 't', 0 };
   int error_flag, i;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_asciiz - \n");
 
@@ -275,10 +287,12 @@ void test_asciiz()
 
 void test_escape_chars_in_db()
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   const char *code = ".db '\\n', '\\r', '\\t', '\\0', '\\\\', '\\'', 5\n";
   const char result[] = { '\n',   '\r',  '\t',  '\0',   '\\',  '\'' };
   int error_flag, i;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_escape_chars_in_db - \n");
 
@@ -311,7 +325,7 @@ void test_escape_chars_in_db()
 
 void test_escape_chars_in_code_const()
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   const char *code = ".6502\n"
                      "lda #'\\n'\n"
                      "lda #'\\0'\n"
@@ -322,6 +336,8 @@ void test_escape_chars_in_code_const()
   const char result[] = { '\n', '\0', '\\', '\'', '"', '"' };
   int error_flag, ptr, i;
   uint8_t c;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_escape_chars_in_code_const - \n");
 
@@ -361,9 +377,11 @@ void test_escape_chars_in_code_const()
 
 void test_db_quote_error()
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   const char *code = ".ascii \"hello\n";
   int error_flag;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_db_quote_error - \n");
 
@@ -382,9 +400,11 @@ void test_db_quote_error()
 
 void test_db_tick_error()
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   const char *code = ".db '\\n\n";
   int error_flag;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_db_tick_error - \n");
 
@@ -403,9 +423,11 @@ void test_db_tick_error()
 
 void test_code_tick_error()
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   const char *code = ".6502\nlda #'\\n\n";
   int error_flag;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_code_tick_error - \n");
 
