@@ -58,9 +58,11 @@ struct _tests_float tests_float[] =
 
 void test_int(const char *source, uint8_t *answer, int length, int endian)
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   int oops = 0;
   int i;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf("Testing: %s (%s) ... ", source, endian == LITTLE ? "little":"big");
 
@@ -98,9 +100,11 @@ void test_int(const char *source, uint8_t *answer, int length, int endian)
 
 void test_float(const char *source, float *answer, int length, int endian)
 {
-  struct _asm_context asm_context = { 0 };
+  struct _asm_context asm_context;
   int oops = 0;
   int i;
+
+  memset(&asm_context, 0, sizeof(asm_context));
 
   printf("Testing: %s (%s) ... ", source, endian == LITTLE ? "little":"big");
 
