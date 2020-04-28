@@ -366,11 +366,13 @@ for option in $@; do
   --enable-arm)
     ASM_OBJS="${ASM_OBJS} arm.o"
     DISASM_OBJS="${DISASM_OBJS} arm.o"
+    TABLE_OBJS="${TABLE_OBJS} arm.o"
     DFLAGS="${DFLAGS} -DENABLE_ARM"
   ;;
   --enable-arm64)
     ASM_OBJS="${ASM_OBJS} arm64.o"
     DISASM_OBJS="${DISASM_OBJS} arm64.o"
+    TABLE_OBJS="${TABLE_OBJS} arm64.o"
     DFLAGS="${DFLAGS} -DENABLE_ARM64"
   ;;
   --enable-avr8)
