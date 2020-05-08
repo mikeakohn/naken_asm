@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -66,7 +66,7 @@ int parse_instruction_tms9900(struct _asm_context *asm_context, char *instr)
   char instr_case[TOKENLEN];
   struct _operand operands[2];
   int operand_count;
-  int count=2;
+  int count = 2;
   int offset;
   int opcode;
   int n;

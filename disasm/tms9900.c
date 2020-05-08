@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -16,10 +16,9 @@
 #include "disasm/tms9900.h"
 #include "table/tms9900.h"
 
-//#define READ_RAM(a) memory_read_m(memory, a)
 #define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
-static unsigned short int masks[] =
+static uint16_t masks[] =
 {
   0xf000, // OP_DUAL,
   0xfc00, // OP_DUAL_MULTIPLE,
@@ -77,6 +76,7 @@ int disasm_tms9900(struct _memory *memory, uint32_t address, char *instruction, 
   opcode = READ_RAM16(address);
 
   n = 0;
+
   while(table_tms9900[n].instr != NULL)
   {
     if ((opcode&masks[table_tms9900[n].type]) == table_tms9900[n].opcode)
@@ -225,7 +225,7 @@ void disasm_range_tms9900(struct _memory *memory, uint32_t flags, uint32_t start
 {
   char instruction[128];
   char bytes[10];
-  int cycles_min = 0,cycles_max = 0;
+  int cycles_min = 0, cycles_max = 0;
   int count;
   int n;
 
@@ -263,5 +263,4 @@ void disasm_range_tms9900(struct _memory *memory, uint32_t flags, uint32_t start
     start = start + count;
   }
 }
-
 
