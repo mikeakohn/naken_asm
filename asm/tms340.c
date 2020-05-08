@@ -82,6 +82,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
   char instr_case[TOKENLEN];
   struct _operand operands[3];
   int operand_count;
+  int matched = 0;
   //int count = 2;
   //int offset;
   //int opcode;
@@ -201,6 +202,19 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
   {
     if (strcmp(table_tms340[n].instr, instr_case) == 0)
     {
+      matched = 1;
+
+      if (table_tms340[n].operand_count != operand_count)
+      {
+        continue;
+      }
+
+      if (table_tms340[n].operand_count == 0 && operand_count == 0)
+      {
+        add_bin16(asm_context, table_tms340[n].opcode, IS_OPCODE);
+        return 2;
+      }
+
 #if 0
       switch(table_tms340[n].type)
       {
@@ -212,7 +226,14 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
     }
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  if (matched == 1)
+  {
+    print_error_unknown_operand_combo(instr, asm_context);
+  }
+    else
+  {
+    print_error_unknown_instr(instr, asm_context);
+  }
 
   return -1;
 }

@@ -35,7 +35,7 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = memory_read32_m(memory, address);
+  opcode = memory_read16_m(memory, address);
 
   address += 2;
 
@@ -60,7 +60,7 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
           strcat(instruction, ", ");
         }
 
-        switch (table_tms340[n].operand_types[n])
+        switch (table_tms340[n].operand_types[i])
         {
           case OP_RS:
             sprintf(operand, "%c%d\n", r, rs);
@@ -149,8 +149,6 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
 
       return address - start;
     }
-
-    n++;
   }
 
   sprintf(instruction, "???");
