@@ -75,7 +75,7 @@ static int get_register_tms340(char *token, int *r)
   return -1;
 }
 
-int parse_instruction_tms9900(struct _asm_context *asm_context, char *instr)
+int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];
   int token_type;

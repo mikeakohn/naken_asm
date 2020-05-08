@@ -55,6 +55,7 @@ CPUS=" \
   SUPER_FX
   SWEET16
   THUMB
+  TMS340
   TMS1000
   TMS9900
   WEBASM
@@ -175,6 +176,7 @@ show_help()
   echo "  --enable-super-fx         compile in support for Super FX"
   echo "  --enable-sweet16          compile in support for sweet16"
   echo "  --enable-thumb            compile in support for thumb"
+  echo "  --enable-tms340           compile in support for tms340"
   echo "  --enable-tms1000          compile in support for tms1000/tms1100"
   echo "  --enable-tms9900          compile in support for tms9900"
   echo "  --enable-webasm           compile in support for WebAssembly"
@@ -517,6 +519,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} thumb.o"
     TABLE_OBJS="${TABLE_OBJS} thumb.o"
     DFLAGS="${DFLAGS} -DENABLE_THUMB"
+  ;;
+  --enable-tms340)
+    ASM_OBJS="${ASM_OBJS} tms340.o"
+    DISASM_OBJS="${DISASM_OBJS} tms340.o"
+    TABLE_OBJS="${TABLE_OBJS} tms340.o"
+    DFLAGS="${DFLAGS} -DENABLE_TMS340"
   ;;
   --enable-tms1000)
     ASM_OBJS="${ASM_OBJS} tms1000.o"

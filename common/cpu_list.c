@@ -49,6 +49,7 @@
 #include "asm/super_fx.h"
 #include "asm/sweet16.h"
 #include "asm/thumb.h"
+#include "asm/tms340.h"
 #include "asm/tms1000.h"
 #include "asm/tms9900.h"
 #include "asm/webasm.h"
@@ -91,6 +92,7 @@
 #include "disasm/super_fx.h"
 #include "disasm/sweet16.h"
 #include "disasm/thumb.h"
+#include "disasm/tms340.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
 #include "disasm/webasm.h"
@@ -1056,6 +1058,28 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_thumb,
     disasm_range_thumb,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_TMS340
+  {
+    "tms340",
+    CPU_TYPE_TMS340,
+    ENDIAN_BIG,
+    1,
+    ALIGN_2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_tms340,
+    NULL,
+    link_not_supported,
+    list_output_tms340,
+    disasm_range_tms340,
     NULL,
     NO_FLAGS,
   },
