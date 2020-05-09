@@ -41,6 +41,7 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
   uint32_t ilw;
   int16_t displacement;
   int16_t mask;
+  uint32_t temp;
   int opcode;
   int n, i, j, x;
   char r;
@@ -139,6 +140,11 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
             strcat(instruction, operand);
             break;
           case OP_ADDRESS:
+            temp = memory_read16_m(memory, address);
+            temp |= memory_read16_m(memory, address + 2) << 16;
+            sprintf(operand, "0x%04x", temp);
+            strcat(instruction, operand);
+            address += 4;
             break;
           case OP_AT_ADDR:
             ilw = memory_read16_m(memory, address);
@@ -168,6 +174,8 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
               }
             }
 
+            address += 2;
+
             break;
           case OP_B:
           case OP_F:
@@ -189,6 +197,11 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
           case OP_XY:
             strcat(instruction, "XY");
             break;
+          case OP_DISP:
+          case OP_SKIP:
+          case OP_JUMP:
+          default:
+            break;
         }
       }
 
@@ -205,33 +218,21 @@ void list_output_tms340(struct _asm_context *asm_context, uint32_t start, uint32
 {
   int cycles_min,cycles_max;
   char instruction[128];
+  uint16_t opcode;
   int count;
   int n;
-  uint32_t opcode;
 
   while (start < end)
   {
-    opcode = (memory_read_m(&asm_context->memory, start) << 8) |
-              memory_read_m(&asm_context->memory, start + 1);
+    opcode = memory_read16_m(&asm_context->memory, start);
 
     count = disasm_tms340(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-    fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", start, opcode, instruction);
+    fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start, opcode, instruction);
 
-#if 0
-    if (cycles_min == cycles_max)
+    for (n = 2; n < count; n += 2)
     {
-      fprintf(asm_context->list, "%d\n", cycles_min);
-    }
-      else
-    {
-      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
-    }
-#endif
-
-    for (n = 2; n < count; n = n + 2)
-    {
-      opcode = (memory_read_m(&asm_context->memory, start + n) << 8) | memory_read_m(&asm_context->memory, start + n + 1);
+      opcode = memory_read16_m(&asm_context->memory, start + n);
 
       fprintf(asm_context->list, "0x%04x: %04x\n", start + n, opcode);
     }
@@ -245,8 +246,8 @@ void list_output_tms340(struct _asm_context *asm_context, uint32_t start, uint32
 void disasm_range_tms340(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
-  char bytes[10];
-  int cycles_min = 0,cycles_max = 0;
+  uint16_t opcode;
+  int cycles_min = 0, cycles_max = 0;
   int count;
   int n;
 
@@ -259,27 +260,15 @@ void disasm_range_tms340(struct _memory *memory, uint32_t flags, uint32_t start,
   {
     count = disasm_tms340(memory, start, instruction, &cycles_min, &cycles_max);
 
-    bytes[0] = 0;
+    opcode = memory_read16_m(memory, start);
 
-    for (n = 0; n < count; n++)
-    {
-      char temp[8];
-      sprintf(temp, "%04x ", memory_read16_m(memory, start + n));
-      strcat(bytes, temp);
-    }
+    printf("0x%04x: %04x  %-40s\n", start, opcode, instruction);
 
-    if (cycles_min < 1)
+    for (n = 2; n < count; n += 2)
     {
-      printf("0x%04x: %-9s %-40s ?\n", start, bytes, instruction);
-    }
-      else
-    if (cycles_min == cycles_max)
-    {
-      printf("0x%04x: %-9s %-40s %d\n", start, bytes, instruction, cycles_min);
-    }
-      else
-    {
-      printf("0x%04x: %-9s %-40s %d-%d\n", start, bytes, instruction, cycles_min, cycles_max);
+      opcode = memory_read16_m(memory, start + n);
+
+      printf("0x%04x: %04x\n", start + n, opcode);
     }
 
     start = start + count;

@@ -640,6 +640,9 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
           case OP_IW:
           case OP_NN:
           case OP_XY:
+          case OP_DISP:
+          case OP_SKIP:
+          case OP_JUMP:
           default:
             ignore = 1;
             break;
