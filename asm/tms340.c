@@ -75,6 +75,17 @@ static int get_register_tms340(char *token, int *r)
   return -1;
 }
 
+static int is_register(int operand_type)
+{
+  if (operand_type >= OPERAND_REGISTER &&
+      operand_type <= OPERAND_REGISTER_INDIRECT_DEC)
+  {
+    return 1;
+  }
+
+  return 0;
+}
+
 int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];
@@ -82,11 +93,11 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
   char instr_case[TOKENLEN];
   struct _operand operands[3];
   int operand_count;
-  int matched = 0;
-  //int count = 2;
+  int matched = 0, ignore;
+  int count = 2;
   //int offset;
-  //int opcode;
-  int n, r;
+  int opcode;
+  int n, r, i;
 
   lower_copy(instr_case, instr);
 
@@ -198,6 +209,39 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
     }
   }
 
+  // Check that the register file of all registers match.
+  if (operand_count > 1)
+  {
+    r = -1;
+
+    for (n = 0; n < operand_count; n++)
+    {
+      if (is_register(operands[n].type) == 1)
+      {
+        if (r == -1)
+        {
+          // SP can be in either register file.
+          if (operands[n].reg != 15) { r = operands[n].r; }
+        }
+          else
+        if (r != operands[n].r)
+        {
+          print_error("Mismatched a/b registers.", asm_context);
+          return -1;
+        }
+      }
+    }
+
+    // Make sure all registers are in the same register file.
+    for (n = 0; n < operand_count; n++)
+    {
+      if (is_register(operands[n].type) == 1)
+      {
+        operands[n].r = r;
+      }
+    }
+  }
+
   for (n = 0; table_tms340[n].instr != NULL; n++)
   {
     if (strcmp(table_tms340[n].instr, instr_case) == 0)
@@ -215,14 +259,77 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
         return 2;
       }
 
-#if 0
-      switch(table_tms340[n].type)
+      opcode = table_tms340[n].opcode;
+      ignore = 0;
+
+      for (i = 0; i < table_tms340[n].operand_count; i++)
       {
-        case OP_NONE:
+        switch(table_tms340[n].operand_types[i])
         {
+          case OP_NONE:
+          {
+            case OP_RS:
+              if (operands[n].type != OPERAND_REGISTER)
+              {
+                ignore = 1;
+                break;
+              }
+
+              opcode |= operands[i].reg << 5;
+              opcode |= operands[i].r << 4;
+
+              break;
+            case OP_RD:
+              if (operands[n].type != OPERAND_REGISTER)
+              {
+                ignore = 1;
+                break;
+              }
+
+              opcode |= operands[i].reg;
+              opcode |= operands[i].r << 4;
+
+              break;
+            case OP_P_RS:
+            case OP_P_RD:
+            case OP_P_RS_DISP:
+            case OP_P_RD_DISP:
+            case OP_P_RS_P:
+            case OP_P_RD_P:
+            case OP_P_RS_XY:
+            case OP_P_RD_XY:
+            case OP_MP_RS:
+            case OP_MP_RD:
+            case OP_ADDRESS:
+            case OP_AT_ADDR:
+            case OP_LIST:
+            case OP_B:
+            case OP_F:
+            case OP_K:
+            case OP_L:
+            case OP_N:
+            case OP_Z:
+            case OP_FE:
+            case OP_FS:
+            case OP_IL:
+            case OP_IW:
+            case OP_NN:
+            case OP_XY:
+            default:
+              ignore = 1;
+              break;
+          }
         }
+
+        if (ignore == 1) { break; }
       }
-#endif
+
+      if (i == table_tms340[n].operand_count)
+      {
+        add_bin16(asm_context, opcode, IS_OPCODE);
+
+        return count;
+      }
     }
   }
 

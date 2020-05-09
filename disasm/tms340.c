@@ -63,55 +63,55 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
         switch (table_tms340[n].operand_types[i])
         {
           case OP_RS:
-            sprintf(operand, "%c%d\n", r, rs);
+            sprintf(operand, "%c%d", r, rs);
             strcat(instruction, operand);
             break;
           case OP_RD:
-            sprintf(operand, "%c%d\n", r, rd);
+            sprintf(operand, "%c%d", r, rd);
             strcat(instruction, operand);
             break;
           case OP_P_RS:
-            sprintf(operand, "*%c%d\n", r, rs);
+            sprintf(operand, "*%c%d", r, rs);
             strcat(instruction, operand);
             break;
           case OP_P_RD:
-            sprintf(operand, "*%c%d\n", r, rd);
+            sprintf(operand, "*%c%d", r, rd);
             strcat(instruction, operand);
             break;
           case OP_P_RS_DISP:
             displacement = memory_read16_m(memory, address);
-            sprintf(operand, "*%c%d(%d)\n", r, rs, displacement);
+            sprintf(operand, "*%c%d(%d)", r, rs, displacement);
             strcat(instruction, operand);
             address += 2;
             break;
           case OP_P_RD_DISP:
             displacement = memory_read16_m(memory, address);
-            sprintf(operand, "*%c%d(%d)\n", r, rd, displacement);
+            sprintf(operand, "*%c%d(%d)", r, rd, displacement);
             strcat(instruction, operand);
             address += 2;
             break;
           case OP_P_RS_P:
-            sprintf(operand, "*%c%d+\n", r, rs);
+            sprintf(operand, "*%c%d+", r, rs);
             strcat(instruction, operand);
             break;
           case OP_P_RD_P:
-            sprintf(operand, "*%c%d+\n", r, rd);
+            sprintf(operand, "*%c%d+", r, rd);
             strcat(instruction, operand);
             break;
           case OP_P_RS_XY:
-            sprintf(operand, "*%c%d.XY\n", r, rd);
+            sprintf(operand, "*%c%d.XY", r, rd);
             strcat(instruction, operand);
             break;
           case OP_P_RD_XY:
-            sprintf(operand, "*%c%d.XY\n", r, rs);
+            sprintf(operand, "*%c%d.XY", r, rs);
             strcat(instruction, operand);
             break;
           case OP_MP_RS:
-            sprintf(operand, "-*%c%d\n", r, rd);
+            sprintf(operand, "-*%c%d", r, rd);
             strcat(instruction, operand);
             break;
           case OP_MP_RD:
-            sprintf(operand, "-*%c%d\n", r, rs);
+            sprintf(operand, "-*%c%d", r, rs);
             strcat(instruction, operand);
             break;
           case OP_ADDRESS:
@@ -119,7 +119,7 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
           case OP_AT_ADDR:
             ilw = memory_read16_m(memory, address);
             ilw |= memory_read16_m(memory, address + 2) << 16;
-            sprintf(operand, "@0x%08x\n", ilw);
+            sprintf(operand, "@0x%08x", ilw);
             strcat(instruction, operand);
             address += 4;
             break;
