@@ -29,6 +29,7 @@ enum
   OPERAND_REGISTER_INDIRECT_DISP,
   OPERAND_REGISTER_INDIRECT_INC,
   OPERAND_REGISTER_INDIRECT_DEC,
+  OPERAND_REGISTER_INDIRECT_XY,
   OPERAND_NUMBER,
   OPERAND_SYMBOLIC,
 };
@@ -80,7 +81,7 @@ static int get_register_tms340(char *token, int *r)
 static int is_register(int operand_type)
 {
   if (operand_type >= OPERAND_REGISTER &&
-      operand_type <= OPERAND_REGISTER_INDIRECT_DEC)
+      operand_type <= OPERAND_REGISTER_INDIRECT_XY)
   {
     return 1;
   }
@@ -130,6 +131,25 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       operands[operand_count].r = r;
     }
       else
+    if (IS_TOKEN(token, '-'))
+    {
+      if (expect_token(asm_context, '*') == -1) { return -1; }
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      n = get_register_tms340(token, &r);
+
+      if (n == -1)
+      {
+        print_error_unexp(token, asm_context);
+        return -1;
+      }
+
+      operands[operand_count].type = OPERAND_REGISTER_INDIRECT_DEC;
+      operands[operand_count].reg = n;
+      operands[operand_count].r = r;
+    }
+      else
     if (IS_TOKEN(token, '*'))
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -148,12 +168,19 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
 
-      if (IS_TOKEN(token,'+'))
+      if (IS_TOKEN(token, '+'))
       {
         operands[operand_count].type = OPERAND_REGISTER_INDIRECT_INC;
       }
         else
-      if (IS_TOKEN(token,'('))
+      if (IS_TOKEN(token, '.'))
+      {
+        if (expect_token_s(asm_context, "XY") != 0) { return -1; }
+
+        operands[operand_count].type = OPERAND_REGISTER_INDIRECT_XY;
+      }
+        else
+      if (IS_TOKEN(token, '('))
       {
         if (asm_context->pass == 1)
         {
@@ -186,7 +213,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       }
     }
       else
-    if (IS_TOKEN(token,'@'))
+    if (IS_TOKEN(token, '@'))
     {
       operands[operand_count].type = OPERAND_SYMBOLIC;
 
@@ -309,138 +336,173 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       {
         switch(table_tms340[n].operand_types[i])
         {
-          case OP_NONE:
-          {
-            case OP_RS:
-              if (operands[i].type != OPERAND_REGISTER)
-              {
-                ignore = 1;
-                break;
-              }
-
-              opcode |= operands[i].reg << 5;
-              opcode |= operands[i].r << 4;
-
-              break;
-            case OP_RD:
-              if (operands[i].type != OPERAND_REGISTER)
-              {
-                ignore = 1;
-                break;
-              }
-
-              opcode |= operands[i].reg;
-              opcode |= operands[i].r << 4;
-
-              break;
-            case OP_P_RS:
-              if (operands[i].type != OPERAND_REGISTER_INDIRECT)
-              {
-                ignore = 1;
-                break;
-              }
-
-              opcode |= operands[i].reg << 5;
-              opcode |= operands[i].r << 4;
-
-              break;
-            case OP_P_RD:
-              if (operands[i].type != OPERAND_REGISTER_INDIRECT)
-              {
-                ignore = 1;
-                break;
-              }
-
-              opcode |= operands[i].reg;
-              opcode |= operands[i].r << 4;
-
-              break;
-            case OP_P_RS_DISP:
-              if (operands[i].type != OPERAND_REGISTER_INDIRECT_DISP)
-              {
-                ignore = 1;
-                break;
-              }
-
-              opcode |= operands[i].reg << 5;
-              opcode |= operands[i].r << 4;
-
-              break;
-            case OP_P_RD_DISP:
-              if (operands[i].type != OPERAND_REGISTER_INDIRECT_DISP)
-              {
-                ignore = 1;
-                break;
-              }
-
-              opcode |= operands[i].reg;
-              opcode |= operands[i].r << 4;
-
-              extra[extra_count++] = operands[i].value;
-
-              break;
-            case OP_P_RS_P:
-              if (operands[i].type != OPERAND_REGISTER_INDIRECT_INC)
-              {
-                ignore = 1;
-                break;
-              }
-
-              opcode |= operands[i].reg << 5;
-              opcode |= operands[i].r << 4;
-
-              extra[extra_count++] = operands[i].value;
-
-              break;
-            case OP_P_RD_P:
-              if (operands[i].type != OPERAND_REGISTER_INDIRECT_INC)
-              {
-                ignore = 1;
-                break;
-              }
-
-              opcode |= operands[i].reg;
-              opcode |= operands[i].r << 4;
-
-              break;
-            case OP_P_RS_XY:
-            case OP_P_RD_XY:
-            case OP_MP_RS:
-            case OP_MP_RD:
-            case OP_ADDRESS:
-            case OP_AT_ADDR:
-            case OP_LIST:
-            case OP_B:
+          case OP_RS:
+            if (operands[i].type != OPERAND_REGISTER)
+            {
               ignore = 1;
               break;
-            case OP_F:
-              if (operands[i].type == OPERAND_NONE && i == 2) { break; }
+            }
 
-              if (operands[i].type != OPERAND_NUMBER ||
-                  operands[i].value < 0 ||
-                  operands[i].value > 1)
-              {
-                ignore = 1;
-                break;
-              }
+            opcode |= operands[i].reg << 5;
+            opcode |= operands[i].r << 4;
 
-              opcode |= operands[i].value << 9;
-
-              break;
-            case OP_K:
-            case OP_L:
-            case OP_N:
-            case OP_Z:
-            case OP_FE:
-            case OP_FS:
-            case OP_IL:
-            case OP_IW:
-            case OP_NN:
-            case OP_XY:
-            default:
+            break;
+          case OP_RD:
+            if (operands[i].type != OPERAND_REGISTER)
+            {
               ignore = 1;
               break;
-          }
+            }
+
+            opcode |= operands[i].reg;
+            opcode |= operands[i].r << 4;
+
+            break;
+          case OP_P_RS:
+            if (operands[i].type != OPERAND_REGISTER_INDIRECT)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].reg << 5;
+            opcode |= operands[i].r << 4;
+
+            break;
+          case OP_P_RD:
+            if (operands[i].type != OPERAND_REGISTER_INDIRECT)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].reg;
+            opcode |= operands[i].r << 4;
+
+            break;
+          case OP_P_RS_DISP:
+            if (operands[i].type != OPERAND_REGISTER_INDIRECT_DISP)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].reg << 5;
+            opcode |= operands[i].r << 4;
+
+            break;
+          case OP_P_RD_DISP:
+            if (operands[i].type != OPERAND_REGISTER_INDIRECT_DISP)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].reg;
+            opcode |= operands[i].r << 4;
+
+            extra[extra_count++] = operands[i].value;
+
+            break;
+          case OP_P_RS_P:
+            if (operands[i].type != OPERAND_REGISTER_INDIRECT_INC)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].reg << 5;
+            opcode |= operands[i].r << 4;
+
+            break;
+          case OP_P_RD_P:
+            if (operands[i].type != OPERAND_REGISTER_INDIRECT_INC)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].reg;
+            opcode |= operands[i].r << 4;
+
+            break;
+          case OP_P_RS_XY:
+            if (operands[i].type != OPERAND_REGISTER_INDIRECT_XY)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].reg << 5;
+            opcode |= operands[i].r << 4;
+
+            break;
+          case OP_P_RD_XY:
+            if (operands[i].type != OPERAND_REGISTER_INDIRECT_XY)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].reg;
+            opcode |= operands[i].r << 4;
+
+            break;
+          case OP_MP_RS:
+            if (operands[i].type != OPERAND_REGISTER_INDIRECT_DEC)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].reg << 5;
+            opcode |= operands[i].r << 4;
+
+            break;
+          case OP_MP_RD:
+            if (operands[i].type != OPERAND_REGISTER_INDIRECT_DEC)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].reg;
+            opcode |= operands[i].r << 4;
+
+            break;
+          case OP_ADDRESS:
+          case OP_AT_ADDR:
+          case OP_LIST:
+          case OP_B:
+            ignore = 1;
+            break;
+          case OP_F:
+            if (operands[i].type == OPERAND_NONE && i == 2) { break; }
+
+            if (operands[i].type != OPERAND_NUMBER ||
+                operands[i].value < 0 ||
+                operands[i].value > 1)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].value << 9;
+
+            break;
+          case OP_K:
+          case OP_L:
+          case OP_N:
+          case OP_Z:
+          case OP_FE:
+          case OP_FS:
+          case OP_IL:
+          case OP_IW:
+          case OP_NN:
+          case OP_XY:
+          default:
+            ignore = 1;
+            break;
         }
 
         if (ignore == 1) { break; }

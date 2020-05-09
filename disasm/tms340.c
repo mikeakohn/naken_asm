@@ -99,19 +99,19 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
             strcat(instruction, operand);
             break;
           case OP_P_RS_XY:
-            sprintf(operand, "*%c%d.XY", r, rd);
-            strcat(instruction, operand);
-            break;
-          case OP_P_RD_XY:
             sprintf(operand, "*%c%d.XY", r, rs);
             strcat(instruction, operand);
             break;
+          case OP_P_RD_XY:
+            sprintf(operand, "*%c%d.XY", r, rd);
+            strcat(instruction, operand);
+            break;
           case OP_MP_RS:
-            sprintf(operand, "-*%c%d", r, rd);
+            sprintf(operand, "-*%c%d", r, rs);
             strcat(instruction, operand);
             break;
           case OP_MP_RD:
-            sprintf(operand, "-*%c%d", r, rs);
+            sprintf(operand, "-*%c%d", r, rd);
             strcat(instruction, operand);
             break;
           case OP_ADDRESS:
@@ -164,8 +164,6 @@ void list_output_tms340(struct _asm_context *asm_context, uint32_t start, uint32
   int n;
   uint32_t opcode;
 
-  fprintf(asm_context->list, "\n");
-
   while (start < end)
   {
     opcode = (memory_read_m(&asm_context->memory, start) << 8) |
@@ -175,6 +173,7 @@ void list_output_tms340(struct _asm_context *asm_context, uint32_t start, uint32
 
     fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", start, opcode, instruction);
 
+#if 0
     if (cycles_min == cycles_max)
     {
       fprintf(asm_context->list, "%d\n", cycles_min);
@@ -183,15 +182,19 @@ void list_output_tms340(struct _asm_context *asm_context, uint32_t start, uint32
     {
       fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
     }
+#endif
 
     for (n = 2; n < count; n = n + 2)
     {
       opcode = (memory_read_m(&asm_context->memory, start + n) << 8) | memory_read_m(&asm_context->memory, start + n + 1);
+
       fprintf(asm_context->list, "0x%04x: %04x\n", start + n, opcode);
     }
 
     start += count;
   }
+
+  fprintf(asm_context->list, "\n");
 }
 
 void disasm_range_tms340(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
