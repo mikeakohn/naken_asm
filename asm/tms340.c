@@ -33,6 +33,9 @@ enum
   OPERAND_NUMBER,
   OPERAND_AT_ADDRESS,
   OPERAND_LIST_OF_REGISTERS,
+  OPERAND_B,
+  OPERAND_L,
+  OPERAND_XY,
 };
 
 struct _operand
@@ -322,6 +325,21 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       {
         tokens_push(asm_context, token, token_type);
       }
+    }
+      else
+    if (IS_TOKEN(token, 'B') || IS_TOKEN(token, 'b'))
+    {
+      operands[operand_count].type = OPERAND_B;
+    }
+      else
+    if (IS_TOKEN(token, 'L') || IS_TOKEN(token, 'l'))
+    {
+      operands[operand_count].type = OPERAND_L;
+    }
+      else
+    if (strcmp(token, "xy") == 0)
+    {
+      operands[operand_count].type = OPERAND_XY;
     }
       else
     if (IS_TOKEN(token, '@'))
@@ -614,7 +632,12 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
             break;
           case OP_B:
-            ignore = 1;
+            if (operands[i].type != OPERAND_B)
+            {
+              ignore = 1;
+              break;
+            }
+
             break;
           case OP_F:
             if (operands[i].type == OPERAND_NONE && i == 2) { break; }
@@ -630,8 +653,50 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
             opcode |= operands[i].value << 9;
 
             break;
+          case OP_K32:
+            if (operands[i].type != OPERAND_NUMBER ||
+               (asm_context->pass == 2 &&
+               (operands[i].value < 1 || operands[i].value > 32)))
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= (operands[i].value & 0x1f) << 5;
+
+            break;
           case OP_K:
+          case OP_1K:
+          case OP_2K:
+            if (operands[i].type != OPERAND_NUMBER ||
+               (asm_context->pass == 2 &&
+               (operands[i].value < 0 || operands[i].value > 31)))
+            {
+              ignore = 1;
+              break;
+            }
+
+            if (table_tms340[n].operand_types[i] == OP_1K)
+            {
+              operands[i].value = ~operands[i].value;
+            }
+              else
+            if (table_tms340[n].operand_types[i] == OP_2K)
+            {
+              operands[i].value = -operands[i].value;
+            }
+
+            opcode |= (operands[i].value & 0x1f) << 5;
+
+            break;
           case OP_L:
+            if (operands[i].type != OPERAND_L)
+            {
+              ignore = 1;
+              break;
+            }
+
+            break;
           case OP_N:
           case OP_Z:
           case OP_FE:
@@ -639,7 +704,16 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
           case OP_IL:
           case OP_IW:
           case OP_NN:
+            ignore = 1;
+            break;
           case OP_XY:
+            if (operands[i].type != OPERAND_XY)
+            {
+              ignore = 1;
+              break;
+            }
+
+            break;
           case OP_DISP:
           case OP_SKIP:
           case OP_JUMP:
