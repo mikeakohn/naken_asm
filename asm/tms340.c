@@ -698,9 +698,50 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
             break;
           case OP_N:
+            if (operands[i].type != OPERAND_NUMBER ||
+                operands[i].value < 0 || operands[i].value > 31)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].value & 0x1f;
+
+            break;
           case OP_Z:
+            if (operands[i].type != OPERAND_NUMBER ||
+                operands[i].value < 0 || operands[i].value > 1)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].value << 7;
+
+            break;
           case OP_FE:
+            if (operands[i].type != OPERAND_NUMBER ||
+                operands[i].value < 0 || operands[i].value > 1)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].value << 5;
+
+            break;
           case OP_FS:
+            if (operands[i].type != OPERAND_NUMBER ||
+               (asm_context->pass == 2 &&
+               (operands[i].value < 1 || operands[i].value > 32)))
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].value & 0x1f;
+
+            break;
           case OP_IL:
           case OP_IW:
           case OP_NN:

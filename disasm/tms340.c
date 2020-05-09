@@ -208,12 +208,22 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
             strcat(instruction, "L");
             break;
           case OP_N:
+            temp = opcode & 0x1f;
+            sprintf(operand, "%d", temp);
+            strcat(instruction, operand);
             break;
           case OP_Z:
             strcat(instruction, (opcode & 0x0080) == 0 ? "0" : "1");
             break;
           case OP_FE:
+            strcat(instruction, (opcode & 0x0020) == 0 ? "0" : "1");
+            break;
           case OP_FS:
+            temp = opcode & 0x1f;
+            if (temp == 0) { temp = 32; }
+            sprintf(operand, "%d", temp);
+            strcat(instruction, operand);
+            break;
           case OP_IL:
           case OP_IW:
           case OP_NN:
