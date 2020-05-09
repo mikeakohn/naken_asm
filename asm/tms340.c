@@ -31,7 +31,7 @@ enum
   OPERAND_REGISTER_INDIRECT_DEC,
   OPERAND_REGISTER_INDIRECT_XY,
   OPERAND_NUMBER,
-  OPERAND_SYMBOLIC,
+  OPERAND_AT_ADDRESS,
 };
 
 struct _operand
@@ -215,7 +215,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       else
     if (IS_TOKEN(token, '@'))
     {
-      operands[operand_count].type = OPERAND_SYMBOLIC;
+      operands[operand_count].type = OPERAND_AT_ADDRESS;
 
       if (asm_context->pass == 1)
       {
@@ -471,7 +471,27 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
             break;
           case OP_ADDRESS:
+            if (operands[i].type != OPERAND_NUMBER)
+            {
+              ignore = 1;
+              break;
+            }
+
+            extra[extra_count++] = operands[i].value & 0xffff;
+            extra[extra_count++] = (operands[i].value >> 16) & 0xffff;
+
+            break;
           case OP_AT_ADDR:
+            if (operands[i].type != OPERAND_AT_ADDRESS)
+            {
+              ignore = 1;
+              break;
+            }
+
+            extra[extra_count++] = operands[i].value & 0xffff;
+            extra[extra_count++] = (operands[i].value >> 16) & 0xffff;
+
+            break;
           case OP_LIST:
           case OP_B:
             ignore = 1;
