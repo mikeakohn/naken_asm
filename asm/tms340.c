@@ -26,6 +26,7 @@ enum
   OPERAND_NONE,
   OPERAND_REGISTER,
   OPERAND_REGISTER_INDIRECT,
+  OPERAND_REGISTER_INDIRECT_DISP,
   OPERAND_REGISTER_INDIRECT_INC,
   OPERAND_REGISTER_INDIRECT_DEC,
   OPERAND_NUMBER,
@@ -99,6 +100,8 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
   //int offset;
   int opcode;
   int n, r, i;
+  uint16_t extra[8];
+  int extra_count;
 
   lower_copy(instr_case, instr);
 
@@ -148,6 +151,34 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       if (IS_TOKEN(token,'+'))
       {
         operands[operand_count].type = OPERAND_REGISTER_INDIRECT_INC;
+      }
+        else
+      if (IS_TOKEN(token,'('))
+      {
+        if (asm_context->pass == 1)
+        {
+          eat_operand(asm_context);
+          operands[operand_count].value = 0;
+        }
+          else
+        {
+          if (eval_expression(asm_context, &n) != 0)
+          {
+            print_error_illegal_expression(instr, asm_context);
+            return -1;
+          }
+
+          if (expect_token(asm_context, ')') == -1) { return -1; }
+
+          operands[operand_count].value = n;
+          operands[operand_count].type = OPERAND_REGISTER_INDIRECT_DISP;
+
+          if (n < -32768 || n > 32767)
+          {
+            print_error_range("Displacement", -32768, 32767, asm_context);
+            return -1;
+          }
+        }
       }
         else
       {
@@ -272,6 +303,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
       opcode = table_tms340[n].opcode;
       ignore = 0;
+      extra_count = 0;
 
       for (i = 0; i < table_tms340[n].operand_count; i++)
       {
@@ -324,8 +356,28 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
               break;
             case OP_P_RS_DISP:
+              if (operands[i].type != OPERAND_REGISTER_INDIRECT_DISP)
+              {
+                ignore = 1;
+                break;
+              }
+
+              opcode |= operands[i].reg << 5;
+              opcode |= operands[i].r << 4;
+
+              break;
             case OP_P_RD_DISP:
-              ignore = 1;
+              if (operands[i].type != OPERAND_REGISTER_INDIRECT_DISP)
+              {
+                ignore = 1;
+                break;
+              }
+
+              opcode |= operands[i].reg;
+              opcode |= operands[i].r << 4;
+
+              extra[extra_count++] = operands[i].value;
+
               break;
             case OP_P_RS_P:
               if (operands[i].type != OPERAND_REGISTER_INDIRECT_INC)
@@ -336,6 +388,8 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
               opcode |= operands[i].reg << 5;
               opcode |= operands[i].r << 4;
+
+              extra[extra_count++] = operands[i].value;
 
               break;
             case OP_P_RD_P:
@@ -395,6 +449,11 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       if (i == table_tms340[n].operand_count)
       {
         add_bin16(asm_context, opcode, IS_OPCODE);
+
+        for (n = 0; n < extra_count; n++)
+        {
+          add_bin16(asm_context, extra[n], IS_OPCODE);
+        }
 
         return count;
       }
