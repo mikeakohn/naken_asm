@@ -21,14 +21,28 @@ int get_cycle_count_tms340(unsigned short int opcode)
   return -1;
 }
 
+static void get_register(char *s, int n, char r)
+{
+  if (n == 15)
+  {
+    strcpy(s, "sp");
+  }
+    else
+  {
+    sprintf(s, "%c%d", r, n);
+  }
+}
+
 int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   char operand[32];
+  char reg[8];
   uint32_t start = address;
   uint32_t ilw;
   int16_t displacement;
+  int16_t mask;
   int opcode;
-  int n, i;
+  int n, i, j, x;
   char r;
   int rs, rd;
 
@@ -63,55 +77,65 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
         switch (table_tms340[n].operand_types[i])
         {
           case OP_RS:
-            sprintf(operand, "%c%d", r, rs);
-            strcat(instruction, operand);
+            get_register(reg, rs, r);
+            strcat(instruction, reg);
             break;
           case OP_RD:
-            sprintf(operand, "%c%d", r, rd);
-            strcat(instruction, operand);
+            get_register(reg, rd, r);
+            strcat(instruction, reg);
             break;
           case OP_P_RS:
-            sprintf(operand, "*%c%d", r, rs);
-            strcat(instruction, operand);
+            get_register(reg, rs, r);
+            strcat(instruction, "*");
+            strcat(instruction, reg);
             break;
           case OP_P_RD:
-            sprintf(operand, "*%c%d", r, rd);
-            strcat(instruction, operand);
+            get_register(reg, rd, r);
+            strcat(instruction, "*");
+            strcat(instruction, reg);
             break;
           case OP_P_RS_DISP:
+            get_register(reg, rs, r);
             displacement = memory_read16_m(memory, address);
-            sprintf(operand, "*%c%d(%d)", r, rs, displacement);
+            sprintf(operand, "*%s(%d)", reg, displacement);
             strcat(instruction, operand);
             address += 2;
             break;
           case OP_P_RD_DISP:
+            get_register(reg, rd, r);
             displacement = memory_read16_m(memory, address);
-            sprintf(operand, "*%c%d(%d)", r, rd, displacement);
+            sprintf(operand, "*%s(%d)", reg, displacement);
             strcat(instruction, operand);
             address += 2;
             break;
           case OP_P_RS_P:
-            sprintf(operand, "*%c%d+", r, rs);
+            get_register(reg, rs, r);
+            sprintf(operand, "*%s+", reg);
             strcat(instruction, operand);
             break;
           case OP_P_RD_P:
-            sprintf(operand, "*%c%d+", r, rd);
+            get_register(reg, rd, r);
+            sprintf(operand, "*%s+", reg);
             strcat(instruction, operand);
             break;
           case OP_P_RS_XY:
-            sprintf(operand, "*%c%d.XY", r, rs);
+            get_register(reg, rs, r);
+            sprintf(operand, "*%s.XY", reg);
             strcat(instruction, operand);
             break;
           case OP_P_RD_XY:
-            sprintf(operand, "*%c%d.XY", r, rd);
+            get_register(reg, rd, r);
+            sprintf(operand, "*%s.XY", reg);
             strcat(instruction, operand);
             break;
           case OP_MP_RS:
-            sprintf(operand, "-*%c%d", r, rs);
+            get_register(reg, rs, r);
+            sprintf(operand, "-*%s", reg);
             strcat(instruction, operand);
             break;
           case OP_MP_RD:
-            sprintf(operand, "-*%c%d", r, rd);
+            get_register(reg, rd, r);
+            sprintf(operand, "-*%s", reg);
             strcat(instruction, operand);
             break;
           case OP_ADDRESS:
@@ -124,6 +148,27 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
             address += 4;
             break;
           case OP_LIST:
+            mask = memory_read16_m(memory, address);
+            x = 0;
+
+            if (mask == 0)
+            {
+              strcat(instruction, "0");
+              break;
+            }
+
+            for (j = 0; j < 16; j++)
+            {
+              if ((mask & (1 << j)) != 0)
+              {
+                if (x != 0) { strcat(instruction, ", "); }
+                get_register(reg, j, r);
+                strcat(instruction, reg);
+                x++;
+              }
+            }
+
+            break;
           case OP_B:
           case OP_F:
             strcat(instruction, (opcode & 0x0200) == 0 ? "0" : "1");

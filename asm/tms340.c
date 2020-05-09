@@ -32,6 +32,7 @@ enum
   OPERAND_REGISTER_INDIRECT_XY,
   OPERAND_NUMBER,
   OPERAND_AT_ADDRESS,
+  OPERAND_LIST_OF_REGISTERS,
 };
 
 struct _operand
@@ -89,6 +90,106 @@ static int is_register(int operand_type)
   return 0;
 }
 
+static int get_operands_register_list(
+  struct _asm_context *asm_context,
+  struct _operand *operands,
+  int *operand_count,
+  char *instr)
+{
+  int token_type;
+  char token[TOKENLEN];
+  int r, n;
+  int i = 0;
+
+  while (1)
+  {
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
+    {
+      i++;
+
+      tokens_push(asm_context, token, token_type);
+
+      if (i != 2 || operands[1].value == 0)
+      {
+        print_error_unknown_operand_combo(instr, asm_context);
+        return -1;
+      }
+
+      *operand_count = i;
+
+      return 0;
+    }
+
+    if ((n = get_register_tms340(token, &r)) == -1)
+    {
+      if (i == 1 && operands[1].value == 0)
+      {
+        tokens_push(asm_context, token, token_type);
+
+        if (asm_context->pass == 1)
+        {
+          eat_operand(asm_context);
+        }
+          else
+        {
+          if (eval_expression(asm_context, &n) != 0)
+          {
+            print_error_illegal_expression(instr, asm_context);
+            return -1;
+          }
+
+          operands[1].value = n;
+        }
+
+        *operand_count = 2;
+
+        return 0;
+      }
+
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+
+    if (i == 0)
+    {
+      operands[i].type = OPERAND_REGISTER;
+      operands[i].reg = n;
+      operands[i].r = r;
+
+      i++;
+
+      operands[i].type = OPERAND_LIST_OF_REGISTERS;
+      operands[i].value = 0;
+    }
+      else
+    {
+      if (operands[0].r != r)
+      {
+        print_error("Mismatched a/b registers.", asm_context);
+        return -1;
+      }
+
+      operands[i].value |= 1 << n;
+    }
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
+    {
+      tokens_push(asm_context, token, token_type);
+      continue;
+    }
+
+    if (IS_NOT_TOKEN(token, ','))
+    {
+      print_error_unexp(token, asm_context);
+      return -1;
+    }
+  }
+}
+
 int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];
@@ -109,7 +210,17 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
   operand_count = 0;
   memset(operands, 0, sizeof(operands));
 
-  while(1)
+  // Get operands for awkward register list instructions.
+  if (strcmp("mmfm", instr_case) == 0 ||
+      strcmp("mmtm", instr_case) == 0)
+  {
+    if (get_operands_register_list(asm_context, operands, &operand_count, instr) == -1)
+    {
+      return -1;
+    }
+  }
+
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -493,6 +604,15 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
             break;
           case OP_LIST:
+            if (operands[i].type != OPERAND_LIST_OF_REGISTERS)
+            {
+              ignore = 1;
+              break;
+            }
+
+            extra[extra_count++] = operands[i].value;
+
+            break;
           case OP_B:
             ignore = 1;
             break;
