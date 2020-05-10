@@ -355,7 +355,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       else
     if (IS_TOKEN(token, 'W') || IS_TOKEN(token, 'w'))
     {
-      operands[operand_count].type = OPERAND_L;
+      operands[operand_count].type = OPERAND_W;
     }
       else
     if (strcmp(token, "xy") == 0)
@@ -793,13 +793,13 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
             break;
           case OP_IW:
             if (operands[i].type != OPERAND_NUMBER ||
-                operands[i + 1].type == OPERAND_L)
+                operands[operand_count - 1].type == OPERAND_L)
             {
               ignore = 1;
               break;
             }
 
-            if (operands[i + 1].type != OPERAND_W)
+            if (operands[operand_count - 1].type != OPERAND_W)
             {
               if (operands[i].use_long == 1 ||
                   operands[i].value < -32768 || operands[i].value > 32767)
