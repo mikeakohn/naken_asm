@@ -203,6 +203,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
   struct _operand operands[3];
   int operand_count;
   int matched = 0, ignore;
+  int offset;
   int count = 2;
   //int offset;
   int opcode;
@@ -833,8 +834,113 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
             break;
           case OP_DISP:
+            if (operands[i].type != OPERAND_NUMBER)
+            {
+              ignore = 1;
+              break;
+            }
+
+            if (asm_context->pass == 1)
+            {
+              extra[extra_count++] = 0;
+            }
+              else
+            {
+              offset = (asm_context->address + 4) - operands[i].value;
+
+              if ((offset & 1) != 0)
+              {
+                print_error_align(asm_context, 2);
+                return -1;
+              }
+
+              if (offset < -65536 || offset > 65534)
+              {
+                print_error_range("Displacement", -65536, 65534, asm_context);
+              }
+
+              extra[extra_count++] = operands[i].value & 0xffff;
+            }
+
+            break;
           case OP_SKIP:
+            if (operands[i].type != OPERAND_NUMBER)
+            {
+              ignore = 1;
+              break;
+            }
+
+            if (asm_context->pass == 2)
+            {
+              offset = (asm_context->address + 4) - operands[i].value;
+
+              if ((offset & 1) != 0)
+              {
+                print_error_align(asm_context, 2);
+                return -1;
+              }
+
+              if (offset < -64 || offset > 64)
+              {
+                print_error_range("Displacement", -64, 64, asm_context);
+              }
+
+              if (offset < 0)
+              {
+                offset = -offset;
+                opcode |= 0x0400;
+              }
+
+              opcode |= (offset & 0x1f) << 5;
+            }
+
+            break;
           case OP_JUMP:
+            if (operands[i].type != OPERAND_NUMBER)
+            {
+              ignore = 1;
+              break;
+            }
+
+            if (asm_context->pass == 1)
+            {
+              if (operands[i].use_long == 0)
+              {
+                offset = (asm_context->address + 4) - operands[i].value;
+
+                if (offset < -256 || offset > 254)
+                {
+                  extra[extra_count++] = 0;
+                  extra[extra_count++] = 0;
+                  memory_write_m(&asm_context->memory, asm_context->address, 1);
+                }
+                  else
+                {
+                  extra[extra_count++] = 0;
+                }
+              }
+                else
+              {
+                extra[extra_count++] = 0;
+                extra[extra_count++] = 0;
+              }
+            }
+              else
+            {
+              if (operands[i].use_long == 0)
+              {
+                offset = (asm_context->address + 4) - operands[i].value;
+
+                opcode |= (offset >> 1) & 0xff;
+              }
+                else
+              {
+                offset = (asm_context->address + 6) - operands[i].value;
+                extra[extra_count++] = offset & 0xffff;
+                extra[extra_count++] = (offset >> 16) & 0xffff;
+              }
+            }
+
           default:
             ignore = 1;
             break;
