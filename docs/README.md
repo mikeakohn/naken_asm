@@ -10,8 +10,11 @@ Contents
 * [File Formats](file_formats.md)
 * [Examples](examples.md)
 * CPU Specific
+  * [1802](1802.md)
+  * [6502](6502.md)
   * [65C816](65C816.md)
   * [68000](68000.md)
+  * [8051](8051.md)
   * [ARM](ARM.md)
   * [AVR8](AVR8.md)
   * [Copper (Amiga)](Copper.md)
@@ -19,7 +22,10 @@ Contents
   * [PowerPC](PowerPC.md)
   * [Propeller](Propeller.md)
   * [SH-4](SH4.md)
+  * [TMS340](TMS340.md)
+  * [TMS1000](TMS1000.md)
   * [TMS9900](TMS9900.md)
+  * [Xtensa](xtensa.md)
 * [Developer Guidelines](developer.md)
 * [Credits](credits.md)
 
