@@ -35,6 +35,7 @@ enum
   OPERAND_LIST_OF_REGISTERS,
   OPERAND_B,
   OPERAND_L,
+  OPERAND_W,
   OPERAND_XY,
 };
 
@@ -42,6 +43,7 @@ struct _operand
 {
   uint8_t type;
   uint8_t reg;
+  uint8_t use_long;
   int value;
   int r;
 };
@@ -238,28 +240,42 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       return -1;
     }
 
+    if (IS_TOKEN(token, '-'))
+    {
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (IS_TOKEN(token, '*'))
+      {
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        n = get_register_tms340(token, &r);
+
+        if (n == -1)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        operands[operand_count].type = OPERAND_REGISTER_INDIRECT_DEC;
+        operands[operand_count].reg = n;
+        operands[operand_count].r = r;
+      }
+        else
+      {
+        tokens_push(asm_context, token, token_type);
+
+        strcpy(token, "-");
+        token_type = TOKEN_SYMBOL;
+      }
+    }
+
+    if (operands[operand_count].type != OPERAND_NONE)
+    {
+    }
+      else
     if ((n = get_register_tms340(token, &r)) != -1)
     {
       operands[operand_count].type = OPERAND_REGISTER;
-      operands[operand_count].reg = n;
-      operands[operand_count].r = r;
-    }
-      else
-    if (IS_TOKEN(token, '-'))
-    {
-      if (expect_token(asm_context, '*') == -1) { return -1; }
-
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-
-      n = get_register_tms340(token, &r);
-
-      if (n == -1)
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-
-      operands[operand_count].type = OPERAND_REGISTER_INDIRECT_DEC;
       operands[operand_count].reg = n;
       operands[operand_count].r = r;
     }
@@ -337,6 +353,11 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OPERAND_L;
     }
       else
+    if (IS_TOKEN(token, 'W') || IS_TOKEN(token, 'w'))
+    {
+      operands[operand_count].type = OPERAND_L;
+    }
+      else
     if (strcmp(token, "xy") == 0)
     {
       operands[operand_count].type = OPERAND_XY;
@@ -366,18 +387,23 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
     {
       tokens_push(asm_context, token, token_type);
 
-      if (asm_context->pass == 1)
+      if (eval_expression(asm_context, &n) != 0)
       {
-        eat_operand(asm_context);
-        n = 0;
-      }
-        else
-      {
-        if (eval_expression(asm_context, &n) != 0)
+        if (asm_context->pass == 2)
         {
           print_error_illegal_expression(instr, asm_context);
           return -1;
         }
+
+        eat_operand(asm_context);
+
+        memory_write_m(&asm_context->memory, asm_context->address, 1);
+        n = 0;
+      }
+
+      if (memory_read_m(&asm_context->memory, asm_context->address) == 1)
+      {
+        operands[operand_count].use_long = 1;
       }
 
       operands[operand_count].type = OPERAND_NUMBER;
@@ -436,6 +462,12 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
     {
       matched = 1;
 
+      if (operand_count == 0 && table_tms340[n].operand_types[0] == OP_NN)
+      {
+        add_bin16(asm_context, table_tms340[n].opcode, IS_OPCODE);
+        return 2;
+      }
+
       if (table_tms340[n].operand_count != operand_count)
       {
         i = table_tms340[n].operand_count;
@@ -443,6 +475,12 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
         if (i > 0 &&
             table_tms340[n].operand_types[i - 1] == OP_F &&
             operand_count == i - 1)
+        {
+        }
+          else
+        if (i == 2 &&
+           (table_tms340[n].operand_types[0] == OP_IW ||
+            table_tms340[n].operand_types[0] == OP_IL))
         {
         }
           else
@@ -743,9 +781,48 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
             break;
           case OP_IL:
+            if (operands[i].type != OPERAND_NUMBER)
+            {
+              ignore = 1;
+              break;
+            }
+
+            extra[extra_count++] = operands[i].value & 0xffff;
+            extra[extra_count++] = (operands[i].value >> 16) & 0xffff;
+
+            break;
           case OP_IW:
+            if (operands[i].type != OPERAND_NUMBER ||
+                operands[i + 1].type == OPERAND_L)
+            {
+              ignore = 1;
+              break;
+            }
+
+            if (operands[i + 1].type != OPERAND_W)
+            {
+              if (operands[i].use_long == 1 ||
+                  operands[i].value < -32768 || operands[i].value > 32767)
+              {
+                ignore = 1;
+                break;
+              }
+            }
+
+            extra[extra_count++] = operands[i].value & 0xffff;
+
+            break;
           case OP_NN:
-            ignore = 1;
+            if (operands[i].type != OPERAND_NUMBER ||
+                operands[i].value < 0 ||
+                operands[i].value > 31)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].value;
+
             break;
           case OP_XY:
             if (operands[i].type != OPERAND_XY)

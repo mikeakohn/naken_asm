@@ -40,6 +40,7 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
   uint32_t start = address;
   uint32_t ilw;
   int16_t displacement;
+  int32_t displacement32;
   int16_t mask;
   uint32_t temp;
   int opcode;
@@ -220,20 +221,64 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
             break;
           case OP_FS:
             temp = opcode & 0x1f;
-            if (temp == 0) { temp = 32; }
             sprintf(operand, "%d", temp);
             strcat(instruction, operand);
             break;
           case OP_IL:
+            temp = memory_read16_m(memory, address);
+            temp |= memory_read16_m(memory, address + 2) << 16;
+            sprintf(operand, "0x%04x", temp);
+            strcat(instruction, operand);
+            address += 4;
+            break;
           case OP_IW:
+            temp = memory_read16_m(memory, address);
+            sprintf(operand, "%d", (int16_t)temp);
+            strcat(instruction, operand);
+            address += 2;
+            break;
           case OP_NN:
+            temp = opcode & 0x1f;
+            sprintf(operand, "%d", temp);
+            strcat(instruction, operand);
             break;
           case OP_XY:
             strcat(instruction, "XY");
             break;
           case OP_DISP:
+            displacement = memory_read16_m(memory, address);
+            sprintf(operand, "0x%04x (%d)",
+              address + 2 + displacement, displacement);
+            strcat(instruction, operand);
+            address += 2;
+            break;
           case OP_SKIP:
+            displacement = (opcode >> 5) & 0x1f;
+            displacement *= 2;
+            if ((opcode & 0x0400) != 0) { displacement = -displacement; }
+            sprintf(operand, "0x%04x (%d)",
+              address + displacement, displacement);
+            strcat(instruction, operand);
+            break;
           case OP_JUMP:
+            if ((opcode & 0x00ff) == 0)
+            {
+              displacement32 = (int8_t)(opcode & 0xff);
+              displacement32 *= 2;
+              sprintf(operand, "0x%04x (%d)",
+                address + displacement32, displacement32);
+              strcat(instruction, operand);
+            }
+              else
+            {
+              displacement32 = (int8_t)memory_read16_m(memory, address);
+              sprintf(operand, "0x%04x (%d)",
+                address + 2 + displacement32, displacement32);
+              strcat(instruction, operand);
+              address += 2;
+            }
+
+            break;
           default:
             break;
         }

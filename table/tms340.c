@@ -77,7 +77,7 @@ struct _table_tms340 table_tms340[] =
   { "btst",   0x4a00, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
   { "clr",    0x5600, 0xfe00, 1, { OP_RD,        OP_NONE,      OP_NONE }},
   { "clrc",   0x0320, 0xffff, 0, { OP_NONE,      OP_NONE,      OP_NONE }},
-  { "cmp",    0x0b40, 0xffe0, 2, { OP_RS,        OP_RD,        OP_NONE }},
+  { "cmp",    0x4840, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
   { "cmpi",   0x0b40, 0xffe0, 2, { OP_IW,        OP_RD,        OP_NONE }},
   { "cmpi",   0x0b60, 0xffe0, 2, { OP_IL,        OP_RD,        OP_NONE }},
   { "dec",    0x1420, 0xffe0, 1, { OP_RD,        OP_NONE,      OP_NONE }},
