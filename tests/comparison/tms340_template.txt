@@ -1,8 +1,8 @@
 addxy b6, b11
 cmpxy a0, a0
 cpw a5, a3
-cvxyl b8, a7
-dray b14, a13
+cvxyl a8, a7
+dray b14, b13
 fill L
 fill XY
 movx b4, b11
@@ -13,37 +13,37 @@ pixblt L, L
 pixblt L, XY
 pixblt XY, L
 pixblt XY, XY
-pixt a10, *b4
+pixt b10, *b4
 pixt a10, *a9.XY
-pixt *a14, b5
-pixt *b9, *a14
+pixt *b14, b5
+pixt *a9, *a14
 pixt *a13.XY, a12
-pixt *b7.XY, *a12.XY
-subxy b7, a5
+pixt *b7.XY, *b12.XY
+subxy a7, a5
 line Z
 movb b9, *b2
-movb *b9, a10
+movb *a9, a10
 movb *b1, *b6
 movb *b10, *b7(13869)
-movb *a5(-29572), b3
-movb *a4(9981), *b7(661)
+movb *b5(-29572), b3
+movb *b4(9981), *b7(661)
 movb b11, 0x329c2
 movb 0x783bf, a5
 movb 0x5c007, 0x748b1
-move a9, b7
-move b8, *a8, 0
-move a12, -*b11, 1
-move a5, *b9+, 1
-move *a2, b8, 1
+move b9, b7
+move a8, *a8, 0
+move b12, -*b11, 1
+move b5, *b9+, 1
+move *a2, a8, 1
 move -*b10, b5, 1
 move *b0+, b3, 0
-move *b10, *a4, 0
-move -*b11, -*a6, 1
+move *a10, *a4, 0
+move -*a11, -*a6, 1
 move *a12+, *a3+, 1
 move a10, *a13(-24276), 1
 move *b3(-5149), b6, 1
-move *b10(-5441), *a13+, 1
-move *b1(31113), *a5(6810), 0
+move *a10(-5441), *a13+, 1
+move *a1(31113), *a5(6810), 0
 move b3, 0x55db5, 1
 move 0x1b9c6, b9, 0
 move 0x59142, *a7+, 1
@@ -54,12 +54,12 @@ addc b9, b9
 addi 15244, a8
 addi 192218, a6
 addk 15, a3
-and b10, a8
+and a10, a8
 andi 100938, b1
-andn a2, b1
+andn b2, b1
 andni 112136, a4
 btst 15, b6
-btst b11, a2
+btst a11, a2
 clr b7
 clrc
 cmp b11, b9
@@ -67,28 +67,28 @@ cmpi 23196, a0
 cmpi 173510, a4
 dec a7
 dint
-divs a13, b14
-divu b6, a4
+divs b13, b14
+divu a6, a4
 eint
 exgf b9, 0
-lmo a14, b1
-mmfm b7, a0, a5, a11, a15
+lmo b14, b1
+mmfm b7, b0, b5, b11, b15
 mmtm a14, a0, a5, a11, a15
 mods b4, b14
 modu a6, a6
 movi -30640, b13
 movi 104838, a2
 movk 24, b9
-mpys b1, a4
-mpyu b10, a0
+mpys a1, a4
+mpyu a10, a0
 neg b3
 negb b8
 nop
 not a6
-or b3, a11
+or b3, b11
 ori L, a5
 rl 19, b13
-rl b14, a14
+rl b14, b14
 setc
 setf 17, 0, 0
 sext a13, 0
@@ -99,13 +99,13 @@ sll b8, b10
 sra 17, a11
 sra a6, a6
 srl 10, b6
-srl b0, a5
+srl b0, b5
 sub a12, a11
 subb a3, a5
 subi -3113, a2
 subi 172127, a3
 subk 2, b13
-xor a12, b3
+xor b12, b3
 xori 196553, b0
 zext a3, 1
 call b10
