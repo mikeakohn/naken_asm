@@ -2,7 +2,7 @@ addxy b6, b11
 cmpxy a0, a0
 cpw a5, a3
 cvxyl a8, a7
-dray b14, b13
+drav b14, b13
 fill L
 fill XY
 movx b4, b11
@@ -20,7 +20,7 @@ pixt *a9, *a14
 pixt *a13.XY, a12
 pixt *b7.XY, *b12.XY
 subxy a7, a5
-line Z
+line 1
 movb b9, *b2
 movb *a9, a10
 movb *b1, *b6

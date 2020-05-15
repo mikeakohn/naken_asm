@@ -17,7 +17,7 @@ struct _table_tms340 table_tms340[] =
   { "cmpxy",  0xe400, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
   { "cpw",    0xe600, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
   { "cvxyl",  0xe800, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
-  { "dray",   0xf600, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
+  { "drav",   0xf600, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
   { "fill",   0x0fc0, 0xffff, 1, { OP_L,         OP_NONE,      OP_NONE }},
   { "fill",   0x0fe0, 0xffff, 1, { OP_XY,        OP_NONE,      OP_NONE }},
   { "movx",   0xec00, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},

@@ -50,7 +50,7 @@ struct _operand
 
 static int get_register_tms340(char *token, int *r)
 {
-  if (strcmp(token, "sp") == 0)
+  if (strcasecmp(token, "sp") == 0)
   {
     *r = 0;
     return 15;
@@ -359,7 +359,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OPERAND_W;
     }
       else
-    if (strcmp(token, "xy") == 0)
+    if (strcasecmp(token, "xy") == 0)
     {
       operands[operand_count].type = OPERAND_XY;
     }
