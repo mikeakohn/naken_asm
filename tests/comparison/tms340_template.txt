@@ -24,12 +24,12 @@ line 1
 movb b9, *b2
 movb *a9, a10
 movb *b1, *b6
-movb *b10, *b7(13869)
+movb b10, *b7(13869)
 movb *b5(-29572), b3
 movb *b4(9981), *b7(661)
-movb b11, 0x329c2
-movb 0x783bf, a5
-movb 0x5c007, 0x748b1
+movb b11, @0x329c2
+movb @0x783bf, a5
+movb @0x5c007, @0x748b1
 move b9, b7
 move a8, *a8, 0
 move b12, -*b11, 1

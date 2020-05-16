@@ -329,7 +329,6 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
           if (expect_token(asm_context, ')') == -1) { return -1; }
 
           operands[operand_count].value = n;
-          operands[operand_count].type = OPERAND_REGISTER_INDIRECT_DISP;
 
           if (n < -32768 || n > 32767)
           {
@@ -337,6 +336,8 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
             return -1;
           }
         }
+
+        operands[operand_count].type = OPERAND_REGISTER_INDIRECT_DISP;
       }
         else
       {
@@ -557,6 +558,8 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
             opcode |= operands[i].reg << 5;
             opcode |= operands[i].r << 4;
+
+            extra[extra_count++] = operands[i].value;
 
             break;
           case OP_P_RD_DISP:

@@ -39,7 +39,7 @@ struct _table_tms340 table_tms340[] =
   { "movb",   0x8c00, 0xfe00, 2, { OP_RS,        OP_P_RD,      OP_NONE }},
   { "movb",   0x8e00, 0xfe00, 2, { OP_P_RS,      OP_RD,        OP_NONE }},
   { "movb",   0x9c00, 0xfe00, 2, { OP_P_RS,      OP_P_RD,      OP_NONE }},
-  { "movb",   0xac00, 0xfe00, 2, { OP_P_RS,      OP_P_RD_DISP, OP_NONE }},
+  { "movb",   0xac00, 0xfe00, 2, { OP_RS,        OP_P_RD_DISP, OP_NONE }},
   { "movb",   0xae00, 0xfe00, 2, { OP_P_RS_DISP, OP_RD,        OP_NONE }},
   { "movb",   0xbc00, 0xfe00, 2, { OP_P_RS_DISP, OP_P_RD_DISP, OP_NONE }},
   { "movb",   0x05e0, 0xffe0, 2, { OP_RD,        OP_AT_ADDR,   OP_NONE }},
