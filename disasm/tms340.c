@@ -83,6 +83,7 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
             strcat(instruction, reg);
             break;
           case OP_RD:
+          case OP_RDS:
             get_register(reg, rd, r);
             strcat(instruction, reg);
             break;
@@ -164,14 +165,30 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
               break;
             }
 
-            for (j = 0; j < 16; j++)
+            if ((table_tms340[n].opcode & 0x0020) != 0)
             {
-              if ((mask & (1 << j)) != 0)
+              for (j = 0; j < 16; j++)
               {
-                if (x != 0) { strcat(instruction, ", "); }
-                get_register(reg, j, r);
-                strcat(instruction, reg);
-                x++;
+                if ((mask & (1 << j)) != 0)
+                {
+                  if (x != 0) { strcat(instruction, ", "); }
+                  get_register(reg, j, r);
+                  strcat(instruction, reg);
+                  x++;
+                }
+              }
+            }
+              else
+            {
+              for (j = 0; j < 16; j++)
+              {
+                if ((mask & (1 << (15 - j))) != 0)
+                {
+                  if (x != 0) { strcat(instruction, ", "); }
+                  get_register(reg, j, r);
+                  strcat(instruction, reg);
+                  x++;
+                }
               }
             }
 
@@ -234,6 +251,19 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
           case OP_IW:
             temp = memory_read16_m(memory, address);
             sprintf(operand, "%d", (int16_t)temp);
+            strcat(instruction, operand);
+            address += 2;
+            break;
+          case OP_NIL:
+            temp = memory_read16_m(memory, address);
+            temp |= memory_read16_m(memory, address + 2) << 16;
+            sprintf(operand, "0x%04x", ~temp);
+            strcat(instruction, operand);
+            address += 4;
+            break;
+          case OP_NIW:
+            temp = memory_read16_m(memory, address);
+            sprintf(operand, "%d", (int16_t)~temp);
             strcat(instruction, operand);
             address += 2;
             break;

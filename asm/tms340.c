@@ -95,6 +95,20 @@ static int is_register(int operand_type)
   return 0;
 }
 
+static int reverse_bits(int value)
+{
+  int n, i = 0;
+
+  for (n = 0; n < 16; n++)
+  {
+    i = i << 1;
+    if ((value & 1) == 1) { i |= 1; }
+    value = value >> 1;
+  }
+
+  return i;
+}
+
 static int get_operands_register_list(
   struct _asm_context *asm_context,
   struct _operand *operands,
@@ -527,6 +541,18 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
             opcode |= operands[i].r << 4;
 
             break;
+          case OP_RDS:
+            if (operands[i].type != OPERAND_REGISTER)
+            {
+              ignore = 1;
+              break;
+            }
+
+            opcode |= operands[i].reg;
+            opcode |= operands[i].r << 4;
+            opcode |= operands[i].reg << 5;
+
+            break;
           case OP_P_RS:
             if (operands[i].type != OPERAND_REGISTER_INDIRECT)
             {
@@ -670,7 +696,14 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
               break;
             }
 
-            extra[extra_count++] = operands[i].value;
+            if ((table_tms340[n].opcode & 0x0020) == 0)
+            {
+              extra[extra_count++] = reverse_bits(operands[i].value);
+            }
+              else
+            {
+              extra[extra_count++] = operands[i].value;
+            }
 
             break;
           case OP_B:
@@ -785,17 +818,27 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
             break;
           case OP_IL:
+          case OP_NIL:
             if (operands[i].type != OPERAND_NUMBER)
             {
               ignore = 1;
               break;
             }
 
-            extra[extra_count++] = operands[i].value & 0xffff;
-            extra[extra_count++] = (operands[i].value >> 16) & 0xffff;
+            if (table_tms340[n].operand_types[i] == OP_IL)
+            {
+              extra[extra_count++] = operands[i].value & 0xffff;
+              extra[extra_count++] = (operands[i].value >> 16) & 0xffff;
+            }
+              else
+            {
+              extra[extra_count++] = ~(operands[i].value & 0xffff);
+              extra[extra_count++] = ~((operands[i].value >> 16) & 0xffff);
+            }
 
             break;
           case OP_IW:
+          case OP_NIW:
             if (operands[i].type != OPERAND_NUMBER ||
                 operands[operand_count - 1].type == OPERAND_L)
             {
@@ -813,7 +856,14 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
               }
             }
 
-            extra[extra_count++] = operands[i].value & 0xffff;
+            if (table_tms340[n].operand_types[i] == OP_IW)
+            {
+              extra[extra_count++] = operands[i].value & 0xffff;
+            }
+              else
+            {
+              extra[extra_count++] = ~(operands[i].value & 0xffff);
+            }
 
             break;
           case OP_NN:

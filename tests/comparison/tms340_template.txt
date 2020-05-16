@@ -72,8 +72,8 @@ divu a6, a4
 eint
 exgf b9, 0
 lmo b14, b1
-mmfm b7, b0, b5, b11, b15
-mmtm a14, a0, a5, a11, a15
+mmfm b7, b0, b5, b11, b13
+mmtm a14, a0, a5, a11, a14
 mods b4, b14
 modu a6, a6
 movi -30640, b13
