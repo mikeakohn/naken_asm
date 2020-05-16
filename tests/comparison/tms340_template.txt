@@ -111,6 +111,7 @@ zext a3, 1
 call b10
 calla 140159
 main: callr main
+main: dsjs b9, main
 ;main: dsj b9, main
 main: dsjeq b4, main
 main: dsjne b1, main

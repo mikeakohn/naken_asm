@@ -925,7 +925,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
             if (asm_context->pass == 2)
             {
-              offset = (asm_context->address + 4) - operands[i].value;
+              offset = operands[i].value - (asm_context->address + 2);
 
               if ((offset & 1) != 0)
               {
@@ -933,9 +933,11 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
                 return -1;
               }
 
-              if (offset < -64 || offset > 64)
+              offset = offset / 2;
+
+              if (offset < -31 || offset > 31)
               {
-                print_error_range("Displacement", -64, 64, asm_context);
+                print_error_range("Displacement", -31, 31, asm_context);
               }
 
               if (offset < 0)
