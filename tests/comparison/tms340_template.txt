@@ -86,7 +86,7 @@ negb b8
 nop
 not a6
 or b3, b11
-ori L, a5
+ori 1234, a5
 rl 19, b13
 rl b14, b14
 setc
