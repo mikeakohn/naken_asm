@@ -102,7 +102,7 @@ srl 10, b6
 srl b0, b5
 sub a12, a11
 subb a3, a5
-subi -3113, a2
+;subi -3113, a2, w
 subi 172127, a3
 subk 2, b13
 xor b12, b3
@@ -111,7 +111,7 @@ zext a3, 1
 call b10
 calla 140159
 main: callr main
-main: dsj b9, main
+;main: dsj b9, main
 main: dsjeq b4, main
 main: dsjne b1, main
 emu

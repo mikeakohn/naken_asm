@@ -899,7 +899,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
             }
               else
             {
-              offset = (asm_context->address + 4) - operands[i].value;
+              offset = operands[i].value - (asm_context->address + 4);
 
               if ((offset & 1) != 0)
               {
@@ -912,7 +912,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
                 print_error_range("Displacement", -65536, 65534, asm_context);
               }
 
-              extra[extra_count++] = operands[i].value & 0xffff;
+              extra[extra_count++] = (offset >> 1) & 0xffff;
             }
 
             break;

@@ -177,7 +177,7 @@ struct _table_tms340 table_tms340[] =
   { "jrnv",   0xcd00, 0xff00, 1, { OP_JUMP,      OP_NONE,      OP_NONE }},
   { "jrn",    0xce00, 0xff00, 1, { OP_JUMP,      OP_NONE,      OP_NONE }},
   { "jrnn",   0xcf00, 0xff00, 1, { OP_JUMP,      OP_NONE,      OP_NONE }},
-  { "jump",   0x0160, 0xffe0, 1, { OP_RS,        OP_NONE,      OP_NONE }},
+  { "jump",   0x0160, 0xffe0, 1, { OP_RD,        OP_NONE,      OP_NONE }},
   { "popst",  0x01c0, 0xffff, 0, { OP_NONE,      OP_NONE,      OP_NONE }},
   { "pushst", 0x01e0, 0xffff, 0, { OP_NONE,      OP_NONE,      OP_NONE }},
   { "putst",  0x01a0, 0xffe0, 1, { OP_RS,        OP_NONE,      OP_NONE }},
