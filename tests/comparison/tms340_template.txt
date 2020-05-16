@@ -44,10 +44,10 @@ move a10, *a13(-24276), 1
 move *b3(-5149), b6, 1
 move *a10(-5441), *a13+, 1
 move *a1(31113), *a5(6810), 0
-move b3, 0x55db5, 1
-move 0x1b9c6, b9, 0
-move 0x59142, *a7+, 1
-move 0x3b7c5, 0x4950d, 0
+move b3, @0x55db5, 1
+move @0x1b9c6, b9, 0
+move @0x59142, *a7+, 1
+move @0x3b7c5, @0x4950d, 0
 abs b10
 add b2, b12
 addc b9, b9
