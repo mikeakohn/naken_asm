@@ -186,6 +186,7 @@ struct _table_tms340 table_tms340[] =
   { "rets",   0x0960, 0xffe0, 1, { OP_NN,        OP_NONE,      OP_NONE }},
   { "trap",   0x0900, 0xffe0, 1, { OP_N,         OP_NONE,      OP_NONE }},
   // TMS34020
+  { "clip",   0x08f2, 0xffff, 0, { OP_NONE,      OP_NONE,      OP_NONE }},
   { "fpixeq", 0x0abb, 0xffff, 0, { OP_NONE,      OP_NONE,      OP_NONE }},
   { "fpixne", 0x0adb, 0xffff, 0, { OP_NONE,      OP_NONE,      OP_NONE }},
   { "idle",   0x0040, 0xffff, 0, { OP_NONE,      OP_NONE,      OP_NONE }},
