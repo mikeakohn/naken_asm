@@ -54,7 +54,7 @@ enum
   OP_XY,
   OP_DISP,
   OP_SKIP,
-  OP_JUMP,
+  OP_JUMP_REL,
 };
 
 struct _table_tms340

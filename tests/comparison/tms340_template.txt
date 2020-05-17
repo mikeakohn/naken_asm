@@ -141,6 +141,28 @@ jav 192812
 janv 156003
 jan 155684
 jann 182274
+main: jruc main
+main: jrp main
+main: jrls main
+main: jrhi main
+main: jrlt main
+main: jrge main
+main: jrle main
+main: jrgt main
+main: jrc main
+main: jrlo main
+main: jrb main
+main: jrnc main
+main: jrhs main
+main: jrnb main
+main: jrz main
+main: jreq main
+main: jrnz main
+main: jrne main
+main: jrv main
+main: jrnv main
+main: jrn main
+main: jrnn main
 jump a8
 popst
 pushst

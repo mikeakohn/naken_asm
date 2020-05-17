@@ -950,7 +950,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
             }
 
             break;
-          case OP_JUMP:
+          case OP_JUMP_REL:
             if (operands[i].type != OPERAND_NUMBER)
             {
               ignore = 1;
@@ -961,22 +961,16 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
             {
               if (operands[i].use_long == 0)
               {
-                offset = (asm_context->address + 4) - operands[i].value;
+                offset = operands[i].value - (asm_context->address + 2);
 
                 if (offset < -256 || offset > 254)
                 {
                   extra[extra_count++] = 0;
-                  extra[extra_count++] = 0;
                   memory_write_m(&asm_context->memory, asm_context->address, 1);
-                }
-                  else
-                {
-                  extra[extra_count++] = 0;
                 }
               }
                 else
               {
-                extra[extra_count++] = 0;
                 extra[extra_count++] = 0;
               }
             }
@@ -984,18 +978,25 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
             {
               if (operands[i].use_long == 0)
               {
-                offset = (asm_context->address + 4) - operands[i].value;
-
+                offset = operands[i].value - (asm_context->address + 2);
                 opcode |= (offset >> 1) & 0xff;
               }
                 else
               {
-                offset = (asm_context->address + 6) - operands[i].value;
+                offset = operands[i].value - (asm_context->address + 4);
+
+                if (offset < -65536 || offset > 0xffff)
+                {
+                  print_error_range("Displacement", -65536, 0xffff, asm_context);
+                  return -1;
+                }
+
+                offset = offset >> 1;
                 extra[extra_count++] = offset & 0xffff;
-                extra[extra_count++] = (offset >> 16) & 0xffff;
               }
             }
 
+            break;
           default:
             ignore = 1;
             break;

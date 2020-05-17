@@ -139,6 +139,28 @@ jav 192812|:06000000CC80F12C00028F
 janv 156003|:06000000CD8061630002E7
 jan 155684|:06000000CE806024000226
 jann 182274|:06000000CF80C8020002DF
+main: jruc main|:02000000C0FF3F
+main: jrp main|:02000000C1FF3E
+main: jrls main|:02000000C2FF3D
+main: jrhi main|:02000000C3FF3C
+main: jrlt main|:02000000C4FF3B
+main: jrge main|:02000000C5FF3A
+main: jrle main|:02000000C6FF39
+main: jrgt main|:02000000C7FF38
+main: jrc main|:02000000C8FF37
+main: jrlo main|:02000000C8FF37
+main: jrb main|:02000000C8FF37
+main: jrnc main|:02000000C9FF36
+main: jrhs main|:02000000C9FF36
+main: jrnb main|:02000000C9FF36
+main: jrz main|:02000000CAFF35
+main: jreq main|:02000000CAFF35
+main: jrnz main|:02000000CBFF34
+main: jrne main|:02000000CBFF34
+main: jrv main|:02000000CCFF33
+main: jrnv main|:02000000CDFF32
+main: jrn main|:02000000CEFF31
+main: jrnn main|:02000000CFFF30
 jump a8|:02000000016895
 popst|:0200000001C03D
 pushst|:0200000001E01D

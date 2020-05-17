@@ -290,8 +290,8 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
               address + displacement, displacement);
             strcat(instruction, operand);
             break;
-          case OP_JUMP:
-            if ((opcode & 0x00ff) == 0)
+          case OP_JUMP_REL:
+            if ((opcode & 0x00ff) != 0)
             {
               displacement32 = (int8_t)(opcode & 0xff);
               displacement32 *= 2;
@@ -302,6 +302,7 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
               else
             {
               displacement32 = (int8_t)memory_read16_m(memory, address);
+              displacement32 *= 2;
               sprintf(operand, "0x%04x (%d)",
                 address + 2 + displacement32, displacement32);
               strcat(instruction, operand);
