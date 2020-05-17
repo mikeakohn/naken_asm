@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn, Lars Brinkhoff
+ * Copyright 2010-2020 by Michael Kohn, Lars Brinkhoff
  *
  * PDP-8 by Lars Brinkhoff
  *
@@ -97,7 +97,9 @@ int disasm_pdp8(struct _memory *memory, uint32_t address, char *instruction)
           i = opcode & 0400;
 
           if (z)
-            a |= (address/2) & 07600;
+          {
+            a |= (address / 2) & 07600;
+          }
 
           sprintf(instruction, "%s %s%s%o", table_pdp8[n].instr,
                   z ? "" : "z ", i ? "i ": "", a);
@@ -146,7 +148,7 @@ void list_output_pdp8(struct _asm_context *asm_context, uint32_t start, uint32_t
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_pdp8(&asm_context->memory, start, instruction);
 
@@ -168,7 +170,7 @@ void disasm_range_pdp8(struct _memory *memory, uint32_t flags, uint32_t start, u
   printf("%-5s  %-5s %s\n", "Addr", "Opcode", "Instruction");
   printf("-----  ------ ----------------------------------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     disasm_pdp8(memory, start, instruction);
 
