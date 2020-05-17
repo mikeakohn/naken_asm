@@ -91,13 +91,29 @@ static int get_group(struct _asm_context *asm_context, char *token)
     {
       if (group == 0 || group == 1)
       {
-        for (n = 0; n < 7; n++)
+        n = -1;
+
+        if (strcasecmp(token, "rtr") == 0)
         {
-          if (strcmp(token, group_1[n]) == 0)
+          opcode |= 07012;
+          group = 1;
+        }
+          else
+        if (strcasecmp(token, "rtl") == 0)
+        {
+          opcode |= 07006;
+          group = 1;
+        }
+          else
+        {
+          for (n = 0; n < 7; n++)
           {
-            group = 1;
-            opcode |= (1 << n);
-            break;
+            if (strcmp(token, group_1[n]) == 0)
+            {
+              group = 1;
+              opcode |= (1 << n);
+              break;
+            }
           }
         }
       }
@@ -118,14 +134,24 @@ static int get_group(struct _asm_context *asm_context, char *token)
 
       if (group == 0 || group == 3)
       {
-        for (n = 0; n < 7; n++)
+        n = -1;
+
+        if (strcasecmp(token, "skp") == 0)
         {
-          if (group_3[n] == 0) { continue; }
-          if (strcmp(token, group_3[n]) == 0)
+          opcode |= 07410;
+          group = 3;
+        }
+          else
+        {
+          for (n = 0; n < 7; n++)
           {
-            group = 3;
-            opcode |= (1 << n);
-            break;
+            if (group_3[n] == 0) { continue; }
+            if (strcmp(token, group_3[n]) == 0)
+            {
+              group = 3;
+              opcode |= (1 << n);
+              break;
+            }
           }
         }
       }
@@ -148,7 +174,7 @@ static int get_group(struct _asm_context *asm_context, char *token)
         case 0:
         case 1: opcode |= 0x0e00; break;
         case 2: opcode |= 0x0f00; break;
-        case 3: opcode |= 0x0f04; break;
+        case 3: opcode |= 0x0f08; break;
       }
 
       add_bin16(asm_context, opcode, IS_OPCODE);
