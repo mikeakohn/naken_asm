@@ -7,7 +7,7 @@ Credits
   * 6502 assembler, disassembler, simulator.
   * 65C816 assembler, disassembler.
 * Lars Brinkhoff (https://github.com/larsbrinkhoff)
-  * PDP-8 assembler, disasssembler.
+  * PDP-8 assembler, disassembler.
 * Zoltan Csahok (https://github.com/zcsahok)
 * D.L. Karmann
   * STM8 simulator
