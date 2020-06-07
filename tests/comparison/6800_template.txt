@@ -1,0 +1,197 @@
+aba
+adca #0xd8
+adca 0x15
+adca 0x5789
+adca 97, x
+adcb #0x60
+adcb 0x3b
+adcb 0x4479
+adcb 50, x
+adda #0x75
+adda 0x8c
+adda 0xdb85
+adda 121, x
+addb #0xe4
+addb 0x64c9
+addb 0x81
+addb 100, x
+anda #0x07
+anda 0x1ff1
+anda 0x93
+anda 208, x
+andb #0x52
+andb 0x23
+andb 0x7358
+andb 128, x
+asl 0x22cb
+asl 193, x
+asla
+aslb
+asr 0xd4ce
+asr 43, x
+asra
+asrb
+bita #0x51
+bita 0x4370
+bita 0x9e
+bita 254, x
+bitb #0xae
+bitb 0x5ce2
+bitb 0x9e
+bitb 163, x
+cba
+clc
+cli
+clr 0x50fa
+clr 208, x
+clra
+clrb
+clv
+cmpa #0x9d
+cmpa 0x21
+cmpa 0x241f
+cmpa 103, x
+cmpb #0x1f
+cmpb 0x3a1b
+cmpb 0xf8
+cmpb 77, x
+com 0x14c1
+com 214, x
+coma
+comb
+cpx #0x84e3
+cpx 0x46
+cpx 0x6081
+cpx 232, x
+daa
+dec 0x838c
+dec 181, x
+deca
+decb
+des
+dex
+eora #0xae
+eora 0x6d
+eora 0xd4b7
+eora 153, x
+eorb #0xc4
+eorb 0x81bf
+eorb 0xeb
+eorb 202, x
+inc 0xfdc0
+inc 97, x
+inca
+incb
+ins
+inx
+jmp 0xb5b3
+jmp 191, x
+jsr 0x32f0
+jsr 247, x
+ldaa #0x15
+ldaa 0x398b
+ldaa 0x60
+ldaa 96, x
+ldab #0x77
+ldab 0x4d8e
+ldab 0xcd
+ldab 223, x
+lds #0x32c5
+lds 0xe3
+lds 0xe736
+lds 222, x
+ldx #0xbbb
+ldx 0x5c7c
+ldx 0xca
+ldx 53, x
+lsr 0xc483
+lsr 240, x
+lsra
+lsrb
+main: bcc main
+main: bcs main
+main: beq main
+main: bge main
+main: bgt main
+main: bhi main
+main: ble main
+main: bls main
+main: blt main
+main: bmi main
+main: bne main
+main: bpl main
+main: bra main
+main: bsr main
+main: bvc main
+main: bvs main
+neg 0x2978
+neg 226, x
+nega
+negb
+nop
+oraa #0x56
+oraa 0x56
+oraa 0xfbb5
+oraa 119, x
+orab #0x72
+orab 0x7dd8
+orab 0xbc
+orab 65, x
+psha
+pshb
+pula
+pulb
+rol 0x10ca
+rol 63, x
+rola
+rolb
+ror 0x2ffd
+ror 73, x
+rora
+rorb
+rti
+rts
+sba
+sbca #0x71
+sbca 0x8f7d
+sbca 0xae
+sbca 254, x
+sbcb #0x6a
+sbcb 0x5d
+sbcb 0x769f
+sbcb 121, x
+sec
+sei
+sev
+staa 0x09
+staa 0xf1bc
+staa 90, x
+stab 0x72a1
+stab 0xe8
+stab 176, x
+sts 0x6a
+sts 0xf527
+sts 187, x
+stx 0x39
+stx 0xbe0a
+stx 162, x
+suba #0xb8
+suba 0x558c
+suba 0xd9
+suba 29, x
+subb #0x5c
+subb 0x299e
+subb 0xeb
+subb 255, x
+swi
+tab
+tap
+tba
+tpa
+tst 0xf0f9
+tst 215, x
+tsta
+tstb
+tsx
+txs
+wai

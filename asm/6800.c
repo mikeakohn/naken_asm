@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -155,17 +155,16 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
       if (table_6800[n].operand_type == M6800_OP_NN_X &&
           operand_type == OPERAND_ADDRESS_COMMA_X)
       {
-        int offset = operand_value-(asm_context->address + 2);
         if (asm_context->pass != 1)
         {
-          if (offset < -128 || offset > 127)
+          if (operand_value < 0 || operand_value > 255)
           {
-            print_error_range("Offset", -128, 127, asm_context);
+            print_error_range("Index", 0, 255, asm_context);
             return -1;
           }
         }
         add_bin8(asm_context, n, IS_OPCODE);
-        add_bin8(asm_context, offset & 0xff, IS_OPCODE);
+        add_bin8(asm_context, operand_value & 0xff, IS_OPCODE);
         return 2;
       }
         else
@@ -201,7 +200,7 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
           }
         }
 
-        if (memory_read_m(&asm_context->memory, asm_context->address)==2)
+        if (memory_read_m(&asm_context->memory, asm_context->address) == 2)
         {
           add_bin8(asm_context, n, IS_OPCODE);
           add_bin8(asm_context, operand_value >> 8, IS_OPCODE);

@@ -4,8 +4,9 @@ default:
 	bash run_test.sh 1802
 	python run_test.py 6502
 	bash run_test.sh 65816
-	bash run_test.sh 68000
+	bash run_test.sh 6800
 	bash run_test.sh 6809
+	bash run_test.sh 68000
 	bash run_test.sh 8048
 	bash run_test.sh 8051
 	bash run_test.sh 86000
