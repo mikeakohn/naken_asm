@@ -26,7 +26,7 @@ static void disasm_pdp8_opr(char *instruction, int opcode)
   x = opcode;
 
   switch (opcode & 0411)
-    {
+  {
     case 0000:
     case 0001:
     case 0010:
@@ -41,16 +41,20 @@ static void disasm_pdp8_opr(char *instruction, int opcode)
     case 0411:
       mask = 0376;
       break;
-    }
+  }
 
-  for(;;)
+  while (1)
   {
     y = x;
-    for(n = 0; table_pdp8[n].instr != NULL; n++)
+
+    for (n = 0; table_pdp8[n].instr != NULL; n++)
     {
       if (table_pdp8[n].type != OP_NONE ||
           table_pdp8[n].opcode == 07000)
+      {
         continue;
+      }
+
       if ((table_pdp8[n].opcode & ~mask) == (opcode & ~mask) &&
           (table_pdp8[n].opcode & x) == table_pdp8[n].opcode)
         {
@@ -60,11 +64,16 @@ static void disasm_pdp8_opr(char *instruction, int opcode)
           break;
         }
     }
+
     if (y == x)
     {
       x &= mask;
+
       if ((x & 0777) != 0)
+      {
         sprintf(instruction + strlen(instruction), "%o", x & 0777);
+      }
+
       return;
     }
   }
@@ -79,6 +88,7 @@ int disasm_pdp8(struct _memory *memory, uint32_t address, char *instruction)
   opcode = memory_read16_m(memory, address);
 
   n = 0;
+
   while(table_pdp8[n].instr != NULL)
   {
     if ((opcode & table_pdp8[n].mask) == table_pdp8[n].opcode)
@@ -102,7 +112,7 @@ int disasm_pdp8(struct _memory *memory, uint32_t address, char *instruction)
           }
 
           sprintf(instruction, "%s %s%s%o", table_pdp8[n].instr,
-                  z ? "" : "z ", i ? "i ": "", a);
+                  z ? "z " : "", i ? "i ": "", a);
 
           if (i)
           {
