@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -265,7 +265,7 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-        num = tms1000_reverse_bit_address[num];
+        num = tms1000_reverse_constant[num] >> 1;
 
         add_bin_lsfr(asm_context, (0x5 << 3) | num, IS_OPCODE);
       }
@@ -277,7 +277,7 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-        num = tms1000_reverse_constant[num] >> 5;
+        num = tms1000_reverse_bit_address[num];
 
         add_bin_lsfr(asm_context, ((0xc + n) << 2) | num, IS_OPCODE);
       }

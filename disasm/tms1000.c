@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -127,19 +127,19 @@ int disasm_tms1100(struct _memory *memory, uint32_t address, char *instruction, 
     else
   if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", c); return 1; }
     else
-  if (bit_instr == 0xe) { sprintf(instruction, "tbit1 %d", c); return 1;}
+  if (bit_instr == 0xe) { sprintf(instruction, "tbit1 %d", c); return 1; }
 
   bit_instr = opcode >> 3;
-  c = tms1000_reverse_constant[opcode & 0x7] >> 5;;
+  c = tms1000_reverse_constant[opcode & 0x7] >> 1;
 
-  if (bit_instr ==0x5) { sprintf(instruction, "ldx %d", c); return 1; }
+  if (bit_instr == 0x5) { sprintf(instruction, "ldx %d", c); return 1; }
 
   bit_instr = opcode >> 4;
   c = tms1000_reverse_constant[opcode & 0xf];
 
   if (bit_instr == 0x4) { sprintf(instruction, "tcy %d", c); return 1; }
     else
-  if (bit_instr == 0x6) { sprintf(instruction, "tcmiy %d", c); return 1;}
+  if (bit_instr == 0x6) { sprintf(instruction, "tcmiy %d", c); return 1; }
     else
   if (bit_instr == 0x1) { sprintf(instruction, "ldp %d", c); return 1; }
     else
