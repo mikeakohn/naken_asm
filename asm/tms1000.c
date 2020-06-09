@@ -41,10 +41,10 @@ static void add_bin_lsfr(struct _asm_context *asm_context, uint8_t data, int fla
   }
 
   int page = asm_context->address & 0x3c0;
-  int address = asm_context->address & 0x3f;
+  int pc = asm_context->address & 0x3f;
 
-  memory_write_m(&asm_context->memory, page | tms1000_address_to_lsfr[address], data);
-  memory_debug_line_set(asm_context, page | tms1000_address_to_lsfr[address], line);
+  memory_write_m(&asm_context->memory, page | tms1000_address_to_lsfr[pc], data);
+  memory_debug_line_set(asm_context, page | tms1000_address_to_lsfr[pc], line);
 
   asm_context->address++;
 }
@@ -344,6 +344,7 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
     {
       int address = 0;
       int page;
+
       if (eval_expression(asm_context, &address) != 0)
       {
         if (asm_context->pass == 2)
@@ -370,7 +371,8 @@ int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
       if (asm_context->pass == 2 && page != curr_page)
       {
         //add_bin_lsfr(asm_context, (0x10) | (page & 0xf), IS_OPCODE);
-        printf("Warning: Branch crosses page boundary at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
+        printf("Warning: Branch crosses page boundary at %s:%d\n",
+          asm_context->tokens.filename, asm_context->tokens.line);
       }
 
       add_bin_lsfr(asm_context, (0x80 | (n << 6)) | tms1000_address_to_lsfr[(address & 0x3f)], IS_OPCODE);
