@@ -3,7 +3,6 @@
   a6aac
   a7aac
 loop:
-  clo
   br loop
 
   sbit 0
@@ -19,5 +18,4 @@ loop:
 
 blah:
   ynec 3
-
 
