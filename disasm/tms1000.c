@@ -16,7 +16,8 @@
 #include "disasm/tms1000.h"
 #include "table/tms1000.h"
 
-#define READ_RAM(a) memory_read_m(memory, tms1000_address_to_lsfr[a])
+#define READ_RAM(a) \
+  memory_read_m(memory, (a & 0xfc0) | tms1000_address_to_lsfr[a & 0x3f])
 
 int get_cycle_count_tms1000(uint16_t opcode)
 {
@@ -182,7 +183,8 @@ void list_output_tms1000(struct _asm_context *asm_context, uint32_t start, uint3
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  uint32_t opcode = memory_read_m(&asm_context->memory, tms1000_address_to_lsfr[start]);
+  struct _memory *memory = &asm_context->memory;
+  uint32_t opcode = READ_RAM(start);
   int chapter;
   int page;
   int pc;
@@ -192,8 +194,7 @@ void list_output_tms1000(struct _asm_context *asm_context, uint32_t start, uint3
 
   lsfr = tms1000_address_to_lsfr[pc];
 
-  fprintf(asm_context->list, "\n");
-  disasm_tms1000(&asm_context->memory, (page << 6) | lsfr, instruction, &cycles_min, &cycles_max);
+  disasm_tms1000(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
   fprintf(asm_context->list, "%03x %x/%02x: %02x %-40s cycles: ", start, page, lsfr, opcode, instruction);
 
@@ -211,7 +212,8 @@ void list_output_tms1100(struct _asm_context *asm_context, uint32_t start, uint3
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  uint16_t opcode = memory_read_m(&asm_context->memory, tms1000_address_to_lsfr[start]);
+  struct _memory *memory = &asm_context->memory;
+  uint32_t opcode = READ_RAM(start);
   int chapter;
   int page;
   int pc;
@@ -221,8 +223,7 @@ void list_output_tms1100(struct _asm_context *asm_context, uint32_t start, uint3
 
   lsfr = tms1000_address_to_lsfr[pc];
 
-  fprintf(asm_context->list, "\n");
-  disasm_tms1100(&asm_context->memory, (page << 6) | lsfr, instruction, &cycles_min, &cycles_max);
+  disasm_tms1100(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
   fprintf(asm_context->list, "%03x %d/%x/%02x: %02x %-40s cycles: ", start, chapter, page, lsfr, opcode, instruction);
 
