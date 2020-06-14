@@ -363,9 +363,12 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
 
     while (1)
     {
-      if (asm_context->include_path[ptr] == 0 &&
-          asm_context->include_path[ptr+1] == 0)
-      { fprintf(out, "\n"); break; }
+      if (asm_context->include_path[ptr + 0] == 0 &&
+          asm_context->include_path[ptr + 1] == 0)
+      {
+        fprintf(out, "\n");
+        break;
+      }
 
       if (asm_context->include_path[ptr] == 0)
       {
@@ -377,16 +380,23 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
     }
   }
 
-  fprintf(out, " Instructions: %d\n", asm_context->instruction_count);
-  fprintf(out, "   Code Bytes: %d\n", asm_context->code_count);
-  fprintf(out, "   Data Bytes: %d\n", asm_context->data_count);
-  fprintf(out, "  Low Address: %04x (%u)\n",
-    asm_context->memory.low_address / asm_context->bytes_per_address,
-    asm_context->memory.low_address / asm_context->bytes_per_address);
-  fprintf(out, " High Address: %04x (%u)\n",
-    asm_context->memory.high_address / asm_context->bytes_per_address,
-    asm_context->memory.high_address / asm_context->bytes_per_address);
-  fprintf(out, "\n");
+  const uint32_t low_address =
+    asm_context->memory.low_address / asm_context->bytes_per_address;
+
+  const uint32_t high_address =
+    asm_context->memory.high_address / asm_context->bytes_per_address;
+
+  fprintf(out,
+    " Instructions: %d\n"
+    "   Code Bytes: %d\n"
+    "   Data Bytes: %d\n"
+    "  Low Address: %04x (%u)\n"
+    " High Address: %04x (%u)\n\n",
+    asm_context->instruction_count,
+    asm_context->code_count,
+    asm_context->data_count,
+    low_address, low_address,
+    high_address, high_address);
 }
 
 int assembler_link_file(struct _asm_context *asm_context, const char *filename)
@@ -905,7 +915,7 @@ int assemble(struct _asm_context *asm_context)
           {
             ch = tokens_get_char(asm_context);
             if (ch == EOF || ch == '\n') break;
-            if (ch == '*' && ptr > 0 && token2[ptr-1] == '/')
+            if (ch == '*' && ptr > 0 && token2[ptr - 1] == '/')
             {
               macros_strip_comment(asm_context);
               ptr--;
