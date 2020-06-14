@@ -150,40 +150,12 @@ static int parse_entry_point(struct _asm_context *asm_context)
   return 0;
 }
 
-#if 0
-static int parse_name(struct _asm_context *asm_context)
-{
-  char token[TOKENLEN];
-  //int token_type;
-
-  tokens_get(asm_context, token, TOKENLEN);
-
-  printf("Program name: %s (ignored)\n", token);
-
-  return 0;
-}
-#endif
-
-#if 0
-static int parse_public(struct _asm_context *asm_context)
-{
-  char token[TOKENLEN];
-  //int token_type;
-
-  tokens_get(asm_context, token, TOKENLEN);
-
-  printf("Public symbol: %s (ignored)\n", token);
-
-  return 0;
-}
-#endif
-
 static int parse_pragma(struct _asm_context *asm_context)
 {
   char token[TOKENLEN];
   int token_type;
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
@@ -389,7 +361,7 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
   {
     fprintf(out, "               ");
 
-    while(1)
+    while (1)
     {
       if (asm_context->include_path[ptr] == 0 &&
           asm_context->include_path[ptr+1] == 0)
@@ -401,7 +373,7 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
         ptr++;
         continue;
       }
-      putc(asm_context->include_path[ptr++], out); 
+      putc(asm_context->include_path[ptr++], out);
     }
   }
 
@@ -424,8 +396,8 @@ int assembler_link_file(struct _asm_context *asm_context, const char *filename)
   // FIXME: Checking the extension is redundant.
   n = strlen(filename);
 
-  while(n >= 0)
-  { 
+  while (n >= 0)
+  {
     n--;
     if (filename[n] == '.') { break; }
   }
@@ -452,7 +424,7 @@ int assembler_link(struct _asm_context *asm_context)
   struct _imports *imports;
   int index = 0;
 
-  while(1)
+  while (1)
   {
     const char *symbol = linker_get_symbol_at_index(asm_context->linker, index);
 
@@ -474,8 +446,6 @@ int assembler_link(struct _asm_context *asm_context)
       &function_size,
       &obj_file,
       &obj_size);
-
-//printf("function_offset=%x function_size=%d symbol=%s\n", function_offset, function_size, symbol);
 
     int ret = asm_context->link_function(
       asm_context,
@@ -539,20 +509,6 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     if (parse_align_bytes(asm_context) != 0) { return -1; }
     return 1;
   }
-#if 0
-    else
-  if (strcasecmp(token, "name") == 0)
-  {
-    if (parse_name(asm_context) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "public") == 0)
-  {
-    if (parse_public(asm_context) != 0) { return -1; }
-    return 1;
-  }
-#endif
     else
   if (strcasecmp(token, "db") == 0 ||
       strcasecmp(token, "dc8") == 0 ||
@@ -576,7 +532,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     else
   if (strcasecmp(token, "dw") == 0 || strcasecmp(token, "dc16") == 0)
   {
-    if (parse_dc16(asm_context) != 0) return -1;
+    if (parse_dc16(asm_context) != 0) { return -1; }
     return 1;
   }
     else
@@ -771,7 +727,7 @@ int assemble(struct _asm_context *asm_context)
   char token[TOKENLEN];
   int token_type;
 
-  while(1)
+  while (1)
   {
     if (asm_context->error_count > 0) { return -1; }
 
@@ -835,9 +791,11 @@ int assemble(struct _asm_context *asm_context)
       {
         if (asm_context->ifdef_count < 1)
         {
-          printf("Error: unmatched .endif at %s:%d\n", asm_context->tokens.filename, asm_context->ifdef_count);
+          printf("Error: unmatched .endif at %s:%d\n",
+            asm_context->tokens.filename, asm_context->ifdef_count);
           return -1;
         }
+
         return 0;
       }
         else
@@ -845,7 +803,8 @@ int assemble(struct _asm_context *asm_context)
       {
         if (asm_context->ifdef_count < 1)
         {
-          printf("Error: Unmatched .else at %s:%d\n", asm_context->tokens.filename, asm_context->ifdef_count);
+          printf("Error: Unmatched .else at %s:%d\n",
+            asm_context->tokens.filename, asm_context->ifdef_count);
           return -1;
         }
         return 2;
@@ -908,11 +867,14 @@ int assemble(struct _asm_context *asm_context)
         else
       {
         int ret = check_for_directive(asm_context, token);
-        if (ret == 2) break;
-        if (ret == -1) return -1;
+
+        if (ret == 2) { break; }
+        if (ret == -1) { return -1; }
+
         if (ret != 1)
         {
-          printf("Error: Unknown directive '%s' at %s:%d.\n", token, asm_context->tokens.filename, asm_context->tokens.line);
+          printf("Error: Unknown directive '%s' at %s:%d.\n",
+            token, asm_context->tokens.filename, asm_context->tokens.line);
           return -1;
         }
       }
@@ -921,9 +883,11 @@ int assemble(struct _asm_context *asm_context)
     if (token_type == TOKEN_STRING)
     {
       int ret = check_for_directive(asm_context, token);
-      if (ret == 2) break;
-      if (ret == -1) return -1;
-      if (ret != 1) 
+
+      if (ret == 2) { break; }
+      if (ret == -1) { return -1; }
+
+      if (ret != 1)
       {
         int start_address = asm_context->address;
         char token2[TOKENLEN];
@@ -937,7 +901,7 @@ int assemble(struct _asm_context *asm_context)
           int ptr = 0;
           int ch = '\n';
 
-          while(1)
+          while (1)
           {
             ch = tokens_get_char(asm_context);
             if (ch == EOF || ch == '\n') break;
@@ -949,12 +913,15 @@ int assemble(struct _asm_context *asm_context)
             }
 
             token2[ptr++] = ch;
-            if (ptr == TOKENLEN-1)
+
+            if (ptr == TOKENLEN - 1)
             {
-              printf("Internal Error: token overflow at %s:%d.\n", __FILE__, __LINE__);
+              printf("Internal Error: token overflow at %s:%d.\n",
+                __FILE__, __LINE__);
               return -1;
             }
           }
+
           token2[ptr] = 0;
           tokens_unget_char(asm_context, ch);
           macros_strip(token2);
