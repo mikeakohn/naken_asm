@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -150,6 +150,7 @@ static int parse_entry_point(struct _asm_context *asm_context)
   return 0;
 }
 
+#if 0
 static int parse_name(struct _asm_context *asm_context)
 {
   char token[TOKENLEN];
@@ -161,7 +162,9 @@ static int parse_name(struct _asm_context *asm_context)
 
   return 0;
 }
+#endif
 
+#if 0
 static int parse_public(struct _asm_context *asm_context)
 {
   char token[TOKENLEN];
@@ -173,6 +176,7 @@ static int parse_public(struct _asm_context *asm_context)
 
   return 0;
 }
+#endif
 
 static int parse_pragma(struct _asm_context *asm_context)
 {
@@ -535,6 +539,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     if (parse_align_bytes(asm_context) != 0) { return -1; }
     return 1;
   }
+#if 0
     else
   if (strcasecmp(token, "name") == 0)
   {
@@ -547,6 +552,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     if (parse_public(asm_context) != 0) { return -1; }
     return 1;
   }
+#endif
     else
   if (strcasecmp(token, "db") == 0 ||
       strcasecmp(token, "dc8") == 0 ||
@@ -588,6 +594,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     if (parse_dc64(asm_context) != 0) { return -1; }
     return 1;
   }
+#if 0
     else
   if (strcasecmp(token, "ds") == 0 || strcasecmp(token, "ds8") == 0)
   {
@@ -606,6 +613,7 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     if (parse_ds(asm_context, 4) != 0) { return -1; }
     return 1;
   }
+#endif
     else
   if (strcasecmp(token, "varuint") == 0)
   {
