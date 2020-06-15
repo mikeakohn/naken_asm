@@ -34,7 +34,7 @@ int parse_db(struct _asm_context *asm_context, int null_term_flag)
     return -1;
   }
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
@@ -43,7 +43,7 @@ int parse_db(struct _asm_context *asm_context, int null_term_flag)
     {
       uint8_t *s = (uint8_t *)token;
 
-      while(*s != 0)
+      while (*s != 0)
       {
         if (*s == '\\')
         {
@@ -121,7 +121,7 @@ int parse_dc16(struct _asm_context *asm_context)
     return -1;
   }
 
-  while(1)
+  while (1)
   {
     // if the user has a comma at the end, but no data, this is okay
     token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -189,7 +189,7 @@ int parse_dc32(struct _asm_context *asm_context)
     return -1;
   }
 
-  while(1)
+  while (1)
   {
     // if the user has a comma at the end, but no data, this is okay
     token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -267,7 +267,7 @@ int parse_dc64(struct _asm_context *asm_context)
     return -1;
   }
 
-  while(1)
+  while (1)
   {
     // if the user has a comma at the end, but no data, this is okay
     token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -362,7 +362,7 @@ int parse_dq(struct _asm_context *asm_context)
     return -1;
   }
 
-  while(1)
+  while (1)
   {
     // if the user has a comma at the end, but no data, this is okay
     token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -454,6 +454,51 @@ int parse_ds(struct _asm_context *asm_context, int n)
 }
 #endif
 
+int parse_data_fill(struct _asm_context *asm_context)
+{
+  int count, value, n;
+
+  if (eval_expression(asm_context, &value) == -1)
+  {
+    if (asm_context->pass == 1)
+    {
+      value = 0;
+    }
+      else
+    {
+      print_error_illegal_expression("data_fill", asm_context);
+      return -1;
+    }
+  }
+
+  if (value < -128 || value > 255)
+  {
+    print_error_range("data_fill", -128, 0xff, asm_context);
+    return -1;
+  }
+
+  if (expect_token_s(asm_context, ",") != 0) { return -1; }
+
+  if (eval_expression(asm_context, &count) == -1)
+  {
+    print_error_illegal_expression("data_fill", asm_context);
+    return -1;
+  }
+
+  if (count < 1)
+  {
+    print_error("data_fill length is less than 1", asm_context);
+    return -1;
+  }
+
+  for (n = 0; n < count; n++)
+  {
+    memory_write_inc(asm_context, value & 0xff, DL_DATA);
+  }
+
+  return 0;
+}
+
 int parse_varuint(struct _asm_context *asm_context, int fixed_size)
 {
   char token[TOKENLEN];
@@ -462,7 +507,7 @@ int parse_varuint(struct _asm_context *asm_context, int fixed_size)
   uint32_t udata32;
   int length;
 
-  while(1)
+  while (1)
   {
     // if the user has a comma at the end, but no data, this is okay
     token_type = tokens_get(asm_context, token, TOKENLEN);

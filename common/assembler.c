@@ -836,6 +836,11 @@ int assemble(struct _asm_context *asm_context)
         if (parse_equ(asm_context) != 0) { return -1; }
       }
         else
+      if (strcasecmp(token, "data_fill") == 0)
+      {
+        if (parse_data_fill(asm_context) != 0) { return -1; }
+      }
+        else
       {
         int ret = check_for_directive(asm_context, token);
 
