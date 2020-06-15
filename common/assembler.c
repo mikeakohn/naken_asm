@@ -13,28 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "asm/6502.h"
-#include "asm/65816.h"
-#include "asm/6800.h"
-#include "asm/6809.h"
-#include "asm/68hc08.h"
-#include "asm/68000.h"
-#include "asm/8051.h"
-#include "asm/arm.h"
-#include "asm/avr8.h"
 #include "asm/common.h"
-#include "asm/dspic.h"
-#include "asm/epiphany.h"
-#include "asm/mips.h"
 #include "asm/msp430.h"
-#include "asm/sh4.h"
-#include "asm/stm8.h"
-#include "asm/thumb.h"
-#include "asm/tms1000.h"
-#include "asm/tms9900.h"
-#include "asm/webasm.h"
-#include "asm/xtensa.h"
-#include "asm/z80.h"
 #include "common/assembler.h"
 #include "common/cpu_list.h"
 #include "common/directives_data.h"
@@ -46,26 +26,106 @@
 #include "common/macros.h"
 #include "common/symbols.h"
 #include "common/print_error.h"
-#include "disasm/6502.h"
-#include "disasm/6800.h"
-#include "disasm/6809.h"
-#include "disasm/68hc08.h"
-#include "disasm/68000.h"
-#include "disasm/arm.h"
-#include "disasm/avr8.h"
-#include "disasm/dspic.h"
-#include "disasm/epiphany.h"
-#include "disasm/mips.h"
 #include "disasm/msp430.h"
-#include "disasm/8051.h"
-#include "disasm/sh4.h"
-#include "disasm/stm8.h"
-#include "disasm/thumb.h"
-#include "disasm/tms1000.h"
-#include "disasm/tms9900.h"
-#include "disasm/webasm.h"
-#include "disasm/xtensa.h"
-#include "disasm/z80.h"
+
+void assembler_init(struct _asm_context *asm_context)
+{
+  tokens_reset(asm_context);
+#ifndef NO_MSP430
+  asm_context->parse_instruction = parse_instruction_msp430;
+  asm_context->list_output = list_output_msp430;
+  asm_context->cpu_list_index = -1;
+#else
+  configure_cpu(asm_context, 0);
+#endif
+  asm_context->address = 0;
+  asm_context->instruction_count = 0;
+  asm_context->code_count = 0;
+  asm_context->data_count = 0;
+  asm_context->ifdef_count = 0;
+  asm_context->parsing_ifdef = 0;
+  asm_context->bytes_per_address = 1;
+
+  macros_free(&asm_context->macros);
+  asm_context->def_param_stack_count = 0;
+
+  if (asm_context->pass == 1)
+  {
+    // FIXME - probably need to allow 32 bit data
+    //memory_init(&asm_context->memory, 1<<25, 1);
+    memory_init(&asm_context->memory, ~((uint32_t)0), 1);
+  }
+}
+
+void assembler_free(struct _asm_context *asm_context)
+{
+  linker_free(asm_context->linker);
+  symbols_free(&asm_context->symbols);
+  macros_free(&asm_context->macros);
+  memory_free(&asm_context->memory);
+}
+
+void assembler_print_info(struct _asm_context *asm_context, FILE *out)
+{
+  if (asm_context->quiet_output) { return; }
+
+  fprintf(out, "\nProgram Info:\n");
+
+  if (asm_context->dump_symbols == 1 || out != stdout)
+  {
+    symbols_print(&asm_context->symbols, out);
+  }
+
+  if (asm_context->dump_macros == 1)
+  {
+    macros_print(&asm_context->macros, out);
+  }
+
+  fprintf(out, "Include Paths: .\n");
+
+  int ptr = 0;
+
+  if (asm_context->include_path[ptr] != 0)
+  {
+    fprintf(out, "               ");
+
+    while (1)
+    {
+      if (asm_context->include_path[ptr + 0] == 0 &&
+          asm_context->include_path[ptr + 1] == 0)
+      {
+        fprintf(out, "\n");
+        break;
+      }
+
+      if (asm_context->include_path[ptr] == 0)
+      {
+        fprintf(out, "\n               ");
+        ptr++;
+        continue;
+      }
+      putc(asm_context->include_path[ptr++], out);
+    }
+  }
+
+  const uint32_t low_address =
+    asm_context->memory.low_address / asm_context->bytes_per_address;
+
+  const uint32_t high_address =
+    asm_context->memory.high_address / asm_context->bytes_per_address;
+
+  fprintf(out,
+    " Instructions: %d\n"
+    "   Code Bytes: %d\n"
+    "   Data Bytes: %d\n"
+    "  Low Address: %04x (%u)\n"
+    " High Address: %04x (%u)\n\n",
+    asm_context->instruction_count,
+    asm_context->code_count,
+    asm_context->data_count,
+    low_address, low_address,
+    high_address, high_address);
+}
 
 static void configure_cpu(struct _asm_context *asm_context, int index)
 {
@@ -298,105 +358,6 @@ static int parse_equ(struct _asm_context *asm_context)
   asm_context->tokens.line++;
 
   return 0;
-}
-
-void assembler_init(struct _asm_context *asm_context)
-{
-  tokens_reset(asm_context);
-#ifndef NO_MSP430
-  asm_context->parse_instruction = parse_instruction_msp430;
-  asm_context->list_output = list_output_msp430;
-  asm_context->cpu_list_index = -1;
-#else
-  configure_cpu(asm_context, 0);
-#endif
-  asm_context->address = 0;
-  asm_context->instruction_count = 0;
-  asm_context->code_count = 0;
-  asm_context->data_count = 0;
-  asm_context->ifdef_count = 0;
-  asm_context->parsing_ifdef = 0;
-  asm_context->bytes_per_address = 1;
-
-  macros_free(&asm_context->macros);
-  asm_context->def_param_stack_count = 0;
-
-  if (asm_context->pass == 1)
-  {
-    // FIXME - probably need to allow 32 bit data
-    //memory_init(&asm_context->memory, 1<<25, 1);
-    memory_init(&asm_context->memory, ~((uint32_t)0), 1);
-  }
-}
-
-void assembler_free(struct _asm_context *asm_context)
-{
-  linker_free(asm_context->linker);
-  symbols_free(&asm_context->symbols);
-  macros_free(&asm_context->macros);
-  memory_free(&asm_context->memory);
-}
-
-void assembler_print_info(struct _asm_context *asm_context, FILE *out)
-{
-  if (asm_context->quiet_output) { return; }
-
-  fprintf(out, "\nProgram Info:\n");
-
-  if (asm_context->dump_symbols == 1 || out != stdout)
-  {
-    symbols_print(&asm_context->symbols, out);
-  }
-
-  if (asm_context->dump_macros == 1)
-  {
-    macros_print(&asm_context->macros, out);
-  }
-
-  fprintf(out, "Include Paths: .\n");
-
-  int ptr = 0;
-
-  if (asm_context->include_path[ptr] != 0)
-  {
-    fprintf(out, "               ");
-
-    while (1)
-    {
-      if (asm_context->include_path[ptr + 0] == 0 &&
-          asm_context->include_path[ptr + 1] == 0)
-      {
-        fprintf(out, "\n");
-        break;
-      }
-
-      if (asm_context->include_path[ptr] == 0)
-      {
-        fprintf(out, "\n               ");
-        ptr++;
-        continue;
-      }
-      putc(asm_context->include_path[ptr++], out);
-    }
-  }
-
-  const uint32_t low_address =
-    asm_context->memory.low_address / asm_context->bytes_per_address;
-
-  const uint32_t high_address =
-    asm_context->memory.high_address / asm_context->bytes_per_address;
-
-  fprintf(out,
-    " Instructions: %d\n"
-    "   Code Bytes: %d\n"
-    "   Data Bytes: %d\n"
-    "  Low Address: %04x (%u)\n"
-    " High Address: %04x (%u)\n\n",
-    asm_context->instruction_count,
-    asm_context->code_count,
-    asm_context->data_count,
-    low_address, low_address,
-    high_address, high_address);
 }
 
 int assembler_link_file(struct _asm_context *asm_context, const char *filename)
