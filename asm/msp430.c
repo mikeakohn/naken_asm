@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -130,7 +130,7 @@ static void operand_to_cg(struct _asm_context *asm_context, struct _operand *ope
   if (bw == 1 && operand->value == 0xff) { operand->value = -1; }
   if (bw == 0 && operand->value == 0xffff) { operand->value = -1; }
 
-  switch(operand->value)
+  switch (operand->value)
   {
     case -1:
       operand->type = OPTYPE_REGISTER;
@@ -167,7 +167,14 @@ static void operand_to_cg(struct _asm_context *asm_context, struct _operand *ope
   }
 }
 
-static int process_operand(struct _asm_context *asm_context, struct _operand *operand, struct _data *data, const char *instr, int size, int is_src, int is_extended)
+static int process_operand(
+  struct _asm_context *asm_context,
+  struct _operand *operand,
+  struct _data *data,
+  const char *instr,
+  int size,
+  int is_src,
+  int is_extended)
 {
   int count = data->count++;
 
@@ -379,8 +386,9 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   // check for RPT prefix
   if (asm_context->cpu_type == CPU_TYPE_MSP430X)
   {
-    n=0;
-    while(msp430x_rpt[n] != NULL)
+    n = 0;
+
+    while (msp430x_rpt[n] != NULL)
     {
       if (strcmp(instr_case, msp430x_rpt[n]) == 0)
       {
@@ -388,7 +396,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
         if (prefix == 0xffff) { return -1; }
 
-        while(1)
+        while (1)
         {
           token_type = tokens_get(asm_context, instr, TOKENLEN);
           if (token_type != TOKEN_EOL) { break; }
@@ -412,7 +420,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
   memset(&operands, 0, sizeof(operands));
   //data.count = 0;
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
@@ -648,7 +656,8 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
   // Do aliases first
   n = 0;
-  while(aliases[n].instr != NULL)
+
+  while (aliases[n].instr != NULL)
   {
     if (strcmp(instr_case, aliases[n].instr) == 0)
     {
@@ -664,7 +673,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
         return 0;
       }
 
-      switch(aliases[n].cmd)
+      switch (aliases[n].cmd)
       {
         case CMD_SP_INC:
           memcpy(&operands[1], &operands[0], sizeof(struct _operand));
@@ -709,7 +718,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
   n = 0;
 
-  while(table_msp430[n].instr != NULL)
+  while (table_msp430[n].instr != NULL)
   {
     if (asm_context->cpu_type != CPU_TYPE_MSP430X &&
         table_msp430[n].version != VERSION_MSP430)
@@ -747,7 +756,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
         return -1;
       }
 
-      switch(table_msp430[n].type)
+      switch (table_msp430[n].type)
       {
         case OP_NONE:
           add_bin16(asm_context, table_msp430[n].opcode, IS_OPCODE);
