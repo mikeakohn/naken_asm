@@ -105,12 +105,13 @@ main:
 
   ;; Setup display memory region.
   mov.l display_memory_1, r1
-  ;mov.l display_memory_1_value, r2
-  mov #0, r2
+  mov.l display_memory_value_1, r2
+  ;mov #0, r2
   mov.l r2, @r1
 
   mov.l display_memory_2, r1
-  mov #0, r2
+  mov.l display_memory_value_2, r2
+  ;mov #0, r2
   mov.l r2, @r1
 
   ;; Setup border color
@@ -120,14 +121,14 @@ main:
 
   ;; Put some stuff in the frame buffer.
   mov.l frame_buffer, r1
-  mov #0, r2
-  mov #100, r0
+  mov.l test_color, r2
+  mov.l pixel_count, r0
 frame_buffer_loop:
   mov.l r2, @r1
   add #4, r1
   add #-1, r0
   cmp/eq #0, r0
-  bt frame_buffer_loop
+  bf frame_buffer_loop
   nop
 
 while_1:
@@ -144,20 +145,25 @@ sync_cfg_value:
 display_mode:
   .dc32 POWERVR_FB_DISPLAY_CFG
 display_mode_value:
-  ;.dc32 (3 << 2) | 1
+  ;; 8: Threshold when display mode is ARGB8888.
+  ;; 2: Pixel mode 3 = RGB0888 (4 bytes / pixel)
+  ;; 1: Line double.
+  ;; 0: Enable.
   .dc32 (0xff << 8) | (3 << 2) | 1
 display_memory_1:
   .dc32 POWERVR_FB_DISPLAY_ADDR1
-display_memory_1_value:
-  .dc32 0xa500_0000
 display_memory_value_1:
   .dc32 0
 display_memory_2:
-  .dc32 POWERVR_FB_DISPLAY_ADDR1
+  .dc32 POWERVR_FB_DISPLAY_ADDR2
 display_memory_value_2:
   .dc32 2560
 frame_buffer:
   .dc32 0xa500_0000
+test_color:
+  .dc32 0xff00ff
+pixel_count:
+  .dc32 640*240
 display_sync_load:
   .dc32 POWERVR_SYNC_LOAD
 display_sync_load_value:
