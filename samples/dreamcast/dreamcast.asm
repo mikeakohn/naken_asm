@@ -157,13 +157,13 @@ display_memory_value_1:
 display_memory_2:
   .dc32 POWERVR_FB_DISPLAY_ADDR2
 display_memory_value_2:
-  .dc32 2560
+  .dc32 640 * 240 * 4
 frame_buffer:
   .dc32 0xa500_0000
 test_color:
   .dc32 0xff00ff
 pixel_count:
-  .dc32 640*240
+  .dc32 640 * 240
 display_sync_load:
   .dc32 POWERVR_SYNC_LOAD
 display_sync_load_value:
