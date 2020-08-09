@@ -137,8 +137,6 @@ show_help()
   echo "  --include-path=PATH       default: (${INSTALL_PREFIX}/share/naken_asm/includes)"
   echo "  --compiler-prefix=PREFIX  for cross-compilers"
   echo "  --enable-debug            compile in debug code"
-  #echo "  --disable-elf             disable elf file option"
-  echo "  --enable-all              compile in support for all CPU's"
   echo "  --enable-1802             compile in support for RCA 1802"
   echo "  --enable-4004             compile in support for 4004/MCS-4"
   echo "  --enable-6502             compile in support for 6502/6510 etc"
