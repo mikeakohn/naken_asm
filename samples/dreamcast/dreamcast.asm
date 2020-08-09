@@ -3,6 +3,9 @@
 .sh4
 .include "powervr.inc"
 
+TILE_WIDTH equ (640 / 32)
+TILE_HEIGHT equ (480 / 32)
+
 ;.org 0x0c000000
 .org 0x8c010000
 
@@ -75,7 +78,7 @@ main:
   mov.l r2, @r1
 
   ;; Setup hposition.
-  mov.l vposition, r1
+  mov.l hposition, r1
   mov.l hposition_value, r2
   mov.l r2, @r1
 
@@ -105,12 +108,12 @@ main:
 
   ;; Setup display memory region.
   mov.l display_memory_1, r1
-  mov.l display_memory_value_1, r2
+  mov.l display_memory_1_value, r2
   ;mov #0, r2
   mov.l r2, @r1
 
   mov.l display_memory_2, r1
-  mov.l display_memory_value_2, r2
+  mov.l display_memory_2_value, r2
   ;mov #0, r2
   mov.l r2, @r1
 
@@ -131,8 +134,7 @@ frame_buffer_loop:
   bf frame_buffer_loop
   nop
 
-while_1:
-  bra while_1
+  bra tile_accelerator
   nop
 
 .align 32
@@ -152,11 +154,11 @@ display_mode_value:
   .dc32 (0xff << 8) | (3 << 2) | 1
 display_memory_1:
   .dc32 POWERVR_FB_DISPLAY_ADDR1
-display_memory_value_1:
+display_memory_1_value:
   .dc32 0
 display_memory_2:
   .dc32 POWERVR_FB_DISPLAY_ADDR2
-display_memory_value_2:
+display_memory_2_value:
   .dc32 640 * 240 * 4
 frame_buffer:
   .dc32 0xa500_0000
@@ -204,4 +206,107 @@ unknown_2:
   .dc32 0xa05f8114
 unknown_2_value:
   .dc32 0x00200000
+
+tile_accelerator:
+  ;; Point r1 to the tile accelerator registers.
+  mov.l ta_registers, r1
+
+  ;; Reset tile accelerator.
+  mov.l ta_reset, r1
+  mov #1, r2
+  mov.l r2, @r1
+  mov #0, r2
+  mov.l r2, @r1
+
+  ;; Set object pointer buffer start.
+  mov.l ta_object_pointer_buffer_start, r1
+  mov.l ta_object_pointer_buffer_start_value, r2
+  mov.l r2, @r1
+
+  ;; Set object pointer buffer end.
+  mov.l ta_object_pointer_buffer_end, r1
+  mov.l ta_object_pointer_buffer_end_value, r2
+  mov.l r2, @r1
+
+  ;; Set vertex buffer start.
+  mov.l ta_vertex_buffer_start, r1
+  mov.l ta_vertex_buffer_start_value, r2
+  mov.l r2, @r1
+
+  ;; Set vertex buffer end.
+  mov.l ta_vertex_buffer_end, r1
+  mov.l ta_vertex_buffer_end_value, r2
+  mov.l r2, @r1
+
+  ;; Set how many tiles are on the screen (width / height).
+  mov.l ta_tile_buffer_control, r1
+  mov.l ta_tile_buffer_control_value, r2
+  mov.l r2, @r1
+
+  ;; Set object pointer buffer init.
+  mov.l ta_object_pointer_buffer_init, r1
+  mov.l ta_object_pointer_buffer_init_value, r2
+  mov.l r2, @r1
+
+  ;; Tile accelerator configure OPB.
+  ;; Bits 1-0 set to 2 is opaque polygons size_16 (15 object pointers).
+  mov.l ta_opb_cfg, r1
+  mov.l ta_opb_cfg_value, r2
+  mov.l r2, @r1
+
+  ;; Tile accelerator vertex registration init.
+  mov.l ta_vertex_registration_init, r1
+  mov.l ta_vertex_registration_init_value, r2
+  mov.l r2, @r1
+
+  ;; Start render (write anything to this register).
+  mov.l ta_start_render, r1
+  ;mov.l r2, @r1
+
+  bra while_1
+  nop
+
+.align 32
+ta_registers:
+  .dc32 0xa05f8000
+ta_reset:
+  .dc32 0xa05f8008
+ta_opb_cfg:
+  .dc32 0xa05f8140
+ta_opb_cfg_value:
+  .dc32 0x0010_0002
+ta_object_pointer_buffer_start:
+  .dc32 0xa05f8124
+ta_object_pointer_buffer_start_value:
+  .dc32 0
+ta_object_pointer_buffer_end:
+  .dc32 0xa05f812c
+ta_object_pointer_buffer_end_value:
+  .dc32 0
+ta_vertex_buffer_start:
+  .dc32 0xa05f8128
+ta_vertex_buffer_start_value:
+  .dc32 0
+ta_vertex_buffer_end:
+  .dc32 0xa05f8130
+ta_vertex_buffer_end_value:
+  .dc32 0
+ta_tile_buffer_control:
+  .dc32 0xa05f813c
+ta_tile_buffer_control_value:
+  .dc32 ((TILE_HEIGHT - 1) << 16) | (TILE_WIDTH - 1)
+ta_object_pointer_buffer_init:
+  .dc32 0xa05f8164
+ta_object_pointer_buffer_init_value:
+  .dc32 0
+ta_start_render:
+  .dc32 0xa05f8014
+ta_vertex_registration_init:
+  .dc32 0xa05f8144
+ta_vertex_registration_init_value:
+  .dc32 0xa05f8144
+
+while_1:
+  bra while_1
+  nop
 
