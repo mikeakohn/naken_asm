@@ -281,13 +281,6 @@ for option in $@; do
   ;;
   --prefix=*) INSTALL_PREFIX="$optval"
   ;;
-  --enable-all)
-    ASM_OBJS="${ASM_OBJS_ALL}"
-    DISASM_OBJS="${DISASM_OBJS_ALL}"
-    SIM_OBJS="${SIM_OBJS_ALL}"
-    TABLE_OBJS="${TABLE_OBJS_ALL}"
-    DFLAGS="${DFLAGS_ALL}"
-  ;;
   --enable-1802)
     ASM_OBJS="${ASM_OBJS} 1802.o"
     DISASM_OBJS="${DISASM_OBJS} 1802.o"
