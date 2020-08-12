@@ -81,7 +81,7 @@ DFLAGS_ALL=`echo ${DFLAGS_ALL} | sed 's/^ *//'`
 
 for file in asm/*.c
 do
-  if [[ ! ${file} =~ "template" ]]
+  if [[ ! $(basename ${file})  == "template.c" ]]
   then
     file=${file##*/}
     ASM_OBJS_ALL="${ASM_OBJS_ALL} ${file%.c}.o"
@@ -90,7 +90,7 @@ done
 
 for file in disasm/*.c
 do
-  if [[ ! ${file} =~ "template" ]]
+  if [[ ! $(basename ${file}) == "template.c" ]]
   then
     file=${file##*/}
     DISASM_OBJS_ALL="${DISASM_OBJS_ALL} ${file%.c}.o"
@@ -99,7 +99,7 @@ done
 
 for file in table/*.c
 do
-  if [[ ! ${file} =~ "template" ]]
+  if [[ ! $(basename ${file}) == "template.c" ]]
   then
     file=${file##*/}
     TABLE_OBJS_ALL="${TABLE_OBJS_ALL} ${file%.c}.o"
@@ -108,7 +108,7 @@ done
 
 for file in simulate/*.c
 do
-  if [[ ! ${file} =~ "template" ]]
+  if [[ ! $(basename ${file}) == "template.c" ]]
   then
     file=${file##*/}
     SIM_OBJS_ALL="${SIM_OBJS_ALL} ${file%.c}.o"
