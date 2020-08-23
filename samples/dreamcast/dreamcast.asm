@@ -5,6 +5,10 @@
 
 TILE_WIDTH equ (640 / 32)
 TILE_HEIGHT equ (480 / 32)
+DISPLAY_BUFFER_1 equ 0
+DISPLAY_BUFFER_2 equ (640 * 240 * 4)
+TILE_BUFFER_ADDRESS equ (DISPLAY_BUFFER_2 * 2)
+VERTEX_BUFFER_ADDRESS equ (TILE_BUFFER_ADDRESS + (64 * TILE_WIDTH * TILE_HEIGHT))
 
 ;.org 0x0c000000
 .org 0x8c010000
@@ -155,11 +159,11 @@ display_mode_value:
 display_memory_1:
   .dc32 POWERVR_FB_DISPLAY_ADDR1
 display_memory_1_value:
-  .dc32 0
+  .dc32 DISPLAY_BUFFER_1
 display_memory_2:
   .dc32 POWERVR_FB_DISPLAY_ADDR2
 display_memory_2_value:
-  .dc32 640 * 240 * 4
+  .dc32 DISPLAY_BUFFER_2
 frame_buffer:
   .dc32 0xa500_0000
 test_color:
@@ -278,7 +282,7 @@ ta_opb_cfg_value:
 ta_object_pointer_buffer_start:
   .dc32 0xa05f8124
 ta_object_pointer_buffer_start_value:
-  .dc32 0
+  .dc32 TILE_BUFFER_ADDRESS
 ta_object_pointer_buffer_end:
   .dc32 0xa05f812c
 ta_object_pointer_buffer_end_value:
@@ -286,7 +290,7 @@ ta_object_pointer_buffer_end_value:
 ta_vertex_buffer_start:
   .dc32 0xa05f8128
 ta_vertex_buffer_start_value:
-  .dc32 0
+  .dc32 VERTEX_BUFFER_ADDRESS
 ta_vertex_buffer_end:
   .dc32 0xa05f8130
 ta_vertex_buffer_end_value:
@@ -298,13 +302,76 @@ ta_tile_buffer_control_value:
 ta_object_pointer_buffer_init:
   .dc32 0xa05f8164
 ta_object_pointer_buffer_init_value:
-  .dc32 0
+  .dc32 TILE_BUFFER_ADDRESS
 ta_start_render:
   .dc32 0xa05f8014
 ta_vertex_registration_init:
   .dc32 0xa05f8144
 ta_vertex_registration_init_value:
   .dc32 0xa05f8144
+
+object_list_start:
+
+;; Paramter control word is:
+;; [bit 32-24 para control] [23-16 group control] [15-0 obj control]
+;;   Para control is:
+;;   [31-29 para type] [28 end of strip] [27 reserved] [26-24 list type]
+;;      Para types:
+;;      0: end of list
+;;      1: user tile clip
+;;      2: object set list
+;;      4: polygon/modifier volume
+;;      5: sprite
+;;      7: vertex
+;;
+;;      List types:
+;;      0: opaque
+;;      1: opaque modifier voume
+;;      2: translucent
+;;      3: translucent modifier volume
+;;      4: punch through
+vertex_0:
+  .dc32 (7 << 29)
+  .dc32 100.0      ;; X
+  .dc32 100.0      ;; Y
+  .dc32   0.0      ;; Z
+  .dc32     0      ;; ignored
+  .dc32     0      ;; ignored
+  .dc32 0x00ff0000 ;; Base Color
+  .dc32     0      ;; ignored
+
+vertex_1:
+  .dc32 (7 << 29)
+  .dc32 100.0      ;; X
+  .dc32 200.0      ;; Y
+  .dc32   0.0      ;; Z
+  .dc32     0      ;; ignored
+  .dc32     0      ;; ignored
+  .dc32 0x0000ff00 ;; Base Color
+  .dc32     0      ;; ignored
+
+vertex_2:
+  .dc32 (7 << 29) | (1 << 28)
+  .dc32 200.0      ;; X
+  .dc32 200.0      ;; Y
+  .dc32   0.0      ;; Z
+  .dc32     0      ;; ignored
+  .dc32     0      ;; ignored
+  .dc32 0x000000ff ;; Base Color
+  .dc32     0      ;; ignored
+
+end_of_list:
+  .dc32 0
+  .dc32     0      ;; ignored
+  .dc32     0      ;; ignored
+  .dc32     0      ;; ignored
+  .dc32     0      ;; ignored
+  .dc32     0      ;; ignored
+  .dc32     0      ;; ignored
+  .dc32     0      ;; ignored
+
+object_list_end:
+
 
 while_1:
   bra while_1
