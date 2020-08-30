@@ -1708,7 +1708,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if ((operands[0].type != OPERAND_BF && 
+          if ((operands[0].type != OPERAND_BF &&
                operands[0].type != OPERAND_NUMBER) ||
                operands[1].type != OPERAND_FPU_REGISTER ||
                operands[2].type != OPERAND_FPU_REGISTER)
@@ -1766,7 +1766,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          if ((operands[0].type != OPERAND_BF && 
+          if ((operands[0].type != OPERAND_BF &&
                operands[0].type != OPERAND_NUMBER) ||
                operands[1].type != OPERAND_NUMBER)
           {
