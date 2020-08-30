@@ -434,4 +434,3 @@ void disasm_range_powerpc(struct _memory *memory, uint32_t flags, uint32_t start
   }
 }
 
-
