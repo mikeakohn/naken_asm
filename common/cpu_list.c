@@ -45,6 +45,7 @@
 #include "asm/ps2_ee_vu.h"
 #include "asm/riscv.h"
 #include "asm/sh4.h"
+#include "asm/sparc.h"
 #include "asm/stm8.h"
 #include "asm/super_fx.h"
 #include "asm/sweet16.h"
@@ -88,6 +89,7 @@
 #include "disasm/ps2_ee_vu.h"
 #include "disasm/riscv.h"
 #include "disasm/sh4.h"
+#include "disasm/sparc.h"
 #include "disasm/stm8.h"
 #include "disasm/super_fx.h"
 #include "disasm/sweet16.h"
@@ -970,6 +972,28 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_sh4,
     disasm_range_sh4,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_SPARC
+  {
+    "sparc",
+    CPU_TYPE_SPARC,
+    ENDIAN_BIG,
+    1,
+    ALIGN_4,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_32,
+    parse_instruction_sparc,
+    NULL,
+    link_not_supported,
+    list_output_sparc,
+    disasm_range_sparc,
     NULL,
     NO_FLAGS,
   },

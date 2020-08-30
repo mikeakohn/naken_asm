@@ -55,6 +55,7 @@
 #include "disasm/ps2_ee_vu.h"
 #include "disasm/riscv.h"
 #include "disasm/sh4.h"
+#include "disasm/sparc.h"
 #include "disasm/stm8.h"
 #include "disasm/super_fx.h"
 #include "disasm/sweet16.h"
@@ -122,6 +123,7 @@ parse_instruction_t parse_instruction_propeller = NULL;
 parse_instruction_t parse_instruction_ps2_ee_vu = NULL;
 parse_instruction_t parse_instruction_riscv = NULL;
 parse_instruction_t parse_instruction_sh4 = NULL;
+parse_instruction_t parse_instruction_sparc = NULL;
 parse_instruction_t parse_instruction_stm8 = NULL;
 parse_instruction_t parse_instruction_super_fx = NULL;
 parse_instruction_t parse_instruction_sweet16 = NULL;

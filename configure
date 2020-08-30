@@ -51,6 +51,7 @@ CPUS=" \
   PROPELLER
   RISCV
   SH4
+  SPARC
   STM8
   SUPER_FX
   SWEET16
@@ -170,6 +171,7 @@ show_help()
   echo "  --enable-emotion-engine   compile in support for Emotion Engine"
   echo "  --enable-riscv            compile in support for RISCV"
   echo "  --enable-sh4              compile in support for SH4"
+  echo "  --enable-sparc            compile in support for SPARC"
   echo "  --enable-stm8             compile in support for STM8"
   echo "  --enable-super-fx         compile in support for Super FX"
   echo "  --enable-sweet16          compile in support for sweet16"
@@ -485,6 +487,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} sh4.o"
     TABLE_OBJS="${TABLE_OBJS} sh4.o"
     DFLAGS="${DFLAGS} -DENABLE_SH4"
+  ;;
+  --enable-sparc)
+    ASM_OBJS="${ASM_OBJS} sparc.o"
+    DISASM_OBJS="${DISASM_OBJS} sparc.o"
+    TABLE_OBJS="${TABLE_OBJS} sparc.o"
+    DFLAGS="${DFLAGS} -DENABLE_SPARC"
   ;;
   --enable-stm8)
     ASM_OBJS="${ASM_OBJS} stm8.o"
