@@ -60,7 +60,7 @@ int parse_instruction_sparc(struct _asm_context *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
   char token[TOKENLEN];
-  struct _operand operands[3];
+  struct _operand operands[4];
   int operand_count = 0;
   int token_type;
   int matched = 0;
@@ -125,7 +125,7 @@ int parse_instruction_sparc(struct _asm_context *asm_context, char *instr)
   }
 
 #ifdef DEBUG
-printf("-----\n");
+printf("----- %d -----\n", operand_count);
 for (n = 0; n < operand_count; n++)
 {
 printf("[%d %d]", operands[n].type, operands[n].value);

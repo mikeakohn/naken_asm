@@ -19,13 +19,15 @@ enum
   OP_NONE,
   OP_REG_REG_REG,
   OP_REG_SIMM13_REG,
+  OP_FREG_FREG_FREG_FREG,
+  OP_FREG_FREG_IMM5_FREG,
+  OP_FREG_FREG_FREG,
 };
 
 struct _table_sparc
 {
   char *instr;
   uint32_t opcode;
-  uint32_t mask;
   uint8_t type;
   uint8_t flags;
 };
