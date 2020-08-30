@@ -3,12 +3,19 @@
 .sh4
 .include "powervr.inc"
 
+;; Page 340
+;; 640 * 240 * 4 = 614,000 (less than 1MB)
 TILE_WIDTH equ (640 / 32)
 TILE_HEIGHT equ (480 / 32)
 DISPLAY_BUFFER_1 equ 0
 DISPLAY_BUFFER_2 equ (640 * 240 * 4)
-TILE_BUFFER_ADDRESS equ (DISPLAY_BUFFER_2 * 2)
-VERTEX_BUFFER_ADDRESS equ (TILE_BUFFER_ADDRESS + (64 * TILE_WIDTH * TILE_HEIGHT))
+; TILE_BUFFER_ADDRESS grows downward in memory, START should be higher.
+; size = 64 * (640 / 32) * (480 / 32) = 64 * 20 * 15 = 19,200
+TILE_BUFFER_ADDRESS_END equ 0
+TILE_BUFFER_ADDRESS_START equ 64 * TILE_WIDTH * TILE_HEIGHT
+; TILE_DESCRIPTOR_BUFFER
+; size = 24 + 6 * (640 / 32) * (480 / 32)
+VERTEX_BUFFER_ADDRESS equ TILE_BUFFER_ADDRESS_START
 
 ;.org 0x0c000000
 .org 0x8c010000
@@ -213,7 +220,7 @@ unknown_2_value:
 
 tile_accelerator:
   ;; Point r1 to the tile accelerator registers.
-  mov.l ta_registers, r1
+  ;mov.l ta_registers, r1
 
   ;; Reset tile accelerator.
   mov.l ta_reset, r1
@@ -282,7 +289,7 @@ ta_opb_cfg_value:
 ta_object_pointer_buffer_start:
   .dc32 0xa05f8124
 ta_object_pointer_buffer_start_value:
-  .dc32 TILE_BUFFER_ADDRESS
+  .dc32 TILE_BUFFER_ADDRESS_START
 ta_object_pointer_buffer_end:
   .dc32 0xa05f812c
 ta_object_pointer_buffer_end_value:
@@ -290,7 +297,7 @@ ta_object_pointer_buffer_end_value:
 ta_vertex_buffer_start:
   .dc32 0xa05f8128
 ta_vertex_buffer_start_value:
-  .dc32 VERTEX_BUFFER_ADDRESS
+  .dc32 VERTEX_BUFFER_ADDRESS_START
 ta_vertex_buffer_end:
   .dc32 0xa05f8130
 ta_vertex_buffer_end_value:
@@ -302,7 +309,7 @@ ta_tile_buffer_control_value:
 ta_object_pointer_buffer_init:
   .dc32 0xa05f8164
 ta_object_pointer_buffer_init_value:
-  .dc32 TILE_BUFFER_ADDRESS
+  .dc32 TILE_BUFFER_ADDRESS_START
 ta_start_render:
   .dc32 0xa05f8014
 ta_vertex_registration_init:
