@@ -37,7 +37,7 @@ int disasm_sparc(struct _memory *memory, uint32_t address, char *instruction, in
 
   while (table_sparc[n].instr != NULL)
   {
-    if ((opcode & table_sparc[n].mask) == table_sparc[n].opcode)
+    if ((opcode & mask_sparc[table_sparc[n].type]) == table_sparc[n].opcode)
     {
       const uint32_t rd = (opcode >> 25) & 0x1f;
       const uint32_t rs1 = (opcode >> 14) & 0x1f;

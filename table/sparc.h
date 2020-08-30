@@ -31,6 +31,7 @@ struct _table_sparc
 };
 
 extern struct _table_sparc table_sparc[];
+extern uint32_t mask_sparc[];
 
 #endif
 
