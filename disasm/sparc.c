@@ -23,9 +23,10 @@ int get_cycle_count_sparc(unsigned short int opcode)
 
 int disasm_sparc(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
+  const char *cc_value[] = { "icc", "?", "xcc", "?" };
   uint32_t opcode;
   int32_t offset;
-  int annul;
+  int annul, pt, cc;
   int n;
 
   *cycles_min = -1;
@@ -76,8 +77,24 @@ int disasm_sparc(struct _memory *memory, uint32_t address, char *instruction, in
           if ((offset & 0x200000) != 0) { offset |= 0xffc00000; }
           offset *= 4;
 
-          sprintf(instruction, "%s%s r%d (offset=%d)",
+          sprintf(instruction, "%s%s 0x%04x (offset=%d)",
             instr, annul == 1 ? ",a" : "", address + offset, offset);
+          break;
+        case OP_BRANCH_P:
+          annul = (opcode >> 29) & 1;
+          pt = (opcode >> 19) & 1;
+          cc = (opcode >> 20) & 3;
+          offset = opcode & 0x7ffff;
+          if ((offset & 0x40000) != 0) { offset |= 0xfff80000; }
+          offset *= 4;
+
+          sprintf(instruction, "%s%s%s %s, 0x%04x (offset=%d)",
+            instr,
+            annul == 1 ? ",a" : "",
+            pt == 1 ? ",pt" : "",
+            cc_value[cc],
+            address + offset,
+            offset);
           break;
         default:
           strcpy(instruction, "???");

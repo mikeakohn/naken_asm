@@ -27,6 +27,7 @@ enum
   OPERAND_INVALID,
   OPERAND_REGISTER,
   OPERAND_NUMBER,
+  OPERAND_CC,
 };
 
 struct _operand
@@ -68,6 +69,7 @@ int parse_instruction_sparc(struct _asm_context *asm_context, char *instr)
   int32_t offset;
   int num, n;
   int annul = 0;
+  int pt = -1;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -78,10 +80,28 @@ int parse_instruction_sparc(struct _asm_context *asm_context, char *instr)
 
     if (operand_count == 0 && IS_TOKEN(token, ','))
     {
-      if (expect_token(asm_context, 'a')) { return -1; }
-
-      annul = 1;
       token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (strcasecmp(token, "a") == 0)
+      {
+        annul = 1;
+      }
+        else
+      if (strcasecmp(token, "pn") == 0)
+      {
+        pt = 0;
+      }
+        else
+      if (strcasecmp(token, "pt") == 0)
+      {
+        pt = 1;
+      }
+        else
+      {
+        print_error_unexp(token, asm_context);
+      }
+
+      continue;
     }
 
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
@@ -100,6 +120,18 @@ int parse_instruction_sparc(struct _asm_context *asm_context, char *instr)
     {
       operands[operand_count].type = OPERAND_REGISTER;
       operands[operand_count].value = n;
+    }
+      else
+    if (strcasecmp(token, "icc") == 0)
+    {
+      operands[operand_count].type = OPERAND_CC;
+      operands[operand_count].value = 0;
+    }
+      else
+    if (strcasecmp(token, "xcc") == 0)
+    {
+      operands[operand_count].type = OPERAND_CC;
+      operands[operand_count].value = 2;
     }
       else
     {
@@ -150,6 +182,19 @@ printf("\n");
     if (strcmp(table_sparc[n].instr, instr_case) == 0)
     {
       matched = 1;
+
+      if (annul == 1 || pt != -1)
+      {
+        switch(table_sparc[n].type)
+        {
+          case OP_BRANCH:
+          case OP_BRANCH_P:
+            break;
+          default:
+            print_error_unexp(",a/pt", asm_context);
+            return -1;
+        }
+      }
 
       switch (table_sparc[n].type)
       {
@@ -232,6 +277,12 @@ printf("\n");
         {
           if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)
           {
+            if (pt != -1)
+            {
+              print_error_unexp(token, asm_context);
+              return -1;
+            }
+
             offset = operands[0].value - asm_context->address;
 
             if (asm_context->pass == 1) { offset = 0; }
@@ -242,8 +293,8 @@ printf("\n");
               return -1;
             }
 
-            int min = -(1 << 23);
-            int max = (1 << 23) - 1;
+            const int min = -(1 << 23);
+            const int max = (1 << 23) - 1;
 
             if (offset < min || offset > max)
             {
@@ -255,6 +306,45 @@ printf("\n");
             opcode = table_sparc[n].opcode |
                     (annul << 29) |
                     (offset & 0x003fffff);
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          break;
+        }
+        case OP_BRANCH_P:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_CC &&
+              operands[1].type == OPERAND_NUMBER)
+          {
+            offset = operands[1].value - asm_context->address;
+
+            if (asm_context->pass == 1) { offset = 0; }
+
+            if ((offset & 0x3) != 0)
+            {
+              print_error_align(asm_context, 2);
+              return -1;
+            }
+
+            const int min = -(1 << 20);
+            const int max = (1 << 20) - 1;
+
+            if (offset < min || offset > max)
+            {
+              print_error_range("Displacement", min, max, asm_context);
+            }
+
+            offset = offset >> 2;
+
+            opcode = table_sparc[n].opcode |
+                    (annul << 29) |
+                    (operands[0].value << 20) |
+                    (pt << 19) |
+                    (offset & 0x0007ffff);
 
             add_bin32(asm_context, opcode, IS_OPCODE);
 
