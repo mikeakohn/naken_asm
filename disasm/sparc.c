@@ -24,8 +24,8 @@ int get_cycle_count_sparc(unsigned short int opcode)
 int disasm_sparc(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
-  //int32_t offset;
-  //int32_t temp;
+  int32_t offset;
+  int annul;
   int n;
 
   *cycles_min = -1;
@@ -57,6 +57,27 @@ int disasm_sparc(struct _memory *memory, uint32_t address, char *instruction, in
           break;
         case OP_REG_SIMM13_REG:
           sprintf(instruction, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
+          break;
+        case OP_FREG_FREG_FREG_FREG:
+          //sprintf(instruction, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
+          sprintf(instruction, "%s ???", instr);
+          break;
+        case OP_FREG_FREG_IMM5_FREG:
+          //sprintf(instruction, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
+          sprintf(instruction, "%s ???", instr);
+          break;
+        case OP_FREG_FREG_FREG:
+          //sprintf(instruction, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
+          sprintf(instruction, "%s ???", instr);
+          break;
+        case OP_BRANCH:
+          annul = (opcode >> 29) & 1;
+          offset = opcode & 0x3fffff;
+          if ((offset & 0x200000) != 0) { offset |= 0xffc00000; }
+          offset *= 4;
+
+          sprintf(instruction, "%s%s r%d (offset=%d)",
+            instr, annul == 1 ? ",a" : "", address + offset, offset);
           break;
         default:
           strcpy(instruction, "???");

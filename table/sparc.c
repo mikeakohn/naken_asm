@@ -38,17 +38,44 @@ struct _table_sparc table_sparc[] =
   { "alignaddress",        0x81b00300, OP_REG_REG_REG, 0 },
   { "alignaddress_little", 0x81b00300, OP_REG_REG_REG, 0 },
   { "allclean",            0x85880000, OP_NONE, 0 },
+  { "and",                 0x80080000, OP_REG_REG_REG, 0 },
+  { "and",                 0x80082000, OP_REG_SIMM13_REG, 0 },
+  { "andcc",               0x80880000, OP_REG_REG_REG, 0 },
+  { "andcc",               0x80882000, OP_REG_SIMM13_REG, 0 },
+  { "andn",                0x80280000, OP_REG_REG_REG, 0 },
+  { "andn",                0x80282000, OP_REG_SIMM13_REG, 0 },
+  { "andncc",              0x80a80000, OP_REG_REG_REG, 0 },
+  { "andncc",              0x80a82000, OP_REG_SIMM13_REG, 0 },
+  { "array8",              0x801b0200, OP_REG_REG_REG, 0 },
+  { "array16",             0x801b0240, OP_REG_REG_REG, 0 },
+  { "array32",             0x801b0260, OP_REG_REG_REG, 0 },
+  { "ba",                  0x10800000, OP_BRANCH, 0 },
+  { "bn",                  0x00800000, OP_BRANCH, 0 },
+  { "bne",                 0x12800000, OP_BRANCH, 0 },
+  { "be",                  0x02800000, OP_BRANCH, 0 },
+  { "bg",                  0x14800000, OP_BRANCH, 0 },
+  { "ble",                 0x04800000, OP_BRANCH, 0 },
+  { "bge",                 0x16800000, OP_BRANCH, 0 },
+  { "bl",                  0x06800000, OP_BRANCH, 0 },
+  { "bgu",                 0x18800000, OP_BRANCH, 0 },
+  { "bleu",                0x08800000, OP_BRANCH, 0 },
+  { "bcc",                 0x1a800000, OP_BRANCH, 0 },
+  { "bcs",                 0x0a800000, OP_BRANCH, 0 },
+  { "bpos",                0x1c800000, OP_BRANCH, 0 },
+  { "bneg",                0x0c800000, OP_BRANCH, 0 },
+  { "bvc",                 0x1e800000, OP_BRANCH, 0 },
+  { "bvs",                 0x0e800000, OP_BRANCH, 0 },
   { NULL, 0, 0, 0 }
 };
 
 uint32_t mask_sparc[] =
 {
   0xffffffff,                                         // OP_NONE
-  (2 << 30) | (0x3f << 19) | (1 << 13) | (0xff << 5), // OP_REG_REG_REG
-  (2 << 30) | (0x3f << 19) | (1 << 13),               // OP_REG_SIMM13_REG
-  (2 << 30) | (0x3f << 19) | (0xf << 5),              // OP_FREG_FREG_FREG_FREG
-  (2 << 30) | (0x3f << 19) | (0xf << 5),              // OP_FREG_FREG_IMM5_FREG
-  (2 << 30) | (0x3f << 19) | (0x1ff << 5),            // OP_FREG_FREG_FREG
-  (2 << 30) | (0x3f << 19) | (1 << 13) | (0xff << 5), // OP_FREG_FREG_FREG
+  (3 << 30) | (0x3f << 19) | (1 << 13) | (0xff << 5), // OP_REG_REG_REG
+  (3 << 30) | (0x3f << 19) | (1 << 13),               // OP_REG_SIMM13_REG
+  (3 << 30) | (0x3f << 19) | (0xf << 5),              // OP_FREG_FREG_FREG_FREG
+  (3 << 30) | (0x3f << 19) | (0xf << 5),              // OP_FREG_FREG_IMM5_FREG
+  (3 << 30) | (0x3f << 19) | (0x1ff << 5),            // OP_FREG_FREG_FREG
+  (3 << 30) | (0xf << 25) | (0x7 << 22),  // OP_BRANCH
 };
 

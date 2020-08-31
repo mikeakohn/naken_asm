@@ -22,6 +22,7 @@ enum
   OP_FREG_FREG_FREG_FREG,
   OP_FREG_FREG_IMM5_FREG,
   OP_FREG_FREG_FREG,
+  OP_BRANCH,
 };
 
 struct _table_sparc

@@ -65,7 +65,9 @@ int parse_instruction_sparc(struct _asm_context *asm_context, char *instr)
   int token_type;
   int matched = 0;
   uint32_t opcode;
+  int32_t offset;
   int num, n;
+  int annul = 0;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -73,6 +75,14 @@ int parse_instruction_sparc(struct _asm_context *asm_context, char *instr)
   while(1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (operand_count == 0 && IS_TOKEN(token, ','))
+    {
+      if (expect_token(asm_context, 'a')) { return -1; }
+
+      annul = 1;
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+    }
 
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
@@ -149,7 +159,7 @@ printf("\n");
           {
             add_bin32(asm_context, table_sparc[n].opcode, IS_OPCODE);
 
-            return 1;
+            return 4;
           }
 
           break;
@@ -175,7 +185,7 @@ printf("\n");
 
             add_bin32(asm_context, opcode, IS_OPCODE);
 
-            return 2;
+            return 4;
           }
 
           break;
@@ -199,16 +209,64 @@ printf("\n");
                     (operands[2].value << 14) |
                     (operands[1].value & 0x1fff);
 
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          break;
+        }
+        case OP_FREG_FREG_FREG_FREG:
+        {
+          break;
+        }
+        case OP_FREG_FREG_IMM5_FREG:
+        {
+          break;
+        }
+        case OP_FREG_FREG_FREG:
+        {
+          break;
+        }
+        case OP_BRANCH:
+        {
+          if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)
+          {
+            offset = operands[0].value - asm_context->address;
+
+            if (asm_context->pass == 1) { offset = 0; }
+
+            if ((offset & 0x3) != 0)
+            {
+              print_error_align(asm_context, 2);
+              return -1;
+            }
+
+            int min = -(1 << 23);
+            int max = (1 << 23) - 1;
+
+            if (offset < min || offset > max)
+            {
+              print_error_range("Displacement", min, max, asm_context);
+            }
+
+            offset = offset >> 2;
+
+            opcode = table_sparc[n].opcode |
+                    (annul << 29) |
+                    (offset & 0x003fffff);
 
             add_bin32(asm_context, opcode, IS_OPCODE);
 
-            return 2;
+            return 4;
           }
 
           break;
         }
         default:
+        {
           break;
+        }
       }
     }
 
