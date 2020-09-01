@@ -91,8 +91,33 @@ int disasm_sparc(struct _memory *memory, uint32_t address, char *instruction, in
           sprintf(instruction, "%s%s%s %s, 0x%04x (offset=%d)",
             instr,
             annul == 1 ? ",a" : "",
-            pt == 1 ? ",pt" : "",
+            pt == 1 ? ",pt" : ",pn",
             cc_value[cc],
+            address + offset,
+            offset);
+          break;
+        case OP_BRANCH_P_REG:
+          annul = (opcode >> 29) & 1;
+          pt = (opcode >> 19) & 1;
+          offset = ((opcode & 0x300000) >> 6) | (opcode & 0x3fff);
+          if ((offset & 0x8000) != 0) { offset |= 0xffff0000; }
+          offset *= 4;
+
+          sprintf(instruction, "%s%s%s r%d, 0x%04x (offset=%d)",
+            instr,
+            annul == 1 ? ",a" : "",
+            pt == 1 ? ",pt" : ",pn",
+            rs1,
+            address + offset,
+            offset);
+          break;
+        case OP_CALL:
+          offset = opcode & 0x3fffffff;
+          if ((offset & 0x20000000) != 0) { offset |= 0xc0000000; }
+          offset *= 4;
+
+          sprintf(instruction, "%s 0x%04x (offset=%d)",
+            instr,
             address + offset,
             offset);
           break;

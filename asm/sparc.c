@@ -99,6 +99,7 @@ int parse_instruction_sparc(struct _asm_context *asm_context, char *instr)
         else
       {
         print_error_unexp(token, asm_context);
+        return -1;
       }
 
       continue;
@@ -189,6 +190,7 @@ printf("\n");
         {
           case OP_BRANCH:
           case OP_BRANCH_P:
+          case OP_BRANCH_P_REG:
             break;
           default:
             print_error_unexp(",a/pt", asm_context);
@@ -295,6 +297,7 @@ printf("\n");
 
             const int min = -(1 << 23);
             const int max = (1 << 23) - 1;
+            if (pt == -1) { pt = 1; }
 
             if (offset < min || offset > max)
             {
@@ -332,6 +335,7 @@ printf("\n");
 
             const int min = -(1 << 20);
             const int max = (1 << 20) - 1;
+            if (pt == -1) { pt = 1; }
 
             if (offset < min || offset > max)
             {
@@ -345,6 +349,82 @@ printf("\n");
                     (operands[0].value << 20) |
                     (pt << 19) |
                     (offset & 0x0007ffff);
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          break;
+        }
+        case OP_BRANCH_P_REG:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REGISTER &&
+              operands[1].type == OPERAND_NUMBER)
+          {
+            offset = operands[1].value - asm_context->address;
+
+            if (asm_context->pass == 1) { offset = 0; }
+
+            if ((offset & 0x3) != 0)
+            {
+              print_error_align(asm_context, 2);
+              return -1;
+            }
+
+            const int min = -(1 << 15);
+            const int max = (1 << 15) - 1;
+            if (pt == -1) { pt = 1; }
+
+            if (offset < min || offset > max)
+            {
+              print_error_range("Displacement", min, max, asm_context);
+            }
+
+            offset = offset >> 2;
+
+            opcode = table_sparc[n].opcode |
+                    (annul << 29) |
+                    (operands[0].value << 14) |
+                    (pt << 19) |
+                    (((offset >> 14) & 0x3) << 20) |
+                    (offset & 0x00003fff);
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          break;
+        }
+        case OP_CALL:
+        {
+          if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)
+          {
+            offset = operands[0].value - asm_context->address;
+
+            if (asm_context->pass == 1) { offset = 0; }
+
+            if ((offset & 0x3) != 0)
+            {
+              print_error_align(asm_context, 2);
+              return -1;
+            }
+
+#if 0
+            const int min = -(1 << 31);
+            const int max = (1 << 31) - 1;
+
+            if (offset < min || offset > max)
+            {
+              print_error_range("Displacement", min, max, asm_context);
+            }
+#endif
+
+            offset = offset >> 2;
+
+            opcode = table_sparc[n].opcode | (offset & 0x3fffffff);
 
             add_bin32(asm_context, opcode, IS_OPCODE);
 

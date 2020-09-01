@@ -83,6 +83,13 @@ struct _table_sparc table_sparc[] =
   { "bpneg",               0x0c400000, OP_BRANCH_P, 0 },
   { "bpvc",                0x1e400000, OP_BRANCH_P, 0 },
   { "bpvs",                0x0e800000, OP_BRANCH_P, 0 },
+  { "brz",                 0x02c00000, OP_BRANCH_P_REG, 0 },
+  { "brlez",               0x04c00000, OP_BRANCH_P_REG, 0 },
+  { "brlz",                0x06c00000, OP_BRANCH_P_REG, 0 },
+  { "brnz",                0x0ac00000, OP_BRANCH_P_REG, 0 },
+  { "brgz",                0x0cc00000, OP_BRANCH_P_REG, 0 },
+  { "brgez",               0x0ec00000, OP_BRANCH_P_REG, 0 },
+  { "call",                0x40000000, OP_CALL, 0 },
   { NULL, 0, 0, 0 }
 };
 
@@ -96,5 +103,7 @@ uint32_t mask_sparc[] =
   (3 << 30) | (0x3f << 19) | (0x1ff << 5),            // OP_FREG_FREG_FREG
   (3 << 30) | (0xf << 25) | (0x7 << 22),              // OP_BRANCH
   (3 << 30) | (0xf << 25) | (0x7 << 22),              // OP_BRANCH_P
+  (3 << 30) | (0xf << 25) | (0x7 << 22),              // OP_BRANCH_P_REG
+  (1 << 30),                                          // OP_CALL
 };
 
