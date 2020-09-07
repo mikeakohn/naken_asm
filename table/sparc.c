@@ -90,6 +90,9 @@ struct _table_sparc table_sparc[] =
   { "brgz",                0x0cc00000, OP_BRANCH_P_REG, 0 },
   { "brgez",               0x0ec00000, OP_BRANCH_P_REG, 0 },
   { "call",                0x40000000, OP_CALL, 0 },
+  { "camellia_f",          0x00000000, OP_FREG_FREG_FREG_FREG, 0 },
+  { "camellia_fl",         0x00000000, OP_FREG_FREG_FREG_FREG, 0 },
+  { "camellia_fli",        0x00000000, OP_FREG_FREG_FREG_FREG, 0 },
   { NULL, 0, 0, 0 }
 };
 
