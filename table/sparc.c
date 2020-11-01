@@ -93,6 +93,8 @@ struct _table_sparc table_sparc[] =
   { "camellia_f",          0x00000000, OP_FREG_FREG_FREG_FREG, 0 },
   { "camellia_fl",         0x00000000, OP_FREG_FREG_FREG_FREG, 0 },
   { "camellia_fli",        0x00000000, OP_FREG_FREG_FREG_FREG, 0 },
+  { "casa",                0xc0000000, OP_IMM_ASI_REG_REG, 0 },
+  { "casxa",               0xc0000000, OP_ASI_REG_REG, 0 },
   { NULL, 0, 0, 0 }
 };
 
@@ -108,5 +110,7 @@ uint32_t mask_sparc[] =
   (3 << 30) | (0xf << 25) | (0x7 << 22),              // OP_BRANCH_P
   (3 << 30) | (0xf << 25) | (0x7 << 22),              // OP_BRANCH_P_REG
   (1 << 30),                                          // OP_CALL
+  (3 << 30) | (1 << 13),                              // OP_IMM_ASI_REG_REG
+  (3 << 30) | (1 << 13) | (0xff << 5),                // OP_ASI_REG_REG
 };
 

@@ -121,6 +121,11 @@ int disasm_sparc(struct _memory *memory, uint32_t address, char *instruction, in
             address + offset,
             offset);
           break;
+        case OP_IMM_ASI_REG_REG:
+        case OP_ASI_REG_REG:
+          // FIXME: Implement.
+          sprintf(instruction, "%s ???", instr);
+          break;
         default:
           strcpy(instruction, "???");
           break;
