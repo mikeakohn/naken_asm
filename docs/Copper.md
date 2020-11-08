@@ -69,5 +69,3 @@ Examples:
     skip bfd, 50, 50, 0x7f, 0x7f
     skip bfd, 50, 50
 
-
-

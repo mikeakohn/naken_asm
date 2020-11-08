@@ -1,3 +1,4 @@
+
 Contents
 ========
 * [Introduction](introduction.md)
@@ -18,7 +19,9 @@ Contents
   * [ARM](ARM.md)
   * [AVR8](AVR8.md)
   * [Copper (Amiga)](Copper.md)
+  * [MIPS](MIPS.md)
   * [MSP430](MSP430.md)
+  * [Playstation 2](Playstation_2.md)
   * [PowerPC](PowerPC.md)
   * [Propeller](Propeller.md)
   * [SH-4](SH4.md)
