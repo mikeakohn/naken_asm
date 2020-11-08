@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os, sys
 
@@ -10,13 +10,13 @@ alias = [ "move", "negu", "not" ]
 
 # -------------------------- fold here -----------------------------
 
-print "Disassembler: PIC32"
+print("Disassembler: PIC32")
 
 for i in range(0, 32):
   reg_nums.append("$" + str(i))
 
-fp = open("../comparison/pic32.txt", "rb")
-out = open("test.asm", "wb")
+fp = open("../comparison/pic32.txt", "r")
+out = open("test.asm", "w")
 
 out.write(".pic32\n")
 
@@ -35,7 +35,7 @@ for line in fp:
   else: name = instruction
 
   if name in alias:
-    #print "Skipping: " + name
+    #print("Skipping: " + name)
     continue
 
   out.write(instruction + "\n")
@@ -46,7 +46,7 @@ out.close()
 
 os.system("../../naken_asm -l test.asm > /dev/null")
 
-fp = open("out.lst", "rb")
+fp = open("out.lst", "r")
 
 i = 0
 
@@ -68,7 +68,7 @@ for line in fp:
     broken = False
 
     if len(a) != len(b) or name_a != name_b:
-      print name_a + " " + name_b
+      print(name_a + " " + name_b)
       broken = True
     else:
       for j in range(0, len(a)):
@@ -97,7 +97,7 @@ for line in fp:
           broken = True
 
     if broken == True:
-      print str(i) + ") " + line + " " + instructions[i]
+      print(str(i) + ") " + line + " " + instructions[i])
       errors += 1
 
   i += 1
@@ -109,10 +109,9 @@ os.unlink("out.hex")
 os.unlink("out.lst")
 
 if errors != 0:
-  print "Total errors: " + str(errors)
-  print "Failed!"
+  print("Total errors: " + str(errors))
+  print("Failed!")
   sys.exit(-1)
 else:
-  print "Passed!"
-
+  print("Passed!")
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys, os
 
@@ -22,7 +22,7 @@ def reverse_endian(code):
 # ----------------------------- fold here -------------------------------
 
 if len(sys.argv) != 2:
-  print "Usage: " + sys.argv[0] + " <cpu_type>"
+  print("Usage: " + sys.argv[0] + " <cpu_type>")
   sys.exit(0)
 
 instructions = []
@@ -58,8 +58,8 @@ if cpu_type in [ "avr8", "msp430", "msp430x" ]:
 if cpu_type == "stm8": need_stm8_org = True
 if cpu_type == "6502": need_6502_org = True
 
-fp = open(cpu_type + ".txt", "rb")
-out = open("test.asm", "wb")
+fp = open(cpu_type + ".txt", "r")
+out = open("test.asm", "w")
 
 out.write("." + cpu_type + "\n")
 
@@ -103,7 +103,7 @@ os.system("../../naken_asm -l test.asm > /dev/null")
 
 index = 0
 
-fp = open("out.lst", "rb")
+fp = open("out.lst", "r")
 
 while(1):
   line = fp.readline()
@@ -140,15 +140,15 @@ while(1):
           a = reverse_endian(a)
         code = code + a
 
-    print "[" + cpu_type + "]testing " + instructions[index][0] + " ...",
+    print("[" + cpu_type + "]testing " + instructions[index][0] + " ...", end = '')
 
     if instructions[index][1] == code:
-      print "\x1b[32mPASS\x1b[0m"
+      print("\x1b[32mPASS\x1b[0m")
     else:
-      print "\x1b[31mFAIL exp: " + instructions[index][1] + "  got: " + code + "\x1b[0m"
+      print("\x1b[31mFAIL exp: " + instructions[index][1] + "  got: " + code + "\x1b[0m")
       errors += 1
-      #print instructions[index][1],
-      #print code
+      #print(instructions[index][1], end = '')
+      #print(code)
     index += 1
 
 fp.close()
@@ -158,9 +158,7 @@ os.unlink("out.lst")
 os.unlink("test.asm")
 
 if errors != 0:
-  print "errors: " + str(errors)
-  print "FAILED"
+  print("errors: " + str(errors))
+  print("FAILED")
   sys.exit(1)
-
-
 

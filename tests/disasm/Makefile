@@ -1,5 +1,5 @@
 
 default:
-	python pic32.py
-	python ps2_ee.py
+	python3 pic32.py
+	python3 ps2_ee.py
 

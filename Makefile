@@ -72,7 +72,7 @@ tests:
 	@cd tests/disasm && make
 	@cd tests/symbol_address && make && ./symbol_address && make clean
 	@cd tests/comparison && make
-	@cd tests/other/directives && python test.py
+	@cd tests/other/directives && python3 test.py
 
 distclean: clean
 	@rm -f config.mak *.asm

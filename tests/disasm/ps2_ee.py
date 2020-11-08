@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os, sys
 
@@ -10,13 +10,13 @@ alias = [ "negu", "not" ]
 
 # -------------------------- fold here -----------------------------
 
-print "Disassembler: PS2 EE"
+print("Disassembler: PS2 EE")
 
 for i in range(0, 32):
   reg_nums.append("$" + str(i))
 
-fp = open("../comparison/ps2_ee.txt", "rb")
-out = open("test.asm", "wb")
+fp = open("../comparison/ps2_ee.txt", "r")
+out = open("test.asm", "w")
 
 out.write(".ps2_ee\n")
 
@@ -35,7 +35,7 @@ for line in fp:
   else: name = instruction
 
   if name in alias:
-    #print "Skipping: " + name
+    #print("Skipping: " + name)
     continue
 
   out.write(instruction + "\n")
@@ -46,7 +46,7 @@ out.close()
 
 os.system("../../naken_asm -l test.asm > /dev/null")
 
-fp = open("out.lst", "rb")
+fp = open("out.lst", "r")
 
 i = 0
 
@@ -57,7 +57,7 @@ for line in fp:
 
   if line != instructions[i]:
     if line == "???":
-      print str(i) + ") " + line + " " + instructions[i]
+      print(str(i) + ") " + line + " " + instructions[i])
       errors += 1
       i += 1
       continue
@@ -68,8 +68,8 @@ for line in fp:
     name_a = a[0].split()[0].replace(".ni","").replace(".l","")
     name_b = b[0].split()[0].replace(".ni","").replace(".l","")
 
-    #print a
-    #print b
+    #print(a)
+    #print(b)
 
     if " " in a[0] and " " in b[0]:
       a[0] = a[0].split()[1]
@@ -80,10 +80,10 @@ for line in fp:
 
     broken = False
 
-    #print name_a + ": " + str(a) + " " + str(b)
+    #print(name_a + ": " + str(a) + " " + str(b))
 
     if len(a) != len(b) or name_a != name_b:
-      print name_a + " != " + name_b
+      print(name_a + " != " + name_b)
       broken = True
     else:
       for j in range(0, len(a)):
@@ -108,7 +108,7 @@ for line in fp:
             num_a = a[j][3:].replace("x","").replace("y","").replace("z","").replace("w","")
             num_b = b[j][3:].replace("x","").replace("y","").replace("z","").replace("w","")
 
-            #print name_a + " " + name_b + " " + num_a + " " + num_b
+            #print(name_a + " " + name_b + " " + num_a + " " + num_b)
             if int(num_a) == int(num_b): continue
 
           if not " " in a[j] and not "(" in a[j] and \
@@ -126,7 +126,7 @@ for line in fp:
           broken = True
 
     if broken == True:
-      print str(i) + ") got: " + line + "    wanted: " + instructions[i]
+      print(str(i) + ") got: " + line + "    wanted: " + instructions[i])
       errors += 1
 
   i += 1
@@ -138,10 +138,10 @@ os.unlink("out.hex")
 os.unlink("out.lst")
 
 if errors != 0:
-  print "Total errors: " + str(errors)
-  print "Failed!"
+  print("Total errors: " + str(errors))
+  print("Failed!")
   sys.exit(-1)
 else:
-  print "Passed!"
+  print("Passed!")
 
 

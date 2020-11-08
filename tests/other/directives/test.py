@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os,sys
 
@@ -8,17 +8,15 @@ while 1:
   if line == "": break
 p.close()
 
-fp = open("out.hex", "rb")
+fp = open("out.hex", "r")
 line = fp.readline().strip()
 fp.close()
 
-print "Endian test:",
+print("Endian test: ", end = '')
 
 if line[9:21] == "123478561234":
-  print "\x1b[32mPASS\x1b[0m"
+  print("\x1b[32mPASS\x1b[0m")
 else:
-  print "\x1b[31mFAIL\x1b[0m"
+  print("\x1b[31mFAIL\x1b[0m")
   sys.exit(-1)
-
-
 
