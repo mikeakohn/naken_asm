@@ -1,5 +1,5 @@
 const char *mips =
-  ".mips\n"
+  ".mips32\n"
   ".org 0x1000\n"
   "first:\n"
   "  li $v0, fifth\n"

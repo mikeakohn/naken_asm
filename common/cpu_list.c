@@ -702,7 +702,7 @@ struct _cpu_list cpu_list[] =
   {
     "mips",
     CPU_TYPE_MIPS32,
-    ENDIAN_LITTLE,
+    ENDIAN_BIG,
     1,
     ALIGN_4,
     0,
