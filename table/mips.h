@@ -137,9 +137,9 @@ struct _mips_ee_vector
   uint8_t flags;
 };
 
-#define OPERAND_MIPS_RSP_INVALID 0
-#define OPERAND_MIPS_RSP_LOAD_STORE 1
-#define OPERAND_MIPS_RSP_REG_MOVE 2
+#define OP_MIPS_RSP_INVALID 0
+#define OP_MIPS_RSP_LOAD_STORE 1
+#define OP_MIPS_RSP_REG_MOVE 2
 
 struct _mips_rsp_vector
 {

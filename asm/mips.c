@@ -154,6 +154,30 @@ static int get_register_mips_rsp(
   return num;
 }
 
+static int check_element(
+  struct _asm_context *asm_context,
+  int element,
+  int element_max,
+  int element_step)
+{
+  if (element < 0 || element > element_max)
+  {
+    print_error_range("Vector element", 0, element_max, asm_context);
+    return -1;
+  }
+
+  if (element_step != 0)
+  {
+    if ((element & ((1 << (element_step - 1)) - 1)) != 0)
+    {
+      print_error("Invalid vector element", asm_context);
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
 static int get_register_mips(char *token, struct _operand *operand)
 {
   int num;
@@ -247,7 +271,10 @@ static int get_register_mips(char *token, struct _operand *operand)
   return -1;
 }
 
-static int add_offset(struct _asm_context *asm_context, int address, uint32_t *opcode)
+static int add_offset(
+  struct _asm_context *asm_context,
+  int address,
+  uint32_t *opcode)
 {
   int32_t offset = address - (asm_context->address + 4);
 
@@ -2057,30 +2084,21 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
       switch (mips_rsp_vector[n].type)
       {
-        case OPERAND_MIPS_RSP_LOAD_STORE:
+        case OP_MIPS_RSP_LOAD_STORE:
         {
           if (operands[0].type == OPERAND_RSP_VREG &&
               operands[1].type == OPERAND_IMMEDIATE_RS)
           {
+            const int element = operands[0].element;
             const int element_max = mips_rsp_vector[n].element_max;
             const int element_step = mips_rsp_vector[n].element_step;
             const int offset_mask = (1 << mips_rsp_vector[n].shift) - 1;
             const int offset_max = (0x40 << mips_rsp_vector[n].shift) - 1;
             const int offset_min = -(offset_max + 1);
 
-            if (operands[0].element < 0 || operands[0].element > element_max)
+            if (check_element(asm_context, element, element_max, element_step) != 0)
             {
-              print_error_range("Vector element", 0, element_max, asm_context);
               return -1;
-            }
-
-            if (element_step != 0)
-            {
-              if ((operands[0].element & ((1 << (element_step - 1)) - 1)) != 0)
-              {
-                print_error("Invalid vector element", asm_context);
-                return -1;
-              }
             }
 
             if (operands[1].value < offset_min ||
@@ -2112,8 +2130,31 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
           break;
         }
-        case OPERAND_MIPS_RSP_REG_MOVE:
+        case OP_MIPS_RSP_REG_MOVE:
         {
+          if (operands[0].type == OPERAND_TREG &&
+              operands[1].type == OPERAND_RSP_VREG)
+          {
+            const int element = operands[1].element;
+            const int element_max = mips_rsp_vector[n].element_max;
+            const int element_step = mips_rsp_vector[n].element_step;
+
+            if (check_element(asm_context, element, element_max, element_step) != 0)
+            {
+              return -1;
+            }
+
+            opcode = 
+              mips_rsp_vector[n].opcode |
+              (operands[0].value << 16) |
+              (operands[1].value << 11) |
+              (operands[1].element << 7);
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
           break;
         }
         default:

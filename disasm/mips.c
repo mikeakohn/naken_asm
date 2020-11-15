@@ -219,7 +219,7 @@ static int disasm_n64_rsp(
     {
       switch (mips_rsp_vector[n].type)
       {
-        case OPERAND_MIPS_RSP_LOAD_STORE:
+        case OP_MIPS_RSP_LOAD_STORE:
         {
           offset = offset << mips_rsp_vector[n].shift;
 
@@ -230,8 +230,17 @@ static int disasm_n64_rsp(
 
           return 4;
         }
-        case OPERAND_MIPS_RSP_REG_MOVE:
+        case OP_MIPS_RSP_REG_MOVE:
         {
+          int rt = (opcode >> 16) & 0x1f;
+          int vd = (opcode >> 11) & 0x1f;
+
+          sprintf(instruction, "%s %s, $v%d[%d]",
+            mips_rsp_vector[n].instr,
+            reg[rt],
+            vd, element);
+
+          return 4;
         }
         default:
         {
