@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -123,8 +123,8 @@ static int get_cond(char *token)
 
 static int get_reg8(char *token)
 {
-char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
-int n;
+  char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
+  int n;
 
   for (n = 0; n < 8; n++)
   {
@@ -136,8 +136,8 @@ int n;
 
 static int get_reg_ihalf(char *token)
 {
-char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
-int n;
+  char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
+  int n;
 
   for (n = 0; n < 4; n++)
   {
@@ -283,7 +283,7 @@ int parse_instruction_z80(struct _asm_context *asm_context, char *instr)
 
   // Find instruction
   n = 0;
-  while(table_instr_z80[n].instr != NULL)
+  while (table_instr_z80[n].instr != NULL)
   {
     if (strcmp(instr_case, table_instr_z80[n].instr) == 0) { break; }
     n++;
@@ -298,7 +298,7 @@ int parse_instruction_z80(struct _asm_context *asm_context, char *instr)
   //instr_index = n;
   instr_enum = table_instr_z80[n].instr_enum;
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
@@ -359,7 +359,7 @@ int parse_instruction_z80(struct _asm_context *asm_context, char *instr)
           if (asm_context->pass == 1)
           {
             int paren_count = 1;
-            while(1)
+            while (1)
             {
               token_type = tokens_get(asm_context, token, TOKENLEN);
               if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
@@ -490,12 +490,12 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
   // Instruction is parsed, now find matching opcode
 
   n = 0;
-  while(table_z80[n].instr_enum != Z80_NONE)
+  while (table_z80[n].instr_enum != Z80_NONE)
   {
     if (table_z80[n].instr_enum == instr_enum)
     {
       matched = 1;
-      switch(table_z80[n].type)
+      switch (table_z80[n].type)
       {
         case OP_NONE:
           if (operand_count == 0)
@@ -1425,13 +1425,13 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
     n++;
   }
 
-  n=0;
-  while(table_z80_4_byte[n].instr_enum != Z80_NONE)
+  n = 0;
+  while (table_z80_4_byte[n].instr_enum != Z80_NONE)
   {
     if (table_z80_4_byte[n].instr_enum == instr_enum)
     {
       matched = 1;
-      switch(table_z80_4_byte[n].type)
+      switch (table_z80_4_byte[n].type)
       {
         case OP_BIT_INDEX_V2:
           if (operand_count == 2 &&
