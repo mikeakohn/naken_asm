@@ -219,6 +219,11 @@ static int disasm_n64_rsp(
     {
       switch (mips_rsp_vector[n].type)
       {
+        case OP_MIPS_RSP_NONE:
+        {
+          strcpy(instruction, mips_rsp_vector[n].instr);
+          return 4;
+        }
         case OP_MIPS_RSP_LOAD_STORE:
         {
           offset = offset << mips_rsp_vector[n].shift;
@@ -239,6 +244,53 @@ static int disasm_n64_rsp(
             mips_rsp_vector[n].instr,
             reg[rt],
             vd, element);
+
+          return 4;
+        }
+        case OP_MIPS_RSP_REG_2:
+        {
+          int vd = (opcode >> 6) & 0x1f;
+          int de = (opcode >> 11) & 0x1f;
+          int e = (opcode >> 21) & 0x1f;
+
+          sprintf(instruction, "%s $v%d[%d], $v%d[%d]",
+            mips_rsp_vector[n].instr,
+            vd, de,
+            vt, e);
+
+          return 4;
+        }
+        case OP_MIPS_RSP_ALU:
+        {
+          int vd = (opcode >> 6) & 0x1f;
+          int vs = (opcode >> 11) & 0x1f;
+          int e = (opcode >> 21) & 0x1f;
+
+          if (e == 0)
+          {
+            sprintf(instruction, "%s $v%d, $v%d, $v%d",
+              mips_rsp_vector[n].instr, vd, vs, vt);
+          }
+            else
+          {
+            if ((e & 2) != 0)
+            {
+              e = e & 0x1;
+            }
+              else
+            if ((e & 4) != 0)
+            {
+              e = e & 0x3;
+            }
+              else
+            if ((e & 8) != 0)
+            {
+              e = e & 0x7;
+            }
+
+            sprintf(instruction, "%s $v%d[%d], $v%d[%d]",
+              mips_rsp_vector[n].instr, vd, vs, vt, e);
+          }
 
           return 4;
         }

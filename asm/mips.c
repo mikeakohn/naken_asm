@@ -2084,6 +2084,11 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
       switch (mips_rsp_vector[n].type)
       {
+        case OP_MIPS_RSP_NONE:
+        {
+          add_bin32(asm_context, mips_rsp_vector[n].opcode, IS_OPCODE);
+          return 4;
+        }
         case OP_MIPS_RSP_LOAD_STORE:
         {
           if (operands[0].type == OPERAND_RSP_VREG &&
@@ -2156,6 +2161,12 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           }
 
           break;
+        }
+        case OP_MIPS_RSP_REG_2:
+        {
+        }
+        case OP_MIPS_RSP_ALU:
+        {
         }
         default:
         {
