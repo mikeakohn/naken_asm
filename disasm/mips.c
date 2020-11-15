@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -16,6 +16,14 @@
 #include "disasm/mips.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
+
+static  const char *reg[32] =
+{
+  "$0",  "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
+  "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
+  "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7",
+  "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
+};
 
 static char *id_reg[] =
 {
@@ -42,7 +50,12 @@ int get_cycle_count_mips(uint32_t opcode)
   return -1;
 }
 
-static int disasm_vector(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+static int disasm_vector(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint32_t opcode;
   int n, r;
@@ -58,7 +71,7 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
   instruction[0] = 0;
 
   n = 0;
-  while(mips_ee_vector[n].instr != NULL)
+  while (mips_ee_vector[n].instr != NULL)
   {
     if (mips_ee_vector[n].opcode == (opcode & mips_ee_vector[n].mask))
     {
@@ -82,7 +95,7 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
       {
         if (r != 0) { strcat(instruction, ","); }
 
-        switch(mips_ee_vector[n].operand[r])
+        switch (mips_ee_vector[n].operand[r])
         {
           case MIPS_OP_VFT:
             sprintf(temp, " $vf%d", ft);
@@ -187,19 +200,62 @@ static int disasm_vector(struct _memory *memory, uint32_t address, char *instruc
   return 4;
 }
 
-int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+static int disasm_n64_rsp(
+  uint32_t opcode,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
+{
+  int n;
+
+  int base = (opcode >> 21) & 0x1f;
+  int vt = (opcode >> 16) & 0x1f;
+  int element = (opcode >> 7) & 0xf;
+  int offset = opcode & 0x7f;
+
+  for (n = 0; mips_rsp_vector[n].instr != NULL; n++)
+  {
+    if ((opcode & mips_rsp_vector[n].mask) == mips_rsp_vector[n].opcode)
+    {
+      switch (mips_rsp_vector[n].type)
+      {
+        case OPERAND_MIPS_RSP_LOAD_STORE:
+        {
+          offset = offset << mips_rsp_vector[n].shift;
+
+          sprintf(instruction, "%s $v%d[%d], %d(%s)",
+            mips_rsp_vector[n].instr,
+            vt, element,
+            offset, reg[base]);
+
+          return 4;
+        }
+        case OPERAND_MIPS_RSP_REG_MOVE:
+        {
+        }
+        default:
+        {
+          return 0;
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+
+int disasm_mips(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint32_t opcode;
   int function, format, operation;
   int n, r;
   char temp[32];
-  const char *reg[32] =
-  {
-    "$0", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
-    "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
-    "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7",
-    "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
-  };
   int rs, rt, rd, sa, wt, ws, wd;
   int immediate;
 
@@ -215,6 +271,13 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
     return 4;
   }
 
+  if (flags & MIPS_RSP)
+  {
+    int count = disasm_n64_rsp(opcode, instruction, cycles_min, cycles_max);
+
+    if (count != 0) { return count; }
+  }
+
   format = (opcode >> 26) & 0x3f;
 
   if (format == FORMAT_SPECIAL0 ||
@@ -225,7 +288,7 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
     function = opcode & 0x3f;
 
     n = 0;
-    while(mips_special_table[n].instr != NULL)
+    while (mips_special_table[n].instr != NULL)
     {
       // Check of this specific MIPS chip uses this instruction.
       if ((mips_special_table[n].version & flags) == 0)
@@ -320,7 +383,7 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
   }
 
   n = 0;
-  while(mips_other[n].instr != NULL)
+  while (mips_other[n].instr != NULL)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_other[n].version & flags) == 0)
@@ -343,7 +406,7 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
       {
         if (r != 0) { strcat(instruction, ","); }
 
-        switch(mips_other[n].operand[r])
+        switch (mips_other[n].operand[r])
         {
           case MIPS_OP_RS:
             sprintf(temp, " %s", reg[rs]);
@@ -419,7 +482,7 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
   }
 
   n = 0;
-  while(mips_msa[n].instr != NULL)
+  while (mips_msa[n].instr != NULL)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_msa[n].version & flags) == 0)
@@ -440,7 +503,7 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
       {
         if (r != 0) { strcat(instruction, ","); }
 
-        switch(mips_msa[n].operand[r])
+        switch (mips_msa[n].operand[r])
         {
           case MIPS_OP_WT:
             sprintf(temp, " $w%d", wt);
@@ -466,7 +529,7 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
   }
 
   n = 0;
-  while(mips_branch_table[n].instr != NULL)
+  while (mips_branch_table[n].instr != NULL)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_branch_table[n].version & flags) == 0)
@@ -509,7 +572,7 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
     // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
     function = opcode & 0x3f;
     n = 0;
-    while(mips_r_table[n].instr != NULL)
+    while (mips_r_table[n].instr != NULL)
     {
       // Check of this specific MIPS chip uses this instruction.
       if ((mips_r_table[n].version & flags) == 0)
@@ -589,7 +652,7 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
     int op = opcode >> 26;
     // I-Type?  [ op 6, rs 5, rt 5, imm 16 ]
     n = 0;
-    while(mips_i_table[n].instr != NULL)
+    while (mips_i_table[n].instr != NULL)
     {
       // Check of this specific MIPS chip uses this instruction.
       if ((mips_i_table[n].version & flags) == 0)
@@ -678,7 +741,10 @@ int disasm_mips(struct _memory *memory, uint32_t flags, uint32_t address, char *
   return 4;
 }
 
-void list_output_mips(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_mips(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
@@ -686,11 +752,17 @@ void list_output_mips(struct _asm_context *asm_context, uint32_t start, uint32_t
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     opcode = memory_read32_m(&asm_context->memory, start);
 
-    disasm_mips(&asm_context->memory, asm_context->flags, start, instruction, &cycles_min, &cycles_max);
+    disasm_mips(
+      &asm_context->memory,
+      asm_context->flags,
+      start,
+      instruction,
+      &cycles_min,
+      &cycles_max);
 
     fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
@@ -703,7 +775,11 @@ void list_output_mips(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_mips(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_mips(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0,cycles_max = 0;
@@ -714,13 +790,16 @@ void disasm_range_mips(struct _memory *memory, uint32_t flags, uint32_t start, u
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start < end)
+  while (start < end)
   {
     // FIXME - Need to check endian
+#if 0
     num = READ_RAM(start) |
-          (READ_RAM(start + 1) << 8) |
-          (READ_RAM(start + 2) << 16) |
-          (READ_RAM(start + 3) << 24);
+         (READ_RAM(start + 1) << 8) |
+         (READ_RAM(start + 2) << 16) |
+         (READ_RAM(start + 3) << 24);
+#endif
+    num = memory_read32_m(memory, start);
 
     disasm_mips(memory, flags, start, instruction, &cycles_min, &cycles_max);
 

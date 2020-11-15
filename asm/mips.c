@@ -40,6 +40,7 @@ enum
   OPERAND_OFFSET_VBASE,
   OPERAND_OFFSET_VBASE_DEC,
   OPERAND_OFFSET_VBASE_INC,
+  OPERAND_RSP_VREG,
 };
 
 struct _operand
@@ -47,6 +48,7 @@ struct _operand
   int value;
   int type;
   int reg2;
+  int element;
   int field_mask;
 };
 
@@ -54,7 +56,7 @@ static int get_number(char *s)
 {
   int n = 0;
 
-  while(*s != 0)
+  while (*s != 0)
   {
     if (*s < '0' || *s > '9') { return -1; }
     n = (n * 10) + (*s - '0');
@@ -116,6 +118,42 @@ static int get_tregister(char *token)
   return -1;
 }
 
+static int get_register_mips_rsp(
+  struct _asm_context *asm_context,
+  char *token,
+  int *element)
+{
+  int token_type;
+  char token_1[TOKENLEN];
+  int num = 0;
+  int e = 0;
+
+  if (token[0] != '$') { return -1; }
+
+  token_type = tokens_get(asm_context, token_1, TOKENLEN);
+
+  if (IS_NOT_TOKEN(token_1, '['))
+  {
+    tokens_push(asm_context, token_1, token_type);
+
+    return -1;
+  }
+
+  num = get_number(token + 2);
+  if (num < 0 || num > 31) { return -1; }
+
+  token_type = tokens_get(asm_context, token_1, TOKENLEN);
+
+  e = get_number(token_1);
+  if (e < 0 || e > 15) { return -1; }
+
+  *element = e;
+
+  if (expect_token(asm_context, ']') == -1) { return -1; }
+
+  return num;
+}
+
 static int get_register_mips(char *token, struct _operand *operand)
 {
   int num;
@@ -164,14 +202,14 @@ static int get_register_mips(char *token, struct _operand *operand)
     num = 0;
     token = token + 3;
 
-    while(*token != 0)
+    while (*token != 0)
     {
       if (*token < '0' || *token > '9') { break; }
       num = (num * 10) + (*token - '0');
       token++;
     }
 
-    while(*token != 0)
+    while (*token != 0)
     {
       if (*token == 'x') { operand->field_mask |= 0x8; }
       else if (*token == 'y') { operand->field_mask |= 0x4; }
@@ -234,7 +272,7 @@ static uint32_t find_opcode(const char *instr_case)
 {
   int n = 0;
 
-  while(mips_i_table[n].instr != NULL)
+  while (mips_i_table[n].instr != NULL)
   {
     if (strcmp(instr_case, mips_i_table[n].instr) == 0)
     {
@@ -251,7 +289,7 @@ void get_dest(char *instr_case, int *dest)
 {
   char *period = NULL;
 
-  while(*instr_case != 0)
+  while (*instr_case != 0)
   {
     if (*instr_case == '.')
     {
@@ -265,7 +303,7 @@ void get_dest(char *instr_case, int *dest)
   if (period == NULL) { return; }
 
   instr_case++;
-  while(*instr_case != 0)
+  while (*instr_case != 0)
   {
     if (*instr_case == 'x') { *dest |= 8; }
     else if (*instr_case == 'y') { *dest |= 4; }
@@ -614,7 +652,7 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
       print_error_unexp(token, asm_context);
       return -1;
     }
-  } while(0);
+  } while (0);
 
   if (optimize == 0)
   {
@@ -641,7 +679,11 @@ static int get_operands_li(struct _asm_context *asm_context, struct _operand *op
   return 4;
 }
 
-static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case)
+static int get_operands(
+  struct _asm_context *asm_context,
+  struct _operand *operands,
+  char *instr,
+  char *instr_case)
 {
   int operand_count = 0;
   int is_cache = 0;
@@ -653,7 +695,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
 
   if (strcmp("cache", instr_case) == 0) { is_cache = 1; }
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
@@ -666,7 +708,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       token_type = tokens_get(asm_context, token, TOKENLEN);
       strcat(instr, token);
       n = 0;
-      while(token[n] != 0) { token[n] = tolower(token[n]); n++; }
+      while (token[n] != 0) { token[n] = tolower(token[n]); n++; }
       strcat(instr_case, token);
       continue;
     }
@@ -677,7 +719,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       {
         int i = 0;
 
-        while(mips_cache[i].name != NULL)
+        while (mips_cache[i].name != NULL)
         {
           if (strcasecmp(token, mips_cache[i].name) == 0)
           {
@@ -691,7 +733,24 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         if (mips_cache[i].name != NULL) { break; }
       }
 
+      // MIPS SGI Reality Signal Processor vector registers.
+      if ((asm_context->flags & MIPS_RSP) != 0)
+      {
+        num = get_register_mips_rsp(
+          asm_context,
+          token,
+          &operands[operand_count].element);
+
+        if (num != -1)
+        {
+           operands[operand_count].type = OPERAND_RSP_VREG;
+           operands[operand_count].value = num;
+           break;
+        }
+      }
+
       num = get_register_mips(token, &operands[operand_count]);
+
       if (num != -1)
       {
         break;
@@ -874,6 +933,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       operands[operand_count].value = num;
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
+
       if (IS_TOKEN(token,'('))
       {
         int value = operands[operand_count].value;
@@ -919,7 +979,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
         tokens_push(asm_context, token, token_type);
       }
 
-    } while(0);
+    } while (0);
 
     operand_count++;
 
@@ -982,7 +1042,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
   // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
   n = 0;
-  while(mips_r_table[n].instr != NULL)
+  while (mips_r_table[n].instr != NULL)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_r_table[n].version & asm_context->flags) == 0)
@@ -1071,7 +1131,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
   // I-Type?  [ op 6, rs 5, rt 5, imm 16 ]
   n = 0;
-  while(mips_i_table[n].instr != NULL)
+  while (mips_i_table[n].instr != NULL)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_i_table[n].version & asm_context->flags) == 0)
@@ -1163,7 +1223,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   }
 
   n = 0;
-  while(mips_branch_table[n].instr != NULL)
+  while (mips_branch_table[n].instr != NULL)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_branch_table[n].version & asm_context->flags) == 0)
@@ -1237,7 +1297,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
   // Special2 / Special3 type
   n = 0;
-  while(mips_special_table[n].instr != NULL)
+  while (mips_special_table[n].instr != NULL)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_special_table[n].version & asm_context->flags) == 0)
@@ -1367,7 +1427,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   }
 
   n = 0;
-  while(mips_other[n].instr != NULL)
+  while (mips_other[n].instr != NULL)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_other[n].version & asm_context->flags) == 0)
@@ -1391,7 +1451,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
       for (r = 0; r < mips_other[n].operand_count; r++)
       {
-        switch(mips_other[n].operand[r])
+        switch (mips_other[n].operand[r])
         {
           case MIPS_OP_RS:
             if (operands[r].type != OPERAND_TREG)
@@ -1626,7 +1686,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   if ((asm_context->flags & MIPS_MSA) != 0)
   {
     n = 0;
-    while(mips_msa[n].instr != NULL)
+    while (mips_msa[n].instr != NULL)
     {
       if (strcmp(instr_case, mips_msa[n].instr) == 0)
       {
@@ -1642,7 +1702,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
         for (r = 0; r < mips_msa[n].operand_count; r++)
         {
-          switch(mips_msa[n].operand[r])
+          switch (mips_msa[n].operand[r])
           {
             case MIPS_OP_WT:
               if (operands[r].type != OPERAND_WREG)
@@ -1695,7 +1755,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
     get_dest(instr_case, &dest);
 
     n = 0;
-    while(mips_ee_vector[n].instr != NULL)
+    while (mips_ee_vector[n].instr != NULL)
     {
       if (strcmp(instr_case, mips_ee_vector[n].instr) == 0)
       {
@@ -1725,7 +1785,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
         for (r = 0; r < mips_ee_vector[n].operand_count; r++)
         {
-          switch(mips_ee_vector[n].operand[r])
+          switch (mips_ee_vector[n].operand[r])
           {
             case MIPS_OP_VFT:
               if (operands[r].type != OPERAND_VFREG)
@@ -1979,6 +2039,89 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
       }
 
       n++;
+    }
+  }
+
+  if ((asm_context->flags & MIPS_RSP) != 0)
+  {
+    for (n = 0; mips_rsp_vector[n].instr != NULL; n++)
+    {
+      if (strcmp(instr_case, mips_rsp_vector[n].instr) != 0) { continue; }
+
+      found = 1;
+
+      if (operand_count != mips_rsp_vector[n].operand_count)
+      {
+        continue;
+      }
+
+      switch (mips_rsp_vector[n].type)
+      {
+        case OPERAND_MIPS_RSP_LOAD_STORE:
+        {
+          if (operands[0].type == OPERAND_RSP_VREG &&
+              operands[1].type == OPERAND_IMMEDIATE_RS)
+          {
+            const int element_max = mips_rsp_vector[n].element_max;
+            const int element_step = mips_rsp_vector[n].element_step;
+            const int offset_mask = (1 << mips_rsp_vector[n].shift) - 1;
+            const int offset_max = (0x40 << mips_rsp_vector[n].shift) - 1;
+            const int offset_min = -(offset_max + 1);
+
+            if (operands[0].element < 0 || operands[0].element > element_max)
+            {
+              print_error_range("Vector element", 0, element_max, asm_context);
+              return -1;
+            }
+
+            if (element_step != 0)
+            {
+              if ((operands[0].element & ((1 << (element_step - 1)) - 1)) != 0)
+              {
+                print_error("Invalid vector element", asm_context);
+                return -1;
+              }
+            }
+
+            if (operands[1].value < offset_min ||
+                operands[1].value > offset_max)
+            {
+              print_error_range("Offset", offset_min, offset_max, asm_context);
+              return -1;
+            }
+
+            offset = operands[1].value >> mips_rsp_vector[n].shift;
+
+            if ((offset & offset_mask) != 0)
+            {
+              print_error_align(asm_context, mips_rsp_vector[n].shift);
+              return -1;
+            }
+
+            opcode = 
+              mips_rsp_vector[n].opcode |
+              (operands[1].reg2 << 21) |
+              (operands[0].value << 16) |
+              (operands[0].element << 7) |
+              (offset & 0x3f);
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          break;
+        }
+        case OPERAND_MIPS_RSP_REG_MOVE:
+        {
+          break;
+        }
+        default:
+        {
+          print_error_internal(asm_context, __FILE__, __LINE__);
+          return -1;
+        }
+      }
     }
   }
 

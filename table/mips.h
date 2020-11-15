@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -18,15 +18,16 @@
 #define FORMAT_SPECIAL2 0x1c
 #define FORMAT_SPECIAL3 0x1f
 
-#define MIPS_I 1
-#define MIPS_II 2
-#define MIPS_III 4
-#define MIPS_IV 8
-#define MIPS_32 16 
-#define MIPS_FPU 32 
-#define MIPS_EE_CORE 64
-#define MIPS_EE_VU 128
-#define MIPS_MSA 256
+#define MIPS_I       0x0001
+#define MIPS_II      0x0002
+#define MIPS_III     0x0004
+#define MIPS_IV      0x0008
+#define MIPS_32      0x0010 
+#define MIPS_FPU     0x0020 
+#define MIPS_EE_CORE 0x0040
+#define MIPS_EE_VU   0x0080
+#define MIPS_MSA     0x0100
+#define MIPS_RSP     0x0200
 
 enum
 {
@@ -77,6 +78,7 @@ enum
   MIPS_OP_IMMEDIATE5,
   MIPS_OP_ID_REG,
   MIPS_OP_OPTIONAL,
+  MIPS_OP_RSPV,
 };
 
 #define FLAG_NONE 0
@@ -135,6 +137,22 @@ struct _mips_ee_vector
   uint8_t flags;
 };
 
+#define OPERAND_MIPS_RSP_INVALID 0
+#define OPERAND_MIPS_RSP_LOAD_STORE 1
+#define OPERAND_MIPS_RSP_REG_MOVE 2
+
+struct _mips_rsp_vector
+{
+  const char *instr;
+  int8_t type;
+  int8_t operand_count;
+  uint8_t shift;
+  uint8_t element_max;
+  uint8_t element_step;
+  uint32_t opcode;
+  uint32_t mask;
+};
+
 struct _mips_cache
 {
   const char *name;
@@ -149,6 +167,7 @@ extern struct _mips_other mips_other[];
 extern struct _mips_cache mips_cache[];
 extern struct _mips_other mips_msa[];
 extern struct _mips_ee_vector mips_ee_vector[];
+extern struct _mips_rsp_vector mips_rsp_vector[];
 
 #endif
 

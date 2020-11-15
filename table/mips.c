@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -543,5 +543,34 @@ struct _mips_ee_vector mips_ee_vector[] =
   { "vsubaz", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a00007e, 0xfe0007ff, FLAG_DEST },
   { "vsubaw", { MIPS_OP_ACC, MIPS_OP_VFS, MIPS_OP_VFT }, 3, 0x4a00007f, 0xfe0007ff, FLAG_DEST },
   { "vwaitq", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x4a0003bf, 0xffffffff, FLAG_NONE },
+};
+
+struct _mips_rsp_vector mips_rsp_vector[] =
+{
+  { "lbv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 0, 15, 1, 0xc8000000, 0xfc00f800 },
+  { "lsv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 1, 14, 2, 0xc8000800, 0xfc00f800 },
+  { "llv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 2, 12, 4, 0xc8001000, 0xfc00f800 },
+  { "ldv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 3,  8, 8, 0xc8001800, 0xfc00f800 },
+  { "lqv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4,  0, 0, 0xc8002000, 0xfc00f800 },
+  { "lrv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4,  0, 0, 0xc8002800, 0xfc00f800 },
+  { "lpv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 3,  0, 0, 0xc8003000, 0xfc00f800 },
+  { "luv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 3,  0, 0, 0xc8003800, 0xfc00f800 },
+  { "lhv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4,  0, 0, 0xc8004000, 0xfc00f800 },
+  { "lfv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4,  8, 8, 0xc8004800, 0xfc00f800 },
+  //{ "lwv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4, 0xc8005000, 0xfc00f800 },
+  { "ltv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4, 14, 2, 0xc8005800, 0xfc00f800 },
+  { "sbv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 0, 15, 1, 0xe8000000, 0xfc00f800 },
+  { "ssv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 1, 14, 2, 0xe8000800, 0xfc00f800 },
+  { "slv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 2, 12, 4, 0xe8001000, 0xfc00f800 },
+  { "sdv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 3,  8, 8, 0xe8001800, 0xfc00f800 },
+  { "sqv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4,  0, 0, 0xe8002000, 0xfc00f800 },
+  { "srv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4,  0, 0, 0xe8002800, 0xfc00f800 },
+  { "spv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 3,  0, 0, 0xe8003000, 0xfc00f800 },
+  { "suv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 3,  0, 0, 0xe8003800, 0xfc00f800 },
+  { "shv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4,  0, 0, 0xe8004000, 0xfc00f800 },
+  { "sfv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4,  8, 8, 0xe8004800, 0xfc00f800 },
+  { "swv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4, 14, 2, 0xe8003800, 0xfc00f800 },
+  { "stv", OPERAND_MIPS_RSP_LOAD_STORE, 2, 4, 14, 2, 0xe8005800, 0xfc00f800 },
+  { NULL, 0, 0, 0, 0 },
 };
 
