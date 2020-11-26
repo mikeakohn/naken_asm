@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -177,7 +177,7 @@ int tokens_get_char(struct _asm_context *asm_context)
   if (asm_context->tokens.unget_ptr > asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr])
   {
 #ifdef DEBUG
-//printf("debug> tokens_get_char(?) ungetc %d %d '%c'\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr], asm_context->tokens.unget[asm_context->tokens.unget_ptr-1]);
+//printf("debug> tokens_get_char(?) ungetc %d %d '%c'\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr], asm_context->tokens.unget[asm_context->tokens.unget_ptr - 1]);
 #endif
     return asm_context->tokens.unget[--asm_context->tokens.unget_ptr];
   }
@@ -190,7 +190,7 @@ int tokens_get_char(struct _asm_context *asm_context)
     if (asm_context->tokens.unget_ptr > asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr])
     {
 #ifdef DEBUG
-//printf("debug> tokens_get_char(FILE ungetc %d %d '%c'\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr], asm_context->tokens.unget[asm_context->tokens.unget_ptr-1]);
+//printf("debug> tokens_get_char(FILE ungetc %d %d '%c'\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr], asm_context->tokens.unget[asm_context->tokens.unget_ptr - 1]);
 #endif
       return asm_context->tokens.unget[--asm_context->tokens.unget_ptr];
     }
@@ -709,7 +709,9 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
       token_type = TOKEN_NUMBER;
     }
       else
-    if ((token[0] >= '0' && token[0] <= '9') && tolower(token[ptr-1]) == 'h')
+    if ((token[0] >= '0' && token[0] <= '9') &&
+        tolower(token[ptr - 1]) == 'h' &&
+        !asm_context->ignore_number_postfix)
     {
       // If token starts with a number and ends with a h it's probably hex
       uint64_t num;
@@ -718,7 +720,9 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
       token_type = TOKEN_NUMBER;
     }
       else
-    if ((token[0] >= '0' && token[0] <= '7') && tolower(token[ptr-1]) == 'q')
+    if ((token[0] >= '0' && token[0] <= '7') &&
+        tolower(token[ptr - 1]) == 'q' &&
+        !asm_context->ignore_number_postfix)
     {
       // If token starts with a number and ends with a q it's octal
       uint64_t num;
@@ -727,7 +731,7 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
       token_type = TOKEN_NUMBER;
     }
       else
-    if ((token[0] == '0' || token[0] == '1') && tolower(token[ptr-1]) == 'b')
+    if ((token[0] == '0' || token[0] == '1') && tolower(token[ptr - 1]) == 'b')
     {
       // If token starts with a number and ends with a b it's probably binary
       uint64_t num;

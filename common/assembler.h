@@ -76,6 +76,7 @@ struct _asm_context
   uint8_t dump_symbols : 1;
   uint8_t dump_macros : 1;
   uint8_t optimize : 1;
+  uint8_t ignore_number_postfix : 1;
   uint32_t flags;
   uint32_t extra_context;
 };
