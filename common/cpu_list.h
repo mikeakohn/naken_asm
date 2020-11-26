@@ -117,6 +117,7 @@ struct _cpu_list
   int8_t pass_1_write_disable : 1;
   int8_t strings_have_dots : 1;
   int8_t strings_have_slashes : 1;
+  int8_t ignore_number_postfix : 1;
   uint8_t srec_size : 2;
   parse_instruction_t parse_instruction;
   parse_directive_t parse_directive;

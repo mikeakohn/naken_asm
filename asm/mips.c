@@ -143,6 +143,10 @@ static int get_register_mips_rsp(
   int e = 0;
 
   if (token[0] != '$') { return -1; }
+  if (token[1] != 'v') { return -1; }
+
+  num = get_number(token + 2);
+  if (num < 0 || num > 31) { return -1; }
 
   token_type = tokens_get(asm_context, token_1, TOKENLEN);
 
@@ -150,21 +154,40 @@ static int get_register_mips_rsp(
   {
     tokens_push(asm_context, token_1, token_type);
 
+    if (num >= 2) { return num; }
+
     return -1;
   }
 
-  num = get_number(token + 2);
-  if (num < 0 || num > 31) { return -1; }
-
   token_type = tokens_get(asm_context, token_1, TOKENLEN);
 
+  uint8_t type = RSP_ELEMENT_WHOLE;
+  int l = strlen(token_1);
+
+  if (token_1[l - 1] == 'q')
+  {
+    type = RSP_ELEMENT_QUARTER;
+    token_1[l - 1] = 0;
+  }
+    else
+  if (token_1[l - 1] == 'h')
+  {
+    type = RSP_ELEMENT_HALF;
+    token_1[l - 1] = 0;
+  }
+
   e = get_number(token_1);
-  if (e < 0 || e > 15) { return -1; }
+
+  if (e < 0 || e > 15)
+  {
+    print_error_range("Vector element", 0, 15, asm_context);
+    return -2;
+  }
+
+  if (expect_token(asm_context, ']') == -1) { return -2; }
 
   rsp_element->index = e;
-  rsp_element->type = RSP_ELEMENT_WHOLE;
-
-  if (expect_token(asm_context, ']') == -1) { return -1; }
+  rsp_element->type = type;
 
   return num;
 }
@@ -783,6 +806,11 @@ static int get_operands(
           token,
           &operands[operand_count].rsp_element);
 
+        if (num == -2)
+        {
+          return -1;
+        }
+          else
         if (num != -1)
         {
            operands[operand_count].type = OPERAND_RSP_VREG;
@@ -2137,7 +2165,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               return -1;
             }
 
-            opcode = 
+            opcode =
               mips_rsp_vector[n].opcode |
               (operands[1].reg2 << 21) |
               (operands[0].value << 16) |
@@ -2166,7 +2194,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               return -1;
             }
 
-            opcode = 
+            opcode =
               mips_rsp_vector[n].opcode |
               (operands[0].value << 16) |
               (operands[1].value << 11) |
@@ -2189,7 +2217,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             if (check_range(asm_context, "Element", operands[0].rsp_element.index, 0, 15) == -1) { return -1; }
             if (check_range(asm_context, "Element", operands[1].rsp_element.index, 0, 15) == -1) { return -1; }
 
-            opcode = 
+            opcode =
               mips_rsp_vector[n].opcode |
               (operands[1].rsp_element.index << 21) |
               (operands[1].value << 16) |
@@ -2200,9 +2228,62 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
             return 4;
           }
+
+          break;
         }
         case OP_MIPS_RSP_ALU:
         {
+          if (operands[0].type == OPERAND_RSP_VREG &&
+              operands[1].type == OPERAND_RSP_VREG &&
+              operands[2].type == OPERAND_RSP_VREG)
+          {
+            int element =
+              operands[2].rsp_element.index |
+              operands[2].rsp_element.type;
+
+            if (operands[2].rsp_element.type == RSP_ELEMENT_QUARTER)
+            {
+              if (check_range(asm_context,
+                              "Element",
+                              operands[2].rsp_element.index, 0, 1) == -1)
+              {
+                return -1;
+              }
+            }
+              else
+            if (operands[2].rsp_element.type == RSP_ELEMENT_HALF)
+            {
+              if (check_range(asm_context,
+                              "Element",
+                              operands[2].rsp_element.index, 0, 3) == -1)
+              {
+                return -1;
+              }
+            }
+              else
+            if (operands[2].rsp_element.type == RSP_ELEMENT_WHOLE)
+            {
+              if (check_range(asm_context,
+                              "Element",
+                              operands[2].rsp_element.index, 0, 7) == -1)
+              {
+                return -1;
+              }
+            }
+
+            opcode =
+              mips_rsp_vector[n].opcode |
+              (element << 21) |
+              (operands[2].value << 16) |
+              (operands[1].value << 11) |
+              (operands[0].value << 6);
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          break;
         }
         default:
         {
