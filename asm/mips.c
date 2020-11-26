@@ -43,12 +43,26 @@ enum
   OPERAND_RSP_VREG,
 };
 
+enum
+{
+  RSP_ELEMENT_VECTOR = 0x0,
+  RSP_ELEMENT_QUARTER = 0x2,
+  RSP_ELEMENT_HALF = 0x4,
+  RSP_ELEMENT_WHOLE = 0x8,
+};
+
+struct _rsp_element
+{
+  uint8_t index;
+  uint8_t type;
+};
+
 struct _operand
 {
   int value;
   int type;
   int reg2;
-  int element;
+  struct _rsp_element rsp_element;
   int field_mask;
 };
 
@@ -121,7 +135,7 @@ static int get_tregister(char *token)
 static int get_register_mips_rsp(
   struct _asm_context *asm_context,
   char *token,
-  int *element)
+  struct _rsp_element *rsp_element)
 {
   int token_type;
   char token_1[TOKENLEN];
@@ -147,7 +161,8 @@ static int get_register_mips_rsp(
   e = get_number(token_1);
   if (e < 0 || e > 15) { return -1; }
 
-  *element = e;
+  rsp_element->index = e;
+  rsp_element->type = RSP_ELEMENT_WHOLE;
 
   if (expect_token(asm_context, ']') == -1) { return -1; }
 
@@ -766,7 +781,7 @@ static int get_operands(
         num = get_register_mips_rsp(
           asm_context,
           token,
-          &operands[operand_count].element);
+          &operands[operand_count].rsp_element);
 
         if (num != -1)
         {
@@ -2092,9 +2107,10 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         case OP_MIPS_RSP_LOAD_STORE:
         {
           if (operands[0].type == OPERAND_RSP_VREG &&
+              operands[0].rsp_element.type == RSP_ELEMENT_WHOLE &&
               operands[1].type == OPERAND_IMMEDIATE_RS)
           {
-            const int element = operands[0].element;
+            const int element = operands[0].rsp_element.index;
             const int element_max = mips_rsp_vector[n].element_max;
             const int element_step = mips_rsp_vector[n].element_step;
             const int offset_mask = (1 << mips_rsp_vector[n].shift) - 1;
@@ -2125,7 +2141,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               mips_rsp_vector[n].opcode |
               (operands[1].reg2 << 21) |
               (operands[0].value << 16) |
-              (operands[0].element << 7) |
+              (operands[0].rsp_element.index << 7) |
               (offset & 0x3f);
 
             add_bin32(asm_context, opcode, IS_OPCODE);
@@ -2138,9 +2154,10 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         case OP_MIPS_RSP_REG_MOVE:
         {
           if (operands[0].type == OPERAND_TREG &&
-              operands[1].type == OPERAND_RSP_VREG)
+              operands[1].type == OPERAND_RSP_VREG &&
+              operands[1].rsp_element.type == RSP_ELEMENT_WHOLE)
           {
-            const int element = operands[1].element;
+            const int element = operands[1].rsp_element.index;
             const int element_max = mips_rsp_vector[n].element_max;
             const int element_step = mips_rsp_vector[n].element_step;
 
@@ -2153,7 +2170,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               mips_rsp_vector[n].opcode |
               (operands[0].value << 16) |
               (operands[1].value << 11) |
-              (operands[1].element << 7);
+              (operands[1].rsp_element.index << 7);
 
             add_bin32(asm_context, opcode, IS_OPCODE);
 
@@ -2164,6 +2181,25 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         }
         case OP_MIPS_RSP_REG_2:
         {
+          if (operands[0].type == OPERAND_RSP_VREG &&
+              operands[0].rsp_element.type == RSP_ELEMENT_WHOLE &&
+              operands[1].type == OPERAND_RSP_VREG &&
+              operands[1].rsp_element.type == RSP_ELEMENT_WHOLE)
+          {
+            if (check_range(asm_context, "Element", operands[0].rsp_element.index, 0, 15) == -1) { return -1; }
+            if (check_range(asm_context, "Element", operands[1].rsp_element.index, 0, 15) == -1) { return -1; }
+
+            opcode = 
+              mips_rsp_vector[n].opcode |
+              (operands[1].rsp_element.index << 21) |
+              (operands[1].value << 16) |
+              (operands[0].rsp_element.index << 11) |
+              (operands[0].value << 6);
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
         }
         case OP_MIPS_RSP_ALU:
         {

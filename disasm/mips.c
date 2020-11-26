@@ -273,23 +273,34 @@ static int disasm_n64_rsp(
           }
             else
           {
-            if ((e & 2) != 0)
+            if (((e >> 1) & 7) != 1)
             {
               e = e & 0x1;
+
+              sprintf(instruction, "%s $v%d, $v%d, $v%d[%dq]",
+                mips_rsp_vector[n].instr, vd, vs, vt, e);
             }
               else
-            if ((e & 4) != 0)
+            if (((e >> 2) & 1) != 1)
             {
               e = e & 0x3;
+
+              sprintf(instruction, "%s $v%d, $v%d, $v%d[%dh]",
+                mips_rsp_vector[n].instr, vd, vs, vt, e);
             }
               else
-            if ((e & 8) != 0)
+            if (((e >> 3) & 1) != 1)
             {
               e = e & 0x7;
-            }
 
-            sprintf(instruction, "%s $v%d[%d], $v%d[%d]",
-              mips_rsp_vector[n].instr, vd, vs, vt, e);
+              sprintf(instruction, "%s $v%d, $v%d, $v%d[%d]",
+                mips_rsp_vector[n].instr, vd, vs, vt, e);
+            }
+              else
+            {
+              sprintf(instruction, "%s $v%d, $v%d, $v%d[?] (e=%d)",
+                mips_rsp_vector[n].instr, vd, vs, vt, e);
+            }
           }
 
           return 4;
