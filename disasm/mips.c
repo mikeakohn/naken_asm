@@ -251,7 +251,7 @@ static int disasm_n64_rsp(
         {
           int vd = (opcode >> 6) & 0x1f;
           int de = (opcode >> 11) & 0x1f;
-          int e = (opcode >> 21) & 0x1f;
+          int e = (opcode >> 21) & 0xf;
 
           sprintf(instruction, "%s $v%d[%d], $v%d[%d]",
             mips_rsp_vector[n].instr,
@@ -264,7 +264,7 @@ static int disasm_n64_rsp(
         {
           int vd = (opcode >> 6) & 0x1f;
           int vs = (opcode >> 11) & 0x1f;
-          int e = (opcode >> 21) & 0x1f;
+          int e = (opcode >> 21) & 0xf;
 
           if (e == 0)
           {
@@ -272,35 +272,33 @@ static int disasm_n64_rsp(
               mips_rsp_vector[n].instr, vd, vs, vt);
           }
             else
+          if (((e >> 1) & 7) == 1)
           {
-            if (((e >> 1) & 7) != 1)
-            {
-              e = e & 0x1;
+            e &= 0x1;
 
-              sprintf(instruction, "%s $v%d, $v%d, $v%d[%dq]",
-                mips_rsp_vector[n].instr, vd, vs, vt, e);
-            }
-              else
-            if (((e >> 2) & 1) != 1)
-            {
-              e = e & 0x3;
+            sprintf(instruction, "%s $v%d, $v%d, $v%d[%dq]",
+              mips_rsp_vector[n].instr, vd, vs, vt, e);
+          }
+            else
+          if (((e >> 2) & 3) == 1)
+          {
+            e &= 0x3;
 
-              sprintf(instruction, "%s $v%d, $v%d, $v%d[%dh]",
-                mips_rsp_vector[n].instr, vd, vs, vt, e);
-            }
-              else
-            if (((e >> 3) & 1) != 1)
-            {
-              e = e & 0x7;
+            sprintf(instruction, "%s $v%d, $v%d, $v%d[%dh]",
+              mips_rsp_vector[n].instr, vd, vs, vt, e);
+          }
+            else
+          if (((e >> 3) & 1) == 1)
+          {
+            e &= 0x7;
 
-              sprintf(instruction, "%s $v%d, $v%d, $v%d[%d]",
-                mips_rsp_vector[n].instr, vd, vs, vt, e);
-            }
-              else
-            {
-              sprintf(instruction, "%s $v%d, $v%d, $v%d[?] (e=%d)",
-                mips_rsp_vector[n].instr, vd, vs, vt, e);
-            }
+            sprintf(instruction, "%s $v%d, $v%d, $v%d[%d]",
+              mips_rsp_vector[n].instr, vd, vs, vt, e);
+          }
+            else
+          {
+            sprintf(instruction, "%s $v%d, $v%d, $v%d[?] (e=%d)",
+              mips_rsp_vector[n].instr, vd, vs, vt, e);
           }
 
           return 4;
