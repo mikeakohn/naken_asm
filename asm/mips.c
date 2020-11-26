@@ -2233,6 +2233,23 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         }
         case OP_MIPS_RSP_ALU:
         {
+          int i;
+
+          // Sorry :(. Unfortunately MIPS defines $v0 and $v1 as
+          // regular registers ($2 and $3) while RSP syntax says it
+          // could be a vector register. If the assembler detects
+          // an RSP_ALU instruction and it's a regular register, need
+          // to rename it as RSP vector register.
+          for (i = 0; i < 3; i++)
+          {
+            if (operands[i].type == OPERAND_TREG &&
+                operands[i].value >= 2 && operands[i].value <= 3)
+            {
+              operands[i].type = OPERAND_RSP_VREG;
+              operands[i].value = operands[i].value - 2;
+            }
+          }
+
           if (operands[0].type == OPERAND_RSP_VREG &&
               operands[1].type == OPERAND_RSP_VREG &&
               operands[2].type == OPERAND_RSP_VREG)
