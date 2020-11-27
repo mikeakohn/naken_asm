@@ -226,6 +226,7 @@ static int disasm_n64_rsp(
         }
         case OP_MIPS_RSP_LOAD_STORE:
         {
+          if ((offset & 0x40) != 0) { offset |= 0xffffff80; }
           offset = offset << mips_rsp_vector[n].shift;
 
           sprintf(instruction, "%s $v%d[%d], %d(%s)",

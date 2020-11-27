@@ -575,7 +575,7 @@ struct _mips_rsp_vector mips_rsp_vector[] =
   { "mtc2",  OP_MIPS_RSP_REG_MOVE,   2, 0, 14, 2, 0x48800000, 0xffe00000 },
   { "vabs",  OP_MIPS_RSP_ALU,        3, 0,  0, 0, 0x4a000013, 0xfe00003f },
   { "vadd",  OP_MIPS_RSP_ALU,        3, 0,  0, 0, 0x4a000010, 0xfe00003f },
-  { "vaddc", OP_MIPS_RSP_ALU,        3, 0,  0, 0, 0x4a000024, 0xfe00003f },
+  { "vaddc", OP_MIPS_RSP_ALU,        3, 0,  0, 0, 0x4a000014, 0xfe00003f },
   { "vand",  OP_MIPS_RSP_ALU,        3, 0,  0, 0, 0x4a000028, 0xfe00003f },
   { "vch",   OP_MIPS_RSP_ALU,        3, 0,  0, 0, 0x4a000025, 0xfe00003f },
   { "vcl",   OP_MIPS_RSP_ALU,        3, 0,  0, 0, 0x4a000024, 0xfe00003f },

@@ -206,7 +206,7 @@ static int check_element(
 
   if (element_step != 0)
   {
-    if ((element & ((1 << (element_step - 1)) - 1)) != 0)
+    if ((element % element_step) != 0)
     {
       print_error("Invalid vector element", asm_context);
       return -1;
@@ -2157,7 +2157,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               return -1;
             }
 
-            offset = operands[1].value >> mips_rsp_vector[n].shift;
+            offset = operands[1].value;
 
             if ((offset & offset_mask) != 0)
             {
@@ -2165,12 +2165,14 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               return -1;
             }
 
+            offset = offset >> mips_rsp_vector[n].shift;
+
             opcode =
               mips_rsp_vector[n].opcode |
               (operands[1].reg2 << 21) |
               (operands[0].value << 16) |
               (operands[0].rsp_element.index << 7) |
-              (offset & 0x3f);
+              (offset & 0x7f);
 
             add_bin32(asm_context, opcode, IS_OPCODE);
 

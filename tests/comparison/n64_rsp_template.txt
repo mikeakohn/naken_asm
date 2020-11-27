@@ -23,47 +23,47 @@ swv $v29[8], -192($11)
 stv $v29[0], -288($8)
 mfc2 $20, $v26[4]
 mtc2 $9, $v27[8]
-vabs $v28, $v3, $v22[9]
-vadd $v4, $v14, $v30[15]
-vaddc $v18, $v5, $v27[14]
+vabs $v28, $v3, $v22[7]
+vadd $v4, $v14, $v30[3h]
+vaddc $v18, $v5, $v27[1q]
 vand $v0, $v18, $v11
 vch $v28, $v27, $v24
 vcl $v25, $v17, $v15
 vcr $v4, $v5, $v13
 veq $v27, $v15, $v26[3]
 vge $v24, $v27, $v1
-vlt $v8, $v29, $v25[11]
+vlt $v8, $v29, $v25[1h]
 vmacf $v3, $v10, $v26
 vmacq $v4, $v2, $v29
 vmacu $v31, $v9, $v31
 vmadh $v6, $v0, $v23
-vmadl $v31, $v6, $v13[12]
+vmadl $v31, $v6, $v13[2h]
 vmadm $v25, $v14, $v10[5]
-vmadn $v21, $v10, $v20[12]
-vmov $v15[13], $v26[8]
-vmrg $v10, $v10, $v21[15]
-vmudh $v22, $v20, $v21[8]
+vmadn $v21, $v10, $v20[0q]
+vmov $v15[3], $v26[7]
+vmrg $v10, $v10, $v21[1q]
+vmudh $v22, $v20, $v21[1]
 vmudl $v1, $v17, $v14
 vmudm $v28, $v20, $v20[2]
-vmudn $v15, $v5, $v17[12]
-vmulf $v27, $v30, $v8[13]
+vmudn $v15, $v5, $v17[1h]
+vmulf $v27, $v30, $v8[2h]
 vmulq $v6, $v3, $v9
-vmulu $v1, $v26, $v23[9]
+vmulu $v1, $v26, $v23[1q]
 vnand $v16, $v14, $v14
 vne $v28, $v1, $v14
 vnop
 vnor $v2, $v23, $v19
 vnxor $v18, $v12, $v29
 vor $v18, $v6, $v8
-vrcp $v24[7], $v6[11]
+vrcp $v24[7], $v6[1]
 vrcph $v13[7], $v27[3]
-vrcpl $v26[15], $v8[14]
+vrcpl $v26[3], $v8[0]
 vrndn $v3, $v29, $v5
 vrndp $v18, $v14, $v28[6]
 vrsq $v29[0], $v21[6]
-vrsqh $v13[8], $v10[1]
-vrsql $v22[8], $v19[5]
+vrsqh $v13[7], $v10[1]
+vrsql $v22[4], $v19[5]
 vsar $v9, $v21, $v5
 vsub $v14, $v0, $v26
 vsubc $v18, $v23, $v19
-vxor $v28, $v1, $v27[11]
+vxor $v28, $v1, $v27[3]
