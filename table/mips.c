@@ -569,7 +569,7 @@ struct _mips_rsp_vector mips_rsp_vector[] =
   { "suv",   OP_MIPS_RSP_LOAD_STORE, 2, 3,  0, 0, 0xe8003800, 0xfc00f800 },
   { "shv",   OP_MIPS_RSP_LOAD_STORE, 2, 4,  0, 0, 0xe8004000, 0xfc00f800 },
   { "sfv",   OP_MIPS_RSP_LOAD_STORE, 2, 4,  8, 8, 0xe8004800, 0xfc00f800 },
-  { "swv",   OP_MIPS_RSP_LOAD_STORE, 2, 4, 14, 2, 0xe8003800, 0xfc00f800 },
+  { "swv",   OP_MIPS_RSP_LOAD_STORE, 2, 4, 14, 2, 0xe8005000, 0xfc00f800 },
   { "stv",   OP_MIPS_RSP_LOAD_STORE, 2, 4, 14, 2, 0xe8005800, 0xfc00f800 },
   { "mfc2",  OP_MIPS_RSP_REG_MOVE,   2, 0, 14, 2, 0x48000000, 0xffe00000 },
   { "mtc2",  OP_MIPS_RSP_REG_MOVE,   2, 0, 14, 2, 0x48800000, 0xffe00000 },

@@ -18,6 +18,7 @@ default:
 	bash run_test.sh lc3
 	bash run_test.sh msp430
 	bash run_test.sh msp430x
+	bash run_test.sh n64_rsp
 	bash run_test.sh pic14
 	bash run_test.sh pic32
 	#python3 run_test.py pic32
