@@ -30,3 +30,11 @@ This is the same as .mips except it defaults to little endian and
 adds Playstation 2 specific instructions including SIMD vector
 instructions.
 
+.n64_rsp
+--------
+
+This is for the Nintendo 64 Reality Signal Processor (RSP). This
+adds all the vector instructions for the processor inside the graphics
+chip in the Nintendo 64. The syntax naken_asm uses is the same syntax
+used in the official RSP programmer's guide and defaults to big endian.
+

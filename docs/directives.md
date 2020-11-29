@@ -36,6 +36,7 @@ CPU this source file should be assembled for.
 |.mips32          |MIPS (32 bit)
 |.msp430          |MSP430
 |.mps430x         |MSP430X
+|.n64_rsp         |Nintendo 64 RSP
 |.pic14           |PIC w/ 14 bit opcodes
 |.pic24           |PIC24
 |.pic32           |PIC32 MIPS
