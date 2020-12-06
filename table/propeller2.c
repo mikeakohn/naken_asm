@@ -422,5 +422,6 @@ struct _table_propeller2 table_propeller2[] =
   { "loc",     0x0e800000, 0x0f800000, 2, {OP_P,      OP_A,      OP_NONE }, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2 },
   { "augs",    0x0f000000, 0x0f800000, 1, {OP_N_23,   OP_NONE,   OP_NONE }, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2 },
   { "augd",    0x0f800000, 0x0f800000, 1, {OP_N_23,   OP_NONE,   OP_NONE }, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2 },
+  { NULL }
 };
 

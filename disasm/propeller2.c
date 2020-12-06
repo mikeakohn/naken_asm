@@ -69,6 +69,7 @@ int disasm_propeller2(
   d = (opcode >> 9) & 0x1ff;
   wc = (opcode >> 20) & 1;
   wz = (opcode >> 19) & 1;
+  wcz = 0;
   char operands[64];
   cond = (opcode >> 28) & 0xf;
   const char *condition = conditions[cond];
@@ -85,13 +86,16 @@ int disasm_propeller2(
 
   for (n = 0; table_propeller2[n].instr != NULL; n++)
   {
-    if ((opcode & table_propeller2[n].mask) == table_propeller2[n].opcode)
+    if ((opcode & table_propeller2[n].mask) != table_propeller2[n].opcode)
     {
-      *cycles_min = table_propeller2[n].cycles8_min;
-      *cycles_max = table_propeller2[n].cycles8_min;
+      continue;
     }
 
+    *cycles_min = table_propeller2[n].cycles8_min;
+    *cycles_max = table_propeller2[n].cycles8_min;
     instr = table_propeller2[n].instr;
+
+    if (table_propeller2[n].operand_count == 0) { condition = ""; }
 
     int t;
 
@@ -137,7 +141,7 @@ int disasm_propeller2(
       }
     }
 
-    n++;
+    break;
   }
 
   if (wc == 1) { strcat(operands, ", wc"); }

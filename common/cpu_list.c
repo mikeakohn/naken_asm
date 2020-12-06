@@ -42,6 +42,7 @@
 #include "asm/pic14.h"
 #include "asm/powerpc.h"
 #include "asm/propeller.h"
+#include "asm/propeller2.h"
 #include "asm/ps2_ee_vu.h"
 #include "asm/riscv.h"
 #include "asm/sh4.h"
@@ -86,6 +87,7 @@
 #include "disasm/pic14.h"
 #include "disasm/powerpc.h"
 #include "disasm/propeller.h"
+#include "disasm/propeller2.h"
 #include "disasm/ps2_ee_vu.h"
 #include "disasm/riscv.h"
 #include "disasm/sh4.h"
@@ -942,6 +944,29 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_propeller,
     disasm_range_propeller,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_PROPELLER2
+  {
+    "propeller2",
+    CPU_TYPE_PROPELLER2,
+    ENDIAN_LITTLE,
+    4,
+    ALIGN_4,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_propeller2,
+    NULL,
+    link_not_supported,
+    list_output_propeller2,
+    disasm_range_propeller2,
     NULL,
     NO_FLAGS,
   },

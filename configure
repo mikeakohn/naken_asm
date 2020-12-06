@@ -49,6 +49,7 @@ CPUS=" \
   PIC14
   POWERPC
   PROPELLER
+  PROPELLER2
   RISCV
   SH4
   SPARC
@@ -168,6 +169,7 @@ show_help()
   echo "  --enable-pic14            compile in support for PIC14"
   echo "  --enable-powerpc          compile in support for PowerPC"
   echo "  --enable-propeller        compile in support for Propeller"
+  echo "  --enable-propeller2       compile in support for Propeller2"
   echo "  --enable-emotion-engine   compile in support for Emotion Engine"
   echo "  --enable-riscv            compile in support for RISCV"
   echo "  --enable-sh4              compile in support for SH4"
@@ -469,6 +471,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} propeller.o"
     TABLE_OBJS="${TABLE_OBJS} propeller.o"
     DFLAGS="${DFLAGS} -DENABLE_PROPELLER"
+  ;;
+  --enable-propeller2)
+    ASM_OBJS="${ASM_OBJS} propeller2.o"
+    DISASM_OBJS="${DISASM_OBJS} propeller2.o"
+    TABLE_OBJS="${TABLE_OBJS} propeller2.o"
+    DFLAGS="${DFLAGS} -DENABLE_PROPELLER2"
   ;;
   --enable-emotion-engine)
     ASM_OBJS="${ASM_OBJS} ps2_ee_vu.o"

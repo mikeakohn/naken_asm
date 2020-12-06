@@ -1,0 +1,7 @@
+.propeller2
+
+main:
+  nop
+  rol 0x4, #5
+  rol 0x4, 0xff
+

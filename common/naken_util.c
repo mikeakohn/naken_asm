@@ -52,6 +52,7 @@
 #include "disasm/pic14.h"
 #include "disasm/powerpc.h"
 #include "disasm/propeller.h"
+#include "disasm/propeller2.h"
 #include "disasm/ps2_ee_vu.h"
 #include "disasm/riscv.h"
 #include "disasm/sh4.h"
@@ -120,6 +121,7 @@ parse_instruction_t parse_instruction_pdp8 = NULL;
 parse_instruction_t parse_instruction_pic14 = NULL;
 parse_instruction_t parse_instruction_powerpc = NULL;
 parse_instruction_t parse_instruction_propeller = NULL;
+parse_instruction_t parse_instruction_propeller2 = NULL;
 parse_instruction_t parse_instruction_ps2_ee_vu = NULL;
 parse_instruction_t parse_instruction_riscv = NULL;
 parse_instruction_t parse_instruction_sh4 = NULL;
@@ -1222,6 +1224,7 @@ int main(int argc, char *argv[])
            "   -pic14                       (PIC14 8 bit PIC / 14 bit opcode)\n"
            "   -powerpc                     (PowerPC)\n"
            "   -propeller                   (Parallax Propeller)\n"
+           "   -propeller2                  (Parallax Propeller2)\n"
            "   -ps2ee                       (Playstation 2 EE)\n"
            "   -ps2ee_vu0                   (Playstation 2 VU0)\n"
            "   -ps2ee_vu1                   (Playstation 2 VU1)\n"
