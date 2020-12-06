@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -41,12 +41,17 @@ static const char *conditions[] =
   "",
 };
 
-int get_cycle_count_propeller(unsigned short int opcode)
+int get_cycle_count_propeller(uint32_t opcode)
 {
   return -1;
 }
 
-int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_propeller(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   int n;
@@ -71,9 +76,8 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
 
   effects[0] = 0;
 
-
   n = 0;
-  while(table_propeller[n].instr != NULL)
+  while (table_propeller[n].instr != NULL)
   {
     int op_no_effects = table_propeller[n].opcode & //0xfc7fffff;
        ((table_propeller[n].mask & 0x03800000) ^ 0xfc7fffff);
@@ -177,7 +181,10 @@ int disasm_propeller(struct _memory *memory, uint32_t address, char *instruction
   return 4;
 }
 
-void list_output_propeller(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_propeller(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   uint32_t opcode;
@@ -187,7 +194,7 @@ void list_output_propeller(struct _asm_context *asm_context, uint32_t start, uin
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_propeller(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -219,7 +226,11 @@ void list_output_propeller(struct _asm_context *asm_context, uint32_t start, uin
   }
 }
 
-void disasm_range_propeller(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_propeller(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   char bytes[16];
@@ -230,7 +241,7 @@ void disasm_range_propeller(struct _memory *memory, uint32_t flags, uint32_t sta
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     disasm_propeller(memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -259,5 +270,4 @@ void disasm_range_propeller(struct _memory *memory, uint32_t flags, uint32_t sta
     start = start + 4;
   }
 }
-
 

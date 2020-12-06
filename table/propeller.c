@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
@@ -13,7 +13,8 @@
 
 #include "table/propeller.h"
 
-struct _table_propeller table_propeller[] = {
+struct _table_propeller table_propeller[] =
+{
   { "wrbyte",  0x00000000, 0xfc800000, PROPELLER_OP_DS, 8, 23 },
   { "rdbyte",  0x00800000, 0xfc800000, PROPELLER_OP_DS, 8, 23 },
   { "wrword",  0x04000000, 0xfc800000, PROPELLER_OP_DS_15_1, 8, 23 },

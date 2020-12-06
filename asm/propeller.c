@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2020 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+//#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/propeller.h"
@@ -113,7 +113,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
     }
   }
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -220,7 +220,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
 
   n = 0;
 
-  while(table_propeller[n].instr != NULL)
+  while (table_propeller[n].instr != NULL)
   {
     if (strcmp(instr_case, table_propeller[n].instr) == 0)
     {
@@ -394,6 +394,4 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
 
   return -1;
 }
-
-
 
