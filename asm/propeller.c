@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/propeller.h"
@@ -103,7 +102,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
 
   for (n = 0; n < len; n++)
   {
-    if (strcmp(instr, conditions[n].name) == 0)
+    if (strcmp(instr_case, conditions[n].name) == 0)
     {
       token_type = tokens_get(asm_context, instr, TOKENLEN);
       lower_copy(instr_case, instr);
