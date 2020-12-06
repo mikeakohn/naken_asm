@@ -125,6 +125,7 @@ for line in fp:
   wc = 0
   wcz = 0
   logic = 0
+  required = 0
 
   ops = [ "OP_NONE", "OP_NONE", "OP_NONE" ]
 
@@ -142,14 +143,14 @@ for line in fp:
       elif op == "{#}S": ops[count] = "OP_NUM_S"
       elif op == "{#}S/P": ops[count] = "OP_NUM_SP"
       elif op == "{WC/WZ/WCZ}": wc = 1; wz = 1; wcz = 1; continue
-      elif op == "WC/WZ/WCZ": wc = 1; wz = 1; wcz = 1; continue
-      elif op == "WC/WZ": wc = 1; wz = 1; continue
+      elif op == "WC/WZ/WCZ": wc = 1; wz = 1; wcz = 1; required = 1; continue
+      elif op == "WC/WZ": wc = 1; wz = 1; required = 1; continue
       elif op == "{WCZ}": wcz = 1; continue
       elif op == "{WZ}": wz = 1; continue
       elif op == "{WC}": wc = 1; continue
-      elif op == "ANDC/ANDZ": wc = 1; wz = 1; logic = 1; continue
-      elif op == "ORC/ORZ": wc = 1; wz = 1; logic = 2; continue
-      elif op == "XORC/XORZ": wc = 1; wz = 1; logic = 3; continue
+      elif op == "ANDC/ANDZ": wc = 1; wz = 1; logic = 1; required = 1; continue
+      elif op == "ORC/ORZ": wc = 1; wz = 1; logic = 2; required = 1; continue
+      elif op == "XORC/XORZ": wc = 1; wz = 1; logic = 3; required = 1; continue
       elif op == "c": ops[count] = "OP_C"
       elif op == "z": ops[count] = "OP_Z"
       elif op == "#{\}A": ops[count] = "OP_A"
@@ -179,6 +180,7 @@ for line in fp:
     ", " + str(wc) + \
     ", " + str(wcz) + \
     ", " + str(logic)
+    #", " + str(required)
 
   cycles = \
     ", " + str(cycles8_min) + \
@@ -192,5 +194,6 @@ for line in fp:
 
 fp.close()
 
+print("  { NULL }")
 print("};\n")
 

@@ -41,6 +41,26 @@ static const char *conditions[] =
   "",
 };
 
+static const char *conditions_cz[] =
+{
+  "_clr",
+  "_nc_and_nz",
+  "_nc_and_z",
+  "_nc",
+  "_c_and_nz",
+  "_nz",
+  "_c_ne_z",
+  "_nc_or_nz",
+  "_c_and_z",
+  "_c_eq_z",
+  "_z",
+  "_nc_or_z",
+  "_c",
+  "_c_or_nz",
+  "_c_or_z",
+  "_set",
+};
+
 int get_cycle_count_propeller2(uint32_t opcode)
 {
   return -1;
@@ -55,7 +75,7 @@ int disasm_propeller2(
 {
   int opcode;
   int n;
-  int i, d, s;
+  int i, d, s, c, z;
   int cond;
   int wz, wc, wcz;
 
@@ -130,10 +150,12 @@ int disasm_propeller2(
         case OP_P:
           break;
         case OP_C:
-          strcat(operands, "c");
+          c = (opcode >> 13) & 0xf;
+          strcat(operands, conditions_cz[c]);
           break;
         case OP_Z:
-          strcat(operands, "z");
+          z = (opcode >> 9) & 0xf;
+          strcat(operands, conditions_cz[z]);
           break;
         default:
           printf("Internal Error: %s:%d\n", __FILE__, __LINE__);
