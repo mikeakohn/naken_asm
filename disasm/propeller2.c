@@ -75,7 +75,7 @@ int disasm_propeller2(
 {
   int opcode;
   int n;
-  int i, d, s, c, z;
+  int i, d, s, r;
   int cond;
   int wz, wc, wcz;
 
@@ -142,20 +142,134 @@ int disasm_propeller2(
           strcat(operands, temp);
           break;
         case OP_NUM_SP:
+          strcpy(temp, "???");
+
+          if (i == 0)
+          {
+            sprintf(temp, "0x%x", s);
+          }
+            else
+          if ((s & 0x100) == 0)
+          {
+            sprintf(temp, "#0x%x", s);
+          }
+            else
+          {
+            const char *ptr = (s & 0x80) == 0 ? "ptra" : "ptrb";
+            int d = s & 0x3f;
+            int n = s & 0x0f;
+            //const char *sign = (s & 0x10) == 0 ? "++" : "--";
+            int sign = (s >> 4) & 1;
+
+            if (sign == 0)
+            {
+              if (n == 0) { n = 16; }
+            }
+              else
+            {
+              n |= 0xfffffff0;
+            }
+
+            if ((s & 0x40) == 0)
+            {
+              if (d == 0)
+              {
+                sprintf(temp, "%s", ptr);
+              }
+                else
+              {
+                sprintf(temp, "%s[%d]", ptr, d);
+              }
+            }
+              else
+            if (d == 0x21)
+            {
+              sprintf(temp, "%s++", ptr);
+            }
+              else
+            if (d == 0x3f)
+            {
+              sprintf(temp, "%s--", ptr);
+            }
+              else
+            if (d == 0x01)
+            {
+              sprintf(temp, "++%s", ptr);
+            }
+              else
+            if (d == 0x1f)
+            {
+              sprintf(temp, "--%s", ptr);
+            }
+              else
+            {
+              if ((s & 0x20) == 0)
+              {
+                sprintf(temp, "%s%s[%d]", ptr, sign == 0 ? "++" : "--", n);
+              }
+                else
+              {
+                sprintf(temp, "%s%s[%d]", sign == 0 ? "++" : "--", ptr, n);
+              }
+            }
+          }
+
+          strcat(operands, temp);
+          break;
         case OP_N_1:
+          r = (opcode >> 19) & 0x1;
+          sprintf(temp, "#0x%x", r);
+          strcat(operands, temp);
+          break;
         case OP_N_2:
+          r = (opcode >> 19) & 0x3;
+          sprintf(temp, "#0x%x", r);
+          strcat(operands, temp);
+          break;
         case OP_N_3:
+          r = (opcode >> 19) & 0x7;
+          sprintf(temp, "#0x%x", r);
+          strcat(operands, temp);
+          break;
         case OP_N_23:
+          r = opcode & 0x7fffff;
+          sprintf(temp, "#0x%04x", r);
+          strcat(operands, temp);
+          break;
         case OP_A:
+          r = (opcode >> 21) & 1;
+
+          if (r == 0)
+          {
+            r = opcode & 0xfffff;
+            sprintf(temp, "#\\0x%04x", r);
+          }
+            else
+          {
+            r = opcode & 0xfffff;
+
+            if ((r & 0x80000) != 0)
+            {
+              r |= 0xfff00000;
+            }
+
+            r = address + 4 + r;
+            sprintf(temp, "#0x%04x", r);
+          }
+
+          strcat(operands, temp);
+          break;
         case OP_P:
+          r = (opcode >> 21) & 0x3;
+          strcat(operands, registers_propeller2[r + 6].name);
           break;
         case OP_C:
-          c = (opcode >> 13) & 0xf;
-          strcat(operands, conditions_cz[c]);
+          r = (opcode >> 13) & 0xf;
+          strcat(operands, conditions_cz[r]);
           break;
         case OP_Z:
-          z = (opcode >> 9) & 0xf;
-          strcat(operands, conditions_cz[z]);
+          r = (opcode >> 9) & 0xf;
+          strcat(operands, conditions_cz[r]);
           break;
         default:
           printf("Internal Error: %s:%d\n", __FILE__, __LINE__);

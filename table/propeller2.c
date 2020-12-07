@@ -425,3 +425,23 @@ struct _table_propeller2 table_propeller2[] =
   { NULL }
 };
 
+struct _registers_propeller2 registers_propeller2[] =
+{
+  { "ijmp3", 0x1f0 },
+  { "iret3", 0x1f1 },
+  { "ijmp2", 0x1f2 },
+  { "iret2", 0x1f3 },
+  { "ijmp1", 0x1f4 },
+  { "iret1", 0x1f5 },
+  { "pa",    0x1f6 },
+  { "pb",    0x1f7 },
+  { "ptra",  0x1f8 },
+  { "ptrb",  0x1f9 },
+  { "dira",  0x1fa },
+  { "dirb",  0x1fb },
+  { "outa",  0x1fc },
+  { "outb",  0x1fd },
+  { "ina",   0x1fe },
+  { "inb",   0x1ff },
+};
+

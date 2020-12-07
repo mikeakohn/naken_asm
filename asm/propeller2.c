@@ -27,6 +27,7 @@ enum
   OPERAND_IMMEDIATE,
   OPERAND_ABSOLUTE_ADDRESS,
   OPERAND_CONDITION_CZ,
+  OPERAND_P,
 };
 
 struct _operand
@@ -212,6 +213,16 @@ int get_condition_cz(const char *token)
   return -1;
 }
 
+int get_p(const char *token)
+{
+  if (strcasecmp(token, "pa") == 0) { return 0; }
+  if (strcasecmp(token, "pb") == 0) { return 1; }
+  if (strcasecmp(token, "ptra") == 0) { return 2; }
+  if (strcasecmp(token, "ptrb") == 0) { return 3; }
+
+  return -1;
+}
+
 int parse_instruction_propeller2(struct _asm_context *asm_context, char *instr)
 {
   char token[TOKENLEN];
@@ -262,11 +273,15 @@ int parse_instruction_propeller2(struct _asm_context *asm_context, char *instr)
 
     if (lookup_flag(token, &flags) != 0) { continue; }
 
-    r = get_condition_cz(token);
-
-    if (r != -1)
+    if ((r = get_condition_cz(token)) != -1)
     {
       operands[operand_count].type = OPERAND_CONDITION_CZ;
+      operands[operand_count].value = r;
+    }
+      else
+    if ((r = get_p(token)) != -1)
+    {
+      operands[operand_count].type = OPERAND_P;
       operands[operand_count].value = r;
     }
       else
@@ -425,6 +440,7 @@ for (n = 0; n < operand_count; n++)
           case OP_N_23:
           case OP_A:
           case OP_P:
+            opcode |= operands[i].value << 21;
             break;
           case OP_C:
             if (operands[i].type == OPERAND_NUMBER)

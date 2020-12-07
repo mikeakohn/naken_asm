@@ -58,7 +58,14 @@ struct _table_propeller2
   uint8_t cycles16_max;
 };
 
+struct _registers_propeller2
+{
+  char *name;
+  uint32_t value;
+};
+
 extern struct _table_propeller2 table_propeller2[];
+extern struct _registers_propeller2 registers_propeller2[];
 
 #endif
 
