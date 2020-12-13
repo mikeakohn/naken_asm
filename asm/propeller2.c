@@ -141,7 +141,7 @@ static struct _conditions conditions_cz[] =
   { "_set",       0xf },
 };
 
-int lookup_flag(const char *token, union _flags *flags)
+static int lookup_flag(const char *token, union _flags *flags)
 {
   if (strcasecmp(token, "wc") == 0)
   {
@@ -197,7 +197,7 @@ int lookup_flag(const char *token, union _flags *flags)
   return flags->has_flag;
 }
 
-int get_condition_cz(const char *token)
+static int get_condition_cz(const char *token)
 {
   int n;
   const int len = sizeof(conditions_cz) / sizeof(struct _conditions);
@@ -213,12 +213,27 @@ int get_condition_cz(const char *token)
   return -1;
 }
 
-int get_p(const char *token)
+static int get_p(const char *token)
 {
   if (strcasecmp(token, "pa") == 0) { return 0; }
   if (strcasecmp(token, "pb") == 0) { return 1; }
   if (strcasecmp(token, "ptra") == 0) { return 2; }
   if (strcasecmp(token, "ptrb") == 0) { return 3; }
+
+  return -1;
+}
+
+static int get_register(const char *token)
+{
+  int n;
+
+  for (n = 0; n < registers_propeller2_len; n++)
+  {
+    if (strcasecmp(token, registers_propeller2[n].name) == 0)
+    {
+      return registers_propeller2[n].value;
+    }
+  }
 
   return -1;
 }
@@ -282,6 +297,12 @@ int parse_instruction_propeller2(struct _asm_context *asm_context, char *instr)
     if ((r = get_p(token)) != -1)
     {
       operands[operand_count].type = OPERAND_P;
+      operands[operand_count].value = r;
+    }
+      else
+    if ((r = get_register(token)) != -1)
+    {
+      operands[operand_count].type = OPERAND_NUMBER;
       operands[operand_count].value = r;
     }
       else

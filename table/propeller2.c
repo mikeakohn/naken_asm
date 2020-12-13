@@ -445,3 +445,5 @@ struct _registers_propeller2 registers_propeller2[] =
   { "inb",   0x1ff },
 };
 
+int registers_propeller2_len = sizeof(registers_propeller2) / sizeof(struct _registers_propeller2);
+

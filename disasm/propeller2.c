@@ -121,24 +121,45 @@ int disasm_propeller2(
 
     for (t = 0; t < table_propeller2[n].operand_count; t++)
     {
-      char temp[16];
+      char temp[64];
 
       if (t != 0) { strcat(operands, ", "); }
 
       switch (table_propeller2[n].operands[t])
       {
         case OP_D:
-          sprintf(temp, "0x%x", d);
+          if (d >= 0x1f0 && d <= 0x1ff)
+          {
+            sprintf(temp, "%s [0x%x]", registers_propeller2[d - 0x1f0].name, d);
+          }
+            else
+          {
+            sprintf(temp, "0x%x", d);
+          }
           strcat(operands, temp);
           break;
         case OP_NUM_D:
           if (i == 1) { strcat(operands, "#"); }
-          sprintf(temp, "0x%x", d);
+          if (i == 0 && d >= 0x1f0 && d <= 0x1ff)
+          {
+            sprintf(temp, "%s [0x%x]", registers_propeller2[d - 0x1f0].name, d);
+          }
+            else
+          {
+            sprintf(temp, "0x%x", d);
+          }
           strcat(operands, temp);
           break;
         case OP_NUM_S:
           if (i == 1) { strcat(operands, "#"); }
-          sprintf(temp, "0x%x", s);
+          if (i == 0 && s >= 0x1f0 && s <= 0x1ff)
+          {
+            sprintf(temp, "%s [0x%x]", registers_propeller2[s - 0x1f0].name, s);
+          }
+            else
+          {
+            sprintf(temp, "0x%x", s);
+          }
           strcat(operands, temp);
           break;
         case OP_NUM_SP:
@@ -246,15 +267,15 @@ int disasm_propeller2(
           }
             else
           {
-            r = opcode & 0xfffff;
+            int offset = opcode & 0xfffff;
 
-            if ((r & 0x80000) != 0)
+            if ((offset & 0x80000) != 0)
             {
-              r |= 0xfff00000;
+              offset |= 0xfff00000;
             }
 
-            r = address + 4 + r;
-            sprintf(temp, "#0x%04x", r);
+            r = address + 4 + offset;
+            sprintf(temp, "#0x%04x (offset=%d)", r, offset);
           }
 
           strcat(operands, temp);

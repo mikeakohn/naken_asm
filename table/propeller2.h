@@ -66,6 +66,7 @@ struct _registers_propeller2
 
 extern struct _table_propeller2 table_propeller2[];
 extern struct _registers_propeller2 registers_propeller2[];
+extern int registers_propeller2_len;
 
 #endif
 
