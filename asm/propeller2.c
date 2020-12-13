@@ -437,8 +437,53 @@ for (n = 0; n < operand_count; n++)
           case OP_N_1:
           case OP_N_2:
           case OP_N_3:
+            if (operands[i].type != OPERAND_IMMEDIATE)
+            {
+              print_error_unknown_operand_combo(instr, asm_context);
+              return -1;
+            }
+
+            r = 1;
+
+            if (table_propeller2[n].operands[i] == OP_N_2) { r = 3; }
+              else
+            if (table_propeller2[n].operands[i] == OP_N_3) { r = 7; }
+
+            if (check_range(asm_context, "Immediate", operands[i].value, 0, r) == -1) { return -1; }
+
+            opcode |= operands[i].value << 20;
+
+            break;
           case OP_N_23:
+            if (operands[i].type != OPERAND_IMMEDIATE)
+            {
+              print_error_unknown_operand_combo(instr, asm_context);
+              return -1;
+            }
+
+            if (check_range(asm_context, "Immediate", operands[i].value, 0, 0x7fffff) == -1) { return -1; }
+
+            opcode |= operands[i].value;
+
+            break;
           case OP_A:
+            if (operands[i].type == OPERAND_NUMBER)
+            {
+              int offset = operands[i].value - asm_context->address;
+              opcode |= 1 << 20 | (offset & 0xfffff);
+            }
+              else
+            if (operands[i].type == OPERAND_ABSOLUTE_ADDRESS)
+            {
+              opcode |= operands[i].value;
+            }
+              else
+            {
+              print_error_unknown_operand_combo(instr, asm_context);
+              return -1;
+            }
+
+            break;
           case OP_P:
             opcode |= operands[i].value << 21;
             break;
