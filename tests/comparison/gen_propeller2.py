@@ -20,6 +20,10 @@ def create_asm(instruction):
       instruction = instruction.replace(", " + effect, " " + effect)
       break
 
+  instruction = instruction.replace("0x", "$")
+
+  print("  -> " + instruction)
+
   out = open("temp.asm", "w")
   out.write("dat\n")
   out.write("  orgh 0\n")
@@ -49,14 +53,24 @@ for instruction in fp:
 
   p = os.popen("hexdump -C temp.bin", "r")
   hex = p.readline().strip()
+
+  #print(hex)
+
   tokens = hex.upper().split()
-  # :02000000 1947 00
-  # :040000000000 1705 E0
-  checksum = 4 + int(tokens[3], 16) + int(tokens[4], 16)
+  checksum = 4 + \
+    int(tokens[1], 16) + \
+    int(tokens[2], 16) + \
+    int(tokens[3], 16) + \
+    int(tokens[4], 16)
+
   checksum = ((checksum ^ 0xff) + 1) & 0xff
   checksum = "%02X" % (checksum)
-  #out.write(instruction + "|:02000000" + tokens[3] + tokens[4] + checksum + "\n")
-  out.write(instruction + "|:040000000000" + tokens[3] + tokens[4] + checksum + "\n")
+
+  line = instruction + "|:04000000" + tokens[1] + tokens[2] + tokens[3] + tokens[4] + checksum
+  #print(line)
+  #if instruction != "nop": sys.exit(0)
+
+  out.write(line + "\n")
   p.close
 
   os.remove("temp.lst")
