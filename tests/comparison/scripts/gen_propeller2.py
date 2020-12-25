@@ -34,7 +34,7 @@ def create_asm(instruction):
 
 # --------------------------------- fold here -------------------------------
 
-fp = open("propeller2_template.txt", "r")
+fp = open("template/propeller2.txt", "r")
 out = open("propeller2.txt", "w")
 
 for instruction in fp:

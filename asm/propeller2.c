@@ -396,6 +396,12 @@ for (n = 0; n < operand_count; n++)
 
             if (check_range(asm_context, "Register", operands[i].value, 0, 511) == -1) { return -1; }
             opcode |= operands[i].value << 9;
+
+            if (i == 0 && table_propeller2[n].operands[1] == OP_D)
+            {
+              opcode |= operands[i].value;
+            }
+
             break;
           case OP_NUM_D:
             if (operands[i].type == OPERAND_NUMBER)
