@@ -478,7 +478,7 @@ for (n = 0; n < operand_count; n++)
 
             if (check_range(asm_context, "Immediate", operands[i].value, 0, r) == -1) { return -1; }
 
-            opcode |= operands[i].value << 20;
+            opcode |= operands[i].value << 19;
 
             break;
           case OP_N_23:
@@ -496,13 +496,34 @@ for (n = 0; n < operand_count; n++)
           case OP_A:
             if (operands[i].type == OPERAND_NUMBER)
             {
-              int offset = operands[i].value - asm_context->address;
-              opcode |= 1 << 20 | (offset & 0xfffff);
+              int offset = operands[i].value - (asm_context->address - 1);
+              opcode |= (1 << 18) | (offset & 0xfffff);
             }
               else
             if (operands[i].type == OPERAND_ABSOLUTE_ADDRESS)
             {
               opcode |= operands[i].value;
+            }
+              else
+            {
+              print_error_unknown_operand_combo(instr, asm_context);
+              return -1;
+            }
+
+            break;
+          case OP_BRANCH:
+            if (operands[i].type == OPERAND_NUMBER)
+            {
+              opcode |= operands[i].value;
+            }
+              else
+            if (operands[i].type == OPERAND_IMMEDIATE)
+            {
+              int offset = operands[i].value - (asm_context->address + 1);
+
+              if (check_range(asm_context, "Offset", operands[i].value, -256, 255) == -1) { return -1; }
+
+              opcode |= (1 << 18) | (offset & 0x1ff);
             }
               else
             {

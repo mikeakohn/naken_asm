@@ -154,8 +154,8 @@ rdword 0x039, 0x0d4, wcz
 rdlong 0x167, 0x110
 popa 0x180
 popb 0x0fc, wcz
-calld 0x14c, #-10, wz
-calld 0x14c, #255, wz
+main: calld 0x14c, #main, wz
+main: calld 0x14c, 0x5, wz
 resi3
 resi2
 resi1
@@ -164,53 +164,53 @@ reti3
 reti2
 reti1
 reti0
-callpa #128, #-255
-callpb 0x156, 0x128
-djz 0x0b4, 0x04b
-djnz 0x073, #0x0ce
-djf 0x1f4, #-11
-djnf 0x1bd, 0x13b
-ijz 0x175, 0x019
-ijnz 0x0d4, #0x0c8
-tjz 0x0d4, 0x188
-tjnz 0x09c, 0x1e7
-tjf 0x079, 0x1a1
-tjnf 0x060, #-111
-tjs 0x072, #255
-tjns 0x00a, 0x139
-tjv 0x05a, #-1
-jint #-5
-jct1 #0x00e
-jct2 0x146
-jct3 #0x0ed
-jse1 #-3
-jse2 #-100
-jse3 #0x0ca
-jse4 0x115
-jpat 0x1b0
-jfbw 0x1be
-jxmt #-100
-jxfi 0x107
-jxro 0x107
-jxrl #-5
-jatn #-123
-jqmt 0x14c
-jnint 0x081
-jnct1 0x0f1
-jnct2 #0xb0
-jnct3 0xc6
-jnse1 0x2d
-jnse2 #0x9b
-jnse3 0x1b6
-jnse4 #0x05e
-jnpat #0xd7
-jnfbw #-100
-jnxmt #-23
-jnxfi #0x07b
-jnxro #100
-jnxrl #-123
-jnatn #0x56
-jnqmt #0xfc
+main: callpa #128, #main
+main: callpb 0x156, 0x128
+main: djz 0x0b4, 0x04b
+main: djnz 0x073, #main
+main: djf 0x1f4, #main
+main: djnf 0x1bd, 0x13b
+main: ijz 0x175, 0x019
+main: ijnz 0x0d4, #main
+main: tjz 0x0d4, 0x188
+main: tjnz 0x09c, 0x1e7
+main: tjf 0x079, 0x1a1
+main: tjnf 0x060, #main
+main: tjs 0x072, #main
+main: tjns 0x00a, 0x139
+main: tjv 0x05a, #main
+main: jint #main
+main: jct1 #main
+main: jct2 0x146
+main: jct3 #main
+main: jse1 #main
+main: jse2 #main
+main: jse3 #main
+main: jse4 0x115
+main: jpat 0x1b0
+main: jfbw 0x1be
+main: jxmt #main
+main: jxfi 0x107
+main: jxro 0x107
+main: jxrl #main
+main: jatn #main
+main: jqmt 0x14c
+main: jnint 0x081
+main: jnct1 0x0f1
+main: jnct2 #main
+main: jnct3 0xc6
+main: jnse1 0x2d
+main: jnse2 #main
+main: jnse3 0x1b6
+main: jnse4 #main
+main: jnpat #main
+main: jnfbw #main
+main: jnxmt #main
+main: jnxfi #main
+main: jnxro #main
+main: jnxrl #main
+main: jnatn #main
+main: jnqmt #main
 setpat 0x067, 0x047
 akpin #0x071
 wrpin 0x024, 0x061

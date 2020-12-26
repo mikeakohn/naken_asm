@@ -25,6 +25,7 @@ enum
   OP_N_2,
   OP_N_3,
   OP_N_23,
+  OP_BRANCH,
   OP_A,
   OP_P,
   OP_C,

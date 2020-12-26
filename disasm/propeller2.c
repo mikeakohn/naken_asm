@@ -280,6 +280,29 @@ int disasm_propeller2(
 
           strcat(operands, temp);
           break;
+        case OP_BRANCH:
+          r = (opcode >> 21) & 1;
+
+          if (r == 0)
+          {
+            r = opcode & 0x1ff;
+            sprintf(temp, "#0x%04x", r);
+          }
+            else
+          {
+            int offset = opcode & 0x1ff;
+
+            if ((offset & 0x100) != 0)
+            {
+              offset |= 0xfffffe00;
+            }
+
+            r = address + 4 + offset;
+            sprintf(temp, "#0x%04x (offset=%d)", r, offset);
+          }
+
+          strcat(operands, temp);
+          break;
         case OP_P:
           r = (opcode >> 21) & 0x3;
           strcat(operands, registers_propeller2[r + 6].name);
