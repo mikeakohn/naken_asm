@@ -270,34 +270,34 @@ setse2 0x192
 setse3 0x1de
 setse4 0x02f
 pollint
-pollct1, wc
+pollct1 wc
 pollct2
-pollct3, wcz
+pollct3 wcz
 pollse1
 pollse2
-pollse3, wcz
+pollse3 wcz
 pollse4
-pollpat, wc
-pollfbw, wz
+pollpat wc
+pollfbw wz
 pollxmt
 pollxfi
-pollxro, wc
-pollxrl, wz
-pollatn, wcz
+pollxro wc
+pollxrl wz
+pollatn wcz
 pollqmt
 waitint
 waitct1
-waitct2, wc
+waitct2 wc
 waitct3
 waitse1
-waitse2, wz
-waitse3, wcz
+waitse2 wz
+waitse3 wcz
 waitse4
-waitpat, wcz
+waitpat wcz
 waitfbw
-waitxmt, wc
-waitxfi, wz
-waitxro, wz
+waitxmt wc
+waitxfi wz
+waitxro wz
 waitxrl
 waitatn
 allowi
@@ -321,8 +321,8 @@ ret
 calla 0x144
 reta
 callb 0x045, wz
-retb, wcz
-jmprel 0x14a
+retb wcz
+main: jmprel main
 skip #0x10b
 skipf 0x1ca
 execf 0x159
@@ -400,11 +400,14 @@ modc _lt, wc
 modz _nc_and_z
 ;setscp 0x16b
 ;getscp 0x176
-jmp #0x1fa
+main: jmp #0x132
+main: jmp #\0x132
+main: jmp #\0xf132
 call #0x029
 calla #0x0fa
 callb #0x1da
-calld pb, #0x062
-loc ptrb, #0x005
+calld pb, #0x62
+calld pb, #0xff62
+loc ptrb, #0xfff5
 augs #0x34d8ef
 augd #0x65495c

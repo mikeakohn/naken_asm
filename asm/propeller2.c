@@ -383,19 +383,30 @@ for (n = 0; n < operand_count; n++)
 
       opcode = table_propeller2[n].opcode;
 
+      int no_match = 0;
+
       for (i = 0; i < operand_count; i++)
       {
         switch (table_propeller2[n].operands[i])
         {
           case OP_D:
-            if (operands[i].type != OPERAND_NUMBER)
+            if (operands[i].type == OPERAND_P)
             {
-              print_error_unknown_operand_combo(instr, asm_context);
-              return -1;
+              r = 0x1f6 + operands[i].value;
+            }
+              else
+            if (operands[i].type == OPERAND_NUMBER)
+            {
+              r =  operands[i].value;
+            }
+              else
+            {
+              no_match = 1;
+              break;
             }
 
-            if (check_range(asm_context, "Register", operands[i].value, 0, 511) == -1) { return -1; }
-            opcode |= operands[i].value << 9;
+            if (check_range(asm_context, "Register", r, 0, 511) == -1) { return -1; }
+            opcode |= r << 9;
 
             if (i == 0 && table_propeller2[n].operands[1] == OP_D)
             {
@@ -412,9 +423,16 @@ for (n = 0; n < operand_count; n++)
             if (operands[i].type == OPERAND_IMMEDIATE)
             {
               if (check_range(asm_context, "Immediate", operands[i].value, -256, 511) == -1) { return -1; }
-              if (i == 0 && table_propeller2[n].operands[1] == OP_BRANCH)
+              if (i == 0 &&
+                 (table_propeller2[n].operands[1] == OP_BRANCH ||
+                  table_propeller2[n].operands[1] == OP_NUM_S ||
+                  table_propeller2[n].operands[1] == OP_NUM_SP))
               {
                 opcode |= (1 << 19);
+              }
+                else
+              {
+                opcode |= (1 << 18);
               }
             }
               else
@@ -498,10 +516,12 @@ for (n = 0; n < operand_count; n++)
 
             break;
           case OP_A:
-            if (operands[i].type == OPERAND_NUMBER)
+            if (operands[i].type == OPERAND_IMMEDIATE)
             {
-              int offset = operands[i].value - (asm_context->address - 1);
-              opcode |= (1 << 18) | (offset & 0xfffff);
+              int a = operands[i].value >= 0x400 ?
+                 operands[i].value : operands[i].value * 4;
+              int offset = a - (asm_context->address + 4);
+              opcode |= (1 << 20) | (offset & 0xfffff);
             }
               else
             if (operands[i].type == OPERAND_ABSOLUTE_ADDRESS)
@@ -523,7 +543,7 @@ for (n = 0; n < operand_count; n++)
               else
             if (operands[i].type == OPERAND_IMMEDIATE)
             {
-              int offset = operands[i].value - (asm_context->address + 1);
+              int offset = operands[i].value - ((asm_context->address / 4) + 1);
 
               if (check_range(asm_context, "Offset", operands[i].value, -256, 255) == -1) { return -1; }
 
@@ -569,10 +589,14 @@ for (n = 0; n < operand_count; n++)
             opcode |= operands[i].value << 9;
 
             break;
+          default:
+            no_match = 1;
+            break;
         }
       }
 
       if (i != operand_count) { continue; }
+      if (no_match == 1) { continue; }
 
       if (flags.wz == 1)  { opcode |= 0x00080000; }
       if (flags.wc == 1)  { opcode |= 0x00100000; }

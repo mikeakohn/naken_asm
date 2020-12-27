@@ -66,6 +66,8 @@ for instruction in fp:
   checksum = ((checksum ^ 0xff) + 1) & 0xff
   checksum = "%02X" % (checksum)
 
+  if "\\" in instruction: instruction = instruction.replace("\\", "\\\\")
+
   line = instruction + "|:04000000" + tokens[1] + tokens[2] + tokens[3] + tokens[4] + checksum
   #print(line)
   #if instruction != "nop": sys.exit(0)

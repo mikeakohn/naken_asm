@@ -78,6 +78,7 @@ int disasm_propeller2(
   int i, d, s, r;
   int cond;
   int wz, wc, wcz;
+  int need_effect = 0;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -94,6 +95,8 @@ int disasm_propeller2(
   cond = (opcode >> 28) & 0xf;
   const char *condition = conditions[cond];
   const char *instr;
+
+  need_effect = wc | wz;
 
   if (wc == 1 && wz == 1)
   {
@@ -117,6 +120,16 @@ int disasm_propeller2(
 
     if (table_propeller2[n].operand_count == 0) { condition = ""; }
 
+    if (need_effect == 1 && table_propeller2[n].operand_count > 0)
+    {
+      need_effect = 2;
+    }
+
+    if (table_propeller2[n].wc == 0) { wc = 0; }
+    if (table_propeller2[n].wz == 0) { wz = 0; }
+    if (table_propeller2[n].wcz == 0) { wcz = 0; }
+    if (wc == 0 && wz == 0 && wcz == 0) { need_effect = 0; }
+
     int t;
 
     for (t = 0; t < table_propeller2[n].operand_count; t++)
@@ -139,7 +152,10 @@ int disasm_propeller2(
           strcat(operands, temp);
           break;
         case OP_NUM_D:
-          if (t == 0 && table_propeller2[n].operands[1] == OP_BRANCH)
+          if (t == 0 &&
+             (table_propeller2[n].operands[1] == OP_BRANCH ||
+              table_propeller2[n].operands[1] == OP_NUM_S ||
+              table_propeller2[n].operands[1] == OP_NUM_SP))
           {
             i = (opcode >> 19) & 1;
           }
@@ -263,7 +279,7 @@ int disasm_propeller2(
           strcat(operands, temp);
           break;
         case OP_A:
-          r = (opcode >> 18) & 1;
+          r = (opcode >> 20) & 1;
 
           if (r == 0)
           {
@@ -280,6 +296,9 @@ int disasm_propeller2(
             }
 
             r = address + 4 + offset;
+
+            if (r < 0x400 * 4) { r = r / 4; }
+
             sprintf(temp, "#0x%04x (offset=%d)", r, offset);
           }
 
@@ -302,7 +321,7 @@ int disasm_propeller2(
               offset |= 0xfffffe00;
             }
 
-            r = address + 4 + offset;
+            r = (address / 4) + 1 + offset;
             sprintf(temp, "#0x%04x (offset=%d)", r, offset);
           }
 
@@ -329,9 +348,13 @@ int disasm_propeller2(
     break;
   }
 
-  if (wc == 1) { strcat(operands, ", wc"); }
-  if (wz == 1) { strcat(operands, ", wz"); }
-  if (wcz == 1) { strcat(operands, ", wcz"); }
+  if (need_effect != 0)
+  {
+    if (need_effect == 2) { strcat(operands, ", "); }
+    if (wc == 1) { strcat(operands, "wc"); }
+    if (wz == 1) { strcat(operands, "wz"); }
+    if (wcz == 1) { strcat(operands, "wcz"); }
+  }
 
   sprintf(instruction, "%s%s %s", condition, instr, operands);
 
