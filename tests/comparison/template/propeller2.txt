@@ -164,8 +164,10 @@ reti3
 reti2
 reti1
 reti0
+main: callpa 128, #main
 main: callpa #128, #main
 main: callpb 0x156, 0x128
+main: callpb #128, #main
 main: djz 0x0b4, 0x04b
 main: djnz 0x073, #main
 main: djf 0x1f4, #main

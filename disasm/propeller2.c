@@ -139,6 +139,11 @@ int disasm_propeller2(
           strcat(operands, temp);
           break;
         case OP_NUM_D:
+          if (t == 0 && table_propeller2[n].operands[1] == OP_BRANCH)
+          {
+            i = (opcode >> 19) & 1;
+          }
+
           if (i == 1) { strcat(operands, "#"); }
           if (i == 0 && d >= 0x1f0 && d <= 0x1ff)
           {
@@ -258,7 +263,7 @@ int disasm_propeller2(
           strcat(operands, temp);
           break;
         case OP_A:
-          r = (opcode >> 21) & 1;
+          r = (opcode >> 18) & 1;
 
           if (r == 0)
           {
@@ -281,12 +286,12 @@ int disasm_propeller2(
           strcat(operands, temp);
           break;
         case OP_BRANCH:
-          r = (opcode >> 21) & 1;
+          r = (opcode >> 18) & 1;
 
           if (r == 0)
           {
             r = opcode & 0x1ff;
-            sprintf(temp, "#0x%04x", r);
+            sprintf(temp, "0x%04x", r);
           }
             else
           {

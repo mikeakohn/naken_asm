@@ -412,6 +412,10 @@ for (n = 0; n < operand_count; n++)
             if (operands[i].type == OPERAND_IMMEDIATE)
             {
               if (check_range(asm_context, "Immediate", operands[i].value, -256, 511) == -1) { return -1; }
+              if (i == 0 && table_propeller2[n].operands[1] == OP_BRANCH)
+              {
+                opcode |= (1 << 19);
+              }
             }
               else
             {
@@ -574,7 +578,7 @@ for (n = 0; n < operand_count; n++)
       if (flags.wc == 1)  { opcode |= 0x00100000; }
       if (flags.wcz == 1) { opcode |= 0x00180000; }
 
-      if (operand_count != 0)
+      if ((table_propeller2[n].mask >> 28) == 0)
       {
         opcode |= cond << 28;
       }
