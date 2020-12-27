@@ -79,6 +79,7 @@ int disasm_propeller2(
   int cond;
   int wz, wc, wcz;
   int need_effect = 0;
+  uint32_t value;
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -274,8 +275,8 @@ int disasm_propeller2(
           strcat(operands, temp);
           break;
         case OP_N_23:
-          r = opcode & 0x7fffff;
-          sprintf(temp, "#0x%04x", r);
+          value = opcode & 0x7fffff;
+          sprintf(temp, "#0x%04x", value << 9);
           strcat(operands, temp);
           break;
         case OP_A:

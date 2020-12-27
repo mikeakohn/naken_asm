@@ -423,6 +423,7 @@ for (n = 0; n < operand_count; n++)
             if (operands[i].type == OPERAND_IMMEDIATE)
             {
               if (check_range(asm_context, "Immediate", operands[i].value, -256, 511) == -1) { return -1; }
+
               if (i == 0 &&
                  (table_propeller2[n].operands[1] == OP_BRANCH ||
                   table_propeller2[n].operands[1] == OP_NUM_S ||
@@ -451,7 +452,8 @@ for (n = 0; n < operand_count; n++)
               else
             if (operands[i].type == OPERAND_IMMEDIATE)
             {
-              if (check_range(asm_context, "Immediate", operands[i].value, -256, 511) == -1) { return -1; }
+              if (check_range(asm_context, "Immediate", operands[i].value, -256, 511) == -1)
+              { return -1; }
 
               opcode |= 1 << 18;
             }
@@ -510,9 +512,11 @@ for (n = 0; n < operand_count; n++)
               return -1;
             }
 
-            if (check_range(asm_context, "Immediate", operands[i].value, 0, 0x7fffff) == -1) { return -1; }
-
-            opcode |= operands[i].value;
+            {
+              uint32_t value = operands[i].value;
+              value = value >> 9;
+              opcode |= value;
+            }
 
             break;
           case OP_A:
@@ -545,9 +549,25 @@ for (n = 0; n < operand_count; n++)
             {
               int offset = operands[i].value - ((asm_context->address / 4) + 1);
 
-              if (check_range(asm_context, "Offset", operands[i].value, -256, 255) == -1) { return -1; }
+              if (offset < -256 || offset > 255)
+              {
+                if (i == 1 && operands[0].type == OPERAND_P)
+                {
+                  no_match = 1;
+                  break;
+                }
+
+                print_error_range("Offset", -256, 255, asm_context);
+                return -1;
+              }
 
               opcode |= (1 << 18) | (offset & 0x1ff);
+            }
+              else
+            if (operands[i].type == OPERAND_ABSOLUTE_ADDRESS)
+            {
+              no_match = 1;
+              break;
             }
               else
             {
