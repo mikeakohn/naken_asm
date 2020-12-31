@@ -28,6 +28,7 @@ enum
   OPERAND_ABSOLUTE_ADDRESS,
   OPERAND_CONDITION_CZ,
   OPERAND_P,
+  OPERAND_PTR,
 };
 
 struct _operand
@@ -213,14 +214,281 @@ static int get_condition_cz(const char *token)
   return -1;
 }
 
-static int get_p(const char *token)
+static int get_p(
+  struct _asm_context *asm_context,
+  struct _operand *operands,
+  const char *s,
+  const char *instr)
 {
-  if (strcasecmp(token, "pa") == 0) { return 0; }
-  if (strcasecmp(token, "pb") == 0) { return 1; }
-  if (strcasecmp(token, "ptra") == 0) { return 2; }
-  if (strcasecmp(token, "ptrb") == 0) { return 3; }
+  int token_type;
+  char token[TOKENLEN];
+  int value = 0;
+  int n;
 
-  return -1;
+  if (strcasecmp(s, "pa") == 0)
+  {
+    operands->type = OPERAND_P;
+    operands->value = 0;
+    return 0;
+  }
+
+  if (strcasecmp(s, "pb") == 0)
+  {
+    operands->type = OPERAND_P;
+    operands->value = 1;
+    return 0;
+  }
+
+  if (strcasecmp(s, "ptra") == 0)
+  {
+    value = 2;
+  }
+    else
+  if (strcasecmp(s, "ptrb") == 0)
+  {
+    value = 3;
+  }
+    else
+  {
+    return -1;
+  }
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (IS_NOT_TOKEN(token, '+') &&
+      IS_NOT_TOKEN(token, '-') &&
+      IS_NOT_TOKEN(token, '['))
+  {
+    tokens_push(asm_context, token, token_type);
+    operands->type = OPERAND_P;
+    operands->value = value;
+    return 0;
+  }
+
+  value = value << 7;
+
+  if (IS_TOKEN(token, '+'))
+  {
+    if (expect_token(asm_context, '+') != 0) { return -2; }
+
+    value |= 0x60;
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (IS_NOT_TOKEN(token, '['))
+    {
+      tokens_push(asm_context, token, token_type);
+      operands->type = OPERAND_PTR;
+      operands->value = value | 0x01;
+      return 0;
+    }
+
+    if (eval_expression(asm_context, &n) != 0)
+    {
+      if (asm_context->pass == 2)
+      {
+        print_error_illegal_expression(instr, asm_context);
+        return -2;
+      }
+
+      eat_operand(asm_context);
+      n = 1;
+    }
+
+    if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
+
+    if (n == 1) { n = 0; }
+    value |= n & 0xf;
+
+    operands->type = OPERAND_PTR;
+    operands->value = value;
+
+    if (expect_token(asm_context, ']') != 0) { return -2; }
+    return 0;
+  }
+    else
+  if (IS_TOKEN(token, '-'))
+  {
+    if (expect_token(asm_context, '-') != 0) { return -2; }
+
+    value |= 0x60;
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (IS_NOT_TOKEN(token, '['))
+    {
+      tokens_push(asm_context, token, token_type);
+      operands->type = OPERAND_PTR;
+      operands->value = value | 0x1f;
+      return 0;
+    }
+
+    if (eval_expression(asm_context, &n) != 0)
+    {
+      if (asm_context->pass == 2)
+      {
+        print_error_illegal_expression(instr, asm_context);
+        return -2;
+      }
+
+      eat_operand(asm_context);
+      n = -1;
+    }
+
+    if (check_range(asm_context, "Index", n, -16, -1) == -1) { return -2; }
+
+    value |= n & 0x1f;
+
+    operands->type = OPERAND_PTR;
+    operands->value = value;
+
+    if (expect_token(asm_context, ']') != 0) { return -2; }
+    return 0;
+  }
+    else
+  if (IS_TOKEN(token, '['))
+  {
+    if (eval_expression(asm_context, &n) != 0)
+    {
+      if (asm_context->pass == 2)
+      {
+        print_error_illegal_expression(instr, asm_context);
+        return -2;
+      }
+
+      eat_operand(asm_context);
+      n = 0;
+    }
+
+    if (check_range(asm_context, "Index", n, -32, 31) == -1) { return -2; }
+
+    value |= n & 0x3f;
+
+    operands->type = OPERAND_PTR;
+    operands->value = value;
+
+    if (expect_token(asm_context, ']') != 0) { return -2; }
+    return 0;
+  }
+
+  return -2;
+}
+
+static int get_ptr(struct _asm_context *asm_context, const char *token)
+{
+  if (strcasecmp(token, "ptra") == 0)
+  {
+    return 0x100;
+  }
+   else
+  if (strcasecmp(token, "ptra") == 0)
+  {
+    return 0x180;
+  }
+
+  print_error_unexp(token, asm_context);
+  return -2;
+}
+
+static int get_inc_dec_p(
+  struct _asm_context *asm_context,
+  struct _operand *operands,
+  const char *s,
+  const char *instr)
+{
+  int token_type;
+  char token[TOKENLEN];
+  int value = 0;
+  int n;
+
+  if (IS_TOKEN(s, '+'))
+  {
+    if (expect_token(asm_context, '+') != 0) { return -2; }
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    value = get_ptr(asm_context, token);
+
+    if (value == -2) { return -2; }
+    value |= 0x40;
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (IS_NOT_TOKEN(token, '['))
+    {
+      tokens_push(asm_context, token, token_type);
+      operands->type = OPERAND_PTR;
+      operands->value = value | 0x01;
+      return 0;
+    }
+
+    if (eval_expression(asm_context, &n) != 0)
+    {
+      if (asm_context->pass == 2)
+      {
+        print_error_illegal_expression(instr, asm_context);
+        return -2;
+      }
+
+      eat_operand(asm_context);
+      n = 1;
+    }
+
+    if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
+
+    if (n == 1) { n = 0; }
+    value |= n & 0xf;
+
+    operands->type = OPERAND_PTR;
+    operands->value = value;
+
+    if (expect_token(asm_context, ']') != 0) { return -2; }
+    return 0;
+  }
+    else
+  if (IS_TOKEN(s, '-'))
+  {
+    if (expect_token(asm_context, '-') != 0) { return -2; }
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+    value = get_ptr(asm_context, token);
+
+    if (value == -2) { return -2; }
+    value |= 0x40;
+
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (IS_NOT_TOKEN(token, '['))
+    {
+      tokens_push(asm_context, token, token_type);
+      operands->type = OPERAND_PTR;
+      operands->value = value | 0x1f;
+      return 0;
+    }
+
+    if (eval_expression(asm_context, &n) != 0)
+    {
+      if (asm_context->pass == 2)
+      {
+        print_error_illegal_expression(instr, asm_context);
+        return -2;
+      }
+
+      eat_operand(asm_context);
+      n = -1;
+    }
+
+    if (check_range(asm_context, "Index", n, -16, -1) == -1) { return -2; }
+
+    value |= n & 0x1f;
+
+    operands->type = OPERAND_PTR;
+    operands->value = value;
+
+    if (expect_token(asm_context, ']') != 0) { return -2; }
+    return 0;
+  }
+
+  return -2;
 }
 
 static int get_register(const char *token)
@@ -288,16 +556,25 @@ int parse_instruction_propeller2(struct _asm_context *asm_context, char *instr)
 
     if (lookup_flag(token, &flags) != 0) { continue; }
 
+    if (IS_TOKEN(token, '+') || IS_TOKEN(token, '-'))
+    {
+      r = get_inc_dec_p(asm_context, &operands[operand_count], token, instr);
+
+      if (r == -1)
+      {
+        return -1;
+      }
+    }
+      else
     if ((r = get_condition_cz(token)) != -1)
     {
       operands[operand_count].type = OPERAND_CONDITION_CZ;
       operands[operand_count].value = r;
     }
       else
-    if ((r = get_p(token)) != -1)
+    if ((r = get_p(asm_context, &operands[operand_count], token, instr)) != -1)
     {
-      operands[operand_count].type = OPERAND_P;
-      operands[operand_count].value = r;
+      if (r == -2) { return -1; }
     }
       else
     if ((r = get_register(token)) != -1)
@@ -350,7 +627,7 @@ int parse_instruction_propeller2(struct _asm_context *asm_context, char *instr)
       break;
     }
 
-    if (IS_NOT_TOKEN(token,','))
+    if (IS_NOT_TOKEN(token, ','))
     {
       print_error_unexp(token, asm_context);
       return -1;
@@ -473,8 +750,35 @@ for (n = 0; n < operand_count; n++)
               else
             if (operands[i].type == OPERAND_IMMEDIATE)
             {
-              if (check_range(asm_context, "Immediate", operands[i].value, -256, 511) == -1) { return -1; }
+              if (check_range(asm_context, "Immediate", operands[i].value, 0, 0xff) == -1) { return -1; }
 
+              opcode |= 1 << 18;
+            }
+              else
+            if (operands[i].type == OPERAND_P)
+            {
+              opcode |= 1 << 18;
+
+              if (operands[i].value == 2)
+              {
+                opcode |= 0x100;
+                break;
+              }
+                else
+              if (operands[i].value == 3)
+              {
+                opcode |= 0x180;
+                break;
+              }
+                else
+              {
+                no_match = 1;
+                break;
+              }
+            }
+              else
+            if (operands[i].type == OPERAND_PTR)
+            {
               opcode |= 1 << 18;
             }
               else

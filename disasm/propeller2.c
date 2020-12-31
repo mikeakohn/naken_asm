@@ -248,11 +248,11 @@ int disasm_propeller2(
             {
               if ((s & 0x20) == 0)
               {
-                sprintf(temp, "%s%s[%d]", ptr, sign == 0 ? "++" : "--", n);
+                sprintf(temp, "%s%s[%d]", sign == 0 ? "++" : "--", ptr, n);
               }
                 else
               {
-                sprintf(temp, "%s%s[%d]", sign == 0 ? "++" : "--", ptr, n);
+                sprintf(temp, "%s%s[%d]", ptr, sign == 0 ? "++" : "--", n);
               }
             }
           }
