@@ -75,7 +75,7 @@ int disasm_propeller2(
 {
   int opcode;
   int n;
-  int i, d, s, r;
+  int i, l, d, s, r;
   int cond;
   int wz, wc, wcz;
   int need_effect = 0;
@@ -158,11 +158,15 @@ int disasm_propeller2(
               table_propeller2[n].operands[1] == OP_NUM_S ||
               table_propeller2[n].operands[1] == OP_NUM_SP))
           {
-            i = (opcode >> 19) & 1;
+            l = (opcode >> 19) & 1;
+          }
+            else
+          {
+            l = i;
           }
 
-          if (i == 1) { strcat(operands, "#"); }
-          if (i == 0 && d >= 0x1f0 && d <= 0x1ff)
+          if (l == 1) { strcat(operands, "#"); }
+          if (l == 0 && d >= 0x1f0 && d <= 0x1ff)
           {
             sprintf(temp, "%s [0x%x]", registers_propeller2[d - 0x1f0].name, d);
           }
@@ -246,6 +250,8 @@ int disasm_propeller2(
             }
               else
             {
+              if (sign == 1) { n = -n; }
+
               if ((s & 0x20) == 0)
               {
                 sprintf(temp, "%s%s[%d]", sign == 0 ? "++" : "--", ptr, n);

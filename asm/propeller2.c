@@ -335,7 +335,9 @@ static int get_p(
       n = -1;
     }
 
-    if (check_range(asm_context, "Index", n, -16, -1) == -1) { return -2; }
+    if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
+
+    n = -n;
 
     value |= n & 0x1f;
 
@@ -381,7 +383,7 @@ static int get_ptr(struct _asm_context *asm_context, const char *token)
     return 0x100;
   }
    else
-  if (strcasecmp(token, "ptra") == 0)
+  if (strcasecmp(token, "ptrb") == 0)
   {
     return 0x180;
   }
@@ -477,8 +479,9 @@ static int get_inc_dec_p(
       n = -1;
     }
 
-    if (check_range(asm_context, "Index", n, -16, -1) == -1) { return -2; }
+    if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
 
+    n = -n;
     value |= n & 0x1f;
 
     operands->type = OPERAND_PTR;

@@ -412,3 +412,16 @@ calld pb, #\0xff62
 loc ptrb, #\0xfff5
 augs #0x34d8ef
 augd #0x65495c
+rdbyte 0x134, ptra
+wrbyte 0x134, ptrb++
+wrlong 0x30, ptrb--
+wrlong 0x90, ++ptra
+wrword 0x90, --ptra
+wrword 0x90, ptra[4]
+wrword 0x90, ptrb[4]
+rdword 0x90, ptra++[4]
+;wrbyte 0x90, ptrb++[16]
+wrbyte 0x90, ++ptrb[4]
+wrword 0x90, ptra--[4]
+wrbyte 0x90, --ptrb[4]
+wrbyte 0x90, --ptra[4]
