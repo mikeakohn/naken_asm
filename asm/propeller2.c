@@ -214,6 +214,27 @@ static int get_condition_cz(const char *token)
   return -1;
 }
 
+static int get_aug(struct _asm_context *asm_context, struct _operand *operands)
+{
+  int token_type;
+  char token[TOKENLEN];
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (IS_NOT_TOKEN(token, '#'))
+  {
+    tokens_push(asm_context, token, token_type);
+  }
+    else
+  {
+    if (expect_token(asm_context, '#') != 0) { return -2; }
+
+    operands->aug = 1;
+  }
+
+  return 0;
+}
+
 static int get_p(
   struct _asm_context *asm_context,
   struct _operand *operands,
@@ -283,6 +304,8 @@ static int get_p(
       return 0;
     }
 
+    if (get_aug(asm_context, operands) != 0) { return -2; }
+
     if (eval_expression(asm_context, &n) != 0)
     {
       if (asm_context->pass == 2)
@@ -295,10 +318,17 @@ static int get_p(
       n = 1;
     }
 
-    if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
-
-    if (n == 1) { n = 0; }
-    value |= n & 0xf;
+    if (operands->aug == 0)
+    {
+      if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
+      if (n == 16) { n = 0; }
+      value |= n & 0xf;
+    }
+      else
+    {
+      value = value << 15;
+      value |= n & 0xfffff;
+    }
 
     operands->type = OPERAND_PTR;
     operands->value = value;
@@ -323,6 +353,8 @@ static int get_p(
       return 0;
     }
 
+    if (get_aug(asm_context, operands) != 0) { return -2; }
+
     if (eval_expression(asm_context, &n) != 0)
     {
       if (asm_context->pass == 2)
@@ -335,11 +367,18 @@ static int get_p(
       n = -1;
     }
 
-    if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
-
-    n = -n;
-
-    value |= n & 0x1f;
+    if (operands->aug == 0)
+    {
+      if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
+      n = -n;
+      value |= n & 0x1f;
+    }
+      else
+    {
+      n = -n;
+      value = value << 15;
+      value |= n & 0x0fffff;
+    }
 
     operands->type = OPERAND_PTR;
     operands->value = value;
@@ -350,6 +389,8 @@ static int get_p(
     else
   if (IS_TOKEN(token, '['))
   {
+    if (get_aug(asm_context, operands) != 0) { return -2; }
+
     if (eval_expression(asm_context, &n) != 0)
     {
       if (asm_context->pass == 2)
@@ -362,9 +403,16 @@ static int get_p(
       n = 0;
     }
 
-    if (check_range(asm_context, "Index", n, -32, 31) == -1) { return -2; }
-
-    value |= n & 0x3f;
+    if (operands->aug == 0)
+    {
+      if (check_range(asm_context, "Index", n, -32, 31) == -1) { return -2; }
+      value |= n & 0x3f;
+    }
+      else
+    {
+      value = value << 15;
+      value |= n & 0xffffff;
+    }
 
     operands->type = OPERAND_PTR;
     operands->value = value;
@@ -423,6 +471,8 @@ static int get_inc_dec_p(
       return 0;
     }
 
+    if (get_aug(asm_context, operands) != 0) { return -2; }
+
     if (eval_expression(asm_context, &n) != 0)
     {
       if (asm_context->pass == 2)
@@ -435,10 +485,17 @@ static int get_inc_dec_p(
       n = 1;
     }
 
-    if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
-
-    if (n == 1) { n = 0; }
-    value |= n & 0xf;
+    if (operands->aug == 0)
+    {
+      if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
+      if (n == 16) { n = 0; }
+      value |= n & 0xf;
+    }
+      else
+    {
+      value = value << 15;
+      value |= n & 0xfffff;
+    }
 
     operands->type = OPERAND_PTR;
     operands->value = value;
@@ -467,6 +524,8 @@ static int get_inc_dec_p(
       return 0;
     }
 
+    if (get_aug(asm_context, operands) != 0) { return -2; }
+
     if (eval_expression(asm_context, &n) != 0)
     {
       if (asm_context->pass == 2)
@@ -479,10 +538,18 @@ static int get_inc_dec_p(
       n = -1;
     }
 
-    if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
-
-    n = -n;
-    value |= n & 0x1f;
+    if (operands->aug == 0)
+    {
+      if (check_range(asm_context, "Index", n, 1, 16) == -1) { return -2; }
+      n = -n;
+      value |= n & 0x1f;
+    }
+      else
+    {
+      n = -n;
+      value = value << 15;
+      value |= n & 0x0fffff;
+    }
 
     operands->type = OPERAND_PTR;
     operands->value = value;
@@ -563,10 +630,7 @@ int parse_instruction_propeller2(struct _asm_context *asm_context, char *instr)
     {
       r = get_inc_dec_p(asm_context, &operands[operand_count], token, instr);
 
-      if (r == -1)
-      {
-        return -1;
-      }
+      if (r != 0) { return -1; }
     }
       else
     if ((r = get_condition_cz(token)) != -1)
@@ -812,6 +876,12 @@ for (n = 0; n < operand_count; n++)
               else
             if (operands[i].type == OPERAND_PTR)
             {
+              if (operands[i].aug == 1)
+              {
+                opcode_aug =
+                  0xff000000 | ((operands[i].value >> 9) & 0x007fffff);
+              }
+
               opcode |= 1 << 18;
             }
               else

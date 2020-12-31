@@ -26,3 +26,13 @@ main:
   wrword 0x90, ptra--[4]
   wrword 0x90, --ptra[4]
 
+  ;; Some instructions that add AUG instrucitons.
+  add 0x90, ##0xff000
+  rdbyte 0x90, ##0xff000
+  rdbyte 0x90, ++ptrb[##0x12345]
+  rdbyte 0x90, --ptrb[##0x12345]
+  rdbyte 0x90, ptrb++[##0x12345]
+  rdbyte 0x90, ptrb--[##0x12345]
+  rdbyte 0x90, ptrb[##0x12345]
+
+
