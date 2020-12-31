@@ -55,20 +55,27 @@ for instruction in fp:
   hex = p.readline().strip()
 
   #print(hex)
-
   tokens = hex.upper().split()
-  checksum = 4 + \
-    int(tokens[1], 16) + \
-    int(tokens[2], 16) + \
-    int(tokens[3], 16) + \
-    int(tokens[4], 16)
+
+  data = tokens[1] + tokens[2] + tokens[3] + tokens[4]
+
+  count = 4
+
+  if int(tokens[4], 16) == 0xff and int(tokens[8], 16) != 0x00:
+    data += tokens[5] + tokens[6] + tokens[7] + tokens[8]
+    count = 8
+
+  checksum = count
+
+  for i in range(0, count):
+    checksum += int(tokens[i + 1], 16)
 
   checksum = ((checksum ^ 0xff) + 1) & 0xff
   checksum = "%02X" % (checksum)
 
   if "\\" in instruction: instruction = instruction.replace("\\", "\\\\")
 
-  line = instruction + "|:04000000" + tokens[1] + tokens[2] + tokens[3] + tokens[4] + checksum
+  line = instruction + "|:0" + str(count) + "000000" + data + checksum
   #print(line)
   #if instruction != "nop": sys.exit(0)
 

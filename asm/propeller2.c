@@ -35,7 +35,7 @@ struct _operand
 {
   int type;
   int value;
-  int index;
+  uint8_t aug;
 };
 
 union _flags
@@ -516,7 +516,7 @@ int parse_instruction_propeller2(struct _asm_context *asm_context, char *instr)
   char instr_case[TOKENLEN];
   struct _operand operands[3];
   int operand_count;
-  uint32_t opcode;
+  uint32_t opcode, opcode_aug;
   int n, i, r;
   int8_t cond = 0xf;
   union _flags flags;
@@ -593,6 +593,12 @@ int parse_instruction_propeller2(struct _asm_context *asm_context, char *instr)
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
 
+        if (token_type == TOKEN_POUND)
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+          operands[operand_count].aug = 1;
+        }
+
         if (IS_TOKEN(token, '\\'))
         {
           operands[operand_count].type = OPERAND_ABSOLUTE_ADDRESS;
@@ -662,6 +668,7 @@ for (n = 0; n < operand_count; n++)
       }
 
       opcode = table_propeller2[n].opcode;
+      opcode_aug = 0;
 
       int no_match = 0;
 
@@ -702,7 +709,15 @@ for (n = 0; n < operand_count; n++)
               else
             if (operands[i].type == OPERAND_IMMEDIATE)
             {
-              if (check_range(asm_context, "Immediate", operands[i].value, -256, 511) == -1) { return -1; }
+              if (operands[i].aug == 1)
+              {
+                opcode_aug =
+                  0xff800000 | ((operands[i].value >> 9) & 0x007fffff);
+              }
+                else
+              {
+                if (check_range(asm_context, "Immediate", operands[i].value, -256, 511) == -1) { return -1; }
+              }
 
               if (i == 0 &&
                  (table_propeller2[n].operands[1] == OP_BRANCH ||
@@ -732,8 +747,15 @@ for (n = 0; n < operand_count; n++)
               else
             if (operands[i].type == OPERAND_IMMEDIATE)
             {
-              if (check_range(asm_context, "Immediate", operands[i].value, -256, 511) == -1)
-              { return -1; }
+              if (operands[i].aug == 1)
+              {
+                opcode_aug =
+                  0xff000000 | ((operands[i].value >> 9) & 0x007fffff);
+              }
+                else
+              {
+                if (check_range(asm_context, "Immediate", operands[i].value, -256, 511) == -1) { return -1; }
+              }
 
               opcode |= 1 << 18;
             }
@@ -753,7 +775,15 @@ for (n = 0; n < operand_count; n++)
               else
             if (operands[i].type == OPERAND_IMMEDIATE)
             {
-              if (check_range(asm_context, "Immediate", operands[i].value, 0, 0xff) == -1) { return -1; }
+              if (operands[i].aug == 1)
+              {
+                opcode_aug =
+                  0xff000000 | ((operands[i].value >> 9) & 0x007fffff);
+              }
+                else
+              {
+                if (check_range(asm_context, "Immediate", operands[i].value, 0, 0xff) == -1) { return -1; }
+              }
 
               opcode |= 1 << 18;
             }
@@ -932,6 +962,22 @@ for (n = 0; n < operand_count; n++)
       if ((table_propeller2[n].mask >> 28) == 0)
       {
         opcode |= cond << 28;
+      }
+
+      if (opcode_aug != 0)
+      {
+        add_bin32(asm_context, opcode_aug, IS_OPCODE);
+      }
+        else
+      {
+        for (i = 0; i < operand_count; i++)
+        {
+          if (operands[i].aug != 0)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+        }
       }
 
       add_bin32(asm_context, opcode, IS_OPCODE);
