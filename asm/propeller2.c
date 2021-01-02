@@ -809,6 +809,12 @@ for (n = 0; n < operand_count; n++)
               if (check_range(asm_context, "Register", operands[i].value, 0, 511) == -1) { return -1; }
             }
               else
+            if (operands[i].type == OPERAND_P)
+            {
+              opcode |= operands[i].value + 0x1f6;
+              break;
+            }
+              else
             if (operands[i].type == OPERAND_IMMEDIATE)
             {
               if (operands[i].aug == 1)

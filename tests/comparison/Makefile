@@ -21,10 +21,9 @@ default:
 	bash run_test.sh n64_rsp
 	bash run_test.sh pic14
 	bash run_test.sh pic32
-	#python3 run_test.py pic32
 	bash run_test.sh powerpc
 	bash run_test.sh propeller
-	#python3 run_test.py ps2_ee
+	bash run_test.sh propeller2
 	bash run_test.sh ps2_ee
 	bash run_test.sh ps2_ee_vu1
 	bash run_test.sh riscv
