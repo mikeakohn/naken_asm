@@ -113,7 +113,7 @@ PUB Main() | index, ptr, r0, r1, i0, i1, dr0, dr1, di0, di1
     SendData(0)
 
   ' Clear the image and signalling buffer.
-  bytefill(@image, 7, (8 * 16) + (96 * 64))
+  bytefill(@image, 0, (8 * 16) + (96 * 64))
 
   pinwrite(cs, 0)
 
@@ -259,4 +259,3 @@ PRI SendData(data)
 DAT
   lcd_code file "lcd_code.bin"
   mandelbrot file "mandelbrot_core.bin"
-
