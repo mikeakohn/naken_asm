@@ -55,7 +55,7 @@ next_pixel:
   alts temp
   mov pixel, 0
 
-  ;mov pixel, ##0xffff
+  ;mov pixel, ##0xf800
 
   ;; Write pixel to LCD
   mov data, pixel
@@ -67,13 +67,10 @@ next_pixel:
   call #send_data
 
   ;; count--
-  sub count, #1, wz
-  if_nz jmp #next_pixel
+  djnz count, #next_pixel
 
   ;; Reset the the signal so the SPIN cog knows the LCD is done
   wrbyte zero, signal
-
-  ;mov outa, porta_state_idle
 
   jmp #main
 

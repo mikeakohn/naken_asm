@@ -1,0 +1,262 @@
+{{ Propeller 2 Mandelbrots       }}
+{{ Copyright 2020 - Michael Kohn }}
+{{ https://www.mikekohn.net/     }}
+{{                               }}
+{{ P8 - DOUT                     }}
+{{ P10 - CLK                     }}
+{{ P12 - CS                      }}
+{{ P14 - D/C                     }}
+{{ P15- RESET                    }}
+
+CON
+  _clkfreq = 160_000_000
+
+  dout = 8
+  clk = 10
+  cs = 12
+  dc = 14
+  reset = 15
+  led0 = 56
+  led1 = 57
+
+  command_display_off = $ae
+  command_set_remap = $a0
+  command_start_line = $a1
+  command_display_offset = $a2
+  command_normal_display = $a4
+  command_set_multiplex = $a8
+  command_set_master = $ad
+  command_power_mode = $b0
+  command_precharge = $b1
+  command_clockdiv = $b3
+  command_precharge_a = $8a
+  command_precharge_b = $8b
+  command_precharge_c = $8c
+  command_precharge_level = $bb
+  command_vcomh = $be
+  command_master_current = $87
+  command_contrasta = $81
+  command_contrastb = $82
+  command_contrastc = $83
+  command_display_on = $af
+
+VAR
+   ' 96 * 64 bytes of image, 6 words for signalling where
+  ' word 0: start_signal=1
+  ' word 1: 16 bit fixed point real
+  ' word 2: 16 bit fixed point imaginary
+  ' word 3: dx
+  ' word 4: dy
+  ' word 5: Row number
+  ' word 6: reserved
+  ' word 7: reserved
+  byte image[(8 * 16) + (96 * 64)]
+  byte lcd_cog
+  byte row
+
+OBJ
+  'nickname      : "mandelbrot"
+
+PUB Main() | index, ptr, r0, r1, i0, i1, dr0, dr1, di0, di1
+  pinwrite(cs, 1)
+  pinwrite(dc, 0)
+  pinwrite(clk, 0)
+  pinwrite(led0, 0)
+  pinwrite(led1, 0)
+
+  ' Reset the LCD display.
+  pinwrite(reset, 0)
+  waitms(250)
+  pinwrite(reset, 1)
+
+  ' Initialize LCD display.
+  SendCommand(command_display_off)
+  SendCommand(command_set_remap)
+  SendCommand($72)
+  SendCommand(command_start_line)
+  SendCommand($00)
+  SendCommand(command_display_offset)
+  SendCommand($00)
+  SendCommand(command_normal_display)
+  SendCommand(command_set_multiplex)
+  SendCommand($3f)
+  SendCommand(command_set_master)
+  SendCommand($8e)
+  SendCommand(command_power_mode)
+  SendCommand(command_precharge)
+  SendCommand($31)
+  SendCommand(command_clockdiv)
+  SendCommand($f0)
+  SendCommand(command_precharge_a)
+  SendCommand($64)
+  SendCommand(command_precharge_b)
+  SendCommand($78)
+  SendCommand(command_precharge_c)
+  SendCommand($64)
+  SendCommand(command_precharge_level)
+  SendCommand($3a)
+  SendCommand(command_vcomh)
+  SendCommand($3e)
+  SendCommand(command_master_current)
+  SendCommand($06)
+  SendCommand(command_contrasta)
+  SendCommand($91)
+  SendCommand(command_contrastb)
+  SendCommand($50)
+  SendCommand(command_contrastc)
+  SendCommand($7d)
+  SendCommand(command_display_on)
+
+  ' Clear screen.
+  repeat 96 * 64
+    SendData(15)
+    SendData(0)
+
+  ' Clear the image and signalling buffer.
+  bytefill(@image, 7, (8 * 16) + (96 * 64))
+
+  pinwrite(cs, 0)
+
+  lcd_cog := 1
+
+  coginit(lcd_cog, @lcd_code, @image)
+  coginit(2, @mandelbrot, @image)
+  coginit(3, @mandelbrot, @image)
+  coginit(4, @mandelbrot, @image)
+  coginit(5, @mandelbrot, @image)
+  coginit(6, @mandelbrot, @image)
+  coginit(7, @mandelbrot, @image)
+
+  ' Clear image and send to LCD.
+  bytefill(@image + (8 * 16), 4, (96 * 64))
+
+  ' Signal LCD cog it's time to write and wait till it's finished.
+  'image[lcd_cog * 16] := 1
+  cogatn(1 << lcd_cog)
+  repeat while image[lcd_cog * 16] <> 0
+
+  ' Infinite loop.
+  'repeat
+  '  pintoggle(led1)
+  '  waitms(250)
+
+  repeat
+    repeat 4
+      ComputeMandelbrot((-2 << 10), (-1 << 10), (1 << 10), (1 << 10))
+      ComputeMandelbrot((-1 << 10), (-1 << 9), (1 << 9), (1 << 9))
+      ComputeMandelbrot((-2 << 9), (-1 << 9), (0 << 10), (0 << 10))
+
+    r0 := (-2 << 10)
+    r1 := (1 << 10)
+    i0 := (-1 << 10)
+    i1 := (1 << 10)
+
+    dr0 := ((-2 << 9) - r0) / 64
+    dr1 := ((0 << 10) - r1) / 64
+    di0 := ((-1 << 9) - i0) / 64
+    di1 := ((0 << 10) - i1) / 64
+
+    repeat 80
+      ComputeMandelbrot(r0, i0, r1, i1)
+
+      r0 := r0 + dr0
+      r1 := r1 + dr1
+      i0 := i0 + di0
+      i1 := i1 + di1
+
+  ' Infinite loop.
+  repeat
+    pintoggle(led1)
+    waitms(250)
+
+PRI ComputeMandelbrot(r0, i0, r1, i1) | dx, dy, spinning, n, index, ptr
+  'bytefill(@image + (8 * 16), 0, (96 * 64))
+
+  dx := (r1 - r0) / 96
+  dy := (i1 - i0) / 64
+  row := 0
+
+  repeat while row < 64
+    ' Find free cog
+    repeat index from 2 to 7
+      ptr := index * 16
+
+      if image[ptr] == 0
+        image[ptr+2] := r0 & 255
+        image[ptr+3] := r0 >> 8
+        image[ptr+4] := i0 & 255
+        image[ptr+5] := i0 >> 8
+        image[ptr+6] := dx & 255
+        image[ptr+7] := dx >> 8
+        image[ptr+8] := dy & 255
+        image[ptr+9] := dy >> 8
+        image[ptr+10] := row
+        image[ptr+11] := 0
+        image[ptr] := 1
+
+        cogatn(1 << index)
+
+        i0 := i0 + dy
+        row := row + 1
+        quit
+
+  spinning := 1
+
+  ' Wait for all cores to finish
+  repeat until spinning == 0
+    spinning := 0
+
+    repeat n from 2 to 7
+      ptr := n * 16
+
+      if image[ptr] <> 0
+        spinning := spinning + 1
+
+  ' Signal LCD cog it's time to write and wait till it's finished
+  'image[lcd_cog * 16] := 1
+  cogatn(1 << lcd_cog)
+  repeat while image[lcd_cog * 16] <> 0
+
+PRI SendCommand(command)
+  pinwrite(led0, 1)
+  pinwrite(dc, 0)
+  pinwrite(cs, 0)
+
+  repeat 8
+    if (command & $80) <> 0
+      pinwrite(dout, 1)
+    else
+      pinwrite(dout, 0)
+
+    command := command << 1
+
+    pinwrite(clk, 1)
+    pinwrite(clk, 0)
+
+  pinwrite(cs, 1)
+  pinwrite(led0, 0)
+
+
+PRI SendData(data)
+  pinwrite(led0, 1)
+  pinwrite(dc, 1)
+  pinwrite(cs, 0)
+
+  repeat 8
+    if (data & $80) <> 0
+      pinwrite(dout, 1)
+    else
+      pinwrite(dout, 0)
+
+    data := data << 1
+
+    pinwrite(clk, 1)
+    pinwrite(clk, 0)
+
+  pinwrite(cs, 1)
+  pinwrite(led0, 0)
+
+DAT
+  lcd_code file "lcd_code.bin"
+  mandelbrot file "mandelbrot_core.bin"
+
