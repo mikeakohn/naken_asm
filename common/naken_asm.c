@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -79,7 +79,6 @@ static void new_extension(char *filename, char *ext, int len)
     strcat(filename, ".");
     strcat(filename, ext);
   }
-
 }
 
 static void output_hex_text(FILE *fp, char *s, int ptr)
@@ -108,15 +107,7 @@ int main(int argc, char *argv[])
   {
     printf("Usage: naken_asm [options] <infile>\n"
            "   -o <outfile>\n"
-           "   -h             [output hex file]\n"
-#ifndef DISABLE_ELF
-           "   -elf           [output elf file]\n"
-#endif
-           "   -bin           [output binary file]\n"
-           "   -srec          [output srec file]\n"
-#ifndef DISABLE_WDC
-           "   -wdc           [WDC binary file]\n"
-#endif
+           "   -type <hex, elf, bin, srec, amiga, wdc>\n"
            "   -l             [create .lst listing file]\n"
            "   -I             [add to include path]\n"
            "   -q             Quiet (only output errors)\n"
@@ -167,6 +158,52 @@ int main(int argc, char *argv[])
     {
       format = FORMAT_AMIGA;
     }
+      else
+    if (strcmp(argv[i], "-type") == 0)
+    {
+      if (i + 1 >= argc)
+      {
+        printf("Error: -type takes an option\n");
+        exit(1);
+      }
+
+      i++;
+
+      if (strcmp(argv[i], "amiga") == 0)
+      {
+        format = FORMAT_AMIGA;
+      }
+        else
+      if (strcmp(argv[i], "bin") == 0)
+      {
+        format = FORMAT_BIN;
+      }
+        else
+      if (strcmp(argv[i], "elf") == 0)
+      {
+        format = FORMAT_ELF;
+      }
+        else
+      if (strcmp(argv[i], "hex") == 0)
+      {
+        format = FORMAT_HEX;
+      }
+        else
+      if (strcmp(argv[i], "srec") == 0)
+      {
+        format = FORMAT_SREC;
+      }
+        else
+      if (strcmp(argv[i], "wdc") == 0)
+      {
+        format = FORMAT_WDC;
+      }
+        else
+      {
+        printf("Error: Unknown output type %s\n", argv[i]);
+        exit(1);
+      }
+    }
 #if 0
       else
     if (strcmp(argv[i], "-d") == 0)
@@ -186,6 +223,12 @@ int main(int argc, char *argv[])
 
       if (s[2] == 0)
       {
+        if (i + 1 >= argc)
+        {
+          printf("Error: -I takes an option\n");
+          exit(1);
+        }
+
         if (include_add_path(&asm_context, argv[++i]) != 0)
         {
           printf("Internal Error:  Too many include paths\n");

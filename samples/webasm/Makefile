@@ -1,6 +1,6 @@
 
 default:
-	../../naken_asm -l -b -dump_symbols -o math.wasm math.asm
+	../../naken_asm -l -type bin -dump_symbols -o math.wasm math.asm
 
 clean:
 	@rm -f *.wasm *.lst

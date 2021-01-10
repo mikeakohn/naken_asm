@@ -1,7 +1,7 @@
 
 #DUMP_MACROS=-dump_macros
 INCLUDES=-I../../include
-FLAGS=-l -e $(INCLUDES) $(DUMP_MACROS)
+FLAGS=-l -type elf $(INCLUDES) $(DUMP_MACROS)
 
 default:
 	../../naken_asm $(FLAGS) -o triangle.elf triangle.asm
@@ -15,7 +15,7 @@ default:
 	../../naken_asm $(FLAGS) -l -o iop_example.elf iop_example.asm
 
 sound:
-	../../naken_asm $(iNCLUDES) -l -b -o play_sound.bin play_sound.asm
+	../../naken_asm $(INCLUDES) -l -b -o play_sound.bin play_sound.asm
 	../../naken_asm $(FLAGS) -l -o iop_example2.elf iop_example2.asm
 
 show_gif:

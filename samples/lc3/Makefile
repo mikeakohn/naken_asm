@@ -1,7 +1,7 @@
 
 
 default:
-	../../naken_asm -dump_symbols -l -b -o testing.bin testing.asm
+	../../naken_asm -dump_symbols -l -type bin -o testing.bin testing.asm
 	@printf '\060\000' > testing.obj
 	@cat testing.bin >> testing.obj
 

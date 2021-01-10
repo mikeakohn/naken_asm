@@ -9,7 +9,7 @@ OPENOCD=$(FREEDOM_STUDIO)/SiFive/riscv-openocd-20171231-x86_64-linux-centos6/bin
 #OPENOCD=$(FREEDOM_SDK)/work/build/openocd/prefix/bin/openocd -f
 
 default:
-	../../naken_asm -l -e -o $(PROGRAM).elf $(PROGRAM).asm
+	../../naken_asm -l -type elf -o $(PROGRAM).elf $(PROGRAM).asm
 
 gnu:
 	cat $(PROGRAM).asm | sed 's/_//' | grep -v '^.*;' | grep -v '.riscv' > temp.asm

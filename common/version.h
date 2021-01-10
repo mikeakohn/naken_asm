@@ -1,7 +1,7 @@
 #ifndef NAKEN_ASM_VERSION_H
 #define NAKEN_ASM_VERSION_H
 
-#define VERSION "December 13, 2020"
+#define VERSION "January 10, 2021"
 
 #endif
 

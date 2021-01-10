@@ -1,7 +1,7 @@
 
 default:
-	../../naken_asm -b -o IP.BIN IP.asm
-	../../naken_asm -I ../../include/dreamcast -b -l -o dreamcast.bin dreamcast.asm
+	../../naken_asm -type bin -o IP.BIN IP.asm
+	../../naken_asm -I ../../include/dreamcast -type bin -l -o dreamcast.bin dreamcast.asm
 	/tmp/scramble dreamcast.bin 1ST_READ.BIN
 	mkisofs -l -C 0,11702 -V dreamcast -G IP.BIN -r -J -o dreamcast.iso 1ST_READ.BIN
 	cdi4dc dreamcast.iso dreamcast.cdi
