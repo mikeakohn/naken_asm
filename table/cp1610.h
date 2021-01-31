@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -19,12 +19,17 @@ enum
   CP1610_OP_ILLEGAL,
   CP1610_OP_NONE,
   CP1610_OP_REG,
-  CP1610_OP_REG_REG,
+  CP1610_OP_SREG_DREG,
+  CP1610_OP_AREG_SREG,
   CP1610_OP_IMMEDIATE_REG,
+  CP1610_OP_REG_IMMEDIATE,
   CP1610_OP_ADDRESS_REG,
+  CP1610_OP_REG_ADDRESS,
   CP1610_OP_1OP,
   CP1610_OP_BRANCH,
   CP1610_OP_JUMP,
+  CP1610_OP_JSR,
+  CP1610_OP_JR,
 };
 
 struct _table_cp1610

@@ -1,0 +1,81 @@
+hlt
+sdbd
+eis
+dis
+j 0x73de
+je 0x293c
+jd 0x0545
+jsr r4, 0x6673
+jsre r4, 0x465e
+jsrd r4, 0xfebb
+tci
+clrc
+setc
+incr r4
+decr r6
+comr r2
+negr r5
+adcr r6
+gswd r2
+nop 
+nop 
+sin 
+sin 
+swap r3, 2
+sll r3, 1
+rlc r1
+sllc r1, 2
+slr r3
+sar r3
+rrc r3
+sarc r3
+jr r4
+movr r6, r3
+addr r3, r2
+subr r2, r3
+cmpr r5, r3
+andr r3, r5
+xorr r3, r6
+main: b main
+main: bc main
+main: bov main
+main: bpl main
+main: beq main
+main: bze main
+main: blt main
+main: bnge main
+main: ble main
+main: bngt main
+main: busc main
+main: nopp
+main: bnc main
+main: bnov main
+main: bmi main
+main: bneq main
+main: bnze main
+main: bge main
+main: bnlt main
+main: bgt main
+main: bnle main
+main: besc main
+mvo r6, 0x24ca
+mvo@ r4, r3
+mvoi r3, #0x15c9
+mvi 0xb860, r6
+mvi@ r4, r1
+mvii #0x7d73, r7
+add 0x2e2c, r3
+add@ r4, r2
+addi #0x12cd, r6
+sub 0x6a02, r5
+sub@ r4, r3
+subi #0x2bf7, r4
+cmp 0x472f, r5
+cmp@ r6, r3
+cmpi #0xd757, r4
+and 0x3c5d, r4
+and@ r2, r4
+andi #0x2e35, r7
+xor 0x6a25, r4
+xor@ r5, r2
+xori #0x94da, r1

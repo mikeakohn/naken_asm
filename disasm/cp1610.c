@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -22,7 +22,12 @@ int get_cycle_count_cp1610(uint16_t opcode)
   return -1;
 }
 
-int disasm_cp1610(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_cp1610(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   int data;
@@ -34,16 +39,14 @@ int disasm_cp1610(struct _memory *memory, uint32_t address, char *instruction, i
 
   opcode = memory_read16_m(memory, address);
 
-  n = 0;
-
-  while(table_cp1610[n].instr != NULL)
+  for (n = 0; table_cp1610[n].instr != NULL; n++)
   {
     if ((opcode & table_cp1610[n].mask) == table_cp1610[n].opcode)
     {
       *cycles_min = table_cp1610[n].cycles_min;
       *cycles_max = table_cp1610[n].cycles_max;
 
-      switch(table_cp1610[n].type)
+      switch (table_cp1610[n].type)
       {
         case CP1610_OP_NONE:
         {
@@ -58,7 +61,7 @@ int disasm_cp1610(struct _memory *memory, uint32_t address, char *instruction, i
 
           return 2;
         }
-        case CP1610_OP_REG_REG:
+        case CP1610_OP_SREG_DREG:
         {
           d = opcode & 0x7;
           o = (opcode >> 3) & 0x7;
@@ -67,16 +70,43 @@ int disasm_cp1610(struct _memory *memory, uint32_t address, char *instruction, i
 
           return 2;
         }
+        case CP1610_OP_AREG_SREG:
+        {
+          d = opcode & 0x7;
+          o = (opcode >> 3) & 0x7;
+
+          sprintf(instruction, "%s r%d, r%d", table_cp1610[n].instr, d, o);
+
+          return 2;
+        }
         case CP1610_OP_IMMEDIATE_REG:
         {
           data = memory_read16_m(memory, address + 2);
           r = opcode & 0x7;
 
-          sprintf(instruction, "%s #%d, r%d", table_cp1610[n].instr, data, r);
+          sprintf(instruction, "%s #0x%04x, r%d", table_cp1610[n].instr, data, r);
+
+          return 4;
+        }
+        case CP1610_OP_REG_IMMEDIATE:
+        {
+          data = memory_read16_m(memory, address + 2);
+          r = opcode & 0x7;
+
+          sprintf(instruction, "%s r%d, #0x%04x", table_cp1610[n].instr, r, data);
 
           return 4;
         }
         case CP1610_OP_ADDRESS_REG:
+        {
+          data = memory_read16_m(memory, address + 2);
+          r = opcode & 0x7;
+
+          sprintf(instruction, "%s 0x%04x, r%d", table_cp1610[n].instr, data, r);
+
+          return 4;
+        }
+        case CP1610_OP_REG_ADDRESS:
         {
           data = memory_read16_m(memory, address + 2);
           r = opcode & 0x7;
@@ -142,6 +172,14 @@ int disasm_cp1610(struct _memory *memory, uint32_t address, char *instruction, i
 
           return 6;
         }
+        case CP1610_OP_JR:
+        {
+          r = (opcode >> 3) & 0x7;
+
+          sprintf(instruction, "%s r%d", table_cp1610[n].instr, r);
+
+          return 2;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);
@@ -149,8 +187,6 @@ int disasm_cp1610(struct _memory *memory, uint32_t address, char *instruction, i
         }
       }
     }
-
-    n++;
   }
 
   strcpy(instruction, "???");
@@ -158,7 +194,10 @@ int disasm_cp1610(struct _memory *memory, uint32_t address, char *instruction, i
   return 2;
 }
 
-void list_output_cp1610(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_cp1610(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   uint32_t opcode;
@@ -168,7 +207,7 @@ void list_output_cp1610(struct _asm_context *asm_context, uint32_t start, uint32
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_cp1610(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -182,17 +221,21 @@ void list_output_cp1610(struct _asm_context *asm_context, uint32_t start, uint32
     {
       opcode = memory_read_m(&asm_context->memory, start + n) |
               (memory_read_m(&asm_context->memory, start + n + 1) << 8);
-      fprintf(asm_context->list, "0x%04x: %04x", start + n, opcode);
+      fprintf(asm_context->list, "0x%04x: %04x\n", start + n, opcode);
     }
 
     start += count;
   }
 }
 
-void disasm_range_cp1610(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_cp1610(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
-  int cycles_min = 0,cycles_max = 0;
+  int cycles_min = 0, cycles_max = 0;
   int count;
   uint16_t opcode;
   int n;
@@ -202,7 +245,7 @@ void disasm_range_cp1610(struct _memory *memory, uint32_t flags, uint32_t start,
   printf("%-7s %-5s %-40s\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_cp1610(memory, start, instruction, &cycles_min, &cycles_max);
 

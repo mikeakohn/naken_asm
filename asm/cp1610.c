@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -64,7 +64,7 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -139,18 +139,14 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
       }
     }
 
-    //token_type = tokens_get(asm_context, token, TOKENLEN);
-
     operand_count++;
   }
 
-  n = 0;
-
-  while(table_cp1610[n].instr != NULL)
+  for (n = 0; table_cp1610[n].instr != NULL; n++)
   {
     if (strcmp(table_cp1610[n].instr, instr_case) == 0)
     {
-      switch(table_cp1610[n].type)
+      switch (table_cp1610[n].type)
       {
         case CP1610_OP_NONE:
         {
@@ -172,13 +168,22 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
+          if (strcmp("gswd", instr_case) == 0)
+          {
+            if (operands[0].value > 3)
+            {
+              print_error_range("Register", 0, 3, asm_context);
+              return -1;
+            }
+          }
+
           opcode = table_cp1610[n].opcode | operands[0].value;
 
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
         }
-        case CP1610_OP_REG_REG:
+        case CP1610_OP_SREG_DREG:
         {
           if (operand_count != 2 ||
               operands[0].type != OPERAND_REG ||
@@ -191,6 +196,24 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
           opcode = table_cp1610[n].opcode |
                   (operands[0].value << 3) |
                    operands[1].value;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        }
+        case CP1610_OP_AREG_SREG:
+        {
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REG ||
+              operands[1].type != OPERAND_REG)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_cp1610[n].opcode |
+                  (operands[1].value << 3) |
+                   operands[0].value;
 
           add_bin16(asm_context, opcode, IS_OPCODE);
 
@@ -219,7 +242,53 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case CP1610_OP_REG_IMMEDIATE:
+        {
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REG ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[1].value < -32768 || operands[1].value > 65535)
+          {
+            print_error_range("Immediate", -32768, 65535, asm_context);
+            return -1;
+          }
+
+          opcode = table_cp1610[n].opcode | operands[0].value;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
+
+          return 4;
+        }
         case CP1610_OP_ADDRESS_REG:
+        {
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_ADDRESS ||
+              operands[1].type != OPERAND_REG)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 65535)
+          {
+            print_error_range("Address", 0, 65535, asm_context);
+            return -1;
+          }
+
+          opcode = table_cp1610[n].opcode | operands[1].value;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
+
+          return 4;
+        }
+        case CP1610_OP_REG_ADDRESS:
         {
           if (operand_count != 2 ||
               operands[0].type != OPERAND_REG ||
@@ -244,6 +313,11 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
         }
         case CP1610_OP_1OP:
         {
+          if (operand_count == 1 && operands[0].type == OPERAND_REG)
+          {
+            operands[1].value = 1;
+          }
+            else
           if (operand_count != 2 ||
               operands[0].type != OPERAND_REG ||
               operands[1].type != OPERAND_ADDRESS)
@@ -311,6 +385,7 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         case CP1610_OP_JUMP:
+        case CP1610_OP_JSR:
         {
           int address = -1;
           int bb;
@@ -322,17 +397,19 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
             ii = table_cp1610_jump[j].ii;
             bb = table_cp1610_jump[j].bb;
 
-            if (strcmp(instr, table_cp1610_jump[j].instr) == 0)
+            if (strcmp(table_cp1610_jump[j].instr, instr_case) == 0)
             {
-              if (table_cp1610_jump[j].use_reg == 0)
+              if (table_cp1610_jump[j].use_reg == 1)
               {
-                if (operand_count != 1 || operands[0].type != OPERAND_ADDRESS)
+                if (operand_count != 2 ||
+                    operands[0].type != OPERAND_REG ||
+                    operands[1].type != OPERAND_ADDRESS)
                 {
                   print_error_illegal_operands(instr, asm_context);
                   return -1;
                 }
 
-                if (operands[0].value < 4 || operands[0].value < 6)
+                if (operands[0].value < 4 || operands[0].value > 6)
                 {
                   print_error_range("Register", 4, 6, asm_context);
                   return -1;
@@ -345,16 +422,16 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
               }
                 else
               {
-                if (operand_count != 2 ||
-                    operands[0].type != OPERAND_REG ||
-                    operands[1].type != OPERAND_ADDRESS)
+                if (operand_count != 1 || operands[0].type != OPERAND_ADDRESS)
                 {
                   print_error_illegal_operands(instr, asm_context);
                   return -1;
                 }
 
-                address = operands[1].value;
+                address = operands[0].value;
               }
+
+              break;
             }
           }
 
@@ -374,12 +451,33 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
 
           return 6;
         }
+        case CP1610_OP_JR:
+        {
+          if (operand_count != 1 || operands[0].type != OPERAND_REG)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          if (operands[0].value > 7)
+          {
+            print_error_range("Register", 0, 7, asm_context);
+            return -1;
+          }
+
+          opcode = table_cp1610[n].opcode | (operands[0].value << 3);
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        }
         default:
-          break;
+        {
+          print_error_internal(asm_context, __FILE__, __LINE__);
+          exit(1);
+        }
       }
     }
-
-    n++;
   }
 
   print_error_unknown_instr(instr, asm_context);
