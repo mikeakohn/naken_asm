@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -321,7 +321,7 @@ struct _cpu_list cpu_list[] =
     ALIGN_1,
     1,
     0,
-    0,
+    1,
     0,
     0,
     0,

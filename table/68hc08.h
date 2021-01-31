@@ -60,7 +60,7 @@ enum
 struct _m68hc08_table
 {
   const char *instr;
-  uint8_t operand_type;
+  uint8_t type;
   uint8_t cycles;
 };
 
@@ -68,8 +68,9 @@ struct _m68hc08_16_table
 {
   const char *instr;
   uint16_t opcode;
-  uint8_t operand_type;
+  uint8_t type;
   uint8_t cycles;
+  uint8_t has_16_bit_version;
 };
 
 extern struct _m68hc08_table m68hc08_table[];

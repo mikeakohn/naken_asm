@@ -51,7 +51,7 @@ int disasm_68hc08(
     {
       if (m68hc08_16_table[n].opcode == opcode)
       {
-        switch (m68hc08_16_table[n].operand_type)
+        switch (m68hc08_16_table[n].type)
         {
           case CPU08_OP_OPR8_SP:
             sprintf(instruction, "%s 0x%02x, SP",
@@ -87,7 +87,7 @@ int disasm_68hc08(
   *cycles_min=m68hc08_table[opcode].cycles;
   *cycles_max=m68hc08_table[opcode].cycles;
 
-  switch (m68hc08_table[opcode].operand_type)
+  switch (m68hc08_table[opcode].type)
   {
     case CPU08_OP_NONE:
       sprintf(instruction, "%s", m68hc08_table[opcode].instr);
@@ -223,7 +223,7 @@ int disasm_68hc08(
     case CPU08_OP_7_COMMA_OPR:
       sprintf(instruction, "%s %d, 0x%02x",
         m68hc08_table[opcode].instr,
-        m68hc08_table[opcode].operand_type - CPU08_OP_0_COMMA_OPR,
+        m68hc08_table[opcode].type - CPU08_OP_0_COMMA_OPR,
         READ_RAM(address + 1));
       size = 2;
       break;
@@ -237,7 +237,7 @@ int disasm_68hc08(
     case CPU08_OP_7_COMMA_OPR_REL:
       sprintf(instruction, "%s %d,0x%02x, 0x%04x (offset=%d)",
         m68hc08_table[opcode].instr,
-        m68hc08_table[opcode].operand_type - CPU08_OP_0_COMMA_OPR_REL,
+        m68hc08_table[opcode].type - CPU08_OP_0_COMMA_OPR_REL,
         READ_RAM(address + 1),
         (address + 3) + (int8_t)READ_RAM(address + 2), (int8_t)READ_RAM(address + 2));
       size=3;
