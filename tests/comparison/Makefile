@@ -2,6 +2,7 @@
 
 default:
 	bash run_test.sh 1802
+	bash run_test.sh 4004
 	python3 run_test.py 6502
 	bash run_test.sh 65816
 	bash run_test.sh 6800

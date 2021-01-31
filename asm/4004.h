@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -17,5 +17,4 @@
 int parse_instruction_4004(struct _asm_context *asm_context, char *instr);
 
 #endif
-
 

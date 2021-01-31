@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -66,5 +66,4 @@ struct _table_4004 table_4004[] =
   { "dcl", 0xfd, 0xff, OP_NONE },
   { NULL, 0, 0 }
 };
-
 

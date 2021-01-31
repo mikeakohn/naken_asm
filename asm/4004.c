@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -92,7 +92,7 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
 */
 
   n = 0;
-  while(table_4004[n].instr != NULL)
+  while (table_4004[n].instr != NULL)
   {
     if (strcmp(table_4004[n].instr, instr_case) == 0)
     {
@@ -153,7 +153,7 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          add_bin8(asm_context, table_4004[n].opcode | (num >> 4), IS_OPCODE);
+          add_bin8(asm_context, table_4004[n].opcode | (num >> 8), IS_OPCODE);
           add_bin8(asm_context, num & 0xff, IS_OPCODE);
 
           return 2;
@@ -195,6 +195,7 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
           }
 
           token_type = tokens_get(asm_context, token, TOKENLEN);
+
           if (token_type != TOKEN_NUMBER)
           {
             print_error_unexp(token, asm_context);
@@ -202,11 +203,19 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
           }
 
           r = atoi(token);
+
           if (r < 0 || r > 15 ||
              (table_4004[n].type == OP_P_DATA && ((r & 1) == 1)))
           {
             print_error_illegal_register(instr, asm_context);
             return -1;
+          }
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (IS_NOT_TOKEN(token, ','))
+          {
+            tokens_push(asm_context, token, token_type);
           }
 
           if (eval_expression(asm_context, &num) != 0)
@@ -245,23 +254,23 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
           {
             token_type = tokens_get(asm_context, token, TOKENLEN);
 
-#if 0
-            if (strcasecmp(token, "Z") == 0) { r = 0x4; }
-            else if (strcasecmp(token, "NZ") == 0) { r = 0xc; }
-            else if (strcasecmp(token, "C") == 0) { r = 0x2; }
-            else if (strcasecmp(token, "NC") == 0) { r = 0xa; }
-            else if (strcasecmp(token, "TN") == 0) { r = 0x1; }
-            else if (strcasecmp(token, "T") == 0) { r = 0x9; }
-              else
-#endif
             if (token_type == TOKEN_NUMBER)
             {
               r = atoi(token);
             }
               else
             {
-              print_error_unexp(token, asm_context);
-              return -1;
+              if (strcasecmp(token, "Z") == 0) { r = 0x4; }
+              else if (strcasecmp(token, "NZ") == 0) { r = 0xc; }
+              else if (strcasecmp(token, "C") == 0) { r = 0x2; }
+              else if (strcasecmp(token, "NC") == 0) { r = 0xa; }
+              else if (strcasecmp(token, "TN") == 0) { r = 0x1; }
+              else if (strcasecmp(token, "T") == 0) { r = 0x9; }
+              else
+              {
+                print_error_unexp(token, asm_context);
+                return -1;
+              }
             }
 
             if (r < 0 || r > 15)
@@ -269,6 +278,13 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
               print_error_range("Condition", 0, 0xfff, asm_context);
               return -1;
             }
+          }
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (IS_NOT_TOKEN(token, ','))
+          {
+            tokens_push(asm_context, token, token_type);
           }
 
           if (eval_expression(asm_context, &num) != 0)
@@ -300,5 +316,4 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
 
   return -1; 
 }
-
 

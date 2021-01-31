@@ -1,0 +1,51 @@
+jnt 0xb2
+jc 0x7f
+jz 0xb9
+jt 0x1e
+jnc 0x96
+jnz 0x81
+nop
+jcn 11, 0xc2
+fim 8, 0x7e
+src 2
+fin 2
+jin 4
+jun 0xa35
+jms 0x829
+inc 14
+isz 10, 0x99
+add 15
+sub 14
+ld 10
+xch 11
+bbl 14
+ldm 9
+wrm
+wmp
+wrr
+wr0
+wr1
+wr2
+wr3
+sbm
+rdm
+rdr
+adm
+rd0
+rd1
+rd2
+rd3
+clb
+clc
+iac
+cmc
+cma
+ral
+rar
+tcc
+dac
+tcs
+stc
+daa
+kbp
+dcl

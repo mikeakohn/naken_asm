@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -22,7 +22,12 @@ int get_cycle_count_4004(uint16_t opcode)
   return -1;
 }
 
-int disasm_4004(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_4004(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   int n;
@@ -116,7 +121,10 @@ int disasm_4004(struct _memory *memory, uint32_t address, char *instruction, int
   return 2;
 }
 
-void list_output_4004(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_4004(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   uint32_t opcode;
@@ -128,7 +136,12 @@ void list_output_4004(struct _asm_context *asm_context, uint32_t start, uint32_t
 
   while(start < end)
   {
-    count = disasm_4004(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_4004(
+      &asm_context->memory,
+      start,
+      instruction,
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read_m(&asm_context->memory, start);
     sprintf(temp, "%02x", opcode);
@@ -160,10 +173,14 @@ void list_output_4004(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_4004(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_4004(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
-  int cycles_min = 0,cycles_max = 0;
+  int cycles_min = 0, cycles_max = 0;
   uint16_t opcode;
 
   printf("\n");
