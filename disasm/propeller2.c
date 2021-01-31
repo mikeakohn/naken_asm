@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -95,7 +95,7 @@ int disasm_propeller2(
   char operands[64];
   cond = (opcode >> 28) & 0xf;
   const char *condition = conditions[cond];
-  const char *instr;
+  const char *instr = "???";
 
   need_effect = wc | wz;
 
