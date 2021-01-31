@@ -5,6 +5,7 @@
 #include "common/assembler.h"
 #include "65c816_test.h"
 #include "6502_test.h"
+#include "68hc08.h"
 #include "68000_test.h"
 #include "epiphany_test.h"
 #include "mips_test.h"
@@ -127,6 +128,9 @@ int main(int argc, char *argv[])
   errors += test_symbols("6502 2", w6502_2);
   errors += test_symbols("6502 3", w6502_3);
   errors += test_symbols("6502 4", w6502_4);
+  errors += test_symbols("68hc08 1", m68hc08_1);
+  errors += test_symbols("68hc08 2", m68hc08_2);
+  errors += test_symbols("68hc08 3", m68hc08_3);
   errors += test_symbols("68000", mc68000);
   errors += test_symbols("Epiphany", epiphany);
   errors += test_symbols("MSP430 1", msp430_1);
