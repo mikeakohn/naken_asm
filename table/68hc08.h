@@ -5,14 +5,14 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
 #ifndef NAKEN_ASM_TABLE_68HC08
 #define NAKEN_ASM_TABLE_68HC08
 
-// cat table/table_68hc08.c  | grep CPU08 | sed 's/^.*CPU/CPU/' | sed 's/,.*$/,/' | sort | uniq
+#include "stdint.h"
 
 enum
 {
@@ -60,17 +60,20 @@ enum
 struct _m68hc08_table
 {
   const char *instr;
-  char operand_type;
-  char cycles;
+  uint8_t operand_type;
+  uint8_t cycles;
 };
 
 struct _m68hc08_16_table
 {
   const char *instr;
-  unsigned short int opcode;
-  char operand_type;
-  char cycles;
+  uint16_t opcode;
+  uint8_t operand_type;
+  uint8_t cycles;
 };
+
+extern struct _m68hc08_table m68hc08_table[];
+extern struct _m68hc08_16_table m68hc08_16_table[];
 
 #endif
 
