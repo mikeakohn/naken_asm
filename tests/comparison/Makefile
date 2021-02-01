@@ -15,6 +15,7 @@ default:
 	bash run_test.sh arm
 	python3 run_test.py avr8
 	bash run_test.sh cell
+	bash run_test.sh cp1610
 	bash run_test.sh dspic
 	bash run_test.sh epiphany
 	bash run_test.sh lc3

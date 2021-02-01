@@ -127,12 +127,24 @@ int disasm_cp1610(
         case CP1610_OP_BRANCH:
         {
           z = (opcode >> 5) & 1;
-          data = memory_read16_m(memory, address + 2);
+          data = memory_read16_m(memory, address + 2) * 2;
 
-          sprintf(instruction, "%s %d (offset=%d z=%d)", table_cp1610[n].instr,
-            address + (data ^ ((z == 1) ? -1 : 0)),
-            data,
-            z);
+          if (z == 0)
+          {
+            sprintf(instruction, "%s 0x%04x (offset=%d z=%d)",
+              table_cp1610[n].instr,
+              address + 4 + data,
+              data,
+              z);
+          }
+            else
+          {
+            sprintf(instruction, "%s 0x%04x (offset=%d z=%d)",
+              table_cp1610[n].instr,
+              address + 2 - data,
+              data,
+              z);
+          }
 
           return 4;
         }
@@ -209,18 +221,22 @@ void list_output_cp1610(
 
   while (start < end)
   {
-    count = disasm_cp1610(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_cp1610(
+      &asm_context->memory,
+      start,
+      instruction,
+      &cycles_min,
+      &cycles_max);
 
-    opcode = memory_read_m(&asm_context->memory, start) |
-            (memory_read_m(&asm_context->memory, start + 1) << 8);
+    opcode = memory_read16_m(&asm_context->memory, start);
 
     fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: %d-%d\n",
             start, opcode, instruction, cycles_min, cycles_max);
 
     for (n = 2; n < count; n = n + 2)
     {
-      opcode = memory_read_m(&asm_context->memory, start + n) |
-              (memory_read_m(&asm_context->memory, start + n + 1) << 8);
+      opcode = memory_read16_m(&asm_context->memory, start + n);
+
       fprintf(asm_context->list, "0x%04x: %04x\n", start + n, opcode);
     }
 
@@ -251,7 +267,8 @@ void disasm_range_cp1610(
 
     opcode = memory_read16_m(memory, start);
 
-    printf("0x%04x: %04x %-40s %d-%d\n", start, opcode, instruction, cycles_min, cycles_max);
+    printf("0x%04x: %04x %-40s %d-%d\n",
+      start, opcode, instruction, cycles_min, cycles_max);
 
     for (n = 2; n < count; n = n + 2)
     {
