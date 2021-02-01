@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn, Lars Brinkhoff
+ * Copyright 2010-2021 by Michael Kohn, Lars Brinkhoff
  *
  * PDP-8 by Lars Brinkhoff
  *
@@ -78,10 +78,10 @@ static int get_group(struct _asm_context *asm_context, char *token)
 {
   int token_type;
   int opcode = 0;
-  int n;
+  int n = 0;
   int group = 0;
 
-  while(1)
+  while (1)
   {
     if (strcasecmp(token, "cla") == 0)
     {

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn, Lars Brinkhoff
+ * Copyright 2010-2021 by Michael Kohn, Lars Brinkhoff
  *
  * PDP-8 by Lars Brinkhoff
  *
