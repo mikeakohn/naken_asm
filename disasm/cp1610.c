@@ -127,13 +127,13 @@ int disasm_cp1610(
         case CP1610_OP_BRANCH:
         {
           z = (opcode >> 5) & 1;
-          data = memory_read16_m(memory, address + 2) * 2;
+          data = memory_read16_m(memory, address + 2);
 
           if (z == 0)
           {
             sprintf(instruction, "%s 0x%04x (offset=%d z=%d)",
               table_cp1610[n].instr,
-              address + 4 + data,
+              (address / 2) + 3 + data,
               data,
               z);
           }
@@ -141,7 +141,7 @@ int disasm_cp1610(
           {
             sprintf(instruction, "%s 0x%04x (offset=%d z=%d)",
               table_cp1610[n].instr,
-              address + 2 - data,
+              (address / 2) + 1 - data,
               data,
               z);
           }
@@ -167,7 +167,7 @@ int disasm_cp1610(
               {
                 sprintf(instruction, "%s 0x%04x",
                   table_cp1610[n].instr,
-                  address);
+                  data);
                 break;
               }
                 else
@@ -176,7 +176,7 @@ int disasm_cp1610(
                 sprintf(instruction, "%s r%d, 0x%04x",
                   table_cp1610[n].instr,
                   bb + 4,
-                  address);
+                  data);
                 break;
               }
             }
@@ -231,13 +231,13 @@ void list_output_cp1610(
     opcode = memory_read16_m(&asm_context->memory, start);
 
     fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: %d-%d\n",
-            start, opcode, instruction, cycles_min, cycles_max);
+            start / 2, opcode, instruction, cycles_min, cycles_max);
 
     for (n = 2; n < count; n = n + 2)
     {
       opcode = memory_read16_m(&asm_context->memory, start + n);
 
-      fprintf(asm_context->list, "0x%04x: %04x\n", start + n, opcode);
+      fprintf(asm_context->list, "0x%04x: %04x\n", (start + n) / 2, opcode);
     }
 
     start += count;
@@ -268,12 +268,12 @@ void disasm_range_cp1610(
     opcode = memory_read16_m(memory, start);
 
     printf("0x%04x: %04x %-40s %d-%d\n",
-      start, opcode, instruction, cycles_min, cycles_max);
+      start / 2, opcode, instruction, cycles_min, cycles_max);
 
     for (n = 2; n < count; n = n + 2)
     {
       opcode = memory_read16_m(memory, start + n);
-      printf("0x%04x: %04x\n", start + n, opcode);
+      printf("0x%04x: %04x\n", (start + n) / 2, opcode);
     }
 
     start = start + count;

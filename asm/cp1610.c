@@ -365,19 +365,18 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
 
           int z;
           int offset;
+          int address = asm_context->address / 2;
 
-          if (operands[0].value >= asm_context->address + 4)
+          if (operands[0].value >= address + 2)
           {
             z = 0;
-            offset = operands[0].value - (asm_context->address + 4);
+            offset = operands[0].value - (address + 2);
           }
           else
           {
             z = 1;
-            offset = (asm_context->address + 2) - operands[0].value;
+            offset = (address + 1) - operands[0].value;
           }
-
-          offset = offset / 2;
 
           opcode = table_cp1610[n].opcode | (z << 5);
 
