@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -47,7 +47,12 @@ static const char *get_array_type(int index)
   return array_types[index];
 }
 
-int disasm_java(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_java(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint16_t index;
   uint8_t opcode;
@@ -157,7 +162,10 @@ int disasm_java(struct _memory *memory, uint32_t address, char *instruction, int
   return wide + 1;
 }
 
-void list_output_java(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_java(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
@@ -181,7 +189,11 @@ void list_output_java(struct _asm_context *asm_context, uint32_t start, uint32_t
   fprintf(asm_context->list, "0x%04x: %-20s %-40s\n", start, hex, instruction);
 }
 
-void disasm_range_java(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_java(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -33,7 +33,11 @@ static const char *array_types[] =
   "long",
 };
 
-static int parse_num8(struct _asm_context *asm_context, const char *instr, int low, int high)
+static int parse_num8(
+  struct _asm_context *asm_context,
+  const char *instr,
+  int low,
+  int high)
 {
   int num;
 
@@ -61,7 +65,11 @@ static int parse_num8(struct _asm_context *asm_context, const char *instr, int l
   return 3;
 }
 
-static int parse_num16(struct _asm_context *asm_context, const char *instr, int low, int high)
+static int parse_num16(
+  struct _asm_context *asm_context,
+  const char *instr,
+  int low,
+  int high)
 {
   int num;
 
@@ -91,7 +99,11 @@ static int parse_num16(struct _asm_context *asm_context, const char *instr, int 
   return 3;
 }
 
-static int parse_index_w(struct _asm_context *asm_context, const char *instr, int opcode, int has_const)
+static int parse_index_w(
+  struct _asm_context *asm_context,
+  const char *instr,
+  int opcode,
+  int has_const)
 {
   int index, length;
   int wide = 0;
@@ -168,7 +180,7 @@ static int parse_index_w(struct _asm_context *asm_context, const char *instr, in
       }
     }
 
-    if (index < -128 && index > 127)
+    if (index < -128 || index > 127)
     {
       print_error_range("Constant", -128, 127, asm_context);
       return -1;
@@ -182,7 +194,9 @@ static int parse_index_w(struct _asm_context *asm_context, const char *instr, in
   return length;
 }
 
-static int parse_array_type(struct _asm_context *asm_context, const char *instr)
+static int parse_array_type(
+  struct _asm_context *asm_context,
+  const char *instr)
 {
   int n;
   char token[TOKENLEN];
@@ -219,7 +233,7 @@ static int parse_array_type(struct _asm_context *asm_context, const char *instr)
     n += 4;
   }
 
-  if (n < 0 && n > 0xff)
+  if (n < 0 || n > 0xff)
   {
     print_error_range("Type", 0, 0xff, asm_context);
     return -1;
@@ -230,7 +244,10 @@ static int parse_array_type(struct _asm_context *asm_context, const char *instr)
   return 2;
 }
 
-static int parse_offset(struct _asm_context *asm_context, const char *instr, int is_long)
+static int parse_offset(
+  struct _asm_context *asm_context,
+  const char *instr,
+  int is_long)
 {
   int offset;
   int address;
@@ -262,7 +279,7 @@ static int parse_offset(struct _asm_context *asm_context, const char *instr, int
 
   if (is_long == 0)
   {
-    if (offset < -128 && offset > 127)
+    if (offset < -128 || offset > 127)
     {
       print_error_range("Offset", -128, 127, asm_context);
       return -1;
@@ -275,7 +292,7 @@ static int parse_offset(struct _asm_context *asm_context, const char *instr, int
   }
     else
   {
-    if (offset < -32768 && offset > 32767)
+    if (offset < -32768 || offset > 32767)
     {
       print_error_range("Offset", -32768, 32767, asm_context);
       return -1;

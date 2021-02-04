@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -21,7 +21,10 @@
 #include "common/eval_expression_ex.h"
 #include "table/webasm.h"
 
-static int get_uint(struct _asm_context *asm_context, uint64_t *value, int as_bin)
+static int get_uint(
+  struct _asm_context *asm_context,
+  uint64_t *value,
+  int as_bin)
 {
   struct _var var;
 
@@ -133,7 +136,7 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
 
         i = (int64_t)value;
 
-        if (i < -0x80000000 || i > 0x7fffffff)
+        if (i < -0x80000000ULL || i > 0x7fffffffULL)
         {
           print_error_range("Constant", -0x80000000, 0x7fffffff, asm_context);
           return -1;
@@ -188,7 +191,7 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
 
         i = (int64_t)value;
 
-        if (i < -0x80000000 || i > 0x7fffffff)
+        if (i < -0x80000000ULL || i > 0x7fffffffULL)
         {
           print_error_range("Constant", -0x80000000, 0x7fffffff, asm_context);
           return -1;

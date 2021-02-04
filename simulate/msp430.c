@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -496,7 +496,7 @@ static int relative_jump_exe(struct _simulate *simulate, uint16_t opcode)
   return 0;
 }
 
-static int two_operand_exe(struct _simulate *simulate, unsigned short int opcode)
+static int two_operand_exe(struct _simulate *simulate, uint16_t opcode)
 {
   struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
   int o;
@@ -576,7 +576,6 @@ static int two_operand_exe(struct _simulate *simulate, unsigned short int opcode
       pc = simulate_msp430->reg[0];
       dst = get_data(simulate, dst_reg, Ad, bw);
       src = ((~((uint16_t)src)) & 0xffff) + 1;
-      //result=(unsigned short int)dst+(unsigned short int)src;
       result = dst + src;
       CHECK_OVERFLOW();
       dst = result & 0xffff;
@@ -767,7 +766,7 @@ void simulate_set_pc_msp430(struct _simulate *simulate, uint32_t value)
 {
   struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
 
-  simulate_msp430->reg[0] = value; 
+  simulate_msp430->reg[0] = value;
 }
 
 void simulate_reset_msp430(struct _simulate *simulate)

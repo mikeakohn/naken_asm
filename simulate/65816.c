@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  * 65816 file by Joe Davisson
  *
@@ -56,7 +56,7 @@ extern struct _table_65816_opcodes table_65816_opcodes[];
 #define SET_FLAG(a) (REG_SR |= (1 << a))
 #define CLEAR_FLAG(a) (REG_SR &= ~(1 << a))
 
-#define FLAG(condition, flag) if(condition) SET_FLAG(flag); else CLEAR_FLAG(flag)
+#define FLAG(condition, flag) if (condition) SET_FLAG(flag); else CLEAR_FLAG(flag)
 
 static int stop_running=0;
 
@@ -133,13 +133,13 @@ static int operand_exe(struct _simulate *simulate, int opcode)
 {
   struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
 
-  if(opcode < 0 || opcode > 0xFF)
+  if (opcode < 0 || opcode > 0xFF)
     return -1;
-  
+
   int mode = table_65816_opcodes[opcode].op;
 
   int address = calc_address(simulate, REG_PC + 1, mode);
-  if(address == -1)
+  if (address == -1)
     return -1;
 
   int m = READ_RAM(address);
@@ -161,7 +161,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x75:
     case 0x79:
     case 0x7D:
-      if(READ_FLAG(flag_d))
+      if (READ_FLAG(flag_d))
       {
         int bcd_a = (REG_A & 15) + 10 * (REG_A >> 4);
         int bcd_m = (m & 15) + 10 * (m >> 4);
@@ -204,7 +204,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x0E:
     case 0x16:
     case 0x1E:
-      if(mode == 4)
+      if (mode == 4)
       {
         FLAG(READ_BIT(REG_A, 7), flag_c);
         REG_A <<= 1;
@@ -224,7 +224,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
       break;
     // BCC
     case 0x90:
-      if(READ_FLAG(flag_c) == 0)
+      if (READ_FLAG(flag_c) == 0)
       {
         REG_PC = address;
         return 1;
@@ -232,7 +232,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
       break;
     // BCS
     case 0xB0:
-      if(READ_FLAG(flag_c) == 1)
+      if (READ_FLAG(flag_c) == 1)
       {
         REG_PC = address;
         return 1;
@@ -240,7 +240,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
       break;
     // BEQ
     case 0xF0:
-      if(READ_FLAG(flag_z) == 1)
+      if (READ_FLAG(flag_z) == 1)
       {
         REG_PC = address;
         return 1;
@@ -248,7 +248,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
       break;
     // BMI
     case 0x30:
-      if(READ_FLAG(flag_n) == 1)
+      if (READ_FLAG(flag_n) == 1)
       {
         REG_PC = address;
         return 1;
@@ -256,7 +256,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
       break;
     // BNE
     case 0xD0:
-      if(READ_FLAG(flag_z) == 0)
+      if (READ_FLAG(flag_z) == 0)
       {
         REG_PC = address;
         return 1;
@@ -264,7 +264,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
       break;
     // BPL
     case 0x10:
-      if(READ_FLAG(flag_n) == 0)
+      if (READ_FLAG(flag_n) == 0)
       {
         REG_PC = address;
         return 1;
@@ -272,7 +272,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
       break;
     // BVC
     case 0x50:
-      if(READ_FLAG(flag_v) == 0)
+      if (READ_FLAG(flag_v) == 0)
       {
         REG_PC = address;
         return 1;
@@ -280,7 +280,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
       break;
     // BVS
     case 0x70:
-      if(READ_FLAG(flag_v) == 1)
+      if (READ_FLAG(flag_v) == 1)
       {
         REG_PC = address;
         return 1;
@@ -413,7 +413,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     // JSR
     case 0x20:
       WRITE_RAM(0x100 + REG_SP, (REG_PC + 2) / 256);
-      REG_SP--; 
+      REG_SP--;
       REG_SP &= 0xFF;
       WRITE_RAM(0x100 + REG_SP, (REG_PC + 2) & 0xFF);
       REG_SP--;
@@ -432,7 +432,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
       REG_A = m;
       FLAG(REG_A > 127, flag_n);
       FLAG(REG_A == 0, flag_z);
-      break; 
+      break;
     // LDX
     case 0xA2:
     case 0xA6:
@@ -459,7 +459,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x4E:
     case 0x56:
     case 0x5E:
-      if(mode == 4)
+      if (mode == 4)
       {
         FLAG(READ_BIT(REG_A, 0), flag_c);
         REG_A >>= 1;
@@ -523,7 +523,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x2E:
     case 0x36:
     case 0x3E:
-      if(mode == 4)
+      if (mode == 4)
       {
         FLAG(READ_BIT(REG_A, 7), flag_c);
         REG_A <<= 1;
@@ -549,7 +549,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0x6E:
     case 0x76:
     case 0x7E:
-      if(mode == 4)
+      if (mode == 4)
       {
         temp = READ_BIT(REG_A, 0);
         REG_A >>= 1;
@@ -603,7 +603,7 @@ static int operand_exe(struct _simulate *simulate, int opcode)
     case 0xF5:
     case 0xF9:
     case 0xFD:
-      if(READ_FLAG(flag_d))
+      if (READ_FLAG(flag_d))
       {
         int bcd_a = (REG_A & 15) + 10 * (REG_A >> 4);
         int bcd_m = (m & 15) + 10 * (m >> 4);
@@ -742,27 +742,27 @@ void simulate_push_65816(struct _simulate *simulate, uint32_t value)
   REG_SP &= 0xFF;
 }
 
-int simulate_set_reg_65816(struct _simulate *simulate, char *reg_string, unsigned int value)
+int simulate_set_reg_65816(struct _simulate *simulate, char *reg_string, uint32_t value)
 {
   struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
 
   while(*reg_string==' ') { reg_string++; }
 
-  if(strcasecmp(reg_string, "a") == 0)
+  if (strcasecmp(reg_string, "a") == 0)
     REG_A = value & 0xFFFF;
-  else if(strcasecmp(reg_string, "x") == 0)
+  else if (strcasecmp(reg_string, "x") == 0)
     REG_X = value & 0xFFFF;
-  else if(strcasecmp(reg_string, "y") == 0)
+  else if (strcasecmp(reg_string, "y") == 0)
     REG_Y = value & 0xFFFF;
-  else if(strcasecmp(reg_string, "sr") == 0)
+  else if (strcasecmp(reg_string, "sr") == 0)
     REG_SR = value & 0xFF;
-  else if(strcasecmp(reg_string, "pc") == 0)
+  else if (strcasecmp(reg_string, "pc") == 0)
     REG_PC = value & 0xFFFF;
-  else if(strcasecmp(reg_string, "sp") == 0)
+  else if (strcasecmp(reg_string, "sp") == 0)
     REG_SP = value & 0xFFFF;
-  else if(strcasecmp(reg_string, "db") == 0)
+  else if (strcasecmp(reg_string, "db") == 0)
     REG_DB = value & 0xFF;
-  else if(strcasecmp(reg_string, "pb") == 0)
+  else if (strcasecmp(reg_string, "pb") == 0)
     REG_PB = value & 0xFF;
   else
     return -1;
@@ -770,25 +770,25 @@ int simulate_set_reg_65816(struct _simulate *simulate, char *reg_string, unsigne
   return 0;
 }
 
-unsigned int simulate_get_reg_65816(struct _simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_65816(struct _simulate *simulate, char *reg_string)
 {
   struct _simulate_65816 *simulate_65816 = (struct _simulate_65816 *)simulate->context;
 
-  if(strcasecmp(reg_string, "a") == 0)
+  if (strcasecmp(reg_string, "a") == 0)
     return REG_A;
-  else if(strcasecmp(reg_string, "x") == 0)
+  else if (strcasecmp(reg_string, "x") == 0)
     return REG_X;
-  else if(strcasecmp(reg_string, "y") == 0)
+  else if (strcasecmp(reg_string, "y") == 0)
     return REG_Y;
-  else if(strcasecmp(reg_string, "sr") == 0)
+  else if (strcasecmp(reg_string, "sr") == 0)
     return REG_SR;
-  else if(strcasecmp(reg_string, "pc") == 0)
+  else if (strcasecmp(reg_string, "pc") == 0)
     return REG_PC;
-  else if(strcasecmp(reg_string, "sp") == 0)
+  else if (strcasecmp(reg_string, "sp") == 0)
     return REG_SP;
-  else if(strcasecmp(reg_string, "db") == 0)
+  else if (strcasecmp(reg_string, "db") == 0)
     return REG_DB;
-  else if(strcasecmp(reg_string, "pb") == 0)
+  else if (strcasecmp(reg_string, "pb") == 0)
     return REG_PB;
 
   return -1;
@@ -840,7 +840,7 @@ void simulate_dump_registers_65816(struct _simulate *simulate)
   printf("---------------------------------------------------------------\n");
   printf("        7 6 5 4 3 2 1 0                          0x%04x: 0x%04x\n", SHOW_STACK);
   sp = (sp - 2) & 0xFFFF;
-  
+
   printf("Status: N V M X D I Z C                          0x%04x: 0x%04x\n", SHOW_STACK);
   sp = (sp - 2) & 0xFFFF;
   printf("        %d %d %d %d %d %d %d %d                          0x%04x: 0x%04x\n",
@@ -890,14 +890,14 @@ int simulate_run_65816(struct _simulate *simulate, int max_cycles, int step)
     int ret = operand_exe(simulate, opcode);
 
     // stop simulation on BRK instruction
-    if(ret == -1)
+    if (ret == -1)
       break;
 
     // only increment if REG_PC not touched
-    if(ret == 0)
+    if (ret == 0)
       REG_PC += disasm_65816(simulate->memory, pc, instruction, &cycles_min, &cycles_max, 0);
 
-    if(simulate->show == 1)
+    if (simulate->show == 1)
     {
       printf("\x1b[1J\x1b[1;1H");
       simulate_dump_registers_65816(simulate);
@@ -907,15 +907,15 @@ int simulate_run_65816(struct _simulate *simulate, int max_cycles, int step)
       {
         int count = disasm_65816(simulate->memory, pc, instruction, &cycles_min, &cycles_max, 0);
 
-        if(cycles_min == -1) break;
+        if (cycles_min == -1) break;
 
-        if(pc == simulate->break_point) { printf("*"); }
+        if (pc == simulate->break_point) { printf("*"); }
         else { printf(" "); }
 
-        if(n == 0)
+        if (n == 0)
         { printf("! "); }
           else
-        if(pc == REG_PC) { printf("> "); }
+        if (pc == REG_PC) { printf("> "); }
           else
         { printf("  "); }
 
@@ -926,7 +926,7 @@ int simulate_run_65816(struct _simulate *simulate, int max_cycles, int step)
         count--;
         while(count > 0)
         {
-          if(pc == simulate->break_point) { printf("*"); }
+          if (pc == simulate->break_point) { printf("*"); }
           else { printf(" "); }
           printf("  0x%04x: 0x%04x\n", pc, READ_RAM(pc));
           pc += count;
@@ -935,25 +935,25 @@ int simulate_run_65816(struct _simulate *simulate, int max_cycles, int step)
       }
     }
 
-    if(ret == -1)
-    {  
+    if (ret == -1)
+    {
       printf("Illegal instruction at address 0x%04x\n", pc);
       return -1;
     }
 
-    if(simulate->break_point == REG_PC)
+    if (simulate->break_point == REG_PC)
     {
       printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
       break;
     }
 
-    if((simulate->usec == 0) || (step == 1))
+    if ((simulate->usec == 0) || (step == 1))
     {
       signal(SIGINT, SIG_DFL);
       return 0;
     }
 
-    if(REG_PC == 0xFFFF)
+    if (REG_PC == 0xFFFF)
     {
       printf("Function ended.  Total cycles: %d\n", simulate->cycle_count);
       simulate->step_mode = 0;

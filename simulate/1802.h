@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  * 1802 file by Malik Enes Safak
  *
@@ -32,7 +32,7 @@ struct _simulate *simulate_init_1802(struct _memory *memory);
 void simulate_free_1802(struct _simulate *simulate);
 int simulate_dumpram_1802(struct _simulate *simulate, int start, int end);
 void simulate_push_1802(struct _simulate *simulate, uint32_t value);
-int simulate_set_reg_1802(struct _simulate *simulate, char *reg_string, unsigned int value);
+int simulate_set_reg_1802(struct _simulate *simulate, char *reg_string, uint32_t value);
 uint32_t simulate_get_reg_1802(struct _simulate *simulate, char *reg_string);
 void simulate_set_pc_1802(struct _simulate *simulate, uint32_t value);
 void simulate_reset_1802(struct _simulate *simulate);

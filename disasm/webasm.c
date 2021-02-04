@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -18,7 +18,7 @@
 #include "disasm/webasm.h"
 #include "table/webasm.h"
 
-int get_cycle_count_webasm(unsigned short int opcode)
+int get_cycle_count_webasm(uint16_t opcode)
 {
   return -1;
 }
@@ -131,7 +131,12 @@ static int print_table(struct _memory *memory, uint32_t address, FILE *out)
   return total_length;
 }
 
-int disasm_webasm(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_webasm(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint8_t opcode;
   uint64_t i;
@@ -207,7 +212,10 @@ int disasm_webasm(struct _memory *memory, uint32_t address, char *instruction, i
   return 1;
 }
 
-void list_output_webasm(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_webasm(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
@@ -238,7 +246,11 @@ void list_output_webasm(struct _asm_context *asm_context, uint32_t start, uint32
   }
 }
 
-void disasm_range_webasm(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_webasm(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2021 by Michael Kohn, Joe Davisson
  *
  * 6502 file by Joe Davisson
  *
@@ -29,7 +29,7 @@ struct _simulate *simulate_init_6502(struct _memory *memory);
 void simulate_free_6502(struct _simulate *simulate);
 int simulate_dumpram_6502(struct _simulate *simulate, int start, int end);
 void simulate_push_6502(struct _simulate *simulate, uint32_t value);
-int simulate_set_reg_6502(struct _simulate *simulate, char *reg_string, unsigned int value);
+int simulate_set_reg_6502(struct _simulate *simulate, char *reg_string, uint32_t value);
 uint32_t simulate_get_reg_6502(struct _simulate *simulate, char *reg_string);
 void simulate_set_pc_6502(struct _simulate *simulate, uint32_t value);
 void simulate_reset_6502(struct _simulate *simulate);
