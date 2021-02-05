@@ -39,6 +39,9 @@ struct _operand
 
 static int get_register_cp1610(char *token)
 {
+  if (strcasecmp(token, "sp") == 0) { return 6; }
+  if (strcasecmp(token, "pc") == 0) { return 7; }
+
   if (token[0] == 'r' || token[0] == 'R')
   {
     if (token[2] == 0 && (token[1] >= '0' && token[1] <= '7'))
