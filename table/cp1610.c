@@ -81,6 +81,8 @@ struct _table_cp1610 table_cp1610[] =
   { "mvi",  0x0280, 0xfff8, CP1610_OP_ADDRESS_REG, 10, 10 },
   { "mvii", 0x02b8, 0xfff8, CP1610_OP_IMMEDIATE_REG, 8, 10 },
   { "mvi@", 0x0280, 0xffc0, CP1610_OP_SREG_DREG, 8, 11 },
+  { "pshr", 0x0270, 0xfff8, CP1610_OP_REG, 6, 6 },
+  { "pulr", 0x02b0, 0xfff8, CP1610_OP_REG, 6, 6 },
   { "add",  0x02c0, 0xfff8, CP1610_OP_ADDRESS_REG, 10, 10 },
   { "addi", 0x02f8, 0xfff8, CP1610_OP_IMMEDIATE_REG, 8, 10 },
   { "add@", 0x02c0, 0xffc0, CP1610_OP_SREG_DREG, 8, 11 },
