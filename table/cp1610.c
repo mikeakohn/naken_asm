@@ -98,6 +98,7 @@ struct _table_cp1610 table_cp1610[] =
   { "xor",  0x03c0, 0xfff8, CP1610_OP_ADDRESS_REG, 10, 10 },
   { "xori", 0x03f8, 0xfff8, CP1610_OP_IMMEDIATE_REG, 8, 10 },
   { "xor@", 0x03c0, 0xffc0, CP1610_OP_SREG_DREG, 8, 11 },
+  { "clrr", 0x01c0, 0xffc0, CP1610_OP_REG_X2, 6, 6 },
   { NULL,   0x0000, 0x00ff, CP1610_OP_ILLEGAL, 0, 0 },
 };
 

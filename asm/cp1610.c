@@ -475,6 +475,22 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
 
           return 2;
         }
+        case CP1610_OP_REG_X2:
+        {
+          if (operand_count != 1 || operands[0].type != OPERAND_REG)
+          {
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+          }
+
+          opcode = table_cp1610[n].opcode |
+                  (operands[0].value << 3) |
+                   operands[0].value;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        }
         default:
         {
           print_error_internal(asm_context, __FILE__, __LINE__);

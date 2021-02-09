@@ -30,6 +30,7 @@ enum
   CP1610_OP_JUMP,
   CP1610_OP_JSR,
   CP1610_OP_JR,
+  CP1610_OP_REG_X2,
 };
 
 struct _table_cp1610
