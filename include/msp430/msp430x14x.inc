@@ -485,9 +485,9 @@ URXE1      equ 0x10    ; USART1: UART receive enable
 UTXE1      equ 0x10    ; USART1: UART transmit enable
 
 ME1 equ 0x0004            ; SFR module enable 1
-USPIE0     equ 0x80    ; USART0: SPI transmit and receive enable
+UTXE0      equ 0x80    ; USART0: UART transmit enable
 URXE0      equ 0x40    ; USART0: UART receive enable
-UTXE0      equ 0x40    ; USART0: UART transmit enable
+USPIE0     equ 0x40    ; USART0: SPI transmit and receive enable
 
 IFG2 equ 0x0003           ; SFR interrupt flag2
 UTXIFG1    equ 0x20    ; USART1: UART and SPI transmit flag
