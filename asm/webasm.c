@@ -136,7 +136,7 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
 
         i = (int64_t)value;
 
-        if (i < -0x80000000ULL || i > 0x7fffffffULL)
+        if (i < -0x80000000LL || i > 0x7fffffffLL)
         {
           print_error_range("Constant", -0x80000000, 0x7fffffff, asm_context);
           return -1;
@@ -191,7 +191,7 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
 
         i = (int64_t)value;
 
-        if (i < -0x80000000ULL || i > 0x7fffffffULL)
+        if (i < -0x80000000LL || i > 0x7fffffffLL)
         {
           print_error_range("Constant", -0x80000000, 0x7fffffff, asm_context);
           return -1;

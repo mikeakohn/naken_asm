@@ -137,7 +137,7 @@ static int parse_index_w(
     wide = 1;
   }
 
-  if (index < 0 && index > 0xffff)
+  if (index < 0 || index > 0xffff)
   {
     print_error_range("Offset", 0, 0xffff, asm_context);
     return -1;
@@ -322,7 +322,7 @@ int parse_instruction_java(struct _asm_context *asm_context, char *instr)
 
     if (strcmp(table_java[n].instr, instr_case) == 0)
     {
-      switch(table_java[n].op_type)
+      switch (table_java[n].op_type)
       {
         case JAVA_OP_NONE:
           add_bin8(asm_context, n, IS_OPCODE);

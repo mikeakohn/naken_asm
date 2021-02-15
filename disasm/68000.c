@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -29,13 +29,9 @@ enum
   SIZE_L,
 };
 
-//extern struct _table_68000_no_operands table_68000_no_operands[];
-extern struct _table_68000 table_68000[];
-extern char *table_68000_condition_codes[];
+static char sizes[] = { 'b', 'w', 'l', '?' };
 
-static char sizes[] = { 'b','w','l','?' };
-
-int get_cycle_count_68000(unsigned short int opcode)
+int get_cycle_count_68000(uint16_t opcode)
 {
   return -1;
 }
@@ -45,7 +41,7 @@ static int is_illegal_ea(int16_t opcode, int omit_mode)
   int reg = opcode & 0x7;
   int mode = (opcode >> 3) & 0x7;
 
-  switch(mode)
+  switch (mode)
   {
     case 0:
       if ((omit_mode & MODE_DN) != 0) { return 1; }
@@ -66,7 +62,7 @@ static int is_illegal_ea(int16_t opcode, int omit_mode)
     case 6:
        break;
     case 7:
-       switch(reg)
+       switch (reg)
        {
          case 2:
            if ((omit_mode & MODE_D16_PC) != 0) { return 1; }
@@ -88,14 +84,20 @@ static int is_illegal_ea(int16_t opcode, int omit_mode)
   return 0;
 }
 
-static int get_ea_68000(struct _memory *memory, uint32_t address, char *ea, uint16_t opcode, int skip, int size)
+static int get_ea_68000(
+  struct _memory *memory,
+  uint32_t address,
+  char *ea,
+  uint16_t opcode,
+  int skip,
+  int size)
 {
   int reg = opcode & 0x7;
   int mode = (opcode >> 3) & 0x7;
   int xn,xn_reg;
   char xn_ad,xn_size;
 
-  switch(mode)
+  switch (mode)
   {
     case 0:
       sprintf(ea, "d%d", reg);
@@ -185,7 +187,7 @@ static int is_ea_valid(struct _table_68000 *table, uint16_t opcode, int is_dst)
   int mode = (opcode >> 3) & 0x7;
   int reg = opcode & 0x7;
 
-  switch(mode)
+  switch (mode)
   {
     case 0: // Dn
       if (omit_mode & MODE_DN) { return 0; }
@@ -206,7 +208,7 @@ static int is_ea_valid(struct _table_68000 *table, uint16_t opcode, int is_dst)
     case 6: // (d8,An,Xn)
       break;
     case 7:
-      switch(reg)
+      switch (reg)
       {
         case 0: // (xxx).w
           break;
@@ -224,7 +226,7 @@ static int is_ea_valid(struct _table_68000 *table, uint16_t opcode, int is_dst)
           break;
         default:
           break;
-      } 
+      }
       break;
     default:
       break;
@@ -271,9 +273,13 @@ static char get_size_68000(unsigned short int opcode, int pos)
 }
 #endif
 
-int disasm_68000(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_68000(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
-  //int count=2;
   int opcode;
   char ea[32];
   int size;
@@ -289,25 +295,12 @@ int disasm_68000(struct _memory *memory, uint32_t address, char *instruction, in
 
   opcode = READ_RAM16(address);
 
-#if 0
   n = 0;
-  while(table_68000_no_operands[n].instr != NULL)
-  {
-    if (opcode == table_68000_no_operands[n].opcode)
-    {
-      sprintf(instruction, "%s", table_68000_no_operands[n].instr);
-      return 2;
-    }
-    n++;
-  }
-#endif
-
-  n = 0;
-  while(table_68000[n].instr != NULL)
+  while (table_68000[n].instr != NULL)
   {
     if ((opcode & table_68000[n].mask) == table_68000[n].opcode)
     {
-      switch(table_68000[n].type)
+      switch (table_68000[n].type)
       {
         case OP_NONE:
           sprintf(instruction, "%s", table_68000[n].instr);
@@ -707,7 +700,10 @@ int disasm_68000(struct _memory *memory, uint32_t address, char *instruction, in
   return -1;
 }
 
-void list_output_68000(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_68000(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min = -1, cycles_max = -1;
   int count;
@@ -717,24 +713,34 @@ void list_output_68000(struct _asm_context *asm_context, uint32_t start, uint32_
   strcpy(instruction, "???");
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_68000(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-    fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start, (memory_read_m(&asm_context->memory, start) << 8) | memory_read_m(&asm_context->memory, start + 1), instruction);
+    fprintf(asm_context->list, "0x%04x: %04x %-40s\n",
+      start,
+      (memory_read_m(&asm_context->memory, start) << 8) |
+       memory_read_m(&asm_context->memory, start + 1),
+      instruction);
 
     if (count < 0) { count = 2; }
 
     for (n = 2; n < count; n += 2)
     {
-      fprintf(asm_context->list, "        %04x\n", (memory_read_m(&asm_context->memory, start + n) << 8) | memory_read_m(&asm_context->memory, start + n + 1));
+      fprintf(asm_context->list, "        %04x\n",
+        (memory_read_m(&asm_context->memory, start + n) << 8) |
+         memory_read_m(&asm_context->memory, start + n + 1));
     }
 
     start += count;
   }
 }
 
-void disasm_range_68000(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_68000(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   char temp[32];
@@ -748,24 +754,28 @@ void disasm_range_68000(struct _memory *memory, uint32_t flags, uint32_t start, 
   printf("%-11s %-5s %-40s\n", "Addr", "Opcode", "Instruction");
   printf("----------- ------ ----------------------------------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_68000(memory, start, instruction, &cycles_min, &cycles_max);
 
     temp[0] = 0;
+
     for (n = 0; n < count; n++)
     {
       sprintf(temp2, "%02x ", memory_read_m(memory, start + n));
       strcat(temp, temp2);
     }
 
-    //printf("0x%04x: %-10s %s\n", start, temp, instruction);
-
-    printf("0x%04x: %04x   %-40s\n", start, (memory_read_m(memory, start) << 8) | memory_read_m(memory, start + 1), instruction);
+    printf("0x%04x: %04x   %-40s\n",
+      start,
+      (memory_read_m(memory, start) << 8) |
+       memory_read_m(memory, start + 1), instruction);
 
     for (n = 2; n < count; n += 2)
     {
-      printf("        %04x\n", (memory_read_m(memory, start + n) << 8) | memory_read_m(memory, start + n + 1));
+      printf("        %04x\n",
+        (memory_read_m(memory, start + n) << 8) |
+         memory_read_m(memory, start + n + 1));
     }
 
     start = start + count;

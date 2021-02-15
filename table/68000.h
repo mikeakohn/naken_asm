@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -90,6 +90,8 @@ struct _table_68000
 
 uint16_t reverse_bits16(uint16_t bits);
 
-#endif
+extern struct _table_68000 table_68000[];
+extern char *table_68000_condition_codes[];
 
+#endif
 

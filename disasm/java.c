@@ -16,7 +16,7 @@
 #include "disasm/java.h"
 #include "table/java.h"
 
-int get_cycle_count_java(unsigned short int opcode)
+int get_cycle_count_java(uint16_t opcode)
 {
   return -1;
 }
@@ -73,7 +73,7 @@ int disasm_java(
     opcode = memory_read_m(memory, address + 1);
   }
 
-  switch(table_java[opcode].op_type)
+  switch (table_java[opcode].op_type)
   {
     case JAVA_OP_ILLEGAL:
     case JAVA_OP_NONE:
@@ -207,7 +207,7 @@ void disasm_range_java(
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_java(memory, start, instruction, &cycles_min, &cycles_max);
 

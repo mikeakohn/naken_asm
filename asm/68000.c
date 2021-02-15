@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -21,10 +21,6 @@
 #include "common/eval_expression.h"
 #include "disasm/arm.h"
 #include "table/68000.h"
-
-//extern struct _table_68000_no_operands table_68000_no_operands[];
-extern struct _table_68000 table_68000[];
-extern char *table_68000_condition_codes[];
 
 #define NO_EXTRA_IMM 0xffffffff
 
@@ -1216,7 +1212,8 @@ static int write_branch(
   if (size == SIZE_W)
   {
     offset = operands[0].value - (asm_context->address + 2);
-    if (offset < -32768 && offset > 32767)
+
+    if (offset < -32768 || offset > 32767)
     {
       print_error_range("Offset", -32768, 32767, asm_context);
       return -1;
