@@ -9,6 +9,8 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; RSP: Reality Signal Processor
+
 ;; Coprocesser registers $c0 to $c15:
 
 RSP_DMA_CACHE            equ 0x0
