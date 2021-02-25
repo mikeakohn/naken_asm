@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -686,7 +686,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
           operands[1].type = OPTYPE_REGISTER;
           break;
         case CMD_R3:
-          memset(&operands[0], 0, sizeof(struct _operand)*2);
+          memset(&operands[0], 0, sizeof(struct _operand) * 2);
           operands[0].value = 0;
           operands[0].type = OPTYPE_IMMEDIATE;
           operands[1].reg = 3;

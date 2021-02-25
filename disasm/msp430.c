@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -49,7 +49,15 @@ int get_register_msp430(char *token)
   return -1;
 }
 
-static int get_source_reg(struct _memory *memory, uint32_t address, int reg, int As, int bw, char *reg_str, uint16_t prefix, int memory_ext)
+static int get_source_reg(
+  struct _memory *memory,
+  uint32_t address,
+  int reg,
+  int As,
+  int bw,
+  char *reg_str,
+  uint16_t prefix,
+  int memory_ext)
 {
   int count = 0;
   int extra = 0;
@@ -178,7 +186,15 @@ static int get_source_reg(struct _memory *memory, uint32_t address, int reg, int
   return count;
 }
 
-static int get_dest_reg(struct _memory *memory, uint32_t address, int reg, int Ad, char *reg_str, int count, uint16_t prefix, int memory_ext)
+static int get_dest_reg(
+  struct _memory *memory,
+  uint32_t address,
+  int reg,
+  int Ad,
+  char *reg_str,
+  int count,
+  uint16_t prefix,
+  int memory_ext)
 {
   int extra = 0;
 
@@ -261,7 +277,12 @@ static int get_dest_reg(struct _memory *memory, uint32_t address, int reg, int A
   return count;
 }
 
-static int one_operand(struct _memory *memory, uint32_t address, char *instruction, uint16_t opcode, uint16_t prefix)
+static int one_operand(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  uint16_t opcode,
+  uint16_t prefix)
 {
   char ext[3] = { 0 };
   int o;
@@ -346,7 +367,12 @@ static int one_operand(struct _memory *memory, uint32_t address, char *instructi
   return count;
 }
 
-static int relative_jump(struct _memory *memory, uint32_t address, char *instruction, uint16_t opcode, uint16_t prefix)
+static int relative_jump(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  uint16_t opcode,
+  uint16_t prefix)
 {
   int count = 2;
   int o;
@@ -377,7 +403,12 @@ static int relative_jump(struct _memory *memory, uint32_t address, char *instruc
   return count;
 }
 
-static int two_operand(struct _memory *memory, uint32_t address, char *instruction, uint16_t opcode, uint16_t prefix)
+static int two_operand(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  uint16_t opcode,
+  uint16_t prefix)
 {
   char ext[3] = { 0 };
   int o;
@@ -559,7 +590,7 @@ int get_cycle_count(uint16_t opcode)
   if ((opcode & 0xe000) == 0x2000)
   {
     // Jump
-    return 2; 
+    return 2;
   }
     else
   {
@@ -605,7 +636,12 @@ int get_cycle_count(uint16_t opcode)
   return -1;
 }
 
-int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_msp430(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint16_t opcode;
   uint16_t prefix = -1;
@@ -625,7 +661,7 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
     return 2;
   }
 
-  // 20 bit prefix to 16 bit instructions 
+  // 20 bit prefix to 16 bit instructions
   if ((opcode & 0xf830) == 0x1800)
   {
     prefix = opcode;
@@ -635,7 +671,7 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
   }
 
   n = 0;
-  while(table_msp430[n].instr != NULL)
+  while (table_msp430[n].instr != NULL)
   {
     if (table_msp430[n].version == VERSION_MSP430X_EXT) { n++; continue; }
 
@@ -643,7 +679,7 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
 
     if ((opcode & table_msp430[n].mask) == table_msp430[n].opcode)
     {
-      switch(table_msp430[n].type)
+      switch (table_msp430[n].type)
       {
         case OP_NONE:
           strcpy(instruction, table_msp430[n].instr);
@@ -838,7 +874,12 @@ int disasm_msp430(struct _memory *memory, uint32_t address, char *instruction, i
   return count;
 }
 
-int disasm_msp430x(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_msp430x(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint16_t opcode = READ_RAM16(address);
 
@@ -853,7 +894,11 @@ int disasm_msp430x(struct _memory *memory, uint32_t address, char *instruction, 
   return disasm_msp430(memory, address, instruction, cycles_min, cycles_max);
 }
 
-static void list_output_msp430_both(struct _asm_context *asm_context, uint32_t start, uint32_t end, int msp430x)
+static void list_output_msp430_both(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end,
+  int msp430x)
 {
   int cycles_min,cycles_max,count;
   int num;
@@ -861,7 +906,7 @@ static void list_output_msp430_both(struct _asm_context *asm_context, uint32_t s
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     if (msp430x == 0)
     {
@@ -883,23 +928,26 @@ static void list_output_msp430_both(struct _asm_context *asm_context, uint32_t s
     {
       fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: %d\n", start, num, instruction, cycles_min);
     }
-    count -= 2;
 
-    while(count > 0)
+    count -= 2;
+    start += 2;
+
+    while (count > 0)
     {
-      start += 2;
       num = memory_read(asm_context, start) |
             memory_read(asm_context, start + 1) << 8;
       fprintf(asm_context->list, "0x%04x: 0x%04x\n", start, num);
       count -= 2;
+      start += 2;
     }
-
-    // FIXME - start should be added to by count
-    break;
   }
 }
 
-static void disasm_range_msp430_both(struct _memory *memory, int start, int end, int msp430x)
+static void disasm_range_msp430_both(
+  struct _memory *memory,
+  int start,
+  int end,
+  int msp430x)
 {
   // Are these correct and the same for all MSP430's?
   char *vectors[16] = { "", "", "", "", "", "",
@@ -917,7 +965,7 @@ static void disasm_range_msp430_both(struct _memory *memory, int start, int end,
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     if (start >= 0xffe0 && vectors_flag == 0)
     {
@@ -967,6 +1015,7 @@ static void disasm_range_msp430_both(struct _memory *memory, int start, int end,
     }
 
     count -= 2;
+
     while (count > 0)
     {
       start = start + 2;
@@ -979,24 +1028,37 @@ static void disasm_range_msp430_both(struct _memory *memory, int start, int end,
   }
 }
 
-void list_output_msp430(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_msp430(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   list_output_msp430_both(asm_context, start, end, 0);
 }
 
-void list_output_msp430x(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_msp430x(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   list_output_msp430_both(asm_context, start, end, 1);
 }
 
-void disasm_range_msp430(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_msp430(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   disasm_range_msp430_both(memory, start, end, 0);
 }
 
-void disasm_range_msp430x(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_msp430x(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   disasm_range_msp430_both(memory, start, end, 1);
 }
-
 
