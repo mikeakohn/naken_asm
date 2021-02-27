@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -1168,11 +1168,9 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
     n++;
   }
 
-  // J-Type Instruction [ op 6, target 26 ]
+  // J-Type Instruction [ op 6, target 26 ] (jump instructions)
   if (strcmp(instr_case, "j") == 0 || strcmp(instr_case, "jal") == 0)
   {
-    // FIXME - what to do with this
-    //unsigned int upper = (address + 4) & 0xf0000000;
     if (operand_count != 1)
     {
       print_error_illegal_operands(instr, asm_context);
@@ -1181,20 +1179,33 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
     if (operands[0].type != OPERAND_IMMEDIATE)
     {
-      printf("Error: Expecting address for '%s' at %s:%d\n", instr, asm_context->tokens.filename, asm_context->tokens.line);
+      printf("Error: Expecting address for '%s' at %s:%d\n",
+        instr, asm_context->tokens.filename, asm_context->tokens.line);
+      return -1;
+    }
+
+    const uint32_t jump_address = operands[0].value & 0x0fffffff;
+    const uint32_t address = operands[0].value & 0xf0000000;
+
+    if ((address & 0xf0000000) != (operands[0].value & 0xf0000000))
+    {
+      printf("Error: Jump address on wrong page at %s:%d\n",
+        asm_context->tokens.filename, asm_context->tokens.line);
       return -1;
     }
 
     if (instr_case[1] == 0)
     {
+      // j instruction.
       opcode = 2 << 26;
     }
       else
     {
+      // jal instruction.
       opcode = 3 << 26;
     }
 
-    add_bin32(asm_context, opcode | operands[0].value >> 2, IS_OPCODE);
+    add_bin32(asm_context, opcode | jump_address >> 2, IS_OPCODE);
 
     return opcode_size;
   }

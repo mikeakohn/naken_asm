@@ -26,5 +26,5 @@ VI_H_VIDEO_REG        equ 0x24
 VI_V_VIDEO_REG        equ 0x28
 VI_V_BURST_REG        equ 0x2c
 VI_X_SCALE_REG        equ 0x30
-VI_V_SCALE_REG        equ 0x34
+VI_Y_SCALE_REG        equ 0x34
 

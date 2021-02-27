@@ -40,14 +40,14 @@ RSP_CPU_SP_STATUS            equ 0x4040010
 RSP_CPU_DMA_DMA_FULL         equ 0x4040014
 RSP_CPU_DMA_DMA_BUSY         equ 0x4040018
 RSP_CPU_SP_RESERVED          equ 0x404001c
-RSP_CPU_CMD_START            equ 0x4100000
-RSP_CPU_CMD_END              equ 0x4100004
-RSP_CPU_CMD_CURRENT          equ 0x4100008
-RSP_CPU_CMD_STATUS           equ 0x410000c
-RSP_CPU_CMD_CLOCK            equ 0x4100010
-RSP_CPU_CMD_BUSY             equ 0x4100014
-RSP_CPU_CMD_PIPE_BUSY        equ 0x4100018
-RSP_CPU_CMD_TMEM_BUSY        equ 0x410001c
+;RSP_CPU_CMD_START            equ 0x4100000
+;RSP_CPU_CMD_END              equ 0x4100004
+;RSP_CPU_CMD_CURRENT          equ 0x4100008
+;RSP_CPU_CMD_STATUS           equ 0x410000c
+;RSP_CPU_CMD_CLOCK            equ 0x4100010
+;RSP_CPU_CMD_BUSY             equ 0x4100014
+;RSP_CPU_CMD_PIPE_BUSY        equ 0x4100018
+;RSP_CPU_CMD_TMEM_BUSY        equ 0x410001c
 
 ;; Other RSP addresses:
 
