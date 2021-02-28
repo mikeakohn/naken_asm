@@ -1177,7 +1177,7 @@ int simulate_run_avr8(struct _simulate *simulate, int max_cycles, int step)
         if (n == 0)
         { printf("! "); }
           else
-        if (disasm_pc == simulate_avr8->reg[0]) { printf("> "); }
+        if (disasm_pc == simulate_avr8->pc) { printf("> "); }
           else
         { printf("  "); }
 
@@ -1220,7 +1220,7 @@ int simulate_run_avr8(struct _simulate *simulate, int max_cycles, int step)
     }
 
     if (max_cycles != -1 && cycles > max_cycles) break;
-    if (simulate->break_point == simulate_avr8->reg[0])
+    if (simulate->break_point == simulate_avr8->pc)
     {
        printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
       break;
@@ -1247,7 +1247,7 @@ int simulate_run_avr8(struct _simulate *simulate, int max_cycles, int step)
   }
 
   signal(SIGINT, SIG_DFL);
-  printf("Stopped.  PC=0x%04x.\n", simulate_avr8->reg[0]);
+  printf("Stopped.  PC=0x%04x.\n", simulate_avr8->pc);
   printf("%d clock cycles have passed since last reset.\n", simulate->cycle_count);
 
   return 0;
