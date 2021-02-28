@@ -629,7 +629,7 @@ static int simulate_execute_avr8_op_reg_imm(struct _simulate *simulate, struct _
       break;
     case AVR8_SBCI:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - k - GET_SREG(SREG_C);
-      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], k); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], k); 
       break;
     case AVR8_SBR:
       simulate_avr8->reg[rd] &= k;
@@ -637,7 +637,7 @@ static int simulate_execute_avr8_op_reg_imm(struct _simulate *simulate, struct _
       break;
     case AVR8_SUBI:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - k;
-      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], k); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], k); 
       break;
     case AVR8_CBR:
       simulate_avr8->reg[rd] &= k ^ 0xff;
