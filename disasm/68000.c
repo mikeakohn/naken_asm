@@ -442,6 +442,10 @@ int disasm_68000(
           len = get_ea_68000(memory, address, ea, opcode, 0, SIZE_W);
           sprintf(instruction, "%s SR, %s", table_68000[n].instr, ea);
           return len;
+        case OP_MOVE_TO_SR:
+          len = get_ea_68000(memory, address, ea, opcode, 0, SIZE_W);
+          sprintf(instruction, "%s %s, SR", table_68000[n].instr, ea);
+          return len;
         case OP_MOVEA:
           size = (opcode >> 12) & 0x3;
           size = (size == 3) ? SIZE_W:SIZE_L;

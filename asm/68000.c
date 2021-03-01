@@ -857,6 +857,13 @@ static int write_move_special(
     return ea_generic_new(asm_context, &operands[1], instr, size, table, 1, NO_EXTRA_IMM, 0);
   }
 
+  if (table->type == OP_MOVE_TO_SR &&
+      operands[1].type == OPERAND_SPECIAL_REG &&
+      operands[1].value == SPECIAL_SR)
+  {
+    return ea_generic_new(asm_context, &operands[0], instr, size, table, 0, NO_EXTRA_IMM, 0);
+  }
+
   if (table->type == OP_MOVE_FROM_SR &&
       operands[0].type == OPERAND_SPECIAL_REG &&
       operands[0].value == SPECIAL_SR)
@@ -2210,6 +2217,7 @@ printf("\n");
         case OP_MOVE_FROM_CCR:
         case OP_MOVE_TO_CCR:
         case OP_MOVE_FROM_SR:
+        case OP_MOVE_TO_SR:
           ret = write_move_special(asm_context, instr, operands, operand_count, &table_68000[n], operand_size);
           break;
         case OP_MOVEA:
