@@ -1153,19 +1153,41 @@ static int write_logic_ccr(
   struct _table_68000 *table,
   int size)
 {
+  int use_sr = 0;
+
   if (operand_count != 2) { return 0; }
   if (check_size(size, table->omit_size) != 0) { return 0; }
   if (check_reg(operands[0].type, table->omit_src) != 0) { return 0; }
   if (operands[1].type != OPERAND_SPECIAL_REG) { return 0; }
-  if (operands[1].value != SPECIAL_CCR) { return 0; }
 
-  if (operands[0].value < 0 || operands[0].value > 255)
+  if (operands[1].value == SPECIAL_SR)
   {
-    print_error_range("Immediate", 0, 255, asm_context);
-    return -1;
+    use_sr = 0x0040;
+  }
+    else
+  if (operands[1].value != SPECIAL_CCR)
+  {
+    return 0;
   }
 
-  add_bin16(asm_context, table->opcode, IS_OPCODE);
+  if (use_sr == 0)
+  {
+    if (operands[0].value < 0 || operands[0].value > 255)
+    {
+      print_error_range("Immediate", 0, 255, asm_context);
+      return -1;
+    }
+  }
+  else
+  {
+    if (operands[0].value < 0 || operands[0].value > 0xffff)
+    {
+      print_error_range("Immediate", 0, 0xffff, asm_context);
+      return -1;
+    }
+  }
+
+  add_bin16(asm_context, table->opcode | use_sr, IS_OPCODE);
   add_bin16(asm_context, operands[0].value, IS_OPCODE);
 
   return 4;
@@ -2250,6 +2272,10 @@ printf("\n");
           break;
         case OP_LOGIC_CCR:
           ret = write_logic_ccr(asm_context, instr, operands, operand_count, &table_68000[n], operand_size);
+          break;
+        case OP_LOGIC_SR:
+          // ret = write_logic_sr(asm_context, instr, operands, operand_count, &table_68000[n], operand_size);
+          ret = -1;
           break;
         case OP_BRANCH:
           if (operand_size == SIZE_S) { operand_size = SIZE_B; }

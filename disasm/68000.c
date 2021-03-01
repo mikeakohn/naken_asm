@@ -543,6 +543,9 @@ int disasm_68000(
         case OP_LOGIC_CCR:
           sprintf(instruction, "%s #0x%02x, CCR", table_68000[n].instr, READ_RAM16(address + 2));
           return 4;
+        case OP_LOGIC_SR:
+          sprintf(instruction, "%s #0x%02x, SR", table_68000[n].instr, READ_RAM16(address + 2));
+          return 4;
         case OP_BRANCH:
           offset = (opcode & 0xff);
           if (offset == 0)

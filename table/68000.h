@@ -50,6 +50,7 @@ enum
   OP_BIT_IMM_EA,
   OP_EA_DREG_WL,
   OP_LOGIC_CCR,
+  OP_LOGIC_SR,
   OP_BRANCH,
   OP_EXT,
   OP_LINK_W,
