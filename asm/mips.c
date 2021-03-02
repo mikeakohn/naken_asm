@@ -510,31 +510,6 @@ static int check_for_pseudo_instruction(
     *operand_count = 3;
   }
     else
-#if 0
-  if ((strcmp(instr_case, "li") == 0 || strcmp(instr_case, "la") == 0) &&
-      *operand_count == 2)
-  {
-    if (asm_context->pass == 2)
-    {
-      if (operands[0].type != OPERAND_TREG ||
-          operands[1].type != OPERAND_IMMEDIATE)
-      {
-        print_error_illegal_operands(instr, asm_context);
-        return -1;
-      }
-    }
-
-    uint32_t opcode;
-    opcode = find_opcode("lui");
-    add_bin32(asm_context, opcode | (operands[0].value << 16) | ((operands[1].value >> 16) & 0xffff), IS_OPCODE);
-
-    opcode = find_opcode("ori");
-    add_bin32(asm_context, opcode | (operands[0].value << 21) |(operands[0].value << 16) | (operands[1].value & 0xffff), IS_OPCODE);
-
-    return 8;
-  }
-    else
-#endif
   if (strcmp(instr_case, "nop") == 0 && *operand_count == 0)
   {
     strcpy(instr_case, "sll");
@@ -687,7 +662,7 @@ static int get_operands_li(
   // Apply operands to memory.
   uint32_t opcode_lui = find_opcode("lui") | (operands[0].value << 16);
   uint32_t opcode_ori = find_opcode("ori") | (operands[0].value << 16);
-  uint32_t opcode_addi = find_opcode("addi") | (operands[0].value << 16);
+  uint32_t opcode_addi = find_opcode("addiu") | (operands[0].value << 16);
 
   if (force_long == 1)
   {
@@ -709,7 +684,7 @@ static int get_operands_li(
     return 4;
   }
     else
-  if (num > -16738 && num <= -1)
+  if (num >= -32768 && num <= -1)
   {
     add_bin32(asm_context, opcode_addi | (num & 0xffff), IS_OPCODE);
     return 4;
@@ -743,7 +718,6 @@ static int get_operands(
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
-    //printf("token=%s token_type=%d\n", token, token_type);
 
     if (operand_count == 0 && IS_TOKEN(token,'.'))
     {
@@ -1416,7 +1390,8 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
           {
             if (operands[operand_index].type != OPERAND_TREG)
             {
-              printf("Error: '%s' expects registers at %s:%d\n", instr, asm_context->tokens.filename, asm_context->tokens.line);
+              printf("Error: '%s' expects registers at %s:%d\n",
+                instr, asm_context->tokens.filename, asm_context->tokens.line);
               return -1;
             }
           }
@@ -1425,7 +1400,8 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
             // SPECIAL_TYPE_SA and SPECIAL_TYPE_BITS
             if (operands[operand_index].type != OPERAND_IMMEDIATE)
             {
-              printf("Error: '%s' expects immediate %s:%d\n", instr, asm_context->tokens.filename, asm_context->tokens.line);
+              printf("Error: '%s' expects immediate %s:%d\n",
+                instr, asm_context->tokens.filename, asm_context->tokens.line);
               return -1;
             }
 
