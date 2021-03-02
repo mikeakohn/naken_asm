@@ -140,7 +140,8 @@ int main(int argc, char *argv[])
   errors += test_symbols("MSP430 5", msp430_5);
   errors += test_symbols("MSP430 6", msp430_6);
   errors += test_symbols("MSP430 7", msp430_7);
-  errors += test_symbols("MIPS", mips);
+  errors += test_symbols("MIPS 1", mips_1);
+  errors += test_symbols("MIPS 2", mips_2);
   errors += test_symbols("STM8", stm8);
 
   printf("Total errors: %d\n", errors);
