@@ -1,0 +1,117 @@
+.mips
+
+.include "nintendo64/rdp.inc"
+.include "nintendo64/rsp.inc"
+.include "nintendo64/cp0.inc"
+.include "nintendo64/video_interface.inc"
+
+.org 0x8000_0000 + 1052672 - 1
+.db 0x00
+
+.org 0x80000000
+cartridge_header:
+  ;; PI_BSB_DOM1_LAT_REG
+  ;; PI_BSB_DOM1_PGS_REG
+  ;; PI_BSB_DOM1_PWD_REG
+  ;; PI_BSB_DOM1_PGS_REG
+  .db 0x80
+  .db 0x37
+  .db 0x12
+  .db 0x40
+
+  ;; Clock rate.
+  .dc32 0x000f
+
+  ;; Vector
+  .dc32 start
+  .dc32 0x1444
+
+  ;; Complement checksum and checksum.
+  .db "CRC1"
+  .db "CRC2"
+
+  ;; Unused.
+  .dc32 0, 0
+
+  ;; Program title.
+  .db "NAKEN_ASM SAMPLE    "
+
+  ;; Unknown.
+  dc32 0
+
+  ;; Media format.
+  db 'N', 0, 0, 0 
+
+  ;; Cartridge ID code.
+  .dc16 0x0000
+
+  ;; Country code (D=Germany, E=USA, J=Japan, P=Europe, U=Australia)
+  .db 'E'
+
+  ;; Version (00 = 1.0).
+  .db 0
+
+bootcode:
+.binfile "bootcode.bin"
+
+start:
+  ;; Exception vector location in 32 bit mode is 0xbfc0_0000.
+  ;; 0x1fc0_0000 to 0x1fc0_07bf is PIF Boot ROM.
+  lui $t0, 0xbfc0
+  addi $t1, $0, 8
+  sw $t1, 0x7fc($t0)
+
+.if 0
+  ;; Enable interrupts.
+  mfc0 $t0, CP0_STATUS
+  ori $t0, 1
+  mtc0 $t0, CP0_STATUS
+.endif
+
+setup_video:
+  li $t0, ntsc_320x240x16
+  li $t1, (ntsc_320x240x16_end - ntsc_320x240x16) / 8
+setup_video_loop:
+  lwu $a0, 0($t0)
+  lwu $t2, 4($t0)
+  sw $t2, 0($a0)
+  addiu $t0, $t0, 8
+  addiu $t1, $t1, -1
+  bne $t1, $0, setup_video_loop
+  nop
+
+  li $a0, 0x8010_0000
+  li $t0, 0xff
+  li $t1, 320 * 10
+fill_loop:
+  sh $t0, 0($a0)
+  addiu $a0, $a0, 2
+  addiu $t1, $t1, -1
+  bne $t1, $0, fill_loop
+  nop
+
+while_1:
+  beq $0, $0, while_1
+  nop
+
+KSEG0 equ 0x8000_0000
+
+;; NTSC values found in the Reality Coprocessor.pdf
+;; VI_CONTROL_REG:                   0 0011 0010 0000 1110
+;; VI_TIMING_REG:  0000 0011 1110 0101 0010 0010 0011 1001
+ntsc_320x240x16:
+  .dc32 KSEG0 | VI_BASE | VI_CONTROL_REG,     0x0000_320e
+  .dc32 KSEG0 | VI_BASE | VI_DRAM_ADDR_REG,   0xa010_0000
+  .dc32 KSEG0 | VI_BASE | VI_H_WIDTH_REG,     0x0000_0140
+  .dc32 KSEG0 | VI_BASE | VI_V_INTR_REG,      0x0000_0200
+  .dc32 KSEG0 | VI_BASE | VI_TIMING_REG,      0x03e5_2239
+  .dc32 KSEG0 | VI_BASE | VI_V_SYNC_REG,      0x0000_020d
+  .dc32 KSEG0 | VI_BASE | VI_H_SYNC_REG,      0x0000_0c15
+  .dc32 KSEG0 | VI_BASE | VI_H_SYNC_LEAP_REG, 0x0c15_0c15
+  .dc32 KSEG0 | VI_BASE | VI_H_VIDEO_REG,     0x006c_02ec
+  .dc32 KSEG0 | VI_BASE | VI_V_VIDEO_REG,     0x0025_01ff
+  .dc32 KSEG0 | VI_BASE | VI_V_BURST_REG,     0x000e_0204
+  .dc32 KSEG0 | VI_BASE | VI_X_SCALE_REG,     0x0000_0200
+  .dc32 KSEG0 | VI_BASE | VI_Y_SCALE_REG,     0x0000_0400
+ntsc_320x240x16_end:
+
