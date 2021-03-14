@@ -3,10 +3,8 @@
 .include "nintendo64/rdp.inc"
 .include "nintendo64/rsp.inc"
 .include "nintendo64/cp0.inc"
+.include "nintendo64/system.inc"
 .include "nintendo64/video_interface.inc"
-
-KSEG0 equ 0x8000_0000
-KSEG1 equ 0xa000_0000
 
 .org 0x8000_0000 + 1052672 - 1
 .db 0x00
@@ -43,7 +41,7 @@ cartridge_header:
   dc32 0
 
   ;; Media format.
-  db 'N', 0, 0, 0 
+  db 'N', 0, 0, 0
 
   ;; Cartridge ID code.
   .dc16 0x0000
@@ -117,4 +115,16 @@ ntsc_320x240x16:
   .dc32 KSEG1 | VI_BASE | VI_X_SCALE_REG,     0x0000_0200
   .dc32 KSEG1 | VI_BASE | VI_Y_SCALE_REG,     0x0000_0400
 ntsc_320x240x16_end:
+
+dp_setup:
+  .dc64 (DP_OP_SET_COLOR_IMAGE << 56) | (2 << 51) | (319 << 32) | 0x10_0000
+  .dc64 (DP_OP_SET_Z_IMAGE << 56) | (0x10_0000 * (320 * 200 * 2))
+  .dc64 (DP_OP_SET_SCISSOR << 56) | ((320 << 2) << 12) | (200 << 2)
+  .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (3 << 52)
+  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xf800 << 16) | (0xf800)
+dp_setup_end:
+
+dp_draw_square:
+  .dc32 (DP_OP_FILL_RECTANGLE << 56) | ((50 << 2) << 44) | ((50 << 2) << 32) | ((100 << 2) << 12) | (100 << 2)
+dp_draw_triangle_end:
 
