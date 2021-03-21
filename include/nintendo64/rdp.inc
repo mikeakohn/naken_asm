@@ -11,7 +11,7 @@
 
 ;; RDP: Reality Display Processor (Rasterizer Interface)
 
-DP_BASE        equ 0x04100000
+DP_BASE        equ 0x0410_0000
 
 DP_START_REG   equ 0x00
 DP_END_REG     equ 0x04

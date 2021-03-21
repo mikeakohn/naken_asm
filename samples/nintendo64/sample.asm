@@ -73,7 +73,7 @@ start:
   ;; Setup display memory.
   li $a0, KSEG1 | 0x0010_0000
   li $t0, 0xff
-  li $t1, 320 * 10
+  li $t1, 320 * 100
 fill_loop:
   sh $t0, 0($a0)
   addiu $a0, $a0, 2
@@ -81,6 +81,7 @@ fill_loop:
   bne $t1, $0, fill_loop
   nop
 
+  ;; Clear some memory.
 setup_video:
   li $t0, ntsc_320x240x16
   li $t1, (ntsc_320x240x16_end - ntsc_320x240x16) / 8
@@ -92,6 +93,33 @@ setup_video_loop:
   addiu $t1, $t1, -1
   bne $t1, $0, setup_video_loop
   nop
+
+  ;; Setup RDP to pull instructions from RSP DMEM.
+  li $a0, KSEG1 | DP_BASE
+  li $t0, 0x0000
+  sw $t0, DP_START_REG($a0)
+  sw $t0, DP_END_REG($a0)
+  li $t0, 0x0006
+  sw $t0, DP_STATUS_REG($a0)
+
+  ;; Copy RDP instructions to RSP data memory.
+setup_rdp:
+  li $t0, dp_setup
+  li $t1, (dp_draw_triangle_end - dp_setup) / 8
+  li $a0, KSEG1 | RSP_DMEM
+setup_rdp_loop:
+  ld $t2, 0($t0)
+  sd $t2, 0($a0)
+  addiu $t0, $t0, 8
+  addiu $a0, $a0, 8
+  addiu $t1, $t1, -1
+  bne $t1, $0, setup_rdp_loop
+  nop
+
+  ;; Start RDP executing instructions.
+  li $a0, KSEG1 | DP_BASE
+  li $t0, dp_draw_triangle_end - dp_setup
+  sw $t0, DP_END_REG($a0)
 
 while_1:
   beq $0, $0, while_1
@@ -121,10 +149,10 @@ dp_setup:
   .dc64 (DP_OP_SET_Z_IMAGE << 56) | (0x10_0000 * (320 * 200 * 2))
   .dc64 (DP_OP_SET_SCISSOR << 56) | ((320 << 2) << 12) | (200 << 2)
   .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (3 << 52)
-  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xf800 << 16) | (0xf800)
+  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xf80f << 16) | (0xf80f)
 dp_setup_end:
 
 dp_draw_square:
-  .dc32 (DP_OP_FILL_RECTANGLE << 56) | ((50 << 2) << 44) | ((50 << 2) << 32) | ((100 << 2) << 12) | (100 << 2)
+  .dc64 (DP_OP_FILL_RECTANGLE << 56) | ((100 << 2) << 44) | ((100 << 2) << 32) | ((50 << 2) << 12) | (50 << 2)
 dp_draw_triangle_end:
 
