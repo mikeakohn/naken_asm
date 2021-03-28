@@ -10,3 +10,4 @@ naken_prog
 *.bin
 *~
 *.elf
+*.z64
