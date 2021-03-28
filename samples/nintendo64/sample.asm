@@ -149,10 +149,20 @@ dp_setup:
   .dc64 (DP_OP_SET_Z_IMAGE << 56) | (0x10_0000 * (320 * 200 * 2))
   .dc64 (DP_OP_SET_SCISSOR << 56) | ((320 << 2) << 12) | (200 << 2)
   .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (3 << 52)
-  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xf80f << 16) | (0xf80f)
 dp_setup_end:
 
-dp_draw_square:
+dp_draw_squares:
+  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xf80e << 16) | (0xf80e)
   .dc64 (DP_OP_FILL_RECTANGLE << 56) | ((100 << 2) << 44) | ((100 << 2) << 32) | ((50 << 2) << 12) | (50 << 2)
+  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0x080f << 16) | (0x080f)
+  .dc64 (DP_OP_FILL_RECTANGLE << 56) | ((150 << 2) << 44) | ((150 << 2) << 32) | ((100 << 2) << 12) | (100 << 2)
+dp_draw_squares_end:
+
+dp_draw_triangle:
+  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0x07c0 << 16) | (0x07c0)
+  .dc64 0x0800025a01bb0190
+  .dc64 0x005b09a9fffd04d4
+  .dc64 0x012c4c43fffffc6f
+  .dc64 0x012bb78b0001e303
 dp_draw_triangle_end:
 

@@ -10,6 +10,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; RDP: Reality Display Processor (Rasterizer Interface)
+;;
+;; Notes:
+;; 32 bit color is: 0xRRGGBBAA
+;; 16 bit color is: rrrr_rggg_ggbb_bbba
 
 DP_BASE        equ 0x0410_0000
 
@@ -46,18 +50,42 @@ DP_WRITE_STATUS_CLEAR_COMMAND_COUNTER equ 0x100
 DP_WRITE_STATUS_CLEAR_CLOCK_COUNTER   equ 0x200
 
 ;; Rasterizer Command Set
-DP_OP_SET_COLOR_IMAGE   equ 0x3f
-DP_OP_SET_TEXTURE_IMAGE equ 0x3d
-DP_OP_SET_Z_IMAGE       equ 0x3e
-DP_OP_SET_SCISSOR       equ 0x2d
-DP_OP_SET_OTHER_MODES   equ 0x2f
-DP_OP_SET_TILE          equ 0x35
-DP_OP_LOAD_TILE         equ 0x34
-DP_OP_SET_FILL_COLOR    equ 0x37
-DP_OP_FILL_RECTANGLE    equ 0x36
-DP_OP_TEXTURE_RECTANGLE equ 0x24
-DP_OP_SYNC_LOAD         equ 0x31
-DP_OP_SYNC_TILE         equ 0x28
-DP_OP_SYNC_PIPE         equ 0x27
-DP_OP_SYNC_FULL         equ 0x29
+DP_OP_SET_COLOR_IMAGE        equ 0x3f
+DP_OP_SET_TEXTURE_IMAGE      equ 0x3d
+DP_OP_SET_Z_IMAGE            equ 0x3e
+DP_OP_SET_SCISSOR            equ 0x2d
+DP_OP_SET_OTHER_MODES        equ 0x2f
+DP_OP_SET_TILE               equ 0x35
+DP_OP_LOAD_TILE              equ 0x34
+DP_OP_SET_FILL_COLOR         equ 0x37
+DP_OP_FILL_RECTANGLE         equ 0x36
+DP_OP_TEXTURE_RECTANGLE      equ 0x24
+DP_OP_SYNC_LOAD              equ 0x31
+DP_OP_SYNC_TILE              equ 0x28
+DP_OP_SYNC_PIPE              equ 0x27
+DP_OP_SYNC_FULL              equ 0x29
+
+DP_OP_LOAD_BLOCK             equ 0x33
+DP_OP_SET_TILE_SIZE          equ 0x32
+DP_OP_LOAD_TLUT              equ 0x30
+DP_OP_TEXTURE_RECTANGLE_FLIP equ 0x25
+DP_OP_SET_COMBINE_MODE       equ 0x3c
+DP_OP_SET_ENV_COLOR          equ 0x3b
+DP_OP_SET_PRIM_COLOR         equ 0x3a
+DP_OP_SET_BLEND_COLOR        equ 0x39
+DP_OP_SET_FOG_COLOR          equ 0x38
+DP_OP_SET_PRIM_DEPTH         equ 0x2e
+DP_OP_SET_CONVERT            equ 0x2c
+DP_OP_SET_KEY_R              equ 0x2b
+DP_OP_SET_KEY_GB             equ 0x2a
+
+;; DP_OP_EDGE_COEFFICIENT
+DP_OP_TRIANGLE_NON_SHADED        equ 0x08
+DP_OP_TRIANGLE_SHADED            equ 0x0c
+DP_OP_TRIANGLE_TEXTURED          equ 0x0a
+DP_OP_TRIANGLE_SHADED_TEXTURED   equ 0x0e
+DP_OP_TRIANGLE_NON_SHADED_Z      equ 0x09
+DP_OP_TRIANGLE_SHADED_Z          equ 0x0d
+DP_OP_TRIANGLE_TEXTURED_Z        equ 0x0b
+DP_OP_TRIANGLE_SHADED_TEXTURED_Z equ 0x0f
 
