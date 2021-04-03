@@ -105,7 +105,7 @@ setup_video_loop:
   ;; Copy RDP instructions to RSP data memory.
 setup_rdp:
   li $t0, dp_setup
-  li $t1, (dp_draw_triangle_end - dp_setup) / 8
+  li $t1, (dp_draw_triangles_end - dp_setup) / 8
   li $a0, KSEG1 | RSP_DMEM
 setup_rdp_loop:
   ld $t2, 0($t0)
@@ -118,7 +118,7 @@ setup_rdp_loop:
 
   ;; Start RDP executing instructions.
   li $a0, KSEG1 | DP_BASE
-  li $t0, dp_draw_triangle_end - dp_setup
+  li $t0, dp_draw_triangles_end - dp_setup
   sw $t0, DP_END_REG($a0)
 
 while_1:
@@ -158,11 +158,18 @@ dp_draw_squares:
   .dc64 (DP_OP_FILL_RECTANGLE << 56) | ((150 << 2) << 44) | ((150 << 2) << 32) | ((100 << 2) << 12) | (100 << 2)
 dp_draw_squares_end:
 
-dp_draw_triangle:
+dp_draw_triangles:
+  ;; Left major triangle
   .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0x07c0 << 16) | (0x07c0)
   .dc64 0x088002fb02aa01e0
   .dc64 0x00aa0000fffd097b
   .dc64 0x009615c1ffff6ef5
   .dc64 0x0095f0bf000065b0
-dp_draw_triangle_end:
+  ;; Right major triangle
+  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xf83e << 16) | (0xf83e)
+  .dc64 0x080002fb02aa01e0
+  .dc64 0x00e600000002f684
+  .dc64 0x00f9ea3e0000910a
+  .dc64 0x00fa0f40ffff9a4f
+dp_draw_triangles_end:
 

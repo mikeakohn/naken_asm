@@ -96,26 +96,16 @@ def calc_triangle(vertex):
 
   # Slope: y = dy/dx * x + y0
   # Inverse Slope: x = dx/dy * y + x0
-  # XM is the X coordinate where the mid minor edge hits trunc(y0).
+  DxHDy_real = (x0 - x2) / (y0 - y2)
+  DxMDy_real = (x0 - x1) / (y0 - y1)
+  DxLDy_real = (x1 - x2) / (y1 - y2)
+
+  # XM is the X coordinate where the middle minor edge hits trunc(y0).
   # XH is the X coordinate where the major edge hits trunc(y0).
-  # XL is the X coordinate where the mid monor edge hits YH.YH_2.
-
-  if triangle["is_left_major"]:
-    DxHDy_real = (x0 - x2) / (y0 - y2)
-    DxMDy_real = (x0 - x1) / (y0 - y1)
-    DxLDy_real = (x1 - x2) / (y1 - y2)
-
-    XH_real = x0 - (DxHDy_real * YH_fraction)
-    XM_real = x0 - (DxMDy_real * YH_fraction)
-    XL_real = x0 + (DxMDy_real * (y1 - y0))
-  else:
-    DxHDy_real = (x0 - x2) / (y0 - y2)
-    DxMDy_real = (x0 - x1) / (y0 - y1)
-    DxLDy_real = (x1 - x2) / (y1 - y2)
-
-    XH_real = x0 - (DxHDy_real * YH_fraction)
-    XM_real = x0 - (DxMDy_real * YH_fraction)
-    XL_real = x0 + (DxMDy_real * (y0 - y1))
+  # XL is the X coordinate where the middle minor edge hits YH.YH_2.
+  XH_real = x0 - (DxHDy_real * YH_fraction)
+  XM_real = x0 - (DxMDy_real * YH_fraction)
+  XL_real = x0 + (DxMDy_real * (y1 - y0))
 
   triangle["DxHDy_real"] = DxHDy_real
   triangle["DxMDy_real"] = DxMDy_real
@@ -140,11 +130,18 @@ def calc_triangle(vertex):
 
 # ----------------------------- fold here ----------------------------
 
-vertex = [
+triangle_left_major = [
   [ 150, 120.15 ],
   [ 170, 170.50 ],
   [ 110, 190.75 ],
 ]
 
-calc_triangle(vertex)
+triangle_right_major = [
+  [ 250, 120.15 ],
+  [ 230, 170.50 ],
+  [ 290, 190.75 ],
+]
+
+calc_triangle(triangle_left_major)
+calc_triangle(triangle_right_major)
 
