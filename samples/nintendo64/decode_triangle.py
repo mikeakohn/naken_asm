@@ -10,12 +10,23 @@ def convert_frac(whole, frac):
 
 # ------------------------------ fold here -----------------------------
 
-data = [
-  ".dc64 0x0800025a01bb0190",
-  ".dc64 0x005b09a9fffd04d4",
-  ".dc64 0x012c4c43fffffc6f",
-  ".dc64 0x012bb78b0001e303",
-]
+#data = [
+#  ".dc64 0x080002fb02aa01e0",
+#  ".dc64 0x0052462afffd097b",
+#  ".dc64 0x009615c1ffff6ef5",
+#  ".dc64 0x0095f0bf000065b0",
+#]
+
+data = [ ]
+
+fp = open("sample.asm", "r")
+for line in fp:
+  line = line.strip()
+  if line.startswith(".dc64 0x"):
+    data.append(line)
+fp.close()
+
+print(data)
 
 t = [ ]
 
@@ -23,7 +34,7 @@ for d in data:
   d = d.split()[1].replace("0x", "")
 
   for b in range(0, 16, 4):
-    h = d[b:b + 4]
+    h = d[b : b + 4]
     i = int(h, 16)
     t.append(i)
 
@@ -38,9 +49,9 @@ if (c & 2) == 2: command += " texture"
 if (c & 1) == 1: command += " zbuffer"
 if c == 8: command += " non-shaded"
 
-YL = "%d.%d" % (t[1] >> 2, t[1] & 0x3)
-YM = "%d.%d" % (t[2] >> 2, t[2] & 0x3)
-YH = "%d.%d" % (t[3] >> 2, t[3] & 0x3)
+YL = "%.2f" % ((t[1] >> 2) + (float(t[1] & 0x3) / 4))
+YM = "%.2f" % ((t[2] >> 2) + (float(t[2] & 0x3) / 4))
+YH = "%.2f" % ((t[3] >> 2) + (float(t[3] & 0x3) / 4))
 
 XL = convert_frac(t[4], t[5])
 DxLDy = convert_frac(t[6], t[7])

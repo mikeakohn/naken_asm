@@ -15,23 +15,26 @@ def show_triangle(triangle):
   print("           YH: " + str(triangle["YH"]) + "/" + str(triangle["YH_2"]))
   print("           YM: " + str(triangle["YM"]) + "/" + str(triangle["YM_2"]))
   print("           YL: " + str(triangle["YL"]) + "/" + str(triangle["YL_2"]))
+  print("      XH_real: " + str(triangle["XH_real"]))
+  print("      XM_real: " + str(triangle["XM_real"]))
+  print("      XL_real: " + str(triangle["XL_real"]))
   print("           XH: " + str(triangle["XH"]) + "/" + str(triangle["XH_frac"]))
   print("           XM: " + str(triangle["XM"]) + "/" + str(triangle["XM_frac"]))
   print("           XL: " + str(triangle["XL"]) + "/" + str(triangle["XL_frac"]))
   print("        DxHDy: " + str(triangle["DxHDy"]) + "/" + str(triangle["DxHDy_frac"]))
   print("        DxMDy: " + str(triangle["DxMDy"]) + "/" + str(triangle["DxMDy_frac"]))
-  print("        DxHDy: " + str(triangle["DxLDy"]) + "/" + str(triangle["DxLDy_frac"]))
+  print("        DxLDy: " + str(triangle["DxLDy"]) + "/" + str(triangle["DxLDy_frac"]))
   print("   DxHDy_real: " + str(triangle["DxHDy_real"]))
   print("   DxMDy_real: " + str(triangle["DxMDy_real"]))
   print("   DxLDy_real: " + str(triangle["DxLDy_real"]))
 
   print()
 
-  #for i in range(0, 4):
-  #  print("  .dc64 0x%016lx" % (triangle["words"][i]))
-
-  # Non-Shaded Triangle = 8
-  command = (8 << 8) | ((triangle["is_left_major"] ^ 1) << 7)
+  # Non-Shaded Triangle = 8. According to the docs, if it's a left major
+  # then the flag should be 0, but for some reason this is the opposite
+  # for me.
+  #command = (8 << 8) | ((triangle["is_left_major"] ^ 1) << 7)
+  command = (8 << 8) | ((triangle["is_left_major"]) << 7)
 
   YH = (triangle["YH"] << 2) | (triangle["YH_2"])
   YM = (triangle["YM"] << 2) | (triangle["YM_2"])
@@ -43,11 +46,18 @@ def show_triangle(triangle):
   print("  .dc64 0x%04x%04x%04x%04x" % (triangle["XM"], triangle["XM_frac"], triangle["DxMDy"], triangle["DxMDy_frac"]))
 
 def compute_frac(value):
-  #whole = math.trunc(value)
-  #frac = abs(math.trunc((value - whole) * 0xffff))
-  whole = int(math.trunc(value))
-  frac = abs(int((value - whole) * 0xffff))
-  whole = whole & 0xffff
+  if value < 0:
+    negative = True
+    value = -value
+  else:
+    negative = False
+
+  whole = int(value)
+  frac = abs(int((value - whole) * 0x10000))
+
+  if negative:
+    frac ^= 0xffff
+    whole ^= 0xffff
 
   return (whole, frac)
 
@@ -67,7 +77,7 @@ def calc_triangle(vertex):
   y2 = vertex[2][1]
 
   # Middle vertex leans to the right (left_major).
-  triangle["is_left_major"] = x1 > x0
+  triangle["is_left_major"] = int(x1 > x0)
 
   # The triangle is rendered from the top (YH) to the bottom (YL) with the
   # slope of the line changing at YM. Format is 11 bit whole 2 bit fraction
@@ -97,8 +107,7 @@ def calc_triangle(vertex):
 
     XH_real = x0 - (DxHDy_real * YH_fraction)
     XM_real = x0 - (DxMDy_real * YH_fraction)
-    XL_real = x0 - (DxMDy_real * y1)
-
+    XL_real = x0 + (DxMDy_real * (y1 - y0))
   else:
     DxHDy_real = (x0 - x2) / (y0 - y2)
     DxMDy_real = (x0 - x1) / (y0 - y1)
@@ -106,11 +115,15 @@ def calc_triangle(vertex):
 
     XH_real = x0 - (DxHDy_real * YH_fraction)
     XM_real = x0 - (DxMDy_real * YH_fraction)
-    XL_real = x0 - (DxMDy_real * y1)
+    XL_real = x0 + (DxMDy_real * (y0 - y1))
 
   triangle["DxHDy_real"] = DxHDy_real
   triangle["DxMDy_real"] = DxMDy_real
   triangle["DxLDy_real"] = DxLDy_real
+
+  triangle["XH_real"] = XH_real
+  triangle["XM_real"] = XM_real
+  triangle["XL_real"] = XL_real
 
   (triangle["DxHDy"], triangle["DxHDy_frac"]) = compute_frac(DxHDy_real)
   (triangle["DxMDy"], triangle["DxMDy_frac"]) = compute_frac(DxMDy_real)
@@ -123,49 +136,14 @@ def calc_triangle(vertex):
   # Non-Shaded Triangle = 8
   command = 8
 
-  triangle["words"] = [ ]
-
-  word = \
-    (command << 56) | \
-    ((triangle["is_left_major"] ^ 1) << 55) | \
-    (((triangle["YH"] << 2) | (triangle["YH"])) << 32) | \
-    (((triangle["YM"] << 2) | (triangle["YM"])) << 32) | \
-    (((triangle["YL"] << 2) | (triangle["YL"])) << 32)
-
-  triangle["words"].append(word)
-
-  word = \
-    (triangle["XL"] << 48) | \
-    (triangle["XL_frac"] << 32) | \
-    (triangle["DxLDy"] << 16) | \
-     triangle["DxLDy_frac"]
-
-  triangle["words"].append(word)
-
-  word = \
-    (triangle["XH"] << 48) | \
-    (triangle["XH_frac"] << 32) | \
-    (triangle["DxHDy"] << 16) | \
-     triangle["DxHDy_frac"]
-
-  triangle["words"].append(word)
-
-  word = \
-    (triangle["XM"] << 48) | \
-    (triangle["XM_frac"] << 32) | \
-    (triangle["DxMDy"] << 16) | \
-     triangle["DxMDy_frac"]
-
-  triangle["words"].append(word)
-
   show_triangle(triangle)
 
 # ----------------------------- fold here ----------------------------
 
 vertex = [
-  [ 300, 100.15 ],
-  [ 200, 150.50 ],
-  [ 320, 110.75 ],
+  [ 150, 120.15 ],
+  [ 170, 170.50 ],
+  [ 110, 190.75 ],
 ]
 
 calc_triangle(vertex)

@@ -160,9 +160,9 @@ dp_draw_squares_end:
 
 dp_draw_triangle:
   .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0x07c0 << 16) | (0x07c0)
-  .dc64 0x0800025a01bb0190
-  .dc64 0x005b09a9fffd04d4
-  .dc64 0x012c4c43fffffc6f
-  .dc64 0x012bb78b0001e303
+  .dc64 0x088002fb02aa01e0
+  .dc64 0x00aa0000fffd097b
+  .dc64 0x009615c1ffff6ef5
+  .dc64 0x0095f0bf000065b0
 dp_draw_triangle_end:
 
