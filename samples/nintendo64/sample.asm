@@ -171,5 +171,17 @@ dp_draw_triangles:
   .dc64 0x00e600000002f684
   .dc64 0x00f9ea3e0000910a
   .dc64 0x00fa0f40ffff9a4f
+  ;; Isosceles triangle
+  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xfffe << 16) | (0xfffe)
+  .dc64 0x08000168016800c8
+  .dc64 0x00e6000017d77bffffff
+  .dc64 0x00f9eccc00007fff
+  .dc64 0x00fa1333ffff8000
+  ;; Isosceles triangle (upside-down)
+  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xffc0 << 16) | (0xffc0)
+  .dc64 0x0880016800c900c8
+  .dc64 0x00aa0000ffff7f84
+  .dc64 0x0081eccc00007fff
+  .dc64 0x005a0000010aaaaa
 dp_draw_triangles_end:
 
