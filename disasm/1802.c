@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -22,7 +22,12 @@ int get_cycle_count_1802(uint16_t opcode)
   return -1;
 }
 
-int disasm_1802(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_1802(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   int data;
@@ -38,7 +43,7 @@ int disasm_1802(struct _memory *memory, uint32_t address, char *instruction, int
     opcode = memory_read_m(memory, address + 1);
 
     n = 0;
-    while(table_1802_16[n].instr != NULL)
+    while (table_1802_16[n].instr != NULL)
     {
       if ((opcode & table_1802_16[n].mask) == table_1802_16[n].opcode)
       {
@@ -46,7 +51,7 @@ int disasm_1802(struct _memory *memory, uint32_t address, char *instruction, int
         *cycles_min = table_1802_16[n].cycles * 8;
         *cycles_max = *cycles_min;
 
-        switch(table_1802_16[n].type)
+        switch (table_1802_16[n].type)
         {
           case RCA1802_OP_NONE:
           {
@@ -89,7 +94,7 @@ int disasm_1802(struct _memory *memory, uint32_t address, char *instruction, int
   }
 
   n = 0;
-  while(table_1802[n].instr != NULL)
+  while (table_1802[n].instr != NULL)
   {
     if ((opcode & table_1802[n].mask) == table_1802[n].opcode)
     {
@@ -97,7 +102,7 @@ int disasm_1802(struct _memory *memory, uint32_t address, char *instruction, int
       *cycles_min = table_1802[n].cycles * 8;
       *cycles_max = *cycles_min;
 
-      switch(table_1802[n].type)
+      switch (table_1802[n].type)
       {
         case RCA1802_OP_NONE:
         {
@@ -151,7 +156,10 @@ int disasm_1802(struct _memory *memory, uint32_t address, char *instruction, int
   return 1;
 }
 
-void list_output_1802(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_1802(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
@@ -161,9 +169,14 @@ void list_output_1802(struct _asm_context *asm_context, uint32_t start, uint32_t
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
-    count = disasm_1802(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_1802(
+      &asm_context->memory,
+      start,
+      instruction,
+      &cycles_min,
+      &cycles_max);
 
     temp[0] = 0;
 
@@ -174,7 +187,8 @@ void list_output_1802(struct _asm_context *asm_context, uint32_t start, uint32_t
       strcat(temp, temp2);
     }
 
-    fprintf(asm_context->list, "0x%04x: %-8s %-40s cycles: ", start, temp, instruction);
+    fprintf(asm_context->list, "0x%04x: %-8s %-40s cycles: ",
+      start, temp, instruction);
 
     if (cycles_min == 0)
     {
@@ -194,10 +208,13 @@ void list_output_1802(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_1802(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_1802(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
-  //uint16_t opcode;
   char temp[32];
   int cycles_min = 0,cycles_max = 0;
   int count;
@@ -208,11 +225,9 @@ void disasm_range_1802(struct _memory *memory, uint32_t flags, uint32_t start, u
   printf("%-8s %-9s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("-------  --------- ------------------------------           ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_1802(memory, start, instruction, &cycles_min, &cycles_max);
-
-    //opcode = memory_read16_m(memory, start);
 
     temp[0] = 0;
 

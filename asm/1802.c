@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -93,11 +93,11 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
 
   n = 0;
 
-  while(table_1802[n].instr != NULL)
+  while (table_1802[n].instr != NULL)
   {
     if (strcmp(table_1802[n].instr, instr_case) == 0)
     {
-      switch(table_1802[n].type)
+      switch (table_1802[n].type)
       {
         case RCA1802_OP_NONE:
         {
@@ -199,16 +199,16 @@ int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
     n++;
   }
 
-  // If instruction wasn't found in the 1802 list try 1804/1805/1806
+  // If instruction wasn't found in the 1802 list try 1804/1805/1806.
   if (len == -1)
   {
     n = 0;
 
-    while(table_1802_16[n].instr != NULL)
+    while (table_1802_16[n].instr != NULL)
     {
       if (strcmp(table_1802_16[n].instr, instr_case) == 0)
       {
-        switch(table_1802_16[n].type)
+        switch (table_1802_16[n].type)
         {
           case RCA1802_OP_NONE:
           {
