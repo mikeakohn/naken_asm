@@ -1,0 +1,85 @@
+/**
+ *  naken_asm assembler.
+ *  Author: Michael Kohn
+ *   Email: mike@mikekohn.net
+ *     Web: http://www.mikekohn.net/
+ * License: GPLv3
+ *
+ * Copyright 2010-2021 by Michael Kohn
+ *
+ */
+
+#include <stdlib.h>
+
+#include "table/unsp.h"
+
+// Note: In the documentation used here, some opcodes had ? in their
+// bitfields. These are 0'd with a mask set to 1.
+
+struct _table_unsp table_unsp[] = {
+  { "int off",     0xf140, 0xffff, UNSP_OP_NONE },
+  { "int irq",     0xf141, 0xffff, UNSP_OP_NONE },
+  { "int fiq",     0xf142, 0xffff, UNSP_OP_NONE },
+  { "int irq,fiq", 0xf143, 0xffff, UNSP_OP_NONE },
+  { "fir_mov on",  0xf144, 0xffff, UNSP_OP_NONE },
+  { "fir_mov off", 0xf145, 0xffff, UNSP_OP_NONE },
+  { "irq off",     0xf148, 0xffff, UNSP_OP_NONE },
+  { "irq on",      0xf149, 0xffff, UNSP_OP_NONE },
+  { "fiq off",     0xf14c, 0xffff, UNSP_OP_NONE },
+  { "fiq on",      0xf14e, 0xffff, UNSP_OP_NONE },
+  { "break",       0xf160, 0xffff, UNSP_OP_NONE },
+  { "nop",         0xf165, 0xffff, UNSP_OP_NONE },
+  { "call",        0xfe40, 0xffc0, UNSP_OP_GOTO },
+  { "goto",        0xfe80, 0xffc0, UNSP_OP_GOTO },
+  { "mulu",        0xf008, 0xf1f8, UNSP_OP_JMP },
+  { "muls",        0xf108, 0xf1f8, UNSP_OP_JMP },
+  { "jcc",         0x0f40, 0xff80, UNSP_OP_JMP },
+  { "jb",          0x0f40, 0xff80, UNSP_OP_JMP },
+  { "jnae",        0x0f40, 0xff80, UNSP_OP_JMP },
+  { "jcs",         0x1f40, 0xff80, UNSP_OP_JMP },
+  { "jnb",         0x1f40, 0xff80, UNSP_OP_JMP },
+  { "jae",         0x1f40, 0xff80, UNSP_OP_JMP },
+  { "jge",         0x2f40, 0xff80, UNSP_OP_JMP },
+  { "jsc",         0x2f40, 0xff80, UNSP_OP_JMP },
+  { "jnl",         0x2f40, 0xff80, UNSP_OP_JMP },
+  { "jl",          0x3f40, 0xff80, UNSP_OP_JMP },
+  { "jsc",         0x3f40, 0xff80, UNSP_OP_JMP },
+  { "jge",         0x3f40, 0xff80, UNSP_OP_JMP },
+  { "jne",         0x4f40, 0xff80, UNSP_OP_JMP },
+  { "jnz",         0x4f40, 0xff80, UNSP_OP_JMP },
+  { "jz",          0x5f40, 0xff80, UNSP_OP_JMP },
+  { "je",          0x5f40, 0xff80, UNSP_OP_JMP },
+  { "jpl",         0x6f40, 0xff80, UNSP_OP_JMP },
+  { "jmi",         0x7f40, 0xff80, UNSP_OP_JMP },
+  { "jbe",         0x8f40, 0xff80, UNSP_OP_JMP },
+  { "jna",         0x8f40, 0xff80, UNSP_OP_JMP },
+  { "jnbe",        0x9f40, 0xff80, UNSP_OP_JMP },
+  { "ja",          0x9f40, 0xff80, UNSP_OP_JMP },
+  { "jle",         0xaf40, 0xff80, UNSP_OP_JMP },
+  { "jng",         0xaf40, 0xff80, UNSP_OP_JMP },
+  { "jg",          0xbf40, 0xff80, UNSP_OP_JMP },
+  { "jnle",        0xbf40, 0xff80, UNSP_OP_JMP },
+  { "jvc",         0xcf40, 0xff80, UNSP_OP_JMP },
+  { "jvs",         0xdf40, 0xff80, UNSP_OP_JMP },
+  { "jmp",         0xef40, 0xff80, UNSP_OP_JMP },
+  { "retf",        0x9a90, 0xffff, UNSP_OP_NONE },
+  { "reti",        0x9ab0, 0xffff, UNSP_OP_NONE },
+  { "pop",         0x9040, 0xf8c0, UNSP_OP_STACK },
+  { "push",        0xd040, 0xf8c0, UNSP_OP_STACK },
+  { "add",         0x0000, 0xf000, UNSP_OP_ALU },
+  { "adc",         0x1000, 0xf000, UNSP_OP_ALU },
+  { "sub",         0x2000, 0xf000, UNSP_OP_ALU },
+  { "sbc",         0x3000, 0xf000, UNSP_OP_ALU },
+  { "cmp",         0x4000, 0xf000, UNSP_OP_ALU },
+  { "neg",         0x6000, 0xf000, UNSP_OP_ALU },
+  { "xor",         0x8000, 0xf000, UNSP_OP_ALU },
+  { "ld",          0x9000, 0xf000, UNSP_OP_ALU },
+  { "or",          0xa000, 0xf000, UNSP_OP_ALU },
+  { "and",         0xb000, 0xf000, UNSP_OP_ALU },
+  { "test",        0xc000, 0xf000, UNSP_OP_ALU },
+  { "st",          0xd000, 0xf000, UNSP_OP_ALU },
+
+
+  { NULL,          0x0000, 0xffff, UNSP_OP_NONE },
+};
+

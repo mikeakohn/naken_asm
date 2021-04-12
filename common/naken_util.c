@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -63,6 +63,7 @@
 #include "disasm/tms340.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
+#include "disasm/unsp.h"
 #include "disasm/webasm.h"
 #include "disasm/xtensa.h"
 #include "disasm/z80.h"
@@ -134,6 +135,7 @@ parse_instruction_t parse_instruction_tms340 = NULL;
 parse_instruction_t parse_instruction_tms1000 = NULL;
 parse_instruction_t parse_instruction_tms1100 = NULL;
 parse_instruction_t parse_instruction_tms9900 = NULL;
+parse_instruction_t parse_instruction_unsp = NULL;
 parse_instruction_t parse_instruction_webasm = NULL;
 parse_instruction_t parse_instruction_xtensa = NULL;
 parse_instruction_t parse_instruction_z80 = NULL;
@@ -244,7 +246,7 @@ static char **command_name_completion(const char *text, int start, int end)
   rl_attempted_completion_over = 1;
 
   char *s = rl_line_buffer;
-  while(*s != 0 && *s == ' ') { s++; }
+  while (*s != 0 && *s == ' ') { s++; }
 
   // check if buffer already contains a command
   n = 0;
@@ -274,7 +276,7 @@ static char *get_hex(char *token, uint32_t *num)
   int s = 0;
   int n = 0;
 
-  while(token[s] != 0 && token[s] != ' ' && token[s] != '-' && token[s] != 'h')
+  while (token[s] != 0 && token[s] != ' ' && token[s] != '-' && token[s] != 'h')
   {
     if (token[s] >= '0' && token[s] <= '9')
     {
@@ -326,7 +328,7 @@ static char *get_num(char *token, uint32_t *num)
 
   // Look for end incase there is an h there.
   s = 0;
-  while(token[s] != 0) { s++; }
+  while (token[s] != 0) { s++; }
 
   if (s == 0) { return NULL; }
 
@@ -340,7 +342,7 @@ static char *get_num(char *token, uint32_t *num)
   int sign = 1;
   if (token[s] == '-') { s++; sign = -1; }
 
-  while(token[s] != 0 && token[s] != '-')
+  while (token[s] != 0 && token[s] != '-')
   {
     if (token[s] >= '0' && token[s] <= '9')
     {
@@ -365,7 +367,10 @@ static char *get_num(char *token, uint32_t *num)
   return token + s;
 }
 
-static char *get_address(char *token, uint32_t *address, struct _symbols *symbols)
+static char *get_address(
+  char *token,
+  uint32_t *address,
+  struct _symbols *symbols)
 {
   int ret;
 
@@ -391,7 +396,7 @@ static void load_debug_offsets(struct _util_context *util_context)
 
   fseek(util_context->src_fp, 0, SEEK_SET);
 
-  while(1)
+  while (1)
   {
     ch=getc(util_context->src_fp);
     if (ch == EOF || ch == '\n')
@@ -409,7 +414,7 @@ static void load_debug_offsets(struct _util_context *util_context)
   util_context->debug_line_offset[n++] = 0;
 
   fseek(util_context->src_fp, 0, SEEK_SET);
-  while(1)
+  while (1)
   {
     ch=getc(util_context->src_fp);
     if (ch == EOF || ch == '\n')
@@ -421,18 +426,22 @@ static void load_debug_offsets(struct _util_context *util_context)
   }
 }
 
-static int get_range(struct _util_context *util_context, char *token, uint32_t *start, uint32_t *end)
+static int get_range(
+  struct _util_context *util_context,
+  char *token,
+  uint32_t *start,
+  uint32_t *end)
 {
   char *start_string = NULL;
   char *end_string = NULL;
   char *s;
 
   // Remove white space from start;
-  while(*token == ' ') { token++; }
+  while (*token == ' ') { token++; }
 
   start_string = token;
 
-  while(*token != '-' && *token != 0)
+  while (*token != '-' && *token != 0)
   {
     token++;
   }
@@ -440,7 +449,7 @@ static int get_range(struct _util_context *util_context, char *token, uint32_t *
   // Remove white space from end of start_string
   s = token - 1;
 
-  while(s >= start_string)
+  while (s >= start_string)
   {
     if (*s != ' ') { break; }
     *s = 0;
@@ -453,12 +462,12 @@ static int get_range(struct _util_context *util_context, char *token, uint32_t *
     end_string = token + 1;
 
     // Strip white space from start of end_string
-    while(*end_string == ' ') end_string++;
+    while (*end_string == ' ') end_string++;
   }
 
   // Remove white space from end of end_string
   s = token - 1;
-  while(s >= start_string)
+  while (s >= start_string)
   {
     if (*s != ' ') { break; }
     *s = 0;
@@ -501,7 +510,7 @@ static void print8(struct _util_context *util_context, char *token)
   if (get_range(util_context, token, &start, &end) == -1) { return; }
   if (start >= end) { end = start + 128; }
 
-  while(start < end)
+  while (start < end)
   {
     if ((ptr & 0x0f) == 0)
     {
@@ -556,7 +565,7 @@ static void print16(struct _util_context *util_context, char *token)
     return;
   }
 
-  while(start < end)
+  while (start < end)
   {
     if ((ptr & 0x0f) == 0)
     {
@@ -625,7 +634,7 @@ static void print32(struct _util_context *util_context, char *token)
     return;
   }
 
-  while(start < end)
+  while (start < end)
   {
     if ((ptr & 0x0f) == 0)
     {
@@ -685,7 +694,7 @@ static void write8(struct _util_context *util_context, char *token)
     return;
   }
 
-  while(*token == ' ' && *token != 0) { token++; }
+  while (*token == ' ' && *token != 0) { token++; }
 
   if (token == 0) { printf("Syntax error: no address given.\n"); }
 
@@ -694,10 +703,10 @@ static void write8(struct _util_context *util_context, char *token)
   if (token == NULL) { printf("Syntax error: bad address\n"); }
 
   int n = address;
-  while(1)
+  while (1)
   {
     if (address >= util_context->memory.size) break;
-    while(*token == ' ' && *token != 0) token++;
+    while (*token == ' ' && *token != 0) token++;
     token = get_num(token, &num);
     if (token == 0) break;
     memory_write_m(&util_context->memory, address++, num);
@@ -719,7 +728,7 @@ static void write16(struct _util_context *util_context, char *token)
     return;
   }
 
-  while(*token == ' ' && *token != 0) { token++; }
+  while (*token == ' ' && *token != 0) { token++; }
 
   if (token == 0) { printf("Syntax error: no address given.\n"); }
 
@@ -737,10 +746,10 @@ static void write16(struct _util_context *util_context, char *token)
 
   int n = address;
 
-  while(1)
+  while (1)
   {
     if (address >= util_context->memory.size) break;
-    while(*token == ' ' && *token != 0) { token++; }
+    while (*token == ' ' && *token != 0) { token++; }
     token = get_num(token, &num);
     if (token == 0) break;
     memory_write16_m(&util_context->memory, address, num);
@@ -763,7 +772,7 @@ static void write32(struct _util_context *util_context, char *token)
     return;
   }
 
-  while(*token == ' ' && *token != 0) { token++; }
+  while (*token == ' ' && *token != 0) { token++; }
 
   if (token == 0) { printf("Syntax error: no address given.\n"); }
 
@@ -779,10 +788,10 @@ static void write32(struct _util_context *util_context, char *token)
 
   int n = address;
 
-  while(1)
+  while (1)
   {
     if (address >= util_context->memory.size) break;
-    while(*token == ' ' && *token != 0) { token++; }
+    while (*token == ' ' && *token != 0) { token++; }
     token = get_num(token, &num);
     if (token == 0) break;
     memory_write32_m(&util_context->memory, address, num);
@@ -906,7 +915,7 @@ static int set_register(struct _util_context *util_context, char *command)
 
   char *s = command + 4;
 
-  while(*s != 0)
+  while (*s != 0)
   {
     if (*s == '=')
     {
@@ -1079,8 +1088,8 @@ static int load_debug(FILE **srcfile, char *filename, struct _util_context *util
     return -1;
   }
 
-  i=0;
-  while(1)
+  i = 0;
+  while (1)
   {
     ch = getc(in);
     if (ch == EOF) break;
@@ -1237,6 +1246,7 @@ int main(int argc, char *argv[])
            "   -tms1000                     (TMS1000)\n"
            "   -tms1100                     (TMS1100)\n"
            "   -tms9900                     (TMS9900)\n"
+           "   -unsp                        (SunPlus unSP)\n"
            "   -webasm                      (WebAssembly)\n"
            "   -xtensa                      (Xtensa)\n"
            "   -z80                         (z80)\n"
@@ -1361,7 +1371,7 @@ int main(int argc, char *argv[])
       uint8_t cpu_type;
       char *extension = argv[i] + strlen(argv[i]) - 1;
 
-      while(extension != argv[i])
+      while (extension != argv[i])
       {
         if (*extension == '.') { extension++; break; }
         extension--;
@@ -1498,7 +1508,7 @@ int main(int argc, char *argv[])
   printf("Type help for a list of commands.\n");
   command[1023] = 0;
 
-  while(1)
+  while (1)
   {
     if (mode == MODE_INTERACTIVE)
     {
@@ -1530,7 +1540,7 @@ int main(int argc, char *argv[])
     // Trim CR/LF and whitespace at end of line
     i = 0;
 
-    while(command[i] != 0)
+    while (command[i] != 0)
     {
       if (command[i] == '\n' || command[i] == '\r')
       {
@@ -1544,7 +1554,7 @@ int main(int argc, char *argv[])
     // Trim trailing whitespace
     i--;
 
-    while(i >= 0 && command[i] == ' ')
+    while (i >= 0 && command[i] == ' ')
     {
       command[i] = 0;
       i--;
@@ -1592,7 +1602,7 @@ int main(int argc, char *argv[])
       continue;
     }
       else
-    if (strcmp(command, "step")==0)
+    if (strcmp(command, "step") == 0)
     {
       util_context.simulate->step_mode = 1;
       util_context.simulate->simulate_run(util_context.simulate, -1, 1);
@@ -1612,7 +1622,7 @@ int main(int argc, char *argv[])
         util_context.simulate->step_mode = 1;
       }
 
-      // FIXME: This is MSP430 specific
+      // FIXME: This is MSP430 specific.
       uint32_t num;
 
       char *end = get_address(command + 5, &num, &util_context.symbols);
@@ -1734,7 +1744,10 @@ int main(int argc, char *argv[])
       else
     if (strcmp(command, "disasm") == 0)
     {
-       disasm_range(&util_context, util_context.memory.low_address, util_context.memory.high_address);
+       disasm_range(
+         &util_context,
+         util_context.memory.low_address,
+         util_context.memory.high_address);
     }
       else
     if (strcmp(command, "symbols") == 0)
@@ -1827,5 +1840,4 @@ int main(int argc, char *argv[])
 
   return error_flag == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-
 

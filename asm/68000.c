@@ -2098,7 +2098,7 @@ printf("\n");
       if (operands[0].type != OPERAND_D_REG ||
           operands[1].type != OPERAND_ADDRESS)
       {
-        matched=1;
+        matched = 1;
         continue;
       }
 

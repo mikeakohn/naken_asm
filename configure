@@ -60,6 +60,7 @@ CPUS=" \
   TMS340
   TMS1000
   TMS9900
+  UNSP
   WEBASM
   XTENSA
   Z80"
@@ -181,6 +182,7 @@ show_help()
   echo "  --enable-tms340           compile in support for tms340"
   echo "  --enable-tms1000          compile in support for tms1000/tms1100"
   echo "  --enable-tms9900          compile in support for tms9900"
+  echo "  --enable-unsp             compile in support for SunPlus unSP"
   echo "  --enable-webasm           compile in support for WebAssembly"
   echo "  --enable-xtensa           compile in support for Xtensa"
   echo "  --enable-z80              compile in support for z80"
@@ -545,6 +547,12 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} tms9900.o"
     TABLE_OBJS="${TABLE_OBJS} tms9900.o"
     DFLAGS="${DFLAGS} -DENABLE_TMS9900"
+  ;;
+  --enable-unsp)
+    ASM_OBJS="${ASM_OBJS} unsp.o"
+    DISASM_OBJS="${DISASM_OBJS} unsp.o"
+    TABLE_OBJS="${TABLE_OBJS} unsp.o"
+    DFLAGS="${DFLAGS} -DENABLE_UNSP"
   ;;
   --enable-webasm)
     ASM_OBJS="${ASM_OBJS} webasm.o"

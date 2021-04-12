@@ -54,6 +54,7 @@
 #include "asm/tms340.h"
 #include "asm/tms1000.h"
 #include "asm/tms9900.h"
+#include "asm/unsp.h"
 #include "asm/webasm.h"
 #include "asm/xtensa.h"
 #include "asm/z80.h"
@@ -99,6 +100,7 @@
 #include "disasm/tms340.h"
 #include "disasm/tms1000.h"
 #include "disasm/tms9900.h"
+#include "disasm/unsp.h"
 #include "disasm/webasm.h"
 #include "disasm/xtensa.h"
 #include "disasm/z80.h"
@@ -1263,6 +1265,29 @@ struct _cpu_list cpu_list[] =
     list_output_tms9900,
     disasm_range_tms9900,
     simulate_init_tms9900,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_UNSP
+  {
+    "unsp",
+    CPU_TYPE_UNSP,
+    ENDIAN_LITTLE,
+    2,
+    ALIGN_2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_unsp,
+    NULL,
+    link_not_supported,
+    list_output_unsp,
+    disasm_range_unsp,
+    NULL,
     NO_FLAGS,
   },
 #endif
