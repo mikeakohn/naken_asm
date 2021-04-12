@@ -182,10 +182,12 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
           {
             opcode =
               table_unsp[n].opcode |
-             (operands[0].value << 12) |
+             (operands[0].value << 9) |
               operands[1].value;
 
             add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
           }
 
           break;
