@@ -172,7 +172,25 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
         }
         case UNSP_OP_GOTO:
         {
-          return -1;
+          if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)
+          {
+            if (operands[0].value < 0 || operands[0].value > 0x3fffff)
+            {
+              print_error_range("Constant", 0, 0x3fffff, asm_context);
+              return -1;
+            }
+
+            opcode =
+              table_unsp[n].opcode |
+            ((operands[0].value >> 8) & 0x3fffff);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
+
+            return 4;
+          }
+
+          break;
         }
         case UNSP_OP_MUL:
         {
