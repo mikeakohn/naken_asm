@@ -29,6 +29,26 @@ enum
   OPERAND_NONE = 0,
   OPERAND_REGISTER,
   OPERAND_NUMBER,
+  OPERAND_INDIRECT_BP_IMM6,
+  OPERAND_IMM6,
+  OPERAND_INDIRECT_RS,
+  OPERAND_INDIRECT_RS_DEC,
+  OPERAND_INDIRECT_RS_INC,
+  OPERAND_INDIRECT_INC_RS,
+  OPERAND_D_INDIRECT_RS,
+  OPERAND_D_INDIRECT_RS_DEC,
+  OPERAND_D_INDIRECT_RS_INC,
+  OPERAND_D_INDIRECT_INC_RS,
+  OPERAND_RS,
+  OPERAND_IMM16,
+  OPERAND_FROM_INDIRECT_ADDR16,
+  OPERAND_TO_INDIRECT_ADDR16,
+  OPERAND_RS_ASR_SHIFT,
+  OPERAND_RS_LSL_SHIFT,
+  OPERAND_RS_LSR_SHIFT,
+  OPERAND_RS_ROL_SHIFT,
+  OPERAND_RS_ROR_SHIFT,
+  OPERAND_INDIRECT_ADDR6,
 };
 
 struct _operand
@@ -212,6 +232,33 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
         }
         case UNSP_OP_JMP:
         {
+          if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)
+          {
+            int offset = operands[0].value - (asm_context->address + 2);
+
+            if (asm_context->pass == 1) { offset = 0; }
+
+            if (offset < -0x3f || offset > -0x3f)
+            {
+              print_error_range("Offset", -0x3f, 0x3f, asm_context);
+              return -1;
+            }
+
+            if (offset < 0)
+            {
+              offset = -offset;
+            }
+              else
+            {
+              offset |= 0x40;
+            }
+
+            add_bin16(asm_context, table_unsp[n].opcode | offset, IS_OPCODE);
+
+            return 2;
+          }
+
+          break;
         }
         case UNSP_OP_ALU:
         {

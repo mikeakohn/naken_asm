@@ -17,9 +17,205 @@
 #include "disasm/unsp.h"
 #include "table/unsp.h"
 
+static const char *regs[] = { "sp", "r1", "r2", "r3", "r4", "bp", "sr", "pc" };
+
 int get_cycle_count_unsp(uint16_t opcode)
 {
   return -1;
+}
+
+static int disasm_alu(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int n)
+{
+  int opcode = memory_read16_m(memory, address);
+  int opcode_1 = (opcode >> 6) & 0x7;
+  int operand_a = (opcode >> 9) & 0x7;
+  int operand_b = opcode & 0x7;
+  int opn = (opcode >> 3) & 0x7;
+  int imm6, value;
+  char temp[32];
+
+  switch (opcode_1)
+  {
+    case 0:
+    {
+      imm6 = opcode & 0x3f;
+
+      sprintf(instruction, "%s %s, [bp+%d]",
+        table_unsp[n].instr,
+        regs[operand_a],
+        imm6);
+      break;
+    }
+    case 1:
+    {
+      imm6 = opcode & 0x3f;
+
+      sprintf(instruction, "%s %s, #%d",
+        table_unsp[n].instr,
+        regs[operand_a],
+        imm6);
+      break;
+    }
+    case 3:
+    {
+      switch (opn)
+      {
+        case 0: sprintf(temp, "[%s]", regs[operand_b]); break;
+        case 1: sprintf(temp, "[%s--]", regs[operand_b]); break;
+        case 2: sprintf(temp, "[%s++]", regs[operand_b]); break;
+        case 3: sprintf(temp, "[++%s]", regs[operand_b]); break;
+        case 4: sprintf(temp, "D:[%s]", regs[operand_b]); break;
+        case 5: sprintf(temp, "D:[%s--]", regs[operand_b]); break;
+        case 6: sprintf(temp, "D:[%s++]", regs[operand_b]); break;
+        case 7: sprintf(temp, "D:[++%s]", regs[operand_b]); break;
+      }
+
+      sprintf(instruction, "%s %s, %s",
+        table_unsp[n].instr,
+        regs[operand_a],
+        temp);
+      break;
+    }
+    case 4:
+    {
+      switch (opn)
+      {
+        case 0:
+          sprintf(instruction, "%s %s, %s",
+            table_unsp[n].instr,
+            regs[operand_a],
+            regs[operand_b]);
+          break;
+        case 1:
+          sprintf(instruction, "%s %s, #0x%d",
+            table_unsp[n].instr,
+            regs[operand_a],
+            memory_read16_m(memory, address + 2));
+          return 4;
+        case 2:
+          sprintf(instruction, "%s %s, from [0x%04x]",
+            table_unsp[n].instr,
+            regs[operand_a],
+            memory_read16_m(memory, address + 2));
+          return 4;
+        case 3:
+          sprintf(instruction, "%s %s, to [0x%04x]",
+            table_unsp[n].instr,
+            regs[operand_a],
+            memory_read16_m(memory, address + 2));
+          return 4;
+        default:
+          value = opn - 3;
+          sprintf(instruction, "%s %s, %s asr %d",
+            table_unsp[n].instr,
+            regs[operand_a],
+            regs[operand_b],
+            value);
+          break;
+      }
+      break;
+    }
+    case 5:
+    {
+      if (opn < 4)
+      {
+        value = opn + 1;
+        sprintf(instruction, "%s %s, %s lsl %d",
+          table_unsp[n].instr,
+          regs[operand_a],
+          regs[operand_b],
+          value);
+      }
+        else
+      {
+        value = opn - 3;
+        sprintf(instruction, "%s %s, %s lsr %d",
+          table_unsp[n].instr,
+          regs[operand_a],
+          regs[operand_b],
+          value);
+      }
+      break;
+    }
+    case 6:
+    {
+      if (opn < 4)
+      {
+        value = opn + 1;
+        sprintf(instruction, "%s %s, %s rol %d",
+          table_unsp[n].instr,
+          regs[operand_a],
+          regs[operand_b],
+          value);
+      }
+        else
+      {
+        value = opn - 3;
+        sprintf(instruction, "%s %s, %s ror %d",
+          table_unsp[n].instr,
+          regs[operand_a],
+          regs[operand_b],
+          value);
+      }
+      break;
+    }
+    case 7:
+    {
+      imm6 = opcode & 0x3f;
+
+      sprintf(instruction, "%s %s, [%d]",
+        table_unsp[n].instr,
+        regs[operand_a],
+        imm6);
+      break;
+    }
+    default:
+    {
+      sprintf(instruction, "%s",
+        table_unsp[n].instr);
+    }
+  }
+
+  return 2;
+}
+
+static int disasm_stack(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int n)
+{
+  int opcode = memory_read16_m(memory, address);
+  int operand_a = (opcode >> 9) & 0x7;
+  int operand_b = opcode & 0x7;
+  int opn = (opcode >> 3) & 0x7;
+
+  if (opn == 0)
+  {
+    sprintf(instruction, "%s", table_unsp[n].instr);
+  }
+    else
+  if (opn == 1)
+  {
+    sprintf(instruction, "%s %s, [%s]",
+      table_unsp[n].instr,
+      regs[operand_a],
+      regs[operand_b]);
+  }
+    else
+  {
+    sprintf(instruction, "%s %s-%s, [%s]",
+      table_unsp[n].instr,
+      regs[operand_a - (opn - 1)],
+      regs[operand_a],
+      regs[operand_b]);
+  }
+
+  return 2;
 }
 
 int disasm_unsp(
@@ -33,7 +229,6 @@ int disasm_unsp(
   int operand_a, operand_b;
   int offset, data;
   int n;
-  const char *regs[] = { "sp", "r1", "r2", "r3", "r4", "bp", "sr", "pc" };
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -88,15 +283,11 @@ int disasm_unsp(
         }
         case UNSP_OP_ALU:
         {
-          sprintf(instruction, "%s",
-            table_unsp[n].instr);
-          return 2;
+          return disasm_alu(memory, address, instruction, n);
         }
         case UNSP_OP_STACK:
         {
-          sprintf(instruction, "%s",
-            table_unsp[n].instr);
-          return 2;
+          return disasm_stack(memory, address, instruction, n);
         }
         default:
         {
