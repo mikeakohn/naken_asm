@@ -97,16 +97,18 @@ static int disasm_alu(
             memory_read16_m(memory, address + 2));
           return 4;
         case 2:
-          sprintf(instruction, "%s %s, from [0x%04x]",
+          sprintf(instruction, "%s %s, %s, [0x%04x]",
             table_unsp[n].instr,
             regs[operand_a],
+            regs[operand_b],
             memory_read16_m(memory, address + 2));
           return 4;
         case 3:
-          sprintf(instruction, "%s %s, to [0x%04x]",
+          sprintf(instruction, "%s [0x%04x], %s, %s",
             table_unsp[n].instr,
+            memory_read16_m(memory, address + 2),
             regs[operand_a],
-            memory_read16_m(memory, address + 2));
+            regs[operand_b]);
           return 4;
         default:
           value = opn - 3;

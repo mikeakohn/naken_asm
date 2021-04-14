@@ -78,8 +78,6 @@ struct _table_unsp table_unsp[] = {
   { "and",         0xb000, 0xf000, UNSP_OP_ALU },
   { "test",        0xc000, 0xf000, UNSP_OP_ALU },
   { "st",          0xd000, 0xf000, UNSP_OP_ALU },
-
-
   { NULL,          0x0000, 0xffff, UNSP_OP_NONE },
 };
 

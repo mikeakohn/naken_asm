@@ -22,7 +22,7 @@
 #include "common/eval_expression.h"
 #include "table/unsp.h"
 
-#define MAX_OPERANDS 2
+#define MAX_OPERANDS 3
 
 enum
 {
@@ -30,7 +30,7 @@ enum
   OPERAND_REGISTER,
   OPERAND_NUMBER,
   OPERAND_INDIRECT_BP_IMM6,
-  OPERAND_IMM6,
+  OPERAND_IMMEDIATE,
   OPERAND_INDIRECT_RS,
   OPERAND_INDIRECT_RS_DEC,
   OPERAND_INDIRECT_RS_INC,
@@ -39,22 +39,19 @@ enum
   OPERAND_D_INDIRECT_RS_DEC,
   OPERAND_D_INDIRECT_RS_INC,
   OPERAND_D_INDIRECT_INC_RS,
-  OPERAND_RS,
-  OPERAND_IMM16,
-  OPERAND_FROM_INDIRECT_ADDR16,
-  OPERAND_TO_INDIRECT_ADDR16,
   OPERAND_RS_ASR_SHIFT,
   OPERAND_RS_LSL_SHIFT,
   OPERAND_RS_LSR_SHIFT,
   OPERAND_RS_ROL_SHIFT,
   OPERAND_RS_ROR_SHIFT,
-  OPERAND_INDIRECT_ADDR6,
+  OPERAND_INDIRECT_ADDRESS,
 };
 
 struct _operand
 {
   int value;
   int type;
+  int shift;
 };
 
 static int get_register_unsp(const char *token)
@@ -70,6 +67,244 @@ static int get_register_unsp(const char *token)
   if (strcasecmp(token, "bp") == 0) { return 5; }
   if (strcasecmp(token, "sr") == 0) { return 6; }
   if (strcasecmp(token, "pc") == 0) { return 7; }
+
+  return -1;
+}
+
+static int get_number(
+  struct _asm_context *asm_context,
+  struct _operand *operand,
+  const char *instr)
+{
+  int n;
+
+  if (asm_context->pass == 1)
+  {
+    eat_operand(asm_context);
+    operand->value = 0;
+  }
+  else
+  {
+    if (eval_expression(asm_context, &n) != 0)
+    {
+      print_error_illegal_expression(instr, asm_context);
+      return -1;
+    }
+
+    operand->value = n;
+  }
+
+  return 0;
+}
+
+static int generate_alu_2(
+  struct _asm_context *asm_context,
+  struct _operand *operands,
+  uint16_t opcode)
+{
+  switch (operands[1].type)
+  {
+    case OPERAND_INDIRECT_BP_IMM6:
+    {
+      if (operands[0].value < 0 || operands[0].value > 0x3f)
+      {
+        print_error_range("Constant", 0, 0x3f, asm_context);
+        return -1;
+      }
+
+      opcode |=
+        (operands[0].value << 9) |
+         operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_IMMEDIATE:
+    {
+      if (operands[1].value < -32768 || operands[1].value > 0xffff)
+      {
+        print_error_range("Constant", -32768, 0xffff, asm_context);
+        return -1;
+      }
+
+      if (operands[1].value >= 0 || operands[1].value <= 0x3f)
+      {
+        opcode |=
+          (operands[0].value << 9) | (1 << 6) |
+           operands[1].value;
+
+        add_bin16(asm_context, opcode, IS_OPCODE);
+
+        return 2;
+      }
+        else
+      {
+        opcode |= (operands[0].value << 9) | (4 << 6) | (1 << 3);
+
+        add_bin16(asm_context, opcode, IS_OPCODE);
+        add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
+
+        return 4;
+      }
+    }
+    case OPERAND_INDIRECT_RS:
+    {
+      opcode |=
+        (operands[0].value << 9) | (3 << 6) |
+         operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_INDIRECT_RS_DEC:
+    {
+      opcode |=
+        (operands[0].value << 9) | (3 << 6) | (1 << 3) |
+         operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_INDIRECT_RS_INC:
+    {
+      opcode |=
+        (operands[0].value << 9) | (3 << 6) | (2 << 3) |
+         operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_INDIRECT_INC_RS:
+    {
+      opcode |=
+        (operands[0].value << 9) | (3 << 6) | (3 << 3) |
+         operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_D_INDIRECT_RS:
+    {
+      opcode |=
+        (operands[0].value << 9) | (3 << 6) | (4 << 3) |
+         operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_D_INDIRECT_RS_DEC:
+    {
+      opcode |=
+        (operands[0].value << 9) | (3 << 6) | (5 << 3) |
+         operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_D_INDIRECT_RS_INC:
+    {
+      opcode |=
+        (operands[0].value << 9) | (3 << 6) | (6 << 3) |
+         operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_D_INDIRECT_INC_RS:
+    {
+      opcode |=
+        (operands[0].value << 9) | (3 << 6) | (7 << 3) |
+         operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_REGISTER:
+    {
+      opcode |=
+        (operands[0].value << 9) | (4 << 6) |
+         operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_RS_ASR_SHIFT:
+    {
+      opcode |= (operands[0].value << 9) | (4 << 6) |
+                ((4 + (operands[1].shift - 1)) << 3) |
+                 operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_RS_LSL_SHIFT:
+    {
+      opcode |= (operands[0].value << 9) | (5 << 6) |
+               ((operands[1].shift - 1) << 3) |
+                 operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_RS_LSR_SHIFT:
+    {
+      opcode |= (operands[0].value << 9) | (5 << 6) |
+                ((4 + (operands[1].shift - 1)) << 3) |
+                 operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_RS_ROL_SHIFT:
+    {
+      opcode |= (operands[0].value << 9) | (6 << 6) |
+               ((operands[1].shift - 1) << 3) |
+                 operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_RS_ROR_SHIFT:
+    {
+      opcode |= (operands[0].value << 9) | (6 << 6) |
+                ((4 + (operands[1].shift - 1)) << 3) |
+                 operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+    case OPERAND_INDIRECT_ADDRESS:
+    {
+      if (operands[0].value < 0 || operands[0].value > 0x3f)
+      {
+        print_error_range("Constant", 0, 0x3f, asm_context);
+        return -1;
+      }
+
+      opcode |=
+        (operands[0].value << 9) | (7 << 6) |
+         operands[1].value;
+
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      return 2;
+    }
+  }
 
   return -1;
 }
@@ -135,26 +370,211 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
       {
         operands[operand_count].type = OPERAND_REGISTER;
         operands[operand_count].value = n;
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (strcasecmp(token, "asr") == 0)
+        {
+          operands[operand_count].type = OPERAND_RS_ASR_SHIFT;
+        }
+          else
+        if (strcasecmp(token, "lsl") == 0)
+        {
+          operands[operand_count].type = OPERAND_RS_LSL_SHIFT;
+        }
+          else
+        if (strcasecmp(token, "lsr") == 0)
+        {
+          operands[operand_count].type = OPERAND_RS_LSR_SHIFT;
+        }
+          else
+        if (strcasecmp(token, "rol") == 0)
+        {
+          operands[operand_count].type = OPERAND_RS_ROL_SHIFT;
+        }
+          else
+        if (strcasecmp(token, "ror") == 0)
+        {
+          operands[operand_count].type = OPERAND_RS_ROR_SHIFT;
+        }
+
+        if (operands[operand_count].type == OPERAND_REGISTER)
+        {
+          tokens_push(asm_context, token, token_type);
+        }
+          else
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (token_type != TOKEN_NUMBER)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          int num = atoi(token);
+
+          if (num < 1 || num > 4)
+          {
+            print_error_range("Shift", 1, 4, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].shift = num;
+        }
+
         break;
+      }
+
+      int d = 0;
+
+      if (token_type == TOKEN_LABEL && strcasecmp(token, "d") == 0)
+      {
+        d = 4;
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+      }
+
+      if (IS_TOKEN(token, '['))
+      {
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (IS_TOKEN(token, '+'))
+        {
+          if (expect_token(asm_context, '+') == -1) { return -1; }
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          n = get_register_unsp(token);
+
+          if (n == -1)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].type = OPERAND_INDIRECT_INC_RS + d;
+          operands[operand_count].value = n;
+          if (expect_token(asm_context, ']') == -1) { return -1; }
+          break;
+        }
+
+        // Check for registers
+        n = get_register_unsp(token);
+
+        if (n != -1)
+        {
+          operands[operand_count].type = OPERAND_INDIRECT_RS + d;
+          operands[operand_count].value = n;
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (IS_TOKEN(token, ']')) { break; }
+
+          if (IS_TOKEN(token, '+'))
+          {
+            if (expect_token(asm_context, '+') == -1) { return -1; }
+            if (expect_token(asm_context, ']') == -1) { return -1; }
+            operands[operand_count].type = OPERAND_INDIRECT_RS_INC + d;
+            break;
+          }
+
+          if (IS_TOKEN(token, '-'))
+          {
+            if (expect_token(asm_context, '-') == -1) { return -1; }
+            if (expect_token(asm_context, ']') == -1) { return -1; }
+            operands[operand_count].type = OPERAND_INDIRECT_RS_DEC + d;
+            break;
+          }
+
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        if (d != 0)
+        {
+          print_error_unexp("d:", asm_context);
+          return -1;
+        }
+
+        if (strcasecmp(token, "bp") == 0)
+        {
+          if (expect_token(asm_context, '+') == -1) { return -1; }
+
+          if (get_number(asm_context, &operands[operand_count], instr) != 0)
+          {
+            return -1;
+          }
+
+          operands[operand_count].type = OPERAND_INDIRECT_BP_IMM6;
+          if (expect_token(asm_context, ']') == -1) { return -1; }
+          break;
+        }
+
+        tokens_push(asm_context, token, token_type);
+
+        operands[operand_count].type = OPERAND_INDIRECT_ADDRESS;
+
+        if (asm_context->pass == 1)
+        {
+          while (1)
+          {
+            token_type = tokens_get(asm_context, token, TOKENLEN);
+
+            if (IS_TOKEN(token, ']') ||
+                token_type == TOKEN_EOL ||
+                token_type == TOKEN_EOF)
+            {
+              break;
+            }
+          }
+
+          if (IS_NOT_TOKEN(token, ']'))
+          {
+            print_error_illegal_expression(instr, asm_context);
+            return -1;
+          }
+
+          tokens_push(asm_context, token, token_type);
+          operands[operand_count].value = 0;
+        }
+          else
+        {
+          int num;
+
+          if (eval_expression(asm_context, &num) != 0)
+          {
+            print_error_illegal_expression(instr, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].value = num;
+        }
+
+        if (expect_token(asm_context, ']') == -1) { return -1; }
+        break;
+      }
+
+      if (d != 0)
+      {
+        print_error_unexp("d:", asm_context);
+        return -1;
       }
 
       operands[operand_count].type = OPERAND_NUMBER;
 
-      if (asm_context->pass == 1)
+      if (IS_TOKEN(token, '#'))
       {
-        eat_operand(asm_context);
-        operands[operand_count].value = 0;
+        operands[operand_count].type = OPERAND_IMMEDIATE;
       }
-      else
+        else
       {
         tokens_push(asm_context, token, token_type);
+      }
 
-        if (eval_expression(asm_context, &n) != 0)
-        {
-          return -1;
-        }
-
-        operands[operand_count].value = n;
+      if (get_number(asm_context, &operands[operand_count], instr) != 0)
+      {
+        return -1;
       }
     } while (0);
 
@@ -262,6 +682,43 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
         }
         case UNSP_OP_ALU:
         {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REGISTER &&
+              operands[1].type == OPERAND_REGISTER &&
+              operands[2].type == OPERAND_INDIRECT_ADDRESS)
+          {
+            opcode = table_unsp[n].opcode |
+                     (operands[0].value << 9) | (4 << 6) | (2 << 3) |
+                      operands[1].value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, operands[2].value, IS_OPCODE);
+
+            return 4;
+          }
+
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_INDIRECT_ADDRESS &&
+              operands[1].type == OPERAND_REGISTER &&
+              operands[2].type == OPERAND_REGISTER)
+          {
+            opcode = table_unsp[n].opcode |
+                     (operands[1].value << 9) | (4 << 6) | (3 << 3) |
+                      operands[2].value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, operands[0].value, IS_OPCODE);
+
+            return 4;
+          }
+
+          if (operand_count == 2 && operands[0].type == OPERAND_REGISTER)
+          {
+            int r = generate_alu_2(asm_context, operands, table_unsp[n].opcode);
+            if (r > 0) { return r; }
+          }
+
+          break;
         }
         case UNSP_OP_STACK:
         {
