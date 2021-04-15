@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -18,12 +18,17 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-int get_cycle_count_8051(unsigned short int opcode)
+int get_cycle_count_8051(uint32_t opcode)
 {
   return -1;
 }
 
-int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_8051(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int count = 1;
   int opcode;
@@ -37,7 +42,10 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
   // the table and how the rest of the instructions were done.
   if (opcode == 0x85)
   {
-    sprintf(instruction, "%s 0x%02x, 0x%02x", table_8051[opcode].name, READ_RAM(address + 1), READ_RAM(address + 2));
+    sprintf(instruction, "%s 0x%02x, 0x%02x",
+      table_8051[opcode].name,
+      READ_RAM(address + 1),
+      READ_RAM(address + 2));
     return 3;
   }
 
@@ -47,10 +55,16 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
   {
     if (table_8051[opcode].op[n] == OP_NONE) break;
 
-    if (n == 0) { strcat(instruction, " "); }
-    else { strcat(instruction, ", "); }
+    if (n == 0)
+    {
+      strcat(instruction, " ");
+    }
+      else
+    {
+      strcat(instruction, ", ");
+    }
 
-    switch(table_8051[opcode].op[n])
+    switch (table_8051[opcode].op[n])
     {
       case OP_REG:
         sprintf(temp, "R%d", table_8051[opcode].range);
@@ -109,7 +123,10 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
         count++;
         break;
       case OP_PAGE:
-        sprintf(temp, "0x%04x", READ_RAM(address + count) | (table_8051[opcode].range << 8));
+        sprintf(temp, "0x%04x",
+          (address & 0xf800) |
+          READ_RAM(address + count) |
+          (table_8051[opcode].range << 8));
         strcat(instruction, temp);
         count++;
         break;
@@ -130,7 +147,10 @@ int disasm_8051(struct _memory *memory, uint32_t address, char *instruction, int
   return count;
 }
 
-void list_output_8051(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_8051(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min = -1, cycles_max = -1, count;
   char instruction[128];
@@ -140,7 +160,7 @@ void list_output_8051(struct _asm_context *asm_context, uint32_t start, uint32_t
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_8051(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -164,7 +184,11 @@ void list_output_8051(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_8051(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_8051(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   char temp[32];
@@ -178,16 +202,14 @@ void disasm_range_8051(struct _memory *memory, uint32_t flags, uint32_t start, u
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
-    //num=READ_RAM(start)|(READ_RAM(start+1)<<8);
-
     count = disasm_8051(memory, start, instruction, &cycles_min, &cycles_max);
 
     temp[0] = 0;
+
     for (n = 0; n < count; n++)
     {
-      //sprintf(temp2, "%02x ", READ_RAM(start+n));
       sprintf(temp2, "%02x ", memory_read_m(memory, start+n));
       strcat(temp, temp2);
     }

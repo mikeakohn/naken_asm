@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -424,7 +424,7 @@ printf("\n");
     if (strcmp(table_8051[n].name, instr_case) == 0)
     {
       matched = 1;
-      for(r = 0; r < 3; r++)
+      for (r = 0; r < 3; r++)
       {
         if (table_8051[n].op[r] == OP_NONE) { break; }
 
@@ -483,8 +483,25 @@ printf("\n");
                  operands[r].value > 255)) { r = 4; }
             break;
           case OP_PAGE:
-            if ((operands[r].value >> 8) != table_8051[n].range)
+            if (((operands[r].value >> 8) & 7) == table_8051[n].range)
             {
+              int high_bits = operands[r].value & 0xf800;
+              int address = asm_context->address + 2;
+
+              if (asm_context->pass == 1)
+              {
+                high_bits = address & 0xf800;
+              }
+
+              if (high_bits != (address & 0xf800))
+              {
+                print_error("Destination address outside 2k block.", asm_context);
+                return -1;
+              }
+            }
+              else
+            {
+              // r = 4 breaks out of the for loop.
               r = 4;
               break;
             }
@@ -512,12 +529,12 @@ printf("\n");
         // Holy crap :(
         if (n == 0x85)
         {
-          memory_write_inc(asm_context, (uint8_t)operands[1].value & 0xff, asm_context->tokens.line);
-          memory_write_inc(asm_context, (uint8_t)operands[0].value & 0xff, asm_context->tokens.line);
+          memory_write_inc(asm_context, operands[1].value & 0xff, asm_context->tokens.line);
+          memory_write_inc(asm_context, operands[0].value & 0xff, asm_context->tokens.line);
           break;
         }
 
-        for(r = 0; r < 3; r++)
+        for (r = 0; r < 3; r++)
         {
           if (table_8051[n].op[r] == OP_NONE) { break; }
           switch(table_8051[n].op[r])
