@@ -42,12 +42,6 @@ const char *credits =
   "naken_asm\n\n"
   "Authors: Michael Kohn\n"
   "         Joe Davisson\n"
-  "    CPU: 1802, 4004, 6502, 65C816, 68HC08, 6809, 68000, 8048, 8051, 86000,\n"
-  "         ARM, AVR8, Cell BE, Copper, CP1610, dsPIC, Epiphany, Java, LC-3,\n"
-  "         MIPS, MSP430, PIC14, PIC24, PIC32, Playstation 2 EE, PowerPC,\n"
-  "         Propeller, Propeller 2, PSoC M8C, RISC-V, SH-4, STM8, SuperFX,\n"
-  "         SWEET16, THUMB, TMS1000, TMS1100, TMS340, TMS9900, WebAssembly,\n"
-  "         Xtensa, Z80\n"
   "    Web: http://www.mikekohn.net/\n"
   "  Email: mike@mikekohn.net\n"
   "Version: " VERSION "\n";
@@ -114,6 +108,7 @@ int main(int argc, char *argv[])
            "   -dump_symbols  Dump all symbols at end of assembly\n"
            "   -dump_macros   Dump all macros at end of assembly\n"
            "   -optimize      Optimize instructions (see docs for info)\n"
+           "   -cpu_list      List supported CPUs\n"
            "\n");
     exit(0);
   }
@@ -122,6 +117,19 @@ int main(int argc, char *argv[])
 
   for (i = 1; i < argc; i++)
   {
+    if (strcmp(argv[i], "-cpu_list") == 0)
+    {
+      printf(
+        " Supported CPUs:\n"
+        "    1802, 4004, 6502, 65C816, 68HC08, 6809, 68000, 8048, 8051,\n"
+        "    86000, ARM, AVR8, Cell BE, Copper, CP1610, dsPIC, Epiphany,\n"
+        "    Java, LC-3, MIPS, MSP430, PIC14, PIC24, PIC32, Playstation 2 EE,\n"
+        "    PowerPC, Propeller, Propeller 2, PSoC M8C, RISC-V, SH-4, STM8,\n"
+        "    SuperFX, SWEET16, unSP, THUMB, TMS1000, TMS1100, TMS340,\n"
+        "    TMS9900, WebAssembly, Xtensa, Z80\n");
+      exit(0);
+    }
+
     if (strcmp(argv[i], "-o") == 0)
     {
       outfile = argv[++i];
