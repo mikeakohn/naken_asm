@@ -185,7 +185,42 @@ static int disasm_alu(
   return 2;
 }
 
-static int disasm_stack(
+static int disasm_pop(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int n)
+{
+  int opcode = memory_read16_m(memory, address);
+  int operand_a = (opcode >> 9) & 0x7;
+  int operand_b = opcode & 0x7;
+  int opn = (opcode >> 3) & 0x7;
+
+  if (opn == 0)
+  {
+    sprintf(instruction, "%s", table_unsp[n].instr);
+  }
+    else
+  if (opn == 1)
+  {
+    sprintf(instruction, "%s %s, [%s]",
+      table_unsp[n].instr,
+      regs[operand_a + 1],
+      regs[operand_b]);
+  }
+    else
+  {
+    sprintf(instruction, "%s r%d-r%d, [%s]",
+      table_unsp[n].instr,
+      operand_a + 1,
+      operand_a + opn,
+      regs[operand_b]);
+  }
+
+  return 2;
+}
+
+static int disasm_push(
   struct _memory *memory,
   uint32_t address,
   char *instruction,
@@ -210,10 +245,10 @@ static int disasm_stack(
   }
     else
   {
-    sprintf(instruction, "%s %s-%s, [%s]",
+    sprintf(instruction, "%s r%d-r%d, [%s]",
       table_unsp[n].instr,
-      regs[operand_a - (opn - 1)],
-      regs[operand_a],
+      operand_a - (opn - 1),
+      operand_a,
       regs[operand_b]);
   }
 
@@ -287,9 +322,13 @@ int disasm_unsp(
         {
           return disasm_alu(memory, address, instruction, n);
         }
-        case UNSP_OP_STACK:
+        case UNSP_OP_POP:
         {
-          return disasm_stack(memory, address, instruction, n);
+          return disasm_pop(memory, address, instruction, n);
+        }
+        case UNSP_OP_PUSH:
+        {
+          return disasm_push(memory, address, instruction, n);
         }
         default:
         {
@@ -331,10 +370,13 @@ void list_output_unsp(
 
     temp[0] = 0;
 
-    for (n = 0; n < count; n++)
+    for (n = 0; n < count; n += 2)
     {
-      char temp2[4];
-      sprintf(temp2, " %02x", memory_read_m(&asm_context->memory, start + n));
+      char temp2[8];
+      sprintf(temp2, " %02x%02x",
+        memory_read_m(&asm_context->memory, start + n + 1),
+        memory_read_m(&asm_context->memory, start + n));
+
       strcat(temp, temp2);
     }
 
@@ -381,10 +423,12 @@ void disasm_range_unsp(
 
     temp[0] = 0;
 
-    for (n = 0; n < count; n++)
+    for (n = 0; n < count; n += 2)
     {
-      char temp2[4];
-      sprintf(temp2, " %02x", memory_read_m(memory, start + n));
+      char temp2[8];
+      sprintf(temp2, " %02x%02x",
+        memory_read_m(memory, start + n + 1),
+        memory_read_m(memory, start + n));
       strcat(temp, temp2);
     }
 

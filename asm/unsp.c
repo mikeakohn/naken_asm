@@ -45,6 +45,7 @@ enum
   OPERAND_RS_ROL_SHIFT,
   OPERAND_RS_ROR_SHIFT,
   OPERAND_INDIRECT_ADDRESS,
+  OPERAND_REGISTER_RANGE,
 };
 
 struct _operand
@@ -52,6 +53,7 @@ struct _operand
   int value;
   int type;
   int shift;
+  int end_reg;
 };
 
 static int get_register_unsp(const char *token)
@@ -372,6 +374,32 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
         operands[operand_count].value = n;
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (IS_TOKEN(token, '-'))
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          n = get_register_unsp(token);
+
+          if (n == -1)
+          {
+            print_error_unexp(token, asm_context);
+            return -1;
+          }
+
+          operands[operand_count].type = OPERAND_REGISTER_RANGE;
+
+          if (n < operands[operand_count].value)
+          {
+            operands[operand_count].end_reg = operands[operand_count].value;
+            operands[operand_count].value = n;
+          }
+            else
+          {
+            operands[operand_count].end_reg = n;
+          }
+          break;
+        }
 
         if (strcasecmp(token, "asr") == 0)
         {
@@ -720,8 +748,65 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
 
           break;
         }
-        case UNSP_OP_STACK:
+        case UNSP_OP_POP:
         {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REGISTER &&
+              operands[1].type == OPERAND_INDIRECT_RS)
+          {
+            opcode = table_unsp[n].opcode |
+                    ((operands[0].value - 1) << 9) | (2 << 6) | (1 << 3) |
+                      operands[1].value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+            else
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REGISTER_RANGE &&
+              operands[1].type == OPERAND_INDIRECT_RS)
+          {
+            int reg_count = (operands[0].end_reg - operands[0].value) + 1;
+            opcode = table_unsp[n].opcode |
+                    ((operands[0].value - 1) << 9) |
+                     (2 << 6) | (reg_count << 3) |
+                      operands[1].value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
+        }
+        case UNSP_OP_PUSH:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REGISTER &&
+              operands[1].type == OPERAND_INDIRECT_RS)
+          {
+            opcode = table_unsp[n].opcode |
+                     (operands[0].value << 9) | (2 << 6) | (1 << 3) |
+                      operands[1].value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+            else
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REGISTER_RANGE &&
+              operands[1].type == OPERAND_INDIRECT_RS)
+          {
+            int reg_count = (operands[0].end_reg - operands[0].value) + 1;
+            opcode = table_unsp[n].opcode |
+                     (operands[0].end_reg << 9) |
+                     (2 << 6) | (reg_count << 3) |
+                      operands[1].value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+
+          break;
         }
         default:
         {
