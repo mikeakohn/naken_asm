@@ -118,7 +118,16 @@ int disasm_8051(
         break;
       case OP_SLASH_BIT_ADDR:
         value = READ_RAM(address + count);
-        sprintf(temp, "/0x%02x.%d [0x%02x]", value & 0xf8, value & 0x7, value);
+        if ((value & 0x80) != 0)
+        {
+          sprintf(temp, "/0x%02x.%d [0x%02x]",
+            value & 0xf8, value & 0x7, value);
+        }
+          else
+        {
+          sprintf(temp, "/0x%02x.%d [0x%02x]",
+            ((value & 0xf8) >> 3) + 0x20, value & 0x7, value);
+        }
         strcat(instruction, temp);
         count++;
         break;
@@ -132,7 +141,16 @@ int disasm_8051(
         break;
       case OP_BIT_ADDR:
         value = READ_RAM(address + count);
-        sprintf(temp, "0x%02x.%d [0x%02x]", value & 0xf8, value & 0x07, value);
+        if ((value & 0x80) != 0)
+        {
+          sprintf(temp, "0x%02x.%d [0x%02x]",
+            value & 0xf8, value & 0x07, value);
+        }
+          else
+        {
+          sprintf(temp, "0x%02x.%d [0x%02x]",
+            ((value & 0xf8) >> 3) + 0x20, value & 0x07, value);
+        }
         strcat(instruction, temp);
         count++;
         break;

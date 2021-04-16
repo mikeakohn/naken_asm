@@ -54,52 +54,52 @@ struct _address_map
 
 static struct _address_map address_map[] =
 {
-  { "B", 0xf0, 1 },
-  { "ACC", 0xe0, 1 },
-  { "PSW", 0xd0, 1 },
-  { "T2CON", 0xc8, 0 },
-  { "T2MOD", 0xc9 , 0},
+  { "B",      0xf0, 1 },
+  { "ACC",    0xe0, 1 },
+  { "PSW",    0xd0, 1 },
+  { "T2CON",  0xc8, 0 },
+  { "T2MOD",  0xc9, 0 },
   { "RCAP2L", 0xca, 0 },
   { "RCAP2H", 0xcb, 0 },
-  { "TL2", 0xcc, 0 },
-  { "TH2", 0xcd, 0 },
-  { "IP", 0xb8, 1 },
-  { "P3", 0xb0, 1 },
-  { "IE", 0xa8, 1 },
-  { "P2", 0xa0, 1 },
-  { "AUXR1", 0xa2, 0 },
+  { "TL2",    0xcc, 0 },
+  { "TH2",    0xcd, 0 },
+  { "IP",     0xb8, 1 },
+  { "P3",     0xb0, 1 },
+  { "IE",     0xa8, 1 },
+  { "P2",     0xa0, 1 },
+  { "AUXR1",  0xa2, 0 },
   { "WDTRST", 0xa6, 0 },
-  { "SCON", 0x98, 1 },
-  { "SBUF", 0x99, 0 },
-  { "P1", 0x90, 1 },
-  { "TCON", 0x88, 1 },
-  { "TMOD", 0x89, 0 },
-  { "TL0", 0x8a, 0 },
-  { "TL1", 0x8b, 0 },
-  { "TH0", 0x8c, 0 },
-  { "TH1", 0x8d, 0 },
-  { "AUXR", 0x8e, 0 },
-  { "P0", 0x80, 1 },
-  { "SP", 0x81, 0 },
-  { "DPL", 0x82, 0 },
-  { "DPH", 0x83, 0 },
-  { "DP0L", 0x82, 0 },
-  { "DP0H", 0x83, 0 },
-  { "DP1L", 0x84, 0 },
-  { "DP1H", 0x85, 0 },
-  { "PCON", 0x87, 0 },
+  { "SCON",   0x98, 1 },
+  { "SBUF",   0x99, 0 },
+  { "P1",     0x90, 1 },
+  { "TCON",   0x88, 1 },
+  { "TMOD",   0x89, 0 },
+  { "TL0",    0x8a, 0 },
+  { "TL1",    0x8b, 0 },
+  { "TH0",    0x8c, 0 },
+  { "TH1",    0x8d, 0 },
+  { "AUXR",   0x8e, 0 },
+  { "P0",     0x80, 1 },
+  { "SP",     0x81, 0 },
+  { "DPL",    0x82, 0 },
+  { "DPH",    0x83, 0 },
+  { "DP0L",   0x82, 0 },
+  { "DP0H",   0x83, 0 },
+  { "DP1L",   0x84, 0 },
+  { "DP1H",   0x85, 0 },
+  { "PCON",   0x87, 0 },
 };
 
 static struct _address_map address_map_psw[] =
 {
-  { "CY", 0xd7 },
-  { "AC", 0xd6 },
-  { "F0", 0xd5 },
+  { "CY",  0xd7 },
+  { "AC",  0xd6 },
+  { "F0",  0xd5 },
   { "RS1", 0xd4 },
   { "RS0", 0xd3 },
-  { "OV", 0xd2 },
-  { "UD", 0xd1 },
-  { "P", 0xd0 },
+  { "OV",  0xd2 },
+  { "UD",  0xd1 },
+  { "P",   0xd0 },
 };
 
 static int get_register_8051(char *token)
@@ -113,7 +113,46 @@ static int get_register_8051(char *token)
   return -1;
 }
 
-static int get_bit_address(struct _asm_context *asm_context, int *num, uint8_t *is_bit_address)
+static int get_bit_address(
+  struct _asm_context *asm_context,
+  int *num,
+  uint8_t *is_bit_address)
+{
+  char token[TOKENLEN];
+  int token_type;
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+  if (token_type != TOKEN_NUMBER)
+  {
+    tokens_push(asm_context, token, token_type);
+    return 0;
+  }
+
+  int bit = atoi(token);
+  if (bit < 0 || bit > 7)
+  {
+    tokens_push(asm_context, token, token_type);
+    return 0;
+  }
+
+  if (*num < 0x20 || *num > 0x2f)
+  {
+    print_error_range("Bit Address", 0x20, 0x3f, asm_context);
+    return -1;
+  }
+
+  *num -= 0x20;
+  *num = (*num << 3) | bit;
+
+  *is_bit_address = 1;
+
+  return 0;
+}
+
+static int get_bit_address_mapped(
+  struct _asm_context *asm_context,
+  int *num,
+  uint8_t *is_bit_address)
 {
   char token[TOKENLEN];
   int token_type;
@@ -153,7 +192,10 @@ static int get_bit_address_alias(const char *token)
   return -1;
 }
 
-static int get_address(struct _asm_context *asm_context, int *num, uint8_t *is_bit_address)
+static int get_address(
+  struct _asm_context *asm_context,
+  int *num,
+  uint8_t *is_bit_address)
 {
   char token[TOKENLEN];
   int token_type;
@@ -181,7 +223,7 @@ static int get_address(struct _asm_context *asm_context, int *num, uint8_t *is_b
           return 0;
         }
 
-        return get_bit_address(asm_context, num, is_bit_address);
+        return get_bit_address_mapped(asm_context, num, is_bit_address);
       }
 
       return 0;
@@ -229,7 +271,7 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -304,7 +346,7 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
           {
             operands[operand_count].type = OPERAND_AT_A_PLUS_PC;
           }
-        } while(0);
+        } while (0);
 
         if (operands[operand_count].type == 0)
         {
@@ -341,8 +383,7 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
       else
     if (IS_TOKEN(token,'/'))
     {
-      if (get_address(asm_context, &num, &is_bit_address) == -1 ||
-          is_bit_address == 0)
+      if (get_address(asm_context, &num, &is_bit_address) == -1)
       {
         return -1;
       }
@@ -360,7 +401,7 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
         operands[operand_count].value = 0;
 
         // Ignore tokens for this operand unless it's a . or a flag.
-        while(1)
+        while (1)
         {
           token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -507,9 +548,9 @@ printf("\n");
             }
             break;
           case OP_BIT_ADDR:
-            if (operands[r].type != OPERAND_BIT_ADDRESS ||
-                (operands[r].value < 0 ||
-                 operands[r].value > 255)) { r = 4; }
+            if (operands[r].type != OPERAND_NUM &&
+                operands[r].type != OPERAND_BIT_ADDRESS) { r = 4; }
+            if (operands[r].value < 0 || operands[r].value > 255) { r = 4; }
             break;
           case OP_IRAM_ADDR:
             if (operands[r].type != OPERAND_NUM ||

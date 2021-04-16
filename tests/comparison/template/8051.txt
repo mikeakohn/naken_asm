@@ -89,6 +89,7 @@ anl a,r7
 anl c,ACC.7
 anl c,/OV
 anl c,/P2.5
+anl c,/0x23.5
 clr P1.0
 clr a
 clr c
@@ -263,3 +264,11 @@ xrl a,r4
 xrl a,r5
 xrl a,r6
 xrl a,r7
+setb 0x20.3
+setb 0x20
+setb 0x10
+clr 0x24.7
+main: jnb 0x22.3,main
+anl c,/0x2f.2
+cpl 0x2f.7
+anl c,/0x60
