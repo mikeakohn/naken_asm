@@ -310,11 +310,11 @@ int disasm_unsp(
         {
           offset = opcode & 0x3f;
 
-          if (((opcode >> 6) & 0x1) == 0) { offset = -offset; }
+          if (((opcode >> 6) & 0x1) != 0) { offset = -offset; }
 
           sprintf(instruction, "%s 0x%04x (offset=%d)",
             table_unsp[n].instr,
-            address + 2 + offset,
+            (address / 2) + 1 + offset,
             offset);
           return 2;
         }
@@ -343,7 +343,7 @@ int disasm_unsp(
 
   strcpy(instruction, "???");
 
-  return 1;
+  return 2;
 }
 
 void list_output_unsp(
@@ -380,7 +380,8 @@ void list_output_unsp(
       strcat(temp, temp2);
     }
 
-    fprintf(asm_context->list, "0x%04x: %-8s %-40s cycles: ", start, temp, instruction);
+    fprintf(asm_context->list, "0x%04x: %-8s %-40s cycles: ",
+      start / 2, temp, instruction);
 
     if (cycles_min == 0)
     {
@@ -432,7 +433,7 @@ void disasm_range_unsp(
       strcat(temp, temp2);
     }
 
-    printf("0x%04x: %-10s %-40s ", start, temp, instruction);
+    printf("0x%04x: %-10s %-40s ", start / 2, temp, instruction);
 
     if (cycles_min == 0)
     {

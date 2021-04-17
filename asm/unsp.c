@@ -687,11 +687,9 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
         {
           if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)
           {
-            int offset = operands[0].value - (asm_context->address + 2);
+            int offset = operands[0].value - ((asm_context->address / 2) + 1);
 
             if (asm_context->pass == 1) { offset = 0; }
-
-            offset = offset / 2;
 
             if (offset < -0x3f || offset > 0x3f)
             {
