@@ -21,6 +21,7 @@ enum
   UNSP_OP_MUL,
   UNSP_OP_JMP,
   UNSP_OP_ALU,
+  UNSP_OP_ALU_2,
   UNSP_OP_POP,
   UNSP_OP_PUSH,
 };

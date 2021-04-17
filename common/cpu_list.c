@@ -1277,7 +1277,7 @@ struct _cpu_list cpu_list[] =
     ALIGN_2,
     0,
     0,
-    0,
+    1,
     0,
     0,
     0,

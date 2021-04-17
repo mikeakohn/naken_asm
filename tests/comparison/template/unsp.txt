@@ -55,6 +55,7 @@ adc r1,[r3]
 adc r1,[r3--]
 sub r2,[r1++]
 sub r2,[++r1]
+sub r4,r5,#10000
 sub [1234],r1,r4
 sbc r2,d:[r1]
 sbc r2,d:[r1--]

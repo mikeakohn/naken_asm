@@ -28,7 +28,8 @@ static int disasm_alu(
   struct _memory *memory,
   uint32_t address,
   char *instruction,
-  int n)
+  int n,
+  int is_alu_2)
 {
   int opcode = memory_read16_m(memory, address);
   int opcode_1 = (opcode >> 6) & 0x7;
@@ -42,6 +43,7 @@ static int disasm_alu(
   {
     case 0:
     {
+      // rd, [bp+imm6]
       imm6 = opcode & 0x3f;
 
       sprintf(instruction, "%s %s, [bp+%d]",
@@ -52,6 +54,7 @@ static int disasm_alu(
     }
     case 1:
     {
+      // rd, #imm6
       imm6 = opcode & 0x3f;
 
       sprintf(instruction, "%s %s, #%d",
@@ -62,6 +65,7 @@ static int disasm_alu(
     }
     case 3:
     {
+      // rd, [rs]
       switch (opn)
       {
         case 0: sprintf(temp, "[%s]", regs[operand_b]); break;
@@ -85,32 +89,68 @@ static int disasm_alu(
       switch (opn)
       {
         case 0:
+          // rd, rs
           sprintf(instruction, "%s %s, %s",
             table_unsp[n].instr,
             regs[operand_a],
             regs[operand_b]);
           break;
         case 1:
-          sprintf(instruction, "%s %s, #0x%d",
-            table_unsp[n].instr,
-            regs[operand_a],
-            memory_read16_m(memory, address + 2));
+          // rd, rs, #imm16
+          if (is_alu_2 == 0)
+          {
+            sprintf(instruction, "%s %s, %s, #0x%d",
+              table_unsp[n].instr,
+              regs[operand_a],
+              regs[operand_b],
+              memory_read16_m(memory, address + 2));
+          }
+            else
+          {
+            sprintf(instruction, "%s %s, #0x%d",
+              table_unsp[n].instr,
+              regs[operand_a],
+              memory_read16_m(memory, address + 2));
+          }
           return 4;
         case 2:
-          sprintf(instruction, "%s %s, %s, [0x%04x]",
-            table_unsp[n].instr,
-            regs[operand_a],
-            regs[operand_b],
-            memory_read16_m(memory, address + 2));
+          // rd, rs, [addr16]
+          if (is_alu_2 == 0)
+          {
+            sprintf(instruction, "%s %s, %s, [0x%04x]",
+              table_unsp[n].instr,
+              regs[operand_a],
+              regs[operand_b],
+              memory_read16_m(memory, address + 2));
+          }
+            else
+          {
+            sprintf(instruction, "%s %s, [0x%04x]",
+              table_unsp[n].instr,
+              regs[operand_a],
+              memory_read16_m(memory, address + 2));
+          }
           return 4;
         case 3:
-          sprintf(instruction, "%s [0x%04x], %s, %s",
-            table_unsp[n].instr,
-            memory_read16_m(memory, address + 2),
-            regs[operand_a],
-            regs[operand_b]);
+          // [addr16], rs, rd
+          if (is_alu_2 == 0)
+          {
+            sprintf(instruction, "%s [0x%04x], %s, %s",
+              table_unsp[n].instr,
+              memory_read16_m(memory, address + 2),
+              regs[operand_a],
+              regs[operand_b]);
+          }
+            else
+          {
+            sprintf(instruction, "%s [0x%04x], %s",
+              table_unsp[n].instr,
+              memory_read16_m(memory, address + 2),
+              regs[operand_a]);
+          }
           return 4;
         default:
+          // rd, rs SHIFT <1 to 4>
           value = opn - 3;
           sprintf(instruction, "%s %s, %s asr %d",
             table_unsp[n].instr,
@@ -123,6 +163,7 @@ static int disasm_alu(
     }
     case 5:
     {
+      // rd, rs SHIFT <1 to 4>
       if (opn < 4)
       {
         value = opn + 1;
@@ -145,6 +186,7 @@ static int disasm_alu(
     }
     case 6:
     {
+      // rd, rs ROLL <1 to 4>
       if (opn < 4)
       {
         value = opn + 1;
@@ -167,6 +209,7 @@ static int disasm_alu(
     }
     case 7:
     {
+      // rd, [imm6]
       imm6 = opcode & 0x3f;
 
       sprintf(instruction, "%s %s, [%d]",
@@ -320,7 +363,11 @@ int disasm_unsp(
         }
         case UNSP_OP_ALU:
         {
-          return disasm_alu(memory, address, instruction, n);
+          return disasm_alu(memory, address, instruction, n, 0);
+        }
+        case UNSP_OP_ALU_2:
+        {
+          return disasm_alu(memory, address, instruction, n, 1);
         }
         case UNSP_OP_POP:
         {

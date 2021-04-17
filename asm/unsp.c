@@ -108,7 +108,7 @@ static int generate_alu_2(
   {
     case OPERAND_INDIRECT_BP_IMM6:
     {
-      if (operands[0].value < 0 || operands[0].value > 0x3f)
+      if (operands[1].value < 0 || operands[1].value > 0x3f)
       {
         print_error_range("Constant", 0, 0x3f, asm_context);
         return -1;
@@ -124,7 +124,7 @@ static int generate_alu_2(
     }
     case OPERAND_IMMEDIATE:
     {
-      if (operands[1].value < -32768 || operands[1].value > 0xffff)
+      if (operands[1].value < 0 || operands[1].value > 0x3f)
       {
         print_error_range("Constant", -32768, 0xffff, asm_context);
         return -1;
@@ -139,16 +139,6 @@ static int generate_alu_2(
         add_bin16(asm_context, opcode, IS_OPCODE);
 
         return 2;
-      }
-        else
-      {
-        opcode |= (operands[0].value << 9) | (4 << 6) | (1 << 3) |
-                   operands[0].value;
-
-        add_bin16(asm_context, opcode, IS_OPCODE);
-        add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
-
-        return 4;
       }
     }
     case OPERAND_INDIRECT_RS:
@@ -739,6 +729,72 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             add_bin16(asm_context, operands[0].value, IS_OPCODE);
+
+            return 4;
+          }
+
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_REGISTER &&
+              operands[1].type == OPERAND_REGISTER &&
+              operands[2].type == OPERAND_IMMEDIATE)
+          {
+            opcode = table_unsp[n].opcode |
+                     (operands[0].value << 9) | (4 << 6) | (1 << 3) |
+                      operands[1].value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, operands[2].value & 0xffff, IS_OPCODE);
+
+            return 4;
+          }
+
+          if (operand_count == 2 && operands[0].type == OPERAND_REGISTER)
+          {
+            int r = generate_alu_2(asm_context, operands, table_unsp[n].opcode);
+            if (r == -1) { return -1; }
+            if (r > 0) { return r; }
+          }
+
+          break;
+        }
+        case UNSP_OP_ALU_2:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REGISTER &&
+              operands[1].type == OPERAND_INDIRECT_ADDRESS)
+          {
+            opcode = table_unsp[n].opcode |
+                     (operands[0].value << 9) | (4 << 6) | (2 << 3);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, operands[1].value, IS_OPCODE);
+
+            return 4;
+          }
+
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_INDIRECT_ADDRESS &&
+              operands[1].type == OPERAND_REGISTER)
+          {
+            opcode = table_unsp[n].opcode |
+                     (operands[1].value << 9) | (4 << 6) | (3 << 3);
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, operands[0].value, IS_OPCODE);
+
+            return 4;
+          }
+
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_REGISTER &&
+              operands[1].type == OPERAND_IMMEDIATE)
+          {
+            opcode = table_unsp[n].opcode |
+                     (operands[0].value << 9) | (4 << 6) | (1 << 3) |
+                      operands[0].value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
 
             return 4;
           }

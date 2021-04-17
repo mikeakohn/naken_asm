@@ -71,13 +71,13 @@ struct _table_unsp table_unsp[] = {
   { "sub",         0x2000, 0xf000, UNSP_OP_ALU },
   { "sbc",         0x3000, 0xf000, UNSP_OP_ALU },
   { "cmp",         0x4000, 0xf000, UNSP_OP_ALU },
-  { "neg",         0x6000, 0xf000, UNSP_OP_ALU },
+  { "neg",         0x6000, 0xf000, UNSP_OP_ALU_2 },
   { "xor",         0x8000, 0xf000, UNSP_OP_ALU },
-  { "ld",          0x9000, 0xf000, UNSP_OP_ALU },
+  { "ld",          0x9000, 0xf000, UNSP_OP_ALU_2 },
   { "or",          0xa000, 0xf000, UNSP_OP_ALU },
   { "and",         0xb000, 0xf000, UNSP_OP_ALU },
   { "test",        0xc000, 0xf000, UNSP_OP_ALU },
-  { "st",          0xd000, 0xf000, UNSP_OP_ALU },
+  { "st",          0xd000, 0xf000, UNSP_OP_ALU_2 },
   { NULL,          0x0000, 0xffff, UNSP_OP_NONE },
 };
 
