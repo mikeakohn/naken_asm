@@ -758,6 +758,12 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
               operands[0].type == OPERAND_REGISTER &&
               operands[1].type == OPERAND_INDIRECT_RS)
           {
+            if (operands[0].value == 0)
+            {
+              print_error("Cannot pop SP", asm_context);
+              return -1;
+            }
+
             opcode = table_unsp[n].opcode |
                     ((operands[0].value - 1) << 9) | (2 << 6) | (1 << 3) |
                       operands[1].value;
@@ -770,6 +776,12 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
               operands[0].type == OPERAND_REGISTER_RANGE &&
               operands[1].type == OPERAND_INDIRECT_RS)
           {
+            if (operands[0].value == 0)
+            {
+              print_error("Cannot pop SP", asm_context);
+              return -1;
+            }
+
             int reg_count = (operands[0].end_reg - operands[0].value) + 1;
             opcode = table_unsp[n].opcode |
                     ((operands[0].value - 1) << 9) |
@@ -801,6 +813,7 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
               operands[1].type == OPERAND_INDIRECT_RS)
           {
             int reg_count = (operands[0].end_reg - operands[0].value) + 1;
+
             opcode = table_unsp[n].opcode |
                      (operands[0].end_reg << 9) |
                      (2 << 6) | (reg_count << 3) |
