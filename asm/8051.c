@@ -592,7 +592,15 @@ printf("\n");
             case OP_RELADDR:
             {
               num = operands[r].value - (asm_context->address + 1);
-              memory_write_inc(asm_context, (uint8_t)num, asm_context->tokens.line);
+              if (asm_context->pass == 1) { num = 0; }
+
+              if (num < -128 || num > 127)
+              {
+                print_error_range("Offset", -128, 127, asm_context);
+                return -1;
+              }
+
+              memory_write_inc(asm_context, num & 0xff, asm_context->tokens.line);
               count++;
               break;
             }
