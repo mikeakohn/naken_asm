@@ -34,6 +34,7 @@ default:
 	bash run_test.sh sweet16
 	bash run_test.sh thumb
 	bash run_test.sh tms340
+	bash run_test.sh unsp
 	bash run_test.sh xtensa
 	python3 run_test.py z80
 

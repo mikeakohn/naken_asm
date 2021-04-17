@@ -1,0 +1,76 @@
+int off
+int irq
+int fiq
+int irq,fiq
+fir_mov on
+fir_mov off
+irq off
+irq on
+fiq off
+fiq on
+break
+nop
+main: call main
+main: goto main
+mulu r2,r2
+mul r1,r1
+main: jcc main
+main: jb main
+main: jnae main
+main: jcs main
+main: jnb main
+main: jae main
+main: jge main
+main: jsc main
+main: jnl main
+main: jl main
+main: jsc main
+main: jge main
+main: jne main
+main: jnz main
+main: jz main
+main: je main
+main: jpl main
+main: jmi main
+main: jbe main
+main: jna main
+main: jnbe main
+main: ja main
+main: jle main
+main: jng main
+main: jg main
+main: jnle main
+main: jvc main
+main: jvs main
+main: jmp main
+retf
+reti
+pop r3,[r4]
+pop r2-r4,[sp]
+push r3,[r1]
+push r2-r4,[r1]
+add r4,[bp+53]
+add r4,#34
+adc r1,[r3]
+adc r1,[r3--]
+sub r2,[r1++]
+sub r2,[++r1]
+sub [1234],r1,r4
+sbc r2,d:[r1]
+sbc r2,d:[r1--]
+cmp r4,d:[r1++]
+cmp r4,d:[++r1]
+neg r2,r4
+neg r2,#6634
+xor r1,r4,[25391]
+xor [58818],r1,r4
+ld r3,r4 asr 3
+ld r3,r4 lsl 4
+or r1,r2 lsr 1
+or r1,r2 rol 2
+and r3,r2 ror 2
+and r3,[20]
+test r1,[bp+28]
+test r1,#4
+st r2,[r3]
+st r2,[r1--]

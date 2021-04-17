@@ -32,7 +32,7 @@ struct _table_unsp table_unsp[] = {
   { "call",        0xf040, 0xffc0, UNSP_OP_GOTO },
   { "goto",        0xfe80, 0xffc0, UNSP_OP_GOTO },
   { "mulu",        0xf008, 0xf1f8, UNSP_OP_MUL },
-  { "muls",        0xf108, 0xf1f8, UNSP_OP_MUL },
+  { "mul",         0xf108, 0xf1f8, UNSP_OP_MUL },
   { "jcc",         0x0e00, 0xfe40, UNSP_OP_JMP },
   { "jb",          0x0e00, 0xfe40, UNSP_OP_JMP },
   { "jnae",        0x0e00, 0xfe40, UNSP_OP_JMP },
