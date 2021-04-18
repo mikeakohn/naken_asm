@@ -785,6 +785,21 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
           int force_long =
             memory_read_m(&asm_context->memory, asm_context->address);
 
+          if (table_unsp[n].opcode == 0xd000)
+          {
+            if (operands[1].type == OPERAND_IMMEDIATE ||
+                operands[1].type == OPERAND_REGISTER ||
+                operands[1].type == OPERAND_RS_ASR_SHIFT ||
+                operands[1].type == OPERAND_RS_LSL_SHIFT ||
+                operands[1].type == OPERAND_RS_LSR_SHIFT ||
+                operands[1].type == OPERAND_RS_ROL_SHIFT ||
+                operands[1].type == OPERAND_RS_ROR_SHIFT);
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+          }
+
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REGISTER &&
               operands[1].type == OPERAND_INDIRECT_ADDRESS)
@@ -803,8 +818,7 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
             }
               else
             {
-              //int opn = table_unsp[n].opcode == 0xd000 ? 3 : 2;
-              const int opn = 2;
+              int opn = table_unsp[n].opcode == 0xd000 ? 3 : 2;
 
               opcode = table_unsp[n].opcode |
                        (operands[0].value << 9) | (4 << 6) | (opn << 3) |
@@ -821,6 +835,12 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
               operands[0].type == OPERAND_INDIRECT_ADDRESS &&
               operands[1].type == OPERAND_REGISTER)
           {
+            if (table_unsp[n].opcode != 0x6000)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
             opcode = table_unsp[n].opcode |
                      (operands[1].value << 9) | (4 << 6) | (3 << 3) |
                       operands[1].value;

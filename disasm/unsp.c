@@ -143,10 +143,20 @@ static int disasm_alu(
           }
             else
           {
-            sprintf(instruction, "%s [0x%04x], %s",
-              table_unsp[n].instr,
-              memory_read16_m(memory, address + 2),
-              regs[operand_a]);
+            if (table_unsp[n].opcode == 0xd000)
+            {
+              sprintf(instruction, "%s %s, [0x%04x]",
+                table_unsp[n].instr,
+                regs[operand_a],
+                memory_read16_m(memory, address + 2));
+            }
+              else
+            {
+              sprintf(instruction, "%s [0x%04x], %s",
+                table_unsp[n].instr,
+                memory_read16_m(memory, address + 2),
+                regs[operand_a]);
+            }
           }
           return 4;
         default:
