@@ -591,6 +591,12 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
 
         operands[operand_count].value = num;
 
+        if (num < 0 || num > 0xffff)
+        {
+          print_error_range("Address", 0, 0xffff, asm_context);
+          return -1;
+        }
+
         if (expect_token(asm_context, ']') == -1) { return -1; }
         break;
       }
