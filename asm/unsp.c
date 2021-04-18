@@ -306,17 +306,32 @@ static int generate_alu_2(
     }
     case OPERAND_INDIRECT_ADDRESS:
     {
-      if (operands[1].value < 0 || operands[1].value > 0x3f)
+      int force_long =
+        memory_read_m(&asm_context->memory, asm_context->address);
+
+      if (operands[1].value >= 0x00 &&
+          operands[1].value <= 0x3f &&
+          force_long == 0)
       {
-        print_error_range("Constant", 0, 0x3f, asm_context);
-        return -1;
+        opcode |=
+          (operands[0].value << 9) | (7 << 6) |
+           operands[1].value;
+
+        add_bin16(asm_context, opcode, IS_OPCODE);
+
+        return 2;
       }
+        else
+      {
+        opcode |=
+           (operands[0].value << 9) | (4 << 6) | (2 << 3) |
+            operands[0].value;
 
-      opcode |= (operands[0].value << 9) | (7 << 6) | operands[1].value;
+        add_bin16(asm_context, opcode, IS_OPCODE);
+        add_bin16(asm_context, operands[1].value, IS_OPCODE);
 
-      add_bin16(asm_context, opcode, IS_OPCODE);
-
-      return 2;
+        return 4;
+      }
     }
   }
 

@@ -51,6 +51,8 @@ push r3,[r1]
 push r2-r4,[r1]
 add r4,[bp+53]
 add r4,#34
+add r4,[0x33]
+add r4,[0x3333]
 add pc,#34
 adc r1,[r3]
 adc r1,[r3--]
