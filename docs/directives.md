@@ -42,6 +42,7 @@ CPU this source file should be assembled for.
 |.pic32           |PIC32 MIPS
 |.powerpc         |PowerPC
 |.propeller       |Parallax Propeller
+|.propeller2      |Parallax Propeller 2
 |.ps2_ee          |Sony Emotion Engine (Playstation 2)
 |.ps2_ee_vu0      |Sony Emotion Engine Vector Unit 0
 |.ps2_ee_vu1      |Sony Emotion Engine Vector Unit 1
@@ -54,6 +55,7 @@ CPU this source file should be assembled for.
 |.tms1000         |TMS1000/TMS1200/TMS1070/TMS1270
 |.tms1100         |TMS1100/TMS1300
 |.tms9900         |TMS9900
+|.unsp            |SunPlus unSP
 |.webasm          |WebAssembly
 |.xtensa          |Xtensa (ESP32, ESP8266)
 |.z80             |Z80

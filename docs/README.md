@@ -25,6 +25,7 @@ Contents
   * [PowerPC](PowerPC.md)
   * [Propeller](Propeller.md)
   * [SH-4](SH4.md)
+  * [SunPlus unSP](SunPlus_unSP.md)
   * [TMS340](TMS340.md)
   * [TMS1000](TMS1000.md)
   * [TMS9900](TMS9900.md)
