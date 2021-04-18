@@ -113,6 +113,12 @@ static int generate_alu_2(
         return -1;
       }
 
+      if (operands[0].value == 7)
+      {
+        print_error("Cannot use PC as destination with [BP+imm6]", asm_context);
+        return -1;
+      }
+
       opcode |=
         (operands[0].value << 9) |
          operands[1].value;
@@ -131,6 +137,8 @@ static int generate_alu_2(
 
       int force_long =
         memory_read_m(&asm_context->memory, asm_context->address);
+
+      if (operands[0].value == 7) { force_long = 1; }
 
       if (operands[1].value >= 0 &&
           operands[1].value <= 0x3f &&
