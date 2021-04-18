@@ -99,7 +99,7 @@ static int disasm_alu(
           // rd, rs, #imm16
           if (is_alu_2 == 0)
           {
-            sprintf(instruction, "%s %s, %s, #0x%d",
+            sprintf(instruction, "%s %s, %s, #0x%x",
               table_unsp[n].instr,
               regs[operand_a],
               regs[operand_b],
@@ -107,7 +107,7 @@ static int disasm_alu(
           }
             else
           {
-            sprintf(instruction, "%s %s, #0x%d",
+            sprintf(instruction, "%s %s, #0x%x",
               table_unsp[n].instr,
               regs[operand_a],
               memory_read16_m(memory, address + 2));

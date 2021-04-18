@@ -123,13 +123,18 @@ static int generate_alu_2(
     }
     case OPERAND_IMMEDIATE:
     {
-      if (operands[1].value < 0 || operands[1].value > 0x3f)
+      if (operands[1].value < -32768 || operands[1].value > 0xffff)
       {
         print_error_range("Constant", -32768, 0xffff, asm_context);
         return -1;
       }
 
-      if (operands[1].value >= 0 && operands[1].value <= 0x3f)
+      int force_long =
+        memory_read_m(&asm_context->memory, asm_context->address);
+
+      if (operands[1].value >= 0 &&
+          operands[1].value <= 0x3f &&
+          force_long == 0)
       {
         opcode |=
           (operands[0].value << 9) | (1 << 6) |
@@ -138,6 +143,17 @@ static int generate_alu_2(
         add_bin16(asm_context, opcode, IS_OPCODE);
 
         return 2;
+      }
+        else
+      {
+        opcode |=
+          (operands[0].value << 9) | (4 << 6) | (1 << 3) |
+           operands[0].value;
+
+        add_bin16(asm_context, opcode, IS_OPCODE);
+        add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
+
+        return 4;
       }
     }
     case OPERAND_INDIRECT_RS:
