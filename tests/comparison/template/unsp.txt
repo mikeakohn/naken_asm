@@ -12,8 +12,12 @@ break
 nop
 main: call main
 main: goto main
-mulu r2,r2
-mul r1,r1
+mul.uu r2,r2
+mul.us r2,r2
+mul.ss r1,r1
+mac.ss [r5],[r2],16
+mac.us [r1],[r2],15
+mac.uu [r5],[r2],5
 main: jcc main
 main: jb main
 main: jnae main

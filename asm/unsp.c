@@ -696,6 +696,51 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
 
           break;
         }
+        case UNSP_OP_MAC:
+        {
+          if (operand_count == 3 &&
+              operands[0].type == OPERAND_INDIRECT_RS &&
+              operands[1].type == OPERAND_INDIRECT_RS &&
+              operands[2].type == OPERAND_NUMBER)
+          {
+            if (operands[2].value < 1 || operands[2].value > 16)
+            {
+              print_error_range("mac", 1, 16, asm_context);
+              return -1;
+            }
+
+            if (operands[0].value != 1 &&
+                operands[0].value != 2 &&
+                operands[0].value != 5)
+            {
+              print_error("Registers for mac must be r1, r2, r5.", asm_context);
+              return -1;
+            }
+
+            if (operands[1].value != 1 &&
+                operands[1].value != 2 &&
+                operands[1].value != 5)
+            {
+              print_error("Registers for mac must be r1, r2, r5.", asm_context);
+              return -1;
+            }
+
+            int opn = operands[2].value;
+
+            if (opn == 16) { opn = 0; }
+
+            opcode =
+              table_unsp[n].opcode |
+             (operands[0].value << 9) | (opn << 3) |
+              operands[1].value;
+
+            add_bin16(asm_context, opcode, IS_OPCODE);
+
+            return 2;
+          }
+
+          break;
+        }
         case UNSP_OP_JMP:
         {
           if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)

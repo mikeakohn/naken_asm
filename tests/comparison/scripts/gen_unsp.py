@@ -26,7 +26,7 @@ def create_asm(instruction):
     name = instruction.split(" ")[0]
     operands = instruction.replace(name, "").strip().split(",")
 
-    if len(operands) > 1 and name != "st":
+    if len(operands) > 1 and name not in [ "st", "mac.ss", "mac.us", "mac.uu" ]:
       operands[1] = operands[1].replace("#", "")
 
       if operands[0].startswith("[") and operands[0].endswith("]"):
@@ -38,6 +38,11 @@ def create_asm(instruction):
   else:
     name = ""
     operands = ""
+
+  #if name == "mac":
+  #  instruction = "mr = " + operands[0] + " * " + operands[1] + "," + operands[2]
+  #  print(instruction)
+  #  sys.exit(1)
 
   if name in stack:
     if name == "push": instruction = instruction.replace(",", " to ")
@@ -56,10 +61,18 @@ def create_asm(instruction):
     instruction = operands[1] + " = " + operands[0]
   elif name == "neg":
     instruction = operands[0] + " = -" + operands[1]
-  elif name == "mul":
+  elif name == "mul.ss":
     instruction = "mr = " + operands[0] + " * " + operands[1]
-  elif name == "mulu":
+  elif name == "mul.us":
     instruction = "mr = " + operands[0] + " * " + operands[1] + ",us"
+  elif name == "mul.uu":
+    instruction = "mr = " + operands[0] + " * " + operands[1] + ",uu"
+  elif name == "mac.ss":
+    instruction = "mr = " + operands[0] + " * " + operands[1] + "," + operands[2]
+  elif name == "mac.us":
+    instruction = "mr = " + operands[0] + " * " + operands[1] + ",us," + operands[2]
+  elif name == "mac.uu":
+    instruction = "mr = " + operands[0] + " * " + operands[1] + ",uu," + operands[2]
 
   if name in carry: instruction += ",carry"
 

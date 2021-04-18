@@ -359,6 +359,18 @@ int disasm_unsp(
             regs[operand_b]);
           return 2;
         }
+        case UNSP_OP_MAC:
+        {
+          int opn = (opcode >> 3) & 0xf;
+          if (opn == 0) { opn = 16; }
+
+          sprintf(instruction, "%s [%s], [%s], %d",
+            table_unsp[n].instr,
+            regs[operand_a],
+            regs[operand_b],
+            opn);
+          return 2;
+        }
         case UNSP_OP_JMP:
         {
           offset = opcode & 0x3f;
