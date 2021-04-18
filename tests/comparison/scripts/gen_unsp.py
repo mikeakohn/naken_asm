@@ -26,7 +26,7 @@ def create_asm(instruction):
     name = instruction.split(" ")[0]
     operands = instruction.replace(name, "").strip().split(",")
 
-    if len(operands) > 1:
+    if len(operands) > 1 and name != "st":
       operands[1] = operands[1].replace("#", "")
 
       if operands[0].startswith("[") and operands[0].endswith("]"):

@@ -81,5 +81,6 @@ and r3,[20]
 test r1,[bp+28]
 test r1,#4
 st r2,[r3]
-st r2,[2343]
+;st r2,[2343]
+;st [2343],r2
 st r2,[r1--]

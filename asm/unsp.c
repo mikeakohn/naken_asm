@@ -558,41 +558,23 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
 
         operands[operand_count].type = OPERAND_INDIRECT_ADDRESS;
 
-        if (asm_context->pass == 1)
+        int num;
+
+        if (eval_expression(asm_context, &num) != 0)
         {
-          while (1)
-          {
-            token_type = tokens_get(asm_context, token, TOKENLEN);
-
-            if (IS_TOKEN(token, ']') ||
-                token_type == TOKEN_EOL ||
-                token_type == TOKEN_EOF)
-            {
-              break;
-            }
-          }
-
-          if (IS_NOT_TOKEN(token, ']'))
+          if (asm_context->pass == 2)
           {
             print_error_illegal_expression(instr, asm_context);
             return -1;
           }
 
-          tokens_push(asm_context, token, token_type);
-          operands[operand_count].value = 0;
+          memory_write_m(&asm_context->memory, asm_context->address, 1);
+          eat_operand(asm_context);
+          num = 0;
+          tokens_push(asm_context, "]", TOKEN_SYMBOL);
         }
-          else
-        {
-          int num;
 
-          if (eval_expression(asm_context, &num) != 0)
-          {
-            print_error_illegal_expression(instr, asm_context);
-            return -1;
-          }
-
-          operands[operand_count].value = num;
-        }
+        operands[operand_count].value = num;
 
         if (expect_token(asm_context, ']') == -1) { return -1; }
         break;
@@ -779,20 +761,39 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
         }
         case UNSP_OP_ALU_2:
         {
+          int force_long =
+            memory_read_m(&asm_context->memory, asm_context->address);
+
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REGISTER &&
               operands[1].type == OPERAND_INDIRECT_ADDRESS)
           {
-            int opn = table_unsp[n].opcode == 0xd000 ? 3 : 2;
+            if (operands[1].value >= 0x00 &&
+                operands[1].value <= 0x3f &&
+                force_long == 0)
+            {
+              opcode = table_unsp[n].opcode |
+                      (operands[0].value << 9) | (7 << 6) |
+                       operands[1].value;
 
-            opcode = table_unsp[n].opcode |
-                     (operands[0].value << 9) | (4 << 6) | (opn << 3) |
-                      operands[0].value;
+              add_bin16(asm_context, opcode, IS_OPCODE);
 
-            add_bin16(asm_context, opcode, IS_OPCODE);
-            add_bin16(asm_context, operands[1].value, IS_OPCODE);
+              return 2;
+            }
+              else
+            {
+              //int opn = table_unsp[n].opcode == 0xd000 ? 3 : 2;
+              const int opn = 2;
 
-            return 4;
+              opcode = table_unsp[n].opcode |
+                       (operands[0].value << 9) | (4 << 6) | (opn << 3) |
+                        operands[0].value;
+
+              add_bin16(asm_context, opcode, IS_OPCODE);
+              add_bin16(asm_context, operands[1].value, IS_OPCODE);
+
+              return 4;
+            }
           }
 
           if (operand_count == 2 &&
