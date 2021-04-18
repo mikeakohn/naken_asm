@@ -787,16 +787,19 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
 
           if (table_unsp[n].opcode == 0xd000)
           {
-            if (operands[1].type == OPERAND_IMMEDIATE ||
-                operands[1].type == OPERAND_REGISTER ||
-                operands[1].type == OPERAND_RS_ASR_SHIFT ||
-                operands[1].type == OPERAND_RS_LSL_SHIFT ||
-                operands[1].type == OPERAND_RS_LSR_SHIFT ||
-                operands[1].type == OPERAND_RS_ROL_SHIFT ||
-                operands[1].type == OPERAND_RS_ROR_SHIFT);
+            switch (operands[1].type)
             {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
+              case OPERAND_IMMEDIATE:
+              case OPERAND_REGISTER:
+              case OPERAND_RS_ASR_SHIFT:
+              case OPERAND_RS_LSL_SHIFT:
+              case OPERAND_RS_LSR_SHIFT:
+              case OPERAND_RS_ROL_SHIFT:
+              case OPERAND_RS_ROR_SHIFT:
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
             }
           }
 
