@@ -63,10 +63,14 @@ cmp r4,d:[r1++]
 cmp r4,d:[++r1]
 neg r2,r4
 neg r2,#6634
+neg r2,#20
 xor r1,r4,[25391]
 xor [58818],r1,r4
 ld r3,r4 asr 3
 ld r3,r4 lsl 4
+ld r3,#32
+ld r3,#3223
+ld r3,[3223]
 or r1,r2 lsr 1
 or r1,r2 rol 2
 and r3,r2 ror 2
@@ -74,4 +78,5 @@ and r3,[20]
 test r1,[bp+28]
 test r1,#4
 st r2,[r3]
+st r2,[2343]
 st r2,[r1--]

@@ -400,13 +400,12 @@ void list_output_unsp(
 {
   int cycles_min, cycles_max;
   char instruction[128];
-  char temp[32];
   int count;
   int n;
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_unsp(
       &asm_context->memory,
@@ -415,33 +414,20 @@ void list_output_unsp(
       &cycles_min,
       &cycles_max);
 
-    temp[0] = 0;
-
     for (n = 0; n < count; n += 2)
     {
-      char temp2[8];
-      sprintf(temp2, " %02x%02x",
-        memory_read_m(&asm_context->memory, start + n + 1),
-        memory_read_m(&asm_context->memory, start + n));
+      uint16_t data = 
+        (memory_read_m(&asm_context->memory, start + n + 1) << 8) |
+         memory_read_m(&asm_context->memory, start + n);
 
-      strcat(temp, temp2);
-    }
-
-    fprintf(asm_context->list, "0x%04x: %-8s %-40s cycles: ",
-      start / 2, temp, instruction);
-
-    if (cycles_min == 0)
-    {
-      fprintf(asm_context->list, "?\n");
-    }
-      else
-    if (cycles_min == cycles_max)
-    {
-      fprintf(asm_context->list, "%d\n", cycles_min);
-    }
-      else
-    {
-      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+      if (n == 0)
+      {
+        fprintf(asm_context->list, "0x%04x: %04x %s\n", start / 2, data, instruction);
+      }
+        else
+      {
+        fprintf(asm_context->list, "        %04x\n", data);
+      }
     }
 
     start += count;
@@ -455,7 +441,6 @@ void disasm_range_unsp(
   uint32_t end)
 {
   char instruction[128];
-  char temp[32];
   int cycles_min = 0,cycles_max = 0;
   int count;
   int n;
@@ -465,35 +450,26 @@ void disasm_range_unsp(
   printf("%-8s %-9s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("-------  --------- ------------------------------           ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_unsp(memory, start, instruction, &cycles_min, &cycles_max);
 
-    temp[0] = 0;
+    //temp[0] = 0;
 
     for (n = 0; n < count; n += 2)
     {
-      char temp2[8];
-      sprintf(temp2, " %02x%02x",
-        memory_read_m(memory, start + n + 1),
-        memory_read_m(memory, start + n));
-      strcat(temp, temp2);
-    }
+      uint16_t data = 
+        (memory_read_m(memory, start + n + 1) << 8) |
+         memory_read_m(memory, start + n);
 
-    printf("0x%04x: %-10s %-40s ", start / 2, temp, instruction);
-
-    if (cycles_min == 0)
-    {
-      printf("?\n");
-    }
-      else
-    if (cycles_min == cycles_max)
-    {
-      printf("%d\n", cycles_min);
-    }
-      else
-    {
-      printf("%d-%d\n", cycles_min, cycles_max);
+      if (n == 0)
+      {
+        printf("0x%04x: %04x %s\n", start / 2, data, instruction);
+      }
+        else
+      {
+        printf("        %04x\n", data);
+      }
     }
 
     start = start + count;

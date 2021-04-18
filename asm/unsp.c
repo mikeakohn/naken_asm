@@ -80,21 +80,20 @@ static int get_number(
 {
   int n;
 
-  if (asm_context->pass == 1)
+  if (eval_expression(asm_context, &n) != 0)
   {
-    eat_operand(asm_context);
-    operand->value = 0;
-  }
-  else
-  {
-    if (eval_expression(asm_context, &n) != 0)
+    if (asm_context->pass == 2)
     {
       print_error_illegal_expression(instr, asm_context);
       return -1;
     }
 
-    operand->value = n;
+    memory_write_m(&asm_context->memory, asm_context->address, 1);
+    eat_operand(asm_context);
+    n = 0;
   }
+
+  operand->value = n;
 
   return 0;
 }
@@ -503,10 +502,7 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
 
               operands[operand_count].type = OPERAND_INDIRECT_BP_IMM6;
 
-              if (asm_context->pass == 2)
-              {
-                if (expect_token(asm_context, ']') == -1) { return -1; }
-              }
+              if (expect_token(asm_context, ']') == -1) { return -1; }
               break;
             }
 
@@ -763,8 +759,11 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
               operands[0].type == OPERAND_REGISTER &&
               operands[1].type == OPERAND_INDIRECT_ADDRESS)
           {
+            int opn = table_unsp[n].opcode == 0xd000 ? 3 : 2;
+
             opcode = table_unsp[n].opcode |
-                     (operands[0].value << 9) | (4 << 6) | (2 << 3);
+                     (operands[0].value << 9) | (4 << 6) | (opn << 3) |
+                      operands[0].value;
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             add_bin16(asm_context, operands[1].value, IS_OPCODE);
@@ -777,7 +776,8 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
               operands[1].type == OPERAND_REGISTER)
           {
             opcode = table_unsp[n].opcode |
-                     (operands[1].value << 9) | (4 << 6) | (3 << 3);
+                     (operands[1].value << 9) | (4 << 6) | (3 << 3) |
+                      operands[1].value;
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             add_bin16(asm_context, operands[0].value, IS_OPCODE);
@@ -789,12 +789,28 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
               operands[0].type == OPERAND_REGISTER &&
               operands[1].type == OPERAND_IMMEDIATE)
           {
-            opcode = table_unsp[n].opcode |
-                     (operands[0].value << 9) | (4 << 6) | (1 << 3) |
-                      operands[0].value;
+            int force_long =
+              memory_read_m(&asm_context->memory, asm_context->address);
 
-            add_bin16(asm_context, opcode, IS_OPCODE);
-            add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
+            if (operands[1].value < 0 ||
+                operands[1].value > 0x3f ||
+                force_long == 1)
+            {
+              opcode = table_unsp[n].opcode |
+                       (operands[0].value << 9) | (4 << 6) | (1 << 3) |
+                        operands[0].value;
+
+              add_bin16(asm_context, opcode, IS_OPCODE);
+              add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
+            }
+              else
+            {
+              opcode = table_unsp[n].opcode |
+                       (operands[0].value << 9) | (1 << 6) |
+                        operands[1].value;
+
+              add_bin16(asm_context, opcode, IS_OPCODE);
+            }
 
             return 4;
           }
