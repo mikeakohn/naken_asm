@@ -647,7 +647,7 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
 
             opcode =
               table_unsp[n].opcode |
-            ((operands[0].value >> 8) & 0x3fffff);
+            ((operands[0].value >> 16) & 0x3f);
 
             add_bin16(asm_context, opcode, IS_OPCODE);
             add_bin16(asm_context, operands[0].value & 0xffff, IS_OPCODE);
