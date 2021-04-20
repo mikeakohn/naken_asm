@@ -482,6 +482,12 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
+  if (strcasecmp(token, "align_words") == 0)
+  {
+    if (parse_align_words(asm_context) != 0) { return -1; }
+    return 1;
+  }
+    else
   if (strcasecmp(token, "db") == 0 ||
       strcasecmp(token, "dc8") == 0 ||
       strcasecmp(token, "ascii") == 0)

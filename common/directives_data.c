@@ -616,3 +616,17 @@ int parse_align_bytes(struct _asm_context *asm_context)
   return parse_align(asm_context, num);
 }
 
+int parse_align_words(struct _asm_context *asm_context)
+{
+  int num;
+
+  if (eval_expression(asm_context, &num) == -1)
+  {
+    print_error_illegal_expression("align", asm_context);
+    return -1;
+  }
+
+  num = num * 2;
+
+  return parse_align(asm_context, num);
+}
