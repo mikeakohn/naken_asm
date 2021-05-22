@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -77,6 +77,7 @@ struct _asm_context
   uint8_t dump_macros : 1;
   uint8_t optimize : 1;
   uint8_t ignore_number_postfix : 1;
+  uint8_t in_repeat : 1;
   uint32_t flags;
   uint32_t extra_context;
 };

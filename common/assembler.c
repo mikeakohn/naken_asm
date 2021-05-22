@@ -45,6 +45,7 @@ void assembler_init(struct _asm_context *asm_context)
   asm_context->ifdef_count = 0;
   asm_context->parsing_ifdef = 0;
   asm_context->bytes_per_address = 1;
+  asm_context->in_repeat = 0;
 
   macros_free(&asm_context->macros);
   asm_context->def_param_stack_count = 0;
@@ -357,6 +358,47 @@ static int parse_equ(struct _asm_context *asm_context)
   macros_append(asm_context, name, value, 0);
 
   asm_context->tokens.line++;
+
+  return 0;
+}
+
+int parse_repeat(struct _asm_context *asm_context)
+{
+  char token[TOKENLEN];
+  int token_type = tokens_get(asm_context, token, TOKENLEN);
+  int count = atoi(token);
+
+  if (token_type != TOKEN_NUMBER || count <= 0)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
+  uint32_t address_start = asm_context->address;
+
+  if (assemble(asm_context) != 3)
+  {
+    print_error("Missing .endr in .repeat block.", asm_context);
+    return -1;
+  }
+
+  uint32_t address_end = asm_context->address;
+  int n, r;
+
+  for (n = 0; n < count - 1; n++)
+  {
+    for (r = address_start; r < address_end; r++)
+    {
+      uint8_t data = memory_read_m(&asm_context->memory, r);
+      add_bin8(asm_context, data, 0);
+    }
+  }
+
+  if (asm_context->list != NULL && asm_context->write_list_file == 1)
+  {
+    asm_context->list_output(asm_context, address_end, asm_context->address);
+    fprintf(asm_context->list, "\n");
+  }
 
   return 0;
 }
@@ -780,6 +822,28 @@ int assemble(struct _asm_context *asm_context)
           return -1;
         }
         return 2;
+      }
+        else
+      if (strcasecmp(token, "repeat") == 0)
+      {
+        if (asm_context->in_repeat == 1)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        if (parse_repeat(asm_context) == -1) { return -1; }
+      }
+        else
+      if (strcasecmp(token, "endr") == 0)
+      {
+        if (asm_context->in_repeat == 1)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        return 3;
       }
         else
       if (strcasecmp(token, "include") == 0)

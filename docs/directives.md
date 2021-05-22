@@ -104,8 +104,10 @@ For examples on how to use macros, see some of the examples in the documentation
 |.define {macro}             |Define a C style #define macro
 |.else                       |Else for .if or .ifdef
 |.endif                      |Close an .ifdef or .if
-|.macro {name} (opt. params) |Define a macro (should end with .endm
+|.macro {name} (opt. params) |Define a macro (should end with .endm)
 |.endm                       |End of macro definition
+|.repeat {count}             |Repeat the next set of instructions count times)
+|.endr                       |End block of code for .repeat directive
 
 
 Scope Directives:
