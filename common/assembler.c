@@ -506,24 +506,6 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     return 1;
   }
     else
-  if (strcasecmp(token, "entry_point") == 0)
-  {
-    if (parse_entry_point(asm_context) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "align") == 0 || strcasecmp(token, "align_bits") == 0)
-  {
-    if (parse_align_bits(asm_context) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "align_bytes") == 0)
-  {
-    if (parse_align_bytes(asm_context) != 0) { return -1; }
-    return 1;
-  }
-    else
   if (strcasecmp(token, "db") == 0 ||
       strcasecmp(token, "dc8") == 0 ||
       strcasecmp(token, "ascii") == 0)
@@ -564,26 +546,6 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
     if (parse_dc64(asm_context) != 0) { return -1; }
     return 1;
   }
-#if 0
-    else
-  if (strcasecmp(token, "ds") == 0 || strcasecmp(token, "ds8") == 0)
-  {
-    if (parse_ds(asm_context, 1) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "ds16") == 0)
-  {
-    if (parse_ds(asm_context, 2) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "ds32") == 0)
-  {
-    if (parse_ds(asm_context, 4) != 0) { return -1; }
-    return 1;
-  }
-#endif
     else
   if (strcasecmp(token, "varuint") == 0)
   {
@@ -613,124 +575,6 @@ int check_for_directive(struct _asm_context *asm_context, char *token)
   {
     // This is breaking webasm which has an "end" instruction.
     return 2;
-  }
-    else
-  if (strcasecmp(token, "big_endian") == 0)
-  {
-    asm_context->memory.endian = ENDIAN_BIG;
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "little_endian") == 0)
-  {
-    asm_context->memory.endian = ENDIAN_LITTLE;
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "list") == 0)
-  {
-    if (asm_context->pass == 2 && asm_context->list != NULL)
-    {
-      asm_context->write_list_file = 1;
-      putc('\n', asm_context->list);
-    }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "scope") == 0)
-  {
-    if (symbols_scope_start(&asm_context->symbols) != 0)
-    {
-      printf("Error: Nested scopes are not allowed. %s:%d\n",
-        asm_context->tokens.filename,
-        asm_context->tokens.line);
-      return -1;
-    }
-
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "ends") == 0)
-  {
-    symbols_scope_end(&asm_context->symbols);
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "func") == 0)
-  {
-    char token[TOKENLEN];
-    //int token_type;
-
-    tokens_get(asm_context, token, TOKENLEN);
-    symbols_append(&asm_context->symbols, token, asm_context->address);
-
-#if 0
-    token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type != TOKEN_EOL)
-    {
-      print_error_unexp(token, asm_context);
-      return -1;
-    }
-#endif
-
-    if (symbols_scope_start(&asm_context->symbols) != 0)
-    {
-      printf("Error: Nested scopes are not allowed. %s:%d\n",
-        asm_context->tokens.filename,
-        asm_context->tokens.line);
-      return -1;
-    }
-
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "endf") == 0)
-  {
-    symbols_scope_end(&asm_context->symbols);
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "low_address") == 0)
-  {
-    if (parse_low_address(asm_context) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "high_address") == 0)
-  {
-    if (parse_high_address(asm_context) != 0) { return -1; }
-    return 1;
-  }
-
-  if (asm_context->parse_directive != NULL)
-  {
-    int ret = asm_context->parse_directive(asm_context, token);
-    if (ret == 0) { return 1; }   // Found and used
-    if (ret == -1) { return -1; } // Found and there was a problem
-  }
-
-  int n = 0;
-  while (cpu_list[n].name != NULL)
-  {
-    if (strcasecmp(token, cpu_list[n].name) == 0)
-    {
-      configure_cpu(asm_context, n);
-
-#if 0
-      if (strcmp(token, "65816") == 0)
-      {
-        asm_context->parse_directive = parse_directive_65816;
-      }
-        else
-#endif
-      {
-        asm_context->parse_directive = NULL;
-      }
-
-      return 1;
-    }
-
-    n++;
   }
 
   return 0;
@@ -821,6 +665,7 @@ int assemble(struct _asm_context *asm_context)
             asm_context->tokens.filename, asm_context->ifdef_count);
           return -1;
         }
+
         return 2;
       }
         else
@@ -896,9 +741,92 @@ int assemble(struct _asm_context *asm_context)
         if (parse_export(asm_context) != 0) { return -1; }
       }
         else
+      if (strcasecmp(token, "entry_point") == 0)
+      {
+        if (parse_entry_point(asm_context) != 0) { return -1; }
+      }
+        else
+      if (strcasecmp(token, "align") == 0 ||
+          strcasecmp(token, "align_bits") == 0)
+      {
+        if (parse_align_bits(asm_context) != 0) { return -1; }
+      }
+        else
+      if (strcasecmp(token, "align_bytes") == 0)
+      {
+        if (parse_align_bytes(asm_context) != 0) { return -1; }
+      }
+        else
       if (strcasecmp(token, "equ") == 0 || strcasecmp(token, "def") == 0)
       {
         if (parse_equ(asm_context) != 0) { return -1; }
+      }
+        else
+      if (strcasecmp(token, "scope") == 0)
+      {
+        if (symbols_scope_start(&asm_context->symbols) != 0)
+        {
+          printf("Error: Nested scopes are not allowed. %s:%d\n",
+            asm_context->tokens.filename,
+            asm_context->tokens.line);
+          return -1;
+        }
+      }
+        else
+      if (strcasecmp(token, "ends") == 0)
+      {
+        symbols_scope_end(&asm_context->symbols);
+      }
+        else
+      if (strcasecmp(token, "func") == 0)
+      {
+        char token[TOKENLEN];
+        //int token_type;
+
+        tokens_get(asm_context, token, TOKENLEN);
+        symbols_append(&asm_context->symbols, token, asm_context->address);
+
+        if (symbols_scope_start(&asm_context->symbols) != 0)
+        {
+          printf("Error: Nested scopes are not allowed. %s:%d\n",
+            asm_context->tokens.filename,
+            asm_context->tokens.line);
+          return -1;
+        }
+      }
+        else
+      if (strcasecmp(token, "endf") == 0)
+      {
+        symbols_scope_end(&asm_context->symbols);
+      }
+        else
+      if (strcasecmp(token, "low_address") == 0)
+      {
+        if (parse_low_address(asm_context) != 0) { return -1; }
+      }
+        else
+      if (strcasecmp(token, "high_address") == 0)
+      {
+        if (parse_high_address(asm_context) != 0) { return -1; }
+      }
+        else
+      if (strcasecmp(token, "big_endian") == 0)
+      {
+        asm_context->memory.endian = ENDIAN_BIG;
+      }
+        else
+      if (strcasecmp(token, "little_endian") == 0)
+      {
+        asm_context->memory.endian = ENDIAN_LITTLE;
+      }
+        else
+      if (strcasecmp(token, "list") == 0)
+      {
+        if (asm_context->pass == 2 && asm_context->list != NULL)
+        {
+          asm_context->write_list_file = 1;
+          putc('\n', asm_context->list);
+        }
       }
         else
       if (strcasecmp(token, "data_fill") == 0)
@@ -907,17 +835,56 @@ int assemble(struct _asm_context *asm_context)
       }
         else
       {
-        int ret = check_for_directive(asm_context, token);
+        int ret = 0;
 
-        if (ret == 2) { break; }
-        if (ret == -1) { return -1; }
-
-        if (ret != 1)
+        do
         {
+          // If the assembler wants a specific directive, it can be added
+          // with this function pointer.
+          if (asm_context->parse_directive != NULL)
+          {
+            ret = asm_context->parse_directive(asm_context, token);
+            if (ret == 1) { break; }      // Found and used
+            if (ret == -1) { return -1; } // Found and there was a problem
+          }
+
+          ret = check_for_directive(asm_context, token);
+
+          if (ret == 1 || ret == 2) { break; }
+          if (ret == -1) { return -1; }
+
+          int n = 0;
+          while (cpu_list[n].name != NULL)
+          {
+            if (strcasecmp(token, cpu_list[n].name) == 0)
+            {
+              configure_cpu(asm_context, n);
+
+#if 0
+              if (strcmp(token, "65816") == 0)
+              {
+                asm_context->parse_directive = parse_directive_65816;
+              }
+                else
+#endif
+              {
+                asm_context->parse_directive = NULL;
+              }
+
+              ret = 1;
+              break;
+            }
+
+            n++;
+          }
+
+          if (ret == 1) { break; }
+
           printf("Error: Unknown directive '%s' at %s:%d.\n",
             token, asm_context->tokens.filename, asm_context->tokens.line);
           return -1;
-        }
+
+        } while (0);
       }
     }
       else
