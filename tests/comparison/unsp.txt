@@ -12,12 +12,10 @@ break|:0200000060F1AD
 nop|:0200000065F1A8
 main: call main|:0400000040F00000CC
 main: goto main|:0400000080FE00007E
-mul.uu r2,r2|:020000000AE410
 mul.us r2,r2|:020000000AF400
 mul.ss r1,r1|:0200000009F302
 mac.ss [r5],[r2],16|:0200000082FB81
 mac.us [r1],[r2],15|:02000000FAF212
-mac.uu [r5],[r2],5|:02000000AAEA6A
 main: jcc main|:02000000410EAF
 main: jb main|:02000000410EAF
 main: jnae main|:02000000410EAF
