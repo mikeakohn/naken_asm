@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -448,7 +448,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
           }
 
           operand.use_long = 1;
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           operand.value = 0xffff;
         }
 
@@ -532,7 +532,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-        eat_operand(asm_context);
+        ignore_operand(asm_context);
         operand.value = 0x00;
       }
 
@@ -558,7 +558,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-        eat_operand(asm_context);
+        ignore_operand(asm_context);
         operand.value = 0xffff;
       }
 
@@ -585,7 +585,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         }
 
         operand.use_long = 1;
-        eat_operand(asm_context);
+        ignore_operand(asm_context);
         operand.value = 0xffff;
       }
 

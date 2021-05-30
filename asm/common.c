@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -17,7 +17,7 @@
 #include "asm/common.h"
 #include "common/memory.h"
 
-int eat_operand(struct _asm_context *asm_context)
+int ignore_operand(struct _asm_context *asm_context)
 {
   char token[TOKENLEN];
   int token_type;

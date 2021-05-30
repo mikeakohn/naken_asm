@@ -78,7 +78,7 @@ int parse_instruction_68hc08(struct _asm_context *asm_context, char *instr)
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           operands[operand_count].use_16_bit = 1;
           memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
         }
@@ -140,7 +140,7 @@ int parse_instruction_68hc08(struct _asm_context *asm_context, char *instr)
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           operands[operand_count].use_16_bit = 1;
           memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
         }

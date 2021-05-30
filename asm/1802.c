@@ -64,7 +64,7 @@ static int parse_immediate(struct _asm_context *asm_context, char *instr, int *n
 {
   if (asm_context->pass == 1)
   {
-    eat_operand(asm_context);
+    ignore_operand(asm_context);
     *num = 0;
   }
     else

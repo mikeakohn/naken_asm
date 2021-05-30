@@ -89,7 +89,7 @@ static int get_number(
     }
 
     memory_write_m(&asm_context->memory, asm_context->address, 1);
-    eat_operand(asm_context);
+    ignore_operand(asm_context);
     n = 0;
   }
 
@@ -584,7 +584,7 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
           }
 
           memory_write_m(&asm_context->memory, asm_context->address, 1);
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           num = 0;
           tokens_push(asm_context, "]", TOKEN_SYMBOL);
         }

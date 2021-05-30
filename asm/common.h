@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -18,7 +18,7 @@
 #include "common/assembler.h"
 #include "common/tokens.h"
 
-int eat_operand(struct _asm_context *asm_context);
+int ignore_operand(struct _asm_context *asm_context);
 int ignore_paren_expression(struct _asm_context *asm_context);
 int ignore_line(struct _asm_context *asm_context);
 void lower_copy(char *d, const char *s);

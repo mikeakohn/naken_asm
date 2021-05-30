@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -314,7 +314,7 @@ static int get_p(
         return -2;
       }
 
-      eat_operand(asm_context);
+      ignore_operand(asm_context);
       n = 1;
     }
 
@@ -363,7 +363,7 @@ static int get_p(
         return -2;
       }
 
-      eat_operand(asm_context);
+      ignore_operand(asm_context);
       n = -1;
     }
 
@@ -399,7 +399,7 @@ static int get_p(
         return -2;
       }
 
-      eat_operand(asm_context);
+      ignore_operand(asm_context);
       n = 0;
     }
 
@@ -481,7 +481,7 @@ static int get_inc_dec_p(
         return -2;
       }
 
-      eat_operand(asm_context);
+      ignore_operand(asm_context);
       n = 1;
     }
 
@@ -534,7 +534,7 @@ static int get_inc_dec_p(
         return -2;
       }
 
-      eat_operand(asm_context);
+      ignore_operand(asm_context);
       n = -1;
     }
 
@@ -686,7 +686,7 @@ int parse_instruction_propeller2(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-        eat_operand(asm_context);
+        ignore_operand(asm_context);
         operands[operand_count].value = 0;
       }
     }

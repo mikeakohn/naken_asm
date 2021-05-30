@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -78,7 +78,7 @@ int parse_db(struct _asm_context *asm_context, int null_term_flag)
           return -1;
         }
 
-        eat_operand(asm_context);
+        ignore_operand(asm_context);
         data32 = 0;
       }
 
@@ -136,7 +136,7 @@ int parse_dc16(struct _asm_context *asm_context)
         return -1;
       }
 
-      eat_operand(asm_context);
+      ignore_operand(asm_context);
       data32 = 0;
     }
 
@@ -204,7 +204,7 @@ int parse_dc32(struct _asm_context *asm_context)
         return -1;
       }
 
-      eat_operand(asm_context);
+      ignore_operand(asm_context);
     }
 
     udata32 = var_get_bin32(&var);
@@ -217,7 +217,7 @@ int parse_dc32(struct _asm_context *asm_context)
         return -1;
       }
 
-      eat_operand(asm_context);
+      ignore_operand(asm_context);
       data32 = 0;
     }
     udata32 = (uint32_t)data32;
@@ -282,7 +282,7 @@ int parse_dc64(struct _asm_context *asm_context)
         return -1;
       }
 
-      eat_operand(asm_context);
+      ignore_operand(asm_context);
     }
 
     udata64 = (uint64_t)var_get_bin64(&var);
@@ -371,7 +371,7 @@ int parse_dq(struct _asm_context *asm_context)
 
     if (eval_expression_ex(asm_context, &var) == -1)
     {
-      eat_operand(asm_context);
+      ignore_operand(asm_context);
     }
 
     data.f64 = var_get_float(&var);
@@ -522,7 +522,7 @@ int parse_varuint(struct _asm_context *asm_context, int fixed_size)
         return -1;
       }
 
-      eat_operand(asm_context);
+      ignore_operand(asm_context);
     }
 
     udata32 = (uint32_t)var_get_bin64(&var);

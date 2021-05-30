@@ -127,7 +127,7 @@ int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
 
       if (asm_context->pass == 1)
       {
-        eat_operand(asm_context);
+        ignore_operand(asm_context);
         operands[operand_count].value = 0;
       }
         else

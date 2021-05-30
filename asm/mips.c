@@ -633,7 +633,7 @@ static int get_operands_li(
       return -1;
     }
 
-    eat_operand(asm_context);
+    ignore_operand(asm_context);
 
     num = 0;
     force_long = 1;
@@ -856,7 +856,7 @@ static int get_operands(
 
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
         }
           else
         {
@@ -941,7 +941,7 @@ static int get_operands(
 
       if (asm_context->pass == 1)
       {
-        eat_operand(asm_context);
+        ignore_operand(asm_context);
         break;
       }
 

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -253,7 +253,7 @@ static int parse_at(struct _asm_context *asm_context, struct _operand *operand, 
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           num = 0;
         }
           else
@@ -445,7 +445,7 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           num = 0;
         }
           else
@@ -480,7 +480,7 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           num = 0;
         }
           else

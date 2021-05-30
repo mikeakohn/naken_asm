@@ -470,7 +470,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           operands[operand_count].error = 1;
 
           // Store a flag in this address to remind on pass 2 that this
@@ -522,7 +522,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           operands[operand_count].error = 1;
         }
           else
@@ -566,7 +566,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 
         if (asm_context->pass == 1 && eval_error != 0)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
 
           // Set this operand up as something that can't be optimized.
           // It shouldn't matter what it is.

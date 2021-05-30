@@ -36,7 +36,7 @@ static int get_uint(
       return -1;
     }
 
-    eat_operand(asm_context);
+    ignore_operand(asm_context);
 
     *value = 0;
   }

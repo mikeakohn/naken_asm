@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -212,7 +212,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
           use_32_bit_instruction = 1;
         }
@@ -253,7 +253,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
           {
             if (asm_context->pass == 1)
             {
-              eat_operand(asm_context);
+              ignore_operand(asm_context);
               memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
               use_32_bit_instruction = 1;
             }
@@ -315,7 +315,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
           use_32_bit_instruction = 1;
         }

@@ -58,9 +58,13 @@ static int get_num(
   if (eval_expression(asm_context, num) != 0)
   {
     if (asm_context->pass == 1)
-      eat_operand(asm_context);
+    {
+      ignore_operand(asm_context);
+    }
     else
+    {
       return -1;
+    }
   }
 
   // extract single byte
@@ -85,30 +89,45 @@ static int get_num(
   return 0;
 }
 
-static int get_address(struct _asm_context *asm_context,
-                       char *token, int *token_type,
-                       int *num, int *size)
+static int get_address(
+  struct _asm_context *asm_context,
+  char *token,
+  int *token_type,
+  int *num,
+  int *size)
 {
   char modifier = 0;
   int worst_case = 0;
 
   // check for modifiers
   if (IS_TOKEN(token, '<'))
+  {
     modifier = '<';
+  }
   else if (IS_TOKEN(token, '!'))
+  {
     modifier = '!';
+  }
   else if (IS_TOKEN(token, '>'))
+  {
     modifier = '>';
+  }
   else
+  {
     tokens_push(asm_context, token, *token_type);
+  }
 
   // obtain address
   if (eval_expression(asm_context, num) != 0)
   {
     if (asm_context->pass == 1)
-      eat_operand(asm_context);
+    {
+      ignore_operand(asm_context);
+    }
     else
+    {
       return -1;
+    }
 
     // Store a flag in this address to remind on pass 2 that this
     // instruction can't use zero page.

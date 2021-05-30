@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -895,7 +895,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
         }
           else
         {
@@ -1111,7 +1111,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
         if (asm_context->pass == 1)
         {
           operands[operand_count].value = 0;
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
         }
           else
         {

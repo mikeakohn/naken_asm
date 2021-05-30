@@ -1632,7 +1632,7 @@ int parse_instruction_68000(struct _asm_context *asm_context, char *instr)
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           //operands[operand_count].error = 1;
         }
           else
@@ -1764,7 +1764,7 @@ int parse_instruction_68000(struct _asm_context *asm_context, char *instr)
           if (asm_context->pass == 1)
           {
             eval_error = 1;
-            eat_operand(asm_context);
+            ignore_operand(asm_context);
           }
             else
           {
@@ -1917,7 +1917,7 @@ int parse_instruction_68000(struct _asm_context *asm_context, char *instr)
       {
         if (asm_context->pass == 1)
         {
-          eat_operand(asm_context);
+          ignore_operand(asm_context);
           //memory_write(asm_context, asm_context->address, 4, asm_context->tokens.line);
           //eval_error = 1;
         }
