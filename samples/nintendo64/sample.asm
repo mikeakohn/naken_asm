@@ -6,10 +6,9 @@
 .include "nintendo64/system.inc"
 .include "nintendo64/video_interface.inc"
 
-.org 0x8000_0000 + 1052672 - 1
-.db 0x00
+.high_address 0x8010_ffff
 
-.org 0x80000000
+.org 0x8000_0000
 cartridge_header:
   ;; PI_BSB_DOM1_LAT_REG
   ;; PI_BSB_DOM1_PGS_REG
