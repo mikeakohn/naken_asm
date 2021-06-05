@@ -28,7 +28,7 @@ struct _table_unsp table_unsp[] = {
   { "fiq off",     0xf14c, 0xffff, UNSP_OP_NONE },
   { "fiq on",      0xf14e, 0xffff, UNSP_OP_NONE },
   { "break",       0xf160, 0xffff, UNSP_OP_NONE },
-  { "nop",         0xf165, 0xffff, UNSP_OP_NONE },
+  //{ "nop",         0xf165, 0xffff, UNSP_OP_NONE },
   { "call",        0xf040, 0xffc0, UNSP_OP_GOTO },
   { "goto",        0xfe80, 0xffc0, UNSP_OP_GOTO },
   { "mul.ss",      0xf108, 0xf1f8, UNSP_OP_MUL },
