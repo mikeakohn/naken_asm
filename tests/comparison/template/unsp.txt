@@ -9,7 +9,7 @@ irq on
 fiq off
 fiq on
 break
-nop
+;nop
 main: call main
 main: goto main
 ;mul.uu r2,r2

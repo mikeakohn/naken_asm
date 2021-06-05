@@ -59,7 +59,7 @@ struct _operand
 static int get_register_unsp(const char *token)
 {
   if ((token[0] == 'r' || token[0] == 'R') &&
-      (token[1] >= '0' && token[1] <= '7') &&
+      (token[1] >= '1' && token[1] <= '5') &&
       (token[2] == 0))
   {
     return token[1] - '0';
@@ -999,6 +999,12 @@ int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
               operands[1].type == OPERAND_INDIRECT_RS)
           {
             int reg_count = (operands[0].end_reg - operands[0].value) + 1;
+
+            if (reg_count >= 8)
+            {
+              print_error("Cannot push more than seven registers", asm_context);
+              return -1;
+            }
 
             opcode = table_unsp[n].opcode |
                      (operands[0].end_reg << 9) |
