@@ -789,8 +789,8 @@ struct _cpu_list cpu_list[] =
     link_function_mips,
     list_output_mips,
     disasm_range_mips,
-    simulate_init_mips,
-    MIPS_I | MIPS_II | MIPS_III | MIPS_RSP,
+    NULL,
+    MIPS_I | MIPS_RSP,
   },
   {
     "pic32",
@@ -831,7 +831,7 @@ struct _cpu_list cpu_list[] =
     link_function_mips,
     list_output_mips,
     disasm_range_mips,
-    simulate_init_mips,
+    NULL,
     MIPS_I | MIPS_II | MIPS_III | MIPS_IV | MIPS_FPU | MIPS_EE_CORE | MIPS_EE_VU,
   },
 #endif
