@@ -2,7 +2,7 @@
 
 import os,sys
 
-p = os.popen("../../../naken_asm endian.asm")
+p = os.popen("../../naken_asm endian.asm")
 while 1:
   line = p.readline()
   if line == "": break
@@ -11,6 +11,8 @@ p.close()
 fp = open("out.hex", "r")
 line = fp.readline().strip()
 fp.close()
+
+os.remove("out.hex")
 
 print("Endian test: ", end = '')
 
