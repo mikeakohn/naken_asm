@@ -335,16 +335,14 @@ static int add_offset(
 
 static uint32_t find_opcode(const char *instr_case)
 {
-  int n = 0;
+  int n;
 
-  while (mips_i_table[n].instr != NULL)
+  for (n = 0; mips_i_table[n].instr != NULL; n++)
   {
     if (strcmp(instr_case, mips_i_table[n].instr) == 0)
     {
       return mips_i_table[n].function << 26;
     }
-
-    n++;
   }
 
   return 0xffffffff;
@@ -1050,7 +1048,12 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
   if (operand_count < 0) { return -1; }
 
-  n = check_for_pseudo_instruction(asm_context, operands, &operand_count, instr_case, instr);
+  n = check_for_pseudo_instruction(
+    asm_context,
+    operands,
+    &operand_count,
+    instr_case,
+    instr);
 
   if (n != 4)
   {
@@ -1064,25 +1067,21 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   }
 
   // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
-  n = 0;
-  while (mips_r_table[n].instr != NULL)
+  for (n = 0; mips_r_table[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_r_table[n].version & asm_context->flags) == 0)
     {
-      n++;
       continue;
     }
 
     if (strcmp(instr_case, mips_r_table[n].instr) == 0)
     {
       char shift_table[] = { 0, 11, 21, 16, 6 };
+
       if (mips_r_table[n].operand_count != operand_count)
       {
-        //print_error_illegal_operands(instr, asm_context);
-        //return -1;
         found = 1;
-        n++;
         continue;
       }
 
@@ -1118,7 +1117,6 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
       add_bin32(asm_context, opcode, IS_OPCODE);
       return opcode_size;
     }
-    n++;
   }
 
   // J-Type Instruction [ op 6, target 26 ] (jump instructions)
@@ -1164,13 +1162,11 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   }
 
   // I-Type?  [ op 6, rs 5, rt 5, imm 16 ]
-  n = 0;
-  while (mips_i_table[n].instr != NULL)
+  for (n = 0; mips_i_table[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_i_table[n].version & asm_context->flags) == 0)
     {
-      n++;
       continue;
     }
 
@@ -1253,16 +1249,13 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
       return opcode_size;
     }
-    n++;
   }
 
-  n = 0;
-  while (mips_branch_table[n].instr != NULL)
+  for (n = 0; mips_branch_table[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_branch_table[n].version & asm_context->flags) == 0)
     {
-      n++;
       continue;
     }
 
@@ -1326,17 +1319,14 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         return opcode_size;
       }
     }
-    n++;
   }
 
   // Special2 / Special3 type
-  n = 0;
-  while (mips_special_table[n].instr != NULL)
+  for (n = 0; mips_special_table[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_special_table[n].version & asm_context->flags) == 0)
     {
-      n++;
       continue;
     }
 
@@ -1459,16 +1449,13 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
       add_bin32(asm_context, opcode, IS_OPCODE);
       return opcode_size;
     }
-    n++;
   }
 
-  n = 0;
-  while (mips_other[n].instr != NULL)
+  for (n = 0; mips_other[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_other[n].version & asm_context->flags) == 0)
     {
-      n++;
       continue;
     }
 
@@ -1479,7 +1466,6 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
       if (operand_count != mips_other[n].operand_count &&
           mips_other[n].operand[0] != MIPS_OP_OPTIONAL)
       {
-        n++;
         continue;
       }
 
@@ -1715,14 +1701,11 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
       add_bin32(asm_context, opcode, IS_OPCODE);
       return opcode_size;
     }
-
-    n++;
   }
 
   if ((asm_context->flags & MIPS_MSA) != 0)
   {
-    n = 0;
-    while (mips_msa[n].instr != NULL)
+    for (n = 0; mips_msa[n].instr != NULL; n++)
     {
       if (strcmp(instr_case, mips_msa[n].instr) == 0)
       {
@@ -1730,7 +1713,6 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
         if (operand_count != mips_msa[n].operand_count)
         {
-          n++;
           continue;
         }
 
@@ -1779,8 +1761,6 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         add_bin32(asm_context, opcode, IS_OPCODE);
         return opcode_size;
       }
-
-      n++;
     }
   }
 
@@ -1790,8 +1770,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
     get_dest(instr_case, &dest);
 
-    n = 0;
-    while (mips_ee_vector[n].instr != NULL)
+    for (n = 0; mips_ee_vector[n].instr != NULL; n++)
     {
       if (strcmp(instr_case, mips_ee_vector[n].instr) == 0)
       {
@@ -1799,7 +1778,6 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 
         if (operand_count != mips_ee_vector[n].operand_count)
         {
-          n++;
           continue;
         }
 
@@ -2073,8 +2051,6 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
         add_bin32(asm_context, opcode, IS_OPCODE);
         return opcode_size;
       }
-
-      n++;
     }
   }
 
