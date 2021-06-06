@@ -651,6 +651,14 @@ static int get_operands_li(
     num = temp;
   }
 
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+  {
+    print_error_unexp(token, asm_context);
+    return -1;
+  }
+
   // If data size was unknown on pass 1, force_long.
   if (asm_context->pass == 2)
   {
