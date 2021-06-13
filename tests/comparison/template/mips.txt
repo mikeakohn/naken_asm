@@ -1,0 +1,324 @@
+abs.s $f4, $f6
+add.s $f4, $f6, $f18
+;adda.s $f4, $f18
+add $5, $6, $7
+add $k0, $s0, $t7
+addi $k0, $s0, 0x1234
+addi $sp, $sp, -12
+addiu $9, $sp, 0x1234
+addu $ra, $gp, $fp
+and $t5, $t6, $t7
+andi $t5, $t6, 0x1234
+main: b main
+main: bc0f main
+main: bc1f main
+main: bc2f main
+main: bc0fl main
+main: bc1fl main
+main: bc2fl main
+main: bc0t main
+main: bc1t main
+main: bc2t main
+main: bc0tl main
+main: bc1tl main
+main: bc2tl main
+;bal $t1, main
+main: beq $t6, $t7, main
+main: beqz $t6, main
+main: bgez $t6, main
+main: bgezal $t6, main
+main: bgtz $t6, main
+main: blez $t6, main
+main: bltz $t6, main
+main: bltzal $t6, main
+main: bne $t6, $t7, main
+main: bnez $t6, main
+cache 0x0c, 10($t5)
+c.eq.s $f10, $f18
+c.f.s $f10, $f18
+c.le.s $f10, $f18
+c.lt.s $f10, $f18
+cfc1 $t5, $f18
+ctc1 $t5, $f18
+cvt.s.w $f4, $f18
+cvt.w.s $f4, $f18
+;clo $t0, $t1
+;clz $t2, $t3
+dadd $k0, $s0, $t7
+daddi $k0, $s0, 0x1234
+daddiu $k0, $s0, 0x1234
+daddu $k0, $s0, $t7
+;di
+div.s $f4, $f6, $f18
+;div1 $t3, $t4
+;divu1 $t3, $t4
+dsll $t5, $t6, 5
+dsll32 $t5, $t6, 5
+dsllv $t5, $t6, $t7
+dsra $t5, $t6, 5
+dsra32 $t5, $t6, 5
+dsrav $t5, $t6, $t7
+dsrl $t5, $t6, 5
+dsrl32 $t5, $t6, 5
+dsrlv $t5, $t6, $t7
+dsub $t3, $t4, $t5
+dsubu $t3, $t4, $t5
+;ei
+eret
+;ext $t2, $t3, 4, 2
+;ins $t2, $t3, 4, 2
+main: j main
+main: jal main
+jalr $t2, $ra
+jr $t2
+lui $t1, 0x1234
+lb $t3, 0x1234($t4)
+lbu $t3, 0x1234($t4)
+ld $t3, 0x1234($t4)
+ldl $t3, 0x1234($t4)
+ldr $t3, 0x1234($t4)
+lh $t3, 0x1234($t4)
+lhu $t3, 0x1234($t4)
+li $t3, 0x12341234
+ll $t3, 0x1234($t4)
+lw $t3, 0x1234($t4)
+lwc1 $f18, 0x1234($t4)
+lwl $t3, 0x1234($t4)
+lwr $t3, 0x1234($t4)
+lwu $t3, 0x1234($t4)
+;lq $t3, 0x1234($t4)
+;madd $t3, $t4
+;madd $t3, $t4, $t5
+;madd.s $f10, $f12, $f14
+;madda.s $f10, $f12
+;madd1 $t3, $t4
+;madd1 $t3, $t4, $t5
+;maddu $t3, $t4
+;maddu $t3, $t4, $t5
+;maddu1 $t3, $t4
+;maddu1 $t3, $t4, $t5
+;max.s $f2, $f4, $f6
+;mfbpc $t3
+mfc0 $t3, $12
+mfc1 $t3, $f18
+;mfdab $t3
+;mfdabm $t3
+;mfdvb $t3
+;mfdvbm $t3
+;mfiab $t3
+;mfiabm $t3
+;mfpc $t3, 0
+;mfpc $t3, 1
+;mfps $t3, 0
+;min.s $f2, $f4, $f8
+mov.s $f2, $f4
+;msub.s $f2, $f4, $f8
+;msuba.s $f3, $f4
+;mtbpc $t3
+mtc0 $t3, $4
+mtc1 $t3, $f4
+;mtdab $t3
+;mtdabm $t3
+;mtdvb $t3
+;mtdvbm $t3
+;mtiab $t3
+;mtiabm $t3
+;mtpc $t3, 0
+;mtpc $t3, 1
+;mfps $t3, 0
+;mtps $t5, 0
+mfhi $t3
+mflo $t3
+mthi $t3
+mtlo $t3
+;mfhi1 $t3
+;mflo1 $t3
+;mfsa $t3
+;mthi1 $t3
+;mtlo1 $t3
+;msub $t3, $t4
+;msubu $t3, $t4
+;mtsab $t3, 10
+;mtsah $t3, 10
+mul.s $f4, $f8, $f10
+;mula.s $f4, $f8
+mult $t3, $t4
+;mult $t3, $t4, $t5
+;mult1 $t3, $t4
+;mult1 $t3, $t4, $t5
+multu $t3, $t4
+;multu $t3, $t4, $t5
+;move $t3, $t4
+;movn $t3, $t4, $t5
+;movz $t3, $t4, $t5
+neg.s $f2, $f4
+negu $t3, $t4
+nop
+nor $t3, $k1, $k0
+not $t3, $t4
+or $t3, $k0, $k1
+ori $t3, $k0, 0x1234
+;pref 0, 0x1234($t4)
+;pabsh $t2, $t3
+;pabsw $t2, $t3
+;paddb $t2, $t3, $t4
+;paddh $t2, $t3, $t4
+;paddsb $t2, $t3, $t4
+;paddsh $t2, $t3, $t4
+;paddsw $t2, $t3, $t4
+;paddub $t2, $t3, $t4
+;padduh $t2, $t3, $t4
+;padduw $t2, $t3, $t4
+;paddw $t2, $t3, $t4
+;padsbh $t2, $t3, $t4
+;pand $t2, $t3, $t4
+;pceqb $t2, $t3, $t4
+;pceqh $t2, $t3, $t4
+;pceqw $t2, $t3, $t4
+;pcgtb $t2, $t3, $t4
+;pcgth $t2, $t3, $t4
+;pcgtw $t2, $t3, $t4
+;pcpyh $t2, $t3
+;pcpyld $t2, $t3, $t4
+;pcpyud $t2, $t3, $t4
+;pdivbw $t2, $t3
+;pdivuw $t2, $t3
+;pdivw $t2, $t3
+;pexch $t2, $t3
+;pexeh $t2, $t3
+;pexew $t2, $t3
+;pext5 $t2, $t3
+;pextlb $t2, $t3, $t4
+;pextlh $t2, $t3, $t4
+;pextlw $t2, $t3, $t4
+;pextub $t2, $t3, $t4
+;pextuh $t2, $t3, $t4
+;pextuw $t2, $t3, $t4
+;phmadh $t2, $t3, $t4
+;phmsbh $t2, $t3, $t4
+;pinteh $t2, $t3, $t4
+;pinth $t2, $t3, $t4
+;plzcw $t2, $t3
+;pmaddh $t2, $t3, $t4
+;pmadduw $t2, $t3, $t4
+;pmaddw $t2, $t3, $t4
+;pmaxh $t2, $t3, $t4
+;pmaxw $t2, $t3, $t4
+;pmfhi $t2
+;pmfhl.lh $t2
+;pmfhl.lw $t2
+;pmfhl.sh $t2
+;pmfhl.slw $t2
+;pmfhl.uw $t2
+;pmflo $t2
+;pminh $t2, $t3, $t4
+;pminw $t2, $t3, $t4
+;pmsubh $t2, $t3, $t4
+;pmsubw $t2, $t3, $t4
+;pmthi $t2
+;pmthl.lw $t2
+;pmtlo $t2
+;pmulth $t2, $t3, $t4
+;pmultuw $t2, $t3, $t4
+;pmultw $t2, $t3, $t4
+;pnor $t2, $t3, $t4
+;por $t2, $t3, $t4
+;ppac5 $t3, $t4
+;ppacb $t3, $t4, $t5
+;ppach $t3, $t4, $t5
+;ppacw $t3, $t4, $t5
+;prevh $t3, $t4
+;prot3w $t3, $t4
+;psllh $t3, $t4, 5
+;psllvw $t3, $t4, $t5
+;psllw $t3, $t4, 5
+;psrah $t3, $t4, 5
+;psravw $t3, $t4, $t5
+;psraw $t3, $t4, 5
+;psrlh $t3, $t4, 5
+;psrlvw $t3, $t4, $t5
+;psrlw $t3, $t4, 5
+;psubb $t3, $t4, $t5
+;psubh $t3, $t4, $t5
+;psubsb $t3, $t4, $t5
+;psubsh $t3, $t4, $t5
+;psubsw $t3, $t4, $t5
+;psubub $t3, $t4, $t5
+;psubuh $t3, $t4, $t5
+;psubuw $t3, $t4, $t5
+;psubw $t3, $t4, $t5
+;pxor $t3, $t4, $t5
+;qfsrv $t3, $t4, $t5
+;rsqrt.s $f3, $f4, $f21
+;rotr $t3, $t4, 10
+;rotr $t3, $t4, 31
+;rotrv $t3, $t4, $t5
+sc $t3, 0x1234($t4)
+sb $t3, 0x1234($t4)
+sd $t3, 0x1234($t4)
+;sq $t3, 0x1234($t4)
+sdl $t3, 0x1234($t4)
+sdr $t3, 0x1234($t4)
+;seb $t3, $t4
+;seh $t3, $t4
+sh $t3, 0x1234($t4)
+sll $t5, $t6, 5
+sllv $t5, $t6, $t7
+slt $t3, $t4, $t5
+slti $t3, $k0, 0x1234
+sltiu $t3, $k0, 0x1234
+sltu $t3, $t4, $t5
+sqrt.s $f2, $f4
+sra $t5, $t6, 5
+srav $t5, $t6, $t7
+srl $t5, $t6, 5
+srlv $t5, $t6, $t7
+sub $t3, $t4, $t5
+sub.s $f10, $f14, $f12
+;suba.s $f10, $f14
+subu $t3, $t4, $t5
+sw $0, ($t1)
+sw $t3, 0x1234($t4)
+sw $t3, -8($t4)
+sw $t0, 0x61a0($k0)
+swc1 $f3, 0x1234($t4)
+swl $t3, 0x1234($t4)
+swr $t3, 0x1234($t4)
+sync
+sync.l
+sync.p
+syscall
+teq $t3, $t4
+teqi $t3, 0x1234
+tge $t3, $t4
+tgei $t3, 0x1234
+tgeiu $t3, 0x1234
+tgeu $t3, $t4
+tlbp
+tlbr
+tlbwi
+tlbwr
+tlt $t3, $t4
+tlti $t3, 0x1234
+tltiu $t3, 0x1234
+tltu $t3, $t4
+tne $t3, $t4
+tnei $t3, 0x1234
+;wsbh $t1, $t2
+xor $t3, $k0, $k1
+xori $t3, $k0, 0x1234
+xori $t0, $t0, 0xff
+;cfc2 $t0, $vi1
+;cfc2.ni $t0, $vi1
+;cfc2.i $t0, $vi15
+;ctc2 $t0, $vi1
+;ctc2.ni $t0, $vi1
+;ctc2.i $t0, $vi15
+;lqc2 $vf1, 100($t3)
+;qmfc2 $t0, $vf1
+;qmfc2.ni $t0, $vf1
+;qmfc2.i $t0, $vf16
+;qmtc2 $t0, $vf1
+;qmtc2.ni $t0, $vf1
+;qmtc2.i $t0, $vf16
+;sqc2 $vf1, 10($t3)

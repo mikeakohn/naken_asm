@@ -144,7 +144,7 @@ setup_rdp_loop:
   li $t0, dp_draw_triangles_end - dp_setup
   sw $t0, DP_END_REG($a0)
 
-  ;; Inifinite loop at end of program.
+  ;; Infinite loop at end of program.
 while_1:
   beq $0, $0, while_1
   nop

@@ -344,8 +344,8 @@ struct _mips_other mips_other[] =
   { "bc1tl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45030000, 0xffff0000, MIPS_II },
   { "c.eq.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000032, 0xffe007ff, MIPS_I },
   { "c.f.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000030, 0xffe007ff, MIPS_I },
-  { "c.le.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000036, 0xffe007ff, MIPS_I },
-  { "c.lt.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000034, 0xffe007ff, MIPS_I },
+  { "c.le.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000036, 0xffe007ff, MIPS_EE_CORE },
+  { "c.lt.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000034, 0xffe007ff, MIPS_EE_CORE },
   { "cfc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44400000, 0xffe007ff, MIPS_I },
   { "ctc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44c00000, 0xffe007ff, MIPS_I },
   { "cvt.s.w", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46800020, 0xffff003f, MIPS_I },
@@ -367,6 +367,11 @@ struct _mips_other mips_other[] =
   { "sqrt.s", { MIPS_OP_FD, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000004, 0xffe0f83f, MIPS_IV },
   { "sub.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000001, 0xffe0003f, MIPS_I },
   { "suba.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000019, 0xffe007ff, MIPS_EE_CORE },
+
+  // FIXME: These aren't working on the MIPS_EE_CORE.
+  { "c.le.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600003e, 0xffe007ff, MIPS_I },
+  { "c.lt.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600003c, 0xffe007ff, MIPS_I },
+  { "sqrt.s", { MIPS_OP_FD, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000004, 0xffff003f, MIPS_FPU },
 
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };

@@ -748,7 +748,7 @@ struct _cpu_list cpu_list[] =
     list_output_mips,
     disasm_range_mips,
     simulate_init_mips,
-    MIPS_I | MIPS_II | MIPS_III,
+    MIPS_I | MIPS_II | MIPS_III | MIPS_FPU,
   },
   {
     "mips32",
