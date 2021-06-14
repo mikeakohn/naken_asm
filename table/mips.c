@@ -226,6 +226,48 @@ struct _mips_other mips_other[] =
   { "tlbwi", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000002, 0xffffffff, MIPS_I },
   { "tlbwr", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000006, 0xffffffff, MIPS_I },
 
+  // FPU instructions
+  { "abs.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000005, 0xffff003f, MIPS_I },
+  { "add.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000000, 0xffe0003f, MIPS_I },
+  { "adda.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000018, 0xffe007ff, MIPS_I },
+  { "bc1f", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45000000, 0xffff0000, MIPS_I },
+  { "bc1fl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45020000, 0xffff0000, MIPS_II },
+  { "bc1t", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45010000, 0xffff0000, MIPS_I },
+  { "bc1tl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45030000, 0xffff0000, MIPS_II },
+  { "c.eq.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000032, 0xffe007ff, MIPS_I },
+  { "c.f.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000030, 0xffe007ff, MIPS_I },
+  { "cfc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44400000, 0xffe007ff, MIPS_I },
+  { "ctc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44c00000, 0xffe007ff, MIPS_I },
+  { "cvt.s.w", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46800020, 0xffff003f, MIPS_I },
+  { "cvt.w.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000024, 0xffff003f, MIPS_I },
+  { "div.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000003, 0xffe0003f, MIPS_I },
+  { "madd.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x4600001c, 0xffe0003f, MIPS_I },
+  { "madda.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600001e, 0xffe007ff, MIPS_EE_CORE },
+  { "max.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000028, 0xffe0003f, MIPS_EE_CORE },
+  { "mfc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44000000, 0xffe007ff, MIPS_I },
+  { "min.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000029, 0xffe0003f, MIPS_EE_CORE },
+  { "mov.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000006, 0xffe0003f, MIPS_I },
+  { "msub.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x4600001d, 0xffe0003f, MIPS_I },
+  { "msuba.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600001f, 0xffe007ff, MIPS_EE_CORE },
+  { "mtc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44800000, 0xffe007ff, MIPS_I },
+  { "mul.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000002, 0xffe0003f, MIPS_I },
+  { "mula.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600001a, 0xffe007ff, MIPS_EE_CORE },
+  { "neg.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000007, 0xffff003f, MIPS_I },
+  { "rsqrt.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000016, 0xffe0003f, MIPS_IV },
+  { "sqrt.s", { MIPS_OP_FD, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000004, 0xffe0f83f, MIPS_IV },
+  { "sub.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000001, 0xffe0003f, MIPS_I },
+  { "suba.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000019, 0xffe007ff, MIPS_EE_CORE },
+
+  // FIXME: These aren't working on the MIPS_EE_CORE.
+  { "c.le.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600003e, 0xffe007ff, MIPS_I },
+  { "c.lt.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600003c, 0xffe007ff, MIPS_I },
+  { "sqrt.s", { MIPS_OP_FD, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000004, 0xffff003f, MIPS_FPU },
+
+  { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
+};
+
+struct _mips_other mips_ee[] =
+{
   // Emotion Engine vector instructions
   { "pabsh", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000168, 0xffe007ff, MIPS_EE_CORE },
   { "pabsw", { MIPS_OP_RD, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000068, 0xffe007ff, MIPS_EE_CORE },
@@ -335,45 +377,8 @@ struct _mips_other mips_other[] =
   { "sqc2", { MIPS_OP_VFT, MIPS_OP_IMMEDIATE_RS, MIPS_OP_NONE }, 2, 0xf8000000, 0xfc000000, MIPS_EE_CORE },
 
   // FPU instructions
-  { "abs.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000005, 0xffff003f, MIPS_I },
-  { "add.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000000, 0xffe0003f, MIPS_I },
-  { "adda.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000018, 0xffe007ff, MIPS_I },
-  { "bc1f", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45000000, 0xffff0000, MIPS_I },
-  { "bc1fl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45020000, 0xffff0000, MIPS_II },
-  { "bc1t", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45010000, 0xffff0000, MIPS_I },
-  { "bc1tl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x45030000, 0xffff0000, MIPS_II },
-  { "c.eq.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000032, 0xffe007ff, MIPS_I },
-  { "c.f.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000030, 0xffe007ff, MIPS_I },
   { "c.le.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000036, 0xffe007ff, MIPS_EE_CORE },
   { "c.lt.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000034, 0xffe007ff, MIPS_EE_CORE },
-  { "cfc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44400000, 0xffe007ff, MIPS_I },
-  { "ctc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44c00000, 0xffe007ff, MIPS_I },
-  { "cvt.s.w", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46800020, 0xffff003f, MIPS_I },
-  { "cvt.w.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000024, 0xffff003f, MIPS_I },
-  { "div.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000003, 0xffe0003f, MIPS_I },
-  { "madd.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x4600001c, 0xffe0003f, MIPS_I },
-  { "madda.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600001e, 0xffe007ff, MIPS_EE_CORE },
-  { "max.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000028, 0xffe0003f, MIPS_EE_CORE },
-  { "mfc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44000000, 0xffe007ff, MIPS_I },
-  { "min.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000029, 0xffe0003f, MIPS_EE_CORE },
-  { "mov.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000006, 0xffe0003f, MIPS_I },
-  { "msub.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x4600001d, 0xffe0003f, MIPS_I },
-  { "msuba.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600001f, 0xffe007ff, MIPS_EE_CORE },
-  { "mtc1", { MIPS_OP_RT, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x44800000, 0xffe007ff, MIPS_I },
-  { "mul.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000002, 0xffe0003f, MIPS_I },
-  { "mula.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600001a, 0xffe007ff, MIPS_EE_CORE },
-  { "neg.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46000007, 0xffff003f, MIPS_I },
-  { "rsqrt.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000016, 0xffe0003f, MIPS_IV },
-  { "sqrt.s", { MIPS_OP_FD, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000004, 0xffe0f83f, MIPS_IV },
-  { "sub.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_FT }, 3, 0x46000001, 0xffe0003f, MIPS_I },
-  { "suba.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000019, 0xffe007ff, MIPS_EE_CORE },
-
-  // FIXME: These aren't working on the MIPS_EE_CORE.
-  { "c.le.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600003e, 0xffe007ff, MIPS_I },
-  { "c.lt.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600003c, 0xffe007ff, MIPS_I },
-  { "sqrt.s", { MIPS_OP_FD, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000004, 0xffff003f, MIPS_FPU },
-
-  { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 
 struct _mips_cache mips_cache[] =

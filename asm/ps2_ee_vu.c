@@ -58,14 +58,16 @@ struct _operand
   int base_reg;
 };
 
-static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *field_mask)
+static int get_register_ps2_ee_vu(
+  char *token,
+  int *type,
+  int *value,
+  int *field_mask)
 {
   int ptr = 2;
 
   if (token[0] == '$') { token++; }
-
   if (token[0] != 'v') { return -1; }
-
 
   if (token[1] == 'f')
   {
@@ -83,7 +85,7 @@ static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *field
 
   *value = 0;
 
-  while(1)
+  while (1)
   {
     if (token[ptr] < '0' || token[ptr] > '9') { break; }
     *value = ((*value) * 10) + (token[ptr] - '0');
@@ -92,7 +94,7 @@ static int get_register_ps2_ee_vu(char *token, int *type, int *value, int *field
 
   if (ptr == 2) { return -1; }
 
-  while(token[ptr] != 0)
+  while (token[ptr] != 0)
   {
     char c = tolower(token[ptr]);
     if (c == 'x') { *field_mask |= FIELD_X; }
@@ -122,31 +124,39 @@ static int get_field_number(int field_mask)
   return value[field_mask];
 }
 
-static int get_field_bits(struct _asm_context *asm_context, char *token, int *dest)
+static int get_field_bits(
+  struct _asm_context *asm_context,
+  char *token,
+  int *dest)
 {
   int n;
 
-  n = 0;
-  while(token[n] != 0)
+  for (n = 0; token[n] != 0; n++)
   {
     char c = tolower(token[n]);
+
     if (c == 'x') { *dest |= FIELD_X; }
     else if (c == 'y') { *dest |= FIELD_Y; }
     else if (c == 'z') { *dest |= FIELD_Z; }
     else if (c == 'w') { *dest |= FIELD_W; }
     else
     {
-      printf("Error: Unknown component '%c' at %s:%d\n", token[n], asm_context->tokens.filename, asm_context->tokens.line);
+      printf("Error: Unknown component '%c' at %s:%d\n",
+        token[n],
+        asm_context->tokens.filename,
+        asm_context->tokens.line);
+
       return -1;
     }
-
-    n++;
   }
 
   return 0;
 }
 
-int get_base(struct _asm_context *asm_context, struct _operand *operand, int *modifier)
+int get_base(
+  struct _asm_context *asm_context,
+  struct _operand *operand,
+  int *modifier)
 {
   int type, n;
   int token_type;
@@ -228,7 +238,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
   int token_type;
   char token[TOKENLEN];
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
@@ -254,7 +264,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       token_type = tokens_get(asm_context, token, TOKENLEN);
 
       n = 0;
-      while(token[n] != 0)
+      while (token[n] != 0)
       {
         char c = tolower(token[n]);
         if (c == 'i') { *iemdt_bits |= 16; }
@@ -492,8 +502,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
   }
 #endif
 
-  n = 0;
-  while(table_ps2_ee_vu[n].instr != NULL)
+  for (n = 0; table_ps2_ee_vu[n].instr != NULL; n++)
   {
     if (strcmp(instr_case, table_ps2_ee_vu[n].instr) == 0)
     {
@@ -510,7 +519,6 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
         // REVIEW: Does this chip have instructions with the same name
         //         different operand count?
         wrong_operand_count = 1;
-        n++;
         continue;
       }
 
@@ -828,7 +836,6 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
 
       return opcode | (iemdt_bits << 27) | (dest << 21);
     }
-    n++;
   }
 
   if (wrong_operand_count == 0)

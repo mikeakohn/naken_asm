@@ -1031,6 +1031,536 @@ static int get_operands(
   return operand_count;
 }
 
+static int check_ee_instruction(
+  struct _asm_context *asm_context,
+  const char *instr,
+  const char *instr_case,
+  struct _operand *operands,
+  int operand_count,
+  int *found)
+{
+  int n, r;
+
+  for (n = 0; mips_ee[n].instr != NULL; n++)
+  {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_ee[n].version & asm_context->flags) == 0)
+    {
+      continue;
+    }
+
+    if (strcmp(instr_case, mips_ee[n].instr) == 0)
+    {
+      *found = 1;
+
+      if (operand_count != mips_ee[n].operand_count &&
+          mips_ee[n].operand[0] != MIPS_OP_OPTIONAL)
+      {
+        continue;
+      }
+
+      uint32_t opcode = mips_ee[n].opcode;
+
+      for (r = 0; r < mips_ee[n].operand_count; r++)
+      {
+        switch (mips_ee[n].operand[r])
+        {
+          case MIPS_OP_RS:
+            if (operands[r].type != OPERAND_TREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 21;
+
+            break;
+          case MIPS_OP_RT:
+            if (operands[r].type != OPERAND_TREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 16;
+
+            break;
+          case MIPS_OP_RD:
+            if (operands[r].type != OPERAND_TREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
+
+            break;
+          case MIPS_OP_FT:
+            if (operands[r].type != OPERAND_FREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 16;
+
+            break;
+          case MIPS_OP_FS:
+            if (operands[r].type != OPERAND_FREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
+
+            break;
+          case MIPS_OP_FD:
+            if (operands[r].type != OPERAND_FREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 6;
+
+            break;
+          case MIPS_OP_VIS:
+            if (operands[r].type != OPERAND_VIREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
+
+            break;
+          case MIPS_OP_VFT:
+            if (operands[r].type != OPERAND_VFREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 16;
+
+            break;
+          case MIPS_OP_VFS:
+            if (operands[r].type != OPERAND_VFREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
+
+            break;
+          case MIPS_OP_SA:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < 0 || operands[r].value > 31)
+            {
+              print_error_range("Constant", 0, 31, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 6;
+
+            break;
+          case MIPS_OP_IMMEDIATE_SIGNED:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < -32768 || operands[r].value > 32767)
+            {
+              print_error_range("Constant", -32768, 32767, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value & 0xffff;
+
+            break;
+          case MIPS_OP_IMMEDIATE_RS:
+            if (operands[r].type != OPERAND_IMMEDIATE_RS)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < -32768 || operands[r].value > 32767)
+            {
+              print_error_range("Constant", -32768, 32767, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value & 0xffff;
+            opcode |= operands[r].reg2 << 21;
+
+            break;
+          case MIPS_OP_LABEL:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (add_offset(asm_context, operands[r].value, &opcode) == -1)
+            {
+              return -1;
+            }
+
+            break;
+          case MIPS_OP_PREG:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < 0 || operands[r].value > 1)
+            {
+              print_error_range("Constant", 0, 1, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 1;
+            break;
+          case MIPS_OP_OPTIONAL:
+            if (operand_count == 1)
+            {
+              if (operands[r].type != OPERAND_IMMEDIATE)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              if (operands[r].value < 0 || operands[r].value >= (1 << 20))
+              {
+                print_error_range("Constant", 0, (1 << 20) - 1, asm_context);
+                return -1;
+              }
+
+              opcode |= operands[r].value << 6;
+            }
+            break;
+          case MIPS_OP_ID_REG:
+            if (operands[r].type == OPERAND_IMMEDIATE)
+            {
+              if (operands[r].value < 0 || operands[r].value > 0x1f)
+              {
+                print_error_range("Constant", 0, 0x1f, asm_context);
+                return -1;
+              }
+            }
+              else
+            if (operands[r].type == OPERAND_R)
+            {
+              operands[r].value = 20;
+            }
+              else
+            if (operands[r].type == OPERAND_I)
+            {
+              operands[r].value = 21;
+            }
+              else
+            if (operands[r].type == OPERAND_Q)
+            {
+              operands[r].value = 22;
+            }
+              else
+            if (operands[r].type == OPERAND_VIREG)
+            {
+            }
+
+            opcode |= (operands[r].value & 0x1f) << 11;
+
+            break;
+          default:
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+        }
+      }
+
+      add_bin32(asm_context, opcode, IS_OPCODE);
+      return 4;
+    }
+  }
+
+  return 0;
+}
+
+static int check_other_instruction(
+  struct _asm_context *asm_context,
+  const char *instr,
+  const char *instr_case,
+  struct _operand *operands,
+  int operand_count,
+  int *found)
+{
+  int n, r;
+
+  for (n = 0; mips_other[n].instr != NULL; n++)
+  {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_other[n].version & asm_context->flags) == 0)
+    {
+      continue;
+    }
+
+    if (strcmp(instr_case, mips_other[n].instr) == 0)
+    {
+      *found = 1;
+
+      if (operand_count != mips_other[n].operand_count &&
+          mips_other[n].operand[0] != MIPS_OP_OPTIONAL)
+      {
+        continue;
+      }
+
+      uint32_t opcode = mips_other[n].opcode;
+
+      for (r = 0; r < mips_other[n].operand_count; r++)
+      {
+        switch (mips_other[n].operand[r])
+        {
+          case MIPS_OP_RS:
+            if (operands[r].type != OPERAND_TREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 21;
+
+            break;
+          case MIPS_OP_RT:
+            if (operands[r].type != OPERAND_TREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 16;
+
+            break;
+          case MIPS_OP_RD:
+            if (operands[r].type != OPERAND_TREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
+
+            break;
+          case MIPS_OP_FT:
+            if (operands[r].type != OPERAND_FREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 16;
+
+            break;
+          case MIPS_OP_FS:
+            if (operands[r].type != OPERAND_FREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
+
+            break;
+          case MIPS_OP_FD:
+            if (operands[r].type != OPERAND_FREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 6;
+
+            break;
+          case MIPS_OP_VIS:
+            if (operands[r].type != OPERAND_VIREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
+
+            break;
+          case MIPS_OP_VFT:
+            if (operands[r].type != OPERAND_VFREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 16;
+
+            break;
+          case MIPS_OP_VFS:
+            if (operands[r].type != OPERAND_VFREG)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 11;
+
+            break;
+          case MIPS_OP_SA:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < 0 || operands[r].value > 31)
+            {
+              print_error_range("Constant", 0, 31, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 6;
+
+            break;
+          case MIPS_OP_IMMEDIATE_SIGNED:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < -32768 || operands[r].value > 32767)
+            {
+              print_error_range("Constant", -32768, 32767, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value & 0xffff;
+
+            break;
+          case MIPS_OP_IMMEDIATE_RS:
+            if (operands[r].type != OPERAND_IMMEDIATE_RS)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < -32768 || operands[r].value > 32767)
+            {
+              print_error_range("Constant", -32768, 32767, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value & 0xffff;
+            opcode |= operands[r].reg2 << 21;
+
+            break;
+          case MIPS_OP_LABEL:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (add_offset(asm_context, operands[r].value, &opcode) == -1)
+            {
+              return -1;
+            }
+
+            break;
+          case MIPS_OP_PREG:
+            if (operands[r].type != OPERAND_IMMEDIATE)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
+            if (operands[r].value < 0 || operands[r].value > 1)
+            {
+              print_error_range("Constant", 0, 1, asm_context);
+              return -1;
+            }
+
+            opcode |= operands[r].value << 1;
+            break;
+          case MIPS_OP_OPTIONAL:
+            if (operand_count == 1)
+            {
+              if (operands[r].type != OPERAND_IMMEDIATE)
+              {
+                print_error_illegal_operands(instr, asm_context);
+                return -1;
+              }
+
+              if (operands[r].value < 0 || operands[r].value >= (1 << 20))
+              {
+                print_error_range("Constant", 0, (1 << 20) - 1, asm_context);
+                return -1;
+              }
+
+              opcode |= operands[r].value << 6;
+            }
+            break;
+          case MIPS_OP_ID_REG:
+            if (operands[r].type == OPERAND_IMMEDIATE)
+            {
+              if (operands[r].value < 0 || operands[r].value > 0x1f)
+              {
+                print_error_range("Constant", 0, 0x1f, asm_context);
+                return -1;
+              }
+            }
+              else
+            if (operands[r].type == OPERAND_R)
+            {
+              operands[r].value = 20;
+            }
+              else
+            if (operands[r].type == OPERAND_I)
+            {
+              operands[r].value = 21;
+            }
+              else
+            if (operands[r].type == OPERAND_Q)
+            {
+              operands[r].value = 22;
+            }
+              else
+            if (operands[r].type == OPERAND_VIREG)
+            {
+            }
+
+            opcode |= (operands[r].value & 0x1f) << 11;
+
+            break;
+          default:
+            print_error_illegal_operands(instr, asm_context);
+            return -1;
+        }
+      }
+
+      add_bin32(asm_context, opcode, IS_OPCODE);
+      return 4;
+    }
+  }
+
+  return 0;
+}
+
 int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 {
   struct _operand operands[4];
@@ -1459,257 +1989,30 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
     }
   }
 
-  for (n = 0; mips_other[n].instr != NULL; n++)
+  if (asm_context->cpu_type == CPU_TYPE_EMOTION_ENGINE)
   {
-    // Check of this specific MIPS chip uses this instruction.
-    if ((mips_other[n].version & asm_context->flags) == 0)
-    {
-      continue;
-    }
+    int size = check_ee_instruction(
+      asm_context,
+      instr,
+      instr_case,
+      operands,
+      operand_count,
+      &found);
 
-    if (strcmp(instr_case, mips_other[n].instr) == 0)
-    {
-      found = 1;
-
-      if (operand_count != mips_other[n].operand_count &&
-          mips_other[n].operand[0] != MIPS_OP_OPTIONAL)
-      {
-        continue;
-      }
-
-      opcode = mips_other[n].opcode;
-
-      for (r = 0; r < mips_other[n].operand_count; r++)
-      {
-        switch (mips_other[n].operand[r])
-        {
-          case MIPS_OP_RS:
-            if (operands[r].type != OPERAND_TREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 21;
-
-            break;
-          case MIPS_OP_RT:
-            if (operands[r].type != OPERAND_TREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 16;
-
-            break;
-          case MIPS_OP_RD:
-            if (operands[r].type != OPERAND_TREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 11;
-
-            break;
-          case MIPS_OP_FT:
-            if (operands[r].type != OPERAND_FREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 16;
-
-            break;
-          case MIPS_OP_FS:
-            if (operands[r].type != OPERAND_FREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 11;
-
-            break;
-          case MIPS_OP_FD:
-            if (operands[r].type != OPERAND_FREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 6;
-
-            break;
-          case MIPS_OP_VIS:
-            if (operands[r].type != OPERAND_VIREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 11;
-
-            break;
-          case MIPS_OP_VFT:
-            if (operands[r].type != OPERAND_VFREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 16;
-
-            break;
-          case MIPS_OP_VFS:
-            if (operands[r].type != OPERAND_VFREG)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 11;
-
-            break;
-          case MIPS_OP_SA:
-            if (operands[r].type != OPERAND_IMMEDIATE)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            if (operands[r].value < 0 || operands[r].value > 31)
-            {
-              print_error_range("Constant", 0, 31, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 6;
-
-            break;
-          case MIPS_OP_IMMEDIATE_SIGNED:
-            if (operands[r].type != OPERAND_IMMEDIATE)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            if (operands[r].value < -32768 || operands[r].value > 32767)
-            {
-              print_error_range("Constant", -32768, 32767, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value & 0xffff;
-
-            break;
-          case MIPS_OP_IMMEDIATE_RS:
-            if (operands[r].type != OPERAND_IMMEDIATE_RS)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            if (operands[r].value < -32768 || operands[r].value > 32767)
-            {
-              print_error_range("Constant", -32768, 32767, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value & 0xffff;
-            opcode |= operands[r].reg2 << 21;
-
-            break;
-          case MIPS_OP_LABEL:
-            if (operands[r].type != OPERAND_IMMEDIATE)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            if (add_offset(asm_context, operands[r].value, &opcode) == -1)
-            {
-              return -1;
-            }
-
-            break;
-          case MIPS_OP_PREG:
-            if (operands[r].type != OPERAND_IMMEDIATE)
-            {
-              print_error_illegal_operands(instr, asm_context);
-              return -1;
-            }
-
-            if (operands[r].value < 0 || operands[r].value > 1)
-            {
-              print_error_range("Constant", 0, 1, asm_context);
-              return -1;
-            }
-
-            opcode |= operands[r].value << 1;
-            break;
-          case MIPS_OP_OPTIONAL:
-            if (operand_count == 1)
-            {
-              if (operands[r].type != OPERAND_IMMEDIATE)
-              {
-                print_error_illegal_operands(instr, asm_context);
-                return -1;
-              }
-
-              if (operands[r].value < 0 || operands[r].value >= (1 << 20))
-              {
-                print_error_range("Constant", 0, (1 << 20) - 1, asm_context);
-                return -1;
-              }
-
-              opcode |= operands[r].value << 6;
-            }
-            break;
-          case MIPS_OP_ID_REG:
-            if (operands[r].type == OPERAND_IMMEDIATE)
-            {
-              if (operands[r].value < 0 || operands[r].value > 0x1f)
-              {
-                print_error_range("Constant", 0, 0x1f, asm_context);
-                return -1;
-              }
-            }
-              else
-            if (operands[r].type == OPERAND_R)
-            {
-              operands[r].value = 20;
-            }
-              else
-            if (operands[r].type == OPERAND_I)
-            {
-              operands[r].value = 21;
-            }
-              else
-            if (operands[r].type == OPERAND_Q)
-            {
-              operands[r].value = 22;
-            }
-              else
-            if (operands[r].type == OPERAND_VIREG)
-            {
-            }
-
-            opcode |= (operands[r].value & 0x1f) << 11;
-
-            break;
-          default:
-            print_error_illegal_operands(instr, asm_context);
-            return -1;
-        }
-      }
-
-      add_bin32(asm_context, opcode, IS_OPCODE);
-      return opcode_size;
-    }
+    if (size == -1) { return -1; }
+    if (size != 0) { return size; }
   }
+
+  int size = check_other_instruction(
+    asm_context,
+    instr,
+    instr_case,
+    operands,
+    operand_count,
+    &found);
+
+  if (size == -1) { return -1; }
+  if (size != 0) { return size; }
 
   if ((asm_context->flags & MIPS_MSA) != 0)
   {

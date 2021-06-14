@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -28,6 +28,7 @@
 #define MIPS_EE_VU   0x0080
 #define MIPS_MSA     0x0100
 #define MIPS_RSP     0x0200
+#define MIPS_PIC32   0x0400
 
 enum
 {
@@ -169,6 +170,7 @@ extern struct _mips_instr mips_i_table[];
 extern struct _mips_branch mips_branch_table[];
 extern struct _mips_special_instr mips_special_table[];
 extern struct _mips_other mips_other[];
+extern struct _mips_other mips_ee[];
 extern struct _mips_cache mips_cache[];
 extern struct _mips_other mips_msa[];
 extern struct _mips_ee_vector mips_ee_vector[];

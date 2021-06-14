@@ -445,6 +445,101 @@ int disasm_mips(
     }
   }
 
+  for (n = 0; mips_other[n].instr != NULL; n++)
+  {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_other[n].version & flags) == 0)
+    {
+      continue;
+    }
+
+    if (mips_other[n].opcode == (opcode & mips_other[n].mask))
+    {
+      strcpy(instruction, mips_other[n].instr);
+
+      rs = (opcode >> 21) & 0x1f;
+      rt = (opcode >> 16) & 0x1f;
+      rd = (opcode >> 11) & 0x1f;
+      sa = (opcode >> 6) & 0x1f;
+      immediate = opcode & 0xffff;
+
+      for (r = 0; r < mips_other[n].operand_count; r++)
+      {
+        if (r != 0) { strcat(instruction, ","); }
+
+        switch (mips_other[n].operand[r])
+        {
+          case MIPS_OP_RS:
+            sprintf(temp, " %s", reg[rs]);
+            break;
+          case MIPS_OP_RT:
+            sprintf(temp, " %s", reg[rt]);
+            break;
+          case MIPS_OP_RD:
+            sprintf(temp, " %s", reg[rd]);
+            break;
+          case MIPS_OP_FT:
+            sprintf(temp, " $f%d", rt);
+            break;
+          case MIPS_OP_FS:
+            sprintf(temp, " $f%d", rd);
+            break;
+          case MIPS_OP_FD:
+            sprintf(temp, " $f%d", sa);
+            break;
+          case MIPS_OP_VIS:
+            sprintf(temp, " $vi%d", rd);
+            break;
+          case MIPS_OP_VFS:
+            sprintf(temp, " $vf%d", rd);  // here
+            break;
+          case MIPS_OP_VFT:
+            sprintf(temp, " $vf%d", rt);
+            break;
+          case MIPS_OP_SA:
+            sprintf(temp, " %d", sa);
+            break;
+          case MIPS_OP_IMMEDIATE_SIGNED:
+            sprintf(temp, " %d", (int16_t)immediate);
+            break;
+          case MIPS_OP_IMMEDIATE_RS:
+            sprintf(temp, " %d(%s)", (int16_t)immediate, reg[rs]);
+            break;
+          case MIPS_OP_LABEL:
+            if ((immediate & 0x8000) != 0) { immediate |= 0xffff0000; }
+            immediate = immediate << 2;
+            sprintf(temp, " 0x%08x (%d)", address + 4 + immediate, immediate);
+            break;
+          case MIPS_OP_PREG:
+            sprintf(temp, " %d", (immediate >> 1) & 0x1f);
+            break;
+          case MIPS_OP_ID_REG:
+            if (rd < 16)
+            {
+              sprintf(temp, " $vi%d [%d]", rd, rd);
+            }
+              else
+            {
+              sprintf(temp, " %s [%d]", id_reg[rd - 16], rd);
+            }
+            break;
+          case MIPS_OP_OPTIONAL:
+            immediate = (opcode >> 6) & 0xfffff;
+            if (immediate != 0) { sprintf(temp, " 0x%x", immediate); }
+            else { temp[0] = 0; }
+            break;
+          default:
+            strcpy(temp, " ?");
+            break;
+        }
+
+        strcat(instruction, temp);
+      }
+
+      return 4;
+    }
+  }
+
   for (n = 0; mips_ee[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
