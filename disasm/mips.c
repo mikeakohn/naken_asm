@@ -70,8 +70,7 @@ static int disasm_vector(
 
   instruction[0] = 0;
 
-  n = 0;
-  while (mips_ee_vector[n].instr != NULL)
+  for (n = 0; mips_ee_vector[n].instr != NULL; n++)
   {
     if (mips_ee_vector[n].opcode == (opcode & mips_ee_vector[n].mask))
     {
@@ -191,8 +190,6 @@ static int disasm_vector(
 
       return 4;
     }
-
-    n++;
   }
 
   strcpy(instruction, "???");
@@ -358,13 +355,11 @@ int disasm_mips(
     // Special2 / Special3
     function = opcode & 0x3f;
 
-    n = 0;
-    while (mips_special_table[n].instr != NULL)
+    for (n = 0; mips_special_table[n].instr != NULL; n++)
     {
       // Check of this specific MIPS chip uses this instruction.
       if ((mips_special_table[n].version & flags) == 0)
       {
-        n++;
         continue;
       }
 
@@ -400,7 +395,6 @@ int disasm_mips(
 
         if (mips_special_table[n].operation != operation)
         {
-          n++;
           continue;
         }
 
@@ -448,24 +442,20 @@ int disasm_mips(
 
         return 4;
       }
-
-      n++;
     }
   }
 
-  n = 0;
-  while (mips_other[n].instr != NULL)
+  for (n = 0; mips_ee[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
-    if ((mips_other[n].version & flags) == 0)
+    if ((mips_ee[n].version & flags) == 0)
     {
-      n++;
       continue;
     }
 
-    if (mips_other[n].opcode == (opcode & mips_other[n].mask))
+    if (mips_ee[n].opcode == (opcode & mips_ee[n].mask))
     {
-      strcpy(instruction, mips_other[n].instr);
+      strcpy(instruction, mips_ee[n].instr);
 
       rs = (opcode >> 21) & 0x1f;
       rt = (opcode >> 16) & 0x1f;
@@ -473,11 +463,11 @@ int disasm_mips(
       sa = (opcode >> 6) & 0x1f;
       immediate = opcode & 0xffff;
 
-      for (r = 0; r < mips_other[n].operand_count; r++)
+      for (r = 0; r < mips_ee[n].operand_count; r++)
       {
         if (r != 0) { strcat(instruction, ","); }
 
-        switch (mips_other[n].operand[r])
+        switch (mips_ee[n].operand[r])
         {
           case MIPS_OP_RS:
             sprintf(temp, " %s", reg[rs]);
@@ -548,17 +538,13 @@ int disasm_mips(
 
       return 4;
     }
-
-    n++;
   }
 
-  n = 0;
-  while (mips_msa[n].instr != NULL)
+  for (n = 0; mips_msa[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_msa[n].version & flags) == 0)
     {
-      n++;
       continue;
     }
 
@@ -595,17 +581,13 @@ int disasm_mips(
 
       return 4;
     }
-
-    n++;
   }
 
-  n = 0;
-  while (mips_branch_table[n].instr != NULL)
+  for (n = 0; mips_branch_table[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_branch_table[n].version & flags) == 0)
     {
-      n++;
       continue;
     }
 
@@ -635,20 +617,18 @@ int disasm_mips(
         return 4;
       }
     }
-    n++;
   }
 
   if (format == 0)
   {
     // R-Type Instruction [ op 6, rs 5, rt 5, rd 5, sa 5, function 6 ]
     function = opcode & 0x3f;
-    n = 0;
-    while (mips_r_table[n].instr != NULL)
+
+    for (n = 0; mips_r_table[n].instr != NULL; n++)
     {
       // Check of this specific MIPS chip uses this instruction.
       if ((mips_r_table[n].version & flags) == 0)
       {
-        n++;
         continue;
       }
 
@@ -695,15 +675,14 @@ int disasm_mips(
 
         break;
       }
-
-      n++;
     }
   }
     else
   if ((opcode >> 27) == 1)
   {
     // J-Type Instruction [ op 6, target 26 ]
-    unsigned int upper = (address + 4) & 0xf0000000;
+    uint32_t upper = (address + 4) & 0xf0000000;
+
     if ((opcode >> 26) == 2)
     {
       sprintf(instruction, "j 0x%08x", ((opcode & 0x03ffffff) << 2) | upper);
@@ -722,13 +701,12 @@ int disasm_mips(
   {
     int op = opcode >> 26;
     // I-Type?  [ op 6, rs 5, rt 5, imm 16 ]
-    n = 0;
-    while (mips_i_table[n].instr != NULL)
+
+    for (n = 0; mips_i_table[n].instr != NULL; n++)
     {
       // Check of this specific MIPS chip uses this instruction.
       if ((mips_i_table[n].version & flags) == 0)
       {
-        n++;
         continue;
       }
 
@@ -798,8 +776,6 @@ int disasm_mips(
 
         break;
       }
-
-      n++;
     }
 
     if (mips_i_table[n].instr == NULL)
