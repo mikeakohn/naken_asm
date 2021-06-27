@@ -8,8 +8,9 @@
 
 NES_CONTROLLER_2             equ 0x4017
 NES_CONTROLLER_1             equ 0x4016
+
+;; Sound registers.
 NES_APU_CLOCK_SIGNAL         equ 0x4015
-NES_SPRITE_DMA               equ 0x4014
 NES_APU_MOD_DATA_LENGTH      equ 0x4013
 NES_APU_MOD_ADDRESS          equ 0x4012
 NES_APU_MOD_DA               equ 0x4011
@@ -29,12 +30,17 @@ NES_APU_PULSE_1_COARSE_TUNE  equ 0x4003
 NES_APU_PULSE_1_FINE_TUNE    equ 0x4002
 NES_APU_PULSE_1_RAMP_CONTROL equ 0x4001
 NES_APU_PULSE_1_CONTROL      equ 0x4000
-NES_VRAM_IO                  equ 0x2007
-NES_VRAM_ADRESS_2            equ 0x2006
-NES_VRAM_ADRESS_1            equ 0x2005
-NES_SPR_RAM_IO               equ 0x2004
-NES_SPR_RAM_ADDRESS          equ 0x2003
+
+;; Sprites.
+NES_OAM_DMA                  equ 0x4014
+NES_OAM_DATA                 equ 0x2004
+NES_OAM_ADRRESS              equ 0x2003
+
+;; Display registers.
+NES_PPU_DATA                 equ 0x2007
+NES_PPU_ADDRESS              equ 0x2006
+NES_PPU_SCROLL               equ 0x2005
 NES_PPU_STATUS               equ 0x2002
-NES_PPU_CONTROL_1            equ 0x2001
-NES_PPU_CONTROL_2            equ 0x2000
+NES_PPU_MASK                 equ 0x2001
+NES_PPU_CONTROL              equ 0x2000
 
