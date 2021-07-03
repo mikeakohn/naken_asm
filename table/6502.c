@@ -134,7 +134,7 @@ struct _table_6502_opcodes table_6502_opcodes[] =
   /* 0x0E */ { M65XX_ASL, OP_ADDRESS16, 6, 6 },
   /* 0x0F */ { M65XX_BBR0, OP_ADDRESS8_RELATIVE, 0, 0 },
 
-  /* 0x10 */ { M65XX_BPL, OP_RELATIVE, 2, 4 },
+  /* 0x10 */ { M65XX_BPL, OP_RELATIVE, 2, 3 },
   /* 0x11 */ { M65XX_ORA, OP_INDIRECT8_Y, 5, 6 },
   /* 0x12 */ { M65XX_ORA, OP_INDIRECT8, 0, 0 },
   /* 0x13 */ { M65XX_ERROR, OP_NONE, 0, 0 },
@@ -168,7 +168,7 @@ struct _table_6502_opcodes table_6502_opcodes[] =
   /* 0x2E */ { M65XX_ROL, OP_ADDRESS16, 6, 6 },
   /* 0x2F */ { M65XX_BBR2, OP_ADDRESS8_RELATIVE, 0, 0 },
 
-  /* 0x30 */ { M65XX_BMI, OP_RELATIVE, 2, 4 },
+  /* 0x30 */ { M65XX_BMI, OP_RELATIVE, 2, 3 },
   /* 0x31 */ { M65XX_AND, OP_INDIRECT8_Y, 5, 6 },
   /* 0x32 */ { M65XX_AND, OP_INDIRECT8, 0, 0 },
   /* 0x33 */ { M65XX_ERROR, OP_NONE, 0, 0 },
@@ -202,7 +202,7 @@ struct _table_6502_opcodes table_6502_opcodes[] =
   /* 0x4E */ { M65XX_LSR, OP_ADDRESS16, 6, 6 },
   /* 0x4F */ { M65XX_BBR4, OP_ADDRESS8_RELATIVE, 0, 0 },
 
-  /* 0x50 */ { M65XX_BVC, OP_RELATIVE, 2, 4 },
+  /* 0x50 */ { M65XX_BVC, OP_RELATIVE, 2, 3 },
   /* 0x51 */ { M65XX_EOR, OP_INDIRECT8_Y, 5, 6 },
   /* 0x52 */ { M65XX_EOR, OP_INDIRECT8, 0, 0 },
   /* 0x53 */ { M65XX_ERROR, OP_NONE, 0, 0 },
@@ -236,7 +236,7 @@ struct _table_6502_opcodes table_6502_opcodes[] =
   /* 0x6E */ { M65XX_ROR, OP_ADDRESS16, 6, 6 },
   /* 0x6F */ { M65XX_BBR6, OP_ADDRESS8_RELATIVE, 0, 0 },
 
-  /* 0x70 */ { M65XX_BVS, OP_RELATIVE, 2, 4 },
+  /* 0x70 */ { M65XX_BVS, OP_RELATIVE, 2, 3 },
   /* 0x71 */ { M65XX_ADC, OP_INDIRECT8_Y, 5, 6 },
   /* 0x72 */ { M65XX_ADC, OP_INDIRECT8, 0, 0 },
   /* 0x73 */ { M65XX_ERROR, OP_NONE, 0, 0 },
@@ -270,7 +270,7 @@ struct _table_6502_opcodes table_6502_opcodes[] =
   /* 0x8E */ { M65XX_STX, OP_ADDRESS16, 4, 4 },
   /* 0x8F */ { M65XX_BBS0, OP_ADDRESS8_RELATIVE, 0, 0 },
 
-  /* 0x90 */ { M65XX_BCC, OP_RELATIVE, 2, 4 },
+  /* 0x90 */ { M65XX_BCC, OP_RELATIVE, 2, 3 },
   /* 0x91 */ { M65XX_STA, OP_INDIRECT8_Y, 6, 6 },
   /* 0x92 */ { M65XX_STA, OP_INDIRECT8, 0, 0 },
   /* 0x93 */ { M65XX_ERROR, OP_NONE, 0, 0 },
@@ -304,7 +304,7 @@ struct _table_6502_opcodes table_6502_opcodes[] =
   /* 0xAE */ { M65XX_LDX, OP_ADDRESS16, 4, 4 },
   /* 0xAF */ { M65XX_BBS2, OP_ADDRESS8_RELATIVE, 0, 0 },
 
-  /* 0xB0 */ { M65XX_BCS, OP_RELATIVE, 2, 4 },
+  /* 0xB0 */ { M65XX_BCS, OP_RELATIVE, 2, 3 },
   /* 0xB1 */ { M65XX_LDA, OP_INDIRECT8_Y, 5, 6 },
   /* 0xB2 */ { M65XX_LDA, OP_INDIRECT8, 0, 0 },
   /* 0xB3 */ { M65XX_ERROR, OP_NONE, 0, 0 },
@@ -338,7 +338,7 @@ struct _table_6502_opcodes table_6502_opcodes[] =
   /* 0xCE */ { M65XX_DEC, OP_ADDRESS16, 3, 3 },
   /* 0xCF */ { M65XX_BBS4, OP_ADDRESS8_RELATIVE, 0, 0 },
 
-  /* 0xD0 */ { M65XX_BNE, OP_RELATIVE, 2, 4 },
+  /* 0xD0 */ { M65XX_BNE, OP_RELATIVE, 2, 3 },
   /* 0xD1 */ { M65XX_CMP, OP_INDIRECT8_Y, 5, 6 },
   /* 0xD2 */ { M65XX_CMP, OP_INDIRECT8, 0, 0 },
   /* 0xD3 */ { M65XX_ERROR, OP_NONE, 0, 0 },
@@ -372,7 +372,7 @@ struct _table_6502_opcodes table_6502_opcodes[] =
   /* 0xEE */ { M65XX_INC, OP_ADDRESS16, 6, 6 },
   /* 0xEF */ { M65XX_BBS6, OP_ADDRESS8_RELATIVE, 0, 0 },
 
-  /* 0xF0 */ { M65XX_BEQ, OP_RELATIVE, 2, 4 },
+  /* 0xF0 */ { M65XX_BEQ, OP_RELATIVE, 2, 3 },
   /* 0xF1 */ { M65XX_SBC, OP_INDIRECT8_Y, 5, 6 },
   /* 0xF2 */ { M65XX_SBC, OP_INDIRECT8, 0, 0 },
   /* 0xF3 */ { M65XX_ERROR, OP_NONE, 0, 0 },

@@ -21,7 +21,7 @@
 extern struct _table_6502 table_6502[];
 extern struct _table_6502_opcodes table_6502_opcodes[];
 
-#define READ_RAM(a) (memory_read_m(memory, a) & 0xFF)
+#define READ_RAM(a) (memory_read_m(memory, a) & 0xff)
 
 // bytes for each addressing mode
 static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2, 3, 2, 3 };
@@ -31,7 +31,12 @@ int get_cycle_count_6502(unsigned short int opcode)
   return -1;
 }
 
-int disasm_6502(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_6502(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint32_t opcode;
   //int n,r;
@@ -48,19 +53,19 @@ int disasm_6502(struct _memory *memory, uint32_t address, char *instruction, int
 
   sprintf(temp, " ");
 
-  if(table_6502_opcodes[opcode].instr != M65XX_ERROR)
+  if (table_6502_opcodes[opcode].instr != M65XX_ERROR)
   {
     strcpy(instruction, table_6502[table_6502_opcodes[opcode].instr].name);
     op = table_6502_opcodes[opcode].op;
 
-    if(op_bytes[op] > 1)
+    if (op_bytes[op] > 1)
     {
-      if(op_bytes[op] == 2)
+      if (op_bytes[op] == 2)
       {
         lo = READ_RAM(address + 1);
 
         // special case for branches
-        if(op == OP_RELATIVE)
+        if (op == OP_RELATIVE)
         {
           branch_address = (address + 2) + (int8_t)lo;
           sprintf(num, "0x%04x", branch_address);
@@ -70,14 +75,14 @@ int disasm_6502(struct _memory *memory, uint32_t address, char *instruction, int
           sprintf(num, "0x%02x", lo);
         }
       }
-      else if(op_bytes[op] == 3)
+      else if (op_bytes[op] == 3)
       {
         lo = READ_RAM(address + 1);
         hi = READ_RAM(address + 2);
         sprintf(num, "0x%04x", (hi << 8) | lo);
       }
 
-      switch(op)
+      switch (op)
       {
         case OP_NONE:
           sprintf(temp, " ");
@@ -131,15 +136,14 @@ int disasm_6502(struct _memory *memory, uint32_t address, char *instruction, int
     int min = table_6502_opcodes[opcode].cycles_min;
     int max = table_6502_opcodes[opcode].cycles_max;
 
-    if(op == OP_RELATIVE)
+    if (op == OP_RELATIVE)
     {
-      // branch, see if we're in the same page
+      // Branches are 2 cycles for no branch, 3 cycles when branching, or
+      // 4 cycles if the branch ends up on a new page.
       int page1 = (address + 2) / 256;
       int page2 = branch_address / 256;
-      if(page1 != page2)
-        max += 2;
-      else
-        max += 1;
+
+      if (page1 != page2) { max += 1; }
     }
 
     strcat(instruction, temp);
@@ -160,7 +164,10 @@ int disasm_6502(struct _memory *memory, uint32_t address, char *instruction, int
   return op_bytes[op];
 }
 
-void list_output_6502(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_6502(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
@@ -169,29 +176,33 @@ void list_output_6502(struct _asm_context *asm_context, uint32_t start, uint32_t
   int count;
   int n;
 
-  //opcode &= 0xFF;
+  //opcode &= 0xff;
 
   fprintf(asm_context->list, "\n");
   count = disasm_6502(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-  bytes[0] = 0; 
+  bytes[0] = 0;
   for (n = 0; n < count; n++)
-  { 
-    char temp[4]; 
+  {
+    char temp[4];
     sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, start + n));
     strcat(bytes, temp);
   }
 
   fprintf(asm_context->list, "0x%04x: %-16s %-35s cycles: ", start, bytes, instruction);
 
-  if (cycles_min==cycles_max)
+  if (cycles_min == cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
     else
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
 
 }
 
-void disasm_range_6502(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_6502(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   //int vectors_flag=0;
@@ -203,7 +214,7 @@ void disasm_range_6502(struct _memory *memory, uint32_t flags, uint32_t start, u
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     num = READ_RAM(start)|(READ_RAM(start+1)<<8);
 
@@ -211,16 +222,16 @@ void disasm_range_6502(struct _memory *memory, uint32_t flags, uint32_t start, u
 
     if (cycles_min < 1)
     {
-      printf("0x%04x: 0x%02x %-40s ?\n", start, num & 0xFF, instruction);
+      printf("0x%04x: 0x%02x %-40s ?\n", start, num & 0xff, instruction);
     }
       else
     if (cycles_min == cycles_max)
     {
-      printf("0x%04x: 0x%02x %-40s %d\n", start, num & 0xFF, instruction, cycles_min);
+      printf("0x%04x: 0x%02x %-40s %d\n", start, num & 0xff, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: 0x%02x %-40s %d-%d\n", start, num & 0xFF, instruction, cycles_min, cycles_max);
+      printf("0x%04x: 0x%02x %-40s %d-%d\n", start, num & 0xff, instruction, cycles_min, cycles_max);
     }
 
     count -= 1;
@@ -228,7 +239,7 @@ void disasm_range_6502(struct _memory *memory, uint32_t flags, uint32_t start, u
     {
       start = start + 1;
       num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
-      printf("0x%04x: 0x%02x\n", start, num & 0xFF);
+      printf("0x%04x: 0x%02x\n", start, num & 0xff);
       count -= 1;
     }
 
