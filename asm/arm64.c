@@ -53,14 +53,14 @@ enum
 
 enum
 {
-  OPTION_UXTB,
-  OPTION_UXTH,
-  OPTION_UXTW,
-  OPTION_UXTX,
-  OPTION_SXTB,
-  OPTION_SXTH,
-  OPTION_SXTW,
-  OPTION_SXTX,
+  OPTION_UXTB,  // 000
+  OPTION_UXTH,  // 001
+  OPTION_UXTW,  // 010
+  OPTION_UXTX,  // 011
+  OPTION_SXTB,  // 100
+  OPTION_SXTH,  // 101
+  OPTION_SXTW,  // 110
+  OPTION_SXTX,  // 111
   OPTION_LSL,
   OPTION_LSR,
   OPTION_ASR,
@@ -491,7 +491,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -706,18 +706,13 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
             break;
           }
 
-          if (operands[2].type != OPERAND_REG_32 &&
-              operands[2].type != OPERAND_REG_64)
+          if (operands[0].type != operands[1].type ||
+              operands[0].type != operands[2].type)
           {
             break;
           }
 
-          if (operands[0].type == operands[2].type)
-          {
-            break;
-          }
-
-          if (operands[0].type == OPERAND_REG_64) { size = 1; }
+          size = operands[0].type == OPERAND_REG_64 ? 1: 0;
 
           opcode = table_arm64[n].opcode |
                    operands[0].value |
@@ -727,13 +722,23 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
           if (operand_count == 3)
           {
-            add_bin32(asm_context, opcode, IS_OPCODE);
-            return 4; 
+            // If rd or rn is 31 and option is LSL #0, then LSL #0 can
+            // be omitted.
+
+            if (operands[0].value == 31 || operands[1].value == 31)
+            {
+              opcode |= size == 0 ? (2 << 13) : (3 << 13);
+              add_bin32(asm_context, opcode, IS_OPCODE);
+              return 4; 
+            }
+
+            break;
           }
-            else
+
           if (operand_count == 4)
           {
             if (operands[3].type != OPERAND_OPTION) { break; }
+            if (operands[3].attribute > OPTION_LSL) { break; }
 
             if (operands[3].attribute == OPTION_LSL)
             {
@@ -744,51 +749,6 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
             {
               opcode |= operands[3].attribute << 13;
             }
-
-            add_bin32(asm_context, opcode, IS_OPCODE);
-            return 4;
-          }
-
-          break;
-        }
-        case OP_MATH_R_R_R_SHIFT:
-        {
-          if (operands[0].type != OPERAND_REG_32 &&
-              operands[0].type != OPERAND_REG_64)
-          {
-            break;
-          }
-
-          if (operands[0].type != operands[1].type ||
-              operands[0].type != operands[2].type)
-          {
-            break;
-          }
-
-          if (operands[0].type == OPERAND_REG_64) { size = 1; }
-
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                  (operands[1].value << 5) |
-                  (operands[2].value << 16) |
-                 ((size & 1) << 31);
-
-          if (operand_count == 3)
-          {
-            add_bin32(asm_context, opcode, IS_OPCODE);
-            return 4; 
-          }
-            else
-          if (operand_count == 4)
-          {
-            if (operands[3].type != OPERAND_OPTION) { break; }
-            if (operands[3].attribute < OPTION_LSL) { break; }
-
-            if (check_range(asm_context, "Shift", operands[3].value, 0, 64) == -1) { return -1; }
-
-            r = operands[3].attribute - OPTION_LSL;
-            opcode |= r << 22;
-            opcode |= operands[3].value << 10;
 
             add_bin32(asm_context, opcode, IS_OPCODE);
             return 4;

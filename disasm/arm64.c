@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -19,19 +19,29 @@
 static char reg_size[] = { 'w', 'x' };
 static char scalar_size[] = { 'b', 'h', 's', 'd' };
 static char *vec_size[] = { "8b", "16b", "4h", "8h", "2s", "4s", "1d", "2d" };
-static char *shift[] = { "lsl", "lsr", "asr", "???" };
+//static char *shift[] = { "lsl", "lsr", "asr", "???" };
+static char *options[] =
+{
+  "uxtb", "uxth", "uxtw", "uxtx",
+  "sxtb", "sxth", "sxtw", "sxtx"
+};
 
 int get_cycle_count_arm64(unsigned short int opcode)
 {
   return -1;
 }
 
-int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_arm64(
+  struct _memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint32_t opcode;
   int n;
   int rm, rn, rd;
-  int size, sf, imm;
+  int size, sf, imm, option;
 
   opcode = memory_read32_m(memory, address);
 
@@ -91,35 +101,39 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
         }
         case OP_MATH_R_R_R_OPTION:
         {
-          sprintf(instruction, "%s %c%d, %c%d, %c%d",
-            table_arm64[n].instr,
-            reg_size[sf], rd,
-            reg_size[sf], rn,
-            reg_size[sf], rm);
+          imm = (opcode >> 10) & 0x7;
+          option = (opcode >> 13) & 0x7;
 
-          return 4;
-        }
-        case OP_MATH_R_R_R_SHIFT:
-        {
-          imm = (opcode & 10) & 0x3f;
+          if ((sf == 0 && option == 2) ||
+              (sf == 1 && option == 3))
+          {
+            if (imm == 0)
+            {
+              sprintf(instruction, "%s %c%d, %c%d, %c%d",
+                table_arm64[n].instr,
+                reg_size[sf], rd,
+                reg_size[sf], rn,
+                reg_size[sf], rm);
 
-          if (imm == 0)
-          {
-            sprintf(instruction, "%s %c%d, %c%d, %c%d",
-              table_arm64[n].instr,
-              reg_size[sf], rd,
-              reg_size[sf], rn,
-              reg_size[sf], rm);
-          }
-            else
-          {
-            sprintf(instruction, "%s %c%d, %c%d, %c%d, %s #%d",
+              return 4;
+            }
+
+            sprintf(instruction, "%s %c%d, %c%d, %c%d, lsl #%d",
               table_arm64[n].instr,
               reg_size[sf], rd,
               reg_size[sf], rn,
               reg_size[sf], rm,
-              shift[(opcode >> 22) & 0x3], imm);
+              imm);
+
+            return 4;
           }
+
+          sprintf(instruction, "%s %c%d, %c%d, %c%d, %s",
+            table_arm64[n].instr,
+            reg_size[sf], rd,
+            reg_size[sf], rn,
+            reg_size[sf], rm,
+            options[option]);
 
           return 4;
         }
@@ -137,7 +151,10 @@ int disasm_arm64(struct _memory *memory, uint32_t address, char *instruction, in
   return 4;
 }
 
-void list_output_arm64(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_arm64(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min, cycles_max;
@@ -146,7 +163,7 @@ void list_output_arm64(struct _asm_context *asm_context, uint32_t start, uint32_
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_arm64(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -158,7 +175,11 @@ void list_output_arm64(struct _asm_context *asm_context, uint32_t start, uint32_
   }
 }
 
-void disasm_range_arm64(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_arm64(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min, cycles_max;
@@ -170,7 +191,7 @@ void disasm_range_arm64(struct _memory *memory, uint32_t flags, uint32_t start, 
   printf("%-7s %-5s %-40s\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_arm64(memory, start, instruction, &cycles_min, &cycles_max);
 

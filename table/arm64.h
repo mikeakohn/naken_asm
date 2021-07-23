@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -22,7 +22,7 @@ enum
   OP_SCALAR_D_D,
   OP_VECTOR_V_V,
   OP_MATH_R_R_R_OPTION,
-  OP_MATH_R_R_R_SHIFT,
+  //OP_MATH_R_R_R_SHIFT,
 };
 
 struct _table_arm64

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -20,8 +20,9 @@ struct _table_arm64 table_arm64[] =
   { "abs",     0x0e20b800, 0xbf3ffc00, OP_VECTOR_V_V },
   { "adc",     0x1a000000, 0x7fe0fc00, OP_MATH_R_R_R },
   { "adcs",    0x3a000000, 0x7fe0fc00, OP_MATH_R_R_R },
-  { "add",     0x0b000000, 0x7f000000, OP_MATH_R_R_R_SHIFT },
+  //{ "add",     0x0b200000, 0xefe00000, OP_MATH_R_R_R_SHIFT },
   { "add",     0x0b200000, 0x7fe00000, OP_MATH_R_R_R_OPTION },
+  { NULL,      0x00000000, 0x00000000, 0 }
 };
 
 struct _operand_type_arm64 operand_type_arm64[] =
@@ -32,6 +33,6 @@ struct _operand_type_arm64 operand_type_arm64[] =
   { 2, 0xc, 1, 1, ATTR_SIZE_BOTH }, // OP_SCALAR_D_D
   { 2, 0xc, 1, 1, ATTR_SIZE_BOTH }, // OP_VECTOR_V_V
   { 3, 0xe, 0, 0, ATTR_SIZE_BOTH }, // OP_MATH_R_R_R_OPTION
-  { 3, 0xe, 0, 0, ATTR_SIZE_BOTH }, // OP_MATH_R_R_R_SHIFT
+  //{ 3, 0xe, 0, 0, ATTR_SIZE_BOTH }, // OP_MATH_R_R_R_SHIFT
 };
 
