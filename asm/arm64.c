@@ -832,6 +832,59 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_MATH_R_R_R_SHIFT:
+        {
+          if (operands[0].type != OPERAND_REG_32 &&
+              operands[0].type != OPERAND_REG_64)
+          {
+            break;
+          }
+
+          if (operands[0].type != operands[1].type ||
+              operands[0].type != operands[2].type)
+          {
+            break;
+          }
+
+          size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
+
+          int shift = 0, value = 0;
+
+          if (operand_count == 4)
+          {
+            if (operands[3].attribute < OPTION_LSL ||
+                operands[3].attribute > OPTION_ASR)
+            {
+              break; 
+            }
+
+            shift = operands[3].attribute - OPTION_LSL;
+            value = operands[3].value;
+
+            if (value < 0 || value > 0x3f)
+            {
+              print_error_range("Shift", 0, 0x3f, asm_context);
+              return -1;
+            }
+          }
+            else
+          if (operand_count != 3)
+          {
+            break;
+          }
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                  (operands[2].value << 16) |
+                  (value << 10) |
+                 ((shift & 3) << 22) |
+                  (size << 31);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
         {
           print_error_internal(asm_context, __FILE__, __LINE__);

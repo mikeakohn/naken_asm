@@ -23,6 +23,7 @@ enum
   OP_VECTOR_V_V,
   OP_MATH_R_R_R_OPTION,
   OP_MATH_R_R_IMM_SHIFT,
+  OP_MATH_R_R_R_SHIFT,
 };
 
 struct _table_arm64
