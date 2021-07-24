@@ -645,6 +645,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
           break;
         }
+#if 0
         case OP_SCALAR_R_R:
         {
           if (operands[0].type == OPERAND_REG_SCALAR)
@@ -659,6 +660,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
           break;
         }
+#endif
         case OP_SCALAR_D_D:
         {
           if (size != 3) { continue; }
@@ -684,6 +686,41 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
             opcode = table_arm64[n].opcode |
                      operands[0].value |
                     (operands[1].value << 5) |
+                    ((size >> 1) << 22) |
+                    ((size & 1) << 30);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+
+          break;
+        }
+        case OP_SCALAR_D_D_D:
+        {
+          if (size != 3) { continue; }
+
+          if (operands[0].type == OPERAND_REG_SCALAR)
+          {
+            opcode = table_arm64[n].opcode |
+                     operands[0].value |
+                    (operands[1].value << 5) |
+                    (operands[2].value << 16) |
+                    (size << 22);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+
+          break;
+        }
+        case OP_VECTOR_V_V_V:
+        {
+          if (size == 6) { continue; }
+
+          if (operands[0].type == OPERAND_REG_VECTOR)
+          {
+            opcode = table_arm64[n].opcode |
+                     operands[0].value |
+                    (operands[1].value << 5) |
+                    (operands[2].value << 16) |
                     ((size >> 1) << 22) |
                     ((size & 1) << 30);
             add_bin32(asm_context, opcode, IS_OPCODE);

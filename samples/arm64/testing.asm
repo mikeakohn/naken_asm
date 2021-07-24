@@ -10,4 +10,7 @@ add x10, x11, #0x123000
 add w10, w11, #0x123, lsl #12
 add x11, x28, x1, lsl #3
 add x11, x28, x1, asr #10
+add v9.16b, v18.16b, v11.16b
+add v28.4h, v18.4h, v5.4h
+add d17, d1, d29
 
