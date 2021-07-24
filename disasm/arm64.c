@@ -41,7 +41,7 @@ int disasm_arm64(
   uint32_t opcode;
   int n;
   int rm, rn, rd;
-  int size, sf, imm, option;
+  int size, sf, imm, option, shift;
 
   opcode = memory_read32_m(memory, address);
 
@@ -137,6 +137,41 @@ int disasm_arm64(
 
           return 4;
         }
+        case OP_MATH_R_R_IMM_SHIFT:
+        {
+          imm = (opcode >> 10) & 0xfff;
+          shift = (opcode >> 22) & 0x3;
+
+          if (shift == 0)
+          {
+            sprintf(instruction, "%s %c%d, %c%d, #0x%03x",
+              table_arm64[n].instr,
+              reg_size[sf], rd,
+              reg_size[sf], rn,
+              imm);
+          }
+            else
+          if (shift == 1)
+          {
+            sprintf(instruction, "%s %c%d, %c%d, #0x%06x [#0x%03x lsl #%d]",
+              table_arm64[n].instr,
+              reg_size[sf], rd,
+              reg_size[sf], rn,
+              imm << 12,
+              imm, shift * 12);
+          }
+            else
+          {
+            sprintf(instruction, "%s %c%d, %c%d, #%d [#%d] ???",
+              table_arm64[n].instr,
+              reg_size[sf], rd,
+              reg_size[sf], rn,
+              imm,
+              shift);
+          }
+
+          return 4;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);
@@ -169,7 +204,7 @@ void list_output_arm64(
 
     opcode = memory_read32_m(&asm_context->memory, start);
 
-    fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start / 2, opcode, instruction);
+    fprintf(asm_context->list, "0x%04x: %08x %-40s\n", start / 2, opcode, instruction);
 
     start += count;
   }
@@ -197,7 +232,7 @@ void disasm_range_arm64(
 
     opcode = memory_read32_m(memory, start);
 
-    printf("0x%04x: %04x %-40s\n", start / 2, opcode, instruction);
+    printf("0x%04x: %08x %-40s\n", start / 2, opcode, instruction);
 
     start = start + count;
   }

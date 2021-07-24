@@ -376,17 +376,11 @@ static int get_shift_value(struct _asm_context *asm_context)
   if (asm_context->pass == 1)
   {
     ignore_operand(asm_context);
-    return 1;
+    return 0;
   }
 
   if (eval_expression(asm_context, &num) != 0)
   {
-    return -2;
-  }
-
-  if (num < 0 || num > 7)
-  {
-    print_error_range("Shift", 0, 7, asm_context);
     return -2;
   }
 
@@ -729,7 +723,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
             {
               opcode |= size == 0 ? (2 << 13) : (3 << 13);
               add_bin32(asm_context, opcode, IS_OPCODE);
-              return 4; 
+              return 4;
             }
 
             break;
@@ -742,6 +736,12 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
             if (operands[3].attribute == OPTION_LSL)
             {
+              if (operands[3].value < 0 || operands[3].value > 7)
+              {
+                print_error_range("Shift", 0, 7, asm_context);
+                return -2;
+              }
+
               opcode |= operands[3].value << 10;
               opcode |= size == 0 ? (2 << 13) : (3 << 13);
             }
@@ -755,6 +755,82 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
           }
 
           break;
+        }
+        case OP_MATH_R_R_IMM_SHIFT:
+        {
+          if (operands[0].type != OPERAND_REG_32 &&
+              operands[0].type != OPERAND_REG_64)
+          {
+            break;
+          }
+
+          if (operands[0].type != operands[1].type)
+          {
+            break;
+          }
+
+          size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
+
+          int shift, value;
+
+          // Immediate should be between 0x000-0xfff or 0x001-0xfff000.
+          if (operands[2].value >= 0 && operands[2].value <= 0xfff)
+          {
+            value = operands[2].value;
+            shift = 0;
+          }
+            else
+          if (operands[2].value >= 0x1000 && operands[2].value <= 0xfff000)
+          {
+            value = operands[2].value >> 12;
+            shift = 1;
+          }
+            else
+          {
+            print_error("Error: Immediate out of range (0x000-0xfff or (0x001000-0xfff000)", asm_context);
+            return -1;
+          }
+
+          if (operand_count == 4)
+          {
+            if (operands[3].type != OPERAND_OPTION ||
+                operands[3].attribute != OPTION_LSL ||
+                shift != 0)
+            {
+              break;
+            }
+
+            if (operands[3].value == 0)
+            {
+              shift = 0;
+            }
+              else
+            if (operands[3].value == 12)
+            {
+              shift = 1;
+            }
+              else
+            {
+              print_error("Error: Shift value must be 0 or 12", asm_context);
+              return -1;
+            }
+          }
+            else
+          if (operand_count != 3)
+          {
+            break;
+          }
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                  (value << 10) |
+                 ((shift & 3) << 22) |
+                  (size << 31);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
         }
         default:
         {

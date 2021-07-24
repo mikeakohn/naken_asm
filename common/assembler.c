@@ -426,7 +426,7 @@ int assemble(struct _asm_context *asm_context)
             fprintf(asm_context->list, "\n");
           }
 
-          if (ret < 0) return -1;
+          if (ret < 0) { return -1; }
 
           if (asm_context->macros.stack_ptr == 0) { asm_context->tokens.line++; }
           asm_context->instruction_count++;
