@@ -300,7 +300,11 @@ static int get_register_arm64(
   {
     tokens_push(asm_context, token, token_type);
 
-    if (size > SIZE_2D) { return -2; }
+    if (size > SIZE_2D)
+    {
+      print_error_unexp(token, asm_context);
+      return -2;
+    }
 
     operand->type = type;
     operand->value = num;
@@ -501,10 +505,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
     num = get_register_arm64(asm_context, &operands[operand_count], token);
 
-    if (num == -2)
-    {
-      return -1;
-    }
+    if (num == -2) { return -1; }
 
     if (num != -1)
     {
@@ -824,7 +825,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
           }
             else
           {
-            print_error("Error: Immediate out of range (0x000-0xfff or (0x001000-0xfff000)", asm_context);
+            print_error("Immediate out of range (0x000-0xfff or (0x001000-0xfff000)", asm_context);
             return -1;
           }
 
@@ -848,7 +849,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
             }
               else
             {
-              print_error("Error: Shift value must be 0 or 12", asm_context);
+              print_error("Shift value must be 0 or 12", asm_context);
               return -1;
             }
           }
@@ -917,6 +918,59 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
                   (value << 10) |
                  ((shift & 3) << 22) |
                   (size << 31);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_MATH_R_R_IMM6_IMM4:
+        {
+          if (size != 1) { break; }
+
+          int imm6 = operands[2].value;
+          int imm4 = operands[3].value;
+
+          if (check_range(asm_context, "immediate4", imm4, 0, 15) != 0)
+          {
+            return -1;
+          }
+
+          if (check_range(asm_context, "immediate6", imm4, 0, 15) != 0)
+          {
+            return -1;
+          }
+
+          if ((imm6 % 16) != 0)
+          {
+            print_error("Immedate6 is not a multiple of 16", asm_context);
+            return -1;
+          }
+
+          imm6 = imm6 / 16;
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                  (imm6 << 16) |
+                  (imm4 << 10);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_VECTOR_D_2D:
+        {
+          if (operands[0].type != OPERAND_REG_SCALAR ||
+              operands[1].type != OPERAND_REG_VECTOR ||
+              operands[0].attribute != 3 ||
+              operands[1].attribute != SIZE_2D)
+          {
+            break;
+          }
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 

@@ -224,6 +224,29 @@ int disasm_arm64(
 
           return 4;
         }
+        case OP_MATH_R_R_IMM6_IMM4:
+        {
+          int imm4 = (opcode >> 10) & 0xf;
+          int imm6 = (opcode >> 16) & 0x3f;
+
+          sprintf(instruction, "%s x%d, x%d, #%d, #%d",
+            table_arm64[n].instr,
+            rd,
+            rn,
+            imm6 * 16,
+            imm4);
+
+          return 4;
+        }
+        case OP_VECTOR_D_2D:
+        {
+          sprintf(instruction, "%s d%d, v%d.2d",
+            table_arm64[n].instr,
+            rd,
+            rn);
+
+          return 4;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);
