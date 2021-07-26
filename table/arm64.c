@@ -30,6 +30,12 @@ struct _table_arm64 table_arm64[] =
   { "addhn2",  0x0e204000, 0xbf20fc00, OP_VECTOR_V_V_V },
   { "addp",    0x5ef1b800, 0xfffffc00, OP_VECTOR_D_2D },
   { "addp",    0x5e31b800, 0xbf3ffc00, OP_VECTOR_V_V_V },
+  { "adds",    0x0b400000, 0x7fe00000, OP_MATH_R_R_R_OPTION },
+  { "adds",    0x31000000, 0x7f000000, OP_MATH_R_R_IMM_SHIFT },
+  { "adds",    0x2b000000, 0x7f200000, OP_MATH_R_R_R_SHIFT },
+  { "addv",    0x0e31b800, 0xbf3ffc00, OP_VECTOR_V_V_TO_SCALAR },
+  { "adr",     0x00000000, 0x00000000, OP_REG_RELATIVE },
+  { "adrp",    0x00000000, 0x00000000, OP_REG_PAGE_RELATIVE },
   { NULL,      0x00000000, 0x00000000, 0 }
 };
 
@@ -47,5 +53,8 @@ struct _operand_type_arm64 operand_type_arm64[] =
   { 3, 0xe, 0, 0, ATTR_SIZE_BOTH }, // OP_MATH_R_R_R_SHIFT
   { 4, 0xc, 1, 1, ATTR_SIZE_64 },   // OP_MATH_R_R_IMM6_IMM4
   { 2, 0xc, 0, 1, ATTR_SIZE_BOTH }, // OP_VECTOR_D_2D
+  { 2, 0xc, 0, 1, ATTR_SIZE_BOTH }, // OP_VECTOR_V_V_TO_SCALAR
+  { 2, 0x8, 0, 1, ATTR_SIZE_NONE }, // OP_REG_RELATIVE
+  { 2, 0x8, 0, 1, ATTR_SIZE_NONE }, // OP_REG_PAGE_RELATIVE
 };
 

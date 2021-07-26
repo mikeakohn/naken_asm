@@ -247,6 +247,43 @@ int disasm_arm64(
 
           return 4;
         }
+        case OP_VECTOR_V_V_TO_SCALAR:
+        {
+          sprintf(instruction, "%s d%d, v%d.%s",
+            table_arm64[n].instr,
+            rd,
+            rn,
+            vec_size[sf]);
+
+          return 4;
+        }
+        case OP_REG_RELATIVE:
+        {
+          imm = (opcode >> 5) & ((1 << 19) - 1);
+          imm = (imm << 2) | ((opcode >> 24) & 0x3);
+
+          sprintf(instruction, "%s x%d, 0x%04x (offset=%d)",
+            table_arm64[n].instr,
+            rd,
+            address + 4 + imm,
+            imm);
+
+          return 4;
+        }
+        case OP_REG_PAGE_RELATIVE:
+        {
+          imm = (opcode >> 5) & ((1 << 19) - 1);
+          imm = (imm << 2) | ((opcode >> 24) & 0x3);
+          imm = imm << 12;
+
+          sprintf(instruction, "%s x%d, 0x%04x (offset=%d)",
+            table_arm64[n].instr,
+            rd,
+            address + 4 + imm,
+            imm);
+
+          return 4;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);

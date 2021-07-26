@@ -481,7 +481,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
   int operand_count = 0;
   int token_type;
   int num, n, i, r;
-  //int offset, value;
+  int offset;
   uint32_t opcode;
   int found = 0;
   int size = 0;
@@ -893,7 +893,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
             if (operands[3].attribute < OPTION_LSL ||
                 operands[3].attribute > OPTION_ASR)
             {
-              break; 
+              break;
             }
 
             shift = operands[3].attribute - OPTION_LSL;
@@ -971,6 +971,83 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
           opcode = table_arm64[n].opcode |
                    operands[0].value |
                   (operands[1].value << 5);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_VECTOR_V_V_TO_SCALAR:
+        {
+          if (operands[0].type != OPERAND_REG_VECTOR ||
+              operands[1].type != OPERAND_REG_VECTOR ||
+              operands[0].attribute != 3 ||
+              operands[1].attribute != SIZE_2D)
+          {
+            break;
+          }
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_REG_RELATIVE:
+        {
+          if (operands[0].type != OPERAND_REG_SCALAR ||
+              operands[1].type != OPERAND_ADDRESS ||
+              size != 1)
+          {
+            break;
+          }
+
+          offset = operands[0].value - (asm_context->address + 4);
+
+          if (check_range(asm_context, "offset", offset, -(1 << 20), (1 << 20) - 1) != 0)
+          {
+            return -1;
+          }
+
+          offset &= (1 << 21) - 1;
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                 ((offset & 0x3) << 24) |
+                 ((offset >> 2) << 5);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_REG_PAGE_RELATIVE:
+        {
+          if (operands[0].type != OPERAND_REG_SCALAR ||
+              operands[1].type != OPERAND_ADDRESS ||
+              size != 1)
+          {
+            break;
+          }
+
+          // FIXME: This currently only works with +/- 2GB offests.
+          offset = operands[0].value - (asm_context->address + 4);
+
+          //if (check_range(asm_context, "offset", offset, -(1LL << 32), (1LL << 32) - 1) != 0)
+          if (check_range(asm_context, "offset", offset, -(1 << 30), (1 << 30) - 1) != 0)
+          {
+            return -1;
+          }
+
+          offset = offset >> 1;
+          offset &= (1 << 21) - 1;
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                 ((offset & 0x3) << 24) |
+                 ((offset >> 2) << 5);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
