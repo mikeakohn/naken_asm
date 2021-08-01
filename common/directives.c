@@ -63,6 +63,11 @@ static int parse_high_address(struct _asm_context *asm_context)
 
   asm_context->memory.high_address = num * asm_context->bytes_per_address;
 
+  if (asm_context->bytes_per_address != 1)
+  {
+    asm_context->memory.high_address += asm_context->bytes_per_address - 1;
+  }
+
   return 0;
 }
 
