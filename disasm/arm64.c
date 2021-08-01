@@ -65,66 +65,6 @@ int disasm_arm64(
           strcpy(instruction, table_arm64[n].instr);
           return 4;
         }
-        case OP_MATH_R_R_R:
-        {
-          sprintf(instruction, "%s %c%d, %c%d, %c%d",
-            table_arm64[n].instr,
-            reg_size[sf], rd,
-            reg_size[sf], rn,
-            reg_size[sf], rm);
-          return 4;
-        }
-#if 0
-        case OP_SCALAR_R_R:
-        {
-          sprintf(instruction, "%s %c%d, %c%d",
-            table_arm64[n].instr, scalar_size[size], rd, scalar_size[size], rn);
-
-          return 4;
-        }
-#endif
-        case OP_SCALAR_D_D:
-        {
-          if (size != 3) { continue; }
-
-          sprintf(instruction, "%s %c%d, %c%d",
-            table_arm64[n].instr, scalar_size[size], rd, scalar_size[size], rn);
-
-          return 4;
-        }
-        case OP_VECTOR_V_V:
-        {
-          size = (size << 1) | ((opcode >> 30) & 1);
-
-          sprintf(instruction, "%s v%d.%s, v%d.%s",
-            table_arm64[n].instr, rd, vec_size[size], rn, vec_size[size]);
-
-          return 4;
-        }
-        case OP_SCALAR_D_D_D:
-        {
-          if (size != 3) { continue; }
-
-          sprintf(instruction, "%s %c%d, %c%d, %c%d",
-            table_arm64[n].instr,
-            scalar_size[size], rd,
-            scalar_size[size], rn,
-            scalar_size[size], rm);
-
-          return 4;
-        }
-        case OP_VECTOR_V_V_V:
-        {
-          size = (size << 1) | ((opcode >> 30) & 1);
-
-          sprintf(instruction, "%s v%d.%s, v%d.%s, v%d.%s",
-            table_arm64[n].instr,
-            rd, vec_size[size],
-            rn, vec_size[size],
-            rm, vec_size[size]);
-
-          return 4;
-        }
         case OP_MATH_R_R_R_OPTION:
         {
           imm = (opcode >> 10) & 0x7;
@@ -238,25 +178,6 @@ int disasm_arm64(
 
           return 4;
         }
-        case OP_VECTOR_D_2D:
-        {
-          sprintf(instruction, "%s d%d, v%d.2d",
-            table_arm64[n].instr,
-            rd,
-            rn);
-
-          return 4;
-        }
-        case OP_VECTOR_V_V_TO_SCALAR:
-        {
-          sprintf(instruction, "%s d%d, v%d.%s",
-            table_arm64[n].instr,
-            rd,
-            rn,
-            vec_size[sf]);
-
-          return 4;
-        }
         case OP_REG_RELATIVE:
         {
           imm = (opcode >> 5) & ((1 << 19) - 1);
@@ -283,6 +204,85 @@ int disasm_arm64(
             rd,
            (address & (~0xfff)) + imm,
             imm);
+
+          return 4;
+        }
+        case OP_VECTOR_D_V:
+        {
+          sprintf(instruction, "%s d%d, v%d.2d",
+            table_arm64[n].instr,
+            rd,
+            rn);
+
+          return 4;
+        }
+        case OP_VECTOR_V_V_TO_SCALAR:
+        {
+          sprintf(instruction, "%s d%d, v%d.%s",
+            table_arm64[n].instr,
+            rd,
+            rn,
+            vec_size[sf]);
+
+          return 4;
+        }
+        case OP_MATH_R_R_R:
+        {
+          sprintf(instruction, "%s %c%d, %c%d, %c%d",
+            table_arm64[n].instr,
+            reg_size[sf], rd,
+            reg_size[sf], rn,
+            reg_size[sf], rm);
+          return 4;
+        }
+#if 0
+        case OP_SCALAR_R_R:
+        {
+          sprintf(instruction, "%s %c%d, %c%d",
+            table_arm64[n].instr, scalar_size[size], rd, scalar_size[size], rn);
+
+          return 4;
+        }
+#endif
+        case OP_SCALAR_D_D:
+        {
+          if (size != 3) { continue; }
+
+          sprintf(instruction, "%s %c%d, %c%d",
+            table_arm64[n].instr, scalar_size[size], rd, scalar_size[size], rn);
+
+          return 4;
+        }
+        case OP_VECTOR_V_V:
+        {
+          size = (size << 1) | ((opcode >> 30) & 1);
+
+          sprintf(instruction, "%s v%d.%s, v%d.%s",
+            table_arm64[n].instr, rd, vec_size[size], rn, vec_size[size]);
+
+          return 4;
+        }
+        case OP_SCALAR_D_D_D:
+        {
+          if (size != 3) { continue; }
+
+          sprintf(instruction, "%s %c%d, %c%d, %c%d",
+            table_arm64[n].instr,
+            scalar_size[size], rd,
+            scalar_size[size], rn,
+            scalar_size[size], rm);
+
+          return 4;
+        }
+        case OP_VECTOR_V_V_V:
+        {
+          size = (size << 1) | ((opcode >> 30) & 1);
+
+          sprintf(instruction, "%s v%d.%s, v%d.%s, v%d.%s",
+            table_arm64[n].instr,
+            rd, vec_size[size],
+            rn, vec_size[size],
+            rm, vec_size[size]);
 
           return 4;
         }
