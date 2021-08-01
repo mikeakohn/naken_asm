@@ -996,14 +996,13 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
         }
         case OP_REG_RELATIVE:
         {
-          if (operands[0].type != OPERAND_REG_SCALAR ||
-              operands[1].type != OPERAND_ADDRESS ||
-              size != 1)
+          if (operands[0].type != OPERAND_REG_64 ||
+              operands[1].type != OPERAND_ADDRESS)
           {
             break;
           }
 
-          offset = operands[0].value - (asm_context->address + 4);
+          offset = operands[1].value - (asm_context->address + 4);
 
           if (check_range(asm_context, "offset", offset, -(1 << 20), (1 << 20) - 1) != 0)
           {
@@ -1014,8 +1013,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
           opcode = table_arm64[n].opcode |
                    operands[0].value |
-                  (operands[1].value << 5) |
-                 ((offset & 0x3) << 24) |
+                 ((offset & 0x3) << 29) |
                  ((offset >> 2) << 5);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
@@ -1024,29 +1022,36 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
         }
         case OP_REG_PAGE_RELATIVE:
         {
-          if (operands[0].type != OPERAND_REG_SCALAR ||
-              operands[1].type != OPERAND_ADDRESS ||
-              size != 1)
+          if (operands[0].type != OPERAND_REG_64 ||
+              operands[1].type != OPERAND_ADDRESS)
           {
             break;
           }
 
-          // FIXME: This currently only works with +/- 2GB offests.
-          offset = operands[0].value - (asm_context->address + 4);
+          uint64_t base = asm_context->address & (~0xfffULL);
 
+          if ((operands[1].value & 0xfff) != 0)
+          {
+            print_error("Address is not on page boundary.", asm_context);
+            return -1;
+          }
+
+          int64_t offset = operands[1].value - base;
+
+#if 0
           //if (check_range(asm_context, "offset", offset, -(1LL << 32), (1LL << 32) - 1) != 0)
           if (check_range(asm_context, "offset", offset, -(1 << 30), (1 << 30) - 1) != 0)
           {
             return -1;
           }
+#endif
 
-          offset = offset >> 1;
+          offset = offset >> 12;
           offset &= (1 << 21) - 1;
 
           opcode = table_arm64[n].opcode |
                    operands[0].value |
-                  (operands[1].value << 5) |
-                 ((offset & 0x3) << 24) |
+                 ((offset & 0x3) << 29) |
                  ((offset >> 2) << 5);
 
           add_bin32(asm_context, opcode, IS_OPCODE);

@@ -262,6 +262,8 @@ int disasm_arm64(
           imm = (opcode >> 5) & ((1 << 19) - 1);
           imm = (imm << 2) | ((opcode >> 24) & 0x3);
 
+          if ((imm & 0x00080000) != 0) { imm &= 0xfff00000; }
+
           sprintf(instruction, "%s x%d, 0x%04x (offset=%d)",
             table_arm64[n].instr,
             rd,
@@ -273,13 +275,13 @@ int disasm_arm64(
         case OP_REG_PAGE_RELATIVE:
         {
           imm = (opcode >> 5) & ((1 << 19) - 1);
-          imm = (imm << 2) | ((opcode >> 24) & 0x3);
+          imm = (imm << 2) | ((opcode >> 29) & 0x3);
           imm = imm << 12;
 
           sprintf(instruction, "%s x%d, 0x%04x (offset=%d)",
             table_arm64[n].instr,
             rd,
-            address + 4 + imm,
+           (address & (~0xfff)) + imm,
             imm);
 
           return 4;
@@ -316,7 +318,7 @@ void list_output_arm64(
 
     opcode = memory_read32_m(&asm_context->memory, start);
 
-    fprintf(asm_context->list, "0x%04x: %08x %-40s\n", start / 2, opcode, instruction);
+    fprintf(asm_context->list, "0x%04x: %08x %-40s\n", start, opcode, instruction);
 
     start += count;
   }
@@ -344,7 +346,7 @@ void disasm_range_arm64(
 
     opcode = memory_read32_m(memory, start);
 
-    printf("0x%04x: %08x %-40s\n", start / 2, opcode, instruction);
+    printf("0x%04x: %08x %-40s\n", start, opcode, instruction);
 
     start = start + count;
   }
