@@ -480,7 +480,7 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
   struct _operand operands[MAX_OPERANDS];
   int operand_count = 0;
   int token_type;
-  int num, n, i, r;
+  int num, n;
   int offset;
   uint32_t opcode;
   int found = 0;
@@ -580,49 +580,6 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
       int type = table_arm64[n].type;
 
-      if (operand_type_arm64[type].operand_count != operand_count &&
-          operand_type_arm64[type].operand_count_match == 1)
-      {
-        continue;
-      }
-
-      if (operand_type_arm64[type].size_match == 1)
-      {
-        r = operand_type_arm64[type].register_map;
-
-        for (i = 0; i < operand_type_arm64[type].operand_count; i++)
-        {
-          if ((r & 0x8) != 0)
-          {
-            if (operands[0].type != operands[i].type) { break; }
-            if (operands[0].attribute != operands[i].attribute) { break; }
-
-            if (i == 0)
-            {
-              if (operands[i].type == OPERAND_REG_64)
-              {
-                size = 1;
-              }
-                else
-              if (operands[i].type == OPERAND_REG_VECTOR ||
-                  operands[i].type == OPERAND_REG_SCALAR)
-              {
-                size = operands[i].attribute;
-              }
-                else
-              if (operands[i].type == OPERAND_REG_VECTOR_ELEMENT)
-              {
-                size = operands[i].attribute - SIZE_B;
-              }
-            }
-          }
-
-          r = r << 1;
-        }
-
-        if (i != operand_type_arm64[type].operand_count) { continue; }
-      }
-
       switch (type)
       {
         case OP_NONE:
@@ -630,6 +587,313 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
           add_bin32(asm_context, table_arm64[n].opcode, IS_OPCODE);
           return 4;
         }
+        case OP_MATH_R_R_R_OPTION:
+        {
+          if (operands[0].type != OPERAND_REG_32 &&
+              operands[0].type != OPERAND_REG_64)
+          {
+            break;
+          }
+
+          if (operands[0].type != operands[1].type ||
+              operands[0].type != operands[2].type)
+          {
+            break;
+          }
+
+          int size = operands[0].type == OPERAND_REG_64 ? 1: 0;
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                  (operands[2].value << 16) |
+                 ((size & 1) << 31);
+
+          if (operand_count == 3)
+          {
+            // If rd or rn is 31 and option is LSL #0, then LSL #0 can
+            // be omitted.
+
+            if (operands[0].value == 31 || operands[1].value == 31)
+            {
+              opcode |= size == 0 ? (2 << 13) : (3 << 13);
+              add_bin32(asm_context, opcode, IS_OPCODE);
+              return 4;
+            }
+
+            break;
+          }
+
+          if (operand_count == 4)
+          {
+            if (operands[3].type != OPERAND_OPTION) { break; }
+            if (operands[3].attribute > OPTION_LSL) { break; }
+
+            if (operands[3].attribute == OPTION_LSL)
+            {
+              if (operands[3].value < 0 || operands[3].value > 7)
+              {
+                print_error_range("Shift", 0, 7, asm_context);
+                return -2;
+              }
+
+              opcode |= operands[3].value << 10;
+              opcode |= size == 0 ? (2 << 13) : (3 << 13);
+            }
+              else
+            {
+              opcode |= operands[3].attribute << 13;
+            }
+
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+
+          break;
+        }
+        case OP_MATH_R_R_IMM_SHIFT:
+        {
+          if (operands[0].type != OPERAND_REG_32 &&
+              operands[0].type != OPERAND_REG_64)
+          {
+            break;
+          }
+
+          if (operands[0].type != operands[1].type)
+          {
+            break;
+          }
+
+          int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
+          int shift, value;
+
+          // Immediate should be between 0x000-0xfff or 0x001-0xfff000.
+          if (operands[2].value >= 0 && operands[2].value <= 0xfff)
+          {
+            value = operands[2].value;
+            shift = 0;
+          }
+            else
+          if (operands[2].value >= 0x1000 && operands[2].value <= 0xfff000)
+          {
+            value = operands[2].value >> 12;
+            shift = 1;
+          }
+            else
+          {
+            print_error("Immediate out of range (0x000-0xfff or (0x001000-0xfff000)", asm_context);
+            return -1;
+          }
+
+          if (operand_count == 4)
+          {
+            if (operands[3].type != OPERAND_OPTION ||
+                operands[3].attribute != OPTION_LSL ||
+                shift != 0)
+            {
+              break;
+            }
+
+            if (operands[3].value == 0)
+            {
+              shift = 0;
+            }
+              else
+            if (operands[3].value == 12)
+            {
+              shift = 1;
+            }
+              else
+            {
+              print_error("Shift value must be 0 or 12", asm_context);
+              return -1;
+            }
+          }
+            else
+          if (operand_count != 3)
+          {
+            break;
+          }
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                  (value << 10) |
+                 ((shift & 3) << 22) |
+                  (size << 31);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_MATH_R_R_R_SHIFT:
+        {
+          if (operands[0].type != OPERAND_REG_32 &&
+              operands[0].type != OPERAND_REG_64)
+          {
+            break;
+          }
+
+          if (operands[0].type != operands[1].type ||
+              operands[0].type != operands[2].type)
+          {
+            break;
+          }
+
+          int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
+          int shift = 0, value = 0;
+
+          if (operand_count == 4)
+          {
+            if (operands[3].attribute < OPTION_LSL ||
+                operands[3].attribute > OPTION_ASR)
+            {
+              break;
+            }
+
+            shift = operands[3].attribute - OPTION_LSL;
+            value = operands[3].value;
+
+            if (value < 0 || value > 0x3f)
+            {
+              print_error_range("Shift", 0, 0x3f, asm_context);
+              return -1;
+            }
+          }
+            else
+          if (operand_count != 3)
+          {
+            break;
+          }
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                  (operands[2].value << 16) |
+                  (value << 10) |
+                 ((shift & 3) << 22) |
+                  (size << 31);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_MATH_R_R_IMM6_IMM4:
+        {
+          if (operands[0].type != OPERAND_REG_64 ||
+              operands[1].type != OPERAND_REG_64)
+          {
+            break;
+          }
+
+          int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
+          if (size != 1) { break; }
+
+          int imm6 = operands[2].value;
+          int imm4 = operands[3].value;
+
+          if (check_range(asm_context, "immediate4", imm4, 0, 15) != 0)
+          {
+            return -1;
+          }
+
+          if (check_range(asm_context, "immediate6", imm4, 0, 15) != 0)
+          {
+            return -1;
+          }
+
+          if ((imm6 % 16) != 0)
+          {
+            print_error("Immedate6 is not a multiple of 16", asm_context);
+            return -1;
+          }
+
+          imm6 = imm6 / 16;
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                  (imm6 << 16) |
+                  (imm4 << 10);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_REG_RELATIVE:
+        {
+          if (operands[0].type != OPERAND_REG_64 ||
+              operands[1].type != OPERAND_ADDRESS)
+          {
+            break;
+          }
+
+          offset = operands[1].value - (asm_context->address + 4);
+
+          if (check_range(asm_context, "offset", offset, -(1 << 20), (1 << 20) - 1) != 0)
+          {
+            return -1;
+          }
+
+          offset &= (1 << 21) - 1;
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                 ((offset & 0x3) << 29) |
+                 ((offset >> 2) << 5);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_REG_PAGE_RELATIVE:
+        {
+          if (operands[0].type != OPERAND_REG_64 ||
+              operands[1].type != OPERAND_ADDRESS)
+          {
+            break;
+          }
+
+          uint64_t base = asm_context->address & (~0xfffULL);
+
+          if ((operands[1].value & 0xfff) != 0)
+          {
+            print_error("Address is not on page boundary.", asm_context);
+            return -1;
+          }
+
+          int64_t offset = operands[1].value - base;
+
+#if 0
+          //if (check_range(asm_context, "offset", offset, -(1LL << 32), (1LL << 32) - 1) != 0)
+          if (check_range(asm_context, "offset", offset, -(1 << 30), (1 << 30) - 1) != 0)
+          {
+            return -1;
+          }
+#endif
+
+          offset = offset >> 12;
+          offset &= (1 << 21) - 1;
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                 ((offset & 0x3) << 29) |
+                 ((offset >> 2) << 5);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        default:
+        {
+          break;
+        }
+      }
+
+      if (table_arm64[n].operand_count != operand_count) { continue; }
+
+      switch (type)
+      {
         case OP_MATH_R_R_R:
         {
           if (operands[0].type == OPERAND_REG_32 ||
@@ -730,234 +994,6 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
           break;
         }
-        case OP_MATH_R_R_R_OPTION:
-        {
-          if (operands[0].type != OPERAND_REG_32 &&
-              operands[0].type != OPERAND_REG_64)
-          {
-            break;
-          }
-
-          if (operands[0].type != operands[1].type ||
-              operands[0].type != operands[2].type)
-          {
-            break;
-          }
-
-          size = operands[0].type == OPERAND_REG_64 ? 1: 0;
-
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                  (operands[1].value << 5) |
-                  (operands[2].value << 16) |
-                 ((size & 1) << 31);
-
-          if (operand_count == 3)
-          {
-            // If rd or rn is 31 and option is LSL #0, then LSL #0 can
-            // be omitted.
-
-            if (operands[0].value == 31 || operands[1].value == 31)
-            {
-              opcode |= size == 0 ? (2 << 13) : (3 << 13);
-              add_bin32(asm_context, opcode, IS_OPCODE);
-              return 4;
-            }
-
-            break;
-          }
-
-          if (operand_count == 4)
-          {
-            if (operands[3].type != OPERAND_OPTION) { break; }
-            if (operands[3].attribute > OPTION_LSL) { break; }
-
-            if (operands[3].attribute == OPTION_LSL)
-            {
-              if (operands[3].value < 0 || operands[3].value > 7)
-              {
-                print_error_range("Shift", 0, 7, asm_context);
-                return -2;
-              }
-
-              opcode |= operands[3].value << 10;
-              opcode |= size == 0 ? (2 << 13) : (3 << 13);
-            }
-              else
-            {
-              opcode |= operands[3].attribute << 13;
-            }
-
-            add_bin32(asm_context, opcode, IS_OPCODE);
-            return 4;
-          }
-
-          break;
-        }
-        case OP_MATH_R_R_IMM_SHIFT:
-        {
-          if (operands[0].type != OPERAND_REG_32 &&
-              operands[0].type != OPERAND_REG_64)
-          {
-            break;
-          }
-
-          if (operands[0].type != operands[1].type)
-          {
-            break;
-          }
-
-          size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
-
-          int shift, value;
-
-          // Immediate should be between 0x000-0xfff or 0x001-0xfff000.
-          if (operands[2].value >= 0 && operands[2].value <= 0xfff)
-          {
-            value = operands[2].value;
-            shift = 0;
-          }
-            else
-          if (operands[2].value >= 0x1000 && operands[2].value <= 0xfff000)
-          {
-            value = operands[2].value >> 12;
-            shift = 1;
-          }
-            else
-          {
-            print_error("Immediate out of range (0x000-0xfff or (0x001000-0xfff000)", asm_context);
-            return -1;
-          }
-
-          if (operand_count == 4)
-          {
-            if (operands[3].type != OPERAND_OPTION ||
-                operands[3].attribute != OPTION_LSL ||
-                shift != 0)
-            {
-              break;
-            }
-
-            if (operands[3].value == 0)
-            {
-              shift = 0;
-            }
-              else
-            if (operands[3].value == 12)
-            {
-              shift = 1;
-            }
-              else
-            {
-              print_error("Shift value must be 0 or 12", asm_context);
-              return -1;
-            }
-          }
-            else
-          if (operand_count != 3)
-          {
-            break;
-          }
-
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                  (operands[1].value << 5) |
-                  (value << 10) |
-                 ((shift & 3) << 22) |
-                  (size << 31);
-
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
-        }
-        case OP_MATH_R_R_R_SHIFT:
-        {
-          if (operands[0].type != OPERAND_REG_32 &&
-              operands[0].type != OPERAND_REG_64)
-          {
-            break;
-          }
-
-          if (operands[0].type != operands[1].type ||
-              operands[0].type != operands[2].type)
-          {
-            break;
-          }
-
-          size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
-
-          int shift = 0, value = 0;
-
-          if (operand_count == 4)
-          {
-            if (operands[3].attribute < OPTION_LSL ||
-                operands[3].attribute > OPTION_ASR)
-            {
-              break;
-            }
-
-            shift = operands[3].attribute - OPTION_LSL;
-            value = operands[3].value;
-
-            if (value < 0 || value > 0x3f)
-            {
-              print_error_range("Shift", 0, 0x3f, asm_context);
-              return -1;
-            }
-          }
-            else
-          if (operand_count != 3)
-          {
-            break;
-          }
-
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                  (operands[1].value << 5) |
-                  (operands[2].value << 16) |
-                  (value << 10) |
-                 ((shift & 3) << 22) |
-                  (size << 31);
-
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
-        }
-        case OP_MATH_R_R_IMM6_IMM4:
-        {
-          if (size != 1) { break; }
-
-          int imm6 = operands[2].value;
-          int imm4 = operands[3].value;
-
-          if (check_range(asm_context, "immediate4", imm4, 0, 15) != 0)
-          {
-            return -1;
-          }
-
-          if (check_range(asm_context, "immediate6", imm4, 0, 15) != 0)
-          {
-            return -1;
-          }
-
-          if ((imm6 % 16) != 0)
-          {
-            print_error("Immedate6 is not a multiple of 16", asm_context);
-            return -1;
-          }
-
-          imm6 = imm6 / 16;
-
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                  (operands[1].value << 5) |
-                  (imm6 << 16) |
-                  (imm4 << 10);
-
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
-        }
         case OP_VECTOR_D_2D:
         {
           if (operands[0].type != OPERAND_REG_SCALAR ||
@@ -989,70 +1025,6 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
           opcode = table_arm64[n].opcode |
                    operands[0].value |
                   (operands[1].value << 5);
-
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
-        }
-        case OP_REG_RELATIVE:
-        {
-          if (operands[0].type != OPERAND_REG_64 ||
-              operands[1].type != OPERAND_ADDRESS)
-          {
-            break;
-          }
-
-          offset = operands[1].value - (asm_context->address + 4);
-
-          if (check_range(asm_context, "offset", offset, -(1 << 20), (1 << 20) - 1) != 0)
-          {
-            return -1;
-          }
-
-          offset &= (1 << 21) - 1;
-
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                 ((offset & 0x3) << 29) |
-                 ((offset >> 2) << 5);
-
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
-        }
-        case OP_REG_PAGE_RELATIVE:
-        {
-          if (operands[0].type != OPERAND_REG_64 ||
-              operands[1].type != OPERAND_ADDRESS)
-          {
-            break;
-          }
-
-          uint64_t base = asm_context->address & (~0xfffULL);
-
-          if ((operands[1].value & 0xfff) != 0)
-          {
-            print_error("Address is not on page boundary.", asm_context);
-            return -1;
-          }
-
-          int64_t offset = operands[1].value - base;
-
-#if 0
-          //if (check_range(asm_context, "offset", offset, -(1LL << 32), (1LL << 32) - 1) != 0)
-          if (check_range(asm_context, "offset", offset, -(1 << 30), (1 << 30) - 1) != 0)
-          {
-            return -1;
-          }
-#endif
-
-          offset = offset >> 12;
-          offset &= (1 << 21) - 1;
-
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                 ((offset & 0x3) << 29) |
-                 ((offset >> 2) << 5);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
