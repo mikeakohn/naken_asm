@@ -14,6 +14,7 @@ add v9.16b, v18.16b, v11.16b
 add v28.4h, v18.4h, v5.4h
 add d17, d1, d29
 addg x5, x9, #32, #5
-addp v3.d, v7.2d
+;addp v3.d, v7.2d fixme
 ;addv fixme
+aese v7.16b, v13.16b
 

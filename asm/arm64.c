@@ -1058,6 +1058,22 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_REG_REG_CRYPT:
+        {
+          if (operands[0].type == OPERAND_REG_VECTOR &&
+              operands[1].type == OPERAND_REG_VECTOR &&
+              operands[0].attribute == SIZE_16B &&
+              operands[1].attribute == SIZE_16B)
+          {
+            opcode = table_arm64[n].opcode |
+                     operands[0].value |
+                    (operands[1].value << 5);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+
+          break;
+        }
         default:
         {
           print_error_internal(asm_context, __FILE__, __LINE__);

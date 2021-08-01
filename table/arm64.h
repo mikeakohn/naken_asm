@@ -31,6 +31,7 @@ enum
   OP_VECTOR_V_V_TO_SCALAR,
   OP_REG_RELATIVE,
   OP_REG_PAGE_RELATIVE,
+  OP_REG_REG_CRYPT,
 };
 
 struct _table_arm64

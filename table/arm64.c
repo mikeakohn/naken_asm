@@ -36,6 +36,10 @@ struct _table_arm64 table_arm64[] =
   { "addv",    0x0e31b800, 0xbf3ffc00, OP_VECTOR_V_V_TO_SCALAR },
   { "adr",     0x10000000, 0x9f000000, OP_REG_RELATIVE },
   { "adrp",    0x90000000, 0x9f000000, OP_REG_PAGE_RELATIVE },
+  { "aesd",    0x4e285800, 0xfffffc00, OP_REG_REG_CRYPT },
+  { "aese",    0x4e284800, 0xfffffc00, OP_REG_REG_CRYPT },
+  { "aesimc",  0x4e287800, 0xfffffc00, OP_REG_REG_CRYPT },
+  { "aesmc",   0x4e286800, 0xfffffc00, OP_REG_REG_CRYPT },
   { NULL,      0x00000000, 0x00000000, 0 }
 };
 
@@ -54,7 +58,8 @@ struct _operand_type_arm64 operand_type_arm64[] =
   { 4, 0xc, 1, 1, ATTR_SIZE_64 },   // OP_MATH_R_R_IMM6_IMM4
   { 2, 0xc, 0, 1, ATTR_SIZE_BOTH }, // OP_VECTOR_D_2D
   { 2, 0xc, 0, 1, ATTR_SIZE_BOTH }, // OP_VECTOR_V_V_TO_SCALAR
-  { 2, 0x8, 0, 1, ATTR_SIZE_64 }, // OP_REG_RELATIVE
-  { 2, 0x8, 0, 1, ATTR_SIZE_64 }, // OP_REG_PAGE_RELATIVE
+  { 2, 0x8, 0, 1, ATTR_SIZE_64 },   // OP_REG_RELATIVE
+  { 2, 0x8, 0, 1, ATTR_SIZE_64 },   // OP_REG_PAGE_RELATIVE
+  { 2, 0xc, 0, 1, ATTR_SIZE_BOTH }, // OP_REG_REG_CRYPT
 };
 

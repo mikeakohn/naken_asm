@@ -286,6 +286,13 @@ int disasm_arm64(
 
           return 4;
         }
+        case OP_REG_REG_CRYPT:
+        {
+          sprintf(instruction, "%s v%d.16b, v%d.16b",
+            table_arm64[n].instr, rd, rn);
+
+          return 4;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);
