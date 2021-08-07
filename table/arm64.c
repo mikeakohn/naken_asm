@@ -41,7 +41,13 @@ struct _table_arm64 table_arm64[] =
   { "aesimc",  0x4e287800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
   { "aesmc",   0x4e286800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
   { "and",     0x0e201c00, 0xbfe0fc00, 3, 'v', OP_VECTOR_V_V_V },
-  { "and",     0x12000000, 0x7f800000, 3, 'v', OP_MATH_R_R_IMMR_S },
+  { "and",     0x12000000, 0x7f800000, 3, 'b', OP_MATH_R_R_IMMR_S },
+  { "and",     0x0a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "ands",    0x72000000, 0x7f800000, 3, 'v', OP_MATH_R_R_IMMR_S },
+  { "ands",    0x6a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "asr",     0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+  { "asr",     0x13007c00, 0x7f80fc00, 3, 'b', OP_MATH_R_R_IMMR },
+  { "asrv",    0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
   { NULL,      0x00000000, 0x00000000, 0, ' ', 0 }
 };
 

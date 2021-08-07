@@ -241,6 +241,20 @@ int disasm_arm64(
 
           return 4;
         }
+        case OP_MATH_R_R_IMMR:
+        {
+          int imm = (opcode >> 16) & 0x3f;
+
+          if (sf == 1) { imm |= ((opcode >> 22) & 1) << 6; }
+
+          sprintf(instruction, "%s %c%d, %c%d, #%d",
+            table_arm64[n].instr,
+            reg_size[sf], rd,
+            reg_size[sf], rn,
+            imm);
+
+          return 4;
+        }
         case OP_SCALAR_D_D:
         {
           if (size != 3) { continue; }
