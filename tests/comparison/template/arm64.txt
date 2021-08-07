@@ -64,4 +64,19 @@ at s12e0r, x31
 at s12e0w, x7
 at s1e3r, x1
 at s1e3w, x9
+autda x3, x17
+autdza x3
+autdb x7, x19
+autdzb x9
+autia x9, x23
+autiza x7
+autia1716
+autiasp
+autiaz
+autib x3, x19
+autizb x3
+autib1716
+autibsp
+autibz
+axflag
 nop

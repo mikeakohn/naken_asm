@@ -329,11 +329,29 @@ int disasm_arm64(
         }
         case OP_MATH_R_R_R:
         {
-          sprintf(instruction, "%s %c%d, %c%d, %c%d",
-            table_arm64[n].instr,
-            reg_size[sf], rd,
-            reg_size[sf], rn,
-            reg_size[sf], rm);
+          if (table_arm64[n].operand_count == 1)
+          {
+            sprintf(instruction, "%s %c%d",
+              table_arm64[n].instr,
+              reg_size[sf], rd);
+          }
+            else
+          if (table_arm64[n].operand_count == 2)
+          {
+            sprintf(instruction, "%s %c%d, %c%d",
+              table_arm64[n].instr,
+              reg_size[sf], rd,
+              reg_size[sf], rn);
+          }
+            else
+          {
+            sprintf(instruction, "%s %c%d, %c%d, %c%d",
+              table_arm64[n].instr,
+              reg_size[sf], rd,
+              reg_size[sf], rn,
+              reg_size[sf], rm);
+          }
+
           return 4;
         }
         case OP_REG_REG_CRYPT:
