@@ -48,6 +48,26 @@ struct _table_arm64 table_arm64[] =
   { "asr",     0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
   { "asr",     0x13007c00, 0x7f80fc00, 3, 'b', OP_MATH_R_R_IMMR },
   { "asrv",    0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+  { "at",      0xd5807800, 0xfff8fe00, 3, 'b', OP_AT },
   { NULL,      0x00000000, 0x00000000, 0, ' ', 0 }
+};
+
+struct _table_arm64_at_op table_arm64_at_op[] =
+{
+  { "s1e1r",  0x00 },
+  { "s1e1w",  0x01 },
+  { "s1e0r",  0x02 },
+  { "s1e0w",  0x03 },
+  { "s1e1rp", 0x08 },
+  { "s1e1wp", 0x09 },
+  { "s1e2r",  0x40 },
+  { "s1e2w",  0x41 },
+  { "s12e1r", 0x44 },
+  { "s12e1w", 0x45 },
+  { "s12e0r", 0x46 },
+  { "s12e0w", 0x47 },
+  { "s1e3r",  0x60 },
+  { "s1e3w",  0x61 },
+  { NULL,     0x00 },
 };
 

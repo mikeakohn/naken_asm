@@ -17,4 +17,5 @@ addg x5, x9, #32, #5
 ;addp v3.d, v7.2d fixme
 ;addv fixme
 aese v7.16b, v13.16b
+at s1e0w, x13
 

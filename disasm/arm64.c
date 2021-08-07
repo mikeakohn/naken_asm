@@ -26,6 +26,21 @@ static char *options[] =
   "sxtb", "sxth", "sxtw", "sxtx"
 };
 
+static const char *get_at(int value)
+{
+  int n;
+
+  for (n = 0; table_arm64_at_op[n].name != NULL; n++)
+  {
+    if (table_arm64_at_op[n].value == value)
+    {
+      return table_arm64_at_op[n].name;
+    }
+  }
+
+  return "???";
+}
+
 int get_cycle_count_arm64(unsigned short int opcode)
 {
   return -1;
@@ -252,6 +267,21 @@ int disasm_arm64(
             reg_size[sf], rd,
             reg_size[sf], rn,
             imm);
+
+          return 4;
+        }
+        case OP_AT:
+        {
+          int imm = ((opcode >> 16) & 0x7) << 4;
+          imm |= (opcode >> 5) & 0x7;
+          imm |= ((opcode >> 8) & 0x1) << 3;
+
+          const char *at = get_at(imm);
+
+          sprintf(instruction, "%s %s, x%d",
+            table_arm64[n].instr,
+            at,
+            rd);
 
           return 4;
         }

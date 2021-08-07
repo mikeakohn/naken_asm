@@ -27,6 +27,7 @@ enum
   OP_VECTOR_V_V_TO_SCALAR,
   OP_MATH_R_R_IMMR_S,
   OP_MATH_R_R_IMMR,
+  OP_AT,
   // Similar register instructions.
   OP_SCALAR_D_D,
   OP_SCALAR_D_D_D,
@@ -56,7 +57,14 @@ struct _table_arm64
   uint8_t type;
 };
 
+struct _table_arm64_at_op
+{
+  const char *name;
+  uint8_t value;
+};
+
 extern struct _table_arm64 table_arm64[];
+extern struct _table_arm64_at_op table_arm64_at_op[];
 
 #endif
 

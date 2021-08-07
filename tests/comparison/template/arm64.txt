@@ -50,4 +50,18 @@ asr x9, x1, x31
 asr w9, w1, #7
 asr x9, x1, #40
 asrv w9, w1, w30
+at s1e1r, x3
+at s1e1w, x5
+at s1e0r, x7
+at s1e0w, x9
+at s1e1rp, x13
+at s1e1wp, x23
+at s1e2r, x24
+at s1e2w, x27
+at s12e1r, x29
+at s12e1w, x17
+at s12e0r, x31
+at s12e0w, x7
+at s1e3r, x1
+at s1e3w, x9
 nop

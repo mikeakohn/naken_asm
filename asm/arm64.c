@@ -33,6 +33,7 @@ enum
   OPERAND_NUMBER,
   OPERAND_ADDRESS,
   OPERAND_OPTION,
+  OPERAND_AT,
 };
 
 enum
@@ -472,6 +473,24 @@ static int get_option(
   return -1;
 }
 
+static int get_at(const char *token)
+{
+  int n;
+
+  if (token[0] != 's' && token[0] != 'S') { return -1; }
+  if (token[1] != '1') { return -1; }
+
+  for (n = 0; table_arm64_at_op[n].name != NULL; n++)
+  {
+    if (strcasecmp(token, table_arm64_at_op[n].name) == 0)
+    {
+      return table_arm64_at_op[n].value;
+    }
+  }
+
+  return -1;
+}
+
 int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
@@ -516,6 +535,12 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
       operands[operand_count].type = OPERAND_OPTION;
       operands[operand_count].attribute = num;
+    }
+      else
+    if ((num = get_at(token)) != -1)
+    {
+      operands[operand_count].type = OPERAND_AT;
+      operands[operand_count].value = num;
     }
       else
     if (IS_TOKEN(token,'#'))
@@ -981,6 +1006,20 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
           opcode |= (imm & 0x3f) << 16;
 
           if (size == 1) { opcode |= ((imm >> 6) & 0x1) << 22; }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_AT:
+        {
+          if (operands[0].type != OPERAND_AT) { break; }
+          if (operands[1].type != OPERAND_REG_64) { break; }
+
+          opcode = table_arm64[n].opcode | operands[1].value;
+          opcode |= ((operands[0].value >> 4) & 0x7) << 16;
+          opcode |= ((operands[0].value >> 8) & 0x1) << 8;
+          opcode |= (operands[0].value & 0x7) << 5;
 
           add_bin32(asm_context, opcode, IS_OPCODE);
 
