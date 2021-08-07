@@ -919,6 +919,44 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_MATH_R_R_IMMR_S:
+        {
+          if (operands[0].type != operands[1].type) { break; }
+          if (operands[2].type != OPERAND_NUMBER) { break; }
+
+
+          if (operands[0].type != operands[1].type) { break; }
+          if (operands[2].type != OPERAND_NUMBER) { break; }
+
+          if (operands[0].type != OPERAND_REG_32 &&
+              operands[0].type != OPERAND_REG_64)
+          {
+            break;
+          }
+
+          int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
+          int imm = operands[2].value;
+          int max = size == 0 ? 0xfff : 0x1fff;
+
+          if (check_range(asm_context, "immediate", imm, 0, max) != 0)
+          {
+            return -1;
+          }
+
+          opcode = table_arm64[n].opcode |
+                   operands[0].value |
+                  (operands[1].value << 5) |
+                  (size << 31);
+
+          opcode |= (imm & 0x3f) << 16;
+          opcode |= ((imm >> 6) & 0x3f) << 10;
+
+          if (size == 1) { opcode |= ((imm >> 12) & 0x1) << 22; }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
         {
           break;

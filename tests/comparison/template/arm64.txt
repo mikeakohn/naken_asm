@@ -16,4 +16,38 @@ add x27, x7, w29, sxtw
 add w9, w5, #27
 add x11, x19, #0x100
 add x11, x19, #0x100000
+addg x5, x9, #32, #5
+addhn v9.8b, v10.8b, v11.8b
+addhn2 v9.2s, v10.2s, v11.2s
+addp d4, v3.2d
+addp v9.4h, v18.4h, v1.4h
+adds x27, x7, w29, uxtb
+adds w3, w8, #100
+adds w3, w8, #100, lsl #12
+adds x3, x8, #100, lsl #12
+adds x3, x8, #0x1000
+adds w13, w17, w30, lsl #3
+adds x13, x17, x30, lsr #3
+adds x13, x17, x30, asr #3
+adds x13, x17, x30
+addv v1.4h, v21.4h, v3.4h
+main: adr x3, main
+main: adrp x3, main
+aesd v9.16b, v11.16b
+aese v7.16b, v13.16b
+aesimc v1.16b, v30.16b
+aesmc v3.16b, v11.16b
+and v4.4h, v7.4h, v3.4h
+and w3, w8, #0x817
+and x3, x8, #0x314
+and w3, w7, w17, ror #7
+ands w7, w30, #0x1000
+and w3, w8, #0x934
+and x3, x8, #0x1934
+ands w1, w17, w9, asr #12
+asr w3, w8, w17
+asr x9, x1, x31
+asr w9, w1, #7
+asr x9, x1, #40
+asrv w9, w1, w30
 nop

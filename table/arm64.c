@@ -40,6 +40,8 @@ struct _table_arm64 table_arm64[] =
   { "aese",    0x4e284800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
   { "aesimc",  0x4e287800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
   { "aesmc",   0x4e286800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
+  { "and",     0x0e201c00, 0xbfe0fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "and",     0x12000000, 0x7f800000, 3, 'v', OP_MATH_R_R_IMMR_S },
   { NULL,      0x00000000, 0x00000000, 0, ' ', 0 }
 };
 
