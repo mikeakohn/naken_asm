@@ -25,12 +25,12 @@ enum
   OP_REG_PAGE_RELATIVE,
   OP_VECTOR_D_V,
   OP_VECTOR_V_V_TO_SCALAR,
-  OP_MATH_R_R_R,
-  //OP_SCALAR_R_R,
+  // Similar register instructions.
   OP_SCALAR_D_D,
-  OP_VECTOR_V_V,
   OP_SCALAR_D_D_D,
+  OP_VECTOR_V_V,
   OP_VECTOR_V_V_V,
+  OP_MATH_R_R_R,
   OP_REG_REG_CRYPT,
 };
 
