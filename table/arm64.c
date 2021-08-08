@@ -64,6 +64,22 @@ struct _table_arm64 table_arm64[] =
   { "autibsp",   0xd50323ff, 0xffffffff, 0, 'x', OP_NONE },
   { "autibz",    0xd50323df, 0xffffffff, 0, 'x', OP_NONE },
   { "axflag",    0xd500405f, 0xffffffff, 0, 'x', OP_NONE },
+  { "b.eq",      0x54000000, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.ne",      0x54000001, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.cs",      0x54000002, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.cc",      0x54000003, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.mi",      0x54000004, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.pl",      0x54000005, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.vs",      0x54000006, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.vc",      0x54000007, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.hi",      0x54000008, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.ls",      0x54000009, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.ge",      0x5400000a, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.lt",      0x5400000b, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.gt",      0x5400000c, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.le",      0x5400000d, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b.al",      0x5400000f, 0xff00001f, 0, 'x', OP_RELATIVE19 },
+  { "b",         0x14000000, 0xfc000000, 0, 'x', OP_RELATIVE26 },
   { NULL,        0x00000000, 0x00000000, 0, ' ', 0 }
 };
 

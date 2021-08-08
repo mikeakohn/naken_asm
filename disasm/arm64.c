@@ -285,6 +285,32 @@ int disasm_arm64(
 
           return 4;
         }
+        case OP_RELATIVE19:
+        {
+          imm = (opcode >> 5) & ((1 << 19) - 1);
+          if ((imm & (1 << 18)) != 0) { imm |= 0xfff80000; }
+          imm *= 4;
+
+          sprintf(instruction, "%s 0x%04x (offset=%d)",
+            table_arm64[n].instr,
+           (address + 4 + imm),
+            imm);
+
+          return 4;
+        }
+        case OP_RELATIVE26:
+        {
+          imm = opcode & ((1 << 26) - 1);
+          if ((imm & (1 << 25)) != 0) { imm |= 0xfc000000; }
+          imm *= 4;
+
+          sprintf(instruction, "%s 0x%04x (offset=%d)",
+            table_arm64[n].instr,
+           (address + 4 + imm),
+            imm);
+
+          return 4;
+        }
         case OP_SCALAR_D_D:
         {
           if (size != 3) { continue; }

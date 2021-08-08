@@ -80,3 +80,19 @@ autibsp
 autibz
 axflag
 nop
+main: b.eq main
+main: b.ne main
+main: b.cs main
+main: b.cc main
+main: b.mi main
+main: b.pl main
+main: b.vs main
+main: b.vc main
+main: b.hi main
+main: b.ls main
+main: b.ge main
+main: b.lt main
+main: b.gt main
+main: b.le main
+main: b.al main
+main: b main

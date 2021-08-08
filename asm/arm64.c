@@ -1025,6 +1025,56 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
 
           return 4;
         }
+        case OP_RELATIVE19:
+        {
+          if (operands[0].type != OPERAND_ADDRESS) { break; }
+
+          offset = operands[0].value - (asm_context->address + 4);
+
+          if ((offset & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          if (check_range(asm_context, "offset", offset, -(1 << 20), (1 << 20) - 1) != 0)
+          {
+            return -1;
+          }
+
+          offset = offset / 4;
+          offset &= (1 << 19) - 1;
+
+          opcode = table_arm64[n].opcode | (offset << 5);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
+        }
+        case OP_RELATIVE26:
+        {
+          if (operands[0].type != OPERAND_ADDRESS) { break; }
+
+          offset = operands[0].value - (asm_context->address + 4);
+
+          if ((offset & 0x3) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          if (check_range(asm_context, "offset", offset, -(1 << 27), (1 << 27) - 1) != 0)
+          {
+            return -1;
+          }
+
+          offset = offset / 4;
+          offset &= (1 << 26) - 1;
+
+          opcode = table_arm64[n].opcode | offset;
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
+        }
         default:
         {
           break;

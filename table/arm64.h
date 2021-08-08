@@ -28,6 +28,8 @@ enum
   OP_MATH_R_R_IMMR_S,
   OP_MATH_R_R_IMMR,
   OP_AT,
+  OP_RELATIVE19,
+  OP_RELATIVE26,
   // Similar register instructions.
   OP_SCALAR_D_D,
   OP_SCALAR_D_D_D,
