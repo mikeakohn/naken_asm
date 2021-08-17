@@ -1,9 +1,10 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Sunplus SPG2xx MMIO registers
-;; Part of the naken_asm assembler
+;; This is an include file for the SunPlus SPG2xx game SoC series.
+;; This is a part of the naken_asm assembler
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; For more info:
+;; http://www.mikekohn.net/micro/naken_asm.php
+;;
 
 PPU_BG1_SCROLL_X                        equ 0x2810
 PPU_BG1_SCROLL_Y                        equ 0x2811
@@ -17,6 +18,8 @@ PPU_BG2_ATTR                            equ 0x2818
 PPU_BG2_CTRL                            equ 0x2819
 PPU_BG2_TILE_ADDR                       equ 0x281a
 PPU_BG2_ATTR_ADDR                       equ 0x281b
+PPU_VERT_COMPRESS_AMOUNT                equ 0x281c
+PPU_VERT_COMPRESS_OFFSET                equ 0x281d
 PPU_BG1_SEGMENT_ADDR                    equ 0x2820
 PPU_BG2_SEGMENT_ADDR                    equ 0x2821
 PPU_SPRITE_SEGMENT_ADDR                 equ 0x2822
@@ -31,6 +34,7 @@ PPU_TV_CTRL2                            equ 0x283d
 PPU_LIGHTPEN_Y                          equ 0x283e
 PPU_LIGHTPEN_X                          equ 0x283f
 PPU_SPRITE_CTRL                         equ 0x2842
+PPU_STN_LCD_CTRL                        equ 0x2854
 PPU_IRQ_ENABLE                          equ 0x2862
 PPU_IRQ_STATUS                          equ 0x2863
 PPU_SPRITE_DMA_SRC                      equ 0x2870
@@ -38,9 +42,13 @@ PPU_SPRITE_DMA_DEST                     equ 0x2871
 PPU_SPRITE_DMA_LEN                      equ 0x2872
 
 PPU_LINE_SCROLL_MEM                     equ 0x2900
-PPU_PALETTE_MEM                         equ 0x2b00
+PPU_LINE_COMPRESS_MEM                   equ 0x2a00
+PPU_COLOR_MEM                           equ 0x2b00
 PPU_SPRITE_MEM                          equ 0x2c00
 
+.define PPU_LINE_SCROLL(n)              (0x2900 + (n))
+.define PPU_LINE_COMPRESS(n)            (0x2a00 + (n))
+.define PPU_COLOR(n)                    (0x2b00 + (n))
 .define PPU_SPRITE_TILE(n)              (0x2c00 + (n)*4)
 .define PPU_SPRITE_X(n)                 (0x2c01 + (n)*4)
 .define PPU_SPRITE_Y(n)                 (0x2c02 + (n)*4)
@@ -147,7 +155,7 @@ SLEEP_MODE                              equ 0x3d28
 WAKEUP_SOURCE                           equ 0x3d29
 WAKEUP_TIME                             equ 0x3d2a
 
-NTSC_PAL                                equ 0x3d2b
+TV_SYSTEM                               equ 0x3d2b
 
 PRNG_GEN1                               equ 0x3d2c
 PRNG_GEN2                               equ 0x3d2d
@@ -160,6 +168,8 @@ UART_CTRL                               equ 0x3d30
 UART_STATUS                             equ 0x3d31
 UART_RESET                              equ 0x3d32
 UART_BAUD                               equ 0x3d33
+UART_BAUD_LO                            equ 0x3d33
+UART_BAUD_HI                            equ 0x3d34
 UART_TXBUF                              equ 0x3d35
 UART_RXBUF                              equ 0x3d36
 UART_RXFIFO                             equ 0x3d37
