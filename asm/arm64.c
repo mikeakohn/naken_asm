@@ -1160,6 +1160,12 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
             opcode |= operands[2].value << 16;
           }
 
+          // Ra field.
+          if (((table_arm64[n].mask >> 10) & 0x1f) == 0)
+          {
+            opcode |= operands[3].value << 10;
+          }
+
           if (is_scalar != 0)
           {
             if (((table_arm64[n].mask >> 22) & 0x3) == 0x0)
@@ -1218,117 +1224,6 @@ int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
           break;
         }
       }
-
-#if 0
-      switch (type)
-      {
-        case OP_MATH_R_R_R:
-        {
-          if (operands[0].type == OPERAND_REG_32 ||
-              operands[0].type == OPERAND_REG_64)
-          {
-            opcode = table_arm64[n].opcode |
-                     operands[0].value |
-                    (operands[1].value << 5) |
-                    (operands[2].value << 16) |
-                    (size << 31);
-            add_bin32(asm_context, opcode, IS_OPCODE);
-            return 4;
-          }
-
-          break;
-        }
-        case OP_SCALAR_D_D:
-        {
-          if (size != 3) { continue; }
-
-          if (operands[0].type == OPERAND_REG_SCALAR)
-          {
-            opcode = table_arm64[n].opcode |
-                     operands[0].value |
-                    (operands[1].value << 5) |
-                    (size << 22);
-            add_bin32(asm_context, opcode, IS_OPCODE);
-            return 4;
-          }
-
-          break;
-        }
-        case OP_VECTOR_V_V:
-        {
-          if (size == 6) { continue; }
-
-          if (operands[0].type == OPERAND_REG_VECTOR)
-          {
-            opcode = table_arm64[n].opcode |
-                     operands[0].value |
-                    (operands[1].value << 5) |
-                    ((size >> 1) << 22) |
-                    ((size & 1) << 30);
-            add_bin32(asm_context, opcode, IS_OPCODE);
-            return 4;
-          }
-
-          break;
-        }
-        case OP_SCALAR_D_D_D:
-        {
-          if (size != 3) { continue; }
-
-          if (operands[0].type == OPERAND_REG_SCALAR)
-          {
-            opcode = table_arm64[n].opcode |
-                     operands[0].value |
-                    (operands[1].value << 5) |
-                    (operands[2].value << 16) |
-                    (size << 22);
-            add_bin32(asm_context, opcode, IS_OPCODE);
-            return 4;
-          }
-
-          break;
-        }
-        case OP_VECTOR_V_V_V:
-        {
-          if (size == 6) { continue; }
-
-          if (operands[0].type == OPERAND_REG_VECTOR)
-          {
-            opcode = table_arm64[n].opcode |
-                     operands[0].value |
-                    (operands[1].value << 5) |
-                    (operands[2].value << 16) |
-                    ((size >> 1) << 22) |
-                    ((size & 1) << 30);
-            add_bin32(asm_context, opcode, IS_OPCODE);
-            return 4;
-          }
-
-          break;
-        }
-        case OP_REG_REG_CRYPT:
-        {
-          if (operands[0].type == OPERAND_REG_VECTOR &&
-              operands[1].type == OPERAND_REG_VECTOR &&
-              operands[0].attribute == SIZE_16B &&
-              operands[1].attribute == SIZE_16B)
-          {
-            opcode = table_arm64[n].opcode |
-                     operands[0].value |
-                    (operands[1].value << 5);
-            add_bin32(asm_context, opcode, IS_OPCODE);
-            return 4;
-          }
-
-          break;
-        }
-        default:
-        {
-          print_error_internal(asm_context, __FILE__, __LINE__);
-          break;
-        }
-      }
-#endif
     }
   }
 

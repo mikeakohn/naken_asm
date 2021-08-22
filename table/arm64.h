@@ -30,6 +30,7 @@ enum
   OP_AT,
   OP_RELATIVE19,
   OP_RELATIVE26,
+  OP_REG_BITFIELD,
   // Similar register instructions.
   OP_SCALAR_D_D,
   OP_SCALAR_D_D_D,

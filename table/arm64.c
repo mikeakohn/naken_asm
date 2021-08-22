@@ -80,6 +80,8 @@ struct _table_arm64 table_arm64[] =
   { "b.le",      0x5400000d, 0xff00001f, 0, 'x', OP_RELATIVE19 },
   { "b.al",      0x5400000f, 0xff00001f, 0, 'x', OP_RELATIVE19 },
   { "b",         0x14000000, 0xfc000000, 0, 'x', OP_RELATIVE26 },
+  { "bcax",      0xce200000, 0xffe08000, 4, 'v', OP_REG_REG_CRYPT },
+  { "bfc",       0xce200000, 0x7f8003e0, 3, 'b', OP_REG_BITFIELD },
   { NULL,        0x00000000, 0x00000000, 0, ' ', 0 }
 };
 

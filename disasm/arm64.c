@@ -311,6 +311,19 @@ int disasm_arm64(
 
           return 4;
         }
+        case OP_REG_BITFIELD:
+        {
+          int immr = (opcode >> 16) & 0x3f;
+          int imms = (opcode >> 10) & 0x3f;
+
+          sprintf(instruction, "%s %c%d, #%d, #%d",
+            table_arm64[n].instr,
+            reg_size[sf], rd,
+            immr,
+            imms);
+
+          return 4;
+        }
         case OP_SCALAR_D_D:
         {
           if (size != 3) { continue; }
@@ -382,8 +395,23 @@ int disasm_arm64(
         }
         case OP_REG_REG_CRYPT:
         {
-          sprintf(instruction, "%s v%d.16b, v%d.16b",
-            table_arm64[n].instr, rd, rn);
+          if (table_arm64[n].operand_count == 2)
+          {
+            sprintf(instruction, "%s v%d.16b, v%d.16b",
+              table_arm64[n].instr, rd, rn);
+          }
+            else
+          if (table_arm64[n].operand_count == 4)
+          {
+            int ra = (opcode >> 10) & 0x1f;
+
+            sprintf(instruction, "%s v%d.16b, v%d.16b, v%d.16b, v%d.16b",
+              table_arm64[n].instr, rd, rn, rm, ra);
+          }
+            else
+          {
+            strcpy(instruction, "???");
+          }
 
           return 4;
         }
