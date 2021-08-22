@@ -2,8 +2,8 @@ Literals
 ========
 
 All numbers can be spaced out with underscores. For example 100_100
-will be interpreted as 100000 and 0x1234_3333 will be interpreted
-as 0x1234333.
+will be interpreted as 100100 and 0x1234_3333 will be interpreted
+as 0x12343333.
 
 Hexadecimal
 -----------
