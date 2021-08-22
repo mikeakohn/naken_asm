@@ -20,7 +20,13 @@ main: bne $t6, $t7, main
 main: bnez $t6, main
 clo $t0, $t1
 clz $t2, $t3
+di
+di $t4
 ext $t2, $t3, 4, 2
+ehb
+ei
+ei $t4
+eret
 ins $t2, $t3, 4, 2
 main: j main
 main: jal main
@@ -48,7 +54,7 @@ msubu $t3, $t4
 mul $t3, $t4, $t5
 mult $t3, $t4
 multu $t3, $t4
-move $t3, $t4
+;move $t3, $t4
 movn $t3, $t4, $t5
 movz $t3, $t4, $t5
 negu $t3, $t4

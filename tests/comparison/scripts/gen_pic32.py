@@ -3,25 +3,27 @@
 import os
 
 def create_asm(instruction):
-  out = open("temp.asm", "wb")
+  out = open("temp.asm", "w")
   out.write("  " + instruction + "\n")
   out.close()
 
 # --------------------------------- fold here -------------------------------
 
-fp = open("pic32_template.txt", "rb")
-out = open("pic32.txt", "wb")
+fp = open("template/pic32.txt", "r")
+out = open("pic32.txt", "w")
 
 for instruction in fp:
   instruction = instruction.strip()
   if instruction.startswith(";"): continue
-  print instruction
+  print(instruction)
   create_asm(instruction)
 
-  os.system("pic32-as temp.asm")
-  os.system("pic32-objcopy -F ihex a.out pic32_gnu.hex")
+  #os.system("pic32-as temp.asm")
+  #os.system("pic32-objcopy -F ihex a.out pic32_gnu.hex")
+  os.system("as-new -mips32r2 -EL temp.asm")
+  os.system("objcopy -F ihex a.out pic32_gnu.hex")
 
-  fp1 = open("pic32_gnu.hex", "rb")
+  fp1 = open("pic32_gnu.hex", "r")
   hex = fp1.readline().strip()
 
   #if instruction.startswith("b"):

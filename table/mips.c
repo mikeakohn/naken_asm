@@ -162,10 +162,15 @@ struct _mips_other mips_other[] =
   { "bc2fl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x49020000, 0xffff0000, MIPS_I },
   { "bc2t", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x49010000, 0xffff0000, MIPS_I },
   { "bc2tl", { MIPS_OP_LABEL, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x49030000, 0xffff0000, MIPS_I },
-  { "di", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000039, 0xffffffff, MIPS_I },
+  { "di", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000039, 0xffffffff, MIPS_EE_CORE },
+  { "di", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41606000, 0xffe0ffff, MIPS_32 },
+  { "di", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x41606000, 0xffffffff, MIPS_32 },
   { "div1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001a, 0xfc00ffff, MIPS_EE_CORE },
   { "divu1", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x7000001b, 0xfc00ffff, MIPS_EE_CORE },
-  { "ei", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000038, 0xffffffff, MIPS_I },
+  { "ei", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000038, 0xffffffff, MIPS_EE_CORE },
+  { "ei", { MIPS_OP_RT, MIPS_OP_NONE, MIPS_OP_NONE }, 1, 0x41606020, 0xffe0ffff, MIPS_32 },
+  { "ei", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x41606020, 0xffffffff, MIPS_32 },
+  { "ehb", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x000000c0, 0xffffffff, MIPS_32 },
   { "eret", { MIPS_OP_NONE, MIPS_OP_NONE, MIPS_OP_NONE }, 0, 0x42000018, 0xffffffff, MIPS_I },
   { "madd", { MIPS_OP_RS, MIPS_OP_RT, MIPS_OP_NONE }, 2, 0x70000000, 0xfc00ffff, MIPS_32 | MIPS_EE_CORE },
   { "madd", { MIPS_OP_RD, MIPS_OP_RS, MIPS_OP_RT }, 3, 0x70000000, 0xfc0007ff, MIPS_EE_CORE },
@@ -261,7 +266,9 @@ struct _mips_other mips_other[] =
   // FIXME: These aren't working on the MIPS_EE_CORE.
   { "c.le.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600003e, 0xffe007ff, MIPS_I },
   { "c.lt.s", { MIPS_OP_FS, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x4600003c, 0xffe007ff, MIPS_I },
-  { "sqrt.s", { MIPS_OP_FD, MIPS_OP_FT, MIPS_OP_NONE }, 2, 0x46000004, 0xffff003f, MIPS_FPU },
+
+  { "sqrt.s", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46002004, 0xffff003f, MIPS_FPU },
+  { "sqrt.d", { MIPS_OP_FD, MIPS_OP_FS, MIPS_OP_NONE }, 2, 0x46202004, 0xffff003f, MIPS_FPU },
 
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };

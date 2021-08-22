@@ -62,6 +62,8 @@ for line in fp:
     name_a = a[0].split()[0]
     name_b = b[0].split()[0]
 
+    if a[0] in [ "di", "ei" ]: continue
+
     a[0] = a[0].split()[1]
     b[0] = b[0].split()[1]
 
