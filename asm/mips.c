@@ -548,6 +548,17 @@ static int check_for_pseudo_instruction(
     *operand_count = 3;
   }
     else
+  if (strcmp(instr_case, "bal") == 0 &&
+      *operand_count == 1 &&
+      operands[0].type == OPERAND_IMMEDIATE)
+  {
+    strcpy(instr_case, "bgezal");
+    memcpy(&operands[1], &operands[0], sizeof(struct _operand));
+    operands[0].value = 0;
+    operands[0].type = OPERAND_TREG;
+    *operand_count = 2;
+  }
+    else
   if (strcmp(instr_case, "beqz") == 0 &&
       *operand_count == 2 &&
       operands[0].type == OPERAND_TREG &&
@@ -1309,10 +1320,7 @@ static int check_other_instruction(
   for (n = 0; mips_other[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
-    if ((mips_other[n].version & asm_context->flags) == 0)
-    {
-      continue;
-    }
+    if ((mips_other[n].version & asm_context->flags) == 0) { continue; }
 
     if (strcmp(instr_case, mips_other[n].instr) == 0)
     {
@@ -1863,10 +1871,7 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
   for (n = 0; mips_special_table[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
-    if ((mips_special_table[n].version & asm_context->flags) == 0)
-    {
-      continue;
-    }
+    if ((mips_special_table[n].version & asm_context->flags) == 0) { continue; }
 
     if (strcmp(instr_case, mips_special_table[n].instr) == 0)
     {
@@ -1987,6 +1992,37 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
       add_bin32(asm_context, opcode, IS_OPCODE);
       return opcode_size;
     }
+  }
+
+  // Some MIPS instructions seem to have 4 registers.
+  for (n = 0; mips_four_reg[n].instr != NULL; n++)
+  {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_four_reg[n].version & asm_context->flags) == 0) { continue; }
+
+    if (strcmp(instr_case, mips_four_reg[n].instr) != 0) { continue; }
+
+    found = 1;
+
+    if (operand_count != 4) { continue; }
+
+    if (operands[0].type != OPERAND_FREG ||
+        operands[1].type != OPERAND_FREG ||
+        operands[2].type != OPERAND_FREG ||
+        operands[3].type != OPERAND_FREG)
+    {
+      continue;
+    }
+
+    opcode = mips_four_reg[n].opcode |
+             (operands[0].value << 6) |
+             (operands[1].value << 21) |
+             (operands[2].value << 11) |
+             (operands[3].value << 16);
+
+    add_bin32(asm_context, opcode, IS_OPCODE);
+
+    return 4;
   }
 
   if (asm_context->cpu_type == CPU_TYPE_EMOTION_ENGINE)

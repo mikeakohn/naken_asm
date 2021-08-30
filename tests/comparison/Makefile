@@ -19,7 +19,7 @@ default:
 	bash run_test.sh dspic
 	bash run_test.sh epiphany
 	bash run_test.sh lc3
-	#bash run_test.sh mips
+	bash run_test.sh mips
 	bash run_test.sh msp430
 	bash run_test.sh msp430x
 	bash run_test.sh n64_rsp

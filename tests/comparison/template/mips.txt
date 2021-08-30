@@ -1,5 +1,7 @@
 abs.s $f4, $f6
+abs.d $f4, $f6
 add.s $f4, $f6, $f18
+add.d $f4, $f6, $f18
 ;adda.s $f4, $f18
 add $5, $6, $7
 add $k0, $s0, $t7
@@ -10,19 +12,19 @@ addu $ra, $gp, $fp
 and $t5, $t6, $t7
 andi $t5, $t6, 0x1234
 main: b main
-main: bc0f main
-main: bc1f main
+main: bc0f main [2]
+main: bc1f main [2]
 main: bc2f main
-main: bc0fl main
+main: bc0fl main [2]
 main: bc1fl main
 main: bc2fl main
-main: bc0t main
+main: bc0t main [2]
 main: bc1t main
 main: bc2t main
-main: bc0tl main
+main: bc0tl main [2]
 main: bc1tl main
 main: bc2tl main
-;bal $t1, main
+main: bal main
 main: beq $t6, $t7, main
 main: beqz $t6, main
 main: bgez $t6, main
@@ -48,7 +50,7 @@ dadd $k0, $s0, $t7
 daddi $k0, $s0, 0x1234
 daddiu $k0, $s0, 0x1234
 daddu $k0, $s0, $t7
-;di
+;di [2]
 div.s $f4, $f6, $f18
 ;div1 $t3, $t4
 ;divu1 $t3, $t4
@@ -79,25 +81,17 @@ ldl $t3, 0x1234($t4)
 ldr $t3, 0x1234($t4)
 lh $t3, 0x1234($t4)
 lhu $t3, 0x1234($t4)
-li $t3, 0x12341234
+;li $t3, 0x12341234
 ll $t3, 0x1234($t4)
 lw $t3, 0x1234($t4)
 lwc1 $f18, 0x1234($t4)
 lwl $t3, 0x1234($t4)
 lwr $t3, 0x1234($t4)
 lwu $t3, 0x1234($t4)
-;lq $t3, 0x1234($t4)
 ;madd $t3, $t4
 ;madd $t3, $t4, $t5
-;madd.s $f10, $f12, $f14
-;madda.s $f10, $f12
-;madd1 $t3, $t4
-;madd1 $t3, $t4, $t5
-;maddu $t3, $t4
-;maddu $t3, $t4, $t5
-;maddu1 $t3, $t4
-;maddu1 $t3, $t4, $t5
-;max.s $f2, $f4, $f6
+madd.s $f10, $f12, $f14, $f3
+madd.d $f10, $f12, $f14, $f3
 ;mfbpc $t3
 mfc0 $t3, $12
 mfc1 $t3, $f18
@@ -111,6 +105,7 @@ mfc1 $t3, $f18
 ;mfpc $t3, 1
 ;mfps $t3, 0
 ;min.s $f2, $f4, $f8
+;max.s $f2, $f4, $f8
 mov.s $f2, $f4
 ;msub.s $f2, $f4, $f8
 ;msuba.s $f3, $f4
@@ -158,109 +153,13 @@ nor $t3, $k1, $k0
 not $t3, $t4
 or $t3, $k0, $k1
 ori $t3, $k0, 0x1234
-;pref 0, 0x1234($t4)
-;pabsh $t2, $t3
-;pabsw $t2, $t3
-;paddb $t2, $t3, $t4
-;paddh $t2, $t3, $t4
-;paddsb $t2, $t3, $t4
-;paddsh $t2, $t3, $t4
-;paddsw $t2, $t3, $t4
-;paddub $t2, $t3, $t4
-;padduh $t2, $t3, $t4
-;padduw $t2, $t3, $t4
-;paddw $t2, $t3, $t4
-;padsbh $t2, $t3, $t4
-;pand $t2, $t3, $t4
-;pceqb $t2, $t3, $t4
-;pceqh $t2, $t3, $t4
-;pceqw $t2, $t3, $t4
-;pcgtb $t2, $t3, $t4
-;pcgth $t2, $t3, $t4
-;pcgtw $t2, $t3, $t4
-;pcpyh $t2, $t3
-;pcpyld $t2, $t3, $t4
-;pcpyud $t2, $t3, $t4
-;pdivbw $t2, $t3
-;pdivuw $t2, $t3
-;pdivw $t2, $t3
-;pexch $t2, $t3
-;pexeh $t2, $t3
-;pexew $t2, $t3
-;pext5 $t2, $t3
-;pextlb $t2, $t3, $t4
-;pextlh $t2, $t3, $t4
-;pextlw $t2, $t3, $t4
-;pextub $t2, $t3, $t4
-;pextuh $t2, $t3, $t4
-;pextuw $t2, $t3, $t4
-;phmadh $t2, $t3, $t4
-;phmsbh $t2, $t3, $t4
-;pinteh $t2, $t3, $t4
-;pinth $t2, $t3, $t4
-;plzcw $t2, $t3
-;pmaddh $t2, $t3, $t4
-;pmadduw $t2, $t3, $t4
-;pmaddw $t2, $t3, $t4
-;pmaxh $t2, $t3, $t4
-;pmaxw $t2, $t3, $t4
-;pmfhi $t2
-;pmfhl.lh $t2
-;pmfhl.lw $t2
-;pmfhl.sh $t2
-;pmfhl.slw $t2
-;pmfhl.uw $t2
-;pmflo $t2
-;pminh $t2, $t3, $t4
-;pminw $t2, $t3, $t4
-;pmsubh $t2, $t3, $t4
-;pmsubw $t2, $t3, $t4
-;pmthi $t2
-;pmthl.lw $t2
-;pmtlo $t2
-;pmulth $t2, $t3, $t4
-;pmultuw $t2, $t3, $t4
-;pmultw $t2, $t3, $t4
-;pnor $t2, $t3, $t4
-;por $t2, $t3, $t4
-;ppac5 $t3, $t4
-;ppacb $t3, $t4, $t5
-;ppach $t3, $t4, $t5
-;ppacw $t3, $t4, $t5
-;prevh $t3, $t4
-;prot3w $t3, $t4
-;psllh $t3, $t4, 5
-;psllvw $t3, $t4, $t5
-;psllw $t3, $t4, 5
-;psrah $t3, $t4, 5
-;psravw $t3, $t4, $t5
-;psraw $t3, $t4, 5
-;psrlh $t3, $t4, 5
-;psrlvw $t3, $t4, $t5
-;psrlw $t3, $t4, 5
-;psubb $t3, $t4, $t5
-;psubh $t3, $t4, $t5
-;psubsb $t3, $t4, $t5
-;psubsh $t3, $t4, $t5
-;psubsw $t3, $t4, $t5
-;psubub $t3, $t4, $t5
-;psubuh $t3, $t4, $t5
-;psubuw $t3, $t4, $t5
-;psubw $t3, $t4, $t5
-;pxor $t3, $t4, $t5
-;qfsrv $t3, $t4, $t5
-;rsqrt.s $f3, $f4, $f21
-;rotr $t3, $t4, 10
-;rotr $t3, $t4, 31
-;rotrv $t3, $t4, $t5
+rsqrt.s $f3, $f4
+rsqrt.d $f3, $f4
 sc $t3, 0x1234($t4)
 sb $t3, 0x1234($t4)
 sd $t3, 0x1234($t4)
-;sq $t3, 0x1234($t4)
 sdl $t3, 0x1234($t4)
 sdr $t3, 0x1234($t4)
-;seb $t3, $t4
-;seh $t3, $t4
 sh $t3, 0x1234($t4)
 sll $t5, $t6, 5
 sllv $t5, $t6, $t7
@@ -275,7 +174,7 @@ srl $t5, $t6, 5
 srlv $t5, $t6, $t7
 sub $t3, $t4, $t5
 sub.s $f10, $f14, $f12
-;suba.s $f10, $f14
+sub.d $f10, $f14, $f12
 subu $t3, $t4, $t5
 sw $0, ($t1)
 sw $t3, 0x1234($t4)

@@ -128,6 +128,14 @@ struct _mips_other
   uint16_t version;
 };
 
+struct _mips_four_reg
+{
+  const char *instr;
+  uint32_t opcode;
+  uint32_t mask;
+  uint16_t version;
+};
+
 struct _mips_ee_vector
 {
   const char *instr;
@@ -171,6 +179,7 @@ extern struct _mips_branch mips_branch_table[];
 extern struct _mips_special_instr mips_special_table[];
 extern struct _mips_other mips_other[];
 extern struct _mips_other mips_ee[];
+extern struct _mips_four_reg mips_four_reg[];
 extern struct _mips_cache mips_cache[];
 extern struct _mips_other mips_msa[];
 extern struct _mips_ee_vector mips_ee_vector[];

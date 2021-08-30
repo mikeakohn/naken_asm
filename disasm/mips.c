@@ -543,10 +543,7 @@ int disasm_mips(
   for (n = 0; mips_ee[n].instr != NULL; n++)
   {
     // Check of this specific MIPS chip uses this instruction.
-    if ((mips_ee[n].version & flags) == 0)
-    {
-      continue;
-    }
+    if ((mips_ee[n].version & flags) == 0) { continue; }
 
     if (mips_ee[n].opcode == (opcode & mips_ee[n].mask))
     {
@@ -630,6 +627,25 @@ int disasm_mips(
 
         strcat(instruction, temp);
       }
+
+      return 4;
+    }
+  }
+
+  for (n = 0; mips_four_reg[n].instr != NULL; n++)
+  {
+    // Check of this specific MIPS chip uses this instruction.
+    if ((mips_four_reg[n].version & flags) == 0) { continue; }
+
+    if (mips_four_reg[n].opcode == (opcode & mips_four_reg[n].mask))
+    {
+      int fr = (opcode >> 21) & 0x1f;
+      int ft = (opcode >> 16) & 0x1f;
+      int fs = (opcode >> 11) & 0x1f;
+      int fd = (opcode >> 6) & 0x1f;
+
+      sprintf(instruction,"%s $f%d, $f%d, $f%d, $f%d",
+        mips_four_reg[n].instr, fd, fr, fs, ft);
 
       return 4;
     }
