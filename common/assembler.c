@@ -364,7 +364,11 @@ int assemble(struct _asm_context *asm_context)
       else
     if (token_type == TOKEN_POUND || IS_TOKEN(token,'.'))
     {
-      if (parse_directives(asm_context) != 0) { return -1; }
+      int n = parse_directives(asm_context);
+
+      // If n is 3, then this is ending a .repeat directive.
+      if (n == 3) { return 3; }
+      if (n != 0) { return -1; }
     }
       else
     if (token_type == TOKEN_STRING)

@@ -253,6 +253,8 @@ int parse_repeat(struct _asm_context *asm_context)
     return -1;
   }
 
+  asm_context->in_repeat = 1;
+
   uint32_t address_start = asm_context->address;
 
   if (assemble(asm_context) != 3)
@@ -260,6 +262,8 @@ int parse_repeat(struct _asm_context *asm_context)
     print_error("Missing .endr in .repeat block.", asm_context);
     return -1;
   }
+
+  asm_context->in_repeat = 0;
 
   uint32_t address_end = asm_context->address;
   int n, r;
@@ -356,7 +360,7 @@ int parse_directives(struct _asm_context *asm_context)
     else
   if (strcasecmp(token, "endr") == 0)
   {
-    if (asm_context->in_repeat == 1)
+    if (asm_context->in_repeat == 0)
     {
       print_error_unexp(token, asm_context);
       return -1;
