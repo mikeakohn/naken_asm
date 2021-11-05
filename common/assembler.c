@@ -368,6 +368,11 @@ int assemble(struct _asm_context *asm_context)
 
       // If n is 3, then this is ending a .repeat directive.
       if (n == 3) { return 3; }
+
+      // If n is 4, then this is ending a .else directive.
+      if (n == 4) { return 2; }
+
+      // Otherwise there is a problem.
       if (n != 0) { return -1; }
     }
       else

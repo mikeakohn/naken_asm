@@ -340,11 +340,12 @@ int parse_directives(struct _asm_context *asm_context)
     if (asm_context->ifdef_count < 1)
     {
       printf("Error: Unmatched .else at %s:%d\n",
-        asm_context->tokens.filename, asm_context->ifdef_count);
+        asm_context->tokens.filename,
+        asm_context->ifdef_count);
       return -1;
     }
 
-    return 2;
+    return 4;
   }
     else
   if (strcasecmp(token, "repeat") == 0)

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -98,12 +98,13 @@ static int get_operator(char *token, struct _operator *operator)
 
 static int parse_defined(struct _asm_context *asm_context)
 {
-char token[TOKENLEN];
-//int token_type;
-int param_count; // throw away
-int ret;
+  char token[TOKENLEN];
+  //int token_type;
+  int param_count; // throw away
+  int ret;
 
   tokens_get(asm_context, token, TOKENLEN);
+
   if (IS_NOT_TOKEN(token,'('))
   {
     print_error_unexp(token, asm_context);
@@ -158,7 +159,7 @@ printf("debug> #if eval_operation()  operator=%d  num1=%d  num2=%d\n", operator,
     case OPER_OR:
       return ((num1 | num2) != 0) ? 1 : 0;
     case OPER_AND:
-      if (num1 != 0 && num2 != 0) return 1;
+      if (num1 != 0 && num2 != 0) { return 1; }
       return 0;
   }
 
@@ -188,7 +189,12 @@ static int is_num(char *value)
   return 1;
 }
 
-static int parse_ifdef_expression(struct _asm_context *asm_context, int *num, int paren_count, int precedence, int state)
+static int parse_ifdef_expression(
+  struct _asm_context *asm_context,
+  int *num,
+  int paren_count,
+  int precedence,
+  int state)
 {
   char token[TOKENLEN];
   struct _operator operator;

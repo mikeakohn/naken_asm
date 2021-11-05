@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -105,11 +105,11 @@ int parse_ifdef(struct _asm_context *asm_context, int ifndef)
   if (macros_lookup(&asm_context->macros, token, &param_count) != NULL ||
       symbols_find(&asm_context->symbols, token) != NULL)
   {
-    if (ifndef == 1) ignore_section = 1;
+    if (ifndef == 1) { ignore_section = 1; }
   }
     else
   {
-    if (ifndef == 0) ignore_section = 1;
+    if (ifndef == 0) { ignore_section = 1; }
   }
 
   parse_ifdef_ignore(asm_context, ignore_section);
@@ -129,7 +129,7 @@ int parse_if(struct _asm_context *asm_context)
   num = eval_ifdef_expression(asm_context);
   asm_context->parsing_ifdef = 0;
 
-  if (num == -1) return -1;
+  if (num == -1) { return -1; }
 
   if (num != 0)
   {
