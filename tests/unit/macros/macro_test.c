@@ -206,6 +206,8 @@ int main(int argc, char *argv[])
   test_define(".define blah(a) a + 1\n.db blah(5)\n", 6);
   test_define(".define blah(a) (a + 1)\n.db blah(5)\n", 6);
   test_define(".define blah (5 + 1)\n.db blah\n", 6);
+  test_define(".define blah\n.ifdef blah\n.define value 6\n.else\n.define value 5\n.endif\n.db value\n", 6);
+  test_define(".ifdef blah\n.define value 6\n.else\n.define value 5\n.endif\n.db value\n", 5);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
