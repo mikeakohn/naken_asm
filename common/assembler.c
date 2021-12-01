@@ -37,7 +37,7 @@ void assembler_init(struct _asm_context *asm_context)
   asm_context->list_output = list_output_msp430;
   asm_context->cpu_list_index = -1;
 #else
-  configure_cpu(asm_context, 0);
+  assembler_set_cpu(asm_context, 0);
 #endif
   asm_context->address = 0;
   asm_context->instruction_count = 0;

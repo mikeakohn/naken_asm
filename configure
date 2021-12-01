@@ -341,7 +341,6 @@ for option in $@; do
   --enable-8048)
     ASM_OBJS="${ASM_OBJS} 8048.o"
     DISASM_OBJS="${DISASM_OBJS} 8048.o"
-    SIM_OBJS="${SIM_OBJS} 8048.o"
     TABLE_OBJS="${TABLE_OBJS} 8048.o"
     DFLAGS="${DFLAGS} -DENABLE_8048"
   ;;
