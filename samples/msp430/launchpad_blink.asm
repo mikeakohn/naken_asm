@@ -1,24 +1,32 @@
 
 .include "msp430x2xx.inc"
 
-.entry_point start
-
 .org 0xf800
 start:
-  ;mov.w #0x5a80, &WDTCTL
+  ;; Turn off watchdog timer.
   mov.w #WDTPW|WDTHOLD, &WDTCTL
+
+  ;; Set P0 and P6 as outputs.
   mov.b #0x41, &P1DIR
+
+main:
+  ;; Initial value for LEDs turns on the P0 LED and
+  ;; keeps P6 turned off.
   mov.w #0x01, r8
-repeat:
+while_1:
+  ;; Set LEDs to current value of r8 and toggle P0 and P6.
   mov.b r8, &P1OUT
   xor.b #0x41, r8
+
+  ;; Delay by decrementing r9 60000 times.
   mov.w #60000, r9
-waiter:
+delay_loop:
   dec r9
-  jnz waiter
-  jmp repeat
+  jnz delay_loop
+
+  ;; Repeat loop.
+  jmp while_1
 
 .org 0xfffe
   dw start             ; set reset vector to 'init' label
-
 
