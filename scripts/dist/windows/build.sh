@@ -17,7 +17,7 @@ EOF
 make clean
 ./configure --compiler-prefix=i686-w64-mingw32-
 make
-rm -rf build/asm build/common build/disasm build/fileio build/prog build/simulate build/table ${FULLNAME}.zip
+rm -rf build/asm build/common build/disasm build/fileio build/prog build/simulate build/table .git ${FULLNAME}.zip
 cd ..
 mv naken_asm ${FULLNAME}
 zip -r ${FULLNAME}.zip ${FULLNAME}
