@@ -1,0 +1,11 @@
+out dbb, A
+in A, dbb
+main: jnibf main
+main: jobf main
+mov sts, A
+en dma
+en flags
+movx A, @R0
+movx A, @R1
+movx A, @R7
+movx @r3, A

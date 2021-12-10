@@ -1,0 +1,7 @@
+out dbb, A|:0100000002FD
+in A, dbb|:0100000022DD
+main: jnibf main|:02000000D60028
+main: jobf main|:02000000860078
+mov sts, A|:01000000906F
+en dma|:01000000E51A
+en flags|:01000000F50A
