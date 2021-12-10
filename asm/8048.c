@@ -113,6 +113,10 @@ static int process_op(
       case OP_TCNT:
       case OP_TCNTI:
       case OP_AT_A:
+      case OP_DMA:
+      case OP_FLAGS:
+      case OP_STS:
+      case OP_DBB:
         return 1;
       default:
         return -1;
@@ -223,7 +227,7 @@ int parse_instruction_8048(struct _asm_context *asm_context, char *instr)
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -384,6 +388,26 @@ int parse_instruction_8048(struct _asm_context *asm_context, char *instr)
       operands[operand_count].type = OP_RB1;
     }
       else
+    if (strcasecmp(token, "dma") == 0)
+    {
+      operands[operand_count].type = OP_DMA;
+    }
+      else
+    if (strcasecmp(token, "flags") == 0)
+    {
+      operands[operand_count].type = OP_FLAGS;
+    }
+      else
+    if (strcasecmp(token, "sts") == 0)
+    {
+      operands[operand_count].type = OP_STS;
+    }
+      else
+    if (strcasecmp(token, "dbb") == 0)
+    {
+      operands[operand_count].type = OP_DBB;
+    }
+      else
     {
       operands[operand_count].type = OP_ADDR;
       operands[operand_count].operand = OPERAND_ADDRESS;
@@ -426,10 +450,18 @@ printf("[%d %d]", operands[n].type, operands[n].value);
 printf("\n");
 #endif
 
-  n = 0;
-
-  while (table_8048[n].name != NULL)
+  for (n = 0; table_8048[n].name != NULL; n++)
   {
+    if (table_8048[n].flags == FLAG_8048)
+    {
+      if (asm_context->cpu_type != CPU_TYPE_8048) { continue; }
+    }
+
+    if (table_8048[n].flags == FLAG_8041)
+    {
+      if (asm_context->cpu_type != CPU_TYPE_8041) { continue; }
+    }
+
     if (strcmp(table_8048[n].name, instr_case) == 0)
     {
       matched = 1;
@@ -470,13 +502,6 @@ printf("\n");
             else
           if (operand_count == 2)
           {
-#if 0
-printf("here %d == %d, %d == %d\n",
-operands[0].type, table_8048[n].operand_1,
-operands[1].type, table_8048[n].operand_2
-);
-#endif
-
             if (check_match(operands[0].type,
                             operands[0].operand,
                             table_8048[n].operand_1) == -1)
@@ -490,7 +515,6 @@ operands[1].type, table_8048[n].operand_2
             {
               break;
             }
-
 
             data[0] = table_8048[n].opcode;
 
@@ -512,8 +536,6 @@ operands[1].type, table_8048[n].operand_2
         }
       } while (0);
     }
-
-    n++;
   }
 
   if (matched == 1)

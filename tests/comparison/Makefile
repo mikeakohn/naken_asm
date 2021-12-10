@@ -9,6 +9,7 @@ default:
 	bash run_test.sh 6809
 	bash run_test.sh 68hc08
 	bash run_test.sh 68000
+	bash run_test.sh 8041
 	bash run_test.sh 8048
 	bash run_test.sh 8051
 	bash run_test.sh 86000

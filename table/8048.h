@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -43,6 +43,18 @@ enum
   OP_NUM,
   OP_ADDR,
   OP_PADDR,
+  // Extra for 8041.
+  OP_DMA,
+  OP_FLAGS,
+  OP_STS,
+  OP_DBB,
+};
+
+enum
+{
+  FLAG_NONE = 0,
+  FLAG_8041,
+  FLAG_8048,
 };
 
 struct _table_8048
@@ -54,6 +66,7 @@ struct _table_8048
   uint8_t operand_1;
   uint8_t operand_2;
   uint8_t cycles;
+  uint8_t flags;
 };
 
 extern struct _table_8048 table_8048[];

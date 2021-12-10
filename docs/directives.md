@@ -20,6 +20,7 @@ CPU this source file should be assembled for.
 |.6809            |6809
 |.68hc08          |68HC08
 |.68000           |Motorola 68000 series
+|.8041            |8041
 |.8048            |8048/MCS-48 (and similar)
 |.8051            |8051/8052/MCS-51 (and similar)
 |.86000           |86000

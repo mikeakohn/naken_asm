@@ -362,6 +362,27 @@ struct _cpu_list cpu_list[] =
 #endif
 #ifdef ENABLE_8048
   {
+    "8041",
+    CPU_TYPE_8041,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_8048,
+    NULL,
+    link_not_supported,
+    list_output_8048,
+    disasm_range_8048,
+    NULL,
+    1,
+  },
+  {
     "8048",
     CPU_TYPE_8048,
     ENDIAN_LITTLE,

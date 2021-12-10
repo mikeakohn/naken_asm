@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2021 by Michael Kohn
  *
  */
 
@@ -25,6 +25,7 @@ int get_cycle_count_8048(unsigned short int opcode)
 
 int disasm_8048(
   struct _memory *memory,
+  uint32_t flags,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -39,10 +40,18 @@ int disasm_8048(
 
   opcode = memory_read_m(memory, address);
 
-  n = 0;
+  for (n = 0; table_8048[n].name != NULL; n++)
+  {
+    if (table_8048[n].flags == FLAG_8048)
+    {
+      if (flags != 0) { continue; }
+    }
 
-  while(table_8048[n].name != NULL)
-  { 
+    if (table_8048[n].flags == FLAG_8041)
+    {
+      if (flags != 1) { continue; }
+    }
+
     if (table_8048[n].opcode == (opcode & table_8048[n].mask))
     {
       sprintf(instruction, "%s", table_8048[n].name);
@@ -154,19 +163,32 @@ int disasm_8048(
             strcat(instruction, temp);
             length = 2;
             break;
+          case OP_DMA:
+            strcat(instruction, "DMA");
+            break;
+          case OP_FLAGS:
+            strcat(instruction, "FLAGS");
+            break;
+          case OP_STS:
+            strcat(instruction, "STS");
+            break;
+          case OP_DBB:
+            strcat(instruction, "DBB");
+            break;
         }
       }
 
       return length;
     }
-
-    n++;
   }
 
   return 1;
 }
 
-void list_output_8048(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_8048(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min = -1, cycles_max = -1, count;
   char instruction[128];
@@ -174,9 +196,15 @@ void list_output_8048(struct _asm_context *asm_context, uint32_t start, uint32_t
   char temp2[4];
   int n;
 
-  while(start < end)
+  while (start < end)
   {
-    count = disasm_8048(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_8048(
+      &asm_context->memory,
+      asm_context->flags,
+      start,
+      instruction,
+      &cycles_min,
+      &cycles_max);
 
     temp[0] = 0;
 
@@ -193,7 +221,11 @@ void list_output_8048(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_8048(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_8048(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   char temp[32];
@@ -207,9 +239,15 @@ void disasm_range_8048(struct _memory *memory, uint32_t flags, uint32_t start, u
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
-    count = disasm_8048(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_8048(
+      memory,
+      flags,
+      start,
+      instruction,
+      &cycles_min,
+      &cycles_max);
 
     temp[0] = 0;
     for (n = 0; n < count; n++)
