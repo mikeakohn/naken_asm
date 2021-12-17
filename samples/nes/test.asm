@@ -31,7 +31,7 @@ main:
   ldx NES_CONTROLLER_2
 
   ;; Set stack pointer to 0xff.
-  ldx 0xff
+  ldx #0xff
   txs
 
   ;; Disable NMI, rendering, DMC IRQs
