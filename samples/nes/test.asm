@@ -25,10 +25,9 @@
 
 .org 0x8000
 main:
-  ;; Disable IRQs, decimal mode, and APU frame IRQ.
+  ;; Set interrupt flag and clear decimal mode.
   sei
   cld
-  ldx NES_CONTROLLER_2
 
   ;; Set stack pointer to 0xff.
   ldx #0xff
@@ -39,29 +38,10 @@ main:
   stx NES_PPU_MASK
   stx NES_APU_MOD_CONTROL
 
-;; Wait for vertical blank.
+  ;; Wait for vertical blank.
 wait_vblank_1:
   bit NES_PPU_STATUS
   bpl wait_vblank_1
-
-clear_memory:
-  lda #0x00
-  sta 0x0000, x
-  sta 0x0100, x
-  sta 0x0200, x
-  sta 0x0400, x
-  sta 0x0500, x
-  sta 0x0600, x
-  sta 0x0700, x
-  lda #0xfe
-  sta 0x0300, x
-  inx
-  bne clear_memory
-
-;; Wait for vertical blank.
-wait_vblank_2:
-  bit NES_PPU_STATUS
-  bpl wait_vblank_2
 
   ;; Set up PPU.
   lda #0x00
