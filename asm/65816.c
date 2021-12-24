@@ -143,11 +143,8 @@ static int get_address(
   {
     *size = 8;
 
-    if (*num > 0xff)
-      *size = 16;
-
-    if (*num > 0xffff)
-      *size = 24;
+    if (*num > 0xff) { *size = 16; }
+    if (*num > 0xffff) { *size = 24; }
 
     if (*size == 8 && worst_case == 1) { *size = 16; }
   }
@@ -235,6 +232,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         break;
       }
     }
+
     // no matching instruction
     if (instr_enum == -1)
     {
@@ -252,12 +250,14 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   // parse
   while (1)
   {
-    if (GET_TOKEN() == TOKEN_EOL) { break; }
+    GET_TOKEN();
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
     // dot suffix
     if (IS_TOKEN(token, '.'))
     {
-      if (GET_TOKEN() == TOKEN_EOL) { break; }
+      GET_TOKEN();
+      if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
       if (IS_TOKEN(token, 'b') || IS_TOKEN(token, 'B'))
       {
@@ -277,14 +277,16 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         return -1;
       }
 
-      if (GET_TOKEN() == TOKEN_EOL) { break; }
+      GET_TOKEN();
+      if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
     }
 
     if (op == OP_RELATIVE)
     {
       if (IS_TOKEN(token, '#'))
       {
-        if (GET_TOKEN() == TOKEN_EOL) { break; }
+        GET_TOKEN();
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
         if (get_num(asm_context, token, &token_type, &num, &size) == -1)
         {
@@ -303,7 +305,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       {
         tokens_push(asm_context, token, token_type);
 
-        if (GET_TOKEN() == TOKEN_EOL) { break; }
+        GET_TOKEN();
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
         if (get_num(asm_context, token, &token_type, &num, &size) == -1)
         {
@@ -330,7 +333,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     {
       if (IS_TOKEN(token, '#'))
       {
-        if (GET_TOKEN() == TOKEN_EOL) { break; }
+        GET_TOKEN();
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
         if (get_num(asm_context, token, &token_type, &num, &size) == -1)
         {
@@ -349,7 +353,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       {
         tokens_push(asm_context, token, token_type);
 
-        if (GET_TOKEN() == TOKEN_EOL) { break; }
+        GET_TOKEN();
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
         if (get_num(asm_context, token, &token_type, &num, &size) == -1)
         {
@@ -376,7 +381,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     {
       tokens_push(asm_context, token, token_type);
 
-      if (GET_TOKEN() == TOKEN_EOL) { break; }
+      GET_TOKEN();
+      if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
       if (get_address(asm_context, token, &token_type, &num, &size) == -1)
       {
@@ -391,7 +397,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         return -1;
       }
 
-      if (GET_TOKEN() == TOKEN_EOL) { break; }
+      GET_TOKEN();
+      if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
       if (IS_NOT_TOKEN(token, ','))
       {
@@ -399,11 +406,13 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         return -1;
       }
 
-      if (GET_TOKEN() == TOKEN_EOL) { break; }
+      GET_TOKEN();
+      if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
       tokens_push(asm_context, token, token_type);
 
-      if (GET_TOKEN() == TOKEN_EOL) { break; }
+      GET_TOKEN();
+      if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
       if (get_address(asm_context, token, &token_type, &num, &size) == -1)
       {
@@ -424,7 +433,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
     {
       if (IS_TOKEN(token, '#'))
       {
-        if (GET_TOKEN() == TOKEN_EOL) { break; }
+        GET_TOKEN();
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
         if (get_num(asm_context, token, &token_type, &num, &size) == -1)
         {
@@ -473,22 +483,26 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       }
       else if (IS_TOKEN(token, '('))
       {
-        if (GET_TOKEN() == TOKEN_EOL) { break; }
+        GET_TOKEN();
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
         if (get_address(asm_context, token, &token_type, &num, &size) == -1)
         {
           return -1;
         }
 
-        if (GET_TOKEN() == TOKEN_EOL) { break; }
+        GET_TOKEN();
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
         if (IS_TOKEN(token, ','))
         {
-          if (GET_TOKEN() == TOKEN_EOL) { break; }
+          GET_TOKEN();
+          if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
           if (IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
           {
-            if (GET_TOKEN() == TOKEN_EOL) { break; }
+            GET_TOKEN();
+            if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
             if (IS_TOKEN(token, ')'))
             {
@@ -510,7 +524,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           {
             op = OP_SP_INDIRECT_Y;
 
-            if (GET_TOKEN() == TOKEN_EOL) { break; }
+            GET_TOKEN();
+            if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
             if (IS_NOT_TOKEN(token, ')'))
             {
@@ -518,7 +533,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
               return -1;
             }
 
-            if (GET_TOKEN() == TOKEN_EOL) { break; }
+            GET_TOKEN();
+            if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
             if (IS_NOT_TOKEN(token, ','))
             {
@@ -526,7 +542,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
               return -1;
             }
 
-            if (GET_TOKEN() == TOKEN_EOL) { break; }
+            GET_TOKEN();
+            if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
             if (IS_NOT_TOKEN(token, 'y') && IS_NOT_TOKEN(token, 'Y'))
             {
@@ -544,11 +561,13 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         {
           op = OP_INDIRECT8;
 
-          if (GET_TOKEN() == TOKEN_EOL) { break; }
+          GET_TOKEN();
+          if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
           if (IS_TOKEN(token, ','))
           {
-            if (GET_TOKEN() == TOKEN_EOL) { break; }
+            GET_TOKEN();
+            if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
             if (IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
             {
@@ -574,24 +593,28 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       }
       else if (IS_TOKEN(token, '['))
       {
-        if (GET_TOKEN() == TOKEN_EOL) { break; }
+        GET_TOKEN();
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
         if (get_address(asm_context, token, &token_type, &num, &size) == -1)
         {
           return -1;
         }
 
-        if (GET_TOKEN() == TOKEN_EOL) { break; }
+        GET_TOKEN();
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
         if (IS_TOKEN(token, ']'))
         {
           op = OP_INDIRECT8_LONG;
 
-          if (GET_TOKEN() == TOKEN_EOL) { break; }
+          GET_TOKEN();
+          if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
           if (IS_TOKEN(token, ','))
           {
-            if (GET_TOKEN() == TOKEN_EOL) { break; }
+            GET_TOKEN();
+            if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
             if (IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
             {
@@ -614,7 +637,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
       {
         tokens_push(asm_context, token, token_type);
 
-        if (GET_TOKEN() == TOKEN_EOL) { break; }
+        GET_TOKEN();
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
         if (get_address(asm_context, token, &token_type, &num, &size) == -1)
         {
@@ -661,11 +685,13 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           op = OP_ADDRESS24;
         }
 
-        if (GET_TOKEN() == TOKEN_EOL) { break; }
+        GET_TOKEN();
+        if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
         if (IS_TOKEN(token, ','))
         {
-          if (GET_TOKEN() == TOKEN_EOL) { break; }
+          GET_TOKEN();
+          if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
           if (IS_TOKEN(token, 'x') || IS_TOKEN(token, 'X'))
           {
