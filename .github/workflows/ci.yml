@@ -1,0 +1,22 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Update apt
+        run: sudo apt update
+
+      - name: Configure
+        run: ./configure
+
+      - name: Make
+        run: make
+
+      - name: Tests
+        run: make tests
