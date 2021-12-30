@@ -1,15 +1,39 @@
 name: CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  build-ubuntu:
-    runs-on: ubuntu-latest
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Windows Latest Mingw",
+            os: "windows-latest",
+            cc: "gcc",
+            cxx: "g++"
+          }
+        - {
+            name: "Ubuntu Latest GCC",
+            os: "ubuntu-latest",
+            cc: "gcc",
+            cxx: "g++"
+          }
+        - {
+            name: "MacOS Latest Clang",
+            os: "macos-latest",
+            cc: "clang",
+            cxx: "clang++"
+          }
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Update apt
+      - name: Update apt (Ubuntu only)
+        if: startsWith(matrix.config.os, 'ubuntu')
         run: sudo apt update
 
       - name: Configure
