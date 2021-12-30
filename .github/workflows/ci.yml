@@ -14,19 +14,22 @@ jobs:
             name: "Windows Latest Mingw",
             os: "windows-latest",
             cc: "gcc",
-            cxx: "g++"
+            cxx: "g++",
+            runtests: false
           }
         - {
             name: "Ubuntu Latest GCC",
             os: "ubuntu-latest",
             cc: "gcc",
-            cxx: "g++"
+            cxx: "g++",
+            runtests: true
           }
         - {
             name: "MacOS Latest Clang",
             os: "macos-latest",
             cc: "clang",
             cxx: "clang++"
+            runtests: true
           }
 
     steps:
@@ -45,5 +48,6 @@ jobs:
         run: make
 
       - name: Tests
+        if: matrix.config.runtests == true
         shell: bash
         run: make tests
