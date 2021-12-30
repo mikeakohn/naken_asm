@@ -28,7 +28,7 @@ jobs:
             name: "MacOS Latest Clang",
             os: "macos-latest",
             cc: "clang",
-            cxx: "clang++"
+            cxx: "clang++",
             runtests: true
           }
 
