@@ -37,10 +37,13 @@ jobs:
         run: sudo apt update
 
       - name: Configure
+        shell: bash
         run: ./configure
 
       - name: Make
+        shell: bash
         run: make
 
       - name: Tests
+        shell: bash
         run: make tests
