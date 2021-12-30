@@ -1,22 +1,53 @@
 name: CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  build-ubuntu:
-    runs-on: ubuntu-latest
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Windows Latest Mingw",
+            os: "windows-latest",
+            cc: "gcc",
+            cxx: "g++",
+            runtests: false
+          }
+        - {
+            name: "Ubuntu Latest GCC",
+            os: "ubuntu-latest",
+            cc: "gcc",
+            cxx: "g++",
+            runtests: true
+          }
+        - {
+            name: "MacOS Latest Clang",
+            os: "macos-latest",
+            cc: "clang",
+            cxx: "clang++",
+            runtests: true
+          }
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Update apt
+      - name: Update apt (Ubuntu only)
+        if: startsWith(matrix.config.os, 'ubuntu')
         run: sudo apt update
 
       - name: Configure
+        shell: bash
         run: ./configure
 
       - name: Make
+        shell: bash
         run: make
 
       - name: Tests
+        if: matrix.config.runtests == true
+        shell: bash
         run: make tests
