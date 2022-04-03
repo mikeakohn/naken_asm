@@ -1,7 +1,4 @@
-
 .8051
-
-.include "8051.inc"
 
 .org 0
 
@@ -35,5 +32,4 @@ loop_inner2:
   cjne r1, #0, loop_outer2
 
   sjmp repeat
-
 
