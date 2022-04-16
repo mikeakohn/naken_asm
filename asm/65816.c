@@ -651,9 +651,6 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-        // forward label
-        if (num == 0) { size = 16; }
-
         if (size == 8)
         {
           if (num > 0xff)
@@ -683,6 +680,15 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           }
 
           op = OP_ADDRESS24;
+        }
+
+        // forward label
+        if (num == 0)
+        {
+          if(op == OP_ADDRESS24)
+            size = 24;
+          else
+            size = 16;
         }
 
         GET_TOKEN();
