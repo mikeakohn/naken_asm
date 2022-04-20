@@ -145,7 +145,7 @@ static int get_address(
 
     if (*num > 0xff) { *size = 16; }
 
-    if (*num > 0xffff)
+    if (*num > 0xffff && worst_case == 1)
     {
       printf("Use jml/jsl aliases or .l modifier to force 24-bit addressing.\n");
       return -1;
@@ -672,7 +672,7 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
         {
           if (num > 0xffff)
           {
-            print_error("Absolute address out of range.", asm_context);
+            print_error("Absolute address out of range, use .l modifier.", asm_context);
             return -1;
           }
 
