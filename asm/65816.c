@@ -144,7 +144,12 @@ static int get_address(
     *size = 8;
 
     if (*num > 0xff) { *size = 16; }
-    if (*num > 0xffff) { *size = 24; }
+
+    if (*num > 0xffff)
+    {
+      printf("Use jml/jsl aliases or .l modifier to force 24-bit addressing.\n");
+      return -1;
+    }
 
     if (*size == 8 && worst_case == 1) { *size = 16; }
   }
@@ -212,13 +217,15 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   if (strcmp(instr_case, "jml") == 0)
   {
     instr_enum = M65816_JMP;
-    op = OP_NONE;
+//    op = OP_NONE;
+    op = OP_ADDRESS24;
     size = 24;
   }
   else if (strcmp(instr_case, "jsl") == 0)
   {
     instr_enum = M65816_JSR;
-    op = OP_NONE;
+//    op = OP_NONE;
+    op = OP_ADDRESS24;
     size = 24;
   }
   else
@@ -682,14 +689,8 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
           op = OP_ADDRESS24;
         }
 
-        // forward label
-        if (num == 0)
-        {
-          if(op == OP_ADDRESS24)
-            size = 24;
-          else
-            size = 16;
-        }
+        // forward label, assume short
+        if (num == 0) { size = 16; }
 
         GET_TOKEN();
         if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
