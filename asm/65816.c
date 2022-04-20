@@ -145,10 +145,17 @@ static int get_address(
 
     if (*num > 0xff) { *size = 16; }
 
-    if (*num > 0xffff && worst_case == 1)
+    if (*num > 0xffff)
     {
-      printf("Use jml/jsl aliases or .l modifier to force 24-bit addressing.\n");
-      return -1;
+      if(worst_case == 1)
+      {
+        printf("Use jml/jsl aliases or .l modifier to force 24-bit addressing.\n");
+        return -1;
+      }
+      else
+      {
+        *size = 24;
+      }
     }
 
     if (*size == 8 && worst_case == 1) { *size = 16; }
@@ -217,15 +224,13 @@ int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
   if (strcmp(instr_case, "jml") == 0)
   {
     instr_enum = M65816_JMP;
-//    op = OP_NONE;
-    op = OP_ADDRESS24;
+    op = OP_NONE;
     size = 24;
   }
   else if (strcmp(instr_case, "jsl") == 0)
   {
     instr_enum = M65816_JSR;
-//    op = OP_NONE;
-    op = OP_ADDRESS24;
+    op = OP_NONE;
     size = 24;
   }
   else
