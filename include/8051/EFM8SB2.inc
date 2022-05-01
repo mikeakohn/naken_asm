@@ -147,3 +147,33 @@ PCA0CPL4 equ 0xfd ; page 0
 PCA0CPH4 equ 0xfe ; page 0
 VDM0CN   equ 0xff ; page 0
 
+;; ADC Enumerations
+ADC0P0   equ 0x00
+ADC0P1   equ 0x01
+ADC0P2   equ 0x02
+ADC0P3   equ 0x03
+ADC0P4   equ 0x04
+ADC0P5   equ 0x05
+ADC0P6   equ 0x06
+ADC0P7   equ 0x07
+ADC0P8   equ 0x08
+ADC0P9   equ 0x09
+ADC0P10  equ 0x0a
+ADC0P11  equ 0x0b
+ADC0P12  equ 0x0c
+ADC0P13  equ 0x0d
+ADC0P14  equ 0x0e
+ADC0P15  equ 0x0f
+ADC0P16  equ 0x10
+ADC0P17  equ 0x11
+ADC0P18  equ 0x12
+ADC0P19  equ 0x13
+ADC0P20  equ 0x14
+ADC0P21  equ 0x15
+ADC0P22  equ 0x16
+TEMP     equ 0x1b
+VDD      equ 0x1c
+LDO_OUT  equ 0x1d
+VDD2     equ 0x1e
+GND      equ 0x1f
+

@@ -33,13 +33,26 @@ start:
   ;; P1.0: SPI1 SCLK
   ;; P1.2: SPI1 MOSI
   ;; P1.5: SPI1 CS
-  ;mov P0SKIP, #0xff
-  mov P0MASK, #0x00
   mov P1MDOUT, #0x25
   mov XBR1, #0x40
   mov SPI1CFG, #0x40
   mov SPI1CN0, #0x01
   mov SPI1CKR, #0x0b
+
+  ;; Setup ADC for Joystick.
+  ;; P1.7: ADC in.
+  mov A, P1MDIN
+  anl A, #0x7f
+  mov P1MDIN, A
+  setb P1.7
+  mov A, P1SKIP
+  orl A, #0x80
+  mov P1SKIP, A
+  mov ADC0MX, #ADC0P15
+  mov ADC0CN0, #0x80
+  mov ADC0CF, #0xfc
+  ;mov ADC0AC, #0x18
+  mov REF0CN, #0x08
 
   lcall clear_display
 
@@ -68,20 +81,36 @@ lcd_line_data:
   inc r0
   cjne r0, #128, lcd_repeat
 
+  ;; Turn off green.
+  setb P2.1
+
 repeat:
   ;; Sink LEDs to turn them on.
   ;; P2.0 green = off, P2.1 blue = off, P2.2 red = on.
   setb P2.0
-  setb P2.1
   clr P2.2
   lcall delay
 
   ;; P2.0 green = on, P2.1 blue = off, P2.2 red = off.
   clr P2.0
-  setb P2.1
   setb P2.2
   lcall delay
 
+  ;; Get ADC value.
+  mov ADC0CN0, #0x90
+wait_adc:
+  mov A, ADC0CN0
+  anl A, #0x20
+  jnz wait_adc
+
+  mov A, ADC0L
+  anl A, #0x80
+  jnz set_green 
+  setb P2.1
+  sjmp repeat
+
+set_green:
+  clr P2.1
   sjmp repeat
 
 delay:
@@ -97,14 +126,12 @@ delay_loop_inner:
   ret
 
 write_spi:
-  clr P2.1
   mov SPI1CN0, #0x01
   mov SPI1DAT, A
 write_spi_wait:
   mov A, SPI1CN0
   anl A, #0x80
   jz write_spi_wait
-  setb P2.1
   ret
 
 write_spi_reverse:
@@ -119,6 +146,25 @@ write_spi_reverse_loop:
   mov r5, A
   djnz r3, write_spi_reverse_loop
   lcall write_spi
+  ret
+
+write_spi_software:
+  mov r3, #8
+  mov r4, A
+write_spi_software_loop:
+  mov A, r4
+  clr P1.2
+  anl A, #0x80
+  jz  write_spi_software_not_1
+  setb P1.2
+write_spi_software_not_1:
+  setb P1.0
+  mov A, r4
+  rl A
+  mov r4, A
+  clr P1.0
+  djnz r3, write_spi_software_loop
+  clr P1.2
   ret
 
 clear_display:
