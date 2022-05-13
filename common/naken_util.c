@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -30,6 +30,7 @@
 #include "disasm/6809.h"
 #include "disasm/68hc08.h"
 #include "disasm/68000.h"
+#include "disasm/8008.h"
 #include "disasm/8048.h"
 #include "disasm/8051.h"
 #include "disasm/86000.h"
@@ -101,6 +102,7 @@ parse_instruction_t parse_instruction_6800 = NULL;
 parse_instruction_t parse_instruction_6809 = NULL;
 parse_instruction_t parse_instruction_68hc08 = NULL;
 parse_instruction_t parse_instruction_68000 = NULL;
+parse_instruction_t parse_instruction_8008 = NULL;
 parse_instruction_t parse_instruction_8048 = NULL;
 parse_instruction_t parse_instruction_8051 = NULL;
 parse_instruction_t parse_instruction_86000 = NULL;
@@ -1204,13 +1206,14 @@ int main(int argc, char *argv[])
     printf("Usage: naken_util [options] <infile>\n"
            "   // ELF files can auto-pick a CPU, if a hex file use:\n"
            "   -1802                        (RCA 1802)\n"
-           "   -4004                        (Intel 4004)\n"
+           "   -4004                        (Intel 4004 / MCS-4)\n"
            "   -6502                        (6502)\n"
            "   -65816                       (65816)\n"
            "   -6800                        (6800)\n"
            "   -6809                        (6809)\n"
            "   -68hc08                      (68hc08)\n"
            "   -68000                       (68000)\n"
+           "   -8008                        (8008 / MCS-8)\n"
            "   -8048                        (8048 / MCS-48)\n"
            "   -8051 / -8052                (8051 / 8052 / MCS-51)\n"
            "   -86000                       (86000 / VMU)\n"

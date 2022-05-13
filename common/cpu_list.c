@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -19,6 +19,7 @@
 #include "asm/6809.h"
 #include "asm/68hc08.h"
 #include "asm/68000.h"
+#include "asm/8008.h"
 #include "asm/8048.h"
 #include "asm/8051.h"
 #include "asm/86000.h"
@@ -66,6 +67,7 @@
 #include "disasm/6809.h"
 #include "disasm/68hc08.h"
 #include "disasm/68000.h"
+#include "disasm/8008.h"
 #include "disasm/8048.h"
 #include "disasm/8051.h"
 #include "disasm/86000.h"
@@ -358,6 +360,29 @@ struct _cpu_list cpu_list[] =
     disasm_range_68000,
     NULL,
     NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_8008
+  {
+    "8008",
+    CPU_TYPE_8008,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_8008,
+    NULL,
+    link_not_supported,
+    list_output_8008,
+    disasm_range_8008,
+    NULL,
+    1,
   },
 #endif
 #ifdef ENABLE_8048

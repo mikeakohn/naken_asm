@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
     {
       printf(
         " Supported CPUs:\n"
-        "    1802, 4004, 6502, 65C816, 68HC08, 6809, 68000, 8048, 8051,\n"
+        "    1802, 4004, 6502, 65C816, 68HC08, 6809, 68000, 8008, 8048, 8051,\n"
         "    86000, ARM, AVR8, Cell BE, Copper, CP1610, dsPIC, Epiphany,\n"
         "    Java, LC-3, MIPS, MSP430, PIC14, PIC24, PIC32, Playstation 2 EE,\n"
         "    PowerPC, Propeller, Propeller 2, PSoC M8C, RISC-V, SH-4, STM8,\n"
@@ -513,7 +513,7 @@ int main(int argc, char *argv[])
           ptr = 0;
         }
 
-        unsigned char data = memory_read(&asm_context, i);
+        uint8_t data = memory_read(&asm_context, i);
         fprintf(asm_context.list, " %02x", data);
 
         if (data >= ' ' && data <= 120)

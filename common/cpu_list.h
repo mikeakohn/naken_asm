@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -38,6 +38,7 @@ enum
   CPU_TYPE_6809,
   CPU_TYPE_68HC08,
   CPU_TYPE_68000,
+  CPU_TYPE_8008,
   CPU_TYPE_8041,
   CPU_TYPE_8048,
   CPU_TYPE_8051,
