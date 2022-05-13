@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2022 by Michael Kohn, Joe Davisson
  *
  * 6502 by Joe Davisson
  *
@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/6502.h"
@@ -87,7 +86,7 @@ static int get_address(
 
   // check for modifiers
   if (IS_TOKEN(token, '<'))
-  { 
+  {
     modifier = '<';
   }
   else if (IS_TOKEN(token, '!'))
@@ -193,7 +192,7 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
   size = 0;
 
   // parse
-  while(1)
+  while (1)
   {
     if (GET_TOKEN() == TOKEN_EOL) { break; }
 
@@ -247,7 +246,7 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
         if (get_num(asm_context, token, &token_type, &num, &size) == -1)
         {
           return -1;
-        } 
+        }
 
         if (asm_context->pass == 2)
         {
@@ -534,7 +533,7 @@ int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
   }
 
   // Make sure all numbers are checked to be in bounds
-  switch(op)
+  switch (op)
   {
     case OP_ADDRESS8:
     case OP_INDEXED8_X:

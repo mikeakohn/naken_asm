@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -540,7 +540,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
 
       for (r = 0; r < table_ps2_ee_vu[n].operand_count; r++)
       {
-        switch(table_ps2_ee_vu[n].operand[r])
+        switch (table_ps2_ee_vu[n].operand[r])
         {
           case EE_VU_OP_FT:
             if (operands[r].type != OPERAND_VFREG)

@@ -23,7 +23,7 @@ int ignore_operand(struct _asm_context *asm_context)
   int token_type;
 
   // Eat all tokens until an ',' or EOL
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -44,7 +44,7 @@ int ignore_paren_expression(struct _asm_context *asm_context)
   int paren_count = 0;
 
   // Remove expression that starts with (.
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -75,7 +75,7 @@ int ignore_line(struct _asm_context *asm_context)
   char token[TOKENLEN];
   int token_type;
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
@@ -86,7 +86,7 @@ int ignore_line(struct _asm_context *asm_context)
 
 void lower_copy(char *d, const char *s)
 {
-  while(1)
+  while (1)
   {
     *d = tolower(*s);
     if (*s == 0) break;
@@ -140,7 +140,7 @@ int get_reg_number(char *token, int max)
 {
   int num = 0;
 
-  while(*token != 0)
+  while (*token != 0)
   {
     if (*token < '0' || *token > '9') { return -1; }
     num = (num * 10) + (*token - '0');

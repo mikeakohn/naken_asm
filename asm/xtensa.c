@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/xtensa.h"
@@ -48,7 +47,7 @@ static int get_register_xtensa(const char *token, char lo, char up)
     const char *s = token + 1;
     int n = 0, count = 0;
 
-    while(*s != 0)
+    while (*s != 0)
     {
       if (*s < '0' || *s > '9') { return -1; }
       n = (n * 10) + (*s - '0');
@@ -115,7 +114,7 @@ static int check_immediate(struct _asm_context *asm_context, int *immediate, int
     int lo = 0;
     int hi;
 
-    switch(shift)
+    switch (shift)
     {
       case 0: hi = 255; break;
       case 1: hi = 510; break;
@@ -174,7 +173,7 @@ static int check_immediate_n(struct _asm_context *asm_context, int *immediate, i
   {
     int hi;
 
-    switch(shift)
+    switch (shift)
     {
       case 0: hi = 15; break;
       case 1: hi = 30; break;
@@ -238,7 +237,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
   int operand_count = 0;
   int n;
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -314,7 +313,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       }
 
       break;
-    } while(0);
+    } while (0);
 
     operand_count++;
 
@@ -372,11 +371,11 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
 
   n = 0;
 
-  while(table_xtensa[n].instr != NULL)
+  while (table_xtensa[n].instr != NULL)
   {
     if (strcmp(table_xtensa[n].instr, instr_case) == 0)
     {
-      switch(table_xtensa[n].type)
+      switch (table_xtensa[n].type)
       {
         case XTENSA_OP_NONE:
           if (operand_count != 0)
@@ -1297,7 +1296,7 @@ int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          switch(table_xtensa[n].type)
+          switch (table_xtensa[n].type)
           {
             case XTENSA_OP_AT_AS_0_255: shift = 0; break;
             case XTENSA_OP_AT_AS_0_510: shift = 1; break;

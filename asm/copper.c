@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/copper.h"
@@ -91,7 +90,7 @@ static int parse_wait_or_skip(struct _asm_context *asm_context, const char *inst
       return -1;
     }
 
-    switch(param_count)
+    switch (param_count)
     {
       case 1:
         if (n < 0 || n > 0x7f)
@@ -238,7 +237,7 @@ int parse_instruction_copper(struct _asm_context *asm_context, char *instr)
     return -1;
   }
 
-  switch(instruction)
+  switch (instruction)
   {
     case INSTRUCTION_WAIT:
     case INSTRUCTION_SKIP:

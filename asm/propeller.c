@@ -257,7 +257,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
         }
       }
 
-      switch(table_propeller[n].type)
+      switch (table_propeller[n].type)
       {
         case PROPELLER_OP_NONE:
         {
@@ -379,7 +379,7 @@ int parse_instruction_propeller(struct _asm_context *asm_context, char *instr)
           return 4;
         }
         default:
-        { 
+        {
           print_error_internal(asm_context, __FILE__, __LINE__);
           return -1;
         }

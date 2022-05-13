@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/epiphany.h"
@@ -49,7 +48,7 @@ static int get_register(const char *token)
     const char *s = token + 1;
     int n = 0, count = 0;
 
-    while(*s != 0)
+    while (*s != 0)
     {
       if (*s < '0' || *s > '9') { return -1; }
       n = (n * 10) + (*s - '0');
@@ -139,7 +138,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
   memset(operands, 0, sizeof(operands));
 
   // Parse operands
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -340,7 +339,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
 
   // Get opcodes
   n = 0;
-  while(table_epiphany[n].instr != NULL)
+  while (table_epiphany[n].instr != NULL)
   {
     if (strcmp(table_epiphany[n].instr, instr_case) == 0)
     {
@@ -352,7 +351,7 @@ int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
         continue;
       }
 
-      switch(table_epiphany[n].type)
+      switch (table_epiphany[n].type)
       {
         case OP_NONE:
         {

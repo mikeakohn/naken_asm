@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/thumb.h"
@@ -142,7 +141,7 @@ static int read_register_list(struct _asm_context *asm_context, struct _operand 
   char token[TOKENLEN];
   int reg_start, reg_end;
 
-  while(1)
+  while (1)
   {
     tokens_get(asm_context, token, TOKENLEN);
 
@@ -171,7 +170,7 @@ static int read_register_list(struct _asm_context *asm_context, struct _operand 
           return -1;
         }
 
-        while(reg_start<=reg_end)
+        while (reg_start<=reg_end)
         {
           operand->value |= 1 << reg_start;
           reg_start++;
@@ -216,7 +215,7 @@ int parse_cps(struct _asm_context *asm_context, int disable)
   n = 0;
   value = 0;
 
-  while(token[n] != 0)
+  while (token[n] != 0)
   {
     if (token[n] == 'i' || token[n] == 'I' )
     {
@@ -273,7 +272,7 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
 
   memset(&operands, 0, sizeof(operands));
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -444,13 +443,13 @@ int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
   }
 
   n = 0;
-  while(table_thumb[n].instr!=NULL)
+  while (table_thumb[n].instr!=NULL)
   {
     if (strcmp(table_thumb[n].instr, instr_case) == 0)
     {
       matched = 1;
 
-      switch(table_thumb[n].type)
+      switch (table_thumb[n].type)
       {
         case OP_NONE:
           if (operand_count == 0)

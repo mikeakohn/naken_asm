@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -53,7 +53,7 @@ static int get_register_number(char *token)
 {
   int num = 0;
 
-  while(*token != 0)
+  while (*token != 0)
   {
     if (*token < '0' || *token > '9') { return -1; }
 
@@ -92,7 +92,7 @@ static int get_spr_powerpc(char *token)
 {
   int n = 0;
 
-  while(powerpc_spr[n].name != NULL)
+  while (powerpc_spr[n].name != NULL)
   {
     if (strcasecmp(token, powerpc_spr[n].name) == 0)
     {
@@ -122,7 +122,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
   int operand_count = 0;
   int n;
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
@@ -303,7 +303,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
       }
 
       break;
-    } while(0);
+    } while (0);
 
     operand_count++;
 
@@ -349,7 +349,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
   if (operand_count < 0) { return -1; }
 
   n = 0;
-  while(table_powerpc[n].instr != NULL)
+  while (table_powerpc[n].instr != NULL)
   {
     if (strcmp(table_powerpc[n].instr, instr_case) == 0)
     {
@@ -368,7 +368,7 @@ int parse_instruction_powerpc(struct _asm_context *asm_context, char *instr)
         continue;
       }
 
-      switch(table_powerpc[n].type)
+      switch (table_powerpc[n].type)
       {
         case OP_NONE:
         {

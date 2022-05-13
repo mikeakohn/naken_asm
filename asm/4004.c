@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <ctype.h>
 
 #include "asm/4004.h"
 #include "asm/common.h"
@@ -46,13 +45,12 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
   int operand_count = 0;
   int token_type;
   int num, n, r;
-  //uint8_t opcode;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
 
 /*
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -96,7 +94,7 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
   {
     if (strcmp(table_4004[n].instr, instr_case) == 0)
     {
-      switch(table_4004[n].type)
+      switch (table_4004[n].type)
       {
         case OP_NONE:
         {
@@ -301,11 +299,11 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
 
           add_bin8(asm_context, table_4004[n].opcode | r, IS_OPCODE);
           add_bin8(asm_context, num & 0xff, IS_OPCODE);
- 
+
           return 2;
-        } 
+        }
         default:
-          break; 
+          break;
       }
     }
 
@@ -314,6 +312,6 @@ int parse_instruction_4004(struct _asm_context *asm_context, char *instr)
 
   print_error_unknown_instr(instr, asm_context);
 
-  return -1; 
+  return -1;
 }
 

@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/tms9900.h"
@@ -75,7 +74,7 @@ int parse_instruction_tms9900(struct _asm_context *asm_context, char *instr)
   operand_count = 0;
   memset(operands, 0, sizeof(operands));
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -228,11 +227,11 @@ int parse_instruction_tms9900(struct _asm_context *asm_context, char *instr)
 #endif
 
   n = 0;
-  while(table_tms9900[n].instr != NULL)
+  while (table_tms9900[n].instr != NULL)
   {
     if (strcmp(table_tms9900[n].instr,instr_case) == 0)
     {
-      switch(table_tms9900[n].type)
+      switch (table_tms9900[n].type)
       {
         case OP_DUAL:
         {

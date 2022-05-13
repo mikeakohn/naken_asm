@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <ctype.h>
 
 #include "asm/pic14.h"
 #include "asm/common.h"
@@ -59,7 +58,7 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -110,11 +109,11 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
   }
 
   n = 0;
-  while(table_pic14[n].instr != NULL)
+  while (table_pic14[n].instr != NULL)
   {
     if (strcmp(table_pic14[n].instr, instr_case) == 0)
     {
-      switch(table_pic14[n].type)
+      switch (table_pic14[n].type)
       {
         case OP_NONE:
         {
@@ -275,7 +274,7 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
           return 2;
         }
         default:
-          break; 
+          break;
       }
     }
 
@@ -284,6 +283,6 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
 
   print_error_unknown_instr(instr, asm_context);
 
-  return -1; 
+  return -1;
 }
 

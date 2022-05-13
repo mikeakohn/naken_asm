@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/arm.h"
 #include "asm/common.h"
@@ -546,7 +545,7 @@ printf("%d  %d %d %d\n",
     }
       else
     {
-      // ldr rd, [rn], rm, shift rs 
+      // ldr rd, [rn], rm, shift rs
       offset |= (((operands[3].value << 4) |
                   (operands[3].sub_type << 1) | 1) << 4);
     }
@@ -854,7 +853,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
   operand_count = 0;
 
   // First parse instruction into the operands structures.
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
@@ -971,7 +970,7 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
     {
       operands[operand_count].type = OPERAND_MULTIPLE_REG;
       operands[operand_count].value = 0;
-      while(1)
+      while (1)
       {
         token_type = tokens_get(asm_context, token, TOKENLEN);
         int r1 = get_register_arm(token);
@@ -1154,14 +1153,14 @@ int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
 #endif
 
   n = 0;
-  while(table_arm[n].instr != NULL)
+  while (table_arm[n].instr != NULL)
   {
     if (strncmp(table_arm[n].instr, instr_case, table_arm[n].len) == 0)
     {
       char *instr_cond = instr_case + table_arm[n].len;
       matched = 1;
 
-      switch(table_arm[n].type)
+      switch (table_arm[n].type)
       {
         case OP_ALU_3:
           bytes = parse_alu_3(asm_context, operands, operand_count, instr_cond, table_arm[n].opcode);

@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https//www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -56,7 +56,7 @@ static int is_condition(char *token)
   int n;
 
   n = 0;
-  while(cond[n] != NULL)
+  while (cond[n] != NULL)
   {
     if (strcasecmp(cond[n], token) == 0) { return 1; }
     n++;
@@ -206,7 +206,7 @@ static int parse_awb(struct _asm_context *asm_context, struct _operand *operands
     *aa = 0;
   }
     else
-  if (operands->type == OPTYPE_W_OP_EQ_NUM && 
+  if (operands->type == OPTYPE_W_OP_EQ_NUM &&
       operands->value == 13 &&
       operands->attribute == 2)
   {
@@ -302,7 +302,7 @@ int xx = 0, yy = 0, iiii = 4, jjjj = 4, aa = 2;
 
     if (operand < operand_count) { return -1; }
 
-  } while(0);
+  } while (0);
 
   opcode |= (xx << 12) | (yy << 10) | (iiii << 6) | (jjjj << 2) | aa;
 
@@ -354,7 +354,7 @@ static int parse_mpy_n(struct _asm_context *asm_context, struct _operand *operan
 
     if (operand < operand_count) { return -1; }
 
-  } while(0);
+  } while (0);
 
   opcode |= (mmm << 16) | (xx << 12) | (yy << 10) | (iiii << 6) | (jjjj << 2);
 
@@ -404,7 +404,7 @@ static int parse_mac_m_m(struct _asm_context *asm_context, struct _operand *oper
 
     if (operand < operand_count) { return -1; }
 
-  } while(0);
+  } while (0);
 
   opcode |= (mm << 16) | (xx << 12) | (yy << 10) | (iiii << 6) | (jjjj << 2);
 
@@ -488,7 +488,7 @@ int xx = 0, yy = 0, iiii = 4, jjjj = 4, mmm = 0, aa = 2;
 
     if (operand < operand_count) { return -1; }
 
-  } while(0);
+  } while (0);
 
   opcode |= (mmm << 16) | (xx << 12) | (yy << 10) | (iiii << 6) | (jjjj << 2) | aa;
 
@@ -512,7 +512,7 @@ int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
 
   lower_copy(instr_case, instr);
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
@@ -532,7 +532,7 @@ int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
         if (is_condition(token) == 1)
         {
           char *s = token;
-          while(*s != 0) { *s = tolower(*s); s++; }
+          while (*s != 0) { *s = tolower(*s); s++; }
           strcat(instr_case, " ");
           strcat(instr_case, token);
           token_type=tokens_get(asm_context, token, TOKENLEN);
@@ -842,7 +842,7 @@ int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
   n = 0;
   matched = 0;
 
-  while(table_dspic[n].name != NULL)
+  while (table_dspic[n].name != NULL)
   {
     if (asm_context->cpu_type == CPU_TYPE_PIC24 && table_dspic[n].dspic)
     {
@@ -854,7 +854,7 @@ int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
     {
       matched = 1;
 
-      switch(table_dspic[n].type)
+      switch (table_dspic[n].type)
       {
         case OP_NONE:
           if (operand_count == 0 && flag == FLAG_NONE)
@@ -937,7 +937,7 @@ int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
           break;
         case OP_ACC_LIT4_WD:
           if (flag != FLAG_NONE && flag != FLAG_R) { break; }
-          opcode = table_dspic[n].opcode | ((flag == FLAG_R) ? (1 << 16) : 0); 
+          opcode = table_dspic[n].opcode | ((flag == FLAG_R) ? (1 << 16) : 0);
           opcode |= (operands[0].value << 15);
 
           if (operand_count == 2 &&

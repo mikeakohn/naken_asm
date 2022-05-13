@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/6800.h"
@@ -94,7 +93,7 @@ int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
       if (expect_token_s(asm_context, "x") != 0) { return -1; }
       operand_type = OPERAND_ADDRESS_COMMA_X;
     }
-  } while(0);
+  } while (0);
 
   for (n = 0; n < 256; n++)
   {

@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/stm8.h"
@@ -40,7 +39,7 @@ struct _operand
 
 int find_bigger_instruction(int n)
 {
-  switch(table_stm8_opcodes[n].type)
+  switch (table_stm8_opcodes[n].type)
   {
     case OP_NUMBER8:
       if (table_stm8_opcodes[n+1].type == OP_NUMBER16)
@@ -103,7 +102,7 @@ static int ignore_expression(struct _asm_context *asm_context)
   int token_type;
 
   // Ignore all tokens until an ',' or ']' or EOL
-  while(1)
+  while (1)
   {
     token_type=tokens_get(asm_context, token, TOKENLEN);
 
@@ -323,7 +322,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 
   // Find instruction
   n = 0;
-  while(table_stm8[n].instr != NULL)
+  while (table_stm8[n].instr != NULL)
   {
     if (strcmp(instr_case, table_stm8[n].instr) == 0) { break; }
     n++;
@@ -339,7 +338,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
   instr_enum = table_stm8[n].instr_enum;
 
   // Parse operands
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -417,7 +416,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         return -1;
       }
 
-      switch(num_size)
+      switch (num_size)
       {
         case NUM_SIZE_SHORT:
           operands[operand_count].type = OP_NUMBER8; break;
@@ -509,7 +508,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 
         if (skip_case == 0)
         {
-          switch(num_size)
+          switch (num_size)
           {
             case NUM_SIZE_SHORT:
               if (is_w == 0 && is_e != 1)
@@ -575,7 +574,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
           return -1;
         }
 
-        switch(num_size)
+        switch (num_size)
         {
           case NUM_SIZE_SHORT: break;
           case NUM_SIZE_WORD: operands[operand_count].type++; break;
@@ -598,7 +597,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         return -1;
       }
 
-      switch(num_size)
+      switch (num_size)
       {
         case NUM_SIZE_SHORT:
           operands[operand_count].type = OP_INDIRECT8; break;
@@ -645,7 +644,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         return -1;
       }
 
-      switch(num_size)
+      switch (num_size)
       {
         case NUM_SIZE_SHORT:
           operands[operand_count].type = OP_ADDRESS8; break;
@@ -679,7 +678,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
 
   // Get opcodes
   n = 0;
-  while(table_stm8_opcodes[n].instr_enum != STM8_NONE)
+  while (table_stm8_opcodes[n].instr_enum != STM8_NONE)
   {
     if (table_stm8_opcodes[n].instr_enum == instr_enum)
     {
@@ -707,7 +706,7 @@ int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
         }
       }
 
-      switch(table_stm8_opcodes[n].type)
+      switch (table_stm8_opcodes[n].type)
       {
         case OP_NONE:
         {

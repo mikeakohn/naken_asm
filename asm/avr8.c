@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/avr8.h"
@@ -73,7 +72,7 @@ int r;
     if (token[1]==0) return -1;
 
     r=0; n=1;
-    while(1)
+    while (1)
     {
       if (token[n]==0) return r;
       if (token[n]<'0' || token[n]>'9') return -1;
@@ -109,7 +108,7 @@ int parse_instruction_avr8(struct _asm_context *asm_context, char *instr)
     asm_context->address++;
   }
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
@@ -277,7 +276,7 @@ int parse_instruction_avr8(struct _asm_context *asm_context, char *instr)
   // Check for aliases:
   n = 0;
 
-  while(alias[n].instr != NULL)
+  while (alias[n].instr != NULL)
   {
     if (strcmp(alias[n].instr, instr_case) == 0)
     {
@@ -304,13 +303,13 @@ int parse_instruction_avr8(struct _asm_context *asm_context, char *instr)
 
   n = 0;
 
-  while(table_avr8[n].instr != NULL)
+  while (table_avr8[n].instr != NULL)
   {
     if (strcmp(table_avr8[n].instr, instr_case) == 0)
     {
       matched = 1;
 
-      switch(table_avr8[n].type)
+      switch (table_avr8[n].type)
       {
         case OP_NONE:
           if (operand_count == 0)

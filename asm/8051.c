@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <ctype.h>
 
 #include "asm/8051.h"
 #include "asm/common.h"
@@ -469,7 +468,7 @@ printf("\n");
       {
         if (table_8051[n].op[r] == OP_NONE) { break; }
 
-        switch(table_8051[n].op[r])
+        switch (table_8051[n].op[r])
         {
           case OP_REG:
             if (operands[r].type != OPERAND_REG ||
@@ -578,7 +577,7 @@ printf("\n");
         for (r = 0; r < 3; r++)
         {
           if (table_8051[n].op[r] == OP_NONE) { break; }
-          switch(table_8051[n].op[r])
+          switch (table_8051[n].op[r])
           {
             case OP_DATA_16:
             case OP_CODE_ADDR:

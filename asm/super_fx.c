@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <ctype.h>
 
 #include "asm/super_fx.h"
 #include "asm/common.h"
@@ -45,7 +44,7 @@ static int get_register_super_fx(char *token)
   if (token[0] != 'r' && token[0] != 'R') { return -1; }
   token++;
 
-  while(*token != 0)
+  while (*token != 0)
   {
     if (*token < '0' || *token > '9') { return -1; }
     reg = (reg * 10) + (*token) - '0';
@@ -74,7 +73,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -169,7 +168,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
   }
 
   n = 0;
-  while(table_super_fx[n].instr != NULL)
+  while (table_super_fx[n].instr != NULL)
   {
     if (strcmp(table_super_fx[n].instr, instr_case) == 0)
     {
@@ -191,7 +190,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
         count = 1;
       }
 
-      switch(table_super_fx[n].type)
+      switch (table_super_fx[n].type)
       {
         case OP_NONE:
         {
@@ -331,7 +330,7 @@ int parse_instruction_super_fx(struct _asm_context *asm_context, char *instr)
           value = operands[1].value;
           type = operands[1].type;
 
-          switch(table_super_fx[n].type)
+          switch (table_super_fx[n].type)
           {
             case OP_REG_PP:
               min = -128; max = 255;

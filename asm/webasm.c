@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -85,7 +85,7 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
   lower_copy(instr_case, instr);
 
   n = 0;
-  while(table_webasm[n].instr != NULL)
+  while (table_webasm[n].instr != NULL)
   {
     if (strcmp(table_webasm[n].instr, instr_case) != 0)
     {
@@ -93,7 +93,7 @@ int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
       continue;
     }
 
-    switch(table_webasm[n].type)
+    switch (table_webasm[n].type)
     {
       case WEBASM_OP_NONE:
         add_bin8(asm_context, table_webasm[n].opcode, IS_OPCODE);

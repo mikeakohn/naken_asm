@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <ctype.h>
 
 #include "asm/sh4.h"
 #include "asm/common.h"
@@ -387,7 +386,7 @@ int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -532,7 +531,7 @@ printf("%d %d %d\n",
       const int type_0 = operand_type_sh4[table_sh4[n].type].type_0;
       const int type_1 = operand_type_sh4[table_sh4[n].type].type_1;
 
-      switch(table_sh4[n].type)
+      switch (table_sh4[n].type)
       {
         case OP_NONE:
         {

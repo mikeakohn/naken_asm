@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/tms340.h"
@@ -517,7 +516,7 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
       for (i = 0; i < table_tms340[n].operand_count; i++)
       {
-        switch(table_tms340[n].operand_types[i])
+        switch (table_tms340[n].operand_types[i])
         {
           case OP_RS:
             if (operands[i].type != OPERAND_REGISTER)

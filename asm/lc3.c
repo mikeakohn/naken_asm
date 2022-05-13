@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <ctype.h>
 
 #include "asm/lc3.h"
 #include "asm/common.h"
@@ -72,7 +71,7 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
   if (instr_case[0] == 'b' && instr_case[1] == 'r')
   {
     n = 2;
-    while(instr_case[n] != 0)
+    while (instr_case[n] != 0)
     {
       if (instr_case[n] == 'n' || instr_case[n] == 'N')
       {
@@ -98,7 +97,7 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
     if (nzp != 0) { instr_case[2] = 0; }
   }
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -174,13 +173,13 @@ int parse_instruction_lc3(struct _asm_context *asm_context, char *instr)
   }
 
   n = 0;
-  while(table_lc3[n].instr != NULL)
+  while (table_lc3[n].instr != NULL)
   {
     if (strcmp(table_lc3[n].instr, instr_case) == 0)
     {
       found = 1;
 
-      switch(table_lc3[n].type)
+      switch (table_lc3[n].type)
       {
         case OP_NONE:
         {

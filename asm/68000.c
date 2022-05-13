@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/68000.h"
 #include "asm/common.h"
@@ -146,7 +145,7 @@ static int check_size(int size, uint8_t omit_size)
 
 static int check_reg(int type, uint8_t omit_mode)
 {
-  switch(type)
+  switch (type)
   {
     case OPERAND_D_REG:
       if ((omit_mode & MODE_DN) != 0) { return -1; }
@@ -320,7 +319,7 @@ static int ea_generic_all(struct _asm_context *asm_context, struct _operand *ope
   }
 #endif
 
-  switch(operand->type)
+  switch (operand->type)
   {
     case OPERAND_D_REG:
     case OPERAND_A_REG:
@@ -378,7 +377,7 @@ static int ea_generic_new(
   int omit_mode = (is_dst == 1) ? table->omit_dst : table->omit_src;
   int opcode = table->opcode | opcode_extra;
 
-  switch(operand->type)
+  switch (operand->type)
   {
     case OPERAND_D_REG:
     case OPERAND_A_REG:
@@ -546,7 +545,7 @@ static int write_immediate(
       break;
   }
 
-  switch(operands[1].type)
+  switch (operands[1].type)
   {
     case OPERAND_D_REG:
     case OPERAND_A_REG:
@@ -592,7 +591,7 @@ static int write_immediate(
     len += 4;
   }
 
-  switch(operands[1].type)
+  switch (operands[1].type)
   {
     case OPERAND_INDEX_DATA16_A_REG:
       add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
@@ -1571,7 +1570,7 @@ int parse_instruction_68000(struct _asm_context *asm_context, char *instr)
 
   memset(&operands, 0, sizeof(operands));
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
@@ -1698,7 +1697,7 @@ int parse_instruction_68000(struct _asm_context *asm_context, char *instr)
           eval_error = 1;
         }
 
-        while(1)
+        while (1)
         {
           token_type = tokens_get(asm_context, token, TOKENLEN);
           if (IS_TOKEN(token, ',')) { has_comma = 1; }
@@ -1959,7 +1958,7 @@ int parse_instruction_68000(struct _asm_context *asm_context, char *instr)
         operands[operand_count].type = OPERAND_MULTIPLE_REG;
         operands[operand_count].value = 0;
 
-        while(1)
+        while (1)
         {
           if (IS_TOKEN(token,'-'))
           {
@@ -2160,7 +2159,7 @@ printf("\n");
   }
 
   n = 0;
-  while(table_68000[n].instr != NULL)
+  while (table_68000[n].instr != NULL)
   {
     if (strcmp(table_68000[n].instr, instr_case) == 0)
     {
@@ -2171,7 +2170,7 @@ printf("\n");
       // default size.
       if (operand_size == SIZE_NONE && table_68000[n].default_size != 0)
       {
-        switch(table_68000[n].default_size)
+        switch (table_68000[n].default_size)
         {
           case DEFAULT_B: operand_size = SIZE_B; break;
           case DEFAULT_W: operand_size = SIZE_W; break;
@@ -2186,7 +2185,7 @@ printf("\n");
         continue;
       }
 
-      switch(table_68000[n].type)
+      switch (table_68000[n].type)
       {
         case OP_NONE:
           if (operand_count == 0)

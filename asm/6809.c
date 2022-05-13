@@ -2,17 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "asm/common.h"
 #include "asm/6809.h"
@@ -99,7 +98,7 @@ static void check_alias(char *instr)
 {
   int n = 0;
 
-  while(aliases[n].name != NULL)
+  while (aliases[n].name != NULL)
   {
     if (strcmp(instr, aliases[n].name) == 0)
     {
@@ -131,7 +130,7 @@ static int get_register(char *s)
 
 uint8_t get_reg_postbyte(int reg)
 {
-  switch(reg)
+  switch (reg)
   {
     case REG_FLAG_D: return 0x0;
     case REG_FLAG_X: return 0x1;
@@ -342,7 +341,7 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
     else
   if (operand->type == OPERAND_REG_LIST && operand->count == 2)
   {
-    switch(operand->reg_src)
+    switch (operand->reg_src)
     {
       case REG_FLAG_A: post_byte |= 0x86; break;
       case REG_FLAG_B: post_byte |= 0x85; break;
@@ -350,7 +349,7 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
       default: return -1;
     }
 
-    switch(operand->reg_dst)
+    switch (operand->reg_dst)
     {
       case REG_FLAG_X: post_byte |= 0x00; break;
       case REG_FLAG_Y: post_byte |= 0x20; break;
@@ -492,7 +491,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
       else
     if (get_register(token) != 0)
     {
-      while(1)
+      while (1)
       {
         n = get_register(token);
 
@@ -603,12 +602,12 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
         return -1;
       }
     }
-  } while(0);
+  } while (0);
 
 //printf("%s %d\n", instr, operand.type);
 
   n = 0;
-  while(1)
+  while (1)
   {
     if (table_6809[n].instr == NULL) { break; }
 
@@ -616,7 +615,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
     {
       matched = 1;
 
-      switch(table_6809[n].operand_type)
+      switch (table_6809[n].operand_type)
       {
         case M6809_OP_INHERENT:
         {
@@ -789,7 +788,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
   }
 
   n = 0;
-  while(1)
+  while (1)
   {
     if (table_6809_16[n].instr == NULL) { break; }
 
@@ -797,7 +796,7 @@ int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
     {
       matched = 1;
 
-      switch(table_6809_16[n].operand_type)
+      switch (table_6809_16[n].operand_type)
       {
         case M6809_OP_INHERENT:
         {
