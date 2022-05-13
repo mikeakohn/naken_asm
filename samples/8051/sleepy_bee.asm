@@ -71,7 +71,7 @@ lcd_repeat:
   mov r1, #16
 lcd_line_data:
   mov A, #0xf0
-  lcall write_spi_reverse
+  lcall write_spi
   djnz r1, lcd_line_data
   mov A, #0x00
   lcall write_spi
