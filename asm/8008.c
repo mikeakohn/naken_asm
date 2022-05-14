@@ -161,6 +161,8 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
             add_bin8(asm_context, opcode, IS_OPCODE);
             return 1;
           }
+
+          break;
         }
         case OP_DREG:
         {
@@ -171,6 +173,20 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
             add_bin8(asm_context, opcode, IS_OPCODE);
             return 1;
           }
+
+          break;
+        }
+        case OP_DREG_NOT_A:
+        {
+          if (operand_count != 1) { continue; }
+          if (operands[0].type == OPERAND_REG && operands[0].value != 0)
+          {
+            opcode = table_8008[n].opcode | (operands[0].value << 3);
+            add_bin8(asm_context, opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
         }
         case OP_REG_REG:
         {
@@ -185,6 +201,8 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
             add_bin8(asm_context, opcode, IS_OPCODE);
             return 1;
           }
+
+          break;
         }
         case OP_REG_M:
         {
@@ -196,6 +214,8 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
             add_bin8(asm_context, opcode, IS_OPCODE);
             return 1;
           }
+
+          break;
         }
         case OP_M_REG:
         {
@@ -207,6 +227,8 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
             add_bin8(asm_context, opcode, IS_OPCODE);
             return 1;
           }
+
+          break;
         }
         case OP_M:
         {
@@ -216,6 +238,8 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
             add_bin8(asm_context, table_8008[n].opcode, IS_OPCODE);
             return 1;
           }
+
+          break;
         }
         case OP_ADDRESS:
         {
@@ -224,9 +248,12 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
           {
             if (check_range(asm_context, "address", operands[0].value, 0, 0xffff) == -1) { return -1; }
             add_bin8(asm_context, table_8008[n].opcode, IS_OPCODE);
-            add_bin8(asm_context, operands[0].value, IS_OPCODE);
-            return 2;
+            add_bin8(asm_context, operands[0].value & 0xff, IS_OPCODE);
+            add_bin8(asm_context, operands[0].value >> 8, IS_OPCODE);
+            return 3;
           }
+
+          break;
         }
         case OP_IMMEDIATE:
         {
@@ -238,6 +265,8 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
             add_bin8(asm_context, operands[0].value, IS_OPCODE);
             return 2;
           }
+
+          break;
         }
         case OP_M_IMMEDIATE:
         {
@@ -250,6 +279,8 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
             add_bin8(asm_context, operands[1].value, IS_OPCODE);
             return 2;
           }
+
+          break;
         }
         case OP_REG_IMMEDIATE:
         {
@@ -263,6 +294,8 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
             add_bin8(asm_context, operands[1].value, IS_OPCODE);
             return 2;
           }
+
+          break;
         }
         case OP_SUB:
         {
@@ -276,13 +309,13 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
                 asm_context);
             }
 
-            int value = operands[0].value & 0x38;
-
-            opcode = table_8008[n].opcode | value;
+            opcode = table_8008[n].opcode | operands[0].value;
 
             add_bin8(asm_context, opcode, IS_OPCODE);
             return 1;
           }
+
+          break;
         }
         case OP_PORT_MMM:
         {
@@ -294,6 +327,8 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
             add_bin8(asm_context, opcode, IS_OPCODE);
             return 1;
           }
+
+          break;
         }
         case OP_PORT_MMM_NOT_0:
         {
@@ -308,6 +343,8 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
             add_bin8(asm_context, opcode, IS_OPCODE);
             return 1;
           }
+
+          break;
         }
         default:
           break;
@@ -315,7 +352,7 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
     }
   }
 
-  if (matched==1)
+  if (matched == 1)
   {
     print_error_unknown_operand_combo(instr, asm_context);
   }

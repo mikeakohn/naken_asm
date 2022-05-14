@@ -40,12 +40,11 @@ int disasm_8008(
 
   opcode = memory_read_m(memory, address);
 
-  n = 0;
-  while (table_8008[n].instr != NULL)
+  for (n = 0; table_8008[n].instr != NULL; n++)
   {
     if ((opcode & table_8008[n].mask) == table_8008[n].opcode)
     {
-      switch(table_8008[n].type)
+      switch (table_8008[n].type)
       {
         case OP_NONE:
         {
@@ -61,6 +60,13 @@ int disasm_8008(
         case OP_DREG:
         {
           reg = (opcode >> 3) & 0x7;
+          sprintf(instruction, "%s %c", table_8008[n].instr, reg_name[reg]);
+          return 1;
+        }
+        case OP_DREG_NOT_A:
+        {
+          reg = (opcode >> 3) & 0x7;
+          if (reg == 0) { continue; }
           sprintf(instruction, "%s %c", table_8008[n].instr, reg_name[reg]);
           return 1;
         }
@@ -97,25 +103,25 @@ int disasm_8008(
             memory_read_m(memory, address + 1) |
            (memory_read_m(memory, address + 2) << 8);
           sprintf(instruction, "%s 0x%04x", table_8008[n].instr, immediate);
-          return 2;
+          return 3;
         }
         case OP_IMMEDIATE:
         {
           immediate = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s 0x%04x", table_8008[n].instr, immediate);
+          sprintf(instruction, "%s 0x%02x", table_8008[n].instr, immediate);
           return 2;
         }
         case OP_M_IMMEDIATE:
         {
           immediate = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s m, 0x%04x", table_8008[n].instr, immediate);
+          sprintf(instruction, "%s m, 0x%02x", table_8008[n].instr, immediate);
           return 2;
         }
         case OP_REG_IMMEDIATE:
         {
           reg = (opcode >> 3) & 0x7;
           immediate = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s %d, 0x%04x",
+          sprintf(instruction, "%s %c, 0x%02x",
             table_8008[n].instr,
             reg_name[reg],
             immediate);
@@ -146,8 +152,6 @@ int disasm_8008(
         }
       }
     }
-
-    n++;
   }
 
   strcpy(instruction, "???");

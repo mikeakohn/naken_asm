@@ -1,0 +1,66 @@
+mov e, b
+mov c, m
+mov m, d
+mvi b, 131
+mvi m, 232
+inr c
+dcr h
+add l
+add m
+adi 200
+adc a
+adc m
+aci 139
+sub h
+sub m
+sui 32
+sbb h
+sbb m
+sbi 100
+ana b
+ana m
+ani 129
+xra e
+xra m
+xri 99
+ora c
+ora m
+ori 199
+cmp h
+cmp m
+cpi 23
+rlc
+rrc
+ral
+rar
+jmp 0x1234
+jnc 0x1234
+jnz 0x1234
+jp 0x1234
+jpo 0x1234
+jc 0x1234
+jz 0x1234
+jm 0x1234
+jpe 0x1234
+call 0x1234
+cnc 0x1234
+cnz 0x1234
+cp 0x1234
+cpo 0x1234
+cc 0x1234
+cz 0x1234
+cm 0x1234
+cpe 0x1234
+ret
+rnc
+rnz
+rp
+rpo
+rc
+rz
+rm
+rpe
+rst 0x18
+in 6
+out 12
+hlt

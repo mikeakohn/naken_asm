@@ -19,6 +19,7 @@ enum
   OP_NONE,
   OP_SREG,
   OP_DREG,
+  OP_DREG_NOT_A,
   OP_REG_REG,
   OP_REG_M,
   OP_M_REG,
