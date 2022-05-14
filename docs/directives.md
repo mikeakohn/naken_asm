@@ -13,18 +13,19 @@ CPU this source file should be assembled for.
 |                 |                                      |
 |-----------------|--------------------------------------|
 |.1802            |RCA 1802
-|.4004            |Intel 4004
+|.4004            |Intel 4004 (MCS-4)
 |.6502            |6502, 6510, and any other 65xx CPUs
 |.65816           |W65C816
 |.6800            |6800
 |.6809            |6809
 |.68hc08          |68HC08
 |.68000           |Motorola 68000 series
+|.8008            |Intel 8008 (MCS-8)
 |.8041            |8041
 |.8048            |8048/MCS-48 (and similar)
 |.8051            |8051/8052/MCS-51 (and similar)
 |.86000           |86000
-|.arm             |All ARM CPUs
+|.arm             |All 32 bit ARM CPUs
 |.avr8            |Atmel AVR8
 |.cell            |IBM Cell BE (Playstation 3)
 |.copper          |Amiga Copper
@@ -33,6 +34,7 @@ CPU this source file should be assembled for.
 |.epiphany        |Ephiphany/Parallella
 |.java            |Java
 |.lc3             |LC-3
+|.m8c             |Cypress PSoC m8c
 |.mips            |MIPS (32 bit)
 |.mips32          |MIPS (32 bit)
 |.msp430          |MSP430
@@ -51,10 +53,12 @@ CPU this source file should be assembled for.
 |.stm8            |STM8
 |.super_fx        |Super FX
 |.sweet16         |SWEET16
+|.unsp            |SunPlus unSP
 |.riscv           |RISC-V
 |.thumb           |THUMB
 |.tms1000         |TMS1000/TMS1200/TMS1070/TMS1270
 |.tms1100         |TMS1100/TMS1300
+|.tms340          |TMS340
 |.tms9900         |TMS9900
 |.unsp            |SunPlus unSP
 |.webasm          |WebAssembly

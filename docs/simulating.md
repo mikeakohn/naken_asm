@@ -45,7 +45,7 @@ without entering the simulator:
 
 If when the program hits a ret instruction that didn't have a matching
 call instruction, the program will stop and the registers will be dumped
-along with number of cycles passed.  This was added for automated testing
+along with number of cycles passed. This was added for automated testing
 in Java Grinder but could be pretty useful other places.
 
 To assist with testing software there is a newer option "break_io"
