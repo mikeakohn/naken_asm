@@ -68,6 +68,12 @@ static struct _address_map address_map[] =
   { "P2",     0xa0, 1 },
   { "AUXR1",  0xa2, 0 },
   { "WDTRST", 0xa6, 0 },
+  // P4 to P7 is extended for modern mcs-51 products
+  // and bit addressable
+  { "P4",     0xc0, 1 },
+  { "P5",     0xc8, 1 },
+  { "P6",     0xe8, 1 },
+  { "P7",     0xf8, 1 },
   { "SCON",   0x98, 1 },
   { "SBUF",   0x99, 0 },
   { "P1",     0x90, 1 },
@@ -89,17 +95,63 @@ static struct _address_map address_map[] =
   { "PCON",   0x87, 0 },
 };
 
-static struct _address_map address_map_psw[] =
+static struct _address_map address_map_bit_alias[] =
 {
-  { "CY",  0xd7 },
-  { "AC",  0xd6 },
-  { "F0",  0xd5 },
-  { "RS1", 0xd4 },
-  { "RS0", 0xd3 },
-  { "OV",  0xd2 },
-  { "UD",  0xd1 },
-  { "P",   0xd0 },
+  // for PSW
+  { "CY",   0xd7 },
+  { "AC",   0xd6 },
+  { "F0",   0xd5 },
+  { "RS1",  0xd4 },
+  { "RS0",  0xd3 },
+  { "OV",   0xd2 },
+  { "UD",   0xd1 },
+  { "F1",   0xd1 }, // stc89
+  { "P",    0xd0 },
+
+  // for TCON
+  { "TF1",  0x8f },
+  { "TR1",  0x8e },
+  { "TF0",  0x8d },
+  { "TR0",  0x8c },
+  { "IE1",  0x8b },
+  { "IT1",  0x8a },
+  { "IE0",  0x89 },
+  { "IT0",  0x88 },
+
+  // for SCON
+  { "SM0",  0x9f },
+  { "SM1",  0x9e },
+  { "SM2",  0x9d },
+  { "REN",  0x9c },
+  { "TB8",  0x9b },
+  { "RB8",  0x9a },
+  { "TI",   0x99 },
+  { "RI",   0x98 },
+
+  // for IE
+  { "EA",   0xaf },
+  { "EC",   0xae },
+  { "ELVD", 0xae }, // stc8h
+  { "ET2",  0xad },
+  { "EADC", 0xad }, // stc8h
+  { "ES",   0xac },
+  { "ET1",  0xab },
+  { "EX1",  0xaa },
+  { "ET0",  0xa9 },
+  { "EX0",  0xa8 },
+
+  // for IP
+  { "PPCA", 0xbf }, // stc8h
+  { "PLVD", 0xbe }, // stc8h 
+  { "PADC", 0xbd }, // stc8h
+  { "PT2",  0xbd },  
+  { "PS",   0xbc },
+  { "PT1",  0xbb },
+  { "PX1",  0xba },
+  { "PT0",  0xb9 },
+  { "PX0",  0xb8 },
 };
+
 
 static int get_register_8051(char *token)
 {
@@ -134,9 +186,12 @@ static int get_bit_address(
     return 0;
   }
 
-  if (*num < 0x20 || *num > 0x2f)
+  // the range of original mcs-51 design is 0x20 to 0x2f,
+  // it's extended to 0x20 and 0xff by manufacturer such as Silicon Labs and STC MCU
+  // to add more I/O ports and can be bit addressable.
+  if (*num < 0x20 || *num > 0xff)
   {
-    print_error_range("Bit Address", 0x20, 0x3f, asm_context);
+    print_error_range("Bit Address", 0x20, 0xff, asm_context);
     return -1;
   }
 
@@ -180,11 +235,11 @@ static int get_bit_address_alias(const char *token)
 {
   int n;
 
-  for (n = 0; n < sizeof(address_map_psw) / sizeof(struct _address_map); n++)
+  for (n = 0; n < sizeof(address_map_bit_alias) / sizeof(struct _address_map); n++)
   {
-    if (strcasecmp(token, address_map_psw[n].name) == 0)
+    if (strcasecmp(token, address_map_bit_alias[n].name) == 0)
     {
-      return address_map_psw[n].address;
+      return address_map_bit_alias[n].address;
     }
   }
 
