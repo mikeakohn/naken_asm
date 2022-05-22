@@ -9,8 +9,8 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;P0      equ 0x80
-;SP      equ 0x81
+P0       equ 0x80
+SP       equ 0x81
 DPL      equ 0x82
 DPH      equ 0x83
 SPI1CFG  equ 0x84  ; page 0
@@ -19,15 +19,15 @@ SPI1DAT  equ 0x86  ; page 0
 TOFFL    equ 0x85  ; page f
 TOFFH    equ 0x86  ; page f
 PCON0    equ 0x87
-;TCON    equ 0x88  ; page 0
-;TMOD    equ 0x89  ; page 0
-;TL0     equ 0x8a  ; page 0
-;TL1     equ 0x8b  ; page 0
-;TH0     equ 0x8c  ; page 0
-;TH1     equ 0x8d  ; page 0
-;CKCON0  equ 0x8e  ; page 0
+TCON     equ 0x88  ; page 0
+TMOD     equ 0x89  ; page 0
+TL0      equ 0x8a  ; page 0
+TL1      equ 0x8b  ; page 0
+TH0      equ 0x8c  ; page 0
+TH1      equ 0x8d  ; page 0
+CKCON0   equ 0x8e  ; page 0
 PSCTL    equ 0x8f  ; page 0
-;P1      equ 0x90
+P1       equ 0x90
 TMR3CN0  equ 0x91  ; page 0
 TMR3RLL  equ 0x92  ; page 0
 TMR3RLH  equ 0x93  ; page 0
@@ -47,7 +47,7 @@ CMP1MD   equ 0x9c  ; page 0
 CMP0MD   equ 0x9d  ; page 0
 CMP1MX   equ 0x9e  ; page 0
 CMP0MX   equ 0x9f  ; page 0
-;P2      equ 0xa0  ; page 0
+P2       equ 0xa0  ; page 0
 SPI0CFG  equ 0xa1  ; page 0
 SPI0CKR  equ 0xa2  ; page 0
 SPI0DAT  equ 0xa3  ; page 0
@@ -58,7 +58,7 @@ P0DRV    equ 0xa4  ; page f
 P1DRV    equ 0xa5  ; page f
 P2DRV    equ 0xa6  ; page f
 SFRPAGE  equ 0xa7
-;IE      equ 0xa8
+IE       equ 0xa8
 CLKSEL   equ 0xa9
 EMI0CN   equ 0xaa ; page 0
 EMI0CF   equ 0xab ; page 0
@@ -73,7 +73,7 @@ HFO0CAL  equ 0xb3 ; page 0
 PMU0CF   equ 0xb5 ; page 0
 FLSCL    equ 0xb6 ; page 0
 FLKEY    equ 0xb7 ; page 0
-;IP      equ 0xb8
+IP       equ 0xb8
 IREF0CN0 equ 0xb9 ; page 0
 ADC0AC   equ 0xba ; page 0
 ADC0MX   equ 0xbb ; page 0
@@ -99,7 +99,7 @@ TMR2L    equ 0xcc ; page 0
 TMR2H    equ 0xcd ; page 0
 PCA0CPM5 equ 0xce ; page 0
 P1MAT    equ 0xcf ; page 0
-;PSW     equ 0xd0
+PSW      equ 0xd0
 REF0CN   equ 0xd1 ; page 0
 PCA0CPL5 equ 0xd2 ; page 0
 PCA0CPH5 equ 0xd3 ; page 0
@@ -115,7 +115,7 @@ PCA0CPM2 equ 0xdc ; page 0
 PCA0CPM3 equ 0xdd ; page 0
 PCA0CPM4 equ 0xde ; page 0
 PCA0PWM  equ 0xdf ; page 0
-;ACC     equ 0xe0
+ACC      equ 0xe0
 XBR0     equ 0xe1 ; page 0
 XBR1     equ 0xe2 ; page 0
 XBR2     equ 0xe3 ; page 0
@@ -130,7 +130,7 @@ PCA0CPH2 equ 0xec ; page 0
 PCA0CPL3 equ 0xed ; page 0
 PCA0CPH3 equ 0xee ; page 0
 RSTSRC   equ 0xef ; page 0
-;B       equ 0xf0
+B        equ 0xf0
 P0MDIN   equ 0xf1 ; page 0
 P1MDIN   equ 0xf2 ; page 0
 P2MDIN   equ 0xf3 ; page 0
@@ -176,4 +176,13 @@ VDD      equ 0x1c
 LDO_OUT  equ 0x1d
 VDD2     equ 0x1e
 GND      equ 0x1f
+
+CY  equ 0xd0.7
+AC  equ 0xd0.6
+F0  equ 0xd0.5
+RS1 equ 0xd0.4
+RS0 equ 0xd0.3
+OV  equ 0xd0.2
+UD  equ 0xd0.1
+P   equ 0xd0.0
 

@@ -1,7 +1,8 @@
 .8051
 
-.org 0
+.include "8051.inc"
 
+.org 0
 start:
   mov P0, #0
   mov P1, #0xf0
