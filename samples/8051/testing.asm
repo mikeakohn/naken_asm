@@ -1,5 +1,7 @@
 .8051
 
+.include "../../include/8051/8051.inc"
+
 start:
   add A, @r1
   add A, r5
