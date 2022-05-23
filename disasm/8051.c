@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -108,7 +108,7 @@ int disasm_8051(
       case OP_CODE_ADDR:
         sprintf(temp, "0x%04x", READ_RAM(address + count + 1) | (READ_RAM(address + count) << 8));
         strcat(instruction, temp);
-        count=3;
+        count = 3;
         break;
       case OP_RELADDR:
         value = READ_RAM(address + count);
@@ -131,14 +131,6 @@ int disasm_8051(
         strcat(instruction, temp);
         count++;
         break;
-      case OP_PAGE:
-        sprintf(temp, "0x%04x",
-          (address & 0xf800) |
-          READ_RAM(address + count) |
-          (table_8051[opcode].range << 8));
-        strcat(instruction, temp);
-        count++;
-        break;
       case OP_BIT_ADDR:
         value = READ_RAM(address + count);
         if ((value & 0x80) != 0)
@@ -151,6 +143,14 @@ int disasm_8051(
           sprintf(temp, "0x%02x.%d [0x%02x]",
             ((value & 0xf8) >> 3) + 0x20, value & 0x07, value);
         }
+        strcat(instruction, temp);
+        count++;
+        break;
+      case OP_PAGE:
+        sprintf(temp, "0x%04x",
+          (address & 0xf800) |
+          READ_RAM(address + count) |
+          (table_8051[opcode].range << 8));
         strcat(instruction, temp);
         count++;
         break;

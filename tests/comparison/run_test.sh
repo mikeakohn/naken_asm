@@ -10,6 +10,11 @@ test_instr()
     extra='.include "../../include/epiphany/epiphany.inc"'
   fi
 
+  if [ "${cpu}" == "8051" ]
+  then
+    extra='.include "../../include/8051/8051.inc"'
+  fi
+
   if [ "${cpu}" == "lc3" ]
   then
     extra='.dc16 0'

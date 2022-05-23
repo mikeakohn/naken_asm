@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -26,13 +26,13 @@ enum
   OP_AT_A_PLUS_DPTR,
   OP_AT_A_PLUS_PC,
   OP_AT_DPTR,
+  OP_DATA,
   OP_DATA_16,
   OP_CODE_ADDR,
+  OP_SLASH_BIT_ADDR,
   OP_BIT_ADDR,
-  OP_DATA,
   OP_PAGE,
   OP_RELADDR,
-  OP_SLASH_BIT_ADDR,
   OP_IRAM_ADDR,
 };
 
