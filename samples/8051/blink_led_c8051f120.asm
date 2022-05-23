@@ -1,8 +1,5 @@
 ;; c8051f120 sample
 ;;
-;; Copyright 2022 - By Cjacker Huang
-;; cjacker@gmail.com
-;;
 ;; This is a small example for Silicon Labs' c8051f120 development board.
 ;; The demo will blink a led wire to P3.3.
 

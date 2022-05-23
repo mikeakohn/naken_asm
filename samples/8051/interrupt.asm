@@ -1,8 +1,5 @@
 ;; interrupt sample
 ;;
-;; Copyright 2022 - By Cjacker Huang
-;; cjacker@gmail.com
-;;
 ;; Demo how to use timer and interrupt with naken_asm.
 ;; It works on stc89cxx dev board with clock 11.0592Mhz, and should also work on AT89C51.
 

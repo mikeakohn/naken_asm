@@ -1,10 +1,7 @@
 ;; stc8h8k64u sample
 ;; 
-;; Copyright 2022 - By Cjacker Huang
-;; cjacker@gmail.com
-;;
 ;; This is a small example for STC stc8h8k64u development board.
-;; The demo will turn on the 8bit ws2812 rgb led
+;; The demo will turn on the 8bit ws2812 rgb led.
 
 .8051
 
