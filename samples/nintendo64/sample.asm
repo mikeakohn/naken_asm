@@ -17,6 +17,8 @@
 
 .high_address 0x8010_ffff
 
+.define COLOR(r,g,b) (r << 24) | (g << 16) | (b << 8) | 0xff
+
 .org 0x8000_0000
 cartridge_header:
   ;; PI_BSB_DOM1_LAT_REG
@@ -43,13 +45,10 @@ cartridge_header:
   .dc32 0, 0
 
   ;; Program title.
-  .db "NAKEN_ASM SAMPLE    "
+  .db "NAKEN_ASM SAMPLE           "
 
-  ;; Unknown.
-  dc32 0
-
-  ;; Media format.
-  db 'N', 0, 0, 0
+  ;; Developer ID code.
+  .db 0
 
   ;; Cartridge ID code.
   .dc16 0x0000
@@ -66,17 +65,14 @@ bootcode:
 start:
   ;; Exception vector location in 32 bit mode is 0xbfc0_0000.
   ;; 0x1fc0_0000 to 0x1fc0_07bf is PIF Boot ROM.
-  lui $t0, 0xbfc0
-  ;;addi $t1, $0, 8
-  li $t1, 8
-  sw $t1, 0x7fc($t0)
+  li $a0, PIF_BASE
+  li $t0, 8
+  sw $t0, PIF_RAM+0x3c($a0)
 
-.if 0
   ;; Enable interrupts.
   mfc0 $t0, CP0_STATUS
-  ori $t0, 1
+  ori $t0, $t0, 1
   mtc0 $t0, CP0_STATUS
-.endif
 
   ;; Color the first 100 scan lines blue.
   ;; Color Bits: rrrr_rggg_ggbb_bbba (0000_0000_0011_1110).
@@ -116,24 +112,38 @@ setup_video_loop:
   bne $t1, $0, setup_video_loop
   nop
 
-  ;; Setup RDP to execute instructions from RSP DMEM.
+  ;; Wait for vertical blank before drawing.
+  jal wait_for_vblank
+  nop
+
+  ;; Wait until End/Start Valid are cleared.
+wait_end_start_valid:
   li $a0, KSEG1 | DP_BASE
-  li $t0, 0x0000
-  sw $t0, DP_START_REG($a0)
-  sw $t0, DP_END_REG($a0)
-  li $t0, 0x0006
+  lw $t0, DP_STATUS_REG($a0)
+  andi $t0, $t0, 0x600
+  bne $t0, $0, wait_end_start_valid
+  nop
+
+  ;; Setup RDP to execute instructions from RSP DMEM.
+  ;; When DP_END_REG is written to, if it doesn't equal to DP_START_REG
+  ;; it will start the RDP executing commands.
+  li $a0, KSEG1 | DP_BASE
+  li $t0, 0x000a
   sw $t0, DP_STATUS_REG($a0)
+  sw $0, DP_START_REG($a0)
+  sw $0, DP_END_REG($a0)
 
   ;; Copy RDP instructions from ROM to RSP data memory.
+  ;; Must be done 32 bits at a time, not 64 bit.
 setup_rdp:
-  li $t0, dp_setup
-  li $t1, (dp_draw_triangles_end - dp_setup) / 8
-  li $a0, KSEG1 | RSP_DMEM
+  li $a0, dp_setup
+  li $t1, (dp_list_end - dp_setup) / 4
+  li $a1, KSEG1 | RSP_DMEM
 setup_rdp_loop:
-  ld $t2, 0($t0)
-  sd $t2, 0($a0)
-  addiu $t0, $t0, 8
-  addiu $a0, $a0, 8
+  lw $t2, 0($a0)
+  sw $t2, 0($a1)
+  addiu $a0, $a0, 4
+  addiu $a1, $a1, 4
   addiu $t1, $t1, -1
   bne $t1, $0, setup_rdp_loop
   nop
@@ -141,18 +151,32 @@ setup_rdp_loop:
   ;; Start RDP executing instructions. This should draw the triangles
   ;; defined in the ROM area below.
   li $a0, KSEG1 | DP_BASE
-  li $t0, dp_draw_triangles_end - dp_setup
+  li $t0, 4
+  sw $t0, DP_STATUS_REG($a0)
+  ;sw $0,  DP_START_REG($a0)
+  li $t0, dp_list_end - dp_setup
   sw $t0, DP_END_REG($a0)
 
   ;; Infinite loop at end of program.
 while_1:
-  beq $0, $0, while_1
+  b while_1
+  nop
+
+wait_for_vblank:
+  li $a0, KSEG1 | VI_BASE
+  li $t0, 512
+wait_for_vblank_loop:
+  lw $t1, VI_V_CURRENT_LINE_REG($a0)
+  bne $t0, $t1, wait_for_vblank_loop
+  nop
+  jr $ra
   nop
 
 ;; NTSC values found in the Reality Coprocessor.pdf
 ;; VI_CONTROL_REG:                   0 0011 0010 0000 1110
 ;; VI_TIMING_REG:  0000 0011 1110 0101 0010 0010 0011 1001
 ;; VI_BASE is the video interface base in KSEG1 (no TLB, no cache).
+.align_bits 32
 ntsc_320x240x16:
   .dc32 KSEG1 | VI_BASE | VI_CONTROL_REG,     0x0000_320e
   .dc32 KSEG1 | VI_BASE | VI_DRAM_ADDR_REG,   0xa010_0000
@@ -176,44 +200,57 @@ ntsc_320x240x16_end:
 .align_bits 64
 dp_setup:
   .dc64 (DP_OP_SET_COLOR_IMAGE << 56) | (2 << 51) | (319 << 32) | 0x10_0000
-  .dc64 (DP_OP_SET_Z_IMAGE << 56) | (0x10_0000 * (320 * 200 * 2))
-  .dc64 (DP_OP_SET_SCISSOR << 56) | ((320 << 2) << 12) | (200 << 2)
+  .dc64 (DP_OP_SET_Z_IMAGE << 56) | (0x10_0000 + (320 * 240 * 2))
+  .dc64 (DP_OP_SET_SCISSOR << 56) | ((320 << 2) << 12) | (240 << 2)
   .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (3 << 52)
+  ;;.dc64 (DP_OP_SET_PRIM_DEPTH << 56) | (1 << 16) | (1 << 16)
+  ;;.dc64 (DP_OP_SYNC_FULL << 56)
 dp_setup_end:
 
 dp_draw_squares:
   ;; Red square.
+  .dc64 (DP_OP_SYNC_PIPE << 56)
   .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xf80e << 16) | (0xf80e)
   .dc64 (DP_OP_FILL_RECTANGLE << 56) | ((100 << 2) << 44) | ((100 << 2) << 32) | ((50 << 2) << 12) | (50 << 2)
+
   ;; Dark purple square.
+  .dc64 (DP_OP_SYNC_PIPE << 56)
   .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0x080f << 16) | (0x080f)
   .dc64 (DP_OP_FILL_RECTANGLE << 56) | ((150 << 2) << 44) | ((150 << 2) << 32) | ((100 << 2) << 12) | (100 << 2)
 dp_draw_squares_end:
 
 dp_draw_triangles:
   ;; Left major triangle (green)
-  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0x07c0 << 16) | (0x07c0)
+  .dc64 (DP_OP_SYNC_PIPE << 56)
+  .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (1 << 31)
+  .dc64 (DP_OP_SET_BLEND_COLOR << 56) | COLOR(0x00, 0xff, 0x00)
   .dc64 0x088002fb02aa01e0
   .dc64 0x00aa0000fffd097b
   .dc64 0x009615c1ffff6ef5
   .dc64 0x0095f0bf000065b0
   ;; Right major triangle (purple)
-  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xf83e << 16) | (0xf83e)
+  .dc64 (DP_OP_SYNC_PIPE << 56)
+  .dc64 (DP_OP_SET_BLEND_COLOR << 56) | COLOR(0xff, 0x00, 0xff)
   .dc64 0x080002fb02aa01e0
   .dc64 0x00e600000002f684
   .dc64 0x00f9ea3e0000910a
   .dc64 0x00fa0f40ffff9a4f
   ;; Isosceles triangle (white)
-  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xfffe << 16) | (0xfffe)
+  .dc64 (DP_OP_SYNC_PIPE << 56)
+  .dc64 (DP_OP_SET_BLEND_COLOR << 56) | COLOR(0xff, 0xff, 0xff)
   .dc64 0x08000168016800c8
-  .dc64 0x00e6000017d77bffffff
+  .dc64 0x00e6000017d77bff
   .dc64 0x00f9eccc00007fff
   .dc64 0x00fa1333ffff8000
   ;; Isosceles triangle (yellow, upside-down)
-  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xffc0 << 16) | (0xffc0)
+  .dc64 (DP_OP_SYNC_PIPE << 56)
+  .dc64 (DP_OP_SET_BLEND_COLOR << 56) | COLOR(0xff, 0xff, 0x00)
   .dc64 0x0880016800c900c8
   .dc64 0x00aa0000ffff7f84
   .dc64 0x0081eccc00007fff
   .dc64 0x005a0000010aaaaa
 dp_draw_triangles_end:
+
+  .dc64 (DP_OP_SYNC_FULL << 56)
+dp_list_end:
 
