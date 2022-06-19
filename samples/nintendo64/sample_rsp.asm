@@ -1,12 +1,13 @@
-;; Simple Nintendo 64 sample without RSP code.
+;; Simple Nintendo 64 sample with RSP code.
 ;;
-;; Copyright 2021 - By Michael Kohn
+;; Copyright 2022 - By Michael Kohn
 ;; https://www.mikekohn.net/
 ;; mike@mikekohn.net
 ;;
 ;; Sets up the Nintendo 64 display, clear parts of the screen with two colors,
-;; and draws some squares and triangles using the RDP hardware without using
-;; the RSP MIPS co-processor.
+;; and draws some squares and triangles using the RDP hardware using the RSP
+;; MIPS co-processor to rotate, transpose, project from 3D to 2D, and
+;; calculate triangle slopes.
 
 .mips
 
@@ -118,22 +119,25 @@ setup_video_loop:
   jal wait_for_vblank
   nop
 
-  ;; Wait until End/Start Valid are cleared.
-  li $a0, KSEG1 | DP_BASE
-wait_end_start_valid:
-  lw $t0, DP_STATUS_REG($a0)
-  andi $t0, $t0, 0x600
-  bne $t0, $0, wait_end_start_valid
-  nop
+  ;; Make sure RSP is halted.
+  li $a0, KSEG1 | RSP_CPU_BASE_REG
+  li $t0, 0x02
+  sw $t0, RSP_CPU_STATUS($a0)
 
-  ;; Setup RDP to execute instructions from RSP DMEM.
-  ;; When DP_END_REG is written to, if it doesn't equal to DP_START_REG
-  ;; it will start the RDP executing commands.
-  li $a0, KSEG1 | DP_BASE
-  li $t0, 0x000a
-  sw $t0, DP_STATUS_REG($a0)
-  sw $0, DP_START_REG($a0)
-  sw $0, DP_END_REG($a0)
+  ;; Copy RSP code from ROM to RSP instruction memory.
+  ;; Must be done 32 bits at a time, not 64 bit.
+setup_rsp:
+  li $a0, rsp_code_start
+  li $t1, (rsp_code_end - rsp_code_start) / 4
+  li $a1, KSEG1 | RSP_IMEM
+setup_rsp_loop:
+  lw $t2, 0($a0)
+  sw $t2, 0($a1)
+  addiu $a0, $a0, 4
+  addiu $a1, $a1, 4
+  addiu $t1, $t1, -1
+  bne $t1, $0, setup_rsp_loop
+  nop
 
   ;; Copy RDP instructions from ROM to RSP data memory.
   ;; Must be done 32 bits at a time, not 64 bit.
@@ -141,6 +145,12 @@ setup_rdp:
   li $a0, dp_setup
   li $t1, (dp_list_end - dp_setup) / 4
   li $a1, KSEG1 | RSP_DMEM
+  ;li $t8, ((dp_list_end - dp_setup) << 16) | 56
+  li $t9, dp_list_end - dp_setup
+  li $t8, 56
+  sh $t8, 4($a1)
+  sh $t9, 6($a1)
+  addiu $a1, $a1, 56
 setup_rdp_loop:
   lw $t2, 0($a0)
   sw $t2, 0($a1)
@@ -150,14 +160,19 @@ setup_rdp_loop:
   bne $t1, $0, setup_rdp_loop
   nop
 
-  ;; Start RDP executing instructions. This should draw the triangles
-  ;; defined in the ROM area below.
-  li $a0, KSEG1 | DP_BASE
-  li $t0, 4
-  sw $t0, DP_STATUS_REG($a0)
-  ;sw $0,  DP_START_REG($a0)
-  li $t0, dp_list_end - dp_setup
-  sw $t0, DP_END_REG($a0)
+  ;; Reset RSP PC and clear halt to start it.
+  li $a0, KSEG1 | RSP_PC
+  sw $0, 0($a0)
+  li $a0, KSEG1 | RSP_CPU_BASE_REG
+  li $t0, 0x01
+  sw $t0, RSP_CPU_STATUS($a0)
+
+  ;; Signal to RSP code to start.
+  li $a0, KSEG1 | RSP_DMEM
+  li $t0, 1
+  sb $t0, 0($a0)
+  ;li $t0, 1 << 24
+  ;sw $t0, 0($a0)
 
   ;; Infinite loop at end of program.
 while_1:
@@ -253,4 +268,8 @@ dp_draw_triangles_end:
 
   .dc64 (DP_OP_SYNC_FULL << 56)
 dp_list_end:
+
+rsp_code_start:
+  .binfile "rsp.bin"
+rsp_code_end:
 
