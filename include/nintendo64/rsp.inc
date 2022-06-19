@@ -13,22 +13,22 @@
 
 ;; Coprocesser registers $c0 to $c15:
 
-RSP_DMA_CACHE            equ 0x0
-RSP_DMA_DRAM             equ 0x1
-RSP_DMA_DMA_READ_LENGTH  equ 0x2
-RSP_DMA_DMA_WRITE_LENGTH equ 0x3
-RSP_SP_STATUS            equ 0x4
-RSP_DMA_DMA_FULL         equ 0x5
-RSP_DMA_DMA_BUSY         equ 0x6
-RSP_SP_RESERVED          equ 0x7
-RSP_CMD_START            equ 0x8
-RSP_CMD_END              equ 0x9
-RSP_CMD_CURRENT          equ 0xa
-RSP_CMD_STATUS           equ 0xb
-RSP_CMD_CLOCK            equ 0xc
-RSP_CMD_BUSY             equ 0xd
-RSP_CMD_PIPE_BUSY        equ 0xe
-RSP_CMD_TMEM_BUSY        equ 0xf
+RSP_CP0_DMA_CACHE            equ $0
+RSP_CP0_DMA_DRAM             equ $1
+RSP_CP0_DMA_DMA_READ_LENGTH  equ $2
+RSP_CP0_DMA_DMA_WRITE_LENGTH equ $3
+RSP_CP0_SP_STATUS            equ $4
+RSP_CP0_DMA_FULL             equ $5
+RSP_CP0_DMA_BUSY             equ $6
+RSP_CP0_SP_RESERVED          equ $7
+RSP_CP0_CMD_START            equ $8
+RSP_CP0_CMD_END              equ $9
+RSP_CP0_CMD_CURRENT          equ $10
+RSP_CP0_CMD_STATUS           equ $11
+RSP_CP0_CMD_CLOCK            equ $12
+RSP_CP0_CMD_BUSY             equ $13
+RSP_CP0_CMD_PIPE_BUSY        equ $14 
+RSP_CP0_CMD_TMEM_BUSY        equ $15
 
 ;; RSP CPU view:
 

@@ -1,11 +1,12 @@
-;; Simple Nintendo 64 sample.
+;; Simple Nintendo 64 sample without RSP code.
 ;;
 ;; Copyright 2021 - By Michael Kohn
-;; http://www.mikekohn.net/
+;; https://www.mikekohn.net/
 ;; mike@mikekohn.net
 ;;
-;; Sets up the Nintendo 64 display, clear parts of the screen with a color,
-;; draws some squares and triangles using the hardware.
+;; Sets up the Nintendo 64 display, clear parts of the screen with two colors,
+;; and draws some squares and triangles using the RDP hardware without using
+;; the RSP MIPS co-processor.
 
 .mips
 
@@ -60,6 +61,8 @@ cartridge_header:
   .db 0
 
 bootcode:
+  ;; This was downloaded from Peter Lemon's git repo. It seems like it's
+  ;; needed to initialize the hardware.
 .binfile "bootcode.bin"
 
 start:
@@ -117,8 +120,8 @@ setup_video_loop:
   nop
 
   ;; Wait until End/Start Valid are cleared.
-wait_end_start_valid:
   li $a0, KSEG1 | DP_BASE
+wait_end_start_valid:
   lw $t0, DP_STATUS_REG($a0)
   andi $t0, $t0, 0x600
   bne $t0, $0, wait_end_start_valid
@@ -203,8 +206,6 @@ dp_setup:
   .dc64 (DP_OP_SET_Z_IMAGE << 56) | (0x10_0000 + (320 * 240 * 2))
   .dc64 (DP_OP_SET_SCISSOR << 56) | ((320 << 2) << 12) | (240 << 2)
   .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (3 << 52)
-  ;;.dc64 (DP_OP_SET_PRIM_DEPTH << 56) | (1 << 16) | (1 << 16)
-  ;;.dc64 (DP_OP_SYNC_FULL << 56)
 dp_setup_end:
 
 dp_draw_squares:
