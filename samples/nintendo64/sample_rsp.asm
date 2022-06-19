@@ -145,11 +145,13 @@ setup_rdp:
   li $a0, dp_setup
   li $t1, (dp_list_end - dp_setup) / 4
   li $a1, KSEG1 | RSP_DMEM
-  ;li $t8, ((dp_list_end - dp_setup) << 16) | 56
+  ;li $t8, (56 << 16) | (dp_list_end - dp_setup)
+  ;sw $t8, 4($a1)
   li $t9, dp_list_end - dp_setup
   li $t8, 56
   sh $t8, 4($a1)
   sh $t9, 6($a1)
+
   addiu $a1, $a1, 56
 setup_rdp_loop:
   lw $t2, 0($a0)

@@ -52,8 +52,11 @@ wait_end_start_valid:
 
   ;; 0x0004 = Clear Freeze.
   li $t0, 0x0004
-  lw $t1, 4($0)
-  lw $t2, 6($0)
+  lh $t1, 4($0)
+  lh $t2, 6($0)
+  ;lw $t1, 4($0)
+  ;andi $t2, $t1, 0xffff
+  ;srl $t1, $t1, 16
   addu $t3, $t1, $t2
   mtc0 $t0, RSP_CP0_CMD_STATUS
   mtc0 $t1, RSP_CP0_CMD_START
