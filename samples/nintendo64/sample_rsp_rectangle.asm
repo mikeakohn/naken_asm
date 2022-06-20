@@ -5,9 +5,7 @@
 ;; mike@mikekohn.net
 ;;
 ;; Sets up the Nintendo 64 display, clear parts of the screen with two colors,
-;; and draws some squares and triangles using the RDP hardware using the RSP
-;; MIPS co-processor to rotate, transpose, project from 3D to 2D, and
-;; calculate triangle slopes.
+;; and draws some squares using the RSP to initiate the drawing.
 
 .mips
 
@@ -143,11 +141,9 @@ setup_rsp_loop:
   ;; Must be done 32 bits at a time, not 64 bit.
 setup_rdp:
   li $a0, dp_setup
-  li $t1, (dp_list_end - dp_setup) / 4
+  li $t1, (dp_setup_end - dp_setup) / 4
   li $a1, KSEG1 | RSP_DMEM
-  ;li $t8, (56 << 16) | (dp_list_end - dp_setup)
-  ;sw $t8, 4($a1)
-  li $t9, dp_list_end - dp_setup
+  li $t9, dp_setup_end - dp_setup
   li $t8, 56
   sh $t8, 4($a1)
   sh $t9, 6($a1)
@@ -171,14 +167,78 @@ setup_rdp_loop:
 
   ;; Signal to RSP code to start.
   li $a0, KSEG1 | RSP_DMEM
-  li $t0, 1
+  li $t0, 2
   sb $t0, 0($a0)
-  ;li $t0, 1 << 24
-  ;sw $t0, 0($a0)
+
+  jal wait_for_rsp
+  nop
+
+  ;; Draw red rectangle at (100.0, 90.0) to (150.0, 120.0).
+  li $a0, KSEG1 | RSP_DMEM
+  li $t0, 100 << 2
+  li $t1,  90 << 2
+  li $t2, 150 << 2
+  li $t3, 120 << 2
+  ;; (XH, YH)
+  ;sh $t0,  8($a0)
+  ;sh $t1, 10($a0)
+  sll $t0, $t0, 16
+  or $t0, $t0, $t1
+  sw $t0, 8($a0)
+  ;; (XL, YL)
+  ;sh $t2, 16($a0)
+  ;sh $t3, 18($a0)
+  sll $t2, $t2, 16
+  or $t2, $t2, $t3
+  sw $t2, 16($a0)
+
+  li $t0, (255 << 24) | 255
+  sw $t0, 48($a0)
+  li $t0, 5
+  sb $t0, 0($a0)
+  jal wait_for_rsp
+  nop
+
+.if 0
+  ;; Draw green rectangle at (200.0, 50.0) to (250.0, 90.0).
+  li $a0, KSEG1 | RSP_DMEM
+  li $t0, 200 << 2
+  li $t1,  50 << 2
+  li $t2, 250 << 2
+  li $t3,  90 << 2
+  ;; (XH, YH)
+  ;sh $t0,  8($a0)
+  ;sh $t1, 10($a0)
+  sll $t0, $t0, 16
+  or $t0, $t0, $t1
+  sw $t0, 8($a0)
+  ;; (XL, YL)
+  ;sh $t2, 16($a0)
+  ;sh $t3, 18($a0)
+  sll $t2, $t2, 16
+  or $t2, $t2, $t3
+  sw $t2, 16($a0)
+
+  li $t0, (255 << 16) | 255
+  sw $t0, 48($a0)
+  li $t0, 5
+  sb $t0, 0($a0)
+  jal wait_for_rsp
+  nop
+.endif
 
   ;; Infinite loop at end of program.
 while_1:
   b while_1
+  nop
+
+wait_for_rsp:
+  li $a0, KSEG1 | RSP_DMEM
+wait_for_rsp_loop:
+  lb $t0, 0($a0)
+  bne $t0, $0, wait_for_rsp_loop
+  nop
+  jr $ra
   nop
 
 wait_for_vblank:
@@ -212,10 +272,6 @@ ntsc_320x240x16:
   .dc32 KSEG1 | VI_BASE | VI_Y_SCALE_REG,     0x0000_0400
 ntsc_320x240x16_end:
 
-;; Here are some DP (Display Processor) hardware commands that
-;; set up the drawing modes and draw some different colored shapes.
-;; The code to calculate the slopes and such for the triangles are
-;; done with the calc_triangle.py Python script.
 .align_bits 64
 dp_setup:
   .dc64 (DP_OP_SET_COLOR_IMAGE << 56) | (2 << 51) | (319 << 32) | 0x10_0000
@@ -223,53 +279,6 @@ dp_setup:
   .dc64 (DP_OP_SET_SCISSOR << 56) | ((320 << 2) << 12) | (240 << 2)
   .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (3 << 52)
 dp_setup_end:
-
-dp_draw_squares:
-  ;; Red square.
-  .dc64 (DP_OP_SYNC_PIPE << 56)
-  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xf80e << 16) | (0xf80e)
-  .dc64 (DP_OP_FILL_RECTANGLE << 56) | ((100 << 2) << 44) | ((100 << 2) << 32) | ((50 << 2) << 12) | (50 << 2)
-
-  ;; Dark purple square.
-  .dc64 (DP_OP_SYNC_PIPE << 56)
-  .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0x080f << 16) | (0x080f)
-  .dc64 (DP_OP_FILL_RECTANGLE << 56) | ((150 << 2) << 44) | ((150 << 2) << 32) | ((100 << 2) << 12) | (100 << 2)
-dp_draw_squares_end:
-
-dp_draw_triangles:
-  ;; Left major triangle (green)
-  .dc64 (DP_OP_SYNC_PIPE << 56)
-  .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (1 << 31)
-  .dc64 (DP_OP_SET_BLEND_COLOR << 56) | COLOR(0x00, 0xff, 0x00)
-  .dc64 0x088002fb02aa01e0
-  .dc64 0x00aa0000fffd097b
-  .dc64 0x009615c1ffff6ef5
-  .dc64 0x0095f0bf000065b0
-  ;; Right major triangle (purple)
-  .dc64 (DP_OP_SYNC_PIPE << 56)
-  .dc64 (DP_OP_SET_BLEND_COLOR << 56) | COLOR(0xff, 0x00, 0xff)
-  .dc64 0x080002fb02aa01e0
-  .dc64 0x00e600000002f684
-  .dc64 0x00f9ea3e0000910a
-  .dc64 0x00fa0f40ffff9a4f
-  ;; Isosceles triangle (white)
-  .dc64 (DP_OP_SYNC_PIPE << 56)
-  .dc64 (DP_OP_SET_BLEND_COLOR << 56) | COLOR(0xff, 0xff, 0xff)
-  .dc64 0x08000168016800c8
-  .dc64 0x00e6000017d77bff
-  .dc64 0x00f9eccc00007fff
-  .dc64 0x00fa1333ffff8000
-  ;; Isosceles triangle (yellow, upside-down)
-  .dc64 (DP_OP_SYNC_PIPE << 56)
-  .dc64 (DP_OP_SET_BLEND_COLOR << 56) | COLOR(0xff, 0xff, 0x00)
-  .dc64 0x0880016800c900c8
-  .dc64 0x00aa0000ffff7f84
-  .dc64 0x0081eccc00007fff
-  .dc64 0x005a0000010aaaaa
-dp_draw_triangles_end:
-
-  .dc64 (DP_OP_SYNC_FULL << 56)
-dp_list_end:
 
 rsp_code_start:
   .binfile "rsp.bin"
