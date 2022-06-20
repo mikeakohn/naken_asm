@@ -128,14 +128,14 @@ setup_video_loop:
   ;; Copy RSP code from ROM to RSP instruction memory.
   ;; Must be done 32 bits at a time, not 64 bit.
 setup_rsp:
-  li $a0, rsp_code_start
+  li $a1, rsp_code_start
   li $t1, (rsp_code_end - rsp_code_start) / 4
-  li $a1, KSEG1 | RSP_IMEM
+  li $a0, KSEG1 | RSP_IMEM
 setup_rsp_loop:
-  lw $t2, 0($a0)
-  sw $t2, 0($a1)
-  addiu $a0, $a0, 4
+  lw $t2, 0($a1)
+  sw $t2, 0($a0)
   addiu $a1, $a1, 4
+  addiu $a0, $a0, 4
   addiu $t1, $t1, -1
   bne $t1, $0, setup_rsp_loop
   nop
@@ -143,22 +143,16 @@ setup_rsp_loop:
   ;; Copy RDP instructions from ROM to RSP data memory.
   ;; Must be done 32 bits at a time, not 64 bit.
 setup_rdp:
-  li $a0, dp_setup
+  li $a0, KSEG1 | RSP_DMEM
+  li $a1, dp_setup
   li $t1, (dp_list_end - dp_setup) / 4
-  li $a1, KSEG1 | RSP_DMEM
-  ;li $t8, (56 << 16) | (dp_list_end - dp_setup)
-  ;sw $t8, 4($a1)
-  li $t9, dp_list_end - dp_setup
-  li $t8, 56
-  sh $t8, 4($a1)
-  sh $t9, 6($a1)
-
-  addiu $a1, $a1, 56
+  sw $0, 0($a0)
+  addiu $a0, $a0, 56
 setup_rdp_loop:
-  lw $t2, 0($a0)
-  sw $t2, 0($a1)
-  addiu $a0, $a0, 4
+  lw $t2, 0($a1)
+  sw $t2, 0($a0)
   addiu $a1, $a1, 4
+  addiu $a0, $a0, 4
   addiu $t1, $t1, -1
   bne $t1, $0, setup_rdp_loop
   nop
@@ -170,16 +164,42 @@ setup_rdp_loop:
   li $t0, 0x01
   sw $t0, RSP_CPU_STATUS($a0)
 
+  ;; Set start address and length.
+  li $a0, KSEG1 | RSP_DMEM
+  ;li $t8, (56 << 16) | (dp_list_end - dp_setup)
+  ;sw $t8, 4($a0)
+  li $t9, dp_list_end - dp_setup
+  li $t8, 56
+  sh $t8, 4($a0)
+  sh $t9, 6($a0)
+
+  jal signal_rsp
+  nop
+  jal wait_for_rsp
+  nop
+
+  ;; Infinite loop at end of program.
+while_1:
+  b while_1
+  nop
+
+signal_rsp:
   ;; Signal to RSP code to start.
   li $a0, KSEG1 | RSP_DMEM
   li $t0, 2
   sb $t0, 0($a0)
   ;li $t0, 1 << 24
   ;sw $t0, 0($a0)
+  jr $ra
+  nop
 
-  ;; Infinite loop at end of program.
-while_1:
-  b while_1
+wait_for_rsp:
+  li $a0, KSEG1 | RSP_DMEM
+wait_for_rsp_loop:
+  lb $t0, 0($a0)
+  bne $t0, $0, wait_for_rsp_loop
+  nop
+  jr $ra
   nop
 
 wait_for_vblank:
