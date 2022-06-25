@@ -15,6 +15,7 @@
 
 struct _table_arc table_arc[] =
 {
+#if 0
   { "abs",    0x266f7009, 0xffff703f, OP_0_U6,  F_F },
   { "abs",    0x262f7f89, 0xffff7fff, OP_0_LIMM,F_F },
   { "abs",    0x262f7009, 0xffff703f, OP_0_C,   F_F },
@@ -188,11 +189,13 @@ struct _table_arc table_arc[] =
   { "bbit0",  0x0801001e, 0xf801001f, OP_B_U6_O9, F_D },
   { "bbit1",  0x0801000f, 0xf801001f, OP_B_C_O9, F_D },
   { "bbit1",  0x0801001f, 0xf801001f, OP_B_U6_O9, F_D },
+#endif
   { NULL, 0, 0, 0, 0 },
 };
 
 struct _table_arc16 table_arc16[] =
 {
+#if 0
   { "abs_s",  0x7811, 0xf81f, OP_B_C },
   { "add_s",  0x6018, 0xf818, OP_A_B_C },
   { "add_s",  0x6800, 0xf818, OP_C_B_U3 },
@@ -214,6 +217,128 @@ struct _table_arc16 table_arc16[] =
   { "asr_s",  0x6818, 0xf818, OP_C_B_U3 },
   { "asr_s",  0x781a, 0xf81f, OP_B_B_C },
   { "asr_s",  0xb840, 0xf8e0, OP_B_B_U5 },
+#endif
   { NULL, 0, 0, 0 },
+};
+
+struct _table_arc_op table_arc_alu[] =
+{
+  { "add",   0x00 },
+  { "adc",   0x01 },
+  { "sub",   0x02 },
+  { "sbc",   0x03 },
+  { "and",   0x04 },
+  { "or",    0x05 },
+  { "bic",   0x06 },
+  { "xor",   0x07 },
+  { "max",   0x08 },
+  { "min",   0x09 },
+  { "mov",   0x0a },
+  { "tst",   0x0b },
+  { "cmp",   0x0c },
+  { "rcmp",  0x0d },
+  { "rsub",  0x0e },
+  { "bset",  0x0f },
+  { "bclr",  0x10 },
+  { "btst",  0x11 },
+  { "bxor",  0x12 },
+  { "bmsk",  0x13 },
+  { "add1",  0x14 },
+  { "add2",  0x15 },
+  { "add3",  0x16 },
+  { "sub1",  0x17 },
+  { "sub2",  0x18 },
+  { "sub3",  0x19 },
+  { "mpy",   0x1a },
+  { "mpyh",  0x1b },
+  { "mpyhu", 0x1c },
+  { "mpyu",  0x1d },
+  { NULL,    0x00 },
+};
+
+struct _table_arc_op table_arc_alu16[] =
+{
+  { NULL, 0x00 },
+};
+
+struct _table_arc_op table_arc_single[] =
+{
+  { "asl",  0x00 },
+  { "asr",  0x01 },
+  { "lsr",  0x02 },
+  { "ror",  0x03 },
+  { "rrc",  0x04 },
+  { "sexb", 0x05 },
+  { "sexw", 0x06 },
+  { "extb", 0x07 },
+  { "extw", 0x08 },
+  { "abs",  0x09 },
+  { "not",  0x0a },
+  { "rlc",  0x0b },
+  { "ex",   0x0c },
+  { "zops", 0x3f },
+  { NULL,   0x00 },
+};
+
+struct _table_arc_op table_arc_none[] =
+{
+  { "sleep", 0x01 },
+  { "swi",   0x02 },
+  { "trap0", 0x02 },
+  { "sync",  0x03 },
+  { "rtie",  0x04 },
+  { "brk",   0x05 },
+  { NULL,    0x00 },
+};
+
+struct _table_arc_op table_arc_special[] =
+{
+  //{ "jcc",    0x20 },
+  //{ "jcc.d",  0x21 },
+  //{ "jlcc",   0x22 },
+  //{ "jlcc.d", 0x23 },
+  //{ "lpcc",   0x28 },
+  { "flag",   0x29 },
+  { "lr",     0x2A },
+  { "sr",     0x2B },
+  //{ "sops",   0x2F },
+  //{ "ld",     0x30 },
+  //{ "ld",     0x31 },
+  //{ "ld",     0x32 },
+  //{ "ld",     0x33 },
+  //{ "ld",     0x34 },
+  //{ "ld",     0x35 },
+  //{ "ld",     0x36 },
+  //{ "ld",     0x37 },
+  { NULL,     0x00 },
+};
+
+struct _table_arc_op table_arc_alu32[] =
+{
+  { "asl",    0x00 },
+  { "lsr",    0x01 },
+  { "asr",    0x02 },
+  { "ror",    0x03 },
+  { "mul64",  0x04 },
+  { "mulu64", 0x05 },
+  { "adds",   0x06 },
+  { "subs",   0x07 },
+  { "divaw",  0x08 },
+  { "asls",   0x0a },
+  { "asrs",   0x0b },
+  { "addsdw", 0x28 },
+  { "subsdw", 0x29 },
+  //{ "sops",   0x2f },
+  { NULL,     0x00 },
+};
+
+struct _table_arc_op table_arc_single32[] =
+{
+  { NULL,    0x00 },
+};
+
+struct _table_arc_op table_arc_none32[] =
+{
+  { NULL,    0x00 },
 };
 

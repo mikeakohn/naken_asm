@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -69,9 +69,21 @@ struct _table_arc16
   uint8_t type;
 };
 
+struct _table_arc_op
+{
+  char *instr;
+  uint8_t opcode;
+};
+
+// FIXME: Delete these.
 extern struct _table_arc table_arc[];
 extern struct _table_arc16 table_arc16[];
 
-#endif
+extern struct _table_arc_op table_arc_alu[];
+extern struct _table_arc_op table_arc_alu16[];
+extern struct _table_arc_op table_arc_single[];
+extern struct _table_arc_op table_arc_special[];
+extern struct _table_arc_op table_arc_alu32[];
 
+#endif
 
