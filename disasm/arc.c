@@ -66,10 +66,12 @@ int get_register(struct _memory *memory, int address, int r, char *s)
     case 31: strcpy(s, "blink"); break;
     case 60: strcpy(s, "lp_count"); break;
     case 62:
+    {
       int limm = (memory_read16_m(memory, address + 4) << 16) |
                   memory_read16_m(memory, address + 6);
       sprintf(s, "0x%08x", limm);
       return 4;
+    }
     case 63: strcpy(s, "pcl"); break;
     default: sprintf(s, "r%d", r); break;
   }
