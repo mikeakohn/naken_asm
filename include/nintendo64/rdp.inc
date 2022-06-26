@@ -50,6 +50,7 @@ DP_WRITE_STATUS_CLEAR_COMMAND_COUNTER equ 0x100
 DP_WRITE_STATUS_CLEAR_CLOCK_COUNTER   equ 0x200
 
 ;; Rasterizer Command Set
+DP_OP_NO_OP                  equ 0x00
 DP_OP_SET_COLOR_IMAGE        equ 0x3f
 DP_OP_SET_TEXTURE_IMAGE      equ 0x3d
 DP_OP_SET_Z_IMAGE            equ 0x3e

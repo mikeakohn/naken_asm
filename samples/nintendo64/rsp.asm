@@ -76,6 +76,8 @@ command_1:
   li $t2, 32
   jal start_rdp
   nop
+  jal wait_for_rdp
+  nop
   sb $0, 0($0)
   b main
   nop
@@ -88,6 +90,8 @@ command_2:
   ;andi $t2, $t1, 0xffff
   ;srl $t1, $t1, 16
   jal start_rdp
+  nop
+  jal wait_for_rdp
   nop
   sb $0, 0($0)
   b main
@@ -146,6 +150,8 @@ command_5:
   li $t2, 3 * 8
   jal start_rdp
   nop
+  jal wait_for_rdp
+  nop
   sb $0, 0($0)
   b main
   nop
@@ -153,19 +159,26 @@ command_5:
 ;; start_rdp($t1=offset, $t2=length)
 start_rdp:
   ;; Wait until End/Start Valid are cleared.
-wait_end_start_valid:
-  mfc0 $t0, RSP_CP0_CMD_STATUS
-  andi $t0, $t0, 0x600
-  bne $t0, $0, wait_end_start_valid
+start_rdp_wait_end_start_valid:
+  mfc0 $t8, RSP_CP0_CMD_STATUS
+  andi $t8, $t8, 0x640
+  bne $t8, $0, start_rdp_wait_end_start_valid
   nop
-
   ;; 0x0004 = Clear Freeze.
   li $t0, 0x0004
   addu $t3, $t1, $t2
   mtc0 $t0, RSP_CP0_CMD_STATUS
   mtc0 $t1, RSP_CP0_CMD_START
   mtc0 $t3, RSP_CP0_CMD_END
+  jr $ra
+  nop
 
+wait_for_rdp:
+  mfc0 $t8, RSP_CP0_CMD_END
+wait_for_rdp_loop:
+  mfc0 $t9, RSP_CP0_CMD_CURRENT
+  bne $t8, $t9, wait_for_rdp_loop
+  nop
   jr $ra
   nop
 

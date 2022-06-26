@@ -154,13 +154,6 @@ setup_rdp_loop:
   bne $t1, $0, setup_rdp_loop
   nop
 
-  ;; Set start address and length.
-  li $a0, KSEG1 | RSP_DMEM
-  li $t9, dp_setup_end - dp_setup
-  li $t8, 56
-  sh $t8, 4($a0)
-  sh $t9, 6($a0)
-
   ;; Reset RSP PC and clear halt to start it.
   li $a0, KSEG1 | RSP_PC
   sw $0, 0($a0)
@@ -168,88 +161,63 @@ setup_rdp_loop:
   li $t0, 0x01
   sw $t0, RSP_CPU_STATUS($a0)
 
-  ;; Signal to RSP code to start.
-  li $a0, KSEG1 | RSP_DMEM
-  li $t0, 2
-  sb $t0, 0($a0)
-
-  jal wait_for_rsp
+  ;; Signal to RSP code to start just the RDP setup commands.
+  jal send_rdp_setup
   nop
 
   ;; Draw red rectangle at (100.0, 90.0) to (150.0, 120.0).
-  li $a0, KSEG1 | RSP_DMEM
   li $t0, 100 << 2
   li $t1,  90 << 2
   li $t2, 150 << 2
   li $t3, 120 << 2
-  ;; (XH, YH)
-  ;sh $t0,  8($a0)
-  ;sh $t1, 10($a0)
-  sll $t0, $t0, 16
-  or $t0, $t0, $t1
-  sw $t0, 8($a0)
-  ;; (XL, YL)
-  ;sh $t2, 16($a0)
-  ;sh $t3, 18($a0)
-  sll $t2, $t2, 16
-  or $t2, $t2, $t3
-  sw $t2, 16($a0)
-
-  li $t0, (255 << 24) | 255
-  sw $t0, 48($a0)
-  li $t0, 5
-  sb $t0, 0($a0)
-  jal wait_for_rsp
+  li $t4, COLOR(255, 0, 0)
+  jal draw_rectangle
   nop
 
-.if 0
   ;; Draw green rectangle at (200.0, 50.0) to (250.0, 90.0).
-  li $a0, KSEG1 | RSP_DMEM
   li $t0, 200 << 2
   li $t1,  50 << 2
   li $t2, 250 << 2
   li $t3,  90 << 2
-  ;; (XH, YH)
-  ;sh $t0,  8($a0)
-  ;sh $t1, 10($a0)
-  sll $t0, $t0, 16
-  or $t0, $t0, $t1
-  sw $t0, 8($a0)
-  ;; (XL, YL)
-  ;sh $t2, 16($a0)
-  ;sh $t3, 18($a0)
-  sll $t2, $t2, 16
-  or $t2, $t2, $t3
-  sw $t2, 16($a0)
-
-  li $t0, (255 << 16) | 255
-  sw $t0, 48($a0)
-  li $t0, 5
-  sb $t0, 0($a0)
-  jal wait_for_rsp
+  li $t4, COLOR(0, 255, 0)
+  jal draw_rectangle
   nop
-.endif
 
   ;; Infinite loop at end of program.
 while_1:
   b while_1
   nop
 
-signal_rsp:
-  ;; Signal to RSP code to start.
+send_rdp_setup:
+  ;; Signal RSP code to start.
   li $a0, KSEG1 | RSP_DMEM
-  ;;li $t0, 2
-  sb $t0, 0($a0)
-  ;li $t0, 1 << 24
-  ;sw $t0, 0($a0)
+  li $t0, 1 << 24
+  sw $t0, 0($a0)
+send_rdp_setup_wait_for_rsp:
+  lb $t0, 0($a0)
+  bne $t0, $0, send_rdp_setup_wait_for_rsp
+  nop
   jr $ra
   nop
 
-wait_for_rsp:
+;; draw_rectange($t0=x0, $t1=y0, $t2=x1, $t3=y1, $t4=color);
+draw_rectangle:
   li $a0, KSEG1 | RSP_DMEM
-wait_for_rsp_loop:
-  lb $t0, 0($a0)
-  bne $t0, $0, wait_for_rsp_loop
+  ;; (XH, YH)
+  sll $t0, $t0, 16
+  or $t0, $t0, $t1
+  sw $t0, 8($a0)
+  ;; (XL, YL)
+  sll $t2, $t2, 16
+  or $t2, $t2, $t3
+  sw $t2, 16($a0)
+  sw $t4, 48($a0)
+  ;; Set command to draw_rectangle.
+  li $t0, 5 << 24
+  sw $t0, 0($a0)
+draw_rectangle_wait_for_rsp:
+  lw $t0, 0($a0)
+  bne $t0, $0, draw_rectangle_wait_for_rsp
   nop
   jr $ra
   nop

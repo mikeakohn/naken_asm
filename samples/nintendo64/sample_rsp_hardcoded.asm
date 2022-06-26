@@ -76,6 +76,8 @@ start:
   ;; Enable interrupts.
   mfc0 $t0, CP0_STATUS
   ori $t0, $t0, 1
+  ;li $t1, 0xfffffffe
+  ;and $t0, $t0, $t1
   mtc0 $t0, CP0_STATUS
 
   ;; Color the first 100 scan lines blue.
@@ -164,18 +166,14 @@ setup_rdp_loop:
   li $t0, 0x01
   sw $t0, RSP_CPU_STATUS($a0)
 
-  ;; Set start address and length.
-  li $a0, KSEG1 | RSP_DMEM
-  ;li $t8, (56 << 16) | (dp_list_end - dp_setup)
-  ;sw $t8, 4($a0)
-  li $t9, dp_list_end - dp_setup
   li $t8, 56
-  sh $t8, 4($a0)
-  sh $t9, 6($a0)
-
-  jal signal_rsp
+  li $t9, dp_setup_end - dp_setup
+  jal send_command
   nop
-  jal wait_for_rsp
+
+  li $t8, 56 + (dp_draw_rectangle_0 - dp_setup)
+  li $t9, dp_list_end - dp_draw_rectangle_0
+  jal send_command
   nop
 
   ;; Infinite loop at end of program.
@@ -183,21 +181,19 @@ while_1:
   b while_1
   nop
 
-signal_rsp:
+;; send_polygon($t8=offset, $t9=length);
+send_command:
+  li $a0, KSEG1 | RSP_DMEM
+  sll $t8, $t8, 16
+  or $t8, $t8, $t9
+  sw $t8, 4($a0)
   ;; Signal to RSP code to start.
   li $a0, KSEG1 | RSP_DMEM
-  li $t0, 2
-  sb $t0, 0($a0)
-  ;li $t0, 1 << 24
-  ;sw $t0, 0($a0)
-  jr $ra
-  nop
-
-wait_for_rsp:
-  li $a0, KSEG1 | RSP_DMEM
-wait_for_rsp_loop:
+  li $t0, 2 << 24
+  sw $t0, 0($a0)
+send_command_wait_for_rsp:
   lb $t0, 0($a0)
-  bne $t0, $0, wait_for_rsp_loop
+  bne $t0, $0, send_command_wait_for_rsp
   nop
   jr $ra
   nop
@@ -245,19 +241,21 @@ dp_setup:
   .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (3 << 52)
 dp_setup_end:
 
-dp_draw_squares:
-  ;; Red square.
+dp_draw_rectangle_0:
+  ;; Red rectangle.
   .dc64 (DP_OP_SYNC_PIPE << 56)
   .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0xf80e << 16) | (0xf80e)
   .dc64 (DP_OP_FILL_RECTANGLE << 56) | ((100 << 2) << 44) | ((100 << 2) << 32) | ((50 << 2) << 12) | (50 << 2)
+dp_draw_rectangle_0_end:
 
-  ;; Dark purple square.
+dp_draw_rectangle_1:
+  ;; Dark purple rectangle.
   .dc64 (DP_OP_SYNC_PIPE << 56)
   .dc64 (DP_OP_SET_FILL_COLOR << 56) | (0x080f << 16) | (0x080f)
   .dc64 (DP_OP_FILL_RECTANGLE << 56) | ((150 << 2) << 44) | ((150 << 2) << 32) | ((100 << 2) << 12) | (100 << 2)
-dp_draw_squares_end:
+dp_draw_rectangle_1_end:
 
-dp_draw_triangles:
+dp_draw_triangle_0:
   ;; Left major triangle (green)
   .dc64 (DP_OP_SYNC_PIPE << 56)
   .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (1 << 31)
@@ -266,6 +264,9 @@ dp_draw_triangles:
   .dc64 0x00aa0000fffd097b
   .dc64 0x009615c1ffff6ef5
   .dc64 0x0095f0bf000065b0
+dp_draw_triangle_0_end:
+
+dp_draw_triangle_1:
   ;; Right major triangle (purple)
   .dc64 (DP_OP_SYNC_PIPE << 56)
   .dc64 (DP_OP_SET_BLEND_COLOR << 56) | COLOR(0xff, 0x00, 0xff)
@@ -273,6 +274,9 @@ dp_draw_triangles:
   .dc64 0x00e600000002f684
   .dc64 0x00f9ea3e0000910a
   .dc64 0x00fa0f40ffff9a4f
+dp_draw_triangle_1_end:
+
+dp_draw_triangle_2:
   ;; Isosceles triangle (white)
   .dc64 (DP_OP_SYNC_PIPE << 56)
   .dc64 (DP_OP_SET_BLEND_COLOR << 56) | COLOR(0xff, 0xff, 0xff)
@@ -280,6 +284,9 @@ dp_draw_triangles:
   .dc64 0x00e6000017d77bff
   .dc64 0x00f9eccc00007fff
   .dc64 0x00fa1333ffff8000
+dp_draw_triangle_2_end:
+
+dp_draw_triangle_3:
   ;; Isosceles triangle (yellow, upside-down)
   .dc64 (DP_OP_SYNC_PIPE << 56)
   .dc64 (DP_OP_SET_BLEND_COLOR << 56) | COLOR(0xff, 0xff, 0x00)
@@ -287,8 +294,9 @@ dp_draw_triangles:
   .dc64 0x00aa0000ffff7f84
   .dc64 0x0081eccc00007fff
   .dc64 0x005a0000010aaaaa
-dp_draw_triangles_end:
+dp_draw_triangles_3_end:
 
+dp_do_sync:
   .dc64 (DP_OP_SYNC_FULL << 56)
 dp_list_end:
 
