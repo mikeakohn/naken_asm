@@ -19,10 +19,16 @@
 #define READ_RAM16(a) ((memory_read_m(memory, a + 0) << 8) | \
                        (memory_read_m(memory, a + 1)))
 
+#if 0
 #define READ_RAM32(a) ((memory_read_m(memory, a + 0) << 24) | \
                        (memory_read_m(memory, a + 1) << 16) | \
                        (memory_read_m(memory, a + 2) << 8) | \
                        (memory_read_m(memory, a + 3)))
+#endif
+
+#define READ_RAM32(a) ((READ_RAM16(a) << 16) | (READ_RAM16(a + 2)))
+
+#define LIMM 0x3e
 
 static char *condition_codes[] =
 {
@@ -154,26 +160,102 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
         strcpy(name, table_arc_alu[n].instr);
         int size = 0;
 
-        size += get_register(memory, address, a, reg_a);
-        size += get_register(memory, address, b, reg_b);
-        size += get_register(memory, address, c, reg_c);
+        get_register(memory, address, a, reg_a);
+        get_register(memory, address, b, reg_b);
+        get_register(memory, address, c, reg_c);
 
         switch (sub_type)
         {
           case 0:
-            sprintf(temp, "%s, %s, %s", reg_a, reg_b, reg_c);
+            if (a == LIMM && c == LIMM)
+            {
+              // xxx.f 0,b,limm
+              immediate = READ_RAM32(address + 4);
+              sprintf(temp, "0, %s, 0x%04x", reg_b, immediate);
+              size += 4;
+            }
+              else
+            if (a == LIMM)
+            {
+              // xxx.f 0,b,c
+              sprintf(temp, "0, %s, %s", reg_b, reg_c);
+            }
+              else
+            if (b == LIMM)
+            {
+              // xxx.f a,limm,c
+              immediate = READ_RAM32(address + 4);
+              sprintf(temp, "%s, 0x%04x, %s", reg_a, immediate, reg_c);
+              size += 4;
+            }
+              else
+            if (c == LIMM)
+            {
+              // xxx.f a,b,limm
+              immediate = READ_RAM32(address + 4);
+              sprintf(temp, "%s, %s, 0x%04x", reg_a, reg_b, immediate);
+              size += 4;
+            }
+              else
+            {
+              // xxx.f a,b,c
+              sprintf(temp, "%s, %s, %s", reg_a, reg_b, reg_c);
+            }
             break;
           case 1:
-            sprintf(temp, "%s, %s, %d", reg_a, reg_b, c);
+            if (c == LIMM)
+            {
+              // xxx.f 0,b,u6
+              sprintf(temp, "0, %s, %d", reg_b, c);
+            }
+              else
+            {
+              // xxx.f a,b,u6
+              sprintf(temp, "%s, %s, %d", reg_a, reg_b, c);
+            }
             break;
           case 2:
+            // xxx.f b,b,s12
             immediate = opcode & 0xfff;
             if ((immediate & 0x800) != 0) { immediate |= 0xfffff000; }
             sprintf(temp, "%s, %s, %d", reg_b, reg_b, immediate);
             break;
           case 3:
             strcat(name, cc);
+
+            if ((opcode & 0x0020) != 0)
+            {
+              // xxx.cc.f b,b,u6
+              sprintf(temp, "%s, %s, %d", reg_b, reg_b, c);
+            }
+              else
+            if (a == LIMM)
+            {
+              // xxx.cc.f 0,limm,c
+              sprintf(temp, "0, %s, %s", reg_b, reg_c);
+            }
+              else
+            if (c == LIMM)
+            {
+              // xxx.cc.f b,b,limm
+              immediate = READ_RAM32(address + 4);
+              sprintf(temp, "%s, %s, 0x%04x", reg_b, reg_b, immediate);
+              size += 4;
+            }
+              else
+            {
+              // xxx.cc.f b,b,c
+              sprintf(temp, "%s, %s, %s", reg_b, reg_b, reg_c);
+            }
+            break;
         }
+
+        if (f == 1)
+        {
+          strcat(name, ".f");
+        }
+
+        sprintf(instruction, "%s %s", name, temp);
 
         return size == 0 ? 4 : 8;
       }

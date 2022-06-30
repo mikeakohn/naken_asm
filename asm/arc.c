@@ -25,12 +25,13 @@
 
 #define COMPUTE_B(a) (((a & 0x7) << 24) | (((a >> 3) & 0x7) << 12))
 
-#define REG_GP 26
-#define REG_FP 27
-#define REG_SP 28
-#define REG_BLINK 31
-#define REG_LP_COUNT 60
-#define REG_LONG_IMMEDIATE 62
+//#define REG_GP 26
+//#define REG_FP 27
+//#define REG_SP 28
+//#define REG_BLINK 31
+//#define REG_LP_COUNT 60
+//#define REG_LONG_IMMEDIATE 62
+#define LIMM 62
 
 enum
 {
@@ -283,29 +284,141 @@ for (n = 0; n < operand_count; n++)
       b = operands[1].value;
       c = operands[2].value;
 
+      if (cc_flag != 0) { a = cc_value; }
+
+      // xxx.f a,b,c
+      // xxx.cc.f b,b,c
       if (operands[0].type == OPERAND_REG &&
           operands[1].type == OPERAND_REG &&
+          operands[2].type == OPERAND_REG)
+      {
+        if (cc_flag == 0)
+        {
+          opcode |= COMPUTE_B(b) | (c << 6) | a;
+          add_bin(asm_context, opcode, IS_OPCODE);
+          return 4;
+        }
+          else
+        if (operands[0].value == operands[1].value)
+        {
+          opcode |= COMPUTE_B(b) | (3 << 22) | (c << 6) | a;
+          add_bin(asm_context, opcode, IS_OPCODE);
+          return 4;
+        }
+      }
+
+      // xxx.f 0,b,c
+      if (operands[0].type == OPERAND_NUMBER &&
+          operands[1].type == OPERAND_REG &&
           operands[2].type == OPERAND_REG &&
+          operands[0].value == 0 &&
           cc_flag == 0)
       {
-        opcode |= ((b & 7) << 24) | ((b >> 3) << 12) | (c << 6) | a;
-
+        opcode |= COMPUTE_B(b) | (c << 6) | LIMM;
         add_bin(asm_context, opcode, IS_OPCODE);
-
         return 4;
       }
 
+      // xxx.cc.f b,b,u6
+      // xxx.cc.f b,b,limm
+      // xxx.f b,b,s12
       if (operands[0].type == OPERAND_REG &&
           operands[1].type == OPERAND_REG &&
+          operands[2].type == OPERAND_NUMBER &&
+          operands[0].value == operands[1].value)
+      {
+        if (cc_flag == 1)
+        {
+          if (operands[2].value >= 0 && operands[2].type <= 63)
+          {
+            opcode |= COMPUTE_B(b) | (3 << 22) | (c << 6) | (1 << 5) | cc_value;
+            add_bin(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+            else
+          {
+            opcode |= COMPUTE_B(b) | (3 << 22) | (c << 6) | cc_value;
+            add_bin(asm_context, opcode, IS_OPCODE);
+            add_bin(asm_context, a & 0xffffffff, IS_OPCODE);
+            return 8;
+          }
+        }
+          else
+        {
+          if (check_range(asm_context, "Immediate", operands[2].value, -2048, 2047) == -1) { return -1; }
+            opcode |= COMPUTE_B(b) | (1 << 22) | (operands[2].value & 0xfff);
+            add_bin(asm_context, opcode, IS_OPCODE);
+        }
+      }
+
+      // xxx.f 0,b,u6
+      // xxx.f 0,b,limm
+      if (operands[0].type == OPERAND_NUMBER &&
+          operands[1].type == OPERAND_REG &&
+          operands[2].type == OPERAND_NUMBER &&
+          operands[0].value == 0 &&
+          cc_flag == 0)
+      {
+        if (operands[2].value >= 0 && operands[2].value <= 63)
+        {
+          opcode |= COMPUTE_B(b) | (1 << 22) | (operands[2].value << 6) | LIMM;
+          add_bin(asm_context, opcode, IS_OPCODE);
+          return 4;
+        }
+          else
+        {
+          opcode |= COMPUTE_B(b) | (c << 6) | LIMM;
+          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin(asm_context, a & 0xffffffff, IS_OPCODE);
+          return 8;
+        }
+      }
+
+      // xxx.f a,b,u6
+      // xxx.f a,b,limm
+      if (operands[0].type == OPERAND_REG &&
+          operands[1].type == OPERAND_REG &&
+          operands[2].type == OPERAND_NUMBER &&
+          cc_flag == 0)
+      {
+        if (operands[2].value >= 0 && operands[2].type <= 63)
+        {
+          opcode |= COMPUTE_B(b) | (1 << 22) | (c << 6) | a;
+          add_bin(asm_context, opcode, IS_OPCODE);
+          return 4;
+        }
+          else
+        {
+          opcode |= COMPUTE_B(b) | (LIMM << 6) | a;
+          add_bin(asm_context, opcode, IS_OPCODE);
+          add_bin(asm_context, c & 0xffffffff, IS_OPCODE);
+          return 8;
+        }
+      }
+
+      // xxx.f a,limm,c
+      if (operands[0].type == OPERAND_REG &&
+          operands[1].type == OPERAND_NUMBER &&
           operands[2].type == OPERAND_REG &&
-          operands[0].value == operands[1].value &&
+          cc_flag == 0)
+      {
+        opcode |= COMPUTE_B(LIMM) | (c << 6) | a;
+        add_bin(asm_context, opcode, IS_OPCODE);
+        add_bin(asm_context, a & 0xffffffff, IS_OPCODE);
+        return 8;
+      }
+
+      // xxx.cc.f 0,limm,c
+      if (operands[0].type == OPERAND_NUMBER &&
+          operands[1].type == OPERAND_NUMBER &&
+          operands[2].type == OPERAND_REG &&
+          operands[0].value == 0 &&
           cc_flag == 1)
       {
-        opcode |= ((b & 7) << 24) | ((b >> 3) << 12) | (c << 6) | cc_value;
-
+        opcode |= COMPUTE_B(LIMM) | (3 << 22) | (c << 6) | cc_value;
         add_bin(asm_context, opcode, IS_OPCODE);
-
-        return 4;
+        add_bin(asm_context, a & 0xffffffff, IS_OPCODE);
+        return 8;
       }
     }
   }
