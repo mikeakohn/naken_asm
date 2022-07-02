@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -200,16 +200,19 @@ static int check_element(
 {
   if (element < 0 || element > element_max)
   {
-    print_error_range("Vector element", 0, element_max, asm_context);
-    return -1;
+    printf("Warning: Vector element %d out of range (%d, %d) at %s:%d.\n",
+      element,
+      0,
+      element_max,
+      asm_context->tokens.filename,
+      asm_context->tokens.line);
   }
 
   if (element_step != 0)
   {
     if ((element % element_step) != 0)
     {
-      print_error("Invalid vector element", asm_context);
-      return -1;
+      print_warning("Invalid vector element", asm_context);
     }
   }
 

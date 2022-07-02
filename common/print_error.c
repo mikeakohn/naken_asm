@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -19,6 +19,13 @@
 void print_error(const char *s, struct _asm_context *asm_context)
 {
   printf("Error: %s at %s:%d\n", s,
+    asm_context->tokens.filename,
+    asm_context->tokens.line);
+}
+
+void print_warning(const char *s, struct _asm_context *asm_context)
+{
+  printf("Warning: %s at %s:%d\n", s,
     asm_context->tokens.filename,
     asm_context->tokens.line);
 }
