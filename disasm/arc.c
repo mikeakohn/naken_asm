@@ -19,14 +19,8 @@
 #define READ_RAM16(a) ((memory_read_m(memory, a + 0) << 8) | \
                        (memory_read_m(memory, a + 1)))
 
-#if 0
-#define READ_RAM32(a) ((memory_read_m(memory, a + 0) << 24) | \
-                       (memory_read_m(memory, a + 1) << 16) | \
-                       (memory_read_m(memory, a + 2) << 8) | \
-                       (memory_read_m(memory, a + 3)))
-#endif
-
-#define READ_RAM32(a) ((READ_RAM16(a) << 16) | (READ_RAM16(a + 2)))
+#define READ_RAM32(a) (memory_read16_m(memory, a + 0) << 16) | \
+                       memory_read16_m(memory, a + 2);
 
 #define LIMM 0x3e
 
@@ -73,8 +67,7 @@ int get_register(struct _memory *memory, int address, int r, char *s)
     case 60: strcpy(s, "lp_count"); break;
     case 62:
     {
-      int limm = (memory_read16_m(memory, address + 4) << 16) |
-                  memory_read16_m(memory, address + 6);
+      int limm = READ_RAM32(address + 4);
       sprintf(s, "0x%08x", limm);
       return 4;
     }
@@ -154,9 +147,6 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
       if (table_arc_alu[n].opcode == o)
       {
         int sub_type = (opcode16 >> 6) & 0x03;
-        //int a = opcode & 0x3f;
-        //int b = (((opcode >> 9) & 0x7) << 3) | ((opcode >> 24) & 0x7);
-        //int c = (opcode >> 6) & 0x3f;
         strcpy(name, table_arc_alu[n].instr);
         int size = 0;
 
@@ -232,7 +222,9 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
             if (a == LIMM)
             {
               // xxx.cc.f 0,limm,c
-              sprintf(temp, "0, %s, %s", reg_b, reg_c);
+              immediate = READ_RAM32(address + 4);
+              sprintf(temp, "0, 0x%04x, %s", immediate, reg_c);
+              size += 4;
             }
               else
             if (c == LIMM)
@@ -267,6 +259,72 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
       strcpy(instruction, name);
 
       return 4;
+    }
+  }
+
+  // Single operand instructions.
+  if (opcode_type == 0x04 && a == 1)
+  {
+    int o = opcode & 0x3f;
+
+    for (n = 0; table_arc_single[n].instr != NULL; n++)
+    {
+      if (table_arc_single[n].opcode == o)
+      {
+        int sub_type = (opcode16 >> 6) & 0x03;
+        strcpy(name, table_arc_single[n].instr);
+        int size = 0;
+
+        get_register(memory, address, a, reg_a);
+        get_register(memory, address, b, reg_b);
+        get_register(memory, address, c, reg_c);
+
+        switch (sub_type)
+        {
+          case 0:
+            if (c == LIMM)
+            {
+              // xxx.f b,limm
+              // xxx.f 0,limm
+              immediate = READ_RAM32(address + 4);
+              sprintf(temp, "%s, 0x%04x", b == LIMM ? "0" : reg_b, immediate);
+              size += 4;
+            }
+              else
+            {
+              // xxx.f b,c
+              // xxx.f 0,c
+              sprintf(temp, "%s, %s", b == LIMM ? "0" : reg_b, reg_c);
+            }
+            break;
+          case 1:
+            if (b == LIMM)
+            {
+              // xxx.f b,limm
+              immediate = READ_RAM32(address + 4);
+              sprintf(temp, "%s, 0x%04x", reg_b, immediate);
+              size += 4;
+            }
+              else
+            {
+              // xxx.f b,u6
+              sprintf(temp, "%s, %d", reg_b, c);
+            }
+            break;
+          case 2:
+          case 3:
+            continue;
+        }
+
+        if (f == 1)
+        {
+          strcat(name, ".f");
+        }
+
+        sprintf(instruction, "%s %s", name, temp);
+
+        return size == 0 ? 4 : 8;
+      }
     }
   }
 
