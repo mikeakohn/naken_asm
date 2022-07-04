@@ -25,9 +25,9 @@
 
 #define COMPUTE_B(a) (((a & 0x7) << 24) | (((a >> 3) & 0x7) << 12))
 
-//#define REG_GP 26
+#define REG_GP 26
 //#define REG_FP 27
-//#define REG_SP 28
+#define REG_SP 28
 //#define REG_BLINK 31
 //#define REG_LP_COUNT 60
 //#define REG_LONG_IMMEDIATE 62
@@ -35,6 +35,7 @@
 
 enum
 {
+  OPERAND_NONE,
   OPERAND_REG,
   OPERAND_NUMBER,
 };
@@ -494,16 +495,174 @@ for (n = 0; n < operand_count; n++)
     }
   }
 
-  for (n = 0; table_arc_alu16[n].instr != NULL; n++)
+  for (n = 0; table_arc16[n].instr != NULL; n++)
   {
-    if (strcasecmp(instr_case, table_arc_alu16[n].instr) != 0) { continue; }
+    if (strcasecmp(instr_case, table_arc16[n].instr) != 0) { continue; }
 
-    opcode = 0x20000000 | (f_flag << 15) | (0x2f << 16) | table_arc_alu16[n].opcode;
+    opcode = table_arc16[n].opcode;
     found = 1;
-    if (operand_count != 2) { continue; }
+    if (operand_count != table_arc16[n].operand_count) { continue; }
 
-    b = operands[0].value;
-    c = operands[1].value;
+    int i, limm = 0;
+
+    for (i = 0; i < table_arc16[n].operand_count; i++)
+    {
+      switch (table_arc16[n].operands[i])
+      {
+        case OP_A:
+          if (operands[i].type != OPERAND_REG ||
+              operands[i].value > 7)
+          {
+            i = 100;
+            break;
+          }
+
+          opcode |= operands[i].value;
+          break;
+        case OP_B:
+          if (operands[i].type != OPERAND_REG ||
+              operands[i].value > 7)
+          {
+            i = 100;
+            break;
+          }
+
+          if (i > 0 &&
+              table_arc16[n].operands[i] == table_arc16[n].operands[i - 1] &&
+               operands[i].value != operands[i - 1].value)
+          {
+            i = 100;
+            break;
+          }
+
+          opcode |= operands[i].value << 8;
+          break;
+        case OP_C:
+          if (operands[i].type != OPERAND_REG ||
+              operands[i].value > 7)
+          {
+            i = 100;
+            break;
+          }
+
+          opcode |= operands[i].value << 5;
+          break;
+        case OP_H:
+          if (operands[i].type != OPERAND_REG)
+          {
+            i = 100;
+            break;
+          }
+
+          opcode |= ((operands[i].value & 0x7) << 5) | (operands[i].value >> 3);
+          break;
+        case OP_LIMM:
+          if (operands[i].type != OPERAND_NUMBER)
+          {
+            i = 100;
+            break;
+          }
+
+          limm = operands[i].value;
+          break;
+        case OP_U3:
+          if (operands[i].type != OPERAND_NUMBER ||
+              operands[i].value < 0 ||
+              operands[i].value > 7)
+          {
+            i = 100;
+            break;
+          }
+
+          opcode |= operands[i].value;
+          break;
+        case OP_U5:
+          if (operands[i].type != OPERAND_NUMBER ||
+              operands[i].value < 0 ||
+              operands[i].value > 31)
+          {
+            i = 100;
+            break;
+          }
+
+          opcode |= operands[i].value;
+          break;
+        case OP_U7:
+          if (operands[i].type != OPERAND_NUMBER ||
+              operands[i].value < 0 ||
+              operands[i].value > 127 ||
+             (operands[i].value & 0x3) != 0)
+          {
+            i = 100;
+            break;
+          }
+
+          opcode |= operands[i].value >> 2;
+          break;
+        case OP_U8:
+          if (operands[i].type != OPERAND_NUMBER ||
+              operands[i].value < 0 ||
+              operands[i].value > 255)
+          {
+            i = 100;
+            break;
+          }
+
+          opcode |= operands[i].value;
+          break;
+        case OP_S11:
+          if (operands[i].type != OPERAND_NUMBER ||
+              operands[i].value < -1024 ||
+              operands[i].value > 1023)
+          {
+            i = 100;
+            break;
+          }
+
+          opcode |= (operands[i].value >> 2) & 0x1ff;
+          break;
+        case OP_R0:
+          if (operands[i].type != OPERAND_REG ||
+              operands[i].value != 0)
+          {
+            i = 100;
+          }
+
+          break;
+        case OP_GP:
+          if (operands[i].type != OPERAND_REG ||
+              operands[i].value != REG_GP)
+          {
+            i = 100;
+          }
+
+          break;
+        case OP_SP:
+          if (operands[i].type != OPERAND_REG ||
+              operands[i].value != REG_SP)
+          {
+            i = 100;
+          }
+
+          break;
+        default:
+          i = 100;
+          break;
+      }
+    }
+
+    if (i == table_arc16[n].operand_count)
+    {
+      add_bin16(asm_context, opcode, IS_OPCODE);
+
+      if (limm != 0)
+      {
+        add_bin(asm_context, limm, IS_OPCODE);
+        return 6;
+      }
+
+      return 2;
+    }
   }
 
   if (found == 1)

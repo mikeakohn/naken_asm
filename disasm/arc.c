@@ -328,6 +328,91 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
     }
   }
 
+  // 16 bit opcodes.
+  for (n = 0; table_arc16[n].instr != NULL; n++)
+  {
+    int o = opcode16 & table_arc16[n].mask;
+    strcpy(instruction, table_arc16[n].instr);
+
+    if (table_arc16[n].opcode == o)
+    {
+      int i, size = 2;
+      temp[0] = 0;
+
+      for (i = 0; i < table_arc16[n].operand_count; i++)
+      {
+        strcat(instruction, i == 0 ? " " : ", ");
+
+        switch (table_arc16[n].operands[i])
+        {
+          case OP_A:
+            sprintf(temp, "r%d", opcode16 & 0x7);
+            strcat(instruction, temp);
+            break;
+          case OP_B:
+            sprintf(temp, "r%d", (opcode16 >> 8) & 0x7);
+            strcat(instruction, temp);
+            break;
+          case OP_C:
+            sprintf(temp, "r%d", (opcode16 >> 5) & 0x7);
+            strcat(instruction, temp);
+            break;
+          case OP_H:
+            a = (opcode16 >> 5) | ((opcode16 & 0x7) << 3);
+            if (a == LIMM)
+            {
+              i = 100;
+              break;
+            }
+            get_register(memory, address, a, reg_a);
+            strcat(instruction, reg_a);
+            break;
+          case OP_LIMM:
+            size = 6;
+            immediate = READ_RAM32(address + 2);
+            sprintf(temp, "0x%04x", immediate);
+            break;
+          case OP_U3:
+            sprintf(temp, "%d", opcode16 & 0x7);
+            strcat(instruction, temp);
+            break;
+          case OP_U5:
+            sprintf(temp, "%d", opcode16 & 0x1f);
+            strcat(instruction, temp);
+            break;
+          case OP_U7:
+            sprintf(temp, "%d", (opcode16 & 0x1f) << 2);
+            strcat(instruction, temp);
+            break;
+          case OP_U8:
+            sprintf(temp, "%d", opcode16 & 0xff);
+            strcat(instruction, temp);
+            break;
+          case OP_S11:
+            immediate = opcode16 & 0x1ff;
+            if ((immediate & 0x100) != 0) { immediate |= 0xffffff00; }
+            sprintf(temp, "%d", immediate << 2);
+            strcat(instruction, temp);
+            break;
+          case OP_R0:
+            strcat(instruction, "r0");
+            break;
+          case OP_GP:
+            strcat(instruction, "gp");
+            break;
+          case OP_SP:
+            strcat(instruction, "sp");
+            break;
+        }
+      }
+
+      if (i == table_arc16[n].operand_count)
+      {
+        return size;
+      }
+    }
+  }
+
 #if 0
   opcode = memory_read16_m(memory, address);
   c = map16_bit_register((opcode >> 5) & 0x7);

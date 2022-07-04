@@ -17,24 +17,19 @@
 enum
 {
   OP_NONE,
-  OP_B_C,
-  OP_A_B_C,
-  OP_B_B_C,
-  OP_B_B_H,
-  OP_B_B_LIMM,
-  OP_B_B_U,
-  OP_B_SP_U7,
-  OP_B_B_U7,
-  OP_B_B_U5,
-  OP_B_U5,
-  OP_B_LIMM,
-  OP_C_B_U3,
-  OP_SP_SP_U7,
-  OP_R0_GP_S9,
-  OP_B_H,
-  OP_B_U7,
-  OP_B_U8,
-  OP_HOB,
+  OP_A,
+  OP_B,
+  OP_C,
+  OP_H,
+  OP_LIMM,
+  OP_U3,
+  OP_U5,
+  OP_U7,
+  OP_U8,
+  OP_S11,
+  OP_R0,
+  OP_GP,
+  OP_SP,
 };
 
 #define F_F  1
@@ -55,7 +50,8 @@ struct _table_arc16
   char *instr;
   uint16_t opcode;
   uint16_t mask;
-  uint8_t type;
+  uint8_t operand_count;
+  uint8_t operands[3];
 };
 
 struct _table_arc_op
