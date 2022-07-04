@@ -7,7 +7,7 @@
 ;; RSP code for drawing / rotating triangles.
 ;;
 ;; DMEM Format Is:
-;; 
+;;
 ;; byte  0: 0:Command/Signal | 1:Signal | 4,5:Offset | 6,7:Length
 ;; byte  8: X0, Y0, Z0
 ;; byte 16: X1, Y1, Z1
@@ -28,7 +28,23 @@
 
 .org 0
 start:
-  ;;sw $0, 0($0)
+  ;; Set $k0 to point to scratchpad area of DMEM.
+  li $k0, 0xff0
+
+  ;; Set $v0 to a vector of 0's.
+  vxor $v0, $v0, $v0
+
+  ;; Set $v2 to a vector of 2's.
+  li $k1, 0x0002
+  sh $k1,  8($k0)
+  llv $v2[0], 8($k0)
+  llv $v2[2], 8($k0)
+  llv $v2[4], 8($k0)
+  llv $v2[6], 8($k0)
+  llv $v2[8], 8($k0)
+  llv $v2[10], 8($k0)
+  llv $v2[12], 8($k0)
+  llv $v2[14], 8($k0)
 
   ;; When DP_END_REG is written to, if it doesn't equal to DP_START_REG
   ;; it will start the RDP executing commands.
@@ -70,7 +86,7 @@ main:
   sb $0, 0($0)
   nop
 
-;; Screen setup, run RDP commands from offset 56 to 88.
+  ;; Screen setup, run RDP commands from offset 56 to 88.
 command_1:
   li $t1, 56
   li $t2, 32
@@ -82,7 +98,7 @@ command_1:
   b main
   nop
 
-;; Run RDP commands specified by user: Offset 4 is offset, offset 6 is length.
+  ;; Run RDP commands specified by user: Offset 4 is offset, offset 6 is length.
 command_2:
   lh $t1, 4($0)
   lh $t2, 6($0)
@@ -97,7 +113,110 @@ command_2:
   b main
   nop
 
+  ;; Calculate triangle and call start_rdp.
 command_3:
+  ;; Vertix 0: ($t0, $t1)
+  ;; Vertix 1: ($t2, $t3)
+  ;; Vertix 2: ($t4, $t5)
+  lh $t0, 8($0)
+  lh $t1, 10($0)
+  lh $t2, 16($0)
+  lh $t3, 18($0)
+  lh $t4, 24($0)
+  lh $t5, 26($0)
+  ;;    Color: $t6
+  lw $t6, 48($0)
+  ;; Sort vertex so y values go from top to bottom.
+  ;; if (y1 > y2) { swap; }
+  subu $t8, $t3, $t5
+  blez $t8, command_3_skip_swap_0
+  nop
+  move $t8, $t2
+  move $t9, $t3
+  move $t2, $t4
+  move $t3, $t5
+  move $t4, $t8
+  move $t5, $t9
+command_3_skip_swap_0:
+  ;; if (y0 > y1) { swap; }
+  subu $t8, $t1, $t3
+  blez $t8, command_3_skip_swap_1
+  nop
+  move $t8, $t0
+  move $t9, $t1
+  move $t0, $t2
+  move $t1, $t3
+  move $t2, $t8
+  move $t3, $t9
+command_3_skip_swap_1:
+  ;; if (y1 > y2) { swap; }
+  subu $t8, $t3, $t5
+  blez $t8, command_3_skip_swap_2
+  nop
+  move $t8, $t2
+  move $t9, $t3
+  move $t2, $t4
+  move $t3, $t5
+  move $t4, $t8
+  move $t5, $t9
+command_3_skip_swap_2:
+  ;; When y0 == y1, it can create a division by 0.
+  bne $t1, $t3, command_3_not_div_0
+  nop
+  addiu $t3, $t3, 1
+command_3_not_div_0:
+  ;; Middle vertex leans to the right (left_major).
+  ;; $t6 = is_left_major = x1 > x0 ? 1 : 0;
+  slt $t6, $t0, $t2
+  ;; Slope: y = dy/dx * x + y0
+  ;; Inverse Slope: x = dx/dy * y + x0
+  ;; $s0 = dx_h = x0 - x2;
+  ;; $s1 = dx_m = x0 - x1;
+  ;; $s2 = dx_l = x1 - x2;
+  subu $s0, $t0, $t4
+  subu $s1, $t0, $t2
+  subu $s2, $t2, $t4
+  ;; $s3 = dy_h = y0 - y2;
+  ;; $s4 = dy_m = y0 - y1;
+  ;; $s5 = dy_l = y1 - y2;
+  subu $s3, $t1, $t5
+  subu $s4, $t1, $t3
+  subu $s5, $t3, $t5
+  ;; if (dy_h == 0) { dy_h = 1 << 4; }
+  ;; if (dy_m == 0) { dy_m = 1 << 4; }
+  ;; if (dy_l == 0) { dy_l = 1; }
+  bne $s3, $0, command_3_dy_h_not_0
+  nop
+  li $s3, 1 << 4
+command_3_dy_h_not_0:
+  bne $s4, $0, command_3_dy_m_not_0
+  nop
+  li $s4, 1 << 4
+command_3_dy_m_not_0:
+  bne $s5, $0, command_3_dy_l_not_0
+  nop
+  li $s5, 1
+command_3_dy_l_not_0:
+  ;; $s0 = dxhdy = (dx_h << 4) / dy_h;
+  ;; $s1 = dxmdy = (dx_m << 4) / dy_m;
+  ;; $s2 = dxldy = (dx_l << 4) / dy_l;
+  sll $s0, $s0, 4
+  sll $s1, $s1, 4
+  sll $s2, $s2, 4
+  sh $s0, 0($k0)
+  sh $s1, 2($k0)
+  sh $s2, 4($k0)
+  lsv $v10[0], 0($k0)
+  lsv $v10[2], 2($k0)
+  lsv $v10[4], 4($k0)
+
+
+  ;; yh_fraction = y0 & 0xf;
+  ;; xh = x0 - ((dxhdy * yh_fraction) >> 4);
+  ;; xm = x0 - ((dxmdy * yh_fraction) >> 4);
+  ;; xl = x0 + ((dxmdy * (y1 - y0)) >> 4);
+
+
   sb $0, 0($0)
   b main
   nop
@@ -107,6 +226,7 @@ command_4:
   b main
   nop
 
+  ;; Draw square.
 command_5:
   ;; Add Sync Pipe Command.
   li $t4, DP_OP_SYNC_PIPE << 24

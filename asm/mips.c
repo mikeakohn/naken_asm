@@ -2548,6 +2548,13 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
               operands[1].type == OPERAND_RSP_VREG &&
               operands[2].type == OPERAND_RSP_VREG)
           {
+            if (operands[0].rsp_element.type != RSP_ELEMENT_VECTOR ||
+                operands[1].rsp_element.type != RSP_ELEMENT_VECTOR)
+            {
+              print_error_illegal_operands(instr, asm_context);
+              return -1;
+            }
+
             int element =
               operands[2].rsp_element.index |
               operands[2].rsp_element.type;

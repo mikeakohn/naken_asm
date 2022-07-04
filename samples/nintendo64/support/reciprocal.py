@@ -88,43 +88,28 @@ def set_bits(start, stop):
 
   return i
 
-def get_bits(start, stop, num):
-  i = 0
-  if stop < 0: stop = 0
-
-  while start >= stop:
-    i = i << 1
-    if (num & (1 << start)) != 0: i |= 1
-
-    start -= 1
-
-  return i
-
 def reciprocal(num):
-  if num == 0: return ~num
+  mask = num >> 31
+  result = num ^ mask
 
-  result = abs(num)
+  if num > -32768: result -= mask
 
-  print("abs: %08x" % (result))
+  if result == 0: return 0x7fff_ffff
+  if num == -32768: return 0xffff_0000
 
-  scale_out = highest_bit_set(result)
-  scale_in = 32 - scale_out
+  shift = 31 - highest_bit_set(result)
+  index = ((result << shift) & 0x7fc0_0000) >> 22
+  result = table[index]
+  result = ((0x10000 | result) << 14) >> (31 - shift)
+  result = result ^ mask
 
-  print("scale_out: " + str(scale_out))
-  print(" scale_in: " + str(scale_in))
-
-  upper = set_bits(scale_out, scale_out - 16)
-  index = get_bits(scale_in - 1, scale_in - 9, result)
-  lower = table[index]
-
-  print("upper: %d 0x%04x" % (upper, upper))
+  print("shift: %d" % (shift))
   print("index: %d" % (index))
-  print("lower: %d 0x%04x" % (lower, lower))
-
-  result = (upper << 16) | lower
-  if num < 0: return ~result
 
   return result
+
+def as_float(num):
+  return float(num >> 16) + (float(num & 0xffff) / 65536)
 
 # --------------------------- fold here -----------------------------
 
@@ -138,7 +123,10 @@ else:
   num = int(sys.argv[1])
 
 rcp = reciprocal(num)
+f = as_float(num)
 
-print("num=%d 0x%04x" % (num, num))
-print("rcp=%d 0x%04x" % (rcp, rcp))
+print("   num=%d 0x%04x  %.4f" % (num, num, f))
+print("   rcp=%d 0x%04x  %.4f %.4f" % (rcp, rcp, as_float(rcp << 1), 1 / f))
+print("   div=0x%04x" % ((rcp >> 16) & 0xffff))
+print("result=0x%04x" % (rcp & 0xffff))
 
