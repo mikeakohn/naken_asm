@@ -65,12 +65,15 @@ int get_register(struct _memory *memory, int address, int r, char *s)
     case 30: strcpy(s, "ilink2"); break;
     case 31: strcpy(s, "blink"); break;
     case 60: strcpy(s, "lp_count"); break;
+    case 62: strcpy(s, "limm"); break;
+#if 0
     case 62:
     {
       int limm = READ_RAM32(address + 4);
       sprintf(s, "0x%08x", limm);
       return 4;
     }
+#endif
     case 63: strcpy(s, "pcl"); break;
     default: sprintf(s, "r%d", r); break;
   }
@@ -78,7 +81,7 @@ int get_register(struct _memory *memory, int address, int r, char *s)
   return 0;
 }
 
-int map16_bit_register(int r)
+static int map16_bit_register(int r)
 {
   if (r <= 3) { return r; }
 
@@ -109,6 +112,7 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
   uint32_t opcode;
   uint16_t opcode16;
   int opcode_type;
+  uint8_t is_extended;
   char temp[128];
   char name[64];
   char reg_a[32];
@@ -119,11 +123,12 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
   int n, a, c, b, q, f;
   const char *cc = "??";
 
-  opcode_type = memory_read16_m(memory, address) >> 11;
-
   opcode16 = memory_read16_m(memory, address);
   opcode = (memory_read16_m(memory, address) << 16) |
             memory_read16_m(memory, address + 2);
+
+  opcode_type = opcode16 >> 12;
+  is_extended = (opcode16 >> 11) & 1;
 
   a = opcode & 0x3f;
   c = (opcode >> 6) & 0x3f;
@@ -138,12 +143,14 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
   *cycles_max = -1;
 
   // ALU instructions.
-  if (opcode_type == 0x04)
+  if (opcode_type == 0x02)
   {
     int o = opcode16 & 0x3f;
 
     for (n = 0; table_arc_alu[n].instr != NULL; n++)
     {
+      if (is_extended != table_arc_alu[n].is_extended) { continue; }
+
       if (table_arc_alu[n].opcode == o)
       {
         int sub_type = (opcode16 >> 6) & 0x03;
@@ -165,18 +172,19 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
               size += 4;
             }
               else
-            if (a == LIMM)
-            {
-              // xxx.f 0,b,c
-              sprintf(temp, "0, %s, %s", reg_b, reg_c);
-            }
-              else
             if (b == LIMM)
             {
+printf("Here\n");
               // xxx.f a,limm,c
               immediate = READ_RAM32(address + 4);
               sprintf(temp, "%s, 0x%04x, %s", reg_a, immediate, reg_c);
               size += 4;
+            }
+              else
+            if (a == LIMM)
+            {
+              // xxx.f 0,b,c
+              sprintf(temp, "0, %s, %s", reg_b, reg_c);
             }
               else
             if (c == LIMM)
@@ -207,6 +215,7 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
           case 2:
             // xxx.f b,b,s12
             immediate = opcode & 0xfff;
+            immediate = (immediate >> 6) | ((immediate & 0x3f) << 6);
             if ((immediate & 0x800) != 0) { immediate |= 0xfffff000; }
             sprintf(temp, "%s, %s, %d", reg_b, reg_b, immediate);
             break;
@@ -219,7 +228,7 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
               sprintf(temp, "%s, %s, %d", reg_b, reg_b, c);
             }
               else
-            if (a == LIMM)
+            if (b == LIMM)
             {
               // xxx.cc.f 0,limm,c
               immediate = READ_RAM32(address + 4);
@@ -263,12 +272,14 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
   }
 
   // Single operand instructions.
-  if (opcode_type == 0x04 && a == 1)
+  if (opcode_type == 0x02 && a == 1)
   {
     int o = opcode & 0x3f;
 
     for (n = 0; table_arc_single[n].instr != NULL; n++)
     {
+      if (is_extended != table_arc_alu[n].is_extended) { continue; }
+
       if (table_arc_single[n].opcode == o)
       {
         int sub_type = (opcode16 >> 6) & 0x03;
@@ -346,15 +357,15 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
         switch (table_arc16[n].operands[i])
         {
           case OP_A:
-            sprintf(temp, "r%d", opcode16 & 0x7);
+            sprintf(temp, "r%d", map16_bit_register(opcode16 & 0x7));
             strcat(instruction, temp);
             break;
           case OP_B:
-            sprintf(temp, "r%d", (opcode16 >> 8) & 0x7);
+            sprintf(temp, "r%d", map16_bit_register((opcode16 >> 8) & 0x7));
             strcat(instruction, temp);
             break;
           case OP_C:
-            sprintf(temp, "r%d", (opcode16 >> 5) & 0x7);
+            sprintf(temp, "r%d", map16_bit_register((opcode16 >> 5) & 0x7));
             strcat(instruction, temp);
             break;
           case OP_H:

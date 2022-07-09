@@ -44,6 +44,7 @@ struct _operand
 {
   int value;
   int type;
+  uint8_t reg16;
 };
 
 struct _condition_codes
@@ -230,6 +231,20 @@ int parse_instruction_arc(struct _asm_context *asm_context, char *instr)
     {
       operands[operand_count].value = num;
       operands[operand_count].type = OPERAND_REG;
+
+      if (num >= 0 && num <= 3)
+      {
+        operands[operand_count].reg16 = num;
+      }
+        else
+      if (num >= 12 && num <= 15)
+      {
+        operands[operand_count].reg16 = (num - 12) + 4;
+      }
+        else
+      {
+        operands[operand_count].reg16 = 8;
+      }
     }
       else
     {
@@ -276,10 +291,12 @@ for (n = 0; n < operand_count; n++)
   for (n = 0; table_arc_alu[n].instr != NULL; n++)
   {
     if (strcasecmp(instr_case, table_arc_alu[n].instr) != 0) { continue; }
+    if (operand_count != 3) { continue; }
 
     opcode = 0x20000000 | (table_arc_alu[n].opcode << 16) | (f_flag << 15);
+    if (table_arc_alu[n].is_extended == 1) { opcode |= 1 << 27; }
+
     found = 1;
-    if (operand_count != 3) { continue; }
 
     a = operands[0].value;
     b = operands[1].value;
@@ -330,7 +347,7 @@ for (n = 0; n < operand_count; n++)
     {
       if (cc_flag == 1)
       {
-        if (operands[2].value >= 0 && operands[2].type <= 63)
+        if (operands[2].value >= 0 && operands[2].value <= 63)
         {
           opcode |= COMPUTE_B(b) | (3 << 22) | (c << 6) | (1 << 5) | cc_value;
           add_bin(asm_context, opcode, IS_OPCODE);
@@ -338,17 +355,20 @@ for (n = 0; n < operand_count; n++)
         }
           else
         {
-          opcode |= COMPUTE_B(b) | (3 << 22) | (c << 6) | cc_value;
+          opcode |= COMPUTE_B(b) | (3 << 22) | (LIMM << 6) | cc_value;
           add_bin(asm_context, opcode, IS_OPCODE);
-          add_bin(asm_context, a & 0xffffffff, IS_OPCODE);
+          add_bin(asm_context, c & 0xffffffff, IS_OPCODE);
           return 8;
         }
       }
         else
+      if (operands[2].value >= -2048 && operands[2].value <= 2047)
       {
-        if (check_range(asm_context, "Immediate", operands[2].value, -2048, 2047) == -1) { return -1; }
-          opcode |= COMPUTE_B(b) | (1 << 22) | (operands[2].value & 0xfff);
-          add_bin(asm_context, opcode, IS_OPCODE);
+        c = operands[2].value & 0xfff;
+        c = (c >> 6) | ((c & 0x3f) << 6);
+        opcode |= COMPUTE_B(b) | (2 << 22) | c;
+        add_bin(asm_context, opcode, IS_OPCODE);
+        return 4;
       }
     }
 
@@ -368,9 +388,9 @@ for (n = 0; n < operand_count; n++)
       }
         else
       {
-        opcode |= COMPUTE_B(b) | (c << 6) | LIMM;
+        opcode |= COMPUTE_B(b) | (LIMM << 6) | LIMM;
         add_bin(asm_context, opcode, IS_OPCODE);
-        add_bin(asm_context, a & 0xffffffff, IS_OPCODE);
+        add_bin(asm_context, c & 0xffffffff, IS_OPCODE);
         return 8;
       }
     }
@@ -382,7 +402,7 @@ for (n = 0; n < operand_count; n++)
         operands[2].type == OPERAND_NUMBER &&
         cc_flag == 0)
     {
-      if (operands[2].value >= 0 && operands[2].type <= 63)
+      if (operands[2].value >= 0 && operands[2].value <= 63)
       {
         opcode |= COMPUTE_B(b) | (1 << 22) | (c << 6) | a;
         add_bin(asm_context, opcode, IS_OPCODE);
@@ -405,7 +425,7 @@ for (n = 0; n < operand_count; n++)
     {
       opcode |= COMPUTE_B(LIMM) | (c << 6) | a;
       add_bin(asm_context, opcode, IS_OPCODE);
-      add_bin(asm_context, a & 0xffffffff, IS_OPCODE);
+      add_bin(asm_context, b & 0xffffffff, IS_OPCODE);
       return 8;
     }
 
@@ -413,13 +433,27 @@ for (n = 0; n < operand_count; n++)
     if (operands[0].type == OPERAND_NUMBER &&
         operands[1].type == OPERAND_NUMBER &&
         operands[2].type == OPERAND_REG &&
-        operands[0].value == 0 &&
-        cc_flag == 1)
+        operands[0].value == 0)
     {
-      opcode |= COMPUTE_B(LIMM) | (3 << 22) | (c << 6) | cc_value;
-      add_bin(asm_context, opcode, IS_OPCODE);
-      add_bin(asm_context, a & 0xffffffff, IS_OPCODE);
-      return 8;
+      if (cc_flag == 0)
+      {
+        // NOTE: This was done only because GNU as was doing this
+        // as xxx.f r62, limm, c (since r62 isn't writable, it works).
+        // Without this if-statement, naken_asm would product an also
+        // valid: xxx.al.f 0, limm, c (which seems more accurate).
+        // Using GNU as's ways to make testing easier.
+        opcode |= COMPUTE_B(LIMM) | (c << 6) | LIMM;
+        add_bin(asm_context, opcode, IS_OPCODE);
+        add_bin(asm_context, b & 0xffffffff, IS_OPCODE);
+        return 8;
+      }
+        else
+      {
+        opcode |= COMPUTE_B(LIMM) | (3 << 22) | (c << 6) | cc_value;
+        add_bin(asm_context, opcode, IS_OPCODE);
+        add_bin(asm_context, b & 0xffffffff, IS_OPCODE);
+        return 8;
+      }
     }
   }
 
@@ -511,17 +545,17 @@ for (n = 0; n < operand_count; n++)
       {
         case OP_A:
           if (operands[i].type != OPERAND_REG ||
-              operands[i].value > 7)
+              operands[i].reg16 > 7)
           {
             i = 100;
             break;
           }
 
-          opcode |= operands[i].value;
+          opcode |= operands[i].reg16;
           break;
         case OP_B:
           if (operands[i].type != OPERAND_REG ||
-              operands[i].value > 7)
+              operands[i].reg16 > 7)
           {
             i = 100;
             break;
@@ -529,23 +563,23 @@ for (n = 0; n < operand_count; n++)
 
           if (i > 0 &&
               table_arc16[n].operands[i] == table_arc16[n].operands[i - 1] &&
-               operands[i].value != operands[i - 1].value)
+               operands[i].reg16 != operands[i - 1].reg16)
           {
             i = 100;
             break;
           }
 
-          opcode |= operands[i].value << 8;
+          opcode |= operands[i].reg16 << 8;
           break;
         case OP_C:
           if (operands[i].type != OPERAND_REG ||
-              operands[i].value > 7)
+              operands[i].reg16 > 7)
           {
             i = 100;
             break;
           }
 
-          opcode |= operands[i].value << 5;
+          opcode |= operands[i].reg16 << 5;
           break;
         case OP_H:
           if (operands[i].type != OPERAND_REG)

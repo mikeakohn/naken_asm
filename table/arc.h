@@ -58,6 +58,7 @@ struct _table_arc_op
 {
   char *instr;
   uint8_t opcode;
+  uint8_t is_extended;
 };
 
 // FIXME: Delete these.
@@ -68,7 +69,6 @@ extern struct _table_arc_op table_arc_alu[];
 extern struct _table_arc_op table_arc_alu16[];
 extern struct _table_arc_op table_arc_single[];
 extern struct _table_arc_op table_arc_special[];
-extern struct _table_arc_op table_arc_alu32[];
 
 #endif
 

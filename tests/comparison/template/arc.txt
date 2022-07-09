@@ -2,7 +2,7 @@ abs r3, r4
 abs r23, 5
 abs r3, -5
 abs r3, -600
-abs_s r3, r12
+abs_s r3, r13
 abs 0, r17
 abs 0, 5
 abs 0, -5
@@ -12,12 +12,12 @@ abs.f r23, 5
 abs.f r3, -5
 abs.f 0, r17
 abs.f 0, 5
-abss r3, r4
-abss.f r23, 5
-abss r3, -600
-abss 0, r33
-abss.f 0, 7
-abss 0, -9
+;abss r3, r4
+;abss.f r23, 5
+;abss r3, -600
+;abss 0, r33
+;abss.f 0, 7
+;abss 0, -9
 ;abssw r3, r4
 ;abssw.f r60, 5
 ;abssw r3, -600
@@ -51,12 +51,12 @@ add.ne.f 0, -60000, r12
 add_s r1,r2,r12
 add_s r1,r2,4
 add_s r3,r3,r4
-;add_s r3,r3,0x12345
+add_s r2,r2,0x12345
 add_s r0,sp,8
 add_s sp,sp,8
 add_s r0,gp,512
-;add_s r12,r12,4
-;add_s r1,r1,127
+add_s r3,r13,4
+add_s r14,r14,7
 add1.f r4, r20, r30
 add1.f r4, r20, 30
 add1.f r4, r4, 100
@@ -67,7 +67,7 @@ add1 r4, r7, 1234
 add1 r4, r4, 1234
 add1.f 0, r4, r7
 add1.f 0, r4, 12
-;add1.f 0, 12343, r7
+add1.f 0, 12343, r7
 add1_s r3, r3, r14
 add2.f r4, r20, r30
 add2.f r4, r20, 30
@@ -79,7 +79,7 @@ add2 r4, r7, 1234
 add2 r4, r4, 1234
 add2.f 0, r4, r7
 add2.f 0, r4, 12
-;add2.f 0, 12343, r7
+add2.f 0, 12343, r7
 add2_s r3, r3, r14
 add3.f r4, r20, r30
 add3.f r4, r20, 30
@@ -91,7 +91,7 @@ add3 r4, r7, 1234
 add3 r4, r4, 1234
 add3.f 0, r4, r7
 add3.f 0, r4, 12
-;add3.f 0, 12343, r7
+add3.f 0, 12343, r7
 add3_s r3, r3, r14
 adds.f r4, r20, r30
 adds.f r4, r20, 30
@@ -103,7 +103,7 @@ adds r4, r7, 1234
 adds r4, r4, 1234
 adds.f 0, r4, r7
 adds.f 0, r4, 12
-;adds.f 0, 12343, r7
+adds.f 0, 12343, r7
 ;addsdw.f r4, r20, r30
 ;addsdw.f r4, r20, 30
 ;addsdw.f r4, r4, 100
@@ -125,7 +125,7 @@ and r4, r7, 1234
 and r4, r4, 1234
 and.f 0, r4, r7
 and.f 0, r4, 1234
-;and.f 0, 1234, r4
+and.f 0, 1234, r4
 and_s r1, r1, r2
 asl r31, r20
 asl r17, 128
@@ -157,7 +157,7 @@ asls.f r43, r3, 5000
 asls.f r43, r43, 5000
 asls 0, r3, r4
 asls 0, r3, 17
-;asls 0, 12343, r20
+asls 0, 12343, r20
 asr r31, r20
 asr r17, 128
 asr r17, 12843
@@ -188,7 +188,7 @@ asrs.f r43, r3, 5000
 asrs.f r43, r43, 5000
 asrs 0, r3, r4
 asrs 0, r3, 17
-;asrs 0, 12343, r20
+asrs 0, 12343, r20
 ;main: bbit0 r2, r4, main
 ;main: bbit0 r2, 5, main
 ;main: bbit1 r2, r7, main
