@@ -8,18 +8,22 @@
 ;;
 ;; DMEM Format Is:
 ;;
-;; byte  0: 0:Command/Signal | 1:Signal | 4,5:Offset | 6,7:Length
-;; byte  8: X0, Y0, Z0
-;; byte 16: X1, Y1, Z1
-;; byte 24: X2, Y2, Z2
-;; byte 32: rx, ry, rz
-;; byte 40: dx, dy, dz
-;; byte 48: fill color
-;; byte 56: DP_OP_SET_COLOR_IMAGE
-;; byte 64: DP_OP_SET_Z_IMAGE
-;; byte 72: DP_OP_SET_SCISSOR
-;; byte 80: DP_OP_SET_OTHER_MODES
-;; byte 88: Polygons start
+;; byte   0: 0:Command/Signal | 1:Signal | 4,5:Offset | 6,7:Length
+;; byte   8: X0, Y0, Z0
+;; byte  16: X1, Y1, Z1
+;; byte  24: X2, Y2, Z2
+;; byte  32: rx, ry, rz
+;; byte  40: dx, dy, dz
+;; byte  48: fill color
+;; -- Initialize screen.
+;; byte  56: DP_OP_SET_COLOR_IMAGE
+;; byte  64: DP_OP_SET_Z_IMAGE
+;; byte  72: DP_OP_SET_SCISSOR
+;; -- Polygons start.
+;; byte  80: DP_OP_SYNC_PIPE
+;; byte  88: DP_OP_SET_OTHER_MODES
+;; byte  96: Polygon Color
+;; byte 104: Polygon Data
 
 .n64_rsp
 
@@ -35,16 +39,12 @@ start:
   vxor $v0, $v0, $v0
 
   ;; Set $v2 to a vector of 2's.
-  li $k1, 0x0002
+  li $k1, 0x0202
   sh $k1,  8($k0)
   llv $v2[0], 8($k0)
-  llv $v2[2], 8($k0)
   llv $v2[4], 8($k0)
-  llv $v2[6], 8($k0)
   llv $v2[8], 8($k0)
-  llv $v2[10], 8($k0)
   llv $v2[12], 8($k0)
-  llv $v2[14], 8($k0)
 
   ;; When DP_END_REG is written to, if it doesn't equal to DP_START_REG
   ;; it will start the RDP executing commands.
@@ -64,7 +64,7 @@ main:
   ;; Command 2: Directly call start_rdp.
   ;; Command 3: Calculate triangle and call start_rdp.
   ;; Command 4: Calculate rotation, projection, triangle, and start_dp.
-  ;; Command 5: Draw square.
+  ;; Command 5: Draw rectangle.
   li $t1, 1
   beq $t0, $t1, command_1
   nop
@@ -86,10 +86,10 @@ main:
   sb $0, 0($0)
   nop
 
-  ;; Screen setup, run RDP commands from offset 56 to 88.
+  ;; Screen setup, run RDP commands from offset 56 to 72.
 command_1:
   li $t1, 56
-  li $t2, 32
+  li $t2, 24
   jal start_rdp
   nop
   jal wait_for_rdp
@@ -115,6 +115,14 @@ command_2:
 
   ;; Calculate triangle and call start_rdp.
 command_3:
+  ;; Set DP_OP_SET_OTHER_MODES for retangle fill.
+  li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (1 << 20)
+  sw $t8, 88($0)
+  ;; Color: $t6
+  li $t8, DP_OP_SET_FILL_COLOR << 24
+  lw $t9,  48($0)
+  sw $t8,  96($0)
+  sw $t9, 100($0)
   ;; Vertix 0: ($t0, $t1)
   ;; Vertix 1: ($t2, $t3)
   ;; Vertix 2: ($t4, $t5)
@@ -124,8 +132,6 @@ command_3:
   lh $t3, 18($0)
   lh $t4, 24($0)
   lh $t5, 26($0)
-  ;;    Color: $t6
-  lw $t6, 48($0)
   ;; Sort vertex so y values go from top to bottom.
   ;; if (y1 > y2) { swap; }
   subu $t8, $t3, $t5
@@ -168,6 +174,18 @@ command_3_not_div_0:
   ;; Middle vertex leans to the right (left_major).
   ;; $t6 = is_left_major = x1 > x0 ? 1 : 0;
   slt $t6, $t0, $t2
+  ;; Set command_byte=8, left_major=($t6 << 7), level=0, tile=0.
+  li $t8, 0x0800
+  sll $t6, $t6, 7
+  or $t8, $t8, $t6
+  sh $t8, 104($0)
+  ;; Store YL ($t5), YM ($t3), YH ($t1) as 11.2.
+  srl $t7, $t5, 2
+  srl $t8, $t3, 2
+  srl $t9, $t1, 2
+  sh $t7, 106($0)
+  sh $t8, 108($0)
+  sh $t9, 110($0)
   ;; Slope: y = dy/dx * x + y0
   ;; Inverse Slope: x = dx/dy * y + x0
   ;; $s0 = dx_h = x0 - x2;
@@ -216,6 +234,13 @@ command_3_dy_l_not_0:
   ;; xm = x0 - ((dxmdy * yh_fraction) >> 4);
   ;; xl = x0 + ((dxmdy * (y1 - y0)) >> 4);
 
+  ;; Store XL, XH, XM as 16.16.
+  ;sll $t7, $t0, 12
+  ;sll $t8, $t2, 12
+  ;sll $t9, $t4, 12
+  ;sw $t7, 112($0)
+  ;sw $t8, 120($0)
+  ;sw $t9, 128($0)
 
   sb $0, 0($0)
   b main
@@ -226,12 +251,11 @@ command_4:
   b main
   nop
 
-  ;; Draw square.
+  ;; Draw rectangle.
 command_5:
-  ;; Add Sync Pipe Command.
-  li $t4, DP_OP_SYNC_PIPE << 24
-  sw $0, 92($0)
-  sw $t4, 88($0)
+  ;; Set DP_OP_SET_OTHER_MODES for retangle fill.
+  li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (3 << 20)
+  sw $t8, 88($0)
   ;; Set Fill Color Command: convert R, G, B to (RGBA << 16) | RGBA.
   li $t4, DP_OP_SET_FILL_COLOR << 24
   lb $t0, 48($0)
@@ -254,6 +278,11 @@ command_5:
   lh $t1, 10($0)
   lh $t2, 16($0)
   lh $t3, 18($0)
+  ;; Convert 12.4 fixed point to 10.2.
+  srl $t0, $t0, 2
+  srl $t1, $t1, 2
+  srl $t2, $t2, 2
+  srl $t3, $t3, 2
   ;; $t2 = XL
   ;; $t3 = YL
   sll $t2, $t2, 12
@@ -266,8 +295,8 @@ command_5:
   sw $t1, 108($0)
   sb $t4, 104($0)
   ;; Draw it.
-  li $t1, 88
-  li $t2, 3 * 8
+  li $t1, 80
+  li $t2, 4 * 8
   jal start_rdp
   nop
   jal wait_for_rdp

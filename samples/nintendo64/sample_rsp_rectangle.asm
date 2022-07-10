@@ -166,19 +166,19 @@ setup_rdp_loop:
   nop
 
   ;; Draw red rectangle at (100.0, 90.0) to (150.0, 120.0).
-  li $t0, 100 << 2
-  li $t1,  90 << 2
-  li $t2, 150 << 2
-  li $t3, 120 << 2
+  li $t0, 100 << 4
+  li $t1,  90 << 4
+  li $t2, 150 << 4
+  li $t3, 120 << 4
   li $t4, COLOR(255, 0, 0)
   jal draw_rectangle
   nop
 
   ;; Draw green rectangle at (200.0, 50.0) to (250.0, 90.0).
-  li $t0, 200 << 2
-  li $t1,  50 << 2
-  li $t2, 250 << 2
-  li $t3,  90 << 2
+  li $t0, 200 << 4
+  li $t1,  50 << 4
+  li $t2, 250 << 4
+  li $t3,  90 << 4
   li $t4, COLOR(0, 255, 0)
   jal draw_rectangle
   nop
@@ -258,6 +258,7 @@ dp_setup:
   .dc64 (DP_OP_SET_COLOR_IMAGE << 56) | (2 << 51) | (319 << 32) | 0x10_0000
   .dc64 (DP_OP_SET_Z_IMAGE << 56) | (0x10_0000 + (320 * 240 * 2))
   .dc64 (DP_OP_SET_SCISSOR << 56) | ((320 << 2) << 12) | (240 << 2)
+  .dc64 (DP_OP_SYNC_PIPE << 56)
   .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (3 << 52)
 dp_setup_end:
 

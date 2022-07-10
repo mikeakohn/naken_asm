@@ -193,7 +193,7 @@ send_rdp_setup_wait_for_rsp:
   jr $ra
   nop
 
-;; draw_rectange($t0=x0, $t1=y0, $t2=x1, $t3=y1, $t4=color);
+;; draw_triangle($t0=x0, $t1=y0, $t2=x1, $t3=y1, $t4=x2, $t5=y2, $t6=color);
 draw_triangle:
   li $a0, KSEG1 | RSP_DMEM
   ;; (X0, Y0)
@@ -256,6 +256,7 @@ dp_setup:
   .dc64 (DP_OP_SET_COLOR_IMAGE << 56) | (2 << 51) | (319 << 32) | 0x10_0000
   .dc64 (DP_OP_SET_Z_IMAGE << 56) | (0x10_0000 + (320 * 240 * 2))
   .dc64 (DP_OP_SET_SCISSOR << 56) | ((320 << 2) << 12) | (240 << 2)
+  .dc64 (DP_OP_SYNC_PIPE << 56)
   .dc64 (DP_OP_SET_OTHER_MODES << 56) | (1 << 55) | (3 << 52)
 dp_setup_end:
 
