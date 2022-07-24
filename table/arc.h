@@ -30,11 +30,27 @@ enum
   OP_R0,
   OP_GP,
   OP_SP,
+
+  OP_A_PAREN_B_S9,
+  OP_C_PAREN_B_S9,
+
+  OP_A_PAREN_B_C,
+  OP_B_PAREN_PCL_U10,
+  OP_B_PAREN_SP_U7,
+  OP_C_PAREN_B_U5,
+  OP_C_PAREN_B_U6,
+  OP_C_PAREN_B_U7,
+  OP_R0_PAREN_GP_S10,
+  OP_R0_PAREN_GP_S11,
+  OP_R0_PAREN_GP_S9,
 };
 
-#define F_F  1
-#define F_CC 2
-#define F_D 3
+//#define F_F  1
+//#define F_CC 2
+//#define F_D 3
+
+#define FLAG_NONE 0
+#define FLAG_ZERO 1
 
 struct _table_arc
 {
@@ -67,8 +83,11 @@ extern struct _table_arc16 table_arc16[];
 
 extern struct _table_arc_op table_arc_alu[];
 extern struct _table_arc_op table_arc_alu16[];
+extern struct _table_arc table_arc_load_store[];
+extern struct _table_arc table_arc_load_store16[];
+
 extern struct _table_arc_op table_arc_single[];
-extern struct _table_arc_op table_arc_special[];
+//extern struct _table_arc_op table_arc_special[];
 
 #endif
 

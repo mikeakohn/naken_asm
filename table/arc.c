@@ -88,25 +88,6 @@ struct _table_arc16 table_arc16[] =
 
   // FIXME: Change the format so all the operands are seprated and probably
   //        combine with 32 bit instructions.
-  { "ld_s",   0x6000, 0xf818, OP_A_PAREN_B_C },
-  { "ldb_s",  0x6008, 0xf818, OP_A_PAREN_B_C },
-  { "ldw_s",  0x6010, 0xf818, OP_A_PAREN_B_C },
-  { "ld_s",   0x8000, 0xf800, OP_C_PAREN_B_U7 },
-  { "ldb_s",  0x8800, 0xf800, OP_C_PAREN_B_U5 },
-  { "ldw_s",  0x9000, 0xf800, OP_C_PAREN_B_U6 },
-  { "ldw_s.x",0x9800, 0xf800, OP_C_PAREN_B_U6 },
-  { "ld_s",   0xc000, 0xf8e0, OP_B_PAREN_SP_U7 },
-  { "ldb_s",  0xc020, 0xf8e0, OP_B_PAREN_SP_U7 },
-  { "ld_s",   0xc800, 0xfe00, OP_R0_PAREN_GP_S11 },
-  { "ldb_s",  0xca00, 0xfe00, OP_R0_PAREN_GP_S9 },
-  { "ldw_s",  0xcc00, 0xfe00, OP_R0_PAREN_GP_S10 },
-  { "ld_s",   0xd000, 0xf800, OP_B_PAREN_PCL_U10 },
-
-  { "st_s",   0xa000, 0xf800, OP_C_PAREN_B_U7 },
-  { "stb_s",  0xa800, 0xf800, OP_C_PAREN_B_U5 },
-  { "stw_s",  0xb000, 0xf800, OP_C_PAREN_B_U6 },
-  { "st_s",   0xc040, 0xf8e0, OP_B_PAREN_SP_U7 },
-  { "stb_s",  0xc060, 0xf8e0, OP_B_PAREN_SP_U7 },
 #endif
 
   { NULL, 0, 0, 0 },
@@ -243,6 +224,59 @@ struct _table_arc_op table_arc_special[] =
   { NULL,     0x00, 0 },
 };
 
+struct _table_arc table_arc_load_store[] =
+{
+  // ld<zz><.x><.aa><di> a, [b, s9]
+  // ld<zz><.x><di>      a, [limm]       (s = 0, b = limm, aa = 0)
+  { "ld",     0x10000000, 0xf8000180, OP_A_PAREN_B_S9, FLAG_ZERO },
+  { "ldb",    0x10000080, 0xf8000180, OP_A_PAREN_B_S9, FLAG_ZERO },
+  { "ldw",    0x10000100, 0xf8000180, OP_A_PAREN_B_S9, FLAG_ZERO },
+  //{ "ld",     0x16007000, 0xfffff780, OP_A_PAREN_LIMM, FLAG_ZERO },
+  //{ "ldb",    0x10007080, 0xfffff780, OP_A_PAREN_LIMM, FLAG_ZERO },
+  //{ "ldw",    0x10007100, 0xfffff780, OP_A_PAREN_LIMM, FLAG_ZERO },
+
+  // ld<zz><.x><.aa><di> a, [b, c]
+  // ld<zz><.x><.aa><di> a, [b, limm]    (c = limm)
+  // ld<zz><.x><di>      a, [limm, c]    (b = limm)
+  { "ld",     0x203e0000, 0xf8000000, OP_A_PAREN_B_C,  FLAG_ZERO },
+  { "ldb",    0x203e0080, 0xf8000000, OP_A_PAREN_B_C,  FLAG_ZERO },
+  { "ldw",    0x203e0100, 0xf8000000, OP_A_PAREN_B_C,  FLAG_ZERO },
+
+  // st<zz><.aa><.di>    c, [b, s9]
+  // st<zz><.di>         c, [limm]       (s = 0, b = limm, aa = 0)
+  // st<zz><.aa><.di>    limm, [b, s9]   (c = limm)
+  { "st",     0x18000000, 0xf8000007, OP_C_PAREN_B_S9, FLAG_NONE },
+  { "stb",    0x18000002, 0xf8000007, OP_C_PAREN_B_S9, FLAG_NONE },
+  { "stw",    0x18000004, 0xf8000007, OP_C_PAREN_B_S9, FLAG_NONE },
+
+  { NULL,     0x00000000, 0x00000000, 0,               0 }
+};
+
+struct _table_arc table_arc_load_store16[] =
+{
+  { "ld_s",   0x6000, 0xf818, OP_A_PAREN_B_C     },
+  { "ldb_s",  0x6008, 0xf818, OP_A_PAREN_B_C     },
+  { "ldw_s",  0x6010, 0xf818, OP_A_PAREN_B_C     },
+  { "ld_s",   0x8000, 0xf800, OP_C_PAREN_B_U7    },
+  { "ldb_s",  0x8800, 0xf800, OP_C_PAREN_B_U5    },
+  { "ldw_s",  0x9000, 0xf800, OP_C_PAREN_B_U6    },
+  { "ldw_s.x",0x9800, 0xf800, OP_C_PAREN_B_U6    },
+  { "ld_s",   0xc000, 0xf8e0, OP_B_PAREN_SP_U7   },
+  { "ldb_s",  0xc020, 0xf8e0, OP_B_PAREN_SP_U7   },
+  { "ld_s",   0xc800, 0xfe00, OP_R0_PAREN_GP_S11 },
+  { "ldb_s",  0xca00, 0xfe00, OP_R0_PAREN_GP_S9  },
+  { "ldw_s",  0xcc00, 0xfe00, OP_R0_PAREN_GP_S10 },
+  { "ld_s",   0xd000, 0xf800, OP_B_PAREN_PCL_U10 },
+
+  { "st_s",   0xa000, 0xf800, OP_C_PAREN_B_U7    },
+  { "stb_s",  0xa800, 0xf800, OP_C_PAREN_B_U5    },
+  { "stw_s",  0xb000, 0xf800, OP_C_PAREN_B_U6    },
+  { "st_s",   0xc040, 0xf8e0, OP_B_PAREN_SP_U7   },
+  { "stb_s",  0xc060, 0xf8e0, OP_B_PAREN_SP_U7   },
+  { NULL,     0x0000, 0x0000, 0                  },
+};
+
+#if 0
 struct _table_arc_op table_arc_single32[] =
 {
   { NULL,    0x00, 0 },
@@ -252,4 +286,5 @@ struct _table_arc_op table_arc_none32[] =
 {
   { NULL,    0x00, 0 },
 };
+#endif
 
