@@ -5,7 +5,12 @@
 ;; mike@mikekohn.net
 ;;
 ;; RSP code for drawing / rotating triangles.
-;;
+
+.n64_rsp
+
+.include "nintendo64/rsp.inc"
+.include "nintendo64/rdp.inc"
+
 ;; DMEM Format Is:
 ;;
 ;; byte   0: 0:Command/Signal | 1:Signal | 4,5:Offset | 6,7:Length
@@ -25,10 +30,52 @@
 ;; byte  96: Polygon Color
 ;; byte 104: Polygon Data
 
-.n64_rsp
+;; v12: Temp for divide (holds the divisor and dividend).
+;; v20: Temp (16.15 fraction reciprocal) in divide.
+;; v21: Temp (16.15 integer reciprocal)for divide.
+;; v22: Integer reciprocal for divide.
+;; v23: Fraction reciprocal for divide.
+;; v24: Integer answer for divide.
+;; v25: Fraction answer for divide.
+;;
+;; $k0: Points to end of scratch pad (16 bytes currently).
+;; $k0(0): Scratch pad.
+;; $k0(8): Scratch pad.
 
-.include "nintendo64/rsp.inc"
-.include "nintendo64/rdp.inc"
+.macro DIVIDE
+  ;; dividend / divisor = quotient becomes
+  ;; (1 / divisor) * dividend = quotient
+
+  ;; Set $v12 to a 16.16 fixed point number (divisor).
+  llv $v12[0], 8($k0)
+
+  ;; From the manual to compute the reciprocal:
+  ;; vrcph sres_int[0],  s_int[0]
+  ;; vrcpl sres_frac[0], s_frac[0]
+  ;; vrcph sres_int[0],  dev_null[0]
+  vrcph $v20[0], $v12[0]
+  vrcpl $v21[0], $v12[1]
+  vrcph $v20[0], $v0[0]
+
+  ;; From the manual, since the reciprocal is S15.16 fixed point, convert
+  ;; it to 16.16 by multiplying by 2.0.
+  ;; vmudn sres_frac, sres_frac, vconst_2[0] # constant of 2
+  ;; vmadm sres_int,  sres_int,  vconst_2[0]
+  ;; vmadn sres_frac, dev_null,  dev_null[0]
+  vmudn $v23, $v21, $v2[0]
+  vmadm $v22, $v20, $v2[0]
+  vmadn $v23, $v0,  $v0[0]
+
+  ;; Load $v12[0] with the dividend.
+  llv $v12[0], 12($k0)
+
+  ;; vmudn sres_frac, sres_frac, dividend[0]
+  ;; vmadm sres_int,  sres_int,  dividend[0]
+  ;; vmadn sres_frac, dev_null,  dev_null[0]
+  vmudn $v25, $v23, $v12[0]
+  vmadm $v24, $v22, $v12[0]
+  vmadn $v25, $v0,  $v0[0]
+.endm
 
 .org 0
 start:
@@ -38,13 +85,10 @@ start:
   ;; Set $v0 to a vector of 0's.
   vxor $v0, $v0, $v0
 
-  ;; Set $v2 to a vector of 2's.
-  li $k1, 0x0202
-  sh $k1,  8($k0)
+  ;; Set $v2[0]=2, $v2[1]=2 for DIVIDE macro.
+  li $k1, 0x0002_0002
+  sw $k1,  8($k0)
   llv $v2[0], 8($k0)
-  llv $v2[4], 8($k0)
-  llv $v2[8], 8($k0)
-  llv $v2[12], 8($k0)
 
   ;; When DP_END_REG is written to, if it doesn't equal to DP_START_REG
   ;; it will start the RDP executing commands.
@@ -241,6 +285,13 @@ command_3_dy_l_not_0:
   ;sw $t7, 112($0)
   ;sw $t8, 120($0)
   ;sw $t9, 128($0)
+
+  ;; Test 4.0 / 2.0.
+  ;;li $t8, 0x2_0000
+  ;;sw $t8, 8($k0)
+  ;;li $t8, 0x4_0000
+  ;;sw $t8, 12($k0)
+  ;;DIVIDE
 
   sb $0, 0($0)
   b main
