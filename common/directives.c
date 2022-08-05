@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -463,7 +463,10 @@ int parse_directives(struct _asm_context *asm_context)
     //int token_type;
 
     tokens_get(asm_context, token, TOKENLEN);
-    symbols_append(&asm_context->symbols, token, asm_context->address);
+    symbols_append(
+      &asm_context->symbols,
+      token,
+      asm_context->address / asm_context->bytes_per_address);
 
     if (symbols_scope_start(&asm_context->symbols) != 0)
     {
