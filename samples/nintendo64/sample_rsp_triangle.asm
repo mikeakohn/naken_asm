@@ -165,11 +165,14 @@ setup_rdp_loop:
   jal send_rdp_setup
   nop
 
-  ;; Draw red rectangle at (100.0, 90.0), (50.0, 120.0), (150.0, 130.0).
+  ;; Draw red rectangle at:
+  ;;  (100.0, 90.0)
   li $t0, 100 << 2
   li $t1,  90 << 2
+  ;;  (50.0, 120.0)
   li $t2,  50 << 2
   li $t3, 120 << 2
+  ;;  (150.0, 130.0)
   li $t4, 150 << 2
   li $t5, 130 << 2
   li $t6, COLOR(255, 0, 0)

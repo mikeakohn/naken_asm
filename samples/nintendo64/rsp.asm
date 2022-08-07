@@ -42,6 +42,12 @@
 ;; $k0(0): Scratch pad.
 ;; $k0(8): Scratch pad.
 
+;; Test 4.0 / 2.0.
+;li $t8, 0x2_0000
+;sw $t8, 8($k0)
+;li $t8, 0x4_0000
+;sw $t8, 12($k0)
+;DIVIDE
 .macro DIVIDE
   ;; dividend / divisor = quotient becomes
   ;; (1 / divisor) * dividend = quotient
@@ -75,6 +81,29 @@
   vmudn $v25, $v23, $v12[0]
   vmadm $v24, $v22, $v12[0]
   vmadn $v25, $v0,  $v0[0]
+
+  ;; Copy result back to DMEM.
+  ssv $v24[0], 8($k0)
+  ssv $v25[0], 10($k0)
+.endm
+
+.macro MULTIPLY
+  llv $v12[0], 8($k0)
+  ;lsv $v12[0], 8($k0)
+  ;lsv $v13[0], 10($k0)
+  lsv $v22[0], 12($k0)
+  lsv $v23[0], 14($k0)
+
+  ;; vmudn sres_frac, sres_frac, dividend[0]
+  ;; vmadm sres_int,  sres_int,  dividend[0]
+  ;; vmadn sres_frac, dev_null,  dev_null[0]
+  vmudn $v25, $v23, $v12[0]
+  vmadh $v24, $v22, $v12[0]
+  vmadn $v25, $v0,  $v0[0]
+
+  ;; Copy result back to DMEM.
+  ssv $v24[0], 8($k0)
+  ssv $v25[0], 10($k0)
 .endm
 
 .org 0
@@ -158,6 +187,10 @@ command_2:
   nop
 
   ;; Calculate triangle and call start_rdp.
+  ;; byte 104: [command] [ YL ] [ YM ]   [ YH ]
+  ;; byte 112: [   XL, frac   ] [ DxLDy, frac ]
+  ;; byte 120: [   XH, frac   ] [ DxHDy, frac ]
+  ;; byte 128: [   XM, frac   ] [ DxMDy, frac ]
 command_3:
   ;; Set DP_OP_SET_OTHER_MODES for retangle fill.
   li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (1 << 20)
@@ -177,9 +210,9 @@ command_3:
   lh $t4, 24($0)
   lh $t5, 26($0)
   ;; Sort vertex so y values go from top to bottom.
-  ;; if (y1 > y2) { swap; }
-  subu $t8, $t3, $t5
-  blez $t8, command_3_skip_swap_0
+  ;; if (y2 < y1) { swap; }
+  slt $t8, $t5, $t3
+  beq $t8, $0, command_3_skip_swap_0
   nop
   move $t8, $t2
   move $t9, $t3
@@ -188,9 +221,9 @@ command_3:
   move $t4, $t8
   move $t5, $t9
 command_3_skip_swap_0:
-  ;; if (y0 > y1) { swap; }
-  subu $t8, $t1, $t3
-  blez $t8, command_3_skip_swap_1
+  ;; if (y1 < y0) { swap; }
+  slt $t8, $t3, $t1
+  beq $t8, $0, command_3_skip_swap_1
   nop
   move $t8, $t0
   move $t9, $t1
@@ -199,9 +232,9 @@ command_3_skip_swap_0:
   move $t2, $t8
   move $t3, $t9
 command_3_skip_swap_1:
-  ;; if (y1 > y2) { swap; }
-  subu $t8, $t3, $t5
-  blez $t8, command_3_skip_swap_2
+  ;; if (y2 < y1) { swap; }
+  slt $t8, $t5, $t3
+  beq $t8, $0, command_3_skip_swap_2
   nop
   move $t8, $t2
   move $t9, $t3
@@ -219,17 +252,17 @@ command_3_not_div_0:
   ;; $t6 = is_left_major = x1 > x0 ? 1 : 0;
   slt $t6, $t0, $t2
   ;; Set command_byte=8, left_major=($t6 << 7), level=0, tile=0.
-  li $t8, 0x0800
+  li $t8, DP_OP_TRIANGLE_NON_SHADED << 8
   sll $t6, $t6, 7
   or $t8, $t8, $t6
   sh $t8, 104($0)
   ;; Store YL ($t5), YM ($t3), YH ($t1) as 11.2.
-  srl $t7, $t5, 2
-  srl $t8, $t3, 2
-  srl $t9, $t1, 2
-  sh $t7, 106($0)
-  sh $t8, 108($0)
-  sh $t9, 110($0)
+  ;srl $t7, $t5, 2
+  ;srl $t8, $t3, 2
+  ;srl $t9, $t1, 2
+  sh $t5, 106($0)
+  sh $t3, 108($0)
+  sh $t1, 110($0)
   ;; Slope: y = dy/dx * x + y0
   ;; Inverse Slope: x = dx/dy * y + x0
   ;; $s0 = dx_h = x0 - x2;
@@ -259,39 +292,93 @@ command_3_dy_m_not_0:
   nop
   li $s5, 1
 command_3_dy_l_not_0:
-  ;; $s0 = dxhdy = (dx_h << 4) / dy_h;
-  ;; $s1 = dxmdy = (dx_m << 4) / dy_m;
-  ;; $s2 = dxldy = (dx_l << 4) / dy_l;
-  sll $s0, $s0, 4
-  sll $s1, $s1, 4
-  sll $s2, $s2, 4
-  sh $s0, 0($k0)
-  sh $s1, 2($k0)
-  sh $s2, 4($k0)
-  lsv $v10[0], 0($k0)
-  lsv $v10[2], 2($k0)
-  lsv $v10[4], 4($k0)
+
+  ;; Shift by 14 to convert from 14.2 to 16.16 (not quite, but good enough).
+  sll $s0, $s0, 14
+  sll $s1, $s1, 14
+  sll $s2, $s2, 14
+  sll $s3, $s3, 14
+  sll $s4, $s4, 14
+  sll $s5, $s5, 14
+
+  ;; $s0 = dxhdy = dx_h / dy_h;  ($s0 / $s3)
+  ;; $s1 = dxmdy = dx_m / dy_m;  ($s1 / $s4)
+  ;; $s2 = dxldy = dx_l / dy_l;  ($s2 / $s5)
+  sw $s3, 8($k0)
+  sw $s0, 12($k0)
+  DIVIDE
+  lw $s0, 8($k0)
+
+  sw $s4, 8($k0)
+  sw $s1, 12($k0)
+  DIVIDE
+  lw $s1, 8($k0)
+
+  sw $s5, 8($k0)
+  sw $s2, 12($k0)
+  DIVIDE
+  lw $s2, 8($k0)
+
+  sw $s2, 116($0)
+  sw $s0, 124($0)
+  sw $s1, 132($0)
+
+  ;; Convert x0, x1, x2 to 16.16 (a little off, but good enough).
+  sll $t7, $t0, 14
+  sll $t8, $t2, 14
+  sll $t9, $t4, 14
+
+  ;; $s3 = yh_fraction = y0 & 0xf;
+  sll $s3, $t1, 14
+  andi $s3, $s3, 0xffff
+
+  ;; $s3 = dxhdy * yh_fraction.
+  sw $s0, 8($k0)
+  sw $s3, 12($k0)
+  MULTIPLY
+  lw $s3, 8($k0)
+
+  ;; $s4 = dxmdy * yh_fraction.
+  sw $s1, 8($k0)
+  ;sw $s3, 12($k0)
+  MULTIPLY
+  lw $s4, 8($k0)
+
+  ;; xh = x0 - (dxhdy * yh_fraction);
+  subu $t8, $t7, $s3
+  sw $t8, 112($0)
+
+  ;; xm = x0 - (dxmdy * yh_fraction);
+  subu $t8, $t7, $s4
+  sw $t8, 128($0)
+
+  ;; xl = x0 + (dxmdy * (y1 - y0));
+  sll $t1, $t1, 14
+  sll $t3, $t3, 14
+  subu $t8, $t3, $t1
+  sw $t8, 8($k0)
+  sw $s4, 12($k0)
+  MULTIPLY
+  lw $s4, 8($k0)
+  addu $t8, $t7, $s4
+  sw $t8, 120($0)
+
+;; 5.5 * 6.5  35.75  0x0023_c000
+li $v0, (5 << 16) | 0x7fff
+li $v1, (6 << 16) | 0x7fff
+sw $v0, 8($k0)
+sw $v1, 12($k0)
+MULTIPLY
+lw $at, 8($k0)
 
 
-  ;; yh_fraction = y0 & 0xf;
-  ;; xh = x0 - ((dxhdy * yh_fraction) >> 4);
-  ;; xm = x0 - ((dxmdy * yh_fraction) >> 4);
-  ;; xl = x0 + ((dxmdy * (y1 - y0)) >> 4);
-
-  ;; Store XL, XH, XM as 16.16.
-  ;sll $t7, $t0, 12
-  ;sll $t8, $t2, 12
-  ;sll $t9, $t4, 12
-  ;sw $t7, 112($0)
-  ;sw $t8, 120($0)
-  ;sw $t9, 128($0)
-
-  ;; Test 4.0 / 2.0.
-  ;;li $t8, 0x2_0000
-  ;;sw $t8, 8($k0)
-  ;;li $t8, 0x4_0000
-  ;;sw $t8, 12($k0)
-  ;;DIVIDE
+  ;; Execute it.
+  li $t1, 80
+  li $t2, 56
+  jal start_rdp
+  nop
+  jal wait_for_rdp
+  nop
 
   sb $0, 0($0)
   b main

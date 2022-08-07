@@ -11,7 +11,7 @@ default: rsp.bin $(PROGRAMS)
 rsp:
 	../../naken_asm $(INCLUDES) -dump_symbols -l -type bin -o rsp.bin rsp.asm
 
-%.z64: %.asm
+%.z64: %.asm rsp.asm
 	../../naken_asm $(INCLUDES) -dump_symbols -l -type bin -o $*.z64 $<
 	./n64crc $*.z64
 

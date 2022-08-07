@@ -63,6 +63,8 @@ public class Triangle
     int dy_m = y0 - y1;
     int dy_l = y1 - y2;
 
+    // FIXME: Why shift just dy_h and dy_m by 4?
+    // This is here to make sure slope doesn't do a div by 0.
     if (dy_h == 0) { dy_h = 1 << 4; }
     if (dy_m == 0) { dy_m = 1 << 4; }
     if (dy_l == 0) { dy_l = 1; }
