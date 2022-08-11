@@ -313,6 +313,7 @@ static char *get_hex(char *token, uint32_t *num)
 static char *get_num(char *token, uint32_t *num)
 {
   uint32_t n;
+
   int s;
 
   *num = 0;
@@ -364,7 +365,7 @@ static char *get_num(char *token, uint32_t *num)
     s++;
   }
 
-  *num = (n * sign) & 0xffff;
+  *num = (n * sign) & 0xffffffff;
 
   return token + s;
 }
