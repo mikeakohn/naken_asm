@@ -88,6 +88,27 @@ static int map16_bit_register(int r)
   return r + 8;
 }
 
+static void *get_aa(int aa)
+{
+  switch (aa)
+  {
+    case 1: return ".aw";
+    case 2: return ".ab";
+    case 3: return ".as";
+    default: return "";
+  }
+}
+
+static int get_s9(int s)
+{
+  int n;
+
+  n = (s >> 16) & 0xff;
+  if ((s & 0x8000) != 0) { n |= 0xffffff00; }
+
+  return n;
+}
+
 int get_cycle_count_arc(unsigned short int opcode)
 {
   return -1;
@@ -120,7 +141,7 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
   char reg_c[32];
   //int offset;
   int immediate;
-  int n, a, c, b, q, f;
+  int n, a, c, b, q, f, aa, s;
   const char *cc = "??";
 
   opcode16 = memory_read16_m(memory, address);
@@ -174,7 +195,6 @@ int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int 
               else
             if (b == LIMM)
             {
-printf("Here\n");
               // xxx.f a,limm,c
               immediate = READ_RAM32(address + 4);
               sprintf(temp, "%s, 0x%04x, %s", reg_a, immediate, reg_c);
@@ -343,10 +363,10 @@ printf("Here\n");
   for (n = 0; table_arc16[n].instr != NULL; n++)
   {
     int o = opcode16 & table_arc16[n].mask;
-    strcpy(instruction, table_arc16[n].instr);
 
     if (table_arc16[n].opcode == o)
     {
+      strcpy(instruction, table_arc16[n].instr);
       int i, size = 2;
       temp[0] = 0;
 
@@ -420,6 +440,212 @@ printf("Here\n");
       if (i == table_arc16[n].operand_count)
       {
         return size;
+      }
+    }
+  }
+
+  // 32 bit load / store.
+  for (n = 0; table_arc_load_store[n].instr != NULL; n++)
+  {
+    int o = opcode & table_arc_load_store[n].mask;
+
+    if (table_arc_load_store[n].opcode == o)
+    {
+      strcpy(instruction, table_arc_load_store[n].instr);
+
+      switch (table_arc_load_store[n].type)
+      {
+        case OP_A_PAREN_B_S9:
+          if (b == LIMM)
+          {
+            immediate = READ_RAM32(address + 4);
+            if (((opcode >> 6) & 1) != 0) { strcat(instruction, ".x"); }
+            if (((opcode >> 11) & 1) != 0) { strcat(instruction, ".d"); }
+
+            if (a == LIMM)
+            {
+              sprintf(temp, "0, [0x%04x]", immediate);
+            }
+              else
+            {
+              sprintf(temp, "r%d, [0x%04x]", a, immediate);
+            }
+            strcat(instruction, temp);
+            return 8;
+          }
+            else
+          {
+            if (((opcode >> 6) & 1) != 0) { strcat(instruction, ".x"); }
+            aa = (opcode >> 9) & 0x3;
+            strcat(instruction, get_aa(aa));
+            if (((opcode >> 11) & 1) != 0) { strcat(instruction, ".d"); }
+            s = get_s9(opcode);
+
+            if (a == LIMM)
+            {
+              sprintf(temp, "0, [r%d, %d]", b, s);
+            }
+              else
+            {
+              sprintf(temp, "r%d, [r%d, %d]", a, b, s);
+            }
+            strcat(instruction, temp);
+            return 4;
+          }
+        case OP_A_PAREN_B_C:
+          if (b == LIMM)
+          {
+            immediate = READ_RAM32(address + 4);
+            if (((opcode >> 6) & 1) != 0) { strcat(instruction, ".x"); }
+            aa = (opcode >> 9) & 0x3;
+            strcat(instruction, get_aa(aa));
+            if (((opcode >> 11) & 1) != 0) { strcat(instruction, ".d"); }
+
+            if (a == LIMM)
+            {
+              sprintf(temp, "0, [0x%04x, r%d]", immediate, c);
+            }
+              else
+            {
+              sprintf(temp, "r%d, [0x%04x, r%d]", a, immediate, c);
+            }
+            strcat(instruction, temp);
+            return 8;
+          }
+            else
+          if (c == LIMM)
+          {
+            immediate = READ_RAM32(address + 4);
+            if (((opcode >> 6) & 1) != 0) { strcat(instruction, ".x"); }
+            if (((opcode >> 11) & 1) != 0) { strcat(instruction, ".d"); }
+
+            if (a == LIMM)
+            {
+              sprintf(temp, "0, [r%d, 0x%04x]", b, immediate);
+            }
+              else
+            {
+              sprintf(temp, "r%d, [r%d, 0x%04x]", a, b, immediate);
+            }
+            strcat(instruction, temp);
+            return 8;
+          }
+            else
+          {
+            if (((opcode >> 6) & 1) != 0) { strcat(instruction, ".x"); }
+            aa = (opcode >> 9) & 0x3;
+            strcat(instruction, get_aa(aa));
+            if (((opcode >> 11) & 1) != 0) { strcat(instruction, ".d"); }
+
+            if (a == LIMM)
+            {
+              sprintf(temp, "0 [r%d, r%d]", b, c);
+            }
+              else
+            {
+              sprintf(temp, "r%d, [r%d, r%d]", a, b, c);
+            }
+            strcat(instruction, temp);
+            return 4;
+          }
+        case OP_C_PAREN_B_S9:
+          if (b == LIMM)
+          {
+            immediate = READ_RAM32(address + 4);
+            if (((opcode >> 11) & 1) != 0) { strcat(instruction, ".d"); }
+
+            sprintf(temp, "r%d, [0x%04x]", c, immediate);
+            strcat(instruction, temp);
+            return 8;
+          }
+            else
+          if (c == LIMM)
+          {
+            immediate = READ_RAM32(address + 4);
+            if (((opcode >> 11) & 1) != 0) { strcat(instruction, ".d"); }
+            s = get_s9(opcode);
+
+            sprintf(temp, "0x%04x, [r%d, %d]", immediate, b, s);
+            strcat(instruction, temp);
+            return 8;
+          }
+            else
+          {
+            aa = (opcode >> 9) & 0x3;
+            strcat(instruction, get_aa(aa));
+            if (((opcode >> 11) & 1) != 0) { strcat(instruction, ".d"); }
+            s = get_s9(opcode);
+
+            sprintf(temp, "r%d, [r%d, %d]", c, b, s);
+            strcat(instruction, temp);
+            return 4;
+          }
+        default:
+          break;
+      }
+    }
+  }
+
+  // 16 bit load / store.
+  for (n = 0; table_arc_load_store16[n].instr != NULL; n++)
+  {
+    int o = opcode16 & table_arc_load_store16[n].mask;
+
+    if (table_arc_load_store16[n].opcode == o)
+    {
+      strcpy(instruction, table_arc_load_store16[n].instr);
+
+      int a = map16_bit_register(opcode16 & 0x7);
+      int b = map16_bit_register((opcode16 >> 8) & 0x7);
+      int c = map16_bit_register((opcode16 >> 5) & 0x7);
+      int s;
+
+      switch (table_arc_load_store16[n].type)
+      {
+        case OP_A_PAREN_B_C:
+          sprintf(temp, "r%d, [r%d, r%d]", a, b, c);
+          strcat(instruction, temp);
+          return 2;
+        case OP_B_PAREN_PCL_U10:
+          sprintf(temp, "r%d, [pcl, %d]", b, (opcode16 & 0xff) << 2);
+          strcat(instruction, temp);
+          return 2;
+        case OP_B_PAREN_SP_U7:
+          sprintf(temp, "r%d, [sp, %d]", b, (opcode16 & 0x1f) << 2);
+          strcat(instruction, temp);
+          return 2;
+        case OP_C_PAREN_B_U5:
+          sprintf(temp, "r%d, [r%d, %d]", c, b, opcode16 & 0x1f);
+          strcat(instruction, temp);
+          return 2;
+        case OP_C_PAREN_B_U6:
+          sprintf(temp, "r%d, [r%d, %d]", c, b, (opcode16 & 0x1f) << 1);
+          strcat(instruction, temp);
+          return 2;
+        case OP_C_PAREN_B_U7:
+          sprintf(temp, "r%d, [r%d, %d]", c, b, (opcode16 & 0x1f) << 2);
+          strcat(instruction, temp);
+          return 2;
+        case OP_R0_PAREN_GP_S10:
+          s = opcode16 & 0x1ff;
+          if ((s & 0x100) != 0) { s |= 0xffffff00; }
+          sprintf(temp, "r0, [gp, %d]", s << 1);
+          strcat(instruction, temp);
+          return 2;
+        case OP_R0_PAREN_GP_S11:
+          s = opcode16 & 0x1ff;
+          if ((s & 0x100) != 0) { s |= 0xffffff00; }
+          sprintf(temp, "r0, [gp, %d]", s << 2);
+          strcat(instruction, temp);
+          return 2;
+        case OP_R0_PAREN_GP_S9:
+          s = opcode16 & 0x1ff;
+          if ((s & 0x100) != 0) { s |= 0xffffff00; }
+          sprintf(temp, "r0, [gp, %d]", s);
+          strcat(instruction, temp);
+          return 2;
+        default:
+          break;
       }
     }
   }

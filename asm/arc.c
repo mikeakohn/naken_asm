@@ -837,6 +837,8 @@ for (n = 0; n < operand_count; n++)
                (load_flags.x_flag << 7);
 
               add_bin(asm_context, opcode, IS_OPCODE);
+
+              return 4;
             }
           }
             else
@@ -855,6 +857,8 @@ for (n = 0; n < operand_count; n++)
                (load_flags.x_flag << 7);
 
               add_bin(asm_context, opcode, IS_OPCODE);
+
+              return 4;
             }
           }
         }
@@ -876,6 +880,8 @@ for (n = 0; n < operand_count; n++)
 
             add_bin(asm_context, opcode, IS_OPCODE);
             add_bin(asm_context, operands[1].value, IS_OPCODE);
+
+            return 8;
           }
             else
           if (operands[0].type == OPERAND_NUMBER && operands[0].value == 0)
@@ -888,8 +894,12 @@ for (n = 0; n < operand_count; n++)
 
             add_bin(asm_context, opcode, IS_OPCODE);
             add_bin(asm_context, operands[1].value, IS_OPCODE);
+
+            return 8;
           }
         }
+
+        break;
       }
       case OP_A_PAREN_B_C:
       {
@@ -912,6 +922,8 @@ for (n = 0; n < operand_count; n++)
              (load_flags.x_flag << 7);
 
             add_bin(asm_context, opcode, IS_OPCODE);
+
+            return 4;
           }
             else
           if (operands[0].type == OPERAND_NUMBER && operands[0].value == 0)
@@ -925,6 +937,8 @@ for (n = 0; n < operand_count; n++)
              (load_flags.x_flag << 7);
 
             add_bin(asm_context, opcode, IS_OPCODE);
+
+            return 4;
           }
         }
           else
@@ -948,6 +962,8 @@ for (n = 0; n < operand_count; n++)
 
             add_bin(asm_context, opcode, IS_OPCODE);
             add_bin(asm_context, operands[2].value, IS_OPCODE);
+
+            return 8;
           }
             else
           if (operands[0].value == OPERAND_NUMBER)
@@ -962,6 +978,8 @@ for (n = 0; n < operand_count; n++)
 
             add_bin(asm_context, opcode, IS_OPCODE);
             add_bin(asm_context, operands[2].value, IS_OPCODE);
+
+            return 8;
           }
         }
           else
@@ -986,6 +1004,8 @@ for (n = 0; n < operand_count; n++)
 
             add_bin(asm_context, opcode, IS_OPCODE);
             add_bin(asm_context, operands[1].value, IS_OPCODE);
+
+            return 8;
           }
             else
           if (operands[0].value == OPERAND_NUMBER)
@@ -1000,8 +1020,12 @@ for (n = 0; n < operand_count; n++)
 
             add_bin(asm_context, opcode, IS_OPCODE);
             add_bin(asm_context, operands[1].value, IS_OPCODE);
+
+            return 8;
           }
         }
+
+        break;
       }
       case OP_C_PAREN_B_S9:
       {
@@ -1028,6 +1052,8 @@ for (n = 0; n < operand_count; n++)
              (load_flags.aa_flag << 9);
 
             add_bin(asm_context, opcode, IS_OPCODE);
+
+            return 4;
           }
         }
           else
@@ -1046,6 +1072,8 @@ for (n = 0; n < operand_count; n++)
 
             add_bin(asm_context, opcode, IS_OPCODE);
             add_bin(asm_context, operands[1].value, IS_OPCODE);
+
+            return 8;
         }
           else
         if (operand_count == 3 &&
@@ -1069,17 +1097,21 @@ for (n = 0; n < operand_count; n++)
 
             add_bin(asm_context, opcode, IS_OPCODE);
             add_bin(asm_context, operands[0].value, IS_OPCODE);
+
+            return 8;
           }
         }
+
+        break;
       }
       default:
       {
+printf("%d %d\n", table_arc_load_store[n].type, OP_A_PAREN_B_S9);
         print_error_internal(asm_context, __FILE__, __LINE__);
         return -1;
       }
     }
   }
-
 
   if (found == 1)
   {
