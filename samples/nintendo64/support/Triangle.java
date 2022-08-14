@@ -69,10 +69,26 @@ public class Triangle
     if (dy_m == 0) { dy_m = 1 << 4; }
     if (dy_l == 0) { dy_l = 1; }
 
-    // FIXME: Why the shift by 4?
+System.out.printf("x0=%04x\n", x0);
+System.out.printf("x2=%04x\n", x2);
+System.out.printf("dx_h=%04x\n", (x0 << 12) - (x2 << 12));
+System.out.printf("dx_h=%04x\n\n", dx_h << 12);
+
+System.out.printf("dx_h=%04x\n", dx_h);
+System.out.printf("dx_m=%04x\n", dx_m);
+System.out.printf("dx_l=%04x\n", dx_l);
+
+    // Shift by 4 is needed for fixed point division.
     int dxhdy = (dx_h << 4) / dy_h;
     int dxmdy = (dx_m << 4) / dy_m;
     int dxldy = (dx_l << 4) / dy_l;
+
+System.out.printf("dy_h=%04x\n", dy_h);
+System.out.printf("dy_m=%04x\n", dy_m);
+System.out.printf("dy_l=%04x\n", dy_l);
+
+System.out.printf("dxhdy=%04x\n", dxhdy << 12);
+System.out.printf("dxmdy=%04x\n", dxmdy << 12);
 
     // XM is the X coordinate where the middle minor edge hits trunc(y0).
     // XH is the X coordinate where the major edge hits trunc(y0).

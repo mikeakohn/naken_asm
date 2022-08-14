@@ -166,15 +166,15 @@ setup_rdp_loop:
   nop
 
   ;; Draw red rectangle at:
-  ;;  (100.0, 90.0)
-  li $t0, 100 << 2
-  li $t1,  90 << 2
-  ;;  (50.0, 120.0)
-  li $t2,  50 << 2
-  li $t3, 120 << 2
-  ;;  (150.0, 130.0)
-  li $t4, 150 << 2
-  li $t5, 130 << 2
+  ;;  (150.0, 120.25)
+  li $t0, 150 << 2
+  li $t1, (120 << 2) | 1
+  ;;  (170.0, 170.5)
+  li $t2, 170 << 2
+  li $t3, (170 << 2) | 2
+  ;;  (110.0, 190.75)
+  li $t4, 110 << 2
+  li $t5, (190 << 2) | 3
   li $t6, COLOR(255, 0, 0)
   jal draw_triangle
   nop
@@ -213,6 +213,7 @@ draw_triangle:
   sw $t4, 24($a0)
   ;; Color
   sw $t6, 48($a0)
+  ;sw $t6, 96($a0)
   ;; Set command to draw_triangle.
   li $t0, 3 << 24
   sw $t0, 0($a0)

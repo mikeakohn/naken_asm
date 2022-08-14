@@ -43,43 +43,55 @@
 ;; $k0(8): Scratch pad.
 
 ;; Test 4.0 / 2.0.
-;li $t8, 0x2_0000
-;sw $t8, 8($k0)
 ;li $t8, 0x4_0000
+;sw $t8, 8($k0)
+;li $t8, 0x2_0000
 ;sw $t8, 12($k0)
-;DIVIDE
-.macro DIVIDE
+;DIVIDE_I_IF
+.macro DIVIDE_I_IF
   ;; dividend / divisor = quotient becomes
   ;; (1 / divisor) * dividend = quotient
 
   ;; Set $v12 to a 16.16 fixed point number (divisor).
-  llv $v12[0], 8($k0)
+  llv $v12[0], 12($k0)
 
   ;; From the manual to compute the reciprocal:
-  ;; vrcph sres_int[0],  s_int[0]
-  ;; vrcpl sres_frac[0], s_frac[0]
-  ;; vrcph sres_int[0],  dev_null[0]
+  ;; vrcph res_int[0],  s_int[0]
+  ;; vrcpl res_frac[0], s_frac[0]
+  ;; vrcph res_int[0],  dev_null[0]
   vrcph $v20[0], $v12[0]
   vrcpl $v21[0], $v12[1]
   vrcph $v20[0], $v0[0]
 
   ;; From the manual, since the reciprocal is S15.16 fixed point, convert
   ;; it to 16.16 by multiplying by 2.0.
-  ;; vmudn sres_frac, sres_frac, vconst_2[0] # constant of 2
-  ;; vmadm sres_int,  sres_int,  vconst_2[0]
-  ;; vmadn sres_frac, dev_null,  dev_null[0]
-  vmudn $v23, $v21, $v2[0]
-  vmadm $v22, $v20, $v2[0]
-  vmadn $v23, $v0,  $v0[0]
+  ;; vmudn res_frac, s_frac,    vconst_2[0] # constant of 2
+  ;; vmadm res_int,  s_int,     vconst_2[0]
+  ;; vmadn res_frac, dev_null,  dev_null[0]
+  ;vmudn $v23, $v21, $v2[0]
+  ;vmadm $v22, $v20, $v2[0]
+  ;vmadn $v23, $v0,  $v0[0]
+
+  ;; The above code for multiplying the reciprocal by 2 doesn't seem
+  ;; to work with signed numbers. The code below does. Sometime later
+  ;; need to figure out why.
+  ssv $v20[0], 12($k0)
+  ssv $v21[0], 14($k0)
+  lw $v0, 8($k0)
+  sll $v0, $v0, 1
+  sw $v0, 8($k0)
+  lsv $v22[0], 12($k0)
+  lsv $v23[0], 14($k0)
 
   ;; Load $v12[0] with the dividend.
-  llv $v12[0], 12($k0)
+  llv $v12[0], 8($k0)
 
-  ;; vmudn sres_frac, sres_frac, dividend[0]
-  ;; vmadm sres_int,  sres_int,  dividend[0]
-  ;; vmadn sres_frac, dev_null,  dev_null[0]
+  ;; IF * I = IF
+  ;; vmudn res_frac, s_frac,   dividend_int[0]
+  ;; vmadh res_int,  s_int,    dividend_int[0]
+  ;; vmadn res_frac, dev_null, dev_null[0]
   vmudn $v25, $v23, $v12[0]
-  vmadm $v24, $v22, $v12[0]
+  vmadh $v24, $v22, $v12[0]
   vmadn $v25, $v0,  $v0[0]
 
   ;; Copy result back to DMEM.
@@ -87,18 +99,80 @@
   ssv $v25[0], 10($k0)
 .endm
 
-.macro MULTIPLY
-  llv $v12[0], 8($k0)
-  ;lsv $v12[0], 8($k0)
-  ;lsv $v13[0], 10($k0)
-  lsv $v22[0], 12($k0)
-  lsv $v23[0], 14($k0)
+;; IF * I = IF
+.macro MULTIPLY_IFxI
+  lsv $v22[0], 8($k0)  ; s_int
+  lsv $v23[0], 10($k0) ; s_frac
+  llv $v12[0], 12($k0) ; t_int / t_frac
 
-  ;; vmudn sres_frac, sres_frac, dividend[0]
-  ;; vmadm sres_int,  sres_int,  dividend[0]
-  ;; vmadn sres_frac, dev_null,  dev_null[0]
+  ;; vmudn res_frac, s_frac,   t_int
+  ;; vmadh res_int,  s_int,    t_int
+  ;; vmadn res_frac, dev_null, dev_null[0]
   vmudn $v25, $v23, $v12[0]
   vmadh $v24, $v22, $v12[0]
+  vmadn $v25, $v0,  $v0[0]
+
+  ;; Copy result back to DMEM.
+  ssv $v24[0], 8($k0)
+  ssv $v25[0], 10($k0)
+.endm
+
+;; I * IF = IF
+.macro MULTIPLY_IxIF
+  lsv $v22[0], 8($k0)  ; s_int
+  llv $v12[0], 12($k0) ; t_int / t_frac
+
+  ;; vmudm res_frac, s_int,    t_frac
+  ;; vmadh res_int,  s_int,    t_int
+  ;; vmadn res_frac, dev_null, dev_null[0]
+  vmudm $v25, $v22, $v12[1]
+  vmadh $v24, $v22, $v12[0]
+  vmadn $v25, $v0,  $v0[0]
+
+  ;; Copy result back to DMEM.
+  ssv $v24[0], 8($k0)
+  ssv $v25[0], 10($k0)
+.endm
+
+;; IF * F = IF
+.macro MULTIPLY_IFxF
+  lsv $v22[0], 8($k0)  ; s_int
+  lsv $v23[0], 10($k0) ; s_frac
+  llv $v12[0], 12($k0) ; t_int / t_frac
+
+  ;; vmudl res_frac, s_frac,   t_frac
+  ;; vmadh res_int,  s_int,    t_frac
+  ;; vmadn res_frac, dev_null, dev_null[0]
+  vmudl $v25, $v23, $v12[1]
+  vmadm $v24, $v22, $v12[1]
+  vmadn $v25, $v0,  $v0[0]
+
+  ;; Copy result back to DMEM.
+  ssv $v24[0], 8($k0)
+  ssv $v25[0], 10($k0)
+.endm
+
+;; I * I = I
+.macro MULTIPLY_IxI
+  lsv $v22[0], 8($k0)  ; s_int
+  lsv $v12[0], 12($k0) ; t_int
+
+  ;; vmudh res_int, s_int, t_int
+  vmudh $v24, $v22, $v12[0]
+
+  ;; Copy result back to DMEM.
+  ssv $v24[0], 8($k0)
+  sh $0, 10($k0)
+.endm
+
+;; I * F = IF
+.macro MULTIPLY_IxF
+  lsv $v22[0], 8($k0)  ; s_int
+  llv $v12[0], 12($k0) ; t_int / t_frac
+
+  ;; vmudm res_int,  s_int,    t_frac
+  ;; vmadn res_frac, dev_null, dev_null[0]
+  vmudm $v24, $v22, $v12[1]
   vmadn $v25, $v0,  $v0[0]
 
   ;; Copy result back to DMEM.
@@ -193,10 +267,12 @@ command_2:
   ;; byte 128: [   XM, frac   ] [ DxMDy, frac ]
 command_3:
   ;; Set DP_OP_SET_OTHER_MODES for retangle fill.
-  li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (1 << 20)
+  li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23)
   sw $t8, 88($0)
+  li $t8, (1 << 31)
+  sw $t8, 92($0)
   ;; Color: $t6
-  li $t8, DP_OP_SET_FILL_COLOR << 24
+  li $t8, DP_OP_SET_BLEND_COLOR << 24
   lw $t9,  48($0)
   sw $t8,  96($0)
   sw $t9, 100($0)
@@ -257,9 +333,6 @@ command_3_not_div_0:
   or $t8, $t8, $t6
   sh $t8, 104($0)
   ;; Store YL ($t5), YM ($t3), YH ($t1) as 11.2.
-  ;srl $t7, $t5, 2
-  ;srl $t8, $t3, 2
-  ;srl $t9, $t1, 2
   sh $t5, 106($0)
   sh $t3, 108($0)
   sh $t1, 110($0)
@@ -302,21 +375,21 @@ command_3_dy_l_not_0:
   sll $s5, $s5, 14
 
   ;; $s0 = dxhdy = dx_h / dy_h;  ($s0 / $s3)
-  ;; $s1 = dxmdy = dx_m / dy_m;  ($s1 / $s4)
-  ;; $s2 = dxldy = dx_l / dy_l;  ($s2 / $s5)
-  sw $s3, 8($k0)
-  sw $s0, 12($k0)
-  DIVIDE
+  sw $s0, 8($k0)
+  sw $s3, 12($k0)
+  DIVIDE_I_IF
   lw $s0, 8($k0)
 
-  sw $s4, 8($k0)
-  sw $s1, 12($k0)
-  DIVIDE
+  ;; $s1 = dxmdy = dx_m / dy_m;  ($s1 / $s4)
+  sw $s1, 8($k0)
+  sw $s4, 12($k0)
+  DIVIDE_I_IF
   lw $s1, 8($k0)
 
-  sw $s5, 8($k0)
-  sw $s2, 12($k0)
-  DIVIDE
+  ;; $s2 = dxldy = dx_l / dy_l;  ($s2 / $s5)
+  sw $s2, 8($k0)
+  sw $s5, 12($k0)
+  DIVIDE_I_IF
   lw $s2, 8($k0)
 
   sw $s2, 116($0)
@@ -325,28 +398,28 @@ command_3_dy_l_not_0:
 
   ;; Convert x0, x1, x2 to 16.16 (a little off, but good enough).
   sll $t7, $t0, 14
-  sll $t8, $t2, 14
-  sll $t9, $t4, 14
+  ;;sll $t8, $t2, 14
+  ;;sll $t9, $t4, 14
 
   ;; $s3 = yh_fraction = y0 & 0xf;
   sll $s3, $t1, 14
   andi $s3, $s3, 0xffff
 
-  ;; $s3 = dxhdy * yh_fraction.
+  ;; $s5 = dxhdy * yh_fraction.
   sw $s0, 8($k0)
   sw $s3, 12($k0)
-  MULTIPLY
-  lw $s3, 8($k0)
+  MULTIPLY_IFxF
+  lw $s5, 8($k0)
 
   ;; $s4 = dxmdy * yh_fraction.
   sw $s1, 8($k0)
-  ;sw $s3, 12($k0)
-  MULTIPLY
+  sw $s3, 12($k0)
+  MULTIPLY_IFxF
   lw $s4, 8($k0)
 
   ;; xh = x0 - (dxhdy * yh_fraction);
-  subu $t8, $t7, $s3
-  sw $t8, 112($0)
+  subu $t8, $t7, $s5
+  sw $t8, 120($0)
 
   ;; xm = x0 - (dxmdy * yh_fraction);
   subu $t8, $t7, $s4
@@ -356,21 +429,33 @@ command_3_dy_l_not_0:
   sll $t1, $t1, 14
   sll $t3, $t3, 14
   subu $t8, $t3, $t1
-  sw $t8, 8($k0)
-  sw $s4, 12($k0)
-  MULTIPLY
+  sw $s1, 8($k0)
+  sw $t8, 12($k0)
+  MULTIPLY_IFxI
   lw $s4, 8($k0)
   addu $t8, $t7, $s4
-  sw $t8, 120($0)
+  sw $t8, 112($0)
 
 ;; 5.5 * 6.5  35.75  0x0023_c000
-li $v0, (5 << 16) | 0x7fff
-li $v1, (6 << 16) | 0x7fff
-sw $v0, 8($k0)
-sw $v1, 12($k0)
-MULTIPLY
-lw $at, 8($k0)
+;li $v0, (5 << 16) | 0x7fff
+;li $v1, (6 << 16) | 0x7fff
+;; 6 * 0.4 = 2.4
+;li $v0, 0x6666
+;li $v1, (6 << 16) | 0x7fff
+;sw $v0, 8($k0)
+;sw $v1, 12($k0)
+;MULTIPLY_IFxI
+;lw $at, 8($k0)
 
+;; 6.5 / -2.5 = -2.40
+;; DEBUG
+;li $v0, (6 << 16) | 0x8000
+;li $v1, (2 << 16) | 0x8000
+;subu $v1, $0, $v1
+;sw $v0, 8($k0)
+;sw $v1, 12($k0)
+;DIVIDE_I_IF
+;lw $at, 8($k0)
 
   ;; Execute it.
   li $t1, 80
