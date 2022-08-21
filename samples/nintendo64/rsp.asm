@@ -333,9 +333,12 @@ command_3_not_div_0:
   or $t8, $t8, $t6
   sh $t8, 104($0)
   ;; Store YL ($t5), YM ($t3), YH ($t1) as 11.2.
-  sh $t5, 106($0)
-  sh $t3, 108($0)
-  sh $t1, 110($0)
+  sll $at, $t5, 2
+  sh $at, 106($0)
+  sll $at, $t3, 2
+  sh $at, 108($0)
+  sll $at, $t1, 2
+  sh $at, 110($0)
   ;; Slope: y = dy/dx * x + y0
   ;; Inverse Slope: x = dx/dy * y + x0
   ;; $s0 = dx_h = x0 - x2;
@@ -367,12 +370,12 @@ command_3_dy_m_not_0:
 command_3_dy_l_not_0:
 
   ;; Shift by 14 to convert from 14.2 to 16.16 (not quite, but good enough).
-  sll $s0, $s0, 14
-  sll $s1, $s1, 14
-  sll $s2, $s2, 14
-  sll $s3, $s3, 14
-  sll $s4, $s4, 14
-  sll $s5, $s5, 14
+  sll $s0, $s0, 16
+  sll $s1, $s1, 16
+  sll $s2, $s2, 16
+  sll $s3, $s3, 16
+  sll $s4, $s4, 16
+  sll $s5, $s5, 16
 
   ;; $s0 = dxhdy = dx_h / dy_h;  ($s0 / $s3)
   sw $s0, 8($k0)
@@ -397,12 +400,12 @@ command_3_dy_l_not_0:
   sw $s1, 132($0)
 
   ;; Convert x0, x1, x2 to 16.16 (a little off, but good enough).
-  sll $t7, $t0, 14
-  ;;sll $t8, $t2, 14
-  ;;sll $t9, $t4, 14
+  sll $t7, $t0, 16
+  ;;sll $t8, $t2, 16
+  ;;sll $t9, $t4, 16
 
   ;; $s3 = yh_fraction = y0 & 0xf;
-  sll $s3, $t1, 14
+  sll $s3, $t1, 16
   andi $s3, $s3, 0xffff
 
   ;; $s5 = dxhdy * yh_fraction.
@@ -426,8 +429,8 @@ command_3_dy_l_not_0:
   sw $t8, 128($0)
 
   ;; xl = x0 + (dxmdy * (y1 - y0));
-  sll $t1, $t1, 14
-  sll $t3, $t3, 14
+  sll $t1, $t1, 16
+  sll $t3, $t3, 16
   subu $t8, $t3, $t1
   sw $s1, 8($k0)
   sw $t8, 12($k0)
@@ -435,27 +438,6 @@ command_3_dy_l_not_0:
   lw $s4, 8($k0)
   addu $t8, $t7, $s4
   sw $t8, 112($0)
-
-;; 5.5 * 6.5  35.75  0x0023_c000
-;li $v0, (5 << 16) | 0x7fff
-;li $v1, (6 << 16) | 0x7fff
-;; 6 * 0.4 = 2.4
-;li $v0, 0x6666
-;li $v1, (6 << 16) | 0x7fff
-;sw $v0, 8($k0)
-;sw $v1, 12($k0)
-;MULTIPLY_IFxI
-;lw $at, 8($k0)
-
-;; 6.5 / -2.5 = -2.40
-;; DEBUG
-;li $v0, (6 << 16) | 0x8000
-;li $v1, (2 << 16) | 0x8000
-;subu $v1, $0, $v1
-;sw $v0, 8($k0)
-;sw $v1, 12($k0)
-;DIVIDE_I_IF
-;lw $at, 8($k0)
 
   ;; Execute it.
   li $t1, 80
@@ -556,5 +538,53 @@ wait_for_rdp_loop:
 
 while_1:
   b while_1
+  nop
+
+;; FIXME: Can delete this stuff later, but wanted it so some code could
+;; be run and the result viewed in Mame's debugger to see how things work.
+
+test_mul:
+;; 5.5 * 6.5  35.75  0x0023_c000
+;li $v0, (5 << 16) | 0x7fff
+;li $v1, (6 << 16) | 0x7fff
+;; 6 * 0.4 = 2.4
+;li $v0, 0x6666
+;li $v1, (6 << 16) | 0x7fff
+;sw $v0, 8($k0)
+;sw $v1, 12($k0)
+;MULTIPLY_IFxI
+;lw $at, 8($k0)
+  jr $ra
+  nop
+
+test_div:
+;; 6.5 / -2.5 = -2.40
+;; DEBUG
+;li $v0, (6 << 16) | 0x8000
+;li $v1, (2 << 16) | 0x8000
+;subu $v1, $0, $v1
+;sw $v0, 8($k0)
+;sw $v1, 12($k0)
+;DIVIDE_I_IF
+;lw $at, 8($k0)
+  jr $ra
+  nop
+
+test_mul_vectored:
+;li $t0, 0x0002_0002
+;li $t1, 0x0004_0004
+;sw $t0, 8($k0)
+;sw $t1, 12($k0)
+
+;llv $v13[0],  8($k0)
+;llv $v13[4],  8($k0)
+;llv $v13[8],  8($k0)
+;llv $v13[12], 8($k0)
+;llv $v14[0],  12($k0)
+;llv $v14[4],  12($k0)
+;llv $v14[8],  12($k0)
+;llv $v14[12], 12($k0)
+;vmudn $v13, $v13, $v14
+  jr $ra
   nop
 

@@ -4,6 +4,7 @@ PROGRAMS= \
   sample_no_rsp.z64 \
   sample_rsp_hardcoded.z64 \
   sample_rsp_rectangle.z64 \
+  sample_rsp_rotation.z64 \
   sample_rsp_triangle.z64
 
 default: rsp.bin $(PROGRAMS)

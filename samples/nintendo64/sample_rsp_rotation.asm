@@ -5,7 +5,8 @@
 ;; mike@mikekohn.net
 ;;
 ;; Sets up the Nintendo 64 display, clear parts of the screen with two colors,
-;; and draws some triangles using the RSP to initiate the drawing.
+;; and draws a triangle with rotations, translation, projection done in the
+;; RSP.
 
 .mips
 
@@ -165,18 +166,36 @@ setup_rdp_loop:
   jal send_rdp_setup
   nop
 
-  ;; Draw red rectangle at:
-  ;;  (150, 120)
-  li $t0, 150
-  li $t1, 120
-  ;;  (170, 170)
-  li $t2, 170
-  li $t3, 170
-  ;;  (110, 190)
-  li $t4, 110
-  li $t5, 190
+  ;; Setup triangle shape:
+  ;;  (  0, -30)
+  li $t0, 0
+  li $t1, -30
+  ;;  (-30,  30)
+  li $t2, -30
+  li $t3, 30
+  ;;  ( 30,  30)
+  li $t4, 30
+  li $t5, 30
+  jal set_triangle_shape
+  nop
+
+  ;; Setup triangle color (red).
   li $t6, COLOR(255, 0, 0)
-  jal draw_triangle
+  jal set_triangle_color
+  nop
+
+  ;; Set (X, Y, Z) location.
+  li $t0, 100
+  li $t1, 200
+  li $t2, 2000
+  jal set_triangle_location
+  nop
+
+  ;; Set (RX, RY, RZ) rotation.
+  li $t0, 0
+  li $t1, 0
+  li $t2, 30
+  jal set_triangle_location
   nop
 
   ;; Infinite loop at end of program.
@@ -196,8 +215,8 @@ send_rdp_setup_wait_for_rsp:
   jr $ra
   nop
 
-;; draw_triangle($t0=x0, $t1=y0, $t2=x1, $t3=y1, $t4=x2, $t5=y2, $t6=color);
-draw_triangle:
+;; set_triangle_shape($t0=x0, $t1=y0, $t2=x1, $t3=y1, $t4=x2, $t5=y2)
+set_triangle_shape:
   li $a0, KSEG1 | RSP_DMEM
   sll $t0, $t0, 16
   sll $t2, $t2, 16
@@ -211,17 +230,48 @@ draw_triangle:
   sw $t2, 16($a0)
   ;; (X2, Y2)
   sw $t4, 24($a0)
-  ;; Color
-  sw $t6, 48($a0)
-  ;sw $t6, 96($a0)
+  jr $ra
+  nop
+
+;; set_triangle_color($t0=color)
+set_triangle_color:
+  li $a0, KSEG1 | RSP_DMEM
+  sw $t0, 48($a0)
+  ;sw $t0, 96($a0)
+  jr $ra
+  nop
+
+;; set_triangle_location($t0=x, $t1=y, $t2=z)
+set_triangle_location:
+  li $a0, KSEG1 | RSP_DMEM
+  sll $t0, $t0, 16
+  sll $t2, $t2, 16
+  or $t0, $t0, $t1
+  sw $t0, 40($a0)
+  sw $t2, 44($a0)
+  jr $ra
+  nop
+
+;; set_triangle_rotation($t0=rx, $t1=ry, $t2=rz)
+;; Values are from 0 to 511.
+set_triangle_rotation:
+  li $a0, KSEG1 | RSP_DMEM
+  sll $t0, $t0, 16
+  sll $t2, $t2, 16
+  or $t0, $t0, $t1
+  sw $t0, 32($a0)
+  sw $t2, 36($a0)
+  jr $ra
+  nop
+
+draw_triangle:
   ;; Set command to draw_triangle.
+  li $a0, KSEG1 | RSP_DMEM
   li $t0, 3 << 24
   sw $t0, 0($a0)
 draw_triangle_wait_for_rsp:
   lw $t0, 0($a0)
   bne $t0, $0, draw_triangle_wait_for_rsp
-  nop
-  jr $ra
   nop
 
 wait_for_vblank:
@@ -267,4 +317,6 @@ dp_setup_end:
 rsp_code_start:
   .binfile "rsp.bin"
 rsp_code_end:
+
+.include "cos_table.inc"
 
