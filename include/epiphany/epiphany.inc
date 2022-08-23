@@ -3,7 +3,7 @@
 ;; Parallella board.
 ;;
 ;; For more info:
-;; http://www.parallella.org/
+;; https://www.parallella.org/
 ;;
 
 CONFIG      equ 0xf0400 ; Core configuration

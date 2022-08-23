@@ -2,7 +2,7 @@
 ;; This is an include file for the Western Design Center W65C265 chips.
 ;;
 ;; For more info:
-;; http://www.westerndesigncenter.com/
+;; https://www.westerndesigncenter.com/
 ;;
 
 ;; UARTs

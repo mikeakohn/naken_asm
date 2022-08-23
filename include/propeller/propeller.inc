@@ -2,7 +2,7 @@
 ;; This is an include file for the Parallax Propeller
 ;;
 ;; For more info:
-;; http://www.parallax.com/
+;; https://www.parallax.com/
 ;;
 
 par equ 0x1f0

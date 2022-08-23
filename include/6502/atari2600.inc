@@ -3,7 +3,7 @@
 ;; This is a part of the naken_asm assembler
 ;;
 ;; For more info:
-;; http://www.mikekohn.net/micro/naken_asm.php
+;; https://www.mikekohn.net/micro/naken_asm.php
 ;;
 
 ;;TIA
@@ -78,5 +78,4 @@ TIM1T  equ 0x294
 TIM8T  equ 0x295
 TIM64T equ 0x296
 T1024T equ 0x297
-
 

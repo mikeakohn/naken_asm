@@ -3,7 +3,7 @@
 ;; Date: July 27, 2019
 ;; Author: Michael Kohn
 ;; Email: mike@mikekohn.net
-;; Web: http://www.mikekohn.net/
+;; Web: https://www.mikekohn.net/
 ;;
 ;; Part of the naken_asm project
 

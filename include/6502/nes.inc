@@ -3,7 +3,7 @@
 ;; This is a part of the naken_asm assembler
 ;;
 ;; For more info:
-;; http://www.mikekohn.net/micro/naken_asm.php
+;; https://www.mikekohn.net/micro/naken_asm.php
 ;;
 
 NES_CONTROLLER_2             equ 0x4017

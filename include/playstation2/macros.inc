@@ -4,7 +4,7 @@
 ;; A part of the naken_asm assembler 
 ;;
 ;; For more information:
-;; http://www.mikekohn.net/
+;; https://www.mikekohn.net/
 ;;
 
 .define GIF_TAG(nloop,eop,pre,prim,flg,nreg) \
