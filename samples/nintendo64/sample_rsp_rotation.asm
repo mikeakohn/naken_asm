@@ -180,13 +180,13 @@ setup_rdp_loop:
   nop
 
   ;; Setup triangle color (red).
-  li $t6, COLOR(255, 0, 0)
+  li $t0, COLOR(255, 0, 0)
   jal set_triangle_color
   nop
 
   ;; Set (X, Y, Z) location.
-  li $t0, 100
-  li $t1, 200
+  li $t0, 150
+  li $t1, 100
   li $t2, 2000
   jal set_triangle_location
   nop
@@ -195,7 +195,10 @@ setup_rdp_loop:
   li $t0, 0
   li $t1, 0
   li $t2, 30
-  jal set_triangle_location
+  jal set_triangle_rotation
+  nop
+
+  jal draw_triangle
   nop
 
   ;; Infinite loop at end of program.
@@ -267,11 +270,13 @@ set_triangle_rotation:
 draw_triangle:
   ;; Set command to draw_triangle.
   li $a0, KSEG1 | RSP_DMEM
-  li $t0, 3 << 24
+  li $t0, 4 << 24
   sw $t0, 0($a0)
 draw_triangle_wait_for_rsp:
   lw $t0, 0($a0)
   bne $t0, $0, draw_triangle_wait_for_rsp
+  nop
+  jr $ra
   nop
 
 wait_for_vblank:
