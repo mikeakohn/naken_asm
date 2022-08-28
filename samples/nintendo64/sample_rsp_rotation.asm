@@ -201,14 +201,14 @@ setup_rdp_loop:
   ;; Set (X, Y, Z) location.
   li $t0, 150
   li $t1, 100
-  li $t2, 2000
+  li $t2, 256 + 128
   jal set_triangle_location
   nop
 
   ;; Set (RX, RY, RZ) rotation.
   li $t0, 0 
   li $t1, 0 
-  li $t2, 90
+  li $t2, 30 
   jal set_triangle_rotation
   nop
 

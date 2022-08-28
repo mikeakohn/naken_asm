@@ -562,27 +562,139 @@ skip_rotate_y:
   sh $t1, 26($0)
 skip_rotate_z:
 
-  ;; Translation to dx, dy, dz.
-  lh $t0, 40($0)
-  lh $t1, 42($0)
-  lh $t3, 8($0)
-  lh $t4, 16($0)
-  lh $t5, 24($0)
-  add $t3, $t3, $t0
-  add $t4, $t4, $t0
-  add $t5, $t5, $t0
-  sh $t3, 8($0)
-  sh $t4, 16($0)
-  sh $t5, 24($0)
-  lh $t3, 10($0)
-  lh $t4, 18($0)
-  lh $t5, 26($0)
-  add $t3, $t3, $t1
-  add $t4, $t4, $t1
-  add $t5, $t5, $t1
-  sh $t3, 10($0)
-  sh $t4, 18($0)
-  sh $t5, 26($0)
+  ;; Transpose dz.
+  ;; [ $t0, $t1, $t2 ] = [ Z0, Z1, Z2 ]
+  lh $t0, 12($0)
+  lh $t1, 20($0)
+  lh $t2, 28($0)
+  ;; $t3 = dz
+  lh $t3, 44($0)
+  addu $t0, $t0, $t3
+  addu $t1, $t1, $t3
+  addu $t2, $t2, $t3
+  bgtz $t0, z0_not_0
+  nop
+  li $t0, 1
+z0_not_0:
+  bgtz $t1, z1_not_0
+  nop
+  li $t1, 1
+z1_not_0:
+  bgtz $t2, z2_not_0
+  nop
+  li $t2, 1
+z2_not_0:
+  sh $t0, 12($0)
+  sh $t1, 20($0)
+  sh $t2, 28($0)
+
+  ;; Project 3D (x,y,z) to 2D (x,y)
+  ;; x = -d * (x / z)
+  ;; y = -d * (y / z)
+  ;; Going to try d as 256.
+  ;; $v10 = [ d, 0, 0, 0, 0, 0, 0 ,0 ]
+  li $v0, 256
+  sh $v0, 0($k0)
+  llv $v10[0], 0($k0)
+  ;; $v11 = [ X0, X1, X2, 0, 0, 0, 0 ,0 ]
+  lsv $v11[0],  8($0)
+  lsv $v11[2], 16($0)
+  lsv $v11[4], 24($0)
+  ;; $v12 = [ Y0, Y1, Y2, 0, 0, 0, 0 ,0 ]
+  lsv $v12[0], 10($0)
+  lsv $v12[2], 18($0)
+  lsv $v12[4], 26($0)
+  ;; $v13 = [ Z0, Z1, Z2, 0, 0, 0, 0 ,0 ]
+  lsv $v13[0], 12($0)
+  lsv $v13[2], 20($0)
+  lsv $v13[4], 28($0)
+
+  ;; vrcph res_int[0],  s_int[0]
+  ;; vrcpl res_frac[0], s_frac[0]
+  ;; vrcph res_int[0],  dev_null[0]
+  vrcph $v20[0], $v13[0]
+  vrcpl $v21[0], $v0[0]
+  vrcph $v20[0], $v0[0]
+  vrcph $v20[1], $v13[1]
+  vrcpl $v21[1], $v0[1]
+  vrcph $v20[1], $v0[1]
+  vrcph $v20[2], $v13[2]
+  vrcpl $v21[2], $v0[2]
+  vrcph $v20[2], $v0[2]
+
+  ;; multiply by 2 to make 16.16.
+  vmudn $v23, $v21, $v2[0]
+  vmadm $v22, $v20, $v2[0]
+  vmadn $v23, $v0,  $v0[0]
+
+  ;; multiply [ 1 / z0, 1 / z1, 1 / z2 ] * [ x0, x1, x2 ] = v23 * v11.
+  ;; I * F = IF
+  ;; vmudm res_int,  s_int,    t_frac
+  ;; vmadn res_frac, dev_null, dev_null[0]
+  vmudm $v24, $v11, $v23
+  vmadn $v25, $v0,  $v0
+
+  ;; multiply [ 1 / z0, 1 / z1, 1 / z2 ] * [ y0, y1, y2 ] = v23 * v12.
+  ;; I * F = IF
+  ;; vmudm res_int,  s_int,    t_frac
+  ;; vmadn res_frac, dev_null, dev_null[0]
+  vmudm $v26, $v12, $v23
+  vmadn $v27, $v0,  $v0
+
+  ;; multiply [ x0 / z0, x1 / z1, x2 / z2 ] = v24:v25 * v10
+  ;; IF * I = IF
+  ;; vmudn res_frac, s_frac,   t_int
+  ;; vmadh res_int,  s_int,    t_int
+  ;; vmadn res_frac, dev_null, dev_null[0]
+  vmudn $v17, $v25, $v10[0]
+  vmadh $v16, $v24, $v10[0]
+  vmadn $v17, $v0,  $v0[0]
+
+  ;; multiply [ y0 / z0, y1 / z1, y2 / z2 ] = v26:v27 * v10
+  ;; IF * I = IF
+  ;; vmudn res_frac, s_frac,   t_int
+  ;; vmadh res_int,  s_int,    t_int
+  ;; vmadn res_frac, dev_null, dev_null[0]
+  vmudn $v19, $v27, $v10[0]
+  vmadh $v18, $v26, $v10[0]
+  vmadn $v19, $v0,  $v0[0]
+
+  ssv $v16[0],  8($0)
+  ssv $v18[0], 10($0)
+  ssv $v16[2], 16($0)
+  ssv $v18[2], 18($0)
+  ssv $v16[4], 24($0)
+  ssv $v18[4], 26($0)
+
+;blah:
+;b blah
+;nop
+
+  ;; Transpose to dx, dy.
+  ;; [ $t3, $t4 ] = [ dx, dy ]
+  lh $t3, 40($0)
+  lh $t4, 42($0)
+  ;; [ $t0, $t1, $t2 ] = [ X0, X1, X2 ]
+  lh $t0, 8($0)
+  lh $t1, 16($0)
+  lh $t2, 24($0)
+  add $t0, $t0, $t3
+  add $t1, $t1, $t3
+  add $t2, $t2, $t3
+  sh $t0, 8($0)
+  sh $t1, 16($0)
+  sh $t2, 24($0)
+  ;; [ $t0, $t1, $t2 ] = [ Y0, Y1, Y2 ]
+  lh $t0, 10($0)
+  lh $t1, 18($0)
+  lh $t2, 26($0)
+  add $t0, $t0, $t4
+  add $t1, $t1, $t4
+  add $t2, $t2, $t4
+  sh $t0, 10($0)
+  sh $t1, 18($0)
+  sh $t2, 26($0)
+
   b command_3
   nop
 
