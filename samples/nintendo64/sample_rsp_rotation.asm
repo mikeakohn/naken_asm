@@ -206,9 +206,9 @@ setup_rdp_loop:
   nop
 
   ;; Set (RX, RY, RZ) rotation.
-  li $t0, 0
-  li $t1, 0
-  li $t2, 30
+  li $t0, 0 
+  li $t1, 0 
+  li $t2, 90
   jal set_triangle_rotation
   nop
 

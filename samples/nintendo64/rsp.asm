@@ -324,18 +324,79 @@ command_4:
   andi $v1, $v1, 0x1ff
   sll $v0, $v0, 2
   sll $v1, $v1, 2
-  ;; $a0=cos(r)
-  ;; $a1=sin(r)
-  ;; $a2=-sin(r)
-  lw $a0, 1024($v0)
-  lw $a1, 1024($v1)
-  ;subu $a2, $0, $a1
+
+  addiu $v0, $v0, 1024
+  addiu $v1, $v1, 1024
+
+  ;; cos(r)
+  llv $v12[0], 0($v0)
+  ;; sin(r)
+  llv $v13[0], 0($v1)
+
   ;; Build X rotational matrix
   ;; [ 1    0       0    ]
   ;; [ 0  cos(r) -sin(r) ]
   ;; [ 0  sin(r)  cos(r) ]
+  ;; $v22 = [ Y0, Z0, Y1, Z1, Y2, Z2, 0, 0 ] <- s_int
+  ;; $v12 = [ cos(r) int, cos(r) frac, 0, 0, 0, 0, 0, 0 ]
+  ;; $v13 = [ sin(r) int, sin(r) frac, 0, 0, 0, 0, 0, 0 ]
+  lsv $v22[0], 10($0)
+  lsv $v22[2], 12($0)
+  lsv $v22[4], 18($0)
+  lsv $v22[6], 20($0)
+  lsv $v22[8], 26($0)
+  lsv $v22[10], 28($0)
 
+  ;; I * IF = IF
+  ;; vmudm res_frac, s_int,    t_frac
+  ;; vmadh res_int,  s_int,    t_int
+  ;; vmadn res_frac, dev_null, dev_null[0]
+  vmudm $v25, $v22, $v12[1]
+  vmadh $v24, $v22, $v12[0]
+  vmadn $v25, $v0,  $v0
 
+  vmudm $v27, $v22, $v13[1]
+  vmadh $v26, $v22, $v13[0]
+  vmadn $v27, $v0,  $v0
+
+  ;; X0 = Y0 * cos(r) - Z0 * sin(r)
+  ;; Y0 = Y0 * sin(r) + Z0 * cos(r)
+  slv $v24[0], 0($k0)
+  slv $v26[0], 4($k0)
+  lh $a0, 0($k0) ; X * cos(r)
+  lh $a1, 2($k0) ; Y * cos(r)
+  lh $a2, 4($k0) ; X * sin(r)
+  lh $a3, 6($k0) ; Y * sin(r)
+  subu $t0, $a0, $a3
+  addu $t1, $a2, $a1
+  sh $t0, 10($0)
+  sh $t1, 12($0)
+
+  ;; X1 = Y1 * cos(r) - Z1 * sin(r)
+  ;; Y1 = Y1 * sin(r) + Z1 * cos(r)
+  slv $v24[4], 0($k0)
+  slv $v26[4], 4($k0)
+  lh $a0, 0($k0) ; X * cos(r)
+  lh $a1, 2($k0) ; Y * cos(r)
+  lh $a2, 4($k0) ; X * sin(r)
+  lh $a3, 6($k0) ; Y * sin(r)
+  subu $t0, $a0, $a3
+  addu $t1, $a2, $a1
+  sh $t0, 18($0)
+  sh $t1, 20($0)
+
+  ;; X2 = Y2 * cos(r) - Z2 * sin(r)
+  ;; Y2 = Y2 * sin(r) + Z2 * cos(r)
+  slv $v24[8], 0($k0)
+  slv $v26[8], 4($k0)
+  lh $a0, 0($k0) ; X * cos(r)
+  lh $a1, 2($k0) ; Y * cos(r)
+  lh $a2, 4($k0) ; X * sin(r)
+  lh $a3, 6($k0) ; Y * sin(r)
+  subu $t0, $a0, $a3
+  addu $t1, $a2, $a1
+  sh $t0, 26($0)
+  sh $t1, 28($0)
 skip_rotate_x:
 
   ;; Rotate around Y Axis.
@@ -346,20 +407,79 @@ skip_rotate_x:
   andi $v1, $v1, 0x1ff
   sll $v0, $v0, 2
   sll $v1, $v1, 2
-  ;; $a0=cos(r)
-  ;; $a1=sin(r)
-  ;; $a2=-sin(r)
-  lw $a0, 1024($v0)
-  lw $a1, 1024($v1)
-  ;subu $a2, $0, $a1
+
+  addiu $v0, $v0, 1024
+  addiu $v1, $v1, 1024
+
+  ;; cos(r)
+  llv $v12[0], 0($v0)
+  ;; sin(r)
+  llv $v13[0], 0($v1)
+
   ;; Build Y rotational matrix
   ;; [  cos(r)  0   sin(r) ]
   ;; [   0      1     0    ]
   ;; [ -sin(r)  0   cos(r) ]
-  ;; X = X * cos(r) - Y *sin(r)
-  ;; Y = X * cos(r) + Y *sin(r)
+  ;; $v22 = [ X0, Z0, X1, Z1, X2, Z2, 0, 0 ] <- s_int
+  ;; $v12 = [ cos(r) int, cos(r) frac, 0, 0, 0, 0, 0, 0 ]
+  ;; $v13 = [ sin(r) int, sin(r) frac, 0, 0, 0, 0, 0, 0 ]
+  lsv $v22[0], 8($0)
+  lsv $v22[2], 12($0)
+  lsv $v22[4], 16($0)
+  lsv $v22[6], 20($0)
+  lsv $v22[8], 24($0)
+  lsv $v22[10], 28($0)
 
+  ;; I * IF = IF
+  ;; vmudm res_frac, s_int,    t_frac
+  ;; vmadh res_int,  s_int,    t_int
+  ;; vmadn res_frac, dev_null, dev_null[0]
+  vmudm $v25, $v22, $v12[1]
+  vmadh $v24, $v22, $v12[0]
+  vmadn $v25, $v0,  $v0
 
+  vmudm $v27, $v22, $v13[1]
+  vmadh $v26, $v22, $v13[0]
+  vmadn $v27, $v0,  $v0
+
+  ;; X0 = X0 * cos(r) - Z0 * sin(r)
+  ;; Y0 = X0 * sin(r) + Z0 * cos(r)
+  slv $v24[0], 0($k0)
+  slv $v26[0], 4($k0)
+  lh $a0, 0($k0) ; X * cos(r)
+  lh $a1, 2($k0) ; Y * cos(r)
+  lh $a2, 4($k0) ; X * sin(r)
+  lh $a3, 6($k0) ; Y * sin(r)
+  subu $t0, $a0, $a3
+  addu $t1, $a2, $a1
+  sh $t0, 8($0)
+  sh $t1, 12($0)
+
+  ;; X1 = X1 * cos(r) - Z1 * sin(r)
+  ;; Y1 = X1 * sin(r) + Z1 * cos(r)
+  slv $v24[4], 0($k0)
+  slv $v26[4], 4($k0)
+  lh $a0, 0($k0) ; X * cos(r)
+  lh $a1, 2($k0) ; Y * cos(r)
+  lh $a2, 4($k0) ; X * sin(r)
+  lh $a3, 6($k0) ; Y * sin(r)
+  subu $t0, $a0, $a3
+  addu $t1, $a2, $a1
+  sh $t0, 16($0)
+  sh $t1, 20($0)
+
+  ;; X2 = X2 * cos(r) - Z2 * sin(r)
+  ;; Y2 = X2 * sin(r) + Z2 * cos(r)
+  slv $v24[8], 0($k0)
+  slv $v26[8], 4($k0)
+  lh $a0, 0($k0) ; X * cos(r)
+  lh $a1, 2($k0) ; Y * cos(r)
+  lh $a2, 4($k0) ; X * sin(r)
+  lh $a3, 6($k0) ; Y * sin(r)
+  subu $t0, $a0, $a3
+  addu $t1, $a2, $a1
+  sh $t0, 24($0)
+  sh $t1, 28($0)
 skip_rotate_y:
 
   ;; Rotate around Z Axis.
