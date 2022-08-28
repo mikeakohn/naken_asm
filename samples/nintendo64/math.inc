@@ -5,6 +5,7 @@
 ;li $t8, 0x2_0000
 ;sw $t8, 12($k0)
 ;DIVIDE_I_IF
+
 .macro DIVIDE_I_IF
   ;; dividend / divisor = quotient becomes
   ;; (1 / divisor) * dividend = quotient

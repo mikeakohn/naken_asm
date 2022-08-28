@@ -138,6 +138,20 @@ setup_rsp_loop:
   bne $t1, $0, setup_rsp_loop
   nop
 
+  ;; Copy cos() table from ROM to RSP.
+setup_cos_table:
+  li $t1, (cos_table_end - cos_table_start) / 4
+  li $a1, cos_table_start
+  li $a0, KSEG1 | RSP_DMEM + 1024
+setup_cos_table_loop:
+  lw $t2, 0($a1)
+  sw $t2, 0($a0)
+  addiu $a1, $a1, 4
+  addiu $a0, $a0, 4
+  addiu $t1, $t1, -1
+  bne $t1, $0, setup_cos_table_loop
+  nop
+
   ;; Copy RDP instructions from ROM to RSP data memory.
   ;; Must be done 32 bits at a time, not 64 bit.
 setup_rdp:
@@ -169,9 +183,9 @@ setup_rdp_loop:
   ;; Setup triangle shape:
   ;;  (  0, -30)
   li $t0, 0
-  li $t1, -30
+  li $t1, (-30 & 0xffff)
   ;;  (-30,  30)
-  li $t2, -30
+  li $t2, (-30 & 0xffff)
   li $t3, 30
   ;;  ( 30,  30)
   li $t4, 30
@@ -323,5 +337,7 @@ rsp_code_start:
   .binfile "rsp.bin"
 rsp_code_end:
 
-.include "cos_table.inc"
+cos_table_start:
+  .include "cos_table.inc"
+cos_table_end:
 

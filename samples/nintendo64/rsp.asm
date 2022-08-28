@@ -316,6 +316,132 @@ command_3_dy_l_not_0:
   nop
 
 command_4:
+  ;; Rotate around X Axis.
+  lh $v0, 32($0)
+  beq $v0, $0, skip_rotate_x
+  ;nop
+  addiu $v1, $v0, 128
+  andi $v1, $v1, 0x1ff
+  sll $v0, $v0, 2
+  sll $v1, $v1, 2
+  ;; $a0=cos(r)
+  ;; $a1=sin(r)
+  ;; $a2=-sin(r)
+  lw $a0, 1024($v0)
+  lw $a1, 1024($v1)
+  ;subu $a2, $0, $a1
+  ;; Build X rotational matrix
+  ;; [ 1    0       0    ]
+  ;; [ 0  cos(r) -sin(r) ]
+  ;; [ 0  sin(r)  cos(r) ]
+
+
+skip_rotate_x:
+
+  ;; Rotate around Y Axis.
+  lh $v0, 34($0)
+  beq $v0, $0, skip_rotate_y
+  ;nop
+  addiu $v1, $v0, 128
+  andi $v1, $v1, 0x1ff
+  sll $v0, $v0, 2
+  sll $v1, $v1, 2
+  ;; $a0=cos(r)
+  ;; $a1=sin(r)
+  ;; $a2=-sin(r)
+  lw $a0, 1024($v0)
+  lw $a1, 1024($v1)
+  ;subu $a2, $0, $a1
+  ;; Build Y rotational matrix
+  ;; [  cos(r)  0   sin(r) ]
+  ;; [   0      1     0    ]
+  ;; [ -sin(r)  0   cos(r) ]
+  ;; X = X * cos(r) - Y *sin(r)
+  ;; Y = X * cos(r) + Y *sin(r)
+
+
+skip_rotate_y:
+
+  ;; Rotate around Z Axis.
+  lh $v0, 36($0)
+  beq $v0, $0, skip_rotate_z
+  ;nop
+  addiu $v1, $v0, 128
+  andi $v1, $v1, 0x1ff
+  sll $v0, $v0, 2
+  sll $v1, $v1, 2
+
+  addiu $v0, $v0, 1024
+  addiu $v1, $v1, 1024
+
+  ;; cos(r)
+  llv $v12[0], 0($v0)
+  ;; sin(r)
+  llv $v13[0], 0($v1)
+
+  ;; Build Z rotational matrix
+  ;; [ cos(r) -sin(r)  0 ]
+  ;; [ sin(r)  cos(r)  0 ]
+  ;; [   0       0     1 ]
+  ;; $v22 = [ X0, Y0, X1, Y1, X2, Y2, 0, 0 ] <- s_int
+  ;; $v12 = [ cos(r) int, cos(r) frac, 0, 0, 0, 0, 0, 0 ]
+  ;; $v13 = [ sin(r) int, sin(r) frac, 0, 0, 0, 0, 0, 0 ]
+  llv $v22[0], 8($0)
+  llv $v22[4], 16($0)
+  llv $v22[8], 24($0)
+
+  ;; I * IF = IF
+  ;; vmudm res_frac, s_int,    t_frac
+  ;; vmadh res_int,  s_int,    t_int
+  ;; vmadn res_frac, dev_null, dev_null[0]
+  vmudm $v25, $v22, $v12[1]
+  vmadh $v24, $v22, $v12[0]
+  vmadn $v25, $v0,  $v0
+
+  vmudm $v27, $v22, $v13[1]
+  vmadh $v26, $v22, $v13[0]
+  vmadn $v27, $v0,  $v0
+
+  ;; X0 = X0 * cos(r) - Y0 * sin(r)
+  ;; Y0 = X0 * sin(r) + Y0 * cos(r)
+  slv $v24[0], 0($k0)
+  slv $v26[0], 4($k0)
+  lh $a0, 0($k0) ; X * cos(r)
+  lh $a1, 2($k0) ; Y * cos(r)
+  lh $a2, 4($k0) ; X * sin(r)
+  lh $a3, 6($k0) ; Y * sin(r)
+  subu $t0, $a0, $a3
+  addu $t1, $a2, $a1
+  sh $t0, 8($0)
+  sh $t1, 10($0)
+
+  ;; X1 = X1 * cos(r) - Y1 * sin(r)
+  ;; Y1 = X1 * sin(r) + Y1 * cos(r)
+  slv $v24[4], 0($k0)
+  slv $v26[4], 4($k0)
+  lh $a0, 0($k0) ; X * cos(r)
+  lh $a1, 2($k0) ; Y * cos(r)
+  lh $a2, 4($k0) ; X * sin(r)
+  lh $a3, 6($k0) ; Y * sin(r)
+  subu $t0, $a0, $a3
+  addu $t1, $a2, $a1
+  sh $t0, 16($0)
+  sh $t1, 18($0)
+
+  ;; X2 = X2 * cos(r) - Y2 * sin(r)
+  ;; Y2 = X2 * sin(r) + Y2 * cos(r)
+  slv $v24[8], 0($k0)
+  slv $v26[8], 4($k0)
+  lh $a0, 0($k0) ; X * cos(r)
+  lh $a1, 2($k0) ; Y * cos(r)
+  lh $a2, 4($k0) ; X * sin(r)
+  lh $a3, 6($k0) ; Y * sin(r)
+  subu $t0, $a0, $a3
+  addu $t1, $a2, $a1
+  sh $t0, 24($0)
+  sh $t1, 26($0)
+skip_rotate_z:
+
   ;; Translation to dx, dy, dz.
   lh $t0, 40($0)
   lh $t1, 42($0)
