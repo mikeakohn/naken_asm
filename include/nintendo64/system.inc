@@ -9,10 +9,16 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; KUSEG: TLB mapped.
+;; KSEG0: Direct mapped, cached.
+;; KSEG1: Direct mapped, uncached.
+;; KSSEG: TLB mapped.
+;; KSEG3: TLB mapped.
+KUSEG equ 0x0000_0000
 KSEG0 equ 0x8000_0000
 KSEG1 equ 0xa000_0000
 KSSEG equ 0xc000_0000
-KSSE3 equ 0xe000_0000
+KSEG3 equ 0xe000_0000
 
 PI_BASE   equ 0xa460_0000
 

@@ -1,4 +1,4 @@
-;; Simple Nintendo 64 sample.
+;; Nintendo 64 RSP sample for doing some 3D drawing.
 ;;
 ;; Copyright 2022 - By Michael Kohn
 ;; http://www.mikekohn.net/
@@ -18,8 +18,8 @@
 ;; byte  16: X1, Y1, Z1
 ;; byte  24: X2, Y2, Z2
 ;; byte  32: rx, ry, rz
-;; byte  40: dx, dy, dz
-;; byte  48: fill color
+;; byte  40: dx, dy, dz   | texture: width, height
+;; byte  48: fill color   | texture: DRAM address
 ;; -- Initialize screen.
 ;; byte  56: DP_OP_SET_COLOR_IMAGE
 ;; byte  64: DP_OP_SET_Z_IMAGE
@@ -39,8 +39,8 @@
 ;; v25: Fraction answer for divide.
 ;;
 ;; $k0: Points to end of scratch pad (16 bytes currently).
-;; $k0(0): Scratch pad.
-;; $k0(8): Scratch pad.
+;; 0($k0): Scratch pad.
+;; 8($k0): Scratch pad.
 
 .include "math.inc"
 
@@ -76,6 +76,8 @@ main:
   ;; Command 3: Calculate triangle and call start_rdp.
   ;; Command 4: Calculate rotation, projection, triangle, and start_dp.
   ;; Command 5: Draw rectangle.
+  ;; Command 6: Draw rectangle with texture.
+  ;; Command 7: Setup texture.
   li $t1, 1
   beq $t0, $t1, command_1
   nop
@@ -90,6 +92,10 @@ main:
   nop
   li $t1, 5
   beq $t0, $t1, command_5
+  li $t1, 6
+  beq $t0, $t1, command_6
+  li $t1, 7
+  beq $t0, $t1, command_7
   nop
 
   ;; Unknown command.
@@ -666,10 +672,6 @@ z2_not_0:
   ssv $v16[4], 24($0)
   ssv $v18[4], 26($0)
 
-;blah:
-;b blah
-;nop
-
   ;; Transpose to dx, dy.
   ;; [ $t3, $t4 ] = [ dx, dy ]
   lh $t3, 40($0)
@@ -699,10 +701,13 @@ z2_not_0:
   nop
 
   ;; Draw rectangle.
+  ;; byte  96: [command]        [ 2 * 16B RGBA]
+  ;; byte 104: [command][XL,YL]     [ XH,YH   ]
 command_5:
   ;; Set DP_OP_SET_OTHER_MODES for retangle fill.
   li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (3 << 20)
   sw $t8, 88($0)
+  sw $0,  92($0)
   ;; Set Fill Color Command: convert R, G, B to (RGBA << 16) | RGBA.
   li $t4, DP_OP_SET_FILL_COLOR << 24
   lb $t0, 48($0)
@@ -725,11 +730,6 @@ command_5:
   lh $t1, 10($0)
   lh $t2, 16($0)
   lh $t3, 18($0)
-  ;; Convert 12.4 fixed point to 10.2.
-  srl $t0, $t0, 2
-  srl $t1, $t1, 2
-  srl $t2, $t2, 2
-  srl $t3, $t3, 2
   ;; $t2 = XL
   ;; $t3 = YL
   sll $t2, $t2, 12
@@ -744,6 +744,111 @@ command_5:
   ;; Draw it.
   li $t1, 80
   li $t2, 4 * 8
+  jal start_rdp
+  nop
+  jal wait_for_rdp
+  nop
+  sb $0, 0($0)
+  b main
+  nop
+
+  ;; Draw rectangle with texture.
+  ;; byte  96: [command]        [ 2 * 16B RGBA]
+  ;; byte 104: [command][XL,YL]     [ XH,YH   ]
+  ;; byte 112: [   S  ][   T   ][ DsDx ][ DtDy]
+command_6:
+  ;; Set DP_OP_SET_OTHER_MODES for retangle fill.
+  li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (2 << 20)
+  sw $t8, 88($0)
+  sw $0,  92($0)
+  ;; Set Fill Color Command: convert R, G, B to (RGBA << 16) | RGBA.
+  li $t4, DP_OP_SET_FILL_COLOR << 24
+  lb $t0, 48($0)
+  lb $t1, 49($0)
+  lb $t2, 50($0)
+  srl $t0, $t0, 3
+  srl $t1, $t1, 3
+  srl $t2, $t2, 3
+  sll $t0, $t0, 11
+  sll $t1, $t1, 6
+  sll $t2, $t2, 1
+  or $t0, $t0, $t1
+  or $t0, $t0, $t2
+  sh $t0, 100($0)
+  sh $t0, 102($0)
+  sw $t4, 96($0)
+  ;; Set Fill Rectangle Command.
+  li $t4, DP_OP_TEXTURE_RECTANGLE
+  lh $t0, 8($0)
+  lh $t1, 10($0)
+  lh $t2, 16($0)
+  lh $t3, 18($0)
+  ;; $t2 = XL
+  ;; $t3 = YL
+  sll $t2, $t2, 12
+  or $t3, $t3, $t2
+  ;; $t0 = XH
+  ;; $t1 = YH
+  sll $t0, $t0, 12
+  or $t1, $t1, $t0
+  sw $t3, 104($0)
+  sw $t1, 108($0)
+  sb $t4, 104($0)
+  ;; Add Texture information.
+  ;; FIXME: This is hardcoded to DsDx=4.0, DtDy=1.0.
+  sw $0, 112($0)
+  li $t4, 4 << 10
+  li $t5, 1 << 10
+  sll $t4, $t4, 16
+  or $t4, $t4, $t5
+  sw $0, 116($0)
+  ;; Draw it.
+  li $t1, 80
+  li $t2, 5 * 8
+  jal start_rdp
+  nop
+  jal wait_for_rdp
+  nop
+  sb $0, 0($0)
+  b main
+  nop
+
+  ;; Setup texture (must be 64 bit aligned).
+  ;; byte 104: [command][fmt][sz][width] [    DRAM address   ]
+  ;; byte 112: [command][ tile params  ] [    tile params    ]
+command_7:
+  ;; Set Texture Image (format=RGBA, size=16b).
+  li $t0, (DP_OP_SET_TEXTURE_IMAGE << 24) | (2 << 19)
+  ;li $t0, (DP_OP_SET_TEXTURE_IMAGE << 24)
+  lh $t1, 40($0)
+  lw $t2, 48($0)
+  addiu $t3, $t1, -1
+  or $t0, $t0, $t3
+  sw $t0, 104($0)
+  sw $t2, 108($0)
+  ;; Set Tile.
+  li $t0, (DP_OP_SET_TILE << 24) | ( 2 << 19)
+  ;li $t0, (DP_OP_SET_TILE << 24)
+  srl $t1, $t1, 2
+  sll $t1, $t1, 9
+  or $t0, $t0, $t1
+  sw $t0, 112($0)
+  li $t0, (1 << 18) | (1 << 8)
+  sw $t0, 116($0)
+  ;; Load tile.
+  li $t0, DP_OP_LOAD_TILE << 24
+  sw $t0, 120($0)
+  lh $t1, 40($0)
+  lh $t2, 42($0)
+  addiu $t1, $t1, -1
+  addiu $t2, $t2, -1
+  sll $t1, $t1, 17
+  sll $t2, $t2, 5
+  or $t0, $t1, $t2
+  sw $t0, 124($0)
+  ;; Execute commands.
+  li $t1, 104
+  li $t2, 3 * 8
   jal start_rdp
   nop
   jal wait_for_rdp

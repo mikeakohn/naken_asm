@@ -5,7 +5,7 @@
 ;; mike@mikekohn.net
 ;;
 ;; Sets up the Nintendo 64 display, clear parts of the screen with two colors,
-;; and draws some rectangles using the RSP to initiate the drawing.
+;; and draws a rectangle with a texture using the RSP to initiate the drawing.
 
 .mips
 
@@ -122,6 +122,19 @@ setup_video_loop:
   li $t0, 0x02
   sw $t0, RSP_CPU_STATUS($a0)
 
+  ;; Copy texture to video memory space beyond 2 pages of 320x240x2 + zbuffer.
+  li $t1, (texture_end - texture_start) / 4
+  li $a1, texture_start
+  li $a0, KSEG1 | (0x0010_0000 + (((320 * 240 * 2) + (320 * 240 * 2)) * 2))
+copy_texture_loop:
+  lw $t2, 0($a1)
+  sw $t2, 0($a0)
+  addiu $a1, $a1, 4
+  addiu $a0, $a0, 4
+  addiu $t1, $t1, -1
+  bne $t1, $0, copy_texture_loop
+  nop
+
   ;; Copy RSP code from ROM to RSP instruction memory.
   ;; Must be done 32 bits at a time, not 64 bit.
 setup_rsp:
@@ -165,6 +178,10 @@ setup_rdp_loop:
   jal send_rdp_setup
   nop
 
+  ;; Setup the texture.
+  jal setup_texture
+  nop
+
   ;; Draw red rectangle at (100.0, 90.0) to (150.0, 120.0).
   li $t0, 100 << 2
   li $t1,  90 << 2
@@ -200,6 +217,27 @@ send_rdp_setup_wait_for_rsp:
   jr $ra
   nop
 
+;; setup_texture();
+setup_texture:
+  li $a0, KSEG1 | RSP_DMEM
+  ;; $t0 = width, $t1 = height, $t2 = address
+  li $t0, 32
+  li $t1, 9
+  li $t2, 0x0010_0000 + (((320 * 240 * 2) + (320 * 240 * 2)) * 2)
+  sll $t0, $t0, 16
+  or $t0, $t0, $t1
+  sw $t0, 40($a0)
+  sw $t2, 48($a0)
+  ;; Set command to setup_texture.
+  li $t0, 7 << 24
+  sw $t0, 0($a0)
+setup_texture_wait_for_rsp:
+  lw $t0, 0($a0)
+  bne $t0, $0, setup_texture_wait_for_rsp
+  nop
+  jr $ra
+  nop
+
 ;; draw_rectange($t0=x0, $t1=y0, $t2=x1, $t3=y1, $t4=color);
 draw_rectangle:
   li $a0, KSEG1 | RSP_DMEM
@@ -212,8 +250,8 @@ draw_rectangle:
   or $t2, $t2, $t3
   sw $t2, 16($a0)
   sw $t4, 48($a0)
-  ;; Set command to draw_rectangle.
-  li $t0, 5 << 24
+  ;; Set command to draw_rectangle_with_texture.
+  li $t0, 6 << 24
   sw $t0, 0($a0)
 draw_rectangle_wait_for_rsp:
   lw $t0, 0($a0)
@@ -265,4 +303,8 @@ dp_setup_end:
 rsp_code_start:
   .binfile "rsp.bin"
 rsp_code_end:
+
+texture_start:
+  .binfile "picture.raw"
+texture_end:
 

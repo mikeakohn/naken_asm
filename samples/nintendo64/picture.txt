@@ -1,0 +1,9 @@
+RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+R                              R
+R  GGGGG  BBBBB   YYYY  PPPPP  R
+R    G    B      Y        P    R
+R    G    BBB     YYYY    P    R
+R    G    B           Y   P    R
+R    G    BBBBB   YYYY    P    R
+R                              R
+RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
