@@ -117,8 +117,14 @@ int parse_instruction_8008(struct _asm_context *asm_context, char *instr)
 
       if (eval_expression(asm_context, &num) != 0)
       {
-        print_error_unexp(token, asm_context);
-        return -1;
+        if (asm_context->pass == 2)
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+
+        ignore_operand(asm_context);
+        num = 0;
       }
 
       operands[operand_count].value = num;
