@@ -165,7 +165,6 @@ void list_output_8008(
   uint32_t end)
 {
   int cycles_min, cycles_max;
-  uint32_t opcode;
   char instruction[128];
   char temp[32];
   int count;
@@ -181,17 +180,19 @@ void list_output_8008(
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read_m(&asm_context->memory, start);
-    sprintf(temp, "%02x", opcode);
+    char temp2[12];
+    int n;
 
-    if (count == 2)
+    temp[0] = 0;
+
+    for (n = 0; n < count; n++)
     {
-      char temp2[4];
-      sprintf(temp2, " %02x", memory_read_m(&asm_context->memory, start + 1));
+      sprintf(temp2, " %02x", memory_read_m(&asm_context->memory, start + n));
       strcat(temp, temp2);
     }
 
-    fprintf(asm_context->list, "0x%04x: %-6s %-40s cycles: ", start, temp, instruction);
+    fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ",
+      start, temp, instruction);
 
     if (cycles_min == 0)
     {
@@ -218,21 +219,33 @@ void disasm_range_8008(
   uint32_t end)
 {
   char instruction[128];
+  char temp[32];
   int cycles_min = 0, cycles_max = 0;
-  uint16_t opcode;
+  int count;
+  //uint16_t opcode;
 
   printf("\n");
 
-  printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
-  printf("------- ------ ----------------------------------       ------\n");
+  printf("%-7s %-9s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
+  printf("------- --------- ----------------------------------       ------\n");
 
   while (start <= end)
   {
-    disasm_8008(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_8008(memory, start, instruction, &cycles_min, &cycles_max);
 
-    opcode = memory_read16_m(memory, start);
+    //opcode = memory_read_m(memory, start);
+    char temp2[12];
+    int n;
 
-    printf("0x%04x: 0x%04x %-40s ", start / 2, opcode, instruction);
+    temp[0] = 0;
+
+    for (n = 0; n < count; n++)
+    {
+      sprintf(temp2, " %02x", memory_read_m(memory, start + n));
+      strcat(temp, temp2);
+    }
+
+    printf("0x%04x: %-9s %-40s ", start, temp, instruction);
 
     if (cycles_min == 0)
     {

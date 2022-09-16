@@ -11,3 +11,5 @@ naken_prog
 *~
 *.elf
 *.z64
+*.raw
+history
