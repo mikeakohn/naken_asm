@@ -13,7 +13,7 @@
 
 ;; DMEM Format Is:
 ;;
-;; byte   0: 0:Command/Signal | 1:Signal | 4,5:Offset | 6,7:Length
+;; byte   0: 0:Command/Signal | 1:Signal | 2:Use Z | 4,5:Offset | 6,7:Length
 ;; byte   8: X0, Y0, Z0
 ;; byte  16: X1, Y1, Z1
 ;; byte  24: X2, Y2, Z2
@@ -74,7 +74,7 @@ main:
   ;; Command 1: Call start_rdp only for screen setup.
   ;; Command 2: Directly call start_rdp.
   ;; Command 3: Calculate triangle and call start_rdp.
-  ;; Command 4: Calculate rotation, projection, triangle, and start_dp.
+  ;; Command 4: Calculate rotation, projection, triangle, and start_rdp.
   ;; Command 5: Draw rectangle.
   ;; Command 6: Draw rectangle with texture.
   ;; Command 7: Setup texture.
@@ -136,7 +136,7 @@ command_2:
   ;; byte 120: [   XH, frac   ] [ DxHDy, frac ]
   ;; byte 128: [   XM, frac   ] [ DxMDy, frac ]
 command_3:
-  ;; Set DP_OP_SET_OTHER_MODES for retangle fill.
+  ;; Set DP_OP_SET_OTHER_MODES for triangle 1 cycle.
   li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23)
   sw $t8, 88($0)
   li $t8, (1 << 31)
@@ -309,6 +309,11 @@ command_3_dy_l_not_0:
   addu $t8, $t7, $s4
   sw $t8, 112($0)
 
+  ;; Check if Z-Buffer should be used.
+  lb $t0, 2($0)
+  bne $t0, $0, do_z_buffer
+  nop
+
   ;; Execute it.
   li $t1, 80
   li $t2, 56
@@ -317,6 +322,42 @@ command_3_dy_l_not_0:
   jal wait_for_rdp
   nop
 
+  sb $0, 0($0)
+  b main
+  nop
+
+  ;; Calculate Z-Buffer and call start_rdp.
+  ;; 320 * 240 * 2 + 0x10_0000 = 0x125800
+  ;; byte 104: [command] [ YL ] [ YM ]   [ YH ]
+  ;; byte 112: [   XL, frac   ] [ DxLDy, frac ]
+  ;; byte 120: [   XH, frac   ] [ DxHDy, frac ]
+  ;; byte 128: [   XM, frac   ] [ DxMDy, frac ]
+  ;; byte 136: [    Z, frac   ] [  DzDx, frac ]
+  ;; byte 144: [ DzDe, frac   ] [  DzDy, frac ]
+do_z_buffer:
+  li $t8, (1 << 31) | (0 << 10) | (1 << 5) | (1 << 4)
+  ;li $t8, (1 << 31) | (1 << 5)
+  sw $t8, 92($0)
+  li $t0, DP_OP_TRIANGLE_NON_SHADED_Z
+  sb $t0, 104($0)
+
+  ;li $t8, 16384 << 16
+  lh $t8, 12($0)
+  sll $t8, $t8, 16
+
+  sw $t8, 136($0)
+  sw $0, 140($0)
+  sw $0, 144($0)
+  sw $0, 148($0)
+
+  ;; Execute it.
+  li $t1, 80
+  li $t2, 56 + 16
+  ;li $t2, 200
+  jal start_rdp
+  nop
+  jal wait_for_rdp
+  nop
   sb $0, 0($0)
   b main
   nop
@@ -833,8 +874,10 @@ command_7:
   sll $t1, $t1, 9
   or $t0, $t0, $t1
   sw $t0, 112($0)
-  li $t0, (1 << 18) | (1 << 8)
-  sw $t0, 116($0)
+  ;li $t0, (1 << 18) | (0xf << 14) | (1 << 8) | (0xf << 4)
+  ;li $t0, (0xf << 14) | (0xf << 4)
+  ;sw $t0, 116($0)
+  sw $0, 116($0)
   ;; Load tile.
   li $t0, DP_OP_LOAD_TILE << 24
   sw $t0, 120($0)
