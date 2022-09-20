@@ -182,21 +182,21 @@ setup_rdp_loop:
   jal setup_texture
   nop
 
-  ;; Draw red rectangle at (100.0, 90.0) to (150.0, 120.0).
+  ;; Draw textured rectangle at (100.0, 90.0) to (150.0, 120.0).
   li $t0, 100 << 2
   li $t1,  90 << 2
   li $t2, 150 << 2
   li $t3, 120 << 2
-  li $t4, COLOR(255, 0, 0)
+  li $t4, COLOR(255, 0, 0)  ;; FIXME: REMOVE
   jal draw_rectangle
   nop
 
-  ;; Draw green rectangle at (200.0, 50.0) to (250.0, 90.0).
+  ;; Draw textured rectangle at (200.0, 50.0) to (250.0, 90.0).
   li $t0, 200 << 2
   li $t1,  50 << 2
   li $t2, 250 << 2
   li $t3,  90 << 2
-  li $t4, COLOR(0, 255, 0)
+  li $t4, COLOR(0, 255, 0)  ;; FIXME: REMOVE
   jal draw_rectangle
   nop
 

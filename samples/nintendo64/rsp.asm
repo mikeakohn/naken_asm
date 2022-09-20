@@ -101,7 +101,6 @@ main:
   ;; Unknown command.
   b main
   sb $0, 0($0)
-  nop
 
   ;; Screen setup, run RDP commands from offset 56 to 72.
 command_1:
@@ -137,7 +136,7 @@ command_2:
   ;; byte 128: [   XM, frac   ] [ DxMDy, frac ]
 command_3:
   ;; Set DP_OP_SET_OTHER_MODES for triangle 1 cycle.
-  li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23)
+  li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_1_CYCLE << 20)
   sw $t8, 88($0)
   li $t8, (1 << 31)
   sw $t8, 92($0)
@@ -746,7 +745,7 @@ z2_not_0:
   ;; byte 104: [command][XL,YL]     [ XH,YH   ]
 command_5:
   ;; Set DP_OP_SET_OTHER_MODES for retangle fill.
-  li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (3 << 20)
+  li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_FILL << 20)
   sw $t8, 88($0)
   sw $0,  92($0)
   ;; Set Fill Color Command: convert R, G, B to (RGBA << 16) | RGBA.
@@ -798,27 +797,21 @@ command_5:
   ;; byte 104: [command][XL,YL]     [ XH,YH   ]
   ;; byte 112: [   S  ][   T   ][ DsDx ][ DtDy]
 command_6:
-  ;; Set DP_OP_SET_OTHER_MODES for retangle fill.
-  li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (2 << 20)
+  ;; Set DP_OP_SET_OTHER_MODES for retangle texture.
+  li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_COPY << 20)
+  ;li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_1_CYCLE << 20) | (1 << 12)
+  ;li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_1_CYCLE << 20)
   sw $t8, 88($0)
   sw $0,  92($0)
+  ;li $t8, (1 << 31)
+  ;sw $t8, 92($0)
   ;; Set Fill Color Command: convert R, G, B to (RGBA << 16) | RGBA.
-  li $t4, DP_OP_SET_FILL_COLOR << 24
-  lb $t0, 48($0)
-  lb $t1, 49($0)
-  lb $t2, 50($0)
-  srl $t0, $t0, 3
-  srl $t1, $t1, 3
-  srl $t2, $t2, 3
-  sll $t0, $t0, 11
-  sll $t1, $t1, 6
-  sll $t2, $t2, 1
-  or $t0, $t0, $t1
-  or $t0, $t0, $t2
-  sh $t0, 100($0)
-  sh $t0, 102($0)
-  sw $t4, 96($0)
-  ;; Set Fill Rectangle Command.
+  ;li $t0, (DP_OP_SET_FILL_COLOR << 24) | (0xf << 8)
+  li $t0, (DP_OP_SET_PRIM_COLOR << 24) | (0xf << 8)
+  li $t1, -1
+  sw $t0, 96($0)
+  sw $t1, 100($0)
+  ;; Set Texture Rectangle Command.
   li $t4, DP_OP_TEXTURE_RECTANGLE
   lh $t0, 8($0)
   lh $t1, 10($0)
@@ -837,12 +830,14 @@ command_6:
   sb $t4, 104($0)
   ;; Add Texture information.
   ;; FIXME: This is hardcoded to DsDx=4.0, DtDy=1.0.
-  sw $0, 112($0)
-  li $t4, 4 << 10
-  li $t5, 1 << 10
+  ;li $t4, 4 << 10
+  ;li $t5, 1 << 10
+  li $t4, 655
+  li $t5, 307
   sll $t4, $t4, 16
   or $t4, $t4, $t5
-  sw $0, 116($0)
+  sw $0,  112($0)
+  sw $t4, 116($0)
   ;; Draw it.
   li $t1, 80
   li $t2, 5 * 8
@@ -855,43 +850,60 @@ command_6:
   nop
 
   ;; Setup texture (must be 64 bit aligned).
-  ;; byte 104: [command][fmt][sz][width] [    DRAM address   ]
-  ;; byte 112: [command][ tile params  ] [    tile params    ]
+  ;; byte  40: texture: width, height
+  ;; byte  48: texture: DRAM address
+  ;; byte 104: [command][fmt][sz][width] [   DRAM address   ] Set Texture Image
+  ;; byte 112: [command][  SL  ][  TL  ] [   SH   ][   TH   ] Load Tile
+  ;; byte 120: [command][ tile params  ] [   tile params    ] Set Tile
+  ;; byte 128: [command][  SL  ][  TL  ] [   SH   ][   TH   ] Set Tile Size
 command_7:
   ;; Set Texture Image (format=RGBA, size=16b).
   li $t0, (DP_OP_SET_TEXTURE_IMAGE << 24) | (2 << 19)
-  ;li $t0, (DP_OP_SET_TEXTURE_IMAGE << 24)
   lh $t1, 40($0)
   lw $t2, 48($0)
   addiu $t3, $t1, -1
   or $t0, $t0, $t3
   sw $t0, 104($0)
   sw $t2, 108($0)
-  ;; Set Tile.
+  ;; Load tile.  SL=0, TL=0, SH=width-1, TH=height-1
+  li $t0, DP_OP_LOAD_TILE << 24
+  lh $t1, 40($0)
+  lh $t2, 42($0)
+  addiu $t3, $t1, -1
+  addiu $t4, $t2, -1
+  sll $t3, $t3, 14
+  sll $t4, $t4, 2
+  or $t3, $t3, $t4
+  sw $t0, 112($0)
+  sw $t3, 116($0)
+  ;; Set Tile. $t1 = (width * 16) / 64
   li $t0, (DP_OP_SET_TILE << 24) | ( 2 << 19)
   ;li $t0, (DP_OP_SET_TILE << 24)
   srl $t1, $t1, 2
   sll $t1, $t1, 9
   or $t0, $t0, $t1
-  sw $t0, 112($0)
+  sw $t0, 120($0)
   ;li $t0, (1 << 18) | (0xf << 14) | (1 << 8) | (0xf << 4)
   ;li $t0, (0xf << 14) | (0xf << 4)
   ;sw $t0, 116($0)
-  sw $0, 116($0)
-  ;; Load tile.
-  li $t0, DP_OP_LOAD_TILE << 24
-  sw $t0, 120($0)
+  sw $0, 124($0)
+
+  ;; FIXME: Is this needed?
+  ;; Set Tile Size.
+  li $t0, DP_OP_SET_TILE_SIZE << 24
   lh $t1, 40($0)
   lh $t2, 42($0)
-  addiu $t1, $t1, -1
-  addiu $t2, $t2, -1
-  sll $t1, $t1, 17
-  sll $t2, $t2, 5
-  or $t0, $t1, $t2
-  sw $t0, 124($0)
+  addiu $t3, $t1, -1
+  addiu $t4, $t2, -1
+  sll $t3, $t3, 14
+  sll $t4, $t4, 2
+  or $t3, $t3, $t4
+  sw $t0, 128($0)
+  sw $t3, 132($0)
+
   ;; Execute commands.
   li $t1, 104
-  li $t2, 3 * 8
+  li $t2, 4 * 8
   jal start_rdp
   nop
   jal wait_for_rdp
