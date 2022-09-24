@@ -79,6 +79,7 @@
 #include "simulate/avr8.h"
 #include "simulate/6502.h"
 #include "simulate/65816.h"
+#include "simulate/8008.h"
 #include "simulate/lc3.h"
 #include "simulate/mips.h"
 #include "simulate/msp430.h"

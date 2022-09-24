@@ -109,6 +109,7 @@
 #include "simulate/1802.h"
 #include "simulate/6502.h"
 #include "simulate/65816.h"
+#include "simulate/8008.h"
 #include "simulate/avr8.h"
 #include "simulate/lc3.h"
 #include "simulate/mips.h"
@@ -381,7 +382,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_8008,
     disasm_range_8008,
-    NULL,
+    simulate_init_8008,
     1,
   },
 #endif
