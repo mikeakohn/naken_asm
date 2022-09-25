@@ -832,7 +832,7 @@ command_6:
   ;; FIXME: This is hardcoded to DsDx=4.0, DtDy=1.0.
   ;li $t4, 4 << 10
   ;li $t5, 1 << 10
-  li $t4, 655
+  li $t4, 655 * 4
   li $t5, 307
   sll $t4, $t4, 16
   or $t4, $t4, $t5
@@ -865,30 +865,13 @@ command_7:
   or $t0, $t0, $t3
   sw $t0, 104($0)
   sw $t2, 108($0)
-  ;; Load tile.  SL=0, TL=0, SH=width-1, TH=height-1
-  li $t0, DP_OP_LOAD_TILE << 24
-  lh $t1, 40($0)
-  lh $t2, 42($0)
-  addiu $t3, $t1, -1
-  addiu $t4, $t2, -1
-  sll $t3, $t3, 14
-  sll $t4, $t4, 2
-  or $t3, $t3, $t4
-  sw $t0, 112($0)
-  sw $t3, 116($0)
   ;; Set Tile. $t1 = (width * 16) / 64
   li $t0, (DP_OP_SET_TILE << 24) | ( 2 << 19)
-  ;li $t0, (DP_OP_SET_TILE << 24)
   srl $t1, $t1, 2
   sll $t1, $t1, 9
   or $t0, $t0, $t1
-  sw $t0, 120($0)
-  ;li $t0, (1 << 18) | (0xf << 14) | (1 << 8) | (0xf << 4)
-  ;li $t0, (0xf << 14) | (0xf << 4)
-  ;sw $t0, 116($0)
-  sw $0, 124($0)
-
-  ;; FIXME: Is this needed?
+  sw $t0, 112($0)
+  sw $0,  116($0)
   ;; Set Tile Size.
   li $t0, DP_OP_SET_TILE_SIZE << 24
   lh $t1, 40($0)
@@ -898,9 +881,19 @@ command_7:
   sll $t3, $t3, 14
   sll $t4, $t4, 2
   or $t3, $t3, $t4
+  sw $t0, 120($0)
+  sw $t3, 124($0)
+  ;; Load tile.  SL=0, TL=0, SH=width-1, TH=height-1
+  li $t0, DP_OP_LOAD_TILE << 24
+  lh $t1, 40($0)
+  lh $t2, 42($0)
+  addiu $t3, $t1, -1
+  addiu $t4, $t2, -1
+  sll $t3, $t3, 14
+  sll $t4, $t4, 2
+  or $t3, $t3, $t4
   sw $t0, 128($0)
   sw $t3, 132($0)
-
   ;; Execute commands.
   li $t1, 104
   li $t2, 4 * 8
