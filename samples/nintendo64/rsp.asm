@@ -42,6 +42,9 @@
 ;; 0($k0): Scratch pad.
 ;; 8($k0): Scratch pad.
 
+;; byte 1024: Start of cos() table (512 * 4 bytes = 2048).
+;; byte 3071: End of cos() table.
+
 .include "math.inc"
 
 .org 0
@@ -828,12 +831,32 @@ command_6:
   sw $t3, 104($0)
   sw $t1, 108($0)
   sb $t4, 104($0)
-  ;; Add Texture information.
+  ;; Add Texture information. $t4 = DsDx, $t5 = DtDy.
   ;; FIXME: This is hardcoded to DsDx=4.0, DtDy=1.0.
-  ;li $t4, 4 << 10
-  ;li $t5, 1 << 10
-  li $t4, 655 * 4
-  li $t5, 307
+  lh $t0, 8($0)
+  lh $t1, 10($0)
+  lh $t2, 16($0)
+  lh $t3, 18($0)
+  lh $t4, 40($0)
+  lh $t5, 42($0)
+  subu $t0, $t2, $t0
+  subu $t1, $t3, $t1
+  sll $t0, $t0, 16
+  sll $t1, $t1, 16
+  sll $t4, $t4, 16
+  sll $t5, $t5, 16
+  sw $t4, 8($k0)
+  sw $t0, 12($k0)
+  DIVIDE_I_IF
+  lw $t4, 8($k0)
+  srl $t4, $t4, 2
+  sw $t5, 8($k0)
+  sw $t1, 12($k0)
+  DIVIDE_I_IF
+  lw $t5, 8($k0)
+  srl $t5, $t5, 4
+  ;li $t4, 655 * 4
+  ;li $t5, 307
   sll $t4, $t4, 16
   or $t4, $t4, $t5
   sw $0,  112($0)
@@ -865,7 +888,7 @@ command_7:
   or $t0, $t0, $t3
   sw $t0, 104($0)
   sw $t2, 108($0)
-  ;; Set Tile. $t1 = (width * 16) / 64
+  ;; Set Tile. $t1 = (width * 16) / 64 = width / 4
   li $t0, (DP_OP_SET_TILE << 24) | ( 2 << 19)
   srl $t1, $t1, 2
   sll $t1, $t1, 9
