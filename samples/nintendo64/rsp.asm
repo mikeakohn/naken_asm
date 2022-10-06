@@ -81,6 +81,8 @@ main:
   ;; Command 5: Draw rectangle.
   ;; Command 6: Draw rectangle with texture.
   ;; Command 7: Setup texture.
+  ;; Command 8: Clear screen.
+  ;; Command 9: Reset Z buffer.
   li $t1, 1
   beq $t0, $t1, command_1
   nop
@@ -95,15 +97,23 @@ main:
   nop
   li $t1, 5
   beq $t0, $t1, command_5
+  nop
   li $t1, 6
   beq $t0, $t1, command_6
+  nop
   li $t1, 7
   beq $t0, $t1, command_7
+  nop
+  li $t1, 8
+  beq $t0, $t1, command_8
+  nop
+  li $t1, 9
+  beq $t0, $t1, command_9
   nop
 
   ;; Unknown command.
   b main
-  sb $0, 0($0)
+  sw $0, 0($0)
 
   ;; Screen setup, run RDP commands from offset 56 to 72.
 command_1:
@@ -113,7 +123,7 @@ command_1:
   nop
   jal wait_for_rdp
   nop
-  sb $0, 0($0)
+  sw $0, 0($0)
   b main
   nop
 
@@ -128,7 +138,7 @@ command_2:
   nop
   jal wait_for_rdp
   nop
-  sb $0, 0($0)
+  sw $0, 0($0)
   b main
   nop
 
@@ -324,7 +334,7 @@ command_3_dy_l_not_0:
   jal wait_for_rdp
   nop
 
-  sb $0, 0($0)
+  sw $0, 0($0)
   b main
   nop
 
@@ -337,15 +347,67 @@ command_3_dy_l_not_0:
   ;; byte 136: [    Z, frac   ] [  DzDx, frac ]
   ;; byte 144: [ DzDe, frac   ] [  DzDy, frac ]
 do_z_buffer:
+  ;; Add z-buffer information to SET_OTHER_MODES and change the
+  ;; triangle drawing command to be DP_OP_TRIANGLE_NON_SHADED_Z.
   li $t8, (1 << 31) | (0 << 10) | (1 << 5) | (1 << 4)
-  ;li $t8, (1 << 31) | (1 << 5)
   sw $t8, 92($0)
   li $t0, DP_OP_TRIANGLE_NON_SHADED_Z
   sb $t0, 104($0)
 
-  ;li $t8, 16384 << 16
-  lh $t8, 12($0)
-  sll $t8, $t8, 16
+  ;; Calculate DzDe (Z2 - Z0) / (Y2 - Y0) = ($t8 / $t0)
+  lh $t8, 12($0) ; Z0
+  lh $t9, 28($0) ; Z2
+  addiu $t8, $t8, 2048
+  addiu $t9, $t9, 2048
+  lh $t0, 10($0) ; Y0
+  lh $t1, 26($0) ; Y2
+  subu $t8, $t9, $t8
+  subu $t0, $t1, $t0
+
+  sw $t8, 8($k0)
+  sw $t0, 12($k0)
+  DIVIDE_I_IF
+  lw $t0, 8($k0)
+  sw $t0, 144($0)
+
+  ;; Calculate DzDx (Z1 - Z0) / (X1 - X0) = ($t8 / $t0)
+  lh $t8, 12($0) ; Z0
+  lh $t9, 20($0) ; Z1
+  addiu $t8, $t8, 2048
+  addiu $t9, $t9, 2048
+  lh $t0,  8($0) ; X0
+  lh $t1, 16($0) ; X1
+  subu $t8, $t9, $t8
+  subu $t0, $t1, $t0
+
+  sw $t8, 8($k0)
+  sw $t0, 12($k0)
+  DIVIDE_I_IF
+  lw $t0, 8($k0)
+  sw $t0, 140($0)
+
+  ;; Calculate DzDy (Z2 - Z1) / (X2 - X1) = ($t8 / $t0)
+  lh $t8, 20($0) ; Z1
+  lh $t9, 28($0) ; Z2
+  addiu $t8, $t8, 2048
+  addiu $t9, $t9, 2048
+  lh $t0, 16($0) ; X1
+  lh $t1, 24($0) ; X2
+  subu $t8, $t9, $t8
+  subu $t0, $t1, $t0
+
+  sw $t8, 8($k0)
+  sw $t0, 12($k0)
+  DIVIDE_I_IF
+  lw $t0, 8($k0)
+  sw $t0, 148($0)
+
+  ;; Z start value.
+  lh $t0, 12($0) ; Z0
+  ;lh $t1, 20($0)
+  ;lh $t2, 28($0)
+  addiu $t0, $t0, 2048
+  sll $t0, $t0, 17
 
   sw $t8, 136($0)
   sw $0, 140($0)
@@ -355,12 +417,11 @@ do_z_buffer:
   ;; Execute it.
   li $t1, 80
   li $t2, 56 + 16
-  ;li $t2, 200
   jal start_rdp
   nop
   jal wait_for_rdp
   nop
-  sb $0, 0($0)
+  sw $0, 0($0)
   b main
   nop
 
@@ -389,11 +450,11 @@ command_4:
   ;; $v22 = [ Y0, Z0, Y1, Z1, Y2, Z2, 0, 0 ] <- s_int
   ;; $v12 = [ cos(r) int, cos(r) frac, 0, 0, 0, 0, 0, 0 ]
   ;; $v13 = [ sin(r) int, sin(r) frac, 0, 0, 0, 0, 0, 0 ]
-  lsv $v22[0], 10($0)
-  lsv $v22[2], 12($0)
-  lsv $v22[4], 18($0)
-  lsv $v22[6], 20($0)
-  lsv $v22[8], 26($0)
+  lsv $v22[0],  10($0)
+  lsv $v22[2],  12($0)
+  lsv $v22[4],  18($0)
+  lsv $v22[6],  20($0)
+  lsv $v22[8],  26($0)
   lsv $v22[10], 28($0)
 
   ;; I * IF = IF
@@ -408,40 +469,40 @@ command_4:
   vmadh $v26, $v22, $v13[0]
   vmadn $v27, $v0,  $v0
 
-  ;; X0 = Y0 * cos(r) - Z0 * sin(r)
-  ;; Y0 = Y0 * sin(r) + Z0 * cos(r)
+  ;; Y0 = Y0 * cos(r) - Z0 * sin(r)
+  ;; Z0 = Y0 * sin(r) + Z0 * cos(r)
   slv $v24[0], 0($k0)
   slv $v26[0], 4($k0)
-  lh $a0, 0($k0) ; X * cos(r)
-  lh $a1, 2($k0) ; Y * cos(r)
-  lh $a2, 4($k0) ; X * sin(r)
-  lh $a3, 6($k0) ; Y * sin(r)
+  lh $a0, 0($k0) ; Y0 * cos(r)
+  lh $a1, 2($k0) ; Z0 * cos(r)
+  lh $a2, 4($k0) ; Y0 * sin(r)
+  lh $a3, 6($k0) ; Z0 * sin(r)
   subu $t0, $a0, $a3
   addu $t1, $a2, $a1
   sh $t0, 10($0)
   sh $t1, 12($0)
 
-  ;; X1 = Y1 * cos(r) - Z1 * sin(r)
-  ;; Y1 = Y1 * sin(r) + Z1 * cos(r)
+  ;; Y1 = Y1 * cos(r) - Z1 * sin(r)
+  ;; Z1 = Y1 * sin(r) + Z1 * cos(r)
   slv $v24[4], 0($k0)
   slv $v26[4], 4($k0)
-  lh $a0, 0($k0) ; X * cos(r)
-  lh $a1, 2($k0) ; Y * cos(r)
-  lh $a2, 4($k0) ; X * sin(r)
-  lh $a3, 6($k0) ; Y * sin(r)
+  lh $a0, 0($k0) ; Y1 * cos(r)
+  lh $a1, 2($k0) ; Z1 * cos(r)
+  lh $a2, 4($k0) ; Y1 * sin(r)
+  lh $a3, 6($k0) ; Z1 * sin(r)
   subu $t0, $a0, $a3
   addu $t1, $a2, $a1
   sh $t0, 18($0)
   sh $t1, 20($0)
 
-  ;; X2 = Y2 * cos(r) - Z2 * sin(r)
-  ;; Y2 = Y2 * sin(r) + Z2 * cos(r)
+  ;; Y2 = Y2 * cos(r) - Z2 * sin(r)
+  ;; Z2 = Y2 * sin(r) + Z2 * cos(r)
   slv $v24[8], 0($k0)
   slv $v26[8], 4($k0)
-  lh $a0, 0($k0) ; X * cos(r)
-  lh $a1, 2($k0) ; Y * cos(r)
-  lh $a2, 4($k0) ; X * sin(r)
-  lh $a3, 6($k0) ; Y * sin(r)
+  lh $a0, 0($k0) ; Y1 * cos(r)
+  lh $a1, 2($k0) ; Z1 * cos(r)
+  lh $a2, 4($k0) ; Y1 * sin(r)
+  lh $a3, 6($k0) ; Z1 * sin(r)
   subu $t0, $a0, $a3
   addu $t1, $a2, $a1
   sh $t0, 26($0)
@@ -472,11 +533,11 @@ skip_rotate_x:
   ;; $v22 = [ X0, Z0, X1, Z1, X2, Z2, 0, 0 ] <- s_int
   ;; $v12 = [ cos(r) int, cos(r) frac, 0, 0, 0, 0, 0, 0 ]
   ;; $v13 = [ sin(r) int, sin(r) frac, 0, 0, 0, 0, 0, 0 ]
-  lsv $v22[0], 8($0)
-  lsv $v22[2], 12($0)
-  lsv $v22[4], 16($0)
-  lsv $v22[6], 20($0)
-  lsv $v22[8], 24($0)
+  lsv $v22[0],  8($0)
+  lsv $v22[2],  12($0)
+  lsv $v22[4],  16($0)
+  lsv $v22[6],  20($0)
+  lsv $v22[8],  24($0)
   lsv $v22[10], 28($0)
 
   ;; I * IF = IF
@@ -492,39 +553,39 @@ skip_rotate_x:
   vmadn $v27, $v0,  $v0
 
   ;; X0 = X0 * cos(r) - Z0 * sin(r)
-  ;; Y0 = X0 * sin(r) + Z0 * cos(r)
+  ;; Z0 = X0 * sin(r) + Z0 * cos(r)
   slv $v24[0], 0($k0)
   slv $v26[0], 4($k0)
-  lh $a0, 0($k0) ; X * cos(r)
-  lh $a1, 2($k0) ; Y * cos(r)
-  lh $a2, 4($k0) ; X * sin(r)
-  lh $a3, 6($k0) ; Y * sin(r)
+  lh $a0, 0($k0) ; X0 * cos(r)
+  lh $a1, 2($k0) ; Z0 * cos(r)
+  lh $a2, 4($k0) ; X0 * sin(r)
+  lh $a3, 6($k0) ; Z0 * sin(r)
   subu $t0, $a0, $a3
   addu $t1, $a2, $a1
   sh $t0, 8($0)
   sh $t1, 12($0)
 
   ;; X1 = X1 * cos(r) - Z1 * sin(r)
-  ;; Y1 = X1 * sin(r) + Z1 * cos(r)
+  ;; Z1 = X1 * sin(r) + Z1 * cos(r)
   slv $v24[4], 0($k0)
   slv $v26[4], 4($k0)
-  lh $a0, 0($k0) ; X * cos(r)
-  lh $a1, 2($k0) ; Y * cos(r)
-  lh $a2, 4($k0) ; X * sin(r)
-  lh $a3, 6($k0) ; Y * sin(r)
+  lh $a0, 0($k0) ; X1 * cos(r)
+  lh $a1, 2($k0) ; Z1 * cos(r)
+  lh $a2, 4($k0) ; X1 * sin(r)
+  lh $a3, 6($k0) ; Z1 * sin(r)
   subu $t0, $a0, $a3
   addu $t1, $a2, $a1
   sh $t0, 16($0)
   sh $t1, 20($0)
 
   ;; X2 = X2 * cos(r) - Z2 * sin(r)
-  ;; Y2 = X2 * sin(r) + Z2 * cos(r)
+  ;; Z2 = X2 * sin(r) + Z2 * cos(r)
   slv $v24[8], 0($k0)
   slv $v26[8], 4($k0)
-  lh $a0, 0($k0) ; X * cos(r)
-  lh $a1, 2($k0) ; Y * cos(r)
-  lh $a2, 4($k0) ; X * sin(r)
-  lh $a3, 6($k0) ; Y * sin(r)
+  lh $a0, 0($k0) ; X2 * cos(r)
+  lh $a1, 2($k0) ; Z2 * cos(r)
+  lh $a2, 4($k0) ; X2 * sin(r)
+  lh $a3, 6($k0) ; Z2 * sin(r)
   subu $t0, $a0, $a3
   addu $t1, $a2, $a1
   sh $t0, 24($0)
@@ -575,10 +636,10 @@ skip_rotate_y:
   ;; Y0 = X0 * sin(r) + Y0 * cos(r)
   slv $v24[0], 0($k0)
   slv $v26[0], 4($k0)
-  lh $a0, 0($k0) ; X * cos(r)
-  lh $a1, 2($k0) ; Y * cos(r)
-  lh $a2, 4($k0) ; X * sin(r)
-  lh $a3, 6($k0) ; Y * sin(r)
+  lh $a0, 0($k0) ; X0 * cos(r)
+  lh $a1, 2($k0) ; Y0 * cos(r)
+  lh $a2, 4($k0) ; X0 * sin(r)
+  lh $a3, 6($k0) ; Y0 * sin(r)
   subu $t0, $a0, $a3
   addu $t1, $a2, $a1
   sh $t0, 8($0)
@@ -588,10 +649,10 @@ skip_rotate_y:
   ;; Y1 = X1 * sin(r) + Y1 * cos(r)
   slv $v24[4], 0($k0)
   slv $v26[4], 4($k0)
-  lh $a0, 0($k0) ; X * cos(r)
-  lh $a1, 2($k0) ; Y * cos(r)
-  lh $a2, 4($k0) ; X * sin(r)
-  lh $a3, 6($k0) ; Y * sin(r)
+  lh $a0, 0($k0) ; X1 * cos(r)
+  lh $a1, 2($k0) ; Y1 * cos(r)
+  lh $a2, 4($k0) ; X1 * sin(r)
+  lh $a3, 6($k0) ; Y1 * sin(r)
   subu $t0, $a0, $a3
   addu $t1, $a2, $a1
   sh $t0, 16($0)
@@ -601,10 +662,10 @@ skip_rotate_y:
   ;; Y2 = X2 * sin(r) + Y2 * cos(r)
   slv $v24[8], 0($k0)
   slv $v26[8], 4($k0)
-  lh $a0, 0($k0) ; X * cos(r)
-  lh $a1, 2($k0) ; Y * cos(r)
-  lh $a2, 4($k0) ; X * sin(r)
-  lh $a3, 6($k0) ; Y * sin(r)
+  lh $a0, 0($k0) ; X2 * cos(r)
+  lh $a1, 2($k0) ; Y2 * cos(r)
+  lh $a2, 4($k0) ; X2 * sin(r)
+  lh $a3, 6($k0) ; Y2 * sin(r)
   subu $t0, $a0, $a3
   addu $t1, $a2, $a1
   sh $t0, 24($0)
@@ -747,7 +808,7 @@ z2_not_0:
   ;; byte  96: [command]        [ 2 * 16B RGBA]
   ;; byte 104: [command][XL,YL]     [ XH,YH   ]
 command_5:
-  ;; Set DP_OP_SET_OTHER_MODES for retangle fill.
+  ;; Set DP_OP_SET_OTHER_MODES for rectangle fill.
   li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_FILL << 20)
   sw $t8, 88($0)
   sw $0,  92($0)
@@ -791,7 +852,7 @@ command_5:
   nop
   jal wait_for_rdp
   nop
-  sb $0, 0($0)
+  sw $0, 0($0)
   b main
   nop
 
@@ -800,10 +861,8 @@ command_5:
   ;; byte 104: [command][XL,YL]     [ XH,YH   ]
   ;; byte 112: [   S  ][   T   ][ DsDx ][ DtDy]
 command_6:
-  ;; Set DP_OP_SET_OTHER_MODES for retangle texture.
+  ;; Set DP_OP_SET_OTHER_MODES for rectangle texture.
   li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_COPY << 20)
-  ;li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_1_CYCLE << 20) | (1 << 12)
-  ;li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_1_CYCLE << 20)
   sw $t8, 88($0)
   sw $0,  92($0)
   ;li $t8, (1 << 31)
@@ -868,7 +927,7 @@ command_6:
   nop
   jal wait_for_rdp
   nop
-  sb $0, 0($0)
+  sw $0, 0($0)
   b main
   nop
 
@@ -924,7 +983,71 @@ command_7:
   nop
   jal wait_for_rdp
   nop
-  sb $0, 0($0)
+  sw $0, 0($0)
+  b main
+  nop
+
+  ;; byte  96: [command]        [ 2 * 16B RGBA]
+  ;; byte 104: [command][XL,YL]     [ XH,YH   ]
+  ;; Clear screen.
+command_8:
+  ;; Set DP_OP_SET_OTHER_MODES for rectangle fill.
+  li $t0, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_FILL << 20)
+  sw $t0, 88($0)
+  sw $0,  92($0)
+  ;; Set Fill Color Command: convert R, G, B to (RGBA << 16) | RGBA.
+  li $t0, DP_OP_SET_FILL_COLOR << 24
+  ;li $t1, 0x07c0_07c0
+  sw $t0, 96($0)
+  sw $0, 100($0)
+  ;; Set Fill Rectangle Command.
+  li $t0, (DP_OP_FILL_RECTANGLE << 24) | ((319 << 2) << 12) | (239 << 2)
+  sw $t0, 104($0)
+  sw $0,  108($0)
+  ;; Execute commands.
+  li $t1, 80
+  li $t2, 4 * 8
+  jal start_rdp
+  nop
+  jal wait_for_rdp
+  nop
+  sw $0, 0($0)
+  b main
+  nop
+
+  ;; Reset Z Buffer.
+command_9:
+  ;; Copy the address of the Z buffer to color image address.
+  lw $s0, 56($0)
+  lw $s1, 60($0)
+  lw $s2, 68($0)
+  sw $s2, 60($0)
+  ;; Set DP_OP_SET_OTHER_MODES for rectangle fill.
+  li $t0, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_FILL << 20)
+  sw $t0, 88($0)
+  sw $0,  92($0)
+  ;; Set Fill Color Command: convert R, G, B to (RGBA << 16) | RGBA.
+  li $t0, DP_OP_SET_FILL_COLOR << 24
+  li $t1, -1
+  sw $t0, 96($0)
+  sw $t1, 100($0)
+  ;; Set Fill Rectangle Command.
+  li $t0, (DP_OP_FILL_RECTANGLE << 24) | (320 << 14) | (240 << 2)
+  sw $t0, 104($0)
+  sw $0,  108($0)
+  ;; Set Color image back.
+  sw $s0, 112($0)
+  sw $s1, 116($0)
+  ;; Execute commands.
+  li $t1, 56
+  li $t2, 4 * 8
+  jal start_rdp
+  nop
+  jal wait_for_rdp
+  nop
+  ;; Set color image back to what it originally was.
+  sw $s1, 60($0)
+  sw $0, 0($0)
   b main
   nop
 

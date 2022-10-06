@@ -206,9 +206,9 @@ setup_rdp_loop:
   nop
 
   ;; Set (RX, RY, RZ) rotation.
-  li $t0, 0 
-  li $t1, 0 
-  li $t2, 30 
+  li $t0, 0
+  li $t1, 0
+  li $t2, 30
   jal set_triangle_rotation
   nop
 
@@ -241,12 +241,15 @@ set_triangle_shape:
   or $t0, $t0, $t1
   or $t2, $t2, $t3
   or $t4, $t4, $t5
-  ;; (X0, Y0)
-  sw $t0, 8($a0)
-  ;; (X1, Y1)
+  ;; (X0, Y0, 0)
+  sw $t0,  8($a0)
+  sw $0,  12($a0)
+  ;; (X1, Y1, 0)
   sw $t2, 16($a0)
-  ;; (X2, Y2)
+  sw $0,  20($a0)
+  ;; (X2, Y2, 0)
   sw $t4, 24($a0)
+  sw $0,  28($a0)
   jr $ra
   nop
 
