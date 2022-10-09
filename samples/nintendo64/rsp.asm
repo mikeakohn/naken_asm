@@ -814,9 +814,9 @@ command_5:
   sw $0,  92($0)
   ;; Set Fill Color Command: convert R, G, B to (RGBA << 16) | RGBA.
   li $t4, DP_OP_SET_FILL_COLOR << 24
-  lb $t0, 48($0)
-  lb $t1, 49($0)
-  lb $t2, 50($0)
+  lbu $t0, 48($0)
+  lbu $t1, 49($0)
+  lbu $t2, 50($0)
   srl $t0, $t0, 3
   srl $t1, $t1, 3
   srl $t2, $t2, 3
@@ -825,9 +825,9 @@ command_5:
   sll $t2, $t2, 1
   or $t0, $t0, $t1
   or $t0, $t0, $t2
+  sw $t4, 96($0)
   sh $t0, 100($0)
   sh $t0, 102($0)
-  sw $t4, 96($0)
   ;; Set Fill Rectangle Command.
   li $t4, DP_OP_FILL_RECTANGLE
   lh $t0, 8($0)

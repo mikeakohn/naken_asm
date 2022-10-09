@@ -165,7 +165,7 @@ setup_rdp_loop:
   jal send_rdp_setup
   nop
 
-  ;; Draw red rectangle at:
+  ;; Draw red triangle at:
   ;;  (150, 120)
   li $t0, 150
   li $t1, 120
