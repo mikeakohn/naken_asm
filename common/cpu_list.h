@@ -59,6 +59,10 @@ enum
   CPU_TYPE_M8C,
   CPU_TYPE_MIPS32,
   CPU_TYPE_PDP8,
+  CPU_TYPE_PDK13,
+  CPU_TYPE_PDK14,
+  CPU_TYPE_PDK15,
+  CPU_TYPE_PDK16,
   CPU_TYPE_PIC14,
   CPU_TYPE_PIC24,
   CPU_TYPE_POWERPC,
@@ -122,6 +126,7 @@ struct _cpu_list
   int8_t strings_have_dots : 1;
   int8_t strings_have_slashes : 1;
   int8_t ignore_number_postfix : 1;
+  int8_t numbers_dont_have_dots : 1;
   uint8_t srec_size : 2;
   parse_instruction_t parse_instruction;
   parse_directive_t parse_directive;

@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2022 by Michael Kohn
  *
  */
 
@@ -487,6 +487,12 @@ int tokens_get(struct _asm_context *asm_context, char *token, int len)
         else
       if (ch == '.' && token_type == TOKEN_NUMBER)
       {
+        if (asm_context->numbers_dont_have_dots)
+        {
+          tokens_unget_char(asm_context, ch);
+          break;
+        }
+
         token_type = TOKEN_FLOAT;
       }
         else

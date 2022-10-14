@@ -140,6 +140,7 @@ void assembler_set_cpu(struct _asm_context *asm_context, int index)
   asm_context->can_tick_end_string = cpu_list[index].can_tick_end_string;
   asm_context->pass_1_write_disable = cpu_list[index].pass_1_write_disable;
   asm_context->ignore_number_postfix = cpu_list[index].ignore_number_postfix;
+  asm_context->numbers_dont_have_dots = cpu_list[index].numbers_dont_have_dots;
   asm_context->parse_instruction = cpu_list[index].parse_instruction;
   asm_context->parse_directive = cpu_list[index].parse_directive;
   asm_context->link_function = cpu_list[index].link_function;
