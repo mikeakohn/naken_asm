@@ -15,37 +15,19 @@
 #include <stdint.h>
 
 #include "asm/pdk14.h"
+#include "asm/pdk_parse.h"
 #include "asm/common.h"
 #include "common/assembler.h"
 #include "common/tokens.h"
-#include "common/eval_expression.h"
 #include "table/pdk14.h"
-
-#define MAX_OPERANDS 2
-
-enum
-{
-  OPERAND_NUMBER,
-  OPERAND_A,
-  OPERAND_BIT_OFFSET,
-};
-
-struct _operand
-{
-  int value;
-  int type;
-  int bit;
-};
 
 int parse_instruction_pdk14(struct _asm_context *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
   char *instr_case = instr_case_mem;
-  char token[TOKENLEN];
   struct _operand operands[MAX_OPERANDS];
   int operand_count = 0;
-  int token_type;
-  int num, n;
+  int n;
   uint16_t opcode;
   int matched = 0;
 
@@ -57,85 +39,13 @@ int parse_instruction_pdk14(struct _asm_context *asm_context, char *instr)
     return 2;
   }
 
+  memset(operands, 0, sizeof(operands));
+
+  operand_count = pdk_parse(asm_context, operands);
+
+  if (operand_count == -1) { return -1; }
+
   lower_copy(instr_case, instr);
-  memset(&operands, 0, sizeof(operands));
-
-  while (1)
-  {
-    token_type = tokens_get(asm_context, token, TOKENLEN);
-
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
-    {
-      if (operand_count != 0)
-      {
-        print_error_unexp(token, asm_context);
-        return -1;
-      }
-      break;
-    }
-
-    if (IS_TOKEN(token, 'a') || IS_TOKEN(token, 'A'))
-    {
-      operands[operand_count].type = OPERAND_A;
-    }
-      else
-    {
-      tokens_push(asm_context, token, token_type);
-
-      if (eval_expression(asm_context, &num) != 0)
-      {
-        if (asm_context->pass == 1)
-        {
-          ignore_operand(asm_context);
-          num = 0;
-        }
-          else
-        {
-          print_error_unexp(token, asm_context);
-          return -1;
-        }
-      }
-
-      operands[operand_count].value = num;
-      operands[operand_count].type = OPERAND_NUMBER;
-
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-
-      if (IS_TOKEN(token, '.'))
-      {
-        if (eval_expression(asm_context, &num) != 0)
-        {
-          if (asm_context->pass == 1)
-          {
-            ignore_operand(asm_context);
-            num = 0;
-          }
-            else
-          {
-            print_error_unexp(token, asm_context);
-            return -1;
-          }
-        }
-
-        operands[operand_count].bit = num;
-        operands[operand_count].type = OPERAND_BIT_OFFSET;
-      }
-        else
-      {
-        tokens_push(asm_context, token, token_type);
-      }
-    }
-
-    operand_count++;
-    token_type = tokens_get(asm_context, token, TOKENLEN);
-
-    if (token_type == TOKEN_EOL) { break; }
-    if (IS_NOT_TOKEN(token, ',') || operand_count == 2)
-    {
-      print_error_unexp(token, asm_context);
-      return -1;
-    }
-  }
 
   for (n = 0; table_pdk14[n].instr != NULL; n++)
   {
