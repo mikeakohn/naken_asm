@@ -29,9 +29,8 @@ enum
   OP_A_M8,
   OP_M8_A,
   OP_A_K,
-  OP_K_A,
-  OP_IO_N,
   OP_M9,
+  OP_IO_N,
   OP_M_N,
   OP_K13,
 };

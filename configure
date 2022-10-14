@@ -460,9 +460,9 @@ for option in $@; do
     NO_MSP430=""
   ;;
   --enable-padauk)
-    ASM_OBJS="${ASM_OBJS} pdk13.o pdk14.o pdk15.o pdk_parse.o"
-    DISASM_OBJS="${DISASM_OBJS} pdk13.o pdk14.o pdk15.o"
-    TABLE_OBJS="${TABLE_OBJS} pdk13.o pdk14.o pdk15.o"
+    ASM_OBJS="${ASM_OBJS} pdk13.o pdk14.o pdk15.o pdk16.o pdk_parse.o"
+    DISASM_OBJS="${DISASM_OBJS} pdk13.o pdk14.o pdk15.o pdk16.o"
+    TABLE_OBJS="${TABLE_OBJS} pdk13.o pdk14.o pdk15.o pdk16.o"
     DFLAGS="${DFLAGS} -DENABLE_PADAUK"
   ;;
   --enable-pdp8)

@@ -43,6 +43,7 @@
 #include "asm/pdk13.h"
 #include "asm/pdk14.h"
 #include "asm/pdk15.h"
+#include "asm/pdk16.h"
 #include "asm/pic14.h"
 #include "asm/powerpc.h"
 #include "asm/propeller.h"
@@ -93,6 +94,7 @@
 #include "disasm/pdk13.h"
 #include "disasm/pdk14.h"
 #include "disasm/pdk15.h"
+#include "disasm/pdk16.h"
 #include "disasm/pic14.h"
 #include "disasm/powerpc.h"
 #include "disasm/propeller.h"
@@ -1008,6 +1010,28 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_pdk15,
     disasm_range_pdk15,
+    NULL,
+    NO_FLAGS,
+  },
+  {
+    "pdk16",
+    CPU_TYPE_PDK16,
+    ENDIAN_LITTLE,
+    2,
+    ALIGN_2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    SREC_16,
+    parse_instruction_pdk16,
+    NULL,
+    link_not_supported,
+    list_output_pdk16,
+    disasm_range_pdk16,
     NULL,
     NO_FLAGS,
   },
