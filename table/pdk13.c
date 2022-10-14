@@ -53,7 +53,7 @@ struct _table_pdk13 table_pdk13[] =
   { "idxm",    0x0380, 0xff81, OP_M4_A, 2, 2 },
   { "idxm",    0x0381, 0xff81, OP_A_M4, 2, 2 },
   // Return with A.
-  { "ret",     0x0100, 0xff00, OP_K,    1, 1 },
+  { "ret",     0x0100, 0xff00, OP_K8,   1, 1 },
   // Operations with A and memory.
   { "add",     0x0400, 0xffc0, OP_M_A,  1, 1 },
   { "sub",     0x0440, 0xffc0, OP_M_A,  1, 1 },

@@ -48,7 +48,7 @@ struct _table_pdk14 table_pdk14[] =
   { "mov",     0x0180, 0xffc0, OP_IO_A, 1, 1 },
   { "mov",     0x01c0, 0xffc0, OP_A_IO, 1, 1 },
   // Return with A.
-  { "ret",     0x0200, 0xff00, OP_K,    1, 1 },
+  { "ret",     0x0200, 0xff00, OP_K8,   1, 1 },
   // 16 bit memory operations.
   { "stt16",   0x0300, 0xff81, OP_M6,   1, 1 },
   { "ldt16",   0x0301, 0xff81, OP_M6,   1, 1 },

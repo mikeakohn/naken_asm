@@ -46,14 +46,14 @@ struct _table_pdk15 table_pdk15[] =
   { "mov",     0x0100, 0xffc0, OP_IO_A, 1, 1 },
   { "mov",     0x0180, 0xffc0, OP_A_IO, 1, 1 },
   // Return with A.
-  { "ret",     0x0200, 0xff00, OP_K,    1, 1 },
+  { "ret",     0x0200, 0xff00, OP_K8,   1, 1 },
   // 16 bit memory operations.
-  { "ldtabl",  0x0500, 0xff01, OP_7M,   1, 1 },
-  { "ldtabh",  0x0500, 0xff01, OP_7M,   1, 1 },
-  { "stt16",   0x0600, 0xff01, OP_7M,   1, 1 },
-  { "ldt16",   0x0601, 0xff01, OP_7M,   1, 1 },
-  { "idxm",    0x0700, 0xff01, OP_7M_A, 2, 2 },
-  { "idxm",    0x0701, 0xff01, OP_A_7M, 2, 2 },
+  { "ldtabl",  0x0500, 0xff01, OP_M7,   1, 1 },
+  { "ldtabh",  0x0500, 0xff01, OP_M7,   1, 1 },
+  { "stt16",   0x0600, 0xff01, OP_M7,   1, 1 },
+  { "ldt16",   0x0601, 0xff01, OP_M7,   1, 1 },
+  { "idxm",    0x0700, 0xff01, OP_M7_A, 2, 2 },
+  { "idxm",    0x0701, 0xff01, OP_A_M7, 2, 2 },
   // Operations with A and memory.
   { "nmov",    0x0800, 0xff00, OP_A_M8, 1, 1 },
   { "nmov",    0x0900, 0xff00, OP_M8_A, 1, 1 },
