@@ -108,8 +108,7 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
     }
   }
 
-  n = 0;
-  while (table_pic14[n].instr != NULL)
+  for (n = 0; table_pic14[n].instr != NULL; n++)
   {
     if (strcmp(table_pic14[n].instr, instr_case) == 0)
     {
@@ -277,8 +276,6 @@ int parse_instruction_pic14(struct _asm_context *asm_context, char *instr)
           break;
       }
     }
-
-    n++;
   }
 
   print_error_unknown_instr(instr, asm_context);
