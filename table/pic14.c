@@ -53,5 +53,6 @@ struct _table_pic14 table_pic14[] =
   { "sleep",  0x0063, 0xffff, OP_NONE, 2, 2 },
   { "sublw",  0x3c00, 0xfe00, OP_K8,   1, 1 },
   { "xorlw",  0x3a00, 0xff00, OP_K8,   1, 1 },
+  { NULL,     0x0000, 0x0000,     0,   0, 0 }
 };
 
