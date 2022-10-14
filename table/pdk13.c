@@ -89,10 +89,10 @@ struct _table_pdk13 table_pdk13[] =
   { "ceqsn",   0xb080, 0xffc0, OP_A_M,  1, 1 },
   //{ "cneqsn",  0xb0c0, 0xffc0, OP_A_M,  1, 1 },
   // Bit operations with IO.
-  { "t0sn",    0xc000, 0xff80, OP_IO_N, 1, 1 },
-  { "t1sn",    0xd000, 0xff80, OP_IO_N, 1, 1 },
-  { "set0",    0xe000, 0xff80, OP_IO_N, 1, 1 },
-  { "set1",    0xf000, 0xff80, OP_IO_N, 1, 1 },
+  { "t0sn",    0x0c00, 0xff00, OP_IO_N, 1, 1 },
+  { "t1sn",    0x0d00, 0xff00, OP_IO_N, 1, 1 },
+  { "set0",    0x0e00, 0xff00, OP_IO_N, 1, 1 },
+  { "set1",    0x0f00, 0xff00, OP_IO_N, 1, 1 },
   // Operations with A and 8 bit literal.
   { "add",     0x1000, 0xff00, OP_A_K,  1, 1 },
   { "sub",     0x1100, 0xff00, OP_A_K,  1, 1 },

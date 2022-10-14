@@ -13,15 +13,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "disasm/pdk14.h"
-#include "table/pdk14.h"
+#include "disasm/pdk13.h"
+#include "table/pdk13.h"
 
-int get_cycle_count_pdk14(unsigned short int opcode)
+int get_cycle_count_pdk13(unsigned short int opcode)
 {
   return -1;
 }
 
-int disasm_pdk14(
+int disasm_pdk13(
   struct _memory *memory,
   uint32_t address,
   char *instruction,
@@ -37,72 +37,72 @@ int disasm_pdk14(
 
   opcode = memory_read16_m(memory, address);
 
-  for (n = 0; table_pdk14[n].instr != NULL; n++)
+  for (n = 0; table_pdk13[n].instr != NULL; n++)
   {
-    if ((opcode & table_pdk14[n].mask) == table_pdk14[n].opcode)
+    if ((opcode & table_pdk13[n].mask) == table_pdk13[n].opcode)
     {
-      *cycles_min = table_pdk14[n].cycles_min;
-      *cycles_max = table_pdk14[n].cycles_min;
+      *cycles_min = table_pdk13[n].cycles_min;
+      *cycles_max = table_pdk13[n].cycles_min;
 
-      switch (table_pdk14[n].type)
+      switch (table_pdk13[n].type)
       {
         case OP_NONE:
-          strcpy(instruction, table_pdk14[n].instr);
+          strcpy(instruction, table_pdk13[n].instr);
           return 2;
         case OP_A:
-          sprintf(instruction, "%s a", table_pdk14[n].instr);
+          sprintf(instruction, "%s a", table_pdk13[n].instr);
           return 2;
         case OP_IO_A:
-          m = opcode & 0x3f;
-          sprintf(instruction, "%s %d, a", table_pdk14[n].instr, m);
+          m = opcode & 0x1f;
+          sprintf(instruction, "%s %d, a", table_pdk13[n].instr, m);
           return 2;
         case OP_A_IO:
-          m = opcode & 0x3f;
-          sprintf(instruction, "%s a, %d", table_pdk14[n].instr, m);
-          return 2;
-        case OP_M6:
-          m = opcode & 0x7e;
-          sprintf(instruction, "%s %d", table_pdk14[n].instr, m);
+          m = opcode & 0x1f;
+          sprintf(instruction, "%s a, %d", table_pdk13[n].instr, m);
           return 2;
         case OP_M:
-          m = opcode & 0x7f;
-          sprintf(instruction, "%s %d", table_pdk14[n].instr, m);
-          return 2;
-        case OP_A_M6:
-          bit = (opcode >> 6) & 0x7;
-          m = opcode & 0x7e;
-          sprintf(instruction, "%s a, %d.%d", table_pdk14[n].instr, m, bit);
-          return 2;
-        case OP_M6_A:
-          bit = (opcode >> 6) & 0x7;
-          m = opcode & 0x7e;
-          sprintf(instruction, "%s %d.%d, a", table_pdk14[n].instr, m, bit);
-          return 2;
-        case OP_A_M:
-          m = opcode & 0x7f;
-          sprintf(instruction, "%s a, %d", table_pdk14[n].instr, m);
-          return 2;
-        case OP_M_A:
-          m = opcode & 0x7f;
-          sprintf(instruction, "%s %d, a", table_pdk14[n].instr, m);
-          return 2;
-        case OP_A_K:
-          k = opcode & 0xff;
-          sprintf(instruction, "%s a, %d", table_pdk14[n].instr, k);
-          return 2;
-        case OP_IO_N:
-        case OP_M_N:
-          bit = (opcode >> 6) & 0x7;
           m = opcode & 0x3f;
-          sprintf(instruction, "%s %d.%d", table_pdk14[n].instr, m, bit);
+          sprintf(instruction, "%s %d", table_pdk13[n].instr, m);
+          return 2;
+        case OP_M4:
+          m = opcode & 0x1e;
+          sprintf(instruction, "%s %d", table_pdk13[n].instr, m);
           return 2;
         case OP_K8:
           k = opcode & 0xff;
-          sprintf(instruction, "%s 0x%02x", table_pdk14[n].instr, k);
+          sprintf(instruction, "%s 0x%02x", table_pdk13[n].instr, k);
           return 2;
-        case OP_K11:
-          k = opcode & 0x7ff;
-          sprintf(instruction, "%s 0x%03x", table_pdk14[n].instr, k);
+        case OP_A_M:
+          m = opcode & 0x3f;
+          sprintf(instruction, "%s a, %d", table_pdk13[n].instr, m);
+          return 2;
+        case OP_M_A:
+          m = opcode & 0x3f;
+          sprintf(instruction, "%s %d, a", table_pdk13[n].instr, m);
+          return 2;
+        case OP_A_M4:
+          bit = (opcode >> 6) & 0x7;
+          m = opcode & 0x1e;
+          sprintf(instruction, "%s a, %d.%d", table_pdk13[n].instr, m, bit);
+          return 2;
+        case OP_M4_A:
+          bit = (opcode >> 6) & 0x7;
+          m = opcode & 0x1e;
+          sprintf(instruction, "%s %d.%d, a", table_pdk13[n].instr, m, bit);
+          return 2;
+        case OP_IO_N:
+        case OP_M_N:
+          bit = (opcode >> 5) & 0x7;
+          m = opcode & 0x1f;
+          sprintf(instruction, "%s %d.%d", table_pdk13[n].instr, m, bit);
+          return 2;
+        case OP_A_K:
+          k = opcode & 0xff;
+          sprintf(instruction, "%s a, %d", table_pdk13[n].instr, k);
+          return 2;
+        case OP_K10:
+          k = opcode & 0x3ff;
+          sprintf(instruction, "%s 0x%03x", table_pdk13[n].instr, k);
           return 2;
         default:
         {
@@ -118,7 +118,7 @@ int disasm_pdk14(
   return 2;
 }
 
-void list_output_pdk14(
+void list_output_pdk13(
   struct _asm_context *asm_context,
   uint32_t start,
   uint32_t end)
@@ -132,7 +132,7 @@ void list_output_pdk14(
 
   while (start < end)
   {
-    count = disasm_pdk14(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_pdk13(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
     opcode = memory_read16_m(&asm_context->memory, start);
 
@@ -156,7 +156,7 @@ void list_output_pdk14(
   }
 }
 
-void disasm_range_pdk14(
+void disasm_range_pdk13(
   struct _memory *memory,
   uint32_t flags,
   uint32_t start,
@@ -173,7 +173,7 @@ void disasm_range_pdk14(
 
   while (start <= end)
   {
-    disasm_pdk14(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_pdk13(memory, start, instruction, &cycles_min, &cycles_max);
 
     opcode = memory_read16_m(memory, start);
 
