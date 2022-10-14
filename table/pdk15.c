@@ -96,15 +96,15 @@ struct _table_pdk15 table_pdk15[] =
   { "ceqsn",   0x2e00, 0xff00, OP_A_M8, 1, 1 },
   { "cneqsn",  0x2f00, 0xff00, OP_A_M8, 1, 1 },
   // Bit operations with IO.
-  { "t0sn",    0x3000, 0xfe00, OP_IO_N, 1, 1 },
-  { "t1sn",    0x3400, 0xfe00, OP_IO_N, 1, 1 },
-  { "set0",    0x3800, 0xfe00, OP_IO_N, 1, 1 },
-  { "set1",    0x3c00, 0xfe00, OP_IO_N, 1, 1 },
+  { "t0sn",    0x3000, 0xfc00, OP_IO_N, 1, 1 },
+  { "t1sn",    0x3400, 0xfc00, OP_IO_N, 1, 1 },
+  { "set0",    0x3800, 0xfc00, OP_IO_N, 1, 1 },
+  { "set1",    0x3c00, 0xfc00, OP_IO_N, 1, 1 },
   // Bit operations with memory.
-  { "t0sn",    0x4000, 0xfe00, OP_M_N,  1, 1 },
-  { "t1sn",    0x4400, 0xfe00, OP_M_N,  1, 1 },
-  { "set0",    0x4800, 0xfe00, OP_M_N,  1, 1 },
-  { "set1",    0x4c00, 0xfe00, OP_M_N,  1, 1 },
+  { "t0sn",    0x4000, 0xfc00, OP_M_N,  1, 1 },
+  { "t1sn",    0x4400, 0xfc00, OP_M_N,  1, 1 },
+  { "set0",    0x4800, 0xfc00, OP_M_N,  1, 1 },
+  { "set1",    0x4c00, 0xfc00, OP_M_N,  1, 1 },
   // Operations with A and 8 bit literal.
   { "add",     0x5000, 0xff00, OP_A_K,  1, 1 },
   { "sub",     0x5100, 0xff00, OP_A_K,  1, 1 },

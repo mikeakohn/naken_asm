@@ -14,14 +14,14 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "asm/pdk13.h"
+#include "asm/pdk15.h"
 #include "asm/pdk_parse.h"
 #include "asm/common.h"
 #include "common/assembler.h"
 #include "common/tokens.h"
-#include "table/pdk13.h"
+#include "table/pdk15.h"
 
-int parse_instruction_pdk13(struct _asm_context *asm_context, char *instr)
+int parse_instruction_pdk15(struct _asm_context *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
   char *instr_case = instr_case_mem;
@@ -47,19 +47,19 @@ int parse_instruction_pdk13(struct _asm_context *asm_context, char *instr)
 
   lower_copy(instr_case, instr);
 
-  for (n = 0; table_pdk13[n].instr != NULL; n++)
+  for (n = 0; table_pdk15[n].instr != NULL; n++)
   {
-    if (strcmp(table_pdk13[n].instr, instr_case) == 0)
+    if (strcmp(table_pdk15[n].instr, instr_case) == 0)
     {
       matched = 1;
 
-      switch (table_pdk13[n].type)
+      switch (table_pdk15[n].type)
       {
         case OP_NONE:
         {
           if (operand_count != 0) { continue; }
 
-          add_bin16(asm_context, table_pdk13[n].opcode, IS_OPCODE);
+          add_bin16(asm_context, table_pdk15[n].opcode, IS_OPCODE);
 
           return 2;
         }
@@ -70,7 +70,7 @@ int parse_instruction_pdk13(struct _asm_context *asm_context, char *instr)
             continue;
           }
 
-          add_bin16(asm_context, table_pdk13[n].opcode, IS_OPCODE);
+          add_bin16(asm_context, table_pdk15[n].opcode, IS_OPCODE);
 
           return 2;
         }
@@ -83,13 +83,13 @@ int parse_instruction_pdk13(struct _asm_context *asm_context, char *instr)
             continue;
           }
 
-          if (operands[0].value < 0 || operands[0].value > 0x1f)
+          if (operands[0].value < 0 || operands[0].value > 0x7f)
           {
-            print_error_range("IO", 0, 0x1f, asm_context);
+            print_error_range("IO", 0, 0x7f, asm_context);
             return -1;
           }
 
-          opcode = table_pdk13[n].opcode | (operands[0].value & 0x1f);
+          opcode = table_pdk15[n].opcode | (operands[0].value & 0x7f);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
@@ -103,55 +103,13 @@ int parse_instruction_pdk13(struct _asm_context *asm_context, char *instr)
             continue;
           }
 
-          if (operands[1].value < 0 || operands[1].value > 0x1f)
+          if (operands[1].value < 0 || operands[1].value > 0x7f)
           {
-            print_error_range("IO", 0, 0x1f, asm_context);
+            print_error_range("IO", 0, 0x7f, asm_context);
             return -1;
           }
 
-          opcode = table_pdk13[n].opcode | (operands[1].value & 0x1f);
-          add_bin16(asm_context, opcode, IS_OPCODE);
-
-          return 2;
-        }
-        case OP_M:
-        {
-          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
-          {
-            continue;
-          }
-
-          if (operands[0].value < 0 || operands[0].value > 0x3f)
-          {
-            print_error_range("Address", 0, 0x3f, asm_context);
-            return -1;
-          }
-
-          opcode = table_pdk13[n].opcode | (operands[0].value & 0x3f);
-          add_bin16(asm_context, opcode, IS_OPCODE);
-
-          return 2;
-        }
-        case OP_M4:
-        {
-          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
-          {
-            continue;
-          }
-
-          if (operands[0].value < 0 || operands[0].value > 0x1f)
-          {
-            print_error_range("Address", 0, 0x1f, asm_context);
-            return -1;
-          }
-
-          if ((operands[0].value & 1) != 0)
-          {
-            print_error_align(asm_context, 2);
-            return -1;
-          }
-
-          opcode = table_pdk13[n].opcode | (operands[0].value & 0x1f);
+          opcode = table_pdk15[n].opcode | (operands[1].value & 0x7f);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
@@ -169,89 +127,21 @@ int parse_instruction_pdk13(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          opcode = table_pdk13[n].opcode | (operands[0].value & 0xff);
+          opcode = table_pdk15[n].opcode | (operands[0].value & 0xff);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
         }
-        case OP_A_M:
+        case OP_M7:
         {
-          if (operand_count != 2 ||
-              operands[0].type != OPERAND_A ||
-              operands[1].type != OPERAND_NUMBER)
+          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
             continue;
           }
 
-          if (operands[1].value < 0 || operands[1].value > 0x3f)
+          if (operands[0].value < 0 || operands[0].value > 0xff)
           {
-            print_error_range("Address", 0, 0x3f, asm_context);
-            return -1;
-          }
-
-          opcode = table_pdk13[n].opcode | (operands[1].value & 0x3f);
-          add_bin16(asm_context, opcode, IS_OPCODE);
-
-          return 2;
-        }
-        case OP_M_A:
-        {
-          if (operand_count != 2 ||
-              operands[1].type != OPERAND_NUMBER ||
-              operands[0].type != OPERAND_A)
-          {
-            continue;
-          }
-
-          if (operands[0].value < 0 || operands[0].value > 0x3f)
-          {
-            print_error_range("Address", 0, 0x3f, asm_context);
-            return -1;
-          }
-
-          opcode = table_pdk13[n].opcode | (operands[0].value & 0x3f);
-          add_bin16(asm_context, opcode, IS_OPCODE);
-
-          return 2;
-        }
-        case OP_A_M4:
-        {
-          if (operand_count != 2 ||
-              operands[0].type != OPERAND_A ||
-              operands[1].type != OPERAND_NUMBER)
-          {
-            continue;
-          }
-
-          if (operands[1].value < 0 || operands[1].value > 0x1f)
-          {
-            print_error_range("Address", 0, 0x1f, asm_context);
-            return -1;
-          }
-
-          if ((operands[1].value & 1) != 0)
-          {
-            print_error_align(asm_context, 2);
-            return -1;
-          }
-
-          opcode = table_pdk13[n].opcode | (operands[1].value & 0x1f);
-          add_bin16(asm_context, opcode, IS_OPCODE);
-
-          return 2;
-        }
-        case OP_M4_A:
-        {
-          if (operand_count != 2 ||
-              operands[0].type != OPERAND_NUMBER ||
-              operands[1].type != OPERAND_A)
-          {
-            continue;
-          }
-
-          if (operands[0].value < 0 || operands[0].value > 0x1f)
-          {
-            print_error_range("Address", 0, 0x1f, asm_context);
+            print_error_range("Address", 0, 0xff, asm_context);
             return -1;
           }
 
@@ -261,7 +151,77 @@ int parse_instruction_pdk13(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          opcode = table_pdk13[n].opcode | (operands[0].value & 0x1f);
+          opcode = table_pdk15[n].opcode | (operands[0].value & 0xff);
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        }
+        case OP_M8:
+        {
+          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
+          {
+            continue;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 0xff)
+          {
+            print_error_range("Address", 0, 0xff, asm_context);
+            return -1;
+          }
+
+          opcode = table_pdk15[n].opcode | (operands[0].value & 0xff);
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        }
+        case OP_A_M7:
+        {
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_A ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            continue;
+          }
+
+          if (operands[1].value < 0 || operands[1].value > 0xff)
+          {
+            print_error_range("Address", 0, 0xff, asm_context);
+            return -1;
+          }
+
+          if ((operands[1].value & 1) != 0)
+          {
+            print_error_align(asm_context, 2);
+            return -1;
+          }
+
+          opcode = table_pdk15[n].opcode | (operands[1].value & 0xff);
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        }
+        case OP_M7_A:
+        {
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_A)
+          {
+            continue;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 0xff)
+          {
+            print_error_range("Address", 0, 0xff, asm_context);
+            return -1;
+          }
+
+          if ((operands[0].value & 1) != 0)
+          {
+            print_error_align(asm_context, 2);
+            return -1;
+          }
+
+          opcode = table_pdk15[n].opcode | (operands[0].value & 0xff);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
@@ -274,11 +234,11 @@ int parse_instruction_pdk13(struct _asm_context *asm_context, char *instr)
             continue;
           }
 
-          if (operands[0].value < 0 || operands[0].value > 0x1f)
+          if (operands[0].value < 0 || operands[0].value > 0x7f)
           {
             print_error_range(
-              table_pdk13[n].type == OP_IO_N ? "IO" : "Address",
-              0, 0x1f, asm_context);
+              table_pdk15[n].type == OP_IO_N ? "IO" : "Address",
+              0, 0x7f, asm_context);
             return -1;
           }
 
@@ -289,8 +249,8 @@ int parse_instruction_pdk13(struct _asm_context *asm_context, char *instr)
           }
 
           opcode =
-            table_pdk13[n].opcode |
-           (operands[0].bit << 5) |
+            table_pdk15[n].opcode |
+           (operands[0].bit << 7) |
             operands[0].value;
           add_bin16(asm_context, opcode, IS_OPCODE);
 
@@ -311,25 +271,25 @@ int parse_instruction_pdk13(struct _asm_context *asm_context, char *instr)
             return -1;
           }
 
-          opcode = table_pdk13[n].opcode | (operands[1].value & 0xff);
+          opcode = table_pdk15[n].opcode | (operands[1].value & 0xff);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
         }
-        case OP_K10:
+        case OP_K12:
         {
           if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
             continue;
           }
 
-          if (operands[0].value < -512 || operands[0].value > 1024)
+          if (operands[0].value < -2048 || operands[0].value > 4095)
           {
-            print_error_range("Literal", -512, 1024, asm_context);
+            print_error_range("Literal", -2048, 4095, asm_context);
             return -1;
           }
 
-          opcode = table_pdk13[n].opcode | (operands[0].value & 0x3ff);
+          opcode = table_pdk15[n].opcode | (operands[0].value & 0x7ff);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
