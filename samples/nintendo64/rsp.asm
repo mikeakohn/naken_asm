@@ -80,7 +80,7 @@ main:
   ;; Command 4: Calculate rotation, projection, triangle, and start_rdp.
   ;; Command 5: Draw rectangle.
   ;; Command 6: Draw rectangle with texture.
-  ;; Command 7: Setup texture.
+  ;; Command 7: Load texture into TMEM.
   ;; Command 8: Clear screen.
   ;; Command 9: Reset Z buffer.
   li $t1, 1
@@ -891,7 +891,6 @@ command_6:
   sw $t1, 108($0)
   sb $t4, 104($0)
   ;; Add Texture information. $t4 = DsDx, $t5 = DtDy.
-  ;; FIXME: This is hardcoded to DsDx=4.0, DtDy=1.0.
   lh $t0, 8($0)
   lh $t1, 10($0)
   lh $t2, 16($0)
@@ -931,7 +930,7 @@ command_6:
   b main
   nop
 
-  ;; Setup texture (must be 64 bit aligned).
+  ;; Load texture into TMEM (must be 64 bit aligned).
   ;; byte  40: texture: width, height
   ;; byte  48: texture: DRAM address
   ;; byte 104: [command][fmt][sz][width] [   DRAM address   ] Set Texture Image

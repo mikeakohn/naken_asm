@@ -178,8 +178,8 @@ setup_rdp_loop:
   jal send_rdp_setup
   nop
 
-  ;; Setup the texture.
-  jal setup_texture
+  ;; Load the texture into TMEM.
+  jal load_texture
   nop
 
   ;; Draw textured rectangle at (100.0, 90.0) to (150.0, 120.0).
@@ -187,7 +187,6 @@ setup_rdp_loop:
   li $t1,  90 << 2
   li $t2, 150 << 2
   li $t3, 120 << 2
-  li $t4, COLOR(255, 0, 0)  ;; FIXME: REMOVE
   jal draw_rectangle
   nop
 
@@ -196,7 +195,6 @@ setup_rdp_loop:
   li $t1,  50 << 2
   li $t2, 250 << 2
   li $t3,  90 << 2
-  li $t4, COLOR(0, 255, 0)  ;; FIXME: REMOVE
   jal draw_rectangle
   nop
 
@@ -217,8 +215,8 @@ send_rdp_setup_wait_for_rsp:
   jr $ra
   nop
 
-;; setup_texture();
-setup_texture:
+;; load_texture();
+load_texture:
   li $a0, KSEG1 | RSP_DMEM
   ;; $t0 = width, $t1 = height, $t2 = address
   li $t0, 32
@@ -228,12 +226,12 @@ setup_texture:
   or $t0, $t0, $t1
   sw $t0, 40($a0)
   sw $t2, 48($a0)
-  ;; Set command to setup_texture.
+  ;; Set command to load_texture.
   li $t0, 7 << 24
   sw $t0, 0($a0)
-setup_texture_wait_for_rsp:
+load_texture_wait_for_rsp:
   lw $t0, 0($a0)
-  bne $t0, $0, setup_texture_wait_for_rsp
+  bne $t0, $0, load_texture_wait_for_rsp
   nop
   jr $ra
   nop
