@@ -274,11 +274,13 @@ int parse_instruction_pdk13(struct _asm_context *asm_context, char *instr)
             continue;
           }
 
-          if (operands[0].value < 0 || operands[0].value > 0x1f)
+          int range = table_pdk13[n].type == OP_IO_N ? 0x1f : 0x0f;
+
+          if (operands[0].value < 0 || operands[0].value > range)
           {
             print_error_range(
               table_pdk13[n].type == OP_IO_N ? "IO" : "Address",
-              0, 0x1f, asm_context);
+              0, range, asm_context);
             return -1;
           }
 

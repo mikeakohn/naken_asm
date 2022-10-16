@@ -44,9 +44,9 @@ struct _table_pdk13 table_pdk13[] =
   { "reti",    0x003b, 0xffff, OP_NONE, 1, 1 },
   { "mul",     0x003c, 0xffff, OP_NONE, 1, 1 },
   // Operations with A and IO.
-  { "xor",     0x0060, 0xffe0, OP_IO_A, 1, 1 },
-  { "mov",     0x0080, 0xffe0, OP_IO_A, 1, 1 },
-  { "mov",     0x00a0, 0xffe0, OP_A_IO, 1, 1 },
+  { "xor.io",  0x0060, 0xffe0, OP_IO_A, 1, 1 },
+  { "mov.io",  0x0080, 0xffe0, OP_IO_A, 1, 1 },
+  { "mov.io",  0x00a0, 0xffe0, OP_A_IO, 1, 1 },
   // 16 bit memory operations.
   { "stt16",   0x0300, 0xff81, OP_M4,   1, 1 },
   { "ldt16",   0x0301, 0xff81, OP_M4,   1, 1 },
@@ -54,6 +54,11 @@ struct _table_pdk13 table_pdk13[] =
   { "idxm",    0x0381, 0xff81, OP_A_M4, 2, 2 },
   // Return with A.
   { "ret",     0x0100, 0xff00, OP_K8,   1, 1 },
+  // Bit operations with memory.
+  { "t0sn",    0x0200, 0xff10, OP_IO_N, 1, 1 },
+  { "t1sn",    0x0210, 0xff10, OP_IO_N, 1, 1 },
+  { "set0",    0x0300, 0xff10, OP_IO_N, 1, 1 },
+  { "set1",    0x0310, 0xff10, OP_IO_N, 1, 1 },
   // Operations with A and memory.
   { "add",     0x0400, 0xffc0, OP_M_A,  1, 1 },
   { "sub",     0x0440, 0xffc0, OP_M_A,  1, 1 },
@@ -89,10 +94,10 @@ struct _table_pdk13 table_pdk13[] =
   { "ceqsn",   0xb080, 0xffc0, OP_A_M,  1, 1 },
   //{ "cneqsn",  0xb0c0, 0xffc0, OP_A_M,  1, 1 },
   // Bit operations with IO.
-  { "t0sn",    0x0c00, 0xff00, OP_IO_N, 1, 1 },
-  { "t1sn",    0x0d00, 0xff00, OP_IO_N, 1, 1 },
-  { "set0",    0x0e00, 0xff00, OP_IO_N, 1, 1 },
-  { "set1",    0x0f00, 0xff00, OP_IO_N, 1, 1 },
+  { "t0sn.io", 0x0c00, 0xff00, OP_IO_N, 1, 1 },
+  { "t1sn.io", 0x0d00, 0xff00, OP_IO_N, 1, 1 },
+  { "set0.io", 0x0e00, 0xff00, OP_IO_N, 1, 1 },
+  { "set1.io", 0x0f00, 0xff00, OP_IO_N, 1, 1 },
   // Operations with A and 8 bit literal.
   { "add",     0x1000, 0xff00, OP_A_K,  1, 1 },
   { "sub",     0x1100, 0xff00, OP_A_K,  1, 1 },

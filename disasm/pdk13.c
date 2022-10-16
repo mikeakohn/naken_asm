@@ -91,9 +91,13 @@ int disasm_pdk13(
           sprintf(instruction, "%s %d.%d, a", table_pdk13[n].instr, m, bit);
           return 2;
         case OP_IO_N:
-        case OP_M_N:
           bit = (opcode >> 5) & 0x7;
           m = opcode & 0x1f;
+          sprintf(instruction, "%s %d.%d", table_pdk13[n].instr, m, bit);
+          return 2;
+        case OP_M_N:
+          bit = (opcode >> 5) & 0x7;
+          m = opcode & 0xf;
           sprintf(instruction, "%s %d.%d", table_pdk13[n].instr, m, bit);
           return 2;
         case OP_A_K:

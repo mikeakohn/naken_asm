@@ -1,0 +1,82 @@
+nop
+ldsptl
+ldspth
+addc a
+subc a
+izsn a
+dzsn a
+pcadd a
+not a
+neg a
+sr a
+sl a
+src a
+slc a
+swap a
+wdreset
+pushaf
+popaf
+reset
+stopsys
+stopexe
+engint
+disgint
+ret
+reti
+mul
+xor.io 3, a
+mov.io 5, a
+mov.io a, 7
+stt16 6
+ldt16 7
+idxm 9, a
+idxm a, 31
+ret #100
+t0sn.io 9.7
+t1sn.io 6.7
+set0.io 3.6
+set1.io 5.2
+add 31, a
+sub 17, a
+addc 35, a
+subc 37, a
+and 19, a
+or 1, a
+xor 9, a
+mov 10, a
+add a, 11
+sub a, 12
+addc a, 13
+subc a, 14
+and a, 15
+or a, 16
+xor a, 17
+mov a, 18
+addc 19
+subc 20
+izsn 21
+dzsn 22
+inc 23
+dec 24
+clear 25
+xch 26
+not 27
+neg 17
+sr 18
+sl 19
+src 20
+slc 21
+ceqsn a, 22
+t0sn 17.7
+t1sn 19.7
+set0 21.6
+set1 23.2
+add a, 127
+sub a, 65
+ceqsn a, 33
+and a, 99
+or a, 12
+xor a, 44
+mov a, 27
+goto 257
+call 300

@@ -1,0 +1,115 @@
+nop
+addc a
+subc a
+izsn a
+dzsn a
+pcadd a
+not a
+neg a
+sr a
+sl a
+src a
+slc a
+swap a
+delay a
+wdreset
+pushaf
+popaf
+reset
+stopsys
+stopexe
+engint
+disgint
+ret
+reti
+mul
+pmode 17
+popwpc 7
+pushwpc 9
+mov.io 70, a
+mov.io 7, a
+stt16 30
+ldt16 36
+popw 258
+pushw 258
+igoto 60
+icall 68
+idxm 38, a
+idxm a, 40
+ldtabl 60
+ldtabh 130
+delay #200
+ret #100
+xor.io 33, a
+xor.io a, 50
+cneqsn a, 50
+cneqsn 257, a
+add a, #63
+sub a, #50
+ceqsn a, #22
+cneqsn a, #22
+addc a, #13
+subc a, #14
+and a, #33
+or a, #16
+xor a, #17
+mov a, #18
+
+t0sn.io 63.7
+t1sn.io 121.7
+set0.io 3.6
+set1.io 5.2
+tog.io 5.2
+wait0.io 5.2
+wait1.io 5.2
+swapc.io 5.2
+
+
+nmov 257, a
+nmov a, 300
+nadd 61, a
+nadd a, 43
+ceqsn a, 33
+ceqsn 33, 257
+comp 63, a
+comp a, 50
+add 31, a
+add a, 127
+sub 17, a
+sub a, 65
+addc 35, a
+addc a, 300
+subc 37, a
+subc a, 200
+and 19, a
+and a, 19
+or 10, a
+or a, 111
+xor 9, a
+xor a, 103
+mov 10, a
+mov a, 90
+
+
+addc 129
+subc 77
+izsn 21
+dzsn 22
+inc 23
+dec 101
+clear 25
+xch 26
+not 27
+neg 17
+sr 18
+sl 19
+src 20
+slc 21
+swap 113
+delay 200
+t0sn 17.7
+t1sn 19.7
+set0 118.6
+set1 23.2
+goto 1000
+call 300

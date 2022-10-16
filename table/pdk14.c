@@ -44,9 +44,9 @@ struct _table_pdk14 table_pdk14[] =
   { "reti",    0x007b, 0xffff, OP_NONE, 1, 1 },
   { "mul",     0x007c, 0xffff, OP_NONE, 1, 1 },
   // Operations with A and IO.
-  { "xor",     0x00c0, 0xffc0, OP_IO_A, 1, 1 },
-  { "mov",     0x0180, 0xffc0, OP_IO_A, 1, 1 },
-  { "mov",     0x01c0, 0xffc0, OP_A_IO, 1, 1 },
+  { "xor.io",  0x00c0, 0xffc0, OP_IO_A, 1, 1 },
+  { "mov.io",  0x0180, 0xffc0, OP_IO_A, 1, 1 },
+  { "mov.io",  0x01c0, 0xffc0, OP_A_IO, 1, 1 },
   // Return with A.
   { "ret",     0x0200, 0xff00, OP_K8,   1, 1 },
   // 16 bit memory operations.
