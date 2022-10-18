@@ -54,7 +54,6 @@ and a, #33
 or a, #16
 xor a, #17
 mov a, #18
-
 t0sn.io 63.7
 t1sn.io 121.7
 set0.io 3.6
@@ -63,8 +62,6 @@ tog.io 5.2
 wait0.io 5.2
 wait1.io 5.2
 swapc.io 5.2
-
-
 nmov 257, a
 nmov a, 300
 nadd 61, a
@@ -89,8 +86,6 @@ xor 9, a
 xor a, 103
 mov 10, a
 mov a, 90
-
-
 addc 129
 subc 77
 izsn 21

@@ -22,8 +22,8 @@ struct _table_pdk13 table_pdk13[] =
   // Misc.
   { "addc",    0x0010, 0xffff, OP_A,    1, 1 },
   { "subc",    0x0011, 0xffff, OP_A,    1, 1 },
-  { "izsn",    0x0012, 0xffff, OP_A,    1, 1 },
-  { "dzsn",    0x0013, 0xffff, OP_A,    1, 1 },
+  { "izsn",    0x0012, 0xffff, OP_A,    1, 2 },
+  { "dzsn",    0x0013, 0xffff, OP_A,    1, 2 },
   { "pcadd",   0x0017, 0xffff, OP_A,    1, 1 },
   { "not",     0x0018, 0xffff, OP_A,    1, 1 },
   { "neg",     0x0019, 0xffff, OP_A,    1, 1 },
@@ -55,8 +55,8 @@ struct _table_pdk13 table_pdk13[] =
   // Return with A.
   { "ret",     0x0100, 0xff00, OP_K8,   1, 1 },
   // Bit operations with memory.
-  { "t0sn",    0x0200, 0xff10, OP_IO_N, 1, 1 },
-  { "t1sn",    0x0210, 0xff10, OP_IO_N, 1, 1 },
+  { "t0sn",    0x0200, 0xff10, OP_IO_N, 1, 2 },
+  { "t1sn",    0x0210, 0xff10, OP_IO_N, 1, 2 },
   { "set0",    0x0300, 0xff10, OP_IO_N, 1, 1 },
   { "set1",    0x0310, 0xff10, OP_IO_N, 1, 1 },
   // Operations with A and memory.
@@ -79,8 +79,8 @@ struct _table_pdk13 table_pdk13[] =
   // Operations with memory.
   { "addc",    0x8000, 0xffc0, OP_M,    1, 1 },
   { "subc",    0x8040, 0xffc0, OP_M,    1, 1 },
-  { "izsn",    0x8080, 0xffc0, OP_M,    1, 1 },
-  { "dzsn",    0x80c0, 0xffc0, OP_M,    1, 1 },
+  { "izsn",    0x8080, 0xffc0, OP_M,    1, 2 },
+  { "dzsn",    0x80c0, 0xffc0, OP_M,    1, 2 },
   { "inc",     0x9000, 0xffc0, OP_M,    1, 1 },
   { "dec",     0x9040, 0xffc0, OP_M,    1, 1 },
   { "clear",   0x9080, 0xffc0, OP_M,    1, 1 },
@@ -91,18 +91,18 @@ struct _table_pdk13 table_pdk13[] =
   { "sl",      0xa0c0, 0xffc0, OP_M,    1, 1 },
   { "src",     0xb000, 0xffc0, OP_M,    1, 1 },
   { "slc",     0xb040, 0xffc0, OP_M,    1, 1 },
-  { "ceqsn",   0xb080, 0xffc0, OP_A_M,  1, 1 },
-  //{ "cneqsn",  0xb0c0, 0xffc0, OP_A_M,  1, 1 },
+  { "ceqsn",   0xb080, 0xffc0, OP_A_M,  1, 2 },
+  //{ "cneqsn",  0xb0c0, 0xffc0, OP_A_M,  1, 2 },
   // Bit operations with IO.
-  { "t0sn.io", 0x0c00, 0xff00, OP_IO_N, 1, 1 },
-  { "t1sn.io", 0x0d00, 0xff00, OP_IO_N, 1, 1 },
+  { "t0sn.io", 0x0c00, 0xff00, OP_IO_N, 1, 2 },
+  { "t1sn.io", 0x0d00, 0xff00, OP_IO_N, 1, 2 },
   { "set0.io", 0x0e00, 0xff00, OP_IO_N, 1, 1 },
   { "set1.io", 0x0f00, 0xff00, OP_IO_N, 1, 1 },
   // Operations with A and 8 bit literal.
   { "add",     0x1000, 0xff00, OP_A_K,  1, 1 },
   { "sub",     0x1100, 0xff00, OP_A_K,  1, 1 },
-  { "ceqsn",   0x1200, 0xff00, OP_A_K,  1, 1 },
-  //{ "cneqsn",  0x1300, 0xff00, OP_A_K,  1, 1 },
+  { "ceqsn",   0x1200, 0xff00, OP_A_K,  1, 2 },
+  //{ "cneqsn",  0x1300, 0xff00, OP_A_K,  1, 2 },
   { "and",     0x1400, 0xff00, OP_A_K,  1, 1 },
   { "or",      0x1500, 0xff00, OP_A_K,  1, 1 },
   { "xor",     0x1600, 0xff00, OP_A_K,  1, 1 },

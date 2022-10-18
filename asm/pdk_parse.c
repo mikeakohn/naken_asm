@@ -39,17 +39,18 @@ int pdk_parse(struct _asm_context *asm_context, struct _operand *operands)
       operands[operand_count].type = OPERAND_A;
     }
       else
+    if (IS_TOKEN(token, '#'))
     {
-      tokens_push(asm_context, token, token_type);
-
       if (eval_expression(asm_context, &num) != 0)
       {
+#if 0
         if (asm_context->pass == 1)
         {
           ignore_operand(asm_context);
           num = 0;
         }
           else
+#endif
         {
           print_error_unexp(token, asm_context);
           return -1;
@@ -57,7 +58,30 @@ int pdk_parse(struct _asm_context *asm_context, struct _operand *operands)
       }
 
       operands[operand_count].value = num;
-      operands[operand_count].type = OPERAND_NUMBER;
+      operands[operand_count].type = OPERAND_IMMEDIATE;
+    }
+      else
+    {
+      tokens_push(asm_context, token, token_type);
+
+      if (eval_expression(asm_context, &num) != 0)
+      {
+#if 0
+        if (asm_context->pass == 1)
+        {
+          ignore_operand(asm_context);
+          num = 0;
+        }
+          else
+#endif
+        {
+          print_error_unexp(token, asm_context);
+          return -1;
+        }
+      }
+
+      operands[operand_count].value = num;
+      operands[operand_count].type = OPERAND_ADDRESS;
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -65,12 +89,14 @@ int pdk_parse(struct _asm_context *asm_context, struct _operand *operands)
       {
         if (eval_expression(asm_context, &num) != 0)
         {
+#if 0
           if (asm_context->pass == 1)
           {
             ignore_operand(asm_context);
             num = 0;
           }
             else
+#endif
           {
             print_error_unexp(token, asm_context);
             return -1;

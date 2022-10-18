@@ -77,13 +77,13 @@ t0sn 17.7
 t1sn 19.7
 set0 21.6
 set1 23.2
-add a, 127
-sub a, 65
-ceqsn a, 33
-cneqsn a, 35
-and a, 99
-or a, 12
-xor a, 44
-mov a, 27
+add a, #127
+sub a, #65
+ceqsn a, #33
+cneqsn a, #35
+and a, #99
+or a, #12
+xor a, #44
+mov a, #27
 goto 257
 call 300

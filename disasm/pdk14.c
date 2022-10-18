@@ -88,7 +88,7 @@ int disasm_pdk14(
           return 2;
         case OP_A_K:
           k = opcode & 0xff;
-          sprintf(instruction, "%s a, %d", table_pdk14[n].instr, k);
+          sprintf(instruction, "%s a, #%d", table_pdk14[n].instr, k);
           return 2;
         case OP_IO_N:
         case OP_M_N:
@@ -98,7 +98,7 @@ int disasm_pdk14(
           return 2;
         case OP_K8:
           k = opcode & 0xff;
-          sprintf(instruction, "%s 0x%02x", table_pdk14[n].instr, k);
+          sprintf(instruction, "%s #0x%02x", table_pdk14[n].instr, k);
           return 2;
         case OP_K11:
           k = opcode & 0x7ff;
