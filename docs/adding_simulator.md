@@ -1,15 +1,19 @@
 Adding a simulator to naken_asm
 ========
 
-Another feature in naken_asm is the ability to simulate MCUs in some of the architectures it supports, for example (MSP430, AVR8, 6502...etc). This page will introduce how to go about adding a simulator to the code base.
+Another feature in naken_asm is the ability to simulate MCUs in some of the 
+architectures it supports, for example (MSP430, AVR8, 6502...etc). This page 
+will introduce how to go about adding a simulator to the code base.
 
 
 
 Example prototype of adding a MCU simulator.
 ------
-There is code in simulate/ directory that can help in this process. namely the source and header files null.c and null.h
+There is code in simulate/ directory that can help in this process. namely the
+source and header files null.c and null.h
 
-Creating similar files under directory simulate, my_mcu.c and my_mcu.h, and including headers in the my_mcu.h:
+Creating similar files under directory simulate, my_mcu.c and my_mcu.h, and 
+including headers in the my_mcu.h:
 ``` c
 #include <unistd.h>
 
@@ -43,7 +47,8 @@ struct _simulate *simulate_init_null();
 void simulate_free_null(struct _simulate *simulate);
 int simulate_dumpram_null(struct _simulate *simulate, int start, int end);
 void simulate_push_null(struct _simulate *simulate, uint32_t value);
-int simulate_set_reg_null(struct _simulate *simulate, char *reg_string, uint32_t value);
+int simulate_set_reg_null(struct _simulate *simulate, char *reg_string, 
+                                                        uint32_t value);
 uint32_t simulate_get_reg_null(struct _simulate *simulate, char *reg_string);
 void simulate_set_pc_null(struct _simulate *simulate, uint32_t value);
 void simulate_reset_null(struct _simulate *simulate);
@@ -53,16 +58,22 @@ int simulate_run_null(struct _simulate *simulate, int max_cycles, int step);
 
 ```
 
-That was for code definitions inside the header files for our my_mcu.h, the actual code will be written in my_mcu.c.
-There can be other architecture specific definitions for example to keep track of the running state of the simulator or to send signals and interrupts, but the code here is the bare minimum needed in this example.
+That was for code definitions inside the header files for our my_mcu.h, the 
+actual code will be written in my_mcu.c. There can be other architecture 
+specific definitions for example to keep track of the running state of 
+the simulator or to send signals and interrupts, but the code here is 
+the bare minimum needed in this example.
 
 
 
 Configure scripts
 ------
-To reflect the changes of adding my_mcu simulator, the following files need to be edited:
+To reflect the changes of adding my_mcu simulator, the following files 
+need to be edited:
 
-* common/cpu_list.c: To add the headers of the new microcontroller header file (add the headers to common/naken_util.c as well) and add the name of the microcontroller architecture using an #ifdef such as the one in line 342
+* common/cpu_list.c: To add the headers of the new microcontroller header file
+(add the headers to common/naken_util.c as well) and add the name of the 
+microcontroller architecture using an #ifdef such as the one in line 342:
 ``` c
 #ifdef ENABLE_my_mcu
   {
@@ -90,14 +101,18 @@ To reflect the changes of adding my_mcu simulator, the following files need to b
 #endif
 ``` 
 
-* Including the name of the object file to the source in my_mcu.c to configure script
+* Including the name of the object file to the source in my_mcu.c to 
+configure script:
 ``` 
 SIM_OBJS="${SIM_OBJS} my_mcu.o
 ```
 
 Compiling
 ------
-Compiling is just the same way as the program is normally compiled, no need for further changes or additions, if the compiler stops for some reason it would be due to not adding the proper header or having a function that wasn't defined in the header file before.
+Compiling is just the same way as the program is normally compiled, no need 
+for further changes or additions, if the compiler stops for some reason 
+it would be due to not adding the proper header or having a function that 
+wasn't defined in the header file before.
 ``` 
 $ ./configure
 $ make
