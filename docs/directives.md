@@ -40,6 +40,9 @@ CPU this source file should be assembled for.
 |.msp430          |MSP430
 |.mps430x         |MSP430X
 |.n64_rsp         |Nintendo 64 RSP
+|.pdk13           |Padauk PDK13
+|.pdk14           |Padauk PDK14
+|.pdk15           |Padauk PDK15
 |.pic14           |PIC w/ 14 bit opcodes
 |.pic24           |PIC24
 |.pic32           |PIC32 MIPS
