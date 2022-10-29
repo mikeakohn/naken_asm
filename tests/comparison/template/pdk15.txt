@@ -1,3 +1,27 @@
+.CHIP PFS173
+//{{PADAUK_CODE_OPTION
+	.Code_Option	Bootup_Time	Slow		// 2048 ILRC
+	.Code_Option	Security	Enable		// Security 7/8 words Enable
+	.Code_Option	LVR		2.0V
+	.Code_Option	Comparator_Edge	All_Edge
+	.Code_Option	TMx_Bit		6BIT
+	.Code_Option	TMx_Source	16MHz
+	.Code_Option	PWM_Source	16MHz
+	.Code_Option	GPC_PWM		Disable
+	.Code_Option	Interrupt_Src1	PB.0
+	.Code_Option	Interrupt_Src0	PA.0
+	.Code_Option	PB4_PB5_Drive	Normal
+//}}PADAUK_CODE_OPTION
+.WRITER O_S
+
+	.ADJUST_IC	SYSCLK=IHRC/32, IHRC=16MHz, VDD=5V;
+		//	WatchDog Disable, RAM 0 ~ 0xF temporary be used
+	//	You can add the follow code :
+	//		CLKMD.En_WatchDog	=	1;		// WatchDog Enable
+
+WORD BLANK;
+WORD ASDF;
+	sp = 0;
 nop
 addc a
 subc a
@@ -21,72 +45,78 @@ engint
 disgint
 ret
 reti
-mul
-xor.io 31, a
-mov.io 70, a
-mov.io 7, a
-ret #100
-ldtabl 60
-ldtabh 130
-stt16 30
-ldt16 36
-idxm 38, a
-idxm a, 40
-nmov 63, a
-nmov a, 50
-swap 129
-comp 63, a
-comp a, 50
-nadd 61, a
-nadd a, 43
-add 31, a
-sub 17, a
-addc 35, a
-subc 37, a
-and 19, a
-or 1, a
-xor 9, a
-mov 10, a
-add a, 63
-sub a, 50
-addc a, 13
-subc a, 14
-and a, 33
-or a, 16
-xor a, 17
-mov a, 18
-addc 129
-subc 77
-izsn 21
-dzsn 22
-inc 23
-dec 101
-clear 25
-xch 26
-not 27
-neg 17
-sr 18
-sl 19
-src 20
-slc 21
-ceqsn a, 22
-cneqsn a, 50
-t0sn.io 63.7
-t1sn.io 121.7
-set0.io 3.6
-set1.io 5.2
-t0sn 17.7
-t1sn 19.7
-set0 118.6
-set1 23.2
-add a, #127
-sub a, #65
-ceqsn a, #33
-cneqsn a, #35
-and a, #99
-or a, #12
-xor a, #44
-mov a, #27
-swapc 33.6
+//mul
+xor CLKMD, a
+mov CLKMD, a
+mov a, CLKMD
+ret 100
+ldtabl ASDF
+ldtabh ASDF
+stt16 ASDF
+ldt16 ASDF
+idxm ASDF, a
+idxm a, ASDF
+nmov LB@ASDF, a
+nmov a, LB@ASDF
+swap LB@ASDF
+comp LB@ASDF, a
+comp a, LB@ASDF
+nadd LB@ASDF, a
+nadd a, LB@ASDF
+add LB@ASDF, a
+sub LB@ASDF, a
+addc LB@ASDF, a
+subc LB@ASDF, a
+and LB@ASDF, a
+or LB@ASDF, a
+xor LB@ASDF, a
+mov LB@ASDF, a
+add a, LB@ASDF
+sub a, LB@ASDF
+addc a, LB@ASDF
+subc a, LB@ASDF
+and a, LB@ASDF
+or a, LB@ASDF
+xor a, LB@ASDF
+mov a, LB@ASDF
+addc LB@ASDF
+subc LB@ASDF
+izsn LB@ASDF
+dzsn LB@ASDF
+inc LB@ASDF
+dec LB@ASDF
+clear LB@ASDF
+xch LB@ASDF
+not LB@ASDF
+neg LB@ASDF
+sr LB@ASDF
+sl LB@ASDF
+src LB@ASDF
+slc LB@ASDF
+ceqsn a, LB@ASDF
+cneqsn a, LB@ASDF
+t0sn CLKMD.7
+t1sn CLKMD.7
+set0 CLKMD.6
+set1 CLKMD.2
+t0sn ASDF.7
+nop
+t1sn ASDF.7
+nop
+set0 ASDF.6
+nop
+set1 ASDF.2
+nop
+add a, 127
+sub a, 65
+ceqsn a, 33
+cneqsn a, 35
+and a, 99
+or a, 12
+xor a, 44
+mov a, 27
+swapc CLKMD.6
 goto 257
 call 300
+
+.ENDP

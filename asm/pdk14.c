@@ -77,7 +77,7 @@ int parse_instruction_pdk14(struct _asm_context *asm_context, char *instr)
         case OP_IO_A:
         {
           if (operand_count != 2 ||
-              operands[0].type != OPERAND_ADDRESS ||
+              operands[0].type != OPERAND_IMMEDIATE ||
               operands[1].type != OPERAND_A)
           {
             continue;
@@ -98,7 +98,7 @@ int parse_instruction_pdk14(struct _asm_context *asm_context, char *instr)
         {
           if (operand_count != 2 ||
               operands[0].type != OPERAND_A ||
-              operands[1].type != OPERAND_ADDRESS)
+              operands[1].type != OPERAND_IMMEDIATE)
           {
             continue;
           }
@@ -271,9 +271,15 @@ int parse_instruction_pdk14(struct _asm_context *asm_context, char *instr)
         case OP_IO_N:
         case OP_M_N:
         {
-          if (operand_count != 1 || operands[0].type != OPERAND_BIT_OFFSET)
+          if (operand_count != 1) { continue; }
+
+          if (table_pdk14[n].type == OP_IO_N)
           {
-            continue;
+            if (operands[0].type != OPERAND_BIT_OFFSET) { continue; }
+          }
+            else
+          {
+            if (operands[0].type != OPERAND_ADDRESS_BIT_OFFSET) { continue; }
           }
 
           if (operands[0].value < 0 || operands[0].value > 0x3f)
@@ -318,7 +324,7 @@ int parse_instruction_pdk14(struct _asm_context *asm_context, char *instr)
         }
         case OP_K11:
         {
-          if (operand_count != 1 || operands[0].type != OPERAND_ADDRESS)
+          if (operand_count != 1 || operands[0].type != OPERAND_IMMEDIATE)
           {
             continue;
           }

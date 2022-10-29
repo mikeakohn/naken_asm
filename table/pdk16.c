@@ -61,8 +61,8 @@ struct _table_pdk16 table_pdk16[] =
   { "delay",   0x0e00, 0xff00, OP_K8,   1, 1 },
   { "ret",     0x0f00, 0xff00, OP_K8,   1, 1 },
   // Operations with A and IO.
-  { "xor",     0x1000, 0xffc0, OP_IO_A, 1, 1 },
-  { "xor",     0x1040, 0xffc0, OP_A_IO, 1, 1 },
+  { "xor.io",  0x1000, 0xffc0, OP_IO_A, 1, 1 },
+  { "xor.io",  0x1040, 0xffc0, OP_A_IO, 1, 1 },
   // Operations with A and memory.
   { "cneqsn",  0x1400, 0xfe00, OP_A_M9, 1, 1 },
   { "cneqsn",  0x1600, 0xfe00, OP_A_M9, 1, 1 },

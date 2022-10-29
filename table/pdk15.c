@@ -42,14 +42,14 @@ struct _table_pdk15 table_pdk15[] =
   { "reti",    0x007b, 0xffff, OP_NONE, 1, 1 },
   { "mul",     0x007c, 0xffff, OP_NONE, 1, 1 },
   // Operations with A and IO.
-  { "xor",     0x0080, 0xffc0, OP_IO_A, 1, 1 },
-  { "mov",     0x0100, 0xffc0, OP_IO_A, 1, 1 },
-  { "mov",     0x0180, 0xffc0, OP_A_IO, 1, 1 },
+  { "xor.io",  0x0080, 0xffc0, OP_IO_A, 1, 1 },
+  { "mov.io",  0x0100, 0xffc0, OP_IO_A, 1, 1 },
+  { "mov.io",  0x0180, 0xffc0, OP_A_IO, 1, 1 },
   // Return with A.
   { "ret",     0x0200, 0xff00, OP_K8,   1, 1 },
   // 16 bit memory operations.
   { "ldtabl",  0x0500, 0xff01, OP_M7,   1, 1 },
-  { "ldtabh",  0x0500, 0xff01, OP_M7,   1, 1 },
+  { "ldtabh",  0x0501, 0xff01, OP_M7,   1, 1 },
   { "stt16",   0x0600, 0xff01, OP_M7,   1, 1 },
   { "ldt16",   0x0601, 0xff01, OP_M7,   1, 1 },
   { "idxm",    0x0700, 0xff01, OP_M7_A, 2, 2 },
@@ -96,10 +96,10 @@ struct _table_pdk15 table_pdk15[] =
   { "ceqsn",   0x2e00, 0xff00, OP_A_M8, 1, 2 },
   { "cneqsn",  0x2f00, 0xff00, OP_A_M8, 1, 2 },
   // Bit operations with IO.
-  { "t0sn",    0x3000, 0xfc00, OP_IO_N, 1, 2 },
-  { "t1sn",    0x3400, 0xfc00, OP_IO_N, 1, 2 },
-  { "set0",    0x3800, 0xfc00, OP_IO_N, 1, 1 },
-  { "set1",    0x3c00, 0xfc00, OP_IO_N, 1, 1 },
+  { "t0sn.io", 0x3000, 0xfc00, OP_IO_N, 1, 2 },
+  { "t1sn.io", 0x3400, 0xfc00, OP_IO_N, 1, 2 },
+  { "set0.io", 0x3800, 0xfc00, OP_IO_N, 1, 1 },
+  { "set1.io", 0x3c00, 0xfc00, OP_IO_N, 1, 1 },
   // Bit operations with memory.
   { "t0sn",    0x4000, 0xfc00, OP_M_N,  1, 2 },
   { "t1sn",    0x4400, 0xfc00, OP_M_N,  1, 2 },
@@ -115,10 +115,10 @@ struct _table_pdk15 table_pdk15[] =
   { "xor",     0x5600, 0xff00, OP_A_K,  1, 1 },
   { "mov",     0x5700, 0xff00, OP_A_K,  1, 1 },
   // Special operation with CF and IO.
-  { "swapc",   0x5c00, 0xfc00, OP_IO_N, 1, 1 },
+  { "swapc.io",0x5c00, 0xfc00, OP_IO_N, 1, 1 },
   // Control transfers.
   { "goto",    0x6000, 0xf000, OP_K12,  2, 2 },
-  { "call",    0x7800, 0xf000, OP_K12,  2, 2 },
+  { "call",    0x7000, 0xf000, OP_K12,  2, 2 },
   { NULL,      0x0000, 0x0000,      0,  0, 0 }
 };
 
