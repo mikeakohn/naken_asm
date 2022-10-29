@@ -1017,10 +1017,11 @@ command_8:
   ;; Reset Z Buffer.
 command_9:
   ;; Copy the address of the Z buffer to color image address.
+  ;; Save current color image command in s0:s1.
+  ;; Save address of Z buffer address in s2.
   lw $s0, 56($0)
   lw $s1, 60($0)
   lw $s2, 68($0)
-  sw $s2, 60($0)
   ;; Set DP_OP_SET_OTHER_MODES for rectangle fill.
   li $t0, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_FILL << 20)
   sw $t0, 88($0)
@@ -1030,21 +1031,25 @@ command_9:
   li $t1, -1
   sw $t0, 96($0)
   sw $t1, 100($0)
+  ;; Set Color Image to point to the Z buffer.
+  sw $s0, 104($0)
+  sw $s2, 108($0)
   ;; Set Fill Rectangle Command.
-  li $t0, (DP_OP_FILL_RECTANGLE << 24) | (320 << 14) | (240 << 2)
-  sw $t0, 104($0)
-  sw $0,  108($0)
-  ;; Set Color image back.
-  sw $s0, 112($0)
-  sw $s1, 116($0)
+  li $t0, (DP_OP_FILL_RECTANGLE << 24) | (319 << 14) | (239 << 2)
+  sw $t0, 112($0)
+  sw $0,  116($0)
+  ;; Set Color Image back.
+  sw $s0, 120($0)
+  sw $s1, 124($0)
   ;; Execute commands.
-  li $t1, 56
-  li $t2, 4 * 8
+  li $t1, 80
+  li $t2, 6 * 8
   jal start_rdp
   nop
   jal wait_for_rdp
   nop
   ;; Set color image back to what it originally was.
+  ;sw $s0, 56($0)
   sw $s1, 60($0)
   sw $0, 0($0)
   b main

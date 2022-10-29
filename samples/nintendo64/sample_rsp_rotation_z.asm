@@ -101,15 +101,15 @@ fill_loop_bottom:
 
   ;; Clear Z buffer.
   ;; Color Bits: rrrr_rggg_ggbb_bbba (0000_0000_0000_0000).
-  li $a0, KSEG1 | 0x0010_0000 + (320 * 240 * 2)
-  li $t1, 320 * 240 * 2
-  li $t0, 0xffff_ffff
+  ;li $a0, KSEG1 | 0x0010_0000 + (320 * 240 * 2)
+  ;li $t1, 320 * 240 * 2
+  ;li $t0, 0xffff_ffff
 clear_z_loop:
-  sw $t0, 0($a0)
-  addiu $a0, $a0, 4
-  addiu $t1, $t1, -4
-  bne $t1, $0, clear_z_loop
-  nop
+  ;sw $t0, 0($a0)
+  ;addiu $a0, $a0, 4
+  ;addiu $t1, $t1, -4
+  ;bne $t1, $0, clear_z_loop
+  ;nop
 
   ;; This reads reads in a set of [ 32 bit address, 32 bit value ]
   ;; from ROM memory. For each 32 bit value, it is written to the
@@ -192,6 +192,9 @@ setup_rdp_loop:
   jal send_rdp_setup
   nop
 
+  jal send_rdp_clear_z
+  nop
+
   ;; Setup triangle shape:
   ;;  (  0, -30)
   li $t0, 0
@@ -267,6 +270,18 @@ setup_rdp_loop:
   ;; Infinite loop at end of program.
 while_1:
   b while_1
+  nop
+
+send_rdp_clear_z:
+  ;; Signal RSP code to start.
+  li $a0, KSEG1 | RSP_DMEM
+  li $t0, 9 << 24
+  sw $t0, 0($a0)
+send_rdp_clear_z_wait_for_rsp:
+  lb $t0, 0($a0)
+  bne $t0, $0, send_rdp_clear_z_wait_for_rsp
+  nop
+  jr $ra
   nop
 
 send_rdp_setup:
