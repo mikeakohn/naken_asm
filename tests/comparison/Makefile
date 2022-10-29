@@ -26,6 +26,7 @@ default:
 	bash run_test.sh msp430x
 	bash run_test.sh n64_rsp
 	bash run_test.sh pdk13
+	bash run_test.sh pdk14
 	bash run_test.sh pdk15
 	bash run_test.sh pic14
 	bash run_test.sh pic32

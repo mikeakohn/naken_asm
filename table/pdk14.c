@@ -55,7 +55,7 @@ struct _table_pdk14 table_pdk14[] =
   { "idxm",    0x0380, 0xff81, OP_M6_A, 2, 2 },
   { "idxm",    0x0381, 0xff81, OP_A_M6, 2, 2 },
   // Special operation with CF and IO.
-  { "swapc",   0x0400, 0xfe00, OP_IO_N, 1, 1 },
+  { "swapc.io",0x0400, 0xfe00, OP_IO_N, 1, 1 },
   // Operations with A and memory.
   { "comp",    0x0600, 0xff80, OP_A_M,  1, 1 },
   { "comp",    0x0680, 0xff80, OP_M_A,  1, 1 },
@@ -95,10 +95,10 @@ struct _table_pdk14 table_pdk14[] =
   { "ceqsn",   0x1700, 0xff80, OP_A_M,  1, 2 },
   { "cneqsn",  0x1780, 0xff80, OP_A_M,  1, 2 },
   // Bit operations with IO.
-  { "t0sn",    0x1800, 0xfe00, OP_IO_N, 1, 2 },
-  { "t1sn",    0x1a00, 0xfe00, OP_IO_N, 1, 2 },
-  { "set0",    0x1c00, 0xfe00, OP_IO_N, 1, 1 },
-  { "set1",    0x1e00, 0xfe00, OP_IO_N, 1, 1 },
+  { "t0sn.io", 0x1800, 0xfe00, OP_IO_N, 1, 2 },
+  { "t1sn.io", 0x1a00, 0xfe00, OP_IO_N, 1, 2 },
+  { "set0.io", 0x1c00, 0xfe00, OP_IO_N, 1, 1 },
+  { "set1.io", 0x1e00, 0xfe00, OP_IO_N, 1, 1 },
   // Bit operations with memory.
   { "t0sn",    0x2000, 0xfe00, OP_M_N,  1, 2 },
   { "t1sn",    0x2200, 0xfe00, OP_M_N,  1, 2 },
