@@ -354,6 +354,13 @@ do_z_buffer:
   li $t0, DP_OP_TRIANGLE_NON_SHADED_Z
   sb $t0, 104($0)
 
+  ;; Z start value.
+  lh $t0, 12($0) ; Z0
+  addiu $t0, $t0, 32767
+  sll $t0, $t0, 17
+  sw $t0, 136($0)
+
+.if 0
   ;; Calculate DzDe (Z2 - Z0) / (Y2 - Y0) = ($t8 / $t0)
   lh $t8, 12($0) ; Z0
   lh $t9, 28($0) ; Z2
@@ -364,11 +371,17 @@ do_z_buffer:
   subu $t8, $t9, $t8
   subu $t0, $t1, $t0
 
+  beq $t8, $0, skip_dz_de
+
+  sll $t8, $t8, 16
+  sll $t0, $t0, 16
+
   sw $t8, 8($k0)
   sw $t0, 12($k0)
   DIVIDE_I_IF
   lw $t0, 8($k0)
   sw $t0, 144($0)
+skip_dz_de:
 
   ;; Calculate DzDx (Z1 - Z0) / (X1 - X0) = ($t8 / $t0)
   lh $t8, 12($0) ; Z0
@@ -380,36 +393,42 @@ do_z_buffer:
   subu $t8, $t9, $t8
   subu $t0, $t1, $t0
 
+  beq $t8, $0, skip_dz_dx
+
+  sll $t8, $t8, 16
+  sll $t0, $t0, 16
+
   sw $t8, 8($k0)
   sw $t0, 12($k0)
   DIVIDE_I_IF
   lw $t0, 8($k0)
   sw $t0, 140($0)
+skip_dz_dx:
 
-  ;; Calculate DzDy (Z2 - Z1) / (X2 - X1) = ($t8 / $t0)
-  lh $t8, 20($0) ; Z1
+  ;; Calculate DzDy (Z2 - Z0) / (Y2 - Y0) = ($t8 / $t0)
+  lh $t8, 12($0) ; Z0
   lh $t9, 28($0) ; Z2
   addiu $t8, $t8, 2048
   addiu $t9, $t9, 2048
-  lh $t0, 16($0) ; X1
-  lh $t1, 24($0) ; X2
+  lh $t0, 10($0) ; Y0
+  lh $t1, 26($0) ; Y2
   subu $t8, $t9, $t8
   subu $t0, $t1, $t0
+
+  sll $t8, $t8, 16
+  sll $t0, $t0, 16
 
   sw $t8, 8($k0)
   sw $t0, 12($k0)
   DIVIDE_I_IF
   lw $t0, 8($k0)
   sw $t0, 148($0)
+.endif
 
-  ;; Z start value.
-  lh $t0, 12($0) ; Z0
-  ;lh $t1, 20($0)
-  ;lh $t2, 28($0)
-  addiu $t0, $t0, 2048
-  sll $t0, $t0, 17
-
-  sw $t8, 136($0)
+  ;; Every vertex can have its own Z value by setting DzDx, DzDe, and
+  ;; DzDy. I'm a little confused by the docs on exactly how this works
+  ;; so for now this code will just set all the vertexes to the value
+  ;; of the first vertex.
   sw $0, 140($0)
   sw $0, 144($0)
   sw $0, 148($0)
