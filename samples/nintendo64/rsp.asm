@@ -910,30 +910,39 @@ command_6:
   sw $t1, 108($0)
   sb $t4, 104($0)
   ;; Add Texture information. $t4 = DsDx, $t5 = DtDy.
+  ;; $t0 = X0, $t1 = Y0
+  ;; $t2 = X1, $t3 = Y1
+  ;; $t4 = width, $t5 = height
   lh $t0, 8($0)
   lh $t1, 10($0)
   lh $t2, 16($0)
   lh $t3, 18($0)
   lh $t4, 40($0)
   lh $t5, 42($0)
+  ;; These two lines are helping with the texture artifacts.
+  ;addiu $t4, $t4, -1
+  ;addiu $t5, $t5, -1
+  ;; $t0 = (X1 - X0)
+  ;; $t1 = (Y1 - Y0)
   subu $t0, $t2, $t0
   subu $t1, $t3, $t1
   sll $t0, $t0, 16
   sll $t1, $t1, 16
   sll $t4, $t4, 16
   sll $t5, $t5, 16
+  ;; $t4 = width / (X1 - X0)
   sw $t4, 8($k0)
   sw $t0, 12($k0)
   DIVIDE_I_IF
   lw $t4, 8($k0)
   srl $t4, $t4, 2
+  ;; $t5 = height / (Y1 - Y0)
   sw $t5, 8($k0)
   sw $t1, 12($k0)
   DIVIDE_I_IF
   lw $t5, 8($k0)
   srl $t5, $t5, 4
-  ;li $t4, 655 * 4
-  ;li $t5, 307
+  ;; $t4 = ($t4 << 16)| $t5
   sll $t4, $t4, 16
   or $t4, $t4, $t5
   sw $0,  112($0)

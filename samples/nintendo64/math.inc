@@ -57,6 +57,46 @@
   ssv $v25[0], 10($k0)
 .endm
 
+.macro DIVIDE_I_IF_UNSIGNED
+  ;; dividend / divisor = quotient becomes
+  ;; (1 / divisor) * dividend = quotient
+
+  ;; Set $v12 to a 16.16 fixed point number (divisor).
+  llv $v12[0], 12($k0)
+
+  ;; From the manual to compute the reciprocal:
+  ;; vrcph res_int[0],  s_int[0]
+  ;; vrcpl res_frac[0], s_frac[0]
+  ;; vrcph res_int[0],  dev_null[0]
+  vrcph $v20[0], $v12[0]
+  vrcpl $v21[0], $v12[1]
+  vrcph $v20[0], $v0[0]
+
+  ;; From the manual, since the reciprocal is S15.16 fixed point, convert
+  ;; it to 16.16 by multiplying by 2.0.
+  ;; vmudn res_frac, s_frac,    vconst_2[0] # constant of 2
+  ;; vmadm res_int,  s_int,     vconst_2[0]
+  ;; vmadn res_frac, dev_null,  dev_null[0]
+  vmudn $v23, $v21, $v2[0]
+  vmadm $v22, $v20, $v2[0]
+  vmadn $v23, $v0,  $v0[0]
+
+  ;; Load $v12[0] with the dividend.
+  llv $v12[0], 8($k0)
+
+  ;; IF * I = IF
+  ;; vmudn res_frac, s_frac,   dividend_int[0]
+  ;; vmadh res_int,  s_int,    dividend_int[0]
+  ;; vmadn res_frac, dev_null, dev_null[0]
+  vmudn $v25, $v23, $v12[0]
+  vmadh $v24, $v22, $v12[0]
+  vmadn $v25, $v0,  $v0[0]
+
+  ;; Copy result back to DMEM.
+  ssv $v24[0], 8($k0)
+  ssv $v25[0], 10($k0)
+.endm
+
 ;; IF * I = IF
 .macro MULTIPLY_IFxI
   lsv $v22[0], 8($k0)  ; s_int
