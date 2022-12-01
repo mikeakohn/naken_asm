@@ -17,6 +17,12 @@
 
 #include "simulate/8008.h"
 
+
+#define flag_c 0
+#define flag_p 1
+#define flag_z 2
+#define flag_s 3
+
 static int stop_running = 0;
 
 static void handle_signal(int sig)

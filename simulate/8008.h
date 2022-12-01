@@ -19,7 +19,17 @@
 
 struct _simulate_8008
 {
-  uint16_t reg[16];
+  // 7 Registers (A, B, C, D, E, H, L)
+  uint8_t reg_a, reg_b, reg_c, reg_d, reg_e;
+  uint8_t reg_h, reg_l;
+
+  // stack pointer
+  int sp:14;
+  
+
+  // program counter
+  int pc:14;
+
 };
 
 struct _simulate *simulate_init_8008();

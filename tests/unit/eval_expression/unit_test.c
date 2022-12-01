@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
   test("0xffffffff", -1);
   test("~(0-44)", 44);
   test("~(104)", -104);
-  test("(0-104) + (0-1)", -105);  
+  test("(4) * ~(0-5)", 20);
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");
