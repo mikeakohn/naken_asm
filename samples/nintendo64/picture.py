@@ -2,12 +2,12 @@
 
 # rrrr_rggg_ggbb_bbba
 colors = {
-  ' ': 0x0000,
-  'R': 0xf800,
-  'G': 0x07c0,
-  'B': 0x003e,
-  'Y': 0xffc0,
-  'P': 0xf83e,
+  ' ': 0x0001,
+  'R': 0xf801,
+  'G': 0x07c1,
+  'B': 0x0031,
+  'Y': 0xffc1,
+  'P': 0xf83f,
 }
 
 fp = open("picture.txt", "r")

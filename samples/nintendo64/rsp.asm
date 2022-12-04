@@ -151,7 +151,7 @@ command_3:
   ;; Set DP_OP_SET_OTHER_MODES for triangle 1 cycle.
   li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_1_CYCLE << 20)
   sw $t8, 88($0)
-  li $t8, (1 << 31)
+  li $t8, (1 << 31) | 1
   sw $t8, 92($0)
   ;; Color: $t6
   li $t8, DP_OP_SET_BLEND_COLOR << 24
@@ -829,8 +829,9 @@ z2_not_0:
 command_5:
   ;; Set DP_OP_SET_OTHER_MODES for rectangle fill.
   li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_FILL << 20)
+  li $t9, 1
   sw $t8, 88($0)
-  sw $0,  92($0)
+  sw $t9, 92($0)
   ;; Set Fill Color Command: convert R, G, B to (RGBA << 16) | RGBA.
   li $t4, DP_OP_SET_FILL_COLOR << 24
   lbu $t0, 48($0)
@@ -882,12 +883,12 @@ command_5:
 command_6:
   ;; Set DP_OP_SET_OTHER_MODES for rectangle texture.
   li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_COPY << 20)
+  li $t9, 1
   sw $t8, 88($0)
-  sw $0,  92($0)
+  sw $t9, 92($0)
   ;li $t8, (1 << 31)
   ;sw $t8, 92($0)
   ;; Set Fill Color Command: convert R, G, B to (RGBA << 16) | RGBA.
-  ;li $t0, (DP_OP_SET_FILL_COLOR << 24) | (0xf << 8)
   li $t0, (DP_OP_SET_PRIM_COLOR << 24) | (0xf << 8)
   li $t1, -1
   sw $t0, 96($0)
