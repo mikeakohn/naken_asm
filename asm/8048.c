@@ -203,9 +203,8 @@ static int process_op(
           print_error("Address isn't on same page", asm_context);
           return -1;
         }
-
-        data[1] = operand->value & 0xff;
       }
+      data[1] = operand->value & 0xff;
       return 2;
     }
   }
