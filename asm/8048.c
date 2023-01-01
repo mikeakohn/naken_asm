@@ -194,16 +194,18 @@ static int process_op(
       else
     if (type == OP_PADDR)
     {
-      int address = operand->value;
-
-      if ((address & 0xff00) != (asm_context->address & 0xff00))
+      if (asm_context->pass == 2)
       {
-        print_error("Address isn't on same page", asm_context);
-        return -1;
+        int address = operand->value;
+
+        if ((address & 0xff00) != (asm_context->address & 0xff00))
+        {
+          print_error("Address isn't on same page", asm_context);
+          return -1;
+        }
+
+        data[1] = operand->value & 0xff;
       }
-
-      data[1] = operand->value & 0xff;
-
       return 2;
     }
   }
