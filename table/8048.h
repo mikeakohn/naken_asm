@@ -55,7 +55,6 @@ enum
   FLAG_NONE = 0,
   FLAG_8041,
   FLAG_8048,
-  FLAG_8021,
 };
 
 struct _table_8048
