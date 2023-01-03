@@ -78,7 +78,7 @@ orl A, #129
 orl p1, #253
 orld p4, A
 outl BUS, A
-outl p0, A
+outl p1, A
 ret
 retr
 rl A
