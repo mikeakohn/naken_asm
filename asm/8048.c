@@ -178,33 +178,33 @@ static int process_op(
     else
   if (operand->operand == OPERAND_ADDRESS)
   {
+    int address = operand->value;
+
+    if (address > 8191)
+    {
+      print_error_range("Address", 0, 8191, asm_context);
+      return -1;
+    }
+
     if (type == OP_ADDR)
     {
-      if (operand->value < 0 || operand->value > 2047)
-      {
-        print_error_range("Address", 0, 2047, asm_context);
-        return -1;
-      }
+      address &= 2047;
 
-      data[0] |= (operand->value >> 8) << 5;
-      data[1] = operand->value & 0xff;
+      data[0] |= (address >> 8) << 5;
+      data[1] = address & 0xff;
 
       return 2;
     }
       else
     if (type == OP_PADDR)
     {
-      if (asm_context->pass == 2)
+      if (asm_context->pass == 2 && ((address & 0xff00) != (asm_context->address & 0xff00)))
       {
-        int address = operand->value;
-
-        if ((address & 0xff00) != (asm_context->address & 0xff00))
-        {
-          print_error("Address isn't on same page", asm_context);
-          return -1;
-        }
+        print_error("Address isn't on same 256-byte page", asm_context);
+        return -1;
       }
-      data[1] = operand->value & 0xff;
+
+      data[1] = address & 0xff;
       return 2;
     }
   }
