@@ -402,6 +402,7 @@ int assemble(struct _asm_context *asm_context)
           {
             ch = tokens_get_char(asm_context);
             if (ch == EOF || ch == '\n') break;
+            if (ch == '\t') { ch = ' '; }
             if (ch == '*' && ptr > 0 && token2[ptr - 1] == '/')
             {
               macros_strip_comment(asm_context);
