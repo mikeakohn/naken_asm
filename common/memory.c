@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -34,7 +34,7 @@ void memory_free(struct _memory *memory)
   struct _memory_page *next;
 
   page = memory->pages;
-  while(page != NULL)
+  while (page != NULL)
   {
     next = page->next;
     free(page);
@@ -50,7 +50,7 @@ void memory_clear(struct _memory *memory)
   struct _memory_page *next;
 
   page = memory->pages;
-  while(page != NULL)
+  while (page != NULL)
   {
     next = page->next;
     memset(page->bin, 0, PAGE_SIZE);
@@ -66,7 +66,7 @@ int memory_in_use(struct _memory *memory, uint32_t address)
 
   page = memory->pages;
 
-  while(page != NULL)
+  while (page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -85,7 +85,7 @@ int memory_get_page_address_min(struct _memory *memory, uint32_t address)
 
   page = memory->pages;
 
-  while(page != NULL)
+  while (page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -106,7 +106,7 @@ int memory_get_page_address_max(struct _memory *memory, uint32_t address)
 
   page = memory->pages;
 
-  while(page != NULL)
+  while (page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -132,7 +132,7 @@ static uint8_t read_byte(struct _memory *memory, uint32_t address)
 
   page = memory->pages;
 
-  while(page != NULL)
+  while (page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -151,7 +151,7 @@ static int read_debug(struct _memory *memory, uint32_t address)
   if (memory->debug_flag == 0) return -1;
 
   page = memory->pages;
-  while(page != NULL)
+  while (page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -191,7 +191,7 @@ static void write_byte(struct _memory *memory, uint32_t address, uint8_t data)
   if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
 
   page = memory->pages;
-  while(page != NULL)
+  while (page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -225,7 +225,7 @@ static void write_debug(struct _memory *memory, uint32_t address, int data)
   if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
 
   page = memory->pages;
-  while(page != NULL)
+  while (page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -313,7 +313,7 @@ void memory_dump(struct _memory *memory)
   printf("        size: 0x%x\n", memory->size);
   printf("  debug_flag: %d\n", memory->debug_flag);
 
-  while(page != NULL)
+  while (page != NULL)
   {
     printf("  page: %p next=%p address=0x%08x offset_min=%d offset_max=%d\n", page, page->next, page->address, page->offset_min, page->offset_max);
     page = page->next;

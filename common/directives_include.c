@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -25,10 +25,10 @@ int include_add_path(struct _asm_context *asm_context, char *paths)
   char *s;
 
   s = asm_context->include_path;
-  while(!(s[ptr] == 0 && s[ptr+1] == 0)) { ptr++; }
+  while (!(s[ptr] == 0 && s[ptr+1] == 0)) { ptr++; }
   if (ptr != 0) ptr++;
 
-  while(paths[n] != 0)
+  while (paths[n] != 0)
   {
     if (paths[n] == ':')
     {
@@ -50,38 +50,43 @@ int binfile_parse(struct _asm_context *asm_context)
 {
   FILE *in;
   char token[TOKENLEN];
-  unsigned char buffer[8192];
+  uint8_t buffer[8192];
   //int token_type;
   int len;
   int n;
 
   if (asm_context->segment == SEGMENT_BSS)
   {
-    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
+    printf("Error: .bss segment doesn't support initialized data at %s:%d\n",
+      asm_context->tokens.filename,
+      asm_context->tokens.line);
+
     return -1;
   }
 
   tokens_get(asm_context, token, TOKENLEN);
-#ifdef DEBUG
-printf("binfile file %s.\n", token);
-#endif
-
   in = fopen(token, "rb");
+
   if (in == NULL)
   {
-    printf("Cannot open binfile file '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->tokens.line);
+    printf("Cannot open binfile file '%s' at %s:%d\n",
+      token,
+      asm_context->tokens.filename,
+      asm_context->tokens.line);
+
     return -1;
   }
 
-  while(1)
+  while (1)
   {
-    len = fread(buffer, 1, 8192, in);
+    len = fread(buffer, 1, sizeof(buffer), in);
     if (len <= 0) break;
 
     for (n = 0; n < len; n++)
     {
       memory_write_inc(asm_context, buffer[n], DL_DATA);
     }
+
     asm_context->data_count += len;
   }
 
@@ -131,7 +136,8 @@ printf("including file %s.\n", token);
 
         if (asm_context->cpu_list_index != -1)
         {
-          snprintf(filename, sizeof(filename), "%s/%s/%s", s + ptr, cpu_list[asm_context->cpu_list_index].name, token);
+          snprintf(filename, sizeof(filename), "%s/%s/%s",
+            s + ptr, cpu_list[asm_context->cpu_list_index].name, token);
 #ifdef DEBUG
           printf("Trying %s\n", filename);
 #endif
@@ -146,7 +152,8 @@ printf("including file %s.\n", token);
 
   if (asm_context->tokens.in == NULL)
   {
-    printf("Cannot open include file '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->tokens.line);
+    printf("Cannot open include file '%s' at %s:%d\n",
+      token, asm_context->tokens.filename, asm_context->tokens.line);
     ret = -1;
   }
     else

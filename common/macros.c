@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -24,7 +24,7 @@ static int get_param_index(char *params, char *name)
   int count = 0;
   int ptr = 0;
 
-  while(params[ptr] != 0)
+  while (params[ptr] != 0)
   {
     if (strcmp(params + ptr, name) == 0) { return count + 1; }
 
@@ -41,7 +41,7 @@ static int macros_parse_token(struct _asm_context *asm_context, char *token, int
   int ptr = 0;
   char ch;
 
-  while(1)
+  while (1)
   {
     ch = tokens_get_char(asm_context);
 
@@ -58,7 +58,7 @@ static int macros_parse_token(struct _asm_context *asm_context, char *token, int
       }
 
       // Check for (
-      while(1)
+      while (1)
       {
         ch = tokens_get_char(asm_context);
 
@@ -119,13 +119,13 @@ static int check_endm(char *macro, int ptr)
   ptr--;
 
   // Ignore white space at start of the line
-  while(ptr > 0 && (macro[ptr] == ' ' || macro[ptr] == '\t'))
+  while (ptr > 0 && (macro[ptr] == ' ' || macro[ptr] == '\t'))
   {
     ptr--;
   }
 
   // Ignore white space before a possible .endm
-  while(ptr > 0 && !(macro[ptr] == '\n' || macro[ptr] == ' ' || macro[ptr] == '\t'))
+  while (ptr > 0 && !(macro[ptr] == '\n' || macro[ptr] == ' ' || macro[ptr] == '\t'))
   {
     ptr--;
   }
@@ -199,7 +199,7 @@ int macros_append(struct _asm_context *asm_context, char *name, char *value, int
 
   // Find a pool that has enough area at the end to add this macro.
   // If none can be found, alloc a new one.
-  while(1)
+  while (1)
   {
      if (memory_pool->ptr + name_len + value_len + sizeof(struct _macro_data) < memory_pool->len)
      {
@@ -239,10 +239,10 @@ char *macros_lookup(struct _macros *macros, char *name, int *param_count)
   char *value;
   int ptr;
 
-  while(memory_pool != NULL)
+  while (memory_pool != NULL)
   {
     ptr = 0;
-    while(ptr < memory_pool->ptr)
+    while (ptr < memory_pool->ptr)
     {
       struct _macro_data *macro_data =
         (struct _macro_data *)(memory_pool->buffer + ptr);
@@ -275,9 +275,9 @@ int macros_iterate(struct _macros *macros, struct _macros_iter *iter)
     iter->ptr = 0;
   }
 
-  while(memory_pool != NULL)
+  while (memory_pool != NULL)
   {
-    if(iter->ptr < memory_pool->ptr)
+    if (iter->ptr < memory_pool->ptr)
     {
       struct _macro_data *macro_data =
         (struct _macro_data *)(memory_pool->buffer + iter->ptr);
@@ -308,7 +308,7 @@ int macros_print(struct _macros *macros, FILE *out)
 
   fprintf(out, "%18s %s\n", "NAME", "VALUE");
 
-  while(macros_iterate(macros, &iter) != -1)
+  while (macros_iterate(macros, &iter) != -1)
   {
     if (iter.param_count == 0)
     {
@@ -377,7 +377,7 @@ int macros_get_char(struct _asm_context *asm_context)
 
   struct _macros *macros = &asm_context->macros;
 
-  while(1)
+  while (1)
   {
     // Is there even a character waiting on the #define stack?
     stack_ptr = macros->stack_ptr-1;
@@ -461,7 +461,7 @@ printf("debug> macros_parse() name=%s parens_flag=%d\n", name, parens);
 
   if (parens != 0)
   {
-    while(1)
+    while (1)
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
 #ifdef DEBUG
@@ -535,7 +535,7 @@ printf("debug> macros_parse() param count=%d\n", param_count);
   ptr = 0;
   name_test = NULL;
 
-  while(1)
+  while (1)
   {
     ch = tokens_get_char(asm_context);
 
@@ -582,14 +582,14 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
     {
       if (macro[ptr-1] == '/') { ptr--; }
 
-      while(1)
+      while (1)
       {
         ch = tokens_get_char(asm_context);
         if (ch == '\t') { ch = ' '; }
         if (ch == '\n' || ch == EOF) { break; }
       }
 
-      while(ptr > 0)
+      while (ptr > 0)
       {
         if (macro[ptr-1] != ' ') { break; }
         ptr--;
@@ -603,7 +603,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
     {
       if (macro_type == IS_DEFINE)
       {
-        while(1)
+        while (1)
         {
           ch = tokens_get_char(asm_context);
           if (ch != '\r') { break; }
@@ -676,7 +676,7 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
   uint8_t in_string = 0;
   uint8_t open_parens = 0;
 
-  while(1)
+  while (1)
   {
     ch = tokens_get_char(asm_context);
 
@@ -695,7 +695,7 @@ char *macros_expand_params(struct _asm_context *asm_context, char *define, int p
   ptr = 0;
   params_ptr[count] = ptr;
 
-  while(1)
+  while (1)
   {
     ch = tokens_get_char(asm_context);
 
@@ -746,7 +746,7 @@ for (n = 0; n < count; n++)
 
   ptr = asm_context->def_param_stack_ptr[asm_context->def_param_stack_count];
 
-  while(*define != 0)
+  while (*define != 0)
   {
     if (*define == 1)
     {
@@ -754,7 +754,7 @@ for (n = 0; n < count; n++)
 
       strcpy(asm_context->def_param_stack_data + ptr, params + params_ptr[((int)*define)-1]);
 
-      while(*(asm_context->def_param_stack_data + ptr) != 0) { ptr++; }
+      while (*(asm_context->def_param_stack_data + ptr) != 0) { ptr++; }
     }
     else
     {
@@ -795,7 +795,7 @@ printf("debug> macros_strip_comment()\n");
 #endif
 
   // Look for /*  */ comment and remove.
-  while(1)
+  while (1)
   {
     ch = tokens_get_char(asm_context);
     if (ch == '\t') { ch = ' '; }

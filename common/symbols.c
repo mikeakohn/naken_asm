@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -42,11 +42,11 @@ struct _symbols_data *symbols_find(struct _symbols *symbols, const char *name)
   // Check local scope.
   if (symbols->in_scope != 0)
   {
-    while(memory_pool != NULL)
+    while (memory_pool != NULL)
     {
       ptr = 0;
 
-      while(ptr < memory_pool->ptr)
+      while (ptr < memory_pool->ptr)
       {
         struct _symbols_data *symbols_data =
           (struct _symbols_data *)(memory_pool->buffer + ptr);
@@ -67,11 +67,11 @@ struct _symbols_data *symbols_find(struct _symbols *symbols, const char *name)
   }
 
   // Check global scope.
-  while(memory_pool != NULL)
+  while (memory_pool != NULL)
   {
     ptr = 0;
 
-    while(ptr < memory_pool->ptr)
+    while (ptr < memory_pool->ptr)
     {
       struct _symbols_data *symbols_data =
         (struct _symbols_data *)(memory_pool->buffer + ptr);
@@ -137,7 +137,7 @@ int symbols_append(struct _symbols *symbols, const char *name, uint32_t address)
 
   // Find a pool that has enough area at the end to add this address.
   // If none can be found, alloc a new one.
-  while(1)
+  while (1)
   {
      if (memory_pool->ptr + token_len + sizeof(struct _symbols_data) < memory_pool->len)
      {
@@ -249,9 +249,9 @@ int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter)
     iter->ptr = 0;
   }
 
-  while(memory_pool != NULL)
+  while (memory_pool != NULL)
   {
-    if(iter->ptr < memory_pool->ptr)
+    if (iter->ptr < memory_pool->ptr)
     {
       struct _symbols_data * symbols_data =
         (struct _symbols_data *)(memory_pool->buffer + iter->ptr);
@@ -282,7 +282,7 @@ int symbols_print(struct _symbols *symbols, FILE *out)
 
   fprintf(out, "%30s ADDRESS  SCOPE\n", "LABEL");
 
-  while(symbols_iterate(symbols, &iter) != -1)
+  while (symbols_iterate(symbols, &iter) != -1)
   {
     fprintf(out, "%30s %08x %d%s\n", iter.name, iter.address, iter.scope, iter.flag_export == 1 ? " EXPORTED" : "");
   }
@@ -298,10 +298,10 @@ int symbols_count(struct _symbols *symbols)
   int ptr;
   int count = 0;
 
-  while(memory_pool != NULL)
+  while (memory_pool != NULL)
   {
     ptr = 0;
-    while(ptr < memory_pool->ptr)
+    while (ptr < memory_pool->ptr)
     {
       struct _symbols_data *symbols_data =
         (struct _symbols_data *)(memory_pool->buffer + ptr);
@@ -321,10 +321,10 @@ int symbols_export_count(struct _symbols *symbols)
   int ptr;
   int count = 0;
 
-  while(memory_pool != NULL)
+  while (memory_pool != NULL)
   {
     ptr = 0;
-    while(ptr < memory_pool->ptr)
+    while (ptr < memory_pool->ptr)
     {
       struct _symbols_data *symbols_data =
         (struct _symbols_data *)(memory_pool->buffer + ptr);
@@ -386,7 +386,7 @@ int symbols_add_to_unfound(struct _symbols *symbols, const char *name)
   char *buffer = unfound_list->buffer;
   ptr = 0;
 
-  while(buffer[ptr] != 0)
+  while (buffer[ptr] != 0)
   {
     if (strcmp(buffer + ptr, name) == 0) { return 0; }
     ptr += strlen(buffer + ptr) + 1;
@@ -422,7 +422,7 @@ int symbols_print_unfound(struct _symbols *symbols)
   ptr = 0;
   count = 0;
 
-  while(buffer[ptr] != 0)
+  while (buffer[ptr] != 0)
   {
     printf("  %d) %s\n", count, buffer + ptr);
     ptr += strlen(buffer + ptr) + 1;
