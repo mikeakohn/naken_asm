@@ -150,9 +150,9 @@ command_2:
 command_3:
   ;; Set DP_OP_SET_OTHER_MODES for triangle 1 cycle.
   li $t8, (DP_OP_SET_OTHER_MODES << 24) | (1 << 23) | (MODE_1_CYCLE << 20)
+  li $t9, (1 << 31)
   sw $t8, 88($0)
-  li $t8, (1 << 31) | 1
-  sw $t8, 92($0)
+  sw $t9, 92($0)
   ;; Color: $t6
   li $t8, DP_OP_SET_BLEND_COLOR << 24
   lw $t9,  48($0)
