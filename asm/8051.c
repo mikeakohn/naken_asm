@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -33,6 +33,7 @@ enum
   OPERAND_AT_A_PLUS_PC,
   OPERAND_AT_DPTR,
   OPERAND_DATA,
+  OPERAND_SLASH_NUM,
   OPERAND_NUM,
   OPERAND_SLASH_BIT_ADDRESS,
   OPERAND_BIT_ADDRESS,
@@ -240,10 +241,9 @@ int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
           else
         {
           tokens_push(asm_context, token, token_type);
-          operands[operand_count].type = OPERAND_NUM;
+          operands[operand_count].type = OPERAND_SLASH_NUM;
         }
       }
-
     }
       else
     {
@@ -385,9 +385,11 @@ printf("\n");
             break;
           case OP_SLASH_BIT_ADDR:
             if ((operands[r].type != OPERAND_SLASH_BIT_ADDRESS &&
-                 operands[r].type != OPERAND_NUM) ||
-                (operands[r].value < 0 ||
-                 operands[r].value > 255)) { r = 4; }
+                 operands[r].type != OPERAND_SLASH_NUM) ||
+                (operands[r].value < 0 || operands[r].value > 255))
+            {
+              r = 4;
+            }
             break;
           case OP_BIT_ADDR:
             if (operands[r].type != OPERAND_BIT_ADDRESS)
@@ -395,14 +397,7 @@ printf("\n");
               // This seems kind of invalid, but some other assembler allows
               // the bit address to be defined as the binary version of the
               // address rather than address.bit for at least clr and setb.
-              if (n == 0xd2 || n == 0xc2)
-              {
-                if (operands[r].type != OPERAND_NUM) { r = 4; }
-              }
-                else
-              {
-                r = 4;
-              }
+              if (operands[r].type != OPERAND_NUM) { r = 4; }
             }
 
             if (operands[r].value < 0 || operands[r].value > 255) { r = 4; }
@@ -486,7 +481,7 @@ printf("\n");
             }
             case OP_SLASH_BIT_ADDR:
             {
-              if (operands[r].type == OPERAND_NUM)
+              if (operands[r].type == OPERAND_SLASH_NUM)
               {
                 num = operands[r].value;
               }
@@ -506,7 +501,7 @@ printf("\n");
             }
             case OP_BIT_ADDR:
             {
-              if ((n == 0xd2 || n == 0xc2) && operands[r].type == OPERAND_NUM)
+              if (operands[r].type == OPERAND_NUM)
               {
                 num = operands[r].value;
               }

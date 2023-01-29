@@ -28,6 +28,7 @@ main: jnb F0,main
 main: jnb RS1,main
 main: jnb RS0,main
 main: jnb P,main
+main: jnb 0x87,main
 main: jnc main
 main: jnz main
 main: jz main
@@ -144,7 +145,6 @@ mov a,r5
 mov a,r6
 mov a,r7
 mov a,177
-mov C,OV
 mov DPTR,#0x1234
 mov r0,#21
 mov r1,#21
@@ -170,7 +170,6 @@ mov r4,177
 mov r5,177
 mov r6,177
 mov r7,177
-mov OV,C
 mov 177,#21
 mov 177,@r0
 mov 177,@r1
@@ -192,6 +191,10 @@ movx @r1,a
 movx a,@DPTR
 movx a,@r0
 movx a,@r1
+mov c, 0x19
+mov 0x19, c
+mov C,OV
+mov OV,C
 mul ab
 nop
 orl 23,a
@@ -272,3 +275,6 @@ main: jnb 0x22.3,main
 anl c,/0x2f.2
 cpl 0x2f.7
 anl c,/0x60
+anl c,0x60
+anl c,0x19
+setb 0xff
