@@ -1,4 +1,4 @@
-
+.msp430
 .include "msp430x2xx.inc"
 
 .org 0xf800
@@ -6,15 +6,15 @@ start:
   ;; Turn off watchdog timer.
   mov.w #WDTPW|WDTHOLD, &WDTCTL
 
-  ;; Set P0 and P6 as outputs.
+  ;; Set P1.0 and P1.6 as outputs.
   mov.b #0x41, &P1DIR
 
 main:
-  ;; Initial value for LEDs turns on the P0 LED and
-  ;; keeps P6 turned off.
+  ;; Initial value for LEDs turns on the P1.0 LED and
+  ;; keeps P1.6 turned off.
   mov.w #0x01, r8
 while_1:
-  ;; Set LEDs to current value of r8 and toggle P0 and P6.
+  ;; Set LEDs to current value of r8 and toggle P1.0 and P1.6.
   mov.b r8, &P1OUT
   xor.b #0x41, r8
 
