@@ -12,7 +12,7 @@ installed naken_util in interactive mode will allow the up-arrow to
 bring back previous commands. On Ubuntu/Debian this can be installed
 by typing:
 
-    sudo apt-get install libreadline-dev
+    sudo apt install libreadline-dev
 
 To compile naken_asm and naken_util (the disassembler / simulator) type:
 
