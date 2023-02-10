@@ -461,6 +461,9 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
       }
     }
 
+    // Issue #120: If no register file was selected, just use 0.
+    if (r == -1) { r = 0; }
+
     // Make sure all registers are in the same register file.
     for (n = 0; n < operand_count; n++)
     {
