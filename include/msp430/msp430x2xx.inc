@@ -810,11 +810,19 @@ P8REN equ 0x15      ; Resistor Enable
 
 IFG2 equ 0x0003           ; SFR interrupt flag 2
 IFG1 equ 0x0002           ; SFR interrupt flag 1
-IE2 equ 0x0001            ; SFR interrupt enable 2
-IE1 equ 0x0000            ; SFR interrupt enable 1
+IE2  equ 0x0001           ; SFR interrupt enable 2
+IE1  equ 0x0000           ; SFR interrupt enable 1
 
-OSCOFF equ 32
 OFIFG   equ 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; SR Status register.
+
+GIE    equ 0x08
+CPUOFF equ 0x10
+OSCOFF equ 0x20
+SCG0   equ 0x40
+SCG1   equ 0x80
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Comparitor_A+
