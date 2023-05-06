@@ -58,7 +58,7 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
   r = (opcode & 0x0010) == 0 ? 'a' : 'b';
   rs = (opcode >> 5) & 0xf;
   rd = opcode & 0xf;
-
+  
   for (n = 0; table_tms340[n].instr != NULL; n++)
   {
     if ((opcode & table_tms340[n].mask) == table_tms340[n].opcode)
@@ -84,7 +84,12 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
             break;
           case OP_RD:
           case OP_RDS:
-            get_register(reg, rd, r);
+	    // thor fix for move
+	    if ((opcode & 0xfe00) == 0x4e00) {
+	      get_register(reg, rd, ((r-'a')^1)+'a');
+	    } else {
+	      get_register(reg, rd, r);
+	    }
             strcat(instruction, reg);
             break;
           case OP_P_RS:
@@ -144,6 +149,10 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
           case OP_ADDRESS:
             temp = memory_read16_m(memory, address);
             temp |= memory_read16_m(memory, address + 2) << 16;
+#if 0
+	    // thor fix: this is a bit address, convert to byte address
+	    temp >>= 3;
+#endif
             sprintf(operand, "0x%04x", temp);
             strcat(instruction, operand);
             address += 4;
@@ -151,6 +160,10 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
           case OP_AT_ADDR:
             ilw = memory_read16_m(memory, address);
             ilw |= memory_read16_m(memory, address + 2) << 16;
+#if 0
+	    // thor fix: this is a bit address, convert to byte address
+	    ilw >>= 3;
+#endif
             sprintf(operand, "@0x%08x", ilw);
             strcat(instruction, operand);
             address += 4;
@@ -277,8 +290,9 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
             break;
           case OP_DISP:
             displacement = memory_read16_m(memory, address);
+	    // thor fix: be consistent and make this a bit-address
             sprintf(operand, "0x%04x (%d)",
-              address + 2 + displacement, displacement);
+		    (address + 2 + (displacement << 1)) << 3, displacement);
             strcat(instruction, operand);
             address += 2;
             break;
@@ -286,8 +300,9 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
             displacement = (opcode >> 5) & 0x1f;
             displacement *= 2;
             if ((opcode & 0x0400) != 0) { displacement = -displacement; }
+	    // thor fix: be consistent and make this a bit-address
             sprintf(operand, "0x%04x (%d)",
-              address + displacement, displacement);
+		    (address + displacement) << 3, displacement);
             strcat(instruction, operand);
             break;
           case OP_JUMP_REL:
@@ -295,16 +310,18 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
             {
               displacement32 = (int8_t)(opcode & 0xff);
               displacement32 *= 2;
+	      // thor fix: be consistent and make this a bit-address
               sprintf(operand, "0x%04x (%d)",
-                address + displacement32, displacement32);
+		      (address + displacement32) << 3, displacement32);
               strcat(instruction, operand);
             }
               else
             {
               displacement32 = (int8_t)memory_read16_m(memory, address);
               displacement32 *= 2;
+	      // thor fix: be consistent and make this a bit-address
               sprintf(operand, "0x%04x (%d)",
-                address + 2 + displacement32, displacement32);
+		      (address + 2 + displacement32) << 3, displacement32);
               strcat(instruction, operand);
               address += 2;
             }
@@ -338,13 +355,15 @@ void list_output_tms340(struct _asm_context *asm_context, uint32_t start, uint32
 
     count = disasm_tms340(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-    fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start, opcode, instruction);
+    // thor fix: bit address
+    fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start << 3, opcode, instruction);
 
     for (n = 2; n < count; n += 2)
     {
       opcode = memory_read16_m(&asm_context->memory, start + n);
 
-      fprintf(asm_context->list, "0x%04x: %04x\n", start + n, opcode);
+      // thor fix: bit address
+      fprintf(asm_context->list, "0x%04x: %04x\n", (start + n) << 3, opcode);
     }
 
     start += count;
@@ -372,13 +391,15 @@ void disasm_range_tms340(struct _memory *memory, uint32_t flags, uint32_t start,
 
     opcode = memory_read16_m(memory, start);
 
-    printf("0x%04x: %04x  %-40s\n", start, opcode, instruction);
+    // thor fix: bit address
+    printf("0x%04x: %04x  %-40s\n", start << 3, opcode, instruction);
 
     for (n = 2; n < count; n += 2)
     {
       opcode = memory_read16_m(memory, start + n);
 
-      printf("0x%04x: %04x\n", start + n, opcode);
+      // thor fix: bit address
+      printf("0x%04x: %04x\n", (start + n) << 3, opcode);
     }
 
     start = start + count;

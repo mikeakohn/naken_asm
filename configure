@@ -233,7 +233,7 @@ EOF
   a=`${COMPILER_PREFIX}${CC} -o config config.c -s 2>&1 >>config.log | grep 'option -s is obsolete'`
   if [ "${a}" == "" ]
   then
-    LDFLAGS="${LDFLAGS} -s"
+    LDFLAGS="${LDFLAGS}"
   fi
 }
 
@@ -275,7 +275,7 @@ for option in $@; do
   case "$option" in
   --help) show_help
   ;;
-  --enable-debug) DEBUG="-DDEBUG -g"
+  --enable-debug) DEBUG="-DDEBUG -O0 -ggdb3"
   ;;
   --disable-elf) CFLAGS="${CFLAGS} -DDISABLE_ELF"
   ;;
@@ -631,6 +631,7 @@ then
   CFLAGS="${CFLAGS} -O3"
 else
   CFLAGS="${CFLAGS} ${DEBUG}"
+  LDFLAGS="${LDFLAGS}"
 fi
 
 if [ "${NO_MSP430}" != "" ]
