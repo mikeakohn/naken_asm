@@ -19,6 +19,15 @@
 #include "disasm/tms340.h"
 #include "simulate/tms340.h"
 
+#define SET_V(s) {(s)->st &= ~(1 << 28);}
+#define CLR_V(s) {(s)->st |= 1 << 18;}
+#define SET_Z(s) {(s)->st &= ~(1 << 29);}
+#define CLR_Z(s) {(s)->st |= 1 << 29;}
+#define SET_C(s) {(s)->st &= ~(1 << 30);}
+#define CLR_C(s) {(s)->st |= 1 << 30;}
+#define SET_N(s) {(s)->st &= ~(1 << 31);}
+#define CLR_N(s) {(s)->st |= 1 << 31;}
+
 static int stop_running = 0;
 
 static void handle_signal(int sig)
@@ -215,188 +224,688 @@ void simulate_dump_registers_tms340(struct _simulate *simulate)
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }
 
-static int arithctrl_exe(struct _simulate *simulate,int r,int dreg)
+static uint32_t get_register(struct _simulate_tms340 *s,int r,int reg)
 {
-  /* 0000.0011.001 = 0x032 */
-  struct _simulate_tms340 *simulate_tms340 = (struct _simulate_tms340 *)simulate->context;
+  if (reg == 15) {
+    return s->sp;
+  } else if (r == 0) {
+    return s->a[reg];
+  } else {
+    return s->b[reg];
+  }
+  return -1;
+}
 
-  switch((r << 5) | dreg) {
-  case 0x00:
-    return clrc_exe(simulate);
+static void set_register(struct _simulate_tms340 *s,int r,int reg,uint32_t v)
+{
+  if (reg == 15) {
+    s->sp = v;
+  } else if (r == 0) {
+    s->a[reg] = v;
+  } else {
+    s->b[reg] = v;
   }
 }
 
-static int irqctrl_exe(struct _simulate *simulate,int r,int dreg)
+static uint32_t get_field(struct _simulate *simulate,uint32_t address,int field)
 {
-  /* 0000.0011.011 = 0x036 */
-  struct _simulate_tms340 *simulate_tms340 = (struct _simulate_tms340 *)simulate->context;
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int fsize,fext;
+  uint32_t end;
+  uint8_t  v = 0;
+  int lshift = 0;
+  int rshift;
+  
+  if (field == 0) {
+    fsize = (s->st >> 0 ) & 0x1f;
+    fext  = (s->st >> 5 ) & 1;
+  } else {
+    fsize = (s->st >> 6 ) & 0x1f;
+    fext  = (s->st >> 11) & 1;
+  }
+  if (fsize == 0)
+    fsize = 32;
+  
+  end    = address + fsize;
+  rshift = address & 0x7; // The bit within the byte at address
+  lshift = 0;
+  do {
+    v       |= (memory_read_m(simulate->memory,address >> 3) >> rshift) << lshift;
+    address += 8 - rshift;
+    lshift  += 8 - rshift;
+    rshift   = 0;
+  } while(address < end);
 
-  switch((r << 5) | dreg) {
-  case 0x00:
-    return dint_exe(simulate);
+  if (fsize < 32) {
+    v &= (1U << fsize) - 1;
+    /* Include sign extension */
+    if (fext) {
+      if (v & (1UL << (fsize - 1))) {
+	v |= ~0UL << fsize;
+      }
+    }
+  }
+
+  return v;
+}
+
+
+static uint32_t get_byte(struct _simulate *simulate,uint32_t address)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t end;
+  uint8_t  v = 0;
+  int lshift = 0;
+  int rshift;
+  
+  end    = address + 8;
+  rshift = address & 0x7; // The bit within the byte at address
+  lshift = 0;
+  do {
+    v       |= (memory_read_m(simulate->memory,address >> 3) >> rshift) << lshift;
+    address += 8 - rshift;
+    lshift  += 8 - rshift;
+    rshift   = 0;
+  } while(address < end);
+
+  v &= 0xff;
+  if (v & 0x80) {
+    v |= 0xffffff00;
+  }
+
+  return v;
+}
+
+static void set_field(struct _simulate *simulate,uint32_t address,int field,uint32_t v)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int fsize;
+  uint32_t end;
+  uint8_t  fmw,lwm;
+  uint8_t  w = 0;
+  int lshift;
+  
+  if (field == 0) {
+    fsize = (s->st >> 0 ) & 0x1f;
+  } else {
+    fsize = (s->st >> 6 ) & 0x1f;
+  }
+  if (fsize == 0)
+    fsize = 32;
+  
+  end    = address + fsize - 1;
+
+  /* Compute the first and last word mask. This is
+  ** the mask that contains the bits to be modified
+  */
+  fmw    = ~0UL << (address & 0x07);
+  lwm    = ~0UL >> (7 - (end     & 0x07));
+  /*
+  ** Check whether the first and last bit are in the same 
+  ** byte. If so, combine the masks
+  */
+  if ((address >> 3) == (end >> 3)) {
+    fwm &= lwm;
+    lwm  = fwm;
+  }
+  lshift = address & 0x07;
+  
+  do {
+    w        = memory_read_m(simulate->memory,address >> 3);
+    /* Mask in the modificatons */
+    w        = ((v << lshift) & fwm) | (w & ~fwm);
+    memory_write_m(simulate->memory,address >> 3,w);
+    v      >>= 8 - lshift;
+    address += 8 - lshift;
+    lshift   = 0;
+    /* Compute the next mask */
+    if ((address >> 3) == (end >> 3)) {
+      fwm = lwm;
+    } else {
+      fwm = 0xff;
+    }
+  } while(address <= end);
+}
+
+
+static void set_byte(struct _simulate *simulate,uint32_t address,uint32_t v)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t end;
+  uint8_t  fmw,lwm;
+  uint8_t  w = 0;
+  int lshift;
+  
+  end    = address + 7;
+
+  /* Compute the first and last word mask. This is
+  ** the mask that contains the bits to be modified
+  */
+  fmw    = ~0UL << (address & 0x07);
+  lwm    = ~0UL >> (7 - (end     & 0x07));
+  /*
+  ** Check whether the first and last bit are in the same 
+  ** byte. If so, combine the masks
+  */
+  if ((address >> 3) == (end >> 3)) {
+    fwm &= lwm;
+    lwm  = fwm;
+  }
+  lshift = address & 0x07;
+  
+  do {
+    w        = memory_read_m(simulate->memory,address >> 3);
+    /* Mask in the modificatons */
+    w        = ((v << lshift) & fwm) | (w & ~fwm);
+    memory_write_m(simulate->memory,address >> 3,w);
+    v      >>= 8 - lshift;
+    address += 8 - lshift;
+    lshift   = 0;
+    /* Compute the next mask */
+    if ((address >> 3) == (end >> 3)) {
+      fwm = lwm;
+    } else {
+      fwm = 0xff;
+    }
+  } while(address <= end);
+}
+
+static uint32_t get_field_size(_simulate_tms340 *s,int field)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int fsize;
+  
+  if (field == 0) {
+    return (s->st >> 0) & 0x1f;
+  } else {
+    return (s->st >> 6) & 0x1f;
   }
 }
 
-static int irqnctrl_exe(struct _simulate *simulate,int r,int dreg)
-{
-  /* 0000.1101.011 = 0x0d6 */
-  struct _simulate_tms340 *simulate_tms340 = (struct _simulate_tms340 *)simulate->context;
+typedef int execute(struct _simulate_tms340 *s,struct _table_tms340 *t,uint16_t opcode);
 
-  switch((r << 5) | dreg) {
-  case 0x00:
-    return eint_exe(simulate);
+/*
+** Instruction executer
+*/
+static int mpys(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  int32_t src,dst;
+  int64_t prd;
+
+  src    = get_register(s,r,rs);
+  dst    = get_register(s,r,rd);
+
+  prd    = ((int64_t)src) * ((int64_t)dst);
+
+  if (prd < 0) SET_N(s);
+  else CLR_N(s);
+  if (prd == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  if (rd & 1) {
+    /* Target register is odd. Store only the lower end */
+    set_register(s,r,rd,prd);
+  } else {
+    set_register(s,r,rd  ,prd);
+    set_register(s,r,rd+1,prd >> 32);
   }
+  
+  return 0;
 }
 
-static int arith_exe(struct _simulate *simulate,int sreg,int r,int dreg)
+static int mpyu(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
 {
-  /* 0000.001 = 0x0200 */
-  struct _simulate_tms340 *simulate_tms340 = (struct _simulate_tms340 *)simulate->context;
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  uint32_t src,dst;
+  int64_t prd;
 
-  switch(sreg) {
-  case 0xc:
-    return abs_exe(simulate,r,dreg);
-  case 0x9:
-    return arithctrl_exe(simulate,r,dreg);
-  case 0xb:
-    return irqctrl_exe(simulate,r,dreg);
+  src    = get_register(s,r,rs);
+  dst    = get_register(s,r,rd);
+
+  prd    = ((uint64_t)src) * ((uint64_t)dst);
+
+  if (prd == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  if (rd & 1) {
+    /* Target register is odd. Store only the lower end */
+    set_register(s,r,rd,prd);
+  } else {
+    set_register(s,r,rd  ,prd);
+    set_register(s,r,rd+1,prd >> 32);
   }
+  
+  return 0;
 }
 
-static int arithi_exe(struct _simulate *simulate,int sreg,int r,int dreg)
+static int neg(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
 {
-  /* 0000.101 = 0x0a00 */
-  switch(sreg) {
-  case 0x8:
-    return addiw_exe(simulate,r,dreg);
-  case 0x9:
-    return addil_exe(simulate,r,dreg);
-  case 0xa:
-    return cmpiw_exe(simulate,r,dreg);
-  case 0xb:
-    return cmpil_exe(simulate,r,dreg);
-  case 0xc:
-    return andnil_exe(simulate,r,dreg);
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t src;
+
+  src = get_register(s,r,rd);
+
+  if (src = (1L << 31)) {
+    SET_V(s);
+    CLR_Z(s);
+    SET_N(s);
+  } else {
+    src = -src;
+    if (src == 0) SET_Z(src);
+    else CLR_Z(src);
+    CLR_V(s);
+    CLR_Z(s);
+    if (src & (1L << 31)) SET_N(src);
+    else CLR_N(src);
   }
+
+  set_register(s,r,rd,src);
+
+  return 0;
 }
 
-static int ctrlreg_exe(struct _simulate *simulate, int sreg,int r,int dreg)
+static int movi(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
 {
-  /* 0000.100 = 0x0800 */
-  struct _simulate_tms340 *simulate_tms340 = (struct _simulate_tms340 *)simulate->context;
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t src;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
 
-  switch(sreg) {
-  case 0x09:
-    return call_exe(simulate,r,dreg); /* call indirect through register */
+  switch(t->operand_types[0]) {
+  case OP_IW:
+    src = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    /* sign extend */
+    if (src & 0x8000)
+      src |= 0xffff << 16;
+    break;
+  case OP_IL:
+    src    = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    src   |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
   }
+  CLR_V(s);
+  if ((int32_t)(src) < 0) SET_N(s);
+  else CLR_N(s);
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+  set_register(s,r,rd,src);
+
+  return 0;
 }
 
-static int ctrl_exe(struct _simulate *simulate, int opcode)
+static int movk(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
 {
-  /* 0000.110 = 0x0c00 */
-  struct _simulate_tms340 *simulate_tms340 = (struct _simulate_tms340 *)simulate->context;
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t src;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
 
-  switch(opcode) {
-  case 0x15f:
-    return callal_exe(simulate);
-  case 0x13f:
-    return callr_exe(simulate);
-  }
+  src    = (opcode >> 5) & 0x1f;
+  if (src == 0)
+    src = 32;
+
+  set_register(s,r,rd,src);
+
+  return 0;
 }
 
-static int elem_exe(struct _simulate *simulate,int sreg,int r,int dreg)
+static int movx(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
 {
-  /* 0001.010 = 0x1400 */
-  struct _simulate_tms340 *simulate_tms340 = (struct _simulate_tms340 *)simulate->context;
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
 
-  switch(sreg) {
-  case 0x1:
-    return dec_exe(simulate,r,dreg);
-  }
+  src    = get_register(s,r,rs) & 0xffff;
+  src   |= get_register(s,r,rd) & (0xffff << 16);
+  
+  set_register(r,s,rd,src);
+
+  return 0;
 }
 
-static int branch_exe(struct simulate *simulate,int sreg,int r,int dreg)
+static int movy(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
 {
-  /* 0000.110 = 0x0c00 */
-  struct _simulate_tms340 *simulate_tms340 = (struct _simulate_tms340 *)simulate->context;
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
 
-  switch(sreg) {
-  case 0xb:
-    return irqn_exe(simulate,r,dreg);
-  case 0xc:
-    return dsj_exe(simulate,r,dreg);
-  case 0xd:
-    return dsjeq_exe(simulate,r,dreg);
-  case 0xe:
-    return dsjne_exe(simulate,r,dreg);
-  }
+  src    = get_register(s,r,rs) & (0xffff << 16);
+  src   |= get_register(s,r,rd) & 0xffff;
+  
+  set_register(r,s,rd,src);
+
+  return 0;
 }
+
+static int movb(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t src,reg;
+  int16_t displacement;
+  int32_t displacement32,ilw;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+
+  switch(t->operand_types[0]) {
+  case OP_RS:
+    src = get_register(s,r,rs) & 0xff;
+    if (src & 0x80)
+      src |= 0xffffff00;
+    break;
+  case OP_P_RS:
+    reg = get_register(s,r,rs);
+    src = get_byte(simulate,reg);
+    break;
+  case OP_P_RS_DISP:
+    reg = get_register(s,r,rs);
+    displacement = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    src = get_byte(simulate,reg + displacement);
+    break;
+  case OP_AT_ADDR:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    src    = get_byte(simulate,ilw);
+    break;
+  }
+  switch(t->operand_types[1]) {
+  case OP_RD:
+    /* This is the only combo that sets the status bits */
+    CLR_V(s);
+    if ((int32_t)(src) < 0) SET_N(s);
+    else CLR_N(s);
+    if (src == 0) SET_Z(s);
+    else CLR_Z(s);
+    set_register(s,r,rd,src);
+    break;
+  case OP_P_RD:
+    reg = get_register(s,r,rd);
+    set_byte(s,reg,src);
+    break;
+  case OP_P_RD_DISP:
+    reg = get_register(s,r,rs);
+    displacement = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    set_byte(simulate,reg + displacement,src);
+    break;
+  case OP_AT_ADDR:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    set_byte(simulate,ilw,src);
+    break;
+  }
+  return 0;
+}
+
+static int move(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t src,reg;
+  int16_t displacement;
+  int32_t displacement32,ilw;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  int f  = (opcode >> 9) & 1;
+
+  switch(t->operand_types[0]) {
+  case OP_RS:
+    src = get_register(s,r,rs);
+    break;
+  case OP_P_RS:
+    reg = get_register(s,r,rs);
+    src = get_field(simulate,reg,f);
+    break;
+  case OP_MP_RS:
+    reg  = get_register(s,r,rs);
+    reg -= get_field_size(s,f);
+    set_register(s,r,rs,reg);
+    src  = get_field(simulate,reg,f);
+    break;
+  case OP_P_RS_P:
+    reg  = get_register(s,r,rs);
+    src  = get_field(simulate,reg,f);
+    reg += get_field_size(s,f);
+    set_register(s,r,rs,reg);
+    break;
+  case OP_P_RS_DISP:
+    reg = get_register(s,r,rs);
+    displacement = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    src = get_field(simulate,reg + displacement,f);
+    break;
+  case OP_RD:
+  case OP_RDS:
+    src = get_register(s,r,rd);
+    break;
+  case OP_AT_ADDR:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    src    = get_field(simulate,ilw,f);
+    break;
+  }
+  switch(t->operand_types[1]) {
+  case OP_RD:
+  case OP_RDS:
+    /* This is the only combo that sets the status bits */
+    CLR_V(s);
+    if ((int32_t)(src) < 0) SET_N(s);
+    else CLR_N(s);
+    if (src == 0) SET_Z(s);
+    else CLR_Z(s);
+    if ((opcode & 0xfe00) == 0x4e00) {
+      set_register(s,r^1,rd,src);
+    } else {
+      set_register(s,r,rd,src);
+    }
+    break;
+  case OP_P_RD:
+    reg = get_register(s,r,rd);
+    set_field(simulate,reg,f,src);
+    break;
+  case OP_MP_RD:
+    reg  = get_register(s,r,rd);
+    reg -= get_field_size(s,f);
+    set_register(s,r,rd,reg);
+    set_field(simulate,reg,f,src);
+    break;
+  case OP_P_RD_P:
+    reg  = get_register(s,r,rd);
+    set_field(simulate,reg,f,src);
+    reg += get_field_size(s,f);
+    set_register(s,r,rd,reg);
+    break;
+  case OP_RD_DISP:
+    reg = get_register(s,r,rs);
+    displacement = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    set_field(simulate,reg + displacement,f,src);
+    break;
+  case OP_AT_ADDR:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    set_field(simulate,ilw,f,src);
+    break;
+  }
+  return 0;
+}
+
+struct instruction {
+  const char *instname;
+  execute    *executer;
+} instructions[] = {
+		    "addxy", &addxy,
+		    "cmpxy", &cmpxy,
+		    "cpw",   &cpw,
+		    "cvxyl", &cvxyl,
+		    "drav",  &drav,
+		    "fill",  &fill,
+		    "movx",  &movx,
+		    "movy",  &movy,
+		    "pixblt",&pixblt,
+		    "pixt",  &pixt,
+		    "subxy", &subxy,
+		    "line",  &line,
+		    "movb",  &movb,
+		    "move",  &move,
+		    "abs",   &abs,
+		    "add",   &add,
+		    "addc",  &addc,
+		    "addi",  &addi,
+		    "addk",  &addk,
+		    "and",   &and,
+		    "andi",  &andi,
+		    "andn",  &andn,
+		    "andni", &andni,
+		    "btst",  &btst,
+		    "clrc",  &clrc,
+		    "cmp",   &cmp,
+		    "cmpi",  &cmpi,
+		    "dec",   &dec,
+		    "dint",  &dint,
+		    "divs",  &divs,
+		    "divu",  &divu,
+		    "eint",  &eint,
+		    "exgf",  &exgf,
+		    "lmo",   &lmo,
+		    "mmfm",  &mmfm,
+		    "mmtm",  &mmtm,
+		    "mods",  &mods,
+		    "modu",  &modu,
+		    "movi",  &movi,
+		    "movk",  &movk,
+		    "mpys",  &mpys,
+		    "mpyu",  &mpyu,
+		    "neg",   &neg,
+		    "negb",  &negb,
+		    "nop",   &nop,
+		    "not",   &not,
+		    "or",    &or,
+		    "ori",   &ori,
+		    "rl",    &rl,
+		    "setc",  &setc,
+		    "setf",  &setf,
+		    "sext",  &sext,
+		    "sla",   &sla,
+		    "sll",   &sll,
+		    "sra",   &sra,
+		    "srl",   &srl,
+		    "sub",   &sub,
+		    "subb",  &subb,
+		    "subi",  &subi,
+		    "subk",  &subk,
+		    "xor",   &xor,
+		    "xori",  &xori,
+		    "zext",  &zext,
+		    "call",  &call,
+		    "calla", &calla,
+		    "callr", &callr,
+		    "dsj",   &dsj,
+		    "dsjeq", &dsjeq,
+		    "dsjne", &dsjne,
+		    "dsjs",  &dsjs,
+		    "emu",   &emu,
+		    "exgpc", &exgpc,
+		    "getpc", &getpc,
+		    "getst", &getst,
+		    "jauc",  &jauc,
+		    "jap",   &jap,
+		    "jals",  &jals,
+		    "jahi",  &jahi,
+		    "jalt",  &jalt,
+		    "jage",  &jage,
+		    "jale",  &jale,
+		    "jagt",  &jagt,
+		    "jac",   &jac,
+		    "jalo",  &jalo,
+		    "jab",   &jab,
+		    "janc",  &janc,
+		    "jahs",  &jahs,
+		    "janb",  &janb,
+		    "jaz",   &jaz,
+		    "jaeq",  &jaeq,
+		    "janz",  &janz,
+		    "jane",  &jane,
+		    "jav",   &jav,
+		    "janv",  &janv,
+		    "jan",   &jan,
+		    "jann",  &jann,
+		    "jruc",  &jruc,
+		    "jrp",   &jrp,
+		    "jrls",  &jrls,
+		    "jrhi",  &jrhi,
+		    "jrlt",  &jrlt,
+		    "jrge",  &jrge,
+		    "jrle",  &jrle,
+		    "jrgt",  &jrgt,
+		    "jrc",   &jrc,
+		    "jrb",   &jrb,
+		    "jrlo",  &jrlo,
+		    "jrnc",  &jrnc,
+		    "jrhs",  &jrhs,
+		    "jrnb",  &jrnb,
+		    "jrz",   &jrz,
+		    "jreq",  &jreq,
+		    "jrnz",  &jrnz,
+		    "jrne",  &jrne,
+		    "jrv",   &jrv,
+		    "jrnv",  &jrnv,
+		    "jrn",   &jrn,
+		    "jrnn",  &jrnn,
+		    "jump",  &jump,
+		    "popst", &popst,
+		    "pushst",&pushst,
+		    "putst", &putst,
+		    "reti",  &reti,
+		    "rets",  &rets,
+		    "trap",  &trap,
+		    NULL,    NULL
+};
 
 static int operand_exe(struct _simulate *simulate, uint16_t opcode)
 {
-  struct _simulate_tms340 *simulate_tms340 = (struct _simulate_tms340 *)simulate->context;
-  int dreg = (opcode >> 0) & 0x0f;
-  int sreg = (opcode >> 5) & 0x0f;
-  int r    = (opcode >> 4) & 0x01;
-
-  switch(opcode & 0xfe00) {
-  case 0x0200:
-    return arith_exe(simulate,sreg,r,dreg);
-  case 0x4000:
-    return add_exe(simulate,sreg,r,dreg);
-  case 0x4200:
-    return addc_exe(simulate,sreg,r,dreg);
-  case 0x0a00:
-    return arithi_exe(simulate,sreg,r,dreg);
-  case 0x0c00:
-    return branch_exe(simulate,sreg,r,dreg);
-  case 0x1000:
-    return addk_exe(simulate,sreg==0?32:0,r,dreg);
-  case 0x1200:
-    return addk_exe(simulate,sreg+16,r,dreg);
-  case 0x1400:
-    return elem_exe(simulate,sreg,r,dreg);
-  case 0x1c00:
-    return btstnk_exe(simulate,sreg,r,dreg);
-  case 0x1e00:
-    return btstnk_exe(simulate,sreg+16,r,dreg);
-  case 0xe000:
-    return addxy_exe(simulate,sreg,r,dreg);
-  case 0x5000:
-    return and_exe(simulate,sreg,r,dreg);
-  case 0x5200:
-    return andn_exe(simulate,sreg,r,dreg);
-  case 0x4a00:
-    return btst_exe(simulate,sreg,r,dreg);
-  case 0x0800:
-    return ctrlreg_exe(simulate,sreg,r,dreg);
-  case 0x0c00:
-    return ctrl_exe(simulate,opcode & 0x1ff);
-  case 0x5600:
-    return xor_exe(simulate,sreg,r,dreg);
-  case 0x4800:
-    return cmp_exe(simulate,sreg,r,dreg);
-  case 0xe400:
-    return cmpxy_exe(simulate,sreg,r,dreg);
-  case 0xe600:
-    return cpw_exe(simulate,sreg,r,dreg);
-  case 0xe800:
-    return cvxyl_exe(simulate,sreg,r,dreg);
-  case 0x5800:
-    return divs_exe(simulate,sreg,r,dreg);
-  case 0x5a00:
-    return divu_exe(simulate,sreg,r,dreg);
-  case 0xf600:
-    return drav_exe(simulate,sreg,r,dreg);
-  case 0x3800:
-    return dsjs_exe(simulate,sreg,r,dreg);
-  case 0x3a00:
-    return dsjs_exe(simulate,sreg+16,r,dreg);
-  case 0x3c00:
-    return dsjs_exe(simulate,-sreg,r,dreg);
-  case 0x3e00:
-    return dsjs_exe(simulate,-sreg-16,r,dreg);
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  const struct _table_tms340 *t = table_tms340;
+ 
+  while(t->instr) {
+    if ((opcode & t->mask) == t->opcode) {
+      struct instruction *inst = instructions;
+      while(inst->instname) {
+	if (!strcmp(inst->instname,t->instr)) {
+	  return (inst->executer)(simulate,t,opcode);
+	}
+	inst++;
+      }
+      printf("Found unsupported instruction %s\n",t->instr);
+    }
+    t++:
   }
+  printf("Found unsupported instruction opcode 0x%04x\n",opcode);
+  
+  return -1;
 }
 
 int simulate_run_tms340(struct _simulate *simulate, int max_cycles, int step)
