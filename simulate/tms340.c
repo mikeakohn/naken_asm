@@ -410,6 +410,32 @@ static void set_byte(struct _simulate *simulate,uint32_t address,uint32_t v)
   } while(address <= end);
 }
 
+static void set_long(struct _simulate *simulate,uint32_t adr,uint32_t v)
+{
+  set_byte(simulate,adr,reg >> 0);
+  adr += 8;
+  set_byte(simulate,adr,reg >> 8);
+  adr += 8;
+  set_byte(simulate,adr,reg >> 16);
+  adr += 8;
+  set_byte(simulate,adr,reg >> 24);
+}
+
+static uint32_t get_long(struct _simulate *simulate,uint32_t adr)
+{
+  uint32_t reg;
+
+  reg  = get_byte(simulate,adr);
+  adr += 8;
+  reg |= get_byte(simulate,adr) << 8;
+  adr += 8;
+  reg |= get_byte(simulate,adr) << 16;
+  adr += 8;
+  reg |= get_byte(simulate,adr) << 24;
+
+  return reg;
+}
+
 static uint32_t get_field_size(_simulate_tms340 *s,int field)
 {
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
@@ -427,6 +453,335 @@ typedef int execute(struct _simulate_tms340 *s,struct _table_tms340 *t,uint16_t 
 /*
 ** Instruction executer
 */
+static int abs(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  int32_t src;
+
+  src = get_register(s,r,rd);
+  if (src == (1L << 31)) {
+    CLR_N(s);
+    SET_V(s);
+    CLR_V(s);
+  } else if (src < 0) {
+    src = -src;
+    CLR_N(s);
+    CLR_V(s);
+    CLR_Z(s);
+  } else if (src > 0) {
+    SET_N(s);
+    CLR_V(s);
+    CLR_Z(s);
+  } else {
+    CLR_N(s);
+    CLR_V(s);
+    SET_V(s);
+  }
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int add(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  uint32_t src,dst,fin;
+
+  src = get_register(s,r,rs);
+  dst = get_register(s,r,rd);
+
+  fin = src + dst;
+
+  if (fin == 0) SET_Z(s);
+  else CLR_Z(s);
+  if (fin & (1L << 31)) SET_N(s);
+  else CLR_N(s);
+  if ((~(src ^ dst) & (src ^ fin)) && (1L << 31)) SET_V(s);
+  else CLR_V(s);
+  if (((uint64_t)(src) + (uint64_t)(dst)) > (((uint32_t)1) << 32)) SET_C(s);
+  else CLR_C(s);
+
+  set_register(s,r,rd,fin);
+
+  return 0;
+}
+
+static int addi(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t src,dst,fin;
+
+  switch(t->operand_types[0]) {
+  case OP_IW:
+    src    = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    /* sign extend */
+    if (src & 0x8000)
+      src |= 0xffff << 16;
+    break;
+  case OP_IL:
+    src    = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    src   |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+  dst = get_register(s,r,rd);
+
+  fin = src + dst;
+
+  if (fin == 0) SET_Z(s);
+  else CLR_Z(s);
+  if (fin & (1L << 31)) SET_N(s);
+  else CLR_N(s);
+  if ((~(src ^ dst) & (src ^ fin)) && (1L << 31)) SET_V(s);
+  else CLR_V(s);
+  if (((uint64_t)(src) + (uint64_t)(dst)) > (((uint32_t)1) << 32)) SET_C(s);
+  else CLR_C(s);
+
+  set_register(s,r,rd,fin);
+
+  return 0;
+}
+
+static int addk(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t src,dst,fin;
+
+  src = (opcode >> 5) & 0x1f;
+  if (src == 0)
+    src = 32;
+
+  dst = get_register(s,r,rd);
+
+  fin = src + dst;
+
+  if (fin == 0) SET_Z(s);
+  else CLR_Z(s);
+  if (fin & (1L << 31)) SET_N(s);
+  else CLR_N(s);
+  if ((~(src ^ dst) & (src ^ fin)) && (1L << 31)) SET_V(s);
+  else CLR_V(s);
+  if (((uint64_t)(src) + (uint64_t)(dst)) > (((uint32_t)1) << 32)) SET_C(s);
+  else CLR_C(s);
+
+  set_register(s,r,rd,fin);
+
+  return 0;
+}
+
+static int addc(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  uint32_t c = (s->st >> 30) & 1;
+  uint32_t src,dst,fin;
+
+  src = get_register(s,r,rs);
+  dst = get_register(s,r,rd);
+
+  fin = src + dst + c;
+
+  if (fin == 0) SET_Z(s);
+  else CLR_Z(s);
+  if (fin & (1L << 31)) SET_N(s);
+  else CLR_N(s);
+  if ((~(src ^ dst) & (src ^ fin)) && (1L << 31)) SET_V(s);
+  else CLR_V(s);
+  if (((uint64_t)(src) + (uint64_t)(dst) + (uint64_t)c) > (((uint32_t)1) << 32)) SET_C(s);
+  else CLR_C(s);
+
+  set_register(s,r,rd,fin);
+
+  return 0;
+}
+
+static int addxy(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  uint32_t src,dst,finx,finy;
+
+  src = get_register(s,r,rs);
+  dst = get_register(s,r,rd);
+
+  finx = ((src & 0xffff) + (dst & 0xffff)) & 0xffff;
+  finy = ((src >> 16)    + (dst >> 16)   ) & 0xffff;
+
+  if (finx == 0) SET_N(s);
+  else CLR_N(s);
+
+  if (finx & 0x8000) SET_V(s);
+  else CLR_V(s);
+
+  if (finy == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  if (finy & 0x8000) SET_C(s);
+  else CLR_C(s);
+
+  set_register(s,r,rd,finx | (finy << 16));
+
+  return 0;
+}
+
+
+static int and(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  uint32_t src,dst;
+
+  src  = get_register(s,r,rs);
+  dst  = get_register(s,r,rd);
+
+  src &= dst;
+
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int andn(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  uint32_t src,dst;
+
+  src  = ~get_register(s,r,rs);
+  dst  =  get_register(s,r,rd);
+
+  src &= dst;
+
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int andni(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t iwl,src;
+  
+  ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+  s->pc += 16;
+  ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+  s->pc += 16;
+  src    = get_register(s,r,rd) & ~ilw
+    
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int btst(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t src,dst;
+
+  src = (~(opcode >> 5)) & 0x1f;
+  dst = get_register(s,r,rd);
+
+  if (dst & (1L << src)) CLR_Z(s);
+  else SET_Z(s);
+
+  return 0;
+}
+
+static int call(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+
+  s->sp -= 32;
+  put_long(simulate,s->pc,s->sp);
+
+  s->pc  = get_register(s,r,rd) & ~7;
+
+  return 0;
+}
+  
+static int calla(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t ilw;
+  
+  ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+  s->pc += 16;
+  ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+  s->pc += 16;
+
+  s->sp -= 32;
+  put_long(simulate,s->pc,s->sp);
+
+  s->pc  = ilw & ~7;
+
+  return 0;
+}
+
+static int callr(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t ilw;
+  
+  ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+  s->pc += 16;
+
+  s->sp -= 32;
+  put_long(simulate,s->pc,s->sp);
+
+  s->pc += ilw << 4;
+
+  return 0;
+}
+
+static int clrc(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+
+  CLR_C(s);
+
+  return 0;
+}
+  
+
 static int mpys(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
 {
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
@@ -752,6 +1107,63 @@ static int move(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opco
   }
   return 0;
 }
+
+static int mmtm(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t adr,reg;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  int rs;
+  int32_t mask;
+
+  mask = memory_read16_m(simulate->memory,s->pc >> 3);
+  adr  = get_register(s,r,rd);
+  rs   = 0; /* Move low-registers first */
+  
+  while(mask) {
+    if (mask & 1) {
+      reg  = get_register(s,r,rs);
+      adr -= 32;
+      set_long(simulate,adr,reg);
+      mask >>= 1;
+      rs++;
+    }
+  }
+
+  set_register(s,r,rd,adr);
+
+  return 0;
+}
+
+static int mmfm(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t adr,reg;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  int rs;
+  int32_t mask;
+
+  mask = memory_read16_m(simulate->memory,s->pc >> 3);
+  adr  = get_register(s,r,rd);
+  rs   = 15; /* Move high-registers first */
+  
+  while(mask) {
+    if (mask & 0x8000) {
+      reg  = get_long(simulate,adr);
+      adr += 32;
+      mask  = (mask & 0x7fff) << 1;
+      set_register(s,r,rs,reg);
+      rs--;
+    }
+  }
+
+  set_register(s,r,rd,adr);
+
+  return 0;
+}
+
 
 struct instruction {
   const char *instname;
