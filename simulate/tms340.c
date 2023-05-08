@@ -693,6 +693,27 @@ static int or(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode
   return 0;
 }
 
+static int xor(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  uint32_t src,dst;
+
+  src  = get_register(s,r,rs);
+  dst  = get_register(s,r,rd);
+
+  src ^= dst;
+
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
 static int andn(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
 {
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
@@ -747,6 +768,27 @@ static int ori(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcod
   ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
   s->pc += 16;
   src    = get_register(s,r,rd) | ilw;
+    
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int xori(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t iwl,src;
+  
+  ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+  s->pc += 16;
+  ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+  s->pc += 16;
+  src    = get_register(s,r,rd) ^ ilw;
     
   if (src == 0) SET_Z(s);
   else CLR_Z(s);
@@ -2473,6 +2515,187 @@ static int sext(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opco
   }
   
   return 0;
+}
+
+
+static int zext(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  int f  = (opcode >> 9) & 1;
+  int fs = get_field_size(s,f);
+  uint32_t src;
+
+  if (fs < 32) {
+    src  = get_register(r,s,rd);
+
+    src &= ~(~0L << fs);
+
+    set_register(r,s,rd,src);
+  }
+  
+  return 0;
+}
+
+static int sla(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  int rs = (opcode >> 5) & 0xf;
+  int  k;
+  uint32_t src,tmp;
+  
+  switch(t->operand_types[0]) {
+  case OP_K:
+    k = (opcode >> 5) & 0x1f;
+    break;
+  case OP_RS:
+    k = get_register(s,r,rs) & 0x1f;
+    break;
+  }
+
+  src   = get_register(s,r,rd);
+  tmp   = src >> (32 - k);
+  src <<= k;
+  
+  if (tmp & 1) SET_C(s);
+  else CLR_C(s);
+
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  if (src & (1L << 31)) SET_N(s);
+  else CLR_N(s);
+
+  if (tmp == 0 || tmp == ((1L << k) - 1)) CLR_V(s);
+  else SET_V(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int sll(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  int rs = (opcode >> 5) & 0xf;
+  int  k;
+  uint32_t src,tmp;
+  
+  switch(t->operand_types[0]) {
+  case OP_K:
+    k = (opcode >> 5) & 0x1f;
+    break;
+  case OP_RS:
+    k = get_register(s,r,rs) & 0x1f;
+    break;
+  }
+
+  src   = get_register(s,r,rd);
+  tmp   = src >> (32 - k);
+  src <<= k;
+  
+  if (tmp & 1) SET_C(s);
+  else CLR_C(s);
+
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int sra(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  int rs = (opcode >> 5) & 0xf;
+  int  k;
+  uint32_t src,tmp;
+  
+  switch(t->operand_types[0]) {
+  case OP_K:
+    k = (opcode >> 5) & 0x1f;
+    break;
+  case OP_RS:
+    k = get_register(s,r,rs) & 0x1f;
+    break;
+  }
+
+  src   = get_register(s,r,rd);
+  if (k) {
+    if ((src >> (k - 1)) & 1) SET_C(s);
+    else CLR_C(s);
+
+    if (src & (1L << 31)) {
+      tmp = ~0 << (32 - k);
+    } else {
+      tmp = 0;
+    }
+    src >>= k;
+    src  |= tmp;
+  } else {
+    CLR_C(s);
+  }
+
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  if (src & (1L << 31)) SET_N(s);
+  else CLR_N(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int srl(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  int rs = (opcode >> 5) & 0xf;
+  int  k;
+  uint32_t src,tmp;
+  
+  switch(t->operand_types[0]) {
+  case OP_K:
+    k = (opcode >> 5) & 0x1f;
+    break;
+  case OP_RS:
+    k = get_register(s,r,rs) & 0x1f;
+    break;
+  }
+
+  src   = get_register(s,r,rd);
+  if (k) {
+    if ((src >> (k - 1)) & 1) SET_C(s);
+    else CLR_C(s);
+
+    src >>= k;
+  } else {
+    CLR_C(s);
+  }
+
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int trap(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  printf("trap is not implemented\n");
+
+  return -1;
 }
 
 
