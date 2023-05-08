@@ -447,10 +447,15 @@ static uint32_t get_field_size(_simulate_tms340 *s,int field)
   int fsize;
   
   if (field == 0) {
-    return (s->st >> 0) & 0x1f;
+    fsize = (s->st >> 0) & 0x1f;
   } else {
-    return (s->st >> 6) & 0x1f;
+    fsize = (s->st >> 6) & 0x1f;
   }
+
+  if (fsize == 0)
+    fsize = 32;
+
+  return fsize;
 }
 
 typedef int execute(struct _simulate_tms340 *s,struct _table_tms340 *t,uint16_t opcode);
@@ -667,6 +672,27 @@ static int and(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcod
   return 0;
 }
 
+static int or(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  uint32_t src,dst;
+
+  src  = get_register(s,r,rs);
+  dst  = get_register(s,r,rd);
+
+  src |= dst;
+
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
 static int andn(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
 {
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
@@ -699,7 +725,28 @@ static int andni(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opc
   s->pc += 16;
   ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
   s->pc += 16;
-  src    = get_register(s,r,rd) & ~ilw
+  src    = get_register(s,r,rd) & ~ilw;
+    
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int ori(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t iwl,src;
+  
+  ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+  s->pc += 16;
+  ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+  s->pc += 16;
+  src    = get_register(s,r,rd) | ilw;
     
   if (src == 0) SET_Z(s);
   else CLR_Z(s);
@@ -734,7 +781,18 @@ static int call(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opco
   s->sp -= 32;
   put_long(simulate,s->pc,s->sp);
 
-  s->pc  = get_register(s,r,rd) & ~7;
+  s->pc  = get_register(s,r,rd) & ~0x0f;
+
+  return 0;
+}
+  
+static int jump(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+
+  s->pc  = get_register(s,r,rd) & ~0x0f;
 
   return 0;
 }
@@ -754,7 +812,7 @@ static int calla(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opc
   s->sp -= 32;
   put_long(simulate,s->pc,s->sp);
 
-  s->pc  = ilw & ~7;
+  s->pc  = ilw & ~0x0f;
 
   return 0;
 }
@@ -764,7 +822,7 @@ static int callr(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opc
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
   int  r = (opcode >> 4) & 1;
   int rd = opcode & 0xf;
-  uint32_t ilw;
+  int16_t ilw;
   
   ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
   s->pc += 16;
@@ -783,6 +841,15 @@ static int clrc(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opco
 
   CLR_C(s);
 
+  return 0;
+}
+
+static int setc(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+
+  SET_C(s);
+  
   return 0;
 }
 
@@ -1081,6 +1148,75 @@ static int divs(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opco
   return 0;
 }
 
+static int mods(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  int32_t src,dst,rem;
+
+  src = get_register(s,r,rs);
+
+  if (src == 0) {
+    SET_V(s);
+    /*
+    ** Unclear what the destination should be then
+    */
+    return 0;
+  }
+  
+  dst = get_register(r,s,rd);
+  rem = dst % src;
+  
+  if (rem == 0) SET_Z(s);
+  else CLR_Z(s);
+    
+  if (rem < 0) SET_N(s);
+  else CLR_N(s);
+
+  if (rem == (1L << 31) && src >= 0) SET_V(s);
+  CLR_V(s);
+  
+  set_register(s,r,rd,rem);
+
+  return 0;
+}
+
+static int mod(struct u_simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  uint32_t src,dst,rem;
+
+  src = get_register(s,r,rs);
+
+  if (src == 0) {
+    SET_V(s);
+    /*
+    ** Unclear what the destination should be then
+    */
+    return 0;
+  }
+  
+  dst = get_register(r,s,rd);
+  rem = dst % src;
+  
+  if (rem == 0) SET_Z(s);
+  else CLR_Z(s);
+    
+  if (rem < 0) SET_N(s);
+  else CLR_N(s);
+
+  CLR_V(s);
+  
+  set_register(s,r,rd,rem);
+
+  return 0;
+}
+
 
 static int divu(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
 {
@@ -1142,10 +1278,10 @@ static int dsj(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcod
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
   int  r = (opcode >> 4) & 1;
   int rd = opcode & 0xf;
-  uint32_t ilw;
+  int16_t  ilw;
   uint32_t src;
   
-  ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+  ilw    = memory_read16_m(simulate->memory,s->pc >> 3);
   s->pc += 16;
 
   src     = get_register(s,r,rd) - 1;
@@ -1163,10 +1299,10 @@ static int dsjeq(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opc
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
   int  r = (opcode >> 4) & 1;
   int rd = opcode & 0xf;
-  uint32_t ilw;
+  int16_t  ilw;
   uint32_t src;
   
-  ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+  ilw    = memory_read16_m(simulate->memory,s->pc >> 3);
   s->pc += 16;
 
   if (TST_Z(s)) {
@@ -1185,10 +1321,10 @@ static int dsjne(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opc
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
   int  r = (opcode >> 4) & 1;
   int rd = opcode & 0xf;
-  uint32_t ilw;
+  int16_t  ilw;
   uint32_t src;
   
-  ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+  ilw    = memory_read16_m(simulate->memory,s->pc >> 3);
   s->pc += 16;
 
   if (!TST_Z(s)) {
@@ -1208,7 +1344,7 @@ static int dsjs(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opco
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
   int  r = (opcode >> 4) & 1;
   int rd = opcode & 0xf;
-  uint32_t ilw;
+  int16_t  ilw;
   uint32_t src;
   
   ilw     = (opcode >> 5) & 0x1f;
@@ -1274,7 +1410,7 @@ static int exgpc(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opc
 
   src = get_register(s,r,rd);
   set_register(s,r,rd,s->pc);
-  s->pc = src;
+  s->pc = src & ~0x0f;
 
   return -1;
 }
@@ -1294,7 +1430,7 @@ static int getpc(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opc
 
   set_register(s,r,rd,s->pc);
 
-  return -1;
+  return 0;
 }
 
 static int getst(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
@@ -1305,7 +1441,396 @@ static int getst(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opc
 
   set_register(s,r,rd,s->st);
 
+  return 0;
+}
+
+static int jauc(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+  
+  s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jac(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+  s->pc += 16;
+  ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+  s->pc += 16;
+
+  if (TST_C(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jals(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+
+  if (TST_C(s) || TST_Z(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jahi(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+  
+  if (!(TST_C(s) || TST_Z(s)))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int janc(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+
+  if (!TST_C(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jaz(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+
+  if (TST_Z(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int janz(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+
+  if (TST_Z(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jalt(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+
+  if (TST_N(s) != TST_V(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jale(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+
+  if ((TST_N(s) != TST_V(s)) || TST_Z(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jagt(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+
+  if ((TST_N(s) == TST_V(s)) && !TST_Z(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jage(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+  
+  if (TST_N(s) == TST_V(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jap(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+
+  if (!TST_N(s) && !TST_Z(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jan(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+  
+  if (TST_N(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jann(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+
+  if (!TST_N(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int jav(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+
+  if (TST_V(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int janv(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  uint32_t iwl,src;
+  
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    iwl     = (int8_t)(opcode & 0xff) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
+
+  if (!TST_V(s))
+    s->pc  = ilw & ~0x0f;
+
+  return 0;
+}
+
+static int line(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  printf("Line is currently not supported.\n");
+
   return -1;
+}
+
+static int lmo(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rs = (opcode >> 5) & 0xf;
+  int rd = opcode & 0xf;
+  uint32_t src,dst = 0;
+
+  src = get_register(s,r,rs);
+
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+  
+  while(src <<= 1) {
+    dst++;
+  }
+
+  set_register(s,r,rd,dst);
+
+  return 0;
 }
 
 static int subk(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
@@ -1422,34 +1947,6 @@ static int mpyu(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opco
     set_register(s,r,rd+1,prd >> 32);
   }
   
-  return 0;
-}
-
-static int neg(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
-{
-  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
-  int  r = (opcode >> 4) & 1;
-  int rd = opcode & 0xf;
-  uint32_t src;
-
-  src = get_register(s,r,rd);
-
-  if (src = (1L << 31)) {
-    SET_V(s);
-    CLR_Z(s);
-    SET_N(s);
-  } else {
-    src = -src;
-    if (src == 0) SET_Z(src);
-    else CLR_Z(src);
-    CLR_V(s);
-    CLR_Z(s);
-    if (src & (1L << 31)) SET_N(src);
-    else CLR_N(src);
-  }
-
-  set_register(s,r,rd,src);
-
   return 0;
 }
 
@@ -1749,6 +2246,235 @@ static int mmfm(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opco
   return 0;
 }
 
+static int neg(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t src;
+
+  src = get_register(s,r,rd);
+
+  if (src = (1L << 31)) {
+    SET_V(s);
+    CLR_Z(s);
+    SET_N(s);
+  } else {
+    src = -src;
+    if (src == 0) SET_Z(s),CLR_C(s);
+    else CLR_Z(s),SET_C(s);
+    CLR_V(s);
+    CLR_Z(s);
+    if (src & (1L << 31)) SET_N(s);
+    else CLR_N(s);
+  }
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int negb(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t src,dst,fin;
+  
+  dst  = TST_C(s);
+  src  = get_register(s,r,rd);
+  fin  = dst - src;
+
+  if (fin == 0) SET_Z(s);
+  else CLR_Z(s);
+  if (fin & (1L << 31)) SET_N(s);
+  else CLR_N(s);
+  if ((dst ^ src) & (dst ^ fin) & (1L << 31)) SET_V(s);
+  else CLR_V(s);
+  if (((uint64_t)(dst) - (uint64_t)(src)) >> 32) SET_C(s);
+  else CLR_C(s);
+
+  set_register(s,r,rd,fin);
+
+  return 0;
+}
+
+static int nop(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  return 0;
+}
+
+static int not(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  uint32_t src;
+
+  src = ~get_register(s,r,rd);
+
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int pixblt(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  printf("pixblt is current not supported.\n");
+
+  return -1;
+}
+
+static int pix(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  printf("pix is current not supported.\n");
+
+  return -1;
+}
+
+static int popst(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+
+  s->st  = get_long(simulate,s->sp);
+  s->sp += 32:
+
+  return 0;
+}
+ 
+static int pushst(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+
+  s->sp -= 32;
+  s->st  = set_long(simulate,s->sp,s->st);
+
+  return 0;
+}
+ 
+static int putst(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+ 
+  s->st  = get_register(s,r,rd);
+
+  return 0;
+}
+ 
+static int reti(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+
+  s->st  = get_long(simulate,s->sp);
+  s->sp += 32;
+  s->pc  = get_long(simulate,s->sp) & ~0x0f;
+  s->sp += 32;
+
+  return 0;
+}
+
+static int rets(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+
+  s->pc  = get_long(simulate,s->sp) & ~0x0f;
+  s->sp += 32;
+  s->pc += (opcode & 0x1f) << 4;
+  
+  return 0;
+}
+
+static int rev(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+
+  set_register(s,r,rd,8);
+  
+  return 0;
+}
+
+static int rl(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  int rs = (opcode >> 5) & 0xf;
+  int  k;
+  uint32_t src,tmp;
+  
+  switch(t->operand_types[0]) {
+  case OP_K:
+    k = (opcode >> 5) & 0x1f;
+    break;
+  case OP_RS:
+    k = get_register(s,r,rs) & 0x1f;
+    break;
+  }
+
+  src = get_register(s,r,rd);
+  tmp = src >> (32 - k);
+  src = (src << k) | tmp;
+  
+  if (tmp & 1) SET_C(s);
+  else CLR_C(s);
+
+  if (src == 0) SET_Z(s);
+  else CLR_Z(s);
+
+  set_register(s,r,rd,src);
+
+  return 0;
+}
+
+static int setf(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int fv = opcode & 0x3f;
+  int f  = (opcode >> 9) & 1;
+  int m  = 0x3f;
+
+  if (f) {
+    m  <<= 6;
+    fv <<= 6;
+  }
+
+  s->st = (s->st & ~m) | fv;
+
+  return 0;
+}
+
+static int sext(struct _simulate *simulate,struct _table_tms340 *t,uint16_t opcode)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int  r = (opcode >> 4) & 1;
+  int rd = opcode & 0xf;
+  int f  = (opcode >> 9) & 1;
+  int fs = get_field_size(s,f);
+  uint32_t src;
+
+  if (fs < 32) {
+    src = get_register(r,s,rd);
+    fs--;
+    
+    if (src & (1 << fs)) {
+      src |=   ~0L << fs;
+    } else {
+      src &= ~(~0L << fs);
+    }
+
+    set_register(r,s,rd,src);
+  }
+  
+  return 0;
+}
+
 
 struct instruction {
   const char *instname;
@@ -1837,41 +2563,41 @@ struct instruction {
 		    "jale",  &jale,
 		    "jagt",  &jagt,
 		    "jac",   &jac,
-		    "jalo",  &jalo,
-		    "jab",   &jab,
+		    "jalo",  &jac,
+		    "jab",   &jac,
 		    "janc",  &janc,
-		    "jahs",  &jahs,
-		    "janb",  &janb,
+		    "jahs",  &janc,
+		    "janb",  &janc,
 		    "jaz",   &jaz,
-		    "jaeq",  &jaeq,
+		    "jaeq",  &jaz,
 		    "janz",  &janz,
-		    "jane",  &jane,
+		    "jane",  &janz,
 		    "jav",   &jav,
 		    "janv",  &janv,
 		    "jan",   &jan,
 		    "jann",  &jann,
-		    "jruc",  &jruc,
-		    "jrp",   &jrp,
-		    "jrls",  &jrls,
-		    "jrhi",  &jrhi,
-		    "jrlt",  &jrlt,
-		    "jrge",  &jrge,
-		    "jrle",  &jrle,
-		    "jrgt",  &jrgt,
-		    "jrc",   &jrc,
-		    "jrb",   &jrb,
-		    "jrlo",  &jrlo,
-		    "jrnc",  &jrnc,
-		    "jrhs",  &jrhs,
-		    "jrnb",  &jrnb,
-		    "jrz",   &jrz,
-		    "jreq",  &jreq,
-		    "jrnz",  &jrnz,
-		    "jrne",  &jrne,
-		    "jrv",   &jrv,
-		    "jrnv",  &jrnv,
-		    "jrn",   &jrn,
-		    "jrnn",  &jrnn,
+		    "jruc",  &jauc,
+		    "jrp",   &jap,
+		    "jrls",  &jals,
+		    "jrhi",  &jahi,
+		    "jrlt",  &jalt,
+		    "jrge",  &jage,
+		    "jrle",  &jale,
+		    "jrgt",  &jagt,
+		    "jrc",   &jac,
+		    "jrb",   &jac,
+		    "jrlo",  &jac,
+		    "jrnc",  &janc,
+		    "jrhs",  &janc,
+		    "jrnb",  &janc,
+		    "jrz",   &jaz,
+		    "jreq",  &jaz,
+		    "jrnz",  &janz,
+		    "jrne",  &janz,
+		    "jrv",   &jav,
+		    "jrnv",  &janv,
+		    "jrn",   &jan,
+		    "jrnn",  &jann,
 		    "jump",  &jump,
 		    "popst", &popst,
 		    "pushst",&pushst,
