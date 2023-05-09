@@ -79,7 +79,6 @@ struct _table_tms340 table_tms340[] =
   { "cmp",    0x4800, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }}, // thor fix
   { "cmpi",   0x0b40, 0xffe0, 2, { OP_NIW,       OP_RD,        OP_NONE }},
   { "cmpi",   0x0b60, 0xffe0, 2, { OP_NIL,       OP_RD,        OP_NONE }},
-  { "dec",    0x1420, 0xffe0, 1, { OP_RD,        OP_NONE,      OP_NONE }},
   { "dint",   0x0360, 0xffff, 0, { OP_NONE,      OP_NONE,      OP_NONE }},
   { "divs",   0x5800, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
   { "divu",   0x5a00, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},

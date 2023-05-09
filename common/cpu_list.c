@@ -123,6 +123,7 @@
 #include "simulate/msp430.h"
 #include "simulate/stm8.h"
 #include "simulate/tms9900.h"
+#include "simulate/tms340.h"
 #include "simulate/z80.h"
 
 #define NO_FLAGS 0
@@ -1390,7 +1391,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_tms340,
     disasm_range_tms340,
-    NULL,
+    simulate_init_tms340,
     NO_FLAGS,
   },
 #endif

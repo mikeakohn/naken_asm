@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef NAKEN_ASM__SIMULATE_TMS9900_H
-#define NAKEN_ASM__SIMULATE_TMS9900_H
+#ifndef NAKEN_ASM__SIMULATE_TMS340_H
+#define NAKEN_ASM__SIMULATE_TMS340_H
 
 #include <unistd.h>
 
