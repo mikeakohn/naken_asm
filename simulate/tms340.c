@@ -20,14 +20,14 @@
 #include "simulate/tms340.h"
 #include "table/tms340.h"
 
-#define SET_V(s) (s)->st &= ~(1 << 28)
-#define CLR_V(s) (s)->st |= 1 << 18
-#define SET_Z(s) (s)->st &= ~(1 << 29)
-#define CLR_Z(s) (s)->st |= 1 << 29
-#define SET_C(s) (s)->st &= ~(1 << 30)
-#define CLR_C(s) (s)->st |= 1 << 30
-#define SET_N(s) (s)->st &= ~(1 << 31)
-#define CLR_N(s) (s)->st |= 1 << 31
+#define CLR_V(s) (s)->st &= ~(1 << 28)
+#define SET_V(s) (s)->st |= 1 << 28
+#define CLR_Z(s) (s)->st &= ~(1 << 29)
+#define SET_Z(s) (s)->st |= 1 << 29
+#define CLR_C(s) (s)->st &= ~(1 << 30)
+#define SET_C(s) (s)->st |= 1 << 30
+#define CLR_N(s) (s)->st &= ~(1 << 31)
+#define SET_N(s) (s)->st |= 1 << 31
 
 #define TST_V(s) ((s->st >> 28) & 1)
 #define TST_Z(s) ((s->st >> 29) & 1)
@@ -201,11 +201,13 @@ void simulate_dump_registers_tms340(struct _simulate *simulate)
   struct _simulate_tms340 *simulate_tms340 = (struct _simulate_tms340 *)simulate->context;
   int n;
   uint32_t st = simulate_tms340->st;
+  uint16_t f0 = ((st >>  0) & 0x1f);
+  uint16_t f1 = ((st >>  6) & 0x1f);
 
   printf("\nSimulation Register Dump\n");
   printf("-------------------------------------------------------------------\n");
-  printf("Status:  Flags  PBX  IE  FE1,FS1  FE0,FS1\n");
-  printf("         %c%c%c%c   %d   %d   %c %2d    %c %2d\n",
+  printf("Status:  Flags  PBX  IE  FE1,FS1  FE0,FS0\n");
+  printf("         %c%c%c%c    %d    %d   %c  %2d    %c  %2d\n",
 	 ((st >> 31) & 1)?'N':' ',
 	 ((st >> 30) & 1)?'C':' ',
 	 ((st >> 29) & 1)?'Z':' ',
@@ -213,16 +215,16 @@ void simulate_dump_registers_tms340(struct _simulate *simulate)
 	 ((st >> 26) & 1),
 	 ((st >> 21) & 1),
 	 ((st >> 11) & 1)?'S':'U',
-	 ((st >>  6) & 7),
+	 f1?f1:32,
 	 ((st >>  5) & 1)?'S':'U',
-	 ((st >>  0) & 7));
+	 f0?f0:32);
 
-  printf(" PC: 0x%08x,  SP: 0x%08x",
+  printf("PC : 0x%08x,  SP : 0x%08x\n",
          simulate_tms340->pc,
          simulate_tms340->sp);
 
   for (n = 0; n < 15; n++) {
-    printf("a[%x] : 0x%08x   b[%x] : 0x%08x\n",
+    printf("A%-2d: 0x%08x   B%-2d: 0x%08x\n",
 	   n,simulate_tms340->a[n],
 	   n,simulate_tms340->b[n]);
   }
@@ -287,7 +289,7 @@ static uint32_t get_field(struct _simulate *simulate,uint32_t address,int field)
     /* Include sign extension */
     if (fext) {
       if (v & (1UL << (fsize - 1))) {
-	v |= ~0UL << fsize;
+	v |= ~0U << fsize;
       }
     }
   }
@@ -343,8 +345,8 @@ static void set_field(struct _simulate *simulate,uint32_t address,int field,uint
   /* Compute the first and last word mask. This is
   ** the mask that contains the bits to be modified
   */
-  fwm    = ~0UL << (address & 0x07);
-  lwm    = ~0UL >> (7 - (end     & 0x07));
+  fwm    = ~0U << (address & 0x07);
+  lwm    = ~0U >> (7 - (end     & 0x07));
   /*
   ** Check whether the first and last bit are in the same 
   ** byte. If so, combine the masks
@@ -385,8 +387,8 @@ static void set_byte(struct _simulate *simulate,uint32_t address,uint32_t v)
   /* Compute the first and last word mask. This is
   ** the mask that contains the bits to be modified
   */
-  fwm    = ~0UL << (address & 0x07);
-  lwm    = ~0UL >> (7 - (end     & 0x07));
+  fwm    = ~0U << (address & 0x07);
+  lwm    = ~0U >> (7 - (end     & 0x07));
   /*
   ** Check whether the first and last bit are in the same 
   ** byte. If so, combine the masks
@@ -580,7 +582,7 @@ static int addk(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   if (fin & (1L << 31)) SET_N(s);
   else CLR_N(s);
   if ((~(dst ^ src)) & (dst ^ fin) & (1L << 31)) SET_V(s);
-    else CLR_V(s);
+  else CLR_V(s);
   if (((uint64_t)(src) + (uint64_t)(dst)) >> 32) SET_C(s);
   else CLR_C(s);
 
@@ -801,9 +803,17 @@ static int btst(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
   int  r = (opcode >> 4) & 1;
   int rd = opcode & 0xf;
+  int rs = (opcode >> 5) & 0xf;
   uint32_t src,dst;
 
-  src = (~(opcode >> 5)) & 0x1f;
+  switch(t->operand_types[0]) {
+  case OP_1K:
+    src = (~(opcode >> 5)) & 0x1f;
+    break;
+  case OP_RS:
+    src = get_register(s,r,rs);
+    break;
+  }
   dst = get_register(s,r,rd);
 
   if (dst & (1L << src)) CLR_Z(s);
@@ -819,7 +829,7 @@ static int call(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   int rd = opcode & 0xf;
 
   s->sp -= 32;
-  set_long(simulate,s->pc,s->sp);
+  set_long(simulate,s->sp,s->pc);
 
   s->pc  = get_register(s,r,rd) & ~0x0f;
 
@@ -848,7 +858,7 @@ static int calla(struct _simulate *simulate,const struct _table_tms340 *t,uint16
   s->pc += 16;
 
   s->sp -= 32;
-  set_long(simulate,s->pc,s->sp);
+  set_long(simulate,s->sp,s->pc);
 
   s->pc  = ilw & ~0x0f;
 
@@ -864,7 +874,7 @@ static int callr(struct _simulate *simulate,const struct _table_tms340 *t,uint16
   s->pc += 16;
 
   s->sp -= 32;
-  set_long(simulate,s->pc,s->sp);
+  set_long(simulate,s->sp,s->pc);
 
   s->pc += ilw << 4;
 
@@ -1487,7 +1497,7 @@ static int jauc(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1507,10 +1517,17 @@ static int jac(struct _simulate *simulate,const struct _table_tms340 *t,uint16_t
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
   uint32_t ilw = 0;
   
-  ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
-  s->pc += 16;
-  ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
-  s->pc += 16;
+  switch(t->operand_types[0]) {
+  case OP_JUMP_REL:
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
+    break;
+  case OP_ADDRESS:
+    ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
+    s->pc += 16;
+    ilw    |= memory_read16_m(simulate->memory,s->pc >> 3) << 16;
+    s->pc += 16;
+    break;
+  }
 
   if (TST_C(s))
     s->pc  = ilw & ~0x0f;
@@ -1525,7 +1542,7 @@ static int jals(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1548,7 +1565,7 @@ static int jahi(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1571,7 +1588,7 @@ static int janc(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1594,7 +1611,7 @@ static int jaz(struct _simulate *simulate,const struct _table_tms340 *t,uint16_t
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1617,7 +1634,7 @@ static int janz(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1640,7 +1657,7 @@ static int jalt(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1663,7 +1680,7 @@ static int jale(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1686,7 +1703,7 @@ static int jagt(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1709,7 +1726,7 @@ static int jage(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1732,7 +1749,7 @@ static int jap(struct _simulate *simulate,const struct _table_tms340 *t,uint16_t
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1755,7 +1772,7 @@ static int jan(struct _simulate *simulate,const struct _table_tms340 *t,uint16_t
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1778,7 +1795,7 @@ static int jann(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1801,7 +1818,7 @@ static int jav(struct _simulate *simulate,const struct _table_tms340 *t,uint16_t
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -1824,7 +1841,7 @@ static int janv(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   
   switch(t->operand_types[0]) {
   case OP_JUMP_REL:
-    ilw     = (int8_t)(opcode & 0xff) + s->pc;
+    ilw     = ((int8_t)(opcode & 0xff) << 4) + s->pc;
     break;
   case OP_ADDRESS:
     ilw     = memory_read16_m(simulate->memory,s->pc >> 3);
@@ -2235,20 +2252,21 @@ static int mmtm(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   int  r = (opcode >> 4) & 1;
   int rd = opcode & 0xf;
   int rs;
-  int32_t mask;
+  int16_t mask;
 
-  mask = memory_read16_m(simulate->memory,s->pc >> 3);
-  adr  = get_register(s,r,rd);
-  rs   = 0; /* Move low-registers first */
+  mask   = memory_read16_m(simulate->memory,s->pc >> 3);
+  s->pc += 16;
+  adr    = get_register(s,r,rd);
+  rs     = 0; /* Move low-registers first */
   
   while(mask) {
-    if (mask & 1) {
+    if (mask < 0) {
       reg  = get_register(s,r,rs);
       adr -= 32;
       set_long(simulate,adr,reg);
-      mask >>= 1;
-      rs++;
     }
+    mask <<= 1;
+    rs++;
   }
 
   set_register(s,r,rd,adr);
@@ -2263,20 +2281,21 @@ static int mmfm(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
   int  r = (opcode >> 4) & 1;
   int rd = opcode & 0xf;
   int rs;
-  int32_t mask;
+  int16_t mask;
 
-  mask = memory_read16_m(simulate->memory,s->pc >> 3);
-  adr  = get_register(s,r,rd);
-  rs   = 15; /* Move high-registers first */
+  mask   = memory_read16_m(simulate->memory,s->pc >> 3);
+  s->pc += 16;
+  adr    = get_register(s,r,rd);
+  rs     = 15; /* Move high-registers first */
   
   while(mask) {
-    if (mask & 0x8000) {
+    if (mask < 0) {
       reg  = get_long(simulate,adr);
       adr += 32;
-      mask  = (mask & 0x7fff) << 1;
       set_register(s,r,rs,reg);
-      rs--;
     }
+    mask  <<= 1;
+    rs--;
   }
 
   set_register(s,r,rd,adr);
@@ -2422,7 +2441,7 @@ static int rets(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
 
   s->pc  = get_long(simulate,s->sp) & ~0x0f;
   s->sp += 32;
-  s->pc += (opcode & 0x1f) << 4;
+  s->sp += (opcode & 0x1f) << 4;
   
   return 0;
 }
@@ -2605,8 +2624,8 @@ static int sra(struct _simulate *simulate,const struct _table_tms340 *t,uint16_t
   uint32_t src,tmp;
   
   switch(t->operand_types[0]) {
-  case OP_K:
-    k = (opcode >> 5) & 0x1f;
+  case OP_2K:
+    k = (-(opcode >> 5)) & 0x1f;
     break;
   case OP_RS:
     k = get_register(s,r,rs) & 0x1f;
@@ -2650,8 +2669,8 @@ static int srl(struct _simulate *simulate,const struct _table_tms340 *t,uint16_t
   uint32_t src;
   
   switch(t->operand_types[0]) {
-  case OP_K:
-    k = (opcode >> 5) & 0x1f;
+  case OP_2K:
+    k = (-(opcode >> 5)) & 0x1f;
     break;
   case OP_RS:
     k = get_register(s,r,rs) & 0x1f;
@@ -2857,19 +2876,13 @@ int simulate_run_tms340(struct _simulate *simulate, int max_cycles, int step)
   {
     pc     = simulate_tms340->pc >> 3;
     opcode = memory_read16_m(simulate->memory,pc);
+    simulate_tms340->pc += 16;
+    ret    = operand_exe(simulate, opcode);
 
-    operand_exe(simulate, opcode);
-      
     //c = get_cycle_count(opcode);
     //if (c > 0) simulate->cycle_count += c;
-    simulate_tms340->pc += 2;
 
     if (simulate->show == 1) printf("\x1b[1J\x1b[1;1H");
-
-    ///////
-    if (opcode == 0) { break; } // FIXME
-    ret = -1;
-    ///////
 
     if (c > 0) cycles += c;
 
@@ -2878,14 +2891,13 @@ int simulate_run_tms340(struct _simulate *simulate, int max_cycles, int step)
       simulate_dump_registers_tms340(simulate);
 
       n = 0;
-      while(n < 6)
       {
-        int cycles_min,cycles_max;
+        int cycles_min,cycles_max; // This is not yet implemented
         int num,count;
 	
         num   = memory_read16_m(simulate->memory,pc);
         count = disasm_tms340(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
-        if (cycles_min == -1) break;
+        //if (cycles_min == -1) break;
 
         if (pc == simulate->break_point) { printf("*"); }
         else { printf(" "); }
@@ -2910,19 +2922,19 @@ int simulate_run_tms340(struct _simulate *simulate, int max_cycles, int step)
         {
           printf("0x%04x: 0x%04x %-40s %d-%d\n", pc << 3, num, instruction, cycles_min, cycles_max);
         }
-
-        n   = n + count;
-        pc += 2;
-        count--;
+        n      = n + count;
+        pc    += 2;
+        count -= 2;
+	if (count > 0)
+	  printf("               ");
         while (count > 0)
         {
-          if (pc << 3 == simulate->break_point) { printf("*"); }
-          else { printf(" "); }
           num = memory_read16_m(simulate->memory,pc);
-          printf("  0x%04x: 0x%04x\n", pc, num);
-          pc += 2;
-          count--;
+          printf("0x%04x ", num);
+          pc    += 2;
+          count -= 2;
         }
+	printf("\n");
       }
     }
 
