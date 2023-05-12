@@ -345,6 +345,7 @@ for option in $@; do
   --enable-8008)
     ASM_OBJS="${ASM_OBJS} 8008.o"
     DISASM_OBJS="${DISASM_OBJS} 8008.o"
+    SIM_OBJS="${SIM_OBJS} 8008.o"
     TABLE_OBJS="${TABLE_OBJS} 8008.o"
     DFLAGS="${DFLAGS} -DENABLE_8008"
   ;;

@@ -76,6 +76,7 @@
 #include "fileio/read_ti_txt.h"
 #include "fileio/read_wdc.h"
 #include "simulate/1802.h"
+#include "simulate/8008.h"
 #include "simulate/avr8.h"
 #include "simulate/6502.h"
 #include "simulate/65816.h"

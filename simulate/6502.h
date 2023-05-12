@@ -2,17 +2,17 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2023 by Michael Kohn, Joe Davisson
  *
  * 6502 file by Joe Davisson
  *
  */
 
-#ifndef NAKEN_ASM__SIMULATE_6502_H
-#define NAKEN_ASM__SIMULATE_6502_H
+#ifndef NAKEN_ASM_SIMULATE_6502_H
+#define NAKEN_ASM_SIMULATE_6502_H
 
 #include <unistd.h>
 

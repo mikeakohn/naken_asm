@@ -2,15 +2,15 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
-#ifndef NAKEN_ASM__SIMULATE_LC3_H
-#define NAKEN_ASM__SIMULATE_LC3_H
+#ifndef NAKEN_ASM_SIMULATE_LC3_H
+#define NAKEN_ASM_SIMULATE_LC3_H
 
 #include <unistd.h>
 

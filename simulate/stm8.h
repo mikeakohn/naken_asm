@@ -2,17 +2,17 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn, D.L. Karmann
+ * Copyright 2010-2023 by Michael Kohn, D.L. Karmann
  *
  * stm8 file by D.L. Karmann
  *
  */
 
-#ifndef NAKEN_ASM__SIMULATE_STM8_H
-#define NAKEN_ASM__SIMULATE_STM8_H
+#ifndef NAKEN_ASM_SIMULATE_STM8_H
+#define NAKEN_ASM_SIMULATE_STM8_H
 
 #include <unistd.h>
 
