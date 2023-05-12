@@ -255,32 +255,21 @@ static void set_register(struct _simulate_tms340 *s,int r,int reg,uint32_t v)
   }
 }
 
-static uint32_t get_field(struct _simulate *simulate,uint32_t address,int field)
+static uint32_t get_bits(struct _simulate *simulate,uint32_t address,int fext,int fsize)
 {
-  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
-  int fsize,fext;
   uint32_t end;
-  uint8_t  v = 0;
+  uint32_t v = 0;
   int lshift = 0;
   int rshift;
   
-  if (field == 0) {
-    fsize = (s->st >> 0 ) & 0x1f;
-    fext  = (s->st >> 5 ) & 1;
-  } else {
-    fsize = (s->st >> 6 ) & 0x1f;
-    fext  = (s->st >> 11) & 1;
-  }
-  if (fsize == 0)
-    fsize = 32;
-  
-  end    = address + fsize;
-  rshift = address & 0x7; // The bit within the byte at address
-  lshift = 0;
+  end      = address + fsize;
+  rshift   = address & 0x0f; // The bit within the byte at address
+  lshift   = 0;
+  address &= ~0x0f;
   do {
-    v       |= (memory_read_m(simulate->memory,address >> 3) >> rshift) << lshift;
-    address += 8 - rshift;
-    lshift  += 8 - rshift;
+    v       |= (memory_read16_m(simulate->memory,address >> 3) >> rshift) << lshift;
+    address += 16 - rshift;
+    lshift  += 16 - rshift;
     rshift   = 0;
   } while(address < end);
 
@@ -297,40 +286,77 @@ static uint32_t get_field(struct _simulate *simulate,uint32_t address,int field)
   return v;
 }
 
+static uint32_t get_field(struct _simulate *simulate,uint32_t address,int field)
+{
+  struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
+  int fsize,fext;
+  
+  if (field == 0) {
+    fsize = (s->st >> 0 ) & 0x1f;
+    fext  = (s->st >> 5 ) & 1;
+  } else {
+    fsize = (s->st >> 6 ) & 0x1f;
+    fext  = (s->st >> 11) & 1;
+  }
+  if (fsize == 0)
+    fsize = 32;
+
+  return get_bits(simulate,address,fext,fsize);
+}
+  
 
 static uint32_t get_byte(struct _simulate *simulate,uint32_t address)
 {
+  return get_bits(simulate,address,1,8);
+}
+
+static void set_bits(struct _simulate *simulate,uint32_t address,int fsize,uint32_t v)
+{
   uint32_t end;
-  uint8_t  v = 0;
-  int lshift = 0;
-  int rshift;
+  uint16_t fwm = ~0;
+  uint16_t lwm = ~0;
+  uint16_t w = 0;
+  int lshift;
   
-  end    = address + 8;
-  rshift = address & 0x7; // The bit within the byte at address
-  lshift = 0;
-  do {
-    v       |= (memory_read_m(simulate->memory,address >> 3) >> rshift) << lshift;
-    address += 8 - rshift;
-    lshift  += 8 - rshift;
-    rshift   = 0;
-  } while(address < end);
+  end    = address + fsize - 1;
 
-  v &= 0xff;
-  if (v & 0x80) {
-    v |= 0xffffff00;
+  /* Compute the first and last word mask. This is
+  ** the mask that contains the bits to be modified
+  */
+  fwm  <<= address & 0x0f;
+  lwm  >>= 15 - (end     & 0x0f);
+  /*
+  ** Check whether the first and last bit are in the same 
+  ** byte. If so, combine the masks
+  */
+  if ((address >> 4) == (end >> 4)) {
+    fwm &= lwm;
+    lwm  = fwm;
   }
-
-  return v;
+  lshift   = address & 0x0f;
+  address &= ~0x0f;
+  
+  do {
+    w        = memory_read16_m(simulate->memory,address >> 3);
+    /* Mask in the modificatons */
+    w        = ((v << lshift) & fwm) | (w & ~fwm);
+    memory_write16_m(simulate->memory,address >> 3,w);
+    v      >>= 16 - lshift;
+    address += 16 - lshift;
+    lshift   = 0;
+    /* Compute the next mask */
+    if ((address >> 4) == (end >> 4)) {
+      fwm = lwm;
+    } else {
+      fwm = 0xffff;
+    }
+  } while(address <= end);
 }
 
 static void set_field(struct _simulate *simulate,uint32_t address,int field,uint32_t v)
 {
   struct _simulate_tms340 *s = (struct _simulate_tms340 *)simulate->context;
   int fsize;
-  uint32_t end;
-  uint8_t  fwm,lwm;
-  uint8_t  w = 0;
-  int lshift;
   
   if (field == 0) {
     fsize = (s->st >> 0 ) & 0x1f;
@@ -339,107 +365,23 @@ static void set_field(struct _simulate *simulate,uint32_t address,int field,uint
   }
   if (fsize == 0)
     fsize = 32;
-  
-  end    = address + fsize - 1;
 
-  /* Compute the first and last word mask. This is
-  ** the mask that contains the bits to be modified
-  */
-  fwm    = ~0U << (address & 0x07);
-  lwm    = ~0U >> (7 - (end     & 0x07));
-  /*
-  ** Check whether the first and last bit are in the same 
-  ** byte. If so, combine the masks
-  */
-  if ((address >> 3) == (end >> 3)) {
-    fwm &= lwm;
-    lwm  = fwm;
-  }
-  lshift = address & 0x07;
-  
-  do {
-    w        = memory_read_m(simulate->memory,address >> 3);
-    /* Mask in the modificatons */
-    w        = ((v << lshift) & fwm) | (w & ~fwm);
-    memory_write_m(simulate->memory,address >> 3,w);
-    v      >>= 8 - lshift;
-    address += 8 - lshift;
-    lshift   = 0;
-    /* Compute the next mask */
-    if ((address >> 3) == (end >> 3)) {
-      fwm = lwm;
-    } else {
-      fwm = 0xff;
-    }
-  } while(address <= end);
+  set_bits(simulate,address,fsize,v);
 }
-
 
 static void set_byte(struct _simulate *simulate,uint32_t address,uint32_t v)
 {
-  uint32_t end;
-  uint8_t  fwm,lwm;
-  uint8_t  w = 0;
-  int lshift;
-  
-  end    = address + 7;
-
-  /* Compute the first and last word mask. This is
-  ** the mask that contains the bits to be modified
-  */
-  fwm    = ~0U << (address & 0x07);
-  lwm    = ~0U >> (7 - (end     & 0x07));
-  /*
-  ** Check whether the first and last bit are in the same 
-  ** byte. If so, combine the masks
-  */
-  if ((address >> 3) == (end >> 3)) {
-    fwm &= lwm;
-    lwm  = fwm;
-  }
-  lshift = address & 0x07;
-  
-  do {
-    w        = memory_read_m(simulate->memory,address >> 3);
-    /* Mask in the modificatons */
-    w        = ((v << lshift) & fwm) | (w & ~fwm);
-    memory_write_m(simulate->memory,address >> 3,w);
-    v      >>= 8 - lshift;
-    address += 8 - lshift;
-    lshift   = 0;
-    /* Compute the next mask */
-    if ((address >> 3) == (end >> 3)) {
-      fwm = lwm;
-    } else {
-      fwm = 0xff;
-    }
-  } while(address <= end);
+  set_bits(simulate,address,8,v);
 }
 
 static void set_long(struct _simulate *simulate,uint32_t adr,uint32_t reg)
 {
-  set_byte(simulate,adr,reg >> 0);
-  adr += 8;
-  set_byte(simulate,adr,reg >> 8);
-  adr += 8;
-  set_byte(simulate,adr,reg >> 16);
-  adr += 8;
-  set_byte(simulate,adr,reg >> 24);
+  set_bits(simulate,adr,32,reg);
 }
 
 static uint32_t get_long(struct _simulate *simulate,uint32_t adr)
 {
-  uint32_t reg;
-
-  reg  = get_byte(simulate,adr);
-  adr += 8;
-  reg |= get_byte(simulate,adr) << 8;
-  adr += 8;
-  reg |= get_byte(simulate,adr) << 16;
-  adr += 8;
-  reg |= get_byte(simulate,adr) << 24;
-
-  return reg;
+  return get_bits(simulate,adr,0,32);
 }
 
 static uint32_t get_field_size(struct _simulate_tms340 *s,int field)
