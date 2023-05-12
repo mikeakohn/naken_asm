@@ -1586,7 +1586,7 @@ static int janz(struct _simulate *simulate,const struct _table_tms340 *t,uint16_
     break;
   }
 
-  if (TST_Z(s))
+  if (!TST_Z(s))
     s->pc  = ilw & ~0x0f;
 
   return 0;
