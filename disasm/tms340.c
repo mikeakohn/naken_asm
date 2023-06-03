@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,7 +16,7 @@
 #include "disasm/tms340.h"
 #include "table/tms340.h"
 
-int get_cycle_count_tms340(unsigned short int opcode)
+int get_cycle_count_tms340(uint16_t opcode)
 {
   return -1;
 }
@@ -46,6 +46,7 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
   int opcode;
   int n, i, j, x;
   char r;
+  int m;
   int rs, rd;
 
   *cycles_min = -1;
@@ -85,6 +86,15 @@ int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, i
           case OP_RD:
           case OP_RDS:
             get_register(reg, rd, r);
+            strcat(instruction, reg);
+            break;
+          case OP_RD_R_FILE:
+            m = (opcode >> 9) & 1;
+            get_register(reg, rd, r);
+            if (m == 1)
+            {
+              reg[0] = reg[0] == 'a' ? 'b' : 'a';
+            }
             strcat(instruction, reg);
             break;
           case OP_P_RS:

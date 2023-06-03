@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -75,7 +75,7 @@ static int get_register_tms340(char *token, int *r)
   }
     else
   if (token[3] == 0 && token[1] == '1' &&
-      token[2] >= '0' && token[2] <= '5')
+      token[2] >= '0' && token[2] <= '4')
   {
     return 10 + (token[2] - '0');
   }
@@ -223,6 +223,8 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
   int n, r, i;
   uint16_t extra[8];
   int extra_count;
+  int register_file_mismatch = 0;
+  int mismatch_okay = 0;
 
   lower_copy(instr_case, instr);
 
@@ -438,38 +440,28 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
     }
   }
 
-  // Check that the register file of all registers match.
-  if (operand_count > 1)
+  // If this is two registers and one of the registers is the SP,
+  // match the register file of SP to the general purpose register.
+  if (operand_count >= 2)
   {
-    r = -1;
-
-    for (n = 0; n < operand_count; n++)
+    if (is_register(operands[0].type) == 1 &&
+        is_register(operands[1].type) == 1)
     {
-      if (is_register(operands[n].type) == 1)
+      if (operands[0].reg == 15)
       {
-        if (r == -1)
-        {
-          // SP can be in either register file.
-          if (operands[n].reg != 15) { r = operands[n].r; }
-        }
-          else
-        if (r != operands[n].r)
-        {
-          print_error("Mismatched a/b registers.", asm_context);
-          return -1;
-        }
+        operands[0].r = operands[1].r;
       }
-    }
-
-    // Issue #120: If no register file was selected, just use 0.
-    if (r == -1) { r = 0; }
-
-    // Make sure all registers are in the same register file.
-    for (n = 0; n < operand_count; n++)
-    {
-      if (is_register(operands[n].type) == 1)
+        else
+      if (operands[1].reg == 15)
       {
-        operands[n].r = r;
+        operands[1].r = operands[0].r;
+      }
+        else
+      {
+        if (operands[0].r != operands[1].r)
+        {
+          register_file_mismatch = 1;
+        }
       }
     }
   }
@@ -541,6 +533,22 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
             opcode |= operands[i].reg;
             opcode |= operands[i].r << 4;
+
+            break;
+          case OP_RD_R_FILE:
+            if (operands[i].type != OPERAND_REGISTER)
+            {
+              ignore = 1;
+              break;
+            }
+
+            mismatch_okay = 1;
+            opcode |= operands[i].reg;
+
+            if (register_file_mismatch == 1)
+            {
+              opcode |= 1 << 9;
+            }
 
             break;
           case OP_RDS:
@@ -1009,6 +1017,12 @@ int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
 
       if (i == table_tms340[n].operand_count)
       {
+        if (register_file_mismatch == 1 && mismatch_okay == 0)
+        {
+          print_error("Mismatched a/b registers.", asm_context);
+          return -1;
+        }
+
         add_bin16(asm_context, opcode, IS_OPCODE);
 
         for (n = 0; n < extra_count; n++)

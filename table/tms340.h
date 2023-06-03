@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -21,6 +21,7 @@ enum
   OP_NONE,
   OP_RS,
   OP_RD,
+  OP_RD_R_FILE,
   OP_RDS,
   OP_P_RS,
   OP_P_RD,

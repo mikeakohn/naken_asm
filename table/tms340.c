@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -45,7 +45,7 @@ struct _table_tms340 table_tms340[] =
   { "movb",   0x05e0, 0xffe0, 2, { OP_RD,        OP_AT_ADDR,   OP_NONE }},
   { "movb",   0x07e0, 0xffe0, 2, { OP_AT_ADDR,   OP_RD,        OP_NONE }},
   { "movb",   0x0340, 0xffff, 2, { OP_AT_ADDR,   OP_AT_ADDR,   OP_NONE }},
-  { "move",   0x4c00, 0xfc00, 2, { OP_RS,        OP_RD,        OP_NONE }},
+  { "move",   0x4c00, 0xfc00, 2, { OP_RS,        OP_RD_R_FILE, OP_NONE }},
   { "move",   0x8000, 0xfc00, 3, { OP_RS,        OP_P_RD,      OP_F }},
   { "move",   0xa000, 0xfc00, 3, { OP_RS,        OP_MP_RD,     OP_F }},
   { "move",   0x9000, 0xfc00, 3, { OP_RS,        OP_P_RD_P,    OP_F }},
@@ -75,9 +75,8 @@ struct _table_tms340 table_tms340[] =
   { "andni",  0x0b80, 0xffe0, 2, { OP_IL,        OP_RD,        OP_NONE }},
   { "btst",   0x1c00, 0xfc00, 2, { OP_1K,        OP_RD,        OP_NONE }},
   { "btst",   0x4a00, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
-  { "clr",    0x5600, 0xfe00, 1, { OP_RDS,       OP_NONE,      OP_NONE }},
   { "clrc",   0x0320, 0xffff, 0, { OP_NONE,      OP_NONE,      OP_NONE }},
-  { "cmp",    0x4840, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
+  { "cmp",    0x4800, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
   { "cmpi",   0x0b40, 0xffe0, 2, { OP_NIW,       OP_RD,        OP_NONE }},
   { "cmpi",   0x0b60, 0xffe0, 2, { OP_NIL,       OP_RD,        OP_NONE }},
   { "dec",    0x1420, 0xffe0, 1, { OP_RD,        OP_NONE,      OP_NONE }},
@@ -123,12 +122,13 @@ struct _table_tms340 table_tms340[] =
   { "xor",    0x5600, 0xfe00, 2, { OP_RS,        OP_RD,        OP_NONE }},
   { "xori",   0x0bc0, 0xffe0, 2, { OP_IL,        OP_RD,        OP_NONE }},
   { "zext",   0x0520, 0xfde0, 2, { OP_RD,        OP_F,         OP_NONE }},
+  { "clr",    0x5600, 0xfe00, 1, { OP_RDS,       OP_NONE,      OP_NONE }},
   { "call",   0x0920, 0xffe0, 1, { OP_RD,        OP_NONE,      OP_NONE }},
   { "calla",  0x0d5f, 0xffff, 1, { OP_ADDRESS,   OP_NONE,      OP_NONE }},
   { "callr",  0x0d3f, 0xffff, 1, { OP_DISP,      OP_NONE,      OP_NONE }},
   { "dsj",    0x0d80, 0xffe0, 2, { OP_RD,        OP_DISP,      OP_NONE }},
   { "dsjeq",  0x0da0, 0xffe0, 2, { OP_RD,        OP_DISP,      OP_NONE }},
-  { "dsjne",  0x0dc0, 0xffc0, 2, { OP_RD,        OP_DISP,      OP_NONE }},
+  { "dsjne",  0x0dc0, 0xffe0, 2, { OP_RD,        OP_DISP,      OP_NONE }},
   { "dsjs",   0x3800, 0xf800, 2, { OP_RD,        OP_SKIP,      OP_NONE }},
   { "emu",    0x0100, 0xffff, 0, { OP_NONE,      OP_NONE,      OP_NONE }},
   { "exgpc",  0x0120, 0xffe0, 1, { OP_RD,        OP_NONE,      OP_NONE }},
