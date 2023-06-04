@@ -1287,7 +1287,8 @@ int main(int argc, char *argv[])
            "   -z80                         (z80)\n"
            "   -bin                         (file is binary)\n"
            "   // The following options turn off interactive mode\n"
-           "   -disasm                      (Disassemble all or part of program)\n"
+           "   -disasm                      (Disassemble all of program)\n"
+           "   -disasm_range <start>-<end>  (Disassemble a range of executable code)\n"
            "   -run                         (Simulate program and dump registers)\n"
            "   -address <start_address>     (For bin files: binary placed at this address)\n"
            "   -set_pc <address>            (Sets program counter after loading program)\n"
@@ -1349,6 +1350,12 @@ int main(int argc, char *argv[])
     if (strcmp(argv[i], "-disasm") == 0)
     {
        strcpy(command, "disasm");
+       mode = MODE_DISASM;
+    }
+      else
+    if (strcmp(argv[i], "-disasm_range") == 0)
+    {
+       snprintf(command, sizeof(command), "disasm %s", argv[++i]);
        mode = MODE_DISASM;
     }
       else
