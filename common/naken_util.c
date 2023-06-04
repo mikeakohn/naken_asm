@@ -831,8 +831,14 @@ static void disasm_range(struct _util_context *util_context, int start, int end)
   page_mask = page_size - 1;
   curr_end = start | page_mask;
 
-  for (n = start; n <= end; n += page_size)
+  int data_size = 0;
+
+  n = start;
+
+  while (n <= end)
   {
+    data_size = page_size - (n & page_mask);
+
     if (memory_in_use(&util_context->memory, n))
     {
       if (valid_page_start == 0)
@@ -863,6 +869,9 @@ static void disasm_range(struct _util_context *util_context, int start, int end)
         valid_page_start = 0;
       }
     }
+
+    //n += page_size;
+    n += data_size;
   }
 
   if (valid_page_start == 1)
