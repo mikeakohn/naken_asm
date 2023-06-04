@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -29,7 +29,7 @@
     return size; \
   }
 
-int get_cycle_count_stm8(unsigned short int opcode)
+int get_cycle_count_stm8(uint32_t opcode)
 {
   return -1;
 }
@@ -39,7 +39,7 @@ static void get_instruction(char *instr, int instr_enum)
   int n;
 
   n = 0;
-  while(table_stm8[n].instr != NULL)
+  while (table_stm8[n].instr != NULL)
   {
     if (table_stm8[n].instr_enum == instr_enum)
     {
@@ -52,7 +52,7 @@ static void get_instruction(char *instr, int instr_enum)
 
 void add_reg(char *instr, int reg)
 {
-  switch(reg)
+  switch (reg)
   {
     case OP_REG_A:
       strcat(instr, "A");
@@ -88,7 +88,12 @@ void add_reg(char *instr, int reg)
   }
 }
 
-int disasm_stm8(struct _memory *memory, uint32_t address, char *instr, int *cycles_min, int *cycles_max)
+int disasm_stm8(
+  struct _memory *memory,
+  uint32_t address,
+  char *instr,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint8_t opcode;
   uint8_t prefix = 0;
@@ -114,7 +119,7 @@ int disasm_stm8(struct _memory *memory, uint32_t address, char *instr, int *cycl
 //printf("prefix=%x  opcode=%x\n", prefix, opcode);
 
   n = 0;
-  while(table_stm8_opcodes[n].instr_enum != STM8_NONE)
+  while (table_stm8_opcodes[n].instr_enum != STM8_NONE)
   {
     if (table_stm8_opcodes[n].prefix == prefix)
     {
@@ -163,7 +168,7 @@ int disasm_stm8(struct _memory *memory, uint32_t address, char *instr, int *cycl
     }
   }
 
-  switch(table_stm8_opcodes[n].type)
+  switch (table_stm8_opcodes[n].type)
   {
     case OP_NONE:
       break;
@@ -327,7 +332,10 @@ int disasm_stm8(struct _memory *memory, uint32_t address, char *instr, int *cycl
   return count;
 }
 
-void list_output_stm8(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_stm8(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min,cycles_max,count;
   char instruction[128];
@@ -335,7 +343,7 @@ void list_output_stm8(struct _asm_context *asm_context, uint32_t start, uint32_t
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_stm8(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
     fprintf(asm_context->list, "0x%04x:", start);
@@ -363,7 +371,11 @@ void list_output_stm8(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_stm8(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_stm8(
+  struct _memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;
@@ -375,7 +387,7 @@ void disasm_range_stm8(struct _memory *memory, uint32_t flags, uint32_t start, u
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_stm8(memory, start, instruction, &cycles_min, &cycles_max);
 

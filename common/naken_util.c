@@ -1220,7 +1220,7 @@ int main(int argc, char *argv[])
 
   printf("\nnaken_util - by Michael Kohn\n"
          "                Joe Davisson\n"
-         "    Web: http://www.mikekohn.net/\n"
+         "    Web: https://www.mikekohn.net/\n"
          "  Email: mike@mikekohn.net\n\n"
          "Version: " VERSION "\n\n");
 
@@ -1839,7 +1839,7 @@ int main(int argc, char *argv[])
       printf("Unknown command: %s\n", command);
     }
 
-    if (mode != MODE_INTERACTIVE) break;
+    if (mode != MODE_INTERACTIVE) { break; }
     util_context.simulate->step_mode = 0;
   }
 
