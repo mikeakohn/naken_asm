@@ -384,8 +384,8 @@ void disasm_range_stm8(
 
   printf("\n");
 
-  printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
-  printf("------- ------ ----------------------------------       ------\n");
+  printf("%-7s  %-5s         %-40s Cycles\n", "Addr", "Opcode", "Instruction");
+  printf("-------  ------------   ----------------------------------       ------\n");
 
   while (start <= end)
   {
@@ -405,7 +405,7 @@ void disasm_range_stm8(
       }
     }
 
-    printf(" %-40s cycles=", instruction);
+    printf(" %-40s ", instruction);
 
     if (cycles_min < 1)
     {
