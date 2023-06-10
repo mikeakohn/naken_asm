@@ -3,8 +3,9 @@ include ../config.mak
 VPATH=../asm:../disasm:../common:../simulate:../table:../prog:../fileio:..
 
 default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
-         $(FILEIO_OBJS) $(PROG_OBJS)
-	@ar cr naken_asm.a $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) $(FILEIO_OBJS) $(PROG_OBJS)
+         $(UTIL_OBJS) $(FILEIO_OBJS) $(PROG_OBJS)
+	@ar cr naken_asm.a $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) \
+	 $(SIM_OBJS) $(TABLE_OBJS) $(UTIL_OBJS) $(FILEIO_OBJS) $(PROG_OBJS)
 	$(CC) -o ../naken_asm$(CONFIG_EXT) ../common/naken_asm.c \
 	   naken_asm.a \
 	    -DINCLUDE_PATH="\"$(INCLUDE_PATH)\"" \

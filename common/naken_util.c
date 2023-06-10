@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -20,7 +20,10 @@
 #endif
 
 #include "common/assembler.h"
-#include "common/naken_util.h"
+//#include "common/naken_util.h"
+#include "common/util_context.h"
+#include "common/util_disasm.h"
+#include "common/util_sim.h"
 #include "common/version.h"
 #include "disasm/1802.h"
 #include "disasm/4004.h"
@@ -93,57 +96,6 @@ enum
   MODE_DISASM,
   MODE_RUN,
 };
-
-// FIXME - How to do this better?
-parse_instruction_t parse_instruction_1802 = NULL;
-parse_instruction_t parse_instruction_4004 = NULL;
-parse_instruction_t parse_instruction_6502 = NULL;
-parse_instruction_t parse_instruction_65816 = NULL;
-parse_instruction_t parse_instruction_6800 = NULL;
-parse_instruction_t parse_instruction_6809 = NULL;
-parse_instruction_t parse_instruction_68hc08 = NULL;
-parse_instruction_t parse_instruction_68000 = NULL;
-parse_instruction_t parse_instruction_8008 = NULL;
-parse_instruction_t parse_instruction_8048 = NULL;
-parse_instruction_t parse_instruction_8051 = NULL;
-parse_instruction_t parse_instruction_86000 = NULL;
-parse_instruction_t parse_instruction_arc = NULL;
-parse_instruction_t parse_instruction_arm64 = NULL;
-parse_instruction_t parse_instruction_avr8 = NULL;
-parse_instruction_t parse_instruction_cell = NULL;
-parse_instruction_t parse_instruction_common = NULL;
-parse_instruction_t parse_instruction_cp1610 = NULL;
-parse_instruction_t parse_instruction_dotnet = NULL;
-parse_instruction_t parse_instruction_dspic = NULL;
-parse_instruction_t parse_instruction_epiphany = NULL;
-parse_instruction_t parse_instruction_java = NULL;
-parse_instruction_t parse_instruction_lc3 = NULL;
-parse_instruction_t parse_instruction_m8c = NULL;
-parse_instruction_t parse_instruction_mips = NULL;
-parse_instruction_t parse_instruction_msp430 = NULL;
-parse_instruction_t parse_instruction_pdp8 = NULL;
-parse_instruction_t parse_instruction_pic14 = NULL;
-parse_instruction_t parse_instruction_powerpc = NULL;
-parse_instruction_t parse_instruction_propeller = NULL;
-parse_instruction_t parse_instruction_propeller2 = NULL;
-parse_instruction_t parse_instruction_ps2_ee_vu = NULL;
-parse_instruction_t parse_instruction_riscv = NULL;
-parse_instruction_t parse_instruction_sh4 = NULL;
-parse_instruction_t parse_instruction_sparc = NULL;
-parse_instruction_t parse_instruction_stm8 = NULL;
-parse_instruction_t parse_instruction_super_fx = NULL;
-parse_instruction_t parse_instruction_sweet16 = NULL;
-parse_instruction_t parse_instruction_thumb = NULL;
-parse_instruction_t parse_instruction_tms340 = NULL;
-parse_instruction_t parse_instruction_tms1000 = NULL;
-parse_instruction_t parse_instruction_tms1100 = NULL;
-parse_instruction_t parse_instruction_tms9900 = NULL;
-parse_instruction_t parse_instruction_unsp = NULL;
-parse_instruction_t parse_instruction_webasm = NULL;
-parse_instruction_t parse_instruction_xtensa = NULL;
-parse_instruction_t parse_instruction_z80 = NULL;
-link_function_t link_function_mips = NULL;
-link_function_t link_function_msp430 = NULL;
 
 static char *state_stopped = "stopped";
 static char *state_running = "running";
@@ -274,806 +226,6 @@ static char **command_name_completion(const char *text, int start, int end)
 }
 #endif
 
-static char *get_hex(char *token, uint32_t *num)
-{
-  int s = 0;
-  int n = 0;
-
-  while (token[s] != 0 && token[s] != ' ' && token[s] != '-' && token[s] != 'h')
-  {
-    if (token[s] >= '0' && token[s] <= '9')
-    {
-      n = (n * 16) + (token[s] - '0');
-    }
-      else
-    if (token[s] >= 'a' && token[s] <= 'f')
-    {
-      n = (n * 16) +((token[s] - 'a') + 10);
-    }
-      else
-    if (token[s] >= 'A' && token[s] <= 'F')
-    {
-      n = (n * 16) + ((token[s] - 'A') + 10);
-    }
-      else
-    {
-      printf("Illegal number '%s'\n", token);
-      return NULL;
-    }
-
-    s++;
-  }
-
-  *num = n;
-
-  if (token[s] != '-') s++;
-
-  return token + s;
-}
-
-static char *get_num(char *token, uint32_t *num)
-{
-  uint32_t n;
-
-  int s;
-
-  *num = 0;
-
-  // Skip spaces at beginning.
-  while (*token == ' ' && *token != 0) { token++; }
-
-  if (*token == 0) { return NULL; }
-
-  // Check if number is hex.
-  if (token[0] == '0' && token[1] == 'x')
-  {
-    return get_hex(token + 2, num);
-  }
-
-  // Look for end incase there is an h there.
-  s = 0;
-  while (token[s] != 0) { s++; }
-
-  if (s == 0) { return NULL; }
-
-  if (token[s-1] == 'h')
-  {
-    return get_hex(token, num);
-  }
-
-  s = 0;
-  n = 0;
-  int sign = 1;
-  if (token[s] == '-') { s++; sign = -1; }
-
-  while (token[s] != 0 && token[s] != '-')
-  {
-    if (token[s] >= '0' && token[s] <= '9')
-    {
-      n = (n * 10) + (token[s] - '0');
-    }
-      else
-    if (token[s] == ' ')
-    {
-      break;
-    }
-      else
-    {
-      printf("Illegal number '%s'\n", token);
-      return NULL;
-    }
-
-    s++;
-  }
-
-  *num = (n * sign) & 0xffffffff;
-
-  return token + s;
-}
-
-static char *get_address(
-  struct _util_context *util_context,
-  char *token,
-  uint32_t *address)
-{
-  int ret;
-
-  // Skip spaces at beginning.
-  while (*token == ' ' && *token != 0) { token++; }
-
-  // Search symbol table
-  ret = symbols_lookup(&util_context->symbols, token, address);
-
-  if (ret == 0)
-  {
-    while (*token != ' ' && *token != 0) { token++; }
-    return token;
-  }
-
-  token = get_num(token, address);
-
-  *address *= util_context->bytes_per_address;
-
-  return token;
-}
-
-static void load_debug_offsets(struct _util_context *util_context)
-{
-  int line_count = 0;
-  int ch, n;
-
-  fseek(util_context->src_fp, 0, SEEK_SET);
-
-  while (1)
-  {
-    ch=getc(util_context->src_fp);
-    if (ch == EOF || ch == '\n')
-    {
-      line_count++;
-      if (ch == EOF) break;
-    }
-  }
-
-  util_context->debug_line_offset = (long *)malloc(sizeof(long) * line_count);
-#ifdef DEBUG
-  printf("Source File: line_count=%d\n", line_count);
-#endif
-  n = 0;
-  util_context->debug_line_offset[n++] = 0;
-
-  fseek(util_context->src_fp, 0, SEEK_SET);
-  while (1)
-  {
-    ch = getc(util_context->src_fp);
-
-    if (ch == EOF || ch == '\n')
-    {
-      util_context->debug_line_offset[n++] = ftell(util_context->src_fp);
-      if (ch == EOF) break;
-    }
-    if (n == line_count) break;
-  }
-}
-
-static int get_range(
-  struct _util_context *util_context,
-  char *token,
-  uint32_t *start,
-  uint32_t *end)
-{
-  char *start_string = NULL;
-  char *end_string = NULL;
-  char *s;
-
-  // Remove white space from start;
-  while (*token == ' ') { token++; }
-
-  start_string = token;
-
-  while (*token != '-' && *token != 0)
-  {
-    token++;
-  }
-
-  // Remove white space from end of start_string
-  s = token - 1;
-
-  while (s >= start_string)
-  {
-    if (*s != ' ') { break; }
-    *s = 0;
-    s--;
-  }
-
-  if (*token == '-')
-  {
-    *token = 0;
-    end_string = token + 1;
-
-    // Strip white space from start of end_string
-    while (*end_string == ' ') end_string++;
-  }
-
-  // Remove white space from end of end_string
-  s = token - 1;
-  while (s >= start_string)
-  {
-    if (*s != ' ') { break; }
-    *s = 0;
-    s--;
-  }
-
-  // Look up start_string in symbol table or use number
-  token = get_address(util_context, start_string, start);
-
-  if (token == NULL) { return -1; }
-
-  // If end_string is empty then end = start
-  if (end_string == NULL || *end_string == 0)
-  {
-    *end = *start;
-    return 0;
-  }
-
-  // Look up end_string in symbol table or use number
-  token = get_address(util_context, end_string, end);
-
-  if (token == NULL) { return -1; }
-
-  return 0;
-}
-
-static void print8(struct _util_context *util_context, char *token)
-{
-  char chars[20];
-  uint32_t start, end;
-  int ptr = 0;
-
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
-
-  // FIXME - is this right?
-  if (get_range(util_context, token, &start, &end) == -1) { return; }
-  if (start >= end) { end = start + 128; }
-
-  while (start < end)
-  {
-    if ((ptr & 0x0f) == 0)
-    {
-      chars[ptr] = 0;
-      if (ptr != 0) { printf(" %s\n", chars); }
-      ptr = 0;
-      printf("0x%04x:", start / util_context->bytes_per_address);
-    }
-
-    uint8_t data = memory_read_m(&util_context->memory, start);
-
-    printf(" %02x", data);
-
-    if (data >= ' ' && data <= 126)
-    { chars[ptr++] = data; }
-      else
-    { chars[ptr++] = '.'; }
-
-    start++;
-  }
-
-  chars[ptr] = 0;
-
-  if (ptr != 0)
-  {
-    int n;
-    for (n = ptr; n < 16; n++) printf("   ");
-    printf(" %s\n", chars);
-  }
-}
-
-static void print16(struct _util_context *util_context, char *token)
-{
-  char chars[20];
-  uint32_t start, end;
-  int ptr = 0;
-
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
-
-  if (get_range(util_context, token, &start, &end) == -1) { return; }
-  if (start >= end) { end = start + 128; }
-
-  int mask = (util_context->alignment - 1) & 0x1;
-
-  if ((start & mask) != 0)
-  {
-    printf("Address range 0x%04x to 0x%04x must start on a 2 byte boundary.\n", start, end);
-    return;
-  }
-
-  while (start < end)
-  {
-    if ((ptr & 0x0f) == 0)
-    {
-      chars[ptr] = 0;
-      if (ptr != 0) printf(" %s\n", chars);
-      ptr = 0;
-      printf("0x%04x:", start / util_context->bytes_per_address);
-    }
-
-    int num = memory_read16_m(&util_context->memory, start);
-
-    uint8_t data0 = num & 0xff;
-    uint8_t data1 = (num >> 8) & 0xff;
-
-    if (data0 >= ' ' && data0 <= 126)
-    {
-      chars[ptr++] = data0;
-    }
-      else
-    {
-      chars[ptr++] = '.';
-    }
-
-    if (data1 >= ' ' && data1 <= 126)
-    {
-      chars[ptr++] = data1;
-    }
-      else
-    {
-      chars[ptr++] = '.';
-    }
-
-    printf(" %04x", num);
-
-    start = start + 2;
-  }
-
-  chars[ptr] = 0;
-
-  if (ptr != 0)
-  {
-    int n;
-    for (n = ptr; n < 16; n += 2) { printf("     "); }
-    printf(" %s\n", chars);
-  }
-}
-
-static void print32(struct _util_context *util_context, char *token)
-{
-  char chars[20];
-  uint32_t start, end;
-  int ptr = 0;
-
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
-
-  if (get_range(util_context, token, &start, &end) == -1) { return; }
-  if (start >= end) { end = start + 128; }
-
-  if ((start & (util_context->alignment - 1)) != 0)
-  {
-    printf("Address range 0x%04x to 0x%04x must start on a 4 byte boundary.\n",
-      start, end);
-    return;
-  }
-
-  while (start < end)
-  {
-    if ((ptr & 0x07) == 0)
-    {
-      chars[ptr] = 0;
-      if (ptr != 0) printf(" %s\n", chars);
-      ptr = 0;
-      printf("0x%04x:", start / util_context->bytes_per_address);
-    }
-
-    uint32_t num = memory_read32_m(&util_context->memory, start);
-
-    uint8_t data0 = num & 0xff;
-    uint8_t data1 = (num >> 8) & 0xff;
-
-    if (data0 >= ' ' && data0 <= 126)
-    {
-      chars[ptr++] = data0;
-    }
-      else
-    {
-      chars[ptr++] = '.';
-    }
-
-    if (data1 >= ' ' && data1 <= 126)
-    {
-      chars[ptr++] = data1;
-    }
-      else
-    {
-      chars[ptr++] = '.';
-    }
-
-    printf(" %08x", num);
-
-    start = start + 4;
-  }
-
-  chars[ptr] = 0;
-
-  if (ptr != 0)
-  {
-    int n;
-    for (n = ptr; n < 8; n += 2) { printf("     "); }
-    printf(" %s\n", chars);
-  }
-}
-
-static void write8(struct _util_context *util_context, char *token)
-{
-  uint32_t address = 0;
-  uint32_t num;
-  int count = 0;
-
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
-
-  while (*token == ' ' && *token != 0) { token++; }
-
-  if (token == 0) { printf("Syntax error: no address given.\n"); }
-
-  token = get_address(util_context, token, &address);
-
-  if (token == NULL) { printf("Syntax error: bad address\n"); }
-
-  int n = address;
-  while (1)
-  {
-    if (address >= util_context->memory.size) break;
-    while (*token == ' ' && *token != 0) token++;
-    token = get_num(token, &num);
-    if (token == 0) break;
-    memory_write_m(&util_context->memory, address++, num);
-    count++;
-  }
-
-  printf("Wrote %d bytes starting at address 0x%04x\n",
-    count, n / util_context->bytes_per_address);
-}
-
-static void write16(struct _util_context *util_context, char *token)
-{
-  uint32_t address = 0;
-  uint32_t num;
-  int count = 0;
-
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
-
-  while (*token == ' ' && *token != 0) { token++; }
-
-  if (token == 0) { printf("Syntax error: no address given.\n"); }
-
-  token = get_address(util_context, token, &address);
-
-  if (token == NULL) { printf("Syntax error: bad address\n"); }
-
-  int mask = (util_context->alignment - 1) & 0x1;
-
-  if ((address & mask) != 0)
-  {
-    printf("Error: write16 address is not 16 bit aligned\n");
-    return;
-  }
-
-  int n = address;
-
-  while (1)
-  {
-    if (address >= util_context->memory.size) break;
-    while (*token == ' ' && *token != 0) { token++; }
-    token = get_num(token, &num);
-    if (token == 0) break;
-    memory_write16_m(&util_context->memory, address, num);
-    address += 2;
-    count++;
-  }
-
-  printf("Wrote %d int16's starting at address 0x%04x\n",
-    count, n / util_context->bytes_per_address);
-}
-
-static void write32(struct _util_context *util_context, char *token)
-{
-  uint32_t address = 0;
-  uint32_t num;
-  int count = 0;
-
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
-
-  while (*token == ' ' && *token != 0) { token++; }
-
-  if (token == 0) { printf("Syntax error: no address given.\n"); }
-
-  token = get_address(util_context, token, &address);
-
-  if (token == NULL) { printf("Syntax error: bad address\n"); }
-
-  if ((address & (util_context->alignment - 1)) != 0)
-  {
-    printf("Error: write32 address is not 32 bit aligned\n");
-    return;
-  }
-
-  int n = address;
-
-  while (1)
-  {
-    if (address >= util_context->memory.size) break;
-    while (*token == ' ' && *token != 0) { token++; }
-    token = get_num(token, &num);
-    if (token == 0) break;
-    memory_write32_m(&util_context->memory, address, num);
-    address += 4;
-    count++;
-  }
-
-  printf("Wrote %d int32's starting at address 0x%04x\n",
-    count, n / util_context->bytes_per_address);
-}
-
-static void disasm_range(struct _util_context *util_context, int start, int end)
-{
-  uint32_t page_size,page_mask;
-  int curr_start = start;
-  int valid_page_start = 1;
-  int address_min,address_max;
-  int curr_end;
-  int n;
-
-  start = start * util_context->bytes_per_address;
-  end = end * util_context->bytes_per_address;
-
-  page_size = memory_page_size(&util_context->memory);
-  page_mask = page_size - 1;
-  curr_end = start | page_mask;
-
-  int data_size = 0;
-
-  n = start;
-
-  while (n <= end)
-  {
-    data_size = page_size - (n & page_mask);
-
-    if (memory_in_use(&util_context->memory, n))
-    {
-      if (valid_page_start == 0)
-      {
-        curr_start = n & (~page_mask);
-        valid_page_start = 1;
-      }
-      curr_end = n | page_mask;
-    }
-      else
-    {
-      if (valid_page_start == 1)
-      {
-        address_min = memory_get_page_address_min(
-          &util_context->memory,
-          curr_start);
-
-        address_max = memory_get_page_address_max(
-          &util_context->memory,
-          curr_end);
-
-        util_context->disasm_range(
-          &util_context->memory,
-          util_context->flags,
-          address_min,
-          address_max);
-
-        valid_page_start = 0;
-      }
-    }
-
-    //n += page_size;
-    n += data_size;
-  }
-
-  if (valid_page_start == 1)
-  {
-    address_min = memory_get_page_address_min(
-      &util_context->memory,
-      curr_start);
-
-    address_max = memory_get_page_address_max(&util_context->memory, curr_end);
-
-    util_context->disasm_range(
-      &util_context->memory,
-      util_context->flags,
-      address_min,
-      address_max);
-  }
-}
-
-static void disasm(
-  struct _util_context *util_context,
-  char *token,
-  int dbg_flag)
-{
-  uint32_t start, end;
-
-  if (get_range(util_context, token, &start, &end) == -1) { return; }
-
-  util_context->disasm_range(
-    &util_context->memory,
-    util_context->flags,
-    start,
-    end);
-}
-
-static void show_info(struct _util_context *util_context)
-{
-  struct _simulate *simulate = util_context->simulate;
-  uint32_t start = util_context->memory.low_address / util_context->bytes_per_address;
-  uint32_t end = util_context->memory.high_address / util_context->bytes_per_address;
-
-  printf("Start address: 0x%04x (%d)\n", start, start);
-  printf("  End address: 0x%04x (%d)\n", end, end);
-  printf("  Break Point: ");
-
-  if (simulate->break_point == -1)
-  {
-    printf("<not set>\n");
-  }
-    else
-  {
-    printf("0x%04x (%d)\n", simulate->break_point, simulate->break_point);
-  }
-
-  printf("  Instr Delay: ");
-
-  if (simulate->usec == 0)
-  {
-    printf("<step mode>\n");
-  }
-    else
-  {
-    printf("%d us\n", simulate->usec);
-  }
-
-  printf("      Display: %s\n", simulate->show == 1 ? "On":"Off");
-}
-
-static int set_register(struct _util_context *util_context, char *command)
-{
-  if (command[3] != ' ')
-  {
-    printf("Syntax error: set requires register=value\n");
-    return -1;
-  }
-
-  char *s = command + 4;
-
-  while (*s != 0)
-  {
-    if (*s == '=')
-    {
-      *s = 0;
-      s++;
-      uint32_t num;
-      get_num(s, &num);
-
-      if (util_context->simulate->simulate_set_reg(util_context->simulate, command + 4, num) == 0)
-      {
-        printf("Register %s set to 0x%04x.\n", command + 4, num);
-      }
-      else
-      {
-        printf("Syntax error.\n");
-      }
-      break;
-    }
-    s++;
-  }
-
-  if (*s == 0)
-  {
-    if (util_context->simulate->simulate_set_reg(util_context->simulate, command + 4, 1) == 0)
-    {
-      printf("Flag %s set.\n", command + 4);
-    }
-      else
-    {
-      printf("Syntax error.\n");
-    }
-  }
-
-  return 0;
-}
-
-static int clear_flag(struct _util_context *util_context, char *command)
-{
-  if (command[5] != ' ')
-  {
-    printf("Syntax error: set requires flag\n");
-    return -1;
-  }
-
-  if (util_context->simulate->simulate_set_reg(util_context->simulate, command + 6, 0) == 0)
-  {
-    printf("Flag %s cleared.\n", command + 6);
-  }
-    else
-  {
-    printf("Syntax error: Unknown flag %s\n", command + 6);
-  }
-
-  return 0;
-}
-
-static int set_speed(struct _util_context *util_context, char *command)
-{
-  if (command[5] != ' ')
-  {
-    util_context->simulate->usec = 0;
-    printf("Simulator now in single step mode.\n");
-
-    return 0;
-  }
-
-  int a = atoi(command + 6);
-
-  if (a == 0)
-  {
-    util_context->simulate->usec = 0;
-    printf("Simulator now in single step mode.\n");
-  }
-    else
-  {
-    util_context->simulate->usec = (1000000 / a);
-    printf("Instruction delay is now %dus\n", util_context->simulate->usec);
-  }
-
-  return 0;
-}
-
-static int stack_push(struct _util_context *util_context, char *command)
-{
-  uint32_t num;
-
-  if (command[4] != ' ')
-  {
-    printf("Syntax error: push requires a value\n");
-    return -1;
-  }
-
-  get_num(command + 5, &num);
-  util_context->simulate->simulate_push(util_context->simulate, num);
-  printf("Pushed 0x%04x.\n", num);
-
-  return 0;
-}
-
-static int set_breakpoint(struct _util_context *util_context, char *command)
-{
-  if (command[5] == 0)
-  {
-    printf("Breakpoint removed.\n");
-    util_context->simulate->break_point = -1;
-    return 0;
-  }
-
-  uint32_t address;
-
-  char *end = get_address(util_context, command + 6, &address);
-
-  if (end == NULL)
-  {
-    printf("Error: Unknown address '%s'\n", command + 6);
-    return -1;
-  }
-
-  printf("Breakpoint added at 0x%04x.\n", address);
-  util_context->simulate->break_point = address;
-
-  return 0;
-}
-
 static void print_help()
 {
   printf("Commands:\n");
@@ -1100,112 +252,6 @@ static void print_help()
   printf("  disasm <start>-<end>      [ disassemble range of addresses ]\n");
   printf("  symbols                   [ show symbols ]\n");
   //printf("  list <start>-<end>       [ disassemble wth debug listing ]\n");
-}
-
-static int load_debug(FILE **srcfile, char *filename, struct _util_context *util_context)
-{
-  char src_filename[1024];
-  FILE *in;
-  int ch;
-  int i;
-
-  // Reset debug memory on all loads.
-  //memset(debug_line, 0, 65536*sizeof(int));
-
-  printf("Opening %s\n", filename);
-
-  in = fopen(filename,"rb");
-
-  if (in == NULL)
-  {
-    printf("Could not open debug file %s\n",filename);
-    return -1;
-  }
-
-  i = 0;
-  while (1)
-  {
-    ch = getc(in);
-    if (ch == EOF) break;
-    if (ch == '\n') break;
-    src_filename[i++] = ch;
-
-    if (i >= 1022)
-    {
-      printf("Unknown debug file format.  Aborting.\n");
-      fclose(in);
-      return -1;
-    }
-  }
-
-  if (i == 0)
-  {
-    printf("Unknown debug file format.  Aborting.\n");
-    fclose(in);
-    return -1;
-  }
-
-  src_filename[i] = 0;
-
-  if (*srcfile == NULL)
-  {
-    printf("Source filename %s\n", src_filename);
-    *srcfile = fopen(src_filename,"rb");
-    if (*srcfile == NULL)
-    {
-      printf("Could not open source file %s\n",src_filename);
-    }
-    util_context->src_fp = *srcfile;
-    load_debug_offsets(util_context);
-  }
-
-  int size = util_context->memory.size;
-  for (i = 0; i < size; i++)
-  {
-    ch = getc(in);
-    if (ch == EOF) break;
-    ch = (ch << 8) | getc(in);
-
-    // FIXME - <0 isn't possible in this case.. why is this line here
-    if (ch < 0) ch = -1;
-    memory_debug_line_set_m(&util_context->memory, i, ch);
-
-    //if (debug_line[i]<0) debug_line[i]=-1;
-  }
-
-  fclose(in);
-
-  return 0;
-}
-
-static int set_cpu_by_name(const char *name, struct _util_context *util_context)
-{
-  int n = 0;
-
-  while (cpu_list[n].name != NULL)
-  {
-    if (strcasecmp(name, cpu_list[n].name) == 0)
-    {
-      util_context->disasm_range = cpu_list[n].disasm_range;
-      util_context->flags = cpu_list[n].flags;
-      util_context->bytes_per_address = cpu_list[n].bytes_per_address;
-      util_context->memory.endian = cpu_list[n].default_endian;
-      util_context->alignment = cpu_list[n].alignment;
-
-      if (cpu_list[n].simulate_init != NULL)
-      {
-        util_context->simulate = cpu_list[n].simulate_init(&util_context->memory);
-      }
-
-      return 1;
-
-      break;
-    }
-
-    n++;
-  }
-
-  return 0;
 }
 
 int main(int argc, char *argv[])
@@ -1319,20 +365,12 @@ int main(int argc, char *argv[])
   {
     if (argv[i][0] == '-')
     {
-      if (set_cpu_by_name(argv[i] + 1, &util_context) == 1)
+      if (util_set_cpu_by_name(&util_context, argv[i] + 1) == 1)
       {
         continue;
       }
     }
 
-    if (strcmp(argv[i], "-d") == 0)
-    {
-      if (load_debug(&src, argv[++i], &util_context) == 0)
-      {
-        //loaded_debug = 1;
-      }
-    }
-      else
     if (strcmp(argv[i], "-s") == 0)
     {
       if (src != NULL)
@@ -1501,7 +539,7 @@ int main(int argc, char *argv[])
         else
       if (read_amiga(argv[i], &util_context.memory) >= 0)
       {
-        set_cpu_by_name("68000", &util_context);
+        util_set_cpu_by_name(&util_context, "68000");
 
         hexfile = argv[i];
         printf("Loaded Amiga (hunk) exe %s from 0x%04x to 0x%04x\n",
@@ -1667,7 +705,7 @@ int main(int argc, char *argv[])
       // FIXME: This is MSP430 specific.
       uint32_t num;
 
-      char *end = get_address(&util_context, command + 5, &num);
+      char *end = util_get_address(&util_context, command + 5, &num);
 
       if (end == NULL)
       {
@@ -1695,22 +733,22 @@ int main(int argc, char *argv[])
       else
     if (strncmp(command, "break", 5) == 0)
     {
-      set_breakpoint(&util_context, command);
+      sim_set_breakpoint(&util_context, command);
     }
       else
     if (strncmp(command, "push", 4) == 0)
     {
-      stack_push(&util_context, command);
+      sim_stack_push(&util_context, command);
     }
       else
     if (strncmp(command, "set", 3) == 0)
     {
-      set_register(&util_context, command);
+      sim_set_register(&util_context, command);
     }
       else
     if (strncmp(command, "clear", 5) == 0)
     {
-      clear_flag(&util_context, command);
+      sim_clear_flag(&util_context, command);
 
 #if 0
       if (util_context.simulate->simulate_set_reg(util_context.simulate, command+6, 0) == 0)
@@ -1726,67 +764,67 @@ int main(int argc, char *argv[])
       else
     if (strncmp(command, "speed", 5) == 0)
     {
-      set_speed(&util_context, command);
+      sim_set_speed(&util_context, command);
     }
       else
     if (strncmp(command, "print ", 6) == 0)
     {
-       print8(&util_context, command + 5);
+       util_print8(&util_context, command + 5);
     }
       else
     if (strncmp(command, "bprint ", 7) == 0)
     {
-       print8(&util_context, command + 6);
+       util_print8(&util_context, command + 6);
     }
       else
     if (strncmp(command, "print16", 7) == 0)
     {
-       print16(&util_context, command + 7);
+       util_print16(&util_context, command + 7);
     }
       else
     if (strncmp(command, "wprint ", 7) == 0)
     {
-       print16(&util_context, command + 6);
+       util_print16(&util_context, command + 6);
     }
       else
     if (strncmp(command, "print32", 7) == 0)
     {
-       print32(&util_context, command + 7);
+       util_print32(&util_context, command + 7);
     }
       else
     if (strncmp(command, "write ", 6) == 0)
     {
-       write8(&util_context, command + 5);
+       util_write8(&util_context, command + 5);
     }
       else
     if (strncmp(command, "bwrite ", 7) == 0)
     {
-       write8(&util_context, command + 6);
+       util_write8(&util_context, command + 6);
     }
       else
     if (strncmp(command, "write16 ", 8) == 0)
     {
-       write16(&util_context, command + 7);
+       util_write16(&util_context, command + 7);
     }
       else
     if (strncmp(command, "wwrite ", 7) == 0)
     {
-       write16(&util_context, command + 6);
+       util_write16(&util_context, command + 6);
     }
       else
     if (strncmp(command, "write32 ", 8) == 0)
     {
-       write32(&util_context, command + 7);
+       util_write32(&util_context, command + 7);
     }
       else
     if (strncmp(command, "disasm ", 7) == 0)
     {
-       disasm(&util_context, command + 7, 0);
+       util_disasm(&util_context, command + 7);
     }
       else
     if (strcmp(command, "disasm") == 0)
     {
-       disasm_range(
+       util_disasm_range(
          &util_context,
          util_context.memory.low_address,
          util_context.memory.high_address);
@@ -1801,7 +839,7 @@ int main(int argc, char *argv[])
     {
       uint32_t start, end;
 
-      if (get_range(&util_context, command + 7, &start, &end) == -1)
+      if (util_get_range(&util_context, command + 7, &start, &end) == -1)
       {
         printf("Illegal range.\n");
       }
@@ -1814,7 +852,7 @@ int main(int argc, char *argv[])
       else
     if (strcmp(command, "info") == 0)
     {
-      show_info(&util_context);
+      sim_show_info(&util_context);
     }
       else
     if (strcmp(command, "registers") == 0 || strcmp(command, "reg") == 0)
