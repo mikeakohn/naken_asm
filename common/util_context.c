@@ -19,6 +19,7 @@
 #include "common/util_context.h"
 
 // FIXME - How to do this better?
+#if 0
 parse_instruction_t parse_instruction_1802 = NULL;
 parse_instruction_t parse_instruction_4004 = NULL;
 parse_instruction_t parse_instruction_6502 = NULL;
@@ -68,6 +69,7 @@ parse_instruction_t parse_instruction_xtensa = NULL;
 parse_instruction_t parse_instruction_z80 = NULL;
 link_function_t link_function_mips = NULL;
 link_function_t link_function_msp430 = NULL;
+#endif
 
 static char *util_get_hex(char *token, uint32_t *num)
 {
