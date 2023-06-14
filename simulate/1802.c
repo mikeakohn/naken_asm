@@ -58,11 +58,11 @@
 
 static int stop_running = 0;
 
-struct _simulate *simulate_init_1802(struct _memory *memory)
+Simulate *simulate_init_1802(struct _memory *memory)
 {
-  struct _simulate *simulate;
+  Simulate *simulate;
 
-  simulate = (struct _simulate *)malloc(sizeof(struct _simulate_1802)+sizeof(struct _simulate));
+  simulate = (Simulate *)malloc(sizeof(Simulate1802) + sizeof(Simulate));
 
   simulate->simulate_init = simulate_init_1802;
   simulate->simulate_free = simulate_free_1802;
@@ -90,14 +90,14 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
-void simulate_push_1802(struct _simulate *simulate, uint32_t value)
+void simulate_push_1802(Simulate *simulate, uint32_t value)
 {
   return;
 }
 
-static int operand_exe(struct _simulate *simulate, int opcode)
+static int operand_exe(Simulate *simulate, int opcode)
 {
-  struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
+  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
 
   REG_N = opcode & 0xF;
   REG_I = (opcode & 0xF0) >> 4;
@@ -778,14 +778,14 @@ static int operand_exe(struct _simulate *simulate, int opcode)
   return 0;
 }
 
-void simulate_free_1802(struct _simulate *simulate)
+void simulate_free_1802(Simulate *simulate)
 {
   free(simulate);
 }
 
-void simulate_dump_registers_1802(struct _simulate *simulate)
+void simulate_dump_registers_1802(Simulate *simulate)
 {
-  struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
+  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
 
   printf("\nSimulation Register Dump                                    \n");
   printf("------------------------------------------------------------\n");
@@ -829,9 +829,9 @@ void simulate_dump_registers_1802(struct _simulate *simulate)
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }
 
-int simulate_run_1802(struct _simulate *simulate, int cycles, int step)
+int simulate_run_1802(Simulate *simulate, int cycles, int step)
 {
-  struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
+  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
   char instruction[128];
   char bytes[16];
 
@@ -914,9 +914,9 @@ int simulate_run_1802(struct _simulate *simulate, int cycles, int step)
   return 0;
 }
 
-int simulate_dumpram_1802(struct _simulate *simulate, int start, int end)
+int simulate_dumpram_1802(Simulate *simulate, int start, int end)
 {
-  //struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
+  //Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
 
   printf("\n                       Simulation RAM Dump                         \n");
   printf("---------------------------------------------------------------------\n");
@@ -944,11 +944,11 @@ int simulate_dumpram_1802(struct _simulate *simulate, int start, int end)
 }
 
 int simulate_set_reg_1802(
-  struct _simulate *simulate,
+  Simulate *simulate,
   char *reg_string,
   uint32_t value)
 {
-  struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
+  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
 
   while (*reg_string==' ') { reg_string++; }
 
@@ -990,9 +990,9 @@ int simulate_set_reg_1802(
   return 0;
 }
 
-uint32_t simulate_get_reg_1802(struct _simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_1802(Simulate *simulate, char *reg_string)
 {
-  struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
+  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
 
   while (*reg_string==' ') { reg_string++; }
 
@@ -1031,15 +1031,15 @@ uint32_t simulate_get_reg_1802(struct _simulate *simulate, char *reg_string)
   else { return -1; }
 }
 
-void simulate_set_pc_1802(struct _simulate *simulate, uint32_t value)
+void simulate_set_pc_1802(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
+  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
   PC = value;
 }
 
-void simulate_reset_1802(struct _simulate *simulate)
+void simulate_reset_1802(Simulate *simulate)
 {
-  struct _simulate_1802 *simulate_1802 = (struct _simulate_1802 *)simulate->context;
+  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
 
   simulate->cycle_count = 0;
   simulate->nested_call_count = 0;

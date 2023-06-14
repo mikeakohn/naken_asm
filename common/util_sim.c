@@ -16,9 +16,9 @@
 
 #include "common/util_sim.h"
 
-void sim_show_info(struct _util_context *util_context)
+void sim_show_info(UtilContext *util_context)
 {   
-  struct _simulate *simulate = util_context->simulate;
+  Simulate *simulate = util_context->simulate;
   uint32_t start = util_context->memory.low_address / util_context->bytes_per_address;
   uint32_t end = util_context->memory.high_address / util_context->bytes_per_address;
       
@@ -49,7 +49,7 @@ void sim_show_info(struct _util_context *util_context)
   printf("      Display: %s\n", simulate->show == 1 ? "On":"Off");
 }
 
-int sim_set_register(struct _util_context *util_context, char *command)
+int sim_set_register(UtilContext *util_context, char *command)
 {
   if (command[3] != ' ')
   {
@@ -96,7 +96,7 @@ int sim_set_register(struct _util_context *util_context, char *command)
   return 0;
 }
 
-int sim_clear_flag(struct _util_context *util_context, char *command)
+int sim_clear_flag(UtilContext *util_context, char *command)
 {
   if (command[5] != ' ')
   {
@@ -116,7 +116,7 @@ int sim_clear_flag(struct _util_context *util_context, char *command)
   return 0;
 }
 
-int sim_set_speed(struct _util_context *util_context, char *command)
+int sim_set_speed(UtilContext *util_context, char *command)
 {
   if (command[5] != ' ')
   {
@@ -142,7 +142,7 @@ int sim_set_speed(struct _util_context *util_context, char *command)
   return 0;
 }
 
-int sim_stack_push(struct _util_context *util_context, char *command)
+int sim_stack_push(UtilContext *util_context, char *command)
 {
   uint32_t num;
 
@@ -159,7 +159,7 @@ int sim_stack_push(struct _util_context *util_context, char *command)
   return 0;
 }
 
-int sim_set_breakpoint(struct _util_context *util_context, char *command)
+int sim_set_breakpoint(UtilContext *util_context, char *command)
 {
   if (command[5] == 0)
   {

@@ -18,7 +18,7 @@
 #include "simulate/mips.h"
 #include "disasm/mips.h"
 
-static int simulate_delay_slot_mips(struct _simulate *simulate);
+static int simulate_delay_slot_mips(Simulate *simulate);
 
 static int stop_running = 0;
 
@@ -55,12 +55,11 @@ static int32_t get_offset16(uint32_t opcode)
   return offset;
 }
 
-struct _simulate *simulate_init_mips(struct _memory *memory)
+Simulate *simulate_init_mips(struct _memory *memory)
 {
-struct _simulate *simulate;
+  Simulate *simulate;
 
-  simulate = (struct _simulate *)malloc(sizeof(struct _simulate_mips) +
-                                        sizeof(struct _simulate));
+  simulate = (Simulate *)malloc(sizeof(SimulateMips) + sizeof(Simulate));
 
   simulate->simulate_init = simulate_init_mips;
   simulate->simulate_free = simulate_free_mips;
@@ -82,15 +81,15 @@ struct _simulate *simulate;
   return simulate;
 }
 
-void simulate_push_mips(struct _simulate *simulate, uint32_t value)
+void simulate_push_mips(Simulate *simulate, uint32_t value)
 {
-//struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  //SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
 
 }
 
-int simulate_set_reg_mips(struct _simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_mips(Simulate *simulate, char *reg_string, uint32_t value)
 {
-  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
   int reg, n;
 
   if (reg_string[0] != '$') { return -1; }
@@ -118,23 +117,23 @@ int simulate_set_reg_mips(struct _simulate *simulate, char *reg_string, uint32_t
   return -1;
 }
 
-uint32_t simulate_get_reg_mips(struct _simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_mips(Simulate *simulate, char *reg_string)
 {
-//struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  //SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
 
   return 0;
 }
 
-void simulate_set_pc_mips(struct _simulate *simulate, uint32_t value)
+void simulate_set_pc_mips(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
 
   simulate_mips->pc = value; 
 }
 
-void simulate_reset_mips(struct _simulate *simulate)
+void simulate_reset_mips(Simulate *simulate)
 {
-  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
 
   simulate_mips->pc = simulate->memory->low_address;
   simulate_mips->reg[29] = 0x80000000;
@@ -164,19 +163,19 @@ void simulate_reset_mips(struct _simulate *simulate)
   }
 }
 
-void simulate_free_mips(struct _simulate *simulate)
+void simulate_free_mips(Simulate *simulate)
 {
   free(simulate);
 }
 
-int simulate_dumpram_mips(struct _simulate *simulate, int start, int end)
+int simulate_dumpram_mips(Simulate *simulate, int start, int end)
 {
   return -1;
 }
 
-void simulate_dump_registers_mips(struct _simulate *simulate)
+void simulate_dump_registers_mips(Simulate *simulate)
 {
-  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
   int n;
 
   printf("\nSimulation Register Dump\n");
@@ -197,9 +196,9 @@ void simulate_dump_registers_mips(struct _simulate *simulate)
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }
 
-static int simulate_execute_mips_shift(struct _simulate *simulate, uint32_t opcode)
+static int simulate_execute_mips_shift(Simulate *simulate, uint32_t opcode)
 {
-  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
 
   int sa = (opcode >> 6) & 0x1f;
   int rd = (opcode >> 11) & 0x1f;
@@ -225,9 +224,9 @@ static int simulate_execute_mips_shift(struct _simulate *simulate, uint32_t opco
   return 0;
 }
 
-static int simulate_execute_mips_r(struct _simulate *simulate, uint32_t opcode)
+static int simulate_execute_mips_r(Simulate *simulate, uint32_t opcode)
 {
-  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
 
   int rd = (opcode >> 11) & 0x1f;
   int rt = (opcode >> 16) & 0x1f;
@@ -282,9 +281,9 @@ static int simulate_execute_mips_r(struct _simulate *simulate, uint32_t opcode)
   return 0;
 }
 
-static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
+static int simulate_execute_mips_i(Simulate *simulate, uint32_t opcode)
 {
-  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
   uint32_t address;
 
   int rs = (opcode >> 21) & 0x1f;
@@ -384,9 +383,9 @@ static int simulate_execute_mips_i(struct _simulate *simulate, uint32_t opcode)
   return 0;
 }
 
-static int simulate_execute_mips(struct _simulate *simulate)
+static int simulate_execute_mips(Simulate *simulate)
 {
-  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
 
   uint32_t opcode = memory_read32_m(simulate->memory, simulate_mips->pc);
 
@@ -558,9 +557,9 @@ static int simulate_execute_mips(struct _simulate *simulate)
   return 0;
 }
 
-static int simulate_delay_slot_mips(struct _simulate *simulate)
+static int simulate_delay_slot_mips(Simulate *simulate)
 {
-  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
   uint32_t pc = simulate_mips->pc;
 
   simulate_mips->pc += 4;
@@ -570,9 +569,9 @@ static int simulate_delay_slot_mips(struct _simulate *simulate)
   return 0;
 }
 
-int simulate_run_mips(struct _simulate *simulate, int max_cycles, int step)
+int simulate_run_mips(Simulate *simulate, int max_cycles, int step)
 {
-  struct _simulate_mips *simulate_mips = (struct _simulate_mips *)simulate->context;
+  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
   char instruction[128];
   int pc;
 

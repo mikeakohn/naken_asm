@@ -19,7 +19,7 @@
 #include "common/memory.h"
 #include "simulate/common.h"
 
-struct _simulate_stm8
+typedef struct _simulate_stm8
 {
   uint8_t reg_a;
   uint16_t reg_x;
@@ -27,18 +27,18 @@ struct _simulate_stm8
   uint16_t reg_sp;
   uint32_t reg_pc;
   uint8_t reg_cc;
-};
+} SimulateStm8;
 
-struct _simulate * simulate_init_stm8();
-void simulate_free_stm8(struct _simulate * simulate);
-int simulate_dumpram_stm8(struct _simulate * simulate, int start, int end);
-void simulate_push_stm8(struct _simulate * simulate, uint32_t value);
-int simulate_set_reg_stm8(struct _simulate * simulate, char * reg_string, uint32_t value);
-uint32_t simulate_get_reg_stm8(struct _simulate * simulate, char * reg_string);
-void simulate_set_pc_stm8(struct _simulate * simulate, uint32_t value);
-void simulate_reset_stm8(struct _simulate * simulate);
-void simulate_dump_registers_stm8(struct _simulate * simulate);
-int simulate_run_stm8(struct _simulate * simulate, int max_cycles, int step);
+Simulate * simulate_init_stm8();
+void simulate_free_stm8(Simulate *simulate);
+int simulate_dumpram_stm8(Simulate *simulate, int start, int end);
+void simulate_push_stm8(Simulate *simulate, uint32_t value);
+int simulate_set_reg_stm8(Simulate *simulate, char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_stm8(Simulate *simulate, char *reg_string);
+void simulate_set_pc_stm8(Simulate *simulate, uint32_t value);
+void simulate_reset_stm8(Simulate *simulate);
+void simulate_dump_registers_stm8(Simulate *simulate);
+int simulate_run_stm8(Simulate *simulate, int max_cycles, int step);
 
 #endif
 

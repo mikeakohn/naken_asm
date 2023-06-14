@@ -11,13 +11,18 @@
  *
  * Current STM8 simulator limitations:
  *  - MPU hardware peripherals (GPIO, UART, Timers, etc.) not supported
- *  - MPU device limits (Flash, RAM, EEPROM sizes) not supported (i.e. no memory restrictions inside address space)
- *  - Address space limited to simulation memory size (0x0000 to mem_size - 1, see memory_init() in main())
+ *  - MPU device limits (Flash, RAM, EEPROM sizes) not supported
+ *    (i.e. no memory restrictions inside address space)
+ *  - Address space limited to simulation memory size
+ *    (0x0000 to mem_size - 1, see memory_init() in main())
  *  - Initial/reset SP set to top of STM8S001 / STM8S003 / STM8S103 device RAM
  *  - STM7 instructions are not supported
  *
- * Reference: STMicroelectronics PM0044: STM8 CPU Programming Manual (Rev. 3 - September 2011)
- *            STMicroelectronics ES0102: STM8S001J3/003xx/103xx/903xx Errata sheet (Rev. 5 - July 2017)
+ * References:
+ *   STMicroelectronics PM0044:
+ *     STM8 CPU Programming Manual (Rev. 3 - September 2011)
+ *   STMicroelectronics ES0102:
+ *     STM8S001J3/003xx/103xx/903xx Errata sheet (Rev. 5 - July 2017)
  */
 
 #include <stdio.h>
@@ -125,7 +130,7 @@
 #define CC_N_NDX  4
 #define CC_Z_NDX  5
 #define CC_C_NDX  6
-static const char * const CC_Flags[] = { "V", "I1", "H", "I0", "N", "Z", "C" };
+static const char *const CC_Flags[] = { "V", "I1", "H", "I0", "N", "Z", "C" };
 
 static int stop_running = 0;
 static int stm8_int_opcode = -1;
@@ -136,11 +141,12 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
-struct _simulate * simulate_init_stm8(struct _memory * memory)
+Simulate *simulate_init_stm8(struct _memory *memory)
 {
-  struct _simulate * simulate = NULL;
+  Simulate *simulate = NULL;
 
-  simulate = (struct _simulate *)malloc(sizeof(struct _simulate_stm8) + sizeof(struct _simulate));
+  simulate = (Simulate *)malloc(sizeof(SimulateStm8) + sizeof(Simulate));
+
   if (simulate != NULL)
   {
     simulate->simulate_init = simulate_init_stm8;
@@ -164,24 +170,24 @@ struct _simulate * simulate_init_stm8(struct _memory * memory)
   return simulate;
 }
 
-void simulate_push_stm8(struct _simulate * simulate, uint32_t value)
+void simulate_push_stm8(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
 
   PUSH_STACK(value);
 }
 
-static void simulate_push16_stm8(struct _simulate * simulate, uint32_t value)
+static void simulate_push16_stm8(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
 
   PUSH_STACK(value);
   PUSH_STACK(value >> 8);
 }
 
-static void simulate_push24_stm8(struct _simulate * simulate, uint32_t value)
+static void simulate_push24_stm8(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
 
   PUSH_STACK(value);
   PUSH_STACK(value >> 8);
@@ -190,9 +196,9 @@ static void simulate_push24_stm8(struct _simulate * simulate, uint32_t value)
 
 // Returns:
 //    16-bit value popped off stack
-static uint16_t simulate_pop16_stm8(struct _simulate * simulate)
+static uint16_t simulate_pop16_stm8(Simulate *simulate)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t rslt;
 
   rslt = (POP_STACK() << 8);
@@ -202,9 +208,9 @@ static uint16_t simulate_pop16_stm8(struct _simulate * simulate)
 
 // Returns:
 //    24-bit value popped off stack
-static uint32_t simulate_pop24_stm8(struct _simulate * simulate)
+static uint32_t simulate_pop24_stm8(Simulate *simulate)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t rslt;
 
   rslt = (POP_STACK() << 16);
@@ -216,9 +222,9 @@ static uint32_t simulate_pop24_stm8(struct _simulate * simulate)
 // Returns:
 //    -1 = invalid register/flag or unsupported memory location
 //     0 = OK
-int simulate_set_reg_stm8(struct _simulate * simulate, char * reg_string, uint32_t value)
+int simulate_set_reg_stm8(Simulate *simulate, char *reg_string, uint32_t value)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
 
   while (*reg_string == ' ')
   {
@@ -346,9 +352,9 @@ int simulate_set_reg_stm8(struct _simulate * simulate, char * reg_string, uint32
 // Returns:
 //    register or condition code flag value
 //    0 returned for unknown registers or condition code flag names
-uint32_t simulate_get_reg_stm8(struct _simulate * simulate, char * reg_string)
+uint32_t simulate_get_reg_stm8(Simulate *simulate, char *reg_string)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
 
   // skip leading spaces
   while (*reg_string == ' ')
@@ -416,9 +422,9 @@ uint32_t simulate_get_reg_stm8(struct _simulate * simulate, char * reg_string)
   return 0;
 }
 
-void simulate_set_pc_stm8(struct _simulate * simulate, uint32_t value)
+void simulate_set_pc_stm8(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
 
   if (value >= simulate->memory->size)
   {
@@ -430,9 +436,9 @@ void simulate_set_pc_stm8(struct _simulate * simulate, uint32_t value)
   }
 }
 
-void simulate_reset_stm8(struct _simulate * simulate)
+void simulate_reset_stm8(Simulate *simulate)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
 
   simulate->cycle_count = 0;
   simulate->nested_call_count = 0;
@@ -473,7 +479,7 @@ void simulate_reset_stm8(struct _simulate * simulate)
   simulate->break_point = -1;
 }
 
-void simulate_free_stm8(struct _simulate * simulate)
+void simulate_free_stm8(Simulate *simulate)
 {
   free(simulate);
 }
@@ -481,14 +487,14 @@ void simulate_free_stm8(struct _simulate * simulate)
 // Returns:
 //     0 = OK
 //    -1 = not supported for this MPU
-int simulate_dumpram_stm8(struct _simulate * simulate, int start, int end)
+int simulate_dumpram_stm8(Simulate *simulate, int start, int end)
 {
   return -1;    // Use print or print16 to display RAM.
 }
 
-void simulate_dump_registers_stm8(struct _simulate * simulate)
+void simulate_dump_registers_stm8(Simulate *simulate)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t sp = REG_SP;
 
   printf("\nSimulation Register Dump                               Stack\n");
@@ -519,9 +525,9 @@ void simulate_dump_registers_stm8(struct _simulate * simulate)
 // Adjust specified condition code flags using operation values and results.
 // Note: N, Z flags determined using only 'rslt' (and 'bit_size')
 //       V, H, C flags determined using 'op1', 'op2', 'rslt' (and 'bit_size')
-static void calculate_flags(struct _simulate * simulate, uint8_t flag_bits, uint16_t op1, uint16_t op2, uint16_t rslt, uint8_t bit_size)
+static void calculate_flags(Simulate *simulate, uint8_t flag_bits, uint16_t op1, uint16_t op2, uint16_t rslt, uint8_t bit_size)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
 
   if (bit_size == SIZE_8BITS)
   {
@@ -762,9 +768,9 @@ static void calculate_flags(struct _simulate * simulate, uint8_t flag_bits, uint
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_common(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8, uint32_t eff_addr)
+static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm8_opcodes *table_stm8, uint32_t eff_addr)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t data;
   uint16_t data16;
   uint8_t flag_bits;
@@ -1049,9 +1055,9 @@ static int simulate_execute_stm8_op_common(struct _simulate * simulate, struct _
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_none(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_none(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t eff_addr;
 
   switch (table_stm8->instr_enum)
@@ -1156,9 +1162,9 @@ static int simulate_execute_stm8_op_none(struct _simulate * simulate, struct _ta
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_number8(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_number8(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint8_t data;
 
@@ -1211,9 +1217,9 @@ static int simulate_execute_stm8_op_number8(struct _simulate * simulate, struct 
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_number16(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_number16(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint16_t data;
   uint8_t flag_bits;
@@ -1305,9 +1311,9 @@ static int simulate_execute_stm8_op_number16(struct _simulate * simulate, struct
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address8(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_address8(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint32_t eff_addr;
 
@@ -1329,9 +1335,9 @@ static int simulate_execute_stm8_op_address8(struct _simulate * simulate, struct
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address16(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
   uint8_t data;
@@ -1672,9 +1678,9 @@ static int simulate_execute_stm8_op_address16(struct _simulate * simulate, struc
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address24(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_address24(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t next_ext;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -1730,9 +1736,9 @@ static int simulate_execute_stm8_op_address24(struct _simulate * simulate, struc
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_index_x(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_index_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t eff_addr;
 
   eff_addr = REG_X;
@@ -1743,9 +1749,9 @@ static int simulate_execute_stm8_op_index_x(struct _simulate * simulate, struct 
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset8_index_x(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_offset8_index_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint32_t eff_addr;
 
@@ -1758,9 +1764,9 @@ static int simulate_execute_stm8_op_offset8_index_x(struct _simulate * simulate,
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset16_index_x(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_offset16_index_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
 
@@ -1776,9 +1782,9 @@ static int simulate_execute_stm8_op_offset16_index_x(struct _simulate * simulate
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset24_index_x(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_offset24_index_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t next_ext;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -1825,9 +1831,9 @@ static int simulate_execute_stm8_op_offset24_index_x(struct _simulate * simulate
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_index_y(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_index_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t eff_addr;
 
   eff_addr = REG_Y;
@@ -1838,9 +1844,9 @@ static int simulate_execute_stm8_op_index_y(struct _simulate * simulate, struct 
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset8_index_y(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_offset8_index_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint32_t eff_addr;
 
@@ -1853,9 +1859,9 @@ static int simulate_execute_stm8_op_offset8_index_y(struct _simulate * simulate,
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset16_index_y(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_offset16_index_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
 
@@ -1870,9 +1876,9 @@ static int simulate_execute_stm8_op_offset16_index_y(struct _simulate * simulate
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset24_index_y(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_offset24_index_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t next_ext;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -1919,9 +1925,9 @@ static int simulate_execute_stm8_op_offset24_index_y(struct _simulate * simulate
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset8_index_sp(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_offset8_index_sp(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint32_t eff_addr;
   uint16_t data16;
@@ -1986,9 +1992,9 @@ static int simulate_execute_stm8_op_offset8_index_sp(struct _simulate * simulate
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect8(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_indirect8(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint16_t ptr_addr;
   uint32_t eff_addr;
@@ -2003,9 +2009,9 @@ static int simulate_execute_stm8_op_indirect8(struct _simulate * simulate, struc
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect16(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_indirect16(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint16_t ptr_addr;
   uint32_t eff_addr;
@@ -2022,9 +2028,9 @@ static int simulate_execute_stm8_op_indirect16(struct _simulate * simulate, stru
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect16_e(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_indirect16_e(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -2077,9 +2083,9 @@ static int simulate_execute_stm8_op_indirect16_e(struct _simulate * simulate, st
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect8_x(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_indirect8_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint16_t ptr_addr;
   uint32_t eff_addr;
@@ -2094,9 +2100,9 @@ static int simulate_execute_stm8_op_indirect8_x(struct _simulate * simulate, str
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect16_x(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_indirect16_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint16_t ptr_addr;
   uint32_t eff_addr;
@@ -2113,9 +2119,9 @@ static int simulate_execute_stm8_op_indirect16_x(struct _simulate * simulate, st
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect16_e_x(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_indirect16_e_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -2162,9 +2168,9 @@ static int simulate_execute_stm8_op_indirect16_e_x(struct _simulate * simulate, 
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect8_y(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_indirect8_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint16_t ptr_addr;
   uint32_t eff_addr;
@@ -2180,9 +2186,9 @@ static int simulate_execute_stm8_op_indirect8_y(struct _simulate * simulate, str
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect16_e_y(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_indirect16_e_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -2229,9 +2235,9 @@ static int simulate_execute_stm8_op_indirect16_e_y(struct _simulate * simulate, 
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address_bit(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_address_bit(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t op_pc = REG_PC - 1;            // kluge! - actual opcode not available in table_stm8
   uint8_t pos = 0;
   uint16_t next_word;
@@ -2272,9 +2278,9 @@ static int simulate_execute_stm8_op_address_bit(struct _simulate * simulate, str
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address_bit_loop(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_address_bit_loop(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   int32_t pc;
   uint32_t op_pc = REG_PC - 1;            // kluge! - actual opcode not available in table_stm8
   uint8_t pos;
@@ -2333,9 +2339,9 @@ static int simulate_execute_stm8_op_address_bit_loop(struct _simulate * simulate
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_relative(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_relative(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   int32_t pc;
   int8_t offset;
 
@@ -2592,9 +2598,9 @@ static int simulate_execute_stm8_op_relative(struct _simulate * simulate, struct
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_single_register(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t flag_bits;
   uint16_t rslt;
 
@@ -3122,9 +3128,9 @@ static int simulate_execute_stm8_op_single_register(struct _simulate * simulate,
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_two_registers(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_two_registers(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t flag_bits;
   uint8_t data;
   uint16_t data16;
@@ -3364,9 +3370,9 @@ static int simulate_execute_stm8_op_two_registers(struct _simulate * simulate, s
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address16_number8(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_address16_number8(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint8_t next_byte;
 
@@ -3388,9 +3394,9 @@ static int simulate_execute_stm8_op_address16_number8(struct _simulate * simulat
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address8_address8(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_address8_address8(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint8_t next_byte2;
   uint8_t data;
@@ -3413,9 +3419,9 @@ static int simulate_execute_stm8_op_address8_address8(struct _simulate * simulat
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address16_address16(struct _simulate * simulate, struct _table_stm8_opcodes * table_stm8)
+static int simulate_execute_stm8_op_address16_address16(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint16_t next_word2;
   uint8_t data;
@@ -3441,9 +3447,9 @@ static int simulate_execute_stm8_op_address16_address16(struct _simulate * simul
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8(struct _simulate * simulate)
+static int simulate_execute_stm8(Simulate *simulate)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t opcode;
   uint8_t prefix = 0;
   int n;
@@ -3565,9 +3571,9 @@ static int simulate_execute_stm8(struct _simulate * simulate)
 // Returns:
 //    -1 = hit unknown instruction or unsupported memory address
 //     0 = OK
-int simulate_run_stm8(struct _simulate * simulate, int max_cycles, int step)
+int simulate_run_stm8(Simulate *simulate, int max_cycles, int step)
 {
-  struct _simulate_stm8 * simulate_stm8 = (struct _simulate_stm8 *)simulate->context;
+  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   char instruction[128];
   char bytes[20];
 

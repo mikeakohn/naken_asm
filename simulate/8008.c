@@ -34,19 +34,18 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
-static int execute_instruction(struct _simulate *simulate, uint16_t opcode)
+static int execute_instruction(Simulate *simulate, uint16_t opcode)
 {
-  //struct _simulate_8008 *simulate_8008 = (struct _simulate_8008 *)simulate->context;
+  //Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 
   return -1;
 }
 
-struct _simulate *simulate_init_8008(struct _memory *memory)
+Simulate *simulate_init_8008(struct _memory *memory)
 {
-  struct _simulate *simulate;
+  Simulate *simulate;
 
-  simulate = (struct _simulate *)malloc(sizeof(struct _simulate_8008) +
-                                        sizeof(struct _simulate));
+  simulate = (Simulate *)malloc(sizeof(Simulate8008) + sizeof(Simulate));
 
   simulate->simulate_init = simulate_init_8008;
   simulate->simulate_free = simulate_free_8008;
@@ -70,57 +69,57 @@ struct _simulate *simulate_init_8008(struct _memory *memory)
   return simulate;
 }
 
-void simulate_push_8008(struct _simulate *simulate, uint32_t value)
+void simulate_push_8008(Simulate *simulate, uint32_t value)
 {
-  //struct _simulate_8008 *simulate_8008 = (struct _simulate_8008 *)simulate->context;
+  //Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 
 }
 
-int simulate_set_reg_8008(struct _simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_8008(Simulate *simulate, char *reg_string, uint32_t value)
 {
-  //struct _simulate_8008 *simulate_8008 = (struct _simulate_8008 *)simulate->context;
+  //Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 
   return 0;
 }
 
-uint32_t simulate_get_reg_8008(struct _simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_8008(Simulate *simulate, char *reg_string)
 {
-  struct _simulate_8008 *simulate_8008 = (struct _simulate_8008 *)simulate->context;
+  Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 
   return simulate_8008->reg[0];
 }
 
-void simulate_set_pc_8008(struct _simulate *simulate, uint32_t value)
+void simulate_set_pc_8008(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_8008 *simulate_8008 = (struct _simulate_8008 *)simulate->context;
+  Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 
   simulate_8008->pc = value; 
 }
 
-void simulate_reset_8008(struct _simulate *simulate)
+void simulate_reset_8008(Simulate *simulate)
 {
-  struct _simulate_8008 *simulate_8008 = (struct _simulate_8008 *)simulate->context;
+  Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 
   memset(simulate_8008->reg, 0, sizeof(uint16_t) * 8);
 
   simulate_8008->pc = 0x0000;
 }
 
-void simulate_free_8008(struct _simulate *simulate)
+void simulate_free_8008(Simulate *simulate)
 {
   free(simulate);
 }
 
-int simulate_dumpram_8008(struct _simulate *simulate, int start, int end)
+int simulate_dumpram_8008(Simulate *simulate, int start, int end)
 {
-  //struct _simulate_8008 *simulate_8008 = (struct _simulate_8008 *)simulate->context;
+  //Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 
   return -1;
 }
 
-void simulate_dump_registers_8008(struct _simulate *simulate)
+void simulate_dump_registers_8008(Simulate *simulate)
 {
-  //struct _simulate_8008 *simulate_8008 = (struct _simulate_8008 *)simulate->context;
+  //Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 
 #if 0
   printf("PC=0x%04x  N=%d Z=%d P=%d   PRIV=%d  PRIORITY=%d\n",
@@ -135,9 +134,9 @@ void simulate_dump_registers_8008(struct _simulate *simulate)
   printf("\n");
 }
 
-int simulate_run_8008(struct _simulate *simulate, int max_cycles, int step)
+int simulate_run_8008(Simulate *simulate, int max_cycles, int step)
 {
-  struct _simulate_8008 *simulate_8008 = (struct _simulate_8008 *)simulate->context;
+  Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
   char instruction[128];
   uint16_t opcode;
   int cycles = 0;

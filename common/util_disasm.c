@@ -16,7 +16,7 @@
 
 #include "common/util_disasm.h"
 
-void util_disasm(struct _util_context *util_context, char *token)
+void util_disasm(UtilContext *util_context, char *token)
 {
   uint32_t start, end;
   
@@ -29,7 +29,7 @@ void util_disasm(struct _util_context *util_context, char *token)
     end);
 }
 
-void util_disasm_range(struct _util_context *util_context, int start, int end)
+void util_disasm_range(UtilContext *util_context, int start, int end)
 {
   uint32_t page_size,page_mask;
   int curr_start = start;

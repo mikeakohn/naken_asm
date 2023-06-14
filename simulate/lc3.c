@@ -43,9 +43,9 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
-static int execute_instruction(struct _simulate *simulate, uint16_t opcode)
+static int execute_instruction(Simulate *simulate, uint16_t opcode)
 {
-  struct _simulate_lc3 *simulate_lc3 = (struct _simulate_lc3 *)simulate->context;
+  SimulateLc3 *simulate_lc3 = (SimulateLc3 *)simulate->context;
   int r0, r1, r2;
   uint16_t address;
   int16_t result;
@@ -309,12 +309,11 @@ static int get_reg(char *reg_string)
   return reg_string[1] - '0';
 }
 
-struct _simulate *simulate_init_lc3(struct _memory *memory)
+Simulate *simulate_init_lc3(struct _memory *memory)
 {
-struct _simulate *simulate;
+Simulate *simulate;
 
-  simulate = (struct _simulate *)malloc(sizeof(struct _simulate_lc3) +
-                                        sizeof(struct _simulate));
+  simulate = (Simulate *)malloc(sizeof(SimulateLc3) + sizeof(Simulate));
 
   simulate->simulate_init = simulate_init_lc3;
   simulate->simulate_free = simulate_free_lc3;
@@ -337,15 +336,15 @@ struct _simulate *simulate;
   return simulate;
 }
 
-void simulate_push_lc3(struct _simulate *simulate, uint32_t value)
+void simulate_push_lc3(Simulate *simulate, uint32_t value)
 {
-  //struct _simulate_lc3 *simulate_lc3 = (struct _simulate_lc3 *)simulate->context;
+  //SimulateLc3 *simulate_lc3 = (SimulateLc3 *)simulate->context;
 
 }
 
-int simulate_set_reg_lc3(struct _simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_lc3(Simulate *simulate, char *reg_string, uint32_t value)
 {
-  struct _simulate_lc3 *simulate_lc3 = (struct _simulate_lc3 *)simulate->context;
+  SimulateLc3 *simulate_lc3 = (SimulateLc3 *)simulate->context;
 
   int reg = get_reg(reg_string);
 
@@ -356,9 +355,9 @@ int simulate_set_reg_lc3(struct _simulate *simulate, char *reg_string, uint32_t 
   return 0;
 }
 
-uint32_t simulate_get_reg_lc3(struct _simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_lc3(Simulate *simulate, char *reg_string)
 {
-  struct _simulate_lc3 *simulate_lc3 = (struct _simulate_lc3 *)simulate->context;
+  SimulateLc3 *simulate_lc3 = (SimulateLc3 *)simulate->context;
   int reg = get_reg(reg_string);
 
   if (reg < 0) { return -1; }
@@ -366,16 +365,16 @@ uint32_t simulate_get_reg_lc3(struct _simulate *simulate, char *reg_string)
   return simulate_lc3->reg[reg];
 }
 
-void simulate_set_pc_lc3(struct _simulate *simulate, uint32_t value)
+void simulate_set_pc_lc3(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_lc3 *simulate_lc3 = (struct _simulate_lc3 *)simulate->context;
+  SimulateLc3 *simulate_lc3 = (SimulateLc3 *)simulate->context;
 
   simulate_lc3->pc = value; 
 }
 
-void simulate_reset_lc3(struct _simulate *simulate)
+void simulate_reset_lc3(Simulate *simulate)
 {
-  struct _simulate_lc3 *simulate_lc3 = (struct _simulate_lc3 *)simulate->context;
+  SimulateLc3 *simulate_lc3 = (SimulateLc3 *)simulate->context;
 
   memset(simulate_lc3->reg, 0, sizeof(uint16_t) * 8);
 
@@ -383,19 +382,19 @@ void simulate_reset_lc3(struct _simulate *simulate)
   simulate_lc3->psr = 0;
 }
 
-void simulate_free_lc3(struct _simulate *simulate)
+void simulate_free_lc3(Simulate *simulate)
 {
   free(simulate);
 }
 
-int simulate_dumpram_lc3(struct _simulate *simulate, int start, int end)
+int simulate_dumpram_lc3(Simulate *simulate, int start, int end)
 {
   return -1;
 }
 
-void simulate_dump_registers_lc3(struct _simulate *simulate)
+void simulate_dump_registers_lc3(Simulate *simulate)
 {
-  struct _simulate_lc3 *simulate_lc3 = (struct _simulate_lc3 *)simulate->context;
+  SimulateLc3 *simulate_lc3 = (SimulateLc3 *)simulate->context;
   int reg;
 
   printf("PC=0x%04x  N=%d Z=%d P=%d   PRIV=%d  PRIORITY=%d\n",
@@ -415,9 +414,9 @@ void simulate_dump_registers_lc3(struct _simulate *simulate)
   printf("\n");
 }
 
-int simulate_run_lc3(struct _simulate *simulate, int max_cycles, int step)
+int simulate_run_lc3(Simulate *simulate, int max_cycles, int step)
 {
-  struct _simulate_lc3 *simulate_lc3 = (struct _simulate_lc3 *)simulate->context;
+  SimulateLc3 *simulate_lc3 = (SimulateLc3 *)simulate->context;
   char instruction[128];
   uint16_t opcode;
   int cycles = 0;

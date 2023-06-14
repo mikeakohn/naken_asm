@@ -130,9 +130,9 @@ static void sp_inc(int *sp)
   if (*sp > 0xffff) *sp = 0;
 }
 
-static uint16_t get_data(struct _simulate *simulate, int reg, int As, int bw)
+static uint16_t get_data(Simulate *simulate, int reg, int As, int bw)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
 
   if (reg == 3) // CG
   {
@@ -242,9 +242,9 @@ static uint16_t get_data(struct _simulate *simulate, int reg, int As, int bw)
   return 0;
 }
 
-static void update_reg(struct _simulate *simulate, int reg, int mode, int bw)
+static void update_reg(Simulate *simulate, int reg, int mode, int bw)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
 
   if (reg == 0) { return; }
   if (reg == 2) { return; }
@@ -263,9 +263,9 @@ static void update_reg(struct _simulate *simulate, int reg, int mode, int bw)
   }
 }
 
-static int put_data(struct _simulate *simulate, int PC, int reg, int mode, int bw, uint32_t data)
+static int put_data(Simulate *simulate, int PC, int reg, int mode, int bw, uint32_t data)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
 
   if (mode == 0) // Rn
   {
@@ -357,9 +357,9 @@ static int put_data(struct _simulate *simulate, int PC, int reg, int mode, int b
   return -1;
 }
 
-static int one_operand_exe(struct _simulate *simulate, uint16_t opcode)
+static int one_operand_exe(Simulate *simulate, uint16_t opcode)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
   int o;
   int reg;
   int As,bw;
@@ -448,9 +448,9 @@ static int one_operand_exe(struct _simulate *simulate, uint16_t opcode)
   return 0;
 }
 
-static int relative_jump_exe(struct _simulate *simulate, uint16_t opcode)
+static int relative_jump_exe(Simulate *simulate, uint16_t opcode)
 {
-  struct _simulate_msp430 *simulate_msp430=(struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430=(SimulateMsp430 *)simulate->context;
   int o;
 
   o = (opcode & 0x1c00) >> 10;
@@ -496,9 +496,9 @@ static int relative_jump_exe(struct _simulate *simulate, uint16_t opcode)
   return 0;
 }
 
-static int two_operand_exe(struct _simulate *simulate, uint16_t opcode)
+static int two_operand_exe(Simulate *simulate, uint16_t opcode)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
   int o;
   int src_reg,dst_reg;
   int Ad,As,bw;
@@ -679,12 +679,11 @@ static int two_operand_exe(struct _simulate *simulate, uint16_t opcode)
   return 0;
 }
 
-struct _simulate *simulate_init_msp430(struct _memory *memory)
+Simulate *simulate_init_msp430(struct _memory *memory)
 {
-  struct _simulate *simulate;
+  Simulate *simulate;
 
-  simulate = (struct _simulate *)malloc(sizeof(struct _simulate_msp430) +
-                                        sizeof(struct _simulate));
+  simulate = (Simulate *)malloc(sizeof(SimulateMsp430) + sizeof(Simulate));
 
   simulate->simulate_init = simulate_init_msp430;
   simulate->simulate_free = simulate_free_msp430;
@@ -707,9 +706,9 @@ struct _simulate *simulate_init_msp430(struct _memory *memory)
   return simulate;
 }
 
-void simulate_push_msp430(struct _simulate *simulate, uint32_t value)
+void simulate_push_msp430(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
 
   simulate_msp430->reg[1] -= 2;
   WRITE_RAM(simulate_msp430->reg[1], value & 0xff);
@@ -719,9 +718,9 @@ void simulate_push_msp430(struct _simulate *simulate, uint32_t value)
 static char *flags[] = { "C", "Z", "N", "GIE", "CPUOFF", "OSCOFF", "SCG0",
                        "SCG1", "V" };
 
-int simulate_set_reg_msp430(struct _simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_msp430(Simulate *simulate, char *reg_string, uint32_t value)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
   int reg,n;
 
   while(*reg_string == ' ') { reg_string++; }
@@ -747,9 +746,9 @@ int simulate_set_reg_msp430(struct _simulate *simulate, char *reg_string, uint32
   return 0;
 }
 
-uint32_t simulate_get_reg_msp430(struct _simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_msp430(Simulate *simulate, char *reg_string)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
   int reg;
 
   reg = get_register_msp430(reg_string);
@@ -762,16 +761,16 @@ uint32_t simulate_get_reg_msp430(struct _simulate *simulate, char *reg_string)
   return simulate_msp430->reg[reg];
 }
 
-void simulate_set_pc_msp430(struct _simulate *simulate, uint32_t value)
+void simulate_set_pc_msp430(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
 
   simulate_msp430->reg[0] = value;
 }
 
-void simulate_reset_msp430(struct _simulate *simulate)
+void simulate_reset_msp430(Simulate *simulate)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
 
   simulate->cycle_count = 0;
   simulate->nested_call_count = 0;
@@ -784,20 +783,20 @@ void simulate_reset_msp430(struct _simulate *simulate)
   simulate->break_point = -1;
 }
 
-void simulate_free_msp430(struct _simulate *simulate)
+void simulate_free_msp430(Simulate *simulate)
 {
   //memory_free(simulate->memory);
   free(simulate);
 }
 
-int simulate_dumpram_msp430(struct _simulate *simulate, int start, int end)
+int simulate_dumpram_msp430(Simulate *simulate, int start, int end)
 {
   return -1;
 }
 
-void simulate_dump_registers_msp430(struct _simulate *simulate)
+void simulate_dump_registers_msp430(Simulate *simulate)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
   int n,sp = simulate_msp430->reg[1];
 
   printf("\nSimulation Register Dump                                  Stack\n");
@@ -848,9 +847,9 @@ void simulate_dump_registers_msp430(struct _simulate *simulate)
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }
 
-int simulate_run_msp430(struct _simulate *simulate, int max_cycles, int step)
+int simulate_run_msp430(Simulate *simulate, int max_cycles, int step)
 {
-  struct _simulate_msp430 *simulate_msp430 = (struct _simulate_msp430 *)simulate->context;
+  SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
   char instruction[128];
   uint16_t opcode;
   int cycles = 0;

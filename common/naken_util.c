@@ -257,7 +257,7 @@ static void print_help()
 int main(int argc, char *argv[])
 {
   FILE *src = NULL;
-  struct _util_context util_context;
+  UtilContext util_context;
   char *state = state_stopped;
   char command[1024];
 #ifdef READLINE
@@ -343,48 +343,15 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  memset(&util_context, 0, sizeof(struct _util_context));
-  memory_init(&util_context.memory, 1 << 20, 1);
-  symbols_init(&util_context.symbols);
-
-#ifndef NO_MSP430
-  util_context.disasm_range = disasm_range_msp430;
-  util_context.simulate = simulate_init_msp430(&util_context.memory);
-  util_context.flags = 0;
-  util_context.bytes_per_address = 1;
-  util_context.alignment = 1;
-#else
-  util_context.disasm_range = cpu_list[0].disasm_range;
-  util_context.simulate = simulate_init_null(&util_context.memory);
-  util_context.flags = cpu_list[0].flags;
-  util_context.bytes_per_address = cpu_list[0].bytes_per_address;
-  util_context.alignment = cpu_list[0].alignment;
-#endif
+  util_init(&util_context);
 
   for (i = 1; i < argc; i++)
   {
     if (argv[i][0] == '-')
     {
-      if (util_set_cpu_by_name(&util_context, argv[i] + 1) == 1)
-      {
-        continue;
-      }
+      if (util_set_cpu_by_name(&util_context, argv[i] + 1) == 1) { continue; }
     }
 
-    if (strcmp(argv[i], "-s") == 0)
-    {
-      if (src != NULL)
-      {
-        fclose(src);
-        src = fopen(argv[++i], "rb");
-
-        if (src == NULL)
-        {
-          printf("Could not open source file %s\n", argv[i]);
-        }
-      }
-    }
-      else
     if (strcmp(argv[i], "-disasm") == 0)
     {
        strcpy(command, "disasm");
@@ -669,7 +636,10 @@ int main(int argc, char *argv[])
         util_context.simulate->step_mode = 1;
       }
 
-      int ret = util_context.simulate->simulate_run(util_context.simulate, (command[3] == 0) ? -1 : atoi(command + 4), 0);
+      int ret = util_context.simulate->simulate_run(
+        util_context.simulate,
+        command[3] == 0 ? -1 : atoi(command + 4),
+        0);
 
       state = state_stopped;
 
@@ -905,11 +875,6 @@ int main(int argc, char *argv[])
   if (src != NULL) { fclose(src); }
 
   symbols_free(&util_context.symbols);
-
-  if (util_context.debug_line_offset !=NULL)
-  {
-    free(util_context.debug_line_offset);
-  }
 
   if (util_context.simulate != NULL)
   {

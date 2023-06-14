@@ -88,9 +88,9 @@ static void sp_inc(int *sp)
 }
 #endif
 
-static int simulate_avr8_word_count(struct _simulate *simulate)
+static int simulate_avr8_word_count(Simulate *simulate)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   uint16_t opcode = READ_OPCODE(simulate_avr8->pc);
   int n;
 
@@ -115,12 +115,11 @@ static int simulate_avr8_word_count(struct _simulate *simulate)
   return 0;
 }
 
-struct _simulate *simulate_init_avr8(struct _memory *memory)
+Simulate *simulate_init_avr8(struct _memory *memory)
 {
-  struct _simulate *simulate;
+  Simulate *simulate;
 
-  simulate = (struct _simulate *)malloc(sizeof(struct _simulate_avr8) +
-                                        sizeof(struct _simulate));
+  simulate = (Simulate *)malloc(sizeof(SimulateAvr8) + sizeof(Simulate));
 
   simulate->simulate_init = simulate_init_avr8;
   simulate->simulate_free = simulate_free_avr8;
@@ -141,23 +140,23 @@ struct _simulate *simulate_init_avr8(struct _memory *memory)
   simulate->show = 1;       // Show simulation
   simulate->auto_run = 0;   // Will this program stop on a ret from main
 
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   simulate_avr8->pc = 0;
   simulate_avr8->sp = 0;
   return simulate;
 }
 
-void simulate_push_avr8(struct _simulate *simulate, uint32_t value)
+void simulate_push_avr8(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
 
   simulate_avr8->sp -= 1;
   PUSH_STACK(value);
 }
 
-int simulate_set_reg_avr8(struct _simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_avr8(Simulate *simulate, char *reg_string, uint32_t value)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int reg;
 
   while(*reg_string == ' ') { reg_string++; }
@@ -187,9 +186,9 @@ int simulate_set_reg_avr8(struct _simulate *simulate, char *reg_string, uint32_t
   return 0;
 }
 
-uint32_t simulate_get_reg_avr8(struct _simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_avr8(Simulate *simulate, char *reg_string)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int reg;
 
   reg = get_register_avr8(reg_string);
@@ -202,16 +201,16 @@ uint32_t simulate_get_reg_avr8(struct _simulate *simulate, char *reg_string)
   return simulate_avr8->reg[reg];
 }
 
-void simulate_set_pc_avr8(struct _simulate *simulate, uint32_t value)
+void simulate_set_pc_avr8(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
 
   simulate_avr8->pc = value; 
 }
 
-void simulate_reset_avr8(struct _simulate *simulate)
+void simulate_reset_avr8(Simulate *simulate)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
 
   simulate->cycle_count = 0;
   simulate->nested_call_count = 0;
@@ -225,15 +224,15 @@ void simulate_reset_avr8(struct _simulate *simulate)
   simulate->break_point = -1;
 }
 
-void simulate_free_avr8(struct _simulate *simulate)
+void simulate_free_avr8(Simulate *simulate)
 {
   //memory_free(simulate->memory);
   free(simulate);
 }
 
-int simulate_dumpram_avr8(struct _simulate *simulate, int start, int end)
+int simulate_dumpram_avr8(Simulate *simulate, int start, int end)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int n,count;
 
   count = 0;
@@ -250,9 +249,9 @@ int simulate_dumpram_avr8(struct _simulate *simulate, int start, int end)
 }
 
 // cat table/table_avr8.c | grep OP_NONE | sed 's/^.*AVR8_/AVR8_/' | sed 's/ .*$/:/'
-static int simulate_execute_avr8_op_none(struct _simulate *simulate, struct _table_avr8 *table_avr8)
+static int simulate_execute_avr8_op_none(Simulate *simulate, struct _table_avr8 *table_avr8)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
 
   switch(table_avr8->id)
   {
@@ -346,9 +345,9 @@ static int simulate_execute_avr8_op_none(struct _simulate *simulate, struct _tab
   return -1;
 }
 
-static void simulate_execute_avr8_set_sreg_arith(struct _simulate *simulate, uint8_t rd_prev, uint8_t rd, int k)
+static void simulate_execute_avr8_set_sreg_arith(Simulate *simulate, uint8_t rd_prev, uint8_t rd, int k)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int Rd7 = (rd_prev & 0x80) >> 7;
   int R7 = (rd & 0x80) >> 7;
   int K7 = (k & 0x80) >> 7;
@@ -369,9 +368,9 @@ static void simulate_execute_avr8_set_sreg_arith(struct _simulate *simulate, uin
   if (H == 1) { SREG_SET(SREG_H); } else { SREG_CLR(SREG_H); }
 }
 
-static void simulate_execute_avr8_set_sreg_arith_sub(struct _simulate *simulate, uint8_t rd_prev, uint8_t rd, int k)
+static void simulate_execute_avr8_set_sreg_arith_sub(Simulate *simulate, uint8_t rd_prev, uint8_t rd, int k)
 {
-struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int Rd7 = (rd_prev & 0x80) >> 7;
   int R7 = (rd & 0x80) >> 7;
   int K7 = (k & 0x80) >> 7;
@@ -392,9 +391,9 @@ struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->contex
   if (H == 1) { SREG_SET(SREG_H); } else { SREG_CLR(SREG_H); }
 }
 
-static void simulate_execute_avr8_set_sreg_logic(struct _simulate *simulate, uint8_t rd_prev, uint8_t rd, int k)
+static void simulate_execute_avr8_set_sreg_logic(Simulate *simulate, uint8_t rd_prev, uint8_t rd, int k)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int R7 = (rd & 0x80) >> 7;
   int N = R7; 
   int S = N ^ 0;
@@ -405,9 +404,9 @@ static void simulate_execute_avr8_set_sreg_logic(struct _simulate *simulate, uin
   if (S == 1) { SREG_SET(SREG_S); } else { SREG_CLR(SREG_S); }
 }
 
-static void simulate_execute_avr8_set_sreg_reg16(struct _simulate *simulate, int rd_prev, int rd)
+static void simulate_execute_avr8_set_sreg_reg16(Simulate *simulate, int rd_prev, int rd)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int R15 = (rd & 0x8000) >> 15;
   int Rdh7 = (rd_prev & 0x0080) >> 7;
   int N = R15; 
@@ -422,26 +421,26 @@ static void simulate_execute_avr8_set_sreg_reg16(struct _simulate *simulate, int
   if (C == 1) { SREG_SET(SREG_C); } else { SREG_CLR(SREG_C); }
 }
 
-static void simulate_execute_avr8_set_sreg_common(struct _simulate *simulate, uint8_t value)
+static void simulate_execute_avr8_set_sreg_common(Simulate *simulate, uint8_t value)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int N = (value & 0x80) >> 7;
 
   if (N == 1) { SREG_SET(SREG_N); } else { SREG_CLR(SREG_N); }
   if (value == 0) { SREG_SET(SREG_Z); } else { SREG_CLR(SREG_Z); }
 }
 
-static void simulate_execute_avr8_set_sreg_sign(struct _simulate *simulate)
+static void simulate_execute_avr8_set_sreg_sign(Simulate *simulate)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int S = GET_SREG(SREG_N) ^ GET_SREG(SREG_V);
 
   if (S == 1) { SREG_SET(SREG_S); } else { SREG_CLR(SREG_S); }
 }
 
-static int simulate_execute_avr8_op_branch_s_k(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+static int simulate_execute_avr8_op_branch_s_k(Simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int k = (opcode >> 3) & 0x7f;
   int s = (opcode & 0x7);
 
@@ -460,9 +459,9 @@ static int simulate_execute_avr8_op_branch_s_k(struct _simulate *simulate, struc
   return -1;
 }
 
-static int simulate_execute_avr8_op_branch_k(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+static int simulate_execute_avr8_op_branch_k(Simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int k = (opcode >> 3) & 0x7f;
 
   if ((k & 0x40) != 0) { k = (char)(0x80 | k); }
@@ -528,9 +527,9 @@ static int simulate_execute_avr8_op_branch_k(struct _simulate *simulate, struct 
   return -1;
 }
 
-static int simulate_execute_avr8_op_two_reg(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+static int simulate_execute_avr8_op_two_reg(Simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int rd = (opcode >> 4) & 0x1f;
   int rr = ((opcode & 0x200) >> 5) | ((opcode) & 0xf);
   uint8_t prev = simulate_avr8->reg[rd];
@@ -602,9 +601,9 @@ static int simulate_execute_avr8_op_two_reg(struct _simulate *simulate, struct _
 }
 
 
-static int simulate_execute_avr8_op_reg_imm(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+static int simulate_execute_avr8_op_reg_imm(Simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int rd = ((opcode >> 4) & 0xf) + 16;
   int k = ((opcode & 0xf00) >> 4) | (opcode & 0xf);
   uint8_t prev = simulate_avr8->reg[rd];
@@ -648,9 +647,9 @@ static int simulate_execute_avr8_op_reg_imm(struct _simulate *simulate, struct _
   return table_avr8->cycles_min;
 }
 
-static int simulate_execute_avr8_op_one_reg(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+static int simulate_execute_avr8_op_one_reg(Simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int rd = (opcode >> 4) & 0x1f;
   int prev = simulate_avr8->reg[rd];
 
@@ -727,9 +726,9 @@ static int simulate_execute_avr8_op_one_reg(struct _simulate *simulate, struct _
   return table_avr8->cycles_min;
 }
 
-static int simulate_execute_avr8_op_reg_bit(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+static int simulate_execute_avr8_op_reg_bit(Simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int rd = (opcode >> 4) & 0x1f;
   int k = opcode & 0x7;
   int t;
@@ -766,9 +765,9 @@ static int simulate_execute_avr8_op_reg_bit(struct _simulate *simulate, struct _
   return table_avr8->cycles_min;
 }
 
-static int simulate_execute_avr8_op_reg_imm_word(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+static int simulate_execute_avr8_op_reg_imm_word(Simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int prev_reg16,reg16;
   int rd = (((opcode >> 4) & 0x3) << 1) + 24;
   int k = ((opcode & 0xc0) >> 2) | (opcode & 0xf);
@@ -790,9 +789,9 @@ static int simulate_execute_avr8_op_reg_imm_word(struct _simulate *simulate, str
   return table_avr8->cycles_min;
 }
 
-static int simulate_execute_avr8_op_ioreg_bit(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+static int simulate_execute_avr8_op_ioreg_bit(Simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int a = (opcode >> 3) & 0x1f;
   int k = opcode & 0x7;
 
@@ -825,9 +824,9 @@ static int simulate_execute_avr8_op_ioreg_bit(struct _simulate *simulate, struct
   return table_avr8->cycles_min;
 }
 
-static int simulate_execute_avr8_op_sreg_bit(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+static int simulate_execute_avr8_op_sreg_bit(Simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int k = (opcode >> 4) & 0x7;
 
 
@@ -844,9 +843,9 @@ static int simulate_execute_avr8_op_sreg_bit(struct _simulate *simulate, struct 
   return table_avr8->cycles_min;
 }
 
-static int simulate_execute_avr8_op_relative(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+static int simulate_execute_avr8_op_relative(Simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int k = opcode & 0xfff;
 
   if (k & 0x800) { k = -(((~k) & 0xfff) + 1); }
@@ -865,10 +864,10 @@ static int simulate_execute_avr8_op_relative(struct _simulate *simulate, struct 
   return table_avr8->cycles_min;
 }
 
-static int simulate_execute_avr8_op_jump(struct _simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
+static int simulate_execute_avr8_op_jump(Simulate *simulate, struct _table_avr8 *table_avr8, uint16_t opcode)
 {
-struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
-int k = ((((opcode & 0x1f0) >> 3) | (opcode & 0x1)) << 16) | READ_OPCODE(simulate_avr8->pc);
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
+  int k = ((((opcode & 0x1f0) >> 3) | (opcode & 0x1)) << 16) | READ_OPCODE(simulate_avr8->pc);
 
   simulate_avr8->pc++;
 
@@ -884,13 +883,13 @@ int k = ((((opcode & 0x1f0) >> 3) | (opcode & 0x1)) << 16) | READ_OPCODE(simulat
   return table_avr8->cycles_min;
 }
 
-static int simulate_execute_avr8(struct _simulate *simulate)
+static int simulate_execute_avr8(Simulate *simulate)
 {
-struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
-uint16_t opcode;
-int cycles = -1;
-int rd,rr,k;
-int t;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
+  uint16_t opcode;
+  int cycles = -1;
+  int rd, rr, k;
+  int t;
 
   //pc = simulate_avr8->pc * 2;
   opcode = READ_OPCODE(simulate_avr8->pc);
@@ -1092,9 +1091,9 @@ int t;
   return cycles;
 }
 
-void simulate_dump_registers_avr8(struct _simulate *simulate)
+void simulate_dump_registers_avr8(Simulate *simulate)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int n;
 
   printf("\nSimulation Register Dump\n");
@@ -1133,9 +1132,9 @@ void simulate_dump_registers_avr8(struct _simulate *simulate)
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }
 
-int simulate_run_avr8(struct _simulate *simulate, int max_cycles, int step)
+int simulate_run_avr8(Simulate *simulate, int max_cycles, int step)
 {
-  struct _simulate_avr8 *simulate_avr8 = (struct _simulate_avr8 *)simulate->context;
+  SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   char instruction[128];
   int cycles = 0;
   int ret;

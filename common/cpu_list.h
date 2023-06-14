@@ -15,9 +15,9 @@
 #include "common/linker.h"
 #include "simulate/common.h"
 
-struct _asm_context;
-struct _memory;
-struct _simulate;
+//struct _asm_context;
+//struct _memory;
+//struct _simulate;
 
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
 typedef int (*parse_directive_t)(struct _asm_context *, const char *);

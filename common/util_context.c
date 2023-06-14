@@ -17,6 +17,7 @@
 #include "common/assembler.h"
 #include "common/cpu_list.h"
 #include "common/util_context.h"
+#include "disasm/msp430.h"
 
 // FIXME - How to do this better?
 #if 0
@@ -108,8 +109,29 @@ static char *util_get_hex(char *token, uint32_t *num)
   return token + s;
 }
 
+void util_init(UtilContext *util_context)
+{
+  memset(util_context, 0, sizeof(UtilContext));
+  memory_init(&util_context->memory, 1 << 20, 1);
+  symbols_init(&util_context->symbols);
+  
+#ifndef NO_MSP430
+  util_context->disasm_range = disasm_range_msp430;
+  util_context->simulate = simulate_init_msp430(&util_context->memory);
+  util_context->flags = 0;
+  util_context->bytes_per_address = 1;
+  util_context->alignment = 1;
+#else 
+  util_context->disasm_range = cpu_list[0].disasm_range;
+  util_context->simulate = simulate_init_null(&util_context->memory);
+  util_context->flags = cpu_list[0].flags;
+  util_context->bytes_per_address = cpu_list[0].bytes_per_address;
+  util_context->alignment = cpu_list[0].alignment;
+#endif
+}
+
 int util_get_range(
-  struct _util_context *util_context,
+  UtilContext *util_context,
   char *token,
   uint32_t *start,
   uint32_t *end)
@@ -176,7 +198,7 @@ int util_get_range(
   return 0;
 }
 
-int util_set_cpu_by_name(struct _util_context *util_context, const char *name)
+int util_set_cpu_by_name(UtilContext *util_context, const char *name)
 {
   int n = 0;
 
@@ -267,7 +289,7 @@ char *util_get_num(char *token, uint32_t *num)
 }
 
 char *util_get_address(
-  struct _util_context *util_context,
+  UtilContext *util_context,
   char *token,
   uint32_t *address)
 {
@@ -292,7 +314,7 @@ char *util_get_address(
   return token;
 }
 
-void util_print8(struct _util_context *util_context, char *token)
+void util_print8(UtilContext *util_context, char *token)
 {
   char chars[20];
   uint32_t start, end;
@@ -340,7 +362,7 @@ void util_print8(struct _util_context *util_context, char *token)
   }
 }
 
-void util_print16(struct _util_context *util_context, char *token)
+void util_print16(UtilContext *util_context, char *token)
 {
   char chars[20];
   uint32_t start, end;
@@ -411,7 +433,7 @@ void util_print16(struct _util_context *util_context, char *token)
   }
 }
 
-void util_print32(struct _util_context *util_context, char *token)
+void util_print32(UtilContext *util_context, char *token)
 {
   char chars[20];
   uint32_t start, end;
@@ -481,7 +503,7 @@ void util_print32(struct _util_context *util_context, char *token)
   }
 }
 
-void util_write8(struct _util_context *util_context, char *token)
+void util_write8(UtilContext *util_context, char *token)
 {
   uint32_t address = 0;
   uint32_t num;
@@ -516,7 +538,7 @@ void util_write8(struct _util_context *util_context, char *token)
     count, n / util_context->bytes_per_address);
 }
 
-void util_write16(struct _util_context *util_context, char *token)
+void util_write16(UtilContext *util_context, char *token)
 {
   uint32_t address = 0;
   uint32_t num;
@@ -561,7 +583,7 @@ void util_write16(struct _util_context *util_context, char *token)
     count, n / util_context->bytes_per_address);
 }
 
-void util_write32(struct _util_context *util_context, char *token)
+void util_write32(UtilContext *util_context, char *token)
 {
   uint32_t address = 0;
   uint32_t num;

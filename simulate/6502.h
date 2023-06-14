@@ -19,22 +19,22 @@
 #include "common/memory.h"
 #include "simulate/common.h"
 
-struct _simulate_6502
+typedef struct _simulate_6502
 {
   // Define registers and anything 6502 specific here
   int reg_a, reg_x, reg_y, reg_sr, reg_pc, reg_sp;
-};
+} Simulate6502;
 
-struct _simulate *simulate_init_6502(struct _memory *memory);
-void simulate_free_6502(struct _simulate *simulate);
-int simulate_dumpram_6502(struct _simulate *simulate, int start, int end);
-void simulate_push_6502(struct _simulate *simulate, uint32_t value);
-int simulate_set_reg_6502(struct _simulate *simulate, char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_6502(struct _simulate *simulate, char *reg_string);
-void simulate_set_pc_6502(struct _simulate *simulate, uint32_t value);
-void simulate_reset_6502(struct _simulate *simulate);
-void simulate_dump_registers_6502(struct _simulate *simulate);
-int simulate_run_6502(struct _simulate *simulate, int max_cycles, int step);
+Simulate *simulate_init_6502(struct _memory *memory);
+void simulate_free_6502(Simulate *simulate);
+int simulate_dumpram_6502(Simulate *simulate, int start, int end);
+void simulate_push_6502(Simulate *simulate, uint32_t value);
+int simulate_set_reg_6502(Simulate *simulate, char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_6502(Simulate *simulate, char *reg_string);
+void simulate_set_pc_6502(Simulate *simulate, uint32_t value);
+void simulate_reset_6502(Simulate *simulate);
+void simulate_dump_registers_6502(Simulate *simulate);
+int simulate_run_6502(Simulate *simulate, int max_cycles, int step);
 
 #endif
 

@@ -27,7 +27,7 @@ typedef void (*simulate_reset_t)(struct _simulate *);
 typedef void (*simulate_dump_registers_t)(struct _simulate *);
 typedef int (*simulate_run_t)(struct _simulate *, int max_cycles, int step);
 
-struct _simulate
+typedef struct _simulate
 {
   struct _memory *memory;
   int cycle_count;
@@ -51,7 +51,7 @@ struct _simulate
   simulate_run_t simulate_run;
 
   uint8_t context[];
-};
+} Simulate;
 
 #endif
 

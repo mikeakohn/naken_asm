@@ -14,12 +14,12 @@
 
 #include "common/util_context.h"
 
-void sim_show_info(struct _util_context *util_context);
-int sim_set_register(struct _util_context *util_context, char *command);
-int sim_clear_flag(struct _util_context *util_context, char *command);
-int sim_set_speed(struct _util_context *util_context, char *command);
-int sim_stack_push(struct _util_context *util_context, char *command);
-int sim_set_breakpoint(struct _util_context *util_context, char *command);
+void sim_show_info(UtilContext *util_context);
+int sim_set_register(UtilContext *util_context, char *command);
+int sim_clear_flag(UtilContext *util_context, char *command);
+int sim_set_speed(UtilContext *util_context, char *command);
+int sim_stack_push(UtilContext *util_context, char *command);
+int sim_set_breakpoint(UtilContext *util_context, char *command);
  
 #endif
 

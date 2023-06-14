@@ -63,9 +63,9 @@ extern struct _table_6502_opcodes table_6502_opcodes[];
 static int stop_running = 0;
 
 // return calculated address for each mode
-static int calc_address(struct _simulate *simulate, int address, int mode)
+static int calc_address(Simulate *simulate, int address, int mode)
 {
-  struct _simulate_6502 *simulate_6502 = (struct _simulate_6502 *)simulate->context;
+  Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
 
   int lo = READ_RAM(address);
   int hi = READ_RAM((address + 1) & 0xFFFF);
@@ -105,9 +105,9 @@ static int calc_address(struct _simulate *simulate, int address, int mode)
   }
 }
 
-static int operand_exe(struct _simulate *simulate, int opcode)
+static int operand_exe(Simulate *simulate, int opcode)
 {
-  struct _simulate_6502 *simulate_6502 = (struct _simulate_6502 *)simulate->context;
+  Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
 
   if (opcode < 0 || opcode > 0xFF)
     return -1;
@@ -688,11 +688,11 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
-struct _simulate *simulate_init_6502(struct _memory *memory)
+Simulate *simulate_init_6502(struct _memory *memory)
 {
-  struct _simulate *simulate;
+  Simulate *simulate;
 
-  simulate = (struct _simulate *)malloc(sizeof(struct _simulate_6502)+sizeof(struct _simulate));
+  simulate = (Simulate *)malloc(sizeof(Simulate6502) + sizeof(Simulate));
 
   simulate->simulate_init = simulate_init_6502;
   simulate->simulate_free = simulate_free_6502;
@@ -714,18 +714,18 @@ struct _simulate *simulate_init_6502(struct _memory *memory)
   return simulate;
 }
 
-void simulate_push_6502(struct _simulate *simulate, uint32_t value)
+void simulate_push_6502(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_6502 *simulate_6502 = (struct _simulate_6502 *)simulate->context;
+  Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
 
   WRITE_RAM(0x100 + REG_SP, value & 0xFF);
   REG_SP--;
   REG_SP &= 0xFF;
 }
 
-int simulate_set_reg_6502(struct _simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_6502(Simulate *simulate, char *reg_string, uint32_t value)
 {
-  struct _simulate_6502 *simulate_6502 = (struct _simulate_6502 *)simulate->context;
+  Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
 
   // a, x, y, sr, pc, sp
 
@@ -751,9 +751,9 @@ int simulate_set_reg_6502(struct _simulate *simulate, char *reg_string, uint32_t
   return 0;
 }
 
-uint32_t simulate_get_reg_6502(struct _simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_6502(Simulate *simulate, char *reg_string)
 {
-  struct _simulate_6502 *simulate_6502 = (struct _simulate_6502 *)simulate->context;
+  Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
 
   while(*reg_string == ' ') { reg_string++; }
 
@@ -775,16 +775,16 @@ uint32_t simulate_get_reg_6502(struct _simulate *simulate, char *reg_string)
   return -1;
 }
 
-void simulate_set_pc_6502(struct _simulate *simulate, uint32_t value)
+void simulate_set_pc_6502(Simulate *simulate, uint32_t value)
 {
-  struct _simulate_6502 *simulate_6502 = (struct _simulate_6502 *)simulate->context;
+  Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
 
   REG_PC = value;
 }
 
-void simulate_reset_6502(struct _simulate *simulate)
+void simulate_reset_6502(Simulate *simulate)
 {
-  struct _simulate_6502 *simulate_6502 = (struct _simulate_6502 *)simulate->context;
+  Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
 
   simulate->cycle_count = 0;
   simulate->nested_call_count = 0;
@@ -797,20 +797,20 @@ void simulate_reset_6502(struct _simulate *simulate)
   simulate->break_point = -1;
 }
 
-void simulate_free_6502(struct _simulate *simulate)
+void simulate_free_6502(Simulate *simulate)
 {
   //memory_free(simulate->memory);
   free(simulate);
 }
 
-int simulate_dumpram_6502(struct _simulate *simulate, int start, int end)
+int simulate_dumpram_6502(Simulate *simulate, int start, int end)
 {
   return -1;
 }
 
-void simulate_dump_registers_6502(struct _simulate *simulate)
+void simulate_dump_registers_6502(Simulate *simulate)
 {
-  struct _simulate_6502 *simulate_6502 = (struct _simulate_6502 *)simulate->context;
+  Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
 
   int sp = REG_SP;
 
@@ -844,9 +844,9 @@ void simulate_dump_registers_6502(struct _simulate *simulate)
   printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
 }
 
-int simulate_run_6502(struct _simulate *simulate, int max_cycles, int step)
+int simulate_run_6502(Simulate *simulate, int max_cycles, int step)
 {
-  struct _simulate_6502 *simulate_6502 = (struct _simulate_6502 *)simulate->context;
+  Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
   char instruction[128];
   char bytes[16];
 

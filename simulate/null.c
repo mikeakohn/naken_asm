@@ -25,12 +25,11 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
-struct _simulate *simulate_init_null(struct _memory *memory)
+Simulate *simulate_init_null(struct _memory *memory)
 {
-  struct _simulate *simulate;
+  Simulate *simulate;
 
-  simulate = (struct _simulate *)malloc(sizeof(struct _simulate_null) +
-                                        sizeof(struct _simulate));
+  simulate = (Simulate *)malloc(sizeof(SimulateNull) + sizeof(Simulate));
 
   simulate->simulate_init = simulate_init_null;
   simulate->simulate_free = simulate_free_null;
@@ -53,61 +52,61 @@ struct _simulate *simulate_init_null(struct _memory *memory)
   return simulate;
 }
 
-void simulate_push_null(struct _simulate *simulate, uint32_t value)
+void simulate_push_null(Simulate *simulate, uint32_t value)
 {
-  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
+  //SimulateNull *simulate_null = (SimulateNull *)simulate->context;
 
 }
 
-int simulate_set_reg_null(struct _simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_null(Simulate *simulate, char *reg_string, uint32_t value)
 {
-  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
+  //SimulateNull *simulate_null = (SimulateNull *)simulate->context;
 
   return 0;
 }
 
-uint32_t simulate_get_reg_null(struct _simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_null(Simulate *simulate, char *reg_string)
 {
-  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
+  //SimulateNull *simulate_null = (SimulateNull *)simulate->context;
 
   return 0;
 }
 
-void simulate_set_pc_null(struct _simulate *simulate, uint32_t value)
+void simulate_set_pc_null(Simulate *simulate, uint32_t value)
 {
-  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
+  //SimulateNull *simulate_null = (SimulateNull *)simulate->context;
 
 }
 
-void simulate_reset_null(struct _simulate *simulate)
+void simulate_reset_null(Simulate *simulate)
 {
-  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
+  //SimulateNull *simulate_null = (SimulateNull *)simulate->context;
 
 }
 
-void simulate_free_null(struct _simulate *simulate)
+void simulate_free_null(Simulate *simulate)
 {
   free(simulate);
 }
 
-int simulate_dumpram_null(struct _simulate *simulate, int start, int end)
+int simulate_dumpram_null(Simulate *simulate, int start, int end)
 {
   return -1;
 }
 
-void simulate_dump_registers_null(struct _simulate *simulate)
+void simulate_dump_registers_null(Simulate *simulate)
 {
-  //struct _simulate_null *simulate_null = (struct _simulate_msp430 *)simulate->context;
+  //SimulateNull *simulate_null = (SimulateNull *)simulate->context;
 }
 
-int simulate_run_null(struct _simulate *simulate, int max_cycles, int step)
+int simulate_run_null(Simulate *simulate, int max_cycles, int step)
 {
-  //struct _simulate_null *simulate_null = (struct _simulate_null *)simulate->context;
+  //SimulateNull *simulate_null = (SimulateNull *)simulate->context;
 
   stop_running = 0;
   signal(SIGINT, handle_signal);
 
-  while(stop_running == 0)
+  while (stop_running == 0)
   {
     printf("CPU not supported.\n");
     break;

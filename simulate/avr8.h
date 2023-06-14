@@ -29,7 +29,7 @@
 #define RAM_MASK 0x1fff
 #define RAM_SIZE (RAM_MASK + 1)
 
-struct _simulate_avr8
+typedef struct _simulate_avr8
 {
   uint8_t reg[32];
   uint8_t ram[RAM_SIZE];
@@ -38,18 +38,18 @@ struct _simulate_avr8
   int pc;
   int sp;
   uint8_t sreg;
-};
+} SimulateAvr8;
 
-struct _simulate *simulate_init_avr8();
-void simulate_free_avr8(struct _simulate *simulate);
-int simulate_dumpram_avr8(struct _simulate *simulate, int start, int end);
-void simulate_push_avr8(struct _simulate *simulate, uint32_t value);
-int simulate_set_reg_avr8(struct _simulate *simulate, char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_avr8(struct _simulate *simulate, char *reg_string);
-void simulate_set_pc_avr8(struct _simulate *simulate, uint32_t value);
-void simulate_reset_avr8(struct _simulate *simulate);
-void simulate_dump_registers_avr8(struct _simulate *simulate);
-int simulate_run_avr8(struct _simulate *simulate, int max_cycles, int step);
+Simulate *simulate_init_avr8();
+void simulate_free_avr8(Simulate *simulate);
+int simulate_dumpram_avr8(Simulate *simulate, int start, int end);
+void simulate_push_avr8(Simulate *simulate, uint32_t value);
+int simulate_set_reg_avr8(Simulate *simulate, char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_avr8(Simulate *simulate, char *reg_string);
+void simulate_set_pc_avr8(Simulate *simulate, uint32_t value);
+void simulate_reset_avr8(Simulate *simulate);
+void simulate_dump_registers_avr8(Simulate *simulate);
+int simulate_run_avr8(Simulate *simulate, int max_cycles, int step);
 
 #endif
 

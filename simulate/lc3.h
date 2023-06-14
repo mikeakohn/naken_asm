@@ -22,23 +22,23 @@
 #define FLAG_Z 0x0002
 #define FLAG_P 0x0001
 
-struct _simulate_lc3
+typedef struct _simulate_lc3
 {
   uint16_t reg[8];
   uint16_t pc;
   uint16_t psr;
-};
+} SimulateLc3;
 
-struct _simulate *simulate_init_lc3();
-void simulate_free_lc3(struct _simulate *simulate);
-int simulate_dumpram_lc3(struct _simulate *simulate, int start, int end);
-void simulate_push_lc3(struct _simulate *simulate, uint32_t value);
-int simulate_set_reg_lc3(struct _simulate *simulate, char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_lc3(struct _simulate *simulate, char *reg_string);
-void simulate_set_pc_lc3(struct _simulate *simulate, uint32_t value);
-void simulate_reset_lc3(struct _simulate *simulate);
-void simulate_dump_registers_lc3(struct _simulate *simulate);
-int simulate_run_lc3(struct _simulate *simulate, int max_cycles, int step);
+Simulate *simulate_init_lc3();
+void simulate_free_lc3(Simulate *simulate);
+int simulate_dumpram_lc3(Simulate *simulate, int start, int end);
+void simulate_push_lc3(Simulate *simulate, uint32_t value);
+int simulate_set_reg_lc3(Simulate *simulate, char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_lc3(Simulate *simulate, char *reg_string);
+void simulate_set_pc_lc3(Simulate *simulate, uint32_t value);
+void simulate_reset_lc3(Simulate *simulate);
+void simulate_dump_registers_lc3(Simulate *simulate);
+int simulate_run_lc3(Simulate *simulate, int max_cycles, int step);
 
 #endif
 
