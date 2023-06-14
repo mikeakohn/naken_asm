@@ -20,7 +20,7 @@ start:
   pshu cc
 
   tfr x, b
-  tfr d, u 
+  tfr d, u
 
   lda ,x
   lda ,y

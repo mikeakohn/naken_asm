@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,12 +16,12 @@
 #include "disasm/dotnet.h"
 #include "table/dotnet.h"
 
-int get_cycle_count_dotnet(unsigned short int opcode)
-{
-  return -1;
-}
-
-int disasm_dotnet(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_dotnet(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint8_t opcode;
   int n;
@@ -38,7 +38,7 @@ int disasm_dotnet(struct _memory *memory, uint32_t address, char *instruction, i
     opcode = memory_read_m(memory, address + 1);
 
     n = 0;
-    while(table_dotnet_fe[n].instr != NULL)
+    while (table_dotnet_fe[n].instr != NULL)
     {
       if (opcode != table_dotnet_fe[n].opcode)
       {
@@ -46,7 +46,7 @@ int disasm_dotnet(struct _memory *memory, uint32_t address, char *instruction, i
         continue;
       }
 
-      switch(table_dotnet_fe[n].type)
+      switch (table_dotnet_fe[n].type)
       {
         case DOTNET_OP_NONE:
           sprintf(instruction, "%s", table_dotnet_fe[n].instr);
@@ -58,7 +58,7 @@ int disasm_dotnet(struct _memory *memory, uint32_t address, char *instruction, i
   }
 
   n = 0;
-  while(table_dotnet[n].instr != NULL)
+  while (table_dotnet[n].instr != NULL)
   {
     if (opcode != table_dotnet[n].opcode)
     {
@@ -66,7 +66,7 @@ int disasm_dotnet(struct _memory *memory, uint32_t address, char *instruction, i
       continue;
     }
 
-    switch(table_dotnet[n].type)
+    switch (table_dotnet[n].type)
     {
       case DOTNET_OP_NONE:
         sprintf(instruction, "%s", table_dotnet[n].instr);
@@ -79,7 +79,10 @@ int disasm_dotnet(struct _memory *memory, uint32_t address, char *instruction, i
   return 1;
 }
 
-void list_output_dotnet(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_dotnet(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
@@ -103,7 +106,11 @@ void list_output_dotnet(struct _asm_context *asm_context, uint32_t start, uint32
   fprintf(asm_context->list, "0x%04x: %-20s %-40s\n", start, hex, instruction);
 }
 
-void disasm_range_dotnet(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_dotnet(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;
@@ -117,7 +124,7 @@ void disasm_range_dotnet(struct _memory *memory, uint32_t flags, uint32_t start,
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_dotnet(memory, start, instruction, &cycles_min, &cycles_max);
 

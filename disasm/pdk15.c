@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,13 +16,8 @@
 #include "disasm/pdk15.h"
 #include "table/pdk15.h"
 
-int get_cycle_count_pdk15(unsigned short int opcode)
-{
-  return -1;
-}
-
 int disasm_pdk15(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -161,7 +156,7 @@ void list_output_pdk15(
 }
 
 void disasm_range_pdk15(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)

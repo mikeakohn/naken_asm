@@ -47,7 +47,7 @@ inc [99]
 inc [X+73]
 index 5
 jacc 0
-jc 5 
+jc 5
 jmp 10
 jnc 3
 jnz 7

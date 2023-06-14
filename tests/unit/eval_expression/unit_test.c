@@ -9,7 +9,7 @@ int errors = 0;
 
 void test(const char *expression, int answer)
 {
-  struct _asm_context asm_context;
+  AsmContext asm_context;
   int num;
 
   memset(&asm_context, 0, sizeof(asm_context));
@@ -41,7 +41,7 @@ void test(const char *expression, int answer)
 
 void should_fail(const char *expression)
 {
-  struct _asm_context asm_context;
+  AsmContext asm_context;
   int num;
 
   memset(&asm_context, 0, sizeof(asm_context));

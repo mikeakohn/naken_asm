@@ -35,16 +35,16 @@ struct _naken_heap
   };
 */
 
-struct _memory_pool
+typedef struct _memory_pool
 {
   struct _memory_pool *next;
   int len;
   int ptr;
   unsigned char buffer[];
-};
+} MemoryPool;
 
-struct _memory_pool *memory_pool_add(struct _naken_heap *heap, int heap_len);
-void memory_pool_free(struct _memory_pool *memory_pool);
+MemoryPool *memory_pool_add(struct _naken_heap *heap, int heap_len);
+void memory_pool_free(MemoryPool *memory_pool);
 
 #endif
 

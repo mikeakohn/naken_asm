@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -19,13 +19,8 @@
 
 static const char *regs[] = { "sp", "r1", "r2", "r3", "r4", "bp", "sr", "pc" };
 
-int get_cycle_count_unsp(uint16_t opcode)
-{
-  return -1;
-}
-
 static int disasm_alu(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int n,
@@ -239,7 +234,7 @@ static int disasm_alu(
 }
 
 static int disasm_pop(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int n)
@@ -274,7 +269,7 @@ static int disasm_pop(
 }
 
 static int disasm_push(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int n)
@@ -309,7 +304,7 @@ static int disasm_push(
 }
 
 int disasm_unsp(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -333,7 +328,7 @@ int disasm_unsp(
   {
     if ((opcode & table_unsp[n].mask) == table_unsp[n].opcode)
     {
-      switch(table_unsp[n].type)
+      switch (table_unsp[n].type)
       {
         case UNSP_OP_NONE:
         {
@@ -438,7 +433,7 @@ void list_output_unsp(
 
     for (n = 0; n < count; n += 2)
     {
-      uint16_t data = 
+      uint16_t data =
         (memory_read_m(&asm_context->memory, start + n + 1) << 8) |
          memory_read_m(&asm_context->memory, start + n);
 
@@ -457,7 +452,7 @@ void list_output_unsp(
 }
 
 void disasm_range_unsp(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)
@@ -480,7 +475,7 @@ void disasm_range_unsp(
 
     for (n = 0; n < count; n += 2)
     {
-      uint16_t data = 
+      uint16_t data =
         (memory_read_m(memory, start + n + 1) << 8) |
          memory_read_m(memory, start + n);
 

@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -67,7 +67,7 @@ static long read_hunk_header(FILE *in)
   return table_offset;
 }
 
-static int read_code(FILE *in, struct _memory *memory)
+static int read_code(FILE *in, Memory *memory)
 {
   int n;
   uint32_t length = read_int32(in) * 4;
@@ -83,7 +83,7 @@ static int read_code(FILE *in, struct _memory *memory)
   return length;
 }
 
-int read_amiga(char *filename, struct _memory *memory)
+int read_amiga(const char *filename, Memory *memory)
 {
   FILE *in;
 

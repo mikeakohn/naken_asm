@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -18,7 +18,7 @@
 #include "common/tokens.h"
 
 #define VAR_COPY(var_d, var_s) \
-  memcpy(var_d, var_s, sizeof(struct _var));
+  memcpy(var_d, var_s, sizeof(Var));
 
 #define PRINT_STACK() \
 { \
@@ -74,7 +74,7 @@ static int get_operator(char *token, struct _operator *operator)
       else
     if (token[0] == '&')
     {
-      operator->precedence = PREC_AND;  
+      operator->precedence = PREC_AND;
       operator->operation = OPER_AND;
     }
       else
@@ -121,7 +121,7 @@ static int get_operator(char *token, struct _operator *operator)
   return 0;
 }
 
-static int operate(struct _var *var_d, struct _var *var_s, struct _operator *operator)
+static int operate(Var *var_d, Var *var_s, struct _operator *operator)
 {
 #ifdef DEBUG
 printf(">>> OPERATING ON %d/%f/%d (%d) %d/%f/%d\n",
@@ -160,12 +160,12 @@ printf(">>> OPERATING ON %d/%f/%d (%d) %d/%f/%d\n",
   }
 }
 
-static int parse_unary(struct _asm_context *asm_context, int64_t *num, int operation)
+static int parse_unary(AsmContext *asm_context, int64_t *num, int operation)
 {
   char token[TOKENLEN];
   int token_type;
   int64_t temp;
-  struct _var var;
+  Var var;
 
   var_set_int(&var, 0);
 
@@ -219,11 +219,11 @@ static int parse_unary(struct _asm_context *asm_context, int64_t *num, int opera
   return 0;
 }
 
-static int eval_expression_go(struct _asm_context *asm_context, struct _var *var, struct _operator *last_operator)
+static int eval_expression_go(AsmContext *asm_context, Var *var, struct _operator *last_operator)
 {
   char token[TOKENLEN];
   int token_type;
-  struct _var var_stack[3];
+  Var var_stack[3];
   int var_stack_ptr = 1;
   struct _operator operator;
   int last_token_was_op = -1;
@@ -300,12 +300,12 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
         return 0;
       }
 
-      struct _var paren_var;
+      Var paren_var;
       struct _operator paren_operator;
 
       paren_operator.precedence = PREC_UNSET;
       paren_operator.operation = OPER_UNSET;
-      memset(&paren_var, 0, sizeof(struct _var));
+      memset(&paren_var, 0, sizeof(Var));
 
       if (eval_expression_go(asm_context, &paren_var, &paren_operator) != 0)
       {
@@ -466,7 +466,7 @@ PRINT_STACK()
   return 0;
 }
 
-int eval_expression_ex(struct _asm_context *asm_context, struct _var *var)
+int eval_expression_ex(AsmContext *asm_context, Var *var)
 {
   struct _operator operator;
 

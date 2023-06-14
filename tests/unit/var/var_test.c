@@ -39,12 +39,12 @@
   var_set_##type(&var2, b); \
   var_##op(&var1, &var2); \
   CHECK_INT(var1, c, d);
- 
+
 int errors = 0;
 
 int main(int argc, char *argv[])
 {
-  struct _var var1,var2;
+  Var var1, var2;
 
   printf("Testing var.h\n");
 

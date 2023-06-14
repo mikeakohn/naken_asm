@@ -17,13 +17,8 @@
 #include "disasm/4004.h"
 #include "table/4004.h"
 
-int get_cycle_count_4004(uint16_t opcode)
-{
-  return -1;
-}
-
 int disasm_4004(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -174,7 +169,7 @@ void list_output_4004(
 }
 
 void disasm_range_4004(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)

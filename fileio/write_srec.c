@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -107,7 +107,7 @@ static void write_srec_header(FILE *out)
   write_srec_line(out, 0, 0, data, 7);
 }
 
-int write_srec(struct _memory *memory, FILE *out, int srec_size)
+int write_srec(Memory *memory, FILE *out, int srec_size)
 {
   uint8_t data[LINE_LENGTH];
   uint32_t address = 0;

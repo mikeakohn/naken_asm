@@ -16,11 +16,6 @@
 #include "disasm/tms340.h"
 #include "table/tms340.h"
 
-int get_cycle_count_tms340(uint16_t opcode)
-{
-  return -1;
-}
-
 static void get_register(char *s, int n, char r)
 {
   if (n == 15)
@@ -33,7 +28,7 @@ static void get_register(char *s, int n, char r)
   }
 }
 
-int disasm_tms340(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_tms340(Memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   char operand[32];
   char reg[8];
@@ -363,7 +358,7 @@ void list_output_tms340(struct _asm_context *asm_context, uint32_t start, uint32
   fprintf(asm_context->list, "\n");
 }
 
-void disasm_range_tms340(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_tms340(Memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
   uint16_t opcode;

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -613,7 +613,7 @@ static int get_operands_li(
   int num;
   int token_type;
   char token[TOKENLEN];
-  struct _var var;
+  Var var;
   uint64_t temp;
 
   // Get operands

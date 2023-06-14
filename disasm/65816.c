@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2023 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
@@ -31,12 +31,13 @@ static int op_bytes[] =
   2, 3, 3, 2, 3, 2, 2, 3, 2, 3, 2, 2
 };
 
-int get_cycle_count_65816(uint16_t opcode)
-{
-  return -1;
-}
-
-int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max, int bytes)
+int disasm_65816(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max,
+  int bytes)
 {
   char temp[128];
   char num[64];
@@ -190,7 +191,10 @@ int disasm_65816(struct _memory *memory, uint32_t address, char *instruction, in
 */
 }
 
-void list_output_65816(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_65816(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
 #if 0
   unsigned int opcode=memory_read32_m(&asm_context->memory, address);
@@ -229,12 +233,16 @@ void list_output_65816(struct _asm_context *asm_context, uint32_t start, uint32_
 #endif
 }
 
-void disasm_range_65816(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_65816(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
-char instruction[128];
-//int vectors_flag=0;
-int cycles_min=0,cycles_max=0;
-int num = 0;
+  char instruction[128];
+  //int vectors_flag=0;
+  int cycles_min=0,cycles_max=0;
+  int num = 0;
 
   printf("\n");
 

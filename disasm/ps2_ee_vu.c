@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -17,12 +17,14 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-int get_cycle_count_ps2_ee_vu(uint32_t opcode)
-{
-  return -1;
-}
-
-int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, char *instruction, int *cycles_min, int *cycles_max, int is_lower)
+int disasm_ps2_ee_vu(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max,
+  int is_lower)
 {
   struct _table_ps2_ee_vu *table_ps2_ee_vu;
   uint32_t opcode;
@@ -215,7 +217,10 @@ int disasm_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t address, c
   return 4;
 }
 
-void list_output_ps2_ee_vu(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_ps2_ee_vu(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction_upper[128];
@@ -248,7 +253,11 @@ void list_output_ps2_ee_vu(struct _asm_context *asm_context, uint32_t start, uin
   }
 }
 
-void disasm_range_ps2_ee_vu(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_ps2_ee_vu(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction_upper[128];
   char instruction_lower[128];

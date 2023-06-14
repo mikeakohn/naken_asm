@@ -36,8 +36,8 @@ zomg:
 
   ld r13, Z
   ld r12, Y+
-  ld r19, -Y 
-  ld r19, Y 
+  ld r19, -Y
+  ld r19, Y
   ld r0, Z+
 
   cpi r16, 'z'

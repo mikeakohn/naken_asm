@@ -36,7 +36,11 @@ static int get_param_index(char *params, char *name)
   return 0;
 }
 
-static int macros_parse_token(struct _asm_context *asm_context, char *token, int len, int macro_type)
+static int macros_parse_token(
+  AsmContext *asm_context,
+  char *token,
+  int len,
+  int macro_type)
 {
   int ptr = 0;
   char ch;
@@ -141,7 +145,7 @@ static int check_endm(char *macro, int ptr)
   return 0;
 }
 
-int macros_init(struct _macros *macros)
+int macros_init(Macros *macros)
 {
   macros->memory_pool = NULL;
   macros->locked = 0;
@@ -149,17 +153,21 @@ int macros_init(struct _macros *macros)
   return 0;
 }
 
-void macros_free(struct _macros *macros)
+void macros_free(Macros *macros)
 {
   memory_pool_free(macros->memory_pool);
   macros->memory_pool = NULL;
   macros->stack_ptr = 0;
 }
 
-int macros_append(struct _asm_context *asm_context, char *name, char *value, int param_count)
+int macros_append(
+  AsmContext *asm_context,
+  char *name,
+  char *value,
+  int param_count)
 {
-  struct _macros *macros = &asm_context->macros;
-  struct _memory_pool *memory_pool = macros->memory_pool;
+  Macros *macros = &asm_context->macros;
+  MemoryPool *memory_pool = macros->memory_pool;
   uint32_t address;
   int param_count_temp;
   int name_len;
@@ -185,7 +193,7 @@ int macros_append(struct _asm_context *asm_context, char *name, char *value, int
   }
 
   // Check the size of the new macro against the size of a pool.
-  if (name_len + value_len + sizeof(struct _macro_data) > MACROS_HEAP_SIZE)
+  if (name_len + value_len + sizeof(MacroData) > MACROS_HEAP_SIZE)
   {
     printf("Error: Macro '%s' is too big.\n", name);
     return -1;
@@ -201,7 +209,7 @@ int macros_append(struct _asm_context *asm_context, char *name, char *value, int
   // If none can be found, alloc a new one.
   while (1)
   {
-     if (memory_pool->ptr + name_len + value_len + sizeof(struct _macro_data) < memory_pool->len)
+     if (memory_pool->ptr + name_len + value_len + sizeof(MacroData) < memory_pool->len)
      {
        break;
      }
@@ -216,26 +224,25 @@ int macros_append(struct _asm_context *asm_context, char *name, char *value, int
 
   // Set the new macro entry.
   // FIXME - probably should align by sizeof(void *) for RISC machines.
-  struct _macro_data *macro_data =
-    (struct _macro_data *)(memory_pool->buffer + memory_pool->ptr);
+  MacroData *macro_data = (MacroData *)(memory_pool->buffer + memory_pool->ptr);
   macro_data->param_count = (uint8_t)param_count;
   macro_data->name_len = name_len;
   macro_data->value_len = value_len;
   memcpy(macro_data->data, name, name_len);
   memcpy(macro_data->data + name_len, value, value_len);
-  memory_pool->ptr += name_len + value_len + sizeof(struct _macro_data);
+  memory_pool->ptr += name_len + value_len + sizeof(MacroData);
 
   return 0;
 }
 
-void macros_lock(struct _macros *macros)
+void macros_lock(Macros *macros)
 {
   macros->locked = 1;
 }
 
-char *macros_lookup(struct _macros *macros, char *name, int *param_count)
+char *macros_lookup(Macros *macros, char *name, int *param_count)
 {
-  struct _memory_pool *memory_pool = macros->memory_pool;
+  MemoryPool *memory_pool = macros->memory_pool;
   char *value;
   int ptr;
 
@@ -244,8 +251,7 @@ char *macros_lookup(struct _macros *macros, char *name, int *param_count)
     ptr = 0;
     while (ptr < memory_pool->ptr)
     {
-      struct _macro_data *macro_data =
-        (struct _macro_data *)(memory_pool->buffer + ptr);
+      MacroData *macro_data = (MacroData *)(memory_pool->buffer + ptr);
       //name_len = strlen((char *)memory_pool->buffer+ptr) + 1;
       //value_len = strlen((char *)memory_pool->buffer + ptr + name_len) + 1;
 
@@ -255,7 +261,7 @@ char *macros_lookup(struct _macros *macros, char *name, int *param_count)
         *param_count = macro_data->param_count;
         return value;
       }
-      ptr += macro_data->name_len + macro_data->value_len + sizeof(struct _macro_data);
+      ptr += macro_data->name_len + macro_data->value_len + sizeof(MacroData);
     }
 
     memory_pool = memory_pool->next;
@@ -264,9 +270,9 @@ char *macros_lookup(struct _macros *macros, char *name, int *param_count)
   return NULL;
 }
 
-int macros_iterate(struct _macros *macros, struct _macros_iter *iter)
+int macros_iterate(Macros *macros, MacrosIter *iter)
 {
-  struct _memory_pool *memory_pool = macros->memory_pool;
+  MemoryPool *memory_pool = macros->memory_pool;
 
   if (iter->end_flag == 1) { return -1; }
   if (iter->memory_pool == NULL)
@@ -279,14 +285,13 @@ int macros_iterate(struct _macros *macros, struct _macros_iter *iter)
   {
     if (iter->ptr < memory_pool->ptr)
     {
-      struct _macro_data *macro_data =
-        (struct _macro_data *)(memory_pool->buffer + iter->ptr);
+      MacroData *macro_data = (MacroData *)(memory_pool->buffer + iter->ptr);
 
       iter->param_count = macro_data->param_count;
       iter->name = macro_data->data;
       iter->value = macro_data->data + macro_data->name_len;
 
-      iter->ptr += macro_data->name_len + macro_data->value_len + sizeof(struct _macro_data);
+      iter->ptr += macro_data->name_len + macro_data->value_len + sizeof(MacroData);
 
       iter->count++;
       return 0;
@@ -300,9 +305,9 @@ int macros_iterate(struct _macros *macros, struct _macros_iter *iter)
   return -1;
 }
 
-int macros_print(struct _macros *macros, FILE *out)
+int macros_print(Macros *macros, FILE *out)
 {
-  struct _macros_iter iter;
+  MacrosIter iter;
 
   memset(&iter, 0, sizeof(iter));
 
@@ -353,7 +358,7 @@ int macros_print(struct _macros *macros, FILE *out)
   return 0;
 }
 
-int macros_push_define(struct _macros *macros, char *define)
+int macros_push_define(Macros *macros, char *define)
 {
 #ifdef DEBUG
 printf("debug> macros_push_define(), define=%s macros->stack_ptr=%d\n", define, macros->stack_ptr);
@@ -370,12 +375,12 @@ printf("debug> macros_push_define(), define=%s macros->stack_ptr=%d\n", define, 
   return 0;
 }
 
-int macros_get_char(struct _asm_context *asm_context)
+int macros_get_char(AsmContext *asm_context)
 {
   int stack_ptr;
   int ch;
 
-  struct _macros *macros = &asm_context->macros;
+  Macros *macros = &asm_context->macros;
 
   while (1)
   {
@@ -435,7 +440,7 @@ void macros_strip(char *macro)
   if (s != macro) { s--; }
 }
 
-int macros_parse(struct _asm_context *asm_context, int macro_type)
+int macros_parse(AsmContext *asm_context, int macro_type)
 {
   char name[128];
   char token[TOKENLEN];
@@ -667,7 +672,10 @@ printf("debug> Adding macro '%s'\n", macro);
   return 0;
 }
 
-char *macros_expand_params(struct _asm_context *asm_context, char *define, int param_count)
+char *macros_expand_params(
+  AsmContext *asm_context,
+  char *define,
+  int param_count)
 {
   int ch;
   char params[1024];
@@ -786,7 +794,7 @@ printf("debug> Expanded macro becomes: %s\n", asm_context->def_param_stack_data+
          asm_context->def_param_stack_ptr[asm_context->def_param_stack_count-1];
 }
 
-void macros_strip_comment(struct _asm_context *asm_context)
+void macros_strip_comment(AsmContext *asm_context)
 {
   int ch, last = 0;
 

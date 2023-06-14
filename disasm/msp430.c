@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -18,7 +18,10 @@
 #include "table/msp430.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) (memory_read_m(memory, a+1)<<8)|memory_read_m(memory, a)
+
+#define READ_RAM16(a) \
+  (memory_read_m(memory, a + 1) << 8) | \
+   memory_read_m(memory, a)
 
 static char *regs[] = { "PC", "SP", "SR", "CG", "r4", "r5", "r6", "r7", "r8",
                         "r9", "r10", "r11", "r12", "r13", "r14", "r15" };
@@ -50,7 +53,7 @@ int get_register_msp430(char *token)
 }
 
 static int get_source_reg(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   int reg,
   int As,
@@ -187,7 +190,7 @@ static int get_source_reg(
 }
 
 static int get_dest_reg(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   int reg,
   int Ad,
@@ -278,7 +281,7 @@ static int get_dest_reg(
 }
 
 static int one_operand(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   uint16_t opcode,
@@ -368,7 +371,7 @@ static int one_operand(
 }
 
 static int relative_jump(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   uint16_t opcode,
@@ -404,7 +407,7 @@ static int relative_jump(
 }
 
 static int two_operand(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   uint16_t opcode,
@@ -637,7 +640,7 @@ int get_cycle_count(uint16_t opcode)
 }
 
 int disasm_msp430(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -875,7 +878,7 @@ int disasm_msp430(
 }
 
 int disasm_msp430x(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -944,7 +947,7 @@ static void list_output_msp430_both(
 }
 
 static void disasm_range_msp430_both(
-  struct _memory *memory,
+  Memory *memory,
   int start,
   int end,
   int msp430x)
@@ -1045,7 +1048,7 @@ void list_output_msp430x(
 }
 
 void disasm_range_msp430(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)
@@ -1054,7 +1057,7 @@ void disasm_range_msp430(
 }
 
 void disasm_range_msp430x(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)

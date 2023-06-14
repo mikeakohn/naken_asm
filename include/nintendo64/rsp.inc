@@ -27,7 +27,7 @@ RSP_CP0_CMD_CURRENT          equ $10
 RSP_CP0_CMD_STATUS           equ $11
 RSP_CP0_CMD_CLOCK            equ $12
 RSP_CP0_CMD_BUSY             equ $13
-RSP_CP0_CMD_PIPE_BUSY        equ $14 
+RSP_CP0_CMD_PIPE_BUSY        equ $14
 RSP_CP0_CMD_TMEM_BUSY        equ $15
 
 ;; RSP CPU view:

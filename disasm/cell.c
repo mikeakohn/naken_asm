@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,14 +16,18 @@
 #include "disasm/cell.h"
 #include "table/cell.h"
 
-#define READ_RAM(a) (memory_read_m(memory, a)<<24)|(memory_read_m(memory, a+1)<<16)|(memory_read_m(memory, a+2)<<8)|memory_read_m(memory, a+3)
+#define READ_RAM(a) \
+  (memory_read_m(memory, a) << 24) | \
+  (memory_read_m(memory, a + 1)<< 16) | \
+  (memory_read_m(memory, a + 2)<< 8) | \
+   memory_read_m(memory, a + 3)
 
-int get_cycle_count_cell(unsigned short int opcode)
-{
-  return -1;
-}
-
-int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_cell(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   //const char *name;
   uint32_t opcode;
@@ -212,7 +216,10 @@ int disasm_cell(struct _memory *memory, uint32_t address, char *instruction, int
   return 0;
 }
 
-void list_output_cell(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_cell(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
@@ -229,18 +236,28 @@ void list_output_cell(struct _asm_context *asm_context, uint32_t start, uint32_t
     fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
     if (cycles_min == -1)
-    { fprintf(asm_context->list, "\n"); }
+    {
+      fprintf(asm_context->list, "\n");
+    }
       else
     if (cycles_min == cycles_max)
-    { fprintf(asm_context->list, "%d\n", cycles_min); }
+    {
+      fprintf(asm_context->list, "%d\n", cycles_min);
+    }
       else
-    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    {
+      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+    }
 
     start += 4;
   }
 }
 
-void disasm_range_cell(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_cell(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   uint32_t opcode;
@@ -261,15 +278,20 @@ void disasm_range_cell(struct _memory *memory, uint32_t flags, uint32_t start, u
     printf("0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
     if (cycles_min == -1)
-    { printf("\n"); }
+    {
+       printf("\n");
+    }
       else
     if (cycles_min == cycles_max)
-    { printf("%d\n", cycles_min); }
+    {
+      printf("%d\n", cycles_min);
+    }
       else
-    { printf("%d-%d\n", cycles_min, cycles_max); }
+    {
+      printf("%d-%d\n", cycles_min, cycles_max);
+    }
 
     start = start + count;
   }
 }
-
 

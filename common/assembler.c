@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -169,8 +169,8 @@ int assembler_link_file(struct _asm_context *asm_context, const char *filename)
 
   if (asm_context->linker == NULL)
   {
-    const int len = sizeof(struct _linker);
-    asm_context->linker = (struct _linker *)malloc(len);
+    const int len = sizeof(Linker);
+    asm_context->linker = (Linker *)malloc(len);
     memset(asm_context->linker, 0, len);
   }
 

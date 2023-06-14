@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -17,15 +17,13 @@
 #include "table/68hc08.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
-int get_cycle_count_68hc08(uint16_t opcode)
-{
-  return -1;
-}
+#define READ_RAM16(a) \
+  (memory_read_m(memory, a) << 8) | \
+   memory_read_m(memory, a + 1)
 
 int disasm_68hc08(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -284,7 +282,7 @@ void list_output_68hc08(
 }
 
 void disasm_range_68hc08(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)

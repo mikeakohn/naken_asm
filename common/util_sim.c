@@ -17,15 +17,15 @@
 #include "common/util_sim.h"
 
 void sim_show_info(UtilContext *util_context)
-{   
+{
   Simulate *simulate = util_context->simulate;
   uint32_t start = util_context->memory.low_address / util_context->bytes_per_address;
   uint32_t end = util_context->memory.high_address / util_context->bytes_per_address;
-      
+
   printf("Start address: 0x%04x (%d)\n", start, start);
   printf("  End address: 0x%04x (%d)\n", end, end);
   printf("  Break Point: ");
-      
+
   if (simulate->break_point == -1)
   {
     printf("<not set>\n");

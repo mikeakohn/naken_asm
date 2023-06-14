@@ -25,7 +25,7 @@ blah:
   hbra branches, blah
   hbrr branches, blah
 
-  csflt r10, r11, -2 
+  csflt r10, r11, -2
   cflts r10, r11, 2
 
   fscrrd r12

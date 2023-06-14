@@ -17,10 +17,10 @@ comr r2
 negr r5
 adcr r6
 gswd r2
-nop 
-nop 
-sin 
-sin 
+nop
+nop
+sin
+sin
 swap r3, 2
 sll r3, 1
 rlc r1

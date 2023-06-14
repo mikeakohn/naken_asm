@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -26,7 +26,7 @@ static void write_uint32(FILE *out, uint32_t value)
   putc(value & 0xff, out);
 }
 
-int write_amiga(struct _memory *memory, FILE *out)
+int write_amiga(Memory *memory, FILE *out)
 {
   uint32_t n;
   uint32_t length = (memory->high_address + 1) - memory->low_address;

@@ -28,30 +28,30 @@ dbnz 0x12f,12
 dbnz @r3,9
 dec 0x15e
 dec @r1
-div 
+div
 inc 0x78
 inc @r0
 jmp 0xf03
 jmpf 0x4234
-ldc 
+ldc
 ld 0x25
 ld @r2
 mov #0xf1,0x1f0
 mov #0x63,@r3
-mul 
-nop 
+mul
+nop
 not1 0x39,6
 or 0x23
 or #0xa1
 or @r1
 pop 0x14
 push 0x1c
-ret 
-reti 
-rol 
-rolc 
-ror 
-rorc 
+ret
+reti
+rol
+rolc
+ror
+rorc
 set1 0x77,5
 st 0x123
 st @r2

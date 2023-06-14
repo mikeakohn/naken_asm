@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn, Lars Brinkhoff
+ * Copyright 2010-2023 by Michael Kohn, Lars Brinkhoff
  *
  * PDP-8 by Lars Brinkhoff
  *
@@ -79,7 +79,7 @@ static void disasm_pdp8_opr(char *instruction, int opcode)
   }
 }
 
-int disasm_pdp8(struct _memory *memory, uint32_t address, char *instruction)
+int disasm_pdp8(Memory *memory, uint32_t address, char *instruction)
 {
   int opcode;
   int n;
@@ -150,7 +150,10 @@ int disasm_pdp8(struct _memory *memory, uint32_t address, char *instruction)
   return 2;
 }
 
-void list_output_pdp8(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_pdp8(
+  struct _asm_context *asm_context,
+  uint32_t start,
+   uint32_t end)
 {
   uint32_t opcode;
   char instruction[128];
@@ -170,7 +173,11 @@ void list_output_pdp8(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_pdp8(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_pdp8(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   uint16_t opcode;

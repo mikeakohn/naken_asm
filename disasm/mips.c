@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -45,13 +45,8 @@ static char *id_reg[] =
   "CMSAR1",
 };
 
-int get_cycle_count_mips(uint32_t opcode)
-{
-  return -1;
-}
-
 static int disasm_vector(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -313,7 +308,7 @@ static int disasm_n64_rsp(
 }
 
 int disasm_mips(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t address,
   char *instruction,
@@ -934,7 +929,7 @@ void list_output_mips(
 }
 
 void disasm_range_mips(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)

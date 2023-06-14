@@ -18,7 +18,7 @@ start:
   ;; Turn off watchdog
   mov.w #WDTPW|WDTHOLD, &WDTCTL
 
-  ;; Turn interrupts off 
+  ;; Turn interrupts off
   dint
 
   ;; Set up stack pointer

@@ -132,7 +132,7 @@ OUTMOD_3   equ 0x0060  ; Set/reset
 OUTMOD_2   equ 0x0040  ; Toggle/reset
 OUTMOD_1   equ 0x0020  ; Set
 OUTMOD_0   equ 0x0000  ; OUT bit value
-CCIE       equ 0x0010  ; Capture/compare interrupt enable 
+CCIE       equ 0x0010  ; Capture/compare interrupt enable
 CCI        equ 0x0008  ; Capture/compare input
 OUT        equ 0x0004  ; Output high
 COV        equ 0x0002  ; Capture overflow occurred

@@ -71,7 +71,7 @@ asl.w %d1, %d2
 asr.b %d3, %d4
 asl.l #3, %d2
 asr.w #5, %d4
-asl.w (100) 
+asl.w (100)
 asr.w (1000)
 asr.w (%a4)
 bchg %d4, (%a4)

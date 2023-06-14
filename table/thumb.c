@@ -114,7 +114,7 @@ struct _table_thumb table_thumb[] =
   // dsb
   // dmb
   // isb
- 
+
   { NULL, 0, 0, 0, 0, 0 }
 };
 

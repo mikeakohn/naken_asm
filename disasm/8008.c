@@ -19,13 +19,8 @@
 
 static const char reg_name[] = { 'a', 'b', 'c', 'd', 'e', 'h', 'l', 'm' };
 
-int get_cycle_count_8008(uint16_t opcode)
-{
-  return -1;
-}
-
 int disasm_8008(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -213,7 +208,7 @@ void list_output_8008(
 }
 
 void disasm_range_8008(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)

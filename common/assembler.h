@@ -34,12 +34,12 @@
 #define SEGMENT_CODE 0
 #define SEGMENT_BSS 1
 
-struct _asm_context
+typedef struct _asm_context
 {
-  struct _memory memory;
-  struct _tokens tokens;
+  Memory memory;
+  Tokens tokens;
   Symbols symbols;
-  struct _macros macros;
+  Macros macros;
   parse_instruction_t parse_instruction;
   parse_directive_t parse_directive;
   link_function_t link_function;
@@ -54,7 +54,7 @@ struct _asm_context
   int error_count;
   int ifdef_count;
   int parsing_ifdef;
-  struct _linker *linker;
+  Linker *linker;
   int debug_file;
   char def_param_stack_data[PARAM_STACK_LEN];
   int def_param_stack_ptr[MAX_NESTED_MACROS+1];
@@ -81,7 +81,7 @@ struct _asm_context
   uint8_t in_repeat : 1;
   uint32_t flags;
   uint32_t extra_context;
-};
+} AsmContext;
 
 void assembler_init(struct _asm_context *asm_context);
 void assembler_free(struct _asm_context *asm_context);

@@ -54,7 +54,7 @@ static int compute_s12(int data)
 }
 #endif
 
-int get_register(struct _memory *memory, int address, int r, char *s)
+int get_register(Memory *memory, int address, int r, char *s)
 {
   switch (r)
   {
@@ -109,12 +109,7 @@ static int get_s9(int s)
   return n;
 }
 
-int get_cycle_count_arc(unsigned short int opcode)
-{
-  return -1;
-}
-
-uint32_t calc_address(struct _memory *memory, uint32_t address, int offset, int d)
+uint32_t calc_address(Memory *memory, uint32_t address, int offset, int d)
 {
   //int cycles_min, cycles_max;
   //char instruction[128];
@@ -128,7 +123,7 @@ uint32_t calc_address(struct _memory *memory, uint32_t address, int offset, int 
   return address + 4 + offset;
 }
 
-int disasm_arc(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_arc(Memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
 {
   uint32_t opcode;
   uint16_t opcode16;
@@ -675,7 +670,7 @@ void list_output_arc(struct _asm_context *asm_context, uint32_t start, uint32_t 
 
   while(start < end)
   {
-    struct _memory *memory = &asm_context->memory;
+    Memory *memory = &asm_context->memory;
 
     count = disasm_arc(memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -703,7 +698,7 @@ void list_output_arc(struct _asm_context *asm_context, uint32_t start, uint32_t 
   }
 }
 
-void disasm_range_arc(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_arc(Memory *memory, uint32_t flags, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min, cycles_max;

@@ -10,16 +10,16 @@ start_type:
 ;; Type count.
 .varuint 1
 ;; Type is function.
-.varuint 0x60 
+.varuint 0x60
 ;; Parameter count is 2.
 .varuint 2
 ;; Parameter types are (i32, i32).
-.varuint 0x7f 
-.varuint 0x7f 
+.varuint 0x7f
+.varuint 0x7f
 ;; Return count is 1.
 .varuint 1
 ;; Return type is i32.
-.varuint 0x7f 
+.varuint 0x7f
 end_type:
 
 ;;;;;; Function section (3) ;;;;;;

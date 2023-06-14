@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -22,11 +22,6 @@ static char accum[] = { 'A','B' };
 static char *bflag[] = { "", ".b" };
 static char *addr_modes[] = { "w%d", "[w%d]", "[w%d--]", "[w%d++]", "[--w%d]", "[++w%d]" };
 static char *mmm_table[] = { "w4*w5", "w4*w6", "w4*w7", "???", "w5*w6", "w5*w7", "w6*w7", "???" };
-
-int get_cycle_count_dspic(unsigned short int opcode)
-{
-  return -1;
-}
 
 static void get_wd(char *temp, int reg, int attr, int reg2)
 {
@@ -115,7 +110,12 @@ static void parse_dsp(char *instruction, uint32_t opcode, int has_aa)
   }
 }
 
-int disasm_dspic(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_dspic(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   char temp[32];
   char temp2[32];
@@ -596,7 +596,11 @@ void list_output_dspic(struct _asm_context *asm_context, uint32_t start, uint32_
   }
 }
 
-void disasm_range_dspic(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_dspic(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;

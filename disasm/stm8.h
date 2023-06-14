@@ -14,10 +14,8 @@
 
 #include "common/assembler.h"
 
-int get_cycle_count_stm8(uint32_t opcode);
-
 int disasm_stm8(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -29,7 +27,7 @@ void list_output_stm8(
   uint32_t end);
 
 void disasm_range_stm8(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end);

@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -20,37 +20,37 @@ enum
   IMPORT_TYPE_OBJ,
 };
 
-struct _imports
+typedef struct _imports
 {
   struct _imports *next;
   int type;
   int size;
   uint8_t code[];
-};
+} Imports;
 
-struct _linker
+typedef struct _linker
 {
-  struct _imports *imports;
+  Imports *imports;
   uint8_t *symbol_list_buffer;
   uint32_t symbol_list_buffer_size;
   uint32_t symbol_list_buffer_end;
-};
+} Linker;
 
-struct _symbol_list
+typedef struct _symbol_list
 {
-  struct _imports *imports;
+  Imports *imports;
   char name[];
-};
+} SymbolList;
 
-int linker_add_file(struct _linker *linker, const char *filename);
+int linker_add_file(Linker *linker, const char *filename);
 
 int linker_search_code_from_symbol(
-  struct _linker *linker,
+  Linker *linker,
   const char *symbol);
 
 uint8_t *linker_get_code_from_symbol(
-  struct _linker *linker,
-  struct _imports **imports,
+  Linker *linker,
+  Imports **imports,
   const char *symbol,
   uint32_t *function_offset,
   uint32_t *function_size,
@@ -58,13 +58,13 @@ uint8_t *linker_get_code_from_symbol(
   uint32_t *obj_size);
 
 const char *linker_find_name_from_offset(
-  struct _linker *linker,
+  Linker *linker,
   uint32_t offset);
 
-int linker_get_symbol_count(struct _linker *linker);
-const char *linker_get_symbol_at_index(struct _linker *linker, int index);
-void linker_print_symbol_list(struct _linker *linker);
-void linker_free(struct _linker *linker);
+int linker_get_symbol_count(Linker *linker);
+const char *linker_get_symbol_at_index(Linker *linker, int index);
+void linker_print_symbol_list(Linker *linker);
+void linker_free(Linker *linker);
 
 #endif
 

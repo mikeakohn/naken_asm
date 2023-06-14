@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -71,7 +71,7 @@ static int get_operator(char *token, struct _operator *operator)
       else
     if (token[0] == '&')
     {
-      operator->precedence = PREC_AND;  
+      operator->precedence = PREC_AND;
       operator->operation = OPER_AND;
     }
       else
@@ -154,7 +154,7 @@ printf(">>> OPERATING ON %d (%d) %d\n", a, operator->operation, b);
   }
 }
 
-static int parse_unary(struct _asm_context *asm_context, int *num, int operation)
+static int parse_unary(AsmContext *asm_context, int *num, int operation)
 {
   char token[TOKENLEN];
   int token_type;
@@ -203,7 +203,7 @@ static int parse_unary(struct _asm_context *asm_context, int *num, int operation
   return 0;
 }
 
-static int eval_expression_go(struct _asm_context *asm_context, int *num, struct _operator *last_operator)
+static int eval_expression_go(AsmContext *asm_context, int *num, struct _operator *last_operator)
 {
   char token[TOKENLEN];
   int token_type;
@@ -442,7 +442,7 @@ PRINT_STACK()
   return 0;
 }
 
-int eval_expression(struct _asm_context *asm_context, int *num)
+int eval_expression(AsmContext *asm_context, int *num)
 {
   struct _operator operator;
 

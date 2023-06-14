@@ -151,7 +151,7 @@ binz r96, r53
 bihz r78, r12
 bihnz r67, r16
 hbr main, r93
-hbrp 
+hbrp
 hbra main, main
 hbrr main, main
 fa r71, r87, r95
@@ -189,11 +189,11 @@ fscrwr r77, r92
 fscrrd r38
 stop 16146
 stopd r7, r11, r58
-lnop 
+lnop
 nop r33
-sync 
-syncc 
-dsync 
+sync
+syncc
+dsync
 mfspr r82, 81
 mtspr 111, r119
 rdch r118, 92

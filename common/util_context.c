@@ -114,14 +114,14 @@ void util_init(UtilContext *util_context)
   memset(util_context, 0, sizeof(UtilContext));
   memory_init(&util_context->memory, 1 << 20, 1);
   symbols_init(&util_context->symbols);
-  
+
 #ifndef NO_MSP430
   util_context->disasm_range = disasm_range_msp430;
   util_context->simulate = simulate_init_msp430(&util_context->memory);
   util_context->flags = 0;
   util_context->bytes_per_address = 1;
   util_context->alignment = 1;
-#else 
+#else
   util_context->disasm_range = cpu_list[0].disasm_range;
   util_context->simulate = simulate_init_null(&util_context->memory);
   util_context->flags = cpu_list[0].flags;

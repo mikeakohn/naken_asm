@@ -2,7 +2,7 @@
 
 main:
   add r5,r6,r7
-  bne blah 
+  bne blah
   beq main
 blah:
 

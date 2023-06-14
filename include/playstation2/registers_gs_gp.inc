@@ -1,7 +1,7 @@
 ;;
 ;; Playstation 2 Graphics Synthesizer General Purpose Registers
 ;;
-;; A part of the naken_asm assembler 
+;; A part of the naken_asm assembler
 ;;
 ;; For more information:
 ;; https://www.mikekohn.net/

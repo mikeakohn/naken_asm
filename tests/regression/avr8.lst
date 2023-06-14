@@ -116,11 +116,11 @@ zomg:
 
 0x001b: 90c9 ld r12, Y+                               cycles: 2
 
-  ld r19, -Y 
+  ld r19, -Y
 
 0x001c: 913a ld r19, -Y                               cycles: 2
 
-  ld r19, Y 
+  ld r19, Y
 
 0x001d: 8138 ld r19, Y                                cycles: 2
 

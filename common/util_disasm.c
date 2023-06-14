@@ -19,9 +19,9 @@
 void util_disasm(UtilContext *util_context, char *token)
 {
   uint32_t start, end;
-  
+
   if (util_get_range(util_context, token, &start, &end) == -1) { return; }
-  
+
   util_context->disasm_range(
     &util_context->memory,
     util_context->flags,

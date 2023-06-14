@@ -40,7 +40,7 @@ DAC12_0CTL equ 0x01c0     ; DAC12_0 control
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ADC12 Interrupt-vector-word register
 
-ADC12IV equ 0x01a8        ; 
+ADC12IV equ 0x01a8        ;
 ADC12IE equ 0x01a6        ; Inerrupt-enable register
 ADC12IFG equ 0x01a4       ; Inerrupt-flag register
 ADC12CTL1 equ 0x01a2      ; Control register 1

@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,7 +16,7 @@
 
 #include "common/memory.h"
 
-int read_amiga(char *filename, struct _memory *memory);
+int read_amiga(const char *filename, Memory *memory);
 
 #endif
 

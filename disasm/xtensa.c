@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -19,12 +19,12 @@
 //#define READ_RAM(a) memory_read_m(memory, a)
 //#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
 
-int get_cycle_count_xtensa(unsigned short int opcode)
-{
-  return -1;
-}
-
-static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+static int disasm_xtensa_le(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint32_t opcode, opcode16;
   int at, as, ar, ft, fs, fr, bt, bs, br, i, x, y;
@@ -39,7 +39,7 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
 
   n = 0;
 
-  while(table_xtensa[n].instr != NULL)
+  while (table_xtensa[n].instr != NULL)
   {
     uint32_t mask = mask_xtensa[table_xtensa[n].type].mask_le;
     int bits = mask_xtensa[table_xtensa[n].type].bits;
@@ -48,7 +48,7 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
     {
       if ((opcode & mask) == table_xtensa[n].opcode_le)
       {
-        switch(table_xtensa[n].type)
+        switch (table_xtensa[n].type)
         {
           case XTENSA_OP_NONE:
             strcpy(instruction, table_xtensa[n].instr);
@@ -443,7 +443,7 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
     {
       if ((opcode16 & mask) == table_xtensa[n].opcode_le)
       {
-        switch(table_xtensa[n].type)
+        switch (table_xtensa[n].type)
         {
           case XTENSA_OP_N_NONE:
             strcpy(instruction, table_xtensa[n].instr);
@@ -509,7 +509,12 @@ static int disasm_xtensa_le(struct _memory *memory, uint32_t address, char *inst
   return 1;
 }
 
-static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+static int disasm_xtensa_be(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint32_t opcode, opcode16;
   int at, as, ar, ft, fs, fr, bt, bs, br, i, x, y;
@@ -524,7 +529,7 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
 
   n = 0;
 
-  while(table_xtensa[n].instr != NULL)
+  while (table_xtensa[n].instr != NULL)
   {
     uint32_t mask = mask_xtensa[table_xtensa[n].type].mask_be;
     int bits = mask_xtensa[table_xtensa[n].type].bits;
@@ -533,7 +538,7 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
     {
       if ((opcode & mask) == table_xtensa[n].opcode_be)
       {
-        switch(table_xtensa[n].type)
+        switch (table_xtensa[n].type)
         {
           case XTENSA_OP_NONE:
             strcpy(instruction, table_xtensa[n].instr);
@@ -928,7 +933,7 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
     {
       if ((opcode16 & mask) == table_xtensa[n].opcode_be)
       {
-        switch(table_xtensa[n].type)
+        switch (table_xtensa[n].type)
         {
           case XTENSA_OP_N_NONE:
             strcpy(instruction, table_xtensa[n].instr);
@@ -994,7 +999,12 @@ static int disasm_xtensa_be(struct _memory *memory, uint32_t address, char *inst
   return 1;
 }
 
-int disasm_xtensa(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_xtensa(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   *cycles_min = -1;
   *cycles_max = -1;
@@ -1009,7 +1019,7 @@ int disasm_xtensa(struct _memory *memory, uint32_t address, char *instruction, i
   }
 }
 
-static void get_bytes(struct _memory *memory, int address, int count, char *bytes)
+static void get_bytes(Memory *memory, int address, int count, char *bytes)
 {
   if (count == 2)
   {
@@ -1045,14 +1055,17 @@ static void get_bytes(struct _memory *memory, int address, int count, char *byte
   }
 }
 
-void list_output_xtensa(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_xtensa(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
   char bytes[10];
   int count;
 
-  struct _memory *memory = &asm_context->memory;
+  Memory *memory = &asm_context->memory;
 
   count = disasm_xtensa(memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -1062,7 +1075,11 @@ void list_output_xtensa(struct _asm_context *asm_context, uint32_t start, uint32
   fprintf(asm_context->list, "\n");
 }
 
-void disasm_range_xtensa(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_xtensa(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   char bytes[10];
@@ -1074,7 +1091,7 @@ void disasm_range_xtensa(struct _memory *memory, uint32_t flags, uint32_t start,
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_xtensa(memory, start, instruction, &cycles_min, &cycles_max);
 

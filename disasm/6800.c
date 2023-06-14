@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -17,15 +17,17 @@
 #include "table/6800.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) (memory_read_m(memory, a) << 8) | \
-                       memory_read_m(memory, a + 1)
 
-int get_cycle_count_6800(unsigned short int opcode)
-{
-  return -1;
-}
+#define READ_RAM16(a) \
+  (memory_read_m(memory, a) << 8) | \
+   memory_read_m(memory, a + 1)
 
-int disasm_6800(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_6800(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   int size = 1;
@@ -35,7 +37,7 @@ int disasm_6800(struct _memory *memory, uint32_t address, char *instruction, int
 
   opcode = READ_RAM(address);
 
-  switch(table_6800[opcode].operand_type)
+  switch (table_6800[opcode].operand_type)
   {
     case M6800_OP_UNDEF:
       strcpy(instruction, "???");
@@ -72,7 +74,10 @@ int disasm_6800(struct _memory *memory, uint32_t address, char *instruction, int
   return size;
 }
 
-void list_output_6800(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_6800(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
@@ -82,7 +87,7 @@ void list_output_6800(struct _asm_context *asm_context, uint32_t start, uint32_t
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_6800(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -109,7 +114,11 @@ void list_output_6800(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_6800(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_6800(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   char bytes[10];
@@ -122,7 +131,7 @@ void disasm_range_6800(struct _memory *memory, uint32_t flags, uint32_t start, u
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_6800(memory, start, instruction, &cycles_min, &cycles_max);
 

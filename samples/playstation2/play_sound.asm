@@ -94,7 +94,7 @@ wait_spucnt_on:
   li $t0, 0x0100_0000
 wait_dma:
   lw $t2, 8($v1)
-  and $t1, $t2, $t0 
+  and $t1, $t2, $t0
   bnez $t1, wait_dma
   nop
 

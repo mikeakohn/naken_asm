@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -26,7 +26,7 @@ int write_int24(FILE *out, int value)
   return 0;
 }
 
-int write_wdc(struct _memory *memory, FILE *out)
+int write_wdc(Memory *memory, FILE *out)
 {
   uint32_t n;
   int address = -1;

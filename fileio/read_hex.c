@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -20,7 +20,7 @@ static int get_hex(FILE *in, int len)
   int ch;
   int n = 0;
 
-  while(len > 0)
+  while (len > 0)
   {
     ch = getc(in);
     if (ch == EOF) return -1;
@@ -39,7 +39,7 @@ static int get_hex(FILE *in, int len)
   return n;
 }
 
-int read_hex(char *filename, struct _memory *memory)
+int read_hex(const char *filename, Memory *memory)
 {
   FILE *in;
   int ch;
@@ -68,7 +68,7 @@ int read_hex(char *filename, struct _memory *memory)
   }
 
   /* It's a state machine.. it's a state machine... */
-  while(1)
+  while (1)
   {
     line++;
     ch = getc(in);
@@ -77,7 +77,7 @@ int read_hex(char *filename, struct _memory *memory)
     if (ch != ':')
     {
       /* Line is a junkie piece of shit because ch says so */
-      while(1) { if (ch == '\n' || ch == EOF) break; ch = getc(in); }
+      while (1) { if (ch == '\n' || ch == EOF) break; ch = getc(in); }
       continue;
     }
 
@@ -92,7 +92,7 @@ int read_hex(char *filename, struct _memory *memory)
     printf("record_type: %02x (%d)\n",record_type,record_type);
 #endif
 
-    switch(record_type) 
+    switch (record_type)
     {
       /* Data Record */
       case 0x00:
@@ -183,7 +183,7 @@ int read_hex(char *filename, struct _memory *memory)
     }
 
     /* All tied up to a state machine */
-    while(1)
+    while (1)
     {
       ch = getc(in);
       if (ch == '\n' || ch == EOF) break;

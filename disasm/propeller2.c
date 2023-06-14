@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,10 +16,11 @@
 #include "disasm/propeller2.h"
 #include "table/propeller2.h"
 
-#define READ_RAM32(a) (memory_read_m(memory, a + 3) << 24) | \
-                      (memory_read_m(memory, a + 2) << 16) | \
-                      (memory_read_m(memory, a + 1) << 8) | \
-                       memory_read_m(memory, a + 0)
+#define READ_RAM32(a) \
+  (memory_read_m(memory, a + 3) << 24) | \
+  (memory_read_m(memory, a + 2) << 16) | \
+  (memory_read_m(memory, a + 1) << 8) | \
+   memory_read_m(memory, a + 0)
 
 static const char *conditions[] =
 {
@@ -61,13 +62,8 @@ static const char *conditions_cz[] =
   "_set",
 };
 
-int get_cycle_count_propeller2(uint32_t opcode)
-{
-  return -1;
-}
-
 int disasm_propeller2(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -414,7 +410,7 @@ void list_output_propeller2(
 }
 
 void disasm_range_propeller2(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)

@@ -77,7 +77,7 @@ static void uu_init(struct _uu *uu)
   uu->lines=0;
 }
 
-static int uu_decode_bytes(struct _uu *uu, char *line, struct _memory *memory, uint32_t *address)
+static int uu_decode_bytes(struct _uu *uu, char *line, Memory *memory, uint32_t *address)
 {
 int expected;
 int real=0;
@@ -223,7 +223,7 @@ int len;
   if (strcmp(buffer, "0")!=0)
   {
     printf("Error: lpc_send_command(%s) error status='%s' %s (%d).\n", command, buffer, lpc_show_error(err_code), err_code);
-    return -1; 
+    return -1;
   }
 
   return 0;
@@ -266,7 +266,7 @@ char buffer[128];
   if (strcmp(buffer, "OK")!=0)
   {
     printf("Error: Cannot synchronize (No sync OK).  Try resetting chip.\n");
-    return -1; 
+    return -1;
   }
 
   // Respond with clock frequency and wait for OK
@@ -278,7 +278,7 @@ char buffer[128];
   if (strcmp(buffer, "OK")!=0)
   {
     printf("Error: Cannot synchronize (No freq OK).  Try resetting chip.\n");
-    return -1; 
+    return -1;
   }
 
   // Turn off echo and wait for OK
@@ -290,7 +290,7 @@ char buffer[128];
   if (strcmp(buffer, "0")!=0)
   {
     printf("Error: Cannot synchronize (No echo OK).  Try resetting chip.\n");
-    return -1; 
+    return -1;
   }
 
   return 0;
@@ -356,7 +356,7 @@ int n;
   return 0;
 }
 
-int lpc_memory_read(char *device, struct _memory *memory, uint32_t address, uint32_t count)
+int lpc_memory_read(char *device, Memory *memory, uint32_t address, uint32_t count)
 {
 struct _serial serial;
 struct _uu uu;
@@ -419,7 +419,7 @@ int c;
   return 0;
 }
 
-int lpc_memory_write(char *device, struct _memory *memory)
+int lpc_memory_write(char *device, Memory *memory)
 {
 struct _serial serial;
 struct _uu uu;

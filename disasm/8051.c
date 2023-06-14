@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -18,13 +18,8 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-int get_cycle_count_8051(uint32_t opcode)
-{
-  return -1;
-}
-
 int disasm_8051(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -189,7 +184,7 @@ void list_output_8051(
       strcat(temp, temp2);
     }
 
-    fprintf(asm_context->list, "0x%04x: %-10s %-40s cycles: ", start, temp, instruction);
+    fprintf(asm_context->list, "0x%04x: %-10s %-40s cycles:", start, temp, instruction);
 
 #if 0
     if (cycles_min == cycles_max)
@@ -203,7 +198,7 @@ void list_output_8051(
 }
 
 void disasm_range_8051(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)

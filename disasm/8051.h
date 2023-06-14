@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -14,10 +14,8 @@
 
 #include "common/assembler.h"
 
-int get_cycle_count_8051(uint32_t opcode);
-
 int disasm_8051(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -29,7 +27,7 @@ void list_output_8051(
   uint32_t end);
 
 void disasm_range_8051(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end);

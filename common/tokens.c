@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -24,7 +24,7 @@
 
 //#define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }
 
-int tokens_open_file(struct _asm_context *asm_context, char *filename)
+int tokens_open_file(AsmContext *asm_context, char *filename)
 {
   asm_context->tokens.in = fopen(filename, "rb");
 
@@ -38,13 +38,13 @@ int tokens_open_file(struct _asm_context *asm_context, char *filename)
   return 0;
 }
 
-void tokens_open_buffer(struct _asm_context *asm_context, const char *buffer)
+void tokens_open_buffer(AsmContext *asm_context, const char *buffer)
 {
   asm_context->tokens.token_buffer.code = buffer;
   asm_context->tokens.token_buffer.ptr = 0;
 }
 
-void tokens_close(struct _asm_context *asm_context)
+void tokens_close(AsmContext *asm_context)
 {
   if (asm_context->tokens.in != NULL)
   {
@@ -52,7 +52,7 @@ void tokens_close(struct _asm_context *asm_context)
   }
 }
 
-void tokens_reset(struct _asm_context *asm_context)
+void tokens_reset(AsmContext *asm_context)
 {
   if (asm_context->tokens.in != NULL)
   {
@@ -98,7 +98,7 @@ static int tokens_hex_string_to_int(char *s, uint64_t *num, int prefixed)
   return 0;
 }
 
-static int process_escape(struct _asm_context *asm_context, int process_zero)
+static int process_escape(AsmContext *asm_context, int process_zero)
 {
   int ch = tokens_get_char(asm_context);
 
@@ -177,7 +177,7 @@ int token_is_not_number(const char *token, int ptr)
   return 1;
 }
 
-int tokens_get_char(struct _asm_context *asm_context)
+int tokens_get_char(AsmContext *asm_context)
 {
   int ch;
 
@@ -240,13 +240,13 @@ int tokens_get_char(struct _asm_context *asm_context)
   return ch;
 }
 
-int tokens_unget_char(struct _asm_context *asm_context, int ch)
+int tokens_unget_char(AsmContext *asm_context, int ch)
 {
   asm_context->tokens.unget[asm_context->tokens.unget_ptr++] = ch;
   return 0;
 }
 
-int tokens_get(struct _asm_context *asm_context, char *token, int len)
+int tokens_get(AsmContext *asm_context, char *token, int len)
 {
   int token_type = TOKEN_EOF;
   int ch;
@@ -775,7 +775,7 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
   return token_type;
 }
 
-void tokens_push(struct _asm_context *asm_context, char *token, int token_type)
+void tokens_push(AsmContext *asm_context, char *token, int token_type)
 {
   if (asm_context->tokens.pushback[0] == 0)
   {
@@ -789,7 +789,7 @@ void tokens_push(struct _asm_context *asm_context, char *token, int token_type)
 }
 
 // Returns the number of chars eaten by this function or 0 for error
-int tokens_escape_char(struct _asm_context *asm_context, uint8_t *s)
+int tokens_escape_char(AsmContext *asm_context, uint8_t *s)
 {
   int ptr = 1;
 

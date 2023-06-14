@@ -34,7 +34,7 @@ start:
   ;; Setup stack pointer
   mov.w #0x0400, SP
 
-  ;; Set MCLK to 16 MHz with DCO 
+  ;; Set MCLK to 16 MHz with DCO
   mov.b #(DCO_4), &DCOCTL
   mov.b #RSEL_15, &BCSCTL1
   mov.b #0, &BCSCTL2

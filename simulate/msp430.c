@@ -679,7 +679,7 @@ static int two_operand_exe(Simulate *simulate, uint16_t opcode)
   return 0;
 }
 
-Simulate *simulate_init_msp430(struct _memory *memory)
+Simulate *simulate_init_msp430(Memory *memory)
 {
   Simulate *simulate;
 

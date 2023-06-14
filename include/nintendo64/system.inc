@@ -35,7 +35,7 @@ DMA_STATUS                equ 0x0010
 DMA_BUSY  equ 0x0000_0001
 DMA_ERROR equ 0x0000_0008
 
-;; MIPS VR4300 MMU Coprocesser 
+;; MIPS VR4300 MMU Coprocesser
 
 CP0_INDEX        equ $0  ;; Programmable pointer into TLB array
 CP0_RANDOM       equ $1  ;; Pseudorandom pointer into TLB array (read only)

@@ -29,11 +29,6 @@
     return size; \
   }
 
-int get_cycle_count_stm8(uint32_t opcode)
-{
-  return -1;
-}
-
 static void get_instruction(char *instr, int instr_enum)
 {
   int n;
@@ -89,7 +84,7 @@ void add_reg(char *instr, int reg)
 }
 
 int disasm_stm8(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instr,
   int *cycles_min,
@@ -372,7 +367,7 @@ void list_output_stm8(
 }
 
 void disasm_range_stm8(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)

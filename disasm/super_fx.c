@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,17 +16,18 @@
 #include "disasm/super_fx.h"
 #include "table/super_fx.h"
 
-#define READ_RAM32(a) (memory_read_m(memory, a + 3) << 24) | \
-                      (memory_read_m(memory, a + 2) << 16) | \
-                      (memory_read_m(memory, a + 1) << 8) | \
-                       memory_read_m(memory, a + 0)
+#define READ_RAM32(a) \
+  (memory_read_m(memory, a + 3) << 24) | \
+  (memory_read_m(memory, a + 2) << 16) | \
+  (memory_read_m(memory, a + 1) << 8) | \
+   memory_read_m(memory, a + 0)
 
-int get_cycle_count_super_fx(unsigned short int opcode)
-{
-  return -1;
-}
-
-int disasm_super_fx(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_super_fx(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   int n;
@@ -185,7 +186,10 @@ int disasm_super_fx(struct _memory *memory, uint32_t address, char *instruction,
   return 2;
 }
 
-void list_output_super_fx(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_super_fx(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   char temp[32];
@@ -213,7 +217,11 @@ void list_output_super_fx(struct _asm_context *asm_context, uint32_t start, uint
   }
 }
 
-void disasm_range_super_fx(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_super_fx(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   char temp[32];

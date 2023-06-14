@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -23,7 +23,7 @@ enum
   TYPE_EOF,
 };
 
-int read_ti_txt(char *filename, struct _memory *memory)
+int read_ti_txt(const char *filename, Memory *memory)
 {
 FILE *in;
 int ch;

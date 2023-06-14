@@ -688,7 +688,7 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
-Simulate *simulate_init_6502(struct _memory *memory)
+Simulate *simulate_init_6502(Memory *memory)
 {
   Simulate *simulate;
 

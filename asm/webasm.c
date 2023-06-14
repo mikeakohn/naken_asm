@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -26,7 +26,7 @@ static int get_uint(
   uint64_t *value,
   int as_bin)
 {
-  struct _var var;
+  Var var;
 
   if (eval_expression_ex(asm_context, &var) == -1)
   {

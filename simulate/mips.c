@@ -55,7 +55,7 @@ static int32_t get_offset16(uint32_t opcode)
   return offset;
 }
 
-Simulate *simulate_init_mips(struct _memory *memory)
+Simulate *simulate_init_mips(Memory *memory)
 {
   Simulate *simulate;
 
@@ -128,7 +128,7 @@ void simulate_set_pc_mips(Simulate *simulate, uint32_t value)
 {
   SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
 
-  simulate_mips->pc = value; 
+  simulate_mips->pc = value;
 }
 
 void simulate_reset_mips(Simulate *simulate)
@@ -138,7 +138,7 @@ void simulate_reset_mips(Simulate *simulate)
   simulate_mips->pc = simulate->memory->low_address;
   simulate_mips->reg[29] = 0x80000000;
 
-  struct _memory *memory = simulate->memory;
+  Memory *memory = simulate->memory;
 
   // PIC32 kind of hack.  Need to figure out a better way to do this
   // later.  Problem is PIC32 has virtual memory (where code addresses)

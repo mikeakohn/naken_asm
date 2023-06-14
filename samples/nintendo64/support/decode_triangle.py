@@ -6,7 +6,7 @@ def convert_frac(whole, frac):
     whole += 1
     whole *= -1
 
-  return "%d.%04x" % (whole, frac) 
+  return "%d.%04x" % (whole, frac)
 
 # ------------------------------ fold here -----------------------------
 

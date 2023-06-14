@@ -14,7 +14,7 @@ start:
   sub.w &0x8000, &0x100
   mov.w &0x8000, r1
   rrc.w r9
-  rra.w &0x100 
+  rra.w &0x100
   jmp start
   push r9
   push.w r9

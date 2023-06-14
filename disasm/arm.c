@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -21,7 +21,7 @@
 #define ARM_NIB(n) ((opcode>>n)&0xf)
 
 // NOTE "" is AL
-static char *arm_cond[] = 
+static char *arm_cond[] =
 {
   "eq", "ne", "cs", "cc",
   "mi", "pl", "vs", "vc",
@@ -30,7 +30,7 @@ static char *arm_cond[] =
 };
 
 #if 0
-char *arm_alu_ops[] = 
+char *arm_alu_ops[] =
 {
   "and", "eor", "sub", "rsb",
   "add", "adc", "sbc", "rsc",
@@ -51,11 +51,6 @@ static char *arm_reg[] =
   "r8", "r9", "r10", "r11",
   "r12", "sp", "lr", "pc"
 };
-
-int get_cycle_count_arm(unsigned short int opcode)
-{
-  return -1;
-}
 
 static int compute_immediate(int immediate)
 {
@@ -162,7 +157,11 @@ static void process_alu_3(char *instruction, uint32_t opcode, int index)
   }
 }
 
-static void process_alu_2(char *instruction, uint32_t opcode, int index, int use_d)
+static void process_alu_2(
+  char *instruction,
+  uint32_t opcode,
+  int index,
+  int use_d)
 {
   int i = (opcode >> 25) & 1;
   int s = (opcode >> 20) & 1;
@@ -281,7 +280,11 @@ static void process_msr_flag(char *instruction, uint32_t opcode)
   }
 }
 
-static void process_ldr_str(char *instruction, uint32_t opcode, int index, uint32_t address)
+static void process_ldr_str(
+  char *instruction,
+  uint32_t opcode,
+  int index,
+  uint32_t address)
 {
   int w = (opcode >> 21) & 1;
   int b = (opcode >> 22) & 1;
@@ -498,7 +501,12 @@ static void process_co_transfer_mask(char *instruction, uint32_t opcode)
   }
 }
 
-int disasm_arm(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_arm(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint32_t opcode;
 
@@ -508,7 +516,7 @@ int disasm_arm(struct _memory *memory, uint32_t address, char *instruction, int 
   //printf("%08x: opcode=%08x\n", address, opcode);
 
   int n = 0;
-  while(table_arm[n].instr != NULL)
+  while (table_arm[n].instr != NULL)
   {
     if ((opcode & table_arm[n].mask) == table_arm[n].opcode)
     {
@@ -586,16 +594,19 @@ int disasm_arm(struct _memory *memory, uint32_t address, char *instruction, int 
   return 4;
 }
 
-void list_output_arm(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_arm(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
   int count;
 
-  while(start < end)
+  while (start < end)
   {
     uint32_t opcode = memory_read32_m(&asm_context->memory, start);
-  
+
     fprintf(asm_context->list, "\n");
     count = disasm_arm(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
     fprintf(asm_context->list, "0x%04x: 0x%08x %-40s cycles: ", start, opcode, instruction);
@@ -612,7 +623,11 @@ void list_output_arm(struct _asm_context *asm_context, uint32_t start, uint32_t 
   }
 }
 
-void disasm_range_arm(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_arm(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0,cycles_max = 0;
@@ -623,7 +638,7 @@ void disasm_range_arm(struct _memory *memory, uint32_t flags, uint32_t start, ui
   printf("%-7s %-9s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- --------  ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     disasm_arm(memory, start, instruction, &cycles_min, &cycles_max);
 

@@ -36,7 +36,7 @@ void symbols_free(Symbols *symbols)
 
 SymbolsData *symbols_find(Symbols *symbols, const char *name)
 {
-  struct _memory_pool *memory_pool = symbols->memory_pool;
+  MemoryPool *memory_pool = symbols->memory_pool;
   int ptr;
 
   // Check local scope.
@@ -92,7 +92,7 @@ SymbolsData *symbols_find(Symbols *symbols, const char *name)
 int symbols_append(Symbols *symbols, const char *name, uint32_t address)
 {
   int token_len;
-  struct _memory_pool *memory_pool = symbols->memory_pool;
+  MemoryPool *memory_pool = symbols->memory_pool;
   SymbolsData *symbols_data;
 
 #ifdef DEBUG
@@ -168,7 +168,7 @@ int symbols_append(Symbols *symbols, const char *name, uint32_t address)
   memory_pool->ptr += token_len + sizeof(SymbolsData);
 
   return 0;
-} 
+}
 
 int symbols_set(Symbols *symbols, char *name, uint32_t address)
 {
@@ -180,7 +180,7 @@ int symbols_set(Symbols *symbols, char *name, uint32_t address)
   {
     if (symbols_append(symbols, name, address) != 0)
     {
-      return -1; 
+      return -1;
     }
 
     symbols_data = symbols_find(symbols, name);
@@ -239,7 +239,7 @@ int symbols_lookup(Symbols *symbols, const char *name, uint32_t *address)
 
 int symbols_iterate(Symbols *symbols, SymbolsIter *iter)
 {
-  struct _memory_pool *memory_pool = symbols->memory_pool;
+  MemoryPool *memory_pool = symbols->memory_pool;
 
   if (iter->end_flag == 1) { return -1; }
   if (iter->memory_pool == NULL)
@@ -293,7 +293,7 @@ int symbols_print(Symbols *symbols, FILE *out)
 
 int symbols_count(Symbols *symbols)
 {
-  struct _memory_pool *memory_pool = symbols->memory_pool;
+  MemoryPool *memory_pool = symbols->memory_pool;
   int ptr;
   int count = 0;
 
@@ -316,7 +316,7 @@ int symbols_count(Symbols *symbols)
 
 int symbols_export_count(Symbols *symbols)
 {
-  struct _memory_pool *memory_pool = symbols->memory_pool;
+  MemoryPool *memory_pool = symbols->memory_pool;
   int ptr;
   int count = 0;
 

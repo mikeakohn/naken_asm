@@ -16,7 +16,7 @@
 start:
   ;; Watchdog.
   anl PCA0MD, #0xbf
-  mov PCA0MD, A               
+  mov PCA0MD, A
 
   ;; Set stack to location 8.
   mov SP, #0x08
@@ -105,7 +105,7 @@ wait_adc:
 
   mov A, ADC0L
   anl A, #0x80
-  jnz set_green 
+  jnz set_green
   setb P2.1
   sjmp repeat
 

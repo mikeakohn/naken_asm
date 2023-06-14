@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -19,6 +19,7 @@
 #define READ_RAM(a) \
   memory_read_m(memory, (a & 0xfc0) | tms1000_address_to_lsfr[a & 0x3f])
 
+#if 0
 int get_cycle_count_tms1000(uint16_t opcode)
 {
   return 6;
@@ -28,6 +29,7 @@ int get_cycle_count_tms1100(uint16_t opcode)
 {
   return 6;
 }
+#endif
 
 static void compute_address(int address, int *chapter, int *page, int *pc)
 {
@@ -36,7 +38,12 @@ static void compute_address(int address, int *chapter, int *page, int *pc)
   *pc = address & 0x3f;
 }
 
-int disasm_tms1000(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_tms1000(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int bit_instr;
   int opcode;
@@ -48,7 +55,7 @@ int disasm_tms1000(struct _memory *memory, uint32_t address, char *instruction, 
   opcode = READ_RAM(address);
 
   n = 0;
-  while(table_tms1000[n].instr != NULL)
+  while (table_tms1000[n].instr != NULL)
   {
     if (opcode == table_tms1000[n].op1000)
     {
@@ -106,7 +113,12 @@ int disasm_tms1000(struct _memory *memory, uint32_t address, char *instruction, 
   return 1;
 }
 
-int disasm_tms1100(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_tms1100(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int bit_instr;
   int opcode;
@@ -118,7 +130,7 @@ int disasm_tms1100(struct _memory *memory, uint32_t address, char *instruction, 
   opcode = READ_RAM(address);
 
   n = 0;
-  while(table_tms1000[n].instr != NULL)
+  while (table_tms1000[n].instr != NULL)
   {
     if (opcode == table_tms1000[n].op1100)
     {
@@ -179,11 +191,14 @@ int disasm_tms1100(struct _memory *memory, uint32_t address, char *instruction, 
   return 1;
 }
 
-void list_output_tms1000(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_tms1000(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  struct _memory *memory = &asm_context->memory;
+  Memory *memory = &asm_context->memory;
   uint32_t opcode = READ_RAM(start);
   int chapter;
   int page;
@@ -208,11 +223,14 @@ void list_output_tms1000(struct _asm_context *asm_context, uint32_t start, uint3
   }
 }
 
-void list_output_tms1100(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_tms1100(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  struct _memory *memory = &asm_context->memory;
+  Memory *memory = &asm_context->memory;
   uint32_t opcode = READ_RAM(start);
   int chapter;
   int page;
@@ -237,7 +255,11 @@ void list_output_tms1100(struct _asm_context *asm_context, uint32_t start, uint3
   }
 }
 
-void disasm_range_tms1000(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_tms1000(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;
@@ -251,7 +273,7 @@ void disasm_range_tms1000(struct _memory *memory, uint32_t flags, uint32_t start
   printf("%-4s %-4s %-5s %-40s Cycles\n", "Linr", "Addr", "Opcode", "Instruction");
   printf("---- ---- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     num = READ_RAM(start);
 
@@ -279,7 +301,11 @@ void disasm_range_tms1000(struct _memory *memory, uint32_t flags, uint32_t start
   }
 }
 
-void disasm_range_tms1100(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_tms1100(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;
@@ -293,7 +319,7 @@ void disasm_range_tms1100(struct _memory *memory, uint32_t flags, uint32_t start
   printf("%-4s %-4s   %-5s %-40s Cycles\n", "Linr", "Addr", "Opcode", "Instruction");
   printf("---- ------ ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     num = READ_RAM(start);
 

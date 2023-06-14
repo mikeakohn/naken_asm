@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -28,19 +28,19 @@
     return (ret_type)var->value_float; \
   }
 
-void var_set_int(struct _var *var, int64_t value)
+void var_set_int(Var *var, int64_t value)
 {
   var->value_int = value;
   var->type = VAR_INT;
 }
 
-void var_set_float(struct _var *var, double value)
+void var_set_float(Var *var, double value)
 {
   var->value_float = value;
   var->type = VAR_FLOAT;
 }
 
-uint32_t var_get_bin32(struct _var *var)
+uint32_t var_get_bin32(Var *var)
 {
   uint32_t *data;
   float data_f;
@@ -58,7 +58,7 @@ uint32_t var_get_bin32(struct _var *var)
   }
 }
 
-uint64_t var_get_bin64(struct _var *var)
+uint64_t var_get_bin64(Var *var)
 {
   uint64_t *data;
   double data_d;
@@ -75,7 +75,7 @@ uint64_t var_get_bin64(struct _var *var)
   }
 }
 
-int32_t var_get_int32(struct _var *var)
+int32_t var_get_int32(Var *var)
 {
   VAR_RETURN_VALUE(var,int32_t);
 
@@ -84,7 +84,7 @@ int32_t var_get_int32(struct _var *var)
   return 0;
 }
 
-int64_t var_get_int64(struct _var *var)
+int64_t var_get_int64(Var *var)
 {
   VAR_RETURN_VALUE(var,int64_t);
 
@@ -93,7 +93,7 @@ int64_t var_get_int64(struct _var *var)
   return 0;
 }
 
-float var_get_float(struct _var *var)
+float var_get_float(Var *var)
 {
   VAR_RETURN_VALUE(var,float);
 
@@ -102,7 +102,7 @@ float var_get_float(struct _var *var)
   return 0;
 }
 
-double var_get_double(struct _var *var)
+double var_get_double(Var *var)
 {
   VAR_RETURN_VALUE(var,double);
 
@@ -111,12 +111,12 @@ double var_get_double(struct _var *var)
   return 0;
 }
 
-int var_get_type(struct _var *var)
+int var_get_type(Var *var)
 {
   return var->type;
 }
 
-int var_add(struct _var *var_d, struct _var *var_s)
+int var_add(Var *var_d, Var *var_s)
 {
   if (var_d->type == VAR_INT && var_s->type == VAR_INT)
   {
@@ -131,7 +131,7 @@ int var_add(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
-int var_sub(struct _var *var_d, struct _var *var_s)
+int var_sub(Var *var_d, Var *var_s)
 {
   if (var_d->type == VAR_INT && var_s->type == VAR_INT)
   {
@@ -146,7 +146,7 @@ int var_sub(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
-int var_mul(struct _var *var_d, struct _var *var_s)
+int var_mul(Var *var_d, Var *var_s)
 {
   if (var_d->type == VAR_INT && var_s->type == VAR_INT)
   {
@@ -161,7 +161,7 @@ int var_mul(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
-int var_div(struct _var *var_d, struct _var *var_s)
+int var_div(Var *var_d, Var *var_s)
 {
   if (var_d->type == VAR_INT && var_s->type == VAR_INT)
   {
@@ -176,7 +176,7 @@ int var_div(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
-int var_mod(struct _var *var_d, struct _var *var_s)
+int var_mod(Var *var_d, Var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
@@ -195,7 +195,7 @@ int var_mod(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
-int var_shift_left(struct _var *var_d, struct _var *var_s)
+int var_shift_left(Var *var_d, Var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
@@ -215,7 +215,7 @@ int var_shift_left(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
-int var_shift_right(struct _var *var_d, struct _var *var_s)
+int var_shift_right(Var *var_d, Var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
@@ -235,7 +235,7 @@ int var_shift_right(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
-int var_shift_right_unsigned(struct _var *var_d, struct _var *var_s)
+int var_shift_right_unsigned(Var *var_d, Var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
@@ -255,7 +255,7 @@ int var_shift_right_unsigned(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
-int var_and(struct _var *var_d, struct _var *var_s)
+int var_and(Var *var_d, Var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
@@ -276,7 +276,7 @@ int var_and(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
-int var_or(struct _var *var_d, struct _var *var_s)
+int var_or(Var *var_d, Var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
@@ -297,7 +297,7 @@ int var_or(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
-int var_xor(struct _var *var_d, struct _var *var_s)
+int var_xor(Var *var_d, Var *var_s)
 {
   if (var_d->type == VAR_FLOAT)
   {
@@ -318,7 +318,7 @@ int var_xor(struct _var *var_d, struct _var *var_s)
   return 0;
 }
 
-int var_not(struct _var *var)
+int var_not(Var *var)
 {
   if (var->type == VAR_FLOAT)
   {

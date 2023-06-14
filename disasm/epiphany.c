@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -17,12 +17,16 @@
 #include "table/epiphany.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) ((memory_read_m(memory, a)) | \
-                       (memory_read_m(memory, a+1)<<8))
-#define READ_RAM32(a) ((memory_read_m(memory, a)) | \
-                       (memory_read_m(memory, a+1)<<8) | \
-                       (memory_read_m(memory, a+2)<<16) | \
-                       (memory_read_m(memory, a+3)<<24))
+
+#define READ_RAM16(a) \
+  ((memory_read_m(memory, a)) | \
+   (memory_read_m(memory, a + 1) << 8))
+
+#define READ_RAM32(a) \
+  ((memory_read_m(memory, a)) | \
+   (memory_read_m(memory, a + 1) << 8) | \
+   (memory_read_m(memory, a + 2) << 16) | \
+   (memory_read_m(memory, a + 3) << 24))
 
 #define SINGLE_OPCODE(pre, op, cycles, size, instr) \
   if (opcode==op && prefix==pre) \
@@ -42,12 +46,12 @@ static const char *regs[] = {
 };
 #endif
 
-int get_cycle_count_epiphany(unsigned short int opcode)
-{
-  return -1;
-}
-
-int disasm_epiphany(struct _memory *memory, uint32_t address, char *instr, int *cycles_min, int *cycles_max)
+int disasm_epiphany(
+  Memory *memory,
+  uint32_t address,
+  char *instr,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint32_t opcode32;
   uint16_t opcode16;
@@ -67,7 +71,7 @@ int disasm_epiphany(struct _memory *memory, uint32_t address, char *instr, int *
   *cycles_max = -1;
 
   n = 0;
-  while(table_epiphany[n].instr != NULL)
+  while (table_epiphany[n].instr != NULL)
   {
     if ((table_epiphany[n].size == 16 &&
          table_epiphany[n].opcode == (opcode16 & table_epiphany[n].mask)) ||
@@ -87,7 +91,7 @@ int disasm_epiphany(struct _memory *memory, uint32_t address, char *instr, int *
         rm = ((opcode32 >> 7) & 0x7) | (((opcode32 >> 23) & 0x7) << 3);
       }
 
-      switch(table_epiphany[n].type)
+      switch (table_epiphany[n].type)
       {
         case OP_BRANCH_16:
           offset = (int8_t)(opcode16 >> 8);
@@ -247,14 +251,17 @@ int disasm_epiphany(struct _memory *memory, uint32_t address, char *instr, int *
   return 4;
 }
 
-void list_output_epiphany(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_epiphany(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min,cycles_max,count;
   char instruction[128];
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_epiphany(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
     fprintf(asm_context->list, "0x%04x: ", start);
@@ -300,7 +307,11 @@ void list_output_epiphany(struct _asm_context *asm_context, uint32_t start, uint
 
 }
 
-void disasm_range_epiphany(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_epiphany(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0,cycles_max = 0;
@@ -312,7 +323,7 @@ void disasm_range_epiphany(struct _memory *memory, uint32_t flags, uint32_t star
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
 

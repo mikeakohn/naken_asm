@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,13 +16,8 @@
 #include "disasm/m8c.h"
 #include "table/m8c.h"
 
-int get_cycle_count_m8c(unsigned short int opcode)
-{
-  return -1;
-}
-
 int append_operand(
-  struct _memory *memory,
+  Memory *memory,
   char *instruction,
   uint8_t operand,
   uint32_t address,
@@ -105,7 +100,7 @@ int append_operand(
 }
 
 int disasm_m8c(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -161,7 +156,10 @@ int disasm_m8c(
   return 1;
 }
 
-void list_output_m8c(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_m8c(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
@@ -185,7 +183,11 @@ void list_output_m8c(struct _asm_context *asm_context, uint32_t start, uint32_t 
   fprintf(asm_context->list, "0x%04x: %-12s %-30s cycles=%d\n", start, hex, instruction, cycles_min);
 }
 
-void disasm_range_m8c(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_m8c(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;
@@ -199,7 +201,7 @@ void disasm_range_m8c(struct _memory *memory, uint32_t flags, uint32_t start, ui
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_m8c(memory, start, instruction, &cycles_min, &cycles_max);
 

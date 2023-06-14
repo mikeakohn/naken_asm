@@ -17,7 +17,7 @@
   adc.f r10, r12, 10
   adc.f r10, r12, -10
   adc.pl.f r10, r10, r13
-  adc.ne.f r10, r10, 55 
+  adc.ne.f r10, r10, 55
   adc.f r10, 50000, r55
   adc.f r10, r33, 50000
   adc.eq.f r10, r10, 50000

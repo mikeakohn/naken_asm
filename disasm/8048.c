@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -18,13 +18,8 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-int get_cycle_count_8048(unsigned short int opcode)
-{
-  return -1;
-}
-
 int disasm_8048(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t address,
   char *instruction,
@@ -222,7 +217,7 @@ void list_output_8048(
 }
 
 void disasm_range_8048(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)

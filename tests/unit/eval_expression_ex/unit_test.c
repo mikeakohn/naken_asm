@@ -11,8 +11,8 @@ int errors = 0;
 
 void test_int(const char *expression, int answer)
 {
-  struct _asm_context asm_context;
-  struct _var var;
+  AsmContext asm_context;
+  Var var;
 
   memset(&asm_context, 0, sizeof(asm_context));
 
@@ -46,8 +46,8 @@ void test_int(const char *expression, int answer)
 
 void test_int64(const char *expression, int64_t answer)
 {
-  struct _asm_context asm_context;
-  struct _var var;
+  AsmContext asm_context;
+  Var var;
 
   memset(&asm_context, 0, sizeof(asm_context));
 
@@ -81,8 +81,8 @@ void test_int64(const char *expression, int64_t answer)
 
 void should_fail(const char *expression)
 {
-  struct _asm_context asm_context;
-  struct _var var;
+  AsmContext asm_context;
+  Var var;
 
   memset(&asm_context, 0, sizeof(asm_context));
 

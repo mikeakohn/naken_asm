@@ -23,7 +23,7 @@ here:
   beqz.n a4, forward
   bf b3, here
   break 3, 7
-  break.n 12 
+  break.n 12
   call0 here
 forward:
   callx0 a5

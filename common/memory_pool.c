@@ -15,10 +15,10 @@
 
 #include "common/memory_pool.h"
 
-struct _memory_pool *memory_pool_add(struct _naken_heap *heap, int heap_len)
+MemoryPool *memory_pool_add(struct _naken_heap *heap, int heap_len)
 {
-  struct _memory_pool *curr_pool;
-  struct _memory_pool *memory_pool = malloc(heap_len + sizeof(struct _memory_pool));
+  MemoryPool *curr_pool;
+  MemoryPool *memory_pool = malloc(heap_len + sizeof(MemoryPool));
 
   memory_pool->len = heap_len;
   memory_pool->ptr = 0;
@@ -42,10 +42,10 @@ printf("add_pool pool=%p\n", memory_pool);
   return memory_pool;
 }
 
-void memory_pool_free(struct _memory_pool *memory_pool)
+void memory_pool_free(MemoryPool *memory_pool)
 {
-  struct _memory_pool *curr_pool;
-  struct _memory_pool *last_pool;
+  MemoryPool *curr_pool;
+  MemoryPool *last_pool;
 
   curr_pool = memory_pool;
 

@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -17,15 +17,20 @@
 #include "table/6809.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
+
+#define READ_RAM16(a) \
+  (memory_read_m(memory, a) << 8) | \
+   memory_read_m(memory, a + 1)
+
 #define ADD_CYCLES(a) *cycles_min += a; *cycles_max += a;
 
-int get_cycle_count_6809(unsigned short int opcode)
-{
-  return -1;
-}
-
-int get_indexed(struct _memory *memory, struct _table_6809 *table, char *instruction, uint32_t address, int *cycles_min, int *cycles_max)
+int get_indexed(
+  Memory *memory,
+  struct _table_6809 *table,
+  char *instruction,
+  uint32_t address,
+   int *cycles_min,
+   int *cycles_max)
 {
   const char *name[] = { "x", "y", "u", "s" };
   uint8_t post_byte = READ_RAM(address);
@@ -238,7 +243,12 @@ int get_indexed(struct _memory *memory, struct _table_6809 *table, char *instruc
   return 0;
 }
 
-int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_6809(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   int n;
@@ -253,7 +263,7 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
     opcode = READ_RAM16(address);
 
     n = 0;
-    while(table_6809_16[n].instr != NULL)
+    while (table_6809_16[n].instr != NULL)
     {
       if (table_6809_16[n].opcode == opcode)
       {
@@ -261,7 +271,7 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
         *cycles_min = table_6809_16[n].cycles_min;
         *cycles_max = table_6809_16[n].cycles_min;
 
-        switch(table_6809_16[n].operand_type)
+        switch (table_6809_16[n].operand_type)
         {
           case M6809_OP_INHERENT:
           {
@@ -329,14 +339,14 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
   else
   {
     n = 0;
-    while(table_6809[n].instr != NULL)
+    while (table_6809[n].instr != NULL)
     {
       if (table_6809[n].opcode == opcode)
       {
         *cycles_min = table_6809[n].cycles_min;
         *cycles_max = table_6809[n].cycles_min;
 
-        switch(table_6809[n].operand_type)
+        switch (table_6809[n].operand_type)
         {
           case M6809_OP_INHERENT:
           {
@@ -470,7 +480,10 @@ int disasm_6809(struct _memory *memory, uint32_t address, char *instruction, int
   return 1;
 }
 
-void list_output_6809(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_6809(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
@@ -480,7 +493,7 @@ void list_output_6809(struct _asm_context *asm_context, uint32_t start, uint32_t
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_6809(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -503,7 +516,11 @@ void list_output_6809(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_6809(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_6809(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   char bytes[16];
@@ -516,7 +533,7 @@ void disasm_range_6809(struct _memory *memory, uint32_t flags, uint32_t start, u
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_6809(memory, start, instruction, &cycles_min, &cycles_max);
 

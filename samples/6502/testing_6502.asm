@@ -128,7 +128,7 @@ sub16:
   sbc num2hi
   sta resulthi
   rts
-  
+
 plotx:
   db 0
 ploty:
@@ -139,11 +139,11 @@ plotcolor:
   db 0
 
 num1lo:
-  db 0 
+  db 0
 num1hi:
-  db 0 
+  db 0
 num2lo:
-  db 0 
+  db 0
 num2hi:
-  db 0 
+  db 0
 

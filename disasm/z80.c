@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -27,17 +27,12 @@ static char *reg16_p[] = { "bc","de","hl","af" };
 static char *reg_xy[] = { "ix","iy" };
 static char *cond[] = { "nz","z","nc","c", "po","pe","p","m" };
 
-int get_cycle_count_z80(unsigned short int opcode)
-{
-  return -1;
-}
-
 static const char *get_instruction(int instr_enum)
 {
   int n;
 
   n = 0;
-  while(table_instr_z80[n].instr != NULL)
+  while (table_instr_z80[n].instr != NULL)
   {
     if (table_instr_z80[n].instr_enum == instr_enum)
     {
@@ -66,7 +61,12 @@ static void get_disp(char *disp, int reg, int offset)
   }
 }
 
-int disasm_z80(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_z80(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   int opcode16;
@@ -82,7 +82,7 @@ int disasm_z80(struct _memory *memory, uint32_t address, char *instruction, int 
   opcode16 = READ_RAM16(address);
 
   n = 0;
-  while(table_z80[n].instr_enum != Z80_NONE)
+  while (table_z80[n].instr_enum != Z80_NONE)
   {
     if (table_z80[n].mask > 0xff) { n++; continue; }
     if (table_z80[n].opcode == (opcode & table_z80[n].mask))
@@ -91,7 +91,7 @@ int disasm_z80(struct _memory *memory, uint32_t address, char *instruction, int 
       *cycles_max = table_z80[n].cycles_max;
       const char *instr = get_instruction(table_z80[n].instr_enum);
 
-      switch(table_z80[n].type)
+      switch (table_z80[n].type)
       {
         case OP_NONE:
           sprintf(instruction, "%s", instr);
@@ -227,7 +227,7 @@ int disasm_z80(struct _memory *memory, uint32_t address, char *instruction, int 
   }
 
   n = 0;
-  while(table_z80[n].instr_enum != Z80_NONE)
+  while (table_z80[n].instr_enum != Z80_NONE)
   {
     if (table_z80[n].mask <= 0xff) { n++; continue; }
     if (table_z80[n].opcode == (opcode16 & table_z80[n].mask))
@@ -236,7 +236,7 @@ int disasm_z80(struct _memory *memory, uint32_t address, char *instruction, int 
       *cycles_max = table_z80[n].cycles_max;
       const char *instr = get_instruction(table_z80[n].instr_enum);
 
-      switch(table_z80[n].type)
+      switch (table_z80[n].type)
       {
         case OP_NONE16:
           sprintf(instruction, "%s", instr);
@@ -450,7 +450,7 @@ int disasm_z80(struct _memory *memory, uint32_t address, char *instruction, int 
     i = READ_RAM(address + 3);
 
     n = 0;
-    while(table_z80_4_byte[n].instr_enum != Z80_NONE)
+    while (table_z80_4_byte[n].instr_enum != Z80_NONE)
     {
 
       if ((i & table_z80_4_byte[n].mask) == table_z80_4_byte[n].opcode)
@@ -462,7 +462,7 @@ int disasm_z80(struct _memory *memory, uint32_t address, char *instruction, int 
         *cycles_max = table_z80_4_byte[n].cycles_max;
         const char *instr = get_instruction(table_z80_4_byte[n].instr_enum);
 
-        switch(table_z80_4_byte[n].type)
+        switch (table_z80_4_byte[n].type)
         {
           case OP_BIT_INDEX_V2:
             i = (i >> 3) & 0x7;
@@ -484,7 +484,10 @@ int disasm_z80(struct _memory *memory, uint32_t address, char *instruction, int 
   return 1;
 }
 
-void list_output_z80(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_z80(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
@@ -494,7 +497,7 @@ void list_output_z80(struct _asm_context *asm_context, uint32_t start, uint32_t 
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_z80(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -518,11 +521,15 @@ void list_output_z80(struct _asm_context *asm_context, uint32_t start, uint32_t 
   }
 }
 
-void disasm_range_z80(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_z80(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   char bytes[10];
-  int cycles_min=0,cycles_max=0;
+  int cycles_min = 0, cycles_max = 0;
   int count;
   int n;
 
@@ -531,7 +538,7 @@ void disasm_range_z80(struct _memory *memory, uint32_t flags, uint32_t start, ui
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_z80(memory, start, instruction, &cycles_min, &cycles_max);
 

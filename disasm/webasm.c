@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -18,13 +18,8 @@
 #include "disasm/webasm.h"
 #include "table/webasm.h"
 
-int get_cycle_count_webasm(uint16_t opcode)
-{
-  return -1;
-}
-
 static uint64_t get_varuint(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   int *length)
 {
@@ -56,7 +51,7 @@ static uint64_t get_varuint(
 }
 
 static int64_t get_varint(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   int *length)
 {
@@ -109,7 +104,7 @@ static const char *get_type(int type)
   return "???";
 }
 
-static int print_table(struct _memory *memory, uint32_t address, FILE *out)
+static int print_table(Memory *memory, uint32_t address, FILE *out)
 {
   int length = 0, total_length, entry, n, count = 0;
 
@@ -132,7 +127,7 @@ static int print_table(struct _memory *memory, uint32_t address, FILE *out)
 }
 
 int disasm_webasm(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -152,7 +147,7 @@ int disasm_webasm(
   opcode = memory_read_m(memory, address);
 
   n = 0;
-  while(table_webasm[n].instr != NULL)
+  while (table_webasm[n].instr != NULL)
   {
     if (opcode != table_webasm[n].opcode)
     {
@@ -160,7 +155,7 @@ int disasm_webasm(
       continue;
     }
 
-    switch(table_webasm[n].type)
+    switch (table_webasm[n].type)
     {
       case WEBASM_OP_NONE:
         sprintf(instruction, "%s", table_webasm[n].instr);
@@ -247,7 +242,7 @@ void list_output_webasm(
 }
 
 void disasm_range_webasm(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)
@@ -264,7 +259,7 @@ void disasm_range_webasm(
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_webasm(memory, start, instruction, &cycles_min, &cycles_max);
 

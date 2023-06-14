@@ -14,6 +14,8 @@
 
 #include <stdint.h>
 
+#include "memory_pool.h"
+
 #define SYMBOLS_HEAP_SIZE 32768
 
 typedef struct _symbols_data
@@ -37,7 +39,7 @@ typedef struct _unfound_list
 
 typedef struct _symbols
 {
-  struct _memory_pool *memory_pool;
+  MemoryPool *memory_pool;
   UnfoundList *unfound_list;
   uint8_t locked : 1;
   uint8_t in_scope : 1;
@@ -47,7 +49,7 @@ typedef struct _symbols
 
 typedef struct _symbols_iter
 {
-  struct _memory_pool *memory_pool;
+  MemoryPool *memory_pool;
   char *name;
   uint32_t address;
   int ptr;

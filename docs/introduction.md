@@ -6,7 +6,7 @@ originally called naken430asm, but since it has been expanded to
 support many more CPUs it has been renamed to naken_asm.
 Additionally, there is a simulator for of the supported CPUs.
 
-Website: 
+Website:
 http://www.mikekohn.net/micro/naken_asm.php
 
 SUPPORTED CPU'S

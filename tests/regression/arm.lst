@@ -4,7 +4,7 @@
 
 0x0000: 0xffffffff swinv                                    cycles: 1
 
-  ;add r0, r0, #2 
+  ;add r0, r0, #2
   add r0, r0, r1
 
 0x0004: 0xe0800001 add r0, r0, r1                           cycles: 2

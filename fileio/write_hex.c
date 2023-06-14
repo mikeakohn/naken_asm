@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -66,7 +66,7 @@ static void write_hex_line(FILE *out, uint32_t address, uint8_t *data, int len, 
 // NOTE: (to self) - This is kind of slowish.  I wonder if it would be
 // better to request pages from the memory module and just dump the memory
 // pages instead of treating it as one big memory thing.
-int write_hex(struct _memory *memory, FILE *out)
+int write_hex(Memory *memory, FILE *out)
 {
   uint8_t data[16];
   int len;

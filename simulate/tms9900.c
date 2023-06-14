@@ -153,7 +153,7 @@ static int get_register_tms9900(char *token)
   return -1;
 }
 
-Simulate *simulate_init_tms9900(struct _memory *memory)
+Simulate *simulate_init_tms9900(Memory *memory)
 {
   Simulate *simulate;
 

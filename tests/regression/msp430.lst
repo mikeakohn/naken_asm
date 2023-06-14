@@ -41,7 +41,7 @@ start:
 
 0x001c: 0x1009 rrc.w r9                                 cycles: 1
 
-  rra.w &0x100 
+  rra.w &0x100
 
 0x001e: 0x1112 rra.w &0x0100                            cycles: 4
 0x0020: 0x0100

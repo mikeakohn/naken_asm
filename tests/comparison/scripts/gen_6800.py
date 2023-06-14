@@ -35,7 +35,7 @@ for instruction in fp:
   checksum = 0
 
   line = fp1.readline().strip()
-  if line == "": break 
+  if line == "": break
 
   line = line[8:-2]
   print(line)

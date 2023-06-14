@@ -30,7 +30,7 @@ function loadWebAssembly(filename)
     .then(buffer => WebAssembly.compile(buffer))
     .then(module => { return new WebAssembly.Instance(module) });
 };
-  
+
 loadWebAssembly('math.wasm')
   .then(instance => { add_nums = instance.exports.add_nums; });
 

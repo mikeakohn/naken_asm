@@ -34,10 +34,10 @@ needed (assume as an example the new cup is called "mycpu":
   * Implement parse_instruction_mycpu().
   * Make sure in the .h file the #ifndef has the proper CPU name for guards.
 5. Add files disasm/mycpu.h and disasm/mycpu.c
-  * Implement 
+  * Implement
   * Make sure in the .h file the #ifndef has the proper CPU name for guards.
 6. Add files table/mycpu.h and table/mycpu.c (OPTIONAL)
-  * Create any tables neeed.  Again this is optional. 
+  * Create any tables neeed.  Again this is optional.
   * Make sure in the .h file the #ifndef has the proper CPU name for guards.
 7. Add include to common/naken_util.c (alphabetical order).
   * Add to list of parse_instruction_t the new CPU.

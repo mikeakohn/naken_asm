@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -17,7 +17,7 @@
 #define MAX_OPERANDS 2
 
 enum
-{ 
+{
   OPERAND_ADDRESS,
   OPERAND_IMMEDIATE,
   OPERAND_A,

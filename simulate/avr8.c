@@ -115,7 +115,7 @@ static int simulate_avr8_word_count(Simulate *simulate)
   return 0;
 }
 
-Simulate *simulate_init_avr8(struct _memory *memory)
+Simulate *simulate_init_avr8(Memory *memory)
 {
   Simulate *simulate;
 
@@ -205,7 +205,7 @@ void simulate_set_pc_avr8(Simulate *simulate, uint32_t value)
 {
   SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
 
-  simulate_avr8->pc = value; 
+  simulate_avr8->pc = value;
 }
 
 void simulate_reset_avr8(Simulate *simulate)
@@ -218,9 +218,9 @@ void simulate_reset_avr8(Simulate *simulate)
   memset(simulate_avr8->io, 0, sizeof(simulate_avr8->io));
   memset(simulate_avr8->ram, 0, sizeof(simulate_avr8->ram));
   //memory_clear(&simulate->memory);
-  simulate_avr8->pc = 0; 
-  simulate_avr8->sp = 0; 
-  simulate_avr8->sreg = 0; 
+  simulate_avr8->pc = 0;
+  simulate_avr8->sp = 0;
+  simulate_avr8->sreg = 0;
   simulate->break_point = -1;
 }
 
@@ -353,7 +353,7 @@ static void simulate_execute_avr8_set_sreg_arith(Simulate *simulate, uint8_t rd_
   int K7 = (k & 0x80) >> 7;
   int C = (Rd7 & K7) | (K7 & (R7 ^ 1)) | ((R7 ^ 1) & Rd7);
   int V = (Rd7 & (K7 ^ 1) & (R7 ^ 1)) | ((Rd7 ^ 1) & K7 & R7);
-  int N = R7; 
+  int N = R7;
   int S = N ^ V;
   int Rd3 = (rd_prev & 0x08) >> 3;
   int R3 = (rd & 0x08) >> 3;
@@ -376,7 +376,7 @@ SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int K7 = (k & 0x80) >> 7;
   int C = ((Rd7 ^ 1) & (K7)) | (K7 & R7) | (R7 & (Rd7 ^ 1));
   int V = (Rd7 & (K7 ^ 1) & (R7 ^ 1)) | ((Rd7 ^ 1) & K7 & R7);
-  int N = R7; 
+  int N = R7;
   int S = N ^ V;
   int Rd3 = (rd_prev & 0x08) >> 3;
   int R3 = (rd & 0x08) >> 3;
@@ -395,7 +395,7 @@ static void simulate_execute_avr8_set_sreg_logic(Simulate *simulate, uint8_t rd_
 {
   SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int R7 = (rd & 0x80) >> 7;
-  int N = R7; 
+  int N = R7;
   int S = N ^ 0;
 
   SREG_CLR(SREG_V);
@@ -409,7 +409,7 @@ static void simulate_execute_avr8_set_sreg_reg16(Simulate *simulate, int rd_prev
   SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int R15 = (rd & 0x8000) >> 15;
   int Rdh7 = (rd_prev & 0x0080) >> 7;
-  int N = R15; 
+  int N = R15;
   int V = (Rdh7 ^ 1) & R15;
   int S = N ^ V;
   int C = (R15 ^ 1) & Rdh7;
@@ -540,23 +540,23 @@ static int simulate_execute_avr8_op_two_reg(Simulate *simulate, struct _table_av
     case AVR8_ADC:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] +
                                simulate_avr8->reg[rr] + GET_SREG(SREG_C);
-      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
+      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]);
       break;
     case AVR8_ADD:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] + simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
+      simulate_execute_avr8_set_sreg_arith(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]);
       break;
     case AVR8_AND:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] & simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]);
       break;
     case AVR8_CP:
       temp = simulate_avr8->reg[rd] - simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, temp, simulate_avr8->reg[rr]); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, temp, simulate_avr8->reg[rr]);
       break;
     case AVR8_CPC:
       temp = simulate_avr8->reg[rd] - simulate_avr8->reg[rr] - GET_SREG(SREG_C);
-      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, temp, simulate_avr8->reg[rr]); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, temp, simulate_avr8->reg[rr]);
       break;
     case AVR8_CPSE:
       if (simulate_avr8->reg[rd] == simulate_avr8->reg[rr])
@@ -569,7 +569,7 @@ static int simulate_execute_avr8_op_two_reg(Simulate *simulate, struct _table_av
       break;
     case AVR8_EOR:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] ^ simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]);
       break;
     case AVR8_MOV:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rr];
@@ -584,16 +584,16 @@ static int simulate_execute_avr8_op_two_reg(Simulate *simulate, struct _table_av
       break;
     case AVR8_OR:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]);
       break;
     case AVR8_SBC:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] -
                                simulate_avr8->reg[rr] - GET_SREG(SREG_C);
-      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]);
       break;
     case AVR8_SUB:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - simulate_avr8->reg[rr];
-      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], simulate_avr8->reg[rr]);
       break;
   }
 
@@ -613,34 +613,34 @@ static int simulate_execute_avr8_op_reg_imm(Simulate *simulate, struct _table_av
   {
     case AVR8_ANDI:
       simulate_avr8->reg[rd] &= k;
-      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k); 
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k);
       break;
     case AVR8_CPI:
       temp = simulate_avr8->reg[rd] - k;
-      simulate_execute_avr8_set_sreg_arith(simulate, prev, temp, k); 
+      simulate_execute_avr8_set_sreg_arith(simulate, prev, temp, k);
       break;
     case AVR8_LDI:
       simulate_avr8->reg[rd] = k;
       break;
     case AVR8_ORI:
       simulate_avr8->reg[rd] |= k;
-      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k); 
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k);
       break;
     case AVR8_SBCI:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - k - GET_SREG(SREG_C);
-      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], k); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], k);
       break;
     case AVR8_SBR:
       simulate_avr8->reg[rd] &= k;
-      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k); 
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k);
       break;
     case AVR8_SUBI:
       simulate_avr8->reg[rd] = simulate_avr8->reg[rd] - k;
-      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], k); 
+      simulate_execute_avr8_set_sreg_arith_sub(simulate, prev, simulate_avr8->reg[rd], k);
       break;
     case AVR8_CBR:
       simulate_avr8->reg[rd] &= k ^ 0xff;
-      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k); 
+      simulate_execute_avr8_set_sreg_logic(simulate, prev, simulate_avr8->reg[rd], k);
       break;
   }
 
@@ -777,12 +777,12 @@ static int simulate_execute_avr8_op_reg_imm_word(Simulate *simulate, struct _tab
     case AVR8_ADIW:
       prev_reg16 = simulate_avr8->reg[rd] | (simulate_avr8->reg[rd + 1] << 8);
       reg16 = prev_reg16 + k;
-      simulate_execute_avr8_set_sreg_reg16(simulate, prev_reg16, reg16); 
+      simulate_execute_avr8_set_sreg_reg16(simulate, prev_reg16, reg16);
       break;
     case AVR8_SBIW:
       prev_reg16 = simulate_avr8->reg[rd] | (simulate_avr8->reg[rd + 1] << 8);
       reg16 = prev_reg16 - k;
-      simulate_execute_avr8_set_sreg_reg16(simulate, prev_reg16, reg16); 
+      simulate_execute_avr8_set_sreg_reg16(simulate, prev_reg16, reg16);
       break;
   }
 
@@ -798,10 +798,10 @@ static int simulate_execute_avr8_op_ioreg_bit(Simulate *simulate, struct _table_
   switch(table_avr8->id)
   {
     case AVR8_CBI:
-      simulate_avr8->io[a] &= 0xff ^ (1 << k); 
+      simulate_avr8->io[a] &= 0xff ^ (1 << k);
       break;
     case AVR8_SBI:
-      simulate_avr8->io[a] |= (1 << k); 
+      simulate_avr8->io[a] |= (1 << k);
       break;
     case AVR8_SBIC:
       if ((simulate_avr8->io[a] & (1 << k)) == 0)

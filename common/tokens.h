@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -21,18 +21,18 @@
 
 struct _asm_context;
 
-struct _token_buffer
+typedef struct _token_buffer
 {
   const char *code;
   int ptr;
-};
+} TokenBuffer;
 
-struct _tokens
+typedef struct _tokens
 {
   FILE *in;
   int line;
   const char *filename;
-  struct _token_buffer token_buffer;
+  TokenBuffer token_buffer;
   int pushback_type;
   int pushback2_type;
   int unget_ptr;
@@ -41,7 +41,7 @@ struct _tokens
   char unget[512];
   char pushback[TOKENLEN];
   char pushback2[TOKENLEN];
-};
+} Tokens;
 
 int tokens_open_file(struct _asm_context *asm_context, char *filename);
 void tokens_open_buffer(struct _asm_context *asm_context, const char *buffer);

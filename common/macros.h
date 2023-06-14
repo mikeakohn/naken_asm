@@ -14,6 +14,8 @@
 
 #include <stdint.h>
 
+#include "memory_pool.h"
+
 #define MAX_NESTED_MACROS 128
 #define MAX_MACRO_LEN 1024
 #define MACROS_HEAP_SIZE 32768
@@ -32,41 +34,41 @@
   };
 */
 
-struct _macro_data
+typedef struct _macro_data
 {
   int8_t param_count; // number of macro parameters
   int8_t name_len;    // length of the macro name
   int16_t value_len;  // length of the macro
   char data[];        // name[], value[]
-};
+} MacroData;
 
-struct _macros
+typedef struct _macros
 {
-  struct _memory_pool *memory_pool;
+  MemoryPool *memory_pool;
   int locked;
   char *stack[MAX_NESTED_MACROS];
   int stack_ptr;
-};
+} Macros;
 
-struct _macros_iter
+typedef struct _macros_iter
 {
-  struct _memory_pool *memory_pool;
+  MemoryPool *memory_pool;
   uint8_t param_count;
   char *name;
   char *value;
   int ptr;
   int count;
   int end_flag;
-};
+} MacrosIter;
 
-int macros_init(struct _macros *macros);
-void macros_free(struct _macros *macros);
+int macros_init(Macros *macros);
+void macros_free(Macros *macros);
 int macros_append(struct _asm_context *asm_context, char *name, char *value, int param_count);
-void macros_lock(struct _macros *macros);
-char *macros_lookup(struct _macros *macros, char *name, int *param_count);
-int macros_iterate(struct _macros *macros, struct _macros_iter *iter);
-int macros_print(struct _macros *macros, FILE *out);
-int macros_push_define(struct _macros *macros, char *define);
+void macros_lock(Macros *macros);
+char *macros_lookup(Macros *macros, char *name, int *param_count);
+int macros_iterate(Macros *macros, MacrosIter *iter);
+int macros_print(Macros *macros, FILE *out);
+int macros_push_define(Macros *macros, char *define);
 int macros_get_char(struct _asm_context *asm_context);
 void macros_strip(char *macro);
 int macros_parse(struct _asm_context *asm_context, int is_define);

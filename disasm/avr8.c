@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -17,7 +17,9 @@
 #include "table/avr8.h"
 
 //#define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) memory_read_m(memory, a)|(memory_read_m(memory, a+1)<<8)
+#define READ_RAM16(a) \
+   memory_read_m(memory, a) | \
+  (memory_read_m(memory, a + 1) << 8)
 
 int get_register_avr8(char *token)
 {
@@ -29,7 +31,7 @@ int get_register_avr8(char *token)
     if (token[1] == 0) return -1;
 
     r = 0; n = 1;
-    while(1)
+    while (1)
     {
       if (token[n] == 0) return r;
       if (token[n] < '0' || token[n] > '9') return -1;
@@ -41,10 +43,12 @@ int get_register_avr8(char *token)
   return -1;
 }
 
+#if 0
 int get_cycle_count_avr8(uint16_t opcode)
 {
   int n = 0;
-  while(table_avr8[n].instr != NULL)
+
+  while (table_avr8[n].instr != NULL)
   {
     if (table_avr8[n].opcode == opcode)
     {
@@ -55,8 +59,14 @@ int get_cycle_count_avr8(uint16_t opcode)
 
   return -1;
 }
+#endif
 
-int disasm_avr8(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_avr8(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   int n;
@@ -68,7 +78,7 @@ int disasm_avr8(struct _memory *memory, uint32_t address, char *instruction, int
   opcode = READ_RAM16(address);
 
   n = 0;
-  while(table_avr8[n].instr != NULL)
+  while (table_avr8[n].instr != NULL)
   {
     if ((opcode & table_avr8[n].mask) == table_avr8[n].opcode)
     {
@@ -283,7 +293,10 @@ int disasm_avr8(struct _memory *memory, uint32_t address, char *instruction, int
   return 2;
 }
 
-void list_output_avr8(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_avr8(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
@@ -292,7 +305,7 @@ void list_output_avr8(struct _asm_context *asm_context, uint32_t start, uint32_t
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_avr8(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -316,7 +329,11 @@ void list_output_avr8(struct _asm_context *asm_context, uint32_t start, uint32_t
   }
 }
 
-void disasm_range_avr8(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_avr8(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min=0,cycles_max=0;
@@ -328,7 +345,7 @@ void disasm_range_avr8(struct _memory *memory, uint32_t flags, uint32_t start, u
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_avr8(memory, start, instruction, &cycles_min, &cycles_max);
 

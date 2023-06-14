@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -17,12 +17,12 @@
 #include "disasm/sweet16.h"
 #include "table/sweet16.h"
 
-int get_cycle_count_sweet16(uint16_t opcode)
-{
-  return -1;
-}
-
-int disasm_sweet16(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_sweet16(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   int data;
@@ -35,11 +35,11 @@ int disasm_sweet16(struct _memory *memory, uint32_t address, char *instruction, 
 
   n = 0;
 
-  while(table_sweet16[n].instr != NULL)
+  while (table_sweet16[n].instr != NULL)
   {
     if ((opcode & table_sweet16[n].mask) == table_sweet16[n].opcode)
     {
-      switch(table_sweet16[n].type)
+      switch (table_sweet16[n].type)
       {
         case SWEET16_OP_NONE:
         {
@@ -87,7 +87,10 @@ int disasm_sweet16(struct _memory *memory, uint32_t address, char *instruction, 
   return 1;
 }
 
-void list_output_sweet16(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_sweet16(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   uint32_t opcode;
@@ -98,7 +101,7 @@ void list_output_sweet16(struct _asm_context *asm_context, uint32_t start, uint3
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_sweet16(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -118,7 +121,11 @@ void list_output_sweet16(struct _asm_context *asm_context, uint32_t start, uint3
   }
 }
 
-void disasm_range_sweet16(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_sweet16(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0,cycles_max = 0;
@@ -130,7 +137,7 @@ void disasm_range_sweet16(struct _memory *memory, uint32_t flags, uint32_t start
   printf("%-7s %-5s %-40s\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_sweet16(memory, start, instruction, &cycles_min, &cycles_max);
 

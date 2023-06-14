@@ -28,7 +28,7 @@ typedef struct _simulate_1802
   uint8_t flag_df, flag_q, flag_mie, flag_cie, flag_xie, flag_cil, flag_etq;
 } Simulate1802;
 
-Simulate *simulate_init_1802(struct _memory *memory);
+Simulate *simulate_init_1802(Memory *memory);
 void simulate_free_1802(Simulate *simulate);
 int simulate_dumpram_1802(Simulate *simulate, int start, int end);
 void simulate_push_1802(Simulate *simulate, uint32_t value);

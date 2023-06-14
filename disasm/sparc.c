@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,12 +16,12 @@
 #include "disasm/sparc.h"
 #include "table/sparc.h"
 
-int get_cycle_count_sparc(unsigned short int opcode)
-{
-  return -1;
-}
-
-int disasm_sparc(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_sparc(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   const char *cc_value[] = { "icc", "?", "xcc", "?" };
   uint32_t opcode;
@@ -142,7 +142,10 @@ int disasm_sparc(struct _memory *memory, uint32_t address, char *instruction, in
   return 4;
 }
 
-void list_output_sparc(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_sparc(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
@@ -176,7 +179,11 @@ void list_output_sparc(struct _asm_context *asm_context, uint32_t start, uint32_
   }
 }
 
-void disasm_range_sparc(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_sparc(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   uint32_t opcode;

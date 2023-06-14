@@ -58,7 +58,7 @@ struct _tests_float tests_float[] =
 
 void test_int(const char *source, uint8_t *answer, int length, int endian)
 {
-  struct _asm_context asm_context;
+  AsmContext asm_context;
   int oops = 0;
   int i;
 
@@ -100,7 +100,7 @@ void test_int(const char *source, uint8_t *answer, int length, int endian)
 
 void test_float(const char *source, float *answer, int length, int endian)
 {
-  struct _asm_context asm_context;
+  AsmContext asm_context;
   int oops = 0;
   int i;
 

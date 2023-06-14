@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,8 +16,9 @@
 #include "disasm/lc3.h"
 #include "table/lc3.h"
 
-#define READ_RAM16(a) (memory_read_m(memory, a + 0) << 8) | \
-                       memory_read_m(memory, a + 1)
+#define READ_RAM16(a) \
+  (memory_read_m(memory, a + 0) << 8) | \
+   memory_read_m(memory, a + 1)
 
 static char *br[] =
 {
@@ -31,12 +32,12 @@ static char *br[] =
   "",
 };
 
-int get_cycle_count_lc3(unsigned short int opcode)
-{
-  return -1;
-}
-
-int disasm_lc3(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_lc3(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint16_t opcode;
   int n;
@@ -47,7 +48,7 @@ int disasm_lc3(struct _memory *memory, uint32_t address, char *instruction, int 
   *cycles_max = -1;
 
   n = 0;
-  while(table_lc3[n].instr != NULL)
+  while (table_lc3[n].instr != NULL)
   {
     if ((opcode & table_lc3[n].mask) == table_lc3[n].opcode)
     {
@@ -55,7 +56,7 @@ int disasm_lc3(struct _memory *memory, uint32_t address, char *instruction, int 
       int r1 = (opcode >> 6) & 0x7;
       int r2 = opcode & 0x7;
 
-      switch(table_lc3[n].type)
+      switch (table_lc3[n].type)
       {
         case OP_NONE:
         {
@@ -141,7 +142,10 @@ int disasm_lc3(struct _memory *memory, uint32_t address, char *instruction, int 
   return 2;
 }
 
-void list_output_lc3(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_lc3(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min, cycles_max;
@@ -150,7 +154,7 @@ void list_output_lc3(struct _asm_context *asm_context, uint32_t start, uint32_t 
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_lc3(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -163,7 +167,11 @@ void list_output_lc3(struct _asm_context *asm_context, uint32_t start, uint32_t 
   }
 }
 
-void disasm_range_lc3(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_lc3(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min, cycles_max;
@@ -175,7 +183,7 @@ void disasm_range_lc3(struct _memory *memory, uint32_t flags, uint32_t start, ui
   printf("%-7s %-5s %-40s\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_lc3(memory, start, instruction, &cycles_min, &cycles_max);
 

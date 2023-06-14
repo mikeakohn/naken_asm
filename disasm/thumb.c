@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -17,12 +17,10 @@
 #include "table/thumb.h"
 
 #define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) (memory_read_m(memory, a))|(memory_read_m(memory, a+1)<<8)
 
-int get_cycle_count_thumb(unsigned short int opcode)
-{
-  return -1;
-}
+#define READ_RAM16(a) \
+  (memory_read_m(memory, a)) | \
+  (memory_read_m(memory, a + 1) << 8)
 
 static void get_rlist(char *s, int rlist)
 {
@@ -69,7 +67,12 @@ static void get_special_register(char *name, int value)
   sprintf(name, "%d", value);
 }
 
-int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_thumb(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint16_t opcode;
   int rd, rs, rn, offset;
@@ -84,14 +87,14 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
   opcode = READ_RAM16(address);
 
   n = 0;
-  while(table_thumb[n].instr != NULL)
+  while (table_thumb[n].instr != NULL)
   {
     if (table_thumb[n].opcode == (opcode & table_thumb[n].mask))
     {
       *cycles_min = table_thumb[n].cycles;
       *cycles_max = table_thumb[n].cycles;
 
-      switch(table_thumb[n].type)
+      switch (table_thumb[n].type)
       {
         case OP_NONE:
           strcpy(instruction, table_thumb[n].instr);
@@ -302,7 +305,10 @@ int disasm_thumb(struct _memory *memory, uint32_t address, char *instruction, in
   return 2;
 }
 
-void list_output_thumb(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_thumb(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min,cycles_max;
   char instruction[128];
@@ -310,7 +316,7 @@ void list_output_thumb(struct _asm_context *asm_context, uint32_t start, uint32_
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_thumb(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -336,7 +342,11 @@ void list_output_thumb(struct _asm_context *asm_context, uint32_t start, uint32_
   }
 }
 
-void disasm_range_thumb(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_thumb(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;
@@ -347,7 +357,7 @@ void disasm_range_thumb(struct _memory *memory, uint32_t flags, uint32_t start, 
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count=disasm_thumb(memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -373,5 +383,4 @@ void disasm_range_thumb(struct _memory *memory, uint32_t flags, uint32_t start, 
     start += count;
   }
 }
-
 

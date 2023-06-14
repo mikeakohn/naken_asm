@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -102,7 +102,7 @@ static void write_int16_be(FILE *out, uint32_t n)
   putc(n & 0xff, out);
 }
 
-static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory)
+static void write_elf_header(FILE *out, struct _elf *elf, Memory *memory)
 {
   #define EI_DATA 5    // 1=little endian, 2=big endian
   #define EI_OSABI 7   // 0=SysV, 255=Embedded
@@ -238,16 +238,16 @@ static void write_elf_header(FILE *out, struct _elf *elf, struct _memory *memory
 
 static int get_string_table_len(char *string_table)
 {
-int n=0;
+  int n = 0;
 
-  while(string_table[n]!=0 || string_table[n+1]!=0) { n++; }
+  while (string_table[n]!=0 || string_table[n+1]!=0) { n++; }
 
   return n+1;
 }
 
 static void string_table_append(struct _elf *elf, char *name)
 {
-int len;
+  int len;
 
   char *string_table = elf->string_table;
 
@@ -258,7 +258,11 @@ int len;
   *string_table = 0;
 }
 
-static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory *memory, int alignment)
+static void write_elf_text_and_data(
+  FILE *out,
+  struct _elf *elf,
+  Memory *memory,
+  int alignment)
 {
   char *name = ".text";
   int i;
@@ -267,7 +271,7 @@ static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory 
   string_table_append(elf, name);
   elf->sections_offset.text = ftell(out);
 
-  for(i = memory->low_address; i <= memory->high_address; i++)
+  for (i = memory->low_address; i <= memory->high_address; i++)
   {
     putc(memory_read_m(memory, i), out);
   }
@@ -277,7 +281,7 @@ static void write_elf_text_and_data(FILE *out, struct _elf *elf, struct _memory 
     int count = memory->high_address - memory->low_address + 1;
     int mask = alignment - 1;
 
-    while((count & mask) != 0)
+    while ((count & mask) != 0)
     {
       putc(0, out);
       count++;
@@ -362,7 +366,7 @@ static int find_section(char *sections, char *name, int len)
 {
   int n = 0;
 
-  while(n < len)
+  while (n < len)
   {
     if (sections[n] == '.')
     {
@@ -379,10 +383,16 @@ static int find_section(char *sections, char *name, int len)
 static void elf_addr_align(FILE *out)
 {
   long marker = ftell(out);
-  while((marker % 4) != 0) { putc(0x00, out); marker++; }
+  while ((marker % 4) != 0) { putc(0x00, out); marker++; }
 }
 
-int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const char *filename, int cpu_type, int alignment)
+int write_elf(
+  Memory *memory,
+  FILE *out,
+  Symbols *symbols,
+  const char *filename,
+  int cpu_type,
+  int alignment)
 {
   struct _shdr shdr;
   struct _symtab symtab;
@@ -408,7 +418,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
 
     // Align 4096 for Playstation 2.
     long marker = ftell(out);
-    while(marker < 4096) { putc(0, out); marker++; }
+    while (marker < 4096) { putc(0, out); marker++; }
   }
 
   // .text and .data sections
@@ -451,7 +461,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
 
     n = 0;
     memset(&iter, 0, sizeof(iter));
-    while(symbols_iterate(symbols, &iter) != -1)
+    while (symbols_iterate(symbols, &iter) != -1)
     {
       if (iter.flag_export == 0) { continue; }
 
@@ -496,7 +506,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
     // symbols from lookup tables
     n = 0;
     memset(&iter, 0, sizeof(iter));
-    while(symbols_iterate(symbols, &iter)!=-1)
+    while (symbols_iterate(symbols, &iter) != -1)
     {
       if (iter.flag_export == 0) { continue; }
 
@@ -514,7 +524,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
 
   // .comment section
   elf.sections_offset.comment = ftell(out);
-  fprintf(out, "Created with naken_asm.  http://www.mikekohn.net/");
+  fprintf(out, "Created with naken_asm. https://www.mikekohn.net/");
   elf.sections_size.comment = ftell(out) - elf.sections_offset.comment;
 
   // Align sections
@@ -657,9 +667,6 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   elf.write_int16(out, elf.e_shstrndx); // e_shstrndx (string_table index)
   fseek(out, marker, SEEK_SET);
 
- 
   return 0;
 }
-
-
 

@@ -25,7 +25,7 @@ typedef struct _simulate_65816
   int reg_a, reg_x, reg_y, reg_sr, reg_pc, reg_sp, reg_db, reg_pb;
 } Simulate65816;
 
-Simulate *simulate_init_65816(struct _memory *memory);
+Simulate *simulate_init_65816(Memory *memory);
 void simulate_free_65816(Simulate *simulate);
 int simulate_dumpram_65816(Simulate *simulate, int start, int end);
 void simulate_push_65816(Simulate *simulate, uint32_t value);

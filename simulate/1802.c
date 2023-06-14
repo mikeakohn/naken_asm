@@ -58,7 +58,7 @@
 
 static int stop_running = 0;
 
-Simulate *simulate_init_1802(struct _memory *memory)
+Simulate *simulate_init_1802(Memory *memory)
 {
   Simulate *simulate;
 

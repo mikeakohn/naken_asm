@@ -30,7 +30,7 @@ for instruction in fp:
 
   while 1:
     a = fp1.read(1)
-    if a == "": break 
+    if a == "": break
     a = ord(a)
     l += 1
     checksum += a

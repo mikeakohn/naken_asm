@@ -14,7 +14,7 @@
 
 int test_symbols(const char *label, const char *code)
 {
-  struct _asm_context asm_context;
+  AsmContext asm_context;
   int error_flag;
   uint32_t first_address_1, first_address_2;
   uint32_t second_address_1, second_address_2;

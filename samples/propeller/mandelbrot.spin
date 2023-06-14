@@ -1,5 +1,5 @@
 {{ Propeller Mandelbrots         }}
-{{ Copyright 2017 - Michael Kohn }} 
+{{ Copyright 2017 - Michael Kohn }}
 {{ http://www.mikekohn.net/      }}
 {{                               }}
 {{ P0 - DOUT                     }}

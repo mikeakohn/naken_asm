@@ -16,7 +16,7 @@
 
 #include "common/memory.h"
 
-typedef struct _simulate *(*simulate_init_t)(struct _memory *);
+typedef struct _simulate *(*simulate_init_t)(Memory *);
 typedef void (*simulate_free_t)(struct _simulate *);
 typedef int (*simulate_dumpram_t)(struct _simulate *, int start, int end);
 typedef void (*simulate_push_t)(struct _simulate *, uint32_t value);
@@ -29,7 +29,7 @@ typedef int (*simulate_run_t)(struct _simulate *, int max_cycles, int step);
 
 typedef struct _simulate
 {
-  struct _memory *memory;
+  Memory *memory;
   int cycle_count;
   int nested_call_count;
   useconds_t usec;

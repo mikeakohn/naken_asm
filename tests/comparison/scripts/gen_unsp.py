@@ -47,7 +47,7 @@ def create_asm(instruction):
   if name in stack:
     if name == "push": instruction = instruction.replace(",", " to ")
     elif name == "pop": instruction = instruction.replace(",", " from ")
-    instruction = instruction.replace("-", ",") 
+    instruction = instruction.replace("-", ",")
   elif name in alu:
     if use_rs_form:
       instruction = result + " = " + operands[0] + " " + alu[name] + " " + operands[1]

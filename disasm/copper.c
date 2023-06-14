@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,12 +16,12 @@
 #include "disasm/copper.h"
 //#include "table/copper.h"
 
-int get_cycle_count_copper(unsigned short int opcode)
-{
-  return -1;
-}
-
-int disasm_copper(struct _memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_copper(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint16_t opcode;
   uint16_t data;
@@ -74,7 +74,10 @@ int disasm_copper(struct _memory *memory, uint32_t address, char *instruction, i
   return 4;
 }
 
-void list_output_copper(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_copper(
+  struct _asm_context *asm_context,
+  uint32_t start,
+  uint32_t end)
 {
   int cycles_min, cycles_max;
   char instruction[128];
@@ -101,7 +104,11 @@ void list_output_copper(struct _asm_context *asm_context, uint32_t start, uint32
   }
 }
 
-void disasm_range_copper(struct _memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_copper(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min = 0, cycles_max = 0;
@@ -113,7 +120,7 @@ void disasm_range_copper(struct _memory *memory, uint32_t flags, uint32_t start,
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_copper(memory, start, instruction, &cycles_min, &cycles_max);
     opcode = memory_read16_m(memory, start);

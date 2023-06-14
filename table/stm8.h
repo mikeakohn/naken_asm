@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -176,7 +176,7 @@ enum
   OP_INDIRECT8,          // [$10.w]
   OP_INDIRECT16,         // [$1000.w]
   OP_INDIRECT16_E,       // [$1000.e]
-  OP_INDIRECT8_X,        // ([$10.w],X) 
+  OP_INDIRECT8_X,        // ([$10.w],X)
   OP_INDIRECT16_X,       // ([$1000.w],X)
   OP_INDIRECT16_E_X,     // ([$1000.e],X)
   OP_INDIRECT8_Y,        // ([$10.w],Y)

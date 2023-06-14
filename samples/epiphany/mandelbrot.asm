@@ -123,8 +123,8 @@ next_iteration:
   fmsub r5, r6, r6
 
   ;; z = (r5 + r6i) + (r0 + r1i)
-  fadd r5, r5, r0 
-  fadd r6, r7, r1 
+  fadd r5, r5, r0
+  fadd r6, r7, r1
 
   ;; iteration--
   ;; if interation == 0 { break }

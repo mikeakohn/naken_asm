@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,13 +16,8 @@
 #include "disasm/pic14.h"
 #include "table/pic14.h"
 
-int get_cycle_count_pic14(unsigned short int opcode)
-{
-  return -1;
-}
-
 int disasm_pic14(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t address,
   char *instruction,
   int *cycles_min,
@@ -136,7 +131,7 @@ void list_output_pic14(
 }
 
 void disasm_range_pic14(
-  struct _memory *memory,
+  Memory *memory,
   uint32_t flags,
   uint32_t start,
   uint32_t end)

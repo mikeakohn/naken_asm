@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -22,8 +22,8 @@
 #define MIPS_II      0x0002
 #define MIPS_III     0x0004
 #define MIPS_IV      0x0008
-#define MIPS_32      0x0010 
-#define MIPS_FPU     0x0020 
+#define MIPS_32      0x0010
+#define MIPS_FPU     0x0020
 #define MIPS_EE_CORE 0x0040
 #define MIPS_EE_VU   0x0080
 #define MIPS_MSA     0x0100

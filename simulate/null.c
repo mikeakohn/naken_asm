@@ -25,7 +25,7 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
-Simulate *simulate_init_null(struct _memory *memory)
+Simulate *simulate_init_null(Memory *memory)
 {
   Simulate *simulate;
 
@@ -110,7 +110,7 @@ int simulate_run_null(Simulate *simulate, int max_cycles, int step)
   {
     printf("CPU not supported.\n");
     break;
-  } 
+  }
 
   signal(SIGINT, SIG_DFL);
 

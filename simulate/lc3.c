@@ -309,7 +309,7 @@ static int get_reg(char *reg_string)
   return reg_string[1] - '0';
 }
 
-Simulate *simulate_init_lc3(struct _memory *memory)
+Simulate *simulate_init_lc3(Memory *memory)
 {
 Simulate *simulate;
 
@@ -369,7 +369,7 @@ void simulate_set_pc_lc3(Simulate *simulate, uint32_t value)
 {
   SimulateLc3 *simulate_lc3 = (SimulateLc3 *)simulate->context;
 
-  simulate_lc3->pc = value; 
+  simulate_lc3->pc = value;
 }
 
 void simulate_reset_lc3(Simulate *simulate)

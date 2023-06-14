@@ -19,7 +19,7 @@ all: default
 
 install:
 	install -d $(INSTALL_PREFIX)/bin
-	install naken_asm $(INSTALL_PREFIX)/bin 
+	install naken_asm $(INSTALL_PREFIX)/bin
 	install naken_util $(INSTALL_PREFIX)/bin
 	install -d $(INSTALL_PREFIX)/share/naken_asm
 	cp -r include $(INSTALL_PREFIX)/share/naken_asm

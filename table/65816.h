@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2023 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
@@ -127,7 +127,7 @@ enum
 
 enum
 {
-  OP_NONE,             //            A / s 
+  OP_NONE,             //            A / s
 
   OP_IMMEDIATE8,       // #$10       #
   OP_IMMEDIATE16,      // #$1000     #
@@ -142,16 +142,16 @@ enum
   OP_INDEXED16_Y,      // $1000,y    a,y
   OP_INDEXED24_X,      // $100000,x  al,x
 
-  OP_INDIRECT8,        // ($10)      (d) 
-  OP_INDIRECT8_LONG,   // [$10]      [d] 
-  OP_INDIRECT16,       // ($1000)    (a) 
-  OP_INDIRECT16_LONG,  // [$1000]    [d] 
+  OP_INDIRECT8,        // ($10)      (d)
+  OP_INDIRECT8_LONG,   // [$10]      [d]
+  OP_INDIRECT16,       // ($1000)    (a)
+  OP_INDIRECT16_LONG,  // [$1000]    [d]
 
-  OP_X_INDIRECT8,      // ($10,x)    (d,x) 
-  OP_X_INDIRECT16,     // ($1000,x)  (a,x) 
+  OP_X_INDIRECT8,      // ($10,x)    (d,x)
+  OP_X_INDIRECT16,     // ($1000,x)  (a,x)
 
-  OP_INDIRECT8_Y,      // ($10),y    (d),y 
-  OP_INDIRECT8_Y_LONG, // [$10],y    [d],y 
+  OP_INDIRECT8_Y,      // ($10),y    (d),y
+  OP_INDIRECT8_Y_LONG, // [$10],y    [d],y
 
   OP_BLOCK_MOVE,       // $10,$10    xyc
 

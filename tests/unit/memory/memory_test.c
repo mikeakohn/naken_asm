@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[])
 {
-  struct _memory memory;
+  Memory memory;
   int errors = 0;
 
   memory_init(&memory, 100, 0);

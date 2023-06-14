@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -114,7 +114,10 @@ uint32_t i;
   return i;
 }
 
-static int read_shdr(FILE *in, struct _elf32_shdr *elf32_shdr, get_int32_t get_int32)
+static int read_shdr(
+  FILE *in,
+  struct _elf32_shdr *elf32_shdr,
+  get_int32_t get_int32)
 {
   elf32_shdr->sh_name = get_int32(in);
   elf32_shdr->sh_type = get_int32(in);
@@ -133,7 +136,7 @@ int ptr = 0;
 
   fseek(in, offset, SEEK_SET);
 
-  while(1)
+  while (1)
   {
     int ch = getc(in);
     if (ch == 0) { break; }
@@ -147,7 +150,11 @@ int ptr = 0;
   return 0;
 }
 
-int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _symbols *symbols)
+int read_elf(
+  const char *filename,
+  Memory *memory,
+  uint8_t *cpu_type,
+  Symbols *symbols)
 {
   FILE *in;
   uint8_t e_ident[16];
@@ -220,7 +227,7 @@ int read_elf(char *filename, struct _memory *memory, uint8_t *cpu_type, struct _
   get_int16(in);
   n = get_int16(in);
 
-  switch(n)
+  switch (n)
   {
     case 4:
       *cpu_type = CPU_TYPE_68000;

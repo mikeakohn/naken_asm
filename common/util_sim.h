@@ -20,6 +20,6 @@ int sim_clear_flag(UtilContext *util_context, char *command);
 int sim_set_speed(UtilContext *util_context, char *command);
 int sim_stack_push(UtilContext *util_context, char *command);
 int sim_set_breakpoint(UtilContext *util_context, char *command);
- 
+
 #endif
 

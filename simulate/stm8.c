@@ -141,7 +141,7 @@ static void handle_signal(int sig)
   signal(SIGINT, SIG_DFL);
 }
 
-Simulate *simulate_init_stm8(struct _memory *memory)
+Simulate *simulate_init_stm8(Memory *memory)
 {
   Simulate *simulate = NULL;
 
@@ -258,7 +258,7 @@ int simulate_set_reg_stm8(Simulate *simulate, char *reg_string, uint32_t value)
   }
   else if (strcasecmp(reg_string, "CC") == 0)
   {
-    REG_CC = value & (BV(CC_V_FLAG) | BV(CC_I1_FLAG) | BV(CC_H_FLAG) | 
+    REG_CC = value & (BV(CC_V_FLAG) | BV(CC_I1_FLAG) | BV(CC_H_FLAG) |
                       BV(CC_I0_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG));
   }
   else  // check for condition code flags
@@ -544,7 +544,7 @@ static void calculate_flags(Simulate *simulate, uint8_t flag_bits, uint16_t op1,
               ((op1 & 0x80) & (op2 & 0x80) & (rslt & 0x80))) ^
              (((op1 & 0x40) & (op2 & 0x40)) |
               ((op1 & 0x40) & (rslt & 0x40)) |
-              ((op1 & 0x40) & (op2 & 0x40) & (rslt & 0x40)))) != 0) 
+              ((op1 & 0x40) & (op2 & 0x40) & (rslt & 0x40)))) != 0)
         {
           SET_V();
         }
@@ -560,7 +560,7 @@ static void calculate_flags(Simulate *simulate, uint8_t flag_bits, uint16_t op1,
               ((op2 & 0x80) & (rslt & 0x80))) ^
              (((op1 & 0x40) & (op2 & 0x40)) |
               ((op1 & 0x40) & (rslt & 0x40)) |
-              ((op2 & 0x40) & (rslt & 0x40)))) != 0) 
+              ((op2 & 0x40) & (rslt & 0x40)))) != 0)
         {
           SET_V();
         }

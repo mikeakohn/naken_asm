@@ -68,7 +68,7 @@ repeat_mandel:
 while_1:
   mov count, counter_top
 repeat:
-  sub count, #1, wz 
+  sub count, #1, wz
   if_nz jmp #repeat
   xor outa, led_xor
   jmp #while_1
@@ -122,7 +122,7 @@ exit_iteration:
   add count, #colors
   movs get_color, count
   nop
-get_color: 
+get_color:
   mov temp0, colors
 
   mov data, temp0
@@ -176,11 +176,11 @@ bit_count:
 data:
   dc32 0x0
 port_dir:
-  dc32 (0x1f) | (1 << 26) | (1 << 27) 
+  dc32 (0x1f) | (1 << 26) | (1 << 27)
 port_start:
   dc32 (0x1f) | (1 << 26)
 led_xor:
-  dc32 (1 << 26) | (1 << 27) 
+  dc32 (1 << 26) | (1 << 27)
 counter_top:
   dc32 0xfffff
 line:

@@ -468,7 +468,7 @@ draw_triangle_1:
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rx), cos(rx), sin(ry), cos(ry)
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rz), cos(rz)
   dc32 1900.0, 2100.0, 2048.0, 0.0 ; (x,y,z)    position
-  dc32 3, 4, 2, 0                 ; vertex count, do_rot_xyz, vertex_len, 0 
+  dc32 3, 4, 2, 0                 ; vertex count, do_rot_xyz, vertex_len, 0
   dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 0, 0), REG_PRIM
   dc64 GIF_TAG(3, 1, 0, 0, FLG_PACKED, 2), (REG_A_D|(REG_XYZ2<<4))
@@ -493,7 +493,7 @@ draw_triangle_2:
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rx), cos(rx), sin(ry), cos(ry)
   dc32   0.0, 0.0, 0.0, 0.0       ; sin(rz), cos(rz)
   dc32 1900.0, 2100.0, 2048.0, 0.0 ; (x,y,z)    position
-  dc32 3, 4, 2, 0                 ; vertex count, do_rot_xyz, vertex_len, 0 
+  dc32 3, 4, 2, 0                 ; vertex count, do_rot_xyz, vertex_len, 0
   dc64 GIF_TAG(1, 0, 0, 0, FLG_PACKED, 1), REG_A_D
   dc64 SETREG_PRIM(PRIM_TRIANGLE, 1, 0, 0, 0, 0, 0, 1, 0), REG_PRIM
   dc64 GIF_TAG(3, 1, 0, 0, FLG_PACKED, 2), (REG_A_D|(REG_XYZ2<<4))

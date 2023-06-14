@@ -41,7 +41,7 @@ static int execute_instruction(Simulate *simulate, uint16_t opcode)
   return -1;
 }
 
-Simulate *simulate_init_8008(struct _memory *memory)
+Simulate *simulate_init_8008(Memory *memory)
 {
   Simulate *simulate;
 
@@ -93,7 +93,7 @@ void simulate_set_pc_8008(Simulate *simulate, uint32_t value)
 {
   Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 
-  simulate_8008->pc = value; 
+  simulate_8008->pc = value;
 }
 
 void simulate_reset_8008(Simulate *simulate)

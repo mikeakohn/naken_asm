@@ -16,7 +16,7 @@
 #include "common/assembler.h"
 #include "common/memory.h"
 
-void memory_init(struct _memory *memory, uint32_t size, int debug_flag)
+void memory_init(Memory *memory, uint32_t size, int debug_flag)
 {
   memory->low_address = size - 1;
   memory->high_address = 0;
@@ -28,10 +28,10 @@ void memory_init(struct _memory *memory, uint32_t size, int debug_flag)
   //memset(memory->debug_line, 0xff, sizeof(int) * memory->size);
 }
 
-void memory_free(struct _memory *memory)
+void memory_free(Memory *memory)
 {
-  struct _memory_page *page;
-  struct _memory_page *next;
+  MemoryPage *page;
+  MemoryPage *next;
 
   page = memory->pages;
   while (page != NULL)
@@ -44,10 +44,10 @@ void memory_free(struct _memory *memory)
   memory->pages = NULL;
 }
 
-void memory_clear(struct _memory *memory)
+void memory_clear(Memory *memory)
 {
-  struct _memory_page *page;
-  struct _memory_page *next;
+  MemoryPage *page;
+  MemoryPage *next;
 
   page = memory->pages;
   while (page != NULL)
@@ -60,9 +60,9 @@ void memory_clear(struct _memory *memory)
   }
 }
 
-int memory_in_use(struct _memory *memory, uint32_t address)
+int memory_in_use(Memory *memory, uint32_t address)
 {
-  struct _memory_page *page;
+  MemoryPage *page;
 
   page = memory->pages;
 
@@ -79,9 +79,9 @@ int memory_in_use(struct _memory *memory, uint32_t address)
   return 0;
 }
 
-int memory_get_page_address_min(struct _memory *memory, uint32_t address)
+int memory_get_page_address_min(Memory *memory, uint32_t address)
 {
-  struct _memory_page *page;
+  MemoryPage *page;
 
   page = memory->pages;
 
@@ -100,9 +100,9 @@ int memory_get_page_address_min(struct _memory *memory, uint32_t address)
   return 0;
 }
 
-int memory_get_page_address_max(struct _memory *memory, uint32_t address)
+int memory_get_page_address_max(Memory *memory, uint32_t address)
 {
-  struct _memory_page *page;
+  MemoryPage *page;
 
   page = memory->pages;
 
@@ -121,14 +121,14 @@ int memory_get_page_address_max(struct _memory *memory, uint32_t address)
   return 0;
 }
 
-int memory_page_size(struct _memory *memory)
+int memory_page_size(Memory *memory)
 {
   return PAGE_SIZE;
 }
 
-static uint8_t read_byte(struct _memory *memory, uint32_t address)
+static uint8_t read_byte(Memory *memory, uint32_t address)
 {
-  struct _memory_page *page;
+  MemoryPage *page;
 
   page = memory->pages;
 
@@ -144,9 +144,9 @@ static uint8_t read_byte(struct _memory *memory, uint32_t address)
   return 0;
 }
 
-static int read_debug(struct _memory *memory, uint32_t address)
+static int read_debug(Memory *memory, uint32_t address)
 {
-  struct _memory_page *page;
+  MemoryPage *page;
 
   if (memory->debug_flag == 0) return -1;
 
@@ -163,12 +163,12 @@ static int read_debug(struct _memory *memory, uint32_t address)
   return -1;
 }
 
-static struct _memory_page *alloc_page(struct _memory *memory, uint32_t address)
+static MemoryPage *alloc_page(Memory *memory, uint32_t address)
 {
-  struct _memory_page *page;
+  MemoryPage *page;
 
 //printf("allocating page %d\n", address);
-  page = malloc(sizeof(struct _memory_page) + (memory->debug_flag == 1 ? PAGE_SIZE * sizeof(int) : 0));
+  page = malloc(sizeof(MemoryPage) + (memory->debug_flag == 1 ? PAGE_SIZE * sizeof(int) : 0));
   page->address = (address / PAGE_SIZE) * PAGE_SIZE;
   page->offset_min = PAGE_SIZE;
   page->offset_max = 0;
@@ -184,9 +184,9 @@ static struct _memory_page *alloc_page(struct _memory *memory, uint32_t address)
   return page;
 }
 
-static void write_byte(struct _memory *memory, uint32_t address, uint8_t data)
+static void write_byte(Memory *memory, uint32_t address, uint8_t data)
 {
-  struct _memory_page *page;
+  MemoryPage *page;
 
   if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
 
@@ -217,9 +217,9 @@ static void write_byte(struct _memory *memory, uint32_t address, uint8_t data)
   //page->debug_line[offset] = 1;
 }
 
-static void write_debug(struct _memory *memory, uint32_t address, int data)
+static void write_debug(Memory *memory, uint32_t address, int data)
 {
-  struct _memory_page *page;
+  MemoryPage *page;
 
   if (memory->debug_flag == 0) { return; }
   if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
@@ -292,19 +292,19 @@ void memory_debug_line_set(struct _asm_context *asm_context, uint32_t address, i
   write_debug(&asm_context->memory, address, value);
 }
 
-int memory_debug_line_m(struct _memory *memory, uint32_t address)
+int memory_debug_line_m(Memory *memory, uint32_t address)
 {
   return read_debug(memory, address);
 }
 
-void memory_debug_line_set_m(struct _memory *memory, uint32_t address, int value)
+void memory_debug_line_set_m(Memory *memory, uint32_t address, int value)
 {
   write_debug(memory, address, value);
 }
 
-void memory_dump(struct _memory *memory)
+void memory_dump(Memory *memory)
 {
-  struct _memory_page *page = memory->pages;
+  MemoryPage *page = memory->pages;
 
   printf("------ memory dump (debug) ---------\n");
   printf(" low_address: 0x%08x\n", memory->low_address);
@@ -320,12 +320,12 @@ void memory_dump(struct _memory *memory)
   }
 }
 
-uint8_t memory_read_m(struct _memory *memory, uint32_t address)
+uint8_t memory_read_m(Memory *memory, uint32_t address)
 {
   return read_byte(memory, address);
 }
 
-uint16_t memory_read16_m(struct _memory *memory, uint32_t address)
+uint16_t memory_read16_m(Memory *memory, uint32_t address)
 {
   if (memory->endian == ENDIAN_LITTLE)
   {
@@ -339,7 +339,7 @@ uint16_t memory_read16_m(struct _memory *memory, uint32_t address)
   }
 }
 
-uint32_t memory_read32_m(struct _memory *memory, uint32_t address)
+uint32_t memory_read32_m(Memory *memory, uint32_t address)
 {
   if (memory->endian == ENDIAN_LITTLE)
   {
@@ -357,12 +357,12 @@ uint32_t memory_read32_m(struct _memory *memory, uint32_t address)
   }
 }
 
-void memory_write_m(struct _memory *memory, uint32_t address, uint8_t data)
+void memory_write_m(Memory *memory, uint32_t address, uint8_t data)
 {
   write_byte(memory, address, data);
 }
 
-void memory_write16_m(struct _memory *memory, uint32_t address, uint16_t data)
+void memory_write16_m(Memory *memory, uint32_t address, uint16_t data)
 {
   if (memory->endian == ENDIAN_LITTLE)
   {
@@ -376,7 +376,7 @@ void memory_write16_m(struct _memory *memory, uint32_t address, uint16_t data)
   }
 }
 
-void memory_write32_m(struct _memory *memory, uint32_t address, uint32_t data)
+void memory_write32_m(Memory *memory, uint32_t address, uint32_t data)
 {
   if (memory->endian == ENDIAN_LITTLE)
   {

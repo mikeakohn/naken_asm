@@ -52,6 +52,6 @@ void util_print32(UtilContext *util_context, char *token);
 void util_write8(UtilContext *util_context, char *token);
 void util_write16(UtilContext *util_context, char *token);
 void util_write32(UtilContext *util_context, char *token);
- 
+
 #endif
 

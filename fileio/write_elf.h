@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -80,7 +80,13 @@ struct _symtab
   uint16_t st_shndx;
 };
 
-int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const char *filename, int cpu_type, int alignment);
+int write_elf(
+  Memory *memory,
+  FILE *out,
+  Symbols *symbols,
+  const char *filename,
+  int cpu_type,
+  int alignment);
 
 #endif
 

@@ -125,7 +125,7 @@ static int get_p(Simulate *simulate, int reg16)
 static int set_p(Simulate *simulate, int reg16, int value)
 {
   SimulateZ80 *simulate_z80 = (SimulateZ80 *)simulate->context;
-  
+
   if (reg16 == 0)
   {
     simulate_z80->reg[REG_B] = value >> 8;
@@ -365,7 +365,7 @@ static void sp_inc(int *sp)
 }
 #endif
 
-Simulate *simulate_init_z80(struct _memory *memory)
+Simulate *simulate_init_z80(Memory *memory)
 {
   Simulate *simulate;
 
