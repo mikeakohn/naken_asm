@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -198,7 +198,7 @@ static int parse_ifdef_expression(
 {
   char token[TOKENLEN];
   struct _operator operator;
-  struct _symbols_data *symbols_data;
+  SymbolsData *symbols_data;
   int token_type;
   int not = 0;
   int n1 = 0;

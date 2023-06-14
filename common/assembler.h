@@ -38,7 +38,7 @@ struct _asm_context
 {
   struct _memory memory;
   struct _tokens tokens;
-  struct _symbols symbols;
+  Symbols symbols;
   struct _macros macros;
   parse_instruction_t parse_instruction;
   parse_directive_t parse_directive;

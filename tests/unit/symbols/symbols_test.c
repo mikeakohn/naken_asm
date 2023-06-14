@@ -6,7 +6,7 @@
 
 int errors = 0;
 
-void append(struct _symbols *symbols, char *name, uint32_t address)
+void append(Symbols *symbols, char *name, uint32_t address)
 {
   if (symbols_append(symbols, name, address) != 0)
   {
@@ -15,7 +15,7 @@ void append(struct _symbols *symbols, char *name, uint32_t address)
   }
 }
 
-void check_symbols_count(struct _symbols *symbols, int count)
+void check_symbols_count(Symbols *symbols, int count)
 {
   if (symbols_count(symbols) != count)
   {
@@ -24,7 +24,7 @@ void check_symbols_count(struct _symbols *symbols, int count)
   }
 }
 
-void check_lookup(struct _symbols *symbols, char *name, uint32_t expected, int expected_ret)
+void check_lookup(Symbols *symbols, char *name, uint32_t expected, int expected_ret)
 {
   uint32_t address = 0;
 
@@ -37,7 +37,7 @@ void check_lookup(struct _symbols *symbols, char *name, uint32_t expected, int e
   }
 }
 
-void check_export(struct _symbols *symbols, char *name, int expected)
+void check_export(Symbols *symbols, char *name, int expected)
 {
   int ret = symbols_export(symbols, name);
 
@@ -50,7 +50,7 @@ void check_export(struct _symbols *symbols, char *name, int expected)
 
 int main(int argc, char *argv[])
 {
-  struct _symbols symbols;
+  Symbols symbols;
 
   symbols_init(&symbols);
 

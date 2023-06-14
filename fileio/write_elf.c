@@ -433,7 +433,7 @@ int write_elf(struct _memory *memory, FILE *out, struct _symbols *symbols, const
   const int strtab_extras = 2;
 
   {
-    struct _symbols_iter iter;
+    SymbolsIter iter;
     int sym_offset;
     int n;
 

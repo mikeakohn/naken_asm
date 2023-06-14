@@ -20,7 +20,7 @@
 typedef struct _util_context
 {
   struct _memory memory;
-  struct _symbols symbols;
+  Symbols symbols;
   Simulate *simulate;
   uint32_t flags;
   uint8_t bytes_per_address;

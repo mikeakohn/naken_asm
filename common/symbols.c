@@ -17,7 +17,7 @@
 #include "common/symbols.h"
 #include "common/memory_pool.h"
 
-int symbols_init(struct _symbols *symbols)
+int symbols_init(Symbols *symbols)
 {
   symbols->memory_pool = NULL;
   symbols->locked = 0;
@@ -28,13 +28,13 @@ int symbols_init(struct _symbols *symbols)
   return 0;
 }
 
-void symbols_free(struct _symbols *symbols)
+void symbols_free(Symbols *symbols)
 {
   memory_pool_free(symbols->memory_pool);
   symbols->memory_pool = NULL;
 }
 
-struct _symbols_data *symbols_find(struct _symbols *symbols, const char *name)
+SymbolsData *symbols_find(Symbols *symbols, const char *name)
 {
   struct _memory_pool *memory_pool = symbols->memory_pool;
   int ptr;
@@ -48,8 +48,8 @@ struct _symbols_data *symbols_find(struct _symbols *symbols, const char *name)
 
       while (ptr < memory_pool->ptr)
       {
-        struct _symbols_data *symbols_data =
-          (struct _symbols_data *)(memory_pool->buffer + ptr);
+        SymbolsData *symbols_data =
+          (SymbolsData *)(memory_pool->buffer + ptr);
 
         if (symbols->current_scope == symbols_data->scope &&
             strcmp(symbols_data->name, name) == 0)
@@ -57,7 +57,7 @@ struct _symbols_data *symbols_find(struct _symbols *symbols, const char *name)
           return symbols_data;
         }
 
-        ptr += symbols_data->len + sizeof(struct _symbols_data);
+        ptr += symbols_data->len + sizeof(SymbolsData);
       }
 
       memory_pool = memory_pool->next;
@@ -73,15 +73,14 @@ struct _symbols_data *symbols_find(struct _symbols *symbols, const char *name)
 
     while (ptr < memory_pool->ptr)
     {
-      struct _symbols_data *symbols_data =
-        (struct _symbols_data *)(memory_pool->buffer + ptr);
+      SymbolsData *symbols_data = (SymbolsData *)(memory_pool->buffer + ptr);
 
       if (symbols_data->scope == 0 && strcmp(symbols_data->name, name) == 0)
       {
         return symbols_data;
       }
 
-      ptr += symbols_data->len + sizeof(struct _symbols_data);
+      ptr += symbols_data->len + sizeof(SymbolsData);
     }
 
     memory_pool = memory_pool->next;
@@ -90,11 +89,11 @@ struct _symbols_data *symbols_find(struct _symbols *symbols, const char *name)
   return NULL;
 }
 
-int symbols_append(struct _symbols *symbols, const char *name, uint32_t address)
+int symbols_append(Symbols *symbols, const char *name, uint32_t address)
 {
   int token_len;
   struct _memory_pool *memory_pool = symbols->memory_pool;
-  struct _symbols_data *symbols_data;
+  SymbolsData *symbols_data;
 
 #ifdef DEBUG
 //printf("symbols_append(%s, %d);\n", name, address);
@@ -139,7 +138,7 @@ int symbols_append(struct _symbols *symbols, const char *name, uint32_t address)
   // If none can be found, alloc a new one.
   while (1)
   {
-     if (memory_pool->ptr + token_len + sizeof(struct _symbols_data) < memory_pool->len)
+     if (memory_pool->ptr + token_len + sizeof(SymbolsData) < memory_pool->len)
      {
        break;
      }
@@ -157,7 +156,7 @@ int symbols_append(struct _symbols *symbols, const char *name, uint32_t address)
 
   // Set the new label/address entry.
   symbols_data =
-    (struct _symbols_data *)(memory_pool->buffer + memory_pool->ptr);
+    (SymbolsData *)(memory_pool->buffer + memory_pool->ptr);
 
   memcpy(symbols_data->name, name, token_len);
   symbols_data->len = token_len;
@@ -166,14 +165,14 @@ int symbols_append(struct _symbols *symbols, const char *name, uint32_t address)
   symbols_data->address = address;
   symbols_data->scope = symbols->in_scope == 0 ? 0 : symbols->current_scope;
 
-  memory_pool->ptr += token_len + sizeof(struct _symbols_data);
+  memory_pool->ptr += token_len + sizeof(SymbolsData);
 
   return 0;
 } 
 
-int symbols_set(struct _symbols *symbols, char *name, uint32_t address)
+int symbols_set(Symbols *symbols, char *name, uint32_t address)
 {
-  struct _symbols_data *symbols_data = NULL;
+  SymbolsData *symbols_data = NULL;
 
   symbols_data = symbols_find(symbols, name);
 
@@ -201,9 +200,9 @@ int symbols_set(struct _symbols *symbols, char *name, uint32_t address)
   return 0;
 }
 
-int symbols_export(struct _symbols *symbols, char *name)
+int symbols_export(Symbols *symbols, char *name)
 {
-  struct _symbols_data *symbols_data = symbols_find(symbols, name);
+  SymbolsData *symbols_data = symbols_find(symbols, name);
 
   if (symbols_data == NULL) { return -1; }
 
@@ -218,14 +217,14 @@ int symbols_export(struct _symbols *symbols, char *name)
   return 0;
 }
 
-void symbols_lock(struct _symbols *symbols)
+void symbols_lock(Symbols *symbols)
 {
   symbols->locked = 1;
 }
 
-int symbols_lookup(struct _symbols *symbols, const char *name, uint32_t *address)
+int symbols_lookup(Symbols *symbols, const char *name, uint32_t *address)
 {
-  struct _symbols_data *symbols_data = symbols_find(symbols, name);
+  SymbolsData *symbols_data = symbols_find(symbols, name);
 
   if (symbols_data == NULL)
   {
@@ -238,7 +237,7 @@ int symbols_lookup(struct _symbols *symbols, const char *name, uint32_t *address
   return 0;
 }
 
-int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter)
+int symbols_iterate(Symbols *symbols, SymbolsIter *iter)
 {
   struct _memory_pool *memory_pool = symbols->memory_pool;
 
@@ -253,12 +252,12 @@ int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter)
   {
     if (iter->ptr < memory_pool->ptr)
     {
-      struct _symbols_data * symbols_data =
-        (struct _symbols_data *)(memory_pool->buffer + iter->ptr);
+      SymbolsData * symbols_data =
+        (SymbolsData *)(memory_pool->buffer + iter->ptr);
 
       iter->address = symbols_data->address;
       iter->name = symbols_data->name;
-      iter->ptr = iter->ptr + symbols_data->len + sizeof(struct _symbols_data);
+      iter->ptr = iter->ptr + symbols_data->len + sizeof(SymbolsData);
       iter->flag_export = symbols_data->flag_export;
       iter->scope = symbols_data->scope;
       iter->count++;
@@ -274,9 +273,9 @@ int symbols_iterate(struct _symbols *symbols, struct _symbols_iter *iter)
   return -1;
 }
 
-int symbols_print(struct _symbols *symbols, FILE *out)
+int symbols_print(Symbols *symbols, FILE *out)
 {
-  struct _symbols_iter iter;
+  SymbolsIter iter;
 
   memset(&iter, 0, sizeof(iter));
 
@@ -292,7 +291,7 @@ int symbols_print(struct _symbols *symbols, FILE *out)
   return 0;
 }
 
-int symbols_count(struct _symbols *symbols)
+int symbols_count(Symbols *symbols)
 {
   struct _memory_pool *memory_pool = symbols->memory_pool;
   int ptr;
@@ -303,9 +302,9 @@ int symbols_count(struct _symbols *symbols)
     ptr = 0;
     while (ptr < memory_pool->ptr)
     {
-      struct _symbols_data *symbols_data =
-        (struct _symbols_data *)(memory_pool->buffer + ptr);
-      ptr += symbols_data->len + sizeof(struct _symbols_data);
+      SymbolsData *symbols_data =
+        (SymbolsData *)(memory_pool->buffer + ptr);
+      ptr += symbols_data->len + sizeof(SymbolsData);
       count++;
     }
 
@@ -315,7 +314,7 @@ int symbols_count(struct _symbols *symbols)
   return count;
 }
 
-int symbols_export_count(struct _symbols *symbols)
+int symbols_export_count(Symbols *symbols)
 {
   struct _memory_pool *memory_pool = symbols->memory_pool;
   int ptr;
@@ -326,9 +325,8 @@ int symbols_export_count(struct _symbols *symbols)
     ptr = 0;
     while (ptr < memory_pool->ptr)
     {
-      struct _symbols_data *symbols_data =
-        (struct _symbols_data *)(memory_pool->buffer + ptr);
-      ptr += symbols_data->len + sizeof(struct _symbols_data);
+      SymbolsData *symbols_data = (SymbolsData *)(memory_pool->buffer + ptr);
+      ptr += symbols_data->len + sizeof(SymbolsData);
       if (symbols_data->flag_export == 1) { count++; }
     }
 
@@ -338,7 +336,7 @@ int symbols_export_count(struct _symbols *symbols)
   return count;
 }
 
-int symbols_scope_start(struct _symbols *symbols)
+int symbols_scope_start(Symbols *symbols)
 {
   if (symbols->in_scope == 1)
   {
@@ -351,14 +349,14 @@ int symbols_scope_start(struct _symbols *symbols)
   return 0;
 }
 
-int symbols_scope_reset(struct _symbols *symbols)
+int symbols_scope_reset(Symbols *symbols)
 {
   symbols->current_scope = 0;
 
   return 0;
 }
 
-int symbols_scope_end(struct _symbols *symbols)
+int symbols_scope_end(Symbols *symbols)
 {
   symbols->in_scope = 0;
 
@@ -366,13 +364,13 @@ int symbols_scope_end(struct _symbols *symbols)
 }
 
 #if 0
-int symbols_add_to_unfound(struct _symbols *symbols, const char *name)
+int symbols_add_to_unfound(Symbols *symbols, const char *name)
 {
   int ptr;
 
   if (symbols->need_unfound_symbols == 0) { return 0; }
 
-  struct _unfound_list *unfound_list = symbols->unfound_list;
+  UnfoundList *unfound_list = symbols->unfound_list;
 
   // Allocate buffer if needed.
   if (unfound_list->buffer == NULL)
@@ -410,7 +408,7 @@ int symbols_add_to_unfound(struct _symbols *symbols, const char *name)
   return 0;
 }
 
-int symbols_print_unfound(struct _symbols *symbols)
+int symbols_print_unfound(Symbols *symbols)
 {
   int ptr, count;
   char *buffer = symbols->unfound_list->buffer;
