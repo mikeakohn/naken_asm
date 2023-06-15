@@ -217,7 +217,7 @@ int disasm_cell(
 }
 
 void list_output_cell(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end)
 {

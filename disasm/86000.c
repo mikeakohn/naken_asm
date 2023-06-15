@@ -189,7 +189,7 @@ int disasm_86000(
 }
 
 void list_output_86000(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end)
 {

@@ -365,7 +365,7 @@ int disasm_propeller2(
 }
 
 void list_output_propeller2(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end)
 {

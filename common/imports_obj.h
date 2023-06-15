@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_IMPORTS_OBJ_H
 #define NAKEN_ASM_IMPORTS_OBJ_H
 
-struct _elf_header32
+typedef struct _elf_header32
 {
   uint8_t e_ident[4];
   uint8_t e_ident_class;
@@ -34,9 +34,9 @@ struct _elf_header32
   uint8_t e_shentsize[2];
   uint8_t e_shnum[2];
   uint8_t e_shstrndx[2];
-};
+} ElfHeader32;
 
-struct _elf_header64
+typedef struct _elf_header64
 {
   uint8_t e_ident[4];
   uint8_t e_ident_class;
@@ -58,9 +58,9 @@ struct _elf_header64
   uint8_t e_shentsize[2];
   uint8_t e_shnum[2];
   uint8_t e_shstrndx[2];
-};
+} ElfHeader64;
 
-struct _elf_program32
+typedef struct _elf_program32
 {
   uint8_t p_type[4];
   uint8_t p_offset[4];
@@ -70,9 +70,9 @@ struct _elf_program32
   uint8_t p_memsz[4];
   uint8_t p_flags[4];
   uint8_t p_palign[4];
-};
+} ElfProgram32;
 
-struct _elf_program64
+typedef struct _elf_program64
 {
   uint8_t p_type[4];
   uint8_t p_flags[4];
@@ -82,9 +82,9 @@ struct _elf_program64
   uint8_t p_filesz[8];
   uint8_t p_memsz[8];
   uint8_t p_palign[8];
-};
+} ElfProgram64;
 
-struct _elf_section32
+typedef struct _elf_section32
 {
   uint8_t sh_name[4];
   uint8_t sh_type[4];
@@ -96,9 +96,9 @@ struct _elf_section32
   uint8_t sh_info[4];
   uint8_t sh_addralign[4];
   uint8_t sh_entsize[4];
-};
+} ElfSection32;
 
-struct _elf_section64
+typedef struct _elf_section64
 {
   uint8_t sh_name[4];
   uint8_t sh_type[4];
@@ -110,9 +110,9 @@ struct _elf_section64
   uint8_t sh_info[4];
   uint8_t sh_addralign[8];
   uint8_t sh_entsize[8];
-};
+} ElfSection64;
 
-struct _elf_symbol32
+typedef struct _elf_symbol32
 {
   uint8_t st_name[4];
   uint8_t st_value[4];
@@ -120,15 +120,15 @@ struct _elf_symbol32
   uint8_t st_info;
   uint8_t st_other;
   uint8_t st_shndx[2];
-};
+} ElfSymbol32;
 
-struct _elf_relocation32
+typedef struct _elf_relocation32
 {
   uint8_t r_offset[4];
   uint8_t r_info[4];
-};
+} ElfRelocation32;
 
-struct _elf_symbol64
+typedef struct _elf_symbol64
 {
   uint8_t st_name[4];
   uint8_t st_info;
@@ -136,7 +136,7 @@ struct _elf_symbol64
   uint8_t st_shndx[2];
   uint8_t st_value[8];
   uint8_t st_size[8];
-};
+} ElfSymbol64;
 
 int imports_obj_verify(const uint8_t *buffer, int file_size);
 

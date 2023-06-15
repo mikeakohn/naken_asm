@@ -39,7 +39,7 @@ int imports_obj_verify(const uint8_t *buffer, int file_size)
 }
 
 #ifdef DEBUG
-static void imports_obj_elf_print_header32(struct _elf_header32 *elf_header)
+static void imports_obj_elf_print_header32(ElfHeader32 *elf_header)
 {
   printf(" -- elf32 --\n");
   printf("        e_ident=%.4s\n", elf_header->e_ident + 1);
@@ -64,7 +64,7 @@ static void imports_obj_elf_print_header32(struct _elf_header32 *elf_header)
 
 #ifdef DEBUG
 static void imports_obj_elf_print_section32(
-  struct _elf_section32 *section,
+  ElfSection32 *section,
   int i,
   const char *name)
 {
@@ -84,7 +84,7 @@ static void imports_obj_elf_print_section32(
 
 #if DEBUG
 static void imports_obj_elf_print_symbol32(
-  struct _elf_symbol32 *symbol,
+  ElfSymbol32 *symbol,
   const char *name)
 {
   printf(" -- symbol --\n");
@@ -107,11 +107,11 @@ static int imports_obj_symbol_table_lookup_by_name(
   uint32_t *function_size)
 {
   int ptr = 0;
-  struct _elf_symbol32 *elf_symbol32;
+  ElfSymbol32 *elf_symbol32;
 
   while (ptr < symbol_table_size)
   {
-    elf_symbol32 = (struct _elf_symbol32 *)(symbol_table + ptr);
+    elf_symbol32 = (ElfSymbol32 *)(symbol_table + ptr);
 
     int st_name = get_int32_le(elf_symbol32->st_name);
     int st_size = get_int32_le(elf_symbol32->st_size);
@@ -144,11 +144,11 @@ static const char *imports_obj_symbol_table_lookup_by_local_offset(
   uint32_t offset)
 {
   int ptr = 0;
-  struct _elf_symbol32 *elf_symbol32;
+  ElfSymbol32 *elf_symbol32;
 
   while (ptr < symbol_table_size)
   {
-    elf_symbol32 = (struct _elf_symbol32 *)(symbol_table + ptr);
+    elf_symbol32 = (ElfSymbol32 *)(symbol_table + ptr);
 
     int st_name = get_int32_le(elf_symbol32->st_name);
     int st_value = get_int32_le(elf_symbol32->st_value);
@@ -184,11 +184,11 @@ static const char *imports_obj_symbol_table_lookup_by_offset(
   uint32_t local_offset)
 {
   int ptr = 0;
-  struct _elf_relocation32 *elf_relocation32;
+  ElfRelocation32 *elf_relocation32;
 
   while (ptr < relocation_table_size)
   {
-    elf_relocation32 = (struct _elf_relocation32 *)(relocation_table + ptr);
+    elf_relocation32 = (ElfRelocation32 *)(relocation_table + ptr);
 
     int r_offset = get_int32_le(elf_relocation32->r_offset);
     int r_info = get_int32_le(elf_relocation32->r_info);
@@ -244,8 +244,8 @@ int imports_obj_find_code_from_symbol(
   uint32_t *function_size,
   uint32_t *file_offset)
 {
-  struct _elf_header32 *elf_header;
-  struct _elf_section32 *section;
+  ElfHeader32 *elf_header;
+  ElfSection32 *section;
   int sh_offset;
 
   *function_size = 0;
@@ -257,7 +257,7 @@ int imports_obj_find_code_from_symbol(
     return -1;
   }
 
-  elf_header = (struct _elf_header32 *)buffer;
+  elf_header = (ElfHeader32 *)buffer;
 #if DEBUG
   imports_obj_elf_print_header32(elf_header);
 #endif
@@ -275,13 +275,13 @@ int imports_obj_find_code_from_symbol(
 
   // Point to strtab for section names.
   int e_shstrndx = get_int16_le(elf_header->e_shstrndx);
-  section = (struct _elf_section32 *)(buffer + ptr + (e_shstrndx * section_size));
+  section = (ElfSection32 *)(buffer + ptr + (e_shstrndx * section_size));
   sh_offset = get_int32_le(section->sh_offset);
   const uint8_t *section_string_table = buffer + sh_offset;
 
   for (i = 0; i < section_count; i++)
   {
-    section = (struct _elf_section32 *)(buffer + ptr);
+    section = (ElfSection32 *)(buffer + ptr);
 
     int sh_name = get_int32_le(section->sh_name);
     int sh_type = get_int32_le(section->sh_type);
@@ -344,8 +344,8 @@ const char *imports_obj_find_name_from_offset(
   uint32_t function_offset,
   uint32_t local_offset)
 {
-  struct _elf_header32 *elf_header;
-  struct _elf_section32 *section;
+  ElfHeader32 *elf_header;
+  ElfSection32 *section;
   int sh_offset;
 
   if (imports_obj_verify(buffer, file_size) == -1)
@@ -354,7 +354,7 @@ const char *imports_obj_find_name_from_offset(
     return NULL;
   }
 
-  elf_header = (struct _elf_header32 *)buffer;
+  elf_header = (ElfHeader32 *)buffer;
 #ifdef DEBUG
   imports_obj_elf_print_header32(elf_header);
 #endif
@@ -373,13 +373,13 @@ const char *imports_obj_find_name_from_offset(
 
   // Point to strtab for section names.
   int e_shstrndx = get_int16_le(elf_header->e_shstrndx);
-  section = (struct _elf_section32 *)(buffer + ptr + (e_shstrndx * section_size));
+  section = (ElfSection32 *)(buffer + ptr + (e_shstrndx * section_size));
   sh_offset = get_int32_le(section->sh_offset);
   const uint8_t *section_string_table = buffer + sh_offset;
 
   for (i = 0; i < section_count; i++)
   {
-    section = (struct _elf_section32 *)(buffer + ptr);
+    section = (ElfSection32 *)(buffer + ptr);
 
     int sh_name = get_int32_le(section->sh_name);
     int sh_type = get_int32_le(section->sh_type);

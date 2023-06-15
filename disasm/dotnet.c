@@ -80,7 +80,7 @@ int disasm_dotnet(
 }
 
 void list_output_dotnet(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end)
 {

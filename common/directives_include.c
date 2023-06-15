@@ -18,7 +18,7 @@
 #include "common/tokens.h"
 #include "common/print_error.h"
 
-int include_add_path(struct _asm_context *asm_context, char *paths)
+int include_add_path(AsmContext *asm_context, char *paths)
 {
   int ptr = 0;
   int n = 0;
@@ -46,7 +46,7 @@ int include_add_path(struct _asm_context *asm_context, char *paths)
   return 0;
 }
 
-int binfile_parse(struct _asm_context *asm_context)
+int binfile_parse(AsmContext *asm_context)
 {
   FILE *in;
   char token[TOKENLEN];
@@ -95,7 +95,7 @@ int binfile_parse(struct _asm_context *asm_context)
   return 0;
 }
 
-int include_parse(struct _asm_context *asm_context)
+int include_parse(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   //int token_type;

@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -21,7 +21,7 @@
 #include "common/directives_if.h"
 #include "common/directives_include.h"
 
-int parse_org(struct _asm_context *asm_context)
+int parse_org(AsmContext *asm_context)
 {
   int num;
 
@@ -36,7 +36,7 @@ int parse_org(struct _asm_context *asm_context)
   return 0;
 }
 
-static int parse_low_address(struct _asm_context *asm_context)
+static int parse_low_address(AsmContext *asm_context)
 {
   int num;
 
@@ -51,7 +51,7 @@ static int parse_low_address(struct _asm_context *asm_context)
   return 0;
 }
 
-static int parse_high_address(struct _asm_context *asm_context)
+static int parse_high_address(AsmContext *asm_context)
 {
   int num;
 
@@ -71,7 +71,7 @@ static int parse_high_address(struct _asm_context *asm_context)
   return 0;
 }
 
-static int parse_entry_point(struct _asm_context *asm_context)
+static int parse_entry_point(AsmContext *asm_context)
 {
   int num = 0;
 
@@ -91,7 +91,7 @@ static int parse_entry_point(struct _asm_context *asm_context)
   return 0;
 }
 
-static int parse_pragma(struct _asm_context *asm_context)
+static int parse_pragma(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   int token_type;
@@ -107,7 +107,7 @@ static int parse_pragma(struct _asm_context *asm_context)
   return 0;
 }
 
-static int parse_device(struct _asm_context *asm_context)
+static int parse_device(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   int token_type;
@@ -133,7 +133,7 @@ static int parse_device(struct _asm_context *asm_context)
   return 0;
 }
 
-static int parse_set(struct _asm_context *asm_context)
+static int parse_set(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   char name[TOKENLEN];
@@ -177,7 +177,7 @@ static int parse_set(struct _asm_context *asm_context)
   return 0;
 }
 
-static int parse_export(struct _asm_context *asm_context)
+static int parse_export(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   int token_type;
@@ -204,7 +204,7 @@ static int parse_export(struct _asm_context *asm_context)
   return 0;
 }
 
-static int parse_equ(struct _asm_context *asm_context)
+static int parse_equ(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   char name[TOKENLEN];
@@ -241,7 +241,7 @@ static int parse_equ(struct _asm_context *asm_context)
   return 0;
 }
 
-int parse_repeat(struct _asm_context *asm_context)
+int parse_repeat(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   int token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -286,7 +286,7 @@ int parse_repeat(struct _asm_context *asm_context)
   return 0;
 }
 
-int parse_directives(struct _asm_context *asm_context)
+int parse_directives(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   int token_type;

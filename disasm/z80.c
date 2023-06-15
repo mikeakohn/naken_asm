@@ -485,7 +485,7 @@ int disasm_z80(
 }
 
 void list_output_z80(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end)
 {

@@ -29,7 +29,7 @@
 #include "common/print_error.h"
 #include "disasm/msp430.h"
 
-void assembler_init(struct _asm_context *asm_context)
+void assembler_init(AsmContext *asm_context)
 {
   tokens_reset(asm_context);
 #ifndef NO_MSP430
@@ -59,7 +59,7 @@ void assembler_init(struct _asm_context *asm_context)
   }
 }
 
-void assembler_free(struct _asm_context *asm_context)
+void assembler_free(AsmContext *asm_context)
 {
   linker_free(asm_context->linker);
   symbols_free(&asm_context->symbols);
@@ -67,7 +67,7 @@ void assembler_free(struct _asm_context *asm_context)
   memory_free(&asm_context->memory);
 }
 
-void assembler_print_info(struct _asm_context *asm_context, FILE *out)
+void assembler_print_info(AsmContext *asm_context, FILE *out)
 {
   if (asm_context->quiet_output) { return; }
 
@@ -129,7 +129,7 @@ void assembler_print_info(struct _asm_context *asm_context, FILE *out)
     high_address, high_address);
 }
 
-void assembler_set_cpu(struct _asm_context *asm_context, int index)
+void assembler_set_cpu(AsmContext *asm_context, int index)
 {
   asm_context->cpu_type = cpu_list[index].type;
   asm_context->memory.endian = cpu_list[index].default_endian;
@@ -149,7 +149,7 @@ void assembler_set_cpu(struct _asm_context *asm_context, int index)
   asm_context->cpu_list_index = index;
 }
 
-int assembler_link_file(struct _asm_context *asm_context, const char *filename)
+int assembler_link_file(AsmContext *asm_context, const char *filename)
 {
   int n;
 
@@ -177,7 +177,7 @@ int assembler_link_file(struct _asm_context *asm_context, const char *filename)
   return linker_add_file(asm_context->linker, filename);
 }
 
-int assembler_link(struct _asm_context *asm_context)
+int assembler_link(AsmContext *asm_context)
 {
   if (asm_context->linker == NULL) { return 0; }
 
@@ -244,7 +244,7 @@ int assembler_link(struct _asm_context *asm_context)
   return 0;
 }
 
-int assembler_directive(struct _asm_context *asm_context, char *token)
+int assembler_directive(AsmContext *asm_context, char *token)
 {
   if (strcasecmp(token, "org") == 0)
   {
@@ -326,7 +326,7 @@ int assembler_directive(struct _asm_context *asm_context, char *token)
   return 0;
 }
 
-int assemble(struct _asm_context *asm_context)
+int assemble(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   int token_type;

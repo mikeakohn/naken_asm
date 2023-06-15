@@ -898,7 +898,7 @@ int disasm_msp430x(
 }
 
 static void list_output_msp430_both(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end,
   int msp430x)

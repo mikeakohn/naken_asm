@@ -83,14 +83,14 @@ typedef struct _asm_context
   uint32_t extra_context;
 } AsmContext;
 
-void assembler_init(struct _asm_context *asm_context);
-void assembler_free(struct _asm_context *asm_context);
-void assembler_print_info(struct _asm_context *asm_context, FILE *out);
-void assembler_set_cpu(struct _asm_context *asm_context, int index);
-int assembler_directive(struct _asm_context *asm_context, char *token);
-int assembler_link_file(struct _asm_context *asm_context, const char *filename);
-int assembler_link(struct _asm_context *asm_context);
-int assemble(struct _asm_context *asm_context);
+void assembler_init(AsmContext *asm_context);
+void assembler_free(AsmContext *asm_context);
+void assembler_print_info(AsmContext *asm_context, FILE *out);
+void assembler_set_cpu(AsmContext *asm_context, int index);
+int assembler_directive(AsmContext *asm_context, char *token);
+int assembler_link_file(AsmContext *asm_context, const char *filename);
+int assembler_link(AsmContext *asm_context);
+int assemble(AsmContext *asm_context);
 
 #endif
 

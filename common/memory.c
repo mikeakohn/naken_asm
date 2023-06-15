@@ -151,6 +151,7 @@ static int read_debug(Memory *memory, uint32_t address)
   if (memory->debug_flag == 0) return -1;
 
   page = memory->pages;
+
   while (page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
@@ -167,8 +168,8 @@ static MemoryPage *alloc_page(Memory *memory, uint32_t address)
 {
   MemoryPage *page;
 
-//printf("allocating page %d\n", address);
   page = malloc(sizeof(MemoryPage) + (memory->debug_flag == 1 ? PAGE_SIZE * sizeof(int) : 0));
+
   page->address = (address / PAGE_SIZE) * PAGE_SIZE;
   page->offset_min = PAGE_SIZE;
   page->offset_max = 0;
@@ -247,27 +248,41 @@ static void write_debug(Memory *memory, uint32_t address, int data)
   page->debug_line[offset] = data;
 }
 
-uint8_t memory_read(struct _asm_context *asm_context, uint32_t address)
+uint8_t memory_read(AsmContext *asm_context, uint32_t address)
 {
   if (address >= asm_context->memory.size)
   {
-    printf("Warning: Data read address %d overran %d byte boundary at %s:%d\n", address, asm_context->memory.size, asm_context->tokens.filename, asm_context->tokens.line);
+    printf("Warning: Data read address %d overran %d byte boundary at %s:%d\n",
+      address,
+      asm_context->memory.size,
+      asm_context->tokens.filename,
+      asm_context->tokens.line);
+
     return 0;
   }
 
   return read_byte(&asm_context->memory, address);
 }
 
-uint8_t memory_read_inc(struct _asm_context *asm_context)
+uint8_t memory_read_inc(AsmContext *asm_context)
 {
   return read_byte(&asm_context->memory, asm_context->address++);
 }
 
-void memory_write(struct _asm_context *asm_context, uint32_t address, uint8_t data, int line)
+void memory_write(
+  AsmContext *asm_context,
+  uint32_t address,
+  uint8_t data,
+  int line)
 {
   if (address >= asm_context->memory.size)
   {
-    printf("Warning: Data write address %d overran %d byte boundary at %s:%d\n", address, asm_context->memory.size, asm_context->tokens.filename, asm_context->tokens.line);
+    printf("Warning: Data write address %d overran %d byte boundary at %s:%d\n",
+      address,
+      asm_context->memory.size,
+      asm_context->tokens.filename,
+      asm_context->tokens.line);
+
     return;
   }
 
@@ -275,19 +290,19 @@ void memory_write(struct _asm_context *asm_context, uint32_t address, uint8_t da
   write_debug(&asm_context->memory, address, line);
 }
 
-void memory_write_inc(struct _asm_context *asm_context, uint8_t data, int line)
+void memory_write_inc(AsmContext *asm_context, uint8_t data, int line)
 {
   write_byte(&asm_context->memory, asm_context->address, data);
   write_debug(&asm_context->memory, asm_context->address, line);
   asm_context->address++;
 }
 
-int memory_debug_line(struct _asm_context *asm_context, uint32_t address)
+int memory_debug_line(AsmContext *asm_context, uint32_t address)
 {
   return read_debug(&asm_context->memory, address);
 }
 
-void memory_debug_line_set(struct _asm_context *asm_context, uint32_t address, int value)
+void memory_debug_line_set(AsmContext *asm_context, uint32_t address, int value)
 {
   write_debug(&asm_context->memory, address, value);
 }

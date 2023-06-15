@@ -190,7 +190,7 @@ int disasm_tms9900(
 }
 
 void list_output_tms9900(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end)
 {

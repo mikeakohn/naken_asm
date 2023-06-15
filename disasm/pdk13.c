@@ -118,7 +118,7 @@ int disasm_pdk13(
 }
 
 void list_output_pdk13(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end)
 {

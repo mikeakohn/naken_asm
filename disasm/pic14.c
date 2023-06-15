@@ -93,7 +93,7 @@ int disasm_pic14(
 }
 
 void list_output_pic14(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end)
 {

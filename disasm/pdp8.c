@@ -151,9 +151,9 @@ int disasm_pdp8(Memory *memory, uint32_t address, char *instruction)
 }
 
 void list_output_pdp8(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
-   uint32_t end)
+  uint32_t end)
 {
   uint32_t opcode;
   char instruction[128];

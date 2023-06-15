@@ -377,7 +377,7 @@ int disasm_powerpc(
 }
 
 void list_output_powerpc(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end)
 {

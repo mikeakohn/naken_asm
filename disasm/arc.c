@@ -125,7 +125,12 @@ uint32_t calc_address(Memory *memory, uint32_t address, int offset, int d)
   return address + 4 + offset;
 }
 
-int disasm_arc(Memory *memory, uint32_t address, char *instruction, int *cycles_min, int *cycles_max)
+int disasm_arc(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int *cycles_min,
+  int *cycles_max)
 {
   uint32_t opcode;
   uint16_t opcode16;
@@ -661,7 +666,7 @@ int disasm_arc(Memory *memory, uint32_t address, char *instruction, int *cycles_
   return 4;
 }
 
-void list_output_arc(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_arc(AsmContext *asm_context, uint32_t start, uint32_t end)
 {
   char instruction[128];
   int cycles_min, cycles_max;
@@ -700,7 +705,11 @@ void list_output_arc(struct _asm_context *asm_context, uint32_t start, uint32_t 
   }
 }
 
-void disasm_range_arc(Memory *memory, uint32_t flags, uint32_t start, uint32_t end)
+void disasm_range_arc(
+  Memory *memory,
+  uint32_t flags,
+  uint32_t start,
+  uint32_t end)
 {
   char instruction[128];
   int cycles_min, cycles_max;

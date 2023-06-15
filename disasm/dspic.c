@@ -563,7 +563,7 @@ int disasm_dspic(
   return 4;
 }
 
-void list_output_dspic(struct _asm_context *asm_context, uint32_t start, uint32_t end)
+void list_output_dspic(AsmContext *asm_context, uint32_t start, uint32_t end)
 {
   int cycles_min = 0, cycles_max = 0, count;
   char instruction[128];
