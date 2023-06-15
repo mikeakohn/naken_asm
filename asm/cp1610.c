@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -52,7 +52,7 @@ static int get_register_cp1610(char *token)
   return -1;
 }
 
-int parse_instruction_cp1610(struct _asm_context *asm_context, char *instr)
+int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
   char *instr_case = instr_case_mem;

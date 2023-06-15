@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -116,7 +116,7 @@ static uint32_t get_reg_combo32(int a, int b, int c)
   return reg_combo;
 }
 
-int parse_instruction_epiphany(struct _asm_context *asm_context, char *instr)
+int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
   char token[TOKENLEN];

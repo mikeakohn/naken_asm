@@ -77,14 +77,14 @@ int disasm_tms9900(
 
   n = 0;
 
-  while(table_tms9900[n].instr != NULL)
+  while (table_tms9900[n].instr != NULL)
   {
     if ((opcode&masks[table_tms9900[n].type]) == table_tms9900[n].opcode)
     {
       *cycles_min = table_tms9900[n].cycles_min;
       *cycles_max = table_tms9900[n].cycles_max;
 
-      switch(table_tms9900[n].type)
+      switch (table_tms9900[n].type)
       {
         case OP_DUAL:
         {
@@ -202,7 +202,7 @@ void list_output_tms9900(
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     opcode = (memory_read_m(&asm_context->memory, start) << 8) | memory_read_m(&asm_context->memory, start + 1);
     count = disasm_tms9900(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
@@ -241,7 +241,7 @@ void disasm_range_tms9900(
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_tms9900(memory, start, instruction, &cycles_min, &cycles_max);
 

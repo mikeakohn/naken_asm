@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2021 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -118,7 +118,7 @@ static int get_vector_size(char **p, char *token, int length)
 }
 
 static int get_register_arm64(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operand,
   char *s)
 {
@@ -372,7 +372,7 @@ static int get_register_arm64(
   return 0;
 }
 
-static int get_shift_value(struct _asm_context *asm_context)
+static int get_shift_value(AsmContext *asm_context)
 {
   int num;
 
@@ -393,7 +393,7 @@ static int get_shift_value(struct _asm_context *asm_context)
 }
 
 static int get_option(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operand,
   char *token)
 {
@@ -491,7 +491,7 @@ static int get_at(const char *token)
   return -1;
 }
 
-int parse_instruction_arm64(struct _asm_context *asm_context, char *instr)
+int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
   char *instr_case = instr_case_mem;

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -123,18 +123,28 @@ static int compute_immediate(int immediate)
   return -1;
 }
 
-static int imm_shift_to_immediate(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int pos)
+static int imm_shift_to_immediate(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  int pos)
 {
   if (operands[pos].value >= 256 || (int32_t)operands[pos].value < 0)
   {
-    printf("Error: Immediate out of range for #imm, shift at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
+    printf("Error: Immediate out of range for #imm, shift at %s:%d\n",
+      asm_context->tokens.filename,
+      asm_context->tokens.line);
+
     return -1;
   }
 
   if ((operands[pos+1].value&1) == 1 || (operands[pos+1].sub_type != 3) ||
        operands[pos+1].value > 30 || (int32_t)operands[pos+1].value < 0)
   {
-    printf("Error: Bad shift value for #imm, shift at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
+    printf("Error: Bad shift value for #imm, shift at %s:%d\n",
+      asm_context->tokens.filename,
+      asm_context->tokens.line);
+
     return -1;
   }
 
@@ -154,7 +164,12 @@ static int compute_range(int r1, int r2)
   return value;
 }
 
-static int parse_alu_3(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+static int parse_alu_3(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  char *instr,
+  uint32_t opcode)
 {
   int immediate = 0;
   int s = 0; // S flag
@@ -240,7 +255,13 @@ static int parse_alu_3(struct _asm_context *asm_context, struct _operand *operan
   return 4;
 }
 
-static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode, int use_d)
+static int parse_alu_2(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  char *instr,
+  uint32_t opcode,
+  int use_d)
 {
   int immediate = 0;
   int s = 0; // S flag
@@ -332,7 +353,12 @@ static int parse_alu_2(struct _asm_context *asm_context, struct _operand *operan
   return 4;
 }
 
-static int parse_branch(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+static int parse_branch(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  char *instr,
+  uint32_t opcode)
 {
   if (asm_context->pass == 1)
   {
@@ -368,7 +394,12 @@ static int parse_branch(struct _asm_context *asm_context, struct _operand *opera
   return ARM_ERROR_OPCOMBO;
 }
 
-static int parse_branch_exchange(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+static int parse_branch_exchange(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  char *instr,
+  uint32_t opcode)
 {
   if (operand_count != 1 || operands[0].type != OPERAND_REG)
   {
@@ -385,7 +416,12 @@ static int parse_branch_exchange(struct _asm_context *asm_context, struct _opera
   return 4;
 }
 
-static int parse_ldr_str(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+static int parse_ldr_str(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  char *instr,
+  uint32_t opcode)
 {
   int offset = 0;
   int reg_base = 0;
@@ -591,7 +627,12 @@ printf("%d  %d %d %d\n",
   return 4;
 }
 
-static int parse_ldm_stm(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+static int parse_ldm_stm(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  char *instr,
+  uint32_t opcode)
 {
   int pr = 1;  // gcc sets this to 1 if it's not used
   int u = 0;
@@ -658,7 +699,12 @@ static int parse_ldm_stm(struct _asm_context *asm_context, struct _operand *oper
   return ARM_ERROR_OPCOMBO;
 }
 
-static int parse_swap(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+static int parse_swap(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  char *instr,
+  uint32_t opcode)
 {
   int b = 0; // B flag
 
@@ -679,7 +725,12 @@ static int parse_swap(struct _asm_context *asm_context, struct _operand *operand
   return ARM_ERROR_OPCOMBO;
 }
 
-static int parse_mrs(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+static int parse_mrs(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  char *instr,
+  uint32_t opcode)
 {
   int ps = 0; // PS flag
 
@@ -697,7 +748,12 @@ static int parse_mrs(struct _asm_context *asm_context, struct _operand *operands
   return ARM_ERROR_OPCOMBO;
 }
 
-static int parse_msr(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+static int parse_msr(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  char *instr,
+  uint32_t opcode)
 {
   int ps = 0; // PS flag
 
@@ -764,7 +820,12 @@ static int parse_msr(struct _asm_context *asm_context, struct _operand *operands
   return ARM_ERROR_OPCOMBO;
 }
 
-static int parse_swi(struct _asm_context *asm_context, struct _operand *operands, int operand_count, char *instr, uint32_t opcode)
+static int parse_swi(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  char *instr,
+  uint32_t opcode)
 {
   int cond = parse_condition(&instr);
 
@@ -790,7 +851,12 @@ static int parse_swi(struct _asm_context *asm_context, struct _operand *operands
   return 4;
 }
 
-static int parse_multiply(struct _asm_context *asm_context, struct _operand *operands, int operand_count,  char *instr, uint32_t opcode)
+static int parse_multiply(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  char *instr,
+  uint32_t opcode)
 {
   int s = 0;
   int rn;
@@ -835,7 +901,7 @@ static int parse_multiply(struct _asm_context *asm_context, struct _operand *ope
   return 4;
 }
 
-int parse_instruction_arm(struct _asm_context *asm_context, char *instr)
+int parse_instruction_arm(AsmContext *asm_context, char *instr)
 {
   struct _operand operands[4];
   int operand_count;

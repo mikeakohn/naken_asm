@@ -89,11 +89,11 @@ int disasm_pdp8(Memory *memory, uint32_t address, char *instruction)
 
   n = 0;
 
-  while(table_pdp8[n].instr != NULL)
+  while (table_pdp8[n].instr != NULL)
   {
     if ((opcode & table_pdp8[n].mask) == table_pdp8[n].opcode)
     {
-      switch(table_pdp8[n].type)
+      switch (table_pdp8[n].type)
       {
         case OP_NONE:
         {

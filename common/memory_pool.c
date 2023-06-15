@@ -15,7 +15,7 @@
 
 #include "common/memory_pool.h"
 
-MemoryPool *memory_pool_add(struct _naken_heap *heap, int heap_len)
+MemoryPool *memory_pool_add(NakenHeap *heap, int heap_len)
 {
   MemoryPool *curr_pool;
   MemoryPool *memory_pool = malloc(heap_len + sizeof(MemoryPool));

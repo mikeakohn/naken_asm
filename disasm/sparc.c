@@ -153,7 +153,7 @@ void list_output_sparc(
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     opcode = memory_read32_m(&asm_context->memory, start);
 
@@ -195,7 +195,7 @@ void disasm_range_sparc(
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     opcode = memory_read32_m(memory, start);
 

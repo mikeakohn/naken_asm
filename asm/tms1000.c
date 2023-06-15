@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -24,7 +24,7 @@ static char *tmsinstr_1[] = { "sbit", "rbit", "tbit1", "ldx" };
 static char *tmsinstr_2[] = { "tcy", "ynec", "tcmiy", "alec", "ldp" };
 static char *tms_branch[] = { "br", "call" };
 
-static void add_bin_lsfr(struct _asm_context *asm_context, uint8_t data, int flags)
+static void add_bin_lsfr(AsmContext *asm_context, uint8_t data, int flags)
 {
   int line = DL_NO_CG;
 
@@ -49,7 +49,7 @@ static void add_bin_lsfr(struct _asm_context *asm_context, uint8_t data, int fla
   asm_context->address++;
 }
 
-int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
+int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   int token_type;
@@ -213,7 +213,7 @@ int parse_instruction_tms1000(struct _asm_context *asm_context, char *instr)
   return -1;
 }
 
-int parse_instruction_tms1100(struct _asm_context *asm_context, char *instr)
+int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   int token_type;

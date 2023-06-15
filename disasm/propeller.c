@@ -107,7 +107,7 @@ int disasm_propeller(
         strcat(effects, " nr");
       }
 
-      switch(table_propeller[n].type)
+      switch (table_propeller[n].type)
       {
         case PROPELLER_OP_NONE:
         {

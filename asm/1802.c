@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -21,7 +21,7 @@
 #include "common/eval_expression.h"
 #include "table/1802.h"
 
-static int parse_reg(struct _asm_context *asm_context, int opcode)
+static int parse_reg(AsmContext *asm_context, int opcode)
 {
   char token[TOKENLEN];
   int token_type;
@@ -59,7 +59,7 @@ static int parse_reg(struct _asm_context *asm_context, int opcode)
   return 0;
 }
 
-static int parse_immediate(struct _asm_context *asm_context, char *instr, int *num)
+static int parse_immediate(AsmContext *asm_context, char *instr, int *num)
 {
   if (asm_context->pass == 1)
   {
@@ -78,7 +78,7 @@ static int parse_immediate(struct _asm_context *asm_context, char *instr, int *n
   return 0;
 }
 
-int parse_instruction_1802(struct _asm_context *asm_context, char *instr)
+int parse_instruction_1802(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
   char *instr_case = instr_case_mem;

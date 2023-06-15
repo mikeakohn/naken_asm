@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -28,7 +28,7 @@ enum
   OPERAND_ADDRESS_COMMA_X,
 };
 
-int parse_instruction_6800(struct _asm_context *asm_context, char *instr)
+int parse_instruction_6800(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   int token_type;

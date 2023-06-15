@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -213,7 +213,7 @@ static int get_condition_cz(const char *token)
   return -1;
 }
 
-static int get_aug(struct _asm_context *asm_context, struct _operand *operands)
+static int get_aug(AsmContext *asm_context, struct _operand *operands)
 {
   int token_type;
   char token[TOKENLEN];
@@ -235,7 +235,7 @@ static int get_aug(struct _asm_context *asm_context, struct _operand *operands)
 }
 
 static int get_p(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operands,
   const char *s,
   const char *instr)
@@ -423,7 +423,7 @@ static int get_p(
   return -2;
 }
 
-static int get_ptr(struct _asm_context *asm_context, const char *token)
+static int get_ptr(AsmContext *asm_context, const char *token)
 {
   if (strcasecmp(token, "ptra") == 0)
   {
@@ -440,7 +440,7 @@ static int get_ptr(struct _asm_context *asm_context, const char *token)
 }
 
 static int get_inc_dec_p(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operands,
   const char *s,
   const char *instr)
@@ -575,7 +575,7 @@ static int get_register(const char *token)
   return -1;
 }
 
-int parse_instruction_propeller2(struct _asm_context *asm_context, char *instr)
+int parse_instruction_propeller2(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   int token_type;

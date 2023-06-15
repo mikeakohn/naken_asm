@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -19,9 +19,6 @@
 #include "common/tokens.h"
 #include "common/eval_expression.h"
 #include "table/z80.h"
-
-// http://wikiti.brandonw.net/index.php?title=Z80_Instruction_Set
-// http://map.grauw.nl/resources/z80instr.php
 
 enum
 {
@@ -197,7 +194,7 @@ static int compute_reg8(struct _operand *operand)
   return -1;
 }
 
-static int check_disp8(struct _asm_context *asm_context, struct _operand *operand)
+static int check_disp8(AsmContext *asm_context, struct _operand *operand)
 {
   if (operand->offset < -128 || operand->offset > 127)
   {
@@ -208,7 +205,7 @@ static int check_disp8(struct _asm_context *asm_context, struct _operand *operan
   return 0;
 }
 
-static int check_const8(struct _asm_context *asm_context, struct _operand *operand)
+static int check_const8(AsmContext *asm_context, struct _operand *operand)
 {
   if (operand->value < -128 || operand->value > 255)
   {
@@ -219,7 +216,7 @@ static int check_const8(struct _asm_context *asm_context, struct _operand *opera
   return 0;
 }
 
-static int check_addr8(struct _asm_context *asm_context, struct _operand *operand)
+static int check_addr8(AsmContext *asm_context, struct _operand *operand)
 {
   if (operand->value < 0 || operand->value > 255)
   {
@@ -230,7 +227,11 @@ static int check_addr8(struct _asm_context *asm_context, struct _operand *operan
   return 0;
 }
 
-static int check_offset8(struct _asm_context *asm_context, struct _operand *operand, int address, int *offset)
+static int check_offset8(
+  AsmContext *asm_context,
+  struct _operand *operand,
+  int address,
+  int *offset)
 {
   int o = operand->value - address;
 
@@ -251,7 +252,7 @@ static int check_offset8(struct _asm_context *asm_context, struct _operand *oper
   return 0;
 }
 
-static int check_bit(struct _asm_context *asm_context, struct _operand *operand)
+static int check_bit(AsmContext *asm_context, struct _operand *operand)
 {
   if (operand->value < 0 || operand->value > 7)
   {
@@ -262,8 +263,7 @@ static int check_bit(struct _asm_context *asm_context, struct _operand *operand)
   return 0;
 }
 
-
-int parse_instruction_z80(struct _asm_context *asm_context, char *instr)
+int parse_instruction_z80(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   int token_type;

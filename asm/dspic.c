@@ -5,7 +5,7 @@
  *     Web: https//www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -102,7 +102,7 @@ static int get_register_dspic(char *token)
   return -1;
 }
 
-static int check_f(struct _asm_context *asm_context, int value)
+static int check_f(AsmContext *asm_context, int value)
 {
   if ((value & 1) != 0)
   {
@@ -119,7 +119,7 @@ static int check_f(struct _asm_context *asm_context, int value)
   return 0;
 }
 
-static int check_f_flag(struct _asm_context *asm_context, int value, int flag)
+static int check_f_flag(AsmContext *asm_context, int value, int flag)
 {
   if (flag != FLAG_B && (value & 1) != 0)
   {
@@ -135,7 +135,7 @@ static int check_f_flag(struct _asm_context *asm_context, int value, int flag)
   return 0;
 }
 
-static int check_f_64k(struct _asm_context *asm_context, int value)
+static int check_f_64k(AsmContext *asm_context, int value)
 {
   if ((value & 1) != 0)
   {
@@ -196,7 +196,10 @@ static int parse_dsp_op(struct _operand *operands, int operand, int operand_coun
   return parse_wx_wy(&operands[operand], w, iiii);
 }
 
-static int parse_awb(struct _asm_context *asm_context, struct _operand *operands, int *aa)
+static int parse_awb(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int *aa)
 {
   if (operands->type == OPTYPE_REGISTER &&
       operands->value == 13 &&
@@ -220,7 +223,10 @@ static int parse_awb(struct _asm_context *asm_context, struct _operand *operands
   return 0;
 }
 
-static int parse_mmm(struct _asm_context *asm_context, struct _operand *operands, int *mmm)
+static int parse_mmm(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int *mmm)
 {
   if (operands->type != OPTYPE_W_MUL_W) { return -1; }
   if (operands->value == 4)
@@ -248,7 +254,10 @@ static int parse_mmm(struct _asm_context *asm_context, struct _operand *operands
   return 0;
 }
 
-static int parse_mm(struct _asm_context *asm_context, struct _operand *operands, int *mm)
+static int parse_mm(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int *mm)
 {
   if (operands->type != OPTYPE_W_MUL_W) { return -1; }
   if (operands->value != operands->reg2) { return -1; }
@@ -259,7 +268,11 @@ static int parse_mm(struct _asm_context *asm_context, struct _operand *operands,
   return 0;
 }
 
-static int parse_movsac(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int opcode)
+static int parse_movsac(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  int opcode)
 {
 int operand = 0;
 int xx = 0, yy = 0, iiii = 4, jjjj = 4, aa = 2;
@@ -309,7 +322,11 @@ int xx = 0, yy = 0, iiii = 4, jjjj = 4, aa = 2;
   return opcode;
 }
 
-static int parse_mpy_n(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int opcode)
+static int parse_mpy_n(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  int opcode)
 {
   int operand = 0;
   int xx = 0, yy = 0, iiii = 4, jjjj = 4, mmm = 0;
@@ -361,7 +378,11 @@ static int parse_mpy_n(struct _asm_context *asm_context, struct _operand *operan
   return opcode;
 }
 
-static int parse_mac_m_m(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int opcode)
+static int parse_mac_m_m(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  int opcode)
 {
   int operand = 0;
   int xx = 0, yy = 0, iiii = 4, jjjj = 4, mm = 0;
@@ -411,7 +432,11 @@ static int parse_mac_m_m(struct _asm_context *asm_context, struct _operand *oper
   return opcode;
 }
 
-static int parse_ed_m_m(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int opcode)
+static int parse_ed_m_m(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  int opcode)
 {
   int xx = 0, iiii = 4, jjjj = 4, mm = 0;
 
@@ -439,10 +464,14 @@ static int parse_ed_m_m(struct _asm_context *asm_context, struct _operand *opera
   return opcode;
 }
 
-static int parse_mac_m_n(struct _asm_context *asm_context, struct _operand *operands, int operand_count, int opcode)
+static int parse_mac_m_n(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  int opcode)
 {
-int operand = 0;
-int xx = 0, yy = 0, iiii = 4, jjjj = 4, mmm = 0, aa = 2;
+  int operand = 0;
+  int xx = 0, yy = 0, iiii = 4, jjjj = 4, mmm = 0, aa = 2;
 
   if (operand >= operand_count) { return -1; }
 
@@ -495,7 +524,7 @@ int xx = 0, yy = 0, iiii = 4, jjjj = 4, mmm = 0, aa = 2;
   return opcode;
 }
 
-int parse_instruction_dspic(struct _asm_context *asm_context, char *instr)
+int parse_instruction_dspic(AsmContext *asm_context, char *instr)
 {
   struct _operand operands[7];
   int operand_count = 0;

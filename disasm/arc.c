@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -16,11 +16,13 @@
 #include "disasm/arc.h"
 #include "table/arc.h"
 
-#define READ_RAM16(a) ((memory_read_m(memory, a + 0) << 8) | \
-                       (memory_read_m(memory, a + 1)))
+#define READ_RAM16(a) \
+  ((memory_read_m(memory, a + 0) << 8) | \
+   (memory_read_m(memory, a + 1)))
 
-#define READ_RAM32(a) (memory_read16_m(memory, a + 0) << 16) | \
-                       memory_read16_m(memory, a + 2);
+#define READ_RAM32(a) \
+  (memory_read16_m(memory, a + 0) << 16) | \
+   memory_read16_m(memory, a + 2);
 
 #define LIMM 0x3e
 
@@ -668,7 +670,7 @@ void list_output_arc(struct _asm_context *asm_context, uint32_t start, uint32_t 
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     Memory *memory = &asm_context->memory;
 
@@ -711,7 +713,7 @@ void disasm_range_arc(Memory *memory, uint32_t flags, uint32_t start, uint32_t e
   printf("%-7s %-7s  %-40s\n", "Addr", "Opcode", "Instruction");
   printf("------- -------- ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_arc(memory, start, instruction, &cycles_min, &cycles_max);
 

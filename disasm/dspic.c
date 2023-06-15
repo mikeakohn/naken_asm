@@ -25,7 +25,7 @@ static char *mmm_table[] = { "w4*w5", "w4*w6", "w4*w7", "???", "w5*w6", "w5*w7",
 
 static void get_wd(char *temp, int reg, int attr, int reg2)
 {
-  switch(attr)
+  switch (attr)
   {
     case 0:
     case 1:
@@ -127,7 +127,7 @@ int disasm_dspic(
   opcode = memory_read32_m(memory, address);
 
   n = 0;
-  while(table_dspic[n].name != NULL)
+  while (table_dspic[n].name != NULL)
   {
     if ((opcode & table_dspic[n].mask) == table_dspic[n].opcode)
     {
@@ -135,7 +135,7 @@ int disasm_dspic(
       *cycles_min = table_dspic[n].cycles_min;
       *cycles_max = table_dspic[n].cycles_max;
 
-      switch(table_dspic[n].type)
+      switch (table_dspic[n].type)
       {
         case OP_NONE:
           sprintf(instruction, "%s", table_dspic[n].name);
@@ -569,7 +569,7 @@ void list_output_dspic(struct _asm_context *asm_context, uint32_t start, uint32_
   char instruction[128];
   uint32_t opcode;
 
-  while(start < end)
+  while (start < end)
   {
     opcode = memory_read32_m(&asm_context->memory, start);
 
@@ -611,7 +611,7 @@ void disasm_range_dspic(
   printf("%-7s %-10s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ---------- ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     num = READ_RAM(start) |
          (READ_RAM(start + 1) << 8) |

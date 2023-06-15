@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2023 by Michael Kohn, Joe Davisson
  *
  * 6502 file by Joe Davisson
  *
@@ -16,7 +16,7 @@
 
 #include "common/assembler.h"
 
-int parse_instruction_6502(struct _asm_context *asm_context, char *instr);
+int parse_instruction_6502(AsmContext *asm_context, char *instr);
 
 #endif
 

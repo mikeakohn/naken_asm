@@ -2,10 +2,10 @@
  *  naken_asm MSP430 assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -17,7 +17,7 @@
 #include "asm/common.h"
 #include "common/memory.h"
 
-void add_bin8(struct _asm_context *asm_context, uint8_t b, int flags)
+void add_bin8(AsmContext *asm_context, uint8_t b, int flags)
 {
   int line = DL_NO_CG;
 
@@ -35,7 +35,7 @@ void add_bin8(struct _asm_context *asm_context, uint8_t b, int flags)
   memory_write_inc(asm_context, b, line);
 }
 
-void add_bin16(struct _asm_context *asm_context, uint16_t b, int flags)
+void add_bin16(AsmContext *asm_context, uint16_t b, int flags)
 {
   int line = DL_NO_CG;
 
@@ -63,7 +63,7 @@ void add_bin16(struct _asm_context *asm_context, uint16_t b, int flags)
   }
 }
 
-void add_bin32(struct _asm_context *asm_context, uint32_t b, int flags)
+void add_bin32(AsmContext *asm_context, uint32_t b, int flags)
 {
   int line = asm_context->tokens.line;
 
@@ -89,7 +89,7 @@ void add_bin32(struct _asm_context *asm_context, uint32_t b, int flags)
   }
 }
 
-int add_bin_varuint(struct _asm_context *asm_context, uint64_t b, int fixed_size)
+int add_bin_varuint(AsmContext *asm_context, uint64_t b, int fixed_size)
 {
   uint32_t num;
   int count = 0;
@@ -102,7 +102,7 @@ int add_bin_varuint(struct _asm_context *asm_context, uint64_t b, int fixed_size
       asm_context->tokens.line);
   }
 
-  while(1)
+  while (1)
   {
     fixed_size--;
 
@@ -124,7 +124,7 @@ int add_bin_varuint(struct _asm_context *asm_context, uint64_t b, int fixed_size
   return count;
 }
 
-int add_bin_varint(struct _asm_context *asm_context, uint64_t b, int fixed_size)
+int add_bin_varint(AsmContext *asm_context, uint64_t b, int fixed_size)
 {
   uint32_t num;
   int count = 0;
@@ -132,12 +132,12 @@ int add_bin_varint(struct _asm_context *asm_context, uint64_t b, int fixed_size)
 
   if (asm_context->memory.endian == ENDIAN_BIG)
   {
-    printf("Warning: varuint only works with little endian at %s:%d\n",
+    printf("Warning: varint only works with little endian at %s:%d\n",
       asm_context->tokens.filename,
       asm_context->tokens.line);
   }
 
-  while(1)
+  while (1)
   {
     fixed_size--;
 

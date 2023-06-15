@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -41,7 +41,7 @@ int disasm_4004(
       *cycles_min = 16;
       *cycles_max = 16;
 
-      switch(table_4004[n].type)
+      switch (table_4004[n].type)
       {
         case OP_NONE:
         {

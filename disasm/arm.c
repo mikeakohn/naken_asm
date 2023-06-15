@@ -523,7 +523,7 @@ int disasm_arm(
       //*cycles_min=table_arm[n].cycles;
       //*cycles_max=table_arm[n].cycles;
 
-      switch(table_arm[n].type)
+      switch (table_arm[n].type)
       {
         case OP_ALU_3:
           //*cycles_min = 2;

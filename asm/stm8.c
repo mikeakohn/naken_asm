@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -96,7 +96,7 @@ int find_bigger_instruction(int n)
   return n;
 }
 
-static int ignore_expression(struct _asm_context *asm_context)
+static int ignore_expression(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   int token_type;
@@ -117,7 +117,11 @@ static int ignore_expression(struct _asm_context *asm_context)
   return -1;
 }
 
-static int get_num(struct _asm_context *asm_context, int instr_index, int *num, int *num_size)
+static int get_num(
+  AsmContext *asm_context,
+  int instr_index,
+  int *num,
+  int *num_size)
 {
   if (eval_expression(asm_context, num) != 0)
   {
@@ -152,7 +156,7 @@ static int get_num(struct _asm_context *asm_context, int instr_index, int *num, 
   return -1;
 }
 
-static int add_bin_void(struct _asm_context *asm_context, int n)
+static int add_bin_void(AsmContext *asm_context, int n)
 {
   int count = 1;
 
@@ -166,7 +170,7 @@ static int add_bin_void(struct _asm_context *asm_context, int n)
   return count;
 }
 
-static int add_bin_num8(struct _asm_context *asm_context, int n, int num)
+static int add_bin_num8(AsmContext *asm_context, int n, int num)
 {
   int count = 2;
 
@@ -180,7 +184,7 @@ static int add_bin_num8(struct _asm_context *asm_context, int n, int num)
   return count;
 }
 
-static int add_bin_num16(struct _asm_context *asm_context, int n, int num)
+static int add_bin_num16(AsmContext *asm_context, int n, int num)
 {
   int count = 3;
 
@@ -195,7 +199,7 @@ static int add_bin_num16(struct _asm_context *asm_context, int n, int num)
   return count;
 }
 
-static int add_bin_num24(struct _asm_context *asm_context, int n, int num)
+static int add_bin_num24(AsmContext *asm_context, int n, int num)
 {
   int count = 4;
 
@@ -211,7 +215,7 @@ static int add_bin_num24(struct _asm_context *asm_context, int n, int num)
   return count;
 }
 
-static int add_bin_bit(struct _asm_context *asm_context, int n, int num, int pos)
+static int add_bin_bit(AsmContext *asm_context, int n, int num, int pos)
 {
   int count = 3;
 
@@ -226,7 +230,12 @@ static int add_bin_bit(struct _asm_context *asm_context, int n, int num, int pos
   return count;
 }
 
-static int add_bin_bit_offset(struct _asm_context *asm_context, int n, int num, int pos, int offset)
+static int add_bin_bit_offset(
+  AsmContext *asm_context,
+  int n,
+  int num,
+  int pos,
+  int offset)
 {
   int count = 4;
 
@@ -242,7 +251,11 @@ static int add_bin_bit_offset(struct _asm_context *asm_context, int n, int num, 
   return count;
 }
 
-static int add_bin_num16_num8(struct _asm_context *asm_context, int n, int num1, int num2)
+static int add_bin_num16_num8(
+  AsmContext *asm_context,
+  int n,
+  int num1,
+  int num2)
 {
   int count = 4;
 
@@ -258,7 +271,11 @@ static int add_bin_num16_num8(struct _asm_context *asm_context, int n, int num1,
   return count;
 }
 
-static int add_bin_num8_num8(struct _asm_context *asm_context, int n, int num1, int num2)
+static int add_bin_num8_num8(
+  AsmContext *asm_context,
+  int n,
+  int num1,
+  int num2)
 {
   int count = 3;
 
@@ -273,7 +290,11 @@ static int add_bin_num8_num8(struct _asm_context *asm_context, int n, int num1, 
   return count;
 }
 
-static int add_bin_num16_num16(struct _asm_context *asm_context, int n, int num1, int num2)
+static int add_bin_num16_num16(
+  AsmContext *asm_context,
+  int n,
+  int num1,
+  int num2)
 {
   int count = 5;
 
@@ -291,7 +312,7 @@ static int add_bin_num16_num16(struct _asm_context *asm_context, int n, int num1
   return count;
 }
 
-int parse_instruction_stm8(struct _asm_context *asm_context, char *instr)
+int parse_instruction_stm8(AsmContext *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
   char token[TOKENLEN];

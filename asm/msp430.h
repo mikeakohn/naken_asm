@@ -14,10 +14,10 @@
 
 #include "common/assembler.h"
 
-int parse_instruction_msp430(struct _asm_context *asm_context, char *instr);
+int parse_instruction_msp430(AsmContext *asm_context, char *instr);
 
 int link_function_msp430(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   Imports *imports,
   const uint8_t *code,
   uint32_t function_offset,

@@ -128,7 +128,7 @@ static int get_register(char *s)
   return 0;
 }
 
-uint8_t get_reg_postbyte(int reg)
+static uint8_t get_reg_postbyte(int reg)
 {
   switch (reg)
   {
@@ -146,7 +146,10 @@ uint8_t get_reg_postbyte(int reg)
   }
 }
 
-int parse_index(struct _asm_context *asm_context, char *instr, struct _operand *operand)
+static int parse_index(
+  AsmContext *asm_context,
+  char *instr,
+  struct _operand *operand)
 {
   char token[TOKENLEN];
   int token_type;
@@ -217,7 +220,10 @@ int parse_index(struct _asm_context *asm_context, char *instr, struct _operand *
   return 0;
 }
 
-int parse_index_with_offset(struct _asm_context *asm_context, char *instr, struct _operand *operand)
+static int parse_index_with_offset(
+  AsmContext *asm_context,
+  char *instr,
+  struct _operand *operand)
 {
   char token[TOKENLEN];
   int token_type;
@@ -258,7 +264,7 @@ int parse_index_with_offset(struct _asm_context *asm_context, char *instr, struc
   return 0;
 }
 
-static int check_indexed(struct _asm_context *asm_context, struct _operand *operand)
+static int check_indexed(AsmContext *asm_context, struct _operand *operand)
 {
   uint8_t post_byte = operand->index_reg << 5;
 
@@ -374,7 +380,7 @@ static int check_indexed(struct _asm_context *asm_context, struct _operand *oper
   return -1;
 }
 
-int parse_instruction_6809(struct _asm_context *asm_context, char *instr)
+int parse_instruction_6809(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   char instr_case[TOKENLEN];

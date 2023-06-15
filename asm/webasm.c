@@ -22,7 +22,7 @@
 #include "table/webasm.h"
 
 static int get_uint(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint64_t *value,
   int as_bin)
 {
@@ -72,7 +72,7 @@ static int get_type(const char *token)
   return -1;
 }
 
-int parse_instruction_webasm(struct _asm_context *asm_context, char *instr)
+int parse_instruction_webasm(AsmContext *asm_context, char *instr)
 {
   int token_type;
   char token[TOKENLEN];

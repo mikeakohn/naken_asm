@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -18,7 +18,7 @@
 #include "imports_ar.h"
 #include "imports_obj.h"
 
-struct _header
+typedef struct _header
 {
   char file_identifier[16];
   char timestamp[12];
@@ -27,7 +27,7 @@ struct _header
   char mode[8];
   char size[10];
   char end[2];
-};
+} Header;
 
 static int imports_ar_read_signature(uint8_t *buffer, int file_size)
 {
@@ -91,15 +91,15 @@ int imports_ar_verify(uint8_t *buffer, int file_size)
 
 int imports_ar_read(uint8_t *buffer, int file_size)
 {
-  struct _header *header;
+  Header *header;
   int i, size;
   int ptr = 8;
 
   if (imports_ar_read_signature(buffer, file_size) != 0) { return -1; }
 
-  while(ptr < file_size)
+  while (ptr < file_size)
   {
-    header = (struct _header *)(buffer + ptr);
+    header = (Header *)(buffer + ptr);
 
     printf("file_identifier: %.16s\n", header->file_identifier);
     printf("      timestamp: %.12s\n", header->timestamp);
@@ -134,13 +134,13 @@ int imports_ar_read(uint8_t *buffer, int file_size)
 
 static int imports_ar_find_lookup_table(uint8_t *buffer, int file_size)
 {
-  struct _header *header;
+  Header *header;
   int ptr = 8;
   int i;
 
-  while(ptr < file_size)
+  while (ptr < file_size)
   {
-    header = (struct _header *)(buffer + ptr);
+    header = (Header *)(buffer + ptr);
 
     int size = 0;
 
@@ -217,7 +217,7 @@ int imports_ar_find_code_from_symbol(
   uint32_t *obj_size)
 {
   //int section_offset;
-  struct _header *header;
+  Header *header;
   int ptr = 8;
   int i;
   int ret = -1;
@@ -230,9 +230,9 @@ int imports_ar_find_code_from_symbol(
 
   if (imports_ar_read_signature(buffer, file_size) != 0) { return -1; }
 
-  while(ptr < file_size)
+  while (ptr < file_size)
   {
-    header = (struct _header *)(buffer + ptr);
+    header = (Header *)(buffer + ptr);
 
 #if 0
     printf("file_identifier: %.16s\n", header->file_identifier);
@@ -297,15 +297,15 @@ const char *imports_ar_find_name_from_offset(
   uint32_t offset)
 {
   const char *name = NULL;
-  struct _header *header;
+  Header *header;
   int ptr = 8;
   int i;
 
   if (imports_ar_read_signature(buffer, file_size) != 0) { return NULL; }
 
-  while(ptr < file_size)
+  while (ptr < file_size)
   {
-    header = (struct _header *)(buffer + ptr);
+    header = (Header *)(buffer + ptr);
 
     int size = 0;
 

@@ -202,7 +202,7 @@ int macros_append(
   // If there is no pool, add one.
   if (memory_pool == NULL)
   {
-    memory_pool = memory_pool_add((struct _naken_heap *)macros, MACROS_HEAP_SIZE);
+    memory_pool = memory_pool_add((NakenHeap *)macros, MACROS_HEAP_SIZE);
   }
 
   // Find a pool that has enough area at the end to add this macro.
@@ -216,7 +216,7 @@ int macros_append(
 
      if (memory_pool->next == NULL)
      {
-       memory_pool->next = memory_pool_add((struct _naken_heap *)macros, MACROS_HEAP_SIZE);
+       memory_pool->next = memory_pool_add((NakenHeap *)macros, MACROS_HEAP_SIZE);
      }
 
      memory_pool = memory_pool->next;

@@ -12,10 +12,10 @@
 #ifndef NAKEN_ASM_MEMORY_POOL_H
 #define NAKEN_ASM_MEMORY_POOL_H
 
-struct _naken_heap
+typedef struct _naken_heap
 {
   struct _memory_pool *memory_pool;
-};
+} NakenHeap;
 
 /*
   address_heap buffer looks like this:
@@ -43,7 +43,7 @@ typedef struct _memory_pool
   unsigned char buffer[];
 } MemoryPool;
 
-MemoryPool *memory_pool_add(struct _naken_heap *heap, int heap_len);
+MemoryPool *memory_pool_add(NakenHeap *heap, int heap_len);
 void memory_pool_free(MemoryPool *memory_pool);
 
 #endif

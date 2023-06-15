@@ -22,7 +22,7 @@
 extern struct _table_65816 table_65816[];
 extern struct _table_65816_opcodes table_65816_opcodes[];
 
-#define READ_RAM(a) (memory_read_m(memory, a) & 0xFF)
+#define READ_RAM(a) (memory_read_m(memory, a) & 0xff)
 
 // bytes for each addressing mode
 static int op_bytes[] =
@@ -105,7 +105,7 @@ int disasm_65816(
       sprintf(num, "0x%06x", (bank << 16) | (hi << 8) | lo);
     }
 
-    switch(op)
+    switch (op)
     {
       case OP_NONE:
         sprintf(temp, " ");
@@ -199,7 +199,7 @@ void list_output_65816(
 #if 0
   unsigned int opcode=memory_read32_m(&asm_context->memory, address);
 
-  opcode &= 0xFF;
+  opcode &= 0xff;
 
   fprintf(asm_context->list, "\n");
 #endif
@@ -226,7 +226,7 @@ void list_output_65816(
   fprintf(asm_context->list, "0x%04x: %-16s %-40s cycles: ?\n", start, bytes, instruction);
 
 #if 0
-  if (cycles_min==cycles_max)
+  if (cycles_min == cycles_max)
   { fprintf(asm_context->list, "%d\n", cycles_min); }
     else
   { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
@@ -240,8 +240,8 @@ void disasm_range_65816(
   uint32_t end)
 {
   char instruction[128];
-  //int vectors_flag=0;
-  int cycles_min=0,cycles_max=0;
+  //int vectors_flag = 0;
+  int cycles_min = 0, cycles_max = 0;
   int num = 0;
 
   printf("\n");
@@ -249,36 +249,36 @@ void disasm_range_65816(
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
-    num=READ_RAM(start) | (READ_RAM(start+1) << 8);
+    num = READ_RAM(start) | (READ_RAM(start+1) << 8);
 
-    int count=disasm_65816(memory, start, instruction, &cycles_min, &cycles_max, 0);
+    int count = disasm_65816(memory, start, instruction, &cycles_min, &cycles_max, 0);
 
-    if (cycles_min<1)
+    if (cycles_min < 1)
     {
-      printf("0x%04x: 0x%02x %-40s ?\n", start, num & 0xFF, instruction);
+      printf("0x%04x: 0x%02x %-40s ?\n", start, num & 0xff, instruction);
     }
       else
-    if (cycles_min==cycles_max)
+    if (cycles_min == cycles_max)
     {
-      printf("0x%04x: 0x%02x %-40s %d\n", start, num & 0xFF, instruction, cycles_min);
+      printf("0x%04x: 0x%02x %-40s %d\n", start, num & 0xff, instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: 0x%02x %-40s %d-%d\n", start, num & 0xFF, instruction, cycles_min, cycles_max);
+      printf("0x%04x: 0x%02x %-40s %d-%d\n", start, num & 0xff, instruction, cycles_min, cycles_max);
     }
 
-    count-=1;
-    while (count>0)
+    count -= 1;
+    while (count > 0)
     {
-      start=start+1;
-      num=READ_RAM(start)|(READ_RAM(start+1)<<8);
-      printf("0x%04x: 0x%02x\n", start, num & 0xFF);
-      count-=1;
+      start = start + 1;
+      num = READ_RAM(start) | (READ_RAM(start + 1) << 8);
+      printf("0x%04x: 0x%02x\n", start, num & 0xff);
+      count -= 1;
     }
 
-    start=start+1;
+    start = start + 1;
   }
 }
 

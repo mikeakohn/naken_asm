@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -73,7 +73,7 @@ static int get_register_unsp(const char *token)
 }
 
 static int get_number(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operand,
   const char *instr)
 {
@@ -98,7 +98,7 @@ static int get_number(
 }
 
 static int generate_alu_2(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operands,
   uint16_t opcode)
 {
@@ -337,7 +337,7 @@ static int generate_alu_2(
   return -2;
 }
 
-int parse_instruction_unsp(struct _asm_context *asm_context, char *instr)
+int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 {
   struct _operand operands[MAX_OPERANDS];
   int operand_count = 0;

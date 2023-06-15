@@ -32,7 +32,7 @@ struct _operand
   int bit;
 };
 
-int pdk_parse(struct _asm_context *asm_context, struct _operand *operands);
+int pdk_parse(AsmContext *asm_context, struct _operand *operands);
 
 #endif
 

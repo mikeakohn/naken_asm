@@ -144,7 +144,7 @@ static int eval_operation(int operator, int num1, int num2)
 printf("debug> #if eval_operation()  operator=%d  num1=%d  num2=%d\n", operator, num1, num2);
 #endif
 
-  switch(operator)
+  switch (operator)
   {
     case OPER_EQUAL:
       return num1 == num2 ? 1 : 0;
@@ -171,14 +171,14 @@ static int is_num(char *value)
 {
   char *s = value;
 
-  while(*s != 0)
+  while (*s != 0)
   {
     // If there is white space at the end of the value then remove it.
     // This is due to do adding an extra space at the end of macros.. should
     // probably change this.
     if (*s == ' ' && s != value)
     {
-      while(*s == ' ') { s++; }
+      while (*s == ' ') { s++; }
       return (*s == 0) ? 1 : 0;
     }
 
@@ -208,7 +208,7 @@ static int parse_ifdef_expression(
   operator.precedence = precedence;
   n = *num;
 
-  while(1)
+  while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 

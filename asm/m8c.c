@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -27,7 +27,7 @@ struct _operand
 };
 
 int add_branch(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operand,
   int opcode,
   int length)
@@ -58,7 +58,7 @@ int add_branch(
 }
 
 int add_operand(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operand,
   uint8_t type,
   uint8_t opcode)
@@ -106,7 +106,7 @@ int add_operand(
   return -1;
 }
 
-int ignore_expression(struct _asm_context *asm_context)
+int ignore_expression(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   int token_type;
@@ -128,7 +128,7 @@ int ignore_expression(struct _asm_context *asm_context)
   return 0;
 }
 
-int parse_instruction_m8c(struct _asm_context *asm_context, char *instr)
+int parse_instruction_m8c(AsmContext *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
   struct _operand operands[2];

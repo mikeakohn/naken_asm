@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -109,7 +109,7 @@ static int imports_obj_symbol_table_lookup_by_name(
   int ptr = 0;
   struct _elf_symbol32 *elf_symbol32;
 
-  while(ptr < symbol_table_size)
+  while (ptr < symbol_table_size)
   {
     elf_symbol32 = (struct _elf_symbol32 *)(symbol_table + ptr);
 
@@ -146,7 +146,7 @@ static const char *imports_obj_symbol_table_lookup_by_local_offset(
   int ptr = 0;
   struct _elf_symbol32 *elf_symbol32;
 
-  while(ptr < symbol_table_size)
+  while (ptr < symbol_table_size)
   {
     elf_symbol32 = (struct _elf_symbol32 *)(symbol_table + ptr);
 
@@ -186,7 +186,7 @@ static const char *imports_obj_symbol_table_lookup_by_offset(
   int ptr = 0;
   struct _elf_relocation32 *elf_relocation32;
 
-  while(ptr < relocation_table_size)
+  while (ptr < relocation_table_size)
   {
     elf_relocation32 = (struct _elf_relocation32 *)(relocation_table + ptr);
 

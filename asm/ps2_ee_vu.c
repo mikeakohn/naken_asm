@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -125,7 +125,7 @@ static int get_field_number(int field_mask)
 }
 
 static int get_field_bits(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *token,
   int *dest)
 {
@@ -154,7 +154,7 @@ static int get_field_bits(
 }
 
 int get_base(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operand,
   int *modifier)
 {
@@ -230,7 +230,14 @@ int get_base(
   return 0;
 }
 
-static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, int *dest, int *iemdt_bits, int is_lower)
+static int get_operands(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  char *instr,
+  char *instr_case,
+  int *dest,
+  int *iemdt_bits,
+  int is_lower)
 {
   int operand_count = 0;
   int modifier;
@@ -474,7 +481,11 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
   return operand_count;
 }
 
-static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu *table_ps2_ee_vu, char *instr, int is_lower)
+static int get_opcode(
+  AsmContext *asm_context,
+  struct _table_ps2_ee_vu *table_ps2_ee_vu,
+  char *instr,
+  int is_lower)
 {
   struct _operand operands[MAX_OPERANDS];
   int operand_count;
@@ -858,7 +869,7 @@ static int get_opcode(struct _asm_context *asm_context, struct _table_ps2_ee_vu 
   return -1;
 }
 
-int parse_instruction_ps2_ee_vu(struct _asm_context *asm_context, char *instr)
+int parse_instruction_ps2_ee_vu(AsmContext *asm_context, char *instr)
 {
   uint32_t opcode_upper;
   uint32_t opcode_lower;

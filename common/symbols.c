@@ -131,7 +131,7 @@ int symbols_append(Symbols *symbols, const char *name, uint32_t address)
   // If we have no pool, add one.
   if (memory_pool == NULL)
   {
-    memory_pool = memory_pool_add((struct _naken_heap *)symbols, SYMBOLS_HEAP_SIZE);
+    memory_pool = memory_pool_add((NakenHeap *)symbols, SYMBOLS_HEAP_SIZE);
   }
 
   // Find a pool that has enough area at the end to add this address.
@@ -145,7 +145,7 @@ int symbols_append(Symbols *symbols, const char *name, uint32_t address)
 
      if (memory_pool->next == NULL)
      {
-       memory_pool->next = memory_pool_add((struct _naken_heap *)symbols, SYMBOLS_HEAP_SIZE);
+       memory_pool->next = memory_pool_add((NakenHeap *)symbols, SYMBOLS_HEAP_SIZE);
      }
 
      memory_pool = memory_pool->next;

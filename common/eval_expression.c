@@ -124,7 +124,7 @@ static int operate(int a, int b, struct _operator *operator)
 printf(">>> OPERATING ON %d (%d) %d\n", a, operator->operation, b);
 #endif
 
-  switch(operator->operation)
+  switch (operator->operation)
   {
     case OPER_NOT:
       return ~a;
@@ -219,7 +219,7 @@ printf("Enter eval_expression_go,  num=%d\n", *num);
   memcpy(&operator, last_operator, sizeof(struct _operator));
   num_stack[0] = *num;
 
-  while(1)
+  while (1)
   {
 #ifdef DEBUG
 printf("eval_expression> going to grab a token\n");

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -14,11 +14,11 @@
 
 #include "common/assembler.h"
 
-int parse_instruction_mips(struct _asm_context *asm_context, char *instr);
+int parse_instruction_mips(AsmContext *asm_context, char *instr);
 
 int link_function_mips(
-  struct _asm_context *asm_context,
-  struct _imports *imports,
+  AsmContext *asm_context,
+  Imports *imports,
   const uint8_t *code,
   uint32_t function_offset,
   int size,

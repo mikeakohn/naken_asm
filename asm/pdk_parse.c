@@ -13,7 +13,7 @@
 #include "asm/common.h"
 #include "common/eval_expression.h"
 
-int pdk_parse(struct _asm_context *asm_context, struct _operand *operands)
+int pdk_parse(AsmContext *asm_context, struct _operand *operands)
 {
   char token[TOKENLEN];
   int token_type;

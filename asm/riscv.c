@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -187,7 +187,12 @@ static int get_f_register_riscv(char *token)
   return get_register_number(token + 1);
 }
 
-static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case, struct _modifiers *modifiers)
+static int get_operands(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  char *instr,
+  char *instr_case,
+  struct _modifiers *modifiers)
 {
   char token[TOKENLEN];
   int token_type;
@@ -383,7 +388,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
   return operand_count;
 }
 
-int parse_instruction_riscv(struct _asm_context *asm_context, char *instr)
+int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
   struct _operand operands[MAX_OPERANDS];

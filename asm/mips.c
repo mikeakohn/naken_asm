@@ -133,7 +133,7 @@ static int get_tregister(char *token)
 }
 
 static int get_register_mips_rsp(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *token,
   struct _rsp_element *rsp_element)
 {
@@ -193,7 +193,7 @@ static int get_register_mips_rsp(
 }
 
 static int check_element(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   int element,
   int element_max,
   int element_step)
@@ -313,7 +313,7 @@ static int get_register_mips(char *token, struct _operand *operand)
 }
 
 static int add_offset(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   int address,
   uint32_t *opcode)
 {
@@ -388,7 +388,7 @@ void get_dest(char *instr_case, int *dest)
 }
 
 static int check_type(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   int user_type,
   int table_type,
@@ -493,7 +493,7 @@ static int check_type(
 }
 
 static int check_for_pseudo_instruction(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operands,
   int *operand_count,
   char *instr_case,
@@ -603,7 +603,7 @@ static int check_for_pseudo_instruction(
 }
 
 static int get_operands_li(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operands,
   char *instr,
   char *instr_case)
@@ -719,7 +719,7 @@ static int get_operands_li(
 }
 
 static int get_operands(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operands,
   char *instr,
   char *instr_case)
@@ -1046,7 +1046,7 @@ static int get_operands(
 }
 
 static int check_ee_instruction(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   const char *instr,
   const char *instr_case,
   struct _operand *operands,
@@ -1311,7 +1311,7 @@ static int check_ee_instruction(
 }
 
 static int check_other_instruction(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   const char *instr,
   const char *instr_case,
   struct _operand *operands,
@@ -1572,7 +1572,7 @@ static int check_other_instruction(
   return 0;
 }
 
-int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
+int parse_instruction_mips(AsmContext *asm_context, char *instr)
 {
   struct _operand operands[4];
   int operand_count = 0;
@@ -2625,8 +2625,8 @@ int parse_instruction_mips(struct _asm_context *asm_context, char *instr)
 }
 
 int link_function_mips(
-  struct _asm_context *asm_context,
-  struct _imports *imports,
+  AsmContext *asm_context,
+  Imports *imports,
   const uint8_t *code,
   uint32_t function_offset,
   int size,

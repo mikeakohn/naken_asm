@@ -85,7 +85,7 @@ int disasm_avr8(
       *cycles_min = table_avr8[n].cycles_min;
       *cycles_max = table_avr8[n].cycles_max;
 
-      switch(table_avr8[n].type)
+      switch (table_avr8[n].type)
       {
         case OP_NONE:
           sprintf(instruction, "%s", table_avr8[n].instr);

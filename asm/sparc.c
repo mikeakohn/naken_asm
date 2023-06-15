@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -56,7 +56,7 @@ static int get_register_sparc(char *token)
   return num;
 }
 
-int parse_instruction_sparc(struct _asm_context *asm_context, char *instr)
+int parse_instruction_sparc(AsmContext *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
   char token[TOKENLEN];

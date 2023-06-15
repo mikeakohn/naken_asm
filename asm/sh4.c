@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -163,7 +163,7 @@ static int get_register_bank_sh4(char *token)
 }
 
 static int get_displacement(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operands,
   int align,
   int mask,
@@ -189,7 +189,7 @@ static int get_displacement(
 }
 
 static int calc_displacement(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operands,
   int align)
 {
@@ -230,7 +230,10 @@ static int calc_displacement(
   return value;
 }
 
-static int parse_at(struct _asm_context *asm_context, struct _operand *operand, const char *instr)
+static int parse_at(
+  AsmContext *asm_context,
+  struct _operand *operand,
+  const char *instr)
 {
   char token[TOKENLEN];
   int token_type;
@@ -370,7 +373,7 @@ static int parse_at(struct _asm_context *asm_context, struct _operand *operand, 
   return -1;
 }
 
-int parse_instruction_sh4(struct _asm_context *asm_context, char *instr)
+int parse_instruction_sh4(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
   char *instr_case = instr_case_mem;

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -21,7 +21,7 @@
 #include "common/tokens.h"
 #include "table/pdk16.h"
 
-int parse_instruction_pdk16(struct _asm_context *asm_context, char *instr)
+int parse_instruction_pdk16(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
   char *instr_case = instr_case_mem;

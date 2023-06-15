@@ -14,7 +14,7 @@
 
 #include "common/assembler.h"
 
-int parse_instruction_tms340(struct _asm_context *asm_context, char *instr);
+int parse_instruction_tms340(AsmContext *asm_context, char *instr);
 
 #endif
 

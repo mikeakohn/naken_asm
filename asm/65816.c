@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2023 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
@@ -27,7 +27,7 @@
 #define GET_TOKEN() (token_type = tokens_get(asm_context, token, TOKENLEN))
 
 static int get_num(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *token,
   int *token_type,
   int *num,
@@ -89,7 +89,7 @@ static int get_num(
 }
 
 static int get_address(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *token,
   int *token_type,
   int *num,
@@ -192,14 +192,12 @@ static int op_bytes[] =
   2, 3, 3, 2, 3, 2, 2, 3, 2, 3, 2, 2
 };
 
-int parse_directive_65816(
-  struct _asm_context *asm_context,
-  const char *directive)
+int parse_directive_65816(AsmContext *asm_context, const char *directive)
 {
   return 1;
 }
 
-int parse_instruction_65816(struct _asm_context *asm_context, char *instr)
+int parse_instruction_65816(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   char instr_case[TOKENLEN];

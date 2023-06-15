@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -178,7 +178,7 @@ static int check_reg(int type, uint8_t omit_mode)
 }
 
 static int ea_immediate(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   int opcode,
   int size,
   struct _operand *operand)
@@ -203,7 +203,7 @@ static int ea_immediate(
 }
 
 static int ea_address(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   int opcode,
   struct _operand *operand,
   uint32_t extra_imm,
@@ -261,7 +261,10 @@ static int ea_address(
   return len;
 }
 
-static int ea_displacement(struct _asm_context *asm_context, int opcode, struct _operand *operand)
+static int ea_displacement(
+  AsmContext *asm_context,
+  int opcode,
+  struct _operand *operand)
 {
   if (operand->value < -32768 || operand->value > 32767)
   {
@@ -284,7 +287,10 @@ static int ea_displacement(struct _asm_context *asm_context, int opcode, struct 
   return 4;
 }
 
-static int ea_displacement_xn(struct _asm_context *asm_context, int opcode, struct _operand *operand)
+static int ea_displacement_xn(
+  AsmContext *asm_context,
+  int opcode,
+  struct _operand *operand)
 {
   if (operand->value < -128 || operand->value > 127)
   {
@@ -309,7 +315,14 @@ static int ea_displacement_xn(struct _asm_context *asm_context, int opcode, stru
   return 4;
 }
 
-static int ea_generic_all(struct _asm_context *asm_context, struct _operand *operand, char *instr, int opcode, int size, int flags, uint32_t extra_imm)
+static int ea_generic_all(
+  AsmContext *asm_context,
+  struct _operand *operand,
+  char *instr,
+  int opcode,
+  int size,
+  int flags,
+  uint32_t extra_imm)
 {
 #if 0
   if (flags&EA_SKIP_BYTES)
@@ -365,7 +378,7 @@ static int ea_generic_all(struct _asm_context *asm_context, struct _operand *ope
 // table_68000 on which modes are valid.  Wish I would have done it this
 // way from the start.
 static int ea_generic_new(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operand,
   char *instr,
   int size,
@@ -421,7 +434,7 @@ static int ea_generic_new(
 }
 
 static int write_single_ea(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -435,7 +448,12 @@ static int write_single_ea(
   return ea_generic_new(asm_context, &operands[0], instr, size, table, 1, NO_EXTRA_IMM, extra_opcode);
 }
 
-static int write_single_ea_no_size(struct _asm_context *asm_context, char *instr, struct _operand *operands, int operand_count, struct _table_68000 *table)
+static int write_single_ea_no_size(
+  AsmContext *asm_context,
+  char *instr,
+  struct _operand *operands,
+  int operand_count,
+  struct _table_68000 *table)
 {
   if (operand_count != 1) { return 0; }
 
@@ -443,7 +461,7 @@ static int write_single_ea_no_size(struct _asm_context *asm_context, char *instr
 }
 
 static int write_reg_and_ea(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -479,7 +497,7 @@ static int write_reg_and_ea(
 }
 
 static int write_dreg_ea(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -502,7 +520,7 @@ static int write_dreg_ea(
 }
 
 static int write_immediate(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -621,7 +639,7 @@ static int write_immediate(
 }
 
 static int write_shift(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -654,7 +672,7 @@ static int write_shift(
 }
 
 static int write_vector(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -689,7 +707,7 @@ static int write_vector(
 }
 
 static int write_areg(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -705,7 +723,7 @@ static int write_areg(
 }
 
 static int write_reg(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -732,7 +750,7 @@ static int write_reg(
 }
 
 static int write_ea_areg(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -754,7 +772,7 @@ static int write_ea_areg(
 }
 
 static int write_ea_dreg(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -777,7 +795,7 @@ static int write_ea_dreg(
 }
 
 static int write_load_ea(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -795,7 +813,7 @@ static int write_load_ea(
 }
 
 static int write_quick(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -833,7 +851,7 @@ static int write_quick(
 }
 
 static int write_move_special(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -874,7 +892,7 @@ static int write_move_special(
 }
 
 static int write_movea(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -892,7 +910,7 @@ static int write_movea(
 }
 
 static int write_cmpm(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -909,7 +927,7 @@ static int write_cmpm(
 }
 
 static int write_bcd(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -939,7 +957,7 @@ static int write_bcd(
 }
 
 static int write_extended(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -971,7 +989,7 @@ static int write_extended(
 }
 
 static int write_rox(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1011,7 +1029,7 @@ static int write_rox(
 }
 
 static int write_exchange(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1042,7 +1060,7 @@ static int write_exchange(
 }
 
 static int write_bit_reg_ea(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1062,7 +1080,7 @@ static int write_bit_reg_ea(
 }
 
 static int write_bit_imm_ea(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1126,7 +1144,7 @@ static int write_bit_imm_ea(
 }
 
 static int write_ea_dreg_wl(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1145,7 +1163,7 @@ static int write_ea_dreg_wl(
 }
 
 static int write_logic_ccr(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1193,7 +1211,7 @@ static int write_logic_ccr(
 }
 
 static int write_branch(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1261,7 +1279,7 @@ static int write_branch(
 }
 
 static int write_ext(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1287,7 +1305,7 @@ static int write_ext(
 }
 
 static int write_link(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1330,7 +1348,7 @@ static int write_link(
 }
 
 static int write_div_mul(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1345,7 +1363,7 @@ static int write_div_mul(
 }
 
 static int write_movep(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1389,7 +1407,7 @@ static int write_movep(
 }
 
 static int write_movem(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1439,7 +1457,7 @@ static int write_movem(
 }
 
 static int write_move(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1522,7 +1540,7 @@ static int write_move(
 }
 
 static int write_jump(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *instr,
   struct _operand *operands,
   int operand_count,
@@ -1547,7 +1565,7 @@ static int write_jump(
   return ea_generic_new(asm_context, &operands[0], instr, size, table, 1, NO_EXTRA_IMM, 0);
 }
 
-int parse_instruction_68000(struct _asm_context *asm_context, char *instr)
+int parse_instruction_68000(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   int token_type;

@@ -74,7 +74,7 @@ static int tokens_hex_string_to_int(char *s, uint64_t *num, int prefixed)
 {
   uint64_t n = 0;
 
-  while(*s != 0 && (*s != 'h' && *s != 'H'))
+  while (*s != 0 && (*s != 'h' && *s != 'H'))
   {
     if (*s >= '0' && *s <= '9')
     { n = (n << 4) | ((*s) - '0'); }
@@ -124,7 +124,7 @@ static int tokens_octal_string_to_int(char *s, uint64_t *num)
 {
   uint64_t n = 0;
 
-  while(*s != 0 && (*s != 'q' && *s != 'Q'))
+  while (*s != 0 && (*s != 'q' && *s != 'Q'))
   {
     if (*s >= '0' && *s <= '7')
     { n = (n << 3) | ((*s) - '0'); }
@@ -144,7 +144,7 @@ static int tokens_binary_string_to_int(char *s, uint64_t *num, int prefixed)
 {
   int n = 0;
 
-  while(*s!=0 && (*s != 'b' && *s != 'B'))
+  while (*s!=0 && (*s != 'b' && *s != 'B'))
   {
     if (*s == '0')
     { n = n << 1; }
@@ -223,7 +223,7 @@ int tokens_get_char(AsmContext *asm_context)
       {
         ch = getc(asm_context->tokens.in);
       }
-    } while(ch == '\r');
+    } while (ch == '\r');
 
     if (asm_context->list != NULL && asm_context->write_list_file == 1)
     {
@@ -272,7 +272,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
     return asm_context->tokens.pushback_type;
   }
 
-  while(1)
+  while (1)
   {
 #ifdef DEBUG
 //printf("debug> tokens_get, grabbing next char ptr=%d\n", ptr);
@@ -310,7 +310,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
         break;
       }
 
-      while(1)
+      while (1)
       {
         ch = tokens_get_char(asm_context);
         if (ch == '\n' || ch == EOF) { break; }
@@ -352,7 +352,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
     {
       token_type = TOKEN_QUOTED;
 
-      while(1)
+      while (1)
       {
         ch = tokens_get_char(asm_context);
 
@@ -380,7 +380,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
     {
       token_type = TOKEN_TICKED;
 
-      while(1)
+      while (1)
       {
         ch = tokens_get_char(asm_context);
 
@@ -523,7 +523,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
               ptr = 0;
               token[0] = 0;
 
-              while(1)
+              while (1)
               {
                 ch = tokens_get_char(asm_context);
                 if (ch == EOF)
@@ -551,7 +551,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
               else
             if (ch == '/')
             {
-              while(1)
+              while (1)
               {
                 ch = tokens_get_char(asm_context);
                 if (ch == '\n' || ch == EOF) break;
@@ -793,7 +793,7 @@ int tokens_escape_char(AsmContext *asm_context, uint8_t *s)
 {
   int ptr = 1;
 
-  switch(s[ptr])
+  switch (s[ptr])
   {
     case '\\':
       s[ptr++] = '\\';

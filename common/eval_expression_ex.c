@@ -130,7 +130,7 @@ printf(">>> OPERATING ON %d/%f/%d (%d) %d/%f/%d\n",
   var_get_int32(var_s), var_get_float(var_s), var_get_type(var_s));
 #endif
 
-  switch(operator->operation)
+  switch (operator->operation)
   {
     case OPER_NOT:
       return var_not(var_d);
@@ -235,7 +235,7 @@ printf("Enter eval_expression_go,  var=%d/%f/%d\n", var_get_int32(var), var_get_
   memcpy(&operator, last_operator, sizeof(struct _operator));
   VAR_COPY(&var_stack[0], var);
 
-  while(1)
+  while (1)
   {
 #ifdef DEBUG
 printf("eval_expression> going to grab a token\n");

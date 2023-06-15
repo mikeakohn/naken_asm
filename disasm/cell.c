@@ -41,7 +41,7 @@ int disasm_cell(
   opcode = READ_RAM(address);
 
   n = 0;
-  while(table_cell[n].instr != NULL)
+  while (table_cell[n].instr != NULL)
   {
     if ((opcode & table_cell[n].mask) == table_cell[n].opcode)
     {
@@ -55,7 +55,7 @@ int disasm_cell(
       int rt = (opcode >> 0) & 0x7f;
       int rc;
 
-      switch(table_cell[n].type)
+      switch (table_cell[n].type)
       {
         case OP_NONE:
           sprintf(instruction, "%s", table_cell[n].instr);
@@ -227,7 +227,7 @@ void list_output_cell(
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     opcode = memory_read32_m(&asm_context->memory, start);
 
@@ -269,7 +269,7 @@ void disasm_range_cell(
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     opcode = memory_read32_m(memory, start);
 

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2023 by Michael Kohn, Joe Davisson
  *
  * 6502 by Joe Davisson
  *
@@ -27,7 +27,7 @@
 #define GET_TOKEN() (token_type = tokens_get(asm_context, token, TOKENLEN))
 
 static int get_num(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *token,
   int *token_type,
   int *num,
@@ -75,7 +75,7 @@ static int get_num(
 }
 
 static int get_address(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   char *token,
   int *token_type,
   int *num,
@@ -148,7 +148,7 @@ extern struct _table_6502_opcodes table_6502_opcodes[];
 // bytes for each addressing mode
 static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2, 3, 2, 3 };
 
-int parse_instruction_6502(struct _asm_context *asm_context, char *instr)
+int parse_instruction_6502(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   char instr_case[TOKENLEN];

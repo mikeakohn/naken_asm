@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -102,7 +102,7 @@ static int get_special_register(char *token)
   return -1;
 }
 
-static int check_reg_lower(struct _asm_context *asm_context, int value)
+static int check_reg_lower(AsmContext *asm_context, int value)
 {
   if (value > 7)
   {
@@ -113,7 +113,7 @@ static int check_reg_lower(struct _asm_context *asm_context, int value)
   return 0;
 }
 
-static int is_4_byte_aligned(struct _asm_context *asm_context, int num)
+static int is_4_byte_aligned(AsmContext *asm_context, int num)
 {
   if ((num & 0x3) != 0)
   {
@@ -124,7 +124,7 @@ static int is_4_byte_aligned(struct _asm_context *asm_context, int num)
   return 0;
 }
 
-static int is_2_byte_aligned(struct _asm_context *asm_context, int num)
+static int is_2_byte_aligned(AsmContext *asm_context, int num)
 {
   if ((num & 0x1) != 0)
   {
@@ -135,7 +135,7 @@ static int is_2_byte_aligned(struct _asm_context *asm_context, int num)
   return 0;
 }
 
-static int read_register_list(struct _asm_context *asm_context, struct _operand *operand)
+static int read_register_list(AsmContext *asm_context, struct _operand *operand)
 {
   int token_type;
   char token[TOKENLEN];
@@ -204,7 +204,7 @@ static int read_register_list(struct _asm_context *asm_context, struct _operand 
   return 0;
 }
 
-int parse_cps(struct _asm_context *asm_context, int disable)
+int parse_cps(AsmContext *asm_context, int disable)
 {
   char token[TOKENLEN];
   int token_type;
@@ -247,7 +247,7 @@ int parse_cps(struct _asm_context *asm_context, int disable)
   return 2;
 }
 
-int parse_instruction_thumb(struct _asm_context *asm_context, char *instr)
+int parse_instruction_thumb(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   int token_type;

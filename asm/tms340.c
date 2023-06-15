@@ -109,7 +109,7 @@ static int reverse_bits(int value)
 }
 
 static int get_operands_register_list(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operands,
   int *operand_count,
   char *instr)
@@ -208,7 +208,7 @@ static int get_operands_register_list(
   }
 }
 
-int parse_instruction_tms340(struct _asm_context *asm_context, char *instr)
+int parse_instruction_tms340(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   int token_type;

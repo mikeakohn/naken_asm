@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -33,7 +33,7 @@ static const char *array_types[] =
 };
 
 static int parse_num8(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   const char *instr,
   int low,
   int high)
@@ -65,7 +65,7 @@ static int parse_num8(
 }
 
 static int parse_num16(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   const char *instr,
   int low,
   int high)
@@ -99,7 +99,7 @@ static int parse_num16(
 }
 
 static int parse_index_w(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   const char *instr,
   int opcode,
   int has_const)
@@ -193,9 +193,7 @@ static int parse_index_w(
   return length;
 }
 
-static int parse_array_type(
-  struct _asm_context *asm_context,
-  const char *instr)
+static int parse_array_type(AsmContext *asm_context, const char *instr)
 {
   int n;
   char token[TOKENLEN];
@@ -244,7 +242,7 @@ static int parse_array_type(
 }
 
 static int parse_offset(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   const char *instr,
   int is_long)
 {
@@ -306,7 +304,7 @@ static int parse_offset(
   }
 }
 
-int parse_instruction_java(struct _asm_context *asm_context, char *instr)
+int parse_instruction_java(AsmContext *asm_context, char *instr)
 {
   char token[TOKENLEN];
   int token_type;

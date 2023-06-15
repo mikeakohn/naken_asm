@@ -57,7 +57,7 @@ static void new_extension(char *filename, char *ext, int len)
     exit(1);
   }
 
-  while(i > 0)
+  while (i > 0)
   {
     if (filename[i] == '.')
     {
@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
 
   if (outfile == NULL)
   {
-    switch(format)
+    switch (format)
     {
       case FORMAT_HEX: outfile = "out.hex"; break;
       case FORMAT_BIN: outfile = "out.bin"; break;
@@ -487,7 +487,7 @@ int main(int argc, char *argv[])
 
       fclose(dbg);
     }
-  } while(0);
+  } while (0);
 
   fclose(out);
 

@@ -67,12 +67,12 @@ int disasm_super_fx(
   *cycles_max = -1;
 
   n = 0;
-  while(table_super_fx[n].instr != NULL)
+  while (table_super_fx[n].instr != NULL)
   {
     if (((opcode & table_super_fx[n].mask) == table_super_fx[n].opcode) &&
         table_super_fx[n].alt == alt)
     {
-      switch(table_super_fx[n].type)
+      switch (table_super_fx[n].type)
       {
         case OP_NONE:
         {
@@ -200,7 +200,7 @@ void list_output_super_fx(
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     count = disasm_super_fx(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
@@ -235,7 +235,7 @@ void disasm_range_super_fx(
   printf("%-7s %-5s %-40s\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     count = disasm_super_fx(memory, start, instruction, &cycles_min, &cycles_max);
 

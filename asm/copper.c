@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -27,7 +27,10 @@ enum
   INSTRUCTION_MOVE,
 };
 
-static int parse_wait_or_skip(struct _asm_context *asm_context, const char *instr, int is_skip)
+static int parse_wait_or_skip(
+  AsmContext *asm_context,
+  const char *instr,
+  int is_skip)
 {
   char token[TOKENLEN];
   int token_type;
@@ -145,7 +148,7 @@ static int parse_wait_or_skip(struct _asm_context *asm_context, const char *inst
   return 0;
 }
 
-static int parse_move(struct _asm_context *asm_context)
+static int parse_move(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   int token_type;
@@ -207,7 +210,7 @@ static int parse_move(struct _asm_context *asm_context)
   return 0;
 }
 
-int parse_instruction_copper(struct _asm_context *asm_context, char *instr)
+int parse_instruction_copper(AsmContext *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
   int instruction;

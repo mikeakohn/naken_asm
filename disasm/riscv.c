@@ -67,7 +67,7 @@ int disasm_riscv(
   opcode = READ_RAM(address);
 
   n = 0;
-  while(table_riscv[n].instr != NULL)
+  while (table_riscv[n].instr != NULL)
   {
     if ((opcode & table_riscv[n].mask) == table_riscv[n].opcode)
     {
@@ -78,7 +78,7 @@ int disasm_riscv(
       uint32_t rm = (opcode >> 12) & 0x7;
       const char *instr = table_riscv[n].instr;
 
-      switch(table_riscv[n].type)
+      switch (table_riscv[n].type)
       {
         case OP_R_TYPE:
           sprintf(instruction, "%s x%d, x%d, x%d", instr, rd, rs1, rs2);
@@ -235,21 +235,28 @@ void list_output_riscv(
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     opcode = memory_read32_m(&asm_context->memory, start);
 
     disasm_riscv(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
 
-    fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
+    fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ",
+      start, opcode, instruction);
 
     if (cycles_min == -1)
-    { fprintf(asm_context->list, "\n"); }
+    {
+      fprintf(asm_context->list, "\n");
+    }
       else
     if (cycles_min == cycles_max)
-    { fprintf(asm_context->list, "%d\n", cycles_min); }
+    {
+      fprintf(asm_context->list, "%d\n", cycles_min);
+    }
       else
-    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    {
+      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+    }
 
     start += 4;
   }
@@ -271,7 +278,7 @@ void disasm_range_riscv(
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start <= end)
+  while (start <= end)
   {
     opcode = memory_read32_m(memory, start);
 
@@ -280,12 +287,18 @@ void disasm_range_riscv(
     printf("0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
     if (cycles_min == -1)
-    { printf("\n"); }
+    {
+      printf("\n");
+    }
       else
     if (cycles_min == cycles_max)
-    { printf("%d\n", cycles_min); }
+    {
+      printf("%d\n", cycles_min);
+    }
       else
-    { printf("%d-%d\n", cycles_min, cycles_max); }
+    {
+      printf("%d-%d\n", cycles_min, cycles_max);
+    }
 
     start = start + count;
   }

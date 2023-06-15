@@ -73,7 +73,7 @@ static const char *group_3[] =
   "cla",
 };
 
-static int get_group(struct _asm_context *asm_context, char *token)
+static int get_group(AsmContext *asm_context, char *token)
 {
   int token_type;
   int opcode = 0;
@@ -182,7 +182,7 @@ static int get_group(struct _asm_context *asm_context, char *token)
   }
 }
 
-int parse_instruction_pdp8(struct _asm_context *asm_context, char *instr)
+int parse_instruction_pdp8(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
   char *instr_case = instr_case_mem;

@@ -14,7 +14,7 @@
 
 #include "common/assembler.h"
 
-int parse_instruction_8051(struct _asm_context *asm_context, char *instr);
+int parse_instruction_8051(AsmContext *asm_context, char *instr);
 
 #endif
 

@@ -66,7 +66,7 @@ int disasm_ps2_ee_vu(
   instruction[0] = 0;
 
   n = 0;
-  while(table_ps2_ee_vu[n].instr != NULL)
+  while (table_ps2_ee_vu[n].instr != NULL)
   {
     if (flags == PS2_EE_VU0 && (table_ps2_ee_vu[n].flags & FLAG_VU1_ONLY))
     {
@@ -101,7 +101,7 @@ int disasm_ps2_ee_vu(
       {
         if (r != 0) { strcat(instruction, ","); }
 
-        switch(table_ps2_ee_vu[n].operand[r])
+        switch (table_ps2_ee_vu[n].operand[r])
         {
           case EE_VU_OP_FT:
             sprintf(temp, " vf%02d", ft);
@@ -230,7 +230,7 @@ void list_output_ps2_ee_vu(
 
   fprintf(asm_context->list, "\n");
 
-  while(start < end)
+  while (start < end)
   {
     opcode_upper = memory_read32_m(&asm_context->memory, start + 4);
     opcode_lower = memory_read32_m(&asm_context->memory, start);
@@ -270,7 +270,7 @@ void disasm_range_ps2_ee_vu(
   printf("%-7s %-5s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
   printf("------- ------ ----------------------------------       ------\n");
 
-  while(start < end)
+  while (start < end)
   {
     opcode_upper = memory_read32_m(memory, start + 4);
     opcode_lower = memory_read32_m(memory, start);

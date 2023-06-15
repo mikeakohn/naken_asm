@@ -58,7 +58,7 @@ static int get_register_8051(char *token)
 }
 
 static int compute_bit_address(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   int address,
   int bit)
 {
@@ -84,7 +84,7 @@ static int compute_bit_address(
   return -1;
 }
 
-int parse_instruction_8051(struct _asm_context *asm_context, char *instr)
+int parse_instruction_8051(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
   char *instr_case = instr_case_mem;

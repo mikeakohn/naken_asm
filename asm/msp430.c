@@ -122,7 +122,7 @@ static struct _aliases
 static char *msp430x_rpt[] = { "rpt", "rptz", "rptc",  NULL };
 
 static void operand_to_cg(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operand,
   int bw)
 {
@@ -171,7 +171,7 @@ static void operand_to_cg(
 }
 
 static int process_operand(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _operand *operand,
   struct _data *data,
   const char *instr,
@@ -303,7 +303,7 @@ static int process_operand(
   return -1;
 }
 
-static uint16_t get_prefix(struct _asm_context *asm_context, int zc)
+static uint16_t get_prefix(AsmContext *asm_context, int zc)
 {
   char token[TOKENLEN];
   //int token_type;
@@ -352,7 +352,7 @@ static uint16_t get_prefix(struct _asm_context *asm_context, int zc)
   return prefix;
 }
 
-int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
+int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 {
   struct _operand operands[3];
   struct _data data;
@@ -1552,7 +1552,7 @@ int parse_instruction_msp430(struct _asm_context *asm_context, char *instr)
 }
 
 int link_function_msp430(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   Imports *imports,
   const uint8_t *code,
   uint32_t function_offset,

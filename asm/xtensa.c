@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -71,7 +71,11 @@ static int get_register_xtensa(const char *token, char lo, char up)
   return -1;
 }
 
-static void compute_offset(struct _asm_context *asm_context, int *offset, int n, int increment)
+static void compute_offset(
+  AsmContext *asm_context,
+  int *offset,
+  int n,
+  int increment)
 {
   if (asm_context->pass == 1)
   {
@@ -83,7 +87,7 @@ static void compute_offset(struct _asm_context *asm_context, int *offset, int n,
   }
 }
 
-static void get_b4const(struct _asm_context *asm_context, int *c, int value)
+static void get_b4const(AsmContext *asm_context, int *c, int value)
 {
   int n;
 
@@ -102,7 +106,7 @@ static void get_b4const(struct _asm_context *asm_context, int *c, int value)
   }
 }
 
-static int check_immediate(struct _asm_context *asm_context, int *immediate, int shift)
+static int check_immediate(AsmContext *asm_context, int *immediate, int shift)
 {
   if (asm_context->pass == 1)
   {
@@ -162,7 +166,7 @@ static int check_immediate(struct _asm_context *asm_context, int *immediate, int
   return 0;
 }
 
-static int check_immediate_n(struct _asm_context *asm_context, int *immediate, int shift)
+static int check_immediate_n(AsmContext *asm_context, int *immediate, int shift)
 {
   if (asm_context->pass == 1)
   {
@@ -206,7 +210,7 @@ static int check_immediate_n(struct _asm_context *asm_context, int *immediate, i
 
 // Not sure if this would be okay in other assemblers, so leaving here
 // for now.
-static void add_bin24(struct _asm_context *asm_context, uint32_t b)
+static void add_bin24(AsmContext *asm_context, uint32_t b)
 {
   int line = asm_context->tokens.line;
 
@@ -230,7 +234,11 @@ static void add_bin24(struct _asm_context *asm_context, uint32_t b)
   }
 }
 
-static int get_operands(struct _asm_context *asm_context, struct _operand *operands, char *instr, char *instr_case)
+static int get_operands(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  char *instr,
+  char *instr_case)
 {
   char token[TOKENLEN];
   int token_type;
@@ -352,7 +360,7 @@ static int get_operands(struct _asm_context *asm_context, struct _operand *opera
   return operand_count;
 }
 
-int parse_instruction_xtensa(struct _asm_context *asm_context, char *instr)
+int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 {
   char instr_case[TOKENLEN];
   struct _operand operands[MAX_OPERANDS];
