@@ -172,7 +172,7 @@ static int operand_exe(Simulate *simulate, int opcode)
 
         REG_A = (result % 10) + ((result / 10) << 4);
       }
-      else
+        else
       {
         REG_A += m + READ_FLAG(flag_c);
 
@@ -212,7 +212,7 @@ static int operand_exe(Simulate *simulate, int opcode)
         FLAG(REG_A > 127, flag_n);
         FLAG(REG_A == 0, flag_z);
       }
-      else
+        else
       {
         FLAG(READ_BIT(m, 7), flag_c);
         m <<= 1;
@@ -467,7 +467,7 @@ static int operand_exe(Simulate *simulate, int opcode)
         FLAG(REG_A > 127, flag_n);
         FLAG(REG_A == 0, flag_z);
       }
-      else
+        else
       {
         FLAG(READ_BIT(m, 0), flag_c);
         m >>= 1;
@@ -532,7 +532,7 @@ static int operand_exe(Simulate *simulate, int opcode)
         FLAG(REG_A > 127, flag_n);
         FLAG(REG_A == 0, flag_z);
       }
-      else
+        else
       {
         FLAG(READ_BIT(m, 7), flag_c);
         m <<= 1;
@@ -558,7 +558,7 @@ static int operand_exe(Simulate *simulate, int opcode)
         FLAG(REG_A > 127, flag_n);
         FLAG(REG_A == 0, flag_z);
       }
-      else
+        else
       {
         temp = READ_BIT(m, 0);
         m >>= 1;
@@ -615,7 +615,7 @@ static int operand_exe(Simulate *simulate, int opcode)
 
         REG_A = (result % 10) + ((result / 10) << 4);
       }
-      else
+        else
       {
         REG_A -= m - (1 - READ_FLAG(flag_c));
 
@@ -746,7 +746,7 @@ int simulate_set_reg_65816(Simulate *simulate, char *reg_string, uint32_t value)
 {
   Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
 
-  while(*reg_string==' ') { reg_string++; }
+  while (*reg_string==' ') { reg_string++; }
 
   if (strcasecmp(reg_string, "a") == 0)
     REG_A = value & 0xFFFF;
@@ -903,7 +903,7 @@ int simulate_run_65816(Simulate *simulate, int max_cycles, int step)
       simulate_dump_registers_65816(simulate);
 
       int n = 0;
-      while(n < 6)
+      while (n < 6)
       {
         int count = disasm_65816(simulate->memory, pc, instruction, &cycles_min, &cycles_max, 0);
 
@@ -924,7 +924,7 @@ int simulate_run_65816(Simulate *simulate, int max_cycles, int step)
         pc += count;
 
         count--;
-        while(count > 0)
+        while (count > 0)
         {
           if (pc == simulate->break_point) { printf("*"); }
           else { printf(" "); }

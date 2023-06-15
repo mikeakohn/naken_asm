@@ -70,7 +70,8 @@ int disasm_6502(
           sprintf(num, "0x%02x", lo);
         }
       }
-      else if (op_bytes[op] == 3)
+        else
+      if (op_bytes[op] == 3)
       {
         lo = READ_RAM(address + 1);
         hi = READ_RAM(address + 2);

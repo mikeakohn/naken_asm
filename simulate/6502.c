@@ -71,7 +71,7 @@ static int calc_address(Simulate *simulate, int address, int mode)
   int hi = READ_RAM((address + 1) & 0xFFFF);
   int indirect;
 
-  switch(mode)
+  switch (mode)
   {
     case OP_NONE:
       return address;
@@ -129,7 +129,7 @@ static int operand_exe(Simulate *simulate, int opcode)
   CYCLE_COUNT += table_6502_opcodes[opcode].cycles_min;
 //FIXME add extra cycles when required below
 
-  switch(opcode)
+  switch (opcode)
   {
     // ADC
     case 0x61:
@@ -151,7 +151,7 @@ static int operand_exe(Simulate *simulate, int opcode)
 
         REG_A = (result % 10) + ((result / 10) << 4);
       }
-      else
+        else
       {
         REG_A += m + READ_FLAG(flag_c);
 
@@ -191,7 +191,7 @@ static int operand_exe(Simulate *simulate, int opcode)
         FLAG(REG_A > 127, flag_n);
         FLAG(REG_A == 0, flag_z);
       }
-      else
+        else
       {
         FLAG(READ_BIT(m, 7), flag_c);
         m <<= 1;
@@ -446,7 +446,7 @@ static int operand_exe(Simulate *simulate, int opcode)
         FLAG(REG_A > 127, flag_n);
         FLAG(REG_A == 0, flag_z);
       }
-      else
+        else
       {
         FLAG(READ_BIT(m, 0), flag_c);
         m >>= 1;
@@ -512,7 +512,7 @@ static int operand_exe(Simulate *simulate, int opcode)
         FLAG(REG_A > 127, flag_n);
         FLAG(REG_A == 0, flag_z);
       }
-      else
+        else
       {
         temp = READ_FLAG(flag_c);
         FLAG(READ_BIT(m, 7), flag_c);
@@ -539,7 +539,7 @@ static int operand_exe(Simulate *simulate, int opcode)
         FLAG(REG_A > 127, flag_n);
         FLAG(REG_A == 0, flag_z);
       }
-      else
+        else
       {
         temp = READ_BIT(m, 0);
         m >>= 1;
@@ -596,7 +596,7 @@ static int operand_exe(Simulate *simulate, int opcode)
 
         REG_A = (result % 10) + ((result / 10) << 4);
       }
-      else
+        else
       {
         REG_A -= m - (1 - READ_FLAG(flag_c));
 
@@ -729,7 +729,7 @@ int simulate_set_reg_6502(Simulate *simulate, char *reg_string, uint32_t value)
 
   // a, x, y, sr, pc, sp
 
-  while(*reg_string==' ') { reg_string++; }
+  while (*reg_string==' ') { reg_string++; }
 
   char *pos = reg_string;
 
@@ -755,7 +755,7 @@ uint32_t simulate_get_reg_6502(Simulate *simulate, char *reg_string)
 {
   Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
 
-  while(*reg_string == ' ') { reg_string++; }
+  while (*reg_string == ' ') { reg_string++; }
 
   char *pos = reg_string;
 
@@ -855,7 +855,7 @@ int simulate_run_6502(Simulate *simulate, int max_cycles, int step)
 
   printf("Running... Press Ctl-C to break.\n");
 
-  while(stop_running==0)
+  while (stop_running==0)
   {
     int pc = REG_PC;
     int cycles_min, cycles_max;
@@ -877,7 +877,7 @@ int simulate_run_6502(Simulate *simulate, int max_cycles, int step)
       simulate_dump_registers_6502(simulate);
 
       int n = 0;
-      while(n < 6)
+      while (n < 6)
       {
         int count = disasm_6502(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
         int i;
@@ -911,7 +911,7 @@ int simulate_run_6502(Simulate *simulate, int max_cycles, int step)
 
 #if 0
         count--;
-        while(count > 0)
+        while (count > 0)
         {
           if (pc == simulate->break_point) { printf("*"); }
           else { printf(" "); }

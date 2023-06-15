@@ -40,15 +40,17 @@ static int get_num(
   {
     modifier = '<';
   }
-  else if (IS_TOKEN(token, '>'))
+    else
+  if (IS_TOKEN(token, '>'))
   {
     modifier = '>';
   }
-  else if (IS_TOKEN(token, '^'))
+    else
+  if (IS_TOKEN(token, '^'))
   {
     modifier = '^';
   }
-  else
+    else
   {
     tokens_push(asm_context, token, *token_type);
   }
@@ -60,7 +62,7 @@ static int get_num(
     {
       ignore_operand(asm_context);
     }
-    else
+      else
     {
       return -1;
     }
@@ -72,13 +74,15 @@ static int get_num(
     *num &= 0xff;
     *size = 8;
   }
-  else if (modifier == '>')
+    else
+  if (modifier == '>')
   {
     *num >>= 8;
     *num &= 0xff;
     *size = 8;
   }
-  else if (modifier == '^')
+    else
+  if (modifier == '^')
   {
     *num >>= 16;
     *num &= 0xff;
@@ -103,15 +107,17 @@ static int get_address(
   {
     modifier = '<';
   }
-  else if (IS_TOKEN(token, '!'))
+    else
+  if (IS_TOKEN(token, '!'))
   {
     modifier = '!';
   }
-  else if (IS_TOKEN(token, '>'))
+    else
+  if (IS_TOKEN(token, '>'))
   {
     modifier = '>';
   }
-  else
+    else
   {
     tokens_push(asm_context, token, *token_type);
   }
@@ -123,7 +129,7 @@ static int get_address(
     {
       ignore_operand(asm_context);
     }
-    else
+      else
     {
       return -1;
     }
@@ -146,12 +152,12 @@ static int get_address(
 
     if (*num > 0xffff)
     {
-      if(worst_case == 1)
+      if (worst_case == 1)
       {
         printf("Use jml/jsl aliases or .l modifier to force 24-bit addressing.\n");
         return -1;
       }
-      else
+        else
       {
         *size = 24;
       }
@@ -166,13 +172,15 @@ static int get_address(
     *num &= 0xff;
     *size = 8;
   }
-  else if (modifier == '!')
+    else
+  if (modifier == '!')
   {
     // force absolute mode
     *num &= 0xffff;
     *size = 16;
   }
-  else if (modifier == '>')
+    else
+  if (modifier == '>')
   {
     // force absolute-long mode
     *num &= 0xffffff;
@@ -224,13 +232,14 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
     op = OP_NONE;
     size = 24;
   }
-  else if (strcmp(instr_case, "jsl") == 0)
+    else
+  if (strcmp(instr_case, "jsl") == 0)
   {
     instr_enum = M65816_JSR;
     op = OP_NONE;
     size = 24;
   }
-  else
+    else
   {
     // search instruction table
     for (i = 0; i < 90; i++)
@@ -272,15 +281,17 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
       {
         size = 8;
       }
-      else if (IS_TOKEN(token, 'w') || IS_TOKEN(token, 'W'))
+        else
+      if (IS_TOKEN(token, 'w') || IS_TOKEN(token, 'W'))
       {
         size = 16;
       }
-      else if (IS_TOKEN(token, 'l') || IS_TOKEN(token, 'L'))
+        else
+      if (IS_TOKEN(token, 'l') || IS_TOKEN(token, 'L'))
       {
         size = 24;
       }
-      else
+        else
       {
         print_error_unexp(token, asm_context);
         return -1;
@@ -310,7 +321,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
         num = (uint8_t)num;
       }
-      else
+        else
       {
         tokens_push(asm_context, token, token_type);
 
@@ -338,7 +349,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         }
       }
     }
-    else if (op == OP_RELATIVE_LONG)
+      else
+    if (op == OP_RELATIVE_LONG)
     {
       if (IS_TOKEN(token, '#'))
       {
@@ -358,7 +370,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
         num = (uint16_t)num;
       }
-      else
+        else
       {
         tokens_push(asm_context, token, token_type);
 
@@ -386,7 +398,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         }
       }
     }
-    else if (op == OP_BLOCK_MOVE)
+      else
+    if (op == OP_BLOCK_MOVE)
     {
       tokens_push(asm_context, token, token_type);
 
@@ -438,7 +451,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
       num = src + (dst << 8);
     }
-    else
+      else
     {
       if (IS_TOKEN(token, '#'))
       {
@@ -463,7 +476,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
           num = (uint8_t)num;
         }
-        else if (size == 16)
+          else
+        if (size == 16)
         {
           if (num < -32768 || num > 0xffff)
           {
@@ -473,12 +487,13 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
           num = (uint16_t)num;
         }
-        else if (size == 24)
+          else
+        if (size == 24)
         {
           print_error("Cannot force long value in immediate mode.", asm_context);
           return -1;
         }
-        else
+          else
         {
           // otherwise default to 16-bit
           if (num < -32768 || num > 0xffff)
@@ -490,7 +505,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
           num = (uint16_t)num;
         }
       }
-      else if (IS_TOKEN(token, '('))
+        else
+      if (IS_TOKEN(token, '('))
       {
         GET_TOKEN();
         if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
@@ -523,13 +539,14 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
               op = num > 0xff ? OP_X_INDIRECT16 : OP_X_INDIRECT8;
             }
-            else
+              else
             {
               print_error_unexp(token, asm_context);
               return -1;
             }
           }
-          else if (IS_TOKEN(token, 's') || IS_TOKEN(token, 'S'))
+            else
+          if (IS_TOKEN(token, 's') || IS_TOKEN(token, 'S'))
           {
             op = OP_SP_INDIRECT_Y;
 
@@ -560,13 +577,14 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
               return -1;
             }
           }
-          else
+            else
           {
             print_error_unexp(token, asm_context);
             return -1;
           }
         }
-        else if (IS_TOKEN(token, ')'))
+          else
+        if (IS_TOKEN(token, ')'))
         {
           op = OP_INDIRECT8;
 
@@ -582,25 +600,26 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
             {
               op = OP_INDIRECT8_Y;
             }
-            else
+              else
             {
               print_error_unexp(token, asm_context);
               return -1;
             }
           }
-          else
+            else
           {
             print_error_unexp(token, asm_context);
             return -1;
           }
         }
-        else
+          else
         {
           print_error_unexp(token, asm_context);
           return -1;
         }
       }
-      else if (IS_TOKEN(token, '['))
+        else
+      if (IS_TOKEN(token, '['))
       {
         GET_TOKEN();
         if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
@@ -629,20 +648,20 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
             {
               op = OP_INDIRECT8_Y_LONG;
             }
-            else
+              else
             {
               print_error_unexp(token, asm_context);
               return -1;
             }
           }
-          else
+            else
           {
             print_error_unexp(token, asm_context);
             return -1;
           }
         }
       }
-      else
+        else
       {
         tokens_push(asm_context, token, token_type);
 
@@ -670,7 +689,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
           op = OP_ADDRESS8;
         }
-        else if (size == 16)
+          else
+        if (size == 16)
         {
           if (num > 0xffff)
           {
@@ -680,7 +700,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
           op = OP_ADDRESS16;
         }
-        else if (size == 24)
+          else
+        if (size == 24)
         {
           if (num > 0xffffff)
           {
@@ -723,7 +744,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
               return -1;
             }
           }
-          else if (IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
+            else
+          if (IS_TOKEN(token, 'y') || IS_TOKEN(token, 'Y'))
           {
             op = OP_INDEXED8_Y;
 
@@ -737,7 +759,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
               return -1;
             }
           }
-          else if (IS_TOKEN(token, 's'))
+            else
+          if (IS_TOKEN(token, 's'))
           {
             op = OP_SP_RELATIVE;
 
@@ -748,13 +771,13 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
               return -1;
             }
           }
-          else
+            else
           {
             print_error_unexp(token, asm_context);
             return -1;
           }
         }
-        else
+          else
         {
           print_error_unexp(token, asm_context);
           return -1;
@@ -775,7 +798,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         opcode = i;
         break;
       }
-      else if (op == OP_IMMEDIATE16)
+        else
+      if (op == OP_IMMEDIATE16)
       {
         if (table_65816_opcodes[i].op == OP_IMMEDIATE8)
         {
@@ -784,7 +808,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
           break;
         }
       }
-      else if (op == OP_ADDRESS8)
+        else
+      if (op == OP_ADDRESS8)
       {
         if (table_65816_opcodes[i].op == OP_ADDRESS16)
         {
@@ -793,7 +818,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
           break;
         }
       }
-      else if (op == OP_INDIRECT8)
+        else
+      if (op == OP_INDIRECT8)
       {
         if (table_65816_opcodes[i].op == OP_INDIRECT16)
         {
@@ -802,7 +828,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
           break;
         }
       }
-      else if (op == OP_INDIRECT8_LONG)
+        else
+      if (op == OP_INDIRECT8_LONG)
       {
         if (table_65816_opcodes[i].op == OP_INDIRECT16_LONG)
         {
@@ -811,7 +838,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
           break;
         }
       }
-      else if (op == OP_X_INDIRECT8)
+        else
+      if (op == OP_X_INDIRECT8)
       {
         if (table_65816_opcodes[i].op == OP_X_INDIRECT16)
         {
@@ -835,7 +863,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
   {
     bytes = op_bytes[OP_IMMEDIATE8];
   }
-  else
+    else
   {
     bytes = op_bytes[op];
   }

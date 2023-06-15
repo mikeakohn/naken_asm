@@ -56,48 +56,50 @@ int disasm_65816(
   strcpy(instruction, table_65816[table_65816_opcodes[opcode].instr].name);
   op = table_65816_opcodes[opcode].op;
 
-  if(bytes == 0)
+  if (bytes == 0)
     bytes = op_bytes[op];
   else
     bytes = bytes - 1;
 
-  if(bytes > 1)
+  if (bytes > 1)
   {
-    if(bytes == 2)
+    if (bytes == 2)
     {
       lo = READ_RAM(address + 1);
 
       // special case for branches
-      if(op == OP_RELATIVE)
+      if (op == OP_RELATIVE)
       {
         int8_t offset = (int8_t)lo;
 
         branch_address = (address + 2) + offset;
         sprintf(num, "0x%04x (offset=%d)", branch_address, offset);
       }
-      else
+        else
       {
         sprintf(num, "0x%02x", lo);
       }
     }
-    else if(bytes == 3)
+      else
+    if (bytes == 3)
     {
       lo = READ_RAM(address + 1);
       hi = READ_RAM(address + 2);
       // special case for long branch (BRL)
-      if(op == OP_RELATIVE_LONG)
+      if (op == OP_RELATIVE_LONG)
       {
         int16_t offset = (int16_t)((hi << 8) | lo);
 
         branch_address = (address + 3) + offset;
         sprintf(num, "0x%04x (offset=%d)", branch_address, offset);
       }
-      else
+        else
       {
         sprintf(num, "0x%04x", (hi << 8) | lo);
       }
     }
-    else if(bytes == 4)
+      else
+    if (bytes == 4)
     {
       lo = READ_RAM(address + 1);
       hi = READ_RAM(address + 2);
@@ -175,12 +177,12 @@ int disasm_65816(
     int min = table_65xx_opcodes[opcode].cycles_min;
     int max = table_65xx_opcodes[opcode].cycles_max;
 
-    if(op == OP_RELATIVE)
+    if (op == OP_RELATIVE)
     {
       // branch, see if we're in the same page
       int page1 = (address + 2) / 256;
       int page2 = branch_address / 256;
-      if(page1 != page2)
+      if (page1 != page2)
         max += 2;
       else
         max += 1;
