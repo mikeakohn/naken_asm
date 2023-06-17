@@ -205,7 +205,7 @@ static int process_operand(
   {
     if (is_src == 0)
     {
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
     }
 
@@ -267,7 +267,7 @@ static int process_operand(
 
     if (value < low || value > high)
     {
-      print_error_range(num_type, low, high, asm_context);
+      print_error_range(asm_context, num_type, low, high);
       return -1;
     }
 
@@ -287,7 +287,7 @@ static int process_operand(
 
     if (is_src == 0 && mode > 1)
     {
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
     }
 
@@ -299,7 +299,7 @@ static int process_operand(
     return 0;
   }
 
-  print_error_illegal_operands(instr, asm_context);
+  print_error_illegal_operands(asm_context, instr);
   return -1;
 }
 
@@ -316,13 +316,13 @@ static uint16_t get_prefix(AsmContext *asm_context, int zc)
   {
     if (eval_expression(asm_context, &num) != 0)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return 0xffff;
     }
 
     if (num < 1 || num > 16)
     {
-      print_error("Constant can only be between 1 and 16", asm_context);
+      print_error(asm_context, "Constant can only be between 1 and 16");
       return 0xffff;
     }
 
@@ -340,7 +340,7 @@ static uint16_t get_prefix(AsmContext *asm_context, int zc)
 
   if (prefix == 0xffff)
   {
-    print_error("Expecting register or immediate", asm_context);
+    print_error(asm_context, "Expecting register or immediate");
     return -1;
   }
 
@@ -405,7 +405,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
           if (token_type != TOKEN_EOL) { break; }
           if (token_type == TOKEN_EOF)
           {
-            print_error("Unexpected end of file", asm_context);
+            print_error(asm_context, "Unexpected end of file");
             return -1;
           }
           asm_context->tokens.line++;
@@ -430,7 +430,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
     if (operand_count == 3)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -448,7 +448,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         else if (IS_TOKEN(token,'a') || IS_TOKEN(token,'A')) { size = 20; }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -456,7 +456,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         token_type = tokens_get(asm_context, token, TOKENLEN);
         if (token_type < 0)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 #endif
@@ -482,7 +482,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
@@ -499,7 +499,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
       if (num < 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -530,7 +530,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
@@ -591,7 +591,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
               if (reg < 0)
               {
-                print_error_unexp(token, asm_context);
+                print_error_unexp(asm_context, token);
                 return -1;
               }
 
@@ -601,7 +601,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
             token_type = tokens_get(asm_context, token, TOKENLEN);
             if (IS_NOT_TOKEN(token,')'))
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
             }
           }
             else
@@ -619,7 +619,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token,','))
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -666,7 +666,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
     {
       if (aliases[n].operand_count != operand_count)
       {
-        print_error_opcount(instr, asm_context);
+        print_error_opcount(asm_context, instr);
         return -1;
       }
 
@@ -739,7 +739,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
       {
         if (table_msp430[n].version == VERSION_MSP430X_EXT)
         {
-          print_error("Instruction doesn't support RPT", asm_context);
+          print_error(asm_context, "Instruction doesn't support RPT");
           return -1;
         }
 
@@ -749,13 +749,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
       if (table_msp430[n].version == VERSION_MSP430 && size == 20)
       {
-        print_error("Instruction doesn't support .a", asm_context);
+        print_error(asm_context, "Instruction doesn't support .a");
         return -1;
       }
 
       if (table_msp430[n].version == VERSION_MSP430X && size == 8)
       {
-        print_error("Instruction doesn't support .b", asm_context);
+        print_error(asm_context, "Instruction doesn't support .b");
         return -1;
       }
 
@@ -769,7 +769,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_ONE_OPERAND_X:
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -817,13 +817,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_JUMP:
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("Jump doesn't take a size.", asm_context);
+            print_error(asm_context, "Jump doesn't take a size.");
             return -1;
           }
 
@@ -835,7 +835,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
           {
             if (operands[0].type != OPTYPE_SYMBOLIC)
             {
-              print_error("Expecting a branch address", asm_context);
+              print_error(asm_context, "Expecting a branch address");
               return -1;
             }
 
@@ -844,7 +844,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           if ((offset & 1) == 1)
           {
-            print_error("Jump offset is odd", asm_context);
+            print_error(asm_context, "Jump offset is odd");
             return -1;
           }
 
@@ -852,7 +852,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           if (offset < -1024 || offset > 1023)
           {
-            print_error_range("Offset", -1024, 1022, asm_context);
+            print_error_range(asm_context, "Offset", -1024, 1022);
             return -1;
           }
 
@@ -866,7 +866,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_TWO_OPERAND:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -908,13 +908,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_MOVA_AT_REG_REG:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("mova doesn't take a size flag", asm_context);
+            print_error(asm_context, "mova doesn't take a size flag");
             return -1;
           }
 
@@ -930,13 +930,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_MOVA_AT_REG_PLUS_REG:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("mova doesn't take a size flag", asm_context);
+            print_error(asm_context, "mova doesn't take a size flag");
             return -1;
           }
 
@@ -952,13 +952,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_MOVA_ABS20_REG:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("mova doesn't take a size flag", asm_context);
+            print_error(asm_context, "mova doesn't take a size flag");
             return -1;
           }
 
@@ -972,7 +972,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           if (value < 0 || value > 0xfffff)
           {
-            print_error_range("Address", 0, 0xfffff, asm_context);
+            print_error_range(asm_context, "Address", 0, 0xfffff);
             return -1;
           }
 
@@ -983,13 +983,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_MOVA_INDEXED_REG:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("mova doesn't take a size flag", asm_context);
+            print_error(asm_context, "mova doesn't take a size flag");
             return -1;
           }
 
@@ -1018,7 +1018,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           if (value < -32768 || value > 32767)
           {
-            print_error_range("Index", -32768, 32768, asm_context);
+            print_error_range(asm_context, "Index", -32768, 32768);
             return -1;
           }
 
@@ -1029,14 +1029,14 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_SHIFT20:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPTYPE_IMMEDIATE ||
               operands[1].type != OPTYPE_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1044,7 +1044,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           if (value < 1 || value > 4)
           {
-            print_error_range("Constant", 0, 4, asm_context);
+            print_error_range(asm_context, "Constant", 0, 4);
             return -1;
           }
 
@@ -1058,13 +1058,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_MOVA_REG_ABS:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("mova doesn't take a size flag", asm_context);
+            print_error(asm_context, "mova doesn't take a size flag");
             return -1;
           }
 
@@ -1078,7 +1078,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           if (value < 0 || value > 0xfffff)
           {
-            print_error_range("Address", 0, 0xfffff, asm_context);
+            print_error_range(asm_context, "Address", 0, 0xfffff);
             return -1;
           }
 
@@ -1089,13 +1089,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_MOVA_REG_INDEXED:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("mova doesn't take a size flag", asm_context);
+            print_error(asm_context, "mova doesn't take a size flag");
             return -1;
           }
 
@@ -1124,7 +1124,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           if (value < -32768 || value > 32767)
           {
-            print_error_range("Index", -32768, 32767, asm_context);
+            print_error_range(asm_context, "Index", -32768, 32767);
             return -1;
           }
 
@@ -1135,13 +1135,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_IMMEDIATE_REG:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("Instruction doesn't take a size flag", asm_context);
+            print_error(asm_context, "Instruction doesn't take a size flag");
             return -1;
           }
 
@@ -1155,7 +1155,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           if (value < -524288 || value > 0xfffff)
           {
-            print_error_range("Index", -524288, 0xfffff, asm_context);
+            print_error_range(asm_context, "Index", -524288, 0xfffff);
             return -1;
           }
 
@@ -1166,13 +1166,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_REG_REG:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("Instruction doesn't take a size flag", asm_context);
+            print_error(asm_context, "Instruction doesn't take a size flag");
             return -1;
           }
 
@@ -1188,13 +1188,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_CALLA_SOURCE:
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("calla doesn't take a size flag", asm_context);
+            print_error(asm_context, "calla doesn't take a size flag");
             return -1;
           }
 
@@ -1229,7 +1229,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
             if (operands[0].value < -32768 || operands[0].value > 32767)
             {
-              print_error_range("Index", -32768, 32767, asm_context);
+              print_error_range(asm_context, "Index", -32768, 32767);
               return -1;
             }
 
@@ -1243,13 +1243,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_CALLA_ABS20:
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("calla doesn't take a size flag", asm_context);
+            print_error(asm_context, "calla doesn't take a size flag");
             return -1;
           }
 
@@ -1259,7 +1259,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
             if (value < 0 || value > 0xfffff)
             {
-              print_error_range("Address", 0, 0xfffff, asm_context);
+              print_error_range(asm_context, "Address", 0, 0xfffff);
               return -1;
             }
 
@@ -1273,13 +1273,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_CALLA_INDIRECT_PC:
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("calla doesn't take a size flag", asm_context);
+            print_error(asm_context, "calla doesn't take a size flag");
             return -1;
           }
 
@@ -1290,7 +1290,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
           {
             if (value < -524288 || value > 0xfffff)
             {
-              print_error_range("Index", -524288, 0xfffff, asm_context);
+              print_error_range(asm_context, "Index", -524288, 0xfffff);
               return -1;
             }
 
@@ -1304,7 +1304,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
           {
             if (value < 0 || value > 0xfffff)
             {
-              print_error_range("Address", 0, 0xfffff, asm_context);
+              print_error_range(asm_context, "Address", 0, 0xfffff);
               return -1;
             }
 
@@ -1320,13 +1320,13 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_CALLA_IMMEDIATE:
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (size != 0)
           {
-            print_error("calla doesn't take a size flag", asm_context);
+            print_error(asm_context, "calla doesn't take a size flag");
             return -1;
           }
 
@@ -1336,7 +1336,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
             if (value < 0 || value > 0xfffff)
             {
-              print_error_range("Immediate", 0, 0xfffff, asm_context);
+              print_error_range(asm_context, "Immediate", 0, 0xfffff);
               return -1;
             }
 
@@ -1351,14 +1351,14 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_POP:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPTYPE_IMMEDIATE ||
               operands[1].type != OPTYPE_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1366,7 +1366,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           if (value < 1 || value > 16)
           {
-            print_error_range("Constant", 1, 16, asm_context);
+            print_error_range(asm_context, "Constant", 1, 16);
             return -1;
           }
 
@@ -1383,7 +1383,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           if (reg < 0 || reg > 15)
           {
-            print_error_illegal_register(instr, asm_context);
+            print_error_illegal_register(asm_context, instr);
             return -1;
           }
 
@@ -1395,7 +1395,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_X_ONE_OPERAND_W:
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1459,7 +1459,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
         case OP_X_TWO_OPERAND:
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1530,7 +1530,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           return count;
         default:
-          print_error_illegal_operands(instr, asm_context);
+          print_error_illegal_operands(asm_context, instr);
           return -1;
       }
     }
@@ -1540,12 +1540,12 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
   if (found == 1)
   {
-    print_error_illegal_operands(instr, asm_context);
+    print_error_illegal_operands(asm_context, instr);
     return -1;
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

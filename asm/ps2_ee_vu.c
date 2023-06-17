@@ -179,7 +179,7 @@ int get_base(
 
   if (n != 0 || type != OPERAND_VIREG)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -197,7 +197,7 @@ int get_base(
 
   if (IS_NOT_TOKEN(token, ')'))
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -253,7 +253,7 @@ static int get_operands(
 
     if (operand_count == MAX_OPERANDS)
     {
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
     }
 
@@ -292,7 +292,7 @@ static int get_operands(
 
       if (IS_NOT_TOKEN(token, ']'))
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -363,7 +363,7 @@ static int get_operands(
         {
           if (eval_expression(asm_context, &operands[operand_count].value) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
         }
@@ -414,7 +414,7 @@ static int get_operands(
 
           if (eval_expression(asm_context, &operands[operand_count].value) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -450,7 +450,7 @@ static int get_operands(
           break;
         }
 
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
     }
@@ -472,7 +472,7 @@ static int get_operands(
       if (token_type == TOKEN_EOL) { break; }
       if (IS_NOT_TOKEN(token,','))
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
     }
@@ -535,13 +535,13 @@ static int get_opcode(
 
       if ((table_ps2_ee_vu[n].flags & FLAG_XYZ) != 0 && dest != 0xe)
       {
-        print_error_illegal_operands(instr, asm_context);
+        print_error_illegal_operands(asm_context, instr);
         return -1;
       }
 
       if ((table_ps2_ee_vu[n].flags & FLAG_DEST) == 0 && dest != 0x00)
       {
-        print_error_illegal_operands(instr, asm_context);
+        print_error_illegal_operands(asm_context, instr);
         return -1;
       }
 
@@ -556,7 +556,7 @@ static int get_opcode(
           case EE_VU_OP_FT:
             if (operands[r].type != OPERAND_VFREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -572,7 +572,7 @@ static int get_opcode(
           case EE_VU_OP_FS:
             if (operands[r].type != OPERAND_VFREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -588,7 +588,7 @@ static int get_opcode(
           case EE_VU_OP_FD:
             if (operands[r].type != OPERAND_VFREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             opcode |= (operands[r].value << 6);
@@ -596,7 +596,7 @@ static int get_opcode(
           case EE_VU_OP_VIT:
             if (operands[r].type != OPERAND_VIREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             opcode |= (operands[r].value << 16);
@@ -604,7 +604,7 @@ static int get_opcode(
           case EE_VU_OP_VIS:
             if (operands[r].type != OPERAND_VIREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             opcode |= (operands[r].value << 11);
@@ -612,7 +612,7 @@ static int get_opcode(
           case EE_VU_OP_VID:
             if (operands[r].type != OPERAND_VIREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             opcode |= (operands[r].value << 6);
@@ -620,49 +620,49 @@ static int get_opcode(
           case EE_VU_OP_VI01:
             if (operands[r].type != OPERAND_VIREG || operands[r].value != 1)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             break;
           case EE_VU_OP_I:
             if (operands[r].type != OPERAND_I)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             break;
           case EE_VU_OP_Q:
             if (operands[r].type != OPERAND_Q)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             break;
           case EE_VU_OP_P:
             if (operands[r].type != OPERAND_P)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             break;
           case EE_VU_OP_R:
             if (operands[r].type != OPERAND_R)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             break;
           case EE_VU_OP_ACC:
             if (operands[r].type != OPERAND_ACC)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             break;
           case EE_VU_OP_OFFSET:
             if (operands[r].type != OPERAND_NUMBER)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -677,7 +677,7 @@ static int get_opcode(
 
             if (offset < OFFSET_MIN || offset > OFFSET_MAX)
             {
-              print_error_range("Address", OFFSET_MIN, OFFSET_MAX, asm_context);
+              print_error_range(asm_context, "Address", OFFSET_MIN, OFFSET_MAX);
               return -1;
             }
 
@@ -687,13 +687,13 @@ static int get_opcode(
           case EE_VU_OP_OFFSET_BASE:
             if (operands[r].type != OPERAND_OFFSET_BASE)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (get_field_number(dest) == -1)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -701,7 +701,7 @@ static int get_opcode(
 
             if (offset < -0x400 || offset > 0x3ff)
             {
-              print_error_range("Address", -0x400, 0x3ff, asm_context);
+              print_error_range(asm_context, "Address", -0x400, 0x3ff);
               return -1;
             }
 
@@ -719,7 +719,7 @@ static int get_opcode(
           case EE_VU_OP_BASE:
             if (operands[r].type != OPERAND_BASE)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -736,7 +736,7 @@ static int get_opcode(
           case EE_VU_OP_BASE_DEC:
             if (operands[r].type != OPERAND_BASE_DEC)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -753,7 +753,7 @@ static int get_opcode(
           case EE_VU_OP_BASE_INC:
             if (operands[r].type != OPERAND_BASE_INC)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -770,13 +770,13 @@ static int get_opcode(
           case EE_VU_OP_IMMEDIATE24:
             if (operands[r].type != OPERAND_NUMBER)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < 0 || operands[r].value > 0xffffff)
             {
-              print_error_range("Immediate", 0, 0xffffff, asm_context);
+              print_error_range(asm_context, "Immediate", 0, 0xffffff);
               return -1;
             }
 
@@ -786,13 +786,13 @@ static int get_opcode(
           case EE_VU_OP_IMMEDIATE15:
             if (operands[r].type != OPERAND_NUMBER)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < 0 || operands[r].value > 0x7fff)
             {
-              print_error_range("Immediate", 0, 0x7fff, asm_context);
+              print_error_range(asm_context, "Immediate", 0, 0x7fff);
               return -1;
             }
 
@@ -803,13 +803,13 @@ static int get_opcode(
           case EE_VU_OP_IMMEDIATE12:
             if (operands[r].type != OPERAND_NUMBER)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < 0 || operands[r].value > 0xfff)
             {
-              print_error_range("Immediate", 0, 0xfff, asm_context);
+              print_error_range(asm_context, "Immediate", 0, 0xfff);
               return -1;
             }
 
@@ -820,13 +820,13 @@ static int get_opcode(
           case EE_VU_OP_IMMEDIATE5:
             if (operands[r].type != OPERAND_NUMBER)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < -16 || operands[r].value > 15)
             {
-              print_error_range("Immediate", -16, 15, asm_context);
+              print_error_range(asm_context, "Immediate", -16, 15);
               return -1;
             }
 
@@ -834,7 +834,7 @@ static int get_opcode(
 
             break;
           default:
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
         }
       }
@@ -884,7 +884,7 @@ int parse_instruction_ps2_ee_vu(AsmContext *asm_context, char *instr)
   token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type != TOKEN_STRING)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 

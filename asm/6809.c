@@ -179,7 +179,7 @@ static int parse_index(
   else if (strcasecmp(token, "s") == 0) { operand->index_reg = 3; }
   else
   {
-    print_error_illegal_operands(instr, asm_context);
+    print_error_illegal_operands(asm_context, instr);
     return -1;
   }
 
@@ -189,7 +189,7 @@ static int parse_index(
   {
     if (modifier < 0)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -213,7 +213,7 @@ static int parse_index(
 
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -243,7 +243,7 @@ static int parse_index_with_offset(
   }
   else
   {
-    print_error_illegal_operands(instr, asm_context);
+    print_error_illegal_operands(asm_context, instr);
     return -1;
   }
 
@@ -257,7 +257,7 @@ static int parse_index_with_offset(
 
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -394,8 +394,6 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
   lower_copy(instr_case, instr);
   check_alias(instr_case);
 
-//printf("%s %d\n", instr, asm_context->line);
-
   memset(&operand, 0, sizeof(operand));
 
   do
@@ -435,7 +433,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
 
         if (get_register(token) != 0)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -448,7 +446,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
         {
           if (asm_context->pass == 2)
           {
-            print_error_illegal_expression(instr, asm_context);
+            print_error_illegal_expression(asm_context, instr);
             return -1;
           }
 
@@ -466,7 +464,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
 
           if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
           break;
@@ -474,7 +472,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
 
         if (IS_NOT_TOKEN(token, ','))
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -490,7 +488,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
 
       if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
     }
@@ -503,7 +501,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
 
         if (n == 0)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -517,7 +515,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
         if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
         if (IS_NOT_TOKEN(token,','))
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -533,7 +531,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
       {
         if (asm_context->pass == 2)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -547,7 +545,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
 
       if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
     }
@@ -559,7 +557,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
       {
         if (asm_context->pass == 2)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -571,7 +569,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
 
       if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -585,7 +583,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
       {
         if (asm_context->pass == 2)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -599,7 +597,7 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
 
       if (IS_NOT_TOKEN(token, ','))
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -903,15 +901,13 @@ int parse_instruction_6809(AsmContext *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;
 }
-
-
 

@@ -32,7 +32,7 @@ static int get_uint(
   {
     if (asm_context->pass == 2)
     {
-      print_error_illegal_expression("Constant", asm_context);
+      print_error_illegal_expression(asm_context, "Constant");
       return -1;
     }
 
@@ -105,7 +105,7 @@ int parse_instruction_webasm(AsmContext *asm_context, char *instr)
 
         if (value < 0 || value > 0xffffffff)
         {
-          print_error_range("Constant", 0, 0xffffffff, asm_context);
+          print_error_range(asm_context, "Constant", 0, 0xffffffff);
           return -1;
         }
 
@@ -138,7 +138,7 @@ int parse_instruction_webasm(AsmContext *asm_context, char *instr)
 
         if (i < -0x80000000LL || i > 0x7fffffffLL)
         {
-          print_error_range("Constant", -0x80000000, 0x7fffffff, asm_context);
+          print_error_range(asm_context, "Constant", -0x80000000, 0x7fffffff);
           return -1;
         }
 
@@ -154,7 +154,7 @@ int parse_instruction_webasm(AsmContext *asm_context, char *instr)
 
         if (value < 0 || value > 0xffffffff)
         {
-          print_error_range("Constant", 0, 0xffffffff, asm_context);
+          print_error_range(asm_context, "Constant", 0, 0xffffffff);
           return -1;
         }
 
@@ -177,7 +177,7 @@ int parse_instruction_webasm(AsmContext *asm_context, char *instr)
 
         if (type == -1)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -193,7 +193,7 @@ int parse_instruction_webasm(AsmContext *asm_context, char *instr)
 
         if (i < -0x80000000LL || i > 0x7fffffffLL)
         {
-          print_error_range("Constant", -0x80000000, 0x7fffffff, asm_context);
+          print_error_range(asm_context, "Constant", -0x80000000, 0x7fffffff);
           return -1;
         }
 
@@ -221,7 +221,7 @@ int parse_instruction_webasm(AsmContext *asm_context, char *instr)
 
         if (token_type != TOKEN_EOF && token_type != TOKEN_EOL)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
         }
 
         length += 1;
@@ -237,14 +237,14 @@ int parse_instruction_webasm(AsmContext *asm_context, char *instr)
 
     if (token_type != TOKEN_EOF && token_type != TOKEN_EOL)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
     return length;
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }

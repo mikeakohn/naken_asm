@@ -74,7 +74,7 @@ int parse_db(AsmContext *asm_context, int null_term_flag)
       {
         if (asm_context->pass == 2)
         {
-          print_error_illegal_expression("db", asm_context);
+          print_error_illegal_expression(asm_context, "db");
           return -1;
         }
 
@@ -84,7 +84,7 @@ int parse_db(AsmContext *asm_context, int null_term_flag)
 
       if (data32 < -128 || data32 > 0xff)
       {
-        print_error_range("db", -128, 0xff, asm_context);
+        print_error_range(asm_context, "db", -128, 0xff);
         return -1;
       }
 
@@ -98,7 +98,7 @@ int parse_db(AsmContext *asm_context, int null_term_flag)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      print_error_expecting(",", token, asm_context);
+      print_error_expecting(asm_context, ",", token);
       return -1;
     }
   }
@@ -132,7 +132,7 @@ int parse_dc16(AsmContext *asm_context)
     {
       if (asm_context->pass == 2)
       {
-        print_error_illegal_expression("dc16", asm_context);
+        print_error_illegal_expression(asm_context, "dc16");
         return -1;
       }
 
@@ -142,7 +142,7 @@ int parse_dc16(AsmContext *asm_context)
 
     if (data32 < -32768 || data32 > 0xffff)
     {
-      print_error_range("dc16", -32768, 0xffff, asm_context);
+      print_error_range(asm_context, "dc16", -32768, 0xffff);
       return -1;
     }
 
@@ -165,7 +165,7 @@ int parse_dc16(AsmContext *asm_context)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      print_error_expecting(",", token, asm_context);
+      print_error_expecting(asm_context, ",", token);
       return -1;
     }
   }
@@ -200,7 +200,7 @@ int parse_dc32(AsmContext *asm_context)
     {
       if (asm_context->pass == 2)
       {
-        print_error_illegal_expression("dc32", asm_context);
+        print_error_illegal_expression(asm_context, "dc32");
         return -1;
       }
 
@@ -244,7 +244,7 @@ int parse_dc32(AsmContext *asm_context)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      print_error_expecting(",", token, asm_context);
+      print_error_expecting(asm_context, ",", token);
       return -1;
     }
   }
@@ -278,7 +278,7 @@ int parse_dc64(AsmContext *asm_context)
     {
       if (asm_context->pass == 2)
       {
-        print_error_illegal_expression("dc64", asm_context);
+        print_error_illegal_expression(asm_context, "dc64");
         return -1;
       }
 
@@ -317,7 +317,7 @@ int parse_dc64(AsmContext *asm_context)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      print_error_expecting(",", token, asm_context);
+      print_error_expecting(asm_context, ",", token);
       return -1;
     }
   }
@@ -339,7 +339,7 @@ int parse_dc(AsmContext *asm_context)
   if (strcasecmp(token, "l") == 0) { return parse_dc32(asm_context); }
   if (strcasecmp(token, "d") == 0) { return parse_dc64(asm_context); }
 
-  print_error_unexp(token, asm_context);
+  print_error_unexp(asm_context, token);
   return -1;
 }
 
@@ -398,7 +398,7 @@ int parse_dq(AsmContext *asm_context)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      print_error_expecting(",", token, asm_context);
+      print_error_expecting(asm_context, ",", token);
       return -1;
     }
   }
@@ -466,14 +466,14 @@ int parse_data_fill(AsmContext *asm_context)
     }
       else
     {
-      print_error_illegal_expression("data_fill", asm_context);
+      print_error_illegal_expression(asm_context, "data_fill");
       return -1;
     }
   }
 
   if (value < -128 || value > 255)
   {
-    print_error_range("data_fill", -128, 0xff, asm_context);
+    print_error_range(asm_context, "data_fill", -128, 0xff);
     return -1;
   }
 
@@ -481,13 +481,13 @@ int parse_data_fill(AsmContext *asm_context)
 
   if (eval_expression(asm_context, &count) == -1)
   {
-    print_error_illegal_expression("data_fill", asm_context);
+    print_error_illegal_expression(asm_context, "data_fill");
     return -1;
   }
 
   if (count < 1)
   {
-    print_error("data_fill length is less than 1", asm_context);
+    print_error(asm_context, "data_fill length is less than 1");
     return -1;
   }
 
@@ -518,7 +518,7 @@ int parse_varuint(AsmContext *asm_context, int fixed_size)
     {
       if (asm_context->pass == 2 || fixed_size == 0)
       {
-        print_error_illegal_expression("varuint", asm_context);
+        print_error_illegal_expression(asm_context, "varuint");
         return -1;
       }
 
@@ -536,7 +536,7 @@ int parse_varuint(AsmContext *asm_context, int fixed_size)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      print_error_expecting(",", token, asm_context);
+      print_error_expecting(asm_context, ",", token);
       return -1;
     }
   }
@@ -552,11 +552,11 @@ int parse_resb(AsmContext *asm_context, int size)
   {
     if (asm_context->pass == 2)
     {
-      print_error_illegal_expression("resb", asm_context);
+      print_error_illegal_expression(asm_context, "resb");
       return -1;
     }
 
-    print_error("Parse Error: Expected data count.", asm_context);
+    print_error(asm_context, "Parse Error: Expected data count.");
     return -1;
   }
 
@@ -571,7 +571,7 @@ static int parse_align(AsmContext *asm_context, int num)
 
   if (num > 1024)
   {
-    print_error("align constant too large", asm_context);
+    print_error(asm_context, "align constant too large");
     return -1;
   }
 
@@ -594,7 +594,7 @@ int parse_align_bits(AsmContext *asm_context)
 
   if (eval_expression(asm_context, &num) == -1 || (num % 8) != 0)
   {
-    print_error("align expects 16, 32, 64, 128, etc bits", asm_context);
+    print_error(asm_context, "align expects 16, 32, 64, 128, etc bits");
     return -1;
   }
 
@@ -609,7 +609,7 @@ int parse_align_bytes(AsmContext *asm_context)
 
   if (eval_expression(asm_context, &num) == -1)
   {
-    print_error_illegal_expression("align", asm_context);
+    print_error_illegal_expression(asm_context, "align");
     return -1;
   }
 

@@ -27,7 +27,7 @@ int parse_org(AsmContext *asm_context)
 
   if (eval_expression(asm_context, &num) == -1)
   {
-    print_error("org expects an address", asm_context);
+    print_error(asm_context, "org expects an address");
     return -1;
   }
 
@@ -42,7 +42,7 @@ static int parse_low_address(AsmContext *asm_context)
 
   if (eval_expression(asm_context, &num) == -1)
   {
-    print_error("low_address expects an address", asm_context);
+    print_error(asm_context, "low_address expects an address");
     return -1;
   }
 
@@ -57,7 +57,7 @@ static int parse_high_address(AsmContext *asm_context)
 
   if (eval_expression(asm_context, &num) == -1)
   {
-    print_error("high_address expects an address", asm_context);
+    print_error(asm_context, "high_address expects an address");
     return -1;
   }
 
@@ -82,7 +82,7 @@ static int parse_entry_point(AsmContext *asm_context)
     else
   if (eval_expression(asm_context, &num) == -1)
   {
-    print_error("entry_point expects an address", asm_context);
+    print_error(asm_context, "entry_point expects an address");
     return -1;
   }
 
@@ -117,14 +117,14 @@ static int parse_device(AsmContext *asm_context)
   token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -147,7 +147,7 @@ static int parse_set(AsmContext *asm_context)
 
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -155,7 +155,7 @@ static int parse_set(AsmContext *asm_context)
 
   if (eval_expression(asm_context, &num) == -1)
   {
-    print_error("set expects an address", asm_context);
+    print_error(asm_context, "set expects an address");
     return -1;
   }
 
@@ -164,7 +164,7 @@ static int parse_set(AsmContext *asm_context)
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF &&
       token_type == TOKEN_NUMBER)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 #endif
@@ -188,7 +188,7 @@ static int parse_export(AsmContext *asm_context)
 
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -219,7 +219,7 @@ static int parse_equ(AsmContext *asm_context)
 
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -230,7 +230,7 @@ static int parse_equ(AsmContext *asm_context)
   token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -249,7 +249,7 @@ int parse_repeat(AsmContext *asm_context)
 
   if (token_type != TOKEN_NUMBER || count <= 0)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -259,7 +259,7 @@ int parse_repeat(AsmContext *asm_context)
 
   if (assemble(asm_context) != 3)
   {
-    print_error("Missing .endr in .repeat block.", asm_context);
+    print_error(asm_context, "Missing .endr in .repeat block.");
     return -1;
   }
 
@@ -299,7 +299,7 @@ int parse_directives(AsmContext *asm_context)
 
   if (token_type == TOKEN_EOF)
   {
-    print_error("Missing directive", asm_context);
+    print_error(asm_context, "Missing directive");
     return -1;
   }
 
@@ -352,7 +352,7 @@ int parse_directives(AsmContext *asm_context)
   {
     if (asm_context->in_repeat == 1)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -363,7 +363,7 @@ int parse_directives(AsmContext *asm_context)
   {
     if (asm_context->in_repeat == 0)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 

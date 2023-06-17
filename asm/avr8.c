@@ -118,7 +118,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
 
     if (operand_count > 2)
     {
-      print_error_opcount(instr, asm_context);
+      print_error_opcount(asm_context, instr);
       return -1;
     }
 
@@ -154,7 +154,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           operands[operand_count].q = atoi(token);
           if (operands[operand_count].q < 0 || operands[operand_count].q > 63)
           {
-            print_error_range("Constant", 0, 63, asm_context);
+            print_error_range(asm_context, "Constant", 0, 63);
             return -1;
           }
         }
@@ -185,7 +185,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           operands[operand_count].q = atoi(token);
           if (operands[operand_count].q < 0 || operands[operand_count].q > 63)
           {
-            print_error_range("Constant", 0, 63, asm_context);
+            print_error_range(asm_context, "Constant", 0, 63);
             return -1;
           }
         }
@@ -232,7 +232,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           else
         if (eval_expression(asm_context, &num) != 0)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -252,7 +252,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -268,7 +268,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
 
     if (IS_NOT_TOKEN(token,',') || operand_count == 3)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -282,7 +282,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 1)
       {
-        print_error_opcount(instr, asm_context);
+        print_error_opcount(asm_context, instr);
         return -1;
       }
 
@@ -323,18 +323,27 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
               operands[0].type == OPERAND_NUMBER &&
               operands[1].type == OPERAND_NUMBER)
           {
-            if (asm_context->pass == 1) { offset = 0; }
-            else { offset = operands[0].value - ((asm_context->address / 2) + 1); }
+            if (asm_context->pass == 1)
+            {
+              offset = 0;
+            }
+              else
+            {
+              offset = operands[0].value - ((asm_context->address / 2) + 1);
+            }
+
             if (offset <- 64 || offset > 63)
             {
-              print_error_range("Offset", -64, 63, asm_context);
+              print_error_range(asm_context, "Offset", -64, 63);
               return -1;
             }
-            if (operands[0].value>7)
+
+            if (operands[0].value > 7)
             {
-              print_error_range("Bit", 0, 7, asm_context);
+              print_error_range(asm_context, "Bit", 0, 7);
               return -1;
             }
+
             add_bin16(asm_context, table_avr8[n].opcode|((offset & 0x7f) << 3) | operands[0].value, IS_OPCODE);
             return 2;
           }
@@ -346,7 +355,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
             else { offset = operands[0].value - ((asm_context->address / 2) + 1); }
             if (offset < -64 || offset > 63)
             {
-              print_error_range("Offset", -64, 63, asm_context);
+              print_error_range(asm_context, "Offset", -64, 63);
               return -1;
             }
             add_bin16(asm_context, table_avr8[n].opcode | ((offset & 0x7f) <<3 ), IS_OPCODE);
@@ -371,13 +380,13 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value < 16)
             {
-              print_error_range("Register", 16, 31, asm_context);
+              print_error_range(asm_context, "Register", 16, 31);
               return -1;
             }
 
             if (operands[1].value < -128 || operands[1].value > 255)
             {
-              print_error_range("Constant", -128, 255, asm_context);
+              print_error_range(asm_context, "Constant", -128, 255);
               return -1;
             }
 
@@ -404,7 +413,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           {
             if (operands[1].value < 0 || operands[1].value > 7)
             {
-              print_error_range("Bit", 0, 7, asm_context);
+              print_error_range(asm_context, "Bit", 0, 7);
               return -1;
             }
             rd = (operands[0].value) << 4;
@@ -419,14 +428,15 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
               operands[1].type == OPERAND_NUMBER)
           {
             if (operands[0].value < 24 || operands[0].value > 30 ||
-                (operands[0].value & 0x1) == 1)
+               (operands[0].value & 0x1) == 1)
             {
               printf("Error: Register must be r24,r26,r28,r30 for '%s' at %s:%d.\n", instr, asm_context->tokens.filename, asm_context->tokens.line);
               return -1;
             }
+
             if (operands[1].value < 0 || operands[1].value > 63)
             {
-              print_error_range("Constant", 0, 63, asm_context);
+              print_error_range(asm_context, "Constant", 0, 63);
               return -1;
             }
             rd = ((operands[0].value - 24) >> 1) << 4;
@@ -442,13 +452,13 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value < 0 || operands[0].value > 31)
             {
-              print_error_range("I/O Reg", 0, 31, asm_context);
+              print_error_range(asm_context, "I/O Reg", 0, 31);
               return -1;
             }
 
             if (operands[1].value < 0 || operands[1].value > 7)
             {
-              print_error_range("Bit", 0, 7, asm_context);
+              print_error_range(asm_context, "Bit", 0, 7);
               return -1;
             }
             rd = (operands[0].value << 3);
@@ -470,7 +480,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value < 16)
             {
-              print_error_range("Register", 16, 31, asm_context);
+              print_error_range(asm_context, "Register", 16, 31);
               return -1;
             }
             rd = (operands[0].value - 16) << 4;
@@ -485,7 +495,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           {
             if (operands[1].value < 0 || operands[1].value > 63)
             {
-              print_error_range("I/O Reg", 0, 63, asm_context);
+              print_error_range(asm_context, "I/O Reg", 0, 63);
               return -1;
             }
             rd = operands[0].value << 4;
@@ -501,7 +511,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value < 0 || operands[0].value > 63)
             {
-              print_error_range("I/O Reg", 0, 63, asm_context);
+              print_error_range(asm_context, "I/O Reg", 0, 63);
               return -1;
             }
             rd = operands[1].value << 4;
@@ -535,7 +545,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
 
             if (offset < -2048 || offset > 2047)
             {
-              print_error_range("Offset", -2048, 2047, asm_context);
+              print_error_range(asm_context, "Offset", -2048, 2047);
               return -1;
             }
 
@@ -552,7 +562,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
 
             if (k < 0 || k > ((1 << 22) - 1))
             {
-              print_error_range("Address", 0, ((1 << 22) - 1), asm_context);
+              print_error_range(asm_context, "Address", 0, ((1 << 22) - 1));
               return -1;
             }
 
@@ -754,7 +764,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
             if (operands[0].value < 16 || operands[0].value > 23 ||
                 operands[1].value < 16 || operands[1].value > 23)
             {
-               print_error_range("Register", 16, 23, asm_context);
+               print_error_range(asm_context, "Register", 16, 23);
                return -1;
             }
             rd = (operands[0].value - 16) << 4;
@@ -771,7 +781,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
             if (operands[0].value < 16 || operands[0].value > 31 ||
                 operands[1].value < 16 || operands[1].value > 31)
             {
-               print_error_range("Register", 16, 31, asm_context);
+               print_error_range(asm_context, "Register", 16, 31);
                return -1;
             }
             rd = (operands[0].value - 16) << 4;
@@ -785,7 +795,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value < 0 || operands[0].value > 15)
             {
-               print_error_range("Constant", 0, 15, asm_context);
+               print_error_range(asm_context, "Constant", 0, 15);
                return -1;
             }
             k = operands[0].value << 4;
@@ -800,7 +810,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           {
             if (operands[1].value < 0 || operands[1].value > 65535)
             {
-               print_error_range("Address", 0, 65535, asm_context);
+               print_error_range(asm_context, "Address", 0, 65535);
                return -1;
             }
             rd = operands[0].value << 4;
@@ -816,7 +826,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value < 0 || operands[0].value > 65535)
             {
-               print_error_range("Address", 0, 65535, asm_context);
+               print_error_range(asm_context, "Address", 0, 65535);
                return -1;
             }
             rr = operands[1].value << 4;
@@ -890,11 +900,11 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

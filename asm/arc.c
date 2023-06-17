@@ -257,7 +257,7 @@ int parse_instruction_arc(AsmContext *asm_context, char *instr)
 
       if (n < len) { continue; }
 
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -265,7 +265,7 @@ int parse_instruction_arc(AsmContext *asm_context, char *instr)
     {
       if (open_paren != -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -277,7 +277,7 @@ int parse_instruction_arc(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       break;
@@ -317,7 +317,7 @@ int parse_instruction_arc(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -334,14 +334,14 @@ int parse_instruction_arc(AsmContext *asm_context, char *instr)
 
       if (open_paren == -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
       if (token_type != TOKEN_EOL)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
     }
@@ -352,7 +352,7 @@ int parse_instruction_arc(AsmContext *asm_context, char *instr)
 
     if (IS_NOT_TOKEN(token, ',') || operand_count == MAX_OPERANDS)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -375,7 +375,7 @@ for (n = 0; n < operand_count; n++)
 
     if (load_flags.set != 0 || open_paren != -1 || close_paren != -1)
     {
-      //print_error("Instruction doesn't take flags.", asm_context);
+      //print_error(asm_context, "Instruction doesn't take flags.");
       //return -1;
       break;
     }
@@ -551,7 +551,7 @@ for (n = 0; n < operand_count; n++)
 
     if (load_flags.set != 0 || open_paren != -1 || close_paren != -1)
     {
-      //print_error("Instruction doesn't take flags.", asm_context);
+      //print_error(asm_context, "Instruction doesn't take flags.");
       //return -1;
       break;
     }
@@ -630,7 +630,7 @@ for (n = 0; n < operand_count; n++)
 
     if (load_flags.set != 0 || open_paren != -1 || close_paren != -1)
     {
-      //print_error("Instruction doesn't take flags.", asm_context);
+      //print_error(asm_context, "Instruction doesn't take flags.");
       //return -1;
       break;
     }
@@ -1115,15 +1115,14 @@ printf("%d %d\n", table_arc_load_store[n].type, OP_A_PAREN_B_S9);
 
   if (found == 1)
   {
-    print_error_illegal_operands(instr, asm_context);
+    print_error_illegal_operands(asm_context, instr);
     return -1;
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;
 }
-
 

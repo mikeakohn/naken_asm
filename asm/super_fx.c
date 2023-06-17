@@ -81,7 +81,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       break;
@@ -106,7 +106,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -139,7 +139,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
           }
             else
           {
-            print_error_illegal_expression(instr, asm_context);
+            print_error_illegal_expression(asm_context, instr);
             return -1;
           }
         }
@@ -152,7 +152,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
     }
       else
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -162,7 +162,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token, ',') || operand_count == 2)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -196,7 +196,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 0)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -210,7 +210,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -226,7 +226,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
 
             if (operands[0].value < min || operands[0].value > max)
             {
-              print_error_range("Literal", min, max, asm_context);
+              print_error_range(asm_context, "Literal", min, max);
               return -1;
             }
           }
@@ -236,7 +236,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
             {
               if (operands[0].type != OPERAND_REG)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
             }
@@ -244,7 +244,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
             {
               if (operands[0].type != OPERAND_AT_REG)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
             }
@@ -266,13 +266,13 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -280,7 +280,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
 
           if (offset < -128 || operands[0].value > 127)
           {
-            print_error_range("Offset", -128, 127, asm_context);
+            print_error_range(asm_context, "Offset", -128, 127);
             return -1;
           }
 
@@ -298,7 +298,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -312,7 +312,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
           {
             if (operands[1].type != OPERAND_REG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             reg = operands[1].value;
@@ -321,7 +321,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
           {
             if (operands[0].type != OPERAND_REG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
             reg = operands[0].value;
@@ -377,7 +377,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
 
           if (type != needed_type)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -389,7 +389,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
 
           if (value < min || value > max)
           {
-            print_error_range("Literal", min, max, asm_context);
+            print_error_range(asm_context, "Literal", min, max);
             return -1;
           }
 
@@ -422,7 +422,7 @@ int parse_instruction_super_fx(AsmContext *asm_context, char *instr)
     n++;
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }

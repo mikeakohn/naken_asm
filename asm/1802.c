@@ -50,7 +50,7 @@ static int parse_reg(AsmContext *asm_context, int opcode)
 
   if (reg == -1)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -70,7 +70,7 @@ static int parse_immediate(AsmContext *asm_context, char *instr, int *num)
   {
     if (eval_expression(asm_context, num) != 0)
     {
-      print_error_illegal_expression(instr, asm_context);
+      print_error_illegal_expression(asm_context, instr);
       return -1;
     }
   }
@@ -127,7 +127,7 @@ int parse_instruction_1802(AsmContext *asm_context, char *instr)
 
           if (num == -1)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -141,7 +141,7 @@ int parse_instruction_1802(AsmContext *asm_context, char *instr)
 
           if (num < -128 || num > 255)
           {
-            print_error_range("Immediate", -128, 255, asm_context);
+            print_error_range(asm_context, "Immediate", -128, 255);
             return -1;
           }
 
@@ -158,8 +158,9 @@ int parse_instruction_1802(AsmContext *asm_context, char *instr)
           {
             if ((num >> 8) != (asm_context->address >> 8))
             {
-              print_error("Branch address must be on the the same page.\n",
-                asm_context);
+              print_error(
+                asm_context,
+                "Branch address must be on the the same page.\n");
               return -1;
             }
           }
@@ -178,7 +179,7 @@ int parse_instruction_1802(AsmContext *asm_context, char *instr)
 
           if (num < 0 || num > 0xffff)
           {
-            print_error_range("Address", 0, 0xffff, asm_context);
+            print_error_range(asm_context, "Address", 0, 0xffff);
             return -1;
           }
 
@@ -234,7 +235,7 @@ int parse_instruction_1802(AsmContext *asm_context, char *instr)
 
             if (num < -128 || num > 255)
             {
-              print_error_range("Immediate", -128, 255, asm_context);
+              print_error_range(asm_context, "Immediate", -128, 255);
               return -1;
             }
 
@@ -252,8 +253,9 @@ int parse_instruction_1802(AsmContext *asm_context, char *instr)
             {
               if ((num >> 8) != (asm_context->address >> 8))
               {
-                print_error("Branch address must be on the the same page.\n",
-                  asm_context);
+                print_error(
+                  asm_context,
+                  "Branch address must be on the the same page.\n");
                 return -1;
               }
             }
@@ -281,8 +283,9 @@ int parse_instruction_1802(AsmContext *asm_context, char *instr)
             {
               if ((num >> 8) != (asm_context->address >> 8))
               {
-                print_error("Branch address must be on the the same page.\n",
-                  asm_context);
+                print_error(
+                  asm_context,
+                  "Branch address must be on the the same page.\n");
                 return -1;
               }
             }
@@ -303,7 +306,7 @@ int parse_instruction_1802(AsmContext *asm_context, char *instr)
 
   if (len == -1)
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
     return -1;
   }
 
@@ -311,7 +314,7 @@ int parse_instruction_1802(AsmContext *asm_context, char *instr)
 
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 

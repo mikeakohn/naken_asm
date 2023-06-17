@@ -58,7 +58,7 @@ int parse_instruction_6800(AsmContext *asm_context, char *instr)
       {
         if (asm_context->pass == 2)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -74,7 +74,7 @@ int parse_instruction_6800(AsmContext *asm_context, char *instr)
       {
         if (asm_context->pass == 2)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -86,7 +86,7 @@ int parse_instruction_6800(AsmContext *asm_context, char *instr)
       if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
       if (IS_NOT_TOKEN(token, ','))
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -116,7 +116,7 @@ int parse_instruction_6800(AsmContext *asm_context, char *instr)
         {
           if (offset < -128 || offset > 127)
           {
-            print_error_range("Offset", -128, 127, asm_context);
+            print_error_range(asm_context, "Offset", -128, 127);
             return -1;
           }
         }
@@ -142,7 +142,7 @@ int parse_instruction_6800(AsmContext *asm_context, char *instr)
         {
           if (operand_value < -128 || operand_value > 255)
           {
-            print_error_range("Offset", -128, 255, asm_context);
+            print_error_range(asm_context, "Offset", -128, 255);
             return -1;
           }
         }
@@ -158,7 +158,7 @@ int parse_instruction_6800(AsmContext *asm_context, char *instr)
         {
           if (operand_value < 0 || operand_value > 255)
           {
-            print_error_range("Index", 0, 255, asm_context);
+            print_error_range(asm_context, "Index", 0, 255);
             return -1;
           }
         }
@@ -218,7 +218,7 @@ int parse_instruction_6800(AsmContext *asm_context, char *instr)
     {
       if (operand_value < 0 || operand_value > 0xffff)
       {
-        print_error_range("Address", 0, 0xffff, asm_context);
+        print_error_range(asm_context, "Address", 0, 0xffff);
         return -1;
       }
       add_bin8(asm_context, address_size, IS_OPCODE);
@@ -230,7 +230,7 @@ int parse_instruction_6800(AsmContext *asm_context, char *instr)
     }
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }

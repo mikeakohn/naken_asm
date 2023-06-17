@@ -238,7 +238,7 @@ static int get_operands(
           token_type = tokens_get(asm_context, token, TOKENLEN);
           if (IS_NOT_TOKEN(token, ')'))
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -265,7 +265,7 @@ static int get_operands(
         tokens_push(asm_context, token, token_type);
         if (eval_expression(asm_context, &n) != 0)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -277,7 +277,7 @@ static int get_operands(
           if (operands[operand_count].value < -32768 ||
               operands[operand_count].value > 32767)
           {
-            print_error_range("Offset", -32768, 32767, asm_context);
+            print_error_range(asm_context, "Offset", -32768, 32767);
             return -1;
           }
 
@@ -286,7 +286,7 @@ static int get_operands(
           n = get_register_powerpc(token);
           if (n == -1)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -297,7 +297,7 @@ static int get_operands(
           token_type = tokens_get(asm_context, token, TOKENLEN);
           if (IS_NOT_TOKEN(token, ')'))
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
         }
@@ -318,13 +318,13 @@ static int get_operands(
 
     if (IS_NOT_TOKEN(token, ',') || operand_count == 5)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
     if (operand_count == MAX_OPERANDS)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -379,7 +379,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 0)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -392,7 +392,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -400,7 +400,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER ||
               operands[2].type != OPERAND_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -422,7 +422,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -430,7 +430,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER ||
               operands[2].type != OPERAND_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -452,7 +452,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -460,13 +460,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value < 0 || operands[2].value > 31)
           {
-            print_error_range("Immediate", -32768, 65535, asm_context);
+            print_error_range(asm_context, "Immediate", -32768, 65535);
             return -1;
           }
 
@@ -488,14 +488,14 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_REGISTER ||
               operands[1].type != OPERAND_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -516,14 +516,14 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_REGISTER ||
               operands[1].type != OPERAND_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -544,13 +544,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -563,7 +563,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -571,13 +571,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value < -32768 || operands[2].value > 0xffff)
           {
-            print_error_range("Immediate", -32768, 65535, asm_context);
+            print_error_range(asm_context, "Immediate", -32768, 65535);
             return -1;
           }
 
@@ -594,20 +594,20 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_REGISTER ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[1].value < -32768 || operands[1].value > 0xffff)
           {
-            print_error_range("Immediate", -32768, 65535, asm_context);
+            print_error_range(asm_context, "Immediate", -32768, 65535);
             return -1;
           }
 
@@ -623,7 +623,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -631,13 +631,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value < 0 || operands[2].value > 0xffff)
           {
-            print_error_range("Immediate", 0, 65535, asm_context);
+            print_error_range(asm_context, "Immediate", 0, 65535);
             return -1;
           }
 
@@ -654,13 +654,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -676,7 +676,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
           if (temp != 0 && temp != 0x3f)
           {
-            print_error_range("Offset", -(1 << 25), (1 << 25) - 1, asm_context);
+            print_error_range(asm_context, "Offset", -(1 << 25), (1 << 25) - 1);
             return -1;
           }
 
@@ -690,13 +690,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -710,7 +710,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
           if (temp != 0 && temp != 0x3f)
           {
-            print_error_range("Address", -(1 << 25), (1 << 25) - 1, asm_context);
+            print_error_range(asm_context, "Address", -(1 << 25), (1 << 25) - 1);
             return -1;
           }
 
@@ -724,7 +724,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -732,7 +732,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_NUMBER ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -748,14 +748,14 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
           if (temp != 0 && temp != 0xffff0000)
           {
-            print_error_range("Offset", -(1 << 15), (1 << 15) - 1, asm_context);
+            print_error_range(asm_context, "Offset", -(1 << 15), (1 << 15) - 1);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 31 ||
               operands[1].value < 0 || operands[1].value > 31)
           {
-            print_error_range("Constant", 0, 31, asm_context);
+            print_error_range(asm_context, "Constant", 0, 31);
             return -1;
           }
 
@@ -772,7 +772,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -780,7 +780,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_NUMBER ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -794,14 +794,14 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
           if (temp != 0 && temp != 0xffff0000)
           {
-            print_error_range("Address", -(1 << 15), (1 << 15) - 1, asm_context);
+            print_error_range(asm_context, "Address", -(1 << 15), (1 << 15) - 1);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 31 ||
               operands[1].value < 0 || operands[1].value > 31)
           {
-            print_error_range("Constant", 0, 31, asm_context);
+            print_error_range(asm_context, "Constant", 0, 31);
             return -1;
           }
 
@@ -818,21 +818,21 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_NUMBER ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 31 ||
               operands[1].value < 0 || operands[1].value > 31)
           {
-            print_error_range("Constant", 0, 31, asm_context);
+            print_error_range(asm_context, "Constant", 0, 31);
             return -1;
           }
 
@@ -856,14 +856,14 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_NUMBER ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -879,13 +879,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
           if (temp != 0 && temp != 0xffff0000)
           {
-            print_error_range("Offset", -(1 << 15), (1 << 15) - 1, asm_context);
+            print_error_range(asm_context, "Offset", -(1 << 15), (1 << 15) - 1);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 31)
           {
-            print_error_range("Constant", 0, 31, asm_context);
+            print_error_range(asm_context, "Constant", 0, 31);
             return -1;
           }
 
@@ -901,7 +901,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -909,7 +909,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER ||
               operands[2].type != OPERAND_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -926,7 +926,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -934,13 +934,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value < -32768 || operands[2].value > 0xffff)
           {
-            print_error_range("Immediate", -32768, 65535, asm_context);
+            print_error_range(asm_context, "Immediate", -32768, 65535);
             return -1;
           }
 
@@ -957,7 +957,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -965,7 +965,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_NUMBER ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -973,7 +973,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].value < 0 || operands[1].value > 31 ||
               operands[2].value < 0 || operands[2].value > 31)
           {
-            print_error_range("Constant", 0, 31, asm_context);
+            print_error_range(asm_context, "Constant", 0, 31);
             return -1;
           }
 
@@ -991,7 +991,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1004,7 +1004,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
           if (operands[0].type != OPERAND_REGISTER ||
               operands[1].type != OPERAND_REGISTER_OFFSET)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1022,7 +1022,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1030,13 +1030,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value < 0 || operands[2].value > 31)
           {
-            print_error_range("Constant", 0, 31, asm_context);
+            print_error_range(asm_context, "Constant", 0, 31);
             return -1;
           }
 
@@ -1053,13 +1053,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_CR || operands[1].type != OPERAND_CR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1075,13 +1075,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_CR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1094,7 +1094,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1109,7 +1109,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
           if (operands[0].type != OPERAND_REGISTER ||
               operands[1].type != OPERAND_SPR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1125,7 +1125,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1140,7 +1140,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
           if (operands[0].type != OPERAND_SPR ||
               operands[1].type != OPERAND_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1156,7 +1156,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1171,7 +1171,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
           if (operands[0].type != OPERAND_REGISTER ||
               operands[1].type != OPERAND_TBR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1187,20 +1187,20 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_NUMBER ||
               operands[1].type != OPERAND_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 0xff)
           {
-            print_error_range("Constant", 0, 0xff, asm_context);
+            print_error_range(asm_context, "Constant", 0, 0xff);
             return -1;
           }
 
@@ -1215,7 +1215,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 5)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1225,7 +1225,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[3].type != OPERAND_NUMBER ||
               operands[4].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1233,7 +1233,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[3].value < 0 || operands[3].value > 31 ||
               operands[4].value < 0 || operands[4].value > 31)
           {
-            print_error_range("Constant", 0, 31, asm_context);
+            print_error_range(asm_context, "Constant", 0, 31);
             return -1;
           }
 
@@ -1257,19 +1257,19 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 3)
           {
-            print_error_range("Constant", 0, 3, asm_context);
+            print_error_range(asm_context, "Constant", 0, 3);
             return -1;
           }
 
@@ -1282,7 +1282,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1290,7 +1290,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1306,7 +1306,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1314,7 +1314,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER ||
               operands[2].type != OPERAND_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1331,13 +1331,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_VECTOR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1357,7 +1357,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1365,7 +1365,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_VECTOR ||
               operands[2].type != OPERAND_VECTOR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1387,7 +1387,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 4)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1396,7 +1396,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[2].type != OPERAND_VECTOR ||
               operands[3].type != OPERAND_VECTOR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1413,7 +1413,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 4)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1422,7 +1422,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[2].type != OPERAND_VECTOR ||
               operands[3].type != OPERAND_VECTOR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1440,7 +1440,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1448,7 +1448,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_VECTOR ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1457,7 +1457,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
           if (operands[2].value < lo || operands[2].value > hi)
           {
-            print_error_range("Constant", lo, hi, asm_context);
+            print_error_range(asm_context, "Constant", lo, hi);
             return -1;
           }
 
@@ -1473,20 +1473,20 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_VECTOR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[1].value < -16 || operands[1].value > 15)
           {
-            print_error_range("Constant", -16, 15, asm_context);
+            print_error_range(asm_context, "Constant", -16, 15);
             return -1;
           }
 
@@ -1501,14 +1501,14 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_VECTOR ||
               operands[1].type != OPERAND_VECTOR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1523,7 +1523,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 4)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1532,13 +1532,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[2].type != OPERAND_VECTOR ||
               operands[3].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[3].value < 0 || operands[3].value > 15)
           {
-            print_error_range("Constant", -16, 15, asm_context);
+            print_error_range(asm_context, "Constant", -16, 15);
             return -1;
           }
 
@@ -1555,7 +1555,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1568,7 +1568,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
           if (operands[0].type != OPERAND_FPU_REGISTER ||
               operands[1].type != OPERAND_REGISTER_OFFSET)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1585,7 +1585,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1593,7 +1593,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER ||
               operands[2].type != OPERAND_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1610,14 +1610,14 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_FPU_REGISTER ||
               operands[1].type != OPERAND_FPU_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1639,7 +1639,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1647,7 +1647,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_FPU_REGISTER ||
               operands[2].type != OPERAND_FPU_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1677,7 +1677,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 4)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1686,7 +1686,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
               operands[2].type != OPERAND_FPU_REGISTER ||
               operands[3].type != OPERAND_FPU_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1709,7 +1709,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 3)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1718,13 +1718,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
                operands[1].type != OPERAND_FPU_REGISTER ||
                operands[2].type != OPERAND_FPU_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 15)
           {
-            print_error_range("Constant", 0, 15, asm_context);
+            print_error_range(asm_context, "Constant", 0, 15);
             return -1;
           }
 
@@ -1741,13 +1741,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_FPU_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1767,7 +1767,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -1775,13 +1775,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
                operands[0].type != OPERAND_NUMBER) ||
                operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 15)
           {
-            print_error_range("Constant", 0, 15, asm_context);
+            print_error_range(asm_context, "Constant", 0, 15);
             return -1;
           }
 
@@ -1791,7 +1791,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
           {
             if (operands[1].value < 0 || operands[1].value > 7)
             {
-              print_error_range("Constant", 0, 7, asm_context);
+              print_error_range(asm_context, "Constant", 0, 7);
               return -1;
             }
 
@@ -1801,7 +1801,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
           {
             if (operands[1].value < 0 || operands[1].value > 15)
             {
-              print_error_range("Constant", 0, 15, asm_context);
+              print_error_range(asm_context, "Constant", 0, 15);
               return -1;
             }
 
@@ -1821,20 +1821,20 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_NUMBER ||
               operands[1].type != OPERAND_FPU_REGISTER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 255)
           {
-            print_error_range("Constant", 0, 255, asm_context);
+            print_error_range(asm_context, "Constant", 0, 255);
             return -1;
           }
 
@@ -1855,13 +1855,13 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 31)
           {
-            print_error_range("Constant", 0, 31, asm_context);
+            print_error_range(asm_context, "Constant", 0, 31);
             return -1;
           }
 
@@ -1886,11 +1886,11 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

@@ -85,7 +85,7 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
           if (operands[0].value < 0 || operands[0].value > 0x3f)
           {
-            print_error_range("IO", 0, 0x3f, asm_context);
+            print_error_range(asm_context, "IO", 0, 0x3f);
             return -1;
           }
 
@@ -105,7 +105,7 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
           if (operands[1].value < 0 || operands[1].value > 0x3f)
           {
-            print_error_range("IO", 0, 0x3f, asm_context);
+            print_error_range(asm_context, "IO", 0, 0x3f);
             return -1;
           }
 
@@ -123,7 +123,7 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
           if (operands[0].value < 0 || operands[0].value > 0x7f)
           {
-            print_error_range("Address", 0, 0x7f, asm_context);
+            print_error_range(asm_context, "Address", 0, 0x7f);
             return -1;
           }
 
@@ -147,7 +147,7 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
           if (operands[0].value < 0 || operands[0].value > 0x7f)
           {
-            print_error_range("Address", 0, 0x7f, asm_context);
+            print_error_range(asm_context, "Address", 0, 0x7f);
             return -1;
           }
 
@@ -167,7 +167,7 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
           if (operands[1].value < 0 || operands[1].value > 0x7f)
           {
-            print_error_range("Address", 0, 0x7f, asm_context);
+            print_error_range(asm_context, "Address", 0, 0x7f);
             return -1;
           }
 
@@ -193,7 +193,7 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
           if (operands[0].value < 0 || operands[0].value > 0x7f)
           {
-            print_error_range("Address", 0, 0x7f, asm_context);
+            print_error_range(asm_context, "Address", 0, 0x7f);
             return -1;
           }
 
@@ -219,7 +219,7 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
           if (operands[1].value < 0 || operands[1].value > 0x7f)
           {
-            print_error_range("Address", 0, 0x7f, asm_context);
+            print_error_range(asm_context, "Address", 0, 0x7f);
             return -1;
           }
 
@@ -239,7 +239,7 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
           if (operands[0].value < 0 || operands[0].value > 0x7f)
           {
-            print_error_range("Address", 0, 0x7f, asm_context);
+            print_error_range(asm_context, "Address", 0, 0x7f);
             return -1;
           }
 
@@ -259,7 +259,7 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
           if (operands[1].value < -128 || operands[1].value > 0xff)
           {
-            print_error_range("Address", -128, 0xff, asm_context);
+            print_error_range(asm_context, "Address", -128, 0xff);
             return -1;
           }
 
@@ -285,14 +285,15 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
           if (operands[0].value < 0 || operands[0].value > 0x3f)
           {
             print_error_range(
+              asm_context,
               table_pdk14[n].type == OP_IO_N ? "io" : "Address",
-              0, 0x3f, asm_context);
+              0, 0x3f);
             return -1;
           }
 
           if (operands[0].bit < 0 || operands[0].bit > 8)
           {
-            print_error_range("Bit offset", 0, 8, asm_context);
+            print_error_range(asm_context, "Bit offset", 0, 8);
             return -1;
           }
 
@@ -313,7 +314,7 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
           if (operands[0].value < -128 || operands[0].value > 255)
           {
-            print_error_range("Literal", -128, 255, asm_context);
+            print_error_range(asm_context, "Literal", -128, 255);
             return -1;
           }
 
@@ -331,7 +332,7 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
           if (operands[0].value < -1024 || operands[0].value > 2047)
           {
-            print_error_range("Literal", -1024, 2047, asm_context);
+            print_error_range(asm_context, "Literal", -1024, 2047);
             return -1;
           }
 
@@ -348,11 +349,11 @@ int parse_instruction_pdk14(AsmContext *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

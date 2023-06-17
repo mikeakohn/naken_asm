@@ -293,7 +293,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
       }
         else
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -315,7 +315,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
         if (num < -128 || num > 127)
         {
-          print_error("8-bit signed constant out of range.", asm_context);
+          print_error(asm_context, "8-bit signed constant out of range.");
           return -1;
         }
 
@@ -341,7 +341,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
           if (num < -128 || num > 127)
           {
-            print_error("Relative branch out of range", asm_context);
+            print_error(asm_context, "Relative branch out of range");
             return -1;
           }
 
@@ -364,7 +364,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
         if (num < -32768 || num > 32767)
         {
-          print_error("16-bit signed constant out of range.", asm_context);
+          print_error(asm_context, "16-bit signed constant out of range.");
           return -1;
         }
 
@@ -390,7 +390,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
           if (num < -32768 || num > 32767)
           {
-            print_error("Relative long branch out of range", asm_context);
+            print_error(asm_context, "Relative long branch out of range");
             return -1;
           }
 
@@ -415,7 +415,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
       if (src < 0 || src > 0xff)
       {
-        print_error("Block move source address out of range.", asm_context);
+        print_error(asm_context, "Block move source address out of range.");
         return -1;
       }
 
@@ -424,7 +424,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
       if (IS_NOT_TOKEN(token, ','))
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -445,7 +445,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
       if (dst < 0 || dst > 0xff)
       {
-        print_error("Block move destination address out of range.", asm_context);
+        print_error(asm_context, "Block move destination address out of range.");
         return -1;
       }
 
@@ -470,7 +470,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         {
           if (num < -128 || num > 0xff)
           {
-            print_error("8-bit constant out of range.", asm_context);
+            print_error(asm_context, "8-bit constant out of range.");
             return -1;
           }
 
@@ -481,7 +481,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         {
           if (num < -32768 || num > 0xffff)
           {
-            print_error("16-bit constant out of range.", asm_context);
+            print_error(asm_context, "16-bit constant out of range.");
             return -1;
           }
 
@@ -490,7 +490,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
           else
         if (size == 24)
         {
-          print_error("Cannot force long value in immediate mode.", asm_context);
+          print_error(asm_context, "Cannot force long value in immediate mode.");
           return -1;
         }
           else
@@ -498,7 +498,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
           // otherwise default to 16-bit
           if (num < -32768 || num > 0xffff)
           {
-            print_error("16-bit constant out of range.", asm_context);
+            print_error(asm_context, "16-bit constant out of range.");
             return -1;
           }
 
@@ -533,7 +533,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
             {
               if (num < 0 || num > 0xffff)
               {
-                print_error("Address out of range.", asm_context);
+                print_error(asm_context, "Address out of range.");
                 return -1;
               }
 
@@ -541,7 +541,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
             }
               else
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
@@ -555,7 +555,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
             if (IS_NOT_TOKEN(token, ')'))
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
 
@@ -564,7 +564,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
             if (IS_NOT_TOKEN(token, ','))
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
 
@@ -573,13 +573,13 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
             if (IS_NOT_TOKEN(token, 'y') && IS_NOT_TOKEN(token, 'Y'))
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
             else
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
         }
@@ -602,19 +602,19 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
             }
               else
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
             else
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
@@ -650,13 +650,13 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
             }
               else
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
             else
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
         }
@@ -675,7 +675,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
         if (num < 0 || num > 0xffffff)
         {
-          print_error("Address out of range.", asm_context);
+          print_error(asm_context, "Address out of range.");
           return -1;
         }
 
@@ -683,7 +683,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         {
           if (num > 0xff)
           {
-            print_error("Direct-page address out of range.", asm_context);
+            print_error(asm_context, "Direct-page address out of range.");
             return -1;
           }
 
@@ -694,7 +694,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         {
           if (num > 0xffff)
           {
-            print_error("Absolute address out of range, use .l modifier.", asm_context);
+            print_error(asm_context, "Absolute address out of range, use .l modifier.");
             return -1;
           }
 
@@ -705,7 +705,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         {
           if (num > 0xffffff)
           {
-            print_error("Absolute long address out of range.", asm_context);
+            print_error(asm_context, "Absolute long address out of range.");
             return -1;
           }
 
@@ -739,8 +739,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
             if (num > 0xffffff)
             {
-              print_error("Address out of range.", asm_context);
-              print_error_unexp(token, asm_context);
+              print_error(asm_context, "Address out of range.");
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
@@ -753,9 +753,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
             if (size == 24 || num > 0xffff)
             {
-              print_error("Absolute long not supported for Y indexing.",
-                          asm_context);
-              print_error_unexp(token, asm_context);
+              print_error(asm_context, "Absolute long not supported for Y indexing.");
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
@@ -766,20 +765,20 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
 
             if (num > 0xff)
             {
-              print_error("Address out of range.", asm_context);
-              print_error_unexp(token, asm_context);
+              print_error(asm_context, "Address out of range.");
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
             else
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
@@ -854,7 +853,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
   if (asm_context->pass == 2 && opcode == -1)
   {
     sprintf(temp, "No instruction found for addressing mode %d", op);
-    print_error(temp, asm_context);
+    print_error(asm_context, temp);
     return -1;
   }
 

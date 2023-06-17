@@ -212,13 +212,13 @@ static int get_register_arm64(
 
   if (get_vector_number(&s, &num) == -1)
   {
-    print_error_unexp(orig, asm_context);
+    print_error_unexp(asm_context, orig);
     return -2;
   }
 
   if (*s != '.')
   {
-    print_error_unexp(orig, asm_context);
+    print_error_unexp(asm_context, orig);
     return -2;
   }
 
@@ -226,7 +226,7 @@ static int get_register_arm64(
 
   if (get_vector_size(&s, token, TOKENLEN) == -1)
   {
-    print_error_unexp(orig, asm_context);
+    print_error_unexp(asm_context, orig);
     return -2;
   }
 
@@ -291,7 +291,7 @@ static int get_register_arm64(
   }
     else
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -2;
   }
 
@@ -303,7 +303,7 @@ static int get_register_arm64(
 
     if (size > SIZE_2D)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -2;
     }
 
@@ -324,7 +324,7 @@ static int get_register_arm64(
     case SIZE_B:
       if (element < 1 || element > 16)
       {
-        print_error_range("Element", 1, 16, asm_context);
+        print_error_range(asm_context, "Element", 1, 16);
         return -2;
       }
       size = SIZE_B;
@@ -334,7 +334,7 @@ static int get_register_arm64(
     case SIZE_H:
       if (element < 1 || element > 8)
       {
-        print_error_range("Element", 1, 8, asm_context);
+        print_error_range(asm_context, "Element", 1, 8);
         return -2;
       }
       size = SIZE_H;
@@ -344,7 +344,7 @@ static int get_register_arm64(
     case SIZE_S:
       if (element < 1 || element > 4)
       {
-        print_error_range("Element", 1, 4, asm_context);
+        print_error_range(asm_context, "Element", 1, 4);
         return -2;
       }
       size = SIZE_S;
@@ -354,7 +354,7 @@ static int get_register_arm64(
     case SIZE_D:
       if (element < 1 || element > 2)
       {
-        print_error_range("Element", 1, 2, asm_context);
+        print_error_range(asm_context, "Element", 1, 2);
         return -2;
       }
       size = SIZE_D;
@@ -515,7 +515,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       break;
@@ -554,7 +554,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -575,7 +575,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -591,7 +591,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
     if (IS_NOT_TOKEN(token, ',') || operand_count == MAX_OPERANDS)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -657,7 +657,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
             {
               if (operands[3].value < 0 || operands[3].value > 7)
               {
-                print_error_range("Shift", 0, 7, asm_context);
+                print_error_range(asm_context, "Shift", 0, 7);
                 return -2;
               }
 
@@ -705,7 +705,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           }
             else
           {
-            print_error("Immediate out of range (0x000-0xfff or (0x001000-0xfff000)", asm_context);
+            print_error(asm_context, "Immediate out of range (0x000-0xfff or (0x001000-0xfff000)");
             return -1;
           }
 
@@ -729,7 +729,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
             }
               else
             {
-              print_error("Shift value must be 0 or 12", asm_context);
+              print_error(asm_context, "Shift value must be 0 or 12");
               return -1;
             }
           }
@@ -780,7 +780,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
             if (value < 0 || value > 0x3f)
             {
-              print_error_range("Shift", 0, 0x3f, asm_context);
+              print_error_range(asm_context, "Shift", 0, 0x3f);
               return -1;
             }
           }
@@ -828,7 +828,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
           if ((imm6 % 16) != 0)
           {
-            print_error("Immedate6 is not a multiple of 16", asm_context);
+            print_error(asm_context, "Immediate6 is not a multiple of 16");
             return -1;
           }
 
@@ -882,7 +882,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
           if ((operands[1].value & 0xfff) != 0)
           {
-            print_error("Address is not on page boundary.", asm_context);
+            print_error(asm_context, "Address is not on page boundary.");
             return -1;
           }
 
@@ -1178,7 +1178,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           {
             if (vector_size != SIZE_16B)
             {
-              print_error("Invalid vector size", asm_context);
+              print_error(asm_context, "Invalid vector size");
               return -1;
             }
           }
@@ -1190,7 +1190,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
             {
               if (vector_size > 0x1)
               {
-                print_error("Invalid vector size", asm_context);
+                print_error(asm_context, "Invalid vector size");
                 return -1;
               }
             }
@@ -1200,14 +1200,14 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
             {
               if ((vector_size & 0x1) != 0)
               {
-                print_error("Invalid vector size", asm_context);
+                print_error(asm_context, "Invalid vector size");
                 return -1;
               }
             }
 
             if (vector_size > SIZE_2D)
             {
-              print_error("Unknown vector size", asm_context);
+              print_error(asm_context, "Unknown vector size");
               return -1;
             }
 
@@ -1229,12 +1229,12 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
   if (found == 1)
   {
-    print_error_illegal_operands(instr, asm_context);
+    print_error_illegal_operands(asm_context, instr);
     return -1;
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

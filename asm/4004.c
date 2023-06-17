@@ -58,7 +58,7 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       break;
@@ -69,7 +69,7 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
 
       if (eval_expression(asm_context, &num) != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -83,7 +83,7 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token, ',') || operand_count == 2)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -100,7 +100,7 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 0)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -114,14 +114,14 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
           token_type = tokens_get(asm_context, token, TOKENLEN);
           if (token_type != TOKEN_NUMBER)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
           r = atoi(token);
           if (r < 0 || r > 15 || (table_4004[n].type == OP_P && ((r & 1) == 1)))
           {
-            print_error_illegal_register(instr, asm_context);
+            print_error_illegal_register(asm_context, instr);
             return -1;
           }
 
@@ -141,13 +141,13 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
 
           if (eval_expression(asm_context, &num) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
           if (num < 0 || num > 0xfff)
           {
-            print_error_range("Address", 0, 0xfff, asm_context);
+            print_error_range(asm_context, "Address", 0, 0xfff);
             return -1;
           }
 
@@ -167,13 +167,13 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
 
           if (eval_expression(asm_context, &num) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
           if (num < -8 || num > 0xf)
           {
-            print_error_range("Literal", -8, 0xf, asm_context);
+            print_error_range(asm_context, "Literal", -8, 0xf);
             return -1;
           }
 
@@ -196,7 +196,7 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
 
           if (token_type != TOKEN_NUMBER)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -205,7 +205,7 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
           if (r < 0 || r > 15 ||
              (table_4004[n].type == OP_P_DATA && ((r & 1) == 1)))
           {
-            print_error_illegal_register(instr, asm_context);
+            print_error_illegal_register(asm_context, instr);
             return -1;
           }
 
@@ -218,7 +218,7 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
 
           if (eval_expression(asm_context, &num) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -226,7 +226,7 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
 
           if (num < lo || num > 0xff)
           {
-            print_error_range(lo == 0 ? "Address" : "Literal", lo, 0xff, asm_context);
+            print_error_range(asm_context, lo == 0 ? "Address" : "Literal", lo, 0xff);
             return -1;
           }
 
@@ -266,14 +266,14 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
               else if (strcasecmp(token, "T") == 0) { r = 0x9; }
               else
               {
-                print_error_unexp(token, asm_context);
+                print_error_unexp(asm_context, token);
                 return -1;
               }
             }
 
             if (r < 0 || r > 15)
             {
-              print_error_range("Condition", 0, 0xfff, asm_context);
+              print_error_range(asm_context, "Condition", 0, 0xfff);
               return -1;
             }
           }
@@ -287,13 +287,13 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
 
           if (eval_expression(asm_context, &num) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
           if (num < 0 || num > 0xff)
           {
-            print_error_range("Address", 0, 0xff, asm_context);
+            print_error_range(asm_context, "Address", 0, 0xff);
             return -1;
           }
 
@@ -310,7 +310,7 @@ int parse_instruction_4004(AsmContext *asm_context, char *instr)
     n++;
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }

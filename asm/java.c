@@ -49,13 +49,13 @@ static int parse_num8(
 
   if (eval_expression(asm_context, &num) != 0)
   {
-    print_error_illegal_expression(instr, asm_context);
+    print_error_illegal_expression(asm_context, instr);
     return -1;
   }
 
   if (num < low && num > high)
   {
-    print_error_range("Operand", low, high, asm_context);
+    print_error_range(asm_context, "Operand", low, high);
     return -1;
   }
 
@@ -82,13 +82,13 @@ static int parse_num16(
 
   if (eval_expression(asm_context, &num) != 0)
   {
-    print_error_illegal_expression(instr, asm_context);
+    print_error_illegal_expression(asm_context, instr);
     return -1;
   }
 
   if (num < low && num > high)
   {
-    print_error_range("Operand", low, high, asm_context);
+    print_error_range(asm_context, "Operand", low, high);
     return -1;
   }
 
@@ -127,7 +127,7 @@ static int parse_index_w(
       return 4;
     }
 
-    print_error_illegal_expression(instr, asm_context);
+    print_error_illegal_expression(asm_context, instr);
     return -1;
   }
 
@@ -138,7 +138,7 @@ static int parse_index_w(
 
   if (index < 0 || index > 0xffff)
   {
-    print_error_range("Offset", 0, 0xffff, asm_context);
+    print_error_range(asm_context, "Offset", 0, 0xffff);
     return -1;
   }
 
@@ -174,14 +174,14 @@ static int parse_index_w(
       }
         else
       {
-        print_error_illegal_expression(instr, asm_context);
+        print_error_illegal_expression(asm_context, instr);
         return -1;
       }
     }
 
     if (index < -128 || index > 127)
     {
-      print_error_range("Constant", -128, 127, asm_context);
+      print_error_range(asm_context, "Constant", -128, 127);
       return -1;
     }
 
@@ -221,7 +221,7 @@ static int parse_array_type(AsmContext *asm_context, const char *instr)
 
     if (eval_expression(asm_context, &n) != 0)
     {
-      print_error_illegal_expression(instr, asm_context);
+      print_error_illegal_expression(asm_context, instr);
       return -1;
     }
   }
@@ -232,7 +232,7 @@ static int parse_array_type(AsmContext *asm_context, const char *instr)
 
   if (n < 0 || n > 0xff)
   {
-    print_error_range("Type", 0, 0xff, asm_context);
+    print_error_range(asm_context, "Type", 0, 0xff);
     return -1;
   }
 
@@ -268,7 +268,7 @@ static int parse_offset(
 
   if (eval_expression(asm_context, &address) != 0)
   {
-    print_error_illegal_expression(instr, asm_context);
+    print_error_illegal_expression(asm_context, instr);
     return -1;
   }
 
@@ -278,7 +278,7 @@ static int parse_offset(
   {
     if (offset < -128 || offset > 127)
     {
-      print_error_range("Offset", -128, 127, asm_context);
+      print_error_range(asm_context, "Offset", -128, 127);
       return -1;
     }
 
@@ -291,7 +291,7 @@ static int parse_offset(
   {
     if (offset < -32768 || offset > 32767)
     {
-      print_error_range("Offset", -32768, 32767, asm_context);
+      print_error_range(asm_context, "Offset", -32768, 32767);
       return -1;
     }
 
@@ -328,7 +328,7 @@ int parse_instruction_java(AsmContext *asm_context, char *instr)
 
           if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -373,7 +373,7 @@ int parse_instruction_java(AsmContext *asm_context, char *instr)
     }
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }

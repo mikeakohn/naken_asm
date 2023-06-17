@@ -106,13 +106,13 @@ static int check_f(AsmContext *asm_context, int value)
 {
   if ((value & 1) != 0)
   {
-    print_error("Address not on 16 bit boundary", asm_context);
+    print_error(asm_context, "Address not on 16 bit boundary");
     return -1;
   }
 
   if (value < 0 || value > 0xffff)
   {
-    print_error_range("Address", 0, 0xffff, asm_context);
+    print_error_range(asm_context, "Address", 0, 0xffff);
     return -1;
   }
 
@@ -123,12 +123,12 @@ static int check_f_flag(AsmContext *asm_context, int value, int flag)
 {
   if (flag != FLAG_B && (value & 1) != 0)
   {
-    print_error("Address not on 16 bit boundary", asm_context);
+    print_error(asm_context, "Address not on 16 bit boundary");
   }
 
   if (value < 0 || value > 0x1fff)
   {
-    print_error_range("Address", 0, 0x1fff, asm_context);
+    print_error_range(asm_context, "Address", 0, 0x1fff);
     return -1;
   }
 
@@ -139,12 +139,12 @@ static int check_f_64k(AsmContext *asm_context, int value)
 {
   if ((value & 1) != 0)
   {
-    print_error("Address not on 16 bit boundary", asm_context);
+    print_error(asm_context, "Address not on 16 bit boundary");
   }
 
   if (value < 0 || value > 0xfffe)
   {
-    print_error_range("Address", 0, 0xfffe, asm_context);
+    print_error_range(asm_context, "Address", 0, 0xfffe);
     return -1;
   }
 
@@ -548,7 +548,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
 
     if (operand_count == 7)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -568,7 +568,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
 
           if (IS_NOT_TOKEN(token,','))
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -602,7 +602,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
         else
         {
           return -1;
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
         }
 
         //token_type=tokens_get(asm_context, token, TOKENLEN);
@@ -636,7 +636,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
@@ -666,7 +666,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
       num = get_register_dspic(token);
       if (num < 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       operands[operand_count].value = num;
@@ -685,7 +685,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             operands[operand_count].type = OPTYPE_W_PLUS_LIT;
             if (eval_expression(asm_context, &a) != 0)
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
             operands[operand_count].attribute = a;
@@ -701,7 +701,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
 
               if (eval_expression(asm_context, &a) != 0)
               {
-                print_error_unexp(token, asm_context);
+                print_error_unexp(asm_context, token);
                 return -1;
               }
               operands[operand_count].attribute = a;
@@ -736,7 +736,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
 
           if (eval_expression(asm_context, &a) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -748,7 +748,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
 
       if (IS_NOT_TOKEN(token,']'))
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -765,7 +765,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
         int temp;
         if (eval_expression(asm_context, &temp) != 0)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -795,7 +795,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
           operands[operand_count].reg2 = get_register_dspic(token);
           if (operands[operand_count].reg2 == -1)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
           operands[operand_count].type = OPTYPE_W_MUL_W;
@@ -818,7 +818,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
           }
             else
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
         }
@@ -831,7 +831,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token,','))
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -1030,7 +1030,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             int offset=operands[0].value-((asm_context->address/2)+2);
             if ((offset & 1) != 0)
             {
-              print_error("Address not on 16 bit boundary", asm_context);
+              print_error(asm_context, "Address not on 16 bit boundary");
               return -1;
             }
             if (check_range(asm_context, "Offset", offset, -32768*2, 32767*2) == -1) { return -1; }
@@ -1076,12 +1076,12 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             if (operands[0].attribute != 0) { break; }
             if (operands[1].attribute == 0 && (operands[1].value & 1) != 0)
             {
-              print_error("Illegal register for double", asm_context);
+              print_error(asm_context, "Illegal register for double");
               return -1;
             }
             if ((operands[0].value & 1) != 0)
             {
-              print_error("Illegal register for double", asm_context);
+              print_error(asm_context, "Illegal register for double");
               return -1;
             }
             opcode = table_dspic[n].opcode | ((operands[0].value / 2) << 1) |
@@ -1100,12 +1100,12 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             if (operands[1].attribute != 0) { break; }
             if (operands[0].attribute == 0 && (operands[0].value & 1) != 0)
             {
-              print_error("Illegal register for double", asm_context);
+              print_error(asm_context, "Illegal register for double");
               return -1;
             }
             if ((operands[1].value & 1) != 0)
             {
-              print_error("Illegal register for double", asm_context);
+              print_error(asm_context, "Illegal register for double");
               return -1;
             }
             opcode = table_dspic[n].opcode | operands[0].value |
@@ -1223,7 +1223,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             if (check_range(asm_context, "Literal", operands[0].value, 0, 0x3fff) == -1) { return -1; }
             if ((offset & 1) != 0)
             {
-              print_error("Address not on 16 bit boundary", asm_context);
+              print_error(asm_context, "Address not on 16 bit boundary");
               return -1;
             }
             if (check_range(asm_context, "Offset", offset, -32768*2, 32767*2) == -1) { return -1; }
@@ -1271,7 +1271,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             if (check_range(asm_context, "Literal", operands[0].value, 0, 0x3ffe) == -1) { return -1; }
             if ((operands[0].value & 1) != 0)
             {
-              print_error("Address not on 16 bit boundary", asm_context);
+              print_error(asm_context, "Address not on 16 bit boundary");
               return -1;
             }
             opcode = table_dspic[n].opcode | operands[0].value;
@@ -1286,7 +1286,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             if (operands[0].attribute != 0) { break; }
             if ((operands[0].value & 1) != 0)
             {
-              print_error("Illegal register for double", asm_context);
+              print_error(asm_context, "Illegal register for double");
               return -1;
             }
             opcode = table_dspic[n].opcode | ((operands[0].value / 2) << 8);
@@ -1319,7 +1319,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             if (operands[0].attribute != 0) { break; }
             if ((operands[0].value & 1)!= 0)
             {
-              print_error("Illegal register for double", asm_context);
+              print_error(asm_context, "Illegal register for double");
               return -1;
             }
             opcode = table_dspic[n].opcode | ((operands[0].value / 2) << 1);
@@ -1344,7 +1344,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             if (operands[2].attribute != 0) { break; }
             if ((operands[2].value & 1) != 0)
             {
-              print_error("Illegal register for Wnd", asm_context);
+              print_error(asm_context, "Illegal register for Wnd");
               return -1;
             }
             opcode = table_dspic[n].opcode | (operands[0].value << 11) |
@@ -1368,7 +1368,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             if (check_range(asm_context, "Literal", operands[1].value, 0, 31) == -1) { return -1; }
             if ((operands[2].value & 1) != 0)
             {
-              print_error("Illegal register for Wnd", asm_context);
+              print_error(asm_context, "Illegal register for Wnd");
               return -1;
             }
             opcode = table_dspic[n].opcode | (operands[0].value << 11) |
@@ -1395,7 +1395,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             {
               if ((operands[0].value & 1) != 0)
               {
-                print_error("Illegal register for double", asm_context);
+                print_error(asm_context, "Illegal register for double");
                 return -1;
               }
               opcode |= (1 << 6);
@@ -1569,7 +1569,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             int offset=operands[1].value-((asm_context->address/2)+2);
             if ((offset & 1) != 0)
             {
-              print_error("Address not on 16 bit boundary", asm_context);
+              print_error(asm_context, "Address not on 16 bit boundary");
               return -1;
             }
             if (check_range(asm_context, "Offset", offset, -32768*2, 32767*2) == -1) { return -1; }
@@ -1614,7 +1614,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
               if (check_range(asm_context, "Literal", num, -1024, 1022) == -1) { return -1; }
               if ((num & 1) == 1)
               {
-                print_error("Literal not an even number", asm_context);
+                print_error(asm_context, "Literal not an even number");
                 return -1;
               }
               num = num / 2;
@@ -1696,7 +1696,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
               if (check_range(asm_context, "Literal", num, -1024, 1022) == -1) { return -1; }
               if ((num & 1) == 1)
               {
-                print_error("Literal not an even number", asm_context);
+                print_error(asm_context, "Literal not an even number");
                 return -1;
               }
               num = num / 2;
@@ -1770,7 +1770,7 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
             if (operands[0].attribute == 6 && operands[1].attribute == 6 &&
                 operands[0].reg2 != operands[1].reg2)
             {
-              print_error("Source and destination Wb don't match", asm_context);
+              print_error(asm_context, "Source and destination Wb don't match");
               return -1;
             }
 
@@ -1879,11 +1879,11 @@ int parse_instruction_dspic(AsmContext *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   asm_context->error = 1;

@@ -65,7 +65,7 @@ int parse_instruction_68hc08(AsmContext *asm_context, char *instr)
 
     if (operand_count >= 3)
     {
-      print_error_opcount(instr, asm_context);
+      print_error_opcount(asm_context, instr);
       return -1;
     }
 
@@ -83,7 +83,7 @@ int parse_instruction_68hc08(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -98,7 +98,7 @@ int parse_instruction_68hc08(AsmContext *asm_context, char *instr)
 
       if (num < -32768 || num > 0xffff)
       {
-        print_error_range("Constant", -32768, 65535, asm_context);
+        print_error_range(asm_context, "Constant", -32768, 65535);
         return -1;
       }
 
@@ -145,7 +145,7 @@ int parse_instruction_68hc08(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -167,7 +167,7 @@ int parse_instruction_68hc08(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
     if (IS_NOT_TOKEN(token, ','))
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -247,7 +247,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
 
             if (offset < -128 || offset > 127)
             {
-              print_error_range("Offset", -128, 127, asm_context);
+              print_error_range(asm_context, "Offset", -128, 127);
               return -1;
             }
 
@@ -328,7 +328,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
 
             if (offset < -128 || offset > 127)
             {
-              print_error_range("Offset", -128, 127, asm_context);
+              print_error_range(asm_context, "Offset", -128, 127);
               return -1;
             }
 
@@ -411,7 +411,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
                 operands[1].value < -128 ||
                 operands[1].value >= 0xff)
             {
-              print_error_range("Address", 0, 0xff, asm_context);
+              print_error_range(asm_context, "Address", 0, 0xff);
               return -1;
             }
 
@@ -438,7 +438,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
 
             if (offset < -128 || offset > 127)
             {
-              print_error_range("Offset", -128, 127, asm_context);
+              print_error_range(asm_context, "Offset", -128, 127);
               return -1;
             }
 
@@ -508,7 +508,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
 
             if (offset < -128 || offset > 127)
             {
-              print_error_range("Offset", -128, 127, asm_context);
+              print_error_range(asm_context, "Offset", -128, 127);
               return -1;
             }
 
@@ -536,7 +536,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
 
             if (offset < -128 || offset > 127)
             {
-              print_error_range("Offset", -128, 127, asm_context);
+              print_error_range(asm_context, "Offset", -128, 127);
               return -1;
             }
 
@@ -559,7 +559,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
 
             if (offset < -128 || offset > 127)
             {
-              print_error_range("Offset", -128, 127, asm_context);
+              print_error_range(asm_context, "Offset", -128, 127);
               return -1;
             }
 
@@ -610,7 +610,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
 
             if (offset < -128 || offset > 127)
             {
-              print_error_range("Offset", -128, 127, asm_context);
+              print_error_range(asm_context, "Offset", -128, 127);
               return -1;
             }
 
@@ -634,7 +634,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
 
             if (offset < -128 || offset > 127)
             {
-              print_error_range("Offset", -128, 127, asm_context);
+              print_error_range(asm_context, "Offset", -128, 127);
               return -1;
             }
 
@@ -675,7 +675,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
                 break;
               }
 
-              print_error_range("Address", 0, 0xff, asm_context);
+              print_error_range(asm_context, "Address", 0, 0xff);
               return -1;
             }
 
@@ -717,7 +717,7 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
 
             if (offset < -128 || offset > 127)
             {
-              print_error_range("Offset", -128, 127, asm_context);
+              print_error_range(asm_context, "Offset", -128, 127);
               return -1;
             }
 
@@ -740,11 +740,11 @@ printf("%04x %d\n", operands[n].value, operands[n].type);
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
     return -1;
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }

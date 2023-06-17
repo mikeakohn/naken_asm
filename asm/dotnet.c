@@ -68,7 +68,7 @@ int parse_instruction_dotnet(AsmContext *asm_context, char *instr)
     }
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }

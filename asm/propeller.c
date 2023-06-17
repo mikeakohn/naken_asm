@@ -125,7 +125,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
     {
       if (wr != -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -138,7 +138,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
     {
       if (wr != -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -151,7 +151,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
     {
       if (wc != -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -164,7 +164,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
     {
       if (wz != -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -175,7 +175,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
 
     if (has_effect == 1 || operand_count >= 2)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -193,7 +193,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
     {
       if (asm_context->pass == 2)
       {
-        print_error_illegal_expression(instr, asm_context);
+        print_error_illegal_expression(asm_context, instr);
         return -1;
       }
 
@@ -212,7 +212,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
 
     if (IS_NOT_TOKEN(token,','))
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -240,19 +240,19 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
       {
         if ((table_propeller[n].mask & 0x02000000) != 0 && wz != -1)
         {
-          print_error("Error: Instruction doesn't take WZ effect\n", asm_context);
+          print_error(asm_context, "Error: Instruction doesn't take WZ effect\n");
           return -1;
         }
 
         if ((table_propeller[n].mask & 0x01000000) != 0 && wc != -1)
         {
-          print_error("Error: Instruction doesn't take WC effect\n", asm_context);
+          print_error(asm_context, "Error: Instruction doesn't take WC effect\n");
           return -1;
         }
 
         if ((table_propeller[n].mask & 0x00800000) != 0 && wr != -1)
         {
-          print_error("Error: Instruction doesn't take WR effect\n", asm_context);
+          print_error(asm_context, "Error: Instruction doesn't take WR effect\n");
           return -1;
         }
       }
@@ -263,7 +263,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 0)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -277,7 +277,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 0 || cond != 0xf)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -293,7 +293,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 2 || operands[0].type == OPERAND_IMMEDIATE)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -331,7 +331,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -352,7 +352,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1 || operands[0].type == OPERAND_IMMEDIATE)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -367,7 +367,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1 || operands[0].type != OPERAND_IMMEDIATE)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -389,7 +389,7 @@ int parse_instruction_propeller(AsmContext *asm_context, char *instr)
     n++;
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }

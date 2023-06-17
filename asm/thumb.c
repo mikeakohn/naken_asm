@@ -106,7 +106,7 @@ static int check_reg_lower(AsmContext *asm_context, int value)
 {
   if (value > 7)
   {
-    print_error_range("Register", 0, 7, asm_context);
+    print_error_range(asm_context, "Register", 0, 7);
     return -1;
   }
 
@@ -117,7 +117,7 @@ static int is_4_byte_aligned(AsmContext *asm_context, int num)
 {
   if ((num & 0x3) != 0)
   {
-    print_error("Offset not 4 byte aligned", asm_context);
+    print_error_align(asm_context, 4);
     return -1;
   }
 
@@ -128,7 +128,7 @@ static int is_2_byte_aligned(AsmContext *asm_context, int num)
 {
   if ((num & 0x1) != 0)
   {
-    print_error("Offset not 2 byte aligned", asm_context);
+    print_error_align(asm_context, 2);
     return -1;
   }
 
@@ -166,7 +166,7 @@ static int read_register_list(AsmContext *asm_context, struct _operand *operand)
         tokens_get(asm_context, token, TOKENLEN);
         if ((reg_end = get_register_thumb(token)) == -1 || reg_end < reg_start)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -184,7 +184,7 @@ static int read_register_list(AsmContext *asm_context, struct _operand *operand)
     }
       else
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -196,7 +196,7 @@ static int read_register_list(AsmContext *asm_context, struct _operand *operand)
       else
     if (IS_NOT_TOKEN(token,','))
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -238,7 +238,7 @@ int parse_cps(AsmContext *asm_context, int disable)
 
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -283,7 +283,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
 
     if (operand_count >= 3)
     {
-      print_error_opcount(instr, asm_context);
+      print_error_opcount(asm_context, instr);
       return -1;
     }
 
@@ -319,7 +319,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -349,7 +349,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
       }
         else
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -376,7 +376,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
           }
             else
           {
-            print_error_illegal_expression(instr, asm_context);
+            print_error_illegal_expression(asm_context, instr);
             return -1;
           }
         }
@@ -386,7 +386,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
       }
         else
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -422,7 +422,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
           }
             else
           {
-            print_error_illegal_expression(instr, asm_context);
+            print_error_illegal_expression(asm_context, instr);
             return -1;
           }
         }
@@ -437,7 +437,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL) break;
     if (IS_NOT_TOKEN(token,',') || operand_count == 3)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -470,7 +470,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
 #if 0
             if (operands[2].value<0 || operands[2].value>31)
             {
-              print_error_range("Offset", 0, 31, asm_context);
+              print_error_range(asm_context, "Offset", 0, 31);
               return -1;
             }
 #endif
@@ -567,7 +567,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
 #if 0
             if ((operands[1].second_value&0x3) != 0)
             {
-              print_error("Offset not 4 byte aligned", asm_context);
+              print_error_align(asm_context, 4);
               return -1;
             }
 #endif
@@ -585,7 +585,8 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
 #if 0
             if ((operands[1].value & 0x3) != 0)
             {
-              print_error("Offset not 4 byte aligned", asm_context);
+              print_error_align(asm_context, 4);
+              return -1;
               return -1;
             }
 #endif
@@ -595,7 +596,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
 #if 0
             if (offset<0 || offset>1020)
             {
-              print_error_range("Offset", 0, 1020, asm_context);
+              print_error_range(asm_context, "Offset", 0, 1020);
               return -1;
             }
 #endif
@@ -632,7 +633,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
 #if 0
             if ((offset&0x3) != 0)
             {
-              print_error("Offset not 4 byte aligned", asm_context);
+              print_error_align(asm_context, 4);
               return -1;
             }
 #endif
@@ -662,7 +663,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
 #if 0
             if ((offset&0x1) != 0)
             {
-              print_error("Offset not 2 byte aligned", asm_context);
+              print_error_align(asm_context, 2);
               return -1;
             }
 #endif
@@ -820,7 +821,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
 
             if ((operands[2].value & 0x3) != 0)
             {
-              print_error("Immediate not a multiple of 4 bytes.", asm_context);
+              print_error(asm_context, "Immediate not a multiple of 4 bytes.");
               return -1;
             }
 
@@ -917,11 +918,11 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

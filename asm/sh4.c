@@ -181,7 +181,7 @@ static int get_displacement(
 
   if (value < 0 || value > upper_value)
   {
-    print_error_range("Displacement", 0, upper_value, asm_context);
+    print_error_range(asm_context, "Displacement", 0, upper_value);
     return -1;
   }
 
@@ -223,7 +223,7 @@ static int calc_displacement(
 
   if (value < 0 || value > upper_value)
   {
-    print_error_range("Displacement", 0, upper_value, asm_context);
+    print_error_range(asm_context, "Displacement", 0, upper_value);
     return -1;
   }
 
@@ -260,7 +260,7 @@ static int parse_at(
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -291,7 +291,7 @@ static int parse_at(
         else
       if ((num = get_register_sh4(token)) == -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -320,7 +320,7 @@ static int parse_at(
     }
       else
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -337,7 +337,7 @@ static int parse_at(
 
     if (num == -1)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -368,7 +368,7 @@ static int parse_at(
     return 0;
   }
 
-  print_error_unexp(token, asm_context);
+  print_error_unexp(asm_context, token);
 
   return -1;
 }
@@ -397,7 +397,7 @@ int parse_instruction_sh4(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       break;
@@ -452,7 +452,7 @@ int parse_instruction_sh4(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -487,7 +487,7 @@ int parse_instruction_sh4(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -503,7 +503,7 @@ int parse_instruction_sh4(AsmContext *asm_context, char *instr)
 
     if (IS_NOT_TOKEN(token, ',') || operand_count == MAX_OPERANDS)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -613,7 +613,7 @@ printf("%d %d %d\n",
 
             if (operands[0].value < -128 || operands[0].value > 0xff)
             {
-              print_error_range("Constant", -128, 0xff, asm_context);
+              print_error_range(asm_context, "Constant", -128, 0xff);
               return -1;
             }
 
@@ -637,7 +637,7 @@ printf("%d %d %d\n",
 
             if (value < 0 || value > 0xff)
             {
-              print_error_range("Constant", 0, 0xff, asm_context);
+              print_error_range(asm_context, "Constant", 0, 0xff);
               return -1;
             }
 
@@ -658,7 +658,7 @@ printf("%d %d %d\n",
 
             if (value < 0 || value > 0xff)
             {
-              print_error_range("Constant", 0, 0xff, asm_context);
+              print_error_range(asm_context, "Constant", 0, 0xff);
               return -1;
             }
 
@@ -679,7 +679,7 @@ printf("%d %d %d\n",
 
             if (offset < -256 || offset > 255)
             {
-              print_error_range("Offset", -256, 255, asm_context);
+              print_error_range(asm_context, "Offset", -256, 255);
               return -1;
             }
 
@@ -708,7 +708,7 @@ printf("%d %d %d\n",
 
             if (offset < -4096 || offset > 4095)
             {
-              print_error_range("Offset", -4096, 4095, asm_context);
+              print_error_range(asm_context, "Offset", -4096, 4095);
               return -1;
             }
 
@@ -1055,7 +1055,7 @@ printf("%d %d %d\n",
 
             if (value < 0 || value > 0xff)
             {
-              print_error_range("Constant", 0, 0xff, asm_context);
+              print_error_range(asm_context, "Constant", 0, 0xff);
               return -1;
             }
 
@@ -1101,11 +1101,11 @@ printf("%d %d %d\n",
 
   if (found == 1)
   {
-    print_error_illegal_operands(instr, asm_context);
+    print_error_illegal_operands(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

@@ -182,7 +182,7 @@ static int process_op(
 
     if (address > 8191)
     {
-      print_error_range("Address", 0, 8191, asm_context);
+      print_error_range(asm_context, "Address", 0, 8191);
       return -1;
     }
 
@@ -200,7 +200,7 @@ static int process_op(
     {
       if (asm_context->pass == 2 && ((address & 0xff00) != (asm_context->address & 0xff00)))
       {
-        print_error("Address isn't on same 256-byte page", asm_context);
+        print_error(asm_context, "Address isn't on same 256-byte page");
         return -1;
       }
 
@@ -235,7 +235,7 @@ int parse_instruction_8048(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       break;
@@ -287,7 +287,7 @@ int parse_instruction_8048(AsmContext *asm_context, char *instr)
       {
         if (num > 1)
         {
-          print_error_range("@reg", 0, 1, asm_context);
+          print_error_range(asm_context, "@reg", 0, 1);
           return -1;
         }
 
@@ -302,7 +302,7 @@ int parse_instruction_8048(AsmContext *asm_context, char *instr)
       }
         else
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
     }
@@ -318,7 +318,7 @@ int parse_instruction_8048(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -436,7 +436,7 @@ int parse_instruction_8048(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token, ',') || operand_count == 2)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -540,11 +540,11 @@ printf("\n");
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

@@ -97,7 +97,7 @@ int parse_instruction_sparc(AsmContext *asm_context, char *instr)
       }
         else
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -108,7 +108,7 @@ int parse_instruction_sparc(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       break;
@@ -161,7 +161,7 @@ int parse_instruction_sparc(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token, ',') || operand_count == 3)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -192,7 +192,7 @@ printf("\n");
           case OP_BRANCH_P_REG:
             break;
           default:
-            print_error_unexp(",a/pt", asm_context);
+            print_error_unexp(asm_context, ",a/pt");
             return -1;
         }
       }
@@ -280,7 +280,7 @@ printf("\n");
           {
             if (pt != -1)
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
 
@@ -300,7 +300,7 @@ printf("\n");
 
             if (offset < min || offset > max)
             {
-              print_error_range("Displacement", min, max, asm_context);
+              print_error_range(asm_context, "Displacement", min, max);
             }
 
             offset = offset >> 2;
@@ -338,7 +338,7 @@ printf("\n");
 
             if (offset < min || offset > max)
             {
-              print_error_range("Displacement", min, max, asm_context);
+              print_error_range(asm_context, "Displacement", min, max);
             }
 
             offset = offset >> 2;
@@ -378,7 +378,7 @@ printf("\n");
 
             if (offset < min || offset > max)
             {
-              print_error_range("Displacement", min, max, asm_context);
+              print_error_range(asm_context, "Displacement", min, max);
             }
 
             offset = offset >> 2;
@@ -417,7 +417,7 @@ printf("\n");
 
             if (offset < min || offset > max)
             {
-              print_error_range("Displacement", min, max, asm_context);
+              print_error_range(asm_context, "Displacement", min, max);
             }
 #endif
 
@@ -444,11 +444,11 @@ printf("\n");
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

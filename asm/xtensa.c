@@ -129,7 +129,7 @@ static int check_immediate(AsmContext *asm_context, int *immediate, int shift)
 
     if (*immediate < lo || *immediate > hi)
     {
-      print_error_range("Immediate", lo, hi, asm_context);
+      print_error_range(asm_context, "Immediate", lo, hi);
       return -1;
     }
   }
@@ -187,7 +187,7 @@ static int check_immediate_n(AsmContext *asm_context, int *immediate, int shift)
 
     if (*immediate < 0 || *immediate > hi)
     {
-      print_error_range("Immediate", 0, hi, asm_context);
+      print_error_range(asm_context, "Immediate", 0, hi);
       return -1;
     }
   }
@@ -331,13 +331,13 @@ static int get_operands(
 
     if (IS_NOT_TOKEN(token, ',') || operand_count == 5)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
     if (operand_count == MAX_OPERANDS)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -388,7 +388,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
         case XTENSA_OP_NONE:
           if (operand_count != 0)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -407,7 +407,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
         case XTENSA_OP_N_NONE:
           if (operand_count != 0)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -428,7 +428,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_REGISTER_AR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -453,7 +453,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != mask_xtensa[table_xtensa[n].type].reg_0 ||
               operands[1].type != mask_xtensa[table_xtensa[n].type].reg_1)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -481,7 +481,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != mask_xtensa[table_xtensa[n].type].reg_0 ||
               operands[1].type != mask_xtensa[table_xtensa[n].type].reg_1)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -514,7 +514,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != mask_xtensa[table_xtensa[n].type].reg_1 ||
               operands[2].type != mask_xtensa[table_xtensa[n].type].reg_2)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -542,13 +542,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER_AR ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value < -128 || operands[2].value > 127)
           {
-            print_error_range("Constant", -128, 127, asm_context);
+            print_error_range(asm_context, "Constant", -128, 127);
             return -1;
           }
 
@@ -576,20 +576,21 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER_AR ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value < -32768 || operands[2].value > 32512)
           {
-            print_error_range("Constant", -32768, 32512, asm_context);
+            print_error_range(asm_context, "Constant", -32768, 32512);
             return -1;
           }
 
           if ((operands[2].value & 0xff) != 0)
           {
             printf("Error: Constant cannot be shifted by 8 at %s:%d\n",
-              asm_context->tokens.filename, asm_context->tokens.line);
+              asm_context->tokens.filename,
+              asm_context->tokens.line);
             return -1;
           }
 
@@ -619,7 +620,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER_AR ||
               operands[2].type != OPERAND_REGISTER_AR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -647,7 +648,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER_AR ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -657,7 +658,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[2].value > 15 ||
               operands[2].value == 0)
           {
-            print_error_range("Constant", -1, 15, asm_context);
+            print_error_range(asm_context, "Constant", -1, 15);
             return -1;
           }
 
@@ -687,7 +688,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_BR ||
               operands[1].type != OPERAND_REGISTER_BR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -732,7 +733,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER_AR ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -740,7 +741,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
           if (offset < -128 || offset > 127)
           {
-            print_error_range("Offset", -128, 127, asm_context);
+            print_error_range(asm_context, "Offset", -128, 127);
             return -1;
           }
 
@@ -769,7 +770,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_NUMBER ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -777,13 +778,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
           if (offset < -128 || offset > 127)
           {
-            print_error_range("Offset", -128, 127, asm_context);
+            print_error_range(asm_context, "Offset", -128, 127);
             return -1;
           }
 
           if (operands[1].value < 0 || operands[1].value > 31)
           {
-            print_error_range("Constant", 0, 31, asm_context);
+            print_error_range(asm_context, "Constant", 0, 31);
             return -1;
           }
 
@@ -814,7 +815,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_NUMBER ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -823,7 +824,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
           if (offset < -128 || offset > 127)
           {
-            print_error_range("Offset", -128, 127, asm_context);
+            print_error_range(asm_context, "Offset", -128, 127);
             return -1;
           }
 
@@ -857,7 +858,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -865,7 +866,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
           if (offset < -2048 || offset > 2047)
           {
-            print_error_range("Offset", -2048, 2047, asm_context);
+            print_error_range(asm_context, "Offset", -2048, 2047);
             return -1;
           }
 
@@ -890,7 +891,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -898,7 +899,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
           if (offset < 0 || offset > 63)
           {
-            print_error_range("Offset", 0, 63, asm_context);
+            print_error_range(asm_context, "Offset", 0, 63);
             return -1;
           }
 
@@ -925,7 +926,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_BR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -933,7 +934,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
           if (offset < -128 || offset > 127)
           {
-            print_error_range("Offset", -128, 127, asm_context);
+            print_error_range(asm_context, "Offset", -128, 127);
             return -1;
           }
 
@@ -956,14 +957,14 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_NUMBER ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 15 ||
               operands[1].value < 0 || operands[1].value > 15)
           {
-            print_error_range("Constant", 0, 15, asm_context);
+            print_error_range(asm_context, "Constant", 0, 15);
             return -1;
           }
 
@@ -984,13 +985,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
         case XTENSA_OP_N_NUM:
           if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 15)
           {
-            print_error_range("Constant", 0, 15, asm_context);
+            print_error_range(asm_context, "Constant", 0, 15);
             return -1;
           }
 
@@ -1010,7 +1011,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
         case XTENSA_OP_JUMP_I18:
           if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1020,7 +1021,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
           if (offset < -131072 || offset > 131071)
           {
-            print_error_range("Offset", -131072, 131071, asm_context);
+            print_error_range(asm_context, "Offset", -131072, 131071);
             return -1;
           }
 
@@ -1041,7 +1042,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
         case XTENSA_OP_AS:
           if (operand_count != 1 || operands[0].type != OPERAND_REGISTER_AR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1064,13 +1065,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != mask_xtensa[table_xtensa[n].type].reg_1 ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value < 0 || operands[2].value > 15)
           {
-            print_error_range("Constant", 0, 15, asm_context);
+            print_error_range(asm_context, "Constant", 0, 15);
             return -1;
           }
 
@@ -1098,7 +1099,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER_AR ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1106,7 +1107,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
           {
             if (operands[2].value < 7 || operands[2].value > 22)
             {
-              print_error_range("Constant", 7, 22, asm_context);
+              print_error_range(asm_context, "Constant", 7, 22);
               return -1;
             }
           }
@@ -1137,7 +1138,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1153,7 +1154,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
             if (immediate < 0 || immediate > hi)
             {
-              print_error_range("Immediate", 0, hi, asm_context);
+              print_error_range(asm_context, "Immediate", 0, hi);
               return -1;
             }
           }
@@ -1203,7 +1204,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1224,7 +1225,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
             if (immediate < 0 || immediate > 32760)
             {
-              print_error_range("Immediate", 0, 32760, asm_context);
+              print_error_range(asm_context, "Immediate", 0, 32760);
               return -1;
             }
 
@@ -1252,13 +1253,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[2].type != OPERAND_NUMBER ||
               operands[3].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value < 0 || operands[2].value > 31)
           {
-            print_error_range("Shift", 0, 31, asm_context);
+            print_error_range(asm_context, "Shift", 0, 31);
             return -1;
           }
 
@@ -1266,7 +1267,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
           if (operands[3].value < 1 || operands[3].value > 16)
           {
-            print_error_range("Mask", 1, 16, asm_context);
+            print_error_range(asm_context, "Mask", 1, 16);
             return -1;
           }
 
@@ -1300,7 +1301,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER_AR ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1343,7 +1344,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER_AR ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1378,7 +1379,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER_AR ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1412,7 +1413,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1422,7 +1423,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
           if (offset < -262141 || offset > -4)
           {
-            print_error_range("Offset", 0, 15, asm_context);
+            print_error_range(asm_context, "Offset", 0, 15);
             return -1;
           }
 
@@ -1455,7 +1456,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_MW ||
               operands[1].type != OPERAND_REGISTER_AR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1480,7 +1481,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1490,7 +1491,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
           if (offset < 0 || offset > 255)
           {
-            print_error_range("Offset", 0, 255, asm_context);
+            print_error_range(asm_context, "Offset", 0, 255);
             return -1;
           }
 
@@ -1514,7 +1515,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != OPERAND_REGISTER_AR ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1548,7 +1549,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_REGISTER_AR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1575,7 +1576,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_REGISTER_AR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1598,13 +1599,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[1].value < -2048 || operands[1].value > 2047)
           {
-            print_error_range("Immediate", 0, 255, asm_context);
+            print_error_range(asm_context, "Immediate", 0, 255);
             return -1;
           }
 
@@ -1633,13 +1634,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[1].value < -32 || operands[1].value > 95)
           {
-            print_error_range("Immediate", -32, 95, asm_context);
+            print_error_range(asm_context, "Immediate", -32, 95);
             return -1;
           }
 
@@ -1671,7 +1672,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != mask_xtensa[table_xtensa[n].type].reg_0 ||
               operands[1].type != mask_xtensa[table_xtensa[n].type].reg_1)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1683,7 +1684,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value > 1)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1694,7 +1695,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
           {
             if (operands[1].value < 2)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1725,13 +1726,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[2].type != OPERAND_REGISTER_MW ||
               operands[3].type != OPERAND_REGISTER_AR)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value > 1)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1762,19 +1763,19 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[2].type != OPERAND_REGISTER_MW ||
               operands[3].type != OPERAND_REGISTER_MW)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value > 1)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[3].value < 2)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1801,13 +1802,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
         case XTENSA_OP_0_15:
           if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 15)
           {
-            print_error_range("Constant", 0, 15, asm_context);
+            print_error_range(asm_context, "Constant", 0, 15);
             return -1;
           }
 
@@ -1826,13 +1827,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
         case XTENSA_OP_N8_7:
           if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < -8 || operands[0].value > 7)
           {
-            print_error_range("Constant", -8, 7, asm_context);
+            print_error_range(asm_context, "Constant", -8, 7);
             return -1;
           }
 
@@ -1855,13 +1856,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[1].value < 0 || operands[1].value > 15)
           {
-            print_error_range("Constant", 0, 15, asm_context);
+            print_error_range(asm_context, "Constant", 0, 15);
             return -1;
           }
 
@@ -1885,13 +1886,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
              (operands[1].type != OPERAND_NUMBER &&
               operands[1].type != OPERAND_REGISTER_SAR))
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[1].value < 0 || operands[1].value > 255)
           {
-            print_error_range("SPR", 0, 255, asm_context);
+            print_error_range(asm_context, "SPR", 0, 255);
             return -1;
           }
 
@@ -1914,13 +1915,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REGISTER_AR ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[1].value < 0 || operands[1].value > 255)
           {
-            print_error_range("User register", 0, 255, asm_context);
+            print_error_range(asm_context, "User register", 0, 255);
             return -1;
           }
 
@@ -1945,7 +1946,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
              (operands[1].type != OPERAND_REGISTER_AR &&
               operands[2].type != OPERAND_NUMBER))
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -1953,7 +1954,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
 
           if (operands[2].value < 1 || operands[2].value > 31)
           {
-            print_error_range("Immediate", 1, 31, asm_context);
+            print_error_range(asm_context, "Immediate", 1, 31);
             return -1;
           }
 
@@ -1991,13 +1992,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
               operands[1].type != mask_xtensa[table_xtensa[n].type].reg_1 ||
               operands[2].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[2].value < 0 || operands[2].value > 15)
           {
-            print_error_range("Constant", 0, 15, asm_context);
+            print_error_range(asm_context, "Constant", 0, 15);
             return -1;
           }
 
@@ -2022,13 +2023,13 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
         case XTENSA_OP_0_31:
           if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 31)
           {
-            print_error_range("Immediate", 0, 31, asm_context);
+            print_error_range(asm_context, "Immediate", 0, 31);
             return -1;
           }
 
@@ -2059,7 +2060,7 @@ int parse_instruction_xtensa(AsmContext *asm_context, char *instr)
     n++;
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }

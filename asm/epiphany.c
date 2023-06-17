@@ -158,7 +158,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
       }
         else
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
       }
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -168,7 +168,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
     {
       if (IS_NOT_TOKEN(token,','))
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -177,7 +177,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 
     if (operand_count == 3)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -197,7 +197,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 
       if (n == -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -217,7 +217,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -234,7 +234,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 
       if (n == -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -258,7 +258,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
             }
               else
             {
-              print_error_illegal_expression(instr, asm_context);
+              print_error_illegal_expression(asm_context, instr);
               return -1;
             }
           }
@@ -275,7 +275,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 
           if (n == -1)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -289,7 +289,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 
           if (n == -1)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -302,7 +302,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 
       if (IS_NOT_TOKEN(token,']'))
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
     }
@@ -320,7 +320,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -368,7 +368,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 
             if ((offset & 1) != 0)
             {
-              print_error("Address not on an odd boundary", asm_context);
+              print_error(asm_context, "Address not on an odd boundary");
               return -1;
             }
 
@@ -390,7 +390,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 
             if ((offset & 1) != 0)
             {
-              print_error("Address not on an odd boundary", asm_context);
+              print_error(asm_context, "Address not on an odd boundary");
               return -1;
             }
 
@@ -804,7 +804,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 
             if ((operands[0].value & 0x3) != 0)
             {
-              print_error("Unknown special register", asm_context);
+              print_error(asm_context, "Unknown special register");
               return -1;
             }
 
@@ -833,7 +833,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 
             if ((operands[1].value & 0x3) != 0)
             {
-              print_error("Unknown special register", asm_context);
+              print_error(asm_context, "Unknown special register");
               return -1;
             }
 
@@ -864,7 +864,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
                 (operands[0].value & 0xfffff000) != 0x000f0000 ||
                  m < 4 || m > 7 || special > 63)
             {
-              print_error("Unknown special register", asm_context);
+              print_error(asm_context, "Unknown special register");
               return -1;
             }
 
@@ -896,7 +896,7 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
                 (operands[1].value & 0xfffff000) != 0x000f0000 ||
                  m < 4 || m > 7 || special > 63)
             {
-              print_error("Unknown special register", asm_context);
+              print_error(asm_context, "Unknown special register");
               return -1;
             }
 
@@ -927,12 +927,12 @@ int parse_instruction_epiphany(AsmContext *asm_context, char *instr)
 
   if (found == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
     return -1;
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
 

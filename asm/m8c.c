@@ -45,7 +45,7 @@ int add_branch(
 
   if (offset < -2048 || offset > 0x7ff)
   {
-    print_error_range("Offset", -2048, 0x7ff, asm_context);
+    print_error_range(asm_context, "Offset", -2048, 0x7ff);
     return -1;
   }
 
@@ -79,7 +79,7 @@ int add_operand(
     case OP_REG_INDEX_X_EXPR:
       if (operand->value < -128 || operand->value > 0xff)
       {
-        print_error_range("Constant", -128, 0xff, asm_context);
+        print_error_range(asm_context, "Constant", -128, 0xff);
         return -1;
       }
 
@@ -93,7 +93,7 @@ int add_operand(
     case OP_EXPR_U16:
       if (operand->value < 0 || operand->value > 0xffff)
       {
-        print_error_range("Constant", 0, 0xffff, asm_context);
+        print_error_range(asm_context, "Constant", 0, 0xffff);
         return -1;
       }
 
@@ -149,7 +149,7 @@ int parse_instruction_m8c(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -204,7 +204,7 @@ int parse_instruction_m8c(AsmContext *asm_context, char *instr)
 
         if (eval_expression(asm_context, &num) != 0)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -232,7 +232,7 @@ int parse_instruction_m8c(AsmContext *asm_context, char *instr)
         {
           if (eval_expression(asm_context, &num) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -255,7 +255,7 @@ int parse_instruction_m8c(AsmContext *asm_context, char *instr)
         {
           if (eval_expression(asm_context, &num) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -282,7 +282,7 @@ int parse_instruction_m8c(AsmContext *asm_context, char *instr)
 
           if (eval_expression(asm_context, &num) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -306,7 +306,7 @@ int parse_instruction_m8c(AsmContext *asm_context, char *instr)
 
         if (eval_expression(asm_context, &num) != 0)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -320,7 +320,7 @@ int parse_instruction_m8c(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
     if (IS_NOT_TOKEN(token, ',') || operand_count == 2)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -403,11 +403,11 @@ int parse_instruction_m8c(AsmContext *asm_context, char *instr)
 
   if (found == 1)
   {
-    print_error_illegal_operands(instr, asm_context);
+    print_error_illegal_operands(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

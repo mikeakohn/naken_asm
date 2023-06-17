@@ -28,7 +28,7 @@ int pdk_parse(AsmContext *asm_context, struct _operand *operands)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       break;
@@ -43,7 +43,7 @@ int pdk_parse(AsmContext *asm_context, struct _operand *operands)
     {
       if (eval_expression(asm_context, &num) != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -58,7 +58,7 @@ int pdk_parse(AsmContext *asm_context, struct _operand *operands)
       {
         if (eval_expression(asm_context, &num) != 0)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -76,7 +76,7 @@ int pdk_parse(AsmContext *asm_context, struct _operand *operands)
 
       if (eval_expression(asm_context, &num) != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -89,7 +89,7 @@ int pdk_parse(AsmContext *asm_context, struct _operand *operands)
       {
         if (eval_expression(asm_context, &num) != 0)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -108,7 +108,7 @@ int pdk_parse(AsmContext *asm_context, struct _operand *operands)
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token, ',') || operand_count == 2)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }

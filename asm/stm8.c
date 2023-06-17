@@ -134,7 +134,7 @@ static int get_num(
       return 0;
     }
 
-    print_error_illegal_expression(table_stm8[instr_index].instr, asm_context);
+    print_error_illegal_expression(asm_context, table_stm8[instr_index].instr);
     return -1;
   }
 
@@ -151,7 +151,7 @@ static int get_num(
   if (*num >= -8388608 && *num <=0xffffff) { *num_size = NUM_SIZE_EXTENDED; return 0; }
 
   // FIXME - bad error message
-  print_error_range("number", 0, 0xffffff, asm_context);
+  print_error_range(asm_context, "number", 0, 0xffffff);
 
   return -1;
 }
@@ -351,7 +351,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
 
   if (table_stm8[n].instr == NULL)
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
     return -1;
   }
 
@@ -370,7 +370,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
 
     if (operand_count == 3)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -378,7 +378,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
     {
       if (IS_NOT_TOKEN(token,','))
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -445,7 +445,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
           operands[operand_count].type = OP_NUMBER16; break;
         default:
           // FIXME - bad error message
-          //print_error_range(instr, 0, 0xff, asm_context);
+          //print_error_range(asm_context, instr, 0, 0xff);
           //return -1;
           operands[operand_count].type = OP_NUMBER8; break;
           break;
@@ -486,7 +486,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
             else
           if (strcasecmp(token, "w") != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
         }
@@ -524,7 +524,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
         }
 
         if (skip_case == 0)
@@ -534,7 +534,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
             case NUM_SIZE_SHORT:
               if (is_w == 0 && is_e != 1)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
@@ -544,7 +544,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
               break;
             default:
               // FIXME - bad error message
-              //print_error_range(instr, 0, 0xffff, asm_context);
+              //print_error_range(asm_context, instr, 0, 0xffff);
               //return -1;
               break;
           }
@@ -591,7 +591,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -602,7 +602,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
           case NUM_SIZE_EXTENDED: operands[operand_count].type += 2; break;
           default:
             // FIXME - bad error message
-            //print_error_range(instr, 0, 0xff, asm_context);
+            //print_error_range(asm_context, instr, 0, 0xff);
             //return -1;
             break;
         }
@@ -626,7 +626,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
           operands[operand_count].type = OP_INDIRECT16; break;
         default:
           // FIXME - bad error message
-          //print_error_range(instr, 0, 0xff, asm_context);
+          //print_error_range(asm_context, instr, 0, 0xff);
           //return -1;
           operands[operand_count].type = OP_INDIRECT8; break;
           break;
@@ -646,7 +646,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
           else
         if (strcasecmp(token, "w") != 0)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
@@ -675,7 +675,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
           operands[operand_count].type = OP_ADDRESS24; break;
         default:
           // FIXME - bad error message
-          //print_error_range(instr, 0, 0xff, asm_context);
+          //print_error_range(asm_context, instr, 0, 0xff);
           //return -1;
           operands[operand_count].type = OP_ADDRESS8; break;
       }
@@ -1067,7 +1067,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
           {
             if (operands[1].value < 0 || operands[1].value > 7)
             {
-              print_error_range("Bit", 0, 7, asm_context);
+              print_error_range(asm_context, "Bit", 0, 7);
               return -1;
             }
 
@@ -1087,7 +1087,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
           {
             if (operands[1].value < 0 || operands[1].value > 7)
             {
-              print_error_range("Bit", 0, 7, asm_context);
+              print_error_range(asm_context, "Bit", 0, 7);
               return -1;
             }
 
@@ -1097,7 +1097,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
 
             if (offset < -128 || offset > 127)
             {
-              print_error_range("Offset", -128, 127, asm_context);
+              print_error_range(asm_context, "Offset", -128, 127);
               return -1;
             }
 
@@ -1124,7 +1124,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
             {
               if (offset < -128 || offset > 127)
               {
-                print_error_range("Offset", -128, 127, asm_context);
+                print_error_range(asm_context, "Offset", -128, 127);
                 return -1;
               }
             }
@@ -1192,7 +1192,7 @@ int parse_instruction_stm8(AsmContext *asm_context, char *instr)
     n++;
   }
 
-  print_error_unknown_operand_combo(instr, asm_context);
+  print_error_unknown_operand_combo(asm_context, instr);
 
   return -1;
 }

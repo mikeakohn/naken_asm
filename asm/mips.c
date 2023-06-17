@@ -180,7 +180,7 @@ static int get_register_mips_rsp(
 
   if (e < 0 || e > 15)
   {
-    print_error_range("Vector element", 0, 15, asm_context);
+    print_error_range(asm_context, "Vector element", 0, 15);
     return -2;
   }
 
@@ -212,7 +212,7 @@ static int check_element(
   {
     if ((element % element_step) != 0)
     {
-      print_warning("Invalid vector element", asm_context);
+      print_warning(asm_context, "Invalid vector element");
     }
   }
 
@@ -321,7 +321,7 @@ static int add_offset(
 
   if (offset < -(1 << 17) || offset > (1 << 17) - 1)
   {
-    print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context);
+    print_error_range(asm_context, "Offset", -(1 << 17), (1 << 17) - 1);
     return -1;
   }
 
@@ -400,7 +400,7 @@ static int check_type(
   {
     if (user_type != OPERAND_TREG)
     {
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
     }
   }
@@ -409,7 +409,7 @@ static int check_type(
   {
     if (user_type != OPERAND_IMMEDIATE)
     {
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
     }
   }
@@ -418,13 +418,13 @@ static int check_type(
   {
     if (user_type != OPERAND_IMMEDIATE)
     {
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
     }
 
     if (value < 0 || value > 0xffff)
     {
-      print_error_range("Constant", 0, 0xffff, asm_context);
+      print_error_range(asm_context, "Constant", 0, 0xffff);
       return -1;
     }
   }
@@ -433,13 +433,13 @@ static int check_type(
   {
     if (user_type != OPERAND_IMMEDIATE)
     {
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
     }
 
     if (value < -32768 || value > 32767)
     {
-      print_error_range("Constant", -32768, 32767, asm_context);
+      print_error_range(asm_context, "Constant", -32768, 32767);
       return -1;
     }
   }
@@ -448,13 +448,13 @@ static int check_type(
   {
     if (user_type != OPERAND_IMMEDIATE)
     {
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
     }
 
     if (value < 0 || value > 31)
     {
-      print_error_range("Constant", 0, 31, asm_context);
+      print_error_range(asm_context, "Constant", 0, 31);
       return -1;
     }
   }
@@ -463,13 +463,13 @@ static int check_type(
   {
     if (user_type != OPERAND_IMMEDIATE)
     {
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
     }
 
     if (value < 0 || value > 31)
     {
-      print_error_range("Constant", 0, 31, asm_context);
+      print_error_range(asm_context, "Constant", 0, 31);
       return -1;
     }
   }
@@ -478,13 +478,13 @@ static int check_type(
   {
     if (user_type != OPERAND_IMMEDIATE_RS)
     {
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
     }
 
     if (value < -32768 || value > 32767)
     {
-      print_error_range("Constant", -32768, 32767, asm_context);
+      print_error_range(asm_context, "Constant", -32768, 32767);
       return -1;
     }
   }
@@ -620,14 +620,14 @@ static int get_operands_li(
   token_type = tokens_get(asm_context, token, TOKENLEN);
   if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
   num = get_register_mips(token, &operands[operand_count]);
   if (num == -1)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -641,7 +641,7 @@ static int get_operands_li(
   {
     if (asm_context->pass == 2)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -658,7 +658,7 @@ static int get_operands_li(
 
     if (mask != 0xffffffff00000000ULL && mask != 0)
     {
-      print_error_range("Constant", -0x80000000LL, 0xffffffff, asm_context);
+      print_error_range(asm_context, "Constant", -0x80000000LL, 0xffffffff);
       return -1;
     }
 
@@ -669,7 +669,7 @@ static int get_operands_li(
 
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -842,7 +842,7 @@ static int get_operands(
           token_type = tokens_get(asm_context, token, TOKENLEN);
           if (IS_NOT_TOKEN(token, '-'))
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -882,7 +882,7 @@ static int get_operands(
         {
           if (eval_expression(asm_context, &num) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -892,7 +892,7 @@ static int get_operands(
           token_type = tokens_get(asm_context, token, TOKENLEN);
           if (IS_NOT_TOKEN(token,')'))
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
         }
@@ -910,7 +910,7 @@ static int get_operands(
           token_type = tokens_get(asm_context, token, TOKENLEN);
           if (IS_NOT_TOKEN(token, '+'))
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -920,7 +920,7 @@ static int get_operands(
 
         if (IS_NOT_TOKEN(token,')'))
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -950,7 +950,7 @@ static int get_operands(
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -969,7 +969,7 @@ static int get_operands(
 
       if (eval_expression(asm_context, &num) != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -987,7 +987,7 @@ static int get_operands(
 
         if (num == -1)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -1005,7 +1005,7 @@ static int get_operands(
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -1013,7 +1013,7 @@ static int get_operands(
 
         if (IS_NOT_TOKEN(token,')'))
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
@@ -1031,13 +1031,13 @@ static int get_operands(
 
     if (IS_NOT_TOKEN(token,','))
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
     if (operand_count == 4)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -1082,7 +1082,7 @@ static int check_ee_instruction(
           case MIPS_OP_RS:
             if (operands[r].type != OPERAND_TREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1092,7 +1092,7 @@ static int check_ee_instruction(
           case MIPS_OP_RT:
             if (operands[r].type != OPERAND_TREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1102,7 +1102,7 @@ static int check_ee_instruction(
           case MIPS_OP_RD:
             if (operands[r].type != OPERAND_TREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1112,7 +1112,7 @@ static int check_ee_instruction(
           case MIPS_OP_FT:
             if (operands[r].type != OPERAND_FREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1122,7 +1122,7 @@ static int check_ee_instruction(
           case MIPS_OP_FS:
             if (operands[r].type != OPERAND_FREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1132,7 +1132,7 @@ static int check_ee_instruction(
           case MIPS_OP_FD:
             if (operands[r].type != OPERAND_FREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1142,7 +1142,7 @@ static int check_ee_instruction(
           case MIPS_OP_VIS:
             if (operands[r].type != OPERAND_VIREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1152,7 +1152,7 @@ static int check_ee_instruction(
           case MIPS_OP_VFT:
             if (operands[r].type != OPERAND_VFREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1162,7 +1162,7 @@ static int check_ee_instruction(
           case MIPS_OP_VFS:
             if (operands[r].type != OPERAND_VFREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1172,13 +1172,13 @@ static int check_ee_instruction(
           case MIPS_OP_SA:
             if (operands[r].type != OPERAND_IMMEDIATE)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < 0 || operands[r].value > 31)
             {
-              print_error_range("Constant", 0, 31, asm_context);
+              print_error_range(asm_context, "Constant", 0, 31);
               return -1;
             }
 
@@ -1188,13 +1188,13 @@ static int check_ee_instruction(
           case MIPS_OP_IMMEDIATE_SIGNED:
             if (operands[r].type != OPERAND_IMMEDIATE)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < -32768 || operands[r].value > 32767)
             {
-              print_error_range("Constant", -32768, 32767, asm_context);
+              print_error_range(asm_context, "Constant", -32768, 32767);
               return -1;
             }
 
@@ -1204,13 +1204,13 @@ static int check_ee_instruction(
           case MIPS_OP_IMMEDIATE_RS:
             if (operands[r].type != OPERAND_IMMEDIATE_RS)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < -32768 || operands[r].value > 32767)
             {
-              print_error_range("Constant", -32768, 32767, asm_context);
+              print_error_range(asm_context, "Constant", -32768, 32767);
               return -1;
             }
 
@@ -1221,7 +1221,7 @@ static int check_ee_instruction(
           case MIPS_OP_LABEL:
             if (operands[r].type != OPERAND_IMMEDIATE)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1234,13 +1234,13 @@ static int check_ee_instruction(
           case MIPS_OP_PREG:
             if (operands[r].type != OPERAND_IMMEDIATE)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < 0 || operands[r].value > 1)
             {
-              print_error_range("Constant", 0, 1, asm_context);
+              print_error_range(asm_context, "Constant", 0, 1);
               return -1;
             }
 
@@ -1251,13 +1251,13 @@ static int check_ee_instruction(
             {
               if (operands[r].type != OPERAND_IMMEDIATE)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
               if (operands[r].value < 0 || operands[r].value >= (1 << 20))
               {
-                print_error_range("Constant", 0, (1 << 20) - 1, asm_context);
+                print_error_range(asm_context, "Constant", 0, (1 << 20) - 1);
                 return -1;
               }
 
@@ -1269,7 +1269,7 @@ static int check_ee_instruction(
             {
               if (operands[r].value < 0 || operands[r].value > 0x1f)
               {
-                print_error_range("Constant", 0, 0x1f, asm_context);
+                print_error_range(asm_context, "Constant", 0, 0x1f);
                 return -1;
               }
             }
@@ -1297,7 +1297,7 @@ static int check_ee_instruction(
 
             break;
           default:
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
         }
       }
@@ -1344,7 +1344,7 @@ static int check_other_instruction(
           case MIPS_OP_RS:
             if (operands[r].type != OPERAND_TREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1354,7 +1354,7 @@ static int check_other_instruction(
           case MIPS_OP_RT:
             if (operands[r].type != OPERAND_TREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1364,7 +1364,7 @@ static int check_other_instruction(
           case MIPS_OP_RD:
             if (operands[r].type != OPERAND_TREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1374,7 +1374,7 @@ static int check_other_instruction(
           case MIPS_OP_FT:
             if (operands[r].type != OPERAND_FREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1384,7 +1384,7 @@ static int check_other_instruction(
           case MIPS_OP_FS:
             if (operands[r].type != OPERAND_FREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1394,7 +1394,7 @@ static int check_other_instruction(
           case MIPS_OP_FD:
             if (operands[r].type != OPERAND_FREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1404,7 +1404,7 @@ static int check_other_instruction(
           case MIPS_OP_VIS:
             if (operands[r].type != OPERAND_VIREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1414,7 +1414,7 @@ static int check_other_instruction(
           case MIPS_OP_VFT:
             if (operands[r].type != OPERAND_VFREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1424,7 +1424,7 @@ static int check_other_instruction(
           case MIPS_OP_VFS:
             if (operands[r].type != OPERAND_VFREG)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1434,13 +1434,13 @@ static int check_other_instruction(
           case MIPS_OP_SA:
             if (operands[r].type != OPERAND_IMMEDIATE)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < 0 || operands[r].value > 31)
             {
-              print_error_range("Constant", 0, 31, asm_context);
+              print_error_range(asm_context, "Constant", 0, 31);
               return -1;
             }
 
@@ -1450,13 +1450,13 @@ static int check_other_instruction(
           case MIPS_OP_IMMEDIATE_SIGNED:
             if (operands[r].type != OPERAND_IMMEDIATE)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < -32768 || operands[r].value > 32767)
             {
-              print_error_range("Constant", -32768, 32767, asm_context);
+              print_error_range(asm_context, "Constant", -32768, 32767);
               return -1;
             }
 
@@ -1466,13 +1466,13 @@ static int check_other_instruction(
           case MIPS_OP_IMMEDIATE_RS:
             if (operands[r].type != OPERAND_IMMEDIATE_RS)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < -32768 || operands[r].value > 32767)
             {
-              print_error_range("Constant", -32768, 32767, asm_context);
+              print_error_range(asm_context, "Constant", -32768, 32767);
               return -1;
             }
 
@@ -1483,7 +1483,7 @@ static int check_other_instruction(
           case MIPS_OP_LABEL:
             if (operands[r].type != OPERAND_IMMEDIATE)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -1496,13 +1496,13 @@ static int check_other_instruction(
           case MIPS_OP_PREG:
             if (operands[r].type != OPERAND_IMMEDIATE)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
             if (operands[r].value < 0 || operands[r].value > 1)
             {
-              print_error_range("Constant", 0, 1, asm_context);
+              print_error_range(asm_context, "Constant", 0, 1);
               return -1;
             }
 
@@ -1513,13 +1513,13 @@ static int check_other_instruction(
             {
               if (operands[r].type != OPERAND_IMMEDIATE)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
               if (operands[r].value < 0 || operands[r].value >= (1 << 20))
               {
-                print_error_range("Constant", 0, (1 << 20) - 1, asm_context);
+                print_error_range(asm_context, "Constant", 0, (1 << 20) - 1);
                 return -1;
               }
 
@@ -1531,7 +1531,7 @@ static int check_other_instruction(
             {
               if (operands[r].value < 0 || operands[r].value > 0x1f)
               {
-                print_error_range("Constant", 0, 0x1f, asm_context);
+                print_error_range(asm_context, "Constant", 0, 0x1f);
                 return -1;
               }
             }
@@ -1559,7 +1559,7 @@ static int check_other_instruction(
 
             break;
           default:
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
         }
       }
@@ -1673,7 +1673,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
   {
     if (operand_count != 1)
     {
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
     }
 
@@ -1724,7 +1724,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
       char shift_table[] = { 0, 0, 21, 16, 0, 0, 0, 0, 0, 0, 16, 0, 6, 11, 16 };
       if (mips_i_table[n].operand_count != operand_count)
       {
-        print_error_opcount(instr, asm_context);
+        print_error_opcount(asm_context, instr);
         return -1;
       }
 
@@ -1751,7 +1751,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
           if (offset < -(1 << 17) ||
               offset > (1 << 17) - 1)
           {
-            print_error_range("Offset", -(1 << 17), (1 << 17) - 1, asm_context);
+            print_error_range(asm_context, "Offset", -(1 << 17), (1 << 17) - 1);
             return -1;
           }
 
@@ -1789,7 +1789,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_operands(instr, asm_context);
+          print_error_illegal_operands(asm_context, instr);
           return -1;
         }
       }
@@ -1814,7 +1814,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
       {
         if (operand_count != 3)
         {
-          print_error_opcount(instr, asm_context);
+          print_error_opcount(asm_context, instr);
           return -1;
         }
 
@@ -1822,7 +1822,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             operands[1].type != OPERAND_TREG ||
             operands[2].type != OPERAND_IMMEDIATE)
         {
-          print_error_illegal_operands(instr, asm_context);
+          print_error_illegal_operands(asm_context, instr);
           return -1;
         }
 
@@ -1843,14 +1843,14 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
       {
         if (operand_count != 2)
         {
-          print_error_opcount(instr, asm_context);
+          print_error_opcount(asm_context, instr);
           return -1;
         }
 
         if (operands[0].type != OPERAND_TREG ||
             operands[1].type != OPERAND_IMMEDIATE)
         {
-          print_error_illegal_operands(instr, asm_context);
+          print_error_illegal_operands(asm_context, instr);
           return -1;
         }
 
@@ -1880,7 +1880,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
     {
       if (mips_special_table[n].operand_count != operand_count)
       {
-        print_error_illegal_operands(instr, asm_context);
+        print_error_illegal_operands(asm_context, instr);
         return -1;
       }
 
@@ -1947,7 +1947,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               if (operands[operand_index].value < 1 ||
                   operands[operand_index].value > 32)
               {
-                print_error_range("Constant", 1, 32, asm_context);
+                print_error_range(asm_context, "Constant", 1, 32);
                 return -1;
               }
 
@@ -1960,7 +1960,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               if (operands[operand_index].value < 1 ||
                   operands[operand_index].value > 32)
               {
-                print_error_range("size", 1, 32, asm_context);
+                print_error_range(asm_context, "size", 1, 32);
                 return -1;
               }
 
@@ -1969,7 +1969,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               if (operands[operand_index].value < 1 ||
                   operands[operand_index].value > 32)
               {
-                print_error_range("pos+size", 1, 32, asm_context);
+                print_error_range(asm_context, "pos+size", 1, 32);
                 return -1;
               }
             }
@@ -1977,7 +1977,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             {
               if (operands[r].value < 0 || operands[r].value > 31)
               {
-                print_error_range("Constant", 0, 31, asm_context);
+                print_error_range(asm_context, "Constant", 0, 31);
                 return -1;
               }
             }
@@ -2075,7 +2075,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_WT:
               if (operands[r].type != OPERAND_WREG)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
@@ -2085,7 +2085,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_WS:
               if (operands[r].type != OPERAND_WREG)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
@@ -2095,7 +2095,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_WD:
               if (operands[r].type != OPERAND_WREG)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
@@ -2103,7 +2103,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
 
               break;
             default:
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
           }
         }
@@ -2133,13 +2133,13 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
 
         if ((mips_ee_vector[n].flags & FLAG_XYZ) != 0 && dest != 0xe)
         {
-          print_error_illegal_operands(instr, asm_context);
+          print_error_illegal_operands(asm_context, instr);
           return -1;
         }
 
         if ((mips_ee_vector[n].flags & FLAG_DEST) == 0 && dest != 0x00)
         {
-          print_error_illegal_operands(instr, asm_context);
+          print_error_illegal_operands(asm_context, instr);
           return -1;
         }
 
@@ -2154,7 +2154,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_VFT:
               if (operands[r].type != OPERAND_VFREG)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
@@ -2170,7 +2170,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_VFS:
               if (operands[r].type != OPERAND_VFREG)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
@@ -2186,7 +2186,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_VFD:
               if (operands[r].type != OPERAND_VFREG)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               opcode |= (operands[r].value << 6);
@@ -2194,7 +2194,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_VIT:
               if (operands[r].type != OPERAND_VIREG)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               opcode |= (operands[r].value << 16);
@@ -2202,7 +2202,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_VIS:
               if (operands[r].type != OPERAND_VIREG)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               opcode |= (operands[r].value << 11);
@@ -2210,7 +2210,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_VID:
               if (operands[r].type != OPERAND_VIREG)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               opcode |= (operands[r].value << 6);
@@ -2218,62 +2218,62 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_VI01:
               if (operands[r].type != OPERAND_VIREG || operands[r].value != 1)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
             case MIPS_OP_VI27:
               if (operands[r].type != OPERAND_VIREG || operands[r].value != 27)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
             case MIPS_OP_I:
               if (operands[r].type != OPERAND_I)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
             case MIPS_OP_Q:
               if (operands[r].type != OPERAND_Q)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
             case MIPS_OP_P:
               if (operands[r].type != OPERAND_P)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
             case MIPS_OP_R:
               if (operands[r].type != OPERAND_R)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
             case MIPS_OP_ACC:
               if (operands[r].type != OPERAND_ACC)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
             case MIPS_OP_OFFSET_VBASE:
               if (operands[r].type != OPERAND_OFFSET_VBASE)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
               if (get_field_number(dest) == -1)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
@@ -2281,7 +2281,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
 
               if (offset < -0x400 || offset > 0x3ff)
               {
-                print_error_range("Address", -0x400, 0x3ff, asm_context);
+                print_error_range(asm_context, "Address", -0x400, 0x3ff);
                 return -1;
               }
 
@@ -2300,7 +2300,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               if (operands[r].type != OPERAND_OFFSET_VBASE ||
                   operands[r].value != 0)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
@@ -2318,7 +2318,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               if (operands[r].type != OPERAND_OFFSET_VBASE_DEC ||
                   operands[r].value != 0)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
@@ -2336,7 +2336,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               if (operands[r].type != OPERAND_OFFSET_VBASE_INC ||
                   operands[r].value != 0)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
@@ -2353,7 +2353,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_IMMEDIATE15_2:
               if (operands[r].type != OPERAND_IMMEDIATE)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
@@ -2367,7 +2367,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
 
               if (operands[r].value < 0 || operands[r].value > 0x7fff)
               {
-                print_error_range("Immediate", 0, 0x7fff << 8, asm_context);
+                print_error_range(asm_context, "Immediate", 0, 0x7fff << 8);
                 return -1;
               }
 
@@ -2377,13 +2377,13 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             case MIPS_OP_IMMEDIATE5:
               if (operands[r].type != OPERAND_IMMEDIATE)
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
 
               if (operands[r].value < -16 || operands[r].value > 15)
               {
-                print_error_range("Immediate", -16, 15, asm_context);
+                print_error_range(asm_context, "Immediate", -16, 15);
                 return -1;
               }
 
@@ -2391,7 +2391,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
 
               break;
             default:
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
           }
         }
@@ -2445,7 +2445,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             if (operands[1].value < offset_min ||
                 operands[1].value > offset_max)
             {
-              print_error_range("Offset", offset_min, offset_max, asm_context);
+              print_error_range(asm_context, "Offset", offset_min, offset_max);
               return -1;
             }
 
@@ -2551,7 +2551,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
             if (operands[0].rsp_element.type != RSP_ELEMENT_VECTOR ||
                 operands[1].rsp_element.type != RSP_ELEMENT_VECTOR)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -2614,11 +2614,11 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
 
   if (found == 1)
   {
-    print_error_illegal_operands(instr, asm_context);
+    print_error_illegal_operands(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

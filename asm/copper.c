@@ -61,14 +61,14 @@ static int parse_wait_or_skip(
     {
       if (IS_NOT_TOKEN(token, ','))
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
     }
 
     if (param_count == 5)
     {
-      print_error_opcount(instr, asm_context);
+      print_error_opcount(asm_context, instr);
     }
 
     if (param_count == 0)
@@ -89,7 +89,7 @@ static int parse_wait_or_skip(
 
     if (eval_expression(asm_context, &n) != 0)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -98,7 +98,7 @@ static int parse_wait_or_skip(
       case 1:
         if (n < 0 || n > 0x7f)
         {
-          print_error_range("X", 0, 0x7f, asm_context);
+          print_error_range(asm_context, "X", 0, 0x7f);
           return -1;
         }
 
@@ -107,7 +107,7 @@ static int parse_wait_or_skip(
       case 2:
         if (n < 0 || n > 0xff)
         {
-          print_error_range("Y", 0, 0xff, asm_context);
+          print_error_range(asm_context, "Y", 0, 0xff);
           return -1;
         }
 
@@ -116,7 +116,7 @@ static int parse_wait_or_skip(
       case 3:
         if (n < 0 || n > 0x7f)
         {
-          print_error_range("Compare X", 0, 0x7f, asm_context);
+          print_error_range(asm_context, "Compare X", 0, 0x7f);
           return -1;
         }
 
@@ -125,7 +125,7 @@ static int parse_wait_or_skip(
       case 4:
         if (n < 0 || n > 0x7f)
         {
-          print_error_range("Compare Y", 0, 0x7f, asm_context);
+          print_error_range(asm_context, "Compare Y", 0, 0x7f);
           return -1;
         }
 
@@ -165,7 +165,7 @@ static int parse_move(AsmContext *asm_context)
 
   if (eval_expression(asm_context, &n) != 0)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -177,7 +177,7 @@ static int parse_move(AsmContext *asm_context)
 
   if (n < 0 || n > 254)
   {
-    print_error_range("Register", 0, 254, asm_context);
+    print_error_range(asm_context, "Register", 0, 254);
     return -1;
   }
 
@@ -187,13 +187,13 @@ static int parse_move(AsmContext *asm_context)
 
   if (eval_expression(asm_context, &n) != 0)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
   if (n < -32768 || n > 0xffff)
   {
-    print_error_range("Value", -32768, 0xffff, asm_context);
+    print_error_range(asm_context, "Value", -32768, 0xffff);
     return -1;
   }
 
@@ -203,7 +203,7 @@ static int parse_move(AsmContext *asm_context)
 
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -236,7 +236,7 @@ int parse_instruction_copper(AsmContext *asm_context, char *instr)
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
     return -1;
   }
 

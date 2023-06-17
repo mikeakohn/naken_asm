@@ -451,7 +451,7 @@ int assemble(AsmContext *asm_context)
     }
       else
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }

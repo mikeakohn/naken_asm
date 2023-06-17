@@ -59,7 +59,7 @@ int parse_instruction_8008(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       break;
@@ -119,7 +119,7 @@ int parse_instruction_8008(AsmContext *asm_context, char *instr)
       {
         if (asm_context->pass == 2)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -137,7 +137,7 @@ int parse_instruction_8008(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token, ',') || operand_count == 2)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -311,8 +311,9 @@ int parse_instruction_8008(AsmContext *asm_context, char *instr)
             if (operands[0].value >= 0xc0 ||
                (operands[0].value & 0x7) != 0)
             {
-              print_error("Subroutine address needs to be a multiple of 8.",
-                asm_context);
+              print_error(
+                asm_context,
+                "Subroutine address needs to be a multiple of 8.");
             }
 
             opcode = table_8008[n].opcode | operands[0].value;
@@ -360,11 +361,11 @@ int parse_instruction_8008(AsmContext *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

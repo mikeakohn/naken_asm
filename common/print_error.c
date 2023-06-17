@@ -16,28 +16,31 @@
 #include "common/assembler.h"
 #include "common/print_error.h"
 
-void print_error(const char *s, AsmContext *asm_context)
+void print_error(AsmContext *asm_context, const char *s)
 {
   printf("Error: %s at %s:%d\n", s,
     asm_context->tokens.filename,
     asm_context->tokens.line);
 }
 
-void print_warning(const char *s, AsmContext *asm_context)
+void print_warning(AsmContext *asm_context, const char *s)
 {
   printf("Warning: %s at %s:%d\n", s,
     asm_context->tokens.filename,
     asm_context->tokens.line);
 }
 
-void print_error_unexp(const char *s, AsmContext *asm_context)
+void print_error_unexp(AsmContext *asm_context, const char *s)
 {
   printf("Error: Unexpected token '%s' at %s:%d\n", *s == '\n' ? "<EOL>" : s,
     asm_context->tokens.filename,
     asm_context->tokens.line);
 }
 
-void print_error_expecting(const char *wanted, const char *got, AsmContext *asm_context)
+void print_error_expecting(
+  AsmContext *asm_context,
+  const char *wanted,
+  const char *got)
 {
   printf("Error: Expecting '%s' but got '%s' at %s:%d\n",
     wanted,
@@ -46,42 +49,46 @@ void print_error_expecting(const char *wanted, const char *got, AsmContext *asm_
     asm_context->tokens.line);
 }
 
-void print_error_unknown_instr(const char *instr, AsmContext *asm_context)
+void print_error_unknown_instr(AsmContext *asm_context, const char *instr)
 {
   printf("Error: Unknown instruction '%s' at %s:%d\n", instr,
     asm_context->tokens.filename,
     asm_context->tokens.line);
 }
 
-void print_error_opcount(const char *instr, AsmContext *asm_context)
+void print_error_opcount(AsmContext *asm_context, const char *instr)
 {
   printf("Error: Wrong number of operands for '%s' at %s:%d\n", instr,
     asm_context->tokens.filename,
     asm_context->tokens.line);
 }
 
-void print_error_illegal_operands(const char *instr, AsmContext *asm_context)
+void print_error_illegal_operands(AsmContext *asm_context, const char *instr)
 {
   printf("Error: Illegal operands for '%s' at %s:%d\n", instr,
     asm_context->tokens.filename,
     asm_context->tokens.line);
 }
 
-void print_error_illegal_expression(const char *instr, AsmContext *asm_context)
+void print_error_illegal_expression(AsmContext *asm_context, const char *instr)
 {
   printf("Error: Illegal expression for '%s' at %s:%d\n", instr,
     asm_context->tokens.filename,
     asm_context->tokens.line);
 }
 
-void print_error_illegal_register(const char *instr, AsmContext *asm_context)
+void print_error_illegal_register(AsmContext *asm_context, const char *instr)
 {
   printf("Error: Illegal register for '%s' at %s:%d\n", instr,
     asm_context->tokens.filename,
     asm_context->tokens.line);
 }
 
-void print_error_range(const char *s, int64_t r1, int64_t r2, AsmContext *asm_context)
+void print_error_range(
+  AsmContext *asm_context,
+  const char *s,
+  int64_t r1,
+  int64_t r2)
 {
   printf("Error: %s out of range (%" PRId64 ",%" PRId64 ") at %s:%d\n",
     s, r1, r2,
@@ -89,7 +96,9 @@ void print_error_range(const char *s, int64_t r1, int64_t r2, AsmContext *asm_co
     asm_context->tokens.line);
 }
 
-void print_error_unknown_operand_combo(const char *instr, AsmContext *asm_context)
+void print_error_unknown_operand_combo(
+  AsmContext *asm_context,
+  const char *instr)
 {
   printf("Error: Unknown operands combo for '%s' at %s:%d.\n", instr,
     asm_context->tokens.filename,

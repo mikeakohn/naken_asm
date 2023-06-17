@@ -107,7 +107,7 @@ static int parse_defined(AsmContext *asm_context)
 
   if (IS_NOT_TOKEN(token,'('))
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -131,7 +131,7 @@ static int parse_defined(AsmContext *asm_context)
 
   if (IS_NOT_TOKEN(token,')'))
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -223,14 +223,14 @@ printf("debug> #if: %d) %s   n=%d paren_count=%d precedence=%d state=%d\n", toke
 #if 0
       if (paren_count != 0)
       {
-        print_error("Unbalanced parentheses.", asm_context);
+        print_error(asm_context, "Unbalanced parentheses.");
         return -1;
       }
 #endif
 
       if (state != 1)
       {
-        print_error("Unexpected end of expression.", asm_context);
+        print_error(asm_context, "Unexpected end of expression.");
         return -1;
       }
 
@@ -274,13 +274,13 @@ printf("debug> #if eval_operation() @EOL  n=%d precedence=%d state=%d\n", n, pre
         {
           if (paren_count == 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
           if (state != 1)
           {
-            print_error("Unexpected end of expression.", asm_context);
+            print_error(asm_context, "Unexpected end of expression.");
             return -1;
           }
 
@@ -323,7 +323,7 @@ printf("debug> #if: parse_defined()=%d\n", n);
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
@@ -349,7 +349,7 @@ printf("debug> #if: parse_defined()=%d\n", n);
     {
       if (paren_count == 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -371,7 +371,7 @@ printf("debug> #if: parse_defined()=%d\n", n);
 
       if (get_operator(token, &next_operator) == -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -413,7 +413,7 @@ printf("debug> #if eval_operation() @ state 2  n=%d\n", n);
       continue;
     }
 
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -439,7 +439,7 @@ printf("debug> parse_ifdef_expression() result is %d\n", num);
 
   if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
   }
     else
   {

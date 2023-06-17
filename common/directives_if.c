@@ -32,7 +32,7 @@ int ifdef_ignore(AsmContext *asm_context)
 
     if (token_type == TOKEN_EOF)
     {
-      print_error("Missing endif", asm_context);
+      print_error(asm_context, "Missing endif");
       return -1;
     }
 
@@ -98,7 +98,7 @@ int parse_ifdef(AsmContext *asm_context, int ifndef)
 
   if (token_type != TOKEN_STRING)
   {
-    print_error("#ifdef has no label", asm_context);
+    print_error(asm_context, "#ifdef has no label");
     return -1;
   }
 

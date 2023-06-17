@@ -70,7 +70,7 @@ int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
 
       if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -87,7 +87,7 @@ int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
       if (token_type != TOKEN_NUMBER)
       {
         if (asm_context->pass == 1) { return 1; }
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -95,7 +95,7 @@ int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
 
       if (num < 0 || num > 3)
       {
-        print_error_range("Constant", 0, 3, asm_context);
+        print_error_range(asm_context, "Constant", 0, 3);
         return -1;
       }
 
@@ -107,7 +107,7 @@ int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
 
       if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -123,14 +123,14 @@ int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
       if (token_type != TOKEN_NUMBER)
       {
         if (asm_context->pass == 1) { return 1; }
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
       int num = atoi(token);
       if (num < 0 || num > 15)
       {
-        print_error_range("Constant", 0, 15, asm_context);
+        print_error_range(asm_context, "Constant", 0, 15);
         return -1;
       }
 
@@ -149,7 +149,7 @@ int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
 
       if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -169,7 +169,7 @@ int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
       {
         if (asm_context->pass == 2)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -184,7 +184,7 @@ int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
 
       if (page < 0 || page > 15)
       {
-        print_error_range("Page", 0, 15, asm_context);
+        print_error_range(asm_context, "Page", 0, 15);
         return -1;
       }
 
@@ -200,7 +200,7 @@ int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
 
       if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -208,7 +208,7 @@ int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
     }
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }
@@ -234,7 +234,7 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
 
       if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -251,7 +251,7 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
       if (token_type != TOKEN_NUMBER)
       {
         if (asm_context->pass == 1) { return 1; }
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -261,7 +261,7 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
       {
         if (num < 0 || num > 7)
         {
-          print_error_range("Constant", 0, 7, asm_context);
+          print_error_range(asm_context, "Constant", 0, 7);
           return -1;
         }
 
@@ -273,7 +273,7 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
       {
         if (num < 0 || num > 3)
         {
-          print_error_range("Constant", 0, 3, asm_context);
+          print_error_range(asm_context, "Constant", 0, 3);
           return -1;
         }
 
@@ -286,7 +286,7 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
 
       if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -303,14 +303,14 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
       if (token_type != TOKEN_NUMBER)
       {
         if (asm_context->pass == 1) { return 1; }
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
       int num = atoi(token);
       if (num < 0 || num > 15)
       {
-        print_error_range("Constant", 0, 15, asm_context);
+        print_error_range(asm_context, "Constant", 0, 15);
         return -1;
       }
 
@@ -329,7 +329,7 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
 
       if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -349,7 +349,7 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
       {
         if (asm_context->pass == 2)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -364,7 +364,7 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
 
       if (page < 0 || page > 15)
       {
-        print_error_range("Page", 0, 15, asm_context);
+        print_error_range(asm_context, "Page", 0, 15);
         return -1;
       }
 
@@ -381,7 +381,7 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
 
       if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -389,7 +389,7 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
     }
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }

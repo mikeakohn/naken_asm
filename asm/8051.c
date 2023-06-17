@@ -68,7 +68,7 @@ static int compute_bit_address(
   {
     if ((address & 0x07) != 0)
     {
-      print_error("Not bit addressable", asm_context);
+      print_error(asm_context, "Not bit addressable");
     }
 
     return address + bit;
@@ -79,7 +79,7 @@ static int compute_bit_address(
     return ((address - 0x20) * 8) + bit;
   }
 
-  print_error("Not bit addressable", asm_context);
+  print_error(asm_context, "Not bit addressable");
 
   return -1;
 }
@@ -107,7 +107,7 @@ int parse_instruction_8051(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       break;
@@ -178,13 +178,13 @@ int parse_instruction_8051(AsmContext *asm_context, char *instr)
 
         if (operands[operand_count].type == 0)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
         else
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
     }
@@ -200,7 +200,7 @@ int parse_instruction_8051(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -310,7 +310,7 @@ int parse_instruction_8051(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token, ',') || operand_count == 3)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -415,7 +415,7 @@ printf("\n");
 
               if (high_bits != (address & 0xf800))
               {
-                print_error("Destination address outside 2k block.", asm_context);
+                print_error(asm_context, "Destination address outside 2k block.");
                 return -1;
               }
             }
@@ -471,7 +471,7 @@ printf("\n");
 
               if (num < -128 || num > 127)
               {
-                print_error_range("Offset", -128, 127, asm_context);
+                print_error_range(asm_context, "Offset", -128, 127);
                 return -1;
               }
 
@@ -539,11 +539,11 @@ printf("\n");
   {
     if (matched == 1)
     {
-      print_error_unknown_operand_combo(instr, asm_context);
+      print_error_unknown_operand_combo(asm_context, instr);
     }
       else
     {
-      print_error_unknown_instr(instr, asm_context);
+      print_error_unknown_instr(asm_context, instr);
     }
 
     return -1;

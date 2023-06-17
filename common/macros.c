@@ -91,7 +91,7 @@ static int macros_parse_token(
     {
       if (ptr == 0)
       {
-        print_error("Bad macro name", asm_context);
+        print_error(asm_context, "Bad macro name");
         return -1;
       }
 
@@ -483,7 +483,7 @@ printf("debug> macros_parse() param %s\n", token);
 
       if (param_count > 255)
       {
-        print_error("Error: Too many macro parameters", asm_context);
+        print_error(asm_context, "Error: Too many macro parameters");
         return -1;
       }
 
@@ -491,7 +491,7 @@ printf("debug> macros_parse() param %s\n", token);
 
       if (ptr + len + 2 > 1024)
       {
-        print_error("Error: Macro with too long parameter list", asm_context);
+        print_error(asm_context, "Error: Macro with too long parameter list");
         return -1;
       }
 
@@ -509,7 +509,7 @@ printf("debug> macros_parse() param %s\n", token);
       // Make sure there is a comma between parameters
       if (IS_NOT_TOKEN(token,','))
       {
-        print_error("Expected ',' or ')'", asm_context);
+        print_error(asm_context, "Expected ',' or ')'");
         return -1;
       }
     }
@@ -525,7 +525,7 @@ printf("debug> macros_parse() param %s\n", token);
 
     if (token_type != TOKEN_EOL)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -616,7 +616,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
 
         if (ch != '\n')
         {
-          print_error("Error: Expected end-of_line", asm_context);
+          print_error(asm_context, "Error: Expected end-of_line");
           return -1;
         }
 
@@ -694,7 +694,7 @@ char *macros_expand_params(
 
   if (ch != '(')
   {
-    print_error("Macro expects params", asm_context);
+    print_error(asm_context, "Macro expects params");
     asm_context->error = 1;
     return NULL;
   }
@@ -716,7 +716,7 @@ char *macros_expand_params(
 
     if (ch == '\n' || ch == EOF)
     {
-      print_error("Macro expects ')'", asm_context);
+      print_error(asm_context, "Macro expects ')'");
       return NULL;
     }
 

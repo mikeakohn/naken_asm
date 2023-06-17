@@ -186,13 +186,13 @@ static int parse_unary(AsmContext *asm_context, int *num, int operation)
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (IS_NOT_TOKEN(token,')'))
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
     else
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -242,19 +242,19 @@ printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
       if (token[0] == '\\')
       {
         int e = tokens_escape_char(asm_context, (unsigned char *)token);
-        if (e == 0) return -1;
-        if (token[e+1] != 0)
+        if (e == 0) { return -1; }
+        if (token[e + 1] != 0)
         {
-          print_error("Quoted literal too long.", asm_context);
+          print_error(asm_context, "Quoted literal too long.");
           return -1;
         }
         sprintf(token, "%d", token[e]);
       }
         else
       {
-        if (token[1]!=0)
+        if (token[1] != 0)
         {
-          print_error("Quoted literal too long.", asm_context);
+          print_error(asm_context, "Quoted literal too long.");
           return -1;
         }
         sprintf(token, "%d", token[0]);
@@ -305,7 +305,7 @@ printf("Paren got back %d\n", paren_num);
       token_type = tokens_get(asm_context, token, TOKENLEN);
       if (!(token[1] == 0 && token[0] == ')'))
       {
-        print_error("No matching ')'", asm_context);
+        print_error(asm_context, "No matching ')'");
         return -1;
       }
       continue;
@@ -339,7 +339,7 @@ printf("Paren got back %d\n", paren_num);
 
       if (num_stack_ptr == 3)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -359,7 +359,7 @@ PRINT_STACK()
 
       if (get_operator(token, &operator) == -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -373,7 +373,7 @@ PRINT_STACK()
 
         if (num_stack_ptr == 3)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -420,7 +420,7 @@ printf("OPERATOR '%s': precedence last=%d this=%d\n", token, last_operator->prec
     {
       if (asm_context->pass != 1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
       }
       return -1;
     }

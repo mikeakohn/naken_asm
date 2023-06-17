@@ -194,7 +194,7 @@ static int ea_immediate(
   {
     if (operand->value < -32768 || operand->value > 65535)
     {
-      print_error_range("Immediate", -32768, 65535, asm_context);
+      print_error_range(asm_context, "Immediate", -32768, 65535);
       return -1;
     }
     add_bin16(asm_context, operand->value, IS_OPCODE);
@@ -268,7 +268,7 @@ static int ea_displacement(
 {
   if (operand->value < -32768 || operand->value > 32767)
   {
-    print_error_range("Displacement", -32768, 32767, asm_context);
+    print_error_range(asm_context, "Displacement", -32768, 32767);
     return -1;
   }
 
@@ -294,7 +294,7 @@ static int ea_displacement_xn(
 {
   if (operand->value < -128 || operand->value > 127)
   {
-    print_error_range("Displacement", -128, 127, asm_context);
+    print_error_range(asm_context, "Displacement", -128, 127);
     return -1;
   }
 
@@ -370,7 +370,7 @@ static int ea_generic_all(
       break;
   }
 
-  print_error_illegal_operands(instr, asm_context);
+  print_error_illegal_operands(asm_context, instr);
   return -1;
 }
 
@@ -429,7 +429,7 @@ static int ea_generic_new(
       break;
   }
 
-  print_error_illegal_operands(instr, asm_context);
+  print_error_illegal_operands(asm_context, instr);
   return -1;
 }
 
@@ -543,21 +543,21 @@ static int write_immediate(
     case OPERAND_A_REG:
       if ((table_68000->omit_dst & MODE_AN) != 0)
       {
-        print_error_illegal_operands(instr, asm_context);
+        print_error_illegal_operands(asm_context, instr);
         return -1;
       }
       break;
     case OPERAND_INDEX_DATA16_PC:
       if ((table_68000->omit_dst & MODE_D16_PC) != 0)
       {
-        print_error_illegal_operands(instr, asm_context);
+        print_error_illegal_operands(asm_context, instr);
         return -1;
       }
       break;
     case OPERAND_INDEX_DATA8_PC_XN:
       if ((table_68000->omit_dst & MODE_D8_PC_XN) != 0)
       {
-        print_error_illegal_operands(instr, asm_context);
+        print_error_illegal_operands(asm_context, instr);
         return -1;
       }
       break;
@@ -592,7 +592,7 @@ static int write_immediate(
       opcode |= (7 << 3) | 1;
       break;
     default:
-      print_error_illegal_operands(instr, asm_context);
+      print_error_illegal_operands(asm_context, instr);
       return -1;
   }
 
@@ -652,7 +652,7 @@ static int write_shift(
   {
     if (operands[0].value < 1 || operands[0].value > 8)
     {
-      print_error_range("Shift", 1, 8, asm_context);
+      print_error_range(asm_context, "Shift", 1, 8);
       return -1;
     }
 
@@ -688,7 +688,7 @@ static int write_vector(
   {
     if (operands[0].value < 0 || operands[0].value > 15)
     {
-      print_error_range("Vector", 0, 15, asm_context);
+      print_error_range(asm_context, "Vector", 0, 15);
       return -1;
     }
   }
@@ -696,7 +696,7 @@ static int write_vector(
   {
     if (operands[0].value < 0 || operands[0].value > 7)
     {
-      print_error_range("Vector", 0, 7, asm_context);
+      print_error_range(asm_context, "Vector", 0, 7);
       return -1;
     }
   }
@@ -829,7 +829,7 @@ static int write_quick(
     if (operands[1].type != OPERAND_D_REG) { return 0; }
     if (operands[0].value < -128 || operands[0].value > 127)
     {
-      print_error_range("Quick", -128, 127, asm_context);
+      print_error_range(asm_context, "Quick", -128, 127);
       return -1;
     }
     uint8_t value = (uint8_t)operands[0].value;
@@ -840,7 +840,7 @@ static int write_quick(
   //if (size == SIZE_NONE) { return 0; }
   if (operands[0].value < 1 || operands[0].value > 8)
   {
-    print_error_range("Quick", 1, 8, asm_context);
+    print_error_range(asm_context, "Quick", 1, 8);
     return -1;
   }
 
@@ -1094,7 +1094,7 @@ static int write_bit_imm_ea(
   {
     if (operands[0].value < 0 || operands[0].value > 127)
     {
-      print_error_range("Immediate", 0, 127, asm_context);
+      print_error_range(asm_context, "Immediate", 0, 127);
       return -1;
     }
 
@@ -1103,7 +1103,7 @@ static int write_bit_imm_ea(
 
     if (len <= 0)
     {
-      print_error_illegal_expression(instr, asm_context);
+      print_error_illegal_expression(asm_context, instr);
       return -1;
     }
 
@@ -1191,7 +1191,7 @@ static int write_logic_ccr(
   {
     if (operands[0].value < 0 || operands[0].value > 255)
     {
-      print_error_range("Immediate", 0, 255, asm_context);
+      print_error_range(asm_context, "Immediate", 0, 255);
       return -1;
     }
   }
@@ -1199,7 +1199,7 @@ static int write_logic_ccr(
   {
     if (operands[0].value < 0 || operands[0].value > 0xffff)
     {
-      print_error_range("Immediate", 0, 0xffff, asm_context);
+      print_error_range(asm_context, "Immediate", 0, 0xffff);
       return -1;
     }
   }
@@ -1247,7 +1247,7 @@ static int write_branch(
     offset = operands[0].value - (asm_context->address + 2);
     if ((offset < -128 || offset > 127) || offset == 0 || offset == -1)
     {
-      print_error_range("Offset", -128, 127, asm_context);
+      print_error_range(asm_context, "Offset", -128, 127);
       return -1;
     }
 
@@ -1261,7 +1261,7 @@ static int write_branch(
 
     if (offset < -32768 || offset > 32767)
     {
-      print_error_range("Offset", -32768, 32767, asm_context);
+      print_error_range(asm_context, "Offset", -32768, 32767);
       return -1;
     }
 
@@ -1323,7 +1323,7 @@ static int write_link(
   {
     if (operands[1].value < -32768 || operands[1].value > 32767)
     {
-      print_error_range("Displacement", -32768, 32767, asm_context);
+      print_error_range(asm_context, "Displacement", -32768, 32767);
       return -1;
     }
 
@@ -1335,7 +1335,7 @@ static int write_link(
   {
     if (operands[1].value < (int)0x80000000 || operands[1].value > 0x7fffffff)
     {
-      print_error_range("Displacement", -32768, 32767, asm_context);
+      print_error_range(asm_context, "Displacement", -32768, 32767);
       return -1;
     }
 
@@ -1380,7 +1380,7 @@ static int write_movep(
   {
     if (operands[1].value < -32768 || operands[1].value > 32767)
     {
-      print_error_range("Offset", -32768, 32767, asm_context);
+      print_error_range(asm_context, "Offset", -32768, 32767);
       return -1;
     }
     opmode = (size == SIZE_W) ? 6 : 7;
@@ -1394,7 +1394,7 @@ static int write_movep(
   {
     if (operands[0].value < -32768 || operands[0].value > 32767)
     {
-      print_error_range("Offset", -32768, 32767, asm_context);
+      print_error_range(asm_context, "Offset", -32768, 32767);
       return -1;
     }
     opmode = (size == SIZE_W) ? 4 : 5;
@@ -1556,7 +1556,7 @@ static int write_jump(
     offset = operands[0].value - (asm_context->address + 2);
     if (offset < -32768 || offset > 32767)
     {
-      print_error_range("Offset", -32768, 32767, asm_context);
+      print_error_range(asm_context, "Offset", -32768, 32767);
     }
     operands[0].value = offset;
     operands[0].type = OPERAND_INDEX_DATA16_PC;
@@ -1596,7 +1596,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
 #if 0
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 #endif
@@ -1605,7 +1605,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
 
     if (operand_count >= 3)
     {
-      print_error_opcount(instr, asm_context);
+      print_error_opcount(asm_context, instr);
       return -1;
     }
 
@@ -1618,7 +1618,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
       else if (strcasecmp(token, "s") == 0) { operand_size = SIZE_S; }
       else
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -1654,7 +1654,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -1669,7 +1669,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
       token_type = tokens_get(asm_context, token, TOKENLEN);
       if ((num = get_register_a_68000(token)) == -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       if (expect_token_s(asm_context,")") != 0) { return -1; }
@@ -1741,7 +1741,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
             }
               else
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
@@ -1785,7 +1785,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
           }
             else
           {
-            print_error_illegal_expression(instr, asm_context);
+            print_error_illegal_expression(asm_context, instr);
             return -1;
           }
         }
@@ -1825,7 +1825,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
             }
               else
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
 
@@ -1856,7 +1856,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
               }
                 else
               {
-                print_error_unexp(token, asm_context);
+                print_error_unexp(asm_context, token);
                 return -1;
               }
 
@@ -1866,7 +1866,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
 
           if (IS_NOT_TOKEN(token,')'))
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
         }
@@ -1874,7 +1874,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
         {
           if (IS_NOT_TOKEN(token,')'))
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -1893,7 +1893,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
               operands[operand_count].type = OPERAND_ADDRESS_W;
               if (num < 0 || num > 0xffff)
               {
-                print_error_range(instr, 0, 0xffff, asm_context);
+                print_error_range(asm_context, instr, 0, 0xffff);
                 return -1;
               }
             }
@@ -1904,7 +1904,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
             }
               else
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
             }
           }
             else
@@ -1940,7 +1940,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -1986,7 +1986,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
               num = get_register_d_68000(token);
               if (num == -1 || num < curr)
               {
-                print_error_unexp(token, asm_context);
+                print_error_unexp(asm_context, token);
                 return -1;
               }
               for (n = curr; n <= num; n++) { mask |= (1 << n); }
@@ -1998,7 +1998,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
               num = get_register_a_68000(token);
               if (num == -1 || num < curr)
               {
-                print_error_unexp(token, asm_context);
+                print_error_unexp(asm_context, token);
                 return -1;
               }
               for (n = curr; n <= num; n++) { mask |= (1 << (n + 8)); }
@@ -2053,7 +2053,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL) break;
     if (IS_NOT_TOKEN(token,',') || operand_count == 3)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -2102,13 +2102,16 @@ printf("\n");
 
       if (operand_size != SIZE_NONE)
       {
-        printf("Error: %s doesn't take a size attribute at %s:%d\n", instr, asm_context->tokens.filename, asm_context->tokens.line);
+        printf("Error: %s doesn't take a size attribute at %s:%d\n",
+          instr,
+          asm_context->tokens.filename,
+          asm_context->tokens.line);
         return -1;
       }
 
       if (operand_count != 2)
       {
-        print_error_opcount(instr, asm_context);
+        print_error_opcount(asm_context, instr);
         return -1;
       }
 
@@ -2127,7 +2130,7 @@ printf("\n");
       {
         if (offset < -32768 || offset > 32767)
         {
-          print_error_range("Offset", -32768, 32767, asm_context);
+          print_error_range(asm_context, "Offset", -32768, 32767);
           return -1;
         }
         add_bin16(asm_context, offset, IS_OPCODE);
@@ -2159,7 +2162,7 @@ printf("\n");
 
   if (operand_size == SIZE_S && strcmp(instr_case, "bra") != 0)
   {
-    print_error_unexp("s", asm_context);
+    print_error_unexp(asm_context, "s");
     return -1;
   }
 
@@ -2338,11 +2341,11 @@ printf("\n");
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

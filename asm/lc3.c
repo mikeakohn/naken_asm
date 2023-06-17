@@ -105,7 +105,7 @@ int parse_instruction_lc3(AsmContext *asm_context, char *instr)
     {
       if (operand_count != 0)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
       break;
@@ -130,7 +130,7 @@ int parse_instruction_lc3(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -151,7 +151,7 @@ int parse_instruction_lc3(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
       }
@@ -167,7 +167,7 @@ int parse_instruction_lc3(AsmContext *asm_context, char *instr)
 
     if (IS_NOT_TOKEN(token, ',') || operand_count == MAX_OPERANDS)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -226,7 +226,7 @@ int parse_instruction_lc3(AsmContext *asm_context, char *instr)
 
             if (value < -16 || value > 15)
             {
-              print_error_range("Constant", -16, 15, asm_context);
+              print_error_range(asm_context, "Constant", -16, 15);
               return -1;
             }
 
@@ -256,7 +256,7 @@ int parse_instruction_lc3(AsmContext *asm_context, char *instr)
 
             if (offset < -256 || offset > 255)
             {
-              print_error_range("Offset", -256, 255, asm_context);
+              print_error_range(asm_context, "Offset", -256, 255);
               return -1;
             }
 
@@ -299,7 +299,7 @@ int parse_instruction_lc3(AsmContext *asm_context, char *instr)
 
             if (offset < -1024 || offset > 1023)
             {
-              print_error_range("Offset", -1024, 1023, asm_context);
+              print_error_range(asm_context, "Offset", -1024, 1023);
               return -1;
             }
 
@@ -326,7 +326,7 @@ int parse_instruction_lc3(AsmContext *asm_context, char *instr)
 
             if (offset < -256 || offset > 255)
             {
-              print_error_range("Offset", -256, 255, asm_context);
+              print_error_range(asm_context, "Offset", -256, 255);
               return -1;
             }
 
@@ -347,7 +347,7 @@ int parse_instruction_lc3(AsmContext *asm_context, char *instr)
           {
             if (operands[2].value < -32 || operands[2].value > 31)
             {
-              print_error_range("Offset", -32, 31, asm_context);
+              print_error_range(asm_context, "Offset", -32, 31);
               return -1;
             }
 
@@ -382,7 +382,7 @@ int parse_instruction_lc3(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value < 0 || operands[0].value > 255)
             {
-              print_error_range("Vector", 0, 255, asm_context);
+              print_error_range(asm_context, "Vector", 0, 255);
               return -1;
             }
 
@@ -402,12 +402,12 @@ int parse_instruction_lc3(AsmContext *asm_context, char *instr)
 
   if (found == 1)
   {
-    print_error_illegal_operands(instr, asm_context);
+    print_error_illegal_operands(asm_context, instr);
     return -1;
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

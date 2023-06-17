@@ -245,7 +245,7 @@ static int parse_alu_3(
   }
     else
   {
-    //print_error_illegal_operands(instr, asm_context);
+    //print_error_illegal_operands(asm_context, instr);
     return ARM_ILLEGAL_OPERANDS;
   }
 
@@ -343,7 +343,7 @@ static int parse_alu_2(
   }
     else
   {
-    //print_error_illegal_operands(instr, asm_context);
+    //print_error_illegal_operands(asm_context, instr);
     return ARM_ILLEGAL_OPERANDS;
   }
 
@@ -381,7 +381,7 @@ static int parse_branch(
 
     if ((offset & 0xff000000) != 0 && (offset & 0xff000000) != 0xff000000)
     {
-      print_error_range("Offset", -(1 << 25), (1 << 25) - 1, asm_context);
+      print_error_range(asm_context, "Offset", -(1 << 25), (1 << 25) - 1);
       return ARM_ERROR_ADDRESS;
     }
 
@@ -403,7 +403,7 @@ static int parse_branch_exchange(
 {
   if (operand_count != 1 || operands[0].type != OPERAND_REG)
   {
-    //print_error_illegal_operands(instr, asm_context);
+    //print_error_illegal_operands(asm_context, instr);
     return ARM_ILLEGAL_OPERANDS;
   }
 
@@ -451,7 +451,7 @@ printf("%d  %d %d %d\n",
   if (instr[0] == 'b') { b = 1; instr++; }
   if (*instr != 0)
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
     return -1;
   }
 
@@ -491,7 +491,7 @@ printf("%d  %d %d %d\n",
 
     if (offset < -4095 || offset > 4095)
     {
-      print_error_range("Offset", -4095, 4095, asm_context);
+      print_error_range(asm_context, "Offset", -4095, 4095);
       return -1;
     }
 
@@ -526,7 +526,7 @@ printf("%d  %d %d %d\n",
     if (offset < 0 && offset > -4096) { offset = -offset; u = 0; }
     if (offset < 0 || offset > 4095)
     {
-      print_error_range("Offset", 0, 4095, asm_context);
+      print_error_range(asm_context, "Offset", 0, 4095);
       return -1;
     }
   }
@@ -540,7 +540,7 @@ printf("%d  %d %d %d\n",
     if (offset < 0 && offset > -4096) { offset = -offset; u = 0; }
     if (offset < 0 || offset > 4095)
     {
-      print_error_range("Offset", 0, 4095, asm_context);
+      print_error_range(asm_context, "Offset", 0, 4095);
       return -1;
     }
   }
@@ -616,7 +616,7 @@ printf("%d  %d %d %d\n",
   }
     else
   {
-    //print_error_illegal_operands(instr, asm_context);
+    //print_error_illegal_operands(asm_context, instr);
     return ARM_ILLEGAL_OPERANDS;
   }
 
@@ -673,7 +673,7 @@ static int parse_ldm_stm(
 
   if (*instr != 0)
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
     return -1;
   }
 
@@ -836,7 +836,7 @@ static int parse_swi(
 
   if (operand_count != 1)
   {
-    print_error_opcount(instr, asm_context);
+    print_error_opcount(asm_context, instr);
     return -1;
   }
 
@@ -867,7 +867,7 @@ static int parse_multiply(
   if (instr[0] == 's') { s = 1; instr++; }
   if (*instr != 0)
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
     return -1;
   }
 
@@ -875,7 +875,7 @@ static int parse_multiply(
       operands[1].type != OPERAND_REG ||
       operands[2].type != OPERAND_REG)
   {
-    //print_error_illegal_operands(instr, asm_context);
+    //print_error_illegal_operands(asm_context, instr);
     return ARM_ILLEGAL_OPERANDS;
   }
 
@@ -892,7 +892,7 @@ static int parse_multiply(
   }
     else
   {
-    //print_error_illegal_operands(instr, asm_context);
+    //print_error_illegal_operands(asm_context, instr);
     return ARM_ILLEGAL_OPERANDS;
   }
 
@@ -964,7 +964,7 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
@@ -991,7 +991,7 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
 
       if (n == -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -1043,7 +1043,7 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
         int r2;
         if (r1 == -1)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -1056,7 +1056,7 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
 
           if (r2 == -1)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -1072,7 +1072,7 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
         if (IS_TOKEN(token, '}')) { break; }
         if (IS_NOT_TOKEN(token, ','))
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
@@ -1107,7 +1107,7 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
             token_type = tokens_get(asm_context, token, TOKENLEN);
             if (token_type != TOKEN_NUMBER)
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
 
@@ -1116,7 +1116,7 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
             if ((int32_t)operands[operand_count].value < 0 ||
                 operands[operand_count].value > 31)
             {
-              print_error_range("Shift value", 0, 31, asm_context);
+              print_error_range(asm_context, "Shift value", 0, 31);
               return -1;
             }
 
@@ -1127,7 +1127,7 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
             int r = get_register_arm(token);
             if (r == -1)
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
 
@@ -1184,7 +1184,7 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
 
           if (eval_expression(asm_context, &num) != 0)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -1199,13 +1199,13 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
     if (token_type == TOKEN_EOL) { break; }
     if (IS_NOT_TOKEN(token, ','))
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
     if (operand_count==4)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -1280,12 +1280,12 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
 
       if (bytes == ARM_UNKNOWN_INSTRUCTION)
       {
-        print_error_unknown_instr(instr, asm_context);
+        print_error_unknown_instr(asm_context, instr);
       }
         else
       if (bytes == ARM_ILLEGAL_OPERANDS)
       {
-        print_error_illegal_operands(instr, asm_context);
+        print_error_illegal_operands(asm_context, instr);
       }
 
       if (bytes != ARM_ERROR_OPCOMBO) { return bytes; }
@@ -1296,11 +1296,11 @@ int parse_instruction_arm(AsmContext *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

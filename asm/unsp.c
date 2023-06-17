@@ -83,7 +83,7 @@ static int get_number(
   {
     if (asm_context->pass == 2)
     {
-      print_error_illegal_expression(instr, asm_context);
+      print_error_illegal_expression(asm_context, instr);
       return -1;
     }
 
@@ -108,13 +108,13 @@ static int generate_alu_2(
     {
       if (operands[1].value < 0 || operands[1].value > 0x3f)
       {
-        print_error_range("Constant", 0, 0x3f, asm_context);
+        print_error_range(asm_context, "Constant", 0, 0x3f);
         return -1;
       }
 
       if (operands[0].value == 7)
       {
-        print_error("Cannot use PC as destination with [BP+imm6]", asm_context);
+        print_error(asm_context, "Cannot use PC as destination with [BP+imm6]");
         return -1;
       }
 
@@ -130,7 +130,7 @@ static int generate_alu_2(
     {
       if (operands[1].value < -32768 || operands[1].value > 0xffff)
       {
-        print_error_range("Constant", -32768, 0xffff, asm_context);
+        print_error_range(asm_context, "Constant", -32768, 0xffff);
         return -1;
       }
 
@@ -372,7 +372,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
       if (strlen(token) > 10)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -409,7 +409,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
           if (n == -1)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -462,7 +462,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
           if (token_type != TOKEN_NUMBER)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -470,7 +470,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
           if (num < 1 || num > 4)
           {
-            print_error_range("Shift", 1, 4, asm_context);
+            print_error_range(asm_context, "Shift", 1, 4);
             return -1;
           }
 
@@ -503,7 +503,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
           if (n == -1)
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
 
@@ -558,13 +558,13 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
             break;
           }
 
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
         if (d != 0)
         {
-          print_error_unexp("d:", asm_context);
+          print_error_unexp(asm_context, "d:");
           return -1;
         }
 
@@ -578,7 +578,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
         {
           if (asm_context->pass == 2)
           {
-            print_error_illegal_expression(instr, asm_context);
+            print_error_illegal_expression(asm_context, instr);
             return -1;
           }
 
@@ -592,7 +592,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
         if (num < 0 || num > 0xffff)
         {
-          print_error_range("Address", 0, 0xffff, asm_context);
+          print_error_range(asm_context, "Address", 0, 0xffff);
           return -1;
         }
 
@@ -602,7 +602,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
       if (d != 0)
       {
-        print_error_unexp("d:", asm_context);
+        print_error_unexp(asm_context, "d:");
         return -1;
       }
 
@@ -631,13 +631,13 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
     if (IS_NOT_TOKEN(token, ',') || operand_count == 5)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
     if (operand_count == MAX_OPERANDS)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -661,7 +661,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value < 0 || operands[0].value > 0x3fffff)
             {
-              print_error_range("Constant", 0, 0x3fffff, asm_context);
+              print_error_range(asm_context, "Constant", 0, 0x3fffff);
               return -1;
             }
 
@@ -704,7 +704,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
           {
             if (operands[2].value < 1 || operands[2].value > 16)
             {
-              print_error_range("mac", 1, 16, asm_context);
+              print_error_range(asm_context, "mac", 1, 16);
               return -1;
             }
 
@@ -712,7 +712,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
                 operands[0].value != 2 &&
                 operands[0].value != 5)
             {
-              print_error("Registers for mac must be r1, r2, r5.", asm_context);
+              print_error(asm_context, "Registers for mac must be r1, r2, r5.");
               return -1;
             }
 
@@ -720,7 +720,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
                 operands[1].value != 2 &&
                 operands[1].value != 5)
             {
-              print_error("Registers for mac must be r1, r2, r5.", asm_context);
+              print_error(asm_context, "Registers for mac must be r1, r2, r5.");
               return -1;
             }
 
@@ -750,7 +750,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
             if (offset < -0x3f || offset > 0x3f)
             {
-              print_error_range("Offset", -0x3f, 0x3f, asm_context);
+              print_error_range(asm_context, "Offset", -0x3f, 0x3f);
               return -1;
             }
 
@@ -841,7 +841,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
               case OPERAND_RS_ROL_SHIFT:
               case OPERAND_RS_ROR_SHIFT:
               {
-                print_error_illegal_operands(instr, asm_context);
+                print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
             }
@@ -884,7 +884,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
           {
             if (table_unsp[n].opcode != 0x6000)
             {
-              print_error_illegal_operands(instr, asm_context);
+              print_error_illegal_operands(asm_context, instr);
               return -1;
             }
 
@@ -945,7 +945,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value == 0)
             {
-              print_error("Cannot pop SP", asm_context);
+              print_error(asm_context, "Cannot pop SP");
               return -1;
             }
 
@@ -963,7 +963,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value == 0)
             {
-              print_error("Cannot pop SP", asm_context);
+              print_error(asm_context, "Cannot pop SP");
               return -1;
             }
 
@@ -981,7 +981,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value == 0)
             {
-              print_error("Cannot pop SP", asm_context);
+              print_error(asm_context, "Cannot pop SP");
               return -1;
             }
 
@@ -996,7 +996,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value == 0)
             {
-              print_error("Cannot pop SP", asm_context);
+              print_error(asm_context, "Cannot pop SP");
               return -1;
             }
 
@@ -1033,7 +1033,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
             if (reg_count >= 8)
             {
-              print_error("Cannot push more than seven registers", asm_context);
+              print_error(asm_context, "Cannot push more than seven registers");
               return -1;
             }
 
@@ -1061,7 +1061,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
             if (reg_count >= 8)
             {
-              print_error("Cannot push more than seven registers", asm_context);
+              print_error(asm_context, "Cannot push more than seven registers");
               return -1;
             }
 
@@ -1087,11 +1087,11 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

@@ -60,7 +60,7 @@ int ignore_paren_expression(AsmContext *asm_context)
       else
     if (token_type == TOKEN_EOL)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -103,7 +103,7 @@ int expect_token(AsmContext *asm_context, char ch)
 
   if (IS_NOT_TOKEN(token, ch))
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -118,7 +118,7 @@ int expect_token_s(AsmContext *asm_context, char *s)
 
   if (strcasecmp(token,s) != 0)
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -129,7 +129,7 @@ int check_range(AsmContext *asm_context, char *type, int num, int min, int max)
 {
   if (num < min || num > max)
   {
-    print_error_range(type, min, max, asm_context);
+    print_error_range(asm_context, type, min, max);
     return -1;
   }
 

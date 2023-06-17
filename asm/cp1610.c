@@ -79,7 +79,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
     {
       if (strlen(token) > 6)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -92,7 +92,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
     {
       if (IS_NOT_TOKEN(token, ','))
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -101,7 +101,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
 
     if (operand_count >= 2)
     {
-      print_error_opcount(instr, asm_context);
+      print_error_opcount(asm_context, instr);
       return -1;
     }
 
@@ -133,7 +133,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
       {
         if (eval_expression(asm_context, &n) != 0)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -154,7 +154,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 0)
           {
-            print_error_opcount(instr, asm_context);
+            print_error_opcount(asm_context, instr);
             return -1;
           }
 
@@ -166,7 +166,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1 || operands[0].type != OPERAND_REG)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -174,7 +174,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
           {
             if (operands[0].value > 3)
             {
-              print_error_range("Register", 0, 3, asm_context);
+              print_error_range(asm_context, "Register", 0, 3);
               return -1;
             }
           }
@@ -191,7 +191,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REG ||
               operands[1].type != OPERAND_REG)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -209,7 +209,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REG ||
               operands[1].type != OPERAND_REG)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -227,13 +227,13 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_NUMBER ||
               operands[1].type != OPERAND_REG)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < -32768 || operands[0].value > 65535)
           {
-            print_error_range("Immediate", -32768, 65535, asm_context);
+            print_error_range(asm_context, "Immediate", -32768, 65535);
             return -1;
           }
 
@@ -250,13 +250,13 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REG ||
               operands[1].type != OPERAND_NUMBER)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[1].value < -32768 || operands[1].value > 65535)
           {
-            print_error_range("Immediate", -32768, 65535, asm_context);
+            print_error_range(asm_context, "Immediate", -32768, 65535);
             return -1;
           }
 
@@ -273,13 +273,13 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_ADDRESS ||
               operands[1].type != OPERAND_REG)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 65535)
           {
-            print_error_range("Address", 0, 65535, asm_context);
+            print_error_range(asm_context, "Address", 0, 65535);
             return -1;
           }
 
@@ -296,13 +296,13 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REG ||
               operands[1].type != OPERAND_ADDRESS)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[1].value < 0 || operands[1].value > 65535)
           {
-            print_error_range("Address", 0, 65535, asm_context);
+            print_error_range(asm_context, "Address", 0, 65535);
             return -1;
           }
 
@@ -324,13 +324,13 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
               operands[0].type != OPERAND_REG ||
               operands[1].type != OPERAND_ADDRESS)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value > 3)
           {
-            print_error_range("Register", 0, 3, asm_context);
+            print_error_range(asm_context, "Register", 0, 3);
             return -1;
           }
 
@@ -338,7 +338,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
           {
             if (operands[1].value < 1 || operands[1].value > 2)
             {
-              print_error_range("Constant", 1, 2, asm_context);
+              print_error_range(asm_context, "Constant", 1, 2);
               return -1;
             }
           }
@@ -355,13 +355,13 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1 || operands[0].type != OPERAND_ADDRESS)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value < 0 || operands[0].value > 65535)
           {
-            print_error_range("Address", 0, 65535, asm_context);
+            print_error_range(asm_context, "Address", 0, 65535);
             return -1;
           }
 
@@ -408,13 +408,13 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
                     operands[0].type != OPERAND_REG ||
                     operands[1].type != OPERAND_ADDRESS)
                 {
-                  print_error_illegal_operands(instr, asm_context);
+                  print_error_illegal_operands(asm_context, instr);
                   return -1;
                 }
 
                 if (operands[0].value < 4 || operands[0].value > 6)
                 {
-                  print_error_range("Register", 4, 6, asm_context);
+                  print_error_range(asm_context, "Register", 4, 6);
                   return -1;
                 }
 
@@ -427,7 +427,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
               {
                 if (operand_count != 1 || operands[0].type != OPERAND_ADDRESS)
                 {
-                  print_error_illegal_operands(instr, asm_context);
+                  print_error_illegal_operands(asm_context, instr);
                   return -1;
                 }
 
@@ -442,7 +442,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
 
           if (address < 0 || address > 65535)
           {
-            print_error_range("Address", 0, 65535, asm_context);
+            print_error_range(asm_context, "Address", 0, 65535);
             return -1;
           }
 
@@ -458,13 +458,13 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1 || operands[0].type != OPERAND_REG)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
           if (operands[0].value > 7)
           {
-            print_error_range("Register", 0, 7, asm_context);
+            print_error_range(asm_context, "Register", 0, 7);
             return -1;
           }
 
@@ -478,7 +478,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1 || operands[0].type != OPERAND_REG)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
@@ -499,7 +499,7 @@ int parse_instruction_cp1610(AsmContext *asm_context, char *instr)
     }
   }
 
-  print_error_unknown_instr(instr, asm_context);
+  print_error_unknown_instr(asm_context, instr);
 
   return -1;
 }

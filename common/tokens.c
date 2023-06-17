@@ -367,7 +367,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
 
         if (ptr >= len - 1)
         {
-          print_error("Unterminated quote", asm_context);
+          print_error(asm_context, "Unterminated quote");
           asm_context->error_count++;
           break;
         }
@@ -386,7 +386,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
 
         if (ptr > 1)
         {
-          print_error("Unterminated ticks", asm_context);
+          print_error(asm_context, "Unterminated ticks");
           asm_context->error_count++;
           break;
         }
@@ -528,7 +528,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
                 ch = tokens_get_char(asm_context);
                 if (ch == EOF)
                 {
-                  print_error("Unterminated comment", asm_context);
+                  print_error(asm_context, "Unterminated comment");
                   asm_context->error_count++;
                   return TOKEN_EOF;
                 }

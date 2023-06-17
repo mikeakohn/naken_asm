@@ -185,7 +185,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
   // no matching instruction
   if (instr_enum == -1)
   {
-    print_error_unknown_operand_combo(instr_case, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr_case);
     return -1;
   }
 
@@ -216,7 +216,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
       }
         else
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -236,7 +236,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
         if (num < -128 || num > 0xff)
         {
-          print_error("8-bit constant out of range.", asm_context);
+          print_error(asm_context, "8-bit constant out of range.");
           return -1;
         }
 
@@ -261,7 +261,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
           if (num < -128 || num > 127)
           {
-            print_error("Relative branch out of range", asm_context);
+            print_error(asm_context, "Relative branch out of range");
             return -1;
           }
 
@@ -284,7 +284,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
         if (num < -128 || num > 0xff)
         {
-          print_error("8-bit constant out of range.", asm_context);
+          print_error(asm_context, "8-bit constant out of range.");
           return -1;
         }
 
@@ -315,7 +315,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 #if 0
               if (num < 0 || num > 0xff || size == 16)
               {
-                print_error("Address out of range.", asm_context);
+                print_error(asm_context, "Address out of range.");
                 return -1;
               }
 #endif
@@ -324,7 +324,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
             }
               else
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
@@ -344,7 +344,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
             {
               if (num < 0 || num > 0xff || size == 16)
               {
-                print_error("Address out of range.", asm_context);
+                print_error(asm_context, "Address out of range.");
                 return -1;
               }
 
@@ -352,13 +352,13 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
             }
               else
             {
-              print_error_unexp(token, asm_context);
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
             else
           {
-            print_error_unexp(token, asm_context);
+            print_error_unexp(asm_context, token);
             return -1;
           }
         }
@@ -376,7 +376,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
         if (num < 0 || num > 0xffff)
         {
-          print_error("Address out of range.", asm_context);
+          print_error(asm_context, "Address out of range.");
           return -1;
         }
 
@@ -391,7 +391,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
         {
           if (num > 0xff)
           {
-            print_error("Zero-page address out of range.", asm_context);
+            print_error(asm_context, "Zero-page address out of range.");
             return -1;
           }
 
@@ -402,7 +402,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
         {
           if (num > 0xffff)
           {
-            print_error("Absolute address out of range.", asm_context);
+            print_error(asm_context, "Absolute address out of range.");
             return -1;
           }
 
@@ -424,8 +424,8 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
             if (num > 0xffff)
             {
-              print_error("Address out of range.", asm_context);
-              print_error_unexp(token, asm_context);
+              print_error(asm_context, "Address out of range.");
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
@@ -439,8 +439,8 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
             if (num > 0xffff)
             {
-              print_error("Address out of range.", asm_context);
-              print_error_unexp(token, asm_context);
+              print_error(asm_context, "Address out of range.");
+              print_error_unexp(asm_context, token);
               return -1;
             }
           }
@@ -467,13 +467,13 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
             op = OP_ADDRESS8_RELATIVE;
             break;
-            //print_error_unexp(token, asm_context);
+            //print_error_unexp(asm_context, token);
             //return -1;
           }
         }
           else
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
       }
@@ -541,7 +541,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
   if (asm_context->pass == 2 && opcode == -1)
   {
     sprintf(temp, "No instruction found for addressing mode %d", op);
-    print_error(temp, asm_context);
+    print_error(asm_context, temp);
     return -1;
   }
 
@@ -556,7 +556,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
     case OP_INDIRECT8:
       if (num < 0 || num > 0xff)
       {
-        print_error_range("Address", 0, 0xff, asm_context);
+        print_error_range(asm_context, "Address", 0, 0xff);
         return -1;
       }
       break;
@@ -567,20 +567,20 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
     case OP_X_INDIRECT16:
       if (num < 0 || num > 0xffff)
       {
-        print_error_range("Address", 0, 0xffff, asm_context);
+        print_error_range(asm_context, "Address", 0, 0xffff);
         return -1;
       }
       break;
     case OP_ADDRESS8_RELATIVE:
       if (num < 0 || num > 0xffff)
       {
-        print_error_range("Address", 0, 0xffff, asm_context);
+        print_error_range(asm_context, "Address", 0, 0xffff);
         return -1;
       }
 
       if (offset < -128 || offset > 127)
       {
-        print_error_range("Offset", -128, 127, asm_context);
+        print_error_range(asm_context, "Offset", -128, 127);
         return -1;
       }
 

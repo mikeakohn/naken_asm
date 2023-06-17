@@ -131,7 +131,7 @@ static int get_operands_register_list(
 
       if (i != 2 || operands[1].value == 0)
       {
-        print_error_unknown_operand_combo(instr, asm_context);
+        print_error_unknown_operand_combo(asm_context, instr);
         return -1;
       }
 
@@ -154,7 +154,7 @@ static int get_operands_register_list(
         {
           if (eval_expression(asm_context, &n) != 0)
           {
-            print_error_illegal_expression(instr, asm_context);
+            print_error_illegal_expression(asm_context, instr);
             return -1;
           }
 
@@ -166,7 +166,7 @@ static int get_operands_register_list(
         return 0;
       }
 
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -185,7 +185,7 @@ static int get_operands_register_list(
     {
       if (operands[0].r != r)
       {
-        print_error("Mismatched a/b registers.", asm_context);
+        print_error(asm_context, "Mismatched a/b registers.");
         return -1;
       }
 
@@ -202,7 +202,7 @@ static int get_operands_register_list(
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -252,7 +252,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
 
     if (operand_count >= 3)
     {
-      print_error_opcount(instr, asm_context);
+      print_error_opcount(asm_context, instr);
       return -1;
     }
 
@@ -268,7 +268,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
 
         if (n == -1)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -304,7 +304,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
 
       if (n == -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -337,7 +337,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
         {
           if (eval_expression(asm_context, &n) != 0)
           {
-            print_error_illegal_expression(instr, asm_context);
+            print_error_illegal_expression(asm_context, instr);
             return -1;
           }
 
@@ -347,7 +347,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
 
           if (n < -32768 || n > 32767)
           {
-            print_error_range("Displacement", -32768, 32767, asm_context);
+            print_error_range(asm_context, "Displacement", -32768, 32767);
             return -1;
           }
         }
@@ -393,7 +393,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
       {
         if (eval_expression(asm_context, &n) != 0)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -408,7 +408,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
       {
         if (asm_context->pass == 2)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -435,7 +435,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
 
     if (IS_NOT_TOKEN(token,',') || operand_count == 3)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -919,7 +919,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
 
               if (offset < -65536 || offset > 65534)
               {
-                print_error_range("Displacement", -65536, 65534, asm_context);
+                print_error_range(asm_context, "Displacement", -65536, 65534);
               }
 
               extra[extra_count++] = (offset >> 1) & 0xffff;
@@ -947,7 +947,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
 
               if (offset < -31 || offset > 31)
               {
-                print_error_range("Displacement", -31, 31, asm_context);
+                print_error_range(asm_context, "Displacement", -31, 31);
               }
 
               if (offset < 0)
@@ -997,7 +997,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
 
                 if (offset < -65536 || offset > 0xffff)
                 {
-                  print_error_range("Displacement", -65536, 0xffff, asm_context);
+                  print_error_range(asm_context, "Displacement", -65536, 0xffff);
                   return -1;
                 }
 
@@ -1019,7 +1019,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
       {
         if (register_file_mismatch == 1 && mismatch_okay == 0)
         {
-          print_error("Mismatched a/b registers.", asm_context);
+          print_error(asm_context, "Mismatched a/b registers.");
           return -1;
         }
 
@@ -1037,11 +1037,11 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
 
   if (matched == 1)
   {
-    print_error_unknown_operand_combo(instr, asm_context);
+    print_error_unknown_operand_combo(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

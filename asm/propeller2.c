@@ -309,7 +309,7 @@ static int get_p(
     {
       if (asm_context->pass == 2)
       {
-        print_error_illegal_expression(instr, asm_context);
+        print_error_illegal_expression(asm_context, instr);
         return -2;
       }
 
@@ -358,7 +358,7 @@ static int get_p(
     {
       if (asm_context->pass == 2)
       {
-        print_error_illegal_expression(instr, asm_context);
+        print_error_illegal_expression(asm_context, instr);
         return -2;
       }
 
@@ -394,7 +394,7 @@ static int get_p(
     {
       if (asm_context->pass == 2)
       {
-        print_error_illegal_expression(instr, asm_context);
+        print_error_illegal_expression(asm_context, instr);
         return -2;
       }
 
@@ -435,7 +435,7 @@ static int get_ptr(AsmContext *asm_context, const char *token)
     return 0x180;
   }
 
-  print_error_unexp(token, asm_context);
+  print_error_unexp(asm_context, token);
   return -2;
 }
 
@@ -476,7 +476,7 @@ static int get_inc_dec_p(
     {
       if (asm_context->pass == 2)
       {
-        print_error_illegal_expression(instr, asm_context);
+        print_error_illegal_expression(asm_context, instr);
         return -2;
       }
 
@@ -529,7 +529,7 @@ static int get_inc_dec_p(
     {
       if (asm_context->pass == 2)
       {
-        print_error_illegal_expression(instr, asm_context);
+        print_error_illegal_expression(asm_context, instr);
         return -2;
       }
 
@@ -619,7 +619,7 @@ int parse_instruction_propeller2(AsmContext *asm_context, char *instr)
 
     if (flags.has_flag != 0)
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
 
@@ -681,7 +681,7 @@ int parse_instruction_propeller2(AsmContext *asm_context, char *instr)
       {
         if (asm_context->pass == 2)
         {
-          print_error_illegal_expression(instr, asm_context);
+          print_error_illegal_expression(asm_context, instr);
           return -1;
         }
 
@@ -701,7 +701,7 @@ int parse_instruction_propeller2(AsmContext *asm_context, char *instr)
 
     if (IS_NOT_TOKEN(token, ','))
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
@@ -796,7 +796,7 @@ for (n = 0; n < operand_count; n++)
             }
               else
             {
-              print_error_unknown_operand_combo(instr, asm_context);
+              print_error_unknown_operand_combo(asm_context, instr);
               return -1;
             }
 
@@ -830,7 +830,7 @@ for (n = 0; n < operand_count; n++)
             }
               else
             {
-              print_error_unknown_operand_combo(instr, asm_context);
+              print_error_unknown_operand_combo(asm_context, instr);
               return -1;
             }
 
@@ -891,7 +891,7 @@ for (n = 0; n < operand_count; n++)
             }
               else
             {
-              print_error_unknown_operand_combo(instr, asm_context);
+              print_error_unknown_operand_combo(asm_context, instr);
               return -1;
             }
 
@@ -902,7 +902,7 @@ for (n = 0; n < operand_count; n++)
           case OP_N_3:
             if (operands[i].type != OPERAND_IMMEDIATE)
             {
-              print_error_unknown_operand_combo(instr, asm_context);
+              print_error_unknown_operand_combo(asm_context, instr);
               return -1;
             }
 
@@ -920,7 +920,7 @@ for (n = 0; n < operand_count; n++)
           case OP_N_23:
             if (operands[i].type != OPERAND_IMMEDIATE)
             {
-              print_error_unknown_operand_combo(instr, asm_context);
+              print_error_unknown_operand_combo(asm_context, instr);
               return -1;
             }
 
@@ -946,7 +946,7 @@ for (n = 0; n < operand_count; n++)
             }
               else
             {
-              print_error_unknown_operand_combo(instr, asm_context);
+              print_error_unknown_operand_combo(asm_context, instr);
               return -1;
             }
 
@@ -969,7 +969,7 @@ for (n = 0; n < operand_count; n++)
                   break;
                 }
 
-                print_error_range("Offset", -256, 255, asm_context);
+                print_error_range(asm_context, "Offset", -256, 255);
                 return -1;
               }
 
@@ -983,7 +983,7 @@ for (n = 0; n < operand_count; n++)
             }
               else
             {
-              print_error_unknown_operand_combo(instr, asm_context);
+              print_error_unknown_operand_combo(asm_context, instr);
               return -1;
             }
 
@@ -999,7 +999,7 @@ for (n = 0; n < operand_count; n++)
               else
             if (operands[i].type != OPERAND_CONDITION_CZ)
             {
-              print_error_unknown_operand_combo(instr, asm_context);
+              print_error_unknown_operand_combo(asm_context, instr);
               return -1;
             }
 
@@ -1014,7 +1014,7 @@ for (n = 0; n < operand_count; n++)
               else
             if (operands[i].type != OPERAND_CONDITION_CZ)
             {
-              print_error_unknown_operand_combo(instr, asm_context);
+              print_error_unknown_operand_combo(asm_context, instr);
               return -1;
             }
 
@@ -1049,7 +1049,7 @@ for (n = 0; n < operand_count; n++)
         {
           if (operands[i].aug != 0)
           {
-            print_error_illegal_operands(instr, asm_context);
+            print_error_illegal_operands(asm_context, instr);
             return -1;
           }
         }
@@ -1063,11 +1063,11 @@ for (n = 0; n < operand_count; n++)
 
   if (found == 1)
   {
-    print_error_illegal_operands(instr, asm_context);
+    print_error_illegal_operands(asm_context, instr);
   }
     else
   {
-    print_error_unknown_instr(instr, asm_context);
+    print_error_unknown_instr(asm_context, instr);
   }
 
   return -1;

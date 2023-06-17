@@ -193,7 +193,7 @@ static int parse_unary(AsmContext *asm_context, int64_t *num, int operation)
     if (eval_expression_ex(asm_context, &var) != 0) { return -1; }
     if (var.type != VAR_INT)
     {
-      print_error("Non-integer number in expression", asm_context);
+      print_error(asm_context, "Non-integer number in expression");
       return -1;
     }
 
@@ -202,13 +202,13 @@ static int parse_unary(AsmContext *asm_context, int64_t *num, int operation)
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (IS_NOT_TOKEN(token,')'))
     {
-      print_error_unexp(token, asm_context);
+      print_error_unexp(asm_context, token);
       return -1;
     }
   }
     else
   {
-    print_error_unexp(token, asm_context);
+    print_error_unexp(asm_context, token);
     return -1;
   }
 
@@ -258,18 +258,18 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
       {
         int e = tokens_escape_char(asm_context, (unsigned char *)token);
         if (e == 0) return -1;
-        if (token[e+1] != 0)
+        if (token[e + 1] != 0)
         {
-          print_error("Quoted literal too long.", asm_context);
+          print_error(asm_context, "Quoted literal too long.");
           return -1;
         }
         sprintf(token, "%d", token[e]);
       }
         else
       {
-        if (token[1]!=0)
+        if (token[1] != 0)
         {
-          print_error("Quoted literal too long.", asm_context);
+          print_error(asm_context, "Quoted literal too long.");
           return -1;
         }
         sprintf(token, "%d", token[0]);
@@ -323,7 +323,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
       token_type = tokens_get(asm_context, token, TOKENLEN);
       if (!(token[1] == 0 && token[0] == ')'))
       {
-        print_error("No matching ')'", asm_context);
+        print_error(asm_context, "No matching ')'");
         return -1;
       }
       continue;
@@ -357,7 +357,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
 
       if (var_stack_ptr == 3)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -368,7 +368,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
     {
       if (var_stack_ptr == 3)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -384,7 +384,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
 
       if (get_operator(token, &operator) == -1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
         return -1;
       }
 
@@ -398,7 +398,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
 
         if (var_stack_ptr == 3)
         {
-          print_error_unexp(token, asm_context);
+          print_error_unexp(asm_context, token);
           return -1;
         }
 
@@ -444,7 +444,7 @@ printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, operato
     {
       if (asm_context->pass != 1)
       {
-        print_error_unexp(token, asm_context);
+        print_error_unexp(asm_context, token);
       }
       return -1;
     }
