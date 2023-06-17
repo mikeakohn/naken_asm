@@ -181,7 +181,7 @@ int assembler_link(AsmContext *asm_context)
 {
   if (asm_context->linker == NULL) { return 0; }
 
-  struct _imports *imports;
+  Imports *imports;
   int index = 0;
 
   while (1)

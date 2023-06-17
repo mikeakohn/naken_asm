@@ -224,7 +224,7 @@ void list_output_tms1000(
 }
 
 void list_output_tms1100(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end)
 {

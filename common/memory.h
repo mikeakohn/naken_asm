@@ -56,6 +56,7 @@ typedef struct _memory
 } Memory;
 
 struct _asm_context;
+typedef struct _asm_context AsmContext;
 
 void memory_init(Memory *memory, uint32_t size, int debug_flag);
 void memory_free(Memory *memory);
@@ -64,12 +65,12 @@ int memory_in_use(Memory *memory, uint32_t address);
 int memory_get_page_address_min(Memory *memory, uint32_t address);
 int memory_get_page_address_max(Memory *memory, uint32_t address);
 int memory_page_size(Memory *memory);
-uint8_t memory_read(struct _asm_context *asm_context, uint32_t address);
-uint8_t memory_read_inc(struct _asm_context *asm_context);
-void memory_write(struct _asm_context *asm_context, uint32_t address, uint8_t data, int line);
-void memory_write_inc(struct _asm_context *asm_context, uint8_t data, int line);
-int memory_debug_line(struct _asm_context *asm_context, uint32_t address);
-void memory_debug_line_set(struct _asm_context *asm_context, uint32_t address, int value);
+uint8_t memory_read(AsmContext *asm_context, uint32_t address);
+uint8_t memory_read_inc(AsmContext *asm_context);
+void memory_write(AsmContext *asm_context, uint32_t address, uint8_t data, int line);
+void memory_write_inc(AsmContext *asm_context, uint8_t data, int line);
+int memory_debug_line(AsmContext *asm_context, uint32_t address);
+void memory_debug_line_set(AsmContext *asm_context, uint32_t address, int value);
 int memory_debug_line_m(Memory *memory, uint32_t address);
 void memory_debug_line_set_m(Memory *memory, uint32_t address, int value);
 void memory_dump(Memory *memory);

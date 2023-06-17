@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_IFDEF_EXPRESSION_H
 #define NAKEN_ASM_IFDEF_EXPRESSION_H
 
-int eval_ifdef_expression(struct _asm_context *asm_context);
+int eval_ifdef_expression(AsmContext *asm_context);
 
 #endif
 

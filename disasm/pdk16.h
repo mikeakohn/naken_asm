@@ -22,7 +22,7 @@ int disasm_pdk16(
   int *cycles_max);
 
 void list_output_pdk16(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end);
 

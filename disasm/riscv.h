@@ -22,7 +22,7 @@ int disasm_riscv(
   int *cycles_max);
 
 void list_output_riscv(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end);
 

@@ -24,7 +24,7 @@ int disasm_NAME(
   int *cycles_max);
 
 void list_output_NAME(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end);
 

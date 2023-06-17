@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
   int format = FORMAT_HEX;
   int create_list = 0;
   char *infile = NULL, *outfile = NULL;
-  struct _asm_context asm_context;
+  AsmContext asm_context;
   int error_flag = 0;
 
   puts(credits);

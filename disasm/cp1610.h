@@ -22,7 +22,7 @@ int disasm_cp1610(
   int *cycles_max);
 
 void list_output_cp1610(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end);
 

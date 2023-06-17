@@ -16,6 +16,8 @@
 
 #include "memory_pool.h"
 
+typedef struct _asm_context AsmContext;
+
 #define MAX_NESTED_MACROS 128
 #define MAX_MACRO_LEN 1024
 #define MACROS_HEAP_SIZE 32768
@@ -63,17 +65,17 @@ typedef struct _macros_iter
 
 int macros_init(Macros *macros);
 void macros_free(Macros *macros);
-int macros_append(struct _asm_context *asm_context, char *name, char *value, int param_count);
+int macros_append(AsmContext *asm_context, char *name, char *value, int param_count);
 void macros_lock(Macros *macros);
 char *macros_lookup(Macros *macros, char *name, int *param_count);
 int macros_iterate(Macros *macros, MacrosIter *iter);
 int macros_print(Macros *macros, FILE *out);
 int macros_push_define(Macros *macros, char *define);
-int macros_get_char(struct _asm_context *asm_context);
+int macros_get_char(AsmContext *asm_context);
 void macros_strip(char *macro);
-int macros_parse(struct _asm_context *asm_context, int is_define);
-char *macros_expand_params(struct _asm_context *asm_context, char *define, int param_count);
-void macros_strip_comment(struct _asm_context *asm_context);
+int macros_parse(AsmContext *asm_context, int is_define);
+char *macros_expand_params(AsmContext *asm_context, char *define, int param_count);
+void macros_strip_comment(AsmContext *asm_context);
 
 #endif
 

@@ -38,13 +38,13 @@ enum
   PREC_EQUAL
 };
 
-struct _operator
+typedef struct _operator
 {
   int operation;
   int precedence;
-};
+} Operator;
 
-static int get_operator(char *token, struct _operator *operator)
+static int get_operator(char *token, Operator *operator)
 {
   if (IS_TOKEN(token,'>'))
   {
@@ -96,7 +96,7 @@ static int get_operator(char *token, struct _operator *operator)
   return 0;
 }
 
-static int parse_defined(struct _asm_context *asm_context)
+static int parse_defined(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   //int token_type;
@@ -190,14 +190,14 @@ static int is_num(char *value)
 }
 
 static int parse_ifdef_expression(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   int *num,
   int paren_count,
   int precedence,
   int state)
 {
   char token[TOKENLEN];
-  struct _operator operator;
+  Operator operator;
   SymbolsData *symbols_data;
   int token_type;
   int not = 0;
@@ -367,7 +367,7 @@ printf("debug> #if: parse_defined()=%d\n", n);
 
     if (token_type == TOKEN_SYMBOL || token_type == TOKEN_EQUALITY)
     {
-      struct _operator next_operator;
+      Operator next_operator;
 
       if (get_operator(token, &next_operator) == -1)
       {
@@ -420,7 +420,7 @@ printf("debug> #if eval_operation() @ state 2  n=%d\n", n);
   return -1;
 }
 
-int eval_ifdef_expression(struct _asm_context *asm_context)
+int eval_ifdef_expression(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   int token_type;

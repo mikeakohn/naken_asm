@@ -22,7 +22,7 @@ int disasm_tms1000(
   int *cycles_max);
 
 void list_output_tms1000(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end);
 
@@ -40,7 +40,7 @@ int disasm_tms1100(
   int *cycles_max);
 
 void list_output_tms1100(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   uint32_t start,
   uint32_t end);
 

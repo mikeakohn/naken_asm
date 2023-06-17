@@ -129,7 +129,7 @@
 #define NO_FLAGS 0
 
 int link_not_supported(
-  struct _asm_context *asm_context,
+  AsmContext *asm_context,
   struct _imports *imports,
   const uint8_t *code,
   uint32_t function_offset,

@@ -20,6 +20,7 @@
 #define IS_NOT_TOKEN(t,a) (t[0]!=a || t[1]!=0)
 
 struct _asm_context;
+typedef struct _asm_context AsmContext;
 
 typedef struct _token_buffer
 {
@@ -43,15 +44,15 @@ typedef struct _tokens
   char pushback2[TOKENLEN];
 } Tokens;
 
-int tokens_open_file(struct _asm_context *asm_context, char *filename);
-void tokens_open_buffer(struct _asm_context *asm_context, const char *buffer);
-void tokens_close(struct _asm_context *asm_context);
-void tokens_reset(struct _asm_context *asm_context);
-int tokens_get_char(struct _asm_context *asm_context);
-int tokens_unget_char(struct _asm_context *asm_context, int ch);
-int tokens_get(struct _asm_context *asm_context, char *token, int len);
-void tokens_push(struct _asm_context *asm_context, char *token, int token_type);
-int tokens_escape_char(struct _asm_context *asm_context, uint8_t *s);
+int tokens_open_file(AsmContext *asm_context, char *filename);
+void tokens_open_buffer(AsmContext *asm_context, const char *buffer);
+void tokens_close(AsmContext *asm_context);
+void tokens_reset(AsmContext *asm_context);
+int tokens_get_char(AsmContext *asm_context);
+int tokens_unget_char(AsmContext *asm_context, int ch);
+int tokens_get(AsmContext *asm_context, char *token, int len);
+void tokens_push(AsmContext *asm_context, char *token, int token_type);
+int tokens_escape_char(AsmContext *asm_context, uint8_t *s);
 
 enum
 {

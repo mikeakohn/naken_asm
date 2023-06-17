@@ -19,12 +19,12 @@
 #define IS_DATA 0
 #define IS_OPCODE 1
 
-void add_bin8(struct _asm_context *asm_context, uint8_t b, int flags);
-void add_bin16(struct _asm_context *asm_context, uint16_t b, int flags);
-//void add_bin24(struct _asm_context *asm_context, uint32_t b, int flags);
-void add_bin32(struct _asm_context *asm_context, uint32_t b, int flags);
-int add_bin_varuint(struct _asm_context *asm_context, uint64_t b, int fixed_size);
-int add_bin_varint(struct _asm_context *asm_context, uint64_t b, int fixed_size);
+void add_bin8(AsmContext *asm_context, uint8_t b, int flags);
+void add_bin16(AsmContext *asm_context, uint16_t b, int flags);
+//void add_bin24(AsmContext *asm_context, uint32_t b, int flags);
+void add_bin32(AsmContext *asm_context, uint32_t b, int flags);
+int add_bin_varuint(AsmContext *asm_context, uint64_t b, int fixed_size);
+int add_bin_varint(AsmContext *asm_context, uint64_t b, int fixed_size);
 
 #endif
 
