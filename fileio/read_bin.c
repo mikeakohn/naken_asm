@@ -19,7 +19,7 @@ int read_bin(const char *filename, Memory *memory, uint32_t start_address)
 {
   FILE *in;
   int ch;
-  int address = start_address;
+  uint32_t address = start_address;
 
   memory_clear(memory);
 

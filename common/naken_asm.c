@@ -20,22 +20,15 @@
 #include "common/symbols.h"
 #include "common/tokens.h"
 #include "common/version.h"
+#include "fileio/file.h"
+#if 0
 #include "fileio/write_amiga.h"
 #include "fileio/write_bin.h"
 #include "fileio/write_elf.h"
 #include "fileio/write_hex.h"
 #include "fileio/write_srec.h"
 #include "fileio/write_wdc.h"
-
-enum
-{
-  FORMAT_HEX,
-  FORMAT_BIN,
-  FORMAT_ELF,
-  FORMAT_SREC,
-  FORMAT_WDC,
-  FORMAT_AMIGA,
-};
+#endif
 
 const char *credits =
   "\n"
@@ -86,10 +79,9 @@ static void output_hex_text(FILE *fp, char *s, int ptr)
 
 int main(int argc, char *argv[])
 {
-  FILE *out;
-  FILE *dbg = NULL;
+  //FILE *out;
   int i;
-  int format = FORMAT_HEX;
+  int file_type = FILE_TYPE_HEX;
   int create_list = 0;
   char *infile = NULL, *outfile = NULL;
   AsmContext asm_context;
@@ -137,34 +129,34 @@ int main(int argc, char *argv[])
       else
     if (strcmp(argv[i], "-h") == 0)
     {
-      format = FORMAT_HEX;
+      file_type = FILE_TYPE_HEX;
     }
       else
     if (strcmp(argv[i], "-bin") == 0 || strcmp(argv[i], "-b") == 0)
     {
-      format = FORMAT_BIN;
+      file_type = FILE_TYPE_BIN;
     }
       else
     if (strcmp(argv[i], "-srec") == 0 || strcmp(argv[i], "-s") == 0)
     {
-      format = FORMAT_SREC;
+      file_type = FILE_TYPE_SREC;
     }
 #ifndef DISABLE_ELF
       else
     if (strcmp(argv[i], "-elf") == 0 || strcmp(argv[i], "-e") == 0)
     {
-      format = FORMAT_ELF;
+      file_type = FILE_TYPE_ELF;
     }
 #endif
       else
     if (strcmp(argv[i], "-wdc") == 0)
     {
-      format = FORMAT_WDC;
+      file_type = FILE_TYPE_WDC;
     }
       else
     if (strcmp(argv[i], "-amiga") == 0)
     {
-      format = FORMAT_AMIGA;
+      file_type = FILE_TYPE_AMIGA;
     }
       else
     if (strcmp(argv[i], "-type") == 0)
@@ -179,32 +171,32 @@ int main(int argc, char *argv[])
 
       if (strcmp(argv[i], "amiga") == 0)
       {
-        format = FORMAT_AMIGA;
+        file_type = FILE_TYPE_AMIGA;
       }
         else
       if (strcmp(argv[i], "bin") == 0)
       {
-        format = FORMAT_BIN;
+        file_type = FILE_TYPE_BIN;
       }
         else
       if (strcmp(argv[i], "elf") == 0)
       {
-        format = FORMAT_ELF;
+        file_type = FILE_TYPE_ELF;
       }
         else
       if (strcmp(argv[i], "hex") == 0)
       {
-        format = FORMAT_HEX;
+        file_type = FILE_TYPE_HEX;
       }
         else
       if (strcmp(argv[i], "srec") == 0)
       {
-        format = FORMAT_SREC;
+        file_type = FILE_TYPE_SREC;
       }
         else
       if (strcmp(argv[i], "wdc") == 0)
       {
-        format = FORMAT_WDC;
+        file_type = FILE_TYPE_WDC;
       }
         else
       {
@@ -313,14 +305,14 @@ int main(int argc, char *argv[])
 
   if (outfile == NULL)
   {
-    switch (format)
+    switch (file_type)
     {
-      case FORMAT_HEX: outfile = "out.hex"; break;
-      case FORMAT_BIN: outfile = "out.bin"; break;
-      case FORMAT_ELF: outfile = "out.elf"; break;
-      case FORMAT_SREC: outfile = "out.srec"; break;
-      case FORMAT_WDC: outfile = "out.wdc"; break;
-      case FORMAT_AMIGA: outfile = "out"; break;
+      case FILE_TYPE_HEX: outfile = "out.hex"; break;
+      case FILE_TYPE_BIN: outfile = "out.bin"; break;
+      case FILE_TYPE_ELF: outfile = "out.elf"; break;
+      case FILE_TYPE_SREC: outfile = "out.srec"; break;
+      case FILE_TYPE_WDC: outfile = "out.wdc"; break;
+      case FILE_TYPE_AMIGA: outfile = "out"; break;
       default: outfile = "out.err"; break;
     }
   }
@@ -341,43 +333,24 @@ int main(int argc, char *argv[])
 
   if (tokens_open_file(&asm_context, infile) != 0)
   {
-    printf("Couldn't open %s for reading.\n", infile);
+    printf("Error: Couldn't open %s for reading.\n\n", infile);
     exit(1);
   }
 
+#if 0
   out = fopen(outfile, "wb");
   if (out == NULL)
   {
     printf("Couldn't open %s for writing.\n", outfile);
     exit(1);
   }
+#endif
 
   if (asm_context.quiet_output == 0)
   {
     printf(" Input file: %s\n", infile);
     printf("Output file: %s\n", outfile);
   }
-
-#if 0
-  if (asm_context.debug_file == 1)
-  {
-    char filename[1024];
-    strcpy(filename, outfile);
-
-    new_extension(filename, "ndbg", 1024);
-
-    dbg = fopen(filename,"wb");
-    if (dbg == NULL)
-    {
-      printf("Couldn't open %s for writing.\n",filename);
-      exit(1);
-    }
-
-    printf(" Debug file: %s\n",filename);
-
-    fprintf(dbg, "%s\n", infile);
-  }
-#endif
 
   if (create_list == 1)
   {
@@ -389,7 +362,7 @@ int main(int argc, char *argv[])
     asm_context.list = fopen(filename, "wb");
     if (asm_context.list == NULL)
     {
-      printf("Couldn't open %s for writing.\n", filename);
+      printf("\nError: Couldn't open %s for writing.\n\n", filename);
       exit(1);
     }
 
@@ -446,50 +419,57 @@ int main(int argc, char *argv[])
       break;
     }
 
-    if (format == FORMAT_HEX)
+    int retcode = file_write(outfile, &asm_context, file_type);
+
+    if (retcode == -1)
+    {
+      printf("\nError: Couldn't open %s for writing.\n\n", outfile);
+      exit(1);
+    }
+
+#if 0
+    if (file_type == FILE_TYPE_HEX)
     {
       write_hex(&asm_context.memory, out);
     }
       else
-    if (format == FORMAT_BIN)
+    if (file_type == FILE_TYPE_BIN)
     {
       write_bin(&asm_context.memory, out);
     }
       else
-    if (format == FORMAT_SREC)
+    if (file_type == FILE_TYPE_SREC)
     {
-      write_srec(&asm_context.memory, out, cpu_list[asm_context.cpu_list_index].srec_size);
+      write_srec(
+        &asm_context.memory,
+        out,
+        cpu_list[asm_context.cpu_list_index].srec_size);
     }
       else
-    if (format == FORMAT_ELF)
+    if (file_type == FILE_TYPE_ELF)
     {
-      write_elf(&asm_context.memory, out, &asm_context.symbols, asm_context.tokens.filename, asm_context.cpu_type, cpu_list[asm_context.cpu_list_index].alignment);
+      write_elf(
+        &asm_context.memory,
+        out,
+        &asm_context.symbols,
+        asm_context.tokens.filename,
+        asm_context.cpu_type,
+        cpu_list[asm_context.cpu_list_index].alignment);
     }
       else
-    if (format == FORMAT_WDC)
+    if (file_type == FILE_TYPE_WDC)
     {
       write_wdc(&asm_context.memory, out);
     }
       else
-    if (format == FORMAT_AMIGA)
+    if (file_type == FILE_TYPE_AMIGA)
     {
       write_amiga(&asm_context.memory, out);
     }
-
-    if (dbg != NULL)
-    {
-      for (i = 0; i < asm_context.memory.size; i++)
-      {
-        int debug_line = memory_debug_line(&asm_context, i);
-        putc(debug_line >> 8, dbg);
-        putc(debug_line & 0xff, dbg);
-      }
-
-      fclose(dbg);
-    }
+#endif
   } while (0);
 
-  fclose(out);
+  //fclose(out);
 
   if (create_list == 1)
   {

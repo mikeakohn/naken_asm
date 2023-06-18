@@ -12,11 +12,15 @@
 #ifndef NAKEN_ASM_WRITE_ELF_H
 #define NAKEN_ASM_WRITE_ELF_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "common/memory.h"
 #include "common/symbols.h"
 
 #define ELF_TEXT_MAX 64
 
-struct _sections_offset
+typedef struct _sections_offset
 {
   long text;
   long rela_text;
@@ -34,9 +38,9 @@ struct _sections_offset
   long debug_aranges;
   long rela_debug_aranges;
   long arm_attribute;
-};
+} SectionsOffset;
 
-struct _sections_size
+typedef struct _sections_size
 {
   int text;
   int rela_text;
@@ -54,9 +58,9 @@ struct _sections_size
   int debug_aranges;
   int rela_debug_aranges;
   int arm_attribute;
-};
+} SectionsSize;
 
-struct _shdr
+typedef struct _shdr
 {
   uint32_t sh_name;
   uint32_t sh_type;
@@ -68,9 +72,9 @@ struct _shdr
   uint32_t sh_info;
   uint32_t sh_addralign;
   uint32_t sh_entsize;
-};
+} Shdr;
 
-struct _symtab
+typedef struct _symtab
 {
   uint32_t st_name;
   uint32_t st_value;
@@ -78,7 +82,7 @@ struct _symtab
   char st_info;
   char st_other;
   uint16_t st_shndx;
-};
+} Symtab;
 
 int write_elf(
   Memory *memory,

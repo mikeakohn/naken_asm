@@ -55,7 +55,6 @@ typedef struct _asm_context
   int ifdef_count;
   int parsing_ifdef;
   Linker *linker;
-  int debug_file;
   char def_param_stack_data[PARAM_STACK_LEN];
   int def_param_stack_ptr[MAX_NESTED_MACROS+1];
   int def_param_stack_count;

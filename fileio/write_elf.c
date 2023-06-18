@@ -17,8 +17,8 @@
 #include "common/symbols.h"
 #include "fileio/write_elf.h"
 
-typedef void(*write_int32_t)(FILE *, unsigned int);
-typedef void(*write_int16_t)(FILE *, unsigned int);
+typedef void(*write_int32_t)(FILE *, uint32_t);
+typedef void(*write_int16_t)(FILE *, uint32_t);
 
 struct _elf
 {
@@ -133,7 +133,7 @@ static void write_elf_header(FILE *out, struct _elf *elf, Memory *memory)
   // This probably should be 0 for Raspberry Pi, etc.
   elf->e_ident[EI_OSABI] = 255;
 
-  // We may need this later
+  // May need this later
   //elf.e_ident[7]=0xff; // SYSV=0, HPUX=1, STANDALONE=255
 
   // mspgcc4/build/insight-6.8-1/include/elf/msp430.h (11)
@@ -643,7 +643,7 @@ int write_elf(
   write_shdr(out, &shdr, &elf);
 
 #if 0
-  if (asm_context->debug_file==1)
+  if (asm_context->debug_file == 1)
   {
     // insert debug SHT's
   }

@@ -72,31 +72,31 @@ struct _elf32_sym
 
 static uint32_t get_int16_le(FILE *in)
 {
-uint32_t i;
+  uint32_t i;
 
-  i = getc(in);
-  i |= (getc(in)<<8);
+  i  = getc(in);
+  i |= (getc(in) << 8);
 
   return i;
 }
 
 static uint32_t get_int32_le(FILE *in)
 {
-uint32_t i;
+  uint32_t i;
 
-  i = getc(in);
-  i |= (getc(in)<<8);
-  i |= (getc(in)<<16);
-  i |= (getc(in)<<24);
+  i  =  getc(in);
+  i |= (getc(in) << 8);
+  i |= (getc(in) << 16);
+  i |= (getc(in) << 24);
 
   return i;
 }
 
 static uint32_t get_int16_be(FILE *in)
 {
-uint32_t i;
+  uint32_t i;
 
-  i = (getc(in)<<8);
+  i = (getc(in) << 8);
   i |= getc(in);
 
   return i;
@@ -104,12 +104,12 @@ uint32_t i;
 
 static uint32_t get_int32_be(FILE *in)
 {
-uint32_t i;
+  uint32_t i;
 
-  i = (getc(in)<<24);
-  i |= (getc(in)<<16);
-  i |= (getc(in)<<8);
-  i |= getc(in);
+  i =  (getc(in) << 24);
+  i |= (getc(in) << 16);
+  i |= (getc(in) << 8);
+  i |=  getc(in);
 
   return i;
 }
@@ -131,8 +131,8 @@ static int read_shdr(
 
 static int read_name(FILE *in, char *name, int len, long offset)
 {
-long marker = ftell(in);
-int ptr = 0;
+  long marker = ftell(in);
+  int ptr = 0;
 
   fseek(in, offset, SEEK_SET);
 
