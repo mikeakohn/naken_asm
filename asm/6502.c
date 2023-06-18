@@ -111,7 +111,8 @@ static int get_address(
 
     // Store a flag in this address to remind on pass 2 that this
     // instruction can't use zero page.
-    memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
+    memory_write(asm_context, asm_context->address, 1,
+                 asm_context->tokens.line);
     worst_case = 1;
   }
 
@@ -236,7 +237,8 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
         if (num < -128 || num > 0xff)
         {
-          print_error(asm_context, "8-bit constant out of range.");
+          print_error_range(asm_context,
+                            "8-bit constant out of range.", -128, 0xff);
           return -1;
         }
 
@@ -261,7 +263,8 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
           if (num < -128 || num > 127)
           {
-            print_error(asm_context, "Relative branch out of range");
+            print_error_range(asm_context,
+                              "Relative branch out of range", -128, 127);
             return -1;
           }
 
@@ -284,7 +287,8 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
         if (num < -128 || num > 0xff)
         {
-          print_error(asm_context, "8-bit constant out of range.");
+          print_error_range(asm_context,
+                            "8-bit constant out of range.", -128, 0xff);
           return -1;
         }
 
@@ -315,7 +319,8 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 #if 0
               if (num < 0 || num > 0xff || size == 16)
               {
-                print_error(asm_context, "Address out of range.");
+                print_error_range(asm_context,
+                                  "Address out of range.", 0, 0xff);
                 return -1;
               }
 #endif
@@ -344,7 +349,8 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
             {
               if (num < 0 || num > 0xff || size == 16)
               {
-                print_error(asm_context, "Address out of range.");
+                print_error_range(asm_context,
+                                  "Address out of range.", 0, 0xff);
                 return -1;
               }
 
@@ -376,7 +382,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
         if (num < 0 || num > 0xffff)
         {
-          print_error(asm_context, "Address out of range.");
+          print_error_range(asm_context, "Address out of range.", 0, 0xffff);
           return -1;
         }
 
@@ -391,7 +397,8 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
         {
           if (num > 0xff)
           {
-            print_error(asm_context, "Zero-page address out of range.");
+            print_error_range(asm_context,
+                              "Zero-page address out of range.", 0, 0xff);
             return -1;
           }
 
@@ -402,7 +409,8 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
         {
           if (num > 0xffff)
           {
-            print_error(asm_context, "Absolute address out of range.");
+            print_error_range(asm_context,
+                              "Absolute address out of range.", 0, 0xffff);
             return -1;
           }
 
@@ -424,7 +432,8 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
             if (num > 0xffff)
             {
-              print_error(asm_context, "Address out of range.");
+              print_error_range(asm_context,
+                                "Address out of range.", 0, 0xffff);
               print_error_unexp(asm_context, token);
               return -1;
             }
@@ -439,7 +448,8 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
             if (num > 0xffff)
             {
-              print_error(asm_context, "Address out of range.");
+              print_error_range(asm_context,
+                                "Address out of range.", 0, 0xffff);
               print_error_unexp(asm_context, token);
               return -1;
             }
