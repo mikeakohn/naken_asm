@@ -37,39 +37,6 @@ enum
 static char *state_stopped = "stopped";
 static char *state_running = "running";
 
-#ifdef READLINE
-static const char *command_names[] =
-{
-  "help",
-  "quit",
-  "exit",
-  "run",
-  "step",
-  "call",
-  "stop",
-  "reset",
-  "break",
-  "push",
-  "set",
-  "clear",
-  "speed",
-  "print",
-  "print",
-  "print16",
-  "print32",
-  "write",
-  "write16",
-  "write32",
-  "print",
-  "disasm",
-  "symbols",
-  "dumpram",
-  "info",
-  "registers",
-  "display",
-  "read",
-};
-
 static void print_usage()
 {
   printf("Usage: naken_util [options] <infile>\n"
@@ -132,6 +99,39 @@ static void print_usage()
          "   -break_io <address>          (In -run mode writing to an i/o port exits sim)\n"
          "\n");
 }
+
+#ifdef READLINE
+static const char *command_names[] =
+{
+  "help",
+  "quit",
+  "exit",
+  "run",
+  "step",
+  "call",
+  "stop",
+  "reset",
+  "break",
+  "push",
+  "set",
+  "clear",
+  "speed",
+  "print",
+  "print",
+  "print16",
+  "print32",
+  "write",
+  "write16",
+  "write32",
+  "print",
+  "disasm",
+  "symbols",
+  "dumpram",
+  "info",
+  "registers",
+  "display",
+  "read",
+};
 
 static const char *find_partial_command(const char *text, int *index)
 {
