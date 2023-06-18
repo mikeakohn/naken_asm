@@ -21,15 +21,16 @@ static int get_hex(FILE *in, int len)
   int ch;
   int n = 0;
 
-  while(len > 0)
+  while (len > 0)
   {
     ch = getc(in);
     if (ch == EOF) return -1;
-    if (ch >= '0' && ch <= '9') ch -= '0';
+
+    if (ch >= '0' && ch <= '9') { ch -= '0'; }
       else
-    if (ch >= 'A' && ch <= 'F') ch = (ch - 'A') + 10;
+    if (ch >= 'A' && ch <= 'F') { ch = (ch - 'A') + 10; }
       else
-    if (ch >= 'a' && ch <= 'f') ch = (ch - 'a') + 10;
+    if (ch >= 'a' && ch <= 'f') { ch = (ch - 'a') + 10; }
       else
     { return -2; }
 
@@ -44,7 +45,7 @@ static void ignore_line(FILE *in)
 {
   int ch;
 
-  while(1)
+  while (1)
   {
     ch = getc(in);
     if (ch == '\n' || ch == EOF) { break; }
@@ -77,13 +78,13 @@ int read_srec(const char *filename, Memory *memory)
     return -1;
   }
 
-  while(1)
+  while (1)
   {
     line++;
     ch = getc(in);
-    if (ch == EOF) break;
+    if (ch == EOF) { break; }
 
-    // If line doesn't start with S, ignore the line (this is a bad file maybe)
+    // If line doesn't start with S, ignore the line (this is a bad file maybe).
     if (ch != 'S')
     {
       ignore_line(in);

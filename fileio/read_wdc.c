@@ -51,7 +51,7 @@ int read_wdc(const char *filename, Memory *memory)
     return -1;
   }
 
-  while(1)
+  while (1)
   {
     int address = read_int24(in);
     int length = read_int24(in);
@@ -67,7 +67,7 @@ int read_wdc(const char *filename, Memory *memory)
     {
       ch = getc(in);
 
-      if (ch == EOF) break;
+      if (ch == EOF) { break; }
 
       if (address > memory->high_address)
       {
@@ -85,5 +85,4 @@ int read_wdc(const char *filename, Memory *memory)
 
   return memory->low_address;
 }
-
 

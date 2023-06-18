@@ -22,6 +22,7 @@ typedef struct _util_context
   struct _memory memory;
   Symbols symbols;
   Simulate *simulate;
+  const char *cpu_name;
   uint32_t flags;
   uint8_t bytes_per_address;
   uint8_t alignment;
@@ -37,6 +38,8 @@ int util_get_range(
   uint32_t *start,
   uint32_t *end);
 
+int util_is_supported_cpu(const char *name);
+int util_set_cpu_by_type(UtilContext *util_context, uint8_t cpu_type);
 int util_set_cpu_by_name(UtilContext *util_context, const char *name);
 
 char *util_get_num(char *token, uint32_t *num);

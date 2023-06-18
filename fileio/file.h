@@ -15,6 +15,7 @@
 #include <stdlib.h>
 
 #include "common/assembler.h"
+#include "common/util_context.h"
 
 enum  
 {   
@@ -25,16 +26,18 @@ enum
   FILE_TYPE_SREC,
   FILE_TYPE_WDC,
   FILE_TYPE_AMIGA,
+  FILE_TYPE_TI_TXT,
 };  
 
 int file_write(const char *filename, AsmContext *asm_context, int file_type);
 
+const char *file_get_file_type_name(int file_type);
+
 int file_read(
   const char *filename,
-  Memory *memory,
-  Symbols *symbols,
+  UtilContext *util_context,
   int *file_type,
-  uint8_t *cpu_type,
+  const char *cpu_name,
   uint32_t start_address);
 
 #endif

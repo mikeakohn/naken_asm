@@ -18,6 +18,7 @@
 #include "common/cpu_list.h"
 #include "common/util_context.h"
 #include "disasm/msp430.h"
+#include "simulate/null.h"
 
 // FIXME - How to do this better?
 #if 0
@@ -198,6 +199,62 @@ int util_get_range(
   return 0;
 }
 
+int util_is_supported_cpu(const char *name)
+{
+  int n = 0;
+
+  while (cpu_list[n].name != NULL)
+  {
+    if (strcasecmp(name, cpu_list[n].name) == 0) { return 1; }
+    n++;
+  }
+
+  return 0;
+}
+
+static void util_copy_cpu_info(UtilContext *util_context, CpuList *cpu_info)
+{
+  util_context->cpu_name          = cpu_info->name;
+  util_context->disasm_range      = cpu_info->disasm_range;
+  util_context->flags             = cpu_info->flags;
+  util_context->bytes_per_address = cpu_info->bytes_per_address;
+  util_context->memory.endian     = cpu_info->default_endian;
+  util_context->alignment         = cpu_info->alignment;
+
+  if (util_context->simulate != NULL)
+  {
+    free(util_context->simulate);
+    util_context->simulate = NULL;
+  }
+
+  if (cpu_info->simulate_init != NULL)
+  {
+    util_context->simulate = cpu_info->simulate_init(&util_context->memory);
+  }
+    else
+  {
+    util_context->simulate = simulate_init_null(&util_context->memory);
+  }
+}
+
+int util_set_cpu_by_type(UtilContext *util_context, uint8_t cpu_type)
+{
+  int n = 0;
+
+  while (cpu_list[n].name != NULL)
+  {
+    if (cpu_list[n].type == cpu_type)
+    {
+      util_copy_cpu_info(util_context, &cpu_list[n]);
+      return 1;
+    }
+
+    n++;
+  }
+
+  return 0;
+}
+
 int util_set_cpu_by_name(UtilContext *util_context, const char *name)
 {
   int n = 0;
@@ -206,20 +263,8 @@ int util_set_cpu_by_name(UtilContext *util_context, const char *name)
   {
     if (strcasecmp(name, cpu_list[n].name) == 0)
     {
-      util_context->disasm_range = cpu_list[n].disasm_range;
-      util_context->flags = cpu_list[n].flags;
-      util_context->bytes_per_address = cpu_list[n].bytes_per_address;
-      util_context->memory.endian = cpu_list[n].default_endian;
-      util_context->alignment = cpu_list[n].alignment;
-
-      if (cpu_list[n].simulate_init != NULL)
-      {
-        util_context->simulate = cpu_list[n].simulate_init(&util_context->memory);
-      }
-
+      util_copy_cpu_info(util_context, &cpu_list[n]);
       return 1;
-
-      break;
     }
 
     n++;

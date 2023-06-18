@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "common/assembler.h"
+#include "common/util_context.h"
 #include "fileio/file.h"
 #include "fileio/read_amiga.h"
 #include "fileio/read_bin.h"
@@ -79,13 +80,63 @@ int file_write(const char *filename, AsmContext *asm_context, int file_type)
   return 0;
 }
 
-int file_read(
-  const char *filename,
-  Memory *memory,
-  Symbols *symbols,
-  int *file_type,
-  uint8_t *cpu_type,
-  uint32_t start_address)
+const char *file_get_file_type_name(int file_type)
+{
+  switch (file_type)
+  {
+    case FILE_TYPE_HEX:    return "hex";
+    case FILE_TYPE_BIN:    return "bin";
+    case FILE_TYPE_ELF:    return "elf";
+    case FILE_TYPE_SREC:   return "srec";
+    case FILE_TYPE_WDC:    return "wdc";
+    case FILE_TYPE_AMIGA:  return "amiga";
+    case FILE_TYPE_TI_TXT: return "ti_txt";
+  }
+
+  return "???";
+}
+
+static int check_magic(const char *filename, const char *magic)
+{
+  int value = 0;
+  FILE *fp = fopen(filename, "rb");
+  if (fp == NULL) { return 0; }
+
+  char buffer[4];
+  int length = fread(buffer, 1, sizeof(buffer), fp);
+
+  if (length == sizeof(buffer))
+  {
+    if (memcmp(buffer, magic, sizeof(buffer)) == 0) { value = 1; }
+  }
+
+  fclose(fp);
+  return value;
+}
+
+static int is_elf(const char *filename)
+{
+  return check_magic(filename, "\x7f" "ELF");
+}
+
+static int is_amiga(const char *filename)
+{
+  return check_magic(filename, "\x00" "\x00" "\x03" "\xf3");
+}
+
+static int is_hex(const char *filename)
+{
+  int value = 0;
+  FILE *fp = fopen(filename, "rb");
+  if (fp == NULL) { return 0; }
+
+  if (getc(fp) == ':') { value = 1; }
+  fclose(fp);
+
+  return value;
+}
+
+static const char *get_extension(const char *filename)
 {
   const char *extension = filename + strlen(filename) - 1;
 
@@ -100,35 +151,87 @@ int file_read(
     extension--;
   }
 
-  *cpu_type = -1;
+  return extension;
+}
 
-  if (*file_type != FILE_TYPE_AUTO)
+static int get_file_type(const char *filename)
+{
+  const char *extension = get_extension(filename);
+
+  if (strcasecmp(extension, "hex")  == 0) { return FILE_TYPE_HEX; }
+  if (strcasecmp(extension, "wdc")  == 0) { return FILE_TYPE_WDC; }
+  if (strcasecmp(extension, "srec") == 0) { return FILE_TYPE_SREC; }
+  if (strcasecmp(extension, "txt")  == 0) { return FILE_TYPE_TI_TXT; }
+
+  if (is_elf(filename)   == 1) { return FILE_TYPE_ELF; }
+  if (is_amiga(filename) == 1) { return FILE_TYPE_AMIGA; }
+  if (is_hex(filename)   == 1) { return FILE_TYPE_HEX; }
+
+  if (strcasecmp(extension, "bin") == 0)  { return FILE_TYPE_BIN; }
+
+  return FILE_TYPE_BIN;
+}
+
+int file_read(
+  const char *filename,
+  UtilContext *util_context,
+  int *file_type,
+  const char *cpu_name,
+  uint32_t start_address)
+{
+  uint8_t cpu_type = 0;
+
+  Memory *memory = &util_context->memory;
+  Symbols *symbols = &util_context->symbols;
+
+  if (*file_type == FILE_TYPE_AUTO)
   {
-    switch (*file_type)
-    {
-      case FILE_TYPE_HEX:
-        read_hex(filename, memory);
-        break;
-      case FILE_TYPE_BIN:
-        read_bin(filename, memory, start_address);
-        break;
-      case FILE_TYPE_ELF:
-        read_elf(filename, memory, cpu_type, symbols);
-        break;
-      case FILE_TYPE_SREC:
-        read_srec(filename, memory);
-        break;
-      case FILE_TYPE_WDC:
-        read_wdc(filename, memory);
-        break;
-      case FILE_TYPE_AMIGA:
-        read_amiga(filename, memory);
-        break;
-      default:
-        return -1;
-    }
+    *file_type = get_file_type(filename);
   }
 
-  return -1;
+  int ret = -2;
+
+  switch (*file_type)
+  {
+    case FILE_TYPE_HEX:
+      ret = read_hex(filename, memory);
+      break;
+    case FILE_TYPE_BIN:
+      ret = read_bin(filename, memory, start_address);
+      break;
+    case FILE_TYPE_ELF:
+      ret = read_elf(filename, memory, &cpu_type, symbols);
+      break;
+    case FILE_TYPE_SREC:
+      ret = read_srec(filename, memory);
+      break;
+    case FILE_TYPE_WDC:
+      ret = read_wdc(filename, memory);
+      break;
+    case FILE_TYPE_AMIGA:
+      ret = read_amiga(filename, memory);
+      cpu_type = CPU_TYPE_68000;
+      break;
+    case FILE_TYPE_TI_TXT:
+      ret = read_ti_txt(filename, memory);
+      break;
+    default:
+      break;
+  }
+
+  // FIXME: read_elf() and maybe others returns the start address or -1.
+  if (ret >= 0) { ret = 0; }
+  if (ret != 0) { return ret; }
+
+  if (cpu_name != NULL)
+  {
+    util_set_cpu_by_name(util_context, cpu_name);
+  }
+    else
+  {
+    util_set_cpu_by_type(util_context, cpu_type);
+  }
+
+  return 0;
 }
 

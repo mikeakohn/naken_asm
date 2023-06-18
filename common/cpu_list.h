@@ -113,7 +113,7 @@ enum
 // simulate_init: function that inializes the simulator.
 // flags: extra flags the assembler can use.
 
-struct _cpu_list
+typedef struct _cpu_list
 {
   char *name;
   int8_t type;
@@ -135,7 +135,7 @@ struct _cpu_list
   disasm_range_t disasm_range;
   simulate_init_t simulate_init;
   uint32_t flags;
-};
+} CpuList;
 
 extern struct _cpu_list cpu_list[];
 

@@ -25,70 +25,7 @@
 #include "common/util_disasm.h"
 #include "common/util_sim.h"
 #include "common/version.h"
-#include "disasm/1802.h"
-#include "disasm/4004.h"
-#include "disasm/6502.h"
-#include "disasm/65816.h"
-#include "disasm/6800.h"
-#include "disasm/6809.h"
-#include "disasm/68hc08.h"
-#include "disasm/68000.h"
-#include "disasm/8008.h"
-#include "disasm/8048.h"
-#include "disasm/8051.h"
-#include "disasm/86000.h"
-#include "disasm/arc.h"
-#include "disasm/arm.h"
-#include "disasm/arm64.h"
-#include "disasm/avr8.h"
-#include "disasm/cell.h"
-#include "disasm/copper.h"
-#include "disasm/cp1610.h"
-#include "disasm/dotnet.h"
-#include "disasm/dspic.h"
-#include "disasm/epiphany.h"
-#include "disasm/java.h"
-#include "disasm/lc3.h"
-#include "disasm/m8c.h"
-#include "disasm/mips.h"
-#include "disasm/msp430.h"
-#include "disasm/pdp8.h"
-#include "disasm/pic14.h"
-#include "disasm/powerpc.h"
-#include "disasm/propeller.h"
-#include "disasm/propeller2.h"
-#include "disasm/ps2_ee_vu.h"
-#include "disasm/riscv.h"
-#include "disasm/sh4.h"
-#include "disasm/sparc.h"
-#include "disasm/stm8.h"
-#include "disasm/super_fx.h"
-#include "disasm/sweet16.h"
-#include "disasm/tms340.h"
-#include "disasm/tms1000.h"
-#include "disasm/tms9900.h"
-#include "disasm/unsp.h"
-#include "disasm/webasm.h"
-#include "disasm/xtensa.h"
-#include "disasm/z80.h"
-#include "fileio/read_amiga.h"
-#include "fileio/read_bin.h"
-#include "fileio/read_elf.h"
-#include "fileio/read_hex.h"
-#include "fileio/read_srec.h"
-#include "fileio/read_ti_txt.h"
-#include "fileio/read_wdc.h"
-#include "simulate/1802.h"
-#include "simulate/8008.h"
-#include "simulate/avr8.h"
-#include "simulate/6502.h"
-#include "simulate/65816.h"
-#include "simulate/lc3.h"
-#include "simulate/mips.h"
-#include "simulate/msp430.h"
-#include "simulate/tms9900.h"
-#include "simulate/z80.h"
-#include "simulate/null.h"
+#include "fileio/file.h"
 
 enum
 {
@@ -132,6 +69,69 @@ static const char *command_names[] =
   "display",
   "read",
 };
+
+static void print_usage()
+{
+  printf("Usage: naken_util [options] <infile>\n"
+         "   // ELF files can auto-pick a CPU, if a hex file use:\n"
+         "   -1802                        (RCA 1802)\n"
+         "   -4004                        (Intel 4004 / MCS-4)\n"
+         "   -6502                        (6502)\n"
+         "   -65816                       (65816)\n"
+         "   -6800                        (6800)\n"
+         "   -6809                        (6809)\n"
+         "   -68hc08                      (68hc08)\n"
+         "   -68000                       (68000)\n"
+         "   -8008                        (8008 / MCS-8)\n"
+         "   -8048                        (8048 / MCS-48)\n"
+         "   -8051 / -8052                (8051 / 8052 / MCS-51)\n"
+         "   -86000                       (86000 / VMU)\n"
+         "   -arc                         (ARC)\n"
+         "   -arm                         (ARM)\n"
+         "   -arm64                       (ARM64)\n"
+         "   -avr8                        (Atmel AVR8)\n"
+         "   -cell                        (IBM Cell BE)\n"
+         "   -copper                      (Amiga Copper)\n"
+         "   -cp1610                      (General Instruments CP1610)\n"
+         "   -dotnet                      (.NET CIL)\n"
+         "   -dspic                       (dsPIC)\n"
+         "   -epiphany                    (Epiphany III/IV)\n"
+         "   -java                        (Java)\n"
+         "   -lc3                         (LC-3)\n"
+         "   -m8c                         (PSoC M8C)\n"
+         "   -mips32 / mips               (MIPS)\n"
+         "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
+         "   -pdp8                        (PDP-8)\n"
+         "   -pic14                       (PIC14 8 bit PIC / 14 bit opcode)\n"
+         "   -powerpc                     (PowerPC)\n"
+         "   -propeller                   (Parallax Propeller)\n"
+         "   -propeller2                  (Parallax Propeller2)\n"
+         "   -ps2ee                       (Playstation 2 EE)\n"
+         "   -ps2ee_vu0                   (Playstation 2 VU0)\n"
+         "   -ps2ee_vu1                   (Playstation 2 VU1)\n"
+         "   -riscv                       (RISCV)\n"
+         "   -sh4                         (SH4)\n"
+         "   -stm8                        (STM8)\n"
+         "   -super_fx                    (SuperFX)\n"
+         "   -sweet16                     (sweet16)\n"
+         "   -tms340                      (TMS340 / TMS34010)\n"
+         "   -tms1000                     (TMS1000)\n"
+         "   -tms1100                     (TMS1100)\n"
+         "   -tms9900                     (TMS9900)\n"
+         "   -unsp                        (SunPlus unSP)\n"
+         "   -webasm                      (WebAssembly)\n"
+         "   -xtensa                      (Xtensa)\n"
+         "   -z80                         (z80)\n"
+         "   -bin                         (file is binary)\n"
+         "   // The following options turn off interactive mode\n"
+         "   -disasm                      (Disassemble all of program)\n"
+         "   -disasm_range <start>-<end>  (Disassemble a range of executable code)\n"
+         "   -run                         (Simulate program and dump registers)\n"
+         "   -address <start_address>     (For bin files: binary placed at this address)\n"
+         "   -set_pc <address>            (Sets program counter after loading program)\n"
+         "   -break_io <address>          (In -run mode writing to an i/o port exits sim)\n"
+         "\n");
+}
 
 static const char *find_partial_command(const char *text, int *index)
 {
@@ -265,13 +265,13 @@ int main(int argc, char *argv[])
 #endif
   uint32_t start_address = 0;
   uint32_t set_pc = -1;
-  uint8_t force_bin = 0;
   int i;
-  char *hexfile = NULL;
   int mode = MODE_INTERACTIVE;
   int break_io = -1;
   int error_flag = 0;
-  uint8_t cpu_type_set = 0;
+  const char *filename = NULL;
+  const char *cpu_name = NULL;
+  int file_type = FILE_TYPE_AUTO;
 
   printf("\nnaken_util - by Michael Kohn\n"
          "                Joe Davisson\n"
@@ -279,67 +279,9 @@ int main(int argc, char *argv[])
          "  Email: mike@mikekohn.net\n\n"
          "Version: " VERSION "\n\n");
 
-  if (argc<2)
+  if (argc < 2)
   {
-    printf("Usage: naken_util [options] <infile>\n"
-           "   // ELF files can auto-pick a CPU, if a hex file use:\n"
-           "   -1802                        (RCA 1802)\n"
-           "   -4004                        (Intel 4004 / MCS-4)\n"
-           "   -6502                        (6502)\n"
-           "   -65816                       (65816)\n"
-           "   -6800                        (6800)\n"
-           "   -6809                        (6809)\n"
-           "   -68hc08                      (68hc08)\n"
-           "   -68000                       (68000)\n"
-           "   -8008                        (8008 / MCS-8)\n"
-           "   -8048                        (8048 / MCS-48)\n"
-           "   -8051 / -8052                (8051 / 8052 / MCS-51)\n"
-           "   -86000                       (86000 / VMU)\n"
-           "   -arc                         (ARC)\n"
-           "   -arm                         (ARM)\n"
-           "   -arm64                       (ARM64)\n"
-           "   -avr8                        (Atmel AVR8)\n"
-           "   -cell                        (IBM Cell BE)\n"
-           "   -copper                      (Amiga Copper)\n"
-           "   -cp1610                      (General Instruments CP1610)\n"
-           "   -dotnet                      (.NET CIL)\n"
-           "   -dspic                       (dsPIC)\n"
-           "   -epiphany                    (Epiphany III/IV)\n"
-           "   -java                        (Java)\n"
-           "   -lc3                         (LC-3)\n"
-           "   -m8c                         (PSoC M8C)\n"
-           "   -mips32 / mips               (MIPS)\n"
-           "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
-           "   -pdp8                        (PDP-8)\n"
-           "   -pic14                       (PIC14 8 bit PIC / 14 bit opcode)\n"
-           "   -powerpc                     (PowerPC)\n"
-           "   -propeller                   (Parallax Propeller)\n"
-           "   -propeller2                  (Parallax Propeller2)\n"
-           "   -ps2ee                       (Playstation 2 EE)\n"
-           "   -ps2ee_vu0                   (Playstation 2 VU0)\n"
-           "   -ps2ee_vu1                   (Playstation 2 VU1)\n"
-           "   -riscv                       (RISCV)\n"
-           "   -sh4                         (SH4)\n"
-           "   -stm8                        (STM8)\n"
-           "   -super_fx                    (SuperFX)\n"
-           "   -sweet16                     (sweet16)\n"
-           "   -tms340                      (TMS340 / TMS34010)\n"
-           "   -tms1000                     (TMS1000)\n"
-           "   -tms1100                     (TMS1100)\n"
-           "   -tms9900                     (TMS9900)\n"
-           "   -unsp                        (SunPlus unSP)\n"
-           "   -webasm                      (WebAssembly)\n"
-           "   -xtensa                      (Xtensa)\n"
-           "   -z80                         (z80)\n"
-           "   -bin                         (file is binary)\n"
-           "   // The following options turn off interactive mode\n"
-           "   -disasm                      (Disassemble all of program)\n"
-           "   -disasm_range <start>-<end>  (Disassemble a range of executable code)\n"
-           "   -run                         (Simulate program and dump registers)\n"
-           "   -address <start_address>     (For bin files: binary placed at this address)\n"
-           "   -set_pc <address>            (Sets program counter after loading program)\n"
-           "   -break_io <address>          (In -run mode writing to an i/o port exits sim)\n"
-           "\n");
+    print_usage();
     exit(0);
   }
 
@@ -349,7 +291,11 @@ int main(int argc, char *argv[])
   {
     if (argv[i][0] == '-')
     {
-      if (util_set_cpu_by_name(&util_context, argv[i] + 1) == 1) { continue; }
+      if (util_is_supported_cpu(argv[i] + 1) == 1)
+      {
+        cpu_name = argv[i] + 1;
+        continue;
+      }
     }
 
     if (strcmp(argv[i], "-disasm") == 0)
@@ -399,7 +345,7 @@ int main(int argc, char *argv[])
       else
     if (strcmp(argv[i], "-bin") == 0)
     {
-      force_bin = 1;
+      file_type = FILE_TYPE_BIN;
     }
       else
     if (strcmp(argv[i], "-run") == 0)
@@ -415,126 +361,49 @@ int main(int argc, char *argv[])
     }
       else
     {
-      uint8_t cpu_type;
-      char *extension = argv[i] + strlen(argv[i]) - 1;
-
-      while (extension != argv[i])
-      {
-        if (*extension == '.') { extension++; break; }
-        extension--;
-      }
-
-      if (read_elf(argv[i], &util_context.memory, &cpu_type, &util_context.symbols) >= 0)
-      {
-        int n = 0;
-
-        while (cpu_list[n].name != NULL)
-        {
-          if (cpu_type_set == 1) { break; }
-
-          if (cpu_type == cpu_list[n].type)
-          {
-            util_context.disasm_range = cpu_list[n].disasm_range;
-            util_context.flags = cpu_list[n].flags;
-            util_context.bytes_per_address = cpu_list[n].bytes_per_address;
-            util_context.alignment = cpu_list[n].alignment;
-
-            if (cpu_list[n].simulate_init != NULL)
-            {
-              // FIXME - Remove this free by allocating the memory early
-              // to the size of the biggest possible struct.
-              if (util_context.simulate != NULL)
-              {
-                free(util_context.simulate);
-              }
-
-              util_context.simulate = cpu_list[n].simulate_init(&util_context.memory);
-            }
-
-            break;
-          }
-
-          n++;
-        }
-
-        hexfile = argv[i];
-        printf("Loaded elf %s from 0x%04x to 0x%04x\n",
-          argv[i],
-          util_context.memory.low_address,
-          util_context.memory.high_address);
-      }
-        else
-      if (strcmp(extension, "txt") == 0 &&
-          read_ti_txt(argv[i], &util_context.memory) >= 0)
-      {
-        hexfile = argv[i];
-        printf("Loaded ti_txt %s from 0x%04x to 0x%04x\n",
-          argv[i],
-          util_context.memory.low_address,
-          util_context.memory.high_address);
-      }
-        else
-      if ((strcmp(extension, "bin") == 0 || force_bin == 1) &&
-          read_bin(argv[i], &util_context.memory, start_address) >= 0)
-      {
-        hexfile = argv[i];
-        printf("Loaded bin %s from 0x%04x to 0x%04x\n",
-          argv[i],
-          util_context.memory.low_address,
-          util_context.memory.high_address);
-      }
-        else
-      if (strcmp(extension, "srec") == 0 &&
-          read_srec(argv[i], &util_context.memory) >= 0)
-      {
-        hexfile = argv[i];
-        printf("Loaded srec %s from 0x%04x to 0x%04x\n",
-          argv[i],
-          util_context.memory.low_address,
-          util_context.memory.high_address);
-      }
-        else
-      if ((strcmp(extension, "wdc") == 0) &&
-          read_wdc(argv[i], &util_context.memory) >= 0)
-      {
-        hexfile = argv[i];
-        printf("Loaded WDC binary %s from 0x%04x to 0x%04x\n",
-          argv[i],
-          util_context.memory.low_address,
-          util_context.memory.high_address);
-      }
-        else
-      if (read_amiga(argv[i], &util_context.memory) >= 0)
-      {
-        util_set_cpu_by_name(&util_context, "68000");
-
-        hexfile = argv[i];
-        printf("Loaded Amiga (hunk) exe %s from 0x%04x to 0x%04x\n",
-          argv[i],
-          util_context.memory.low_address,
-          util_context.memory.high_address);
-      }
-        else
-      if (read_hex(argv[i], &util_context.memory) >= 0)
-      {
-        hexfile = argv[i];
-        printf("Loaded hexfile %s from 0x%04x to 0x%04x\n",
-          argv[i],
-          util_context.memory.low_address,
-          util_context.memory.high_address);
-      }
-        else
-      {
-        printf("Could not load hexfile\n");
-      }
+      filename = argv[i];
     }
   }
 
-  if (hexfile == NULL)
+  if (filename == NULL)
   {
-    printf("No hexfile loaded.  Exiting...\n");
+    printf("Error: No file selected to load.  Exiting...\n");
     exit(1);
   }
+
+  int ret = file_read(
+    filename,
+    &util_context,
+    &file_type,
+    cpu_name,
+    start_address);
+
+  if (ret != 0)
+  {
+    printf("Error: Cannot load %s.\n", filename);
+    exit(1);
+  }
+
+  const char *file_type_name = file_get_file_type_name(file_type);
+
+  printf("Loaded %s of type %s / %s from 0x%04x to 0x%04x\n",
+    filename,
+    file_type_name,
+    util_context.cpu_name,
+    util_context.memory.low_address,
+    util_context.memory.high_address);
+
+#if 0
+  if (read_amiga(argv[i], &util_context.memory) >= 0)
+  {
+    util_set_cpu_by_name(&util_context, "68000");
+
+    printf("Loaded Amiga (hunk) exe %s from 0x%04x to 0x%04x\n",
+      argv[i],
+      util_context.memory.low_address,
+      util_context.memory.high_address);
+  }
+#endif
 
   util_context.simulate->simulate_reset(util_context.simulate);
 

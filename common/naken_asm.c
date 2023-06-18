@@ -21,14 +21,6 @@
 #include "common/tokens.h"
 #include "common/version.h"
 #include "fileio/file.h"
-#if 0
-#include "fileio/write_amiga.h"
-#include "fileio/write_bin.h"
-#include "fileio/write_elf.h"
-#include "fileio/write_hex.h"
-#include "fileio/write_srec.h"
-#include "fileio/write_wdc.h"
-#endif
 
 const char *credits =
   "\n"
@@ -79,7 +71,6 @@ static void output_hex_text(FILE *fp, char *s, int ptr)
 
 int main(int argc, char *argv[])
 {
-  //FILE *out;
   int i;
   int file_type = FILE_TYPE_HEX;
   int create_list = 0;
@@ -204,13 +195,6 @@ int main(int argc, char *argv[])
         exit(1);
       }
     }
-#if 0
-      else
-    if (strcmp(argv[i], "-d") == 0)
-    {
-      asm_context.debug_file = 1;
-    }
-#endif
       else
     if (strcmp(argv[i], "-l") == 0)
     {
@@ -307,13 +291,13 @@ int main(int argc, char *argv[])
   {
     switch (file_type)
     {
-      case FILE_TYPE_HEX: outfile = "out.hex"; break;
-      case FILE_TYPE_BIN: outfile = "out.bin"; break;
-      case FILE_TYPE_ELF: outfile = "out.elf"; break;
-      case FILE_TYPE_SREC: outfile = "out.srec"; break;
-      case FILE_TYPE_WDC: outfile = "out.wdc"; break;
-      case FILE_TYPE_AMIGA: outfile = "out"; break;
-      default: outfile = "out.err"; break;
+      case FILE_TYPE_HEX:   outfile = "out.hex";  break;
+      case FILE_TYPE_BIN:   outfile = "out.bin";  break;
+      case FILE_TYPE_ELF:   outfile = "out.elf";  break;
+      case FILE_TYPE_SREC:  outfile = "out.srec"; break;
+      case FILE_TYPE_WDC:   outfile = "out.wdc";  break;
+      case FILE_TYPE_AMIGA: outfile = "out";      break;
+      default:              outfile = "out.err";  break;
     }
   }
 
@@ -336,15 +320,6 @@ int main(int argc, char *argv[])
     printf("Error: Couldn't open %s for reading.\n\n", infile);
     exit(1);
   }
-
-#if 0
-  out = fopen(outfile, "wb");
-  if (out == NULL)
-  {
-    printf("Couldn't open %s for writing.\n", outfile);
-    exit(1);
-  }
-#endif
 
   if (asm_context.quiet_output == 0)
   {
@@ -426,50 +401,7 @@ int main(int argc, char *argv[])
       printf("\nError: Couldn't open %s for writing.\n\n", outfile);
       exit(1);
     }
-
-#if 0
-    if (file_type == FILE_TYPE_HEX)
-    {
-      write_hex(&asm_context.memory, out);
-    }
-      else
-    if (file_type == FILE_TYPE_BIN)
-    {
-      write_bin(&asm_context.memory, out);
-    }
-      else
-    if (file_type == FILE_TYPE_SREC)
-    {
-      write_srec(
-        &asm_context.memory,
-        out,
-        cpu_list[asm_context.cpu_list_index].srec_size);
-    }
-      else
-    if (file_type == FILE_TYPE_ELF)
-    {
-      write_elf(
-        &asm_context.memory,
-        out,
-        &asm_context.symbols,
-        asm_context.tokens.filename,
-        asm_context.cpu_type,
-        cpu_list[asm_context.cpu_list_index].alignment);
-    }
-      else
-    if (file_type == FILE_TYPE_WDC)
-    {
-      write_wdc(&asm_context.memory, out);
-    }
-      else
-    if (file_type == FILE_TYPE_AMIGA)
-    {
-      write_amiga(&asm_context.memory, out);
-    }
-#endif
   } while (0);
-
-  //fclose(out);
 
   if (create_list == 1)
   {
