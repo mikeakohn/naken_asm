@@ -33,6 +33,7 @@
 #include "asm/copper.h"
 #include "asm/dotnet.h"
 #include "asm/dspic.h"
+#include "asm/ebpf.h"
 #include "asm/epiphany.h"
 #include "asm/java.h"
 #include "asm/lc3.h"
@@ -84,6 +85,7 @@
 #include "disasm/cp1610.h"
 #include "disasm/dotnet.h"
 #include "disasm/dspic.h"
+#include "disasm/ebpf.h"
 #include "disasm/epiphany.h"
 #include "disasm/java.h"
 #include "disasm/lc3.h"
@@ -119,6 +121,7 @@
 #include "simulate/65816.h"
 #include "simulate/8008.h"
 #include "simulate/avr8.h"
+#include "simulate/ebpf.h"
 #include "simulate/lc3.h"
 #include "simulate/mips.h"
 #include "simulate/msp430.h"
@@ -712,6 +715,30 @@ struct _cpu_list cpu_list[] =
     list_output_dspic,
     disasm_range_dspic,
     NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_EBPF
+  {
+    "ebpf",
+    CPU_TYPE_EBPF,
+    ENDIAN_LITTLE,
+    8,
+    ALIGN_4,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    SREC_32,
+    parse_instruction_ebpf,
+    NULL,
+    link_not_supported,
+    list_output_ebpf,
+    disasm_range_ebpf,
+    simulate_init_ebpf,
     NO_FLAGS,
   },
 #endif

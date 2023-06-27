@@ -39,6 +39,7 @@ CPUS=" \
   CP1610
   DOTNET
   DSPIC
+  EBPF
   EMOTION_ENGINE
   EPIPHANY
   JAVA
@@ -421,6 +422,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} dspic.o"
     TABLE_OBJS="${TABLE_OBJS} dspic.o"
     DFLAGS="${DFLAGS} -DENABLE_DSPIC"
+  ;;
+  --enable-ebpf)
+    ASM_OBJS="${ASM_OBJS} ebpf.o"
+    DISASM_OBJS="${DISASM_OBJS} ebpf.o"
+    TABLE_OBJS="${TABLE_OBJS} ebpf.o"
+    DFLAGS="${DFLAGS} -DENABLE_EBPF"
   ;;
   --enable-epiphany)
     ASM_OBJS="${ASM_OBJS} epiphany.o"
