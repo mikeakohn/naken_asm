@@ -198,7 +198,9 @@ static uint16_t get_data(Simulate *simulate, int reg, int As, int bw)
     // This is probably worthless.. some other condition should pick this up
     if (As == 3) // #immediate
     {
-      uint16_t a = READ_RAM(simulate_msp430->reg[0]) | (READ_RAM(simulate_msp430->reg[0] + 1) << 8);
+      uint16_t a =
+        READ_RAM(simulate_msp430->reg[0]) |
+       (READ_RAM(simulate_msp430->reg[0] + 1) << 8);
 
       simulate_msp430->reg[0] += 2;
 
@@ -208,7 +210,10 @@ static uint16_t get_data(Simulate *simulate, int reg, int As, int bw)
 
   if (As == 1) // x(Rn)
   {
-    uint16_t a = READ_RAM(simulate_msp430->reg[0]) | (READ_RAM(simulate_msp430->reg[0] + 1) << 8);
+    uint16_t a =
+      READ_RAM(simulate_msp430->reg[0]) |
+     (READ_RAM(simulate_msp430->reg[0] + 1) << 8);
+
     uint16_t index = simulate_msp430->reg[reg] + ((int16_t)a);
 
     simulate_msp430->reg[0] += 2;
@@ -263,7 +268,13 @@ static void update_reg(Simulate *simulate, int reg, int mode, int bw)
   }
 }
 
-static int put_data(Simulate *simulate, int PC, int reg, int mode, int bw, uint32_t data)
+static int put_data(
+  Simulate *simulate,
+  int PC,
+  int reg,
+  int mode,
+  int bw,
+  uint32_t data)
 {
   SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
 
@@ -466,25 +477,25 @@ static int relative_jump_exe(Simulate *simulate, uint16_t opcode)
   switch(o)
   {
     case 0:  // JNE/JNZ  Z==0
-      if (GET_Z() == 0) simulate_msp430->reg[0] += offset;
+      if (GET_Z() == 0) { simulate_msp430->reg[0] += offset; }
       break;
     case 1:  // JEQ/JZ   Z==1
-      if (GET_Z() == 1) simulate_msp430->reg[0] += offset;
+      if (GET_Z() == 1) { simulate_msp430->reg[0] += offset; }
       break;
     case 2:  // JNC/JLO  C==0
-      if (GET_C() == 0) simulate_msp430->reg[0] += offset;
+      if (GET_C() == 0) { simulate_msp430->reg[0] += offset; }
       break;
     case 3:  // JC/JHS   C==1
-      if (GET_C() == 1) simulate_msp430->reg[0] += offset;
+      if (GET_C() == 1) { simulate_msp430->reg[0] += offset; }
       break;
     case 4:  // JN       N==1
-      if (GET_N() == 1) simulate_msp430->reg[0] += offset;
+      if (GET_N() == 1) { simulate_msp430->reg[0] += offset; }
       break;
     case 5:  // JGE      (N^V)==0
-      if ((GET_N() ^ GET_V()) == 0) simulate_msp430->reg[0] += offset;
+      if ((GET_N() ^ GET_V()) == 0) { simulate_msp430->reg[0] += offset; }
       break;
     case 6:  // JL       (N^V)==1
-      if ((GET_N() ^ GET_V()) == 1) simulate_msp430->reg[0] += offset;
+      if ((GET_N() ^ GET_V()) == 1) { simulate_msp430->reg[0] += offset; }
       break;
     case 7:  // JMP
       simulate_msp430->reg[0] += offset;
@@ -715,16 +726,31 @@ void simulate_push_msp430(Simulate *simulate, uint32_t value)
   WRITE_RAM(simulate_msp430->reg[1] + 1, value >> 8);
 }
 
-static char *flags[] = { "C", "Z", "N", "GIE", "CPUOFF", "OSCOFF", "SCG0",
-                       "SCG1", "V" };
+static char *flags[] =
+{
+  "C",
+  "Z",
+  "N",
+  "GIE",
+  "CPUOFF",
+  "OSCOFF",
+  "SCG0",
+  "SCG1",
+  "V"
+};
 
-int simulate_set_reg_msp430(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_msp430(
+  Simulate *simulate,
+  char *reg_string,
+  uint32_t value)
 {
   SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
-  int reg,n;
+  int reg, n;
 
-  while(*reg_string == ' ') { reg_string++; }
+  while (*reg_string == ' ') { reg_string++; }
+
   reg = get_register_msp430(reg_string);
+
   if (reg == -1)
   {
     for (n = 0; n < 9; n++)
@@ -732,9 +758,14 @@ int simulate_set_reg_msp430(Simulate *simulate, char *reg_string, uint32_t value
       if (strcasecmp(reg_string, flags[n]) == 0)
       {
         if (value == 1)
-        { simulate_msp430->reg[2] |= (1 << n); }
+        {
+          simulate_msp430->reg[2] |= (1 << n);
+        }
           else
-        { simulate_msp430->reg[2] &= 0xffff ^ (1 << n); }
+        {
+          simulate_msp430->reg[2] &= 0xffff ^ (1 << n);
+        }
+
         return 0;
       }
     }
