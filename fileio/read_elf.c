@@ -196,7 +196,8 @@ int read_elf(
   #define EI_DATA 5    // 1=little endian, 2=big endian
   #define EI_OSABI 7   // 0=SysV, 255=Embedded
 
-  if (e_ident[EI_CLASS] != 1) // let's let other stuff in || e_ident[7]!=0xff)
+  // FIXME: This prevents 64 bit ELF from loading.
+  if (e_ident[EI_CLASS] != 1)
   {
     printf("ELF Error: e_ident shows incorrect type\n");
     fclose(in);
@@ -271,6 +272,9 @@ int read_elf(
       break;
     case 243:
       *cpu_type = CPU_TYPE_RISCV;
+      break;
+    case 247:
+      *cpu_type = CPU_TYPE_EBPF;
       break;
     case 0x1223:
       *cpu_type = CPU_TYPE_EPIPHANY;

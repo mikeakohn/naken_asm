@@ -179,6 +179,11 @@ static void write_elf_header(FILE *out, struct _elf *elf, Memory *memory)
       elf->e_machine = 118;
       elf->e_flags = 1;
       break;
+    case CPU_TYPE_EBPF:
+      elf->e_machine = 247;
+      elf->e_ident[EI_OSABI] = 0;
+      elf->e_type = 1;
+      break;
     case CPU_TYPE_EMOTION_ENGINE:
       elf->e_machine = 8;
       elf->e_ident[EI_OSABI] = 0;
