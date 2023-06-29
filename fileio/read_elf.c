@@ -49,6 +49,7 @@
 
 typedef uint32_t (*get_int16_t)(FILE *);
 typedef uint32_t (*get_int32_t)(FILE *);
+typedef uint64_t (*get_int64_t)(FILE *);
 
 struct _elf32_shdr
 {
@@ -92,6 +93,22 @@ static uint32_t get_int32_le(FILE *in)
   return i;
 }
 
+static uint64_t get_int64_le(FILE *in)
+{
+  uint64_t i;
+
+  i  =  (uint64_t)getc(in);
+  i |= ((uint64_t)getc(in) << 8);
+  i |= ((uint64_t)getc(in) << 16);
+  i |= ((uint64_t)getc(in) << 24);
+  i |= ((uint64_t)getc(in) << 32);
+  i |= ((uint64_t)getc(in) << 40);
+  i |= ((uint64_t)getc(in) << 48);
+  i |= ((uint64_t)getc(in) << 56);
+
+  return i;
+}
+
 static uint32_t get_int16_be(FILE *in)
 {
   uint32_t i;
@@ -114,17 +131,33 @@ static uint32_t get_int32_be(FILE *in)
   return i;
 }
 
+static uint64_t get_int64_be(FILE *in)
+{
+  uint32_t i;
+
+  i =  ((uint64_t)getc(in) << 56);
+  i |= ((uint64_t)getc(in) << 48);
+  i |= ((uint64_t)getc(in) << 40);
+  i |= ((uint64_t)getc(in) << 32);
+  i |= ((uint64_t)getc(in) << 24);
+  i |= ((uint64_t)getc(in) << 16);
+  i |= ((uint64_t)getc(in) << 8);
+  i |=  (uint64_t)getc(in);
+
+  return i;
+}
+
 static int read_shdr(
   FILE *in,
   struct _elf32_shdr *elf32_shdr,
   get_int32_t get_int32)
 {
-  elf32_shdr->sh_name = get_int32(in);
-  elf32_shdr->sh_type = get_int32(in);
-  elf32_shdr->sh_flags = get_int32(in);
-  elf32_shdr->sh_addr = get_int32(in);
+  elf32_shdr->sh_name   = get_int32(in);
+  elf32_shdr->sh_type   = get_int32(in);
+  elf32_shdr->sh_flags  = get_int32(in);
+  elf32_shdr->sh_addr   = get_int32(in);
   elf32_shdr->sh_offset = get_int32(in);
-  elf32_shdr->sh_size = get_int32(in);
+  elf32_shdr->sh_size   = get_int32(in);
 
   return 0;
 }
@@ -158,7 +191,7 @@ int read_elf(
 {
   FILE *in;
   uint8_t e_ident[16];
-  int e_shoff;
+  uint64_t e_shoff;
   int e_shentsize;
   int e_shnum;
   int e_shstrndx;
@@ -168,6 +201,8 @@ int read_elf(
   long strtab_offset = 0;
   get_int16_t get_int16;
   get_int32_t get_int32;
+  get_int64_t get_int64;
+  uint8_t is_32_bit = 1;
 
   memory_clear(memory);
   //memset(dirty, 0, memory->size);
@@ -185,7 +220,7 @@ int read_elf(
   n = fread(e_ident, 1, 16, in);
 
   if (e_ident[0] != 0x7f || e_ident[1] != 'E' ||
-      e_ident[2] != 'L' || e_ident[3] != 'F')
+      e_ident[2] != 'L'  || e_ident[3] != 'F')
   {
     //printf("Not an ELF file.\n");
     fclose(in);
@@ -197,11 +232,18 @@ int read_elf(
   #define EI_OSABI 7   // 0=SysV, 255=Embedded
 
   // FIXME: This prevents 64 bit ELF from loading.
+#if 0
   if (e_ident[EI_CLASS] != 1)
   {
     printf("ELF Error: e_ident shows incorrect type\n");
     fclose(in);
     return -1;
+  }
+#endif
+
+  if (e_ident[EI_CLASS] == 2)
+  {
+    is_32_bit = 0;
   }
 
   // EI_DATA
@@ -210,6 +252,7 @@ int read_elf(
     memory->endian = ENDIAN_LITTLE;
     get_int16 = get_int16_le;
     get_int32 = get_int32_le;
+    get_int64 = get_int64_le;
   }
     else
   if (e_ident[EI_DATA] == 2)
@@ -217,6 +260,7 @@ int read_elf(
     memory->endian = ENDIAN_BIG;
     get_int16 = get_int16_be;
     get_int32 = get_int32_be;
+    get_int64 = get_int64_be;
   }
     else
   {
@@ -225,10 +269,12 @@ int read_elf(
     return -1;
   }
 
+  // e_type.
   get_int16(in);
-  n = get_int16(in);
 
-  switch (n)
+  int e_machine = get_int16(in);
+
+  switch (e_machine)
   {
     case 4:
       *cpu_type = CPU_TYPE_68000;
@@ -285,9 +331,37 @@ int read_elf(
       return -1;
   }
 
-  fseek(in, 32, SEEK_SET);
-  e_shoff = get_int32(in);
-  fseek(in, 46, SEEK_SET);
+  // e_version.
+  get_int32(in);
+
+  if (is_32_bit == 1)
+  {
+    // e_entry.
+    // e_phoff.
+    get_int32(in);
+    get_int32(in);
+
+    e_shoff = get_int32(in);
+  }
+    else
+  {
+    // e_entry.
+    // e_phoff.
+    get_int64(in);
+    get_int64(in);
+
+    e_shoff = get_int64(in);
+  }
+
+  // e_flags.
+  // e_ehsize.
+  // e_phentsize.
+  // e_phnum.
+  get_int32(in);
+  get_int16(in);
+  get_int16(in);
+  get_int16(in);
+
   e_shentsize = get_int16(in);
   e_shnum = get_int16(in);
   e_shstrndx = get_int16(in);
@@ -301,7 +375,7 @@ int read_elf(
   int stroffset = get_int32(in);
   char name[32];
 
-  // Need to find .strtab so we can fill in symbol names
+  // Need to find .strtab so symbol names can be filled in.
   for (n = 0; n < e_shnum; n++)
   {
     fseek(in, e_shoff + (n * e_shentsize), SEEK_SET);
@@ -330,15 +404,30 @@ int read_elf(
     //int is_text = strncmp(name, ".text", 5) == 0 ? 1 : 0;
     int is_text = (elf32_shdr.sh_flags & SHF_EXECINSTR) != 0 ? 1 : 0;
     if (is_text ||
-        strncmp(name, ".data", 5) == 0 || strcmp(name, ".vectors") == 0)
+        strncmp(name, ".data", 5) == 0 ||
+        strcmp(name, ".vectors") == 0)
     {
       if (is_text)
       {
-        if (start == -1) { start = elf32_shdr.sh_addr; }
-        else if (start > elf32_shdr.sh_addr) { start = elf32_shdr.sh_addr; }
+        if (start == -1)
+        {
+          start = elf32_shdr.sh_addr;
+        }
+          else
+        if (start > elf32_shdr.sh_addr)
+        {
+          start = elf32_shdr.sh_addr;
+        }
 
-        if (end == -1) { end = elf32_shdr.sh_addr + elf32_shdr.sh_size - 1; }
-        else if (end < elf32_shdr.sh_addr + elf32_shdr.sh_size) { end = elf32_shdr.sh_addr+elf32_shdr.sh_size - 1; }
+        if (end == -1)
+        {
+          end = elf32_shdr.sh_addr + elf32_shdr.sh_size - 1;
+        }
+          else
+        if (end < elf32_shdr.sh_addr + elf32_shdr.sh_size)
+        {
+          end = elf32_shdr.sh_addr + elf32_shdr.sh_size - 1;
+        }
       }
 
       long marker = ftell(in);
