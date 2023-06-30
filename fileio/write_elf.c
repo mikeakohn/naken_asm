@@ -17,10 +17,11 @@
 #include "common/symbols.h"
 #include "fileio/write_elf.h"
 
+typedef void(*write_int64_t)(FILE *, uint64_t);
 typedef void(*write_int32_t)(FILE *, uint32_t);
 typedef void(*write_int16_t)(FILE *, uint32_t);
 
-struct _elf
+typedef struct _elf
 {
   struct _sections_offset sections_offset;
   struct _sections_size sections_size;
@@ -39,10 +40,13 @@ struct _elf
   int cpu_type;
   int text_addr;
   int data_addr;
-  char string_table[1024];
+  char string_table[32768];
+  write_int64_t write_int64;
   write_int32_t write_int32;
   write_int16_t write_int16;
-};
+  long shnum_offset;
+  long shoff_offset;
+} Elf;
 
 static const char magic_number[16] =
 {
@@ -52,7 +56,7 @@ static const char magic_number[16] =
 
 // For now there will only be .text, .shstrtab, .symtab, strtab
 // I can't see a use for .data and .bss unless the bootloaders know elf?
-// I'm also not supporting relocations.  I can do it later if requested.
+// I'm also not supporting relocations. I can do it later if requested.
 
 // Write string table
 const char string_table_default[] =
@@ -74,6 +78,18 @@ const char string_table_default[] =
   //".rela.debug_aranges\0"
 ;
 
+static void write_int64_le(FILE *out, uint64_t n)
+{
+  putc(n & 0xff, out);
+  putc((n >> 8) & 0xff, out);
+  putc((n >> 16) & 0xff, out);
+  putc((n >> 24) & 0xff, out);
+  putc((n >> 32) & 0xff, out);
+  putc((n >> 40) & 0xff, out);
+  putc((n >> 48) & 0xff, out);
+  putc((n >> 56) & 0xff, out);
+}
+
 static void write_int32_le(FILE *out, uint32_t n)
 {
   putc(n & 0xff, out);
@@ -86,6 +102,18 @@ static void write_int16_le(FILE *out, uint32_t n)
 {
   putc(n & 0xff, out);
   putc((n >> 8) & 0xff, out);
+}
+
+static void write_int64_be(FILE *out, uint64_t n)
+{
+  putc((n >> 56) & 0xff, out);
+  putc((n >> 48) & 0xff, out);
+  putc((n >> 40) & 0xff, out);
+  putc((n >> 32) & 0xff, out);
+  putc((n >> 24) & 0xff, out);
+  putc((n >> 16) & 0xff, out);
+  putc((n >> 8) & 0xff, out);
+  putc(n & 0xff, out);
 }
 
 static void write_int32_be(FILE *out, uint32_t n)
@@ -102,9 +130,10 @@ static void write_int16_be(FILE *out, uint32_t n)
   putc(n & 0xff, out);
 }
 
-static void write_elf_header(FILE *out, struct _elf *elf, Memory *memory)
+static void write_elf_header(FILE *out, Elf *elf, Memory *memory)
 {
-  #define EI_DATA 5    // 1=little endian, 2=big endian
+  #define EI_CLASS 4   // 1=32 bit, 2=64 bit
+  #define EI_DATA  5   // 1=little endian, 2=big endian
   #define EI_OSABI 7   // 0=SysV, 255=Embedded
 
   memcpy(elf->e_ident, magic_number, 16);
@@ -112,12 +141,14 @@ static void write_elf_header(FILE *out, struct _elf *elf, Memory *memory)
   if (memory->endian == ENDIAN_LITTLE)
   {
     elf->e_ident[EI_DATA] = 1;
+    elf->write_int64 = write_int64_le;
     elf->write_int32 = write_int32_le;
     elf->write_int16 = write_int16_le;
   }
     else
   {
     elf->e_ident[EI_DATA] = 2;
+    elf->write_int64 = write_int64_be;
     elf->write_int32 = write_int32_be;
     elf->write_int16 = write_int16_be;
   }
@@ -182,6 +213,7 @@ static void write_elf_header(FILE *out, struct _elf *elf, Memory *memory)
     case CPU_TYPE_EBPF:
       elf->e_machine = 247;
       elf->e_ident[EI_OSABI] = 0;
+      elf->e_ident[EI_CLASS] = 2;
       elf->e_type = 1;
       break;
     case CPU_TYPE_EMOTION_ENGINE:
@@ -226,46 +258,70 @@ static void write_elf_header(FILE *out, struct _elf *elf, Memory *memory)
 
   // Write Ehdr;
   fwrite(elf->e_ident, 1, 16, out);
-  elf->write_int16(out, elf->e_type);    // e_type 0=not relocatable 1=msp_32
-  elf->write_int16(out, elf->e_machine); // e_machine EM_MSP430=0x69
-  elf->write_int32(out, 1);              // e_version
-  elf->write_int32(out, elf->e_entry);   // e_entry (start address)
-  elf->write_int32(out, elf->e_phoff);   // e_phoff (program header offset)
-  elf->write_int32(out, 0);              // e_shoff (section header offset)
-  elf->write_int32(out, elf->e_flags);   // e_flags (should be set to CPU model)
-  elf->write_int16(out, 0x34);           // e_ehsize (size of this struct)
-  elf->write_int16(out, elf->e_phentsize); // e_phentsize (program header size)
-  elf->write_int16(out, elf->e_phnum);   // e_phnum (number of program headers)
-  elf->write_int16(out, 40);             // e_shentsize (section header size)
-  elf->write_int16(out, elf->e_shnum);   // e_shnum (number of section headers)
-  elf->write_int16(out, 2);              // e_shstrndx (section header string table index)
+
+  if (elf->e_ident[EI_CLASS] == 1)
+  {
+    elf->write_int16(out, elf->e_type);    // e_type 0=not relocatable 1=msp_32
+    elf->write_int16(out, elf->e_machine); // e_machine EM_MSP430=0x69
+    elf->write_int32(out, 1);              // e_version
+    elf->write_int32(out, elf->e_entry);   // e_entry (start address)
+    elf->write_int32(out, elf->e_phoff);   // e_phoff (program header offset)
+    elf->shoff_offset = ftell(out);
+    elf->write_int32(out, 0);              // e_shoff (section header offset)
+    elf->write_int32(out, elf->e_flags);   // e_flags (set to CPU model)
+    elf->write_int16(out, 0x34);           // e_ehsize (size of this struct)
+    elf->write_int16(out, elf->e_phentsize); // e_phentsize (pheader size)
+    elf->write_int16(out, elf->e_phnum);   // e_phnum (program headers count)
+    elf->write_int16(out, 40);             // e_shentsize (section header size)
+    elf->shnum_offset = ftell(out);
+    elf->write_int16(out, elf->e_shnum);   // e_shnum (section headers count)
+    elf->write_int16(out, 2);              // e_shstrndx (section header string table index)
+  }
+    else
+  {
+    elf->write_int16(out, elf->e_type);    // e_type 0=not relocatable 1=msp_32
+    elf->write_int16(out, elf->e_machine); // e_machine EM_MSP430=0x69
+    elf->write_int32(out, 1);              // e_version
+    elf->write_int64(out, elf->e_entry);   // e_entry (start address)
+    elf->write_int64(out, elf->e_phoff);   // e_phoff (program header offset)
+    elf->shoff_offset = ftell(out);
+    elf->write_int64(out, 0);              // e_shoff (section header offset)
+    elf->write_int32(out, elf->e_flags);   // e_flags (set to CPU model)
+    elf->write_int16(out, 0x34);           // e_ehsize (size of this struct)
+    elf->write_int16(out, elf->e_phentsize); // e_phentsize (pheader size)
+    elf->write_int16(out, elf->e_phnum);   // e_phnum (program headers count)
+    elf->write_int16(out, 64);             // e_shentsize (section header size)
+    elf->shnum_offset = ftell(out);
+    elf->write_int16(out, elf->e_shnum);   // e_shnum (section headers count)
+    elf->write_int16(out, 2);              // e_shstrndx (section header string table index)
+  }
 }
 
 static int get_string_table_len(char *string_table)
 {
   int n = 0;
 
-  while (string_table[n]!=0 || string_table[n+1]!=0) { n++; }
+  while (string_table[n] != 0 || string_table[n + 1] != 0) { n++; }
 
-  return n+1;
+  return n + 1;
 }
 
-static void string_table_append(struct _elf *elf, char *name)
+static void string_table_append(Elf *elf, char *name)
 {
   int len;
 
   char *string_table = elf->string_table;
 
   len = get_string_table_len(string_table);
-  string_table = string_table+len;
+  string_table = string_table + len;
   strcpy(string_table, name);
-  string_table = string_table+strlen(name)+1;
+  string_table = string_table + strlen(name) + 1;
   *string_table = 0;
 }
 
 static void write_elf_text_and_data(
   FILE *out,
-  struct _elf *elf,
+  Elf *elf,
   Memory *memory,
   int alignment)
 {
@@ -298,7 +354,7 @@ static void write_elf_text_and_data(
   elf->e_shnum++;
 }
 
-static void write_arm_attribute(FILE *out, struct _elf *elf)
+static void write_arm_attribute(FILE *out, Elf *elf)
 {
   const unsigned char aeabi[] = {
     0x41, 0x30, 0x00, 0x00, 0x00, 0x61, 0x65, 0x61,
@@ -331,40 +387,82 @@ static void write_arm_attribute(FILE *out, struct _elf *elf)
   putc(0x00, out); // null
 }
 
-static void write_phdr(FILE *out, struct _elf *elf, uint32_t address, uint32_t filesz)
+static void write_phdr(FILE *out, Elf *elf, uint32_t address, uint32_t filesz)
 {
-  elf->write_int32(out, 1);          // p_type: 1 (LOAD)
-  elf->write_int32(out, 0x1000);     // p_offset
-  elf->write_int32(out, address);    // p_vaddr
-  elf->write_int32(out, address);    // p_paddr
-  elf->write_int32(out, filesz);     // p_filesz
-  elf->write_int32(out, filesz);     // p_memsz
-  elf->write_int32(out, 7);          // p_flags: 7 RWX
-  elf->write_int32(out, 4096);       // p_align
+  if (elf->e_ident[EI_CLASS] == 1)
+  {
+    elf->write_int32(out, 1);          // p_type: 1 (LOAD)
+    elf->write_int32(out, 0x1000);     // p_offset
+    elf->write_int32(out, address);    // p_vaddr
+    elf->write_int32(out, address);    // p_paddr
+    elf->write_int32(out, filesz);     // p_filesz
+    elf->write_int32(out, filesz);     // p_memsz
+    elf->write_int32(out, 7);          // p_flags: 7 RWX
+    elf->write_int32(out, 4096);       // p_align
+  }
+    else
+  {
+    elf->write_int32(out, 1);          // p_type: 1 (LOAD)
+    elf->write_int32(out, 7);          // p_flags: 7 RWX
+    elf->write_int64(out, 0x1000);     // p_offset
+    elf->write_int64(out, address);    // p_vaddr
+    elf->write_int64(out, address);    // p_paddr
+    elf->write_int64(out, filesz);     // p_filesz
+    elf->write_int64(out, filesz);     // p_memsz
+    elf->write_int64(out, 4096);       // p_align
+  }
 }
 
-static void write_shdr(FILE *out, struct _shdr *shdr, struct _elf *elf)
+static void write_shdr(FILE *out, struct _shdr *shdr, Elf *elf)
 {
-  elf->write_int32(out, shdr->sh_name);
-  elf->write_int32(out, shdr->sh_type);
-  elf->write_int32(out, shdr->sh_flags);
-  elf->write_int32(out, shdr->sh_addr);
-  elf->write_int32(out, shdr->sh_offset);
-  elf->write_int32(out, shdr->sh_size);
-  elf->write_int32(out, shdr->sh_link);
-  elf->write_int32(out, shdr->sh_info);
-  elf->write_int32(out, shdr->sh_addralign);
-  elf->write_int32(out, shdr->sh_entsize);
+  if (elf->e_ident[EI_CLASS] == 1)
+  {
+    elf->write_int32(out, shdr->sh_name);
+    elf->write_int32(out, shdr->sh_type);
+    elf->write_int32(out, shdr->sh_flags);
+    elf->write_int32(out, shdr->sh_addr);
+    elf->write_int32(out, shdr->sh_offset);
+    elf->write_int32(out, shdr->sh_size);
+    elf->write_int32(out, shdr->sh_link);
+    elf->write_int32(out, shdr->sh_info);
+    elf->write_int32(out, shdr->sh_addralign);
+    elf->write_int32(out, shdr->sh_entsize);
+  }
+    else
+  {
+    elf->write_int32(out, shdr->sh_name);
+    elf->write_int32(out, shdr->sh_type);
+    elf->write_int64(out, shdr->sh_flags);
+    elf->write_int64(out, shdr->sh_addr);
+    elf->write_int64(out, shdr->sh_offset);
+    elf->write_int64(out, shdr->sh_size);
+    elf->write_int32(out, shdr->sh_link);
+    elf->write_int32(out, shdr->sh_info);
+    elf->write_int64(out, shdr->sh_addralign);
+    elf->write_int64(out, shdr->sh_entsize);
+  }
 }
 
-static void write_symtab(FILE *out, struct _symtab *symtab, struct _elf *elf)
+static void write_symtab(FILE *out, struct _symtab *symtab, Elf *elf)
 {
-  elf->write_int32(out, symtab->st_name);
-  elf->write_int32(out, symtab->st_value);
-  elf->write_int32(out, symtab->st_size);
-  putc(symtab->st_info, out);
-  putc(symtab->st_other, out);
-  elf->write_int16(out, symtab->st_shndx);
+  if (elf->e_ident[EI_CLASS] == 1)
+  {
+    elf->write_int32(out, symtab->st_name);
+    elf->write_int32(out, symtab->st_value);
+    elf->write_int32(out, symtab->st_size);
+    putc(symtab->st_info, out);
+    putc(symtab->st_other, out);
+    elf->write_int16(out, symtab->st_shndx);
+  }
+    else
+  {
+    elf->write_int32(out, symtab->st_name);
+    putc(symtab->st_info, out);
+    putc(symtab->st_other, out);
+    elf->write_int16(out, symtab->st_shndx);
+    elf->write_int64(out, symtab->st_value);
+    elf->write_int64(out, symtab->st_size);
+  }
 }
 
 static int find_section(char *sections, char *name, int len)
@@ -376,7 +474,7 @@ static int find_section(char *sections, char *name, int len)
     if (sections[n] == '.')
     {
       if (strcmp(sections + n, name) == 0) { return n; }
-      n += strlen(sections+n);
+      n += strlen(sections + n);
     }
 
     n++;
@@ -401,7 +499,7 @@ int write_elf(
 {
   struct _shdr shdr;
   struct _symtab symtab;
-  struct _elf elf;
+  Elf elf;
   //int i;
 
   memset(&elf, 0, sizeof(elf));
@@ -537,8 +635,18 @@ int write_elf(
 
   // A little ex-lax to dump the SHT's
   long marker = ftell(out);
-  fseek(out, 32, SEEK_SET);
-  elf.write_int32(out, marker);         // e_shoff (section header offset)
+  fseek(out, elf.shoff_offset, SEEK_SET);
+
+  // e_shoff (section header offset)
+  if (elf.e_ident[EI_CLASS] == 1)
+  {
+    elf.write_int32(out, marker);
+  }
+    else
+  {
+    elf.write_int64(out, marker);
+  }
+
   fseek(out, marker, SEEK_SET);
 
   // ------------------------ fold here -----------------------------
@@ -562,8 +670,6 @@ int write_elf(
       size += (alignment - size) & mask;
     }
 
-    //if (i == 0) { strcpy(name, ".text"); }
-    //else { sprintf(name, ".text%d", i); }
     strcpy(name, ".text");
 
     shdr.sh_name = find_section(elf.string_table, name, sizeof(elf.string_table));
@@ -590,8 +696,6 @@ int write_elf(
       size += (alignment - size) & mask;
     }
 
-    //if (i == 0) { strcpy(name, ".data"); }
-    //else { sprintf(name, ".data%d", i); }
     strcpy(name, ".data");
 
     shdr.sh_name = find_section(elf.string_table, name, sizeof(elf.string_table));
@@ -624,7 +728,7 @@ int write_elf(
   shdr.sh_link = 4;
   shdr.sh_info = symbol_count + strtab_extras;
   shdr.sh_addralign = 4;
-  shdr.sh_entsize = 16;
+  shdr.sh_entsize = elf.e_ident[EI_CLASS] == 1 ? 16 : 24;
   write_shdr(out, &shdr, &elf);
 
   // SHT .strtab
@@ -667,7 +771,7 @@ int write_elf(
   }
 
   marker = ftell(out);
-  fseek(out, 0x30, SEEK_SET);
+  fseek(out, elf.shnum_offset, SEEK_SET);
   elf.write_int16(out, elf.e_shnum);    // e_shnum (section count)
   elf.write_int16(out, elf.e_shstrndx); // e_shstrndx (string_table index)
   fseek(out, marker, SEEK_SET);
