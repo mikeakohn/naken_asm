@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -46,6 +46,7 @@
 #include "asm/pdk15.h"
 #include "asm/pdk16.h"
 #include "asm/pic14.h"
+#include "asm/pic18.h"
 #include "asm/powerpc.h"
 #include "asm/propeller.h"
 #include "asm/propeller2.h"
@@ -98,6 +99,7 @@
 #include "disasm/pdk15.h"
 #include "disasm/pdk16.h"
 #include "disasm/pic14.h"
+#include "disasm/pic18.h"
 #include "disasm/powerpc.h"
 #include "disasm/propeller.h"
 #include "disasm/propeller2.h"
@@ -1084,6 +1086,30 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_pic14,
     disasm_range_pic14,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_PIC18
+  {
+    "pic18",
+    CPU_TYPE_PIC18,
+    ENDIAN_LITTLE,
+    2,
+    ALIGN_2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_pic18,
+    NULL,
+    link_not_supported,
+    list_output_pic18,
+    disasm_range_pic18,
     NULL,
     NO_FLAGS,
   },

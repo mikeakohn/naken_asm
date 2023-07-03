@@ -50,6 +50,7 @@ CPUS=" \
   PADAUK
   PDP8
   PIC14
+  PIC18
   POWERPC
   PROPELLER
   PROPELLER2
@@ -165,6 +166,7 @@ show_help()
   echo "  --enable-cp1610           compile in support for CP1610"
   echo "  --enable-dotnet           compile in support for .NET CIL"
   echo "  --enable-dspic            compile in support for dsPIC and PIC24"
+  echo "  --enable-ebpf             compile in support for Berkley Packet Filter"
   echo "  --enable-epiphany         compile in support for Ephiphany-III/IV"
   echo "  --enable-java             compile in support for Java"
   echo "  --enable-lc3              compile in support for LC-3"
@@ -174,6 +176,7 @@ show_help()
   echo "  --enable-padauk           compile in support for PDK13 to PDK16"
   echo "  --enable-pdp8             compile in support for PDP-8"
   echo "  --enable-pic14            compile in support for PIC14"
+  echo "  --enable-pic18            compile in support for PIC18"
   echo "  --enable-powerpc          compile in support for PowerPC"
   echo "  --enable-propeller        compile in support for Propeller"
   echo "  --enable-propeller2       compile in support for Propeller2"
@@ -485,6 +488,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} pic14.o"
     TABLE_OBJS="${TABLE_OBJS} pic14.o"
     DFLAGS="${DFLAGS} -DENABLE_PIC14"
+  ;;
+  --enable-pic18)
+    ASM_OBJS="${ASM_OBJS} pic18.o"
+    DISASM_OBJS="${DISASM_OBJS} pic18.o"
+    TABLE_OBJS="${TABLE_OBJS} pic18.o"
+    DFLAGS="${DFLAGS} -DENABLE_PIC18"
   ;;
   --enable-powerpc)
     ASM_OBJS="${ASM_OBJS} powerpc.o"
