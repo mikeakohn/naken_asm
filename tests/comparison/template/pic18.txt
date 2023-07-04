@@ -1,0 +1,89 @@
+addwf 0x43
+addwf 0x43, f
+addwf 0x43, w
+addwf 0x43, w, a
+addwf 0x43, 1, 1
+addwfc 0x43, w
+andwf 0x81
+clrf 0x67, 0
+clrf 0x67, 1
+clrf 0x67
+comf 0x81
+cpfseq 0x81
+cpfsgt 0x81, a
+cpfslt 0x81, 1
+decf 0x21, 1
+decfsz 0x21
+dcfsnz 0x21
+incf 0x21, 1
+incfsz 0x21
+infsnz 0x21
+iorwf 0x81
+iorwf 0x81, w, 0
+movf 0x81, w
+movf 0x81
+movff 0x123, 0x456
+movwf 0x34
+movwf 0x61, a
+mulwf 0x81
+negf 0x81
+rlcf 0x34
+rlncf 0x97
+rrcf 0x81
+rrncf 0x34
+setf 0x81
+subfwb 0x78
+subwf 0x79
+subwfb 0x28
+swapf 0x28, w
+tstfsz 0x13
+xorwf 0x13, w
+bcf 0x13, 5
+bsf 0x93, 3, 0
+bsf 0x93, 3
+btfsc 0x93, 2, a
+btfss 0x83, 3
+btg 0x91, 7, a
+main: bc main
+main: bn main
+main: bnc main
+main: bnn main
+main: bnov main
+main: bnz main
+main: bov main
+main: bra main
+main: bz main
+main: call main
+main: call main, 1
+clrwdt
+daw
+main: goto main
+nop
+pop
+push
+main: rcall main
+reset
+return
+return 1
+retfie
+retfie s
+retfie 1
+retlw 0xa9
+sleep
+andlw 0xb4
+andlw 0xb4
+iorlw 0xb4
+lfsr 1, 0x123
+movlb 0xb
+movlw 0xb4
+mullw 0xb4
+sublw 0xb4
+xorlw 0xb4
+tblrd*
+tblrd*+
+tblrd*-
+tblrd+*
+tblwt*
+tblwt*+
+tblwt*-
+tblwt+*

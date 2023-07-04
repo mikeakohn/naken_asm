@@ -37,6 +37,7 @@ struct _table_pic18
   uint16_t opcode;
   uint16_t mask;
   uint8_t type;
+  uint8_t default_a;
   int8_t cycles_min;
   int8_t cycles_max;
 };

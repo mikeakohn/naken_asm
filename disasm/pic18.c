@@ -53,11 +53,11 @@ int disasm_pic18(
           d = (opcode >> 9) & 1;
           a = (opcode >> 8) & 1;
 
-          sprintf(instruction, "%s 0x%02x, %c%s",
+          sprintf(instruction, "%s 0x%02x, %c, %d",
             table_pic18[n].instr,
             f,
             d == 1 ? 'f':'w',
-            a == 1 ? ", a" : "");
+            a);
 
           return 2;
         }
@@ -66,10 +66,10 @@ int disasm_pic18(
           f = opcode & 0xff;
           a = (opcode >> 8) & 1;
 
-          sprintf(instruction, "%s 0x%02x%s",
+          sprintf(instruction, "%s 0x%02x, %d",
             table_pic18[n].instr,
             f,
-            a == 1 ? ", a" : "");
+            a);
 
           return 2;
         }
@@ -91,11 +91,11 @@ int disasm_pic18(
           a = (opcode >> 8) & 1;
           b = (opcode >> 9) & 7;
 
-          sprintf(instruction, "%s 0x%02x, %d%s",
+          sprintf(instruction, "%s 0x%02x, %d, %d",
             table_pic18[n].instr,
             f,
             b,
-            a == 1 ? ", a" : "");
+            a);
 
           return 2;
         }

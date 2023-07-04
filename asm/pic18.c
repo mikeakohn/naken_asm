@@ -238,7 +238,7 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
         case OP_F_D_A:
         {
           d = 1;
-          a = 0;
+          a = table_pic18[n].default_a;
 
           if (operand_count == 0 || operand_count > 3)
           {
@@ -285,7 +285,7 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
         }
         case OP_F_A:
         {
-          a = 0;
+          a = table_pic18[n].default_a;
 
           if (operand_count == 0 || operand_count > 2)
           {
@@ -356,7 +356,7 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
         }
         case OP_F_B_A:
         {
-          a = 0;
+          a = table_pic18[n].default_a;
 
           if (operand_count < 2 || operand_count > 3)
           {
@@ -492,7 +492,7 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
             (s << 8);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
-          opcode = table_pic18[n].opcode |
+          opcode =
             ((operands[0].value >> 8) & 0xfff) |
             (0xf << 12);
           add_bin16(asm_context, opcode, IS_OPCODE);
@@ -521,7 +521,7 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
           opcode = table_pic18[n].opcode | (operands[0].value & 0xff);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
-          opcode = table_pic18[n].opcode |
+          opcode =
             ((operands[0].value >> 8) & 0xfff) |
             (0xf << 12);
           add_bin16(asm_context, opcode, IS_OPCODE);
@@ -540,7 +540,7 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
 
           if (operand_count == 1)
           {
-            if (set_s(operands[1].type, operands[1].value, &s) != 0)
+            if (set_s(operands[0].type, operands[0].value, &s) != 0)
             {
               print_error_illegal_operands(asm_context, instr);
               return -1;
@@ -598,9 +598,9 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if (operands[0].value < -2048 || operands[0].value > 4095)
+          if (operands[0].value < 0 || operands[0].value > 4095)
           {
-            print_error_range(asm_context, "Literal", -2048, 4095);
+            print_error_range(asm_context, "Literal", 0, 4095);
             return -1;
           }
 
@@ -608,11 +608,10 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
 
           opcode = table_pic18[n].opcode |
             (operands[0].value << 4) |
-            (value & 0xf);
+            ((value >> 8) & 0xf);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
-          opcode = (0xffff << 12) |
-            ((value >> 4) & 0xff);
+          opcode = (0xffff << 12) | (value & 0xff);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 4;
