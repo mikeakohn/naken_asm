@@ -93,6 +93,38 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
 
   lower_copy(instr_case, instr);
 
+  if (strcmp(instr_case, "tblrd") == 0 ||
+      strcmp(instr_case, "tblwt") == 0)
+  {
+    while (1)
+    {
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      if (IS_TOKEN(token, '*'))
+      {
+        strcat(instr_case, token);
+        strcat(instr, token);
+      }
+        else
+      if (IS_TOKEN(token, '-'))
+      {
+        strcat(instr_case, token);
+        strcat(instr, token);
+      }
+        else
+      if (IS_TOKEN(token, '+'))
+      {
+        strcat(instr_case, token);
+        strcat(instr, token);
+      }
+        else
+      {
+        tokens_push(asm_context, token, token_type);
+        break;
+      }
+    }
+  }
+
   if (asm_context->pass == 1)
   {
     ignore_line(asm_context);

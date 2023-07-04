@@ -213,7 +213,12 @@ void list_output_pic18(
 
   while (start < end)
   {
-    count = disasm_pic18(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_pic18(
+      &asm_context->memory,
+      start,
+      instruction,
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read16_m(&asm_context->memory, start);
 

@@ -37,8 +37,8 @@ struct _table_pic18
   uint16_t opcode;
   uint16_t mask;
   uint8_t type;
-  uint8_t cycles_min;
-  uint8_t cycles_max;
+  int8_t cycles_min;
+  int8_t cycles_max;
 };
 
 extern struct _table_pic18 table_pic18[];
