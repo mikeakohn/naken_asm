@@ -43,7 +43,8 @@ CPU this source file should be assembled for.
 |.pdk13           |Padauk PDK13
 |.pdk14           |Padauk PDK14
 |.pdk15           |Padauk PDK15
-|.pic14           |PIC w/ 14 bit opcodes
+|.pic14           |PIC14
+|.pic18           |PIC18
 |.pic24           |PIC24
 |.pic32           |PIC32 MIPS
 |.powerpc         |PowerPC
