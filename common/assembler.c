@@ -266,12 +266,14 @@ int assembler_directive(AsmContext *asm_context, char *token)
     return 1;
   }
     else
+#if 0
   if (strcasecmp(token, "dc") == 0)
   {
     if (parse_dc(asm_context) != 0) { return -1; }
     return 1;
   }
     else
+#endif
   if (strcasecmp(token, "dw") == 0 || strcasecmp(token, "dc16") == 0)
   {
     if (parse_dc16(asm_context) != 0) { return -1; }
