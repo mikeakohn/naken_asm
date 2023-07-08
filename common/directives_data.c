@@ -37,7 +37,7 @@ int parse_db(AsmContext *asm_context, int null_term_flag)
   while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
     if (token_type == TOKEN_QUOTED)
     {
@@ -123,9 +123,9 @@ int parse_dc16(AsmContext *asm_context)
 
   while (1)
   {
-    // if the user has a comma at the end, but no data, this is okay
+    // If the user has a comma at the end, but no data, this is okay.
     token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
     tokens_push(asm_context, token, token_type);
 
     if (eval_expression(asm_context, &data32) != 0)
@@ -161,7 +161,7 @@ int parse_dc16(AsmContext *asm_context)
 
     asm_context->data_count += 2;
     token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
     if (IS_NOT_TOKEN(token, ','))
     {
@@ -179,7 +179,6 @@ int parse_dc32(AsmContext *asm_context)
 {
   char token[TOKENLEN];
   int token_type;
-  //int data32;
   Var var;
   uint32_t udata32;
 
@@ -191,7 +190,7 @@ int parse_dc32(AsmContext *asm_context)
 
   while (1)
   {
-    // if the user has a comma at the end, but no data, this is okay
+    // If the user has a comma at the end, but no data, this is okay.
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
     tokens_push(asm_context, token, token_type);
@@ -240,7 +239,7 @@ int parse_dc32(AsmContext *asm_context)
 
     asm_context->data_count += 4;
     token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
     if (IS_NOT_TOKEN(token, ','))
     {
@@ -271,7 +270,7 @@ int parse_dc64(AsmContext *asm_context)
   {
     // if the user has a comma at the end, but no data, this is okay
     token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
     tokens_push(asm_context, token, token_type);
 
     if (eval_expression_ex(asm_context, &var) == -1)
@@ -327,6 +326,7 @@ int parse_dc64(AsmContext *asm_context)
   return 0;
 }
 
+#if 0
 int parse_dc(AsmContext *asm_context)
 {
   char token[TOKENLEN];
@@ -341,116 +341,6 @@ int parse_dc(AsmContext *asm_context)
 
   print_error_unexp(asm_context, token);
   return -1;
-}
-
-#if 0
-int parse_dq(AsmContext *asm_context)
-{
-  char token[TOKENLEN];
-  int token_type;
-  Var var;
-  uint32_t udata64;
-  union
-  {
-    double f64;
-    uint64_t u64;
-  } data;
-
-  if (asm_context->segment == SEGMENT_BSS)
-  {
-    printf("Error: .bss segment doesn't support initialized data at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
-    return -1;
-  }
-
-  while (1)
-  {
-    // if the user has a comma at the end, but no data, this is okay
-    token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
-    tokens_push(asm_context, token, token_type);
-
-    if (eval_expression_ex(asm_context, &var) == -1)
-    {
-      ignore_operand(asm_context);
-    }
-
-    data.f64 = var_get_float(&var);
-    udata64 = data.u64;
-
-    if (asm_context->memory.endian == ENDIAN_LITTLE)
-    {
-      memory_write_inc(asm_context, udata32 & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32 >> 8) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32 >> 16) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32 >> 24) & 0xff, DL_DATA);
-    }
-      else
-    {
-      memory_write_inc(asm_context, (udata32 >> 24) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32 >> 16) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32 >> 8) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, udata32 & 0xff, DL_DATA);
-    }
-
-    asm_context->data_count += 4;
-    token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
-
-    if (IS_NOT_TOKEN(token, ','))
-    {
-      print_error_expecting(asm_context, ",", token);
-      return -1;
-    }
-  }
-
-  asm_context->tokens.line++;
-
-  return 0;
-}
-#endif
-
-#if 0
-int parse_ds(AsmContext *asm_context, int n)
-{
-  char token[TOKENLEN];
-  int token_type;
-  int num;
-
-  token_type = tokens_get(asm_context, token, TOKENLEN);
-  if (token_type != TOKEN_NUMBER)
-  {
-    printf("Parse error: memory length on line %d.\n", asm_context->tokens.line);
-    return -1;
-  }
-
-  num = atoi(token) * n;
-
-  if (num == 0 && asm_context->pass == 1)
-  {
-    printf("Warning: Reserving %d byte at %s:%d\n", num, asm_context->tokens.filename, asm_context->tokens.line);
-  }
-
-  for (n = 0; n < num; n++)
-  {
-    if (asm_context->segment != SEGMENT_BSS)
-    {
-      memory_write_inc(asm_context, 0, DL_DATA);
-    }
-      else
-    {
-      asm_context->address++;
-    }
-
-    if (asm_context->address >= asm_context->memory.size)
-    {
-       printf("Error: ds overran %d boundary at %s:%d", asm_context->memory.size, asm_context->tokens.filename, asm_context->tokens.line);
-       return -1;
-    }
-  }
-
-  asm_context->data_count += num;
-
-  return 0;
 }
 #endif
 
@@ -509,9 +399,9 @@ int parse_varuint(AsmContext *asm_context, int fixed_size)
 
   while (1)
   {
-    // if the user has a comma at the end, but no data, this is okay
+    // If the user has a comma at the end, but no data, this is okay.
     token_type = tokens_get(asm_context, token, TOKENLEN);
-    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) break;
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
     tokens_push(asm_context, token, token_type);
 
     if (eval_expression_ex(asm_context, &var) == -1)
