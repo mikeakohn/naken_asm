@@ -21,7 +21,12 @@
 
 #define LINE_LENGTH 16
 
-static void write_srec_line(FILE *out, int type, uint32_t address, uint8_t *data, int len)
+static void write_srec_line(
+  FILE *out,
+  int type,
+  uint32_t address,
+  uint8_t *data,
+  int len)
 {
   int checksum = 0;
   int n;
@@ -180,7 +185,6 @@ int write_srec(Memory *memory, FILE *out, int srec_size)
 
     fprintf(out, "S903%04x%02x\n", memory->entry_point, checksum);
   }
-
 
   return 0;
 }
