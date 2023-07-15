@@ -252,9 +252,9 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if (operands[0].value < 0 || operands[0].value > 255)
+          if (operands[0].value < 0 || operands[0].value > 0xfff)
           {
-            print_error_range(asm_context, "Register", 0, 255);
+            print_error_range(asm_context, "Register", 0, 0xfff);
             return -1;
           }
 
@@ -299,9 +299,9 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if (operands[0].value < 0 || operands[0].value > 255)
+          if (operands[0].value < 0 || operands[0].value > 0xfff)
           {
-            print_error_range(asm_context, "Register", 0, 255);
+            print_error_range(asm_context, "Register", 0, 0xfff);
             return -1;
           }
 
@@ -371,9 +371,9 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if (operands[0].value < 0 || operands[0].value > 255)
+          if (operands[0].value < 0 || operands[0].value > 0xfff)
           {
-            print_error_range(asm_context, "Register", 0, 255);
+            print_error_range(asm_context, "Register", 0, 0xfff);
             return -1;
           }
 
@@ -414,15 +414,17 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          offset = operands[0].value - ((asm_context->address + 2) / 2);
+          offset = operands[0].value - (asm_context->address + 2);
 
           if (asm_context->pass == 2)
           {
-            if (check_range(asm_context, "offset", operands[0].value, -128, 127) != 0)
+            if (check_range(asm_context, "offset", offset, -256, 255) != 0)
             {
               return -1;
             }
           }
+
+          offset = offset >> 1;
 
           opcode = table_pic18[n].opcode | (offset & 0xff);
           add_bin16(asm_context, opcode, IS_OPCODE);
@@ -442,15 +444,17 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          offset = operands[0].value - ((asm_context->address + 2) / 2);
+          offset = operands[0].value - (asm_context->address + 2);
 
           if (asm_context->pass == 2)
           {
-            if (check_range(asm_context, "offset", operands[0].value, -1024, 1023) != 0)
+            if (check_range(asm_context, "offset", offset, -2048, 2047) != 0)
             {
               return -1;
             }
           }
+
+          offset = offset >> 1;
 
           opcode = table_pic18[n].opcode | (offset & 0x7ff);
           add_bin16(asm_context, opcode, IS_OPCODE);
@@ -473,7 +477,9 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if (check_range(asm_context, "address", operands[0].value, 0, 0xfffff) != 0)
+          num = operands[0].value;
+
+          if (check_range(asm_context, "address", num, 0, 0x1fffff) != 0)
           {
             return -1;
           }
@@ -487,14 +493,12 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
             }
           }
 
-          opcode = table_pic18[n].opcode |
-            (operands[0].value & 0xff) |
-            (s << 8);
+          num = num >> 1;
+
+          opcode = table_pic18[n].opcode | (num & 0xff) | (s << 8);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
-          opcode =
-            ((operands[0].value >> 8) & 0xfff) |
-            (0xf << 12);
+          opcode = ((num >> 8) & 0xfff) | (0xf << 12);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 4;
@@ -513,17 +517,19 @@ int parse_instruction_pic18(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if (check_range(asm_context, "address", operands[0].value, 0, 0xfffff) != 0)
+          num = operands[0].value;
+
+          if (check_range(asm_context, "address", num, 0, 0x1fffff) != 0)
           {
             return -1;
           }
 
-          opcode = table_pic18[n].opcode | (operands[0].value & 0xff);
+          num = num >> 1;
+
+          opcode = table_pic18[n].opcode | (num & 0xff);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
-          opcode =
-            ((operands[0].value >> 8) & 0xfff) |
-            (0xf << 12);
+          opcode = ((num >> 8) & 0xfff) | (0xf << 12);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 4;

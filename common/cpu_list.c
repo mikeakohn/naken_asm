@@ -1095,7 +1095,7 @@ struct _cpu_list cpu_list[] =
     "pic18",
     CPU_TYPE_PIC18,
     ENDIAN_LITTLE,
-    2,
+    1,
     ALIGN_2,
     0,
     0,

@@ -106,7 +106,7 @@ int disasm_pic18(
 
           sprintf(instruction, "%s 0x%04x (offset=%d)",
             table_pic18[n].instr,
-            (address / 2) + 1 + offset,
+            address + 2 + (offset * 2),
             offset);
 
           return 2;
@@ -118,7 +118,7 @@ int disasm_pic18(
 
           sprintf(instruction, "%s 0x%04x (offset=%d)",
             table_pic18[n].instr,
-            (address / 2) + 1 + offset,
+            address + 2 + (offset * 2),
             offset);
 
           return 2;
@@ -222,7 +222,8 @@ void list_output_pic18(
 
     opcode = memory_read16_m(&asm_context->memory, start);
 
-    fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: ", start / 2, opcode, instruction);
+    fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: ",
+      start, opcode, instruction);
 
     if (cycles_min == 0)
     {
@@ -238,6 +239,13 @@ void list_output_pic18(
       fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
     }
 
+    opcode = memory_read16_m(&asm_context->memory, start + 2);
+
+    if (count > 2)
+    {
+      fprintf(asm_context->list, "        0x%04x\n", opcode);
+    }
+
     start += count;
   }
 }
@@ -250,6 +258,7 @@ void disasm_range_pic18(
 {
   char instruction[128];
   int cycles_min = 0,cycles_max = 0;
+  int count;
   uint16_t opcode;
 
   printf("\n");
@@ -259,11 +268,10 @@ void disasm_range_pic18(
 
   while (start <= end)
   {
-    disasm_pic18(memory, start, instruction, &cycles_min, &cycles_max);
-
+    count = disasm_pic18(memory, start, instruction, &cycles_min, &cycles_max);
     opcode = memory_read16_m(memory, start);
 
-    printf("0x%04x: 0x%04x %-40s ", start / 2, opcode, instruction);
+    printf("0x%04x: 0x%04x %-40s ", start, opcode, instruction);
 
     if (cycles_min == 0)
     {
@@ -279,7 +287,13 @@ void disasm_range_pic18(
       printf("%d-%d\n", cycles_min, cycles_max);
     }
 
-    start = start + 2;
+    start += 2;
+
+    if (count > 2)
+    {
+      printf("        0x%04x\n", opcode);
+      start += 2;
+    }
   }
 }
 
