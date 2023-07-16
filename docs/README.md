@@ -21,6 +21,7 @@ Contents
   * [Copper (Amiga)](Copper.md)
   * [MIPS](MIPS.md)
   * [MSP430](MSP430.md)
+  * [PIC18](PIC18.md)
   * [Playstation 2](Playstation_2.md)
   * [PowerPC](PowerPC.md)
   * [Propeller](Propeller.md)

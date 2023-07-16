@@ -56,7 +56,7 @@ int disasm_pic18(
           sprintf(instruction, "%s 0x%02x, %c, %d",
             table_pic18[n].instr,
             f,
-            d == 1 ? 'f':'w',
+            d == 1 ? 'f' : 'w',
             a);
 
           return 2;

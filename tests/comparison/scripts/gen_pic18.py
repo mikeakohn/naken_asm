@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 
@@ -9,7 +9,6 @@ def create_asm(instruction):
 
   instruction = instruction.replace(", a", ", 1")
 
-  #if instruction.strip().endswith(" s"):
   if instruction.endswith(" s"):
     instruction = instruction.replace(" s", " 1")
 
