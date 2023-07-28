@@ -10,7 +10,7 @@
  */
 
 #ifndef NAKEN_ASM_SIMULATE_EBPF_H
-#define NAKEN_ASM_SIMULATE__H
+#define NAKEN_ASM_SIMULATE_EBPF_H
 
 #include <unistd.h>
 

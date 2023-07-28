@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <string.h>
 #include <signal.h>
 
@@ -99,7 +100,7 @@ uint32_t simulate_get_reg_ebpf(Simulate *simulate, char *reg_string)
 
   if (r == -1) { return -1; }
 
-  printf(" r%d: 0x%08lx\n", r, simulate_ebpf->reg[r]);
+  printf(" r%d: 0x%08" PRIx64 "\n", r, simulate_ebpf->reg[r]);
 
   return 0;
 }
@@ -136,7 +137,7 @@ void simulate_dump_registers_ebpf(Simulate *simulate)
 
   for (n = 0; n < 11; n++)
   {
-    printf(" r%d: %08lx\n", n, simulate_ebpf->reg[n]);
+    printf(" r%d: %08" PRIx64 "\n", n, simulate_ebpf->reg[n]);
   }
 }
 
