@@ -545,7 +545,7 @@ int main(int argc, char *argv[])
       // FIXME: This is MSP430 specific.
       uint32_t num;
 
-      char *end = util_get_address(&util_context, command + 5, &num);
+      const char *end = util_get_address(&util_context, command + 5, &num);
 
       if (end == NULL)
       {

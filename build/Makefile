@@ -15,13 +15,17 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
 	   $(DFLAGS) -I.. \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
+library: default
+	$(CC) -o ../libnaken_asm.so ../library/naken_asm.c \
+	  naken_asm.a -shared -I.. \
+	  $(CFLAGS)
+
 prog:
 	$(CC) -o ../naken_prog$(CONFIG_EXT) ../common/naken_prog.c \
 	   prog/lpc.o common/memory.o common/memory_pool.o fileio/read_elf.o \
 	   fileio/read_hex.o fileio/write_hex.o common/print_error.o \
 	   prog/serial.o common/symbols.o -I.. \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
-
 
 common/assembler.o: common/assembler.c common/assembler.h
 	$(CC) -c $< -o $*.o $(CFLAGS) $(DFLAGS) -I..

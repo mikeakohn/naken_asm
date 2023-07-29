@@ -16,7 +16,7 @@
 
 #include "common/util_disasm.h"
 
-void util_disasm(UtilContext *util_context, char *token)
+void util_disasm(UtilContext *util_context, const char *token)
 {
   uint32_t start, end;
 

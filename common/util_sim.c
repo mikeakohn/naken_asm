@@ -170,7 +170,7 @@ int sim_set_breakpoint(UtilContext *util_context, char *command)
 
   uint32_t address;
 
-  char *end = util_get_address(util_context, command + 6, &address);
+  const char *end = util_get_address(util_context, command + 6, &address);
 
   if (end == NULL)
   {

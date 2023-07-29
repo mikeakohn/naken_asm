@@ -34,7 +34,7 @@ void util_init(UtilContext *util_context);
 // Converts text pass in on the command line to a start / end int.
 int util_get_range(
   UtilContext *util_context,
-  char *token,
+  const char *token,
   uint32_t *start,
   uint32_t *end);
 
@@ -42,19 +42,19 @@ int util_is_supported_cpu(const char *name);
 int util_set_cpu_by_type(UtilContext *util_context, uint8_t cpu_type);
 int util_set_cpu_by_name(UtilContext *util_context, const char *name);
 
-char *util_get_num(char *token, uint32_t *num);
+const char *util_get_num(const char *token, uint32_t *num);
 
-char *util_get_address(
+const char *util_get_address(
   UtilContext *util_context,
-  char *token,
+  const char *token,
   uint32_t *address);
 
-void util_print8(UtilContext *util_context, char *token);
-void util_print16(UtilContext *util_context, char *token);
-void util_print32(UtilContext *util_context, char *token);
-void util_write8(UtilContext *util_context, char *token);
-void util_write16(UtilContext *util_context, char *token);
-void util_write32(UtilContext *util_context, char *token);
+void util_print8(UtilContext *util_context, const char *token);
+void util_print16(UtilContext *util_context, const char *token);
+void util_print32(UtilContext *util_context, const char *token);
+void util_write8(UtilContext *util_context, const char *token);
+void util_write16(UtilContext *util_context, const char *token);
+void util_write32(UtilContext *util_context, const char *token);
 
 #endif
 

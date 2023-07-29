@@ -73,7 +73,7 @@ link_function_t link_function_mips = NULL;
 link_function_t link_function_msp430 = NULL;
 #endif
 
-static char *util_get_hex(char *token, uint32_t *num)
+static const char *util_get_hex(const char *token, uint32_t *num)
 {
   int s = 0;
   int n = 0;
@@ -131,70 +131,78 @@ void util_init(UtilContext *util_context)
 #endif
 }
 
+static const char *util_get_token(char *value, const char *source)
+{
+  // Remove whitespace.
+  while (*source == ' ') { source++; }
+
+  int ptr = 0;
+
+  while (*source != ' ' && *source != 0)
+  {
+    if (*source == '-' && ptr != 0) { break; }
+
+    value[ptr++] = *source;
+    source++;
+
+    if (value[ptr - 1] == '-') { break; }
+  }
+
+  value[ptr] = 0;
+
+  // If no characters left to parse.
+  if (ptr == 0) { return NULL; }
+
+  return source;
+}
+
 int util_get_range(
   UtilContext *util_context,
-  char *token,
+  const char *token,
   uint32_t *start,
   uint32_t *end)
 {
-  char *start_string = NULL;
-  char *end_string = NULL;
-  char *s;
+  int length = strlen(token);
+  char data[length + 1];
 
-  // Remove white space from start;
-  while (*token == ' ') { token++; }
+  *start = 0;
+  *end = 0;
 
-  start_string = token;
-
-  while (*token != '-' && *token != 0)
-  {
-    token++;
-  }
-
-  // Remove white space from end of start_string
-  s = token - 1;
-
-  while (s >= start_string)
-  {
-    if (*s != ' ') { break; }
-    *s = 0;
-    s--;
-  }
-
-  if (*token == '-')
-  {
-    *token = 0;
-    end_string = token + 1;
-
-    // Strip white space from start of end_string
-    while (*end_string == ' ') end_string++;
-  }
-
-  // Remove white space from end of end_string
-  s = token - 1;
-  while (s >= start_string)
-  {
-    if (*s != ' ') { break; }
-    *s = 0;
-    s--;
-  }
-
-  // Look up start_string in symbol table or use number
-  token = util_get_address(util_context, start_string, start);
-
+  token = util_get_token(data, token);
   if (token == NULL) { return -1; }
 
-  // If end_string is empty then end = start
-  if (end_string == NULL || *end_string == 0)
+  // If not a - then this must be an address. Resolve it and then grab
+  // another token which should be NULL or "-".
+  if (strcmp(data, "-") != 0)
   {
-    *end = *start;
-    return 0;
+    // Look up start_string in symbol table or use number.
+    if (util_get_address(util_context, data, start) == NULL) { return -1; }
+
+    token = util_get_token(data, token);
+
+    if (token == NULL)
+    {
+      *end = *start;
+      return 0;
+    }
   }
 
-  // Look up end_string in symbol table or use number
-  token = util_get_address(util_context, end_string, end);
+  // If the next token isn't a "-", there is for sure a problem now.
+  if (strcmp(data, "-") != 0)
+  {
+    return -1;
+  }
 
+  // Next token should be end address.
+  token = util_get_token(data, token);
   if (token == NULL) { return -1; }
+
+  // Look up end_string in symbol table or use number.
+  if (util_get_address(util_context, data, end) == NULL) { return -1; }
+
+  // Should not be any more characters at end of line.
+  token = util_get_token(data, token);
+  if (token != NULL) { return -1; }
 
   return 0;
 }
@@ -273,7 +281,7 @@ int util_set_cpu_by_name(UtilContext *util_context, const char *name)
   return 0;
 }
 
-char *util_get_num(char *token, uint32_t *num)
+const char *util_get_num(const char *token, uint32_t *num)
 {
   uint32_t n;
 
@@ -333,9 +341,9 @@ char *util_get_num(char *token, uint32_t *num)
   return token + s;
 }
 
-char *util_get_address(
+const char *util_get_address(
   UtilContext *util_context,
-  char *token,
+  const char *token,
   uint32_t *address)
 {
   int ret;
@@ -359,7 +367,7 @@ char *util_get_address(
   return token;
 }
 
-void util_print8(UtilContext *util_context, char *token)
+void util_print8(UtilContext *util_context, const char *token)
 {
   char chars[20];
   uint32_t start, end;
@@ -407,7 +415,7 @@ void util_print8(UtilContext *util_context, char *token)
   }
 }
 
-void util_print16(UtilContext *util_context, char *token)
+void util_print16(UtilContext *util_context, const char *token)
 {
   char chars[20];
   uint32_t start, end;
@@ -478,7 +486,7 @@ void util_print16(UtilContext *util_context, char *token)
   }
 }
 
-void util_print32(UtilContext *util_context, char *token)
+void util_print32(UtilContext *util_context, const char *token)
 {
   char chars[20];
   uint32_t start, end;
@@ -548,7 +556,7 @@ void util_print32(UtilContext *util_context, char *token)
   }
 }
 
-void util_write8(UtilContext *util_context, char *token)
+void util_write8(UtilContext *util_context, const char *token)
 {
   uint32_t address = 0;
   uint32_t num;
@@ -571,10 +579,10 @@ void util_write8(UtilContext *util_context, char *token)
   int n = address;
   while (1)
   {
-    if (address >= util_context->memory.size) break;
-    while (*token == ' ' && *token != 0) token++;
+    if (address >= util_context->memory.size) { break; }
+    while (*token == ' ' && *token != 0) { token++; }
     token = util_get_num(token, &num);
-    if (token == 0) break;
+    if (token == NULL) { break; }
     memory_write_m(&util_context->memory, address++, num);
     count++;
   }
@@ -583,7 +591,7 @@ void util_write8(UtilContext *util_context, char *token)
     count, n / util_context->bytes_per_address);
 }
 
-void util_write16(UtilContext *util_context, char *token)
+void util_write16(UtilContext *util_context, const char *token)
 {
   uint32_t address = 0;
   uint32_t num;
@@ -628,7 +636,7 @@ void util_write16(UtilContext *util_context, char *token)
     count, n / util_context->bytes_per_address);
 }
 
-void util_write32(UtilContext *util_context, char *token)
+void util_write32(UtilContext *util_context, const char *token)
 {
   uint32_t address = 0;
   uint32_t num;
