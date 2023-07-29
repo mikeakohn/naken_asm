@@ -17,7 +17,7 @@ default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
 
 library: default
 	$(CC) -o ../libnaken_asm.so ../library/naken_asm.c \
-	  naken_asm.a -shared -I.. \
+	  naken_asm.a -shared -I.. -fPIC \
 	  $(CFLAGS)
 
 prog:
