@@ -95,7 +95,7 @@ static int simulate_avr8_word_count(Simulate *simulate)
   int n;
 
   n = 0;
-  while(table_avr8[n].instr != NULL)
+  while (table_avr8[n].instr != NULL)
   {
     if ((opcode & table_avr8[n].mask) == table_avr8[n].opcode)
     {
@@ -154,27 +154,31 @@ void simulate_push_avr8(Simulate *simulate, uint32_t value)
   PUSH_STACK(value);
 }
 
-int simulate_set_reg_avr8(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_avr8(
+  Simulate *simulate,
+  const char *reg_string,
+  uint32_t value)
 {
   SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int reg;
 
-  while(*reg_string == ' ') { reg_string++; }
+  while (*reg_string == ' ') { reg_string++; }
 
   // joe needed these
-  if(strcasecmp(reg_string, "sp") == 0)
+  if (strcasecmp(reg_string, "sp") == 0)
   {
     simulate_avr8->sp = value & 0xffff;
     return 0;
   }
 
-  if(strcasecmp(reg_string, "pc") == 0)
+  if (strcasecmp(reg_string, "pc") == 0)
   {
     simulate_avr8->pc = value & 0xffff;
     return 0;
   }
 
   reg = get_register_avr8(reg_string);
+
   if (reg == -1)
   {
     // Add flags here
@@ -186,7 +190,7 @@ int simulate_set_reg_avr8(Simulate *simulate, char *reg_string, uint32_t value)
   return 0;
 }
 
-uint32_t simulate_get_reg_avr8(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_avr8(Simulate *simulate, const char *reg_string)
 {
   SimulateAvr8 *simulate_avr8 = (SimulateAvr8 *)simulate->context;
   int reg;
@@ -898,7 +902,7 @@ static int simulate_execute_avr8(Simulate *simulate)
   simulate_avr8->pc += 1;
 
   int n = 0;
-  while(table_avr8[n].instr != NULL)
+  while (table_avr8[n].instr != NULL)
   {
     if ((opcode & table_avr8[n].mask) == table_avr8[n].opcode)
     {
@@ -996,7 +1000,7 @@ static int simulate_execute_avr8(Simulate *simulate)
         case OP_REG_MINUS_Z:
           rd = (opcode >> 4) & 0x1f;
           if (table_avr8[n].type == OP_REG_MINUS_Z) { DEC_Z(); }
-          if(table_avr8[n].id == AVR8_LPM)
+          if (table_avr8[n].id == AVR8_LPM)
             simulate_avr8->reg[rd] = READ_FLASH(GET_Z());
           else
             simulate_avr8->reg[rd] = READ_RAM(GET_Z());
@@ -1147,7 +1151,7 @@ int simulate_run_avr8(Simulate *simulate, int max_cycles, int step)
 
   printf("Running... Press Ctl-C to break.\n");
 
-  while(stop_running == 0)
+  while (stop_running == 0)
   {
     pc = simulate_avr8->pc;
     ret = simulate_execute_avr8(simulate);
@@ -1162,7 +1166,7 @@ int simulate_run_avr8(Simulate *simulate, int max_cycles, int step)
       simulate_dump_registers_avr8(simulate);
 
       n = 0;
-      while(n < 6)
+      while (n < 6)
       {
         int cycles_min,cycles_max;
         int num;

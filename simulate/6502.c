@@ -723,7 +723,10 @@ void simulate_push_6502(Simulate *simulate, uint32_t value)
   REG_SP &= 0xFF;
 }
 
-int simulate_set_reg_6502(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_6502(
+  Simulate *simulate,
+  const char *reg_string,
+  uint32_t value)
 {
   Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
 
@@ -731,7 +734,7 @@ int simulate_set_reg_6502(Simulate *simulate, char *reg_string, uint32_t value)
 
   while (*reg_string==' ') { reg_string++; }
 
-  char *pos = reg_string;
+  const char *pos = reg_string;
 
   if (pos[0] == 'a' || pos[0] == 'A')
     REG_A = value & 0xFF;
@@ -751,13 +754,13 @@ int simulate_set_reg_6502(Simulate *simulate, char *reg_string, uint32_t value)
   return 0;
 }
 
-uint32_t simulate_get_reg_6502(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_6502(Simulate *simulate, const char *reg_string)
 {
   Simulate6502 *simulate_6502 = (Simulate6502 *)simulate->context;
 
   while (*reg_string == ' ') { reg_string++; }
 
-  char *pos = reg_string;
+  const char *pos = reg_string;
 
   if (pos[0] == 'a' || pos[0] == 'A')
     return REG_A;

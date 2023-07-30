@@ -742,7 +742,10 @@ void simulate_push_65816(Simulate *simulate, uint32_t value)
   REG_SP &= 0xFF;
 }
 
-int simulate_set_reg_65816(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_65816(
+  Simulate *simulate,
+  const char *reg_string,
+  uint32_t value)
 {
   Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
 
@@ -770,7 +773,7 @@ int simulate_set_reg_65816(Simulate *simulate, char *reg_string, uint32_t value)
   return 0;
 }
 
-uint32_t simulate_get_reg_65816(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_65816(Simulate *simulate, const char *reg_string)
 {
   Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
 

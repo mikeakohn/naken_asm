@@ -22,12 +22,12 @@ typedef struct _simulate_msp430
   uint16_t reg[16];
 } SimulateMsp430;
 
-Simulate *simulate_init_msp430();
+Simulate *simulate_init_msp430(Memory *memory);
 void simulate_free_msp430(Simulate *simulate);
 int simulate_dumpram_msp430(Simulate *simulate, int start, int end);
 void simulate_push_msp430(Simulate *simulate, uint32_t value);
-int simulate_set_reg_msp430(Simulate *simulate, char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_msp430(Simulate *simulate, char *reg_string);
+int simulate_set_reg_msp430(Simulate *simulate, const char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_msp430(Simulate *simulate, const char *reg_string);
 void simulate_set_pc_msp430(Simulate *simulate, uint32_t value);
 void simulate_reset_msp430(Simulate *simulate);
 void simulate_dump_registers_msp430(Simulate *simulate);

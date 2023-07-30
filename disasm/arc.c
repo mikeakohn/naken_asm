@@ -26,7 +26,7 @@
 
 #define LIMM 0x3e
 
-static char *condition_codes[] =
+static const char *condition_codes[] =
 {
   ".al",
   ".eq",
@@ -90,7 +90,7 @@ static int map16_bit_register(int r)
   return r + 8;
 }
 
-static void *get_aa(int aa)
+static const char *get_aa(int aa)
 {
   switch (aa)
   {
@@ -449,7 +449,7 @@ int disasm_arc(
   // 32 bit load / store.
   for (n = 0; table_arc_load_store[n].instr != NULL; n++)
   {
-    int o = opcode & table_arc_load_store[n].mask;
+    uint32_t o = opcode & table_arc_load_store[n].mask;
 
     if (table_arc_load_store[n].opcode == o)
     {
@@ -591,7 +591,7 @@ int disasm_arc(
   // 16 bit load / store.
   for (n = 0; table_arc_load_store16[n].instr != NULL; n++)
   {
-    int o = opcode16 & table_arc_load_store16[n].mask;
+    uint32_t o = opcode16 & table_arc_load_store16[n].mask;
 
     if (table_arc_load_store16[n].opcode == o)
     {

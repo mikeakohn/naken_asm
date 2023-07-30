@@ -40,12 +40,12 @@ typedef struct _simulate_avr8
   uint8_t sreg;
 } SimulateAvr8;
 
-Simulate *simulate_init_avr8();
+Simulate *simulate_init_avr8(Memory *memory);
 void simulate_free_avr8(Simulate *simulate);
 int simulate_dumpram_avr8(Simulate *simulate, int start, int end);
 void simulate_push_avr8(Simulate *simulate, uint32_t value);
-int simulate_set_reg_avr8(Simulate *simulate, char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_avr8(Simulate *simulate, char *reg_string);
+int simulate_set_reg_avr8(Simulate *simulate, const char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_avr8(Simulate *simulate, const char *reg_string);
 void simulate_set_pc_avr8(Simulate *simulate, uint32_t value);
 void simulate_reset_avr8(Simulate *simulate);
 void simulate_dump_registers_avr8(Simulate *simulate);

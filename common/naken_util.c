@@ -34,8 +34,8 @@ enum
   MODE_RUN,
 };
 
-static char *state_stopped = "stopped";
-static char *state_running = "running";
+static const char *state_stopped = "stopped";
+static const char *state_running = "running";
 
 static void print_usage()
 {
@@ -139,7 +139,7 @@ static const char *find_partial_command(const char *text, int *index)
   int len = strlen(text);
   const char *name;
 
-  while (*index < sizeof(command_names) / sizeof(char*))
+  while (*index < (int)(sizeof(command_names) / sizeof(char *)))
   {
     name = command_names[*index];
     ++*index;
@@ -158,7 +158,7 @@ static const char *find_command(const char *text)
   const char *name;
   int index = 0;
 
-  while (index < sizeof(command_names) / sizeof(char*))
+  while (index < (int)(sizeof(command_names) / sizeof(char *)))
   {
     name = command_names[index];
     ++index;
@@ -198,16 +198,16 @@ static char **command_name_completion(const char *text, int start, int end)
   char command[128];
   int n;
 
-  // suppress default completion
+  // Suppress default completion.
   rl_attempted_completion_over = 1;
 
   char *s = rl_line_buffer;
   while (*s != 0 && *s == ' ') { s++; }
 
-  // check if buffer already contains a command
+  // Check if buffer already contains a command.
   n = 0;
 
-  while (n < sizeof(command) - 1)
+  while (n < (int)sizeof(command) - 1)
   {
     command[n] = s[n];
 
@@ -217,7 +217,7 @@ static char **command_name_completion(const char *text, int start, int end)
 
   command[n] = 0;
 
-  if (n >= sizeof(command) - 1) { return NULL; }
+  if (n >= (int)sizeof(command) - 1) { return NULL; }
 
   name = find_command(command);
 
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
 {
   FILE *src = NULL;
   UtilContext util_context;
-  char *state = state_stopped;
+  const char *state = state_stopped;
   char command[1024];
 #ifdef READLINE
   char *line = NULL;

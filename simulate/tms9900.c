@@ -135,7 +135,7 @@ static void sp_inc(int *sp)
 }
 #endif
 
-static int get_register_tms9900(char *token)
+static int get_register_tms9900(const char *token)
 {
   if (token[0]=='r' || token[0]=='R')
   {
@@ -191,9 +191,12 @@ void simulate_push_tms9900(Simulate *simulate, uint32_t value)
 #endif
 }
 
-static char *flags[] = { "L>", "A>", "=", "C", "O", "P", "X" };
+static const char *flags[] = { "L>", "A>", "=", "C", "O", "P", "X" };
 
-int simulate_set_reg_tms9900(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_tms9900(
+  Simulate *simulate,
+  const char *reg_string,
+  uint32_t value)
 {
   SimulateTms9900 *simulate_tms9900 = (SimulateTms9900 *)simulate->context;
   int reg,n;
@@ -221,7 +224,7 @@ int simulate_set_reg_tms9900(Simulate *simulate, char *reg_string, uint32_t valu
   return 0;
 }
 
-uint32_t simulate_get_reg_tms9900(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_tms9900(Simulate *simulate, const char *reg_string)
 {
   SimulateTms9900 *simulate_tms9900 = (SimulateTms9900 *)simulate->context;
   int reg;

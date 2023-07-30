@@ -58,14 +58,17 @@ void simulate_push_null(Simulate *simulate, uint32_t value)
 
 }
 
-int simulate_set_reg_null(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_null(
+  Simulate *simulate,
+  const char *reg_string,
+  uint32_t value)
 {
   //SimulateNull *simulate_null = (SimulateNull *)simulate->context;
 
   return 0;
 }
 
-uint32_t simulate_get_reg_null(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_null(Simulate *simulate, const char *reg_string)
 {
   //SimulateNull *simulate_null = (SimulateNull *)simulate->context;
 

@@ -21,7 +21,7 @@
 #define ARM_NIB(n) ((opcode>>n)&0xf)
 
 // NOTE "" is AL
-static char *arm_cond[] =
+static const char *arm_cond[] =
 {
   "eq", "ne", "cs", "cc",
   "mi", "pl", "vs", "vc",
@@ -30,7 +30,7 @@ static char *arm_cond[] =
 };
 
 #if 0
-char *arm_alu_ops[] =
+const char *arm_alu_ops[] =
 {
   "and", "eor", "sub", "rsb",
   "add", "adc", "sbc", "rsc",
@@ -39,12 +39,12 @@ char *arm_alu_ops[] =
 };
 #endif
 
-char *arm_shift[] =
+const char *arm_shift[] =
 {
   "lsl", "lsr", "asr", "ror"
 };
 
-static char *arm_reg[] =
+static const char *arm_reg[] =
 {
   "r0", "r1", "r2", "r3",
   "r4", "r5", "r6", "r7",
@@ -397,7 +397,7 @@ static void process_undefined(char *instruction, uint32_t opcode)
 
 static void process_ldm_stm(char *instruction, uint32_t opcode, int index)
 {
-  char *pru_str[] = { "db", "ib", "da", "ia" };
+  const char *pru_str[] = { "db", "ib", "da", "ia" };
   int cond = (opcode >> 28) & 0xf;
   int w = (opcode >> 21) & 1;
   int s = (opcode >> 22) & 1;

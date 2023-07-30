@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -51,17 +51,17 @@ struct _table_propeller2
   uint8_t wc    : 1;
   uint8_t wcz   : 1;
   uint8_t logic : 2;
-  uint8_t cycles8_min;
-  uint8_t cycles8_max;
-  uint8_t cycles8hub_min;
-  uint8_t cycles8hub_max;
-  uint8_t cycles16_min;
-  uint8_t cycles16_max;
+  int8_t cycles8_min;
+  int8_t cycles8_max;
+  int8_t cycles8hub_min;
+  int8_t cycles8hub_max;
+  int8_t cycles16_min;
+  int8_t cycles16_max;
 };
 
 struct _registers_propeller2
 {
-  char *name;
+  const char *name;
   uint32_t value;
 };
 

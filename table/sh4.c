@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -321,7 +321,7 @@ struct _operand_type_sh4 operand_type_sh4[] =
   { 2,               0, 4,          SH4_REG,  8 }, // OP_REG_AT_DISP_REG
 };
 
-char *sh4_specials[] =
+const char *sh4_specials[] =
 {
   "???",
   "FPUL",

@@ -23,12 +23,12 @@ typedef struct _simulate_8008
   uint16_t pc;
 } Simulate8008;
 
-Simulate *simulate_init_8008();
+Simulate *simulate_init_8008(Memory *memory);
 void simulate_free_8008(Simulate *simulate);
 int simulate_dumpram_8008(Simulate *simulate, int start, int end);
 void simulate_push_8008(Simulate *simulate, uint32_t value);
-int simulate_set_reg_8008(Simulate *simulate, char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_8008(Simulate *simulate, char *reg_string);
+int simulate_set_reg_8008(Simulate *simulate, const char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_8008(Simulate *simulate, const char *reg_string);
 void simulate_set_pc_8008(Simulate *simulate, uint32_t value);
 void simulate_reset_8008(Simulate *simulate);
 void simulate_dump_registers_8008(Simulate *simulate);

@@ -469,7 +469,7 @@ static int write_reg_and_ea(
   int size)
 {
   if (operand_count != 2) { return 0; }
-  if (size == SIZE_NONE) { return 0; }
+  if (size == SIZE_NONE)  { return 0; }
 
   int opmode;
   int reg;
@@ -681,7 +681,7 @@ static int write_vector(
   int type)
 {
   if (operand_count != 1) { return 0; }
-  if (size != SIZE_NONE) { return 0; }
+  if (size != SIZE_NONE)  { return 0; }
   if (operands[0].type != OPERAND_IMMEDIATE) { return 0; }
 
   if (type == OP_VECTOR)
@@ -715,7 +715,7 @@ static int write_areg(
   int size)
 {
   if (operand_count != 1) { return 0; }
-  if (size != SIZE_NONE) { return 0; }
+  if (size != SIZE_NONE)  { return 0; }
   if (operands[0].type != OPERAND_A_REG) { return 0; }
 
   add_bin16(asm_context, opcode | operands[0].value, IS_OPCODE);
@@ -918,7 +918,7 @@ static int write_cmpm(
   int size)
 {
   if (operand_count != 2) { return 0; }
-  if (size == SIZE_NONE) { return 0; }
+  if (size == SIZE_NONE)  { return 0; }
   if (operands[0].type != OPERAND_A_REG_INDEX_PLUS) { return 0; }
   if (operands[1].type != OPERAND_A_REG_INDEX_PLUS) { return 0; }
 
@@ -965,7 +965,7 @@ static int write_extended(
   int size)
 {
   if (operand_count != 2) { return 0; }
-  if (size == SIZE_NONE) { return 0; }
+  if (size == SIZE_NONE)  { return 0; }
 
   int rm = -1;
 
@@ -999,7 +999,7 @@ static int write_rox(
 {
   if (type == OP_ROX_MEM)
   {
-    if (size != SIZE_NONE) { return 0; }
+    if (size != SIZE_NONE)  { return 0; }
     if (operand_count != 1) { return 0; }
 
     return ea_generic_all(asm_context, &operands[0], instr, opcode, size, EA_NO_D | EA_NO_A | EA_NO_PC | EA_NO_IMM, NO_EXTRA_IMM);
@@ -1582,15 +1582,16 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
   lower_copy(instr_case, instr);
   memset(operands, 0, sizeof(operands));
 
-  if (strcmp("dbhi", instr_case) == 0) { instr_case = "dbcc"; }
-  else if (strcmp("dblo", instr_case) == 0) { instr_case = "dbcs"; }
-  else if (strcmp("dbra", instr_case) == 0) { instr_case = "dbf"; }
+  if (strcmp("dbhi", instr_case) == 0)      { strcpy(instr_case, "dbcc"); }
+  else if (strcmp("dblo", instr_case) == 0) { strcpy(instr_case, "dbcs"); }
+  else if (strcmp("dbra", instr_case) == 0) { strcpy(instr_case, "dbf"); }
 
   memset(&operands, 0, sizeof(operands));
 
   while (1)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
+
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
 #if 0
@@ -2075,18 +2076,18 @@ printf("\n");
   {
     if (operands[1].type == OPERAND_A_REG)
     {
-      instr_case = "adda";
+      strcpy(instr_case, "adda");
     }
       else
     if (operands[0].type == OPERAND_IMMEDIATE)
     {
       if (operands[0].value >= 1 && operands[0].value <= 8)
       {
-        instr_case = "addq";
+        strcpy(instr_case, "addq");
       }
         else
       {
-        instr_case = "addi";
+        strcpy(instr_case, "addi");
       }
     }
   }

@@ -29,62 +29,62 @@ struct _operator
   int precedence;
 };
 
-static int get_operator(char *token, struct _operator *operator)
+static int get_operator(const char *token, struct _operator *oper)
 {
   if (token[1] == 0)
   {
     if (token[0] == '~')
     {
-      operator->precedence = PREC_NOT;
-      operator->operation = OPER_NOT;
+      oper->precedence = PREC_NOT;
+      oper->operation = OPER_NOT;
     }
       else
     if (token[0] == '*')
     {
-      operator->precedence = PREC_MUL;
-      operator->operation = OPER_MUL;
+      oper->precedence = PREC_MUL;
+      oper->operation = OPER_MUL;
     }
       else
     if (token[0] == '/')
     {
-      operator->precedence = PREC_MUL;
-      operator->operation = OPER_DIV;
+      oper->precedence = PREC_MUL;
+      oper->operation = OPER_DIV;
     }
       else
     if (token[0] == '%')
     {
-      operator->precedence = PREC_MUL;
-      operator->operation = OPER_MOD;
+      oper->precedence = PREC_MUL;
+      oper->operation = OPER_MOD;
     }
       else
     if (token[0] == '+')
     {
-      operator->precedence = PREC_ADD;
-      operator->operation = OPER_PLUS;
+      oper->precedence = PREC_ADD;
+      oper->operation = OPER_PLUS;
     }
       else
     if (token[0] == '-')
     {
-      operator->precedence = PREC_ADD;
-      operator->operation = OPER_MINUS;
+      oper->precedence = PREC_ADD;
+      oper->operation = OPER_MINUS;
     }
       else
     if (token[0] == '&')
     {
-      operator->precedence = PREC_AND;
-      operator->operation = OPER_AND;
+      oper->precedence = PREC_AND;
+      oper->operation = OPER_AND;
     }
       else
     if (token[0] == '^')
     {
-      operator->precedence = PREC_XOR;
-      operator->operation = OPER_XOR;
+      oper->precedence = PREC_XOR;
+      oper->operation = OPER_XOR;
     }
       else
     if (token[0] == '|')
     {
-      operator->precedence = PREC_OR;
-      operator->operation = OPER_OR;
+      oper->precedence = PREC_OR;
+      oper->operation = OPER_OR;
     }
       else
     {
@@ -96,14 +96,14 @@ static int get_operator(char *token, struct _operator *operator)
   {
     if (token[0] == '<' && token[1] == '<')
     {
-      operator->precedence = PREC_SHIFT;
-      operator->operation = OPER_LEFT_SHIFT;
+      oper->precedence = PREC_SHIFT;
+      oper->operation = OPER_LEFT_SHIFT;
     }
       else
     if (token[0] == '>' && token[1] == '>')
     {
-      operator->precedence = PREC_SHIFT;
-      operator->operation = OPER_RIGHT_SHIFT;
+      oper->precedence = PREC_SHIFT;
+      oper->operation = OPER_RIGHT_SHIFT;
     }
       else
     {
@@ -118,13 +118,13 @@ static int get_operator(char *token, struct _operator *operator)
   return 0;
 }
 
-static int operate(int a, int b, struct _operator *operator)
+static int operate(int a, int b, struct _operator *oper)
 {
 #ifdef DEBUG
-printf(">>> OPERATING ON %d (%d) %d\n", a, operator->operation, b);
+printf(">>> OPERATING ON %d (%d) %d\n", a, oper->operation, b);
 #endif
 
-  switch (operator->operation)
+  switch (oper->operation)
   {
     case OPER_NOT:
       return ~a;
@@ -149,7 +149,7 @@ printf(">>> OPERATING ON %d (%d) %d\n", a, operator->operation, b);
     case OPER_OR:
       return a | b;
     default:
-      printf("Internal Error: WTF, bad operator %d\n", operator->operation);
+      printf("Internal Error: WTF, bad operator %d\n", oper->operation);
       return 0;
   }
 }
@@ -209,14 +209,14 @@ static int eval_expression_go(AsmContext *asm_context, int *num, struct _operato
   int token_type;
   int num_stack[3];
   int num_stack_ptr = 1;
-  struct _operator operator;
+  struct _operator oper;
   int last_token_was_op = -1;
 
 #ifdef DEBUG
 printf("Enter eval_expression_go,  num=%d\n", *num);
 #endif
 
-  memcpy(&operator, last_operator, sizeof(struct _operator));
+  memcpy(&oper, last_operator, sizeof(struct _operator));
   num_stack[0] = *num;
 
   while (1)
@@ -232,7 +232,7 @@ printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
 //printf("num_stack_ptr=%d operator=%d\n", num_stack_ptr, operator.operation);
 
     // Issue 15: Return an error if a stack is full with no operator.
-    if (num_stack_ptr == 3 && operator.operation == OPER_UNSET)
+    if (num_stack_ptr == 3 && oper.operation == OPER_UNSET)
     {
       return -1;
     }
@@ -266,18 +266,18 @@ printf("eval_expression> token=%s   num_stack_ptr=%d\n", token, num_stack_ptr);
     // Open and close parenthesis
     if (IS_TOKEN(token,'('))
     {
-      if (last_token_was_op == 0 && operator.operation != OPER_UNSET)
+      if (last_token_was_op == 0 && oper.operation != OPER_UNSET)
       {
         num_stack[num_stack_ptr-2] = operate(num_stack[num_stack_ptr-2], num_stack[num_stack_ptr-1], last_operator);
         num_stack_ptr--;
-        operator.operation = OPER_UNSET;
+        oper.operation = OPER_UNSET;
 
         *num = num_stack[num_stack_ptr-1];
         tokens_push(asm_context, token, token_type);
         return 0;
       }
 
-      if (operator.operation == OPER_UNSET && num_stack_ptr == 2)
+      if (oper.operation == OPER_UNSET && num_stack_ptr == 2)
       {
         // This is probably the x(r12) case.. so this is actually okay
         *num = num_stack[num_stack_ptr-1];
@@ -355,9 +355,9 @@ PRINT_STACK()
       last_token_was_op = 1;
 
       struct _operator operator_prev;
-      memcpy(&operator_prev, &operator, sizeof(struct _operator));
+      memcpy(&operator_prev, &oper, sizeof(struct _operator));
 
-      if (get_operator(token, &operator) == -1)
+      if (get_operator(token, &oper) == -1)
       {
         print_error_unexp(asm_context, token);
         return -1;
@@ -365,7 +365,7 @@ PRINT_STACK()
 
       // Issue 15: 2015-July-21 mkohn - If operator is ~ then reverse
       // the next number.
-      if (operator.operation == OPER_NOT)
+      if (oper.operation == OPER_NOT)
       {
         int num;
 
@@ -378,7 +378,7 @@ PRINT_STACK()
         }
 
         num_stack[num_stack_ptr++] = num;
-        memcpy(&operator, &operator_prev, sizeof(struct _operator));
+        memcpy(&oper, &operator_prev, sizeof(struct _operator));
 
         last_token_was_op = 0;
 
@@ -393,18 +393,18 @@ PRINT_STACK()
       }
 
 #ifdef DEBUG
-printf("OPERATOR '%s': precedence last=%d this=%d\n", token, last_operator->precedence, operator.precedence);
+printf("OPERATOR '%s': precedence last=%d this=%d\n", token, last_operator->precedence, oper.precedence);
 #endif
 
       if (last_operator->precedence == PREC_UNSET)
       {
-        memcpy(last_operator, &operator, sizeof(struct _operator));
+        memcpy(last_operator, &oper, sizeof(struct _operator));
       }
         else
-      if (last_operator->precedence > operator.precedence)
+      if (last_operator->precedence > oper.precedence)
       {
         // The older operation has LESS precedence
-        if (eval_expression_go(asm_context, &num_stack[num_stack_ptr-1], &operator) == -1)
+        if (eval_expression_go(asm_context, &num_stack[num_stack_ptr-1], &oper) == -1)
         {
           return -1;
         }
@@ -413,7 +413,7 @@ printf("OPERATOR '%s': precedence last=%d this=%d\n", token, last_operator->prec
       {
         num_stack[num_stack_ptr-2] = operate(num_stack[num_stack_ptr-2], num_stack[num_stack_ptr-1], last_operator);
         num_stack_ptr--;
-        memcpy(last_operator, &operator, sizeof(struct _operator));
+        memcpy(last_operator, &oper, sizeof(struct _operator));
       }
     }
       else
@@ -444,11 +444,11 @@ PRINT_STACK()
 
 int eval_expression(AsmContext *asm_context, int *num)
 {
-  struct _operator operator;
+  struct _operator oper;
 
   *num = 0;
-  operator.precedence = PREC_UNSET;
-  operator.operation = OPER_UNSET;
-  return eval_expression_go(asm_context, num, &operator);
+  oper.precedence = PREC_UNSET;
+  oper.operation = OPER_UNSET;
+  return eval_expression_go(asm_context, num, &oper);
 }
 

@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -17,8 +17,8 @@
 struct _table_tms1000
 {
   const char *instr;
-  unsigned short int op1000;
-  unsigned short int op1100;
+  int16_t op1000;
+  int16_t op1100;
 };
 
 extern struct _table_tms1000 table_tms1000[];

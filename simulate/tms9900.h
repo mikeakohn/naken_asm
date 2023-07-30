@@ -24,12 +24,12 @@ typedef struct _simulate_tms9900
   uint16_t st;
 } SimulateTms9900;
 
-Simulate *simulate_init_tms9900();
+Simulate *simulate_init_tms9900(Memory *memory);
 void simulate_free_tms9900(Simulate *simulate);
 int simulate_dumpram_tms9900(Simulate *simulate, int start, int end);
 void simulate_push_tms9900(Simulate *simulate, uint32_t value);
-int simulate_set_reg_tms9900(Simulate *simulate, char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_tms9900(Simulate *simulate, char *reg_string);
+int simulate_set_reg_tms9900(Simulate *simulate, const char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_tms9900(Simulate *simulate, const char *reg_string);
 void simulate_set_pc_tms9900(Simulate *simulate, uint32_t value);
 void simulate_reset_tms9900(Simulate *simulate);
 void simulate_dump_registers_tms9900(Simulate *simulate);

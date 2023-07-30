@@ -18,7 +18,7 @@
 #include "common/tokens.h"
 #include "common/print_error.h"
 
-int include_add_path(AsmContext *asm_context, char *paths)
+int include_add_path(AsmContext *asm_context, const char *paths)
 {
   int ptr = 0;
   int n = 0;

@@ -26,7 +26,7 @@
 #define ARM_ILLEGAL_OPERANDS -3
 #define ARM_ERROR_ADDRESS -4
 
-static char *arm_cond_a[16] =
+static const char *arm_cond_a[16] =
 {
   "eq", "ne", "cs", "cc",
   "mi", "pl", "vs", "vc",

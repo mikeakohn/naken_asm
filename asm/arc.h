@@ -18,4 +18,3 @@ int parse_instruction_arc(AsmContext *asm_context, char *instr);
 
 #endif
 
-

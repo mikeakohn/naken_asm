@@ -19,7 +19,7 @@
 
 struct _table_stm8
 {
-  char *instr;
+  const char *instr;
   uint8_t instr_enum;
 };
 

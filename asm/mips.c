@@ -82,7 +82,7 @@ static int get_number(char *s)
 
 static int get_field_number(int field_mask)
 {
-  uint8_t value[16] =
+  int8_t value[16] =
   {
     -1,  3,  2, -1,  // 0
      1, -1, -1, -1,  // 4
@@ -2152,6 +2152,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
           switch (mips_ee_vector[n].operand[r])
           {
             case MIPS_OP_VFT:
+            {
               if (operands[r].type != OPERAND_VFREG)
               {
                 print_error_illegal_operands(asm_context, instr);
@@ -2167,7 +2168,9 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
                 opcode |= field << 23;
               }
               break;
+            }
             case MIPS_OP_VFS:
+            {
               if (operands[r].type != OPERAND_VFREG)
               {
                 print_error_illegal_operands(asm_context, instr);
@@ -2183,7 +2186,9 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
                 opcode |= field << 21;
               }
               break;
+            }
             case MIPS_OP_VFD:
+            {
               if (operands[r].type != OPERAND_VFREG)
               {
                 print_error_illegal_operands(asm_context, instr);
@@ -2191,7 +2196,9 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               }
               opcode |= (operands[r].value << 6);
               break;
+            }
             case MIPS_OP_VIT:
+            {
               if (operands[r].type != OPERAND_VIREG)
               {
                 print_error_illegal_operands(asm_context, instr);
@@ -2199,7 +2206,9 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               }
               opcode |= (operands[r].value << 16);
               break;
+            }
             case MIPS_OP_VIS:
+            {
               if (operands[r].type != OPERAND_VIREG)
               {
                 print_error_illegal_operands(asm_context, instr);
@@ -2207,7 +2216,9 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               }
               opcode |= (operands[r].value << 11);
               break;
+            }
             case MIPS_OP_VID:
+            {
               if (operands[r].type != OPERAND_VIREG)
               {
                 print_error_illegal_operands(asm_context, instr);
@@ -2215,56 +2226,72 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               }
               opcode |= (operands[r].value << 6);
               break;
+            }
             case MIPS_OP_VI01:
+            {
               if (operands[r].type != OPERAND_VIREG || operands[r].value != 1)
               {
                 print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
+            }
             case MIPS_OP_VI27:
+            {
               if (operands[r].type != OPERAND_VIREG || operands[r].value != 27)
               {
                 print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
+            }
             case MIPS_OP_I:
+            {
               if (operands[r].type != OPERAND_I)
               {
                 print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
+            }
             case MIPS_OP_Q:
+            {
               if (operands[r].type != OPERAND_Q)
               {
                 print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
+            }
             case MIPS_OP_P:
+            {
               if (operands[r].type != OPERAND_P)
               {
                 print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
+            }
             case MIPS_OP_R:
+            {
               if (operands[r].type != OPERAND_R)
               {
                 print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
+            }
             case MIPS_OP_ACC:
+            {
               if (operands[r].type != OPERAND_ACC)
               {
                 print_error_illegal_operands(asm_context, instr);
                 return -1;
               }
               break;
+            }
             case MIPS_OP_OFFSET_VBASE:
+            {
               if (operands[r].type != OPERAND_OFFSET_VBASE)
               {
                 print_error_illegal_operands(asm_context, instr);
@@ -2296,7 +2323,9 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               opcode |= offset & 0x7ff;
 
               break;
+            }
             case MIPS_OP_VBASE:
+            {
               if (operands[r].type != OPERAND_OFFSET_VBASE ||
                   operands[r].value != 0)
               {
@@ -2314,7 +2343,9 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               }
 
               break;
+            }
             case MIPS_OP_VBASE_DEC:
+            {
               if (operands[r].type != OPERAND_OFFSET_VBASE_DEC ||
                   operands[r].value != 0)
               {
@@ -2332,7 +2363,9 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               }
 
               break;
+            }
             case MIPS_OP_VBASE_INC:
+            {
               if (operands[r].type != OPERAND_OFFSET_VBASE_INC ||
                   operands[r].value != 0)
               {
@@ -2350,7 +2383,9 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               }
 
               break;
+            }
             case MIPS_OP_IMMEDIATE15_2:
+            {
               if (operands[r].type != OPERAND_IMMEDIATE)
               {
                 print_error_illegal_operands(asm_context, instr);
@@ -2374,7 +2409,9 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               opcode |= (immediate & 0x7ff) << 6;
 
               break;
+            }
             case MIPS_OP_IMMEDIATE5:
+            {
               if (operands[r].type != OPERAND_IMMEDIATE)
               {
                 print_error_illegal_operands(asm_context, instr);
@@ -2390,9 +2427,12 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
               opcode |= (operands[r].value & 0x1f) << 6;
 
               break;
+            }
             default:
+            {
               print_error_illegal_operands(asm_context, instr);
               return -1;
+            }
           }
         }
 

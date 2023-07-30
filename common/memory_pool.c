@@ -18,7 +18,7 @@
 MemoryPool *memory_pool_add(NakenHeap *heap, int heap_len)
 {
   MemoryPool *curr_pool;
-  MemoryPool *memory_pool = malloc(heap_len + sizeof(MemoryPool));
+  MemoryPool *memory_pool = (MemoryPool *)malloc(heap_len + sizeof(MemoryPool));
 
   memory_pool->len = heap_len;
   memory_pool->ptr = 0;

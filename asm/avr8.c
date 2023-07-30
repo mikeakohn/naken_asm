@@ -48,8 +48,8 @@ struct _operand
 
 struct _alias
 {
-  char *instr;
-  char *new;
+  const char *instr;
+  const char *name;
 };
 
 static struct _alias alias[] =
@@ -289,7 +289,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
       operand_count = 2;
       operands[1].type = OPERAND_REG;
       operands[1].value = operands[0].value;
-      instr_case = alias[n].new;
+      strcpy(instr_case, alias[n].name);
     }
 
     n++;
@@ -298,7 +298,7 @@ int parse_instruction_avr8(AsmContext *asm_context, char *instr)
   if (strcmp("cbr", instr_case) == 0)
   {
     operands[1].value=(operands[1].value ^ 0xff);
-    instr_case = "andi";
+    strcpy(instr_case, "andi");
   }
 
   n = 0;

@@ -168,7 +168,9 @@ static MemoryPage *alloc_page(Memory *memory, uint32_t address)
 {
   MemoryPage *page;
 
-  page = malloc(sizeof(MemoryPage) + (memory->debug_flag == 1 ? PAGE_SIZE * sizeof(int) : 0));
+  page = (MemoryPage *)malloc(
+    sizeof(MemoryPage) +
+    (memory->debug_flag == 1 ? PAGE_SIZE * sizeof(int) : 0));
 
   page->address = (address / PAGE_SIZE) * PAGE_SIZE;
   page->offset_min = PAGE_SIZE;
@@ -210,7 +212,7 @@ static void write_byte(Memory *memory, uint32_t address, uint8_t data)
   if (memory->low_address > address) memory->low_address = address;
   if (memory->high_address < address) memory->high_address = address;
 
-  int offset = address-page->address;
+  uint32_t offset = address-page->address;
   if (page->offset_min > offset) { page->offset_min = offset; }
   if (page->offset_max < offset) { page->offset_max = offset; }
 
@@ -241,7 +243,7 @@ static void write_debug(Memory *memory, uint32_t address, int data)
     page=page->next;
   }
 
-  int offset = address-page->address;
+  uint32_t offset = address-page->address;
   if (page->offset_min > offset) { page->offset_min = offset; }
   if (page->offset_max < offset) { page->offset_max = offset; }
 

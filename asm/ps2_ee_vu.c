@@ -113,7 +113,7 @@ static int get_register_ps2_ee_vu(
 
 static int get_field_number(int field_mask)
 {
-  uint8_t value[16] =
+  int8_t value[16] =
   {
     -1,  3,  2, -1,  // 0
      1, -1, -1, -1,  // 4
@@ -211,13 +211,12 @@ int get_base(
   }
     else
   {
-    if (get_field_bits(asm_context,
-                       token,
-                       &operand->field_mask) == -1)
+    if (get_field_bits(asm_context, token, &operand->field_mask) == -1)
     {
       return -1;
     }
 
+    // FIXME: What happened here?
     if (get_field_number(operand->field_mask == -1))
     {
       printf("Error: Only 1 dest field allowed at %s:%d\n",

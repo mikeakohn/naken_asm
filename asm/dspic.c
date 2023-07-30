@@ -48,11 +48,14 @@ enum
 
 static int is_condition(char *token)
 {
-  char *cond[] = {
-    "c", "ge", "geu", "gt", "gtu", "le",
-    "leu", "lt", "ltu", "n", "nc", "nn",
-    "nov", "nz", "oa", "ob", "ov", "sa",
-    "sb", "z", NULL };
+  const char *cond[] =
+  {
+    "c",   "ge", "geu", "gt", "gtu", "le",
+    "leu", "lt", "ltu", "n",  "nc",  "nn",
+    "nov", "nz", "oa",  "ob", "ov",  "sa",
+    "sb",  "z", NULL
+  };
+
   int n;
 
   n = 0;

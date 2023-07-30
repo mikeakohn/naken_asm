@@ -44,48 +44,48 @@ typedef struct _operator
   int precedence;
 } Operator;
 
-static int get_operator(char *token, Operator *operator)
+static int get_operator(char *token, Operator *oper)
 {
   if (IS_TOKEN(token,'>'))
   {
-    operator->operation = OPER_GT;
-    operator->precedence = PREC_EQUAL;
+    oper->operation = OPER_GT;
+    oper->precedence = PREC_EQUAL;
   }
     else
   if (IS_TOKEN(token,'<'))
   {
-    operator->operation = OPER_LT;
-    operator->precedence = PREC_EQUAL;
+    oper->operation = OPER_LT;
+    oper->precedence = PREC_EQUAL;
   }
     else
   if (strcmp(token,"==") == 0)
   {
-    operator->operation = OPER_EQUAL;
-    operator->precedence = PREC_EQUAL;
+    oper->operation = OPER_EQUAL;
+    oper->precedence = PREC_EQUAL;
   }
     else
   if (strcmp(token,">=") == 0)
   {
-    operator->operation = OPER_GT_EQUAL;
-    operator->precedence = PREC_EQUAL;
+    oper->operation = OPER_GT_EQUAL;
+    oper->precedence = PREC_EQUAL;
   }
     else
   if (strcmp(token,"<=") == 0)
   {
-    operator->operation = OPER_LT_EQUAL;
-    operator->precedence = PREC_EQUAL;
+    oper->operation = OPER_LT_EQUAL;
+    oper->precedence = PREC_EQUAL;
   }
     else
   if (strcmp(token,"||") == 0)
   {
-    operator->operation = OPER_OR;
-    operator->precedence = PREC_OR;
+    oper->operation = OPER_OR;
+    oper->precedence = PREC_OR;
   }
     else
   if (strcmp(token,"&&") == 0)
   {
-    operator->operation = OPER_AND;
-    operator->precedence = PREC_AND;
+    oper->operation = OPER_AND;
+    oper->precedence = PREC_AND;
   }
     else
   {
@@ -138,13 +138,13 @@ static int parse_defined(AsmContext *asm_context)
   return ret;
 }
 
-static int eval_operation(int operator, int num1, int num2)
+static int eval_operation(int oper, int num1, int num2)
 {
 #ifdef DEBUG
-printf("debug> #if eval_operation()  operator=%d  num1=%d  num2=%d\n", operator, num1, num2);
+printf("debug> #if eval_operation()  operator=%d  num1=%d  num2=%d\n", oper, num1, num2);
 #endif
 
-  switch (operator)
+  switch (oper)
   {
     case OPER_EQUAL:
       return num1 == num2 ? 1 : 0;
@@ -197,15 +197,15 @@ static int parse_ifdef_expression(
   int state)
 {
   char token[TOKENLEN];
-  Operator operator;
+  Operator oper;
   SymbolsData *symbols_data;
   int token_type;
-  int not = 0;
+  int is_not = 0;
   int n1 = 0;
   int n;
 
-  operator.operation = OPER_NONE;
-  operator.precedence = precedence;
+  oper.operation = OPER_NONE;
+  oper.precedence = precedence;
   n = *num;
 
   while (1)
@@ -234,9 +234,9 @@ printf("debug> #if: %d) %s   n=%d paren_count=%d precedence=%d state=%d\n", toke
         return -1;
       }
 
-      if (operator.operation != OPER_NONE)
+      if (oper.operation != OPER_NONE)
       {
-        n = eval_operation(operator.operation, n1, n);
+        n = eval_operation(oper.operation, n1, n);
 #ifdef DEBUG
 printf("debug> #if eval_operation() @EOL  n=%d precedence=%d state=%d\n", n, precedence, state);
 #endif
@@ -258,7 +258,7 @@ printf("debug> #if eval_operation() @EOL  n=%d precedence=%d state=%d\n", n, pre
       {
         if (IS_TOKEN(token,'!'))
         {
-          not ^= 1;
+          is_not ^= 1;
           continue;
         }
           else
@@ -284,9 +284,9 @@ printf("debug> #if eval_operation() @EOL  n=%d precedence=%d state=%d\n", n, pre
             return -1;
           }
 
-          if (operator.operation != OPER_NONE)
+          if (oper.operation != OPER_NONE)
           {
-            n = eval_operation(operator.operation, n1, n);
+            n = eval_operation(oper.operation, n1, n);
 #ifdef DEBUG
 printf("debug> #if eval_operation() @paren  n=%d\n", n);
 #endif
@@ -333,12 +333,12 @@ printf("debug> #if: parse_defined()=%d\n", n);
         n = atoi(token);
       }
 
-      if (not == 1)
+      if (is_not == 1)
       {
         if (n == 0) { n = 1; }
         else { n = 0; }
 
-        not = 0;
+        is_not = 0;
       }
 
       state = 1;
@@ -353,9 +353,9 @@ printf("debug> #if: parse_defined()=%d\n", n);
         return -1;
       }
 
-      if (operator.operation != OPER_NONE)
+      if (oper.operation != OPER_NONE)
       {
-          n = eval_operation(operator.operation, n1, n);
+          n = eval_operation(oper.operation, n1, n);
 
           if (n == -1) { return -1; }
       }
@@ -398,16 +398,16 @@ printf("debug> #if get_operator() token=%s operation=%d precedence=%d\n", token,
       {
         state = 2;
 
-        if (operator.operation != OPER_NONE)
+        if (oper.operation != OPER_NONE)
         {
-          n = eval_operation(operator.operation, n1, n);
+          n = eval_operation(oper.operation, n1, n);
 #ifdef DEBUG
 printf("debug> #if eval_operation() @ state 2  n=%d\n", n);
 #endif
           if (n == -1) { return -1; }
         }
 
-        operator = next_operator;
+        oper = next_operator;
       }
 
       continue;

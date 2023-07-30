@@ -18,9 +18,12 @@
 
 static char reg_size[] = { 'w', 'x' };
 static char scalar_size[] = { 'b', 'h', 's', 'd' };
-static char *vec_size[] = { "8b", "16b", "4h", "8h", "2s", "4s", "1d", "2d" };
-static char *shifts[] = { "lsl", "lsr", "asr", "???" };
-static char *options[] =
+static const char *vec_size[] =
+{
+  "8b", "16b", "4h", "8h", "2s", "4s", "1d", "2d"
+};
+static const char *shifts[] = { "lsl", "lsr", "asr", "???" };
+static const char *options[] =
 {
   "uxtb", "uxth", "uxtw", "uxtx",
   "sxtb", "sxth", "sxtw", "sxtx"

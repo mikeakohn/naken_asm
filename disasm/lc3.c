@@ -20,7 +20,7 @@
   (memory_read_m(memory, a + 0) << 8) | \
    memory_read_m(memory, a + 1)
 
-static char *br[] =
+static const char *br[] =
 {
   "???",
   "p",
@@ -78,7 +78,7 @@ int disasm_lc3(
         }
         case OP_BR:
         {
-          char *nzp = br[(opcode >> 9) & 0x7];
+          const char *nzp = br[(opcode >> 9) & 0x7];
           int16_t offset9 = opcode & 0x1ff;
           if ((offset9 & 0x100) != 0) { offset9 |= 0xfe00; }
 

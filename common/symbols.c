@@ -138,7 +138,7 @@ int symbols_append(Symbols *symbols, const char *name, uint32_t address)
   // If none can be found, alloc a new one.
   while (1)
   {
-     if (memory_pool->ptr + token_len + sizeof(SymbolsData) < memory_pool->len)
+     if (memory_pool->ptr + token_len + (int)sizeof(SymbolsData) < memory_pool->len)
      {
        break;
      }

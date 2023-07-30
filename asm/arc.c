@@ -50,7 +50,7 @@ struct _operand
 struct _condition_codes
 {
   uint8_t code;
-  char *name;
+  const char *name;
 };
 
 static struct _condition_codes condition_codes[] =
@@ -58,21 +58,21 @@ static struct _condition_codes condition_codes[] =
   { 0x00, "al" },
   { 0x00, "ra" },
   { 0x01, "eq" },
-  { 0x01, "z" },
+  { 0x01, "z"  },
   { 0x02, "ne" },
   { 0x02, "nz" },
   { 0x03, "pl" },
-  { 0x03, "p" },
+  { 0x03, "p"  },
   { 0x04, "mi" },
-  { 0x04, "n" },
+  { 0x04, "n"  },
   { 0x05, "cs" },
-  { 0x05, "c" },
+  { 0x05, "c"  },
   { 0x05, "lo" },
   { 0x06, "cc" },
   { 0x06, "nc" },
   { 0x06, "hs" },
   { 0x07, "vs" },
-  { 0x07, "v" },
+  { 0x07, "v"  },
   { 0x08, "vc" },
   { 0x08, "nv" },
   { 0x09, "gt" },

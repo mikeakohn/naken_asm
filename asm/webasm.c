@@ -80,7 +80,8 @@ int parse_instruction_webasm(AsmContext *asm_context, char *instr)
   uint64_t value, count;
   int64_t i;
   int type;
-  int length, n, j;
+  int length, n;
+  uint64_t j;
 
   lower_copy(instr_case, instr);
 
@@ -212,7 +213,7 @@ int parse_instruction_webasm(AsmContext *asm_context, char *instr)
 
         for (j = 0; j < count; j++)
         {
-          if (expect_token(asm_context, ',') == -1) { return -1; }
+          if (expect_token(asm_context, ',') == -1)  { return -1; }
           if (get_uint(asm_context, &value, 0) != 0) { return -1; }
           length += add_bin_varint(asm_context, value & 0xffffffff, 0);
         }

@@ -391,6 +391,7 @@ static int one_operand_exe(Simulate *simulate, uint16_t opcode)
   switch(o)
   {
     case 0:  // RRC
+    {
       pc = simulate_msp430->reg[0];
       src = get_data(simulate, reg, As, bw);
       int c = GET_C();
@@ -404,14 +405,18 @@ static int one_operand_exe(Simulate *simulate, uint16_t opcode)
       AFFECTS_NZ(result);
       CLEAR_V();
       break;
+    }
     case 1:  // SWPB (no bw)
+    {
       pc = simulate_msp430->reg[0];
       src = get_data(simulate, reg, As, bw);
       result = ((src & 0xff00) >> 8) | ((src & 0xff) << 8);
       put_data(simulate, pc, reg, As, bw, result);
       update_reg(simulate, reg, As, bw);
       break;
+    }
     case 2:  // RRA
+    {
       pc = simulate_msp430->reg[0];
       src = get_data(simulate, reg, As, bw);
       if ((src & 1) == 1) { SET_C(); } else { CLEAR_C(); }
@@ -424,7 +429,9 @@ static int one_operand_exe(Simulate *simulate, uint16_t opcode)
       AFFECTS_NZ(result);
       CLEAR_V();
       break;
+    }
     case 3:  // SXT (no bw)
+    {
       pc = simulate_msp430->reg[0];
       src = get_data(simulate, reg, As, bw);
       result = (int16_t)((int8_t)((uint8_t)src));
@@ -434,14 +441,18 @@ static int one_operand_exe(Simulate *simulate, uint16_t opcode)
       CHECK_CARRY(result);
       CLEAR_V();
       break;
+    }
     case 4:  // PUSH
+    {
       simulate_msp430->reg[1] -= 2;
       src = get_data(simulate, reg, As, bw);
       update_reg(simulate, reg, As, bw);
       WRITE_RAM(simulate_msp430->reg[1], src & 0xff);
       WRITE_RAM(simulate_msp430->reg[1] + 1, src >> 8);
       break;
+    }
     case 5:  // CALL (no bw)
+    {
       src = get_data(simulate, reg, As, bw);
       update_reg(simulate, reg, As, bw);
       simulate_msp430->reg[1] -= 2;
@@ -450,10 +461,15 @@ static int one_operand_exe(Simulate *simulate, uint16_t opcode)
       simulate_msp430->reg[0] = src;
       simulate->nested_call_count++;
       break;
+    }
     case 6:  // RETI
+    {
       break;
+    }
     default:
+    {
       return -1;
+    }
   }
 
   return 0;
@@ -726,7 +742,7 @@ void simulate_push_msp430(Simulate *simulate, uint32_t value)
   WRITE_RAM(simulate_msp430->reg[1] + 1, value >> 8);
 }
 
-static char *flags[] =
+static const char *flags[] =
 {
   "C",
   "Z",
@@ -741,7 +757,7 @@ static char *flags[] =
 
 int simulate_set_reg_msp430(
   Simulate *simulate,
-  char *reg_string,
+  const char *reg_string,
   uint32_t value)
 {
   SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
@@ -777,7 +793,7 @@ int simulate_set_reg_msp430(
   return 0;
 }
 
-uint32_t simulate_get_reg_msp430(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_msp430(Simulate *simulate, const char *reg_string)
 {
   SimulateMsp430 *simulate_msp430 = (SimulateMsp430 *)simulate->context;
   int reg;

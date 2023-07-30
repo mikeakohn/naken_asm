@@ -110,7 +110,7 @@ int expect_token(AsmContext *asm_context, char ch)
   return 0;
 }
 
-int expect_token_s(AsmContext *asm_context, char *s)
+int expect_token_s(AsmContext *asm_context, const char *s)
 {
   char token[TOKENLEN];
 
@@ -125,7 +125,12 @@ int expect_token_s(AsmContext *asm_context, char *s)
   return 0;
 }
 
-int check_range(AsmContext *asm_context, char *type, int num, int min, int max)
+int check_range(
+  AsmContext *asm_context,
+  const char *type,
+  int num,
+  int min,
+  int max)
 {
   if (num < min || num > max)
   {
@@ -136,7 +141,7 @@ int check_range(AsmContext *asm_context, char *type, int num, int min, int max)
   return 0;
 }
 
-int get_reg_number(char *token, int max)
+int get_reg_number(const char *token, int max)
 {
   int num = 0;
 

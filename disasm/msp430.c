@@ -23,12 +23,15 @@
   (memory_read_m(memory, a + 1) << 8) | \
    memory_read_m(memory, a)
 
-static char *regs[] = { "PC", "SP", "SR", "CG", "r4", "r5", "r6", "r7", "r8",
-                        "r9", "r10", "r11", "r12", "r13", "r14", "r15" };
+static const char *regs[] =
+{
+  "PC", "SP",  "SR",  "CG",  "r4",  "r5",  "r6",  "r7",
+  "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15"
+};
 //static char *rpt[] = { "rptc", "rptz" };
 
 // FIXME - Move this somewhere else
-int get_register_msp430(char *token)
+int get_register_msp430(const char *token)
 {
   if (token[0] == 'r' || token[0] == 'R')
   {
@@ -953,11 +956,12 @@ static void disasm_range_msp430_both(
   int msp430x)
 {
   // Are these correct and the same for all MSP430's?
-  char *vectors[16] = { "", "", "", "", "", "",
-                        "", "", "", "",
-                        "", "", "", "",
-                        "",
-                        "Reset/Watchdog/Flash" };
+  const char *vectors[16] =
+  {
+    "", "", "", "", "", "",
+    "", "", "", "", "", "",
+    "", "", "", "Reset/Watchdog/Flash"
+  };
   char instruction[128];
   int vectors_flag = 0;
   int cycles_min = 0, cycles_max = 0;

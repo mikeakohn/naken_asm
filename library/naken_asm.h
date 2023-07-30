@@ -27,5 +27,14 @@ int naken_util_open(void *context, const char *filename);
 int naken_util_disasm(void *context, const char *range);
 int naken_util_disasm_range(void *context, uint32_t start, uint32_t end);
 
+#if 0
+int naken_util_disasm(
+  void *context,
+  uint32_t address,
+  char *code,
+  int *cycles_min,
+  int *cycles_max);
+#endif
+
 #endif
 

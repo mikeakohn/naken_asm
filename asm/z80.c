@@ -40,19 +40,19 @@ enum
 
 enum
 {
-  REG_B=0,
+  REG_B = 0,
   REG_C,
   REG_D,
   REG_E,
   REG_H,
   REG_L,
   REG_INDEX_HL,  // hmmmm?
-  REG_A=7,
+  REG_A = 7,
 };
 
 enum
 {
-  REG_IXH=0,
+  REG_IXH = 0,
   REG_IXL,
   REG_IYH,
   REG_IYL,
@@ -60,13 +60,13 @@ enum
 
 enum
 {
-  REG_IX=0,
+  REG_IX = 0,
   REG_IY,
 };
 
 enum
 {
-  REG_BC=0,
+  REG_BC = 0,
   REG_DE,
   REG_HL,
   REG_SP,
@@ -81,7 +81,7 @@ enum
 
 enum
 {
-  REG_I=0,
+  REG_I = 0,
   REG_R,
 };
 
@@ -106,7 +106,7 @@ struct _operand
 
 static int get_cond(char *token)
 {
-  char *cond[] = { "nz","z","nc","c", "po","pe","p","m" };
+  const char *cond[] = { "nz", "z", "nc", "c", "po", "pe", "p", "m" };
   int n;
 
   for (n = 0; n < 8; n++)
@@ -119,7 +119,7 @@ static int get_cond(char *token)
 
 static int get_reg8(char *token)
 {
-  char *reg8[] = { "b","c","d","e","h","l","(hl)","a" };
+  const char *reg8[] = { "b", "c", "d", "e", "h", "l", "(hl)", "a" };
   int n;
 
   for (n = 0; n < 8; n++)
@@ -132,7 +132,7 @@ static int get_reg8(char *token)
 
 static int get_reg_ihalf(char *token)
 {
-  char *reg_ihalf[] = { "ixh","ixl","iyh","iyl" };
+  const char *reg_ihalf[] = { "ixh", "ixl", "iyh", "iyl" };
   int n;
 
   for (n = 0; n < 4; n++)
@@ -145,7 +145,7 @@ static int get_reg_ihalf(char *token)
 
 static int get_reg_index(char *token)
 {
-  char *reg_index[] = { "ix","iy" };
+  const char *reg_index[] = { "ix", "iy" };
   int n;
 
   for (n = 0; n < 2; n++)
@@ -158,7 +158,7 @@ static int get_reg_index(char *token)
 
 static int get_reg16(char *token)
 {
-  char *reg16[] = { "bc","de","hl","sp" };
+  const char *reg16[] = { "bc", "de", "hl", "sp" };
   int n;
 
   for (n = 0; n < 4; n++)
@@ -171,7 +171,7 @@ static int get_reg16(char *token)
 
 static int get_reg_special(char *token)
 {
-  char *reg_special[] = { "af","af'","f" };
+  const char *reg_special[] = { "af", "af'", "f" };
   int n;
 
   for (n = 0; n < 3; n++)
@@ -497,19 +497,24 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
       switch (table_z80[n].type)
       {
         case OP_NONE:
+        {
           if (operand_count == 0)
           {
             add_bin8(asm_context, table_z80[n].opcode, IS_OPCODE);
             return 1;
           }
+        }
         case OP_NONE16:
+        {
           if (operand_count == 0)
           {
             add_bin8(asm_context, table_z80[n].opcode >> 8, IS_OPCODE);
             add_bin8(asm_context, table_z80[n].opcode & 0xff, IS_OPCODE);
             return 2;
           }
+        }
         case OP_NONE24:
+        {
           if (operand_count == 0)
           {
             add_bin8(asm_context, table_z80[n].opcode >> 8, IS_OPCODE);
@@ -517,7 +522,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             add_bin8(asm_context, 0, IS_OPCODE);
             return 3;
           }
+        }
         case OP_A_REG8:
+        {
           reg = compute_reg8(&operands[1]);
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
@@ -528,7 +535,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_REG8:
+        {
           reg = compute_reg8(&operands[0]);
           if (operand_count == 1 &&
               reg != -1)
@@ -537,7 +546,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_A_REG_IHALF:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_A &&
@@ -550,7 +561,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_B_REG_IHALF:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_B &&
@@ -563,7 +576,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_C_REG_IHALF:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_C &&
@@ -576,7 +591,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_D_REG_IHALF:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_D &&
@@ -589,7 +606,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_E_REG_IHALF:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_E &&
@@ -602,7 +621,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_A_INDEX:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_A &&
@@ -615,7 +636,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 3;
           }
           break;
+        }
         case OP_A_NUMBER8:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_A &&
@@ -634,7 +657,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_HL_REG16_1:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG16 &&
               operands[0].value == REG_HL &&
@@ -644,7 +669,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_HL_REG16_2:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG16 &&
               operands[0].value == REG_HL &&
@@ -655,7 +682,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_XY_REG16:
+        {
           if (operands[0].type == OPERAND_REG16_XY &&
               operands[0].type == operands[1].type &&
               operands[0].value == operands[1].value)
@@ -673,7 +702,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_A_INDEX_HL:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_A &&
@@ -684,7 +715,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_INDEX_HL:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_INDEX_REG16 &&
               operands[0].value == REG_HL)
@@ -693,7 +726,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_NUMBER8:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_NUMBER)
           {
@@ -703,7 +738,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_REG_IHALF:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_REG_IHALF)
           {
@@ -714,7 +751,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_INDEX:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_INDEX_REG16_XY)
           {
@@ -725,7 +764,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 3;
           }
           break;
+        }
         case OP_INDEX_LONG:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_INDEX_REG16_XY)
           {
@@ -737,7 +778,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 4;
           }
           break;
+        }
         case OP_BIT_REG8:
+        {
           reg = compute_reg8(&operands[1]);
           if (operand_count == 2 &&
               operands[0].type == OPERAND_NUMBER &&
@@ -749,7 +792,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_BIT_INDEX_HL:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_NUMBER &&
               operands[1].type == OPERAND_INDEX_REG16 &&
@@ -761,7 +806,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_BIT_INDEX:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_NUMBER &&
               operands[1].type == OPERAND_INDEX_REG16_XY)
@@ -775,7 +822,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 4;
           }
           break;
+        }
         case OP_ADDRESS:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_NUMBER)
           {
@@ -785,7 +834,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 3;
           }
           break;
+        }
         case OP_COND_ADDRESS:
+        {
           if (operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_C)
           {
@@ -802,7 +853,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 3;
           }
           break;
+        }
         case OP_REG8_V2:
+        {
           reg = compute_reg8(&operands[0]);
           if (operand_count == 1 && reg != -1)
           {
@@ -810,7 +863,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_REG_IHALF_V2:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_REG_IHALF)
           {
@@ -821,7 +876,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_REG16:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_REG16)
           {
@@ -829,7 +886,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_XY:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_REG16_XY)
           {
@@ -838,7 +897,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_INDEX_SP_HL:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_REG16 &&
               operands[0].value == REG_SP &&
@@ -849,7 +910,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_INDEX_SP_XY:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_REG16 &&
               operands[0].value == REG_SP &&
@@ -860,7 +923,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_AF_AF_TICK:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG_SPECIAL &&
               operands[0].value == REG_AF &&
@@ -871,7 +936,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_DE_HL:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG16 &&
               operands[0].value == REG_DE &&
@@ -882,7 +949,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_IM_NUM:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_NUMBER)
           {
@@ -898,7 +967,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_A_INDEX_N:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_A &&
@@ -910,7 +981,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_REG8_INDEX_C:
+        {
           reg = compute_reg8(&operands[0]);
           if (operand_count == 2 &&
               reg != -1 &&
@@ -922,7 +995,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_F_INDEX_C:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG_SPECIAL &&
               operands[0].value == REG_F &&
@@ -934,7 +1009,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_INDEX_XY:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_INDEX_REG16_XY)
           {
@@ -944,7 +1021,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_OFFSET8:
+        {
           if (operand_count == 1 && operands[0].type == OPERAND_NUMBER)
           {
             if (check_offset8(asm_context, &operands[0], asm_context->address + 2, &offset) == -1) { return -1; }
@@ -953,7 +1032,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_JR_COND_ADDRESS:
+        {
           if (operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_C)
           {
@@ -971,7 +1052,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_REG8_REG8:
+        {
           reg = compute_reg8(&operands[0]);
           int src = compute_reg8(&operands[1]);
           if (operand_count == 2 && reg != -1 && src != -1)
@@ -980,7 +1063,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_REG8_REG_IHALF:
+        {
           reg = compute_reg8(&operands[0]);
           if (operand_count == 2 &&
               reg != -1 &&
@@ -993,7 +1078,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_REG_IHALF_REG8:
+        {
           reg = compute_reg8(&operands[1]);
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG_IHALF &&
@@ -1006,7 +1093,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_REG_IHALF_REG_IHALF:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG_IHALF &&
               operands[1].type == OPERAND_REG_IHALF &&
@@ -1020,7 +1109,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_REG8_NUMBER8:
+        {
           reg = compute_reg8(&operands[0]);
           if (operand_count == 2 &&
               reg != -1 &&
@@ -1037,7 +1128,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_REG8_INDEX_HL:
+        {
           reg = compute_reg8(&operands[0]);
           if (operand_count == 2 &&
               reg != -1 &&
@@ -1048,7 +1141,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_REG8_INDEX:
+        {
           reg = compute_reg8(&operands[0]);
           if (operand_count == 2 &&
               reg != -1 &&
@@ -1061,7 +1156,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 3;
           }
           break;
+        }
         case OP_INDEX_HL_REG8:
+        {
           reg = compute_reg8(&operands[1]);
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_REG16 &&
@@ -1073,7 +1170,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_INDEX_HL_NUMBER8:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_REG16 &&
               operands[0].value == REG_HL &&
@@ -1085,7 +1184,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_INDEX_REG8:
+        {
           reg = compute_reg8(&operands[1]);
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_REG16_XY &&
@@ -1098,7 +1199,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_INDEX_NUMBER8:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_REG16_XY &&
               operands[1].type == OPERAND_NUMBER)
@@ -1112,7 +1215,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_A_INDEX_BC:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_A &&
@@ -1123,7 +1228,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_A_INDEX_DE:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_A &&
@@ -1134,7 +1241,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_A_INDEX_ADDRESS:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_A &&
@@ -1146,7 +1255,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_INDEX_BC_A:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_REG16 &&
               operands[0].value == REG_BC &&
@@ -1157,7 +1268,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_INDEX_DE_A:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_REG16 &&
               operands[0].value == REG_DE &&
@@ -1168,7 +1281,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_INDEX_ADDRESS_A:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_NUMBER &&
               operands[1].type == OPERAND_REG8 &&
@@ -1180,7 +1295,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_IR_A:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_IR &&
               operands[1].type == OPERAND_REG8 &&
@@ -1191,7 +1308,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_A_IR:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_A &&
@@ -1202,7 +1321,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_REG16_ADDRESS:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG16 &&
               operands[1].type == OPERAND_NUMBER)
@@ -1213,7 +1334,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 3;
           }
           break;
+        }
         case OP_XY_ADDRESS:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG16_XY &&
               operands[1].type == OPERAND_NUMBER)
@@ -1225,7 +1348,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 4;
           }
           break;
+        }
         case OP_REG16_INDEX_ADDRESS:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG16 &&
               operands[1].type == OPERAND_INDEX_NUMBER)
@@ -1237,7 +1362,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 4;
           }
           break;
+        }
         case OP_HL_INDEX_ADDRESS:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG16 &&
               operands[0].value == REG_HL &&
@@ -1249,7 +1376,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 3;
           }
           break;
+        }
         case OP_XY_INDEX_ADDRESS:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG16_XY &&
               operands[1].type == OPERAND_INDEX_NUMBER)
@@ -1261,7 +1390,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 3;
           }
           break;
+        }
         case OP_INDEX_ADDRESS_REG16:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_NUMBER &&
               operands[1].type == OPERAND_REG16)
@@ -1273,7 +1404,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 4;
           }
           break;
+        }
         case OP_INDEX_ADDRESS_HL:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_NUMBER &&
               operands[1].type == OPERAND_REG16 &&
@@ -1285,7 +1418,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 3;
           }
           break;
+        }
         case OP_INDEX_ADDRESS_XY:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_NUMBER &&
               operands[1].type == OPERAND_REG16_XY)
@@ -1297,7 +1432,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 3;
           }
           break;
+        }
         case OP_SP_HL:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG16 &&
               operands[0].value == REG_SP &&
@@ -1308,7 +1445,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_SP_XY:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_REG16 &&
               operands[0].value == REG_SP &&
@@ -1319,7 +1458,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_INDEX_ADDRESS8_A:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_NUMBER &&
               operands[1].type == OPERAND_REG8 &&
@@ -1331,7 +1472,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_INDEX_C_REG8:
+        {
           reg=compute_reg8(&operands[1]);
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_REG8 &&
@@ -1343,7 +1486,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_INDEX_C_ZERO:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_INDEX_REG8 &&
               operands[0].value == REG_C &&
@@ -1355,7 +1500,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_REG16P:
+        {
           if (operands[0].type == OPERAND_REG_SPECIAL &&
               operands[0].value == REG_AF)
           {
@@ -1369,7 +1516,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_COND:
+        {
           if (operands[0].type == OPERAND_REG8 &&
               operands[0].value == REG_C)
           {
@@ -1383,7 +1532,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
         case OP_REG8_CB:
+        {
           reg = compute_reg8(&operands[0]);
           if (operand_count == 1 &&
               reg != -1)
@@ -1393,7 +1544,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_INDEX_HL_CB:
+        {
           reg = compute_reg8(&operands[0]);
           if (operand_count == 1 &&
               operands[0].type == OPERAND_INDEX_REG16 &&
@@ -1404,7 +1557,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 2;
           }
           break;
+        }
         case OP_RESTART_ADDRESS:
+        {
           if (operand_count == 1 &&
               operands[0].type == OPERAND_NUMBER)
           {
@@ -1419,6 +1574,7 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 1;
           }
           break;
+        }
       }
     }
     n++;
@@ -1433,6 +1589,7 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
       switch (table_z80_4_byte[n].type)
       {
         case OP_BIT_INDEX_V2:
+        {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_NUMBER &&
               operands[1].type == OPERAND_INDEX_REG16_XY)
@@ -1446,7 +1603,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 4;
           }
           break;
+        }
         case OP_BIT_INDEX_REG8:
+        {
           if (operand_count == 3 &&
               operands[0].type == OPERAND_NUMBER &&
               operands[1].type == OPERAND_INDEX_REG16_XY &&
@@ -1462,6 +1621,7 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
             return 4;
           }
           break;
+        }
       }
     }
 

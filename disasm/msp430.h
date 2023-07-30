@@ -16,7 +16,7 @@
 
 #include "common/assembler.h"
 
-int get_register_msp430(char *token);
+int get_register_msp430(const char *token);
 int get_cycle_count(uint16_t opcode);
 
 int disasm_msp430(

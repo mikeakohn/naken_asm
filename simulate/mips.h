@@ -25,12 +25,12 @@ typedef struct _simulate_mips
   uint32_t lo;
 } SimulateMips;
 
-Simulate *simulate_init_mips();
+Simulate *simulate_init_mips(Memory *memory);
 void simulate_free_mips(Simulate *simulate);
 int simulate_dumpram_mips(Simulate *simulate, int start, int end);
 void simulate_push_mips(Simulate *simulate, uint32_t value);
-int simulate_set_reg_mips(Simulate *simulate, char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_mips(Simulate *simulate, char *reg_string);
+int simulate_set_reg_mips(Simulate *simulate, const char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_mips(Simulate *simulate, const char *reg_string);
 void simulate_set_pc_mips(Simulate *simulate, uint32_t value);
 void simulate_reset_mips(Simulate *simulate);
 void simulate_dump_registers_mips(Simulate *simulate);

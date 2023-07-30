@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -32,8 +32,8 @@ struct _table_propeller
   uint32_t opcode;
   uint32_t mask;
   uint8_t type;
-  uint8_t cycles_min;
-  uint8_t cycles_max;
+  int8_t cycles_min;
+  int8_t cycles_max;
 };
 
 extern struct _table_propeller table_propeller[];

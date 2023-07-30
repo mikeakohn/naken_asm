@@ -75,14 +75,17 @@ void simulate_push_8008(Simulate *simulate, uint32_t value)
 
 }
 
-int simulate_set_reg_8008(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_8008(
+  Simulate *simulate,
+  const char *reg_string,
+  uint32_t value)
 {
   //Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 
   return 0;
 }
 
-uint32_t simulate_get_reg_8008(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_8008(Simulate *simulate, const char *reg_string)
 {
   Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 

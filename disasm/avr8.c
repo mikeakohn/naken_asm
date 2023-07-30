@@ -21,7 +21,7 @@
    memory_read_m(memory, a) | \
   (memory_read_m(memory, a + 1) << 8)
 
-int get_register_avr8(char *token)
+int get_register_avr8(const char *token)
 {
   int n;
   int r;

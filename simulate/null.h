@@ -22,12 +22,12 @@ typedef struct _simulate_null
   uint16_t reg[16];
 } SimulateNull;
 
-Simulate *simulate_init_null();
+Simulate *simulate_init_null(Memory *memory);
 void simulate_free_null(Simulate *simulate);
 int simulate_dumpram_null(Simulate *simulate, int start, int end);
 void simulate_push_null(Simulate *simulate, uint32_t value);
-int simulate_set_reg_null(Simulate *simulate, char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_null(Simulate *simulate, char *reg_string);
+int simulate_set_reg_null(Simulate *simulate, const char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_null(Simulate *simulate, const char *reg_string);
 void simulate_set_pc_null(Simulate *simulate, uint32_t value);
 void simulate_reset_null(Simulate *simulate);
 void simulate_dump_registers_null(Simulate *simulate);

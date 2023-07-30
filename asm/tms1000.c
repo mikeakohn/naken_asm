@@ -20,9 +20,9 @@
 #include "common/eval_expression.h"
 #include "table/tms1000.h"
 
-static char *tmsinstr_1[] = { "sbit", "rbit", "tbit1", "ldx" };
-static char *tmsinstr_2[] = { "tcy", "ynec", "tcmiy", "alec", "ldp" };
-static char *tms_branch[] = { "br", "call" };
+static const char *tmsinstr_1[] = { "sbit", "rbit", "tbit1", "ldx"         };
+static const char *tmsinstr_2[] = { "tcy",  "ynec", "tcmiy", "alec", "ldp" };
+static const char *tms_branch[] = { "br",   "call"                         };
 
 static void add_bin_lsfr(AsmContext *asm_context, uint8_t data, int flags)
 {

@@ -38,12 +38,12 @@ typedef struct _simulate_z80
   uint8_t iff2;
 } SimulateZ80;
 
-Simulate *simulate_init_z80();
+Simulate *simulate_init_z80(Memory *memory);
 void simulate_free_z80(Simulate *simulate);
 int simulate_dumpram_z80(Simulate *simulate, int start, int end);
 void simulate_push_z80(Simulate *simulate, uint32_t value);
-int simulate_set_reg_z80(Simulate *simulate, char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_z80(Simulate *simulate, char *reg_string);
+int simulate_set_reg_z80(Simulate *simulate, const char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_z80(Simulate *simulate, const char *reg_string);
 void simulate_set_pc_z80(Simulate *simulate, uint32_t value);
 void simulate_reset_z80(Simulate *simulate);
 void simulate_dump_registers_z80(Simulate *simulate);

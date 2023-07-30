@@ -270,23 +270,23 @@ static void set_flags_a(Simulate *simulate, int a, int number, uint8_t vflag)
 }
 
 #if 0
-static void set_flags8(Simulate *simulate, int new, int old, int number, uint8_t vflag)
+static void set_flags8(Simulate *simulate, int _new, int old, int number, uint8_t vflag)
 {
   SimulateZ80 *simulate_z80 = (SimulateZ80 *)simulate->context;
 
   if (vflag == VFLAG_OVERFLOW)
   {
     int a0 = old;
-    int a = new;
+    int a = _new;
     int v = (((a0 >> 7) & 1) & ((number >> 7) & 1) & (((a >> 7) & 1) ^ 1)) |
            ((((a0 >> 7) & 1) ^1) & (((number >> 7) & 1) ^ 1) & ((a >> 7) & 1));
     if (v) { SET_V(); } else { CLR_V(); }
   }
 
-  if ((new & 0xffff) == 0) { SET_Z(); } else { CLR_Z(); }
-  if ((new & 0x8000) != 0) { SET_S(); } else { CLR_S(); }
-  //if ((new & 0x10) != 0) { SET_H(); } else { CLR_H(); }
-  if (new & 0x10000) { SET_C(); } else { CLR_C(); }
+  if ((_new & 0xffff) == 0) { SET_Z(); } else { CLR_Z(); }
+  if ((_new & 0x8000) != 0) { SET_S(); } else { CLR_S(); }
+  //if ((_new & 0x10) != 0) { SET_H(); } else { CLR_H(); }
+  if (_new & 0x10000) { SET_C(); } else { CLR_C(); }
   CLR_C();
 
   if (vflag == VFLAG_CLEAR)
@@ -296,28 +296,28 @@ static void set_flags8(Simulate *simulate, int new, int old, int number, uint8_t
     else
   if (vflag == VFLAG_PARITY)
   {
-    set_parity(simulate, new & 0xff);
+    set_parity(simulate, _new & 0xff);
   }
 }
 #endif
 
-static void set_flags16(Simulate *simulate, int new, int old, int number, uint8_t vflag)
+static void set_flags16(Simulate *simulate, int _new, int old, int number, uint8_t vflag)
 {
   SimulateZ80 *simulate_z80 = (SimulateZ80 *)simulate->context;
 
   if (vflag == VFLAG_OVERFLOW)
   {
     int a0 = old;
-    int a = new;
+    int a = _new;
     int v = (((a0 >> 15) & 1) & ((number >> 15) & 1) & (((a >> 15) & 1) ^ 1)) |
            ((((a0 >> 15) & 1) ^1) & (((number >> 15) & 1) ^ 1) & ((a >> 15) & 1));
     if (v) { SET_V(); } else { CLR_V(); }
   }
 
-  if ((new & 0xffff) == 0) { SET_Z(); } else { CLR_Z(); }
-  if ((new & 0x8000) != 0) { SET_S(); } else { CLR_S(); }
-  //if ((new & 0x10) != 0) { SET_H(); } else { CLR_H(); }
-  if (new & 0x10000) { SET_C(); } else { CLR_C(); }
+  if ((_new & 0xffff) == 0) { SET_Z(); } else { CLR_Z(); }
+  if ((_new & 0x8000) != 0) { SET_S(); } else { CLR_S(); }
+  //if ((_new & 0x10) != 0) { SET_H(); } else { CLR_H(); }
+  if (_new & 0x10000) { SET_C(); } else { CLR_C(); }
   CLR_C();
 
   if (vflag == VFLAG_CLEAR)
@@ -327,7 +327,7 @@ static void set_flags16(Simulate *simulate, int new, int old, int number, uint8_
     else
   if (vflag == VFLAG_PARITY)
   {
-    //set_parity(simulate, new & 0xffff);
+    //set_parity(simulate, _new & 0xffff);
   }
 }
 
@@ -335,26 +335,26 @@ static void add_reg16(Simulate *simulate, int xy, int reg16)
 {
   SimulateZ80 *simulate_z80 = (SimulateZ80 *)simulate->context;
   int number;
-  int new, old;
+  int _new, old;
 
   number = get_q(simulate, reg16);
 
   if (xy == 0)
   {
     old = simulate_z80->ix;
-    new = old + number;
-    simulate_z80->ix = new & 0xffff;
+    _new = old + number;
+    simulate_z80->ix = _new & 0xffff;
   }
     else
   {
     old = simulate_z80->iy;
-    new = old + number;
-    simulate_z80->iy = new & 0xffff;
+    _new = old + number;
+    simulate_z80->iy = _new & 0xffff;
   }
 
   CLR_N();
 
-  set_flags16(simulate, new, old, number, VFLAG_OVERFLOW);
+  set_flags16(simulate, _new, old, number, VFLAG_OVERFLOW);
 }
 
 #if 0
@@ -401,7 +401,10 @@ void simulate_push_z80(Simulate *simulate, uint32_t value)
   WRITE_RAM(simulate_z80->reg[1] + 1, value >> 8);
 }
 
-int simulate_set_reg_z80(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_z80(
+  Simulate *simulate,
+  const char *reg_string,
+  uint32_t value)
 {
   //SimulateZ80 *simulate_z80 = (SimulateZ80 *)simulate->context;
   //int reg,n;
@@ -432,7 +435,7 @@ int simulate_set_reg_z80(Simulate *simulate, char *reg_string, uint32_t value)
   return -1;
 }
 
-uint32_t simulate_get_reg_z80(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_z80(Simulate *simulate, const char *reg_string)
 {
   //SimulateZ80 *simulate_z80 = (SimulateZ80 *)simulate->context;
   //int reg;
@@ -749,7 +752,7 @@ static int simulate_z80_execute_op_reg8_v2(Simulate *simulate, struct _table_z80
 static int simulate_z80_execute_op_reg16(Simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
   SimulateZ80 *simulate_z80 = (SimulateZ80 *)simulate->context;
-  uint16_t new;
+  uint16_t _new;
   uint16_t old;
   int reg16 = (opcode >> 4) & 0x3;
   int number = 1;
@@ -757,26 +760,26 @@ static int simulate_z80_execute_op_reg16(Simulate *simulate, struct _table_z80 *
 
   //old = get_reg16_half(simulate, reg16);
   old = get_q(simulate, reg16);
-  new = old;
+  _new = old;
 
   switch(table_z80->instr_enum)
   {
     case Z80_DEC:
-      new--;
+      _new--;
       SET_N();
       number = -1;
       break;
     case Z80_INC:
-      new++;
+      _new++;
       CLR_N();
       number = 1;
       break;
   }
 
-  //set_reg16_half(simulate, reg16, new);
-  set_q(simulate, reg16, new);
+  //set_reg16_half(simulate, reg16, _new);
+  set_q(simulate, reg16, _new);
 
-  set_flags16(simulate, new, old, number, vflag);
+  set_flags16(simulate, _new, old, number, vflag);
 
   return table_z80->cycles_min;
 }
@@ -813,7 +816,7 @@ static int simulate_z80_execute_op_reg16p(Simulate *simulate, struct _table_z80 
 static int simulate_z80_execute_op_hl_reg16_2(Simulate *simulate, struct _table_z80 *table_z80, uint8_t opcode)
 {
   SimulateZ80 *simulate_z80 = (SimulateZ80 *)simulate->context;
-  uint16_t new;
+  uint16_t _new;
   uint16_t old;
   int reg16 = (opcode >> 4) & 0x3;
   int number;
@@ -821,7 +824,7 @@ static int simulate_z80_execute_op_hl_reg16_2(Simulate *simulate, struct _table_
 
   number = get_p(simulate, reg16);
   old = get_p(simulate, 2);
-  new = old;
+  _new = old;
 
   if (table_z80->instr_enum == Z80_ADC)
   {
@@ -841,7 +844,7 @@ static int simulate_z80_execute_op_hl_reg16_2(Simulate *simulate, struct _table_
 
   set_p(simulate, 2, value);
 
-  set_flags16(simulate, new, old, number, VFLAG_OVERFLOW);
+  set_flags16(simulate, _new, old, number, VFLAG_OVERFLOW);
 
   return table_z80->cycles_min;
 }

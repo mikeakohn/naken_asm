@@ -80,7 +80,10 @@ void simulate_push_ebpf(Simulate *simulate, uint32_t value)
 
 }
 
-int simulate_set_reg_ebpf(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_ebpf(
+  Simulate *simulate,
+  const char *reg_string,
+  uint32_t value)
 {
   SimulateEbpf *simulate_ebpf = (SimulateEbpf *)simulate->context;
 
@@ -92,7 +95,7 @@ int simulate_set_reg_ebpf(Simulate *simulate, char *reg_string, uint32_t value)
   return 0;
 }
 
-uint32_t simulate_get_reg_ebpf(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_ebpf(Simulate *simulate, const char *reg_string)
 {
   SimulateEbpf *simulate_ebpf = (SimulateEbpf *)simulate->context;
 

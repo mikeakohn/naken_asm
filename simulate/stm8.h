@@ -29,12 +29,12 @@ typedef struct _simulate_stm8
   uint8_t reg_cc;
 } SimulateStm8;
 
-Simulate * simulate_init_stm8();
+Simulate * simulate_init_stm8(Memory *memory);
 void simulate_free_stm8(Simulate *simulate);
 int simulate_dumpram_stm8(Simulate *simulate, int start, int end);
 void simulate_push_stm8(Simulate *simulate, uint32_t value);
-int simulate_set_reg_stm8(Simulate *simulate, char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_stm8(Simulate *simulate, char *reg_string);
+int simulate_set_reg_stm8(Simulate *simulate, const char *reg_string, uint32_t value);
+uint32_t simulate_get_reg_stm8(Simulate *simulate, const char *reg_string);
 void simulate_set_pc_stm8(Simulate *simulate, uint32_t value);
 void simulate_reset_stm8(Simulate *simulate);
 void simulate_dump_registers_stm8(Simulate *simulate);

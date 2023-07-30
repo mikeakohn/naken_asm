@@ -24,7 +24,7 @@ static int stop_running = 0;
 
 static const char *reg_names[32] =
 {
-  "$0", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
+  "$0",  "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
   "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
   "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7",
   "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
@@ -87,7 +87,10 @@ void simulate_push_mips(Simulate *simulate, uint32_t value)
 
 }
 
-int simulate_set_reg_mips(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_mips(
+  Simulate *simulate,
+  const char *reg_string,
+  uint32_t value)
 {
   SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
   int reg, n;
@@ -117,7 +120,7 @@ int simulate_set_reg_mips(Simulate *simulate, char *reg_string, uint32_t value)
   return -1;
 }
 
-uint32_t simulate_get_reg_mips(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_mips(Simulate *simulate, const char *reg_string)
 {
   //SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
 
@@ -145,20 +148,23 @@ void simulate_reset_mips(Simulate *simulate)
   // and physical memory (where the hex file says the code is).
   if (memory->low_address >= 0x1d000000 && memory->high_address <= 0x1d007fff)
   {
-    uint32_t physical, virtual;
+    uint32_t physical, virtual_address;
     uint32_t low_address, high_address;
 
-    virtual = 0x9d000000 + (memory->low_address - 0x1d000000);
+    virtual_address = 0x9d000000 + (memory->low_address - 0x1d000000);
 
-    printf("Copying physical 0x%x-0x%x to virtual 0x%x\n", memory->low_address, memory->high_address, virtual);
+    printf("Copying physical 0x%x-0x%x to virtual 0x%x\n",
+      memory->low_address,
+      memory->high_address,
+      virtual_address);
 
-    simulate_mips->pc = virtual;
+    simulate_mips->pc = virtual_address;
     low_address = memory->low_address;
     high_address = memory->high_address;
 
     for (physical = low_address; physical <= high_address; physical++)
     {
-      memory_write_m(memory, virtual++, memory_read_m(memory, physical));
+      memory_write_m(memory, virtual_address++, memory_read_m(memory, physical));
     }
   }
 }
@@ -573,12 +579,12 @@ int simulate_run_mips(Simulate *simulate, int max_cycles, int step)
 {
   SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
   char instruction[128];
-  int pc;
+  uint32_t pc;
 
   stop_running = 0;
   signal(SIGINT, handle_signal);
 
-  while(stop_running == 0)
+  while (stop_running == 0)
   {
     pc = simulate_mips->pc;
 
@@ -597,24 +603,44 @@ int simulate_run_mips(Simulate *simulate, int max_cycles, int step)
       simulate_dump_registers_mips(simulate);
 
       int n = 0;
-      while(n < 6)
+      while (n < 6)
       {
         int cycles_min, cycles_max;
 
         uint32_t opcode = memory_read32_m(simulate->memory, pc);
-        int count = disasm_mips(simulate->memory, MIPS_I | MIPS_II | MIPS_III | MIPS_32, pc, instruction, &cycles_min, &cycles_max);
+
+        int count = disasm_mips(
+          simulate->memory,
+          MIPS_I | MIPS_II | MIPS_III | MIPS_32,
+          pc,
+          instruction,
+          &cycles_min,
+          &cycles_max);
 
         if (count < 1) { break; }
 
-        if (pc == simulate->break_point) { printf("*"); }
-        else { printf(" "); }
+        if (pc == (uint32_t)simulate->break_point)
+        {
+          printf("*");
+        }
+          else
+        {
+          printf(" ");
+        }
 
         if (n == 0)
-        { printf("! "); }
+        {
+          printf("! ");
+        }
           else
-        if (pc == simulate_mips->pc) { printf("> "); }
+        if (pc == simulate_mips->pc)
+        {
+          printf("> ");
+        }
           else
-        { printf("  "); }
+        {
+          printf("  ");
+        }
 
         printf("0x%04x: 0x%08x %-40s %d\n", pc, opcode, instruction, cycles_min);
 
@@ -623,7 +649,7 @@ int simulate_run_mips(Simulate *simulate, int max_cycles, int step)
       }
     }
 
-    if (simulate->break_point == simulate_mips->pc)
+    if (simulate_mips->pc == (uint32_t)simulate->break_point)
     {
        printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
       break;

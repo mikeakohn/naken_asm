@@ -53,10 +53,10 @@ int parse_instruction_68hc08(AsmContext *asm_context, char *instr)
   lower_copy(instr_case, instr);
   memset(operands, 0, sizeof(operands));
 
-  if (strcmp("bhs", instr_case) == 0) { instr_case = "bcc"; }
-  else if (strcmp("blo", instr_case) == 0) { instr_case = "bcs"; }
-  else if (strcmp("lsl", instr_case) == 0) { instr_case = "asl"; }
-  else if (strcmp("lslx", instr_case) == 0) { instr_case = "aslx"; }
+  if (strcmp("bhs", instr_case) == 0)       { strcpy(instr_case, "bcc");  }
+  else if (strcmp("blo", instr_case) == 0)  { strcpy(instr_case, "bcs");  }
+  else if (strcmp("lsl", instr_case) == 0)  { strcpy(instr_case, "asl");  }
+  else if (strcmp("lslx", instr_case) == 0) { strcpy(instr_case, "aslx"); }
 
   while (1)
   {

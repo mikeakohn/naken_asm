@@ -60,7 +60,7 @@ enum
 
 struct _table_tms340
 {
-  char *instr;
+  const char *instr;
   uint16_t opcode;
   uint16_t mask;
   uint8_t operand_count;

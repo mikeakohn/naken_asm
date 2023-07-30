@@ -14,7 +14,7 @@
 
 int binfile_parse(AsmContext *asm_context);
 int include_parse(AsmContext *asm_context);
-int include_add_path(AsmContext *asm_context, char *paths);
+int include_add_path(AsmContext *asm_context, const char *paths);
 
 #endif
 

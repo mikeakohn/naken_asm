@@ -5,7 +5,7 @@
  *     Web: http://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -101,16 +101,16 @@ struct _table_sparc table_sparc[] =
 uint32_t mask_sparc[] =
 {
   0xffffffff,                                         // OP_NONE
-  (3 << 30) | (0x3f << 19) | (1 << 13) | (0xff << 5), // OP_REG_REG_REG
-  (3 << 30) | (0x3f << 19) | (1 << 13),               // OP_REG_SIMM13_REG
-  (3 << 30) | (0x3f << 19) | (0xf << 5),              // OP_FREG_FREG_FREG_FREG
-  (3 << 30) | (0x3f << 19) | (0xf << 5),              // OP_FREG_FREG_IMM5_FREG
-  (3 << 30) | (0x3f << 19) | (0x1ff << 5),            // OP_FREG_FREG_FREG
-  (3 << 30) | (0xf << 25) | (0x7 << 22),              // OP_BRANCH
-  (3 << 30) | (0xf << 25) | (0x7 << 22),              // OP_BRANCH_P
-  (3 << 30) | (0xf << 25) | (0x7 << 22),              // OP_BRANCH_P_REG
-  (1 << 30),                                          // OP_CALL
-  (3 << 30) | (1 << 13),                              // OP_IMM_ASI_REG_REG
-  (3 << 30) | (1 << 13) | (0xff << 5),                // OP_ASI_REG_REG
+  (3U << 30) | (0x3f << 19) | (1 << 13) | (0xff << 5), // OP_REG_REG_REG
+  (3U << 30) | (0x3f << 19) | (1 << 13),               // OP_REG_SIMM13_REG
+  (3U << 30) | (0x3f << 19) | (0xf << 5),              // OP_FREG_FREG_FREG_FREG
+  (3U << 30) | (0x3f << 19) | (0xf << 5),              // OP_FREG_FREG_IMM5_FREG
+  (3U << 30) | (0x3f << 19) | (0x1ff << 5),            // OP_FREG_FREG_FREG
+  (3U << 30) | (0xf << 25) | (0x7 << 22),              // OP_BRANCH
+  (3U << 30) | (0xf << 25) | (0x7 << 22),              // OP_BRANCH_P
+  (3U << 30) | (0xf << 25) | (0x7 << 22),              // OP_BRANCH_P_REG
+  (1U << 30),                                          // OP_CALL
+  (3U << 30) | (1 << 13),                              // OP_IMM_ASI_REG_REG
+  (3U << 30) | (1 << 13) | (0xff << 5),                // OP_ASI_REG_REG
 };
 

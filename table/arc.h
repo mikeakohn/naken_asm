@@ -54,7 +54,7 @@ enum
 
 struct _table_arc
 {
-  char *instr;
+  const char *instr;
   uint32_t opcode;
   uint32_t mask;
   uint8_t type;
@@ -72,7 +72,7 @@ struct _table_arc16
 
 struct _table_arc_op
 {
-  char *instr;
+  const char *instr;
   uint8_t opcode;
   uint8_t is_extended;
 };

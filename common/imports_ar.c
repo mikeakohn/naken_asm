@@ -34,13 +34,13 @@ static int imports_ar_read_signature(uint8_t *buffer, int file_size)
   const char *header = "!<arch>\n";
   int i;
 
-  if (file_size < sizeof(header))
+  if (file_size < (int)sizeof(header))
   {
     printf("Not a library archive file.\n");
     return -1;
   }
 
-  for (i = 0; i < sizeof(header); i++)
+  for (i = 0; i < (int)sizeof(header); i++)
   {
     if (buffer[i] != header[i])
     {

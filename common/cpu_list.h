@@ -117,7 +117,7 @@ enum
 
 typedef struct _cpu_list
 {
-  char *name;
+  const char *name;
   int8_t type;
   int8_t default_endian;
   int8_t bytes_per_address;

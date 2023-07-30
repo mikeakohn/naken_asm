@@ -54,11 +54,11 @@ struct _data
   int count;
 };
 
-#define CMD_SP_INC 0xdead0001
-#define CMD_PC 0xdead0002
-#define CMD_R3 0xdead0003
-#define CMD_DST_DST 0xdead0004
-#define CMD_SRC_DST 0xdead0005
+#define CMD_SP_INC  0x7ead0001
+#define CMD_PC      0x7ead0002
+#define CMD_R3      0x7ead0003
+#define CMD_DST_DST 0x7ead0004
+#define CMD_SRC_DST 0x7ead0005
 
 static struct _aliases
 {
@@ -69,57 +69,57 @@ static struct _aliases
   int cmd;
 } aliases[] =
 {
-  { "adc", 1, 0, "addc", 0 },
-  { "br", 1, 0, "mov", CMD_PC },
-  { "clrc", 0, 0xc312, NULL, 0 },
-  { "clrn", 0, 0xc222, NULL, 0 },
-  { "clrz", 0, 0xc322, NULL, 0 },
-  { "dadc", 1, 0, "dadd", 0 },
-  { "dec", 1, 0, "sub", 1 },
-  { "decx", 1, 0, "subx", 1 },
-  { "decd", 1, 0, "sub", 2 },
-  { "dint", 0, 0xc232, NULL, 0 },
-  { "eint", 0, 0xd232, NULL, 0 },
-  { "inc", 1, 0, "add", 1 },
-  { "incx", 1, 0, "addx", 1 },
-  { "incd", 1, 0, "add", 2 },
-  { "inv", 1, 0, "xor", -1 },
-  { "nop", 0, 0x4303, NULL, CMD_R3 },
-  { "pop", 1, 0, "mov", CMD_SP_INC },
-  { "ret", 0, 0x4130, NULL, 0 },
-  { "rla", 1, 0, "add", CMD_DST_DST },
-  { "rlc", 1, 0, "addc", CMD_DST_DST },
-  { "sbc", 1, 0, "subc", 0 },
-  { "sbb", 2, 0, "subc", CMD_SRC_DST },
-  { "setc", 0, 0xd312, NULL, 0 },
-  { "setn", 0, 0xd222, NULL, 0 },
-  { "setz", 0, 0xd322, NULL, 0 },
-  { "tst", 1, 0, "cmp", 0 },
-  { "clr", 1, 0, "mov", 0 },
+  { "adc",   1, 0,      "addc",  0           },
+  { "br",    1, 0,      "mov",   CMD_PC      },
+  { "clrc",  0, 0xc312, NULL,    0           },
+  { "clrn",  0, 0xc222, NULL,    0           },
+  { "clrz",  0, 0xc322, NULL,    0           },
+  { "dadc",  1, 0,      "dadd",  0           },
+  { "dec",   1, 0,      "sub",   1           },
+  { "decx",  1, 0,      "subx",  1           },
+  { "decd",  1, 0,      "sub",   2           },
+  { "dint",  0, 0xc232, NULL,    0           },
+  { "eint",  0, 0xd232, NULL,    0           },
+  { "inc",   1, 0,      "add",   1           },
+  { "incx",  1, 0,      "addx",  1           },
+  { "incd",  1, 0,      "add",   2           },
+  { "inv",   1, 0,      "xor",   -1          },
+  { "nop",   0, 0x4303, NULL,    CMD_R3      },
+  { "pop",   1, 0,      "mov",   CMD_SP_INC  },
+  { "ret",   0, 0x4130, NULL,    0           },
+  { "rla",   1, 0,      "add",   CMD_DST_DST },
+  { "rlc",   1, 0,      "addc",  CMD_DST_DST },
+  { "sbc",   1, 0,      "subc",  0           },
+  { "sbb",   2, 0,      "subc",  CMD_SRC_DST },
+  { "setc",  0, 0xd312, NULL,    0           },
+  { "setn",  0, 0xd222, NULL,    0           },
+  { "setz",  0, 0xd322, NULL,    0           },
+  { "tst",   1, 0,      "cmp",   0           },
+  { "clr",   1, 0,      "mov",   0           },
   // MSP430X
-  { "adcx", 1, 0, "addcx", 0 },
-  { "bra", 1, 0, "mova", CMD_PC },
-  { "clrx", 1, 0, "movx", 0 },
-  { "clra", 1, 0, "mov", 0 },
-  { "dadcx", 1, 0, "daddx", 0 },
-  { "decx", 1, 0, "subx", 1 },
-  { "decda", 1, 0, "suba", 2 },
-  { "decdx", 1, 0, "subx", 2 },
-  { "incda", 1, 0, "adda", 2 },
-  { "incdx", 1, 0, "addx", 2 },
-  { "invx", 1, 0, "xorx", -1 },
-  { "popx", 1, 0, "movx", CMD_SP_INC },
-  { "rlax", 1, 0, "addx", CMD_DST_DST },
-  { "rlcx", 1, 0, "addcx", CMD_DST_DST },
-  { "sbcx", 1, 0, "subcx", 0 },
-  { "sbbx", 2, 0, "subcx", CMD_SRC_DST },
-  { "reta", 0, 0x0110, NULL, 0 },
-  { "tsta", 1, 0, "cmpa", 0 },
-  { "tstx", 1, 0, "cmpx", 0 },
-  { NULL, 0, 0, NULL, 0 },
+  { "adcx",  1, 0,      "addcx", 0           },
+  { "bra",   1, 0,      "mova",  CMD_PC      },
+  { "clrx",  1, 0,      "movx",  0           },
+  { "clra",  1, 0,      "mov",   0           },
+  { "dadcx", 1, 0,      "daddx", 0           },
+  { "decx",  1, 0,      "subx",  1           },
+  { "decda", 1, 0,      "suba",  2           },
+  { "decdx", 1, 0,      "subx",  2           },
+  { "incda", 1, 0,      "adda",  2           },
+  { "incdx", 1, 0,      "addx",  2           },
+  { "invx",  1, 0,      "xorx",  -1          },
+  { "popx",  1, 0,      "movx",  CMD_SP_INC  },
+  { "rlax",  1, 0,      "addx",  CMD_DST_DST },
+  { "rlcx",  1, 0,      "addcx", CMD_DST_DST },
+  { "sbcx",  1, 0,      "subcx", 0           },
+  { "sbbx",  2, 0,      "subcx", CMD_SRC_DST },
+  { "reta",  0, 0x0110, NULL,    0           },
+  { "tsta",  1, 0,      "cmpa",  0           },
+  { "tstx",  1, 0,      "cmpx",  0           },
+  { NULL,    0, 0,      NULL,    0           },
 };
 
-static char *msp430x_rpt[] = { "rpt", "rptz", "rptc",  NULL };
+static const char *msp430x_rpt[] = { "rpt", "rptz", "rptc",  NULL };
 
 static void operand_to_cg(
   AsmContext *asm_context,
@@ -130,7 +130,7 @@ static void operand_to_cg(
 
   if (memory_read(asm_context, asm_context->address) == 1) { return; }
 
-  if (bw == 1 && operand->value == 0xff) { operand->value = -1; }
+  if (bw == 1 && operand->value == 0xff)   { operand->value = -1; }
   if (bw == 0 && operand->value == 0xffff) { operand->value = -1; }
 
   switch (operand->value)
@@ -709,7 +709,6 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
       }
 
       operand_count = 2;
-      //instr_case = (char *)aliases[n].alt;
       strcpy(instr_case, (char *)aliases[n].alt);
       break;
     }

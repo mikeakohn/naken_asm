@@ -12,6 +12,8 @@
 #ifndef NAKEN_ASM_MEMORY_POOL_H
 #define NAKEN_ASM_MEMORY_POOL_H
 
+#include <stdint.h>
+
 typedef struct _naken_heap
 {
   struct _memory_pool *memory_pool;
@@ -40,7 +42,7 @@ typedef struct _memory_pool
   struct _memory_pool *next;
   int len;
   int ptr;
-  unsigned char buffer[];
+  uint8_t buffer[];
 } MemoryPool;
 
 MemoryPool *memory_pool_add(NakenHeap *heap, int heap_len);

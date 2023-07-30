@@ -341,7 +341,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
   uint32_t opcode;
   int32_t offset;
   struct _modifiers modifiers;
-  int temp;
+  uint32_t temp;
   int n;
 
   memset(&modifiers, 0, sizeof(modifiers));
@@ -1895,6 +1895,4 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
   return -1;
 }
-
-
 

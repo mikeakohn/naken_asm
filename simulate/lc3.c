@@ -298,7 +298,7 @@ static int execute_instruction(Simulate *simulate, uint16_t opcode)
   return -1;
 }
 
-static int get_reg(char *reg_string)
+static int get_reg(const char *reg_string)
 {
   while(*reg_string == ' ') { reg_string++; }
 
@@ -342,7 +342,10 @@ void simulate_push_lc3(Simulate *simulate, uint32_t value)
 
 }
 
-int simulate_set_reg_lc3(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_lc3(
+  Simulate *simulate,
+  const char *reg_string,
+  uint32_t value)
 {
   SimulateLc3 *simulate_lc3 = (SimulateLc3 *)simulate->context;
 
@@ -355,7 +358,7 @@ int simulate_set_reg_lc3(Simulate *simulate, char *reg_string, uint32_t value)
   return 0;
 }
 
-uint32_t simulate_get_reg_lc3(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_lc3(Simulate *simulate, const char *reg_string)
 {
   SimulateLc3 *simulate_lc3 = (SimulateLc3 *)simulate->context;
   int reg = get_reg(reg_string);

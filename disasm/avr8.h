@@ -14,7 +14,7 @@
 
 #include "common/assembler.h"
 
-int get_register_avr8(char *token);
+int get_register_avr8(const char *token);
 
 int disasm_avr8(
   Memory *memory,

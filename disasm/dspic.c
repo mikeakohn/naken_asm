@@ -18,10 +18,30 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-static char accum[] = { 'A','B' };
-static char *bflag[] = { "", ".b" };
-static char *addr_modes[] = { "w%d", "[w%d]", "[w%d--]", "[w%d++]", "[--w%d]", "[++w%d]" };
-static char *mmm_table[] = { "w4*w5", "w4*w6", "w4*w7", "???", "w5*w6", "w5*w7", "w6*w7", "???" };
+static const char accum[] = { 'A','B' };
+static const char *bflag[] = { "", ".b" };
+
+static const char *addr_modes[] =
+{
+  "w%d",
+  "[w%d]",
+  "[w%d--]",
+  "[w%d++]",
+  "[--w%d]",
+  "[++w%d]"
+};
+
+static const char *mmm_table[] =
+{
+  "w4*w5",
+  "w4*w6",
+  "w4*w7",
+  "???",
+  "w5*w6",
+  "w5*w7",
+  "w6*w7",
+  "???"
+};
 
 static void get_wd(char *temp, int reg, int attr, int reg2)
 {

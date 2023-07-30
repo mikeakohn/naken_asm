@@ -24,7 +24,7 @@
 
 //#define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }
 
-int tokens_open_file(AsmContext *asm_context, char *filename)
+int tokens_open_file(AsmContext *asm_context, const char *filename)
 {
   asm_context->tokens.in = fopen(filename, "rb");
 
@@ -775,7 +775,7 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
   return token_type;
 }
 
-void tokens_push(AsmContext *asm_context, char *token, int token_type)
+void tokens_push(AsmContext *asm_context, const char *token, int token_type)
 {
   if (asm_context->tokens.pushback[0] == 0)
   {

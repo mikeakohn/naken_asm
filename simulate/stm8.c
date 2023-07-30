@@ -222,7 +222,10 @@ static uint32_t simulate_pop24_stm8(Simulate *simulate)
 // Returns:
 //    -1 = invalid register/flag or unsupported memory location
 //     0 = OK
-int simulate_set_reg_stm8(Simulate *simulate, char *reg_string, uint32_t value)
+int simulate_set_reg_stm8(
+  Simulate *simulate,
+  const char *reg_string,
+  uint32_t value)
 {
   SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
 
@@ -352,7 +355,7 @@ int simulate_set_reg_stm8(Simulate *simulate, char *reg_string, uint32_t value)
 // Returns:
 //    register or condition code flag value
 //    0 returned for unknown registers or condition code flag names
-uint32_t simulate_get_reg_stm8(Simulate *simulate, char *reg_string)
+uint32_t simulate_get_reg_stm8(Simulate *simulate, const char *reg_string)
 {
   SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
 

@@ -31,7 +31,7 @@ const char *credits =
   "  Email: mike@mikekohn.net\n"
   "Version: " VERSION "\n";
 
-static void new_extension(char *filename, char *ext, int len)
+static void new_extension(char *filename, const char *ext, int len)
 {
   int i;
 
@@ -74,7 +74,8 @@ int main(int argc, char *argv[])
   int i;
   int file_type = FILE_TYPE_HEX;
   int create_list = 0;
-  char *infile = NULL, *outfile = NULL;
+  const char *infile = NULL;
+  const char *outfile = NULL;
   AsmContext asm_context;
   int error_flag = 0;
 
@@ -408,6 +409,7 @@ int main(int argc, char *argv[])
     int ch = 0;
     char str[17];
     int ptr = 0;
+    uint32_t i;
 
     fprintf(asm_context.list, "data sections:");
 
