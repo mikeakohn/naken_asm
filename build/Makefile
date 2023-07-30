@@ -1,6 +1,6 @@
 include ../config.mak
 
-VPATH=../asm:../disasm:../common:../simulate:../table:../prog:../fileio:..
+VPATH=../asm:../disasm:../common:../simulate:../table:../fileio:..
 
 default: $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) $(SIM_OBJS) $(TABLE_OBJS) \
          $(UTIL_OBJS) $(FILEIO_OBJS) $(PROG_OBJS)
@@ -19,13 +19,6 @@ library: default
 	$(CC) -o ../libnaken_asm.so ../library/naken_asm.c \
 	  naken_asm.a -shared -I.. -fPIC \
 	  $(CFLAGS)
-
-prog:
-	$(CC) -o ../naken_prog$(CONFIG_EXT) ../common/naken_prog.c \
-	   prog/lpc.o common/memory.o common/memory_pool.o fileio/read_elf.o \
-	   fileio/read_hex.o fileio/write_hex.o common/print_error.o \
-	   prog/serial.o common/symbols.o -I.. \
-	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
 
 common/assembler.o: common/assembler.c common/assembler.h
 	$(CC) -c $< -o $*.o $(CFLAGS) $(DFLAGS) -I..

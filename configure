@@ -75,7 +75,6 @@ UTIL_OBJS="util_context.o util_disasm.o util_sim.o"
 SIM_OBJS="null.o"
 COMMON_OBJS="add_bin.o assembler.o cpu_list.o directives.o directives_data.o directives_if.o directives_include.o eval_expression.o eval_expression_ex.o ifdef_expression.o imports_ar.o imports_get_int.o imports_obj.o linker.o print_error.o macros.o memory.o memory_pool.o symbols.o tokens.o var.o"
 FILEIO_OBJS="file.o read_amiga.o read_bin.o read_elf.o read_hex.o read_srec.o read_ti_txt.o read_wdc.o write_amiga.o write_bin.o write_elf.o write_hex.o write_srec.o write_wdc.o"
-PROG_OBJS="lpc.o serial.o"
 NO_MSP430="-DNO_MSP430"
 
 DFLAGS_ALL=""
@@ -714,7 +713,6 @@ echo "CONFIG_EXT=${CONFIG_EXT}" >> config.mak
 #echo "COMMON_OBJS=${COMMON_OBJS}" >> config.mak
 #echo "TABLE_OBJS=${TABLE_OBJS}" >> config.mak
 #echo "SIM_OBJS=${SIM_OBJS}" >> config.mak
-#echo "PROG_OBJS=${PROG_OBJS}" >> config.mak
 output_objs ASM_OBJS asm "${ASM_OBJS}"
 output_objs DISASM_OBJS disasm "${DISASM_OBJS}"
 output_objs TABLE_OBJS table "${TABLE_OBJS}"
@@ -722,7 +720,6 @@ output_objs UTIL_OBJS common "${UTIL_OBJS}"
 output_objs COMMON_OBJS common "${COMMON_OBJS}"
 output_objs SIM_OBJS simulate "${SIM_OBJS}"
 output_objs FILEIO_OBJS fileio "${FILEIO_OBJS}"
-output_objs PROG_OBJS prog "${PROG_OBJS}"
 echo >> config.mak
 
 echo

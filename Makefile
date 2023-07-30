@@ -9,8 +9,7 @@ default:
 	@mkdir -p build/common
 	@mkdir -p build/simulate
 	@mkdir -p build/fileio
-	@mkdir -p build/prog
-	@$(MAKE) -C build
+	$(MAKE) -C build
 
 all: default
 
@@ -49,10 +48,10 @@ archive:
 	ar rvs build/naken_asm.a build/*.o
 
 clean:
-	@rm -f naken_asm naken_util naken_prog *.exe *.o *.hex a.out *.lst *.ndbg *.elf *.srec
+	@rm -f naken_asm naken_util *.exe *.o *.hex a.out *.lst *.ndbg *.elf *.srec
 	@rm -rf build/*.o build/*.a
 	@rm -rf build/asm build/disasm build/table build/common
-	@rm -rf build/simulate build/fileio build/prog
+	@rm -rf build/simulate build/fileio
 	@rm -f tests/unit/eval_expression/unit_test
 	@rm -f tests/unit/eval_expression_ex/unit_test
 	@rm -f tests/unit/var/var_test
