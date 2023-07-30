@@ -46,6 +46,7 @@ int disasm_java(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -169,7 +170,13 @@ void list_output_java(
   char temp[16];
   int n;
 
-  count = disasm_java(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+  count = disasm_java(
+    &asm_context->memory,
+    start,
+    instruction,
+    sizeof(instruction),
+    &cycles_min,
+    &cycles_max);
 
   hex[0] = 0;
 
@@ -204,17 +211,23 @@ void disasm_range_java(
 
   while (start <= end)
   {
-    count = disasm_java(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_java(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
-     hex[0] = 0;
+    hex[0] = 0;
 
-     for (n = 0; n < count; n++)
-     {
-       opcode = memory_read_m(memory, start + n);
+    for (n = 0; n < count; n++)
+    {
+      opcode = memory_read_m(memory, start + n);
 
-       sprintf(temp, "%02x ", opcode);
-       strcat(hex, temp);
-     }
+      sprintf(temp, "%02x ", opcode);
+      strcat(hex, temp);
+    }
 
     printf("0x%04x: %-20s %-40s\n", start, hex, instruction);
 

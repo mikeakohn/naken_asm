@@ -3612,7 +3612,15 @@ int simulate_run_stm8(Simulate *simulate, int max_cycles, int step)
       {
         int cycles_min;
         int cycles_max;
-        int count = disasm_stm8(simulate->memory, disasm_pc, instruction, &cycles_min, &cycles_max);
+
+        int count = disasm_stm8(
+          simulate->memory,
+          disasm_pc,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max);
+
         int i;
 
         // check for and remove additional line separator

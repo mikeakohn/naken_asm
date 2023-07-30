@@ -505,6 +505,7 @@ int disasm_arm(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -608,7 +609,14 @@ void list_output_arm(
     uint32_t opcode = memory_read32_m(&asm_context->memory, start);
 
     fprintf(asm_context->list, "\n");
-    count = disasm_arm(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_arm(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
+
     fprintf(asm_context->list, "0x%04x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
     if (cycles_min == -1)
@@ -640,7 +648,13 @@ void disasm_range_arm(
 
   while (start <= end)
   {
-    disasm_arm(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_arm(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read32_m(memory, start);
 #if 0

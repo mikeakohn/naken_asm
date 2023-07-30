@@ -20,6 +20,7 @@ int disasm_sh4(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -531,7 +532,13 @@ void list_output_sh4(
 
   while (start < end)
   {
-    count = disasm_sh4(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_sh4(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read16_m(&asm_context->memory, start);
 
@@ -559,7 +566,13 @@ void disasm_range_sh4(
 
   while (start <= end)
   {
-    count = disasm_sh4(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_sh4(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read16_m(memory, start);
 

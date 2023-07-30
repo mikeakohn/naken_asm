@@ -21,6 +21,7 @@ int disasm_1802(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -55,26 +56,26 @@ int disasm_1802(
           }
           case RCA1802_OP_REG:
           {
-            sprintf(instruction, "%s %d", table_1802_16[n].instr, opcode & 0xf);
+            snprintf(instruction, length, "%s %d", table_1802_16[n].instr, opcode & 0xf);
             return 2;
           }
           case RCA1802_OP_IMMEDIATE:
           {
             data = memory_read_m(memory, address + 2);
-            sprintf(instruction, "%s 0x%02x", table_1802_16[n].instr, data);
+            snprintf(instruction, length, "%s 0x%02x", table_1802_16[n].instr, data);
             return 3;
           }
           case RCA1802_OP_BRANCH:
           {
             data = memory_read_m(memory, address + 2);
-            sprintf(instruction, "%s 0x%04x",
+            snprintf(instruction, length, "%s 0x%04x",
               table_1802_16[n].instr, (address & 0xff00) | data);
             return 3;
           }
           case RCA1802_OP_REG_BRANCH:
           {
             data = memory_read_m(memory, address + 2);
-            sprintf(instruction, "%s %d, 0x%04x",
+            snprintf(instruction, length, "%s %d, 0x%04x",
               table_1802_16[n].instr, opcode & 0xf, (address & 0xff00) | data);
             return 3;
           }
@@ -106,24 +107,24 @@ int disasm_1802(
         }
         case RCA1802_OP_REG:
         {
-          sprintf(instruction, "%s %d", table_1802[n].instr, opcode & 0xf);
+          snprintf(instruction, length, "%s %d", table_1802[n].instr, opcode & 0xf);
           return 1;
         }
         case RCA1802_OP_NUM_1_TO_7:
         {
-          sprintf(instruction, "%s %d", table_1802[n].instr, opcode & 0x7);
+          snprintf(instruction, length, "%s %d", table_1802[n].instr, opcode & 0x7);
           return 1;
         }
         case RCA1802_OP_IMMEDIATE:
         {
           data = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s 0x%02x", table_1802[n].instr, data);
+          snprintf(instruction, length, "%s 0x%02x", table_1802[n].instr, data);
           return 2;
         }
         case RCA1802_OP_BRANCH:
         {
           data = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s 0x%04x",
+          snprintf(instruction, length, "%s 0x%04x",
             table_1802[n].instr, (address & 0xff00) | data);
           return 2;
         }
@@ -131,7 +132,7 @@ int disasm_1802(
         {
           data = ((memory_read_m(memory, address + 1) << 8) |
                    memory_read_m(memory, address + 2));
-          sprintf(instruction, "%s 0x%04x",
+          snprintf(instruction, length, "%s 0x%04x",
             table_1802[n].instr, data);
           return 3;
         }
@@ -170,6 +171,7 @@ void list_output_1802(
       &asm_context->memory,
       start,
       instruction,
+      sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
@@ -178,7 +180,7 @@ void list_output_1802(
     for (n = 0; n < count; n++)
     {
       char temp2[4];
-      sprintf(temp2, " %02x", memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp2, sizeof(temp2), " %02x", memory_read_m(&asm_context->memory, start + n));
       strcat(temp, temp2);
     }
 
@@ -222,14 +224,20 @@ void disasm_range_1802(
 
   while (start <= end)
   {
-    count = disasm_1802(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_1802(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     temp[0] = 0;
 
     for (n = 0; n < count; n++)
     {
       char temp2[4];
-      sprintf(temp2, " %02x", memory_read_m(memory, start + n));
+      snprintf(temp2, sizeof(temp2), " %02x", memory_read_m(memory, start + n));
       strcat(temp, temp2);
     }
 

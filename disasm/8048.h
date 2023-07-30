@@ -19,6 +19,7 @@ int disasm_8048(
   uint32_t flags,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max);
 

@@ -35,6 +35,7 @@ int disasm_65816(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max,
   int bytes)
@@ -213,7 +214,14 @@ void list_output_65816(
   int count = end - start;
   int n;
 
-  disasm_65816(&asm_context->memory, start, instruction, &cycles_min, &cycles_max, end - start + 1);
+  disasm_65816(
+    &asm_context->memory,
+    start,
+    instruction,
+    sizeof(instruction),
+    &cycles_min,
+    &cycles_max,
+    end - start + 1);
 
   //strcpy(instruction, "???");
 
@@ -255,7 +263,14 @@ void disasm_range_65816(
   {
     num = READ_RAM(start) | (READ_RAM(start+1) << 8);
 
-    int count = disasm_65816(memory, start, instruction, &cycles_min, &cycles_max, 0);
+    int count = disasm_65816(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max,
+      0);
 
     if (cycles_min < 1)
     {

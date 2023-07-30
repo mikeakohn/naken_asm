@@ -24,6 +24,7 @@ int disasm_ebpf(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -113,7 +114,13 @@ void list_output_ebpf(
 
   while (start < end)
   {
-    count = disasm_ebpf(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_ebpf(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     fprintf(asm_context->list,
       "0x%04x: %02x %02x %02x %02x %02x %02x %02x %02x %-40s\n",
@@ -149,7 +156,13 @@ void disasm_range_ebpf(
 
   while (start <= end)
   {
-    count = disasm_ebpf(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_ebpf(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     printf(
       "0x%04x: %02x %02x %02x %02x %02x %02x %02x %02x %-40s\n",

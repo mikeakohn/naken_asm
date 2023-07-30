@@ -23,12 +23,13 @@ int disasm_8048(
   uint32_t flags,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
   int opcode;
   char temp[32];
-  int value, length;
+  int value, byte_count;
   int n, r;
 
   strcpy(instruction, "???");
@@ -59,7 +60,7 @@ int disasm_8048(
         return 1;
       }
 
-      length = 1;
+      byte_count = 1;
 
       strcat(instruction, " ");
 
@@ -144,19 +145,19 @@ int disasm_8048(
             value = memory_read_m(memory, address + 1);
             sprintf(temp, "#0x%02x", value);
             strcat(instruction, temp);
-            length = 2;
+            byte_count = 2;
             break;
           case OP_ADDR:
             value = memory_read_m(memory, address + 1);
             sprintf(temp, "#0x%02x", ((opcode & 0xe000) >> 5) | value);
             strcat(instruction, temp);
-            length = 2;
+            byte_count = 2;
             break;
           case OP_PADDR:
             value = memory_read_m(memory, address + 1);
             sprintf(temp, "#0x%02x", (address & 0xff00) | value);
             strcat(instruction, temp);
-            length = 2;
+            byte_count = 2;
             break;
           case OP_DMA:
             strcat(instruction, "DMA");
@@ -173,7 +174,7 @@ int disasm_8048(
         }
       }
 
-      return length;
+      return byte_count;
     }
   }
 
@@ -198,6 +199,7 @@ void list_output_8048(
       asm_context->flags,
       start,
       instruction,
+      sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
@@ -241,6 +243,7 @@ void disasm_range_8048(
       flags,
       start,
       instruction,
+      sizeof(instruction),
       &cycles_min,
       &cycles_max);
 

@@ -66,6 +66,7 @@ int disasm_propeller2(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -379,7 +380,13 @@ void list_output_propeller2(
 
   while (start < end)
   {
-    count = disasm_propeller2(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_propeller2(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read32_m(&asm_context->memory, start);
     sprintf(bytes, "0x%08x", opcode);
@@ -426,7 +433,13 @@ void disasm_range_propeller2(
 
   while (start <= end)
   {
-    disasm_propeller2(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_propeller2(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     sprintf(bytes, "0x%08x", READ_RAM32(start));
     printf("0x%04x: %-16s %-40s ", start / 4, bytes, instruction);

@@ -20,6 +20,7 @@ int disasm_dotnet(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -91,7 +92,13 @@ void list_output_dotnet(
   char temp[16];
   int n;
 
-  count = disasm_dotnet(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+  count = disasm_dotnet(
+    &asm_context->memory,
+    start,
+    instruction,
+    sizeof(instruction),
+    &cycles_min,
+    &cycles_max);
 
   hex[0] = 0;
 
@@ -126,7 +133,13 @@ void disasm_range_dotnet(
 
   while (start <= end)
   {
-    count = disasm_dotnet(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_dotnet(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
      hex[0] = 0;
 

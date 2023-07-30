@@ -20,6 +20,7 @@ int disasm_86000(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -203,7 +204,13 @@ void list_output_86000(
 
   while (start < end)
   {
-    count = disasm_86000(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_86000(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     temp[0] = 0;
 
@@ -248,7 +255,13 @@ void disasm_range_86000(
 
   while (start <= end)
   {
-    count = disasm_86000(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_86000(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     temp[0] = 0;
 

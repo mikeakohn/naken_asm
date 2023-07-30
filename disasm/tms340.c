@@ -32,6 +32,7 @@ int disasm_tms340(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -346,7 +347,13 @@ void list_output_tms340(AsmContext *asm_context, uint32_t start, uint32_t end)
   {
     opcode = memory_read16_m(&asm_context->memory, start);
 
-    count = disasm_tms340(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_tms340(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start, opcode, instruction);
 
@@ -382,7 +389,13 @@ void disasm_range_tms340(
 
   while (start <= end)
   {
-    count = disasm_tms340(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_tms340(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read16_m(memory, start);
 

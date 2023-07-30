@@ -23,6 +23,7 @@ static int disasm_xtensa_le(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -513,6 +514,7 @@ static int disasm_xtensa_be(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -1003,6 +1005,7 @@ int disasm_xtensa(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -1011,11 +1014,23 @@ int disasm_xtensa(
 
   if (memory->endian == ENDIAN_LITTLE)
   {
-    return disasm_xtensa_le(memory, address, instruction, cycles_min, cycles_max);
+    return disasm_xtensa_le(
+      memory,
+      address,
+      instruction,
+      length,
+      cycles_min,
+      cycles_max);
   }
     else
   {
-    return disasm_xtensa_be(memory, address, instruction, cycles_min, cycles_max);
+    return disasm_xtensa_be(
+      memory,
+      address,
+      instruction,
+      length,
+      cycles_min,
+      cycles_max);
   }
 }
 
@@ -1067,7 +1082,13 @@ void list_output_xtensa(
 
   Memory *memory = &asm_context->memory;
 
-  count = disasm_xtensa(memory, start, instruction, &cycles_min, &cycles_max);
+  count = disasm_xtensa(
+    memory,
+    start,
+    instruction,
+    sizeof(instruction),
+    &cycles_min,
+    &cycles_max);
 
   get_bytes(memory, start, count, bytes);
 
@@ -1093,7 +1114,13 @@ void disasm_range_xtensa(
 
   while (start <= end)
   {
-    count = disasm_xtensa(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_xtensa(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     get_bytes(memory, start, count, bytes);
 

@@ -26,6 +26,7 @@ int disasm_super_fx(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -202,7 +203,13 @@ void list_output_super_fx(
 
   while (start < end)
   {
-    count = disasm_super_fx(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_super_fx(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     temp[0] = 0;
     for (n = 0; n < count; n++)
@@ -237,7 +244,13 @@ void disasm_range_super_fx(
 
   while (start <= end)
   {
-    count = disasm_super_fx(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_super_fx(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     temp[0] = 0;
     for (n = 0; n < count; n++)

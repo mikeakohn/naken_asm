@@ -36,6 +36,7 @@ int disasm_lc3(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -156,7 +157,13 @@ void list_output_lc3(
 
   while (start < end)
   {
-    count = disasm_lc3(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_lc3(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = (memory_read_m(&asm_context->memory, start + 0) << 8) |
               memory_read_m(&asm_context->memory, start + 1);
@@ -185,7 +192,13 @@ void disasm_range_lc3(
 
   while (start <= end)
   {
-    count = disasm_lc3(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_lc3(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = READ_RAM16(start);
 

@@ -24,6 +24,7 @@ int disasm_ps2_ee_vu(
   uint32_t flags,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max,
   int is_lower);

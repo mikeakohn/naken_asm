@@ -21,6 +21,7 @@ int disasm_4004(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -135,6 +136,7 @@ void list_output_4004(
       &asm_context->memory,
       start,
       instruction,
+      sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
@@ -185,7 +187,13 @@ void disasm_range_4004(
 
   while (start <= end)
   {
-    disasm_4004(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_4004(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read16_m(memory, start);
 

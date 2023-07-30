@@ -23,6 +23,7 @@ int disasm_NAME(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -42,10 +43,17 @@ void list_output_NAME(
   char bytes[10];
   int count;
   int n;
-  //unsigned int opcode=memory_read_m(&asm_context->memory, address);
+  // uint32_t opcode = memory_read_m(&asm_context->memory, address);
 
   fprintf(asm_context->list, "\n");
-  count = disasm_NAME(&asm_context->memory, address, instruction, &cycles_min, &cycles_max);
+
+  count = disasm_NAME(
+    &asm_context->memory,
+    address,
+    instruction,
+    sizeof(instruction),
+    &cycles_min,
+    &cycles_max);
 
   bytes[0] = 0;
   for (n = 0; n < count; n++)
@@ -86,7 +94,13 @@ void disasm_range_NAME(
 
   while (start <= end)
   {
-    count = disasm_NAME(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_NAME(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     bytes[0] = 0;
     for (n = 0; n < count; n++)

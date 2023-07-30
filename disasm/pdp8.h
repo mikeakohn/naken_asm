@@ -16,7 +16,11 @@
 
 #include "common/assembler.h"
 
-int disasm_pdp8(Memory *memory, uint32_t address, char *instruction);
+int disasm_pdp8(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int length);
 
 void list_output_pdp8(
   AsmContext *asm_context,

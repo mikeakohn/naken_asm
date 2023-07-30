@@ -614,6 +614,7 @@ int simulate_run_mips(Simulate *simulate, int max_cycles, int step)
           MIPS_I | MIPS_II | MIPS_III | MIPS_32,
           pc,
           instruction,
+          sizeof(instruction),
           &cycles_min,
           &cycles_max);
 

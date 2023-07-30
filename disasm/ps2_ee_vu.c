@@ -22,6 +22,7 @@ int disasm_ps2_ee_vu(
   uint32_t flags,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max,
   int is_lower)
@@ -235,8 +236,25 @@ void list_output_ps2_ee_vu(
     opcode_upper = memory_read32_m(&asm_context->memory, start + 4);
     opcode_lower = memory_read32_m(&asm_context->memory, start);
 
-    disasm_ps2_ee_vu(&asm_context->memory, asm_context->flags, start + 4, instruction_upper, &cycles_min, &cycles_max, 0);
-    disasm_ps2_ee_vu(&asm_context->memory, asm_context->flags, start, instruction_lower, &cycles_min, &cycles_max, 1);
+    disasm_ps2_ee_vu(
+      &asm_context->memory,
+      asm_context->flags,
+      start + 4,
+      instruction_upper,
+      sizeof(instruction_upper),
+      &cycles_min,
+      &cycles_max,
+      0);
+
+    disasm_ps2_ee_vu(
+      &asm_context->memory,
+      asm_context->flags,
+      start,
+      instruction_lower,
+      sizeof(instruction_lower),
+      &cycles_min,
+      &cycles_max,
+      1);
 
     fprintf(asm_context->list, "0x%08x: 0x%08x 0x%08x %-20s %s\n", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
 
@@ -275,8 +293,25 @@ void disasm_range_ps2_ee_vu(
     opcode_upper = memory_read32_m(memory, start + 4);
     opcode_lower = memory_read32_m(memory, start);
 
-    disasm_ps2_ee_vu(memory, flags, start + 4, instruction_upper, &cycles_min, &cycles_max, 0);
-    disasm_ps2_ee_vu(memory, flags, start, instruction_lower, &cycles_min, &cycles_max, 1);
+    disasm_ps2_ee_vu(
+      memory,
+      flags,
+      start + 4,
+      instruction_upper,
+      sizeof(instruction_upper),
+      &cycles_min,
+      &cycles_max,
+      0);
+
+    disasm_ps2_ee_vu(
+      memory,
+      flags,
+      start,
+      instruction_lower,
+      sizeof(instruction_lower),
+      &cycles_min,
+      &cycles_max,
+      1);
 
     printf("0x%08x: 0x%08x 0x%08x %-20s %s\n", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
 

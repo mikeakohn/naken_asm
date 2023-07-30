@@ -188,6 +188,7 @@ int simulate_run_8008(Simulate *simulate, int max_cycles, int step)
           simulate->memory,
           pc,
           instruction,
+          sizeof(instruction),
           &cycles_min,
           &cycles_max);
 

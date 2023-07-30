@@ -22,6 +22,7 @@ int disasm_8051(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -175,7 +176,13 @@ void list_output_8051(
 
   while (start < end)
   {
-    count = disasm_8051(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_8051(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     temp[0] = 0;
     for (n = 0; n < count; n++)
@@ -217,7 +224,13 @@ void disasm_range_8051(
 
   while (start <= end)
   {
-    count = disasm_8051(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_8051(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     temp[0] = 0;
 

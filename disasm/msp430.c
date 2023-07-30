@@ -646,6 +646,7 @@ int disasm_msp430(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -884,6 +885,7 @@ int disasm_msp430x(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -897,7 +899,13 @@ int disasm_msp430x(
     return 2;
   }
 
-  return disasm_msp430(memory, address, instruction, cycles_min, cycles_max);
+  return disasm_msp430(
+    memory,
+    address,
+    instruction,
+    length,
+    cycles_min,
+    cycles_max);
 }
 
 static void list_output_msp430_both(
@@ -916,11 +924,23 @@ static void list_output_msp430_both(
   {
     if (msp430x == 0)
     {
-      count = disasm_msp430(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+      count = disasm_msp430(
+        &asm_context->memory,
+        start,
+        instruction,
+        sizeof(instruction),
+        &cycles_min,
+        &cycles_max);
     }
       else
     {
-      count = disasm_msp430x(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+      count = disasm_msp430x(
+        &asm_context->memory,
+        start,
+        instruction,
+        sizeof(instruction),
+        &cycles_min,
+        &cycles_max);
     }
 
     num = memory_read(asm_context, start) |
@@ -1000,11 +1020,23 @@ static void disasm_range_msp430_both(
 
     if (msp430x == 0)
     {
-      count = disasm_msp430(memory, start, instruction, &cycles_min, &cycles_max);
+      count = disasm_msp430(
+        memory,
+        start,
+        instruction,
+        sizeof(instruction),
+        &cycles_min,
+        &cycles_max);
     }
       else
     {
-      count = disasm_msp430x(memory, start, instruction, &cycles_min, &cycles_max);
+      count = disasm_msp430x(
+        memory,
+        start,
+        instruction,
+        sizeof(instruction),
+        &cycles_min,
+        &cycles_max);
     }
 
     if (cycles_min < 1)

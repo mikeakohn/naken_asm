@@ -942,12 +942,20 @@ int simulate_run_msp430(Simulate *simulate, int max_cycles, int step)
       simulate_dump_registers_msp430(simulate);
 
       n = 0;
-      while(n < 12)
+      while (n < 12)
       {
         int cycles_min,cycles_max;
         int num;
         num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
-        int count = disasm_msp430(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+
+        int count = disasm_msp430(
+          simulate->memory,
+          pc,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max);
+
         if (cycles_min == -1) { break; }
 
         printf("%s", pc == simulate->break_point ? "*" : " ");

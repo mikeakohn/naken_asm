@@ -20,6 +20,7 @@ int disasm_pic18(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -217,6 +218,7 @@ void list_output_pic18(
       &asm_context->memory,
       start,
       instruction,
+      sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
@@ -268,7 +270,14 @@ void disasm_range_pic18(
 
   while (start <= end)
   {
-    count = disasm_pic18(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_pic18(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
+
     opcode = memory_read16_m(memory, start);
 
     printf("0x%04x: 0x%04x %-40s ", start, opcode, instruction);

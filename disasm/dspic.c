@@ -134,6 +134,7 @@ int disasm_dspic(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -594,14 +595,25 @@ void list_output_dspic(AsmContext *asm_context, uint32_t start, uint32_t end)
     opcode = memory_read32_m(&asm_context->memory, start);
 
     fprintf(asm_context->list, "\n");
-    count=disasm_dspic(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+
+    count = disasm_dspic(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     fprintf(asm_context->list, "0x%04x: 0x%06x %-40s cycles: ", start / 2, opcode, instruction);
 
     if (cycles_min == cycles_max)
-    { fprintf(asm_context->list, "%d\n", cycles_min); }
+    {
+      fprintf(asm_context->list, "%d\n", cycles_min);
+    }
       else
-    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    {
+      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+    }
 
     if (count == 8)
     {
@@ -638,7 +650,13 @@ void disasm_range_dspic(
          (READ_RAM(start + 2) << 16) |
          (READ_RAM(start + 3) << 24);
 
-    int count = disasm_dspic(memory, start, instruction, &cycles_min, &cycles_max);
+    int count = disasm_dspic(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     if (cycles_min < 1)
     {

@@ -71,6 +71,7 @@ int disasm_thumb(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -318,7 +319,13 @@ void list_output_thumb(
 
   while (start < end)
   {
-    count = disasm_thumb(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_thumb(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     fprintf(asm_context->list, "0x%04x: %04x  %-40s cycles: ",
       start,
@@ -359,7 +366,13 @@ void disasm_range_thumb(
 
   while (start <= end)
   {
-    count=disasm_thumb(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_thumb(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     if (cycles_min < 1)
     {

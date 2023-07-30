@@ -23,6 +23,7 @@ int disasm_8008(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -172,6 +173,7 @@ void list_output_8008(
       &asm_context->memory,
       start,
       instruction,
+      sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
@@ -226,7 +228,13 @@ void disasm_range_8008(
 
   while (start <= end)
   {
-    count = disasm_8008(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_8008(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     //opcode = memory_read_m(memory, start);
     char temp2[12];

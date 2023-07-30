@@ -20,6 +20,7 @@ int disasm_copper(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -85,7 +86,14 @@ void list_output_copper(
 
   fprintf(asm_context->list, "\n");
 
-  disasm_copper(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+  disasm_copper(
+    &asm_context->memory,
+    start,
+    instruction,
+    sizeof(instruction),
+    &cycles_min,
+    &cycles_max);
+
   opcode = memory_read16_m(&asm_context->memory, start);
   data = memory_read16_m(&asm_context->memory, start + 2);
 
@@ -122,7 +130,14 @@ void disasm_range_copper(
 
   while (start <= end)
   {
-    count = disasm_copper(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_copper(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
+
     opcode = memory_read16_m(memory, start);
     data = memory_read16_m(memory, start);
 

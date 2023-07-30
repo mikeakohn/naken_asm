@@ -26,6 +26,7 @@ int disasm_cell(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -231,7 +232,13 @@ void list_output_cell(
   {
     opcode = memory_read32_m(&asm_context->memory, start);
 
-    disasm_cell(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_cell(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
@@ -273,7 +280,13 @@ void disasm_range_cell(
   {
     opcode = memory_read32_m(memory, start);
 
-    count = disasm_cell(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_cell(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     printf("0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 

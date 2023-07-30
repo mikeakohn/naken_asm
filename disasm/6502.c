@@ -30,6 +30,7 @@ int disasm_6502(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -175,7 +176,13 @@ void list_output_6502(
   //opcode &= 0xff;
 
   fprintf(asm_context->list, "\n");
-  count = disasm_6502(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+  count = disasm_6502(
+    &asm_context->memory,
+    start,
+    instruction,
+    sizeof(instruction),
+    &cycles_min,
+    &cycles_max);
 
   bytes[0] = 0;
   for (n = 0; n < count; n++)
@@ -214,7 +221,13 @@ void disasm_range_6502(
   {
     num = READ_RAM(start)|(READ_RAM(start+1)<<8);
 
-    int count = disasm_6502(memory, start, instruction, &cycles_min, &cycles_max);
+    int count = disasm_6502(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     if (cycles_min < 1)
     {

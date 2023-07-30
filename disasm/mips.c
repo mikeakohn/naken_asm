@@ -312,6 +312,7 @@ int disasm_mips(
   uint32_t flags,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -914,6 +915,7 @@ void list_output_mips(
       asm_context->flags,
       start,
       instruction,
+      sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
@@ -954,7 +956,14 @@ void disasm_range_mips(
 #endif
     num = memory_read32_m(memory, start);
 
-    disasm_mips(memory, flags, start, instruction, &cycles_min, &cycles_max);
+    disasm_mips(
+      memory,
+      flags,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     if (cycles_min < 1)
     {

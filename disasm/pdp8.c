@@ -79,7 +79,11 @@ static void disasm_pdp8_opr(char *instruction, int opcode)
   }
 }
 
-int disasm_pdp8(Memory *memory, uint32_t address, char *instruction)
+int disasm_pdp8(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int length)
 {
   int opcode;
   int n;
@@ -163,7 +167,11 @@ void list_output_pdp8(
 
   while (start < end)
   {
-    count = disasm_pdp8(&asm_context->memory, start, instruction);
+    count = disasm_pdp8(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction));
 
     opcode = memory_read16_m(&asm_context->memory, start);
 
@@ -189,7 +197,11 @@ void disasm_range_pdp8(
 
   while (start <= end)
   {
-    disasm_pdp8(memory, start, instruction);
+    disasm_pdp8(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction));
 
     opcode = memory_read16_m(memory, start);
 

@@ -550,7 +550,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
 
   if (asm_context->pass == 2 && opcode == -1)
   {
-    sprintf(temp, "No instruction found for addressing mode %d", op);
+    snprintf(temp, sizeof(temp),"No instruction found for addressing mode %d", op);
     print_error(asm_context, temp);
     return -1;
   }

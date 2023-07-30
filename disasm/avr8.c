@@ -65,6 +65,7 @@ int disasm_avr8(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -307,7 +308,13 @@ void list_output_avr8(
 
   while (start < end)
   {
-    count = disasm_avr8(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_avr8(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read_m(&asm_context->memory, start) | (memory_read_m(&asm_context->memory, start + 1) << 8);
 
@@ -347,9 +354,14 @@ void disasm_range_avr8(
 
   while (start <= end)
   {
-    count = disasm_avr8(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_avr8(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
-    //opcode=(memory_read_m(memory, address)<<8)|memory_read_m(>memory, address+1);
     opcode = READ_RAM16(start);
 
     if (cycles_min < 1)

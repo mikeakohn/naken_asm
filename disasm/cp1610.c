@@ -21,6 +21,7 @@ int disasm_cp1610(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -220,6 +221,7 @@ void list_output_cp1610(
       &asm_context->memory,
       start,
       instruction,
+      sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
@@ -258,7 +260,13 @@ void disasm_range_cp1610(
 
   while (start <= end)
   {
-    count = disasm_cp1610(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_cp1610(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read16_m(memory, start);
 

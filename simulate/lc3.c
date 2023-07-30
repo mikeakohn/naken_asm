@@ -464,7 +464,13 @@ int simulate_run_lc3(Simulate *simulate, int max_cycles, int step)
 
         num = READ_RAM(pc);
 
-        count = disasm_lc3(simulate->memory, pc * 2, instruction, &cycles_min, &cycles_max);
+        count = disasm_lc3(
+          simulate->memory,
+          pc * 2,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max);
 
         if (pc == simulate->break_point) { printf("*"); }
         else { printf(" "); }

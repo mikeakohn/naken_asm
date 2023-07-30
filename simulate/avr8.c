@@ -1171,7 +1171,15 @@ int simulate_run_avr8(Simulate *simulate, int max_cycles, int step)
         int cycles_min,cycles_max;
         int num;
         num = READ_OPCODE(disasm_pc);
-        int count = disasm_avr8(simulate->memory, disasm_pc * 2, instruction, &cycles_min, &cycles_max) / 2;
+
+        int count = disasm_avr8(
+          simulate->memory,
+          disasm_pc * 2,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max) / 2;
+
         if (cycles_min == -1) break;
 
         if (disasm_pc == simulate->break_point) { printf("*"); }

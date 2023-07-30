@@ -1006,7 +1006,14 @@ int simulate_run_1802(Simulate *simulate, int cycles, int step)
       int n = 0;
       while (n < 6)
       {
-        int count = disasm_1802(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+        int count = disasm_1802(
+          simulate->memory,
+          pc,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max);
+
         int i;
 
         bytes[0] = 0;

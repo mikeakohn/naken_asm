@@ -898,7 +898,16 @@ int simulate_run_65816(Simulate *simulate, int max_cycles, int step)
 
     // only increment if REG_PC not touched
     if (ret == 0)
-      REG_PC += disasm_65816(simulate->memory, pc, instruction, &cycles_min, &cycles_max, 0);
+    {
+      REG_PC += disasm_65816(
+        simulate->memory,
+        pc,
+        instruction,
+        sizeof(instruction),
+        &cycles_min,
+        &cycles_max,
+        0);
+    }
 
     if (simulate->show == 1)
     {
@@ -908,7 +917,14 @@ int simulate_run_65816(Simulate *simulate, int max_cycles, int step)
       int n = 0;
       while (n < 6)
       {
-        int count = disasm_65816(simulate->memory, pc, instruction, &cycles_min, &cycles_max, 0);
+        int count = disasm_65816(
+          simulate->memory,
+          pc,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max,
+          0);
 
         if (cycles_min == -1) break;
 

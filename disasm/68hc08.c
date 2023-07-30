@@ -26,6 +26,7 @@ int disasm_68hc08(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -260,7 +261,13 @@ void list_output_68hc08(
 
   while (start < end)
   {
-    count = disasm_68hc08(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_68hc08(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     bytes[0] = 0;
     for (n = 0; n < count; n++)
@@ -300,7 +307,13 @@ void disasm_range_68hc08(
 
   while (start <= end)
   {
-    count = disasm_68hc08(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_68hc08(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     bytes[0] = 0;
     for (n = 0; n < count; n++)

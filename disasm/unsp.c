@@ -307,6 +307,7 @@ int disasm_unsp(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -428,6 +429,7 @@ void list_output_unsp(
       &asm_context->memory,
       start,
       instruction,
+      sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
@@ -469,7 +471,13 @@ void disasm_range_unsp(
 
   while (start <= end)
   {
-    count = disasm_unsp(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_unsp(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     //temp[0] = 0;
 

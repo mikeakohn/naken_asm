@@ -409,7 +409,7 @@ int simulate_set_reg_z80(
   //SimulateZ80 *simulate_z80 = (SimulateZ80 *)simulate->context;
   //int reg,n;
 
-  while(*reg_string == ' ') { reg_string++; }
+  while (*reg_string == ' ') { reg_string++; }
 #if 0
   reg = get_register_z80(reg_string);
   if (reg == -1)
@@ -891,7 +891,7 @@ int simulate_z80_execute(Simulate *simulate)
   uint16_t opcode16 = READ_OPCODE16(simulate_z80->pc);
 
   n = 0;
-  while(table_z80[n].instr_enum != Z80_NONE)
+  while (table_z80[n].instr_enum != Z80_NONE)
   {
     if (table_z80[n].opcode == (opcode & table_z80[n].mask))
     {
@@ -975,7 +975,7 @@ int simulate_z80_execute(Simulate *simulate)
   }
 
   n = 0;
-  while(table_z80[n].instr_enum != Z80_NONE)
+  while (table_z80[n].instr_enum != Z80_NONE)
   {
     if (table_z80[n].mask <= 0xff) { n++; continue; }
     if (table_z80[n].opcode == (opcode16 & table_z80[n].mask))
@@ -1110,14 +1110,21 @@ int simulate_run_z80(Simulate *simulate, int max_cycles, int step)
 
   printf("Running... Press Ctl-C to break.\n");
 
-  while(stop_running == 0)
+  while (stop_running == 0)
   {
     int cycles_min, cycles_max;
     pc = simulate_z80->pc;
     //opcode = READ_RAM(pc) | (READ_RAM(pc + 1) << 8);
 
-    if (simulate->show == 1) printf("\x1b[1J\x1b[1;1H");
-    int count = disasm_z80(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
+    if (simulate->show == 1) { printf("\x1b[1J\x1b[1;1H"); }
+
+    int count = disasm_z80(
+      simulate->memory,
+       pc,
+       instruction,
+       sizeof(instruction),
+       &cycles_min,
+       &cycles_max);
 
     // Insert code execution
     // FIXME
@@ -1131,10 +1138,16 @@ int simulate_run_z80(Simulate *simulate, int max_cycles, int step)
       int disasm_pc = pc;
 
       n = 0;
-      while(n < 6)
+      while (n < 6)
       {
-        //int num;
-        int count = disasm_z80(simulate->memory, disasm_pc, instruction, &cycles_min, &cycles_max);
+        int count = disasm_z80(
+          simulate->memory,
+          disasm_pc,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max);
+
 #if 0
         if (count == 2)
         {

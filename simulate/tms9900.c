@@ -369,8 +369,16 @@ int simulate_run_tms9900(Simulate *simulate, int max_cycles, int step)
         int cycles_min,cycles_max;
         int num;
         num = (READ_RAM(pc) << 8) | READ_RAM(pc + 1);
-        int count = disasm_tms9900(simulate->memory, pc, instruction, &cycles_min, &cycles_max);
-        if (cycles_min == -1) break;
+
+        int count = disasm_tms9900(
+          simulate->memory,
+          pc,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max);
+
+        if (cycles_min == -1) { break; }
 
         if (pc == simulate->break_point) { printf("*"); }
         else { printf(" "); }

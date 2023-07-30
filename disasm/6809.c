@@ -29,8 +29,8 @@ int get_indexed(
   struct _table_6809 *table,
   char *instruction,
   uint32_t address,
-   int *cycles_min,
-   int *cycles_max)
+  int *cycles_min,
+  int *cycles_max)
 {
   const char *name[] = { "x", "y", "u", "s" };
   uint8_t post_byte = READ_RAM(address);
@@ -247,6 +247,7 @@ int disasm_6809(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -495,7 +496,13 @@ void list_output_6809(
 
   while (start < end)
   {
-    count = disasm_6809(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_6809(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     bytes[0] = 0;
     for (n = 0; n < count; n++)
@@ -535,7 +542,13 @@ void disasm_range_6809(
 
   while (start <= end)
   {
-    count = disasm_6809(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_6809(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     bytes[0] = 0;
     for (n = 0; n < count; n++)

@@ -174,7 +174,7 @@ enum
 
 struct _table_instr_z80
 {
-  char *instr;
+  const char *instr;
   uint8_t instr_enum;
 };
 

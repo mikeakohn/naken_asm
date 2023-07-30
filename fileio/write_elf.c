@@ -306,7 +306,7 @@ static int get_string_table_len(char *string_table)
   return n + 1;
 }
 
-static void string_table_append(Elf *elf, char *name)
+static void string_table_append(Elf *elf, const char *name)
 {
   int len;
 
@@ -325,7 +325,7 @@ static void write_elf_text_and_data(
   Memory *memory,
   int alignment)
 {
-  char *name = ".text";
+  const char *name = ".text";
   int i;
 
   elf->text_addr = memory->low_address;
@@ -356,7 +356,7 @@ static void write_elf_text_and_data(
 
 static void write_arm_attribute(FILE *out, Elf *elf)
 {
-  const unsigned char aeabi[] = {
+  const uint8_t aeabi[] = {
     0x41, 0x30, 0x00, 0x00, 0x00, 0x61, 0x65, 0x61,
     0x62, 0x69, 0x00, 0x01, 0x26, 0x00, 0x00, 0x00,
     0x05, 0x36, 0x00, 0x06, 0x06, 0x08, 0x01, 0x09,
@@ -367,7 +367,7 @@ static void write_arm_attribute(FILE *out, Elf *elf)
   };
 
 #if 0
-  const unsigned char aeabi[] = {
+  const uint8_t aeabi[] = {
     0x41, 0x2d, 0x00, 0x00, 0x00, 0x61, 0x65, 0x61,
     0x62, 0x69, 0x00, 0x01, 0x23, 0x00, 0x00, 0x00,
     0x05, 0x41, 0x52, 0x4d, 0x39, 0x54, 0x44, 0x4d,
@@ -465,7 +465,7 @@ static void write_symtab(FILE *out, struct _symtab *symtab, Elf *elf)
   }
 }
 
-static int find_section(char *sections, char *name, int len)
+static int find_section(const char *sections, const char *name, int len)
 {
   int n = 0;
 

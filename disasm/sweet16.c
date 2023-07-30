@@ -21,6 +21,7 @@ int disasm_sweet16(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -103,7 +104,13 @@ void list_output_sweet16(
 
   while (start < end)
   {
-    count = disasm_sweet16(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_sweet16(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read_m(&asm_context->memory, start);
     sprintf(temp, "%02x", opcode);
@@ -139,7 +146,13 @@ void disasm_range_sweet16(
 
   while (start <= end)
   {
-    count = disasm_sweet16(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_sweet16(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read16_m(memory, start);
 

@@ -42,6 +42,7 @@ int disasm_tms1000(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -117,6 +118,7 @@ int disasm_tms1100(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -209,7 +211,13 @@ void list_output_tms1000(
 
   lsfr = tms1000_address_to_lsfr[pc];
 
-  disasm_tms1000(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+  disasm_tms1000(
+    &asm_context->memory,
+    start,
+    instruction,
+    sizeof(instruction),
+    &cycles_min,
+    &cycles_max);
 
   fprintf(asm_context->list, "%03x %x/%02x: %02x %-40s cycles: ", start, page, lsfr, opcode, instruction);
 
@@ -241,7 +249,13 @@ void list_output_tms1100(
 
   lsfr = tms1000_address_to_lsfr[pc];
 
-  disasm_tms1100(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+  disasm_tms1100(
+    &asm_context->memory,
+    start,
+    instruction,
+    sizeof(instruction),
+    &cycles_min,
+    &cycles_max);
 
   fprintf(asm_context->list, "%03x %d/%x/%02x: %02x %-40s cycles: ", start, chapter, page, lsfr, opcode, instruction);
 
@@ -277,7 +291,13 @@ void disasm_range_tms1000(
   {
     num = READ_RAM(start);
 
-    disasm_tms1000(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_tms1000(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     compute_address(start, &chapter, &page, &pc);
 
@@ -323,7 +343,13 @@ void disasm_range_tms1100(
   {
     num = READ_RAM(start);
 
-    disasm_tms1100(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_tms1100(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     compute_address(start, &chapter, &page, &pc);
 

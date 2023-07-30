@@ -50,6 +50,7 @@ int disasm_riscv(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -239,7 +240,13 @@ void list_output_riscv(
   {
     opcode = memory_read32_m(&asm_context->memory, start);
 
-    disasm_riscv(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_riscv(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ",
       start, opcode, instruction);
@@ -282,7 +289,13 @@ void disasm_range_riscv(
   {
     opcode = memory_read32_m(memory, start);
 
-    count = disasm_riscv(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_riscv(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     printf("0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 

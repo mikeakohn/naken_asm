@@ -129,6 +129,7 @@ int disasm_arc(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -679,7 +680,13 @@ void list_output_arc(AsmContext *asm_context, uint32_t start, uint32_t end)
   {
     Memory *memory = &asm_context->memory;
 
-    count = disasm_arc(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_arc(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     if (count < 4)
     {
@@ -724,7 +731,13 @@ void disasm_range_arc(
 
   while (start <= end)
   {
-    count = disasm_arc(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_arc(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     if (count < 4)
     {

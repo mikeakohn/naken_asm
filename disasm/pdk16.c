@@ -20,6 +20,7 @@ int disasm_pdk16(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -137,7 +138,13 @@ void list_output_pdk16(
 
   while (start < end)
   {
-    count = disasm_pdk16(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_pdk16(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read16_m(&asm_context->memory, start);
 
@@ -178,7 +185,13 @@ void disasm_range_pdk16(
 
   while (start <= end)
   {
-    disasm_pdk16(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_pdk16(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read16_m(memory, start);
 

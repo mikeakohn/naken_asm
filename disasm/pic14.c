@@ -20,6 +20,7 @@ int disasm_pic14(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -106,7 +107,13 @@ void list_output_pic14(
 
   while (start < end)
   {
-    count = disasm_pic14(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_pic14(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read16_m(&asm_context->memory, start);
 
@@ -147,7 +154,13 @@ void disasm_range_pic14(
 
   while (start <= end)
   {
-    disasm_pic14(memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_pic14(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory_read16_m(memory, start);
 

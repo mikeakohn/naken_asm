@@ -53,20 +53,20 @@ static uint64_t get_varuint(
 static int64_t get_varint(
   Memory *memory,
   uint32_t address,
-  int *length)
+  int *byte_count)
 {
   uint8_t ch;
   int shift = 0;
   int done = 0;
   int64_t num = 0;
 
-  *length = 0;
+  *byte_count = 0;
 
   while (done == 0)
   {
     ch = memory_read_m(memory, address++);
 
-    *length += 1;
+    *byte_count += 1;
 
     if ((ch & 0x80) == 0)
     {
@@ -106,21 +106,21 @@ static const char *get_type(int type)
 
 static int print_table(Memory *memory, uint32_t address, FILE *out)
 {
-  int length = 0, total_length, entry, n, count = 0;
+  int byte_count = 0, total_length, entry, n, count = 0;
 
   count = get_varint(memory, address, &total_length);
 
   address += total_length;
-  length += count;
+  byte_count += count;
 
   for (n = 0; n < count; n++)
   {
-    entry = get_varint(memory, address, &length);
+    entry = get_varint(memory, address, &byte_count);
 
     fprintf(out, "    %04x\n", entry);
 
-    address += length;
-    total_length += length;
+    address += byte_count;
+    total_length += byte_count;
   }
 
   return total_length;
@@ -130,6 +130,7 @@ int disasm_webasm(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -137,7 +138,7 @@ int disasm_webasm(
   uint64_t i;
   int64_t v;
   uint32_t count;
-  int n, length;
+  int n, byte_count;
 
   instruction[0] = 0;
 
@@ -170,33 +171,33 @@ int disasm_webasm(
         sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
         return 9;
       case WEBASM_OP_VARINT64:
-        v = get_varint(memory, address + 1, &length);
+        v = get_varint(memory, address + 1, &byte_count);
         sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
-        return length + 1;
+        return byte_count + 1;
       case WEBASM_OP_VARINT32:
-        v = get_varint(memory, address + 1, &length);
+        v = get_varint(memory, address + 1, &byte_count);
         sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
-        return length + 1;
+        return byte_count + 1;
       case WEBASM_OP_FUNCTION_INDEX:
       case WEBASM_OP_LOCAL_INDEX:
       case WEBASM_OP_GLOBAL_INDEX:
-        i = get_varuint(memory, address + 1, &length);
+        i = get_varuint(memory, address + 1, &byte_count);
         sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
-        return length + 1;
+        return byte_count + 1;
       case WEBASM_OP_BLOCK_TYPE:
-        i = get_varuint(memory, address + 1, &length);
+        i = get_varuint(memory, address + 1, &byte_count);
         sprintf(instruction, "%s %s", table_webasm[n].instr, get_type(i));
-        return length + 1;
+        return byte_count + 1;
       case WEBASM_OP_RELATIVE_DEPTH:
-        v = get_varint(memory, address + 1, &length);
+        v = get_varint(memory, address + 1, &byte_count);
         sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
-        return length + 1;
+        return byte_count + 1;
       case WEBASM_OP_TABLE:
-        count = get_varint(memory, address + 1, &length);
+        count = get_varint(memory, address + 1, &byte_count);
 
         sprintf(instruction, "%s %d ...", table_webasm[n].instr, count);
 
-        return length + 1;
+        return byte_count + 1;
       case WEBASM_OP_INDIRECT:
       case WEBASM_OP_MEMORY_IMMEDIATE:
       default:
@@ -219,7 +220,13 @@ void list_output_webasm(
   char temp[16];
   int n;
 
-  count = disasm_webasm(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+  count = disasm_webasm(
+    &asm_context->memory,
+    start,
+    instruction,
+    sizeof(instruction),
+    &cycles_min,
+    &cycles_max);
 
   hex[0] = 0;
 
@@ -261,7 +268,13 @@ void disasm_range_webasm(
 
   while (start <= end)
   {
-    count = disasm_webasm(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_webasm(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     hex[0] = 0;
 

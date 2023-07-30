@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
       command[1023] = 0;
 #else
       char prompt[32];
-      sprintf(prompt, "%s> ", state);
+      snprintf(prompt, sizeof(prompt), "%s> ", state);
       rl_attempted_completion_function = command_name_completion;
       line = readline(prompt);
 

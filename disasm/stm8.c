@@ -87,6 +87,7 @@ int disasm_stm8(
   Memory *memory,
   uint32_t address,
   char *instr,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -340,7 +341,14 @@ void list_output_stm8(
 
   while (start < end)
   {
-    count = disasm_stm8(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_stm8(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
+
     fprintf(asm_context->list, "0x%04x:", start);
 
     for (n = 0; n < 5; n++)
@@ -384,7 +392,13 @@ void disasm_range_stm8(
 
   while (start <= end)
   {
-    count = disasm_stm8(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_stm8(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     printf("0x%04x: ", start);
 

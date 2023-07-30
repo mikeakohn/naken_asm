@@ -26,6 +26,7 @@ int disasm_6800(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -89,7 +90,13 @@ void list_output_6800(
 
   while (start < end)
   {
-    count = disasm_6800(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_6800(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     bytes[0] = 0;
     for (n = 0; n < count; n++)
@@ -133,7 +140,13 @@ void disasm_range_6800(
 
   while (start <= end)
   {
-    count = disasm_6800(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_6800(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     bytes[0] = 0;
     for (n = 0; n < count; n++)

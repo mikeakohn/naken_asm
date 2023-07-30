@@ -41,6 +41,7 @@ int disasm_powerpc(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -391,7 +392,13 @@ void list_output_powerpc(
   {
     opcode = memory_read32_m(&asm_context->memory, start);
 
-    disasm_powerpc(&asm_context->memory, start, instruction, &cycles_min, &cycles_max);
+    disasm_powerpc(
+      &asm_context->memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
@@ -433,7 +440,13 @@ void disasm_range_powerpc(
   {
     opcode = memory_read32_m(memory, start);
 
-    count = disasm_powerpc(memory, start, instruction, &cycles_min, &cycles_max);
+    count = disasm_powerpc(
+      memory,
+      start,
+      instruction,
+      sizeof(instruction),
+      &cycles_min,
+      &cycles_max);
 
     printf("0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
