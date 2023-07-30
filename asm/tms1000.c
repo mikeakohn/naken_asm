@@ -62,7 +62,7 @@ int parse_instruction_tms1000(AsmContext *asm_context, char *instr)
   while (table_tms1000[n].instr != NULL)
   {
     if (strcmp(instr_case, table_tms1000[n].instr) == 0 &&
-        table_tms1000[n].op1000 != 0xffff)
+        table_tms1000[n].op1000 != -1)
     {
       add_bin_lsfr(asm_context, table_tms1000[n].op1000, IS_OPCODE);
 
@@ -226,7 +226,7 @@ int parse_instruction_tms1100(AsmContext *asm_context, char *instr)
   while (table_tms1000[n].instr != NULL)
   {
     if (strcmp(instr_case, table_tms1000[n].instr) == 0 &&
-        table_tms1000[n].op1100 != 0xffff)
+        table_tms1000[n].op1100 != -1)
     {
       add_bin_lsfr(asm_context, table_tms1000[n].op1100, IS_OPCODE);
 
