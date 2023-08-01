@@ -52,25 +52,25 @@ int disasm_sparc(
       switch (table_sparc[n].type)
       {
         case OP_NONE:
-          sprintf(instruction, "%s", instr);
+          snprintf(instruction, length, "%s", instr);
           break;
         case OP_REG_REG_REG:
-          sprintf(instruction, "%s r%d, r%d, r%d", instr, rd, rs2, rs1);
+          snprintf(instruction, length, "%s r%d, r%d, r%d", instr, rd, rs2, rs1);
           break;
         case OP_REG_SIMM13_REG:
-          sprintf(instruction, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
+          snprintf(instruction, length, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
           break;
         case OP_FREG_FREG_FREG_FREG:
-          //sprintf(instruction, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
-          sprintf(instruction, "%s ???", instr);
+          //snprintf(instruction, length, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
+          snprintf(instruction, length, "%s ???", instr);
           break;
         case OP_FREG_FREG_IMM5_FREG:
-          //sprintf(instruction, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
-          sprintf(instruction, "%s ???", instr);
+          //snprintf(instruction, length, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
+          snprintf(instruction, length, "%s ???", instr);
           break;
         case OP_FREG_FREG_FREG:
-          //sprintf(instruction, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
-          sprintf(instruction, "%s ???", instr);
+          //snprintf(instruction, length, "%s r%d, %d, r%d", instr, rd, simm13, rs1);
+          snprintf(instruction, length, "%s ???", instr);
           break;
         case OP_BRANCH:
           annul = (opcode >> 29) & 1;
@@ -78,7 +78,7 @@ int disasm_sparc(
           if ((offset & 0x200000) != 0) { offset |= 0xffc00000; }
           offset *= 4;
 
-          sprintf(instruction, "%s%s 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s%s 0x%04x (offset=%d)",
             instr, annul == 1 ? ",a" : "", address + offset, offset);
           break;
         case OP_BRANCH_P:
@@ -89,7 +89,7 @@ int disasm_sparc(
           if ((offset & 0x40000) != 0) { offset |= 0xfff80000; }
           offset *= 4;
 
-          sprintf(instruction, "%s%s%s %s, 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s%s%s %s, 0x%04x (offset=%d)",
             instr,
             annul == 1 ? ",a" : "",
             pt == 1 ? ",pt" : ",pn",
@@ -104,7 +104,7 @@ int disasm_sparc(
           if ((offset & 0x8000) != 0) { offset |= 0xffff0000; }
           offset *= 4;
 
-          sprintf(instruction, "%s%s%s r%d, 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s%s%s r%d, 0x%04x (offset=%d)",
             instr,
             annul == 1 ? ",a" : "",
             pt == 1 ? ",pt" : ",pn",
@@ -117,7 +117,7 @@ int disasm_sparc(
           if ((offset & 0x20000000) != 0) { offset |= 0xc0000000; }
           offset *= 4;
 
-          sprintf(instruction, "%s 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s 0x%04x (offset=%d)",
             instr,
             address + offset,
             offset);
@@ -125,7 +125,7 @@ int disasm_sparc(
         case OP_IMM_ASI_REG_REG:
         case OP_ASI_REG_REG:
           // FIXME: Implement.
-          sprintf(instruction, "%s ???", instr);
+          snprintf(instruction, length, "%s ???", instr);
           break;
         default:
           strcpy(instruction, "???");

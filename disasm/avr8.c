@@ -89,200 +89,200 @@ int disasm_avr8(
       switch (table_avr8[n].type)
       {
         case OP_NONE:
-          sprintf(instruction, "%s", table_avr8[n].instr);
+          snprintf(instruction, length, "%s", table_avr8[n].instr);
           return 2;
         case OP_BRANCH_S_K:
           k = (opcode >> 3) & 0x7f;
           if ((k & 0x40) != 0) { k = (char)(0x80 | k); }
-          sprintf(instruction, "%s %d, 0x%x (%d)", table_avr8[n].instr, opcode & 0x7, (address / 2) + 1 + k, k);
+          snprintf(instruction, length, "%s %d, 0x%x (%d)", table_avr8[n].instr, opcode & 0x7, (address / 2) + 1 + k, k);
           return 2;
         case OP_BRANCH_K:
           k = (opcode >> 3) & 0x7f;
           if ((k & 0x40) != 0) { k = (char)(0x80 | k); }
-          sprintf(instruction, "%s 0x%x (%d)", table_avr8[n].instr, (address/2)+1+k, k);
+          snprintf(instruction, length, "%s 0x%x (%d)", table_avr8[n].instr, (address/2)+1+k, k);
           return 2;
         case OP_TWO_REG:
           rd = (opcode >> 4) & 0x1f;
           rr = ((opcode & 0x200) >> 5) | ((opcode) & 0xf);
-          sprintf(instruction, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
+          snprintf(instruction, length, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
           return 2;
         case OP_REG_IMM:
           rd = ((opcode >> 4) & 0xf) + 16;
           k = ((opcode & 0xf00) >> 4) | (opcode & 0xf);
-          sprintf(instruction, "%s r%d, 0x%x", table_avr8[n].instr, rd, k);
+          snprintf(instruction, length, "%s r%d, 0x%x", table_avr8[n].instr, rd, k);
           return 2;
         case OP_ONE_REG:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s r%d", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s r%d", table_avr8[n].instr, rd);
           return 2;
         case OP_REG_BIT:
           rd = (opcode >> 4) & 0x1f;
           k = opcode & 0x7;
-          sprintf(instruction, "%s r%d, %d", table_avr8[n].instr, rd, k);
+          snprintf(instruction, length, "%s r%d, %d", table_avr8[n].instr, rd, k);
           return 2;
         case OP_REG_IMM_WORD:
           rd = (((opcode >> 4) & 0x3) << 1) + 24;
           k = ((opcode & 0xc0) >> 2) | (opcode & 0xf);
-          sprintf(instruction, "%s r%d, %d", table_avr8[n].instr, rd, k);
+          snprintf(instruction, length, "%s r%d, %d", table_avr8[n].instr, rd, k);
           return 2;
         case OP_IOREG_BIT:
           rd = (opcode >> 3) & 0x1f;
           k = opcode & 0x7;
-          sprintf(instruction, "%s 0x%x, %d", table_avr8[n].instr, rd, k);
+          snprintf(instruction, length, "%s 0x%x, %d", table_avr8[n].instr, rd, k);
           return 2;
         case OP_SREG_BIT:
           k = (opcode >> 4) & 0x7;
-          sprintf(instruction, "%s %d", table_avr8[n].instr, k);
+          snprintf(instruction, length, "%s %d", table_avr8[n].instr, k);
           return 2;
         case OP_REG_4:
           rd = ((opcode >> 4) & 0xf) + 16;
-          sprintf(instruction, "%s r%d", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s r%d", table_avr8[n].instr, rd);
           return 2;
         case OP_IN:
           rd = (opcode >> 4) & 0xf;
           k = ((opcode & 0x600) >> 5) | (opcode & 0xf);
-          sprintf(instruction, "%s r%d, 0x%x", table_avr8[n].instr, rd, k);
+          snprintf(instruction, length, "%s r%d, 0x%x", table_avr8[n].instr, rd, k);
           return 2;
         case OP_OUT:
           rd = (opcode >> 4) & 0x1f;
           k = ((opcode & 0x600) >> 5) | (opcode & 0xf);
-          sprintf(instruction, "%s 0x%x, r%d", table_avr8[n].instr, k, rd);
+          snprintf(instruction, length, "%s 0x%x, r%d", table_avr8[n].instr, k, rd);
           return 2;
         case OP_MOVW:
           rd = ((opcode >> 4) & 0xf) << 1;
           rr = ( opcode & 0xf) << 1;
-          sprintf(instruction, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
+          snprintf(instruction, length, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
           return 2;
         case OP_RELATIVE:
           k = opcode & 0xfff;
           if (k & 0x800) { k = -(((~k) & 0xfff) + 1); }
-          sprintf(instruction, "%s 0x%x (%d)", table_avr8[n].instr, (address/2)+1+k, k);
+          snprintf(instruction, length, "%s 0x%x (%d)", table_avr8[n].instr, (address/2)+1+k, k);
           return 2;
         case OP_JUMP:
           k = ((((opcode & 0x1f0) >> 3) | (opcode & 0x1)) << 16) | READ_RAM16(address + 2);
-          sprintf(instruction, "%s 0x%x", table_avr8[n].instr, k);
+          snprintf(instruction, length, "%s 0x%x", table_avr8[n].instr, k);
           return 4;
         case OP_SPM_Z_PLUS:
-          sprintf(instruction, "%s Z+", table_avr8[n].instr);
+          snprintf(instruction, length, "%s Z+", table_avr8[n].instr);
           return 2;
         case OP_REG_X:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s r%d, X", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s r%d, X", table_avr8[n].instr, rd);
           return 2;
         case OP_REG_Y:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s r%d, Y", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s r%d, Y", table_avr8[n].instr, rd);
           return 2;
         case OP_REG_Z:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s r%d, Z", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s r%d, Z", table_avr8[n].instr, rd);
           return 2;
         case OP_REG_X_PLUS:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s r%d, X+", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s r%d, X+", table_avr8[n].instr, rd);
           return 2;
         case OP_REG_Y_PLUS:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s r%d, Y+", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s r%d, Y+", table_avr8[n].instr, rd);
           return 2;
         case OP_REG_Z_PLUS:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s r%d, Z+", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s r%d, Z+", table_avr8[n].instr, rd);
           return 2;
         case OP_REG_MINUS_X:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s r%d, -X", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s r%d, -X", table_avr8[n].instr, rd);
           return 2;
         case OP_REG_MINUS_Y:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s r%d, -Y", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s r%d, -Y", table_avr8[n].instr, rd);
           return 2;
         case OP_REG_MINUS_Z:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s r%d, -Z", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s r%d, -Z", table_avr8[n].instr, rd);
           return 2;
         case OP_X_REG:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s X, r%d", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s X, r%d", table_avr8[n].instr, rd);
           return 2;
         case OP_Y_REG:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s Y, r%d", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s Y, r%d", table_avr8[n].instr, rd);
           return 2;
         case OP_Z_REG:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s Z, r%d", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s Z, r%d", table_avr8[n].instr, rd);
           return 2;
         case OP_X_PLUS_REG:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s X+, r%d", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s X+, r%d", table_avr8[n].instr, rd);
           return 2;
         case OP_Y_PLUS_REG:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s Y+, r%d", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s Y+, r%d", table_avr8[n].instr, rd);
           return 2;
         case OP_Z_PLUS_REG:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s Z+, r%d", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s Z+, r%d", table_avr8[n].instr, rd);
           return 2;
         case OP_MINUS_X_REG:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s -X, r%d", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s -X, r%d", table_avr8[n].instr, rd);
           return 2;
         case OP_MINUS_Y_REG:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s -Y, r%d", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s -Y, r%d", table_avr8[n].instr, rd);
           return 2;
         case OP_MINUS_Z_REG:
           rd = (opcode >> 4) & 0x1f;
-          sprintf(instruction, "%s -Z, r%d", table_avr8[n].instr, rd);
+          snprintf(instruction, length, "%s -Z, r%d", table_avr8[n].instr, rd);
           return 2;
         case OP_FMUL:
           rd = ((opcode >> 4) & 0x7) + 16;
           rr = (opcode & 0x7) + 16;
-          sprintf(instruction, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
+          snprintf(instruction, length, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
           return 2;
         case OP_MULS:
           rd = ((opcode >> 4) & 0xf) + 16;
           rr = (opcode & 0xf) + 16;
-          sprintf(instruction, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
+          snprintf(instruction, length, "%s r%d, r%d", table_avr8[n].instr, rd, rr);
           return 2;
         case OP_DATA4:
           k = (opcode >> 4) & 0xf;
-          sprintf(instruction, "%s %d", table_avr8[n].instr, k);
+          snprintf(instruction, length, "%s %d", table_avr8[n].instr, k);
           return 2;
         case OP_REG_SRAM:
           rd = (opcode >> 4) & 0x1f;
           k = READ_RAM16(address + 2);
-          sprintf(instruction, "%s r%d, 0x%x", table_avr8[n].instr, rd, k);
+          snprintf(instruction, length, "%s r%d, 0x%x", table_avr8[n].instr, rd, k);
           return 4;
         case OP_SRAM_REG:
           rr = (opcode >> 4) & 0x1f;
           k = READ_RAM16(address + 2);
-          sprintf(instruction, "%s 0x%x, r%d", table_avr8[n].instr, k, rr);
+          snprintf(instruction, length, "%s 0x%x, r%d", table_avr8[n].instr, k, rr);
           return 4;
         case OP_REG_Y_PLUS_Q:
           rd = (opcode >> 4) & 0x1f;
           k = ((opcode & 0x2000) >> 8) | ((opcode & 0xc00) >> 7) | (opcode & 0x7);
-          sprintf(instruction, "%s r%d, Y+%d", table_avr8[n].instr, rd, k);
+          snprintf(instruction, length, "%s r%d, Y+%d", table_avr8[n].instr, rd, k);
           return 2;
         case OP_REG_Z_PLUS_Q:
           rd = (opcode >> 4) & 0x1f;
           k = ((opcode & 0x2000) >> 8) | ((opcode & 0xc00) >> 7) | (opcode & 0x7);
-          sprintf(instruction, "%s r%d, Z+%d", table_avr8[n].instr, rd, k);
+          snprintf(instruction, length, "%s r%d, Z+%d", table_avr8[n].instr, rd, k);
           return 2;
         case OP_Y_PLUS_Q_REG:
           rr = (opcode >> 4) & 0x1f;
           k = ((opcode & 0x2000) >> 8) | ((opcode & 0xc00) >> 7) | (opcode & 0x7);
-          sprintf(instruction, "%s Y+%d, r%d", table_avr8[n].instr, k, rr);
+          snprintf(instruction, length, "%s Y+%d, r%d", table_avr8[n].instr, k, rr);
           return 2;
         case OP_Z_PLUS_Q_REG:
           rr = (opcode >> 4) & 0x1f;
           k = ((opcode & 0x2000) >> 8) | ((opcode & 0xc00) >> 7) | (opcode & 0x7);
-          sprintf(instruction, "%s Z+%d, r%d", table_avr8[n].instr, k, rr);
+          snprintf(instruction, length, "%s Z+%d, r%d", table_avr8[n].instr, k, rr);
           return 2;
         default:
-          sprintf(instruction, "%s", table_avr8[n].instr);
+          snprintf(instruction, length, "%s", table_avr8[n].instr);
           return 2;
       }
     }

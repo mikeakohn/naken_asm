@@ -38,7 +38,7 @@ int disasm_8051(
   // the table and how the rest of the instructions were done.
   if (opcode == 0x85)
   {
-    sprintf(instruction, "%s 0x%02x, 0x%02x",
+    snprintf(instruction, length, "%s 0x%02x, 0x%02x",
       table_8051[opcode].name,
       READ_RAM(address + 1),
       READ_RAM(address + 2));
@@ -63,11 +63,11 @@ int disasm_8051(
     switch (table_8051[opcode].op[n])
     {
       case OP_REG:
-        sprintf(temp, "R%d", table_8051[opcode].range);
+        snprintf(temp, sizeof(temp), "R%d", table_8051[opcode].range);
         strcat(instruction, temp);
         break;
       case OP_AT_REG:
-        sprintf(temp, "@R%d", table_8051[opcode].range);
+        snprintf(temp, sizeof(temp), "@R%d", table_8051[opcode].range);
         strcat(instruction, temp);
         break;
       case OP_A:
@@ -92,23 +92,23 @@ int disasm_8051(
         strcat(instruction, "@DPTR");
         break;
       case OP_DATA:
-        sprintf(temp, "#0x%02x", READ_RAM(address + count));
+        snprintf(temp, sizeof(temp), "#0x%02x", READ_RAM(address + count));
         strcat(instruction, temp);
         count++;
         break;
       case OP_DATA_16:
-        sprintf(temp, "#0x%04x", READ_RAM(address + count + 1) | (READ_RAM(address + count) << 8));
+        snprintf(temp, sizeof(temp), "#0x%04x", READ_RAM(address + count + 1) | (READ_RAM(address + count) << 8));
         strcat(instruction, temp);
         count = 3;
         break;
       case OP_CODE_ADDR:
-        sprintf(temp, "0x%04x", READ_RAM(address + count + 1) | (READ_RAM(address + count) << 8));
+        snprintf(temp, sizeof(temp), "0x%04x", READ_RAM(address + count + 1) | (READ_RAM(address + count) << 8));
         strcat(instruction, temp);
         count = 3;
         break;
       case OP_RELADDR:
         value = READ_RAM(address + count);
-        sprintf(temp, "0x%04x", (address + count + 1) + ((char)value));
+        snprintf(temp, sizeof(temp), "0x%04x", (address + count + 1) + ((char)value));
         strcat(instruction, temp);
         count++;
         break;
@@ -116,12 +116,12 @@ int disasm_8051(
         value = READ_RAM(address + count);
         if ((value & 0x80) != 0)
         {
-          sprintf(temp, "/0x%02x.%d [0x%02x]",
+          snprintf(temp, sizeof(temp), "/0x%02x.%d [0x%02x]",
             value & 0xf8, value & 0x7, value);
         }
           else
         {
-          sprintf(temp, "/0x%02x.%d [0x%02x]",
+          snprintf(temp, sizeof(temp), "/0x%02x.%d [0x%02x]",
             ((value & 0xf8) >> 3) + 0x20, value & 0x7, value);
         }
         strcat(instruction, temp);
@@ -131,19 +131,19 @@ int disasm_8051(
         value = READ_RAM(address + count);
         if ((value & 0x80) != 0)
         {
-          sprintf(temp, "0x%02x.%d [0x%02x]",
+          snprintf(temp, sizeof(temp), "0x%02x.%d [0x%02x]",
             value & 0xf8, value & 0x07, value);
         }
           else
         {
-          sprintf(temp, "0x%02x.%d [0x%02x]",
+          snprintf(temp, sizeof(temp), "0x%02x.%d [0x%02x]",
             ((value & 0xf8) >> 3) + 0x20, value & 0x07, value);
         }
         strcat(instruction, temp);
         count++;
         break;
       case OP_PAGE:
-        sprintf(temp, "0x%04x",
+        snprintf(temp, sizeof(temp), "0x%04x",
           (address & 0xf800) |
           READ_RAM(address + count) |
           (table_8051[opcode].range << 8));
@@ -151,7 +151,7 @@ int disasm_8051(
         count++;
         break;
       case OP_IRAM_ADDR:
-        sprintf(temp, "0x%02x", READ_RAM(address + count));
+        snprintf(temp, sizeof(temp), "0x%02x", READ_RAM(address + count));
         strcat(instruction, temp);
         count++;
         break;

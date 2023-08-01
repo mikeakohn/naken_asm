@@ -50,7 +50,7 @@ int disasm_dotnet(
       switch (table_dotnet_fe[n].type)
       {
         case DOTNET_OP_NONE:
-          sprintf(instruction, "%s", table_dotnet_fe[n].instr);
+          snprintf(instruction, length, "%s", table_dotnet_fe[n].instr);
           return 2;
         default:
           return 2;
@@ -70,7 +70,7 @@ int disasm_dotnet(
     switch (table_dotnet[n].type)
     {
       case DOTNET_OP_NONE:
-        sprintf(instruction, "%s", table_dotnet[n].instr);
+        snprintf(instruction, length, "%s", table_dotnet[n].instr);
         return 1;
       default:
         return 1;

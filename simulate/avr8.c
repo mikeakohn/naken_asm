@@ -1128,7 +1128,7 @@ void simulate_dump_registers_avr8(Simulate *simulate)
     { printf(" "); }
 
     char reg[4];
-    sprintf(reg, "r%d",n);
+    snprintf(reg, sizeof(reg), "r%d", n);
     printf("%3s: 0x%02x", reg, simulate_avr8->reg[n]);
   }
 

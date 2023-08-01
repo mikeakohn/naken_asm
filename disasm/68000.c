@@ -306,18 +306,18 @@ int disasm_68000(
       switch (table_68000[n].type)
       {
         case OP_NONE:
-          sprintf(instruction, "%s", table_68000[n].instr);
+          snprintf(instruction, length, "%s", table_68000[n].instr);
           return 2;
         case OP_SINGLE_EA:
           size = SIZE(opcode, 6);
           len = get_ea_68000(memory, address, ea, opcode, 0, size);
           if (size == 3) { break; }
-          sprintf(instruction, "%s.%c %s", table_68000[n].instr, sizes[size], ea);
+          snprintf(instruction, length, "%s.%c %s", table_68000[n].instr, sizes[size], ea);
           return len;
         case OP_SINGLE_EA_NO_SIZE:
           if (is_illegal_ea(opcode, table_68000[n].omit_src)) { break; }
           len = get_ea_68000(memory, address, ea, opcode, 0, 0);
-          sprintf(instruction, "%s %s", table_68000[n].instr, ea);
+          snprintf(instruction, length, "%s %s", table_68000[n].instr, ea);
           return len;
         case OP_IMMEDIATE:
           size = SIZE(opcode, 6);
@@ -330,20 +330,20 @@ int disasm_68000(
           if (size == SIZE_B)
           {
             immediate = READ_RAM(address + 3);
-            sprintf(instruction, "%s.%c #0x%02x, %s", table_68000[n].instr, sizes[size], immediate, ea);
+            snprintf(instruction, length, "%s.%c #0x%02x, %s", table_68000[n].instr, sizes[size], immediate, ea);
             len += 2;
           }
             else
           if (size == SIZE_W)
           {
             immediate = READ_RAM16(address + 2);
-            sprintf(instruction, "%s.%c #0x%04x, %s", table_68000[n].instr, sizes[size], immediate, ea);
+            snprintf(instruction, length, "%s.%c #0x%04x, %s", table_68000[n].instr, sizes[size], immediate, ea);
             len += 2;
           }
             else
           {
             immediate = READ_RAM32(address + 2);
-            sprintf(instruction, "%s.%c #0x%08x, %s", table_68000[n].instr, sizes[size], immediate, ea);
+            snprintf(instruction, length, "%s.%c #0x%08x, %s", table_68000[n].instr, sizes[size], immediate, ea);
             len += 4;
           }
 
@@ -351,7 +351,7 @@ int disasm_68000(
         case OP_SHIFT_EA:
           if (((opcode >> 3) & 0x7) <= 1) { break; }
           len = get_ea_68000(memory, address, ea, opcode, 0, 0);
-          sprintf(instruction, "%s %s", table_68000[n].instr, ea);
+          snprintf(instruction, length, "%s %s", table_68000[n].instr, ea);
           return len;
         case OP_SHIFT:
           size = SIZE(opcode, 6);
@@ -360,12 +360,12 @@ int disasm_68000(
           {
             immediate = (opcode >> 9) & 0x7;
             immediate = (immediate == 0) ? 8 : immediate;
-            sprintf(instruction, "%s.%c #%d, d%d", table_68000[n].instr, sizes[size], immediate, opcode & 0x7);
+            snprintf(instruction, length, "%s.%c #%d, d%d", table_68000[n].instr, sizes[size], immediate, opcode & 0x7);
           }
             else
           {
             immediate = (opcode >> 9) & 0x7;
-            sprintf(instruction, "%s.%c d%d, d%d", table_68000[n].instr, sizes[size], immediate, opcode & 0x7);
+            snprintf(instruction, length, "%s.%c d%d, d%d", table_68000[n].instr, sizes[size], immediate, opcode & 0x7);
           }
           return 2;
         case OP_REG_AND_EA:
@@ -377,26 +377,26 @@ int disasm_68000(
           if (mode == 1 && ((opcode >> 3) & 0x7) <= 1) { break; }
           if (mode == 0)
           {
-            sprintf(instruction, "%s.%c %s, d%d", table_68000[n].instr, sizes[size], ea, reg);
+            snprintf(instruction, length, "%s.%c %s, d%d", table_68000[n].instr, sizes[size], ea, reg);
           }
             else
           {
-            sprintf(instruction, "%s.%c d%d, %s", table_68000[n].instr, sizes[size], reg, ea);
+            snprintf(instruction, length, "%s.%c d%d, %s", table_68000[n].instr, sizes[size], reg, ea);
           }
           return len;
         case OP_VECTOR:
-          sprintf(instruction, "%s #%d", table_68000[n].instr, opcode & 0xf);
+          snprintf(instruction, length, "%s #%d", table_68000[n].instr, opcode & 0xf);
           return 2;
         case OP_VECTOR3:
-          sprintf(instruction, "%s #%d", table_68000[n].instr, opcode & 0x7);
+          snprintf(instruction, length, "%s #%d", table_68000[n].instr, opcode & 0x7);
           return 2;
         case OP_AREG:
-          sprintf(instruction, "%s a%d", table_68000[n].instr, opcode & 0x7);
+          snprintf(instruction, length, "%s a%d", table_68000[n].instr, opcode & 0x7);
           return 2;
         case OP_REG:
         {
           char r = (opcode & 0x8) == 0 ? 'd' : 'a';
-          sprintf(instruction, "%s %c%d", table_68000[n].instr, r, opcode & 0x7);
+          snprintf(instruction, length, "%s %c%d", table_68000[n].instr, r, opcode & 0x7);
           return 2;
         }
         case OP_EA_AREG:
@@ -406,7 +406,7 @@ int disasm_68000(
           else if (mode == 7) { size = SIZE_L; }
           else { break; }
           len = get_ea_68000(memory, address, ea, opcode, 0, size);
-          sprintf(instruction, "%s.%c %s, a%d", table_68000[n].instr, sizes[size], ea, reg);
+          snprintf(instruction, length, "%s.%c %s, a%d", table_68000[n].instr, sizes[size], ea, reg);
           return len;
         case OP_EA_DREG:
           reg = (opcode >> 9) & 0x7;
@@ -414,62 +414,62 @@ int disasm_68000(
           if (mode > 2) { break; }
           size = mode;
           len = get_ea_68000(memory, address, ea, opcode, 0, size);
-          sprintf(instruction, "%s.%c %s, d%d", table_68000[n].instr, sizes[size], ea, reg);
+          snprintf(instruction, length, "%s.%c %s, d%d", table_68000[n].instr, sizes[size], ea, reg);
           return len;
         case OP_LOAD_EA:
           reg = (opcode >> 9) & 0x7;
           size = 0;
           len = get_ea_68000(memory, address, ea, opcode, 0, size);
-          sprintf(instruction, "%s %s, a%d", table_68000[n].instr, ea, reg);
+          snprintf(instruction, length, "%s %s, a%d", table_68000[n].instr, ea, reg);
           return len;
         case OP_QUICK:
           reg = (opcode >> 9) & 0x7;
           size = (opcode >> 6) & 0x3;
           if (size == 3) { break; }
           len = get_ea_68000(memory, address, ea, opcode, 0, size);
-          sprintf(instruction, "%s.%c #%d, %s", table_68000[n].instr, sizes[size], reg, ea);
+          snprintf(instruction, length, "%s.%c #%d, %s", table_68000[n].instr, sizes[size], reg, ea);
           return len;
         case OP_MOVE_QUICK:
           reg = (opcode >> 9) & 0x7;
-          sprintf(instruction, "%s #%d, d%d", table_68000[n].instr, opcode & 0xff, reg);
+          snprintf(instruction, length, "%s #%d, d%d", table_68000[n].instr, opcode & 0xff, reg);
           return 2;
         case OP_MOVE_FROM_CCR:
           len = get_ea_68000(memory, address, ea, opcode, 0, SIZE_W);
-          sprintf(instruction, "%s CCR, %s", table_68000[n].instr, ea);
+          snprintf(instruction, length, "%s CCR, %s", table_68000[n].instr, ea);
           return len;
         case OP_MOVE_TO_CCR:
           len = get_ea_68000(memory, address, ea, opcode, 0, SIZE_W);
-          sprintf(instruction, "%s %s, CCR", table_68000[n].instr, ea);
+          snprintf(instruction, length, "%s %s, CCR", table_68000[n].instr, ea);
           return len;
         case OP_MOVE_FROM_SR:
           len = get_ea_68000(memory, address, ea, opcode, 0, SIZE_W);
-          sprintf(instruction, "%s SR, %s", table_68000[n].instr, ea);
+          snprintf(instruction, length, "%s SR, %s", table_68000[n].instr, ea);
           return len;
         case OP_MOVE_TO_SR:
           len = get_ea_68000(memory, address, ea, opcode, 0, SIZE_W);
-          sprintf(instruction, "%s %s, SR", table_68000[n].instr, ea);
+          snprintf(instruction, length, "%s %s, SR", table_68000[n].instr, ea);
           return len;
         case OP_MOVEA:
           size = (opcode >> 12) & 0x3;
           size = (size == 3) ? SIZE_W:SIZE_L;
           reg = (opcode >> 9) & 0x7;
           len  = get_ea_68000(memory, address, ea, opcode, 0, size);
-          sprintf(instruction, "%s.%c %s, a%d", table_68000[n].instr, sizes[size], ea, reg);
+          snprintf(instruction, length, "%s.%c %s, a%d", table_68000[n].instr, sizes[size], ea, reg);
           return len;
         case OP_CMPM:
           size = (opcode >> 6) & 0x3;
           reg = (opcode >> 9) & 0x7;
-          sprintf(instruction, "%s.%c (a%d)+, (a%d)+", table_68000[n].instr, sizes[size], opcode & 0x7, reg);
+          snprintf(instruction, length, "%s.%c (a%d)+, (a%d)+", table_68000[n].instr, sizes[size], opcode & 0x7, reg);
           return 2;
         case OP_BCD:
           reg = (opcode >> 9) & 0x7;
           if ((opcode & 8) == 0)
           {
-            sprintf(instruction, "%s d%d, d%d", table_68000[n].instr, opcode & 0x7, reg);
+            snprintf(instruction, length, "%s d%d, d%d", table_68000[n].instr, opcode & 0x7, reg);
           }
             else
           {
-            sprintf(instruction, "%s -(a%d), -(a%d)", table_68000[n].instr, opcode & 0x7, reg);
+            snprintf(instruction, length, "%s -(a%d), -(a%d)", table_68000[n].instr, opcode & 0x7, reg);
           }
           return 2;
         case OP_EXTENDED:
@@ -477,16 +477,16 @@ int disasm_68000(
           size = (opcode >> 6) & 0x3;
           if ((opcode & 8) == 0)
           {
-            sprintf(instruction, "%s.%c d%d, d%d", table_68000[n].instr, sizes[size], opcode & 0x7, reg);
+            snprintf(instruction, length, "%s.%c d%d, d%d", table_68000[n].instr, sizes[size], opcode & 0x7, reg);
           }
             else
           {
-            sprintf(instruction, "%s.%c -(a%d), -(a%d)", table_68000[n].instr, sizes[size], opcode & 0x7, reg);
+            snprintf(instruction, length, "%s.%c -(a%d), -(a%d)", table_68000[n].instr, sizes[size], opcode & 0x7, reg);
           }
           return 2;
         case OP_ROX_MEM:
           len = get_ea_68000(memory, address, ea, opcode, 0, 0);
-          sprintf(instruction, "%s %s", table_68000[n].instr, ea);
+          snprintf(instruction, length, "%s %s", table_68000[n].instr, ea);
           return len;
         case OP_ROX:
           size = (opcode >> 6) & 0x3;
@@ -494,11 +494,11 @@ int disasm_68000(
           if ((opcode & 0x20) == 0)
           {
             reg = (reg == 0) ? 8 : reg;
-            sprintf(instruction, "%s.%c #%d, d%d", table_68000[n].instr, sizes[size], reg, opcode & 0x7);
+            snprintf(instruction, length, "%s.%c #%d, d%d", table_68000[n].instr, sizes[size], reg, opcode & 0x7);
           }
             else
           {
-            sprintf(instruction, "%s.%c d%d, d%d", table_68000[n].instr, sizes[size], reg, opcode & 0x7);
+            snprintf(instruction, length, "%s.%c d%d, d%d", table_68000[n].instr, sizes[size], reg, opcode & 0x7);
           }
           return 2;
         case OP_EXCHANGE:
@@ -506,17 +506,17 @@ int disasm_68000(
           mode = (opcode >> 3) & 0x1f;
           if (mode == 8)
           {
-            sprintf(instruction, "%s d%d, d%d", table_68000[n].instr, reg, opcode & 0x7);
+            snprintf(instruction, length, "%s d%d, d%d", table_68000[n].instr, reg, opcode & 0x7);
           }
             else
           if (mode == 9)
           {
-            sprintf(instruction, "%s a%d, a%d", table_68000[n].instr, reg, opcode&0x7);
+            snprintf(instruction, length, "%s a%d, a%d", table_68000[n].instr, reg, opcode&0x7);
           }
             else
           if (mode == 0x11)
           {
-            sprintf(instruction, "%s d%d, a%d", table_68000[n].instr, reg, opcode&0x7);
+            snprintf(instruction, length, "%s d%d, a%d", table_68000[n].instr, reg, opcode&0x7);
           }
             else
           {
@@ -528,12 +528,12 @@ int disasm_68000(
           // FIXME - should this be for all destination EA's?
           if (((opcode >> 3) & 0x7) == 1) { break; }
           len = get_ea_68000(memory, address, ea, opcode, 0, 0);
-          sprintf(instruction, "%s d%d, %s", table_68000[n].instr, reg, ea);
+          snprintf(instruction, length, "%s d%d, %s", table_68000[n].instr, reg, ea);
           return len;
         case OP_BIT_IMM_EA:
           imm = READ_RAM16(address+2); // Immediate
           len = get_ea_68000(memory, address, ea, opcode, 2, 0);
-          sprintf(instruction, "%s #%d, %s", table_68000[n].instr, imm, ea);
+          snprintf(instruction, length, "%s #%d, %s", table_68000[n].instr, imm, ea);
           return len + 2;
         case OP_EA_DREG_WL:
           reg = (opcode >> 9) & 0x7;
@@ -541,33 +541,33 @@ int disasm_68000(
           if (size < 2) { break; }
           size = (size == 2) ? SIZE_L : SIZE_W;
           len = get_ea_68000(memory, address, ea, opcode, 0, 0);
-          sprintf(instruction, "%s.%c %s, d%d", table_68000[n].instr, sizes[size], ea, reg);
+          snprintf(instruction, length, "%s.%c %s, d%d", table_68000[n].instr, sizes[size], ea, reg);
           return len;
         case OP_LOGIC_CCR:
-          sprintf(instruction, "%s #0x%02x, CCR", table_68000[n].instr, READ_RAM16(address + 2));
+          snprintf(instruction, length, "%s #0x%02x, CCR", table_68000[n].instr, READ_RAM16(address + 2));
           return 4;
         case OP_LOGIC_SR:
-          sprintf(instruction, "%s #0x%02x, SR", table_68000[n].instr, READ_RAM16(address + 2));
+          snprintf(instruction, length, "%s #0x%02x, SR", table_68000[n].instr, READ_RAM16(address + 2));
           return 4;
         case OP_BRANCH:
           offset = (opcode & 0xff);
           if (offset == 0)
           {
             offset = (int16_t)READ_RAM16(address + 2);
-            sprintf(instruction, "%s.w 0x%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
+            snprintf(instruction, length, "%s.w 0x%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
             return 4;
           }
             else
           if (offset == 0xff)
           {
             offset = READ_RAM32(address + 2);
-            sprintf(instruction, "%s.l 0x%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
+            snprintf(instruction, length, "%s.l 0x%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
             return 6;
           }
             else
           {
             offset = (int)((char)offset);
-            sprintf(instruction, "%s.s 0x%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
+            snprintf(instruction, length, "%s.s 0x%x (%d)", table_68000[n].instr, address + 2 + offset, offset);
             return 2;
           }
         case OP_EXT:
@@ -575,20 +575,20 @@ int disasm_68000(
           mode = (opcode>>6)&0x7;
           if (mode != 2 && mode != 3) { break; }
           size = (mode == 2) ? SIZE_W : SIZE_L;
-          sprintf(instruction, "%s.%c d%d", table_68000[n].instr, sizes[size], reg);
+          snprintf(instruction, length, "%s.%c d%d", table_68000[n].instr, sizes[size], reg);
           return 2;
         case OP_LINK_W:
           reg = opcode & 0x7;
-          sprintf(instruction, "%s.w a%d, #%d", table_68000[n].instr, reg, (int16_t)READ_RAM16(address + 2));
+          snprintf(instruction, length, "%s.w a%d, #%d", table_68000[n].instr, reg, (int16_t)READ_RAM16(address + 2));
           return 4;
         case OP_LINK_L:
           reg = opcode & 0x7;
-          sprintf(instruction, "%s.l a%d, #%d", table_68000[n].instr, reg, READ_RAM32(address + 2));
+          snprintf(instruction, length, "%s.l a%d, #%d", table_68000[n].instr, reg, READ_RAM32(address + 2));
           return 6;
         case OP_DIV_MUL:
           reg = (opcode >> 9) & 0x7;
           len = get_ea_68000(memory, address, ea, opcode, 0, 0);
-          sprintf(instruction, "%s.w %s, d%d", table_68000[n].instr, ea, reg);
+          snprintf(instruction, length, "%s.w %s, d%d", table_68000[n].instr, ea, reg);
           return len;
         case OP_MOVEP:
           reg = (opcode >> 9) & 0x7;
@@ -597,11 +597,11 @@ int disasm_68000(
           if (mode < 4) { break; }
           if (mode == 4 || mode == 5)
           {
-            sprintf(instruction, "%s.%c (%d,a%d), d%d", table_68000[n].instr, sizes[mode - 3], (int16_t)offset, opcode & 0x7,reg);
+            snprintf(instruction, length, "%s.%c (%d,a%d), d%d", table_68000[n].instr, sizes[mode - 3], (int16_t)offset, opcode & 0x7,reg);
           }
             else
           {
-            sprintf(instruction, "%s.%c d%d, (%d,a%d)", table_68000[n].instr, sizes[mode - 5], reg, (short int)offset, opcode & 0x7);
+            snprintf(instruction, length, "%s.%c d%d, (%d,a%d)", table_68000[n].instr, sizes[mode - 5], reg, (short int)offset, opcode & 0x7);
           }
           return 4;
         case OP_MOVEM:
@@ -614,11 +614,11 @@ int disasm_68000(
           len = get_ea_68000(memory, address, ea, opcode, 2, size);
           if (((opcode >> 10) & 0x1) == 0)
           {
-            sprintf(instruction, "%s.%c %s, %s", table_68000[n].instr, sizes[size], reglist, ea);
+            snprintf(instruction, length, "%s.%c %s, %s", table_68000[n].instr, sizes[size], reglist, ea);
           }
             else
           {
-            sprintf(instruction, "%s.%c %s, %s", table_68000[n].instr, sizes[size], ea, reglist);
+            snprintf(instruction, length, "%s.%c %s, %s", table_68000[n].instr, sizes[size], ea, reglist);
           }
           return len + 2;
         }
@@ -638,19 +638,19 @@ int disasm_68000(
 
           len = get_ea_68000(memory, address, ea, opcode, 0, size);
           dst_len = get_ea_68000(memory, address, dst_ea, ea_dst, len - 2, size);
-          sprintf(instruction, "%s.%c %s, %s", table_68000[n].instr, sizes[size], ea, dst_ea);
+          snprintf(instruction, length, "%s.%c %s, %s", table_68000[n].instr, sizes[size], ea, dst_ea);
           return len + dst_len- 2;
         }
         case OP_JUMP:
           len = get_ea_68000(memory, address, ea, opcode, 0, 0);
-          sprintf(instruction, "%s %s", table_68000[n].instr, ea);
+          snprintf(instruction, length, "%s %s", table_68000[n].instr, ea);
           return len;
         case OP_DREG_EA:
           reg = (opcode >> 9) & 0x7;
           mode = (opcode >> 6) & 0x7;
           size = mode & 0x3;
           len = get_ea_68000(memory, address, ea, opcode, 0, size);
-          sprintf(instruction, "%s.%c %s, d%d", table_68000[n].instr, sizes[size], ea, reg);
+          snprintf(instruction, length, "%s.%c %s, d%d", table_68000[n].instr, sizes[size], ea, reg);
           return len;
         default:
           return -1;
@@ -670,7 +670,7 @@ int disasm_68000(
       cond_code = "ra";  // if false, then always branch
     }
 
-    sprintf(instruction, "db%s d%d, 0x%x (%d)", cond_code, opcode & 0x7, (address + 2) + offset, offset);
+    snprintf(instruction, length, "db%s d%d, 0x%x (%d)", cond_code, opcode & 0x7, (address + 2) + offset, offset);
     return 4;
   }
     else
@@ -680,20 +680,20 @@ int disasm_68000(
     if (offset == 0)
     {
       offset = (int16_t)READ_RAM16(address + 2);
-      sprintf(instruction, "b%s.w 0x%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 4 + offset, offset);
+      snprintf(instruction, length, "b%s.w 0x%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 4 + offset, offset);
       return 4;
     }
       else
     if (offset == 0xff)
     {
       offset = READ_RAM32(address + 2);
-      sprintf(instruction, "b%s.l 0x%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 6 + offset, offset);
+      snprintf(instruction, length, "b%s.l 0x%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 6 + offset, offset);
       return 6;
     }
       else
     {
       offset = (int)((char)offset);
-      sprintf(instruction, "b%s.s 0x%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 2 + offset, offset);
+      snprintf(instruction, length, "b%s.s 0x%x (%d)", table_68000_condition_codes[(opcode >> 8) & 0xf], address + 2 + offset, offset);
       return 2;
     }
     return 4;
@@ -702,7 +702,7 @@ int disasm_68000(
   if ((opcode & 0xf0c0) == 0x50c0)
   {
     len = get_ea_68000(memory, address, ea, opcode, 0, 0);
-    sprintf(instruction, "s%s %s", table_68000_condition_codes[(opcode >> 8) & 0xf], ea);
+    snprintf(instruction, length, "s%s %s", table_68000_condition_codes[(opcode >> 8) & 0xf], ea);
     return len;
   }
 

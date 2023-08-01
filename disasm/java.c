@@ -74,12 +74,12 @@ int disasm_java(
     case JAVA_OP_ILLEGAL:
     case JAVA_OP_NONE:
       // Note: These instructions should never be wide.
-      sprintf(instruction, "%s", table_java[opcode].instr);
+      snprintf(instruction, length, "%s", table_java[opcode].instr);
       return wide + 1;
     case JAVA_OP_CONSTANT_INDEX8:
       // Note: These instructions should never be wide.
       index8 = memory_read_m(memory, address + wide + 1);
-      sprintf(instruction, "%s %d", table_java[opcode].instr, index8);
+      snprintf(instruction, length, "%s %d", table_java[opcode].instr, index8);
       return wide + 2;
     case JAVA_OP_CONSTANT_INDEX:
     case JAVA_OP_FIELD_INDEX:
@@ -91,19 +91,19 @@ int disasm_java(
     case JAVA_OP_VIRTUAL_INDEX:
       // Note: These instructions should never be wide.
       index = memory_read16_m(memory, address + wide + 1);
-      sprintf(instruction, "%s %d", table_java[opcode].instr, index);
+      snprintf(instruction, length, "%s %d", table_java[opcode].instr, index);
       return wide + 3;
     case JAVA_OP_LOCAL_INDEX:
       if (wide == 0)
       {
         index = memory_read_m(memory, address + wide + 1);
-        sprintf(instruction, "%s %d", table_java[opcode].instr, index);
+        snprintf(instruction, length, "%s %d", table_java[opcode].instr, index);
         return wide + 2;
       }
         else
       {
         index = memory_read16_m(memory, address + wide + 1);
-        sprintf(instruction, "%s %d", table_java[opcode].instr, index);
+        snprintf(instruction, length, "%s %d", table_java[opcode].instr, index);
         return wide + 3;
       }
 
@@ -112,46 +112,46 @@ int disasm_java(
       {
         index = memory_read_m(memory, address + wide + 1);
         const8 = memory_read_m(memory, address + wide + 2);
-        sprintf(instruction, "%s %d, %d", table_java[opcode].instr, index, const8);
+        snprintf(instruction, length, "%s %d, %d", table_java[opcode].instr, index, const8);
         return wide + 3;
       }
         else
       {
         index = memory_read16_m(memory, address + wide + 1);
         const8 = memory_read_m(memory, address + wide + 3);
-        sprintf(instruction, "%s %d, %d", table_java[opcode].instr, index, const8);
+        snprintf(instruction, length, "%s %d, %d", table_java[opcode].instr, index, const8);
         return wide + 4;
       }
     case JAVA_OP_ARRAY_TYPE:
       // Note: These instructions should never be wide.
       index = memory_read_m(memory, address + wide + 1);
-      sprintf(instruction, "%s %d (%s)", table_java[opcode].instr, index, get_array_type(index));
+      snprintf(instruction, length, "%s %d (%s)", table_java[opcode].instr, index, get_array_type(index));
       return wide + 2;
     case JAVA_OP_CONSTANT16:
       // Note: These instructions should never be wide.
       index = memory_read16_m(memory, address + wide + 1);
-      sprintf(instruction, "%s %d", table_java[opcode].instr, index);
+      snprintf(instruction, length, "%s %d", table_java[opcode].instr, index);
       return wide + 3;
     case JAVA_OP_CONSTANT8:
       // Note: These instructions should never be wide.
       index = memory_read_m(memory, address + wide + 1);
-      sprintf(instruction, "%s %d", table_java[opcode].instr, index);
+      snprintf(instruction, length, "%s %d", table_java[opcode].instr, index);
       return wide + 2;
     case JAVA_OP_OFFSET16:
       // Note: These instructions should never be wide.
       offset16 = memory_read16_m(memory, address + wide + 1);
-      sprintf(instruction, "%s 0x%04x (offset=%d)", table_java[opcode].instr, address + offset16, offset16);
+      snprintf(instruction, length, "%s 0x%04x (offset=%d)", table_java[opcode].instr, address + offset16, offset16);
       return wide + 3;
     case JAVA_OP_OFFSET32:
       // Note: These instructions should never be wide.
       offset = memory_read32_m(memory, address + wide + 1);
-      sprintf(instruction, "%s 0x%04x (offset=%d)", table_java[opcode].instr, address + offset, offset);
+      snprintf(instruction, length, "%s 0x%04x (offset=%d)", table_java[opcode].instr, address + offset, offset);
       return wide + 5;
     case JAVA_OP_WARN:
-      sprintf(instruction, "[%s]", table_java[opcode].instr);
+      snprintf(instruction, length, "[%s]", table_java[opcode].instr);
       return wide + 1;
     default:
-      sprintf(instruction, "<error>");
+      snprintf(instruction, length, "<error>");
       return wide + 1;
   }
 

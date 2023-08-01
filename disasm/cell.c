@@ -59,108 +59,108 @@ int disasm_cell(
       switch (table_cell[n].type)
       {
         case OP_NONE:
-          sprintf(instruction, "%s", table_cell[n].instr);
+          snprintf(instruction, length, "%s", table_cell[n].instr);
           break;
         case OP_RT_S10_RA:
           offset = ((opcode >> 14) & 0x3ff) << 4;
           if ((offset & (1 << 13)) != 0) { offset |= 0xffffc000; }
-          sprintf(instruction, "%s r%d, %d(r%d)", table_cell[n].instr, rt, offset, ra);
+          snprintf(instruction, length, "%s r%d, %d(r%d)", table_cell[n].instr, rt, offset, ra);
           break;
         case OP_RT_RA_S10:
           i16 = (opcode >> 14) & 0x3ff;
           if ((i16 & (1 << 13)) != 0) { i16 |= 0xffffc000; }
-          sprintf(instruction, "%s r%d, r%d, 0x%x (%d)", table_cell[n].instr, rt, ra, i16, i16);
+          snprintf(instruction, length, "%s r%d, r%d, 0x%x (%d)", table_cell[n].instr, rt, ra, i16, i16);
           break;
         case OP_RT_RA_U10:
           u16 = (opcode >> 14) & 0x3ff;
-          sprintf(instruction, "%s r%d, r%d, 0x%x (%d)", table_cell[n].instr, rt, ra, u16, u16);
+          snprintf(instruction, length, "%s r%d, r%d, 0x%x (%d)", table_cell[n].instr, rt, ra, u16, u16);
           break;
         case OP_RT_RA_U7:
           u16 = (opcode >> 14) & 0x7f;
-          sprintf(instruction, "%s r%d, r%d, 0x%x (%d)", table_cell[n].instr, rt, ra, u16, u16);
+          snprintf(instruction, length, "%s r%d, r%d, 0x%x (%d)", table_cell[n].instr, rt, ra, u16, u16);
           break;
         case OP_RT_RA_S6:
           i16 = (opcode >> 14) & 0x7f;
           if ((i16 & (1 << 6)) != 0) { i16 |= 0xffffff80; }
-          sprintf(instruction, "%s r%d, r%d, 0x%x (%d)", table_cell[n].instr, rt, ra, i16, i16);
+          snprintf(instruction, length, "%s r%d, r%d, 0x%x (%d)", table_cell[n].instr, rt, ra, i16, i16);
           break;
         case OP_RT_RA:
-          sprintf(instruction, "%s r%d, r%d", table_cell[n].instr, rt, ra);
+          snprintf(instruction, length, "%s r%d, r%d", table_cell[n].instr, rt, ra);
           break;
         case OP_RA_RB:
-          sprintf(instruction, "%s r%d, r%d", table_cell[n].instr, ra, rb);
+          snprintf(instruction, length, "%s r%d, r%d", table_cell[n].instr, ra, rb);
           break;
         case OP_RA:
-          sprintf(instruction, "%s r%d", table_cell[n].instr, ra);
+          snprintf(instruction, length, "%s r%d", table_cell[n].instr, ra);
           break;
         case OP_RT:
-          sprintf(instruction, "%s r%d", table_cell[n].instr, rt);
+          snprintf(instruction, length, "%s r%d", table_cell[n].instr, rt);
           break;
         case OP_RT_RA_RB:
-          sprintf(instruction, "%s r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb);
+          snprintf(instruction, length, "%s r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb);
           break;
         case OP_RA_RB_RC:
           rc = rt;
-          sprintf(instruction, "%s r%d, r%d, r%d", table_cell[n].instr, rc, ra, rb);
+          snprintf(instruction, length, "%s r%d, r%d, r%d", table_cell[n].instr, rc, ra, rb);
           break;
         case OP_RT_RA_RB_RC:
           rc = rt;
           rt = (opcode >> 21) & 0x7f;
-          sprintf(instruction, "%s r%d, r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb, rc);
+          snprintf(instruction, length, "%s r%d, r%d, r%d, r%d", table_cell[n].instr, rt, ra, rb, rc);
           break;
         case OP_RT_ADDRESS:
           u16 = ((opcode >> 7) & 0xffff) << 2;
-          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, u16, u16);
+          snprintf(instruction, length, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, u16, u16);
           break;
         case OP_RT_RELATIVE:
           i16 = ((opcode >> 7) & 0xffff) << 2;
           if ((i16 & (1 << 17)) != 0) { i16 |= 0xfffc0000; }
-          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, i16, i16);
+          snprintf(instruction, length, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, i16, i16);
           break;
         case OP_RT_S16:
           i16 = ((opcode >> 7) & 0xffff);
-          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, (int32_t)((int16_t)i16), (int16_t)i16);
+          snprintf(instruction, length, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, (int32_t)((int16_t)i16), (int16_t)i16);
           break;
         case OP_RT_U16:
           u16 = ((opcode >> 7) & 0xffff);
-          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, u16, u16);
+          snprintf(instruction, length, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, u16, u16);
           break;
         case OP_RT_U18:
           u16 = ((opcode >> 7) & 0x3ffff);
-          sprintf(instruction, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, u16, u16);
+          snprintf(instruction, length, "%s r%d, 0x%x (%d)", table_cell[n].instr, rt, u16, u16);
           break;
         case OP_RT_S7_RA:
           offset = ((opcode >> 14) & 0x7f);
           if ((offset & (1 << 6)) != 0) { offset |= 0xffffff80; }
-          sprintf(instruction, "%s r%d, %d(r%d)", table_cell[n].instr, rt, offset, ra);
+          snprintf(instruction, length, "%s r%d, %d(r%d)", table_cell[n].instr, rt, offset, ra);
           break;
         case OP_RA_S10:
           i16 = (opcode >> 14) & 0x3ff;
           if ((i16 & (1 << 9)) != 0) { i16 |= 0xfffffc00; }
-          sprintf(instruction, "%s r%d, %d", table_cell[n].instr, ra, i16);
+          snprintf(instruction, length, "%s r%d, %d", table_cell[n].instr, ra, i16);
           break;
         case OP_BRANCH_RELATIVE:
           i16 = ((opcode >> 7) & 0xffff);
           if ((i16 & 0x8000) != 0) { i16 |= 0xffff0000; }
           i16 <<= 2;
-          sprintf(instruction, "%s 0x%x (offset=%d)", table_cell[n].instr, address + i16, i16);
+          snprintf(instruction, length, "%s 0x%x (offset=%d)", table_cell[n].instr, address + i16, i16);
           break;
         case OP_BRANCH_ABSOLUTE:
           u16 = ((opcode >> 7) & 0xffff);
           u16 <<= 2;
-          sprintf(instruction, "%s 0x%x", table_cell[n].instr, u16);
+          snprintf(instruction, length, "%s 0x%x", table_cell[n].instr, u16);
           break;
         case OP_BRANCH_RELATIVE_RT:
           i16 = ((opcode >> 7) & 0xffff);
           if ((i16 & 0x8000) != 0) { i16 |= 0xffff0000; }
           i16 <<= 2;
-          sprintf(instruction, "%s r%d, 0x%x (offset=%d)", table_cell[n].instr, rt, address + i16, i16);
+          snprintf(instruction, length, "%s r%d, 0x%x (offset=%d)", table_cell[n].instr, rt, address + i16, i16);
           break;
         case OP_HINT_RELATIVE_RO_RA:
           ro = (((opcode >> 14) & 0x3) << 7) | (opcode & 0x7f);
           if ((ro & 0x100) != 0) { ro |= 0xffffff00; }
           ro <<= 2;
-          sprintf(instruction, "%s 0x%x (offset=%d), r%d", table_cell[n].instr, address + ro, ro, ra);
+          snprintf(instruction, length, "%s 0x%x (offset=%d), r%d", table_cell[n].instr, address + ro, ro, ra);
           break;
         case OP_HINT_ABSOLUTE_RO_I16:
           ro = (((opcode >> 23) & 0x3) << 7) | (opcode & 0x7f);
@@ -168,7 +168,7 @@ int disasm_cell(
           ro <<= 2;
           u16 = ((opcode >> 7) & 0xffff);
           u16 <<= 2;
-          sprintf(instruction, "%s 0x%x (offset=%d), 0x%x", table_cell[n].instr, address + ro, ro, u16);
+          snprintf(instruction, length, "%s 0x%x (offset=%d), 0x%x", table_cell[n].instr, address + ro, ro, u16);
           break;
         case OP_HINT_RELATIVE_RO_I16:
           ro = (((opcode >> 23) & 0x3) << 7) | (opcode & 0x7f);
@@ -177,29 +177,29 @@ int disasm_cell(
           i16 = ((opcode >> 7) & 0xffff);
           if ((i16 & 0x8000) != 0) { i16 |= 0xffff0000; }
           i16 <<= 2;
-          sprintf(instruction, "%s 0x%x (offset=%d), 0x%x (offset=%d)", table_cell[n].instr, address + ro, ro, address + i16, i16);
+          snprintf(instruction, length, "%s 0x%x (offset=%d), 0x%x (offset=%d)", table_cell[n].instr, address + ro, ro, address + i16, i16);
           break;
         case OP_RT_RA_SCALE155:
           i16 = 155 - ((opcode >> 14) & 0xff);
-          sprintf(instruction, "%s r%d, r%d, %d", table_cell[n].instr, rt, ra, i16);
+          snprintf(instruction, length, "%s r%d, r%d, %d", table_cell[n].instr, rt, ra, i16);
           break;
         case OP_RT_RA_SCALE173:
           i16 = 173 - ((opcode >> 14) & 0xff);
-          sprintf(instruction, "%s r%d, r%d, %d", table_cell[n].instr, rt, ra, i16);
+          snprintf(instruction, length, "%s r%d, r%d, %d", table_cell[n].instr, rt, ra, i16);
           break;
         case OP_U14:
           u16 = opcode & 0x3fff;
-          sprintf(instruction, "%s 0x%04x", table_cell[n].instr, u16);
+          snprintf(instruction, length, "%s 0x%04x", table_cell[n].instr, u16);
           break;
         case OP_RT_SA:
         case OP_RT_CA:
           u16 = (opcode >> 7) & 0x7f;
-          sprintf(instruction, "%s r%d, %d", table_cell[n].instr, rt, u16);
+          snprintf(instruction, length, "%s r%d, %d", table_cell[n].instr, rt, u16);
           break;
         case OP_SA_RT:
         case OP_CA_RT:
           u16 = (opcode >> 7) & 0x7f;
-          sprintf(instruction, "%s %d, r%d", table_cell[n].instr, u16, rt);
+          snprintf(instruction, length, "%s %d, r%d", table_cell[n].instr, u16, rt);
           break;
         default:
           strcpy(instruction, "???");

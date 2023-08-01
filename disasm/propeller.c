@@ -112,7 +112,7 @@ int disasm_propeller(
       {
         case PROPELLER_OP_NONE:
         {
-          sprintf(instruction, "%s%s", condition, table_propeller[n].instr);
+          snprintf(instruction, length, "%s%s", condition, table_propeller[n].instr);
           strcat(instruction, effects);
           return 4;
         }
@@ -128,11 +128,11 @@ int disasm_propeller(
         {
           if (i == 0)
           {
-            sprintf(instruction, "%s%s 0x%x, 0x%x", condition, table_propeller[n].instr, d, s);
+            snprintf(instruction, length, "%s%s 0x%x, 0x%x", condition, table_propeller[n].instr, d, s);
           }
             else
           {
-            sprintf(instruction, "%s%s 0x%x, #0x%x", condition, table_propeller[n].instr, d, s);
+            snprintf(instruction, length, "%s%s 0x%x, #0x%x", condition, table_propeller[n].instr, d, s);
           }
           strcat(instruction, effects);
           return 4;
@@ -141,24 +141,24 @@ int disasm_propeller(
         {
           if (i == 0)
           {
-            sprintf(instruction, "%s%s 0x%x", condition, table_propeller[n].instr, s);
+            snprintf(instruction, length, "%s%s 0x%x", condition, table_propeller[n].instr, s);
           }
             else
           {
-            sprintf(instruction, "%s%s #0x%x", condition, table_propeller[n].instr, s);
+            snprintf(instruction, length, "%s%s #0x%x", condition, table_propeller[n].instr, s);
           }
           strcat(instruction, effects);
           return 4;
         }
         case PROPELLER_OP_D:
         {
-          sprintf(instruction, "%s%s 0x%x", condition, table_propeller[n].instr, d);
+          snprintf(instruction, length, "%s%s 0x%x", condition, table_propeller[n].instr, d);
           strcat(instruction, effects);
           return 4;
         }
         case PROPELLER_OP_IMMEDIATE:
         {
-          sprintf(instruction, "%s%s #0x%x", condition, table_propeller[n].instr, s);
+          snprintf(instruction, length, "%s%s #0x%x", condition, table_propeller[n].instr, s);
           strcat(instruction, effects);
           return 4;
         }
@@ -173,7 +173,7 @@ int disasm_propeller(
     n++;
   }
 
-  sprintf(instruction, "%s???", condition);
+  snprintf(instruction, length, "%s???", condition);
 
   return 4;
 }

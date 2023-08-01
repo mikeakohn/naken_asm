@@ -169,27 +169,27 @@ int disasm_stm8(
     case OP_NONE:
       break;
     case OP_NUMBER8:
-      sprintf(temp, "#$%02x", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "#$%02x", READ_RAM(address + count));
       strcat(instr, temp);
       count++;
       break;
     case OP_NUMBER16:
-      sprintf(temp, "#$%x", READ_RAM16(address + count));
+      snprintf(temp, sizeof(temp), "#$%x", READ_RAM16(address + count));
       strcat(instr, temp);
       count += 2;
       break;
     case OP_ADDRESS8:
-      sprintf(temp, "$%02x", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "$%02x", READ_RAM(address + count));
       strcat(instr, temp);
       count++;
       break;
     case OP_ADDRESS16:
-      sprintf(temp, "$%x", READ_RAM16(address + count));
+      snprintf(temp, sizeof(temp), "$%x", READ_RAM16(address + count));
       strcat(instr, temp);
       count += 2;
       break;
     case OP_ADDRESS24:
-      sprintf(temp, "$%x", READ_RAM24(address + count));
+      snprintf(temp, sizeof(temp), "$%x", READ_RAM24(address + count));
       strcat(instr, temp);
       count += 3;
       break;
@@ -197,17 +197,17 @@ int disasm_stm8(
       strcat(instr, "(X)");
       break;
     case OP_OFFSET8_INDEX_X:
-      sprintf(temp, "($%02x,X)", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "($%02x,X)", READ_RAM(address + count));
       strcat(instr, temp);
       count++;
       break;
     case OP_OFFSET16_INDEX_X:
-      sprintf(temp, "($%x,X)", READ_RAM16(address + count));
+      snprintf(temp, sizeof(temp), "($%x,X)", READ_RAM16(address + count));
       strcat(instr, temp);
       count += 2;
       break;
     case OP_OFFSET24_INDEX_X:
-      sprintf(temp, "($%x,X)", READ_RAM24(address + count));
+      snprintf(temp, sizeof(temp), "($%x,X)", READ_RAM24(address + count));
       strcat(instr, temp);
       count += 3;
       break;
@@ -215,79 +215,79 @@ int disasm_stm8(
       strcat(instr, "(Y)");
       break;
     case OP_OFFSET8_INDEX_Y:
-      sprintf(temp, "($%02x,Y)", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "($%02x,Y)", READ_RAM(address + count));
       strcat(instr, temp);
       count++;
       break;
     case OP_OFFSET16_INDEX_Y:
-      sprintf(temp, "($%x,Y)", READ_RAM16(address + count));
+      snprintf(temp, sizeof(temp), "($%x,Y)", READ_RAM16(address + count));
       strcat(instr, temp);
       count += 2;
       break;
     case OP_OFFSET24_INDEX_Y:
-      sprintf(temp, "($%x,Y)", READ_RAM24(address + count));
+      snprintf(temp, sizeof(temp), "($%x,Y)", READ_RAM24(address + count));
       strcat(instr, temp);
       count += 3;
       break;
     case OP_OFFSET8_INDEX_SP:
-      sprintf(temp, "($%02x,SP)", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "($%02x,SP)", READ_RAM(address + count));
       strcat(instr, temp);
       count++;
       break;
     case OP_INDIRECT8:
-      sprintf(temp, "[$%02x.w]", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "[$%02x.w]", READ_RAM(address + count));
       strcat(instr, temp);
       count++;
       break;
     case OP_INDIRECT16:
-      sprintf(temp, "[$%x.w]", READ_RAM16(address + count));
+      snprintf(temp, sizeof(temp), "[$%x.w]", READ_RAM16(address + count));
       strcat(instr, temp);
       count += 2;
       break;
     case OP_INDIRECT16_E:
-      sprintf(temp, "[$%x.e]", READ_RAM16(address + count));
+      snprintf(temp, sizeof(temp), "[$%x.e]", READ_RAM16(address + count));
       strcat(instr, temp);
       count += 2;
       break;
     case OP_INDIRECT8_X:
-      sprintf(temp, "([$%02x.w],X)", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "([$%02x.w],X)", READ_RAM(address + count));
       strcat(instr, temp);
       count++;
       break;
     case OP_INDIRECT16_X:
-      sprintf(temp, "([$%x.w],X)", READ_RAM16(address + count));
+      snprintf(temp, sizeof(temp), "([$%x.w],X)", READ_RAM16(address + count));
       strcat(instr, temp);
       count += 2;
       break;
     case OP_INDIRECT16_E_X:
-      sprintf(temp, "([$%x.e],X)", READ_RAM16(address + count));
+      snprintf(temp, sizeof(temp), "([$%x.e],X)", READ_RAM16(address + count));
       strcat(instr, temp);
       count += 2;
       break;
     case OP_INDIRECT8_Y:
-      sprintf(temp, "([$%02x.w],Y)", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "([$%02x.w],Y)", READ_RAM(address + count));
       strcat(instr, temp);
       count++;
       break;
     case OP_INDIRECT16_E_Y:
-      sprintf(temp, "([$%x.e],Y)", READ_RAM16(address + count));
+      snprintf(temp, sizeof(temp), "([$%x.e],Y)", READ_RAM16(address + count));
       strcat(instr, temp);
       count += 2;
       break;
     case OP_ADDRESS_BIT:
-      sprintf(temp, "$%x, #%d", READ_RAM16(address + count), (opcode & 0x0e) >> 1);
+      snprintf(temp, sizeof(temp), "$%x, #%d", READ_RAM16(address + count), (opcode & 0x0e) >> 1);
       strcat(instr, temp);
       count += 2;
       break;
     case OP_ADDRESS_BIT_LOOP:
       offset = (int8_t)READ_RAM(address + count + 2);
-      sprintf(temp, "$%x, #%d, $%x  (offset=%d)", READ_RAM16(address + count), (opcode & 0x0e) >> 1, (address + count + 3) + offset, offset);
+      snprintf(temp, sizeof(temp), "$%x, #%d, $%x  (offset=%d)", READ_RAM16(address + count), (opcode & 0x0e) >> 1, (address + count + 3) + offset, offset);
       strcat(instr, temp);
       count += 3;
       break;
     case OP_RELATIVE:
       offset = (int8_t)READ_RAM(address + count);
-      sprintf(temp, "$%x  (offset=%d)", (address + count + 1) + offset, offset);
+      snprintf(temp, sizeof(temp), "$%x  (offset=%d)", (address + count + 1) + offset, offset);
       strcat(instr, temp);
       count++;
       break;
@@ -295,17 +295,17 @@ int disasm_stm8(
     case OP_TWO_REGISTERS:
       break;
     case OP_ADDRESS16_NUMBER8:
-      sprintf(temp, "$%x, #$%02x", READ_RAM16(address + count + 1), READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "$%x, #$%02x", READ_RAM16(address + count + 1), READ_RAM(address + count));
       strcat(instr, temp);
       count += 3;
       break;
     case OP_ADDRESS8_ADDRESS8:
-      sprintf(temp, "$%x, $%02x", READ_RAM(address + count + 1), READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "$%x, $%02x", READ_RAM(address + count + 1), READ_RAM(address + count));
       strcat(instr, temp);
       count += 2;
       break;
     case OP_ADDRESS16_ADDRESS16:
-      sprintf(temp, "$%x, $%x", READ_RAM16(address + count + 2), READ_RAM16(address + count));
+      snprintf(temp, sizeof(temp), "$%x, $%x", READ_RAM16(address + count + 2), READ_RAM16(address + count));
       strcat(instr, temp);
       count += 4;
       break;

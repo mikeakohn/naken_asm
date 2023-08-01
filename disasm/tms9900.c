@@ -35,20 +35,20 @@ static uint16_t masks[] =
   0xffe0, // OP_EXTERNAL,
 };
 
-static void get_operand(char *operand, int t, int reg, int data)
+static void get_operand(char *operand, int length, int t, int reg, int data)
 {
-  if (t == 0) { sprintf(operand, "r%d", reg); }
-  else if (t == 1) { sprintf(operand, "*r%d", reg); }
-  else if (t == 3) { sprintf(operand, "*r%d+", reg); }
+  if (t == 0) { snprintf(operand, length, "r%d", reg); }
+  else if (t == 1) { snprintf(operand, length, "*r%d", reg); }
+  else if (t == 3) { snprintf(operand, length, "*r%d+", reg); }
   else
   {
     if (reg == 0)
     {
-      sprintf(operand, "@0x%04x", data);
+      snprintf(operand, length, "@0x%04x", data);
     }
       else
     {
-      sprintf(operand, "@0x%04x(r%d)", data, reg);
+      snprintf(operand, length, "@0x%04x(r%d)", data, reg);
     }
   }
 }
@@ -95,9 +95,9 @@ int disasm_tms9900(
           d = (opcode >> 6) & 0xf;
           if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
           if (td == 2) { address += 2; count += 2; data_d=READ_RAM16(address); }
-          get_operand(operand_s, ts, s, data_s);
-          get_operand(operand_d, td, d, data_d);
-          sprintf(instruction, "%s %s, %s", table_tms9900[n].instr, operand_s, operand_d);
+          get_operand(operand_s, sizeof(operand_s), ts, s, data_s);
+          get_operand(operand_d, sizeof(operand_d), td, d, data_d);
+          snprintf(instruction, length, "%s %s, %s", table_tms9900[n].instr, operand_s, operand_d);
           return count;
         }
         case OP_DUAL_MULTIPLE:
@@ -108,9 +108,9 @@ int disasm_tms9900(
           s = opcode & 0xf;
           d = (opcode >> 6) & 0xf;
           if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
-          get_operand(operand_s, ts, s, data_s);
-          get_operand(operand_d, td, d, data_d);
-          sprintf(instruction, "%s %s, %s", table_tms9900[n].instr, operand_s, operand_d);
+          get_operand(operand_s, sizeof(operand_s), ts, s, data_s);
+          get_operand(operand_d, sizeof(operand_d), td, d, data_d);
+          snprintf(instruction, length, "%s %s, %s", table_tms9900[n].instr, operand_s, operand_d);
           return count;
         }
         case OP_SINGLE:
@@ -118,8 +118,8 @@ int disasm_tms9900(
           ts = (opcode >> 4) & 0x3;
           s = opcode & 0xf;
           if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
-          get_operand(operand_s, ts, s, data_s);
-          sprintf(instruction, "%s %s", table_tms9900[n].instr, operand_s);
+          get_operand(operand_s, sizeof(operand_s), ts, s, data_s);
+          snprintf(instruction, length, "%s %s", table_tms9900[n].instr, operand_s);
           return count;
         }
         case OP_CRU_MULTIBIT:
@@ -128,54 +128,54 @@ int disasm_tms9900(
           s = opcode & 0xf;
           data_d = (opcode >> 6) & 0xf;
           if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
-          get_operand(operand_s, ts, s, data_s);
-          sprintf(instruction, "%s %s, %d", table_tms9900[n].instr, operand_s, data_d);
+          get_operand(operand_s, sizeof(operand_s), ts, s, data_s);
+          snprintf(instruction, length, "%s %s, %d", table_tms9900[n].instr, operand_s, data_d);
           return count;
         }
         case OP_CRU_SINGLEBIT:
         {
           data_s = ((char)(opcode & 0xff));
-          sprintf(instruction, "%s %d", table_tms9900[n].instr, data_s);
+          snprintf(instruction, length, "%s %d", table_tms9900[n].instr, data_s);
           return count;
         }
         case OP_JUMP:
         {
           data_s = ((char)(opcode & 0xff));
           int offset = data_s * 2;
-          sprintf(instruction, "%s 0x%04x (%d)", table_tms9900[n].instr, address + 2 + offset, offset);
+          snprintf(instruction, length, "%s 0x%04x (%d)", table_tms9900[n].instr, address + 2 + offset, offset);
           return count;
         }
         case OP_SHIFT:
         {
           s = opcode & 0xf;
           data_d = (opcode >> 4) & 0xf;
-          sprintf(instruction, "%s r%d, %d", table_tms9900[n].instr, s, data_d);
+          snprintf(instruction, length, "%s r%d, %d", table_tms9900[n].instr, s, data_d);
           return count;
         }
         case OP_IMMEDIATE:
         {
           s = opcode & 0xf;
           data_d = READ_RAM16(address + 2);
-          sprintf(instruction, "%s r%d, 0x%04x (%d)",
+          snprintf(instruction, length, "%s r%d, 0x%04x (%d)",
             table_tms9900[n].instr, s, data_d, data_d);
           return count + 2;
         }
         case OP_INT_REG_LD:
         {
           data_d = READ_RAM16(address + 2);
-          sprintf(instruction, "%s %d", table_tms9900[n].instr, data_d);
+          snprintf(instruction, length, "%s %d", table_tms9900[n].instr, data_d);
           return count + 2;
         }
         case OP_INT_REG_ST:
         {
           s = opcode & 0xf;
-          sprintf(instruction, "%s r%d", table_tms9900[n].instr, s);
+          snprintf(instruction, length, "%s r%d", table_tms9900[n].instr, s);
           return count;
         }
         case OP_RTWP:
         case OP_EXTERNAL:
         default:
-          sprintf(instruction, "%s", table_tms9900[n].instr);
+          snprintf(instruction, length, "%s", table_tms9900[n].instr);
           break;
       }
 
@@ -185,7 +185,7 @@ int disasm_tms9900(
     n++;
   }
 
-  sprintf(instruction, "???");
+  snprintf(instruction, length, "???");
 
   return 2;
 }
@@ -269,7 +269,7 @@ void disasm_range_tms9900(
     for (n = 0; n < count; n++)
     {
       char temp[8];
-      sprintf(temp, "%04x ", READ_RAM16(start + n));
+      snprintf(temp, sizeof(temp), "%04x ", READ_RAM16(start + n));
       strcat(bytes, temp);
     }
 

@@ -17,8 +17,8 @@
 #include "common/assembler.h"
 #include "common/util_context.h"
 
-enum  
-{   
+enum
+{
   FILE_TYPE_AUTO = -1,
   FILE_TYPE_HEX = 0,
   FILE_TYPE_BIN,
@@ -27,7 +27,7 @@ enum
   FILE_TYPE_WDC,
   FILE_TYPE_AMIGA,
   FILE_TYPE_TI_TXT,
-};  
+};
 
 int file_write(const char *filename, AsmContext *asm_context, int file_type);
 

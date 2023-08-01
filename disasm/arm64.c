@@ -89,7 +89,7 @@ int disasm_arm64(
           {
             if (imm == 0)
             {
-              sprintf(instruction, "%s %c%d, %c%d, %c%d",
+              snprintf(instruction, length, "%s %c%d, %c%d, %c%d",
                 table_arm64[n].instr,
                 reg_size[sf], rd,
                 reg_size[sf], rn,
@@ -98,7 +98,7 @@ int disasm_arm64(
               return 4;
             }
 
-            sprintf(instruction, "%s %c%d, %c%d, %c%d, lsl #%d",
+            snprintf(instruction, length, "%s %c%d, %c%d, %c%d, lsl #%d",
               table_arm64[n].instr,
               reg_size[sf], rd,
               reg_size[sf], rn,
@@ -108,7 +108,7 @@ int disasm_arm64(
             return 4;
           }
 
-          sprintf(instruction, "%s %c%d, %c%d, %c%d, %s",
+          snprintf(instruction, length, "%s %c%d, %c%d, %c%d, %s",
             table_arm64[n].instr,
             reg_size[sf], rd,
             reg_size[sf], rn,
@@ -124,7 +124,7 @@ int disasm_arm64(
 
           if (shift == 0)
           {
-            sprintf(instruction, "%s %c%d, %c%d, #0x%03x",
+            snprintf(instruction, length, "%s %c%d, %c%d, #0x%03x",
               table_arm64[n].instr,
               reg_size[sf], rd,
               reg_size[sf], rn,
@@ -133,7 +133,7 @@ int disasm_arm64(
             else
           if (shift == 1)
           {
-            sprintf(instruction, "%s %c%d, %c%d, #0x%06x [#0x%03x lsl #%d]",
+            snprintf(instruction, length, "%s %c%d, %c%d, #0x%06x [#0x%03x lsl #%d]",
               table_arm64[n].instr,
               reg_size[sf], rd,
               reg_size[sf], rn,
@@ -142,7 +142,7 @@ int disasm_arm64(
           }
             else
           {
-            sprintf(instruction, "%s %c%d, %c%d, #%d [#%d] ???",
+            snprintf(instruction, length, "%s %c%d, %c%d, #%d [#%d] ???",
               table_arm64[n].instr,
               reg_size[sf], rd,
               reg_size[sf], rn,
@@ -159,7 +159,7 @@ int disasm_arm64(
 
           if (imm == 0 && shift == 0)
           {
-            sprintf(instruction, "%s %c%d, %c%d, %c%d",
+            snprintf(instruction, length, "%s %c%d, %c%d, %c%d",
               table_arm64[n].instr,
               reg_size[sf], rd,
               reg_size[sf], rn,
@@ -167,7 +167,7 @@ int disasm_arm64(
           }
             else
           {
-            sprintf(instruction, "%s %c%d, %c%d, %c%d, %s #%d",
+            snprintf(instruction, length, "%s %c%d, %c%d, %c%d, %s #%d",
               table_arm64[n].instr,
               reg_size[sf], rd,
               reg_size[sf], rn,
@@ -183,7 +183,7 @@ int disasm_arm64(
           int imm4 = (opcode >> 10) & 0xf;
           int imm6 = (opcode >> 16) & 0x3f;
 
-          sprintf(instruction, "%s x%d, x%d, #%d, #%d",
+          snprintf(instruction, length, "%s x%d, x%d, #%d, #%d",
             table_arm64[n].instr,
             rd,
             rn,
@@ -199,7 +199,7 @@ int disasm_arm64(
 
           if ((imm & 0x00080000) != 0) { imm &= 0xfff00000; }
 
-          sprintf(instruction, "%s x%d, 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s x%d, 0x%04x (offset=%d)",
             table_arm64[n].instr,
             rd,
             address + 4 + imm,
@@ -213,7 +213,7 @@ int disasm_arm64(
           imm = (imm << 2) | ((opcode >> 29) & 0x3);
           imm = imm << 12;
 
-          sprintf(instruction, "%s x%d, 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s x%d, 0x%04x (offset=%d)",
             table_arm64[n].instr,
             rd,
            (address & (~0xfff)) + imm,
@@ -223,7 +223,7 @@ int disasm_arm64(
         }
         case OP_VECTOR_D_V:
         {
-          sprintf(instruction, "%s d%d, v%d.2d",
+          snprintf(instruction, length, "%s d%d, v%d.2d",
             table_arm64[n].instr,
             rd,
             rn);
@@ -232,7 +232,7 @@ int disasm_arm64(
         }
         case OP_VECTOR_V_V_TO_SCALAR:
         {
-          sprintf(instruction, "%s d%d, v%d.%s",
+          snprintf(instruction, length, "%s d%d, v%d.%s",
             table_arm64[n].instr,
             rd,
             rn,
@@ -247,7 +247,7 @@ int disasm_arm64(
 
           if (sf == 1) { imm |= ((opcode >> 22) & 1) << 12; }
 
-          sprintf(instruction, "%s %c%d, %c%d, #0x%03x",
+          snprintf(instruction, length, "%s %c%d, %c%d, #0x%03x",
             table_arm64[n].instr,
             reg_size[sf], rd,
             reg_size[sf], rn,
@@ -261,7 +261,7 @@ int disasm_arm64(
 
           if (sf == 1) { imm |= ((opcode >> 22) & 1) << 6; }
 
-          sprintf(instruction, "%s %c%d, %c%d, #%d",
+          snprintf(instruction, length, "%s %c%d, %c%d, #%d",
             table_arm64[n].instr,
             reg_size[sf], rd,
             reg_size[sf], rn,
@@ -277,7 +277,7 @@ int disasm_arm64(
 
           const char *at = get_at(imm);
 
-          sprintf(instruction, "%s %s, x%d",
+          snprintf(instruction, length, "%s %s, x%d",
             table_arm64[n].instr,
             at,
             rd);
@@ -290,7 +290,7 @@ int disasm_arm64(
           if ((imm & (1 << 18)) != 0) { imm |= 0xfff80000; }
           imm *= 4;
 
-          sprintf(instruction, "%s 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s 0x%04x (offset=%d)",
             table_arm64[n].instr,
            (address + 4 + imm),
             imm);
@@ -303,7 +303,7 @@ int disasm_arm64(
           if ((imm & (1 << 25)) != 0) { imm |= 0xfc000000; }
           imm *= 4;
 
-          sprintf(instruction, "%s 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s 0x%04x (offset=%d)",
             table_arm64[n].instr,
            (address + 4 + imm),
             imm);
@@ -315,7 +315,7 @@ int disasm_arm64(
           int immr = (opcode >> 16) & 0x3f;
           int imms = (opcode >> 10) & 0x3f;
 
-          sprintf(instruction, "%s %c%d, #%d, #%d",
+          snprintf(instruction, length, "%s %c%d, #%d, #%d",
             table_arm64[n].instr,
             reg_size[sf], rd,
             immr,
@@ -327,7 +327,7 @@ int disasm_arm64(
         {
           if (size != 3) { continue; }
 
-          sprintf(instruction, "%s %c%d, %c%d",
+          snprintf(instruction, length, "%s %c%d, %c%d",
             table_arm64[n].instr, scalar_size[size], rd, scalar_size[size], rn);
 
           return 4;
@@ -336,7 +336,7 @@ int disasm_arm64(
         {
           if (size != 3) { continue; }
 
-          sprintf(instruction, "%s %c%d, %c%d, %c%d",
+          snprintf(instruction, length, "%s %c%d, %c%d, %c%d",
             table_arm64[n].instr,
             scalar_size[size], rd,
             scalar_size[size], rn,
@@ -348,7 +348,7 @@ int disasm_arm64(
         {
           size = (size << 1) | ((opcode >> 30) & 1);
 
-          sprintf(instruction, "%s v%d.%s, v%d.%s",
+          snprintf(instruction, length, "%s v%d.%s, v%d.%s",
             table_arm64[n].instr, rd, vec_size[size], rn, vec_size[size]);
 
           return 4;
@@ -357,7 +357,7 @@ int disasm_arm64(
         {
           size = (size << 1) | ((opcode >> 30) & 1);
 
-          sprintf(instruction, "%s v%d.%s, v%d.%s, v%d.%s",
+          snprintf(instruction, length, "%s v%d.%s, v%d.%s, v%d.%s",
             table_arm64[n].instr,
             rd, vec_size[size],
             rn, vec_size[size],
@@ -369,21 +369,21 @@ int disasm_arm64(
         {
           if (table_arm64[n].operand_count == 1)
           {
-            sprintf(instruction, "%s %c%d",
+            snprintf(instruction, length, "%s %c%d",
               table_arm64[n].instr,
               reg_size[sf], rd);
           }
             else
           if (table_arm64[n].operand_count == 2)
           {
-            sprintf(instruction, "%s %c%d, %c%d",
+            snprintf(instruction, length, "%s %c%d, %c%d",
               table_arm64[n].instr,
               reg_size[sf], rd,
               reg_size[sf], rn);
           }
             else
           {
-            sprintf(instruction, "%s %c%d, %c%d, %c%d",
+            snprintf(instruction, length, "%s %c%d, %c%d, %c%d",
               table_arm64[n].instr,
               reg_size[sf], rd,
               reg_size[sf], rn,
@@ -396,7 +396,7 @@ int disasm_arm64(
         {
           if (table_arm64[n].operand_count == 2)
           {
-            sprintf(instruction, "%s v%d.16b, v%d.16b",
+            snprintf(instruction, length, "%s v%d.16b, v%d.16b",
               table_arm64[n].instr, rd, rn);
           }
             else
@@ -404,7 +404,7 @@ int disasm_arm64(
           {
             int ra = (opcode >> 10) & 0x1f;
 
-            sprintf(instruction, "%s v%d.16b, v%d.16b, v%d.16b, v%d.16b",
+            snprintf(instruction, length, "%s v%d.16b, v%d.16b, v%d.16b, v%d.16b",
               table_arm64[n].instr, rd, rn, rm, ra);
           }
             else

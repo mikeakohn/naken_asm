@@ -141,11 +141,11 @@ int disasm_propeller2(
         case OP_D:
           if (d >= 0x1f0 && d <= 0x1ff)
           {
-            sprintf(temp, "%s [0x%x]", registers_propeller2[d - 0x1f0].name, d);
+            snprintf(temp, sizeof(temp), "%s [0x%x]", registers_propeller2[d - 0x1f0].name, d);
           }
             else
           {
-            sprintf(temp, "0x%x", d);
+            snprintf(temp, sizeof(temp), "0x%x", d);
           }
           strcat(operands, temp);
           break;
@@ -165,11 +165,11 @@ int disasm_propeller2(
           if (l == 1) { strcat(operands, "#"); }
           if (l == 0 && d >= 0x1f0 && d <= 0x1ff)
           {
-            sprintf(temp, "%s [0x%x]", registers_propeller2[d - 0x1f0].name, d);
+            snprintf(temp, sizeof(temp), "%s [0x%x]", registers_propeller2[d - 0x1f0].name, d);
           }
             else
           {
-            sprintf(temp, "0x%x", d);
+            snprintf(temp, sizeof(temp), "0x%x", d);
           }
           strcat(operands, temp);
           break;
@@ -177,11 +177,11 @@ int disasm_propeller2(
           if (i == 1) { strcat(operands, "#"); }
           if (i == 0 && s >= 0x1f0 && s <= 0x1ff)
           {
-            sprintf(temp, "%s [0x%x]", registers_propeller2[s - 0x1f0].name, s);
+            snprintf(temp, sizeof(temp), "%s [0x%x]", registers_propeller2[s - 0x1f0].name, s);
           }
             else
           {
-            sprintf(temp, "0x%x", s);
+            snprintf(temp, sizeof(temp), "0x%x", s);
           }
           strcat(operands, temp);
           break;
@@ -190,12 +190,12 @@ int disasm_propeller2(
 
           if (i == 0)
           {
-            sprintf(temp, "0x%x", s);
+            snprintf(temp, sizeof(temp), "0x%x", s);
           }
             else
           if ((s & 0x100) == 0)
           {
-            sprintf(temp, "#0x%x", s);
+            snprintf(temp, sizeof(temp), "#0x%x", s);
           }
             else
           {
@@ -218,32 +218,32 @@ int disasm_propeller2(
             {
               if (d == 0)
               {
-                sprintf(temp, "%s", ptr);
+                snprintf(temp, sizeof(temp), "%s", ptr);
               }
                 else
               {
-                sprintf(temp, "%s[%d]", ptr, d);
+                snprintf(temp, sizeof(temp), "%s[%d]", ptr, d);
               }
             }
               else
             if (d == 0x21)
             {
-              sprintf(temp, "%s++", ptr);
+              snprintf(temp, sizeof(temp), "%s++", ptr);
             }
               else
             if (d == 0x3f)
             {
-              sprintf(temp, "%s--", ptr);
+              snprintf(temp, sizeof(temp), "%s--", ptr);
             }
               else
             if (d == 0x01)
             {
-              sprintf(temp, "++%s", ptr);
+              snprintf(temp, sizeof(temp), "++%s", ptr);
             }
               else
             if (d == 0x1f)
             {
-              sprintf(temp, "--%s", ptr);
+              snprintf(temp, sizeof(temp), "--%s", ptr);
             }
               else
             {
@@ -251,11 +251,11 @@ int disasm_propeller2(
 
               if ((s & 0x20) == 0)
               {
-                sprintf(temp, "%s%s[%d]", sign == 0 ? "++" : "--", ptr, n);
+                snprintf(temp, sizeof(temp), "%s%s[%d]", sign == 0 ? "++" : "--", ptr, n);
               }
                 else
               {
-                sprintf(temp, "%s%s[%d]", ptr, sign == 0 ? "++" : "--", n);
+                snprintf(temp, sizeof(temp), "%s%s[%d]", ptr, sign == 0 ? "++" : "--", n);
               }
             }
           }
@@ -264,22 +264,22 @@ int disasm_propeller2(
           break;
         case OP_N_1:
           r = (opcode >> 19) & 0x1;
-          sprintf(temp, "#0x%x", r);
+          snprintf(temp, sizeof(temp), "#0x%x", r);
           strcat(operands, temp);
           break;
         case OP_N_2:
           r = (opcode >> 19) & 0x3;
-          sprintf(temp, "#0x%x", r);
+          snprintf(temp, sizeof(temp), "#0x%x", r);
           strcat(operands, temp);
           break;
         case OP_N_3:
           r = (opcode >> 19) & 0x7;
-          sprintf(temp, "#0x%x", r);
+          snprintf(temp, sizeof(temp), "#0x%x", r);
           strcat(operands, temp);
           break;
         case OP_N_23:
           value = opcode & 0x7fffff;
-          sprintf(temp, "#0x%04x", value << 9);
+          snprintf(temp, sizeof(temp), "#0x%04x", value << 9);
           strcat(operands, temp);
           break;
         case OP_A:
@@ -288,7 +288,7 @@ int disasm_propeller2(
           if (r == 0)
           {
             r = opcode & 0xfffff;
-            sprintf(temp, "#\\0x%04x", r);
+            snprintf(temp, sizeof(temp), "#\\0x%04x", r);
           }
             else
           {
@@ -303,7 +303,7 @@ int disasm_propeller2(
 
             if (r < 0x400 * 4) { r = r / 4; }
 
-            sprintf(temp, "#0x%04x (offset=%d)", r, offset);
+            snprintf(temp, sizeof(temp), "#0x%04x (offset=%d)", r, offset);
           }
 
           strcat(operands, temp);
@@ -314,7 +314,7 @@ int disasm_propeller2(
           if (r == 0)
           {
             r = opcode & 0x1ff;
-            sprintf(temp, "0x%04x", r);
+            snprintf(temp, sizeof(temp), "0x%04x", r);
           }
             else
           {
@@ -326,7 +326,7 @@ int disasm_propeller2(
             }
 
             r = (address / 4) + 1 + offset;
-            sprintf(temp, "#0x%04x (offset=%d)", r, offset);
+            snprintf(temp, sizeof(temp), "#0x%04x (offset=%d)", r, offset);
           }
 
           strcat(operands, temp);
@@ -360,7 +360,7 @@ int disasm_propeller2(
     if (wcz == 1) { strcat(operands, "wcz"); }
   }
 
-  sprintf(instruction, "%s%s %s", condition, instr, operands);
+  snprintf(instruction, length, "%s%s %s", condition, instr, operands);
 
   return 4;
 }

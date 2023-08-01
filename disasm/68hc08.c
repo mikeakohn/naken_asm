@@ -53,20 +53,20 @@ int disasm_68hc08(
         switch (m68hc08_16_table[n].type)
         {
           case CPU08_OP_OPR8_SP:
-            sprintf(instruction, "%s 0x%02x, SP",
+            snprintf(instruction, length, "%s 0x%02x, SP",
               m68hc08_16_table[n].instr,
               READ_RAM(address + 2));
             size=3;
             break;
           case CPU08_OP_OPR8_SP_REL:
-            sprintf(instruction, "%s 0x%02x, SP, 0x%04x",
+            snprintf(instruction, length, "%s 0x%02x, SP, 0x%04x",
               m68hc08_16_table[n].instr,
               READ_RAM(address + 2),
               (address + 4) + ((int8_t)READ_RAM(address + 3)));
             size=4;
             break;
           case CPU08_OP_OPR16_SP:
-            sprintf(instruction, "%s 0x%04x, SP",
+            snprintf(instruction, length, "%s 0x%04x, SP",
               m68hc08_16_table[n].instr,
               READ_RAM16(address + 2));
             size=4;
@@ -89,29 +89,29 @@ int disasm_68hc08(
   switch (m68hc08_table[opcode].type)
   {
     case CPU08_OP_NONE:
-      sprintf(instruction, "%s", m68hc08_table[opcode].instr);
+      snprintf(instruction, length, "%s", m68hc08_table[opcode].instr);
       break;
     case CPU08_OP_NUM16:
-      sprintf(instruction, "%s #0x%04x",
+      snprintf(instruction, length, "%s #0x%04x",
         m68hc08_table[opcode].instr,
         READ_RAM16(address + 1));
       size = 3;
       break;
     case CPU08_OP_NUM8:
-      sprintf(instruction, "%s #0x%02x",
+      snprintf(instruction, length, "%s #0x%02x",
         m68hc08_table[opcode].instr,
         READ_RAM(address + 1));
       size = 2;
       break;
     case CPU08_OP_NUM8_OPR8:
-      sprintf(instruction, "%s #0x%02x, 0x%02x",
+      snprintf(instruction, length, "%s #0x%02x, 0x%02x",
         m68hc08_table[opcode].instr,
         READ_RAM(address + 1),
         READ_RAM(address + 2));
       size=3;
       break;
     case CPU08_OP_NUM8_REL:
-      sprintf(instruction, "%s #0x%02x, 0x%04x (offset=%d)",
+      snprintf(instruction, length, "%s #0x%02x, 0x%04x (offset=%d)",
         m68hc08_table[opcode].instr,
         READ_RAM(address + 1),
         (address + 3) + ((char)READ_RAM(address + 2)),
@@ -119,32 +119,32 @@ int disasm_68hc08(
       size = 3;
       break;
     case CPU08_OP_OPR16:
-      sprintf(instruction, "%s 0x%04x",
+      snprintf(instruction, length, "%s 0x%04x",
         m68hc08_table[opcode].instr,
         READ_RAM16(address + 1));
       size = 3;
       break;
     case CPU08_OP_OPR16_X:
-      sprintf(instruction, "%s 0x%04x, X",
+      snprintf(instruction, length, "%s 0x%04x, X",
         m68hc08_table[opcode].instr,
         READ_RAM16(address + 1));
       size = 3;
       break;
     case CPU08_OP_OPR8:
-      sprintf(instruction, "%s 0x%02x",
+      snprintf(instruction, length, "%s 0x%02x",
         m68hc08_table[opcode].instr,
         READ_RAM(address + 1));
       size = 2;
       break;
     case CPU08_OP_OPR8_OPR8:
-      sprintf(instruction, "%s 0x%02x, 0x%02x",
+      snprintf(instruction, length, "%s 0x%02x, 0x%02x",
         m68hc08_table[opcode].instr,
         READ_RAM(address + 1),
         READ_RAM(address + 2));
       size = 3;
       break;
     case CPU08_OP_OPR8_REL:
-      sprintf(instruction, "%s 0x%02x, 0x%04x (offset=%d)",
+      snprintf(instruction, length, "%s 0x%02x, 0x%04x (offset=%d)",
         m68hc08_table[opcode].instr,
         READ_RAM(address + 1),
         ((address + 3) + (int8_t)READ_RAM(address + 2)),
@@ -152,19 +152,19 @@ int disasm_68hc08(
       size = 3;
       break;
     case CPU08_OP_OPR8_X:
-      sprintf(instruction, "%s 0x%02x, X",
+      snprintf(instruction, length, "%s 0x%02x, X",
         m68hc08_table[opcode].instr,
         READ_RAM(address + 1));
       size = 2;
       break;
     case CPU08_OP_OPR8_X_PLUS:
-      sprintf(instruction, "%s 0x%02x, X+",
+      snprintf(instruction, length, "%s 0x%02x, X+",
         m68hc08_table[opcode].instr,
         READ_RAM(address + 1));
       size = 2;
       break;
     case CPU08_OP_OPR8_X_PLUS_REL:
-      sprintf(instruction, "%s 0x%02x, X+, 0x%04x (offset=%d)",
+      snprintf(instruction, length, "%s 0x%02x, X+, 0x%04x (offset=%d)",
         m68hc08_table[opcode].instr,
         READ_RAM(address + 1),
         (address + 3) + ((char)READ_RAM(address + 2)),
@@ -172,7 +172,7 @@ int disasm_68hc08(
       size = 3;
       break;
     case CPU08_OP_OPR8_X_REL:
-      sprintf(instruction, "%s 0x%02x, X, 0x%04x (offset=%d)",
+      snprintf(instruction, length, "%s 0x%02x, X, 0x%04x (offset=%d)",
         m68hc08_table[opcode].instr,
         READ_RAM(address + 1),
         (address + 3) + ((char)READ_RAM(address + 2)),
@@ -180,33 +180,33 @@ int disasm_68hc08(
       size=3;
       break;
     case CPU08_OP_REL:
-      sprintf(instruction, "%s 0x%04x (offset=%d)",
+      snprintf(instruction, length, "%s 0x%04x (offset=%d)",
         m68hc08_table[opcode].instr,
         (address + 2) + ((char)READ_RAM(address + 1)),
         (char)READ_RAM(address + 1));
       size=2;
       break;
     case CPU08_OP_COMMA_X:
-      sprintf(instruction, "%s X", m68hc08_table[opcode].instr);
+      snprintf(instruction, length, "%s X", m68hc08_table[opcode].instr);
       break;
     case CPU08_OP_X:
-      sprintf(instruction, "%s X", m68hc08_table[opcode].instr);
+      snprintf(instruction, length, "%s X", m68hc08_table[opcode].instr);
       break;
     case CPU08_OP_X_PLUS_OPR8:
-      sprintf(instruction, "%s X+, 0x%02x",
+      snprintf(instruction, length, "%s X+, 0x%02x",
         m68hc08_table[opcode].instr,
         READ_RAM(address + 1));
       size=2;
       break;
     case CPU08_OP_X_PLUS_REL:
-      sprintf(instruction, "%s X+, 0x%04x (offset=%d)",
+      snprintf(instruction, length, "%s X+, 0x%04x (offset=%d)",
         m68hc08_table[opcode].instr,
         (address + 2) + ((int8_t)READ_RAM(address + 1)),
         (char)READ_RAM(address + 1));
       size=2;
       break;
     case CPU08_OP_X_REL:
-      sprintf(instruction, "%s X, 0x%04x (offset=%d)",
+      snprintf(instruction, length, "%s X, 0x%04x (offset=%d)",
         m68hc08_table[opcode].instr,
         (address + 2) + ((int8_t)READ_RAM(address + 1)),
         (int8_t)READ_RAM(address + 1));
@@ -220,7 +220,7 @@ int disasm_68hc08(
     case CPU08_OP_5_COMMA_OPR:
     case CPU08_OP_6_COMMA_OPR:
     case CPU08_OP_7_COMMA_OPR:
-      sprintf(instruction, "%s %d, 0x%02x",
+      snprintf(instruction, length, "%s %d, 0x%02x",
         m68hc08_table[opcode].instr,
         m68hc08_table[opcode].type - CPU08_OP_0_COMMA_OPR,
         READ_RAM(address + 1));
@@ -234,7 +234,7 @@ int disasm_68hc08(
     case CPU08_OP_5_COMMA_OPR_REL:
     case CPU08_OP_6_COMMA_OPR_REL:
     case CPU08_OP_7_COMMA_OPR_REL:
-      sprintf(instruction, "%s %d,0x%02x, 0x%04x (offset=%d)",
+      snprintf(instruction, length, "%s %d,0x%02x, 0x%04x (offset=%d)",
         m68hc08_table[opcode].instr,
         m68hc08_table[opcode].type - CPU08_OP_0_COMMA_OPR_REL,
         READ_RAM(address + 1),
@@ -273,7 +273,7 @@ void list_output_68hc08(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp, sizeof(temp), "%02x ", memory_read_m(&asm_context->memory, start + n));
       strcat(bytes, temp);
     }
 
@@ -319,7 +319,7 @@ void disasm_range_68hc08(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      sprintf(temp, "%02x ", READ_RAM(start + n));
+      snprintf(temp, sizeof(temp), "%02x ", READ_RAM(start + n));
       strcat(bytes, temp);
     }
 

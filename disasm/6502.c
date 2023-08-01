@@ -47,7 +47,7 @@ int disasm_6502(
   *cycles_max = -1;
   opcode = READ_RAM(address);
 
-  sprintf(temp, " ");
+  snprintf(temp, sizeof(temp), " ");
 
   if (table_6502_opcodes[opcode].instr != M65XX_ERROR)
   {
@@ -82,49 +82,49 @@ int disasm_6502(
       switch (op)
       {
         case OP_NONE:
-          sprintf(temp, " ");
+          snprintf(temp, sizeof(temp), " ");
           break;
         case OP_IMMEDIATE:
-          sprintf(temp, " #%s", num);
+          snprintf(temp, sizeof(temp), " #%s", num);
           break;
         case OP_ADDRESS8:
-          sprintf(temp, " %s", num);
+          snprintf(temp, sizeof(temp), " %s", num);
           break;
         case OP_ADDRESS16:
-          sprintf(temp, " %s", num);
+          snprintf(temp, sizeof(temp), " %s", num);
           break;
         case OP_INDEXED8_X:
-          sprintf(temp, " %s,x", num);
+          snprintf(temp, sizeof(temp), " %s,x", num);
           break;
         case OP_INDEXED8_Y:
-          sprintf(temp, " %s,y", num);
+          snprintf(temp, sizeof(temp), " %s,y", num);
           break;
         case OP_INDEXED16_X:
-          sprintf(temp, " %s,x", num);
+          snprintf(temp, sizeof(temp), " %s,x", num);
           break;
         case OP_INDEXED16_Y:
-          sprintf(temp, " %s,y", num);
+          snprintf(temp, sizeof(temp), " %s,y", num);
           break;
         case OP_INDIRECT16:
-          sprintf(temp, " (%s)", num);
+          snprintf(temp, sizeof(temp), " (%s)", num);
           break;
         case OP_X_INDIRECT8:
-          sprintf(temp, " (%s,x)", num);
+          snprintf(temp, sizeof(temp), " (%s,x)", num);
           break;
         case OP_INDIRECT8_Y:
-          sprintf(temp, " (%s),y", num);
+          snprintf(temp, sizeof(temp), " (%s),y", num);
           break;
         case OP_INDIRECT8:
-          sprintf(temp, " (%s)", num);
+          snprintf(temp, sizeof(temp), " (%s)", num);
           break;
         case OP_X_INDIRECT16:
-          sprintf(temp, " (%s,x)", num);
+          snprintf(temp, sizeof(temp), " (%s,x)", num);
           break;
         case OP_RELATIVE:
-          sprintf(temp, " %s (offset=%d)", num, (int8_t)lo);
+          snprintf(temp, sizeof(temp), " %s (offset=%d)", num, (int8_t)lo);
           break;
         case OP_ADDRESS8_RELATIVE:
-          sprintf(temp, " 0x%02x, 0x%02x (offset=%d)", lo, address + 2 + (int8_t)hi, (int8_t)hi);
+          snprintf(temp, sizeof(temp), " 0x%02x, 0x%02x (offset=%d)", lo, address + 2 + (int8_t)hi, (int8_t)hi);
           break;
       }
     }
@@ -152,7 +152,7 @@ int disasm_6502(
   {
     // Could not figure out this opcode so return instruction as ???
     strcpy(instruction, "???");
-    sprintf(temp, " 0x%02x", opcode);
+    snprintf(temp, sizeof(temp), " 0x%02x", opcode);
     strcat(instruction, temp);
     return 0;
   }
@@ -188,7 +188,7 @@ void list_output_6502(
   for (n = 0; n < count; n++)
   {
     char temp[4];
-    sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, start + n));
+    snprintf(temp, sizeof(temp), "%02x ", memory_read_m(&asm_context->memory, start + n));
     strcat(bytes, temp);
   }
 

@@ -70,11 +70,11 @@ static int compute_immediate(int immediate)
 #endif
 }
 
-static void arm_calc_shift(char *temp, int shift, int reg)
+static void arm_calc_shift(char *temp, int length, int shift, int reg)
 {
   if ((shift & 1) == 1)
   {
-    sprintf(temp, "%s, %s %s",
+    snprintf(temp, length, "%s, %s %s",
       arm_reg[reg],
       arm_shift[(shift >> 1) & 0x3],
       arm_reg[shift >> 4]);
@@ -84,14 +84,14 @@ static void arm_calc_shift(char *temp, int shift, int reg)
     int shift_amount = shift >> 3;
     if (shift_amount != 0)
     {
-      sprintf(temp, "%s, %s #0x%x",
+      snprintf(temp, length, "%s, %s #0x%x",
         arm_reg[reg],
         arm_shift[(shift >> 1) & 0x3],
         shift >> 3);
     }
       else
     {
-      sprintf(temp, "%s", arm_reg[reg]);
+      snprintf(temp, length, "%s", arm_reg[reg]);
     }
   }
 }
@@ -119,7 +119,11 @@ static void arm_register_list(char *instruction, int opcode)
   }
 }
 
-static void process_alu_3(char *instruction, uint32_t opcode, int index)
+static void process_alu_3(
+  char *instruction,
+  int length,
+  uint32_t opcode,
+  int index)
 {
   int i = (opcode >> 25) & 1;
   int s = (opcode >> 20) & 1;
@@ -128,7 +132,7 @@ static void process_alu_3(char *instruction, uint32_t opcode, int index)
 
   if (i == 0)
   {
-    arm_calc_shift(opcode2, operand2 >> 4, operand2 & 0xf);
+    arm_calc_shift(opcode2, sizeof(opcode2), operand2 >> 4, operand2 & 0xf);
   }
     else
   {
@@ -138,7 +142,7 @@ static void process_alu_3(char *instruction, uint32_t opcode, int index)
 
   if ((opcode & table_arm[index].mask) == 0x01a00000)
   {
-    sprintf(instruction, "%s%s%s %s, %s",
+    snprintf(instruction, length, "%s%s%s %s, %s",
       table_arm[index].instr,
       arm_cond[ARM_NIB(28)],
       (s == 1) ? "s" : "",
@@ -147,7 +151,7 @@ static void process_alu_3(char *instruction, uint32_t opcode, int index)
   }
     else
   {
-    sprintf(instruction, "%s%s%s %s, %s, %s",
+    snprintf(instruction, length, "%s%s%s %s, %s, %s",
       table_arm[index].instr,
       arm_cond[ARM_NIB(28)],
       (s == 1) ? "s" : "",
@@ -159,6 +163,7 @@ static void process_alu_3(char *instruction, uint32_t opcode, int index)
 
 static void process_alu_2(
   char *instruction,
+  int length,
   uint32_t opcode,
   int index,
   int use_d)
@@ -171,7 +176,7 @@ static void process_alu_2(
 
   if (i == 0)
   {
-    arm_calc_shift(opcode2, operand2 >> 4, operand2 & 0xf);
+    arm_calc_shift(opcode2, sizeof(opcode2), operand2 >> 4, operand2 & 0xf);
   }
     else
   {
@@ -181,7 +186,7 @@ static void process_alu_2(
 
   if ((opcode & table_arm[index].mask) == 0x01a00000)
   {
-    sprintf(instruction, "%s%s%s %s, %s",
+    snprintf(instruction, length, "%s%s%s %s, %s",
       table_arm[index].instr,
       arm_cond[ARM_NIB(28)],
       (s == 1) ? "s" : "",
@@ -190,7 +195,7 @@ static void process_alu_2(
   }
     else
   {
-    sprintf(instruction, "%s%s%s %s, %s",
+    snprintf(instruction, length, "%s%s%s %s, %s",
       table_arm[index].instr,
       arm_cond[ARM_NIB(28)],
       (s == 1) ? "s" : "",
@@ -199,14 +204,14 @@ static void process_alu_2(
   }
 }
 
-static void process_mul(char *instruction, uint32_t opcode)
+static void process_mul(char *instruction, int length, uint32_t opcode)
 {
   int a = (opcode >> 21) & 1;
   int s = (opcode >> 20) & 1;
 
   if (a == 0)
   {
-    sprintf(instruction, "mul%s%s %s, %s, %s",
+    snprintf(instruction, length, "mul%s%s %s, %s, %s",
       arm_cond[ARM_NIB(28)],
       (s == 1) ? "s" : "",
       arm_reg[ARM_NIB(16)],
@@ -215,7 +220,7 @@ static void process_mul(char *instruction, uint32_t opcode)
   }
     else
   {
-    sprintf(instruction, "mla%s%s %s, %s, %s, %s",
+    snprintf(instruction, length, "mla%s%s %s, %s, %s, %s",
       arm_cond[ARM_NIB(28)],
       (s == 1) ? "s" : "",
       arm_reg[ARM_NIB(16)],
@@ -225,11 +230,11 @@ static void process_mul(char *instruction, uint32_t opcode)
   }
 }
 
-static void process_swap(char *instruction, uint32_t opcode)
+static void process_swap(char *instruction, int length, uint32_t opcode)
 {
   int b = (opcode >> 22) & 1;
 
-  sprintf(instruction, "swp%s%s %s, %s, [%s]",
+  snprintf(instruction, length, "swp%s%s %s, %s, [%s]",
     arm_cond[ARM_NIB(28)],
     (b == 1) ? "b" : "",
     arm_reg[ARM_NIB(12)],
@@ -237,41 +242,41 @@ static void process_swap(char *instruction, uint32_t opcode)
     arm_reg[ARM_NIB(16)]);
 }
 
-static void process_mrs(char *instruction, uint32_t opcode)
+static void process_mrs(char *instruction, int length, uint32_t opcode)
 {
   int ps = (opcode >> 22) & 1;
 
-  sprintf(instruction, "mrs%s %s, %s",
+  snprintf(instruction, length, "mrs%s %s, %s",
     arm_cond[ARM_NIB(28)],
     arm_reg[ARM_NIB(12)],
     (ps == 1) ? "SPSR" : "CPSR");
 }
 
-static void process_msr_all(char *instruction, uint32_t opcode)
+static void process_msr_all(char *instruction, int length, uint32_t opcode)
 {
   int ps = (opcode >> 22) & 1;
 
-  sprintf(instruction, "msr%s %s, %s",
+  snprintf(instruction, length, "msr%s %s, %s",
     arm_cond[ARM_NIB(28)],
     (ps == 1) ? "SPSR" : "CPSR",
     arm_reg[ARM_NIB(0)]);
 }
 
-static void process_msr_flag(char *instruction, uint32_t opcode)
+static void process_msr_flag(char *instruction, int length, uint32_t opcode)
 {
   int i = (opcode >> 25) & 1;
   int ps = (opcode >> 22) & 1;
 
   if (i == 0)
   {
-    sprintf(instruction, "msr%s %s_flg, %s",
+    snprintf(instruction, length, "msr%s %s_flg, %s",
       arm_cond[ARM_NIB(28)],
       (ps == 1) ? "SPSR" : "CPSR",
       arm_reg[ARM_NIB(0)]);
   }
     else
   {
-    sprintf(instruction, "msr%s %s_flg, #%d {#%d, %d}",
+    snprintf(instruction, length, "msr%s %s_flg, #%d {#%d, %d}",
       arm_cond[ARM_NIB(28)],
       (ps == 1) ? "SPSR" : "CPSR",
       compute_immediate(opcode & 0xfff),
@@ -282,6 +287,7 @@ static void process_msr_flag(char *instruction, uint32_t opcode)
 
 static void process_ldr_str(
   char *instruction,
+  int length,
   uint32_t opcode,
   int index,
   uint32_t address)
@@ -299,7 +305,7 @@ static void process_ldr_str(
   {
     if (offset == 0)
     {
-      sprintf(temp, "[%s]", arm_reg[rn]);
+      snprintf(temp, sizeof(temp), "[%s]", arm_reg[rn]);
     }
       else
     {
@@ -309,17 +315,17 @@ static void process_ldr_str(
 
         if (rn != 15)
         {
-          sprintf(temp, "[%s, #%d]", arm_reg[rn], offset);
+          snprintf(temp, sizeof(temp), "[%s, #%d]", arm_reg[rn], offset);
         }
           else
         {
-          sprintf(temp, "[%s, #%d] ; 0x%04x",
+          snprintf(temp, sizeof(temp), "[%s, #%d] ; 0x%04x",
             arm_reg[rn], offset, address + 8 + offset);
         }
       }
         else
       {
-        sprintf(temp, "[%s], #%s%d", arm_reg[rn], (u == 0) ? "-" : "", offset);
+        snprintf(temp, sizeof(temp), "[%s], #%s%d", arm_reg[rn], (u == 0) ? "-" : "", offset);
       }
     }
   }
@@ -340,12 +346,12 @@ printf("shift=%d is_reg=%d type=%d rm=%d rs=%d\n",
     {
       if (pr == 1)
       {
-        sprintf(temp, "[%s, %s, %s %s]",
+        snprintf(temp, sizeof(temp), "[%s, %s, %s %s]",
           arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[rs]);
       }
         else
       {
-        sprintf(temp, "[%s], %s, %s %s",
+        snprintf(temp, sizeof(temp), "[%s], %s, %s %s",
           arm_reg[rn], arm_reg[rm], arm_shift[type], arm_reg[rs]);
       }
     }
@@ -357,30 +363,30 @@ printf("shift=%d is_reg=%d type=%d rm=%d rs=%d\n",
       {
         if (shift_amount != 0)
         {
-          sprintf(temp, "[%s, %s, %s #%d]",
+          snprintf(temp, sizeof(temp), "[%s, %s, %s #%d]",
             arm_reg[rn], arm_reg[rm], arm_shift[type], shift_amount);
         }
           else
         {
-          sprintf(temp, "[%s, %s]", arm_reg[rn], arm_reg[rm]);
+          snprintf(temp, sizeof(temp), "[%s, %s]", arm_reg[rn], arm_reg[rm]);
         }
       }
         else
       {
         if (shift_amount != 0)
         {
-          sprintf(temp, "[%s], %s, %s #%d",
+          snprintf(temp, sizeof(temp), "[%s], %s, %s #%d",
             arm_reg[rn], arm_reg[rm], arm_shift[type], shift_amount);
         }
           else
         {
-          sprintf(temp, "[%s], %s", arm_reg[rn], arm_reg[rm]);
+          snprintf(temp, sizeof(temp), "[%s], %s", arm_reg[rn], arm_reg[rm]);
         }
       }
     }
   }
 
-  sprintf(instruction, "%s%s%s %s, %s%s",
+  snprintf(instruction, length, "%s%s%s %s, %s%s",
     table_arm[index].instr,
     arm_cond[ARM_NIB(28)],
     (b == 0) ? "" : "b",
@@ -389,13 +395,17 @@ printf("shift=%d is_reg=%d type=%d rm=%d rs=%d\n",
     (w == 0) ? "" : "!");
 }
 
-static void process_undefined(char *instruction, uint32_t opcode)
+static void process_undefined(char *instruction, int length, uint32_t opcode)
 {
   // hmm.. why?
   strcpy(instruction, "???");
 }
 
-static void process_ldm_stm(char *instruction, uint32_t opcode, int index)
+static void process_ldm_stm(
+  char *instruction,
+  int length,
+  uint32_t opcode,
+  int index)
 {
   const char *pru_str[] = { "db", "ib", "da", "ia" };
   int cond = (opcode >> 28) & 0xf;
@@ -403,8 +413,8 @@ static void process_ldm_stm(char *instruction, uint32_t opcode, int index)
   int s = (opcode >> 22) & 1;
   int pru = (opcode >> 23)  &0x3;
 
-  //sprintf(instruction, "%s%s%s %s%s, {",
-  sprintf(instruction, "%s%s%s %s%s, {",
+  //snprintf(instruction, length, "%s%s%s %s%s, {",
+  snprintf(instruction, length, "%s%s%s %s%s, {",
     table_arm[index].instr,
     arm_cond[cond],
     pru_str[pru],
@@ -419,7 +429,11 @@ static void process_ldm_stm(char *instruction, uint32_t opcode, int index)
   if (s == 1) { strcat(instruction, "^"); }
 }
 
-static void process_branch(char *instruction, uint32_t opcode, uint32_t address)
+static void process_branch(
+  char *instruction,
+  int length,
+  uint32_t opcode,
+  uint32_t address)
 {
   int l = (opcode >> 24) & 1;
 
@@ -428,38 +442,44 @@ static void process_branch(char *instruction, uint32_t opcode, uint32_t address)
   offset <<= 2;
 
   // address+8 (to allow for the pipeline)
-  sprintf(instruction, "%s%s 0x%02x (%d)",
+  snprintf(instruction, length, "%s%s 0x%02x (%d)",
     (l == 0) ? "b" : "bl",
     arm_cond[ARM_NIB(28)],
     (address + 8) + offset, offset);
 }
 
-static void process_branch_exchange(char *instruction, uint32_t opcode)
+static void process_branch_exchange(
+  char *instruction,
+  int length,
+  uint32_t opcode)
 {
-  sprintf(instruction, "bx%s %s", arm_cond[ARM_NIB(28)], arm_reg[ARM_NIB(0)]);
+  snprintf(instruction, length, "bx%s %s", arm_cond[ARM_NIB(28)], arm_reg[ARM_NIB(0)]);
 }
 
-static void process_swi(char *instruction, uint32_t opcode)
+static void process_swi(char *instruction, int length, uint32_t opcode)
 {
-  sprintf(instruction, "swi%s", arm_cond[ARM_NIB(28)]);
+  snprintf(instruction, length, "swi%s", arm_cond[ARM_NIB(28)]);
 }
 
-static void process_co_swi(char *instruction, uint32_t opcode)
-{
-}
-
-static void process_co_transfer(char *instruction, uint32_t opcode)
+static void process_co_swi(char *instruction, int length, uint32_t opcode)
 {
 }
 
-static void process_co_op_mask(char *instruction, uint32_t opcode)
+static void process_co_transfer(char *instruction, int length, uint32_t opcode)
 {
-  sprintf(instruction, "cdp%s %d, %d, cr%d, cr%d, cr%d, %d",
+}
+
+static void process_co_op_mask(char *instruction, int length, uint32_t opcode)
+{
+  snprintf(instruction, length, "cdp%s %d, %d, cr%d, cr%d, cr%d, %d",
     arm_cond[ARM_NIB(28)], ARM_NIB(8), ARM_NIB(20), ARM_NIB(12),
     ARM_NIB(16), ARM_NIB(0), (opcode>>5)&0x7);
 }
 
-static void process_co_transfer_mask(char *instruction, uint32_t opcode)
+static void process_co_transfer_mask(
+  char *instruction,
+  int length,
+  uint32_t opcode)
 {
   int ls = (opcode >> 20) & 1;
   int w = (opcode >> 21) & 1;
@@ -470,7 +490,7 @@ static void process_co_transfer_mask(char *instruction, uint32_t opcode)
 
   if (offset == 0)
   {
-    sprintf(instruction, "%s%s%s %d, cr%d, [r%d]",
+    snprintf(instruction, length, "%s%s%s %d, cr%d, [r%d]",
       (ls == 1) ? "ldc" : "stc",
       arm_cond[ARM_NIB(28)],
       (n == 1) ? "l" : "",
@@ -479,25 +499,25 @@ static void process_co_transfer_mask(char *instruction, uint32_t opcode)
     else
   if (pr == 1)
   {
-    sprintf(instruction, "%s%s%s %d, cr%d, [r%d, #%s%d]%s",
-    (ls == 1) ? "ldc" : "stc",
-    arm_cond[ARM_NIB(28)],
-    (n == 1) ? "l" : "",
-    ARM_NIB(8), ARM_NIB(12), ARM_NIB(16),
-    (u == 0) ? "-" : "",
-    offset,
-    (w == 1) ? "!" : "");
+    snprintf(instruction, length, "%s%s%s %d, cr%d, [r%d, #%s%d]%s",
+      (ls == 1) ? "ldc" : "stc",
+      arm_cond[ARM_NIB(28)],
+      (n == 1) ? "l" : "",
+      ARM_NIB(8), ARM_NIB(12), ARM_NIB(16),
+      (u == 0) ? "-" : "",
+      offset,
+      (w == 1) ? "!" : "");
   }
     else
   {
-    sprintf(instruction, "%s%s%s %d, cr%d, [r%d], #%s%d%s",
-    (ls == 1) ? "ldc" : "stc",
-    arm_cond[ARM_NIB(28)],
-    (n == 1) ? "l" : "",
-    ARM_NIB(8), ARM_NIB(12), ARM_NIB(16),
-    (u == 0) ? "-" : "",
-    offset,
-    (w == 1) ? "!" : "");
+    snprintf(instruction, length, "%s%s%s %d, cr%d, [r%d], #%s%d%s",
+      (ls == 1) ? "ldc" : "stc",
+      arm_cond[ARM_NIB(28)],
+      (n == 1) ? "l" : "",
+      ARM_NIB(8), ARM_NIB(12), ARM_NIB(16),
+      (u == 0) ? "-" : "",
+      offset,
+      (w == 1) ? "!" : "");
   }
 }
 
@@ -529,59 +549,59 @@ int disasm_arm(
         case OP_ALU_3:
           //*cycles_min = 2;
           //*cycles_max = 2;
-          process_alu_3(instruction, opcode, n);
+          process_alu_3(instruction, length, opcode, n);
           return 4;
         case OP_ALU_2_N:
-          process_alu_2(instruction, opcode, n, 0);
+          process_alu_2(instruction, length, opcode, n, 0);
           return 4;
         case OP_ALU_2_D:
-          process_alu_2(instruction, opcode, n, 1);
+          process_alu_2(instruction, length, opcode, n, 1);
           return 4;
         case OP_MULTIPLY:
-          process_mul(instruction, opcode);
+          process_mul(instruction, length, opcode);
           return 4;
         case OP_SWAP:
-          process_swap(instruction, opcode);
+          process_swap(instruction, length, opcode);
           return 4;
         case OP_MRS:
-          process_mrs(instruction, opcode);
+          process_mrs(instruction, length, opcode);
           return 4;
         case OP_MSR_ALL:
-          process_msr_all(instruction, opcode);
+          process_msr_all(instruction, length, opcode);
           return 4;
         case OP_MSR_FLAG:
-          process_msr_flag(instruction, opcode);
+          process_msr_flag(instruction, length, opcode);
           return 4;
         case OP_LDR_STR:
-          process_ldr_str(instruction, opcode, n, address);
+          process_ldr_str(instruction, length, opcode, n, address);
           return 4;
         case OP_UNDEFINED:
-          process_undefined(instruction, opcode);
+          process_undefined(instruction, length, opcode);
           return 4;
         case OP_LDM_STM:
-          process_ldm_stm(instruction, opcode, n);
+          process_ldm_stm(instruction, length, opcode, n);
           return 4;
         case OP_BRANCH:
-          process_branch(instruction, opcode, address);
+          process_branch(instruction, length, opcode, address);
           //*cycles_max = 3;
           return 4;
         case OP_BRANCH_EXCHANGE:
-          process_branch_exchange(instruction, opcode);
+          process_branch_exchange(instruction, length, opcode);
           return 4;
         case OP_SWI:
-          process_swi(instruction, opcode);
+          process_swi(instruction, length, opcode);
           return 4;
         case OP_CO_SWI:
-          process_co_swi(instruction, opcode);
+          process_co_swi(instruction, length, opcode);
           return 4;
         case OP_CO_TRANSFER:
-          process_co_transfer(instruction, opcode);
+          process_co_transfer(instruction, length, opcode);
           return 4;
         case OP_CO_OP_MASK:
-          process_co_op_mask(instruction, opcode);
+          process_co_op_mask(instruction, length, opcode);
           return 4;
         case OP_CO_TRANSFER_MASK:
-          process_co_transfer_mask(instruction, opcode);
+          process_co_transfer_mask(instruction, length, opcode);
           return 4;
         default:
           strcpy(instruction, "???");

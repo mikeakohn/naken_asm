@@ -79,46 +79,46 @@ int disasm_powerpc(
       switch (table_powerpc[n].type)
       {
         case OP_NONE:
-          sprintf(instruction, "%s", instr);
+          snprintf(instruction, length, "%s", instr);
           break;
         case OP_RD_RA_RB:
         case OP_RS_RA_RB:
-          sprintf(instruction, "%s%s r%d, r%d, r%d",
+          snprintf(instruction, length, "%s%s r%d, r%d, r%d",
             instr, (rc == 1) ? "." : "", rd, ra, rb);
           break;
         case OP_RA_RS_RB:
-          sprintf(instruction, "%s%s r%d, r%d, r%d",
+          snprintf(instruction, length, "%s%s r%d, r%d, r%d",
             instr, (rc == 1) ? "." : "", ra, rd, rb);
           break;
         case OP_RA_RS_SH:
-          sprintf(instruction, "%s%s r%d, r%d, %d",
+          snprintf(instruction, length, "%s%s r%d, r%d, %d",
             instr, (rc == 1) ? "." : "", ra, rd, rb);
           break;
         case OP_RD_RA:
-          sprintf(instruction, "%s%s r%d, r%d",
+          snprintf(instruction, length, "%s%s r%d, r%d",
             instr, (rc == 1) ? "." : "", rd, ra);
           break;
         case OP_RA_RS:
-          sprintf(instruction, "%s%s r%d, r%d",
+          snprintf(instruction, length, "%s%s r%d, r%d",
             instr, (rc == 1) ? "." : "", ra, rs);
           break;
         case OP_RD:
-          sprintf(instruction, "%s r%d", instr, rd);
+          snprintf(instruction, length, "%s r%d", instr, rd);
           break;
         case OP_RD_RA_SIMM:
-          sprintf(instruction, "%s%s r%d, r%d, %d (0x%04x)",
+          snprintf(instruction, length, "%s%s r%d, r%d, %d (0x%04x)",
             instr,
             ((table_powerpc[n].flags & FLAG_REQUIRE_DOT) != 0) ? "." : "",
             rd, ra, simm, simm);
           break;
         case OP_RD_SIMM:
-          sprintf(instruction, "%s%s r%d, %d (0x%04x)",
+          snprintf(instruction, length, "%s%s r%d, %d (0x%04x)",
             instr,
             ((table_powerpc[n].flags & FLAG_REQUIRE_DOT) != 0) ? "." : "",
             rd, simm, simm);
           break;
         case OP_RA_RS_UIMM:
-          sprintf(instruction, "%s%s r%d, r%d, %d (0x%04x)",
+          snprintf(instruction, length, "%s%s r%d, r%d, %d (0x%04x)",
             instr,
             ((table_powerpc[n].flags & FLAG_REQUIRE_DOT) != 0) ? "." : "",
             ra, rd, uimm, uimm);
@@ -126,55 +126,55 @@ int disasm_powerpc(
         case OP_BRANCH:
           offset = opcode & 0x03fffffc;
           if ((offset & 0x02000000) != 0) { offset |= 0xfc000000; }
-          sprintf(instruction, "%s 0x%x (offset=%d)", instr, address + offset, offset);
+          snprintf(instruction, length, "%s 0x%x (offset=%d)", instr, address + offset, offset);
           break;
         case OP_JUMP:
           temp = opcode & 0x03fffffc;
           if ((temp & 0x02000000) != 0) { temp |= 0xfc000000; }
-          sprintf(instruction, "%s 0x%x", instr, temp);
+          snprintf(instruction, length, "%s 0x%x", instr, temp);
           break;
         case OP_BRANCH_COND_BD:
           offset = opcode & 0xfffc;
           if ((offset & 0x8000) != 0) { offset |= 0xffff0000; }
-          sprintf(instruction, "%s %d, %d, 0x%x (offset=%d)", instr, bo, bi, address + offset, offset);
+          snprintf(instruction, length, "%s %d, %d, 0x%x (offset=%d)", instr, bo, bi, address + offset, offset);
           break;
         case OP_JUMP_COND_BD:
           temp = opcode & 0xfffc;
           if ((temp & 0x8000) != 0) { temp |= 0xffff0000; }
-          sprintf(instruction, "%s %d, %d, 0x%x", instr, bo, bi, temp);
+          snprintf(instruction, length, "%s %d, %d, 0x%x", instr, bo, bi, temp);
           break;
         case OP_BRANCH_COND:
-          sprintf(instruction, "%s %d, %d", instr, bo, bi);
+          snprintf(instruction, length, "%s %d, %d", instr, bo, bi);
           break;
         case OP_BRANCH_COND_ALIAS:
           offset = opcode & 0xfffc;
           if ((offset & 0x8000) != 0) { offset |= 0xffff0000; }
-          sprintf(instruction, "%s %d, 0x%x  (bo=%d, bi=%d, offset=%d)", instr, bi, address + offset, bo, bi, offset);
+          snprintf(instruction, length, "%s %d, 0x%x  (bo=%d, bi=%d, offset=%d)", instr, bi, address + offset, bo, bi, offset);
           break;
         case OP_CMP:
           cr = (opcode >> 23) & 0x7;
-          sprintf(instruction, "%s cr%d, r%d, r%d", instr, cr, ra, rb);
+          snprintf(instruction, length, "%s cr%d, r%d, r%d", instr, cr, ra, rb);
           break;
         case OP_CMPI:
           cr = (opcode >> 23) & 0x7;
-          sprintf(instruction, "%s cr%d, r%d, %d", instr, cr, ra, simm);
+          snprintf(instruction, length, "%s cr%d, r%d, %d", instr, cr, ra, simm);
           break;
         case OP_CRB_CRB_CRB:
-          sprintf(instruction, "%s %d, %d, %d", instr, rd, ra, rb);
+          snprintf(instruction, length, "%s %d, %d, %d", instr, rd, ra, rb);
           break;
         case OP_RD_OFFSET_RA:
         case OP_RS_OFFSET_RA:
-          sprintf(instruction, "%s r%d, %d(r%d)", instr, rd, simm, ra);
+          snprintf(instruction, length, "%s r%d, %d(r%d)", instr, rd, simm, ra);
           break;
         case OP_RD_RA_NB:
         case OP_RS_RA_NB:
-          sprintf(instruction, "%s r%d, r%d, %d", instr, rd, ra, rb);
+          snprintf(instruction, length, "%s r%d, r%d, %d", instr, rd, ra, rb);
           break;
         case OP_CRD_CRS:
-          sprintf(instruction, "%s cr%d, cr%d", instr, rd >> 2, ra >> 2);
+          snprintf(instruction, length, "%s cr%d, cr%d", instr, rd >> 2, ra >> 2);
           break;
         case OP_CRD:
-          sprintf(instruction, "%s cr%d", instr, rd >> 2);
+          snprintf(instruction, length, "%s cr%d", instr, rd >> 2);
           break;
         case OP_RD_SPR:
           temp = (rb << 5) | ra;
@@ -182,11 +182,11 @@ int disasm_powerpc(
 
           if (name != NULL)
           {
-            sprintf(instruction, "%s r%d, %s (spr=%d)", instr, rd, name, temp);
+            snprintf(instruction, length, "%s r%d, %s (spr=%d)", instr, rd, name, temp);
           }
             else
           {
-            sprintf(instruction, "%s r%d, %d", instr, rd, temp);
+            snprintf(instruction, length, "%s r%d, %d", instr, rd, temp);
           }
           break;
         case OP_SPR_RS:
@@ -195,11 +195,11 @@ int disasm_powerpc(
 
           if (name != NULL)
           {
-            sprintf(instruction, "%s  %s (spr=%d), r%d", instr, name, temp, rs);
+            snprintf(instruction, length, "%s  %s (spr=%d), r%d", instr, name, temp, rs);
           }
             else
           {
-            sprintf(instruction, "%s %d, r%d", instr, temp, rs);
+            snprintf(instruction, length, "%s %d, r%d", instr, temp, rs);
           }
           break;
         case OP_RD_TBR:
@@ -211,37 +211,37 @@ int disasm_powerpc(
 
           if (name != NULL)
           {
-            sprintf(instruction, "%s r%d, %s (tbr=%d)", instr, rd, name, temp);
+            snprintf(instruction, length, "%s r%d, %s (tbr=%d)", instr, rd, name, temp);
           }
             else
           {
-            sprintf(instruction, "%s r%d, %d", instr, rd, temp);
+            snprintf(instruction, length, "%s r%d, %d", instr, rd, temp);
           }
           break;
         case OP_CRM_RS:
-          sprintf(instruction, "%s 0x%02x, r%d", instr, (opcode >> 12) & 0xff, rs);
+          snprintf(instruction, length, "%s 0x%02x, r%d", instr, (opcode >> 12) & 0xff, rs);
           break;
         case OP_RA_RS_SH_MB_ME:
-          sprintf(instruction, "%s%s r%d, r%d, %d, %d, %d",
+          snprintf(instruction, length, "%s%s r%d, r%d, %d, %d, %d",
             instr, (rc == 1) ? "." : "", ra, rs, rb,
             (opcode >> 6) & 0x1f, (opcode >> 1) & 0x1f);
           break;
         case OP_STRM:
-          sprintf(instruction, "%s %d", instr, (opcode >> 21) & 0x3);
+          snprintf(instruction, length, "%s %d", instr, (opcode >> 21) & 0x3);
           break;
         case OP_RA_RB_STRM:
-          sprintf(instruction, "%s r%d, r%d, %d",
+          snprintf(instruction, length, "%s r%d, r%d, %d",
             instr, ra, rb, (opcode >> 21) & 0x3);
           break;
         case OP_VD_RA_RB:
         case OP_VS_RA_RB:
-          sprintf(instruction, "%s v%d, r%d, r%d", instr, rd, ra, rb);
+          snprintf(instruction, length, "%s v%d, r%d, r%d", instr, rd, ra, rb);
           break;
         case OP_VD:
-          sprintf(instruction, "%s v%d", instr, rd);
+          snprintf(instruction, length, "%s v%d", instr, rd);
           break;
         case OP_VB:
-          sprintf(instruction, "%s v%d", instr, rb);
+          snprintf(instruction, length, "%s v%d", instr, rb);
           break;
         case OP_VD_VA_VB:
           if ((table_powerpc[n].flags & FLAG_DOT) &&
@@ -249,41 +249,41 @@ int disasm_powerpc(
           {
             dot = ".";
           }
-          sprintf(instruction, "%s%s v%d, v%d, v%d", instr, dot, rd, ra, rb);
+          snprintf(instruction, length, "%s%s v%d, v%d, v%d", instr, dot, rd, ra, rb);
           break;
         case OP_VD_VA_VB_VC:
           vc = (opcode >> 6) & 0x1f;
-          sprintf(instruction, "%s v%d, v%d, v%d, v%d", instr, rd, ra, rb, vc);
+          snprintf(instruction, length, "%s v%d, v%d, v%d, v%d", instr, rd, ra, rb, vc);
           break;
         case OP_VD_VA_VC_VB:
           vc = (opcode >> 6) & 0x1f;
-          sprintf(instruction, "%s v%d, v%d, v%d, v%d", instr, rd, ra, vc, rb);
+          snprintf(instruction, length, "%s v%d, v%d, v%d, v%d", instr, rd, ra, vc, rb);
           break;
         case OP_VD_VB_UIMM:
-          sprintf(instruction, "%s v%d, %d, v%d", instr, rd, ra, rb);
+          snprintf(instruction, length, "%s v%d, %d, v%d", instr, rd, ra, rb);
           break;
         case OP_VD_VB_SIMM:
           vsimm = ra;
           if ((ra & 0x10) != 0) { vsimm |= 0xf0; }
-          sprintf(instruction, "%s v%d, %d, v%d", instr, rd, vsimm, rb);
+          snprintf(instruction, length, "%s v%d, %d, v%d", instr, rd, vsimm, rb);
           break;
         case OP_VD_SIMM:
           vsimm = ra;
           if ((ra & 0x10) != 0) { vsimm |= 0xf0; }
-          sprintf(instruction, "%s v%d, %d", instr, rd, vsimm);
+          snprintf(instruction, length, "%s v%d, %d", instr, rd, vsimm);
           break;
         case OP_VD_VB:
-          sprintf(instruction, "%s v%d, v%d", instr, rd, ra);
+          snprintf(instruction, length, "%s v%d, v%d", instr, rd, ra);
           break;
         case OP_VD_VA_VB_SH:
           vc = (opcode >> 6) & 0xf;
-          sprintf(instruction, "%s v%d, v%d, v%d, %d", instr, rd, ra, rb, vc);
+          snprintf(instruction, length, "%s v%d, v%d, v%d, %d", instr, rd, ra, rb, vc);
           break;
         case OP_FRT_OFFSET_RA:
-          sprintf(instruction, "%s fp%d, %d(r%d)", instr, rd, simm, ra);
+          snprintf(instruction, length, "%s fp%d, %d(r%d)", instr, rd, simm, ra);
           break;
         case OP_FRT_RA_RB:
-          sprintf(instruction, "%s fp%d, r%d, r%d", instr, rd, ra, rb);
+          snprintf(instruction, length, "%s fp%d, r%d, r%d", instr, rd, ra, rb);
           break;
         case OP_FRT_FRB:
           if ((table_powerpc[n].flags & FLAG_DOT) &&
@@ -291,7 +291,7 @@ int disasm_powerpc(
           {
             dot = ".";
           }
-          sprintf(instruction, "%s%s fp%d, fp%d", instr, dot, rd, rb);
+          snprintf(instruction, length, "%s%s fp%d, fp%d", instr, dot, rd, rb);
           break;
         case OP_FRT_FRA_FRB:
           if ((table_powerpc[n].flags & FLAG_DOT) &&
@@ -299,7 +299,7 @@ int disasm_powerpc(
           {
             dot = ".";
           }
-          sprintf(instruction, "%s%s fp%d, fp%d, fp%d", dot, instr, rd, ra, rb);
+          snprintf(instruction, length, "%s%s fp%d, fp%d, fp%d", dot, instr, rd, ra, rb);
           break;
         case OP_FRT_FRA_FRC:
           if ((table_powerpc[n].flags & FLAG_DOT) &&
@@ -307,7 +307,7 @@ int disasm_powerpc(
           {
             dot = ".";
           }
-          sprintf(instruction, "%s%s fp%d, fp%d, fp%d", dot, instr, rd, ra, rc);
+          snprintf(instruction, length, "%s%s fp%d, fp%d, fp%d", dot, instr, rd, ra, rc);
           break;
         case OP_FRT_FRA_FRC_FRB:
           if ((table_powerpc[n].flags & FLAG_DOT) &&
@@ -315,11 +315,11 @@ int disasm_powerpc(
           {
             dot = ".";
           }
-          sprintf(instruction, "%s%s fp%d, fp%d, fp%d, fp%d", instr, dot, rd, ra, rc, rb);
+          snprintf(instruction, length, "%s%s fp%d, fp%d, fp%d, fp%d", instr, dot, rd, ra, rc, rb);
           break;
         case OP_BF_FRA_FRB:
           bf = (opcode >> 23) & 0x7;
-          sprintf(instruction, "%s %s, fp%d, fp%d", instr, cmp_bits[bf], ra, rb);
+          snprintf(instruction, length, "%s %s, fp%d, fp%d", instr, cmp_bits[bf], ra, rb);
           break;
         case OP_FRT:
           if ((table_powerpc[n].flags & FLAG_DOT) &&
@@ -327,12 +327,12 @@ int disasm_powerpc(
           {
             dot = ".";
           }
-          sprintf(instruction, "%s%s fp%d", instr, dot, rd);
+          snprintf(instruction, length, "%s%s fp%d", instr, dot, rd);
           break;
         case OP_BF_BFA:
           bf = (opcode >> 23) & 0x7;
           bfa = (opcode >> 18) & 0x7;
-          sprintf(instruction, "%s %s, %d", instr, cmp_bits[bf], bfa);
+          snprintf(instruction, length, "%s %s, %d", instr, cmp_bits[bf], bfa);
           break;
         case OP_BF_U:
           if ((table_powerpc[n].flags & FLAG_DOT) &&
@@ -342,7 +342,7 @@ int disasm_powerpc(
           }
           bf = (opcode >> 23) & 0x7;
           u = (opcode >> 12) & 0xf;
-          sprintf(instruction, "%s%s %s, %d", instr, dot, cmp_bits[bf], u);
+          snprintf(instruction, length, "%s%s %s, %d", instr, dot, cmp_bits[bf], u);
           break;
         case OP_FLM_FRB:
           if ((table_powerpc[n].flags & FLAG_DOT) &&
@@ -351,7 +351,7 @@ int disasm_powerpc(
             dot = ".";
           }
           temp = (opcode >> 17) & 0xff;
-          sprintf(instruction, "%s%s 0x%02x, fp%d", instr, dot, temp, rb);
+          snprintf(instruction, length, "%s%s 0x%02x, fp%d", instr, dot, temp, rb);
           break;
         case OP_BT:
           if ((table_powerpc[n].flags & FLAG_DOT) &&
@@ -359,7 +359,7 @@ int disasm_powerpc(
           {
             dot = ".";
           }
-          sprintf(instruction, "%s%s %d", instr, dot, rd);
+          snprintf(instruction, length, "%s%s %d", instr, dot, rd);
           break;
         default:
           strcpy(instruction, "???");

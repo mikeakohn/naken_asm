@@ -66,7 +66,7 @@ int disasm_lc3(
         }
         case OP_R_R_R:
         {
-          sprintf(instruction, "%s r%d, r%d, r%d", table_lc3[n].instr, r0, r1, r2);
+          snprintf(instruction, length, "%s r%d, r%d, r%d", table_lc3[n].instr, r0, r1, r2);
           return 2;
         }
         case OP_R_R_IMM5:
@@ -74,7 +74,7 @@ int disasm_lc3(
           int16_t imm5 = opcode & 0x1f;
           if ((imm5 & 0x10) != 0) { imm5 |= 0xffe0; }
 
-          sprintf(instruction, "%s r%d, r%d, #%d", table_lc3[n].instr, r0, r1, imm5);
+          snprintf(instruction, length, "%s r%d, r%d, #%d", table_lc3[n].instr, r0, r1, imm5);
           return 2;
         }
         case OP_BR:
@@ -83,13 +83,13 @@ int disasm_lc3(
           int16_t offset9 = opcode & 0x1ff;
           if ((offset9 & 0x100) != 0) { offset9 |= 0xfe00; }
 
-          sprintf(instruction, "%s%s 0x%04x (offset=%d)", table_lc3[n].instr, nzp, (address / 2) + 1 + offset9, offset9);
+          snprintf(instruction, length, "%s%s 0x%04x (offset=%d)", table_lc3[n].instr, nzp, (address / 2) + 1 + offset9, offset9);
 
           return 2;
         }
         case OP_BASER:
         {
-          sprintf(instruction, "%s r%d", table_lc3[n].instr, r1);
+          snprintf(instruction, length, "%s r%d", table_lc3[n].instr, r1);
           return 2;
         }
         case OP_OFFSET11:
@@ -97,7 +97,7 @@ int disasm_lc3(
           uint16_t offset11 = opcode & 0x7ff;
           if ((offset11 & 0x400) != 0) { offset11 |= 0xfc00; }
 
-          sprintf(instruction, "%s 0x%04x (offset=%d)", table_lc3[n].instr, (address / 2) + 1 + offset11, offset11);
+          snprintf(instruction, length, "%s 0x%04x (offset=%d)", table_lc3[n].instr, (address / 2) + 1 + offset11, offset11);
           return 2;
         }
         case OP_R_OFFSET9:
@@ -105,7 +105,7 @@ int disasm_lc3(
           uint16_t offset9 = opcode & 0x1ff;
           if ((offset9 & 0x100) != 0) { offset9 |= 0xfe00; }
 
-          sprintf(instruction, "%s r%d, 0x%04x (offset=%d)", table_lc3[n].instr, r0, (address / 2) + 1 + offset9, offset9);
+          snprintf(instruction, length, "%s r%d, 0x%04x (offset=%d)", table_lc3[n].instr, r0, (address / 2) + 1 + offset9, offset9);
           return 2;
         }
         case OP_R_R_OFFSET6:
@@ -113,18 +113,18 @@ int disasm_lc3(
           int16_t offset6 = opcode & 0x03f;
           if ((offset6 & 0x20) != 0) { offset6 |= 0xffc0; }
 
-          sprintf(instruction, "%s r%d, r%d, #%d", table_lc3[n].instr, r0, r1, offset6);
+          snprintf(instruction, length, "%s r%d, r%d, #%d", table_lc3[n].instr, r0, r1, offset6);
           return 2;
         }
         case OP_R_R:
         {
-          sprintf(instruction, "%s r%d, r%d", table_lc3[n].instr, r0, r1);
+          snprintf(instruction, length, "%s r%d, r%d", table_lc3[n].instr, r0, r1);
           return 2;
         }
         case OP_VECTOR:
         {
           int vector = opcode & 0xff;
-          sprintf(instruction, "%s %d", table_lc3[n].instr, vector);
+          snprintf(instruction, length, "%s %d", table_lc3[n].instr, vector);
           return 2;
         }
         default:

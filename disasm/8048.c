@@ -50,7 +50,7 @@ int disasm_8048(
 
     if (table_8048[n].opcode == (opcode & table_8048[n].mask))
     {
-      sprintf(instruction, "%s", table_8048[n].name);
+      snprintf(instruction, length, "%s", table_8048[n].name);
 
       *cycles_min = table_8048[n].cycles;
       *cycles_max = table_8048[n].cycles;
@@ -127,35 +127,35 @@ int disasm_8048(
           case OP_PP:
           case OP_P03:
           case OP_P12:
-            sprintf(temp, "p%d", opcode & 0x3);
+            snprintf(temp, sizeof(temp), "p%d", opcode & 0x3);
             strcat(instruction, temp);
             break;
           case OP_P0:
             strcat(instruction, "p0");
             break;
           case OP_RR:
-            sprintf(temp, "r%d", opcode & 0x7);
+            snprintf(temp, sizeof(temp), "r%d", opcode & 0x7);
             strcat(instruction, temp);
             break;
           case OP_AT_R:
-            sprintf(temp, "@r%d", opcode & 0x1);
+            snprintf(temp, sizeof(temp), "@r%d", opcode & 0x1);
             strcat(instruction, temp);
             break;
           case OP_NUM:
             value = memory_read_m(memory, address + 1);
-            sprintf(temp, "#0x%02x", value);
+            snprintf(temp, sizeof(temp), "#0x%02x", value);
             strcat(instruction, temp);
             byte_count = 2;
             break;
           case OP_ADDR:
             value = memory_read_m(memory, address + 1);
-            sprintf(temp, "#0x%02x", ((opcode & 0xe000) >> 5) | value);
+            snprintf(temp, sizeof(temp), "#0x%02x", ((opcode & 0xe000) >> 5) | value);
             strcat(instruction, temp);
             byte_count = 2;
             break;
           case OP_PADDR:
             value = memory_read_m(memory, address + 1);
-            sprintf(temp, "#0x%02x", (address & 0xff00) | value);
+            snprintf(temp, sizeof(temp), "#0x%02x", (address & 0xff00) | value);
             strcat(instruction, temp);
             byte_count = 2;
             break;

@@ -9,7 +9,7 @@ int test_instruction(const char *instruction)
   AsmContext asm_context;
   char code[128];
 
-  sprintf(code, ".n64_rsp\n%s\n", instruction);
+  snprintf(code, sizeof(code), ".n64_rsp\n%s\n", instruction);
 
   memset(&asm_context, 0, sizeof(asm_context));
 

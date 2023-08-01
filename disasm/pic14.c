@@ -51,32 +51,32 @@ int disasm_pic14(
         {
           f = opcode & 0x7f;
           d = (opcode >> 7) & 1;
-          sprintf(instruction, "%s 0x%02x, %c", table_pic14[n].instr, f, d == 1 ? 'f':'w');
+          snprintf(instruction, length, "%s 0x%02x, %c", table_pic14[n].instr, f, d == 1 ? 'f':'w');
           return 2;
         }
         case OP_F:
         {
           f = opcode & 0x7f;
-          sprintf(instruction, "%s 0x%02x", table_pic14[n].instr, f);
+          snprintf(instruction, length, "%s 0x%02x", table_pic14[n].instr, f);
           return 2;
         }
         case OP_F_B:
         {
           f = opcode & 0x7f;
           b = (opcode >> 7) & 7;
-          sprintf(instruction, "%s 0x%02x, %d", table_pic14[n].instr, f, b);
+          snprintf(instruction, length, "%s 0x%02x, %d", table_pic14[n].instr, f, b);
           return 2;
         }
         case OP_K8:
         {
           k = opcode & 0xff;
-          sprintf(instruction, "%s 0x%02x", table_pic14[n].instr, k);
+          snprintf(instruction, length, "%s 0x%02x", table_pic14[n].instr, k);
           return 2;
         }
         case OP_K11:
         {
           k = opcode & 0x7ff;
-          sprintf(instruction, "%s 0x%02x", table_pic14[n].instr, k);
+          snprintf(instruction, length, "%s 0x%02x", table_pic14[n].instr, k);
           return 2;
         }
         default:

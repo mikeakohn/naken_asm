@@ -902,7 +902,7 @@ int simulate_run_6502(Simulate *simulate, int max_cycles, int step)
         for (i = 0; i < count; i++)
         {
           char temp[4];
-          sprintf(temp, "%02x ", READ_RAM(pc + i));
+          snprintf(temp, sizeof(temp), "%02x ", READ_RAM(pc + i));
           strcat(bytes, temp);
         }
 

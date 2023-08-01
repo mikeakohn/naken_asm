@@ -44,54 +44,54 @@ int append_operand(
       return 0;
     case OP_EXPR:
       data8 = memory_read_m(memory, address);
-      sprintf(temp, "0x%02x", data8);
+      snprintf(temp, sizeof(temp), "0x%02x", data8);
       strcat(instruction, temp);
       return 1;
     case OP_INDEX_EXPR:
       data8 = memory_read_m(memory, address);
-      sprintf(temp, "[0x%02x]", data8);
+      snprintf(temp, sizeof(temp), "[0x%02x]", data8);
       strcat(instruction, temp);
       return 1;
     case OP_INDEX_X_EXPR:
       data8 = memory_read_m(memory, address);
-      sprintf(temp, "[X+0x%02x]", data8);
+      snprintf(temp, sizeof(temp), "[X+0x%02x]", data8);
       strcat(instruction, temp);
       return 1;
 #if 0
     case OP_INDEX_EXPR_INC:
       data8 = memory_read_m(memory, address);
-      sprintf(temp, "[[0x%02x]++]", data8);
+      snprintf(temp, sizeof(temp), "[[0x%02x]++]", data8);
       strcat(instruction, temp);
       return 1;
 #endif
     case OP_REG_INDEX_EXPR:
       data8 = memory_read_m(memory, address);
-      sprintf(temp, "REG[0x%02x]", data8);
+      snprintf(temp, sizeof(temp), "REG[0x%02x]", data8);
       strcat(instruction, temp);
       return 1;
     case OP_REG_INDEX_X_EXPR:
       data8 = memory_read_m(memory, address);
-      sprintf(temp, "REG[X+0x%02x]", data8);
+      snprintf(temp, sizeof(temp), "REG[X+0x%02x]", data8);
       strcat(instruction, temp);
       return 1;
     case OP_EXPR_S12:
       offset = memory_read_m(memory, address);
       offset |= (opcode & 0xf) << 8;
       if ((offset & 0x800) != 0) { offset |= 0xf000; }
-      sprintf(temp, "0x%04x (offset=%d)", address + 1 + offset, offset);
+      snprintf(temp, sizeof(temp), "0x%04x (offset=%d)", address + 1 + offset, offset);
       strcat(instruction, temp);
       return 1;
     case OP_EXPR_S12_JUMP:
       offset = memory_read_m(memory, address);
       offset |= (opcode & 0xf) << 8;
       if ((offset & 0x800) != 0) { offset |= 0xf000; }
-      sprintf(temp, "0x%04x (offset=%d)", address + offset, offset);
+      snprintf(temp, sizeof(temp), "0x%04x (offset=%d)", address + offset, offset);
       strcat(instruction, temp);
       return 1;
     case OP_EXPR_U16:
       data16 = (memory_read_m(memory, address) << 8) |
                 memory_read_m(memory, address + 1);
-      sprintf(temp, "0x%04x", data16);
+      snprintf(temp, sizeof(temp), "0x%04x", data16);
       strcat(instruction, temp);
       return 2;
   }
@@ -183,7 +183,7 @@ void list_output_m8c(
   {
     opcode = memory_read_m(&asm_context->memory, start + n);
 
-    sprintf(temp, "%02x ", opcode);
+    snprintf(temp, sizeof(temp), "%02x ", opcode);
     strcat(hex, temp);
   }
 

@@ -84,14 +84,14 @@ int disasm_super_fx(
         {
           reg = opcode & 0xf;
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
-          sprintf(instruction, "%s r%d", table_super_fx[n].instr, reg);
+          snprintf(instruction, length, "%s r%d", table_super_fx[n].instr, reg);
           return count + 1;
         }
         case OP_ATREG:
         {
           reg = opcode & 0xf;
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
-          sprintf(instruction, "%s (r%d)", table_super_fx[n].instr, reg);
+          snprintf(instruction, length, "%s (r%d)", table_super_fx[n].instr, reg);
           return count + 1;
         }
         case OP_N:
@@ -105,28 +105,28 @@ int disasm_super_fx(
               break;
             }
           }
-          sprintf(instruction, "%s #%d", table_super_fx[n].instr, num);
+          snprintf(instruction, length, "%s #%d", table_super_fx[n].instr, num);
           return count + 1;
         }
 #if 0
         case OP_XX:
         {
           num = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s #%d", table_super_fx[n].instr, num);
+          snprintf(instruction, length, "%s #%d", table_super_fx[n].instr, num);
           return count + 2;
         }
 #endif
         case OP_OFFSET:
         {
           offset = (int8_t)memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s 0x%04x (offset=%d)", table_super_fx[n].instr, address + 2 + offset, offset);
+          snprintf(instruction, length, "%s 0x%04x (offset=%d)", table_super_fx[n].instr, address + 2 + offset, offset);
           return count + 2;
         }
         case OP_REG_PP:
         {
           reg = opcode & 0xf;
           num = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s r%d, #0x%02x", table_super_fx[n].instr, reg, num);
+          snprintf(instruction, length, "%s r%d, #0x%02x", table_super_fx[n].instr, reg, num);
           return count + 2;
         }
         case OP_REG_XX:
@@ -134,7 +134,7 @@ int disasm_super_fx(
           reg = opcode & 0xf;
           num = memory_read_m(memory, address + 1);
           num |= memory_read_m(memory, address + 2) << 8;
-          sprintf(instruction, "%s r%d, #0x%04x", table_super_fx[n].instr, reg, num);
+          snprintf(instruction, length, "%s r%d, #0x%04x", table_super_fx[n].instr, reg, num);
           return count + 3;
         }
         case OP_REG_ATXX:
@@ -143,7 +143,7 @@ int disasm_super_fx(
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
           num = memory_read_m(memory, address + 1);
           num |= memory_read_m(memory, address + 2) << 8;
-          sprintf(instruction, "%s r%d, (0x%04x)", table_super_fx[n].instr, reg, num);
+          snprintf(instruction, length, "%s r%d, (0x%04x)", table_super_fx[n].instr, reg, num);
           return count + 3;
         }
         case OP_REG_ATYY:
@@ -151,7 +151,7 @@ int disasm_super_fx(
           reg = opcode & 0xf;
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
           num = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s r%d, (0x%02x)", table_super_fx[n].instr, reg, num * 2);
+          snprintf(instruction, length, "%s r%d, (0x%02x)", table_super_fx[n].instr, reg, num * 2);
           return count + 2;
         }
         case OP_ATXX_REG:
@@ -160,7 +160,7 @@ int disasm_super_fx(
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
           num = memory_read_m(memory, address + 1);
           num |= memory_read_m(memory, address + 2) << 8;
-          sprintf(instruction, "%s (0x%04x), r%d", table_super_fx[n].instr, num, reg);
+          snprintf(instruction, length, "%s (0x%04x), r%d", table_super_fx[n].instr, num, reg);
           return count + 3;
         }
         case OP_ATYY_REG:
@@ -168,7 +168,7 @@ int disasm_super_fx(
           reg = opcode & 0xf;
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
           num = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s (0x%02x), r%d", table_super_fx[n].instr, num * 2, reg);
+          snprintf(instruction, length, "%s (0x%02x), r%d", table_super_fx[n].instr, num * 2, reg);
           return count + 2;
         }
         default:

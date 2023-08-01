@@ -92,36 +92,36 @@ static int disasm_vector(
         switch (mips_ee_vector[n].operand[r])
         {
           case MIPS_OP_VFT:
-            sprintf(temp, " $vf%d", ft);
+            snprintf(temp, sizeof(temp), " $vf%d", ft);
             if ((mips_ee_vector[n].flags & FLAG_TE) != 0)
             {
               strcat(temp, scaler[(dest >> 2) & 0x3]);
             }
             break;
           case MIPS_OP_VFS:
-            sprintf(temp, " $vf%d", fs);
+            snprintf(temp, sizeof(temp), " $vf%d", fs);
             if ((mips_ee_vector[n].flags & FLAG_SE) != 0)
             {
               strcat(temp, scaler[dest & 0x3]);
             }
             break;
           case MIPS_OP_VFD:
-            sprintf(temp, " $vf%d", fd);
+            snprintf(temp, sizeof(temp), " $vf%d", fd);
             break;
           case MIPS_OP_VIT:
-            sprintf(temp, " $vi%d", ft);
+            snprintf(temp, sizeof(temp), " $vi%d", ft);
             break;
           case MIPS_OP_VIS:
-            sprintf(temp, " $vi%d", fs);
+            snprintf(temp, sizeof(temp), " $vi%d", fs);
             break;
           case MIPS_OP_VID:
-            sprintf(temp, " $vi%d", fd);
+            snprintf(temp, sizeof(temp), " $vi%d", fd);
             break;
           case MIPS_OP_VI01:
-            sprintf(temp, " $vi01");
+            snprintf(temp, sizeof(temp), " $vi01");
             break;
           case MIPS_OP_VI27:
-            sprintf(temp, " $vi27");
+            snprintf(temp, sizeof(temp), " $vi27");
             break;
           case MIPS_OP_I:
             strcpy(temp, " I");
@@ -141,39 +141,39 @@ static int disasm_vector(
           case MIPS_OP_OFFSET_VBASE:
             offset = opcode & 0x7ff;
             if ((offset & 0x400) != 0) { offset |= 0xf800; }
-            sprintf(temp, " %d($vi%d)", offset, (opcode >> 11) & 0x1f);
+            snprintf(temp, sizeof(temp), " %d($vi%d)", offset, (opcode >> 11) & 0x1f);
             break;
           case MIPS_OP_VBASE:
-            sprintf(temp, " ($vi%d)", fs);
+            snprintf(temp, sizeof(temp), " ($vi%d)", fs);
             break;
           case MIPS_OP_VBASE_DEC:
             if (mips_ee_vector[n].operand[0] == MIPS_OP_VFS)
             {
-              sprintf(temp, " (--$vi%d)", ft);
+              snprintf(temp, sizeof(temp), " (--$vi%d)", ft);
             }
               else
             {
-              sprintf(temp, " (--$vi%d)", fs);
+              snprintf(temp, sizeof(temp), " (--$vi%d)", fs);
             }
             break;
           case MIPS_OP_VBASE_INC:
             if (mips_ee_vector[n].operand[0] == MIPS_OP_VFS)
             {
-              sprintf(temp, " ($vi%d++)", ft);
+              snprintf(temp, sizeof(temp), " ($vi%d++)", ft);
             }
               else
             {
-              sprintf(temp, " ($vi%d++)", fs);
+              snprintf(temp, sizeof(temp), " ($vi%d++)", fs);
             }
             break;
           case MIPS_OP_IMMEDIATE15_2:
             immediate = (opcode >> 6) & 0x7ff;
-            sprintf(temp, " 0x%04x", immediate << 3);
+            snprintf(temp, sizeof(temp), " 0x%04x", immediate << 3);
             break;
           case MIPS_OP_IMMEDIATE5:
             immediate = (opcode >> 6) & 0x1f;
             if ((immediate & 0x10) != 0) { immediate |= 0xfffffff0; }
-            sprintf(temp, " %d", immediate);
+            snprintf(temp, sizeof(temp), " %d", immediate);
             break;
           default:
             strcpy(temp, " ?");
@@ -195,6 +195,7 @@ static int disasm_vector(
 static int disasm_n64_rsp(
   uint32_t opcode,
   char *instruction,
+  int length,
   int *cycles_min,
   int *cycles_max)
 {
@@ -221,7 +222,7 @@ static int disasm_n64_rsp(
           if ((offset & 0x40) != 0) { offset |= 0xffffff80; }
           offset = offset << mips_rsp_vector[n].shift;
 
-          sprintf(instruction, "%s $v%d[%d], %d(%s)",
+          snprintf(instruction, length, "%s $v%d[%d], %d(%s)",
             mips_rsp_vector[n].instr,
             vt, element,
             offset, reg[base]);
@@ -233,7 +234,7 @@ static int disasm_n64_rsp(
           int rt = (opcode >> 16) & 0x1f;
           int vd = (opcode >> 11) & 0x1f;
 
-          sprintf(instruction, "%s %s, $v%d[%d]",
+          snprintf(instruction, length, "%s %s, $v%d[%d]",
             mips_rsp_vector[n].instr,
             reg[rt],
             vd, element);
@@ -246,7 +247,7 @@ static int disasm_n64_rsp(
           int de = (opcode >> 11) & 0x1f;
           int e = (opcode >> 21) & 0xf;
 
-          sprintf(instruction, "%s $v%d[%d], $v%d[%d]",
+          snprintf(instruction, length, "%s $v%d[%d], $v%d[%d]",
             mips_rsp_vector[n].instr,
             vd, de,
             vt, e);
@@ -261,7 +262,7 @@ static int disasm_n64_rsp(
 
           if (e == 0)
           {
-            sprintf(instruction, "%s $v%d, $v%d, $v%d",
+            snprintf(instruction, length, "%s $v%d, $v%d, $v%d",
               mips_rsp_vector[n].instr, vd, vs, vt);
           }
             else
@@ -269,7 +270,7 @@ static int disasm_n64_rsp(
           {
             e &= 0x1;
 
-            sprintf(instruction, "%s $v%d, $v%d, $v%d[%dq]",
+            snprintf(instruction, length, "%s $v%d, $v%d, $v%d[%dq]",
               mips_rsp_vector[n].instr, vd, vs, vt, e);
           }
             else
@@ -277,7 +278,7 @@ static int disasm_n64_rsp(
           {
             e &= 0x3;
 
-            sprintf(instruction, "%s $v%d, $v%d, $v%d[%dh]",
+            snprintf(instruction, length, "%s $v%d, $v%d, $v%d[%dh]",
               mips_rsp_vector[n].instr, vd, vs, vt, e);
           }
             else
@@ -285,12 +286,12 @@ static int disasm_n64_rsp(
           {
             e &= 0x7;
 
-            sprintf(instruction, "%s $v%d, $v%d, $v%d[%d]",
+            snprintf(instruction, length, "%s $v%d, $v%d, $v%d[%d]",
               mips_rsp_vector[n].instr, vd, vs, vt, e);
           }
             else
           {
-            sprintf(instruction, "%s $v%d, $v%d, $v%d[?] (e=%d)",
+            snprintf(instruction, length, "%s $v%d, $v%d, $v%d[?] (e=%d)",
               mips_rsp_vector[n].instr, vd, vs, vt, e);
           }
 
@@ -337,7 +338,12 @@ int disasm_mips(
 
   if (flags & MIPS_RSP)
   {
-    int count = disasm_n64_rsp(opcode, instruction, cycles_min, cycles_max);
+    int count = disasm_n64_rsp(
+      opcode,
+      instruction,
+      length,
+      cycles_min,
+      cycles_max);
 
     if (count != 0) { return count; }
   }
@@ -385,7 +391,7 @@ int disasm_mips(
         }
           else
         {
-          sprintf(instruction, "internal error");
+          snprintf(instruction, length, "internal error");
           return 4;
         }
 
@@ -423,11 +429,11 @@ int disasm_mips(
         {
           if (r < 2 || mips_special_table[n].type == SPECIAL_TYPE_REGS)
           {
-            sprintf(temp, "%s", reg[(int)operand_reg[r]]);
+            snprintf(temp, sizeof(temp), "%s", reg[(int)operand_reg[r]]);
           }
             else
           {
-            sprintf(temp, "%d", operand_reg[r]);
+            snprintf(temp, sizeof(temp), "%d", operand_reg[r]);
           }
 
           if (r != 0) { strcat(instruction, ", "); }
@@ -466,63 +472,69 @@ int disasm_mips(
         switch (mips_other[n].operand[r])
         {
           case MIPS_OP_RS:
-            sprintf(temp, " %s", reg[rs]);
+            snprintf(temp, sizeof(temp), " %s", reg[rs]);
             break;
           case MIPS_OP_RT:
-            sprintf(temp, " %s", reg[rt]);
+            snprintf(temp, sizeof(temp), " %s", reg[rt]);
             break;
           case MIPS_OP_RD:
-            sprintf(temp, " %s", reg[rd]);
+            snprintf(temp, sizeof(temp), " %s", reg[rd]);
             break;
           case MIPS_OP_FT:
-            sprintf(temp, " $f%d", rt);
+            snprintf(temp, sizeof(temp), " $f%d", rt);
             break;
           case MIPS_OP_FS:
-            sprintf(temp, " $f%d", rd);
+            snprintf(temp, sizeof(temp), " $f%d", rd);
             break;
           case MIPS_OP_FD:
-            sprintf(temp, " $f%d", sa);
+            snprintf(temp, sizeof(temp), " $f%d", sa);
             break;
           case MIPS_OP_VIS:
-            sprintf(temp, " $vi%d", rd);
+            snprintf(temp, sizeof(temp), " $vi%d", rd);
             break;
           case MIPS_OP_VFS:
-            sprintf(temp, " $vf%d", rd);  // here
+            snprintf(temp, sizeof(temp), " $vf%d", rd);  // here
             break;
           case MIPS_OP_VFT:
-            sprintf(temp, " $vf%d", rt);
+            snprintf(temp, sizeof(temp), " $vf%d", rt);
             break;
           case MIPS_OP_SA:
-            sprintf(temp, " %d", sa);
+            snprintf(temp, sizeof(temp), " %d", sa);
             break;
           case MIPS_OP_IMMEDIATE_SIGNED:
-            sprintf(temp, " %d", (int16_t)immediate);
+            snprintf(temp, sizeof(temp), " %d", (int16_t)immediate);
             break;
           case MIPS_OP_IMMEDIATE_RS:
-            sprintf(temp, " %d(%s)", (int16_t)immediate, reg[rs]);
+            snprintf(temp, sizeof(temp), " %d(%s)", (int16_t)immediate, reg[rs]);
             break;
           case MIPS_OP_LABEL:
             if ((immediate & 0x8000) != 0) { immediate |= 0xffff0000; }
             immediate = immediate << 2;
-            sprintf(temp, " 0x%08x (%d)", address + 4 + immediate, immediate);
+            snprintf(temp, sizeof(temp), " 0x%08x (%d)", address + 4 + immediate, immediate);
             break;
           case MIPS_OP_PREG:
-            sprintf(temp, " %d", (immediate >> 1) & 0x1f);
+            snprintf(temp, sizeof(temp), " %d", (immediate >> 1) & 0x1f);
             break;
           case MIPS_OP_ID_REG:
             if (rd < 16)
             {
-              sprintf(temp, " $vi%d [%d]", rd, rd);
+              snprintf(temp, sizeof(temp), " $vi%d [%d]", rd, rd);
             }
               else
             {
-              sprintf(temp, " %s [%d]", id_reg[rd - 16], rd);
+              snprintf(temp, sizeof(temp), " %s [%d]", id_reg[rd - 16], rd);
             }
             break;
           case MIPS_OP_OPTIONAL:
             immediate = (opcode >> 6) & 0xfffff;
-            if (immediate != 0) { sprintf(temp, " 0x%x", immediate); }
-            else { temp[0] = 0; }
+            if (immediate != 0)
+            {
+              snprintf(temp, sizeof(temp), " 0x%x", immediate);
+            }
+              else
+            {
+              temp[0] = 0;
+            }
             break;
           default:
             strcpy(temp, " ?");
@@ -558,63 +570,69 @@ int disasm_mips(
         switch (mips_ee[n].operand[r])
         {
           case MIPS_OP_RS:
-            sprintf(temp, " %s", reg[rs]);
+            snprintf(temp, sizeof(temp), " %s", reg[rs]);
             break;
           case MIPS_OP_RT:
-            sprintf(temp, " %s", reg[rt]);
+            snprintf(temp, sizeof(temp), " %s", reg[rt]);
             break;
           case MIPS_OP_RD:
-            sprintf(temp, " %s", reg[rd]);
+            snprintf(temp, sizeof(temp), " %s", reg[rd]);
             break;
           case MIPS_OP_FT:
-            sprintf(temp, " $f%d", rt);
+            snprintf(temp, sizeof(temp), " $f%d", rt);
             break;
           case MIPS_OP_FS:
-            sprintf(temp, " $f%d", rd);
+            snprintf(temp, sizeof(temp), " $f%d", rd);
             break;
           case MIPS_OP_FD:
-            sprintf(temp, " $f%d", sa);
+            snprintf(temp, sizeof(temp), " $f%d", sa);
             break;
           case MIPS_OP_VIS:
-            sprintf(temp, " $vi%d", rd);
+            snprintf(temp, sizeof(temp), " $vi%d", rd);
             break;
           case MIPS_OP_VFS:
-            sprintf(temp, " $vf%d", rd);  // here
+            snprintf(temp, sizeof(temp), " $vf%d", rd);  // here
             break;
           case MIPS_OP_VFT:
-            sprintf(temp, " $vf%d", rt);
+            snprintf(temp, sizeof(temp), " $vf%d", rt);
             break;
           case MIPS_OP_SA:
-            sprintf(temp, " %d", sa);
+            snprintf(temp, sizeof(temp), " %d", sa);
             break;
           case MIPS_OP_IMMEDIATE_SIGNED:
-            sprintf(temp, " %d", (int16_t)immediate);
+            snprintf(temp, sizeof(temp), " %d", (int16_t)immediate);
             break;
           case MIPS_OP_IMMEDIATE_RS:
-            sprintf(temp, " %d(%s)", (int16_t)immediate, reg[rs]);
+            snprintf(temp, sizeof(temp), " %d(%s)", (int16_t)immediate, reg[rs]);
             break;
           case MIPS_OP_LABEL:
             if ((immediate & 0x8000) != 0) { immediate |= 0xffff0000; }
             immediate = immediate << 2;
-            sprintf(temp, " 0x%08x (%d)", address + 4 + immediate, immediate);
+            snprintf(temp, sizeof(temp), " 0x%08x (%d)", address + 4 + immediate, immediate);
             break;
           case MIPS_OP_PREG:
-            sprintf(temp, " %d", (immediate >> 1) & 0x1f);
+            snprintf(temp, sizeof(temp), " %d", (immediate >> 1) & 0x1f);
             break;
           case MIPS_OP_ID_REG:
             if (rd < 16)
             {
-              sprintf(temp, " $vi%d [%d]", rd, rd);
+              snprintf(temp, sizeof(temp), " $vi%d [%d]", rd, rd);
             }
               else
             {
-              sprintf(temp, " %s [%d]", id_reg[rd - 16], rd);
+              snprintf(temp, sizeof(temp), " %s [%d]", id_reg[rd - 16], rd);
             }
             break;
           case MIPS_OP_OPTIONAL:
             immediate = (opcode >> 6) & 0xfffff;
-            if (immediate != 0) { sprintf(temp, " 0x%x", immediate); }
-            else { temp[0] = 0; }
+            if (immediate != 0)
+            {
+              snprintf(temp, sizeof(temp), " 0x%x", immediate);
+            }
+              else
+            {
+              temp[0] = 0;
+            }
             break;
           default:
             strcpy(temp, " ?");
@@ -640,7 +658,7 @@ int disasm_mips(
       int fs = (opcode >> 11) & 0x1f;
       int fd = (opcode >> 6) & 0x1f;
 
-      sprintf(instruction,"%s $f%d, $f%d, $f%d, $f%d",
+      snprintf(instruction, length,"%s $f%d, $f%d, $f%d, $f%d",
         mips_four_reg[n].instr, fd, fr, fs, ft);
 
       return 4;
@@ -670,13 +688,13 @@ int disasm_mips(
         switch (mips_msa[n].operand[r])
         {
           case MIPS_OP_WT:
-            sprintf(temp, " $w%d", wt);
+            snprintf(temp, sizeof(temp), " $w%d", wt);
             break;
           case MIPS_OP_WS:
-            sprintf(temp, " $w%d", ws);
+            snprintf(temp, sizeof(temp), " $w%d", ws);
             break;
           case MIPS_OP_WD:
-            sprintf(temp, " $w%d", wd);
+            snprintf(temp, sizeof(temp), " $w%d", wd);
             break;
           default:
             strcpy(temp, " ?");
@@ -706,7 +724,7 @@ int disasm_mips(
         rt = (opcode >> 16) & 0x1f;
         int16_t offset = (opcode & 0xffff) << 2;
 
-        sprintf(instruction, "%s %s, %s, 0x%x (offset=%d)", mips_branch_table[n].instr, reg[rs], reg[rt],  address + 4 + offset, offset);
+        snprintf(instruction, length, "%s %s, %s, 0x%x (offset=%d)", mips_branch_table[n].instr, reg[rs], reg[rt],  address + 4 + offset, offset);
 
         return 4;
       }
@@ -719,7 +737,7 @@ int disasm_mips(
         rs = (opcode >> 21) & 0x1f;
         int16_t offset = (opcode & 0xffff) << 2;
 
-        sprintf(instruction, "%s %s, 0x%x (offset=%d)", mips_branch_table[n].instr, reg[rs], address + 4 + offset, offset);
+        snprintf(instruction, length, "%s %s, 0x%x (offset=%d)", mips_branch_table[n].instr, reg[rs], address + 4 + offset, offset);
 
         return 4;
       }
@@ -754,22 +772,22 @@ int disasm_mips(
 
           if (mips_r_table[n].operand[r] == MIPS_OP_RS)
           {
-            sprintf(temp, "%s", reg[rs]);
+            snprintf(temp, sizeof(temp), "%s", reg[rs]);
           }
             else
           if (mips_r_table[n].operand[r] == MIPS_OP_RT)
           {
-            sprintf(temp, "%s", reg[rt]);
+            snprintf(temp, sizeof(temp), "%s", reg[rt]);
           }
             else
           if (mips_r_table[n].operand[r] == MIPS_OP_RD)
           {
-            sprintf(temp, "%s", reg[rd]);
+            snprintf(temp, sizeof(temp), "%s", reg[rd]);
           }
             else
           if (mips_r_table[n].operand[r] == MIPS_OP_SA)
           {
-            sprintf(temp, "%d", sa);
+            snprintf(temp, sizeof(temp), "%d", sa);
           }
             else
           { temp[0] = 0; }
@@ -792,11 +810,11 @@ int disasm_mips(
 
     if ((opcode >> 26) == 2)
     {
-      sprintf(instruction, "j 0x%08x", ((opcode & 0x03ffffff) << 2) | upper);
+      snprintf(instruction, length, "j 0x%08x", ((opcode & 0x03ffffff) << 2) | upper);
     }
       else
     {
-      sprintf(instruction, "jal 0x%08x", ((opcode & 0x03ffffff) << 2) | upper);
+      snprintf(instruction, length, "jal 0x%08x", ((opcode & 0x03ffffff) << 2) | upper);
     }
   }
     else
@@ -831,38 +849,38 @@ int disasm_mips(
 
           if (mips_i_table[n].operand[r] == MIPS_OP_RS)
           {
-            sprintf(temp, "%s", reg[rs]);
+            snprintf(temp, sizeof(temp), "%s", reg[rs]);
           }
             else
           if (mips_i_table[n].operand[r] == MIPS_OP_RT)
           {
-            sprintf(temp, "%s", reg[rt]);
+            snprintf(temp, sizeof(temp), "%s", reg[rt]);
           }
             else
           if (mips_i_table[n].operand[r] == MIPS_OP_HINT ||
               mips_i_table[n].operand[r] == MIPS_OP_CACHE)
           {
-            sprintf(temp, "%d", rt);
+            snprintf(temp, sizeof(temp), "%d", rt);
           }
             else
           if (mips_i_table[n].operand[r] == MIPS_OP_FT)
           {
-            sprintf(temp, "$f%d", rt);
+            snprintf(temp, sizeof(temp), "$f%d", rt);
           }
             else
           if (mips_i_table[n].operand[r] == MIPS_OP_IMMEDIATE)
           {
-            sprintf(temp, "0x%x", immediate);
+            snprintf(temp, sizeof(temp), "0x%x", immediate);
           }
             else
           if (mips_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_SIGNED)
           {
-            sprintf(temp, "0x%x (%d)", immediate, (int16_t)immediate);
+            snprintf(temp, sizeof(temp), "0x%x (%d)", immediate, (int16_t)immediate);
           }
             else
           if (mips_i_table[n].operand[r] == MIPS_OP_IMMEDIATE_RS)
           {
-            sprintf(temp, "0x%x(%s)", immediate, reg[rs]);
+            snprintf(temp, sizeof(temp), "0x%x(%s)", immediate, reg[rs]);
           }
             else
           if (mips_i_table[n].operand[r] == MIPS_OP_LABEL)
@@ -871,7 +889,7 @@ int disasm_mips(
 
             offset = offset << 2;
 
-            sprintf(temp, "0x%x (offset=%d)", address + 4 + offset, offset);
+            snprintf(temp, sizeof(temp), "0x%x (offset=%d)", address + 4 + offset, offset);
           }
             else
           { temp[0] = 0; }

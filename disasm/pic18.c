@@ -54,7 +54,7 @@ int disasm_pic18(
           d = (opcode >> 9) & 1;
           a = (opcode >> 8) & 1;
 
-          sprintf(instruction, "%s 0x%02x, %c, %d",
+          snprintf(instruction, length, "%s 0x%02x, %c, %d",
             table_pic18[n].instr,
             f,
             d == 1 ? 'f' : 'w',
@@ -67,7 +67,7 @@ int disasm_pic18(
           f = opcode & 0xff;
           a = (opcode >> 8) & 1;
 
-          sprintf(instruction, "%s 0x%02x, %d",
+          snprintf(instruction, length, "%s 0x%02x, %d",
             table_pic18[n].instr,
             f,
             a);
@@ -79,7 +79,7 @@ int disasm_pic18(
           f = opcode & 0xfff;
           opcode = memory_read16_m(memory, address + 2);
 
-          sprintf(instruction, "%s 0x%03x, 0x%03x",
+          snprintf(instruction, length, "%s 0x%03x, 0x%03x",
             table_pic18[n].instr,
             f,
             opcode & 0xfff);
@@ -92,7 +92,7 @@ int disasm_pic18(
           a = (opcode >> 8) & 1;
           b = (opcode >> 9) & 7;
 
-          sprintf(instruction, "%s 0x%02x, %d, %d",
+          snprintf(instruction, length, "%s 0x%02x, %d, %d",
             table_pic18[n].instr,
             f,
             b,
@@ -105,7 +105,7 @@ int disasm_pic18(
           offset = opcode & 0xff;
           if ((offset & 0x80) != 0) { offset |= 0xffffff00; }
 
-          sprintf(instruction, "%s 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s 0x%04x (offset=%d)",
             table_pic18[n].instr,
             address + 2 + (offset * 2),
             offset);
@@ -117,7 +117,7 @@ int disasm_pic18(
           offset = opcode & 0x7ff;
           if ((offset & 0x400) != 0) { offset |= 0xfffff800; }
 
-          sprintf(instruction, "%s 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s 0x%04x (offset=%d)",
             table_pic18[n].instr,
             address + 2 + (offset * 2),
             offset);
@@ -131,7 +131,7 @@ int disasm_pic18(
           opcode = memory_read16_m(memory, address + 2);
           value |= (opcode & 0xfff) << 8;
 
-          sprintf(instruction, "%s 0x%04x%s",
+          snprintf(instruction, length, "%s 0x%04x%s",
             table_pic18[n].instr,
             value,
             s == 1 ? ", s" : "");
@@ -144,7 +144,7 @@ int disasm_pic18(
           opcode = memory_read16_m(memory, address + 2);
           value |= (opcode & 0xfff) << 8;
 
-          sprintf(instruction, "%s 0x%04x",
+          snprintf(instruction, length, "%s 0x%04x",
             table_pic18[n].instr,
             value);
 
@@ -154,7 +154,7 @@ int disasm_pic18(
         {
           s = (opcode >> 8) & 1;
 
-          sprintf(instruction, "%s%s",
+          snprintf(instruction, length, "%s%s",
             table_pic18[n].instr,
             s == 1 ? ", s" : "");
 
@@ -163,7 +163,7 @@ int disasm_pic18(
         case OP_K8:
         {
           value = opcode & 0xff;
-          sprintf(instruction, "%s 0x%02x", table_pic18[n].instr, value);
+          snprintf(instruction, length, "%s 0x%02x", table_pic18[n].instr, value);
           return 2;
         }
         case OP_F_K12:
@@ -173,7 +173,7 @@ int disasm_pic18(
           opcode = memory_read16_m(memory, address + 2);
           value |= (opcode & 0xff) << 4;
 
-          sprintf(instruction, "%s %d, 0x%02x",
+          snprintf(instruction, length, "%s %d, 0x%02x",
             table_pic18[n].instr,
             f,
             value);
@@ -183,7 +183,7 @@ int disasm_pic18(
         case OP_K4:
         {
           value = opcode & 0xf;
-          sprintf(instruction, "%s 0x%02x", table_pic18[n].instr, value);
+          snprintf(instruction, length, "%s 0x%02x", table_pic18[n].instr, value);
           return 2;
         }
         default:

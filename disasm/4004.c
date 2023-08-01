@@ -57,7 +57,7 @@ int disasm_4004(
           *cycles_min = 8;
           *cycles_max = 8;
           r = opcode & 0xf;
-          sprintf(instruction, "%s %d", table_4004[n].instr, r);
+          snprintf(instruction, length, "%s %d", table_4004[n].instr, r);
           return 1;
         }
         case OP_P:
@@ -65,40 +65,40 @@ int disasm_4004(
           *cycles_min = 8;
           *cycles_max = 8;
           p = opcode & 0xe;
-          sprintf(instruction, "%s %d", table_4004[n].instr, p);
+          snprintf(instruction, length, "%s %d", table_4004[n].instr, p);
           return 1;
         }
         case OP_ADDR12:
         {
           a = ((opcode & 0xf) << 8) | memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s 0x%x", table_4004[n].instr, a);
+          snprintf(instruction, length, "%s 0x%x", table_4004[n].instr, a);
           return 2;
         }
         case OP_P_DATA:
         {
           p = opcode & 0xe;
           d = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s %d 0x%x", table_4004[n].instr, p, d);
+          snprintf(instruction, length, "%s %d 0x%x", table_4004[n].instr, p, d);
           return 2;
         }
         case OP_R_ADDR8:
         {
           r = opcode & 0xf;
           a = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s %d 0x%x", table_4004[n].instr, r, a);
+          snprintf(instruction, length, "%s %d 0x%x", table_4004[n].instr, r, a);
           return 2;
         }
         case OP_COND:
         {
           c = opcode & 0xf;
           a = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s %d 0x%x", table_4004[n].instr, c, a);
+          snprintf(instruction, length, "%s %d 0x%x", table_4004[n].instr, c, a);
           return 2;
         }
         case OP_COND_ALIAS:
         {
           a = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s 0x%x", table_4004[n].instr, a);
+          snprintf(instruction, length, "%s 0x%x", table_4004[n].instr, a);
           return 2;
         }
         default:

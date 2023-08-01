@@ -53,7 +53,7 @@ int disasm_cp1610(
         {
           o = opcode & 0x7;
 
-          sprintf(instruction, "%s r%d", table_cp1610[n].instr, o);
+          snprintf(instruction, length, "%s r%d", table_cp1610[n].instr, o);
 
           return 2;
         }

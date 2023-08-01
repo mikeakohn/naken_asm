@@ -50,27 +50,27 @@ int disasm_8008(
         case OP_SREG:
         {
           reg = opcode & 0x7;
-          sprintf(instruction, "%s %c", table_8008[n].instr, reg_name[reg]);
+          snprintf(instruction, length, "%s %c", table_8008[n].instr, reg_name[reg]);
           return 1;
         }
         case OP_DREG:
         {
           reg = (opcode >> 3) & 0x7;
-          sprintf(instruction, "%s %c", table_8008[n].instr, reg_name[reg]);
+          snprintf(instruction, length, "%s %c", table_8008[n].instr, reg_name[reg]);
           return 1;
         }
         case OP_DREG_NOT_A:
         {
           reg = (opcode >> 3) & 0x7;
           if (reg == 0) { continue; }
-          sprintf(instruction, "%s %c", table_8008[n].instr, reg_name[reg]);
+          snprintf(instruction, length, "%s %c", table_8008[n].instr, reg_name[reg]);
           return 1;
         }
         case OP_REG_REG:
         {
           int sreg = opcode & 0x7;
           int dreg = (opcode >> 3) & 0x7;
-          sprintf(instruction, "%s %c, %c",
+          snprintf(instruction, length, "%s %c, %c",
             table_8008[n].instr,
             reg_name[dreg],
             reg_name[sreg]);
@@ -79,18 +79,18 @@ int disasm_8008(
         case OP_REG_M:
         {
           reg = (opcode >> 3) & 0x7;
-          sprintf(instruction, "%s %c, m", table_8008[n].instr, reg_name[reg]);
+          snprintf(instruction, length, "%s %c, m", table_8008[n].instr, reg_name[reg]);
           return 1;
         }
         case OP_M_REG:
         {
           reg = opcode & 0x7;
-          sprintf(instruction, "%s m, %c", table_8008[n].instr, reg_name[reg]);
+          snprintf(instruction, length, "%s m, %c", table_8008[n].instr, reg_name[reg]);
           return 1;
         }
         case OP_M:
         {
-          sprintf(instruction, "%s m", table_8008[n].instr);
+          snprintf(instruction, length, "%s m", table_8008[n].instr);
           return 1;
         }
         case OP_ADDRESS:
@@ -98,26 +98,26 @@ int disasm_8008(
           immediate =
             memory_read_m(memory, address + 1) |
            (memory_read_m(memory, address + 2) << 8);
-          sprintf(instruction, "%s 0x%04x", table_8008[n].instr, immediate);
+          snprintf(instruction, length, "%s 0x%04x", table_8008[n].instr, immediate);
           return 3;
         }
         case OP_IMMEDIATE:
         {
           immediate = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s 0x%02x", table_8008[n].instr, immediate);
+          snprintf(instruction, length, "%s 0x%02x", table_8008[n].instr, immediate);
           return 2;
         }
         case OP_M_IMMEDIATE:
         {
           immediate = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s m, 0x%02x", table_8008[n].instr, immediate);
+          snprintf(instruction, length, "%s m, 0x%02x", table_8008[n].instr, immediate);
           return 2;
         }
         case OP_REG_IMMEDIATE:
         {
           reg = (opcode >> 3) & 0x7;
           immediate = memory_read_m(memory, address + 1);
-          sprintf(instruction, "%s %c, 0x%02x",
+          snprintf(instruction, length, "%s %c, 0x%02x",
             table_8008[n].instr,
             reg_name[reg],
             immediate);
@@ -126,19 +126,19 @@ int disasm_8008(
         case OP_SUB:
         {
           int a = (opcode >> 3) & 0x7;
-          sprintf(instruction, "%s 0x%04x", table_8008[n].instr, a << 3);
+          snprintf(instruction, length, "%s 0x%04x", table_8008[n].instr, a << 3);
           return 1;
         }
         case OP_PORT_MMM:
         {
           port = (opcode >> 1) & 0x7;
-          sprintf(instruction, "%s %d", table_8008[n].instr, port);
+          snprintf(instruction, length, "%s %d", table_8008[n].instr, port);
           return 1;
         }
         case OP_PORT_MMM_NOT_0:
         {
           port = ((opcode >> 1) & 0x7) + 8;
-          sprintf(instruction, "%s %d", table_8008[n].instr, port);
+          snprintf(instruction, length, "%s %d", table_8008[n].instr, port);
           return 1;
         }
         default:

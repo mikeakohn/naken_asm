@@ -52,7 +52,7 @@ int disasm_65816(
   *cycles_max=-1;
   opcode=READ_RAM(address);
 
-  sprintf(temp, " ");
+  snprintf(temp, sizeof(temp), " ");
 
   strcpy(instruction, table_65816[table_65816_opcodes[opcode].instr].name);
   op = table_65816_opcodes[opcode].op;
@@ -111,56 +111,56 @@ int disasm_65816(
     switch (op)
     {
       case OP_NONE:
-        sprintf(temp, " ");
+        snprintf(temp, sizeof(temp), " ");
         break;
       case OP_IMMEDIATE8:
       case OP_IMMEDIATE16:
-        sprintf(temp, " #%s", num);
+        snprintf(temp, sizeof(temp), " #%s", num);
         break;
       case OP_ADDRESS8:
       case OP_ADDRESS16:
       case OP_ADDRESS24:
-        sprintf(temp, " %s", num);
+        snprintf(temp, sizeof(temp), " %s", num);
         break;
       case OP_INDEXED8_X:
       case OP_INDEXED16_X:
       case OP_INDEXED24_X:
-        sprintf(temp, " %s,x", num);
+        snprintf(temp, sizeof(temp), " %s,x", num);
         break;
       case OP_INDEXED8_Y:
       case OP_INDEXED16_Y:
-        sprintf(temp, " %s,y", num);
+        snprintf(temp, sizeof(temp), " %s,y", num);
         break;
       case OP_INDIRECT8:
       case OP_INDIRECT16:
-        sprintf(temp, " (%s)", num);
+        snprintf(temp, sizeof(temp), " (%s)", num);
         break;
       case OP_INDIRECT8_LONG:
       case OP_INDIRECT16_LONG:
-        sprintf(temp, " [%s]", num);
+        snprintf(temp, sizeof(temp), " [%s]", num);
         break;
       case OP_X_INDIRECT8:
       case OP_X_INDIRECT16:
-        sprintf(temp, " (%s,x)", num);
+        snprintf(temp, sizeof(temp), " (%s,x)", num);
         break;
       case OP_INDIRECT8_Y:
-        sprintf(temp, " (%s),y", num);
+        snprintf(temp, sizeof(temp), " (%s),y", num);
         break;
       case OP_INDIRECT8_Y_LONG:
-        sprintf(temp, " [%s],y", num);
+        snprintf(temp, sizeof(temp), " [%s],y", num);
         break;
       case OP_BLOCK_MOVE:
-        sprintf(temp, " %0x02x,%0x02x", lo, hi);
+        snprintf(temp, sizeof(temp), " %0x02x,%0x02x", lo, hi);
         break;
       case OP_RELATIVE:
       case OP_RELATIVE_LONG:
-        sprintf(temp, " %s", num);
+        snprintf(temp, sizeof(temp), " %s", num);
         break;
       case OP_SP_RELATIVE:
-        sprintf(temp, " %s,s", num);
+        snprintf(temp, sizeof(temp), " %s,s", num);
         break;
       case OP_SP_INDIRECT_Y:
-        sprintf(temp, " (%s,s),y", num);
+        snprintf(temp, sizeof(temp), " (%s,s),y", num);
         break;
       default:
         strcat(instruction, " ???");
@@ -229,7 +229,7 @@ void list_output_65816(
   for (n = 0; n < count; n++)
   {
     char temp[4];
-    sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, start + n));
+    snprintf(temp, sizeof(temp), "%02x ", memory_read_m(&asm_context->memory, start + n));
     strcat(bytes, temp);
   }
 

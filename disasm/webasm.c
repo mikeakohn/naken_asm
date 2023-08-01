@@ -159,43 +159,43 @@ int disasm_webasm(
     switch (table_webasm[n].type)
     {
       case WEBASM_OP_NONE:
-        sprintf(instruction, "%s", table_webasm[n].instr);
+        snprintf(instruction, length, "%s", table_webasm[n].instr);
         return 1;
       case WEBASM_OP_UINT32:
         i = memory_read32_m(memory, address + 1);
-        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
+        snprintf(instruction, length, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
         return 5;
       case WEBASM_OP_UINT64:
         i = memory_read32_m(memory, address + 1);
         i |= ((uint64_t)memory_read32_m(memory, address + 5)) << 32;
-        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
+        snprintf(instruction, length, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
         return 9;
       case WEBASM_OP_VARINT64:
         v = get_varint(memory, address + 1, &byte_count);
-        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
+        snprintf(instruction, length, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
         return byte_count + 1;
       case WEBASM_OP_VARINT32:
         v = get_varint(memory, address + 1, &byte_count);
-        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
+        snprintf(instruction, length, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
         return byte_count + 1;
       case WEBASM_OP_FUNCTION_INDEX:
       case WEBASM_OP_LOCAL_INDEX:
       case WEBASM_OP_GLOBAL_INDEX:
         i = get_varuint(memory, address + 1, &byte_count);
-        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
+        snprintf(instruction, length, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
         return byte_count + 1;
       case WEBASM_OP_BLOCK_TYPE:
         i = get_varuint(memory, address + 1, &byte_count);
-        sprintf(instruction, "%s %s", table_webasm[n].instr, get_type(i));
+        snprintf(instruction, length, "%s %s", table_webasm[n].instr, get_type(i));
         return byte_count + 1;
       case WEBASM_OP_RELATIVE_DEPTH:
         v = get_varint(memory, address + 1, &byte_count);
-        sprintf(instruction, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
+        snprintf(instruction, length, "%s 0x%04" PRIx64, table_webasm[n].instr, v);
         return byte_count + 1;
       case WEBASM_OP_TABLE:
         count = get_varint(memory, address + 1, &byte_count);
 
-        sprintf(instruction, "%s %d ...", table_webasm[n].instr, count);
+        snprintf(instruction, length, "%s %d ...", table_webasm[n].instr, count);
 
         return byte_count + 1;
       case WEBASM_OP_INDIRECT:

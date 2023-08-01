@@ -16,7 +16,7 @@
 #include "disasm/tms340.h"
 #include "table/tms340.h"
 
-static void get_register(char *s, int n, char r)
+static void get_register(char *s, int length, int n, char r)
 {
   if (n == 15)
   {
@@ -24,7 +24,7 @@ static void get_register(char *s, int n, char r)
   }
     else
   {
-    sprintf(s, "%c%d", r, n);
+    snprintf(s, length, "%c%d", r, n);
   }
 }
 
@@ -65,7 +65,7 @@ int disasm_tms340(
   {
     if ((opcode & table_tms340[n].mask) == table_tms340[n].opcode)
     {
-      sprintf(instruction, "%s", table_tms340[n].instr);
+      snprintf(instruction, length, "%s", table_tms340[n].instr);
 
       for (i = 0; i < table_tms340[n].operand_count; i++)
       {
@@ -81,17 +81,17 @@ int disasm_tms340(
         switch (table_tms340[n].operand_types[i])
         {
           case OP_RS:
-            get_register(reg, rs, r);
+            get_register(reg, sizeof(reg), rs, r);
             strcat(instruction, reg);
             break;
           case OP_RD:
           case OP_RDS:
-            get_register(reg, rd, r);
+            get_register(reg, sizeof(reg), rd, r);
             strcat(instruction, reg);
             break;
           case OP_RD_R_FILE:
             m = (opcode >> 9) & 1;
-            get_register(reg, rd, r);
+            get_register(reg, sizeof(reg), rd, r);
             if (m == 1)
             {
               reg[0] = reg[0] == 'a' ? 'b' : 'a';
@@ -99,70 +99,70 @@ int disasm_tms340(
             strcat(instruction, reg);
             break;
           case OP_P_RS:
-            get_register(reg, rs, r);
+            get_register(reg, sizeof(reg), rs, r);
             strcat(instruction, "*");
             strcat(instruction, reg);
             break;
           case OP_P_RD:
-            get_register(reg, rd, r);
+            get_register(reg, sizeof(reg), rd, r);
             strcat(instruction, "*");
             strcat(instruction, reg);
             break;
           case OP_P_RS_DISP:
-            get_register(reg, rs, r);
+            get_register(reg, sizeof(reg), rs, r);
             displacement = memory_read16_m(memory, address);
-            sprintf(operand, "*%s(%d)", reg, displacement);
+            snprintf(operand, sizeof(operand), "*%s(%d)", reg, displacement);
             strcat(instruction, operand);
             address += 2;
             break;
           case OP_P_RD_DISP:
-            get_register(reg, rd, r);
+            get_register(reg, sizeof(reg), rd, r);
             displacement = memory_read16_m(memory, address);
-            sprintf(operand, "*%s(%d)", reg, displacement);
+            snprintf(operand, sizeof(operand), "*%s(%d)", reg, displacement);
             strcat(instruction, operand);
             address += 2;
             break;
           case OP_P_RS_P:
-            get_register(reg, rs, r);
-            sprintf(operand, "*%s+", reg);
+            get_register(reg, sizeof(reg), rs, r);
+            snprintf(operand, sizeof(operand), "*%s+", reg);
             strcat(instruction, operand);
             break;
           case OP_P_RD_P:
-            get_register(reg, rd, r);
-            sprintf(operand, "*%s+", reg);
+            get_register(reg, sizeof(reg), rd, r);
+            snprintf(operand, sizeof(operand), "*%s+", reg);
             strcat(instruction, operand);
             break;
           case OP_P_RS_XY:
-            get_register(reg, rs, r);
-            sprintf(operand, "*%s.XY", reg);
+            get_register(reg, sizeof(reg), rs, r);
+            snprintf(operand, sizeof(operand), "*%s.XY", reg);
             strcat(instruction, operand);
             break;
           case OP_P_RD_XY:
-            get_register(reg, rd, r);
-            sprintf(operand, "*%s.XY", reg);
+            get_register(reg, sizeof(reg), rd, r);
+            snprintf(operand, sizeof(operand), "*%s.XY", reg);
             strcat(instruction, operand);
             break;
           case OP_MP_RS:
-            get_register(reg, rs, r);
-            sprintf(operand, "-*%s", reg);
+            get_register(reg, sizeof(reg), rs, r);
+            snprintf(operand, sizeof(operand), "-*%s", reg);
             strcat(instruction, operand);
             break;
           case OP_MP_RD:
-            get_register(reg, rd, r);
-            sprintf(operand, "-*%s", reg);
+            get_register(reg, sizeof(reg), rd, r);
+            snprintf(operand, sizeof(operand), "-*%s", reg);
             strcat(instruction, operand);
             break;
           case OP_ADDRESS:
             temp = memory_read16_m(memory, address);
             temp |= memory_read16_m(memory, address + 2) << 16;
-            sprintf(operand, "0x%04x", temp);
+            snprintf(operand, sizeof(operand), "0x%04x", temp);
             strcat(instruction, operand);
             address += 4;
             break;
           case OP_AT_ADDR:
             ilw = memory_read16_m(memory, address);
             ilw |= memory_read16_m(memory, address + 2) << 16;
-            sprintf(operand, "@0x%08x", ilw);
+            snprintf(operand, sizeof(operand), "@0x%08x", ilw);
             strcat(instruction, operand);
             address += 4;
             break;
@@ -183,7 +183,7 @@ int disasm_tms340(
                 if ((mask & (1 << j)) != 0)
                 {
                   if (x != 0) { strcat(instruction, ", "); }
-                  get_register(reg, j, r);
+                  get_register(reg, sizeof(reg), j, r);
                   strcat(instruction, reg);
                   x++;
                 }
@@ -196,7 +196,7 @@ int disasm_tms340(
                 if ((mask & (1 << (15 - j))) != 0)
                 {
                   if (x != 0) { strcat(instruction, ", "); }
-                  get_register(reg, j, r);
+                  get_register(reg, sizeof(reg), j, r);
                   strcat(instruction, reg);
                   x++;
                 }
@@ -215,22 +215,22 @@ int disasm_tms340(
           case OP_K32:
             temp = (opcode >> 5) & 0x1f;
             if (temp == 0) { temp = 32; }
-            sprintf(operand, "%d", temp);
+            snprintf(operand, sizeof(operand), "%d", temp);
             strcat(instruction, operand);
             break;
           case OP_K:
             temp = (opcode >> 5) & 0x1f;
-            sprintf(operand, "%d", temp);
+            snprintf(operand, sizeof(operand), "%d", temp);
             strcat(instruction, operand);
             break;
           case OP_1K:
             temp = ~((opcode >> 5) & 0x1f);
-            sprintf(operand, "%d", temp & 0x1f);
+            snprintf(operand, sizeof(operand), "%d", temp & 0x1f);
             strcat(instruction, operand);
             break;
           case OP_2K:
             temp = -(((opcode >> 5) & 0x1f) | 0xffffffe0);
-            sprintf(operand, "%d", temp & 0x1f);
+            snprintf(operand, sizeof(operand), "%d", temp & 0x1f);
             strcat(instruction, operand);
             break;
           case OP_L:
@@ -238,7 +238,7 @@ int disasm_tms340(
             break;
           case OP_N:
             temp = opcode & 0x1f;
-            sprintf(operand, "%d", temp);
+            snprintf(operand, sizeof(operand), "%d", temp);
             strcat(instruction, operand);
             break;
           case OP_Z:
@@ -249,38 +249,38 @@ int disasm_tms340(
             break;
           case OP_FS:
             temp = opcode & 0x1f;
-            sprintf(operand, "%d", temp);
+            snprintf(operand, sizeof(operand), "%d", temp);
             strcat(instruction, operand);
             break;
           case OP_IL:
             temp = memory_read16_m(memory, address);
             temp |= memory_read16_m(memory, address + 2) << 16;
-            sprintf(operand, "0x%04x", temp);
+            snprintf(operand, sizeof(operand), "0x%04x", temp);
             strcat(instruction, operand);
             address += 4;
             break;
           case OP_IW:
             temp = memory_read16_m(memory, address);
-            sprintf(operand, "%d", (int16_t)temp);
+            snprintf(operand, sizeof(operand), "%d", (int16_t)temp);
             strcat(instruction, operand);
             address += 2;
             break;
           case OP_NIL:
             temp = memory_read16_m(memory, address);
             temp |= memory_read16_m(memory, address + 2) << 16;
-            sprintf(operand, "0x%04x", ~temp);
+            snprintf(operand, sizeof(operand), "0x%04x", ~temp);
             strcat(instruction, operand);
             address += 4;
             break;
           case OP_NIW:
             temp = memory_read16_m(memory, address);
-            sprintf(operand, "%d", (int16_t)~temp);
+            snprintf(operand, sizeof(operand), "%d", (int16_t)~temp);
             strcat(instruction, operand);
             address += 2;
             break;
           case OP_NN:
             temp = opcode & 0x1f;
-            sprintf(operand, "%d", temp);
+            snprintf(operand, sizeof(operand), "%d", temp);
             strcat(instruction, operand);
             break;
           case OP_XY:
@@ -288,7 +288,7 @@ int disasm_tms340(
             break;
           case OP_DISP:
             displacement = memory_read16_m(memory, address);
-            sprintf(operand, "0x%04x (%d)",
+            snprintf(operand, sizeof(operand), "0x%04x (%d)",
               address + 2 + displacement, displacement);
             strcat(instruction, operand);
             address += 2;
@@ -297,7 +297,7 @@ int disasm_tms340(
             displacement = (opcode >> 5) & 0x1f;
             displacement *= 2;
             if ((opcode & 0x0400) != 0) { displacement = -displacement; }
-            sprintf(operand, "0x%04x (%d)",
+            snprintf(operand, sizeof(operand), "0x%04x (%d)",
               address + displacement, displacement);
             strcat(instruction, operand);
             break;
@@ -306,7 +306,7 @@ int disasm_tms340(
             {
               displacement32 = (int8_t)(opcode & 0xff);
               displacement32 *= 2;
-              sprintf(operand, "0x%04x (%d)",
+              snprintf(operand, sizeof(operand), "0x%04x (%d)",
                 address + displacement32, displacement32);
               strcat(instruction, operand);
             }
@@ -314,7 +314,7 @@ int disasm_tms340(
             {
               displacement32 = (int8_t)memory_read16_m(memory, address);
               displacement32 *= 2;
-              sprintf(operand, "0x%04x (%d)",
+              snprintf(operand, sizeof(operand), "0x%04x (%d)",
                 address + 2 + displacement32, displacement32);
               strcat(instruction, operand);
               address += 2;

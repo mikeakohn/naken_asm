@@ -105,33 +105,33 @@ int disasm_ps2_ee_vu(
         switch (table_ps2_ee_vu[n].operand[r])
         {
           case EE_VU_OP_FT:
-            sprintf(temp, " vf%02d", ft);
+            snprintf(temp, sizeof(temp), " vf%02d", ft);
             if ((table_ps2_ee_vu[n].flags & FLAG_TE) != 0)
             {
               strcat(temp, scalar[(dest >> 2) & 0x3]);
             }
             break;
           case EE_VU_OP_FS:
-            sprintf(temp, " vf%02d", fs);
+            snprintf(temp, sizeof(temp), " vf%02d", fs);
             if ((table_ps2_ee_vu[n].flags & FLAG_SE) != 0)
             {
               strcat(temp, scalar[dest & 0x3]);
             }
             break;
           case EE_VU_OP_FD:
-            sprintf(temp, " vf%02d", fd);
+            snprintf(temp, sizeof(temp), " vf%02d", fd);
             break;
           case EE_VU_OP_VIT:
-            sprintf(temp, " vi%02d", ft);
+            snprintf(temp, sizeof(temp), " vi%02d", ft);
             break;
           case EE_VU_OP_VIS:
-            sprintf(temp, " vi%02d", fs);
+            snprintf(temp, sizeof(temp), " vi%02d", fs);
             break;
           case EE_VU_OP_VID:
-            sprintf(temp, " vi%02d", fd);
+            snprintf(temp, sizeof(temp), " vi%02d", fd);
             break;
           case EE_VU_OP_VI01:
-            sprintf(temp, " vi01");
+            snprintf(temp, sizeof(temp), " vi01");
             break;
           case EE_VU_OP_I:
             strcpy(temp, " I");
@@ -151,53 +151,53 @@ int disasm_ps2_ee_vu(
           case EE_VU_OP_OFFSET:
             offset = (opcode & 0x7ff) << 3;
             if ((offset & 0x400) != 0) { offset |= 0xf800; }
-            sprintf(temp, " 0x%x (offset=%d)", address + 8 + offset, offset);
+            snprintf(temp, sizeof(temp), " 0x%x (offset=%d)", address + 8 + offset, offset);
             break;
           case EE_VU_OP_OFFSET_BASE:
             offset = opcode & 0x7ff;
             if ((offset & 0x400) != 0) { offset |= 0xf800; }
-            sprintf(temp, " %d(vi%02d)", offset, (opcode >> 11) & 0x1f);
+            snprintf(temp, sizeof(temp), " %d(vi%02d)", offset, (opcode >> 11) & 0x1f);
             break;
           case EE_VU_OP_BASE:
-            sprintf(temp, " (vi%02d)", fs);
+            snprintf(temp, sizeof(temp), " (vi%02d)", fs);
             break;
           case EE_VU_OP_BASE_DEC:
             if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
             {
-              sprintf(temp, " (--vi%02d)", ft);
+              snprintf(temp, sizeof(temp), " (--vi%02d)", ft);
             }
               else
             {
-              sprintf(temp, " (--vi%02d)", fs);
+              snprintf(temp, sizeof(temp), " (--vi%02d)", fs);
             }
             break;
           case EE_VU_OP_BASE_INC:
             if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
             {
-              sprintf(temp, " (vi%02d++)", ft);
+              snprintf(temp, sizeof(temp), " (vi%02d++)", ft);
             }
               else
             {
-              sprintf(temp, " (vi%02d++)", fs);
+              snprintf(temp, sizeof(temp), " (vi%02d++)", fs);
             }
             break;
           case EE_VU_OP_IMMEDIATE24:
-            sprintf(temp, " 0x%06x", opcode & 0xffffff);
+            snprintf(temp, sizeof(temp), " 0x%06x", opcode & 0xffffff);
             break;
           case EE_VU_OP_IMMEDIATE15:
             immediate = (opcode & (0xf << 21)) >> 10;
             immediate |= opcode & 0x7ff;
-            sprintf(temp, " 0x%04x", immediate);
+            snprintf(temp, sizeof(temp), " 0x%04x", immediate);
             break;
           case EE_VU_OP_IMMEDIATE12:
             immediate = (opcode & (1 << 21)) >> 10;
             immediate |= opcode & 0x7ff;
-            sprintf(temp, " 0x%03x", immediate);
+            snprintf(temp, sizeof(temp), " 0x%03x", immediate);
             break;
           case EE_VU_OP_IMMEDIATE5:
             immediate = (opcode >> 6) & 0x1f;
             if ((immediate & 0x10) != 0) { immediate |= 0xfffffff0; }
-            sprintf(temp, " %d", immediate);
+            snprintf(temp, sizeof(temp), " %d", immediate);
             break;
           default:
             strcpy(temp, " ?");

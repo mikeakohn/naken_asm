@@ -28,6 +28,7 @@ int get_indexed(
   Memory *memory,
   struct _table_6809 *table,
   char *instruction,
+  int length,
   uint32_t address,
   int *cycles_min,
   int *cycles_max)
@@ -39,14 +40,14 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x84)
   {
     // ,R non-indirect
-    sprintf(instruction, "%s ,%s", table->instr, name[reg]);
+    snprintf(instruction, length, "%s ,%s", table->instr, name[reg]);
     return 0;
   }
     else
   if ((post_byte & 0x9f) == 0x94)
   {
     // [,R] indirect
-    sprintf(instruction, "%s [,%s]", table->instr, name[reg]);
+    snprintf(instruction, length, "%s [,%s]", table->instr, name[reg]);
     ADD_CYCLES(3);
     return 0;
   }
@@ -56,7 +57,7 @@ int get_indexed(
     // 5 bit offset, R non-indirect
     int8_t offset = post_byte & 0x1f;
     if ((offset & 0x10) != 0) { offset |= 0xe0; }
-    sprintf(instruction, "%s %d,%s", table->instr, offset, name[reg]);
+    snprintf(instruction, length, "%s %d,%s", table->instr, offset, name[reg]);
     ADD_CYCLES(1);
     return 0;
   }
@@ -65,7 +66,7 @@ int get_indexed(
   {
     // 8 bit offset, R non-indirect
     int8_t offset = READ_RAM(address + 1);
-    sprintf(instruction, "%s %d,%s", table->instr, offset, name[reg]);
+    snprintf(instruction, length, "%s %d,%s", table->instr, offset, name[reg]);
     ADD_CYCLES(1);
     return 1;
   }
@@ -74,7 +75,7 @@ int get_indexed(
   {
     // [8 bit offset, R] indirect
     int8_t offset = READ_RAM(address + 1);
-    sprintf(instruction, "%s [%d,%s]", table->instr, offset, name[reg]);
+    snprintf(instruction, length, "%s [%d,%s]", table->instr, offset, name[reg]);
     ADD_CYCLES(4);
     return 1;
   }
@@ -83,7 +84,7 @@ int get_indexed(
   {
     // 16 bit offset, R non-indirect
     int16_t offset = READ_RAM16(address + 1);
-    sprintf(instruction, "%s %d,%s", table->instr, offset, name[reg]);
+    snprintf(instruction, length, "%s %d,%s", table->instr, offset, name[reg]);
     ADD_CYCLES(4);
     return 2;
   }
@@ -92,7 +93,7 @@ int get_indexed(
   {
     // [16 bit offset, R] indirect
     int16_t offset = READ_RAM16(address + 1);
-    sprintf(instruction, "%s [%d,%s]", table->instr, offset, name[reg]);
+    snprintf(instruction, length, "%s [%d,%s]", table->instr, offset, name[reg]);
     ADD_CYCLES(7);
     return 2;
   }
@@ -100,7 +101,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x86)
   {
     // A,R non-indirect
-    sprintf(instruction, "%s a,%s", table->instr, name[reg]);
+    snprintf(instruction, length, "%s a,%s", table->instr, name[reg]);
     ADD_CYCLES(1);
     return 0;
   }
@@ -108,7 +109,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x96)
   {
     // [A,R] non-indirect
-    sprintf(instruction, "%s [a,%s]", table->instr, name[reg]);
+    snprintf(instruction, length, "%s [a,%s]", table->instr, name[reg]);
     ADD_CYCLES(4);
     return 0;
   }
@@ -116,7 +117,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x85)
   {
     // B,R non-indirect
-    sprintf(instruction, "%s b,%s", table->instr, name[reg]);
+    snprintf(instruction, length, "%s b,%s", table->instr, name[reg]);
     ADD_CYCLES(1);
     return 0;
   }
@@ -124,7 +125,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x95)
   {
     // [B,R] indirect
-    sprintf(instruction, "%s [b,%s]", table->instr, name[reg]);
+    snprintf(instruction, length, "%s [b,%s]", table->instr, name[reg]);
     ADD_CYCLES(4);
     return 0;
   }
@@ -132,7 +133,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x8b)
   {
     // D,R non-indirect
-    sprintf(instruction, "%s d,%s", table->instr, name[reg]);
+    snprintf(instruction, length, "%s d,%s", table->instr, name[reg]);
     ADD_CYCLES(4);
     return 0;
   }
@@ -140,7 +141,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x9b)
   {
     // [D,R] non-indirect
-    sprintf(instruction, "%s [d,%s]", table->instr, name[reg]);
+    snprintf(instruction, length, "%s [d,%s]", table->instr, name[reg]);
     ADD_CYCLES(7);
     return 0;
   }
@@ -148,7 +149,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x80)
   {
     // ,R+ non-indirect
-    sprintf(instruction, "%s ,%s+", table->instr, name[reg]);
+    snprintf(instruction, length, "%s ,%s+", table->instr, name[reg]);
     ADD_CYCLES(2);
     return 0;
   }
@@ -156,7 +157,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x81)
   {
     // ,R++ non-indirect
-    sprintf(instruction, "%s ,%s++", table->instr, name[reg]);
+    snprintf(instruction, length, "%s ,%s++", table->instr, name[reg]);
     ADD_CYCLES(3);
     return 0;
   }
@@ -164,7 +165,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x91)
   {
     // [,R++] indirect
-    sprintf(instruction, "%s [,%s++]", table->instr, name[reg]);
+    snprintf(instruction, length, "%s [,%s++]", table->instr, name[reg]);
     ADD_CYCLES(6);
     return 0;
   }
@@ -172,7 +173,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x82)
   {
     // ,-R non-indirect
-    sprintf(instruction, "%s ,-%s", table->instr, name[reg]);
+    snprintf(instruction, length, "%s ,-%s", table->instr, name[reg]);
     ADD_CYCLES(2);
     return 0;
   }
@@ -180,7 +181,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x83)
   {
     // ,--R non-indirect
-    sprintf(instruction, "%s ,--%s", table->instr, name[reg]);
+    snprintf(instruction, length, "%s ,--%s", table->instr, name[reg]);
     ADD_CYCLES(3);
     return 0;
   }
@@ -188,7 +189,7 @@ int get_indexed(
   if ((post_byte & 0x9f) == 0x93)
   {
     // [,--R] indirect
-    sprintf(instruction, "%s [,--%s]", table->instr, name[reg]);
+    snprintf(instruction, length, "%s [,--%s]", table->instr, name[reg]);
     ADD_CYCLES(6);
     return 0;
   }
@@ -197,7 +198,7 @@ int get_indexed(
   {
     // 8 bit offset, PCR non-indirect
     int8_t offset = READ_RAM(address + 1);
-    sprintf(instruction, "%s %d,pc", table->instr, offset);
+    snprintf(instruction, length, "%s %d,pc", table->instr, offset);
     ADD_CYCLES(1);
     return 1;
   }
@@ -206,7 +207,7 @@ int get_indexed(
   {
     // [8 bit offset, PCR] indirect
     int8_t offset = READ_RAM(address + 1);
-    sprintf(instruction, "%s [%d,pc]", table->instr, offset);
+    snprintf(instruction, length, "%s [%d,pc]", table->instr, offset);
     ADD_CYCLES(4);
     return 1;
   }
@@ -215,7 +216,7 @@ int get_indexed(
   {
     // 16 bit offset, PCR non-indirect
     int16_t offset = READ_RAM16(address + 1);
-    sprintf(instruction, "%s %d,pc", table->instr, offset);
+    snprintf(instruction, length, "%s %d,pc", table->instr, offset);
     ADD_CYCLES(5);
     return 2;
   }
@@ -224,7 +225,7 @@ int get_indexed(
   {
     // [16 bit offset, PCR] non-indirect
     int16_t offset = READ_RAM16(address + 1);
-    sprintf(instruction, "%s [%d,pc]", table->instr, offset);
+    snprintf(instruction, length, "%s [%d,pc]", table->instr, offset);
     ADD_CYCLES(8);
     return 2;
   }
@@ -233,7 +234,7 @@ int get_indexed(
   {
     // [16 bit offset] non-indirect
     int16_t offset = READ_RAM16(address + 1);
-    sprintf(instruction, "%s [0x%04x]", table->instr, offset);
+    snprintf(instruction, length, "%s [0x%04x]", table->instr, offset);
     ADD_CYCLES(5);
     return 2;
   }
@@ -282,7 +283,9 @@ int disasm_6809(
           {
             if (table_6809_16[n].bytes == 4)
             {
-              sprintf(instruction, "%s #0x%02x", table_6809_16[n].instr, READ_RAM16(address + 2));
+              snprintf(instruction, length, "%s #0x%02x",
+                table_6809_16[n].instr,
+                READ_RAM16(address + 2));
               return 4;
             }
 
@@ -292,7 +295,9 @@ int disasm_6809(
           {
             if (table_6809_16[n].bytes == 4)
             {
-              sprintf(instruction, "%s 0x%04x", table_6809_16[n].instr, READ_RAM16(address + 2));
+              snprintf(instruction, length, "%s 0x%04x",
+                table_6809_16[n].instr,
+                READ_RAM16(address + 2));
               return 4;
             }
 
@@ -304,7 +309,10 @@ int disasm_6809(
             {
               int16_t offset = READ_RAM16(address + 2);
 
-              sprintf(instruction, "%s 0x%04x (%d)", table_6809_16[n].instr, (address + 4 + offset) & 0xffff, offset);
+              snprintf(instruction, length, "%s 0x%04x (%d)",
+                table_6809_16[n].instr,
+                (address + 4 + offset) & 0xffff,
+                offset);
               return 4;
             }
 
@@ -314,7 +322,9 @@ int disasm_6809(
           {
             if (table_6809_16[n].bytes == 3)
             {
-              sprintf(instruction, "%s >0x%02x", table_6809_16[n].instr, READ_RAM(address + 2));
+              snprintf(instruction, length, "%s >0x%02x",
+                table_6809_16[n].instr,
+                READ_RAM(address + 2));
               return 3;
             }
 
@@ -322,7 +332,14 @@ int disasm_6809(
           }
           case M6809_OP_INDEXED:
           {
-            return get_indexed(memory, &table_6809_16[n], instruction, address + 2, cycles_min, cycles_max) + 3;
+            return get_indexed(
+              memory,
+              &table_6809_16[n],
+              instruction,
+              length,
+              address + 2,
+              cycles_min,
+              cycles_max) + 3;
 
             break;
           }
@@ -358,13 +375,13 @@ int disasm_6809(
           {
             if (table_6809[n].bytes == 2)
             {
-              sprintf(instruction, "%s #0x%02x", table_6809[n].instr, READ_RAM(address + 1));
+              snprintf(instruction, length, "%s #0x%02x", table_6809[n].instr, READ_RAM(address + 1));
               return 2;
             }
               else
             if (table_6809[n].bytes == 3)
             {
-              sprintf(instruction, "%s #0x%02x", table_6809[n].instr, READ_RAM16(address + 1));
+              snprintf(instruction, length, "%s #0x%02x", table_6809[n].instr, READ_RAM16(address + 1));
               return 3;
             }
 
@@ -374,7 +391,7 @@ int disasm_6809(
           {
             if (table_6809[n].bytes == 3)
             {
-              sprintf(instruction, "%s 0x%04x", table_6809[n].instr, READ_RAM16(address + 1));
+              snprintf(instruction, length, "%s 0x%04x", table_6809[n].instr, READ_RAM16(address + 1));
               return 3;
             }
 
@@ -386,7 +403,7 @@ int disasm_6809(
             {
               int8_t offset = READ_RAM(address + 1);
 
-              sprintf(instruction, "%s 0x%04x (%d)", table_6809[n].instr, (address + 2 + offset) & 0xffff, offset);
+              snprintf(instruction, length, "%s 0x%04x (%d)", table_6809[n].instr, (address + 2 + offset) & 0xffff, offset);
               return 2;
             }
 
@@ -398,7 +415,7 @@ int disasm_6809(
             {
               int16_t offset = (READ_RAM(address + 1) << 8) | READ_RAM(address + 2);
 
-              sprintf(instruction, "%s 0x%04x (%d)", table_6809[n].instr, (address + 3 + offset) & 0xffff, offset);
+              snprintf(instruction, length, "%s 0x%04x (%d)", table_6809[n].instr, (address + 3 + offset) & 0xffff, offset);
               return 2;
             }
 
@@ -408,7 +425,7 @@ int disasm_6809(
           {
             if (table_6809[n].bytes == 2)
             {
-              sprintf(instruction, "%s >0x%02x", table_6809[n].instr, READ_RAM(address + 1));
+              snprintf(instruction, length, "%s >0x%02x", table_6809[n].instr, READ_RAM(address + 1));
               return 2;
             }
 
@@ -423,7 +440,7 @@ int disasm_6809(
               uint8_t index = 0x80;
               uint8_t count = 0;
 
-              sprintf(instruction, "%s", table_6809[n].instr);
+              snprintf(instruction, length, "%s", table_6809[n].instr);
               for (n = 0; n < 8; n++)
               {
                 if ((reg_list & index) != 0)
@@ -454,13 +471,20 @@ int disasm_6809(
             const char *src = reg_post_byte[post_byte >> 4];
             const char *dst = reg_post_byte[post_byte & 0xf];
 
-            sprintf(instruction, "%s %s, %s", table_6809[n].instr, src, dst);
+            snprintf(instruction, length, "%s %s, %s", table_6809[n].instr, src, dst);
 
             return 2;
           }
           case M6809_OP_INDEXED:
           {
-            return get_indexed(memory, &table_6809[n], instruction, address + 1, cycles_min, cycles_max) + 2;
+            return get_indexed(
+              memory,
+              &table_6809[n],
+              instruction,
+              length,
+              address + 1,
+              cycles_min,
+              cycles_max) + 2;
 
             break;
           }

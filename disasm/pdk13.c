@@ -46,63 +46,63 @@ int disasm_pdk13(
           strcpy(instruction, table_pdk13[n].instr);
           return 2;
         case OP_A:
-          sprintf(instruction, "%s a", table_pdk13[n].instr);
+          snprintf(instruction, length, "%s a", table_pdk13[n].instr);
           return 2;
         case OP_IO_A:
           m = opcode & 0x1f;
-          sprintf(instruction, "%s %d, a", table_pdk13[n].instr, m);
+          snprintf(instruction, length, "%s %d, a", table_pdk13[n].instr, m);
           return 2;
         case OP_A_IO:
           m = opcode & 0x1f;
-          sprintf(instruction, "%s a, %d", table_pdk13[n].instr, m);
+          snprintf(instruction, length, "%s a, %d", table_pdk13[n].instr, m);
           return 2;
         case OP_M:
           m = opcode & 0x3f;
-          sprintf(instruction, "%s [%d]", table_pdk13[n].instr, m);
+          snprintf(instruction, length, "%s [%d]", table_pdk13[n].instr, m);
           return 2;
         case OP_M4:
           m = opcode & 0x1e;
-          sprintf(instruction, "%s [%d]", table_pdk13[n].instr, m);
+          snprintf(instruction, length, "%s [%d]", table_pdk13[n].instr, m);
           return 2;
         case OP_K8:
           k = opcode & 0xff;
-          sprintf(instruction, "%s 0x%02x", table_pdk13[n].instr, k);
+          snprintf(instruction, length, "%s 0x%02x", table_pdk13[n].instr, k);
           return 2;
         case OP_A_M:
           m = opcode & 0x3f;
-          sprintf(instruction, "%s a, [%d]", table_pdk13[n].instr, m);
+          snprintf(instruction, length, "%s a, [%d]", table_pdk13[n].instr, m);
           return 2;
         case OP_M_A:
           m = opcode & 0x3f;
-          sprintf(instruction, "%s [%d], a", table_pdk13[n].instr, m);
+          snprintf(instruction, length, "%s [%d], a", table_pdk13[n].instr, m);
           return 2;
         case OP_A_M4:
           bit = (opcode >> 6) & 0x7;
           m = opcode & 0x1e;
-          sprintf(instruction, "%s a, [%d].%d", table_pdk13[n].instr, m, bit);
+          snprintf(instruction, length, "%s a, [%d].%d", table_pdk13[n].instr, m, bit);
           return 2;
         case OP_M4_A:
           bit = (opcode >> 6) & 0x7;
           m = opcode & 0x1e;
-          sprintf(instruction, "%s [%d].%d, a", table_pdk13[n].instr, m, bit);
+          snprintf(instruction, length, "%s [%d].%d, a", table_pdk13[n].instr, m, bit);
           return 2;
         case OP_IO_N:
           bit = (opcode >> 5) & 0x7;
           m = opcode & 0x1f;
-          sprintf(instruction, "%s %d.%d", table_pdk13[n].instr, m, bit);
+          snprintf(instruction, length, "%s %d.%d", table_pdk13[n].instr, m, bit);
           return 2;
         case OP_M_N:
           bit = (opcode >> 5) & 0x7;
           m = opcode & 0xf;
-          sprintf(instruction, "%s [%d].%d", table_pdk13[n].instr, m, bit);
+          snprintf(instruction, length, "%s [%d].%d", table_pdk13[n].instr, m, bit);
           return 2;
         case OP_A_K:
           k = opcode & 0xff;
-          sprintf(instruction, "%s a, %d", table_pdk13[n].instr, k);
+          snprintf(instruction, length, "%s a, %d", table_pdk13[n].instr, k);
           return 2;
         case OP_K10:
           k = opcode & 0x3ff;
-          sprintf(instruction, "%s 0x%03x", table_pdk13[n].instr, k);
+          snprintf(instruction, length, "%s 0x%03x", table_pdk13[n].instr, k);
           return 2;
         default:
         {

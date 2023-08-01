@@ -69,33 +69,33 @@ int disasm_tms1000(
   bit_instr = opcode >> 2;
   c = tms1000_reverse_bit_address[opcode & 0x3];
 
-  if (bit_instr == 0xc) { sprintf(instruction, "sbit %d", c); return 1; }
+  if (bit_instr == 0xc) { snprintf(instruction, length, "sbit %d", c); return 1; }
     else
-  if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", c); return 1; }
+  if (bit_instr == 0xd) { snprintf(instruction, length, "rbit %d", c); return 1; }
     else
-  if (bit_instr == 0xe) { sprintf(instruction, "tbit1 %d", c); return 1;}
+  if (bit_instr == 0xe) { snprintf(instruction, length, "tbit1 %d", c); return 1;}
     else
-  if (bit_instr == 0xf) { sprintf(instruction, "ldx %d", c); return 1; }
+  if (bit_instr == 0xf) { snprintf(instruction, length, "ldx %d", c); return 1; }
 
   bit_instr = opcode >> 4;
   c = tms1000_reverse_constant[opcode & 0xf];
 
-  if (bit_instr == 0x4) { sprintf(instruction, "tcy %d", c); return 1; }
+  if (bit_instr == 0x4) { snprintf(instruction, length, "tcy %d", c); return 1; }
     else
-  if (bit_instr == 0x6) { sprintf(instruction, "tcmiy %d", c); return 1;}
+  if (bit_instr == 0x6) { snprintf(instruction, length, "tcmiy %d", c); return 1;}
     else
-  if (bit_instr == 0x1) { sprintf(instruction, "ldp %d", c); return 1; }
+  if (bit_instr == 0x1) { snprintf(instruction, length, "ldp %d", c); return 1; }
     else
-  if (bit_instr == 0x7) { sprintf(instruction, "alec %d", c); return 1; }
+  if (bit_instr == 0x7) { snprintf(instruction, length, "alec %d", c); return 1; }
     else
-  if (bit_instr == 0x5) { sprintf(instruction, "ynec %d", c); return 1; }
+  if (bit_instr == 0x5) { snprintf(instruction, length, "ynec %d", c); return 1; }
 
   bit_instr = opcode >> 6;
   uint8_t branch_address = opcode & 0x3f;
 
   if (bit_instr == 0x2)
   {
-    sprintf(instruction, "br 0x%02x  (linear_address=0x%02x)",
+    snprintf(instruction, length, "br 0x%02x  (linear_address=0x%02x)",
       branch_address,
       tms1000_lsfr_to_address[branch_address]);
     return 1;
@@ -103,7 +103,7 @@ int disasm_tms1000(
     else
   if (bit_instr == 0x3)
   {
-    sprintf(instruction, "call 0x%02x  (linear_address=0x%02x)",
+    snprintf(instruction, length, "call 0x%02x  (linear_address=0x%02x)",
       branch_address,
       tms1000_lsfr_to_address[branch_address]);
     return 1;
@@ -145,27 +145,27 @@ int disasm_tms1100(
   bit_instr = opcode >> 2;
   c = tms1000_reverse_bit_address[opcode & 0x3];
 
-  if (bit_instr == 0xc) { sprintf(instruction, "sbit %d", c); return 1; }
+  if (bit_instr == 0xc) { snprintf(instruction, length, "sbit %d", c); return 1; }
     else
-  if (bit_instr == 0xd) { sprintf(instruction, "rbit %d", c); return 1; }
+  if (bit_instr == 0xd) { snprintf(instruction, length, "rbit %d", c); return 1; }
     else
-  if (bit_instr == 0xe) { sprintf(instruction, "tbit1 %d", c); return 1; }
+  if (bit_instr == 0xe) { snprintf(instruction, length, "tbit1 %d", c); return 1; }
 
   bit_instr = opcode >> 3;
   c = tms1000_reverse_constant[opcode & 0x7] >> 1;
 
-  if (bit_instr == 0x5) { sprintf(instruction, "ldx %d", c); return 1; }
+  if (bit_instr == 0x5) { snprintf(instruction, length, "ldx %d", c); return 1; }
 
   bit_instr = opcode >> 4;
   c = tms1000_reverse_constant[opcode & 0xf];
 
-  if (bit_instr == 0x4) { sprintf(instruction, "tcy %d", c); return 1; }
+  if (bit_instr == 0x4) { snprintf(instruction, length, "tcy %d", c); return 1; }
     else
-  if (bit_instr == 0x6) { sprintf(instruction, "tcmiy %d", c); return 1; }
+  if (bit_instr == 0x6) { snprintf(instruction, length, "tcmiy %d", c); return 1; }
     else
-  if (bit_instr == 0x1) { sprintf(instruction, "ldp %d", c); return 1; }
+  if (bit_instr == 0x1) { snprintf(instruction, length, "ldp %d", c); return 1; }
     else
-  if (bit_instr == 0x5) { sprintf(instruction, "ynec %d", c); return 1; }
+  if (bit_instr == 0x5) { snprintf(instruction, length, "ynec %d", c); return 1; }
 
   bit_instr = opcode >> 6;
   uint8_t branch_address = opcode & 0x3f;
@@ -174,7 +174,7 @@ int disasm_tms1100(
 
   if (bit_instr == 0x2)
   {
-     sprintf(instruction, "br 0x%02x (linear_address=0x%02x)",
+     snprintf(instruction, length, "br 0x%02x (linear_address=0x%02x)",
        branch_address,
        tms1000_lsfr_to_address[branch_address]);
      return 1;
@@ -182,7 +182,7 @@ int disasm_tms1100(
     else
   if (bit_instr == 0x3)
   {
-    sprintf(instruction, "call 0x%02x (linear_address=0x%02x)",
+    snprintf(instruction, length, "call 0x%02x (linear_address=0x%02x)",
       branch_address,
       tms1000_lsfr_to_address[branch_address]);
     return 1;

@@ -1164,18 +1164,53 @@ int simulate_run_z80(Simulate *simulate, int max_cycles, int step)
         else { printf(" "); }
 
         if (n == 0)
-        { printf("! "); }
+        {
+          printf("! ");
+        }
           else
-        if (disasm_pc == simulate_z80->reg[0]) { printf("> "); }
+        if (disasm_pc == simulate_z80->reg[0])
+        {
+          printf("> ");
+        }
           else
-        { printf("  "); }
+        {
+          printf("  ");
+        }
 
-        char hex[16];
-        if (count == 1) { sprintf(hex, "         %02x", READ_RAM(disasm_pc)); }
-        else if (count == 2) { sprintf(hex, "      %02x %02x", READ_RAM(disasm_pc), READ_RAM(disasm_pc + 1)); }
-        else if (count == 3) { sprintf(hex, "   %02x %02x %02x", READ_RAM(disasm_pc), READ_RAM(disasm_pc + 1), READ_RAM(disasm_pc + 2)); }
-        else if (count == 4) { sprintf(hex, "%02x %02x %02x %02x", READ_RAM(disasm_pc), READ_RAM(disasm_pc + 1), READ_RAM(disasm_pc + 2), READ_RAM(disasm_pc + 3)); }
-        else { sprintf(hex, "         ???"); }
+        char hex[32];
+
+        if (count == 1)
+        {
+          snprintf(hex, sizeof(hex), "         %02x", READ_RAM(disasm_pc));
+        }
+          else
+        if (count == 2)
+        {
+          snprintf(hex, sizeof(hex), "      %02x %02x",
+            READ_RAM(disasm_pc),
+            READ_RAM(disasm_pc + 1));
+        }
+          else
+        if (count == 3)
+        {
+          snprintf(hex, sizeof(hex), "   %02x %02x %02x",
+            READ_RAM(disasm_pc),
+            READ_RAM(disasm_pc + 1),
+            READ_RAM(disasm_pc + 2));
+        }
+          else
+        if (count == 4)
+        {
+          snprintf(hex, sizeof(hex), "%02x %02x %02x %02x",
+            READ_RAM(disasm_pc),
+            READ_RAM(disasm_pc + 1),
+            READ_RAM(disasm_pc + 2),
+            READ_RAM(disasm_pc + 3));
+        }
+          else
+        {
+          snprintf(hex, sizeof(hex), "         ???");
+        }
 
         if (cycles_min < 1)
         {

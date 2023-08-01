@@ -23,6 +23,7 @@ static int disasm_alu(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int n,
   int is_alu_2)
 {
@@ -41,7 +42,7 @@ static int disasm_alu(
       // rd, [bp+imm6]
       imm6 = opcode & 0x3f;
 
-      sprintf(instruction, "%s %s, [bp+%d]",
+      snprintf(instruction, length, "%s %s, [bp+%d]",
         table_unsp[n].instr,
         regs[operand_a],
         imm6);
@@ -52,7 +53,7 @@ static int disasm_alu(
       // rd, #imm6
       imm6 = opcode & 0x3f;
 
-      sprintf(instruction, "%s %s, #%d",
+      snprintf(instruction, length, "%s %s, #%d",
         table_unsp[n].instr,
         regs[operand_a],
         imm6);
@@ -63,17 +64,17 @@ static int disasm_alu(
       // rd, [rs]
       switch (opn)
       {
-        case 0: sprintf(temp, "[%s]", regs[operand_b]); break;
-        case 1: sprintf(temp, "[%s--]", regs[operand_b]); break;
-        case 2: sprintf(temp, "[%s++]", regs[operand_b]); break;
-        case 3: sprintf(temp, "[++%s]", regs[operand_b]); break;
-        case 4: sprintf(temp, "D:[%s]", regs[operand_b]); break;
-        case 5: sprintf(temp, "D:[%s--]", regs[operand_b]); break;
-        case 6: sprintf(temp, "D:[%s++]", regs[operand_b]); break;
-        case 7: sprintf(temp, "D:[++%s]", regs[operand_b]); break;
+        case 0: snprintf(temp, sizeof(temp), "[%s]", regs[operand_b]); break;
+        case 1: snprintf(temp, sizeof(temp), "[%s--]", regs[operand_b]); break;
+        case 2: snprintf(temp, sizeof(temp), "[%s++]", regs[operand_b]); break;
+        case 3: snprintf(temp, sizeof(temp), "[++%s]", regs[operand_b]); break;
+        case 4: snprintf(temp, sizeof(temp), "D:[%s]", regs[operand_b]); break;
+        case 5: snprintf(temp, sizeof(temp), "D:[%s--]", regs[operand_b]); break;
+        case 6: snprintf(temp, sizeof(temp), "D:[%s++]", regs[operand_b]); break;
+        case 7: snprintf(temp, sizeof(temp), "D:[++%s]", regs[operand_b]); break;
       }
 
-      sprintf(instruction, "%s %s, %s",
+      snprintf(instruction, length, "%s %s, %s",
         table_unsp[n].instr,
         regs[operand_a],
         temp);
@@ -85,7 +86,7 @@ static int disasm_alu(
       {
         case 0:
           // rd, rs
-          sprintf(instruction, "%s %s, %s",
+          snprintf(instruction, length, "%s %s, %s",
             table_unsp[n].instr,
             regs[operand_a],
             regs[operand_b]);
@@ -94,7 +95,7 @@ static int disasm_alu(
           // rd, rs, #imm16
           if (is_alu_2 == 0)
           {
-            sprintf(instruction, "%s %s, %s, #0x%x",
+            snprintf(instruction, length, "%s %s, %s, #0x%x",
               table_unsp[n].instr,
               regs[operand_a],
               regs[operand_b],
@@ -102,7 +103,7 @@ static int disasm_alu(
           }
             else
           {
-            sprintf(instruction, "%s %s, #0x%x",
+            snprintf(instruction, length, "%s %s, #0x%x",
               table_unsp[n].instr,
               regs[operand_a],
               memory_read16_m(memory, address + 2));
@@ -112,7 +113,7 @@ static int disasm_alu(
           // rd, rs, [addr16]
           if (is_alu_2 == 0)
           {
-            sprintf(instruction, "%s %s, %s, [0x%04x]",
+            snprintf(instruction, length, "%s %s, %s, [0x%04x]",
               table_unsp[n].instr,
               regs[operand_a],
               regs[operand_b],
@@ -120,7 +121,7 @@ static int disasm_alu(
           }
             else
           {
-            sprintf(instruction, "%s %s, [0x%04x]",
+            snprintf(instruction, length, "%s %s, [0x%04x]",
               table_unsp[n].instr,
               regs[operand_a],
               memory_read16_m(memory, address + 2));
@@ -130,7 +131,7 @@ static int disasm_alu(
           // [addr16], rs, rd
           if (is_alu_2 == 0)
           {
-            sprintf(instruction, "%s [0x%04x], %s, %s",
+            snprintf(instruction, length, "%s [0x%04x], %s, %s",
               table_unsp[n].instr,
               memory_read16_m(memory, address + 2),
               regs[operand_a],
@@ -140,14 +141,14 @@ static int disasm_alu(
           {
             if (table_unsp[n].opcode == 0xd000)
             {
-              sprintf(instruction, "%s %s, [0x%04x]",
+              snprintf(instruction, length, "%s %s, [0x%04x]",
                 table_unsp[n].instr,
                 regs[operand_a],
                 memory_read16_m(memory, address + 2));
             }
               else
             {
-              sprintf(instruction, "%s [0x%04x], %s",
+              snprintf(instruction, length, "%s [0x%04x], %s",
                 table_unsp[n].instr,
                 memory_read16_m(memory, address + 2),
                 regs[operand_a]);
@@ -157,7 +158,7 @@ static int disasm_alu(
         default:
           // rd, rs SHIFT <1 to 4>
           value = opn - 3;
-          sprintf(instruction, "%s %s, %s asr %d",
+          snprintf(instruction, length, "%s %s, %s asr %d",
             table_unsp[n].instr,
             regs[operand_a],
             regs[operand_b],
@@ -172,7 +173,7 @@ static int disasm_alu(
       if (opn < 4)
       {
         value = opn + 1;
-        sprintf(instruction, "%s %s, %s lsl %d",
+        snprintf(instruction, length, "%s %s, %s lsl %d",
           table_unsp[n].instr,
           regs[operand_a],
           regs[operand_b],
@@ -181,7 +182,7 @@ static int disasm_alu(
         else
       {
         value = opn - 3;
-        sprintf(instruction, "%s %s, %s lsr %d",
+        snprintf(instruction, length, "%s %s, %s lsr %d",
           table_unsp[n].instr,
           regs[operand_a],
           regs[operand_b],
@@ -195,7 +196,7 @@ static int disasm_alu(
       if (opn < 4)
       {
         value = opn + 1;
-        sprintf(instruction, "%s %s, %s rol %d",
+        snprintf(instruction, length,"%s %s, %s rol %d",
           table_unsp[n].instr,
           regs[operand_a],
           regs[operand_b],
@@ -204,7 +205,7 @@ static int disasm_alu(
         else
       {
         value = opn - 3;
-        sprintf(instruction, "%s %s, %s ror %d",
+        snprintf(instruction, length, "%s %s, %s ror %d",
           table_unsp[n].instr,
           regs[operand_a],
           regs[operand_b],
@@ -217,7 +218,7 @@ static int disasm_alu(
       // rd, [imm6]
       imm6 = opcode & 0x3f;
 
-      sprintf(instruction, "%s %s, [%d]",
+      snprintf(instruction, length, "%s %s, [%d]",
         table_unsp[n].instr,
         regs[operand_a],
         imm6);
@@ -225,7 +226,7 @@ static int disasm_alu(
     }
     default:
     {
-      sprintf(instruction, "%s",
+      snprintf(instruction, length, "%s",
         table_unsp[n].instr);
     }
   }
@@ -237,6 +238,7 @@ static int disasm_pop(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int n)
 {
   int opcode = memory_read16_m(memory, address);
@@ -246,19 +248,19 @@ static int disasm_pop(
 
   if (opn == 0)
   {
-    sprintf(instruction, "%s", table_unsp[n].instr);
+    snprintf(instruction, length, "%s", table_unsp[n].instr);
   }
     else
   if (opn == 1)
   {
-    sprintf(instruction, "%s %s, [%s]",
+    snprintf(instruction, length, "%s %s, [%s]",
       table_unsp[n].instr,
       regs[operand_a + 1],
       regs[operand_b]);
   }
     else
   {
-    sprintf(instruction, "%s r%d-r%d, [%s]",
+    snprintf(instruction, length, "%s r%d-r%d, [%s]",
       table_unsp[n].instr,
       operand_a + 1,
       operand_a + opn,
@@ -272,6 +274,7 @@ static int disasm_push(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   int n)
 {
   int opcode = memory_read16_m(memory, address);
@@ -281,19 +284,19 @@ static int disasm_push(
 
   if (opn == 0)
   {
-    sprintf(instruction, "%s", table_unsp[n].instr);
+    snprintf(instruction, length, "%s", table_unsp[n].instr);
   }
     else
   if (opn == 1)
   {
-    sprintf(instruction, "%s %s, [%s]",
+    snprintf(instruction, length, "%s %s, [%s]",
       table_unsp[n].instr,
       regs[operand_a],
       regs[operand_b]);
   }
     else
   {
-    sprintf(instruction, "%s r%d-r%d, [%s]",
+    snprintf(instruction, length, "%s r%d-r%d, [%s]",
       table_unsp[n].instr,
       operand_a - (opn - 1),
       operand_a,
@@ -342,14 +345,14 @@ int disasm_unsp(
             ((opcode & 0x3f) << 16) |
             memory_read16_m(memory, address + 2);
 
-          sprintf(instruction, "%s 0x%04x",
+          snprintf(instruction, length, "%s 0x%04x",
             table_unsp[n].instr,
             data);
           return 4;
         }
         case UNSP_OP_MUL:
         {
-          sprintf(instruction, "%s %s, %s",
+          snprintf(instruction, length, "%s %s, %s",
             table_unsp[n].instr,
             regs[operand_a],
             regs[operand_b]);
@@ -360,7 +363,7 @@ int disasm_unsp(
           int opn = (opcode >> 3) & 0xf;
           if (opn == 0) { opn = 16; }
 
-          sprintf(instruction, "%s [%s], [%s], %d",
+          snprintf(instruction, length, "%s [%s], [%s], %d",
             table_unsp[n].instr,
             regs[operand_a],
             regs[operand_b],
@@ -373,7 +376,7 @@ int disasm_unsp(
 
           if (((opcode >> 6) & 0x1) != 0) { offset = -offset; }
 
-          sprintf(instruction, "%s 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s 0x%04x (offset=%d)",
             table_unsp[n].instr,
             (address / 2) + 1 + offset,
             offset);
@@ -381,19 +384,19 @@ int disasm_unsp(
         }
         case UNSP_OP_ALU:
         {
-          return disasm_alu(memory, address, instruction, n, 0);
+          return disasm_alu(memory, address, instruction, length, n, 0);
         }
         case UNSP_OP_ALU_2:
         {
-          return disasm_alu(memory, address, instruction, n, 1);
+          return disasm_alu(memory, address, instruction, length, n, 1);
         }
         case UNSP_OP_POP:
         {
-          return disasm_pop(memory, address, instruction, n);
+          return disasm_pop(memory, address, instruction, length, n);
         }
         case UNSP_OP_PUSH:
         {
-          return disasm_push(memory, address, instruction, n);
+          return disasm_push(memory, address, instruction, length, n);
         }
         default:
         {

@@ -712,7 +712,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
           {
             print_error_range(asm_context,
                               "Absolute address out of range, use .l modifier.",
-                              0, 0xffff); 
+                              0, 0xffff);
             return -1;
           }
 

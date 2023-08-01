@@ -47,27 +47,27 @@ int disasm_6800(
       strcpy(instruction, table_6800[opcode].instr);
       break;
     case M6800_OP_IMM8:
-      sprintf(instruction, "%s #$%02x", table_6800[opcode].instr, READ_RAM(address+1));
+      snprintf(instruction, length, "%s #$%02x", table_6800[opcode].instr, READ_RAM(address+1));
       size = 2;
       break;
     case M6800_OP_IMM16:
-      sprintf(instruction, "%s #$%04x", table_6800[opcode].instr, READ_RAM16(address + 1));
+      snprintf(instruction, length, "%s #$%04x", table_6800[opcode].instr, READ_RAM16(address + 1));
       size = 3;
       break;
     case M6800_OP_DIR_PAGE_8:
-      sprintf(instruction, "%s $%02x", table_6800[opcode].instr, READ_RAM(address + 1));
+      snprintf(instruction, length, "%s $%02x", table_6800[opcode].instr, READ_RAM(address + 1));
       size = 2;
       break;
     case M6800_OP_ABSOLUTE_16:
-      sprintf(instruction, "%s $%04x", table_6800[opcode].instr, READ_RAM16(address + 1));
+      snprintf(instruction, length, "%s $%04x", table_6800[opcode].instr, READ_RAM16(address + 1));
       size = 3;
       break;
     case M6800_OP_NN_X:
-      sprintf(instruction, "%s $%02x, X", table_6800[opcode].instr, READ_RAM(address + 1));
+      snprintf(instruction, length, "%s $%02x, X", table_6800[opcode].instr, READ_RAM(address + 1));
       size = 2;
       break;
     case M6800_OP_REL_OFFSET:
-      sprintf(instruction, "%s $%04x, X  (%d)", table_6800[opcode].instr, (address + 2) + (int8_t)(READ_RAM(address + 1)), (int8_t)READ_RAM(address + 1));
+      snprintf(instruction, length, "%s $%04x, X  (%d)", table_6800[opcode].instr, (address + 2) + (int8_t)(READ_RAM(address + 1)), (int8_t)READ_RAM(address + 1));
       size = 2;
       break;
   }
