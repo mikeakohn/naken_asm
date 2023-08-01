@@ -102,7 +102,8 @@ void list_output_6800(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp, sizeof(temp), "%02x ",
+        memory_read_m(&asm_context->memory, start + n));
       strcat(bytes, temp);
     }
 
@@ -152,7 +153,7 @@ void disasm_range_6800(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      sprintf(temp, "%02x ", READ_RAM(start + n));
+      snprintf(temp, sizeof(temp), "%02x ", READ_RAM(start + n));
       strcat(bytes, temp);
     }
 

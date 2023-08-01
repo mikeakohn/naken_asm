@@ -67,23 +67,25 @@ int disasm_ebpf(
         }
         case OP_IMM:
         {
-          sprintf(instruction, "%s %d\n", table_ebpf[n].instr, immediate);
+          snprintf(instruction, length, "%s %d\n",
+            table_ebpf[n].instr, immediate);
           return bytes;
         }
         case OP_REG:
         {
-          sprintf(instruction, "%s r%d\n", table_ebpf[n].instr, dst_reg);
+          snprintf(instruction, length, "%s r%d\n",
+            table_ebpf[n].instr, dst_reg);
           return bytes;
         }
         case OP_REG_REG:
         {
-          sprintf(instruction, "%s r%d, r%d\n",
+          snprintf(instruction, length, "%s r%d, r%d\n",
             table_ebpf[n].instr, dst_reg, src_reg);
           return bytes;
         }
         case OP_REG_IMM:
         {
-          sprintf(instruction, "%s r%d, %d\n",
+          snprintf(instruction, length, "%s r%d, %d\n",
             table_ebpf[n].instr, dst_reg, immediate);
           return bytes;
         }

@@ -3635,7 +3635,7 @@ int simulate_run_stm8(Simulate *simulate, int max_cycles, int step)
         {
           char temp[4];
 
-          sprintf(temp, "%02x ", READ_RAM(disasm_pc + i));
+          snprintf(temp, sizeof(temp), "%02x ", READ_RAM(disasm_pc + i));
           strcat(bytes, temp);
         }
 

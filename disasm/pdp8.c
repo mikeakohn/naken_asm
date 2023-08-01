@@ -18,7 +18,7 @@
 #include "disasm/pdp8.h"
 #include "table/pdp8.h"
 
-static void disasm_pdp8_opr(char *instruction, int opcode)
+static void disasm_pdp8_opr(char *instruction, int length, int opcode)
 {
   int mask = 0;
   int n, x, y;
@@ -58,7 +58,8 @@ static void disasm_pdp8_opr(char *instruction, int opcode)
       if ((table_pdp8[n].opcode & ~mask) == (opcode & ~mask) &&
           (table_pdp8[n].opcode & x) == table_pdp8[n].opcode)
         {
-          sprintf(instruction + strlen(instruction),
+          int n = strlen(instruction);
+          snprintf(instruction + n, length - n,
                   "%s ", table_pdp8[n].instr);
           x &= ~(table_pdp8[n].opcode & mask);
           break;
@@ -71,7 +72,8 @@ static void disasm_pdp8_opr(char *instruction, int opcode)
 
       if ((x & 0777) != 0)
       {
-        sprintf(instruction + strlen(instruction), "%o", x & 0777);
+        int n = strlen(instruction);
+        snprintf(instruction + n, length - n, "%o", x & 0777);
       }
 
       return;
@@ -115,12 +117,13 @@ int disasm_pdp8(
             a |= (address / 2) & 07600;
           }
 
-          sprintf(instruction, "%s %s%s%o", table_pdp8[n].instr,
+          snprintf(instruction, length, "%s %s%s%o", table_pdp8[n].instr,
                   z ? "z " : "", i ? "i ": "", a);
 
           if (i)
           {
-            sprintf(instruction + strlen(instruction),
+            int n = strlen(instruction);
+            snprintf(instruction + n, length - n,
                     " ; (%04o)", memory_read16_m(memory, a << 1));
           }
 
@@ -129,13 +132,13 @@ int disasm_pdp8(
         case OP_IOT:
         {
           a = opcode & 0777;
-          sprintf(instruction, "%s %o", table_pdp8[n].instr, a);
+          snprintf(instruction, length, "%s %o", table_pdp8[n].instr, a);
           return 2;
         }
         case OP_OPR:
         {
           instruction[0] = 0;
-          disasm_pdp8_opr (instruction, opcode);
+          disasm_pdp8_opr (instruction, length, opcode);
           return 2;
         }
         default:

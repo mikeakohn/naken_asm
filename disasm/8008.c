@@ -184,7 +184,7 @@ void list_output_8008(
 
     for (n = 0; n < count; n++)
     {
-      sprintf(temp2, " %02x", memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp2, sizeof(temp2), " %02x", memory_read_m(&asm_context->memory, start + n));
       strcat(temp, temp2);
     }
 
@@ -244,7 +244,7 @@ void disasm_range_8008(
 
     for (n = 0; n < count; n++)
     {
-      sprintf(temp2, " %02x", memory_read_m(memory, start + n));
+      snprintf(temp2, sizeof(temp2), " %02x", memory_read_m(memory, start + n));
       strcat(temp, temp2);
     }
 

@@ -532,16 +532,22 @@ void list_output_6809(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp, sizeof(temp), "%02x ",
+        memory_read_m(&asm_context->memory, start + n));
       strcat(bytes, temp);
     }
 
-    fprintf(asm_context->list, "0x%04x: %-16s %-40s cycles: ", start, bytes, instruction);
+    fprintf(asm_context->list, "0x%04x: %-16s %-40s cycles: ",
+      start, bytes, instruction);
 
     if (cycles_min == cycles_max)
-    { fprintf(asm_context->list, "%d\n", cycles_min); }
+    {
+      fprintf(asm_context->list, "%d\n", cycles_min);
+    }
       else
-    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    {
+      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+    }
 
     start += count;
   }
@@ -578,7 +584,7 @@ void disasm_range_6809(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      sprintf(temp, "%02x ", READ_RAM(start + n));
+      snprintf(temp, sizeof(temp), "%02x ", READ_RAM(start + n));
       strcat(bytes, temp);
     }
 

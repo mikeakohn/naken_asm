@@ -330,7 +330,7 @@ int disasm_tms340(
     }
   }
 
-  sprintf(instruction, "???");
+  snprintf(instruction, length, "???");
 
   return address - start;
 }

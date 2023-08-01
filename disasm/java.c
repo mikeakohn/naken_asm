@@ -184,7 +184,7 @@ void list_output_java(
   {
     opcode = memory_read_m(&asm_context->memory, start + n);
 
-    sprintf(temp, "%02x ", opcode);
+    snprintf(temp, sizeof(temp), "%02x ", opcode);
     strcat(hex, temp);
   }
 
@@ -225,7 +225,7 @@ void disasm_range_java(
     {
       opcode = memory_read_m(memory, start + n);
 
-      sprintf(temp, "%02x ", opcode);
+      snprintf(temp, sizeof(temp), "%02x ", opcode);
       strcat(hex, temp);
     }
 

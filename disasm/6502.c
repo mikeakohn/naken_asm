@@ -64,11 +64,11 @@ int disasm_6502(
         if (op == OP_RELATIVE)
         {
           branch_address = (address + 2) + (int8_t)lo;
-          sprintf(num, "0x%04x", branch_address);
+          snprintf(num, sizeof(num), "0x%04x", branch_address);
         }
           else
         {
-          sprintf(num, "0x%02x", lo);
+          snprintf(num, sizeof(num), "0x%02x", lo);
         }
       }
         else
@@ -76,7 +76,7 @@ int disasm_6502(
       {
         lo = READ_RAM(address + 1);
         hi = READ_RAM(address + 2);
-        sprintf(num, "0x%04x", (hi << 8) | lo);
+        snprintf(num, sizeof(num), "0x%04x", (hi << 8) | lo);
       }
 
       switch (op)

@@ -56,7 +56,7 @@ static int compute_s12(int data)
 }
 #endif
 
-int get_register(Memory *memory, int address, int r, char *s)
+int get_register(Memory *memory, int address, int r, char *s, int length)
 {
   switch (r)
   {
@@ -72,12 +72,12 @@ int get_register(Memory *memory, int address, int r, char *s)
     case 62:
     {
       int limm = READ_RAM32(address + 4);
-      sprintf(s, "0x%08x", limm);
+      snprintf(s, length, "0x%08x", limm);
       return 4;
     }
 #endif
     case 63: strcpy(s, "pcl"); break;
-    default: sprintf(s, "r%d", r); break;
+    default: snprintf(s, length, "r%d", r); break;
   }
 
   return 0;
@@ -181,9 +181,9 @@ int disasm_arc(
         strcpy(name, table_arc_alu[n].instr);
         int size = 0;
 
-        get_register(memory, address, a, reg_a);
-        get_register(memory, address, b, reg_b);
-        get_register(memory, address, c, reg_c);
+        get_register(memory, address, a, reg_a, sizeof(reg_a));
+        get_register(memory, address, b, reg_b, sizeof(reg_b));
+        get_register(memory, address, c, reg_c, sizeof(reg_c));
 
         switch (sub_type)
         {
@@ -192,7 +192,7 @@ int disasm_arc(
             {
               // xxx.f 0,b,limm
               immediate = READ_RAM32(address + 4);
-              sprintf(temp, "0, %s, 0x%04x", reg_b, immediate);
+              snprintf(temp, sizeof(temp), "0, %s, 0x%04x", reg_b, immediate);
               size += 4;
             }
               else
@@ -200,39 +200,39 @@ int disasm_arc(
             {
               // xxx.f a,limm,c
               immediate = READ_RAM32(address + 4);
-              sprintf(temp, "%s, 0x%04x, %s", reg_a, immediate, reg_c);
+              snprintf(temp, sizeof(temp), "%s, 0x%04x, %s", reg_a, immediate, reg_c);
               size += 4;
             }
               else
             if (a == LIMM)
             {
               // xxx.f 0,b,c
-              sprintf(temp, "0, %s, %s", reg_b, reg_c);
+              snprintf(temp, sizeof(temp), "0, %s, %s", reg_b, reg_c);
             }
               else
             if (c == LIMM)
             {
               // xxx.f a,b,limm
               immediate = READ_RAM32(address + 4);
-              sprintf(temp, "%s, %s, 0x%04x", reg_a, reg_b, immediate);
+              snprintf(temp, sizeof(temp), "%s, %s, 0x%04x", reg_a, reg_b, immediate);
               size += 4;
             }
               else
             {
               // xxx.f a,b,c
-              sprintf(temp, "%s, %s, %s", reg_a, reg_b, reg_c);
+              snprintf(temp, sizeof(temp), "%s, %s, %s", reg_a, reg_b, reg_c);
             }
             break;
           case 1:
             if (c == LIMM)
             {
               // xxx.f 0,b,u6
-              sprintf(temp, "0, %s, %d", reg_b, c);
+              snprintf(temp, sizeof(temp), "0, %s, %d", reg_b, c);
             }
               else
             {
               // xxx.f a,b,u6
-              sprintf(temp, "%s, %s, %d", reg_a, reg_b, c);
+              snprintf(temp, sizeof(temp), "%s, %s, %d", reg_a, reg_b, c);
             }
             break;
           case 2:
@@ -240,7 +240,7 @@ int disasm_arc(
             immediate = opcode & 0xfff;
             immediate = (immediate >> 6) | ((immediate & 0x3f) << 6);
             if ((immediate & 0x800) != 0) { immediate |= 0xfffff000; }
-            sprintf(temp, "%s, %s, %d", reg_b, reg_b, immediate);
+            snprintf(temp, sizeof(temp), "%s, %s, %d", reg_b, reg_b, immediate);
             break;
           case 3:
             strcat(name, cc);
@@ -248,14 +248,14 @@ int disasm_arc(
             if ((opcode & 0x0020) != 0)
             {
               // xxx.cc.f b,b,u6
-              sprintf(temp, "%s, %s, %d", reg_b, reg_b, c);
+              snprintf(temp, sizeof(temp), "%s, %s, %d", reg_b, reg_b, c);
             }
               else
             if (b == LIMM)
             {
               // xxx.cc.f 0,limm,c
               immediate = READ_RAM32(address + 4);
-              sprintf(temp, "0, 0x%04x, %s", immediate, reg_c);
+              snprintf(temp, sizeof(temp), "0, 0x%04x, %s", immediate, reg_c);
               size += 4;
             }
               else
@@ -263,13 +263,13 @@ int disasm_arc(
             {
               // xxx.cc.f b,b,limm
               immediate = READ_RAM32(address + 4);
-              sprintf(temp, "%s, %s, 0x%04x", reg_b, reg_b, immediate);
+              snprintf(temp, sizeof(temp), "%s, %s, 0x%04x", reg_b, reg_b, immediate);
               size += 4;
             }
               else
             {
               // xxx.cc.f b,b,c
-              sprintf(temp, "%s, %s, %s", reg_b, reg_b, reg_c);
+              snprintf(temp, sizeof(temp), "%s, %s, %s", reg_b, reg_b, reg_c);
             }
             break;
         }
@@ -279,7 +279,7 @@ int disasm_arc(
           strcat(name, ".f");
         }
 
-        sprintf(instruction, "%s %s", name, temp);
+        snprintf(instruction, length, "%s %s", name, temp);
 
         return size == 0 ? 4 : 8;
       }
@@ -309,9 +309,9 @@ int disasm_arc(
         strcpy(name, table_arc_single[n].instr);
         int size = 0;
 
-        get_register(memory, address, a, reg_a);
-        get_register(memory, address, b, reg_b);
-        get_register(memory, address, c, reg_c);
+        get_register(memory, address, a, reg_a, sizeof(reg_a));
+        get_register(memory, address, b, reg_b, sizeof(reg_b));
+        get_register(memory, address, c, reg_c, sizeof(reg_c));
 
         switch (sub_type)
         {
@@ -321,14 +321,14 @@ int disasm_arc(
               // xxx.f b,limm
               // xxx.f 0,limm
               immediate = READ_RAM32(address + 4);
-              sprintf(temp, "%s, 0x%04x", b == LIMM ? "0" : reg_b, immediate);
+              snprintf(temp, sizeof(temp), "%s, 0x%04x", b == LIMM ? "0" : reg_b, immediate);
               size += 4;
             }
               else
             {
               // xxx.f b,c
               // xxx.f 0,c
-              sprintf(temp, "%s, %s", b == LIMM ? "0" : reg_b, reg_c);
+              snprintf(temp, sizeof(temp), "%s, %s", b == LIMM ? "0" : reg_b, reg_c);
             }
             break;
           case 1:
@@ -336,13 +336,13 @@ int disasm_arc(
             {
               // xxx.f b,limm
               immediate = READ_RAM32(address + 4);
-              sprintf(temp, "%s, 0x%04x", reg_b, immediate);
+              snprintf(temp, sizeof(temp), "%s, 0x%04x", reg_b, immediate);
               size += 4;
             }
               else
             {
               // xxx.f b,u6
-              sprintf(temp, "%s, %d", reg_b, c);
+              snprintf(temp, sizeof(temp), "%s, %d", reg_b, c);
             }
             break;
           case 2:
@@ -355,7 +355,7 @@ int disasm_arc(
           strcat(name, ".f");
         }
 
-        sprintf(instruction, "%s %s", name, temp);
+        snprintf(instruction, length, "%s %s", name, temp);
 
         return size == 0 ? 4 : 8;
       }
@@ -380,15 +380,15 @@ int disasm_arc(
         switch (table_arc16[n].operands[i])
         {
           case OP_A:
-            sprintf(temp, "r%d", map16_bit_register(opcode16 & 0x7));
+            snprintf(temp, sizeof(temp), "r%d", map16_bit_register(opcode16 & 0x7));
             strcat(instruction, temp);
             break;
           case OP_B:
-            sprintf(temp, "r%d", map16_bit_register((opcode16 >> 8) & 0x7));
+            snprintf(temp, sizeof(temp), "r%d", map16_bit_register((opcode16 >> 8) & 0x7));
             strcat(instruction, temp);
             break;
           case OP_C:
-            sprintf(temp, "r%d", map16_bit_register((opcode16 >> 5) & 0x7));
+            snprintf(temp, sizeof(temp), "r%d", map16_bit_register((opcode16 >> 5) & 0x7));
             strcat(instruction, temp);
             break;
           case OP_H:
@@ -398,34 +398,34 @@ int disasm_arc(
               i = 100;
               break;
             }
-            get_register(memory, address, a, reg_a);
+            get_register(memory, address, a, reg_a, sizeof(reg_a));
             strcat(instruction, reg_a);
             break;
           case OP_LIMM:
             size = 6;
             immediate = READ_RAM32(address + 2);
-            sprintf(temp, "0x%04x", immediate);
+            snprintf(temp, sizeof(temp), "0x%04x", immediate);
             break;
           case OP_U3:
-            sprintf(temp, "%d", opcode16 & 0x7);
+            snprintf(temp, sizeof(temp), "%d", opcode16 & 0x7);
             strcat(instruction, temp);
             break;
           case OP_U5:
-            sprintf(temp, "%d", opcode16 & 0x1f);
+            snprintf(temp, sizeof(temp), "%d", opcode16 & 0x1f);
             strcat(instruction, temp);
             break;
           case OP_U7:
-            sprintf(temp, "%d", (opcode16 & 0x1f) << 2);
+            snprintf(temp, sizeof(temp), "%d", (opcode16 & 0x1f) << 2);
             strcat(instruction, temp);
             break;
           case OP_U8:
-            sprintf(temp, "%d", opcode16 & 0xff);
+            snprintf(temp, sizeof(temp), "%d", opcode16 & 0xff);
             strcat(instruction, temp);
             break;
           case OP_S11:
             immediate = opcode16 & 0x1ff;
             if ((immediate & 0x100) != 0) { immediate |= 0xffffff00; }
-            sprintf(temp, "%d", immediate << 2);
+            snprintf(temp, sizeof(temp), "%d", immediate << 2);
             strcat(instruction, temp);
             break;
           case OP_R0:
@@ -467,11 +467,11 @@ int disasm_arc(
 
             if (a == LIMM)
             {
-              sprintf(temp, "0, [0x%04x]", immediate);
+              snprintf(temp, sizeof(temp), "0, [0x%04x]", immediate);
             }
               else
             {
-              sprintf(temp, "r%d, [0x%04x]", a, immediate);
+              snprintf(temp, sizeof(temp), "r%d, [0x%04x]", a, immediate);
             }
             strcat(instruction, temp);
             return 8;
@@ -486,11 +486,11 @@ int disasm_arc(
 
             if (a == LIMM)
             {
-              sprintf(temp, "0, [r%d, %d]", b, s);
+              snprintf(temp, sizeof(temp), "0, [r%d, %d]", b, s);
             }
               else
             {
-              sprintf(temp, "r%d, [r%d, %d]", a, b, s);
+              snprintf(temp, sizeof(temp), "r%d, [r%d, %d]", a, b, s);
             }
             strcat(instruction, temp);
             return 4;
@@ -506,11 +506,11 @@ int disasm_arc(
 
             if (a == LIMM)
             {
-              sprintf(temp, "0, [0x%04x, r%d]", immediate, c);
+              snprintf(temp, sizeof(temp), "0, [0x%04x, r%d]", immediate, c);
             }
               else
             {
-              sprintf(temp, "r%d, [0x%04x, r%d]", a, immediate, c);
+              snprintf(temp, sizeof(temp), "r%d, [0x%04x, r%d]", a, immediate, c);
             }
             strcat(instruction, temp);
             return 8;
@@ -524,11 +524,11 @@ int disasm_arc(
 
             if (a == LIMM)
             {
-              sprintf(temp, "0, [r%d, 0x%04x]", b, immediate);
+              snprintf(temp, sizeof(temp), "0, [r%d, 0x%04x]", b, immediate);
             }
               else
             {
-              sprintf(temp, "r%d, [r%d, 0x%04x]", a, b, immediate);
+              snprintf(temp, sizeof(temp), "r%d, [r%d, 0x%04x]", a, b, immediate);
             }
             strcat(instruction, temp);
             return 8;
@@ -542,11 +542,11 @@ int disasm_arc(
 
             if (a == LIMM)
             {
-              sprintf(temp, "0 [r%d, r%d]", b, c);
+              snprintf(temp, sizeof(temp), "0 [r%d, r%d]", b, c);
             }
               else
             {
-              sprintf(temp, "r%d, [r%d, r%d]", a, b, c);
+              snprintf(temp, sizeof(temp), "r%d, [r%d, r%d]", a, b, c);
             }
             strcat(instruction, temp);
             return 4;
@@ -557,7 +557,7 @@ int disasm_arc(
             immediate = READ_RAM32(address + 4);
             if (((opcode >> 11) & 1) != 0) { strcat(instruction, ".d"); }
 
-            sprintf(temp, "r%d, [0x%04x]", c, immediate);
+            snprintf(temp, sizeof(temp), "r%d, [0x%04x]", c, immediate);
             strcat(instruction, temp);
             return 8;
           }
@@ -568,7 +568,7 @@ int disasm_arc(
             if (((opcode >> 11) & 1) != 0) { strcat(instruction, ".d"); }
             s = get_s9(opcode);
 
-            sprintf(temp, "0x%04x, [r%d, %d]", immediate, b, s);
+            snprintf(temp, sizeof(temp), "0x%04x, [r%d, %d]", immediate, b, s);
             strcat(instruction, temp);
             return 8;
           }
@@ -579,7 +579,7 @@ int disasm_arc(
             if (((opcode >> 11) & 1) != 0) { strcat(instruction, ".d"); }
             s = get_s9(opcode);
 
-            sprintf(temp, "r%d, [r%d, %d]", c, b, s);
+            snprintf(temp, sizeof(temp), "r%d, [r%d, %d]", c, b, s);
             strcat(instruction, temp);
             return 4;
           }
@@ -606,45 +606,45 @@ int disasm_arc(
       switch (table_arc_load_store16[n].type)
       {
         case OP_A_PAREN_B_C:
-          sprintf(temp, "r%d, [r%d, r%d]", a, b, c);
+          snprintf(temp, sizeof(temp), "r%d, [r%d, r%d]", a, b, c);
           strcat(instruction, temp);
           return 2;
         case OP_B_PAREN_PCL_U10:
-          sprintf(temp, "r%d, [pcl, %d]", b, (opcode16 & 0xff) << 2);
+          snprintf(temp, sizeof(temp), "r%d, [pcl, %d]", b, (opcode16 & 0xff) << 2);
           strcat(instruction, temp);
           return 2;
         case OP_B_PAREN_SP_U7:
-          sprintf(temp, "r%d, [sp, %d]", b, (opcode16 & 0x1f) << 2);
+          snprintf(temp, sizeof(temp), "r%d, [sp, %d]", b, (opcode16 & 0x1f) << 2);
           strcat(instruction, temp);
           return 2;
         case OP_C_PAREN_B_U5:
-          sprintf(temp, "r%d, [r%d, %d]", c, b, opcode16 & 0x1f);
+          snprintf(temp, sizeof(temp), "r%d, [r%d, %d]", c, b, opcode16 & 0x1f);
           strcat(instruction, temp);
           return 2;
         case OP_C_PAREN_B_U6:
-          sprintf(temp, "r%d, [r%d, %d]", c, b, (opcode16 & 0x1f) << 1);
+          snprintf(temp, sizeof(temp), "r%d, [r%d, %d]", c, b, (opcode16 & 0x1f) << 1);
           strcat(instruction, temp);
           return 2;
         case OP_C_PAREN_B_U7:
-          sprintf(temp, "r%d, [r%d, %d]", c, b, (opcode16 & 0x1f) << 2);
+          snprintf(temp, sizeof(temp), "r%d, [r%d, %d]", c, b, (opcode16 & 0x1f) << 2);
           strcat(instruction, temp);
           return 2;
         case OP_R0_PAREN_GP_S10:
           s = opcode16 & 0x1ff;
           if ((s & 0x100) != 0) { s |= 0xffffff00; }
-          sprintf(temp, "r0, [gp, %d]", s << 1);
+          snprintf(temp, sizeof(temp), "r0, [gp, %d]", s << 1);
           strcat(instruction, temp);
           return 2;
         case OP_R0_PAREN_GP_S11:
           s = opcode16 & 0x1ff;
           if ((s & 0x100) != 0) { s |= 0xffffff00; }
-          sprintf(temp, "r0, [gp, %d]", s << 2);
+          snprintf(temp, sizeof(temp), "r0, [gp, %d]", s << 2);
           strcat(instruction, temp);
           return 2;
         case OP_R0_PAREN_GP_S9:
           s = opcode16 & 0x1ff;
           if ((s & 0x100) != 0) { s |= 0xffffff00; }
-          sprintf(temp, "r0, [gp, %d]", s);
+          snprintf(temp, sizeof(temp), "r0, [gp, %d]", s);
           strcat(instruction, temp);
           return 2;
         default:
@@ -660,7 +660,6 @@ int disasm_arc(
   a = map16_bit_register(opcode & 0x7);
   h = ((opcode >> 5) & 0x7) | ((opcode & 0x7) << 3);
 #endif
-
 
   strcpy(instruction, "???");
 

@@ -38,7 +38,7 @@ int disasm_copper(
     *cycles_min = 4;
     *cycles_max = 4;
 
-    sprintf(instruction, "move 0x%02x, 0x%04x", opcode & 0x01ff, data);
+    snprintf(instruction, length, "move 0x%02x, 0x%04x", opcode & 0x01ff, data);
   }
     else
   {
@@ -68,7 +68,7 @@ int disasm_copper(
     compare_x = (data >> 1) & 0x7f;
     compare_y = (data >> 8) & 0x7f;
 
-    sprintf(instruction, "%s %s%d, %d, 0x%02x, 0x%02x",
+    snprintf(instruction, length, "%s %s%d, %d, 0x%02x, 0x%02x",
       temp, (bfd == 1) ? "bfd, " : "", x, y, compare_x, compare_y);
   }
 

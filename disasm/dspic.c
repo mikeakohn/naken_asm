@@ -43,7 +43,7 @@ static const char *mmm_table[] =
   "???"
 };
 
-static void get_wd(char *temp, int reg, int attr, int reg2)
+static void get_wd(char *temp, int length, int reg, int attr, int reg2)
 {
   switch (attr)
   {
@@ -53,10 +53,10 @@ static void get_wd(char *temp, int reg, int attr, int reg2)
     case 3:
     case 4:
     case 5:
-      sprintf(temp, addr_modes[attr], reg);
+      snprintf(temp, length, addr_modes[attr], reg);
       break;
     case 6:
-      sprintf(temp, "[w%d+w%d]", reg, reg2);
+      snprintf(temp, length, "[w%d+w%d]", reg, reg2);
       break;
     default:
       strcpy(temp, "???");
@@ -64,35 +64,35 @@ static void get_wd(char *temp, int reg, int attr, int reg2)
   }
 }
 
-static void get_prefetch(char *temp, int w, int xx, int iiii)
+static void get_prefetch(char *temp, int length, int w, int xx, int iiii)
 {
-  if (iiii == 0xc) { sprintf(temp, ", [w%d+12], w%d", w, xx + 4); return; }
+  if (iiii == 0xc) { snprintf(temp, length, ", [w%d+12], w%d", w, xx + 4); return; }
   if (iiii >= 8) { w++; iiii = iiii & 0x7; }
-  if (iiii == 0) { sprintf(temp, ", [w%d], w%d", w, xx + 4); return; }
+  if (iiii == 0) { snprintf(temp, length, ", [w%d], w%d", w, xx + 4); return; }
   if ((iiii & 0x4)!=0)
   {
     iiii = ((iiii ^ 0x7) + 1);
-    sprintf(temp, ", [w%d]-=%d, w%d", w, iiii * 2, xx + 4);
+    snprintf(temp, length, ", [w%d]-=%d, w%d", w, iiii * 2, xx + 4);
   }
     else
   {
-    sprintf(temp, ", [w%d]+=%d, w%d", w, iiii * 2, xx + 4);
+    snprintf(temp, length, ", [w%d]+=%d, w%d", w, iiii * 2, xx + 4);
   }
 }
 
-static void get_prefetch_half(char *temp, int w, int iiii)
+static void get_prefetch_half(char *temp, int length, int w, int iiii)
 {
-  if (iiii == 0xc) { sprintf(temp, ", [w%d+12]", w); return; }
+  if (iiii == 0xc) { snprintf(temp, length, ", [w%d+12]", w); return; }
   if (iiii >= 8) { w++; iiii = iiii & 0x7; }
-  if (iiii == 0) { sprintf(temp, ", [w%d]", w); return; }
+  if (iiii == 0) { snprintf(temp, length, ", [w%d]", w); return; }
   if ((iiii & 0x4) != 0)
   {
     iiii = ((iiii ^ 0x7) + 1);
-    sprintf(temp, ", [w%d]-=%d", w, iiii * 2);
+    snprintf(temp, length, ", [w%d]-=%d", w, iiii * 2);
   }
     else
   {
-    sprintf(temp, ", [w%d]+=%d", w, iiii * 2);
+    snprintf(temp, length, ", [w%d]+=%d", w, iiii * 2);
   }
 }
 
@@ -107,13 +107,13 @@ static void parse_dsp(char *instruction, uint32_t opcode, int has_aa)
 
   if (iiii != 4)
   {
-    get_prefetch(temp, 8, xx, iiii);
+    get_prefetch(temp, sizeof(temp), 8, xx, iiii);
     strcat(instruction, temp);
   }
 
   if (jjjj != 4)
   {
-    get_prefetch(temp, 10, yy, jjjj);
+    get_prefetch(temp, sizeof(temp), 10, yy, jjjj);
     strcat(instruction, temp);
   }
 
@@ -198,7 +198,7 @@ int disasm_dspic(
           a = (opcode >> 15) & 1;
           lit = (opcode >> 7) & 0xf;
           if ((lit & 0x8) != 0) { lit = -((lit ^ 0xf) + 1); }
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, (opcode >> 11) & 0xf);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, (opcode >> 11) & 0xf);
 
           if (lit == 0)
           {
@@ -226,7 +226,7 @@ int disasm_dspic(
           return 4;
         case OP_CP0_WS:
           b = (opcode >> 11) & 1;
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, 0);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, 0);
           snprintf(instruction, length, "%s%s %s", table_dspic[n].name, bflag[b], temp);
           return 4;
         case OP_CP_F:
@@ -241,7 +241,7 @@ int disasm_dspic(
             continue;
           }
           w = ((opcode >> 1) & 0x7) * 2;
-          get_wd(temp, (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, 0);
+          get_wd(temp, sizeof(temp), (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, 0);
           snprintf(instruction, length, "%s.d w%d, %s", table_dspic[n].name, w, temp);
           return 4;
         case OP_D_WNS_WND_2:
@@ -251,7 +251,7 @@ int disasm_dspic(
             continue;
           }
           w = ((opcode >> 8) & 0x7) * 2;
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, 0);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, 0);
           snprintf(instruction, length, "%s.d %s, w%d", table_dspic[n].name, temp, w);
           return 4;
         case OP_F_BIT4:
@@ -260,7 +260,7 @@ int disasm_dspic(
           snprintf(instruction, length, "%s.b 0x%x, #%d", table_dspic[n].name, f, lit);
           return 4;
         case OP_F_BIT4_2:
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, 0);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, 0);
           lit = (opcode >> 12) & 0xf;
           b = (opcode >> 11) & 1;
           snprintf(instruction, length, "%s.%c %s, #%d", table_dspic[n].name, (b == 0) ? 'c' : 'z', temp, lit);
@@ -315,7 +315,7 @@ int disasm_dspic(
           snprintf(instruction, length, "%s.s", table_dspic[n].name);
           return 4;
         case OP_POP_WD:
-          get_wd(temp, (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, (opcode >> 15) & 0xf);
+          get_wd(temp, sizeof(temp), (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, (opcode >> 15) & 0xf);
           snprintf(instruction, length, "%s %s", table_dspic[n].name, temp);
           return 4;
         case OP_PUSH_D_WNS:
@@ -327,17 +327,31 @@ int disasm_dspic(
         case OP_US_WB_WS_WND:
         case OP_UU_WB_WS_WND:
           w = (opcode >> 11) & 0xf;
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, 0);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, 0);
           d = (opcode >> 7) & 0xf;
-          if (table_dspic[n].type == OP_SS_WB_WS_WND) { sprintf(temp2, ".ss"); }
+          if (table_dspic[n].type == OP_SS_WB_WS_WND)
+          {
+            snprintf(temp2, sizeof(temp2), ".ss");
+          }
             else
-          if (table_dspic[n].type == OP_SU_WB_WS_WND) { sprintf(temp2, ".su"); }
+          if (table_dspic[n].type == OP_SU_WB_WS_WND)
+          {
+            snprintf(temp2, sizeof(temp2), ".su");
+          }
             else
-          if (table_dspic[n].type == OP_US_WB_WS_WND) { sprintf(temp2, ".us"); }
+          if (table_dspic[n].type == OP_US_WB_WS_WND)
+          {
+            snprintf(temp2, sizeof(temp2), ".us");
+          }
             else
-          if (table_dspic[n].type == OP_UU_WB_WS_WND) { sprintf(temp2, ".uu"); }
+          if (table_dspic[n].type == OP_UU_WB_WS_WND)
+          {
+            snprintf(temp2, sizeof(temp2), ".uu");
+          }
             else
-          { strcpy(temp2, "???"); }
+          {
+            strcpy(temp2, "???");
+          }
           snprintf(instruction, length, "%s%s w%d, %s, w%d", table_dspic[n].name, temp2, w, temp, d);
           return 4;
         case OP_SU_WB_LIT5_WND:
@@ -347,12 +361,12 @@ int disasm_dspic(
           d = (opcode >> 7) & 0xf;
           if (table_dspic[n].type == OP_SU_WB_LIT5_WND)
           {
-            sprintf(temp2, ".su");
+            snprintf(temp2, sizeof(temp2), ".su");
           }
             else
           if (table_dspic[n].type == OP_UU_WB_LIT5_WND)
           {
-            sprintf(temp2, ".uu");
+            snprintf(temp2, sizeof(temp2), ".uu");
           }
             else
           {
@@ -365,11 +379,19 @@ int disasm_dspic(
           w = (opcode >> 7) & 0xf;
           d = opcode & 0xf;
           b = (opcode >> 6) & 1;
-          if (table_dspic[n].type == OP_S_WM_WN) { sprintf(temp2, ".s"); }
+          if (table_dspic[n].type == OP_S_WM_WN)
+          {
+            snprintf(temp2, sizeof(temp2), ".s");
+          }
             else
-          if (table_dspic[n].type == OP_U_WM_WN) { sprintf(temp2, ".u"); }
+          if (table_dspic[n].type == OP_U_WM_WN)
+          {
+            snprintf(temp2, sizeof(temp2), ".u");
+          }
             else
-          { strcpy(temp2, "???"); }
+          {
+            strcpy(temp2, "???");
+          }
           if (b == 1) { strcat(temp2, "d"); }
           snprintf(instruction, length, "%s%s w%d, w%d", table_dspic[n].name, temp2, w, d);
           return 4;
@@ -388,7 +410,7 @@ int disasm_dspic(
         case OP_WB_LIT5_WD:
           w = (opcode >> 15) & 0xf;
           lit = opcode & 0x1f;
-          get_wd(temp, (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, 0);
+          get_wd(temp, sizeof(temp), (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, 0);
           b = (opcode >> 14) & 0x1;
           snprintf(instruction, length, "%s%s w%d, #%d, %s", table_dspic[n].name, bflag[b], w, lit, temp);
           return 4;
@@ -406,19 +428,19 @@ int disasm_dspic(
           return 4;
         case OP_WB_WS:
           w = (opcode >> 11) & 0xf;
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, 0);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, 0);
           b = (opcode >> 10) & 0x1;
           snprintf(instruction, length, "%s%s w%d, %s", table_dspic[n].name, bflag[b], w, temp);
           return 4;
         case OP_WB_WS_WD:
           w = (opcode >> 15) & 0xf;
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, 0);
-          get_wd(temp2, (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, 0);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, 0);
+          get_wd(temp2, sizeof(temp2), (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, 0);
           b = (opcode >> 14) & 1;
           snprintf(instruction, length, "%s%s w%d, %s, %s", table_dspic[n].name, bflag[b], w, temp, temp2);
           return 4;
         case OP_WD:
-          get_wd(temp, (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, 0);
+          get_wd(temp, sizeof(temp), (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, 0);
           b = (opcode >> 14) & 1;
           snprintf(instruction, length, "%s%s %s", table_dspic[n].name, bflag[b], temp);
           return 4;
@@ -463,13 +485,13 @@ int disasm_dspic(
           snprintf(instruction, length, "%s w%d, w%d", table_dspic[n].name, w, d);
           return 4;
         case OP_WS_BIT4:
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, 0);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, 0);
           lit = (opcode >> 12) & 0xf;
           b = (opcode >> 10) & 1;
           snprintf(instruction, length, "%s%s %s, #%d", table_dspic[n].name, bflag[b], temp, lit);
           return 4;
         case OP_WS_BIT4_2:
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, 0);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, 0);
           lit = (opcode >> 12) & 0xf;
           snprintf(instruction, length, "%s %s, #%d", table_dspic[n].name, temp, lit);
           return 4;
@@ -486,18 +508,18 @@ int disasm_dspic(
           snprintf(instruction, length, "%s%s [w%d%s%d], w%d", table_dspic[n].name, bflag[b], w, (lit < 0) ? "" : "+", lit, d);
           return 4;
         case OP_WS_LIT4_ACC:
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, (opcode >> 11) & 0xf);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, (opcode >> 11) & 0xf);
           lit = (opcode >> 7) & 0xf;
           if ((lit & 0x8) != 0) { lit = -((lit ^ 0xf) + 1); }
           a = (opcode >> 15) & 0x1;
           snprintf(instruction, length, "%s %s, #%d, %c", table_dspic[n].name, temp, lit, accum[a]);
           return 4;
         case OP_WS_PLUS_WB:
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, (opcode >> 11) & 0xf);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, (opcode >> 11) & 0xf);
           snprintf(instruction, length, "%s %s", table_dspic[n].name, temp);
           return 4;
         case OP_WS_WB:
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, 0);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, 0);
           w = (opcode >> 11) & 0xf;
           b = (opcode >> 14) & 1;
           snprintf(instruction, length, "%s%s %s, w%d", table_dspic[n].name, (b == 0) ? ".c" : ".z", temp, w);
@@ -516,8 +538,8 @@ int disasm_dspic(
           }
         case OP_WS_WD:
         case OP_WS_WND:
-          get_wd(temp, opcode & 0xf, (opcode >> 4) & 0x7, (opcode >> 15) & 0xf);
-          get_wd(temp2, (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, (opcode >> 15) & 0xf);
+          get_wd(temp, sizeof(temp), opcode & 0xf, (opcode >> 4) & 0x7, (opcode >> 15) & 0xf);
+          get_wd(temp2, sizeof(temp2), (opcode >> 7) & 0xf, (opcode >> 11) & 0x7, (opcode >> 15) & 0xf);
           b = (opcode >> 14) & 1;
           snprintf(instruction, length, "%s%s %s, %s", table_dspic[n].name, bflag[b], temp, temp2);
           return 4;
@@ -554,11 +576,11 @@ int disasm_dspic(
           a = (opcode >> 15) & 0x1;
           d = (opcode >> 16) & 0x3;
           snprintf(instruction, length, "%s w%d*w%d, %c", table_dspic[n].name, d + 4, d + 4, accum[a]);
-          get_prefetch_half(temp, 8, (opcode >> 6) & 0xf);
+          get_prefetch_half(temp, sizeof(temp), 8, (opcode >> 6) & 0xf);
           strcat(instruction, temp);
-          get_prefetch_half(temp, 10, (opcode >> 2) & 0xf);
+          get_prefetch_half(temp, sizeof(temp), 10, (opcode >> 2) & 0xf);
           strcat(instruction, temp);
-          sprintf(temp, ", w%d", ((opcode >> 12) & 0x3) + 4);
+          snprintf(temp, sizeof(temp), ", w%d", ((opcode >> 12) & 0x3) + 4);
           strcat(instruction, temp);
           break;
         case OP_WM_WN_ACC_WX_WY_AWB:

@@ -214,7 +214,7 @@ void list_output_super_fx(
     temp[0] = 0;
     for (n = 0; n < count; n++)
     {
-      sprintf(temp2, "%02x ", memory_read_m(&asm_context->memory, start+n));
+      snprintf(temp2, sizeof(temp2), "%02x ", memory_read_m(&asm_context->memory, start+n));
       strcat(temp, temp2);
     }
 
@@ -255,8 +255,7 @@ void disasm_range_super_fx(
     temp[0] = 0;
     for (n = 0; n < count; n++)
     {
-      //sprintf(temp2, "%02x ", READ_RAM(start+n));
-      sprintf(temp2, "%02x ", memory_read_m(memory, start+n));
+      snprintf(temp2, sizeof(temp2), "%02x ", memory_read_m(memory, start+n));
       strcat(temp, temp2);
     }
 

@@ -62,6 +62,7 @@ static int get_source_reg(
   int As,
   int bw,
   char *reg_str,
+  int length,
   uint16_t prefix,
   int memory_ext)
 {
@@ -95,7 +96,7 @@ static int get_source_reg(
       }
 
       a = a + (address + count);
-      sprintf(reg_str, "0x%04x", a);
+      snprintf(reg_str, length, "0x%04x", a);
     }
       else
     if (As == 2)
@@ -108,9 +109,13 @@ static int get_source_reg(
       uint16_t a = (READ_RAM(address + 3) << 8) | READ_RAM(address + 2);
       count += 2;
       if (bw == 0)
-      { sprintf(reg_str, "#0x%04x", a | extra); }
+      {
+        snprintf(reg_str, length, "#0x%04x", a | extra);
+      }
         else
-      { sprintf(reg_str, "#0x%02x", a | extra); }
+      {
+        snprintf(reg_str, length, "#0x%02x", a | extra);
+      }
     }
   }
     else
@@ -125,7 +130,7 @@ static int get_source_reg(
     {
       uint16_t a = (READ_RAM(address + 3) << 8) | READ_RAM(address + 2);
       count += 2;
-      sprintf(reg_str, "&0x%04x", a | extra);
+      snprintf(reg_str, length, "&0x%04x", a | extra);
     }
       else
     if (As == 2)
@@ -175,17 +180,17 @@ static int get_source_reg(
         if ((a & 0x80000) != 0) { a |= 0xfff00000; }
       }
 
-      sprintf(reg_str, "%d(%s)", a, regs[reg]);
+      snprintf(reg_str, length, "%d(%s)", a, regs[reg]);
     }
       else
     if (As == 2)
     {
-      sprintf(reg_str, "@%s", regs[reg]);
+      snprintf(reg_str, length, "@%s", regs[reg]);
     }
       else
     if (As == 3)
     {
-      sprintf(reg_str, "@%s+", regs[reg]);
+      snprintf(reg_str, length, "@%s+", regs[reg]);
     }
   }
 
@@ -198,6 +203,7 @@ static int get_dest_reg(
   int reg,
   int Ad,
   char *reg_str,
+  int length,
   int count,
   uint16_t prefix,
   int memory_ext)
@@ -231,7 +237,7 @@ static int get_dest_reg(
       }
 
       a = a + (address + count);
-      sprintf(reg_str, "0x%04x", a);
+      snprintf(reg_str, length, "0x%04x", a);
     }
   }
     else
@@ -246,7 +252,7 @@ static int get_dest_reg(
     {
       uint16_t a = (READ_RAM(address + count + 3) << 8) | READ_RAM(address + count + 2);
       count += 2;
-      sprintf(reg_str, "&0x%04x", a|extra);
+      snprintf(reg_str, length, "&0x%04x", a|extra);
     }
   }
     else
@@ -276,7 +282,7 @@ static int get_dest_reg(
         if ((a & 0x80000) != 0) { a |= 0xfff00000; }
       }
 
-      sprintf(reg_str, "%d(%s)", a, regs[reg]);
+      snprintf(reg_str, length, "%d(%s)", a, regs[reg]);
     }
   }
 
@@ -312,11 +318,11 @@ static int one_operand(
 
       if ((prefix & 0x0080) == 0)
       {
-        sprintf(temp, "%s #%d %s", rpt[r], (prefix & 0xf) + 1, instruction);
+        snprintf(temp, sizeof(temp), "%s #%d %s", rpt[r], (prefix & 0xf) + 1, instruction);
       }
         else
       {
-        sprintf(temp, "%s r%d %s", rpt[r], prefix & 0xf, instruction);
+        snprintf(temp, sizeof(temp), "%s r%d %s", rpt[r], prefix & 0xf, instruction);
       }
 
       strcpy(instruction, temp);
@@ -367,7 +373,7 @@ static int one_operand(
   strcat(instruction, " ");
 
   char reg_str[128];
-  count += get_source_reg(memory, address, reg, As, bw, reg_str, prefix, memory_ext);
+  count += get_source_reg(memory, address, reg, As, bw, reg_str, sizeof(reg_str), prefix, memory_ext);
   strcat(instruction, reg_str);
 
   return count;
@@ -390,8 +396,6 @@ static int relative_jump(
     return 1;
   }
 
-  //strcpy(instruction, instr[o]);
-
   if (prefix != 0xffff) { strcat(instruction, "x"); }
 
   int offset = opcode & 0x03ff;
@@ -403,7 +407,7 @@ static int relative_jump(
   offset *= 2;
 
   char token[128];
-  sprintf(token, " 0x%04x  (offset: %d)", ((address + 2) + offset) & 0xffff, offset);
+  snprintf(token, sizeof(token), " 0x%04x  (offset: %d)", ((address + 2) + offset) & 0xffff, offset);
   strcat(instruction, token);
 
   return count;
@@ -413,6 +417,7 @@ static int two_operand(
   Memory *memory,
   uint32_t address,
   char *instruction,
+  int length,
   uint16_t opcode,
   uint16_t prefix)
 {
@@ -441,11 +446,13 @@ static int two_operand(
 
       if ((prefix & 0x0080) == 0)
       {
-        sprintf(temp, "%s #%d %s", rpt[r], (prefix & 0xf) + 1, instruction);
+        snprintf(temp, sizeof(temp), "%s #%d %s",
+          rpt[r], (prefix & 0xf) + 1, instruction);
       }
         else
       {
-        sprintf(temp, "%s r%d %s", rpt[r], prefix & 0xf, instruction);
+        snprintf(temp, sizeof(temp), "%s r%d %s",
+          rpt[r], prefix & 0xf, instruction);
       }
 
       strcpy(instruction, temp);
@@ -475,40 +482,40 @@ static int two_operand(
     char instr[32];
     strcpy(instr, instruction);
     if ((opcode & 0x00ff) == 0x0003)
-    { sprintf(instruction, "nop   --  %s", instr); }
+    { snprintf(instruction, length, "nop   --  %s", instr); }
       else
     if (opcode == 0x4130)
-    { sprintf(instruction, "ret   --  %s", instr); }
+    { snprintf(instruction, length, "ret   --  %s", instr); }
       else
     if ((opcode & 0xffb0) == 0x4130)
-    { sprintf(instruction, "pop.%c r%d   --  %s", bw == 0 ? 'w':'b', opcode & 0x000f, instr); }
+    { snprintf(instruction, length, "pop.%c r%d   --  %s", bw == 0 ? 'w':'b', opcode & 0x000f, instr); }
       else
     if ((opcode & 0xffb0) == 0x41b0)
-    { sprintf(instruction, "pop.%c %d(r%d)   --  %s", bw == 0 ? 'w':'b', (int16_t)READ_RAM16(address + 2), opcode & 0x000f, instr); }
+    { snprintf(instruction, length, "pop.%c %d(r%d)   --  %s", bw == 0 ? 'w':'b', (int16_t)READ_RAM16(address + 2), opcode & 0x000f, instr); }
       else
     if (opcode == 0xc312)
-    { sprintf(instruction, "clrc  --  %s", instr); }
+    { snprintf(instruction, length, "clrc  --  %s", instr); }
       else
     if (opcode == 0xc222)
-    { sprintf(instruction, "clrn  --  %s", instr); }
+    { snprintf(instruction, length, "clrn  --  %s", instr); }
       else
     if (opcode == 0xc322)
-    { sprintf(instruction, "clrz  --  %s", instr); }
+    { snprintf(instruction, length, "clrz  --  %s", instr); }
       else
     if (opcode == 0xc232)
-    { sprintf(instruction, "dint  --  %s", instr); }
+    { snprintf(instruction, length, "dint  --  %s", instr); }
       else
     if (opcode == 0xd312)
-    { sprintf(instruction, "setc  --  %s", instr); }
+    { snprintf(instruction, length, "setc  --  %s", instr); }
       else
     if (opcode == 0xd222)
-    { sprintf(instruction, "setn  --  %s", instr); }
+    { snprintf(instruction, length, "setn  --  %s", instr); }
       else
     if (opcode == 0xd322)
-    { sprintf(instruction, "setz  --  %s", instr); }
+    { snprintf(instruction, length, "setz  --  %s", instr); }
       else
     if (opcode == 0xd232)
-    { sprintf(instruction, "eint  --  %s", instr); }
+    { snprintf(instruction, length, "eint  --  %s", instr); }
   }
     else
   {
@@ -526,11 +533,11 @@ static int two_operand(
   strcat(instruction, " ");
 
   char reg_str[128];
-  count = get_source_reg(memory, address, src, As, bw, reg_str, prefix, memory_ext);
+  count = get_source_reg(memory, address, src, As, bw, reg_str, sizeof(reg_str), prefix, memory_ext);
   strcat(instruction, reg_str);
 
   strcat(instruction, ", ");
-  count = get_dest_reg(memory, address, dst, Ad, reg_str, count, prefix, memory_ext);
+  count = get_dest_reg(memory, address, dst, Ad, reg_str, sizeof(reg_str), count, prefix, memory_ext);
   strcat(instruction, reg_str);
 
   return count + 2;
@@ -664,7 +671,7 @@ int disasm_msp430(
 
   if (opcode == 0x0110)
   {
-    sprintf(instruction, "reta  --  mova @SP+, PC");
+    snprintf(instruction, length, "reta  --  mova @SP+, PC");
     return 2;
   }
 
@@ -704,25 +711,25 @@ int disasm_msp430(
           break;
         case OP_TWO_OPERAND:
           strcpy(instruction, table_msp430[n].instr);
-          count += two_operand(memory, address, instruction, opcode, prefix);
+          count += two_operand(memory, address, instruction,length,  opcode, prefix);
           prefix = 0xffff;
           break;
         case OP_MOVA_AT_REG_REG:
           src = (opcode >> 8) & 0xf;
           dst = opcode & 0xf;
-          sprintf(instruction, "mova @%s, %s", regs[src], regs[dst]);
+          snprintf(instruction, length, "mova @%s, %s", regs[src], regs[dst]);
           count += 2;
           break;
         case OP_MOVA_AT_REG_PLUS_REG:
           src = (opcode>>8) & 0xf;
           dst = opcode&0xf;
-          sprintf(instruction, "mova @%s+, %s", regs[src], regs[dst]);
+          snprintf(instruction, length, "mova @%s+, %s", regs[src], regs[dst]);
           count += 2;
           break;
         case OP_MOVA_ABS20_REG:
           num = (((opcode >> 8) & 0xf) << 16)|(READ_RAM16(address + 2));
           dst = opcode & 0xf;
-          sprintf(instruction, "mova &0x%x, %s", num, regs[dst]);
+          snprintf(instruction, length, "mova &0x%x, %s", num, regs[dst]);
           count += 4;
           break;
         case OP_MOVA_INDEXED_REG:
@@ -732,13 +739,14 @@ int disasm_msp430(
 
           if (src != 0)
           {
-            sprintf(instruction, "mova %d(%s), %s",
+            snprintf(instruction, length, "mova %d(%s), %s",
               (int16_t)num, regs[src], regs[dst]);
           }
             else
           {
             int symbolic = (address + 2) + (int16_t)num;
-            sprintf(instruction, "mova 0x%04x, %s", symbolic, regs[dst]);
+            snprintf(instruction, length, "mova 0x%04x, %s",
+              symbolic, regs[dst]);
           }
           count += 4;
           break;
@@ -748,32 +756,36 @@ int disasm_msp430(
           dst = opcode & 0xf;
           *cycles_min = num;
           *cycles_max = num;
-          sprintf(instruction, "%s.%c #%d, %s", table_msp430[n].instr, mode[wa], num, regs[dst]);
+          snprintf(instruction, length, "%s.%c #%d, %s",
+            table_msp430[n].instr, mode[wa], num, regs[dst]);
           count += 2;
           break;
         case OP_MOVA_REG_ABS:
           num = ((opcode & 0xf) << 16) | READ_RAM16(address + 2);
           src = (opcode >> 8) & 0xf;
-          sprintf(instruction, "mova %s, &0x%x", regs[src], num);
+          snprintf(instruction, length, "mova %s, &0x%x", regs[src], num);
           count += 4;
           break;
         case OP_MOVA_REG_INDEXED:
           num = READ_RAM16(address+2);
           src = (opcode >> 8) & 0xf;
           dst = opcode & 0xf;
-          sprintf(instruction, "mova %s, %d(%s)", regs[src], (int16_t)num, regs[dst]);
+          snprintf(instruction, length, "mova %s, %d(%s)",
+            regs[src], (int16_t)num, regs[dst]);
           count += 4;
           break;
         case OP_IMMEDIATE_REG:
           num = ((opcode&0x0f00)<<8)|READ_RAM16(address+2);
           dst = opcode & 0xf;
-          sprintf(instruction, "%s #0x%x, %s", table_msp430[n].instr, num, regs[dst]);
+          snprintf(instruction, length, "%s #0x%x, %s",
+            table_msp430[n].instr, num, regs[dst]);
           count += 4;
           break;
         case OP_REG_REG:
           src = (opcode >> 8) & 0xf;
           dst = opcode & 0xf;
-          sprintf(instruction, "%s %s, %s", table_msp430[n].instr, regs[src], regs[dst]);
+          snprintf(instruction, length, "%s %s, %s",
+            table_msp430[n].instr, regs[src], regs[dst]);
           count += 2;
           break;
         case OP_CALLA_SOURCE:
@@ -781,31 +793,47 @@ int disasm_msp430(
           char temp[32];
           int as = (opcode >> 4) & 0x3;
           dst = opcode & 0xf;
-          if (as == 0) { sprintf(temp, "%s", regs[dst]); *cycles_min = 4; }
+          if (as == 0)
+          {
+            snprintf(temp, sizeof(temp), "%s", regs[dst]);
+            *cycles_min = 4;
+          }
           else if (as == 1)
           {
             if (dst == 0)
             {
               int16_t offset = READ_RAM16(address + 2);
-              sprintf(temp, "%d(%s) -- 0x%x", (int16_t)(READ_RAM16(address + 2)), regs[dst], (address + 4) + offset);
+              snprintf(temp, sizeof(temp), "%d(%s) -- 0x%x",
+                (int16_t)(READ_RAM16(address + 2)),
+                regs[dst],
+                (address + 4) + offset);
             }
               else
             {
-              sprintf(temp, "%d(%s)", (int16_t)(READ_RAM16(address + 2)), regs[dst]);
+              snprintf(temp, sizeof(temp), "%d(%s)",
+                (int16_t)(READ_RAM16(address + 2)),
+                regs[dst]);
             }
             *cycles_min = 6;
             if (dst == 1) (*cycles_min)++; // if Rn=SP increment by 1
           }
-          else if (as == 2) { sprintf(temp, "@%s", regs[dst]); *cycles_min = 5; }
-          else if (as == 3) { sprintf(temp, "@%s+", regs[dst]); *cycles_min = 5; }
-          sprintf(instruction, "%s %s", table_msp430[n].instr, temp);
+          else if (as == 2)
+          {
+            snprintf(temp, sizeof(temp), "@%s", regs[dst]); *cycles_min = 5;
+          }
+          else if (as == 3)
+          {
+            snprintf(temp, sizeof(temp), "@%s+", regs[dst]); *cycles_min = 5;
+          }
+
+          snprintf(instruction, length, "%s %s", table_msp430[n].instr, temp);
           *cycles_max = *cycles_min;
           count += (as == 1) ? 4 : 2;
           break;
         }
         case OP_CALLA_ABS20:
           num = ((opcode & 0xf) << 16) | READ_RAM16(address + 2);
-          sprintf(instruction, "%s &0x%x", table_msp430[n].instr, num);
+          snprintf(instruction, length, "%s &0x%x", table_msp430[n].instr, num);
           *cycles_min = 6;
           *cycles_max = *cycles_min;
           count += 4;
@@ -813,14 +841,15 @@ int disasm_msp430(
         case OP_CALLA_INDIRECT_PC:
           num = ((opcode & 0xf) << 16) | READ_RAM16(address + 2);
           if ((num & 0x80000) != 0) { num |= 0xfff0000; }
-          sprintf(instruction, "%s 0x%x(%d)", table_msp430[n].instr, address + 4 + num, num);
+          snprintf(instruction, length, "%s 0x%x(%d)",
+            table_msp430[n].instr, address + 4 + num, num);
           *cycles_min = 6;
           *cycles_max = *cycles_min;
           count += 4;
           break;
         case OP_CALLA_IMMEDIATE:
           num = ((opcode & 0xf) << 16) | READ_RAM16(address + 2);
-          sprintf(instruction, "%s #0x%x", table_msp430[n].instr, num);
+          snprintf(instruction, length, "%s #0x%x", table_msp430[n].instr, num);
           *cycles_min = 4;
           *cycles_max = *cycles_min;
           count += 4;
@@ -829,7 +858,8 @@ int disasm_msp430(
           src = opcode & 0xf;
           num = (opcode >> 4) & 0xf;
           wa = (opcode >> 8) & 0x1;
-          sprintf(instruction, "pushm.%c #%d, %s", mode[wa], num+1, regs[src]);
+          snprintf(instruction, length, "pushm.%c #%d, %s",
+            mode[wa], num+1, regs[src]);
           *cycles_min = 2 + (num + 1) * (wa + 1);
           *cycles_max = *cycles_min;
           count += 2;
@@ -838,13 +868,14 @@ int disasm_msp430(
           dst = opcode & 0xf;
           num = (opcode >> 4) & 0xf;
           wa = (opcode >> 8) & 0x1;
-          sprintf(instruction, "popm.%c #%d, %s", mode[wa], num+1, regs[dst]);
+          snprintf(instruction, length, "popm.%c #%d, %s",
+            mode[wa], num+1, regs[dst]);
           *cycles_min = 2 + (num + 1) * (wa + 1);
           *cycles_max = *cycles_min;
           count += 2;
           break;
         default:
-          sprintf(instruction, "%s << wtf", table_msp430[n].instr);
+          snprintf(instruction, length, "%s << wtf", table_msp430[n].instr);
           break;
       }
 
@@ -893,7 +924,7 @@ int disasm_msp430x(
 
   if (opcode == 0x1300)
   {
-    sprintf(instruction, "reti");
+    snprintf(instruction, length, "reti");
     *cycles_min = 3;
     *cycles_max = *cycles_min;
     return 2;

@@ -1034,19 +1034,24 @@ int disasm_xtensa(
   }
 }
 
-static void get_bytes(Memory *memory, int address, int count, char *bytes)
+static void get_bytes(
+  Memory *memory,
+  int address,
+  int count,
+  char *bytes,
+  int length)
 {
   if (count == 2)
   {
     if (memory->endian == ENDIAN_LITTLE)
     {
-      sprintf(bytes, "  %02x%02x",
+      snprintf(bytes, length, "  %02x%02x",
         memory_read_m(memory, address + 1),
         memory_read_m(memory, address + 0));
     }
       else
     {
-      sprintf(bytes, "  %02x%02x",
+      snprintf(bytes, length, "  %02x%02x",
         memory_read_m(memory, address + 0),
         memory_read_m(memory, address + 1));
     }
@@ -1055,14 +1060,14 @@ static void get_bytes(Memory *memory, int address, int count, char *bytes)
   {
     if (memory->endian == ENDIAN_LITTLE)
     {
-      sprintf(bytes, "%02x%02x%02x",
+      snprintf(bytes, length, "%02x%02x%02x",
         memory_read_m(memory, address + 2),
         memory_read_m(memory, address + 1),
         memory_read_m(memory, address + 0));
     }
       else
     {
-      sprintf(bytes, "%02x%02x%02x",
+      snprintf(bytes, length, "%02x%02x%02x",
         memory_read_m(memory, address + 0),
         memory_read_m(memory, address + 1),
         memory_read_m(memory, address + 2));
@@ -1077,7 +1082,7 @@ void list_output_xtensa(
 {
   int cycles_min, cycles_max;
   char instruction[128];
-  char bytes[10];
+  char bytes[16];
   int count;
 
   Memory *memory = &asm_context->memory;
@@ -1090,7 +1095,7 @@ void list_output_xtensa(
     &cycles_min,
     &cycles_max);
 
-  get_bytes(memory, start, count, bytes);
+  get_bytes(memory, start, count, bytes, sizeof(bytes));
 
   fprintf(asm_context->list, "0x%04x: %s  %-40s", start, bytes, instruction);
   fprintf(asm_context->list, "\n");
@@ -1103,7 +1108,7 @@ void disasm_range_xtensa(
   uint32_t end)
 {
   char instruction[128];
-  char bytes[10];
+  char bytes[16];
   int cycles_min = 0, cycles_max = 0;
   int count;
 
@@ -1122,7 +1127,7 @@ void disasm_range_xtensa(
       &cycles_min,
       &cycles_max);
 
-    get_bytes(memory, start, count, bytes);
+    get_bytes(memory, start, count, bytes, sizeof(bytes));
 
     printf("0x%04x: %s  %-40s\n", start, bytes, instruction);
 

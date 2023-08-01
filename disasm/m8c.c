@@ -224,7 +224,7 @@ void disasm_range_m8c(
     {
       opcode = memory_read_m(memory, start + n);
 
-      sprintf(temp, "%02x ", opcode);
+      snprintf(temp, sizeof(temp), "%02x ", opcode);
       strcat(hex, temp);
     }
 

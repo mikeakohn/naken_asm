@@ -62,7 +62,8 @@ int disasm_cp1610(
           d = opcode & 0x7;
           o = (opcode >> 3) & 0x7;
 
-          sprintf(instruction, "%s r%d, r%d", table_cp1610[n].instr, o, d);
+          snprintf(instruction, length, "%s r%d, r%d",
+            table_cp1610[n].instr, o, d);
 
           return 2;
         }
@@ -71,7 +72,8 @@ int disasm_cp1610(
           d = opcode & 0x7;
           o = (opcode >> 3) & 0x7;
 
-          sprintf(instruction, "%s r%d, r%d", table_cp1610[n].instr, d, o);
+          snprintf(instruction, length, "%s r%d, r%d",
+            table_cp1610[n].instr, d, o);
 
           return 2;
         }
@@ -80,7 +82,8 @@ int disasm_cp1610(
           data = memory_read16_m(memory, address + 2);
           r = opcode & 0x7;
 
-          sprintf(instruction, "%s #0x%04x, r%d", table_cp1610[n].instr, data, r);
+          snprintf(instruction, length, "%s #0x%04x, r%d",
+            table_cp1610[n].instr, data, r);
 
           return 4;
         }
@@ -89,7 +92,8 @@ int disasm_cp1610(
           data = memory_read16_m(memory, address + 2);
           r = opcode & 0x7;
 
-          sprintf(instruction, "%s r%d, #0x%04x", table_cp1610[n].instr, r, data);
+          snprintf(instruction, length, "%s r%d, #0x%04x",
+            table_cp1610[n].instr, r, data);
 
           return 4;
         }
@@ -98,7 +102,8 @@ int disasm_cp1610(
           data = memory_read16_m(memory, address + 2);
           r = opcode & 0x7;
 
-          sprintf(instruction, "%s 0x%04x, r%d", table_cp1610[n].instr, data, r);
+          snprintf(instruction, length, "%s 0x%04x, r%d",
+            table_cp1610[n].instr, data, r);
 
           return 4;
         }
@@ -107,7 +112,8 @@ int disasm_cp1610(
           data = memory_read16_m(memory, address + 2);
           r = opcode & 0x7;
 
-          sprintf(instruction, "%s r%d, 0x%04x", table_cp1610[n].instr, r, data);
+          snprintf(instruction, length, "%s r%d, 0x%04x",
+            table_cp1610[n].instr, r, data);
 
           return 4;
         }
@@ -116,7 +122,8 @@ int disasm_cp1610(
           r = opcode & 0x3;
           data = ((opcode >> 2) & 0x1) + 1;
 
-          sprintf(instruction, "%s r%d, %d", table_cp1610[n].instr, r, data);
+          snprintf(instruction, length, "%s r%d, %d",
+            table_cp1610[n].instr, r, data);
 
           return 2;
         }
@@ -127,7 +134,7 @@ int disasm_cp1610(
 
           if (z == 0)
           {
-            sprintf(instruction, "%s 0x%04x (offset=%d z=%d)",
+            snprintf(instruction, length, "%s 0x%04x (offset=%d z=%d)",
               table_cp1610[n].instr,
               (address / 2) + 3 + data,
               data,
@@ -135,7 +142,7 @@ int disasm_cp1610(
           }
             else
           {
-            sprintf(instruction, "%s 0x%04x (offset=%d z=%d)",
+            snprintf(instruction, length, "%s 0x%04x (offset=%d z=%d)",
               table_cp1610[n].instr,
               (address / 2) + 1 - data,
               data,
@@ -161,7 +168,7 @@ int disasm_cp1610(
             {
               if (table_cp1610_jump[j].bb != 3 && bb != 3)
               {
-                sprintf(instruction, "%s 0x%04x",
+                snprintf(instruction, length, "%s 0x%04x",
                   table_cp1610[n].instr,
                   data);
                 break;
@@ -169,7 +176,7 @@ int disasm_cp1610(
                 else
               if (bb == table_cp1610_jump[j].bb && bb == 3)
               {
-                sprintf(instruction, "%s r%d, 0x%04x",
+                snprintf(instruction, length, "%s r%d, 0x%04x",
                   table_cp1610[n].instr,
                   bb + 4,
                   data);
@@ -184,7 +191,8 @@ int disasm_cp1610(
         {
           r = (opcode >> 3) & 0x7;
 
-          sprintf(instruction, "%s r%d", table_cp1610[n].instr, r);
+          snprintf(instruction, length, "%s r%d",
+            table_cp1610[n].instr, r);
 
           return 2;
         }

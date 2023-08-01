@@ -74,11 +74,11 @@ int disasm_65816(
         int8_t offset = (int8_t)lo;
 
         branch_address = (address + 2) + offset;
-        sprintf(num, "0x%04x (offset=%d)", branch_address, offset);
+        snprintf(num, sizeof(num), "0x%04x (offset=%d)", branch_address, offset);
       }
         else
       {
-        sprintf(num, "0x%02x", lo);
+        snprintf(num, sizeof(num), "0x%02x", lo);
       }
     }
       else
@@ -92,11 +92,11 @@ int disasm_65816(
         int16_t offset = (int16_t)((hi << 8) | lo);
 
         branch_address = (address + 3) + offset;
-        sprintf(num, "0x%04x (offset=%d)", branch_address, offset);
+        snprintf(num, sizeof(num), "0x%04x (offset=%d)", branch_address, offset);
       }
         else
       {
-        sprintf(num, "0x%04x", (hi << 8) | lo);
+        snprintf(num, sizeof(num), "0x%04x", (hi << 8) | lo);
       }
     }
       else
@@ -105,7 +105,7 @@ int disasm_65816(
       lo = READ_RAM(address + 1);
       hi = READ_RAM(address + 2);
       bank = READ_RAM(address + 3);
-      sprintf(num, "0x%06x", (bank << 16) | (hi << 8) | lo);
+      snprintf(num, sizeof(num), "0x%06x", (bank << 16) | (hi << 8) | lo);
     }
 
     switch (op)

@@ -35,12 +35,12 @@ static void get_rlist(char *s, int rlist)
     {
       if (comma == 0)
       {
-        sprintf(temp, " r%d", i);
+        snprintf(temp, sizeof(temp), " r%d", i);
         comma = 1;
       }
         else
       {
-        sprintf(temp, ", r%d", i);
+        snprintf(temp, sizeof(temp), ", r%d", i);
         comma = 1;
       }
 
@@ -49,7 +49,7 @@ static void get_rlist(char *s, int rlist)
   }
 }
 
-static void get_special_register(char *name, int value)
+static void get_special_register(char *name, int length, int value)
 {
   int n = 0;
 
@@ -64,7 +64,7 @@ static void get_special_register(char *name, int value)
     n++;
   }
 
-  sprintf(name, "%d", value);
+  snprintf(name, length, "%d", value);
 }
 
 int disasm_thumb(
@@ -274,7 +274,7 @@ int disasm_thumb(
             continue;
           }
           rd = (immediate >> 8) & 0xf;
-          get_special_register(temp, immediate & 0xff);
+          get_special_register(temp, sizeof(temp), immediate & 0xff);
           snprintf(instruction, length, "%s r%d, %s", table_thumb[n].instr, rd, temp);
           return 4;
         case OP_MSR:
@@ -285,7 +285,7 @@ int disasm_thumb(
             continue;
           }
           rn = (opcode >> 8) & 0xf;
-          get_special_register(temp, immediate & 0xff);
+          get_special_register(temp, sizeof(temp), immediate & 0xff);
           snprintf(instruction, length, "%s %s, r%d", table_thumb[n].instr, temp, rn);
           return 4;
         case OP_REG_LOW:

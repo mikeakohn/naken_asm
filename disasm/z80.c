@@ -45,20 +45,20 @@ static const char *get_instruction(int instr_enum)
   return "";
 }
 
-static void get_disp(char *disp, int reg, int offset)
+static void get_disp(char *disp, int length, int reg, int offset)
 {
   if (offset == 0)
   {
-    sprintf(disp, "(%s)", reg_xy[reg]);
+    snprintf(disp, length, "(%s)", reg_xy[reg]);
   }
     else
   if (offset > 0)
   {
-    sprintf(disp, "(%s+%d)", reg_xy[reg], offset);
+    snprintf(disp, length, "(%s+%d)", reg_xy[reg], offset);
   }
     else
   {
-    sprintf(disp, "(%s%d)", reg_xy[reg], offset);
+    snprintf(disp, length, "(%s%d)", reg_xy[reg], offset);
   }
 }
 
@@ -362,7 +362,7 @@ int disasm_z80(
         {
           r = ((opcode16 & 0x2000) >> 13) & 0x1;
           offset = READ_RAM(address + 2);
-          get_disp(disp, r, offset);
+          get_disp(disp, sizeof(disp), r, offset);
           snprintf(instruction, length, "%s a,%s", instr, disp);
           return 3;
         }
@@ -395,7 +395,7 @@ int disasm_z80(
         {
           r = ((opcode16 & 0x2000) >> 13);
           offset = READ_RAM(address + 2);
-          get_disp(disp, r, offset);
+          get_disp(disp, sizeof(disp), r, offset);
           snprintf(instruction, length, "%s %s", instr, disp);
           return 3;
         }
@@ -405,7 +405,7 @@ int disasm_z80(
           if (extra_opcode != table_z80[n].extra_opcode) { break; }
           r = ((opcode16 & 0x2000) >> 13);
           offset = READ_RAM(address + 2);
-          get_disp(disp, r, offset);
+          get_disp(disp, sizeof(disp), r, offset);
           snprintf(instruction, length, "%s %s", instr, disp);
           return 4;
         }
@@ -430,7 +430,7 @@ int disasm_z80(
           //if ((i >> 6) == 1 && instr[0] == 'b')
           if ((i >> 6) == 1)
           {
-            get_disp(disp, r, offset);
+            get_disp(disp, sizeof(disp), r, offset);
             i = (i >> 3) & 0x7;
             snprintf(instruction, length, "%s %d,%s", instr, i, disp);
             return 4;
@@ -504,7 +504,7 @@ int disasm_z80(
           r = (opcode16 >> 13) & 0x1;
           offset = READ_RAM(address + 2);
           int dst = (opcode16 >> 3) & 0x7;
-          get_disp(disp, r, offset);
+          get_disp(disp, sizeof(disp), r, offset);
           snprintf(instruction, length, "%s %s,%s", instr, reg8[dst], disp);
           return 3;
         }
@@ -513,7 +513,7 @@ int disasm_z80(
           r = (opcode16 >> 13) & 0x1;
           offset = READ_RAM(address + 2);
           int src = opcode16 & 0x7;
-          get_disp(disp, r, offset);
+          get_disp(disp, sizeof(disp), r, offset);
           snprintf(instruction, length, "%s %s,%s", instr, disp, reg8[src]);
           return 3;
         }
@@ -521,7 +521,7 @@ int disasm_z80(
         {
           r = (opcode16 >> 13) & 0x1;
           offset = READ_RAM(address + 2);
-          get_disp(disp, r, offset);
+          get_disp(disp, sizeof(disp), r, offset);
           snprintf(instruction, length, "%s %s,%d", instr, disp, READ_RAM(address + 3));
           return 4;
         }
@@ -608,12 +608,11 @@ int disasm_z80(
     n = 0;
     while (table_z80_4_byte[n].instr_enum != Z80_NONE)
     {
-
       if ((i & table_z80_4_byte[n].mask) == table_z80_4_byte[n].opcode)
       {
         offset = READ_RAM(address + 2);
         r = (opcode16 >> 13) & 0x1;
-        get_disp(disp, r, offset);
+        get_disp(disp, sizeof(disp), r, offset);
         *cycles_min = table_z80_4_byte[n].cycles_min;
         *cycles_max = table_z80_4_byte[n].cycles_max;
         const char *instr = get_instruction(table_z80_4_byte[n].instr_enum);
@@ -672,7 +671,8 @@ void list_output_z80(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp, sizeof(temp), "%02x ",
+        memory_read_m(&asm_context->memory, start + n));
       strcat(bytes, temp);
     }
 
@@ -718,7 +718,7 @@ void disasm_range_z80(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      sprintf(temp, "%02x ", READ_RAM(start + n));
+      snprintf(temp, sizeof(temp), "%02x ", READ_RAM(start + n));
       strcat(bytes, temp);
     }
 

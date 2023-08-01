@@ -141,12 +141,12 @@ void list_output_4004(
       &cycles_max);
 
     opcode = memory_read_m(&asm_context->memory, start);
-    sprintf(temp, "%02x", opcode);
+    snprintf(temp, sizeof(temp), "%02x", opcode);
 
     if (count == 2)
     {
       char temp2[4];
-      sprintf(temp2, " %02x", memory_read_m(&asm_context->memory, start + 1));
+      snprintf(temp2, sizeof(temp2), " %02x", memory_read_m(&asm_context->memory, start + 1));
       strcat(temp, temp2);
     }
 

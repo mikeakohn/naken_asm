@@ -107,7 +107,7 @@ static void arm_register_list(char *instruction, int opcode)
   {
     if ((opcode & 1) == 1)
     {
-      sprintf(temp, "r%d", n);
+      snprintf(temp, sizeof(temp), "r%d", n);
       if (count != 0) { strcat(instruction, ", "); }
       strcat(instruction, temp);
       //first = n;
@@ -136,7 +136,7 @@ static void process_alu_3(
   }
     else
   {
-    sprintf(opcode2, "#0x%x {#0x%02x, %d}",
+    snprintf(opcode2, sizeof(opcode2), "#0x%x {#0x%02x, %d}",
       compute_immediate(opcode & 0xfff), opcode & 0xff, (opcode & 0xf00) >> 7);
   }
 
@@ -180,7 +180,7 @@ static void process_alu_2(
   }
     else
   {
-    sprintf(opcode2, "#0x%x {#0x%02x, %d}",
+    snprintf(opcode2, sizeof(opcode2), "#0x%x {#0x%02x, %d}",
       compute_immediate(opcode & 0xfff), opcode & 0xff, (opcode & 0xf00) >> 7);
   }
 

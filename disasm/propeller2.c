@@ -389,7 +389,7 @@ void list_output_propeller2(
       &cycles_max);
 
     opcode = memory_read32_m(&asm_context->memory, start);
-    sprintf(bytes, "0x%08x", opcode);
+    snprintf(bytes, sizeof(bytes), "0x%08x", opcode);
 
     fprintf(asm_context->list, "0x%04x: %-16s %-40s cycles: ", start / 4, bytes, instruction);
 
@@ -441,7 +441,7 @@ void disasm_range_propeller2(
       &cycles_min,
       &cycles_max);
 
-    sprintf(bytes, "0x%08x", READ_RAM32(start));
+    snprintf(bytes, sizeof(bytes), "0x%08x", READ_RAM32(start));
     printf("0x%04x: %-16s %-40s ", start / 4, bytes, instruction);
 
     if (cycles_min == 0)
