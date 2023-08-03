@@ -263,7 +263,7 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
           print_error(asm_context, "Quoted literal too long.");
           return -1;
         }
-        sprintf(token, "%d", token[e]);
+        snprintf(token, sizeof(token), "%d", token[e]);
       }
         else
       {
@@ -272,7 +272,7 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
           print_error(asm_context, "Quoted literal too long.");
           return -1;
         }
-        sprintf(token, "%d", token[0]);
+        snprintf(token, sizeof(token), "%d", token[0]);
       }
 
       token_type = TOKEN_NUMBER;

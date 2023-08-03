@@ -59,7 +59,8 @@ void list_output_NAME(
   for (n = 0; n < count; n++)
   {
     char temp[4];
-    sprintf(temp, "%02x ", memory_read_m(&asm_context->memory, address+n));
+    snprintf(temp, sizeof(temp), "%02x ",
+      memory_read_m(&asm_context->memory, address+n));
     strcat(bytes, temp);
   }
 
@@ -106,7 +107,7 @@ void disasm_range_NAME(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      sprintf(temp, "%02x ", READ_RAM(start + n));
+      snprintf(temp, sizeof(temp), "%02x ", READ_RAM(start + n));
       strcat(bytes, temp);
     }
 
