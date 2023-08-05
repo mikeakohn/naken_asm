@@ -111,7 +111,7 @@ struct _table_68000 table_68000[] =
   { NULL, 0x0000, 0x0000, OP_NONE },
 };
 
-char *table_68000_condition_codes[] =
+const char *table_68000_condition_codes[] =
 {
   "t",
   "f",

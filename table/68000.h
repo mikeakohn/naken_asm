@@ -93,7 +93,7 @@ struct _table_68000
 uint16_t reverse_bits16(uint16_t bits);
 
 extern struct _table_68000 table_68000[];
-extern char *table_68000_condition_codes[];
+extern const char *table_68000_condition_codes[];
 
 #endif
 
