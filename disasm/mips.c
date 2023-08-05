@@ -17,7 +17,7 @@
 
 #define READ_RAM(a) memory_read_m(memory, a)
 
-static  const char *reg[32] =
+static const char *reg[32] =
 {
   "$0",  "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
   "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
@@ -25,7 +25,7 @@ static  const char *reg[32] =
   "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
 };
 
-static char *id_reg[] =
+static const char *id_reg[] =
 {
   "STATUS_FLAG",
   "MAC_FLAG",
@@ -59,7 +59,7 @@ static int disasm_vector(
   //int16_t offset;
   int immediate;
   int32_t offset;
-  char *scaler[] = { "x", "y", "z", "w" };
+  const char *scaler[] = { "x", "y", "z", "w" };
 
   opcode = memory_read32_m(memory, address);
 

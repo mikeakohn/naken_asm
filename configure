@@ -732,7 +732,7 @@ echo "UTIL LDFLAGS: ${LDFLAGS_UTIL}"
 echo "      CFLAGS: ${CFLAGS}"
 echo "     DEFINES: ${DFLAGS}"
 echo "INCLUDE_PATH: ${INCLUDE_PATH}"
-echo "        BINS: naken_asm${CONFIG_EXT}, naken_util${CONFIG_EXT}, naken_prog${CONFIG_EXT}"
+echo "        BINS: naken_asm${CONFIG_EXT}, naken_util${CONFIG_EXT}"
 echo
 echo "Now type: make"
 echo

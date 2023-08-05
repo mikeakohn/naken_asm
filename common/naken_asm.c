@@ -27,7 +27,7 @@ const char *credits =
   "naken_asm\n\n"
   "Authors: Michael Kohn\n"
   "         Joe Davisson\n"
-  "    Web: http://www.mikekohn.net/\n"
+  "    Web: https://www.mikekohn.net/\n"
   "  Email: mike@mikekohn.net\n"
   "Version: " VERSION "\n";
 

@@ -63,7 +63,7 @@ struct _table_arc
 
 struct _table_arc16
 {
-  char *instr;
+  const char *instr;
   uint16_t opcode;
   uint16_t mask;
   uint8_t operand_count;

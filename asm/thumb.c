@@ -717,8 +717,8 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
             if (operands[1].value<0)
             {
               operands[1].value = -operands[1].value;
-	      s = 1;
-	    }
+              s = 1;
+            }
             if (is_4_byte_aligned(asm_context, operands[1].value) == -1) { return -1; }
             add_bin16(asm_context, table_thumb[n].opcode | (s << 7) | (operands[1].value >> 2), IS_OPCODE);
             return 2;

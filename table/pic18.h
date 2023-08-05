@@ -33,7 +33,7 @@ enum
 
 struct _table_pic18
 {
-  char *instr;
+  const char *instr;
   uint16_t opcode;
   uint16_t mask;
   uint8_t type;

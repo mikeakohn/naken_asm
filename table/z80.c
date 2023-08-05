@@ -2,20 +2,16 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "table/z80.h"
-
-// http://search.cpan.org/~pscust/Asm-Z80-Table-0.02/lib/Asm/Z80/Table.pm
-// http://wikiti.brandonw.net/index.php?title=Z80_Instruction_Set
-// http://nemesis.lonestar.org/computers/tandy/software/apps/m4/qd/opcodes.html
 
 struct _table_instr_z80 table_instr_z80[] =
 {

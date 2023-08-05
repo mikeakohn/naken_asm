@@ -18,7 +18,7 @@
 
 struct _table_65816
 {
-  char *name;
+  const char *name;
   uint8_t instr;
   uint8_t op;
 };

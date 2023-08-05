@@ -34,7 +34,7 @@ int disasm_ps2_ee_vu(
   int ft, fs, fd, dest;
   int16_t offset;
   int immediate;
-  char *scalar[] = { "x", "y", "z", "w" };
+  const char *scalar[] = { "x", "y", "z", "w" };
   char bits[8];
 
   bits[0] = 0;

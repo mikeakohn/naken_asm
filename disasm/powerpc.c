@@ -22,7 +22,7 @@
   (memory_read_m(memory, a + 2) << 8) | \
    memory_read_m(memory, a + 3)
 
-static char *cmp_bits[] = { "fl", "fg", "fe", "fu", "4", "5", "6", "7" };
+static const char *cmp_bits[] = { "fl", "fg", "fe", "fu", "4", "5", "6", "7" };
 
 const char *get_spr_name(int value)
 {

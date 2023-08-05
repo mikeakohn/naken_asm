@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -58,7 +58,7 @@ enum
 
 struct _table_thumb
 {
-  char *instr;
+  const char *instr;
   uint16_t opcode;
   uint16_t mask;
   uint8_t type;
@@ -68,7 +68,7 @@ struct _table_thumb
 
 struct _special_reg_thumb
 {
-  char *name;
+  const char *name;
   uint8_t value;
 };
 

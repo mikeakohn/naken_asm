@@ -33,7 +33,7 @@ enum
 
 struct _table_ebpf
 {
-  char *instr;
+  const char *instr;
   uint8_t opcode;
   uint8_t type;
   uint8_t size;

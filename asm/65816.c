@@ -476,7 +476,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         op = OP_IMMEDIATE16;
 
         // value was forced with .b, .w, or .l
-	if (size == 8)
+        if (size == 8)
         {
           if (num < -128 || num > 0xff)
           {

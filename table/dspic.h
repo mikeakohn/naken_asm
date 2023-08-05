@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -109,7 +109,7 @@ enum
 
 struct _table_dspic
 {
-  char *name;
+  const char *name;
   uint32_t opcode;
   //uint32_t opcode48;
   uint32_t mask;

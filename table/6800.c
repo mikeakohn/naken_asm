@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2020 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -13,9 +13,8 @@
 
 #include "table/6800.h"
 
-// Based on: http://mdfs.net/Docs/Comp/6800/OpList
-
-struct _table_6800 table_6800[] = {
+struct _table_6800 table_6800[] =
+{
   { NULL,   M6800_OP_UNDEF },       // 0x00
   { "nop",  M6800_OP_NONE },        // 0x01
   { NULL,   M6800_OP_UNDEF },       // 0x02

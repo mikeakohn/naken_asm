@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -13,7 +13,8 @@
 
 #include "table/6809.h"
 
-struct _table_6809 table_6809[] = {
+struct _table_6809 table_6809[] =
+{
   { "neg", 0x00, M6809_OP_DIRECT, 2, 6, 6 },
   { "com", 0x03, M6809_OP_DIRECT, 2, 6, 6 },
   { "lsr", 0x04, M6809_OP_DIRECT, 2, 6, 6 },

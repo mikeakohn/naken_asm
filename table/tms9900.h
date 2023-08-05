@@ -2,10 +2,10 @@
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
- *     Web: http://www.mikekohn.net/
+ *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2019 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -33,7 +33,7 @@ enum
 
 struct _table_tms9900
 {
-  char *instr;
+  const char *instr;
   unsigned short int opcode;
   unsigned char type;
   unsigned char cycles_min;
@@ -43,5 +43,4 @@ struct _table_tms9900
 extern struct _table_tms9900 table_tms9900[];
 
 #endif
-
 

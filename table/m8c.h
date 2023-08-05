@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2023 by Michael Kohn
  *
  */
 
@@ -34,7 +34,7 @@ enum
 
 struct _table_m8c
 {
-  char *instr;
+  const char *instr;
   uint8_t opcode;
   uint8_t mask;
   uint8_t operand_0;
