@@ -26,6 +26,7 @@ typedef struct _util_context
   uint32_t flags;
   uint8_t bytes_per_address;
   uint8_t alignment;
+  uint8_t allow_unknown_cpu : 1;
   disasm_range_t disasm_range;
 } UtilContext;
 

@@ -28,6 +28,7 @@ typedef void (*disasm_range_t)(struct _memory *, uint32_t, uint32_t, uint32_t);
 
 enum
 {
+  CPU_TYPE_IGNORE = -1,
   CPU_TYPE_MSP430 = 0,
   CPU_TYPE_MSP430X,
   CPU_TYPE_1802,

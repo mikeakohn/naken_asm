@@ -19,6 +19,11 @@
 #include "fileio/file.h"
 #include "naken_asm.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 // Assembler functions.
 
 void *naken_asm_create()
@@ -104,6 +109,10 @@ int naken_util_disasm(
   //if (util_context->disasm == NULL) { return -1; }
 
   return -1;
+}
+#endif
+
+#ifdef __cplusplus
 }
 #endif
 

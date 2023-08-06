@@ -1325,6 +1325,13 @@ static int check_other_instruction(
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_other[n].version & asm_context->flags) == 0) { continue; }
 
+    // Make sure this instruction is valid for N64 if this is RSP.
+    if ((asm_context->flags & MIPS_RSP) != 0 &&
+        (mips_other[n].version && MIPS_NOT_RSP) != 0)
+    {
+      continue;
+    }
+
     if (strcmp(instr_case, mips_other[n].instr) == 0)
     {
       *found = 1;
@@ -1624,6 +1631,13 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
       continue;
     }
 
+    // Make sure this instruction is valid for N64 if this is RSP.
+    if ((asm_context->flags & MIPS_RSP) != 0 &&
+        (mips_r_table[n].version && MIPS_NOT_RSP) != 0)
+    {
+      continue;
+    }
+
     if (strcmp(instr_case, mips_r_table[n].instr) == 0)
     {
       char shift_table[] = { 0, 11, 21, 16, 6 };
@@ -1715,6 +1729,13 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
   {
     // Check of this specific MIPS chip uses this instruction.
     if ((mips_i_table[n].version & asm_context->flags) == 0)
+    {
+      continue;
+    }
+
+    // Make sure this instruction is valid for N64 if this is RSP.
+    if ((asm_context->flags & MIPS_RSP) != 0 &&
+        (mips_i_table[n].version && MIPS_NOT_RSP) != 0)
     {
       continue;
     }

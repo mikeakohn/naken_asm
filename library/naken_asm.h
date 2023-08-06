@@ -14,6 +14,11 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 void *naken_asm_create();
 void naken_asm_destroy(void *context);
 int naken_asm_assemble(void *context, const char *source);
@@ -34,6 +39,10 @@ int naken_util_disasm(
   char *code,
   int *cycles_min,
   int *cycles_max);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

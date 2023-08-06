@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 
   int n;
 
-  for (n = 0; n < sizeof(instructions) / sizeof(const char *); n++)
+  for (n = 0; n < (int)(sizeof(instructions) / sizeof(const char *)); n++)
   {
     errors += test_instruction(instructions[n]);
   }

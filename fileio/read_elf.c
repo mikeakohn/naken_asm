@@ -335,9 +335,14 @@ int read_elf(
       *cpu_type = CPU_TYPE_EPIPHANY;
       break;
     default:
-      printf("ELF Error: e_machine unknown\n");
-      fclose(in);
-      return -1;
+      if (*cpu_type == CPU_TYPE_IGNORE)
+      {
+        printf("ELF Error: e_machine unknown\n");
+        fclose(in);
+        return -1;
+      }
+
+      break;
   }
 
   // e_version.

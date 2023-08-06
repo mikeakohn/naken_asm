@@ -29,6 +29,7 @@
 #define MIPS_MSA     0x0100
 #define MIPS_RSP     0x0200
 #define MIPS_PIC32   0x0400
+#define MIPS_NOT_RSP 0x0800
 
 enum
 {

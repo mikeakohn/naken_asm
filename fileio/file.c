@@ -179,7 +179,7 @@ int file_read(
   const char *cpu_name,
   uint32_t start_address)
 {
-  uint8_t cpu_type = 0;
+  uint8_t cpu_type = util_context->allow_unknown_cpu == 1 ? CPU_TYPE_IGNORE : 0;
 
   Memory *memory = &util_context->memory;
   Symbols *symbols = &util_context->symbols;
