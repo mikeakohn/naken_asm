@@ -32,3 +32,9 @@ common/cpu_list.o: common/cpu_list.c common/cpu_list.h
 %.o: %.c
 	$(CC) -c $< -o $*.o $(CFLAGS) -I..
 
+%.o: %.cpp %.h
+	$(CXX) -c $< -o $*.o $(CFLAGS) -I..
+
+%.o: %.cpp
+	$(CXX) -c $< -o $*.o $(CFLAGS) -I..
+

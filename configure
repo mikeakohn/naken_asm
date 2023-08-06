@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 CC=gcc
+CXX=g++
 COMPILER_PREFIX=
 DEBUG=
 CFLAGS="-Wall"
@@ -199,13 +200,22 @@ show_help()
   exit
 }
 
-test_compiler()
+test_c_compiler()
 {
   cat >config.c <<EOF
   main() { }
 EOF
 
   ${1} -o config config.c >>config.log 2>&1
+}
+
+test_cpp_compiler()
+{
+  cat >config.cpp <<EOF
+  main() { }
+EOF
+
+  ${1} -o config config.cpp >>config.log 2>&1
 }
 
 test_lib()
@@ -623,12 +633,20 @@ then
   NO_MSP430=""
 fi
 
-if test_compiler "gcc"
+if test_c_compiler "gcc"
 then
   CC="gcc"
-elif test_compiler "cc"
+elif test_c_compiler "cc"
 then
   CC="cc"
+fi
+
+if test_cpp_compiler "g++"
+then
+  CXX="g++"
+elif test_cpp_compiler "cc"
+then
+  CXX="c++"
 fi
 
 #if test_lib "-lws2_32"; then LDFLAGS="${LDFLAGS} -lws2_32"; fi
@@ -698,6 +716,7 @@ echo "# Generated include file" > config.mak
 echo "# $0 $*" >> config.mak
 echo >> config.mak
 echo "CC=${COMPILER_PREFIX}${CC}" >> config.mak
+echo "CXX=${COMPILER_PREFIX}${CXX}" >> config.mak
 echo "COMPILER_PREFIX=${COMPILER_PREFIX}" >> config.mak
 echo "LDFLAGS=${LDFLAGS}" >> config.mak
 echo "LDFLAGS_UTIL=${LDFLAGS_UTIL}" >> config.mak
@@ -726,7 +745,7 @@ echo
 echo "Configuration:"
 echo "  Install to: ${INSTALL_PREFIX}"
 echo "            : ${INSTALL_BIN}, ${INSTALL_INCLUDES}/include"
-echo "    Compiler: ${COMPILER_PREFIX}${CC}"
+echo "    Compiler: ${COMPILER_PREFIX}${CC}, ${COMPILER_PREFIX}${CXX}"
 echo "     LDFLAGS: ${LDFLAGS}"
 echo "UTIL LDFLAGS: ${LDFLAGS_UTIL}"
 echo "      CFLAGS: ${CFLAGS}"
