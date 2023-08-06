@@ -6,7 +6,7 @@
 
 int errors = 0;
 
-void append(Symbols *symbols, char *name, uint32_t address)
+void append(Symbols *symbols, const char *name, uint32_t address)
 {
   if (symbols_append(symbols, name, address) != 0)
   {
@@ -24,7 +24,11 @@ void check_symbols_count(Symbols *symbols, int count)
   }
 }
 
-void check_lookup(Symbols *symbols, char *name, uint32_t expected, int expected_ret)
+void check_lookup(
+  Symbols *symbols,
+  const char *name,
+  uint32_t expected,
+  int expected_ret)
 {
   uint32_t address = 0;
 
@@ -32,18 +36,29 @@ void check_lookup(Symbols *symbols, char *name, uint32_t expected, int expected_
 
   if (ret != expected_ret || address != expected)
   {
-    printf("Error: %s != %d (%d) ret=%d %s:%d\n", name, expected, address, ret, __FILE__, __LINE__);
+    printf("Error: %s != %d (%d) ret=%d %s:%d\n",
+      name,
+      expected,
+      address,
+      ret,
+      __FILE__,
+      __LINE__);
     errors++;
   }
 }
 
-void check_export(Symbols *symbols, char *name, int expected)
+void check_export(Symbols *symbols, const char *name, int expected)
 {
   int ret = symbols_export(symbols, name);
 
   if (ret != expected)
   {
-    printf("Error: %s export %d (%d) %s:%d\n", name, expected, ret, __FILE__, __LINE__);
+    printf("Error: %s export %d (%d) %s:%d\n",
+      name,
+      expected,
+      ret,
+      __FILE__,
+      __LINE__);
     errors++;
   }
 }
@@ -127,5 +142,4 @@ int main(int argc, char *argv[])
 
   return 0;
 }
-
 

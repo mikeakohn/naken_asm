@@ -724,7 +724,12 @@ int disasm_mips(
         rt = (opcode >> 16) & 0x1f;
         int16_t offset = (opcode & 0xffff) << 2;
 
-        snprintf(instruction, length, "%s %s, %s, 0x%x (offset=%d)", mips_branch_table[n].instr, reg[rs], reg[rt],  address + 4 + offset, offset);
+        snprintf(instruction, length, "%s %s, %s, 0x%x (offset=%d)",
+          mips_branch_table[n].instr,
+          reg[rs],
+          reg[rt],
+          address + 4 + offset,
+          offset);
 
         return 4;
       }
@@ -732,12 +737,16 @@ int disasm_mips(
       else
     {
       if ((opcode >> 26) == mips_branch_table[n].opcode &&
-         ((opcode >> 16) & 0x1f) == mips_branch_table[n].op_rt)
+         ((opcode >> 16) & 0x1f) == (uint32_t)mips_branch_table[n].op_rt)
       {
         rs = (opcode >> 21) & 0x1f;
         int16_t offset = (opcode & 0xffff) << 2;
 
-        snprintf(instruction, length, "%s %s, 0x%x (offset=%d)", mips_branch_table[n].instr, reg[rs], address + 4 + offset, offset);
+        snprintf(instruction, length, "%s %s, 0x%x (offset=%d)",
+          mips_branch_table[n].instr,
+          reg[rs],
+          address + 4 + offset,
+          offset);
 
         return 4;
       }

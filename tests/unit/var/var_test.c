@@ -25,8 +25,8 @@
   if (var_get_double(&var) != (double)b) { ERROR(var); }
 
 #define CHECK_INT(var,a,b) \
-  if (var_get_int32(&var) != a) { ERROR(var); } \
-  if (var_get_int64(&var) != b) { ERROR(var); }
+  if (var_get_int32(&var) != (int32_t)a) { ERROR(var); } \
+  if (var_get_int64(&var) != (int64_t)b) { ERROR(var); }
 
 #define TEST_OP(op,type,a,b,c,d) \
   var_set_##type(&var1, a); \

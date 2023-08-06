@@ -326,7 +326,7 @@ static void write_elf_text_and_data(
   int alignment)
 {
   const char *name = ".text";
-  int i;
+  uint32_t i;
 
   elf->text_addr = memory->low_address;
   string_table_append(elf, name);

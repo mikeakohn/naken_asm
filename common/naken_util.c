@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
   char *line = NULL;
 #endif
   uint32_t start_address = 0;
-  uint32_t set_pc = -1;
+  uint32_t set_pc = 0xffffffff;
   int i;
   int mode = MODE_INTERACTIVE;
   int break_io = -1;
@@ -417,7 +417,7 @@ int main(int argc, char *argv[])
 
   util_context.simulate->break_io = break_io;
 
-  if (set_pc != -1)
+  if (set_pc != 0xffffffff)
   {
     util_context.simulate->simulate_set_pc(util_context.simulate, set_pc);
   }

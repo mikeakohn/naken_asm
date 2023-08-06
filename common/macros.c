@@ -209,7 +209,7 @@ int macros_append(
   // If none can be found, alloc a new one.
   while (1)
   {
-     if (memory_pool->ptr + name_len + value_len + sizeof(MacroData) < memory_pool->len)
+     if (memory_pool->ptr + name_len + value_len + (int)sizeof(MacroData) < memory_pool->len)
      {
        break;
      }

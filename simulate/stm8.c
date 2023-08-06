@@ -56,13 +56,13 @@
 #define READ_RAM24(a) ((memory_read_m(simulate->memory, a) << 16 ) | (memory_read16_m(simulate->memory, a + 1)))
 
 #define WRITE_RAM(a, b) \
-  if ((a) == simulate->break_io) \
+  if ((a) == (uint32_t)simulate->break_io) \
   { \
     exit(b); \
   } \
   memory_write_m(simulate->memory, a, b)
 #define WRITE_RAM16(a, w) \
-  if ((a) == simulate->break_io) \
+  if ((a) == (uint32_t)simulate->break_io) \
   { \
     exit(w); \
   } \
@@ -3648,7 +3648,8 @@ int simulate_run_stm8(Simulate *simulate, int max_cycles, int step)
         // '!' - current instruction indicator
         // '>' - next instruction indicator
 
-        printf("%s", disasm_pc == simulate->break_point ? "*" : " ");   // breakpoint
+        // Breakpoint.
+        printf("%s", disasm_pc == (uint32_t)simulate->break_point ? "*" : " ");
 
         if (n == 0)
         {
@@ -3705,7 +3706,7 @@ int simulate_run_stm8(Simulate *simulate, int max_cycles, int step)
       return -1;
     }
 
-    if (simulate->break_point == REG_PC)
+    if ((uint32_t)simulate->break_point == REG_PC)
     {
       printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
       break;

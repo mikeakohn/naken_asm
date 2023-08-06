@@ -76,7 +76,7 @@ int disasm_propeller(
   n = 0;
   while (table_propeller[n].instr != NULL)
   {
-    int op_no_effects = table_propeller[n].opcode & //0xfc7fffff;
+    uint32_t op_no_effects = table_propeller[n].opcode & //0xfc7fffff;
        ((table_propeller[n].mask & 0x03800000) ^ 0xfc7fffff);
 
     if ((opcode & table_propeller[n].mask) == op_no_effects)

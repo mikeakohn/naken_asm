@@ -34,7 +34,7 @@ const char *array_types[] =
 
 static const char *get_array_type(int index)
 {
-  if (index > (sizeof(array_types) / sizeof(char *)))
+  if (index > (int)(sizeof(array_types) / sizeof(char *)))
   {
     return "";
   }

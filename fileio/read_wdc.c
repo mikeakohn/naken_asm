@@ -53,7 +53,7 @@ int read_wdc(const char *filename, Memory *memory)
 
   while (1)
   {
-    int address = read_int24(in);
+    uint32_t address = read_int24(in);
     int length = read_int24(in);
 
     if (length == 0) { break; }

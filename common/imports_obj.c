@@ -161,8 +161,7 @@ static const char *imports_obj_symbol_table_lookup_by_local_offset(
     imports_obj_elf_print_symbol32(elf_symbol32, (const char *)(symbol_string_table + st_name));
 #endif
 
-    //if (offset >= st_value && offset < st_value + st_size)
-    if (offset == st_value && (st_info >> 4) == 1)
+    if (offset == (uint32_t)st_value && (st_info >> 4) == 1)
     {
       return (const char *)(symbol_string_table + st_name);
     }
@@ -190,7 +189,7 @@ static const char *imports_obj_symbol_table_lookup_by_offset(
   {
     elf_relocation32 = (ElfRelocation32 *)(relocation_table + ptr);
 
-    int r_offset = get_int32_le(elf_relocation32->r_offset);
+    uint32_t r_offset = get_int32_le(elf_relocation32->r_offset);
     int r_info = get_int32_le(elf_relocation32->r_info);
 
 #if DEBUG

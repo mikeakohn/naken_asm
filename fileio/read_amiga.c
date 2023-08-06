@@ -27,7 +27,8 @@ static uint32_t read_int32(FILE *in)
 
 static long read_hunk_header(FILE *in)
 {
-  int ch, n;
+  int ch;
+  uint32_t n;
   uint32_t name_length = read_int32(in);
 
   //printf("           Name: ");
@@ -69,7 +70,7 @@ static long read_hunk_header(FILE *in)
 
 static int read_code(FILE *in, Memory *memory)
 {
-  int n;
+  uint32_t n;
   uint32_t length = read_int32(in) * 4;
 
   for (n = 0; n < length; n++)

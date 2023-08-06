@@ -45,7 +45,7 @@ static Imports *linker_get_from_symbol_list(
 {
   SymbolList *symbol_list;
   uint8_t *buffer = linker->symbol_list_buffer;
-  int ptr = 0;
+  uint32_t ptr = 0;
 
   while (ptr < linker->symbol_list_buffer_end)
   {

@@ -104,23 +104,23 @@ struct _mips_instr mips_i_table[] =
 
 struct _mips_branch mips_branch_table[] =
 {
-  { "beq", 0x04, -1, MIPS_I },
-  { "beql", 0x14, -1, MIPS_II },
-  { "bgez", 0x01, 0x01, MIPS_I },
-  { "bgezal", 0x01, 0x11, MIPS_I },
+  { "beq",     0x04,   -1, MIPS_I  },
+  { "beql",    0x14,   -1, MIPS_II },
+  { "bgez",    0x01, 0x01, MIPS_I  },
+  { "bgezal",  0x01, 0x11, MIPS_I  },
   { "bgezall", 0x01, 0x13, MIPS_II },
-  { "bgezl", 0x01, 0x03, MIPS_II },
-  { "bgtz", 0x07, 0x00, MIPS_I },
-  { "bgtzl", 0x17, 0x00, MIPS_II },
-  { "blez", 0x06, 0x00, MIPS_I },
-  { "blezl", 0x16, 0x00, MIPS_II },
-  { "bltz", 0x01, 0x00, MIPS_I },
-  { "bltzal", 0x01, 0x10, MIPS_I },
+  { "bgezl",   0x01, 0x03, MIPS_II },
+  { "bgtz",    0x07, 0x00, MIPS_I  },
+  { "bgtzl",   0x17, 0x00, MIPS_II },
+  { "blez",    0x06, 0x00, MIPS_I  },
+  { "blezl",   0x16, 0x00, MIPS_II },
+  { "bltz",    0x01, 0x00, MIPS_I  },
+  { "bltzal",  0x01, 0x10, MIPS_I  },
   { "bltzall", 0x01, 0x12, MIPS_II },
-  { "bltzl", 0x01, 0x02, MIPS_II },
-  { "bne", 0x05, -1, MIPS_I },
-  { "bnel", 0x15, -1, MIPS_II },
-  { NULL, 0, 0, 0 }
+  { "bltzl",   0x01, 0x02, MIPS_II },
+  { "bne",     0x05,   -1, MIPS_I  },
+  { "bnel",    0x15,   -1, MIPS_II },
+  { NULL,      0,       0, 0       }
 };
 
 struct _mips_special_instr mips_special_table[] =

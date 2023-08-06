@@ -26,6 +26,8 @@
 #define OFFSET_MIN (-(1 << 10))
 #define OFFSET_MAX ((1 << 10) - 1)
 
+#define UNKNOWN_OPCODE 0xffffffff
+
 enum
 {
   OPERAND_VFREG,
@@ -216,8 +218,7 @@ int get_base(
       return -1;
     }
 
-    // FIXME: What happened here?
-    if (get_field_number(operand->field_mask == -1))
+    if (get_field_number(operand->field_mask) == -1)
     {
       printf("Error: Only 1 dest field allowed at %s:%d\n",
         asm_context->tokens.filename,
@@ -280,7 +281,10 @@ static int get_operands(
         else if (c == 't') { *iemdt_bits |= 1; }
         else
         {
-          printf("Error: Unknown flag '%c' at %s:%d\n", token[n], asm_context->tokens.filename, asm_context->tokens.line);
+          printf("Error: Unknown flag '%c' at %s:%d\n",
+            token[n],
+            asm_context->tokens.filename,
+            asm_context->tokens.line);
           return -1;
         }
 
@@ -430,7 +434,9 @@ static int get_operands(
 
             if (modifier != 0)
             {
-              printf("Error: Instruction cannot have modifier at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
+              printf("Error: Instruction cannot have modifier at %s:%d\n",
+                asm_context->tokens.filename,
+                asm_context->tokens.line);
             }
 
             operands[operand_count].type = OPERAND_OFFSET_BASE;
@@ -480,7 +486,7 @@ static int get_operands(
   return operand_count;
 }
 
-static int get_opcode(
+static uint32_t get_opcode(
   AsmContext *asm_context,
   struct _table_ps2_ee_vu *table_ps2_ee_vu,
   char *instr,
@@ -499,9 +505,16 @@ static int get_opcode(
   lower_copy(instr_case, instr);
   memset(operands, 0, sizeof(operands));
 
-  operand_count = get_operands(asm_context, operands, instr, instr_case, &dest, &iemdt_bits, is_lower);
+  operand_count = get_operands(
+    asm_context,
+    operands,
+    instr,
+    instr_case,
+    &dest,
+    &iemdt_bits,
+    is_lower);
 
-  if (operand_count < 0) { return -1; }
+  if (operand_count < 0) { return UNKNOWN_OPCODE; }
 
 #ifdef DEBUG
   printf("operand_count=%d  dest=%d\n", operand_count, dest);
@@ -521,7 +534,7 @@ static int get_opcode(
       {
         printf("Error: Instruction only valid in VU1 at %s:%d\n",
                asm_context->tokens.filename, asm_context->tokens.line);
-        return -1;
+        return UNKNOWN_OPCODE;
       }
 
       if (operand_count != table_ps2_ee_vu[n].operand_count)
@@ -535,13 +548,13 @@ static int get_opcode(
       if ((table_ps2_ee_vu[n].flags & FLAG_XYZ) != 0 && dest != 0xe)
       {
         print_error_illegal_operands(asm_context, instr);
-        return -1;
+        return UNKNOWN_OPCODE;
       }
 
       if ((table_ps2_ee_vu[n].flags & FLAG_DEST) == 0 && dest != 0x00)
       {
         print_error_illegal_operands(asm_context, instr);
-        return -1;
+        return UNKNOWN_OPCODE;
       }
 
       opcode = table_ps2_ee_vu[n].opcode;
@@ -556,7 +569,7 @@ static int get_opcode(
             if (operands[r].type != OPERAND_VFREG)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             opcode |= (operands[r].value << 16);
@@ -564,7 +577,7 @@ static int get_opcode(
             if ((table_ps2_ee_vu[n].flags & FLAG_TE) != 0)
             {
               int field = get_field_number(operands[r].field_mask);
-              if (field == -1) { return -1; }
+              if (field == -1) { return UNKNOWN_OPCODE; }
               opcode |= field << 23;
             }
             break;
@@ -572,7 +585,7 @@ static int get_opcode(
             if (operands[r].type != OPERAND_VFREG)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             opcode |= (operands[r].value << 11);
@@ -580,7 +593,7 @@ static int get_opcode(
             if ((table_ps2_ee_vu[n].flags & FLAG_SE) != 0)
             {
               int field = get_field_number(operands[r].field_mask);
-              if (field == -1) { return -1; }
+              if (field == -1) { return UNKNOWN_OPCODE; }
               opcode |= field << 21;
             }
             break;
@@ -588,7 +601,7 @@ static int get_opcode(
             if (operands[r].type != OPERAND_VFREG)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
             opcode |= (operands[r].value << 6);
             break;
@@ -596,7 +609,7 @@ static int get_opcode(
             if (operands[r].type != OPERAND_VIREG)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
             opcode |= (operands[r].value << 16);
             break;
@@ -604,7 +617,7 @@ static int get_opcode(
             if (operands[r].type != OPERAND_VIREG)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
             opcode |= (operands[r].value << 11);
             break;
@@ -612,7 +625,7 @@ static int get_opcode(
             if (operands[r].type != OPERAND_VIREG)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
             opcode |= (operands[r].value << 6);
             break;
@@ -620,55 +633,55 @@ static int get_opcode(
             if (operands[r].type != OPERAND_VIREG || operands[r].value != 1)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
             break;
           case EE_VU_OP_I:
             if (operands[r].type != OPERAND_I)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
             break;
           case EE_VU_OP_Q:
             if (operands[r].type != OPERAND_Q)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
             break;
           case EE_VU_OP_P:
             if (operands[r].type != OPERAND_P)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
             break;
           case EE_VU_OP_R:
             if (operands[r].type != OPERAND_R)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
             break;
           case EE_VU_OP_ACC:
             if (operands[r].type != OPERAND_ACC)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
             break;
           case EE_VU_OP_OFFSET:
             if (operands[r].type != OPERAND_NUMBER)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             if ((operands[r].value & 0x7) != 0)
             {
               print_error_align(asm_context, 8);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             offset = operands[r].value - (asm_context->address + 8);
@@ -677,7 +690,7 @@ static int get_opcode(
             if (offset < OFFSET_MIN || offset > OFFSET_MAX)
             {
               print_error_range(asm_context, "Address", OFFSET_MIN, OFFSET_MAX);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             opcode |= offset & 0x7ff;
@@ -687,13 +700,13 @@ static int get_opcode(
             if (operands[r].type != OPERAND_OFFSET_BASE)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             if (get_field_number(dest) == -1)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             offset = operands[r].value;
@@ -701,7 +714,7 @@ static int get_opcode(
             if (offset < -0x400 || offset > 0x3ff)
             {
               print_error_range(asm_context, "Address", -0x400, 0x3ff);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
@@ -719,7 +732,7 @@ static int get_opcode(
             if (operands[r].type != OPERAND_BASE)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
@@ -736,7 +749,7 @@ static int get_opcode(
             if (operands[r].type != OPERAND_BASE_DEC)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
@@ -753,7 +766,7 @@ static int get_opcode(
             if (operands[r].type != OPERAND_BASE_INC)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)
@@ -770,13 +783,13 @@ static int get_opcode(
             if (operands[r].type != OPERAND_NUMBER)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             if (operands[r].value < 0 || operands[r].value > 0xffffff)
             {
               print_error_range(asm_context, "Immediate", 0, 0xffffff);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             opcode |= operands[r].value & 0xffffff;
@@ -786,13 +799,13 @@ static int get_opcode(
             if (operands[r].type != OPERAND_NUMBER)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             if (operands[r].value < 0 || operands[r].value > 0x7fff)
             {
               print_error_range(asm_context, "Immediate", 0, 0x7fff);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             opcode |= (operands[r].value & 0x7800) << 10;
@@ -803,13 +816,13 @@ static int get_opcode(
             if (operands[r].type != OPERAND_NUMBER)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             if (operands[r].value < 0 || operands[r].value > 0xfff)
             {
               print_error_range(asm_context, "Immediate", 0, 0xfff);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             opcode |= (operands[r].value & 0x800) << 10;
@@ -820,13 +833,13 @@ static int get_opcode(
             if (operands[r].type != OPERAND_NUMBER)
             {
               print_error_illegal_operands(asm_context, instr);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             if (operands[r].value < -16 || operands[r].value > 15)
             {
               print_error_range(asm_context, "Immediate", -16, 15);
-              return -1;
+              return UNKNOWN_OPCODE;
             }
 
             opcode |= (operands[r].value & 0x1f) << 6;
@@ -834,14 +847,16 @@ static int get_opcode(
             break;
           default:
             print_error_illegal_operands(asm_context, instr);
-            return -1;
+            return UNKNOWN_OPCODE;
         }
       }
 
       if (is_lower == 1 && iemdt_bits != 0)
       {
-        printf("Error: Cannot set IEMDT bits in lower instruction at %s:%d\n", asm_context->tokens.filename, asm_context->tokens.line);
-        return -1;
+        printf("Error: Cannot set IEMDT bits in lower instruction at %s:%d\n",
+          asm_context->tokens.filename,
+          asm_context->tokens.line);
+        return UNKNOWN_OPCODE;
       }
 
       return opcode | (iemdt_bits << 27) | (dest << 21);
@@ -865,7 +880,7 @@ static int get_opcode(
            asm_context->tokens.line);
   }
 
-  return -1;
+  return UNKNOWN_OPCODE;
 }
 
 int parse_instruction_ps2_ee_vu(AsmContext *asm_context, char *instr)
@@ -877,7 +892,7 @@ int parse_instruction_ps2_ee_vu(AsmContext *asm_context, char *instr)
 
   opcode_upper = get_opcode(asm_context, table_ps2_ee_vu_upper, instr, 0);
 
-  if (opcode_upper == -1) { return -1; }
+  if (opcode_upper == UNKNOWN_OPCODE) { return -1; }
 
   // Get lower instruction
   token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -889,7 +904,7 @@ int parse_instruction_ps2_ee_vu(AsmContext *asm_context, char *instr)
 
   opcode_lower = get_opcode(asm_context, table_ps2_ee_vu_lower, token, 1);
 
-  if (opcode_lower == -1) { return -1; }
+  if (opcode_lower == UNKNOWN_OPCODE) { return -1; }
 
   add_bin32(asm_context, opcode_lower, IS_OPCODE);
   add_bin32(asm_context, opcode_upper, IS_OPCODE);

@@ -266,7 +266,8 @@ int parse_repeat(AsmContext *asm_context)
   asm_context->in_repeat = 0;
 
   uint32_t address_end = asm_context->address;
-  int n, r;
+  uint32_t r;
+  int n;
 
   for (n = 0; n < count - 1; n++)
   {

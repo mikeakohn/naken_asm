@@ -214,7 +214,7 @@ int read_elf(
   int e_shnum;
   int e_shstrndx;
   int n;
-  int start, end;
+  uint32_t start, end;
   struct _elf_shdr elf_shdr;
   long strtab_offset = 0;
   get_int16_t get_int16;
@@ -225,8 +225,8 @@ int read_elf(
   memory_clear(memory);
   //memset(dirty, 0, memory->size);
 
-  start = -1;
-  end = -1;
+  start = 0xffffffff;
+  end = 0xffffffff; 
 
   in = fopen(filename, "rb");
 
@@ -445,7 +445,7 @@ int read_elf(
     {
       if (is_text)
       {
-        if (start == -1)
+        if (start == 0xffffffff)
         {
           start = elf_shdr.sh_addr;
         }
@@ -455,7 +455,7 @@ int read_elf(
           start = elf_shdr.sh_addr;
         }
 
-        if (end == -1)
+        if (end == 0xffffffff)
         {
           end = elf_shdr.sh_addr + elf_shdr.sh_size - 1;
         }
@@ -469,7 +469,7 @@ int read_elf(
       long marker = ftell(in);
       fseek(in, elf_shdr.sh_offset, SEEK_SET);
 
-      int i;
+      uint32_t i;
       for (i = 0; i < elf_shdr.sh_size; i++)
       {
         //if (elf_shdr.sh_addr + i >= memory->size) { break; }
@@ -489,7 +489,7 @@ int read_elf(
 
       int sym_size = is_32_bit ? 16 : 24;
 
-      int i;
+      uint32_t i;
       for (i = 0; i < elf_shdr.sh_size; i += sym_size)
       {
         char name[128];

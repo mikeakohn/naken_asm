@@ -170,7 +170,7 @@ int symbols_append(Symbols *symbols, const char *name, uint32_t address)
   return 0;
 }
 
-int symbols_set(Symbols *symbols, char *name, uint32_t address)
+int symbols_set(Symbols *symbols, const char *name, uint32_t address)
 {
   SymbolsData *symbols_data = NULL;
 
@@ -200,7 +200,7 @@ int symbols_set(Symbols *symbols, char *name, uint32_t address)
   return 0;
 }
 
-int symbols_export(Symbols *symbols, char *name)
+int symbols_export(Symbols *symbols, const char *name)
 {
   SymbolsData *symbols_data = symbols_find(symbols, name);
 

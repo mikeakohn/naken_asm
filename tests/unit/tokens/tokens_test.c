@@ -13,8 +13,8 @@ void test_constants()
   char token[TOKENLEN];
   int token_type;
   int i;
-  char *test = { "1234 0x12 0b11001001 0100b 20h \"\\n\\t\\r\"" };
-  char *answer[] = { "1234", "18", "201", "4", "32", "\n\t\r", NULL };
+  const char *test = { "1234 0x12 0b11001001 0100b 20h \"\\n\\t\\r\"" };
+  const char *answer[] = { "1234", "18", "201", "4", "32", "\n\t\r", NULL };
 
   memset(&asm_context, 0, sizeof(asm_context));
 
@@ -67,10 +67,13 @@ void test_1()
   char token[TOKENLEN];
   int token_type;
   int i;
-  char *test = { "1234 1234.w [(1234.5)] asdf55[33] 1&2|3^3\n f*e #234" };
-  char *answer[] = { "1234", "1234", ".", "w", "[", "(", "1234.5", ")", "]",
-                     "asdf55", "[", "33", "]", "1", "&", "2", "|", "3",
-                     "^", "3", "\n", "f", "*", "e", "#", "234", NULL };
+  const char *test = { "1234 1234.w [(1234.5)] asdf55[33] 1&2|3^3\n f*e #234" };
+  const char *answer[] =
+  {
+    "1234", "1234", ".", "w", "[", "(", "1234.5", ")", "]",
+    "asdf55", "[", "33", "]", "1", "&", "2", "|", "3",
+    "^", "3", "\n", "f", "*", "e", "#", "234", NULL
+  };
 
   memset(&asm_context, 0, sizeof(asm_context));
 
@@ -121,7 +124,7 @@ void test_1()
 void test_pushback()
 {
   AsmContext asm_context;
-  char *test = { "1234 5 20" };
+  const char *test = { "1234 5 20" };
   char token[TOKENLEN];
   int token_type;
 
@@ -182,7 +185,7 @@ void test_pushback()
 void test_strings_with_dots()
 {
   AsmContext asm_context;
-  char *test = { "mov.w" };
+  const char *test = { "mov.w" };
   char token[TOKENLEN];
   int token_type;
 
@@ -237,7 +240,7 @@ void test_ascii_with_null()
     errors++;
   }
 
-  for (i = 0; i < sizeof(result); i++)
+  for (i = 0; i < (int)sizeof(result); i++)
   {
     char c = memory_read_m(&asm_context.memory, i);
     if (c != result[i])
@@ -311,7 +314,7 @@ void test_escape_chars_in_db()
     errors++;
   }
 
-  for (i = 0; i < sizeof(result); i++)
+  for (i = 0; i < (int)sizeof(result); i++)
   {
     char c = memory_read_m(&asm_context.memory, i);
     if (c != result[i])
@@ -360,7 +363,7 @@ void test_escape_chars_in_code_const()
 
   ptr = 1;
 
-  for (i = 0; i < sizeof(result); i++)
+  for (i = 0; i < (int)sizeof(result); i++)
   {
     c = memory_read_m(&asm_context.memory, ptr);
 
