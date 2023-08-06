@@ -28,7 +28,6 @@ typedef void (*disasm_range_t)(struct _memory *, uint32_t, uint32_t, uint32_t);
 
 enum
 {
-  CPU_TYPE_IGNORE = -1,
   CPU_TYPE_MSP430 = 0,
   CPU_TYPE_MSP430X,
   CPU_TYPE_1802,
@@ -86,7 +85,8 @@ enum
   CPU_TYPE_UNSP,
   CPU_TYPE_WEBASM,
   CPU_TYPE_XTENSA,
-  CPU_TYPE_Z80
+  CPU_TYPE_Z80,
+  CPU_TYPE_IGNORE
 };
 
 #define ALIGN_1 1

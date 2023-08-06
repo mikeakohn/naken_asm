@@ -1327,7 +1327,7 @@ static int check_other_instruction(
 
     // Make sure this instruction is valid for N64 if this is RSP.
     if ((asm_context->flags & MIPS_RSP) != 0 &&
-        (mips_other[n].version && MIPS_NOT_RSP) != 0)
+        (mips_other[n].version & MIPS_NOT_RSP) != 0)
     {
       continue;
     }
@@ -1633,7 +1633,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
 
     // Make sure this instruction is valid for N64 if this is RSP.
     if ((asm_context->flags & MIPS_RSP) != 0 &&
-        (mips_r_table[n].version && MIPS_NOT_RSP) != 0)
+        (mips_r_table[n].version & MIPS_NOT_RSP) != 0)
     {
       continue;
     }
@@ -1735,7 +1735,7 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
 
     // Make sure this instruction is valid for N64 if this is RSP.
     if ((asm_context->flags & MIPS_RSP) != 0 &&
-        (mips_i_table[n].version && MIPS_NOT_RSP) != 0)
+        (mips_i_table[n].version & MIPS_NOT_RSP) != 0)
     {
       continue;
     }
