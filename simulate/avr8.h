@@ -15,7 +15,7 @@
 #include <unistd.h>
 
 #include "common/memory.h"
-#include "simulate/common.h"
+#include "simulate/Simulate.h"
 
 #define SREG_C 0
 #define SREG_Z 1

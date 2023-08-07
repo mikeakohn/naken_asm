@@ -13,7 +13,7 @@
 #define NAKEN_ASM_CPU_LIST_H
 
 #include "common/linker.h"
-#include "simulate/common.h"
+#include "simulate/Simulate.h"
 
 //struct _asm_context;
 //struct _memory;
@@ -140,7 +140,7 @@ typedef struct _cpu_list
   uint32_t flags;
 } CpuList;
 
-extern struct _cpu_list cpu_list[];
+extern CpuList cpu_list[];
 
 #endif
 

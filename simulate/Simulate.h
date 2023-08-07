@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef NAKEN_ASM_SIMULATE_COMMON_H
-#define NAKEN_ASM_SIMULATE_COMMON_H
+#ifndef NAKEN_ASM_SIMULATE_SIMULATE_H
+#define NAKEN_ASM_SIMULATE_SIMULATE_H
 
 #include <unistd.h>
 

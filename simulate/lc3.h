@@ -15,7 +15,7 @@
 #include <unistd.h>
 
 #include "common/memory.h"
-#include "simulate/common.h"
+#include "simulate/Simulate.h"
 
 #define FLAG_PRIV 0x8000
 #define FLAG_N 0x0004

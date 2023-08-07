@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 #include "common/memory.h"
-#include "simulate/common.h"
+#include "simulate/Simulate.h"
 
 typedef struct _simulate_1802
 {

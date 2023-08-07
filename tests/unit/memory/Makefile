@@ -6,7 +6,7 @@ CFLAGS=-Wall -g -DUNIT_TEST $(INCLUDES)
 LD_FLAGS=-L../../../build
 
 default:
-	$(CC) -o memory_test memory_test.c ../../../build/naken_asm.a \
+	$(CXX) -o memory_test memory_test.cpp ../../../build/naken_asm.a \
 	  $(CFLAGS)
 
 clean:

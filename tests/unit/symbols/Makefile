@@ -6,9 +6,9 @@ CFLAGS=-Wall -g -DUNIT_TEST $(INCLUDES) -g
 LD_FLAGS=-L../../../build
 
 default:
-	$(CC) -o symbols_test symbols_test.c \
-	  ../../../common/symbols.c \
-	  ../../../common/memory_pool.c \
+	$(CXX) -o symbols_test symbols_test.cpp \
+	  ../../../common/symbols.cpp \
+	  ../../../common/memory_pool.cpp \
 	  $(CFLAGS)
 
 clean:

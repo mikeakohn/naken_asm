@@ -15,7 +15,7 @@
 #include <unistd.h>
 
 #include "common/memory.h"
-#include "simulate/common.h"
+#include "simulate/Simulate.h"
 
 #define REG_B 0
 #define REG_C 1

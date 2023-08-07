@@ -87,39 +87,39 @@ done
 
 DFLAGS_ALL=`echo ${DFLAGS_ALL} | sed 's/^ *//'`
 
-for file in asm/*.c
+for file in asm/*.cpp
 do
-  if [[ ! $(basename ${file})  == "template.c" ]]
+  if [[ ! $(basename ${file})  == "template.cpp" ]]
   then
     file=${file##*/}
-    ASM_OBJS_ALL="${ASM_OBJS_ALL} ${file%.c}.o"
+    ASM_OBJS_ALL="${ASM_OBJS_ALL} ${file%.cpp}.o"
   fi
 done
 
-for file in disasm/*.c
+for file in disasm/*.cpp
+do
+  if [[ ! $(basename ${file}) == "template.cpp" ]]
+  then
+    file=${file##*/}
+    DISASM_OBJS_ALL="${DISASM_OBJS_ALL} ${file%.cpp}.o"
+  fi
+done
+
+for file in table/*.cpp
+do
+  if [[ ! $(basename ${file}) == "template.cpp" ]]
+  then
+    file=${file##*/}
+    TABLE_OBJS_ALL="${TABLE_OBJS_ALL} ${file%.cpp}.o"
+  fi
+done
+
+for file in simulate/*.cpp
 do
   if [[ ! $(basename ${file}) == "template.c" ]]
   then
     file=${file##*/}
-    DISASM_OBJS_ALL="${DISASM_OBJS_ALL} ${file%.c}.o"
-  fi
-done
-
-for file in table/*.c
-do
-  if [[ ! $(basename ${file}) == "template.c" ]]
-  then
-    file=${file##*/}
-    TABLE_OBJS_ALL="${TABLE_OBJS_ALL} ${file%.c}.o"
-  fi
-done
-
-for file in simulate/*.c
-do
-  if [[ ! $(basename ${file}) == "template.c" ]]
-  then
-    file=${file##*/}
-    SIM_OBJS_ALL="${SIM_OBJS_ALL} ${file%.c}.o"
+    SIM_OBJS_ALL="${SIM_OBJS_ALL} ${file%.cpp}.o"
   fi
 done
 

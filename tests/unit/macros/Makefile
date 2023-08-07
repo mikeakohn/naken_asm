@@ -6,7 +6,7 @@ CFLAGS=-Wall -g -DUNIT_TEST $(INCLUDES)
 LD_FLAGS=-L../../../build
 
 default:
-	$(CC) -o macro_test macro_test.c \
+	$(CXX) -o macro_test macro_test.cpp \
           ../../../build/naken_asm.a \
 	  $(CFLAGS)
 

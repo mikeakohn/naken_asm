@@ -16,6 +16,7 @@
 #include "asm/common.h"
 #include "common/add_bin.h"
 #include "common/assembler.h"
+#include "common/cpu_list.h"
 #include "common/eval_expression.h"
 #include "common/directives_data.h"
 #include "common/directives_if.h"
