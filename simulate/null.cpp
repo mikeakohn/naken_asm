@@ -53,7 +53,7 @@ void SimulateNull::reset()
 {
 }
 
-int SimulateNull::dumpram(int start, int end)
+int SimulateNull::dump_ram(int start, int end)
 {
   return -1;
 }

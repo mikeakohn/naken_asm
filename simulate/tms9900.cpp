@@ -213,7 +213,7 @@ void SimulateTms9900::reset()
   break_point = -1;
 }
 
-int SimulateTms9900::dumpram(int start, int end)
+int SimulateTms9900::dump_ram(int start, int end)
 {
   return -1;
 }

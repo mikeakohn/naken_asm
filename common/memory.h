@@ -38,7 +38,7 @@
 typedef struct _memory_page
 {
   uint32_t address;
-  uint32_t offset_min,offset_max;
+  uint32_t offset_min, offset_max;
   struct _memory_page *next;
   uint8_t bin[PAGE_SIZE];
   int debug_line[];

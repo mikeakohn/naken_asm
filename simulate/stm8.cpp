@@ -413,7 +413,7 @@ void SimulateStm8::reset()
 // Returns:
 //     0 = OK
 //    -1 = not supported for this MPU
-int SimulateStm8::dumpram(int start, int end)
+int SimulateStm8::dump_ram(int start, int end)
 {
   // Use print or print16 to display RAM.
   return -1;

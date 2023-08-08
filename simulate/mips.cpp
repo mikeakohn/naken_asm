@@ -103,12 +103,19 @@ void SimulateMips::set_pc(uint32_t value)
 
 void SimulateMips::reset()
 {
+  memset(reg, 0, sizeof(reg));
+  hi = 0;
+  lo = 0;
+  ra_was_set = false;
+  force_break = false;
+
   pc = memory->low_address;
   reg[29] = 0x80000000;
 
   // PIC32 kind of hack.  Need to figure out a better way to do this
   // later.  Problem is PIC32 has virtual memory (where code addresses)
   // and physical memory (where the hex file says the code is).
+#if 0
   if (memory->low_address >= 0x1d000000 && memory->high_address <= 0x1d007fff)
   {
     uint32_t physical, virtual_address;
@@ -130,9 +137,10 @@ void SimulateMips::reset()
       memory_write_m(memory, virtual_address++, memory_read_m(memory, physical));
     }
   }
+#endif
 }
 
-int SimulateMips::dumpram(int start, int end)
+int SimulateMips::dump_ram(int start, int end)
 {
   return -1;
 }
@@ -231,7 +239,7 @@ int SimulateMips::run(int max_cycles, int step)
       break;
     }
 
-    if (usec == 0 || step == true)
+    if (usec == 0 || step == true || force_break == true)
     {
       signal(SIGINT, SIG_DFL);
       return 0;
@@ -530,6 +538,11 @@ int SimulateMips::execute()
       if (((opcode >> 11) & 0x3ff) == 0 && (opcode & 0x3f) == 0x08)
       {
         // jr
+        if (((opcode >> 21) & 0x1f) == 31)
+        {
+          //if (! ra_was_set) { force_break = true; }
+        }
+
         delay_slot();
         pc = reg[(opcode >> 21) & 0x1f];
         return 0;

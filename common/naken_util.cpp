@@ -128,6 +128,7 @@ static const char *command_names[] =
   "disasm",
   "symbols",
   "dumpram",
+  "dump_ram",
   "info",
   "registers",
   "display",
@@ -236,7 +237,7 @@ static void print_help()
   printf("  write <address> <data>..  [ write multiple bytes to RAM starting at address]\n");
   printf("  write16 <address> <data>..[ write multiple int16's to RAM starting at address]\n");
   printf("  write32 <address> <data>..[ write multiple int32's to RAM starting at address]\n");
-  printf("  dumpram <start>-<end>     [ Dump RAM of AVR8 during simulation]\n");
+  printf("  dump_ram <start>-<end>    [ Dump RAM of AVR8 during simulation]\n");
   printf("  registers                 [ dump registers ]\n");
   printf("  run, stop, step           [ simulation run, stop, step ]\n");
   printf("  call <address>            [ call function at address ]\n");
@@ -674,7 +675,8 @@ int main(int argc, char *argv[])
       symbols_print(&util_context.symbols, stdout);
     }
       else
-    if (strncmp(command, "dumpram", 7) == 0)
+    if (strncmp(command, "dumpram", 7)  == 0 ||
+        strncmp(command, "dump_ram", 8) == 0)
     {
       uint32_t start, end;
 
@@ -683,9 +685,9 @@ int main(int argc, char *argv[])
         printf("Illegal range.\n");
       }
         else
-      if (util_context.simulate->dumpram(start, end) == -1)
+      if (util_context.simulate->dump_ram(start, end) == -1)
       {
-        printf("This arch doesn't support dumpram.  Use print / print16.\n");
+        printf("This arch doesn't support dump_ram.  Use print / print16.\n");
       }
     }
       else

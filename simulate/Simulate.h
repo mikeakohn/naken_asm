@@ -41,7 +41,7 @@ public:
 
   //static Simulate *init(Memory *memory);
 
-  virtual int dumpram(int start, int end) = 0;
+  virtual int dump_ram(int start, int end) = 0;
   virtual void push(uint32_t value) = 0;
   virtual int set_reg(const char *reg_string, uint32_t value) = 0;
   virtual uint32_t get_reg(const char *reg_string) = 0;

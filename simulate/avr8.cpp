@@ -157,7 +157,7 @@ void SimulateAvr8::reset()
   break_point = -1;
 }
 
-int SimulateAvr8::dumpram(int start, int end)
+int SimulateAvr8::dump_ram(int start, int end)
 {
   int n, count;
 

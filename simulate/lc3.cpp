@@ -88,7 +88,7 @@ void SimulateLc3::reset()
   psr = 0;
 }
 
-int SimulateLc3::dumpram(int start, int end)
+int SimulateLc3::dump_ram(int start, int end)
 {
   return -1;
 }

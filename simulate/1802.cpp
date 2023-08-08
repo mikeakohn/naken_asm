@@ -207,7 +207,7 @@ int Simulate1802::run(int cycles, int step)
   return 0;
 }
 
-int Simulate1802::dumpram(int start, int end)
+int Simulate1802::dump_ram(int start, int end)
 {
   printf("\n                       Simulation RAM Dump                         \n");
   printf("---------------------------------------------------------------------\n");

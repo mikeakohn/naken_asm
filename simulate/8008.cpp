@@ -67,7 +67,7 @@ void Simulate8008::reset()
   pc = 0x0000;
 }
 
-int Simulate8008::dumpram(int start, int end)
+int Simulate8008::dump_ram(int start, int end)
 {
 
   return -1;

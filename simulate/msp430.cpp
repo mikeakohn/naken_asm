@@ -217,7 +217,7 @@ void SimulateMsp430::reset()
   break_point = -1;
 }
 
-int SimulateMsp430::dumpram(int start, int end)
+int SimulateMsp430::dump_ram(int start, int end)
 {
   return -1;
 }
@@ -421,7 +421,7 @@ int SimulateMsp430::run(int max_cycles, int step)
 
     if (reg[0] == 0xffff)
     {
-      printf("Function ended.  Total cycles: %d\n", cycle_count);
+      printf("Function ended. Total cycles: %d\n", cycle_count);
       step_mode = false;
       reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
       signal(SIGINT, SIG_DFL);
@@ -441,7 +441,7 @@ int SimulateMsp430::run(int max_cycles, int step)
 void SimulateMsp430::sp_inc(int *sp)
 {
   (*sp) += 2;
-  if (*sp > 0xffff) *sp = 0;
+  if (*sp > 0xffff) { *sp = 0; }
 }
 
 uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
@@ -471,7 +471,7 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
 
   if (As == 0) // Rn
   {
-    return (bw == 0) ?  reg[reg_index] : reg[reg_index] & 0xff;
+    return (bw == 0) ? reg[reg_index] : reg[reg_index] & 0xff;
   }
 
   if (reg_index == 2)
@@ -509,9 +509,7 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
     // This is probably worthless.. some other condition should pick this up
     if (As == 3) // #immediate
     {
-      uint16_t a =
-        READ_RAM(reg[0]) |
-       (READ_RAM(reg[0] + 1) << 8);
+      uint16_t a = READ_RAM(reg[0]) | (READ_RAM(reg[0] + 1) << 8);
 
       reg[0] += 2;
 
@@ -521,10 +519,7 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
 
   if (As == 1) // x(Rn)
   {
-    uint16_t a =
-      READ_RAM(reg[0]) |
-     (READ_RAM(reg[0] + 1) << 8);
-
+    uint16_t a = READ_RAM(reg[0]) | (READ_RAM(reg[0] + 1) << 8);
     uint16_t index = reg[reg_index] + ((int16_t)a);
 
     reg[0] += 2;

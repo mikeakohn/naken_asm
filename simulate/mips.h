@@ -25,7 +25,7 @@ public:
 
   static Simulate *init(Memory *memory);
 
-  virtual int dumpram(int start, int end);
+  virtual int dump_ram(int start, int end);
   virtual void push(uint32_t value);
   virtual int set_reg(const char *reg_string, uint32_t value);
   virtual uint32_t get_reg(const char *reg_string);
@@ -47,6 +47,8 @@ private:
   uint32_t pc;
   uint32_t hi;
   uint32_t lo;
+  bool ra_was_set;
+  bool force_break;
 };
 
 #endif

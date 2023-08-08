@@ -108,7 +108,7 @@ void SimulateZ80::reset()
   iff2 = 0;
 }
 
-int SimulateZ80::dumpram(int start, int end)
+int SimulateZ80::dump_ram(int start, int end)
 {
   return -1;
 }

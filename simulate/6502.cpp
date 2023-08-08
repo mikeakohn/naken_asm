@@ -82,7 +82,7 @@ void Simulate6502::push(uint32_t value)
 int Simulate6502::set_reg(const char *reg_string, uint32_t value)
 {
   // a, x, y, sr, pc, sp
-  while (*reg_string==' ') { reg_string++; }
+  while (*reg_string == ' ') { reg_string++; }
 
   const char *pos = reg_string;
 
@@ -144,7 +144,7 @@ void Simulate6502::reset()
   break_point = -1;
 }
 
-int Simulate6502::dumpram(int start, int end)
+int Simulate6502::dump_ram(int start, int end)
 {
   return -1;
 }

@@ -68,7 +68,7 @@ void SimulateEbpf::reset()
   pc = 0;
 }
 
-int SimulateEbpf::dumpram(int start, int end)
+int SimulateEbpf::dump_ram(int start, int end)
 {
   return -1;
 }

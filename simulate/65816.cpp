@@ -146,7 +146,7 @@ void Simulate65816::reset()
   REG_PB = 0;
 }
 
-int Simulate65816::dumpram(int start, int end)
+int Simulate65816::dump_ram(int start, int end)
 {
   return -1;
 }
