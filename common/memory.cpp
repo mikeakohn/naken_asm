@@ -194,9 +194,11 @@ static void write_byte(Memory *memory, uint32_t address, uint8_t data)
   if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
 
   page = memory->pages;
+
   while (page != NULL)
   {
-    if (address >= page->address && address < page->address + PAGE_SIZE)
+    if (address >= page->address &&
+        address < (uint64_t)page->address + PAGE_SIZE)
     {
       break;
     }
@@ -410,5 +412,4 @@ void memory_write32_m(Memory *memory, uint32_t address, uint32_t data)
     write_byte(memory, address + 3, data & 0xff);
   }
 }
-
 
