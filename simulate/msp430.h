@@ -17,21 +17,34 @@
 #include "common/memory.h"
 #include "simulate/Simulate.h"
 
-typedef struct _simulate_msp430
+class SimulateMsp430 : public Simulate
 {
-  uint16_t reg[16];
-} SimulateMsp430;
+public:
+  SimulateMsp430(Memory *memory);
+  virtual ~SimulateMsp430();
 
-Simulate *simulate_init_msp430(Memory *memory);
-void simulate_free_msp430(Simulate *simulate);
-int simulate_dumpram_msp430(Simulate *simulate, int start, int end);
-void simulate_push_msp430(Simulate *simulate, uint32_t value);
-int simulate_set_reg_msp430(Simulate *simulate, const char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_msp430(Simulate *simulate, const char *reg_string);
-void simulate_set_pc_msp430(Simulate *simulate, uint32_t value);
-void simulate_reset_msp430(Simulate *simulate);
-void simulate_dump_registers_msp430(Simulate *simulate);
-int simulate_run_msp430(Simulate *simulate, int max_cycles, int step);
+  static Simulate *init(Memory *memory);
+
+  virtual int dumpram(int start, int end);
+  virtual void push(uint32_t value);
+  virtual int set_reg(const char *reg_string, uint32_t value);
+  virtual uint32_t get_reg(const char *reg_string);
+  virtual void set_pc(uint32_t value);
+  virtual void reset();
+  virtual void dump_registers();
+  virtual int run(int max_cycles, int step);
+
+private:
+  void sp_inc(int *sp);
+  uint16_t get_data(int reg_index, int As, int bw);
+  void update_reg(int reg_index, int mode, int bw);
+  int put_data(int PC, int reg_index, int mode, int bw, uint32_t data);
+  int one_operand_exe(uint16_t opcode);
+  int relative_jump_exe(uint16_t opcode);
+  int two_operand_exe(uint16_t opcode);
+
+  uint16_t reg[16];
+};
 
 #endif
 

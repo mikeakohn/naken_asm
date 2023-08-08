@@ -12,46 +12,90 @@
 #ifndef NAKEN_ASM_SIMULATE_SIMULATE_H
 #define NAKEN_ASM_SIMULATE_SIMULATE_H
 
+#include <signal.h>
 #include <unistd.h>
 
 #include "common/memory.h"
 
-typedef struct _simulate *(*simulate_init_t)(Memory *);
-typedef void (*simulate_free_t)(struct _simulate *);
-typedef int (*simulate_dumpram_t)(struct _simulate *, int start, int end);
-typedef void (*simulate_push_t)(struct _simulate *, uint32_t value);
-typedef int (*simulate_set_reg_t)(struct _simulate *, const char *reg_string, uint32_t value);
-typedef uint32_t (*simulate_get_reg_t)(struct _simulate *, const char *reg_string);
-typedef void (*simulate_set_pc_t)(struct _simulate *, uint32_t value);
-typedef void (*simulate_reset_t)(struct _simulate *);
-typedef void (*simulate_dump_registers_t)(struct _simulate *);
-typedef int (*simulate_run_t)(struct _simulate *, int max_cycles, int step);
-
-typedef struct _simulate
+class Simulate
 {
+public:
+  Simulate(Memory *memory) :
+    memory            (memory),
+    cycle_count       (0),
+    nested_call_count (0),
+    usec              (1000000),
+    break_point       (0xffffffff),
+    break_io          (0),
+    step_mode         (false),
+    show              (true),
+    auto_run          (true)
+  {
+    enable_signal_handler();
+  }
+
+  virtual ~Simulate()
+  {
+    disable_signal_handler();
+  }
+
+  //static Simulate *init(Memory *memory);
+
+  virtual int dumpram(int start, int end) = 0;
+  virtual void push(uint32_t value) = 0;
+  virtual int set_reg(const char *reg_string, uint32_t value) = 0;
+  virtual uint32_t get_reg(const char *reg_string) = 0;
+  virtual void set_pc(uint32_t value) = 0;
+  virtual void reset() = 0;
+  virtual void dump_registers() = 0;
+  virtual int run(int max_cycles, int step) = 0;
+
+  int get_break_point() { return break_point; }
+  int get_delay() { return usec; }
+  bool get_show() { return show; }
+
+  void set_break_point(int value) { break_point = value; }
+  void set_delay(useconds_t value) { usec = value; }
+  void set_break_io(int value) { break_io = value; }
+
+  void remove_break_point() { break_point = -1; }
+  bool is_break_point_set() { return break_point == -1; }
+  bool in_step_mode() { return usec == 0; }
+  bool in_auto_run() { return auto_run == 0; }
+
+  void disable_show() { show = false; }
+  void enable_show() { show = true; }
+  void enable_auto_run() { auto_run = true; }
+
+  void disable_step_mode()
+  {
+    step_mode = false;
+    //usec = 1;
+  }
+
+  void enable_step_mode()
+  {
+    step_mode = true;
+    //usec = 0;
+  }
+
+protected:
+  static bool stop_running;
+
+  static void handle_signal(int sig);
+  void enable_signal_handler();
+  void disable_signal_handler();
+
   Memory *memory;
   int cycle_count;
   int nested_call_count;
   useconds_t usec;
   int break_point;
   int break_io;
-  uint8_t step_mode : 1;
-  uint8_t show : 1;
-  uint8_t auto_run : 1;
-
-  simulate_init_t simulate_init;
-  simulate_free_t simulate_free;
-  simulate_dumpram_t simulate_dumpram;
-  simulate_push_t simulate_push;
-  simulate_set_reg_t simulate_set_reg;
-  simulate_get_reg_t simulate_get_reg;
-  simulate_set_pc_t simulate_set_pc;
-  simulate_reset_t simulate_reset;
-  simulate_dump_registers_t simulate_dump_registers;
-  simulate_run_t simulate_run;
-
-  uint8_t context[];
-} Simulate;
+  bool step_mode : 1;
+  bool show : 1;
+  bool auto_run : 1;
+};
 
 #endif
 

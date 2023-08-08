@@ -19,6 +19,8 @@
 //struct _memory;
 //struct _simulate;
 
+typedef Simulate *(*simulate_init_t)(Memory *);
+
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
 typedef int (*parse_directive_t)(struct _asm_context *, const char *);
 typedef int (*link_function_t)(struct _asm_context *, struct _imports *, const uint8_t *, uint32_t function_offset, int size, uint8_t *obj_file, uint32_t obj_size);

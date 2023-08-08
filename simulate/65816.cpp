@@ -21,22 +21,20 @@
 #include "simulate/65816.h"
 #include "table/65816.h"
 
-extern struct _table_65816_opcodes table_65816_opcodes[];
+#define SHOW_STACK sp, memory_read_m(memory, sp)
+#define READ_RAM(a) memory_read_m(memory, a)
+#define WRITE_RAM(a, b) memory_write_m(memory, a, b)
 
-#define SHOW_STACK sp, memory_read_m(simulate->memory, sp)
-#define READ_RAM(a) memory_read_m(simulate->memory, a)
-#define WRITE_RAM(a, b) memory_write_m(simulate->memory, a, b)
+#define REG_A reg_a
+#define REG_X reg_x
+#define REG_Y reg_y
+#define REG_SR reg_sr
+#define REG_PC reg_pc
+#define REG_SP reg_sp
+#define REG_DB reg_db
+#define REG_PB reg_pb
 
-#define REG_A simulate_65816->reg_a
-#define REG_X simulate_65816->reg_x
-#define REG_Y simulate_65816->reg_y
-#define REG_SR simulate_65816->reg_sr
-#define REG_PC simulate_65816->reg_pc
-#define REG_SP simulate_65816->reg_sp
-#define REG_DB simulate_65816->reg_db
-#define REG_PB simulate_65816->reg_pb
-
-#define CYCLE_COUNT simulate->cycle_count
+#define CYCLE_COUNT cycle_count
 
 // status register flags
 #define flag_c 0
@@ -58,16 +56,258 @@ extern struct _table_65816_opcodes table_65816_opcodes[];
 
 #define FLAG(condition, flag) if (condition) SET_FLAG(flag); else CLEAR_FLAG(flag)
 
-static int stop_running=0;
-
-// return calculated address for each mode
-static int calc_address(Simulate *simulate, int address, int mode)
+Simulate65816::Simulate65816(Memory *memory) : Simulate(memory)
 {
-  Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
+  reset();
+}
 
+Simulate65816::~Simulate65816()
+{
+}
+
+Simulate *Simulate65816::init(Memory *memory)
+{
+  return new Simulate65816(memory);
+}
+
+void Simulate65816::push(uint32_t value)
+{
+  WRITE_RAM(REG_SP, value & 0xFF);
+  REG_SP--;
+  REG_SP &= 0xFF;
+}
+
+int Simulate65816::set_reg(const char *reg_string, uint32_t value)
+{
+  while (*reg_string==' ') { reg_string++; }
+
+  if (strcasecmp(reg_string, "a") == 0)
+    REG_A = value & 0xFFFF;
+  else if (strcasecmp(reg_string, "x") == 0)
+    REG_X = value & 0xFFFF;
+  else if (strcasecmp(reg_string, "y") == 0)
+    REG_Y = value & 0xFFFF;
+  else if (strcasecmp(reg_string, "sr") == 0)
+    REG_SR = value & 0xFF;
+  else if (strcasecmp(reg_string, "pc") == 0)
+    REG_PC = value & 0xFFFF;
+  else if (strcasecmp(reg_string, "sp") == 0)
+    REG_SP = value & 0xFFFF;
+  else if (strcasecmp(reg_string, "db") == 0)
+    REG_DB = value & 0xFF;
+  else if (strcasecmp(reg_string, "pb") == 0)
+    REG_PB = value & 0xFF;
+  else
+    return -1;
+
+  return 0;
+}
+
+uint32_t Simulate65816::get_reg(const char *reg_string)
+{
+  if (strcasecmp(reg_string, "a") == 0)
+    return REG_A;
+  else if (strcasecmp(reg_string, "x") == 0)
+    return REG_X;
+  else if (strcasecmp(reg_string, "y") == 0)
+    return REG_Y;
+  else if (strcasecmp(reg_string, "sr") == 0)
+    return REG_SR;
+  else if (strcasecmp(reg_string, "pc") == 0)
+    return REG_PC;
+  else if (strcasecmp(reg_string, "sp") == 0)
+    return REG_SP;
+  else if (strcasecmp(reg_string, "db") == 0)
+    return REG_DB;
+  else if (strcasecmp(reg_string, "pb") == 0)
+    return REG_PB;
+
+  return -1;
+}
+
+void Simulate65816::set_pc(uint32_t value)
+{
+  REG_PC = value;
+}
+
+void Simulate65816::reset()
+{
+  cycle_count = 0;
+  nested_call_count = 0;
+  break_point = -1;
+
+  REG_A = 0;
+  REG_X = 0;
+  REG_Y = 0;
+  REG_SR = 0;
+  REG_PC = 0;
+  REG_SP = 0x1FF;
+  REG_DB = 0;
+  REG_PB = 0;
+}
+
+int Simulate65816::dumpram(int start, int end)
+{
+  return -1;
+}
+
+void Simulate65816::dump_registers()
+{
+  int sp = REG_SP;
+
+  printf("\nSimulation Register Dump                                  Stack\n");
+  printf("---------------------------------------------------------------\n");
+  printf("        7 6 5 4 3 2 1 0                          0x%04x: 0x%04x\n", SHOW_STACK);
+  sp = (sp - 2) & 0xFFFF;
+
+  printf("Status: N V M X D I Z C                          0x%04x: 0x%04x\n", SHOW_STACK);
+  sp = (sp - 2) & 0xFFFF;
+  printf("        %d %d %d %d %d %d %d %d                          0x%04x: 0x%04x\n",
+    READ_FLAG(flag_n),
+    READ_FLAG(flag_v),
+    READ_FLAG(flag_m),
+    READ_FLAG(flag_x),
+    READ_FLAG(flag_d),
+    READ_FLAG(flag_i),
+    READ_FLAG(flag_z),
+    READ_FLAG(flag_c),
+    SHOW_STACK);
+
+  sp = (sp - 2) & 0xFFFF;
+  printf("                                                 0x%04x: 0x%04x\n", SHOW_STACK);
+
+  sp = (sp - 2) & 0xFFFF;
+  printf("  A=0x%04x    X=0x%04x    Y=0x%04x               0x%04x: 0x%04x\n", REG_A, REG_X, REG_Y, SHOW_STACK);
+
+  sp = (sp - 2) & 0xFFFF;
+  printf(" SR=0x%02x     SP=0x%04x   PC=0x%04x               0x%04x: 0x%04x\n", REG_SR, REG_SP, REG_PC, SHOW_STACK);
+
+  sp = (sp - 2) & 0xFFFF;
+  printf(" DB=0x%02x     PB=0x%02x                             0x%04x: 0x%04x\n", REG_DB, REG_PB, SHOW_STACK);
+
+  printf("\n\n");
+  printf("%d clock cycles have passed since last reset.\n\n", cycle_count);
+}
+
+int Simulate65816::run(int max_cycles, int step)
+{
+  char instruction[128];
+
+  printf("Running... Press Ctl-C to break.\n");
+
+  while (stop_running == false)
+  {
+    int pc = REG_PC;
+    int cycles_min, cycles_max;
+    int opcode = READ_RAM(pc);
+
+    int ret = operand_exe(opcode);
+
+    // stop simulation on BRK instruction
+    if (ret == -1)
+      break;
+
+    // only increment if REG_PC not touched
+    if (ret == 0)
+    {
+      REG_PC += disasm_65816(
+        memory,
+        pc,
+        instruction,
+        sizeof(instruction),
+        &cycles_min,
+        &cycles_max,
+        0);
+    }
+
+    if (show == true)
+    {
+      printf("\x1b[1J\x1b[1;1H");
+      dump_registers();
+
+      int n = 0;
+      while (n < 6)
+      {
+        int count = disasm_65816(
+          memory,
+          pc,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max,
+          0);
+
+        if (cycles_min == -1) break;
+
+        if (pc == break_point) { printf("*"); }
+        else { printf(" "); }
+
+        if (n == 0)
+        { printf("! "); }
+          else
+        if (pc == REG_PC) { printf("> "); }
+          else
+        { printf("  "); }
+
+        printf("0x%04x: %-40s %d-%d\n", pc, instruction, cycles_min, cycles_max);
+        n += count;
+        pc += count;
+
+        count--;
+        while (count > 0)
+        {
+          if (pc == break_point) { printf("*"); }
+          else { printf(" "); }
+          printf("  0x%04x: 0x%04x\n", pc, READ_RAM(pc));
+          pc += count;
+          count--;
+        }
+      }
+    }
+
+    if (ret == -1)
+    {
+      printf("Illegal instruction at address 0x%04x\n", pc);
+      return -1;
+    }
+
+    if (break_point == REG_PC)
+    {
+      printf("Breakpoint hit at 0x%04x\n", break_point);
+      break;
+    }
+
+    if (usec == 0 || step == 1)
+    {
+      signal(SIGINT, SIG_DFL);
+      return 0;
+    }
+
+    if (REG_PC == 0xFFFF)
+    {
+      printf("Function ended.  Total cycles: %d\n", cycle_count);
+      step_mode = 0;
+      REG_PC = READ_RAM(0xFFFC) + READ_RAM(0xFFFD) * 256;
+      signal(SIGINT, SIG_DFL);
+      return 0;
+    }
+
+    usleep(usec > 999999 ? 999999 : usec);
+  }
+
+  signal(SIGINT, SIG_DFL);
+  printf("Stopped.  PC=0x%04x.\n", REG_PC);
+  printf("%d clock cycles have passed since last reset.\n", cycle_count);
+
+  return 0;
+}
+
+// Return calculated address for each mode.
+int Simulate65816::calc_address(int address, int mode)
+{
   int lo =   READ_RAM((address + 0) & 0xFFFF);
   int hi =   READ_RAM((address + 1) & 0xFFFF);
-//  int bank = READ_RAM((address + 2) & 0xFFFF);
+  // int bank = READ_RAM((address + 2) & 0xFFFF);
   int indirect;
 
   switch(mode)
@@ -129,18 +369,21 @@ static int calc_address(Simulate *simulate, int address, int mode)
   }
 }
 
-static int operand_exe(Simulate *simulate, int opcode)
+int Simulate65816::operand_exe(int opcode)
 {
-  Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
-
   if (opcode < 0 || opcode > 0xFF)
+  {
     return -1;
+  }
 
   int mode = table_65816_opcodes[opcode].op;
 
-  int address = calc_address(simulate, REG_PC + 1, mode);
+  int address = calc_address(REG_PC + 1, mode);
+
   if (address == -1)
+  {
     return -1;
+  }
 
   int m = READ_RAM(address);
   int temp;
@@ -148,8 +391,8 @@ static int operand_exe(Simulate *simulate, int opcode)
   int temp_a = REG_A;
 
   CYCLE_COUNT += table_65816_opcodes[opcode].cycles_min;
-//FIXME add extra cycles when required below
 
+  //FIXME add extra cycles when required below
   switch(opcode)
   {
     // ADC
@@ -697,296 +940,6 @@ static int operand_exe(Simulate *simulate, int opcode)
       FLAG(REG_A == 0, flag_z);
       break;
   }
-
-  return 0;
-}
-
-static void handle_signal(int sig)
-{
-  stop_running = 1;
-  signal(SIGINT, SIG_DFL);
-}
-
-Simulate *simulate_init_65816(Memory *memory)
-{
-  Simulate *simulate;
-
-  simulate = (Simulate *)malloc(sizeof(Simulate65816) + sizeof(Simulate));
-
-  simulate->simulate_init = simulate_init_65816;
-  simulate->simulate_free = simulate_free_65816;
-  simulate->simulate_dumpram = simulate_dumpram_65816;
-  simulate->simulate_push = simulate_push_65816;
-  simulate->simulate_set_reg = simulate_set_reg_65816;
-  simulate->simulate_get_reg = simulate_get_reg_65816;
-  simulate->simulate_set_pc = simulate_set_pc_65816;
-  simulate->simulate_reset = simulate_reset_65816;
-  simulate->simulate_dump_registers = simulate_dump_registers_65816;
-  simulate->simulate_run = simulate_run_65816;
-
-  simulate_reset_65816(simulate);
-  simulate->usec = 1000000; // 1Hz
-  simulate->show = 1; // Show simulation
-  simulate->step_mode = 0;
-  simulate->memory = memory;
-
-  return simulate;
-}
-
-void simulate_push_65816(Simulate *simulate, uint32_t value)
-{
-  Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
-
-  WRITE_RAM(REG_SP, value & 0xFF);
-  REG_SP--;
-  REG_SP &= 0xFF;
-}
-
-int simulate_set_reg_65816(
-  Simulate *simulate,
-  const char *reg_string,
-  uint32_t value)
-{
-  Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
-
-  while (*reg_string==' ') { reg_string++; }
-
-  if (strcasecmp(reg_string, "a") == 0)
-    REG_A = value & 0xFFFF;
-  else if (strcasecmp(reg_string, "x") == 0)
-    REG_X = value & 0xFFFF;
-  else if (strcasecmp(reg_string, "y") == 0)
-    REG_Y = value & 0xFFFF;
-  else if (strcasecmp(reg_string, "sr") == 0)
-    REG_SR = value & 0xFF;
-  else if (strcasecmp(reg_string, "pc") == 0)
-    REG_PC = value & 0xFFFF;
-  else if (strcasecmp(reg_string, "sp") == 0)
-    REG_SP = value & 0xFFFF;
-  else if (strcasecmp(reg_string, "db") == 0)
-    REG_DB = value & 0xFF;
-  else if (strcasecmp(reg_string, "pb") == 0)
-    REG_PB = value & 0xFF;
-  else
-    return -1;
-
-  return 0;
-}
-
-uint32_t simulate_get_reg_65816(Simulate *simulate, const char *reg_string)
-{
-  Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
-
-  if (strcasecmp(reg_string, "a") == 0)
-    return REG_A;
-  else if (strcasecmp(reg_string, "x") == 0)
-    return REG_X;
-  else if (strcasecmp(reg_string, "y") == 0)
-    return REG_Y;
-  else if (strcasecmp(reg_string, "sr") == 0)
-    return REG_SR;
-  else if (strcasecmp(reg_string, "pc") == 0)
-    return REG_PC;
-  else if (strcasecmp(reg_string, "sp") == 0)
-    return REG_SP;
-  else if (strcasecmp(reg_string, "db") == 0)
-    return REG_DB;
-  else if (strcasecmp(reg_string, "pb") == 0)
-    return REG_PB;
-
-  return -1;
-}
-
-void simulate_set_pc_65816(Simulate *simulate, uint32_t value)
-{
-  Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
-
-  REG_PC = value;
-}
-
-void simulate_reset_65816(Simulate *simulate)
-{
-  Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
-
-  simulate->cycle_count = 0;
-  simulate->nested_call_count = 0;
-  simulate->break_point = -1;
-
-  REG_A = 0;
-  REG_X = 0;
-  REG_Y = 0;
-  REG_SR = 0;
-  REG_PC = 0;
-  REG_SP = 0x1FF;
-  REG_DB = 0;
-  REG_PB = 0;
-}
-
-void simulate_free_65816(Simulate *simulate)
-{
-  //memory_free(simulate->memory);
-  free(simulate);
-}
-
-int simulate_dumpram_65816(Simulate *simulate, int start, int end)
-{
-  return -1;
-}
-
-void simulate_dump_registers_65816(Simulate *simulate)
-{
-  Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
-
-  int sp = REG_SP;
-
-  printf("\nSimulation Register Dump                                  Stack\n");
-  printf("---------------------------------------------------------------\n");
-  printf("        7 6 5 4 3 2 1 0                          0x%04x: 0x%04x\n", SHOW_STACK);
-  sp = (sp - 2) & 0xFFFF;
-
-  printf("Status: N V M X D I Z C                          0x%04x: 0x%04x\n", SHOW_STACK);
-  sp = (sp - 2) & 0xFFFF;
-  printf("        %d %d %d %d %d %d %d %d                          0x%04x: 0x%04x\n",
-    READ_FLAG(flag_n),
-    READ_FLAG(flag_v),
-    READ_FLAG(flag_m),
-    READ_FLAG(flag_x),
-    READ_FLAG(flag_d),
-    READ_FLAG(flag_i),
-    READ_FLAG(flag_z),
-    READ_FLAG(flag_c),
-    SHOW_STACK);
-
-  sp = (sp - 2) & 0xFFFF;
-  printf("                                                 0x%04x: 0x%04x\n", SHOW_STACK);
-
-  sp = (sp - 2) & 0xFFFF;
-  printf("  A=0x%04x    X=0x%04x    Y=0x%04x               0x%04x: 0x%04x\n", REG_A, REG_X, REG_Y, SHOW_STACK);
-
-  sp = (sp - 2) & 0xFFFF;
-  printf(" SR=0x%02x     SP=0x%04x   PC=0x%04x               0x%04x: 0x%04x\n", REG_SR, REG_SP, REG_PC, SHOW_STACK);
-
-  sp = (sp - 2) & 0xFFFF;
-  printf(" DB=0x%02x     PB=0x%02x                             0x%04x: 0x%04x\n", REG_DB, REG_PB, SHOW_STACK);
-
-  printf("\n\n");
-  printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
-}
-
-int simulate_run_65816(Simulate *simulate, int max_cycles, int step)
-{
-  Simulate65816 *simulate_65816 = (Simulate65816 *)simulate->context;
-
-  char instruction[128];
-
-  stop_running = 0;
-  signal(SIGINT, handle_signal);
-
-  printf("Running... Press Ctl-C to break.\n");
-
-  while (stop_running == 0)
-  {
-    int pc = REG_PC;
-    int cycles_min, cycles_max;
-    int opcode = READ_RAM(pc);
-
-    int ret = operand_exe(simulate, opcode);
-
-    // stop simulation on BRK instruction
-    if (ret == -1)
-      break;
-
-    // only increment if REG_PC not touched
-    if (ret == 0)
-    {
-      REG_PC += disasm_65816(
-        simulate->memory,
-        pc,
-        instruction,
-        sizeof(instruction),
-        &cycles_min,
-        &cycles_max,
-        0);
-    }
-
-    if (simulate->show == 1)
-    {
-      printf("\x1b[1J\x1b[1;1H");
-      simulate_dump_registers_65816(simulate);
-
-      int n = 0;
-      while (n < 6)
-      {
-        int count = disasm_65816(
-          simulate->memory,
-          pc,
-          instruction,
-          sizeof(instruction),
-          &cycles_min,
-          &cycles_max,
-          0);
-
-        if (cycles_min == -1) break;
-
-        if (pc == simulate->break_point) { printf("*"); }
-        else { printf(" "); }
-
-        if (n == 0)
-        { printf("! "); }
-          else
-        if (pc == REG_PC) { printf("> "); }
-          else
-        { printf("  "); }
-
-        printf("0x%04x: %-40s %d-%d\n", pc, instruction, cycles_min, cycles_max);
-        n += count;
-        pc += count;
-
-        count--;
-        while (count > 0)
-        {
-          if (pc == simulate->break_point) { printf("*"); }
-          else { printf(" "); }
-          printf("  0x%04x: 0x%04x\n", pc, READ_RAM(pc));
-          pc += count;
-          count--;
-        }
-      }
-    }
-
-    if (ret == -1)
-    {
-      printf("Illegal instruction at address 0x%04x\n", pc);
-      return -1;
-    }
-
-    if (simulate->break_point == REG_PC)
-    {
-      printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
-      break;
-    }
-
-    if ((simulate->usec == 0) || (step == 1))
-    {
-      signal(SIGINT, SIG_DFL);
-      return 0;
-    }
-
-    if (REG_PC == 0xFFFF)
-    {
-      printf("Function ended.  Total cycles: %d\n", simulate->cycle_count);
-      simulate->step_mode = 0;
-      REG_PC = READ_RAM(0xFFFC) + READ_RAM(0xFFFD) * 256;
-      signal(SIGINT, SIG_DFL);
-      return 0;
-    }
-
-    usleep(simulate->usec > 999999 ? 999999 : simulate->usec);
-  }
-
-  signal(SIGINT, SIG_DFL);
-  printf("Stopped.  PC=0x%04x.\n", REG_PC);
-  printf("%d clock cycles have passed since last reset.\n", simulate->cycle_count);
 
   return 0;
 }

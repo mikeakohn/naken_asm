@@ -43,37 +43,38 @@
 #define TRAP_VECTOR   RESET_VECTOR + VECTOR_SIZE
 #define RESET_SP      0x03ff      // STM8S001 / STM8S003 / STM8S103   { this is device dependent! }
 
-#define REG_A   simulate_stm8->reg_a
-#define REG_X   simulate_stm8->reg_x
-#define REG_Y   simulate_stm8->reg_y
-#define REG_SP  simulate_stm8->reg_sp
-#define REG_PC  simulate_stm8->reg_pc
-#define REG_CC  simulate_stm8->reg_cc
+#define REG_A   reg_a
+#define REG_X   reg_x
+#define REG_Y   reg_y
+#define REG_SP  reg_sp
+#define REG_PC  reg_pc
+#define REG_CC  reg_cc
 
-#define SHOW_STACK    sp, memory_read_m(simulate->memory, sp)
-#define READ_RAM(a)   memory_read_m(simulate->memory, a)
-#define READ_RAM16(a) memory_read16_m(simulate->memory, a)
-#define READ_RAM24(a) ((memory_read_m(simulate->memory, a) << 16 ) | (memory_read16_m(simulate->memory, a + 1)))
+#define SHOW_STACK    sp, memory_read_m(memory, sp)
+#define READ_RAM(a)   memory_read_m(memory, a)
+#define READ_RAM16(a) memory_read16_m(memory, a)
+#define READ_RAM24(a) ((memory_read_m(memory, a) << 16 ) | (memory_read16_m(memory, a + 1)))
 
 #define WRITE_RAM(a, b) \
-  if ((a) == (uint32_t)simulate->break_io) \
+  if ((a) == (uint32_t)break_io) \
   { \
     exit(b); \
   } \
-  memory_write_m(simulate->memory, a, b)
+  memory_write_m(memory, a, b)
 #define WRITE_RAM16(a, w) \
-  if ((a) == (uint32_t)simulate->break_io) \
+  if ((a) == (uint32_t)break_io) \
   { \
     exit(w); \
   } \
-  memory_write16_m(simulate->memory, a, w)
+  memory_write16_m(memory, a, w)
 
-#define PUSH_STACK(n)   memory_write_m(simulate->memory, REG_SP, (n) & 0xff); --REG_SP  // caution: "--" side-effects
-#define PUSH_STACK16(n) simulate_push16_stm8(simulate, n)
-#define PUSH_STACK24(n) simulate_push24_stm8(simulate, n)
-#define POP_STACK()     memory_read_m(simulate->memory, ++REG_SP)   // caution: "++" side-effects
-#define POP_STACK16()   simulate_pop16_stm8(simulate)
-#define POP_STACK24()   simulate_pop24_stm8(simulate)
+#define PUSH_STACK(n)   memory_write_m(memory, REG_SP, (n) & 0xff); --REG_SP  // caution: "--" side-effects
+
+#define PUSH_STACK16(n) push16(n)
+#define PUSH_STACK24(n) push24(n)
+#define POP_STACK()     memory_read_m(memory, ++REG_SP)   // caution: "++" side-effects
+#define POP_STACK16()   pop16()
+#define POP_STACK24()   pop24()
 
 #define BV(bit)     (1 << bit)
 
@@ -130,105 +131,33 @@
 #define CC_N_NDX  4
 #define CC_Z_NDX  5
 #define CC_C_NDX  6
+
 static const char *const CC_Flags[] = { "V", "I1", "H", "I0", "N", "Z", "C" };
 
-static int stop_running = 0;
-static int stm8_int_opcode = -1;
-
-static void handle_signal(int sig)
+SimulateStm8::SimulateStm8(Memory *memory) : Simulate(memory)
 {
-  stop_running = 1;
-  signal(SIGINT, SIG_DFL);
+  reset();
 }
 
-Simulate *simulate_init_stm8(Memory *memory)
+SimulateStm8::~SimulateStm8()
 {
-  Simulate *simulate = NULL;
-
-  simulate = (Simulate *)malloc(sizeof(SimulateStm8) + sizeof(Simulate));
-
-  if (simulate != NULL)
-  {
-    simulate->simulate_init = simulate_init_stm8;
-    simulate->simulate_free = simulate_free_stm8;
-    simulate->simulate_dumpram = simulate_dumpram_stm8;
-    simulate->simulate_push = simulate_push_stm8;
-    simulate->simulate_set_reg = simulate_set_reg_stm8;
-    simulate->simulate_get_reg = simulate_get_reg_stm8;
-    simulate->simulate_set_pc = simulate_set_pc_stm8;
-    simulate->simulate_reset = simulate_reset_stm8;
-    simulate->simulate_dump_registers = simulate_dump_registers_stm8;
-    simulate->simulate_run = simulate_run_stm8;
-
-    simulate->memory = memory;
-    simulate_reset_stm8(simulate);
-    simulate->usec = 1000000;   // 1Hz
-    simulate->step_mode = 0;
-    simulate->show = 1;         // Show simulation
-    simulate->auto_run = 0;     // Will this program stop on a ret from main
-  }
-  return simulate;
 }
 
-void simulate_push_stm8(Simulate *simulate, uint32_t value)
+Simulate *SimulateStm8::init(Memory *memory)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
+  return new SimulateStm8(memory);
+}
 
+void SimulateStm8::push(uint32_t value)
+{
   PUSH_STACK(value);
-}
-
-static void simulate_push16_stm8(Simulate *simulate, uint32_t value)
-{
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
-
-  PUSH_STACK(value);
-  PUSH_STACK(value >> 8);
-}
-
-static void simulate_push24_stm8(Simulate *simulate, uint32_t value)
-{
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
-
-  PUSH_STACK(value);
-  PUSH_STACK(value >> 8);
-  PUSH_STACK(value >> 16);
-}
-
-// Returns:
-//    16-bit value popped off stack
-static uint16_t simulate_pop16_stm8(Simulate *simulate)
-{
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
-  uint16_t rslt;
-
-  rslt = (POP_STACK() << 8);
-  rslt |= POP_STACK();
-  return rslt;
-}
-
-// Returns:
-//    24-bit value popped off stack
-static uint32_t simulate_pop24_stm8(Simulate *simulate)
-{
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
-  uint32_t rslt;
-
-  rslt = (POP_STACK() << 16);
-  rslt |= (POP_STACK() << 8);
-  rslt |= POP_STACK();
-  return rslt;
 }
 
 // Returns:
 //    -1 = invalid register/flag or unsupported memory location
 //     0 = OK
-int simulate_set_reg_stm8(
-  Simulate *simulate,
-  const char *reg_string,
-  uint32_t value)
+int SimulateStm8::set_reg(const char *reg_string, uint32_t value)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
-
   while (*reg_string == ' ')
   {
     ++reg_string;
@@ -253,16 +182,19 @@ int simulate_set_reg_stm8(
   }
   else if (strcasecmp(reg_string, "PC") == 0)
   {
-    simulate_set_pc_stm8(simulate, value);
-    if (value >= simulate->memory->size)
+    set_pc(value);
+
+    if (value >= memory->size)
     {
       return -1;
     }
   }
   else if (strcasecmp(reg_string, "CC") == 0)
   {
-    REG_CC = value & (BV(CC_V_FLAG) | BV(CC_I1_FLAG) | BV(CC_H_FLAG) |
-                      BV(CC_I0_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG));
+    REG_CC = value &
+      (BV(CC_V_FLAG) | BV(CC_I1_FLAG) | BV(CC_H_FLAG) |
+       BV(CC_I0_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) |
+       BV(CC_C_FLAG));
   }
   else  // check for condition code flags
   {
@@ -355,15 +287,10 @@ int simulate_set_reg_stm8(
 // Returns:
 //    register or condition code flag value
 //    0 returned for unknown registers or condition code flag names
-uint32_t simulate_get_reg_stm8(Simulate *simulate, const char *reg_string)
+uint32_t SimulateStm8::get_reg(const char *reg_string)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
-
   // skip leading spaces
-  while (*reg_string == ' ')
-  {
-    ++reg_string;
-  }
+  while (*reg_string == ' ') { reg_string++; }
 
   // check for STM8 registers
   if (strcasecmp(reg_string, "A") == 0)
@@ -425,11 +352,9 @@ uint32_t simulate_get_reg_stm8(Simulate *simulate, const char *reg_string)
   return 0;
 }
 
-void simulate_set_pc_stm8(Simulate *simulate, uint32_t value)
+void SimulateStm8::set_pc(uint32_t value)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
-
-  if (value >= simulate->memory->size)
+  if (value >= memory->size)
   {
     printf("Unsupported PC memory address !!!\n\n");
   }
@@ -439,12 +364,12 @@ void simulate_set_pc_stm8(Simulate *simulate, uint32_t value)
   }
 }
 
-void simulate_reset_stm8(Simulate *simulate)
+void SimulateStm8::reset()
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
+  stm8_int_opcode = -1;
 
-  simulate->cycle_count = 0;
-  simulate->nested_call_count = 0;
+  cycle_count = 0;
+  nested_call_count = 0;
   REG_A = 0;
   REG_X = 0;
   REG_Y = 0;
@@ -452,52 +377,50 @@ void simulate_reset_stm8(Simulate *simulate)
 
   if (stm8_int_opcode < 0)
   {
-    int ndx = 0;
+    int n = 0;
 
     // find and save the STM8 "int" opcode for later use
-    while (table_stm8_opcodes[ndx].instr_enum != STM8_NONE)
+    while (table_stm8_opcodes[n].instr_enum != STM8_NONE)
     {
-      if (table_stm8_opcodes[ndx].instr_enum == STM8_INT)
+      if (table_stm8_opcodes[n].instr_enum == STM8_INT)
       {
-        stm8_int_opcode = table_stm8_opcodes[ndx].opcode;
+        stm8_int_opcode = table_stm8_opcodes[n].opcode;
         break;
       }
-      ++ndx;
+
+      n++;
     }
   }
 
   REG_PC = 0;
+
   if (stm8_int_opcode > 0)
   {
     if (READ_RAM(RESET_VECTOR) == stm8_int_opcode)
     {
       REG_PC = READ_RAM24(RESET_VECTOR + 1);
-      if (REG_PC >= simulate->memory->size)
+      if (REG_PC >= memory->size)
       {
         REG_PC = 0;
       }
     }
   }
-  REG_CC = BV(CC_I1_FLAG) | BV(CC_I0_FLAG);
-  simulate->break_point = -1;
-}
 
-void simulate_free_stm8(Simulate *simulate)
-{
-  free(simulate);
+  REG_CC = BV(CC_I1_FLAG) | BV(CC_I0_FLAG);
+  break_point = -1;
 }
 
 // Returns:
 //     0 = OK
 //    -1 = not supported for this MPU
-int simulate_dumpram_stm8(Simulate *simulate, int start, int end)
+int SimulateStm8::dumpram(int start, int end)
 {
-  return -1;    // Use print or print16 to display RAM.
+  // Use print or print16 to display RAM.
+  return -1;
 }
 
-void simulate_dump_registers_stm8(Simulate *simulate)
+void SimulateStm8::dump_registers()
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t sp = REG_SP;
 
   printf("\nSimulation Register Dump                               Stack\n");
@@ -506,32 +429,261 @@ void simulate_dump_registers_stm8(Simulate *simulate)
   ++sp;
 
   printf("Condition Code: %s - %s %s %s %s %s %s               0x%04x: 0x%02x\n",
-    CC_Flags[CC_V_NDX], CC_Flags[CC_I1_NDX], CC_Flags[CC_H_NDX], CC_Flags[CC_I0_NDX],
-    CC_Flags[CC_N_NDX], CC_Flags[CC_Z_NDX], CC_Flags[CC_C_NDX], SHOW_STACK);
+    CC_Flags[CC_V_NDX],
+    CC_Flags[CC_I1_NDX],
+    CC_Flags[CC_H_NDX],
+    CC_Flags[CC_I0_NDX],
+    CC_Flags[CC_N_NDX],
+    CC_Flags[CC_Z_NDX],
+    CC_Flags[CC_C_NDX],
+    SHOW_STACK);
   ++sp;
 
   printf("                %d 0  %d %d  %d %d %d %d               0x%04x: 0x%02x\n",
-    GET_V(), GET_I1(), GET_H(), GET_I0(), GET_N(), GET_Z(), GET_C(), SHOW_STACK);
+    GET_V(),
+    GET_I1(),
+    GET_H(),
+    GET_I0(),
+    GET_N(),
+    GET_Z(),
+    GET_C(),
+    SHOW_STACK);
   ++sp;
 
-  printf("                                                0x%04x: 0x%02x\n", SHOW_STACK);
+  printf("                                                0x%04x: 0x%02x\n",
+    SHOW_STACK);
   ++sp;
 
-  printf("  A=0x%02x   X=0x%04x   Y=0x%04x                  0x%04x: 0x%02x\n", REG_A, REG_X, REG_Y, SHOW_STACK);
+  printf("  A=0x%02x   X=0x%04x   Y=0x%04x                  0x%04x: 0x%02x\n",
+    REG_A, REG_X, REG_Y, SHOW_STACK);
   ++sp;
-  printf(" CC=0x%02x  SP=0x%04x  PC=0x%06x                0x%04x: 0x%02x\n", REG_CC, REG_SP, REG_PC, SHOW_STACK);
+  printf(" CC=0x%02x  SP=0x%04x  PC=0x%06x                0x%04x: 0x%02x\n",
+     REG_CC, REG_SP, REG_PC, SHOW_STACK);
 
   printf("\n\n");
-  printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
+  printf("%d clock cycles have passed since last reset.\n\n", cycle_count);
+}
+
+// Returns:
+//    -1 = hit unknown instruction or unsupported memory address
+//     0 = OK
+int SimulateStm8::run(int max_cycles, int step)
+{
+  char instruction[128];
+  char bytes[20];
+
+  if (max_cycles != 0)
+  {
+    printf("Running... Press Ctl-C to break.\n");
+  }
+
+  while (stop_running == false)
+  {
+    int ret;
+    int n;
+    uint32_t current_pc = REG_PC;
+
+    ret = execute();
+
+    if (ret > 0)
+    {
+      cycle_count += ret;
+    }
+
+    if (show == true)
+    {
+      uint32_t disasm_pc = current_pc;
+
+      dump_registers();
+
+      n = 0;
+      while (n < 6)
+      {
+        int cycles_min;
+        int cycles_max;
+
+        int count = disasm_stm8(
+          memory,
+          disasm_pc,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max);
+
+        int i;
+
+        // check for and remove additional line separator
+        i = (int)strlen(instruction);
+        if (instruction[i - 1] == '\n')
+        {
+          instruction[i - 1] = '\0';
+        }
+
+        bytes[0] = 0;
+        for (i = 0; i < count; i++)
+        {
+          char temp[4];
+
+          snprintf(temp, sizeof(temp), "%02x ", READ_RAM(disasm_pc + i));
+          strcat(bytes, temp);
+        }
+
+        if (cycles_min == -1)
+        {
+          break;
+        }
+
+        // '*' - breakpoint indicator
+        // '!' - current instruction indicator
+        // '>' - next instruction indicator
+
+        // Breakpoint.
+        printf("%s", disasm_pc == (uint32_t)break_point ? "*" : " ");
+
+        if (n == 0)
+        {
+          printf("! ");     // current instruction
+        }
+        else if (disasm_pc == REG_PC)
+        {
+          printf("> ");     // next instruction
+        }
+        else
+        {
+          printf("  ");
+        }
+
+        if (cycles_min < 1)
+        {
+          printf("0x%04x: %-15s %-35s ?\n", disasm_pc, bytes, instruction);
+        }
+        else if (cycles_min == cycles_max)
+        {
+          printf("0x%04x: %-15s %-35s %d\n", disasm_pc, bytes, instruction, cycles_min);
+        }
+        else
+        {
+          printf("0x%04x: %-15s %-35s %d-%d\n", disasm_pc, bytes, instruction, cycles_min, cycles_max);
+        }
+
+        if (count == 0)
+        {
+          break;
+        }
+
+        ++n;
+        disasm_pc += count;
+      }
+    }
+
+    if (auto_run == true && nested_call_count < 0)
+    {
+      signal(SIGINT, SIG_DFL);
+      return 0;
+    }
+
+    if (ret == UNKNOWN_INST)
+    {
+      signal(SIGINT, SIG_DFL);
+      printf("Unknown instruction at address 0x%06x\n", current_pc);
+      return -1;
+    }
+    else if (ret == INVALID_MEM_ADDR)
+    {
+      signal(SIGINT, SIG_DFL);
+      printf("Unsupported memory space access at address 0x%06x\n", current_pc);
+      return -1;
+    }
+
+    if ((uint32_t)break_point == REG_PC)
+    {
+      printf("Breakpoint hit at 0x%04x\n", break_point);
+      break;
+    }
+
+    if (REG_PC >= memory->size)
+    {
+      printf("End of memory - setting PC to reset vector.\n");
+      step_mode = 0;
+
+      REG_PC = 0;
+      if (stm8_int_opcode > 0)
+      {
+        if (READ_RAM(RESET_VECTOR) == stm8_int_opcode)
+        {
+          REG_PC = READ_RAM24(RESET_VECTOR + 1);
+          if (REG_PC >= memory->size)   // check supported memory space
+          {
+            REG_PC = 0;
+          }
+        }
+      }
+
+      break;
+    }
+
+    if (usec == 0 || step == true)
+    {
+      signal(SIGINT, SIG_DFL);
+      return 0;
+    }
+
+    usleep(usec);
+  }
+
+  signal(SIGINT, SIG_DFL);
+  printf("Stopped.  PC=0x%06x.\n", REG_PC);
+  printf("%d clock cycles have passed since last reset.\n", cycle_count);
+
+  return 0;
+}
+
+void SimulateStm8::push16(uint32_t value)
+{
+  PUSH_STACK(value);
+  PUSH_STACK(value >> 8);
+}
+
+void SimulateStm8::push24(uint32_t value)
+{
+  PUSH_STACK(value);
+  PUSH_STACK(value >> 8);
+  PUSH_STACK(value >> 16);
+}
+
+// Returns:
+//    16-bit value popped off stack
+uint16_t SimulateStm8::pop16()
+{
+  uint16_t rslt;
+
+  rslt = (POP_STACK() << 8);
+  rslt |= POP_STACK();
+  return rslt;
+}
+
+// Returns:
+//    24-bit value popped off stack
+uint32_t SimulateStm8::pop24()
+{
+  uint32_t rslt;
+
+  rslt  = (POP_STACK() << 16);
+  rslt |= (POP_STACK() << 8);
+  rslt |=  POP_STACK();
+  return rslt;
 }
 
 // Adjust specified condition code flags using operation values and results.
 // Note: N, Z flags determined using only 'rslt' (and 'bit_size')
 //       V, H, C flags determined using 'op1', 'op2', 'rslt' (and 'bit_size')
-static void calculate_flags(Simulate *simulate, uint8_t flag_bits, uint16_t op1, uint16_t op2, uint16_t rslt, uint8_t bit_size)
+void SimulateStm8::calculate_flags(
+  uint8_t flag_bits,
+  uint16_t op1,
+  uint16_t op2,
+  uint16_t rslt,
+  uint8_t bit_size)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
-
   if (bit_size == SIZE_8BITS)
   {
     // overflow - V
@@ -771,9 +923,10 @@ static void calculate_flags(Simulate *simulate, uint8_t flag_bits, uint16_t op1,
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm8_opcodes *table_stm8, uint32_t eff_addr)
+int SimulateStm8::execute_op_common(
+  struct _table_stm8_opcodes *table_stm8,
+  uint32_t eff_addr)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t data;
   uint16_t data16;
   uint8_t flag_bits;
@@ -793,25 +946,25 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
     case STM8_ADC:
       rslt = REG_A + data + GET_C();
       flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_ADD:
       rslt = REG_A + data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_AND:
       rslt = REG_A & data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_BCP:
       rslt = REG_A & data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_CALL:
       PUSH_STACK16(REG_PC);
@@ -825,7 +978,7 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
     case STM8_CP:
       rslt = REG_A - data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_CPW:
       data16 = READ_RAM16(eff_addr);
@@ -833,13 +986,13 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
       if (table_stm8->dest == OP_REG_X)
       {
         rslt = REG_X - data16;
-        calculate_flags(simulate, flag_bits, REG_X, data16, rslt, SIZE_16BITS);
+        calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->dest == OP_REG_Y)
       {
         rslt = REG_Y - data16;
-        calculate_flags(simulate, flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
+        calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
         return table_stm8->cycles_min;
       }
       else
@@ -849,20 +1002,20 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
     case STM8_CPL:
       rslt = data ^= 0xff;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       SET_C();
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_DEC:
       rslt = data - 1;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-      calculate_flags(simulate, flag_bits, data, 1, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, data, 1, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_INC:
       rslt = data + 1;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-      calculate_flags(simulate, flag_bits, data, 1, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, data, 1, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_JP:
@@ -873,14 +1026,14 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
       {
         REG_A = data;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
         rslt = REG_A;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
         return table_stm8->cycles_min;
       }
@@ -914,12 +1067,12 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
         return UNKNOWN_INST;
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
       return table_stm8->cycles_min;
     case STM8_NEG:
       rslt = 0 - data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, data, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, data, 0, rslt, SIZE_8BITS);
       if (data == 0x80)
       {
         SET_V();
@@ -942,7 +1095,7 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
     case STM8_OR:
       rslt = REG_A | data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_RLC:
@@ -957,7 +1110,7 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_RRC:
@@ -972,13 +1125,13 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SBC:
       rslt = REG_A - data - GET_C();
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SLL:
@@ -993,7 +1146,7 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SRA:
@@ -1008,7 +1161,7 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SRL:
@@ -1023,29 +1176,29 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SUB:
       rslt = REG_A - data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SWAP:
       rslt = (data >> 4) | (data << 4);
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_TNZ:
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, data, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, data, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_XOR:
       rslt = REG_A ^ data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
 
@@ -1058,9 +1211,8 @@ static int simulate_execute_stm8_op_common(Simulate *simulate, struct _table_stm
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_none(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_none(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t eff_addr;
 
   switch (table_stm8->instr_enum)
@@ -1089,7 +1241,7 @@ static int simulate_execute_stm8_op_none(Simulate *simulate, struct _table_stm8_
       REG_X = POP_STACK16();
       REG_Y = POP_STACK16();
       eff_addr = POP_STACK24();
-      if (eff_addr >= simulate->memory->size)
+      if (eff_addr >= memory->size)
       {
         return INVALID_MEM_ADDR;
       }
@@ -1109,7 +1261,7 @@ static int simulate_execute_stm8_op_none(Simulate *simulate, struct _table_stm8_
       return table_stm8->cycles_min;
     case STM8_RETF:
       eff_addr = POP_STACK24();
-      if (eff_addr >= simulate->memory->size)
+      if (eff_addr >= memory->size)
       {
         return INVALID_MEM_ADDR;
       }
@@ -1134,7 +1286,7 @@ static int simulate_execute_stm8_op_none(Simulate *simulate, struct _table_stm8_
       return table_stm8->cycles_min;
     case STM8_TRAP:
       eff_addr = READ_RAM24(TRAP_VECTOR + 1);
-      if (eff_addr >= simulate->memory->size)
+      if (eff_addr >= memory->size)
       {
         return INVALID_MEM_ADDR;
       }
@@ -1165,9 +1317,8 @@ static int simulate_execute_stm8_op_none(Simulate *simulate, struct _table_stm8_
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_number8(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_number8(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint8_t data;
 
@@ -1186,7 +1337,7 @@ static int simulate_execute_stm8_op_number8(Simulate *simulate, struct _table_st
       switch (table_stm8->dest)
       {
         case OP_REG_A:
-          return simulate_execute_stm8_op_common(simulate, table_stm8, data);
+          return execute_op_common(table_stm8, data);
         case OP_SP:
           REG_SP -= data;
           return table_stm8->cycles_min;
@@ -1212,7 +1363,7 @@ static int simulate_execute_stm8_op_number8(Simulate *simulate, struct _table_st
       return UNKNOWN_INST;
 
     default:
-      return simulate_execute_stm8_op_common(simulate, table_stm8, data);
+      return execute_op_common(table_stm8, data);
   }
 }
 
@@ -1220,9 +1371,8 @@ static int simulate_execute_stm8_op_number8(Simulate *simulate, struct _table_st
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_number16(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_number16(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint16_t data;
   uint8_t flag_bits;
@@ -1240,13 +1390,13 @@ static int simulate_execute_stm8_op_number16(Simulate *simulate, struct _table_s
         case OP_REG_X:
           rslt = REG_X + data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(simulate, flag_bits, REG_X, data, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_X, data, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           rslt = REG_Y + data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(simulate, flag_bits, REG_Y, data, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_Y, data, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -1258,12 +1408,12 @@ static int simulate_execute_stm8_op_number16(Simulate *simulate, struct _table_s
         case OP_REG_X:
           rslt = REG_X - data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(simulate, flag_bits, REG_X, data, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_X, data, rslt, SIZE_16BITS);
           return table_stm8->cycles_min;
         case OP_REG_Y:
           rslt = REG_Y - data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(simulate, flag_bits, REG_Y, data, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_Y, data, rslt, SIZE_16BITS);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -1274,13 +1424,13 @@ static int simulate_execute_stm8_op_number16(Simulate *simulate, struct _table_s
         case OP_REG_X:
           rslt = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           rslt = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -1292,13 +1442,13 @@ static int simulate_execute_stm8_op_number16(Simulate *simulate, struct _table_s
         case OP_REG_X:
           rslt = REG_X - data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(simulate, flag_bits, REG_X, data, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_X, data, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           rslt = REG_Y - data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(simulate, flag_bits, REG_Y, data, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_Y, data, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -1314,9 +1464,8 @@ static int simulate_execute_stm8_op_number16(Simulate *simulate, struct _table_s
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address8(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_address8(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint32_t eff_addr;
 
@@ -1330,7 +1479,7 @@ static int simulate_execute_stm8_op_address8(Simulate *simulate, struct _table_s
       return UNKNOWN_INST;
 
     default:
-      return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+      return execute_op_common(table_stm8, eff_addr);
   }
 }
 
@@ -1338,9 +1487,8 @@ static int simulate_execute_stm8_op_address8(Simulate *simulate, struct _table_s
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_address16(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
   uint8_t data;
@@ -1358,13 +1506,13 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
     case STM8_ADC:
       rslt = REG_A + data + GET_C();
       flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_ADD:
       rslt = REG_A + data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_ADDW:
@@ -1374,14 +1522,14 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
           data16 = READ_RAM16(eff_addr);
           rslt = REG_X + data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(simulate, flag_bits, REG_X, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data16 = READ_RAM16(eff_addr);
           rslt = REG_Y + data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(simulate, flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -1390,13 +1538,13 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
     case STM8_AND:
       rslt = REG_A & data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_BCP:
       rslt = REG_A & data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_CALL:
       PUSH_STACK16(REG_PC);
@@ -1410,7 +1558,7 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
     case STM8_CP:
       rslt = REG_A - data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_CPW:
       switch (table_stm8->dest)
@@ -1419,13 +1567,13 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
           data16 = READ_RAM16(eff_addr);
           rslt = REG_X - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(simulate, flag_bits, REG_X, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data16 = READ_RAM16(eff_addr);
           rslt = REG_Y - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(simulate, flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -1433,14 +1581,14 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
     case STM8_CPL:
       rslt = data ^= 0xff;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       SET_C();
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_DEC:
       rslt = data - 1;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-      calculate_flags(simulate, flag_bits, data, 1, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, data, 1, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_EXG:
@@ -1450,7 +1598,7 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
     case STM8_INC:
       rslt = data + 1;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-      calculate_flags(simulate, flag_bits, data, 1, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, data, 1, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_JP:
@@ -1461,14 +1609,14 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
       {
         REG_A = data;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
         rslt = REG_A;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
         return table_stm8->cycles_min;
       }
@@ -1481,14 +1629,14 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
       {
         REG_X = READ_RAM16(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, REG_X, SIZE_16BITS);
+        calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_X)
       {
         rslt = REG_X;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+        calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
         WRITE_RAM16(eff_addr, rslt);
         return table_stm8->cycles_min;
       }
@@ -1496,14 +1644,14 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
       {
         REG_Y = READ_RAM16(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+        calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_Y)
       {
         rslt = REG_Y;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+        calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
         WRITE_RAM16(eff_addr, rslt);
         return table_stm8->cycles_min;
       }
@@ -1514,7 +1662,7 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
     case STM8_NEG:
       rslt = 0 - data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, data, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, data, 0, rslt, SIZE_8BITS);
       if (data == 0x80)
       {
         SET_V();
@@ -1537,7 +1685,7 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
     case STM8_OR:
       rslt = REG_A | data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_POP:
@@ -1559,7 +1707,7 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_RRC:
@@ -1574,13 +1722,13 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SBC:
       rslt = REG_A - data - GET_C();
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SLL:
@@ -1595,7 +1743,7 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SRA:
@@ -1610,7 +1758,7 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SRL:
@@ -1625,13 +1773,13 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SUB:
       rslt = REG_A - data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SUBW:
@@ -1641,14 +1789,14 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
           data16 = READ_RAM16(eff_addr);
           rslt = REG_X - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(simulate, flag_bits, REG_X, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data16 = READ_RAM16(eff_addr);
           rslt = REG_Y - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(simulate, flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -1657,17 +1805,17 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
     case STM8_SWAP:
       rslt = (data >> 4) | (data << 4);
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_TNZ:
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, data, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, data, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_XOR:
       rslt = REG_A ^ data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
 
@@ -1681,9 +1829,8 @@ static int simulate_execute_stm8_op_address16(Simulate *simulate, struct _table_
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address24(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_address24(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t next_ext;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -1693,7 +1840,7 @@ static int simulate_execute_stm8_op_address24(Simulate *simulate, struct _table_
   next_ext += READ_RAM(REG_PC++) << 8;
   next_ext += READ_RAM(REG_PC++);
   eff_addr = next_ext;
-  if (eff_addr >= simulate->memory->size)
+  if (eff_addr >= memory->size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -1714,14 +1861,14 @@ static int simulate_execute_stm8_op_address24(Simulate *simulate, struct _table_
       {
         REG_A = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
         rslt = REG_A;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
         return table_stm8->cycles_min;
       }
@@ -1739,44 +1886,41 @@ static int simulate_execute_stm8_op_address24(Simulate *simulate, struct _table_
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_index_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_index_x(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t eff_addr;
 
   eff_addr = REG_X;
-  return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+  return execute_op_common(table_stm8, eff_addr);
 }
 
 // ($10,X)
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset8_index_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_offset8_index_x(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint32_t eff_addr;
 
   next_byte = READ_RAM(REG_PC++);
   eff_addr = REG_X + next_byte;
-  return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+  return execute_op_common(table_stm8, eff_addr);
 }
 
 // ($1000,X)
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset16_index_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_offset16_index_x(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
 
   next_word = READ_RAM16(REG_PC);
   REG_PC += 2;
   eff_addr = REG_X + next_word;
-  return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+  return execute_op_common(table_stm8, eff_addr);
 
 }
 
@@ -1785,9 +1929,8 @@ static int simulate_execute_stm8_op_offset16_index_x(Simulate *simulate, struct 
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset24_index_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_offset24_index_x(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t next_ext;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -1797,7 +1940,7 @@ static int simulate_execute_stm8_op_offset24_index_x(Simulate *simulate, struct 
   next_ext += READ_RAM(REG_PC++) << 8;
   next_ext += READ_RAM(REG_PC++);
   eff_addr = REG_X + next_ext;
-  if (eff_addr >= simulate->memory->size)
+  if (eff_addr >= memory->size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -1809,14 +1952,14 @@ static int simulate_execute_stm8_op_offset24_index_x(Simulate *simulate, struct 
       {
         REG_A = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
         rslt = REG_A;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
         return table_stm8->cycles_min;
       }
@@ -1834,44 +1977,43 @@ static int simulate_execute_stm8_op_offset24_index_x(Simulate *simulate, struct 
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_index_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_index_y(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t eff_addr;
 
   eff_addr = REG_Y;
-  return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+  return execute_op_common(table_stm8, eff_addr);
 }
 
 // ($10,Y)
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset8_index_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_offset8_index_y(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint32_t eff_addr;
 
   next_byte = READ_RAM(REG_PC++);
   eff_addr = REG_Y + next_byte;
-  return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+  return execute_op_common(table_stm8, eff_addr);
 }
 
 // ($1000,Y)
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset16_index_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_offset16_index_y(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
 
   next_word = READ_RAM16(REG_PC);
   REG_PC += 2;
   eff_addr = REG_Y + next_word;
-  return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+  return execute_op_common(table_stm8, eff_addr);
 }
 
 // ($500000,Y)
@@ -1879,9 +2021,9 @@ static int simulate_execute_stm8_op_offset16_index_y(Simulate *simulate, struct 
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset24_index_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_offset24_index_y(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t next_ext;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -1891,7 +2033,7 @@ static int simulate_execute_stm8_op_offset24_index_y(Simulate *simulate, struct 
   next_ext += READ_RAM(REG_PC++) << 8;
   next_ext += READ_RAM(REG_PC++);
   eff_addr = REG_Y + next_ext;
-  if (eff_addr >= simulate->memory->size)
+  if (eff_addr >= memory->size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -1903,14 +2045,14 @@ static int simulate_execute_stm8_op_offset24_index_y(Simulate *simulate, struct 
       {
         REG_A = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
         rslt = REG_A;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
         return table_stm8->cycles_min;
       }
@@ -1928,9 +2070,9 @@ static int simulate_execute_stm8_op_offset24_index_y(Simulate *simulate, struct 
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_offset8_index_sp(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_offset8_index_sp(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint32_t eff_addr;
   uint16_t data16;
@@ -1949,14 +2091,14 @@ static int simulate_execute_stm8_op_offset8_index_sp(Simulate *simulate, struct 
           data16 = READ_RAM16(eff_addr);
           rslt = REG_X + data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(simulate, flag_bits, REG_X, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data16 = READ_RAM16(eff_addr);
           rslt = REG_Y + data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(simulate, flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -1969,14 +2111,14 @@ static int simulate_execute_stm8_op_offset8_index_sp(Simulate *simulate, struct 
           data16 = READ_RAM16(eff_addr);
           rslt = REG_X - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(simulate, flag_bits, REG_X, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data16 = READ_RAM16(eff_addr);
           rslt = REG_Y - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(simulate, flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -1987,7 +2129,7 @@ static int simulate_execute_stm8_op_offset8_index_sp(Simulate *simulate, struct 
       return UNKNOWN_INST;
 
     default:
-      return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+      return execute_op_common(table_stm8, eff_addr);
   }
 }
 
@@ -1995,9 +2137,8 @@ static int simulate_execute_stm8_op_offset8_index_sp(Simulate *simulate, struct 
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect8(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_indirect8(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint16_t ptr_addr;
   uint32_t eff_addr;
@@ -2005,16 +2146,15 @@ static int simulate_execute_stm8_op_indirect8(Simulate *simulate, struct _table_
   next_byte = READ_RAM(REG_PC++);
   ptr_addr = READ_RAM16(next_byte);
   eff_addr = ptr_addr;
-  return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+  return execute_op_common(table_stm8, eff_addr);
 }
 
 // [$1000.w]
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect16(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_indirect16(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint16_t ptr_addr;
   uint32_t eff_addr;
@@ -2023,7 +2163,7 @@ static int simulate_execute_stm8_op_indirect16(Simulate *simulate, struct _table
   REG_PC += 2;
   ptr_addr = READ_RAM16(next_word);
   eff_addr = ptr_addr;
-  return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+  return execute_op_common(table_stm8, eff_addr);
 }
 
 // [$1000.e]
@@ -2031,9 +2171,9 @@ static int simulate_execute_stm8_op_indirect16(Simulate *simulate, struct _table
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect16_e(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_indirect16_e(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -2042,7 +2182,7 @@ static int simulate_execute_stm8_op_indirect16_e(Simulate *simulate, struct _tab
   next_word = READ_RAM16(REG_PC);
   REG_PC += 2;
   eff_addr = READ_RAM24(next_word);
-  if (eff_addr >= simulate->memory->size)
+  if (eff_addr >= memory->size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -2061,14 +2201,14 @@ static int simulate_execute_stm8_op_indirect16_e(Simulate *simulate, struct _tab
       {
         REG_A = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
         rslt = REG_A;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
         return table_stm8->cycles_min;
       }
@@ -2086,9 +2226,8 @@ static int simulate_execute_stm8_op_indirect16_e(Simulate *simulate, struct _tab
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect8_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_indirect8_x(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint16_t ptr_addr;
   uint32_t eff_addr;
@@ -2096,16 +2235,16 @@ static int simulate_execute_stm8_op_indirect8_x(Simulate *simulate, struct _tabl
   next_byte = READ_RAM(REG_PC++);
   ptr_addr = READ_RAM16(next_byte);
   eff_addr = REG_X + ptr_addr;
-  return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+  return execute_op_common(table_stm8, eff_addr);
 }
 
 // ([$1000.w],X)
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect16_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_indirect16_x(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint16_t ptr_addr;
   uint32_t eff_addr;
@@ -2114,7 +2253,7 @@ static int simulate_execute_stm8_op_indirect16_x(Simulate *simulate, struct _tab
   REG_PC += 2;
   ptr_addr = READ_RAM16(next_word);
   eff_addr = REG_X + ptr_addr;
-  return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+  return execute_op_common(table_stm8, eff_addr);
 }
 
 // ([$1000.e],X)
@@ -2122,9 +2261,9 @@ static int simulate_execute_stm8_op_indirect16_x(Simulate *simulate, struct _tab
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect16_e_x(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_indirect16_e_x(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -2134,7 +2273,7 @@ static int simulate_execute_stm8_op_indirect16_e_x(Simulate *simulate, struct _t
   REG_PC += 2;
   eff_addr = READ_RAM24(next_word);
   eff_addr += REG_X;
-  if (eff_addr >= simulate->memory->size)
+  if (eff_addr >= memory->size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -2146,14 +2285,14 @@ static int simulate_execute_stm8_op_indirect16_e_x(Simulate *simulate, struct _t
       {
         REG_A = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
         rslt = REG_A;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
         return table_stm8->cycles_min;
       }
@@ -2171,9 +2310,8 @@ static int simulate_execute_stm8_op_indirect16_e_x(Simulate *simulate, struct _t
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect8_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_indirect8_y(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint16_t ptr_addr;
   uint32_t eff_addr;
@@ -2181,7 +2319,7 @@ static int simulate_execute_stm8_op_indirect8_y(Simulate *simulate, struct _tabl
   next_byte = READ_RAM(REG_PC++);
   ptr_addr = READ_RAM16(next_byte);
   eff_addr = REG_Y + ptr_addr;
-  return simulate_execute_stm8_op_common(simulate, table_stm8, eff_addr);
+  return execute_op_common(table_stm8, eff_addr);
 }
 
 // ([$1000.e],Y)
@@ -2189,9 +2327,9 @@ static int simulate_execute_stm8_op_indirect8_y(Simulate *simulate, struct _tabl
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_indirect16_e_y(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_indirect16_e_y(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint32_t eff_addr;
   uint8_t flag_bits;
@@ -2201,7 +2339,7 @@ static int simulate_execute_stm8_op_indirect16_e_y(Simulate *simulate, struct _t
   REG_PC += 2;
   eff_addr = READ_RAM24(next_word);
   eff_addr += REG_Y;
-  if (eff_addr >= simulate->memory->size)
+  if (eff_addr >= memory->size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -2213,14 +2351,14 @@ static int simulate_execute_stm8_op_indirect16_e_y(Simulate *simulate, struct _t
       {
         REG_A = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
         rslt = REG_A;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
         return table_stm8->cycles_min;
       }
@@ -2238,9 +2376,8 @@ static int simulate_execute_stm8_op_indirect16_e_y(Simulate *simulate, struct _t
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address_bit(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_address_bit(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint32_t op_pc = REG_PC - 1;            // kluge! - actual opcode not available in table_stm8
   uint8_t pos = 0;
   uint16_t next_word;
@@ -2281,9 +2418,9 @@ static int simulate_execute_stm8_op_address_bit(Simulate *simulate, struct _tabl
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address_bit_loop(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_address_bit_loop(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   int32_t pc;
   uint32_t op_pc = REG_PC - 1;            // kluge! - actual opcode not available in table_stm8
   uint8_t pos;
@@ -2298,7 +2435,7 @@ static int simulate_execute_stm8_op_address_bit_loop(Simulate *simulate, struct 
   offset = READ_RAM(REG_PC++);
   pc = (int32_t)REG_PC;
   pc += offset;
-  if ((uint32_t)pc >= simulate->memory->size)
+  if ((uint32_t)pc >= memory->size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -2342,16 +2479,15 @@ static int simulate_execute_stm8_op_address_bit_loop(Simulate *simulate, struct 
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_relative(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   int32_t pc;
   int8_t offset;
 
   offset = READ_RAM(REG_PC++);
   pc = (int32_t)REG_PC;
   pc += offset;
-  if ((uint32_t)pc >= simulate->memory->size)
+  if ((uint32_t)pc >= memory->size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -2601,9 +2737,9 @@ static int simulate_execute_stm8_op_relative(Simulate *simulate, struct _table_s
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_single_register(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t flag_bits;
   uint16_t rslt;
 
@@ -2633,7 +2769,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
     case STM8_CPL:
       REG_A ^= 0xff;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, REG_A, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
       SET_C();
       return table_stm8->cycles_min;
     case STM8_CPLW:
@@ -2642,13 +2778,13 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
         case OP_REG_X:
           REG_X ^= 0xffff;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, REG_X, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
           SET_C();
           return table_stm8->cycles_min;
         case OP_REG_Y:
           REG_Y ^= 0xffff;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
           SET_C();
           return table_stm8->cycles_min;
         default:
@@ -2657,7 +2793,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
     case STM8_DEC:
       rslt = REG_A - 1;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, 1, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, 1, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_DECW:
@@ -2666,13 +2802,13 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
         case OP_REG_X:
           rslt = REG_X - 1;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-          calculate_flags(simulate, flag_bits, REG_X, 1, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_X, 1, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           rslt = REG_Y - 1;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-          calculate_flags(simulate, flag_bits, REG_Y, 1, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_Y, 1, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -2681,7 +2817,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
     case STM8_INC:
       rslt = REG_A + 1;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-      calculate_flags(simulate, flag_bits, REG_A, 1, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, 1, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_INCW:
@@ -2690,13 +2826,13 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
         case OP_REG_X:
           rslt = REG_X + 1;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-          calculate_flags(simulate, flag_bits, REG_X, 1, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_X, 1, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           rslt = REG_Y + 1;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-          calculate_flags(simulate, flag_bits, REG_Y, 1, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_Y, 1, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -2705,7 +2841,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
     case STM8_NEG:
       rslt = 0 - REG_A;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, REG_A, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, REG_A, 0, rslt, SIZE_8BITS);
       if (REG_A == 0x80)
       {
         SET_V();
@@ -2731,7 +2867,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
         case OP_REG_X:
           rslt = 0 - REG_X;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, REG_X, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_X, 0, rslt, SIZE_16BITS);
           if (REG_X == 0x8000)
           {
             SET_V();
@@ -2754,7 +2890,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
         case OP_REG_Y:
           rslt = 0 - REG_Y;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, REG_Y, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, REG_Y, 0, rslt, SIZE_16BITS);
           if (REG_Y == 0x8000)
           {
             SET_V();
@@ -2837,7 +2973,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_RLCW:
@@ -2855,7 +2991,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
             CLR_C();
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
@@ -2870,7 +3006,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
             CLR_C();
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -2888,7 +3024,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_RRCW:
@@ -2906,7 +3042,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
             CLR_C();
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
@@ -2921,7 +3057,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
             CLR_C();
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -2939,7 +3075,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SLLW:
@@ -2957,7 +3093,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
             CLR_C();
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
@@ -2972,7 +3108,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
             CLR_C();
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -2990,7 +3126,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SRAW:
@@ -3008,7 +3144,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
             CLR_C();
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
@@ -3023,7 +3159,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
             CLR_C();
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -3041,7 +3177,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
         CLR_C();
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SRLW:
@@ -3059,7 +3195,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
             CLR_C();
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
@@ -3074,7 +3210,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
             CLR_C();
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -3083,7 +3219,7 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
     case STM8_SWAP:
       rslt = (REG_A >> 4) | (REG_A << 4);
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       REG_A = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SWAPW:
@@ -3092,13 +3228,13 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
         case OP_REG_X:
           rslt = (REG_X >> 8) | (REG_X << 8);
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_X = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           rslt = (REG_Y >> 8) | (REG_Y << 8);
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
           REG_Y = rslt;
           return table_stm8->cycles_min;
         default:
@@ -3106,18 +3242,18 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
       }
     case STM8_TNZ:
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(simulate, flag_bits, 0, 0, REG_A, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_TNZW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, REG_X, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
           return table_stm8->cycles_min;
         case OP_REG_Y:
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -3131,9 +3267,9 @@ static int simulate_execute_stm8_op_single_register(Simulate *simulate, struct _
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_two_registers(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_two_registers(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t flag_bits;
   uint8_t data;
   uint16_t data16;
@@ -3153,7 +3289,7 @@ static int simulate_execute_stm8_op_two_registers(Simulate *simulate, struct _ta
             CLR_H();
             CLR_N();
             flag_bits = BV(CC_Z_FLAG);
-            calculate_flags(simulate, flag_bits, 0, 0, REG_X, SIZE_16BITS);
+            calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
             CLR_C()
           }
           else  // divide-by-0
@@ -3171,7 +3307,7 @@ static int simulate_execute_stm8_op_two_registers(Simulate *simulate, struct _ta
             CLR_H();
             CLR_N();
             flag_bits = BV(CC_Z_FLAG);
-            calculate_flags(simulate, flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+            calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
             CLR_C()
           }
           else  // divide-by-0
@@ -3192,7 +3328,7 @@ static int simulate_execute_stm8_op_two_registers(Simulate *simulate, struct _ta
         CLR_H();
         CLR_N();
         flag_bits = BV(CC_Z_FLAG);
-        calculate_flags(simulate, flag_bits, 0, 0, REG_X, SIZE_16BITS);
+        calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
         CLR_C()
       }
       else  // divide-by-0
@@ -3332,14 +3468,14 @@ static int simulate_execute_stm8_op_two_registers(Simulate *simulate, struct _ta
           REG_X = (REG_X << 8) | REG_A;
           REG_A = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, REG_X, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data = REG_Y >> 8;
           REG_Y = (REG_Y << 8) | REG_A;
           REG_A = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -3352,14 +3488,14 @@ static int simulate_execute_stm8_op_two_registers(Simulate *simulate, struct _ta
           REG_X = (REG_A << 8) | (REG_X >> 8);
           REG_A = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, REG_X, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data = REG_Y & 0xff;
           REG_Y = (REG_A << 8) | (REG_Y >> 8);
           REG_A = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(simulate, flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -3373,9 +3509,9 @@ static int simulate_execute_stm8_op_two_registers(Simulate *simulate, struct _ta
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address16_number8(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_address16_number8(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint8_t next_byte;
 
@@ -3397,9 +3533,9 @@ static int simulate_execute_stm8_op_address16_number8(Simulate *simulate, struct
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address8_address8(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_address8_address8(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t next_byte;
   uint8_t next_byte2;
   uint8_t data;
@@ -3422,9 +3558,9 @@ static int simulate_execute_stm8_op_address8_address8(Simulate *simulate, struct
 // Returns:
 //    -1 = hit unknown instruction
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8_op_address16_address16(Simulate *simulate, struct _table_stm8_opcodes *table_stm8)
+int SimulateStm8::execute_op_address16_address16(
+  struct _table_stm8_opcodes *table_stm8)
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint16_t next_word;
   uint16_t next_word2;
   uint8_t data;
@@ -3450,9 +3586,8 @@ static int simulate_execute_stm8_op_address16_address16(Simulate *simulate, stru
 //    -1 = hit unknown instruction
 //    -2 = hit unsupported memory address
 //    else = number of cycles for simulated instruction
-static int simulate_execute_stm8(Simulate *simulate)
+int SimulateStm8::execute()
 {
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
   uint8_t opcode;
   uint8_t prefix = 0;
   int n;
@@ -3502,250 +3637,71 @@ static int simulate_execute_stm8(Simulate *simulate)
   switch (table_stm8_opcodes[n].type)
   {
     case OP_NONE:
-      return simulate_execute_stm8_op_none(simulate, &table_stm8_opcodes[n]);
+      return execute_op_none(&table_stm8_opcodes[n]);
     case OP_NUMBER8:                // #$10
-      return simulate_execute_stm8_op_number8(simulate, &table_stm8_opcodes[n]);
+      return execute_op_number8(&table_stm8_opcodes[n]);
     case OP_NUMBER16:               // #$1000
-      return simulate_execute_stm8_op_number16(simulate, &table_stm8_opcodes[n]);
+      return execute_op_number16(&table_stm8_opcodes[n]);
     case OP_ADDRESS8:               // $10
-      return simulate_execute_stm8_op_address8(simulate, &table_stm8_opcodes[n]);
+      return execute_op_address8(&table_stm8_opcodes[n]);
     case OP_ADDRESS16:              // $1000
-      return simulate_execute_stm8_op_address16(simulate, &table_stm8_opcodes[n]);
+      return execute_op_address16(&table_stm8_opcodes[n]);
     case OP_ADDRESS24:              // $35aa00
-      return simulate_execute_stm8_op_address24(simulate, &table_stm8_opcodes[n]);
+      return execute_op_address24(&table_stm8_opcodes[n]);
     case OP_INDEX_X:                // (X)
-      return simulate_execute_stm8_op_index_x(simulate, &table_stm8_opcodes[n]);
+      return execute_op_index_x(&table_stm8_opcodes[n]);
     case OP_OFFSET8_INDEX_X:        // ($10,X)
-      return simulate_execute_stm8_op_offset8_index_x(simulate, &table_stm8_opcodes[n]);
+      return execute_op_offset8_index_x(&table_stm8_opcodes[n]);
     case OP_OFFSET16_INDEX_X:       // ($1000,X)
-      return simulate_execute_stm8_op_offset16_index_x(simulate, &table_stm8_opcodes[n]);
+      return execute_op_offset16_index_x(&table_stm8_opcodes[n]);
     case OP_OFFSET24_INDEX_X:       // ($500000,X)
-      return simulate_execute_stm8_op_offset24_index_x(simulate, &table_stm8_opcodes[n]);
+      return execute_op_offset24_index_x(&table_stm8_opcodes[n]);
     case OP_INDEX_Y:                // (Y)
-      return simulate_execute_stm8_op_index_y(simulate, &table_stm8_opcodes[n]);
+      return execute_op_index_y(&table_stm8_opcodes[n]);
     case OP_OFFSET8_INDEX_Y:        // ($10,Y)
-      return simulate_execute_stm8_op_offset8_index_y(simulate, &table_stm8_opcodes[n]);
+      return execute_op_offset8_index_y(&table_stm8_opcodes[n]);
     case OP_OFFSET16_INDEX_Y:       // ($1000,Y)
-      return simulate_execute_stm8_op_offset16_index_y(simulate, &table_stm8_opcodes[n]);
+      return execute_op_offset16_index_y(&table_stm8_opcodes[n]);
     case OP_OFFSET24_INDEX_Y:       // ($500000,Y)
-      return simulate_execute_stm8_op_offset24_index_y(simulate, &table_stm8_opcodes[n]);
+      return execute_op_offset24_index_y(&table_stm8_opcodes[n]);
     case OP_OFFSET8_INDEX_SP:       // ($10,SP)
-      return simulate_execute_stm8_op_offset8_index_sp(simulate, &table_stm8_opcodes[n]);
+      return execute_op_offset8_index_sp(&table_stm8_opcodes[n]);
     case OP_INDIRECT8:              // [$10.w]
-      return simulate_execute_stm8_op_indirect8(simulate, &table_stm8_opcodes[n]);
+      return execute_op_indirect8(&table_stm8_opcodes[n]);
     case OP_INDIRECT16:             // [$1000.w]
-      return simulate_execute_stm8_op_indirect16(simulate, &table_stm8_opcodes[n]);
+      return execute_op_indirect16(&table_stm8_opcodes[n]);
     case OP_INDIRECT16_E:           // [$1000.e]
-      return simulate_execute_stm8_op_indirect16_e(simulate, &table_stm8_opcodes[n]);
+      return execute_op_indirect16_e(&table_stm8_opcodes[n]);
     case OP_INDIRECT8_X:            // ([$10.w],X)
-      return simulate_execute_stm8_op_indirect8_x(simulate, &table_stm8_opcodes[n]);
+      return execute_op_indirect8_x(&table_stm8_opcodes[n]);
     case OP_INDIRECT16_X:           // ([$1000.w],X)
-      return simulate_execute_stm8_op_indirect16_x(simulate, &table_stm8_opcodes[n]);
+      return execute_op_indirect16_x(&table_stm8_opcodes[n]);
     case OP_INDIRECT16_E_X:         // ([$1000.e],X)
-      return simulate_execute_stm8_op_indirect16_e_x(simulate, &table_stm8_opcodes[n]);
+      return execute_op_indirect16_e_x(&table_stm8_opcodes[n]);
     case OP_INDIRECT8_Y:            // ([$10.w],Y)
-      return simulate_execute_stm8_op_indirect8_y(simulate, &table_stm8_opcodes[n]);
+      return execute_op_indirect8_y(&table_stm8_opcodes[n]);
     case OP_INDIRECT16_E_Y:         // ([$1000.e],Y)
-      return simulate_execute_stm8_op_indirect16_e_y(simulate, &table_stm8_opcodes[n]);
+      return execute_op_indirect16_e_y(&table_stm8_opcodes[n]);
     case OP_ADDRESS_BIT:            // $1000, #2
-      return simulate_execute_stm8_op_address_bit(simulate, &table_stm8_opcodes[n]);
+      return execute_op_address_bit(&table_stm8_opcodes[n]);
     case OP_ADDRESS_BIT_LOOP:       // $1000, #2, loop
-      return simulate_execute_stm8_op_address_bit_loop(simulate, &table_stm8_opcodes[n]);
+      return execute_op_address_bit_loop(&table_stm8_opcodes[n]);
     case OP_RELATIVE:
-      return simulate_execute_stm8_op_relative(simulate, &table_stm8_opcodes[n]);
+      return execute_op_relative(&table_stm8_opcodes[n]);
     case OP_SINGLE_REGISTER:
-      return simulate_execute_stm8_op_single_register(simulate, &table_stm8_opcodes[n]);
+      return execute_op_single_register(&table_stm8_opcodes[n]);
     case OP_TWO_REGISTERS:
-      return simulate_execute_stm8_op_two_registers(simulate, &table_stm8_opcodes[n]);
+      return execute_op_two_registers(&table_stm8_opcodes[n]);
     case OP_ADDRESS16_NUMBER8:
-      return simulate_execute_stm8_op_address16_number8(simulate, &table_stm8_opcodes[n]);
+      return execute_op_address16_number8(&table_stm8_opcodes[n]);
     case OP_ADDRESS8_ADDRESS8:
-      return simulate_execute_stm8_op_address8_address8(simulate, &table_stm8_opcodes[n]);
+      return execute_op_address8_address8(&table_stm8_opcodes[n]);
     case OP_ADDRESS16_ADDRESS16:
-      return simulate_execute_stm8_op_address16_address16(simulate, &table_stm8_opcodes[n]);
-
+      return execute_op_address16_address16(&table_stm8_opcodes[n]);
     default:
       break;
   }
 
   return UNKNOWN_INST;  // Unknown instruction
-}
-
-// Returns:
-//    -1 = hit unknown instruction or unsupported memory address
-//     0 = OK
-int simulate_run_stm8(Simulate *simulate, int max_cycles, int step)
-{
-  SimulateStm8 *simulate_stm8 = (SimulateStm8 *)simulate->context;
-  char instruction[128];
-  char bytes[20];
-
-  stop_running = 0;
-  signal(SIGINT, handle_signal);
-
-  if (max_cycles != 0)
-  {
-    printf("Running... Press Ctl-C to break.\n");
-  }
-
-  while (stop_running == 0)
-  {
-    int ret;
-    int n;
-    uint32_t pc = REG_PC;
-
-    ret = simulate_execute_stm8(simulate);
-
-    if (ret > 0)
-    {
-      simulate->cycle_count += ret;
-    }
-
-    if (simulate->show == 1)
-    {
-      uint32_t disasm_pc = pc;
-
-      simulate_dump_registers_stm8(simulate);
-
-      n = 0;
-      while (n < 6)
-      {
-        int cycles_min;
-        int cycles_max;
-
-        int count = disasm_stm8(
-          simulate->memory,
-          disasm_pc,
-          instruction,
-          sizeof(instruction),
-          &cycles_min,
-          &cycles_max);
-
-        int i;
-
-        // check for and remove additional line separator
-        i = (int)strlen(instruction);
-        if (instruction[i - 1] == '\n')
-        {
-          instruction[i - 1] = '\0';
-        }
-
-        bytes[0] = 0;
-        for (i = 0; i < count; i++)
-        {
-          char temp[4];
-
-          snprintf(temp, sizeof(temp), "%02x ", READ_RAM(disasm_pc + i));
-          strcat(bytes, temp);
-        }
-
-        if (cycles_min == -1)
-        {
-          break;
-        }
-
-        // '*' - breakpoint indicator
-        // '!' - current instruction indicator
-        // '>' - next instruction indicator
-
-        // Breakpoint.
-        printf("%s", disasm_pc == (uint32_t)simulate->break_point ? "*" : " ");
-
-        if (n == 0)
-        {
-          printf("! ");     // current instruction
-        }
-        else if (disasm_pc == REG_PC)
-        {
-          printf("> ");     // next instruction
-        }
-        else
-        {
-          printf("  ");
-        }
-
-        if (cycles_min < 1)
-        {
-          printf("0x%04x: %-15s %-35s ?\n", disasm_pc, bytes, instruction);
-        }
-        else if (cycles_min == cycles_max)
-        {
-          printf("0x%04x: %-15s %-35s %d\n", disasm_pc, bytes, instruction, cycles_min);
-        }
-        else
-        {
-          printf("0x%04x: %-15s %-35s %d-%d\n", disasm_pc, bytes, instruction, cycles_min, cycles_max);
-        }
-
-        if (count == 0)
-        {
-          break;
-        }
-
-        ++n;
-        disasm_pc += count;
-      }
-    }
-
-    if ((simulate->auto_run == 1) && (simulate->nested_call_count < 0))
-    {
-      signal(SIGINT, SIG_DFL);
-      return 0;
-    }
-
-    if (ret == UNKNOWN_INST)
-    {
-      signal(SIGINT, SIG_DFL);
-      printf("Unknown instruction at address 0x%06x\n", pc);
-      return -1;
-    }
-    else if (ret == INVALID_MEM_ADDR)
-    {
-      signal(SIGINT, SIG_DFL);
-      printf("Unsupported memory space access at address 0x%06x\n", pc);
-      return -1;
-    }
-
-    if ((uint32_t)simulate->break_point == REG_PC)
-    {
-      printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
-      break;
-    }
-
-    if (REG_PC >= simulate->memory->size)
-    {
-      printf("End of memory - setting PC to reset vector.\n");
-      simulate->step_mode = 0;
-
-      REG_PC = 0;
-      if (stm8_int_opcode > 0)
-      {
-        if (READ_RAM(RESET_VECTOR) == stm8_int_opcode)
-        {
-          REG_PC = READ_RAM24(RESET_VECTOR + 1);
-          if (REG_PC >= simulate->memory->size)   // check supported memory space
-          {
-            REG_PC = 0;
-          }
-        }
-      }
-
-      break;
-    }
-
-    if ((simulate->usec == 0) || (step == 1))
-    {
-      signal(SIGINT, SIG_DFL);
-      return 0;
-    }
-
-    usleep(simulate->usec);
-  }
-
-  signal(SIGINT, SIG_DFL);
-  printf("Stopped.  PC=0x%06x.\n", REG_PC);
-  printf("%d clock cycles have passed since last reset.\n", simulate->cycle_count);
-
-  return 0;
 }
 

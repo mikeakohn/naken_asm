@@ -26,27 +26,29 @@ void sim_show_info(UtilContext *util_context)
   printf("  End address: 0x%04x (%d)\n", end, end);
   printf("  Break Point: ");
 
-  if (simulate->break_point == -1)
+  if (simulate->is_break_point_set())
   {
     printf("<not set>\n");
   }
     else
   {
-    printf("0x%04x (%d)\n", simulate->break_point, simulate->break_point);
+    printf("0x%04x (%d)\n",
+      simulate->get_break_point(),
+      simulate->get_break_point());
   }
 
   printf("  Instr Delay: ");
 
-  if (simulate->usec == 0)
+  if (simulate->in_step_mode())
   {
     printf("<step mode>\n");
   }
     else
   {
-    printf("%d us\n", simulate->usec);
+    printf("%d us\n", simulate->get_delay());
   }
 
-  printf("      Display: %s\n", simulate->show == 1 ? "On":"Off");
+  printf("      Display: %s\n", simulate->get_show() == true ? "On" : "Off");
 }
 
 int sim_set_register(UtilContext *util_context, char *command)
@@ -68,7 +70,7 @@ int sim_set_register(UtilContext *util_context, char *command)
       uint32_t num;
       util_get_num(s, &num);
 
-      if (util_context->simulate->simulate_set_reg(util_context->simulate, command + 4, num) == 0)
+      if (util_context->simulate->set_reg(command + 4, num) == 0)
       {
         printf("Register %s set to 0x%04x.\n", command + 4, num);
       }
@@ -83,7 +85,7 @@ int sim_set_register(UtilContext *util_context, char *command)
 
   if (*s == 0)
   {
-    if (util_context->simulate->simulate_set_reg(util_context->simulate, command + 4, 1) == 0)
+    if (util_context->simulate->set_reg(command + 4, 1) == 0)
     {
       printf("Flag %s set.\n", command + 4);
     }
@@ -104,7 +106,7 @@ int sim_clear_flag(UtilContext *util_context, char *command)
     return -1;
   }
 
-  if (util_context->simulate->simulate_set_reg(util_context->simulate, command + 6, 0) == 0)
+  if (util_context->simulate->set_reg(command + 6, 0) == 0)
   {
     printf("Flag %s cleared.\n", command + 6);
   }
@@ -120,7 +122,7 @@ int sim_set_speed(UtilContext *util_context, char *command)
 {
   if (command[5] != ' ')
   {
-    util_context->simulate->usec = 0;
+    util_context->simulate->set_delay(0);
     printf("Simulator now in single step mode.\n");
 
     return 0;
@@ -130,13 +132,13 @@ int sim_set_speed(UtilContext *util_context, char *command)
 
   if (a == 0)
   {
-    util_context->simulate->usec = 0;
+    util_context->simulate->set_delay(0);
     printf("Simulator now in single step mode.\n");
   }
     else
   {
-    util_context->simulate->usec = (1000000 / a);
-    printf("Instruction delay is now %dus\n", util_context->simulate->usec);
+    util_context->simulate->set_delay(1000000 / a);
+    printf("Instruction delay is now %dus\n", util_context->simulate->get_delay());
   }
 
   return 0;
@@ -153,7 +155,7 @@ int sim_stack_push(UtilContext *util_context, char *command)
   }
 
   util_get_num(command + 5, &num);
-  util_context->simulate->simulate_push(util_context->simulate, num);
+  util_context->simulate->push(num);
   printf("Pushed 0x%04x.\n", num);
 
   return 0;
@@ -164,7 +166,7 @@ int sim_set_breakpoint(UtilContext *util_context, char *command)
   if (command[5] == 0)
   {
     printf("Breakpoint removed.\n");
-    util_context->simulate->break_point = -1;
+    util_context->simulate->remove_break_point();
     return 0;
   }
 
@@ -179,7 +181,7 @@ int sim_set_breakpoint(UtilContext *util_context, char *command)
   }
 
   printf("Breakpoint added at 0x%04x.\n", address);
-  util_context->simulate->break_point = address;
+  util_context->simulate->set_break_point(address);
 
   return 0;
 }

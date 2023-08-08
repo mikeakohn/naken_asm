@@ -21,84 +21,339 @@
 #include "simulate/1802.h"
 #include "table/1802.h"
 
-#define READ_RAM(a) memory_read_m(simulate->memory, a)
+#define READ_RAM(a) memory_read_m(memory, a)
 #define WRITE_RAM(a, b) \
-  if (a == simulate->break_io) \
+  if (a == break_io) \
   { \
   exit(b); \
   } \
-  memory_write_m(simulate->memory, a, b)
-#define READ_IND(a) READ_RAM(simulate_1802->reg_r[a])
-#define WRITE_IND(a, b) WRITE_RAM(simulate_1802->reg_r[a], b)
-#define REG(a) simulate_1802->reg_r[a]
+  memory_write_m(memory, a, b)
+#define READ_IND(a) READ_RAM(reg_r[a])
+#define WRITE_IND(a, b) WRITE_RAM(reg_r[a], b)
+#define REG(a) reg_r[a]
 
-#define REG_D simulate_1802->reg_d
-#define REG_P simulate_1802->reg_p
-#define REG_X simulate_1802->reg_x
-#define REG_T simulate_1802->reg_t
-#define REG_B simulate_1802->reg_b
+#define REG_D reg_d
+#define REG_P reg_p
+#define REG_X reg_x
+#define REG_T reg_t
+#define REG_B reg_b
 
-#define REG_CNTR simulate_1802->reg_cntr
-#define REG_CN simulate_1802->reg_cn
+#define REG_CNTR reg_cntr
+#define REG_CN reg_cn
 
-#define FLAG_DF simulate_1802->flag_df
-#define FLAG_Q simulate_1802->flag_q
-#define FLAG_MIE simulate_1802->flag_mie
-#define FLAG_CIE simulate_1802->flag_cie
-#define FLAG_XIE simulate_1802->flag_xie
-#define FLAG_CIL simulate_1802->flag_cil
-#define FLAG_ETQ simulate_1802->flag_etq
+#define FLAG_DF flag_df
+#define FLAG_Q flag_q
+#define FLAG_MIE flag_mie
+#define FLAG_CIE flag_cie
+#define FLAG_XIE flag_xie
+#define FLAG_CIL flag_cil
+#define FLAG_ETQ flag_etq
 #define IRQ_CI FLAG_CIL
-//#define IRQ_XI simulate_1802->irq_xi
+//#define IRQ_XI irq_xi
 
-#define PC simulate_1802->reg_r[REG_P]
-#define DP simulate_1802->reg_r[REG_D]
-#define REG_N simulate_1802->reg_n
-#define REG_I simulate_1802->reg_i
+#define PC reg_r[REG_P]
+#define DP reg_r[REG_D]
+#define REG_N reg_n
+#define REG_I reg_i
 
-static int stop_running = 0;
-
-Simulate *simulate_init_1802(Memory *memory)
+Simulate1802::Simulate1802(Memory *memory) : Simulate(memory)
 {
-  Simulate *simulate;
-
-  simulate = (Simulate *)malloc(sizeof(Simulate1802) + sizeof(Simulate));
-
-  simulate->simulate_init = simulate_init_1802;
-  simulate->simulate_free = simulate_free_1802;
-  simulate->simulate_dumpram = simulate_dumpram_1802;
-  simulate->simulate_push = simulate_push_1802;
-  simulate->simulate_set_reg = simulate_set_reg_1802;
-  simulate->simulate_get_reg = simulate_get_reg_1802;
-  simulate->simulate_set_pc = simulate_set_pc_1802;
-  simulate->simulate_reset = simulate_reset_1802;
-  simulate->simulate_dump_registers = simulate_dump_registers_1802;
-  simulate->simulate_run = simulate_run_1802;
-
-  simulate->memory = memory;
-  simulate_reset_1802(simulate);
-  simulate->usec = 1000000; // 1Hz
-  simulate->show = 1; // Show simulation
-  simulate->step_mode = 0;
-
-  return simulate;
+  reset();
 }
 
-static void handle_signal(int sig)
+Simulate1802::~Simulate1802()
 {
-  stop_running = 1;
-  signal(SIGINT, SIG_DFL);
 }
 
-void simulate_push_1802(Simulate *simulate, uint32_t value)
+Simulate *Simulate1802::init(Memory *memory)
+{
+  return new Simulate1802(memory);
+}
+
+void Simulate1802::push(uint32_t value)
 {
   return;
 }
 
-static int operand_exe(Simulate *simulate, int opcode)
+void Simulate1802::dump_registers()
 {
-  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
+  printf("\nSimulation Register Dump                                    \n");
+  printf("------------------------------------------------------------\n");
+  printf(" R0 = %04x,  R1 = %04x,  R2 = %04x,  R3 = %04x | D = %02x\n",
+    REG(0),
+    REG(1),
+    REG(2),
+    REG(3),
+    REG_D);
 
+  printf(" R4 = %04x,  R5 = %04x,  R6 = %04x,  R7 = %04x | P = %01x X = %01x\n",
+    REG(4),
+    REG(5),
+    REG(6),
+    REG(7),
+    REG_P,
+    REG_X);
+
+  printf(" R8 = %04x,  R9 = %04x, R10 = %04x, R11 = %04x | I = %01x N = %01x\n",
+    REG(8),
+    REG(9),
+    REG(10),
+    REG(11),
+    REG_I,
+    REG_N);
+
+  printf("R12 = %04x, R13 = %04x, R14 = %04x, R15 = %04x | T = %02x\n",
+    REG(12),
+    REG(13),
+    REG(14),
+    REG(15),
+    REG_T);
+
+  printf(" DF = %d,     IE = %d,      Q = %d      PC = %04x\n",
+    FLAG_DF,
+    FLAG_MIE,
+    FLAG_Q,
+    PC);
+
+  printf("\n\n");
+  printf("%d clock cycles have passed since last reset.\n\n", cycle_count);
+}
+
+int Simulate1802::run(int cycles, int step)
+{
+  char instruction[128];
+  char bytes[16];
+
+  printf("Running... Press Ctl-C to break.\n");
+
+  while (stop_running == false)
+  {
+    int pc = PC;
+    int opcode = READ_RAM(pc);
+    int ret = operand_exe(opcode);
+
+    if (ret == -1)
+    {
+      printf("Illegal instruction at address 0x%04x\n", pc);
+      return -1;
+    }
+
+    if (show == true)
+    {
+      printf("\x1b[1J\x1b[1;1H");
+      dump_registers();
+
+      int cycles_min, cycles_max;
+      int n = 0;
+      while (n < 6)
+      {
+        int count = disasm_1802(
+          memory,
+          pc,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max);
+
+        int i;
+
+        bytes[0] = 0;
+        for (i = 0; i < count; i++)
+        {
+          char temp[4];
+          snprintf(temp, sizeof(temp), "%02x ", READ_RAM(pc + i));
+          strcat(bytes, temp);
+        }
+
+        if (cycles_min == -1) break;
+
+        if (pc == break_point) { printf("*"); }
+        else { printf(" "); }
+
+        if (n == 0)
+          { printf("! "); }
+        else if (pc == PC)
+          { printf("> "); }
+        else
+          { printf("  "); }
+
+        printf("0x%04x: %-10s %-40s %d-%d\n", pc, bytes, instruction, cycles_min, cycles_max);
+
+        if (count == 0) { break; }
+
+        n++;
+        pc += count;
+      }
+    }
+
+    if (break_point == PC)
+    {
+      printf("Breakpoint hit at 0x%04x\n", break_point);
+      break;
+    }
+
+    if (usec == 0 || step == true)
+    {
+      signal(SIGINT, SIG_DFL);
+      return 0;
+    }
+    usleep(usec > 999999 ? 999999 : usec);
+  }
+
+  signal(SIGINT, SIG_DFL);
+  printf("Stopped.  PC=0x%04x.\n", PC);
+  printf("%d clock cycles have passed since last reset.\n", cycle_count);
+
+  return 0;
+}
+
+int Simulate1802::dumpram(int start, int end)
+{
+  printf("\n                       Simulation RAM Dump                         \n");
+  printf("---------------------------------------------------------------------\n");
+  printf("       x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xA  xB  xC  xD  xE  xF\n");
+
+  int i = 0;
+  while (i != (end - start))
+  {
+    if (i % 16 == 0)
+    {
+      printf("%04x:", start + i);
+    }
+
+    printf("  %02x", READ_RAM(start + i));
+
+    if (i % 16 == 15)
+    {
+      printf("\n");
+    }
+
+    ++i;
+  }
+  printf("\n\n");
+  return 0;
+}
+
+int Simulate1802::set_reg(const char *reg_string, uint32_t value)
+{
+  while (*reg_string==' ') { reg_string++; }
+
+  const char *pos = reg_string;
+
+  // d, p, x, t, i, n, r0, r1, r2..., df, ie, q
+
+  if ((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F')) { FLAG_DF = value & 0x1; }
+  else if (pos[0] == 'd' || pos[0] == 'D') { REG_D = value & 0xFF; }
+  else if ((pos[0] == 'p' || pos[0] == 'P') && (pos[1] == 'c' || pos[1] == 'C')) { PC = value & 0xFFFF; }
+  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { FLAG_MIE = value & 0x1; }
+  else if ((pos[0] == 'q' || pos[0] == 'Q')) { FLAG_Q = value & 0x1; }
+  else if (pos[0] == 'p' || pos[0] == 'P') { REG_P = value & 0xF; }
+  else if (pos[0] == 'x' || pos[0] == 'X') { REG_X = value & 0xF; }
+  else if (pos[0] == 't' || pos[0] == 'T') { REG_T = value & 0xFF; }
+  else if (pos[0] == 'i' || pos[0] == 'I') { REG_I = value & 0xF; }
+  else if (pos[0] == 'n' || pos[0] == 'N') { REG_N = value & 0xF; }
+
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '0')) { REG(10) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '1')) { REG(11) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '2')) { REG(12) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '3')) { REG(13) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '4')) { REG(14) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '5')) { REG(15) = value & 0xFFFF; }
+
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '0')) { REG(0) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1')) { REG(1) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '2')) { REG(2) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '3')) { REG(3) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '4')) { REG(4) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '5')) { REG(5) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '6')) { REG(6) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '7')) { REG(7) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '8')) { REG(8) = value & 0xFFFF; }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '9')) { REG(9) = value & 0xFFFF; }
+
+  else { return -1; }
+
+  return 0;
+}
+
+uint32_t Simulate1802::get_reg(const char *reg_string)
+{
+  while (*reg_string==' ') { reg_string++; }
+
+  const char *pos = reg_string;
+
+  // d, p, x, t, i, n, r0, r1, r2..., df, ie, q
+
+  if (pos[0] == 'd' || pos[0] == 'D') { return REG_D; }
+  else if (pos[0] == 'p' || pos[0] == 'P') { return REG_P; }
+  else if (pos[0] == 'x' || pos[0] == 'X') { return REG_X; }
+  else if (pos[0] == 't' || pos[0] == 'T') { return REG_T; }
+  else if (pos[0] == 'i' || pos[0] == 'I') { return REG_I; }
+  else if (pos[0] == 'n' || pos[0] == 'N') { return REG_N; }
+
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '0')) { return REG(10); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '1')) { return REG(11); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '2')) { return REG(12); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '3')) { return REG(13); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '4')) { return REG(14); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '5')) { return REG(15); }
+
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '0')) { return REG(0); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1')) { return REG(1); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '2')) { return REG(2); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '3')) { return REG(3); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '4')) { return REG(4); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '5')) { return REG(5); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '6')) { return REG(6); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '7')) { return REG(7); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '8')) { return REG(8); }
+  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '9')) { return REG(9); }
+
+  else if ((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F')) { return FLAG_DF; }
+  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { return FLAG_MIE; }
+  else if ((pos[0] == 'q' || pos[0] == 'Q')) { return FLAG_Q; }
+  else { return -1; }
+}
+
+void Simulate1802::set_pc(uint32_t value)
+{
+  PC = value;
+}
+
+void Simulate1802::reset()
+{
+  cycle_count = 0;
+  nested_call_count = 0;
+
+  // d, b, p, x, t, i, n, r0, r1, r2..., df, ie, q
+  REG_D = 0;
+  REG_B = 0;
+  REG_P = 0;
+  REG_X = 0;
+  REG_T = 0;
+  REG_I = 0;
+  REG_N = 0;
+
+  int i;
+  for (i = 0; i < 16; i++)
+  {
+    REG(i) = 0;
+  }
+
+  REG_CNTR = 0;
+  REG_CN = 0;
+
+  FLAG_DF = 0;
+  FLAG_MIE = 1;
+  FLAG_CIE = 1;
+  FLAG_XIE = 1;
+  FLAG_CIL = 0;
+  FLAG_Q = 0;
+  break_point = -1;
+}
+
+int Simulate1802::operand_exe(int opcode)
+{
   REG_N = opcode & 0xF;
   REG_I = (opcode & 0xF0) >> 4;
   uint16_t temp;
@@ -127,7 +382,7 @@ static int operand_exe(Simulate *simulate, int opcode)
       if ((_opcode & table_1802_16[i].mask) == table_1802_16[i].opcode)
       {
         // Every machine cycle is 8 cycle
-        simulate->cycle_count += table_1802_16[i].cycles * 8;
+        cycle_count += table_1802_16[i].cycles * 8;
         break;
       }
     }
@@ -139,7 +394,7 @@ static int operand_exe(Simulate *simulate, int opcode)
       if ((opcode & table_1802[i].mask) == table_1802[i].opcode)
       {
         // Every machine cycle is 8 cycle
-        simulate->cycle_count += table_1802[i].cycles * 8;
+        cycle_count += table_1802[i].cycles * 8;
         break;
       }
     }
@@ -921,305 +1176,5 @@ static int operand_exe(Simulate *simulate, int opcode)
 
   ++PC;
   return 0;
-}
-
-void simulate_free_1802(Simulate *simulate)
-{
-  free(simulate);
-}
-
-void simulate_dump_registers_1802(Simulate *simulate)
-{
-  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
-
-  printf("\nSimulation Register Dump                                    \n");
-  printf("------------------------------------------------------------\n");
-  printf(" R0 = %04x,  R1 = %04x,  R2 = %04x,  R3 = %04x | D = %02x\n",
-    REG(0),
-    REG(1),
-    REG(2),
-    REG(3),
-    REG_D);
-
-  printf(" R4 = %04x,  R5 = %04x,  R6 = %04x,  R7 = %04x | P = %01x X = %01x\n",
-    REG(4),
-    REG(5),
-    REG(6),
-    REG(7),
-    REG_P,
-    REG_X);
-
-  printf(" R8 = %04x,  R9 = %04x, R10 = %04x, R11 = %04x | I = %01x N = %01x\n",
-    REG(8),
-    REG(9),
-    REG(10),
-    REG(11),
-    REG_I,
-    REG_N);
-
-  printf("R12 = %04x, R13 = %04x, R14 = %04x, R15 = %04x | T = %02x\n",
-    REG(12),
-    REG(13),
-    REG(14),
-    REG(15),
-    REG_T);
-
-  printf(" DF = %d,     IE = %d,      Q = %d      PC = %04x\n",
-    FLAG_DF,
-    FLAG_MIE,
-    FLAG_Q,
-    PC);
-
-  printf("\n\n");
-  printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
-}
-
-int simulate_run_1802(Simulate *simulate, int cycles, int step)
-{
-  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
-  char instruction[128];
-  char bytes[16];
-
-  stop_running = 0;
-  signal(SIGINT, handle_signal);
-
-  printf("Running... Press Ctl-C to break.\n");
-
-  while (stop_running == 0)
-  {
-    int pc = PC;
-    int opcode = READ_RAM(pc);
-    int ret = operand_exe(simulate, opcode);
-
-    if (ret == -1)
-    {
-      printf("Illegal instruction at address 0x%04x\n", pc);
-      return -1;
-    }
-
-    if (simulate->show == 1)
-    {
-      printf("\x1b[1J\x1b[1;1H");
-      simulate_dump_registers_1802(simulate);
-
-      int cycles_min, cycles_max;
-      int n = 0;
-      while (n < 6)
-      {
-        int count = disasm_1802(
-          simulate->memory,
-          pc,
-          instruction,
-          sizeof(instruction),
-          &cycles_min,
-          &cycles_max);
-
-        int i;
-
-        bytes[0] = 0;
-        for (i = 0; i < count; i++)
-        {
-          char temp[4];
-          snprintf(temp, sizeof(temp), "%02x ", READ_RAM(pc + i));
-          strcat(bytes, temp);
-        }
-
-        if (cycles_min == -1) break;
-
-        if (pc == simulate->break_point) { printf("*"); }
-        else { printf(" "); }
-
-        if (n == 0)
-          { printf("! "); }
-        else if (pc == PC)
-          { printf("> "); }
-        else
-          { printf("  "); }
-
-        printf("0x%04x: %-10s %-40s %d-%d\n", pc, bytes, instruction, cycles_min, cycles_max);
-
-        if (count == 0) { break; }
-
-        n++;
-        pc += count;
-      }
-    }
-
-    if (simulate->break_point == PC)
-    {
-      printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
-      break;
-    }
-
-    if ((simulate->usec == 0) || (step == 1))
-    {
-      signal(SIGINT, SIG_DFL);
-      return 0;
-    }
-    usleep(simulate->usec > 999999 ? 999999 : simulate->usec);
-  }
-
-  signal(SIGINT, SIG_DFL);
-  printf("Stopped.  PC=0x%04x.\n", PC);
-  printf("%d clock cycles have passed since last reset.\n", simulate->cycle_count);
-
-  return 0;
-}
-
-int simulate_dumpram_1802(Simulate *simulate, int start, int end)
-{
-  //Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
-
-  printf("\n                       Simulation RAM Dump                         \n");
-  printf("---------------------------------------------------------------------\n");
-  printf("       x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xA  xB  xC  xD  xE  xF\n");
-
-  int i = 0;
-  while (i != (end - start))
-  {
-    if (i % 16 == 0)
-    {
-      printf("%04x:", start + i);
-    }
-
-    printf("  %02x", READ_RAM(start + i));
-
-    if (i % 16 == 15)
-    {
-      printf("\n");
-    }
-
-    ++i;
-  }
-  printf("\n\n");
-  return 0;
-}
-
-int simulate_set_reg_1802(
-  Simulate *simulate,
-  const char *reg_string,
-  uint32_t value)
-{
-  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
-
-  while (*reg_string==' ') { reg_string++; }
-
-  const char *pos = reg_string;
-
-  // d, p, x, t, i, n, r0, r1, r2..., df, ie, q
-
-  if ((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F')) { FLAG_DF = value & 0x1; }
-  else if (pos[0] == 'd' || pos[0] == 'D') { REG_D = value & 0xFF; }
-  else if ((pos[0] == 'p' || pos[0] == 'P') && (pos[1] == 'c' || pos[1] == 'C')) { PC = value & 0xFFFF; }
-  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { FLAG_MIE = value & 0x1; }
-  else if ((pos[0] == 'q' || pos[0] == 'Q')) { FLAG_Q = value & 0x1; }
-  else if (pos[0] == 'p' || pos[0] == 'P') { REG_P = value & 0xF; }
-  else if (pos[0] == 'x' || pos[0] == 'X') { REG_X = value & 0xF; }
-  else if (pos[0] == 't' || pos[0] == 'T') { REG_T = value & 0xFF; }
-  else if (pos[0] == 'i' || pos[0] == 'I') { REG_I = value & 0xF; }
-  else if (pos[0] == 'n' || pos[0] == 'N') { REG_N = value & 0xF; }
-
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '0')) { REG(10) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '1')) { REG(11) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '2')) { REG(12) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '3')) { REG(13) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '4')) { REG(14) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '5')) { REG(15) = value & 0xFFFF; }
-
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '0')) { REG(0) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1')) { REG(1) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '2')) { REG(2) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '3')) { REG(3) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '4')) { REG(4) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '5')) { REG(5) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '6')) { REG(6) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '7')) { REG(7) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '8')) { REG(8) = value & 0xFFFF; }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '9')) { REG(9) = value & 0xFFFF; }
-
-  else { return -1; }
-
-  return 0;
-}
-
-uint32_t simulate_get_reg_1802(Simulate *simulate, const char *reg_string)
-{
-  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
-
-  while (*reg_string==' ') { reg_string++; }
-
-  const char *pos = reg_string;
-
-  // d, p, x, t, i, n, r0, r1, r2..., df, ie, q
-
-  if (pos[0] == 'd' || pos[0] == 'D') { return REG_D; }
-  else if (pos[0] == 'p' || pos[0] == 'P') { return REG_P; }
-  else if (pos[0] == 'x' || pos[0] == 'X') { return REG_X; }
-  else if (pos[0] == 't' || pos[0] == 'T') { return REG_T; }
-  else if (pos[0] == 'i' || pos[0] == 'I') { return REG_I; }
-  else if (pos[0] == 'n' || pos[0] == 'N') { return REG_N; }
-
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '0')) { return REG(10); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '1')) { return REG(11); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '2')) { return REG(12); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '3')) { return REG(13); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '4')) { return REG(14); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1') && (pos[2] == '5')) { return REG(15); }
-
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '0')) { return REG(0); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '1')) { return REG(1); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '2')) { return REG(2); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '3')) { return REG(3); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '4')) { return REG(4); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '5')) { return REG(5); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '6')) { return REG(6); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '7')) { return REG(7); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '8')) { return REG(8); }
-  else if ((pos[0] == 'r' || pos[0] == 'R') && (pos[1] == '9')) { return REG(9); }
-
-  else if ((pos[0] == 'd' || pos[0] == 'D') && (pos[1] == 'f' || pos[1] == 'F')) { return FLAG_DF; }
-  else if ((pos[0] == 'i' || pos[0] == 'I') && (pos[1] == 'e' || pos[1] == 'E')) { return FLAG_MIE; }
-  else if ((pos[0] == 'q' || pos[0] == 'Q')) { return FLAG_Q; }
-  else { return -1; }
-}
-
-void simulate_set_pc_1802(Simulate *simulate, uint32_t value)
-{
-  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
-  PC = value;
-}
-
-void simulate_reset_1802(Simulate *simulate)
-{
-  Simulate1802 *simulate_1802 = (Simulate1802 *)simulate->context;
-
-  simulate->cycle_count = 0;
-  simulate->nested_call_count = 0;
-
-  // d, b, p, x, t, i, n, r0, r1, r2..., df, ie, q
-  REG_D = 0;
-  REG_B = 0;
-  REG_P = 0;
-  REG_X = 0;
-  REG_T = 0;
-  REG_I = 0;
-  REG_N = 0;
-
-  int i;
-  for (i = 0; i < 16; i++)
-  {
-    REG(i) = 0;
-  }
-
-  REG_CNTR = 0;
-  REG_CN = 0;
-
-  FLAG_DF = 0;
-  FLAG_MIE = 1;
-  FLAG_CIE = 1;
-  FLAG_XIE = 1;
-  FLAG_CIL = 0;
-  FLAG_Q = 0;
-  simulate->break_point = -1;
 }
 

@@ -159,6 +159,8 @@ enum
 };
 
 extern int table_6502_len;
+extern struct _table_6502 table_6502[];
+extern struct _table_6502_opcodes table_6502_opcodes[];
 
 #endif
 

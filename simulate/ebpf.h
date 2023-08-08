@@ -17,23 +17,30 @@
 #include "common/memory.h"
 #include "simulate/Simulate.h"
 
-typedef struct _simulate_ebpf
+class SimulateEbpf : public Simulate
 {
+public:
+  SimulateEbpf(Memory *memory);
+  virtual ~SimulateEbpf();
+
+  static Simulate *init(Memory *memory);
+
+  virtual int dumpram(int start, int end);
+  virtual void push(uint32_t value);
+  virtual int set_reg(const char *reg_string, uint32_t value);
+  virtual uint32_t get_reg(const char *reg_string);
+  virtual void set_pc(uint32_t value);
+  virtual void reset();
+  virtual void dump_registers();
+  virtual int run(int max_cycles, int step);
+
+private:
+  int get_register(const char *s);
+
   int64_t reg[16];
   uint32_t pc;
 
-} SimulateEbpf;
-
-Simulate *simulate_init_ebpf(Memory *memory);
-void simulate_free_ebpf(Simulate *simulate);
-int simulate_dumpram_ebpf(Simulate *simulate, int start, int end);
-void simulate_push_ebpf(Simulate *simulate, uint32_t value);
-int simulate_set_reg_ebpf(Simulate *simulate, const char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_ebpf(Simulate *simulate, const char *reg_string);
-void simulate_set_pc_ebpf(Simulate *simulate, uint32_t value);
-void simulate_reset_ebpf(Simulate *simulate);
-void simulate_dump_registers_ebpf(Simulate *simulate);
-int simulate_run_ebpf(Simulate *simulate, int max_cycles, int step);
+};
 
 #endif
 

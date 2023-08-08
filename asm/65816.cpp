@@ -18,10 +18,9 @@
 #include "asm/common.h"
 #include "asm/65816.h"
 #include "common/assembler.h"
-#include "disasm/65816.h"
-#include "common/tokens.h"
 #include "common/eval_expression.h"
-
+#include "common/tokens.h"
+#include "disasm/65816.h"
 #include "table/65816.h"
 
 #define GET_TOKEN() (token_type = tokens_get(asm_context, token, TOKENLEN))
@@ -190,9 +189,6 @@ static int get_address(
 
   return 0;
 }
-
-extern struct _table_65816 table_65816[];
-extern struct _table_65816_opcodes table_65816_opcodes[];
 
 // bytes for each addressing mode
 static int op_bytes[] =

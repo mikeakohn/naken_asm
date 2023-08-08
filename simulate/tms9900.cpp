@@ -19,15 +19,15 @@
 #include "disasm/tms9900.h"
 #include "simulate/tms9900.h"
 
-#define SHOW_STACK sp, memory_read_m(simulate->memory, sp+1), memory_read_m(simulate->memory, sp)
-#define READ_RAM(a) memory_read_m(simulate->memory, a)
-#define WRITE_RAM(a,b) memory_write_m(simulate->memory, a, b)
+#define SHOW_STACK sp, memory_read_m(memory, sp+1), memory_read_m(memory, sp)
+#define READ_RAM(a) memory_read_m(memory, a)
+#define WRITE_RAM(a,b) memory_write_m(memory, a, b)
 #define READ_REG(a) \
-  (memory_read_m(simulate->memory, simulate_tms9900->wp + (a * 2)) << 8) | \
-   memory_read_m(simulate->memory, simulate_tms9900->wp + (a * 2) + 1)
+  (memory_read_m(memory, wp + (a * 2)) << 8) | \
+   memory_read_m(memory, wp + (a * 2) + 1)
 #define WRITE_REG(a, b) \
-   memory_write_m(simulate->memory, simulate_tms9900->wp + (a * 2), b >> 8); \
-   memory_write_m(simulate->memory, simulate_tms9900->wp + (a * 2) + 1, b&0xff);
+   memory_write_m(memory, wp + (a * 2), b >> 8); \
+   memory_write_m(memory, wp + (a * 2) + 1, b&0xff);
 
 #define AFFECTS_NZ(a) \
   if (bw == 0) \
@@ -80,204 +80,146 @@
     if (result & 0x80) { SET_N(); } else { CLEAR_N(); } \
   }
 
-#define IS_LGT_SET() (simulate_tms9900->st & 0x8000)
-#define IS_AGT_SET() (simulate_tms9900->st & 0x4000)
-#define IS_EQ_SET() (simulate_tms9900->st & 0x2000)
-#define IS_C_SET() (simulate_tms9900->st & 0x1000)
-#define IS_V_SET() (simulate_tms9900->st & 0x0800)
-#define IS_OP_SET() (simulate_tms9900->st & 0x0400)
-#define IS_XOP_SET() (simulate_tms9900->st & 0x0200)
-#define IS_PRV_SET() (simulate_tms9900->st & 0x0100)
-#define IS_M_SET() (simulate_tms9900->st & 0x0080)
-#define IS_AFIE_SET() (simulate_tms9900->st & 0x0020)
-#define IS_EM_SET() (simulate_tms9900->st & 0x0010)
-#define GET_INT_MASK() (simulate_tms9900->st & 0x000f)
+#define IS_LGT_SET()   (st & 0x8000)
+#define IS_AGT_SET()   (st & 0x4000)
+#define IS_EQ_SET()    (st & 0x2000)
+#define IS_C_SET()     (st & 0x1000)
+#define IS_V_SET()     (st & 0x0800)
+#define IS_OP_SET()    (st & 0x0400)
+#define IS_XOP_SET()   (st & 0x0200)
+#define IS_PRV_SET()   (st & 0x0100)
+#define IS_M_SET()     (st & 0x0080)
+#define IS_AFIE_SET()  (st & 0x0020)
+#define IS_EM_SET()    (st & 0x0010)
+#define GET_INT_MASK() (st & 0x000f)
 
-#define SET_LGT() simulate_tms9900->st |= 0x8000;
-#define SET_AGT() simulate_tms9900->st |= 0x4000;
-#define SET_EQ() simulate_tms9900->st |= 0x2000;
-#define SET_C() simulate_tms9900->st |= 0x1000;
-#define SET_V() simulate_tms9900->st |= 0x0800;
-#define SET_OP() simulate_tms9900->st |= 0x0400;
-#define SET_XOP() simulate_tms9900->st |= 0x0200;
-#define SET_PRV() simulate_tms9900->st |= 0x0100;
-#define SET_M() simulate_tms9900->st |= 0x0080;
-#define SET_AFIE() simulate_tms9900->st |= 0x0020;
-#define SET_EM() simulate_tms9900->st |= 0x0010;
-#define SET_INT_MASK(a) simulate_tms9900->st =& 0xfff0; \
-                        simulate_tms9900->st =| a;
+#define SET_LGT()  st |= 0x8000;
+#define SET_AGT()  st |= 0x4000;
+#define SET_EQ()   st |= 0x2000;
+#define SET_C()    st |= 0x1000;
+#define SET_V()    st |= 0x0800;
+#define SET_OP()   st |= 0x0400;
+#define SET_XOP()  st |= 0x0200;
+#define SET_PRV()  st |= 0x0100;
+#define SET_M()    st |= 0x0080;
+#define SET_AFIE() st |= 0x0020;
+#define SET_EM()   st |= 0x0010;
 
-#define CLR_LGT() simulate_tms9900->st &= (0x8000 ^ 0xffff);
-#define CLR_AGT() simulate_tms9900->st &= (0x4000 ^ 0xffff);
-#define CLR_EQ() simulate_tms9900->st &= (0x2000 ^ 0xffff);
-#define CLR_C() simulate_tms9900->st &= (0x1000 ^ 0xffff);
-#define CLR_V() simulate_tms9900->st &= (0x0800 ^ 0xffff);
-#define CLR_OP() simulate_tms9900->st &= (0x0400 ^ 0xffff);
-#define CLR_XOP() simulate_tms9900->st &= (0x0200 ^ 0xffff);
-#define CLR_PRV() simulate_tms9900->st &= (0x0100 ^ 0xffff);
-#define CLR_M() simulate_tms9900->st &= (0x0080 ^ 0xffff);
-#define CLR_AFIE() simulate_tms9900->st &= (0x0020 ^ 0xffff);
-#define CLR_EM() simulate_tms9900->st &= (0x0010 ^ 0xffff);
+#define SET_INT_MASK(a) st =& 0xfff0; st =| a;
 
-static int stop_running = 0;
-
-static void handle_signal(int sig)
-{
-  stop_running = 1;
-  signal(SIGINT, SIG_DFL);
-}
-
-#if 0
-static void sp_inc(int *sp)
-{
-  (*sp) += 2;
-  if (*sp > 0xffff) *sp = 0;
-}
-#endif
-
-static int get_register_tms9900(const char *token)
-{
-  if (token[0]=='r' || token[0]=='R')
-  {
-    if (token[2]==0 && (token[1]>='0' && token[1]<='9'))
-    {
-      return token[1]-'0';
-    }
-      else
-    if (token[3]==0 && token[1]=='1' && (token[2]>='0' && token[2]<='5'))
-    {
-      return 10+(token[2]-'0');
-    }
-  }
-
-  return -1;
-}
-
-Simulate *simulate_init_tms9900(Memory *memory)
-{
-  Simulate *simulate;
-
-  simulate = (Simulate *)malloc(sizeof(SimulateTms9900) + sizeof(Simulate));
-
-  simulate->simulate_init = simulate_init_tms9900;
-  simulate->simulate_free = simulate_free_tms9900;
-  simulate->simulate_dumpram = simulate_dumpram_tms9900;
-  simulate->simulate_push = simulate_push_tms9900;
-  simulate->simulate_set_reg = simulate_set_reg_tms9900;
-  simulate->simulate_get_reg = simulate_get_reg_tms9900;
-  simulate->simulate_set_pc = simulate_set_pc_tms9900;
-  simulate->simulate_reset = simulate_reset_tms9900;
-  simulate->simulate_dump_registers = simulate_dump_registers_tms9900;
-  simulate->simulate_run = simulate_run_tms9900;
-
-  //memory_init(&simulate->memory, 65536, 0);
-  simulate->memory = memory;
-  simulate_reset_tms9900(simulate);
-  simulate->usec = 1000000; // 1Hz
-  simulate->step_mode = 0;
-  simulate->show = 1;       // Show simulation
-  simulate->auto_run = 0;   // Will this program stop on a ret from main
-  return simulate;
-}
-
-void simulate_push_tms9900(Simulate *simulate, uint32_t value)
-{
-  //SimulateTms9900 *simulate_tms9900 = (SimulateTms9900 *)simulate->context;
-
-#if 0
-  simulate_tms9900->reg[1] -= 2;
-  WRITE_RAM(simulate_tms9900->reg[1], value & 0xff);
-  WRITE_RAM(simulate_tms9900->reg[1] + 1, value >> 8);
-#endif
-}
+#define CLR_LGT()  st &= (0x8000 ^ 0xffff);
+#define CLR_AGT()  st &= (0x4000 ^ 0xffff);
+#define CLR_EQ()   st &= (0x2000 ^ 0xffff);
+#define CLR_C()    st &= (0x1000 ^ 0xffff);
+#define CLR_V()    st &= (0x0800 ^ 0xffff);
+#define CLR_OP()   st &= (0x0400 ^ 0xffff);
+#define CLR_XOP()  st &= (0x0200 ^ 0xffff);
+#define CLR_PRV()  st &= (0x0100 ^ 0xffff);
+#define CLR_M()    st &= (0x0080 ^ 0xffff);
+#define CLR_AFIE() st &= (0x0020 ^ 0xffff);
+#define CLR_EM()   st &= (0x0010 ^ 0xffff);
 
 static const char *flags[] = { "L>", "A>", "=", "C", "O", "P", "X" };
 
-int simulate_set_reg_tms9900(
-  Simulate *simulate,
-  const char *reg_string,
-  uint32_t value)
+SimulateTms9900::SimulateTms9900(Memory *memory) : Simulate(memory)
 {
-  SimulateTms9900 *simulate_tms9900 = (SimulateTms9900 *)simulate->context;
-  int reg,n;
+  reset();
+}
 
-  while(*reg_string == ' ') { reg_string++; }
-  reg = get_register_tms9900(reg_string);
-  if (reg == -1)
+SimulateTms9900::~SimulateTms9900()
+{
+}
+
+Simulate *SimulateTms9900::init(Memory *memory)
+{
+  return new SimulateTms9900(memory);
+}
+
+void SimulateTms9900::push(uint32_t value)
+{
+#if 0
+  reg[1] -= 2;
+  WRITE_RAM(reg[1], value & 0xff);
+  WRITE_RAM(reg[1] + 1, value >> 8);
+#endif
+}
+
+int SimulateTms9900::set_reg(const char *reg_string, uint32_t value)
+{
+  while (*reg_string == ' ') { reg_string++; }
+
+  int index = get_register(reg_string);
+
+  if (index == -1)
   {
-    for (n = 0; n < 9; n++)
+    for (int n = 0; n < 9; n++)
     {
       if (strcasecmp(reg_string, flags[n]) == 0)
       {
         if (value == 1)
-        { simulate_tms9900->st |= (1 << n); }
+        {
+          st |= (1 << n);
+        }
           else
-        { simulate_tms9900->st &= 0xffff ^ (1 << n); }
+        {
+          st &= 0xffff ^ (1 << n);
+        }
+
         return 0;
       }
     }
     return -1;
   }
 
-  WRITE_REG(reg, value);
+  WRITE_REG(index, value);
 
   return 0;
 }
 
-uint32_t simulate_get_reg_tms9900(Simulate *simulate, const char *reg_string)
+uint32_t SimulateTms9900::get_reg(const char *reg_string)
 {
-  SimulateTms9900 *simulate_tms9900 = (SimulateTms9900 *)simulate->context;
-  int reg;
+  int index;
 
-  reg = get_register_tms9900(reg_string);
-  if (reg == -1)
+  index = get_register(reg_string);
+  if (index == -1)
   {
     printf("Unknown register '%s'\n", reg_string);
     return -1;
   }
 
-  return READ_REG(reg);
+  return READ_REG(index);
 }
 
-void simulate_set_pc_tms9900(Simulate *simulate, uint32_t value)
+void SimulateTms9900::set_pc(uint32_t value)
 {
-  SimulateTms9900 *simulate_tms9900 = (SimulateTms9900 *)simulate->context;
-
-  simulate_tms9900->pc = 0;
+  pc = value;
 }
 
-void simulate_reset_tms9900(Simulate *simulate)
+void SimulateTms9900::reset()
 {
-  SimulateTms9900 *simulate_tms9900 = (SimulateTms9900 *)simulate->context;
+  cycle_count = 0;
+  nested_call_count = 0;
 
-  simulate->cycle_count = 0;
-  simulate->nested_call_count = 0;
-  //memset(simulate_tms9900->reg, 0, sizeof(simulate_tms9900->reg));
-  //memory_clear(&simulate->memory);
-  //simulate_tms9900->reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
+  //memset(reg, 0, sizeof(reg));
+  //memory_clear(&memory);
+  //reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
+
   // FIXME - A real chip wouldn't set the SP to this, but this is
   // in case someone is simulating code that won't run on a chip.
-  //simulate_tms9900->reg[1] = 0x800;
-  simulate_tms9900->pc = 0;
-  simulate_tms9900->wp = 0;
-  simulate_tms9900->st = 0;
-  simulate->break_point = -1;
+  //reg[1] = 0x800;
+  pc = 0;
+  wp = 0;
+  st = 0;
+  break_point = -1;
 }
 
-void simulate_free_tms9900(Simulate *simulate)
-{
-  //memory_free(simulate->memory);
-  free(simulate);
-}
-
-int simulate_dumpram_tms9900(Simulate *simulate, int start, int end)
+int SimulateTms9900::dumpram(int start, int end)
 {
   return -1;
 }
 
-void simulate_dump_registers_tms9900(Simulate *simulate)
+void SimulateTms9900::dump_registers()
 {
-  SimulateTms9900 *simulate_tms9900 = (SimulateTms9900 *)simulate->context;
   int n;
 
   printf("\nSimulation Register Dump                                  Stack\n");
@@ -299,10 +241,7 @@ void simulate_dump_registers_tms9900(Simulate *simulate)
          IS_EM_SET(),
          GET_INT_MASK());
 
-  printf(" PC: 0x%04x,  WP: 0x%04x,  ST: 0x%04x",
-         simulate_tms9900->pc,
-         simulate_tms9900->wp,
-         simulate_tms9900->st);
+  printf(" PC: 0x%04x,  WP: 0x%04x,  ST: 0x%04x", pc, wp, st);
 
   for (n = 0; n < 16; n++)
   {
@@ -323,34 +262,30 @@ void simulate_dump_registers_tms9900(Simulate *simulate)
   }
   //printf("      0x%04x: 0x%02x%02x", SHOW_STACK);
   printf("\n\n");
-  printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
+  printf("%d clock cycles have passed since last reset.\n\n", cycle_count);
 }
 
-int simulate_run_tms9900(Simulate *simulate, int max_cycles, int step)
+int SimulateTms9900::run(int max_cycles, int step)
 {
-  SimulateTms9900 *simulate_tms9900 = (SimulateTms9900 *)simulate->context;
   char instruction[128];
   uint16_t opcode;
   int cycles = 0;
   int ret;
-  int pc;
+  int pc_current;
   int c = 0; // FIXME - broken
   int n;
 
-  stop_running = 0;
-  signal(SIGINT, handle_signal);
-
   printf("Running... Press Ctl-C to break.\n");
 
-  while(stop_running == 0)
+  while (stop_running == false)
   {
-    pc = simulate_tms9900->pc;
-    opcode = (READ_RAM(pc) << 8) | READ_RAM(pc);
+    pc_current = pc;
+    opcode = (READ_RAM(pc_current) << 8) | READ_RAM(pc_current);
     //c = get_cycle_count(opcode);
-    //if (c > 0) simulate->cycle_count += c;
-    simulate_tms9900->pc += 2;
+    //if (c > 0) cycle_count += c;
+    pc += 2;
 
-    if (simulate->show == 1) printf("\x1b[1J\x1b[1;1H");
+    if (show == true) { printf("\x1b[1J\x1b[1;1H"); }
 
     ///////
     if (opcode == 0) { break; } // FIXME
@@ -359,20 +294,20 @@ int simulate_run_tms9900(Simulate *simulate, int max_cycles, int step)
 
     if (c > 0) cycles += c;
 
-    if (simulate->show == 1)
+    if (show == true)
     {
-      simulate_dump_registers_tms9900(simulate);
+      dump_registers();
 
       n = 0;
-      while(n < 6)
+      while (n < 6)
       {
         int cycles_min,cycles_max;
         int num;
-        num = (READ_RAM(pc) << 8) | READ_RAM(pc + 1);
+        num = (READ_RAM(pc_current) << 8) | READ_RAM(pc_current + 1);
 
         int count = disasm_tms9900(
-          simulate->memory,
-          pc,
+          memory,
+          pc_current,
           instruction,
           sizeof(instruction),
           &cycles_min,
@@ -380,83 +315,115 @@ int simulate_run_tms9900(Simulate *simulate, int max_cycles, int step)
 
         if (cycles_min == -1) { break; }
 
-        if (pc == simulate->break_point) { printf("*"); }
-        else { printf(" "); }
+        if (pc_current == break_point)
+        {
+          printf("*");
+        }
+          else
+        {
+          printf(" ");
+        }
 
         if (n == 0)
-        { printf("! "); }
+        {
+          printf("! ");
+        }
           else
-        if (pc == simulate_tms9900->pc) { printf("> "); }
+        if (pc_current == pc)
+        {
+          printf("> ");
+        }
           else
-        { printf("  "); }
+        {
+          printf("  ");
+        }
 
         if (cycles_min < 1)
         {
-          printf("0x%04x: 0x%04x %-40s ?\n", pc, num, instruction);
+          printf("0x%04x: 0x%04x %-40s ?\n", pc_current, num, instruction);
         }
           else
         if (cycles_min == cycles_max)
         {
-          printf("0x%04x: 0x%04x %-40s %d\n", pc, num, instruction, cycles_min);
+          printf("0x%04x: 0x%04x %-40s %d\n", pc_current, num, instruction, cycles_min);
         }
           else
         {
-          printf("0x%04x: 0x%04x %-40s %d-%d\n", pc, num, instruction, cycles_min, cycles_max);
+          printf("0x%04x: 0x%04x %-40s %d-%d\n", pc_current, num, instruction, cycles_min, cycles_max);
         }
 
         n = n + count;
-        pc += 2;
+        pc_current += 2;
         count--;
         while (count > 0)
         {
-          if (pc == simulate->break_point) { printf("*"); }
+          if (pc_current == break_point) { printf("*"); }
           else { printf(" "); }
-          num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
-          printf("  0x%04x: 0x%04x\n", pc, num);
-          pc += 2;
+          num = (READ_RAM(pc_current + 1) << 8) | READ_RAM(pc_current);
+          printf("  0x%04x: 0x%04x\n", pc_current, num);
+          pc_current += 2;
           count--;
         }
       }
     }
 
-    if (simulate->auto_run == 1 && simulate->nested_call_count < 0) { return 0; }
+    if (auto_run == true && nested_call_count < 0) { return 0; }
 
     if (ret == -1)
     {
-      printf("Illegal instruction at address 0x%04x\n", pc);
+      printf("Illegal instruction at address 0x%04x\n", pc_current);
       return -1;
     }
 
     if (max_cycles != -1 && cycles > max_cycles) break;
-    if (simulate->break_point == simulate_tms9900->pc)
+    if (break_point == pc)
     {
-       printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
+       printf("Breakpoint hit at 0x%04x\n", break_point);
       break;
     }
 
-    if (simulate->usec == 0 || step == 1)
+    if (usec == 0 || step == true)
     {
-      //simulate->step_mode=0;
+      //step_mode = 0;
       signal(SIGINT, SIG_DFL);
       return 0;
     }
 
-    if (simulate_tms9900->pc == 0xffff)
+    if (pc == 0xffff)
     {
-      printf("Function ended.  Total cycles: %d\n", simulate->cycle_count);
-      simulate->step_mode = 0;
-      simulate_tms9900->pc = 0;
+      printf("Function ended.  Total cycles: %d\n", cycle_count);
+      step_mode = 0;
+      pc = 0;
       signal(SIGINT, SIG_DFL);
       return 0;
     }
 
-    usleep(simulate->usec);
+    usleep(usec);
   }
 
   signal(SIGINT, SIG_DFL);
-  printf("Stopped.  PC=0x%04x.\n", simulate_tms9900->pc);
-  printf("%d clock cycles have passed since last reset.\n", simulate->cycle_count);
+  printf("Stopped.  PC=0x%04x.\n", pc);
+  printf("%d clock cycles have passed since last reset.\n", cycle_count);
 
   return 0;
+}
+
+int SimulateTms9900::get_register(const char *token)
+{
+  if (token[0] == 'r' || token[0] == 'R')
+  {
+    if (token[2] == 0 && (token[1] >= '0' && token[1] <= '9'))
+    {
+      return token[1]-'0';
+    }
+      else
+    if (token[3] == 0 && token[1] == '1' &&
+       (token[2] >= '0' && token[2] <= '5'))
+    {
+      return 10 + (token[2] - '0');
+    }
+  }
+
+  return -1;
 }
 

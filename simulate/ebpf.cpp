@@ -18,15 +18,88 @@
 
 #include "simulate/ebpf.h"
 
-static int stop_running = 0;
-
-static void handle_signal(int sig)
+SimulateEbpf::SimulateEbpf(Memory *memory) : Simulate(memory)
 {
-  stop_running = 1;
-  signal(SIGINT, SIG_DFL);
+  reset();
 }
 
-static int get_register(const char *s)
+SimulateEbpf::~SimulateEbpf()
+{
+}
+
+Simulate *SimulateEbpf::init(Memory *memory)
+{
+  return new SimulateEbpf(memory);
+}
+
+void SimulateEbpf::push(uint32_t value)
+{
+}
+
+int SimulateEbpf::set_reg(const char *reg_string, uint32_t value)
+{
+  int r = get_register(reg_string);
+
+  if (r == -1) { return -1; }
+  reg[r] = value;
+
+  return 0;
+}
+
+uint32_t SimulateEbpf::get_reg(const char *reg_string)
+{
+  int r = get_register(reg_string);
+
+  if (r == -1) { return -1; }
+
+  printf(" r%d: 0x%08" PRIx64 "\n", r, reg[r]);
+
+  return 0;
+}
+
+void SimulateEbpf::set_pc(uint32_t value)
+{
+  pc = value;
+}
+
+void SimulateEbpf::reset()
+{
+  memset(reg, 0, sizeof(reg));
+  pc = 0;
+}
+
+int SimulateEbpf::dumpram(int start, int end)
+{
+  return -1;
+}
+
+void SimulateEbpf::dump_registers()
+{
+  int n;
+
+  for (n = 0; n < 11; n++)
+  {
+    printf(" r%d: %08" PRIx64 "\n", n, reg[n]);
+  }
+}
+
+int SimulateEbpf::run(int max_cycles, int step)
+{
+  stop_running = 0;
+  signal(SIGINT, handle_signal);
+
+  while (stop_running == 0)
+  {
+    printf("CPU not supported.\n");
+    break;
+  }
+
+  signal(SIGINT, SIG_DFL);
+
+  return 0;
+}
+
+int SimulateEbpf::get_register(const char *s)
 {
   while (*s == ' ') { s++; }
 
@@ -45,120 +118,5 @@ static int get_register(const char *s)
   }
 
   return -1;
-}
-
-Simulate *simulate_init_ebpf(Memory *memory)
-{
-  Simulate *simulate;
-
-  simulate = (Simulate *)malloc(sizeof(SimulateEbpf) + sizeof(Simulate));
-
-  simulate->simulate_init = simulate_init_ebpf;
-  simulate->simulate_free = simulate_free_ebpf;
-  simulate->simulate_dumpram = simulate_dumpram_ebpf;
-  simulate->simulate_push = simulate_push_ebpf;
-  simulate->simulate_set_reg = simulate_set_reg_ebpf;
-  simulate->simulate_get_reg = simulate_get_reg_ebpf;
-  simulate->simulate_set_pc = simulate_set_pc_ebpf;
-  simulate->simulate_reset = simulate_reset_ebpf;
-  simulate->simulate_dump_registers = simulate_dump_registers_ebpf;
-  simulate->simulate_run = simulate_run_ebpf;
-
-  //memory_init(&simulate->memory, 65536, 0);
-  simulate->memory = memory;
-  simulate_reset_ebpf(simulate);
-  simulate->usec = 1000000; // 1Hz
-  simulate->step_mode = 0;
-  simulate->show = 1;       // Show simulation
-  simulate->auto_run = 0;   // Will this program stop on a ret from main
-  return simulate;
-}
-
-void simulate_push_ebpf(Simulate *simulate, uint32_t value)
-{
-  //SimulateEbpf *simulate_ebpf = (SimulateEbpf *)simulate->context;
-
-}
-
-int simulate_set_reg_ebpf(
-  Simulate *simulate,
-  const char *reg_string,
-  uint32_t value)
-{
-  SimulateEbpf *simulate_ebpf = (SimulateEbpf *)simulate->context;
-
-  int r = get_register(reg_string);
-
-  if (r == -1) { return -1; }
-  simulate_ebpf->reg[r] = value;
-
-  return 0;
-}
-
-uint32_t simulate_get_reg_ebpf(Simulate *simulate, const char *reg_string)
-{
-  SimulateEbpf *simulate_ebpf = (SimulateEbpf *)simulate->context;
-
-  int r = get_register(reg_string);
-
-  if (r == -1) { return -1; }
-
-  printf(" r%d: 0x%08" PRIx64 "\n", r, simulate_ebpf->reg[r]);
-
-  return 0;
-}
-
-void simulate_set_pc_ebpf(Simulate *simulate, uint32_t value)
-{
-  SimulateEbpf *simulate_ebpf = (SimulateEbpf *)simulate->context;
-
-  simulate_ebpf->pc = value;
-}
-
-void simulate_reset_ebpf(Simulate *simulate)
-{
-  SimulateEbpf *simulate_ebpf = (SimulateEbpf *)simulate->context;
-
-  memset(simulate_ebpf->reg, 0, sizeof(simulate_ebpf->reg));
-  simulate_ebpf->pc = 0;
-}
-
-void simulate_free_ebpf(Simulate *simulate)
-{
-  free(simulate);
-}
-
-int simulate_dumpram_ebpf(Simulate *simulate, int start, int end)
-{
-  return -1;
-}
-
-void simulate_dump_registers_ebpf(Simulate *simulate)
-{
-  SimulateEbpf *simulate_ebpf = (SimulateEbpf *)simulate->context;
-  int n;
-
-  for (n = 0; n < 11; n++)
-  {
-    printf(" r%d: %08" PRIx64 "\n", n, simulate_ebpf->reg[n]);
-  }
-}
-
-int simulate_run_ebpf(Simulate *simulate, int max_cycles, int step)
-{
-  //SimulateEbpf *simulate_ebpf = (SimulateEbpf *)simulate->context;
-
-  stop_running = 0;
-  signal(SIGINT, handle_signal);
-
-  while (stop_running == 0)
-  {
-    printf("CPU not supported.\n");
-    break;
-  }
-
-  signal(SIGINT, SIG_DFL);
-
-  return 0;
 }
 

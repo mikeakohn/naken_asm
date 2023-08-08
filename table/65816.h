@@ -162,5 +162,8 @@ enum
   OP_SP_INDIRECT_Y,    // $(10,s),y  (d,s),y
 };
 
+extern struct _table_65816 table_65816[];
+extern struct _table_65816_opcodes table_65816_opcodes[];
+
 #endif
 

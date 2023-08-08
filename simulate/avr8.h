@@ -29,8 +29,45 @@
 #define RAM_MASK 0x1fff
 #define RAM_SIZE (RAM_MASK + 1)
 
-typedef struct _simulate_avr8
+class SimulateAvr8 : public Simulate
 {
+public:
+  SimulateAvr8(Memory *memory);
+  virtual ~SimulateAvr8();
+
+  static Simulate *init(Memory *memory);
+
+  virtual int dumpram(int start, int end);
+  virtual void push(uint32_t value);
+  virtual int set_reg(const char *reg_string, uint32_t value);
+  virtual uint32_t get_reg(const char *reg_string);
+  virtual void set_pc(uint32_t value);
+  virtual void reset();
+  virtual void dump_registers();
+  virtual int run(int max_cycles, int step);
+
+private:
+  int word_count();
+  int execute_op_none(struct _table_avr8 *table_avr8);
+  void execute_set_sreg_arith(uint8_t rd_prev, uint8_t rd, int k);
+  void execute_set_sreg_arith_sub(uint8_t rd_prev, uint8_t rd, int k);
+  void execute_set_sreg_logic(uint8_t rd_prev, uint8_t rd, int k);
+  void execute_set_sreg_reg16(int rd_prev, int rd);
+  void execute_set_sreg_common(uint8_t value);
+  void execute_set_sreg_sign();
+  int execute_op_branch_s_k(struct _table_avr8 *table_avr8, uint16_t opcode);
+  int execute_op_branch_k(struct _table_avr8 *table_avr8, uint16_t opcode);
+  int execute_op_two_reg(struct _table_avr8 *table_avr8, uint16_t opcode);
+  int execute_op_reg_imm(struct _table_avr8 *table_avr8, uint16_t opcode);
+  int execute_op_one_reg(struct _table_avr8 *table_avr8, uint16_t opcode);
+  int execute_op_reg_bit(struct _table_avr8 *table_avr8, uint16_t opcode);
+  int execute_op_reg_imm_word(struct _table_avr8 *table_avr8, uint16_t opcode);
+  int execute_op_ioreg_bit(struct _table_avr8 *table_avr8, uint16_t opcode);
+  int execute_op_sreg_bit(struct _table_avr8 *table_avr8, uint16_t opcode);
+  int execute_op_relative(struct _table_avr8 *table_avr8, uint16_t opcode);
+  int execute_op_jump(struct _table_avr8 *table_avr8, uint16_t opcode);
+  int execute();
+
   uint8_t reg[32];
   uint8_t ram[RAM_SIZE];
   uint8_t io[64];
@@ -38,18 +75,7 @@ typedef struct _simulate_avr8
   int pc;
   int sp;
   uint8_t sreg;
-} SimulateAvr8;
-
-Simulate *simulate_init_avr8(Memory *memory);
-void simulate_free_avr8(Simulate *simulate);
-int simulate_dumpram_avr8(Simulate *simulate, int start, int end);
-void simulate_push_avr8(Simulate *simulate, uint32_t value);
-int simulate_set_reg_avr8(Simulate *simulate, const char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_avr8(Simulate *simulate, const char *reg_string);
-void simulate_set_pc_avr8(Simulate *simulate, uint32_t value);
-void simulate_reset_avr8(Simulate *simulate);
-void simulate_dump_registers_avr8(Simulate *simulate);
-int simulate_run_avr8(Simulate *simulate, int max_cycles, int step);
+};
 
 #endif
 

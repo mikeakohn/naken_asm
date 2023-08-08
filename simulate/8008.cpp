@@ -19,114 +19,65 @@
 #include "simulate/8008.h"
 
 #define READ_RAM(a) \
-  (memory_read_m(simulate->memory, a * 2) << 8) | \
-   memory_read_m(simulate->memory, (a * 2) + 1)
+  (memory_read_m(memory, a * 2) << 8) | \
+   memory_read_m(memory, (a * 2) + 1)
 
 #define WRITE_RAM(a,b) \
-  memory_write_m(simulate->memory, a * 2, b >> 8); \
-  memory_write_m(simulate->memory, ((a * 2) + 1), b & 0xff)
+  memory_write_m(memory, a * 2, b >> 8); \
+  memory_write_m(memory, ((a * 2) + 1), b & 0xff)
 
-static int stop_running = 0;
-
-static void handle_signal(int sig)
+Simulate8008::Simulate8008(Memory *memory) : Simulate(memory)
 {
-  stop_running = 1;
-  signal(SIGINT, SIG_DFL);
+  reset();
 }
 
-static int execute_instruction(Simulate *simulate, uint16_t opcode)
+Simulate8008::~Simulate8008()
 {
-  //Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
-
-  return -1;
 }
 
-Simulate *simulate_init_8008(Memory *memory)
+Simulate *Simulate8008::init(Memory *memory)
 {
-  Simulate *simulate;
-
-  simulate = (Simulate *)malloc(sizeof(Simulate8008) + sizeof(Simulate));
-
-  simulate->simulate_init = simulate_init_8008;
-  simulate->simulate_free = simulate_free_8008;
-  simulate->simulate_dumpram = simulate_dumpram_8008;
-  simulate->simulate_push = simulate_push_8008;
-  simulate->simulate_set_reg = simulate_set_reg_8008;
-  simulate->simulate_get_reg = simulate_get_reg_8008;
-  simulate->simulate_set_pc = simulate_set_pc_8008;
-  simulate->simulate_reset = simulate_reset_8008;
-  simulate->simulate_dump_registers = simulate_dump_registers_8008;
-  simulate->simulate_run = simulate_run_8008;
-
-  //memory_init(&simulate->memory, 65536, 0);
-  simulate->memory = memory;
-  simulate_reset_8008(simulate);
-  simulate->usec = 1000000; // 1Hz
-  simulate->step_mode = 0;
-  simulate->show = 1;       // Show simulation
-  simulate->auto_run = 0;   // Will this program stop on a ret from main
-
-  return simulate;
+  return new Simulate8008(memory);
 }
 
-void simulate_push_8008(Simulate *simulate, uint32_t value)
+void Simulate8008::push(uint32_t value)
 {
-  //Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
-
 }
 
-int simulate_set_reg_8008(
-  Simulate *simulate,
-  const char *reg_string,
-  uint32_t value)
+int Simulate8008::set_reg(const char *reg_string, uint32_t value)
 {
-  //Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
-
   return 0;
 }
 
-uint32_t simulate_get_reg_8008(Simulate *simulate, const char *reg_string)
+uint32_t Simulate8008::get_reg(const char *reg_string)
 {
-  Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
+  int index = 0;
 
-  return simulate_8008->reg[0];
+  return reg[index];
 }
 
-void simulate_set_pc_8008(Simulate *simulate, uint32_t value)
+void Simulate8008::set_pc(uint32_t value)
 {
-  Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
-
-  simulate_8008->pc = value;
+  pc = value;
 }
 
-void simulate_reset_8008(Simulate *simulate)
+void Simulate8008::reset()
 {
-  Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
-
-  memset(simulate_8008->reg, 0, sizeof(uint16_t) * 8);
-
-  simulate_8008->pc = 0x0000;
+  memset(reg, 0, sizeof(uint16_t) * 8);
+  pc = 0x0000;
 }
 
-void simulate_free_8008(Simulate *simulate)
+int Simulate8008::dumpram(int start, int end)
 {
-  free(simulate);
-}
-
-int simulate_dumpram_8008(Simulate *simulate, int start, int end)
-{
-  //Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
 
   return -1;
 }
 
-void simulate_dump_registers_8008(Simulate *simulate)
+void Simulate8008::dump_registers()
 {
-  //Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
-
 #if 0
   printf("PC=0x%04x  N=%d Z=%d P=%d   PRIV=%d  PRIORITY=%d\n",
-    simulate_8008->pc,
+    pc,
     GET_N(),
     GET_Z(),
     GET_P(),
@@ -137,43 +88,38 @@ void simulate_dump_registers_8008(Simulate *simulate)
   printf("\n");
 }
 
-int simulate_run_8008(Simulate *simulate, int max_cycles, int step)
+int Simulate8008::run(int max_cycles, int step)
 {
-  Simulate8008 *simulate_8008 = (Simulate8008 *)simulate->context;
   char instruction[128];
   uint16_t opcode;
   int cycles = 0;
   int ret;
-  int pc;
+  int pc_current;
   int n;
-
-  stop_running = 0;
-
-  signal(SIGINT, handle_signal);
 
   printf("Running... Press Ctl-C to break.\n");
 
-  while (stop_running == 0)
+  while (stop_running == false)
   {
-    pc = simulate_8008->pc;
+    pc_current = pc;
 
-    opcode = READ_RAM(pc);
+    opcode = READ_RAM(pc_current);
 
 #if 0
     c = get_cycle_count(opcode);
 
-    if (c > 0)  { simulate->cycle_count += c; }
+    if (c > 0)  { cycle_count += c; }
 #endif
 
-    simulate_8008->pc += 1;
+    pc += 1;
 
-    if (simulate->show == 1) printf("\x1b[1J\x1b[1;1H");
+    if (show == true) printf("\x1b[1J\x1b[1;1H");
 
-    ret = execute_instruction(simulate, opcode);
+    ret = execute_instruction(opcode);
 
-    if (simulate->show == 1)
+    if (show == true)
     {
-      simulate_dump_registers_8008(simulate);
+      dump_registers();
 
       n = 0;
 
@@ -182,50 +128,50 @@ int simulate_run_8008(Simulate *simulate, int max_cycles, int step)
         int cycles_min,cycles_max;
         int num, count;
 
-        num = READ_RAM(pc);
+        num = READ_RAM(pc_current);
 
         count = disasm_8008(
-          simulate->memory,
-          pc,
+          memory,
+          pc_current,
           instruction,
           sizeof(instruction),
           &cycles_min,
           &cycles_max);
 
-        if (pc == simulate->break_point) { printf("*"); }
+        if (pc_current == break_point) { printf("*"); }
         else { printf(" "); }
 
         if (n == 0) { printf("! "); }
-        else if (pc == simulate_8008->reg[0]) { printf("> "); }
+        else if (pc_current == reg[0]) { printf("> "); }
         else { printf("  "); }
 
-        printf("0x%04x: 0x%04x %-40s\n", pc, num, instruction);
+        printf("0x%04x: 0x%04x %-40s\n", pc_current, num, instruction);
 
         n = n + count;
-        pc += 1;
+        pc_current += 1;
         count -= 2;
 
         while (count > 0)
         {
-          if (pc == simulate->break_point) { printf("*"); }
+          if (pc_current == break_point) { printf("*"); }
           else { printf(" "); }
 
-          num = READ_RAM(pc);
-          printf("  0x%04x: 0x%02x\n", pc, num);
-          pc += 1;
+          num = READ_RAM(pc_current);
+          printf("  0x%04x: 0x%02x\n", pc_current, num);
+          pc_current += 1;
           count -= 2;
         }
       }
     }
 
-    if (simulate->auto_run == 1 && simulate->nested_call_count < 0)
+    if (auto_run == true && nested_call_count < 0)
     {
       return 0;
     }
 
     if (ret == -1)
     {
-      printf("Illegal instruction 0x%04x at address 0x%04x\n", opcode, pc);
+      printf("Illegal instruction 0x%04x at address 0x%04x\n", opcode, pc_current);
       return -1;
     }
 
@@ -233,35 +179,40 @@ int simulate_run_8008(Simulate *simulate, int max_cycles, int step)
 
     printf("\n");
 
-    if (simulate->break_point == simulate_8008->pc)
+    if (break_point == pc)
     {
-      printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
+      printf("Breakpoint hit at 0x%04x\n", break_point);
       break;
     }
 
-    if (simulate->usec == 0 || step == 1)
+    if (usec == 0 || step == 1)
     {
-      //simulate->step_mode=0;
+      //step_mode = 0;
       signal(SIGINT, SIG_DFL);
       return 0;
     }
 
-    if (simulate_8008->reg[0] == 0xffff)
+    if (reg[0] == 0xffff)
     {
-      printf("Function ended.  Total cycles: %d\n", simulate->cycle_count);
-      simulate->step_mode = 0;
-      simulate_8008->pc = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
+      printf("Function ended.  Total cycles: %d\n", cycle_count);
+      step_mode = 0;
+      pc = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
       signal(SIGINT, SIG_DFL);
       return 0;
     }
 
-    usleep(simulate->usec);
+    usleep(usec);
   }
 
   signal(SIGINT, SIG_DFL);
-  printf("Stopped.  PC=0x%04x.\n", simulate_8008->pc);
-  printf("%d clock cycles have passed since last reset.\n", simulate->cycle_count);
+  printf("Stopped.  PC=0x%04x.\n", pc);
+  printf("%d clock cycles have passed since last reset.\n", cycle_count);
 
   return 0;
+}
+
+int Simulate8008::execute_instruction(uint8_t opcode)
+{
+  return -1;
 }
 

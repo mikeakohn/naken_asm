@@ -17,21 +17,26 @@
 #include "common/memory.h"
 #include "simulate/Simulate.h"
 
-typedef struct _simulate_null
+class SimulateNull : public Simulate
 {
-  uint16_t reg[16];
-} SimulateNull;
+public:
+  SimulateNull(Memory *memory);
+  virtual ~SimulateNull();
 
-Simulate *simulate_init_null(Memory *memory);
-void simulate_free_null(Simulate *simulate);
-int simulate_dumpram_null(Simulate *simulate, int start, int end);
-void simulate_push_null(Simulate *simulate, uint32_t value);
-int simulate_set_reg_null(Simulate *simulate, const char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_null(Simulate *simulate, const char *reg_string);
-void simulate_set_pc_null(Simulate *simulate, uint32_t value);
-void simulate_reset_null(Simulate *simulate);
-void simulate_dump_registers_null(Simulate *simulate);
-int simulate_run_null(Simulate *simulate, int max_cycles, int step);
+  static Simulate *init(Memory *memory);
+
+  virtual int dumpram(int start, int end);
+  virtual void push(uint32_t value);
+  virtual int set_reg(const char *reg_string, uint32_t value);
+  virtual uint32_t get_reg(const char *reg_string);
+  virtual void set_pc(uint32_t value);
+  virtual void reset();
+  virtual void dump_registers();
+  virtual int run(int max_cycles, int step);
+
+private:
+  uint16_t reg[16];
+};
 
 #endif
 

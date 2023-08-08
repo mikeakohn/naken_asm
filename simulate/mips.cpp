@@ -18,10 +18,6 @@
 #include "simulate/mips.h"
 #include "disasm/mips.h"
 
-static int simulate_delay_slot_mips(Simulate *simulate);
-
-static int stop_running = 0;
-
 static const char *reg_names[32] =
 {
   "$0",  "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
@@ -30,89 +26,44 @@ static const char *reg_names[32] =
   "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
 };
 
-static void handle_signal(int sig)
+SimulateMips::SimulateMips(Memory *memory) : Simulate(memory)
 {
-  stop_running = 1;
-  signal(SIGINT, SIG_DFL);
+  reset();
 }
 
-#if 0
-static int32_t get_offset(uint32_t opcode)
+SimulateMips::~SimulateMips()
 {
-  uint32_t offset = opcode & 0x3ffffff;
-  if ((offset & 0x2000000) != 0) { offset |= 0xfc000000; }
-  offset = offset << 2;
-
-  return offset;
-}
-#endif
-
-static int32_t get_offset16(uint32_t opcode)
-{
-  int32_t offset = (int32_t)((int16_t)(opcode & 0x3ffffff));
-  offset = offset << 2;
-
-  return offset;
 }
 
-Simulate *simulate_init_mips(Memory *memory)
+Simulate *SimulateMips::init(Memory *memory)
 {
-  Simulate *simulate;
-
-  simulate = (Simulate *)malloc(sizeof(SimulateMips) + sizeof(Simulate));
-
-  simulate->simulate_init = simulate_init_mips;
-  simulate->simulate_free = simulate_free_mips;
-  simulate->simulate_dumpram = simulate_dumpram_mips;
-  simulate->simulate_push = simulate_push_mips;
-  simulate->simulate_set_reg = simulate_set_reg_mips;
-  simulate->simulate_get_reg = simulate_get_reg_mips;
-  simulate->simulate_set_pc = simulate_set_pc_mips;
-  simulate->simulate_reset = simulate_reset_mips;
-  simulate->simulate_dump_registers = simulate_dump_registers_mips;
-  simulate->simulate_run = simulate_run_mips;
-
-  simulate->memory = memory;
-  simulate_reset_mips(simulate);
-  simulate->usec = 1000000; // 1Hz
-  simulate->step_mode = 0;
-  simulate->show = 1;       // Show simulation
-  simulate->auto_run = 0;   // Will this program stop on a ret from main
-  return simulate;
+  return new SimulateMips(memory);
 }
 
-void simulate_push_mips(Simulate *simulate, uint32_t value)
+void SimulateMips::push(uint32_t value)
 {
-  //SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
-
 }
 
-int simulate_set_reg_mips(
-  Simulate *simulate,
-  const char *reg_string,
-  uint32_t value)
+int SimulateMips::set_reg(const char *reg_string, uint32_t value)
 {
-  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
-  int reg, n;
-
   if (reg_string[0] != '$') { return -1; }
 
   if (reg_string[1] >= '0' && reg_string[1] <= '9' &&
       reg_string[2] >= '0' && reg_string[2] <= '9' &&
       reg_string[3] == 0)
   {
-    reg = atoi(reg_string + 1);
-    if (reg < 0 || reg > 31) { return -1; }
+    int index = atoi(reg_string + 1);
+    if (index < 0 || index > 31) { return -1; }
 
-    simulate_mips->reg[reg] = value;
+    reg[index] = value;
     return 0;
   }
 
-  for (n = 0; n < 32; n++)
+  for (int n = 0; n < 32; n++)
   {
     if (strcmp(reg_string, reg_names[n]) == 0)
     {
-      simulate_mips->reg[n] = value;
+      reg[n] = value;
       return 0;
     }
   }
@@ -120,28 +71,40 @@ int simulate_set_reg_mips(
   return -1;
 }
 
-uint32_t simulate_get_reg_mips(Simulate *simulate, const char *reg_string)
+uint32_t SimulateMips::get_reg(const char *reg_string)
 {
-  //SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
+  if (reg_string[0] != '$') { return -1; }
+
+  if (reg_string[1] >= '0' && reg_string[1] <= '9' &&
+      reg_string[2] >= '0' && reg_string[2] <= '9' &&
+      reg_string[3] == 0)
+  {
+    int index = atoi(reg_string + 1);
+    if (index < 0 || index > 31) { return -1; }
+
+    return reg[index];
+  }
+
+  for (int n = 0; n < 32; n++)
+  {
+    if (strcmp(reg_string, reg_names[n]) == 0)
+    {
+      return reg[n];
+    }
+  }
 
   return 0;
 }
 
-void simulate_set_pc_mips(Simulate *simulate, uint32_t value)
+void SimulateMips::set_pc(uint32_t value)
 {
-  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
-
-  simulate_mips->pc = value;
+  pc = value;
 }
 
-void simulate_reset_mips(Simulate *simulate)
+void SimulateMips::reset()
 {
-  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
-
-  simulate_mips->pc = simulate->memory->low_address;
-  simulate_mips->reg[29] = 0x80000000;
-
-  Memory *memory = simulate->memory;
+  pc = memory->low_address;
+  reg[29] = 0x80000000;
 
   // PIC32 kind of hack.  Need to figure out a better way to do this
   // later.  Problem is PIC32 has virtual memory (where code addresses)
@@ -158,7 +121,7 @@ void simulate_reset_mips(Simulate *simulate)
       memory->high_address,
       virtual_address);
 
-    simulate_mips->pc = virtual_address;
+    pc = virtual_address;
     low_address = memory->low_address;
     high_address = memory->high_address;
 
@@ -169,450 +132,62 @@ void simulate_reset_mips(Simulate *simulate)
   }
 }
 
-void simulate_free_mips(Simulate *simulate)
-{
-  free(simulate);
-}
-
-int simulate_dumpram_mips(Simulate *simulate, int start, int end)
+int SimulateMips::dumpram(int start, int end)
 {
   return -1;
 }
 
-void simulate_dump_registers_mips(Simulate *simulate)
+void SimulateMips::dump_registers()
 {
-  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
   int n;
 
   printf("\nSimulation Register Dump\n");
   printf("-------------------------------------------------------------------\n");
-  printf(" PC: 0x%08x  HI: 0x%08x  LO: 0x%08x\n",
-    simulate_mips->pc,
-    simulate_mips->hi,
-    simulate_mips->lo);
+  printf(" PC: 0x%08x  HI: 0x%08x  LO: 0x%08x\n", pc, hi, lo);
 
   for (n = 0; n < 32; n++)
   {
-    printf("%c%3s: 0x%08x", (n & 0x3) == 0 ? '\n' : ' ',
-                            reg_names[n],
-                            simulate_mips->reg[n]);
+    printf("%c%3s: 0x%08x", (n & 0x3) == 0 ? '\n' : ' ', reg_names[n], reg[n]);
   }
 
   printf("\n\n");
-  printf("%d clock cycles have passed since last reset.\n\n", simulate->cycle_count);
+  printf("%d clock cycles have passed since last reset.\n\n", cycle_count);
 }
 
-static int simulate_execute_mips_shift(Simulate *simulate, uint32_t opcode)
+int SimulateMips::run(int max_cycles, int step)
 {
-  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
-
-  int sa = (opcode >> 6) & 0x1f;
-  int rd = (opcode >> 11) & 0x1f;
-  int rt = (opcode >> 16) & 0x1f;
-
-  switch(opcode & 0x3f)
-  {
-    case 0: // sll
-      simulate_mips->reg[rd] = simulate_mips->reg[rt] << sa;
-      break;
-    case 2: // srl
-      simulate_mips->reg[rd] = ((uint32_t)simulate_mips->reg[rt]) >> sa;
-      break;
-    case 3: // sra
-      simulate_mips->reg[rd] = simulate_mips->reg[rt] >> sa;
-      break;
-    default:
-      return -1;
-  }
-
-  //simulate_mips->reg[0] = 0;
-
-  return 0;
-}
-
-static int simulate_execute_mips_r(Simulate *simulate, uint32_t opcode)
-{
-  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
-
-  int rd = (opcode >> 11) & 0x1f;
-  int rt = (opcode >> 16) & 0x1f;
-  int rs = (opcode >> 21) & 0x1f;
-
-  opcode = opcode & 0x3f;
-
-  switch(opcode)
-  {
-    case 0x20: // add
-      // FIXME - need to trap on overflow
-      simulate_mips->reg[rd] = simulate_mips->reg[rs] + simulate_mips->reg[rt];
-      break;
-    case 0x21: // addu
-      simulate_mips->reg[rd] = simulate_mips->reg[rs] + simulate_mips->reg[rt];
-      break;
-    case 0x22: // sub
-      // FIXME - need to trap on overflow
-      simulate_mips->reg[rd] = simulate_mips->reg[rs] - simulate_mips->reg[rt];
-      break;
-    case 0x23: // subu
-      simulate_mips->reg[rd] = simulate_mips->reg[rs] - simulate_mips->reg[rt];
-      break;
-    case 0x24: // and
-      // FIXME - need to trap on overflow
-      simulate_mips->reg[rd] = simulate_mips->reg[rs] & simulate_mips->reg[rt];
-      break;
-    case 0x25: // or
-      simulate_mips->reg[rd] = simulate_mips->reg[rs] | simulate_mips->reg[rt];
-      break;
-    case 0x26: // xor
-      simulate_mips->reg[rd] = simulate_mips->reg[rs] ^ simulate_mips->reg[rt];
-      break;
-    case 0x27: // nor
-      simulate_mips->reg[rd] =
-        ~(simulate_mips->reg[rs] | simulate_mips->reg[rt]);
-      break;
-    case 0x2a: // slt
-      simulate_mips->reg[rd] =
-        (simulate_mips->reg[rs] < simulate_mips->reg[rt]) ? 1 : 0;
-      break;
-    case 0x2b: // sltu
-      simulate_mips->reg[rd] =
-        (simulate_mips->reg[rs] < simulate_mips->reg[rt]) ? 1 : 0;
-      break;
-    default:
-      return -1;
-  }
-
-  //simulate_mips->reg[0] = 0;
-
-  return 0;
-}
-
-static int simulate_execute_mips_i(Simulate *simulate, uint32_t opcode)
-{
-  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
-  uint32_t address;
-
-  int rs = (opcode >> 21) & 0x1f;
-  int rt = (opcode >> 16) & 0x1f;
-
-  switch(opcode >> 26)
-  {
-    case 0x08: // addi
-      // FIXME - need to trap on overflow
-      simulate_mips->reg[rt] = simulate_mips->reg[rs] + (int16_t)(opcode & 0xffff);
-      break;
-    case 0x09: // addiu
-      simulate_mips->reg[rt] = simulate_mips->reg[rs] + (int16_t)(opcode & 0xffff);
-      break;
-    case 0x0a: // slti
-      simulate_mips->reg[rt] =
-        (simulate_mips->reg[rs] < (int16_t)(opcode & 0xffff)) ? 1 : 0;
-      break;
-    case 0x0b: // sltiu
-      simulate_mips->reg[rt] =
-        (simulate_mips->reg[rs] < (int16_t)(opcode & 0xffff)) ? 1 : 0;
-      break;
-    case 0x0c: // andi
-      simulate_mips->reg[rt] = simulate_mips->reg[rs] & (opcode & 0xffff);
-      break;
-    case 0x0d: // ori
-      simulate_mips->reg[rt] = simulate_mips->reg[rs] | (opcode & 0xffff);
-      break;
-    case 0x0e: // xori
-      simulate_mips->reg[rt] = simulate_mips->reg[rs] ^ (opcode & 0xffff);
-      break;
-    case 0x0f: // lui
-      if (rs != 0) { return -1; }
-      simulate_mips->reg[rt] = (opcode & 0xffff) << 16;
-      break;
-    case 0x20: // lb
-      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
-      simulate_mips->reg[rt] = (int32_t)((int8_t)memory_read_m(simulate->memory, address));
-      break;
-    case 0x21: // lh
-      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
-      if ((address & 1) != 0)
-      {
-        printf("Alignment error.  Reading address 0x%04x\n", address);
-        return -2;
-      }
-      simulate_mips->reg[rt] = (int32_t)((int16_t)memory_read16_m(simulate->memory, address));
-      break;
-    case 0x23: // lw
-      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
-      if ((address & 3) != 0)
-      {
-        printf("Alignment error.  Reading address 0x%04x\n", address);
-        return -2;
-      }
-      simulate_mips->reg[rt] = memory_read32_m(simulate->memory, address);
-      break;
-    case 0x24: // lbu
-      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
-      simulate_mips->reg[rt] = memory_read_m(simulate->memory, address);
-      break;
-    case 0x25: // lhu
-      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
-      if ((address & 1) != 0)
-      {
-        printf("Alignment error.  Reading address 0x%04x\n", address);
-        return -2;
-      }
-      simulate_mips->reg[rt] = (int32_t)((uint16_t)memory_read16_m(simulate->memory, address));
-      break;
-    case 0x28: // sb
-      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
-      memory_write_m(simulate->memory, address, simulate_mips->reg[rt] & 0xff);
-      break;
-    case 0x29: // sh
-      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
-      if ((address & 1) != 0)
-      {
-        printf("Alignment error.  Reading address 0x%04x\n", address);
-        return -2;
-      }
-      memory_write16_m(simulate->memory, address, simulate_mips->reg[rt] & 0xffff);
-      break;
-    case 0x2b: // sw
-      address = simulate_mips->reg[rs] + ((int16_t)(opcode & 0xffff));
-      if ((address & 3) != 0)
-      {
-        printf("Alignment error.  Reading address 0x%04x\n", address);
-        return -2;
-      }
-      memory_write32_m(simulate->memory, address, simulate_mips->reg[rt]);
-      break;
-    default:
-      return -1;
-  }
-
-  return 0;
-}
-
-static int simulate_execute_mips(Simulate *simulate)
-{
-  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
-
-  uint32_t opcode = memory_read32_m(simulate->memory, simulate_mips->pc);
-
-  int rs = (opcode >> 21) & 0x1f;
-  int rt = (opcode >> 16) & 0x1f;
-  int rd = (opcode >> 11) & 0x1f;
-
-  switch(opcode >> 26)
-  {
-    case 0x00:
-      if (((opcode >> 6) & 0x3ff) == 0 && (opcode & 0x3f) == 0x1a)
-      {
-        // div
-        simulate_mips->hi = simulate_mips->reg[rs] % simulate_mips->reg[rt];
-        simulate_mips->lo = simulate_mips->reg[rs] / simulate_mips->reg[rt];
-        break;
-      }
-
-      if (((opcode >> 6) & 0x3ff) == 0 && (opcode & 0x3f) == 0x1b)
-      {
-        // divu
-        simulate_mips->hi = simulate_mips->reg[rs] % simulate_mips->reg[rt];
-        simulate_mips->lo = simulate_mips->reg[rs] / simulate_mips->reg[rt];
-        break;
-      }
-
-      if (((opcode >> 6) & 0x1f) == 0 && (opcode & 0x3f) == 0x18)
-      {
-        // mult
-        uint64_t result = simulate_mips->reg[rs] * simulate_mips->reg[rt];
-        simulate_mips->hi = result >> 32;
-        simulate_mips->lo = result & 0xffffffff;
-        break;
-      }
-
-      if (((opcode >> 6) & 0x1f) == 0 && (opcode & 0x3f) == 0x19)
-      {
-        // multu
-        uint64_t result = simulate_mips->reg[rs] * simulate_mips->reg[rt];
-        simulate_mips->hi = result >> 32;
-        simulate_mips->lo = result & 0xffffffff;
-        break;
-      }
-
-      if (((opcode >> 6) & 0x7fff) == 0 && (opcode & 0x3f) == 0x11)
-      {
-        // mthi
-        simulate_mips->hi = simulate_mips->reg[rs];
-        break;
-      }
-
-      if (((opcode >> 6) & 0x7fff) == 0 && (opcode & 0x3f) == 0x13)
-      {
-        // mtlo
-        simulate_mips->lo = simulate_mips->reg[rs];
-        break;
-      }
-
-      if (((opcode >> 16) & 0x3ff) == 0 &&
-          ((opcode >> 6) & 0x1f) == 0 &&
-           (opcode & 0x3f) == 0x10)
-      {
-        // mfhi
-        simulate_mips->reg[rd] = simulate_mips->hi;
-        break;
-      }
-
-      if (((opcode >> 16) & 0x3ff) == 0 &&
-          ((opcode >> 6) & 0x1f) == 0 &&
-           (opcode & 0x3f) == 0x12)
-      {
-        // mflo
-        simulate_mips->reg[rd] = simulate_mips->lo;
-        break;
-      }
-
-      if (((opcode >> 6) & 0x1f) == 0)
-      {
-        if (simulate_execute_mips_r(simulate, opcode) == 0) { break; }
-      }
-
-      if (((opcode >> 21) & 0x1f) == 0)
-      {
-        if (simulate_execute_mips_shift(simulate, opcode) == 0) { break; }
-      }
-
-      if (((opcode >> 11) & 0x3ff) == 0 && (opcode & 0x3f) == 0x08)
-      {
-        // jr
-        simulate_delay_slot_mips(simulate);
-        simulate_mips->pc = simulate_mips->reg[(opcode >> 21) & 0x1f];
-        return 0;
-      }
-
-      return -1;
-    case 0x01:
-      if (rt == 1) // bgez
-      {
-        if (simulate_mips->reg[rs] >= 0)
-        {
-          simulate_delay_slot_mips(simulate);
-          simulate_mips->pc += 4 + get_offset16(opcode);
-          return 0;
-        }
-        break;
-      }
-      return -1;
-    case 0x02: // j
-      simulate_delay_slot_mips(simulate);
-      simulate_mips->pc &= 0xfc000000;
-      simulate_mips->pc |= ((opcode & 0x3ffffff) << 2);
-      return 0;
-    case 0x03: // jal
-      simulate_delay_slot_mips(simulate);
-      simulate_mips->reg[31] = simulate_mips->pc + 8;
-      simulate_mips->pc &= 0xfc000000;
-      simulate_mips->pc |= ((opcode & 0x3ffffff) << 2);
-      return 0;
-    case 0x04: // beq
-      if (simulate_mips->reg[rs] == simulate_mips->reg[rt])
-      {
-        simulate_delay_slot_mips(simulate);
-        simulate_mips->pc += 4 + get_offset16(opcode);
-        return 0;
-      }
-      break;
-    case 0x05: // bne
-      if (simulate_mips->reg[rs] != simulate_mips->reg[rt])
-      {
-        simulate_delay_slot_mips(simulate);
-        simulate_mips->pc += 4 + get_offset16(opcode);
-        return 0;
-      }
-      break;
-    case 0x06: // blez
-      if (rt != 0) { return -1; }
-      if (simulate_mips->reg[rs] <= simulate_mips->reg[rt])
-      {
-        simulate_delay_slot_mips(simulate);
-        simulate_mips->pc += 4 + get_offset16(opcode);
-        return 0;
-      }
-      break;
-    case 0x07: // bgtz
-      if (rt != 0) { return -1; }
-      if (simulate_mips->reg[rs] > simulate_mips->reg[rt])
-      {
-        simulate_delay_slot_mips(simulate);
-        simulate_mips->pc += 4 + get_offset16(opcode);
-        return 0;
-      }
-      break;
-    case 0x1c: // mul
-      if (((opcode >> 6) & 0x1f) == 0)
-      {
-        simulate_mips->reg[rd] = simulate_mips->reg[rs] * simulate_mips->reg[rt];
-        break;
-      }
-      return -1;
-    default:
-      if (simulate_execute_mips_i(simulate, opcode) == 0) { break; }
-      return -1;
-      break;
-  }
-
-  simulate_mips->reg[0] = 0;
-  simulate_mips->pc += 4;
-
-  return 0;
-}
-
-static int simulate_delay_slot_mips(Simulate *simulate)
-{
-  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
-  uint32_t pc = simulate_mips->pc;
-
-  simulate_mips->pc += 4;
-  simulate_execute_mips(simulate);
-  simulate_mips->pc = pc;
-
-  return 0;
-}
-
-int simulate_run_mips(Simulate *simulate, int max_cycles, int step)
-{
-  SimulateMips *simulate_mips = (SimulateMips *)simulate->context;
   char instruction[128];
-  uint32_t pc;
+  uint32_t current_pc;
 
-  stop_running = 0;
-  signal(SIGINT, handle_signal);
-
-  while (stop_running == 0)
+  while (stop_running == false)
   {
-    pc = simulate_mips->pc;
+    current_pc = pc;
 
-    int ret = simulate_execute_mips(simulate);
+    int ret = execute();
 
     if (ret == -1)
     {
-      printf("Illegal instruction at address 0x%04x\n", simulate_mips->pc);
+      printf("Illegal instruction at address 0x%04x\n", pc);
       return -1;
     }
 
-    simulate->cycle_count++;
+    cycle_count++;
 
-    if (simulate->show == 1)
+    if (show == true)
     {
-      simulate_dump_registers_mips(simulate);
+      dump_registers();
 
       int n = 0;
       while (n < 6)
       {
         int cycles_min, cycles_max;
 
-        uint32_t opcode = memory_read32_m(simulate->memory, pc);
+        uint32_t opcode = memory_read32_m(memory, current_pc);
 
         int count = disasm_mips(
-          simulate->memory,
+          memory,
           MIPS_I | MIPS_II | MIPS_III | MIPS_32,
-          pc,
+          current_pc,
           instruction,
           sizeof(instruction),
           &cycles_min,
@@ -620,7 +195,7 @@ int simulate_run_mips(Simulate *simulate, int max_cycles, int step)
 
         if (count < 1) { break; }
 
-        if (pc == (uint32_t)simulate->break_point)
+        if (current_pc == (uint32_t)break_point)
         {
           printf("*");
         }
@@ -634,7 +209,7 @@ int simulate_run_mips(Simulate *simulate, int max_cycles, int step)
           printf("! ");
         }
           else
-        if (pc == simulate_mips->pc)
+        if (current_pc == pc)
         {
           printf("> ");
         }
@@ -643,20 +218,20 @@ int simulate_run_mips(Simulate *simulate, int max_cycles, int step)
           printf("  ");
         }
 
-        printf("0x%04x: 0x%08x %-40s %d\n", pc, opcode, instruction, cycles_min);
+        printf("0x%04x: 0x%08x %-40s %d\n", current_pc, opcode, instruction, cycles_min);
 
-        pc += 4;
+        current_pc += 4;
         n++;
       }
     }
 
-    if (simulate_mips->pc == (uint32_t)simulate->break_point)
+    if (pc == (uint32_t)break_point)
     {
-       printf("Breakpoint hit at 0x%04x\n", simulate->break_point);
+       printf("Breakpoint hit at 0x%04x\n", break_point);
       break;
     }
 
-    if (simulate->usec == 0 || step == 1)
+    if (usec == 0 || step == true)
     {
       signal(SIGINT, SIG_DFL);
       return 0;
@@ -665,8 +240,374 @@ int simulate_run_mips(Simulate *simulate, int max_cycles, int step)
 
   signal(SIGINT, SIG_DFL);
 
-  printf("Stopped.  PC=0x%04x.\n", simulate_mips->pc);
-  printf("%d clock cycles have passed since last reset.\n", simulate->cycle_count);
+  printf("Stopped.  PC=0x%04x.\n", pc);
+  printf("%d clock cycles have passed since last reset.\n", cycle_count);
+
+  return 0;
+}
+
+int32_t SimulateMips::get_offset16(uint32_t opcode)
+{
+  int32_t offset = (int32_t)((int16_t)(opcode & 0x3ffffff));
+  offset = offset << 2;
+
+  return offset;
+}
+
+int SimulateMips::delay_slot()
+{
+  uint32_t old_pc = pc;
+
+  pc += 4;
+  execute();
+  pc = old_pc;
+
+  return 0;
+}
+
+int SimulateMips::execute_shift(uint32_t opcode)
+{
+  int sa = (opcode >> 6) & 0x1f;
+  int rd = (opcode >> 11) & 0x1f;
+  int rt = (opcode >> 16) & 0x1f;
+
+  switch (opcode & 0x3f)
+  {
+    case 0: // sll
+      reg[rd] = reg[rt] << sa;
+      break;
+    case 2: // srl
+      reg[rd] = ((uint32_t)reg[rt]) >> sa;
+      break;
+    case 3: // sra
+      reg[rd] = reg[rt] >> sa;
+      break;
+    default:
+      return -1;
+  }
+
+  return 0;
+}
+
+int SimulateMips::execute_mips_r(uint32_t opcode)
+{
+  int rd = (opcode >> 11) & 0x1f;
+  int rt = (opcode >> 16) & 0x1f;
+  int rs = (opcode >> 21) & 0x1f;
+
+  opcode = opcode & 0x3f;
+
+  switch (opcode)
+  {
+    case 0x20: // add
+      // FIXME - need to trap on overflow
+      reg[rd] = reg[rs] + reg[rt];
+      break;
+    case 0x21: // addu
+      reg[rd] = reg[rs] + reg[rt];
+      break;
+    case 0x22: // sub
+      // FIXME - need to trap on overflow
+      reg[rd] = reg[rs] - reg[rt];
+      break;
+    case 0x23: // subu
+      reg[rd] = reg[rs] - reg[rt];
+      break;
+    case 0x24: // and
+      // FIXME - need to trap on overflow
+      reg[rd] = reg[rs] & reg[rt];
+      break;
+    case 0x25: // or
+      reg[rd] = reg[rs] | reg[rt];
+      break;
+    case 0x26: // xor
+      reg[rd] = reg[rs] ^ reg[rt];
+      break;
+    case 0x27: // nor
+      reg[rd] = ~(reg[rs] | reg[rt]);
+      break;
+    case 0x2a: // slt
+      reg[rd] = (reg[rs] < reg[rt]) ? 1 : 0;
+      break;
+    case 0x2b: // sltu
+      reg[rd] = (reg[rs] < reg[rt]) ? 1 : 0;
+      break;
+    default:
+      return -1;
+  }
+
+  return 0;
+}
+
+int SimulateMips::execute_mips_i(uint32_t opcode)
+{
+  uint32_t address;
+
+  int rs = (opcode >> 21) & 0x1f;
+  int rt = (opcode >> 16) & 0x1f;
+
+  switch (opcode >> 26)
+  {
+    case 0x08: // addi
+      // FIXME - need to trap on overflow
+      reg[rt] = reg[rs] + (int16_t)(opcode & 0xffff);
+      break;
+    case 0x09: // addiu
+      reg[rt] = reg[rs] + (int16_t)(opcode & 0xffff);
+      break;
+    case 0x0a: // slti
+      reg[rt] =
+        (reg[rs] < (int16_t)(opcode & 0xffff)) ? 1 : 0;
+      break;
+    case 0x0b: // sltiu
+      reg[rt] =
+        (reg[rs] < (int16_t)(opcode & 0xffff)) ? 1 : 0;
+      break;
+    case 0x0c: // andi
+      reg[rt] = reg[rs] & (opcode & 0xffff);
+      break;
+    case 0x0d: // ori
+      reg[rt] = reg[rs] | (opcode & 0xffff);
+      break;
+    case 0x0e: // xori
+      reg[rt] = reg[rs] ^ (opcode & 0xffff);
+      break;
+    case 0x0f: // lui
+      if (rs != 0) { return -1; }
+      reg[rt] = (opcode & 0xffff) << 16;
+      break;
+    case 0x20: // lb
+      address = reg[rs] + ((int16_t)(opcode & 0xffff));
+      reg[rt] = (int32_t)((int8_t)memory_read_m(memory, address));
+      break;
+    case 0x21: // lh
+      address = reg[rs] + ((int16_t)(opcode & 0xffff));
+      if ((address & 1) != 0)
+      {
+        printf("Alignment error.  Reading address 0x%04x\n", address);
+        return -2;
+      }
+      reg[rt] = (int32_t)((int16_t)memory_read16_m(memory, address));
+      break;
+    case 0x23: // lw
+      address = reg[rs] + ((int16_t)(opcode & 0xffff));
+      if ((address & 3) != 0)
+      {
+        printf("Alignment error.  Reading address 0x%04x\n", address);
+        return -2;
+      }
+      reg[rt] = memory_read32_m(memory, address);
+      break;
+    case 0x24: // lbu
+      address = reg[rs] + ((int16_t)(opcode & 0xffff));
+      reg[rt] = memory_read_m(memory, address);
+      break;
+    case 0x25: // lhu
+      address = reg[rs] + ((int16_t)(opcode & 0xffff));
+      if ((address & 1) != 0)
+      {
+        printf("Alignment error.  Reading address 0x%04x\n", address);
+        return -2;
+      }
+      reg[rt] = (int32_t)((uint16_t)memory_read16_m(memory, address));
+      break;
+    case 0x28: // sb
+      address = reg[rs] + ((int16_t)(opcode & 0xffff));
+      memory_write_m(memory, address, reg[rt] & 0xff);
+      break;
+    case 0x29: // sh
+      address = reg[rs] + ((int16_t)(opcode & 0xffff));
+      if ((address & 1) != 0)
+      {
+        printf("Alignment error.  Reading address 0x%04x\n", address);
+        return -2;
+      }
+      memory_write16_m(memory, address, reg[rt] & 0xffff);
+      break;
+    case 0x2b: // sw
+      address = reg[rs] + ((int16_t)(opcode & 0xffff));
+      if ((address & 3) != 0)
+      {
+        printf("Alignment error.  Reading address 0x%04x\n", address);
+        return -2;
+      }
+      memory_write32_m(memory, address, reg[rt]);
+      break;
+    default:
+      return -1;
+  }
+
+  return 0;
+}
+
+int SimulateMips::execute()
+{
+  uint32_t opcode = memory_read32_m(memory, pc);
+
+  int rs = (opcode >> 21) & 0x1f;
+  int rt = (opcode >> 16) & 0x1f;
+  int rd = (opcode >> 11) & 0x1f;
+
+  switch (opcode >> 26)
+  {
+    case 0x00:
+      if (((opcode >> 6) & 0x3ff) == 0 && (opcode & 0x3f) == 0x1a)
+      {
+        // div
+        hi = reg[rs] % reg[rt];
+        lo = reg[rs] / reg[rt];
+        break;
+      }
+
+      if (((opcode >> 6) & 0x3ff) == 0 && (opcode & 0x3f) == 0x1b)
+      {
+        // divu
+        hi = reg[rs] % reg[rt];
+        lo = reg[rs] / reg[rt];
+        break;
+      }
+
+      if (((opcode >> 6) & 0x1f) == 0 && (opcode & 0x3f) == 0x18)
+      {
+        // mult
+        uint64_t result = reg[rs] * reg[rt];
+        hi = result >> 32;
+        lo = result & 0xffffffff;
+        break;
+      }
+
+      if (((opcode >> 6) & 0x1f) == 0 && (opcode & 0x3f) == 0x19)
+      {
+        // multu
+        uint64_t result = reg[rs] * reg[rt];
+        hi = result >> 32;
+        lo = result & 0xffffffff;
+        break;
+      }
+
+      if (((opcode >> 6) & 0x7fff) == 0 && (opcode & 0x3f) == 0x11)
+      {
+        // mthi
+        hi = reg[rs];
+        break;
+      }
+
+      if (((opcode >> 6) & 0x7fff) == 0 && (opcode & 0x3f) == 0x13)
+      {
+        // mtlo
+        lo = reg[rs];
+        break;
+      }
+
+      if (((opcode >> 16) & 0x3ff) == 0 &&
+          ((opcode >> 6) & 0x1f) == 0 &&
+           (opcode & 0x3f) == 0x10)
+      {
+        // mfhi
+        reg[rd] = hi;
+        break;
+      }
+
+      if (((opcode >> 16) & 0x3ff) == 0 &&
+          ((opcode >> 6) & 0x1f) == 0 &&
+           (opcode & 0x3f) == 0x12)
+      {
+        // mflo
+        reg[rd] = lo;
+        break;
+      }
+
+      if (((opcode >> 6) & 0x1f) == 0)
+      {
+        if (execute_mips_r(opcode) == 0) { break; }
+      }
+
+      if (((opcode >> 21) & 0x1f) == 0)
+      {
+        if (execute_shift(opcode) == 0) { break; }
+      }
+
+      if (((opcode >> 11) & 0x3ff) == 0 && (opcode & 0x3f) == 0x08)
+      {
+        // jr
+        delay_slot();
+        pc = reg[(opcode >> 21) & 0x1f];
+        return 0;
+      }
+
+      return -1;
+    case 0x01:
+      if (rt == 1) // bgez
+      {
+        if (reg[rs] >= 0)
+        {
+          delay_slot();
+          pc += 4 + get_offset16(opcode);
+          return 0;
+        }
+        break;
+      }
+      return -1;
+    case 0x02: // j
+      delay_slot();
+      pc &= 0xfc000000;
+      pc |= ((opcode & 0x3ffffff) << 2);
+      return 0;
+    case 0x03: // jal
+      delay_slot();
+      reg[31] = pc + 8;
+      pc &= 0xfc000000;
+      pc |= ((opcode & 0x3ffffff) << 2);
+      return 0;
+    case 0x04: // beq
+      if (reg[rs] == reg[rt])
+      {
+        delay_slot();
+        pc += 4 + get_offset16(opcode);
+        return 0;
+      }
+      break;
+    case 0x05: // bne
+      if (reg[rs] != reg[rt])
+      {
+        delay_slot();
+        pc += 4 + get_offset16(opcode);
+        return 0;
+      }
+      break;
+    case 0x06: // blez
+      if (rt != 0) { return -1; }
+      if (reg[rs] <= reg[rt])
+      {
+        delay_slot();
+        pc += 4 + get_offset16(opcode);
+        return 0;
+      }
+      break;
+    case 0x07: // bgtz
+      if (rt != 0) { return -1; }
+      if (reg[rs] > reg[rt])
+      {
+        delay_slot();
+        pc += 4 + get_offset16(opcode);
+        return 0;
+      }
+      break;
+    case 0x1c: // mul
+      if (((opcode >> 6) & 0x1f) == 0)
+      {
+        reg[rd] = reg[rs] * reg[rt];
+        break;
+      }
+      return -1;
+    default:
+      if (execute_mips_i(opcode) == 0) { break; }
+      return -1;
+      break;
+  }
+
+  reg[0] = 0;
+  pc += 4;
 
   return 0;
 }

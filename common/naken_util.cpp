@@ -406,20 +406,20 @@ int main(int argc, char *argv[])
   }
 #endif
 
-  util_context.simulate->simulate_reset(util_context.simulate);
+  util_context.simulate->reset();
 
   if (mode == MODE_RUN)
   {
-    util_context.simulate->usec = 1;
-    util_context.simulate->show = 0;
-    util_context.simulate->auto_run = 1;
+    util_context.simulate->set_delay(1);
+    util_context.simulate->enable_show();
+    util_context.simulate->enable_auto_run();
   }
 
-  util_context.simulate->break_io = break_io;
+  util_context.simulate->set_break_io(break_io);
 
   if (set_pc != 0xffffffff)
   {
-    util_context.simulate->simulate_set_pc(util_context.simulate, set_pc);
+    util_context.simulate->set_pc(set_pc);
   }
 
   printf("Type help for a list of commands.\n");
@@ -479,9 +479,9 @@ int main(int argc, char *argv[])
 
     if (command[0] == 0)
     {
-      if (util_context.simulate->step_mode == 1)
+      if (util_context.simulate->in_step_mode())
       {
-        util_context.simulate->simulate_run(util_context.simulate, -1, 1);
+        util_context.simulate->run(-1, 1);
       }
       continue;
     }
@@ -501,19 +501,18 @@ int main(int argc, char *argv[])
     {
       state = state_running;
 
-      if (util_context.simulate->usec == 0)
+      if (util_context.simulate->get_delay() == 0)
       {
-        util_context.simulate->step_mode = 1;
+        util_context.simulate->enable_step_mode();
       }
 
-      int ret = util_context.simulate->simulate_run(
-        util_context.simulate,
+      int ret = util_context.simulate->run(
         command[3] == 0 ? -1 : atoi(command + 4),
         0);
 
       state = state_stopped;
 
-      if (util_context.simulate->auto_run == 1 && ret != 0)
+      if (util_context.simulate->in_auto_run() && ret != 0)
       {
          error_flag = 1;
       }
@@ -524,8 +523,8 @@ int main(int argc, char *argv[])
       else
     if (strcmp(command, "step") == 0)
     {
-      util_context.simulate->step_mode = 1;
-      util_context.simulate->simulate_run(util_context.simulate, -1, 1);
+      util_context.simulate->enable_step_mode();
+      util_context.simulate->run(-1, 1);
       continue;
     }
       else
@@ -537,9 +536,9 @@ int main(int argc, char *argv[])
         continue;
       }
 
-      if (util_context.simulate->usec == 0)
+      if (util_context.simulate->in_step_mode() == false)
       {
-        util_context.simulate->step_mode = 1;
+        util_context.simulate->enable_step_mode();
       }
 
       // FIXME: This is MSP430 specific.
@@ -554,9 +553,9 @@ int main(int argc, char *argv[])
       }
 
       state = state_running;
-      util_context.simulate->simulate_push(util_context.simulate, 0xffff);
-      util_context.simulate->simulate_set_reg(util_context.simulate, "r0", num);
-      util_context.simulate->simulate_run(util_context.simulate, -1, 0);
+      util_context.simulate->push(0xffff);
+      util_context.simulate->set_reg("r0", num);
+      util_context.simulate->run(-1, 0);
       state = state_stopped;
       continue;
     }
@@ -568,7 +567,7 @@ int main(int argc, char *argv[])
       else
     if (strcmp(command, "reset") == 0)
     {
-      util_context.simulate->simulate_reset(util_context.simulate);
+      util_context.simulate->reset();
     }
       else
     if (strncmp(command, "break", 5) == 0)
@@ -684,7 +683,7 @@ int main(int argc, char *argv[])
         printf("Illegal range.\n");
       }
         else
-      if (util_context.simulate->simulate_dumpram(util_context.simulate, start, end) == -1)
+      if (util_context.simulate->dumpram(start, end) == -1)
       {
         printf("This arch doesn't support dumpram.  Use print / print16.\n");
       }
@@ -697,20 +696,20 @@ int main(int argc, char *argv[])
       else
     if (strcmp(command, "registers") == 0 || strcmp(command, "reg") == 0)
     {
-      util_context.simulate->simulate_dump_registers(util_context.simulate);
+      util_context.simulate->dump_registers();
     }
       else
     if (strcmp(command, "display") == 0)
     {
-      if (util_context.simulate->show == 0)
+      if (util_context.simulate->get_show() == false)
       {
         printf("display now turned on\n");
-        util_context.simulate->show = 1;
+        util_context.simulate->enable_show();
       }
         else
       {
         printf("display now turned off\n");
-        util_context.simulate->show = 0;
+        util_context.simulate->disable_show();
       }
     }
       else
@@ -734,12 +733,12 @@ int main(int argc, char *argv[])
     }
 
     if (mode != MODE_INTERACTIVE) { break; }
-    util_context.simulate->step_mode = 0;
+    util_context.simulate->disable_step_mode();
   }
 
   if (mode == MODE_RUN)
   {
-    util_context.simulate->simulate_dump_registers(util_context.simulate);
+    util_context.simulate->dump_registers();
   }
 
   if (src != NULL) { fclose(src); }
@@ -748,7 +747,7 @@ int main(int argc, char *argv[])
 
   if (util_context.simulate != NULL)
   {
-    util_context.simulate->simulate_free(util_context.simulate);
+    delete util_context.simulate;
   }
 
   memory_free(&util_context.memory);

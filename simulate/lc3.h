@@ -22,23 +22,31 @@
 #define FLAG_Z 0x0002
 #define FLAG_P 0x0001
 
-typedef struct _simulate_lc3
+class SimulateLc3 : public Simulate
 {
+public:
+  SimulateLc3(Memory *memory);
+  virtual ~SimulateLc3();
+
+  static Simulate *init(Memory *memory);
+
+  virtual int dumpram(int start, int end);
+  virtual void push(uint32_t value);
+  virtual int set_reg(const char *reg_string, uint32_t value);
+  virtual uint32_t get_reg(const char *reg_string);
+  virtual void set_pc(uint32_t value);
+  virtual void reset();
+  virtual void dump_registers();
+  virtual int run(int max_cycles, int step);
+
+private:
+  int execute(uint16_t opcode);
+  int get_reg_index(const char *reg_string);
+
   uint16_t reg[8];
   uint16_t pc;
   uint16_t psr;
-} SimulateLc3;
-
-Simulate *simulate_init_lc3(Memory *memory);
-void simulate_free_lc3(Simulate *simulate);
-int simulate_dumpram_lc3(Simulate *simulate, int start, int end);
-void simulate_push_lc3(Simulate *simulate, uint32_t value);
-int simulate_set_reg_lc3(Simulate *simulate, const char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_lc3(Simulate *simulate, const char *reg_string);
-void simulate_set_pc_lc3(Simulate *simulate, uint32_t value);
-void simulate_reset_lc3(Simulate *simulate);
-void simulate_dump_registers_lc3(Simulate *simulate);
-int simulate_run_lc3(Simulate *simulate, int max_cycles, int step);
+};
 
 #endif
 

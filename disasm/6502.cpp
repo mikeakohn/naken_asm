@@ -18,9 +18,6 @@
 #include "disasm/6502.h"
 #include "table/6502.h"
 
-extern struct _table_6502 table_6502[];
-extern struct _table_6502_opcodes table_6502_opcodes[];
-
 #define READ_RAM(a) (memory_read_m(memory, a) & 0xff)
 
 // bytes for each addressing mode

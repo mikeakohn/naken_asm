@@ -118,13 +118,13 @@ void util_init(UtilContext *util_context)
 
 #ifndef NO_MSP430
   util_context->disasm_range = disasm_range_msp430;
-  util_context->simulate = simulate_init_msp430(&util_context->memory);
+  util_context->simulate = SimulateMsp430::init(&util_context->memory);
   util_context->flags = 0;
   util_context->bytes_per_address = 1;
   util_context->alignment = 1;
 #else
   util_context->disasm_range = cpu_list[0].disasm_range;
-  util_context->simulate = simulate_init_null(&util_context->memory);
+  util_context->simulate = SimulateNull:init(&util_context->memory);
   util_context->flags = cpu_list[0].flags;
   util_context->bytes_per_address = cpu_list[0].bytes_per_address;
   util_context->alignment = cpu_list[0].alignment;
@@ -231,7 +231,7 @@ static void util_copy_cpu_info(UtilContext *util_context, CpuList *cpu_info)
 
   if (util_context->simulate != NULL)
   {
-    free(util_context->simulate);
+    delete util_context->simulate;
     util_context->simulate = NULL;
   }
 
@@ -241,7 +241,7 @@ static void util_copy_cpu_info(UtilContext *util_context, CpuList *cpu_info)
   }
     else
   {
-    util_context->simulate = simulate_init_null(&util_context->memory);
+    util_context->simulate = SimulateNull::init(&util_context->memory);
   }
 }
 

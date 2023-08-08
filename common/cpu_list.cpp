@@ -168,7 +168,7 @@ struct _cpu_list cpu_list[] =
     link_function_msp430,
     list_output_msp430,
     disasm_range_msp430,
-    simulate_init_msp430,
+    SimulateMsp430::init,
     NO_FLAGS,
   },
   {
@@ -190,7 +190,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_msp430x,
     disasm_range_msp430x,
-    simulate_init_msp430,
+    SimulateMsp430::init,
     NO_FLAGS,
   },
 #endif
@@ -214,7 +214,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_1802,
     disasm_range_1802,
-    simulate_init_1802,
+    Simulate1802::init,
     NO_FLAGS,
   },
 #endif
@@ -262,7 +262,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_6502,
     disasm_range_6502,
-    simulate_init_6502,
+    Simulate6502::init,
     NO_FLAGS,
   },
 #endif
@@ -286,7 +286,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_65816,
     disasm_range_65816,
-    simulate_init_65816,
+    Simulate65816::init,
     NO_FLAGS,
   },
 #endif
@@ -406,7 +406,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_8008,
     disasm_range_8008,
-    simulate_init_8008,
+    Simulate8008::init,
     1,
   },
 #endif
@@ -596,7 +596,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_avr8,
     disasm_range_avr8,
-    simulate_init_avr8,
+    SimulateAvr8::init,
     NO_FLAGS,
   },
 #endif
@@ -740,7 +740,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_ebpf,
     disasm_range_ebpf,
-    simulate_init_ebpf,
+    SimulateEbpf::init,
     NO_FLAGS,
   },
 #endif
@@ -812,7 +812,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_lc3,
     disasm_range_lc3,
-    simulate_init_lc3,
+    SimulateLc3::init,
     NO_FLAGS,
   },
 #endif
@@ -860,7 +860,7 @@ struct _cpu_list cpu_list[] =
     link_function_mips,
     list_output_mips,
     disasm_range_mips,
-    simulate_init_mips,
+    SimulateMips::init,
     MIPS_I | MIPS_II | MIPS_III | MIPS_IV | MIPS_FPU,
   },
   {
@@ -882,7 +882,7 @@ struct _cpu_list cpu_list[] =
     link_function_mips,
     list_output_mips,
     disasm_range_mips,
-    simulate_init_mips,
+    SimulateMips::init,
     MIPS_I | MIPS_II | MIPS_III | MIPS_FPU | MIPS_MSA,
   },
   {
@@ -926,7 +926,7 @@ struct _cpu_list cpu_list[] =
     link_function_mips,
     list_output_mips,
     disasm_range_mips,
-    simulate_init_mips,
+    SimulateMips::init,
     MIPS_I | MIPS_II | MIPS_III | MIPS_32,
   },
   {
@@ -1348,7 +1348,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_stm8,
     disasm_range_stm8,
-    simulate_init_stm8,
+    SimulateStm8::init,
     NO_FLAGS,
   },
 #endif
@@ -1514,7 +1514,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_tms9900,
     disasm_range_tms9900,
-    simulate_init_tms9900,
+    SimulateTms9900::init,
     NO_FLAGS,
   },
 #endif
@@ -1610,7 +1610,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_z80,
     disasm_range_z80,
-    simulate_init_z80,
+    SimulateZ80::init,
     NO_FLAGS,
   },
 #endif

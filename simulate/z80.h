@@ -26,8 +26,47 @@
 #define REG_F 6
 #define REG_A 7
 
-typedef struct _simulate_z80
+class SimulateZ80 : public Simulate
 {
+public:
+  SimulateZ80(Memory *memory);
+  virtual ~SimulateZ80();
+
+  static Simulate *init(Memory *memory);
+
+  virtual int dumpram(int start, int end);
+  virtual void push(uint32_t value);
+  virtual int set_reg(const char *reg_string, uint32_t value);
+  virtual uint32_t get_reg(const char *reg_string);
+  virtual void set_pc(uint32_t value);
+  virtual void reset();
+  virtual void dump_registers();
+  virtual int run(int max_cycles, int step);
+
+private:
+  int get_q(int reg16);
+  int get_p(int reg16);
+  int set_p(int reg16, int value);
+  void set_q(int reg16, int value);
+  void set_xy(int xy, int value);
+  uint16_t get_xy(int xy);
+  void set_parity(uint8_t a);
+  void set_flags_a(int a, int number, uint8_t vflag);
+  void set_flags16(int _new, int old, int number, uint8_t vflag);
+  void add_reg16(int xy, int reg16);
+
+  int execute_op_none(struct _table_z80 *table_z80, uint16_t opcode);
+  int execute_op_a_reg8(struct _table_z80 *table_z80, uint8_t opcode);
+  int execute_op_reg8(struct _table_z80 *table_z80, uint8_t opcode);
+  int execute_op_a_number8(struct _table_z80 *table_z80, uint16_t opcode16);
+  int execute_op_number8(struct _table_z80 *table_z80, uint16_t opcode16);
+  int execute_op_reg8_v2(struct _table_z80 *table_z80, uint8_t opcode);
+  int execute_op_reg16(struct _table_z80 *table_z80, uint8_t opcode);
+  int execute_op_reg16p(struct _table_z80 *table_z80, uint8_t opcode);
+  int execute_op_hl_reg16_2(struct _table_z80 *table_z80, uint8_t opcode);
+  int execute_op_xy(struct _table_z80 *table_z80, uint16_t opcode16);
+  int execute();
+
   uint8_t reg[8];
   uint16_t ix;
   uint16_t iy;
@@ -36,18 +75,7 @@ typedef struct _simulate_z80
   //uint8_t status;
   uint8_t iff1;
   uint8_t iff2;
-} SimulateZ80;
-
-Simulate *simulate_init_z80(Memory *memory);
-void simulate_free_z80(Simulate *simulate);
-int simulate_dumpram_z80(Simulate *simulate, int start, int end);
-void simulate_push_z80(Simulate *simulate, uint32_t value);
-int simulate_set_reg_z80(Simulate *simulate, const char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_z80(Simulate *simulate, const char *reg_string);
-void simulate_set_pc_z80(Simulate *simulate, uint32_t value);
-void simulate_reset_z80(Simulate *simulate);
-void simulate_dump_registers_z80(Simulate *simulate);
-int simulate_run_z80(Simulate *simulate, int max_cycles, int step);
+};
 
 #endif
 

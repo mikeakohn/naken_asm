@@ -19,9 +19,6 @@
 #include "disasm/65816.h"
 #include "table/65816.h"
 
-extern struct _table_65816 table_65816[];
-extern struct _table_65816_opcodes table_65816_opcodes[];
-
 #define READ_RAM(a) (memory_read_m(memory, a) & 0xff)
 
 // bytes for each addressing mode

@@ -17,24 +17,37 @@
 #include "common/memory.h"
 #include "simulate/Simulate.h"
 
-typedef struct _simulate_mips
+class SimulateMips : public Simulate
 {
+public:
+  SimulateMips(Memory *memory);
+  virtual ~SimulateMips();
+
+  static Simulate *init(Memory *memory);
+
+  virtual int dumpram(int start, int end);
+  virtual void push(uint32_t value);
+  virtual int set_reg(const char *reg_string, uint32_t value);
+  virtual uint32_t get_reg(const char *reg_string);
+  virtual void set_pc(uint32_t value);
+  virtual void reset();
+  virtual void dump_registers();
+  virtual int run(int max_cycles, int step);
+
+private:
+  int32_t get_offset16(uint32_t opcode);
+  int delay_slot();
+  int execute_shift(uint32_t opcode);
+  int execute_mips_r(uint32_t opcode);
+  int execute_mips_i(uint32_t opcode);
+
+  int execute();
+
   int32_t reg[32];
   uint32_t pc;
   uint32_t hi;
   uint32_t lo;
-} SimulateMips;
-
-Simulate *simulate_init_mips(Memory *memory);
-void simulate_free_mips(Simulate *simulate);
-int simulate_dumpram_mips(Simulate *simulate, int start, int end);
-void simulate_push_mips(Simulate *simulate, uint32_t value);
-int simulate_set_reg_mips(Simulate *simulate, const char *reg_string, uint32_t value);
-uint32_t simulate_get_reg_mips(Simulate *simulate, const char *reg_string);
-void simulate_set_pc_mips(Simulate *simulate, uint32_t value);
-void simulate_reset_mips(Simulate *simulate);
-void simulate_dump_registers_mips(Simulate *simulate);
-int simulate_run_mips(Simulate *simulate, int max_cycles, int step);
+};
 
 #endif
 

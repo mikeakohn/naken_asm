@@ -147,9 +147,6 @@ static int get_address(
   return 0;
 }
 
-extern struct _table_6502 table_6502[];
-extern struct _table_6502_opcodes table_6502_opcodes[];
-
 // bytes for each addressing mode
 static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2, 3, 2, 3 };
 
