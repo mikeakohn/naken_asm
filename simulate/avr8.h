@@ -71,7 +71,7 @@ private:
   uint8_t reg[32];
   uint8_t ram[RAM_SIZE];
   uint8_t io[64];
-  int sp_start;
+  //int sp_start;
   int pc;
   int sp;
   uint8_t sreg;

@@ -35,7 +35,7 @@ public:
   virtual int run(int max_cycles, int step);
 
 private:
-  uint16_t reg[16];
+  //uint16_t reg[16];
 };
 
 #endif
