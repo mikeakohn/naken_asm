@@ -113,7 +113,7 @@ static const char *util_get_hex(const char *token, uint32_t *num)
 void util_init(UtilContext *util_context)
 {
   memset(util_context, 0, sizeof(UtilContext));
-  memory_init(&util_context->memory, 1 << 20, 1);
+  memory_init(&util_context->memory, 1 << 20);
   symbols_init(&util_context->symbols);
 
 #ifndef NO_MSP430

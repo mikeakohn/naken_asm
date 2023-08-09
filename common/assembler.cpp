@@ -55,7 +55,7 @@ void assembler_init(AsmContext *asm_context)
   {
     // FIXME - probably need to allow 32 bit data
     //memory_init(&asm_context->memory, 1<<25, 1);
-    memory_init(&asm_context->memory, ~((uint32_t)0), 1);
+    memory_init(&asm_context->memory, ~((uint32_t)0));
   }
 }
 

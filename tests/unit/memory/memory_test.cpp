@@ -3,13 +3,14 @@
 #include <string.h>
 
 #include "common/memory.h"
+#include "common/MemoryPage.h"
 
-int main(int argc, char *argv[])
+int test_Memory()
 {
   Memory memory;
   int errors = 0;
 
-  memory_init(&memory, 100, 0);
+  memory_init(&memory, 100);
 
   memory.endian = ENDIAN_LITTLE;
 
@@ -50,6 +51,46 @@ int main(int argc, char *argv[])
   if (memory_read_m(&memory, 41) != 0x67) { errors++; }
 
   memory_free(&memory);
+
+  return errors;
+}
+
+int test_MemoryPage()
+{
+  MemoryPage memory_page(PAGE_SIZE + 100);
+
+  int errors = 0;
+
+  if (memory_page.address != PAGE_SIZE)
+  {
+    fprintf(stderr, "Error: address isn't on page boundary.\n");
+    errors += 1;
+  }
+
+  memory_page.set_data(PAGE_SIZE + 5, 100);
+  memory_page.set_data(PAGE_SIZE + 10, 110);
+
+  if (memory_page.offset_min != 5)
+  {
+    fprintf(stderr, "Error: offset_min %s:%d\n", __FILE__, __LINE__);
+    errors += 1;
+  }
+
+  if (memory_page.offset_max != 10)
+  {
+    fprintf(stderr, "Error: offset_max %s:%d\n", __FILE__, __LINE__);
+    errors += 1;
+  }
+
+  return errors;
+}
+
+int main(int argc, char *argv[])
+{
+  int errors = 0;
+
+  errors += test_Memory();
+  errors += test_MemoryPage();
 
   printf("Total errors: %d\n", errors);
   printf("%s\n", errors == 0 ? "PASSED." : "FAILED.");

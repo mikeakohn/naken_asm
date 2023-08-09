@@ -16,16 +16,14 @@
 #include "common/assembler.h"
 #include "common/memory.h"
 
-void memory_init(Memory *memory, uint32_t size, int debug_flag)
+void memory_init(Memory *memory, uint32_t size)
 {
   memory->low_address = size - 1;
   memory->high_address = 0;
   memory->entry_point = 0xffffffff;
   memory->endian = ENDIAN_LITTLE;
   memory->size = size;
-  memory->debug_flag = debug_flag;
   memory->pages = NULL;
-  //memset(memory->debug_line, 0xff, sizeof(int) * memory->size);
 }
 
 void memory_free(Memory *memory)
@@ -34,10 +32,11 @@ void memory_free(Memory *memory)
   MemoryPage *next;
 
   page = memory->pages;
+
   while (page != NULL)
   {
     next = page->next;
-    free(page);
+    delete page;
     page = next;
   }
 
@@ -148,8 +147,6 @@ static int read_debug(Memory *memory, uint32_t address)
 {
   MemoryPage *page;
 
-  if (memory->debug_flag == 0) return -1;
-
   page = memory->pages;
 
   while (page != NULL)
@@ -164,34 +161,14 @@ static int read_debug(Memory *memory, uint32_t address)
   return -1;
 }
 
-static MemoryPage *alloc_page(Memory *memory, uint32_t address)
-{
-  MemoryPage *page;
-
-  page = (MemoryPage *)malloc(
-    sizeof(MemoryPage) +
-    (memory->debug_flag == 1 ? PAGE_SIZE * sizeof(int) : 0));
-
-  page->address = (address / PAGE_SIZE) * PAGE_SIZE;
-  page->offset_min = PAGE_SIZE;
-  page->offset_max = 0;
-  page->next = 0;
-
-  memset(page->bin, 0, PAGE_SIZE);
-
-  if (memory->debug_flag==1)
-  {
-    memset(page->debug_line, 0xff, PAGE_SIZE * sizeof(int));
-  }
-
-  return page;
-}
-
 static void write_byte(Memory *memory, uint32_t address, uint8_t data)
 {
   MemoryPage *page;
 
-  if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
+  if (memory->pages == NULL)
+  {
+    memory->pages = new MemoryPage(address);
+  }
 
   page = memory->pages;
 
@@ -205,7 +182,7 @@ static void write_byte(Memory *memory, uint32_t address, uint8_t data)
 
     if (page->next == NULL)
     {
-      page->next = alloc_page(memory, address);
+      page->next = new MemoryPage(address);
     }
 
     page = page->next;
@@ -214,22 +191,20 @@ static void write_byte(Memory *memory, uint32_t address, uint8_t data)
   if (memory->low_address > address) memory->low_address = address;
   if (memory->high_address < address) memory->high_address = address;
 
-  uint32_t offset = address-page->address;
-  if (page->offset_min > offset) { page->offset_min = offset; }
-  if (page->offset_max < offset) { page->offset_max = offset; }
-
-  page->bin[offset] = data;
-  //page->debug_line[offset] = 1;
+  page->set_data(address, data);
 }
 
 static void write_debug(Memory *memory, uint32_t address, int data)
 {
   MemoryPage *page;
 
-  if (memory->debug_flag == 0) { return; }
-  if (memory->pages == NULL) { memory->pages = alloc_page(memory, address); }
+  if (memory->pages == NULL)
+  {
+    memory->pages = new MemoryPage(address);
+  }
 
   page = memory->pages;
+
   while (page != NULL)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
@@ -239,17 +214,13 @@ static void write_debug(Memory *memory, uint32_t address, int data)
 
     if (page->next == NULL)
     {
-      page->next = alloc_page(memory, address);
+      page->next = new MemoryPage(address);
     }
 
-    page=page->next;
+    page = page->next;
   }
 
-  uint32_t offset = address-page->address;
-  if (page->offset_min > offset) { page->offset_min = offset; }
-  if (page->offset_max < offset) { page->offset_max = offset; }
-
-  page->debug_line[offset] = data;
+  page->set_debug(address, data);
 }
 
 uint8_t memory_read(AsmContext *asm_context, uint32_t address)
@@ -330,11 +301,16 @@ void memory_dump(Memory *memory)
   printf("high_address: 0x%08x\n", memory->high_address);
   printf("      endian: %d\n", memory->endian);
   printf("        size: 0x%x\n", memory->size);
-  printf("  debug_flag: %d\n", memory->debug_flag);
 
   while (page != NULL)
   {
-    printf("  page: %p next=%p address=0x%08x offset_min=%d offset_max=%d\n", page, page->next, page->address, page->offset_min, page->offset_max);
+    printf("  page: %p next=%p address=0x%08x offset_min=%d offset_max=%d\n",
+      page,
+      page->next,
+      page->address,
+      page->offset_min,
+      page->offset_max);
+
     page = page->next;
   }
 }

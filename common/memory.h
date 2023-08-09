@@ -14,18 +14,7 @@
 
 #include <stdint.h>
 
-// PAGE_SIZE is a way for naken_asm to be able to "address" a large
-// memory range, but use only the memory needed to hold code and data.
-// For example if a microcontroller had 2MB of memory and code is only
-// 1k in size, if the page size is only 8k, only 8k of RAM would be
-// malloc()'d and it would be marked as starting at the address where
-// the code page exists.  I found that 8k made my 2MB Playstation 2 Java
-// demo take 24 seconds to assemble.  64k pages drops it to 3.3 seconds.
-// a 2MB page drops it to 1.7 seconds but causes naken_asm to be slower
-// on start up (make tests takes a lot longer to run).
-//#define PAGE_SIZE 8192
-#define PAGE_SIZE (64 * 1024)
-//#define PAGE_SIZE 2097152
+#include "MemoryPage.h"
 
 #define ENDIAN_LITTLE 0
 #define ENDIAN_BIG 1
@@ -33,16 +22,6 @@
 #define DL_EMPTY -1
 #define DL_DATA -2
 #define DL_NO_CG -3
-
-// TODO - Use this instead later
-typedef struct _memory_page
-{
-  uint32_t address;
-  uint32_t offset_min, offset_max;
-  struct _memory_page *next;
-  uint8_t bin[PAGE_SIZE];
-  int debug_line[];
-} MemoryPage;
 
 typedef struct _memory
 {
@@ -52,13 +31,12 @@ typedef struct _memory
   uint32_t entry_point;
   int endian;
   uint32_t size;
-  int debug_flag;
 } Memory;
 
 struct _asm_context;
 typedef struct _asm_context AsmContext;
 
-void memory_init(Memory *memory, uint32_t size, int debug_flag);
+void memory_init(Memory *memory, uint32_t size);
 void memory_free(Memory *memory);
 void memory_clear(Memory *memory);
 int memory_in_use(Memory *memory, uint32_t address);
