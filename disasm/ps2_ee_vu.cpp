@@ -154,11 +154,13 @@ int disasm_ps2_ee_vu(
             snprintf(temp, sizeof(temp), " 0x%x (offset=%d)", address + 8 + offset, offset);
             break;
           case EE_VU_OP_OFFSET_BASE:
+          case EE_VU_OP_OFFSET_BASE_1:
             offset = opcode & 0x7ff;
             if ((offset & 0x400) != 0) { offset |= 0xf800; }
             snprintf(temp, sizeof(temp), " %d(vi%02d)", offset, (opcode >> 11) & 0x1f);
             break;
           case EE_VU_OP_BASE:
+          case EE_VU_OP_BASE_1:
             snprintf(temp, sizeof(temp), " (vi%02d)", fs);
             break;
           case EE_VU_OP_BASE_DEC:
