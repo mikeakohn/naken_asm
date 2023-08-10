@@ -7,7 +7,7 @@ LD_FLAGS=-L../../../build
 
 default:
 	$(CXX) -o var_test var_test.cpp \
-          ../../../build/common/var.o \
+          ../../../build/naken_asm.a \
 	  $(CFLAGS)
 
 clean:

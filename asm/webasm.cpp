@@ -28,7 +28,7 @@ static int get_uint(
 {
   Var var;
 
-  if (eval_expression_ex(asm_context, &var) == -1)
+  if (eval_expression_ex(asm_context, var) == -1)
   {
     if (asm_context->pass == 2)
     {
@@ -44,11 +44,11 @@ static int get_uint(
   {
     if (as_bin == 0)
     {
-      *value = var_get_int64(&var);
+      *value = var.get_int64();
     }
       else
     {
-      *value = var_get_bin64(&var);
+      *value = var.get_bin64();
     }
   }
 

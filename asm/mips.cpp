@@ -637,7 +637,7 @@ static int get_operands_li(
 
   if (expect_token(asm_context, ',') == -1) { return -1; }
 
-  if (eval_expression_ex(asm_context, &var) != 0)
+  if (eval_expression_ex(asm_context, var) != 0)
   {
     if (asm_context->pass == 2)
     {
@@ -653,7 +653,7 @@ static int get_operands_li(
   }
     else
   {
-    temp = var_get_int64(&var);
+    temp = var.get_int64();
     uint64_t mask = temp & 0xffffffff00000000ULL;
 
     if (mask != 0xffffffff00000000ULL && mask != 0)

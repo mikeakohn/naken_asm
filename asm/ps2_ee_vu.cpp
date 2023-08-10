@@ -113,6 +113,8 @@ static int get_register_ps2_ee_vu(
   return 0;
 }
 
+// For instructions that want x, y, z, w flags mapped 0 to 3 instead of
+// a bitmask. If more than 1 flag is set, will return -1.
 static int get_field_number(int field_mask)
 {
   int8_t value[16] =
@@ -124,6 +126,21 @@ static int get_field_number(int field_mask)
   };
 
   return value[field_mask];
+}
+
+static bool is_only_one_dest(int dest)
+{
+#if 0
+  bool value[16] =
+  {
+     false,  true,  true, false, // 0
+     true,  false, false, false, // 4
+     true,  false, false, false, // 8
+     false, false, false, false, // 12
+  };
+#endif
+
+  return get_field_number(dest) != -1;
 }
 
 static int get_field_bits(
@@ -218,7 +235,7 @@ int get_base(
       return -1;
     }
 
-    if (get_field_number(operand->field_mask) == -1)
+    if (! is_only_one_dest(operand->field_mask))
     {
       printf("Error: Only 1 dest field allowed at %s:%d\n",
         asm_context->tokens.filename,
@@ -302,10 +319,11 @@ static int get_operands(
       continue;
     }
 
-    n = get_register_ps2_ee_vu(token,
-                               &operands[operand_count].type,
-                               &operands[operand_count].value,
-                               &operands[operand_count].field_mask);
+    n = get_register_ps2_ee_vu(
+      token,
+      &operands[operand_count].type,
+      &operands[operand_count].value,
+      &operands[operand_count].field_mask);
 
     if (n != -1)
     {
@@ -697,16 +715,20 @@ static uint32_t get_opcode(
 
             break;
           case EE_VU_OP_OFFSET_BASE:
+          case EE_VU_OP_OFFSET_BASE_1:
             if (operands[r].type != OPERAND_OFFSET_BASE)
             {
               print_error_illegal_operands(asm_context, instr);
               return UNKNOWN_OPCODE;
             }
 
-            if (get_field_number(dest) == -1)
+            if (table_ps2_ee_vu[n].operand[r] == EE_VU_OP_OFFSET_BASE_1)
             {
-              print_error_illegal_operands(asm_context, instr);
-              return UNKNOWN_OPCODE;
+              if (! is_only_one_dest(dest))
+              {
+                print_error_illegal_operands(asm_context, instr);
+                return UNKNOWN_OPCODE;
+              }
             }
 
             offset = operands[r].value;
@@ -729,10 +751,20 @@ static uint32_t get_opcode(
 
             break;
           case EE_VU_OP_BASE:
+          case EE_VU_OP_BASE_1:
             if (operands[r].type != OPERAND_BASE)
             {
               print_error_illegal_operands(asm_context, instr);
               return UNKNOWN_OPCODE;
+            }
+
+            if (table_ps2_ee_vu[n].operand[r] == EE_VU_OP_BASE_1)
+            {
+              if (! is_only_one_dest(dest))
+              {
+                print_error_illegal_operands(asm_context, instr);
+                return UNKNOWN_OPCODE;
+              }
             }
 
             if (table_ps2_ee_vu[n].operand[0] == EE_VU_OP_FS)

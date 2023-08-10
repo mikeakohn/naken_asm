@@ -17,9 +17,6 @@
 #include "common/eval_expression_ex.h"
 #include "common/tokens.h"
 
-#define VAR_COPY(var_d, var_s) \
-  memcpy(var_d, var_s, sizeof(Var));
-
 #define PRINT_STACK() \
 { \
   int i; \
@@ -121,7 +118,7 @@ static int get_operator(char *token, struct _operator *oper)
   return 0;
 }
 
-static int operate(Var *var_d, Var *var_s, struct _operator *oper)
+static int operate(Var &var_d, Var &var_s, struct _operator *oper)
 {
 #ifdef DEBUG
 printf(">>> OPERATING ON %d/%f/%d (%d) %d/%f/%d\n",
@@ -133,27 +130,27 @@ printf(">>> OPERATING ON %d/%f/%d (%d) %d/%f/%d\n",
   switch (oper->operation)
   {
     case OPER_NOT:
-      return var_not(var_d);
+      return var_d.logical_not(var_d);
     case OPER_MUL:
-      return var_mul(var_d, var_s);
+      return var_d.mul(var_d, var_s);
     case OPER_DIV:
-      return var_div(var_d, var_s);
+      return var_d.div(var_d, var_s);
     case OPER_MOD:
-      return var_mod(var_d, var_s);
+      return var_d.mod(var_d, var_s);
     case OPER_PLUS:
-      return var_add(var_d, var_s);
+      return var_d.add(var_d, var_s);
     case OPER_MINUS:
-      return var_sub(var_d, var_s);
+      return var_d.sub(var_d, var_s);
     case OPER_LEFT_SHIFT:
-      return var_shift_left(var_d, var_s);
+      return var_d.shift_left(var_d, var_s);
     case OPER_RIGHT_SHIFT:
-      return var_shift_right(var_d, var_s);
+      return var_d.shift_right(var_d, var_s);
     case OPER_AND:
-      return var_and(var_d, var_s);
+      return var_d.logical_and(var_d, var_s);
     case OPER_XOR:
-      return var_xor(var_d, var_s);
+      return var_d.logical_xor(var_d, var_s);
     case OPER_OR:
-      return var_or(var_d, var_s);
+      return var_d.logical_or(var_d, var_s);
     default:
       printf("Internal Error: WTF, bad operator %d\n", oper->operation);
       return 0;
@@ -167,7 +164,7 @@ static int parse_unary(AsmContext *asm_context, int64_t *num, int operation)
   int64_t temp;
   Var var;
 
-  var_set_int(&var, 0);
+  var.set_int(0);
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -190,14 +187,15 @@ static int parse_unary(AsmContext *asm_context, int64_t *num, int operation)
     else
   if (IS_TOKEN(token, '('))
   {
-    if (eval_expression_ex(asm_context, &var) != 0) { return -1; }
-    if (var.type != VAR_INT)
+    if (eval_expression_ex(asm_context, var) != 0) { return -1; }
+
+    if (var.get_type() != VAR_INT)
     {
       print_error(asm_context, "Non-integer number in expression");
       return -1;
     }
 
-    temp = var_get_int64(&var);
+    temp = var.get_int64();
 
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (IS_NOT_TOKEN(token,')'))
@@ -219,7 +217,10 @@ static int parse_unary(AsmContext *asm_context, int64_t *num, int operation)
   return 0;
 }
 
-static int eval_expression_go(AsmContext *asm_context, Var *var, struct _operator *last_operator)
+static int eval_expression_go(
+  AsmContext *asm_context,
+  Var &var,
+  struct _operator *last_operator)
 {
   char token[TOKENLEN];
   int token_type;
@@ -233,7 +234,7 @@ printf("Enter eval_expression_go,  var=%d/%f/%d\n", var_get_int32(var), var_get_
 #endif
 
   memcpy(&oper, last_operator, sizeof(struct _operator));
-  VAR_COPY(&var_stack[0], var);
+  var_stack[0] = var;
 
   while (1)
   {
@@ -283,11 +284,11 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
     {
       if (last_token_was_op == 0 && oper.operation != OPER_UNSET)
       {
-        operate(&var_stack[var_stack_ptr-2], &var_stack[var_stack_ptr-1], last_operator);
+        operate(var_stack[var_stack_ptr-2], var_stack[var_stack_ptr-1], last_operator);
         var_stack_ptr--;
         oper.operation = OPER_UNSET;
 
-        VAR_COPY(var, &var_stack[var_stack_ptr-1]);
+        var = var_stack[var_stack_ptr-1];
         tokens_push(asm_context, token, token_type);
         return 0;
       }
@@ -295,7 +296,7 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
       if (oper.operation == OPER_UNSET && var_stack_ptr == 2)
       {
         // This is probably the x(r12) case.. so this is actually okay
-        VAR_COPY(var, &var_stack[var_stack_ptr-1]);
+        var = var_stack[var_stack_ptr-1];
         tokens_push(asm_context, token, token_type);
         return 0;
       }
@@ -305,9 +306,9 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
 
       paren_operator.precedence = PREC_UNSET;
       paren_operator.operation = OPER_UNSET;
-      memset(&paren_var, 0, sizeof(Var));
+      paren_var.clear();
 
-      if (eval_expression_go(asm_context, &paren_var, &paren_operator) != 0)
+      if (eval_expression_go(asm_context, paren_var, &paren_operator) != 0)
       {
         return -1;
       }
@@ -318,7 +319,7 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
 printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&paren_var), var_get_type(&paren_var));
 #endif
 
-      VAR_COPY(&var_stack[var_stack_ptr++], &paren_var);
+      var_stack[var_stack_ptr++] = paren_var;
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
       if (!(token[1] == 0 && token[0] == ')'))
@@ -361,7 +362,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
         return -1;
       }
 
-      var_set_int(&var_stack[var_stack_ptr++], atoll(token));
+      var_stack[var_stack_ptr++].set_int(atoll(token));
     }
       else
     if (token_type == TOKEN_FLOAT)
@@ -372,7 +373,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
         return -1;
       }
 
-      var_set_float(&var_stack[var_stack_ptr++], atof(token));
+      var_stack[var_stack_ptr++].set_float(atof(token));
     }
       else
     if (token_type == TOKEN_SYMBOL)
@@ -402,7 +403,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
           return -1;
         }
 
-        var_set_int(&var_stack[var_stack_ptr++], num);
+        var_stack[var_stack_ptr++].set_int(num);
         memcpy(&oper, &operator_prev, sizeof(struct _operator));
 
         last_token_was_op = 0;
@@ -428,14 +429,14 @@ printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, oper.pr
         else
       if (last_operator->precedence > oper.precedence)
       {
-        if (eval_expression_go(asm_context, &var_stack[var_stack_ptr-1], &oper) == -1)
+        if (eval_expression_go(asm_context, var_stack[var_stack_ptr-1], &oper) == -1)
         {
           return -1;
         }
       }
         else
       {
-        operate(&var_stack[var_stack_ptr-2], &var_stack[var_stack_ptr-1], last_operator);
+        operate(var_stack[var_stack_ptr-2], var_stack[var_stack_ptr-1], last_operator);
         var_stack_ptr--;
         memcpy(last_operator, &oper, sizeof(struct _operator));
       }
@@ -457,20 +458,20 @@ PRINT_STACK()
 
   if (last_operator->operation != OPER_UNSET)
   {
-    operate(&var_stack[var_stack_ptr-2], &var_stack[var_stack_ptr-1], last_operator);
+    operate(var_stack[var_stack_ptr-2], var_stack[var_stack_ptr-1], last_operator);
     var_stack_ptr--;
   }
 
-  VAR_COPY(var, &var_stack[var_stack_ptr-1]);
+  var = var_stack[var_stack_ptr-1];
 
   return 0;
 }
 
-int eval_expression_ex(AsmContext *asm_context, Var *var)
+int eval_expression_ex(AsmContext *asm_context, Var &var)
 {
   struct _operator oper;
 
-  var_set_int(var, 0);
+  var.set_int(0);
 
   oper.precedence = PREC_UNSET;
   oper.operation = OPER_UNSET;

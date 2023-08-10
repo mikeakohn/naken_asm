@@ -7,17 +7,7 @@ LD_FLAGS=-L../../../build
 
 default:
 	$(CXX) -o unit_test unit_test.cpp \
-          ../../../build/common/eval_expression_ex.o \
-          ../../../build/common/macros.o \
-          ../../../build/common/memory_pool.o \
-          ../../../build/common/print_error.o \
-          ../../../build/common/symbols.o \
-          ../../../build/common/tokens.o \
-          ../../../build/common/var.o \
-          ../../../build/common/linker.o \
-          ../../../build/common/imports_ar.o \
-          ../../../build/common/imports_get_int.o \
-          ../../../build/common/imports_obj.o \
+          ../../../build/naken_asm.a \
 	  $(CFLAGS)
 
 clean:

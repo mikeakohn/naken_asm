@@ -14,7 +14,7 @@
 
 #include "common/assembler.h"
 #include "common/eval_expression.h"
-#include "common/var.h"
+#include "common/Var.h"
 
 #if 0
 enum
@@ -46,7 +46,7 @@ enum
 };
 #endif
 
-int eval_expression_ex(AsmContext *asm_context, Var *var);
+int eval_expression_ex(AsmContext *asm_context, Var &var);
 
 #endif
 

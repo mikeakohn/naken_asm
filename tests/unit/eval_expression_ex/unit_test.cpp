@@ -5,7 +5,7 @@
 
 #include "common/eval_expression_ex.h"
 #include "common/tokens.h"
-#include "common/var.h"
+#include "common/Var.h"
 
 int errors = 0;
 
@@ -22,8 +22,8 @@ void test_int(const char *expression, int answer)
   tokens_reset(&asm_context);
   //assemble_init(&asm_context);
 
-  int ret = eval_expression_ex(&asm_context, &var);
-  int num = var_get_int32(&var);
+  int ret = eval_expression_ex(&asm_context, var);
+  int num = var.get_int32();
 
   if (ret != 0)
   {
@@ -57,8 +57,8 @@ void test_int64(const char *expression, int64_t answer)
   tokens_reset(&asm_context);
   //assemble_init(&asm_context);
 
-  int ret = eval_expression_ex(&asm_context, &var);
-  int64_t num = var_get_int64(&var);
+  int ret = eval_expression_ex(&asm_context, var);
+  int64_t num = var.get_int64();
 
   if (ret != 0)
   {
@@ -91,7 +91,7 @@ void should_fail(const char *expression)
   tokens_open_buffer(&asm_context, expression);
   tokens_reset(&asm_context);
 
-  int ret = eval_expression_ex(&asm_context, &var);
+  int ret = eval_expression_ex(&asm_context, var);
 
   if (ret == 0)
   {
