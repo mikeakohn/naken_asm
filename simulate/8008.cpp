@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <signal.h>
 
 #include "disasm/8008.h"
 #include "simulate/8008.h"
@@ -191,14 +190,16 @@ int Simulate8008::run(int max_cycles, int step)
       printf("Function ended.  Total cycles: %d\n", cycle_count);
       step_mode = 0;
       pc = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
-      signal(SIGINT, SIG_DFL);
+
+      disable_signal_handler();
       return 0;
     }
 
     usleep(usec);
   }
 
-  signal(SIGINT, SIG_DFL);
+  disable_signal_handler();
+
   printf("Stopped.  PC=0x%04x.\n", pc);
   printf("%d clock cycles have passed since last reset.\n", cycle_count);
 

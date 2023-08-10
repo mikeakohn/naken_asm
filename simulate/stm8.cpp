@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <signal.h>
 
 #include "simulate/stm8.h"
 #include "disasm/stm8.h"
@@ -569,19 +568,19 @@ int SimulateStm8::run(int max_cycles, int step)
 
     if (auto_run == true && nested_call_count < 0)
     {
-      signal(SIGINT, SIG_DFL);
+      disable_signal_handler();
       return 0;
     }
 
     if (ret == UNKNOWN_INST)
     {
-      signal(SIGINT, SIG_DFL);
+      disable_signal_handler();
       printf("Unknown instruction at address 0x%06x\n", current_pc);
       return -1;
     }
     else if (ret == INVALID_MEM_ADDR)
     {
-      signal(SIGINT, SIG_DFL);
+      disable_signal_handler();
       printf("Unsupported memory space access at address 0x%06x\n", current_pc);
       return -1;
     }
@@ -615,14 +614,15 @@ int SimulateStm8::run(int max_cycles, int step)
 
     if (usec == 0 || step == true)
     {
-      signal(SIGINT, SIG_DFL);
+      disable_signal_handler();
       return 0;
     }
 
     usleep(usec);
   }
 
-  signal(SIGINT, SIG_DFL);
+  disable_signal_handler();
+
   printf("Stopped.  PC=0x%06x.\n", REG_PC);
   printf("%d clock cycles have passed since last reset.\n", cycle_count);
 

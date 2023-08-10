@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <signal.h>
 
 #include "asm/avr8.h"
 #include "disasm/avr8.h"
@@ -311,7 +310,7 @@ int SimulateAvr8::run(int max_cycles, int step)
 
     if (usec == 0 || step == true)
     {
-      signal(SIGINT, SIG_DFL);
+      disable_signal_handler();
       return 0;
     }
 
@@ -320,7 +319,7 @@ int SimulateAvr8::run(int max_cycles, int step)
     {
       printf("Function ended.  Total cycles: %d\n", cycle_count);
       step_mode = 0;
-      signal(SIGINT, SIG_DFL);
+      disable_signal_handler();
       return 0;
     }
 #endif
@@ -328,7 +327,8 @@ int SimulateAvr8::run(int max_cycles, int step)
     usleep(usec);
   }
 
-  signal(SIGINT, SIG_DFL);
+  disable_signal_handler();
+
   printf("Stopped.  PC=0x%04x.\n", pc);
   printf("%d clock cycles have passed since last reset.\n", cycle_count);
 

@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
 
 #include "asm/1802.h"
 #include "disasm/1802.h"
@@ -339,13 +338,14 @@ int Simulate1802::run(int cycles, int step)
 
     if (usec == 0 || step == true)
     {
-      signal(SIGINT, SIG_DFL);
+      disable_signal_handler();
       return 0;
     }
     usleep(usec > 999999 ? 999999 : usec);
   }
 
-  signal(SIGINT, SIG_DFL);
+  disable_signal_handler();
+
   printf("Stopped.  PC=0x%04x.\n", PC);
   printf("%d clock cycles have passed since last reset.\n", cycle_count);
 

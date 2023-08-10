@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <signal.h>
 
 #include "simulate/null.h"
 
@@ -65,7 +64,7 @@ int SimulateNull::run(int max_cycles, int step)
     break;
   }
 
-  //signal(SIGINT, SIG_DFL);
+  disable_signal_handler();
 
   return 0;
 }

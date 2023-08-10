@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <signal.h>
 
 #include "disasm/lc3.h"
 #include "simulate/lc3.h"
@@ -205,7 +204,7 @@ int SimulateLc3::run(int max_cycles, int step)
 
     if (usec == 0 || step == 1)
     {
-      signal(SIGINT, SIG_DFL);
+      disable_signal_handler();
       return 0;
     }
 
@@ -214,14 +213,16 @@ int SimulateLc3::run(int max_cycles, int step)
       printf("Function ended.  Total cycles: %d\n", cycle_count);
       step_mode = 0;
       pc = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
-      signal(SIGINT, SIG_DFL);
+
+      disable_signal_handler();
       return 0;
     }
 
     usleep(usec);
   }
 
-  signal(SIGINT, SIG_DFL);
+  disable_signal_handler();
+
   printf("Stopped.  PC=0x%04x.\n", pc);
   printf("%d clock cycles have passed since last reset.\n", cycle_count);
 

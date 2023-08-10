@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <signal.h>
 
 #include "simulate/mips.h"
 #include "disasm/mips.h"
@@ -236,12 +235,12 @@ int SimulateMips::run(int max_cycles, int step)
 
     if (usec == 0 || step == true || force_break == true)
     {
-      signal(SIGINT, SIG_DFL);
+      disable_signal_handler();
       return 0;
     }
   }
 
-  signal(SIGINT, SIG_DFL);
+  disable_signal_handler();
 
   printf("Stopped.  PC=0x%04x.\n", pc);
   printf("%d clock cycles have passed since last reset.\n", cycle_count);

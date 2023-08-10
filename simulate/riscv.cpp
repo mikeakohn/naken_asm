@@ -65,7 +65,7 @@ int SimulateRiscv::run(int max_cycles, int step)
     break;
   }
 
-  //signal(SIGINT, SIG_DFL);
+  disable_signal_handler();
 
   return 0;
 }

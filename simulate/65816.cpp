@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
 
 #include "asm/65816.h"
 #include "disasm/65816.h"
@@ -274,7 +273,7 @@ int Simulate65816::run(int max_cycles, int step)
 
     if (usec == 0 || step == 1)
     {
-      signal(SIGINT, SIG_DFL);
+      disable_signal_handler();
       return 0;
     }
 
@@ -283,14 +282,16 @@ int Simulate65816::run(int max_cycles, int step)
       printf("Function ended.  Total cycles: %d\n", cycle_count);
       step_mode = 0;
       REG_PC = READ_RAM(0xFFFC) + READ_RAM(0xFFFD) * 256;
-      signal(SIGINT, SIG_DFL);
+
+      disable_signal_handler();
       return 0;
     }
 
     usleep(usec > 999999 ? 999999 : usec);
   }
 
-  signal(SIGINT, SIG_DFL);
+  disable_signal_handler();
+
   printf("Stopped.  PC=0x%04x.\n", REG_PC);
   printf("%d clock cycles have passed since last reset.\n", cycle_count);
 

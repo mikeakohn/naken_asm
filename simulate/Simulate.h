@@ -49,6 +49,8 @@ public:
   virtual void dump_registers() = 0;
   virtual int run(int max_cycles, int step) = 0;
 
+  // For chips that don't have RAM in the same address space as
+  // instruction memory.
   virtual int dump_ram(int start, int end);
 
   int get_break_point() { return break_point; }
@@ -76,7 +78,9 @@ public:
 
   void enable_step_mode()
   {
+    auto_run = false;
     step_mode = true;
+    disable_signal_handler();
     //usec = 0;
   }
 

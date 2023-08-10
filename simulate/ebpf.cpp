@@ -14,7 +14,6 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <string.h>
-#include <signal.h>
 
 #include "simulate/ebpf.h"
 
@@ -81,7 +80,6 @@ void SimulateEbpf::dump_registers()
 int SimulateEbpf::run(int max_cycles, int step)
 {
   stop_running = 0;
-  signal(SIGINT, handle_signal);
 
   while (stop_running == 0)
   {
@@ -89,7 +87,7 @@ int SimulateEbpf::run(int max_cycles, int step)
     break;
   }
 
-  signal(SIGINT, SIG_DFL);
+  disable_signal_handler();
 
   return 0;
 }
