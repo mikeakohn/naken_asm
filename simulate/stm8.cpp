@@ -148,6 +148,52 @@ Simulate *SimulateStm8::init(Memory *memory)
   return new SimulateStm8(memory);
 }
 
+void SimulateStm8::reset()
+{
+  stm8_int_opcode = -1;
+
+  cycle_count = 0;
+  nested_call_count = 0;
+  REG_A = 0;
+  REG_X = 0;
+  REG_Y = 0;
+  REG_SP = RESET_SP;
+
+  if (stm8_int_opcode < 0)
+  {
+    int n = 0;
+
+    // find and save the STM8 "int" opcode for later use
+    while (table_stm8_opcodes[n].instr_enum != STM8_NONE)
+    {
+      if (table_stm8_opcodes[n].instr_enum == STM8_INT)
+      {
+        stm8_int_opcode = table_stm8_opcodes[n].opcode;
+        break;
+      }
+
+      n++;
+    }
+  }
+
+  REG_PC = 0;
+
+  if (stm8_int_opcode > 0)
+  {
+    if (READ_RAM(RESET_VECTOR) == stm8_int_opcode)
+    {
+      REG_PC = READ_RAM24(RESET_VECTOR + 1);
+      if (REG_PC >= memory->size)
+      {
+        REG_PC = 0;
+      }
+    }
+  }
+
+  REG_CC = BV(CC_I1_FLAG) | BV(CC_I0_FLAG);
+  break_point = -1;
+}
+
 void SimulateStm8::push(uint32_t value)
 {
   PUSH_STACK(value);
@@ -362,61 +408,6 @@ void SimulateStm8::set_pc(uint32_t value)
   {
     REG_PC = value & 0xffffff;
   }
-}
-
-void SimulateStm8::reset()
-{
-  stm8_int_opcode = -1;
-
-  cycle_count = 0;
-  nested_call_count = 0;
-  REG_A = 0;
-  REG_X = 0;
-  REG_Y = 0;
-  REG_SP = RESET_SP;
-
-  if (stm8_int_opcode < 0)
-  {
-    int n = 0;
-
-    // find and save the STM8 "int" opcode for later use
-    while (table_stm8_opcodes[n].instr_enum != STM8_NONE)
-    {
-      if (table_stm8_opcodes[n].instr_enum == STM8_INT)
-      {
-        stm8_int_opcode = table_stm8_opcodes[n].opcode;
-        break;
-      }
-
-      n++;
-    }
-  }
-
-  REG_PC = 0;
-
-  if (stm8_int_opcode > 0)
-  {
-    if (READ_RAM(RESET_VECTOR) == stm8_int_opcode)
-    {
-      REG_PC = READ_RAM24(RESET_VECTOR + 1);
-      if (REG_PC >= memory->size)
-      {
-        REG_PC = 0;
-      }
-    }
-  }
-
-  REG_CC = BV(CC_I1_FLAG) | BV(CC_I0_FLAG);
-  break_point = -1;
-}
-
-// Returns:
-//     0 = OK
-//    -1 = not supported for this MPU
-int SimulateStm8::dump_ram(int start, int end)
-{
-  // Use print or print16 to display RAM.
-  return -1;
 }
 
 void SimulateStm8::dump_registers()

@@ -90,6 +90,19 @@ Simulate *SimulateAvr8::init(Memory *memory)
   return new SimulateAvr8(memory);
 }
 
+void SimulateAvr8::reset()
+{
+  cycle_count = 0;
+  nested_call_count = 0;
+  memset(reg, 0, sizeof(reg));
+  memset(io, 0, sizeof(io));
+  memset(ram, 0, sizeof(ram));
+  pc = 0;
+  sp = 0;
+  sreg = 0;
+  break_point = -1;
+}
+
 void SimulateAvr8::push(uint32_t value)
 {
   sp -= 1;
@@ -142,19 +155,6 @@ uint32_t SimulateAvr8::get_reg(const char *reg_string)
 void SimulateAvr8::set_pc(uint32_t value)
 {
   pc = value;
-}
-
-void SimulateAvr8::reset()
-{
-  cycle_count = 0;
-  nested_call_count = 0;
-  memset(reg, 0, sizeof(reg));
-  memset(io, 0, sizeof(io));
-  memset(ram, 0, sizeof(ram));
-  pc = 0;
-  sp = 0;
-  sreg = 0;
-  break_point = -1;
 }
 
 int SimulateAvr8::dump_ram(int start, int end)

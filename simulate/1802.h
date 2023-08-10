@@ -27,12 +27,12 @@ public:
 
   static Simulate *init(Memory *memory);
 
-  virtual int dump_ram(int start, int end);
+  virtual void reset();
   virtual void push(uint32_t value);
   virtual int set_reg(const char *reg_string, uint32_t value);
   virtual uint32_t get_reg(const char *reg_string);
   virtual void set_pc(uint32_t value);
-  virtual void reset();
+  virtual int dump_ram(int start, int end);
   virtual void dump_registers();
   virtual int run(int max_cycles, int step);
 

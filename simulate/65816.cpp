@@ -70,6 +70,22 @@ Simulate *Simulate65816::init(Memory *memory)
   return new Simulate65816(memory);
 }
 
+void Simulate65816::reset()
+{
+  cycle_count = 0;
+  nested_call_count = 0;
+  break_point = -1;
+
+  REG_A = 0;
+  REG_X = 0;
+  REG_Y = 0;
+  REG_SR = 0;
+  REG_PC = 0;
+  REG_SP = 0x1FF;
+  REG_DB = 0;
+  REG_PB = 0;
+}
+
 void Simulate65816::push(uint32_t value)
 {
   WRITE_RAM(REG_SP, value & 0xFF);
@@ -128,27 +144,6 @@ uint32_t Simulate65816::get_reg(const char *reg_string)
 void Simulate65816::set_pc(uint32_t value)
 {
   REG_PC = value;
-}
-
-void Simulate65816::reset()
-{
-  cycle_count = 0;
-  nested_call_count = 0;
-  break_point = -1;
-
-  REG_A = 0;
-  REG_X = 0;
-  REG_Y = 0;
-  REG_SR = 0;
-  REG_PC = 0;
-  REG_SP = 0x1FF;
-  REG_DB = 0;
-  REG_PB = 0;
-}
-
-int Simulate65816::dump_ram(int start, int end)
-{
-  return -1;
 }
 
 void Simulate65816::dump_registers()

@@ -72,6 +72,19 @@ Simulate *Simulate6502::init(Memory *memory)
   return new Simulate6502(memory);
 }
 
+void Simulate6502::reset()
+{
+  cycle_count = 0;
+  nested_call_count = 0;
+  REG_A = 0;
+  REG_X = 0;
+  REG_Y = 0;
+  REG_SR = 0;
+  REG_PC = 0;
+  REG_SP = 0xFF;
+  break_point = -1;
+}
+
 void Simulate6502::push(uint32_t value)
 {
   WRITE_RAM(0x100 + REG_SP, value & 0xFF);
@@ -129,24 +142,6 @@ uint32_t Simulate6502::get_reg(const char *reg_string)
 void Simulate6502::set_pc(uint32_t value)
 {
   REG_PC = value;
-}
-
-void Simulate6502::reset()
-{
-  cycle_count = 0;
-  nested_call_count = 0;
-  REG_A = 0;
-  REG_X = 0;
-  REG_Y = 0;
-  REG_SR = 0;
-  REG_PC = 0;
-  REG_SP = 0xFF;
-  break_point = -1;
-}
-
-int Simulate6502::dump_ram(int start, int end)
-{
-  return -1;
 }
 
 void Simulate6502::dump_registers()

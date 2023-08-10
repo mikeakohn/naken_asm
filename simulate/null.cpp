@@ -31,6 +31,10 @@ Simulate *SimulateNull::init(Memory *memory)
   return new SimulateNull(memory);
 }
 
+void SimulateNull::reset()
+{
+}
+
 void SimulateNull::push(uint32_t value)
 {
 }
@@ -47,15 +51,6 @@ uint32_t SimulateNull::get_reg(const char *reg_string)
 
 void SimulateNull::set_pc(uint32_t value)
 {
-}
-
-void SimulateNull::reset()
-{
-}
-
-int SimulateNull::dump_ram(int start, int end)
-{
-  return -1;
 }
 
 void SimulateNull::dump_registers()

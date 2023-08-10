@@ -143,6 +143,21 @@ Simulate *SimulateMsp430::init(Memory *memory)
   return new SimulateMsp430(memory);
 }
 
+void SimulateMsp430::reset()
+{
+  cycle_count = 0;
+  nested_call_count = 0;
+  memset(reg, 0, sizeof(reg));
+
+  // Set PC to reset vector.
+  reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
+
+  // FIXME - A real chip wouldn't set the SP to this, but this is
+  // in case someone is simulating code that won't run on a chip.
+  reg[1] = 0x800;
+  break_point = -1;
+}
+
 void SimulateMsp430::push(uint32_t value)
 {
   reg[1] -= 2;
@@ -200,26 +215,6 @@ uint32_t SimulateMsp430::get_reg(const char *reg_string)
 void SimulateMsp430::set_pc(uint32_t value)
 {
   reg[0] = value;
-}
-
-void SimulateMsp430::reset()
-{
-  cycle_count = 0;
-  nested_call_count = 0;
-  memset(reg, 0, sizeof(reg));
-
-  // Set PC to reset vector.
-  reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
-
-  // FIXME - A real chip wouldn't set the SP to this, but this is
-  // in case someone is simulating code that won't run on a chip.
-  reg[1] = 0x800;
-  break_point = -1;
-}
-
-int SimulateMsp430::dump_ram(int start, int end)
-{
-  return -1;
 }
 
 void SimulateMsp430::dump_registers()

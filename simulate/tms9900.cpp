@@ -135,6 +135,24 @@ Simulate *SimulateTms9900::init(Memory *memory)
   return new SimulateTms9900(memory);
 }
 
+void SimulateTms9900::reset()
+{
+  cycle_count = 0;
+  nested_call_count = 0;
+
+  //memset(reg, 0, sizeof(reg));
+  //memory_clear(&memory);
+  //reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
+
+  // FIXME - A real chip wouldn't set the SP to this, but this is
+  // in case someone is simulating code that won't run on a chip.
+  //reg[1] = 0x800;
+  pc = 0;
+  wp = 0;
+  st = 0;
+  break_point = -1;
+}
+
 void SimulateTms9900::push(uint32_t value)
 {
 #if 0
@@ -193,29 +211,6 @@ uint32_t SimulateTms9900::get_reg(const char *reg_string)
 void SimulateTms9900::set_pc(uint32_t value)
 {
   pc = value;
-}
-
-void SimulateTms9900::reset()
-{
-  cycle_count = 0;
-  nested_call_count = 0;
-
-  //memset(reg, 0, sizeof(reg));
-  //memory_clear(&memory);
-  //reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
-
-  // FIXME - A real chip wouldn't set the SP to this, but this is
-  // in case someone is simulating code that won't run on a chip.
-  //reg[1] = 0x800;
-  pc = 0;
-  wp = 0;
-  st = 0;
-  break_point = -1;
-}
-
-int SimulateTms9900::dump_ram(int start, int end)
-{
-  return -1;
 }
 
 void SimulateTms9900::dump_registers()

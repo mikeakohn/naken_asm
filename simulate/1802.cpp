@@ -70,168 +70,41 @@ Simulate *Simulate1802::init(Memory *memory)
   return new Simulate1802(memory);
 }
 
+void Simulate1802::reset()
+{
+  cycle_count = 0;
+  nested_call_count = 0;
+
+  // d, b, p, x, t, i, n, r0, r1, r2..., df, ie, q
+  REG_D = 0;
+  REG_B = 0;
+  REG_P = 0;
+  REG_X = 0;
+  REG_T = 0;
+  REG_I = 0;
+  REG_N = 0;
+
+  int i;
+  for (i = 0; i < 16; i++)
+  {
+    REG(i) = 0;
+  }
+
+  REG_CNTR = 0;
+  REG_CN = 0;
+
+  FLAG_DF = 0;
+  FLAG_MIE = 1;
+  FLAG_CIE = 1;
+  FLAG_XIE = 1;
+  FLAG_CIL = 0;
+  FLAG_Q = 0;
+  break_point = -1;
+}
+
 void Simulate1802::push(uint32_t value)
 {
   return;
-}
-
-void Simulate1802::dump_registers()
-{
-  printf("\nSimulation Register Dump                                    \n");
-  printf("------------------------------------------------------------\n");
-  printf(" R0 = %04x,  R1 = %04x,  R2 = %04x,  R3 = %04x | D = %02x\n",
-    REG(0),
-    REG(1),
-    REG(2),
-    REG(3),
-    REG_D);
-
-  printf(" R4 = %04x,  R5 = %04x,  R6 = %04x,  R7 = %04x | P = %01x X = %01x\n",
-    REG(4),
-    REG(5),
-    REG(6),
-    REG(7),
-    REG_P,
-    REG_X);
-
-  printf(" R8 = %04x,  R9 = %04x, R10 = %04x, R11 = %04x | I = %01x N = %01x\n",
-    REG(8),
-    REG(9),
-    REG(10),
-    REG(11),
-    REG_I,
-    REG_N);
-
-  printf("R12 = %04x, R13 = %04x, R14 = %04x, R15 = %04x | T = %02x\n",
-    REG(12),
-    REG(13),
-    REG(14),
-    REG(15),
-    REG_T);
-
-  printf(" DF = %d,     IE = %d,      Q = %d      PC = %04x\n",
-    FLAG_DF,
-    FLAG_MIE,
-    FLAG_Q,
-    PC);
-
-  printf("\n\n");
-  printf("%d clock cycles have passed since last reset.\n\n", cycle_count);
-}
-
-int Simulate1802::run(int cycles, int step)
-{
-  char instruction[128];
-  char bytes[16];
-
-  printf("Running... Press Ctl-C to break.\n");
-
-  while (stop_running == false)
-  {
-    int pc = PC;
-    int opcode = READ_RAM(pc);
-    int ret = operand_exe(opcode);
-
-    if (ret == -1)
-    {
-      printf("Illegal instruction at address 0x%04x\n", pc);
-      return -1;
-    }
-
-    if (show == true)
-    {
-      printf("\x1b[1J\x1b[1;1H");
-      dump_registers();
-
-      int cycles_min, cycles_max;
-      int n = 0;
-      while (n < 6)
-      {
-        int count = disasm_1802(
-          memory,
-          pc,
-          instruction,
-          sizeof(instruction),
-          &cycles_min,
-          &cycles_max);
-
-        int i;
-
-        bytes[0] = 0;
-        for (i = 0; i < count; i++)
-        {
-          char temp[4];
-          snprintf(temp, sizeof(temp), "%02x ", READ_RAM(pc + i));
-          strcat(bytes, temp);
-        }
-
-        if (cycles_min == -1) break;
-
-        if (pc == break_point) { printf("*"); }
-        else { printf(" "); }
-
-        if (n == 0)
-          { printf("! "); }
-        else if (pc == PC)
-          { printf("> "); }
-        else
-          { printf("  "); }
-
-        printf("0x%04x: %-10s %-40s %d-%d\n", pc, bytes, instruction, cycles_min, cycles_max);
-
-        if (count == 0) { break; }
-
-        n++;
-        pc += count;
-      }
-    }
-
-    if (break_point == PC)
-    {
-      printf("Breakpoint hit at 0x%04x\n", break_point);
-      break;
-    }
-
-    if (usec == 0 || step == true)
-    {
-      signal(SIGINT, SIG_DFL);
-      return 0;
-    }
-    usleep(usec > 999999 ? 999999 : usec);
-  }
-
-  signal(SIGINT, SIG_DFL);
-  printf("Stopped.  PC=0x%04x.\n", PC);
-  printf("%d clock cycles have passed since last reset.\n", cycle_count);
-
-  return 0;
-}
-
-int Simulate1802::dump_ram(int start, int end)
-{
-  printf("\n                       Simulation RAM Dump                         \n");
-  printf("---------------------------------------------------------------------\n");
-  printf("       x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xA  xB  xC  xD  xE  xF\n");
-
-  int i = 0;
-  while (i != (end - start))
-  {
-    if (i % 16 == 0)
-    {
-      printf("%04x:", start + i);
-    }
-
-    printf("  %02x", READ_RAM(start + i));
-
-    if (i % 16 == 15)
-    {
-      printf("\n");
-    }
-
-    ++i;
-  }
-  printf("\n\n");
-  return 0;
 }
 
 int Simulate1802::set_reg(const char *reg_string, uint32_t value)
@@ -320,36 +193,163 @@ void Simulate1802::set_pc(uint32_t value)
   PC = value;
 }
 
-void Simulate1802::reset()
+void Simulate1802::dump_registers()
 {
-  cycle_count = 0;
-  nested_call_count = 0;
+  printf("\nSimulation Register Dump                                    \n");
+  printf("------------------------------------------------------------\n");
+  printf(" R0 = %04x,  R1 = %04x,  R2 = %04x,  R3 = %04x | D = %02x\n",
+    REG(0),
+    REG(1),
+    REG(2),
+    REG(3),
+    REG_D);
 
-  // d, b, p, x, t, i, n, r0, r1, r2..., df, ie, q
-  REG_D = 0;
-  REG_B = 0;
-  REG_P = 0;
-  REG_X = 0;
-  REG_T = 0;
-  REG_I = 0;
-  REG_N = 0;
+  printf(" R4 = %04x,  R5 = %04x,  R6 = %04x,  R7 = %04x | P = %01x X = %01x\n",
+    REG(4),
+    REG(5),
+    REG(6),
+    REG(7),
+    REG_P,
+    REG_X);
 
-  int i;
-  for (i = 0; i < 16; i++)
+  printf(" R8 = %04x,  R9 = %04x, R10 = %04x, R11 = %04x | I = %01x N = %01x\n",
+    REG(8),
+    REG(9),
+    REG(10),
+    REG(11),
+    REG_I,
+    REG_N);
+
+  printf("R12 = %04x, R13 = %04x, R14 = %04x, R15 = %04x | T = %02x\n",
+    REG(12),
+    REG(13),
+    REG(14),
+    REG(15),
+    REG_T);
+
+  printf(" DF = %d,     IE = %d,      Q = %d      PC = %04x\n",
+    FLAG_DF,
+    FLAG_MIE,
+    FLAG_Q,
+    PC);
+
+  printf("\n\n");
+  printf("%d clock cycles have passed since last reset.\n\n", cycle_count);
+}
+
+int Simulate1802::dump_ram(int start, int end)
+{
+  printf("\n                       Simulation RAM Dump                         \n");
+  printf("---------------------------------------------------------------------\n");
+  printf("       x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xA  xB  xC  xD  xE  xF\n");
+
+  int i = 0;
+  while (i != (end - start))
   {
-    REG(i) = 0;
+    if (i % 16 == 0)
+    {
+      printf("%04x:", start + i);
+    }
+
+    printf("  %02x", READ_RAM(start + i));
+
+    if (i % 16 == 15)
+    {
+      printf("\n");
+    }
+
+    ++i;
+  }
+  printf("\n\n");
+  return 0;
+}
+
+int Simulate1802::run(int cycles, int step)
+{
+  char instruction[128];
+  char bytes[16];
+
+  printf("Running... Press Ctl-C to break.\n");
+
+  while (stop_running == false)
+  {
+    int pc = PC;
+    int opcode = READ_RAM(pc);
+    int ret = operand_exe(opcode);
+
+    if (ret == -1)
+    {
+      printf("Illegal instruction at address 0x%04x\n", pc);
+      return -1;
+    }
+
+    if (show == true)
+    {
+      printf("\x1b[1J\x1b[1;1H");
+      dump_registers();
+
+      int cycles_min, cycles_max;
+      int n = 0;
+      while (n < 6)
+      {
+        int count = disasm_1802(
+          memory,
+          pc,
+          instruction,
+          sizeof(instruction),
+          &cycles_min,
+          &cycles_max);
+
+        int i;
+
+        bytes[0] = 0;
+        for (i = 0; i < count; i++)
+        {
+          char temp[4];
+          snprintf(temp, sizeof(temp), "%02x ", READ_RAM(pc + i));
+          strcat(bytes, temp);
+        }
+
+        if (cycles_min == -1) break;
+
+        if (pc == break_point) { printf("*"); }
+        else { printf(" "); }
+
+        if (n == 0)
+          { printf("! "); }
+        else if (pc == PC)
+          { printf("> "); }
+        else
+          { printf("  "); }
+
+        printf("0x%04x: %-10s %-40s %d-%d\n", pc, bytes, instruction, cycles_min, cycles_max);
+
+        if (count == 0) { break; }
+
+        n++;
+        pc += count;
+      }
+    }
+
+    if (break_point == PC)
+    {
+      printf("Breakpoint hit at 0x%04x\n", break_point);
+      break;
+    }
+
+    if (usec == 0 || step == true)
+    {
+      signal(SIGINT, SIG_DFL);
+      return 0;
+    }
+    usleep(usec > 999999 ? 999999 : usec);
   }
 
-  REG_CNTR = 0;
-  REG_CN = 0;
+  signal(SIGINT, SIG_DFL);
+  printf("Stopped.  PC=0x%04x.\n", PC);
+  printf("%d clock cycles have passed since last reset.\n", cycle_count);
 
-  FLAG_DF = 0;
-  FLAG_MIE = 1;
-  FLAG_CIE = 1;
-  FLAG_XIE = 1;
-  FLAG_CIL = 0;
-  FLAG_Q = 0;
-  break_point = -1;
+  return 0;
 }
 
 int Simulate1802::operand_exe(int opcode)

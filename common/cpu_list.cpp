@@ -127,6 +127,7 @@
 #include "simulate/lc3.h"
 #include "simulate/mips.h"
 #include "simulate/msp430.h"
+#include "simulate/riscv.h"
 #include "simulate/stm8.h"
 #include "simulate/tms9900.h"
 #include "simulate/z80.h"
@@ -1276,7 +1277,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_riscv,
     disasm_range_riscv,
-    NULL,
+    SimulateRiscv::init,
     NO_FLAGS,
   },
 #endif

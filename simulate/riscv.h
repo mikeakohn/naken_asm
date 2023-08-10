@@ -9,19 +9,19 @@
  *
  */
 
-#ifndef NAKEN_ASM_SIMULATE_MSP430_H
-#define NAKEN_ASM_SIMULATE_MSP430_H
+#ifndef NAKEN_ASM_SIMULATE_RISCV_H
+#define NAKEN_ASM_SIMULATE_RISCV_H
 
 #include <unistd.h>
 
 #include "common/memory.h"
 #include "simulate/Simulate.h"
 
-class SimulateMsp430 : public Simulate
+class SimulateRiscv : public Simulate
 {
 public:
-  SimulateMsp430(Memory *memory);
-  virtual ~SimulateMsp430();
+  SimulateRiscv(Memory *memory);
+  virtual ~SimulateRiscv();
 
   static Simulate *init(Memory *memory);
 
@@ -34,15 +34,7 @@ public:
   virtual int run(int max_cycles, int step);
 
 private:
-  void sp_inc(int *sp);
-  uint16_t get_data(int reg_index, int As, int bw);
-  void update_reg(int reg_index, int mode, int bw);
-  int put_data(int PC, int reg_index, int mode, int bw, uint32_t data);
-  int one_operand_exe(uint16_t opcode);
-  int relative_jump_exe(uint16_t opcode);
-  int two_operand_exe(uint16_t opcode);
-
-  uint16_t reg[16];
+  int16_t reg[32];
 };
 
 #endif

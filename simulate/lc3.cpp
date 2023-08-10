@@ -52,6 +52,14 @@ Simulate *SimulateLc3::init(Memory *memory)
   return new SimulateLc3(memory);
 }
 
+void SimulateLc3::reset()
+{
+  memset(reg, 0, sizeof(reg));
+
+  pc = 0x3000;
+  psr = 0;
+}
+
 void SimulateLc3::push(uint32_t value)
 {
 }
@@ -78,19 +86,6 @@ uint32_t SimulateLc3::get_reg(const char *reg_string)
 void SimulateLc3::set_pc(uint32_t value)
 {
   pc = value;
-}
-
-void SimulateLc3::reset()
-{
-  memset(reg, 0, sizeof(reg));
-
-  pc = 0x3000;
-  psr = 0;
-}
-
-int SimulateLc3::dump_ram(int start, int end)
-{
-  return -1;
 }
 
 void SimulateLc3::dump_registers()

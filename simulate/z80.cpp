@@ -73,6 +73,18 @@ Simulate *SimulateZ80::init(Memory *memory)
   return new SimulateZ80(memory);
 }
 
+void SimulateZ80::reset()
+{
+  memset(reg, 0, sizeof(reg));
+  ix = 0;
+  iy = 0;
+  sp = 0;
+  pc = 0;
+  //status = 0;
+  iff1 = 0;
+  iff2 = 0;
+}
+
 void SimulateZ80::push(uint32_t value)
 {
   reg[1] -= 2;
@@ -94,208 +106,6 @@ uint32_t SimulateZ80::get_reg(const char *reg_string)
 void SimulateZ80::set_pc(uint32_t value)
 {
   pc = value;
-}
-
-void SimulateZ80::reset()
-{
-  memset(reg, 0, sizeof(reg));
-  ix = 0;
-  iy = 0;
-  sp = 0;
-  pc = 0;
-  //status = 0;
-  iff1 = 0;
-  iff2 = 0;
-}
-
-int SimulateZ80::dump_ram(int start, int end)
-{
-  return -1;
-}
-
-int SimulateZ80::execute()
-{
-  int index, n;
-  int reg16, xy;
-  int offset;
-  int address;
-
-  uint16_t opcode = READ_RAM(pc);
-  uint16_t opcode16 = READ_OPCODE16(pc);
-
-  n = 0;
-  while (table_z80[n].instr_enum != Z80_NONE)
-  {
-    if (table_z80[n].opcode == (opcode & table_z80[n].mask))
-    {
-      if (table_z80[n].mask > 0xff) { n++; continue; }
-      switch (table_z80[n].type)
-      {
-        case OP_NONE:
-          return execute_op_none(&table_z80[n], opcode);
-        case OP_A_REG8:
-          return execute_op_a_reg8(&table_z80[n], opcode);
-        case OP_REG8:
-          return execute_op_reg8(&table_z80[n], opcode);
-        case OP_A_NUMBER8:
-          return execute_op_a_number8(&table_z80[n], opcode16);
-        case OP_HL_REG16_1:
-          return -1;
-        case OP_A_INDEX_HL:
-          return -1;
-        case OP_INDEX_HL:
-          return -1;
-        case OP_NUMBER8:
-          return execute_op_number8(&table_z80[n], opcode16);
-        case OP_ADDRESS:
-          return -1;
-        case OP_COND_ADDRESS:
-          return -1;
-        case OP_REG8_V2:
-          return execute_op_reg8_v2(&table_z80[n], opcode);
-        case OP_REG16:
-          return execute_op_reg16(&table_z80[n], opcode);
-        case OP_INDEX_SP_HL:
-          return -1;
-        case OP_AF_AF_TICK:
-          return -1;
-        case OP_DE_HL:
-          return -1;
-        case OP_A_INDEX_N:
-          return -1;
-        case OP_JR_COND_ADDRESS:
-          return -1;
-        case OP_REG8_REG8:
-          index = (opcode >> 3) & 0x7;
-          reg[index] = reg[opcode & 0x7];
-          return table_z80->cycles_min;
-        case OP_REG8_NUMBER8:
-          index = (opcode16 >> 11) & 0x7;
-          reg[index] = opcode16 & 0xff;
-          return table_z80->cycles_min;
-        case OP_REG8_INDEX_HL:
-          return -1;
-        case OP_INDEX_HL_REG8:
-        case OP_INDEX_HL_NUMBER8:
-        case OP_A_INDEX_BC:
-        case OP_A_INDEX_DE:
-        case OP_A_INDEX_ADDRESS:
-        case OP_INDEX_BC_A:
-        case OP_INDEX_DE_A:
-        case OP_INDEX_ADDRESS_A:
-          return -1;
-        case OP_REG16_ADDRESS:
-          reg16 = (opcode >> 4) & 0x3;
-          set_q(reg16, READ_RAM16(pc + 1));
-          return table_z80->cycles_min;
-        case OP_HL_INDEX_ADDRESS:
-        case OP_INDEX_ADDRESS_HL:
-        case OP_SP_HL:
-        case OP_INDEX_ADDRESS8_A:
-          return -1;
-        case OP_REG16P:
-          return execute_op_reg16p(&table_z80[n], opcode);
-          return 1;
-        case OP_COND:
-          return -1;
-        case OP_RESTART_ADDRESS:
-        default:
-          return -1;
-      }
-    }
-
-    n++;
-  }
-
-  n = 0;
-  while (table_z80[n].instr_enum != Z80_NONE)
-  {
-    if (table_z80[n].mask <= 0xff) { n++; continue; }
-    if (table_z80[n].opcode == (opcode16 & table_z80[n].mask))
-    {
-      switch (table_z80[n].type)
-      {
-        case OP_NONE16:
-        case OP_NONE24:
-        case OP_A_REG_IHALF:
-        case OP_A_INDEX:
-          return -1;
-        case OP_HL_REG16_2:
-          return execute_op_hl_reg16_2(&table_z80[n], opcode16);
-        case OP_XY_REG16:
-          xy = (opcode16 >> 13) & 0x1;
-          reg16 = (opcode16 >> 4) & 0x3;
-          add_reg16(xy, reg16);
-          return table_z80->cycles_min;
-        case OP_REG_IHALF:
-        case OP_INDEX:
-        case OP_BIT_REG8:
-        case OP_BIT_INDEX_HL:
-        case OP_BIT_INDEX:
-        case OP_REG_IHALF_V2:
-        case OP_XY:
-          return execute_op_xy(&table_z80[n], opcode16);
-        case OP_INDEX_SP_XY:
-        case OP_IM_NUM:
-        case OP_REG8_INDEX_C:
-        case OP_F_INDEX_C:
-        case OP_INDEX_XY:
-        case OP_REG8_REG_IHALF:
-        case OP_REG_IHALF_REG8:
-        case OP_REG_IHALF_REG_IHALF:
-          return -1;
-        case OP_REG8_INDEX:
-          xy = (opcode16 >> 13) & 0x1;
-          offset = READ_RAM(pc + 2);
-          address = xy + offset;
-          index = (opcode16 >> 3) & 0x7;
-          reg[index] = READ_RAM(address);
-          return table_z80->cycles_min;
-        case OP_INDEX_REG8:
-          xy = (opcode16 >> 13) & 0x1;
-          offset = READ_RAM(pc + 2);
-          address = xy + offset;
-          index = opcode16 & 0x7;
-          WRITE_RAM(address, reg[index]);
-          return table_z80->cycles_min;
-        case OP_INDEX_NUMBER8:
-          xy = (opcode16 >> 13) & 0x1;
-          offset = READ_RAM(pc + 2);
-          address = xy + offset;
-          WRITE_RAM(address, READ_RAM(pc + 3));
-          return table_z80->cycles_min;
-        case OP_IR_A:
-          return -1;
-        case OP_A_IR:
-          return -1;
-        case OP_XY_ADDRESS:
-          xy = (opcode16 >> 13) & 0x1;
-          set_xy(xy, READ_RAM16(pc + 2));
-          return table_z80->cycles_min;
-        case OP_REG16_INDEX_ADDRESS:
-        case OP_XY_INDEX_ADDRESS:
-        case OP_INDEX_ADDRESS_REG16:
-        case OP_INDEX_ADDRESS_XY:
-          return -1;
-        case OP_SP_XY:
-          xy = (opcode16 >> 13) & 0x1;
-          sp = get_xy(xy);
-          return table_z80->cycles_min;
-        case OP_INDEX_C_REG8:
-        case OP_INDEX_C_ZERO:
-        case OP_REG8_CB:
-        case OP_INDEX_HL_CB:
-          case OP_BIT_INDEX_V2:
-          case OP_BIT_INDEX_REG8:
-        default:
-          return -1;
-      }
-    }
-
-    n++;
-  }
-
-  return -1;
 }
 
 void SimulateZ80::dump_registers()
@@ -1090,6 +900,191 @@ int SimulateZ80::execute_op_xy(struct _table_z80 *table_z80, uint16_t opcode16)
     }
 
     return table_z80->cycles_min;
+  }
+
+  return -1;
+}
+
+int SimulateZ80::execute()
+{
+  int index, n;
+  int reg16, xy;
+  int offset;
+  int address;
+
+  uint16_t opcode = READ_RAM(pc);
+  uint16_t opcode16 = READ_OPCODE16(pc);
+
+  n = 0;
+  while (table_z80[n].instr_enum != Z80_NONE)
+  {
+    if (table_z80[n].opcode == (opcode & table_z80[n].mask))
+    {
+      if (table_z80[n].mask > 0xff) { n++; continue; }
+      switch (table_z80[n].type)
+      {
+        case OP_NONE:
+          return execute_op_none(&table_z80[n], opcode);
+        case OP_A_REG8:
+          return execute_op_a_reg8(&table_z80[n], opcode);
+        case OP_REG8:
+          return execute_op_reg8(&table_z80[n], opcode);
+        case OP_A_NUMBER8:
+          return execute_op_a_number8(&table_z80[n], opcode16);
+        case OP_HL_REG16_1:
+          return -1;
+        case OP_A_INDEX_HL:
+          return -1;
+        case OP_INDEX_HL:
+          return -1;
+        case OP_NUMBER8:
+          return execute_op_number8(&table_z80[n], opcode16);
+        case OP_ADDRESS:
+          return -1;
+        case OP_COND_ADDRESS:
+          return -1;
+        case OP_REG8_V2:
+          return execute_op_reg8_v2(&table_z80[n], opcode);
+        case OP_REG16:
+          return execute_op_reg16(&table_z80[n], opcode);
+        case OP_INDEX_SP_HL:
+          return -1;
+        case OP_AF_AF_TICK:
+          return -1;
+        case OP_DE_HL:
+          return -1;
+        case OP_A_INDEX_N:
+          return -1;
+        case OP_JR_COND_ADDRESS:
+          return -1;
+        case OP_REG8_REG8:
+          index = (opcode >> 3) & 0x7;
+          reg[index] = reg[opcode & 0x7];
+          return table_z80->cycles_min;
+        case OP_REG8_NUMBER8:
+          index = (opcode16 >> 11) & 0x7;
+          reg[index] = opcode16 & 0xff;
+          return table_z80->cycles_min;
+        case OP_REG8_INDEX_HL:
+          return -1;
+        case OP_INDEX_HL_REG8:
+        case OP_INDEX_HL_NUMBER8:
+        case OP_A_INDEX_BC:
+        case OP_A_INDEX_DE:
+        case OP_A_INDEX_ADDRESS:
+        case OP_INDEX_BC_A:
+        case OP_INDEX_DE_A:
+        case OP_INDEX_ADDRESS_A:
+          return -1;
+        case OP_REG16_ADDRESS:
+          reg16 = (opcode >> 4) & 0x3;
+          set_q(reg16, READ_RAM16(pc + 1));
+          return table_z80->cycles_min;
+        case OP_HL_INDEX_ADDRESS:
+        case OP_INDEX_ADDRESS_HL:
+        case OP_SP_HL:
+        case OP_INDEX_ADDRESS8_A:
+          return -1;
+        case OP_REG16P:
+          return execute_op_reg16p(&table_z80[n], opcode);
+          return 1;
+        case OP_COND:
+          return -1;
+        case OP_RESTART_ADDRESS:
+        default:
+          return -1;
+      }
+    }
+
+    n++;
+  }
+
+  n = 0;
+  while (table_z80[n].instr_enum != Z80_NONE)
+  {
+    if (table_z80[n].mask <= 0xff) { n++; continue; }
+    if (table_z80[n].opcode == (opcode16 & table_z80[n].mask))
+    {
+      switch (table_z80[n].type)
+      {
+        case OP_NONE16:
+        case OP_NONE24:
+        case OP_A_REG_IHALF:
+        case OP_A_INDEX:
+          return -1;
+        case OP_HL_REG16_2:
+          return execute_op_hl_reg16_2(&table_z80[n], opcode16);
+        case OP_XY_REG16:
+          xy = (opcode16 >> 13) & 0x1;
+          reg16 = (opcode16 >> 4) & 0x3;
+          add_reg16(xy, reg16);
+          return table_z80->cycles_min;
+        case OP_REG_IHALF:
+        case OP_INDEX:
+        case OP_BIT_REG8:
+        case OP_BIT_INDEX_HL:
+        case OP_BIT_INDEX:
+        case OP_REG_IHALF_V2:
+        case OP_XY:
+          return execute_op_xy(&table_z80[n], opcode16);
+        case OP_INDEX_SP_XY:
+        case OP_IM_NUM:
+        case OP_REG8_INDEX_C:
+        case OP_F_INDEX_C:
+        case OP_INDEX_XY:
+        case OP_REG8_REG_IHALF:
+        case OP_REG_IHALF_REG8:
+        case OP_REG_IHALF_REG_IHALF:
+          return -1;
+        case OP_REG8_INDEX:
+          xy = (opcode16 >> 13) & 0x1;
+          offset = READ_RAM(pc + 2);
+          address = xy + offset;
+          index = (opcode16 >> 3) & 0x7;
+          reg[index] = READ_RAM(address);
+          return table_z80->cycles_min;
+        case OP_INDEX_REG8:
+          xy = (opcode16 >> 13) & 0x1;
+          offset = READ_RAM(pc + 2);
+          address = xy + offset;
+          index = opcode16 & 0x7;
+          WRITE_RAM(address, reg[index]);
+          return table_z80->cycles_min;
+        case OP_INDEX_NUMBER8:
+          xy = (opcode16 >> 13) & 0x1;
+          offset = READ_RAM(pc + 2);
+          address = xy + offset;
+          WRITE_RAM(address, READ_RAM(pc + 3));
+          return table_z80->cycles_min;
+        case OP_IR_A:
+          return -1;
+        case OP_A_IR:
+          return -1;
+        case OP_XY_ADDRESS:
+          xy = (opcode16 >> 13) & 0x1;
+          set_xy(xy, READ_RAM16(pc + 2));
+          return table_z80->cycles_min;
+        case OP_REG16_INDEX_ADDRESS:
+        case OP_XY_INDEX_ADDRESS:
+        case OP_INDEX_ADDRESS_REG16:
+        case OP_INDEX_ADDRESS_XY:
+          return -1;
+        case OP_SP_XY:
+          xy = (opcode16 >> 13) & 0x1;
+          sp = get_xy(xy);
+          return table_z80->cycles_min;
+        case OP_INDEX_C_REG8:
+        case OP_INDEX_C_ZERO:
+        case OP_REG8_CB:
+        case OP_INDEX_HL_CB:
+          case OP_BIT_INDEX_V2:
+          case OP_BIT_INDEX_REG8:
+        default:
+          return -1;
+      }
+    }
+
+    n++;
   }
 
   return -1;

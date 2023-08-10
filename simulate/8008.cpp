@@ -40,6 +40,12 @@ Simulate *Simulate8008::init(Memory *memory)
   return new Simulate8008(memory);
 }
 
+void Simulate8008::reset()
+{
+  memset(reg, 0, sizeof(uint16_t) * 8);
+  pc = 0x0000;
+}
+
 void Simulate8008::push(uint32_t value)
 {
 }
@@ -59,18 +65,6 @@ uint32_t Simulate8008::get_reg(const char *reg_string)
 void Simulate8008::set_pc(uint32_t value)
 {
   pc = value;
-}
-
-void Simulate8008::reset()
-{
-  memset(reg, 0, sizeof(uint16_t) * 8);
-  pc = 0x0000;
-}
-
-int Simulate8008::dump_ram(int start, int end)
-{
-
-  return -1;
 }
 
 void Simulate8008::dump_registers()

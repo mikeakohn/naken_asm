@@ -40,6 +40,45 @@ Simulate *SimulateMips::init(Memory *memory)
   return new SimulateMips(memory);
 }
 
+void SimulateMips::reset()
+{
+  memset(reg, 0, sizeof(reg));
+  hi = 0;
+  lo = 0;
+  ra_was_set = false;
+  force_break = false;
+
+  pc = memory->low_address;
+  reg[29] = 0x80000000;
+
+  // PIC32 kind of hack.  Need to figure out a better way to do this
+  // later.  Problem is PIC32 has virtual memory (where code addresses)
+  // and physical memory (where the hex file says the code is).
+#if 0
+  if (memory->low_address >= 0x1d000000 && memory->high_address <= 0x1d007fff)
+  {
+    uint32_t physical, virtual_address;
+    uint32_t low_address, high_address;
+
+    virtual_address = 0x9d000000 + (memory->low_address - 0x1d000000);
+
+    printf("Copying physical 0x%x-0x%x to virtual 0x%x\n",
+      memory->low_address,
+      memory->high_address,
+      virtual_address);
+
+    pc = virtual_address;
+    low_address = memory->low_address;
+    high_address = memory->high_address;
+
+    for (physical = low_address; physical <= high_address; physical++)
+    {
+      memory_write_m(memory, virtual_address++, memory_read_m(memory, physical));
+    }
+  }
+#endif
+}
+
 void SimulateMips::push(uint32_t value)
 {
 }
@@ -99,50 +138,6 @@ uint32_t SimulateMips::get_reg(const char *reg_string)
 void SimulateMips::set_pc(uint32_t value)
 {
   pc = value;
-}
-
-void SimulateMips::reset()
-{
-  memset(reg, 0, sizeof(reg));
-  hi = 0;
-  lo = 0;
-  ra_was_set = false;
-  force_break = false;
-
-  pc = memory->low_address;
-  reg[29] = 0x80000000;
-
-  // PIC32 kind of hack.  Need to figure out a better way to do this
-  // later.  Problem is PIC32 has virtual memory (where code addresses)
-  // and physical memory (where the hex file says the code is).
-#if 0
-  if (memory->low_address >= 0x1d000000 && memory->high_address <= 0x1d007fff)
-  {
-    uint32_t physical, virtual_address;
-    uint32_t low_address, high_address;
-
-    virtual_address = 0x9d000000 + (memory->low_address - 0x1d000000);
-
-    printf("Copying physical 0x%x-0x%x to virtual 0x%x\n",
-      memory->low_address,
-      memory->high_address,
-      virtual_address);
-
-    pc = virtual_address;
-    low_address = memory->low_address;
-    high_address = memory->high_address;
-
-    for (physical = low_address; physical <= high_address; physical++)
-    {
-      memory_write_m(memory, virtual_address++, memory_read_m(memory, physical));
-    }
-  }
-#endif
-}
-
-int SimulateMips::dump_ram(int start, int end)
-{
-  return -1;
 }
 
 void SimulateMips::dump_registers()

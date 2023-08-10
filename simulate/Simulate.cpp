@@ -19,6 +19,23 @@
 
 bool Simulate::stop_running = false;
 
+int Simulate::dump_ram(int start, int end)
+{
+  int n, count;
+
+  count = 0;
+  for (n = start; n < end; n++)
+  {
+    if ((count % 16) == 0) { printf("\n0x%04x: ", n); }
+    printf(" %02x", memory_read_m(memory, n));
+    count++;
+  }
+
+  printf("\n\n");
+
+  return 0;
+}
+
 void Simulate::handle_signal(int sig)
 {
   stop_running = true;

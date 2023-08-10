@@ -41,14 +41,15 @@ public:
 
   //static Simulate *init(Memory *memory);
 
-  virtual int dump_ram(int start, int end) = 0;
+  virtual void reset() = 0;
   virtual void push(uint32_t value) = 0;
   virtual int set_reg(const char *reg_string, uint32_t value) = 0;
   virtual uint32_t get_reg(const char *reg_string) = 0;
   virtual void set_pc(uint32_t value) = 0;
-  virtual void reset() = 0;
   virtual void dump_registers() = 0;
   virtual int run(int max_cycles, int step) = 0;
+
+  virtual int dump_ram(int start, int end);
 
   int get_break_point() { return break_point; }
   int get_delay() { return usec; }

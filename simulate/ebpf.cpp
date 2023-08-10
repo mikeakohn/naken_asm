@@ -32,6 +32,12 @@ Simulate *SimulateEbpf::init(Memory *memory)
   return new SimulateEbpf(memory);
 }
 
+void SimulateEbpf::reset()
+{
+  memset(reg, 0, sizeof(reg));
+  pc = 0;
+}
+
 void SimulateEbpf::push(uint32_t value)
 {
 }
@@ -60,17 +66,6 @@ uint32_t SimulateEbpf::get_reg(const char *reg_string)
 void SimulateEbpf::set_pc(uint32_t value)
 {
   pc = value;
-}
-
-void SimulateEbpf::reset()
-{
-  memset(reg, 0, sizeof(reg));
-  pc = 0;
-}
-
-int SimulateEbpf::dump_ram(int start, int end)
-{
-  return -1;
 }
 
 void SimulateEbpf::dump_registers()
