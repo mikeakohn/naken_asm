@@ -52,9 +52,9 @@ clean:
 	@rm -rf build/*.o build/*.a
 	@rm -rf build/asm build/disasm build/table build/common
 	@rm -rf build/simulate build/fileio
+	@cd tests/unit/common && make clean
 	@rm -f tests/unit/eval_expression/unit_test
 	@rm -f tests/unit/eval_expression_ex/unit_test
-	@rm -f tests/unit/var/var_test
 	@rm -f tests/unit/data/data_test
 	@rm -f tests/unit/tokens/tokens_test
 	@rm -f tests/unit/macros/macros_test
@@ -69,7 +69,7 @@ tests:
 	@cd tests/regression && sh regression.sh
 	@cd tests/unit/eval_expression && make && ./unit_test && make clean
 	@cd tests/unit/eval_expression_ex && make && ./unit_test && make clean
-	@cd tests/unit/var && make && ./var_test && make clean
+	@cd tests/unit/common && make && make run && make clean
 	@cd tests/unit/data && make && ./data_test && make clean
 	@cd tests/unit/tokens && make && ./tokens_test && make clean
 	@cd tests/unit/macros && make && ./macro_test && make clean
