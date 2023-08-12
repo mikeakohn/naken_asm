@@ -28,6 +28,58 @@
 #include "common/print_error.h"
 #include "disasm/msp430.h"
 
+AsmContext::AsmContext() :
+  parse_instruction      (NULL),
+  parse_directive        (NULL),
+  link_function          (NULL),
+  list_output            (NULL),
+  list                   (NULL),
+  address                (0),
+  segment                (0),
+  pass                   (0),
+  instruction_count      (0),
+  data_count             (0),
+  code_count             (0),
+  error_count            (0),
+  ifdef_count            (0),
+  parsing_ifdef          (0),
+  linker                 (NULL),
+  def_param_stack_count  (0),
+  cpu_list_index         (0),
+  cpu_type               (0),
+  bytes_per_address      (1),
+  is_dollar_hex          (false),
+  strings_have_dots      (false),
+  strings_have_slashes   (false),
+  can_tick_end_string    (false),
+  numbers_dont_have_dots (false),
+  quiet_output           (false),
+  error                  (false),
+  msp430_cpu4            (false),
+  ignore_symbols         (false),
+  pass_1_write_disable   (false),
+  write_list_file        (false),
+  dump_symbols           (false),
+  dump_macros            (false),
+  optimize               (false),
+  ignore_number_postfix  (false),
+  in_repeat              (false),
+  flags                  (0),
+  extra_context          (0)
+{
+  memset(&tokens,  0, sizeof(tokens));
+  memset(&symbols, 0, sizeof(symbols));
+  memset(&macros,  0, sizeof(tokens));
+
+  memset(def_param_stack_data, 0, sizeof(def_param_stack_data));
+  memset(def_param_stack_ptr, 0, sizeof(def_param_stack_ptr));
+  memset(include_path, 0, sizeof(include_path));
+}
+
+AsmContext::~AsmContext()
+{
+}
+
 void assembler_init(AsmContext *asm_context)
 {
   tokens_reset(asm_context);
@@ -50,12 +102,14 @@ void assembler_init(AsmContext *asm_context)
   macros_free(&asm_context->macros);
   asm_context->def_param_stack_count = 0;
 
+#if 0
   if (asm_context->pass == 1)
   {
     // FIXME - probably need to allow 32 bit data
     //memory_init(&asm_context->memory, 1<<25, 1);
     memory_init(&asm_context->memory, ~((uint32_t)0));
   }
+#endif
 }
 
 void assembler_free(AsmContext *asm_context)
@@ -64,7 +118,7 @@ void assembler_free(AsmContext *asm_context)
 
   symbols_free(&asm_context->symbols);
   macros_free(&asm_context->macros);
-  memory_free(&asm_context->memory);
+  //memory_free(&asm_context->memory);
 }
 
 void assembler_print_info(AsmContext *asm_context, FILE *out)

@@ -11,8 +11,6 @@ int test_instruction(const char *instruction)
 
   snprintf(code, sizeof(code), ".n64_rsp\n%s\n", instruction);
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf("N64 RSP: %s ... ", instruction);
 
   symbols_init(&asm_context.symbols);
@@ -24,6 +22,9 @@ int test_instruction(const char *instruction)
   tokens_reset(&asm_context);
 
   int error_flag = assemble(&asm_context);
+
+  symbols_free(&asm_context.symbols);
+  macros_free(&asm_context.macros);
 
   if (error_flag != 0)
   {

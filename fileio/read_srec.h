@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_READ_SREC_H
 #define NAKEN_ASM_READ_SREC_H
 
-#include "common/memory.h"
+#include "common/Memory.h"
 
 int read_srec(const char *filename, Memory *memory);
 

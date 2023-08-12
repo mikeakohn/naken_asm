@@ -23,8 +23,6 @@ int test_symbols(const char *label, const char *code)
   uint32_t fifth_address_1, fifth_address_2;
   int errors = 0;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf("---- %s ----\n", label);
 
   printf("%s\n", code);
@@ -112,6 +110,8 @@ int test_symbols(const char *label, const char *code)
   }
 
   tokens_close(&asm_context);
+
+  symbols_free(&asm_context.symbols);
 
   if (errors != 0) { printf(">>>>> %s FAILED\n", label); }
 

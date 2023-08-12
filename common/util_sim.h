@@ -12,7 +12,7 @@
 #ifndef UTIL_SIM_H
 #define UTIL_SIM_H
 
-#include "common/util_context.h"
+#include "common/UtilContext.h"
 
 void sim_show_info(UtilContext *util_context);
 int sim_set_register(UtilContext *util_context, char *command);

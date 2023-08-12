@@ -16,15 +16,13 @@ void test_constants()
   const char *test = { "1234 0x12 0b11001001 0100b 20h \"\\n\\t\\r\"" };
   const char *answer[] = { "1234", "18", "201", "4", "32", "\n\t\r", NULL };
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf(" - test_constants - \n");
 
   tokens_open_buffer(&asm_context, test);
   tokens_reset(&asm_context);
 
   i = 0;
-  while(1)
+  while (true)
   {
     token_type = tokens_get(&asm_context, token, TOKENLEN);
 
@@ -75,15 +73,13 @@ void test_1()
     "^", "3", "\n", "f", "*", "e", "#", "234", NULL
   };
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf(" - test_1 - \n");
 
   tokens_open_buffer(&asm_context, test);
   tokens_reset(&asm_context);
 
   i = 0;
-  while(1)
+  while (true)
   {
     token_type = tokens_get(&asm_context, token, TOKENLEN);
 
@@ -127,8 +123,6 @@ void test_pushback()
   const char *test = { "1234 5 20" };
   char token[TOKENLEN];
   int token_type;
-
-  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_pushback - \n");
 
@@ -189,8 +183,6 @@ void test_strings_with_dots()
   char token[TOKENLEN];
   int token_type;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf(" - test_strings_with_dots - \n");
 
   tokens_open_buffer(&asm_context, test);
@@ -222,8 +214,6 @@ void test_ascii_with_null()
   const char *code = ".ascii \"test\\n\\r\\t\\0\"\n.db 5";
   const char result[] = { 't', 'e', 's', 't', '\n', '\r', '\t', 0 };
   int error_flag, i;
-
-  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_ascii_with_null - \n");
 
@@ -259,8 +249,6 @@ void test_asciiz()
   const char result[] = { 't', 'e', 's', 't', 0 };
   int error_flag, i;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf(" - test_asciiz - \n");
 
   asm_context.pass = 1;
@@ -294,8 +282,6 @@ void test_escape_chars_in_db()
   const char *code = ".db '\\n', '\\r', '\\t', '\\0', '\\\\', '\\'', 5\n";
   const char result[] = { '\n',   '\r',  '\t',  '\0',   '\\',  '\'' };
   int error_flag, i;
-
-  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_escape_chars_in_db - \n");
 
@@ -340,8 +326,6 @@ void test_escape_chars_in_code_const()
   int error_flag, ptr, i;
   uint8_t c;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf(" - test_escape_chars_in_code_const - \n");
 
   //printf("code: %s\n", code);
@@ -384,8 +368,6 @@ void test_db_quote_error()
   const char *code = ".ascii \"hello\n";
   int error_flag;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf(" - test_db_quote_error - \n");
 
   asm_context.pass = 1;
@@ -407,8 +389,6 @@ void test_db_tick_error()
   const char *code = ".db '\\n\n";
   int error_flag;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf(" - test_db_tick_error - \n");
 
   asm_context.pass = 1;
@@ -429,8 +409,6 @@ void test_code_tick_error()
   AsmContext asm_context;
   const char *code = ".6502\nlda #'\\n\n";
   int error_flag;
-
-  memset(&asm_context, 0, sizeof(asm_context));
 
   printf(" - test_code_tick_error - \n");
 

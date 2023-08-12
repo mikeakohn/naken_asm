@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_READ_ELF_H
 #define NAKEN_ASM_READ_ELF_H
 
-#include "common/memory.h"
+#include "common/Memory.h"
 #include "common/Symbols.h"
 
 int read_elf(

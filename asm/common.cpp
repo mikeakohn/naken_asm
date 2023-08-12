@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #include "asm/common.h"
-#include "common/memory.h"
+#include "common/Memory.h"
 
 int ignore_operand(AsmContext *asm_context)
 {

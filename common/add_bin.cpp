@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #include "asm/common.h"
-#include "common/memory.h"
+#include "common/Memory.h"
 
 void add_bin8(AsmContext *asm_context, uint8_t b, int flags)
 {

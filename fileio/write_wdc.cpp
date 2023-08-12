@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "common/memory.h"
+#include "common/Memory.h"
 #include "fileio/write_wdc.h"
 
 int write_int24(FILE *out, int value)

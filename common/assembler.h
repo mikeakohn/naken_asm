@@ -17,7 +17,7 @@
 #include "common/cpu_list.h"
 #include "common/Linker.h"
 #include "common/macros.h"
-#include "common/memory.h"
+#include "common/Memory.h"
 #include "common/print_error.h"
 #include "common/Symbols.h"
 #include "common/tokens.h"
@@ -33,8 +33,12 @@
 #define SEGMENT_CODE 0
 #define SEGMENT_BSS 1
 
-typedef struct _asm_context
+class AsmContext
 {
+public:
+  AsmContext();
+  ~AsmContext();
+
   Memory memory;
   Tokens tokens;
   Symbols symbols;
@@ -55,31 +59,31 @@ typedef struct _asm_context
   int parsing_ifdef;
   Linker *linker;
   char def_param_stack_data[PARAM_STACK_LEN];
-  int def_param_stack_ptr[MAX_NESTED_MACROS+1];
+  int def_param_stack_ptr[MAX_NESTED_MACROS + 1];
   int def_param_stack_count;
   char include_path[INCLUDE_PATH_LEN];
   int cpu_list_index;
   uint8_t cpu_type;
   uint8_t bytes_per_address;
-  uint8_t is_dollar_hex : 1;
-  uint8_t strings_have_dots : 1;
-  uint8_t strings_have_slashes : 1;
-  uint8_t can_tick_end_string : 1;
-  uint8_t numbers_dont_have_dots : 1;
-  uint8_t quiet_output : 1;
-  uint8_t error : 1;
-  uint8_t msp430_cpu4 : 1;
-  uint8_t ignore_symbols : 1;
-  uint8_t pass_1_write_disable : 1;
-  uint8_t write_list_file : 1;
-  uint8_t dump_symbols : 1;
-  uint8_t dump_macros : 1;
-  uint8_t optimize : 1;
-  uint8_t ignore_number_postfix : 1;
-  uint8_t in_repeat : 1;
+  bool is_dollar_hex          : 1;
+  bool strings_have_dots      : 1;
+  bool strings_have_slashes   : 1;
+  bool can_tick_end_string    : 1;
+  bool numbers_dont_have_dots : 1;
+  bool quiet_output           : 1;
+  bool error                  : 1;
+  bool msp430_cpu4            : 1;
+  bool ignore_symbols         : 1;
+  bool pass_1_write_disable   : 1;
+  bool write_list_file        : 1;
+  bool dump_symbols           : 1;
+  bool dump_macros            : 1;
+  bool optimize               : 1;
+  bool ignore_number_postfix  : 1;
+  bool in_repeat              : 1;
   uint32_t flags;
   uint32_t extra_context;
-} AsmContext;
+};
 
 void assembler_init(AsmContext *asm_context);
 void assembler_free(AsmContext *asm_context);

@@ -96,8 +96,6 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   for (i = 1; i < argc; i++)
   {
     if (strcmp(argv[i], "-cpu_list") == 0)

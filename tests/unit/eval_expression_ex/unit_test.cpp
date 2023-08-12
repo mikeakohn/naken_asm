@@ -14,8 +14,6 @@ void test_int(const char *expression, int answer)
   AsmContext asm_context;
   Var var;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf("Testing: %s ... ", expression);
 
   tokens_open_buffer(&asm_context, expression);
@@ -49,8 +47,6 @@ void test_int64(const char *expression, int64_t answer)
   AsmContext asm_context;
   Var var;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf("Testing: %s ... ", expression);
 
   tokens_open_buffer(&asm_context, expression);
@@ -83,8 +79,6 @@ void should_fail(const char *expression)
 {
   AsmContext asm_context;
   Var var;
-
-  memset(&asm_context, 0, sizeof(asm_context));
 
   printf("Testing: %s ... ", expression);
 

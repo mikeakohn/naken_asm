@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "common/util_context.h"
+#include "common/UtilContext.h"
 #include "common/util_disasm.h"
 #include "fileio/file.h"
 #include "naken_asm.h"

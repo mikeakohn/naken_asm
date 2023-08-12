@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "common/memory.h"
+#include "common/Memory.h"
 #include "fileio/write_bin.h"
 
 int write_bin(Memory *memory, FILE *out)

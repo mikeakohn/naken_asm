@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-#include "common/memory.h"
+#include "common/Memory.h"
 
 int read_bin(const char *filename, Memory *memory, uint32_t start_address);
 

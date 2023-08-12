@@ -12,7 +12,7 @@
 #ifndef UTIL_DISASM_H
 #define UTIL_DISASM_H
 
-#include "common/util_context.h"
+#include "common/UtilContext.h"
 #include "common/util_disasm.h"
 
 void util_disasm(UtilContext *util_context, const char *token);

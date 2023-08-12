@@ -17,11 +17,20 @@
 
 typedef Simulate *(*simulate_init_t)(Memory *);
 
-typedef int (*parse_instruction_t)(struct _asm_context *, char *);
-typedef int (*parse_directive_t)(struct _asm_context *, const char *);
-typedef int (*link_function_t)(struct _asm_context *, Imports *, const uint8_t *, uint32_t function_offset, int size, uint8_t *obj_file, uint32_t obj_size);
-typedef void (*list_output_t)(struct _asm_context *, uint32_t, uint32_t);
-typedef void (*disasm_range_t)(struct _memory *, uint32_t, uint32_t, uint32_t);
+typedef int (*parse_instruction_t)(AsmContext *, char *);
+typedef int (*parse_directive_t)(AsmContext *, const char *);
+
+typedef int (*link_function_t)(
+  AsmContext *,
+  Imports *,
+  const uint8_t *,
+  uint32_t function_offset,
+  int size,
+  uint8_t *obj_file,
+  uint32_t obj_size);
+
+typedef void (*list_output_t)(AsmContext *, uint32_t, uint32_t);
+typedef void (*disasm_range_t)(Memory *, uint32_t, uint32_t, uint32_t);
 
 enum
 {

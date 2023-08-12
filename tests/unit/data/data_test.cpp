@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "common/assembler.h"
-#include "common/memory.h"
 
 #define LITTLE 0
 #define BIG 1
@@ -56,8 +55,6 @@ void test_int(const char *source, uint8_t *answer, int length, int endian)
   int oops = 0;
   int i;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf("Testing: %s (%s) ... ", source, endian == LITTLE ? "little":"big");
 
   tokens_open_buffer(&asm_context, source);
@@ -97,8 +94,6 @@ void test_float(const char *source, float *answer, int length, int endian)
   AsmContext asm_context;
   int oops = 0;
   int i;
-
-  memset(&asm_context, 0, sizeof(asm_context));
 
   printf("Testing: %s (%s) ... ", source, endian == LITTLE ? "little":"big");
 
@@ -172,18 +167,24 @@ int main(int argc, char *argv[])
   printf("directives_data.o test\n");
 
   n = 0;
-  while(1)
+  while (true)
   {
     if (tests_int[n].source == NULL) { break; }
-    test_int(tests_int[n].source, tests_int[n].answer, tests_int[n].length, tests_int[n].endian);
+
+    test_int(
+      tests_int[n].source,
+      tests_int[n].answer,
+      tests_int[n].length,
+      tests_int[n].endian);
+
     n++;
   }
 
 #if 0
-  // This test is a bit invalid.  Floats can differ depending on platform.
+  // This test is a bit invalid. Floats can differ depending on platform.
 
   n = 0;
-  while(1)
+  while (true)
   {
     if (tests_float[n].source == NULL) { break; }
     test_float(tests_float[n].source, tests_float[n].answer, tests_float[n].length, tests_float[n].endian);

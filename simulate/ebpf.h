@@ -14,7 +14,6 @@
 
 #include <unistd.h>
 
-#include "common/memory.h"
 #include "simulate/Simulate.h"
 
 class SimulateEbpf : public Simulate

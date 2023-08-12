@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "common/memory.h"
+#include "common/Memory.h"
 #include "common/cpu_list.h"
 #include "fileio/write_srec.h"
 

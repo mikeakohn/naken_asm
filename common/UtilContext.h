@@ -13,22 +13,26 @@
 #define UTIL_CONTEXT_H
 
 #include "common/cpu_list.h"
-#include "common/memory.h"
+#include "common/Memory.h"
 #include "common/Symbols.h"
 #include "simulate/msp430.h"
 
-typedef struct _util_context
+class UtilContext
 {
-  struct _memory memory;
+public:
+  UtilContext();
+  ~UtilContext();
+
+  Memory memory;
   Symbols symbols;
   Simulate *simulate;
   const char *cpu_name;
   uint32_t flags;
   uint8_t bytes_per_address;
   uint8_t alignment;
-  uint8_t allow_unknown_cpu : 1;
+  bool allow_unknown_cpu : 1;
   disasm_range_t disasm_range;
-} UtilContext;
+};
 
 void util_init(UtilContext *util_context);
 

@@ -2,15 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/memory.h"
+#include "common/Memory.h"
 #include "common/MemoryPage.h"
 
 int test_Memory()
 {
   Memory memory;
   int errors = 0;
-
-  memory_init(&memory, 100);
 
   memory.endian = ENDIAN_LITTLE;
 
@@ -49,8 +47,6 @@ int test_Memory()
 
   if (memory_read_m(&memory, 40) != 0x45) { errors++; }
   if (memory_read_m(&memory, 41) != 0x67) { errors++; }
-
-  memory_free(&memory);
 
   return errors;
 }

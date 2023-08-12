@@ -19,8 +19,8 @@
 #define IS_TOKEN(t,a) (t[0]==a && t[1]==0)
 #define IS_NOT_TOKEN(t,a) (t[0]!=a || t[1]!=0)
 
-struct _asm_context;
-typedef struct _asm_context AsmContext;
+//struct _asm_context;
+//typedef struct _asm_context AsmContext;
 
 typedef struct _token_buffer
 {

@@ -16,62 +16,27 @@
 
 #include "common/assembler.h"
 #include "common/cpu_list.h"
-#include "common/util_context.h"
+#include "common/UtilContext.h"
 #include "disasm/msp430.h"
 #include "simulate/null.h"
 
-// FIXME - How to do this better?
-#if 0
-parse_instruction_t parse_instruction_1802 = NULL;
-parse_instruction_t parse_instruction_4004 = NULL;
-parse_instruction_t parse_instruction_6502 = NULL;
-parse_instruction_t parse_instruction_65816 = NULL;
-parse_instruction_t parse_instruction_6800 = NULL;
-parse_instruction_t parse_instruction_6809 = NULL;
-parse_instruction_t parse_instruction_68hc08 = NULL;
-parse_instruction_t parse_instruction_68000 = NULL;
-parse_instruction_t parse_instruction_8008 = NULL;
-parse_instruction_t parse_instruction_8048 = NULL;
-parse_instruction_t parse_instruction_8051 = NULL;
-parse_instruction_t parse_instruction_86000 = NULL;
-parse_instruction_t parse_instruction_arc = NULL;
-parse_instruction_t parse_instruction_arm64 = NULL;
-parse_instruction_t parse_instruction_avr8 = NULL;
-parse_instruction_t parse_instruction_cell = NULL;
-parse_instruction_t parse_instruction_common = NULL;
-parse_instruction_t parse_instruction_cp1610 = NULL;
-parse_instruction_t parse_instruction_dotnet = NULL;
-parse_instruction_t parse_instruction_dspic = NULL;
-parse_instruction_t parse_instruction_epiphany = NULL;
-parse_instruction_t parse_instruction_java = NULL;
-parse_instruction_t parse_instruction_lc3 = NULL;
-parse_instruction_t parse_instruction_m8c = NULL;
-parse_instruction_t parse_instruction_mips = NULL;
-parse_instruction_t parse_instruction_msp430 = NULL;
-parse_instruction_t parse_instruction_pdp8 = NULL;
-parse_instruction_t parse_instruction_pic14 = NULL;
-parse_instruction_t parse_instruction_powerpc = NULL;
-parse_instruction_t parse_instruction_propeller = NULL;
-parse_instruction_t parse_instruction_propeller2 = NULL;
-parse_instruction_t parse_instruction_ps2_ee_vu = NULL;
-parse_instruction_t parse_instruction_riscv = NULL;
-parse_instruction_t parse_instruction_sh4 = NULL;
-parse_instruction_t parse_instruction_sparc = NULL;
-parse_instruction_t parse_instruction_stm8 = NULL;
-parse_instruction_t parse_instruction_super_fx = NULL;
-parse_instruction_t parse_instruction_sweet16 = NULL;
-parse_instruction_t parse_instruction_thumb = NULL;
-parse_instruction_t parse_instruction_tms340 = NULL;
-parse_instruction_t parse_instruction_tms1000 = NULL;
-parse_instruction_t parse_instruction_tms1100 = NULL;
-parse_instruction_t parse_instruction_tms9900 = NULL;
-parse_instruction_t parse_instruction_unsp = NULL;
-parse_instruction_t parse_instruction_webasm = NULL;
-parse_instruction_t parse_instruction_xtensa = NULL;
-parse_instruction_t parse_instruction_z80 = NULL;
-link_function_t link_function_mips = NULL;
-link_function_t link_function_msp430 = NULL;
-#endif
+UtilContext::UtilContext() :
+  simulate          (NULL),
+  cpu_name          (NULL),
+  flags             (0),
+  bytes_per_address (1),
+  alignment         (1),
+  allow_unknown_cpu (false),
+  disasm_range      (NULL)
+{
+  memset(&symbols, 0, sizeof(symbols));
+}
+
+UtilContext::~UtilContext()
+{
+  delete simulate;
+  symbols_free(&symbols);
+}
 
 static const char *util_get_hex(const char *token, uint32_t *num)
 {
@@ -112,8 +77,6 @@ static const char *util_get_hex(const char *token, uint32_t *num)
 
 void util_init(UtilContext *util_context)
 {
-  memset(util_context, 0, sizeof(UtilContext));
-  memory_init(&util_context->memory, 1 << 20);
   symbols_init(&util_context->symbols);
 
 #ifndef NO_MSP430

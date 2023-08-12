@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "common/memory.h"
+#include "common/Memory.h"
 #include "fileio/amiga_hunk.h"
 #include "fileio/write_amiga.h"
 

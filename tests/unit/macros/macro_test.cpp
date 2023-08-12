@@ -20,14 +20,12 @@ void test_macro(const char *macro, const char **answer)
   int index = 0;
   //int num;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf("Testing: %s ... ", macro);
 
   tokens_open_buffer(&asm_context, macro);
   tokens_reset(&asm_context);
 
-  while(1)
+  while (true)
   {
     token_type = tokens_get(&asm_context, token, TOKENLEN);
 
@@ -80,14 +78,12 @@ void test_if(const char *statement, int answer)
   int token_type;
   AsmContext asm_context;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf("Testing: %s ... ", statement);
 
   tokens_open_buffer(&asm_context, statement);
   tokens_reset(&asm_context);
 
-  while(1)
+  while (true)
   {
     token_type = tokens_get(&asm_context, token, TOKENLEN);
 
@@ -122,14 +118,12 @@ void test_define(const char *macro, uint8_t answer)
   AsmContext asm_context;
   int i;
 
-  memset(&asm_context, 0, sizeof(asm_context));
-
   printf("Testing: %s ... ", macro);
 
   tokens_open_buffer(&asm_context, macro);
   tokens_reset(&asm_context);
 
-  while(1)
+  while (true)
   {
     i = assemble(&asm_context);
 

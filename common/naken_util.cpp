@@ -20,8 +20,7 @@
 #endif
 
 #include "common/assembler.h"
-//#include "common/naken_util.h"
-#include "common/util_context.h"
+#include "common/UtilContext.h"
 #include "common/util_disasm.h"
 #include "common/util_sim.h"
 #include "common/version.h"
@@ -751,8 +750,6 @@ int main(int argc, char *argv[])
   {
     delete util_context.simulate;
   }
-
-  memory_free(&util_context.memory);
 
   return error_flag == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

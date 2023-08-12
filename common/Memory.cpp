@@ -14,33 +14,30 @@
 #include <string.h>
 
 #include "common/assembler.h"
-#include "common/memory.h"
+#include "common/Memory.h"
 
-void memory_init(Memory *memory, uint32_t size)
+Memory::Memory() :
+  pages        (NULL),
+  low_address  (0xffffffff),
+  high_address (0),
+  entry_point  (0xfffffff),
+  endian       (ENDIAN_LITTLE),
+  size         (~((uint32_t)0))
 {
-  memory->low_address = size - 1;
-  memory->high_address = 0;
-  memory->entry_point = 0xffffffff;
-  memory->endian = ENDIAN_LITTLE;
-  memory->size = size;
-  memory->pages = NULL;
 }
 
-void memory_free(Memory *memory)
+Memory::~Memory()
 {
-  MemoryPage *page;
-  MemoryPage *next;
-
-  page = memory->pages;
+  MemoryPage *page = pages;
 
   while (page != NULL)
   {
-    next = page->next;
+    MemoryPage *next = page->next;
     delete page;
     page = next;
   }
 
-  memory->pages = NULL;
+  pages = NULL;
 }
 
 void memory_clear(Memory *memory)

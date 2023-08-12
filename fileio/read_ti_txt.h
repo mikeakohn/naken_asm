@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_READ_TI_TXT_H
 #define NAKEN_ASM_READ_TI_TXT_H
 
-#include "common/memory.h"
+#include "common/Memory.h"
 
 int read_ti_txt(const char *filename, Memory *memory);
 

@@ -16,7 +16,6 @@
 
 #include <unistd.h>
 
-#include "common/memory.h"
 #include "simulate/Simulate.h"
 
 class SimulateStm8 : public Simulate

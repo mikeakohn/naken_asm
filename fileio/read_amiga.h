@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-#include "common/memory.h"
+#include "common/Memory.h"
 
 int read_amiga(const char *filename, Memory *memory);
 

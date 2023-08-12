@@ -23,21 +23,29 @@
 #define DL_DATA -2
 #define DL_NO_CG -3
 
-typedef struct _memory
+class Memory
 {
+public:
+  Memory();
+  ~Memory();
+
+  void set_size(int size)
+  {
+    if (pages == NULL) { this->size = size; }
+  }
+
   MemoryPage *pages;
   uint32_t low_address;
   uint32_t high_address;
   uint32_t entry_point;
   int endian;
   uint32_t size;
-} Memory;
+};
 
-struct _asm_context;
-typedef struct _asm_context AsmContext;
+struct AsmContext;
 
-void memory_init(Memory *memory, uint32_t size);
-void memory_free(Memory *memory);
+//void memory_init(Memory *memory, uint32_t size);
+//void memory_free(Memory *memory);
 void memory_clear(Memory *memory);
 int memory_in_use(Memory *memory, uint32_t address);
 int memory_get_page_address_min(Memory *memory, uint32_t address);

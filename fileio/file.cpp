@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "common/assembler.h"
-#include "common/util_context.h"
+#include "common/UtilContext.h"
 #include "fileio/file.h"
 #include "fileio/read_amiga.h"
 #include "fileio/read_bin.h"

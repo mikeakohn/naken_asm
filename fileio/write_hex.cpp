@@ -14,10 +14,15 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "common/memory.h"
+#include "common/Memory.h"
 #include "fileio/write_hex.h"
 
-static void write_hex_line(FILE *out, uint32_t address, uint8_t *data, int len, uint32_t *segment)
+static void write_hex_line(
+  FILE *out,
+  uint32_t address,
+  uint8_t *data,
+  int len,
+  uint32_t *segment)
 {
   int checksum;
   int n;
