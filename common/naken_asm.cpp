@@ -353,8 +353,7 @@ int main(int argc, char *argv[])
   symbols_init(&asm_context.symbols);
   macros_init(&asm_context.macros);
 
-  asm_context.pass = 1;
-  assembler_init(&asm_context);
+  asm_context.init();
 
   error_flag = assemble(&asm_context);
 
@@ -378,7 +377,7 @@ int main(int argc, char *argv[])
 
     if (asm_context.quiet_output == 0) { printf("Pass 2...\n"); }
     asm_context.pass = 2;
-    assembler_init(&asm_context);
+    asm_context.init();
 
     if (create_list == 1) { asm_context.write_list_file = 1; }
 
@@ -445,13 +444,10 @@ int main(int argc, char *argv[])
     output_hex_text(asm_context.list, str, ptr);
     fprintf(asm_context.list, "\n\n");
 
-    assembler_print_info(&asm_context, asm_context.list);
+    asm_context.print_info(asm_context.list);
   }
 
-  assembler_print_info(&asm_context, stdout);
-
-  //symbols_free(&asm_context.symbols);
-  //macros_free(&asm_context.macros);
+  asm_context.print_info(stdout);
 
   if (asm_context.list != NULL) { fclose(asm_context.list); }
   fclose(asm_context.tokens.in);
@@ -461,9 +457,6 @@ int main(int argc, char *argv[])
     printf("*** Failed ***\n\n");
     unlink(outfile);
   }
-
-  //memory_free(&asm_context.memory);
-  assembler_free(&asm_context);
 
   return error_flag == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

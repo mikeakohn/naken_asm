@@ -542,7 +542,7 @@ int parse_directives(AsmContext *asm_context)
       {
         if (strcasecmp(token, cpu_list[n].name) == 0)
         {
-          assembler_set_cpu(asm_context, n);
+          asm_context->set_cpu(n);
 
 #if 0
           if (strcmp(token, "65816") == 0)

@@ -77,7 +77,7 @@ tests:
 	@cd tests/unit/symbols && make && ./symbols_test && make clean
 	@cd tests/unit/util && make && ./util_test && make clean
 	@cd tests/symbol_address && make && ./symbol_address && make clean
-	@cd tests/other && make && make clean
+	@cd tests/other && make && make run && make clean
 	@cd tests/disasm && make
 	@cd tests/comparison && make
 	@cd tests/directives && python3 test.py

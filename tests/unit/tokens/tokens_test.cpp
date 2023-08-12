@@ -218,7 +218,7 @@ void test_ascii_with_null()
   printf(" - test_ascii_with_null - \n");
 
   asm_context.pass = 1;
-  assembler_init(&asm_context);
+  asm_context.init();
 
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
@@ -252,7 +252,7 @@ void test_asciiz()
   printf(" - test_asciiz - \n");
 
   asm_context.pass = 1;
-  assembler_init(&asm_context);
+  asm_context.init();
 
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
@@ -288,7 +288,7 @@ void test_escape_chars_in_db()
   //printf("code: %s\n", code);
 
   asm_context.pass = 1;
-  assembler_init(&asm_context);
+  asm_context.init();
 
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
@@ -331,9 +331,9 @@ void test_escape_chars_in_code_const()
   //printf("code: %s\n", code);
 
   asm_context.pass = 1;
-  assembler_init(&asm_context);
+  asm_context.init();
   asm_context.pass = 2;
-  assembler_init(&asm_context);
+  asm_context.init();
 
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
@@ -371,7 +371,7 @@ void test_db_quote_error()
   printf(" - test_db_quote_error - \n");
 
   asm_context.pass = 1;
-  assembler_init(&asm_context);
+  asm_context.init();
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
   error_flag = assemble(&asm_context);
@@ -392,7 +392,7 @@ void test_db_tick_error()
   printf(" - test_db_tick_error - \n");
 
   asm_context.pass = 1;
-  assembler_init(&asm_context);
+  asm_context.init();
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
   error_flag = assemble(&asm_context);
@@ -413,7 +413,7 @@ void test_code_tick_error()
   printf(" - test_code_tick_error - \n");
 
   asm_context.pass = 1;
-  assembler_init(&asm_context);
+  asm_context.init();
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
   error_flag = assemble(&asm_context);

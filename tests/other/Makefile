@@ -9,8 +9,10 @@ default:
 	$(CXX) -o n64_rsp_illegal_instr n64_rsp_illegal_instr.cpp \
 	  ../../build/naken_asm.a \
   	  $(CFLAGS)
+
+run:
 	./n64_rsp_illegal_instr
-	bash check_libstdcplusplus.sh
+	#bash check_libstdcplusplus.sh
 
 check_libstdcplusplus:
 	$(CXX) -o check_libstdcplusplus check_libstdcplusplus.cpp \

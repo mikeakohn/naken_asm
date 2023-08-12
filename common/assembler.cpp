@@ -36,7 +36,7 @@ AsmContext::AsmContext() :
   list                   (NULL),
   address                (0),
   segment                (0),
-  pass                   (0),
+  pass                   (1),
   instruction_count      (0),
   data_count             (0),
   code_count             (0),
@@ -69,7 +69,7 @@ AsmContext::AsmContext() :
 {
   memset(&tokens,  0, sizeof(tokens));
   memset(&symbols, 0, sizeof(symbols));
-  memset(&macros,  0, sizeof(tokens));
+  memset(&macros,  0, sizeof(macros));
 
   memset(def_param_stack_data, 0, sizeof(def_param_stack_data));
   memset(def_param_stack_ptr, 0, sizeof(def_param_stack_ptr));
@@ -78,129 +78,112 @@ AsmContext::AsmContext() :
 
 AsmContext::~AsmContext()
 {
+  delete linker;
+
+  symbols_free(&symbols);
+  macros_free(&macros);
 }
 
-void assembler_init(AsmContext *asm_context)
+void AsmContext::init()
 {
-  tokens_reset(asm_context);
+  tokens_reset(this);
 #ifndef NO_MSP430
-  asm_context->parse_instruction = parse_instruction_msp430;
-  asm_context->list_output = list_output_msp430;
-  asm_context->cpu_list_index = -1;
+  parse_instruction = parse_instruction_msp430;
+  list_output = list_output_msp430;
+  cpu_list_index = -1;
 #else
-  assembler_set_cpu(asm_context, 0);
+  set_cpu(this, 0);
 #endif
-  asm_context->address = 0;
-  asm_context->instruction_count = 0;
-  asm_context->code_count = 0;
-  asm_context->data_count = 0;
-  asm_context->ifdef_count = 0;
-  asm_context->parsing_ifdef = 0;
-  asm_context->bytes_per_address = 1;
-  asm_context->in_repeat = 0;
+  address = 0;
+  instruction_count = 0;
+  code_count = 0;
+  data_count = 0;
+  ifdef_count = 0;
+  parsing_ifdef = 0;
+  bytes_per_address = 1;
+  in_repeat = 0;
 
-  macros_free(&asm_context->macros);
-  asm_context->def_param_stack_count = 0;
-
-#if 0
-  if (asm_context->pass == 1)
-  {
-    // FIXME - probably need to allow 32 bit data
-    //memory_init(&asm_context->memory, 1<<25, 1);
-    memory_init(&asm_context->memory, ~((uint32_t)0));
-  }
-#endif
+  macros_free(&macros);
+  def_param_stack_count = 0;
 }
 
-void assembler_free(AsmContext *asm_context)
+void AsmContext::print_info(FILE *out)
 {
-  delete asm_context->linker;
-
-  symbols_free(&asm_context->symbols);
-  macros_free(&asm_context->macros);
-  //memory_free(&asm_context->memory);
-}
-
-void assembler_print_info(AsmContext *asm_context, FILE *out)
-{
-  if (asm_context->quiet_output) { return; }
+  if (quiet_output) { return; }
 
   fprintf(out, "\nProgram Info:\n");
 
-  if (asm_context->dump_symbols == 1 || out != stdout)
+  if (dump_symbols == 1 || out != stdout)
   {
-    symbols_print(&asm_context->symbols, out);
+    symbols_print(&symbols, out);
   }
 
-  if (asm_context->dump_macros == 1)
+  if (dump_macros == 1)
   {
-    macros_print(&asm_context->macros, out);
+    macros_print(&macros, out);
   }
 
   fprintf(out, "Include Paths: .\n");
 
   int ptr = 0;
 
-  if (asm_context->include_path[ptr] != 0)
+  if (include_path[ptr] != 0)
   {
     fprintf(out, "               ");
 
-    while (1)
+    while (true)
     {
-      if (asm_context->include_path[ptr + 0] == 0 &&
-          asm_context->include_path[ptr + 1] == 0)
+      if (include_path[ptr + 0] == 0 && include_path[ptr + 1] == 0)
       {
         fprintf(out, "\n");
         break;
       }
 
-      if (asm_context->include_path[ptr] == 0)
+      if (include_path[ptr] == 0)
       {
         fprintf(out, "\n               ");
         ptr++;
         continue;
       }
-      putc(asm_context->include_path[ptr++], out);
+
+      putc(include_path[ptr++], out);
     }
   }
 
-  const uint32_t low_address =
-    asm_context->memory.low_address / asm_context->bytes_per_address;
-
-  const uint32_t high_address =
-    asm_context->memory.high_address / asm_context->bytes_per_address;
+  const uint32_t low_address  = memory.low_address  / bytes_per_address;
+  const uint32_t high_address = memory.high_address / bytes_per_address;
 
   fprintf(out,
     " Instructions: %d\n"
     "   Code Bytes: %d\n"
     "   Data Bytes: %d\n"
-    "  Low Address: %04x (%u)\n"
-    " High Address: %04x (%u)\n\n",
-    asm_context->instruction_count,
-    asm_context->code_count,
-    asm_context->data_count,
+    "  Low Address: 0x%04x (%u)\n"
+    " High Address: 0x%04x (%u)\n\n",
+    instruction_count,
+    code_count,
+    data_count,
     low_address, low_address,
     high_address, high_address);
 }
 
-void assembler_set_cpu(AsmContext *asm_context, int index)
+void AsmContext::set_cpu(int index)
 {
-  asm_context->cpu_type = cpu_list[index].type;
-  asm_context->memory.endian = cpu_list[index].default_endian;
-  asm_context->bytes_per_address = cpu_list[index].bytes_per_address;
-  asm_context->is_dollar_hex = cpu_list[index].is_dollar_hex;
-  asm_context->strings_have_dots = cpu_list[index].strings_have_dots;
-  asm_context->strings_have_slashes = cpu_list[index].strings_have_slashes;
-  asm_context->can_tick_end_string = cpu_list[index].can_tick_end_string;
-  asm_context->pass_1_write_disable = cpu_list[index].pass_1_write_disable;
-  asm_context->ignore_number_postfix = cpu_list[index].ignore_number_postfix;
-  asm_context->numbers_dont_have_dots = cpu_list[index].numbers_dont_have_dots;
-  asm_context->parse_instruction = cpu_list[index].parse_instruction;
-  asm_context->parse_directive = cpu_list[index].parse_directive;
-  asm_context->link_function = cpu_list[index].link_function;
-  asm_context->list_output = cpu_list[index].list_output;
-  asm_context->flags = cpu_list[index].flags;
-  asm_context->cpu_list_index = index;
+  cpu_type               = cpu_list[index].type;
+  memory.endian          = cpu_list[index].default_endian;
+  bytes_per_address      = cpu_list[index].bytes_per_address;
+  is_dollar_hex          = cpu_list[index].is_dollar_hex;
+  strings_have_dots      = cpu_list[index].strings_have_dots;
+  strings_have_slashes   = cpu_list[index].strings_have_slashes;
+  can_tick_end_string    = cpu_list[index].can_tick_end_string;
+  pass_1_write_disable   = cpu_list[index].pass_1_write_disable;
+  ignore_number_postfix  = cpu_list[index].ignore_number_postfix;
+  numbers_dont_have_dots = cpu_list[index].numbers_dont_have_dots;
+  parse_instruction      = cpu_list[index].parse_instruction;
+  parse_directive        = cpu_list[index].parse_directive;
+  link_function          = cpu_list[index].link_function;
+  list_output            = cpu_list[index].list_output;
+  flags                  = cpu_list[index].flags;
+  cpu_list_index         = index;
 }
 
 int assembler_link_file(AsmContext *asm_context, const char *filename)

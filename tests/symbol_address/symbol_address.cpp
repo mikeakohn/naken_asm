@@ -31,7 +31,7 @@ int test_symbols(const char *label, const char *code)
   macros_init(&asm_context.macros);
 
   asm_context.pass = 1;
-  assembler_init(&asm_context);
+  asm_context.init();
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
   error_flag = assemble(&asm_context);
@@ -53,7 +53,7 @@ int test_symbols(const char *label, const char *code)
   asm_context.symbols.locked = 0;
   asm_context.symbols.debug = 1;
   symbols_scope_reset(&asm_context.symbols);
-  assembler_init(&asm_context);
+  asm_context.init();
   error_flag = assemble(&asm_context);
 
   if (error_flag != 0)
@@ -110,8 +110,6 @@ int test_symbols(const char *label, const char *code)
   }
 
   tokens_close(&asm_context);
-
-  symbols_free(&asm_context.symbols);
 
   if (errors != 0) { printf(">>>>> %s FAILED\n", label); }
 

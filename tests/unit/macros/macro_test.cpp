@@ -149,7 +149,6 @@ void test_define(const char *macro, uint8_t answer)
   }
 
   tokens_close(&asm_context);
-  assembler_free(&asm_context);
 }
 
 int main(int argc, char *argv[])

@@ -39,6 +39,10 @@ public:
   AsmContext();
   ~AsmContext();
 
+  void init();
+  void print_info(FILE *out);
+  void set_cpu(int index);
+
   Memory memory;
   Tokens tokens;
   Symbols symbols;
@@ -85,10 +89,6 @@ public:
   uint32_t extra_context;
 };
 
-void assembler_init(AsmContext *asm_context);
-void assembler_free(AsmContext *asm_context);
-void assembler_print_info(AsmContext *asm_context, FILE *out);
-void assembler_set_cpu(AsmContext *asm_context, int index);
 int assembler_directive(AsmContext *asm_context, char *token);
 int assembler_link_file(AsmContext *asm_context, const char *filename);
 int assembler_link(AsmContext *asm_context);

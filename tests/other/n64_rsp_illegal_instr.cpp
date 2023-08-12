@@ -13,18 +13,12 @@ int test_instruction(const char *instruction)
 
   printf("N64 RSP: %s ... ", instruction);
 
-  symbols_init(&asm_context.symbols);
-  macros_init(&asm_context.macros);
-
   asm_context.pass = 2;
-  assembler_init(&asm_context);
+  asm_context.init();
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
 
   int error_flag = assemble(&asm_context);
-
-  symbols_free(&asm_context.symbols);
-  macros_free(&asm_context.macros);
 
   if (error_flag != 0)
   {
