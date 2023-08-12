@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "common/assembler.h"
-#include "common/symbols.h"
+#include "common/Symbols.h"
 #include "fileio/write_elf.h"
 
 typedef void(*write_int64_t)(FILE *, uint64_t);

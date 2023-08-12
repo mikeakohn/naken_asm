@@ -25,7 +25,6 @@
 #include "common/tokens.h"
 #include "common/ifdef_expression.h"
 #include "common/macros.h"
-#include "common/symbols.h"
 #include "common/print_error.h"
 #include "disasm/msp430.h"
 
@@ -61,7 +60,8 @@ void assembler_init(AsmContext *asm_context)
 
 void assembler_free(AsmContext *asm_context)
 {
-  linker_free(asm_context->linker);
+  delete asm_context->linker;
+
   symbols_free(&asm_context->symbols);
   macros_free(&asm_context->macros);
   memory_free(&asm_context->memory);
@@ -169,12 +169,10 @@ int assembler_link_file(AsmContext *asm_context, const char *filename)
 
   if (asm_context->linker == NULL)
   {
-    const int len = sizeof(Linker);
-    asm_context->linker = (Linker *)malloc(len);
-    memset(asm_context->linker, 0, len);
+    asm_context->linker = new Linker();
   }
 
-  return linker_add_file(asm_context->linker, filename);
+  return asm_context->linker->add_file(filename);
 }
 
 int assembler_link(AsmContext *asm_context)
@@ -184,9 +182,9 @@ int assembler_link(AsmContext *asm_context)
   Imports *imports;
   int index = 0;
 
-  while (1)
+  while (true)
   {
-    const char *symbol = linker_get_symbol_at_index(asm_context->linker, index);
+    const char *symbol = asm_context->linker->get_symbol_at_index(index);
 
     if (symbol == NULL) { break; }
 
@@ -198,8 +196,7 @@ int assembler_link(AsmContext *asm_context)
     uint8_t *obj_file;
     uint32_t obj_size;
 
-    code = linker_get_code_from_symbol(
-      asm_context->linker,
+    code = asm_context->linker->get_code_from_symbol(
       &imports,
       symbol,
       &function_offset,

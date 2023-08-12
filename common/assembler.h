@@ -15,12 +15,11 @@
 #include <stdio.h>
 
 #include "common/cpu_list.h"
-#include "common/linker.h"
+#include "common/Linker.h"
 #include "common/macros.h"
 #include "common/memory.h"
-#include "common/memory_pool.h"
 #include "common/print_error.h"
-#include "common/symbols.h"
+#include "common/Symbols.h"
 #include "common/tokens.h"
 
 //#define TOKENLEN 512

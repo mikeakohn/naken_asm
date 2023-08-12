@@ -16,7 +16,7 @@
 #include "common/assembler.h"
 #include "common/ifdef_expression.h"
 #include "common/macros.h"
-#include "common/symbols.h"
+#include "common/Symbols.h"
 #include "common/tokens.h"
 
 enum

@@ -16,7 +16,7 @@
 #include <inttypes.h>
 
 #include "common/assembler.h"
-#include "common/symbols.h"
+#include "common/Symbols.h"
 #include "fileio/read_elf.h"
 
 #define SHT_NULL 0

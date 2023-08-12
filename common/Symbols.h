@@ -14,11 +14,11 @@
 
 #include <stdint.h>
 
-#include "memory_pool.h"
+#include "MemoryPool.h"
 
 #define SYMBOLS_HEAP_SIZE 32768
 
-typedef struct _symbols_data
+struct SymbolsData
 {
   uint8_t len;             // length of name[]
   uint8_t flag_rw : 1;     // can write to this
@@ -26,28 +26,18 @@ typedef struct _symbols_data
   uint16_t scope;          // Up to 65535 local scopes.  0 = global.
   uint32_t address;        // address for this name
   char name[];             // null terminated name of label:
-} SymbolsData;
+};
 
-// FIXME: Might be nicer to switch this to a memory pool.  Currently
-// this is just for the linker to figure out what symbols need to be
-// searched for in the .o and .a files.
-typedef struct _unfound_list
-{
-  char *buffer;
-  uint32_t size;
-} UnfoundList;
-
-typedef struct _symbols
+struct Symbols
 {
   MemoryPool *memory_pool;
-  UnfoundList *unfound_list;
   uint8_t locked : 1;
   uint8_t in_scope : 1;
   uint8_t debug : 1;
   uint32_t current_scope;
-} Symbols;
+};
 
-typedef struct _symbols_iter
+struct SymbolsIter
 {
   MemoryPool *memory_pool;
   char *name;
@@ -57,11 +47,11 @@ typedef struct _symbols_iter
   int end_flag;
   uint32_t scope;
   uint8_t flag_export : 1;
-} SymbolsIter;
+};
 
 int symbols_init(Symbols *symbols);
 void symbols_free(Symbols *symbols);
-SymbolsData *symbols_find(struct _symbols *symbols, const char *name);
+SymbolsData *symbols_find(Symbols *symbols, const char *name);
 int symbols_append(Symbols *symbols, const char *name, uint32_t address);
 int symbols_set(Symbols *symbols, const char *name, uint32_t address);
 int symbols_export(Symbols *symbols, const char *name);

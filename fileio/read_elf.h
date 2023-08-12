@@ -13,7 +13,7 @@
 #define NAKEN_ASM_READ_ELF_H
 
 #include "common/memory.h"
-#include "common/symbols.h"
+#include "common/Symbols.h"
 
 int read_elf(
   const char *filename,

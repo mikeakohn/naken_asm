@@ -16,89 +16,34 @@
 
 #include "imports_ar.h"
 #include "imports_obj.h"
-#include "linker.h"
+#include "Linker.h"
 
-static int linker_verify_import(Imports *imports)
+Linker::Linker() :
+  imports                 (NULL),
+  symbol_list_buffer      (NULL),
+  symbol_list_buffer_size (0),
+  symbol_list_buffer_end  (0)
 {
-  if (imports->type == IMPORT_TYPE_AR)
-  {
-    if (imports_ar_verify(imports->code, imports->size) != 0)
-    {
-      return -1;
-    }
-  }
-    else
-  if (imports->type == IMPORT_TYPE_OBJ)
-  {
-    if (imports_obj_verify(imports->code, imports->size) != 0)
-    {
-      return -1;
-    }
-  }
-
-  return 0;
 }
 
-static Imports *linker_get_from_symbol_list(
-  Linker *linker,
-  const char *name)
+Linker::~Linker()
 {
-  SymbolList *symbol_list;
-  uint8_t *buffer = linker->symbol_list_buffer;
-  uint32_t ptr = 0;
+  Imports *imports = this->imports;
 
-  while (ptr < linker->symbol_list_buffer_end)
+  while (imports != NULL)
   {
-    symbol_list = (SymbolList *)(buffer + ptr);
-
-    if (strcmp(name, symbol_list->name) == 0)
-    {
-      return symbol_list->imports;
-    }
-
-    ptr += sizeof(SymbolList) + strlen(symbol_list->name) + 1;
+    Imports *curr = imports;
+    imports = imports->next;
+    free(curr);
   }
 
-  return NULL;
+  if (symbol_list_buffer != NULL)
+  {
+    free(symbol_list_buffer);
+  }
 }
 
-static void linker_add_to_symbol_list(
-  Linker *linker,
-  Imports *imports,
-  const char *name)
-{
-  // Allocate buffer if needed.
-  if (linker->symbol_list_buffer == NULL)
-  {
-    linker->symbol_list_buffer_size = 0x10000;
-    linker->symbol_list_buffer =
-      (uint8_t *)malloc(linker->symbol_list_buffer_size);
-    linker->symbol_list_buffer[0] = 0;
-  }
-
-  // If this symbol is already in the list, then don't add it again.
-  //if (linker_get_from_symbol_list(linker, name) != NULL) { return; }
-
-  const int len = sizeof(SymbolList) + strlen(name) + 1;
-
-  if (linker->symbol_list_buffer_end + len >= linker->symbol_list_buffer_size)
-  {
-    linker->symbol_list_buffer_size += 0x10000;
-    linker->symbol_list_buffer =
-      (uint8_t *)realloc(linker->symbol_list_buffer,
-                         linker->symbol_list_buffer_size);
-  }
-
-  SymbolList *symbol_list =
-    (SymbolList *)(linker->symbol_list_buffer + linker->symbol_list_buffer_end);
-
-  symbol_list->imports = imports;
-  strcpy(symbol_list->name, name);
-
-  linker->symbol_list_buffer_end += len;
-}
-
-int linker_add_file(Linker *linker, const char *filename)
+int Linker::add_file(const char *filename)
 {
   FILE *fp;
   int type = -1, n;
@@ -139,7 +84,7 @@ int linker_add_file(Linker *linker, const char *filename)
 
   Imports *imports = (Imports *)malloc(sizeof(Imports) + n);
 
-  imports->next = linker->imports;
+  imports->next = this->imports;
   imports->size = n;
   imports->type = type;
 
@@ -151,7 +96,7 @@ int linker_add_file(Linker *linker, const char *filename)
     return -2;
   }
 
-  if (linker_verify_import(imports) != 0)
+  if (verify_import(imports) != 0)
   {
     printf("Error: Not a supported file %s\n", filename);
     free(imports);
@@ -159,29 +104,27 @@ int linker_add_file(Linker *linker, const char *filename)
     return -2;
   }
 
-  linker->imports = imports;
+  this->imports = imports;
 
   fclose(fp);
 
   return 0;
 }
 
-int linker_search_code_from_symbol(
-  Linker *linker,
-  const char *symbol)
+int Linker::search_code_from_symbol(const char *symbol)
 {
-  if (linker == NULL) { return -1; }
+  //if (this == NULL) { return -1; }
 
-  Imports *imports = linker->imports;
+  Imports *imports = this->imports;
   uint32_t function_offset;
   uint32_t function_size;
   uint32_t file_offset;
   int ret;
 
   // If this symbol is already in the list, then don't search it again.
-  if (linker_get_from_symbol_list(linker, symbol) != NULL) { return 1; }
+  if (get_from_symbol_list(symbol) != NULL) { return 1; }
 
-  // FIXME: Deal with duplicate symbols in .a / .o files.  Currently
+  // FIXME: Deal with duplicate symbols in .a / .o files. Currently
   // this will find the first match and not check to see if it's a dup.
 
   while (imports != NULL)
@@ -215,7 +158,7 @@ int linker_search_code_from_symbol(
 
     if (ret != -1)
     {
-      linker_add_to_symbol_list(linker, imports, symbol);
+      add_to_symbol_list(imports, symbol);
 
       return 1;
     }
@@ -226,8 +169,7 @@ int linker_search_code_from_symbol(
   return 0;
 }
 
-uint8_t *linker_get_code_from_symbol(
-  Linker *linker,
+uint8_t *Linker::get_code_from_symbol(
   Imports **ret_imports,
   const char *symbol,
   uint32_t *function_size,
@@ -235,7 +177,7 @@ uint8_t *linker_get_code_from_symbol(
   uint8_t **obj_file,
   uint32_t *obj_size)
 {
-  if (linker == NULL) { return NULL; }
+  //if (this == NULL) { return NULL; }
 
   *ret_imports = NULL;
 
@@ -244,11 +186,11 @@ uint8_t *linker_get_code_from_symbol(
   int ret;
 
   // If this symbol is already in the list, then point directly to it.
-  imports = linker_get_from_symbol_list(linker, symbol);
+  imports = get_from_symbol_list(symbol);
 
-  if (linker_get_from_symbol_list(linker, symbol) != NULL)
+  if (get_from_symbol_list(symbol) != NULL)
   {
-    imports = linker->imports;
+    imports = this->imports;
   }
 
   while (imports != NULL)
@@ -292,13 +234,11 @@ uint8_t *linker_get_code_from_symbol(
   return NULL;
 }
 
-const char *linker_find_name_from_offset(
-  Linker *linker,
-  uint32_t offset)
+const char *Linker::find_name_from_offset(uint32_t offset)
 {
-  if (linker == NULL) { return NULL; }
+  //if (this == NULL) { return NULL; }
 
-  Imports *imports = linker->imports;
+  Imports *imports = this->imports;
   const char *name = NULL;
 
   while (imports != NULL)
@@ -330,11 +270,11 @@ const char *linker_find_name_from_offset(
   return NULL;
 }
 
-int linker_get_symbol_count(Linker *linker)
+int Linker::get_symbol_count()
 {
   SymbolList *symbol_list;
-  uint8_t *buffer = linker->symbol_list_buffer;
-  int ptr = 0, end = linker->symbol_list_buffer_end, count = 0;
+  uint8_t *buffer = symbol_list_buffer;
+  int ptr = 0, end = symbol_list_buffer_end, count = 0;
 
   while (ptr < end)
   {
@@ -346,11 +286,11 @@ int linker_get_symbol_count(Linker *linker)
   return count;
 }
 
-const char *linker_get_symbol_at_index(Linker *linker, int index)
+const char *Linker::get_symbol_at_index(int index)
 {
   SymbolList *symbol_list;
-  uint8_t *buffer = linker->symbol_list_buffer;
-  int ptr = 0, end = linker->symbol_list_buffer_end, count = 0;
+  uint8_t *buffer = symbol_list_buffer;
+  int ptr = 0, end = symbol_list_buffer_end, count = 0;
 
   while (ptr < end)
   {
@@ -368,11 +308,11 @@ const char *linker_get_symbol_at_index(Linker *linker, int index)
   return NULL;
 }
 
-void linker_print_symbol_list(Linker *linker)
+void Linker::print_symbol_list()
 {
   SymbolList *symbol_list;
-  uint8_t *buffer = linker->symbol_list_buffer;
-  int ptr = 0, end = linker->symbol_list_buffer_end, count = 0;
+  uint8_t *buffer = symbol_list_buffer;
+  int ptr = 0, end = symbol_list_buffer_end, count = 0;
 
   printf(" -- linker symbol list --\n");
 
@@ -387,26 +327,76 @@ void linker_print_symbol_list(Linker *linker)
   }
 }
 
-void linker_free(Linker *linker)
+int Linker::verify_import(Imports *imports)
 {
-  if (linker == NULL) { return; }
-
-  //linker_print_symbol_list(linker);
-
-  Imports *imports = linker->imports;
-
-  while (imports != NULL)
+  if (imports->type == IMPORT_TYPE_AR)
   {
-    Imports *curr = imports;
-    imports = imports->next;
-    free(curr);
+    if (imports_ar_verify(imports->code, imports->size) != 0)
+    {
+      return -1;
+    }
+  }
+    else
+  if (imports->type == IMPORT_TYPE_OBJ)
+  {
+    if (imports_obj_verify(imports->code, imports->size) != 0)
+    {
+      return -1;
+    }
   }
 
-  if (linker->symbol_list_buffer != NULL)
+  return 0;
+}
+
+Imports *Linker::get_from_symbol_list(const char *name)
+{
+  SymbolList *symbol_list;
+  uint8_t *buffer = symbol_list_buffer;
+  uint32_t ptr = 0;
+
+  while (ptr < symbol_list_buffer_end)
   {
-    free(linker->symbol_list_buffer);
+    symbol_list = (SymbolList *)(buffer + ptr);
+
+    if (strcmp(name, symbol_list->name) == 0)
+    {
+      return symbol_list->imports;
+    }
+
+    ptr += sizeof(SymbolList) + strlen(symbol_list->name) + 1;
   }
 
-  free(linker);
+  return NULL;
+}
+
+void Linker::add_to_symbol_list(Imports *imports, const char *name)
+{
+  // Allocate buffer if needed.
+  if (symbol_list_buffer == NULL)
+  {
+    symbol_list_buffer_size = 0x10000;
+    symbol_list_buffer = (uint8_t *)malloc(symbol_list_buffer_size);
+    symbol_list_buffer[0] = 0;
+  }
+
+  // If this symbol is already in the list, then don't add it again.
+  //if (get_from_symbol_list(name) != NULL) { return; }
+
+  const int len = sizeof(SymbolList) + strlen(name) + 1;
+
+  if (symbol_list_buffer_end + len >= symbol_list_buffer_size)
+  {
+    symbol_list_buffer_size += 0x10000;
+    symbol_list_buffer =
+       (uint8_t *)realloc(symbol_list_buffer, symbol_list_buffer_size);
+  }
+
+  SymbolList *symbol_list =
+    (SymbolList *)(symbol_list_buffer + symbol_list_buffer_end);
+
+  symbol_list->imports = imports;
+  strcpy(symbol_list->name, name);
+
+  symbol_list_buffer_end += len;
 }
 

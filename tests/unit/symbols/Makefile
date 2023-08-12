@@ -7,8 +7,7 @@ LD_FLAGS=-L../../../build
 
 default:
 	$(CXX) -o symbols_test symbols_test.cpp \
-	  ../../../common/symbols.cpp \
-	  ../../../common/memory_pool.cpp \
+	  ../../../build/naken_asm.a \
 	  $(CFLAGS)
 
 clean:

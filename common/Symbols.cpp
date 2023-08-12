@@ -14,8 +14,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "common/symbols.h"
-#include "common/memory_pool.h"
+#include "common/MemoryPool.h"
+#include "common/Symbols.h"
 
 int symbols_init(Symbols *symbols)
 {
@@ -128,7 +128,7 @@ int symbols_append(Symbols *symbols, const char *name, uint32_t address)
     return -1;
   }
 
-  // If we have no pool, add one.
+  // If there is no pool, add one.
   if (memory_pool == NULL)
   {
     memory_pool = memory_pool_add((NakenHeap *)symbols, SYMBOLS_HEAP_SIZE);
@@ -362,72 +362,4 @@ int symbols_scope_end(Symbols *symbols)
 
   return 0;
 }
-
-#if 0
-int symbols_add_to_unfound(Symbols *symbols, const char *name)
-{
-  int ptr;
-
-  if (symbols->need_unfound_symbols == 0) { return 0; }
-
-  UnfoundList *unfound_list = symbols->unfound_list;
-
-  // Allocate buffer if needed.
-  if (unfound_list->buffer == NULL)
-  {
-    unfound_list->size = 0x10000;
-    unfound_list->buffer = (char *)malloc(unfound_list->size);
-    unfound_list->buffer[0] = 0;
-  }
-
-  // Search to see if symbol is already in the list.
-  char *buffer = unfound_list->buffer;
-  ptr = 0;
-
-  while (buffer[ptr] != 0)
-  {
-    if (strcmp(buffer + ptr, name) == 0) { return 0; }
-    ptr += strlen(buffer + ptr) + 1;
-  }
-
-  // Check if buffer needs to be realloac'd.
-  int len = strlen(name);
-
-  if (ptr + len + 2 >= unfound_list->size)
-  {
-    unfound_list->size += 0x10000;
-    unfound_list->buffer = (char *)realloc(unfound_list->buffer, unfound_list->size);
-    buffer = unfound_list->buffer;
-  }
-
-  strcpy(buffer + ptr, name);
-
-  ptr += len + 1;
-  buffer[ptr] = 0;
-
-  return 0;
-}
-
-int symbols_print_unfound(Symbols *symbols)
-{
-  int ptr, count;
-  char *buffer = symbols->unfound_list->buffer;
-
-  if (buffer == NULL) { return 0; }
-
-  printf("Unfound list:\n");
-
-  ptr = 0;
-  count = 0;
-
-  while (buffer[ptr] != 0)
-  {
-    printf("  %d) %s\n", count, buffer + ptr);
-    ptr += strlen(buffer + ptr) + 1;
-    count++;
-  }
-
-  return 0;
-}
-#endif
 

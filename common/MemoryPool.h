@@ -14,11 +14,6 @@
 
 #include <stdint.h>
 
-typedef struct _naken_heap
-{
-  struct _memory_pool *memory_pool;
-} NakenHeap;
-
 /*
   address_heap buffer looks like this:
   struct
@@ -28,22 +23,18 @@ typedef struct _naken_heap
   };
 */
 
-/*
-  address_heap buffer looks like this:
-  struct
-  {
-    char name[];
-    int address;
-  };
-*/
-
-typedef struct _memory_pool
+struct MemoryPool
 {
-  struct _memory_pool *next;
+  MemoryPool *next;
   int len;
   int ptr;
   uint8_t buffer[];
-} MemoryPool;
+};
+
+struct NakenHeap
+{
+  MemoryPool *memory_pool;
+};
 
 MemoryPool *memory_pool_add(NakenHeap *heap, int heap_len);
 void memory_pool_free(MemoryPool *memory_pool);

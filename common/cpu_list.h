@@ -12,21 +12,16 @@
 #ifndef NAKEN_ASM_CPU_LIST_H
 #define NAKEN_ASM_CPU_LIST_H
 
-#include "common/linker.h"
+#include "common/Linker.h"
 #include "simulate/Simulate.h"
-
-//struct _asm_context;
-//struct _memory;
-//struct _simulate;
 
 typedef Simulate *(*simulate_init_t)(Memory *);
 
 typedef int (*parse_instruction_t)(struct _asm_context *, char *);
 typedef int (*parse_directive_t)(struct _asm_context *, const char *);
-typedef int (*link_function_t)(struct _asm_context *, struct _imports *, const uint8_t *, uint32_t function_offset, int size, uint8_t *obj_file, uint32_t obj_size);
+typedef int (*link_function_t)(struct _asm_context *, Imports *, const uint8_t *, uint32_t function_offset, int size, uint8_t *obj_file, uint32_t obj_size);
 typedef void (*list_output_t)(struct _asm_context *, uint32_t, uint32_t);
 typedef void (*disasm_range_t)(struct _memory *, uint32_t, uint32_t, uint32_t);
-//typedef struct _simulate *(*simulate_init_t)(struct _memory *memory);
 
 enum
 {

@@ -15,8 +15,8 @@
 
 #include "common/assembler.h"
 #include "common/macros.h"
-#include "common/memory_pool.h"
-#include "common/symbols.h"
+#include "common/MemoryPool.h"
+//#include "common/symbols.h"
 #include "common/tokens.h"
 
 static int get_param_index(char *params, char *name)

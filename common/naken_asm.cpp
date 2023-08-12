@@ -17,7 +17,6 @@
 #include "common/assembler.h"
 #include "common/directives_include.h"
 #include "common/macros.h"
-#include "common/symbols.h"
 #include "common/tokens.h"
 #include "common/version.h"
 #include "fileio/file.h"

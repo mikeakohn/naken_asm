@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-#include "memory_pool.h"
+#include "MemoryPool.h"
 
 typedef struct _asm_context AsmContext;
 
@@ -36,23 +36,23 @@ typedef struct _asm_context AsmContext;
   };
 */
 
-typedef struct _macro_data
+struct MacroData
 {
   int8_t param_count; // number of macro parameters
   int8_t name_len;    // length of the macro name
   int16_t value_len;  // length of the macro
   char data[];        // name[], value[]
-} MacroData;
+};
 
-typedef struct _macros
+struct Macros
 {
   MemoryPool *memory_pool;
   int locked;
   char *stack[MAX_NESTED_MACROS];
   int stack_ptr;
-} Macros;
+};
 
-typedef struct _macros_iter
+struct MacrosIter
 {
   MemoryPool *memory_pool;
   uint8_t param_count;
@@ -61,7 +61,7 @@ typedef struct _macros_iter
   int ptr;
   int count;
   int end_flag;
-} MacrosIter;
+};
 
 int macros_init(Macros *macros);
 void macros_free(Macros *macros);

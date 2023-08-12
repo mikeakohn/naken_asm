@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/symbols.h"
+#include "common/Symbols.h"
 
 int errors = 0;
 

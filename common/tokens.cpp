@@ -19,7 +19,6 @@
 
 #include "common/assembler.h"
 #include "common/macros.h"
-#include "common/symbols.h"
 #include "common/tokens.h"
 
 //#define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }
@@ -667,7 +666,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
         // If this is a symbol in an object file, pretend it's a string for
         // now so expressions fail.  On pass 2 it should be in the
         // symbols_lookup table.
-        if (linker_search_code_from_symbol(asm_context->linker, token) == 1)
+        if (asm_context->linker->search_code_from_symbol(token) == 1)
         {
           return token_type;
         }

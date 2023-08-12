@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/memory_pool.h"
+#include "common/MemoryPool.h"
 
 MemoryPool *memory_pool_add(NakenHeap *heap, int heap_len)
 {
@@ -35,10 +35,6 @@ MemoryPool *memory_pool_add(NakenHeap *heap, int heap_len)
     curr_pool->next = memory_pool;
   }
 
-#ifdef DEBUG
-printf("add_pool pool=%p\n", memory_pool);
-#endif
-
   return memory_pool;
 }
 
@@ -51,9 +47,6 @@ void memory_pool_free(MemoryPool *memory_pool)
 
   while (curr_pool != NULL)
   {
-#ifdef DEBUG
-printf("memory_pool_free pool=%p\n", curr_pool);
-#endif
     last_pool = curr_pool;
     curr_pool = curr_pool->next;
     free(last_pool);

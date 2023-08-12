@@ -14,7 +14,7 @@
 
 #include "common/cpu_list.h"
 #include "common/memory.h"
-#include "common/symbols.h"
+#include "common/Symbols.h"
 #include "simulate/msp430.h"
 
 typedef struct _util_context

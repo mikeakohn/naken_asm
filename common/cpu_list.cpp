@@ -136,7 +136,7 @@
 
 int link_not_supported(
   AsmContext *asm_context,
-  struct _imports *imports,
+  Imports *imports,
   const uint8_t *code,
   uint32_t function_offset,
   int size,

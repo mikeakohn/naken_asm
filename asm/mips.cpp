@@ -2735,7 +2735,7 @@ int link_function_mips(
 
       if (asm_context->pass == 1)
       {
-        if (linker_search_code_from_symbol(asm_context->linker, symbol) == 0)
+        if (asm_context->linker->search_code_from_symbol(symbol) == 0)
         {
           printf("Error: Symbol not found %s\n", symbol);
           return -1;

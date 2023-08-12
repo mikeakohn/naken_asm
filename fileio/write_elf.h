@@ -16,7 +16,7 @@
 #include <stdlib.h>
 
 #include "common/memory.h"
-#include "common/symbols.h"
+#include "common/Symbols.h"
 
 #define ELF_TEXT_MAX 64
 
