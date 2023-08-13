@@ -16,8 +16,6 @@
 #include "disasm/8048.h"
 #include "table/8048.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
-
 int disasm_8048(
   Memory *memory,
   uint32_t flags,
@@ -34,7 +32,7 @@ int disasm_8048(
 
   strcpy(instruction, "???");
 
-  opcode = memory_read_m(memory, address);
+  opcode = memory->read8(address);
 
   for (n = 0; table_8048[n].name != NULL; n++)
   {
@@ -142,19 +140,19 @@ int disasm_8048(
             strcat(instruction, temp);
             break;
           case OP_NUM:
-            value = memory_read_m(memory, address + 1);
+            value = memory->read8(address + 1);
             snprintf(temp, sizeof(temp), "#0x%02x", value);
             strcat(instruction, temp);
             byte_count = 2;
             break;
           case OP_ADDR:
-            value = memory_read_m(memory, address + 1);
+            value = memory->read8(address + 1);
             snprintf(temp, sizeof(temp), "#0x%02x", ((opcode & 0xe000) >> 5) | value);
             strcat(instruction, temp);
             byte_count = 2;
             break;
           case OP_PADDR:
-            value = memory_read_m(memory, address + 1);
+            value = memory->read8(address + 1);
             snprintf(temp, sizeof(temp), "#0x%02x", (address & 0xff00) | value);
             strcat(instruction, temp);
             byte_count = 2;
@@ -192,10 +190,12 @@ void list_output_8048(
   char temp2[4];
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   while (start < end)
   {
     count = disasm_8048(
-      &asm_context->memory,
+      memory,
       asm_context->flags,
       start,
       instruction,
@@ -207,8 +207,7 @@ void list_output_8048(
 
     for (n = 0; n < count; n++)
     {
-      snprintf(temp2, sizeof(temp2), "%02x ",
-        memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp2, sizeof(temp2), "%02x ", memory->read8(start + n));
       strcat(temp, temp2);
     }
 
@@ -251,7 +250,7 @@ void disasm_range_8048(
     temp[0] = 0;
     for (n = 0; n < count; n++)
     {
-      snprintf(temp2, sizeof(temp2), "%02x ", memory_read_m(memory, start+n));
+      snprintf(temp2, sizeof(temp2), "%02x ", memory->read8(start + n));
       strcat(temp, temp2);
     }
 

@@ -37,7 +37,7 @@ int write_wdc(Memory *memory, FILE *out)
 
   for (n = memory->low_address; n <= memory->high_address; n++)
   {
-    if (memory_debug_line_m(memory, n) == DL_EMPTY || length == 65536)
+    if (memory->read_debug(n) == DL_EMPTY || length == 65536)
     {
       if (length != 0)
       {
@@ -53,7 +53,7 @@ int write_wdc(Memory *memory, FILE *out)
     {
       if (address == -1) { address = n; }
 
-      buffer[length++] = memory_read_m(memory, n);
+      buffer[length++] = memory->read8(n);
     }
   }
 

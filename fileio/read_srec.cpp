@@ -66,7 +66,7 @@ int read_srec(const char *filename, Memory *memory)
   int line = 0;
   int start, end;
 
-  memory_clear(memory);
+  memory->clear();
 
   start = -1;
   end = -1;
@@ -153,7 +153,7 @@ int read_srec(const char *filename, Memory *memory)
     for (n = 0; n < byte_count; n++)
     {
       ch = get_hex(in, 2);
-      memory_write_m(memory, address++, ch);
+      memory->write8(address++, ch);
       checksum_calc += ch;
 #ifdef DEBUG1
       printf(" %02x",ch);

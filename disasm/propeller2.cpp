@@ -16,12 +16,6 @@
 #include "disasm/propeller2.h"
 #include "table/propeller2.h"
 
-#define READ_RAM32(a) \
-  (memory_read_m(memory, a + 3) << 24) | \
-  (memory_read_m(memory, a + 2) << 16) | \
-  (memory_read_m(memory, a + 1) << 8) | \
-   memory_read_m(memory, a + 0)
-
 static const char *conditions[] =
 {
   "_ret_ ",
@@ -81,7 +75,7 @@ int disasm_propeller2(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = READ_RAM32(address);
+  opcode = memory->read32(address);
 
   i = (opcode >> 18) & 1;
   s = opcode & 0x1ff;
@@ -376,19 +370,21 @@ void list_output_propeller2(
   char bytes[16];
   int count;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_propeller2(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read32_m(&asm_context->memory, start);
+    opcode = memory->read32(start);
     snprintf(bytes, sizeof(bytes), "0x%08x", opcode);
 
     fprintf(asm_context->list, "0x%04x: %-16s %-40s cycles: ", start / 4, bytes, instruction);
@@ -441,7 +437,7 @@ void disasm_range_propeller2(
       &cycles_min,
       &cycles_max);
 
-    snprintf(bytes, sizeof(bytes), "0x%08x", READ_RAM32(start));
+    snprintf(bytes, sizeof(bytes), "0x%08x", memory->read32(start));
     printf("0x%04x: %-16s %-40s ", start / 4, bytes, instruction);
 
     if (cycles_min == 0)

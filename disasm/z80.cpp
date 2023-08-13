@@ -16,10 +16,11 @@
 #include "disasm/z80.h"
 #include "table/z80.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
+#define READ_RAM(a) memory->read8(a)
+
 #define READ_RAM16(a) \
-  (memory_read_m(memory, a + 0) << 8) |  \
-   memory_read_m(memory, a + 1)
+  (memory->read8(a + 0) << 8) |  \
+   memory->read8(a + 1)
 
 static const char *reg8[]      = { "b", "c", "d", "e", "h", "l", "(hl)", "a" };
 static const char *reg_ihalf[] = { "ixh", "ixl", "iyh", "iyl" };
@@ -654,12 +655,14 @@ void list_output_z80(
   int count;
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_z80(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -671,17 +674,20 @@ void list_output_z80(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      snprintf(temp, sizeof(temp), "%02x ",
-        memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp, sizeof(temp), "%02x ", memory->read8(start + n));
       strcat(bytes, temp);
     }
 
     fprintf(asm_context->list, "0x%04x: %-9s %-40s cycles: ", start, bytes, instruction);
 
     if (cycles_min == cycles_max)
-    { fprintf(asm_context->list, "%d\n", cycles_min); }
+    {
+      fprintf(asm_context->list, "%d\n", cycles_min);
+    }
       else
-    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    {
+      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+    }
 
     start += count;
   }

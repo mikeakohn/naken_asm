@@ -111,13 +111,16 @@ static int get_address(
 
     // Store a flag in this address to remind on pass 2 that this
     // instruction can't use zero page.
-    memory_write(asm_context, asm_context->address, 1,
-                 asm_context->tokens.line);
+    asm_context->memory_write(
+      asm_context->address,
+      1,
+      asm_context->tokens.line);
+
     worst_case = 1;
   }
 
   // On pass 2, figure out if the size of the operand was unknown in pass 1
-  worst_case = memory_read(asm_context, asm_context->address);
+  worst_case = asm_context->memory_read(asm_context->address);
 
   // try to guess addressing mode if one hasn't been forced
   if (*size == 0)
@@ -386,7 +389,7 @@ int parse_instruction_6502(AsmContext *asm_context, char *instr)
         // forward label
         if (num == 0)
         {
-          int worst_case = memory_read(asm_context, asm_context->address);
+          int worst_case = asm_context->memory_read(asm_context->address);
           if (worst_case == 1) { size = 16; }
         }
 

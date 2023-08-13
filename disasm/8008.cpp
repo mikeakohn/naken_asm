@@ -34,7 +34,7 @@ int disasm_8008(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = memory_read_m(memory, address);
+  opcode = memory->read8(address);
 
   for (n = 0; table_8008[n].instr != NULL; n++)
   {
@@ -96,27 +96,27 @@ int disasm_8008(
         case OP_ADDRESS:
         {
           immediate =
-            memory_read_m(memory, address + 1) |
-           (memory_read_m(memory, address + 2) << 8);
+            memory->read8(address + 1) |
+           (memory->read8(address + 2) << 8);
           snprintf(instruction, length, "%s 0x%04x", table_8008[n].instr, immediate);
           return 3;
         }
         case OP_IMMEDIATE:
         {
-          immediate = memory_read_m(memory, address + 1);
+          immediate = memory->read8(address + 1);
           snprintf(instruction, length, "%s 0x%02x", table_8008[n].instr, immediate);
           return 2;
         }
         case OP_M_IMMEDIATE:
         {
-          immediate = memory_read_m(memory, address + 1);
+          immediate = memory->read8(address + 1);
           snprintf(instruction, length, "%s m, 0x%02x", table_8008[n].instr, immediate);
           return 2;
         }
         case OP_REG_IMMEDIATE:
         {
           reg = (opcode >> 3) & 0x7;
-          immediate = memory_read_m(memory, address + 1);
+          immediate = memory->read8(address + 1);
           snprintf(instruction, length, "%s %c, 0x%02x",
             table_8008[n].instr,
             reg_name[reg],
@@ -165,6 +165,8 @@ void list_output_8008(
   char temp[32];
   int count;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
@@ -184,7 +186,7 @@ void list_output_8008(
 
     for (n = 0; n < count; n++)
     {
-      snprintf(temp2, sizeof(temp2), " %02x", memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp2, sizeof(temp2), " %02x", memory->read8(start + n));
       strcat(temp, temp2);
     }
 
@@ -219,7 +221,6 @@ void disasm_range_8008(
   char temp[32];
   int cycles_min = 0, cycles_max = 0;
   int count;
-  //uint16_t opcode;
 
   printf("\n");
 
@@ -236,7 +237,6 @@ void disasm_range_8008(
       &cycles_min,
       &cycles_max);
 
-    //opcode = memory_read_m(memory, start);
     char temp2[12];
     int n;
 
@@ -244,7 +244,7 @@ void disasm_range_8008(
 
     for (n = 0; n < count; n++)
     {
-      snprintf(temp2, sizeof(temp2), " %02x", memory_read_m(memory, start + n));
+      snprintf(temp2, sizeof(temp2), " %02x", memory->read8(start + n));
       strcat(temp, temp2);
     }
 

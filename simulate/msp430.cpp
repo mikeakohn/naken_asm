@@ -25,14 +25,14 @@ Status: V SCG1 SCG0 OSCOFF CPUOFF GIE N Z C
 
 */
 
-#define SHOW_STACK sp, memory_read_m(memory, sp+1), memory_read_m(memory, sp)
-#define READ_RAM(a) memory_read_m(memory, a)
+#define SHOW_STACK sp, memory->read8(sp + 1), memory->read8(sp)
+#define READ_RAM(a) memory->read8(a)
 #define WRITE_RAM(a,b) \
   if (a == break_io) \
   { \
     exit(b); \
   } \
-  memory_write_m(memory, a, b);
+  memory->write8(a, b);
 
 #define GET_V()      ((reg[2] >>  8) & 1)
 #define GET_SCG1()   ((reg[2] >> 7) & 1)

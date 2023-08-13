@@ -21,7 +21,7 @@ int read_bin(const char *filename, Memory *memory, uint32_t start_address)
   int ch;
   uint32_t address = start_address;
 
-  memory_clear(memory);
+  memory->clear();
 
   in = fopen(filename, "rb");
 
@@ -35,7 +35,7 @@ int read_bin(const char *filename, Memory *memory, uint32_t start_address)
     ch = getc(in);
     if (ch == EOF) break;
 
-    memory_write_m(memory, address++, ch);
+    memory->write8(address++, ch);
   }
 
   fclose(in);

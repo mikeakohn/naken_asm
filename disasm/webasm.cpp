@@ -32,7 +32,7 @@ static uint64_t get_varuint(
 
   while (done == 0)
   {
-    ch = memory_read_m(memory, address++);
+    ch = memory->read8(address++);
 
     *length += 1;
 
@@ -64,7 +64,7 @@ static int64_t get_varint(
 
   while (done == 0)
   {
-    ch = memory_read_m(memory, address++);
+    ch = memory->read8(address++);
 
     *byte_count += 1;
 
@@ -145,7 +145,7 @@ int disasm_webasm(
   *cycles_min = 0;
   *cycles_max = 0;
 
-  opcode = memory_read_m(memory, address);
+  opcode = memory->read8(address);
 
   n = 0;
   while (table_webasm[n].instr != NULL)
@@ -162,12 +162,12 @@ int disasm_webasm(
         snprintf(instruction, length, "%s", table_webasm[n].instr);
         return 1;
       case WEBASM_OP_UINT32:
-        i = memory_read32_m(memory, address + 1);
+        i = memory->read32(address + 1);
         snprintf(instruction, length, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
         return 5;
       case WEBASM_OP_UINT64:
-        i = memory_read32_m(memory, address + 1);
-        i |= ((uint64_t)memory_read32_m(memory, address + 5)) << 32;
+        i = memory->read32(address + 1);
+        i |= ((uint64_t)memory->read32(address + 5)) << 32;
         snprintf(instruction, length, "%s 0x%04" PRIx64, table_webasm[n].instr, i);
         return 9;
       case WEBASM_OP_VARINT64:
@@ -220,8 +220,10 @@ void list_output_webasm(
   char temp[16];
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   count = disasm_webasm(
-    &asm_context->memory,
+    memory,
     start,
     instruction,
     sizeof(instruction),
@@ -232,7 +234,7 @@ void list_output_webasm(
 
   for (n = 0; n < count; n++)
   {
-    opcode = memory_read_m(&asm_context->memory, start + n);
+    opcode = memory->read8(start + n);
 
     snprintf(temp, sizeof(temp), "%02x ", opcode);
     strcat(hex, temp);
@@ -240,7 +242,7 @@ void list_output_webasm(
 
   fprintf(asm_context->list, "0x%04x: %-20s %-40s\n", start, hex, instruction);
 
-  opcode = memory_read_m(&asm_context->memory, start);
+  opcode = memory->read8(start);
 
   if (opcode == 0x0e)
   {
@@ -280,7 +282,7 @@ void disasm_range_webasm(
 
     for (n = 0; n < count; n++)
     {
-      opcode = memory_read_m(memory, start + n);
+      opcode = memory->read8(start + n);
 
       snprintf(temp, sizeof(temp), "%02x ", opcode);
       strcat(hex, temp);
@@ -288,7 +290,7 @@ void disasm_range_webasm(
 
     printf("0x%04x: %-20s %-40s\n", start, hex, instruction);
 
-    opcode = memory_read_m(memory, start);
+    opcode = memory->read8(start);
 
     if (opcode == 0x0e)
     {

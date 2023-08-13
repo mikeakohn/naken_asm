@@ -31,7 +31,7 @@ int disasm_pdk15(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = memory_read16_m(memory, address);
+  opcode = memory->read16(address);
 
   for (n = 0; table_pdk15[n].instr != NULL; n++)
   {
@@ -128,19 +128,21 @@ void list_output_pdk15(
   char instruction[128];
   int count;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_pdk15(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read16_m(&asm_context->memory, start);
+    opcode = memory->read16(start);
 
     fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: ", start / 2, opcode, instruction);
 
@@ -187,7 +189,7 @@ void disasm_range_pdk15(
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read16_m(memory, start);
+    opcode = memory->read16(start);
 
     printf("0x%04x: 0x%04x %-40s ", start / 2, opcode, instruction);
 

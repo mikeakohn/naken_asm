@@ -649,7 +649,7 @@ static int get_operands_li(
 
     num = 0;
     force_long = 1;
-    memory_write_m(&asm_context->memory, asm_context->address, force_long);
+    asm_context->memory_write(asm_context->address, force_long);
   }
     else
   {
@@ -676,7 +676,7 @@ static int get_operands_li(
   // If data size was unknown on pass 1, force_long.
   if (asm_context->pass == 2)
   {
-    force_long = memory_read(asm_context, asm_context->address);
+    force_long = asm_context->memory_read(asm_context->address);
   }
 
   // Apply operands to memory.

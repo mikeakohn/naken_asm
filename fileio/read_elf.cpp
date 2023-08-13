@@ -222,8 +222,7 @@ int read_elf(
   get_int64_t get_int64;
   uint8_t is_32_bit = 1;
 
-  memory_clear(memory);
-  //memset(dirty, 0, memory->size);
+  memory->clear();
 
   start = 0xffffffff;
   end = 0xffffffff; 
@@ -478,7 +477,7 @@ int read_elf(
       for (i = 0; i < elf_shdr.sh_size; i++)
       {
         //if (elf_shdr.sh_addr + i >= memory->size) { break; }
-        memory_write_m(memory, elf_shdr.sh_addr + i, getc(in));
+        memory->write8(elf_shdr.sh_addr + i, getc(in));
       }
 
       fseek(in, marker, SEEK_SET);

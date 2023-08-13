@@ -49,29 +49,30 @@
 #define REG_PC  reg_pc
 #define REG_CC  reg_cc
 
-#define SHOW_STACK    sp, memory_read_m(memory, sp)
-#define READ_RAM(a)   memory_read_m(memory, a)
-#define READ_RAM16(a) memory_read16_m(memory, a)
-#define READ_RAM24(a) ((memory_read_m(memory, a) << 16 ) | (memory_read16_m(memory, a + 1)))
+#define SHOW_STACK    sp, memory->read8(sp)
+#define READ_RAM(a)   memory->read8(a)
+#define READ_RAM16(a) memory->read16(a)
+#define READ_RAM24(a) ((memory->read8(a) << 16 ) | (memory->read16(a + 1)))
 
 #define WRITE_RAM(a, b) \
   if ((a) == (uint32_t)break_io) \
   { \
     exit(b); \
   } \
-  memory_write_m(memory, a, b)
+  memory->write8(a, b)
+
 #define WRITE_RAM16(a, w) \
   if ((a) == (uint32_t)break_io) \
   { \
     exit(w); \
   } \
-  memory_write16_m(memory, a, w)
+  memory->write16(a, w)
 
-#define PUSH_STACK(n)   memory_write_m(memory, REG_SP, (n) & 0xff); --REG_SP  // caution: "--" side-effects
+#define PUSH_STACK(n)   memory->write8(REG_SP, (n) & 0xff); --REG_SP  // caution: "--" side-effects
 
 #define PUSH_STACK16(n) push16(n)
 #define PUSH_STACK24(n) push24(n)
-#define POP_STACK()     memory_read_m(memory, ++REG_SP)   // caution: "++" side-effects
+#define POP_STACK()     memory->read8(++REG_SP)   // caution: "++" side-effects
 #define POP_STACK16()   pop16()
 #define POP_STACK24()   pop24()
 
@@ -133,7 +134,9 @@
 
 static const char *const CC_Flags[] = { "V", "I1", "H", "I0", "N", "Z", "C" };
 
-SimulateStm8::SimulateStm8(Memory *memory) : Simulate(memory)
+SimulateStm8::SimulateStm8(Memory *memory) :
+  Simulate(memory),
+  memory_size(0xffffffff)
 {
   reset();
 }
@@ -182,7 +185,7 @@ void SimulateStm8::reset()
     if (READ_RAM(RESET_VECTOR) == stm8_int_opcode)
     {
       REG_PC = READ_RAM24(RESET_VECTOR + 1);
-      if (REG_PC >= memory->size)
+      if (REG_PC >= memory_size)
       {
         REG_PC = 0;
       }
@@ -229,7 +232,7 @@ int SimulateStm8::set_reg(const char *reg_string, uint32_t value)
   {
     set_pc(value);
 
-    if (value >= memory->size)
+    if (value >= memory_size)
     {
       return -1;
     }
@@ -399,7 +402,7 @@ uint32_t SimulateStm8::get_reg(const char *reg_string)
 
 void SimulateStm8::set_pc(uint32_t value)
 {
-  if (value >= memory->size)
+  if (value >= memory_size)
   {
     printf("Unsupported PC memory address !!!\n\n");
   }
@@ -591,7 +594,7 @@ int SimulateStm8::run(int max_cycles, int step)
       break;
     }
 
-    if (REG_PC >= memory->size)
+    if (REG_PC >= memory_size)
     {
       printf("End of memory - setting PC to reset vector.\n");
       step_mode = 0;
@@ -602,7 +605,7 @@ int SimulateStm8::run(int max_cycles, int step)
         if (READ_RAM(RESET_VECTOR) == stm8_int_opcode)
         {
           REG_PC = READ_RAM24(RESET_VECTOR + 1);
-          if (REG_PC >= memory->size)   // check supported memory space
+          if (REG_PC >= memory_size)   // check supported memory space
           {
             REG_PC = 0;
           }
@@ -1232,7 +1235,7 @@ int SimulateStm8::execute_op_none(struct _table_stm8_opcodes *table_stm8)
       REG_X = POP_STACK16();
       REG_Y = POP_STACK16();
       eff_addr = POP_STACK24();
-      if (eff_addr >= memory->size)
+      if (eff_addr >= memory_size)
       {
         return INVALID_MEM_ADDR;
       }
@@ -1252,7 +1255,7 @@ int SimulateStm8::execute_op_none(struct _table_stm8_opcodes *table_stm8)
       return table_stm8->cycles_min;
     case STM8_RETF:
       eff_addr = POP_STACK24();
-      if (eff_addr >= memory->size)
+      if (eff_addr >= memory_size)
       {
         return INVALID_MEM_ADDR;
       }
@@ -1277,7 +1280,7 @@ int SimulateStm8::execute_op_none(struct _table_stm8_opcodes *table_stm8)
       return table_stm8->cycles_min;
     case STM8_TRAP:
       eff_addr = READ_RAM24(TRAP_VECTOR + 1);
-      if (eff_addr >= memory->size)
+      if (eff_addr >= memory_size)
       {
         return INVALID_MEM_ADDR;
       }
@@ -1831,7 +1834,7 @@ int SimulateStm8::execute_op_address24(struct _table_stm8_opcodes *table_stm8)
   next_ext += READ_RAM(REG_PC++) << 8;
   next_ext += READ_RAM(REG_PC++);
   eff_addr = next_ext;
-  if (eff_addr >= memory->size)
+  if (eff_addr >= memory_size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -1931,7 +1934,7 @@ int SimulateStm8::execute_op_offset24_index_x(struct _table_stm8_opcodes *table_
   next_ext += READ_RAM(REG_PC++) << 8;
   next_ext += READ_RAM(REG_PC++);
   eff_addr = REG_X + next_ext;
-  if (eff_addr >= memory->size)
+  if (eff_addr >= memory_size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -2024,7 +2027,7 @@ int SimulateStm8::execute_op_offset24_index_y(
   next_ext += READ_RAM(REG_PC++) << 8;
   next_ext += READ_RAM(REG_PC++);
   eff_addr = REG_Y + next_ext;
-  if (eff_addr >= memory->size)
+  if (eff_addr >= memory_size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -2173,7 +2176,7 @@ int SimulateStm8::execute_op_indirect16_e(
   next_word = READ_RAM16(REG_PC);
   REG_PC += 2;
   eff_addr = READ_RAM24(next_word);
-  if (eff_addr >= memory->size)
+  if (eff_addr >= memory_size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -2264,7 +2267,7 @@ int SimulateStm8::execute_op_indirect16_e_x(
   REG_PC += 2;
   eff_addr = READ_RAM24(next_word);
   eff_addr += REG_X;
-  if (eff_addr >= memory->size)
+  if (eff_addr >= memory_size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -2330,7 +2333,7 @@ int SimulateStm8::execute_op_indirect16_e_y(
   REG_PC += 2;
   eff_addr = READ_RAM24(next_word);
   eff_addr += REG_Y;
-  if (eff_addr >= memory->size)
+  if (eff_addr >= memory_size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -2426,7 +2429,7 @@ int SimulateStm8::execute_op_address_bit_loop(
   offset = READ_RAM(REG_PC++);
   pc = (int32_t)REG_PC;
   pc += offset;
-  if ((uint32_t)pc >= memory->size)
+  if ((uint32_t)pc >= memory_size)
   {
     return INVALID_MEM_ADDR;
   }
@@ -2478,7 +2481,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
   offset = READ_RAM(REG_PC++);
   pc = (int32_t)REG_PC;
   pc += offset;
-  if ((uint32_t)pc >= memory->size)
+  if ((uint32_t)pc >= memory_size)
   {
     return INVALID_MEM_ADDR;
   }

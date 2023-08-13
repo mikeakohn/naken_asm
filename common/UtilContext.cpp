@@ -356,7 +356,7 @@ void util_print8(UtilContext *util_context, const char *token)
       printf("0x%04x:", start / util_context->bytes_per_address);
     }
 
-    uint8_t data = memory_read_m(&util_context->memory, start);
+    uint8_t data = util_context->memory.read8(start);
 
     printf(" %02x", data);
 
@@ -411,7 +411,7 @@ void util_print16(UtilContext *util_context, const char *token)
       printf("0x%04x:", start / util_context->bytes_per_address);
     }
 
-    int num = memory_read16_m(&util_context->memory, start);
+    int num = util_context->memory.read16(start);
 
     uint8_t data0 = num & 0xff;
     uint8_t data1 = (num >> 8) & 0xff;
@@ -481,7 +481,7 @@ void util_print32(UtilContext *util_context, const char *token)
       printf("0x%04x:", start / util_context->bytes_per_address);
     }
 
-    uint32_t num = memory_read32_m(&util_context->memory, start);
+    uint32_t num = util_context->memory.read32(start);
 
     uint8_t data0 = num & 0xff;
     uint8_t data1 = (num >> 8) & 0xff;
@@ -540,13 +540,15 @@ void util_write8(UtilContext *util_context, const char *token)
   if (token == NULL) { printf("Syntax error: bad address\n"); }
 
   int n = address;
-  while (1)
+
+  while (true)
   {
-    if (address >= util_context->memory.size) { break; }
+    // FIXME: This is already done in util_get_num().
     while (*token == ' ' && *token != 0) { token++; }
+
     token = util_get_num(token, &num);
     if (token == NULL) { break; }
-    memory_write_m(&util_context->memory, address++, num);
+    util_context->memory.write8(address++, num);
     count++;
   }
 
@@ -584,13 +586,14 @@ void util_write16(UtilContext *util_context, const char *token)
 
   int n = address;
 
-  while (1)
+  while (true)
   {
-    if (address >= util_context->memory.size) break;
+    // FIXME: This is already done in util_get_num().
     while (*token == ' ' && *token != 0) { token++; }
+
     token = util_get_num(token, &num);
-    if (token == 0) break;
-    memory_write16_m(&util_context->memory, address, num);
+    if (token == NULL) { break; }
+    util_context->memory.write16(address, num);
     address += 2;
     count++;
   }
@@ -627,13 +630,14 @@ void util_write32(UtilContext *util_context, const char *token)
 
   int n = address;
 
-  while (1)
+  while (true)
   {
-    if (address >= util_context->memory.size) break;
+    // FIXME: This is already done in util_get_num().
     while (*token == ' ' && *token != 0) { token++; }
+
     token = util_get_num(token, &num);
-    if (token == 0) break;
-    memory_write32_m(&util_context->memory, address, num);
+    if (token == NULL) { break; }
+    util_context->memory.write32(address, num);
     address += 4;
     count++;
   }

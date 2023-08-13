@@ -16,11 +16,8 @@
 #include "disasm/68hc08.h"
 #include "table/68hc08.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
-
-#define READ_RAM16(a) \
-  (memory_read_m(memory, a) << 8) | \
-   memory_read_m(memory, a + 1)
+#define READ_RAM(a)   memory->read8(a)
+#define READ_RAM16(a) memory->read16(a)
 
 int disasm_68hc08(
   Memory *memory,
@@ -257,12 +254,14 @@ void list_output_68hc08(
   int count;
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_68hc08(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -270,19 +269,24 @@ void list_output_68hc08(
       &cycles_max);
 
     bytes[0] = 0;
+
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      snprintf(temp, sizeof(temp), "%02x ", memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp, sizeof(temp), "%02x ", memory->read8(start + n));
       strcat(bytes, temp);
     }
 
     fprintf(asm_context->list, "0x%04x: %-12s %-40s cycles: ", start, bytes, instruction);
 
     if (cycles_min == cycles_max)
-    { fprintf(asm_context->list, "%d\n", cycles_min); }
+    {
+      fprintf(asm_context->list, "%d\n", cycles_min);
+    }
       else
-    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    {
+      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+    }
 
     start += count;
   }

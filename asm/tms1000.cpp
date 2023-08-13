@@ -43,9 +43,8 @@ static void add_bin_lsfr(AsmContext *asm_context, uint8_t data, int flags)
   int page = asm_context->address & 0xfc0;
   int pc = asm_context->address & 0x3f;
 
-  memory_write_m(&asm_context->memory, page | tms1000_address_to_lsfr[pc], data);
-  memory_debug_line_set(asm_context, page | tms1000_address_to_lsfr[pc], line);
-
+  asm_context->memory_write(page | tms1000_address_to_lsfr[pc], data);
+  asm_context->write_debug(page | tms1000_address_to_lsfr[pc], line);
   asm_context->address++;
 }
 

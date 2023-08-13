@@ -32,11 +32,11 @@ int disasm_dotnet(
   *cycles_min = 0;
   *cycles_max = 0;
 
-  opcode = memory_read_m(memory, address);
+  opcode = memory->read8(address);
 
   if (opcode == 0xfe)
   {
-    opcode = memory_read_m(memory, address + 1);
+    opcode = memory->read8(address + 1);
 
     n = 0;
     while (table_dotnet_fe[n].instr != NULL)
@@ -92,8 +92,10 @@ void list_output_dotnet(
   char temp[16];
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   count = disasm_dotnet(
-    &asm_context->memory,
+    memory,
     start,
     instruction,
     sizeof(instruction),
@@ -104,7 +106,7 @@ void list_output_dotnet(
 
   for (n = 0; n < count; n++)
   {
-    opcode = memory_read_m(&asm_context->memory, start + n);
+    opcode = memory->read8(start + n);
 
     snprintf(temp, sizeof(temp), "%02x ", opcode);
     strcat(hex, temp);
@@ -145,7 +147,7 @@ void disasm_range_dotnet(
 
      for (n = 0; n < count; n++)
      {
-       opcode = memory_read_m(memory, start + n);
+       opcode = memory->read8(start + n);
 
        snprintf(temp, sizeof(temp), "%02x ", opcode);
        strcat(hex, temp);

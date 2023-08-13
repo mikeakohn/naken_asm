@@ -34,9 +34,9 @@ int read_wdc(const char *filename, Memory *memory)
   FILE *in;
   int ch, n;
   //int address = start_address;
-  memory->low_address = 0xffffffff;
 
-  memory_clear(memory);
+  memory->low_address = 0xffffffff;
+  memory->clear();
 
   in = fopen(filename, "rb");
   if (in == 0)
@@ -74,7 +74,7 @@ int read_wdc(const char *filename, Memory *memory)
         memory->high_address = address;
       }
 
-      memory_write_m(memory, address++, ch);
+      memory->write8(address++, ch);
     }
   }
 

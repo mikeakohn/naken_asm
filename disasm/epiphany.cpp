@@ -16,17 +16,17 @@
 #include "disasm/epiphany.h"
 #include "table/epiphany.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
+#define READ_RAM(a) memory->read8(a)
 
 #define READ_RAM16(a) \
-  ((memory_read_m(memory, a)) | \
-   (memory_read_m(memory, a + 1) << 8))
+  ((memory->read8(a + 0)) | \
+   (memory->read8(a + 1) << 8))
 
 #define READ_RAM32(a) \
-  ((memory_read_m(memory, a)) | \
-   (memory_read_m(memory, a + 1) << 8) | \
-   (memory_read_m(memory, a + 2) << 16) | \
-   (memory_read_m(memory, a + 3) << 24))
+  ((memory->read8(a + 0)) | \
+   (memory->read8(a + 1) << 8) | \
+   (memory->read8(a + 2) << 16) | \
+   (memory->read8(a + 3) << 24))
 
 #define SINGLE_OPCODE(pre, op, cycles, size, instr) \
   if (opcode==op && prefix==pre) \
@@ -260,12 +260,14 @@ void list_output_epiphany(
   int cycles_min,cycles_max,count;
   char instruction[128];
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_epiphany(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -277,17 +279,17 @@ void list_output_epiphany(
     if (count == 2)
     {
       fprintf(asm_context->list, "%02x%02x     ",
-        memory_read_m(&asm_context->memory, start + 1),
-        memory_read_m(&asm_context->memory, start + 0));
+        memory->read8(start + 1),
+        memory->read8(start + 0));
     }
       else
     if (count == 4)
     {
       fprintf(asm_context->list, "%02x%02x%02x%02x ",
-        memory_read_m(&asm_context->memory, start + 3),
-        memory_read_m(&asm_context->memory, start + 2),
-        memory_read_m(&asm_context->memory, start + 1),
-        memory_read_m(&asm_context->memory, start + 0));
+        memory->read8(start + 3),
+        memory->read8(start + 2),
+        memory->read8(start + 1),
+        memory->read8(start + 0));
     }
      else
     {

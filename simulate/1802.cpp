@@ -20,13 +20,13 @@
 #include "simulate/1802.h"
 #include "table/1802.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
+#define READ_RAM(a) memory->read8(a)
 #define WRITE_RAM(a, b) \
   if (a == break_io) \
   { \
   exit(b); \
   } \
-  memory_write_m(memory, a, b)
+  memory->write8(a, b)
 #define READ_IND(a) READ_RAM(reg_r[a])
 #define WRITE_IND(a, b) WRITE_RAM(reg_r[a], b)
 #define REG(a) reg_r[a]

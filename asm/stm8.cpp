@@ -130,7 +130,7 @@ static int get_num(
       ignore_expression(asm_context);
       //*num_size = get_minimum_size(instr_index);
       *num_size = NUM_SIZE_UNKNOWN;
-      memory_write(asm_context, asm_context->address, *num_size, asm_context->tokens.line);
+      asm_context->memory_write(asm_context->address, *num_size, asm_context->tokens.line);
       return 0;
     }
 
@@ -138,7 +138,7 @@ static int get_num(
     return -1;
   }
 
-  int override_size = memory_read(asm_context, asm_context->address);
+  int override_size = asm_context->memory_read(asm_context->address);
 
   if (asm_context->pass == 2 && override_size != 0)
   {

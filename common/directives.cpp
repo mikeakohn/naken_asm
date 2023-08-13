@@ -274,7 +274,7 @@ int parse_repeat(AsmContext *asm_context)
   {
     for (r = address_start; r < address_end; r++)
     {
-      uint8_t data = memory_read_m(&asm_context->memory, r);
+      uint8_t data = asm_context->memory_read(r);
       add_bin8(asm_context, data, 0);
     }
   }

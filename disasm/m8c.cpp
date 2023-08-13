@@ -43,54 +43,54 @@ int append_operand(
       strcat(instruction, "SP");
       return 0;
     case OP_EXPR:
-      data8 = memory_read_m(memory, address);
+      data8 = memory->read8(address);
       snprintf(temp, sizeof(temp), "0x%02x", data8);
       strcat(instruction, temp);
       return 1;
     case OP_INDEX_EXPR:
-      data8 = memory_read_m(memory, address);
+      data8 = memory->read8(address);
       snprintf(temp, sizeof(temp), "[0x%02x]", data8);
       strcat(instruction, temp);
       return 1;
     case OP_INDEX_X_EXPR:
-      data8 = memory_read_m(memory, address);
+      data8 = memory->read8(address);
       snprintf(temp, sizeof(temp), "[X+0x%02x]", data8);
       strcat(instruction, temp);
       return 1;
 #if 0
     case OP_INDEX_EXPR_INC:
-      data8 = memory_read_m(memory, address);
+      data8 = memory->read8(address);
       snprintf(temp, sizeof(temp), "[[0x%02x]++]", data8);
       strcat(instruction, temp);
       return 1;
 #endif
     case OP_REG_INDEX_EXPR:
-      data8 = memory_read_m(memory, address);
+      data8 = memory->read8(address);
       snprintf(temp, sizeof(temp), "REG[0x%02x]", data8);
       strcat(instruction, temp);
       return 1;
     case OP_REG_INDEX_X_EXPR:
-      data8 = memory_read_m(memory, address);
+      data8 = memory->read8(address);
       snprintf(temp, sizeof(temp), "REG[X+0x%02x]", data8);
       strcat(instruction, temp);
       return 1;
     case OP_EXPR_S12:
-      offset = memory_read_m(memory, address);
+      offset = memory->read8(address);
       offset |= (opcode & 0xf) << 8;
       if ((offset & 0x800) != 0) { offset |= 0xf000; }
       snprintf(temp, sizeof(temp), "0x%04x (offset=%d)", address + 1 + offset, offset);
       strcat(instruction, temp);
       return 1;
     case OP_EXPR_S12_JUMP:
-      offset = memory_read_m(memory, address);
+      offset = memory->read8(address);
       offset |= (opcode & 0xf) << 8;
       if ((offset & 0x800) != 0) { offset |= 0xf000; }
       snprintf(temp, sizeof(temp), "0x%04x (offset=%d)", address + offset, offset);
       strcat(instruction, temp);
       return 1;
     case OP_EXPR_U16:
-      data16 = (memory_read_m(memory, address) << 8) |
-                memory_read_m(memory, address + 1);
+      data16 = (memory->read8(address) << 8) |
+                memory->read8(address + 1);
       snprintf(temp, sizeof(temp), "0x%04x", data16);
       strcat(instruction, temp);
       return 2;
@@ -113,9 +113,9 @@ int disasm_m8c(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  uint8_t opcode = memory_read_m(memory, address);
+  uint8_t opcode = memory->read8(address);
 
-  // memory_read_m(memory, address);
+  // memory->read8(address);
 
   n = 0;
 
@@ -169,8 +169,10 @@ void list_output_m8c(
   char temp[16];
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   count = disasm_m8c(
-    &asm_context->memory,
+    memory,
     start,
     instruction,
     sizeof(instruction),
@@ -181,7 +183,7 @@ void list_output_m8c(
 
   for (n = 0; n < count; n++)
   {
-    opcode = memory_read_m(&asm_context->memory, start + n);
+    opcode = memory->read8(start + n);
 
     snprintf(temp, sizeof(temp), "%02x ", opcode);
     strcat(hex, temp);
@@ -222,7 +224,7 @@ void disasm_range_m8c(
 
     for (n = 0; n < count; n++)
     {
-      opcode = memory_read_m(memory, start + n);
+      opcode = memory->read8(start + n);
 
       snprintf(temp, sizeof(temp), "%02x ", opcode);
       strcat(hex, temp);

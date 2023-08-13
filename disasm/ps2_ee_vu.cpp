@@ -15,8 +15,6 @@
 
 #include "disasm/ps2_ee_vu.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
-
 int disasm_ps2_ee_vu(
   Memory *memory,
   uint32_t flags,
@@ -41,7 +39,7 @@ int disasm_ps2_ee_vu(
 
   *cycles_min = -1;
   *cycles_max = -1;
-  opcode = memory_read32_m(memory, address);
+  opcode = memory->read32(address);
 
   if (is_lower == 0)
   {
@@ -231,15 +229,17 @@ void list_output_ps2_ee_vu(
   uint32_t opcode_upper;
   uint32_t opcode_lower;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
-    opcode_upper = memory_read32_m(&asm_context->memory, start + 4);
-    opcode_lower = memory_read32_m(&asm_context->memory, start);
+    opcode_upper = memory->read32(start + 4);
+    opcode_lower = memory->read32(start + 0);
 
     disasm_ps2_ee_vu(
-      &asm_context->memory,
+      memory,
       asm_context->flags,
       start + 4,
       instruction_upper,
@@ -249,7 +249,7 @@ void list_output_ps2_ee_vu(
       0);
 
     disasm_ps2_ee_vu(
-      &asm_context->memory,
+      memory,
       asm_context->flags,
       start,
       instruction_lower,
@@ -292,8 +292,8 @@ void disasm_range_ps2_ee_vu(
 
   while (start < end)
   {
-    opcode_upper = memory_read32_m(memory, start + 4);
-    opcode_lower = memory_read32_m(memory, start);
+    opcode_upper = memory->read32(start + 4);
+    opcode_lower = memory->read32(start);
 
     disasm_ps2_ee_vu(
       memory,

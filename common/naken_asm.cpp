@@ -411,7 +411,7 @@ int main(int argc, char *argv[])
 
     for (i = asm_context.memory.low_address; i <= asm_context.memory.high_address; i++)
     {
-      if (memory_debug_line(&asm_context, i) == -2)
+      if (asm_context.read_debug(i) == -2)
       {
         if (ch == 0)
         {
@@ -423,7 +423,7 @@ int main(int argc, char *argv[])
           ptr = 0;
         }
 
-        uint8_t data = memory_read(&asm_context, i);
+        uint8_t data = asm_context.memory_read(i);
         fprintf(asm_context.list, " %02x", data);
 
         if (data >= ' ' && data <= 120)

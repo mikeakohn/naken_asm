@@ -134,7 +134,7 @@ void test_define(const char *macro, uint8_t answer)
       break;
     }
 
-    i = memory_read_m(&asm_context.memory, 0);
+    i = asm_context.memory_read(0);
 
     if (i != answer)
     {

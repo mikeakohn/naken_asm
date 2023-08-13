@@ -72,7 +72,7 @@ void SimulateMips::reset()
 
     for (physical = low_address; physical <= high_address; physical++)
     {
-      memory_write_m(memory, virtual_address++, memory_read_m(memory, physical));
+      memory->write8(virtual_address++, memory->read8(physical));
     }
   }
 #endif
@@ -184,7 +184,7 @@ int SimulateMips::run(int max_cycles, int step)
       {
         int cycles_min, cycles_max;
 
-        uint32_t opcode = memory_read32_m(memory, current_pc);
+        uint32_t opcode = memory->read32(current_pc);
 
         int count = disasm_mips(
           memory,
@@ -380,7 +380,7 @@ int SimulateMips::execute_mips_i(uint32_t opcode)
       break;
     case 0x20: // lb
       address = reg[rs] + ((int16_t)(opcode & 0xffff));
-      reg[rt] = (int32_t)((int8_t)memory_read_m(memory, address));
+      reg[rt] = (int32_t)((int8_t)memory->read8(address));
       break;
     case 0x21: // lh
       address = reg[rs] + ((int16_t)(opcode & 0xffff));
@@ -389,7 +389,7 @@ int SimulateMips::execute_mips_i(uint32_t opcode)
         printf("Alignment error.  Reading address 0x%04x\n", address);
         return -2;
       }
-      reg[rt] = (int32_t)((int16_t)memory_read16_m(memory, address));
+      reg[rt] = (int32_t)((int16_t)memory->read16(address));
       break;
     case 0x23: // lw
       address = reg[rs] + ((int16_t)(opcode & 0xffff));
@@ -398,11 +398,11 @@ int SimulateMips::execute_mips_i(uint32_t opcode)
         printf("Alignment error.  Reading address 0x%04x\n", address);
         return -2;
       }
-      reg[rt] = memory_read32_m(memory, address);
+      reg[rt] = memory->read32(address);
       break;
     case 0x24: // lbu
       address = reg[rs] + ((int16_t)(opcode & 0xffff));
-      reg[rt] = memory_read_m(memory, address);
+      reg[rt] = memory->read8(address);
       break;
     case 0x25: // lhu
       address = reg[rs] + ((int16_t)(opcode & 0xffff));
@@ -411,11 +411,11 @@ int SimulateMips::execute_mips_i(uint32_t opcode)
         printf("Alignment error.  Reading address 0x%04x\n", address);
         return -2;
       }
-      reg[rt] = (int32_t)((uint16_t)memory_read16_m(memory, address));
+      reg[rt] = (int32_t)((uint16_t)memory->read16(address));
       break;
     case 0x28: // sb
       address = reg[rs] + ((int16_t)(opcode & 0xffff));
-      memory_write_m(memory, address, reg[rt] & 0xff);
+      memory->write8(address, reg[rt] & 0xff);
       break;
     case 0x29: // sh
       address = reg[rs] + ((int16_t)(opcode & 0xffff));
@@ -424,7 +424,7 @@ int SimulateMips::execute_mips_i(uint32_t opcode)
         printf("Alignment error.  Reading address 0x%04x\n", address);
         return -2;
       }
-      memory_write16_m(memory, address, reg[rt] & 0xffff);
+      memory->write16(address, reg[rt] & 0xffff);
       break;
     case 0x2b: // sw
       address = reg[rs] + ((int16_t)(opcode & 0xffff));
@@ -433,7 +433,7 @@ int SimulateMips::execute_mips_i(uint32_t opcode)
         printf("Alignment error.  Reading address 0x%04x\n", address);
         return -2;
       }
-      memory_write32_m(memory, address, reg[rt]);
+      memory->write32(address, reg[rt]);
       break;
     default:
       return -1;
@@ -444,7 +444,7 @@ int SimulateMips::execute_mips_i(uint32_t opcode)
 
 int SimulateMips::execute()
 {
-  uint32_t opcode = memory_read32_m(memory, pc);
+  uint32_t opcode = memory->read32(pc);
 
   int rs = (opcode >> 21) & 0x1f;
   int rt = (opcode >> 16) & 0x1f;

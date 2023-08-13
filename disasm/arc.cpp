@@ -16,13 +16,13 @@
 #include "disasm/arc.h"
 #include "table/arc.h"
 
-#define READ_RAM16(a) \
-  ((memory_read_m(memory, a + 0) << 8) | \
-   (memory_read_m(memory, a + 1)))
+//#define READ_RAM16(a) \
+//  ((memory_read_m(memory, a + 0) << 8) | \
+//   (memory_read_m(memory, a + 1)))
 
 #define READ_RAM32(a) \
-  (memory_read16_m(memory, a + 0) << 16) | \
-   memory_read16_m(memory, a + 2);
+  (memory->read16(a + 0) << 16) | \
+   memory->read16(a + 2);
 
 #define LIMM 0x3e
 
@@ -147,9 +147,9 @@ int disasm_arc(
   int n, a, c, b, q, f, aa, s;
   const char *cc = "??";
 
-  opcode16 = memory_read16_m(memory, address);
-  opcode = (memory_read16_m(memory, address) << 16) |
-            memory_read16_m(memory, address + 2);
+  opcode16 = memory->read16(address);
+  opcode = (memory->read16(address) << 16) |
+            memory->read16(address + 2);
 
   opcode_type = opcode16 >> 12;
   is_extended = (opcode16 >> 11) & 1;
@@ -654,7 +654,7 @@ int disasm_arc(
   }
 
 #if 0
-  opcode = memory_read16_m(memory, address);
+  opcode = memory->read16(address);
   c = map16_bit_register((opcode >> 5) & 0x7);
   b = map16_bit_register((opcode >> 8) & 0x7);
   a = map16_bit_register(opcode & 0x7);
@@ -673,12 +673,12 @@ void list_output_arc(AsmContext *asm_context, uint32_t start, uint32_t end)
   uint32_t opcode;
   int count, n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
-    Memory *memory = &asm_context->memory;
-
     count = disasm_arc(
       memory,
       start,
@@ -689,20 +689,20 @@ void list_output_arc(AsmContext *asm_context, uint32_t start, uint32_t end)
 
     if (count < 4)
     {
-      opcode = memory_read16_m(memory, start);
+      opcode = memory->read16(start);
       fprintf(asm_context->list, "0x%04x: %04x     %-40s\n", start, opcode, instruction);
     }
       else
     {
-      opcode = (memory_read16_m(memory, start) << 16) |
-                memory_read16_m(memory, start + 2);
+      opcode = (memory->read16(start) << 16) |
+                memory->read16(start + 2);
       fprintf(asm_context->list, "0x%04x: %08x %-40s\n", start, opcode, instruction);
     }
 
     for (n = 4; n < count; n = n + 4)
     {
-      opcode = (memory_read16_m(memory, start + n) << 16) |
-                memory_read16_m(memory, start + n + 2);
+      opcode = (memory->read16(start + n) << 16) |
+                memory->read16(start + n + 2);
 
       fprintf(asm_context->list, "        %08x\n", opcode);
     }
@@ -740,21 +740,21 @@ void disasm_range_arc(
 
     if (count < 4)
     {
-      opcode = memory_read16_m(memory, start);
+      opcode = memory->read16(start);
       printf("0x%04x: %04x     %-40s\n", start, opcode, instruction);
     }
       else
     {
-      opcode = (memory_read16_m(memory, start) << 16) |
-                memory_read16_m(memory, start + 2);
+      opcode = (memory->read16(start) << 16) |
+                memory->read16(start + 2);
 
       printf("0x%04x: %08x %-40s\n", start, opcode, instruction);
     }
 
     for (n = 4; n < count; n = n + 4)
     {
-      opcode = (memory_read16_m(memory, start + n) << 16) |
-                memory_read16_m(memory, start + n + 2);
+      opcode = (memory->read16(start + n) << 16) |
+                memory->read16(start + n + 2);
 
       printf("        %08x\n", opcode);
     }

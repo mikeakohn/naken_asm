@@ -131,7 +131,7 @@ static int parse_index_w(
     return -1;
   }
 
-  if (memory_read_m(&asm_context->memory, asm_context->address) == 0xc4)
+  if (asm_context->memory_read(asm_context->address) == 0xc4)
   {
     wide = 1;
   }

@@ -43,6 +43,33 @@ public:
   void print_info(FILE *out);
   void set_cpu(int index);
 
+  int read_debug(uint32_t address)
+  {
+    return memory.read_debug(address);
+  }
+
+  void write_debug(uint32_t address, int data)
+  {
+    memory.write_debug(address, data);
+  }
+
+  uint8_t memory_read(uint32_t address) { return memory.read8(address); }
+
+  void memory_write(uint32_t address, uint8_t data)
+  {
+    memory.write8(address, data);
+  }
+
+  void memory_write(uint32_t address, uint8_t data, int line)
+  {
+    memory.write(address, data, line);
+  }
+
+  void memory_write_inc(uint8_t data, int line)
+  {
+    memory.write(address++, data, line);
+  }
+
   Memory memory;
   Tokens tokens;
   Symbols symbols;

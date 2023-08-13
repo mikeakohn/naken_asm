@@ -17,7 +17,7 @@
 #include "table/tms1000.h"
 
 #define READ_RAM(a) \
-  memory_read_m(memory, (a & 0xfc0) | tms1000_address_to_lsfr[a & 0x3f])
+  memory->read8((a & 0xfc0) | tms1000_address_to_lsfr[a & 0x3f])
 
 #if 0
 int get_cycle_count_tms1000(uint16_t opcode)

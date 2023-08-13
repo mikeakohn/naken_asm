@@ -17,11 +17,11 @@
 #include "disasm/msp430.h"
 #include "table/msp430.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
+#define READ_RAM(a) memory->read8(a)
 
 #define READ_RAM16(a) \
-  (memory_read_m(memory, a + 1) << 8) | \
-   memory_read_m(memory, a)
+  (memory->read8(a + 1) << 8) | \
+   memory->read8(a + 0)
 
 static const char *regs[] =
 {
@@ -974,8 +974,8 @@ static void list_output_msp430_both(
         &cycles_max);
     }
 
-    num = memory_read(asm_context, start) |
-          memory_read(asm_context, start + 1) << 8;
+    num = asm_context->memory_read(start) |
+          asm_context->memory_read(start + 1) << 8;
 
     if (cycles_min < 0)
     {
@@ -991,8 +991,8 @@ static void list_output_msp430_both(
 
     while (count > 0)
     {
-      num = memory_read(asm_context, start) |
-            memory_read(asm_context, start + 1) << 8;
+      num = asm_context->memory_read(start) |
+            asm_context->memory_read(start + 1) << 8;
       fprintf(asm_context->list, "0x%04x: 0x%04x\n", start, num);
       count -= 2;
       start += 2;

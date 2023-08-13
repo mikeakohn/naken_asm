@@ -33,7 +33,7 @@ int disasm_sparc(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = memory_read32_m(memory, address);
+  opcode = memory->read32(address);
 
   n = 0;
 
@@ -152,14 +152,16 @@ void list_output_sparc(
   char instruction[128];
   uint32_t opcode;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
-    opcode = memory_read32_m(&asm_context->memory, start);
+    opcode = memory->read32(start);
 
     disasm_sparc(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -204,7 +206,7 @@ void disasm_range_sparc(
 
   while (start <= end)
   {
-    opcode = memory_read32_m(memory, start);
+    opcode = memory->read32(start);
 
     count = disasm_sparc(
       memory,

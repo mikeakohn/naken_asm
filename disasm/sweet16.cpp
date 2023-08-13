@@ -32,7 +32,7 @@ int disasm_sweet16(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = memory_read_m(memory, address);
+  opcode = memory->read8(address);
 
   n = 0;
 
@@ -59,15 +59,15 @@ int disasm_sweet16(
         }
         case SWEET16_OP_EA:
         {
-          int8_t offset = memory_read_m(memory, address + 1);
+          int8_t offset = memory->read8(address + 1);
           snprintf(instruction, length, "%s 0x%02x (offset=%d)",
              table_sweet16[n].instr, address + 2 + offset, offset);
           return 2;
         }
         case SWEET16_OP_REG_VALUE:
         {
-          data = ((memory_read_m(memory, address + 2) << 8) |
-                   memory_read_m(memory, address + 1));
+          data = ((memory->read8(address + 2) << 8) |
+                   memory->read8(address + 1));
           snprintf(instruction, length, "%s r%d, 0x%04x",
             table_sweet16[n].instr, opcode & 0xf, data);
           return 3;
@@ -100,25 +100,27 @@ void list_output_sweet16(
   int count;
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_sweet16(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read_m(&asm_context->memory, start);
+    opcode = memory->read8(start);
     snprintf(temp, sizeof(temp), "%02x", opcode);
 
     for (n = 1; n < count; n++)
     {
       char temp2[4];
-      snprintf(temp2, sizeof(temp2), " %02x", memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp2, sizeof(temp2), " %02x", memory->read8(start + n));
       strcat(temp, temp2);
     }
 
@@ -154,7 +156,7 @@ void disasm_range_sweet16(
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read16_m(memory, start);
+    opcode = memory->read16(start);
 
     printf("0x%04x: 0x%04x %-40s", start / 2, opcode, instruction);
 

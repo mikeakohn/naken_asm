@@ -222,15 +222,15 @@ static void add_bin24(AsmContext *asm_context, uint32_t b)
 
   if (asm_context->memory.endian == ENDIAN_LITTLE)
   {
-    memory_write_inc(asm_context, b & 0xff, line);
-    memory_write_inc(asm_context, (b >> 8) & 0xff, line);
-    memory_write_inc(asm_context, (b >> 16) & 0xff, line);
+    asm_context->memory_write_inc(b & 0xff, line);
+    asm_context->memory_write_inc((b >> 8) & 0xff, line);
+    asm_context->memory_write_inc((b >> 16) & 0xff, line);
   }
     else
   {
-    memory_write_inc(asm_context, (b >> 16) & 0xff, line);
-    memory_write_inc(asm_context, (b >> 8) & 0xff, line);
-    memory_write_inc(asm_context, b & 0xff, line);
+    asm_context->memory_write_inc((b >> 16) & 0xff, line);
+    asm_context->memory_write_inc((b >> 8) & 0xff, line);
+    asm_context->memory_write_inc(b & 0xff, line);
   }
 }
 

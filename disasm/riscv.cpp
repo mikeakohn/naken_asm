@@ -16,12 +16,6 @@
 #include "disasm/riscv.h"
 #include "table/riscv.h"
 
-#define READ_RAM(a) \
-  (memory_read_m(memory, a + 3) << 24) | \
-  (memory_read_m(memory, a + 2) << 16) | \
-  (memory_read_m(memory, a + 1) << 8) | \
-   memory_read_m(memory, a)
-
 static const char *rm_string[] =
 {
   ", rne",
@@ -65,7 +59,7 @@ int disasm_riscv(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = READ_RAM(address);
+  opcode = memory->read32(address);
 
   n = 0;
   while (table_riscv[n].instr != NULL)
@@ -234,14 +228,16 @@ void list_output_riscv(
   char instruction[128];
   uint32_t opcode;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
-    opcode = memory_read32_m(&asm_context->memory, start);
+    opcode = memory->read32(start);
 
     disasm_riscv(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -287,7 +283,7 @@ void disasm_range_riscv(
 
   while (start <= end)
   {
-    opcode = memory_read32_m(memory, start);
+    opcode = memory->read32(start);
 
     count = disasm_riscv(
       memory,

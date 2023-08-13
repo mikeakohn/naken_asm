@@ -16,12 +16,6 @@
 #include "disasm/thumb.h"
 #include "table/thumb.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
-
-#define READ_RAM16(a) \
-  (memory_read_m(memory, a)) | \
-  (memory_read_m(memory, a + 1) << 8)
-
 static void get_rlist(char *s, int rlist)
 {
   int i, comma;
@@ -85,7 +79,7 @@ int disasm_thumb(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = READ_RAM16(address);
+  opcode = memory->read16(address);
 
   n = 0;
   while (table_thumb[n].instr != NULL)
@@ -145,7 +139,7 @@ int disasm_thumb(
           return 2;
         case OP_PC_RELATIVE_LOAD:
           rd = (opcode >> 8) & 0x7;
-          offset=(opcode & 0xff) << 2;
+          offset = (opcode & 0xff) << 2;
           snprintf(instruction, length, "%s r%d, [PC, #%d]  (0x%x)", table_thumb[n].instr, rd, offset, ((address + 4) & 0xfffffffc) + offset);
           return 2;
         case OP_LOAD_STORE:
@@ -221,16 +215,19 @@ int disasm_thumb(
           snprintf(instruction, length, "%s 0x%02x", table_thumb[n].instr, offset);
           return 2;
         case OP_UNCONDITIONAL_BRANCH:
-          offset=opcode&0x3ff;
-          if ((offset&0x200)!=0)
+          offset = opcode & 0x3ff;
+          if ((offset & 0x200) != 0)
           {
-            offset=-((offset^0x3ff)+1);
+            offset = -((offset ^ 0x3ff) + 1);
           }
+
           offset <<= 1;
-          snprintf(instruction, length, "%s 0x%04x (%d)", table_thumb[n].instr, address+4+offset, offset);
+          snprintf(instruction, length, "%s 0x%04x (%d)",
+            table_thumb[n].instr, address + 4 + offset, offset);
+
           return 2;
         case OP_LONG_BRANCH_WITH_LINK:
-          offset = READ_RAM16(address + 2);
+          offset = memory->read16(address + 2);
 
           if ((offset & 0xf800) != 0xf800)
           {
@@ -267,7 +264,7 @@ int disasm_thumb(
           snprintf(instruction, length, "%s r%d, 0x%04x", table_thumb[n].instr, (opcode >> 8) & 0x7, address + 4 + immediate);
           return 2;
         case OP_MRS:
-          immediate = opcode = READ_RAM16(address + 2);
+          immediate = memory->read16(address + 2);
           if ((immediate & 0xf000) != 0x8000)
           {
             n++;
@@ -278,7 +275,7 @@ int disasm_thumb(
           snprintf(instruction, length, "%s r%d, %s", table_thumb[n].instr, rd, temp);
           return 4;
         case OP_MSR:
-          immediate = opcode = READ_RAM16(address + 2);
+          immediate = memory->read16(address + 2);
           if ((immediate & 0xff00) != 0x8800)
           {
             n++;
@@ -315,12 +312,14 @@ void list_output_thumb(
   char instruction[128];
   int count;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_thumb(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -329,20 +328,21 @@ void list_output_thumb(
 
     fprintf(asm_context->list, "0x%04x: %04x  %-40s cycles: ",
       start,
-      memory_read_m(&asm_context->memory, start) |
-     (memory_read_m(&asm_context->memory, start + 1) << 8),
+      memory->read16(start),
       instruction);
 
     if (cycles_min == cycles_max)
-    { fprintf(asm_context->list, "%d\n", cycles_min); }
+    {
+      fprintf(asm_context->list, "%d\n", cycles_min);
+    }
       else
-    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    {
+      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+    }
 
     if (count == 4)
     {
-      fprintf(asm_context->list, "        %04x\n",
-        memory_read_m(&asm_context->memory, start + 2) |
-       (memory_read_m(&asm_context->memory, start + 3) << 8));
+      fprintf(asm_context->list, "        %04x\n", memory->read16(start + 2));
     }
 
     start += count;
@@ -376,21 +376,21 @@ void disasm_range_thumb(
 
     if (cycles_min < 1)
     {
-      printf("0x%04x: %04x  %-40s ?\n", start, READ_RAM16(start), instruction);
+      printf("0x%04x: %04x  %-40s ?\n", start, memory->read16(start), instruction);
     }
       else
     if (cycles_min == cycles_max)
     {
-      printf("0x%04x: %04x  %-40s %d\n", start, READ_RAM16(start), instruction, cycles_min);
+      printf("0x%04x: %04x  %-40s %d\n", start, memory->read16(start), instruction, cycles_min);
     }
       else
     {
-      printf("0x%04x: %04x  %-40s %d-%d\n", start, READ_RAM16(start), instruction, cycles_min, cycles_max);
+      printf("0x%04x: %04x  %-40s %d-%d\n", start, memory->read16(start), instruction, cycles_min, cycles_max);
     }
 
     if (count == 4)
     {
-      printf("        %04x\n", READ_RAM16(start+2));
+      printf("        %04x\n", memory->read16(start+2));
     }
 
     start += count;

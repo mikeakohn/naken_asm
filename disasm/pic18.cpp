@@ -32,7 +32,7 @@ int disasm_pic18(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = memory_read16_m(memory, address);
+  opcode = memory->read16(address);
 
   for (n = 0; table_pic18[n].instr != NULL; n++)
   {
@@ -77,7 +77,7 @@ int disasm_pic18(
         case OP_FS_FD:
         {
           f = opcode & 0xfff;
-          opcode = memory_read16_m(memory, address + 2);
+          opcode = memory->read16(address + 2);
 
           snprintf(instruction, length, "%s 0x%03x, 0x%03x",
             table_pic18[n].instr,
@@ -128,7 +128,7 @@ int disasm_pic18(
         {
           s = (opcode >> 8) & 1;
           value = opcode & 0xff;
-          opcode = memory_read16_m(memory, address + 2);
+          opcode = memory->read16(address + 2);
           value |= (opcode & 0xfff) << 8;
 
           snprintf(instruction, length, "%s 0x%04x%s",
@@ -141,7 +141,7 @@ int disasm_pic18(
         case OP_GOTO:
         {
           value = opcode & 0xff;
-          opcode = memory_read16_m(memory, address + 2);
+          opcode = memory->read16(address + 2);
           value |= (opcode & 0xfff) << 8;
 
           snprintf(instruction, length, "%s 0x%04x",
@@ -170,7 +170,7 @@ int disasm_pic18(
         {
           f = (opcode >> 4) & 0x3;
           value = opcode & 0xf;
-          opcode = memory_read16_m(memory, address + 2);
+          opcode = memory->read16(address + 2);
           value |= (opcode & 0xff) << 4;
 
           snprintf(instruction, length, "%s %d, 0x%02x",
@@ -210,19 +210,21 @@ void list_output_pic18(
   char instruction[128];
   int count;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_pic18(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read16_m(&asm_context->memory, start);
+    opcode = memory->read16(start);
 
     fprintf(asm_context->list, "0x%04x: 0x%04x %-40s cycles: ",
       start, opcode, instruction);
@@ -241,7 +243,7 @@ void list_output_pic18(
       fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
     }
 
-    opcode = memory_read16_m(&asm_context->memory, start + 2);
+    opcode = memory->read16(start + 2);
 
     if (count > 2)
     {
@@ -278,7 +280,7 @@ void disasm_range_pic18(
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read16_m(memory, start);
+    opcode = memory->read16(start);
 
     printf("0x%04x: 0x%04x %-40s ", start, opcode, instruction);
 

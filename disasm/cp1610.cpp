@@ -33,7 +33,7 @@ int disasm_cp1610(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = memory_read16_m(memory, address);
+  opcode = memory->read16(address);
 
   for (n = 0; table_cp1610[n].instr != NULL; n++)
   {
@@ -79,7 +79,7 @@ int disasm_cp1610(
         }
         case CP1610_OP_IMMEDIATE_REG:
         {
-          data = memory_read16_m(memory, address + 2);
+          data = memory->read16(address + 2);
           r = opcode & 0x7;
 
           snprintf(instruction, length, "%s #0x%04x, r%d",
@@ -89,7 +89,7 @@ int disasm_cp1610(
         }
         case CP1610_OP_REG_IMMEDIATE:
         {
-          data = memory_read16_m(memory, address + 2);
+          data = memory->read16(address + 2);
           r = opcode & 0x7;
 
           snprintf(instruction, length, "%s r%d, #0x%04x",
@@ -99,7 +99,7 @@ int disasm_cp1610(
         }
         case CP1610_OP_ADDRESS_REG:
         {
-          data = memory_read16_m(memory, address + 2);
+          data = memory->read16(address + 2);
           r = opcode & 0x7;
 
           snprintf(instruction, length, "%s 0x%04x, r%d",
@@ -109,7 +109,7 @@ int disasm_cp1610(
         }
         case CP1610_OP_REG_ADDRESS:
         {
-          data = memory_read16_m(memory, address + 2);
+          data = memory->read16(address + 2);
           r = opcode & 0x7;
 
           snprintf(instruction, length, "%s r%d, 0x%04x",
@@ -130,7 +130,7 @@ int disasm_cp1610(
         case CP1610_OP_BRANCH:
         {
           z = (opcode >> 5) & 1;
-          data = memory_read16_m(memory, address + 2);
+          data = memory->read16(address + 2);
 
           if (z == 0)
           {
@@ -153,8 +153,8 @@ int disasm_cp1610(
         }
         case CP1610_OP_JUMP:
         {
-          opcode = memory_read16_m(memory, address + 2);
-          data = memory_read16_m(memory, address + 4);
+          opcode = memory->read16(address + 2);
+          data = memory->read16(address + 4);
 
           int bb = (opcode >> 8) & 0x3;
           int ii = opcode & 0x3;
@@ -221,26 +221,28 @@ void list_output_cp1610(
   int count;
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_cp1610(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read16_m(&asm_context->memory, start);
+    opcode = memory->read16(start);
 
     fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: %d-%d\n",
             start / 2, opcode, instruction, cycles_min, cycles_max);
 
     for (n = 2; n < count; n = n + 2)
     {
-      opcode = memory_read16_m(&asm_context->memory, start + n);
+      opcode = memory->read16(start + n);
 
       fprintf(asm_context->list, "0x%04x: %04x\n", (start + n) / 2, opcode);
     }
@@ -276,14 +278,14 @@ void disasm_range_cp1610(
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read16_m(memory, start);
+    opcode = memory->read16(start);
 
     printf("0x%04x: %04x %-40s %d-%d\n",
       start / 2, opcode, instruction, cycles_min, cycles_max);
 
     for (n = 2; n < count; n = n + 2)
     {
-      opcode = memory_read16_m(memory, start + n);
+      opcode = memory->read16(start + n);
       printf("0x%04x: %04x\n", (start + n) / 2, opcode);
     }
 

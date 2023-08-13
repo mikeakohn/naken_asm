@@ -16,9 +16,6 @@
 #include "disasm/xtensa.h"
 #include "table/xtensa.h"
 
-//#define READ_RAM(a) memory_read_m(memory, a)
-//#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
-
 static int disasm_xtensa_le(
   Memory *memory,
   uint32_t address,
@@ -31,12 +28,12 @@ static int disasm_xtensa_le(
   int at, as, ar, ft, fs, fr, bt, bs, br, i, x, y;
   int n;
 
-  opcode = memory_read_m(memory, address) |
-          (memory_read_m(memory, address + 1) << 8) |
-          (memory_read_m(memory, address + 2) << 16);
+  opcode = memory->read8(address + 0) |
+          (memory->read8(address + 1) << 8) |
+          (memory->read8(address + 2) << 16);
 
-  opcode16 = memory_read_m(memory, address) |
-            (memory_read_m(memory, address + 1) << 8);
+  opcode16 = memory->read8(address + 0) |
+            (memory->read8(address + 1) << 8);
 
   n = 0;
 
@@ -522,12 +519,12 @@ static int disasm_xtensa_be(
   int at, as, ar, ft, fs, fr, bt, bs, br, i, x, y;
   int n;
 
-  opcode = memory_read_m(memory, address + 2) |
-          (memory_read_m(memory, address + 1) << 8) |
-          (memory_read_m(memory, address) << 16);
+  opcode = memory->read8(address + 2) |
+          (memory->read8(address + 1) << 8) |
+          (memory->read8(address + 0) << 16);
 
-  opcode16 = memory_read_m(memory, address + 1) |
-            (memory_read_m(memory, address) << 8);
+  opcode16 = memory->read8(address + 1) |
+            (memory->read8(address + 0) << 8);
 
   n = 0;
 
@@ -1046,14 +1043,14 @@ static void get_bytes(
     if (memory->endian == ENDIAN_LITTLE)
     {
       snprintf(bytes, length, "  %02x%02x",
-        memory_read_m(memory, address + 1),
-        memory_read_m(memory, address + 0));
+        memory->read8(address + 1),
+        memory->read8(address + 0));
     }
       else
     {
       snprintf(bytes, length, "  %02x%02x",
-        memory_read_m(memory, address + 0),
-        memory_read_m(memory, address + 1));
+        memory->read8(address + 0),
+        memory->read8(address + 1));
     }
   }
     else
@@ -1061,16 +1058,16 @@ static void get_bytes(
     if (memory->endian == ENDIAN_LITTLE)
     {
       snprintf(bytes, length, "%02x%02x%02x",
-        memory_read_m(memory, address + 2),
-        memory_read_m(memory, address + 1),
-        memory_read_m(memory, address + 0));
+        memory->read8(address + 2),
+        memory->read8(address + 1),
+        memory->read8(address + 0));
     }
       else
     {
       snprintf(bytes, length, "%02x%02x%02x",
-        memory_read_m(memory, address + 0),
-        memory_read_m(memory, address + 1),
-        memory_read_m(memory, address + 2));
+        memory->read8(address + 0),
+        memory->read8(address + 1),
+        memory->read8(address + 2));
     }
   }
 }

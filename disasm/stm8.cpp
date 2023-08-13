@@ -16,16 +16,21 @@
 #include "disasm/stm8.h"
 #include "table/stm8.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) ((memory_read_m(memory, a)<<8)|(memory_read_m(memory, a+1)))
-#define READ_RAM24(a) ((memory_read_m(memory, a)<<16)|(memory_read_m(memory, a+1)<<8)|(memory_read_m(memory, a+2)))
+#define READ_RAM16(a) \
+  ((memory->read8(a) << 8) | \
+   (memory->read8(a + 1)))
+
+#define READ_RAM24(a) \
+  ((memory->read8(a + 0) << 16) | \
+   (memory->read8(a + 1) << 8)  | \
+   (memory->read8(a + 2)))
 
 #define SINGLE_OPCODE(pre, op, cycles, size, instr) \
-  if (opcode==op && prefix==pre) \
+  if (opcode == op && prefix == pre) \
   { \
     strcpy(instruction, instr); \
-    *cycles_min=cycles; \
-    *cycles_max=cycles; \
+    *cycles_min = cycles; \
+    *cycles_max = cycles; \
     return size; \
   }
 
@@ -103,12 +108,12 @@ int disasm_stm8(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = READ_RAM(address);
+  opcode = memory->read8(address);
 
   if (opcode == 0x90 || opcode == 0x91 || opcode == 0x92 || opcode == 0x72)
   {
     prefix = opcode;
-    opcode = READ_RAM(address + count);
+    opcode = memory->read8(address + count);
     count++;
   }
 
@@ -169,7 +174,7 @@ int disasm_stm8(
     case OP_NONE:
       break;
     case OP_NUMBER8:
-      snprintf(temp, sizeof(temp), "#$%02x", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "#$%02x", memory->read8(address + count));
       strcat(instr, temp);
       count++;
       break;
@@ -179,7 +184,7 @@ int disasm_stm8(
       count += 2;
       break;
     case OP_ADDRESS8:
-      snprintf(temp, sizeof(temp), "$%02x", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "$%02x", memory->read8(address + count));
       strcat(instr, temp);
       count++;
       break;
@@ -197,7 +202,7 @@ int disasm_stm8(
       strcat(instr, "(X)");
       break;
     case OP_OFFSET8_INDEX_X:
-      snprintf(temp, sizeof(temp), "($%02x,X)", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "($%02x,X)", memory->read8(address + count));
       strcat(instr, temp);
       count++;
       break;
@@ -215,7 +220,7 @@ int disasm_stm8(
       strcat(instr, "(Y)");
       break;
     case OP_OFFSET8_INDEX_Y:
-      snprintf(temp, sizeof(temp), "($%02x,Y)", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "($%02x,Y)", memory->read8(address + count));
       strcat(instr, temp);
       count++;
       break;
@@ -230,12 +235,12 @@ int disasm_stm8(
       count += 3;
       break;
     case OP_OFFSET8_INDEX_SP:
-      snprintf(temp, sizeof(temp), "($%02x,SP)", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "($%02x,SP)", memory->read8(address + count));
       strcat(instr, temp);
       count++;
       break;
     case OP_INDIRECT8:
-      snprintf(temp, sizeof(temp), "[$%02x.w]", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "[$%02x.w]", memory->read8(address + count));
       strcat(instr, temp);
       count++;
       break;
@@ -250,7 +255,7 @@ int disasm_stm8(
       count += 2;
       break;
     case OP_INDIRECT8_X:
-      snprintf(temp, sizeof(temp), "([$%02x.w],X)", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "([$%02x.w],X)", memory->read8(address + count));
       strcat(instr, temp);
       count++;
       break;
@@ -265,7 +270,7 @@ int disasm_stm8(
       count += 2;
       break;
     case OP_INDIRECT8_Y:
-      snprintf(temp, sizeof(temp), "([$%02x.w],Y)", READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "([$%02x.w],Y)", memory->read8(address + count));
       strcat(instr, temp);
       count++;
       break;
@@ -280,13 +285,13 @@ int disasm_stm8(
       count += 2;
       break;
     case OP_ADDRESS_BIT_LOOP:
-      offset = (int8_t)READ_RAM(address + count + 2);
+      offset = (int8_t)memory->read8(address + count + 2);
       snprintf(temp, sizeof(temp), "$%x, #%d, $%x  (offset=%d)", READ_RAM16(address + count), (opcode & 0x0e) >> 1, (address + count + 3) + offset, offset);
       strcat(instr, temp);
       count += 3;
       break;
     case OP_RELATIVE:
-      offset = (int8_t)READ_RAM(address + count);
+      offset = (int8_t)memory->read8(address + count);
       snprintf(temp, sizeof(temp), "$%x  (offset=%d)", (address + count + 1) + offset, offset);
       strcat(instr, temp);
       count++;
@@ -295,12 +300,12 @@ int disasm_stm8(
     case OP_TWO_REGISTERS:
       break;
     case OP_ADDRESS16_NUMBER8:
-      snprintf(temp, sizeof(temp), "$%x, #$%02x", READ_RAM16(address + count + 1), READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "$%x, #$%02x", READ_RAM16(address + count + 1), memory->read8(address + count));
       strcat(instr, temp);
       count += 3;
       break;
     case OP_ADDRESS8_ADDRESS8:
-      snprintf(temp, sizeof(temp), "$%x, $%02x", READ_RAM(address + count + 1), READ_RAM(address + count));
+      snprintf(temp, sizeof(temp), "$%x, $%02x", memory->read8(address + count + 1), memory->read8(address + count));
       strcat(instr, temp);
       count += 2;
       break;
@@ -337,12 +342,14 @@ void list_output_stm8(
   char instruction[128];
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_stm8(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -355,7 +362,7 @@ void list_output_stm8(
     {
       if (n < count)
       {
-        fprintf(asm_context->list, " %02x", memory_read_m(&asm_context->memory, start + n));
+        fprintf(asm_context->list, " %02x", memory->read8(start + n));
       }
         else
       {
@@ -406,7 +413,7 @@ void disasm_range_stm8(
     {
       if (n < count)
       {
-        printf(" %02x", memory_read_m(memory, start + n));
+        printf(" %02x", memory->read8(start + n));
       }
         else
       {

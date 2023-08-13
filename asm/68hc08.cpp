@@ -79,7 +79,7 @@ int parse_instruction_68hc08(AsmContext *asm_context, char *instr)
         {
           ignore_operand(asm_context);
           operands[operand_count].use_16_bit = 1;
-          memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
+          asm_context->memory_write(asm_context->address, 1, asm_context->tokens.line);
         }
           else
         {
@@ -93,7 +93,7 @@ int parse_instruction_68hc08(AsmContext *asm_context, char *instr)
       if (asm_context->pass == 2)
       {
         operands[operand_count].use_16_bit =
-          memory_read(asm_context, asm_context->address);
+          asm_context->memory_read(asm_context->address);
       }
 
       if (num < -32768 || num > 0xffff)
@@ -141,7 +141,7 @@ int parse_instruction_68hc08(AsmContext *asm_context, char *instr)
         {
           ignore_operand(asm_context);
           operands[operand_count].use_16_bit = 1;
-          memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
+          asm_context->memory_write(asm_context->address, 1, asm_context->tokens.line);
         }
           else
         {
@@ -155,7 +155,7 @@ int parse_instruction_68hc08(AsmContext *asm_context, char *instr)
       if (asm_context->pass == 2)
       {
         operands[operand_count].use_16_bit =
-          memory_read(asm_context, asm_context->address);
+          asm_context->memory_read(asm_context->address);
       }
 
       operands[operand_count].value = num;

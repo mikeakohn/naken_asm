@@ -27,8 +27,8 @@ int disasm_copper(
   uint16_t opcode;
   uint16_t data;
 
-  opcode = memory_read16_m(memory, address);
-  data = memory_read16_m(memory, address + 2);
+  opcode = memory->read16(address);
+  data = memory->read16(address + 2);
 
   // FIXME: Not sure if the cycle counts is right..
 
@@ -84,18 +84,20 @@ void list_output_copper(
   char instruction[128];
   int opcode, data;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   disasm_copper(
-    &asm_context->memory,
+    memory,
     start,
     instruction,
     sizeof(instruction),
     &cycles_min,
     &cycles_max);
 
-  opcode = memory_read16_m(&asm_context->memory, start);
-  data = memory_read16_m(&asm_context->memory, start + 2);
+  opcode = memory->read16(start);
+  data = memory->read16(start + 2);
 
   if (cycles_min < 0)
   {
@@ -138,8 +140,8 @@ void disasm_range_copper(
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read16_m(memory, start);
-    data = memory_read16_m(memory, start);
+    opcode = memory->read16(start);
+    data = memory->read16(start);
 
     if (cycles_min < 1)
     {

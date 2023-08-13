@@ -16,11 +16,8 @@
 #include "disasm/6809.h"
 #include "table/6809.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
-
-#define READ_RAM16(a) \
-  (memory_read_m(memory, a) << 8) | \
-   memory_read_m(memory, a + 1)
+#define READ_RAM(a)   memory->read8(a)
+#define READ_RAM16(a) memory->read16(a)
 
 #define ADD_CYCLES(a) *cycles_min += a; *cycles_max += a;
 
@@ -516,12 +513,14 @@ void list_output_6809(
   int count;
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_6809(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -532,8 +531,7 @@ void list_output_6809(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      snprintf(temp, sizeof(temp), "%02x ",
-        memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp, sizeof(temp), "%02x ", memory->read8(start + n));
       strcat(bytes, temp);
     }
 

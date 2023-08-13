@@ -29,44 +29,47 @@ public:
   Memory();
   ~Memory();
 
-  void set_size(int size)
-  {
-    if (pages == NULL) { this->size = size; }
-  }
+  int get_page_size() { return PAGE_SIZE; }
+  void clear();
+  bool in_use(uint32_t address);
+  uint32_t get_page_address_min(uint32_t address);
+  uint32_t get_page_address_max(uint32_t address);
+
+  uint8_t read8(uint32_t address);
+  uint16_t read16(uint32_t address);
+  uint32_t read32(uint32_t address);
+  void write8(uint32_t address, uint8_t data);
+  void write16(uint32_t address, uint16_t data);
+  void write32(uint32_t address, uint32_t data);
+
+  int read_debug(uint32_t address);
+  void write_debug(uint32_t address, int line);
+  void write(uint32_t address, uint8_t data, int line);
+
+  void dump();
 
   MemoryPage *pages;
   uint32_t low_address;
   uint32_t high_address;
   uint32_t entry_point;
   int endian;
-  uint32_t size;
 };
 
-struct AsmContext;
+class AsmContext;
 
-//void memory_init(Memory *memory, uint32_t size);
-//void memory_free(Memory *memory);
-void memory_clear(Memory *memory);
-int memory_in_use(Memory *memory, uint32_t address);
-int memory_get_page_address_min(Memory *memory, uint32_t address);
-int memory_get_page_address_max(Memory *memory, uint32_t address);
-int memory_page_size(Memory *memory);
-uint8_t memory_read(AsmContext *asm_context, uint32_t address);
-uint8_t memory_read_inc(AsmContext *asm_context);
-void memory_write(AsmContext *asm_context, uint32_t address, uint8_t data, int line);
-void memory_write_inc(AsmContext *asm_context, uint8_t data, int line);
-int memory_debug_line(AsmContext *asm_context, uint32_t address);
-void memory_debug_line_set(AsmContext *asm_context, uint32_t address, int value);
-int memory_debug_line_m(Memory *memory, uint32_t address);
-void memory_debug_line_set_m(Memory *memory, uint32_t address, int value);
-void memory_dump(Memory *memory);
+//uint8_t memory_read(AsmContext *asm_context, uint32_t address);
+//uint8_t memory_read_inc(AsmContext *asm_context);
+//void memory_write(AsmContext *asm_context, uint32_t address, uint8_t data, int line);
+//void memory_write_inc(AsmContext *asm_context, uint8_t data, int line);
 
+#if 0
 uint8_t memory_read_m(Memory *memory, uint32_t address);
 uint16_t memory_read16_m(Memory *memory, uint32_t address);
 uint32_t memory_read32_m(Memory *memory, uint32_t address);
 void memory_write_m(Memory *memory, uint32_t address, uint8_t data);
 void memory_write16_m(Memory *memory, uint32_t address, uint16_t data);
 void memory_write32_m(Memory *memory, uint32_t address, uint32_t data);
+#endif
 
 #endif
 

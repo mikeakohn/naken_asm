@@ -16,7 +16,7 @@
 #include "disasm/8051.h"
 #include "table/8051.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
+#define READ_RAM(a) memory->read8(a)
 
 int disasm_8051(
   Memory *memory,
@@ -172,12 +172,14 @@ void list_output_8051(
   char temp2[4];
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_8051(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -187,19 +189,11 @@ void list_output_8051(
     temp[0] = 0;
     for (n = 0; n < count; n++)
     {
-      snprintf(temp2, sizeof(temp2), "%02x ",
-        memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp2, sizeof(temp2), "%02x ", memory->read8(start + n));
       strcat(temp, temp2);
     }
 
     fprintf(asm_context->list, "0x%04x: %-10s %-40s cycles:", start, temp, instruction);
-
-#if 0
-    if (cycles_min == cycles_max)
-    { fprintf(asm_context->list, "%d\n", cycles_min); }
-      else
-    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
-#endif
 
     start += count;
   }
@@ -237,7 +231,7 @@ void disasm_range_8051(
 
     for (n = 0; n < count; n++)
     {
-      snprintf(temp2, sizeof(temp2), "%02x ", memory_read_m(memory, start+n));
+      snprintf(temp2, sizeof(temp2), "%02x ", memory->read8(start + n));
       strcat(temp, temp2);
     }
 

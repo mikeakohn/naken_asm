@@ -17,10 +17,10 @@
 #include "table/super_fx.h"
 
 #define READ_RAM32(a) \
-  (memory_read_m(memory, a + 3) << 24) | \
-  (memory_read_m(memory, a + 2) << 16) | \
-  (memory_read_m(memory, a + 1) << 8) | \
-   memory_read_m(memory, a + 0)
+  (memory->read8(a + 3) << 24) | \
+  (memory->read8(a + 2) << 16) | \
+  (memory->read8(a + 1) << 8) | \
+   memory->read8(a + 0)
 
 int disasm_super_fx(
   Memory *memory,
@@ -36,7 +36,7 @@ int disasm_super_fx(
   int8_t offset;
   int count, alt;
 
-  opcode = memory_read_m(memory, address);
+  opcode = memory->read8(address);
 
   if (opcode == 0x3d)
   {
@@ -62,7 +62,7 @@ int disasm_super_fx(
 
   count = (alt == 0) ? 0 : 1;
 
-  opcode = memory_read_m(memory, address);
+  opcode = memory->read8(address);
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -111,29 +111,29 @@ int disasm_super_fx(
 #if 0
         case OP_XX:
         {
-          num = memory_read_m(memory, address + 1);
+          num = memory->read8(address + 1);
           snprintf(instruction, length, "%s #%d", table_super_fx[n].instr, num);
           return count + 2;
         }
 #endif
         case OP_OFFSET:
         {
-          offset = (int8_t)memory_read_m(memory, address + 1);
+          offset = (int8_t)memory->read8(address + 1);
           snprintf(instruction, length, "%s 0x%04x (offset=%d)", table_super_fx[n].instr, address + 2 + offset, offset);
           return count + 2;
         }
         case OP_REG_PP:
         {
           reg = opcode & 0xf;
-          num = memory_read_m(memory, address + 1);
+          num = memory->read8(address + 1);
           snprintf(instruction, length, "%s r%d, #0x%02x", table_super_fx[n].instr, reg, num);
           return count + 2;
         }
         case OP_REG_XX:
         {
           reg = opcode & 0xf;
-          num = memory_read_m(memory, address + 1);
-          num |= memory_read_m(memory, address + 2) << 8;
+          num = memory->read8(address + 1);
+          num |= memory->read8(address + 2) << 8;
           snprintf(instruction, length, "%s r%d, #0x%04x", table_super_fx[n].instr, reg, num);
           return count + 3;
         }
@@ -141,8 +141,8 @@ int disasm_super_fx(
         {
           reg = opcode & 0xf;
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
-          num = memory_read_m(memory, address + 1);
-          num |= memory_read_m(memory, address + 2) << 8;
+          num = memory->read8(address + 1);
+          num |= memory->read8(address + 2) << 8;
           snprintf(instruction, length, "%s r%d, (0x%04x)", table_super_fx[n].instr, reg, num);
           return count + 3;
         }
@@ -150,7 +150,7 @@ int disasm_super_fx(
         {
           reg = opcode & 0xf;
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
-          num = memory_read_m(memory, address + 1);
+          num = memory->read8(address + 1);
           snprintf(instruction, length, "%s r%d, (0x%02x)", table_super_fx[n].instr, reg, num * 2);
           return count + 2;
         }
@@ -158,8 +158,8 @@ int disasm_super_fx(
         {
           reg = opcode & 0xf;
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
-          num = memory_read_m(memory, address + 1);
-          num |= memory_read_m(memory, address + 2) << 8;
+          num = memory->read8(address + 1);
+          num |= memory->read8(address + 2) << 8;
           snprintf(instruction, length, "%s (0x%04x), r%d", table_super_fx[n].instr, num, reg);
           return count + 3;
         }
@@ -167,7 +167,7 @@ int disasm_super_fx(
         {
           reg = opcode & 0xf;
           if (((1 << reg) & table_super_fx[n].reg_mask) == 0) { break; }
-          num = memory_read_m(memory, address + 1);
+          num = memory->read8(address + 1);
           snprintf(instruction, length, "%s (0x%02x), r%d", table_super_fx[n].instr, num * 2, reg);
           return count + 2;
         }
@@ -199,12 +199,14 @@ void list_output_super_fx(
   int count;
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_super_fx(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -214,7 +216,7 @@ void list_output_super_fx(
     temp[0] = 0;
     for (n = 0; n < count; n++)
     {
-      snprintf(temp2, sizeof(temp2), "%02x ", memory_read_m(&asm_context->memory, start+n));
+      snprintf(temp2, sizeof(temp2), "%02x ", memory->read8(start + n));
       strcat(temp, temp2);
     }
 
@@ -255,7 +257,7 @@ void disasm_range_super_fx(
     temp[0] = 0;
     for (n = 0; n < count; n++)
     {
-      snprintf(temp2, sizeof(temp2), "%02x ", memory_read_m(memory, start+n));
+      snprintf(temp2, sizeof(temp2), "%02x ", memory->read8(start + n));
       strcat(temp, temp2);
     }
 

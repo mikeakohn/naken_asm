@@ -128,7 +128,7 @@ static void operand_to_cg(
 {
   if (operand->type != OPTYPE_IMMEDIATE) { return; }
 
-  if (memory_read(asm_context, asm_context->address) == 1) { return; }
+  if (asm_context->memory_read(asm_context->address) == 1) { return; }
 
   if (bw == 1 && operand->value == 0xff)   { operand->value = -1; }
   if (bw == 0 && operand->value == 0xffff) { operand->value = -1; }
@@ -383,7 +383,8 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
     {
       printf("Warning: Instruction doesn't start on 16 bit boundary at %s:%d.  Padding with a 0.\n", asm_context->tokens.filename, asm_context->tokens.line);
     }
-    memory_write_inc(asm_context, 0, DL_NO_CG);
+
+    asm_context->memory_write_inc(0, DL_NO_CG);
   }
 
   // check for RPT prefix
@@ -478,7 +479,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
           // Store a flag in this address to remind on pass 2 that this
           // instruction can't use CG.
-          memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
+          asm_context->memory_write(asm_context->address, 1, asm_context->tokens.line);
         }
           else
         {
@@ -488,7 +489,7 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
       }
 
       operands[operand_count].value = num;
-      operands[operand_count].error = memory_read(asm_context, asm_context->address);
+      operands[operand_count].error = asm_context->memory_read(asm_context->address);
     }
       else
     if (IS_TOKEN(token,'@'))
@@ -642,14 +643,14 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
       {
         if (operands[0].value == 0)
         {
-          memory_write(asm_context, asm_context->address, 1, asm_context->tokens.line);
+          asm_context->memory_write(asm_context->address, 1, asm_context->tokens.line);
           operands[0].type = OPTYPE_REGISTER_INDIRECT;
         }
       }
         else
       {
         if (operands[0].value == 0 &&
-            memory_read(asm_context, asm_context->address) == 1)
+            asm_context->memory_read(asm_context->address) == 1)
         {
           operands[0].type = OPTYPE_REGISTER_INDIRECT;
         }

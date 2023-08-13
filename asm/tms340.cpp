@@ -414,11 +414,11 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
 
         ignore_operand(asm_context);
 
-        memory_write_m(&asm_context->memory, asm_context->address, 1);
+        asm_context->memory_write(asm_context->address, 1);
         n = 0;
       }
 
-      if (memory_read_m(&asm_context->memory, asm_context->address) == 1)
+      if (asm_context->memory_read(asm_context->address) == 1)
       {
         operands[operand_count].use_long = 1;
       }
@@ -976,7 +976,7 @@ int parse_instruction_tms340(AsmContext *asm_context, char *instr)
                 if (offset < -256 || offset > 254)
                 {
                   extra[extra_count++] = 0;
-                  memory_write_m(&asm_context->memory, asm_context->address, 1);
+                  asm_context->memory_write(asm_context->address, 1);
                 }
               }
                 else

@@ -32,7 +32,7 @@ int disasm_sh4(
   int offset, disp;
   int n;
 
-  opcode = memory_read16_m(memory, address);
+  opcode = memory->read16(address);
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -528,19 +528,21 @@ void list_output_sh4(
   uint16_t opcode;
   int count;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_sh4(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read16_m(&asm_context->memory, start);
+    opcode = memory->read16(start);
 
     fprintf(asm_context->list, "0x%04x: %04x   %-40s\n", start, opcode, instruction);
 
@@ -574,7 +576,7 @@ void disasm_range_sh4(
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read16_m(memory, start);
+    opcode = memory->read16(start);
 
     printf("0x%04x: %04x   %-40s\n", start, opcode, instruction);
 

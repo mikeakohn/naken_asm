@@ -32,7 +32,7 @@ void add_bin8(AsmContext *asm_context, uint8_t b, int flags)
     return;
   }
 
-  memory_write_inc(asm_context, b, line);
+  asm_context->memory_write_inc(b, line);
 }
 
 void add_bin16(AsmContext *asm_context, uint16_t b, int flags)
@@ -53,13 +53,13 @@ void add_bin16(AsmContext *asm_context, uint16_t b, int flags)
   if (asm_context->memory.endian == ENDIAN_LITTLE)
   {
     // 1 little, 2 little, 3 little endian
-    memory_write_inc(asm_context, b & 0xff, line);
-    memory_write_inc(asm_context, b >> 8, DL_NO_CG);
+    asm_context->memory_write_inc(b & 0xff, line);
+    asm_context->memory_write_inc(b >> 8, DL_NO_CG);
   }
     else
   {
-    memory_write_inc(asm_context, b >> 8, DL_NO_CG);
-    memory_write_inc(asm_context, b & 0xff, line);
+    asm_context->memory_write_inc(b >> 8, DL_NO_CG);
+    asm_context->memory_write_inc(b & 0xff, line);
   }
 }
 
@@ -75,17 +75,17 @@ void add_bin32(AsmContext *asm_context, uint32_t b, int flags)
 
   if (asm_context->memory.endian == ENDIAN_LITTLE)
   {
-    memory_write_inc(asm_context, b & 0xff, line);
-    memory_write_inc(asm_context, (b >> 8) & 0xff, line);
-    memory_write_inc(asm_context, (b >> 16) & 0xff, line);
-    memory_write_inc(asm_context, (b >> 24) & 0xff, line);
+    asm_context->memory_write_inc(b & 0xff, line);
+    asm_context->memory_write_inc((b >> 8) & 0xff, line);
+    asm_context->memory_write_inc((b >> 16) & 0xff, line);
+    asm_context->memory_write_inc((b >> 24) & 0xff, line);
   }
     else
   {
-    memory_write_inc(asm_context, (b >> 24) & 0xff, line);
-    memory_write_inc(asm_context, (b >> 16) & 0xff, line);
-    memory_write_inc(asm_context, (b >> 8) & 0xff, line);
-    memory_write_inc(asm_context, b & 0xff, line);
+    asm_context->memory_write_inc((b >> 24) & 0xff, line);
+    asm_context->memory_write_inc((b >> 16) & 0xff, line);
+    asm_context->memory_write_inc((b >> 8) & 0xff, line);
+    asm_context->memory_write_inc(b & 0xff, line);
   }
 }
 
@@ -114,7 +114,7 @@ int add_bin_varuint(AsmContext *asm_context, uint64_t b, int fixed_size)
       num |= 0x80;
     }
 
-    memory_write_inc(asm_context, num, line);
+    asm_context->memory_write_inc(num, line);
 
     count++;
 
@@ -149,7 +149,7 @@ int add_bin_varint(AsmContext *asm_context, uint64_t b, int fixed_size)
       num |= 0x80;
     }
 
-    memory_write_inc(asm_context, num, line);
+    asm_context->memory_write_inc(num, line);
 
     count++;
 

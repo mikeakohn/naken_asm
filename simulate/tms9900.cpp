@@ -18,15 +18,15 @@
 #include "disasm/tms9900.h"
 #include "simulate/tms9900.h"
 
-#define SHOW_STACK sp, memory_read_m(memory, sp+1), memory_read_m(memory, sp)
-#define READ_RAM(a) memory_read_m(memory, a)
-#define WRITE_RAM(a,b) memory_write_m(memory, a, b)
+#define SHOW_STACK sp, memory->read8(sp + 1), memory->read8(sp)
+#define READ_RAM(a) memory->read8(a)
+#define WRITE_RAM(a,b) memory->write8(a, b)
 #define READ_REG(a) \
-  (memory_read_m(memory, wp + (a * 2)) << 8) | \
-   memory_read_m(memory, wp + (a * 2) + 1)
+  (memory->read8(wp + (a * 2)) << 8) | \
+   memory->read8(wp + (a * 2) + 1)
 #define WRITE_REG(a, b) \
-   memory_write_m(memory, wp + (a * 2), b >> 8); \
-   memory_write_m(memory, wp + (a * 2) + 1, b&0xff);
+   memory->write8(wp + (a * 2), b >> 8); \
+   memory->write8(wp + (a * 2) + 1, b & 0xff);
 
 #define AFFECTS_NZ(a) \
   if (bw == 0) \
@@ -140,7 +140,6 @@ void SimulateTms9900::reset()
   nested_call_count = 0;
 
   //memset(reg, 0, sizeof(reg));
-  //memory_clear(&memory);
   //reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
 
   // FIXME - A real chip wouldn't set the SP to this, but this is

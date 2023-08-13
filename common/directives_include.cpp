@@ -77,14 +77,14 @@ int binfile_parse(AsmContext *asm_context)
     return -1;
   }
 
-  while (1)
+  while (true)
   {
     len = fread(buffer, 1, sizeof(buffer), in);
-    if (len <= 0) break;
+    if (len <= 0) { break; }
 
     for (n = 0; n < len; n++)
     {
-      memory_write_inc(asm_context, buffer[n], DL_DATA);
+      asm_context->memory_write_inc(buffer[n], DL_DATA);
     }
 
     asm_context->data_count += len;

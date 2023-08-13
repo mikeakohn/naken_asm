@@ -15,8 +15,6 @@
 
 #include "disasm/mips.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
-
 static const char *reg[32] =
 {
   "$0",  "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
@@ -61,7 +59,7 @@ static int disasm_vector(
   int32_t offset;
   const char *scaler[] = { "x", "y", "z", "w" };
 
-  opcode = memory_read32_m(memory, address);
+  opcode = memory->read32(address);
 
   instruction[0] = 0;
 
@@ -326,7 +324,7 @@ int disasm_mips(
 
   *cycles_min = 1;
   *cycles_max = 1;
-  opcode = memory_read32_m(memory, address);
+  opcode = memory->read32(address);
 
   instruction[0] = 0;
 
@@ -931,14 +929,16 @@ void list_output_mips(
   char instruction[128];
   uint32_t opcode;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
-    opcode = memory_read32_m(&asm_context->memory, start);
+    opcode = memory->read32(start);
 
     disasm_mips(
-      &asm_context->memory,
+      memory,
       asm_context->flags,
       start,
       instruction,
@@ -974,14 +974,7 @@ void disasm_range_mips(
 
   while (start < end)
   {
-    // FIXME - Need to check endian
-#if 0
-    num = READ_RAM(start) |
-         (READ_RAM(start + 1) << 8) |
-         (READ_RAM(start + 2) << 16) |
-         (READ_RAM(start + 3) << 24);
-#endif
-    num = memory_read32_m(memory, start);
+    num = memory->read32(start);
 
     disasm_mips(
       memory,

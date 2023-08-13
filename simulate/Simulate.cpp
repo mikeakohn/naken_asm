@@ -26,7 +26,7 @@ int Simulate::dump_ram(int start, int end)
   for (n = start; n < end; n++)
   {
     if ((count % 16) == 0) { printf("\n0x%04x: ", n); }
-    printf(" %02x", memory_read_m(memory, n));
+    printf(" %02x", memory->read8(n));
     count++;
   }
 

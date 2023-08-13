@@ -87,7 +87,7 @@ static int get_number(
       return -1;
     }
 
-    memory_write_m(&asm_context->memory, asm_context->address, 1);
+    asm_context->memory_write(asm_context->address, 1);
     ignore_operand(asm_context);
     n = 0;
   }
@@ -134,8 +134,7 @@ static int generate_alu_2(
         return -1;
       }
 
-      int force_long =
-        memory_read_m(&asm_context->memory, asm_context->address);
+      int force_long = asm_context->memory_read(asm_context->address);
 
       if (operands[0].value == 7) { force_long = 1; }
 
@@ -305,8 +304,7 @@ static int generate_alu_2(
     }
     case OPERAND_INDIRECT_ADDRESS:
     {
-      int force_long =
-        memory_read_m(&asm_context->memory, asm_context->address);
+      int force_long = asm_context->memory_read(asm_context->address);
 
       if (operands[1].value >= 0x00 &&
           operands[1].value <= 0x3f &&
@@ -582,7 +580,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          memory_write_m(&asm_context->memory, asm_context->address, 1);
+          asm_context->memory_write(asm_context->address, 1);
           ignore_operand(asm_context);
           num = 0;
           tokens_push(asm_context, "]", TOKEN_SYMBOL);
@@ -826,8 +824,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
         }
         case UNSP_OP_ALU_2:
         {
-          int force_long =
-            memory_read_m(&asm_context->memory, asm_context->address);
+          int force_long = asm_context->memory_read(asm_context->address);
 
           if (table_unsp[n].opcode == 0xd000)
           {
@@ -902,8 +899,7 @@ int parse_instruction_unsp(AsmContext *asm_context, char *instr)
               operands[0].type == OPERAND_REGISTER &&
               operands[1].type == OPERAND_IMMEDIATE)
           {
-            int force_long =
-              memory_read_m(&asm_context->memory, asm_context->address);
+            int force_long = asm_context->memory_read(asm_context->address);
 
             if (operands[1].value < 0 ||
                 operands[1].value > 0x3f ||

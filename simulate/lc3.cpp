@@ -18,12 +18,12 @@
 #include "simulate/lc3.h"
 
 #define READ_RAM(a) \
-  (memory_read_m(memory, a * 2) << 8) | \
-   memory_read_m(memory, (a * 2) + 1)
+  (memory->read8(a * 2) << 8) | \
+   memory->read8((a * 2) + 1)
 
 #define WRITE_RAM(a,b) \
-  memory_write_m(memory, a * 2, b >> 8); \
-  memory_write_m(memory, ((a * 2) + 1), b & 0xff)
+  memory->write8(a * 2, b >> 8); \
+  memory->write8(((a * 2) + 1), b & 0xff)
 
 #define GET_N() ((psr >> 2) & 1)
 #define GET_Z() ((psr >> 1) & 1)

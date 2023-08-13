@@ -334,7 +334,7 @@ static void write_elf_text_and_data(
 
   for (i = memory->low_address; i <= memory->high_address; i++)
   {
-    putc(memory_read_m(memory, i), out);
+    putc(memory->read8(i), out);
   }
 
   if (alignment > 1)

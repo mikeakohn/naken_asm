@@ -19,7 +19,7 @@
 #include "disasm/65816.h"
 #include "table/65816.h"
 
-#define READ_RAM(a) (memory_read_m(memory, a) & 0xff)
+#define READ_RAM(a) (memory->read8(a) & 0xff)
 
 // bytes for each addressing mode
 static int op_bytes[] =
@@ -39,7 +39,7 @@ int disasm_65816(
 {
   char temp[128];
   char num[64];
-  uint8_t opcode = memory_read_m(memory, address);
+  uint8_t opcode = memory->read8(address);
 
   int op = 0;
   int lo = 0, hi = 0, bank = 0;
@@ -196,23 +196,16 @@ void list_output_65816(
   uint32_t start,
   uint32_t end)
 {
-#if 0
-  unsigned int opcode=memory_read32_m(&asm_context->memory, address);
-
-  opcode &= 0xff;
-
-  fprintf(asm_context->list, "\n");
-#endif
-
   char instruction[128];
   char bytes[32];
   int cycles_min,cycles_max;
-  //uint8_t opcode = memory_read_m(&asm_context->memory, start)
   int count = end - start;
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   disasm_65816(
-    &asm_context->memory,
+    memory,
     start,
     instruction,
     sizeof(instruction),
@@ -220,13 +213,12 @@ void list_output_65816(
     &cycles_max,
     end - start + 1);
 
-  //strcpy(instruction, "???");
-
   bytes[0] = 0;
+
   for (n = 0; n < count; n++)
   {
     char temp[4];
-    snprintf(temp, sizeof(temp), "%02x ", memory_read_m(&asm_context->memory, start + n));
+    snprintf(temp, sizeof(temp), "%02x ", memory->read8(start + n));
     strcat(bytes, temp);
   }
 
@@ -247,7 +239,6 @@ void disasm_range_65816(
   uint32_t end)
 {
   char instruction[128];
-  //int vectors_flag = 0;
   int cycles_min = 0, cycles_max = 0;
   int num = 0;
 

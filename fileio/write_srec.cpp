@@ -139,7 +139,7 @@ int write_srec(Memory *memory, FILE *out, int srec_size)
 
   for (n = memory->low_address; n <= memory->high_address; n++)
   {
-    if (memory_debug_line_m(memory, n) == DL_EMPTY)
+    if (memory->read_debug(n) == DL_EMPTY)
     {
       if (len > 0)
       {
@@ -162,7 +162,7 @@ int write_srec(Memory *memory, FILE *out, int srec_size)
       len = 0;
     }
 
-    data[len++] = memory_read_m(memory, n);
+    data[len++] = memory->read8(n);
 
     if (len == LINE_LENGTH)
     {

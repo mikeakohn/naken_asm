@@ -31,7 +31,7 @@ void util_disasm(UtilContext *util_context, const char *token)
 
 void util_disasm_range(UtilContext *util_context, int start, int end)
 {
-  uint32_t page_size,page_mask;
+  uint32_t page_size, page_mask;
   int curr_start = start;
   int valid_page_start = 1;
   int address_min,address_max;
@@ -41,7 +41,7 @@ void util_disasm_range(UtilContext *util_context, int start, int end)
   start = start * util_context->bytes_per_address;
   end = end * util_context->bytes_per_address;
 
-  page_size = memory_page_size(&util_context->memory);
+  page_size = util_context->memory.get_page_size();
   page_mask = page_size - 1;
   curr_end = start | page_mask;
 
@@ -53,7 +53,7 @@ void util_disasm_range(UtilContext *util_context, int start, int end)
   {
     data_size = page_size - (n & page_mask);
 
-    if (memory_in_use(&util_context->memory, n))
+    if (util_context->memory.in_use(n))
     {
       if (valid_page_start == 0)
       {
@@ -66,13 +66,8 @@ void util_disasm_range(UtilContext *util_context, int start, int end)
     {
       if (valid_page_start == 1)
       {
-        address_min = memory_get_page_address_min(
-          &util_context->memory,
-          curr_start);
-
-        address_max = memory_get_page_address_max(
-          &util_context->memory,
-          curr_end);
+        address_min = util_context->memory.get_page_address_min(curr_start);
+        address_max = util_context->memory.get_page_address_max(curr_end);
 
         util_context->disasm_range(
           &util_context->memory,
@@ -90,11 +85,8 @@ void util_disasm_range(UtilContext *util_context, int start, int end)
 
   if (valid_page_start == 1)
   {
-    address_min = memory_get_page_address_min(
-      &util_context->memory,
-      curr_start);
-
-    address_max = memory_get_page_address_max(&util_context->memory, curr_end);
+    address_min = util_context->memory.get_page_address_min(curr_start);
+    address_max = util_context->memory.get_page_address_max(curr_end);
 
     util_context->disasm_range(
       &util_context->memory,

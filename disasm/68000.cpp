@@ -16,19 +16,11 @@
 #include "disasm/68000.h"
 #include "table/68000.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
+#define READ_RAM(a)   memory->read8(a)
+#define READ_RAM16(a) memory->read16(a)
+#define READ_RAM32(a) memory->read32(a)
 
-#define READ_RAM16(a) \
-  (memory_read_m(memory, a)<<8) | \
-   memory_read_m(memory, a+1)
-
-#define READ_RAM32(a) \
-  (memory_read_m(memory, a) << 24) | \
-  (memory_read_m(memory, a + 1) << 16) | \
-  (memory_read_m(memory, a + 2) << 8) | \
-   memory_read_m(memory, a + 3)
-
-#define SIZE(a,b) ((a>>b)&0x3)
+#define SIZE(a, b) ((a >> b) & 0x3)
 
 enum
 {
@@ -720,13 +712,15 @@ void list_output_68000(
   char instruction[128];
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   strcpy(instruction, "???");
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_68000(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -735,8 +729,8 @@ void list_output_68000(
 
     fprintf(asm_context->list, "0x%04x: %04x %-40s\n",
       start,
-      (memory_read_m(&asm_context->memory, start) << 8) |
-       memory_read_m(&asm_context->memory, start + 1),
+      (memory->read8(start) << 8) |
+       memory->read8(start + 1),
       instruction);
 
     if (count < 0) { count = 2; }
@@ -744,8 +738,8 @@ void list_output_68000(
     for (n = 2; n < count; n += 2)
     {
       fprintf(asm_context->list, "        %04x\n",
-        (memory_read_m(&asm_context->memory, start + n) << 8) |
-         memory_read_m(&asm_context->memory, start + n + 1));
+        (memory->read8(start + n) << 8) |
+         memory->read8(start + n + 1));
     }
 
     start += count;
@@ -784,20 +778,20 @@ void disasm_range_68000(
 
     for (n = 0; n < count; n++)
     {
-      snprintf(temp2, sizeof(temp2), "%02x ", memory_read_m(memory, start + n));
+      snprintf(temp2, sizeof(temp2), "%02x ", memory->read8(start + n));
       strcat(temp, temp2);
     }
 
     printf("0x%04x: %04x   %-40s\n",
       start,
-      (memory_read_m(memory, start) << 8) |
-       memory_read_m(memory, start + 1), instruction);
+      (memory->read8(start) << 8) |
+       memory->read8(start + 1), instruction);
 
     for (n = 2; n < count; n += 2)
     {
       printf("        %04x\n",
-        (memory_read_m(memory, start + n) << 8) |
-         memory_read_m(memory, start + n + 1));
+        (memory->read8(start + n) << 8) |
+         memory->read8(start + n + 1));
     }
 
     start = start + count;

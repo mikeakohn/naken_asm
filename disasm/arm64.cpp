@@ -57,7 +57,7 @@ int disasm_arm64(
   int rm, rn, rd;
   int size, sf, imm, option, shift;
 
-  opcode = memory_read32_m(memory, address);
+  opcode = memory->read32(address);
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -438,6 +438,8 @@ void list_output_arm64(
   uint32_t opcode;
   int count;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
@@ -450,7 +452,7 @@ void list_output_arm64(
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read32_m(&asm_context->memory, start);
+    opcode = memory->read32(start);
 
     fprintf(asm_context->list, "0x%04x: %08x %-40s\n", start, opcode, instruction);
 
@@ -484,7 +486,7 @@ void disasm_range_arm64(
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read32_m(memory, start);
+    opcode = memory->read32(start);
 
     printf("0x%04x: %08x %-40s\n", start, opcode, instruction);
 

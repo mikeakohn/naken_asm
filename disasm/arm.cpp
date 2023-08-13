@@ -17,8 +17,8 @@
 #include "disasm/arm.h"
 #include "table/arm.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
-#define ARM_NIB(n) ((opcode>>n)&0xf)
+//#define READ_RAM(a) memory_read_m(memory, a)
+#define ARM_NIB(n) ((opcode >> n) & 0xf)
 
 // NOTE "" is AL
 static const char *arm_cond[] =
@@ -533,7 +533,7 @@ int disasm_arm(
 
   *cycles_min = -1;
   *cycles_max = -1;
-  opcode = memory_read32_m(memory, address);
+  opcode = memory->read32(address);
   //printf("%08x: opcode=%08x\n", address, opcode);
 
   int n = 0;
@@ -624,13 +624,15 @@ void list_output_arm(
   char instruction[128];
   int count;
 
+  Memory *memory = &asm_context->memory;
+
   while (start < end)
   {
-    uint32_t opcode = memory_read32_m(&asm_context->memory, start);
+    uint32_t opcode = memory->read32(start);
 
     fprintf(asm_context->list, "\n");
     count = disasm_arm(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -640,12 +642,18 @@ void list_output_arm(
     fprintf(asm_context->list, "0x%04x: 0x%08x %-40s cycles: ", start, opcode, instruction);
 
     if (cycles_min == -1)
-    { fprintf(asm_context->list, "\n"); }
+    {
+      fprintf(asm_context->list, "\n");
+    }
       else
     if (cycles_min == cycles_max)
-    { fprintf(asm_context->list, "%d\n", cycles_min); }
+    {
+      fprintf(asm_context->list, "%d\n", cycles_min);
+    }
       else
-    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    {
+      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+    }
 
     start += count;
   }
@@ -676,13 +684,7 @@ void disasm_range_arm(
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read32_m(memory, start);
-#if 0
-    num = READ_RAM(start) |
-         (READ_RAM(start + 1) << 8) |
-         (READ_RAM(start + 2) << 16) |
-         (READ_RAM(start + 3) << 24);
-#endif
+    opcode = memory->read32(start);
 
     if (cycles_min < 1)
     {

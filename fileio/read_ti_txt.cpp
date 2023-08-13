@@ -25,16 +25,16 @@ enum
 
 int read_ti_txt(const char *filename, Memory *memory)
 {
-FILE *in;
-int ch;
-int line = 1;
-uint32_t address = 0;
-uint32_t value;
-uint32_t start, end;
-int type;
-int len;
+  FILE *in;
+  int ch;
+  int line = 1;
+  uint32_t address = 0;
+  uint32_t value;
+  uint32_t start, end;
+  int type;
+  int len;
 
-  memory_clear(memory);
+  memory->clear();
 
   start = 0xffffffff;
   end = 0;
@@ -97,7 +97,7 @@ printf("%d) 0x%02x\n", type, value);
       if (address < start) { start = address; }
       if (address > end) { end = address; }
 
-      memory_write_m(memory, address++, value);
+      memory->write8(address++, value);
     }
       else
     if (type == TYPE_ERROR)

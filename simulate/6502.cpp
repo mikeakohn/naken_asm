@@ -20,14 +20,14 @@
 #include "simulate/6502.h"
 #include "table/6502.h"
 
-#define SHOW_STACK 0x100 + sp, memory_read_m(memory, 0x100 + sp)
-#define READ_RAM(a) memory_read_m(memory, a)
+#define SHOW_STACK 0x100 + sp, memory->read8(0x100 + sp)
+#define READ_RAM(a) memory->read8(a)
 #define WRITE_RAM(a, b) \
   if (a == break_io) \
   { \
     exit(b); \
   } \
-  memory_write_m(memory, a, b)
+  memory->write8(a, b)
 
 #define REG_A reg_a
 #define REG_X reg_x

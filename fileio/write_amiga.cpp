@@ -45,7 +45,7 @@ int write_amiga(Memory *memory, FILE *out)
 
   for (n = memory->low_address; n <= memory->high_address; n++)
   {
-    putc(memory_read_m(memory, n), out);
+    putc(memory->read8(n), out);
   }
 
   // Hunk end.

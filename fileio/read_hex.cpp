@@ -49,14 +49,12 @@ int read_hex(const char *filename, Memory *memory)
   int checksum;
   int checksum_calc;
   int n;
-  int start_address=0;
-  int line=0;
+  int start_address = 0;
+  int line = 0;
   int start, end;
-  int segment=0;
+  int segment = 0;
 
-  //memset(memory, 0, memory_len);
-  memory_clear(memory);
-  //memset(dirty, 0, memory->size);
+  memory->clear();
 
   start = -1;
   end = -1;
@@ -68,7 +66,7 @@ int read_hex(const char *filename, Memory *memory)
   }
 
   /* It's a state machine.. it's a state machine... */
-  while (1)
+  while (true)
   {
     line++;
     ch = getc(in);
@@ -113,7 +111,7 @@ int read_hex(const char *filename, Memory *memory)
         {
           ch = get_hex(in, 2);
           //dirty[address]=1;
-          memory_write_m(memory, address++, ch);
+          memory->write8(address++, ch);
           checksum_calc += ch;
 #ifdef DEBUG1
           printf(" %02x",ch);

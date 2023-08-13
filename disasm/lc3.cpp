@@ -16,9 +16,7 @@
 #include "disasm/lc3.h"
 #include "table/lc3.h"
 
-#define READ_RAM16(a) \
-  (memory_read_m(memory, a + 0) << 8) | \
-   memory_read_m(memory, a + 1)
+#define READ_RAM16(a) (memory->read8(a + 0) << 8) | memory->read8(a + 1)
 
 static const char *br[] =
 {
@@ -153,20 +151,21 @@ void list_output_lc3(
   uint16_t opcode;
   int count;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_lc3(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
-    opcode = (memory_read_m(&asm_context->memory, start + 0) << 8) |
-              memory_read_m(&asm_context->memory, start + 1);
+    opcode = (memory->read8(start + 0) << 8) | memory->read8(start + 1);
 
     fprintf(asm_context->list, "0x%04x: %04x %-40s\n", start / 2, opcode, instruction);
 

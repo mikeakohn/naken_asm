@@ -76,9 +76,9 @@ static int read_code(FILE *in, Memory *memory)
   for (n = 0; n < length; n++)
   {
     int ch = getc(in);
-    if (ch == EOF) break;
+    if (ch == EOF) { break; }
 
-    memory_write_m(memory, n, ch);
+    memory->write8(n, ch);
   }
 
   return length;
@@ -88,7 +88,7 @@ int read_amiga(const char *filename, Memory *memory)
 {
   FILE *in;
 
-  memory_clear(memory);
+  memory->clear();
 
   in = fopen(filename, "rb");
 

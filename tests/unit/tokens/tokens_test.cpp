@@ -232,7 +232,7 @@ void test_ascii_with_null()
 
   for (i = 0; i < (int)sizeof(result); i++)
   {
-    char c = memory_read_m(&asm_context.memory, i);
+    char c = asm_context.memory_read(i);
     if (c != result[i])
     {
       printf("Error at position %d, got %02x but expected %02x\n",
@@ -266,7 +266,7 @@ void test_asciiz()
 
   for (i = 0; i < 5; i++)
   {
-    char c = memory_read_m(&asm_context.memory, i);
+    char c = asm_context.memory_read(i);
     if (c != result[i])
     {
       printf("Error at position %d, got %02x but expected %02x\n",
@@ -302,7 +302,7 @@ void test_escape_chars_in_db()
 
   for (i = 0; i < (int)sizeof(result); i++)
   {
-    char c = memory_read_m(&asm_context.memory, i);
+    char c = asm_context.memory_read(i);
     if (c != result[i])
     {
       printf("Error at position %d, got %02x but expected %02x\n",
@@ -349,7 +349,7 @@ void test_escape_chars_in_code_const()
 
   for (i = 0; i < (int)sizeof(result); i++)
   {
-    c = memory_read_m(&asm_context.memory, ptr);
+    c = asm_context.memory_read(ptr);
 
     if (c != result[i])
     {

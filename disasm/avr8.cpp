@@ -16,10 +16,7 @@
 #include "disasm/avr8.h"
 #include "table/avr8.h"
 
-//#define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) \
-   memory_read_m(memory, a) | \
-  (memory_read_m(memory, a + 1) << 8)
+#define READ_RAM16(a) memory->read8(a) | (memory->read8(a + 1) << 8)
 
 int get_register_avr8(const char *token)
 {
@@ -304,31 +301,37 @@ void list_output_avr8(
   int count,opcode;
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_avr8(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read_m(&asm_context->memory, start) | (memory_read_m(&asm_context->memory, start + 1) << 8);
+    opcode = memory->read8(start) | (memory->read8(start + 1) << 8);
 
     fprintf(asm_context->list, "0x%04x: %04x %-40s cycles: ", start / 2, opcode, instruction);
 
     if (cycles_min == cycles_max)
-    { fprintf(asm_context->list, "%d\n", cycles_min); }
+    {
+      fprintf(asm_context->list, "%d\n", cycles_min);
+    }
       else
-    { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
+    {
+      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+    }
 
     for (n = 2; n < count; n += 2)
     {
-      opcode = memory_read_m(&asm_context->memory, start + n) |
-              (memory_read_m(&asm_context->memory, start + n + 1) << 8);
+      opcode = memory->read8(start + n) | (memory->read8(start + n + 1) << 8);
+
       fprintf(asm_context->list, "        %04x\n", opcode);
     }
 

@@ -19,9 +19,9 @@
 #include "simulate/avr8.h"
 #include "table/avr8.h"
 
-#define READ_OPCODE(a)(memory_read_m(memory, (a) * 2) | \
-                       (memory_read_m(memory, ((a) * 2) + 1) << 8))
-//#define WRITE_RAM(a,b) memory_write_m(memory, a, b)
+#define READ_OPCODE(a) \
+  (memory->read8((a) * 2) | \
+  (memory->read8(((a) * 2) + 1) << 8))
 
 #define SREG_SET(bit) (sreg |= (1 << bit))
 #define SREG_CLR(bit) (sreg &= (0xff ^ (1<<bit)))
@@ -69,8 +69,8 @@
   (ram[sp+2] | \
   (ram[sp+1] << 8)); sp += 2;
 
-#define READ_FLASH(n) memory_read_m(memory, n)
-#define WRITE_FLASH(n,data) memory_write_m(memory, n, data)
+#define READ_FLASH(n) memory->read8(n)
+#define WRITE_FLASH(n,data) memory->write8(n, data)
 
 #define READ_RAM(a) ram[a & RAM_MASK];
 #define WRITE_RAM(a,v) ram[a & RAM_MASK] = v;

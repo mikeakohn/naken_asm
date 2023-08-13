@@ -23,14 +23,11 @@
 #define VFLAG_CLEAR 1
 #define VFLAG_PARITY 2
 
-#define READ_RAM(a) memory_read_m(memory, a)
-#define READ_RAM16(a) \
-  (memory_read_m(memory, a + 1) << 8) | \
-   memory_read_m(memory, a)
-#define READ_OPCODE16(a) \
-  (memory_read_m(memory, a) << 8) | \
-   memory_read_m(memory, a + 1)
-#define WRITE_RAM(a,b) memory_write_m(memory, a, b)
+#define READ_RAM(a) memory->read8(a)
+#define READ_RAM16(a) (memory->read8(a + 1) << 8) | memory->read8(a)
+
+#define READ_OPCODE16(a) (memory->read8(a) << 8) | memory->read8(a + 1)
+#define WRITE_RAM(a,b) memory->write8(a, b)
 
 #define GET_S() ((reg[REG_F] >> 7) & 1)
 #define GET_Z() ((reg[REG_F] >> 6) & 1)

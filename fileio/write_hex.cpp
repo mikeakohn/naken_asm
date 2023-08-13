@@ -78,12 +78,11 @@ int write_hex(Memory *memory, FILE *out)
   uint32_t n;
   uint32_t address = 0,segment = 0;
 
-  //memory_dump(memory);
-
   len = -1;
+
   for (n = memory->low_address; n <= memory->high_address; n++)
   {
-    if (memory_debug_line_m(memory, n) == DL_EMPTY)
+    if (memory->read_debug(n) == DL_EMPTY)
     {
       if (len > 0)
       {
@@ -106,7 +105,7 @@ int write_hex(Memory *memory, FILE *out)
       len = 0;
     }
 
-    data[len++] = memory_read_m(memory, n);
+    data[len++] = memory->read8(n);
 
     if (len == 16)
     {

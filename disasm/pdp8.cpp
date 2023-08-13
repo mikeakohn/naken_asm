@@ -91,7 +91,7 @@ int disasm_pdp8(
   int n;
   int i, z, a;
 
-  opcode = memory_read16_m(memory, address);
+  opcode = memory->read16(address);
 
   n = 0;
 
@@ -124,7 +124,7 @@ int disasm_pdp8(
           {
             int n = strlen(instruction);
             snprintf(instruction + n, length - n,
-                    " ; (%04o)", memory_read16_m(memory, a << 1));
+                    " ; (%04o)", memory->read16(a << 1));
           }
 
           return 2;
@@ -166,17 +166,19 @@ void list_output_pdp8(
   char instruction[128];
   int count;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_pdp8(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction));
 
-    opcode = memory_read16_m(&asm_context->memory, start);
+    opcode = memory->read16(start);
 
     fprintf(asm_context->list, "0%04o: %04o %s\n", start / 2, opcode, instruction);
 
@@ -206,7 +208,7 @@ void disasm_range_pdp8(
       instruction,
       sizeof(instruction));
 
-    opcode = memory_read16_m(memory, start);
+    opcode = memory->read16(start);
 
     printf("0%04o: %04o   %s\n", start / 2, opcode, instruction);
 

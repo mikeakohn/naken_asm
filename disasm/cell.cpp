@@ -17,10 +17,10 @@
 #include "table/cell.h"
 
 #define READ_RAM(a) \
-  (memory_read_m(memory, a) << 24) | \
-  (memory_read_m(memory, a + 1)<< 16) | \
-  (memory_read_m(memory, a + 2)<< 8) | \
-   memory_read_m(memory, a + 3)
+  (memory->read8(a + 0) << 24) | \
+  (memory->read8(a + 1) << 16) | \
+  (memory->read8(a + 2) << 8)  | \
+   memory->read8(a + 3)
 
 int disasm_cell(
   Memory *memory,
@@ -226,14 +226,16 @@ void list_output_cell(
   char instruction[128];
   uint32_t opcode;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
-    opcode = memory_read32_m(&asm_context->memory, start);
+    opcode = memory->read32(start);
 
     disasm_cell(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -278,7 +280,7 @@ void disasm_range_cell(
 
   while (start <= end)
   {
-    opcode = memory_read32_m(memory, start);
+    opcode = memory->read32(start);
 
     count = disasm_cell(
       memory,

@@ -32,7 +32,7 @@ int disasm_4004(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = memory_read_m(memory, address);
+  opcode = memory->read8(address);
 
   n = 0;
   while (table_4004[n].instr != NULL)
@@ -70,34 +70,34 @@ int disasm_4004(
         }
         case OP_ADDR12:
         {
-          a = ((opcode & 0xf) << 8) | memory_read_m(memory, address + 1);
+          a = ((opcode & 0xf) << 8) | memory->read8(address + 1);
           snprintf(instruction, length, "%s 0x%x", table_4004[n].instr, a);
           return 2;
         }
         case OP_P_DATA:
         {
           p = opcode & 0xe;
-          d = memory_read_m(memory, address + 1);
+          d = memory->read8(address + 1);
           snprintf(instruction, length, "%s %d 0x%x", table_4004[n].instr, p, d);
           return 2;
         }
         case OP_R_ADDR8:
         {
           r = opcode & 0xf;
-          a = memory_read_m(memory, address + 1);
+          a = memory->read8(address + 1);
           snprintf(instruction, length, "%s %d 0x%x", table_4004[n].instr, r, a);
           return 2;
         }
         case OP_COND:
         {
           c = opcode & 0xf;
-          a = memory_read_m(memory, address + 1);
+          a = memory->read8(address + 1);
           snprintf(instruction, length, "%s %d 0x%x", table_4004[n].instr, c, a);
           return 2;
         }
         case OP_COND_ALIAS:
         {
-          a = memory_read_m(memory, address + 1);
+          a = memory->read8(address + 1);
           snprintf(instruction, length, "%s 0x%x", table_4004[n].instr, a);
           return 2;
         }
@@ -128,25 +128,27 @@ void list_output_4004(
   char temp[32];
   int count;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_4004(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read_m(&asm_context->memory, start);
+    opcode = memory->read8(start);
     snprintf(temp, sizeof(temp), "%02x", opcode);
 
     if (count == 2)
     {
       char temp2[4];
-      snprintf(temp2, sizeof(temp2), " %02x", memory_read_m(&asm_context->memory, start + 1));
+      snprintf(temp2, sizeof(temp2), " %02x", memory->read8(start + 1));
       strcat(temp, temp2);
     }
 
@@ -195,7 +197,7 @@ void disasm_range_4004(
       &cycles_min,
       &cycles_max);
 
-    opcode = memory_read16_m(memory, start);
+    opcode = memory->read16(start);
 
     printf("0x%04x: 0x%04x %-40s ", start / 2, opcode, instruction);
 

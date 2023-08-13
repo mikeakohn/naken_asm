@@ -179,7 +179,7 @@ int parse_instruction_6800(AsmContext *asm_context, char *instr)
           }
         }
 
-        if (memory_read_m(&asm_context->memory, asm_context->address) == 1)
+        if (asm_context->memory_read(asm_context->address) == 1)
         {
           add_bin8(asm_context, n, IS_OPCODE);
           add_bin8(asm_context, operand_value, IS_OPCODE);
@@ -199,7 +199,7 @@ int parse_instruction_6800(AsmContext *asm_context, char *instr)
           }
         }
 
-        if (memory_read_m(&asm_context->memory, asm_context->address) == 2)
+        if (asm_context->memory_read(asm_context->address) == 2)
         {
           add_bin8(asm_context, n, IS_OPCODE);
           add_bin8(asm_context, operand_value >> 8, IS_OPCODE);

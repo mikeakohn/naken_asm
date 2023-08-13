@@ -61,12 +61,12 @@ int disasm_java(
   *cycles_min = 0;
   *cycles_max = 0;
 
-  opcode = memory_read_m(memory, address);
+  opcode = memory->read8(address);
 
   if (opcode == 0xc4)
   {
     wide = 1;
-    opcode = memory_read_m(memory, address + 1);
+    opcode = memory->read8(address + 1);
   }
 
   switch (table_java[opcode].op_type)
@@ -78,7 +78,7 @@ int disasm_java(
       return wide + 1;
     case JAVA_OP_CONSTANT_INDEX8:
       // Note: These instructions should never be wide.
-      index8 = memory_read_m(memory, address + wide + 1);
+      index8 = memory->read8(address + wide + 1);
       snprintf(instruction, length, "%s %d", table_java[opcode].instr, index8);
       return wide + 2;
     case JAVA_OP_CONSTANT_INDEX:
@@ -90,19 +90,19 @@ int disasm_java(
     case JAVA_OP_STATIC_INDEX:
     case JAVA_OP_VIRTUAL_INDEX:
       // Note: These instructions should never be wide.
-      index = memory_read16_m(memory, address + wide + 1);
+      index = memory->read16(address + wide + 1);
       snprintf(instruction, length, "%s %d", table_java[opcode].instr, index);
       return wide + 3;
     case JAVA_OP_LOCAL_INDEX:
       if (wide == 0)
       {
-        index = memory_read_m(memory, address + wide + 1);
+        index = memory->read8(address + wide + 1);
         snprintf(instruction, length, "%s %d", table_java[opcode].instr, index);
         return wide + 2;
       }
         else
       {
-        index = memory_read16_m(memory, address + wide + 1);
+        index = memory->read16(address + wide + 1);
         snprintf(instruction, length, "%s %d", table_java[opcode].instr, index);
         return wide + 3;
       }
@@ -110,41 +110,41 @@ int disasm_java(
     case JAVA_OP_LOCAL_INDEX_CONST:
       if (wide == 0)
       {
-        index = memory_read_m(memory, address + wide + 1);
-        const8 = memory_read_m(memory, address + wide + 2);
+        index = memory->read8(address + wide + 1);
+        const8 = memory->read8(address + wide + 2);
         snprintf(instruction, length, "%s %d, %d", table_java[opcode].instr, index, const8);
         return wide + 3;
       }
         else
       {
-        index = memory_read16_m(memory, address + wide + 1);
-        const8 = memory_read_m(memory, address + wide + 3);
+        index = memory->read16(address + wide + 1);
+        const8 = memory->read8(address + wide + 3);
         snprintf(instruction, length, "%s %d, %d", table_java[opcode].instr, index, const8);
         return wide + 4;
       }
     case JAVA_OP_ARRAY_TYPE:
       // Note: These instructions should never be wide.
-      index = memory_read_m(memory, address + wide + 1);
+      index = memory->read8(address + wide + 1);
       snprintf(instruction, length, "%s %d (%s)", table_java[opcode].instr, index, get_array_type(index));
       return wide + 2;
     case JAVA_OP_CONSTANT16:
       // Note: These instructions should never be wide.
-      index = memory_read16_m(memory, address + wide + 1);
+      index = memory->read16(address + wide + 1);
       snprintf(instruction, length, "%s %d", table_java[opcode].instr, index);
       return wide + 3;
     case JAVA_OP_CONSTANT8:
       // Note: These instructions should never be wide.
-      index = memory_read_m(memory, address + wide + 1);
+      index = memory->read8(address + wide + 1);
       snprintf(instruction, length, "%s %d", table_java[opcode].instr, index);
       return wide + 2;
     case JAVA_OP_OFFSET16:
       // Note: These instructions should never be wide.
-      offset16 = memory_read16_m(memory, address + wide + 1);
+      offset16 = memory->read16(address + wide + 1);
       snprintf(instruction, length, "%s 0x%04x (offset=%d)", table_java[opcode].instr, address + offset16, offset16);
       return wide + 3;
     case JAVA_OP_OFFSET32:
       // Note: These instructions should never be wide.
-      offset = memory_read32_m(memory, address + wide + 1);
+      offset = memory->read32(address + wide + 1);
       snprintf(instruction, length, "%s 0x%04x (offset=%d)", table_java[opcode].instr, address + offset, offset);
       return wide + 5;
     case JAVA_OP_WARN:
@@ -170,8 +170,10 @@ void list_output_java(
   char temp[16];
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   count = disasm_java(
-    &asm_context->memory,
+    memory,
     start,
     instruction,
     sizeof(instruction),
@@ -182,7 +184,7 @@ void list_output_java(
 
   for (n = 0; n < count; n++)
   {
-    opcode = memory_read_m(&asm_context->memory, start + n);
+    opcode = memory->read8(start + n);
 
     snprintf(temp, sizeof(temp), "%02x ", opcode);
     strcat(hex, temp);
@@ -223,7 +225,7 @@ void disasm_range_java(
 
     for (n = 0; n < count; n++)
     {
-      opcode = memory_read_m(memory, start + n);
+      opcode = memory->read8(start + n);
 
       snprintf(temp, sizeof(temp), "%02x ", opcode);
       strcat(hex, temp);

@@ -16,11 +16,8 @@
 #include "disasm/6800.h"
 #include "table/6800.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
-
-#define READ_RAM16(a) \
-  (memory_read_m(memory, a) << 8) | \
-   memory_read_m(memory, a + 1)
+#define READ_RAM(a)   memory->read8(a)
+#define READ_RAM16(a) memory->read16(a)
 
 int disasm_6800(
   Memory *memory,
@@ -86,12 +83,14 @@ void list_output_6800(
   int count;
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_6800(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -102,8 +101,7 @@ void list_output_6800(
     for (n = 0; n < count; n++)
     {
       char temp[4];
-      snprintf(temp, sizeof(temp), "%02x ",
-        memory_read_m(&asm_context->memory, start + n));
+      snprintf(temp, sizeof(temp), "%02x ", memory->read8(start + n));
       strcat(bytes, temp);
     }
 

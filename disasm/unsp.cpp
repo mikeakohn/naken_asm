@@ -27,7 +27,7 @@ static int disasm_alu(
   int n,
   int is_alu_2)
 {
-  int opcode = memory_read16_m(memory, address);
+  int opcode = memory->read16(address);
   int opcode_1 = (opcode >> 6) & 0x7;
   int operand_a = (opcode >> 9) & 0x7;
   int operand_b = opcode & 0x7;
@@ -99,14 +99,14 @@ static int disasm_alu(
               table_unsp[n].instr,
               regs[operand_a],
               regs[operand_b],
-              memory_read16_m(memory, address + 2));
+              memory->read16(address + 2));
           }
             else
           {
             snprintf(instruction, length, "%s %s, #0x%x",
               table_unsp[n].instr,
               regs[operand_a],
-              memory_read16_m(memory, address + 2));
+              memory->read16(address + 2));
           }
           return 4;
         case 2:
@@ -117,14 +117,14 @@ static int disasm_alu(
               table_unsp[n].instr,
               regs[operand_a],
               regs[operand_b],
-              memory_read16_m(memory, address + 2));
+              memory->read16(address + 2));
           }
             else
           {
             snprintf(instruction, length, "%s %s, [0x%04x]",
               table_unsp[n].instr,
               regs[operand_a],
-              memory_read16_m(memory, address + 2));
+              memory->read16(address + 2));
           }
           return 4;
         case 3:
@@ -133,7 +133,7 @@ static int disasm_alu(
           {
             snprintf(instruction, length, "%s [0x%04x], %s, %s",
               table_unsp[n].instr,
-              memory_read16_m(memory, address + 2),
+              memory->read16(address + 2),
               regs[operand_a],
               regs[operand_b]);
           }
@@ -144,13 +144,13 @@ static int disasm_alu(
               snprintf(instruction, length, "%s %s, [0x%04x]",
                 table_unsp[n].instr,
                 regs[operand_a],
-                memory_read16_m(memory, address + 2));
+                memory->read16(address + 2));
             }
               else
             {
               snprintf(instruction, length, "%s [0x%04x], %s",
                 table_unsp[n].instr,
-                memory_read16_m(memory, address + 2),
+                memory->read16(address + 2),
                 regs[operand_a]);
             }
           }
@@ -241,7 +241,7 @@ static int disasm_pop(
   int length,
   int n)
 {
-  int opcode = memory_read16_m(memory, address);
+  int opcode = memory->read16(address);
   int operand_a = (opcode >> 9) & 0x7;
   int operand_b = opcode & 0x7;
   int opn = (opcode >> 3) & 0x7;
@@ -277,7 +277,7 @@ static int disasm_push(
   int length,
   int n)
 {
-  int opcode = memory_read16_m(memory, address);
+  int opcode = memory->read16(address);
   int operand_a = (opcode >> 9) & 0x7;
   int operand_b = opcode & 0x7;
   int opn = (opcode >> 3) & 0x7;
@@ -322,7 +322,7 @@ int disasm_unsp(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = memory_read16_m(memory, address);
+  opcode = memory->read16(address);
 
   operand_a = (opcode >> 9) & 0x7;
   operand_b = opcode & 0x7;
@@ -343,7 +343,7 @@ int disasm_unsp(
         {
           data =
             ((opcode & 0x3f) << 16) |
-            memory_read16_m(memory, address + 2);
+            memory->read16(address + 2);
 
           snprintf(instruction, length, "%s 0x%04x",
             table_unsp[n].instr,
@@ -424,12 +424,14 @@ void list_output_unsp(
   int count;
   int n;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
     count = disasm_unsp(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -438,9 +440,7 @@ void list_output_unsp(
 
     for (n = 0; n < count; n += 2)
     {
-      uint16_t data =
-        (memory_read_m(&asm_context->memory, start + n + 1) << 8) |
-         memory_read_m(&asm_context->memory, start + n);
+      uint16_t data = memory->read16(start + n);
 
       if (n == 0)
       {
@@ -482,13 +482,9 @@ void disasm_range_unsp(
       &cycles_min,
       &cycles_max);
 
-    //temp[0] = 0;
-
     for (n = 0; n < count; n += 2)
     {
-      uint16_t data =
-        (memory_read_m(memory, start + n + 1) << 8) |
-         memory_read_m(memory, start + n);
+      uint16_t data = memory->read16(start + n);
 
       if (n == 0)
       {

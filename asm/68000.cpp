@@ -1121,7 +1121,7 @@ static int write_bit_imm_ea(
 
       for (n = 0; n < distance; n++)
       {
-        ea[n] = memory_read(asm_context, asm_context->address + n);
+        ea[n] = asm_context->memory_read(asm_context->address + n);
       }
 
       add_bin16(asm_context, operands[0].value, IS_OPCODE);
@@ -1236,7 +1236,7 @@ static int write_branch(
     return (size + 1) * 2;
   }
 
-  //int len = memory_read(asm_context, asm_context->address);
+  //int len = asm_context->memory_read(asm_context->address);
   int offset;
 
   if (size == SIZE_B)
@@ -1495,7 +1495,7 @@ static int write_move(
 
   for (n = 0; n < src_len; n++)
   {
-    ea_src_bytes[n] = memory_read(asm_context, address + n);
+    ea_src_bytes[n] = asm_context->memory_read(address + n);
   }
 
   asm_context->address = address;
@@ -1507,7 +1507,7 @@ static int write_move(
 
   for (n = 0; n < dst_len; n++)
   {
-    ea_dst_bytes[n] = memory_read(asm_context, address + n);
+    ea_dst_bytes[n] = asm_context->memory_read(address + n);
   }
 
   asm_context->address = address;
@@ -1731,13 +1731,13 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
             token_type = tokens_get(asm_context, token, TOKENLEN);
             if (strcasecmp(token, "w") == 0)
             {
-              //memory_write(asm_context, asm_context->address, 2, asm_context->tokens.line);
+              //asm_context->memory_write(asm_context->address, 2, asm_context->tokens.line);
               operands[operand_count].type = OPERAND_ADDRESS_W;
             }
               else
             if (strcasecmp(token, "l") == 0)
             {
-              memory_write(asm_context, asm_context->address, 4, asm_context->tokens.line);
+              asm_context->memory_write(asm_context->address, 4, asm_context->tokens.line);
               operands[operand_count].type = OPERAND_ADDRESS_L;
             }
               else
@@ -1751,12 +1751,12 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
             if (eval_error == 1 || num > 0xffff)
             {
               // Can't figure out the size, so assume 32 bit :(
-              memory_write(asm_context, asm_context->address, 4, asm_context->tokens.line);
+              asm_context->memory_write(asm_context->address, 4, asm_context->tokens.line);
               operands[operand_count].type = OPERAND_ADDRESS_L;
             }
               else
             {
-              //memory_write(asm_context, asm_context->address, 2, asm_context->tokens.line);
+              //asm_context->memory_write(asm_context->address, 2, asm_context->tokens.line);
               operands[operand_count].type = OPERAND_ADDRESS_W;
             }
 
@@ -1881,7 +1881,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
 
           if (eval_error == 1)
           {
-            memory_write(asm_context, asm_context->address, 4, asm_context->tokens.line);
+            asm_context->memory_write(asm_context->address, 4, asm_context->tokens.line);
           }
 
           token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -1910,7 +1910,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
           }
             else
           {
-            if (memory_read(asm_context, asm_context->address) != 0 ||
+            if (asm_context->memory_read(asm_context->address) != 0 ||
                 eval_error == 1 ||
                 num > 0xffff)
             {
@@ -1936,7 +1936,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
         if (asm_context->pass == 1)
         {
           ignore_operand(asm_context);
-          //memory_write(asm_context, asm_context->address, 4, asm_context->tokens.line);
+          //asm_context->memory_write(asm_context->address, 4, asm_context->tokens.line);
           //eval_error = 1;
         }
           else
@@ -1947,7 +1947,7 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
       }
 
 #if 0
-      if (memory_read(asm_context, asm_context->address) != 0 ||
+      if (asm_context->memory_read(asm_context->address) != 0 ||
           eval_error == 1 ||
           num > 0xffff)
       {

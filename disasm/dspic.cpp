@@ -16,7 +16,7 @@
 #include "disasm/dspic.h"
 #include "table/dspic.h"
 
-#define READ_RAM(a) memory_read_m(memory, a)
+#define READ_RAM(a) memory->read8(a)
 
 static const char accum[] = { 'A','B' };
 static const char *bflag[] = { "", ".b" };
@@ -145,7 +145,7 @@ int disasm_dspic(
   int16_t offset;
   int n,b,d,f,a,w,lit;
 
-  opcode = memory_read32_m(memory, address);
+  opcode = memory->read32(address);
 
   n = 0;
   while (table_dspic[n].name != NULL)
@@ -271,7 +271,7 @@ int disasm_dspic(
           snprintf(instruction, length, "%s 0x%04x, w%d", table_dspic[n].name, f, w);
           return 4;
         case OP_GOTO:
-          f = (opcode & 0xffff) | (memory_read32_m(memory, address + 4) << 16);
+          f = (opcode & 0xffff) | (memory->read32(address + 4) << 16);
           snprintf(instruction, length, "%s 0x%04x", table_dspic[n].name, f);
           return 8;
         case OP_LIT1:
@@ -290,7 +290,7 @@ int disasm_dspic(
           return 4;
         case OP_LIT14_EXPR:
           lit = opcode & 0x3fff;
-          offset = memory_read32_m(memory, address+4);
+          offset = memory->read32(address + 4);
           snprintf(instruction, length, "%s #%d, 0x%04x (%d)", table_dspic[n].name, lit, ((address / 2) + 2) + ((int32_t)(offset) * 2), ((int32_t)(offset) * 2));
           return 8;
         case OP_LIT16_WND:
@@ -458,7 +458,7 @@ int disasm_dspic(
           snprintf(instruction, length, "%s.b w%d", table_dspic[n].name, w);
           return 4;
         case OP_WN_EXPR:
-          offset = memory_read32_m(memory, address + 4);
+          offset = memory->read32(address + 4);
           w = opcode & 0xf;
           snprintf(instruction, length, "%s w%d, 0x%04x (%d)", table_dspic[n].name, w, ((address / 2) + 2) + ((int32_t)(offset) * 2), ((int32_t)(offset) * 2));
           return 8;
@@ -612,9 +612,11 @@ void list_output_dspic(AsmContext *asm_context, uint32_t start, uint32_t end)
   char instruction[128];
   uint32_t opcode;
 
+  Memory *memory = &asm_context->memory;
+
   while (start < end)
   {
-    opcode = memory_read32_m(&asm_context->memory, start);
+    opcode = memory->read32(start);
 
     fprintf(asm_context->list, "\n");
 
@@ -641,9 +643,9 @@ void list_output_dspic(AsmContext *asm_context, uint32_t start, uint32_t end)
     {
       fprintf(asm_context->list, "0x%04x: 0x%02x%02x%02x\n",
         (start / 2) + 2,
-        memory_read(asm_context, start + 4),
-        memory_read(asm_context, start + 5),
-        memory_read(asm_context, start + 6));
+        asm_context->memory_read(start + 4),
+        asm_context->memory_read(start + 5),
+        asm_context->memory_read(start + 6));
     }
 
     start += count;

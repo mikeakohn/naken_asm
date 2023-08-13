@@ -54,7 +54,7 @@ int parse_db(AsmContext *asm_context, int null_term_flag)
           }
         }
 
-        memory_write_inc(asm_context, *s, DL_DATA);
+        asm_context->memory_write_inc(*s, DL_DATA);
 
         asm_context->data_count++;
         s++;
@@ -62,7 +62,7 @@ int parse_db(AsmContext *asm_context, int null_term_flag)
 
       if (null_term_flag == 1)
       {
-        memory_write_inc(asm_context, 0, DL_DATA);
+        asm_context->memory_write_inc(0, DL_DATA);
         asm_context->data_count++;
       }
     }
@@ -88,7 +88,7 @@ int parse_db(AsmContext *asm_context, int null_term_flag)
         return -1;
       }
 
-      memory_write_inc(asm_context, (uint8_t)data32, DL_DATA);
+      asm_context->memory_write_inc((uint8_t)data32, DL_DATA);
       asm_context->data_count++;
     }
 
@@ -150,13 +150,13 @@ int parse_dc16(AsmContext *asm_context)
 
     if (asm_context->memory.endian == ENDIAN_LITTLE)
     {
-      memory_write_inc(asm_context, data16 & 255, DL_DATA);
-      memory_write_inc(asm_context, data16 >> 8, DL_DATA);
+      asm_context->memory_write_inc(data16 & 255, DL_DATA);
+      asm_context->memory_write_inc(data16 >> 8, DL_DATA);
     }
       else
     {
-      memory_write_inc(asm_context, data16 >> 8, DL_DATA);
-      memory_write_inc(asm_context, data16 & 255, DL_DATA);
+      asm_context->memory_write_inc(data16 >> 8, DL_DATA);
+      asm_context->memory_write_inc(data16 & 255, DL_DATA);
     }
 
     asm_context->data_count += 2;
@@ -224,17 +224,17 @@ int parse_dc32(AsmContext *asm_context)
 
     if (asm_context->memory.endian == ENDIAN_LITTLE)
     {
-      memory_write_inc(asm_context, udata32 & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32 >> 8) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32 >> 16) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32 >> 24) & 0xff, DL_DATA);
+      asm_context->memory_write_inc(udata32 & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata32 >> 8) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata32 >> 16) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata32 >> 24) & 0xff, DL_DATA);
     }
       else
     {
-      memory_write_inc(asm_context, (udata32 >> 24) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32 >> 16) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata32 >> 8) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, udata32 & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata32 >> 24) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata32 >> 16) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata32 >> 8) & 0xff, DL_DATA);
+      asm_context->memory_write_inc(udata32 & 0xff, DL_DATA);
     }
 
     asm_context->data_count += 4;
@@ -288,25 +288,25 @@ int parse_dc64(AsmContext *asm_context)
 
     if (asm_context->memory.endian == ENDIAN_LITTLE)
     {
-      memory_write_inc(asm_context, udata64 & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 8) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 16) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 24) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 32) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 40) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 48) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 56) & 0xff, DL_DATA);
+      asm_context->memory_write_inc(udata64 & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 8) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 16) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 24) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 32) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 40) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 48) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 56) & 0xff, DL_DATA);
     }
       else
     {
-      memory_write_inc(asm_context, (udata64 >> 56) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 48) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 40) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 32) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 24) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 16) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, (udata64 >> 8) & 0xff, DL_DATA);
-      memory_write_inc(asm_context, udata64 & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 56) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 48) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 40) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 32) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 24) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 16) & 0xff, DL_DATA);
+      asm_context->memory_write_inc((udata64 >> 8) & 0xff, DL_DATA);
+      asm_context->memory_write_inc(udata64 & 0xff, DL_DATA);
     }
 
     asm_context->data_count += 8;
@@ -383,7 +383,7 @@ int parse_data_fill(AsmContext *asm_context)
 
   for (n = 0; n < count; n++)
   {
-    memory_write_inc(asm_context, value & 0xff, DL_DATA);
+    asm_context->memory_write_inc(value & 0xff, DL_DATA);
   }
 
   return 0;
@@ -471,7 +471,7 @@ static int parse_align(AsmContext *asm_context, int num)
   {
     // Issue #38: Can't actually write a byte here incase this is
     // aligning resb/w directives which don't write any data out.
-    //memory_write_inc(asm_context, 0, DL_EMPTY);
+    //asm_context->memory_write_inc(0, DL_EMPTY);
     asm_context->address++;
   }
 

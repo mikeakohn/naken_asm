@@ -92,6 +92,9 @@ private:
   uint16_t reg_sp;
   uint32_t reg_pc;
   uint8_t reg_cc;
+
+  // Not sure why this is needed.
+  uint32_t memory_size;
 };
 
 #endif

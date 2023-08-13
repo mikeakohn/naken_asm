@@ -12,41 +12,41 @@ int test_Memory()
 
   memory.endian = ENDIAN_LITTLE;
 
-  memory_write32_m(&memory, 32, 0x12345678);
+  memory.write32(32, 0x12345678);
 
-  if (memory_read32_m(&memory, 32) != 0x12345678) { errors++; }
-  if (memory_read16_m(&memory, 32) != 0x5678) { errors++; }
+  if (memory.read32(32) != 0x12345678) { errors++; }
+  if (memory.read16(32) != 0x5678) { errors++; }
 
-  if (memory_read_m(&memory, 32) != 0x78) { errors++; }
-  if (memory_read_m(&memory, 33) != 0x56) { errors++; }
-  if (memory_read_m(&memory, 34) != 0x34) { errors++; }
-  if (memory_read_m(&memory, 35) != 0x12) { errors++; }
+  if (memory.read8(32) != 0x78) { errors++; }
+  if (memory.read8(33) != 0x56) { errors++; }
+  if (memory.read8(34) != 0x34) { errors++; }
+  if (memory.read8(35) != 0x12) { errors++; }
 
-  memory_write16_m(&memory, 40, 0x4567);
+  memory.write16(40, 0x4567);
 
-  if (memory_read16_m(&memory, 40) != 0x4567) { errors++; }
+  if (memory.read16(40) != 0x4567) { errors++; }
 
-  if (memory_read_m(&memory, 40) != 0x67) { errors++; }
-  if (memory_read_m(&memory, 41) != 0x45) { errors++; }
+  if (memory.read8(40) != 0x67) { errors++; }
+  if (memory.read8(41) != 0x45) { errors++; }
 
   memory.endian = ENDIAN_BIG;
 
-  memory_write32_m(&memory, 32, 0x12345678);
+  memory.write32(32, 0x12345678);
 
-  if (memory_read32_m(&memory, 32) != 0x12345678) { errors++; }
-  if (memory_read16_m(&memory, 32) != 0x1234) { errors++; }
+  if (memory.read32(32) != 0x12345678) { errors++; }
+  if (memory.read16(32) != 0x1234) { errors++; }
 
-  if (memory_read_m(&memory, 32) != 0x12) { errors++; }
-  if (memory_read_m(&memory, 33) != 0x34) { errors++; }
-  if (memory_read_m(&memory, 34) != 0x56) { errors++; }
-  if (memory_read_m(&memory, 35) != 0x78) { errors++; }
+  if (memory.read8(32) != 0x12) { errors++; }
+  if (memory.read8(33) != 0x34) { errors++; }
+  if (memory.read8(34) != 0x56) { errors++; }
+  if (memory.read8(35) != 0x78) { errors++; }
 
-  memory_write16_m(&memory, 40, 0x4567);
+  memory.write16(40, 0x4567);
 
-  if (memory_read16_m(&memory, 40) != 0x4567) { errors++; }
+  if (memory.read16(40) != 0x4567) { errors++; }
 
-  if (memory_read_m(&memory, 40) != 0x45) { errors++; }
-  if (memory_read_m(&memory, 41) != 0x67) { errors++; }
+  if (memory.read8(40) != 0x45) { errors++; }
+  if (memory.read8(41) != 0x67) { errors++; }
 
   return errors;
 }

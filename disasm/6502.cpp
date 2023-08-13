@@ -18,7 +18,7 @@
 #include "disasm/6502.h"
 #include "table/6502.h"
 
-#define READ_RAM(a) (memory_read_m(memory, a) & 0xff)
+#define READ_RAM(a) (memory->read8(a) & 0xff)
 
 // bytes for each addressing mode
 static int op_bytes[] = { 1, 2, 2, 3, 2, 2, 3, 3, 3, 2, 2, 2, 3, 2, 3 };
@@ -166,15 +166,14 @@ void list_output_6502(
   int cycles_min,cycles_max;
   char instruction[128];
   char bytes[16];
-  //uint32_t opcode = memory_read32_m(&asm_context->memory, start);
   int count;
   int n;
 
-  //opcode &= 0xff;
+  Memory *memory = &asm_context->memory;
 
   fprintf(asm_context->list, "\n");
   count = disasm_6502(
-    &asm_context->memory,
+    memory,
     start,
     instruction,
     sizeof(instruction),
@@ -185,7 +184,7 @@ void list_output_6502(
   for (n = 0; n < count; n++)
   {
     char temp[4];
-    snprintf(temp, sizeof(temp), "%02x ", memory_read_m(&asm_context->memory, start + n));
+    snprintf(temp, sizeof(temp), "%02x ", memory->read8(start + n));
     strcat(bytes, temp);
   }
 

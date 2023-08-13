@@ -20,9 +20,9 @@
 #include "simulate/65816.h"
 #include "table/65816.h"
 
-#define SHOW_STACK sp, memory_read_m(memory, sp)
-#define READ_RAM(a) memory_read_m(memory, a)
-#define WRITE_RAM(a, b) memory_write_m(memory, a, b)
+#define SHOW_STACK sp, memory->read8(sp)
+#define READ_RAM(a) memory->read8(a)
+#define WRITE_RAM(a, b) memory->write8(a, b)
 
 #define REG_A reg_a
 #define REG_X reg_x

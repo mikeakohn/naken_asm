@@ -16,8 +16,6 @@
 #include "disasm/tms9900.h"
 #include "table/tms9900.h"
 
-#define READ_RAM16(a) (memory_read_m(memory, a)<<8)|memory_read_m(memory, a+1)
-
 static uint16_t masks[] =
 {
   0xf000, // OP_DUAL,
@@ -74,7 +72,7 @@ int disasm_tms9900(
   *cycles_min = -1;
   *cycles_max = -1;
 
-  opcode = READ_RAM16(address);
+  opcode = memory->read16(address);
 
   n = 0;
 
@@ -93,8 +91,8 @@ int disasm_tms9900(
           td = (opcode >> 10) & 0x3;
           s = opcode & 0xf;
           d = (opcode >> 6) & 0xf;
-          if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
-          if (td == 2) { address += 2; count += 2; data_d=READ_RAM16(address); }
+          if (ts == 2) { address += 2; count += 2; data_s=memory->read16(address); }
+          if (td == 2) { address += 2; count += 2; data_d=memory->read16(address); }
           get_operand(operand_s, sizeof(operand_s), ts, s, data_s);
           get_operand(operand_d, sizeof(operand_d), td, d, data_d);
           snprintf(instruction, length, "%s %s, %s", table_tms9900[n].instr, operand_s, operand_d);
@@ -107,7 +105,7 @@ int disasm_tms9900(
           td = 0;
           s = opcode & 0xf;
           d = (opcode >> 6) & 0xf;
-          if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
+          if (ts == 2) { address += 2; count += 2; data_s=memory->read16(address); }
           get_operand(operand_s, sizeof(operand_s), ts, s, data_s);
           get_operand(operand_d, sizeof(operand_d), td, d, data_d);
           snprintf(instruction, length, "%s %s, %s", table_tms9900[n].instr, operand_s, operand_d);
@@ -117,7 +115,7 @@ int disasm_tms9900(
         {
           ts = (opcode >> 4) & 0x3;
           s = opcode & 0xf;
-          if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
+          if (ts == 2) { address += 2; count += 2; data_s=memory->read16(address); }
           get_operand(operand_s, sizeof(operand_s), ts, s, data_s);
           snprintf(instruction, length, "%s %s", table_tms9900[n].instr, operand_s);
           return count;
@@ -127,7 +125,7 @@ int disasm_tms9900(
           ts = (opcode >> 4) & 0x3;
           s = opcode & 0xf;
           data_d = (opcode >> 6) & 0xf;
-          if (ts == 2) { address += 2; count += 2; data_s=READ_RAM16(address); }
+          if (ts == 2) { address += 2; count += 2; data_s=memory->read16(address); }
           get_operand(operand_s, sizeof(operand_s), ts, s, data_s);
           snprintf(instruction, length, "%s %s, %d", table_tms9900[n].instr, operand_s, data_d);
           return count;
@@ -155,14 +153,14 @@ int disasm_tms9900(
         case OP_IMMEDIATE:
         {
           s = opcode & 0xf;
-          data_d = READ_RAM16(address + 2);
+          data_d = memory->read16(address + 2);
           snprintf(instruction, length, "%s r%d, 0x%04x (%d)",
             table_tms9900[n].instr, s, data_d, data_d);
           return count + 2;
         }
         case OP_INT_REG_LD:
         {
-          data_d = READ_RAM16(address + 2);
+          data_d = memory->read16(address + 2);
           snprintf(instruction, length, "%s %d", table_tms9900[n].instr, data_d);
           return count + 2;
         }
@@ -201,16 +199,16 @@ void list_output_tms9900(
   int n;
   uint32_t opcode;
 
+  Memory *memory = &asm_context->memory;
+
   fprintf(asm_context->list, "\n");
 
   while (start < end)
   {
-    opcode =
-      (memory_read_m(&asm_context->memory, start) << 8) |
-       memory_read_m(&asm_context->memory, start + 1);
+    opcode = memory->read16(start);
 
     count = disasm_tms9900(
-      &asm_context->memory,
+      memory,
       start,
       instruction,
       sizeof(instruction),
@@ -230,7 +228,8 @@ void list_output_tms9900(
 
     for (n = 2; n < count; n = n + 2)
     {
-      opcode = (memory_read_m(&asm_context->memory, start + n) << 8) | memory_read_m(&asm_context->memory, start + n + 1);
+      opcode = memory->read16(start + n);
+
       fprintf(asm_context->list, "0x%04x: %04x\n", start + n, opcode);
     }
 
@@ -269,7 +268,7 @@ void disasm_range_tms9900(
     for (n = 0; n < count; n++)
     {
       char temp[8];
-      snprintf(temp, sizeof(temp), "%04x ", READ_RAM16(start + n));
+      snprintf(temp, sizeof(temp), "%04x ", memory->read16(start + n));
       strcat(bytes, temp);
     }
 

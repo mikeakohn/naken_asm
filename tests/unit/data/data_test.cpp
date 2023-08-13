@@ -69,7 +69,7 @@ void test_int(const char *source, uint8_t *answer, int length, int endian)
 
   for (i = 0; i < length; i++)
   {
-    if (memory_read_m(&asm_context.memory, i) != answer[i])
+    if (asm_context.memory_read(i) != answer[i])
     {
       oops++;
     }
@@ -112,14 +112,13 @@ void test_float(const char *source, float *answer, int length, int endian)
   {
     if ((i % 4) == 0) { f = 0; }
 
-    // printf("%d) %02x\n", i, memory_read_m(&asm_context.memory, i));
     if (endian == LITTLE)
     {
-      f = (f >> 8) | (memory_read_m(&asm_context.memory, i) << 24);
+      f = (f >> 8) | (asm_context.memory_read(i) << 24);
     }
       else
     {
-      f = (f << 8) | memory_read_m(&asm_context.memory, i);
+      f = (f << 8) | asm_context.memory_read(i);
     }
 
     if ((i % 4) == 3)
