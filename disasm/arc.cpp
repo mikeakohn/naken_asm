@@ -16,10 +16,6 @@
 #include "disasm/arc.h"
 #include "table/arc.h"
 
-//#define READ_RAM16(a) \
-//  ((memory_read_m(memory, a + 0) << 8) | \
-//   (memory_read_m(memory, a + 1)))
-
 #define READ_RAM32(a) \
   (memory->read16(a + 0) << 16) | \
    memory->read16(a + 2);

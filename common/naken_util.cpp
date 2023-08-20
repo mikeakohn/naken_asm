@@ -746,11 +746,6 @@ int main(int argc, char *argv[])
 
   symbols_free(&util_context.symbols);
 
-  if (util_context.simulate != NULL)
-  {
-    delete util_context.simulate;
-  }
-
   return error_flag == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 

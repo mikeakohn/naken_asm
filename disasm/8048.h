@@ -13,6 +13,7 @@
 #define NAKEN_ASM_DISASM_8048_H
 
 #include "common/assembler.h"
+#include "table/8048.h"
 
 int disasm_8048(
   Memory *memory,

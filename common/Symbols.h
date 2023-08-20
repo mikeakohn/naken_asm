@@ -21,8 +21,8 @@
 struct SymbolsData
 {
   uint8_t len;             // length of name[]
-  uint8_t flag_rw : 1;     // can write to this
-  uint8_t flag_export : 1; // ELF will export symbol
+  bool flag_rw     : 1;    // can write to this
+  bool flag_export : 1;    // ELF will export symbol
   uint16_t scope;          // Up to 65535 local scopes.  0 = global.
   uint32_t address;        // address for this name
   char name[];             // null terminated name of label:
@@ -31,9 +31,9 @@ struct SymbolsData
 struct Symbols
 {
   MemoryPool *memory_pool;
-  uint8_t locked : 1;
-  uint8_t in_scope : 1;
-  uint8_t debug : 1;
+  bool locked   : 1;
+  bool in_scope : 1;
+  bool debug    : 1;
   uint32_t current_scope;
 };
 
@@ -46,7 +46,7 @@ struct SymbolsIter
   int count;
   int end_flag;
   uint32_t scope;
-  uint8_t flag_export : 1;
+  bool flag_export : 1;
 };
 
 int symbols_init(Symbols *symbols);

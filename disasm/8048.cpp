@@ -36,14 +36,9 @@ int disasm_8048(
 
   for (n = 0; table_8048[n].name != NULL; n++)
   {
-    if (table_8048[n].flags == FLAG_8048)
+    if (table_8048[n].flags != 0)
     {
-      if (flags != 0) { continue; }
-    }
-
-    if (table_8048[n].flags == FLAG_8041)
-    {
-      if (flags != 1) { continue; }
+      if ((table_8048[n].flags & flags) == 0) { continue; }
     }
 
     if (table_8048[n].opcode == (opcode & table_8048[n].mask))

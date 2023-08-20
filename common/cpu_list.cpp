@@ -432,7 +432,7 @@ struct _cpu_list cpu_list[] =
     list_output_8048,
     disasm_range_8048,
     NULL,
-    1,
+    FLAG_8041,
   },
   {
     "8048",
@@ -454,7 +454,7 @@ struct _cpu_list cpu_list[] =
     list_output_8048,
     disasm_range_8048,
     NULL,
-    NO_FLAGS,
+    FLAG_8048,
   },
 #endif
 #ifdef ENABLE_8051

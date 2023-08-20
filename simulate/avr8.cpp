@@ -195,18 +195,11 @@ void SimulateAvr8::dump_registers()
 
   for (n = 0; n < 32; n++)
   {
-    if ((n % 8) == 0)
-    {
-      printf("\n");
-    }
-      else
-    {
-      printf(" ");
-    }
+    printf((n % 8) == 0 ? "\n" : " ");
 
-    char reg[4];
-    snprintf(reg, sizeof(reg), "r%d", n);
-    printf("%3s: 0x%02x", reg, reg[n]);
+    char reg_name[4];
+    snprintf(reg_name, sizeof(reg_name), "r%d", n);
+    printf("%3s: 0x%02x", reg_name, reg[n]);
   }
 
   printf(" X=0x%04x, Y=0x%04x, Z=0x%04x\n\n", GET_X(), GET_Y(), GET_Z());
