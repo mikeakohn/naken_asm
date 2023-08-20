@@ -19,6 +19,7 @@ int disasm_lc3(
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max);
 

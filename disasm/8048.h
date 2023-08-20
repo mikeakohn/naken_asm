@@ -17,10 +17,10 @@
 
 int disasm_8048(
   Memory *memory,
-  uint32_t flags,
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max);
 

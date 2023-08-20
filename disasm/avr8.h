@@ -21,6 +21,7 @@ int disasm_avr8(
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max);
 

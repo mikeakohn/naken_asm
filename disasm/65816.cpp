@@ -33,9 +33,9 @@ int disasm_65816(
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
-  int *cycles_max,
-  int bytes)
+  int *cycles_max)
 {
   char temp[128];
   char num[64];
@@ -45,9 +45,13 @@ int disasm_65816(
   int lo = 0, hi = 0, bank = 0;
   int branch_address = 0;
 
-  *cycles_min=-1;
-  *cycles_max=-1;
-  opcode=READ_RAM(address);
+  // FIXME: This used to be a parameter on listings calculated by
+  // end - start + 1.
+  int bytes = 0;
+
+  *cycles_min = -1;
+  *cycles_max = -1;
+  opcode = READ_RAM(address);
 
   snprintf(temp, sizeof(temp), " ");
 
@@ -55,9 +59,13 @@ int disasm_65816(
   op = table_65816_opcodes[opcode].op;
 
   if (bytes == 0)
+  {
     bytes = op_bytes[op];
-  else
+  }
+    else
+  {
     bytes = bytes - 1;
+  }
 
   if (bytes > 1)
   {
@@ -209,9 +217,9 @@ void list_output_65816(
     start,
     instruction,
     sizeof(instruction),
+    asm_context->flags,
     &cycles_min,
-    &cycles_max,
-    end - start + 1);
+    &cycles_max);
 
   bytes[0] = 0;
 
@@ -256,9 +264,9 @@ void disasm_range_65816(
       start,
       instruction,
       sizeof(instruction),
+      0,
       &cycles_min,
-      &cycles_max,
-      0);
+      &cycles_max);
 
     if (cycles_min < 1)
     {

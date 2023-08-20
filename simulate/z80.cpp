@@ -156,6 +156,7 @@ int SimulateZ80::run(int max_cycles, int step)
       pc_current,
       instruction,
       sizeof(instruction),
+      0,
       &cycles_min,
       &cycles_max);
 
@@ -178,6 +179,7 @@ int SimulateZ80::run(int max_cycles, int step)
           disasm_pc,
           instruction,
           sizeof(instruction),
+          0,
           &cycles_min,
           &cycles_max);
 

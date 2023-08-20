@@ -188,10 +188,10 @@ int SimulateMips::run(int max_cycles, int step)
 
         int count = disasm_mips(
           memory,
-          MIPS_I | MIPS_II | MIPS_III | MIPS_32,
           current_pc,
           instruction,
           sizeof(instruction),
+          MIPS_I | MIPS_II | MIPS_III | MIPS_32,
           &cycles_min,
           &cycles_max);
 

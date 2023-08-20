@@ -654,6 +654,7 @@ int disasm_msp430(
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max)
 {
@@ -917,6 +918,7 @@ int disasm_msp430x(
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max)
 {
@@ -935,6 +937,7 @@ int disasm_msp430x(
     address,
     instruction,
     length,
+    0,
     cycles_min,
     cycles_max);
 }
@@ -943,7 +946,7 @@ static void list_output_msp430_both(
   AsmContext *asm_context,
   uint32_t start,
   uint32_t end,
-  int msp430x)
+  bool is_msp430x)
 {
   int cycles_min,cycles_max,count;
   int num;
@@ -953,13 +956,14 @@ static void list_output_msp430_both(
 
   while (start < end)
   {
-    if (msp430x == 0)
+    if (is_msp430x == false)
     {
       count = disasm_msp430(
         &asm_context->memory,
         start,
         instruction,
         sizeof(instruction),
+        asm_context->flags,
         &cycles_min,
         &cycles_max);
     }
@@ -970,6 +974,7 @@ static void list_output_msp430_both(
         start,
         instruction,
         sizeof(instruction),
+        asm_context->flags,
         &cycles_min,
         &cycles_max);
     }
@@ -1056,6 +1061,7 @@ static void disasm_range_msp430_both(
         start,
         instruction,
         sizeof(instruction),
+        0,
         &cycles_min,
         &cycles_max);
     }
@@ -1066,6 +1072,7 @@ static void disasm_range_msp430_both(
         start,
         instruction,
         sizeof(instruction),
+        0,
         &cycles_min,
         &cycles_max);
     }
@@ -1103,7 +1110,7 @@ void list_output_msp430(
   uint32_t start,
   uint32_t end)
 {
-  list_output_msp430_both(asm_context, start, end, 0);
+  list_output_msp430_both(asm_context, start, end, false);
 }
 
 void list_output_msp430x(
@@ -1111,7 +1118,7 @@ void list_output_msp430x(
   uint32_t start,
   uint32_t end)
 {
-  list_output_msp430_both(asm_context, start, end, 1);
+  list_output_msp430_both(asm_context, start, end, true);
 }
 
 void disasm_range_msp430(

@@ -19,6 +19,7 @@ int disasm_tms1000(
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max);
 
@@ -38,6 +39,7 @@ int disasm_tms1100(
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max);
 

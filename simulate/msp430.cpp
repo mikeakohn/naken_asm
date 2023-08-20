@@ -323,6 +323,7 @@ int SimulateMsp430::run(int max_cycles, int step)
           pc,
           instruction,
           sizeof(instruction),
+          0,
           &cycles_min,
           &cycles_max);
 

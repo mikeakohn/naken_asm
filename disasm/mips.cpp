@@ -308,10 +308,10 @@ static int disasm_n64_rsp(
 
 int disasm_mips(
   Memory *memory,
-  uint32_t flags,
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max)
 {
@@ -939,10 +939,10 @@ void list_output_mips(
 
     disasm_mips(
       memory,
-      asm_context->flags,
       start,
       instruction,
       sizeof(instruction),
+      asm_context->flags,
       &cycles_min,
       &cycles_max);
 
@@ -978,10 +978,10 @@ void disasm_range_mips(
 
     disasm_mips(
       memory,
-      flags,
       start,
       instruction,
       sizeof(instruction),
+      flags,
       &cycles_min,
       &cycles_max);
 

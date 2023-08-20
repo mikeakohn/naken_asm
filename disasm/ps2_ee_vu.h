@@ -18,17 +18,14 @@
 #define PS2_EE_VU0 0
 #define PS2_EE_VU1 1
 
-#if 0
 int disasm_ps2_ee_vu(
   Memory *memory,
-  uint32_t flags,
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
-  int *cycles_max,
-  int is_lower);
-#endif
+  int *cycles_max);
 
 void list_output_ps2_ee_vu(
   AsmContext *asm_context,

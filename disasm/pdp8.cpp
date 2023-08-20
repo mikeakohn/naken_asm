@@ -85,7 +85,10 @@ int disasm_pdp8(
   Memory *memory,
   uint32_t address,
   char *instruction,
-  int length)
+  int length,
+  int flags,
+  int *cycles_min,
+  int *cycles_max)
 {
   int opcode;
   int n;
@@ -164,6 +167,7 @@ void list_output_pdp8(
 {
   uint32_t opcode;
   char instruction[128];
+  int cycles_min = 0, cycles_max = 0;
   int count;
 
   Memory *memory = &asm_context->memory;
@@ -176,7 +180,10 @@ void list_output_pdp8(
       memory,
       start,
       instruction,
-      sizeof(instruction));
+      sizeof(instruction),
+      asm_context->flags,
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory->read16(start);
 
@@ -193,6 +200,7 @@ void disasm_range_pdp8(
   uint32_t end)
 {
   char instruction[128];
+  int cycles_min = 0, cycles_max = 0;
   uint16_t opcode;
 
   printf("\n");
@@ -206,7 +214,10 @@ void disasm_range_pdp8(
       memory,
       start,
       instruction,
-      sizeof(instruction));
+      sizeof(instruction),
+      0,
+      &cycles_min,
+      &cycles_max);
 
     opcode = memory->read16(start);
 

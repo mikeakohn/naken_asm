@@ -23,9 +23,9 @@ int disasm_65816(
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
-  int *cycles_max,
-  int bytes);
+  int *cycles_max);
 
 void list_output_65816(
   AsmContext *asm_context,

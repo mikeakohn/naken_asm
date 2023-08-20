@@ -242,6 +242,7 @@ int SimulateAvr8::run(int max_cycles, int step)
           disasm_pc * 2,
           instruction,
           sizeof(instruction),
+          0,
           &cycles_min,
           &cycles_max) / 2;
 

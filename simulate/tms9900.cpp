@@ -303,6 +303,7 @@ int SimulateTms9900::run(int max_cycles, int step)
           pc_current,
           instruction,
           sizeof(instruction),
+          0,
           &cycles_min,
           &cycles_max);
 

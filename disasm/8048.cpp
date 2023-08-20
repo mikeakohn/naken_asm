@@ -18,10 +18,10 @@
 
 int disasm_8048(
   Memory *memory,
-  uint32_t flags,
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max)
 {
@@ -191,10 +191,10 @@ void list_output_8048(
   {
     count = disasm_8048(
       memory,
-      asm_context->flags,
       start,
       instruction,
       sizeof(instruction),
+      asm_context->flags,
       &cycles_min,
       &cycles_max);
 
@@ -235,10 +235,10 @@ void disasm_range_8048(
   {
     count = disasm_8048(
       memory,
-      flags,
       start,
       instruction,
       sizeof(instruction),
+      flags,
       &cycles_min,
       &cycles_max);
 

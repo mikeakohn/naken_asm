@@ -1,5 +1,4 @@
 /**
-  int length,
  *  naken_asm assembler.
  *  Author: Michael Kohn
  *   Email: mike@mikekohn.net
@@ -20,6 +19,7 @@ int disasm_xtensa(
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max);
 

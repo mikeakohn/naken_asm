@@ -35,6 +35,7 @@ int disasm_lc3(
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max)
 {
@@ -162,6 +163,7 @@ void list_output_lc3(
       start,
       instruction,
       sizeof(instruction),
+      asm_context->flags,
       &cycles_min,
       &cycles_max);
 
@@ -196,6 +198,7 @@ void disasm_range_lc3(
       start,
       instruction,
       sizeof(instruction),
+      0,
       &cycles_min,
       &cycles_max);
 

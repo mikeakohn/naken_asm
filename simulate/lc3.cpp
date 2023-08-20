@@ -149,6 +149,7 @@ int SimulateLc3::run(int max_cycles, int step)
           pc_current * 2,
           instruction,
           sizeof(instruction),
+          0,
           &cycles_min,
           &cycles_max);
 

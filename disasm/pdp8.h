@@ -20,7 +20,10 @@ int disasm_pdp8(
   Memory *memory,
   uint32_t address,
   char *instruction,
-  int length);
+  int length,
+  int flags,
+  int *cycles_min,
+  int *cycles_max);
 
 void list_output_pdp8(
   AsmContext *asm_context,

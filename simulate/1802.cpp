@@ -296,6 +296,7 @@ int Simulate1802::run(int cycles, int step)
           pc,
           instruction,
           sizeof(instruction),
+          0,
           &cycles_min,
           &cycles_max);
 

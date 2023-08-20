@@ -17,13 +17,12 @@
 
 int disasm_ps2_ee_vu(
   Memory *memory,
-  uint32_t flags,
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
-  int *cycles_max,
-  int is_lower)
+  int *cycles_max)
 {
   struct _table_ps2_ee_vu *table_ps2_ee_vu;
   uint32_t opcode;
@@ -41,7 +40,9 @@ int disasm_ps2_ee_vu(
   *cycles_max = -1;
   opcode = memory->read32(address);
 
-  if (is_lower == 0)
+  bool is_lower = (address % 8) == 0;
+
+  if (is_lower == false)
   {
     table_ps2_ee_vu = table_ps2_ee_vu_upper;
 
@@ -240,23 +241,21 @@ void list_output_ps2_ee_vu(
 
     disasm_ps2_ee_vu(
       memory,
-      asm_context->flags,
       start + 4,
       instruction_upper,
       sizeof(instruction_upper),
+      asm_context->flags,
       &cycles_min,
-      &cycles_max,
-      0);
+      &cycles_max);
 
     disasm_ps2_ee_vu(
       memory,
-      asm_context->flags,
       start,
       instruction_lower,
       sizeof(instruction_lower),
+      asm_context->flags,
       &cycles_min,
-      &cycles_max,
-      1);
+      &cycles_max);
 
     fprintf(asm_context->list, "0x%08x: 0x%08x 0x%08x %-20s %s\n", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
 
@@ -297,23 +296,21 @@ void disasm_range_ps2_ee_vu(
 
     disasm_ps2_ee_vu(
       memory,
-      flags,
       start + 4,
       instruction_upper,
       sizeof(instruction_upper),
+      flags,
       &cycles_min,
-      &cycles_max,
-      0);
+      &cycles_max);
 
     disasm_ps2_ee_vu(
       memory,
-      flags,
       start,
       instruction_lower,
       sizeof(instruction_lower),
+      flags,
       &cycles_min,
-      &cycles_max,
-      1);
+      &cycles_max);
 
     printf("0x%08x: 0x%08x 0x%08x %-20s %s\n", start, opcode_upper, opcode_lower, instruction_upper, instruction_lower);
 

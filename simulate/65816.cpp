@@ -209,9 +209,9 @@ int Simulate65816::run(int max_cycles, int step)
         pc,
         instruction,
         sizeof(instruction),
+        0,
         &cycles_min,
-        &cycles_max,
-        0);
+        &cycles_max);
     }
 
     if (show == true)
@@ -227,9 +227,9 @@ int Simulate65816::run(int max_cycles, int step)
           pc,
           instruction,
           sizeof(instruction),
+          0,
           &cycles_min,
-          &cycles_max,
-          0);
+          &cycles_max);
 
         if (cycles_min == -1) break;
 

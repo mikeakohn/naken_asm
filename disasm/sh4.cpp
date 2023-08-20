@@ -21,6 +21,7 @@ int disasm_sh4(
   uint32_t address,
   char *instruction,
   int length,
+  int flags,
   int *cycles_min,
   int *cycles_max)
 {
@@ -539,6 +540,7 @@ void list_output_sh4(
       start,
       instruction,
       sizeof(instruction),
+      asm_context->flags,
       &cycles_min,
       &cycles_max);
 
@@ -573,6 +575,7 @@ void disasm_range_sh4(
       start,
       instruction,
       sizeof(instruction),
+      0,
       &cycles_min,
       &cycles_max);
 
