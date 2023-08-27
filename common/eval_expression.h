@@ -14,34 +14,6 @@
 
 #include "common/assembler.h"
 
-enum
-{
-  PREC_NOT,
-  PREC_MUL,
-  PREC_ADD,
-  PREC_SHIFT,
-  PREC_AND,
-  PREC_XOR,
-  PREC_OR,
-  PREC_UNSET
-};
-
-enum
-{
-  OPER_UNSET,
-  OPER_NOT,
-  OPER_MUL,
-  OPER_DIV,
-  OPER_MOD,
-  OPER_LEFT_SHIFT,
-  OPER_RIGHT_SHIFT,
-  OPER_PLUS,
-  OPER_MINUS,
-  OPER_AND,
-  OPER_XOR,
-  OPER_OR
-};
-
 int eval_expression(AsmContext *asm_context, int *num);
 
 #endif

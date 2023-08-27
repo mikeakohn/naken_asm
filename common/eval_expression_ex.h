@@ -16,7 +16,6 @@
 #include "common/eval_expression.h"
 #include "common/Var.h"
 
-#if 0
 enum
 {
   PREC_NOT,
@@ -44,7 +43,6 @@ enum
   OPER_XOR,
   OPER_OR
 };
-#endif
 
 int eval_expression_ex(AsmContext *asm_context, Var &var);
 
