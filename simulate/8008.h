@@ -35,8 +35,35 @@ public:
 private:
   int execute_instruction(uint8_t opcode);
 
-  uint16_t reg[8];
+  void push(uint16_t value)
+  {
+    stack[sp++] = value;
+    sp &= 7;
+  }
+
+  uint16_t pop()
+  {
+    uint16_t value = stack[--sp];
+    sp &= 7;
+    return value;
+  }
+
+  void set_parity(uint8_t value);
+  void alu(uint8_t operation, uint8_t s);
+
   uint16_t pc;
+  uint16_t sp;
+
+  struct
+  {
+    uint8_t p : 1;
+    uint8_t s : 1;
+    uint8_t c : 1;
+    uint8_t z : 1;
+  } flags;
+
+  uint8_t reg[8];
+  uint16_t stack[8];
 };
 
 #endif
