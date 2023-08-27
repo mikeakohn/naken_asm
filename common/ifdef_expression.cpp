@@ -198,7 +198,7 @@ static int parse_ifdef_expression(
 {
   char token[TOKENLEN];
   Operator oper;
-  SymbolsData *symbols_data;
+  Symbols::Entry *symbols_entry;
   int token_type;
   int is_not = 0;
   int n1 = 0;
@@ -208,7 +208,7 @@ static int parse_ifdef_expression(
   oper.precedence = precedence;
   n = *num;
 
-  while (1)
+  while (true)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -312,9 +312,9 @@ printf("debug> #if: parse_defined()=%d\n", n);
           if (n == -1) { return -1; }
         }
           else
-        if (value == NULL && (symbols_data = asm_context->symbols.find(token)) != NULL)
+        if (value == NULL && (symbols_entry = asm_context->symbols.find(token)) != NULL)
         {
-          n = symbols_data->address;
+          n = symbols_entry->address;
         }
           else
         if (value != NULL && param_count == 0 && is_num(value))

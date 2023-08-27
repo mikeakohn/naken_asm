@@ -18,16 +18,6 @@
 
 #define SYMBOLS_HEAP_SIZE 32768
 
-struct SymbolsData
-{
-  uint8_t len;             // length of name[]
-  bool flag_rw     : 1;    // can write to this
-  bool flag_export : 1;    // ELF will export symbol
-  uint16_t scope;          // Up to 65535 local scopes.  0 = global.
-  uint32_t address;        // address for this name
-  char name[];             // null terminated name of label:
-};
-
 struct SymbolsIter
 {
   MemoryPool *memory_pool;
@@ -46,7 +36,17 @@ public:
   Symbols();
   ~Symbols();
 
-  SymbolsData *find(const char *name);
+  struct Entry
+  {
+    uint8_t len;             // length of name[]
+    bool flag_rw     : 1;    // can write to this
+    bool flag_export : 1;    // ELF will export symbol
+    uint16_t scope;          // Up to 65535 local scopes.  0 = global.
+    uint32_t address;        // address for this name
+    char name[];             // null terminated name of label:
+  };
+
+  Entry *find(const char *name);
   int append(const char *name, uint32_t address);
   int set(const char *name, uint32_t address);
   int export_symbol(const char *name);
