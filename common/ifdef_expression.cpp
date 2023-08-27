@@ -118,7 +118,7 @@ static int parse_defined(AsmContext *asm_context)
     ret = 1;
   }
     else
-  if (symbols_find(&asm_context->symbols, token) != NULL)
+  if (asm_context->symbols.find(token) != NULL)
   {
     ret = 1;
   }
@@ -312,7 +312,7 @@ printf("debug> #if: parse_defined()=%d\n", n);
           if (n == -1) { return -1; }
         }
           else
-        if (value == NULL && (symbols_data = symbols_find(&asm_context->symbols, token)) != NULL)
+        if (value == NULL && (symbols_data = asm_context->symbols.find(token)) != NULL)
         {
           n = symbols_data->address;
         }

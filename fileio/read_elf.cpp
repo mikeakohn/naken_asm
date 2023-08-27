@@ -526,7 +526,7 @@ int read_elf(
             elf_sym.st_info != STT_SECTION &&
             elf_sym.st_info != STT_FILE)
         {
-          symbols_append(symbols, name, elf_sym.st_value);
+          symbols->append(name, elf_sym.st_value);
         }
       }
 

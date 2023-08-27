@@ -27,7 +27,6 @@ int test_symbols(const char *label, const char *code)
 
   printf("%s\n", code);
 
-  symbols_init(&asm_context.symbols);
   macros_init(&asm_context.macros);
 
   asm_context.pass = 1;
@@ -42,17 +41,15 @@ int test_symbols(const char *label, const char *code)
     errors++;
   }
 
-  symbols_lookup(&asm_context.symbols, "first", &first_address_1);
-  symbols_lookup(&asm_context.symbols, "second", &second_address_1);
-  symbols_lookup(&asm_context.symbols, "third", &third_address_1);
-  symbols_lookup(&asm_context.symbols, "fourth", &fourth_address_1);
-  symbols_lookup(&asm_context.symbols, "fifth", &fifth_address_1);
+  asm_context.symbols.lookup("first", &first_address_1);
+  asm_context.symbols.lookup("second", &second_address_1);
+  asm_context.symbols.lookup("third", &third_address_1);
+  asm_context.symbols.lookup("fourth", &fourth_address_1);
+  asm_context.symbols.lookup("fifth", &fifth_address_1);
 
   asm_context.pass = 2;
-  //symbols_lock(&asm_context.symbols);
-  asm_context.symbols.locked = 0;
-  asm_context.symbols.debug = 1;
-  symbols_scope_reset(&asm_context.symbols);
+  asm_context.symbols.set_debug();
+  asm_context.symbols.scope_reset();
   asm_context.init();
   error_flag = assemble(&asm_context);
 
@@ -62,11 +59,11 @@ int test_symbols(const char *label, const char *code)
     errors++;
   }
 
-  symbols_lookup(&asm_context.symbols, "first", &first_address_2);
-  symbols_lookup(&asm_context.symbols, "second", &second_address_2);
-  symbols_lookup(&asm_context.symbols, "third", &third_address_2);
-  symbols_lookup(&asm_context.symbols, "fourth", &fourth_address_2);
-  symbols_lookup(&asm_context.symbols, "fifth", &fifth_address_2);
+  asm_context.symbols.lookup("first", &first_address_2);
+  asm_context.symbols.lookup("second", &second_address_2);
+  asm_context.symbols.lookup("third", &third_address_2);
+  asm_context.symbols.lookup("fourth", &fourth_address_2);
+  asm_context.symbols.lookup("fifth", &fifth_address_2);
 
   printf("first=%d  %d\n", first_address_1, first_address_2);
   printf("second=%d  %d\n", second_address_1, second_address_2);

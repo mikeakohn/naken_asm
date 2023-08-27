@@ -17,30 +17,27 @@
 #include "common/MemoryPool.h"
 #include "common/Symbols.h"
 
-int symbols_init(Symbols *symbols)
+Symbols::Symbols() :
+  memory_pool   (NULL),
+  locked        (false),
+  in_scope      (false),
+  debug         (false),
+  current_scope (0)
 {
-  symbols->memory_pool = NULL;
-  symbols->locked = 0;
-  symbols->in_scope = 0;
-  symbols->debug = 0;
-  symbols->current_scope = 0;
-
-  return 0;
 }
 
-void symbols_free(Symbols *symbols)
+Symbols::~Symbols()
 {
-  memory_pool_free(symbols->memory_pool);
-  symbols->memory_pool = NULL;
+  memory_pool_free(memory_pool);
 }
 
-SymbolsData *symbols_find(Symbols *symbols, const char *name)
+SymbolsData *Symbols::find(const char *name)
 {
-  MemoryPool *memory_pool = symbols->memory_pool;
+  MemoryPool *memory_pool = this->memory_pool;
   int ptr;
 
   // Check local scope.
-  if (symbols->in_scope != 0)
+  if (in_scope)
   {
     while (memory_pool != NULL)
     {
@@ -51,7 +48,7 @@ SymbolsData *symbols_find(Symbols *symbols, const char *name)
         SymbolsData *symbols_data =
           (SymbolsData *)(memory_pool->buffer + ptr);
 
-        if (symbols->current_scope == symbols_data->scope &&
+        if (current_scope == symbols_data->scope &&
             strcmp(symbols_data->name, name) == 0)
         {
           return symbols_data;
@@ -63,7 +60,7 @@ SymbolsData *symbols_find(Symbols *symbols, const char *name)
       memory_pool = memory_pool->next;
     }
 
-    memory_pool = symbols->memory_pool;
+    memory_pool = this->memory_pool;
   }
 
   // Check global scope.
@@ -89,30 +86,30 @@ SymbolsData *symbols_find(Symbols *symbols, const char *name)
   return NULL;
 }
 
-int symbols_append(Symbols *symbols, const char *name, uint32_t address)
+int Symbols::append(const char *name, uint32_t address)
 {
   int token_len;
-  MemoryPool *memory_pool = symbols->memory_pool;
+  MemoryPool *memory_pool = this->memory_pool;
   SymbolsData *symbols_data;
 
 #ifdef DEBUG
-//printf("symbols_append(%s, %d);\n", name, address);
+//printf("Symbols::append(%s, %d);\n", name, address);
 #endif
 
-  if (symbols->locked == 1) { return 0; }
+  if (locked) { return 0; }
 
-  symbols_data = symbols_find(symbols, name);
+  symbols_data = find(name);
 
   if (symbols_data != NULL)
   {
     // For unit test.  Probably a better way to do this.
-    if (symbols->debug == 1)
+    if (debug)
     {
       symbols_data->address = address;
       return 0;
     }
 
-    if (symbols->in_scope == 0 || symbols_data->scope == symbols->current_scope)
+    if (in_scope == false || symbols_data->scope == current_scope)
     {
       printf("Error: Label '%s' already defined.\n", name);
       return -1;
@@ -131,7 +128,7 @@ int symbols_append(Symbols *symbols, const char *name, uint32_t address)
   // If there is no pool, add one.
   if (memory_pool == NULL)
   {
-    memory_pool = memory_pool_add((NakenHeap *)symbols, SYMBOLS_HEAP_SIZE);
+    memory_pool = memory_pool_add((NakenHeap *)this, SYMBOLS_HEAP_SIZE);
   }
 
   // Find a pool that has enough area at the end to add this address.
@@ -145,7 +142,7 @@ int symbols_append(Symbols *symbols, const char *name, uint32_t address)
 
      if (memory_pool->next == NULL)
      {
-       memory_pool->next = memory_pool_add((NakenHeap *)symbols, SYMBOLS_HEAP_SIZE);
+       memory_pool->next = memory_pool_add((NakenHeap *)this, SYMBOLS_HEAP_SIZE);
      }
 
      memory_pool = memory_pool->next;
@@ -160,35 +157,35 @@ int symbols_append(Symbols *symbols, const char *name, uint32_t address)
 
   memcpy(symbols_data->name, name, token_len);
   symbols_data->len = token_len;
-  symbols_data->flag_rw = 0;
-  symbols_data->flag_export = 0;
+  symbols_data->flag_rw = false;
+  symbols_data->flag_export = false;
   symbols_data->address = address;
-  symbols_data->scope = symbols->in_scope == 0 ? 0 : symbols->current_scope;
+  symbols_data->scope = in_scope ? current_scope : 0;
 
   memory_pool->ptr += token_len + sizeof(SymbolsData);
 
   return 0;
 }
 
-int symbols_set(Symbols *symbols, const char *name, uint32_t address)
+int Symbols::set(const char *name, uint32_t address)
 {
   SymbolsData *symbols_data = NULL;
 
-  symbols_data = symbols_find(symbols, name);
+  symbols_data = find(name);
 
   if (symbols_data == NULL)
   {
-    if (symbols_append(symbols, name, address) != 0)
+    if (append(name, address) != 0)
     {
       return -1;
     }
 
-    symbols_data = symbols_find(symbols, name);
+    symbols_data = find(name);
     symbols_data->scope = 0;
-    symbols_data->flag_rw = 1;
+    symbols_data->flag_rw = true;
   }
     else
-  if (symbols_data->flag_rw == 1)
+  if (symbols_data->flag_rw)
   {
     symbols_data->address = address;
   }
@@ -200,9 +197,9 @@ int symbols_set(Symbols *symbols, const char *name, uint32_t address)
   return 0;
 }
 
-int symbols_export(Symbols *symbols, const char *name)
+int Symbols::export_symbol(const char *name)
 {
-  SymbolsData *symbols_data = symbols_find(symbols, name);
+  SymbolsData *symbols_data = find(name);
 
   if (symbols_data == NULL) { return -1; }
 
@@ -212,19 +209,14 @@ int symbols_export(Symbols *symbols, const char *name)
     return -1;
   }
 
-  symbols_data->flag_export = 1;
+  symbols_data->flag_export = true;
 
   return 0;
 }
 
-void symbols_lock(Symbols *symbols)
+int Symbols::lookup(const char *name, uint32_t *address)
 {
-  symbols->locked = 1;
-}
-
-int symbols_lookup(Symbols *symbols, const char *name, uint32_t *address)
-{
-  SymbolsData *symbols_data = symbols_find(symbols, name);
+  SymbolsData *symbols_data = find(name);
 
   if (symbols_data == NULL)
   {
@@ -237,14 +229,14 @@ int symbols_lookup(Symbols *symbols, const char *name, uint32_t *address)
   return 0;
 }
 
-int symbols_iterate(Symbols *symbols, SymbolsIter *iter)
+int Symbols::iterate(SymbolsIter *iter)
 {
-  MemoryPool *memory_pool = symbols->memory_pool;
+  MemoryPool *memory_pool = this->memory_pool;
 
   if (iter->end_flag == 1) { return -1; }
   if (iter->memory_pool == NULL)
   {
-    iter->memory_pool = symbols->memory_pool;
+    iter->memory_pool = this->memory_pool;
     iter->ptr = 0;
   }
 
@@ -273,7 +265,7 @@ int symbols_iterate(Symbols *symbols, SymbolsIter *iter)
   return -1;
 }
 
-int symbols_print(Symbols *symbols, FILE *out)
+int Symbols::print(FILE *out)
 {
   SymbolsIter iter;
 
@@ -281,9 +273,13 @@ int symbols_print(Symbols *symbols, FILE *out)
 
   fprintf(out, "%30s ADDRESS  SCOPE\n", "LABEL");
 
-  while (symbols_iterate(symbols, &iter) != -1)
+  while (iterate(&iter) != -1)
   {
-    fprintf(out, "%30s %08x %d%s\n", iter.name, iter.address, iter.scope, iter.flag_export == 1 ? " EXPORTED" : "");
+    fprintf(out, "%30s %08x %d%s\n",
+      iter.name,
+      iter.address,
+      iter.scope,
+      iter.flag_export ? " EXPORTED" : "");
   }
 
   fprintf(out, " -> Total symbols: %d\n\n", iter.count);
@@ -291,9 +287,9 @@ int symbols_print(Symbols *symbols, FILE *out)
   return 0;
 }
 
-int symbols_count(Symbols *symbols)
+int Symbols::count()
 {
-  MemoryPool *memory_pool = symbols->memory_pool;
+  MemoryPool *memory_pool = this->memory_pool;
   int ptr;
   int count = 0;
 
@@ -314,9 +310,9 @@ int symbols_count(Symbols *symbols)
   return count;
 }
 
-int symbols_export_count(Symbols *symbols)
+int Symbols::export_count()
 {
-  MemoryPool *memory_pool = symbols->memory_pool;
+  MemoryPool *memory_pool = this->memory_pool;
   int ptr;
   int count = 0;
 
@@ -327,7 +323,7 @@ int symbols_export_count(Symbols *symbols)
     {
       SymbolsData *symbols_data = (SymbolsData *)(memory_pool->buffer + ptr);
       ptr += symbols_data->len + sizeof(SymbolsData);
-      if (symbols_data->flag_export == 1) { count++; }
+      if (symbols_data->flag_export) { count++; }
     }
 
     memory_pool = memory_pool->next;
@@ -336,29 +332,15 @@ int symbols_export_count(Symbols *symbols)
   return count;
 }
 
-int symbols_scope_start(Symbols *symbols)
+int Symbols::scope_start()
 {
-  if (symbols->in_scope == 1)
+  if (in_scope)
   {
     return -1;
   }
 
-  symbols->in_scope = 1;
-  symbols->current_scope++;
-
-  return 0;
-}
-
-int symbols_scope_reset(Symbols *symbols)
-{
-  symbols->current_scope = 0;
-
-  return 0;
-}
-
-int symbols_scope_end(Symbols *symbols)
-{
-  symbols->in_scope = 0;
+  in_scope = true;
+  current_scope++;
 
   return 0;
 }

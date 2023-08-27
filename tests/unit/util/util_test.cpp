@@ -42,8 +42,8 @@ static int test_ranges(UtilContext *util_context)
   ret = util_get_range(util_context, "-1024", &start, &end);
   TEST_RANGES(0, 1024, 0);
 
-  symbols_append(&util_context->symbols, "blah", 64);
-  symbols_append(&util_context->symbols, "asdf", 100);
+  util_context->symbols.append("blah", 64);
+  util_context->symbols.append("asdf", 100);
 
   ret = util_get_range(util_context, "blah-asdf", &start, &end);
   TEST_RANGES(64, 100, 0);

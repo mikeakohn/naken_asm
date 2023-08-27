@@ -657,7 +657,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
 
     if (asm_context->ignore_symbols == 0)
     {
-      ret = symbols_lookup(&asm_context->symbols, token, &address);
+      ret = asm_context->symbols.lookup(token, &address);
 
       // FIXME: This is going to be slow.  There are ways to make this
       // a lot faster.
@@ -665,7 +665,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
       {
         // If this is a symbol in an object file, pretend it's a string for
         // now so expressions fail.  On pass 2 it should be in the
-        // symbols_lookup table.
+        // Symbols lookup table.
         if (asm_context->linker->search_code_from_symbol(token) == 1)
         {
           return token_type;

@@ -671,7 +671,7 @@ int main(int argc, char *argv[])
       else
     if (strcmp(command, "symbols") == 0)
     {
-      symbols_print(&util_context.symbols, stdout);
+      util_context.symbols.print(stdout);
     }
       else
     if (strncmp(command, "dumpram", 7)  == 0 ||
@@ -743,8 +743,6 @@ int main(int argc, char *argv[])
   }
 
   if (src != NULL) { fclose(src); }
-
-  symbols_free(&util_context.symbols);
 
   return error_flag == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

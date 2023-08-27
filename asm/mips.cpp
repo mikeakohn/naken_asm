@@ -2745,7 +2745,7 @@ int link_function_mips(
       {
         uint32_t address;
 
-        if (symbols_lookup(&asm_context->symbols, symbol, &address) != 0)
+        if (asm_context->symbols.lookup(symbol, &address) != 0)
         {
           printf("Error: Symbol not found %s\n", symbol);
           return -1;

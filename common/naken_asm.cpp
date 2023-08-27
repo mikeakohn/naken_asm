@@ -350,7 +350,6 @@ int main(int argc, char *argv[])
     printf("\nPass 1...\n");
   }
 
-  symbols_init(&asm_context.symbols);
   macros_init(&asm_context.macros);
 
   asm_context.init();
@@ -371,8 +370,8 @@ int main(int argc, char *argv[])
       break;
     }
 
-    symbols_lock(&asm_context.symbols);
-    symbols_scope_reset(&asm_context.symbols);
+    asm_context.symbols.lock();
+    asm_context.symbols.scope_reset();
     // macros_lock(&asm_context.defines_heap);
 
     if (asm_context.quiet_output == 0) { printf("Pass 2...\n"); }

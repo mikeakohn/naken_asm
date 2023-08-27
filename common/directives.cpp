@@ -171,7 +171,7 @@ static int parse_set(AsmContext *asm_context)
 #endif
 
   // REVIEW - should num be divided by bytes_per_address for dsPIC and avr8?
-  symbols_set(&asm_context->symbols, name, num);
+  asm_context->symbols.set(name, num);
 
   //asm_context->tokens.line++;
 
@@ -195,7 +195,7 @@ static int parse_export(AsmContext *asm_context)
 
   if (asm_context->pass == 2)
   {
-    if (symbols_export(&asm_context->symbols, token) != 0)
+    if (asm_context->symbols.export_symbol(token) != 0)
     {
       print_not_defined(asm_context, token);
       return -1;
@@ -445,7 +445,7 @@ int parse_directives(AsmContext *asm_context)
     else
   if (strcasecmp(token, "scope") == 0)
   {
-    if (symbols_scope_start(&asm_context->symbols) != 0)
+    if (asm_context->symbols.scope_start() != 0)
     {
       printf("Error: Nested scopes are not allowed. %s:%d\n",
         asm_context->tokens.filename,
@@ -456,7 +456,7 @@ int parse_directives(AsmContext *asm_context)
     else
   if (strcasecmp(token, "ends") == 0)
   {
-    symbols_scope_end(&asm_context->symbols);
+    asm_context->symbols.scope_end();
   }
     else
   if (strcasecmp(token, "func") == 0)
@@ -465,12 +465,11 @@ int parse_directives(AsmContext *asm_context)
     //int token_type;
 
     tokens_get(asm_context, token, TOKENLEN);
-    symbols_append(
-      &asm_context->symbols,
+    asm_context->symbols.append(
       token,
       asm_context->address / asm_context->bytes_per_address);
 
-    if (symbols_scope_start(&asm_context->symbols) != 0)
+    if (asm_context->symbols.scope_start() != 0)
     {
       printf("Error: Nested scopes are not allowed. %s:%d\n",
         asm_context->tokens.filename,
@@ -481,7 +480,7 @@ int parse_directives(AsmContext *asm_context)
     else
   if (strcasecmp(token, "endf") == 0)
   {
-    symbols_scope_end(&asm_context->symbols);
+    asm_context->symbols.scope_end();
   }
     else
   if (strcasecmp(token, "low_address") == 0)

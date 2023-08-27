@@ -550,7 +550,7 @@ int write_elf(
     int sym_offset;
     int n;
 
-    symbol_count = symbols_export_count(symbols);
+    symbol_count = symbols->export_count();
 
     int symbol_address[symbol_count];
 
@@ -564,9 +564,9 @@ int write_elf(
 
     n = 0;
     memset(&iter, 0, sizeof(iter));
-    while (symbols_iterate(symbols, &iter) != -1)
+    while (symbols->iterate(&iter) != -1)
     {
-      if (iter.flag_export == 0) { continue; }
+      if (iter.flag_export == false) { continue; }
 
       symbol_address[n++] = sym_offset;
       fprintf(out, "%s%c", iter.name, 0);
@@ -609,9 +609,9 @@ int write_elf(
     // symbols from lookup tables
     n = 0;
     memset(&iter, 0, sizeof(iter));
-    while (symbols_iterate(symbols, &iter) != -1)
+    while (symbols->iterate(&iter) != -1)
     {
-      if (iter.flag_export == 0) { continue; }
+      if (iter.flag_export == false) { continue; }
 
       memset(&symtab, 0, sizeof(symtab));
       symtab.st_name = symbol_address[n++];

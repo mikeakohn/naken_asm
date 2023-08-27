@@ -28,19 +28,10 @@ struct SymbolsData
   char name[];             // null terminated name of label:
 };
 
-struct Symbols
-{
-  MemoryPool *memory_pool;
-  bool locked   : 1;
-  bool in_scope : 1;
-  bool debug    : 1;
-  uint32_t current_scope;
-};
-
 struct SymbolsIter
 {
   MemoryPool *memory_pool;
-  char *name;
+  const char *name;
   uint32_t address;
   int ptr;
   int count;
@@ -49,21 +40,35 @@ struct SymbolsIter
   bool flag_export : 1;
 };
 
-int symbols_init(Symbols *symbols);
-void symbols_free(Symbols *symbols);
-SymbolsData *symbols_find(Symbols *symbols, const char *name);
-int symbols_append(Symbols *symbols, const char *name, uint32_t address);
-int symbols_set(Symbols *symbols, const char *name, uint32_t address);
-int symbols_export(Symbols *symbols, const char *name);
-void symbols_lock(Symbols *symbols);
-int symbols_lookup(Symbols *symbols, const char *name, uint32_t *address);
-int symbols_iterate(Symbols *symbols, SymbolsIter *iter);
-int symbols_print(Symbols *symbols, FILE *out);
-int symbols_count(Symbols *symbols);
-int symbols_export_count(Symbols *symbols);
-int symbols_scope_start(Symbols *symbols);
-int symbols_scope_reset(Symbols *symbols);
-int symbols_scope_end(Symbols *symbols);
+class Symbols
+{
+public:
+  Symbols();
+  ~Symbols();
+
+  SymbolsData *find(const char *name);
+  int append(const char *name, uint32_t address);
+  int set(const char *name, uint32_t address);
+  int export_symbol(const char *name);
+  int lookup(const char *name, uint32_t *address);
+  int iterate(SymbolsIter *iter);
+  int print(FILE *out);
+  int count();
+  int export_count();
+  int scope_start();
+  void scope_reset() { current_scope = 0; }
+  void scope_end()   { in_scope = false; }
+  void lock()        { locked = true; }
+  bool is_locked()   { return locked; }
+  void set_debug()   { debug = true; }
+
+private:
+  MemoryPool *memory_pool;
+  bool locked   : 1;
+  bool in_scope : 1;
+  bool debug    : 1;
+  uint32_t current_scope;
+};
 
 #endif
 

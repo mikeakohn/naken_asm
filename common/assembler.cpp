@@ -68,7 +68,6 @@ AsmContext::AsmContext() :
   extra_context          (0)
 {
   memset(&tokens,  0, sizeof(tokens));
-  memset(&symbols, 0, sizeof(symbols));
   memset(&macros,  0, sizeof(macros));
 
   memset(def_param_stack_data, 0, sizeof(def_param_stack_data));
@@ -80,7 +79,6 @@ AsmContext::~AsmContext()
 {
   delete linker;
 
-  symbols_free(&symbols);
   macros_free(&macros);
 }
 
@@ -115,7 +113,7 @@ void AsmContext::print_info(FILE *out)
 
   if (dump_symbols == 1 || out != stdout)
   {
-    symbols_print(&symbols, out);
+    symbols.print(out);
   }
 
   if (dump_macros == 1)
@@ -225,7 +223,7 @@ int assembler_link(AsmContext *asm_context)
 
     if (symbol == NULL) { break; }
 
-    symbols_append(&asm_context->symbols, symbol, asm_context->address);
+    asm_context->symbols.append(symbol, asm_context->address);
 
     uint8_t *code;
     uint32_t function_offset;
@@ -263,8 +261,7 @@ int assembler_link(AsmContext *asm_context)
 
         fprintf(asm_context->list, "[import]\n%s:", symbol);
 
-        // FIXME: make symbols_lookup inputs const char *
-        if (symbols_lookup(&asm_context->symbols, (char *)symbol, &address) == 0)
+        if (asm_context->symbols.lookup((char *)symbol, &address) == 0)
         {
           asm_context->list_output(asm_context, address, address + function_size);
           fprintf(asm_context->list, "\n");
@@ -393,7 +390,7 @@ int assemble(AsmContext *asm_context)
         return -1;
       }
 
-      if (symbols_append(&asm_context->symbols, token, asm_context->address / asm_context->bytes_per_address) == -1)
+      if (asm_context->symbols.append(token, asm_context->address / asm_context->bytes_per_address) == -1)
       {
         return -1;
       }

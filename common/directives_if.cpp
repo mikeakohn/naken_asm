@@ -103,7 +103,7 @@ int parse_ifdef(AsmContext *asm_context, int ifndef)
   }
 
   if (macros_lookup(&asm_context->macros, token, &param_count) != NULL ||
-      symbols_find(&asm_context->symbols, token) != NULL)
+      asm_context->symbols.find(token) != NULL)
   {
     if (ifndef == 1) { ignore_section = 1; }
   }

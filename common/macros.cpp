@@ -176,7 +176,7 @@ int macros_append(
   if (macros->locked == 1) { return 0; }
 
   if (macros_lookup(macros, name, &param_count_temp) != NULL ||
-      symbols_lookup(&asm_context->symbols, name, &address) == 0)
+      asm_context->symbols.lookup(name, &address) == 0)
   {
     printf("Error: Macro '%s' already defined.\n", name);
     return -1;

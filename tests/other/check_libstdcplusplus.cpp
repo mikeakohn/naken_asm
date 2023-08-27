@@ -27,7 +27,7 @@ int check_executable(const char *filename)
   memset(&iter, 0, sizeof(iter));
   while (symbols_iterate(&util_context.symbols, &iter) != -1)
   {
-    //if (iter.flag_export == 0) { continue; }
+    //if (iter.flag_export == false) { continue; }
 
     printf("symbol: %s\n", iter.name);
 

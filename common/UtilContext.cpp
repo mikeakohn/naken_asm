@@ -29,13 +29,11 @@ UtilContext::UtilContext() :
   allow_unknown_cpu (false),
   disasm_range      (NULL)
 {
-  memset(&symbols, 0, sizeof(symbols));
 }
 
 UtilContext::~UtilContext()
 {
   delete simulate;
-  symbols_free(&symbols);
 }
 
 static const char *util_get_hex(const char *token, uint32_t *num)
@@ -77,8 +75,6 @@ static const char *util_get_hex(const char *token, uint32_t *num)
 
 void util_init(UtilContext *util_context)
 {
-  symbols_init(&util_context->symbols);
-
 #ifndef NO_MSP430
   util_context->disasm_range = disasm_range_msp430;
   util_context->simulate = SimulateMsp430::init(&util_context->memory);
@@ -315,7 +311,7 @@ const char *util_get_address(
   while (*token == ' ' && *token != 0) { token++; }
 
   // Search symbol table
-  ret = symbols_lookup(&util_context->symbols, token, address);
+  ret = util_context->symbols.lookup(token, address);
 
   if (ret == 0)
   {
