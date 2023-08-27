@@ -18,7 +18,7 @@
 #include "asm/webasm.h"
 #include "common/assembler.h"
 #include "common/tokens.h"
-#include "common/eval_expression_ex.h"
+#include "common/eval_expression.h"
 #include "table/webasm.h"
 
 static int get_uint(

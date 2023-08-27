@@ -19,7 +19,6 @@
 #include "common/assembler.h"
 #include "common/tokens.h"
 #include "common/eval_expression.h"
-#include "common/eval_expression_ex.h"
 #include "common/imports_obj.h"
 #include "table/mips.h"
 

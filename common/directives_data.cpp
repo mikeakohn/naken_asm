@@ -16,7 +16,6 @@
 #include "asm/common.h"
 #include "common/assembler.h"
 #include "common/eval_expression.h"
-#include "common/eval_expression_ex.h"
 #include "common/tokens.h"
 #include "common/print_error.h"
 
