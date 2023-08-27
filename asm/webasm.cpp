@@ -28,7 +28,7 @@ static int get_uint(
 {
   Var var;
 
-  if (eval_expression_ex(asm_context, var) == -1)
+  if (eval_expression(asm_context, var) == -1)
   {
     if (asm_context->pass == 2)
     {

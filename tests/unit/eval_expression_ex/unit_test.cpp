@@ -20,7 +20,7 @@ void test_int(const char *expression, int answer)
   tokens_reset(&asm_context);
   //assemble_init(&asm_context);
 
-  int ret = eval_expression_ex(&asm_context, var);
+  int ret = eval_expression(&asm_context, var);
   int num = var.get_int32();
 
   if (ret != 0)
@@ -53,7 +53,7 @@ void test_int64(const char *expression, int64_t answer)
   tokens_reset(&asm_context);
   //assemble_init(&asm_context);
 
-  int ret = eval_expression_ex(&asm_context, var);
+  int ret = eval_expression(&asm_context, var);
   int64_t num = var.get_int64();
 
   if (ret != 0)
@@ -85,7 +85,7 @@ void should_fail(const char *expression)
   tokens_open_buffer(&asm_context, expression);
   tokens_reset(&asm_context);
 
-  int ret = eval_expression_ex(&asm_context, var);
+  int ret = eval_expression(&asm_context, var);
 
   if (ret == 0)
   {
@@ -102,7 +102,7 @@ void should_fail(const char *expression)
 
 int main(int argc, char *argv[])
 {
-  printf("eval_expression_ex() test\n");
+  printf("eval_expression() test\n");
 
   test_int("-6", -6);
   test_int("3*5", 15);

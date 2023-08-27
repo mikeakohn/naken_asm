@@ -26,7 +26,7 @@
 int EvalExpression::eval_expression_go(
   AsmContext *asm_context,
   Var &var,
-  Operator *last_operator)
+  Operator &last_operator)
 {
   char token[TOKENLEN];
   int token_type;
@@ -36,10 +36,10 @@ int EvalExpression::eval_expression_go(
   int last_token_was_op = -1;
 
 #ifdef DEBUG
-printf("Enter eval_expression_go,  var=%d/%f/%d\n", var_get_int32(var), var_get_float(var), var_get_type(var));
+printf("Enter eval_expression,  var=%d/%f/%d\n", var_get_int32(var), var_get_float(var), var_get_type(var));
 #endif
 
-  memcpy(&oper, last_operator, sizeof(Operator));
+  oper = last_operator;
   var_stack[0] = var;
 
   while (true)
@@ -116,7 +116,7 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
 
       paren_var.clear();
 
-      if (eval_expression_go(asm_context, paren_var, &paren_operator) != 0)
+      if (eval_expression_go(asm_context, paren_var, paren_operator) != 0)
       {
         return -1;
       }
@@ -190,9 +190,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
 
       Operator operator_prev = oper;
 
-      //memcpy(&operator_prev, &oper, sizeof(Operator));
-
-      if (get_operator(token, &oper) == -1)
+      if (get_operator(token, oper) == -1)
       {
         print_error_unexp(asm_context, token);
         return -1;
@@ -215,8 +213,6 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
         var_stack[var_stack_ptr++].set_int(num);
 
         oper = operator_prev;
-        //memcpy(&oper, &operator_prev, sizeof(Operator));
-
         last_token_was_op = 0;
 
         continue;
@@ -230,26 +226,30 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
       }
 
 #ifdef DEBUG
-printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, oper.precedence);
+printf("TOKEN %s: precedence %d %d\n", token, last_operator.precedence, oper.precedence);
 #endif
 
-      if (last_operator->precedence == PREC_UNSET)
+      if (last_operator.precedence == PREC_UNSET)
       {
-        memcpy(last_operator, &oper, sizeof(Operator));
+        last_operator = oper;
       }
         else
-      if (last_operator->precedence > oper.precedence)
+      if (last_operator.precedence > oper.precedence)
       {
-        if (eval_expression_go(asm_context, var_stack[var_stack_ptr - 1], &oper) == -1)
+        if (eval_expression_go(asm_context, var_stack[var_stack_ptr - 1], oper) == -1)
         {
           return -1;
         }
       }
         else
       {
-        operate(var_stack[var_stack_ptr - 2], var_stack[var_stack_ptr - 1], last_operator);
+        operate(
+          var_stack[var_stack_ptr - 2],
+          var_stack[var_stack_ptr - 1],
+          last_operator);
+
         var_stack_ptr--;
-        memcpy(last_operator, &oper, sizeof(Operator));
+        last_operator = oper;
       }
     }
       else
@@ -263,77 +263,81 @@ printf("TOKEN %s: precedence %d %d\n", token, last_operator->precedence, oper.pr
   }
 
 #ifdef DEBUG
-printf("going to leave  operation=%d\n", last_operator->operation);
+printf("going to leave  operation=%d\n", last_operator.operation);
 PRINT_STACK()
 #endif
 
-  if (last_operator->operation != OPER_UNSET)
+  if (last_operator.operation != OPER_UNSET)
   {
-    operate(var_stack[var_stack_ptr-2], var_stack[var_stack_ptr-1], last_operator);
+    operate(
+      var_stack[var_stack_ptr - 2],
+      var_stack[var_stack_ptr - 1],
+      last_operator);
+
     var_stack_ptr--;
   }
 
-  var = var_stack[var_stack_ptr-1];
+  var = var_stack[var_stack_ptr - 1];
 
   return 0;
 }
 
-int EvalExpression::get_operator(char *token, Operator *oper)
+int EvalExpression::get_operator(char *token, Operator &oper)
 {
   if (token[1] == 0)
   {
     if (token[0] == '~')
     {
-      oper->precedence = PREC_NOT;
-      oper->operation = OPER_NOT;
+      oper.precedence = PREC_NOT;
+      oper.operation = OPER_NOT;
     }
       else
     if (token[0] == '*')
     {
-      oper->precedence = PREC_MUL;
-      oper->operation = OPER_MUL;
+      oper.precedence = PREC_MUL;
+      oper.operation = OPER_MUL;
     }
       else
     if (token[0] == '/')
     {
-      oper->precedence = PREC_MUL;
-      oper->operation = OPER_DIV;
+      oper.precedence = PREC_MUL;
+      oper.operation = OPER_DIV;
     }
       else
     if (token[0] == '%')
     {
-      oper->precedence = PREC_MUL;
-      oper->operation = OPER_MOD;
+      oper.precedence = PREC_MUL;
+      oper.operation = OPER_MOD;
     }
       else
     if (token[0] == '+')
     {
-      oper->precedence = PREC_ADD;
-      oper->operation = OPER_PLUS;
+      oper.precedence = PREC_ADD;
+      oper.operation = OPER_PLUS;
     }
       else
     if (token[0] == '-')
     {
-      oper->precedence = PREC_ADD;
-      oper->operation = OPER_MINUS;
+      oper.precedence = PREC_ADD;
+      oper.operation = OPER_MINUS;
     }
       else
     if (token[0] == '&')
     {
-      oper->precedence = PREC_AND;
-      oper->operation = OPER_AND;
+      oper.precedence = PREC_AND;
+      oper.operation = OPER_AND;
     }
       else
     if (token[0] == '^')
     {
-      oper->precedence = PREC_XOR;
-      oper->operation = OPER_XOR;
+      oper.precedence = PREC_XOR;
+      oper.operation = OPER_XOR;
     }
       else
     if (token[0] == '|')
     {
-      oper->precedence = PREC_OR;
-      oper->operation = OPER_OR;
+      oper.precedence = PREC_OR;
+      oper.operation = OPER_OR;
     }
       else
     {
@@ -345,14 +349,14 @@ int EvalExpression::get_operator(char *token, Operator *oper)
   {
     if (token[0] == '<' && token[1] == '<')
     {
-      oper->precedence = PREC_SHIFT;
-      oper->operation = OPER_LEFT_SHIFT;
+      oper.precedence = PREC_SHIFT;
+      oper.operation = OPER_LEFT_SHIFT;
     }
       else
     if (token[0] == '>' && token[1] == '>')
     {
-      oper->precedence = PREC_SHIFT;
-      oper->operation = OPER_RIGHT_SHIFT;
+      oper.precedence = PREC_SHIFT;
+      oper.operation = OPER_RIGHT_SHIFT;
     }
       else
     {
@@ -367,16 +371,16 @@ int EvalExpression::get_operator(char *token, Operator *oper)
   return 0;
 }
 
-int EvalExpression::operate(Var &var_d, Var &var_s, Operator *oper)
+int EvalExpression::operate(Var &var_d, Var &var_s, Operator &oper)
 {
 #ifdef DEBUG
 printf(">>> OPERATING ON %d/%f/%d (%d) %d/%f/%d\n",
   var_get_int32(var_d), var_get_float(var_d), var_get_type(var_d),
-  oper->operation,
+  oper.operation,
   var_get_int32(var_s), var_get_float(var_s), var_get_type(var_s));
 #endif
 
-  switch (oper->operation)
+  switch (oper.operation)
   {
     case OPER_NOT:
       return var_d.logical_not(var_d);
@@ -401,7 +405,7 @@ printf(">>> OPERATING ON %d/%f/%d (%d) %d/%f/%d\n",
     case OPER_OR:
       return var_d.logical_or(var_d, var_s);
     default:
-      printf("Internal Error: WTF, bad operator %d\n", oper->operation);
+      printf("Internal Error: WTF, bad operator %d\n", oper.operation);
       return 0;
   }
 }
@@ -439,7 +443,7 @@ int EvalExpression::parse_unary(
     else
   if (IS_TOKEN(token, '('))
   {
-    if (eval_expression_ex(asm_context, var) != 0) { return -1; }
+    if (eval_expression(asm_context, var) != 0) { return -1; }
 
     if (var.get_type() != VAR_INT)
     {
@@ -469,20 +473,20 @@ int EvalExpression::parse_unary(
   return 0;
 }
 
-int eval_expression_ex(AsmContext *asm_context, Var &var)
+int eval_expression(AsmContext *asm_context, Var &var)
 {
   EvalExpression::Operator oper;
 
   var.set_int(0);
 
-  return EvalExpression::eval_expression_go(asm_context, var, &oper);
+  return EvalExpression::eval_expression_go(asm_context, var, oper);
 }
 
 int eval_expression(AsmContext *asm_context, int *num)
 {
   Var var;
 
-  int ret = eval_expression_ex(asm_context, var);
+  int ret = eval_expression(asm_context, var);
   *num = var.get_int32();
 
   return ret;

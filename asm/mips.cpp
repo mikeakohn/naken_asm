@@ -636,7 +636,7 @@ static int get_operands_li(
 
   if (expect_token(asm_context, ',') == -1) { return -1; }
 
-  if (eval_expression_ex(asm_context, var) != 0)
+  if (eval_expression(asm_context, var) != 0)
   {
     if (asm_context->pass == 2)
     {

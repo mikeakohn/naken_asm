@@ -194,7 +194,7 @@ int parse_dc32(AsmContext *asm_context)
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
     tokens_push(asm_context, token, token_type);
 
-    if (eval_expression_ex(asm_context, var) == -1)
+    if (eval_expression(asm_context, var) == -1)
     {
       if (asm_context->pass == 2)
       {
@@ -272,7 +272,7 @@ int parse_dc64(AsmContext *asm_context)
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
     tokens_push(asm_context, token, token_type);
 
-    if (eval_expression_ex(asm_context, var) == -1)
+    if (eval_expression(asm_context, var) == -1)
     {
       if (asm_context->pass == 2)
       {
@@ -403,7 +403,7 @@ int parse_varuint(AsmContext *asm_context, int fixed_size)
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
     tokens_push(asm_context, token, token_type);
 
-    if (eval_expression_ex(asm_context, var) == -1)
+    if (eval_expression(asm_context, var) == -1)
     {
       if (asm_context->pass == 2 || fixed_size == 0)
       {

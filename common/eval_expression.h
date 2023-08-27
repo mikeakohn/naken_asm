@@ -34,7 +34,7 @@ public:
   static int eval_expression_go(
     AsmContext *asm_context,
     Var &var,
-    Operator *last_operator);
+    Operator &last_operator);
 
 private:
   EvalExpression()  { }
@@ -68,13 +68,13 @@ private:
     OPER_OR
   };
 
-  static int get_operator(char *token, Operator *oper);
-  static int operate(Var &var_d, Var &var_s, Operator *oper);
+  static int get_operator(char *token, Operator &oper);
+  static int operate(Var &var_d, Var &var_s, Operator &oper);
   static int parse_unary(AsmContext *asm_context, int64_t *num, int operation);
 
 };
 
-int eval_expression_ex(AsmContext *asm_context, Var &var);
+int eval_expression(AsmContext *asm_context, Var &var);
 int eval_expression(AsmContext *asm_context, int *num);
 
 #endif
