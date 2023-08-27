@@ -479,3 +479,13 @@ int eval_expression_ex(AsmContext *asm_context, Var &var)
   return eval_expression_go(asm_context, var, &oper);
 }
 
+int eval_expression(AsmContext *asm_context, int *num)
+{
+  Var var;
+
+  int ret = eval_expression_ex(asm_context, var);
+  *num = var.get_int32();
+
+  return ret;
+}
+

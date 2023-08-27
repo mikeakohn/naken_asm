@@ -45,6 +45,7 @@ enum
 };
 
 int eval_expression_ex(AsmContext *asm_context, Var &var);
+int eval_expression(AsmContext *asm_context, int *num);
 
 #endif
 
