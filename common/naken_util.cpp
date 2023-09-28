@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <string>
 
 #ifdef READLINE
 #include <readline/readline.h>
@@ -35,6 +36,7 @@ enum
 
 static const char *state_stopped = "stopped";
 static const char *state_running = "running";
+static const char *reading_code = "asm";
 
 static void print_usage()
 {
@@ -103,35 +105,33 @@ static void print_usage()
 #ifdef READLINE
 static const char *command_names[] =
 {
-  "help",
-  "quit",
-  "exit",
-  "run",
-  "step",
-  "call",
-  "stop",
-  "reset",
+  "asm",
   "break",
-  "push",
-  "set",
+  "call",
   "clear",
-  "speed",
-  "print",
+  "disasm",
+  "display",
+  "dumpram",
+  "dump_ram",
+  "exit",
+  "help",
+  "info",
   "print",
   "print16",
   "print32",
+  "push",
+  "quit",
+  "registers",
+  "reset",
+  "run",
+  "set",
+  "speed",
+  "step",
+  "stop",
+  "symbols",
   "write",
   "write16",
   "write32",
-  "print",
-  "disasm",
-  "symbols",
-  "dumpram",
-  "dump_ram",
-  "info",
-  "registers",
-  "display",
-  "read",
 };
 
 static const char *find_partial_command(const char *text, int *index)
@@ -273,6 +273,9 @@ int main(int argc, char *argv[])
   const char *filename = NULL;
   const char *cpu_name = NULL;
   int file_type = FILE_TYPE_AUTO;
+  std::string code;
+  bool in_code = false;
+  uint32_t org = 0;
 
   printf("\nnaken_util - by Michael Kohn\n"
          "                Joe Davisson\n"
@@ -366,33 +369,36 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (filename == NULL)
+  if (filename == NULL && mode != MODE_INTERACTIVE)
   {
     printf("Error: No file selected to load.  Exiting...\n");
     exit(1);
   }
 
-  int ret = file_read(
-    filename,
-    &util_context,
-    &file_type,
-    cpu_name,
-    start_address);
-
-  if (ret != 0)
+  if (filename != NULL)
   {
-    printf("Error: Cannot load %s.\n", filename);
-    exit(1);
+    int ret = file_read(
+      filename,
+      &util_context,
+      &file_type,
+      cpu_name,
+      start_address);
+
+    if (ret != 0)
+    {
+      printf("Error: Cannot load %s.\n", filename);
+      exit(1);
+    }
+
+     const char *file_type_name = file_get_file_type_name(file_type);
+
+     printf("Loaded %s of type %s / %s from 0x%04x to 0x%04x\n",
+       filename,
+       file_type_name,
+       util_context.cpu_name,
+       util_context.memory.low_address,
+       util_context.memory.high_address);
   }
-
-  const char *file_type_name = file_get_file_type_name(file_type);
-
-  printf("Loaded %s of type %s / %s from 0x%04x to 0x%04x\n",
-    filename,
-    file_type_name,
-    util_context.cpu_name,
-    util_context.memory.low_address,
-    util_context.memory.high_address);
 
 #if 0
   if (read_amiga(argv[i], &util_context.memory) >= 0)
@@ -454,7 +460,7 @@ int main(int argc, char *argv[])
 #endif
     }
 
-    // Trim CR/LF and whitespace at end of line
+    // Trim CR/LF and whitespace at end of line.
     i = 0;
 
     while (command[i] != 0)
@@ -468,13 +474,32 @@ int main(int argc, char *argv[])
       i++;
     }
 
-    // Trim trailing whitespace
+    // Trim trailing whitespace.
     i--;
 
     while (i >= 0 && command[i] == ' ')
     {
       command[i] = 0;
       i--;
+    }
+
+    // Assembler mode.
+    if (in_code)
+    {
+      if (command[0] == 0)
+      {
+        printf("Assembling to 0x%04x\n", org);
+        printf("%s\n", code.c_str());
+        code.clear();
+        state = state_stopped;
+        in_code = false;
+      }
+        else
+      {
+        code += std::string(command) + "\n";
+      }
+
+      continue;
     }
 
     if (command[0] == 0)
@@ -714,19 +739,17 @@ int main(int argc, char *argv[])
       }
     }
       else
-    if (strcmp(command, "read") == 0)
+    if (strcmp(command, "asm") == 0)
     {
-#ifdef JTAG
-      //open_jtag(&util_context, "/dev/ttyUSB0");
-      open_jtag(&util_context, "/dev/ttyACM0");
-      int ret = read_memory(&util_context, 0, 255);
-      if (ret != 0)
-      {
-        printf("Read from device error %d.\n", ret);
-      }
-
-      close_jtag(&util_context);
-#endif
+      in_code = true;
+      state = reading_code;
+    }
+      else
+    if (strncmp(command, "asm ", 4) == 0)
+    {
+      org = strtol(command + 4, NULL, 0);
+      in_code = true;
+      state = reading_code;
     }
       else
     {
@@ -745,5 +768,5 @@ int main(int argc, char *argv[])
   if (src != NULL) { fclose(src); }
 
   return error_flag == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
-}
+	}
 
