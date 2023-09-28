@@ -107,7 +107,7 @@ int disasm_avr8(
         case OP_REG_IMM:
           rd = ((opcode >> 4) & 0xf) + 16;
           k = ((opcode & 0xf00) >> 4) | (opcode & 0xf);
-          snprintf(instruction, length, "%s r%d, 0x%x", table_avr8[n].instr, rd, k);
+          snprintf(instruction, length, "%s r%d, 0x%02x", table_avr8[n].instr, rd, k);
           return 2;
         case OP_ONE_REG:
           rd = (opcode >> 4) & 0x1f;

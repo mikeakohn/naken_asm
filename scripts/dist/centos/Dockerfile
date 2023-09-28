@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 
 FROM centos:7
 RUN /usr/sbin/useradd makerpm
