@@ -32,7 +32,7 @@ int parse_org(AsmContext *asm_context)
     return -1;
   }
 
-  asm_context->address = num * asm_context->bytes_per_address;
+  asm_context->set_org(num);
 
   return 0;
 }
@@ -567,7 +567,7 @@ int parse_directives(AsmContext *asm_context)
         token, asm_context->tokens.filename, asm_context->tokens.line);
       return -1;
 
-    } while (0);
+    } while (false);
   }
 
   return 0;

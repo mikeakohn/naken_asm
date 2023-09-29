@@ -184,6 +184,22 @@ void AsmContext::set_cpu(int index)
   cpu_list_index         = index;
 }
 
+int AsmContext::set_cpu(const char *name)
+{
+  for (int n = 0; cpu_list[n].name != NULL; n++)
+  {
+    if (strcasecmp(name, cpu_list[n].name) == 0)
+    {
+      set_cpu(n);
+      parse_directive = NULL;
+
+      return 0;
+    }
+  }
+
+  return -1;
+}
+
 int assembler_link_file(AsmContext *asm_context, const char *filename)
 {
   int n;

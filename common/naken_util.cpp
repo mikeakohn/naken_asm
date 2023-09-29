@@ -255,6 +255,63 @@ static void print_help()
   //printf("  list <start>-<end>       [ disassemble wth debug listing ]\n");
 }
 
+int assemble_code(
+  UtilContext &util_context,
+  const char *cpu_name,
+  const char *code,
+  uint32_t &org)
+{
+  AsmContext asm_context;
+  int i;
+
+  asm_context.init();
+  asm_context.set_cpu(cpu_name);
+  asm_context.set_org(org);
+  asm_context.pass = 1;
+
+  tokens_open_buffer(&asm_context, code);
+  tokens_reset(&asm_context);
+
+  i = assemble(&asm_context);
+
+  if (i != 0)
+  {
+    printf("Error assembling in pass 1...\n");
+    tokens_close(&asm_context);
+    return -1;
+  }
+
+  asm_context.pass = 2;
+  asm_context.init();
+  asm_context.set_cpu(cpu_name);
+  asm_context.set_org(org);
+
+  i = assemble(&asm_context);
+
+  if (i != 0)
+  {
+    printf("Error assembling in pass 2...\n");
+    tokens_close(&asm_context);
+    return -1;
+  }
+
+  uint32_t address;
+
+  for (address = asm_context.memory.low_address;
+       address <= asm_context.memory.high_address;
+       address++)
+  {
+    uint8_t value = asm_context.memory.read8(address);
+    util_context.memory.write8(address, value);
+  }
+
+  org = asm_context.memory.high_address + 1;
+
+  tokens_close(&asm_context);
+
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
   FILE *src = NULL;
@@ -399,6 +456,10 @@ int main(int argc, char *argv[])
        util_context.memory.low_address,
        util_context.memory.high_address);
   }
+    else
+  {
+    util_set_cpu_by_name(&util_context, cpu_name);
+  }
 
 #if 0
   if (read_amiga(argv[i], &util_context.memory) >= 0)
@@ -489,7 +550,9 @@ int main(int argc, char *argv[])
       if (command[0] == 0)
       {
         printf("Assembling to 0x%04x\n", org);
-        printf("%s\n", code.c_str());
+
+        assemble_code(util_context, cpu_name, code.c_str(), org);
+
         code.clear();
         state = state_stopped;
         in_code = false;

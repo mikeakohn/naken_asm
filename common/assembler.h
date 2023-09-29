@@ -42,6 +42,11 @@ public:
   void init();
   void print_info(FILE *out);
   void set_cpu(int index);
+  int set_cpu(const char *name);
+
+  void set_org(uint32_t value) { address = value * bytes_per_address; }
+  //uint32_t get_low_address()  { return memory.low_address / bytes_per_address; }
+  //uint32_t get_high_address() { return memory.high_address / bytes_per_address; }
 
   int read_debug(uint32_t address)
   {
