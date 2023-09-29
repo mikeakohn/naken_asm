@@ -229,30 +229,30 @@ static char **command_name_completion(const char *text, int start, int end)
 
 static void print_help()
 {
-  printf("Commands:\n");
-  printf("  print <start>-<end>       [ print bytes at start address (opt. to end) ]\n");
-  printf("  print16 <start>-<end>     [ print int16's at start address (opt. to end) ]\n");
-  printf("  print32 <start>-<end>     [ print int32's at start address (opt. to end) ]\n");
-  printf("  write <address> <data>..  [ write multiple bytes to RAM starting at address]\n");
-  printf("  write16 <address> <data>..[ write multiple int16's to RAM starting at address]\n");
-  printf("  write32 <address> <data>..[ write multiple int32's to RAM starting at address]\n");
-  printf("  dump_ram <start>-<end>    [ Dump RAM of AVR8 during simulation]\n");
-  printf("  registers                 [ dump registers ]\n");
-  printf("  run, stop, step           [ simulation run, stop, step ]\n");
-  printf("  call <address>            [ call function at address ]\n");
-  printf("  push <value>              [ push value on stack ]\n");
-  printf("  set <reg>=<value>         [ set register to value ]\n");
-  printf("  set,clear <status flag>   [ set or clear a bit in the status register]\n");
-  printf("  reset                     [ reset program ]\n");
-  printf("  display                   [ toggle display cpu info while simulating ]\n");
-  printf("  speed <speed in Hz>       [ simulation speed or 0 for single step ]\n");
-  printf("  break <address>           [ break at address ]\n");
-  //printf("  flash                    [ flash device ]\n");
-  printf("  info                      [ general info ]\n");
-  printf("  disasm                    [ disassemble at address ]\n");
-  printf("  disasm <start>-<end>      [ disassemble range of addresses ]\n");
-  printf("  symbols                   [ show symbols ]\n");
-  //printf("  list <start>-<end>       [ disassemble wth debug listing ]\n");
+  printf("Commands:\n"
+    "  asm                       [ start interactive asm at last address ]\n"
+    "  asm <org>                 [ start interactive asm at address ]\n"
+    "  break <address>           [ break at address ]\n"
+    "  call <address>            [ call function at address ]\n"
+    "  disasm                    [ disassemble at address ]\n"
+    "  disasm <start>-<end>      [ disassemble range of addresses ]\n"
+    "  display                   [ toggle display cpu info while simulating ]\n"
+    "  print <start>-<end>       [ print bytes at start address (opt. to end) ]\n"
+    "  print16 <start>-<end>     [ print int16's at start address (opt. to end) ]\n"
+    "  print32 <start>-<end>     [ print int32's at start address (opt. to end) ]\n"
+    "  dump_ram <start>-<end>    [ Dump RAM of AVR8 during simulation]\n"
+    "  info                      [ general info ]\n"
+    "  push <value>              [ push value on stack ]\n"
+    "  reset                     [ reset program ]\n"
+    "  registers                 [ dump registers ]\n"
+    "  run, stop, step           [ simulation run, stop, step ]\n"
+    "  set <reg>=<value>         [ set register to value ]\n"
+    "  set, clear <status flag>  [ set or clear a bit in the status register]\n"
+    "  speed <speed in Hz>       [ simulation speed or 0 for single step ]\n"
+    "  symbols                   [ show symbols ]\n"
+    "  write <address> <data>..  [ write multiple bytes to RAM starting at address]\n"
+    "  write16 <address> <data>..[ write multiple int16's to RAM starting at address]\n"
+    "  write32 <address> <data>..[ write multiple int32's to RAM starting at address]\n");
 }
 
 int assemble_code(
@@ -595,7 +595,7 @@ int main(int argc, char *argv[])
       }
 
       int ret = util_context.simulate->run(
-        command[3] == 0 ? -1 : atoi(command + 4),
+        command[3] == 0 ? -1 : strtol(command + 4, NULL, 0),
         0);
 
       state = state_stopped;

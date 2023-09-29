@@ -1,10 +1,10 @@
 Simulating
 ==========
-The simulator (as of the writing of this file only MSP430, AVR8, and 6502 is
-supported) allows the user to show how their program will run. It gives a view
-of all the registers and how many CPU cycles have passed, along with the current
-instruction that executed and the next few in memory. To test the simulation,
-after assembling launchpad.asm type:
+The simulator (not all CPUs are supported) allows the user to show how their
+program will run. It gives a view of all the registers and how many CPU
+cycles have passed, along with the current instruction that executed and
+the next few in memory. To test the simulation, after assembling
+launchpad.asm type:
 
     ./naken_util launchpad_blink.hex
     speed 1
