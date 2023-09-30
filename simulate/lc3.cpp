@@ -40,6 +40,7 @@
 SimulateLc3::SimulateLc3(Memory *memory) : Simulate(memory)
 {
   reset();
+  org = 0x3000;
 }
 
 SimulateLc3::~SimulateLc3()
@@ -55,7 +56,7 @@ void SimulateLc3::reset()
 {
   memset(reg, 0, sizeof(reg));
 
-  pc = 0x3000;
+  pc = org;
   psr = 0;
 }
 

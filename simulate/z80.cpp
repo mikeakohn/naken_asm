@@ -76,7 +76,7 @@ void SimulateZ80::reset()
   ix = 0;
   iy = 0;
   sp = 0;
-  pc = 0;
+  pc = org;
   //status = 0;
   iff1 = 0;
   iff2 = 0;

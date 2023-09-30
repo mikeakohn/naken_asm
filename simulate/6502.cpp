@@ -79,7 +79,7 @@ void Simulate6502::reset()
   REG_X = 0;
   REG_Y = 0;
   REG_SR = 0;
-  REG_PC = 0;
+  REG_PC = org;
   REG_SP = 0xFF;
   break_point = -1;
 }
@@ -238,17 +238,39 @@ int Simulate6502::run(int max_cycles, int step)
 
         if (cycles_min == -1) break;
 
-        if (pc == break_point) { printf("*"); }
-        else { printf(" "); }
+        printf(pc == break_point ? "*" : " ");
 
         if (n == 0)
-        { printf("! "); }
+        {
+          printf("! ");
+        }
           else
-        if (pc == REG_PC) { printf("> "); }
+        if (pc == REG_PC)
+        {
+          printf("> ");
+        }
           else
-        { printf("  "); }
+        {
+          printf("  ");
+        }
 
-        printf("0x%04x: %-10s %-40s %d-%d\n", pc, bytes, instruction, cycles_min, cycles_max);
+        if (cycles_min == cycles_max)
+        {
+          printf("0x%04x: %-10s %-40s %d\n",
+            pc,
+            bytes,
+            instruction,
+            cycles_min);
+        }
+          else
+        {
+          printf("0x%04x: %-10s %-40s %d-%d\n",
+            pc,
+            bytes,
+            instruction,
+            cycles_min,
+            cycles_max);
+        }
 
         if (count == 0) { break; }
 

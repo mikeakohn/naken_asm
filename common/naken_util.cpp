@@ -332,6 +332,7 @@ int main(int argc, char *argv[])
   int file_type = FILE_TYPE_AUTO;
   std::string code;
   bool in_code = false;
+  bool was_pc_set = false;
   uint32_t org = 0;
 
   printf("\nnaken_util - by Michael Kohn\n"
@@ -492,7 +493,7 @@ int main(int argc, char *argv[])
   printf("Type help for a list of commands.\n");
   command[1023] = 0;
 
-  while (1)
+  while (true)
   {
     if (mode == MODE_INTERACTIVE)
     {
@@ -549,11 +550,25 @@ int main(int argc, char *argv[])
     {
       if (command[0] == 0)
       {
-        printf("Assembling to 0x%04x\n", org);
+        if (code.size() > 0)
+        {
+          printf("Assembling to 0x%04x\n", org);
 
-        assemble_code(util_context, cpu_name, code.c_str(), org);
+          if (! was_pc_set)
+          {
+            if (org != 0)
+            {
+              util_context.simulate->set_pc(org);
+              util_context.simulate->set_org(org);
+            }
 
-        code.clear();
+            was_pc_set = true;
+          }
+
+          assemble_code(util_context, cpu_name, code.c_str(), org);
+          code.clear();
+        }
+
         state = state_stopped;
         in_code = false;
       }
@@ -594,9 +609,12 @@ int main(int argc, char *argv[])
         util_context.simulate->enable_step_mode();
       }
 
-      int ret = util_context.simulate->run(
-        command[3] == 0 ? -1 : strtol(command + 4, NULL, 0),
-        0);
+      if (command[3] != 0)
+      {
+        util_context.simulate->set_pc(strtol(command + 4, NULL, 0));
+      }
+
+      int ret = util_context.simulate->run(-1, 0);
 
       state = state_stopped;
 

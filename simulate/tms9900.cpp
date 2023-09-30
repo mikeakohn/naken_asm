@@ -145,7 +145,7 @@ void SimulateTms9900::reset()
   // FIXME - A real chip wouldn't set the SP to this, but this is
   // in case someone is simulating code that won't run on a chip.
   //reg[1] = 0x800;
-  pc = 0;
+  pc = org;
   wp = 0;
   st = 0;
   break_point = -1;

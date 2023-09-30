@@ -79,7 +79,7 @@ void Simulate65816::reset()
   REG_X = 0;
   REG_Y = 0;
   REG_SR = 0;
-  REG_PC = 0;
+  REG_PC = org;
   REG_SP = 0x1FF;
   REG_DB = 0;
   REG_PB = 0;

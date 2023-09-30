@@ -37,7 +37,7 @@ void Simulate8008::reset()
   memset(reg, 0, sizeof(reg));
   memset(&flags, 0, sizeof(flags));
 
-  pc = 0x0000;
+  pc = org;
   sp = 0;
 }
 

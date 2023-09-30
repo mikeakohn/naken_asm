@@ -34,7 +34,7 @@ Simulate *SimulateEbpf::init(Memory *memory)
 void SimulateEbpf::reset()
 {
   memset(reg, 0, sizeof(reg));
-  pc = 0;
+  pc = org;
 }
 
 void SimulateEbpf::push(uint32_t value)

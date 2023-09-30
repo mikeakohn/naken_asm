@@ -193,10 +193,13 @@ void list_output_6502(
   fprintf(asm_context->list, "0x%04x: %-16s %-35s cycles: ", start, bytes, instruction);
 
   if (cycles_min == cycles_max)
-  { fprintf(asm_context->list, "%d\n", cycles_min); }
+  {
+    fprintf(asm_context->list, "%d\n", cycles_min);
+  }
     else
-  { fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max); }
-
+  {
+    fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+  }
 }
 
 void disasm_range_6502(

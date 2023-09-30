@@ -96,7 +96,7 @@ void SimulateAvr8::reset()
   memset(reg, 0, sizeof(reg));
   memset(io, 0, sizeof(io));
   memset(ram, 0, sizeof(ram));
-  pc = 0;
+  pc = org;
   sp = 0;
   sreg = 0;
   break_point = -1;

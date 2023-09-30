@@ -178,7 +178,7 @@ void SimulateStm8::reset()
     }
   }
 
-  REG_PC = 0;
+  REG_PC = org;
 
   if (stm8_int_opcode > 0)
   {

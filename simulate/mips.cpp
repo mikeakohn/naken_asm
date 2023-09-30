@@ -47,6 +47,7 @@ void SimulateMips::reset()
   ra_was_set = false;
   force_break = false;
 
+  // FIXME: Should this be org?
   pc = memory->low_address;
   reg[29] = 0x80000000;
 

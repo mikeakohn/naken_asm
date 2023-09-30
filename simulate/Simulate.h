@@ -22,6 +22,7 @@ class Simulate
 public:
   Simulate(Memory *memory) :
     memory            (memory),
+    org               (0),
     cycle_count       (0),
     nested_call_count (0),
     usec              (1000000),
@@ -53,6 +54,7 @@ public:
   // instruction memory.
   virtual int dump_ram(int start, int end);
 
+  void set_org(uint32_t value) { org = value; }
   int get_break_point() { return break_point; }
   int get_delay() { return usec; }
   bool get_show() { return show; }
@@ -92,6 +94,7 @@ protected:
   void disable_signal_handler();
 
   Memory *memory;
+  uint32_t org;
   int cycle_count;
   int nested_call_count;
   useconds_t usec;
