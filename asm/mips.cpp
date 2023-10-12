@@ -733,7 +733,7 @@ static int get_operands(
 
   if (strcmp("cache", instr_case) == 0) { is_cache = 1; }
 
-  while (1)
+  while (true)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL) { break; }
@@ -1021,7 +1021,7 @@ static int get_operands(
         tokens_push(asm_context, token, token_type);
       }
 
-    } while (0);
+    } while (false);
 
     operand_count++;
 
@@ -1596,10 +1596,8 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
   {
     return get_operands_li(asm_context, operands, instr, instr_case);
   }
-    else
-  {
-    operand_count = get_operands(asm_context, operands, instr, instr_case);
-  }
+
+  operand_count = get_operands(asm_context, operands, instr, instr_case);
 
   if (operand_count < 0) { return -1; }
 

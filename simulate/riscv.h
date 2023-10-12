@@ -33,7 +33,32 @@ public:
   virtual int run(int max_cycles, int step);
 
 private:
-  int16_t reg[32];
+  int get_register(const char *name);
+  int execute(uint32_t opcode);
+  int jal_address(uint32_t opcode);
+  int jalr_address(uint32_t opcode);
+  int branch(uint32_t opcode);
+  int load(uint32_t opcode);
+  int store(uint32_t opcode);
+  int alu(uint32_t opcode);
+  int alu_reg(uint32_t opcode);
+
+  enum
+  {
+    OP_LUI   = 0x37,
+    OP_AUIPC = 0x17,
+    OP_JAL   = 0x6f,
+    OP_JALR  = 0x67,
+    OP_BRA   = 0x63,
+    OP_LD    = 0x03,
+    OP_ST    = 0x23,
+    OP_ALU   = 0x13,
+    OP_ALU_R = 0x33,
+    OP_BREAK = 0x73,
+  };
+
+  int32_t reg[32];
+  uint32_t pc;
 };
 
 #endif

@@ -187,6 +187,135 @@ static int get_f_register_riscv(char *token)
   return get_register_number(token + 1);
 }
 
+static uint32_t find_opcode(const char *instr_case)
+{   
+  int n;
+    
+  for (n = 0; table_riscv[n].instr != NULL; n++)
+  { 
+    if (strcmp(instr_case, table_riscv[n].instr) == 0)
+    {
+      return table_riscv[n].opcode;
+    }
+  }
+    
+  return 0xffffffff;
+}
+
+static int get_operands_li(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  char *instr,
+  char *instr_case)
+{
+  int operand_count = 0;
+  int force_long = 0;
+  int num;
+  int token_type;
+  char token[TOKENLEN];
+  Var var;
+  uint64_t temp;
+
+  // Get operands
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+  if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
+  {
+    print_error_unexp(asm_context, token);
+    return -1;
+  }
+
+  num = get_x_register_riscv(token);
+  if (num == -1)
+  {
+    print_error_unexp(asm_context, token);
+    return -1;
+  }
+
+  operands[0].type = OPERAND_X_REGISTER;
+  operands[0].value = num;
+  operand_count++;
+
+  if (expect_token(asm_context, ',') == -1) { return -1; }
+
+  if (eval_expression(asm_context, var) != 0)
+  {
+    if (asm_context->pass == 2)
+    {
+      print_error_unexp(asm_context, token);
+      return -1;
+    }
+
+    ignore_operand(asm_context);
+
+    num = 0;
+    force_long = 1;
+    asm_context->memory_write(asm_context->address, force_long);
+  }
+    else
+  {
+    temp = var.get_int64();
+    uint64_t mask = temp & 0xffffffff00000000ULL;
+
+    if (mask != 0xffffffff00000000ULL && mask != 0)
+    {
+      print_error_range(asm_context, "Constant", -0x80000000LL, 0xffffffff);
+      return -1;
+    }
+
+    num = temp;
+  }
+
+  token_type = tokens_get(asm_context, token, TOKENLEN);
+
+  if (token_type != TOKEN_EOL && token_type != TOKEN_EOF)
+  {
+    print_error_unexp(asm_context, token);
+    return -1;
+  }
+
+  // If data size was unknown on pass 1, force_long.
+  if (asm_context->pass == 2)
+  {
+    force_long = asm_context->memory_read(asm_context->address);
+  }
+
+  // Apply operands to memory.
+  uint32_t opcode_lui = find_opcode("lui") | operands[0].value << 7;
+  uint32_t opcode_ori = find_opcode("ori") | operands[0].value << 7;
+  uint32_t opcode_addi = find_opcode("addi") | operands[0].value << 7;
+
+  if (force_long == 1)
+  {
+    add_bin32(asm_context, opcode_lui | (num & 0xfffff000), IS_OPCODE);
+    add_bin32(asm_context, opcode_ori | ((num & 0xfff) << 20), IS_OPCODE);
+    return 8;
+  }
+    else
+  if (num >= 0 && num <= 0xfff)
+  {
+    add_bin32(asm_context, opcode_ori | ((num & 0xfff) << 20), IS_OPCODE);
+    return 4;
+  }
+    else
+  if ((num & 0x00000fff) == 0)
+  {
+    add_bin32(asm_context, opcode_lui | (num & 0xfffff000), IS_OPCODE);
+    return 4;
+  }
+    else
+  if (num >= -2048 && num <= -1)
+  {
+    add_bin32(asm_context, opcode_addi | ((num & 0xfff) << 20), IS_OPCODE);
+    return 4;
+  }
+    else
+  {
+    add_bin32(asm_context, opcode_lui | (num & 0xfffff000), IS_OPCODE);
+    add_bin32(asm_context, opcode_ori | ((num & 0xfff) << 20), IS_OPCODE);
+    return 8;
+  }
+}
+
 static int get_operands(
   AsmContext *asm_context,
   struct _operand *operands,
@@ -199,7 +328,7 @@ static int get_operands(
   int operand_count = 0;
   int n;
 
-  while (1)
+  while (true)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
@@ -364,7 +493,7 @@ static int get_operands(
       }
 
       break;
-    } while (0);
+    } while (false);
 
     operand_count++;
 
@@ -404,6 +533,11 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
   lower_copy(instr_case, instr);
 
   memset(&operands, 0, sizeof(operands));
+
+  if (strcmp(instr_case, "li") == 0 || strcmp(instr_case, "la") == 0)
+  {
+    return get_operands_li(asm_context, operands, instr, instr_case);
+  }
 
   operand_count = get_operands(asm_context, operands, instr, instr_case, &modifiers);
 

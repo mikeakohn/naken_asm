@@ -61,4 +61,3 @@ extern struct _table_riscv table_riscv[];
 
 #endif
 
-
