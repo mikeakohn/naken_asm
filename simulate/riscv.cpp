@@ -15,6 +15,15 @@
 #include <string.h>
 
 #include "simulate/riscv.h"
+#include "disasm/riscv.h"
+
+static const char *reg_names[32] =
+{
+  "zero", "ra",  "sp",  "gp", "tp", "t0", "t1", "t2",
+    "fp", "s1",  "a0",  "a1", "a2", "a3", "a4", "a5",
+    "a6", "a7",  "s2",  "s3", "s4", "s5", "s6", "s7",
+    "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+};
 
 SimulateRiscv::SimulateRiscv(Memory *memory) : Simulate(memory)
 {
@@ -75,37 +84,132 @@ void SimulateRiscv::set_pc(uint32_t value)
 
 void SimulateRiscv::dump_registers()
 {
-  char name[4];
+  char name[16];
 
   for (int n = 0; n < 32; n = n + 4)
   {
     for (int i = 0; i < 4; i++)
     {
-      snprintf(name, sizeof(name), "x%d", n + i);
-      printf("  %3s: %08x", name, reg[n + i]);
+      int index = n + i;
+      snprintf(name, sizeof(name), "x%d/%s", index, reg_names[index]);
+      printf(" %8s: %08x", name, reg[index]);
     }
 
     printf("\n");
   }
 
-  printf("   pc: %08x\n", pc);
+  printf("   pc: %08x\n\n", pc);
 }
 
 int SimulateRiscv::run(int max_cycles, int step)
 {
+  char instruction[128];
+  uint32_t current_pc;
+
   while (stop_running == false)
   {
-    printf("CPU not supported.\n");
-    break;
+    current_pc = pc;
+
+    uint32_t opcode = memory->read32(current_pc);
+    int ret = execute(opcode);
+  
+    if (ret == -1)
+    {
+      printf("Illegal instruction at address 0x%04x\n", pc);
+      return -1;
+    }
+
+    pc += ret;
+
+    cycle_count++;
+
+    if (show == true)
+    {
+      dump_registers();
+
+      int n = 0;
+      while (n < 6)
+      {
+        int cycles_min, cycles_max;
+
+        uint32_t opcode = memory->read32(current_pc);
+
+        int count = disasm_riscv(
+          memory,
+          current_pc,
+          instruction,
+          sizeof(instruction),
+          0,
+          &cycles_min,
+          &cycles_max);
+
+        if (count < 1) { break; }
+
+        if (current_pc == (uint32_t)break_point)
+        {
+          printf("*");
+        }
+          else
+        {
+          printf(" ");
+        }
+
+        if (n == 0)
+        {
+          printf("! ");
+        }
+          else
+        if (current_pc == pc)
+        {
+          printf("> ");
+        }
+          else
+        {
+          printf("  ");
+        }
+
+        printf("0x%04x: 0x%08x %-40s\n", current_pc, opcode, instruction);
+
+        current_pc += 4;
+        n++;
+      }
+
+      printf("\n");
+    }
+
+    if (pc == (uint32_t)break_point)
+    {
+      printf("Breakpoint hit at 0x%04x\n", break_point);
+      break;
+    }
+
+    if (usec == 0 || step == true)
+    {
+      disable_signal_handler();
+      return 0;
+    }
   }
 
   disable_signal_handler();
+
+  printf("Stopped.  PC=0x%04x.\n", pc);
+  printf("%d clock cycles have passed since last reset.\n", cycle_count);
 
   return 0;
 }
 
 int SimulateRiscv::get_register(const char *name)
 {
+  if (strcasecmp(name, "s0") == 0) { return 8; }
+
+  for (int n = 0; n < 32; n++)
+  {
+    if (strcasecmp(name, reg_names[n]) == 0)
+    {
+      return n;
+    }
+  }
+
   if (name[0] != 'x' && name[0] != 'X') { return -1; }
 
   char *s;
@@ -214,7 +318,7 @@ int SimulateRiscv::load(uint32_t opcode)
 {
   const int rd = (opcode >> 7) & 0x1f;
   const int rs1 = (opcode >> 15) & 0x1f;
-  const int funct3 = (opcode >> 3) & 0x7;
+  const int funct3 = (opcode >> 12) & 0x7;
   int imm = (opcode >> 20) & 0xfff;
   int n;
 
@@ -253,8 +357,10 @@ int SimulateRiscv::store(uint32_t opcode)
 {
   const int rd = (opcode >> 7) & 0x1f;
   const int rs1 = (opcode >> 15) & 0x1f;
-  const int funct3 = (opcode >> 3) & 0x7;
-  int imm = (opcode >> 20) & 0xfff;
+  const int funct3 = (opcode >> 12) & 0x7;
+  int imm = (opcode >> 25) & 0x7f;
+
+  imm = (imm << 5) | funct3;
 
   if ((imm & 0x800) != 0) { imm |= 0xfffff000; }
   uint32_t ea = reg[rs1] + imm;
@@ -282,7 +388,7 @@ int SimulateRiscv::alu(uint32_t opcode)
   const int rd = (opcode >> 7) & 0x1f;
   const int rs1 = (opcode >> 15) & 0x1f;
   const int shamt = (opcode >> 20) & 0x1f;
-  const int funct3 = (opcode >> 3) & 0x7;
+  const int funct3 = (opcode >> 12) & 0x7;
   const int funct7 = (opcode >> 25) & 0x7f;
   int imm = (opcode >> 20) & 0xfff;
 
@@ -318,7 +424,7 @@ int SimulateRiscv::alu_reg(uint32_t opcode)
   const int rs1 = (opcode >> 15) & 0x1f;
   const int rs2 = (opcode >> 20) & 0x1f;
   const int funct7 = (opcode >> 25) & 0x7f;
-  const int funct3 = (opcode >> 3) & 0x7;
+  const int funct3 = (opcode >> 12) & 0x7;
 
   switch (funct7)
   {

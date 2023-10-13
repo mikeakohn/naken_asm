@@ -230,7 +230,7 @@ int SimulateMips::run(int max_cycles, int step)
 
     if (pc == (uint32_t)break_point)
     {
-       printf("Breakpoint hit at 0x%04x\n", break_point);
+      printf("Breakpoint hit at 0x%04x\n", break_point);
       break;
     }
 
