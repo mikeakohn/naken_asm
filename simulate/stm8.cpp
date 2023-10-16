@@ -42,13 +42,6 @@
 #define TRAP_VECTOR   RESET_VECTOR + VECTOR_SIZE
 #define RESET_SP      0x03ff      // STM8S001 / STM8S003 / STM8S103   { this is device dependent! }
 
-#define REG_A   reg_a
-#define REG_X   reg_x
-#define REG_Y   reg_y
-#define REG_SP  reg_sp
-#define REG_PC  reg_pc
-#define REG_CC  reg_cc
-
 #define SHOW_STACK    sp, memory->read8(sp)
 #define READ_RAM(a)   memory->read8(a)
 #define READ_RAM16(a) memory->read16(a)
@@ -68,11 +61,11 @@
   } \
   memory->write16(a, w)
 
-#define PUSH_STACK(n)   memory->write8(REG_SP, (n) & 0xff); --REG_SP  // caution: "--" side-effects
+#define PUSH_STACK(n)   memory->write8(reg_sp, (n) & 0xff); --reg_sp  // caution: "--" side-effects
 
 #define PUSH_STACK16(n) push16(n)
 #define PUSH_STACK24(n) push24(n)
-#define POP_STACK()     memory->read8(++REG_SP)   // caution: "++" side-effects
+#define POP_STACK()     memory->read8(++reg_sp)   // caution: "++" side-effects
 #define POP_STACK16()   pop16()
 #define POP_STACK24()   pop24()
 
@@ -94,29 +87,29 @@
 #define CC_Z_FLAG   1
 #define CC_C_FLAG   0
 
-#define GET_V()   ((REG_CC >> CC_V_FLAG) & 1)
-#define GET_I1()  ((REG_CC >> CC_I1_FLAG) & 1)
-#define GET_H()   ((REG_CC >> CC_H_FLAG) & 1)
-#define GET_I0()  ((REG_CC >> CC_I0_FLAG) & 1)
-#define GET_N()   ((REG_CC >> CC_N_FLAG) & 1)
-#define GET_Z()   ((REG_CC >> CC_Z_FLAG) & 1)
-#define GET_C()   ((REG_CC >> CC_C_FLAG) & 1)
+#define GET_V()   ((reg_cc >> CC_V_FLAG) & 1)
+#define GET_I1()  ((reg_cc >> CC_I1_FLAG) & 1)
+#define GET_H()   ((reg_cc >> CC_H_FLAG) & 1)
+#define GET_I0()  ((reg_cc >> CC_I0_FLAG) & 1)
+#define GET_N()   ((reg_cc >> CC_N_FLAG) & 1)
+#define GET_Z()   ((reg_cc >> CC_Z_FLAG) & 1)
+#define GET_C()   ((reg_cc >> CC_C_FLAG) & 1)
 
-#define SET_V()   REG_CC |= BV(CC_V_FLAG);
-#define SET_I1()  REG_CC |= BV(CC_I1_FLAG);
-#define SET_H()   REG_CC |= BV(CC_H_FLAG);
-#define SET_I0()  REG_CC |= BV(CC_I0_FLAG);
-#define SET_N()   REG_CC |= BV(CC_N_FLAG);
-#define SET_Z()   REG_CC |= BV(CC_Z_FLAG);
-#define SET_C()   REG_CC |= BV(CC_C_FLAG);
+#define SET_V()   reg_cc |= BV(CC_V_FLAG);
+#define SET_I1()  reg_cc |= BV(CC_I1_FLAG);
+#define SET_H()   reg_cc |= BV(CC_H_FLAG);
+#define SET_I0()  reg_cc |= BV(CC_I0_FLAG);
+#define SET_N()   reg_cc |= BV(CC_N_FLAG);
+#define SET_Z()   reg_cc |= BV(CC_Z_FLAG);
+#define SET_C()   reg_cc |= BV(CC_C_FLAG);
 
-#define CLR_V()   REG_CC &= ~(BV(CC_V_FLAG));
-#define CLR_I1()  REG_CC &= ~(BV(CC_I1_FLAG));
-#define CLR_H()   REG_CC &= ~(BV(CC_H_FLAG));
-#define CLR_I0()  REG_CC &= ~(BV(CC_I0_FLAG));
-#define CLR_N()   REG_CC &= ~(BV(CC_N_FLAG));
-#define CLR_Z()   REG_CC &= ~(BV(CC_Z_FLAG));
-#define CLR_C()   REG_CC &= ~(BV(CC_C_FLAG));
+#define CLR_V()   reg_cc &= ~(BV(CC_V_FLAG));
+#define CLR_I1()  reg_cc &= ~(BV(CC_I1_FLAG));
+#define CLR_H()   reg_cc &= ~(BV(CC_H_FLAG));
+#define CLR_I0()  reg_cc &= ~(BV(CC_I0_FLAG));
+#define CLR_N()   reg_cc &= ~(BV(CC_N_FLAG));
+#define CLR_Z()   reg_cc &= ~(BV(CC_Z_FLAG));
+#define CLR_C()   reg_cc &= ~(BV(CC_C_FLAG));
 
 // Prefixed opcodes
 #define PRECODE_PWSP  0x72
@@ -156,10 +149,10 @@ void SimulateStm8::reset()
 
   cycle_count = 0;
   nested_call_count = 0;
-  REG_A = 0;
-  REG_X = 0;
-  REG_Y = 0;
-  REG_SP = RESET_SP;
+  reg_a = 0;
+  reg_x = 0;
+  reg_y = 0;
+  reg_sp = RESET_SP;
 
   if (stm8_int_opcode < 0)
   {
@@ -178,21 +171,21 @@ void SimulateStm8::reset()
     }
   }
 
-  REG_PC = org;
+  reg_pc = org;
 
   if (stm8_int_opcode > 0)
   {
     if (READ_RAM(RESET_VECTOR) == stm8_int_opcode)
     {
-      REG_PC = READ_RAM24(RESET_VECTOR + 1);
-      if (REG_PC >= memory_size)
+      reg_pc = READ_RAM24(RESET_VECTOR + 1);
+      if (reg_pc >= memory_size)
       {
-        REG_PC = 0;
+        reg_pc = 0;
       }
     }
   }
 
-  REG_CC = BV(CC_I1_FLAG) | BV(CC_I0_FLAG);
+  reg_cc = BV(CC_I1_FLAG) | BV(CC_I0_FLAG);
   break_point = -1;
 }
 
@@ -214,19 +207,19 @@ int SimulateStm8::set_reg(const char *reg_string, uint32_t value)
   // check for STM8 registers
   if (strcasecmp(reg_string, "A") == 0)
   {
-    REG_A = value & 0xff;
+    reg_a = value & 0xff;
   }
   else if (strcasecmp(reg_string, "X") == 0)
   {
-    REG_X = value & 0xffff;
+    reg_x = value & 0xffff;
   }
   else if (strcasecmp(reg_string, "Y") == 0)
   {
-    REG_Y = value & 0xffff;
+    reg_y = value & 0xffff;
   }
   else if (strcasecmp(reg_string, "SP") == 0)
   {
-    REG_SP = value & 0xffff;
+    reg_sp = value & 0xffff;
   }
   else if (strcasecmp(reg_string, "PC") == 0)
   {
@@ -239,7 +232,7 @@ int SimulateStm8::set_reg(const char *reg_string, uint32_t value)
   }
   else if (strcasecmp(reg_string, "CC") == 0)
   {
-    REG_CC = value &
+    reg_cc = value &
       (BV(CC_V_FLAG) | BV(CC_I1_FLAG) | BV(CC_H_FLAG) |
        BV(CC_I0_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) |
        BV(CC_C_FLAG));
@@ -343,27 +336,27 @@ uint32_t SimulateStm8::get_reg(const char *reg_string)
   // check for STM8 registers
   if (strcasecmp(reg_string, "A") == 0)
   {
-    return REG_A;
+    return reg_a;
   }
   else if (strcasecmp(reg_string, "X") == 0)
   {
-    return REG_X;
+    return reg_x;
   }
   else if (strcasecmp(reg_string, "Y") == 0)
   {
-    return REG_Y;
+    return reg_y;
   }
   else if (strcasecmp(reg_string, "SP") == 0)
   {
-    return REG_SP;
+    return reg_sp;
   }
   else if (strcasecmp(reg_string, "PC") == 0)
   {
-    return REG_PC;
+    return reg_pc;
   }
   else if (strcasecmp(reg_string, "CC") == 0)
   {
-    return REG_CC;
+    return reg_cc;
   }
   else  // check for condition code flags
   {
@@ -408,13 +401,13 @@ void SimulateStm8::set_pc(uint32_t value)
   }
   else
   {
-    REG_PC = value & 0xffffff;
+    reg_pc = value & 0xffffff;
   }
 }
 
 void SimulateStm8::dump_registers()
 {
-  uint16_t sp = REG_SP;
+  uint16_t sp = reg_sp;
 
   printf("\nSimulation Register Dump                               Stack\n");
   printf("------------------------------------------------------------\n");
@@ -448,10 +441,10 @@ void SimulateStm8::dump_registers()
   ++sp;
 
   printf("  A=0x%02x   X=0x%04x   Y=0x%04x                  0x%04x: 0x%02x\n",
-    REG_A, REG_X, REG_Y, SHOW_STACK);
+    reg_a, reg_x, reg_y, SHOW_STACK);
   ++sp;
   printf(" CC=0x%02x  SP=0x%04x  PC=0x%06x                0x%04x: 0x%02x\n",
-     REG_CC, REG_SP, REG_PC, SHOW_STACK);
+     reg_cc, reg_sp, reg_pc, SHOW_STACK);
 
   printf("\n\n");
   printf("%d clock cycles have passed since last reset.\n\n", cycle_count);
@@ -474,7 +467,7 @@ int SimulateStm8::run(int max_cycles, int step)
   {
     int ret;
     int n;
-    uint32_t current_pc = REG_PC;
+    uint32_t current_pc = reg_pc;
 
     ret = execute();
 
@@ -538,7 +531,7 @@ int SimulateStm8::run(int max_cycles, int step)
         {
           printf("! ");     // current instruction
         }
-        else if (disasm_pc == REG_PC)
+        else if (disasm_pc == reg_pc)
         {
           printf("> ");     // next instruction
         }
@@ -589,26 +582,26 @@ int SimulateStm8::run(int max_cycles, int step)
       return -1;
     }
 
-    if ((uint32_t)break_point == REG_PC)
+    if ((uint32_t)break_point == reg_pc)
     {
       printf("Breakpoint hit at 0x%04x\n", break_point);
       break;
     }
 
-    if (REG_PC >= memory_size)
+    if (reg_pc >= memory_size)
     {
       printf("End of memory - setting PC to reset vector.\n");
       step_mode = 0;
 
-      REG_PC = 0;
+      reg_pc = 0;
       if (stm8_int_opcode > 0)
       {
         if (READ_RAM(RESET_VECTOR) == stm8_int_opcode)
         {
-          REG_PC = READ_RAM24(RESET_VECTOR + 1);
-          if (REG_PC >= memory_size)   // check supported memory space
+          reg_pc = READ_RAM24(RESET_VECTOR + 1);
+          if (reg_pc >= memory_size)   // check supported memory space
           {
-            REG_PC = 0;
+            reg_pc = 0;
           }
         }
       }
@@ -627,7 +620,7 @@ int SimulateStm8::run(int max_cycles, int step)
 
   disable_signal_handler();
 
-  printf("Stopped.  PC=0x%06x.\n", REG_PC);
+  printf("Stopped.  PC=0x%06x.\n", reg_pc);
   printf("%d clock cycles have passed since last reset.\n", cycle_count);
 
   return 0;
@@ -939,31 +932,31 @@ int SimulateStm8::execute_op_common(
   switch (table_stm8->instr_enum)
   {
     case STM8_ADC:
-      rslt = REG_A + data + GET_C();
+      rslt = reg_a + data + GET_C();
       flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      calculate_flags(flag_bits, reg_a, data, rslt, SIZE_8BITS);
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_ADD:
-      rslt = REG_A + data;
+      rslt = reg_a + data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      calculate_flags(flag_bits, reg_a, data, rslt, SIZE_8BITS);
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_AND:
-      rslt = REG_A & data;
+      rslt = reg_a & data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_BCP:
-      rslt = REG_A & data;
+      rslt = reg_a & data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_CALL:
-      PUSH_STACK16(REG_PC);
-      REG_PC = (REG_PC & 0xff0000) | eff_addr;
+      PUSH_STACK16(reg_pc);
+      reg_pc = (reg_pc & 0xff0000) | eff_addr;
       return table_stm8->cycles_min;
     case STM8_CLR:
       WRITE_RAM(eff_addr, 0);
@@ -971,23 +964,23 @@ int SimulateStm8::execute_op_common(
       SET_Z();
       return table_stm8->cycles_min;
     case STM8_CP:
-      rslt = REG_A - data;
+      rslt = reg_a - data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, reg_a, data, rslt, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_CPW:
       data16 = READ_RAM16(eff_addr);
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
       if (table_stm8->dest == OP_REG_X)
       {
-        rslt = REG_X - data16;
-        calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
+        rslt = reg_x - data16;
+        calculate_flags(flag_bits, reg_x, data16, rslt, SIZE_16BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->dest == OP_REG_Y)
       {
-        rslt = REG_Y - data16;
-        calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
+        rslt = reg_y - data16;
+        calculate_flags(flag_bits, reg_y, data16, rslt, SIZE_16BITS);
         return table_stm8->cycles_min;
       }
       else
@@ -1014,19 +1007,19 @@ int SimulateStm8::execute_op_common(
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_JP:
-      REG_PC = (REG_PC & 0xff0000) | eff_addr;
+      reg_pc = (reg_pc & 0xff0000) | eff_addr;
       return table_stm8->cycles_min;
     case STM8_LD:
       if (table_stm8->dest == OP_REG_A)
       {
-        REG_A = data;
+        reg_a = data;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, reg_a, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
-        rslt = REG_A;
+        rslt = reg_a;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
         calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
@@ -1040,21 +1033,21 @@ int SimulateStm8::execute_op_common(
       if (table_stm8->dest == OP_REG_X)
       {
         rslt = READ_RAM16(eff_addr);
-        REG_X = rslt;
+        reg_x = rslt;
       }
       else if (table_stm8->src == OP_REG_Y)
       {
-        rslt = REG_Y;
+        rslt = reg_y;
         WRITE_RAM16(eff_addr, rslt);
       }
       else if (table_stm8->dest == OP_REG_Y)
       {
         rslt = READ_RAM16(eff_addr);
-        REG_Y = rslt;
+        reg_y = rslt;
       }
       else if (table_stm8->src == OP_REG_X)
       {
-        rslt = REG_X;
+        rslt = reg_x;
         WRITE_RAM16(eff_addr, rslt);
       }
       else
@@ -1088,10 +1081,10 @@ int SimulateStm8::execute_op_common(
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_OR:
-      rslt = REG_A | data;
+      rslt = reg_a | data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_RLC:
       flag_bits = data & 0x80;
@@ -1124,10 +1117,10 @@ int SimulateStm8::execute_op_common(
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SBC:
-      rslt = REG_A - data - GET_C();
+      rslt = reg_a - data - GET_C();
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      calculate_flags(flag_bits, reg_a, data, rslt, SIZE_8BITS);
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SLL:
       flag_bits = data & 0x80;
@@ -1175,10 +1168,10 @@ int SimulateStm8::execute_op_common(
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SUB:
-      rslt = REG_A - data;
+      rslt = reg_a - data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      calculate_flags(flag_bits, reg_a, data, rslt, SIZE_8BITS);
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SWAP:
       rslt = (data >> 4) | (data << 4);
@@ -1191,10 +1184,10 @@ int SimulateStm8::execute_op_common(
       calculate_flags(flag_bits, 0, 0, data, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_XOR:
-      rslt = REG_A ^ data;
+      rslt = reg_a ^ data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
 
     default:
@@ -1231,10 +1224,10 @@ int SimulateStm8::execute_op_none(struct _table_stm8_opcodes *table_stm8)
       CLR_I0();
       return table_stm8->cycles_min;
     case STM8_IRET:
-      REG_CC = POP_STACK();
-      REG_A = POP_STACK();
-      REG_X = POP_STACK16();
-      REG_Y = POP_STACK16();
+      reg_cc = POP_STACK();
+      reg_a = POP_STACK();
+      reg_x = POP_STACK16();
+      reg_y = POP_STACK16();
       eff_addr = POP_STACK24();
       if (eff_addr >= memory_size)
       {
@@ -1242,7 +1235,7 @@ int SimulateStm8::execute_op_none(struct _table_stm8_opcodes *table_stm8)
       }
       else
       {
-        REG_PC = eff_addr;
+        reg_pc = eff_addr;
         return table_stm8->cycles_min;
       }
     case STM8_NOP:
@@ -1251,8 +1244,8 @@ int SimulateStm8::execute_op_none(struct _table_stm8_opcodes *table_stm8)
       CLR_C();
       return table_stm8->cycles_min;
     case STM8_RET:
-      REG_PC = REG_PC & 0xff0000;
-      REG_PC |= POP_STACK16();
+      reg_pc = reg_pc & 0xff0000;
+      reg_pc |= POP_STACK16();
       return table_stm8->cycles_min;
     case STM8_RETF:
       eff_addr = POP_STACK24();
@@ -1262,7 +1255,7 @@ int SimulateStm8::execute_op_none(struct _table_stm8_opcodes *table_stm8)
       }
       else
       {
-        REG_PC = eff_addr;
+        reg_pc = eff_addr;
         return table_stm8->cycles_min;
       }
     case STM8_RIM:
@@ -1287,14 +1280,14 @@ int SimulateStm8::execute_op_none(struct _table_stm8_opcodes *table_stm8)
       }
       else
       {
-        PUSH_STACK24(REG_PC);
-        PUSH_STACK16(REG_Y);
-        PUSH_STACK16(REG_X);
-        PUSH_STACK(REG_A);
-        PUSH_STACK(REG_CC);
+        PUSH_STACK24(reg_pc);
+        PUSH_STACK16(reg_y);
+        PUSH_STACK16(reg_x);
+        PUSH_STACK(reg_a);
+        PUSH_STACK(reg_cc);
         SET_I1();
         SET_I0();
-        REG_PC = eff_addr;
+        reg_pc = eff_addr;
         return table_stm8->cycles_min;
       }
     case STM8_WFE:
@@ -1317,13 +1310,13 @@ int SimulateStm8::execute_op_number8(struct _table_stm8_opcodes *table_stm8)
   uint8_t next_byte;
   uint8_t data;
 
-  next_byte = READ_RAM(REG_PC++);
+  next_byte = READ_RAM(reg_pc++);
   data = next_byte;
 
   switch (table_stm8->instr_enum)
   {
     case STM8_ADDW:
-      REG_SP += data;
+      reg_sp += data;
       return table_stm8->cycles_min;
     case STM8_PUSH:
       PUSH_STACK(data);
@@ -1334,7 +1327,7 @@ int SimulateStm8::execute_op_number8(struct _table_stm8_opcodes *table_stm8)
         case OP_REG_A:
           return execute_op_common(table_stm8, data);
         case OP_SP:
-          REG_SP -= data;
+          reg_sp -= data;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -1373,8 +1366,8 @@ int SimulateStm8::execute_op_number16(struct _table_stm8_opcodes *table_stm8)
   uint8_t flag_bits;
   uint16_t rslt;
 
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
   data = next_word;
 
   switch (table_stm8->instr_enum)
@@ -1383,16 +1376,16 @@ int SimulateStm8::execute_op_number16(struct _table_stm8_opcodes *table_stm8)
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          rslt = REG_X + data;
+          rslt = reg_x + data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(flag_bits, REG_X, data, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          calculate_flags(flag_bits, reg_x, data, rslt, SIZE_16BITS);
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          rslt = REG_Y + data;
+          rslt = reg_y + data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(flag_bits, REG_Y, data, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          calculate_flags(flag_bits, reg_y, data, rslt, SIZE_16BITS);
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -1401,14 +1394,14 @@ int SimulateStm8::execute_op_number16(struct _table_stm8_opcodes *table_stm8)
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          rslt = REG_X - data;
+          rslt = reg_x - data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(flag_bits, REG_X, data, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, reg_x, data, rslt, SIZE_16BITS);
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          rslt = REG_Y - data;
+          rslt = reg_y - data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(flag_bits, REG_Y, data, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, reg_y, data, rslt, SIZE_16BITS);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -1420,13 +1413,13 @@ int SimulateStm8::execute_op_number16(struct _table_stm8_opcodes *table_stm8)
           rslt = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           rslt = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -1435,16 +1428,16 @@ int SimulateStm8::execute_op_number16(struct _table_stm8_opcodes *table_stm8)
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          rslt = REG_X - data;
+          rslt = reg_x - data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(flag_bits, REG_X, data, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          calculate_flags(flag_bits, reg_x, data, rslt, SIZE_16BITS);
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          rslt = REG_Y - data;
+          rslt = reg_y - data;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(flag_bits, REG_Y, data, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          calculate_flags(flag_bits, reg_y, data, rslt, SIZE_16BITS);
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -1464,7 +1457,7 @@ int SimulateStm8::execute_op_address8(struct _table_stm8_opcodes *table_stm8)
   uint8_t next_byte;
   uint32_t eff_addr;
 
-  next_byte = READ_RAM(REG_PC++);
+  next_byte = READ_RAM(reg_pc++);
   eff_addr = next_byte;
 
   switch (table_stm8->instr_enum)
@@ -1491,59 +1484,59 @@ int SimulateStm8::execute_op_address16(struct _table_stm8_opcodes *table_stm8)
   uint8_t flag_bits;
   uint16_t rslt;
 
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
   eff_addr = next_word;
   data = READ_RAM(eff_addr);
 
   switch (table_stm8->instr_enum)
   {
     case STM8_ADC:
-      rslt = REG_A + data + GET_C();
+      rslt = reg_a + data + GET_C();
       flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      calculate_flags(flag_bits, reg_a, data, rslt, SIZE_8BITS);
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_ADD:
-      rslt = REG_A + data;
+      rslt = reg_a + data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      calculate_flags(flag_bits, reg_a, data, rslt, SIZE_8BITS);
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_ADDW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
           data16 = READ_RAM16(eff_addr);
-          rslt = REG_X + data16;
+          rslt = reg_x + data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          calculate_flags(flag_bits, reg_x, data16, rslt, SIZE_16BITS);
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data16 = READ_RAM16(eff_addr);
-          rslt = REG_Y + data16;
+          rslt = reg_y + data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          calculate_flags(flag_bits, reg_y, data16, rslt, SIZE_16BITS);
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_AND:
-      rslt = REG_A & data;
+      rslt = reg_a & data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_BCP:
-      rslt = REG_A & data;
+      rslt = reg_a & data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_CALL:
-      PUSH_STACK16(REG_PC);
-      REG_PC = (REG_PC & 0xff0000) | eff_addr;
+      PUSH_STACK16(reg_pc);
+      reg_pc = (reg_pc & 0xff0000) | eff_addr;
       return table_stm8->cycles_min;
     case STM8_CLR:
       WRITE_RAM(eff_addr, 0);
@@ -1551,24 +1544,24 @@ int SimulateStm8::execute_op_address16(struct _table_stm8_opcodes *table_stm8)
       SET_Z();
       return table_stm8->cycles_min;
     case STM8_CP:
-      rslt = REG_A - data;
+      rslt = reg_a - data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
+      calculate_flags(flag_bits, reg_a, data, rslt, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_CPW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
           data16 = READ_RAM16(eff_addr);
-          rslt = REG_X - data16;
+          rslt = reg_x - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, reg_x, data16, rslt, SIZE_16BITS);
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data16 = READ_RAM16(eff_addr);
-          rslt = REG_Y - data16;
+          rslt = reg_y - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
+          calculate_flags(flag_bits, reg_y, data16, rslt, SIZE_16BITS);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -1587,8 +1580,8 @@ int SimulateStm8::execute_op_address16(struct _table_stm8_opcodes *table_stm8)
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_EXG:
-      WRITE_RAM(eff_addr, REG_A);
-      REG_A = data;
+      WRITE_RAM(eff_addr, reg_a);
+      reg_a = data;
       return table_stm8->cycles_min;
     case STM8_INC:
       rslt = data + 1;
@@ -1597,19 +1590,19 @@ int SimulateStm8::execute_op_address16(struct _table_stm8_opcodes *table_stm8)
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_JP:
-      REG_PC = (REG_PC & 0xff0000) | eff_addr;
+      reg_pc = (reg_pc & 0xff0000) | eff_addr;
       return table_stm8->cycles_min;
     case STM8_LD:
       if (table_stm8->dest == OP_REG_A)
       {
-        REG_A = data;
+        reg_a = data;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, reg_a, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
-        rslt = REG_A;
+        rslt = reg_a;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
         calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
@@ -1622,14 +1615,14 @@ int SimulateStm8::execute_op_address16(struct _table_stm8_opcodes *table_stm8)
     case STM8_LDW:
       if (table_stm8->dest == OP_REG_X)
       {
-        REG_X = READ_RAM16(eff_addr);
+        reg_x = READ_RAM16(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
+        calculate_flags(flag_bits, 0, 0, reg_x, SIZE_16BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_X)
       {
-        rslt = REG_X;
+        rslt = reg_x;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
         calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
         WRITE_RAM16(eff_addr, rslt);
@@ -1637,14 +1630,14 @@ int SimulateStm8::execute_op_address16(struct _table_stm8_opcodes *table_stm8)
       }
       else if (table_stm8->dest == OP_REG_Y)
       {
-        REG_Y = READ_RAM16(eff_addr);
+        reg_y = READ_RAM16(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+        calculate_flags(flag_bits, 0, 0, reg_y, SIZE_16BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_Y)
       {
-        rslt = REG_Y;
+        rslt = reg_y;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
         calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
         WRITE_RAM16(eff_addr, rslt);
@@ -1678,10 +1671,10 @@ int SimulateStm8::execute_op_address16(struct _table_stm8_opcodes *table_stm8)
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_OR:
-      rslt = REG_A | data;
+      rslt = reg_a | data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_POP:
       rslt = POP_STACK();
@@ -1721,10 +1714,10 @@ int SimulateStm8::execute_op_address16(struct _table_stm8_opcodes *table_stm8)
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SBC:
-      rslt = REG_A - data - GET_C();
+      rslt = reg_a - data - GET_C();
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      calculate_flags(flag_bits, reg_a, data, rslt, SIZE_8BITS);
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SLL:
       flag_bits = data & 0x80;
@@ -1772,27 +1765,27 @@ int SimulateStm8::execute_op_address16(struct _table_stm8_opcodes *table_stm8)
       WRITE_RAM(eff_addr, rslt & 0xff);
       return table_stm8->cycles_min;
     case STM8_SUB:
-      rslt = REG_A - data;
+      rslt = reg_a - data;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-      calculate_flags(flag_bits, REG_A, data, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      calculate_flags(flag_bits, reg_a, data, rslt, SIZE_8BITS);
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SUBW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
           data16 = READ_RAM16(eff_addr);
-          rslt = REG_X - data16;
+          rslt = reg_x - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          calculate_flags(flag_bits, reg_x, data16, rslt, SIZE_16BITS);
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data16 = READ_RAM16(eff_addr);
-          rslt = REG_Y - data16;
+          rslt = reg_y - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          calculate_flags(flag_bits, reg_y, data16, rslt, SIZE_16BITS);
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -1808,10 +1801,10 @@ int SimulateStm8::execute_op_address16(struct _table_stm8_opcodes *table_stm8)
       calculate_flags(flag_bits, 0, 0, data, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_XOR:
-      rslt = REG_A ^ data;
+      rslt = reg_a ^ data;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
 
     default:
@@ -1831,9 +1824,9 @@ int SimulateStm8::execute_op_address24(struct _table_stm8_opcodes *table_stm8)
   uint8_t flag_bits;
   uint16_t rslt;
 
-  next_ext = READ_RAM(REG_PC++) << 16;
-  next_ext += READ_RAM(REG_PC++) << 8;
-  next_ext += READ_RAM(REG_PC++);
+  next_ext = READ_RAM(reg_pc++) << 16;
+  next_ext += READ_RAM(reg_pc++) << 8;
+  next_ext += READ_RAM(reg_pc++);
   eff_addr = next_ext;
   if (eff_addr >= memory_size)
   {
@@ -1843,25 +1836,25 @@ int SimulateStm8::execute_op_address24(struct _table_stm8_opcodes *table_stm8)
   switch (table_stm8->instr_enum)
   {
     case STM8_CALLF:
-      PUSH_STACK24(REG_PC);
-      REG_PC = eff_addr;
+      PUSH_STACK24(reg_pc);
+      reg_pc = eff_addr;
       return table_stm8->cycles_min;
     case STM8_INT:
       return table_stm8->cycles_min;
     case STM8_JPF:
-      REG_PC = eff_addr;
+      reg_pc = eff_addr;
       return table_stm8->cycles_min;
     case STM8_LDF:
       if (table_stm8->dest == OP_REG_A)
       {
-        REG_A = READ_RAM(eff_addr);
+        reg_a = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, reg_a, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
-        rslt = REG_A;
+        rslt = reg_a;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
         calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
@@ -1885,7 +1878,7 @@ int SimulateStm8::execute_op_index_x(struct _table_stm8_opcodes *table_stm8)
 {
   uint32_t eff_addr;
 
-  eff_addr = REG_X;
+  eff_addr = reg_x;
   return execute_op_common(table_stm8, eff_addr);
 }
 
@@ -1898,8 +1891,8 @@ int SimulateStm8::execute_op_offset8_index_x(struct _table_stm8_opcodes *table_s
   uint8_t next_byte;
   uint32_t eff_addr;
 
-  next_byte = READ_RAM(REG_PC++);
-  eff_addr = REG_X + next_byte;
+  next_byte = READ_RAM(reg_pc++);
+  eff_addr = reg_x + next_byte;
   return execute_op_common(table_stm8, eff_addr);
 }
 
@@ -1912,9 +1905,9 @@ int SimulateStm8::execute_op_offset16_index_x(struct _table_stm8_opcodes *table_
   uint16_t next_word;
   uint32_t eff_addr;
 
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
-  eff_addr = REG_X + next_word;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
+  eff_addr = reg_x + next_word;
   return execute_op_common(table_stm8, eff_addr);
 
 }
@@ -1931,10 +1924,10 @@ int SimulateStm8::execute_op_offset24_index_x(struct _table_stm8_opcodes *table_
   uint8_t flag_bits;
   uint16_t rslt;
 
-  next_ext = READ_RAM(REG_PC++) << 16;
-  next_ext += READ_RAM(REG_PC++) << 8;
-  next_ext += READ_RAM(REG_PC++);
-  eff_addr = REG_X + next_ext;
+  next_ext = READ_RAM(reg_pc++) << 16;
+  next_ext += READ_RAM(reg_pc++) << 8;
+  next_ext += READ_RAM(reg_pc++);
+  eff_addr = reg_x + next_ext;
   if (eff_addr >= memory_size)
   {
     return INVALID_MEM_ADDR;
@@ -1945,14 +1938,14 @@ int SimulateStm8::execute_op_offset24_index_x(struct _table_stm8_opcodes *table_
     case STM8_LDF:
       if (table_stm8->dest == OP_REG_A)
       {
-        REG_A = READ_RAM(eff_addr);
+        reg_a = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, reg_a, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
-        rslt = REG_A;
+        rslt = reg_a;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
         calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
@@ -1976,7 +1969,7 @@ int SimulateStm8::execute_op_index_y(struct _table_stm8_opcodes *table_stm8)
 {
   uint32_t eff_addr;
 
-  eff_addr = REG_Y;
+  eff_addr = reg_y;
   return execute_op_common(table_stm8, eff_addr);
 }
 
@@ -1990,8 +1983,8 @@ int SimulateStm8::execute_op_offset8_index_y(
   uint8_t next_byte;
   uint32_t eff_addr;
 
-  next_byte = READ_RAM(REG_PC++);
-  eff_addr = REG_Y + next_byte;
+  next_byte = READ_RAM(reg_pc++);
+  eff_addr = reg_y + next_byte;
   return execute_op_common(table_stm8, eff_addr);
 }
 
@@ -2005,9 +1998,9 @@ int SimulateStm8::execute_op_offset16_index_y(
   uint16_t next_word;
   uint32_t eff_addr;
 
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
-  eff_addr = REG_Y + next_word;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
+  eff_addr = reg_y + next_word;
   return execute_op_common(table_stm8, eff_addr);
 }
 
@@ -2024,10 +2017,10 @@ int SimulateStm8::execute_op_offset24_index_y(
   uint8_t flag_bits;
   uint16_t rslt;
 
-  next_ext = READ_RAM(REG_PC++) << 16;
-  next_ext += READ_RAM(REG_PC++) << 8;
-  next_ext += READ_RAM(REG_PC++);
-  eff_addr = REG_Y + next_ext;
+  next_ext = READ_RAM(reg_pc++) << 16;
+  next_ext += READ_RAM(reg_pc++) << 8;
+  next_ext += READ_RAM(reg_pc++);
+  eff_addr = reg_y + next_ext;
   if (eff_addr >= memory_size)
   {
     return INVALID_MEM_ADDR;
@@ -2038,14 +2031,14 @@ int SimulateStm8::execute_op_offset24_index_y(
     case STM8_LDF:
       if (table_stm8->dest == OP_REG_A)
       {
-        REG_A = READ_RAM(eff_addr);
+        reg_a = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, reg_a, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
-        rslt = REG_A;
+        rslt = reg_a;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
         calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
@@ -2074,8 +2067,8 @@ int SimulateStm8::execute_op_offset8_index_sp(
   uint8_t flag_bits;
   uint16_t rslt;
 
-  next_byte = READ_RAM(REG_PC++);
-  eff_addr = REG_SP + next_byte;
+  next_byte = READ_RAM(reg_pc++);
+  eff_addr = reg_sp + next_byte;
 
   switch (table_stm8->instr_enum)
   {
@@ -2084,17 +2077,17 @@ int SimulateStm8::execute_op_offset8_index_sp(
       {
         case OP_REG_X:
           data16 = READ_RAM16(eff_addr);
-          rslt = REG_X + data16;
+          rslt = reg_x + data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          calculate_flags(flag_bits, reg_x, data16, rslt, SIZE_16BITS);
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data16 = READ_RAM16(eff_addr);
-          rslt = REG_Y + data16;
+          rslt = reg_y + data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_ADD_TYPE;
-          calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          calculate_flags(flag_bits, reg_y, data16, rslt, SIZE_16BITS);
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -2104,17 +2097,17 @@ int SimulateStm8::execute_op_offset8_index_sp(
       {
         case OP_REG_X:
           data16 = READ_RAM16(eff_addr);
-          rslt = REG_X - data16;
+          rslt = reg_x - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(flag_bits, REG_X, data16, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          calculate_flags(flag_bits, reg_x, data16, rslt, SIZE_16BITS);
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
           data16 = READ_RAM16(eff_addr);
-          rslt = REG_Y - data16;
+          rslt = reg_y - data16;
           flag_bits = BV(CC_V_FLAG) | BV(CC_H_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | BV(CC_C_FLAG) | OP_SUB_TYPE;
-          calculate_flags(flag_bits, REG_Y, data16, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          calculate_flags(flag_bits, reg_y, data16, rslt, SIZE_16BITS);
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -2138,7 +2131,7 @@ int SimulateStm8::execute_op_indirect8(struct _table_stm8_opcodes *table_stm8)
   uint16_t ptr_addr;
   uint32_t eff_addr;
 
-  next_byte = READ_RAM(REG_PC++);
+  next_byte = READ_RAM(reg_pc++);
   ptr_addr = READ_RAM16(next_byte);
   eff_addr = ptr_addr;
   return execute_op_common(table_stm8, eff_addr);
@@ -2154,8 +2147,8 @@ int SimulateStm8::execute_op_indirect16(struct _table_stm8_opcodes *table_stm8)
   uint16_t ptr_addr;
   uint32_t eff_addr;
 
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
   ptr_addr = READ_RAM16(next_word);
   eff_addr = ptr_addr;
   return execute_op_common(table_stm8, eff_addr);
@@ -2174,8 +2167,8 @@ int SimulateStm8::execute_op_indirect16_e(
   uint8_t flag_bits;
   uint16_t rslt;
 
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
   eff_addr = READ_RAM24(next_word);
   if (eff_addr >= memory_size)
   {
@@ -2185,23 +2178,23 @@ int SimulateStm8::execute_op_indirect16_e(
   switch (table_stm8->instr_enum)
   {
     case STM8_CALLF:
-      PUSH_STACK24(REG_PC);
-      REG_PC = eff_addr;
+      PUSH_STACK24(reg_pc);
+      reg_pc = eff_addr;
       return table_stm8->cycles_min;
     case STM8_JPF:
-      REG_PC = eff_addr;
+      reg_pc = eff_addr;
       return table_stm8->cycles_min;
     case STM8_LDF:
       if (table_stm8->dest == OP_REG_A)
       {
-        REG_A = READ_RAM(eff_addr);
+        reg_a = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, reg_a, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
-        rslt = REG_A;
+        rslt = reg_a;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
         calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
@@ -2227,9 +2220,9 @@ int SimulateStm8::execute_op_indirect8_x(struct _table_stm8_opcodes *table_stm8)
   uint16_t ptr_addr;
   uint32_t eff_addr;
 
-  next_byte = READ_RAM(REG_PC++);
+  next_byte = READ_RAM(reg_pc++);
   ptr_addr = READ_RAM16(next_byte);
-  eff_addr = REG_X + ptr_addr;
+  eff_addr = reg_x + ptr_addr;
   return execute_op_common(table_stm8, eff_addr);
 }
 
@@ -2244,10 +2237,10 @@ int SimulateStm8::execute_op_indirect16_x(
   uint16_t ptr_addr;
   uint32_t eff_addr;
 
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
   ptr_addr = READ_RAM16(next_word);
-  eff_addr = REG_X + ptr_addr;
+  eff_addr = reg_x + ptr_addr;
   return execute_op_common(table_stm8, eff_addr);
 }
 
@@ -2264,10 +2257,10 @@ int SimulateStm8::execute_op_indirect16_e_x(
   uint8_t flag_bits;
   uint16_t rslt;
 
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
   eff_addr = READ_RAM24(next_word);
-  eff_addr += REG_X;
+  eff_addr += reg_x;
   if (eff_addr >= memory_size)
   {
     return INVALID_MEM_ADDR;
@@ -2278,14 +2271,14 @@ int SimulateStm8::execute_op_indirect16_e_x(
     case STM8_LDF:
       if (table_stm8->dest == OP_REG_A)
       {
-        REG_A = READ_RAM(eff_addr);
+        reg_a = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, reg_a, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
-        rslt = REG_A;
+        rslt = reg_a;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
         calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
@@ -2311,9 +2304,9 @@ int SimulateStm8::execute_op_indirect8_y(struct _table_stm8_opcodes *table_stm8)
   uint16_t ptr_addr;
   uint32_t eff_addr;
 
-  next_byte = READ_RAM(REG_PC++);
+  next_byte = READ_RAM(reg_pc++);
   ptr_addr = READ_RAM16(next_byte);
-  eff_addr = REG_Y + ptr_addr;
+  eff_addr = reg_y + ptr_addr;
   return execute_op_common(table_stm8, eff_addr);
 }
 
@@ -2330,10 +2323,10 @@ int SimulateStm8::execute_op_indirect16_e_y(
   uint8_t flag_bits;
   uint16_t rslt;
 
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
   eff_addr = READ_RAM24(next_word);
-  eff_addr += REG_Y;
+  eff_addr += reg_y;
   if (eff_addr >= memory_size)
   {
     return INVALID_MEM_ADDR;
@@ -2344,14 +2337,14 @@ int SimulateStm8::execute_op_indirect16_e_y(
     case STM8_LDF:
       if (table_stm8->dest == OP_REG_A)
       {
-        REG_A = READ_RAM(eff_addr);
+        reg_a = READ_RAM(eff_addr);
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-        calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
+        calculate_flags(flag_bits, 0, 0, reg_a, SIZE_8BITS);
         return table_stm8->cycles_min;
       }
       else if (table_stm8->src == OP_REG_A)
       {
-        rslt = REG_A;
+        rslt = reg_a;
         flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
         calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
         WRITE_RAM(eff_addr, rslt & 0xff);
@@ -2373,15 +2366,15 @@ int SimulateStm8::execute_op_indirect16_e_y(
 //    else = number of cycles for simulated instruction
 int SimulateStm8::execute_op_address_bit(struct _table_stm8_opcodes *table_stm8)
 {
-  uint32_t op_pc = REG_PC - 1;            // kluge! - actual opcode not available in table_stm8
+  uint32_t op_pc = reg_pc - 1;            // kluge! - actual opcode not available in table_stm8
   uint8_t pos = 0;
   uint16_t next_word;
   uint8_t data;
   uint16_t rslt;
 
   pos = (READ_RAM(op_pc) >> 1) & 0x07;    // bit position is encoded in opcode
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
   data = READ_RAM(next_word);
 
   switch (table_stm8->instr_enum)
@@ -2417,7 +2410,7 @@ int SimulateStm8::execute_op_address_bit_loop(
   struct _table_stm8_opcodes *table_stm8)
 {
   int32_t pc;
-  uint32_t op_pc = REG_PC - 1;            // kluge! - actual opcode not available in table_stm8
+  uint32_t op_pc = reg_pc - 1;            // kluge! - actual opcode not available in table_stm8
   uint8_t pos;
   uint16_t next_word;
   int8_t offset;
@@ -2425,10 +2418,10 @@ int SimulateStm8::execute_op_address_bit_loop(
   uint16_t rslt;
 
   pos = (READ_RAM(op_pc) >> 1) & 0x07;    // bit position is encoded in opcode
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
-  offset = READ_RAM(REG_PC++);
-  pc = (int32_t)REG_PC;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
+  offset = READ_RAM(reg_pc++);
+  pc = (int32_t)reg_pc;
   pc += offset;
   if ((uint32_t)pc >= memory_size)
   {
@@ -2443,7 +2436,7 @@ int SimulateStm8::execute_op_address_bit_loop(
       if (rslt == 0)
       {
         CLR_C();
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2456,7 +2449,7 @@ int SimulateStm8::execute_op_address_bit_loop(
       if (rslt != 0)
       {
         SET_C();
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2479,8 +2472,8 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
   int32_t pc;
   int8_t offset;
 
-  offset = READ_RAM(REG_PC++);
-  pc = (int32_t)REG_PC;
+  offset = READ_RAM(reg_pc++);
+  pc = (int32_t)reg_pc;
   pc += offset;
   if ((uint32_t)pc >= memory_size)
   {
@@ -2490,16 +2483,16 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
   switch (table_stm8->instr_enum)
   {
     case STM8_CALLR:
-      PUSH_STACK16(REG_PC);
-      REG_PC = (uint32_t)pc;
+      PUSH_STACK16(reg_pc);
+      reg_pc = (uint32_t)pc;
       return table_stm8->cycles_min;
     case STM8_JRA:
-      REG_PC = (uint32_t)pc;
+      reg_pc = (uint32_t)pc;
       return table_stm8->cycles_min;
     case STM8_JRC:
       if (GET_C() != 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2509,7 +2502,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JREQ:
       if (GET_Z() != 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2519,7 +2512,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRF:
       if (1 == 0)     // never jump
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2529,7 +2522,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRH:
       if (GET_H() != 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2541,12 +2534,12 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
       return table_stm8->cycles_min;
     case STM8_JRIL:
       // see Errata
-      REG_PC = (uint32_t)pc;
+      reg_pc = (uint32_t)pc;
       return table_stm8->cycles_min;
     case STM8_JRM:
       if ((GET_I1() != 0) && (GET_I0() != 0))   // interrupts masked
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2556,7 +2549,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRMI:
       if (GET_N() != 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2566,7 +2559,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRNC:
       if (GET_C() == 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2576,7 +2569,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRNE:
       if (GET_Z() == 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2586,7 +2579,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRNH:
       if (GET_H() == 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2600,13 +2593,13 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
       }
       else
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
     case STM8_JRNV:
       if (GET_V() == 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2616,7 +2609,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRPL:
       if (GET_N() == 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2626,7 +2619,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRSGE:
       if ((GET_N() ^ GET_V()) == 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2636,7 +2629,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRSGT:
       if ((GET_Z() | (GET_N() ^ GET_V())) == 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2646,7 +2639,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRSLE:
       if ((GET_Z() | (GET_N() ^ GET_V())) != 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2656,7 +2649,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRSLT:
       if ((GET_N() ^ GET_V()) != 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2666,7 +2659,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRT:
       if (1 == 1)     // always jump
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2676,7 +2669,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRUGE:
       if (GET_C() == 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2686,7 +2679,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRUGT:
       if ((GET_C() == 0) && (GET_Z() == 0))
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2696,7 +2689,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRULE:
       if ((GET_C() != 0) || (GET_Z() != 0))
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2706,7 +2699,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRULT:
       if (GET_C() != 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2716,7 +2709,7 @@ int SimulateStm8::execute_op_relative(struct _table_stm8_opcodes *table_stm8)
     case STM8_JRV:
       if (GET_V() != 0)
       {
-        REG_PC = (uint32_t)pc;
+        reg_pc = (uint32_t)pc;
         return table_stm8->cycles_max;
       }
       else
@@ -2741,7 +2734,7 @@ int SimulateStm8::execute_op_single_register(
   switch (table_stm8->instr_enum)
   {
     case STM8_CLR:
-      REG_A = 0;
+      reg_a = 0;
       CLR_N();
       SET_Z();
       return table_stm8->cycles_min;
@@ -2749,12 +2742,12 @@ int SimulateStm8::execute_op_single_register(
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          REG_X = 0;
+          reg_x = 0;
           CLR_N();
           SET_Z();
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          REG_Y = 0;
+          reg_y = 0;
           CLR_N();
           SET_Z();
           return table_stm8->cycles_min;
@@ -2762,82 +2755,82 @@ int SimulateStm8::execute_op_single_register(
           return UNKNOWN_INST;
       }
     case STM8_CPL:
-      REG_A ^= 0xff;
+      reg_a ^= 0xff;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, reg_a, SIZE_8BITS);
       SET_C();
       return table_stm8->cycles_min;
     case STM8_CPLW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          REG_X ^= 0xffff;
+          reg_x ^= 0xffff;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, reg_x, SIZE_16BITS);
           SET_C();
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          REG_Y ^= 0xffff;
+          reg_y ^= 0xffff;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, reg_y, SIZE_16BITS);
           SET_C();
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_DEC:
-      rslt = REG_A - 1;
+      rslt = reg_a - 1;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-      calculate_flags(flag_bits, REG_A, 1, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      calculate_flags(flag_bits, reg_a, 1, rslt, SIZE_8BITS);
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_DECW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          rslt = REG_X - 1;
+          rslt = reg_x - 1;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-          calculate_flags(flag_bits, REG_X, 1, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          calculate_flags(flag_bits, reg_x, 1, rslt, SIZE_16BITS);
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          rslt = REG_Y - 1;
+          rslt = reg_y - 1;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-          calculate_flags(flag_bits, REG_Y, 1, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          calculate_flags(flag_bits, reg_y, 1, rslt, SIZE_16BITS);
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_INC:
-      rslt = REG_A + 1;
+      rslt = reg_a + 1;
       flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-      calculate_flags(flag_bits, REG_A, 1, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      calculate_flags(flag_bits, reg_a, 1, rslt, SIZE_8BITS);
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_INCW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          rslt = REG_X + 1;
+          rslt = reg_x + 1;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-          calculate_flags(flag_bits, REG_X, 1, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          calculate_flags(flag_bits, reg_x, 1, rslt, SIZE_16BITS);
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          rslt = REG_Y + 1;
+          rslt = reg_y + 1;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG) | OP_ADD_TYPE;
-          calculate_flags(flag_bits, REG_Y, 1, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          calculate_flags(flag_bits, reg_y, 1, rslt, SIZE_16BITS);
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_NEG:
-      rslt = 0 - REG_A;
+      rslt = 0 - reg_a;
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(flag_bits, REG_A, 0, rslt, SIZE_8BITS);
-      if (REG_A == 0x80)
+      calculate_flags(flag_bits, reg_a, 0, rslt, SIZE_8BITS);
+      if (reg_a == 0x80)
       {
         SET_V();
       }
@@ -2846,7 +2839,7 @@ int SimulateStm8::execute_op_single_register(
         CLR_V()
       }
 
-      if (REG_A != 0)
+      if (reg_a != 0)
       {
         SET_C();
       }
@@ -2854,16 +2847,16 @@ int SimulateStm8::execute_op_single_register(
       {
         CLR_C()
       }
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_NEGW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          rslt = 0 - REG_X;
+          rslt = 0 - reg_x;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(flag_bits, REG_X, 0, rslt, SIZE_16BITS);
-          if (REG_X == 0x8000)
+          calculate_flags(flag_bits, reg_x, 0, rslt, SIZE_16BITS);
+          if (reg_x == 0x8000)
           {
             SET_V();
           }
@@ -2872,7 +2865,7 @@ int SimulateStm8::execute_op_single_register(
             CLR_V()
           }
 
-          if (REG_X != 0)
+          if (reg_x != 0)
           {
             SET_C();
           }
@@ -2880,13 +2873,13 @@ int SimulateStm8::execute_op_single_register(
           {
             CLR_C()
           }
-          REG_X = rslt;
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          rslt = 0 - REG_Y;
+          rslt = 0 - reg_y;
           flag_bits = BV(CC_V_FLAG) | BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(flag_bits, REG_Y, 0, rslt, SIZE_16BITS);
-          if (REG_Y == 0x8000)
+          calculate_flags(flag_bits, reg_y, 0, rslt, SIZE_16BITS);
+          if (reg_y == 0x8000)
           {
             SET_V();
           }
@@ -2895,7 +2888,7 @@ int SimulateStm8::execute_op_single_register(
             CLR_V()
           }
 
-          if (REG_Y != 0)
+          if (reg_y != 0)
           {
             SET_C();
           }
@@ -2903,7 +2896,7 @@ int SimulateStm8::execute_op_single_register(
           {
             CLR_C()
           }
-          REG_Y = rslt;
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -2912,10 +2905,10 @@ int SimulateStm8::execute_op_single_register(
       switch (table_stm8->dest)
       {
         case OP_REG_A:
-          REG_A = POP_STACK();
+          reg_a = POP_STACK();
           return table_stm8->cycles_min;
         case OP_REG_CC:
-          REG_CC = POP_STACK();
+          reg_cc = POP_STACK();
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -2924,10 +2917,10 @@ int SimulateStm8::execute_op_single_register(
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          REG_X = POP_STACK16();
+          reg_x = POP_STACK16();
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          REG_Y = POP_STACK16();
+          reg_y = POP_STACK16();
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -2936,10 +2929,10 @@ int SimulateStm8::execute_op_single_register(
       switch (table_stm8->dest)
       {
         case OP_REG_A:
-          PUSH_STACK(REG_A);
+          PUSH_STACK(reg_a);
           return table_stm8->cycles_min;
         case OP_REG_CC:
-          PUSH_STACK(REG_CC);
+          PUSH_STACK(reg_cc);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -2948,17 +2941,17 @@ int SimulateStm8::execute_op_single_register(
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          PUSH_STACK16(REG_X);
+          PUSH_STACK16(reg_x);
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          PUSH_STACK16(REG_Y);
+          PUSH_STACK16(reg_y);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_RLC:
-      flag_bits = REG_A & 0x80;
-      rslt = (REG_A << 1) + GET_C();
+      flag_bits = reg_a & 0x80;
+      rslt = (reg_a << 1) + GET_C();
       if (flag_bits != 0)
       {
         SET_C();
@@ -2969,14 +2962,14 @@ int SimulateStm8::execute_op_single_register(
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_RLCW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          flag_bits = REG_X >> 15;
-          rslt = (REG_X << 1) + GET_C();
+          flag_bits = reg_x >> 15;
+          rslt = (reg_x << 1) + GET_C();
           if (flag_bits != 0)
           {
             SET_C();
@@ -2987,11 +2980,11 @@ int SimulateStm8::execute_op_single_register(
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          flag_bits = REG_Y >> 15;
-          rslt = (REG_Y << 1) + GET_C();
+          flag_bits = reg_y >> 15;
+          rslt = (reg_y << 1) + GET_C();
           if (flag_bits != 0)
           {
             SET_C();
@@ -3002,14 +2995,14 @@ int SimulateStm8::execute_op_single_register(
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_RRC:
-      flag_bits = REG_A & 0x01;
-      rslt = (REG_A >> 1) | (GET_C() << 7);
+      flag_bits = reg_a & 0x01;
+      rslt = (reg_a >> 1) | (GET_C() << 7);
       if (flag_bits != 0)
       {
         SET_C();
@@ -3020,14 +3013,14 @@ int SimulateStm8::execute_op_single_register(
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_RRCW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          flag_bits = REG_X & 0x0001;
-          rslt = (REG_X >> 1) | (GET_C() << 15);
+          flag_bits = reg_x & 0x0001;
+          rslt = (reg_x >> 1) | (GET_C() << 15);
           if (flag_bits != 0)
           {
             SET_C();
@@ -3038,11 +3031,11 @@ int SimulateStm8::execute_op_single_register(
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          flag_bits = REG_Y & 0x0001;
-          rslt = (REG_Y >> 1) | (GET_C() << 15);
+          flag_bits = reg_y & 0x0001;
+          rslt = (reg_y >> 1) | (GET_C() << 15);
           if (flag_bits != 0)
           {
             SET_C();
@@ -3053,14 +3046,14 @@ int SimulateStm8::execute_op_single_register(
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_SLL:
-      flag_bits = REG_A & 0x80;
-      rslt = (REG_A << 1);
+      flag_bits = reg_a & 0x80;
+      rslt = (reg_a << 1);
       if (flag_bits != 0)
       {
         SET_C();
@@ -3071,14 +3064,14 @@ int SimulateStm8::execute_op_single_register(
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SLLW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          flag_bits = REG_X >> 15;
-          rslt = (REG_X << 1);
+          flag_bits = reg_x >> 15;
+          rslt = (reg_x << 1);
           if (flag_bits != 0)
           {
             SET_C();
@@ -3089,11 +3082,11 @@ int SimulateStm8::execute_op_single_register(
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          flag_bits = REG_Y >> 15;
-          rslt = (REG_Y << 1);
+          flag_bits = reg_y >> 15;
+          rslt = (reg_y << 1);
           if (flag_bits != 0)
           {
             SET_C();
@@ -3104,14 +3097,14 @@ int SimulateStm8::execute_op_single_register(
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_SRA:
-      flag_bits = REG_A & 0x01;
-      rslt = (REG_A & 0x80) | (REG_A >> 1);
+      flag_bits = reg_a & 0x01;
+      rslt = (reg_a & 0x80) | (reg_a >> 1);
       if (flag_bits != 0)
       {
         SET_C();
@@ -3122,14 +3115,14 @@ int SimulateStm8::execute_op_single_register(
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SRAW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          flag_bits = REG_X & 0x0001;
-          rslt = (REG_X & 0x8000) | (REG_X >> 1);
+          flag_bits = reg_x & 0x0001;
+          rslt = (reg_x & 0x8000) | (reg_x >> 1);
           if (flag_bits != 0)
           {
             SET_C();
@@ -3140,11 +3133,11 @@ int SimulateStm8::execute_op_single_register(
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          flag_bits = REG_Y & 0x0001;
-          rslt = (REG_Y & 0x8000) | (REG_Y >> 1);
+          flag_bits = reg_y & 0x0001;
+          rslt = (reg_y & 0x8000) | (reg_y >> 1);
           if (flag_bits != 0)
           {
             SET_C();
@@ -3155,14 +3148,14 @@ int SimulateStm8::execute_op_single_register(
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_SRL:
-      flag_bits = REG_A & 0x01;
-      rslt = (REG_A >> 1);
+      flag_bits = reg_a & 0x01;
+      rslt = (reg_a >> 1);
       if (flag_bits != 0)
       {
         SET_C();
@@ -3173,14 +3166,14 @@ int SimulateStm8::execute_op_single_register(
       }
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SRLW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          flag_bits = REG_X & 0x0001;
-          rslt = (REG_X >> 1);
+          flag_bits = reg_x & 0x0001;
+          rslt = (reg_x >> 1);
           if (flag_bits != 0)
           {
             SET_C();
@@ -3191,11 +3184,11 @@ int SimulateStm8::execute_op_single_register(
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          flag_bits = REG_Y & 0x0001;
-          rslt = (REG_Y >> 1);
+          flag_bits = reg_y & 0x0001;
+          rslt = (reg_y >> 1);
           if (flag_bits != 0)
           {
             SET_C();
@@ -3206,49 +3199,49 @@ int SimulateStm8::execute_op_single_register(
           }
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_SWAP:
-      rslt = (REG_A >> 4) | (REG_A << 4);
+      rslt = (reg_a >> 4) | (reg_a << 4);
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
       calculate_flags(flag_bits, 0, 0, rslt, SIZE_8BITS);
-      REG_A = rslt & 0xff;
+      reg_a = rslt & 0xff;
       return table_stm8->cycles_min;
     case STM8_SWAPW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          rslt = (REG_X >> 8) | (REG_X << 8);
+          rslt = (reg_x >> 8) | (reg_x << 8);
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_X = rslt;
+          reg_x = rslt;
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          rslt = (REG_Y >> 8) | (REG_Y << 8);
+          rslt = (reg_y >> 8) | (reg_y << 8);
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
           calculate_flags(flag_bits, 0, 0, rslt, SIZE_16BITS);
-          REG_Y = rslt;
+          reg_y = rslt;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_TNZ:
       flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-      calculate_flags(flag_bits, 0, 0, REG_A, SIZE_8BITS);
+      calculate_flags(flag_bits, 0, 0, reg_a, SIZE_8BITS);
       return table_stm8->cycles_min;
     case STM8_TNZW:
       switch (table_stm8->dest)
       {
         case OP_REG_X:
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, reg_x, SIZE_16BITS);
           return table_stm8->cycles_min;
         case OP_REG_Y:
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, reg_y, SIZE_16BITS);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -3275,16 +3268,16 @@ int SimulateStm8::execute_op_two_registers(
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          if (REG_A != 0)
+          if (reg_a != 0)
           {
-            data16 = REG_X / REG_A;
-            REG_A = REG_X % REG_A;
-            REG_X = data16;
+            data16 = reg_x / reg_a;
+            reg_a = reg_x % reg_a;
+            reg_x = data16;
             CLR_V();
             CLR_H();
             CLR_N();
             flag_bits = BV(CC_Z_FLAG);
-            calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
+            calculate_flags(flag_bits, 0, 0, reg_x, SIZE_16BITS);
             CLR_C()
           }
           else  // divide-by-0
@@ -3293,16 +3286,16 @@ int SimulateStm8::execute_op_two_registers(
           }
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          if (REG_A != 0)
+          if (reg_a != 0)
           {
-            data16 = REG_Y / REG_A;
-            REG_A = REG_Y % REG_A;
-            REG_Y = data16;
+            data16 = reg_y / reg_a;
+            reg_a = reg_y % reg_a;
+            reg_y = data16;
             CLR_V();
             CLR_H();
             CLR_N();
             flag_bits = BV(CC_Z_FLAG);
-            calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+            calculate_flags(flag_bits, 0, 0, reg_y, SIZE_16BITS);
             CLR_C()
           }
           else  // divide-by-0
@@ -3314,16 +3307,16 @@ int SimulateStm8::execute_op_two_registers(
           return UNKNOWN_INST;
       }
     case STM8_DIVW:
-      if (REG_Y != 0)
+      if (reg_y != 0)
       {
-        data16 = REG_X / REG_Y;
-        REG_Y = REG_X % REG_Y;
-        REG_X = data16;
+        data16 = reg_x / reg_y;
+        reg_y = reg_x % reg_y;
+        reg_x = data16;
         CLR_V();
         CLR_H();
         CLR_N();
         flag_bits = BV(CC_Z_FLAG);
-        calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
+        calculate_flags(flag_bits, 0, 0, reg_x, SIZE_16BITS);
         CLR_C()
       }
       else  // divide-by-0
@@ -3335,22 +3328,22 @@ int SimulateStm8::execute_op_two_registers(
       switch (table_stm8->src)
       {
         case OP_REG_XL:
-          data = REG_X & 0xff;
-          REG_X = (REG_X & 0xff00) | REG_A;
-          REG_A = data;
+          data = reg_x & 0xff;
+          reg_x = (reg_x & 0xff00) | reg_a;
+          reg_a = data;
           return table_stm8->cycles_min;
         case OP_REG_YL:
-          data = REG_Y & 0xff;
-          REG_Y = (REG_Y & 0xff00) | REG_A;
-          REG_A = data;
+          data = reg_y & 0xff;
+          reg_y = (reg_y & 0xff00) | reg_a;
+          reg_a = data;
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
       }
     case STM8_EXGW:
-      data16 = REG_Y;
-      REG_Y = REG_X;
-      REG_X = data16;
+      data16 = reg_y;
+      reg_y = reg_x;
+      reg_x = data16;
       return table_stm8->cycles_min;
     case STM8_LD:
       if (table_stm8->dest == OP_REG_A)
@@ -3358,16 +3351,16 @@ int SimulateStm8::execute_op_two_registers(
         switch (table_stm8->src)
         {
           case OP_REG_XL:
-            REG_A = REG_X & 0xff;
+            reg_a = reg_x & 0xff;
             return table_stm8->cycles_min;
           case OP_REG_YL:
-            REG_A = REG_Y & 0xff;
+            reg_a = reg_y & 0xff;
             return table_stm8->cycles_min;
           case OP_REG_XH:
-            REG_A = REG_X >> 8;
+            reg_a = reg_x >> 8;
             return table_stm8->cycles_min;
           case OP_REG_YH:
-            REG_A = REG_Y >> 8;
+            reg_a = reg_y >> 8;
             return table_stm8->cycles_min;
           default:
             return UNKNOWN_INST;
@@ -3378,16 +3371,16 @@ int SimulateStm8::execute_op_two_registers(
         switch (table_stm8->dest)
         {
           case OP_REG_XL:
-            REG_X = (REG_X & 0xff00) | REG_A;
+            reg_x = (reg_x & 0xff00) | reg_a;
             return table_stm8->cycles_min;
           case OP_REG_YL:
-            REG_Y = (REG_Y & 0xff00) | REG_A;
+            reg_y = (reg_y & 0xff00) | reg_a;
             return table_stm8->cycles_min;
           case OP_REG_XH:
-            REG_X = (REG_X & 0x00ff) | (REG_A << 8);
+            reg_x = (reg_x & 0x00ff) | (reg_a << 8);
             return table_stm8->cycles_min;
           case OP_REG_YH:
-            REG_Y = (REG_Y & 0x00ff) | (REG_A << 8);
+            reg_y = (reg_y & 0x00ff) | (reg_a << 8);
             return table_stm8->cycles_min;
           default:
             return UNKNOWN_INST;
@@ -3404,10 +3397,10 @@ int SimulateStm8::execute_op_two_registers(
           switch (table_stm8->src)
           {
             case OP_REG_Y:
-              REG_X = REG_Y;
+              reg_x = reg_y;
               return table_stm8->cycles_min;
             case OP_SP:
-              REG_X = REG_SP;
+              reg_x = reg_sp;
               return table_stm8->cycles_min;
             default:
               return UNKNOWN_INST;
@@ -3416,10 +3409,10 @@ int SimulateStm8::execute_op_two_registers(
           switch (table_stm8->src)
           {
             case OP_REG_X:
-              REG_Y = REG_X;
+              reg_y = reg_x;
               return table_stm8->cycles_min;
             case OP_SP:
-              REG_Y = REG_SP;
+              reg_y = reg_sp;
               return table_stm8->cycles_min;
             default:
               return UNKNOWN_INST;
@@ -3428,10 +3421,10 @@ int SimulateStm8::execute_op_two_registers(
           switch (table_stm8->src)
           {
             case OP_REG_X:
-              REG_SP = REG_X;
+              reg_sp = reg_x;
               return table_stm8->cycles_min;
             case OP_REG_Y:
-              REG_SP = REG_Y;
+              reg_sp = reg_y;
               return table_stm8->cycles_min;
             default:
               return UNKNOWN_INST;
@@ -3443,12 +3436,12 @@ int SimulateStm8::execute_op_two_registers(
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          REG_X = (REG_X & 0xff) * REG_A;
+          reg_x = (reg_x & 0xff) * reg_a;
           CLR_H();
           CLR_C()
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          REG_Y = (REG_Y & 0xff) * REG_A;
+          reg_y = (reg_y & 0xff) * reg_a;
           CLR_H();
           CLR_C()
           return table_stm8->cycles_min;
@@ -3459,18 +3452,18 @@ int SimulateStm8::execute_op_two_registers(
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          data = REG_X >> 8;
-          REG_X = (REG_X << 8) | REG_A;
-          REG_A = data;
+          data = reg_x >> 8;
+          reg_x = (reg_x << 8) | reg_a;
+          reg_a = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, reg_x, SIZE_16BITS);
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          data = REG_Y >> 8;
-          REG_Y = (REG_Y << 8) | REG_A;
-          REG_A = data;
+          data = reg_y >> 8;
+          reg_y = (reg_y << 8) | reg_a;
+          reg_a = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, reg_y, SIZE_16BITS);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -3479,18 +3472,18 @@ int SimulateStm8::execute_op_two_registers(
       switch (table_stm8->dest)
       {
         case OP_REG_X:
-          data = REG_X & 0xff;
-          REG_X = (REG_A << 8) | (REG_X >> 8);
-          REG_A = data;
+          data = reg_x & 0xff;
+          reg_x = (reg_a << 8) | (reg_x >> 8);
+          reg_a = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(flag_bits, 0, 0, REG_X, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, reg_x, SIZE_16BITS);
           return table_stm8->cycles_min;
         case OP_REG_Y:
-          data = REG_Y & 0xff;
-          REG_Y = (REG_A << 8) | (REG_Y >> 8);
-          REG_A = data;
+          data = reg_y & 0xff;
+          reg_y = (reg_a << 8) | (reg_y >> 8);
+          reg_a = data;
           flag_bits = BV(CC_N_FLAG) | BV(CC_Z_FLAG);
-          calculate_flags(flag_bits, 0, 0, REG_Y, SIZE_16BITS);
+          calculate_flags(flag_bits, 0, 0, reg_y, SIZE_16BITS);
           return table_stm8->cycles_min;
         default:
           return UNKNOWN_INST;
@@ -3510,9 +3503,9 @@ int SimulateStm8::execute_op_address16_number8(
   uint16_t next_word;
   uint8_t next_byte;
 
-  next_byte = READ_RAM(REG_PC++);
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
+  next_byte = READ_RAM(reg_pc++);
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
 
   switch (table_stm8->instr_enum)
   {
@@ -3535,8 +3528,8 @@ int SimulateStm8::execute_op_address8_address8(
   uint8_t next_byte2;
   uint8_t data;
 
-  next_byte = READ_RAM(REG_PC++);
-  next_byte2 = READ_RAM(REG_PC++);
+  next_byte = READ_RAM(reg_pc++);
+  next_byte2 = READ_RAM(reg_pc++);
 
   switch (table_stm8->instr_enum)
   {
@@ -3560,10 +3553,10 @@ int SimulateStm8::execute_op_address16_address16(
   uint16_t next_word2;
   uint8_t data;
 
-  next_word = READ_RAM16(REG_PC);
-  REG_PC += 2;
-  next_word2 = READ_RAM16(REG_PC);
-  REG_PC += 2;
+  next_word = READ_RAM16(reg_pc);
+  reg_pc += 2;
+  next_word2 = READ_RAM16(reg_pc);
+  reg_pc += 2;
 
   switch (table_stm8->instr_enum)
   {
@@ -3587,13 +3580,13 @@ int SimulateStm8::execute()
   uint8_t prefix = 0;
   int n;
 
-  opcode = READ_RAM(REG_PC++);
+  opcode = READ_RAM(reg_pc++);
 
   if ((opcode == PRECODE_PWSP) || (opcode == PRECODE_PDY) ||
       (opcode == PRECODE_PIY) || (opcode == PRECODE_PIX))
   {
     prefix = opcode;
-    opcode = READ_RAM(REG_PC++);
+    opcode = READ_RAM(reg_pc++);
   }
 
   n = 0;

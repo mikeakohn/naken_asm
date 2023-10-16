@@ -25,12 +25,12 @@
 
 #define COMPUTE_B(a) (((a & 0x7) << 24) | (((a >> 3) & 0x7) << 12))
 
-#define REG_GP 26
-//#define REG_FP 27
-#define REG_SP 28
-//#define REG_BLINK 31
-//#define REG_LP_COUNT 60
-//#define REG_LONG_IMMEDIATE 62
+#define REGISTER_GP 26
+//#define REGISTER_FP 27
+#define REGISTER_SP 28
+//#define REGISTER_BLINK 31
+//#define REGISTER_LP_COUNT 60
+//#define REGISTER_LONG_IMMEDIATE 62
 #define LIMM 62
 
 enum
@@ -763,7 +763,7 @@ for (n = 0; n < operand_count; n++)
           break;
         case OP_GP:
           if (operands[i].type != OPERAND_REG ||
-              operands[i].value != REG_GP)
+              operands[i].value != REGISTER_GP)
           {
             i = 100;
           }
@@ -771,7 +771,7 @@ for (n = 0; n < operand_count; n++)
           break;
         case OP_SP:
           if (operands[i].type != OPERAND_REG ||
-              operands[i].value != REG_SP)
+              operands[i].value != REGISTER_SP)
           {
             i = 100;
           }

@@ -24,17 +24,6 @@
 #define READ_RAM(a) memory->read8(a)
 #define WRITE_RAM(a, b) memory->write8(a, b)
 
-#define REG_A reg_a
-#define REG_X reg_x
-#define REG_Y reg_y
-#define REG_SR reg_sr
-#define REG_PC reg_pc
-#define REG_SP reg_sp
-#define REG_DB reg_db
-#define REG_PB reg_pb
-
-#define CYCLE_COUNT cycle_count
-
 // status register flags
 #define flag_c 0
 #define flag_z 1
@@ -49,9 +38,9 @@
 #define SET_BIT(dst, a) (dst |= (1 << a))
 #define CLEAR_BIT(dst, a) (dst &= ~(1 << a))
 
-#define READ_FLAG(a) ((REG_SR & (1 << a)) ? 1 : 0)
-#define SET_FLAG(a) (REG_SR |= (1 << a))
-#define CLEAR_FLAG(a) (REG_SR &= ~(1 << a))
+#define READ_FLAG(a) ((reg_sr & (1 << a)) ? 1 : 0)
+#define SET_FLAG(a) (reg_sr |= (1 << a))
+#define CLEAR_FLAG(a) (reg_sr &= ~(1 << a))
 
 #define FLAG(condition, flag) if (condition) SET_FLAG(flag); else CLEAR_FLAG(flag)
 
@@ -75,21 +64,21 @@ void Simulate65816::reset()
   nested_call_count = 0;
   break_point = -1;
 
-  REG_A = 0;
-  REG_X = 0;
-  REG_Y = 0;
-  REG_SR = 0;
-  REG_PC = org;
-  REG_SP = 0x1FF;
-  REG_DB = 0;
-  REG_PB = 0;
+  reg_a = 0;
+  reg_x = 0;
+  reg_y = 0;
+  reg_sr = 0;
+  reg_pc = org;
+  reg_sp = 0x1FF;
+  reg_db = 0;
+  reg_pb = 0;
 }
 
 void Simulate65816::push(uint32_t value)
 {
-  WRITE_RAM(REG_SP, value & 0xFF);
-  REG_SP--;
-  REG_SP &= 0xFF;
+  WRITE_RAM(reg_sp, value & 0xFF);
+  reg_sp--;
+  reg_sp &= 0xFF;
 }
 
 int Simulate65816::set_reg(const char *reg_string, uint32_t value)
@@ -97,21 +86,21 @@ int Simulate65816::set_reg(const char *reg_string, uint32_t value)
   while (*reg_string==' ') { reg_string++; }
 
   if (strcasecmp(reg_string, "a") == 0)
-    REG_A = value & 0xFFFF;
+    reg_a = value & 0xFFFF;
   else if (strcasecmp(reg_string, "x") == 0)
-    REG_X = value & 0xFFFF;
+    reg_x = value & 0xFFFF;
   else if (strcasecmp(reg_string, "y") == 0)
-    REG_Y = value & 0xFFFF;
+    reg_y = value & 0xFFFF;
   else if (strcasecmp(reg_string, "sr") == 0)
-    REG_SR = value & 0xFF;
+    reg_sr = value & 0xFF;
   else if (strcasecmp(reg_string, "pc") == 0)
-    REG_PC = value & 0xFFFF;
+    reg_pc = value & 0xFFFF;
   else if (strcasecmp(reg_string, "sp") == 0)
-    REG_SP = value & 0xFFFF;
+    reg_sp = value & 0xFFFF;
   else if (strcasecmp(reg_string, "db") == 0)
-    REG_DB = value & 0xFF;
+    reg_db = value & 0xFF;
   else if (strcasecmp(reg_string, "pb") == 0)
-    REG_PB = value & 0xFF;
+    reg_pb = value & 0xFF;
   else
     return -1;
 
@@ -121,33 +110,33 @@ int Simulate65816::set_reg(const char *reg_string, uint32_t value)
 uint32_t Simulate65816::get_reg(const char *reg_string)
 {
   if (strcasecmp(reg_string, "a") == 0)
-    return REG_A;
+    return reg_a;
   else if (strcasecmp(reg_string, "x") == 0)
-    return REG_X;
+    return reg_x;
   else if (strcasecmp(reg_string, "y") == 0)
-    return REG_Y;
+    return reg_y;
   else if (strcasecmp(reg_string, "sr") == 0)
-    return REG_SR;
+    return reg_sr;
   else if (strcasecmp(reg_string, "pc") == 0)
-    return REG_PC;
+    return reg_pc;
   else if (strcasecmp(reg_string, "sp") == 0)
-    return REG_SP;
+    return reg_sp;
   else if (strcasecmp(reg_string, "db") == 0)
-    return REG_DB;
+    return reg_db;
   else if (strcasecmp(reg_string, "pb") == 0)
-    return REG_PB;
+    return reg_pb;
 
   return -1;
 }
 
 void Simulate65816::set_pc(uint32_t value)
 {
-  REG_PC = value;
+  reg_pc = value;
 }
 
 void Simulate65816::dump_registers()
 {
-  int sp = REG_SP;
+  int sp = reg_sp;
 
   printf("\nSimulation Register Dump                                  Stack\n");
   printf("---------------------------------------------------------------\n");
@@ -171,13 +160,13 @@ void Simulate65816::dump_registers()
   printf("                                                 0x%04x: 0x%04x\n", SHOW_STACK);
 
   sp = (sp - 2) & 0xFFFF;
-  printf("  A=0x%04x    X=0x%04x    Y=0x%04x               0x%04x: 0x%04x\n", REG_A, REG_X, REG_Y, SHOW_STACK);
+  printf("  A=0x%04x    X=0x%04x    Y=0x%04x               0x%04x: 0x%04x\n", reg_a, reg_x, reg_y, SHOW_STACK);
 
   sp = (sp - 2) & 0xFFFF;
-  printf(" SR=0x%02x     SP=0x%04x   PC=0x%04x               0x%04x: 0x%04x\n", REG_SR, REG_SP, REG_PC, SHOW_STACK);
+  printf(" SR=0x%02x     SP=0x%04x   PC=0x%04x               0x%04x: 0x%04x\n", reg_sr, reg_sp, reg_pc, SHOW_STACK);
 
   sp = (sp - 2) & 0xFFFF;
-  printf(" DB=0x%02x     PB=0x%02x                             0x%04x: 0x%04x\n", REG_DB, REG_PB, SHOW_STACK);
+  printf(" DB=0x%02x     PB=0x%02x                             0x%04x: 0x%04x\n", reg_db, reg_pb, SHOW_STACK);
 
   printf("\n\n");
   printf("%d clock cycles have passed since last reset.\n\n", cycle_count);
@@ -191,7 +180,7 @@ int Simulate65816::run(int max_cycles, int step)
 
   while (stop_running == false)
   {
-    int pc = REG_PC;
+    int pc = reg_pc;
     int cycles_min, cycles_max;
     int opcode = READ_RAM(pc);
 
@@ -201,10 +190,10 @@ int Simulate65816::run(int max_cycles, int step)
     if (ret == -1)
       break;
 
-    // only increment if REG_PC not touched
+    // only increment if reg_pc not touched
     if (ret == 0)
     {
-      REG_PC += disasm_65816(
+      reg_pc += disasm_65816(
         memory,
         pc,
         instruction,
@@ -239,7 +228,7 @@ int Simulate65816::run(int max_cycles, int step)
         if (n == 0)
         { printf("! "); }
           else
-        if (pc == REG_PC) { printf("> "); }
+        if (pc == reg_pc) { printf("> "); }
           else
         { printf("  "); }
 
@@ -265,7 +254,7 @@ int Simulate65816::run(int max_cycles, int step)
       return -1;
     }
 
-    if (break_point == REG_PC)
+    if (break_point == reg_pc)
     {
       printf("Breakpoint hit at 0x%04x\n", break_point);
       break;
@@ -277,11 +266,11 @@ int Simulate65816::run(int max_cycles, int step)
       return 0;
     }
 
-    if (REG_PC == 0xFFFF)
+    if (reg_pc == 0xFFFF)
     {
       printf("Function ended.  Total cycles: %d\n", cycle_count);
       step_mode = 0;
-      REG_PC = READ_RAM(0xFFFC) + READ_RAM(0xFFFD) * 256;
+      reg_pc = READ_RAM(0xFFFC) + READ_RAM(0xFFFD) * 256;
 
       disable_signal_handler();
       return 0;
@@ -292,7 +281,7 @@ int Simulate65816::run(int max_cycles, int step)
 
   disable_signal_handler();
 
-  printf("Stopped.  PC=0x%04x.\n", REG_PC);
+  printf("Stopped.  PC=0x%04x.\n", reg_pc);
   printf("%d clock cycles have passed since last reset.\n", cycle_count);
 
   return 0;
@@ -321,13 +310,13 @@ int Simulate65816::calc_address(int address, int mode)
     case OP_ADDRESS24:
       return 0;
     case OP_INDEXED8_X:
-      return (lo + REG_X) & 0xFF;
+      return (lo + reg_x) & 0xFF;
     case OP_INDEXED8_Y:
-      return (lo + REG_Y) & 0xFFFF;
+      return (lo + reg_y) & 0xFFFF;
     case OP_INDEXED16_X:
-      return ((lo + 256 * hi) + REG_X) & 0xFFFF;
+      return ((lo + 256 * hi) + reg_x) & 0xFFFF;
     case OP_INDEXED16_Y:
-      return ((lo + 256 * hi) + REG_Y) & 0xFFFF;
+      return ((lo + 256 * hi) + reg_y) & 0xFFFF;
     case OP_INDEXED24_X:
       return 0;
     case OP_INDIRECT8:
@@ -341,13 +330,13 @@ int Simulate65816::calc_address(int address, int mode)
     case OP_INDIRECT16_LONG:
       return 0;
     case OP_X_INDIRECT8:
-      indirect = ((READ_RAM(lo) + REG_X) & 0xFF) + 256 * READ_RAM((lo + 1) & 0xFF);
+      indirect = ((READ_RAM(lo) + reg_x) & 0xFF) + 256 * READ_RAM((lo + 1) & 0xFF);
       return (indirect) & 0xFFFF;
     case OP_X_INDIRECT16:
       return 0;
     case OP_INDIRECT8_Y:
       indirect = READ_RAM(lo) + 256 * READ_RAM((lo + 1) & 0xFF);
-      return (indirect + REG_Y) & 0xFFFF;
+      return (indirect + reg_y) & 0xFFFF;
     case OP_INDIRECT8_Y_LONG:
       return 0;
     case OP_BLOCK_MOVE:
@@ -374,7 +363,7 @@ int Simulate65816::operand_exe(int opcode)
 
   int mode = table_65816_opcodes[opcode].op;
 
-  int address = calc_address(REG_PC + 1, mode);
+  int address = calc_address(reg_pc + 1, mode);
 
   if (address == -1)
   {
@@ -384,9 +373,9 @@ int Simulate65816::operand_exe(int opcode)
   int m = READ_RAM(address);
   int temp;
   int pc_lo, pc_hi;
-  int temp_a = REG_A;
+  int temp_a = reg_a;
 
-  CYCLE_COUNT += table_65816_opcodes[opcode].cycles_min;
+  cycle_count += table_65816_opcodes[opcode].cycles_min;
 
   //FIXME add extra cycles when required below
   switch(opcode)
@@ -402,26 +391,26 @@ int Simulate65816::operand_exe(int opcode)
     case 0x7D:
       if (READ_FLAG(flag_d))
       {
-        int bcd_a = (REG_A & 15) + 10 * (REG_A >> 4);
+        int bcd_a = (reg_a & 15) + 10 * (reg_a >> 4);
         int bcd_m = (m & 15) + 10 * (m >> 4);
         int result = bcd_a + bcd_m + READ_FLAG(flag_c);
 
         FLAG(result > 99, flag_c);
         result %= 100;
 
-        REG_A = (result % 10) + ((result / 10) << 4);
+        reg_a = (result % 10) + ((result / 10) << 4);
       }
         else
       {
-        REG_A += m + READ_FLAG(flag_c);
+        reg_a += m + READ_FLAG(flag_c);
 
-        FLAG(REG_A > 255, flag_c);
+        FLAG(reg_a > 255, flag_c);
       }
 
-      REG_A &= 0xFF;
-      FLAG((temp_a ^ REG_A) & (m ^ REG_A) & 0x80, flag_v);
-      FLAG(REG_A > 127, flag_n);
-      FLAG(REG_A == 0, flag_z);
+      reg_a &= 0xFF;
+      FLAG((temp_a ^ reg_a) & (m ^ reg_a) & 0x80, flag_v);
+      FLAG(reg_a > 127, flag_n);
+      FLAG(reg_a == 0, flag_z);
 
       break;
     // AND
@@ -433,9 +422,9 @@ int Simulate65816::operand_exe(int opcode)
     case 0x35:
     case 0x39:
     case 0x3D:
-      REG_A &= m;
-      FLAG(REG_A > 127, flag_n);
-      FLAG(REG_A == 0, flag_z);
+      reg_a &= m;
+      FLAG(reg_a > 127, flag_n);
+      FLAG(reg_a == 0, flag_z);
       break;
     // ASL
     case 0x06:
@@ -445,11 +434,11 @@ int Simulate65816::operand_exe(int opcode)
     case 0x1E:
       if (mode == 4)
       {
-        FLAG(READ_BIT(REG_A, 7), flag_c);
-        REG_A <<= 1;
-        REG_A &= 0xFF;
-        FLAG(REG_A > 127, flag_n);
-        FLAG(REG_A == 0, flag_z);
+        FLAG(READ_BIT(reg_a, 7), flag_c);
+        reg_a <<= 1;
+        reg_a &= 0xFF;
+        FLAG(reg_a > 127, flag_n);
+        FLAG(reg_a == 0, flag_z);
       }
         else
       {
@@ -465,7 +454,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0x90:
       if (READ_FLAG(flag_c) == 0)
       {
-        REG_PC = address;
+        reg_pc = address;
         return 1;
       }
       break;
@@ -473,7 +462,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0xB0:
       if (READ_FLAG(flag_c) == 1)
       {
-        REG_PC = address;
+        reg_pc = address;
         return 1;
       }
       break;
@@ -481,7 +470,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0xF0:
       if (READ_FLAG(flag_z) == 1)
       {
-        REG_PC = address;
+        reg_pc = address;
         return 1;
       }
       break;
@@ -489,7 +478,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0x30:
       if (READ_FLAG(flag_n) == 1)
       {
-        REG_PC = address;
+        reg_pc = address;
         return 1;
       }
       break;
@@ -497,7 +486,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0xD0:
       if (READ_FLAG(flag_z) == 0)
       {
-        REG_PC = address;
+        reg_pc = address;
         return 1;
       }
       break;
@@ -505,7 +494,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0x10:
       if (READ_FLAG(flag_n) == 0)
       {
-        REG_PC = address;
+        reg_pc = address;
         return 1;
       }
       break;
@@ -513,7 +502,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0x50:
       if (READ_FLAG(flag_v) == 0)
       {
-        REG_PC = address;
+        reg_pc = address;
         return 1;
       }
       break;
@@ -521,7 +510,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0x70:
       if (READ_FLAG(flag_v) == 1)
       {
-        REG_PC = address;
+        reg_pc = address;
         return 1;
       }
       break;
@@ -532,7 +521,7 @@ int Simulate65816::operand_exe(int opcode)
     // BIT
     case 0x24:
     case 0x2C:
-      FLAG((REG_A & m) == 0, flag_z);
+      FLAG((reg_a & m) == 0, flag_z);
       FLAG(READ_BIT(m, 6), flag_v);
       FLAG(READ_BIT(m, 7), flag_n);
       break;
@@ -561,7 +550,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0xD5:
     case 0xD9:
     case 0xDD:
-      temp = (REG_A - m);
+      temp = (reg_a - m);
       FLAG(temp >= 0, flag_c);
       temp &= 0xFF;
       FLAG(temp > 127, flag_n);
@@ -571,7 +560,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0xE0:
     case 0xE4:
     case 0xEC:
-      temp = (REG_X - m);
+      temp = (reg_x - m);
       FLAG(temp >= 0, flag_c);
       temp &= 0xFF;
       FLAG(temp > 127, flag_n);
@@ -581,7 +570,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0xC0:
     case 0xC4:
     case 0xCC:
-      temp = (REG_Y - m);
+      temp = (reg_y - m);
       FLAG(temp >= 0, flag_c);
       temp &= 0xFF;
       FLAG(temp > 127, flag_n);
@@ -599,15 +588,15 @@ int Simulate65816::operand_exe(int opcode)
       break;
     // DEX
     case 0xCA:
-      REG_X = (REG_X - 1) & 0xFF;
-      FLAG(REG_X > 127, flag_n);
-      FLAG(REG_X == 0, flag_z);
+      reg_x = (reg_x - 1) & 0xFF;
+      FLAG(reg_x > 127, flag_n);
+      FLAG(reg_x == 0, flag_z);
       break;
     // DEY
     case 0x88:
-      REG_Y = (REG_Y - 1) & 0xFF;
-      FLAG(REG_Y > 127, flag_n);
-      FLAG(REG_Y == 0, flag_z);
+      reg_y = (reg_y - 1) & 0xFF;
+      FLAG(reg_y > 127, flag_n);
+      FLAG(reg_y == 0, flag_z);
       break;
     // EOR
     case 0x41:
@@ -618,9 +607,9 @@ int Simulate65816::operand_exe(int opcode)
     case 0x55:
     case 0x59:
     case 0x5D:
-      REG_A ^= m;
-      FLAG(REG_A > 127, flag_n);
-      FLAG(REG_A == 0, flag_z);
+      reg_a ^= m;
+      FLAG(reg_a > 127, flag_n);
+      FLAG(reg_a == 0, flag_z);
       break;
     // INC
     case 0xE6:
@@ -634,30 +623,30 @@ int Simulate65816::operand_exe(int opcode)
       break;
     // INX
     case 0xE8:
-      REG_X = (REG_X + 1) & 0xFF;
-      FLAG(REG_X > 127, flag_n);
-      FLAG(REG_X == 0, flag_z);
+      reg_x = (reg_x + 1) & 0xFF;
+      FLAG(reg_x > 127, flag_n);
+      FLAG(reg_x == 0, flag_z);
       break;
     // INY
     case 0xC8:
-      REG_Y = (REG_Y + 1) & 0xFF;
-      FLAG(REG_X > 127, flag_n);
-      FLAG(REG_X == 0, flag_z);
+      reg_y = (reg_y + 1) & 0xFF;
+      FLAG(reg_x > 127, flag_n);
+      FLAG(reg_x == 0, flag_z);
       break;
     // JMP
     case 0x4C:
     case 0x6C:
-      REG_PC = address;
+      reg_pc = address;
       return 1;
     // JSR
     case 0x20:
-      WRITE_RAM(0x100 + REG_SP, (REG_PC + 2) / 256);
-      REG_SP--;
-      REG_SP &= 0xFF;
-      WRITE_RAM(0x100 + REG_SP, (REG_PC + 2) & 0xFF);
-      REG_SP--;
-      REG_SP &= 0xFF;
-      REG_PC = address;
+      WRITE_RAM(0x100 + reg_sp, (reg_pc + 2) / 256);
+      reg_sp--;
+      reg_sp &= 0xFF;
+      WRITE_RAM(0x100 + reg_sp, (reg_pc + 2) & 0xFF);
+      reg_sp--;
+      reg_sp &= 0xFF;
+      reg_pc = address;
       return 1;
     // LDA
     case 0xA1:
@@ -668,9 +657,9 @@ int Simulate65816::operand_exe(int opcode)
     case 0xB5:
     case 0xB9:
     case 0xBD:
-      REG_A = m;
-      FLAG(REG_A > 127, flag_n);
-      FLAG(REG_A == 0, flag_z);
+      reg_a = m;
+      FLAG(reg_a > 127, flag_n);
+      FLAG(reg_a == 0, flag_z);
       break;
     // LDX
     case 0xA2:
@@ -678,8 +667,8 @@ int Simulate65816::operand_exe(int opcode)
     case 0xAE:
     case 0xB6:
     case 0xBE:
-      REG_X = m;
-      FLAG(REG_X == 0, flag_z);
+      reg_x = m;
+      FLAG(reg_x == 0, flag_z);
       FLAG(m > 127, flag_n);
       break;
     // LDY
@@ -688,8 +677,8 @@ int Simulate65816::operand_exe(int opcode)
     case 0xAC:
     case 0xB4:
     case 0xBC:
-      REG_Y = m;
-      FLAG(REG_Y == 0, flag_z);
+      reg_y = m;
+      FLAG(reg_y == 0, flag_z);
       FLAG(m > 127, flag_n);
       break;
     // LSR
@@ -700,11 +689,11 @@ int Simulate65816::operand_exe(int opcode)
     case 0x5E:
       if (mode == 4)
       {
-        FLAG(READ_BIT(REG_A, 0), flag_c);
-        REG_A >>= 1;
-        CLEAR_BIT(REG_A, 7);
-        FLAG(REG_A > 127, flag_n);
-        FLAG(REG_A == 0, flag_z);
+        FLAG(READ_BIT(reg_a, 0), flag_c);
+        reg_a >>= 1;
+        CLEAR_BIT(reg_a, 7);
+        FLAG(reg_a > 127, flag_n);
+        FLAG(reg_a == 0, flag_z);
       }
         else
       {
@@ -728,33 +717,33 @@ int Simulate65816::operand_exe(int opcode)
     case 0x15:
     case 0x19:
     case 0x1D:
-      REG_A |= m;
-      FLAG(REG_A > 127, flag_n);
-      FLAG(REG_A == 0, flag_z);
+      reg_a |= m;
+      FLAG(reg_a > 127, flag_n);
+      FLAG(reg_a == 0, flag_z);
       break;
     // PHA
     case 0x48:
-      WRITE_RAM(0x100 + REG_SP, REG_A);
-      REG_SP--;
-      REG_SP &= 0xFF;
+      WRITE_RAM(0x100 + reg_sp, reg_a);
+      reg_sp--;
+      reg_sp &= 0xFF;
       break;
     // PHP
     case 0x08:
-      WRITE_RAM(0x100 + REG_SP, REG_SR);
-      REG_SP--;
-      REG_SP &= 0xFF;
+      WRITE_RAM(0x100 + reg_sp, reg_sr);
+      reg_sp--;
+      reg_sp &= 0xFF;
       break;
     // PLA
     case 0x68:
-      REG_SP++;
-      REG_SP &= 0xFF;
-      REG_A = READ_RAM(0x100 + REG_SP);
+      reg_sp++;
+      reg_sp &= 0xFF;
+      reg_a = READ_RAM(0x100 + reg_sp);
       break;
     // PLP
     case 0x28:
-      REG_SP++;
-      REG_SP &= 0xFF;
-      REG_SR = READ_RAM(0x100 + REG_SP);
+      reg_sp++;
+      reg_sp &= 0xFF;
+      reg_sr = READ_RAM(0x100 + reg_sp);
       break;
     // ROL
     case 0x26:
@@ -764,12 +753,12 @@ int Simulate65816::operand_exe(int opcode)
     case 0x3E:
       if (mode == 4)
       {
-        FLAG(READ_BIT(REG_A, 7), flag_c);
-        REG_A <<= 1;
-        SET_BIT(REG_A, READ_FLAG(flag_c));
-        REG_A &= 0xFF;
-        FLAG(REG_A > 127, flag_n);
-        FLAG(REG_A == 0, flag_z);
+        FLAG(READ_BIT(reg_a, 7), flag_c);
+        reg_a <<= 1;
+        SET_BIT(reg_a, READ_FLAG(flag_c));
+        reg_a &= 0xFF;
+        FLAG(reg_a > 127, flag_n);
+        FLAG(reg_a == 0, flag_z);
       }
         else
       {
@@ -790,12 +779,12 @@ int Simulate65816::operand_exe(int opcode)
     case 0x7E:
       if (mode == 4)
       {
-        temp = READ_BIT(REG_A, 0);
-        REG_A >>= 1;
-        SET_BIT(REG_A, READ_FLAG(flag_c) << 7);
+        temp = READ_BIT(reg_a, 0);
+        reg_a >>= 1;
+        SET_BIT(reg_a, READ_FLAG(flag_c) << 7);
         FLAG(temp, flag_c);
-        FLAG(REG_A > 127, flag_n);
-        FLAG(REG_A == 0, flag_z);
+        FLAG(reg_a > 127, flag_n);
+        FLAG(reg_a == 0, flag_z);
       }
         else
       {
@@ -810,28 +799,28 @@ int Simulate65816::operand_exe(int opcode)
       break;
     // RTI
     case 0x40:
-      REG_SP++;
-      REG_SP &= 0xFF;
-      REG_SR = READ_RAM(0x100 + REG_SP);
-      REG_SP++;
-      REG_SP &= 0xFF;
-      pc_lo = READ_RAM(0x100 + REG_SP);
-      REG_SP++;
-      REG_SP &= 0xFF;
-      pc_hi = READ_RAM(0x100 + REG_SP);
-      REG_PC = (pc_lo + 256 * pc_hi);
-      REG_PC++;
+      reg_sp++;
+      reg_sp &= 0xFF;
+      reg_sr = READ_RAM(0x100 + reg_sp);
+      reg_sp++;
+      reg_sp &= 0xFF;
+      pc_lo = READ_RAM(0x100 + reg_sp);
+      reg_sp++;
+      reg_sp &= 0xFF;
+      pc_hi = READ_RAM(0x100 + reg_sp);
+      reg_pc = (pc_lo + 256 * pc_hi);
+      reg_pc++;
       return 1;
     // RTS
     case 0x60:
-      REG_SP++;
-      REG_SP &= 0xFF;
-      pc_lo = READ_RAM(0x100 + REG_SP);
-      REG_SP++;
-      REG_SP &= 0xFF;
-      pc_hi = READ_RAM(0x100 + REG_SP);
-      REG_PC = (pc_lo + 256 * pc_hi);
-      REG_PC++;
+      reg_sp++;
+      reg_sp &= 0xFF;
+      pc_lo = READ_RAM(0x100 + reg_sp);
+      reg_sp++;
+      reg_sp &= 0xFF;
+      pc_hi = READ_RAM(0x100 + reg_sp);
+      reg_pc = (pc_lo + 256 * pc_hi);
+      reg_pc++;
       return 1;
     // SBC
     case 0xE1:
@@ -844,7 +833,7 @@ int Simulate65816::operand_exe(int opcode)
     case 0xFD:
       if (READ_FLAG(flag_d))
       {
-        int bcd_a = (REG_A & 15) + 10 * (REG_A >> 4);
+        int bcd_a = (reg_a & 15) + 10 * (reg_a >> 4);
         int bcd_m = (m & 15) + 10 * (m >> 4);
         int result = bcd_a - bcd_m - (1 - READ_FLAG(flag_c));
 
@@ -852,19 +841,19 @@ int Simulate65816::operand_exe(int opcode)
         FLAG(result >= 0, flag_c);
         result %= 100;
 
-        REG_A = (result % 10) + ((result / 10) << 4);
+        reg_a = (result % 10) + ((result / 10) << 4);
       }
         else
       {
-        REG_A -= m - (1 - READ_FLAG(flag_c));
+        reg_a -= m - (1 - READ_FLAG(flag_c));
 
-        FLAG(REG_A >= 0, flag_c);
+        FLAG(reg_a >= 0, flag_c);
       }
 
-      REG_A &= 0xFF;
-      FLAG((temp_a ^ REG_A) & (m ^ REG_A) & 0x80, flag_v);
-      FLAG(REG_A > 127, flag_n);
-      FLAG(REG_A == 0, flag_z);
+      reg_a &= 0xFF;
+      FLAG((temp_a ^ reg_a) & (m ^ reg_a) & 0x80, flag_v);
+      FLAG(reg_a > 127, flag_n);
+      FLAG(reg_a == 0, flag_z);
 
       break;
     // SEC
@@ -887,53 +876,53 @@ int Simulate65816::operand_exe(int opcode)
     case 0x95:
     case 0x99:
     case 0x9D:
-      WRITE_RAM(address, REG_A);
+      WRITE_RAM(address, reg_a);
       break;
     // STX
     case 0x86:
     case 0x8E:
     case 0x96:
-      WRITE_RAM(address, REG_X);
+      WRITE_RAM(address, reg_x);
       break;
     // STY
     case 0x84:
     case 0x8C:
     case 0x94:
-      WRITE_RAM(address, REG_Y);
+      WRITE_RAM(address, reg_y);
       break;
     // TAX
     case 0xAA:
-      REG_X = REG_A;
-      FLAG(REG_X == 0, flag_z);
+      reg_x = reg_a;
+      FLAG(reg_x == 0, flag_z);
       FLAG(m > 127, flag_n);
       break;
     // TAY
     case 0xA8:
-      REG_Y = REG_A;
-      FLAG(REG_Y == 0, flag_z);
+      reg_y = reg_a;
+      FLAG(reg_y == 0, flag_z);
       FLAG(m > 127, flag_n);
       break;
     // TSX
     case 0xBA:
-      REG_X = REG_SP;
-      FLAG(REG_X == 0, flag_z);
+      reg_x = reg_sp;
+      FLAG(reg_x == 0, flag_z);
       FLAG(m > 127, flag_n);
       break;
     // TXA
     case 0x8A:
-      REG_A = REG_X;
-      FLAG(REG_A > 127, flag_n);
-      FLAG(REG_A == 0, flag_z);
+      reg_a = reg_x;
+      FLAG(reg_a > 127, flag_n);
+      FLAG(reg_a == 0, flag_z);
       break;
     // TXS
     case 0x9A:
-      REG_SP = REG_X;
+      reg_sp = reg_x;
       break;
     // TYA
     case 0x98:
-      REG_A = REG_Y;
-      FLAG(REG_A > 127, flag_n);
-      FLAG(REG_A == 0, flag_z);
+      reg_a = reg_y;
+      FLAG(reg_a > 127, flag_n);
+      FLAG(reg_a == 0, flag_z);
       break;
   }
 

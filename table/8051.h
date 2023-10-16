@@ -39,8 +39,8 @@ enum
 struct _table_8051
 {
   const char *name;
-  char op[3];
-  char range;   // range of register or page (r0, r1, r2 etc)
+  int8_t op[3];
+  int8_t range;   // range of register or page (r0, r1, r2 etc)
 };
 
 extern struct _table_8051 table_8051[];

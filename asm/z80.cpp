@@ -20,6 +20,10 @@
 #include "common/eval_expression.h"
 #include "table/z80.h"
 
+#ifdef REG_SP
+#undef REG_SP
+#endif
+
 enum
 {
   OPERAND_NONE,

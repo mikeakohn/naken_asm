@@ -45,7 +45,7 @@ static int macros_parse_token(
   int ptr = 0;
   char ch;
 
-  while (1)
+  while (true)
   {
     ch = tokens_get_char(asm_context);
 
@@ -62,7 +62,7 @@ static int macros_parse_token(
       }
 
       // Check for (
-      while (1)
+      while (true)
       {
         ch = tokens_get_char(asm_context);
 
@@ -207,7 +207,7 @@ int macros_append(
 
   // Find a pool that has enough area at the end to add this macro.
   // If none can be found, alloc a new one.
-  while (1)
+  while (true)
   {
      if (memory_pool->ptr + name_len + value_len + (int)sizeof(MacroData) < memory_pool->len)
      {
@@ -382,7 +382,7 @@ int macros_get_char(AsmContext *asm_context)
 
   Macros *macros = &asm_context->macros;
 
-  while (1)
+  while (true)
   {
     // Is there even a character waiting on the #define stack?
     stack_ptr = macros->stack_ptr-1;
@@ -466,7 +466,7 @@ printf("debug> macros_parse() name=%s parens_flag=%d\n", name, parens);
 
   if (parens != 0)
   {
-    while (1)
+    while (true)
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
 #ifdef DEBUG
@@ -540,7 +540,7 @@ printf("debug> macros_parse() param count=%d\n", param_count);
   ptr = 0;
   name_test = NULL;
 
-  while (1)
+  while (true)
   {
     ch = tokens_get_char(asm_context);
 
@@ -587,7 +587,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
     {
       if (macro[ptr-1] == '/') { ptr--; }
 
-      while (1)
+      while (true)
       {
         ch = tokens_get_char(asm_context);
         if (ch == '\t') { ch = ' '; }
@@ -608,7 +608,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
     {
       if (macro_type == IS_DEFINE)
       {
-        while (1)
+        while (true)
         {
           ch = tokens_get_char(asm_context);
           if (ch != '\r') { break; }
@@ -684,7 +684,7 @@ char *macros_expand_params(
   uint8_t in_string = 0;
   uint8_t open_parens = 0;
 
-  while (1)
+  while (true)
   {
     ch = tokens_get_char(asm_context);
 
@@ -703,7 +703,7 @@ char *macros_expand_params(
   ptr = 0;
   params_ptr[count] = ptr;
 
-  while (1)
+  while (true)
   {
     ch = tokens_get_char(asm_context);
 
@@ -803,7 +803,7 @@ printf("debug> macros_strip_comment()\n");
 #endif
 
   // Look for /*  */ comment and remove.
-  while (1)
+  while (true)
   {
     ch = tokens_get_char(asm_context);
     if (ch == '\t') { ch = ' '; }

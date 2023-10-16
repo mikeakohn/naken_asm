@@ -20,9 +20,9 @@
 #include "common/eval_expression.h"
 #include "table/thumb.h"
 
-#define REG_SP (13 - 8)
-#define REG_LR (14 - 8)
-#define REG_PC (15 - 8)
+#define REGISTER_SP (13 - 8)
+#define REGISTER_LR (14 - 8)
+#define REGISTER_PC (15 - 8)
 
 enum
 {
@@ -78,9 +78,9 @@ static int get_h_register_thumb(char *token)
     }
   }
 
-  if (strcasecmp("sp", token) == 0) { return REG_SP; }
-  if (strcasecmp("lr", token) == 0) { return REG_LR; }
-  if (strcasecmp("pc", token) == 0) { return REG_PC; }
+  if (strcasecmp("sp", token) == 0) { return REGISTER_SP; }
+  if (strcasecmp("lr", token) == 0) { return REGISTER_LR; }
+  if (strcasecmp("pc", token) == 0) { return REGISTER_PC; }
 
   return -1;
 }
@@ -813,8 +813,8 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
           if (operand_count == 3 &&
               operands[0].type == OPERAND_H_REGISTER &&
               operands[1].type == OPERAND_H_REGISTER &&
-              operands[0].value == REG_SP &&
-              operands[1].value == REG_SP &&
+              operands[0].value == REGISTER_SP &&
+              operands[1].value == REGISTER_SP &&
               operands[2].type == OPERAND_NUMBER)
           {
             if (check_range(asm_context, "immediate", operands[2].value, 0, 508) == -1) { return -1; }
