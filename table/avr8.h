@@ -188,8 +188,8 @@ struct _table_avr8
   uint16_t opcode;
   uint16_t mask;
   uint8_t type;
-  char cycles_min;
-  char cycles_max;
+  int8_t cycles_min;
+  int8_t cycles_max;
   uint8_t id;
 };
 
