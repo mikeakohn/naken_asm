@@ -47,14 +47,15 @@ enum
   OP_FP_FP_FP_FP_RM,
 };
 
+#define RISCV64 0x01
+
 struct _table_riscv
 {
   const char *instr;
   uint32_t opcode;
   uint32_t mask;
   uint8_t type;
-  int8_t cycles_min;
-  int8_t cycles_max;
+  uint8_t flags;
 };
 
 extern struct _table_riscv table_riscv[];

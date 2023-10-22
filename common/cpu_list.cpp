@@ -1280,6 +1280,28 @@ struct _cpu_list cpu_list[] =
     SimulateRiscv::init,
     NO_FLAGS,
   },
+  {
+    "riscv64",
+    CPU_TYPE_RISCV,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_4,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    SREC_32,
+    parse_instruction_riscv,
+    NULL,
+    link_not_supported,
+    list_output_riscv,
+    disasm_range_riscv,
+    SimulateRiscv::init,
+    1,
+  },
 #endif
 #ifdef ENABLE_SH4
   {

@@ -59,6 +59,7 @@ CPU this source file should be assembled for.
 |.sweet16         |SWEET16
 |.unsp            |SunPlus unSP
 |.riscv           |RISC-V
+|.riscv64         |RISC-V 64 bit
 |.thumb           |THUMB
 |.tms1000         |TMS1000/TMS1200/TMS1070/TMS1270
 |.tms1100         |TMS1100/TMS1300

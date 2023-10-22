@@ -13,6 +13,9 @@
 #define NAKEN_ASM_DISASM_RISCV_H
 
 #include "common/assembler.h"
+//#include "table/riscv.h"
+
+extern const char *riscv_reg_names[32];
 
 int disasm_riscv(
   Memory *memory,

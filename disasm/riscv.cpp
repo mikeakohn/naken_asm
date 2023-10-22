@@ -16,6 +16,14 @@
 #include "disasm/riscv.h"
 #include "table/riscv.h"
 
+const char *riscv_reg_names[32] =
+{
+  "zero", "ra",  "sp",  "gp", "tp", "t0", "t1", "t2",
+    "fp", "s1",  "a0",  "a1", "a2", "a3", "a4", "a5",
+    "a6", "a7",  "s2",  "s3", "s4", "s5", "s6", "s7",
+    "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+};
+
 static const char *rm_string[] =
 {
   ", rne",
@@ -77,20 +85,35 @@ int disasm_riscv(
       switch (table_riscv[n].type)
       {
         case OP_R_TYPE:
-          snprintf(instruction, length, "%s x%d, x%d, x%d", instr, rd, rs1, rs2);
+          snprintf(instruction, length, "%s %s, %s, %s",
+            instr,
+            riscv_reg_names[rd],
+            riscv_reg_names[rs1],
+            riscv_reg_names[rs2]);
           break;
         case OP_R_R:
-          snprintf(instruction, length, "%s x%d, x%d", instr, rd, rs1);
+          snprintf(instruction, length, "%s %s, %s",
+            instr,
+            riscv_reg_names[rd],
+            riscv_reg_names[rs1]);
           break;
         case OP_I_TYPE:
           immediate = opcode >> 20;
           simmediate = immediate;
           if ((simmediate & 0x800) != 0) { simmediate |= 0xfffff000; }
-          snprintf(instruction, length, "%s x%d, x%d, %d (0x%06x)", instr, rd, rs1, simmediate, immediate);
+          snprintf(instruction, length, "%s %s, %s, %d (0x%06x)",
+            instr,
+            riscv_reg_names[rd],
+            riscv_reg_names[rs1],
+            simmediate,
+            immediate);
           break;
         case OP_UI_TYPE:
           immediate = opcode >> 20;
-          snprintf(instruction, length, "%s x%d, 0x%x", instr, rd, immediate);
+          snprintf(instruction, length, "%s %s, 0x%x",
+            instr,
+            riscv_reg_names[rd],
+            immediate);
           break;
         case OP_SB_TYPE:
           immediate = ((opcode >> 31) & 0x1) << 12;
@@ -98,11 +121,19 @@ int disasm_riscv(
           immediate |= ((opcode >> 7) & 0x1) << 11;
           immediate |= ((opcode >> 25) & 0x3f) << 5;
           if ((immediate & 0x1000) != 0) { immediate |= 0xffffe000; }
-          snprintf(instruction, length, "%s x%d, x%d, 0x%x (%d)", instr, rs1, rs2, address + immediate, immediate);
+          snprintf(instruction, length, "%s %s, %s, 0x%x (%d)",
+            instr,
+            riscv_reg_names[rs1],
+            riscv_reg_names[rs2],
+            address + immediate,
+            immediate);
           break;
         case OP_U_TYPE:
           immediate = opcode >> 12;
-          snprintf(instruction, length, "%s x%d, 0x%06x", instr, rd, immediate);
+          snprintf(instruction, length, "%s %s, 0x%06x",
+            instr,
+            riscv_reg_names[rd],
+            immediate);
           break;
         case OP_UJ_TYPE:
           offset = ((opcode >> 31) & 0x1) << 20;
@@ -110,11 +141,19 @@ int disasm_riscv(
           offset |= ((opcode >> 20) & 0x1) << 11;
           offset |= ((opcode >> 21) & 0x3ff) << 1;
           if ((offset & 0x100000) != 0) { offset |= 0xfff00000; }
-          snprintf(instruction, length, "%s x%d, 0x%x (offset=%d)", instr, rd, address + offset, offset);
+          snprintf(instruction, length, "%s %s, 0x%x (offset=%d)",
+            instr,
+            riscv_reg_names[rd],
+            address + offset,
+            offset);
           break;
         case OP_SHIFT:
           immediate = (opcode >> 20) & 0x1f;
-          snprintf(instruction, length, "%s x%d, x%d, %d", instr, rd, rs1, immediate);
+          snprintf(instruction, length, "%s %s, %s, %d",
+            instr,
+            riscv_reg_names[rd],
+            riscv_reg_names[rs1],
+            immediate);
           break;
         case OP_FENCE:
           immediate = (opcode >> 20) & 0xff;
@@ -135,50 +174,83 @@ int disasm_riscv(
           snprintf(instruction, length, "%s", instr);
           break;
         case OP_READ:
-          snprintf(instruction, length, "%s x%d", instr, rd);
+          snprintf(instruction, length, "%s %s", instr, riscv_reg_names[rd]);
           break;
         case OP_RD_INDEX_R:
           immediate = opcode >> 20;
           simmediate = immediate;
           if ((simmediate & 0x800) != 0) { simmediate |= 0xfffff000; }
-          snprintf(instruction, length, "%s x%d, %d(x%d)", instr, rd, simmediate, rs1);
+          snprintf(instruction, length, "%s %s, %d(%s)",
+            instr,
+            riscv_reg_names[rd],
+            simmediate,
+            riscv_reg_names[rs1]);
           break;
         case OP_FD_INDEX_R:
           immediate = opcode >> 20;
           simmediate = immediate;
           if ((simmediate & 0x800) != 0) { simmediate |= 0xfffff000; }
-          snprintf(instruction, length, "%s f%d, %d(x%d)", instr, rd, simmediate, rs1);
+          snprintf(instruction, length, "%s f%d, %d(%s)",
+            instr,
+            rd,
+            simmediate,
+            riscv_reg_names[rs1]);
           break;
         case OP_RS_INDEX_R:
           immediate = ((opcode >> 25) & 0x7f) << 5;
           immediate |= ((opcode >> 7) & 0x1f);
           if ((immediate & 0x800) != 0) { immediate |= 0xfffff000; }
-          snprintf(instruction, length, "%s x%d, %d(x%d)", instr, rs2, immediate, rs1);
+          snprintf(instruction, length, "%s %s, %d(%s)",
+            instr,
+            riscv_reg_names[rs2],
+            immediate,
+            riscv_reg_names[rs1]);
           break;
         case OP_FS_INDEX_R:
           immediate = ((opcode >> 25) & 0x7f) << 5;
           immediate |= ((opcode >> 7) & 0x1f);
           if ((immediate & 0x800) != 0) { immediate |= 0xfffff000; }
-          snprintf(instruction, length, "%s f%d, %d(x%d)", instr, rs2, immediate, rs1);
+          snprintf(instruction, length, "%s f%d, %d(%s)",
+            instr,
+            rs2,
+            immediate,
+            riscv_reg_names[rs1]);
           break;
         case OP_LR:
           temp[0] = 0;
           if ((opcode & (1 << 26)) != 0) { strcat(temp, ".aq"); }
           if ((opcode & (1 << 25)) != 0) { strcat(temp, ".rl"); }
-          snprintf(instruction, length, "%s%s x%d, (x%d)", instr, temp, rd, rs1);
+          snprintf(instruction, length, "%s%s %s, (%s)",
+            instr,
+            temp,
+            riscv_reg_names[rd],
+            riscv_reg_names[rs1]);
           break;
         case OP_STD_EXT:
           temp[0] = 0;
           if ((opcode & (1 << 26)) != 0) { strcat(temp, ".aq"); }
           if ((opcode & (1 << 25)) != 0) { strcat(temp, ".rl"); }
           // FIXME - The docs say rs2 and rs1 are reversed. gnu-as is like this.
-          snprintf(instruction, length, "%s%s x%d, x%d, (x%d)", instr, temp, rd, rs2, rs1);
+          snprintf(instruction, length, "%s%s %s, %s, (%s)",
+            instr,
+            temp,
+            riscv_reg_names[rd],
+            riscv_reg_names[rs2],
+            riscv_reg_names[rs1]);
           break;
         case OP_R_FP_RM:
-          snprintf(instruction, length, "%s x%d, f%d%s", instr, rd, rs1, rm_string[rm]);
+          snprintf(instruction, length, "%s %s, f%d%s",
+            instr,
+            riscv_reg_names[rd],
+            rs1,
+            rm_string[rm]);
           break;
         case OP_R_FP_FP:
-          snprintf(instruction, length, "%s x%d, f%d, f%d", instr, rd, rs1, rs2);
+          snprintf(instruction, length, "%s %s, f%d, f%d",
+            instr,
+            riscv_reg_names[rd],
+            rs1,
+            rs2);
           break;
         case OP_FP:
           snprintf(instruction, length, "%s f%d", instr, rd);
@@ -193,10 +265,17 @@ int disasm_riscv(
           snprintf(instruction, length, "%s f%d, f%d%s", instr, rd, rs1, rm_string[rm]);
           break;
         case OP_FP_R:
-          snprintf(instruction, length, "%s f%d, x%d", instr, rd, rs1);
+          snprintf(instruction, length, "%s f%d, %s",
+            instr,
+            rd,
+            riscv_reg_names[rs1]);
           break;
         case OP_FP_R_RM:
-          snprintf(instruction, length, "%s f%d, x%d%s", instr, rd, rs1, rm_string[rm]);
+          snprintf(instruction, length, "%s f%d, %s%s",
+            instr,
+            rd,
+            riscv_reg_names[rs1],
+            rm_string[rm]);
           break;
         case OP_FP_FP_FP_RM:
           snprintf(instruction, length, "%s f%d, f%d, f%d%s", instr, rd, rs1, rs2, rm_string[rm]);

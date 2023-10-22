@@ -17,14 +17,6 @@
 #include "simulate/riscv.h"
 #include "disasm/riscv.h"
 
-static const char *reg_names[32] =
-{
-  "zero", "ra",  "sp",  "gp", "tp", "t0", "t1", "t2",
-    "fp", "s1",  "a0",  "a1", "a2", "a3", "a4", "a5",
-    "a6", "a7",  "s2",  "s3", "s4", "s5", "s6", "s7",
-    "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
-};
-
 SimulateRiscv::SimulateRiscv(Memory *memory) : Simulate(memory)
 {
   reset();
@@ -91,7 +83,7 @@ void SimulateRiscv::dump_registers()
     for (int i = 0; i < 4; i++)
     {
       int index = n + i;
-      snprintf(name, sizeof(name), "x%d/%s", index, reg_names[index]);
+      snprintf(name, sizeof(name), "x%d/%s", index, riscv_reg_names[index]);
       printf(" %8s: %08x", name, reg[index]);
     }
 
@@ -117,6 +109,12 @@ int SimulateRiscv::run(int max_cycles, int step)
     {
       printf("Illegal instruction at address 0x%04x\n", pc);
       return -1;
+    }
+
+    if (ret == -2)
+    {
+      printf("Break at address 0x%04x\n", pc);
+      return -2;
     }
 
     pc += ret;
@@ -204,7 +202,7 @@ int SimulateRiscv::get_register(const char *name)
 
   for (int n = 0; n < 32; n++)
   {
-    if (strcasecmp(name, reg_names[n]) == 0)
+    if (strcasecmp(name, riscv_reg_names[n]) == 0)
     {
       return n;
     }
@@ -228,44 +226,59 @@ int SimulateRiscv::execute(uint32_t opcode)
   const int rd = (opcode >> 7) & 0x1f;
   const int rs1 = (opcode >> 15) & 0x1f;
 
+  int length = 0;
+
   switch (operation)
   {
     case OP_LUI:
       reg[rd] = opcode & 0xfffff000;
-      return 4;
+      length = 4;
+      break;
     case OP_AUIPC:
       reg[rd] = pc + (opcode & 0xfffff000);
-      return 4;
+      length = 4;
+      break;
     case OP_JAL:
       reg[rd] = pc + 4;
       pc = pc + jal_address(opcode);
-      return 4;
+      length = 4;
+      break;
     case OP_JALR:
       reg[rd] = pc + 4;
       pc = pc + reg[rs1] + jalr_address(opcode);
-      return 4;
+      length = 4;
+      break;
     case OP_BRA:
       reg[rd] = pc + branch(opcode);
-      return 4;
+      length = 4;
+      break;
     case OP_LD:
       load(opcode);
-      return 4;
+      length = 4;
+      break;
     case OP_ST:
       store(opcode);
-      return 4;
+      length = 4;
+      break;
     case OP_ALU:
       alu(opcode);
-      return 4;
+      length = 4;
+      break;
     case OP_ALU_R:
       alu_reg(opcode);
-      return 4;
+      length = 4;
+      break;
     case OP_BREAK:
-      return -1;
+      length = -2;
+      break;
     default:
-      return -1;
+      length = -1;
+      break;
   }
 
-  return 0;
+  reg[0] = 0;
+
+  return length;
 }
 
 int SimulateRiscv::jal_address(uint32_t opcode)
