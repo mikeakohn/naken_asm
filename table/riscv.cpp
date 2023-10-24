@@ -15,6 +15,73 @@ struct _table_riscv table_riscv[] =
 {
   // Alias instructions.
   { "nop",        0x00000013, 0xffffffff, OP_NONE,       0 },
+  // mv rd, rs           : addi rd, rs, 0
+  // not rd, rs          : xori rd, rs, -1
+  // neg rd, rs          : sub rd, x0, rs
+  // negw rd, rs         : subw rd, x0, rs
+  // sext.w rd, rs       : addiw rd, rs, 0
+  // seqz rd, rs         : sltiu rd, rs, 1
+  // snez rd, rs         : sltu rd, x0, rs
+  // sltz rd, rs         : slt rd, rs, x0
+  // sgtz rd, rs         : slt rd, x0, rs
+  { "mv",         0x00000013, 0xfff0707f, OP_ALIAS_RD_RS1,       0 },
+  { "not",        0xfff00013, 0xfff0707f, OP_ALIAS_RD_RS1,       0 },
+  { "neg",        0x40000033, 0xfe0ff07f, OP_ALIAS_RD_RS2,       0 },
+  { "negw",       0x4000003b, 0xfe0ff07f, OP_ALIAS_RD_RS2, RISCV64 },
+  { "sext.w",     0x0000001b, 0xfff0707f, OP_ALIAS_RD_RS1, RISCV64 },
+  { "seqz",       0x00103013, 0x0000707f, OP_ALIAS_RD_RS1,       0 },
+  { "snez",       0x00003033, 0xfe0ff07f, OP_ALIAS_RD_RS2,       0 },
+  { "sltz",       0x00002033, 0xfff0707f, OP_ALIAS_RD_RS1,       0 },
+  { "slgt",       0x00002033, 0xfe0ff07f, OP_ALIAS_RD_RS2,       0 },
+  // fmv.s rd rs         : fsgnj.s rd, rs, rs
+  // fabs.s rd, rs       : fsgnjx.s rd, rs, rs
+  // fneg.s rd, rs       : fsgnjn.s rd, rs, rs
+  // fmv.d rd, rs        : fsgnj.d rd, rs, rs
+  // fabs.d rd, rs       : fsgnjx.d rd, rs, rs
+  // fneg.d rd, rs       : fsgnjn.d rd, rs, rs
+  // beqz rs, offset     : beq rs, x0, offset
+  // bnez rs, offset     : bne rs, x0, offset
+  // blez rs, offset     : bge x0, rs, offset
+  // bgez rs, offset     : bge rs, x0, offset
+  // bltz rs, offset     : blt rs, x0, offset
+  // bgtz rs, offset     : blt x0, rs, offset
+  // bgt rs, rt, offset  : blt rt, rs, offset
+  // ble rs, rt, offset  : bge rt, rs, offset
+  // bgtu rs, rt, offset : bltu rt, rs, offset
+  // bleu rs, rt, offset : bgeu rt, rs, offset
+  // j offset            : jal x0, offset
+  // jal offset          : jal x1, offset
+  // jr rs               : jalr x0, rs, 0
+  // jalr rs             : jalr x1, rs, 0
+  // ret                 : jalr x0, x1, 0
+  // call offset         : auipc x6 offset[31:12]
+  //                       jalr x1, x6, offset[11:0]
+  // tail offset         : auipc x6, offset[31:12]
+  //                       jalr x0, x6, offset[11:0]
+  // fence               : fence iorw, iorw
+  // rdinstret[h] rd     : csrrs rd, instret[h], x0
+  // rdcycle[h] rd       : csrrs rd, cycle[h], x0
+  // rdtime[h] rd        : csrrs rd, time[h], x0
+  // csrr rd, csr        : csrrs rd, csr, x0
+  // csrw csr, rs        : csrrw x0, csr, rs
+  // csrs csr, rs        : csrrs x0, csr, rs
+  // csrc csr, rs        : csrrc x0, csr, rs
+  // csrwi csr, imm      : csrrwi x0, csr, imm
+  // csrsi csr, imm      : csrrsi x0, csr, imm
+  // csrci csr, imm      : csrrci x0, csr, imm
+  // frcsr rd            : csrrs rd, fcsr, x0
+  // fscsr rd, rs        : csrrw rd, fcsr, rs
+  // fscsr rs            : csrrw x0, fcsr, rs
+  // frrm rd             : csrrs rd, frm, x0
+  // fsrm rd, rs         : csrrw rd, frm, rs
+  // fsrm rs             : csrrw x0, frm, rs
+  // fsrmi rd, imm       : csrrwi rd, frm, imm
+  // fsrmi imm           : csrrwi x0, frm, imm
+  // frflags rd          : csrrs rd, fflags, x0
+  // fsflags rd, rs      : csrrw rd, fflags, rs
+  // fsflags rs          : csrrw x0, fflags, rs
+  // fsflagsi rd, imm    : csrrwi rd, fflags, imm
+  // fsflagsi imm        : csrrwi x0, fflags, imm
   // Regular instructions.
   { "lui",        0x00000037, 0x0000007f, OP_U_TYPE,     0 },
   { "auipc",      0x00000017, 0x0000007f, OP_U_TYPE,     0 },
@@ -35,8 +102,8 @@ struct _table_riscv table_riscv[] =
   { "sh",         0x00001023, 0x0000707f, OP_RS_INDEX_R, 0 },
   { "sw",         0x00002023, 0x0000707f, OP_RS_INDEX_R, 0 },
   { "addi",       0x00000013, 0x0000707f, OP_I_TYPE,     0 },
-  { "slti",       0x00002013, 0x0000707f, OP_UI_TYPE,    0 },
-  { "sltiu",      0x00003013, 0x0000707f, OP_UI_TYPE,    0 },
+  { "slti",       0x00002013, 0x0000707f, OP_I_TYPE,     0 },
+  { "sltiu",      0x00003013, 0x0000707f, OP_I_TYPE,     0 },
   { "xori",       0x00004013, 0x0000707f, OP_I_TYPE,     0 },
   { "ori",        0x00006013, 0x0000707f, OP_I_TYPE,     0 },
   { "andi",       0x00007013, 0x0000707f, OP_I_TYPE,     0 },

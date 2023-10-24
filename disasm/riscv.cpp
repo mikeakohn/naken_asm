@@ -283,6 +283,18 @@ int disasm_riscv(
         case OP_FP_FP_FP_FP_RM:
           snprintf(instruction, length, "%s f%d, f%d, f%d, f%d%s", instr, rd, rs1, rs2, rs3, rm_string[rm]);
           break;
+        case OP_ALIAS_RD_RS1:
+          snprintf(instruction, length, "%s %s, %s",
+            instr,
+            riscv_reg_names[rd],
+            riscv_reg_names[rs1]);
+          break;
+        case OP_ALIAS_RD_RS2:
+          snprintf(instruction, length, "%s %s, %s",
+            instr,
+            riscv_reg_names[rd],
+            riscv_reg_names[rs2]);
+          break;
         default:
           strcpy(instruction, "???");
           break;
