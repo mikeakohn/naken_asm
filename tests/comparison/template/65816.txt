@@ -252,3 +252,7 @@ tyx
 wai
 xba
 xce
+lda.b 1,x
+lda.b 0,x
+sty.b 1,x
+sty.b 0,x

@@ -3,20 +3,21 @@
 import os
 
 def create_asm(instruction):
-  out = open("temp.asm", "wb")
+  out = open("temp.asm", "w")
   out.write("  .al\n")
   out.write("  .xl\n")
+  instruction = instruction.replace(".b", "")
   out.write("  " + instruction + "\n")
   out.close()
 
 # --------------------------------- fold here -------------------------------
 
-fp = open("65816_template.txt", "rb")
-out = open("65816.txt", "wb")
+fp = open("template/65816.txt", "r")
+out = open("65816.txt", "w")
 
 for instruction in fp:
   instruction = instruction.strip()
-  print instruction
+  print(instruction)
   create_asm(instruction)
 
   os.system("xa -w temp.asm")
@@ -30,8 +31,9 @@ for instruction in fp:
 
   while 1:
     a = fp1.read(1)
-    if a == "": break
-    a = ord(a)
+    if not a: break
+    #a = ord(a)
+    a = int.from_bytes(a, byteorder="little")
     l += 1
     checksum += a
     code = code + ("%02X" % a)
