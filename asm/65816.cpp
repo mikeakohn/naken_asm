@@ -96,7 +96,8 @@ static int get_address(
   char *token,
   int *token_type,
   int *num,
-  int *size)
+  int *size,
+  int *force_dp)
 {
   char modifier = 0;
   int worst_case = 0;
@@ -173,6 +174,7 @@ static int get_address(
     // force direct-page mode
     *num &= 0xff;
     *size = 8;
+    *force_dp = 1;
   }
     else
   if (modifier == '!')
@@ -218,6 +220,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
   int bytes = 0;
   int i = 0;
   int src = 0, dst = 0;
+  int force_dp = 0;
 
   // make lowercase
   lower_copy(instr_case, instr);
@@ -270,6 +273,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
     GET_TOKEN();
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
+    force_dp = 0;
+
     // dot suffix
     if (IS_TOKEN(token, '.'))
     {
@@ -279,6 +284,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
       if (IS_TOKEN(token, 'b') || IS_TOKEN(token, 'B'))
       {
         size = 8;
+        force_dp = 1;
       }
         else
       if (IS_TOKEN(token, 'w') || IS_TOKEN(token, 'W'))
@@ -411,7 +417,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
       GET_TOKEN();
       if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
-      if (get_address(asm_context, token, &token_type, &num, &size) == -1)
+      if (get_address(asm_context, token, &token_type,
+                      &num, &size, &force_dp) == -1)
       {
         return -1;
       }
@@ -442,7 +449,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
       GET_TOKEN();
       if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
-      if (get_address(asm_context, token, &token_type, &num, &size) == -1)
+      if (get_address(asm_context, token, &token_type,
+                      &num, &size, &force_dp) == -1)
       {
         return -1;
       }
@@ -523,7 +531,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         GET_TOKEN();
         if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
-        if (get_address(asm_context, token, &token_type, &num, &size) == -1)
+        if (get_address(asm_context, token, &token_type,
+                        &num, &size, &force_dp) == -1)
         {
           return -1;
         }
@@ -637,7 +646,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         GET_TOKEN();
         if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
-        if (get_address(asm_context, token, &token_type, &num, &size) == -1)
+        if (get_address(asm_context, token, &token_type,
+                        &num, &size, &force_dp) == -1)
         {
           return -1;
         }
@@ -681,7 +691,8 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         GET_TOKEN();
         if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
-        if (get_address(asm_context, token, &token_type, &num, &size) == -1)
+        if (get_address(asm_context, token, &token_type,
+                        &num, &size, &force_dp) == -1)
         {
           return -1;
         }
@@ -730,8 +741,14 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
           op = OP_ADDRESS24;
         }
 
-        // forward label, assume short
-        if (num == 0) { size = 16; }
+        // possibly forward label, assume short unless .b was used
+        if (num == 0)
+        {
+          if (force_dp == 1)
+            size = 8;
+          else
+            size = 16;
+        }
 
         GET_TOKEN();
         if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
@@ -768,7 +785,10 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
           {
             op = OP_INDEXED8_Y;
 
-            if (size == 16 || num > 0xff) { op = OP_INDEXED16_Y; }
+            if (size == 16 || num > 0xff)
+            {
+              op = OP_INDEXED16_Y;
+            }
 
             if (size == 24 || num > 0xffff)
             {
