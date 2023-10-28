@@ -48,6 +48,32 @@ static const char *fence_string[] =
   "pi",
 };
 
+static int32_t permutate_branch(uint32_t opcode)
+{
+  int32_t immediate;
+
+  immediate = ((opcode >> 31) & 0x1) << 12;
+  immediate |= ((opcode >> 8) & 0xf) << 1;
+  immediate |= ((opcode >> 7) & 0x1) << 11;
+  immediate |= ((opcode >> 25) & 0x3f) << 5;
+  if ((immediate & 0x1000) != 0) { immediate |= 0xffffe000; }
+
+  return immediate;
+}
+
+static int32_t permutate_jal(uint32_t opcode)
+{
+  int32_t offset;
+
+  offset = ((opcode >> 31) & 0x1) << 20;
+  offset |= ((opcode >> 12) & 0xff) << 12;
+  offset |= ((opcode >> 20) & 0x1) << 11;
+  offset |= ((opcode >> 21) & 0x3ff) << 1;
+  if ((offset & 0x100000) != 0) { offset |= 0xfff00000; }
+
+  return offset;
+}
+
 int disasm_riscv(
   Memory *memory,
   uint32_t address,
@@ -115,11 +141,7 @@ int disasm_riscv(
             immediate);
           break;
         case OP_SB_TYPE:
-          immediate = ((opcode >> 31) & 0x1) << 12;
-          immediate |= ((opcode >> 8) & 0xf) << 1;
-          immediate |= ((opcode >> 7) & 0x1) << 11;
-          immediate |= ((opcode >> 25) & 0x3f) << 5;
-          if ((immediate & 0x1000) != 0) { immediate |= 0xffffe000; }
+          immediate = permutate_branch(opcode);
           snprintf(instruction, length, "%s %s, %s, 0x%x (%d)",
             instr,
             riscv_reg_names[rs1],
@@ -135,11 +157,7 @@ int disasm_riscv(
             immediate);
           break;
         case OP_UJ_TYPE:
-          offset = ((opcode >> 31) & 0x1) << 20;
-          offset |= ((opcode >> 12) & 0xff) << 12;
-          offset |= ((opcode >> 20) & 0x1) << 11;
-          offset |= ((opcode >> 21) & 0x3ff) << 1;
-          if ((offset & 0x100000) != 0) { offset |= 0xfff00000; }
+          offset = permutate_jal(opcode);
           snprintf(instruction, length, "%s %s, 0x%x (offset=%d)",
             instr,
             riscv_reg_names[rd],
@@ -297,6 +315,48 @@ int disasm_riscv(
         case OP_ALIAS_FP_FP:
           if (rs1 != rs2) { continue; }
           snprintf(instruction, length, "%s f%d, f%d", instr, rd, rs1);
+          break;
+        case OP_ALIAS_BR_RS_X0:
+          immediate = permutate_branch(opcode);
+          snprintf(instruction, length, "%s %s, 0x%x (%d)",
+            instr,
+            riscv_reg_names[rs1],
+            address + immediate,
+            immediate);
+          break;
+        case OP_ALIAS_BR_X0_RS:
+          immediate = permutate_branch(opcode);
+          snprintf(instruction, length, "%s %s, 0x%x (%d)",
+            instr,
+            riscv_reg_names[rs2],
+            address + immediate,
+            immediate);
+          break;
+        case OP_ALIAS_BR_RS_RT:
+          immediate = permutate_branch(opcode);
+          snprintf(instruction, length, "%s %s, %s, 0x%x (%d)",
+            instr,
+            riscv_reg_names[rs2],
+            riscv_reg_names[rs1],
+            address + immediate,
+            immediate);
+          break;
+        case OP_ALIAS_JAL:
+          offset = permutate_jal(opcode);
+          snprintf(instruction, length, "%s 0x%x (offset=%d)",
+            instr,
+            address + offset,
+            offset);
+          break;
+        case OP_ALIAS_JALR:
+          immediate = opcode >> 20;
+          simmediate = immediate;
+          if ((simmediate & 0x800) != 0) { simmediate |= 0xfffff000; }
+          snprintf(instruction, length, "%s %s, %d (0x%06x)",
+            instr,
+            riscv_reg_names[rs1],
+            simmediate,
+            immediate);
           break;
         default:
           strcpy(instruction, "???");

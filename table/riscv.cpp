@@ -55,12 +55,27 @@ struct _table_riscv table_riscv[] =
   // ble rs, rt, offset  : bge rt, rs, offset
   // bgtu rs, rt, offset : bltu rt, rs, offset
   // bleu rs, rt, offset : bgeu rt, rs, offset
+  { "beqz",       0x00000063, 0x01f0707f, OP_ALIAS_BR_RS_X0,    0 },
+  { "bnez",       0x00001063, 0x01f0707f, OP_ALIAS_BR_RS_X0,    0 },
+  { "blez",       0x00005063, 0x01f0707f, OP_ALIAS_BR_X0_RS,    0 },
+  { "bgez",       0x00005063, 0x000ff07f, OP_ALIAS_BR_RS_X0,    0 },
+  { "bltz",       0x00004063, 0x000ff07f, OP_ALIAS_BR_RS_X0,    0 },
+  { "bgtz",       0x00004063, 0x01f0707f, OP_ALIAS_BR_X0_RS,    0 },
+  { "bgt",        0x00004063, 0x0000707f, OP_ALIAS_BR_RS_RT,    0 },
+  { "ble",        0x00005063, 0x0000707f, OP_ALIAS_BR_RS_RT,    0 },
+  { "bgtu",       0x00006063, 0x0000707f, OP_ALIAS_BR_RS_RT,    0 },
+  { "bleu",       0x00007063, 0x0000707f, OP_ALIAS_BR_RS_RT,    0 },
   // j offset            : jal x0, offset
   // jal offset          : jal x1, offset
   // jr rs               : jalr x0, rs, 0
   // jalr rs             : jalr x1, rs, 0
   // ret                 : jalr x0, x1, 0
-  // call offset         : auipc x6 offset[31:12]
+  { "j",          0x0000006f, 0x00000fff, OP_ALIAS_JAL,         0 },
+  { "jal",        0x000000ef, 0x00000fff, OP_ALIAS_JAL,         0 },
+  { "jr",         0x00000067, 0xfff07fff, OP_ALIAS_JALR,        0 },
+  { "jalr",       0x000000e7, 0xfff07fff, OP_ALIAS_JALR,        0 },
+  { "ret",        0x00008067, 0xffffffff, OP_NONE,              0 },
+  // call offset         : auipc x6, offset[31:12]
   //                       jalr x1, x6, offset[11:0]
   // tail offset         : auipc x6, offset[31:12]
   //                       jalr x0, x6, offset[11:0]

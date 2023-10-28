@@ -154,6 +154,30 @@ static int get_x_register_riscv(char *token)
   return get_register_number(token + 1);
 }
 
+static uint32_t permutate_branch(int32_t offset)
+{
+  uint32_t immediate;
+
+  immediate = ((offset >> 12) & 0x1) << 31;
+  immediate |= ((offset >> 11) & 0x1) << 7;
+  immediate |= ((offset >> 5) & 0x3f) << 25;
+  immediate |= ((offset >> 1) & 0xf) << 8;
+
+  return immediate;
+}
+
+static uint32_t permutate_jal(int32_t offset)
+{
+  uint32_t immediate;
+
+  immediate = ((offset >> 20) & 0x1) << 31;
+  immediate |= ((offset >> 12) & 0xff) << 12;
+  immediate |= ((offset >> 11) & 0x1) << 20;
+  immediate |= ((offset >> 1) & 0x3ff) << 21;
+
+  return immediate;
+}
+
 static int get_f_register_riscv(char *token)
 {
   int n;
@@ -698,7 +722,14 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
         operand_count--;
       }
 
-      if (modifiers.rm == -1) { modifiers.rm = 7; }
+      if (modifiers.rm == -1)
+      {
+        if (table_riscv[n].type != OP_ALIAS_JAL &&
+            table_riscv[n].type != OP_ALIAS_JALR)
+        {
+          modifiers.rm = 7;
+        }
+      }
 
       // If the fence operands were used, make sure they only happened
       // with the fence instruction.
@@ -838,7 +869,7 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
           if (asm_context->pass == 2)
           {
             //offset = (uint32_t)operands[2].value - (asm_context->address + 4);
-            offset = (uint32_t)operands[2].value - (asm_context->address);
+            offset = (uint32_t)operands[2].value - asm_context->address;
 
             if ((offset & 0x1) != 0)
             {
@@ -853,10 +884,7 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
             }
           }
 
-          immediate = ((offset >> 12) & 0x1) << 31;
-          immediate |= ((offset >> 11) & 0x1) << 7;
-          immediate |= ((offset >> 5) & 0x3f) << 25;
-          immediate |= ((offset >> 1) & 0xf) << 8;
+          immediate = permutate_branch(offset);
 
           opcode = table_riscv[n].opcode |
                   (immediate |
@@ -914,7 +942,7 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           if (asm_context->pass == 2)
           {
-            offset = (uint32_t)operands[1].value - (asm_context->address);
+            offset = (uint32_t)operands[1].value - asm_context->address;
             //offset = (uint32_t)operands[1].value - (asm_context->address + 4);
             //address = operands[1].value;
 
@@ -936,10 +964,7 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           offset &= 0x1fffff;
 
-          immediate = ((offset >> 20) & 0x1) << 31;
-          immediate |= ((offset >> 12) & 0xff) << 12;
-          immediate |= ((offset >> 11) & 0x1) << 20;
-          immediate |= ((offset >> 1) & 0x3ff) << 21;
+          immediate = permutate_jal(offset);
 
           opcode = table_riscv[n].opcode | immediate | (operands[0].value << 7);
           add_bin32(asm_context, opcode, IS_OPCODE);
@@ -1463,6 +1488,164 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
                   (operands[1].value << 15) |
                   (operands[0].value << 7);
 
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_ALIAS_BR_RS_X0:
+        case OP_ALIAS_BR_X0_RS:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_X_REGISTER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          int32_t offset = 0;
+          uint32_t immediate;
+
+          if (asm_context->pass == 2)
+          {
+            //offset = (uint32_t)operands[2].value - (asm_context->address + 4);
+            offset = (uint32_t)operands[2].value - (asm_context->address);
+
+            if ((offset & 0x1) != 0)
+            {
+              print_error_illegal_operands(asm_context, instr);
+              return -1;
+            }
+
+            if (offset < -4096 || offset >= 4095)
+            {
+              print_error_range(asm_context, "Offset", -4096, 4095);
+              return -1;
+            }
+          }
+
+          immediate = permutate_branch(offset);
+
+          opcode = table_riscv[n].opcode | immediate;
+
+          if (table_riscv[n].type == OP_ALIAS_BR_RS_X0)
+          {
+            opcode |= operands[0].value << 15;
+          }
+            else
+          {
+            opcode |= operands[0].value << 20;
+          }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_ALIAS_BR_RS_RT:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_X_REGISTER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          int32_t offset = 0;
+          uint32_t immediate;
+
+          if (asm_context->pass == 2)
+          {
+            offset = (uint32_t)operands[2].value - asm_context->address;
+
+            if ((offset & 0x1) != 0)
+            {
+              print_error_illegal_operands(asm_context, instr);
+              return -1;
+            }
+
+            if (offset < -4096 || offset >= 4095)
+            {
+              print_error_range(asm_context, "Offset", -4096, 4095);
+              return -1;
+            }
+          }
+
+          immediate = permutate_branch(offset);
+
+          opcode = table_riscv[n].opcode |
+                  (immediate |
+                  (operands[0].value << 20) |
+                  (operands[1].value << 15));
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_ALIAS_JAL:
+        {
+          if (operand_count != 1) { continue; }
+
+          if (operands[0].type != OPERAND_X_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          int32_t offset = 0;
+          uint32_t immediate;
+
+          if (asm_context->pass == 2)
+          {
+            offset = (uint32_t)operands[1].value - asm_context->address;
+
+            if ((offset & 0x1) != 0)
+            {
+              print_error_illegal_operands(asm_context, instr);
+              return -1;
+            }
+
+            const int low = -(1 << 20);
+            const int high = (1 << 20) - 1;
+
+            if (offset < low || offset > high)
+            {
+              print_error_range(asm_context, "Offset", low, high);
+              return -1;
+            }
+          }
+
+          offset &= 0x1fffff;
+
+          immediate = permutate_jal(offset);
+
+          opcode = table_riscv[n].opcode | immediate;
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_ALIAS_JALR:
+        {
+          if (operand_count != 1) { continue; }
+
+          if (operands[0].type != OPERAND_X_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode | (operands[0].value << 15);
           add_bin32(asm_context, opcode, IS_OPCODE);
 
           return 4;
