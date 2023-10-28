@@ -70,8 +70,7 @@ int disasm_riscv(
 
   opcode = memory->read32(address);
 
-  n = 0;
-  while (table_riscv[n].instr != NULL)
+  for (n = 0; table_riscv[n].instr != NULL; n++)
   {
     if ((opcode & table_riscv[n].mask) == table_riscv[n].opcode)
     {
@@ -259,7 +258,7 @@ int disasm_riscv(
           snprintf(instruction, length, "%s f%d, f%d", instr, rd, rs1);
           break;
         case OP_FP_FP_FP:
-          snprintf(instruction, length, "%s f%d, f%d, f%d", instr, rd, rs1, rs3);
+          snprintf(instruction, length, "%s f%d, f%d, f%d", instr, rd, rs1, rs2);
           break;
         case OP_FP_FP_RM:
           snprintf(instruction, length, "%s f%d, f%d%s", instr, rd, rs1, rm_string[rm]);
@@ -295,6 +294,10 @@ int disasm_riscv(
             riscv_reg_names[rd],
             riscv_reg_names[rs2]);
           break;
+        case OP_ALIAS_FP_FP:
+          if (rs1 != rs2) { continue; }
+          snprintf(instruction, length, "%s f%d, f%d", instr, rd, rs1);
+          break;
         default:
           strcpy(instruction, "???");
           break;
@@ -302,8 +305,6 @@ int disasm_riscv(
 
       return 4;
     }
-
-    n++;
   }
 
   strcpy(instruction, "???");

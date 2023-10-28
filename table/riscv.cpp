@@ -39,6 +39,12 @@ struct _table_riscv table_riscv[] =
   // fmv.d rd, rs        : fsgnj.d rd, rs, rs
   // fabs.d rd, rs       : fsgnjx.d rd, rs, rs
   // fneg.d rd, rs       : fsgnjn.d rd, rs, rs
+  { "fmv.s",      0x20000053, 0xfe00707f, OP_ALIAS_FP_FP,        0 },
+  { "fabs.s",     0x20002053, 0xfe00707f, OP_ALIAS_FP_FP,        0 },
+  { "fneg.s",     0x20001053, 0xfe00707f, OP_ALIAS_FP_FP,        0 },
+  { "fmv.d",      0x22000053, 0xfe00707f, OP_ALIAS_FP_FP,        0 },
+  { "fabs.d",     0x22002053, 0xfe00707f, OP_ALIAS_FP_FP,        0 },
+  { "fneg.d",     0x22001053, 0xfe00707f, OP_ALIAS_FP_FP,        0 },
   // beqz rs, offset     : beq rs, x0, offset
   // bnez rs, offset     : bne rs, x0, offset
   // blez rs, offset     : bge x0, rs, offset

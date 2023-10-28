@@ -47,6 +47,7 @@ enum
   OP_FP_FP_FP_FP_RM,
   OP_ALIAS_RD_RS1,
   OP_ALIAS_RD_RS2,
+  OP_ALIAS_FP_FP,
 };
 
 #define RISCV64 0x01
