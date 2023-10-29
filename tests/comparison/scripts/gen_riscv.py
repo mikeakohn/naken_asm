@@ -6,29 +6,29 @@ def create_asm(instruction):
   if instruction.startswith("main:"):
     if "ja" in instruction:
       instruction = "." + instruction
-    #print instruction
+    #print(instruction)
 
-  out = open("temp.asm", "wb")
+  out = open("temp.asm", "w")
   out.write("  " + instruction + "\n")
   out.close()
 
 # --------------------------------- fold here -------------------------------
 
-fp = open("riscv_template.txt", "rb")
-out = open("riscv.txt", "wb")
+fp = open("template/riscv.txt", "r")
+out = open("riscv.txt", "w")
 
 for instruction in fp:
   instruction = instruction.strip()
   if instruction.startswith(";"): continue
-  print instruction
+  print(instruction)
   create_asm(instruction)
 
-  os.system("riscv64-unknown-elf-as temp.asm")
-  os.system("riscv64-unknown-elf-objcopy -F ihex a.out riscv_gnu.hex")
-  #os.system("as-new temp.asm")
-  #os.system("objcopy -F ihex a.out riscv_gnu.hex")
+  #os.system("riscv64-unknown-elf-as temp.asm")
+  #os.system("riscv64-unknown-elf-objcopy -F ihex a.out riscv_gnu.hex")
+  os.system("as temp.asm")
+  os.system("objcopy -F ihex a.out riscv_gnu.hex")
 
-  fp1 = open("riscv_gnu.hex", "rb")
+  fp1 = open("riscv_gnu.hex", "r")
   hex = fp1.readline().strip()
 
   #if instruction.startswith("b"):
@@ -47,5 +47,4 @@ fp.close()
 out.close()
 
 os.remove("temp.asm")
-
 
