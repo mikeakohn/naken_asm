@@ -79,7 +79,10 @@ struct _table_riscv table_riscv[] =
   //                       jalr x1, x6, offset[11:0]
   // tail offset         : auipc x6, offset[31:12]
   //                       jalr x0, x6, offset[11:0]
+  //{ "call",       0x00000017, 0x0000007f, OP_U_TYPE,            0 },
+  //{ "tail",       0x00000017, 0x0000007f, OP_U_TYPE,            0 },
   // fence               : fence iorw, iorw
+  { "fence",      0x0000000f, 0xffffffff, OP_NONE,              0 },
   // rdinstret[h] rd     : csrrs rd, instret[h], x0
   // rdcycle[h] rd       : csrrs rd, cycle[h], x0
   // rdtime[h] rd        : csrrs rd, time[h], x0
