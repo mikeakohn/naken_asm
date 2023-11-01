@@ -419,3 +419,37 @@ or t0, t4, gp
 fsub.d ft0, fs1, fa1
 fsub.d fs1, fa0, fa7
 fsub.d ft0, ft3, ft5
+mv t1, t2
+not t2, t3
+neg a0, t4
+negw a1, t3
+sext.w t0, t1
+seqz t1, t2
+snez t2, t3
+sltz t0, t1
+sgtz t2, t3
+fmv.s f23, f30
+fabs.s f21, f28
+fneg.s f7, f31
+fmv.d f23, f30
+fabs.d f21, f28
+fneg.d f7, f31
+main: beqz t0, main
+main: bnez t1, main
+main: blez t2, main
+main: bgez t3, main
+main: bltz t4, main
+main: bgtz t1, main
+main: bgt t0, t1, main
+main: ble t2, t0, main
+main: bgtu t3, t2, main
+main: bleu t4, t1, main
+main: j main
+main: jal main
+jr t1
+jalr t1
+ret
+li t1, 500
+li t2, -5
+li t3, 5000
+li t4, -5000

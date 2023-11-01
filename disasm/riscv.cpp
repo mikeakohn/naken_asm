@@ -109,6 +109,9 @@ int disasm_riscv(
 
       switch (table_riscv[n].type)
       {
+        case OP_NONE:
+          snprintf(instruction, length, "%s", instr);
+          break;
         case OP_R_TYPE:
           snprintf(instruction, length, "%s %s, %s, %s",
             instr,

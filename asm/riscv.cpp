@@ -284,8 +284,8 @@ static int get_operands_li32(
   }
 
   // Apply operands to memory.
-  uint32_t opcode_lui = find_opcode("lui") | operands[0].value << 7;
-  uint32_t opcode_ori = find_opcode("ori") | operands[0].value << 7;
+  uint32_t opcode_lui  = find_opcode("lui")  | operands[0].value << 7;
+  uint32_t opcode_ori  = find_opcode("ori")  | operands[0].value << 7;
   uint32_t opcode_addi = find_opcode("addi") | operands[0].value << 7;
 
   if (force_long == 1)
@@ -294,21 +294,15 @@ static int get_operands_li32(
     return 8;
   }
     else
-  if (num >= 0 && num <= 0xfff)
+  if (num >= -2048 && num <= 2047)
   {
-    add_bin32(asm_context, opcode_ori | ((num & 0xfff) << 20), IS_OPCODE);
+    add_bin32(asm_context, opcode_addi | ((num & 0xfff) << 20), IS_OPCODE);
     return 4;
   }
     else
   if ((num & 0x00000fff) == 0)
   {
     add_bin32(asm_context, opcode_lui | (num & 0xfffff000), IS_OPCODE);
-    return 4;
-  }
-    else
-  if (num >= -2048 && num <= -1)
-  {
-    add_bin32(asm_context, opcode_addi | ((num & 0xfff) << 20), IS_OPCODE);
     return 4;
   }
     else
@@ -766,6 +760,19 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
       switch (table_riscv[n].type)
       {
+        case OP_NONE:
+        {
+          if (operand_count != 0)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode;
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         case OP_R_TYPE:
         {
           if (operand_count != 3)
@@ -1520,15 +1527,14 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
         case OP_ALIAS_BR_RS_X0:
         case OP_ALIAS_BR_X0_RS:
         {
-          if (operand_count != 3)
+          if (operand_count != 2)
           {
             print_error_opcount(asm_context, instr);
             return -1;
           }
 
           if (operands[0].type != OPERAND_X_REGISTER ||
-              operands[1].type != OPERAND_X_REGISTER ||
-              operands[2].type != OPERAND_NUMBER)
+              operands[1].type != OPERAND_NUMBER)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
@@ -1539,8 +1545,8 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           if (asm_context->pass == 2)
           {
-            //offset = (uint32_t)operands[2].value - (asm_context->address + 4);
-            offset = (uint32_t)operands[2].value - (asm_context->address);
+            //offset = (uint32_t)operands[1].value - (asm_context->address + 4);
+            offset = (uint32_t)operands[1].value - (asm_context->address);
 
             if ((offset & 0x1) != 0)
             {
@@ -1622,7 +1628,7 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
         {
           if (operand_count != 1) { continue; }
 
-          if (operands[0].type != OPERAND_X_REGISTER)
+          if (operands[0].type != OPERAND_NUMBER)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
@@ -1633,7 +1639,7 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           if (asm_context->pass == 2)
           {
-            offset = (uint32_t)operands[1].value - asm_context->address;
+            offset = (uint32_t)operands[0].value - asm_context->address;
 
             if ((offset & 0x1) != 0)
             {

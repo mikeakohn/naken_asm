@@ -25,14 +25,14 @@ struct _table_riscv table_riscv[] =
   // sltz rd, rs         : slt rd, rs, x0
   // sgtz rd, rs         : slt rd, x0, rs
   { "mv",         0x00000013, 0xfff0707f, OP_ALIAS_RD_RS1,       0 },
-  { "not",        0xfff00013, 0xfff0707f, OP_ALIAS_RD_RS1,       0 },
+  { "not",        0xfff04013, 0xfff0707f, OP_ALIAS_RD_RS1,       0 },
   { "neg",        0x40000033, 0xfe0ff07f, OP_ALIAS_RD_RS2,       0 },
   { "negw",       0x4000003b, 0xfe0ff07f, OP_ALIAS_RD_RS2, RISCV64 },
   { "sext.w",     0x0000001b, 0xfff0707f, OP_ALIAS_RD_RS1, RISCV64 },
   { "seqz",       0x00103013, 0x0000707f, OP_ALIAS_RD_RS1,       0 },
   { "snez",       0x00003033, 0xfe0ff07f, OP_ALIAS_RD_RS2,       0 },
   { "sltz",       0x00002033, 0xfff0707f, OP_ALIAS_RD_RS1,       0 },
-  { "slgt",       0x00002033, 0xfe0ff07f, OP_ALIAS_RD_RS2,       0 },
+  { "sgtz",       0x00002033, 0xfe0ff07f, OP_ALIAS_RD_RS2,       0 },
   // fmv.s rd rs         : fsgnj.s rd, rs, rs
   // fabs.s rd, rs       : fsgnjx.s rd, rs, rs
   // fneg.s rd, rs       : fsgnjn.s rd, rs, rs
@@ -70,11 +70,11 @@ struct _table_riscv table_riscv[] =
   // jr rs               : jalr x0, rs, 0
   // jalr rs             : jalr x1, rs, 0
   // ret                 : jalr x0, x1, 0
+  { "ret",        0x00008067, 0xffffffff, OP_NONE,              0 },
   { "j",          0x0000006f, 0x00000fff, OP_ALIAS_JAL,         0 },
   { "jal",        0x000000ef, 0x00000fff, OP_ALIAS_JAL,         0 },
   { "jr",         0x00000067, 0xfff07fff, OP_ALIAS_JALR,        0 },
   { "jalr",       0x000000e7, 0xfff07fff, OP_ALIAS_JALR,        0 },
-  { "ret",        0x00008067, 0xffffffff, OP_NONE,              0 },
   // call offset         : auipc x6, offset[31:12]
   //                       jalr x1, x6, offset[11:0]
   // tail offset         : auipc x6, offset[31:12]
