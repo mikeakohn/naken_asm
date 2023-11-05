@@ -242,7 +242,7 @@ static int write_long_li(
   uint32_t opcode_add)
 {
   uint32_t lower = (value & 0xfff) << 20;
-  uint32_t upper = (value & 0xfffff7ff) == 0 ?
+  uint32_t upper = (value & 0x00000800) == 0 ?
     value & 0xfffff000 :
     (value + 0x00001000) & 0xfffff000;
 
@@ -284,13 +284,14 @@ static int get_operands_li32(
   }
 
   // Apply operands to memory.
-  uint32_t opcode_lui  = find_opcode("lui")  | operands[0].value << 7;
-  uint32_t opcode_ori  = find_opcode("ori")  | operands[0].value << 7;
-  uint32_t opcode_addi = find_opcode("addi") | operands[0].value << 7;
+  uint32_t opcode_lui  = find_opcode("lui")  | (operands[0].value << 7);
+  //uint32_t opcode_ori  = find_opcode("ori")  | (operands[0].value << 7);
+  uint32_t opcode_addi = find_opcode("addi") | (operands[0].value << 7);
 
   if (force_long == 1)
   {
-    write_long_li(asm_context, num, opcode_lui, opcode_ori);
+    opcode_addi |= (operands[0].value << 15);
+    write_long_li(asm_context, num, opcode_lui, opcode_addi);
     return 8;
   }
     else
@@ -307,7 +308,8 @@ static int get_operands_li32(
   }
     else
   {
-    write_long_li(asm_context, num, opcode_lui, opcode_ori);
+    opcode_addi |= (operands[0].value << 15);
+    write_long_li(asm_context, num, opcode_lui, opcode_addi);
     return 8;
   }
 }

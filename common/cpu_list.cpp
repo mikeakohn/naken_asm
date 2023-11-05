@@ -1285,7 +1285,7 @@ struct _cpu_list cpu_list[] =
     CPU_TYPE_RISCV,
     ENDIAN_LITTLE,
     1,
-    ALIGN_4,
+    ALIGN_8,
     1,
     0,
     1,
