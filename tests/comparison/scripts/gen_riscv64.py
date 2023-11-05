@@ -14,8 +14,8 @@ def create_asm(instruction):
 
 # --------------------------------- fold here -------------------------------
 
-fp = open("template/riscv.txt", "r")
-out = open("riscv.txt", "w")
+fp = open("template/riscv64.txt", "r")
+out = open("riscv64.txt", "w")
 
 for instruction in fp:
   instruction = instruction.strip()
@@ -25,7 +25,7 @@ for instruction in fp:
 
   #os.system("riscv64-unknown-elf-as temp.asm")
   #os.system("riscv64-unknown-elf-objcopy -F ihex a.out riscv_gnu.hex")
-  os.system("as -march=rv32imaf temp.asm")
+  os.system("as temp.asm")
   os.system("objcopy -F ihex a.out riscv_gnu.hex")
 
   fp1 = open("riscv_gnu.hex", "r")

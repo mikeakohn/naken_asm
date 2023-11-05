@@ -1,5 +1,4 @@
 
-
 default:
 	bash run_test.sh 1802
 	bash run_test.sh 4004
@@ -37,6 +36,7 @@ default:
 	bash run_test.sh ps2_ee
 	bash run_test.sh ps2_ee_vu1
 	bash run_test.sh riscv
+	bash run_test.sh riscv64
 	python3 run_test.py stm8
 	bash run_test.sh sweet16
 	bash run_test.sh thumb

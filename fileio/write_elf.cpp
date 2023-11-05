@@ -130,7 +130,7 @@ static void write_int16_be(FILE *out, uint32_t n)
   putc(n & 0xff, out);
 }
 
-static void write_elf_header(FILE *out, Elf *elf, Memory *memory)
+static void write_elf_header(FILE *out, Elf *elf, Memory *memory, int alignment)
 {
   #define EI_CLASS 4   // 1=32 bit, 2=64 bit
   #define EI_DATA  5   // 1=little endian, 2=big endian
@@ -237,6 +237,7 @@ static void write_elf_header(FILE *out, Elf *elf, Memory *memory)
     case CPU_TYPE_RISCV:
       elf->e_machine = 243;
       elf->e_ident[EI_OSABI] = 0;
+      elf->e_ident[EI_CLASS] = alignment == 8 ? 2 : 1;
       elf->e_type = 2;  // Executable
       break;
     case CPU_TYPE_STM8:
@@ -510,7 +511,7 @@ int write_elf(
 
   memcpy(elf.string_table, string_table_default, sizeof(string_table_default));
 
-  write_elf_header(out, &elf, memory);
+  write_elf_header(out, &elf, memory, alignment);
 
   // For Playstaiton 2 ELF to be executable, need this LOAD program header
   if (elf.e_phnum > 0)

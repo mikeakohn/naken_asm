@@ -63,6 +63,30 @@ amomaxu.d x10, x6, (x4)
 amomaxu.d.aq x10, x6, (x4)
 ;amomaxu.d.aq.rl x10, x6, (x4)
 amomaxu.d.rl x10, x6, (x4)
+fcvt.l.s x4, f28
+fcvt.l.s x4, f28, rne
+fcvt.l.s x4, f28, rtz
+fcvt.l.s x4, f28, rdn
+fcvt.l.s x4, f28, rup
+fcvt.l.s x4, f28, rmm
+fcvt.lu.s x25, f1
+fcvt.lu.s x25, f1, rne
+fcvt.lu.s x25, f1, rtz
+fcvt.lu.s x25, f1, rdn
+fcvt.lu.s x25, f1, rup
+fcvt.lu.s x25, f1, rmm
+fcvt.s.l f17, x4
+fcvt.s.l f17, x4, rne
+fcvt.s.l f17, x4, rtz
+fcvt.s.l f17, x4, rdn
+fcvt.s.l f17, x4, rup
+fcvt.s.l f17, x4, rmm
+fcvt.s.lu f24, x23
+fcvt.s.lu f24, x23, rne
+fcvt.s.lu f24, x23, rtz
+fcvt.s.lu f24, x23, rdn
+fcvt.s.lu f24, x23, rup
+fcvt.s.lu f24, x23, rmm
 fcvt.l.d x9, f2 
 fcvt.l.d x9, f2, rne
 fcvt.l.d x9, f2, rtz
@@ -88,11 +112,107 @@ fcvt.d.lu f31, x15, rtz
 fcvt.d.lu f31, x15, rdn
 fcvt.d.lu f31, x15, rup
 fcvt.d.lu f31, x15, rmm
+fld f2, 125(x31)
+fld f2, -125(x31)
+fsd f4, 306(x21)
+fsd f4, -306(x21)
+fmadd.d f22, f12, f24, f8
+fmadd.d f22, f12, f24, f8, rne
+fmadd.d f22, f12, f24, f8, rtz
+fmadd.d f22, f12, f24, f8, rdn
+fmadd.d f22, f12, f24, f8, rup
+fmadd.d f22, f12, f24, f8, rmm
+fmsub.d f6, f29, f28, f5
+fmsub.d f6, f29, f28, f5, rne
+fmsub.d f6, f29, f28, f5, rtz
+fmsub.d f6, f29, f28, f5, rdn
+fmsub.d f6, f29, f28, f5, rup
+fmsub.d f6, f29, f28, f5, rmm
+fnmsub.d f14, f27, f22, f16
+fnmsub.d f14, f27, f22, f16, rne
+fnmsub.d f14, f27, f22, f16, rtz
+fnmsub.d f14, f27, f22, f16, rdn
+fnmsub.d f14, f27, f22, f16, rup
+fnmsub.d f14, f27, f22, f16, rmm
+fnmadd.d f29, f23, f12, f15
+fnmadd.d f29, f23, f12, f15, rne
+fnmadd.d f29, f23, f12, f15, rtz
+fnmadd.d f29, f23, f12, f15, rdn
+fnmadd.d f29, f23, f12, f15, rup
+fnmadd.d f29, f23, f12, f15, rmm
+fadd.d f26, f19, f24
+fadd.d f26, f19, f24, rne
+fadd.d f26, f19, f24, rtz
+fadd.d f26, f19, f24, rdn
+fadd.d f26, f19, f24, rup
+fadd.d f26, f19, f24, rmm
+fsub.d f18, f10, f25
+fsub.d f18, f10, f25, rne
+fsub.d f18, f10, f25, rtz
+fsub.d f18, f10, f25, rdn
+fsub.d f18, f10, f25, rup
+fsub.d f18, f10, f25, rmm
+fsub.d ft0, fs1, fa1
+fsub.d fs1, fa0, fa7
+fsub.d ft0, ft3, ft5
+fmul.d f13, f13, f17
+fmul.d f13, f13, f17, rne
+fmul.d f13, f13, f17, rtz
+fmul.d f13, f13, f17, rdn
+fmul.d f13, f13, f17, rup
+fmul.d f13, f13, f17, rmm
+fdiv.d f9, f30, f4
+fdiv.d f9, f30, f4, rne
+fdiv.d f9, f30, f4, rtz
+fdiv.d f9, f30, f4, rdn
+fdiv.d f9, f30, f4, rup
+fdiv.d f9, f30, f4, rmm
+fsqrt.d f4, f8
+fsqrt.d f4, f8, rne
+fsqrt.d f4, f8, rtz
+fsqrt.d f4, f8, rdn
+fsqrt.d f4, f8, rup
+fsqrt.d f4, f8, rmm
+fsgnj.d f20, f15, f1
+fsgnjn.d f10, f14, f26
+fsgnjx.d f11, f14, f1 
+fmin.d f15, f16, f19
+fmax.d f13, f9, f14
+fcvt.s.d f29, f7 
+fcvt.s.d f29, f7, rne
+fcvt.s.d f29, f7, rtz
+fcvt.s.d f29, f7, rdn
+fcvt.s.d f29, f7, rup
+fcvt.s.d f29, f7, rmm
+fcvt.d.s f18, f6
+feq.d x11, f13, f1
+flt.d x4, f22, f20
+fle.d x13, f29, f20
+fclass.d x9, f18
+fcvt.w.d x15, f19
+fcvt.w.d x15, f19, rne
+fcvt.w.d x15, f19, rtz
+fcvt.w.d x15, f19, rdn
+fcvt.w.d x15, f19, rup
+fcvt.w.d x15, f19, rmm
+fcvt.wu.d x14, f9
+fcvt.wu.d x14, f9, rne
+fcvt.wu.d x14, f9, rtz
+fcvt.wu.d x14, f9, rdn
+fcvt.wu.d x14, f9, rup
+fcvt.wu.d x14, f9, rmm
+fcvt.d.w f3, x11
+fcvt.d.wu f11, x29
+;fence
+;fence pi, so
+;fence si, po, pr, pw, pi, so, sr, sw
 fmv.d.x f24, x14
 negw a1, t3
 sext.w t0, t1
+fmv.d f23, f30
+fabs.d f21, f28
+fneg.d f7, f31
 li t1, 500
 li t2, -5
 li t3, 5000
 li t4, -5000 
-
