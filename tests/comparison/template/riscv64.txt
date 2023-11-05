@@ -1,0 +1,98 @@
+lwu x6, 892(x21)
+lwu x6, -892(x21)
+ld x21, 328(x13)
+ld x21, -328(x13)
+sd x15, 364(x11)
+sd x15, -364(x11)
+addiw x28, x24, 879
+addiw x28, x24, -879
+slliw x9, x16, 16
+srliw x3, x30, 17
+sraiw x30, x25, 28
+addw x18, x24, x16
+subw x6, x3, x30
+sllw x3, x9, x19
+srlw x17, x9, x18
+sraw x8, x16, x25
+mulw x4, x11, x16 
+divw x31, x9, x31
+divuw x15, x13, x23
+remw x10, x3, x11
+remuw x29, x3, x23
+lr.d x15, (x6)
+lr.d.aq x15, (x6)
+;lr.d.aq.rl x15, (x6)
+lr.d.rl x15, (x6)
+sc.d x17, x27, (x11)
+sc.d.aq x17, x27, (x11)
+;sc.d.aq.rl x17, x27, (x11)
+sc.d.rl x17, x27, (x11)
+amoswap.d x14, x4, (x2)
+amoswap.d.aq x14, x4, (x2)
+;amoswap.d.aq.rl x14, x4, (x2)
+amoswap.d.rl x14, x4, (x2)
+amoadd.d x17, x2, (x1)
+amoadd.d.aq x17, x2, (x1)
+;amoadd.d.aq.rl x17, x2, (x1)
+amoadd.d.rl x17, x2, (x1)
+amoxor.d x8, x3, (x24)
+amoxor.d.aq x8, x3, (x24)
+;amoxor.d.aq.rl x8, x3, (x24)
+amoxor.d.rl x8, x3, (x24)
+amoand.d x17, x26, (x6)
+amoand.d.aq x17, x26, (x6)
+;amoand.d.aq.rl x17, x26, (x6)
+amoand.d.rl x17, x26, (x6)
+amoor.d x1, x18, (x3)
+amoor.d.aq x1, x18, (x3)
+;amoor.d.aq.rl x1, x18, (x3)
+amoor.d.rl x1, x18, (x3)
+amomin.d x27, x13, (x10)
+amomin.d.aq x27, x13, (x10)
+;amomin.d.aq.rl x27, x13, (x10)
+amomin.d.rl x27, x13, (x10)
+amomax.d x25, x7, (x20)
+amomax.d.aq x25, x7, (x20)
+;amomax.d.aq.rl x25, x7, (x20)
+amomax.d.rl x25, x7, (x20)
+amominu.d x12, x31, (x26)
+amominu.d.aq x12, x31, (x26)
+;amominu.d.aq.rl x12, x31, (x26)
+amominu.d.rl x12, x31, (x26)
+amomaxu.d x10, x6, (x4)
+amomaxu.d.aq x10, x6, (x4)
+;amomaxu.d.aq.rl x10, x6, (x4)
+amomaxu.d.rl x10, x6, (x4)
+fcvt.l.d x9, f2 
+fcvt.l.d x9, f2, rne
+fcvt.l.d x9, f2, rtz
+fcvt.l.d x9, f2, rdn
+fcvt.l.d x9, f2, rup
+fcvt.l.d x9, f2, rmm
+fcvt.lu.d x17, f6 
+fcvt.lu.d x17, f6, rne
+fcvt.lu.d x17, f6, rtz
+fcvt.lu.d x17, f6, rdn
+fcvt.lu.d x17, f6, rup
+fcvt.lu.d x17, f6, rmm
+fmv.x.d x12, f24
+fcvt.d.l f28, x15
+fcvt.d.l f28, x15, rne
+fcvt.d.l f28, x15, rtz
+fcvt.d.l f28, x15, rdn
+fcvt.d.l f28, x15, rup
+fcvt.d.l f28, x15, rmm
+fcvt.d.lu f31, x15
+fcvt.d.lu f31, x15, rne
+fcvt.d.lu f31, x15, rtz
+fcvt.d.lu f31, x15, rdn
+fcvt.d.lu f31, x15, rup
+fcvt.d.lu f31, x15, rmm
+fmv.d.x f24, x14
+negw a1, t3
+sext.w t0, t1
+li t1, 500
+li t2, -5
+li t3, 5000
+li t4, -5000 
+
