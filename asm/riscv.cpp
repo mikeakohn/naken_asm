@@ -1971,6 +1971,111 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
+        case OP_COMP_RD_NZ5_40:
+        case OP_COMP_RD_5_40:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].value < 8 || operands[0].value > 15)
+          {
+            print_error_illegal_register(asm_context, instr);
+            return -1;
+          }
+
+          immediate = permutate_16(operands[1].value, RiscvPerm::imm5);
+
+          if (immediate < 0)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (table_riscv_comp[n].type == OP_COMP_RD_NZ5_40 &&
+              operands[1].value == 0)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_riscv_comp[n].opcode |
+            ((operands[0].value - 8) << 7) |
+            immediate;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        case OP_COMP_RD:
+          if (operand_count != 1 || operands[0].type != OPERAND_X_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].value < 8 || operands[0].value > 15)
+          {
+            print_error_illegal_register(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_riscv_comp[n].opcode |
+            ((operands[0].value - 8) << 7);
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        case OP_COMP_RD_RS2:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_X_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].value < 8 || operands[0].value > 15 ||
+              operands[1].value < 8 || operands[1].value > 15)
+          {
+            print_error_illegal_register(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_riscv_comp[n].opcode |
+            ((operands[0].value - 8) << 7) |
+            ((operands[1].value - 8) << 2);
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        case OP_COMP_BRANCH:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          offset = asm_context->pass == 1 ?
+            4 : operands[1].value - asm_context->address;
+
+          if (check_range(asm_context, "Offset", operands[1].value, -256, 256) == -1) { return -1; }
+
+          immediate = permutate_16(offset, RiscvPerm::branch, false);
+
+          if (immediate == -1)
+          {
+            print_error(asm_context, "Operand alignemnt.");
+            return -1;
+          }
+
+          opcode = table_riscv_comp[n].opcode |
+            ((operands[0].value - 8) << 7) |
+            immediate;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+         
+          return 2;
         default:
           break;
       }

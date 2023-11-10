@@ -59,17 +59,16 @@ enum
   OP_COMP_UIMM548_76,
   OP_COMP_UIMM53_26,
   OP_COMP_JUMP,
-
   OP_COMP_9_46875,
-
   OP_COMP_RD_NZIMM5,
   OP_COMP_RD_IMM5,
   OP_COMP_RD_17_1612,
-
+  OP_COMP_RD_NZ5_40,
   OP_COMP_RD_5_40,
   OP_COMP_RD,
   OP_COMP_RD_RS2,
   OP_COMP_BRANCH,
+
   OP_COMP_RD_RS1,
   OP_COMP_RD_5_4386,
   OP_COMP_RD_5_496,
@@ -118,6 +117,7 @@ public:
   static int8_t nzimm5[11];
   static int8_t imm5[11];
   static int8_t imm17_1612[11];
+  static int8_t branch[11];
 
 private:
   RiscvPerm() { }

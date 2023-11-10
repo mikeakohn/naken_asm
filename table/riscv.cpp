@@ -303,19 +303,20 @@ struct _table_riscv_comp table_riscv_comp[] =
   { "c.li",        0x4001, 0xe003, OP_COMP_RD_IMM5,    0 },
   { "c.addi16sp",  0x6101, 0xef83, OP_COMP_9_46875,    0 },
   { "c.lui",       0x6001, 0xe003, OP_COMP_RD_17_1612, 0 },
-  { "c.srli",      0x8001, 0xec03, OP_COMP_RD_5_40,    0 },
-  { "c.srli64",    0x8001, 0xec03, OP_COMP_RD,         RISCV128 },
-  { "c.srai",      0x8401, 0xec03, OP_COMP_RD_5_40,    0 },
-  { "c.srai64",    0x8401, 0xec03, OP_COMP_RD,         RISCV128 },
-  { "c.andi",      0x8801, 0xec03, OP_COMP_RD_17_1612, 0 },
+  { "c.srli64",    0x8001, 0xfc7f, OP_COMP_RD,         RISCV128 },
+  { "c.srai64",    0x8401, 0xfc7f, OP_COMP_RD,         RISCV128 },
+  { "c.srli",      0x8001, 0xec03, OP_COMP_RD_NZ5_40,  0 },
+  { "c.srai",      0x8401, 0xec03, OP_COMP_RD_NZ5_40,  0 },
+  { "c.andi",      0x8801, 0xec03, OP_COMP_RD_5_40,    0 },
   { "c.sub",       0x8c01, 0xfc63, OP_COMP_RD_RS2,     0 },
   { "c.xor",       0x8c21, 0xfc63, OP_COMP_RD_RS2,     0 },
   { "c.or",        0x8c41, 0xfc63, OP_COMP_RD_RS2,     0 },
   { "c.and",       0x8c61, 0xfc63, OP_COMP_RD_RS2,     0 },
   { "c.subw",      0x9c01, 0xfc63, OP_COMP_RD_RS2,     0 },
   { "c.addw",      0x9c21, 0xfc63, OP_COMP_RD_RS2,     0 },
-  { "c.j",         0xc001, 0xe003, OP_COMP_JUMP,       0 },
-  { "c.beqz",      0xe001, 0xe003, OP_COMP_BRANCH,     0 },
+  { "c.j",         0xa001, 0xe003, OP_COMP_JUMP,       0 },
+  { "c.beqz",      0xc001, 0xe003, OP_COMP_BRANCH,     0 },
+  { "c.bnez",      0xe001, 0xe003, OP_COMP_BRANCH,     0 },
 
   // Quadrant 2.
   { "c.slli",      0x0002, 0xe003, OP_COMP_RD_NZIMM5,  0 },
@@ -348,4 +349,5 @@ int8_t RiscvPerm::imm9_46875[11] = { 9, -1, -1, -1, -1, -1, 4, 6,  8,  7,  5 };
 int8_t RiscvPerm::nzimm5[11] =     { 5, -1, -1, -1, -1, -1, 4, 3,  2,  1,  0 };
 int8_t RiscvPerm::imm5[11] =       { 5, -1, -1, -1, -1, -1, 4, 3,  2,  1,  0 };
 int8_t RiscvPerm::imm17_1612[11] = {17, -1, -1, -1, -1, -1,16,15, 14, 13, 12 };
+int8_t RiscvPerm::branch[11]     = { 8,  4,  3, -1, -1, -1, 7, 6,  2,  1,  5 };
 
