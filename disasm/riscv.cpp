@@ -474,6 +474,41 @@ int disasm_riscv_comp(
             immediate,
             riscv_reg_names[rs1 + 8]);
           return 2;
+        case OP_COMP_JUMP:
+          immediate = permutate_16(opcode, RiscvPerm::jump);
+          if ((immediate & 0x800) != 0) { immediate |= 0xfffff000; }
+          snprintf(instruction, length, "%s 0x%04x (offset=%d)",
+            instr,
+            address + immediate,
+            immediate);
+          return 2;
+        case OP_COMP_9_46875:
+          immediate = permutate_16(opcode, RiscvPerm::imm9_46875);
+          snprintf(instruction, length, "%s 0x%04x",
+            instr,
+            immediate);
+          return 2;
+        case OP_COMP_RD_NZIMM5:
+          immediate = permutate_16(opcode, RiscvPerm::nzimm5);
+          snprintf(instruction, length, "%s %s, 0x%04x",
+            instr,
+            riscv_reg_names[rs1],
+            immediate);
+          return 2;
+        case OP_COMP_RD_IMM5:
+          immediate = permutate_16(opcode, RiscvPerm::imm5);
+          snprintf(instruction, length, "%s %s, 0x%04x",
+            instr,
+            riscv_reg_names[rs1],
+            immediate);
+          return 2;
+        case OP_COMP_RD_17_1612:
+          immediate = permutate_16(opcode, RiscvPerm::imm17_1612);
+          snprintf(instruction, length, "%s %s, 0x%04x",
+            instr,
+            riscv_reg_names[rs1],
+            immediate);
+          return 2;
         default:
           strcpy(instruction, "???");
           return 2;
