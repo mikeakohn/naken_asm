@@ -319,22 +319,22 @@ struct _table_riscv_comp table_riscv_comp[] =
   { "c.bnez",      0xe001, 0xe003, OP_COMP_BRANCH,     0 },
 
   // Quadrant 2.
-  { "c.slli",      0x0002, 0xe003, OP_COMP_RD_NZIMM5,  0 },
-  { "c.slli64",    0x0002, 0xe003, OP_COMP_RD_RS1,  RISCV128 },
-  { "c.fldsp",     0x2002, 0xe003, OP_COMP_RD_5_4386,  0 },
+  { "c.slli",      0x0002, 0xe003, OP_COMP_RD_NZIMM5  ,0 },
+  { "c.slli64",    0x0002, 0xe003, OP_COMP_RD32,       RISCV128 },
+  { "c.fldsp",     0x2002, 0xe003, OP_COMP_RD_5_4386,  RISCV_FP },
   { "c.lqsp",      0x2002, 0xe003, OP_COMP_RD_5_496,   RISCV128 },
   { "c.lwsp",      0x4002, 0xe003, OP_COMP_RD_5_4276,  0 },
-  { "c.flwsp",     0x6002, 0xe003, OP_COMP_RD_5_4276,  0 },
+  { "c.flwsp",     0x6002, 0xe003, OP_COMP_RD_5_4276,  RISCV_FP },
   { "c.ldsp",      0x6002, 0xe003, OP_COMP_RD_5_4386,  RISCV64 | RISCV128 },
-  { "c.jr",        0x8002, 0xf07f, OP_COMP_RS1,        0 },
+  { "c.jr",        0x8002, 0xf07f, OP_COMP_RD32,       0 },
   { "c.mv",        0x8002, 0xf003, OP_COMP_RS1_RS2,    0 },
   { "c.ebreak",    0x9002, 0xffff, OP_NONE,            0 },
-  { "c.jalr",      0x9002, 0xf07f, OP_COMP_RS1,        0 },
+  { "c.jalr",      0x9002, 0xf07f, OP_COMP_RD32,       0 },
   { "c.add",       0x9002, 0xf003, OP_COMP_RS1_RS2,    0 },
-  { "c.fsdsp",     0xa002, 0xe003, OP_COMP_5386_RS2,   0 },
+  { "c.fsdsp",     0xa002, 0xe003, OP_COMP_5386_RS2,   RISCV_FP },
   { "c.sqsp",      0xa002, 0xe003, OP_COMP_5496_RS2,   RISCV128 },
   { "c.swsp",      0xc002, 0xe003, OP_COMP_5276_RS2,   0 },
-  { "c.fswsp",     0xe002, 0xe003, OP_COMP_5276_RS2,   0 },
+  { "c.fswsp",     0xe002, 0xe003, OP_COMP_5276_RS2,   RISCV_FP },
   { "c.sdsp",      0xe002, 0xe003, OP_COMP_5386_RS2,   RISCV64 | RISCV128 },
 
   { NULL,               0,       0, 0,                  0 }
@@ -350,4 +350,10 @@ int8_t RiscvPerm::nzimm5[11] =     { 5, -1, -1, -1, -1, -1, 4, 3,  2,  1,  0 };
 int8_t RiscvPerm::imm5[11] =       { 5, -1, -1, -1, -1, -1, 4, 3,  2,  1,  0 };
 int8_t RiscvPerm::imm17_1612[11] = {17, -1, -1, -1, -1, -1,16,15, 14, 13, 12 };
 int8_t RiscvPerm::branch[11]     = { 8,  4,  3, -1, -1, -1, 7, 6,  2,  1,  5 };
+int8_t RiscvPerm::uimm5_4386[11] = { 5, -1, -1, -1, -1, -1, 4, 3,  8,  7,  6 };
+int8_t RiscvPerm::uimm5_496[11]  = { 8, -1, -1, -1, -1, -1, 4, 9,  8,  7,  6 };
+int8_t RiscvPerm::uimm5_4276[11] = { 8, -1, -1, -1, -1, -1, 4, 3,  2,  7,  6 };
+int8_t RiscvPerm::uimm5386[11] =   { 5,  4,  3,  8,  7,  6,-1,-1, -1, -1, -1 };
+int8_t RiscvPerm::uimm5496[11] =   { 5,  4,  9,  8,  7,  6,-1,-1, -1, -1, -1 };
+int8_t RiscvPerm::uimm5276[11] =   { 5,  4,  3,  2,  7,  6,-1,-1, -1, -1, -1 };
 

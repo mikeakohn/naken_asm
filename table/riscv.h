@@ -66,14 +66,12 @@ enum
   OP_COMP_RD_NZ5_40,
   OP_COMP_RD_5_40,
   OP_COMP_RD,
+  OP_COMP_RD32,
   OP_COMP_RD_RS2,
   OP_COMP_BRANCH,
-
-  OP_COMP_RD_RS1,
   OP_COMP_RD_5_4386,
   OP_COMP_RD_5_496,
   OP_COMP_RD_5_4276,
-  OP_COMP_RS1,
   OP_COMP_RS1_RS2,
   OP_COMP_5386_RS2,
   OP_COMP_5496_RS2,
@@ -118,6 +116,12 @@ public:
   static int8_t imm5[11];
   static int8_t imm17_1612[11];
   static int8_t branch[11];
+  static int8_t uimm5_4386[11];
+  static int8_t uimm5_496[11];
+  static int8_t uimm5_4276[11];
+  static int8_t uimm5386[11];
+  static int8_t uimm5496[11];
+  static int8_t uimm5276[11];
 
 private:
   RiscvPerm() { }

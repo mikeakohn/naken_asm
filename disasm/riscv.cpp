@@ -428,7 +428,8 @@ int disasm_riscv_comp(
   int opcode = memory->read16(address);
   int rd = (opcode >> 2) & 7;
   int rs1 = (opcode >> 7) & 7;
-  //int rs2 = (opcode >> 2) & 7;
+  int rs1_32 = (opcode >> 7) & 0x1f;
+  int rs2_32 = (opcode >> 2) & 0x1f;
   int immediate;
   //int funct3 = opcode >> 13;
 
@@ -452,11 +453,24 @@ int disasm_riscv_comp(
           return 2;
         case OP_COMP_UIMM53_76:
           immediate = permutate_16(opcode, RiscvPerm::uimm53_76);
-          snprintf(instruction, length, "%s %s, %d(%s)",
-            instr,
-            riscv_reg_names[rd + 8],
-            immediate,
-            riscv_reg_names[rs1 + 8]);
+
+          if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
+          {
+            snprintf(instruction, length, "%s %s, %d(%s)",
+              instr,
+              riscv_reg_names[rd + 8],
+              immediate,
+              riscv_reg_names[rs1 + 8]);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s f%d, %d(%s)",
+              instr,
+              rd + 8,
+              immediate,
+              riscv_reg_names[rs1 + 8]);
+          }
+
           return 2;
         case OP_COMP_UIMM548_76:
           immediate = permutate_16(opcode, RiscvPerm::uimm548_76);
@@ -468,11 +482,23 @@ int disasm_riscv_comp(
           return 2;
         case OP_COMP_UIMM53_26:
           immediate = permutate_16(opcode, RiscvPerm::uimm53_26);
-          snprintf(instruction, length, "%s %s, %d(%s)",
-            instr,
-            riscv_reg_names[rd + 8],
-            immediate,
-            riscv_reg_names[rs1 + 8]);
+
+          if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
+          {
+            snprintf(instruction, length, "%s %s, %d(%s)",
+              instr,
+              riscv_reg_names[rd + 8],
+              immediate,
+              riscv_reg_names[rs1 + 8]);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s f%d, %d(%s)",
+              instr,
+              rd + 8,
+              immediate,
+              riscv_reg_names[rs1 + 8]);
+          }
           return 2;
         case OP_COMP_JUMP:
           immediate = permutate_16(opcode, RiscvPerm::jump);
@@ -492,21 +518,21 @@ int disasm_riscv_comp(
           immediate = permutate_16(opcode, RiscvPerm::nzimm5);
           snprintf(instruction, length, "%s %s, 0x%04x",
             instr,
-            riscv_reg_names[rs1],
+            riscv_reg_names[rs1_32],
             immediate);
           return 2;
         case OP_COMP_RD_IMM5:
           immediate = permutate_16(opcode, RiscvPerm::imm5);
           snprintf(instruction, length, "%s %s, 0x%04x",
             instr,
-            riscv_reg_names[rs1],
+            riscv_reg_names[rs1_32],
             immediate);
           return 2;
         case OP_COMP_RD_17_1612:
           immediate = permutate_16(opcode, RiscvPerm::imm17_1612);
           snprintf(instruction, length, "%s %s, 0x%04x",
             instr,
-            riscv_reg_names[rs1],
+            riscv_reg_names[rs1_32],
             immediate);
           return 2;
         case OP_COMP_RD_NZ5_40:
@@ -535,6 +561,102 @@ int disasm_riscv_comp(
             instr,
             address + immediate,
             immediate);
+          return 2;
+        case OP_COMP_RD32:
+          snprintf(instruction, length, "%s %s",
+            instr,
+            riscv_reg_names[rs1_32]);
+          return 2;
+        case OP_COMP_RD_5_4386:
+          immediate = permutate_16(opcode, RiscvPerm::uimm5_4386);
+
+          if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
+          {
+            snprintf(instruction, length, "%s %s, %d",
+              instr,
+              riscv_reg_names[rs1_32],
+              immediate);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s f%d, %d",
+              instr,
+              rs1_32,
+              immediate);
+          }
+          return 2;
+        case OP_COMP_RD_5_496:
+          immediate = permutate_16(opcode, RiscvPerm::uimm5_496);
+          snprintf(instruction, length, "%s %s, %d",
+            instr,
+            riscv_reg_names[rs1_32],
+            immediate);
+          return 2;
+        case OP_COMP_RD_5_4276:
+          immediate = permutate_16(opcode, RiscvPerm::uimm5_4276);
+
+          if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
+          {
+            snprintf(instruction, length, "%s %s, %d",
+              instr,
+              riscv_reg_names[rs1_32],
+              immediate);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s f%d, %d",
+              instr,
+              rs1_32,
+              immediate);
+          }
+          return 2;
+        case OP_COMP_RS1_RS2:
+          snprintf(instruction, length, "%s %s, %s",
+            instr,
+            riscv_reg_names[rs1_32],
+            riscv_reg_names[rs2_32]);
+          return 2;
+        case OP_COMP_5386_RS2:
+          immediate = permutate_16(opcode, RiscvPerm::uimm5386);
+
+          if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
+          {
+            snprintf(instruction, length, "%s %s, %d",
+              instr,
+              riscv_reg_names[rs2_32],
+              immediate);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s f%d, %d",
+              instr,
+              rs2_32,
+              immediate);
+          }
+          return 2;
+        case OP_COMP_5496_RS2:
+          immediate = permutate_16(opcode, RiscvPerm::uimm5496);
+          snprintf(instruction, length, "%s %s, %d",
+            instr,
+            riscv_reg_names[rs2_32],
+            immediate);
+          return 2;
+        case OP_COMP_5276_RS2:
+          immediate = permutate_16(opcode, RiscvPerm::uimm5276);
+          if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
+          {
+            snprintf(instruction, length, "%s %s, %d",
+              instr,
+              riscv_reg_names[rs2_32],
+              immediate);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s f%d, %d",
+              instr,
+              rs2_32,
+              immediate);
+          }
           return 2;
         default:
           strcpy(instruction, "???");

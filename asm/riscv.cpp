@@ -1813,17 +1813,11 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
           {
-            if (operands[0].type != OPERAND_X_REGISTER)
-            {
-              is_op_error = true;
-            }
+            if (operands[0].type != OPERAND_X_REGISTER) { is_op_error = true; }
           }
             else
           {
-            if (operands[0].type != OPERAND_F_REGISTER)
-            {
-              is_op_error = true;
-            }
+            if (operands[0].type != OPERAND_F_REGISTER) { is_op_error = true; }
           }
 
           if (is_op_error)
@@ -2009,20 +2003,26 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           return 2;
         case OP_COMP_RD:
+        case OP_COMP_RD32:
           if (operand_count != 1 || operands[0].type != OPERAND_X_REGISTER)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
-          if (operands[0].value < 8 || operands[0].value > 15)
+          if (table_riscv_comp[n].type == OP_COMP_RD)
           {
-            print_error_illegal_register(asm_context, instr);
-            return -1;
+            if (operands[0].value < 8 || operands[0].value > 15)
+            {
+              print_error_illegal_register(asm_context, instr);
+              return -1;
+            }
+
+            operands[0].value -= 8;
           }
 
           opcode = table_riscv_comp[n].opcode |
-            ((operands[0].value - 8) << 7);
+            (operands[0].value << 7);
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
@@ -2075,6 +2075,141 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
             immediate;
           add_bin16(asm_context, opcode, IS_OPCODE);
          
+          return 2;
+        case OP_COMP_RD_5_4386:
+        case OP_COMP_RD_5_496:
+        case OP_COMP_RD_5_4276:
+          if (operand_count != 2 ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
+          {
+            if (operands[0].type != OPERAND_X_REGISTER) { is_op_error = true; }
+            if (operands[0].value == 0) { is_op_error = true; }
+          }
+            else
+          {
+            if (operands[0].type != OPERAND_F_REGISTER) { is_op_error = true; }
+          }
+
+          if (is_op_error)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (table_riscv_comp[n].type == OP_COMP_RD_5_4386)
+          {
+            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5_4386);
+          }
+            else
+          if (table_riscv_comp[n].type == OP_COMP_RD_5_496)
+          {
+            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5_496);
+          }
+            else
+          if (table_riscv_comp[n].type == OP_COMP_RD_5_4276)
+          {
+            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5_4276);
+          }
+
+          if (immediate == -1)
+          {
+            print_error(asm_context, "Operand alignemnt.");
+            return -1;
+          }
+
+          if (immediate == -2)
+          {
+            print_error(asm_context, "Out of range.");
+            return -1;
+          }
+
+          opcode = table_riscv_comp[n].opcode |
+            immediate |
+            (operands[0].value << 7);
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        case OP_COMP_RS1_RS2:
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_X_REGISTER)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_riscv_comp[n].opcode |
+            (operands[0].value << 7) |
+            (operands[1].value << 2);
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        case OP_COMP_5386_RS2:
+        case OP_COMP_5496_RS2:
+        case OP_COMP_5276_RS2:
+          if (operand_count != 2 ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
+          {
+            if (operands[0].type != OPERAND_X_REGISTER) { is_op_error = true; }
+          }
+            else
+          {
+            if (operands[0].type != OPERAND_F_REGISTER) { is_op_error = true; }
+          }
+
+          if (is_op_error)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (table_riscv_comp[n].type == OP_COMP_5386_RS2)
+          {
+            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5386);
+          }
+            else
+          if (table_riscv_comp[n].type == OP_COMP_5496_RS2)
+          {
+            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5496);
+          }
+            else
+          if (table_riscv_comp[n].type == OP_COMP_5276_RS2)
+          {
+            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5276);
+          }
+
+          if (immediate == -1)
+          {
+            print_error(asm_context, "Operand alignemnt.");
+            return -1;
+          }
+
+          if (immediate == -2)
+          {
+            print_error(asm_context, "Out of range.");
+            return -1;
+          }
+
+          opcode = table_riscv_comp[n].opcode |
+            immediate |
+            (operands[0].value << 2);
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
           return 2;
         default:
           break;
