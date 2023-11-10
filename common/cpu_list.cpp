@@ -35,6 +35,7 @@
 #include "asm/dspic.h"
 #include "asm/ebpf.h"
 #include "asm/epiphany.h"
+#include "asm/f100_l.h"
 #include "asm/java.h"
 #include "asm/lc3.h"
 #include "asm/m8c.h"
@@ -88,6 +89,7 @@
 #include "disasm/dspic.h"
 #include "disasm/ebpf.h"
 #include "disasm/epiphany.h"
+#include "disasm/f100_l.h"
 #include "disasm/java.h"
 #include "disasm/lc3.h"
 #include "disasm/m8c.h"
@@ -765,6 +767,30 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_epiphany,
     disasm_range_epiphany,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_F100_L
+  {
+    "f100_l",
+    CPU_TYPE_F100_L,
+    ENDIAN_LITTLE,
+    2,
+    ALIGN_2,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_f100_l,
+    NULL,
+    link_not_supported,
+    list_output_f100_l,
+    disasm_range_f100_l,
     NULL,
     NO_FLAGS,
   },

@@ -36,7 +36,10 @@ int EvalExpression::eval_expression_go(
   int last_token_was_op = -1;
 
 #ifdef DEBUG
-printf("Enter eval_expression,  var=%d/%f/%d\n", var_get_int32(var), var_get_float(var), var_get_type(var));
+printf("Enter eval_expression,  var=%d/%f/%d\n",
+  var.get_int32(),
+  var.get_float(),
+  var.get_type());
 #endif
 
   oper = last_operator;
@@ -53,7 +56,7 @@ printf("eval_expression> going to grab a token\n");
 printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
 #endif
 
-    // Issue 15: Return an error if a stack is full with noe operator.
+    // Issue 15: Return an error if a stack is full with no operator.
     if (var_stack_ptr == 3 && oper.operation == OPER_UNSET)
     {
       return -1;
@@ -98,7 +101,7 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
         var_stack_ptr--;
         oper.operation = OPER_UNSET;
 
-        var = var_stack[var_stack_ptr-1];
+        var = var_stack[var_stack_ptr - 1];
         tokens_push(asm_context, token, token_type);
         return 0;
       }
@@ -221,7 +224,10 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
       // Stack pointer probably shouldn't be less than 2
       if (var_stack_ptr == 0)
       {
-        printf("Error: Unexpected operator '%s' at %s:%d\n", token, asm_context->tokens.filename, asm_context->tokens.line);
+        printf("Error: Unexpected operator '%s' at %s:%d\n",
+          token,
+          asm_context->tokens.filename,
+          asm_context->tokens.line);
         return -1;
       }
 

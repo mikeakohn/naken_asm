@@ -43,6 +43,7 @@ CPUS=" \
   EBPF
   EMOTION_ENGINE
   EPIPHANY
+  F100_L
   JAVA
   LC3
   M8C
@@ -168,6 +169,7 @@ show_help()
   echo "  --enable-dspic            compile in support for dsPIC and PIC24"
   echo "  --enable-ebpf             compile in support for Berkley Packet Filter"
   echo "  --enable-epiphany         compile in support for Ephiphany-III/IV"
+  echo "  --enable-f100_l           compile in support for Ferranti F100-L"
   echo "  --enable-java             compile in support for Java"
   echo "  --enable-lc3              compile in support for LC-3"
   echo "  --enable-m8c              compile in support for PSoC M8C"
@@ -446,6 +448,12 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} epiphany.o"
     TABLE_OBJS="${TABLE_OBJS} epiphany.o"
     DFLAGS="${DFLAGS} -DENABLE_EPIPHANY"
+  ;;
+  --enable-f100_l)
+    ASM_OBJS="${ASM_OBJS} f100_l.o"
+    DISASM_OBJS="${DISASM_OBJS} f100_l.o"
+    TABLE_OBJS="${TABLE_OBJS} f100_l.o"
+    DFLAGS="${DFLAGS} -DENABLE_F100_L"
   ;;
   --enable-java)
     ASM_OBJS="${ASM_OBJS} java.o"
