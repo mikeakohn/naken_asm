@@ -96,6 +96,18 @@ int disasm_riscv(
 
   opcode = memory->read32(address);
 
+  if ((opcode & 3) != 3 || (address & 3) != 0)
+  {
+    return disasm_riscv_comp(
+      memory,
+      address,
+      instruction,
+      length,
+      flags,
+      cycles_min,
+      cycles_max);
+  }
+
   for (n = 0; table_riscv[n].instr != NULL; n++)
   {
     if ((opcode & table_riscv[n].mask) == table_riscv[n].opcode)
@@ -375,6 +387,40 @@ int disasm_riscv(
   return -1;
 }
 
+int disasm_riscv_comp(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int length,
+  int flags,
+  int *cycles_min,
+  int *cycles_max)
+{
+  strcpy(instruction, "???");
+
+  int opcode = memory->read16(address);
+
+  for (int n = 0; table_riscv_comp[n].instr != NULL; n++)
+  {
+    if ((opcode & table_riscv_comp[n].mask) == table_riscv_comp[n].opcode)
+    {
+      const char *instr = table_riscv_comp[n].instr;
+
+      switch (table_riscv_comp[n].type)
+      {
+        case OP_NONE:
+          snprintf(instruction, length, "%s", instr);
+          return 2;
+        default:
+          strcpy(instruction, "???");
+          return 2;
+      }
+    }
+  }
+
+  return 2;
+}
+
 void list_output_riscv(
   AsmContext *asm_context,
   uint32_t start,
@@ -383,6 +429,7 @@ void list_output_riscv(
   int cycles_min,cycles_max;
   char instruction[128];
   uint32_t opcode;
+  int count;
 
   Memory *memory = &asm_context->memory;
 
@@ -392,7 +439,7 @@ void list_output_riscv(
   {
     opcode = memory->read32(start);
 
-    disasm_riscv(
+    count = disasm_riscv(
       memory,
       start,
       instruction,
@@ -401,8 +448,16 @@ void list_output_riscv(
       &cycles_min,
       &cycles_max);
 
-    fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ",
-      start, opcode, instruction);
+    if (count == 2)
+    {
+      fprintf(asm_context->list, "0x%08x: 0x%04x     %-40s cycles: ",
+        start, opcode, instruction);
+    }
+      else
+    {
+      fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ",
+        start, opcode, instruction);
+    }
 
     if (cycles_min == -1)
     {
@@ -451,7 +506,14 @@ void disasm_range_riscv(
       &cycles_min,
       &cycles_max);
 
-    printf("0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
+    if (count == 2)
+    {
+      printf("0x%08x: 0x%04x     %-40s cycles: ", start, opcode, instruction);
+    }
+      else
+    {
+      printf("0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
+    }
 
     if (cycles_min == -1)
     {

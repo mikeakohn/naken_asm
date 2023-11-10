@@ -457,6 +457,24 @@ static int get_operands(
   int operand_count = 0;
   int n;
 
+  // FIXME: Should probably change RISC-V to accept "." in instructions.
+  if (IS_TOKEN(instr, 'c') || IS_TOKEN(instr, 'C'))
+  {
+    token_type = tokens_get(asm_context, token, TOKENLEN);
+
+    if (IS_TOKEN(token, '.'))
+    {
+      strcat(instr, ".");
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      strcat(instr, token);
+      lower_copy(instr_case, instr);
+    }
+      else
+    {
+      tokens_push(asm_context, token, token_type);
+    }
+  }
+
   while (true)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -717,6 +735,12 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
     if (strcmp(table_riscv[n].instr, instr_case) == 0)
     {
       matched = 1;
+
+      if ((asm_context->address / 4) != 0)
+      {
+        print_error_align(asm_context, 4);
+        return -1;
+      }
 
       // If aq or rl was set, make sure it was only done on the
       // right instructions.
@@ -1683,6 +1707,29 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           return 4;
         }
+        default:
+          break;
+      }
+    }
+  }
+
+  for (n = 0; table_riscv_comp[n].instr != NULL; n++)
+  {
+    if (strcmp(table_riscv_comp[n].instr, instr_case) == 0)
+    {
+      switch (table_riscv_comp[n].type)
+      {
+        case OP_NONE:
+          if (operand_count != 0)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_riscv_comp[n].opcode;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
         default:
           break;
       }

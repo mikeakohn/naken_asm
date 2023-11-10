@@ -26,6 +26,15 @@ int disasm_riscv(
   int *cycles_min,
   int *cycles_max);
 
+int disasm_riscv_comp(
+  Memory *memory,
+  uint32_t address,
+  char *instruction,
+  int length,
+  int flags,
+  int *cycles_min,
+  int *cycles_max);
+
 void list_output_riscv(
   AsmContext *asm_context,
   uint32_t start,
