@@ -104,5 +104,15 @@ struct _table_riscv_comp
 extern struct _table_riscv table_riscv[];
 extern struct _table_riscv_comp table_riscv_comp[];
 
+class RiscvPermutations
+{
+public:
+  static int8_t nzuimm[11];
+
+private:
+  RiscvPermutations() { }
+  ~RiscvPermutations() { }
+};
+
 #endif
 

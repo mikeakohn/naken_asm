@@ -323,7 +323,7 @@ struct _table_riscv_comp table_riscv_comp[] =
   { "c.fldsp",     0x2002, 0xe003, OP_COMP_RD_5_4386,  0 },
   { "c.lqsp",      0x2002, 0xe003, OP_COMP_RD_5_496,   RISCV128 },
   { "c.lwsp",      0x4002, 0xe003, OP_COMP_RD_5_4276,  0 },
-  { "c.flswsp",    0x6002, 0xe003, OP_COMP_RD_5_4276,  0 },
+  { "c.flwsp",     0x6002, 0xe003, OP_COMP_RD_5_4276,  0 },
   { "c.ldsp",      0x6002, 0xe003, OP_COMP_RD_5_4386,  RISCV64 | RISCV128 },
   { "c.jr",        0x8002, 0xf07f, OP_COMP_RS1,        0 },
   { "c.mv",        0x8002, 0xf003, OP_COMP_RS1_RS2,    0 },
@@ -338,4 +338,6 @@ struct _table_riscv_comp table_riscv_comp[] =
 
   { NULL,               0,       0, 0,                  0 }
 };
+
+int8_t RiscvPermutations::nzuimm[11] = { 5, 4, 9, 8, 7, 6, 2, 3, -1, -1, -1 };
 

@@ -179,6 +179,22 @@ static uint32_t permutate_jal(int32_t offset)
   return immediate;
 }
 
+static int permutate_16(int i, int8_t *table)
+{
+  int value = 0;
+
+  for (int n = 0; n < 11; n++)
+  {
+    const int bit = table[n];
+
+    if (bit == -1) { continue; }
+
+    value |= ((i >> bit) & 1) << (12 - n);
+  }
+
+  return value;
+}
+
 static int get_f_register_riscv(char *token)
 {
   int n;
@@ -221,17 +237,17 @@ static int get_f_register_riscv(char *token)
 }
 
 static uint32_t find_opcode(const char *instr_case)
-{   
+{
   int n;
-    
+
   for (n = 0; table_riscv[n].instr != NULL; n++)
-  { 
+  {
     if (strcmp(instr_case, table_riscv[n].instr) == 0)
     {
       return table_riscv[n].opcode;
     }
   }
-    
+
   return 0xffffffff;
 }
 
@@ -736,7 +752,7 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
     {
       matched = 1;
 
-      if ((asm_context->address / 4) != 0)
+      if ((asm_context->address % 4) != 0)
       {
         print_error_align(asm_context, 4);
         return -1;
@@ -1717,6 +1733,8 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
   {
     if (strcmp(table_riscv_comp[n].instr, instr_case) == 0)
     {
+      int immediate;
+
       switch (table_riscv_comp[n].type)
       {
         case OP_NONE:
@@ -1727,6 +1745,42 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
           }
 
           opcode = table_riscv_comp[n].opcode;
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        case OP_COMP_RD_NZUIMM:
+          if (operand_count != 2)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].value < 8 || operands[0].value > 15)
+          {
+            print_error_illegal_register(asm_context, instr);
+            return -1;
+          }
+
+          if ((operands[1].value % 4) != 0)
+          {
+            print_error_align(asm_context, 4);
+            return -1;
+          }
+
+          if (check_range(asm_context, "Immediate", operands[1].value, 0, 1024) == -1) { return -1; }
+
+          immediate = permutate_16(operands[1].value, RiscvPermutations::nzuimm);
+          opcode = table_riscv_comp[n].opcode |
+            immediate |
+            ((operands[0].value - 8) << 2);
+
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;

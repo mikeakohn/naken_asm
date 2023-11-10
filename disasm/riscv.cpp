@@ -24,6 +24,16 @@ const char *riscv_reg_names[32] =
     "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
+// REVIEW: Probably don't need this since compressed register
+// can be mapped to reg + 8. Still not sure what to do with s0/fp.
+#if 0
+const char *riscv_reg_comp_names[8] =
+{
+  // "x8", "x9", "x10", "x11", "x12", "x13", "x14", "x15"
+  "s0/fp", "s1",  "a0",  "a1",  "a2",  "a3",  "a4",  "a5"
+}
+#endif
+
 static const char *rm_string[] =
 {
   ", rne",
@@ -387,6 +397,23 @@ int disasm_riscv(
   return -1;
 }
 
+static int permutate_16(int opcode, int8_t *table)
+{
+  int value = 0;
+
+  for (int n = 0; n < 11; n++)
+  {
+    const int bit = table[n];
+
+    if (bit == -1) { continue; }
+    int i = (opcode >> (12 - n)) & 1;
+
+    value |= i << bit;
+  }
+
+  return value;
+}
+
 int disasm_riscv_comp(
   Memory *memory,
   uint32_t address,
@@ -399,6 +426,10 @@ int disasm_riscv_comp(
   strcpy(instruction, "???");
 
   int opcode = memory->read16(address);
+  int rd = (opcode >> 2) & 7;
+  //int rs1 = (opcode >> 7) & 7;
+  //int rs2 = (opcode >> 2) & 7;
+  int immediate;
 
   for (int n = 0; table_riscv_comp[n].instr != NULL; n++)
   {
@@ -410,6 +441,13 @@ int disasm_riscv_comp(
       {
         case OP_NONE:
           snprintf(instruction, length, "%s", instr);
+          return 2;
+        case OP_COMP_RD_NZUIMM:
+          immediate = permutate_16(opcode, RiscvPermutations::nzuimm);
+          snprintf(instruction, length, "%s %s, 0x%x",
+            instr,
+            riscv_reg_names[rd + 8],
+            immediate);
           return 2;
         default:
           strcpy(instruction, "???");
