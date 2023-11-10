@@ -427,9 +427,10 @@ int disasm_riscv_comp(
 
   int opcode = memory->read16(address);
   int rd = (opcode >> 2) & 7;
-  //int rs1 = (opcode >> 7) & 7;
+  int rs1 = (opcode >> 7) & 7;
   //int rs2 = (opcode >> 2) & 7;
   int immediate;
+  //int funct3 = opcode >> 13;
 
   for (int n = 0; table_riscv_comp[n].instr != NULL; n++)
   {
@@ -443,11 +444,35 @@ int disasm_riscv_comp(
           snprintf(instruction, length, "%s", instr);
           return 2;
         case OP_COMP_RD_NZUIMM:
-          immediate = permutate_16(opcode, RiscvPermutations::nzuimm);
+          immediate = permutate_16(opcode, RiscvPerm::nzuimm);
           snprintf(instruction, length, "%s %s, 0x%x",
             instr,
             riscv_reg_names[rd + 8],
             immediate);
+          return 2;
+        case OP_COMP_UIMM53_76:
+          immediate = permutate_16(opcode, RiscvPerm::uimm53_76);
+          snprintf(instruction, length, "%s %s, %d(%s)",
+            instr,
+            riscv_reg_names[rd + 8],
+            immediate,
+            riscv_reg_names[rs1 + 8]);
+          return 2;
+        case OP_COMP_UIMM548_76:
+          immediate = permutate_16(opcode, RiscvPerm::uimm548_76);
+          snprintf(instruction, length, "%s %s, %d(%s)",
+            instr,
+            riscv_reg_names[rd + 8],
+            immediate,
+            riscv_reg_names[rs1 + 8]);
+          return 2;
+        case OP_COMP_UIMM53_26:
+          immediate = permutate_16(opcode, RiscvPerm::uimm53_26);
+          snprintf(instruction, length, "%s %s, %d(%s)",
+            instr,
+            riscv_reg_names[rd + 8],
+            immediate,
+            riscv_reg_names[rs1 + 8]);
           return 2;
         default:
           strcpy(instruction, "???");

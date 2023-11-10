@@ -58,6 +58,7 @@ enum
   OP_COMP_UIMM53_76,
   OP_COMP_UIMM548_76,
   OP_COMP_UIMM53_26,
+
   OP_COMP_RD_NZIMM5,
   OP_COMP_IMM12,
   OP_COMP_RD_IMM5,
@@ -82,6 +83,7 @@ enum
 
 #define RISCV64  0x01
 #define RISCV128 0x02
+#define RISCV_FP 0x04
 
 struct _table_riscv
 {
@@ -104,14 +106,17 @@ struct _table_riscv_comp
 extern struct _table_riscv table_riscv[];
 extern struct _table_riscv_comp table_riscv_comp[];
 
-class RiscvPermutations
+class RiscvPerm
 {
 public:
   static int8_t nzuimm[11];
+  static int8_t uimm53_76[11];
+  static int8_t uimm548_76[11];
+  static int8_t uimm53_26[11];
 
 private:
-  RiscvPermutations() { }
-  ~RiscvPermutations() { }
+  RiscvPerm() { }
+  ~RiscvPerm() { }
 };
 
 #endif

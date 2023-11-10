@@ -284,15 +284,15 @@ struct _table_riscv_comp table_riscv_comp[] =
 {
   // Quadrant 0.
   { "c.addi4spn",  0x0000, 0xe003, OP_COMP_RD_NZUIMM,  0 },
-  { "c.fld",       0x2000, 0xe003, OP_COMP_UIMM53_76,  0 },
+  { "c.fld",       0x2000, 0xe003, OP_COMP_UIMM53_76,  RISCV_FP },
   { "c.lq",        0x2000, 0xe003, OP_COMP_UIMM548_76, RISCV128 },
   { "c.lw",        0x4000, 0xe003, OP_COMP_UIMM53_26,  0 },
   { "c.flw",       0x6000, 0xe003, OP_COMP_UIMM53_26,  0 },
   { "c.ld",        0x6000, 0xe003, OP_COMP_UIMM53_76,  RISCV64 | RISCV128 },
-  { "c.fsd",       0xa000, 0xe003, OP_COMP_UIMM53_76,  0 },
+  { "c.fsd",       0xa000, 0xe003, OP_COMP_UIMM53_76,  RISCV_FP },
   { "c.sq",        0xa000, 0xe003, OP_COMP_UIMM548_76, RISCV128 },
   { "c.sw",        0xc000, 0xe003, OP_COMP_UIMM53_26,  0 },
-  { "c.fsw",       0xe000, 0xe003, OP_COMP_UIMM53_26,  0 },
+  { "c.fsw",       0xe000, 0xe003, OP_COMP_UIMM53_26,  RISCV_FP },
   { "c.sd",        0xe000, 0xe003, OP_COMP_UIMM53_76,  RISCV64 | RISCV128 },
 
   // Quadrant 1.
@@ -339,5 +339,8 @@ struct _table_riscv_comp table_riscv_comp[] =
   { NULL,               0,       0, 0,                  0 }
 };
 
-int8_t RiscvPermutations::nzuimm[11] = { 5, 4, 9, 8, 7, 6, 2, 3, -1, -1, -1 };
+int8_t RiscvPerm::nzuimm[11] =     { 5, 4, 9,  8,  7,  6, 2, 3, -1, -1, -1 };
+int8_t RiscvPerm::uimm53_76[11] =  { 5, 4, 3, -1, -1, -1, 7, 6, -1, -1, -1 };
+int8_t RiscvPerm::uimm548_76[11] = { 5, 4, 8, -1, -1, -1, 7, 6, -1, -1, -1 };
+int8_t RiscvPerm::uimm53_26[11] =  { 5, 4, 3, -1, -1, -1, 2, 6, -1, -1, -1 };
 
