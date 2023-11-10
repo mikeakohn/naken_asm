@@ -53,9 +53,35 @@ enum
   OP_ALIAS_BR_RS_RT,
   OP_ALIAS_JAL,
   OP_ALIAS_JALR,
+  // RISC-V C Extension (compressed).
+  OP_COMP_RD_NZUIMM,
+  OP_COMP_UIMM53_76,
+  OP_COMP_UIMM548_76,
+  OP_COMP_UIMM53_26,
+  OP_COMP_RD_NZIMM5,
+  OP_COMP_IMM12,
+  OP_COMP_RD_IMM5,
+  OP_COMP_RD_IMM5_40,
+  OP_COMP_9_46875,
+  OP_COMP_RD_17_1612,
+  OP_COMP_RD_5_40,
+  OP_COMP_RD,
+  OP_COMP_RD_RS2,
+  OP_COMP_JUMP,
+  OP_COMP_BRANCH,
+  OP_COMP_RD_RS1,
+  OP_COMP_RD_5_4386,
+  OP_COMP_RD_5_496,
+  OP_COMP_RD_5_4276,
+  OP_COMP_RS1,
+  OP_COMP_RS1_RS2,
+  OP_COMP_5386_RS2,
+  OP_COMP_5496_RS2,
+  OP_COMP_5276_RS2,
 };
 
-#define RISCV64 0x01
+#define RISCV64  0x01
+#define RISCV128 0x02
 
 struct _table_riscv
 {
@@ -66,7 +92,17 @@ struct _table_riscv
   uint8_t flags;
 };
 
+struct _table_riscv_comp
+{
+  const char *instr;
+  uint16_t opcode;
+  uint16_t mask;
+  uint8_t type;
+  uint8_t flags;
+};
+
 extern struct _table_riscv table_riscv[];
+extern struct _table_riscv_comp table_riscv_comp[];
 
 #endif
 

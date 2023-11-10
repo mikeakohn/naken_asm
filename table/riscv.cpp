@@ -277,6 +277,65 @@ struct _table_riscv table_riscv[] =
   { "fcvt.d.l",   0xd2200053, 0xfff0007f, OP_FP_R_RM,     0 },
   { "fcvt.d.lu",  0xd2300053, 0xfff0007f, OP_FP_R_RM,     0 },
   { "fmv.d.x",    0xf2000053, 0xfff0707f, OP_FP_R,        0 },
-  { NULL,                  0,          0,                  0  }
+  { NULL,                  0,          0, 0,              0 }
+};
+
+struct _table_riscv_comp table_riscv_comp[] =
+{
+  // Quadrant 0.
+  { "c.addi4spn",  0x0000, 0xe003, OP_COMP_RD_NZUIMM,  0 },
+  { "c.fld",       0x2000, 0xe003, OP_COMP_UIMM53_76,  0 },
+  { "c.lq",        0x2000, 0xe003, OP_COMP_UIMM548_76, RISCV128 },
+  { "c.lw",        0x4000, 0xe003, OP_COMP_UIMM53_26,  0 },
+  { "c.flw",       0x6000, 0xe003, OP_COMP_UIMM53_26,  0 },
+  { "c.ld",        0x6000, 0xe003, OP_COMP_UIMM53_76,  RISCV64 | RISCV128 },
+  { "c.fsd",       0xa000, 0xe003, OP_COMP_UIMM53_76,  0 },
+  { "c.sq",        0xa000, 0xe003, OP_COMP_UIMM548_76, RISCV128 },
+  { "c.sw",        0xc000, 0xe003, OP_COMP_UIMM53_26,  0 },
+  { "c.fsw",       0xe000, 0xe003, OP_COMP_UIMM53_26,  0 },
+  { "c.sd",        0xe000, 0xe003, OP_COMP_UIMM53_76,  RISCV64 | RISCV128 },
+
+  // Quadrant 1.
+  { "c.nop",       0x0001, 0xffff, OP_NONE,            0 },
+  { "c.addi",      0x0001, 0xe003, OP_COMP_RD_NZIMM5,  0 },
+  { "c.jal",       0x2001, 0xe003, OP_COMP_IMM12,      0 },
+  { "c.addiw",     0x2001, 0xe003, OP_COMP_RD_IMM5,    0 },
+  { "c.li",        0x4001, 0xe003, OP_COMP_RD_IMM5_40, 0 },
+  { "c.addi16sp",  0x6101, 0xef83, OP_COMP_9_46875,    0 },
+  { "c.lui",       0x6001, 0xe003, OP_COMP_RD_17_1612, 0 },
+  { "c.srli",      0x8001, 0xec03, OP_COMP_RD_5_40,    0 },
+  { "c.srli64",    0x8001, 0xec03, OP_COMP_RD,         RISCV128 },
+  { "c.srai",      0x8401, 0xec03, OP_COMP_RD_5_40,    0 },
+  { "c.srai64",    0x8401, 0xec03, OP_COMP_RD,         RISCV128 },
+  { "c.andi",      0x8801, 0xec03, OP_COMP_RD_17_1612, 0 },
+  { "c.sub",       0x8c01, 0xfc63, OP_COMP_RD_RS2,     0 },
+  { "c.xor",       0x8c21, 0xfc63, OP_COMP_RD_RS2,     0 },
+  { "c.or",        0x8c41, 0xfc63, OP_COMP_RD_RS2,     0 },
+  { "c.and",       0x8c61, 0xfc63, OP_COMP_RD_RS2,     0 },
+  { "c.subw",      0x9c01, 0xfc63, OP_COMP_RD_RS2,     0 },
+  { "c.addw",      0x9c21, 0xfc63, OP_COMP_RD_RS2,     0 },
+  { "c.j",         0xc001, 0xe003, OP_COMP_JUMP,       0 },
+  { "c.beqz",      0xe001, 0xe003, OP_COMP_BRANCH,     0 },
+
+  // Quadrant 2.
+  { "c.slli",      0x0002, 0xe003, OP_COMP_RD_NZIMM5,  0 },
+  { "c.slli64",    0x0002, 0xe003, OP_COMP_RD_RS1,  RISCV128 },
+  { "c.fldsp",     0x2002, 0xe003, OP_COMP_RD_5_4386,  0 },
+  { "c.lqsp",      0x2002, 0xe003, OP_COMP_RD_5_496,   RISCV128 },
+  { "c.lwsp",      0x4002, 0xe003, OP_COMP_RD_5_4276,  0 },
+  { "c.flswsp",    0x6002, 0xe003, OP_COMP_RD_5_4276,  0 },
+  { "c.ldsp",      0x6002, 0xe003, OP_COMP_RD_5_4386,  RISCV64 | RISCV128 },
+  { "c.jr",        0x8002, 0xf07f, OP_COMP_RS1,        0 },
+  { "c.mv",        0x8002, 0xf003, OP_COMP_RS1_RS2,    0 },
+  { "c.ebreak",    0x9002, 0xffff, OP_NONE,            0 },
+  { "c.jalr",      0x9002, 0xf07f, OP_COMP_RS1,        0 },
+  { "c.add",       0x9002, 0xf003, OP_COMP_RS1_RS2,    0 },
+  { "c.fsdsp",     0xa002, 0xe003, OP_COMP_5386_RS2,   0 },
+  { "c.sqsp",      0xa002, 0xe003, OP_COMP_5496_RS2,   RISCV128 },
+  { "c.swsp",      0xc002, 0xe003, OP_COMP_5276_RS2,   0 },
+  { "c.fswsp",     0xe002, 0xe003, OP_COMP_5276_RS2,   0 },
+  { "c.sdsp",      0xe002, 0xe003, OP_COMP_5386_RS2,   RISCV64 | RISCV128 },
+
+  { NULL,               0,       0, 0,                  0 }
 };
 
