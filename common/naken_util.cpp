@@ -64,6 +64,7 @@ static void print_usage()
          "   -dotnet                      (.NET CIL)\n"
          "   -dspic                       (dsPIC / PIC24)\n"
          "   -epiphany                    (Epiphany III/IV)\n"
+         "   -f100_l                      (Ferranti F100-L)\n"
          "   -java                        (Java)\n"
          "   -lc3                         (LC-3)\n"
          "   -m8c                         (PSoC M8C)\n"

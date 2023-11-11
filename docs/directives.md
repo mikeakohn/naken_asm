@@ -32,6 +32,7 @@ CPU this source file should be assembled for.
 |.cp1610          |CP1610 (General Instruments)
 |.dspic           |dsPIC
 |.epiphany        |Ephiphany/Parallella
+|.f100_l          |Ferranti F100-L
 |.java            |Java
 |.lc3             |LC-3
 |.m8c             |Cypress PSoC m8c
