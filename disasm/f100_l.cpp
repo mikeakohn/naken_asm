@@ -27,11 +27,13 @@ int disasm_f100_l(
 {
   int opcode;
   int immediate;
+  int jump_address;
   int n;
 
   opcode = memory->read16(address);
   int r = (opcode >> 8) & 0x3;
   int i = (opcode >> 11) & 0x1;
+  int b = (opcode & 0xf);
 
   *cycles_min = -1;
   *cycles_max = -1;
@@ -143,15 +145,159 @@ int disasm_f100_l(
         }
         case OP_INC:
         {
+          jump_address = memory->read16(address + 2);
+
+          if (i == 0)
+          {
+            immediate = opcode & 0x7ff;
+
+            if (immediate != 0)
+            {
+              snprintf(instruction, length, "%s 0x%04x, %04x",
+                table_f100_l[n].instr,
+                immediate,
+                jump_address);
+            }
+              else
+            {
+              immediate = memory->read16(address + 2);
+              jump_address = memory->read16(address + 4);
+              snprintf(instruction, length, "%s ,0x%04x, %04x",
+                table_f100_l[n].instr,
+                immediate,
+                jump_address);
+              return 6;
+            }
+          }
+            else
+          {
+            immediate = opcode & 0xff;
+
+            if (immediate != 0)
+            {
+              if ((r & 1) == 0)
+              {
+                snprintf(instruction, length, "%s /0x%02x, 0x%04x",
+                  table_f100_l[n].instr,
+                  immediate,
+                  jump_address);
+              }
+                else
+              if (r == 1)
+              {
+                snprintf(instruction, length, "%s /0x%02x+, 0x%04x",
+                  table_f100_l[n].instr,
+                  immediate,
+                  jump_address);
+              }
+                else
+              {
+                snprintf(instruction, length, "%s /0x%02x-, 0x%04x",
+                  table_f100_l[n].instr,
+                  immediate,
+                  jump_address);
+              }
+            }
+              else
+            {
+              immediate = memory->read16(address + 2);
+              jump_address = memory->read16(address + 4);
+              snprintf(instruction, length, "%s .0x%04x, 0x%04x",
+                table_f100_l[n].instr,
+                immediate,
+                jump_address);
+              return 6;
+            }
+          }
+          return 4;
         }
         case OP_COND_JMP:
         {
+          if ((r & 1) == 0)
+          {
+            jump_address = memory->read16(address + 2);
+            snprintf(instruction, length, "%s %d, a, 0x%04x",
+              table_f100_l[n].instr,
+              b,
+              jump_address);
+            return 4;
+          }
+            else
+          if (r == 1)
+          {
+            jump_address = memory->read16(address + 2);
+            snprintf(instruction, length, "%s %d, cr, 0x%04x",
+              table_f100_l[n].instr,
+              b,
+              jump_address);
+            return 4;
+          }
+            else
+          if (r == 3)
+          {
+            immediate = memory->read16(address + 2);
+            jump_address = memory->read16(address + 4);
+            snprintf(instruction, length, "%s %d, 0x%04x, 0x%04x",
+              table_f100_l[n].instr,
+              b,
+              immediate,
+              jump_address);
+            return 6;
+          }
         }
         case OP_SHIFT:
         {
+          if ((r & 1) == 0)
+          {
+            snprintf(instruction, length, "%s %d, a", table_f100_l[n].instr, b);
+            return 2;
+          }
+            else
+          if (r == 1)
+          {
+            snprintf(instruction, length, "%s %d, cr",
+              table_f100_l[n].instr,
+              b);
+            return 2;
+          }
+            else
+          if (r == 3)
+          {
+            immediate = memory->read16(address + 2);
+            snprintf(instruction, length, "%s %d, 0x%04x",
+              table_f100_l[n].instr,
+              b,
+              immediate);
+            return 4;
+          }
         }
         case OP_SHIFT_D:
         {
+          b = opcode & 0x1f;
+
+          if ((r & 1) == 0)
+          {
+            snprintf(instruction, length, "%s %d, a", table_f100_l[n].instr, b);
+            return 2;
+          }
+            else
+          if (r == 1)
+          {
+            snprintf(instruction, length, "%s %d, cr",
+              table_f100_l[n].instr,
+              b);
+            return 2;
+          }
+            else
+          if (r == 3)
+          {
+            immediate = memory->read16(address + 2);
+            snprintf(instruction, length, "%s %d, 0x%04x",
+              table_f100_l[n].instr,
+              b,
+              immediate);
+            return 4;
+          }
         }
         default:
         {
