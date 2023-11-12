@@ -13,7 +13,13 @@
 
 struct _table_f100_l table_f100_l[] =
 {
+  // Aliases.
   { "nop",   0xf000, 0xffff, OP_NONE     },
+  { "clrm",  0x00f6, 0xffff, OP_NONE     },
+  { "clrc",  0x00f5, 0xffff, OP_NONE     },
+  { "setm",  0x00e6, 0xffff, OP_NONE     },
+  { "setc",  0x00e5, 0xffff, OP_NONE     },
+
   { "add",   0x9000, 0xf000, OP_ALU      },
   { "ads",   0x5000, 0xf000, OP_ALU      },
   { "and",   0xc000, 0xf000, OP_ALU      },
