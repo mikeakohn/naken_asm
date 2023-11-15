@@ -152,7 +152,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
       operands[operand_count].value = num;
     }
       else
-    if (IS_TOKEN(token, '.'))
+    if (IS_TOKEN(token, '.') || strcasecmp(token, "long") == 0)
     {
       if (get_num(asm_context, num, instr) == -1) { return -1; }
       operands[operand_count].type = OPERAND_DOT_W;

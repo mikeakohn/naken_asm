@@ -57,16 +57,21 @@ int disasm_f100_l(
 
             if (immediate != 0)
             {
-              snprintf(instruction, length, "%s 0x%04x",
+              snprintf(instruction, length, "%s 0x%03x",
                 table_f100_l[n].instr,
                 immediate);
             }
               else
             {
               immediate = memory->read16(address + 2);
+              snprintf(instruction, length, "%s #0x%04x",
+                table_f100_l[n].instr,
+                immediate);
+#if 0
               snprintf(instruction, length, "%s ,0x%04x",
                 table_f100_l[n].instr,
                 immediate);
+#endif
               return 4;
             }
           }
@@ -78,30 +83,50 @@ int disasm_f100_l(
             {
               if ((r & 1) == 0)
               {
+                snprintf(instruction, length, "%s [0x%02x]",
+                  table_f100_l[n].instr,
+                  immediate);
+#if 0
                 snprintf(instruction, length, "%s /0x%02x",
                   table_f100_l[n].instr,
                   immediate);
+#endif
               }
                 else
               if (r == 1)
               {
+                snprintf(instruction, length, "%s [0x%02x]+",
+                  table_f100_l[n].instr,
+                  immediate);
+#if 0
                 snprintf(instruction, length, "%s /0x%02x+",
                   table_f100_l[n].instr,
                   immediate);
+#endif
               }
                 else
               {
+                snprintf(instruction, length, "%s [0x%02x]-",
+                  table_f100_l[n].instr,
+                  immediate);
+#if 0
                 snprintf(instruction, length, "%s /0x%02x-",
                   table_f100_l[n].instr,
                   immediate);
+#endif
               }
             }
               else
             {
               immediate = memory->read16(address + 2);
+              snprintf(instruction, length, "%s long 0x%04x",
+                table_f100_l[n].instr,
+                immediate);
+#if 0
               snprintf(instruction, length, "%s .0x%04x",
                 table_f100_l[n].instr,
                 immediate);
+#endif
               return 4;
             }
           }
@@ -153,7 +178,7 @@ int disasm_f100_l(
 
             if (immediate != 0)
             {
-              snprintf(instruction, length, "%s 0x%04x, %04x",
+              snprintf(instruction, length, "%s 0x%03x, %04x",
                 table_f100_l[n].instr,
                 immediate,
                 jump_address);
@@ -162,10 +187,16 @@ int disasm_f100_l(
             {
               immediate = memory->read16(address + 2);
               jump_address = memory->read16(address + 4);
+              snprintf(instruction, length, "%s #0x%04x, %04x",
+                table_f100_l[n].instr,
+                immediate,
+                jump_address);
+#if 0
               snprintf(instruction, length, "%s ,0x%04x, %04x",
                 table_f100_l[n].instr,
                 immediate,
                 jump_address);
+#endif
               return 6;
             }
           }
@@ -177,35 +208,59 @@ int disasm_f100_l(
             {
               if ((r & 1) == 0)
               {
+                snprintf(instruction, length, "%s [0x%02x], 0x%04x",
+                  table_f100_l[n].instr,
+                  immediate,
+                  jump_address);
+#if 0
                 snprintf(instruction, length, "%s /0x%02x, 0x%04x",
                   table_f100_l[n].instr,
                   immediate,
                   jump_address);
+#endif
               }
                 else
               if (r == 1)
               {
+                snprintf(instruction, length, "%s [0x%02x]+, 0x%04x",
+                  table_f100_l[n].instr,
+                  immediate,
+                  jump_address);
+#if 0
                 snprintf(instruction, length, "%s /0x%02x+, 0x%04x",
                   table_f100_l[n].instr,
                   immediate,
                   jump_address);
+#endif
               }
                 else
               {
+                snprintf(instruction, length, "%s [0x%02x]-, 0x%04x",
+                  table_f100_l[n].instr,
+                  immediate,
+                  jump_address);
+#if 0
                 snprintf(instruction, length, "%s /0x%02x-, 0x%04x",
                   table_f100_l[n].instr,
                   immediate,
                   jump_address);
+#endif
               }
             }
               else
             {
               immediate = memory->read16(address + 2);
               jump_address = memory->read16(address + 4);
+              snprintf(instruction, length, "%s long 0x%04x, 0x%04x",
+                table_f100_l[n].instr,
+                immediate,
+                jump_address);
+#if 0
               snprintf(instruction, length, "%s .0x%04x, 0x%04x",
                 table_f100_l[n].instr,
                 immediate,
                 jump_address);
+#endif
               return 6;
             }
           }
