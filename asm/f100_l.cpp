@@ -334,16 +334,16 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
           switch (operands[1].type)
           {
             case OPERAND_A:
-              opcode = table_f100_l[n].opcode;
+              opcode = table_f100_l[n].opcode | operands[0].value;
               add_bin16(asm_context, opcode, IS_OPCODE);
               return 2;
             case OPERAND_CR:
-              opcode = table_f100_l[n].opcode | 0x0100;
+              opcode = table_f100_l[n].opcode | 0x0100 | operands[0].value;
               add_bin16(asm_context, opcode, IS_OPCODE);
               return 2;
             case OPERAND_NUMBER:
               if (check_range(asm_context, "Address", operands[1].value, 1, 0x7fff) == -1) { return -1; }
-              opcode = table_f100_l[n].opcode | 0x0300;
+              opcode = table_f100_l[n].opcode | 0x0300 | operands[0].value;
 
               add_bin16(asm_context, opcode, IS_OPCODE);
               add_bin16(asm_context, operands[1].value, IS_OPCODE);
