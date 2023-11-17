@@ -144,8 +144,16 @@ int disasm_f100_l(
             return 4;
           }
             else
+          if (r == 1)
           {
             snprintf(instruction, length, "%s %d, CR",
+              table_f100_l[n].instr,
+              opcode & 0xf);
+            return 2;
+          }
+            else
+          {
+            snprintf(instruction, length, "%s %d, A",
               table_f100_l[n].instr,
               opcode & 0xf);
             return 2;

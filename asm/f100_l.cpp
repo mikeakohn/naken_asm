@@ -259,6 +259,12 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
               add_bin16(asm_context, opcode, IS_OPCODE);
               return 2;
             case OPERAND_COMMA_D:
+              if (strcasecmp(instr_case, "jmp") == 0)
+              {
+                print_error(asm_context, "jmp cannot be used with an immediate\n.");
+                return -1;
+              }
+
               if (check_range(asm_context, "Immediate", operands[0].value, -32768, 0xffff) == -1) { return -1; }
               opcode = table_f100_l[n].opcode;
 
