@@ -16,6 +16,8 @@
 #include "disasm/f100_l.h"
 #include "table/f100_l.h"
 
+static char cr_flags[] = { 'i', 'z', 'v', 's', 'c', 'm', 'f' };
+
 int disasm_f100_l(
   Memory *memory,
   uint32_t address,
@@ -137,25 +139,34 @@ int disasm_f100_l(
           if (r == 3)
           {
             immediate = memory->read16(address + 2);
-            snprintf(instruction, length, "%s %d, 0x%04x",
+            snprintf(instruction, length, "%s #%d, 0x%04x",
               table_f100_l[n].instr,
-              opcode & 0xf,
+              b,
               immediate);
             return 4;
           }
             else
           if (r == 1)
           {
-            snprintf(instruction, length, "%s %d, CR",
-              table_f100_l[n].instr,
-              opcode & 0xf);
+            if (b <= 6)
+            {
+              snprintf(instruction, length, "%s %c, cr",
+                table_f100_l[n].instr,
+                cr_flags[b]);
+            }
+              else
+            {
+              snprintf(instruction, length, "%s #%d, cr",
+                table_f100_l[n].instr,
+                b);
+            }
             return 2;
           }
             else
           {
-            snprintf(instruction, length, "%s %d, A",
+            snprintf(instruction, length, "%s #%d, a",
               table_f100_l[n].instr,
-              opcode & 0xf);
+              b);
             return 2;
           }
         }
@@ -186,7 +197,7 @@ int disasm_f100_l(
 
             if (immediate != 0)
             {
-              snprintf(instruction, length, "%s 0x%03x, %04x",
+              snprintf(instruction, length, "%s 0x%03x, 0x%04x",
                 table_f100_l[n].instr,
                 immediate,
                 jump_address);
@@ -195,7 +206,7 @@ int disasm_f100_l(
             {
               immediate = memory->read16(address + 2);
               jump_address = memory->read16(address + 4);
-              snprintf(instruction, length, "%s #0x%04x, %04x",
+              snprintf(instruction, length, "%s #0x%04x, 0x%04x",
                 table_f100_l[n].instr,
                 immediate,
                 jump_address);
@@ -279,7 +290,7 @@ int disasm_f100_l(
           if ((r & 1) == 0)
           {
             jump_address = memory->read16(address + 2);
-            snprintf(instruction, length, "%s %d, a, 0x%04x",
+            snprintf(instruction, length, "%s #%d, a, 0x%04x",
               table_f100_l[n].instr,
               b,
               jump_address);
@@ -289,10 +300,21 @@ int disasm_f100_l(
           if (r == 1)
           {
             jump_address = memory->read16(address + 2);
-            snprintf(instruction, length, "%s %d, cr, 0x%04x",
-              table_f100_l[n].instr,
-              b,
-              jump_address);
+
+            if (b <= 6)
+            {
+              snprintf(instruction, length, "%s %c, cr, 0x%04x",
+                table_f100_l[n].instr,
+                cr_flags[b],
+                jump_address);
+            }
+              else
+            {
+              snprintf(instruction, length, "%s #%d, cr, 0x%04x",
+                table_f100_l[n].instr,
+                b,
+                jump_address);
+            }
             return 4;
           }
             else
@@ -300,7 +322,7 @@ int disasm_f100_l(
           {
             immediate = memory->read16(address + 2);
             jump_address = memory->read16(address + 4);
-            snprintf(instruction, length, "%s %d, 0x%04x, 0x%04x",
+            snprintf(instruction, length, "%s #%d, 0x%04x, 0x%04x",
               table_f100_l[n].instr,
               b,
               immediate,
@@ -312,13 +334,13 @@ int disasm_f100_l(
         {
           if ((r & 1) == 0)
           {
-            snprintf(instruction, length, "%s %d, a", table_f100_l[n].instr, b);
+            snprintf(instruction, length, "%s #%d, a", table_f100_l[n].instr, b);
             return 2;
           }
             else
           if (r == 1)
           {
-            snprintf(instruction, length, "%s %d, cr",
+            snprintf(instruction, length, "%s #%d, cr",
               table_f100_l[n].instr,
               b);
             return 2;
@@ -327,7 +349,7 @@ int disasm_f100_l(
           if (r == 3)
           {
             immediate = memory->read16(address + 2);
-            snprintf(instruction, length, "%s %d, 0x%04x",
+            snprintf(instruction, length, "%s #%d, 0x%04x",
               table_f100_l[n].instr,
               b,
               immediate);
@@ -340,13 +362,13 @@ int disasm_f100_l(
 
           if ((r & 1) == 0)
           {
-            snprintf(instruction, length, "%s %d, a", table_f100_l[n].instr, b);
+            snprintf(instruction, length, "%s #%d, a", table_f100_l[n].instr, b);
             return 2;
           }
             else
           if (r == 1)
           {
-            snprintf(instruction, length, "%s %d, cr",
+            snprintf(instruction, length, "%s #%d, cr",
               table_f100_l[n].instr,
               b);
             return 2;
@@ -355,7 +377,7 @@ int disasm_f100_l(
           if (r == 3)
           {
             immediate = memory->read16(address + 2);
-            snprintf(instruction, length, "%s %d, 0x%04x",
+            snprintf(instruction, length, "%s #%d, 0x%04x",
               table_f100_l[n].instr,
               b,
               immediate);

@@ -26,13 +26,20 @@
 enum
 {
   OPERAND_NUMBER,
-  OPERAND_COMMA_D,
+  OPERAND_IMMEDIATE,
   OPERAND_SLASH_P,
   OPERAND_SLASH_P_PLUS,
   OPERAND_SLASH_P_MINUS,
   OPERAND_DOT_W,
   OPERAND_A,
   OPERAND_CR,
+  OPERAND_I,
+  OPERAND_Z,
+  OPERAND_V,
+  OPERAND_S,
+  OPERAND_C,
+  OPERAND_M,
+  OPERAND_F,
 };
 
 struct _operand
@@ -58,6 +65,90 @@ int get_num(AsmContext *asm_context, int &num, const char *instr)
   }
 
   return 0;
+}
+
+int check_bit_operand(
+  AsmContext *asm_context,
+  _operand &operand,
+  const char *instr)
+{
+  switch (operand.type)
+  {
+    case OPERAND_IMMEDIATE: break;
+    case OPERAND_I: operand.value = 0; break;
+    case OPERAND_Z: operand.value = 1; break;
+    case OPERAND_V: operand.value = 2; break;
+    case OPERAND_S: operand.value = 3; break;
+    case OPERAND_C: operand.value = 4; break;
+    case OPERAND_M: operand.value = 5; break;
+    case OPERAND_F: operand.value = 6; break;
+    default:
+      print_error_illegal_operands(asm_context, instr);
+      return -1;
+  }
+
+  return 0;
+}
+
+void check_alias(char *instr_case, _operand *operands, int &operand_count)
+{
+  if (operand_count != 1) { return; }
+
+  if (strcasecmp(instr_case, "jnz") == 0 ||
+      strcasecmp(instr_case, "jne") == 0)
+  {
+    strcpy(instr_case, "jbc");
+    operands[2] = operands[0];
+    operands[0].type  = OPERAND_Z;
+    operands[1].type  = OPERAND_CR;
+    operand_count = 3;
+  }
+    else
+  if (strcasecmp(instr_case, "jz") == 0 ||
+      strcasecmp(instr_case, "jeq") == 0)
+  {
+    strcpy(instr_case, "jbs");
+    operands[2] = operands[0];
+    operands[0].type  = OPERAND_Z;
+    operands[1].type  = OPERAND_CR;
+    operand_count = 3;
+  }
+    else
+  if (strcasecmp(instr_case, "jnc") == 0)
+  {
+    strcpy(instr_case, "jbc");
+    operands[2] = operands[0];
+    operands[0].type  = OPERAND_C;
+    operands[1].type  = OPERAND_CR;
+    operand_count = 3;
+  }
+    else
+  if (strcasecmp(instr_case, "jc") == 0)
+  {
+    strcpy(instr_case, "jbs");
+    operands[2] = operands[0];
+    operands[0].type  = OPERAND_C;
+    operands[1].type  = OPERAND_CR;
+    operand_count = 3;
+  }
+    else
+  if (strcasecmp(instr_case, "jn") == 0)
+  {
+    strcpy(instr_case, "jbs");
+    operands[2] = operands[0];
+    operands[0].type  = OPERAND_S;
+    operands[1].type  = OPERAND_CR;
+    operand_count = 3;
+  }
+    else
+  if (strcasecmp(instr_case, "jp") == 0)
+  {
+    strcpy(instr_case, "jbc");
+    operands[2] = operands[0];
+    operands[0].type  = OPERAND_S;
+    operands[1].type  = OPERAND_CR;
+    operand_count = 3;
+  }
 }
 
 int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
@@ -90,9 +181,44 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
       return -1;
     }
 
-    if (strcasecmp(token, "a") == 0)
+    if (IS_TOKEN(token, 'a') || IS_TOKEN(token, 'A'))
     {
       operands[operand_count].type = OPERAND_A;
+    }
+      else
+    if (IS_TOKEN(token, 'i') || IS_TOKEN(token, 'I'))
+    {
+      operands[operand_count].type = OPERAND_I;
+    }
+      else
+    if (IS_TOKEN(token, 'z') || IS_TOKEN(token, 'Z'))
+    {
+      operands[operand_count].type = OPERAND_Z;
+    }
+      else
+    if (IS_TOKEN(token, 'v') || IS_TOKEN(token, 'V'))
+    {
+      operands[operand_count].type = OPERAND_V;
+    }
+      else
+    if (IS_TOKEN(token, 's') || IS_TOKEN(token, 'S'))
+    {
+      operands[operand_count].type = OPERAND_S;
+    }
+      else
+    if (IS_TOKEN(token, 'c') || IS_TOKEN(token, 'C'))
+    {
+      operands[operand_count].type = OPERAND_C;
+    }
+      else
+    if (IS_TOKEN(token, 'm') || IS_TOKEN(token, 'M'))
+    {
+      operands[operand_count].type = OPERAND_M;
+    }
+      else
+    if (IS_TOKEN(token, 'f') || IS_TOKEN(token, 'F'))
+    {
+      operands[operand_count].type = OPERAND_F;
     }
       else
     if (strcasecmp(token, "cr") == 0)
@@ -148,7 +274,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
     if (IS_TOKEN(token, ',') || IS_TOKEN(token, '#'))
     {
       if (get_num(asm_context, num, instr) == -1) { return -1; }
-      operands[operand_count].type = OPERAND_COMMA_D;
+      operands[operand_count].type = OPERAND_IMMEDIATE;
       operands[operand_count].value = num;
     }
       else
@@ -219,6 +345,8 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
     }
   }
 
+  check_alias(instr_case, operands, operand_count);
+
   for (n = 0; table_f100_l[n].instr != NULL; n++)
   {
     if (strcmp(table_f100_l[n].instr, instr_case) == 0)
@@ -258,7 +386,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
 
               add_bin16(asm_context, opcode, IS_OPCODE);
               return 2;
-            case OPERAND_COMMA_D:
+            case OPERAND_IMMEDIATE:
               if (strcasecmp(instr_case, "jmp") == 0)
               {
                 print_error(asm_context, "jmp cannot be used with an immediate\n.");
@@ -324,9 +452,9 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if (operands[0].type != OPERAND_NUMBER)
+          if (check_bit_operand(asm_context, operands[0], instr) != 0)
           {
-            print_error_illegal_operands(asm_context, instr);
+            return -1;
           }
 
           if (check_range(asm_context, "bit", operands[0].value, 0, 15) == -1) { return -1; }
@@ -406,7 +534,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
               add_bin16(asm_context, opcode, IS_OPCODE);
               add_bin16(asm_context, operands[1].value, IS_OPCODE);
               return 4;
-            case OPERAND_COMMA_D:
+            case OPERAND_IMMEDIATE:
               if (check_range(asm_context, "Immediate", operands[0].value, -32768, 0xffff) == -1) { return -1; }
               opcode = table_f100_l[n].opcode;
 
@@ -466,10 +594,14 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
         case OP_COND_JMP:
         {
           if (operand_count != 3 ||
-              operands[0].type != OPERAND_NUMBER ||
               operands[2].type != OPERAND_NUMBER)
           {
             print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (check_bit_operand(asm_context, operands[0], instr) != 0)
+          {
             return -1;
           }
 
@@ -509,7 +641,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
         }
         case OP_SHIFT:
         {
-          if (operand_count != 2 || operands[0].type != OPERAND_NUMBER)
+          if (operand_count != 2 || operands[0].type != OPERAND_IMMEDIATE)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
@@ -543,7 +675,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
         }
         case OP_SHIFT_D:
         {
-          if (operand_count != 2 || operands[0].type != OPERAND_NUMBER)
+          if (operand_count != 2 || operands[0].type != OPERAND_IMMEDIATE)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
