@@ -216,3 +216,10 @@ li t1, 500
 li t2, -5
 li t3, 5000
 li t4, -5000 
+c.ld a3, 32(a4)
+c.sd a3, 32(a4)
+c.addiw a3, -19
+c.subw a3, a4
+c.addw a3, a4
+c.ldsp s2, 96(sp)
+c.sdsp a3, 160(sp)

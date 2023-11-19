@@ -239,3 +239,46 @@ li t1, 500
 li t2, -5
 li t3, 5000
 li t4, -5000
+c.addi4spn a3, sp, 64
+c.fld fs1, 64(a3)
+;c.lq a3, a4, 32
+c.lw a3, 32(a4)
+c.flw fs1, 64(a3)
+c.fsd fs1, 64(a3)
+;c.sq a3, a4, 32
+c.sw a3, 32(a4)
+c.fsw fs1, 64(a3)
+c.nop
+c.addi s2, 10
+c.jal 1000
+c.li a3, -11
+;c.addi16sp 80
+c.lui s1, 3
+c.srli a3, 11
+c.srli64 a3
+c.srai a3, 11
+c.srai64 a3
+c.andi a3, 0x15
+c.sub a3, a4
+c.xor a3, a4
+c.or a3, a4
+c.and a3, a4
+c.j 0x123
+c.beqz a3, 100
+c.bnez a3, 100
+c.slli t2, 9
+c.slli64 t1
+c.fldsp fs1, 96(sp)
+;c.lqsp a3, 104(sp)
+c.lwsp s2, 96(sp)
+c.flwsp fs1, 104(sp)
+c.jr s2
+c.mv s2, s3
+c.ebreak
+c.jalr t5
+c.add t3, t4
+;c.fsdsp t0, 160(sp)
+;c.sqsp a3, 160(sp)
+c.swsp s2, 160(sp)
+c.fswsp fs1, 160(sp)
+;c.sdsp a3, 160(sp)
