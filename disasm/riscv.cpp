@@ -446,7 +446,7 @@ int disasm_riscv_comp(
           return 2;
         case OP_COMP_RD_NZUIMM:
           immediate = permutate_16(opcode, RiscvPerm::nzuimm);
-          snprintf(instruction, length, "%s %s, 0x%x",
+          snprintf(instruction, length, "%s %s, sp, 0x%x",
             instr,
             riscv_reg_names[rd + 8],
             immediate);
@@ -572,14 +572,14 @@ int disasm_riscv_comp(
 
           if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
           {
-            snprintf(instruction, length, "%s %s, %d",
+            snprintf(instruction, length, "%s %s, %d(sp)",
               instr,
               riscv_reg_names[rs1_32],
               immediate);
           }
             else
           {
-            snprintf(instruction, length, "%s f%d, %d",
+            snprintf(instruction, length, "%s f%d, %d(sp)",
               instr,
               rs1_32,
               immediate);
@@ -587,7 +587,7 @@ int disasm_riscv_comp(
           return 2;
         case OP_COMP_RD_5_496:
           immediate = permutate_16(opcode, RiscvPerm::uimm5_496);
-          snprintf(instruction, length, "%s %s, %d",
+          snprintf(instruction, length, "%s %s, %d(sp)",
             instr,
             riscv_reg_names[rs1_32],
             immediate);
@@ -597,14 +597,14 @@ int disasm_riscv_comp(
 
           if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
           {
-            snprintf(instruction, length, "%s %s, %d",
+            snprintf(instruction, length, "%s %s, %d(sp)",
               instr,
               riscv_reg_names[rs1_32],
               immediate);
           }
             else
           {
-            snprintf(instruction, length, "%s f%d, %d",
+            snprintf(instruction, length, "%s f%d, %d(sp)",
               instr,
               rs1_32,
               immediate);
@@ -621,14 +621,14 @@ int disasm_riscv_comp(
 
           if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
           {
-            snprintf(instruction, length, "%s %s, %d",
+            snprintf(instruction, length, "%s %s, %d(sp)",
               instr,
               riscv_reg_names[rs2_32],
               immediate);
           }
             else
           {
-            snprintf(instruction, length, "%s f%d, %d",
+            snprintf(instruction, length, "%s f%d, %d(sp)",
               instr,
               rs2_32,
               immediate);
@@ -636,7 +636,7 @@ int disasm_riscv_comp(
           return 2;
         case OP_COMP_5496_RS2:
           immediate = permutate_16(opcode, RiscvPerm::uimm5496);
-          snprintf(instruction, length, "%s %s, %d",
+          snprintf(instruction, length, "%s %s, %d(sp)",
             instr,
             riscv_reg_names[rs2_32],
             immediate);
@@ -645,14 +645,14 @@ int disasm_riscv_comp(
           immediate = permutate_16(opcode, RiscvPerm::uimm5276);
           if ((table_riscv_comp[n].flags & RISCV_FP) == 0)
           {
-            snprintf(instruction, length, "%s %s, %d",
+            snprintf(instruction, length, "%s %s, %d(sp)",
               instr,
               riscv_reg_names[rs2_32],
               immediate);
           }
             else
           {
-            snprintf(instruction, length, "%s f%d, %d",
+            snprintf(instruction, length, "%s f%d, %d(sp)",
               instr,
               rs2_32,
               immediate);

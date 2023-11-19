@@ -1762,14 +1762,16 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           return 2;
         case OP_COMP_RD_NZUIMM:
-          if (operand_count != 2)
+          if (operand_count != 3)
           {
             print_error_opcount(asm_context, instr);
             return -1;
           }
 
-          if (operands[0].type != OPERAND_X_REGISTER ||
-              operands[1].type != OPERAND_NUMBER)
+          if (operands[0].type  != OPERAND_X_REGISTER ||
+              operands[1].type  != OPERAND_X_REGISTER ||
+              operands[1].value != 2 ||
+              operands[2].type  != OPERAND_NUMBER)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
@@ -1781,15 +1783,15 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if ((operands[1].value % 4) != 0)
+          if ((operands[2].value % 4) != 0)
           {
             print_error_align(asm_context, 4);
             return -1;
           }
 
-          if (check_range(asm_context, "Immediate", operands[1].value, 0, 1024) == -1) { return -1; }
+          if (check_range(asm_context, "Immediate", operands[2].value, 0, 1024) == -1) { return -1; }
 
-          immediate = permutate_16(operands[1].value, RiscvPerm::nzuimm);
+          immediate = permutate_16(operands[2].value, RiscvPerm::nzuimm);
           opcode = table_riscv_comp[n].opcode |
             immediate |
             ((operands[0].value - 8) << 2);
@@ -1950,7 +1952,7 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
               return -1;
             }
 
-            immediate = permutate_16(operands[1].value, RiscvPerm::imm17_1612, false);
+            immediate = permutate_16(operands[1].value << 12, RiscvPerm::imm17_1612, false);
           }
 
           if (immediate < 0)
@@ -2080,7 +2082,8 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
         case OP_COMP_RD_5_496:
         case OP_COMP_RD_5_4276:
           if (operand_count != 2 ||
-              operands[1].type != OPERAND_NUMBER)
+              operands[1].type != OPERAND_REGISTER_OFFSET ||
+              operands[1].value  != 2)
           {
             print_error_opcount(asm_context, instr);
             return -1;
@@ -2104,17 +2107,17 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           if (table_riscv_comp[n].type == OP_COMP_RD_5_4386)
           {
-            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5_4386);
+            immediate = permutate_16(operands[1].offset, RiscvPerm::uimm5_4386);
           }
             else
           if (table_riscv_comp[n].type == OP_COMP_RD_5_496)
           {
-            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5_496);
+            immediate = permutate_16(operands[1].offset, RiscvPerm::uimm5_496);
           }
             else
           if (table_riscv_comp[n].type == OP_COMP_RD_5_4276)
           {
-            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5_4276);
+            immediate = permutate_16(operands[1].offset, RiscvPerm::uimm5_4276);
           }
 
           if (immediate == -1)
@@ -2156,7 +2159,8 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
         case OP_COMP_5496_RS2:
         case OP_COMP_5276_RS2:
           if (operand_count != 2 ||
-              operands[1].type != OPERAND_NUMBER)
+              operands[1].type  != OPERAND_REGISTER_OFFSET ||
+              operands[1].value != 2)
           {
             print_error_opcount(asm_context, instr);
             return -1;
@@ -2179,17 +2183,17 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           if (table_riscv_comp[n].type == OP_COMP_5386_RS2)
           {
-            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5386);
+            immediate = permutate_16(operands[1].offset, RiscvPerm::uimm5386);
           }
             else
           if (table_riscv_comp[n].type == OP_COMP_5496_RS2)
           {
-            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5496);
+            immediate = permutate_16(operands[1].offset, RiscvPerm::uimm5496);
           }
             else
           if (table_riscv_comp[n].type == OP_COMP_5276_RS2)
           {
-            immediate = permutate_16(operands[1].value, RiscvPerm::uimm5276);
+            immediate = permutate_16(operands[1].offset, RiscvPerm::uimm5276);
           }
 
           if (immediate == -1)

@@ -267,7 +267,7 @@ instr()
 
 cleanup()
 {
-  rm -f config.c
+  rm -f config.c config.cpp
   rm -f config.o
   rm -f config.exe
   rm -f config

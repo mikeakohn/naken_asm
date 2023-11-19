@@ -287,7 +287,7 @@ struct _table_riscv_comp table_riscv_comp[] =
   { "c.fld",       0x2000, 0xe003, OP_COMP_UIMM53_76,  RISCV_FP },
   { "c.lq",        0x2000, 0xe003, OP_COMP_UIMM548_76, RISCV128 },
   { "c.lw",        0x4000, 0xe003, OP_COMP_UIMM53_26,  0 },
-  { "c.flw",       0x6000, 0xe003, OP_COMP_UIMM53_26,  0 },
+  { "c.flw",       0x6000, 0xe003, OP_COMP_UIMM53_26,  RISCV_FP },
   { "c.ld",        0x6000, 0xe003, OP_COMP_UIMM53_76,  RISCV64 | RISCV128 },
   { "c.fsd",       0xa000, 0xe003, OP_COMP_UIMM53_76,  RISCV_FP },
   { "c.sq",        0xa000, 0xe003, OP_COMP_UIMM548_76, RISCV128 },
@@ -352,7 +352,7 @@ int8_t RiscvPerm::imm17_1612[11] = {17, -1, -1, -1, -1, -1,16,15, 14, 13, 12 };
 int8_t RiscvPerm::branch[11]     = { 8,  4,  3, -1, -1, -1, 7, 6,  2,  1,  5 };
 int8_t RiscvPerm::uimm5_4386[11] = { 5, -1, -1, -1, -1, -1, 4, 3,  8,  7,  6 };
 int8_t RiscvPerm::uimm5_496[11]  = { 8, -1, -1, -1, -1, -1, 4, 9,  8,  7,  6 };
-int8_t RiscvPerm::uimm5_4276[11] = { 8, -1, -1, -1, -1, -1, 4, 3,  2,  7,  6 };
+int8_t RiscvPerm::uimm5_4276[11] = { 5, -1, -1, -1, -1, -1, 4, 3,  2,  7,  6 };
 int8_t RiscvPerm::uimm5386[11] =   { 5,  4,  3,  8,  7,  6,-1,-1, -1, -1, -1 };
 int8_t RiscvPerm::uimm5496[11] =   { 5,  4,  9,  8,  7,  6,-1,-1, -1, -1, -1 };
 int8_t RiscvPerm::uimm5276[11] =   { 5,  4,  3,  2,  7,  6,-1,-1, -1, -1, -1 };

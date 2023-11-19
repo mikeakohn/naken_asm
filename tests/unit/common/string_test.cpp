@@ -19,7 +19,7 @@
     printf("Error: %s != %s  %s:%d\n", a, b, __FILE__, __LINE__); \
   }
 
-void fuck()
+void what_is_this()
 {
   String s("hello");
   //s.set("hello");
