@@ -336,8 +336,12 @@ struct _table_riscv_comp table_riscv_comp[] =
   { "c.swsp",      0xc002, 0xe003, OP_COMP_5276_RS2,   0 },
   { "c.fswsp",     0xe002, 0xe003, OP_COMP_5276_RS2,   RISCV_FP },
   { "c.sdsp",      0xe002, 0xe003, OP_COMP_5386_RS2,   RISCV64 | RISCV128 },
-
-  { NULL,               0,       0, 0,                  0 }
+  // Huawei extensions that collide with c.fsd, c.fld, c.fsdp, c.fldsp.
+  { "c.sb",        0xa000, 0xe003, OP_COMP_HUA_043_21, 0 },
+  { "c.lbu",       0x2000, 0xe003, OP_COMP_HUA_043_21, 0 },
+  { "c.sh",        0xa002, 0xe003, OP_COMP_HUA_53_21,  0 },
+  { "c.lhu",       0x2002, 0xe003, OP_COMP_HUA_53_21,  0 },
+  { NULL,               0,      0, 0,                  0 }
 };
 
 int8_t RiscvPerm::nzuimm[11] =     { 5,  4,  9,  8,  7,  6, 2, 3, -1, -1, -1 };
@@ -356,4 +360,6 @@ int8_t RiscvPerm::uimm5_4276[11] = { 5, -1, -1, -1, -1, -1, 4, 3,  2,  7,  6 };
 int8_t RiscvPerm::uimm5386[11] =   { 5,  4,  3,  8,  7,  6,-1,-1, -1, -1, -1 };
 int8_t RiscvPerm::uimm5496[11] =   { 5,  4,  9,  8,  7,  6,-1,-1, -1, -1, -1 };
 int8_t RiscvPerm::uimm5276[11] =   { 5,  4,  3,  2,  7,  6,-1,-1, -1, -1, -1 };
+int8_t RiscvPerm::uimm043_21[11] = { 0,  4,  3, -1, -1, -1, 2, 1, -1, -1, -1 };
+int8_t RiscvPerm::uimm53_21[11] =  { 5,  3,  3, -1, -1, -1, 2, 1, -1, -1, -1 };
 

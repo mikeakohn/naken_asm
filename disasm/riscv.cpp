@@ -658,6 +658,22 @@ int disasm_riscv_comp(
               immediate);
           }
           return 2;
+        case OP_COMP_HUA_043_21:
+          immediate = permutate_16(opcode, RiscvPerm::uimm043_21);
+          snprintf(instruction, length, "%s %s, %d(%s)",
+            instr,
+            riscv_reg_names[rd],
+            immediate,
+            riscv_reg_names[rs1]);
+          return 2;
+        case OP_COMP_HUA_53_21:
+          immediate = permutate_16(opcode, RiscvPerm::uimm53_21);
+          snprintf(instruction, length, "%s %s, %d(%s)",
+            instr,
+            riscv_reg_names[rd],
+            immediate,
+            riscv_reg_names[rs1]);
+          return 2;
         default:
           strcpy(instruction, "???");
           return 2;

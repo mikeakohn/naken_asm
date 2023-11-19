@@ -76,6 +76,9 @@ enum
   OP_COMP_5386_RS2,
   OP_COMP_5496_RS2,
   OP_COMP_5276_RS2,
+  // Huawei.
+  OP_COMP_HUA_043_21,
+  OP_COMP_HUA_53_21,
 };
 
 #define RISCV64  0x01
@@ -122,6 +125,8 @@ public:
   static int8_t uimm5386[11];
   static int8_t uimm5496[11];
   static int8_t uimm5276[11];
+  static int8_t uimm043_21[11];
+  static int8_t uimm53_21[11];
 
 private:
   RiscvPerm() { }

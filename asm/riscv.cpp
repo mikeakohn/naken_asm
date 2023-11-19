@@ -386,20 +386,6 @@ static int get_operands_li64(
     return 8;
   }
     else
-#if 0
-  if (num >= 0 && num <= 2047)
-  {
-    add_bin32(asm_context, opcode_addi | ((num & 0xfff) << 20), IS_OPCODE);
-    return 4;
-  }
-    else
-  if (num >= -2048 && num < 0)
-  {
-    add_bin32(asm_context, opcode_addiw | ((num & 0xfff) << 20), IS_OPCODE);
-    return 4;
-  }
-    else
-#endif
   if (num >= -2048 && num <= 2047)
   {
     add_bin32(asm_context, opcode_addi | ((num & 0xfff) << 20), IS_OPCODE);
@@ -1847,6 +1833,8 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
         case OP_COMP_UIMM53_76:
         case OP_COMP_UIMM548_76:
         case OP_COMP_UIMM53_26:
+        case OP_COMP_HUA_043_21:
+        case OP_COMP_HUA_53_21:
           if (operand_count != 2)
           {
             print_error_opcount(asm_context, instr);
@@ -1886,6 +1874,16 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
           if (table_riscv_comp[n].type == OP_COMP_UIMM53_26)
           {
             immediate = permutate_16(operands[1].offset, RiscvPerm::uimm53_26);
+          }
+            else
+          if (table_riscv_comp[n].type == OP_COMP_HUA_043_21)
+          {
+            immediate = permutate_16(operands[1].offset, RiscvPerm::uimm043_21);
+          }
+            else
+          if (table_riscv_comp[n].type == OP_COMP_HUA_53_21)
+          {
+            immediate = permutate_16(operands[1].offset, RiscvPerm::uimm53_21);
           }
 
           if (immediate == -1)
