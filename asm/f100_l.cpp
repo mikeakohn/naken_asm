@@ -429,7 +429,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
             case OPERAND_DOT_W:
               if (asm_context->pass == 2)
               {
-                if (check_range(asm_context, "Address", operands[0].value, 1, 0x7fff) == -1) { return -1; }
+                if (check_range(asm_context, "Address", operands[0].value, 0, 0x7fff) == -1) { return -1; }
               }
 
               opcode = table_f100_l[n].opcode | 0x0800;
