@@ -342,21 +342,21 @@ static int get_operands_li32(
   }
 }
 
-#if 0
 static int get_operands_li64(
   AsmContext *asm_context,
   struct _operand *operands,
   char *instr,
   char *instr_case)
 {
-  int force_long = asm_context->memory_read(asm_context->address);
+  int32_t num;
 
-  //int64_t num = var.get_int64();
-  int64_t num = operands[1].value;
+  // On pass 1, if data size is unknown have to assume this can't be
+  // done with a single instruction.
+  int force_long = asm_context->memory_read(asm_context->address);
+  num = operands[1].value;
 
   if (force_long)
   {
-    //uint64_t temp = var.get_int64();
     uint64_t temp = num;
     uint64_t mask = temp & 0xffffffff00000000ULL;
 
@@ -367,10 +367,57 @@ static int get_operands_li64(
     }
   }
 
-  print_error_internal(asm_context, __FILE__, __LINE__);
-  return -1;
-}
+  // If data size was unknown on pass 1, force_long.
+  if (asm_context->pass == 2)
+  {
+    force_long = asm_context->memory_read(asm_context->address);
+  }
+
+  // Apply operands to memory.
+  uint32_t opcode_lui  = find_opcode("lui")  | (operands[0].value << 7);
+  //uint32_t opcode_ori  = find_opcode("ori")  | (operands[0].value << 7);
+  uint32_t opcode_addi = find_opcode("addi") | (operands[0].value << 7);
+  uint32_t opcode_addiw = find_opcode("addiw") | (operands[0].value << 7);
+
+  if (force_long == 1)
+  {
+    opcode_addiw |= (operands[0].value << 15);
+    write_long_li(asm_context, num, opcode_lui, opcode_addiw);
+    return 8;
+  }
+    else
+#if 0
+  if (num >= 0 && num <= 2047)
+  {
+    add_bin32(asm_context, opcode_addi | ((num & 0xfff) << 20), IS_OPCODE);
+    return 4;
+  }
+    else
+  if (num >= -2048 && num < 0)
+  {
+    add_bin32(asm_context, opcode_addiw | ((num & 0xfff) << 20), IS_OPCODE);
+    return 4;
+  }
+    else
 #endif
+  if (num >= -2048 && num <= 2047)
+  {
+    add_bin32(asm_context, opcode_addi | ((num & 0xfff) << 20), IS_OPCODE);
+    return 4;
+  }
+    else
+  if ((num & 0x00000fff) == 0)
+  {
+    add_bin32(asm_context, opcode_lui | (num & 0xfffff000), IS_OPCODE);
+    return 4;
+  }
+    else
+  {
+    opcode_addiw |= (operands[0].value << 15);
+    write_long_li(asm_context, num, opcode_lui, opcode_addiw);
+    return 8;
+  }
+}
 
 static int get_operands_li(
   AsmContext *asm_context,
@@ -392,13 +439,11 @@ static int get_operands_li(
     return -1;
   }
 
-#if 0
   if (asm_context->flags == RISCV64)
   {
     return get_operands_li64(asm_context, operands, instr, instr_case);
   }
     else
-#endif
   {
     return get_operands_li32(asm_context, operands, instr, instr_case);
   }
