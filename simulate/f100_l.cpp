@@ -297,6 +297,32 @@ void SimulateF100L::bit_ops(uint16_t opcode)
     {
       if (!cr.get_m())
       {
+        uint32_t data32 = (accum << 16);
+
+        switch (r)
+        {
+          case 2: data32 |= cr.value; break;
+          case 3: data32 |= memory->read16(pc); pc += 2; break;
+          default: data32 |= accum; break;
+        }
+
+        if (j == 0)
+        {
+          data32 = (uint32_t)((int32_t)data32 >> bits);
+        }
+          else
+        {
+          data32 = data32 >> bits;
+        }
+
+        accum = data32 >> 16;
+
+        switch (r)
+        {
+          case 2: cr.value = data32 & 0xffff; break;
+          case 3: memory->write16(pc - 2, data32 & 0xffff); break;
+          default: accum = data32 & 0xffff; break;
+        }
       }
         else
       {
@@ -308,6 +334,23 @@ void SimulateF100L::bit_ops(uint16_t opcode)
     {
       if (!cr.get_m())
       {
+        uint32_t data32 = (accum << 16);
+
+        switch (r)
+        {
+          case 2: data32 |= cr.value; break;
+          case 3: data32 |= memory->read16(pc); pc += 2; break;
+          default: data32 |= accum; break;
+        }
+
+        data32 = data32 << bits;
+
+        switch (r)
+        {
+          case 2: cr.value = data32 & 0xffff; break;
+          case 3: memory->write16(pc - 2, data32 & 0xffff); break;
+          default: accum = data32 & 0xffff; break;
+        }
       }
         else
       {
