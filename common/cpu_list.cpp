@@ -126,6 +126,7 @@
 #include "simulate/8008.h"
 #include "simulate/avr8.h"
 #include "simulate/ebpf.h"
+#include "simulate/f100_l.h"
 #include "simulate/lc3.h"
 #include "simulate/mips.h"
 #include "simulate/msp430.h"
@@ -791,7 +792,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_f100_l,
     disasm_range_f100_l,
-    NULL,
+    SimulateF100L::init,
     NO_FLAGS,
   },
 #endif

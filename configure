@@ -452,6 +452,7 @@ for option in $@; do
   --enable-f100_l)
     ASM_OBJS="${ASM_OBJS} f100_l.o"
     DISASM_OBJS="${DISASM_OBJS} f100_l.o"
+    SIM_OBJS="${SIM_OBJS} f100_l.o"
     TABLE_OBJS="${TABLE_OBJS} f100_l.o"
     DFLAGS="${DFLAGS} -DENABLE_F100_L"
   ;;
