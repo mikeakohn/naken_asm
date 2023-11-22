@@ -121,7 +121,7 @@ int disasm_f100_l(
               else
             {
               immediate = memory->read16(address + 2);
-              snprintf(instruction, length, "%s long 0x%04x",
+              snprintf(instruction, length, "%s 0x%04x",
                 table_f100_l[n].instr,
                 immediate);
 #if 0
@@ -270,7 +270,7 @@ int disasm_f100_l(
             {
               immediate = memory->read16(address + 2);
               jump_address = memory->read16(address + 4);
-              snprintf(instruction, length, "%s long 0x%04x, 0x%04x",
+              snprintf(instruction, length, "%s 0x%04x, 0x%04x",
                 table_f100_l[n].instr,
                 immediate,
                 jump_address);

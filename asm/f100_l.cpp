@@ -207,6 +207,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
     {
       operands[operand_count].force_short = true;
       asm_context->memory_write(asm_context->address, 2);
+      token_type = tokens_get(asm_context, token, TOKENLEN);
     }
 
     if (IS_TOKEN(token, 'a') || IS_TOKEN(token, 'A'))
@@ -351,7 +352,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
     {
       tokens_push(asm_context, token, token_type);
 
-      int ret = get_num(asm_context, num, instr) == -1;
+      int ret = get_num(asm_context, num, instr);
 
       if (ret == -1) { return -1; }
       if (ret == -2)
