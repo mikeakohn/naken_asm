@@ -245,17 +245,26 @@ int SimulateF100L::execute_instruction(uint16_t opcode)
   }
 
   int type = opcode >> 12;
+  int lsp;
 
   switch (type)
   {
     case 0:
       bit_ops(opcode);
+      break;
     case 1:
       // sjm
       pc += accum;
       break;
+    case 3:
+      lsp = memory->read16(0) * 2;
+      pc = memory->read16(lsp + 2) * 2;
+      if (cr.get_m()) { cr.value = memory->read16(lsp + 4); }
+      memory->write16(0, lsp / 2);
+      break;
     default:
       alu(opcode);
+      break;
   };
 
   return 0;
@@ -263,6 +272,114 @@ int SimulateF100L::execute_instruction(uint16_t opcode)
 
 void SimulateF100L::bit_ops(uint16_t opcode)
 {
+  //int t = (opcode >> 10) & 3;
+  int r = (opcode >> 8) & 3;
+  int s = (opcode >> 6) & 3;
+  int j = (opcode >> 4) & 3;
+  int bits = opcode & 0xf;
+  int data;
+  int ea = 0;
+
+  switch (r)
+  {
+    case 1: data = accum; break;
+    case 3:
+      ea = memory->read16(pc);
+      pc += 2;
+      data = memory->read16(ea * 2);
+      break;
+    default: data = accum; break;
+  }
+
+  switch (s)
+  {
+    case 0:
+    {
+      if (!cr.get_m())
+      {
+      }
+        else
+      {
+        shift_right(data, bits, j);
+      }
+      break;
+    }
+    case 1:
+    {
+      if (!cr.get_m())
+      {
+      }
+        else
+      {
+        shift_left(data, bits, j);
+      }
+      break;
+    }
+#if 0
+    case 2:
+    {
+      break;
+    }
+#endif
+    case 3:
+    {
+      if (j == 3)
+      {
+        data &= 0xffff ^ (1 << bits);
+      }
+        else
+      if (j == 2)
+      {
+        data |= 1 << bits;
+      }
+      break;
+    }
+  }
+
+  switch (r)
+  {
+    case 1: cr.value = data; break;
+    case 3: memory->write16(ea * 2, data); break;
+    default: accum = data; break;
+  }
+}
+
+void SimulateF100L::shift_right(int &data, int bits, int j)
+{
+  switch (j)
+  {
+    case 2:
+      data = data >> bits;
+      break;
+    case 3:
+      for (int n = 0; n < bits; n++)
+      {
+        int c = data & 1;
+        data = (c << 15) | (data >> 1);
+      }
+    default:
+      data = (int16_t)data >> bits;
+      break;
+  }
+}
+
+void SimulateF100L::shift_left(int &data, int bits, int j)
+{
+  switch (j)
+  {
+    case 2:
+      data = data << bits;
+      break;
+    case 3:
+      for (int n = 0; n < bits; n++)
+      {
+        int c = (data & 0x8000) != 0 ? 1 : 0;
+        data = (data << 1) | c;
+      }
+    default:
+      data = data << bits;
+      break;
+  }
 }
 
 void SimulateF100L::alu(uint16_t opcode)

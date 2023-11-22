@@ -36,6 +36,8 @@ private:
   int get_pc() { return pc / 2; }
   int execute_instruction(uint16_t opcode);
   void bit_ops(uint16_t opcode);
+  void shift_right(int &data, int bits, int j);
+  void shift_left(int &data, int bits, int j);
   void alu(uint16_t opcode);
 
   uint16_t pc;
