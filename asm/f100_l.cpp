@@ -25,12 +25,11 @@
 
 enum
 {
-  OPERAND_NUMBER,
+  OPERAND_ADDRESS,
   OPERAND_IMMEDIATE,
   OPERAND_SLASH_P,
   OPERAND_SLASH_P_PLUS,
   OPERAND_SLASH_P_MINUS,
-  OPERAND_DOT_W,
   OPERAND_A,
   OPERAND_CR,
   OPERAND_I,
@@ -46,6 +45,8 @@ struct _operand
 {
   int value;
   int type;
+  bool force_short;
+  bool force_long;
 };
 
 int get_num(AsmContext *asm_context, int &num, const char *instr)
@@ -56,6 +57,7 @@ int get_num(AsmContext *asm_context, int &num, const char *instr)
     {
       ignore_operand(asm_context);
       num = 0;
+      return -2;
     }
       else
     {
@@ -151,6 +153,26 @@ void check_alias(char *instr_case, _operand *operands, int &operand_count)
   }
 }
 
+static int check_address(AsmContext *asm_context, _operand *operand)
+{
+  if (operand->force_short)
+  {
+    if (check_range(asm_context, "Address", operand->value, 1, 0x7ff) == -1)
+    {
+      return -1;
+    }
+  }
+    else
+  {
+    if (check_range(asm_context, "Address", operand->value, 0, 0x7fff) == -1)
+    {
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
 int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
@@ -179,6 +201,12 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
     {
       print_error_unexp(asm_context, token);
       return -1;
+    }
+
+    if (strcasecmp(token, "short") == 0)
+    {
+      operands[operand_count].force_short = true;
+      asm_context->memory_write(asm_context->address, 2);
     }
 
     if (IS_TOKEN(token, 'a') || IS_TOKEN(token, 'A'))
@@ -281,8 +309,10 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
     if (IS_TOKEN(token, '.') || strcasecmp(token, "long") == 0)
     {
       if (get_num(asm_context, num, instr) == -1) { return -1; }
-      operands[operand_count].type = OPERAND_DOT_W;
+      operands[operand_count].type = OPERAND_ADDRESS;
       operands[operand_count].value = num;
+      operands[operand_count].force_long = true;
+      asm_context->memory_write(asm_context->address, 1);
     }
       else
     if (IS_TOKEN(token, '/'))
@@ -321,9 +351,24 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
     {
       tokens_push(asm_context, token, token_type);
 
-      if (get_num(asm_context, num, instr) == -1) { return -1; }
-      operands[operand_count].type = OPERAND_NUMBER;
+      int ret = get_num(asm_context, num, instr) == -1;
+
+      if (ret == -1) { return -1; }
+      if (ret == -2)
+      {
+        if (!operands[operand_count].force_short)
+        {
+          asm_context->memory_write(asm_context->address, 1);
+        }
+      }
+
+      operands[operand_count].type = OPERAND_ADDRESS;
       operands[operand_count].value = num;
+
+      int i = asm_context->memory_read(asm_context->address);
+
+      if (i == 1) { operands[operand_count].force_long = true; }
+      if (i == 2) { operands[operand_count].force_short = true; }
     }
 
     operand_count++;
@@ -376,16 +421,32 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
 
           switch (operands[0].type)
           {
-            case OPERAND_NUMBER:
+            case OPERAND_ADDRESS:
               if (asm_context->pass == 2)
               {
-                if (check_range(asm_context, "Address", operands[0].value, 1, 0x7ff) == -1) { return -1; }
+                if (check_address(asm_context, &operands[0]) == -1)
+                {
+                  return -1;
+                }
               }
 
-              opcode = table_f100_l[n].opcode | (operands[0].value & 0x7ff);
+              if (operands[0].force_long ||
+                  operands[0].value < 0 ||
+                  operands[0].value > 0x7ff)
+              {
+                opcode = table_f100_l[n].opcode | 0x0800;
 
-              add_bin16(asm_context, opcode, IS_OPCODE);
-              return 2;
+                add_bin16(asm_context, opcode, IS_OPCODE);
+                add_bin16(asm_context, operands[0].value, IS_OPCODE);
+                return 4;
+              }
+                else
+              {
+                opcode = table_f100_l[n].opcode | (operands[0].value & 0x7ff);
+
+                add_bin16(asm_context, opcode, IS_OPCODE);
+                return 2;
+              }
             case OPERAND_IMMEDIATE:
               if (strcasecmp(instr_case, "jmp") == 0)
               {
@@ -426,17 +487,6 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
               opcode = table_f100_l[n].opcode | 0x0b00 | operands[0].value;
               add_bin16(asm_context, opcode, IS_OPCODE);
               return 2;
-            case OPERAND_DOT_W:
-              if (asm_context->pass == 2)
-              {
-                if (check_range(asm_context, "Address", operands[0].value, 0, 0x7fff) == -1) { return -1; }
-              }
-
-              opcode = table_f100_l[n].opcode | 0x0800;
-
-              add_bin16(asm_context, opcode, IS_OPCODE);
-              add_bin16(asm_context, operands[0].value, IS_OPCODE);
-              return 4;
             default:
               print_error_illegal_operands(asm_context, instr);
               return -1;
@@ -469,7 +519,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
               opcode = table_f100_l[n].opcode | 0x0100 | operands[0].value;
               add_bin16(asm_context, opcode, IS_OPCODE);
               return 2;
-            case OPERAND_NUMBER:
+            case OPERAND_ADDRESS:
               if (check_range(asm_context, "Address", operands[1].value, 1, 0x7fff) == -1) { return -1; }
               opcode = table_f100_l[n].opcode | 0x0300 | operands[0].value;
 
@@ -487,12 +537,12 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
 
           if (operand_count == 1)
           {
-            if (operands[0].type != OPERAND_NUMBER)
+            if (operands[0].type != OPERAND_IMMEDIATE)
             {
               print_error_illegal_operands(asm_context, instr);
             }
 
-            if (check_range(asm_context, "halt_number", operands[0].value, 0, 1024) == -1) { return -1; }
+            if (check_range(asm_context, "Immediate", operands[0].value, 0, 1024) == -1) { return -1; }
             opcode |= operands[0].value;
           }
             else
@@ -510,7 +560,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
         }
         case OP_INC:
         {
-          if (operand_count != 2 || operands[1].type != OPERAND_NUMBER)
+          if (operand_count != 2 || operands[1].type != OPERAND_ADDRESS)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
@@ -523,17 +573,34 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
 
           switch (operands[0].type)
           {
-            case OPERAND_NUMBER:
+            case OPERAND_ADDRESS:
               if (asm_context->pass == 2)
               {
-                if (check_range(asm_context, "Address", operands[0].value, 1, 0x7ff) == -1) { return -1; }
+                if (check_address(asm_context, &operands[0]) == -1)
+                {
+                  return -1;
+                }
               }
 
-              opcode = table_f100_l[n].opcode | (operands[0].value & 0x7ff);
+              if (operands[0].force_long ||
+                  operands[0].value < 0 ||
+                  operands[0].value > 0x7ff)
+              {
+                opcode = table_f100_l[n].opcode | 0x0800;
 
-              add_bin16(asm_context, opcode, IS_OPCODE);
-              add_bin16(asm_context, operands[1].value, IS_OPCODE);
-              return 4;
+                add_bin16(asm_context, opcode, IS_OPCODE);
+                add_bin16(asm_context, operands[0].value, IS_OPCODE);
+                add_bin16(asm_context, operands[1].value, IS_OPCODE);
+                return 6;
+              }
+                else
+              {
+                opcode = table_f100_l[n].opcode | (operands[0].value & 0x7ff);
+
+                add_bin16(asm_context, opcode, IS_OPCODE);
+                add_bin16(asm_context, operands[1].value, IS_OPCODE);
+                return 4;
+              }
             case OPERAND_IMMEDIATE:
               if (check_range(asm_context, "Immediate", operands[0].value, -32768, 0xffff) == -1) { return -1; }
               opcode = table_f100_l[n].opcode;
@@ -572,18 +639,6 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
               add_bin16(asm_context, opcode, IS_OPCODE);
               add_bin16(asm_context, operands[1].value, IS_OPCODE);
               return 4;
-            case OPERAND_DOT_W:
-              if (asm_context->pass == 2)
-              {
-                if (check_range(asm_context, "Address", operands[0].value, 1, 0x7fff) == -1) { return -1; }
-              }
-
-              opcode = table_f100_l[n].opcode | 0x0800;
-
-              add_bin16(asm_context, opcode, IS_OPCODE);
-              add_bin16(asm_context, operands[0].value, IS_OPCODE);
-              add_bin16(asm_context, operands[1].value, IS_OPCODE);
-              return 6;
             default:
               print_error_illegal_operands(asm_context, instr);
               return -1;
@@ -594,7 +649,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
         case OP_COND_JMP:
         {
           if (operand_count != 3 ||
-              operands[2].type != OPERAND_NUMBER)
+              operands[2].type != OPERAND_ADDRESS)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
@@ -624,10 +679,10 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
               add_bin16(asm_context, opcode, IS_OPCODE);
               add_bin16(asm_context, operands[2].value, IS_OPCODE);
               return 4;
-            case OPERAND_NUMBER:
+            case OPERAND_ADDRESS:
               if (asm_context->pass == 2)
               {
-                if (check_range(asm_context, "Address", operands[1].value, 1, 0x7fff) == -1) { return -1; }
+                if (check_range(asm_context, "Address", operands[1].value, 0, 0x7fff) == -1) { return -1; }
               }
               opcode = table_f100_l[n].opcode | 0x0300 | operands[0].value;
               add_bin16(asm_context, opcode, IS_OPCODE);
@@ -659,10 +714,10 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
               opcode = table_f100_l[n].opcode | 0x0100 | operands[0].value;
               add_bin16(asm_context, opcode, IS_OPCODE);
               return 2;
-            case OPERAND_NUMBER:
+            case OPERAND_ADDRESS:
               if (asm_context->pass == 2)
               {
-                if (check_range(asm_context, "Address", operands[1].value, 1, 0x7fff) == -1) { return -1; }
+                if (check_range(asm_context, "Address", operands[1].value, 0, 0x7fff) == -1) { return -1; }
               }
               opcode = table_f100_l[n].opcode | 0x0300 | operands[0].value;
               add_bin16(asm_context, opcode, IS_OPCODE);
@@ -693,10 +748,10 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
               opcode = table_f100_l[n].opcode | 0x0100 | operands[0].value;
               add_bin16(asm_context, opcode, IS_OPCODE);
               return 2;
-            case OPERAND_NUMBER:
+            case OPERAND_ADDRESS:
               if (asm_context->pass == 2)
               {
-                if (check_range(asm_context, "Address", operands[1].value, 1, 0x7fff) == -1) { return -1; }
+                if (check_range(asm_context, "Address", operands[1].value, 0, 0x7fff) == -1) { return -1; }
               }
               opcode = table_f100_l[n].opcode | 0x0300 | operands[0].value;
               add_bin16(asm_context, opcode, IS_OPCODE);
