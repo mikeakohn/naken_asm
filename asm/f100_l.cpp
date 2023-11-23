@@ -432,7 +432,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
               }
 
               if (operands[0].force_long ||
-                  operands[0].value < 0 ||
+                  operands[0].value < 1 ||
                   operands[0].value > 0x7ff)
               {
                 opcode = table_f100_l[n].opcode | 0x0800;
@@ -584,7 +584,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
               }
 
               if (operands[0].force_long ||
-                  operands[0].value < 0 ||
+                  operands[0].value < 1 ||
                   operands[0].value > 0x7ff)
               {
                 opcode = table_f100_l[n].opcode | 0x0800;
