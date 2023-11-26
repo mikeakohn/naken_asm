@@ -106,7 +106,8 @@ int disasm_riscv(
 
   opcode = memory->read32(address);
 
-  if ((opcode & 3) != 3 || (address & 3) != 0)
+  //if ((opcode & 3) != 3 || (address & 3) != 0)
+  if ((opcode & 3) != 3)
   {
     return disasm_riscv_comp(
       memory,

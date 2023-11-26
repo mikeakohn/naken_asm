@@ -795,11 +795,13 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
     {
       matched = 1;
 
+#if 0
       if ((asm_context->address % 4) != 0)
       {
         print_error_align(asm_context, 4);
         return -1;
       }
+#endif
 
       // If aq or rl was set, make sure it was only done on the
       // right instructions.
