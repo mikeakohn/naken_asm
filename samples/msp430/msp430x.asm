@@ -67,18 +67,8 @@ something:
   pushm.w #4, r8
   popm.a #4, r8
 
-  rpt #5
-  addx.w r8, r6
-
-  rptc r7
-  addx.w #1, r6
-
-  rptz #5
-  rrcx.w r8
-
-  rpt #13
-  addx.a r8, r8
-
-
-
+  rpt #5, addx.w r8, r6
+  rptc r7, addx.w #1, r6
+  rptz #5, rrcx.w r8
+  rpt #13, addx.a r8, r8
 
