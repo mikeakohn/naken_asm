@@ -737,7 +737,8 @@ int parse_instruction_msp430(AsmContext *asm_context, char *instr)
 
       if (prefix != 0)
       {
-        if (table_msp430[n].version == VERSION_MSP430X_EXT)
+        if (table_msp430[n].version == VERSION_MSP430X_EXT &&
+            (prefix & 0xfe00) != 0x1800)
         {
           print_error(asm_context, "Instruction doesn't support RPT");
           return -1;
