@@ -79,6 +79,8 @@ enum
   // Huawei.
   OP_COMP_HUA_043_21,
   OP_COMP_HUA_53_21,
+  // Privileged instructions.
+  OP_RS1,
 };
 
 #define RISCV64  0x01

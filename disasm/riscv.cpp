@@ -384,6 +384,9 @@ int disasm_riscv(
             simmediate,
             immediate);
           break;
+        case OP_RS1:
+          snprintf(instruction, length, "%s %s", instr, riscv_reg_names[rs1]);
+          break;
         default:
           strcpy(instruction, "???");
           break;

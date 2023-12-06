@@ -277,6 +277,13 @@ struct _table_riscv table_riscv[] =
   { "fcvt.d.l",   0xd2200053, 0xfff0007f, OP_FP_R_RM,     0 },
   { "fcvt.d.lu",  0xd2300053, 0xfff0007f, OP_FP_R_RM,     0 },
   { "fmv.d.x",    0xf2000053, 0xfff0707f, OP_FP_R,        0 },
+  // Privileged Instructions?
+  { "uret",       0x00200073, 0xffffffff, OP_NONE,        0 },
+  { "sret",       0x10200073, 0xffffffff, OP_NONE,        0 },
+  { "hret",       0x20200073, 0xffffffff, OP_NONE,        0 },
+  { "mret",       0x30200073, 0xffffffff, OP_NONE,        0 },
+  { "wfi",        0x10500073, 0xffffffff, OP_NONE,        0 },
+  { "sfence.vm",  0x10400073, 0xfff07fff, OP_RS1,         0 },
   { NULL,                  0,          0, 0,              0 }
 };
 
