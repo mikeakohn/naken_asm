@@ -373,13 +373,13 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
       else
     if (As == 3)
     {
-      return (bw == 0) ? 0xffff : 0xff;
+      return (bw == BW_WORD) ? 0xffff : 0xff;
     }
   }
 
   if (As == 0) // Rn
   {
-    return (bw == 0) ? reg[reg_index] : reg[reg_index] & 0xff;
+    return (bw == BW_WORD) ? reg[reg_index] : reg[reg_index] & 0xff;
   }
 
   if (reg_index == 2)
@@ -391,7 +391,7 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
 
       reg[0] += 2;
 
-      if (bw == 0)
+      if (bw == BW_WORD)
       {
         return READ_RAM(a) | (READ_RAM(a+1) << 8);
       }
@@ -421,7 +421,7 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
 
       reg[0] += 2;
 
-      return (bw == 0) ? a : a & 0xff;
+      return (bw == BW_WORD) ? a : a & 0xff;
     }
   }
 
@@ -432,7 +432,7 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
 
     reg[0] += 2;
 
-    if (bw == 0)
+    if (bw == BW_WORD)
     {
       return READ_RAM(index) | (READ_RAM(index+1) << 8);
     }
@@ -446,7 +446,7 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
   {
     uint16_t index = reg[reg_index];
 
-    if (bw == 0)
+    if (bw == BW_WORD)
     {
       return READ_RAM(index) | (READ_RAM(index + 1) << 8);
     }
@@ -469,7 +469,7 @@ void SimulateMsp430::update_reg(int reg_index, int mode, int bw)
 
   if (mode == 3) // @Rn+
   {
-    if (bw == 0)
+    if (bw == BW_WORD)
     {
       reg[reg_index] += 2;
     }
@@ -489,7 +489,7 @@ int SimulateMsp430::put_data(
 {
   if (mode == 0) // Rn
   {
-    if (bw == 0)
+    if (bw == BW_WORD)
     {
       reg[reg_index] = data;
     }
@@ -506,7 +506,7 @@ int SimulateMsp430::put_data(
     {
       uint16_t a = READ_RAM(PC) | (READ_RAM(PC+1) << 8);
 
-      if (bw == 0)
+      if (bw == BW_WORD)
       {
         WRITE_RAM(a, data & 0xff);
         WRITE_RAM(a + 1, data >> 8);
@@ -524,7 +524,7 @@ int SimulateMsp430::put_data(
     {
       uint16_t a = READ_RAM(PC) | (READ_RAM(PC + 1) << 8);
 
-      if (bw == 0)
+      if (bw == BW_WORD)
       {
         WRITE_RAM(PC + a, data & 0xff);
         WRITE_RAM(PC + a + 1, data >> 8);
@@ -543,7 +543,7 @@ int SimulateMsp430::put_data(
     uint16_t a = READ_RAM(PC) | (READ_RAM(PC + 1) << 8);
     int address = reg[reg_index] + ((int16_t)a);
 
-    if (bw == 0)
+    if (bw == BW_WORD)
     {
       WRITE_RAM(address, data & 0xff);
       WRITE_RAM(address + 1, data >> 8);
@@ -560,7 +560,7 @@ int SimulateMsp430::put_data(
   {
     uint16_t index = reg[reg_index];
 
-    if (bw == 0)
+    if (bw == BW_WORD)
     {
       WRITE_RAM(index, data & 0xff);
       WRITE_RAM(index + 1, data >> 8);
@@ -605,7 +605,7 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
       src = get_data(reg_index, As, bw);
       int c = get_c();
       if ((src & 1) == 1) { set_c(); } else { clear_c(); }
-      if (bw == 0)
+      if (bw == BW_WORD)
       { result = (c << 15) | (((uint16_t)src) >> 1); }
         else
       { result = (c << 7) | (((uint8_t)src) >> 1); }
@@ -629,7 +629,7 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
       pc = reg[0];
       src = get_data(reg_index, As, bw);
       if ((src & 1) == 1) { set_c(); } else { clear_c(); }
-      if (bw == 0)
+      if (bw == BW_WORD)
       { result = ((int16_t)src) >> 1; }
         else
       { result = ((int8_t)src) >> 1; }
@@ -767,6 +767,11 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       update_reg(src_reg, As, bw);
       pc = reg[0];
       dst = get_data(dst_reg, Ad, bw);
+      if (bw == BW_BYTE)
+      {
+        dst = dst & 0xff;
+        src = src & 0xff;
+      }
       result = (uint16_t)dst + (uint16_t)src;
       update_v(dst, src, result, bw);
       dst = result & 0xffff;
@@ -779,6 +784,11 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       update_reg(src_reg, As, bw);
       pc = reg[0];
       dst = get_data(dst_reg, Ad, bw);
+      if (bw == BW_BYTE)
+      {
+        dst = dst & 0xff;
+        src = src & 0xff;
+      }
       result = (uint16_t)dst + (uint16_t)src + get_c();
       update_v(dst, src, result, bw);
       dst = result & 0xffff;
@@ -791,10 +801,13 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       update_reg(src_reg, As, bw);
       pc = reg[0];
       dst = get_data(dst_reg, Ad, bw);
-      //src =~ ((uint16_t)src)+1;
       src = ((~((uint16_t)src)) & 0xffff);
-      //result = (uint16_t)dst + (uint16_t)src + get_c();
       // FIXME - Added get_c().  Test it.
+      if (bw == BW_BYTE)
+      {
+        dst = dst & 0xff;
+        src = src & 0xff;
+      }
       result = dst + src + get_c();
       update_v(dst, src, result, bw);
       dst = result & 0xffff;
@@ -808,6 +821,11 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       pc = reg[0];
       dst = get_data(dst_reg, Ad, bw);
       src = ((~((uint16_t)src)) & 0xffff) + 1;
+      if (bw == BW_BYTE)
+      {
+        dst = dst & 0xff;
+        src = src & 0xff;
+      }
       result = dst + src;
       update_v(dst, src, result, bw);
       dst = result & 0xffff;
@@ -821,11 +839,14 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       pc = reg[0];
       dst = get_data(dst_reg, Ad, bw);
       src = ((~((uint16_t)src)) & 0xffff) + 1;
-      //result = (uint16_t)dst + (uint16_t)src;
+      if (bw == BW_BYTE)
+      {
+        dst = dst & 0xff;
+        src = src & 0xff;
+      }
       result = dst + src;
       update_v(dst, src, result, bw);
       dst = result & 0xffff;
-      //put_data(pc, dst_reg, Ad, bw, dst);
       update_nz(dst, bw);
       update_c(result, bw);
       break;
@@ -835,7 +856,7 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       pc = reg[0];
       dst = get_data(dst_reg, Ad, bw);
       result = src + dst + get_c();
-      if (bw == 0)
+      if (bw == BW_WORD)
       {
         int a;
         a = (src & 0xf) + (dst & 0xf) + get_c();

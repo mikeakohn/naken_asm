@@ -57,6 +57,12 @@ private:
     FLAG_C      = 0x01
   };
 
+  enum Bw
+  {
+    BW_WORD = 0,
+    BW_BYTE = 1
+  };
+
 #if 0
   void set_flag(Flag flag)
   {
@@ -101,21 +107,21 @@ private:
 
   void update_nz(int value, int bw)
   {
-    if (bw == 0)
+    if (bw == BW_WORD)
     {
       if (value & 0x8000) { set_n(); } else { clear_n(); }
+      if ((value & 0xffff) == 0) { set_z(); } else { clear_z(); }
     }
       else
     {
       if (value & 0x80) { set_n(); } else { clear_n(); }
+      if ((value & 0xff) == 0) { set_z(); } else { clear_z(); }
     }
-
-    if (value == 0) { set_z(); } else { clear_z(); }
   }
 
   void update_c(int value, int bw)
   {
-    if (bw == 0)
+    if (bw == BW_WORD)
     {
       if ((value & 0xffff0000) == 0) { clear_c(); } else { set_c(); }
     }
@@ -127,7 +133,7 @@ private:
 
   void update_v(int dst, int src, int result, int bw)
   {
-    if (bw == 0)
+    if (bw == BW_WORD)
     {
       uint16_t d = ((uint16_t)dst) & 0x8000;
       uint16_t s = ((uint16_t)src) & 0x8000;
@@ -148,7 +154,7 @@ private:
 #if 0
   void update_z(int result, int bw)
   {
-    if (bw == 0)
+    if (bw == BW_WORD)
     {
       if (result & 0x8000) { set_n(); } else { clear_n(); }
     }
