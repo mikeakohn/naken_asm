@@ -18,13 +18,6 @@
 #include "disasm/msp430.h"
 #include "simulate/msp430.h"
 
-/*
-
-        8   7     6     5       4   3 2 1 0
-Status: V SCG1 SCG0 OSCOFF CPUOFF GIE N Z C
-
-*/
-
 #define SHOW_STACK sp, memory->read8(sp + 1), memory->read8(sp)
 #define READ_RAM(a) memory->read8(a)
 #define WRITE_RAM(a,b) \
@@ -34,88 +27,7 @@ Status: V SCG1 SCG0 OSCOFF CPUOFF GIE N Z C
   } \
   memory->write8(a, b);
 
-#define GET_V()      ((reg[2] >>  8) & 1)
-#define GET_SCG1()   ((reg[2] >> 7) & 1)
-#define GET_SCG0()   ((reg[2] >> 6) & 1)
-#define GET_OSCOFF() ((reg[2] >> 5) & 1)
-#define GET_CPUOFF() ((reg[2] >> 4) & 1)
-#define GET_GIE()    ((reg[2] >> 3) & 1)
-#define GET_N()      ((reg[2] >> 2) & 1)
-#define GET_Z()      ((reg[2] >> 1) & 1)
-#define GET_C()      ((reg[2]) & 1)
-
-#define SET_V()      reg[2] |= 256;
-#define SET_SCG1()   reg[2] |= 128;
-#define SET_SCG0()   reg[2] |= 64;
-#define SET_OSCOFF() reg[2] |= 32;
-#define SET_CPUOFF() reg[2] |= 16;
-#define SET_GIE()    reg[2] |= 8;
-#define SET_N()      reg[2] |= 4;
-#define SET_Z()      reg[2] |= 2;
-#define SET_C()      reg[2] |= 1;
-
-#define CLEAR_V()      reg[2] &= (0xffff^256);
-#define CLEAR_SCG1()   reg[2] &= (0xffff^128);
-#define CLEAR_SCG0()   reg[2] &= (0xffff^64);
-#define CLEAR_OSCOFF() reg[2] &= (0xffff^32);
-#define CLEAR_CPUOFF() reg[2] &= (0xffff^16);
-#define CLEAR_GIE()    reg[2] &= (0xffff^8);
-#define CLEAR_N()      reg[2] &= (0xffff^4);
-#define CLEAR_Z()      reg[2] &= (0xffff^2);
-#define CLEAR_C()      reg[2] &= (0xffff^1);
-
-#define AFFECTS_NZ(a) \
-  if (bw == 0) \
-  { \
-    if (a & 0x8000) { SET_N(); } else { CLEAR_N(); } \
-  } \
-    else \
-  { \
-    if (a & 0x80) { SET_N(); } else { CLEAR_N(); } \
-  } \
-  if (a == 0) { SET_Z(); } else { CLEAR_Z(); }
-
-#define CHECK_CARRY(a) \
-  if (bw == 0) \
-  { \
-    if ((a & 0xffff0000) == 0) { CLEAR_C(); } else { SET_C(); } \
-  } \
-    else \
-  { \
-    if ((a & 0xffffff00) == 0) { CLEAR_C(); } else { SET_C(); } \
-  }
-
-#define CHECK_OVERFLOW() \
-  if (bw == 0) \
-  { \
-    if (((((uint16_t)dst) & 0x8000) == (((uint16_t)src) & 0x8000)) && (((((uint16_t)result) & 0x8000)) != (((uint16_t)dst) & 0x8000))) { SET_V(); } else { CLEAR_V(); } \
-  } \
-    else \
-  { \
-    if (((((uint8_t)dst) & 0x80) == (((uint8_t)src) & 0x80)) && (((((uint8_t)result) & 0x80))!=(((uint8_t)dst) & 0x80))) { SET_V(); } else { CLEAR_V(); } \
-  }
-
-#define CHECK_OVERFLOW_WITH_C() \
-  if (bw==0) \
-  { \
-    if ((((int32_t)dst + (int32_t)src + GET_C()) & 0xffff0000) != 0) { SET_V(); } else { CLEAR_V(); } \
-  } \
-    else \
-  { \
-    if ((((int32_t)dst + (int32_t)src + GET_C()) & 0xffffff00) != 0) { SET_V(); } else { CLEAR_V(); } \
-  }
-
-#define CHECK_Z() \
-  if (bw == 0) \
-  { \
-    if (result & 0x8000) { SET_N(); } else { CLEAR_N(); } \
-  } \
-    else \
-  { \
-    if (result & 0x80) { SET_N(); } else { CLEAR_N(); } \
-  }
-
-static const char *flags[] =
+const char *SimulateMsp430::flags[] =
 {
   "C",
   "Z",
@@ -691,16 +603,16 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
     {
       pc = reg[0];
       src = get_data(reg_index, As, bw);
-      int c = GET_C();
-      if ((src & 1) == 1) { SET_C(); } else { CLEAR_C(); }
+      int c = get_c();
+      if ((src & 1) == 1) { set_c(); } else { clear_c(); }
       if (bw == 0)
       { result = (c << 15) | (((uint16_t)src) >> 1); }
         else
       { result = (c << 7) | (((uint8_t)src) >> 1); }
       put_data(pc, reg_index, As, bw, result);
       update_reg(reg_index, As, bw);
-      AFFECTS_NZ(result);
-      CLEAR_V();
+      update_nz(result, bw);
+      clear_v();
       break;
     }
     case 1:  // SWPB (no bw)
@@ -716,15 +628,15 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
     {
       pc = reg[0];
       src = get_data(reg_index, As, bw);
-      if ((src & 1) == 1) { SET_C(); } else { CLEAR_C(); }
+      if ((src & 1) == 1) { set_c(); } else { clear_c(); }
       if (bw == 0)
       { result = ((int16_t)src) >> 1; }
         else
       { result = ((int8_t)src) >> 1; }
       put_data(pc, reg_index, As, bw, result);
       update_reg(reg_index, As, bw);
-      AFFECTS_NZ(result);
-      CLEAR_V();
+      update_nz(result, bw);
+      clear_v();
       break;
     }
     case 3:  // SXT (no bw)
@@ -734,9 +646,9 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
       result = (int16_t)((int8_t)((uint8_t)src));
       put_data(pc, reg_index, As, bw, result);
       update_reg(reg_index, As, bw);
-      AFFECTS_NZ(result);
-      CHECK_CARRY(result);
-      CLEAR_V();
+      update_nz(result, bw);
+      update_c(result, bw);
+      clear_v();
       break;
     }
     case 4:  // PUSH
@@ -789,25 +701,25 @@ int SimulateMsp430::relative_jump_exe(uint16_t opcode)
   switch (o)
   {
     case 0:  // JNE/JNZ  Z==0
-      if (GET_Z() == 0) { reg[0] += offset; }
+      if (get_z() == 0) { reg[0] += offset; }
       break;
     case 1:  // JEQ/JZ   Z==1
-      if (GET_Z() == 1) { reg[0] += offset; }
+      if (get_z() == 1) { reg[0] += offset; }
       break;
     case 2:  // JNC/JLO  C==0
-      if (GET_C() == 0) { reg[0] += offset; }
+      if (get_c() == 0) { reg[0] += offset; }
       break;
     case 3:  // JC/JHS   C==1
-      if (GET_C() == 1) { reg[0] += offset; }
+      if (get_c() == 1) { reg[0] += offset; }
       break;
     case 4:  // JN       N==1
-      if (GET_N() == 1) { reg[0] += offset; }
+      if (get_n() == 1) { reg[0] += offset; }
       break;
     case 5:  // JGE      (N^V)==0
-      if ((GET_N() ^ GET_V()) == 0) { reg[0] += offset; }
+      if ((get_n() ^ get_v()) == 0) { reg[0] += offset; }
       break;
     case 6:  // JL       (N^V)==1
-      if ((GET_N() ^ GET_V()) == 1) { reg[0] += offset; }
+      if ((get_n() ^ get_v()) == 1) { reg[0] += offset; }
       break;
     case 7:  // JMP
       reg[0] += offset;
@@ -856,24 +768,23 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       pc = reg[0];
       dst = get_data(dst_reg, Ad, bw);
       result = (uint16_t)dst + (uint16_t)src;
-      CHECK_OVERFLOW();
+      update_v(dst, src, result, bw);
       dst = result & 0xffff;
       put_data(pc, dst_reg, Ad, bw, dst);
-      AFFECTS_NZ(dst);
-      CHECK_CARRY(result);
+      update_nz(dst, bw);
+      update_c(result, bw);
       break;
     case 6:  // ADDC
       src = get_data(src_reg, As, bw);
       update_reg(src_reg, As, bw);
       pc = reg[0];
       dst = get_data(dst_reg, Ad, bw);
-      result = (uint16_t)dst + (uint16_t)src + GET_C();
-      //CHECK_OVERFLOW_WITH_C();
-      CHECK_OVERFLOW();
+      result = (uint16_t)dst + (uint16_t)src + get_c();
+      update_v(dst, src, result, bw);
       dst = result & 0xffff;
       put_data(pc, dst_reg, Ad, bw, dst);
-      AFFECTS_NZ(dst);
-      CHECK_CARRY(result)
+      update_nz(dst, bw);
+      update_c(result, bw);
       break;
     case 7:  // SUBC
       src = get_data(src_reg, As, bw);
@@ -882,15 +793,14 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       dst = get_data(dst_reg, Ad, bw);
       //src =~ ((uint16_t)src)+1;
       src = ((~((uint16_t)src)) & 0xffff);
-      //result = (uint16_t)dst + (uint16_t)src + GET_C();
-      // FIXME - Added GET_C().  Test it.
-      result = dst + src + GET_C();
-      //CHECK_OVERFLOW_WITH_C();
-      CHECK_OVERFLOW();
+      //result = (uint16_t)dst + (uint16_t)src + get_c();
+      // FIXME - Added get_c().  Test it.
+      result = dst + src + get_c();
+      update_v(dst, src, result, bw);
       dst = result & 0xffff;
       put_data(pc, dst_reg, Ad, bw, dst);
-      AFFECTS_NZ(dst);
-      CHECK_CARRY(result)
+      update_nz(dst, bw);
+      update_c(result, bw);
       break;
     case 8:  // SUB
       src = get_data(src_reg, As, bw);
@@ -899,11 +809,11 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       dst = get_data(dst_reg, Ad, bw);
       src = ((~((uint16_t)src)) & 0xffff) + 1;
       result = dst + src;
-      CHECK_OVERFLOW();
+      update_v(dst, src, result, bw);
       dst = result & 0xffff;
       put_data(pc, dst_reg, Ad, bw, dst);
-      AFFECTS_NZ(dst);
-      CHECK_CARRY(result)
+      update_nz(dst, bw);
+      update_c(result, bw);
       break;
     case 9:  // CMP
       src = get_data(src_reg, As, bw);
@@ -913,38 +823,38 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       src = ((~((uint16_t)src)) & 0xffff) + 1;
       //result = (uint16_t)dst + (uint16_t)src;
       result = dst + src;
-      CHECK_OVERFLOW();
+      update_v(dst, src, result, bw);
       dst = result & 0xffff;
       //put_data(pc, dst_reg, Ad, bw, dst);
-      AFFECTS_NZ(dst);
-      CHECK_CARRY(result)
+      update_nz(dst, bw);
+      update_c(result, bw);
       break;
     case 10: // DADD
       src = get_data(src_reg, As, bw);
       update_reg(src_reg, As, bw);
       pc = reg[0];
       dst = get_data(dst_reg, Ad, bw);
-      result = src + dst + GET_C();
+      result = src + dst + get_c();
       if (bw == 0)
       {
         int a;
-        a = (src & 0xf) + (dst & 0xf) + GET_C();
+        a = (src & 0xf) + (dst & 0xf) + get_c();
         a = ((((src >>  4) & 0xf) + ((dst >>  4) & 0xf) + ((a >> 0)/10)) <<  4) | (((a >> 0) % 10)<<0);
         a = ((((src >>  8) & 0xf) + ((dst >>  8) & 0xf) + ((a >> 4)/10)) <<  8) | (((a >> 4) % 10)<<4) | (a & 0xf);
         a = ((((src >> 12) & 0xf) + ((dst >> 12) & 0xf) + ((a >> 8)/10)) << 12) | (((a >> 8) % 10)<<8) | (a & 0xff);
-        if( (a>>12) >= 10 ) { a = (((a >> 12) % 10)<<12) | (a&0xfff); SET_C(); } else { CLEAR_C(); }
+        if( (a>>12) >= 10 ) { a = (((a >> 12) % 10)<<12) | (a&0xfff); set_c(); } else { clear_c(); }
         result = a;
       }
         else
       {
         int a;
-        a = (src & 0xf) + (dst & 0xf) + GET_C();
+        a = (src & 0xf) + (dst & 0xf) + get_c();
         a = ((((src >> 4) & 0xf) + ((dst >> 4) & 0xf) + ((a >> 0)/10)) << 4) | (((a >> 0) % 10)<<0);
-        if( (a>>4) >= 10 ) { a = (((a >> 4) % 10) << 4) | (a & 0x0f); SET_C(); } else {CLEAR_C(); }
+        if( (a>>4) >= 10 ) { a = (((a >> 4) % 10) << 4) | (a & 0x0f); set_c(); } else {clear_c(); }
         result = a;
       }
       put_data(pc, dst_reg, Ad, bw, result);
-      AFFECTS_NZ(result);
+      update_nz(result, bw);
       break;
     case 11: // BIT (dest & src)
       src = get_data(src_reg, As, bw);
@@ -952,9 +862,9 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       pc = reg[0];
       dst = get_data(dst_reg, Ad, bw);
       result = src & dst;
-      AFFECTS_NZ(result);
-      if (result != 0) { SET_C(); } else { CLEAR_C(); }
-      CLEAR_V();
+      update_nz(result, bw);
+      if (result != 0) { set_c(); } else { clear_c(); }
+      clear_v();
       break;
     case 12: // BIC (dest &= ~src)
       src = get_data(src_reg, As, bw);
@@ -979,9 +889,9 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       dst = get_data(dst_reg, Ad, bw);
       result = src ^ dst;
       put_data(pc, dst_reg, Ad, bw, result);
-      AFFECTS_NZ(result);
-      if (result != 0) { SET_C(); } else { CLEAR_C(); }
-      if ((src & 0x8000) && (dst & 0x8000)) { SET_V(); } else { CLEAR_V(); }
+      update_nz(result, bw);
+      if (result != 0) { set_c(); } else { clear_c(); }
+      if ((src & 0x8000) && (dst & 0x8000)) { set_v(); } else { clear_v(); }
       break;
     case 15: // AND
       src = get_data(src_reg, As, bw);
@@ -990,9 +900,9 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       dst = get_data(dst_reg, Ad, bw);
       result = src & dst;
       put_data(pc, dst_reg, Ad, bw, result);
-      AFFECTS_NZ(result);
-      if (result != 0) { SET_C(); } else { CLEAR_C(); }
-      CLEAR_V();
+      update_nz(result, bw);
+      if (result != 0) { set_c(); } else { clear_c(); }
+      clear_v();
       break;
     default:
       return -1;
