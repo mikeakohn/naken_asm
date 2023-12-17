@@ -16,11 +16,6 @@
 
 #include "simulate/Simulate.h"
 
-#define FLAG_PRIV 0x8000
-#define FLAG_N 0x0004
-#define FLAG_Z 0x0002
-#define FLAG_P 0x0001
-
 class SimulateLc3 : public Simulate
 {
 public:
@@ -40,6 +35,14 @@ public:
 private:
   int execute(uint16_t opcode);
   int get_reg_index(const char *reg_string);
+
+  enum Flags
+  {
+    FLAG_PRIV = 0x8000,
+    FLAG_N = 0x0004,
+    FLAG_Z = 0x0002,
+    FLAG_P = 0x0001
+  };
 
   uint16_t reg[8];
   uint16_t pc;
