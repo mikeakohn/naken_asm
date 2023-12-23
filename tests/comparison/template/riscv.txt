@@ -282,3 +282,16 @@ c.add t3, t4
 c.swsp s2, 160(sp)
 c.fswsp fs1, 160(sp)
 ;c.sdsp a3, 160(sp)
+frcsr t0
+fscsr t1
+fscsr a0, s1
+frrm s1
+fsrm t0
+fsrm s2, a3
+fsrmi 17
+fsrmi t6, 27
+frflags t5
+fsflags t3
+fsflags t1, a1
+fsflagsi 13
+fsflagsi t2, 11

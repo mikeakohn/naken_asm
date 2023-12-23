@@ -92,6 +92,35 @@ struct _table_riscv table_riscv[] =
   { "rdtimeh",    0xc8102073, 0xfffff07f, OP_ALIAS_CSR_RD,      0 },
   { "rdinstret",  0xc0202073, 0xfffff07f, OP_ALIAS_CSR_RD,      0 },
   { "rdinstreth", 0xc8202073, 0xfffff07f, OP_ALIAS_CSR_RD,      0 },
+  // fflags = 0x001
+  // frm    = 0x002
+  // fcsr   = 0x003
+  // frcsr rd            : csrrs rd, fcsr, x0
+  // fscsr rs            : csrrw x0, fcsr, rs
+  // fscsr rd, rs        : csrrw rd, fcsr, rs
+  // frrm rd             : csrrs rd, frm, x0
+  // fsrm rs             : csrrw x0, frm, rs
+  // fsrm rd, rs         : csrrw rd, frm, rs
+  // fsrmi imm           : csrrwi x0, frm, imm
+  // fsrmi rd, imm       : csrrwi rd, frm, imm
+  // frflags rd          : csrrs rd, fflags, x0
+  // fsflags rs          : csrrw x0, fflags, rs
+  // fsflags rd, rs      : csrrw rd, fflags, rs
+  // fsflagsi imm        : csrrwi x0, fflags, imm
+  // fsflagsi rd, imm    : csrrwi rd, fflags, imm
+  { "frcsr",      0x00302073, 0xfffff07f, OP_ALIAS_CSR_RD,      0 },
+  { "fscsr",      0x00301073, 0xfff07fff, OP_ALIAS_CSR_RS1_F,   0 },
+  { "fscsr",      0x00301073, 0xfff0707f, OP_ALIAS_CSR_RD_RS1,  0 },
+  { "frrm",       0x00202073, 0xfffff07f, OP_ALIAS_CSR_RD,      0 },
+  { "fsrm",       0x00201073, 0xfff07fff, OP_ALIAS_CSR_RS1_F,   0 },
+  { "fsrm",       0x00201073, 0xfff0707f, OP_ALIAS_CSR_RD_RS1,  0 },
+  { "fsrmi",      0x00202073, 0xfff07fff, OP_ALIAS_CSR_UIMM_F,  0 },
+  { "fsrmi",      0x00202073, 0xfff0707f, OP_ALIAS_CSR_RD_UIMM, 0 },
+  { "frflags",    0x00102073, 0xfffff07f, OP_ALIAS_CSR_RD,      0 },
+  { "fsflags",    0x00101073, 0xfff07fff, OP_ALIAS_CSR_RS1_F,   0 },
+  { "fsflags",    0x00101073, 0xfff0707f, OP_ALIAS_CSR_RD_RS1,  0 },
+  { "fsflagsi",   0x00102073, 0xfff07fff, OP_ALIAS_CSR_UIMM,    0 },
+  { "fsflagsi",   0x00102073, 0xfff0707f, OP_ALIAS_CSR_RD_UIMM, 0 },
   // csrr rd, csr        : csrrs rd, csr, x0
   // csrw csr, rs        : csrrw x0, csr, rs
   // csrs csr, rs        : csrrs x0, csr, rs
@@ -106,27 +135,6 @@ struct _table_riscv table_riscv[] =
   { "csrwi",      0x00005073, 0x00007fff, OP_ALIAS_CSR_UIMM,    0 },
   { "csrsi",      0x00006073, 0x00007fff, OP_ALIAS_CSR_UIMM,    0 },
   { "csrci",      0x00007073, 0x00007fff, OP_ALIAS_CSR_UIMM,    0 },
-  // frcsr rd            : csrrs rd, fcsr, x0
-  // fscsr rd, rs        : csrrw rd, fcsr, rs
-  // fscsr rs            : csrrw x0, fcsr, rs
-  // frrm rd             : csrrs rd, frm, x0
-  // fsrm rd, rs         : csrrw rd, frm, rs
-  // fsrm rs             : csrrw x0, frm, rs
-  // fsrmi rd, imm       : csrrwi rd, frm, imm
-  // fsrmi imm           : csrrwi x0, frm, imm
-  // frflags rd          : csrrs rd, fflags, x0
-  // fsflags rd, rs      : csrrw rd, fflags, rs
-  // fsflags rs          : csrrw x0, fflags, rs
-  // fsflagsi rd, imm    : csrrwi rd, fflags, imm
-  // fsflagsi imm        : csrrwi x0, fflags, imm
-  { "frcsr",      0x00302073, 0xfffff07f, OP_ALIAS_CSR_RD,      0 },
-  { "frrm",       0x00202073, 0xfffff07f, OP_ALIAS_CSR_RD,      0 },
-  { "fscsr",      0x00301073, 0xfff0707f, OP_ALIAS_CSR_RD_RS1,  0 },
-  { "fsrm",       0x00201073, 0xfff0707f, OP_ALIAS_CSR_RD_RS1,  0 },
-  { "frflags",    0x00102073, 0xfffff07f, OP_ALIAS_CSR_RD,      0 },
-  { "fsflags",    0x00101073, 0xfff0707f, OP_ALIAS_CSR_RD_RS1,  0 },
-  //{ "fsrmi",     0x00102073, 0xfffff07f, OP_FP,                0 },
-  //{ "fsflagsi",  0x00302073, 0xfffff07f, OP_FP,                0 },
   // Regular instructions.
   { "lui",        0x00000037, 0x0000007f, OP_U_TYPE,     0 },
   { "auipc",      0x00000017, 0x0000007f, OP_U_TYPE,     0 },

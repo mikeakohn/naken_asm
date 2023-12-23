@@ -286,9 +286,9 @@ int disasm_riscv(
             rs1,
             rs2);
           break;
-        case OP_FP:
-          snprintf(instruction, length, "%s f%d", instr, rd);
-          break;
+        //case OP_FP:
+        //  snprintf(instruction, length, "%s f%d", instr, rd);
+        //  break;
         case OP_FP_FP:
           snprintf(instruction, length, "%s f%d, f%d", instr, rd, rs1);
           break;
@@ -395,11 +395,23 @@ int disasm_riscv(
         case OP_ALIAS_CSR_RD:
           snprintf(instruction, length, "%s %s", instr, riscv_reg_names[rd]);
           break;
+        case OP_ALIAS_CSR_RS1_F:
+          snprintf(instruction, length, "%s %s", instr, riscv_reg_names[rs1]);
+          break;
         case OP_ALIAS_CSR_RD_RS1:
           snprintf(instruction, length, "%s %s, %s",
             instr,
             riscv_reg_names[rd],
             riscv_reg_names[rs1]);
+          break;
+        case OP_ALIAS_CSR_UIMM_F:
+          snprintf(instruction, length, "%s %d", instr, rs1);
+          break;
+        case OP_ALIAS_CSR_RD_UIMM:
+          snprintf(instruction, length, "%s %s, %d",
+            instr,
+            riscv_reg_names[rd],
+            rs1);
           break;
         case OP_ALIAS_RD_CSR:
           snprintf(instruction, length, "%s %s, %d",
