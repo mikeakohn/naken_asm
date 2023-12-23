@@ -86,6 +86,12 @@ struct _table_riscv table_riscv[] =
   // rdinstret[h] rd     : csrrs rd, instret[h], x0
   // rdcycle[h] rd       : csrrs rd, cycle[h], x0
   // rdtime[h] rd        : csrrs rd, time[h], x0
+  { "rdcycle",    0xc0002073, 0xfffff07f, OP_READ,       0 },
+  { "rdcycleh",   0xc8002073, 0xfffff07f, OP_READ,       0 },
+  { "rdtime",     0xc0102073, 0xfffff07f, OP_READ,       0 },
+  { "rdtimeh",    0xc8102073, 0xfffff07f, OP_READ,       0 },
+  { "rdinstret",  0xc0202073, 0xfffff07f, OP_READ,       0 },
+  { "rdinstreth", 0xc8202073, 0xfffff07f, OP_READ,       0 },
   // csrr rd, csr        : csrrs rd, csr, x0
   // csrw csr, rs        : csrrw x0, csr, rs
   // csrs csr, rs        : csrrs x0, csr, rs
@@ -148,12 +154,12 @@ struct _table_riscv table_riscv[] =
   { "fence.i",    0x0000100f, 0xffffffff, OP_FFFF,       0 },
   { "ecall",      0x00000073, 0xffffffff, OP_FFFF,       0 },
   { "ebreak",     0x00100073, 0xffffffff, OP_FFFF,       0 },
-  { "rdcycle",    0xc0002073, 0xfffff07f, OP_READ,       0 },
-  { "rdcycleh",   0xc8002073, 0xfffff07f, OP_READ,       0 },
-  { "rdtime",     0xc0102073, 0xfffff07f, OP_READ,       0 },
-  { "rdtimeh",    0xc8102073, 0xfffff07f, OP_READ,       0 },
-  { "rdinstret",  0xc0202073, 0xfffff07f, OP_READ,       0 },
-  { "rdinstreth", 0xc8202073, 0xfffff07f, OP_READ,       0 },
+  { "csrrw",      0x00001073, 0x0000707f, OP_CSR_REG,    0 },
+  { "csrrs",      0x00002073, 0x0000707f, OP_CSR_REG,    0 },
+  { "csrrc",      0x00003073, 0x0000707f, OP_CSR_REG,    0 },
+  { "csrrwi",     0x00005073, 0x0000707f, OP_CSR_UIMM,   0 },
+  { "csrrsi",     0x00006073, 0x0000707f, OP_CSR_UIMM,   0 },
+  { "csrrci",     0x00007073, 0x0000707f, OP_CSR_UIMM,   0 },
   { "lwu",        0x00006003, 0x0000707f, OP_RD_INDEX_R, RISCV64 },
   { "ld",         0x00003003, 0x0000707f, OP_RD_INDEX_R, RISCV64 },
   { "sd",         0x00003023, 0x0000707f, OP_RS_INDEX_R, RISCV64 },

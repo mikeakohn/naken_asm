@@ -387,6 +387,20 @@ int disasm_riscv(
         case OP_RS1:
           snprintf(instruction, length, "%s %s", instr, riscv_reg_names[rs1]);
           break;
+        case OP_CSR_REG:
+          snprintf(instruction, length, "%s %s, %d, %s",
+            instr,
+            riscv_reg_names[rd],
+            opcode >> 20,
+            riscv_reg_names[rs1]);
+          break;
+        case OP_CSR_UIMM:
+          snprintf(instruction, length, "%s %s, %d, %d",
+            instr,
+            riscv_reg_names[rd],
+            opcode >> 20,
+            rs1);
+          break;
         default:
           strcpy(instruction, "???");
           break;
@@ -717,13 +731,35 @@ void list_output_riscv(
 
     if (count == 2)
     {
-      fprintf(asm_context->list, "0x%08x: 0x%04x     %-40s cycles: ",
-        start, opcode, instruction);
+      fprintf(asm_context->list, "0x%08x: 0x%04x     %s",
+        start,
+        opcode,
+        instruction);
     }
       else
     {
-      fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ",
-        start, opcode, instruction);
+      fprintf(asm_context->list, "0x%08x: 0x%08x %s",
+        start,
+        opcode,
+        instruction);
+    }
+
+#if 0
+    if (count == 2)
+    {
+      fprintf(asm_context->list, "0x%08x: 0x%04x     %-40s%s",
+        start,
+        opcode,
+        instruction,
+        cycles_min != -1 ? " cycles: " : "");
+    }
+      else
+    {
+      fprintf(asm_context->list, "0x%08x: 0x%08x %-40s%s",
+        start,
+        opcode,
+        instruction,
+        cycles_min != -1 ? " cycles: " : "");
     }
 
     if (cycles_min == -1)
@@ -739,6 +775,7 @@ void list_output_riscv(
     {
       fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
     }
+#endif
 
     start += 4;
   }

@@ -81,6 +81,9 @@ enum
   OP_COMP_HUA_53_21,
   // Privileged instructions.
   OP_RS1,
+  // Control instructions.
+  OP_CSR_REG,
+  OP_CSR_UIMM,
 };
 
 #define RISCV64  0x01
