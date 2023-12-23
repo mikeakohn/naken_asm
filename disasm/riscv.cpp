@@ -142,12 +142,6 @@ int disasm_riscv(
             riscv_reg_names[rs1],
             riscv_reg_names[rs2]);
           break;
-        case OP_R_R:
-          snprintf(instruction, length, "%s %s, %s",
-            instr,
-            riscv_reg_names[rd],
-            riscv_reg_names[rs1]);
-          break;
         case OP_I_TYPE:
           immediate = opcode >> 20;
           simmediate = immediate;
@@ -398,8 +392,14 @@ int disasm_riscv(
             opcode >> 20,
             rs1);
           break;
-        case OP_ALIAS_READ:
+        case OP_ALIAS_CSR_RD:
           snprintf(instruction, length, "%s %s", instr, riscv_reg_names[rd]);
+          break;
+        case OP_ALIAS_CSR_RD_RS1:
+          snprintf(instruction, length, "%s %s, %s",
+            instr,
+            riscv_reg_names[rd],
+            riscv_reg_names[rs1]);
           break;
         case OP_ALIAS_RD_CSR:
           snprintf(instruction, length, "%s %s, %d",

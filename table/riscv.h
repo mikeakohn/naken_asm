@@ -18,7 +18,6 @@ enum
 {
   OP_NONE,
   OP_R_TYPE,
-  OP_R_R,
   OP_I_TYPE,
   OP_UI_TYPE,
   OP_SB_TYPE,
@@ -83,7 +82,8 @@ enum
   // Control instructions.
   OP_CSR_REG,
   OP_CSR_UIMM,
-  OP_ALIAS_READ,
+  OP_ALIAS_CSR_RD,
+  OP_ALIAS_CSR_RD_RS1,
   OP_ALIAS_RD_CSR,
   OP_ALIAS_CSR_RS1,
   OP_ALIAS_CSR_UIMM,

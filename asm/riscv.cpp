@@ -884,28 +884,6 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           return 4;
         }
-        case OP_R_R:
-        {
-          if (operand_count != 2)
-          {
-            print_error_opcount(asm_context, instr);
-            return -1;
-          }
-
-          if (operands[0].type != OPERAND_X_REGISTER ||
-              operands[1].type != OPERAND_X_REGISTER)
-          {
-            print_error_illegal_operands(asm_context, instr);
-            return -1;
-          }
-
-          opcode = table_riscv[n].opcode |
-                  (operands[1].value << 15) |
-                  (operands[0].value << 7);
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
-        }
         case OP_I_TYPE:
         {
           if (operand_count != 3)
@@ -1821,7 +1799,7 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
 
           return 4;
         }
-        case OP_ALIAS_READ:
+        case OP_ALIAS_CSR_RD:
         {
           if (operand_count != 1)
           {
@@ -1836,6 +1814,28 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
           }
 
           opcode = table_riscv[n].opcode |
+                  (operands[0].value << 7);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_ALIAS_CSR_RD_RS1:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_X_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+                  (operands[1].value << 15) |
                   (operands[0].value << 7);
           add_bin32(asm_context, opcode, IS_OPCODE);
 
