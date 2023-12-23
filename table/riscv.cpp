@@ -86,12 +86,12 @@ struct _table_riscv table_riscv[] =
   // rdinstret[h] rd     : csrrs rd, instret[h], x0
   // rdcycle[h] rd       : csrrs rd, cycle[h], x0
   // rdtime[h] rd        : csrrs rd, time[h], x0
-  { "rdcycle",    0xc0002073, 0xfffff07f, OP_READ,       0 },
-  { "rdcycleh",   0xc8002073, 0xfffff07f, OP_READ,       0 },
-  { "rdtime",     0xc0102073, 0xfffff07f, OP_READ,       0 },
-  { "rdtimeh",    0xc8102073, 0xfffff07f, OP_READ,       0 },
-  { "rdinstret",  0xc0202073, 0xfffff07f, OP_READ,       0 },
-  { "rdinstreth", 0xc8202073, 0xfffff07f, OP_READ,       0 },
+  { "rdcycle",    0xc0002073, 0xfffff07f, OP_ALIAS_READ,        0 },
+  { "rdcycleh",   0xc8002073, 0xfffff07f, OP_ALIAS_READ,        0 },
+  { "rdtime",     0xc0102073, 0xfffff07f, OP_ALIAS_READ,        0 },
+  { "rdtimeh",    0xc8102073, 0xfffff07f, OP_ALIAS_READ,        0 },
+  { "rdinstret",  0xc0202073, 0xfffff07f, OP_ALIAS_READ,        0 },
+  { "rdinstreth", 0xc8202073, 0xfffff07f, OP_ALIAS_READ,        0 },
   // csrr rd, csr        : csrrs rd, csr, x0
   // csrw csr, rs        : csrrw x0, csr, rs
   // csrs csr, rs        : csrrs x0, csr, rs
@@ -99,6 +99,13 @@ struct _table_riscv table_riscv[] =
   // csrwi csr, imm      : csrrwi x0, csr, imm
   // csrsi csr, imm      : csrrsi x0, csr, imm
   // csrci csr, imm      : csrrci x0, csr, imm
+  { "csrr",       0x00002073, 0x000ff07f, OP_ALIAS_RD_CSR,     0 },
+  { "csrw",       0x00001073, 0x00007fff, OP_ALIAS_CSR_RS1,    0 },
+  { "csrs",       0x00002073, 0x00007fff, OP_ALIAS_CSR_RS1,    0 },
+  { "csrc",       0x00003073, 0x00007fff, OP_ALIAS_CSR_RS1,    0 },
+  { "csrwi",      0x00005073, 0x00007fff, OP_ALIAS_CSR_UIMM,   0 },
+  { "csrsi",      0x00006073, 0x00007fff, OP_ALIAS_CSR_UIMM,   0 },
+  { "csrci",      0x00007073, 0x00007fff, OP_ALIAS_CSR_UIMM,   0 },
   // frcsr rd            : csrrs rd, fcsr, x0
   // fscsr rd, rs        : csrrw rd, fcsr, rs
   // fscsr rs            : csrrw x0, fcsr, rs
@@ -112,6 +119,14 @@ struct _table_riscv table_riscv[] =
   // fsflags rs          : csrrw x0, fflags, rs
   // fsflagsi rd, imm    : csrrwi rd, fflags, imm
   // fsflagsi imm        : csrrwi x0, fflags, imm
+  { "frcsr",      0x00302073, 0xfffff07f, OP_ALIAS_READ,  0 },
+  { "frrm",       0x00202073, 0xfffff07f, OP_ALIAS_READ,  0 },
+  { "frflags",    0x00102073, 0xfffff07f, OP_ALIAS_READ,  0 },
+  { "fscsr",      0x00301073, 0xfff0707f, OP_R_R,         0 },
+  { "fsrm",       0x00201073, 0xfff0707f, OP_R_R,         0 },
+  { "fsflags",    0x00101073, 0xfff0707f, OP_R_R,         0 },
+  //{ "fsrmi",     0x00102073, 0xfffff07f, OP_FP,           0 },
+  //{ "fsflagsi",  0x00302073, 0xfffff07f, OP_FP,           0 },
   // Regular instructions.
   { "lui",        0x00000037, 0x0000007f, OP_U_TYPE,     0 },
   { "auipc",      0x00000017, 0x0000007f, OP_U_TYPE,     0 },
@@ -236,14 +251,6 @@ struct _table_riscv table_riscv[] =
   { "fcvt.s.w",   0xd0000053, 0xfff0007f, OP_FP_R_RM,     0 },
   { "fcvt.s.wu",  0xd0100053, 0xfff0007f, OP_FP_R_RM,     0 },
   { "fmv.s.x",    0xf0000053, 0xfff0707f, OP_FP_R,        0 },
-  { "frcsr",      0x00302073, 0xfffff07f, OP_READ,        0 },
-  { "frrm",       0x00202073, 0xfffff07f, OP_READ,        0 },
-  { "frflags",    0x00102073, 0xfffff07f, OP_READ,        0 },
-  { "fscsr",      0x00301073, 0xfff0707f, OP_R_R,         0 },
-  { "fsrm",       0x00201073, 0xfff0707f, OP_R_R,         0 },
-  { "fsflags",    0x00101073, 0xfff0707f, OP_R_R,         0 },
-  //{ "fsrmi",     0x00102073, 0xfffff07f, OP_FP,           0 },
-  //{ "fsflagsi",  0x00302073, 0xfffff07f, OP_FP,           0 },
   { "fcvt.l.s",   0xc0200053, 0xfff0007f, OP_R_FP_RM,     0 },
   { "fcvt.lu.s",  0xc0300053, 0xfff0007f, OP_R_FP_RM,     0 },
   { "fcvt.s.l",   0xd0200053, 0xfff0007f, OP_FP_R_RM,     0 },

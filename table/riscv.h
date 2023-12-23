@@ -27,7 +27,6 @@ enum
   OP_SHIFT,
   OP_FENCE,
   OP_FFFF,
-  OP_READ,
   OP_RD_INDEX_R,
   OP_FD_INDEX_R,
   OP_RS_INDEX_R,
@@ -84,6 +83,10 @@ enum
   // Control instructions.
   OP_CSR_REG,
   OP_CSR_UIMM,
+  OP_ALIAS_READ,
+  OP_ALIAS_RD_CSR,
+  OP_ALIAS_CSR_RS1,
+  OP_ALIAS_CSR_UIMM,
 };
 
 #define RISCV64  0x01

@@ -1142,26 +1142,6 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
         }
-        case OP_READ:
-        {
-          if (operand_count != 1)
-          {
-            print_error_opcount(asm_context, instr);
-            return -1;
-          }
-
-          if (operands[0].type != OPERAND_X_REGISTER)
-          {
-            print_error_illegal_operands(asm_context, instr);
-            return -1;
-          }
-
-          opcode = table_riscv[n].opcode |
-                  (operands[0].value << 7);
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
-        }
         case OP_RD_INDEX_R:
         case OP_FD_INDEX_R:
         {
@@ -1837,6 +1817,99 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
             (operands[0].value << 7) |
             (operands[1].value << 20) |
             (operands[2].value << 15);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_ALIAS_READ:
+        {
+          if (operand_count != 1)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_X_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+                  (operands[0].value << 7);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_ALIAS_RD_CSR:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (check_range(asm_context, "csr", operands[1].value, 0, 4095) == -1) { return -1; }
+
+          opcode = table_riscv[n].opcode |
+            (operands[0].value << 7) |
+            (operands[1].value << 20);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_ALIAS_CSR_RS1:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_X_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (check_range(asm_context, "csr", operands[0].value, 0, 4095) == -1) { return -1; }
+
+          opcode = table_riscv[n].opcode |
+            (operands[0].value << 20) |
+            (operands[1].value << 15);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_ALIAS_CSR_UIMM:
+        {
+          if (operand_count != 2)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (check_range(asm_context, "csr", operands[0].value, 0, 4095) == -1) { return -1; }
+          if (check_range(asm_context, "Immediate", operands[1].value, 0, 31) == -1) { return -1; }
+
+          opcode = table_riscv[n].opcode |
+            (operands[0].value << 20) |
+            (operands[1].value << 15);
           add_bin32(asm_context, opcode, IS_OPCODE);
 
           return 4;
