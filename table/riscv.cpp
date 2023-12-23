@@ -114,13 +114,13 @@ struct _table_riscv table_riscv[] =
   { "frrm",       0x00202073, 0xfffff07f, OP_ALIAS_CSR_RD,      0 },
   { "fsrm",       0x00201073, 0xfff07fff, OP_ALIAS_CSR_RS1_F,   0 },
   { "fsrm",       0x00201073, 0xfff0707f, OP_ALIAS_CSR_RD_RS1,  0 },
-  { "fsrmi",      0x00202073, 0xfff07fff, OP_ALIAS_CSR_UIMM_F,  0 },
-  { "fsrmi",      0x00202073, 0xfff0707f, OP_ALIAS_CSR_RD_UIMM, 0 },
+  { "fsrmi",      0x00205073, 0xfff07fff, OP_ALIAS_CSR_UIMM_F,  0 },
+  { "fsrmi",      0x00205073, 0xfff0707f, OP_ALIAS_CSR_RD_UIMM, 0 },
   { "frflags",    0x00102073, 0xfffff07f, OP_ALIAS_CSR_RD,      0 },
   { "fsflags",    0x00101073, 0xfff07fff, OP_ALIAS_CSR_RS1_F,   0 },
   { "fsflags",    0x00101073, 0xfff0707f, OP_ALIAS_CSR_RD_RS1,  0 },
-  { "fsflagsi",   0x00102073, 0xfff07fff, OP_ALIAS_CSR_UIMM,    0 },
-  { "fsflagsi",   0x00102073, 0xfff0707f, OP_ALIAS_CSR_RD_UIMM, 0 },
+  { "fsflagsi",   0x00105073, 0xfff07fff, OP_ALIAS_CSR_UIMM_F,  0 },
+  { "fsflagsi",   0x00105073, 0xfff0707f, OP_ALIAS_CSR_RD_UIMM, 0 },
   // csrr rd, csr        : csrrs rd, csr, x0
   // csrw csr, rs        : csrrw x0, csr, rs
   // csrs csr, rs        : csrrs x0, csr, rs

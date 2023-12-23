@@ -9,6 +9,7 @@ def create_asm(instruction):
     #print(instruction)
 
   out = open("temp.asm", "w")
+  #out.write(".option norelax\n")
   out.write("  " + instruction + "\n")
   out.close()
 

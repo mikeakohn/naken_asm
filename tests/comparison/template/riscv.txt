@@ -49,11 +49,11 @@ fence.i
 ecall
 ebreak
 rdcycle x10
-;rdcycleh x5
+rdcycleh x5
 rdtime x1
-;rdtimeh x21
+rdtimeh x21
 rdinstret x9
-;rdinstreth x20
+rdinstreth x20
 mul x12, x10, x31
 mulh x20, x4, x6
 mulhsu x30, x15, x2
@@ -263,9 +263,9 @@ c.sub a3, a4
 c.xor a3, a4
 c.or a3, a4
 c.and a3, a4
-c.j 0x124
-c.beqz a3, 100
-c.bnez a3, 100
+;c.j 0x124
+;c.beqz a3, 100
+;c.bnez a3, 100
 c.slli t2, 9
 c.slli64 t1
 c.fldsp fs1, 96(sp)
@@ -282,6 +282,19 @@ c.add t3, t4
 c.swsp s2, 160(sp)
 c.fswsp fs1, 160(sp)
 ;c.sdsp a3, 160(sp)
+csrrw t0, 123, a0
+csrrs t1, 333, a1
+csrrc t2, 1123, a2
+csrrwi t0, 123, 27
+csrrsi t1, 333, 23
+csrrci t2, 1123, 17
+csrr t0, 127
+csrw 123, t1
+csrs 2011, t3
+csrc 1111, a2
+csrwi 777, 30
+csrsi 319, 27
+csrci 3012, 17
 frcsr t0
 fscsr t1
 fscsr a0, s1
@@ -295,3 +308,9 @@ fsflags t3
 fsflags t1, a1
 fsflagsi 13
 fsflagsi t2, 11
+uret
+sret
+hret
+mret
+wfi
+sfence.vm t1
