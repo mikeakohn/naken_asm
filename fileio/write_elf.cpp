@@ -238,6 +238,10 @@ static void write_elf_header(FILE *out, Elf *elf, Memory *memory, int alignment)
       elf->e_machine = 243;
       elf->e_ident[EI_OSABI] = 0;
       elf->e_ident[EI_CLASS] = alignment == 8 ? 2 : 1;
+      // FIXME: This should be passed in from the main code.
+      // 0x0001 means EF_RISCV_RVC
+      // 0x0004 means EF_RISCV_FLOAT_ABI_DOUBLE
+      elf->e_flags = 5;
       break;
     case CPU_TYPE_STM8:
       elf->e_machine = 186;
