@@ -20,7 +20,7 @@ Memory::Memory() :
   pages        (NULL),
   low_address  (0xffffffff),
   high_address (0),
-  entry_point  (0xfffffff),
+  entry_point  (0xffffffff),
   endian       (ENDIAN_LITTLE)
 {
 }
