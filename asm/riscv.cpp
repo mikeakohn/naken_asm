@@ -1958,7 +1958,7 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
   {
     if (strcmp(table_riscv_comp[n].instr, instr_case) == 0)
     {
-      int immediate, offset;
+      int immediate = -1, offset;
       bool is_op_error = false;
 
       switch (table_riscv_comp[n].type)
@@ -2042,8 +2042,6 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
             print_error_illegal_operands(asm_context, instr);
             return -1;
           }
-
-          immediate = -1;
 
           if (table_riscv_comp[n].type == OP_COMP_UIMM53_76)
           {

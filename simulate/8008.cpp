@@ -220,7 +220,7 @@ int Simulate8008::run(int max_cycles, int step)
       return 0;
     }
 
-    if (reg[0] == 0xffff)
+    if (pc == 0xffff)
     {
       printf("Function ended.  Total cycles: %d\n", cycle_count);
       step_mode = 0;
