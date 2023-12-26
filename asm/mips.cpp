@@ -337,9 +337,7 @@ static int add_offset(
 
 static uint32_t find_opcode(const char *instr_case)
 {
-  int n;
-
-  for (n = 0; mips_i_table[n].instr != NULL; n++)
+  for (int n = 0; mips_i_table[n].instr != NULL; n++)
   {
     if (strcmp(instr_case, mips_i_table[n].instr) == 0)
     {
@@ -599,6 +597,55 @@ static int check_for_pseudo_instruction(
 #endif
 
   return 4;
+}
+
+static int check_for_pseudo_branch(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int *operand_count,
+  char *instr_case,
+  const char *instr)
+{
+
+  for (int n = 0; mips_branch_alias[n].instr != NULL; n++)
+  {
+    if (strcmp(instr_case, mips_branch_alias[n].instr) == 0)
+    {
+      if (!(*operand_count == 3 &&
+            operands[0].type == OPERAND_TREG &&
+            operands[1].type == OPERAND_TREG &&
+            operands[2].type == OPERAND_IMMEDIATE))
+      {
+        return -1;
+      }
+
+      const uint32_t slt = 0x2a;
+      const uint32_t beq = 0x04 << 26;
+      const uint32_t bne = 0x05 << 26;
+      const int reg_at = 1;
+
+      uint32_t opcode_slt = slt |
+        (operands[mips_branch_alias[n].operand_0].value << 21) |
+        (operands[mips_branch_alias[n].operand_1].value << 16) |
+        (reg_at << 11);
+
+      add_bin32(asm_context, opcode_slt,    IS_OPCODE);
+
+      uint32_t opcode_branch = (mips_branch_alias[n].is_beq ? beq : bne) |
+        (reg_at << 21);
+
+      if (add_offset(asm_context, operands[2].value, &opcode_branch) == -1)
+      {
+        return -1;
+      }
+
+      add_bin32(asm_context, opcode_branch, IS_OPCODE);
+
+      return 8;
+    }
+  }
+
+  return 0;
 }
 
 static int get_operands_li(
@@ -1611,6 +1658,24 @@ int parse_instruction_mips(AsmContext *asm_context, char *instr)
   if (n != 4)
   {
     return opcode_size;
+  }
+
+  n = check_for_pseudo_branch(
+    asm_context,
+    operands,
+    &operand_count,
+    instr_case,
+    instr);
+
+  if (n != 0)
+  {
+    if (n == -1)
+    {
+      print_error_illegal_operands(asm_context, instr);
+      return -1;
+    }
+
+    return n;
   }
 
   if (asm_context->pass == 1)

@@ -277,6 +277,15 @@ struct _mips_other mips_other[] =
   { NULL, { 0, 0, 0 }, 0, 0, 0, 0 }
 };
 
+struct _mips_branch_alias mips_branch_alias[] =
+{
+  { "blt", 0, 1, false },
+  { "ble", 1, 0, true  },
+  { "bgt", 1, 0, false },
+  { "bge", 0, 1, true  },
+  { NULL,  0, 0, false }
+};
+
 struct _mips_other mips_ee[] =
 {
   // Emotion Engine vector instructions

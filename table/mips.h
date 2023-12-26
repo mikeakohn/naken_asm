@@ -129,6 +129,14 @@ struct _mips_other
   uint16_t version;
 };
 
+struct _mips_branch_alias
+{
+  const char *instr;
+  uint8_t operand_0;
+  uint8_t operand_1;
+  bool is_beq;
+};
+
 struct _mips_four_reg
 {
   const char *instr;
@@ -179,6 +187,7 @@ extern struct _mips_instr mips_i_table[];
 extern struct _mips_branch mips_branch_table[];
 extern struct _mips_special_instr mips_special_table[];
 extern struct _mips_other mips_other[];
+extern struct _mips_branch_alias mips_branch_alias[];
 extern struct _mips_other mips_ee[];
 extern struct _mips_four_reg mips_four_reg[];
 extern struct _mips_cache mips_cache[];
