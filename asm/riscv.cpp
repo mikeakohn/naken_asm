@@ -2043,6 +2043,8 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
             return -1;
           }
 
+          immediate = -1;
+
           if (table_riscv_comp[n].type == OP_COMP_UIMM53_76)
           {
             immediate = permutate_16(operands[1].offset, RiscvPerm::uimm53_76);

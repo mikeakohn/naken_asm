@@ -17,7 +17,7 @@
 #include "MemoryPool.h"
 
 //typedef struct _asm_context AsmContext;
-struct AsmContext;
+//struct AsmContext;
 
 #define MAX_NESTED_MACROS 128
 #define MAX_MACRO_LEN 1024
