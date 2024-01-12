@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -177,6 +177,10 @@ static void write_elf_header(FILE *out, Elf *elf, Memory *memory, int alignment)
   // This could be a lookup table, but let's play it safe
   switch (elf->cpu_type)
   {
+    case CPU_TYPE_ARM64:
+      elf->e_machine = 183;
+      elf->e_ident[EI_CLASS] = 2;
+      break;
     case CPU_TYPE_MSP430:
     case CPU_TYPE_MSP430X:
       elf->e_machine = 105;
