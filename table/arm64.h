@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -38,6 +38,8 @@ enum
   OP_VECTOR_V_V_V,
   OP_MATH_R_R_R,
   OP_REG_REG_CRYPT,
+
+  OP_RET,
 };
 
 // reg_type is:

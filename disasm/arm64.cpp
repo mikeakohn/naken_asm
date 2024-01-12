@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -405,13 +405,20 @@ int disasm_arm64(
           {
             int ra = (opcode >> 10) & 0x1f;
 
-            snprintf(instruction, length, "%s v%d.16b, v%d.16b, v%d.16b, v%d.16b",
+            snprintf(instruction, length,
+              "%s v%d.16b, v%d.16b, v%d.16b, v%d.16b",
               table_arm64[n].instr, rd, rn, rm, ra);
           }
             else
           {
             strcpy(instruction, "???");
           }
+
+          return 4;
+        }
+        case OP_RET:
+        {
+          snprintf(instruction, length, "%s x%d\n", table_arm64[n].instr, rn);
 
           return 4;
         }

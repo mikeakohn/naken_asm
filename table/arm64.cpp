@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -82,6 +82,8 @@ struct _table_arm64 table_arm64[] =
   { "b",         0x14000000, 0xfc000000, 0, 'x', OP_RELATIVE26 },
   { "bcax",      0xce200000, 0xffe08000, 4, 'v', OP_REG_REG_CRYPT },
   { "bfc",       0xce200000, 0x7f8003e0, 3, 'b', OP_REG_BITFIELD },
+
+  { "ret",       0xd65f0000, 0xfffffc1f, 3, 'b', OP_RET },
   { NULL,        0x00000000, 0x00000000, 0, ' ', 0 }
 };
 

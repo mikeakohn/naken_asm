@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -616,13 +616,13 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           if (operands[0].type != OPERAND_REG_32 &&
               operands[0].type != OPERAND_REG_64)
           {
-            break;
+            continue;
           }
 
           if (operands[0].type != operands[1].type ||
               operands[0].type != operands[2].type)
           {
-            break;
+            continue;
           }
 
           int size = operands[0].type == OPERAND_REG_64 ? 1: 0;
@@ -645,13 +645,13 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
               return 4;
             }
 
-            break;
+            continue;
           }
 
           if (operand_count == 4)
           {
-            if (operands[3].type != OPERAND_OPTION) { break; }
-            if (operands[3].attribute > OPTION_LSL) { break; }
+            if (operands[3].type != OPERAND_OPTION) { continue; }
+            if (operands[3].attribute > OPTION_LSL) { continue; }
 
             if (operands[3].attribute == OPTION_LSL)
             {
@@ -673,19 +673,24 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
             return 4;
           }
 
-          break;
+          continue;
         }
         case OP_MATH_R_R_IMM_SHIFT:
         {
           if (operands[0].type != OPERAND_REG_32 &&
               operands[0].type != OPERAND_REG_64)
           {
-            break;
+            continue;
           }
 
           if (operands[0].type != operands[1].type)
           {
-            break;
+            continue;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER)
+          {
+            continue;
           }
 
           int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
@@ -715,7 +720,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
                 operands[3].attribute != OPTION_LSL ||
                 shift != 0)
             {
-              break;
+              continue;
             }
 
             if (operands[3].value == 0)
@@ -736,7 +741,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
             else
           if (operand_count != 3)
           {
-            break;
+            continue;
           }
 
           opcode = table_arm64[n].opcode |
@@ -755,13 +760,13 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           if (operands[0].type != OPERAND_REG_32 &&
               operands[0].type != OPERAND_REG_64)
           {
-            break;
+            continue;
           }
 
           if (operands[0].type != operands[1].type ||
               operands[0].type != operands[2].type)
           {
-            break;
+            continue;
           }
 
           int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
@@ -772,7 +777,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
             if (operands[3].attribute < OPTION_LSL ||
                 operands[3].attribute > OPTION_ASR)
             {
-              break;
+              continue;
             }
 
             shift = operands[3].attribute - OPTION_LSL;
@@ -787,7 +792,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
             else
           if (operand_count != 3)
           {
-            break;
+            continue;
           }
 
           opcode = table_arm64[n].opcode |
@@ -807,11 +812,11 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           if (operands[0].type != OPERAND_REG_64 ||
               operands[1].type != OPERAND_REG_64)
           {
-            break;
+            continue;
           }
 
           int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
-          if (size != 1) { break; }
+          if (size != 1) { continue; }
 
           int imm6 = operands[2].value;
           int imm4 = operands[3].value;
@@ -849,7 +854,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           if (operands[0].type != OPERAND_REG_64 ||
               operands[1].type != OPERAND_ADDRESS)
           {
-            break;
+            continue;
           }
 
           offset = operands[1].value - (asm_context->address + 4);
@@ -875,7 +880,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           if (operands[0].type != OPERAND_REG_64 ||
               operands[1].type != OPERAND_ADDRESS)
           {
-            break;
+            continue;
           }
 
           uint64_t base = asm_context->address & (~0xfffULL);
@@ -915,7 +920,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
               operands[0].attribute != 3 ||
               operands[1].attribute != SIZE_2D)
           {
-            break;
+            continue;
           }
 
           opcode = table_arm64[n].opcode |
@@ -933,7 +938,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
               operands[0].attribute != 3 ||
               operands[1].attribute != SIZE_2D)
           {
-            break;
+            continue;
           }
 
           opcode = table_arm64[n].opcode |
@@ -946,13 +951,13 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         }
         case OP_MATH_R_R_IMMR_S:
         {
-          if (operands[0].type != operands[1].type) { break; }
-          if (operands[2].type != OPERAND_NUMBER) { break; }
+          if (operands[0].type != operands[1].type) { continue; }
+          if (operands[2].type != OPERAND_NUMBER) { continue; }
 
           if (operands[0].type != OPERAND_REG_32 &&
               operands[0].type != OPERAND_REG_64)
           {
-            break;
+            continue;
           }
 
           int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
@@ -980,13 +985,13 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         }
         case OP_MATH_R_R_IMMR:
         {
-          if (operands[0].type != operands[1].type) { break; }
-          if (operands[2].type != OPERAND_NUMBER) { break; }
+          if (operands[0].type != operands[1].type) { continue; }
+          if (operands[2].type != OPERAND_NUMBER) { continue; }
 
           if (operands[0].type != OPERAND_REG_32 &&
               operands[0].type != OPERAND_REG_64)
           {
-            break;
+            continue;
           }
 
           int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
@@ -1013,8 +1018,8 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         }
         case OP_AT:
         {
-          if (operands[0].type != OPERAND_AT) { break; }
-          if (operands[1].type != OPERAND_REG_64) { break; }
+          if (operands[0].type != OPERAND_AT) { continue; }
+          if (operands[1].type != OPERAND_REG_64) { continue; }
 
           opcode = table_arm64[n].opcode | operands[1].value;
           opcode |= ((operands[0].value >> 4) & 0x7) << 16;
@@ -1027,7 +1032,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         }
         case OP_RELATIVE19:
         {
-          if (operands[0].type != OPERAND_ADDRESS) { break; }
+          if (operands[0].type != OPERAND_ADDRESS) { continue; }
 
           offset = operands[0].value - (asm_context->address + 4);
 
@@ -1052,7 +1057,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         }
         case OP_RELATIVE26:
         {
-          if (operands[0].type != OPERAND_ADDRESS) { break; }
+          if (operands[0].type != OPERAND_ADDRESS) { continue; }
 
           offset = operands[0].value - (asm_context->address + 4);
 
@@ -1071,6 +1076,21 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           offset &= (1 << 26) - 1;
 
           opcode = table_arm64[n].opcode | offset;
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
+        }
+        case OP_RET:
+        {
+          if (!(operand_count == 0 ||
+               (operand_count == 1 && operands[0].type == OPERAND_REG_64)))
+          {
+            continue;
+          }
+
+          if (operand_count == 0) { operands[0].value = 30; }
+
+          opcode = table_arm64[n].opcode | (operands[0].value << 5);
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
