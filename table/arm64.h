@@ -18,8 +18,8 @@ enum
 {
   OP_NONE,
   OP_MATH_R_R_R_OPTION,
-  OP_MATH_R_R_IMM_SHIFT,
   OP_MATH_R_R_R_SHIFT,
+  OP_MATH_R_R_IMM_SHIFT,
   OP_MATH_R_R_IMM6_IMM4,
   OP_REG_RELATIVE,
   OP_REG_PAGE_RELATIVE,
@@ -50,7 +50,7 @@ enum
 // reg_type is:
 // w = 32 bit register (w23).
 // x = 64 bit register (x23).
-// b = either 32 or 64 bit register (w23 or x23).
+// b = both - either 32 or 64 bit register (w23 or x23).
 // v = vector with size (v23.16b).
 // d = scalar vector (double) (d23).
 // h = scalar vector (half) (h23).

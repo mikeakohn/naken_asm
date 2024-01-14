@@ -21,18 +21,12 @@ struct _table_arm64 table_arm64[] =
   { "adc",       0x1a000000, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
   { "adcs",      0x3a000000, 0x7fe0fc00, 3, 'w', OP_MATH_R_R_R },
   { "addg",      0x91800000, 0xffc0c000, 4, 'x', OP_MATH_R_R_IMM6_IMM4 },
-  { "add",       0x0b200000, 0x7fe00000, 3, 'b', OP_MATH_R_R_R_OPTION },
-  { "add",       0x11000000, 0x7f000000, 3, 'b', OP_MATH_R_R_IMM_SHIFT },
-  { "add",       0x0b000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
   { "add",       0x5e208400, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
   { "add",       0x0e208400, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
   { "addhn",     0x0e204000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
   { "addhn2",    0x0e204000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
   { "addp",      0x5ef1b800, 0xfffffc00, 2, 'd', OP_VECTOR_D_V },
   { "addp",      0x5e31b800, 0xbf3ffc00, 2, 'v', OP_VECTOR_V_V_V },
-  { "adds",      0x0b400000, 0x7fe00000, 3, 'b', OP_MATH_R_R_R_OPTION },
-  { "adds",      0x31000000, 0x7f000000, 3, 'b', OP_MATH_R_R_IMM_SHIFT },
-  { "adds",      0x2b000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
   { "addv",      0x0e31b800, 0xbf3ffc00, 2, 'd', OP_VECTOR_V_V_TO_SCALAR },
   { "adr",       0x10000000, 0x9f000000, 2, 'x', OP_REG_RELATIVE },
   { "adrp",      0x90000000, 0x9f000000, 2, 'x', OP_REG_PAGE_RELATIVE },
@@ -41,10 +35,6 @@ struct _table_arm64 table_arm64[] =
   { "aesimc",    0x4e287800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
   { "aesmc",     0x4e286800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
   { "and",       0x0e201c00, 0xbfe0fc00, 3, 'v', OP_VECTOR_V_V_V },
-  { "and",       0x12000000, 0x7f800000, 3, 'b', OP_MATH_R_R_IMMR_S },
-  { "and",       0x0a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
-  { "ands",      0x72000000, 0x7f800000, 3, 'v', OP_MATH_R_R_IMMR_S },
-  { "ands",      0x6a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
   { "asr",       0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
   { "asr",       0x13007c00, 0x7f80fc00, 3, 'b', OP_MATH_R_R_IMMR },
   { "asrv",      0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
@@ -64,6 +54,11 @@ struct _table_arm64 table_arm64[] =
   { "autibsp",   0xd50323ff, 0xffffffff, 0, 'x', OP_NONE },
   { "autibz",    0xd50323df, 0xffffffff, 0, 'x', OP_NONE },
   { "axflag",    0xd500405f, 0xffffffff, 0, 'x', OP_NONE },
+  { "b",         0x14000000, 0xfc000000, 0, 'x', OP_RELATIVE26 },
+  { "bcax",      0xce200000, 0xffe08000, 4, 'v', OP_REG_REG_CRYPT },
+  { "bfc",       0xce200000, 0x7f8003e0, 3, 'b', OP_REG_BITFIELD },
+
+  // C3.2.2 Conditional branch (immediate).
   { "b.eq",      0x54000000, 0xff00001f, 0, 'x', OP_RELATIVE19 },
   { "b.ne",      0x54000001, 0xff00001f, 0, 'x', OP_RELATIVE19 },
   { "b.cs",      0x54000002, 0xff00001f, 0, 'x', OP_RELATIVE19 },
@@ -79,9 +74,40 @@ struct _table_arm64 table_arm64[] =
   { "b.gt",      0x5400000c, 0xff00001f, 0, 'x', OP_RELATIVE19 },
   { "b.le",      0x5400000d, 0xff00001f, 0, 'x', OP_RELATIVE19 },
   { "b.al",      0x5400000f, 0xff00001f, 0, 'x', OP_RELATIVE19 },
-  { "b",         0x14000000, 0xfc000000, 0, 'x', OP_RELATIVE26 },
-  { "bcax",      0xce200000, 0xffe08000, 4, 'v', OP_REG_REG_CRYPT },
-  { "bfc",       0xce200000, 0x7f8003e0, 3, 'b', OP_REG_BITFIELD },
+
+  // C3.4.1 Add/substrict (immediate).
+  { "add",       0x11000000, 0x7f000000, 3, 'b', OP_MATH_R_R_IMM_SHIFT },
+  { "adds",      0x31000000, 0x7f000000, 3, 'b', OP_MATH_R_R_IMM_SHIFT },
+  { "sub",       0x51000000, 0x7f000000, 3, 'b', OP_MATH_R_R_IMM_SHIFT },
+  { "subs",      0x71000000, 0x7f000000, 3, 'b', OP_MATH_R_R_IMM_SHIFT },
+
+  // C3.4.4 Logical (immediate).
+  { "and",       0x12000000, 0x7f800000, 3, 'b', OP_MATH_R_R_IMMR_S },
+  { "orr",       0x32000000, 0x7f800000, 3, 'b', OP_MATH_R_R_IMMR_S },
+  { "eor",       0x52000000, 0x7f800000, 3, 'b', OP_MATH_R_R_IMMR_S },
+  { "ands",      0x72000000, 0x7f800000, 3, 'b', OP_MATH_R_R_IMMR_S },
+
+  // C3.5.1 Add/subtract (extend register).
+  { "add",       0x0b200000, 0x7fe00000, 3, 'b', OP_MATH_R_R_R_OPTION },
+  { "adds",      0x2b200000, 0x7fe00000, 3, 'b', OP_MATH_R_R_R_OPTION },
+  { "sub",       0x4b200000, 0x7fe00000, 3, 'b', OP_MATH_R_R_R_OPTION },
+  { "subs",      0x6b200000, 0x7fe00000, 3, 'b', OP_MATH_R_R_R_OPTION },
+
+  // C3.5.2 Add/subtract (shifted).
+  { "add",       0x0b000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "adds",      0x2b000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "sub",       0x4b000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "subs",      0x6b000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+
+  // C3.5.10 Logical (shifted register).
+  { "and",       0x0a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "bic",       0x0a200000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "orr",       0x2a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "orn",       0x2a200000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "eor",       0x4a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "eon",       0x4a200000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "ands",      0x6a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
+  { "bics",      0x6a200000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
 
   { "ret",       0xd65f0000, 0xfffffc1f, 3, 'b', OP_RET },
   { NULL,        0x00000000, 0x00000000, 0, ' ', 0 }
@@ -113,8 +139,6 @@ struct _table_arm64_compare_branch table_arm64_compare_branch[] =
   { "cbnz", 1 },
   { NULL,   0 }
 };
-
-// C3.2.2 Conditional branch (immediate).
 
 // C3.2.3 Exception generation.
 struct _table_arm64_exception table_arm64_exception[] =
@@ -182,14 +206,10 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
 // C3.3.14 Load/store register pair (offset).
 // C3.3.15 Load/store register pair (post-indexed).
 // C3.3.16 Load/store register pair (pre-indexed).
-// C3.4.1 Add/substrict (immediate).
 // C3.4.2 Bitfield.
 // C3.4.3 Extract.
-// C3.4.4 Logical (immediate).
 // C3.4.5 Move wide (immediate).
 // C3.4.6 PC-rel addressing.
-// C3.5.1 Add/subtract (extend register).
-// C3.5.2 Add/subtract (shifted).
 // C3.5.3 Add/subtract (width carry).
 // C3.5.4 Conditional compare (immediate).
 // C3.5.5 Conditional compare (register).
@@ -197,7 +217,6 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
 // C3.5.7 Data-processing (1 source).
 // C3.5.8 Data-processing (2 source).
 // C3.5.9 Data-processing (3 source).
-// C3.5.10 Logical (shifted register).
 // C3.6.1 AdvSIMD EXT.
 // C3.6.2 AdvSIMD TBL/TBX.
 // C3.6.3 AdvSIMD ZIP/UZP/TRN.

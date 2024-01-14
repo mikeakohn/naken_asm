@@ -96,3 +96,18 @@ main: b.gt main
 main: b.le main
 main: b.al main
 main: b main
+sub w3, w8, #100
+subs w3, w8, #100, lsl #12
+sub w7, w9, #100, lsr #12
+subs x3, x8, #100, asr #43
+sub w10, w17, w9, sxtb
+subs x33, x7, w29, sxtw
+sub x13, x17, x30
+subs x13, x17, x30
+bic w3, w7, w17, lsr #7
+orr w3, w7, w17, lsl #2
+orn x2, x7, x17, asr #3
+eor x3, x7, x17, lsl #37
+eon w3, w7, w17, lsr #7
+ands w3, w7, w17, asr #30
+bicx x17, x7, x21, lsr #7
