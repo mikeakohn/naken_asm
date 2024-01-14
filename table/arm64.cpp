@@ -106,3 +106,128 @@ struct _table_arm64_at_op table_arm64_at_op[] =
   { NULL,     0x00 },
 };
 
+// C3.2.1 Compare & branch.
+struct _table_arm64_compare_branch table_arm64_compare_branch[] =
+{
+  { "cbz",  0 },
+  { "cbnz", 1 },
+  { NULL,   0 }
+};
+
+// C3.2.2 Conditional branch (immediate).
+
+// C3.2.3 Exception generation.
+struct _table_arm64_exception table_arm64_exception[] =
+{
+  { "svc",   0, 0, 1 },
+  { "hvc",   0, 0, 2 },
+  { "smc",   0, 0, 3 },
+  { "brk",   1, 0, 0 },
+  { "htl",   2, 0, 0 },
+  { "dcps1", 5, 0, 1 },
+  { "dcps2", 5, 0, 2 },
+  { "dcps3", 5, 0, 3 },
+  { NULL,    0, 0, 0 }
+};
+
+// C3.2.4 System.
+struct _table_arm64_system table_arm64_system[] =
+{
+  { "msr",   0, 0, ARM64_IMM,         4, ARM64_IMM, ARM64_REG_31 },
+  { "hint",  0, 0,         3,         2, ARM64_IMM, ARM64_REG_31 },
+  { "clrex", 0, 0,         3,         3,         2, ARM64_REG_31 },
+  { "dsb",   0, 0,         3,         3,         4, ARM64_REG_31 },
+  { "dmb",   0, 0,         3,         3,         5, ARM64_REG_31 },
+  { "isb",   0, 0,         3,         3,         6, ARM64_REG_31 },
+  { "sys",   0, 1, ARM64_IMM, ARM64_IMM, ARM64_IMM, ARM64_IMM    },
+  { "msr",   0, 2, ARM64_IMM, ARM64_IMM, ARM64_IMM, ARM64_IMM    },
+  { "sysl",  1, 1, ARM64_IMM, ARM64_IMM, ARM64_IMM, ARM64_IMM    },
+  { "mrs",   1, 2, ARM64_IMM, ARM64_IMM, ARM64_IMM, ARM64_IMM    },
+  { NULL,    0, 0,         0,         0,         0,         0    }
+};
+
+// C3.2.5 Test & branch (immediate).
+struct _table_arm64_test_branch table_arm64_test_branch[] =
+{
+  { "tbz",  0 },
+  { "tbnz", 1 },
+  { NULL,   0 }
+};
+
+// C3.2.6 Unconditional branch (immediate).
+struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
+{
+  { "br",   0, 31, 0, ARM64_REG_ANY,       0 },
+  { "blr",  1, 31, 0, ARM64_REG_ANY,       0 },
+  { "ret",  2, 31, 0, ARM64_REG_ANY_OR_30, 0 },
+  { "eret", 4, 31, 0, ARM64_REG_31,        0 },
+  { "drps", 5, 31, 0, ARM64_REG_31,        0 },
+  { NULL,   0,  0, 0,            0,        0 }
+}
+
+// C3.2.7 Unconditional branch (register).
+// C3.3.1 AdvSIMD load/store multiple structures.
+// C3.3.2 AdvSIMD load/store multiple structures (post-indexed).
+// C3.3.3 AdvSIMD load/store single structures.
+// C3.3.4 AdvSIMD load/store single structures (post-indexed).
+// C3.3.5 Load register (literal).
+// C3.3.6 Load/store exclusive.
+// C3.3.7 Load/store no-allocate pair (offset).
+// C3.3.8 Load/store register (immediate post-indexed).
+// C3.3.9 Load/store register (immediate pre-indexed).
+// C3.3.10 Load/store register (register offset).
+// C3.3.11 Load/store register (unprivileged).
+// C3.3.12 Load/store register (unscaled immediate).
+// C3.3.13 Load/store register (unsigned immediate).
+// C3.3.14 Load/store register pair (offset).
+// C3.3.15 Load/store register pair (post-indexed).
+// C3.3.16 Load/store register pair (pre-indexed).
+// C3.4.1 Add/substrict (immediate).
+// C3.4.2 Bitfield.
+// C3.4.3 Extract.
+// C3.4.4 Logical (immediate).
+// C3.4.5 Move wide (immediate).
+// C3.4.6 PC-rel addressing.
+// C3.5.1 Add/subtract (extend register).
+// C3.5.2 Add/subtract (shifted).
+// C3.5.3 Add/subtract (width carry).
+// C3.5.4 Conditional compare (immediate).
+// C3.5.5 Conditional compare (register).
+// C3.5.6 Conditional select.
+// C3.5.7 Data-processing (1 source).
+// C3.5.8 Data-processing (2 source).
+// C3.5.9 Data-processing (3 source).
+// C3.5.10 Logical (shifted register).
+// C3.6.1 AdvSIMD EXT.
+// C3.6.2 AdvSIMD TBL/TBX.
+// C3.6.3 AdvSIMD ZIP/UZP/TRN.
+// C3.6.4 AdvSIMD across lanes.
+// C3.6.5 AdvSIMD copy.
+// C3.6.6 AdvSIMD modified immediate.
+// C3.6.7 AdvSIMD scalar copy.
+// C3.6.8 AdvSIMD scalar pairwise.
+// C3.6.9 AdvSIMD scalar shift by immediate.
+// C3.6.10 AdvSIMD scalar three different.
+// C3.6.11 AdvSIMD scalar three same.
+// C3.6.12 AdvSIMD scalar two-reg misc.
+// C3.6.13 AdvSIMD scalar x indexed element.
+// C3.6.14 AdvSIMD scalar shift by immediate.
+// C3.6.15 AdvSIMD three different.
+// C3.6.16 AdvSIMD three same.
+// C3.6.17 AdvSIMD two-reg misc.
+// C3.6.18 AdvSIMD vector x indexed element.
+// C3.6.19 Crypto AES.
+// C3.6.20 Crypto three-reg SHA.
+// C3.6.21 Crypto two-reg SHA.
+// C3.6.22 Floating-point compare.
+// C3.6.23 Floating-point conditional compare.
+// C3.6.24 Floating-point conditional select.
+// C3.6.25 Floating-point data-processing (1 source).
+// C3.6.26 Floating-point data-processing (2 source).
+// C3.6.27 Floating-point data-processing (3 source).
+// C3.6.28 Floating-point immediate.
+// C3.6.29 Floating-point fixed-point conversions.
+// C3.6.30 Floating-point integer conversions.
+
+
+

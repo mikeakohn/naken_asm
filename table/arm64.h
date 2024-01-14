@@ -42,6 +42,11 @@ enum
   OP_RET,
 };
 
+#define ARM64_IMM           0xff
+#define ARM64_REG_31        0xfe
+#define ARM64_REG_ANY       0xfd
+#define ARM64_REG_ANY_OR_30 0xfc
+
 // reg_type is:
 // w = 32 bit register (w23).
 // x = 64 bit register (x23).
@@ -68,8 +73,54 @@ struct _table_arm64_at_op
   uint8_t value;
 };
 
+struct _table_arm64_compare_branch
+{
+  const char *name;
+  uint8_t op;
+};
+
+struct _table_arm64_exception
+{
+  const char *name;
+  uint8_t opc;
+  uint8_t op2;
+  uint8_t ll;
+};
+
+struct _table_arm64_system
+{
+  const char *name;
+  uint8_t l;
+  uint8_t op0;
+  uint8_t op1;
+  uint8_t crn;
+  uint8_t op2;
+  uint8_t rt;
+};
+
+struct _table_arm64_test_branch
+{
+  const char *name;
+  uint8_t op;
+};
+
+struct _table_arm64_uncond_branch
+{
+  const char *name;
+  uint8_t opc;
+  uint8_t op2;
+  uint8_t op3;
+  uint8_t rn;
+  uint8_t op4;
+};
+
 extern struct _table_arm64 table_arm64[];
 extern struct _table_arm64_at_op table_arm64_at_op[];
+extern struct _table_arm64_compare_branch table_arm64_compare_branch[];
+extern struct _table_arm64_exception table_arm64_exception[];
+extern struct _table_arm64_system table_arm64_system[];
+extern struct _table_arm64_test_branch table_arm64_test_branch[];
+extern struct _table_arm64_uncond_branch table_arm64_uncond_branch[];
 
 #endif
 
