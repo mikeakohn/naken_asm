@@ -163,7 +163,7 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
   { "eret", 4, 31, 0, ARM64_REG_31,        0 },
   { "drps", 5, 31, 0, ARM64_REG_31,        0 },
   { NULL,   0,  0, 0,            0,        0 }
-}
+};
 
 // C3.2.7 Unconditional branch (register).
 // C3.3.1 AdvSIMD load/store multiple structures.
