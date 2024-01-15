@@ -7,6 +7,8 @@ adc w3, w19, w30
 adc x30, x1, x17
 adcs w1, w11, w21
 adcs x2, x21, x7
+sbc w3, w19, w30
+sbcs x2, x21, x7
 add w3, w5, w30
 add x10, x17, x9
 add w10, w17, w9, lsl #3
@@ -17,8 +19,6 @@ add w9, w5, #27
 add x11, x19, #0x100
 add x11, x19, #0x100000
 addg x5, x9, #32, #5
-addhn v9.8b, v10.8b, v11.8b
-addhn2 v9.2s, v10.2s, v11.2s
 addp d4, v3.2d
 addp v9.4h, v18.4h, v1.4h
 adds x27, x7, w29, uxtb
@@ -49,7 +49,16 @@ asr w3, w8, w17
 asr x9, x1, x31
 asr w9, w1, #7
 asr x9, x1, #40
+lsl x9, x1, x31
+lsl x9, x1, #40
+lsr x3, x8, x17
+lsr w9, w1, w40
+ror x9, x1, x31
+ror x9, x1, #40
+lslv x9, x1, x30
+lsrv x11, x4, x39
 asrv w9, w1, w30
+rorv w1, w7, w17
 at s1e1r, x3
 at s1e1w, x5
 at s1e0r, x7
@@ -96,6 +105,7 @@ main: b.gt main
 main: b.le main
 main: b.al main
 main: b main
+main: bl main
 sub w3, w8, #100
 subs w3, w8, #100, lsl #12
 sub w7, w9, #100, lsr #12
@@ -111,3 +121,64 @@ eor x3, x7, x17, lsl #37
 eon w3, w7, w17, lsr #7
 ands w3, w7, w17, asr #30
 bicx x17, x7, x21, lsr #7
+ret
+ret x39
+ret w11
+br w13
+blr x17
+eret
+drps
+addhn v9.8b, v10.8b, v11.8b
+add v9.8b, v10.8b, v11.8b
+saddl v9.8b, v10.8b, v11.8b
+saddw v9.8b, v10.8b, v11.8b
+ssubl v9.8b, v10.8b, v11.8b
+ssubw v9.8b, v10.8b, v11.8b
+addhn v9.8b, v10.8b, v11.8b
+sabal v9.8b, v10.8b, v11.8b
+subhn v9.8b, v10.8b, v11.8b
+sabdl v9.8b, v10.8b, v11.8b
+smlal v9.8b, v10.8b, v11.8b
+sdqmlal v9.8b, v10.8b, v11.8b
+smlsl v9.8b, v10.8b, v11.8b
+sqdmlsl v9.8b, v10.8b, v11.8b
+smull v9.8b, v10.8b, v11.8b
+sqdmull v9.8b, v10.8b, v11.8b
+pmull v9.8b, v10.8b, v11.8b
+uaddl v9.8b, v10.8b, v11.8b
+uaddw v9.8b, v10.8b, v11.8b
+usubl v9.8b, v10.8b, v11.8b
+usubw v9.8b, v10.8b, v11.8b
+raddhn v9.8b, v10.8b, v11.8b
+uabal v9.8b, v10.8b, v11.8b
+rsubhn v9.8b, v10.8b, v11.8b
+uabdl v9.8b, v10.8b, v11.8b
+umlal v9.8b, v10.8b, v11.8b
+umlsl v9.8b, v10.8b, v11.8b
+umull v9.8b, v10.8b, v11.8b
+saddl2 v9.8b, v10.8b, v11.8b
+saddw2 v9.8b, v10.8b, v11.8b
+ssubl2 v9.8b, v10.8b, v11.8b
+ssubw2 v9.8b, v10.8b, v11.8b
+addhn2 v9.8b, v10.8b, v11.8b
+sabal2 v9.8b, v10.8b, v11.8b
+subhn2 v9.8b, v10.8b, v11.8b
+sabdl2 v9.8b, v10.8b, v11.8b
+smlal2 v9.8b, v10.8b, v11.8b
+sdqmlal2 v9.8b, v10.8b, v11.8b
+smlsl2 v9.8b, v10.8b, v11.8b
+sqdmlsl2 v9.8b, v10.8b, v11.8b
+smull2 v9.8b, v10.8b, v11.8b
+sqdmull2 v9.8b, v10.8b, v11.8b
+pmull2 v9.8b, v10.8b, v11.8b
+uaddl2 v9.8b, v10.8b, v11.8b
+uaddw2 v9.8b, v10.8b, v11.8b
+usubl2 v9.8b, v10.8b, v11.8b
+usubw2 v9.8b, v10.8b, v11.8b
+raddhn2 v9.8b, v10.8b, v11.8b
+uabal2 v9.8b, v10.8b, v11.8b
+rsubhn2 v9.8b, v10.8b, v11.8b
+uabdl2 v9.8b, v10.8b, v11.8b
+umlal2 v9.8b, v10.8b, v11.8b
+umlsl2 v9.8b, v10.8b, v11.8b
+umull2 v9.8b, v10.8b, v11.8b

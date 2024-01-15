@@ -18,27 +18,34 @@ struct _table_arm64 table_arm64[] =
   { "nop",       0xd503201f, 0xffffffff, 0, ' ', OP_NONE },
   { "abs",       0x5e20b800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
   { "abs",       0x0e20b800, 0xbf3ffc00, 2, 'v', OP_VECTOR_V_V },
-  { "adc",       0x1a000000, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
-  { "adcs",      0x3a000000, 0x7fe0fc00, 3, 'w', OP_MATH_R_R_R },
   { "addg",      0x91800000, 0xffc0c000, 4, 'x', OP_MATH_R_R_IMM6_IMM4 },
   { "add",       0x5e208400, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
   { "add",       0x0e208400, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
-  { "addhn",     0x0e204000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
-  { "addhn2",    0x0e204000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
-  { "addp",      0x5ef1b800, 0xfffffc00, 2, 'd', OP_VECTOR_D_V },
-  { "addp",      0x5e31b800, 0xbf3ffc00, 2, 'v', OP_VECTOR_V_V_V },
+
   { "addv",      0x0e31b800, 0xbf3ffc00, 2, 'd', OP_VECTOR_V_V_TO_SCALAR },
-  { "adr",       0x10000000, 0x9f000000, 2, 'x', OP_REG_RELATIVE },
-  { "adrp",      0x90000000, 0x9f000000, 2, 'x', OP_REG_PAGE_RELATIVE },
-  { "aesd",      0x4e285800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
-  { "aese",      0x4e284800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
-  { "aesimc",    0x4e287800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
-  { "aesmc",     0x4e286800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
   { "and",       0x0e201c00, 0xbfe0fc00, 3, 'v', OP_VECTOR_V_V_V },
-  { "asr",       0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
-  { "asr",       0x13007c00, 0x7f80fc00, 3, 'b', OP_MATH_R_R_IMMR },
-  { "asrv",      0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+
   { "at",        0xd5807800, 0xfff8fe00, 2, 'b', OP_AT },
+  { "bcax",      0xce200000, 0xffe08000, 4, 'v', OP_REG_REG_CRYPT },
+  { "bfc",       0xce200000, 0x7f8003e0, 3, 'b', OP_REG_BITFIELD },
+
+  // C2.4.6 Shift (register).
+  { "lslv",      0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+  { "lsrv",      0x1ac02400, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+  { "asrv",      0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+  { "rorv",      0x1ac02c00, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+
+  { "lsl",       0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+  { "lsr",       0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+  { "asr",       0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+  { "ror",       0x1ac02800, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+
+  { "lsl",       0x13007c00, 0x7f80fc00, 3, 'b', OP_MATH_R_R_IMMR },
+  { "lsr",       0x13007c00, 0x7f80fc00, 3, 'b', OP_MATH_R_R_IMMR },
+  { "asr",       0x13007c00, 0x7f80fc00, 3, 'b', OP_MATH_R_R_IMMR },
+  { "ror",       0x13007c00, 0x7f80fc00, 3, 'b', OP_MATH_R_R_IMMR },
+
+  // These are only in one PDF, missing from another.
   { "autda",     0xdac11800, 0xfffffc00, 2, 'x', OP_MATH_R_R_R },
   { "autdza",    0xdac13be0, 0xffffffe0, 1, 'x', OP_MATH_R_R_R },
   { "autdb",     0xdac11c00, 0xfffffc00, 2, 'x', OP_MATH_R_R_R },
@@ -54,9 +61,6 @@ struct _table_arm64 table_arm64[] =
   { "autibsp",   0xd50323ff, 0xffffffff, 0, 'x', OP_NONE },
   { "autibz",    0xd50323df, 0xffffffff, 0, 'x', OP_NONE },
   { "axflag",    0xd500405f, 0xffffffff, 0, 'x', OP_NONE },
-  { "b",         0x14000000, 0xfc000000, 0, 'x', OP_RELATIVE26 },
-  { "bcax",      0xce200000, 0xffe08000, 4, 'v', OP_REG_REG_CRYPT },
-  { "bfc",       0xce200000, 0x7f8003e0, 3, 'b', OP_REG_BITFIELD },
 
   // C3.2.2 Conditional branch (immediate).
   { "b.eq",      0x54000000, 0xff00001f, 0, 'x', OP_RELATIVE19 },
@@ -75,7 +79,77 @@ struct _table_arm64 table_arm64[] =
   { "b.le",      0x5400000d, 0xff00001f, 0, 'x', OP_RELATIVE19 },
   { "b.al",      0x5400000f, 0xff00001f, 0, 'x', OP_RELATIVE19 },
 
-  // C3.4.1 Add/substrict (immediate).
+  // C3.2.6 Unconditional branch (immediate).
+  { "b",         0x14000000, 0xfc000000, 0, 'x', OP_RELATIVE26 },
+  { "bl",        0x94000000, 0xfc000000, 0, 'x', OP_RELATIVE26 },
+
+  // C3.2.7 Unconditional branch (register).
+  { "br",        0xd61f0000, 0xfffffc1f, 3, 'b', OP_RET },
+  { "blr",       0xd63f0000, 0xfffffc1f, 3, 'b', OP_RET },
+  { "ret",       0xd65f0000, 0xfffffc1f, 3, 'b', OP_RET },
+  { "eret",      0xd69f0000, 0xfffffc1f, 3, '0', OP_RET },
+  { "drps",      0xd6bf0000, 0xfffffc1f, 3, '0', OP_RET },
+
+  // C3.4.6 PC-rel addressing.
+  { "adr",       0x10000000, 0x9f000000, 2, 'x', OP_REG_RELATIVE },
+  { "adrp",      0x90000000, 0x9f000000, 2, 'x', OP_REG_PAGE_RELATIVE },
+
+  // C3.6.15 AdvSIMD three different.
+  { "saddl",     0x0e200000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "saddw",     0x0e201000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "ssubl",     0x0e202000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "ssubw",     0x0e203000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "addhn",     0x0e204000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "sabal",     0x0e205000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "subhn",     0x0e206000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "sabdl",     0x0e207000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "smlal",     0x0e208000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "sdqmlal",   0x0e209000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "smlsl",     0x0e20a000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "sqdmlsl",   0x0e20b000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "smull",     0x0e20c000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "sqdmull",   0x0e20d000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "pmull",     0x0e20e000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "uaddl",     0x2e200000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "uaddw",     0x2e201000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "usubl",     0x2e202000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "usubw",     0x2e203000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "raddhn",    0x2e204000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "uabal",     0x2e205000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "rsubhn",    0x2e206000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "uabdl",     0x2e207000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "umlal",     0x2e208000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "umlsl",     0x2e20a000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "umull",     0x2e20c000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+
+  { "saddl2",    0x4e200000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "saddw2",    0x4e201000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "ssubl2",    0x4e202000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "ssubw2",    0x4e203000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "addhn2",    0x4e204000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "sabal2",    0x4e205000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "subhn2",    0x4e206000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "sabdl2",    0x4e207000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "smlal2",    0x4e208000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "sdqmlal2",  0x4e209000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "smlsl2",    0x4e20a000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "sqdmlsl2",  0x4e20b000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "smull2",    0x4e20c000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "sqdmull2",  0x4e20d000, 0xbf20fc00, 3, 'i', OP_VECTOR_V_V_V },
+  { "pmull2",    0x4e20e000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "uaddl2",    0x6e200000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "uaddw2",    0x6e201000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "usubl2",    0x6e202000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "usubw2",    0x6e203000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "raddhn2",   0x6e204000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "uabal2",    0x6e205000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "rsubhn2",   0x6e206000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "uabdl2",    0x6e207000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "umlal2",    0x6e208000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "umlsl2",    0x6e20a000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "umull2",    0x6e20c000, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+
+  // C3.4.1 Add/substract (immediate).
   { "add",       0x11000000, 0x7f000000, 3, 'b', OP_MATH_R_R_IMM_SHIFT },
   { "adds",      0x31000000, 0x7f000000, 3, 'b', OP_MATH_R_R_IMM_SHIFT },
   { "sub",       0x51000000, 0x7f000000, 3, 'b', OP_MATH_R_R_IMM_SHIFT },
@@ -99,6 +173,12 @@ struct _table_arm64 table_arm64[] =
   { "sub",       0x4b000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
   { "subs",      0x6b000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
 
+  // C3.5.3 Add/subtract (width carry).
+  { "adc",       0x1a000000, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+  { "adcs",      0x3a000000, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+  { "sbc",       0x5a000000, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+  { "sbcs",      0x7a000000, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
+
   // C3.5.10 Logical (shifted register).
   { "and",       0x0a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
   { "bic",       0x0a200000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
@@ -109,7 +189,16 @@ struct _table_arm64 table_arm64[] =
   { "ands",      0x6a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
   { "bics",      0x6a200000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
 
-  { "ret",       0xd65f0000, 0xfffffc1f, 3, 'b', OP_RET },
+  // C3.6.8 AdvSIMD scalar pairwise.
+  { "addp",      0x5ef1b800, 0xfffffc00, 2, 'd', OP_VECTOR_D_V },
+  { "addp",      0x5e31b800, 0xbf3ffc00, 2, 'v', OP_VECTOR_V_V_V },
+
+  // C3.6.19 Crypto AES.
+  { "aesd",      0x4e285800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
+  { "aese",      0x4e284800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
+  { "aesimc",    0x4e287800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
+  { "aesmc",     0x4e286800, 0xfffffc00, 2, 'v', OP_REG_REG_CRYPT },
+
   { NULL,        0x00000000, 0x00000000, 0, ' ', 0 }
 };
 
@@ -178,7 +267,8 @@ struct _table_arm64_test_branch table_arm64_test_branch[] =
   { NULL,   0 }
 };
 
-// C3.2.6 Unconditional branch (immediate).
+// C3.2.7 Unconditional branch (register).
+#if 0
 struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
 {
   { "br",   0, 31, 0, ARM64_REG_ANY,       0 },
@@ -188,8 +278,8 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
   { "drps", 5, 31, 0, ARM64_REG_31,        0 },
   { NULL,   0,  0, 0,            0,        0 }
 };
+#endif
 
-// C3.2.7 Unconditional branch (register).
 // C3.3.1 AdvSIMD load/store multiple structures.
 // C3.3.2 AdvSIMD load/store multiple structures (post-indexed).
 // C3.3.3 AdvSIMD load/store single structures.
@@ -209,8 +299,6 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
 // C3.4.2 Bitfield.
 // C3.4.3 Extract.
 // C3.4.5 Move wide (immediate).
-// C3.4.6 PC-rel addressing.
-// C3.5.3 Add/subtract (width carry).
 // C3.5.4 Conditional compare (immediate).
 // C3.5.5 Conditional compare (register).
 // C3.5.6 Conditional select.
@@ -224,18 +312,15 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
 // C3.6.5 AdvSIMD copy.
 // C3.6.6 AdvSIMD modified immediate.
 // C3.6.7 AdvSIMD scalar copy.
-// C3.6.8 AdvSIMD scalar pairwise.
 // C3.6.9 AdvSIMD scalar shift by immediate.
 // C3.6.10 AdvSIMD scalar three different.
 // C3.6.11 AdvSIMD scalar three same.
 // C3.6.12 AdvSIMD scalar two-reg misc.
 // C3.6.13 AdvSIMD scalar x indexed element.
 // C3.6.14 AdvSIMD scalar shift by immediate.
-// C3.6.15 AdvSIMD three different.
 // C3.6.16 AdvSIMD three same.
 // C3.6.17 AdvSIMD two-reg misc.
 // C3.6.18 AdvSIMD vector x indexed element.
-// C3.6.19 Crypto AES.
 // C3.6.20 Crypto three-reg SHA.
 // C3.6.21 Crypto two-reg SHA.
 // C3.6.22 Floating-point compare.
@@ -247,6 +332,4 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
 // C3.6.28 Floating-point immediate.
 // C3.6.29 Floating-point fixed-point conversions.
 // C3.6.30 Floating-point integer conversions.
-
-
 

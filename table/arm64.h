@@ -48,10 +48,12 @@ enum
 #define ARM64_REG_ANY_OR_30 0xfc
 
 // reg_type is:
+// 0 = no regster.
 // w = 32 bit register (w23).
 // x = 64 bit register (x23).
 // b = both - either 32 or 64 bit register (w23 or x23).
 // v = vector with size (v23.16b).
+// i = vector with size (v23.16b) and an index.
 // d = scalar vector (double) (d23).
 // h = scalar vector (half) (h23).
 // s = scalar vector (short) (h23).
@@ -104,6 +106,7 @@ struct _table_arm64_test_branch
   uint8_t op;
 };
 
+#if 0
 struct _table_arm64_uncond_branch
 {
   const char *name;
@@ -113,6 +116,7 @@ struct _table_arm64_uncond_branch
   uint8_t rn;
   uint8_t op4;
 };
+#endif
 
 extern struct _table_arm64 table_arm64[];
 extern struct _table_arm64_at_op table_arm64_at_op[];
@@ -120,7 +124,7 @@ extern struct _table_arm64_compare_branch table_arm64_compare_branch[];
 extern struct _table_arm64_exception table_arm64_exception[];
 extern struct _table_arm64_system table_arm64_system[];
 extern struct _table_arm64_test_branch table_arm64_test_branch[];
-extern struct _table_arm64_uncond_branch table_arm64_uncond_branch[];
+//extern struct _table_arm64_uncond_branch table_arm64_uncond_branch[];
 
 #endif
 

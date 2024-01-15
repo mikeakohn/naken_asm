@@ -702,6 +702,127 @@ static int op_add_sub_imm(
   return 4;
 }
 
+static int op_2_reg_imm6_imm4(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operands[0].type != OPERAND_REG_64 ||
+      operands[1].type != OPERAND_REG_64)
+  {
+    return -2;
+  }
+
+  int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
+  if (size != 1) { return -2; }
+
+  int imm6 = operands[2].value;
+  int imm4 = operands[3].value;
+
+  if (check_range(asm_context, "immediate4", imm4, 0, 15) != 0)
+  {
+    return -1;
+  }
+
+  if (check_range(asm_context, "immediate6", imm4, 0, 15) != 0)
+  {
+    return -1;
+  }
+
+  if ((imm6 % 16) != 0)
+  {
+    print_error(asm_context, "Immediate6 is not a multiple of 16");
+    return -1;
+  }
+
+  imm6 = imm6 / 16;
+
+  opcode |= operands[0].value |
+           (operands[1].value << 5) |
+           (imm6 << 16) |
+           (imm4 << 10);
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
+static int op_reg_relative(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operands[0].type != OPERAND_REG_64 ||
+      operands[1].type != OPERAND_ADDRESS)
+  {
+    return -2;
+  }
+
+  int offset = operands[1].value - (asm_context->address + 4);
+
+  if (check_range(asm_context, "offset", offset, -(1 << 20), (1 << 20) - 1) != 0)
+  {
+    return -1;
+  }
+
+  offset &= (1 << 21) - 1;
+
+  opcode |= operands[0].value |
+           ((offset & 0x3) << 29) |
+           ((offset >> 2) << 5);
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
+static int op_reg_page_relative(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operands[0].type != OPERAND_REG_64 ||
+      operands[1].type != OPERAND_ADDRESS)
+  {
+    return -2;
+  }
+
+  uint64_t base = asm_context->address & (~0xfffULL);
+
+  if ((operands[1].value & 0xfff) != 0)
+  {
+    print_error(asm_context, "Address is not on page boundary.");
+    return -1;
+  }
+
+  int64_t offset = operands[1].value - base;
+
+#if 0
+  //if (check_range(asm_context, "offset", offset, -(1LL << 32), (1LL << 32) - 1) != 0)
+  if (check_range(asm_context, "offset", offset, -(1 << 30), (1 << 30) - 1) != 0)
+  {
+    return -1;
+  }
+#endif
+
+  offset = offset >> 12;
+  offset &= (1 << 21) - 1;
+
+  opcode |= operands[0].value |
+          ((offset & 0x3) << 29) |
+          ((offset >> 2) << 5);
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
 static int op_logical_imm(
   AsmContext *asm_context,
   struct _operand *operands,
@@ -758,7 +879,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
 
-  while (1)
+  while (true)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -885,109 +1006,24 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         }
         case OP_MATH_R_R_IMM6_IMM4:
         {
-          if (operands[0].type != OPERAND_REG_64 ||
-              operands[1].type != OPERAND_REG_64)
-          {
-            continue;
-          }
+          ret = op_2_reg_imm6_imm4(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
 
-          int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
-          if (size != 1) { continue; }
-
-          int imm6 = operands[2].value;
-          int imm4 = operands[3].value;
-
-          if (check_range(asm_context, "immediate4", imm4, 0, 15) != 0)
-          {
-            return -1;
-          }
-
-          if (check_range(asm_context, "immediate6", imm4, 0, 15) != 0)
-          {
-            return -1;
-          }
-
-          if ((imm6 % 16) != 0)
-          {
-            print_error(asm_context, "Immediate6 is not a multiple of 16");
-            return -1;
-          }
-
-          imm6 = imm6 / 16;
-
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                  (operands[1].value << 5) |
-                  (imm6 << 16) |
-                  (imm4 << 10);
-
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
+          if (ret == -2) { continue; }
+          return ret;
         }
         case OP_REG_RELATIVE:
         {
-          if (operands[0].type != OPERAND_REG_64 ||
-              operands[1].type != OPERAND_ADDRESS)
-          {
-            continue;
-          }
+          ret = op_reg_relative(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
 
-          offset = operands[1].value - (asm_context->address + 4);
-
-          if (check_range(asm_context, "offset", offset, -(1 << 20), (1 << 20) - 1) != 0)
-          {
-            return -1;
-          }
-
-          offset &= (1 << 21) - 1;
-
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                 ((offset & 0x3) << 29) |
-                 ((offset >> 2) << 5);
-
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
+          if (ret == -2) { continue; }
+          return ret;
         }
         case OP_REG_PAGE_RELATIVE:
         {
-          if (operands[0].type != OPERAND_REG_64 ||
-              operands[1].type != OPERAND_ADDRESS)
-          {
-            continue;
-          }
+          ret = op_reg_page_relative(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
 
-          uint64_t base = asm_context->address & (~0xfffULL);
-
-          if ((operands[1].value & 0xfff) != 0)
-          {
-            print_error(asm_context, "Address is not on page boundary.");
-            return -1;
-          }
-
-          int64_t offset = operands[1].value - base;
-
-#if 0
-          //if (check_range(asm_context, "offset", offset, -(1LL << 32), (1LL << 32) - 1) != 0)
-          if (check_range(asm_context, "offset", offset, -(1 << 30), (1 << 30) - 1) != 0)
-          {
-            return -1;
-          }
-#endif
-
-          offset = offset >> 12;
-          offset &= (1 << 21) - 1;
-
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                 ((offset & 0x3) << 29) |
-                 ((offset >> 2) << 5);
-
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
+          if (ret == -2) { continue; }
+          return ret;
         }
         case OP_VECTOR_D_V:
         {
