@@ -635,7 +635,7 @@ static int op_add_sub_imm(
     return -2;
   }
 
-  if (operands[0].type != OPERAND_NUMBER)
+  if (operands[2].type != OPERAND_NUMBER)
   {
     return -2;
   }
