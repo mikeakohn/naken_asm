@@ -90,6 +90,30 @@ struct _table_arm64 table_arm64[] =
   { "eret",      0xd69f0000, 0xfffffc1f, 3, '0', OP_RET },
   { "drps",      0xd6bf0000, 0xfffffc1f, 3, '0', OP_RET },
 
+  // C3.3.8 Load/store register (immediate post-indexed).
+  // C3.3.9 Load/store register (immediate pre-indexed).
+  { "strb",      0x38000000, 0x3b000000, 3, 'w', OP_LD_ST_IMM },
+  { "strh",      0x78000000, 0x3b000000, 3, 'w', OP_LD_ST_IMM },
+  { "str",       0xb8000000, 0x3b000000, 3, '0', OP_LD_ST_IMM },
+  { "strh",      0x78000000, 0x3b000000, 3, 'w', OP_LD_ST_IMM },
+  { "ldrb",      0x38400000, 0x3b000000, 3, 'w', OP_LD_ST_IMM },
+  { "ldrsb",     0x38400000, 0x3b000000, 3, '0', OP_LD_ST_IMM },
+  { "ldrh",      0x78400000, 0x3b000000, 3, 'w', OP_LD_ST_IMM },
+  { "ldrsh",     0x78400000, 0x3b000000, 3, '0', OP_LD_ST_IMM },
+  { "ldr",       0xb8400000, 0x3b000000, 3, '0', OP_LD_ST_IMM },
+
+  // C3.3.13 Load/store register (unsigned immediate).
+#if 0
+  { "str",       0xb8000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
+  { "strb",      0x38000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
+  { "strh",      0x78000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
+  { "ldr",       0xb8000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
+  { "ldrb",      0x38000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
+  { "ldrsb",     0x38000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
+  { "ldrh",      0x78000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
+  { "ldrsh",     0x78000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
+#endif
+
   // C3.4.6 PC-rel addressing.
   { "adr",       0x10000000, 0x9f000000, 2, 'x', OP_REG_RELATIVE },
   { "adrp",      0x90000000, 0x9f000000, 2, 'x', OP_REG_PAGE_RELATIVE },
@@ -287,12 +311,9 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
 // C3.3.5 Load register (literal).
 // C3.3.6 Load/store exclusive.
 // C3.3.7 Load/store no-allocate pair (offset).
-// C3.3.8 Load/store register (immediate post-indexed).
-// C3.3.9 Load/store register (immediate pre-indexed).
 // C3.3.10 Load/store register (register offset).
 // C3.3.11 Load/store register (unprivileged).
 // C3.3.12 Load/store register (unscaled immediate).
-// C3.3.13 Load/store register (unsigned immediate).
 // C3.3.14 Load/store register pair (offset).
 // C3.3.15 Load/store register pair (post-indexed).
 // C3.3.16 Load/store register pair (pre-indexed).

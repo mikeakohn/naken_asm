@@ -34,6 +34,7 @@ enum
   OPERAND_ADDRESS,
   OPERAND_OPTION,
   OPERAND_AT,
+  OPERAND_REG_OFFSET,
 };
 
 enum
@@ -67,11 +68,20 @@ enum
   OPTION_ASR,
 };
 
+enum
+{
+  INDEX_NONE = 0,
+  INDEX_PRE,
+  INDEX_POST
+};
+
 struct _operand
 {
   int value;
   int type;
   int attribute;
+  int offset_imm;
+  uint8_t index_type;
 };
 
 static int get_vector_number(char **p, int *num)
@@ -191,6 +201,12 @@ static int get_register_arm64(
   {
     type = OPERAND_REG_SCALAR;
     size = 3;
+  }
+    else
+  if (s[0] == 'q' || s[0] == 'Q')
+  {
+    type = OPERAND_REG_SCALAR;
+    size = 4;
   }
     else
   {
@@ -862,6 +878,83 @@ static int op_logical_imm(
   return 4;
 }
 
+static int op_ld_st_imm(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr,
+  char reg_type)
+{
+  if (operand_count != 2)
+  {
+    return -2;
+  }
+
+  if (operands[0].type != operands[1].type)   { return -2; }
+  if (operands[1].type != OPERAND_REG_OFFSET) { return -2; }
+
+  if (reg_type == 'w' && operands[0].type != OPERAND_REG_32)
+  {
+    return -2;
+  }
+
+  if (operands[0].type != OPERAND_REG_32 &&
+      operands[0].type != OPERAND_REG_64)
+  {
+    return -2;
+  }
+
+  int offset = operands[1].offset_imm;
+  int v = 0;
+  int size = 0;
+  int opc = 0;
+
+  if (operands[0].type == OPERAND_REG_SCALAR)
+  {
+    v = 1;
+
+    size = operands[0].attribute & 0x3;
+    if (size == 4) { opc = 2; }
+  }
+
+  if (operands[1].index_type == INDEX_NONE)
+  {
+    if (check_range(asm_context, "offset", offset, 0, 8095) != 0)
+    {
+      return -1;
+    }
+
+    opcode |= (size << 30) |
+              (v << 26) |
+              (opc << 22) |
+            (((offset >> 1) & 0xfff) << 10) |
+              (operands[1].value << 5) |
+               operands[0].value;
+  }
+    else
+  {
+    if (check_range(asm_context, "offset", offset, -256, 255) != 0)
+    {
+      return -1;
+    }
+
+    int p = operands[1].index_type == INDEX_PRE ? 3 : 1;
+
+    opcode |= (size << 30) |
+              (v << 26) |
+              (opc << 22) |
+             ((offset & 0x1ff) << 12) |
+              (p << 10) |
+              (operands[1].value << 5) |
+               operands[0].value;
+  }
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
 int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
@@ -933,6 +1026,114 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
       operands[operand_count].type = OPERAND_NUMBER;
       operands[operand_count].value = num;
+    }
+      else
+    if (IS_TOKEN(token,'['))
+    {
+      // [x0]
+      // [x0]!
+      // [x0, #8]
+      // [x0, #8]!
+      // [x0], #8
+
+      operands[operand_count].type = OPERAND_REG_OFFSET;
+
+      do
+      {
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (IS_TOKEN(token, ']'))
+        {
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (IS_TOKEN(token, '!'))
+          {
+            operands[operand_count].index_type = INDEX_PRE;
+            break;
+          }
+
+          if (IS_NOT_TOKEN(token, ','))
+          {
+            tokens_push(asm_context, token, token_type);
+            break;
+          }
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (IS_NOT_TOKEN(token, '#'))
+          {
+            print_error_unexp(asm_context, token);
+            return -1;
+          }
+
+          if (eval_expression(asm_context, &num) != 0)
+          {
+            if (asm_context->pass == 1)
+            {
+              ignore_operand(asm_context);
+              num = 0;
+            }
+              else
+            {
+              print_error_illegal_expression(asm_context, instr);
+              return -1;
+            }
+          }
+
+          operands[operand_count].offset_imm = num;
+
+          break;
+        }
+
+        if (IS_NOT_TOKEN(token, ','))
+        {
+          print_error_unexp(asm_context, token);
+          return -1;
+        }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (IS_NOT_TOKEN(token, '#'))
+        {
+          print_error_unexp(asm_context, token);
+          return -1;
+        }
+
+        if (eval_expression(asm_context, &num) != 0)
+        {
+          if (asm_context->pass == 1)
+          {
+            ignore_operand(asm_context);
+            num = 0;
+          }
+            else
+          {
+            print_error_illegal_expression(asm_context, instr);
+            return -1;
+          }
+        }
+
+        operands[operand_count].offset_imm = num;
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (IS_NOT_TOKEN(token, ']'))
+        {
+          print_error_unexp(asm_context, token);
+          return -1;
+        }
+
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        if (IS_TOKEN(token, '!'))
+        {
+          operands[operand_count].index_type = INDEX_PRE;
+        }
+          else
+        {
+          tokens_push(asm_context, token, token_type);
+        }
+      } while (false);
     }
       else
     {
@@ -1179,6 +1380,13 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
+        }
+        case OP_LD_ST_IMM:
+        {
+          ret = op_ld_st_imm(asm_context, operands, operand_count, table_arm64[n].opcode, instr, table_arm64[n].reg_type);
+
+          if (ret == -2) { continue; }
+          return ret;
         }
         default:
         {
