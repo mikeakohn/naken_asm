@@ -17,7 +17,7 @@
 #include "table/arm64.h"
 
 static char reg_size[] = { 'w', 'x' };
-static char scalar_size[] = { 'b', 'h', 's', 'd' };
+static char scalar_size[] = { 'b', 'h', 's', 'd', 'q' };
 static const char *vec_size[] =
 {
   "8b", "16b", "4h", "8h", "2s", "4s", "1d", "2d"
@@ -56,7 +56,7 @@ int disasm_arm64(
   uint32_t opcode;
   int n;
   int rm, rn, rd;
-  int size, sf, imm, option, shift;
+  int size, sf, imm, option, shift, v;
 
   opcode = memory->read32(address);
 
@@ -68,6 +68,7 @@ int disasm_arm64(
   rd = opcode & 0x1f;
   size = (opcode >> 22) & 0x3;
   sf = (opcode >> 31) & 0x1;
+  v = (opcode >> 26) & 0x1;
 
   for (n = 0; table_arm64[n].instr != NULL; n++)
   {
@@ -422,6 +423,115 @@ int disasm_arm64(
 
           return 4;
         }
+        case OP_LD_ST_IMM:
+        {
+          int type = (opcode >> 22) & 0x3;
+          int index_type = (opcode >> 10) & 0x3;
+
+          if (v == 0)
+          {
+            char reg_name = (type & 1) == 0 ? 'x' : 'w';
+
+            if (type != 0)
+            {
+              int imm = (opcode >> 12) & 0x1ff;
+              if ((imm >> 8) != 0) { imm |= 0xffffff00; }
+
+              if (index_type == 1)
+              {
+                snprintf(instruction, length, "%s %c%d, [x%d], #%d",
+                  table_arm64[n].instr,
+                  reg_name,
+                  rd,
+                  rn,
+                  imm);
+              }
+                else
+              {
+                snprintf(instruction, length, "%s %c%d, [x%d, #%d]!",
+                  table_arm64[n].instr,
+                  reg_name,
+                  rd,
+                  rn,
+                  imm);
+              }
+            }
+              else
+            {
+              int imm = ((opcode >> 10) & 0xfff) << 1;
+              size |= ((opcode >> 23) & 1) << 2;
+
+              if (imm == 0)
+              {
+                snprintf(instruction, length, "%s %c%d, [x%d]",
+                  table_arm64[n].instr,
+                  reg_name,
+                  rd,
+                  rn);
+              }
+                else
+              {
+                snprintf(instruction, length, "%s %c%d, [x%d, #0x%05x]",
+                  table_arm64[n].instr,
+                  reg_name,
+                  rd,
+                  rn,
+                  imm);
+              }
+            }
+          }
+            else
+          {
+            if (type != 0)
+            {
+              int imm = (opcode >> 12) & 0x1ff;
+              if ((imm >> 8) != 0) { imm |= 0xffffff00; }
+
+              if (index_type == 1)
+              {
+                snprintf(instruction, length, "%s %c%d, [x%d], #%d",
+                  table_arm64[n].instr,
+                  scalar_size[size],
+                  rd,
+                  rn,
+                  imm);
+              }
+                else
+              {
+                snprintf(instruction, length, "%s %c%d, [x%d, #%d]!",
+                  table_arm64[n].instr,
+                  scalar_size[size],
+                  rd,
+                  rn,
+                  imm);
+              }
+            }
+              else
+            {
+              int imm = ((opcode >> 10) & 0xfff) << 1;
+
+              if (imm == 0)
+              {
+                snprintf(instruction, length, "%s %c%d, [x%d]",
+                  table_arm64[n].instr,
+                  scalar_size[size],
+                  rd,
+                  rn);
+              }
+                else
+              {
+                snprintf(instruction, length, "%s %c%d, [x%d, #0x%05x]",
+                  table_arm64[n].instr,
+                  scalar_size[size],
+                  rd,
+                  rn,
+                  imm);
+              }
+            }
+          }
+
+          return 4;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);
@@ -463,7 +573,7 @@ void list_output_arm64(
 
     opcode = memory->read32(start);
 
-    fprintf(asm_context->list, "0x%04x: %08x %-40s\n", start, opcode, instruction);
+    fprintf(asm_context->list, "0x%04x: %08x %s\n", start, opcode, instruction);
 
     start += count;
   }
@@ -498,7 +608,7 @@ void disasm_range_arm64(
 
     opcode = memory->read32(start);
 
-    printf("0x%04x: %08x %-40s\n", start, opcode, instruction);
+    printf("0x%04x: %08x %s\n", start, opcode, instruction);
 
     start = start + count;
   }

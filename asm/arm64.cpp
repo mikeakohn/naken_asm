@@ -136,28 +136,28 @@ static int get_register_arm64(
   int token_type;
   int num, size = 0, type;
 
-  if (strcasecmp(token, "wzr") == 0)
+  if (strcasecmp(s, "wzr") == 0)
   {
     operand->type = OPERAND_REG_32;
     operand->value = 31;
     return 0;
   }
     else
-  if (strcasecmp(token, "xzr") == 0)
+  if (strcasecmp(s, "xzr") == 0)
   {
     operand->type = OPERAND_REG_64;
     operand->value = 31;
     return 0;
   }
     else
-  if (strcasecmp(token, "wsp") == 0)
+  if (strcasecmp(s, "wsp") == 0)
   {
     operand->type = OPERAND_REG_32;
     operand->value = 31;
     return 0;
   }
     else
-  if (strcasecmp(token, "sp") == 0)
+  if (strcasecmp(s, "sp") == 0)
   {
     operand->type = OPERAND_REG_64;
     operand->value = 31;
@@ -223,7 +223,7 @@ static int get_register_arm64(
     return 0;
   }
 
-  char *orig = s;
+  const char *orig = s;
   s++;
 
   if (get_vector_number(&s, &num) == -1)
@@ -891,7 +891,6 @@ static int op_ld_st_imm(
     return -2;
   }
 
-  if (operands[0].type != operands[1].type)   { return -2; }
   if (operands[1].type != OPERAND_REG_OFFSET) { return -2; }
 
   if (reg_type == 'w' && operands[0].type != OPERAND_REG_32)
@@ -900,7 +899,8 @@ static int op_ld_st_imm(
   }
 
   if (operands[0].type != OPERAND_REG_32 &&
-      operands[0].type != OPERAND_REG_64)
+      operands[0].type != OPERAND_REG_64 &&
+      operands[0].type != OPERAND_REG_SCALAR)
   {
     return -2;
   }
@@ -1035,6 +1035,16 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
       // [x0, #8]
       // [x0, #8]!
       // [x0], #8
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      num = get_register_arm64(asm_context, &operands[operand_count], token);
+      if (num == -2) { return -1; }
+      if (num < 0 || operands[operand_count].type != OPERAND_REG_64)
+      {
+        print_error_unexp(asm_context, token);
+        return -1;
+      }
 
       operands[operand_count].type = OPERAND_REG_OFFSET;
 
