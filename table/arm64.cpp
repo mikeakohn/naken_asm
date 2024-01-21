@@ -91,8 +91,8 @@ struct _table_arm64 table_arm64[] =
   { "drps",      0xd6bf0000, 0xfffffc1f, 3, '0', OP_RET },
 
   // C3.3.5 Load register (literal).
-  { "ldr",       0x1c000000, 0x3b000000, 2, '0', OP_LD_LITERAL },
-  { "ldrsw",     0x1c000000, 0x3b000000, 2, 'x', OP_LD_LITERAL },
+  { "ldr",       0x18000000, 0x3b000000, 2, '0', OP_LD_LITERAL },
+  { "ldrsw",     0x18000000, 0x3b000000, 2, 'x', OP_LD_LITERAL },
 
   // C3.3.8 Load/store register (immediate post-indexed).
   // C3.3.9 Load/store register (immediate pre-indexed).

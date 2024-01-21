@@ -1059,6 +1059,10 @@ static int op_ld_literal(
       default: return -2;
     }
   }
+    else
+  {
+    if (operands[0].type == OPERAND_REG_64) { size = 1; }
+  }
 
   const int min = -(1 << 20);
   const int max = (1 << 20) - 1;
