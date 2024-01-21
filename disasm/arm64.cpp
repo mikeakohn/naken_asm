@@ -435,7 +435,9 @@ int disasm_arm64(
             if (type != 0)
             {
               int imm = (opcode >> 12) & 0x1ff;
-              if ((imm >> 8) != 0) { imm |= 0xffffff00; }
+              imm = imm << 19;
+              imm = imm >> 19;
+              imm = imm << size;
 
               if (index_type == 1)
               {
@@ -485,7 +487,9 @@ int disasm_arm64(
             if (type != 0)
             {
               int imm = (opcode >> 12) & 0x1ff;
-              if ((imm >> 8) != 0) { imm |= 0xffffff00; }
+              imm = imm << 19;
+              imm = imm >> 19;
+              imm = imm << size;
 
               if (index_type == 1)
               {

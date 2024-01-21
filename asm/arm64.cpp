@@ -778,7 +778,8 @@ static int op_reg_relative(
     return -2;
   }
 
-  int offset = operands[1].value - (asm_context->address + 4);
+  //int offset = operands[1].value - (asm_context->address + 4);
+  int offset = operands[1].value - asm_context->address;
 
   if (check_range(asm_context, "offset", offset, -(1 << 20), (1 << 20) - 1) != 0)
   {
@@ -909,6 +910,7 @@ static int op_ld_st_imm(
   int v = 0;
   int size = 0;
   int opc = 0;
+  int shift = 0;
 
   if (operands[0].type == OPERAND_REG_SCALAR)
   {
@@ -916,19 +918,31 @@ static int op_ld_st_imm(
 
     size = operands[0].attribute & 0x3;
     if (size == 4) { opc = 2; }
+    shift = size;
+  }
+    else
+  {
+    shift = opcode >> 30;
   }
 
   if (operands[1].index_type == INDEX_NONE)
   {
-    if (check_range(asm_context, "offset", offset, 0, 8095) != 0)
+    if (check_range(asm_context, "offset", offset, 0, 0xfff << shift) != 0)
     {
+      return -1;
+    }
+
+    if ((offset & ((1 << shift) - 1)) != 0)
+    {
+      print_error_align(asm_context, 1 << shift);
       return -1;
     }
 
     opcode |= (size << 30) |
               (v << 26) |
+              (1 << 24) |
               (opc << 22) |
-            (((offset >> 1) & 0xfff) << 10) |
+            (((offset >> shift) & 0xfff) << 10) |
               (operands[1].value << 5) |
                operands[0].value;
   }
@@ -1330,7 +1344,8 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         {
           if (operands[0].type != OPERAND_ADDRESS) { continue; }
 
-          offset = operands[0].value - (asm_context->address + 4);
+          //offset = operands[0].value - (asm_context->address + 4);
+          offset = operands[0].value - asm_context->address;
 
           if ((offset & 0x3) != 0)
           {
@@ -1355,7 +1370,8 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         {
           if (operands[0].type != OPERAND_ADDRESS) { continue; }
 
-          offset = operands[0].value - (asm_context->address + 4);
+          //offset = operands[0].value - (asm_context->address + 4);
+          offset = operands[0].value - asm_context->address;
 
           if ((offset & 0x3) != 0)
           {
