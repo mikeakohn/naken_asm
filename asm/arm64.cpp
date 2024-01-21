@@ -916,9 +916,11 @@ static int op_ld_st_imm_p(
   if (operands[0].type == OPERAND_REG_SCALAR)
   {
     v = 1;
+    opcode &= 0x3fffffff;
 
-    size = operands[0].attribute & 0x3;
+    size = operands[0].attribute;
     if (size == 4) { opc = 2; }
+    size = size & 0x3;
   }
 
   if (check_range(asm_context, "offset", offset, -256, 255) != 0)
@@ -979,9 +981,11 @@ static int op_ld_st_imm(
   if (operands[0].type == OPERAND_REG_SCALAR)
   {
     v = 1;
+    opcode &= 0x3fffffff;
 
-    size = operands[0].attribute & 0x3;
+    size = operands[0].attribute;
     if (size == 4) { opc = 2; }
+    size = size & 0x3;
     shift = size;
   }
     else
@@ -1002,10 +1006,77 @@ static int op_ld_st_imm(
 
   opcode |= (size << 30) |
             (v << 26) |
-            (1 << 24) |
             (opc << 22) |
           (((offset >> shift) & 0xfff) << 10) |
             (operands[1].value << 5) |
+             operands[0].value;
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
+static int op_ld_literal(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr,
+  char reg_type)
+{
+  if (operand_count != 2)
+  {
+    return -2;
+  }
+
+  if (operands[1].type != OPERAND_ADDRESS) { return -2; }
+
+  if (reg_type == 'x' && operands[0].type != OPERAND_REG_64)
+  {
+    return -2;
+  }
+
+  if (operands[0].type != OPERAND_REG_32 &&
+      operands[0].type != OPERAND_REG_64 &&
+      operands[0].type != OPERAND_REG_SCALAR)
+  {
+    return -2;
+  }
+
+  int offset = operands[1].value - asm_context->address;
+  int v = 0;
+  int size = 0;
+
+  if (operands[0].type == OPERAND_REG_SCALAR)
+  {
+    v = 1;
+
+    switch (operands[0].attribute)
+    {
+      case 2: size = 0; break;
+      case 3: size = 1; break;
+      case 4: size = 2; break;
+      default: return -2;
+    }
+  }
+
+  const int min = -(1 << 20);
+  const int max = (1 << 20) - 1;
+
+  if (check_range(asm_context, "offset", offset, min, max) != 0)
+  {
+    return -1;
+  }
+
+  if ((offset & 3) != 0)
+  {
+    print_error_align(asm_context, 4);
+    return -1;
+  }
+
+  opcode |= (size << 30) |
+            (v << 26) |
+          (((offset >> 2) & 0x7ffff) << 5) |
              operands[0].value;
 
   add_bin32(asm_context, opcode, IS_OPCODE);
@@ -1461,6 +1532,13 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         case OP_LD_ST_IMM:
         {
           ret = op_ld_st_imm(asm_context, operands, operand_count, table_arm64[n].opcode, instr, table_arm64[n].reg_type);
+
+          if (ret == -2) { continue; }
+          return ret;
+        }
+        case OP_LD_LITERAL:
+        {
+          ret = op_ld_literal(asm_context, operands, operand_count, table_arm64[n].opcode, instr, table_arm64[n].reg_type);
 
           if (ret == -2) { continue; }
           return ret;

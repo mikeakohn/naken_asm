@@ -90,28 +90,32 @@ struct _table_arm64 table_arm64[] =
   { "eret",      0xd69f0000, 0xfffffc1f, 3, '0', OP_RET },
   { "drps",      0xd6bf0000, 0xfffffc1f, 3, '0', OP_RET },
 
+  // C3.3.5 Load register (literal).
+  { "ldr",       0x1c000000, 0x3b000000, 2, '0', OP_LD_LITERAL },
+  { "ldrsw",     0x1c000000, 0x3b000000, 2, 'x', OP_LD_LITERAL },
+
   // C3.3.8 Load/store register (immediate post-indexed).
   // C3.3.9 Load/store register (immediate pre-indexed).
-  { "strb",      0x38000000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM_P },
-  { "strh",      0x78000000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM_P },
-  { "str",       0xb8000000, 0x3fe00000, 3, '0', OP_LD_ST_IMM_P },
+  { "strb",      0x38000000, 0x3be00000, 3, 'w', OP_LD_ST_IMM_P },
   { "strh",      0x78000000, 0x3be00000, 3, 'w', OP_LD_ST_IMM_P },
-  { "ldrb",      0x38400000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM_P },
-  { "ldrsb",     0x38400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM_P },
-  { "ldrh",      0x78400000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM_P },
-  { "ldrsh",     0x78400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM_P },
-  { "ldr",       0xb8400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM_P },
+  { "str",       0xb8000000, 0x3be00000, 3, '0', OP_LD_ST_IMM_P },
+  { "strh",      0x78000000, 0x3be00000, 3, 'w', OP_LD_ST_IMM_P },
+  { "ldrb",      0x38400000, 0x3be00000, 3, 'w', OP_LD_ST_IMM_P },
+  { "ldrsb",     0x38400000, 0x3be00000, 3, '0', OP_LD_ST_IMM_P },
+  { "ldrh",      0x78400000, 0x3be00000, 3, 'w', OP_LD_ST_IMM_P },
+  { "ldrsh",     0x78400000, 0x3be00000, 3, '0', OP_LD_ST_IMM_P },
+  { "ldr",       0xb8400000, 0x3be00000, 3, '0', OP_LD_ST_IMM_P },
 
   // C3.3.13 Load/store register (unsigned immediate).
-  { "strb",      0x39000000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM },
-  { "strh",      0x79000000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM },
-  { "str",       0xb9000000, 0x3fe00000, 3, '0', OP_LD_ST_IMM },
-  { "strh",      0x79000000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM },
-  { "ldrb",      0x39400000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM },
-  { "ldrsb",     0x39400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM },
-  { "ldrh",      0x79400000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM },
-  { "ldrsh",     0x79400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM },
-  { "ldr",       0xb9400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM },
+  { "strb",      0x39000000, 0x3be00000, 3, 'w', OP_LD_ST_IMM },
+  { "strh",      0x79000000, 0x3be00000, 3, 'w', OP_LD_ST_IMM },
+  { "str",       0xb9000000, 0x3be00000, 3, '0', OP_LD_ST_IMM },
+  { "strh",      0x79000000, 0x3be00000, 3, 'w', OP_LD_ST_IMM },
+  { "ldrb",      0x39400000, 0x3be00000, 3, 'w', OP_LD_ST_IMM },
+  { "ldrsb",     0x39400000, 0x3be00000, 3, '0', OP_LD_ST_IMM },
+  { "ldrh",      0x79400000, 0x3be00000, 3, 'w', OP_LD_ST_IMM },
+  { "ldrsh",     0x79400000, 0x3be00000, 3, '0', OP_LD_ST_IMM },
+  { "ldr",       0xb9400000, 0x3be00000, 3, '0', OP_LD_ST_IMM },
 
   // C3.4.6 PC-rel addressing.
   { "adr",       0x10000000, 0x9f000000, 2, 'x', OP_REG_RELATIVE },
@@ -307,7 +311,6 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
 // C3.3.2 AdvSIMD load/store multiple structures (post-indexed).
 // C3.3.3 AdvSIMD load/store single structures.
 // C3.3.4 AdvSIMD load/store single structures (post-indexed).
-// C3.3.5 Load register (literal).
 // C3.3.6 Load/store exclusive.
 // C3.3.7 Load/store no-allocate pair (offset).
 // C3.3.10 Load/store register (register offset).

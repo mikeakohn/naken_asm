@@ -434,10 +434,9 @@ int disasm_arm64(
             reg_name = scalar_size[size];
           }
 
-          int imm = (opcode >> 12) & 0x1ff;
+          imm = (opcode >> 12) & 0x1ff;
           imm = imm << 23;
-          imm = imm >> 23;
-          imm = imm << size;
+          imm = imm >> (23 - size);
 
           if (index_type == 1)
           {
@@ -462,7 +461,7 @@ int disasm_arm64(
         }
         case OP_LD_ST_IMM:
         {
-          int imm = ((opcode >> 10) & 0xfff) << 1;
+          imm = ((opcode >> 10) & 0xfff) << 1;
           char reg_name = (size & 1) == 0 ? 'x' : 'w';
 
           if (v == 1)
@@ -488,6 +487,28 @@ int disasm_arm64(
               rn,
               imm);
           }
+
+          return 4;
+        }
+        case OP_LD_LITERAL:
+        {
+          imm = ((opcode >> 5) & 0x7ffff);
+          imm = imm << 13;
+          imm = imm >> (13 - 2);
+          char reg_name = (size & 1) == 0 ? 'x' : 'w';
+
+          if (v == 1)
+          {
+            size |= ((opcode >> 23) & 1) << 2;
+            reg_name = scalar_size[size];
+          }
+
+          snprintf(instruction, length, "%s %c%d, 0x%04x (offset=%d)",
+            table_arm64[n].instr,
+            reg_name,
+            rd,
+            address + imm,
+            imm);
 
           return 4;
         }

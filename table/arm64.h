@@ -38,10 +38,10 @@ enum
   OP_VECTOR_V_V_V,
   OP_MATH_R_R_R,
   OP_REG_REG_CRYPT,
+  OP_RET,
   OP_LD_ST_IMM_P,
   OP_LD_ST_IMM,
-
-  OP_RET,
+  OP_LD_LITERAL,
 };
 
 #define ARM64_IMM           0xff
