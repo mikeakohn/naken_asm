@@ -423,115 +423,70 @@ int disasm_arm64(
 
           return 4;
         }
-        case OP_LD_ST_IMM:
+        case OP_LD_ST_IMM_P:
         {
-          int type = (opcode >> 22) & 0x3;
           int index_type = (opcode >> 10) & 0x3;
+          char reg_name = (size & 1) == 0 ? 'x' : 'w';
 
-          if (v == 0)
+          if (v == 1)
           {
-            char reg_name = (type & 1) == 0 ? 'x' : 'w';
+            size |= ((opcode >> 23) & 1) << 2;
+            reg_name = scalar_size[size];
+          }
 
-            if (type != 0)
-            {
-              int imm = (opcode >> 12) & 0x1ff;
-              imm = imm << 19;
-              imm = imm >> 19;
-              imm = imm << size;
+          int imm = (opcode >> 12) & 0x1ff;
+          imm = imm << 23;
+          imm = imm >> 23;
+          imm = imm << size;
 
-              if (index_type == 1)
-              {
-                snprintf(instruction, length, "%s %c%d, [x%d], #%d",
-                  table_arm64[n].instr,
-                  reg_name,
-                  rd,
-                  rn,
-                  imm);
-              }
-                else
-              {
-                snprintf(instruction, length, "%s %c%d, [x%d, #%d]!",
-                  table_arm64[n].instr,
-                  reg_name,
-                  rd,
-                  rn,
-                  imm);
-              }
-            }
-              else
-            {
-              int imm = ((opcode >> 10) & 0xfff) << 1;
-              size |= ((opcode >> 23) & 1) << 2;
-
-              if (imm == 0)
-              {
-                snprintf(instruction, length, "%s %c%d, [x%d]",
-                  table_arm64[n].instr,
-                  reg_name,
-                  rd,
-                  rn);
-              }
-                else
-              {
-                snprintf(instruction, length, "%s %c%d, [x%d, #0x%05x]",
-                  table_arm64[n].instr,
-                  reg_name,
-                  rd,
-                  rn,
-                  imm);
-              }
-            }
+          if (index_type == 1)
+          {
+            snprintf(instruction, length, "%s %c%d, [x%d], #%d",
+              table_arm64[n].instr,
+              reg_name,
+              rd,
+              rn,
+              imm);
           }
             else
           {
-            if (type != 0)
-            {
-              int imm = (opcode >> 12) & 0x1ff;
-              imm = imm << 19;
-              imm = imm >> 19;
-              imm = imm << size;
+            snprintf(instruction, length, "%s %c%d, [x%d, #%d]!",
+              table_arm64[n].instr,
+              reg_name,
+              rd,
+              rn,
+              imm);
+          }
 
-              if (index_type == 1)
-              {
-                snprintf(instruction, length, "%s %c%d, [x%d], #%d",
-                  table_arm64[n].instr,
-                  scalar_size[size],
-                  rd,
-                  rn,
-                  imm);
-              }
-                else
-              {
-                snprintf(instruction, length, "%s %c%d, [x%d, #%d]!",
-                  table_arm64[n].instr,
-                  scalar_size[size],
-                  rd,
-                  rn,
-                  imm);
-              }
-            }
-              else
-            {
-              int imm = ((opcode >> 10) & 0xfff) << 1;
+          return 4;
+        }
+        case OP_LD_ST_IMM:
+        {
+          int imm = ((opcode >> 10) & 0xfff) << 1;
+          char reg_name = (size & 1) == 0 ? 'x' : 'w';
 
-              if (imm == 0)
-              {
-                snprintf(instruction, length, "%s %c%d, [x%d]",
-                  table_arm64[n].instr,
-                  scalar_size[size],
-                  rd,
-                  rn);
-              }
-                else
-              {
-                snprintf(instruction, length, "%s %c%d, [x%d, #0x%05x]",
-                  table_arm64[n].instr,
-                  scalar_size[size],
-                  rd,
-                  rn,
-                  imm);
-              }
-            }
+          if (v == 1)
+          {
+            size |= ((opcode >> 23) & 1) << 2;
+            reg_name = scalar_size[size];
+          }
+
+          if (imm == 0)
+          {
+            snprintf(instruction, length, "%s %c%d, [x%d]",
+              table_arm64[n].instr,
+              reg_name,
+              rd,
+              rn);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s %c%d, [x%d, #0x%05x]",
+              table_arm64[n].instr,
+              reg_name,
+              rd,
+              rn,
+              imm);
           }
 
           return 4;

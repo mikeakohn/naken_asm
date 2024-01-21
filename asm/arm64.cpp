@@ -879,6 +879,68 @@ static int op_logical_imm(
   return 4;
 }
 
+static int op_ld_st_imm_p(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr,
+  char reg_type)
+{
+  if (operand_count != 2)
+  {
+    return -2;
+  }
+
+  if (operands[1].type != OPERAND_REG_OFFSET) { return -2; }
+
+  if (reg_type == 'w' && operands[0].type != OPERAND_REG_32)
+  {
+    return -2;
+  }
+
+  if (operands[0].type != OPERAND_REG_32 &&
+      operands[0].type != OPERAND_REG_64 &&
+      operands[0].type != OPERAND_REG_SCALAR)
+  {
+    return -2;
+  }
+
+  if (operands[1].index_type == INDEX_NONE) { return -2; }
+
+  int offset = operands[1].offset_imm;
+  int v = 0;
+  int size = 0;
+  int opc = 0;
+
+  if (operands[0].type == OPERAND_REG_SCALAR)
+  {
+    v = 1;
+
+    size = operands[0].attribute & 0x3;
+    if (size == 4) { opc = 2; }
+  }
+
+  if (check_range(asm_context, "offset", offset, -256, 255) != 0)
+  {
+    return -1;
+  }
+
+  int p = operands[1].index_type == INDEX_PRE ? 3 : 1;
+
+  opcode |= (size << 30) |
+            (v << 26) |
+            (opc << 22) |
+           ((offset & 0x1ff) << 12) |
+            (p << 10) |
+            (operands[1].value << 5) |
+             operands[0].value;
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
 static int op_ld_st_imm(
   AsmContext *asm_context,
   struct _operand *operands,
@@ -906,6 +968,8 @@ static int op_ld_st_imm(
     return -2;
   }
 
+  if (operands[1].index_type != INDEX_NONE) { return -2; }
+
   int offset = operands[1].offset_imm;
   int v = 0;
   int size = 0;
@@ -925,44 +989,24 @@ static int op_ld_st_imm(
     shift = opcode >> 30;
   }
 
-  if (operands[1].index_type == INDEX_NONE)
+  if (check_range(asm_context, "offset", offset, 0, 0xfff << shift) != 0)
   {
-    if (check_range(asm_context, "offset", offset, 0, 0xfff << shift) != 0)
-    {
-      return -1;
-    }
-
-    if ((offset & ((1 << shift) - 1)) != 0)
-    {
-      print_error_align(asm_context, 1 << shift);
-      return -1;
-    }
-
-    opcode |= (size << 30) |
-              (v << 26) |
-              (1 << 24) |
-              (opc << 22) |
-            (((offset >> shift) & 0xfff) << 10) |
-              (operands[1].value << 5) |
-               operands[0].value;
+    return -1;
   }
-    else
+
+  if ((offset & ((1 << shift) - 1)) != 0)
   {
-    if (check_range(asm_context, "offset", offset, -256, 255) != 0)
-    {
-      return -1;
-    }
-
-    int p = operands[1].index_type == INDEX_PRE ? 3 : 1;
-
-    opcode |= (size << 30) |
-              (v << 26) |
-              (opc << 22) |
-             ((offset & 0x1ff) << 12) |
-              (p << 10) |
-              (operands[1].value << 5) |
-               operands[0].value;
+    print_error_align(asm_context, 1 << shift);
+    return -1;
   }
+
+  opcode |= (size << 30) |
+            (v << 26) |
+            (1 << 24) |
+            (opc << 22) |
+          (((offset >> shift) & 0xfff) << 10) |
+            (operands[1].value << 5) |
+             operands[0].value;
 
   add_bin32(asm_context, opcode, IS_OPCODE);
 
@@ -1406,6 +1450,13 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
           add_bin32(asm_context, opcode, IS_OPCODE);
           return 4;
+        }
+        case OP_LD_ST_IMM_P:
+        {
+          ret = op_ld_st_imm_p(asm_context, operands, operand_count, table_arm64[n].opcode, instr, table_arm64[n].reg_type);
+
+          if (ret == -2) { continue; }
+          return ret;
         }
         case OP_LD_ST_IMM:
         {

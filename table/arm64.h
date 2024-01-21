@@ -38,6 +38,7 @@ enum
   OP_VECTOR_V_V_V,
   OP_MATH_R_R_R,
   OP_REG_REG_CRYPT,
+  OP_LD_ST_IMM_P,
   OP_LD_ST_IMM,
 
   OP_RET,

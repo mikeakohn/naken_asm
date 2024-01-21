@@ -92,27 +92,26 @@ struct _table_arm64 table_arm64[] =
 
   // C3.3.8 Load/store register (immediate post-indexed).
   // C3.3.9 Load/store register (immediate pre-indexed).
-  { "strb",      0x38000000, 0x3b000000, 3, 'w', OP_LD_ST_IMM },
-  { "strh",      0x78000000, 0x3b000000, 3, 'w', OP_LD_ST_IMM },
-  { "str",       0xb8000000, 0x3b000000, 3, '0', OP_LD_ST_IMM },
-  { "strh",      0x78000000, 0x3b000000, 3, 'w', OP_LD_ST_IMM },
-  { "ldrb",      0x38400000, 0x3b000000, 3, 'w', OP_LD_ST_IMM },
-  { "ldrsb",     0x38400000, 0x3b000000, 3, '0', OP_LD_ST_IMM },
-  { "ldrh",      0x78400000, 0x3b000000, 3, 'w', OP_LD_ST_IMM },
-  { "ldrsh",     0x78400000, 0x3b000000, 3, '0', OP_LD_ST_IMM },
-  { "ldr",       0xb8400000, 0x3b000000, 3, '0', OP_LD_ST_IMM },
+  { "strb",      0x38000000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM_P },
+  { "strh",      0x78000000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM_P },
+  { "str",       0xb8000000, 0x3fe00000, 3, '0', OP_LD_ST_IMM_P },
+  { "strh",      0x78000000, 0x3be00000, 3, 'w', OP_LD_ST_IMM_P },
+  { "ldrb",      0x38400000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM_P },
+  { "ldrsb",     0x38400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM_P },
+  { "ldrh",      0x78400000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM_P },
+  { "ldrsh",     0x78400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM_P },
+  { "ldr",       0xb8400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM_P },
 
   // C3.3.13 Load/store register (unsigned immediate).
-#if 0
-  { "str",       0xb8000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
-  { "strb",      0x38000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
-  { "strh",      0x78000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
-  { "ldr",       0xb8000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
-  { "ldrb",      0x38000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
-  { "ldrsb",     0x38000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
-  { "ldrh",      0x78000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
-  { "ldrsh",     0x78000000, 0x3be00000, 3, '0', OP_LD_ST_PIMM },
-#endif
+  { "strb",      0x39000000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM },
+  { "strh",      0x79000000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM },
+  { "str",       0xb9000000, 0x3fe00000, 3, '0', OP_LD_ST_IMM },
+  { "strh",      0x79000000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM },
+  { "ldrb",      0x39400000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM },
+  { "ldrsb",     0x39400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM },
+  { "ldrh",      0x79400000, 0x3fe00000, 3, 'w', OP_LD_ST_IMM },
+  { "ldrsh",     0x79400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM },
+  { "ldr",       0xb9400000, 0x3fe00000, 3, '0', OP_LD_ST_IMM },
 
   // C3.4.6 PC-rel addressing.
   { "adr",       0x10000000, 0x9f000000, 2, 'x', OP_REG_RELATIVE },
