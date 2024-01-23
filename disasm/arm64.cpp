@@ -194,6 +194,13 @@ int disasm_arm64(
 
           return 4;
         }
+        case OP_MOVE:
+        {
+          snprintf(instruction, length, "%s x%d, x%d",
+            table_arm64[n].instr,
+            rd,
+            rm);
+        }
         case OP_REG_RELATIVE:
         {
           imm = (opcode >> 5) & ((1 << 19) - 1);

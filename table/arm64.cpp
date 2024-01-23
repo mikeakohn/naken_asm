@@ -206,7 +206,9 @@ struct _table_arm64 table_arm64[] =
   { "sbc",       0x5a000000, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
   { "sbcs",      0x7a000000, 0x7fe0fc00, 3, 'b', OP_MATH_R_R_R },
 
-  // C3.5.10 Logical (shifted register).
+  // C3.5.10 Logical (shifted register) (and aliases).
+  { "mov",       0x2a0003e0, 0x7f20ffe0, 2, 'b', OP_MOVE },
+
   { "and",       0x0a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
   { "bic",       0x0a200000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },
   { "orr",       0x2a000000, 0x7f200000, 3, 'b', OP_MATH_R_R_R_SHIFT },

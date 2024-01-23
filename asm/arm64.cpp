@@ -66,6 +66,7 @@ enum
   OPTION_LSL,
   OPTION_LSR,
   OPTION_ASR,
+  OPTION_ROR,
 };
 
 enum
@@ -601,7 +602,7 @@ static int op_3_reg_shift(
   if (operand_count == 4)
   {
     if (operands[3].attribute < OPTION_LSL ||
-        operands[3].attribute > OPTION_ASR)
+        operands[3].attribute > OPTION_ROR)
     {
       return -2;
     }
@@ -765,6 +766,36 @@ static int op_2_reg_imm6_imm4(
   return 4;
 }
 
+static int op_move(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operands[0].type != OPERAND_REG_32 && operands[0].type != OPERAND_REG_64)
+  {
+    return -2;
+  }
+
+  if (operands[1].type != OPERAND_REG_32 && operands[1].type != OPERAND_REG_64)
+  {
+    return -2;
+  }
+
+  if (operands[0].type != operands[1].type)
+  {
+    return -2;
+  }
+
+  int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
+
+  opcode |= (size << 31) | operands[0].value | (operands[1].value << 16);
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
 static int op_reg_relative(
   AsmContext *asm_context,
   struct _operand *operands,
@@ -858,7 +889,12 @@ static int op_logical_imm(
 
   int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
   int imm = operands[2].value;
+  int immr = imm & 0x3f;
+  int imms = (imm >> 6) & 0x3f;
+  int n = (imm >> 12) & 1;
   int max = size == 0 ? 0xfff : 0x1fff;
+
+  if (size == 0) { n = 0; }
 
   if (check_range(asm_context, "immediate", imm, 0, max) != 0)
   {
@@ -866,13 +902,11 @@ static int op_logical_imm(
   }
 
   opcode |= operands[0].value |
+           (n << 22) |
+           (immr << 16) |
+           (imms << 10) |
            (operands[1].value << 5) |
            (size << 31);
-
-  opcode |= (imm & 0x3f) << 16;
-  opcode |= ((imm >> 6) & 0x3f) << 10;
-
-  if (size == 1) { opcode |= ((imm >> 12) & 0x1) << 22; }
 
   add_bin32(asm_context, opcode, IS_OPCODE);
 
@@ -1351,6 +1385,13 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         case OP_MATH_R_R_IMM6_IMM4:
         {
           ret = op_2_reg_imm6_imm4(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
+
+          if (ret == -2) { continue; }
+          return ret;
+        }
+        case OP_MOVE:
+        {
+          ret = op_move(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
 
           if (ret == -2) { continue; }
           return ret;
