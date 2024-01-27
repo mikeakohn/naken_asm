@@ -45,6 +45,14 @@ enum
   OP_LD_LITERAL,
 };
 
+enum
+{
+  ARM64_REG_B,
+  ARM64_REG_V,
+  ARM64_REG_V_SCALAR,
+  ARM64_REG_V_ELEMENT,
+};
+
 #define ARM64_IMM           0xff
 #define ARM64_REG_31        0xfe
 #define ARM64_REG_ANY       0xfd
@@ -109,6 +117,16 @@ struct _table_arm64_test_branch
   uint8_t op;
 };
 
+struct _table_arm64_simd_copy
+{
+  const char *instr;
+  uint8_t q;
+  uint8_t op;
+  uint8_t imm4;
+  uint8_t reg_rd;
+  uint8_t reg_rn;
+};
+
 #if 0
 struct _table_arm64_uncond_branch
 {
@@ -128,6 +146,7 @@ extern struct _table_arm64_exception table_arm64_exception[];
 extern struct _table_arm64_system table_arm64_system[];
 extern struct _table_arm64_test_branch table_arm64_test_branch[];
 //extern struct _table_arm64_uncond_branch table_arm64_uncond_branch[];
+extern struct _table_arm64_simd_copy table_arm64_simd_copy[];
 
 #endif
 

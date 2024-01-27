@@ -44,6 +44,57 @@ static const char *get_at(int value)
   return "???";
 }
 
+static const char *decode_imm5_scalar(int imm, int q)
+{
+  int size = 0;
+
+  if ((imm & 0x1) == 1) { size = 0; }
+  else if ((imm & 0x3) == 2) { size = 2; }
+  else if ((imm & 0x7) == 4) { size = 4; }
+  else if ((imm & 0xf) == 8) { size = 6; }
+
+  size = size + q;
+
+  return vec_size[size];
+}
+
+static void decode_imm5_element(int imm, char &size, int &element)
+{
+  size = '?';
+  element = 0;
+
+  if ((imm & 0x1) == 1) { size = 'b'; element = (imm >> 1) & 0xf; }
+  else if ((imm & 0x3) == 2) { size = 'h'; element = (imm >> 2) & 0x7; }
+  else if ((imm & 0x7) == 4) { size = 's'; element = (imm >> 3) & 0x3; }
+  else if ((imm & 0xf) == 8) { size = 'd'; element = (imm >> 4) & 0x1; }
+}
+
+static void get_reg_name(char *s, int length, int num, int imm, int type, int q)
+{
+  char size;
+  int element;
+
+  switch (type)
+  {
+    case ARM64_REG_B:
+      snprintf(s, length, "%c%d", (imm & 8) == 0 ? 'w' : 'x', num);
+      break;
+    case ARM64_REG_V:
+      snprintf(s, length, "v%d", num);
+      break;
+    case ARM64_REG_V_SCALAR:
+      snprintf(s, length, "v%d.%s", num, decode_imm5_scalar(imm, q));
+      break;
+    case ARM64_REG_V_ELEMENT:
+      decode_imm5_element(imm, size, element);
+      snprintf(s, length, "v%d.%c[%d]", num, size, element);
+      break;
+    default:
+      memset(s, 0, length);
+      break;
+  }
+}
+
 int disasm_arm64(
   Memory *memory,
   uint32_t address,
@@ -69,6 +120,50 @@ int disasm_arm64(
   size = (opcode >> 22) & 0x3;
   sf = (opcode >> 31) & 0x1;
   v = (opcode >> 26) & 0x1;
+
+  if ((opcode & 0x9fe08400) == 0x0e000400)
+  {
+    for (n = 0; table_arm64_simd_copy[n].instr != NULL; n++)
+    {
+      int q = opcode >> 31;
+      int op = (opcode >> 29) & 1;
+      int imm5 = (opcode >> 16) & 0x1f;
+      int imm4 = (opcode >> 11) & 0xf;
+
+      if (table_arm64_simd_copy[n].q != q ||
+          table_arm64_simd_copy[n].op != op)
+      {
+        continue;
+      }
+
+      char rn_name[16];
+      char rd_name[16];
+
+      if (table_arm64_simd_copy[n].q == 1 &&
+          table_arm64_simd_copy[n].op == 1)
+      {
+        get_reg_name(rn_name, sizeof(rn_name), rn, imm4, table_arm64_simd_copy[n].reg_rn, q);
+        get_reg_name(rd_name, sizeof(rd_name), rd, imm5, table_arm64_simd_copy[n].reg_rd, q);
+      }
+        else
+      {
+        if (table_arm64_simd_copy[n].imm4 != imm4) { continue; }
+
+        get_reg_name(rn_name, sizeof(rn_name), rn, imm5, table_arm64_simd_copy[n].reg_rn, q);
+        get_reg_name(rd_name, sizeof(rd_name), rd, imm5, table_arm64_simd_copy[n].reg_rd, q);
+      }
+
+      snprintf(instruction, length, "%s %s, %s",
+        table_arm64_simd_copy[n].instr,
+        rd_name,
+        rn_name);
+
+      return 4;
+    }
+
+    strcpy(instruction, "???");
+    return 4;
+  }
 
   for (n = 0; table_arm64[n].instr != NULL; n++)
   {

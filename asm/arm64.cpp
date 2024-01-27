@@ -79,9 +79,10 @@ enum
 struct _operand
 {
   int value;
-  int type;
-  int attribute;
   int offset_imm;
+  uint8_t type;
+  uint8_t attribute;
+  uint8_t element;
   uint8_t index_type;
 };
 
@@ -339,9 +340,9 @@ static int get_register_arm64(
     case SIZE_8B:
     case SIZE_16B:
     case SIZE_B:
-      if (element < 1 || element > 16)
+      if (element < 0 || element > 15)
       {
-        print_error_range(asm_context, "Element", 1, 16);
+        print_error_range(asm_context, "Element", 0, 15);
         return -2;
       }
       size = SIZE_B;
@@ -349,9 +350,9 @@ static int get_register_arm64(
     case SIZE_4H:
     case SIZE_8H:
     case SIZE_H:
-      if (element < 1 || element > 8)
+      if (element < 0 || element > 7)
       {
-        print_error_range(asm_context, "Element", 1, 8);
+        print_error_range(asm_context, "Element", 0, 7);
         return -2;
       }
       size = SIZE_H;
@@ -359,9 +360,9 @@ static int get_register_arm64(
     case SIZE_2S:
     case SIZE_4S:
     case SIZE_S:
-      if (element < 1 || element > 4)
+      if (element < 0 || element > 3)
       {
-        print_error_range(asm_context, "Element", 1, 4);
+        print_error_range(asm_context, "Element", 0, 3);
         return -2;
       }
       size = SIZE_S;
@@ -371,7 +372,7 @@ static int get_register_arm64(
     case SIZE_D:
       if (element < 1 || element > 2)
       {
-        print_error_range(asm_context, "Element", 1, 2);
+        print_error_range(asm_context, "Element", 0, 1);
         return -2;
       }
       size = SIZE_D;
@@ -385,6 +386,7 @@ static int get_register_arm64(
   operand->type = OPERAND_REG_VECTOR_ELEMENT;
   operand->value = num;
   operand->attribute = size;
+  operand->element = element;
 
   return 0;
 }
@@ -1122,6 +1124,56 @@ static int op_ld_literal(
   return 4;
 }
 
+static bool reg_matches(int operand, int wanted)
+{
+  switch (wanted)
+  {
+    case ARM64_REG_V:         return operand == OPERAND_REG_VECTOR;
+    case ARM64_REG_V_SCALAR:  return operand == OPERAND_REG_SCALAR;
+    case ARM64_REG_V_ELEMENT: return operand == OPERAND_REG_VECTOR_ELEMENT;
+    case ARM64_REG_B:
+      return operand == OPERAND_REG_32 || operand == OPERAND_REG_64;
+    default:
+      return false;
+  }
+}
+
+static bool match_vector_size(int attribute, int type)
+{
+  if (attribute == SIZE_D)
+  {
+    return type == OPERAND_REG_64;
+  }
+    else
+  {
+    return type == OPERAND_REG_32;
+  }
+}
+
+static bool encode_vector_element(_operand *operand, int &imm)
+{
+  switch (operand->attribute)
+  {
+    case SIZE_B:
+      imm = 1 | (operand->element << 1);
+      return true;
+    case SIZE_H:
+      imm = 2 | (operand->element << 2);
+      return true;
+    case SIZE_S:
+      imm = 4 | (operand->element << 3);
+      return true;
+    case SIZE_D:
+      imm = 8 | (operand->element << 4);
+      return true;
+    default:
+      imm = 0;
+      return false;
+  }
+
+  return true;
+}
+
 int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
@@ -1343,6 +1395,76 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
     {
       print_error_unexp(asm_context, token);
       return -1;
+    }
+  }
+
+  if (operand_count == 2)
+  {
+    for (n = 0; table_arm64_simd_copy[n].instr != NULL; n++)
+    {
+      if (strcmp(table_arm64_simd_copy[n].instr, instr_case) != 0) { continue; }
+
+      found = 1;
+
+      if (!reg_matches(operands[0].type, table_arm64_simd_copy[n].reg_rd))
+      {
+        continue;
+      }
+
+      if (!reg_matches(operands[1].type, table_arm64_simd_copy[n].reg_rn))
+      {
+        continue;
+      }
+
+      int imm5 = 0;
+      int imm4 = table_arm64_simd_copy[n].imm4;
+
+      if (operands[0].type == OPERAND_REG_VECTOR_ELEMENT &&
+          operands[1].type == OPERAND_REG_VECTOR_ELEMENT)
+      {
+        if (operands[0].attribute != operands[1].attribute)
+        {
+          print_error(asm_context, "Mismatched vector sizes.");
+          return -1;
+        }
+
+        encode_vector_element(&operands[0], imm5);
+        encode_vector_element(&operands[1], imm4);
+      }
+        else
+      if (operands[0].type == OPERAND_REG_VECTOR_ELEMENT)
+      {
+        if (!match_vector_size(operands[0].attribute, operands[1].type))
+        {
+          print_error(asm_context, "Mismatched register sizes.");
+          return -1;
+        }
+
+        encode_vector_element(&operands[0], imm5);
+      }
+        else
+      if (operands[1].type == OPERAND_REG_VECTOR_ELEMENT)
+      {
+        if (!match_vector_size(operands[1].attribute, operands[0].type))
+        {
+          print_error(asm_context, "Mismatched register sizes.");
+          return -1;
+        }
+
+        encode_vector_element(&operands[1], imm5);
+      }
+
+      opcode = 0x0e000400 |
+        (table_arm64_simd_copy[n].q << 31) |
+        (table_arm64_simd_copy[n].op << 29) |
+        (imm5 << 16) |
+        (imm4 << 11) |
+        (operands[1].value << 5) |
+         operands[0].value;
+
+      add_bin32(asm_context, opcode, IS_OPCODE);
+
+      return 4;
     }
   }
 

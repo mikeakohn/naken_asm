@@ -334,7 +334,19 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
 // C3.6.2 AdvSIMD TBL/TBX.
 // C3.6.3 AdvSIMD ZIP/UZP/TRN.
 // C3.6.4 AdvSIMD across lanes.
+
 // C3.6.5 AdvSIMD copy.
+struct _table_arm64_simd_copy table_arm64_simd_copy[] =
+{
+  { "dup",  0, 0, 0x0, ARM64_REG_V,         ARM64_REG_V_ELEMENT },
+  { "dup",  0, 0, 0x1, ARM64_REG_V_SCALAR,  ARM64_REG_V_ELEMENT },
+  { "smov", 0, 0, 0x5, ARM64_REG_B,         ARM64_REG_V_ELEMENT },
+  { "umov", 0, 0, 0x7, ARM64_REG_B,         ARM64_REG_V_ELEMENT },
+  { "ins",  1, 0, 0x3, ARM64_REG_V_ELEMENT, ARM64_REG_V_ELEMENT },
+  { "ins",  1, 1, 0x0, ARM64_REG_V_ELEMENT, ARM64_REG_B         },
+  {  NULL,  0, 0, 0x0, 0,                   0                   },
+};
+
 // C3.6.6 AdvSIMD modified immediate.
 // C3.6.7 AdvSIMD scalar copy.
 // C3.6.9 AdvSIMD scalar shift by immediate.
