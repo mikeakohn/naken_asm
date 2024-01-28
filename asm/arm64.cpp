@@ -1128,7 +1128,7 @@ static bool reg_matches(int operand, int wanted)
 {
   switch (wanted)
   {
-    case ARM64_REG_V:         return operand == OPERAND_REG_VECTOR;
+    case ARM64_REG_V_DOT:     return operand == OPERAND_REG_VECTOR;
     case ARM64_REG_V_SCALAR:  return operand == OPERAND_REG_SCALAR;
     case ARM64_REG_V_ELEMENT: return operand == OPERAND_REG_VECTOR_ELEMENT;
     case ARM64_REG_B:
@@ -1138,16 +1138,66 @@ static bool reg_matches(int operand, int wanted)
   }
 }
 
-static bool match_vector_size(int attribute, int type)
+static int get_register_size(_operand *operand)
 {
-  if (attribute == SIZE_D)
+  switch (operand->type)
   {
-    return type == OPERAND_REG_64;
+    case OPERAND_REG_32: return 32;
+    case OPERAND_REG_64: return 64;
+    case OPERAND_REG_VECTOR:
+      switch (operand->attribute)
+      {
+        case SIZE_8B: return 8;
+        case SIZE_16B: return 8;
+        case SIZE_4H: return 16;
+        case SIZE_8H: return 16;
+        case SIZE_2S: return 32;
+        case SIZE_4S: return 32;
+        case SIZE_1D: return 64;
+        case SIZE_2D: return 64;
+        case SIZE_B: return 8;
+        case SIZE_H: return 16;
+        case SIZE_S: return 32;
+        case SIZE_D: return 64;
+        default: return -4;
+      }
+    case OPERAND_REG_VECTOR_ELEMENT:
+      switch (operand->attribute)
+      {
+        case SIZE_8B: return 8;
+        case SIZE_16B: return 8;
+        case SIZE_4H: return 16;
+        case SIZE_8H: return 16;
+        case SIZE_2S: return 32;
+        case SIZE_4S: return 32;
+        case SIZE_1D: return 64;
+        case SIZE_2D: return 64;
+        case SIZE_B: return 8;
+        case SIZE_H: return 16;
+        case SIZE_S: return 32;
+        case SIZE_D: return 64;
+        default: return -4;
+      }
+    case OPERAND_REG_SCALAR:
+      switch (operand->attribute)
+      {
+        case 0: return 8;
+        case 1: return 16;
+        case 2: return 32;
+        case 3: return 64;
+        default: return -3;
+      }
+    default:
+      return -1;
   }
-    else
-  {
-    return type == OPERAND_REG_32;
-  }
+}
+
+static bool match_vector_size(_operand *operands)
+{
+  int size_d = get_register_size(&operands[0]);
+  int size_n = get_register_size(&operands[1]);
+
+  return size_d == size_n;
 }
 
 static bool encode_vector_element(_operand *operand, int &imm)
@@ -1434,9 +1484,9 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         else
       if (operands[0].type == OPERAND_REG_VECTOR_ELEMENT)
       {
-        if (!match_vector_size(operands[0].attribute, operands[1].type))
+        if (!match_vector_size(operands))
         {
-          print_error(asm_context, "Mismatched register sizes.");
+          print_error(asm_context, "Mismatched register sizes");
           return -1;
         }
 
@@ -1445,9 +1495,9 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         else
       if (operands[1].type == OPERAND_REG_VECTOR_ELEMENT)
       {
-        if (!match_vector_size(operands[1].attribute, operands[0].type))
+        if (!match_vector_size(operands))
         {
-          print_error(asm_context, "Mismatched register sizes.");
+          print_error(asm_context, "Mismatched register sizes");
           return -1;
         }
 
@@ -1456,7 +1506,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
       opcode = 0x0e000400 |
         (table_arm64_simd_copy[n].q << 31) |
-        (table_arm64_simd_copy[n].op << 29) |
+        (table_arm64_simd_copy[n].op << 28) |
         (imm5 << 16) |
         (imm4 << 11) |
         (operands[1].value << 5) |

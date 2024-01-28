@@ -338,12 +338,13 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
 // C3.6.5 AdvSIMD copy.
 struct _table_arm64_simd_copy table_arm64_simd_copy[] =
 {
-  { "dup",  0, 0, 0x0, ARM64_REG_V,         ARM64_REG_V_ELEMENT },
-  { "dup",  0, 0, 0x1, ARM64_REG_V_SCALAR,  ARM64_REG_V_ELEMENT },
+  { "dup",  0, 0, 0x0, ARM64_REG_V_DOT,     ARM64_REG_V_ELEMENT },
+  { "dup",  0, 1, 0x0, ARM64_REG_V_SCALAR,  ARM64_REG_V_ELEMENT },
+  { "dup",  0, 0, 0x1, ARM64_REG_V_DOT,     ARM64_REG_B         },
   { "smov", 0, 0, 0x5, ARM64_REG_B,         ARM64_REG_V_ELEMENT },
   { "umov", 0, 0, 0x7, ARM64_REG_B,         ARM64_REG_V_ELEMENT },
   { "ins",  1, 0, 0x3, ARM64_REG_V_ELEMENT, ARM64_REG_V_ELEMENT },
-  { "ins",  1, 1, 0x0, ARM64_REG_V_ELEMENT, ARM64_REG_B         },
+  { "ins",  1, 2, 0x0, ARM64_REG_V_ELEMENT, ARM64_REG_B         },
   {  NULL,  0, 0, 0x0, 0,                   0                   },
 };
 

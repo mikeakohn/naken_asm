@@ -44,7 +44,7 @@ static const char *get_at(int value)
   return "???";
 }
 
-static const char *decode_imm5_scalar(int imm, int q)
+static const char *decode_imm5_vector(int imm, int q)
 {
   int size = 0;
 
@@ -79,11 +79,12 @@ static void get_reg_name(char *s, int length, int num, int imm, int type, int q)
     case ARM64_REG_B:
       snprintf(s, length, "%c%d", (imm & 8) == 0 ? 'w' : 'x', num);
       break;
-    case ARM64_REG_V:
-      snprintf(s, length, "v%d", num);
+    case ARM64_REG_V_DOT:
+      snprintf(s, length, "v%d.%s", num, decode_imm5_vector(imm, q));
       break;
     case ARM64_REG_V_SCALAR:
-      snprintf(s, length, "v%d.%s", num, decode_imm5_scalar(imm, q));
+      decode_imm5_element(imm, size, element);
+      snprintf(s, length, "%c%d", size, num);
       break;
     case ARM64_REG_V_ELEMENT:
       decode_imm5_element(imm, size, element);
@@ -121,12 +122,12 @@ int disasm_arm64(
   sf = (opcode >> 31) & 0x1;
   v = (opcode >> 26) & 0x1;
 
-  if ((opcode & 0x9fe08400) == 0x0e000400)
+  if ((opcode & 0x8fe08400) == 0x0e000400)
   {
     for (n = 0; table_arm64_simd_copy[n].instr != NULL; n++)
     {
       int q = opcode >> 31;
-      int op = (opcode >> 29) & 1;
+      int op = (opcode >> 28) & 3;
       int imm5 = (opcode >> 16) & 0x1f;
       int imm4 = (opcode >> 11) & 0xf;
 

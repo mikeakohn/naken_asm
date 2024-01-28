@@ -48,8 +48,8 @@ enum
 enum
 {
   ARM64_REG_B,
-  ARM64_REG_V,
   ARM64_REG_V_SCALAR,
+  ARM64_REG_V_DOT,
   ARM64_REG_V_ELEMENT,
 };
 
