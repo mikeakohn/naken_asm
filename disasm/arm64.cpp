@@ -126,12 +126,12 @@ int disasm_arm64(
   {
     for (n = 0; table_arm64_simd_copy[n].instr != NULL; n++)
     {
-      int q = opcode >> 31;
+      int q = opcode >> 30;
       int op = (opcode >> 28) & 3;
       int imm5 = (opcode >> 16) & 0x1f;
       int imm4 = (opcode >> 11) & 0xf;
 
-      if (table_arm64_simd_copy[n].q != q ||
+      if (//table_arm64_simd_copy[n].q != q ||
           table_arm64_simd_copy[n].op != op)
       {
         continue;

@@ -1200,25 +1200,41 @@ static bool match_vector_size(_operand *operands)
   return size_d == size_n;
 }
 
-static bool encode_vector_element(_operand *operand, int &imm)
+static bool encode_vector_element(
+  _operand *operand,
+   int &imm,
+   int &q,
+   int attribute_d = -1)
 {
   switch (operand->attribute)
   {
     case SIZE_B:
       imm = 1 | (operand->element << 1);
-      return true;
+      break;
     case SIZE_H:
       imm = 2 | (operand->element << 2);
-      return true;
+      break;
     case SIZE_S:
       imm = 4 | (operand->element << 3);
-      return true;
+      break;
     case SIZE_D:
       imm = 8 | (operand->element << 4);
-      return true;
+      break;
     default:
       imm = 0;
-      return false;
+      return true;
+  }
+
+  switch (attribute_d)
+  {
+    case SIZE_16B:
+    case SIZE_8H:
+    case SIZE_4S:
+    case SIZE_2D:
+      q = 1;
+      break;
+    default:
+      break;
   }
 
   return true;
@@ -1466,8 +1482,15 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         continue;
       }
 
+      if (table_arm64_simd_copy[n].reg_rd == ARM64_REG_V_DOT &&
+          operands[0].attribute >= SIZE_B)
+      {
+        continue;
+      }
+
       int imm5 = 0;
       int imm4 = table_arm64_simd_copy[n].imm4;
+      int q = table_arm64_simd_copy[n].q;
 
       if (operands[0].type == OPERAND_REG_VECTOR_ELEMENT &&
           operands[1].type == OPERAND_REG_VECTOR_ELEMENT)
@@ -1478,8 +1501,8 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           return -1;
         }
 
-        encode_vector_element(&operands[0], imm5);
-        encode_vector_element(&operands[1], imm4);
+        encode_vector_element(&operands[0], imm5, q);
+        encode_vector_element(&operands[1], imm4, q);
       }
         else
       if (operands[0].type == OPERAND_REG_VECTOR_ELEMENT)
@@ -1490,7 +1513,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           return -1;
         }
 
-        encode_vector_element(&operands[0], imm5);
+        encode_vector_element(&operands[0], imm5, q);
       }
         else
       if (operands[1].type == OPERAND_REG_VECTOR_ELEMENT)
@@ -1501,11 +1524,18 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           return -1;
         }
 
-        encode_vector_element(&operands[1], imm5);
+        if (table_arm64_simd_copy[n].reg_rd == ARM64_REG_V_DOT)
+        {
+          encode_vector_element(&operands[1], imm5, q, operands[0].attribute);
+        }
+          else
+        {
+          encode_vector_element(&operands[1], imm5, q);
+        }
       }
 
       opcode = 0x0e000400 |
-        (table_arm64_simd_copy[n].q << 31) |
+        (q << 30) |
         (table_arm64_simd_copy[n].op << 28) |
         (imm5 << 16) |
         (imm4 << 11) |
