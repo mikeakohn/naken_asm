@@ -19,11 +19,43 @@ struct _table_arm64 table_arm64[] =
   { "abs",       0x5e20b800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
   { "abs",       0x0e20b800, 0xbf3ffc00, 2, 'v', OP_VECTOR_V_V },
   { "addg",      0x91800000, 0xffc0c000, 4, 'x', OP_MATH_R_R_IMM6_IMM4 },
-  { "add",       0x5e208400, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
-  { "add",       0x0e208400, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
 
   { "addv",      0x0e31b800, 0xbf3ffc00, 2, 'd', OP_VECTOR_V_V_TO_SCALAR },
+
   { "and",       0x0e201c00, 0xbfe0fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "eor",       0x2e201c00, 0xbfe0fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "orr",       0x0ea01c00, 0xbfe0fc00, 3, 'v', OP_VECTOR_V_V_V },
+
+  { "add",       0x0e208400, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "sub",       0x2e208400, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "mul",       0x0e209c00, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+
+  { "add",       0x5e208400, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
+  { "sub",       0x7e208400, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
+
+  { "cmeq",      0x2e208c00, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "cmge",      0x0e203c00, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "cmgt",      0x0e203400, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "cmhi",      0x2e203400, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+  { "cmhs",      0x2e203c00, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
+
+  { "cmeq",      0x7e208c00, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
+  { "cmge",      0x5e203c00, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
+  { "cmgt",      0x5e203400, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
+  { "cmhi",      0x7e203400, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
+  { "cmhs",      0x7e203c00, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
+
+  { "cmeq",      0x0e208800, 0xbf3ffc00, 2, 'v', OP_VECTOR_V_V },
+  { "cmge",      0x2e208800, 0xbf3ffc00, 2, 'v', OP_VECTOR_V_V },
+  { "cmgt",      0x0e208800, 0xbf3ffc00, 2, 'v', OP_VECTOR_V_V },
+  { "cmle",      0x2e208800, 0xbf3ffc00, 2, 'v', OP_VECTOR_V_V },
+  { "cmlt",      0x0e20a800, 0xbf3ffc00, 2, 'v', OP_VECTOR_V_V },
+
+  { "cmeq",      0x5e209800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
+  { "cmge",      0x7e208800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
+  { "cmgt",      0x5e208800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
+  { "cmle",      0x7e209800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
+  { "cmlt",      0x5e20a800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
 
   { "at",        0xd5807800, 0xfff8fe00, 2, 'b', OP_AT },
   { "bcax",      0xce200000, 0xffe08000, 4, 'v', OP_REG_REG_CRYPT },
