@@ -670,6 +670,66 @@ int disasm_arm64(
 
           return 4;
         }
+        case OP_VECTOR_V_V_V_FPU:
+        {
+          int q = (opcode >> 30) & 1;
+          int sz = (opcode >> 22) & 1;
+          const char *size = "?";
+
+          if (sz == 0 && q == 0) { size = "2s"; }
+          else if (sz == 0 && q == 1) { size = "4s"; }
+          else if (sz == 1 && q == 1) { size = "2d"; }
+
+          snprintf(instruction, length, "%s v%d.%s, v%d.%s, v%d.%s",
+            table_arm64[n].instr,
+            rd, size,
+            rn, size,
+            rm, size);
+
+          return 4;
+        }
+        case OP_VECTOR_V_V_FPU:
+        {
+          int q = (opcode >> 30) & 1;
+          int sz = (opcode >> 22) & 1;
+          const char *size = "?";
+
+          if (sz == 0 && q == 0) { size = "2s"; }
+          else if (sz == 0 && q == 1) { size = "4s"; }
+          else if (sz == 1 && q == 1) { size = "2d"; }
+
+          snprintf(instruction, length, "%s v%d.%s, v%d.%s",
+            table_arm64[n].instr,
+            rd, size,
+            rn, size);
+
+          return 4;
+        }
+        case OP_VECTOR_D_D_D_FPU:
+        {
+          int type = (opcode >> 22) & 3;
+          char size[] = { 's', 'd', '?', '?' };
+
+          snprintf(instruction, length, "%s %c%d, %c%d, %c%d",
+            table_arm64[n].instr,
+            size[type], rd,
+            size[type], rn,
+            size[type], rm);
+
+          return 4;
+        }
+        case OP_VECTOR_D_D_FPU:
+        {
+          int type = (opcode >> 22) & 3;
+          char size[] = { 's', 'd', '?', '?' };
+
+          snprintf(instruction, length, "%s %c%d, %c%d",
+            table_arm64[n].instr,
+            size[type], rd,
+            size[type], rn);
+
+          return 4;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);

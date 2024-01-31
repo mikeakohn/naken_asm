@@ -1362,6 +1362,154 @@ static int op_vector_shift_imm(
   return 4;
 }
 
+static int op_vector_v_v_v_fpu(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operand_count != 3) { return -2; }
+
+  if (operands[0].type != OPERAND_REG_VECTOR ||
+      operands[1].type != OPERAND_REG_VECTOR ||
+      operands[2].type != OPERAND_REG_VECTOR ||
+      operands[0].attribute != operands[1].attribute ||
+      operands[0].attribute != operands[2].attribute)
+  {
+    return -2;
+  }
+
+  int q = 0;
+  int sz = 0;
+
+  switch (operands[0].attribute)
+  {
+    case SIZE_2S: q = 0; sz = 0; break;
+    case SIZE_4S: q = 1; sz = 0; break;
+    case SIZE_2D: q = 1; sz = 1; break;
+    default: return -2;
+  }
+
+  opcode |= (q << 30) |
+            (sz << 22) |
+            (operands[2].value << 16) |
+            (operands[1].value << 5) |
+             operands[0].value;
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
+static int op_vector_v_v_fpu(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operand_count != 2) { return -2; }
+
+  if (operands[0].type != OPERAND_REG_VECTOR ||
+      operands[1].type != OPERAND_REG_VECTOR ||
+      operands[0].attribute != operands[1].attribute)
+  {
+    return -2;
+  }
+
+  int q = 0;
+  int sz = 0;
+
+  switch (operands[0].attribute)
+  {
+    case SIZE_2S: q = 0; sz = 0; break;
+    case SIZE_4S: q = 1; sz = 0; break;
+    case SIZE_2D: q = 1; sz = 1; break;
+    default: return -2;
+  }
+
+  opcode |= (q << 30) |
+            (sz << 22) |
+            (operands[1].value << 5) |
+             operands[0].value;
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
+static int op_vector_d_d_d_fpu(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operand_count != 3) { return -2; }
+
+  if (operands[0].type != OPERAND_REG_SCALAR ||
+      operands[1].type != OPERAND_REG_SCALAR ||
+      operands[2].type != OPERAND_REG_SCALAR ||
+      operands[0].attribute != operands[1].attribute ||
+      operands[0].attribute != operands[2].attribute)
+  {
+    return -2;
+  }
+
+  int type = 0;
+
+  switch (operands[0].attribute)
+  {
+    case 2: type = 0; break;
+    case 3: type = 1; break;
+    default: return -2;
+  }
+
+  opcode |= (type << 22) |
+            (operands[2].value << 16) |
+            (operands[1].value << 5) |
+             operands[0].value;
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
+static int op_vector_d_d_fpu(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operand_count != 2) { return -2; }
+
+  if (operands[0].type != OPERAND_REG_SCALAR ||
+      operands[1].type != OPERAND_REG_SCALAR ||
+      operands[0].attribute != operands[1].attribute)
+  {
+    return -2;
+  }
+
+  int type = 0;
+
+  switch (operands[0].attribute)
+  {
+    case 2: type = 0; break;
+    case 3: type = 1; break;
+    default: return -2;
+  }
+
+  opcode |= (type << 22) |
+            (operands[1].value << 5) |
+             operands[0].value;
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
 static bool reg_matches(int operand, int wanted)
 {
   switch (wanted)
@@ -2023,6 +2171,34 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         case OP_VECTOR_SHIFT_IMM:
         {
           ret = op_vector_shift_imm(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
+
+          if (ret == -2) { continue; }
+          return ret;
+        }
+        case OP_VECTOR_V_V_V_FPU:
+        {
+          ret = op_vector_v_v_v_fpu(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
+
+          if (ret == -2) { continue; }
+          return ret;
+        }
+        case OP_VECTOR_V_V_FPU:
+        {
+          ret = op_vector_v_v_fpu(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
+
+          if (ret == -2) { continue; }
+          return ret;
+        }
+        case OP_VECTOR_D_D_D_FPU:
+        {
+          ret = op_vector_d_d_d_fpu(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
+
+          if (ret == -2) { continue; }
+          return ret;
+        }
+        case OP_VECTOR_D_D_FPU:
+        {
+          ret = op_vector_d_d_fpu(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
 
           if (ret == -2) { continue; }
           return ret;
