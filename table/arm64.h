@@ -43,6 +43,15 @@ enum
   OP_LD_ST_IMM_P,
   OP_LD_ST_IMM,
   OP_LD_LITERAL,
+  // Alias for subs / adds.
+  OP_ALIAS_REG_IMM,
+  // Other SIMD.
+  OP_SCALAR_SHIFT_IMM,
+  OP_VECTOR_SHIFT_IMM,
+  OP_VECTOR_V_V_V_FPU,
+  OP_VECTOR_V_V_FPU,
+  OP_VECTOR_D_D_D_FPU,
+  OP_VECTOR_D_D_FPU,
 };
 
 enum

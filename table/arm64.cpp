@@ -20,7 +20,14 @@ struct _table_arm64 table_arm64[] =
   { "abs",       0x0e20b800, 0xbf3ffc00, 2, 'v', OP_VECTOR_V_V },
   { "addg",      0x91800000, 0xffc0c000, 4, 'x', OP_MATH_R_R_IMM6_IMM4 },
 
+  // Alias for subs / adds.
+  { "cmp",       0x7100001f, 0x7f00001f, 2, 'b', OP_ALIAS_REG_IMM },
+  { "cmn",       0x3100001f, 0x7f00001f, 2, 'b', OP_ALIAS_REG_IMM },
+
   { "addv",      0x0e31b800, 0xbf3ffc00, 2, 'd', OP_VECTOR_V_V_TO_SCALAR },
+
+  { "shl",       0x5f005400, 0xff80fc00, 3, 'd', OP_SCALAR_SHIFT_IMM },
+  { "shl",       0x0f005400, 0xbf80fc00, 3, 'd', OP_VECTOR_SHIFT_IMM },
 
   { "and",       0x0e201c00, 0xbfe0fc00, 3, 'v', OP_VECTOR_V_V_V },
   { "eor",       0x2e201c00, 0xbfe0fc00, 3, 'v', OP_VECTOR_V_V_V },
@@ -32,6 +39,22 @@ struct _table_arm64 table_arm64[] =
 
   { "add",       0x5e208400, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
   { "sub",       0x7e208400, 0xff20fc00, 3, 'd', OP_SCALAR_D_D_D },
+
+  { "fadd",      0x0e20d400, 0xbfa0fc00, 3, 'v', OP_VECTOR_V_V_V_FPU },
+  { "fmax",      0x0e20f400, 0xbfa0fc00, 3, 'v', OP_VECTOR_V_V_V_FPU },
+  { "fmin",      0x0ea0f400, 0xbfa0fc00, 3, 'v', OP_VECTOR_V_V_V_FPU },
+  { "fmul",      0x2e20dc00, 0xbfa0fc00, 3, 'v', OP_VECTOR_V_V_V_FPU },
+  { "fsub",      0x0ea0d400, 0xbfa0fc00, 3, 'v', OP_VECTOR_V_V_V_FPU },
+
+  { "fneg",      0x2eaaf800, 0xbfbffc00, 3, 'v', OP_VECTOR_V_V_FPU },
+
+  { "fadd",      0x1e202800, 0xff20fc00, 3, 'd', OP_VECTOR_D_D_D_FPU },
+  { "fmax",      0x1e204800, 0xff20fc00, 3, 'd', OP_VECTOR_D_D_D_FPU },
+  { "fmin",      0x1e205800, 0xff20fc00, 3, 'd', OP_VECTOR_D_D_D_FPU },
+  { "fmul",      0x1e200800, 0xff20fc00, 3, 'd', OP_VECTOR_D_D_D_FPU },
+  { "fsub",      0x1e203800, 0xff20fc00, 3, 'd', OP_VECTOR_D_D_D_FPU },
+
+  { "fneg",      0x1e214000, 0xff3ffc00, 3, 'd', OP_VECTOR_D_D_FPU },
 
   { "cmeq",      0x2e208c00, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
   { "cmge",      0x0e203c00, 0xbf20fc00, 3, 'v', OP_VECTOR_V_V_V },
@@ -56,6 +79,8 @@ struct _table_arm64 table_arm64[] =
   { "cmgt",      0x5e208800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
   { "cmle",      0x7e209800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
   { "cmlt",      0x5e20a800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
+
+  //{ "saddlv",    0x0e303800, 0xbf3ffc00, 2, 'd', OP_VECTOR_V_TO_SCALAR },
 
   { "at",        0xd5807800, 0xfff8fe00, 2, 'b', OP_AT },
   { "bcax",      0xce200000, 0xffe08000, 4, 'v', OP_REG_REG_CRYPT },

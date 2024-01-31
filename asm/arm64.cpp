@@ -873,6 +873,66 @@ static int op_reg_page_relative(
   return 4;
 }
 
+static int op_vector_d_v(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operands[0].type != OPERAND_REG_SCALAR ||
+      operands[1].type != OPERAND_REG_VECTOR ||
+      operands[0].attribute != 3 ||
+      operands[1].attribute != SIZE_2D)
+  {
+    return -2;
+  }
+
+  opcode |= operands[0].value | (operands[1].value << 5);
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
+static int op_vector_v_v_to_scalar(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operands[0].type != OPERAND_REG_SCALAR ||
+      operands[1].type != OPERAND_REG_VECTOR)
+  {
+    return -2;
+  }
+
+  // addv doesn't allow D, but there are similar instructions that might.
+  if ((operands[0].attribute / 2) == 3 || operands[1].attribute == 3)
+  {
+    return -2;
+  }
+
+  // addv will want these to be the same size, but similar instructions
+  // might not.
+  if ((operands[0].attribute / 2) == operands[1].attribute)
+  {
+    return -2;
+  }
+
+  int size = operands[0].attribute;
+  int q = operands[1].attribute & 1;
+
+  opcode |= (q << 30) |
+            (size << 22) |
+             operands[0].value |
+            (operands[1].value << 5);
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
 static int op_logical_imm(
   AsmContext *asm_context,
   struct _operand *operands,
@@ -1117,6 +1177,184 @@ static int op_ld_literal(
   opcode |= (size << 30) |
             (v << 26) |
           (((offset >> 2) & 0x7ffff) << 5) |
+             operands[0].value;
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
+static int op_alias_reg_imm(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operands[1].type != OPERAND_NUMBER) { return -2; }
+
+  if (operands[0].type != OPERAND_REG_32 &&
+      operands[0].type != OPERAND_REG_64)
+  {
+    return -2;
+  }
+
+  int shift = 0;
+  int imm = operands[1].value;
+
+  if (operand_count == 2)
+  {
+    if (imm >= 0 && imm <= 0xfff)
+    {
+    }
+      else
+    if (imm >= 0x1000 && imm <= 0xfff000 && (imm & 0xfff) == 0)
+    {
+      imm = imm >> 12;
+      shift = 1;
+    }
+      else
+    {
+      print_error(asm_context, "Illegal immediate value");
+    }
+  }
+    else
+  if (operand_count == 3)
+  {
+    if (operands[2].type != OPERAND_OPTION)
+    {
+      return -2;
+    }
+
+    if (check_range(asm_context, "immediate", imm, 0, 0xfff) != 0)
+    {
+      return -1;
+    }
+
+    if (operands[2].attribute != OPTION_LSL ||
+        (operands[2].value != 12 && operands[2].value != 0))
+    {
+      print_error(asm_context, "Invalid shift");
+      return -1;
+    }
+
+    if (operands[2].value == 12) { shift = 1; }
+  }
+    else
+  {
+    return -2;
+  }
+
+  int sf = operands[0].type == OPERAND_REG_32 ? 0 : 1;
+
+  opcode |= (sf << 31) |
+            (shift << 22) |
+            (imm << 10) |
+            (operands[0].value << 5);
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
+static int op_scalar_shift_imm(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operand_count != 3) { return -2; }
+  if (operands[2].type != OPERAND_NUMBER) { return -2; }
+
+  if (operands[0].type != OPERAND_REG_SCALAR ||
+      operands[1].type != OPERAND_REG_SCALAR ||
+      operands[0].attribute != 2 ||
+      operands[1].attribute != 2)
+  {
+    return -2;
+  }
+
+  if (check_range(asm_context, "immediate", operands[2].value, 0, 63) != 0)
+  {
+    return -1;
+  }
+
+  opcode |= (8 << 19) |
+            (operands[2].value << 16) |
+            (operands[1].value << 5) |
+             operands[0].value;
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
+static int op_vector_shift_imm(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operand_count != 3) { return -2; }
+  if (operands[2].type != OPERAND_NUMBER) { return -2; }
+
+  if (operands[0].type != OPERAND_REG_VECTOR ||
+      operands[1].type != OPERAND_REG_VECTOR)
+  {
+    return -2;
+  }
+
+  if (operands[0].attribute != operands[1].attribute)
+  {
+    print_error_illegal_operands(asm_context, instr);
+    return -1;
+  }
+
+  int q = operands[0].attribute & 1;
+  int size = operands[0].attribute >> 1;
+  int shift = operands[2].value;
+  int imm = 0;
+
+  switch (size)
+  {
+    case 0:
+      if (check_range(asm_context, "immediate", shift, 0, 7) != 0)
+      {
+        return -1;
+      }
+      imm = 0x8 | shift;
+      break;
+    case 1:
+      if (check_range(asm_context, "immediate", shift, 0, 15) != 0)
+      {
+        return -1;
+      }
+      imm = 0x10 | shift;
+      break;
+    case 2:
+      if (check_range(asm_context, "immediate", shift, 0, 31) != 0)
+      {
+        return -1;
+      }
+      imm = 0x20 | shift;
+      break;
+    case 3:
+      if (check_range(asm_context, "immediate", shift, 0, 63) != 0)
+      {
+        return -1;
+      }
+      imm = 0x40 | shift;
+      break;
+    default:
+      print_error_illegal_operands(asm_context, instr);
+      return -1;
+  }
+
+  opcode |= (q << 30) |
+            (imm << 16) |
+            (operands[1].value << 5) |
              operands[0].value;
 
   add_bin32(asm_context, opcode, IS_OPCODE);
@@ -1614,39 +1852,17 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         }
         case OP_VECTOR_D_V:
         {
-          if (operands[0].type != OPERAND_REG_SCALAR ||
-              operands[1].type != OPERAND_REG_VECTOR ||
-              operands[0].attribute != 3 ||
-              operands[1].attribute != SIZE_2D)
-          {
-            continue;
-          }
+          ret = op_vector_d_v(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
 
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                  (operands[1].value << 5);
-
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
+          if (ret == -2) { continue; }
+          return ret;
         }
         case OP_VECTOR_V_V_TO_SCALAR:
         {
-          if (operands[0].type != OPERAND_REG_VECTOR ||
-              operands[1].type != OPERAND_REG_VECTOR ||
-              operands[0].attribute != 3 ||
-              operands[1].attribute != SIZE_2D)
-          {
-            continue;
-          }
+          ret = op_vector_v_v_to_scalar(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
 
-          opcode = table_arm64[n].opcode |
-                   operands[0].value |
-                  (operands[1].value << 5);
-
-          add_bin32(asm_context, opcode, IS_OPCODE);
-
-          return 4;
+          if (ret == -2) { continue; }
+          return ret;
         }
         case OP_MATH_R_R_IMMR_S:
         {
@@ -1786,6 +2002,27 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         case OP_LD_LITERAL:
         {
           ret = op_ld_literal(asm_context, operands, operand_count, table_arm64[n].opcode, instr, table_arm64[n].reg_type);
+
+          if (ret == -2) { continue; }
+          return ret;
+        }
+        case OP_ALIAS_REG_IMM:
+        {
+          ret = op_alias_reg_imm(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
+
+          if (ret == -2) { continue; }
+          return ret;
+        }
+        case OP_SCALAR_SHIFT_IMM:
+        {
+          ret = op_scalar_shift_imm(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
+
+          if (ret == -2) { continue; }
+          return ret;
+        }
+        case OP_VECTOR_SHIFT_IMM:
+        {
+          ret = op_vector_shift_imm(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
 
           if (ret == -2) { continue; }
           return ret;

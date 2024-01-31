@@ -337,11 +337,15 @@ int disasm_arm64(
         }
         case OP_VECTOR_V_V_TO_SCALAR:
         {
-          snprintf(instruction, length, "%s d%d, v%d.%s",
+          int q = (opcode >> 30) & 1;
+          int size_q = (size << 1)| q;
+
+          snprintf(instruction, length, "%s %c%d, v%d.%s",
             table_arm64[n].instr,
+            scalar_size[size],
             rd,
             rn,
-            vec_size[sf]);
+            vec_size[size_q]);
 
           return 4;
         }
@@ -611,6 +615,57 @@ int disasm_arm64(
             reg_name,
             rd,
             address + imm,
+            imm);
+
+          return 4;
+        }
+        case OP_ALIAS_REG_IMM:
+        {
+          imm = (opcode >> 10) & 0xfff;
+          shift = (opcode >> 22) & 0x3;
+
+          if (shift == 0)
+          {
+            snprintf(instruction, length, "%s %c%d, #0x%03x",
+              table_arm64[n].instr,
+              reg_size[sf], rn,
+              imm);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s %c%d, #0x%03x (#0x%03x, lsl #12)",
+              table_arm64[n].instr,
+              reg_size[sf], rn,
+              imm << 12,
+              imm);
+          }
+
+          return 4;
+        }
+        case OP_SCALAR_SHIFT_IMM:
+        {
+          snprintf(instruction, length, "%s d%d, d%d, #%d",
+            table_arm64[n].instr,
+            rd,
+            rn,
+            (opcode >> 16) & 7);
+
+          return 4;
+        }
+        case OP_VECTOR_SHIFT_IMM:
+        {
+          int q = (opcode >> 30) & 1;
+          imm = (opcode >> 16) & 0x7f;
+
+          if ((imm & 0x400) == 0x400) { size = 0 + q; imm &= 0x07; }
+          else if ((imm & 0x200) == 0x200) { size = 2 + q; imm &= 0x0f; }
+          else if ((imm & 0x100) == 0x100) { size = 4 + q; imm &= 0x1f; }
+          else if ((imm & 0x080) == 0x080) { size = 6 + q; imm &= 0x3f; }
+
+          snprintf(instruction, length, "%s v%d.%s, v%d.%s, #%d",
+            table_arm64[n].instr,
+            rd, vec_size[size],
+            rn, vec_size[size],
             imm);
 
           return 4;
