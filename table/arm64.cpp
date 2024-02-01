@@ -80,6 +80,14 @@ struct _table_arm64 table_arm64[] =
   { "cmle",      0x7e209800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
   { "cmlt",      0x5e20a800, 0xff3ffc00, 2, 'd', OP_SCALAR_D_D },
 
+  { "fcmeq",     0x0e20e400, 0xbfa0fc00, 3, 'v', OP_VECTOR_V_V_V_FPU },
+  { "fcmge",     0x2e20e400, 0xbfa0fc00, 3, 'v', OP_VECTOR_V_V_V_FPU },
+  { "fcmgt",     0x2ea0e400, 0xbfa0fc00, 3, 'v', OP_VECTOR_V_V_V_FPU },
+
+  { "fcmeq",     0x5e20e400, 0xffa0fc00, 3, 'd', OP_VECTOR_D_D_D_FPU },
+  { "fcmge",     0x7e20e400, 0xffa0fc00, 3, 'd', OP_VECTOR_D_D_D_FPU },
+  { "fcmgt",     0x7ea0e400, 0xffa0fc00, 3, 'd', OP_VECTOR_D_D_D_FPU },
+
   //{ "saddlv",    0x0e303800, 0xbf3ffc00, 2, 'd', OP_VECTOR_V_TO_SCALAR },
 
   { "at",        0xd5807800, 0xfff8fe00, 2, 'b', OP_AT },
