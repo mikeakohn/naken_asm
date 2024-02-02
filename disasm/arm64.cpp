@@ -754,7 +754,7 @@ int disasm_arm64(
               rd,
               rm,
               rn,
-              size == 0 ? 4 : 8);
+              size == 0 ? 2 : 3);
           }
 
           return 4;

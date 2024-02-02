@@ -1557,12 +1557,12 @@ static int op_ld_st_reg_reg(
       return -1;
     }
 
-    size = 1;
+    s = 1;
   }
 
   opcode |= (size << 30) |
             (option << 13) |
-            (s << 13) |
+            (s << 12) |
             (operands[1].offset_reg << 5) |
             (operands[1].value << 5) |
              operands[0].value;
@@ -1897,13 +1897,10 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
             if (strcasecmp(token, "lsl") == 0)
             {
-              num = get_shift_value(asm_context);
+              if (expect_token(asm_context, '#') == -1) { return -1; }
 
-              if (num == -2)
-              {
-                print_error(asm_context, "Unknown shift value");
-                return -1;
-              }
+              token_type = tokens_get(asm_context, token, TOKENLEN);
+              num = atoi(token);
 
               operands[operand_count].offset_shift = num;
             }
