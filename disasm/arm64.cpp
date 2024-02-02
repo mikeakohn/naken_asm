@@ -730,6 +730,35 @@ int disasm_arm64(
 
           return 4;
         }
+        case OP_LD_ST_REG_REG:
+        {
+          int s = (opcode >> 12) & 1;
+          // FIXME: option can be something other than 3 (LSL).
+          //int option = (opcode >> 13) & 7;
+          size = (opcode >> 30) & 1;
+
+          if (s == 0)
+          {
+            snprintf(instruction, length, "%s %c%d, [x%d, x%d]",
+              table_arm64[n].instr,
+              size == 0 ? 'w' : 'x',
+              rd,
+              rm,
+              rn);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s %c%d, [x%d, x%d, lsl #%d]",
+              table_arm64[n].instr,
+              size == 0 ? 'w' : 'x',
+              rd,
+              rm,
+              rn,
+              size == 0 ? 4 : 8);
+          }
+
+          return 4;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);

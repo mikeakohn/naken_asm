@@ -159,6 +159,10 @@ struct _table_arm64 table_arm64[] =
   { "ldr",       0x18000000, 0x3b000000, 2, '0', OP_LD_LITERAL },
   { "ldrsw",     0x18000000, 0x3b000000, 2, 'x', OP_LD_LITERAL },
 
+  // C3.3.10 Load/store register (register offset).
+  { "ldr",       0xb8600800, 0xbfe00c00, 3, '0', OP_LD_ST_REG_REG },
+  { "str",       0xb8400800, 0xbfe00c00, 3, '0', OP_LD_ST_REG_REG },
+
   // C3.3.8 Load/store register (immediate post-indexed).
   // C3.3.9 Load/store register (immediate pre-indexed).
   { "strb",      0x38000000, 0x3be00000, 3, 'w', OP_LD_ST_IMM_P },
@@ -380,7 +384,6 @@ struct _table_arm64_uncond_branch table_arm64_uncond_branch[] =
 // C3.3.4 AdvSIMD load/store single structures (post-indexed).
 // C3.3.6 Load/store exclusive.
 // C3.3.7 Load/store no-allocate pair (offset).
-// C3.3.10 Load/store register (register offset).
 // C3.3.11 Load/store register (unprivileged).
 // C3.3.12 Load/store register (unscaled immediate).
 // C3.3.14 Load/store register pair (offset).

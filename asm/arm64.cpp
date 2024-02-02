@@ -34,7 +34,8 @@ enum
   OPERAND_ADDRESS,
   OPERAND_OPTION,
   OPERAND_AT,
-  OPERAND_REG_OFFSET,
+  OPERAND_REG_IMM_OFFSET,
+  OPERAND_REG_REG_OFFSET,
 };
 
 enum
@@ -80,6 +81,8 @@ struct _operand
 {
   int value;
   int offset_imm;
+  uint8_t offset_reg;
+  uint8_t offset_shift;
   uint8_t type;
   uint8_t attribute;
   uint8_t element;
@@ -391,6 +394,16 @@ static int get_register_arm64(
   return 0;
 }
 
+static int get_register_arm64(char *s)
+{
+  if (s[0] != 'x') { return -1; }
+
+  int num = get_reg_number(s + 1, 31);
+  if (num < 0 || num > 31) { return -1; }
+
+  return num;
+}
+
 static int get_shift_value(AsmContext *asm_context)
 {
   int num;
@@ -475,7 +488,7 @@ static int get_option(
 
     operand->value = num;
 
-    return OPTION_LSL;
+    return OPTION_LSR;
   }
     else
   if (strcasecmp(token, "asr") == 0)
@@ -988,7 +1001,7 @@ static int op_ld_st_imm_p(
     return -2;
   }
 
-  if (operands[1].type != OPERAND_REG_OFFSET) { return -2; }
+  if (operands[1].type != OPERAND_REG_IMM_OFFSET) { return -2; }
 
   if (reg_type == 'w' && operands[0].type != OPERAND_REG_32)
   {
@@ -1052,7 +1065,7 @@ static int op_ld_st_imm(
     return -2;
   }
 
-  if (operands[1].type != OPERAND_REG_OFFSET) { return -2; }
+  if (operands[1].type != OPERAND_REG_IMM_OFFSET) { return -2; }
 
   if (reg_type == 'w' && operands[0].type != OPERAND_REG_32)
   {
@@ -1510,6 +1523,55 @@ static int op_vector_d_d_fpu(
   return 4;
 }
 
+static int op_ld_st_reg_reg(
+  AsmContext *asm_context,
+  struct _operand *operands,
+  int operand_count,
+  uint32_t opcode,
+  char *instr)
+{
+  if (operand_count != 2) { return -2; }
+
+  if (operands[0].type != OPERAND_REG_32 &&
+      operands[0].type != OPERAND_REG_64)
+  {
+    return -2;
+  }
+
+  if (operands[1].type != OPERAND_REG_REG_OFFSET)
+  {
+    return -2;
+  }
+
+  // FIXME: This should be able to be uxtw, lsl, sxtw, sxtx.
+  int option = 3;
+  int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
+  int s = 0;
+
+  if (operands[1].offset_shift != 0)
+  {
+    if ((size == 0 && operands[1].offset_shift != 2) ||
+        (size == 1 && operands[1].offset_shift != 3))
+    {
+      print_error(asm_context, "Illegal shift value");
+      return -1;
+    }
+
+    size = 1;
+  }
+
+  opcode |= (size << 30) |
+            (option << 13) |
+            (s << 13) |
+            (operands[1].offset_reg << 5) |
+            (operands[1].value << 5) |
+             operands[0].value;
+
+  add_bin32(asm_context, opcode, IS_OPCODE);
+
+  return 4;
+}
+
 static bool reg_matches(int operand, int wanted)
 {
   switch (wanted)
@@ -1707,6 +1769,9 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
       // [x0, #8]!
       // [x0], #8
 
+      // [x0, x1]
+      // [x0, x1, lsl #4]
+
       token_type = tokens_get(asm_context, token, TOKENLEN);
 
       num = get_register_arm64(asm_context, &operands[operand_count], token);
@@ -1717,7 +1782,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         return -1;
       }
 
-      operands[operand_count].type = OPERAND_REG_OFFSET;
+      operands[operand_count].type = OPERAND_REG_IMM_OFFSET;
 
       do
       {
@@ -1774,45 +1839,91 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
 
-        if (IS_NOT_TOKEN(token, '#'))
-        {
-          print_error_unexp(asm_context, token);
-          return -1;
-        }
+        num = get_register_arm64(token);
 
-        if (eval_expression(asm_context, &num) != 0)
+        if (num == -1)
         {
-          if (asm_context->pass == 1)
+          if (IS_NOT_TOKEN(token, '#'))
           {
-            ignore_operand(asm_context);
-            num = 0;
+            print_error_unexp(asm_context, token);
+            return -1;
+          }
+
+          if (eval_expression(asm_context, &num) != 0)
+          {
+            if (asm_context->pass == 1)
+            {
+              ignore_operand(asm_context);
+              num = 0;
+            }
+              else
+            {
+              print_error_illegal_expression(asm_context, instr);
+              return -1;
+            }
+          }
+
+          operands[operand_count].offset_imm = num;
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (IS_NOT_TOKEN(token, ']'))
+          {
+            print_error_unexp(asm_context, token);
+            return -1;
+          }
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (IS_TOKEN(token, '!'))
+          {
+            operands[operand_count].index_type = INDEX_PRE;
           }
             else
           {
-            print_error_illegal_expression(asm_context, instr);
-            return -1;
+            tokens_push(asm_context, token, token_type);
           }
-        }
-
-        operands[operand_count].offset_imm = num;
-
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-
-        if (IS_NOT_TOKEN(token, ']'))
-        {
-          print_error_unexp(asm_context, token);
-          return -1;
-        }
-
-        token_type = tokens_get(asm_context, token, TOKENLEN);
-
-        if (IS_TOKEN(token, '!'))
-        {
-          operands[operand_count].index_type = INDEX_PRE;
         }
           else
         {
-          tokens_push(asm_context, token, token_type);
+          operands[operand_count].offset_reg = num;
+          operands[operand_count].type = OPERAND_REG_REG_OFFSET;
+
+          token_type = tokens_get(asm_context, token, TOKENLEN);
+
+          if (IS_TOKEN(token, ','))
+          {
+            token_type = tokens_get(asm_context, token, TOKENLEN);
+
+            if (strcasecmp(token, "lsl") == 0)
+            {
+              num = get_shift_value(asm_context);
+
+              if (num == -2)
+              {
+                print_error(asm_context, "Unknown shift value");
+                return -1;
+              }
+
+              operands[operand_count].offset_shift = num;
+            }
+
+            token_type = tokens_get(asm_context, token, TOKENLEN);
+
+            if (IS_NOT_TOKEN(token, ']'))
+            {
+              print_error_unexp(asm_context, token);
+              return -1;
+            }
+          }
+            else
+          {
+            if (IS_NOT_TOKEN(token, ']'))
+            {
+              print_error_unexp(asm_context, token);
+              return -1;
+            }
+          }
         }
       } while (false);
     }
@@ -2199,6 +2310,13 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         case OP_VECTOR_D_D_FPU:
         {
           ret = op_vector_d_d_fpu(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
+
+          if (ret == -2) { continue; }
+          return ret;
+        }
+        case OP_LD_ST_REG_REG:
+        {
+          ret = op_ld_st_reg_reg(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
 
           if (ret == -2) { continue; }
           return ret;
