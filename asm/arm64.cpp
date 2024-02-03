@@ -1351,7 +1351,8 @@ static int op_vector_shift_imm(
   struct _operand *operands,
   int operand_count,
   uint32_t opcode,
-  char *instr)
+  char *instr,
+  char reg_type)
 {
   if (operand_count != 3) { return -2; }
   if (operands[2].type != OPERAND_NUMBER) { return -2; }
@@ -1380,6 +1381,7 @@ static int op_vector_shift_imm(
       {
         return -1;
       }
+      if (reg_type == 'r') { shift = 8 - shift; }
       imm = 0x8 | shift;
       break;
     case 1:
@@ -1387,6 +1389,7 @@ static int op_vector_shift_imm(
       {
         return -1;
       }
+      if (reg_type == 'r') { shift = 16 - shift; }
       imm = 0x10 | shift;
       break;
     case 2:
@@ -1394,6 +1397,7 @@ static int op_vector_shift_imm(
       {
         return -1;
       }
+      if (reg_type == 'r') { shift = 32 - shift; }
       imm = 0x20 | shift;
       break;
     case 3:
@@ -1401,6 +1405,7 @@ static int op_vector_shift_imm(
       {
         return -1;
       }
+      if (reg_type == 'r') { shift = 64 - shift; }
       imm = 0x40 | shift;
       break;
     default:
@@ -2334,7 +2339,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         }
         case OP_VECTOR_SHIFT_IMM:
         {
-          ret = op_vector_shift_imm(asm_context, operands, operand_count, table_arm64[n].opcode, instr);
+          ret = op_vector_shift_imm(asm_context, operands, operand_count, table_arm64[n].opcode, instr, table_arm64[n].reg_type);
 
           if (ret == -2) { continue; }
           return ret;

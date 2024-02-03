@@ -26,8 +26,10 @@ struct _table_arm64 table_arm64[] =
 
   { "addv",      0x0e31b800, 0xbf3ffc00, 2, 'd', OP_VECTOR_V_V_TO_SCALAR },
 
-  { "shl",       0x5f005400, 0xff80fc00, 3, 'd', OP_SCALAR_SHIFT_IMM },
-  { "shl",       0x0f005400, 0xbf80fc00, 3, 'd', OP_VECTOR_SHIFT_IMM },
+  { "shl",       0x5f005400, 0xff80fc00, 3, 'l', OP_SCALAR_SHIFT_IMM },
+  { "sshr",      0x5f000400, 0xff80fc00, 3, 'r', OP_SCALAR_SHIFT_IMM },
+  { "shl",       0x0f005400, 0xbf80fc00, 3, 'l', OP_VECTOR_SHIFT_IMM },
+  { "sshr",      0x0f000400, 0xbf80fc00, 3, 'r', OP_VECTOR_SHIFT_IMM },
 
   { "and",       0x0e201c00, 0xbfe0fc00, 3, 'v', OP_VECTOR_V_V_V },
   { "eor",       0x2e201c00, 0xbfe0fc00, 3, 'v', OP_VECTOR_V_V_V },

@@ -710,7 +710,7 @@ int disasm_arm64(
             table_arm64[n].instr,
             rd,
             rn,
-            (opcode >> 16) & 7);
+            (opcode >> 16) & 0x3f);
 
           return 4;
         }
@@ -719,10 +719,21 @@ int disasm_arm64(
           int q = (opcode >> 30) & 1;
           imm = (opcode >> 16) & 0x7f;
 
-          if ((imm & 0x400) == 0x400) { size = 0 + q; imm &= 0x07; }
-          else if ((imm & 0x200) == 0x200) { size = 2 + q; imm &= 0x0f; }
-          else if ((imm & 0x100) == 0x100) { size = 4 + q; imm &= 0x1f; }
-          else if ((imm & 0x080) == 0x080) { size = 6 + q; imm &= 0x3f; }
+          if      ((imm & 0x08) == 0x08) { size = 0 + q; imm &= 0x07; }
+          else if ((imm & 0x10) == 0x10) { size = 2 + q; imm &= 0x0f; }
+          else if ((imm & 0x20) == 0x20) { size = 4 + q; imm &= 0x1f; }
+          else if ((imm & 0x40) == 0x40) { size = 6 + q; imm &= 0x3f; }
+
+          if (table_arm64[n].reg_type == 'r')
+          {
+            switch (size >> 1)
+            {
+              case 0: imm = 8 - imm; break;
+              case 1: imm = 16 - imm; break;
+              case 2: imm = 32 - imm; break;
+              case 3: imm = 64 - imm; break;
+            }
+          }
 
           snprintf(instruction, length, "%s v%d.%s, v%d.%s, #%d",
             table_arm64[n].instr,
