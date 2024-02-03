@@ -44,6 +44,64 @@ static const char *get_at(int value)
   return "???";
 }
 
+static uint64_t decode_imms(int imms, int immr, int sf)
+{
+  uint64_t imm = 0;
+  int size = 0;
+
+  if ((imms & 0x7e) == 0x3c)
+  {
+    size = 2;
+  }
+    else
+  if ((imms & 0x7c) == 0x38)
+  {
+    size = 4;
+  }
+    else
+  if ((imms & 0x78) == 0x30)
+  {
+    size = 8;
+  }
+    else
+  if ((imms & 0x70) == 0x20)
+  {
+    size = 16;
+  }
+    else
+  if ((imms & 0x60) == 0x00)
+  {
+    size = 32;
+  }
+    else
+  if ((imms & 0x40) == 0x40)
+  {
+    size = 64;
+  }
+
+  // Create bit battern.
+  int ones_count = (imms & (size - 1)) + 1;
+  int pattern = (1 << ones_count) - 1;
+
+  // Repeat bit pattern.
+  for (int n = 0; n < 64; n += size)
+  {
+    imm |= (pattern << n);
+  }
+
+  // Do rotate right.
+  if (immr != 0)
+  {
+    int r = imm & ((1 << immr) - 1);
+    imm = imm >> immr;
+    imm |= r << (64 - immr);
+  }
+
+  if (sf == 0) { imm &= 0xffffffff; }
+
+  return imm;
+}
+
 static const char *decode_imm5_vector(int imm, int q)
 {
   int size = 0;
@@ -351,16 +409,20 @@ int disasm_arm64(
         }
         case OP_MATH_R_R_IMMR_S:
         {
-          int imm = (opcode >> 16) & 0x3f;
-          imm |= ((opcode >> 10) & 0x3f) << 6;
+          int immr = (opcode >> 16) & 0x3f;
+          int imms = (opcode >> 10) & 0x3f;
 
-          if (sf == 1) { imm |= ((opcode >> 22) & 1) << 12; }
+          if (sf == 1) { immr |= ((opcode >> 22) & 1) << 6; }
 
-          snprintf(instruction, length, "%s %c%d, %c%d, #0x%03x",
+          uint64_t imm = decode_imms(imms, immr, sf);
+
+          snprintf(instruction, length, "%s %c%d, %c%d, #0x%04lx (immr=%d imms=%d)",
             table_arm64[n].instr,
             reg_size[sf], rd,
             reg_size[sf], rn,
-            imm);
+            imm,
+            immr,
+            imms);
 
           return 4;
         }
@@ -743,8 +805,8 @@ int disasm_arm64(
               table_arm64[n].instr,
               size == 0 ? 'w' : 'x',
               rd,
-              rm,
-              rn);
+              rn,
+              rm);
           }
             else
           {
@@ -752,8 +814,8 @@ int disasm_arm64(
               table_arm64[n].instr,
               size == 0 ? 'w' : 'x',
               rd,
-              rm,
               rn,
+              rm,
               size == 0 ? 2 : 3);
           }
 

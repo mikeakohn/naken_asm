@@ -963,25 +963,68 @@ static int op_logical_imm(
   }
 
   int size = operands[0].type == OPERAND_REG_32 ? 0 : 1;
-  int imm = operands[2].value;
-  int immr = imm & 0x3f;
-  int imms = (imm >> 6) & 0x3f;
-  int n = (imm >> 12) & 1;
+
+  // Figure out how many 1's on the right side.
+  uint64_t value = operands[2].value;
+
+  char pattern[64] = { 0 };
+  int position = 0;
+
+  for (int n = 0; n < 64; n++)
+  {
+    if ((position & 1) == 0)
+    {
+      if ((value & 1) == 1) { position++; }
+
+      pattern[position]++;
+    }
+      else
+    {
+      if ((value & 1) == 0) { position++; }
+
+      pattern[position]++;
+    }
+
+    value = value >> 1;
+  }
+
+#if 0
+for (int i = 0; i <= position; i++)
+{
+printf("%d\n", pattern[i]);
+}
+#endif
+
+  int immr;
+  int imms;
+  int n = 0;
+
+  // FIXME: This works for single blocks of 1's and not repeating patterns.
+  if (size == 0)
+  {
+    immr = (32 - pattern[0]) & 0x1f;
+    imms = pattern[1] - 1;
+  }
+    else
+  {
+    immr = (64 - pattern[0]) & 0x3f;
+    imms = pattern[1] - 1;
+  }
+
+#if 0
   int max = size == 0 ? 0xfff : 0x1fff;
-
-  if (size == 0) { n = 0; }
-
   if (check_range(asm_context, "immediate", imm, 0, max) != 0)
   {
     return -1;
   }
+#endif
 
-  opcode |= operands[0].value |
-           (n << 22) |
-           (immr << 16) |
-           (imms << 10) |
-           (operands[1].value << 5) |
-           (size << 31);
+  opcode |= (size << 31) |
+            (n << 22) |
+            (immr << 16) |
+            (imms << 10) |
+            (operands[1].value << 5) |
+             operands[0].value;
 
   add_bin32(asm_context, opcode, IS_OPCODE);
 
@@ -1561,9 +1604,9 @@ static int op_ld_st_reg_reg(
   }
 
   opcode |= (size << 30) |
+            (operands[1].offset_reg << 16) |
             (option << 13) |
             (s << 12) |
-            (operands[1].offset_reg << 5) |
             (operands[1].value << 5) |
              operands[0].value;
 
@@ -2026,6 +2069,19 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
         {
           encode_vector_element(&operands[1], imm5, q);
         }
+      }
+        else
+      if (operands[1].type == OPERAND_REG_32 ||
+          operands[1].type == OPERAND_REG_64)
+      {
+        if (!match_vector_size(operands))
+        {
+          print_error(asm_context, "Mismatched register sizes");
+          return -1;
+        }
+
+        q = operands[0].attribute & 1;
+        imm5 = 1 << (operands[0].attribute / 2);
       }
 
       opcode = 0x0e000400 |
