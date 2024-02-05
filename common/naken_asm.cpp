@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
   {
     printf("Usage: naken_asm [options] <infile>\n"
            "   -o <outfile>\n"
-           "   -type <hex, elf, bin, srec, amiga, wdc>\n"
+           "   -type <hex, elf, bin, macho, srec, amiga, wdc>\n"
            "   -l             [create .lst listing file]\n"
            "   -I             [add to include path]\n"
            "   -q             Quiet (only output errors)\n"

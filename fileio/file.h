@@ -27,6 +27,7 @@ enum
   FILE_TYPE_WDC,
   FILE_TYPE_AMIGA,
   FILE_TYPE_TI_TXT,
+  FILE_TYPE_MACHO,
 };
 
 int file_write(const char *filename, AsmContext *asm_context, int file_type);
