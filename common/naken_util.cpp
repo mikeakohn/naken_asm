@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -76,9 +76,9 @@ static void print_usage()
          "   -powerpc                     (PowerPC)\n"
          "   -propeller                   (Parallax Propeller)\n"
          "   -propeller2                  (Parallax Propeller2)\n"
-         "   -ps2ee                       (Playstation 2 EE)\n"
-         "   -ps2ee_vu0                   (Playstation 2 VU0)\n"
-         "   -ps2ee_vu1                   (Playstation 2 VU1)\n"
+         "   -ps2_ee                      (Playstation 2 EE)\n"
+         "   -ps2_ee_vu0                  (Playstation 2 VU0)\n"
+         "   -ps2_ee_vu1                  (Playstation 2 VU1)\n"
          "   -riscv                       (RISCV)\n"
          "   -sh4                         (SH4)\n"
          "   -stm8                        (STM8)\n"

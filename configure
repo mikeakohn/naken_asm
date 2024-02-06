@@ -101,6 +101,7 @@ COMMON_OBJS="
   Var.o"
 
 FILEIO_OBJS="
+  FileIo.o
   file.o
   read_amiga.o
   read_bin.o

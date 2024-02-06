@@ -18,6 +18,6 @@ cell:
 	chmod 755 spe_test.elf
 
 clean:
-	@rm -f *.o *.lst mandelbrot host_to_cell mandelbrot_spe.elf
+	@rm -f *.o *.lst mandelbrot host_to_cell mandelbrot_spe.elf spe_test.elf
 	@echo "Clean!"
 
