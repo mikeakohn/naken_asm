@@ -25,6 +25,7 @@ public:
   int open_for_writing(const char *filename);
   int open_for_reading(const char *filename);
 
+  void set_fp(FILE *fp) { this->fp = fp; }
   void close_file();
 
   void set_endian(int value);
@@ -34,6 +35,7 @@ public:
   uint32_t get_int32() { return get_int32_func(fp); }
   uint64_t get_int64() { return get_int64_func(fp); }
 
+  void write_int8(uint32_t n)  { putc(n, fp); }
   void write_int16(uint32_t n) { write_int16_func(fp, n); }
   void write_int32(uint32_t n) { write_int32_func(fp, n); }
   void write_int64(uint64_t n) { write_int64_func(fp, n); }
@@ -43,7 +45,17 @@ public:
     return fread(data, 1, length, fp);
   }
 
-  int write_bytes(uint8_t *data, int length)
+  int get_chars(char *data, int length)
+  {
+    return fread(data, 1, length, fp);
+  }
+
+  int write_bytes(const uint8_t *data, int length)
+  {
+    return fwrite(data, 1, length, fp);
+  }
+
+  int write_chars(const char *data, int length)
   {
     return fwrite(data, 1, length, fp);
   }
@@ -51,9 +63,12 @@ public:
   long tell() { return ftell(fp); }
   void set(long offset) { fseek(fp, offset, SEEK_SET); }
   void seek(long offset, int whence) { fseek(fp, offset, whence); }
+  void skip(long offset) { fseek(fp, offset, SEEK_CUR); }
 
   int get_string_at_offset(char *data, int length, uint64_t offset);
   int get_bytes_at_offset(uint8_t *data, int length, uint64_t offset);
+
+  int write_string(const char *data, bool null_terminate = true);
 
   enum
   {

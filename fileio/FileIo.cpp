@@ -104,6 +104,19 @@ int FileIo::get_bytes_at_offset(uint8_t *data, int length, uint64_t offset)
   return n == length ? 0 : 1;
 } 
 
+int FileIo::write_string(const char *data, bool null_terminate)
+{
+  while (*data != 0)
+  {
+    putc(*data, fp);
+    data++;
+  }
+
+  if (null_terminate) { putc(0, fp); }
+
+  return 0;
+}
+
 uint32_t FileIo::get_int16_le(FILE *in)
 {
   uint32_t i;

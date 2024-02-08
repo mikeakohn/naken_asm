@@ -15,6 +15,7 @@
 
 #include "common/assembler.h"
 #include "common/Symbols.h"
+#include "fileio/FileIo.h"
 #include "fileio/write_elf.h"
 
 typedef void(*write_int64_t)(FILE *, uint64_t);
@@ -41,9 +42,6 @@ typedef struct _elf
   int text_addr;
   int data_addr;
   char string_table[32768];
-  write_int64_t write_int64;
-  write_int32_t write_int32;
-  write_int16_t write_int16;
   long shnum_offset;
   long shoff_offset;
 } Elf;
@@ -78,59 +76,11 @@ const char string_table_default[] =
   //".rela.debug_aranges\0"
 ;
 
-static void write_int64_le(FILE *out, uint64_t n)
-{
-  putc(n & 0xff, out);
-  putc((n >> 8) & 0xff, out);
-  putc((n >> 16) & 0xff, out);
-  putc((n >> 24) & 0xff, out);
-  putc((n >> 32) & 0xff, out);
-  putc((n >> 40) & 0xff, out);
-  putc((n >> 48) & 0xff, out);
-  putc((n >> 56) & 0xff, out);
-}
-
-static void write_int32_le(FILE *out, uint32_t n)
-{
-  putc(n & 0xff, out);
-  putc((n >> 8) & 0xff, out);
-  putc((n >> 16) & 0xff, out);
-  putc((n >> 24) & 0xff, out);
-}
-
-static void write_int16_le(FILE *out, uint32_t n)
-{
-  putc(n & 0xff, out);
-  putc((n >> 8) & 0xff, out);
-}
-
-static void write_int64_be(FILE *out, uint64_t n)
-{
-  putc((n >> 56) & 0xff, out);
-  putc((n >> 48) & 0xff, out);
-  putc((n >> 40) & 0xff, out);
-  putc((n >> 32) & 0xff, out);
-  putc((n >> 24) & 0xff, out);
-  putc((n >> 16) & 0xff, out);
-  putc((n >> 8) & 0xff, out);
-  putc(n & 0xff, out);
-}
-
-static void write_int32_be(FILE *out, uint32_t n)
-{
-  putc((n >> 24) & 0xff, out);
-  putc((n >> 16) & 0xff, out);
-  putc((n >> 8) & 0xff, out);
-  putc(n & 0xff, out);
-}
-
-static void write_int16_be(FILE *out, uint32_t n)
-{
-  putc((n >> 8) & 0xff, out);
-  putc(n & 0xff, out);
-}
-
-static void write_elf_header(FILE *out, Elf *elf, Memory *memory, int alignment)
+static void write_elf_header(
+  FileIo &file,
+  Elf *elf,
+  Memory *memory,
+  int alignment)
 {
   #define EI_CLASS 4   // 1=32 bit, 2=64 bit
   #define EI_DATA  5   // 1=little endian, 2=big endian
@@ -141,16 +91,12 @@ static void write_elf_header(FILE *out, Elf *elf, Memory *memory, int alignment)
   if (memory->endian == ENDIAN_LITTLE)
   {
     elf->e_ident[EI_DATA] = 1;
-    elf->write_int64 = write_int64_le;
-    elf->write_int32 = write_int32_le;
-    elf->write_int16 = write_int16_le;
+    file.set_endian(FileIo::FILE_ENDIAN_LITTLE);
   }
     else
   {
     elf->e_ident[EI_DATA] = 2;
-    elf->write_int64 = write_int64_be;
-    elf->write_int32 = write_int32_be;
-    elf->write_int16 = write_int16_be;
+    file.set_endian(FileIo::FILE_ENDIAN_BIG);
   }
 
   if (memory->entry_point != 0xffffffff)
@@ -265,43 +211,43 @@ static void write_elf_header(FILE *out, Elf *elf, Memory *memory, int alignment)
   elf->e_shnum++;
 
   // Write Ehdr;
-  fwrite(elf->e_ident, 1, 16, out);
+  file.write_bytes(elf->e_ident, 16);
 
   if (elf->e_ident[EI_CLASS] == 1)
   {
-    elf->write_int16(out, elf->e_type);    // e_type 0=not relocatable 1=msp_32
-    elf->write_int16(out, elf->e_machine); // e_machine EM_MSP430=0x69
-    elf->write_int32(out, 1);              // e_version
-    elf->write_int32(out, elf->e_entry);   // e_entry (start address)
-    elf->write_int32(out, elf->e_phoff);   // e_phoff (program header offset)
-    elf->shoff_offset = ftell(out);
-    elf->write_int32(out, 0);              // e_shoff (section header offset)
-    elf->write_int32(out, elf->e_flags);   // e_flags (set to CPU model)
-    elf->write_int16(out, 0x34);           // e_ehsize (size of this struct)
-    elf->write_int16(out, elf->e_phentsize); // e_phentsize (pheader size)
-    elf->write_int16(out, elf->e_phnum);   // e_phnum (program headers count)
-    elf->write_int16(out, 40);             // e_shentsize (section header size)
-    elf->shnum_offset = ftell(out);
-    elf->write_int16(out, elf->e_shnum);   // e_shnum (section headers count)
-    elf->write_int16(out, 2);              // e_shstrndx (section header string table index)
+    file.write_int16(elf->e_type);    // e_type 0=not relocatable 1=msp_32
+    file.write_int16(elf->e_machine); // e_machine EM_MSP430=0x69
+    file.write_int32(1);              // e_version
+    file.write_int32(elf->e_entry);   // e_entry (start address)
+    file.write_int32(elf->e_phoff);   // e_phoff (program header offset)
+    elf->shoff_offset = file.tell();
+    file.write_int32(0);              // e_shoff (section header offset)
+    file.write_int32(elf->e_flags);   // e_flags (set to CPU model)
+    file.write_int16(0x34);           // e_ehsize (size of this struct)
+    file.write_int16(elf->e_phentsize); // e_phentsize (pheader size)
+    file.write_int16(elf->e_phnum);   // e_phnum (program headers count)
+    file.write_int16(40);             // e_shentsize (section header size)
+    elf->shnum_offset = file.tell();
+    file.write_int16(elf->e_shnum);   // e_shnum (section headers count)
+    file.write_int16(2);              // e_shstrndx (section header string table index)
   }
     else
   {
-    elf->write_int16(out, elf->e_type);    // e_type 0=not relocatable 1=msp_32
-    elf->write_int16(out, elf->e_machine); // e_machine EM_MSP430=0x69
-    elf->write_int32(out, 1);              // e_version
-    elf->write_int64(out, elf->e_entry);   // e_entry (start address)
-    elf->write_int64(out, elf->e_phoff);   // e_phoff (program header offset)
-    elf->shoff_offset = ftell(out);
-    elf->write_int64(out, 0);              // e_shoff (section header offset)
-    elf->write_int32(out, elf->e_flags);   // e_flags (set to CPU model)
-    elf->write_int16(out, 0x34);           // e_ehsize (size of this struct)
-    elf->write_int16(out, elf->e_phentsize); // e_phentsize (pheader size)
-    elf->write_int16(out, elf->e_phnum);   // e_phnum (program headers count)
-    elf->write_int16(out, 64);             // e_shentsize (section header size)
-    elf->shnum_offset = ftell(out);
-    elf->write_int16(out, elf->e_shnum);   // e_shnum (section headers count)
-    elf->write_int16(out, 2);              // e_shstrndx (section header string table index)
+    file.write_int16(elf->e_type);    // e_type 0=not relocatable 1=msp_32
+    file.write_int16(elf->e_machine); // e_machine EM_MSP430=0x69
+    file.write_int32(1);              // e_version
+    file.write_int64(elf->e_entry);   // e_entry (start address)
+    file.write_int64(elf->e_phoff);   // e_phoff (program header offset)
+    elf->shoff_offset = file.tell();
+    file.write_int64(0);              // e_shoff (section header offset)
+    file.write_int32(elf->e_flags);   // e_flags (set to CPU model)
+    file.write_int16(0x34);           // e_ehsize (size of this struct)
+    file.write_int16(elf->e_phentsize); // e_phentsize (pheader size)
+    file.write_int16(elf->e_phnum);   // e_phnum (program headers count)
+    file.write_int16(64);             // e_shentsize (section header size)
+    elf->shnum_offset = file.tell();
+    file.write_int16(elf->e_shnum);   // e_shnum (section headers count)
+    file.write_int16(2);              // e_shstrndx (section header string table index)
   }
 }
 
@@ -328,7 +274,7 @@ static void string_table_append(Elf *elf, const char *name)
 }
 
 static void write_elf_text_and_data(
-  FILE *out,
+  FileIo &file,
   Elf *elf,
   Memory *memory,
   int alignment)
@@ -338,11 +284,11 @@ static void write_elf_text_and_data(
 
   elf->text_addr = memory->low_address;
   string_table_append(elf, name);
-  elf->sections_offset.text = ftell(out);
+  elf->sections_offset.text = file.tell();
 
   for (i = memory->low_address; i <= memory->high_address; i++)
   {
-    putc(memory->read8(i), out);
+    file.write_int8(memory->read8(i));
   }
 
   if (alignment > 1)
@@ -352,17 +298,17 @@ static void write_elf_text_and_data(
 
     while ((count & mask) != 0)
     {
-      putc(0, out);
+      file.write_int8(0);
       count++;
     }
   }
 
-  elf->sections_size.text = ftell(out) - elf->sections_offset.text;
+  elf->sections_size.text = file.tell() - elf->sections_offset.text;
 
   elf->e_shnum++;
 }
 
-static void write_arm_attribute(FILE *out, Elf *elf)
+static void write_arm_attribute(FileIo &file, Elf *elf)
 {
   const uint8_t aeabi[] = {
     0x41, 0x30, 0x00, 0x00, 0x00, 0x61, 0x65, 0x61,
@@ -387,89 +333,93 @@ static void write_arm_attribute(FILE *out, Elf *elf)
 
   string_table_append(elf, ".ARM.attributes");
 
-  elf->sections_offset.arm_attribute = ftell(out);
-  fwrite(aeabi, 1, sizeof(aeabi), out);
-  elf->sections_size.arm_attribute = ftell(out) - elf->sections_offset.arm_attribute;
-  putc(0x00, out); // null
-  putc(0x00, out); // null
-  putc(0x00, out); // null
+  elf->sections_offset.arm_attribute = file.tell();
+  file.write_bytes(aeabi, sizeof(aeabi));
+  elf->sections_size.arm_attribute = file.tell() - elf->sections_offset.arm_attribute;
+  file.write_int8(0x00); // null
+  file.write_int8(0x00); // null
+  file.write_int8(0x00); // null
 }
 
-static void write_phdr(FILE *out, Elf *elf, uint32_t address, uint32_t filesz)
+static void write_phdr(
+  FileIo &file,
+  Elf *elf,
+  uint32_t address,
+  uint32_t filesz)
 {
   if (elf->e_ident[EI_CLASS] == 1)
   {
-    elf->write_int32(out, 1);          // p_type: 1 (LOAD)
-    elf->write_int32(out, 0x1000);     // p_offset
-    elf->write_int32(out, address);    // p_vaddr
-    elf->write_int32(out, address);    // p_paddr
-    elf->write_int32(out, filesz);     // p_filesz
-    elf->write_int32(out, filesz);     // p_memsz
-    elf->write_int32(out, 7);          // p_flags: 7 RWX
-    elf->write_int32(out, 4096);       // p_align
+    file.write_int32(1);          // p_type: 1 (LOAD)
+    file.write_int32(0x1000);     // p_offset
+    file.write_int32(address);    // p_vaddr
+    file.write_int32(address);    // p_paddr
+    file.write_int32(filesz);     // p_filesz
+    file.write_int32(filesz);     // p_memsz
+    file.write_int32(7);          // p_flags: 7 RWX
+    file.write_int32(4096);       // p_align
   }
     else
   {
-    elf->write_int32(out, 1);          // p_type: 1 (LOAD)
-    elf->write_int32(out, 7);          // p_flags: 7 RWX
-    elf->write_int64(out, 0x1000);     // p_offset
-    elf->write_int64(out, address);    // p_vaddr
-    elf->write_int64(out, address);    // p_paddr
-    elf->write_int64(out, filesz);     // p_filesz
-    elf->write_int64(out, filesz);     // p_memsz
-    elf->write_int64(out, 4096);       // p_align
+    file.write_int32(1);          // p_type: 1 (LOAD)
+    file.write_int32(7);          // p_flags: 7 RWX
+    file.write_int64(0x1000);     // p_offset
+    file.write_int64(address);    // p_vaddr
+    file.write_int64(address);    // p_paddr
+    file.write_int64(filesz);     // p_filesz
+    file.write_int64(filesz);     // p_memsz
+    file.write_int64(4096);       // p_align
   }
 }
 
-static void write_shdr(FILE *out, struct _shdr *shdr, Elf *elf)
+static void write_shdr(FileIo &file, struct _shdr *shdr, Elf *elf)
 {
   if (elf->e_ident[EI_CLASS] == 1)
   {
-    elf->write_int32(out, shdr->sh_name);
-    elf->write_int32(out, shdr->sh_type);
-    elf->write_int32(out, shdr->sh_flags);
-    elf->write_int32(out, shdr->sh_addr);
-    elf->write_int32(out, shdr->sh_offset);
-    elf->write_int32(out, shdr->sh_size);
-    elf->write_int32(out, shdr->sh_link);
-    elf->write_int32(out, shdr->sh_info);
-    elf->write_int32(out, shdr->sh_addralign);
-    elf->write_int32(out, shdr->sh_entsize);
+    file.write_int32(shdr->sh_name);
+    file.write_int32(shdr->sh_type);
+    file.write_int32(shdr->sh_flags);
+    file.write_int32(shdr->sh_addr);
+    file.write_int32(shdr->sh_offset);
+    file.write_int32(shdr->sh_size);
+    file.write_int32(shdr->sh_link);
+    file.write_int32(shdr->sh_info);
+    file.write_int32(shdr->sh_addralign);
+    file.write_int32(shdr->sh_entsize);
   }
     else
   {
-    elf->write_int32(out, shdr->sh_name);
-    elf->write_int32(out, shdr->sh_type);
-    elf->write_int64(out, shdr->sh_flags);
-    elf->write_int64(out, shdr->sh_addr);
-    elf->write_int64(out, shdr->sh_offset);
-    elf->write_int64(out, shdr->sh_size);
-    elf->write_int32(out, shdr->sh_link);
-    elf->write_int32(out, shdr->sh_info);
-    elf->write_int64(out, shdr->sh_addralign);
-    elf->write_int64(out, shdr->sh_entsize);
+    file.write_int32(shdr->sh_name);
+    file.write_int32(shdr->sh_type);
+    file.write_int64(shdr->sh_flags);
+    file.write_int64(shdr->sh_addr);
+    file.write_int64(shdr->sh_offset);
+    file.write_int64(shdr->sh_size);
+    file.write_int32(shdr->sh_link);
+    file.write_int32(shdr->sh_info);
+    file.write_int64(shdr->sh_addralign);
+    file.write_int64(shdr->sh_entsize);
   }
 }
 
-static void write_symtab(FILE *out, struct _symtab *symtab, Elf *elf)
+static void write_symtab(FileIo &file, struct _symtab *symtab, Elf *elf)
 {
   if (elf->e_ident[EI_CLASS] == 1)
   {
-    elf->write_int32(out, symtab->st_name);
-    elf->write_int32(out, symtab->st_value);
-    elf->write_int32(out, symtab->st_size);
-    putc(symtab->st_info, out);
-    putc(symtab->st_other, out);
-    elf->write_int16(out, symtab->st_shndx);
+    file.write_int32(symtab->st_name);
+    file.write_int32(symtab->st_value);
+    file.write_int32(symtab->st_size);
+    file.write_int8(symtab->st_info);
+    file.write_int8(symtab->st_other);
+    file.write_int16(symtab->st_shndx);
   }
     else
   {
-    elf->write_int32(out, symtab->st_name);
-    putc(symtab->st_info, out);
-    putc(symtab->st_other, out);
-    elf->write_int16(out, symtab->st_shndx);
-    elf->write_int64(out, symtab->st_value);
-    elf->write_int64(out, symtab->st_size);
+    file.write_int32(symtab->st_name);
+    file.write_int8(symtab->st_info);
+    file.write_int8(symtab->st_other);
+    file.write_int16(symtab->st_shndx);
+    file.write_int64(symtab->st_value);
+    file.write_int64(symtab->st_size);
   }
 }
 
@@ -491,15 +441,15 @@ static int find_section(const char *sections, const char *name, int len)
   return -1;
 }
 
-static void elf_addr_align(FILE *out)
+static void elf_addr_align(FileIo &file)
 {
-  long marker = ftell(out);
-  while ((marker % 4) != 0) { putc(0x00, out); marker++; }
+  long marker = file.tell();
+  while ((marker % 4) != 0) { file.write_int8(0x00); marker++; }
 }
 
 int write_elf(
   Memory *memory,
-  FILE *out,
+  FILE *out_,
   Symbols *symbols,
   const char *filename,
   int cpu_type,
@@ -508,7 +458,10 @@ int write_elf(
   struct _shdr shdr;
   struct _symtab symtab;
   Elf elf;
+  FileIo file;
   //int i;
+
+  file.set_fp(out_);
 
   memset(&elf, 0, sizeof(elf));
   elf.cpu_type = cpu_type;
@@ -518,22 +471,22 @@ int write_elf(
 
   memcpy(elf.string_table, string_table_default, sizeof(string_table_default));
 
-  write_elf_header(out, &elf, memory, alignment);
+  write_elf_header(file, &elf, memory, alignment);
 
   // For Playstaiton 2 ELF to be executable, need this LOAD program header
   if (elf.e_phnum > 0)
   {
     uint32_t filesz = memory->high_address - memory->low_address + 1;
 
-    write_phdr(out, &elf, memory->low_address, filesz);
+    write_phdr(file, &elf, memory->low_address, filesz);
 
     // Align 4096 for Playstation 2.
-    long marker = ftell(out);
-    while (marker < 4096) { putc(0, out); marker++; }
+    long marker = file.tell();
+    while (marker < 4096) { file.write_int8(0); marker++; }
   }
 
   // .text and .data sections
-  write_elf_text_and_data(out, &elf, memory, alignment);
+  write_elf_text_and_data(file, &elf, memory, alignment);
 
   // string index should be next
   //elf.e_shstrndx = elf.e_shnum;
@@ -541,14 +494,14 @@ int write_elf(
   // .ARM.attribute
   if (elf.cpu_type == CPU_TYPE_ARM)
   {
-    write_arm_attribute(out, &elf);
+    write_arm_attribute(file, &elf);
   }
 
   // .shstrtab section
-  elf.sections_offset.shstrtab = ftell(out);
-  fwrite(elf.string_table, 1, get_string_table_len(elf.string_table), out);
-  putc(0x00, out); // null
-  elf.sections_size.shstrtab = ftell(out) - elf.sections_offset.shstrtab;
+  elf.sections_offset.shstrtab = file.tell();
+  file.write_chars(elf.string_table, get_string_table_len(elf.string_table));
+  file.write_int8(0x00); // null
+  elf.sections_size.shstrtab = file.tell() - elf.sections_offset.shstrtab;
 
   int symbol_count = 0;
   const int strtab_extras = 2;
@@ -563,11 +516,11 @@ int write_elf(
     int symbol_address[symbol_count];
 
     // .strtab section
-    elf_addr_align(out);
-    elf.sections_offset.strtab = ftell(out);
-    putc(0x00, out); // none
+    elf_addr_align(file);
+    elf.sections_offset.strtab = file.tell();
+    file.write_int8(0x00); // none
 
-    fprintf(out, "%s%c", filename, 0);
+    file.write_string(filename);
     sym_offset = strlen(filename) + 2;
 
     n = 0;
@@ -577,33 +530,32 @@ int write_elf(
       if (iter.flag_export == false) { continue; }
 
       symbol_address[n++] = sym_offset;
-      fprintf(out, "%s%c", iter.name, 0);
+      file.write_string(iter.name);
       sym_offset += strlen((char *)iter.name) + 1;
     }
 
-    elf.sections_size.strtab = ftell(out) - elf.sections_offset.strtab;
-    //putc(0x00, out); // null
+    elf.sections_size.strtab = file.tell() - elf.sections_offset.strtab;
 
     // .symtab section
-    elf_addr_align(out);
-    elf.sections_offset.symtab = ftell(out);
+    elf_addr_align(file);
+    elf.sections_offset.symtab = file.tell();
 
     // symtab null
     memset(&symtab, 0, sizeof(symtab));
-    write_symtab(out, &symtab, &elf);
+    write_symtab(file, &symtab, &elf);
 
     // symtab filename
     memset(&symtab, 0, sizeof(symtab));
     symtab.st_name = 1;
     symtab.st_info = 4;
     symtab.st_shndx = 65521;
-    write_symtab(out, &symtab, &elf);
+    write_symtab(file, &symtab, &elf);
 
     // symtab text
     memset(&symtab, 0, sizeof(symtab));
     symtab.st_info = 3;
     symtab.st_shndx = 1;
-    write_symtab(out, &symtab, &elf);
+    write_symtab(file, &symtab, &elf);
 
     // symtab ARM.attribute
     if (elf.cpu_type == CPU_TYPE_ARM)
@@ -611,7 +563,7 @@ int write_elf(
       memset(&symtab, 0, sizeof(symtab));
       symtab.st_info = 3;
       symtab.st_shndx = elf.e_shnum - 1;
-      write_symtab(out, &symtab, &elf);
+      write_symtab(file, &symtab, &elf);
     }
 
     // symbols from lookup tables
@@ -627,41 +579,41 @@ int write_elf(
       symtab.st_size = 0;
       symtab.st_info = 18;
       symtab.st_shndx = 1;
-      write_symtab(out, &symtab, &elf);
+      write_symtab(file, &symtab, &elf);
     }
 
-    elf.sections_size.symtab = ftell(out) - elf.sections_offset.symtab;
+    elf.sections_size.symtab = file.tell() - elf.sections_offset.symtab;
   }
 
   // .comment section
-  elf.sections_offset.comment = ftell(out);
-  fprintf(out, "Created with naken_asm. https://www.mikekohn.net/");
-  elf.sections_size.comment = ftell(out) - elf.sections_offset.comment;
+  elf.sections_offset.comment = file.tell();
+  file.write_string("Created with naken_asm. https://www.mikekohn.net/", false);
+  elf.sections_size.comment = file.tell() - elf.sections_offset.comment;
 
   // Align sections
-  elf_addr_align(out);
+  elf_addr_align(file);
 
   // A little ex-lax to dump the SHT's
-  long marker = ftell(out);
-  fseek(out, elf.shoff_offset, SEEK_SET);
+  long marker = file.tell();
+  file.set(elf.shoff_offset);
 
   // e_shoff (section header offset)
   if (elf.e_ident[EI_CLASS] == 1)
   {
-    elf.write_int32(out, marker);
+    file.write_int32(marker);
   }
     else
   {
-    elf.write_int64(out, marker);
+    file.write_int64(marker);
   }
 
-  fseek(out, marker, SEEK_SET);
+  file.set(marker);
 
   // ------------------------ fold here -----------------------------
 
   // NULL section
   memset(&shdr, 0, sizeof(shdr));
-  write_shdr(out, &shdr, &elf);
+  write_shdr(file, &shdr, &elf);
 
   elf.e_shstrndx = 1;
 
@@ -687,7 +639,7 @@ int write_elf(
     shdr.sh_offset = elf.sections_offset.text;
     shdr.sh_size = elf.sections_size.text;
     shdr.sh_addralign = alignment;
-    write_shdr(out, &shdr, &elf);
+    write_shdr(file, &shdr, &elf);
 
     elf.e_shstrndx++;
   }
@@ -713,7 +665,7 @@ int write_elf(
     shdr.sh_offset = elf.sections_offset.data;
     shdr.sh_size = size;
     shdr.sh_addralign = alignment;
-    write_shdr(out, &shdr, &elf);
+    write_shdr(file, &shdr, &elf);
 
     elf.e_shstrndx++;
   }
@@ -725,7 +677,7 @@ int write_elf(
   shdr.sh_offset = elf.sections_offset.shstrtab;
   shdr.sh_size = elf.sections_size.shstrtab;
   shdr.sh_addralign = 1;
-  write_shdr(out, &shdr, &elf);
+  write_shdr(file, &shdr, &elf);
 
   // SHT .symtab
   memset(&shdr, 0, sizeof(shdr));
@@ -737,7 +689,7 @@ int write_elf(
   shdr.sh_info = symbol_count + strtab_extras;
   shdr.sh_addralign = 4;
   shdr.sh_entsize = elf.e_ident[EI_CLASS] == 1 ? 16 : 24;
-  write_shdr(out, &shdr, &elf);
+  write_shdr(file, &shdr, &elf);
 
   // SHT .strtab
   memset(&shdr, 0, sizeof(shdr));
@@ -746,7 +698,7 @@ int write_elf(
   shdr.sh_offset = elf.sections_offset.strtab;
   shdr.sh_size = elf.sections_size.strtab;
   shdr.sh_addralign = 1;
-  write_shdr(out, &shdr, &elf);
+  write_shdr(file, &shdr, &elf);
 
   // SHT .comment
   memset(&shdr, 0, sizeof(shdr));
@@ -757,7 +709,7 @@ int write_elf(
   shdr.sh_size = elf.sections_size.comment;
   shdr.sh_addralign = 1;
   shdr.sh_entsize = 1;
-  write_shdr(out, &shdr, &elf);
+  write_shdr(file, &shdr, &elf);
 
 #if 0
   if (asm_context->debug_file == 1)
@@ -775,14 +727,18 @@ int write_elf(
     shdr.sh_offset = elf.sections_offset.arm_attribute;
     shdr.sh_size = elf.sections_size.arm_attribute;
     shdr.sh_addralign = 1;
-    write_shdr(out, &shdr, &elf);
+    write_shdr(file, &shdr, &elf);
   }
 
-  marker = ftell(out);
-  fseek(out, elf.shnum_offset, SEEK_SET);
-  elf.write_int16(out, elf.e_shnum);    // e_shnum (section count)
-  elf.write_int16(out, elf.e_shstrndx); // e_shstrndx (string_table index)
-  fseek(out, marker, SEEK_SET);
+  marker = file.tell();
+  file.set(elf.shnum_offset);
+  file.write_int16(elf.e_shnum);    // e_shnum (section count)
+  file.write_int16(elf.e_shstrndx); // e_shstrndx (string_table index)
+  file.set(marker);
+
+  // FIXME: naken_asm shouldn't be controlling the FILE *.
+  file.set_fp(NULL);
+  file.close_file();
 
   return 0;
 }
