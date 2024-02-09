@@ -441,12 +441,6 @@ static int find_section(const char *sections, const char *name, int len)
   return -1;
 }
 
-static void elf_addr_align(FileIo &file)
-{
-  long marker = file.tell();
-  while ((marker % 4) != 0) { file.write_int8(0x00); marker++; }
-}
-
 int write_elf(
   Memory *memory,
   FILE *out_,
@@ -516,7 +510,7 @@ int write_elf(
     int symbol_address[symbol_count];
 
     // .strtab section
-    elf_addr_align(file);
+    file.align(4);
     elf.sections_offset.strtab = file.tell();
     file.write_int8(0x00); // none
 
@@ -537,7 +531,7 @@ int write_elf(
     elf.sections_size.strtab = file.tell() - elf.sections_offset.strtab;
 
     // .symtab section
-    elf_addr_align(file);
+    file.align(4);
     elf.sections_offset.symtab = file.tell();
 
     // symtab null
@@ -591,7 +585,7 @@ int write_elf(
   elf.sections_size.comment = file.tell() - elf.sections_offset.comment;
 
   // Align sections
-  elf_addr_align(file);
+  file.align(4);
 
   // A little ex-lax to dump the SHT's
   long marker = file.tell();

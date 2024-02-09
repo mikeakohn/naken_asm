@@ -70,6 +70,13 @@ public:
 
   int write_string(const char *data, bool null_terminate = true);
 
+  int align(int amount)
+  {
+    long marker = tell();
+    while ((marker % amount) != 0) { write_int8(0x00); marker++; }
+    return 0;
+  }
+
   enum
   {
     FILE_ENDIAN_LITTLE = 0,
