@@ -235,7 +235,7 @@ int write_macho(
   }
 
   int ltmp0_offset = sym_offset; 
-  file.write_string("lemp0");
+  file.write_string("ltmp0");
 
   file.write_int8(0);
   file.align(4);
@@ -268,7 +268,7 @@ int write_macho(
     if (iter.flag_export == false) { continue; }
 
     file.write_int32(sym_offset);
-    file.write_int8(0x0e);
+    file.write_int8(0x0f);
     file.write_int8(1);
     file.write_int16(0);
 
