@@ -519,8 +519,8 @@ int disasm_arm64(
         {
           size = (size << 1) | ((opcode >> 30) & 1);
 
-          snprintf(instruction, length, "%s v%d.%s, v%d.%s",
-            table_arm64[n].instr, rd, vec_size[size], rn, vec_size[size]);
+          snprintf(instruction, length, "%s.%s v%d, v%d",
+            table_arm64[n].instr, vec_size[size], rd, rn);
 
           return 4;
         }
@@ -528,11 +528,12 @@ int disasm_arm64(
         {
           size = (size << 1) | ((opcode >> 30) & 1);
 
-          snprintf(instruction, length, "%s v%d.%s, v%d.%s, v%d.%s",
+          snprintf(instruction, length, "%s.%s v%d, v%d, v%d",
             table_arm64[n].instr,
-            rd, vec_size[size],
-            rn, vec_size[size],
-            rm, vec_size[size]);
+            vec_size[size],
+            rd,
+            rn,
+            rm);
 
           return 4;
         }
@@ -735,10 +736,11 @@ int disasm_arm64(
             }
           }
 
-          snprintf(instruction, length, "%s v%d.%s, v%d.%s, #%d",
+          snprintf(instruction, length, "%s.%s v%d, v%d, #%d",
             table_arm64[n].instr,
-            rd, vec_size[size],
-            rn, vec_size[size],
+            vec_size[size],
+            rd,
+            rn,
             imm);
 
           return 4;
@@ -753,11 +755,12 @@ int disasm_arm64(
           else if (sz == 0 && q == 1) { size = "4s"; }
           else if (sz == 1 && q == 1) { size = "2d"; }
 
-          snprintf(instruction, length, "%s v%d.%s, v%d.%s, v%d.%s",
+          snprintf(instruction, length, "%s.%s v%d, v%d, v%d",
             table_arm64[n].instr,
-            rd, size,
-            rn, size,
-            rm, size);
+            size,
+            rd,
+            rn,
+            rm);
 
           return 4;
         }
@@ -771,10 +774,11 @@ int disasm_arm64(
           else if (sz == 0 && q == 1) { size = "4s"; }
           else if (sz == 1 && q == 1) { size = "2d"; }
 
-          snprintf(instruction, length, "%s v%d.%s, v%d.%s",
+          snprintf(instruction, length, "%s.%s v%d, v%d",
             table_arm64[n].instr,
-            rd, size,
-            rn, size);
+            size,
+            rd,
+            rn);
 
           return 4;
         }
