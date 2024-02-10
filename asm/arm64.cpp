@@ -36,6 +36,7 @@ enum
   OPERAND_AT,
   OPERAND_REG_IMM_OFFSET,
   OPERAND_REG_REG_OFFSET,
+  OPERAND_REG_V,
 };
 
 enum
@@ -239,8 +240,9 @@ static int get_register_arm64(
 
   if (*s != '.')
   {
-    print_error_unexp(asm_context, orig);
-    return -2;
+    operand->type = OPERAND_REG_V;
+    operand->value = num;
+    return 0;
   }
 
   s++;
@@ -1736,6 +1738,68 @@ static bool encode_vector_element(
   return true;
 }
 
+static int get_vector_size(char *s)
+{
+  if (strcmp(s, "8b") == 0)
+  {
+    return SIZE_8B;
+  }
+    else
+  if (strcmp(s, "16b") == 0)
+  {
+    return SIZE_16B;
+  }
+    else
+  if (strcmp(s, "4h") == 0)
+  {
+    return SIZE_4H;
+  }
+    else
+  if (strcmp(s, "8h") == 0)
+  {
+    return SIZE_8H;
+  }
+    else
+  if (strcmp(s, "2s") == 0)
+  {
+    return SIZE_2S;
+  }
+    else
+  if (strcmp(s, "4s") == 0)
+  {
+    return SIZE_4S;
+  }
+    else
+  if (strcmp(s, "1d") == 0)
+  {
+    return SIZE_1D;
+  }
+    else
+  if (strcmp(s, "2d") == 0)
+  {
+    return SIZE_2D;
+  }
+
+  return -1;
+}
+
+static void parse_vector_size(char *instr_case, int &vector_size)
+{
+  char *s = instr_case;
+
+  while (*s != 0)
+  {
+    if (*s == '.')
+    {
+      vector_size = get_vector_size(s + 1);
+      if (vector_size != -1) { *s = 0; }
+      return;
+    }
+
+    s++;
+  }
+}
+
 int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
@@ -1749,9 +1813,12 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
   int ret;
   uint32_t opcode;
   int found = 0;
+  int vector_size = -1;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
+
+  parse_vector_size(instr_case, vector_size);
 
   while (true)
   {
@@ -2003,6 +2070,19 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
     {
       print_error_unexp(asm_context, token);
       return -1;
+    }
+  }
+
+  // Accept better SIMD syntax.
+  if (vector_size != -1)
+  {
+    for (n = 0; n < operand_count; n++)
+    {
+      if (operands[n].type == OPERAND_REG_V)
+      {
+        operands[n].type = OPERAND_REG_VECTOR;
+        operands[n].attribute = vector_size;
+      }
     }
   }
 
