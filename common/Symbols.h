@@ -20,6 +20,30 @@
 
 struct SymbolsIter
 {
+  SymbolsIter() :
+    memory_pool (NULL),
+    name        (NULL),
+    address     (0),
+    ptr         (0),
+    count       (0),
+    end_flag    (0),
+    scope       (0),
+    flag_export (false)
+  {
+  }
+
+  void reset()
+  {
+    memory_pool = NULL;
+    name = NULL;
+    address = 0;
+    ptr = 0;
+    count = 0;
+    end_flag = 0;
+    scope = 0;
+    flag_export = false;
+  }
+
   MemoryPool *memory_pool;
   const char *name;
   uint32_t address;

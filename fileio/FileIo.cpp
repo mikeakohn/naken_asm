@@ -71,6 +71,14 @@ void FileIo::set_endian(int value)
   }
 }
 
+void FileIo::write_int32_at_offset(int32_t n, long offset)
+{
+  long marker = tell();
+  set(offset);
+  write_int32(n);
+  set(marker);
+}
+
 int FileIo::get_string_at_offset(char *data, int length, uint64_t offset)
 {
   long marker = ftell(fp);

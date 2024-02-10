@@ -518,7 +518,9 @@ int write_elf(
     sym_offset = strlen(filename) + 2;
 
     n = 0;
-    memset(&iter, 0, sizeof(iter));
+    //memset(&iter, 0, sizeof(iter));
+    iter.reset();
+
     while (symbols->iterate(&iter) != -1)
     {
       if (iter.flag_export == false) { continue; }
@@ -562,7 +564,9 @@ int write_elf(
 
     // symbols from lookup tables
     n = 0;
-    memset(&iter, 0, sizeof(iter));
+    //memset(&iter, 0, sizeof(iter));
+    iter.reset();
+
     while (symbols->iterate(&iter) != -1)
     {
       if (iter.flag_export == false) { continue; }

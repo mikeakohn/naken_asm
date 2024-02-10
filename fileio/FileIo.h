@@ -40,6 +40,8 @@ public:
   void write_int32(uint32_t n) { write_int32_func(fp, n); }
   void write_int64(uint64_t n) { write_int64_func(fp, n); }
 
+  void write_int32_at_offset(int32_t n, long offset);
+
   int get_bytes(uint8_t *data, int length)
   {
     return fread(data, 1, length, fp);

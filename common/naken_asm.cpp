@@ -189,6 +189,11 @@ int main(int argc, char *argv[])
         file_type = FILE_TYPE_WDC;
       }
         else
+      if (strcmp(argv[i], "macho") == 0)
+      {
+        file_type = FILE_TYPE_MACHO;
+      }
+        else
       {
         printf("Error: Unknown output type %s\n", argv[i]);
         exit(1);
@@ -290,13 +295,14 @@ int main(int argc, char *argv[])
   {
     switch (file_type)
     {
-      case FILE_TYPE_HEX:   outfile = "out.hex";  break;
-      case FILE_TYPE_BIN:   outfile = "out.bin";  break;
-      case FILE_TYPE_ELF:   outfile = "out.elf";  break;
-      case FILE_TYPE_SREC:  outfile = "out.srec"; break;
-      case FILE_TYPE_WDC:   outfile = "out.wdc";  break;
-      case FILE_TYPE_AMIGA: outfile = "out";      break;
-      default:              outfile = "out.err";  break;
+      case FILE_TYPE_HEX:   outfile = "out.hex";   break;
+      case FILE_TYPE_BIN:   outfile = "out.bin";   break;
+      case FILE_TYPE_ELF:   outfile = "out.elf";   break;
+      case FILE_TYPE_SREC:  outfile = "out.srec";  break;
+      case FILE_TYPE_WDC:   outfile = "out.wdc";   break;
+      case FILE_TYPE_AMIGA: outfile = "out";       break;
+      case FILE_TYPE_MACHO: outfile = "out.macho"; break;
+      default:              outfile = "out.err";   break;
     }
   }
 

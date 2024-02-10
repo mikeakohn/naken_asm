@@ -266,7 +266,7 @@ int Symbols::print(FILE *out)
 {
   SymbolsIter iter;
 
-  memset(&iter, 0, sizeof(iter));
+  //iter.reset();
 
   fprintf(out, "%30s ADDRESS  SCOPE\n", "LABEL");
 
