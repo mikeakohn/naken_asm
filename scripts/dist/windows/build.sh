@@ -15,7 +15,7 @@ cat <<EOF > common/version.h
 EOF
 
 make clean
-./configure --compiler-prefix=i686-w64-mingw32-
+./configure --compiler-prefix=i686-w64-mingw32- --cflags=-static --cflags=-static-libgcc --cflags=-static-libstdc++
 make
 rm -rf build/asm build/common build/disasm build/fileio build/prog build/simulate build/table .git ${FULLNAME}.zip
 cd ..
