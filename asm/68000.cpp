@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -77,6 +77,7 @@ struct _operand
   char dis_reg;
   char xn_reg;
   char xn_size;
+  uint8_t scale;
 };
 
 static int get_register_d_68000(char *token)
@@ -310,7 +311,7 @@ static int ea_displacement_xn(
 
   // [D=0/A=1] [REG3] [W=0/L=1] [000] [DISP8]
   //add_bin16(asm_context, (operand->xn_reg << 12) | (operand->xn_size == SIZE_L ? (1 << 11) | (operand->value & 0xff) : 0), IS_OPCODE);
-  add_bin16(asm_context, (operand->xn_reg << 12) | (operand->xn_size == SIZE_L ? (1 << 11) : 0) | (operand->value & 0xff), IS_OPCODE);
+  add_bin16(asm_context, (operand->xn_reg << 12) | (operand->xn_size == SIZE_L ? (1 << 11) : 0) | (operand->scale << 8) | (operand->value & 0xff), IS_OPCODE);
 
   return 4;
 }
@@ -615,14 +616,14 @@ static int write_immediate(
       add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
       break;
     case OPERAND_INDEX_DATA8_A_REG_XN:
-      add_bin16(asm_context, (operands[1].xn_reg << 12) | (operands[1].xn_size == SIZE_L ? (1 << 11) : 0) | (operands[1].value & 0xffff), IS_OPCODE);
+      add_bin16(asm_context, (operands[1].xn_reg << 12) | (operands[1].xn_size == SIZE_L ? (1 << 11) : 0) | (operands[1].scale << 8) | (operands[1].value & 0xff), IS_OPCODE);
       break;
     case OPERAND_INDEX_DATA16_PC:
       add_bin16(asm_context, operands[1].value & 0xffff, IS_OPCODE);
       break;
     case OPERAND_INDEX_DATA8_PC_XN:
       // [D=0/A=1] [REG3] [W=0/L=1] [000] [DISP8]
-      add_bin16(asm_context, (operands[1].xn_reg << 12) | (operands[1].xn_size == SIZE_L ? (1 << 11) : 0) | (operands[1].value & 0xff), IS_OPCODE);
+      add_bin16(asm_context, (operands[1].xn_reg << 12) | (operands[1].xn_size == SIZE_L ? (1 << 11) : 0) | (operands[1].scale << 8) | (operands[1].value & 0xff), IS_OPCODE);
       len += 2;
       break;
     case OPERAND_ADDRESS_W:
@@ -1863,6 +1864,33 @@ int parse_instruction_68000(AsmContext *asm_context, char *instr)
 
               token_type = tokens_get(asm_context, token, TOKENLEN);
             }
+          }
+
+          if (IS_TOKEN(token, '*'))
+          {
+            token_type = tokens_get(asm_context, token, TOKENLEN);
+
+            if (IS_TOKEN(token, '1'))
+            {
+              operands[operand_count].scale = 0;
+            }
+              else
+            if (IS_TOKEN(token, '2'))
+            {
+              operands[operand_count].scale = 2;
+            }
+              else
+            if (IS_TOKEN(token, '4'))
+            {
+              operands[operand_count].scale = 4;
+            }
+              else
+            {
+              print_error_unexp(asm_context, token);
+              return -1;
+            }
+
+            token_type = tokens_get(asm_context, token, TOKENLEN);
           }
 
           if (IS_NOT_TOKEN(token,')'))

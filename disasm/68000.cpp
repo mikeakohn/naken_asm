@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -90,7 +90,7 @@ static int get_ea_68000(
   int reg = opcode & 0x7;
   int mode = (opcode >> 3) & 0x7;
   int xn, xn_reg;
-  char xn_ad, xn_size;
+  int8_t xn_ad, xn_size, xn_scale, xn_disp;
 
   switch (mode)
   {
@@ -116,11 +116,21 @@ static int get_ea_68000(
       xn = READ_RAM16(address + 2 + skip);
       xn_ad = (xn & 0x8000) == 0 ? 'd' : 'a';
       xn_reg = (xn >> 12) & 0x7;
+      xn_scale = (xn >> 8) & 3;
       xn_size = (xn & 0x0800) == 0 ? 'w' : 'l';
-      snprintf(ea, length, "(%d,a%d,%c%d.%c)", (int8_t)(xn & 0xff), reg, xn_ad, xn_reg, xn_size);
+      xn_disp = (int8_t)(xn & 0xff);
+
+      if (xn_scale != 2 && xn_scale != 4)
+      {
+        snprintf(ea, length, "(%d,a%d,%c%d.%c)", xn_disp, reg, xn_ad, xn_reg, xn_size);
+      }
+        else
+      {
+        snprintf(ea, length, "(%d,a%d,%c%d.%c*%d)", xn_disp, reg, xn_ad, xn_reg, xn_size, xn_scale);
+      }
       return 4;
     case 7:
-      if (reg==0)
+      if (reg == 0)
       {
         int16_t value = READ_RAM16(address + 2 + skip);
         if (value > 0) { snprintf(ea, length, "(0x%x)", value); }
@@ -135,6 +145,25 @@ static int get_ea_68000(
       else if (reg == 2)
       {
         snprintf(ea, length, "(%d,PC)", (int16_t)READ_RAM16(address + 2 + skip));
+        return 4;
+      }
+      else if (reg == 3)
+      {
+        xn = READ_RAM16(address + 2 + skip);
+        xn_ad = (xn & 0x8000) == 0 ? 'd' : 'a';
+        xn_reg = (xn >> 12) & 0x7;
+        xn_scale = (xn >> 8) & 3;
+        xn_size = (xn & 0x0800) == 0 ? 'w' : 'l';
+        xn_disp = (int8_t)(xn & 0xff);
+
+        if (xn_scale != 2 && xn_scale != 4)
+        {
+          snprintf(ea, length, "(%d,PC,d%d.%c)", xn_disp, xn_reg, xn_size == 0 ? 'w' : 'l');
+        }
+         else
+        {
+          snprintf(ea, length, "(%d,PC,d%d.%c*%d)", xn_disp, xn_reg, xn_size == 0 ? 'w' : 'l', xn_scale);
+        }
         return 4;
       }
       else if (reg == 4)
