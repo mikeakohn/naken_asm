@@ -116,17 +116,17 @@ static int get_ea_68000(
       xn = READ_RAM16(address + 2 + skip);
       xn_ad = (xn & 0x8000) == 0 ? 'd' : 'a';
       xn_reg = (xn >> 12) & 0x7;
-      xn_scale = (xn >> 8) & 3;
+      xn_scale = (xn >> 9) & 3;
       xn_size = (xn & 0x0800) == 0 ? 0 : 1;
       xn_disp = (int8_t)(xn & 0xff);
 
-      if (xn_scale != 2 && xn_scale != 4)
+      if (xn_scale == 0)
       {
         snprintf(ea, length, "(%d,a%d,%c%d.%c)", xn_disp, reg, xn_ad, xn_reg, xn_size == 0 ? 'w' : 'l');
       }
         else
       {
-        snprintf(ea, length, "(%d,a%d,%c%d.%c*%d)", xn_disp, reg, xn_ad, xn_reg, xn_size == 0 ? 'w' : 'l', xn_scale);
+        snprintf(ea, length, "(%d,a%d,%c%d.%c*%d)", xn_disp, reg, xn_ad, xn_reg, xn_size == 0 ? 'w' : 'l',  1 << xn_scale);
       }
       return 4;
     case 7:
@@ -152,17 +152,17 @@ static int get_ea_68000(
         xn = READ_RAM16(address + 2 + skip);
         xn_ad = (xn & 0x8000) == 0 ? 'd' : 'a';
         xn_reg = (xn >> 12) & 0x7;
-        xn_scale = (xn >> 8) & 3;
+        xn_scale = (xn >> 9) & 3;
         xn_size = (xn & 0x0800) == 0 ? 0 : 1;
         xn_disp = (int8_t)(xn & 0xff);
 
-        if (xn_scale != 2 && xn_scale != 4)
+        if (xn_scale == 0)
         {
           snprintf(ea, length, "(%d,PC,d%d.%c)", xn_disp, xn_reg, xn_size == 0 ? 'w' : 'l');
         }
          else
         {
-          snprintf(ea, length, "(%d,PC,d%d.%c*%d)", xn_disp, xn_reg, xn_size == 0 ? 'w' : 'l', xn_scale);
+          snprintf(ea, length, "(%d,PC,d%d.%c*%d)", xn_disp, xn_reg, xn_size == 0 ? 'w' : 'l', 1 << xn_scale);
         }
         return 4;
       }
