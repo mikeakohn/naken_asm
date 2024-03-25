@@ -1554,11 +1554,20 @@ static int write_jump(
 
   if (operands[0].type == OPERAND_ADDRESS)
   {
-    offset = operands[0].value - (asm_context->address + 2);
-    if (offset < -32768 || offset > 32767)
+    if (asm_context->pass == 1)
     {
-      print_error_range(asm_context, "Offset", -32768, 32767);
+      offset = 0;
     }
+      else
+    {
+      offset = operands[0].value - (asm_context->address + 2);
+
+      if (offset < -32768 || offset > 32767)
+      {
+        print_error_range(asm_context, "Offset", -32768, 32767);
+      }
+    }
+
     operands[0].value = offset;
     operands[0].type = OPERAND_INDEX_DATA16_PC;
   }
