@@ -36,7 +36,7 @@ uninstall:
 	rm -f $(INSTALL_PREFIX)/bin/naken_util
 	rm -rf $(INSTALL_PREFIX)/share/naken_asm
 
-testing: launchpad_blink.asm
+testing_for_mikes_use: launchpad_blink.asm
 	msp430-as launchpad_blink.asm
 	msp430-objcopy -F ihex a.out testing.hex
 
