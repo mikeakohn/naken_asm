@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -197,7 +197,7 @@ int parse_instruction_f100_l(AsmContext *asm_context, char *instr)
       break;
     }
 
-    if (operand_count == 3)
+    if (operand_count == MAX_OPERANDS)
     {
       print_error_unexp(asm_context, token);
       return -1;
