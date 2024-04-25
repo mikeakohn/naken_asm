@@ -34,7 +34,9 @@
 
 #define CHECK_FLOAT(var, a, b) \
   if (var.get_int32() != a) { ERROR(var); } \
-  if (var.get_int64() != a) { ERROR(var); }
+  if (var.get_int64() != a) { ERROR(var); } \
+  if (var.get_float() != (float)b) { ERROR(var); } \
+  if (var.get_double() != (double)b) { ERROR(var); }
 
 #define TEST_OP(op, type, a, b, c, d) \
   var1.set_##type(a); \

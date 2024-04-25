@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -60,8 +60,8 @@ public:
     type = VAR_INT;
   }
 
-  int32_t get_int32() { return get_data<uint32_t>(); }
-  int64_t get_int64() { return get_data<uint64_t>(); }
+  int32_t get_int32() { return get_data<int32_t>(); }
+  int64_t get_int64() { return get_data<int64_t>(); }
   float get_float()   { return get_data<float>();    }
   double get_double() { return get_data<double>();   }
 
