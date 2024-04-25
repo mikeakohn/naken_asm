@@ -32,6 +32,10 @@
   if (var.get_int64() != (int64_t)b) { ERROR(var); } \
   if (var.get_type() != VAR_INT) { ERROR(var); }
 
+#define CHECK_FLOAT(var, a, b) \
+  if (var.get_int32() != a) { ERROR(var); } \
+  if (var.get_int64() != a) { ERROR(var); }
+
 #define TEST_OP(op, type, a, b, c, d) \
   var1.set_##type(a); \
   var2.set_##type(b); \
@@ -43,6 +47,12 @@
   var2.set_##type(b); \
   var1.op(var1, var2); \
   CHECK_INT(var1, c, d);
+
+#define TEST_OP_FLOAT(op, type, a, b, c, d) \
+  var1.set_##type(a); \
+  var2.set_##type(b); \
+  var1.op(var1, var2); \
+  CHECK_FLOAT(var1, c, d);
 
 int errors = 0;
 
@@ -74,13 +84,13 @@ int main(int argc, char *argv[])
   TEST_OP(mul, int, 10, 20, 200, 200);
   TEST_OP(div, int, 10, 20, 0, 0);
   TEST_OP(div, int, 20, -10, -2, -2);
-  TEST_OP(add, float, -10.1, 20, 9, 9.9);
-  TEST_OP(add, float, -10, 20.2, 10, 10.2);
-  TEST_OP(sub, float, -10, 20.2, -30, -30.2);
-  TEST_OP(mul, float, -10, 20.2, -202, -202);
-  TEST_OP(mul, float, 8, 20.2, 161, 161.60);
-  TEST_OP(div, float, 2.56, 8, 0, 0.32);
-  TEST_OP(div, float, 32.8, 4, 8, 8.2);
+  TEST_OP_FLOAT(add, float, -10.1, 20, 9, 9.9);
+  TEST_OP_FLOAT(add, float, -10, 20.2, 10, 10.2);
+  TEST_OP_FLOAT(sub, float, -10, 20.2, -30, -30.2);
+  TEST_OP_FLOAT(mul, float, -10, 20.2, -202, -202);
+  TEST_OP_FLOAT(mul, float, 8, 20.2, 161, 161.60);
+  TEST_OP_FLOAT(div, float, 2.56, 8, 0, 0.32);
+  TEST_OP_FLOAT(div, float, 32.8, 4, 8, 8.2);
   TEST_OP(shift_left,  int, 32, 1, 64, 64);
   TEST_OP(shift_right, int, 32, 1, 16, 16);
   TEST_OP(shift_left,  int, -4, 1, -8, -8);
