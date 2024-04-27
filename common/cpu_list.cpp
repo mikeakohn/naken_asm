@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -36,6 +36,7 @@
 #include "asm/ebpf.h"
 #include "asm/epiphany.h"
 #include "asm/f100_l.h"
+#include "asm/f8.h"
 #include "asm/java.h"
 #include "asm/lc3.h"
 #include "asm/m8c.h"
@@ -90,6 +91,7 @@
 #include "disasm/ebpf.h"
 #include "disasm/epiphany.h"
 #include "disasm/f100_l.h"
+#include "disasm/f8.h"
 #include "disasm/java.h"
 #include "disasm/lc3.h"
 #include "disasm/m8c.h"
@@ -793,6 +795,30 @@ struct _cpu_list cpu_list[] =
     list_output_f100_l,
     disasm_range_f100_l,
     SimulateF100L::init,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_F8
+  {
+    "f8",
+    CPU_TYPE_F8,
+    ENDIAN_BIG,
+    1,
+    ALIGN_1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_f8,
+    NULL,
+    link_not_supported,
+    list_output_f8,
+    disasm_range_f8,
+    NULL,
     NO_FLAGS,
   },
 #endif

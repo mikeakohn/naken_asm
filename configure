@@ -45,6 +45,7 @@ CPUS=" \
   EPIPHANY
   F100_L
   JAVA
+  F8
   LC3
   M8C
   MIPS
@@ -209,6 +210,7 @@ show_help()
   echo "  --enable-epiphany         compile in support for Ephiphany-III/IV"
   echo "  --enable-f100_l           compile in support for Ferranti F100-L"
   echo "  --enable-java             compile in support for Java"
+  echo "  --enable-f8               compile in support for F8"
   echo "  --enable-lc3              compile in support for LC-3"
   echo "  --enable-m8c              compile in support for PSoC M8C"
   echo "  --enable-mips             compile in support for MIPS"
@@ -493,6 +495,12 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} f100_l.o"
     TABLE_OBJS="${TABLE_OBJS} f100_l.o"
     DFLAGS="${DFLAGS} -DENABLE_F100_L"
+  ;;
+  --enable-f8)
+    ASM_OBJS="${ASM_OBJS} f8.o"
+    DISASM_OBJS="${DISASM_OBJS} f8.o"
+    TABLE_OBJS="${TABLE_OBJS} f8.o"
+    DFLAGS="${DFLAGS} -DENABLE_F8"
   ;;
   --enable-java)
     ASM_OBJS="${ASM_OBJS} java.o"

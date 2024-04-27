@@ -65,6 +65,7 @@ static void print_usage()
          "   -dspic                       (dsPIC / PIC24)\n"
          "   -epiphany                    (Epiphany III/IV)\n"
          "   -f100_l                      (Ferranti F100-L)\n"
+         "   -f8                          (Fairchild F8)\n"
          "   -java                        (Java)\n"
          "   -lc3                         (LC-3)\n"
          "   -m8c                         (PSoC M8C)\n"
@@ -850,5 +851,5 @@ int main(int argc, char *argv[])
   if (src != NULL) { fclose(src); }
 
   return error_flag == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
-	}
+}
 

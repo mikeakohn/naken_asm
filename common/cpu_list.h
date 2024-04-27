@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -62,6 +62,7 @@ enum
   CPU_TYPE_EMOTION_ENGINE,
   CPU_TYPE_EPIPHANY,
   CPU_TYPE_F100_L,
+  CPU_TYPE_F8,
   CPU_TYPE_JAVA,
   CPU_TYPE_LC3,
   CPU_TYPE_M8C,
