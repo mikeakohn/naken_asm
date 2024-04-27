@@ -27,14 +27,18 @@ enum
 {
   OPERAND_NUMBER,
   OPERAND_A,
-  OPERAND_REG_SCRATCHPAD,
+  OPERAND_DPCHR,
+  OPERAND_R,
+  //OPERAND_S,
+  //OPERAND_U,
+  //OPERAND_D,
+  //OPERAND_IS,
   OPERAND_K,
   OPERAND_H,
   OPERAND_Q,
   OPERAND_PC0,
   OPERAND_PC1,
-  OPERAND_DC0,
-  OPERAND_IS,
+  OPERAND_DCO,
   OPERAND_W,
   OPERAND_J,
 };
@@ -81,28 +85,103 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
       operands[operand_count].type = OPERAND_A;
     }
       else
+    if (IS_TOKEN(token, 's') ||
+        IS_TOKEN(token, 'S') ||
+        strcasecmp(token, "isar") == 0)
+    {
+      operands[operand_count].type = OPERAND_R;
+      operands[operand_count].value = 12; 
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token, '+'))
+      {
+        operands[operand_count].value = 13; 
+      }
+        else
+      if (IS_TOKEN(token, '-'))
+      {
+        operands[operand_count].value = 14; 
+      }
+        else
+      {
+        tokens_push(asm_context, token, token_type);
+      }
+    }
+      else
+    if (IS_TOKEN(token, 'u') || IS_TOKEN(token, 'u'))
+    {
+      operands[operand_count].type = OPERAND_R;
+      operands[operand_count].value = 13; 
+    }
+      else
+    if (IS_TOKEN(token, 'd') || IS_TOKEN(token, 'D'))
+    {
+      operands[operand_count].type = OPERAND_R;
+      operands[operand_count].value = 14; 
+    }
+      else
     if (strcasecmp(token, "ku") == 0)
     {
-      operands[operand_count].type = OPERAND_REG_SCRATCHPAD;
+      operands[operand_count].type = OPERAND_DPCHR;
       operands[operand_count].value = 0;
     }
       else
     if (strcasecmp(token, "kl") == 0)
     {
-      operands[operand_count].type = OPERAND_REG_SCRATCHPAD;
+      operands[operand_count].type = OPERAND_DPCHR;
       operands[operand_count].value = 1;
     }
       else
     if (strcasecmp(token, "qu") == 0)
     {
-      operands[operand_count].type = OPERAND_REG_SCRATCHPAD;
+      operands[operand_count].type = OPERAND_DPCHR;
       operands[operand_count].value = 2;
     }
       else
     if (strcasecmp(token, "ql") == 0)
     {
-      operands[operand_count].type = OPERAND_REG_SCRATCHPAD;
+      operands[operand_count].type = OPERAND_DPCHR;
       operands[operand_count].value = 3;
+    }
+      else
+    if (IS_TOKEN(token, 'k') || IS_TOKEN(token, 'K'))
+    {
+      operands[operand_count].type = OPERAND_K;
+    }
+      else
+    if (IS_TOKEN(token, 'h') || IS_TOKEN(token, 'H'))
+    {
+      operands[operand_count].type = OPERAND_H;
+    }
+      else
+    if (IS_TOKEN(token, 'q') || IS_TOKEN(token, 'Q'))
+    {
+      operands[operand_count].type = OPERAND_Q;
+    }
+      else
+    if (strcasecmp(token, "pc0") == 0)
+    {
+      operands[operand_count].type = OPERAND_PC0;
+    }
+      else
+    if (strcasecmp(token, "pc1") == 0)
+    {
+      operands[operand_count].type = OPERAND_PC1;
+    }
+      else
+    if (strcasecmp(token, "dco") == 0)
+    {
+      operands[operand_count].type = OPERAND_DCO;
+    }
+      else
+    if (IS_TOKEN(token, 'w') || IS_TOKEN(token, 'W'))
+    {
+      operands[operand_count].type = OPERAND_W;
+    }
+      else
+    if (IS_TOKEN(token, 'j') || IS_TOKEN(token, 'J'))
+    {
+      operands[operand_count].type = OPERAND_J;
     }
       else
     {
@@ -258,6 +337,254 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
             add_bin8(asm_context, opcode, IS_OPCODE);
             add_bin8(asm_context, offset & 0xff, IS_OPCODE);
             return 2;
+          }
+
+          break;
+        }
+        case F8_OP_R:
+        {
+          if (operand_count == 1)
+          {
+            if (operands[0].type != OPERAND_NUMBER &&
+                operands[0].type != OPERAND_R)
+            {
+              break;
+            }
+
+            if (check_range(asm_context, "Register", operands[0].value, 0, 15) == -1) { return -1; }
+
+            opcode = table_f8[n].opcode | operands[0].value;
+            add_bin8(asm_context, opcode, IS_OPCODE);
+
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_SHIFT_1:
+        {
+          if (operand_count == 1 &&
+              operands[0].type == OPERAND_NUMBER &&
+              operands[0].value == 1)
+          {
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_SHIFT_4:
+        {
+          if (operand_count == 1 &&
+              operands[0].type == OPERAND_NUMBER &&
+              operands[0].value == 4)
+          {
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_A_DPCHR:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_A &&
+              operands[1].type == OPERAND_DPCHR)
+          {
+            opcode = table_f8[n].opcode | operands[1].value;
+
+            add_bin8(asm_context, opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_DPCHR_A:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_DPCHR &&
+              operands[1].type == OPERAND_A)
+          {
+            opcode = table_f8[n].opcode | operands[0].value;
+
+            add_bin8(asm_context, opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_A_IS:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_A &&
+              operands[1].type == OPERAND_R)
+          {
+            if (operands[1].value != 12) { break; }
+
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_IS_A:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_R &&
+              operands[1].type == OPERAND_A)
+          {
+            if (operands[0].value != 12) { break; }
+
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_A_R:
+        {
+          if (operand_count == 2 && operands[0].type != OPERAND_A)
+          {
+            if (operands[1].type != OPERAND_NUMBER &&
+                operands[1].type != OPERAND_R)
+            {
+              break;
+            }
+
+            if (check_range(asm_context, "Register", operands[1].value, 0, 15) == -1) { return -1; }
+
+            opcode = table_f8[n].opcode | operands[1].value;
+            add_bin8(asm_context, opcode, IS_OPCODE);
+
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_R_A:
+        {
+          if (operand_count == 2 && operands[1].type != OPERAND_A)
+          {
+            if (operands[0].type != OPERAND_NUMBER &&
+                operands[0].type != OPERAND_R)
+            {
+              break;
+            }
+
+            if (check_range(asm_context, "Register", operands[0].value, 0, 15) == -1) { return -1; }
+
+            opcode = table_f8[n].opcode | operands[0].value;
+            add_bin8(asm_context, opcode, IS_OPCODE);
+
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_H_DCO:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_H &&
+              operands[1].type == OPERAND_DCO)
+          {
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_Q_DCO:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_Q &&
+              operands[1].type == OPERAND_DCO)
+          {
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_DCO_H:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_DCO &&
+              operands[1].type == OPERAND_H)
+          {
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_DCO_Q:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_DCO &&
+              operands[1].type == OPERAND_Q)
+          {
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_K_PC1:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_K &&
+              operands[1].type == OPERAND_PC1)
+          {
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_PC1_K:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_PC1 &&
+              operands[1].type == OPERAND_K)
+          {
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_PCO_Q:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_PC0 &&
+              operands[1].type == OPERAND_Q)
+          {
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_W_J:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_W &&
+              operands[1].type == OPERAND_J)
+          {
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
+          }
+
+          break;
+        }
+        case F8_OP_J_W:
+        {
+          if (operand_count == 2 &&
+              operands[0].type == OPERAND_J &&
+              operands[1].type == OPERAND_W)
+          {
+            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+            return 1;
           }
 
           break;

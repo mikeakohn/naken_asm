@@ -67,16 +67,16 @@ struct _table_f8 table_f8[] = {
   { "jmp",  0x29, 0xff, F8_OP_ADDR,   14, 14 },
 
   // Conditional branch.
-  { "bp",   0x81, 0xff, F8_OP_DISP,   14, 14 },
-  { "bc",   0x82, 0xff, F8_OP_DISP,   14, 14 },
-  { "bz",   0x84, 0xff, F8_OP_DISP,   14, 14 },
-  { "bm",   0x91, 0xff, F8_OP_DISP,   14, 14 },
-  { "bnc",  0x92, 0xff, F8_OP_DISP,   14, 14 },
-  { "bnz",  0x94, 0xff, F8_OP_DISP,   14, 14 },
-  { "bno",  0x98, 0xff, F8_OP_DISP,   14, 14 },
-  { "br7",  0x8f, 0xff, F8_OP_DISP,   14, 14 },
-  { "bt",   0x80, 0xf8, F8_OP_DATA3_DISP, 14, 14 },
-  { "bf",   0x90, 0xf8, F8_OP_DATA3_DISP, 14, 14 },
+  { "bp",   0x81, 0xff, F8_OP_DISP,   12, 14 },
+  { "bc",   0x82, 0xff, F8_OP_DISP,   12, 14 },
+  { "bz",   0x84, 0xff, F8_OP_DISP,   12, 14 },
+  { "bm",   0x91, 0xff, F8_OP_DISP,   12, 14 },
+  { "bnc",  0x92, 0xff, F8_OP_DISP,   12, 14 },
+  { "bnz",  0x94, 0xff, F8_OP_DISP,   12, 14 },
+  { "bno",  0x98, 0xff, F8_OP_DISP,   12, 14 },
+  { "br7",  0x8f, 0xff, F8_OP_DISP,   12, 14 },
+  { "bt",   0x80, 0xf8, F8_OP_DATA3_DISP, 12, 14 },
+  { "bf",   0x90, 0xf8, F8_OP_DATA3_DISP, 12, 14 },
 
   // Register to register move.
   { "xdc",  0x2c, 0xff, F8_OP_NONE,    8,  8 },

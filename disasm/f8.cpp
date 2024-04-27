@@ -31,6 +31,9 @@ int disasm_f8(
   int n;
   int8_t disp;
 
+  const char *reg[] = { "isar", "isar+", "isar-", "15" };
+  const char *dpchr[] = { "ku", "kl", "qu", "ql" };
+
   *cycles_min = -1;
   *cycles_max = -1;
 
@@ -103,6 +106,146 @@ int disasm_f8(
             address + 1 + disp,
             disp);
           return 2;
+        }
+        case F8_OP_R:
+        {
+          data = opcode & 0xf;
+
+          if (data >= 12 && data <= 14)
+          {
+            snprintf(instruction, length, "%s %s",
+              table_f8[n].instr,
+              reg[data - 12]);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s %d",
+              table_f8[n].instr,
+              data);
+          }
+
+          return 1;
+        }
+        case F8_OP_SHIFT_1:
+        {
+          snprintf(instruction, length, "%s 1", table_f8[n].instr);
+          return 1;
+        }
+        case F8_OP_SHIFT_4:
+        {
+          snprintf(instruction, length, "%s 4", table_f8[n].instr);
+          return 1;
+        }
+        case F8_OP_A_DPCHR:
+        {
+          snprintf(instruction, length, "%s a, %s",
+            table_f8[n].instr,
+            dpchr[opcode & 0x3]);
+
+          return 1;
+        }
+        case F8_OP_DPCHR_A:
+        {
+          snprintf(instruction, length, "%s %s, a",
+            table_f8[n].instr,
+            dpchr[opcode & 0x3]);
+
+          return 1;
+        }
+        case F8_OP_A_IS:
+        {
+          snprintf(instruction, length, "%s a, isar", table_f8[n].instr);
+
+          return 1;
+        }
+        case F8_OP_IS_A:
+        {
+          snprintf(instruction, length, "%s isar, a", table_f8[n].instr);
+
+          return 1;
+        }
+        case F8_OP_A_R:
+        {
+          data = opcode & 0xf;
+
+          if (data >= 12 && data <= 14)
+          {
+            snprintf(instruction, length, "%s a, %s",
+              table_f8[n].instr,
+              reg[data - 12]);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s a, %d",
+              table_f8[n].instr,
+              data);
+          }
+
+          return 1;
+        }
+        case F8_OP_R_A:
+        {
+          data = opcode & 0xf;
+
+          if (data >= 12 && data <= 14)
+          {
+            snprintf(instruction, length, "%s %s, a",
+              table_f8[n].instr,
+              reg[data - 12]);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s %d, a",
+              table_f8[n].instr,
+              data);
+          }
+
+          return 1;
+        }
+        case F8_OP_H_DCO:
+        {
+          snprintf(instruction, length, "%s h, dco", table_f8[n].instr);
+          return 1;
+        }
+        case F8_OP_Q_DCO:
+        {
+          snprintf(instruction, length, "%s q, dco", table_f8[n].instr);
+          return 1;
+        }
+        case F8_OP_DCO_H:
+        {
+          snprintf(instruction, length, "%s dco, h", table_f8[n].instr);
+          return 1;
+        }
+        case F8_OP_DCO_Q:
+        {
+          snprintf(instruction, length, "%s dco, q", table_f8[n].instr);
+          return 1;
+        }
+        case F8_OP_K_PC1:
+        {
+          snprintf(instruction, length, "%s k, pc1", table_f8[n].instr);
+          return 1;
+        }
+        case F8_OP_PC1_K:
+        {
+          snprintf(instruction, length, "%s pc1, k", table_f8[n].instr);
+          return 1;
+        }
+        case F8_OP_PCO_Q:
+        {
+          snprintf(instruction, length, "%s pco, q", table_f8[n].instr);
+          return 1;
+        }
+        case F8_OP_W_J:
+        {
+          snprintf(instruction, length, "%s w, j", table_f8[n].instr);
+          return 1;
+        }
+        case F8_OP_J_W:
+        {
+          snprintf(instruction, length, "%s j, w", table_f8[n].instr);
+          return 1;
         }
         default:
         {

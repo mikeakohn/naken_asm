@@ -10,7 +10,7 @@ Contents
 * [Directives](directives.md)
 * [File Formats](file_formats.md)
 * [Examples](examples.md)
-* CPU Specific
+* CPU Specific Information
   * [1802](1802.md)
   * [6502](6502.md)
   * [65C816](65C816.md)
@@ -20,6 +20,7 @@ Contents
   * [AVR8](AVR8.md)
   * [Copper (Amiga)](Copper.md)
   * [F100-L](F100_L.md)
+  * [Fairchild F8](F8.md)
   * [MIPS](MIPS.md)
   * [MSP430](MSP430.md)
   * [PIC18](PIC18.md)
