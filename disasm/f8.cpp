@@ -72,7 +72,7 @@ int disasm_f8(
         {
           data = memory->read8(address + 1);
 
-          snprintf(instruction, length, "%s %d",
+          snprintf(instruction, length, "%s 0x%02x",
             table_f8[n].instr,
             data);
           return 2;
@@ -81,7 +81,7 @@ int disasm_f8(
         {
           data = memory->read16(address + 1);
 
-          snprintf(instruction, length, "%s %d",
+          snprintf(instruction, length, "%s 0x%04x",
             table_f8[n].instr,
             data);
           return 3;
@@ -202,24 +202,24 @@ int disasm_f8(
 
           return 1;
         }
-        case F8_OP_H_DCO:
+        case F8_OP_H_DC0:
         {
-          snprintf(instruction, length, "%s h, dco", table_f8[n].instr);
+          snprintf(instruction, length, "%s h, dc0", table_f8[n].instr);
           return 1;
         }
-        case F8_OP_Q_DCO:
+        case F8_OP_Q_DC0:
         {
-          snprintf(instruction, length, "%s q, dco", table_f8[n].instr);
+          snprintf(instruction, length, "%s q, dc0", table_f8[n].instr);
           return 1;
         }
-        case F8_OP_DCO_H:
+        case F8_OP_DC0_H:
         {
-          snprintf(instruction, length, "%s dco, h", table_f8[n].instr);
+          snprintf(instruction, length, "%s dc0, h", table_f8[n].instr);
           return 1;
         }
-        case F8_OP_DCO_Q:
+        case F8_OP_DC0_Q:
         {
-          snprintf(instruction, length, "%s dco, q", table_f8[n].instr);
+          snprintf(instruction, length, "%s dc0, q", table_f8[n].instr);
           return 1;
         }
         case F8_OP_K_PC1:
@@ -232,9 +232,9 @@ int disasm_f8(
           snprintf(instruction, length, "%s pc1, k", table_f8[n].instr);
           return 1;
         }
-        case F8_OP_PCO_Q:
+        case F8_OP_PC0_Q:
         {
-          snprintf(instruction, length, "%s pco, q", table_f8[n].instr);
+          snprintf(instruction, length, "%s pc0, q", table_f8[n].instr);
           return 1;
         }
         case F8_OP_W_J:

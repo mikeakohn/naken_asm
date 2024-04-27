@@ -41,13 +41,13 @@ enum
   F8_OP_A_R,
   F8_OP_R_A,
 
-  F8_OP_H_DCO,
-  F8_OP_Q_DCO,
-  F8_OP_DCO_H,
-  F8_OP_DCO_Q,
+  F8_OP_H_DC0,
+  F8_OP_Q_DC0,
+  F8_OP_DC0_H,
+  F8_OP_DC0_Q,
   F8_OP_K_PC1,
   F8_OP_PC1_K,
-  F8_OP_PCO_Q,
+  F8_OP_PC0_Q,
   F8_OP_W_J,
   F8_OP_J_W,
 };

@@ -38,7 +38,7 @@ enum
   OPERAND_Q,
   OPERAND_PC0,
   OPERAND_PC1,
-  OPERAND_DCO,
+  OPERAND_DC0,
   OPERAND_W,
   OPERAND_J,
 };
@@ -169,9 +169,9 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
       operands[operand_count].type = OPERAND_PC1;
     }
       else
-    if (strcasecmp(token, "dco") == 0)
+    if (strcasecmp(token, "dc0") == 0)
     {
-      operands[operand_count].type = OPERAND_DCO;
+      operands[operand_count].type = OPERAND_DC0;
     }
       else
     if (IS_TOKEN(token, 'w') || IS_TOKEN(token, 'W'))
@@ -443,7 +443,7 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
         }
         case F8_OP_A_R:
         {
-          if (operand_count == 2 && operands[0].type != OPERAND_A)
+          if (operand_count == 2 && operands[0].type == OPERAND_A)
           {
             if (operands[1].type != OPERAND_NUMBER &&
                 operands[1].type != OPERAND_R)
@@ -463,7 +463,7 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
         }
         case F8_OP_R_A:
         {
-          if (operand_count == 2 && operands[1].type != OPERAND_A)
+          if (operand_count == 2 && operands[1].type == OPERAND_A)
           {
             if (operands[0].type != OPERAND_NUMBER &&
                 operands[0].type != OPERAND_R)
@@ -481,11 +481,11 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
 
           break;
         }
-        case F8_OP_H_DCO:
+        case F8_OP_H_DC0:
         {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_H &&
-              operands[1].type == OPERAND_DCO)
+              operands[1].type == OPERAND_DC0)
           {
             add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
             return 1;
@@ -493,11 +493,11 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
 
           break;
         }
-        case F8_OP_Q_DCO:
+        case F8_OP_Q_DC0:
         {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_Q &&
-              operands[1].type == OPERAND_DCO)
+              operands[1].type == OPERAND_DC0)
           {
             add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
             return 1;
@@ -505,10 +505,10 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
 
           break;
         }
-        case F8_OP_DCO_H:
+        case F8_OP_DC0_H:
         {
           if (operand_count == 2 &&
-              operands[0].type == OPERAND_DCO &&
+              operands[0].type == OPERAND_DC0 &&
               operands[1].type == OPERAND_H)
           {
             add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
@@ -517,10 +517,10 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
 
           break;
         }
-        case F8_OP_DCO_Q:
+        case F8_OP_DC0_Q:
         {
           if (operand_count == 2 &&
-              operands[0].type == OPERAND_DCO &&
+              operands[0].type == OPERAND_DC0 &&
               operands[1].type == OPERAND_Q)
           {
             add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
@@ -553,7 +553,7 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
 
           break;
         }
-        case F8_OP_PCO_Q:
+        case F8_OP_PC0_Q:
         {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_PC0 &&
@@ -594,8 +594,6 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
           break;
         }
       }
-
-      break;
     }
   }
 
