@@ -32,7 +32,7 @@ enum
   //OPERAND_S,
   //OPERAND_U,
   //OPERAND_D,
-  //OPERAND_IS,
+  OPERAND_IS,
   OPERAND_K,
   OPERAND_H,
   OPERAND_Q,
@@ -108,7 +108,7 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
       }
     }
       else
-    if (IS_TOKEN(token, 'u') || IS_TOKEN(token, 'u'))
+    if (IS_TOKEN(token, 'i') || IS_TOKEN(token, 'I'))
     {
       operands[operand_count].type = OPERAND_R;
       operands[operand_count].value = 13; 
@@ -142,6 +142,11 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
     {
       operands[operand_count].type = OPERAND_DPCHR;
       operands[operand_count].value = 3;
+    }
+      else
+    if (strcasecmp(token, "is") == 0)
+    {
+      operands[operand_count].type = OPERAND_IS;
     }
       else
     if (IS_TOKEN(token, 'k') || IS_TOKEN(token, 'K'))
@@ -363,24 +368,38 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
         }
         case F8_OP_SHIFT_1:
         {
-          if (operand_count == 1 &&
-              operands[0].type == OPERAND_NUMBER &&
-              operands[0].value == 1)
+          if (operand_count == 1)
           {
-            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
-            return 1;
+            if (asm_context->pass == 1)
+            {
+              add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+              return 1;
+            }
+              else
+            if (operands[0].type == OPERAND_NUMBER && operands[0].value == 1)
+            {
+              add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+              return 1;
+            }
           }
 
           break;
         }
         case F8_OP_SHIFT_4:
         {
-          if (operand_count == 1 &&
-              operands[0].type == OPERAND_NUMBER &&
-              operands[0].value == 4)
+          if (operand_count == 1)
           {
-            add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
-            return 1;
+            if (asm_context->pass == 1)
+            {
+              add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+              return 1;
+            }
+              else
+            if (operands[0].type == OPERAND_NUMBER && operands[0].value == 4)
+            {
+              add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
+              return 1;
+            }
           }
 
           break;
@@ -417,9 +436,9 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
         {
           if (operand_count == 2 &&
               operands[0].type == OPERAND_A &&
-              operands[1].type == OPERAND_R)
+              operands[1].type == OPERAND_IS)
           {
-            if (operands[1].value != 12) { break; }
+            //if (operands[1].value != 12) { break; }
 
             add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
             return 1;
@@ -430,10 +449,10 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
         case F8_OP_IS_A:
         {
           if (operand_count == 2 &&
-              operands[0].type == OPERAND_R &&
+              operands[0].type == OPERAND_IS &&
               operands[1].type == OPERAND_A)
           {
-            if (operands[0].value != 12) { break; }
+            //if (operands[0].value != 12) { break; }
 
             add_bin8(asm_context, table_f8[n].opcode, IS_OPCODE);
             return 1;

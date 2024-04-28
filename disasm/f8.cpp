@@ -31,7 +31,7 @@ int disasm_f8(
   int n;
   int8_t disp;
 
-  const char *reg[] = { "isar", "isar+", "isar-", "15" };
+  const char *reg[] = { "s", "i", "d", "15" };
   const char *dpchr[] = { "ku", "kl", "qu", "ql" };
 
   *cycles_min = -1;
@@ -154,13 +154,13 @@ int disasm_f8(
         }
         case F8_OP_A_IS:
         {
-          snprintf(instruction, length, "%s a, isar", table_f8[n].instr);
+          snprintf(instruction, length, "%s a, is", table_f8[n].instr);
 
           return 1;
         }
         case F8_OP_IS_A:
         {
-          snprintf(instruction, length, "%s isar, a", table_f8[n].instr);
+          snprintf(instruction, length, "%s is, a", table_f8[n].instr);
 
           return 1;
         }

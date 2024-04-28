@@ -1,0 +1,70 @@
+ins 4
+in 129
+outs 3
+out 230
+lm
+st
+lr a, 3
+lr s, a
+lr a, ql
+lr kl, a
+lr h, dc0
+lr q, dc0
+lr dc0, h
+lr dc0, q
+lr k, pc1
+lr pc1, k
+lr pc0, q
+pk
+as I
+asd 4
+ns 5
+xs 1
+ds 8
+am
+amd
+nm
+om
+xm
+cm
+lisu 4
+lisl 5
+dci 500
+lis 9
+li 127
+ai 129
+ni 131
+oi 155
+xi 201
+ci 23
+pi 1025
+main: br main
+jmp 2033
+main: bt 3, main
+main: bf 5, main
+main: bp main
+main: bc main
+main: bz main
+main: bm main
+main: bnc main
+main: bnz main
+main: bno main
+main: br7 main
+xdc
+lr a, is
+lr is, a
+pop
+adc
+sr 1
+sr 4
+sl 1
+sl 4
+com
+lnk
+inc
+clr
+di
+ei
+lr w, j
+lr j, w
+nop
