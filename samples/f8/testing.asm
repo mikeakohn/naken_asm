@@ -21,8 +21,8 @@ main:
   lr w, j
   lr j, w
   jmp label_2
-  asd 3
-  asd isar
+  asd [3]
+  asd [isar]
   lr dc0, q
   lr pc0, q
   lr pc1, k
@@ -32,11 +32,9 @@ label_1:
   lr a, s
   lr a, s+
   lr a, s-
-  lr isar, a
-  lr isar+, a
-  lr isar-, a
+  lr [isar], a
+  lr [isar]+, a
+  lr [isar]-, a
 
 label_2:
-
-
 

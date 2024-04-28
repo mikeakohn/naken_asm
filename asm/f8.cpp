@@ -85,27 +85,10 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
       operands[operand_count].type = OPERAND_A;
     }
       else
-    if (IS_TOKEN(token, 's') ||
-        IS_TOKEN(token, 'S') ||
-        strcasecmp(token, "isar") == 0)
+    if (IS_TOKEN(token, 's') || IS_TOKEN(token, 'S'))
     {
       operands[operand_count].type = OPERAND_R;
       operands[operand_count].value = 12; 
-
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-      if (IS_TOKEN(token, '+'))
-      {
-        operands[operand_count].value = 13; 
-      }
-        else
-      if (IS_TOKEN(token, '-'))
-      {
-        operands[operand_count].value = 14; 
-      }
-        else
-      {
-        tokens_push(asm_context, token, token_type);
-      }
     }
       else
     if (IS_TOKEN(token, 'i') || IS_TOKEN(token, 'I'))
@@ -144,7 +127,7 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
       operands[operand_count].value = 3;
     }
       else
-    if (strcasecmp(token, "is") == 0)
+    if (strcasecmp(token, "is") == 0 || strcasecmp(token, "isar") == 0)
     {
       operands[operand_count].type = OPERAND_IS;
     }
@@ -187,6 +170,47 @@ int parse_instruction_f8(AsmContext *asm_context, char *instr)
     if (IS_TOKEN(token, 'j') || IS_TOKEN(token, 'J'))
     {
       operands[operand_count].type = OPERAND_J;
+    }
+      else
+    if (IS_TOKEN(token, '['))
+    {
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+
+      operands[operand_count].type = OPERAND_R;
+
+      if (strcasecmp(token, "isar") == 0)
+      {
+        operands[operand_count].value = 12; 
+      }
+        else
+      {
+        tokens_push(asm_context, token, token_type);
+
+        if (eval_expression(asm_context, &num) != 0)
+        {
+          print_error_illegal_expression(asm_context, instr);
+          return -1;
+        }
+
+        operands[operand_count].value = num; 
+      }
+
+      if (expect_token(asm_context, ']') == -1) { return -1; }
+
+      token_type = tokens_get(asm_context, token, TOKENLEN);
+      if (IS_TOKEN(token, '+'))
+      {
+        operands[operand_count].value = 13; 
+      }
+        else
+      if (IS_TOKEN(token, '-'))
+      {
+        operands[operand_count].value = 14; 
+      }
+        else
+      {
+        tokens_push(asm_context, token, token_type);
+      }
     }
       else
     {
