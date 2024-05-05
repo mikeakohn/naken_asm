@@ -32,7 +32,7 @@ main =
 function get_vectors()
 {
   code =
-    "org 0xfffe\n" +
+    ".org 0xfffe\n" +
     "  dw start\n\n";
 
   return code;
@@ -231,6 +231,11 @@ function generate()
 <option value="7,15">19.405MHz</option>
 </select>
 </p>
+
+<p><b>I/O</b> Coming Soon.</p>
+<p><b>SPI</b> Coming Soon.</p>
+<p><b>TimerA</b> Coming Soon.</p>
+<p><b>TimerB</b> Coming Soon.</p>
 
 <input type="button" value="Generate" onclick="generate();">
 </form>
