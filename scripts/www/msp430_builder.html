@@ -1,0 +1,241 @@
+<html>
+<style>
+p { font-family:Arial,sans-serif; }
+code { font-family:monospace; white-space:pre; overflow-x:auto; display:block; max-width:100%; background-color:#eeeeee; padding:8px; width:400px; }
+</style>
+<body onload="generate();">
+
+<script type="text/javascript">
+
+header =
+  ";; project_name\n" +
+  ";;\n" +
+  ";; Copyright date - By name\n" +
+  ";;\n" +
+  ";; Description:\n";
+
+include = ".include \"msp430x2xx.inc\"\n";
+
+start =
+  "start:\n" +
+  "  ;; Turn off watchdog.\n" +
+  "  mov.w #(WDTPW|WDTHOLD), &WDTCTL\n\n" +
+  "  ;; Turn off interrupts\n" +
+  "  dint\n\n";
+
+main =
+  "  ;; Enable interrupts.\n" +
+  "  eint\n\n" +
+  "main:\n" +
+  "  jmp main\n\n";
+
+function get_vectors()
+{
+  code =
+    "org 0xfffe\n" +
+    "  dw start\n\n";
+
+  return code;
+}
+
+function generate()
+{
+  var program = document.getElementById("program");
+  var mpu_type = document.getElementById("mpu_type").value;
+  var dco = document.getElementById("dco").value;
+  var dco_index = document.getElementById("dco").selectedIndex;
+  var dco_text = document.getElementById("dco").options[dco_index].text;
+
+  if (mpu_type == 0)
+  {
+    org = "0xf800";
+    stack_start = "0x0280";
+  }
+    else
+  {
+    org = "0xc000";
+    stack_start = "0x0400";
+  }
+
+  code =
+    header + "\n" +
+    include + "\n";
+
+  code += ".org " + org + "\n";
+  code += start;
+  code +=
+    "  ;; Setup stack pointer\n" +
+    "  mov.w #" + stack_start + ", SP\n\n";
+
+  dco = dco.split(",");
+
+  code +=
+    "  ;; Set MCLK to ~" + dco_text + " with DCO.\n" +
+    "  ;; These values were calculated from an MSP430G2553 under testing\n" +
+    "  ;; and will change depending on the chip and temperature, etc.\n" +
+    "  mov.b #DCO_" + dco[0] + ", &DCOCTL\n" +
+    "  mov.b #RSEL_" + dco[1] + ", &BCSCTL1\n" +
+    "  mov.b #0, &BCSCTL2\n\n";
+
+  code += main;
+
+  code += get_vectors();
+
+  program.innerHTML = code;
+}
+
+</script>
+
+<table>
+<td bgcolor="#dddddd">
+<code id="program">
+</code>
+</td>
+<td>
+<form>
+<p><b>MCU:</b>
+<select id="mpu_type" onchange="generate();">
+<option value=0>msp430g2331</option>
+<option value=1>msp430g2553</option>
+</select>
+</p>
+
+<p><b>DCO (CPU clock):</b>
+<select id="dco" onchange="generate();">
+<option value="0,0">0.096MHz</option>
+<option value="1,0">0.102MHz</option>
+<option value="2,0">0.110MHz</option>
+<option value="0,1">0.112MHz</option>
+<option value="3,0">0.119MHz</option>
+<option value="1,1">0.119MHz</option>
+<option value="2,1">0.127MHz</option>
+<option value="4,0">0.130MHz</option>
+<option value="3,1">0.137MHz</option>
+<option value="5,0">0.142MHz</option>
+<option value="4,1">0.148MHz</option>
+<option value="0,2">0.155MHz</option>
+<option value="6,0">0.157MHz</option>
+<option value="5,1">0.161MHz</option>
+<option value="1,2">0.165MHz</option>
+<option value="2,2">0.176MHz</option>
+<option value="6,1">0.177MHz</option>
+<option value="3,2">0.189MHz</option>
+<option value="7,1">0.196MHz</option>
+<option value="4,2">0.205MHz</option>
+<option value="0,3">0.219MHz</option>
+<option value="5,2">0.223MHz</option>
+<option value="1,3">0.233MHz</option>
+<option value="6,2">0.245MHz</option>
+<option value="2,3">0.249MHz</option>
+<option value="3,3">0.268MHz</option>
+<option value="7,2">0.271MHz</option>
+<option value="4,3">0.290MHz</option>
+<option value="0,4">0.300MHz</option>
+<option value="5,3">0.315MHz</option>
+<option value="1,4">0.319MHz</option>
+<option value="2,4">0.342MHz</option>
+<option value="6,3">0.346MHz</option>
+<option value="3,4">0.367MHz</option>
+<option value="7,3">0.383MHz</option>
+<option value="4,4">0.396MHz</option>
+<option value="0,5">0.428MHz</option>
+<option value="5,4">0.432MHz</option>
+<option value="1,5">0.456MHz</option>
+<option value="6,4">0.473MHz</option>
+<option value="2,5">0.487MHz</option>
+<option value="3,5">0.523MHz</option>
+<option value="7,4">0.524MHz</option>
+<option value="4,5">0.566MHz</option>
+<option value="0,6">0.588MHz</option>
+<option value="5,5">0.615MHz</option>
+<option value="1,6">0.626MHz</option>
+<option value="2,6">0.669MHz</option>
+<option value="6,5">0.674MHz</option>
+<option value="3,6">0.718MHz</option>
+<option value="7,5">0.745MHz</option>
+<option value="4,6">0.775MHz</option>
+<option value="0,7">0.834MHz</option>
+<option value="5,6">0.843MHz</option>
+<option value="1,7">0.886MHz</option>
+<option value="6,6">0.924MHz</option>
+<option value="2,7">0.946MHz</option>
+<option value="3,7" selected>1.016MHz</option>
+<option value="7,6">1.021MHz</option>
+<option value="4,7">1.096MHz</option>
+<option value="0,8">1.181MHz</option>
+<option value="5,7">1.190MHz</option>
+<option value="1,8">1.255MHz</option>
+<option value="6,7">1.303MHz</option>
+<option value="2,8">1.339MHz</option>
+<option value="3,8">1.436MHz</option>
+<option value="7,7">1.440MHz</option>
+<option value="4,8">1.549MHz</option>
+<option value="5,8">1.680MHz</option>
+<option value="0,9">1.710MHz</option>
+<option value="1,9">1.815MHz</option>
+<option value="6,8">1.838MHz</option>
+<option value="2,9">1.935MHz</option>
+<option value="7,8">2.031MHz</option>
+<option value="3,9">2.074MHz</option>
+<option value="4,9">2.233MHz</option>
+<option value="5,9">2.421MHz</option>
+<option value="0,10">2.459MHz</option>
+<option value="1,10">2.607MHz</option>
+<option value="6,9">2.646MHz</option>
+<option value="2,10">2.776MHz</option>
+<option value="7,9">2.919MHz</option>
+<option value="3,10">2.971MHz</option>
+<option value="0,11">3.061MHz</option>
+<option value="4,10">3.195MHz</option>
+<option value="1,11">3.250MHz</option>
+<option value="5,10">3.459MHz</option>
+<option value="2,11">3.464MHz</option>
+<option value="3,11">3.714MHz</option>
+<option value="6,10">3.779MHz</option>
+<option value="4,11">4.004MHz</option>
+<option value="7,10">4.165MHz</option>
+<option value="0,12">4.191MHz</option>
+<option value="5,11">4.338MHz</option>
+<option value="1,12">4.441MHz</option>
+<option value="2,12">4.727MHz</option>
+<option value="6,11">4.742MHz</option>
+<option value="3,12">5.066MHz</option>
+<option value="7,11">5.256MHz</option>
+<option value="4,12">5.468MHz</option>
+<option value="0,13">5.833MHz</option>
+<option value="5,12">5.930MHz</option>
+<option value="1,13">6.169MHz</option>
+<option value="6,12">6.460MHz</option>
+<option value="2,13">6.538MHz</option>
+<option value="3,13">6.963MHz</option>
+<option value="7,12">7.100MHz</option>
+<option value="4,13">7.478MHz</option>
+<option value="5,13">8.118MHz</option>
+<option value="0,14">8.422MHz</option>
+<option value="6,13">8.911MHz</option>
+<option value="1,14">8.944MHz</option>
+<option value="2,14">9.543MHz</option>
+<option value="7,13">9.891MHz</option>
+<option value="3,14">10.217MHz</option>
+<option value="4,14">11.008MHz</option>
+<option value="0,15">11.744MHz</option>
+<option value="5,14">11.895MHz</option>
+<option value="1,15">12.369MHz</option>
+<option value="6,14">12.920MHz</option>
+<option value="2,15">13.048MHz</option>
+<option value="3,15">13.813MHz</option>
+<option value="7,14">14.140MHz</option>
+<option value="4,15">14.754MHz</option>
+<option value="5,15">15.981MHz</option>
+<option value="6,15">17.551MHz</option>
+<option value="7,15">19.405MHz</option>
+</select>
+</p>
+
+<input type="button" value="Generate" onclick="generate();">
+</form>
+</td>
+
+</body>
+</html>
+
