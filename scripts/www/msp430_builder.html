@@ -45,6 +45,7 @@ function generate()
   var dco = document.getElementById("dco").value;
   var dco_index = document.getElementById("dco").selectedIndex;
   var dco_text = document.getElementById("dco").options[dco_index].text;
+  var add_crystal = document.getElementById("crystal").checked;
 
   if (mpu_type == 0)
   {
@@ -77,6 +78,13 @@ function generate()
     "  mov.b #RSEL_" + dco[1] + ", &BCSCTL1\n" +
     "  mov.b #0, &BCSCTL2\n\n";
 
+  if (add_crystal)
+  {
+    code +=
+      "  ;; Set SMCLK to 32.768kHz external crystal\n" +
+      "  mov.b #XCAP_3, &BCSCTL3\n\n";
+  }
+
   code += main;
 
   code += get_vectors();
@@ -91,7 +99,13 @@ function generate()
 <code id="program">
 </code>
 </td>
-<td>
+<td valign="top">
+<br>
+<p><b>MSP430 Code Builder</b></p>
+<p>The code on the left will automatically update when changes
+are made the form below. This is still under development and
+it's recommended to verify things are correct. Feel free to
+send an email if there are any issues.</p>
 <form>
 <p><b>MCU:</b>
 <select id="mpu_type" onchange="generate();">
@@ -232,12 +246,22 @@ function generate()
 </select>
 </p>
 
-<p><b>I/O</b> Coming Soon.</p>
+<p><b>External Crystal (32,768k)</b> <input type="checkbox" id="crystal" onchange="generate();"></p>
+
+<p><b>I/O</b>
+
+Coming Soon
+</p>
+
 <p><b>SPI</b> Coming Soon.</p>
+
+<p><b>i2c</b> Coming Soon.</p>
+
 <p><b>TimerA</b> Coming Soon.</p>
+
 <p><b>TimerB</b> Coming Soon.</p>
 
-<input type="button" value="Generate" onclick="generate();">
+<!-- input type="button" value="Generate" onclick="generate();" -->
 </form>
 </td>
 

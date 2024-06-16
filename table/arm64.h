@@ -54,6 +54,8 @@ enum
   OP_VECTOR_D_D_FPU,
   //OP_VECTOR_V_V_V_CMP_FPU,
   OP_LD_ST_REG_REG,
+  OP_MUL_R_R_R_R,
+  OP_SMUL_R_R_R_R,
 };
 
 enum

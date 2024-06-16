@@ -165,7 +165,7 @@ int disasm_arm64(
 {
   uint32_t opcode;
   int n;
-  int rm, rn, rd;
+  int rm, rn, rd, ra;
   int size, sf, imm, option, shift, v;
 
   opcode = memory->read32(address);
@@ -174,6 +174,7 @@ int disasm_arm64(
   *cycles_max = -1;
 
   rm = (opcode >> 16) & 0x1f;
+  ra = (opcode >> 10) & 0x1f;
   rn = (opcode >> 5) & 0x1f;
   rd = opcode & 0x1f;
   size = (opcode >> 22) & 0x3;
@@ -832,6 +833,57 @@ int disasm_arm64(
               rn,
               rm,
               size == 0 ? 2 : 3);
+          }
+
+          return 4;
+        }
+        case OP_MUL_R_R_R_R:
+        {
+          if (table_arm64[n].operand_count == 3)
+          {
+            snprintf(instruction, length, "%s %c%d, %c%d, %c%d",
+              table_arm64[n].instr,
+              sf == 0 ? 'w' : 'x',
+              rd,
+              sf == 0 ? 'w' : 'x',
+              rn,
+              sf == 0 ? 'w' : 'x',
+              rm);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s %c%d, %c%d, %c%d, %c%d",
+              table_arm64[n].instr,
+              sf == 0 ? 'w' : 'x',
+              rd,
+              sf == 0 ? 'w' : 'x',
+              rn,
+              sf == 0 ? 'w' : 'x',
+              rm,
+              sf == 0 ? 'w' : 'x',
+              ra);
+          }
+
+          return 4;
+        }
+        case OP_SMUL_R_R_R_R:
+        {
+          if (table_arm64[n].operand_count == 3)
+          {
+            snprintf(instruction, length, "%s x%d, w%d, w%d",
+              table_arm64[n].instr,
+              rd,
+              rn,
+              rm);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s x%d, w%d, w%d, x%d",
+              table_arm64[n].instr,
+              rd,
+              rn,
+              rm,
+              ra);
           }
 
           return 4;

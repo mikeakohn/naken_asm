@@ -129,6 +129,22 @@ struct _table_arm64 table_arm64[] =
   { "autibz",    0xd50323df, 0xffffffff, 0, 'x', OP_NONE },
   { "axflag",    0xd500405f, 0xffffffff, 0, 'x', OP_NONE },
 
+  // C2.4.7 Multiply.
+  { "mul",       0x1b00ec00, 0x7fe0fc00, 3, 'b', OP_MUL_R_R_R_R  },
+  { "madd",      0x1b000000, 0x7fe08000, 4, 'b', OP_MUL_R_R_R_R  },
+  { "msub",      0x1b008000, 0x7fe08000, 4, 'b', OP_MUL_R_R_R_R  },
+  { "mneg",      0x1b00fc00, 0x7fe0fc00, 3, 'b', OP_MUL_R_R_R_R  },
+  { "smull",     0x9b20fc00, 0xffe0fc00, 3, 'b', OP_SMUL_R_R_R_R }, // alias?
+  { "smaddl",    0x9b200000, 0xffe08000, 4, 'b', OP_SMUL_R_R_R_R },
+  { "smnegl",    0x9b208000, 0xffe08000, 4, 'b', OP_SMUL_R_R_R_R },
+  { "smsubl",    0x9b208000, 0xffe08000, 4, 'b', OP_SMUL_R_R_R_R }, // alias?
+  { "smulh",     0x9b407c00, 0xffe0fc00, 3, 'x', OP_MUL_R_R_R_R  },
+  { "umull",     0x9ba07c00, 0xffe0fc00, 3, 'b', OP_SMUL_R_R_R_R }, // alias?
+  { "umaddl",    0x9ba00000, 0xffe08000, 4, 'b', OP_SMUL_R_R_R_R },
+  { "umnegl",    0x9ba08000, 0xffe08000, 4, 'b', OP_SMUL_R_R_R_R },
+  { "umsubl",    0x9ba08000, 0xffe08000, 4, 'b', OP_SMUL_R_R_R_R }, // alias?
+  { "umulh",     0x9be0ec00, 0xffe0fc00, 3, 'x', OP_MUL_R_R_R_R  },
+
   // C3.2.2 Conditional branch (immediate).
   { "b.eq",      0x54000000, 0xff00001f, 0, 'x', OP_RELATIVE19 },
   { "b.ne",      0x54000001, 0xff00001f, 0, 'x', OP_RELATIVE19 },

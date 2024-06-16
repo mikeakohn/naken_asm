@@ -2459,6 +2459,63 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           if (ret == -2) { continue; }
           return ret;
         }
+        case OP_MUL_R_R_R_R:
+        {
+          if (operands[0].type != OPERAND_REG_32 &&
+              operands[0].type != OPERAND_REG_64)
+          {
+            continue;
+          }
+
+          if (operands[0].type != operands[1].type &&
+              operands[0].type != operands[2].type)
+          {
+            continue;
+          }
+
+          opcode = table_arm64[n].opcode |
+            (operands[0].value << 0) |
+            (operands[1].value << 5) |
+            (operands[2].value << 16);
+
+          if (operand_count == 4)
+          {
+            opcode |= operands[3].value << 10;
+
+            if (operands[0].type != operands[3].type) { continue; }
+          }
+
+          if (operands[0].type == OPERAND_REG_64) { opcode |= (1 << 31); }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_SMUL_R_R_R_R:
+        {
+          if (operands[0].type != OPERAND_REG_64 &&
+              operands[1].type != OPERAND_REG_32 &&
+              operands[2].type != OPERAND_REG_32)
+          {
+            continue;
+          }
+
+          opcode = table_arm64[n].opcode |
+            (operands[0].value << 0) |
+            (operands[1].value << 5) |
+            (operands[2].value << 16);
+
+          if (operand_count == 4)
+          {
+            opcode |= operands[3].value << 10;
+
+            if (operands[3].type != OPERAND_REG_64) { continue; }
+          }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
         {
           break;
