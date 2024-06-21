@@ -943,7 +943,7 @@ void disasm_range_arm64(
 {
   char instruction[128];
   int cycles_min, cycles_max;
-  uint16_t opcode;
+  uint32_t opcode;
   int count;
 
   printf("\n");
