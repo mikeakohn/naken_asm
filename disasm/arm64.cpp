@@ -11,7 +11,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
+#include <cinttypes>
 
 #include "disasm/arm64.h"
 #include "table/arm64.h"
@@ -417,7 +419,8 @@ int disasm_arm64(
 
           uint64_t imm = decode_imms(imms, immr, sf);
 
-          snprintf(instruction, length, "%s %c%d, %c%d, #0x%04lx (immr=%d imms=%d)",
+          snprintf(instruction, length,
+            "%s %c%d, %c%d, #0x%04" PRIx64 " (immr=%d imms=%d)",
             table_arm64[n].instr,
             reg_size[sf], rd,
             reg_size[sf], rn,
