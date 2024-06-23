@@ -1,3 +1,20 @@
+ldrb w3, [x4, #8]!
+ldrb w3, [x4], #8
+ldr w3, [x4], #8
+ldrh w3, [x4], #8
+ldrh w3, [x4, #8]!
+ldr w3, [x4, #8]!
+strb w3, [x4, #8]!
+strh w3, [x4, #8]!
+str w3, [x4, #8]!
+str w3, [x4], #8
+ldr x3, [x4, #4]!
+ldr x3, [x4, x3]
+ldr x3, [x4, x3, lsl #3]
+ldr w3, [x4, x3, lsl #2]
+ldr w3, [x4, w3, uxtw]
+ldr w3, [x4, w3, sxtw]
+ldr w3, [x4, x3, sxtx]
 abs d7, d30
 abs d17, d1
 abs v9.16b, v18.16b
