@@ -606,8 +606,7 @@ int disasm_arm64(
           }
 
           imm = (opcode >> 12) & 0x1ff;
-          imm = imm << 23;
-          imm = imm >> (23 - size);
+          //imm = imm << size;
 
           if (index_type == 1)
           {

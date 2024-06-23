@@ -185,13 +185,13 @@ struct _table_arm64 table_arm64[] =
   // C3.3.9 Load/store register (immediate pre-indexed).
   { "strb",      0x38000000, 0xfbe00000, 3, 'w', OP_LD_ST_IMM_P },
   { "strh",      0x78000000, 0xfbe00000, 3, 'w', OP_LD_ST_IMM_P },
-  { "str",       0xb8000000, 0xfbe00000, 3, '0', OP_LD_ST_IMM_P },
+  { "str",       0xb8000000, 0xbbe00000, 3, '0', OP_LD_ST_IMM_P },
   { "strh",      0x78000000, 0xfbe00000, 3, 'w', OP_LD_ST_IMM_P },
   { "ldrb",      0x38400000, 0xfbe00000, 3, 'w', OP_LD_ST_IMM_P },
   { "ldrsb",     0x38400000, 0xfbe00000, 3, '0', OP_LD_ST_IMM_P },
   { "ldrh",      0x78400000, 0xfbe00000, 3, 'w', OP_LD_ST_IMM_P },
   { "ldrsh",     0x78400000, 0xfbe00000, 3, '0', OP_LD_ST_IMM_P },
-  { "ldr",       0xb8400000, 0xfbe00000, 3, '0', OP_LD_ST_IMM_P },
+  { "ldr",       0xb8400000, 0xbbe00000, 3, '0', OP_LD_ST_IMM_P },
 
   // C3.3.13 Load/store register (unsigned immediate).
   { "strb",      0x39000000, 0xfbe00000, 3, 'w', OP_LD_ST_IMM },
