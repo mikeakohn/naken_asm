@@ -9,7 +9,7 @@ def create_asm(instruction):
 
 # --------------------------------- fold here -------------------------------
 
-fp = open("arm64_template.txt", "r")
+fp = open("template/arm64.txt", "r")
 out = open("arm64.txt", "w")
 
 for instruction in fp:
@@ -18,7 +18,7 @@ for instruction in fp:
   print(instruction)
   create_asm(instruction)
 
-  os.system("as temp.asm")
+  os.system("as -mcpu=cortex-r82 temp.asm")
   os.system("objcopy -F ihex a.out arm64_gnu.hex")
 
   fp1 = open("arm64_gnu.hex", "r")
