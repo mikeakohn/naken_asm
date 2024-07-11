@@ -80,6 +80,11 @@ static uint64_t decode_imms(int imms, int immr, int sf)
   {
     size = 64;
   }
+    else
+  {
+    // Issue #127: If encoding doesn't match, don't use a size of 0.
+    return 0;
+  }
 
   // Create bit battern.
   int ones_count = (imms & (size - 1)) + 1;
@@ -415,12 +420,13 @@ int disasm_arm64(
           int immr = (opcode >> 16) & 0x3f;
           int imms = (opcode >> 10) & 0x3f;
 
-          if (sf == 1) { immr |= ((opcode >> 22) & 1) << 6; }
+          // If 64 bit, use N as the most significant bit of imms.
+          if (sf == 1) { imms |= ((opcode >> 22) & 1) << 6; }
 
           uint64_t imm = decode_imms(imms, immr, sf);
 
           snprintf(instruction, length,
-            "%s %c%d, %c%d, #0x%04" PRIx64 " (immr=%d imms=%d)",
+            "%s %c%d, %c%d, #0x%04" PRIx64 " (immr=%d imms=0x%02x)",
             table_arm64[n].instr,
             reg_size[sf], rd,
             reg_size[sf], rn,
