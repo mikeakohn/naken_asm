@@ -606,12 +606,17 @@ int disasm_arm64(
         case OP_LD_ST_IMM_P:
         {
           int index_type = (opcode >> 10) & 0x3;
-          char reg_name = (size & 1) == 0 ? 'x' : 'w';
+          char reg_name;
 
           if (v == 1)
           {
             size |= ((opcode >> 23) & 1) << 2;
             reg_name = scalar_size[size];
+          }
+            else
+          {
+            size = (opcode >> 30) & 1;
+            reg_name = (size & 1) == 0 ? 'w' : 'x';
           }
 
           imm = (opcode >> 12) & 0x1ff;

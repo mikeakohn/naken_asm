@@ -1084,6 +1084,8 @@ static int op_ld_st_imm_p(
 
   int p = operands[1].index_type == INDEX_PRE ? 3 : 1;
 
+  if (operands[0].type == OPERAND_REG_64) { size = 1; }
+
   opcode |= (size << 30) |
             (v << 26) |
             (opc << 22) |
