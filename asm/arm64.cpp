@@ -1942,6 +1942,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
           }
 
           operands[operand_count].offset_imm = num;
+          operands[operand_count].index_type = INDEX_POST;
 
           break;
         }
