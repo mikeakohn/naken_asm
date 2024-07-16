@@ -88,6 +88,8 @@ struct _operand
   uint8_t attribute;
   uint8_t element;
   uint8_t index_type;
+  // This is used for ld/st instructions where an option can be added.
+  uint8_t option;
 };
 
 static int get_vector_number(char **p, int *num)
@@ -399,6 +401,16 @@ static int get_register_arm64(
 static int get_register_arm64(char *s)
 {
   if (s[0] != 'x') { return -1; }
+
+  int num = get_reg_number(s + 1, 31);
+  if (num < 0 || num > 31) { return -1; }
+
+  return num;
+}
+
+static int get_register_arm32(char *s)
+{
+  if (s[0] != 'w') { return -1; }
 
   int num = get_reg_number(s + 1, 31);
   if (num < 0 || num > 31) { return -1; }
@@ -996,6 +1008,14 @@ for (int i = 0; i <= position; i++)
 printf("%d\n", pattern[i]);
 }
 #endif
+
+  // N imms  element size
+  // 0 1 1 1 1 0 x   2 bits
+  // 0 1 1 1 0 x x   4 bits
+  // 0 1 1 0 x x x   8 bits
+  // 0 1 0 x x x x   16 bits
+  // 0 0 x x x x x   32 bits
+  // 1 x x x x x x   64 bits
 
   int immr;
   int imms;
@@ -1611,6 +1631,21 @@ static int op_ld_st_reg_reg(
 
     s = 1;
   }
+    else
+  if (operands[1].option == OPTION_UXTW)
+  {
+    option = 2;
+  }
+    else
+  if (operands[1].option == OPTION_SXTW)
+  {
+    option = 6;
+  }
+    else
+  if (operands[1].option == OPTION_SXTX)
+  {
+    option = 7;
+  }
 
   opcode |= (size << 30) |
             (operands[1].offset_reg << 16) |
@@ -1816,6 +1851,7 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
   uint32_t opcode;
   int found = 0;
   int vector_size = -1;
+  bool is_reg_w;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -1888,6 +1924,9 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
       // [x0, x1]
       // [x0, x1, lsl #4]
+      // [x0, w1, uxtw]
+      // [x0, w1, sxtw]
+      // [x0, x1, sxtx]
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -1957,7 +1996,16 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
         token_type = tokens_get(asm_context, token, TOKENLEN);
 
+        is_reg_w = false;
+
         num = get_register_arm64(token);
+
+        if (num == -1)
+        {
+          num = get_register_arm32(token);
+
+          if (num != -1) { is_reg_w = true; }
+        }
 
         if (num == -1)
         {
@@ -2015,12 +2063,61 @@ int parse_instruction_arm64(AsmContext *asm_context, char *instr)
 
             if (strcasecmp(token, "lsl") == 0)
             {
+              if (is_reg_w)
+              {
+                print_error(asm_context,
+                  "lsl cannot be used with 32 bit register");
+                return -1;
+              }
+
               if (expect_token(asm_context, '#') == -1) { return -1; }
 
               token_type = tokens_get(asm_context, token, TOKENLEN);
               num = atoi(token);
 
               operands[operand_count].offset_shift = num;
+              operands[operand_count].option = OPTION_LSL;
+            }
+              else
+            if (strcasecmp(token, "sxtx") == 0)
+            {
+              if (is_reg_w)
+              {
+                print_error(asm_context,
+                  "sxtx cannot be used with 32 bit register");
+                return -1;
+              }
+
+              operands[operand_count].option = OPTION_SXTX;
+            }
+              else
+            if (strcasecmp(token, "uxtw") == 0)
+            {
+              if (!is_reg_w)
+              {
+                print_error(asm_context,
+                  "uxtw cannot be used with 64 bit register");
+                return -1;
+              }
+
+              operands[operand_count].option = OPTION_UXTW;
+            }
+              else
+            if (strcasecmp(token, "sxtw") == 0)
+            {
+              if (!is_reg_w)
+              {
+                print_error(asm_context,
+                  "sxtw cannot be used with 64 bit register");
+                return -1;
+              }
+
+              operands[operand_count].option = OPTION_SXTW;
+            }
+              else
+            {
+              print_error_unexp(asm_context, token);
+              return -1;
             }
 
             token_type = tokens_get(asm_context, token, TOKENLEN);

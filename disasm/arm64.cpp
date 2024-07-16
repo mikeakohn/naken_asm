@@ -824,28 +824,62 @@ int disasm_arm64(
         case OP_LD_ST_REG_REG:
         {
           int s = (opcode >> 12) & 1;
-          // FIXME: option can be something other than 3 (LSL).
-          //int option = (opcode >> 13) & 7;
+          int option = (opcode >> 13) & 7;
+
           size = (opcode >> 30) & 1;
 
-          if (s == 0)
+          switch (option)
           {
-            snprintf(instruction, length, "%s %c%d, [x%d, x%d]",
-              table_arm64[n].instr,
-              size == 0 ? 'w' : 'x',
-              rd,
-              rn,
-              rm);
-          }
-            else
-          {
-            snprintf(instruction, length, "%s %c%d, [x%d, x%d, lsl #%d]",
-              table_arm64[n].instr,
-              size == 0 ? 'w' : 'x',
-              rd,
-              rn,
-              rm,
-              size == 0 ? 2 : 3);
+            case 2:
+              snprintf(instruction, length, "%s %c%d, [x%d, w%d, uxtw]",
+                table_arm64[n].instr,
+                size == 0 ? 'w' : 'x',
+                rd,
+                rn,
+                rm);
+
+              break;
+            case 6:
+              snprintf(instruction, length, "%s %c%d, [x%d, w%d, sxtw]",
+                table_arm64[n].instr,
+                size == 0 ? 'w' : 'x',
+                rd,
+                rn,
+                rm);
+
+              break;
+            case 7:
+              snprintf(instruction, length, "%s %c%d, [x%d, x%d, sxtx]",
+                table_arm64[n].instr,
+                size == 0 ? 'w' : 'x',
+                rd,
+                rn,
+                rm);
+
+              break;
+            case 3:
+            default:
+              if (s == 0)
+              {
+                snprintf(instruction, length, "%s %c%d, [x%d, x%d]",
+                  table_arm64[n].instr,
+                  size == 0 ? 'w' : 'x',
+                  rd,
+                  rn,
+                  rm);
+              }
+                else
+              {
+                snprintf(instruction, length, "%s %c%d, [x%d, x%d, lsl #%d]",
+                  table_arm64[n].instr,
+                  size == 0 ? 'w' : 'x',
+                  rd,
+                  rn,
+                  rm,
+                    size == 0 ? 2 : 3);
+              }
+
+              break;
           }
 
           return 4;
