@@ -137,6 +137,16 @@ struct _table_riscv table_riscv[] =
   { "csrci",      0x00007073, 0x00007fff, OP_ALIAS_CSR_UIMM,    0 },
   // Regular instructions.
   { "lui",        0x00000037, 0x0000007f, OP_U_TYPE,     0 },
+  { "li.w",       0x00002077, 0xc000707f, OP_CISC_IMM32, 0 }, // CISC-V
+  { "li.d",       0x00003077, 0xc000707f, OP_CISC_IMM64, 0 }, // CISC-V
+  { "lb.base",    0x40002077, 0xc000707f, OP_CISC_BASE,  0 }, // CISC-V
+  { "lh.base",    0x40002077, 0xc000707f, OP_CISC_BASE,  0 }, // CISC-V
+  { "lw.base",    0x40002077, 0xc000707f, OP_CISC_BASE,  0 }, // CISC-V
+  { "lbu.base",   0x40002077, 0xc000707f, OP_CISC_BASE,  0 }, // CISC-V
+  { "lhu.base",   0x40002077, 0xc000707f, OP_CISC_BASE,  0 }, // CISC-V
+  { "sb.base",    0x80002077, 0xc000707f, OP_CISC_BASE,  0 }, // CISC-V
+  { "sh.base",    0x80002077, 0xc000707f, OP_CISC_BASE,  0 }, // CISC-V
+  { "sw.base",    0x80002077, 0xc000707f, OP_CISC_BASE,  0 }, // CISC-V
   { "auipc",      0x00000017, 0x0000007f, OP_U_TYPE,     0 },
   { "jal",        0x0000006f, 0x0000007f, OP_UJ_TYPE,    0 },
   { "jalr",       0x00000067, 0x0000707f, OP_I_TYPE,     0 },
@@ -146,6 +156,7 @@ struct _table_riscv table_riscv[] =
   { "bge",        0x00005063, 0x0000707f, OP_SB_TYPE,    0 },
   { "bltu",       0x00006063, 0x0000707f, OP_SB_TYPE,    0 },
   { "bgeu",       0x00007063, 0x0000707f, OP_SB_TYPE,    0 },
+
   { "lb",         0x00000003, 0x0000707f, OP_RD_INDEX_R, 0 },
   { "lh",         0x00001003, 0x0000707f, OP_RD_INDEX_R, 0 },
   { "lw",         0x00002003, 0x0000707f, OP_RD_INDEX_R, 0 },
@@ -154,6 +165,25 @@ struct _table_riscv table_riscv[] =
   { "sb",         0x00000023, 0x0000707f, OP_RS_INDEX_R, 0 },
   { "sh",         0x00001023, 0x0000707f, OP_RS_INDEX_R, 0 },
   { "sw",         0x00002023, 0x0000707f, OP_RS_INDEX_R, 0 },
+
+  { "lb.pre",     0x0000000b, 0x0000707f, OP_RD_INDEX_R, 0 }, // CISC-V
+  { "lh.pre",     0x0000100b, 0x0000707f, OP_RD_INDEX_R, 0 }, // CISC-V
+  { "lw.pre",     0x0000200b, 0x0000707f, OP_RD_INDEX_R, 0 }, // CISC-V
+  { "lbu.pre",    0x0000400b, 0x0000707f, OP_RD_INDEX_R, 0 }, // CISC-V
+  { "lhu.pre",    0x0000500b, 0x0000707f, OP_RD_INDEX_R, 0 }, // CISC-V
+  { "sb.pre",     0x0000002b, 0x0000707f, OP_RS_INDEX_R, 0 }, // CISC-V
+  { "sh.pre",     0x0000102b, 0x0000707f, OP_RS_INDEX_R, 0 }, // CISC-V
+  { "sw.pre",     0x0000202b, 0x0000707f, OP_RS_INDEX_R, 0 }, // CISC-V
+
+  { "lb.post",    0x0000000f, 0x0000707f, OP_RD_INDEX_R, 0 }, // CISC-V
+  { "lh.post",    0x0000100f, 0x0000707f, OP_RD_INDEX_R, 0 }, // CISC-V
+  { "lw.post",    0x0000200f, 0x0000707f, OP_RD_INDEX_R, 0 }, // CISC-V
+  { "lbu.post",   0x0000400f, 0x0000707f, OP_RD_INDEX_R, 0 }, // CISC-V
+  { "lhu.post",   0x0000500f, 0x0000707f, OP_RD_INDEX_R, 0 }, // CISC-V
+  { "sb.post",    0x0000002f, 0x0000707f, OP_RS_INDEX_R, 0 }, // CISC-V
+  { "sh.post",    0x0000102f, 0x0000707f, OP_RS_INDEX_R, 0 }, // CISC-V
+  { "sw.post",    0x0000202f, 0x0000707f, OP_RS_INDEX_R, 0 }, // CISC-V
+
   { "addi",       0x00000013, 0x0000707f, OP_I_TYPE,     0 },
   { "slti",       0x00002013, 0x0000707f, OP_I_TYPE,     0 },
   { "sltiu",      0x00003013, 0x0000707f, OP_I_TYPE,     0 },

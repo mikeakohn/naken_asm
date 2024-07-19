@@ -95,6 +95,7 @@ int disasm_riscv(
 {
   uint32_t opcode;
   uint32_t immediate;
+  uint64_t immediate64;
   int32_t offset;
   int32_t simmediate;
   int n;
@@ -431,6 +432,29 @@ int disasm_riscv(
             opcode >> 20,
             rs1);
           break;
+        case OP_CISC_IMM32:
+          immediate = memory->read32(address + 4);
+          snprintf(instruction, length, "%s %s, 0x%08x",
+            instr,
+            riscv_reg_names[rd],
+            immediate);
+          return 8;
+        case OP_CISC_IMM64:
+          immediate64 = memory->read32(address);
+          immediate64 |= (uint64_t)memory->read32(address) << 32;
+
+          snprintf(instruction, length, "%s %s, 0x%08lx",
+            instr,
+            riscv_reg_names[rd],
+            immediate64);
+          return 24;
+        case OP_CISC_BASE:
+          snprintf(instruction, length, "%s %s, %s, %s",
+            instr,
+            riscv_reg_names[rd],
+            riscv_reg_names[rs1],
+            riscv_reg_names[rs2]);
+          return 4;
         default:
           strcpy(instruction, "???");
           break;
@@ -807,7 +831,7 @@ void list_output_riscv(
     }
 #endif
 
-    start += 4;
+    start += count;
   }
 }
 
@@ -863,7 +887,7 @@ void disasm_range_riscv(
       printf("%d-%d\n", cycles_min, cycles_max);
     }
 
-    start = start + count;
+    start += count;
   }
 }
 
