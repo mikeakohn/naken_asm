@@ -94,19 +94,23 @@ int disasm_tms1000(
   bit_instr = opcode >> 6;
   uint8_t branch_address = opcode & 0x3f;
 
+  // FIXME: Linear address really depends on PB, so the previous ldp
+  // instruction could change the page making the linear address wrong.
   if (bit_instr == 0x2)
   {
-    snprintf(instruction, length, "br 0x%02x  (linear_address=0x%02x)",
+    snprintf(instruction, length, "br 0x%02x  (linear_address=%d / 0x%02x)",
       branch_address,
-      tms1000_lsfr_to_address[branch_address]);
+      tms1000_lsfr_to_address[branch_address],
+      (address & 0xffc0) | tms1000_lsfr_to_address[branch_address]);
     return 1;
   }
     else
   if (bit_instr == 0x3)
   {
-    snprintf(instruction, length, "call 0x%02x  (linear_address=0x%02x)",
+    snprintf(instruction, length, "call 0x%02x  (linear_address=%d / 0x%02x)",
       branch_address,
-      tms1000_lsfr_to_address[branch_address]);
+      tms1000_lsfr_to_address[branch_address],
+      (address & 0xffc0) | tms1000_lsfr_to_address[branch_address]);
     return 1;
   }
 
@@ -174,19 +178,23 @@ int disasm_tms1100(
   //if ((offset & 0x20) != 0) { offset |= 0xc0; }
   //int branch_address = (address + 1) + offset;
 
+  // FIXME: Linear address really depends on PB, so the previous ldp
+  // instruction could change the page making the linear address wrong.
   if (bit_instr == 0x2)
   {
-     snprintf(instruction, length, "br 0x%02x (linear_address=0x%02x)",
+     snprintf(instruction, length, "br 0x%02x (linear_address=%d / 0x%02x)",
        branch_address,
-       tms1000_lsfr_to_address[branch_address]);
+       tms1000_lsfr_to_address[branch_address],
+       (address & 0xffc0) | tms1000_lsfr_to_address[branch_address]);
      return 1;
   }
     else
   if (bit_instr == 0x3)
   {
-    snprintf(instruction, length, "call 0x%02x (linear_address=0x%02x)",
+    snprintf(instruction, length, "call 0x%02x (linear_address=%d / 0x%02x)",
       branch_address,
-      tms1000_lsfr_to_address[branch_address]);
+      tms1000_lsfr_to_address[branch_address],
+      (address & 0xffc0) | tms1000_lsfr_to_address[branch_address]);
     return 1;
   }
 
@@ -222,7 +230,13 @@ void list_output_tms1000(
     &cycles_min,
     &cycles_max);
 
-  fprintf(asm_context->list, "%03x %x/%02x: %02x %-40s cycles: ", start, page, lsfr, opcode, instruction);
+  fprintf(asm_context->list, "%03x|%d %x/%02x: %02x %-40s cycles: ",
+    start,
+    start & 0x3f,
+    page,
+    lsfr,
+    opcode,
+    instruction);
 
   if (cycles_min == cycles_max)
   {
@@ -261,7 +275,14 @@ void list_output_tms1100(
     &cycles_min,
     &cycles_max);
 
-  fprintf(asm_context->list, "%03x %d/%x/%02x: %02x %-40s cycles: ", start, chapter, page, lsfr, opcode, instruction);
+  fprintf(asm_context->list, "%03x|%d %d/%x/%02x: %02x %-40s cycles: ",
+    start,
+    start & 0x3f,
+    chapter,
+    page,
+    lsfr,
+    opcode,
+    instruction);
 
   if (cycles_min == cycles_max)
   {
@@ -310,16 +331,37 @@ void disasm_range_tms1000(
 
     if (cycles_min < 1)
     {
-      printf("%03x  %x/%02x: %02x    %-40s ?\n", start, page, lsfr, num, instruction);
+      printf("%03x|%d %x/%02x: %02x    %-40s ?\n",
+        start,
+        start & 0x3f,
+        page,
+        lsfr,
+        num,
+        instruction);
     }
       else
     if (cycles_min == cycles_max)
     {
-      printf("%03x  %x/%02x: %02x    %-40s %d\n", start, page, lsfr, num, instruction, cycles_min);
+      printf("%03x|%d %x/%02x: %02x    %-40s %d\n",
+        start,
+        start & 0x3f,
+        page,
+        lsfr,
+        num,
+        instruction,
+        cycles_min);
     }
       else
     {
-      printf("%03x  %x/%02x: %02x    %-40s %d-%d\n", start, page, lsfr, num, instruction, cycles_min, cycles_max);
+      printf("%03x|%d %x/%02x: %02x    %-40s %d-%d\n",
+        start,
+        start & 0x3f,
+        page,
+        lsfr,
+        num,
+        instruction,
+        cycles_min,
+        cycles_max);
     }
 
     start++;
@@ -363,16 +405,40 @@ void disasm_range_tms1100(
 
     if (cycles_min < 1)
     {
-      printf("%03x %d/%x/%02x: %02x     %-40s ?\n", start, chapter, page, lsfr, num, instruction);
+      printf("%03x|%d %d/%x/%02x: %02x     %-40s ?\n",
+        start,
+        start & 0x3f,
+        chapter,
+        page,
+        lsfr,
+        num,
+        instruction);
     }
       else
     if (cycles_min == cycles_max)
     {
-      printf("%03x %d/%x/%02x: %02x     %-40s %d\n", start, chapter, page, lsfr, num, instruction, cycles_min);
+      printf("%03x|%d %d/%x/%02x: %02x     %-40s %d\n",
+        start,
+        start & 0x3f,
+        chapter,
+        page,
+        lsfr,
+        num,
+        instruction,
+        cycles_min);
     }
       else
     {
-      printf("%03x %d/%x/%02x: %02x     %-40s %d-%d\n", start, chapter, page, lsfr, num, instruction, cycles_min, cycles_max);
+      printf("%03x|%d %d/%x/%02x: %02x     %-40s %d-%d\n",
+        start,
+        start & 0x3f,
+        chapter,
+        page,
+        lsfr,
+        num,
+        instruction,
+        cycles_min,
+        cycles_max);
     }
 
     start++;
