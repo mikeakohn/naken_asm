@@ -133,7 +133,7 @@ void SimulateTms1000::set_pc(uint32_t value)
 
 void SimulateTms1000::dump_registers()
 {
-  printf("pa:pc=%x:%02x pb=%x cl=%d sr=%x\n",
+  printf("pa:pc=%x:%02x pb=%x cl=%d sr=%x -- ",
     pa,
     pc,
     pb,
@@ -183,7 +183,7 @@ int SimulateTms1000::run(int max_cycles, int step)
 
       while (n < 12)
       {
-        int cycles_min,cycles_max;
+        int cycles_min, cycles_max;
         int num, count;
 
         num = memory->read8((pa << 6) | pc_current);
@@ -241,7 +241,10 @@ int SimulateTms1000::run(int max_cycles, int step)
 
     if (ret == -1)
     {
-      printf("Illegal instruction 0x%04x at address 0x%04x\n", opcode, pc_current);
+      printf("Illegal instruction 0x%04x at address 0x%04x\n",
+        opcode,
+        pc_current);
+
       return -1;
     }
 
@@ -286,7 +289,7 @@ int SimulateTms1000::run(int max_cycles, int step)
 
 int SimulateTms1000::execute(uint8_t opcode, uint8_t &update_s)
 {
-  const int xy = reg_x << 6 | reg_y;
+  const int xy = reg_x << 4 | reg_y;
 
   if ((opcode & 0xfc) == 0x3c)
   {
@@ -617,7 +620,7 @@ int SimulateTms1000::execute(uint8_t opcode, uint8_t &update_s)
     case 0x2c:
     {
       // dyn.
-      update_s = reg_y >= 0 ? 1: 0;
+      update_s = reg_y >= 1 ? 1: 0;
       reg_y = (reg_y - 1) & 0xf;
       break;
     }
@@ -644,7 +647,7 @@ int SimulateTms1000::execute(uint8_t opcode, uint8_t &update_s)
     }
     default:
     {
-      printf("Unknown opcode 0x%02x\n", opcode);
+      //printf("Unknown opcode 0x%02x\n", opcode);
       return -1;
     }
   }
