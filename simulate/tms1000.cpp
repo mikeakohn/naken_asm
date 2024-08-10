@@ -36,7 +36,7 @@ Simulate *SimulateTms1000::init(Memory *memory)
 void SimulateTms1000::reset()
 {
   pc = 0x00;
-  pb = 0x0;
+  pb = 0xf;
   pa = 0xf;
   cl = 0x0;
   sr = 0x0;
@@ -190,7 +190,7 @@ int SimulateTms1000::run(int max_cycles, int step)
 
         count = disasm_tms1000(
           memory,
-          (pa << 6) | pc_current,
+          (pa << 6) | tms1000_lsfr_to_address[pc_current],
           instruction,
           sizeof(instruction),
           0,
@@ -425,6 +425,8 @@ int SimulateTms1000::execute(uint8_t opcode, uint8_t &update_s)
     case 0x04:
     {
       // tamza.
+      ram[xy] = reg_a;
+      reg_a = 0;
       break;
     }
     case 0x05:
@@ -502,13 +504,13 @@ int SimulateTms1000::execute(uint8_t opcode, uint8_t &update_s)
     case 0x0c:
     {
       // rstr.
-      r_pins &= 0xffff ^ (1 << reg_a);
+      r_pins &= 0xffff ^ (1 << reg_y);
       break;
     }
     case 0x0d:
     {
       // setr.
-      r_pins |= 1 << reg_a;
+      r_pins |= 1 << reg_y;
       break;
     }
     case 0x0e:
@@ -586,7 +588,7 @@ int SimulateTms1000::execute(uint8_t opcode, uint8_t &update_s)
     {
       // imac.
       temp = ram[xy] + 1;
-      reg_a = reg_a & 0xf;
+      reg_a = temp & 0xf;
       update_s = temp != reg_a ? 1 : 0;
       break;
     }
