@@ -636,6 +636,7 @@ for option in $@; do
     ASM_OBJS="${ASM_OBJS} tms1000.o"
     DISASM_OBJS="${DISASM_OBJS} tms1000.o"
     TABLE_OBJS="${TABLE_OBJS} tms1000.o"
+    SIM_OBJS="${SIM_OBJS} tms1000.o"
     DFLAGS="${DFLAGS} -DENABLE_TMS1000"
   ;;
   --enable-tms9900)

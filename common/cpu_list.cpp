@@ -134,6 +134,7 @@
 #include "simulate/msp430.h"
 #include "simulate/riscv.h"
 #include "simulate/stm8.h"
+#include "simulate/tms1000.h"
 #include "simulate/tms9900.h"
 #include "simulate/z80.h"
 
@@ -1544,7 +1545,7 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_tms1000,
     disasm_range_tms1000,
-    NULL,
+    SimulateTms1000::init,
     NO_FLAGS,
   },
   {
