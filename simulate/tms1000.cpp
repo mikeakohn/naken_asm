@@ -150,7 +150,7 @@ void SimulateTms1000::dump_registers()
 
   printf(" y=%x   k=%x     cl=%d   xy=%02x\n",
     reg_y,
-    o_pins,
+    k_pins,
     cl,
     (reg_x << 4) | reg_y);
 
