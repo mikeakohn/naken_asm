@@ -331,7 +331,7 @@ void disasm_range_tms1000(
 
     if (cycles_min < 1)
     {
-      printf("%03x|%d %x/%02x: %02x    %-40s ?\n",
+      printf("%03x|%-2d %x/%02x: %02x    %-40s ?\n",
         start,
         start & 0x3f,
         page,
@@ -342,7 +342,7 @@ void disasm_range_tms1000(
       else
     if (cycles_min == cycles_max)
     {
-      printf("%03x|%d %x/%02x: %02x    %-40s %d\n",
+      printf("%03x|%-2d %x/%02x: %02x    %-40s %d\n",
         start,
         start & 0x3f,
         page,
@@ -353,7 +353,7 @@ void disasm_range_tms1000(
     }
       else
     {
-      printf("%03x|%d %x/%02x: %02x    %-40s %d-%d\n",
+      printf("%03x|%-2d %x/%02x: %02x    %-40s %d-%d\n",
         start,
         start & 0x3f,
         page,
@@ -405,7 +405,7 @@ void disasm_range_tms1100(
 
     if (cycles_min < 1)
     {
-      printf("%03x|%d %d/%x/%02x: %02x     %-40s ?\n",
+      printf("%03x|%-2d %d/%x/%02x: %02x     %-40s ?\n",
         start,
         start & 0x3f,
         chapter,
@@ -417,7 +417,7 @@ void disasm_range_tms1100(
       else
     if (cycles_min == cycles_max)
     {
-      printf("%03x|%d %d/%x/%02x: %02x     %-40s %d\n",
+      printf("%03x|%-2d %d/%x/%02x: %02x     %-40s %d\n",
         start,
         start & 0x3f,
         chapter,
@@ -429,7 +429,7 @@ void disasm_range_tms1100(
     }
       else
     {
-      printf("%03x|%d %d/%x/%02x: %02x     %-40s %d-%d\n",
+      printf("%03x|%-2d %d/%x/%02x: %02x     %-40s %d-%d\n",
         start,
         start & 0x3f,
         chapter,

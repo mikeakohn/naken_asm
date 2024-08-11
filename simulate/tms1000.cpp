@@ -209,7 +209,7 @@ int SimulateTms1000::run(int max_cycles, int step)
           &cycles_min,
           &cycles_max);
 
-        printf("%c", pc_current == break_point ? '*' : ' ');
+        printf("%c", ((curr_pa << 6) | pc_current) == break_point ? '*' : ' ');
 
         if (n == 0)
         {
@@ -264,7 +264,7 @@ int SimulateTms1000::run(int max_cycles, int step)
 
     printf("\n");
 
-    if (break_point == pc)
+    if ((break_point >> 8) == pa && (break_point & 0x3f) == pc)
     {
       printf("Breakpoint hit at 0x%04x\n", break_point);
       break;
@@ -338,6 +338,7 @@ int SimulateTms1000::execute(uint8_t opcode, uint8_t &update_s)
   {
     // 0110xxxx tcmiy [-]
     ram[xy] = tms1000_reverse_constant[opcode & 0xf];
+    reg_y = (reg_y + 1) & 0xf;
     return 0;
   }
 
@@ -422,7 +423,7 @@ int SimulateTms1000::execute(uint8_t opcode, uint8_t &update_s)
     {
       // a8aac.
       temp = reg_a + 8;
-      reg_a &= 0xf;
+      reg_a = temp & 0xf;
       update_s = reg_a != temp ? 1 : 0;
       break;
     }
@@ -449,7 +450,7 @@ int SimulateTms1000::execute(uint8_t opcode, uint8_t &update_s)
     {
       // a10aac.
       temp = reg_a + 10;
-      reg_a &= 0xf;
+      reg_a = temp & 0xf;
       update_s = reg_a != temp ? 1 : 0;
       break;
     }
@@ -457,7 +458,7 @@ int SimulateTms1000::execute(uint8_t opcode, uint8_t &update_s)
     {
       // a6aac.
       temp = reg_a + 6;
-      reg_a &= 0xf;
+      reg_a = reg_a & 0xf;
       update_s = reg_a != temp ? 1 : 0;
       break;
     }
@@ -701,7 +702,7 @@ void SimulateTms1000::dump_ram()
   {
     if ((i % 16) == 0)
     {
-      printf("\n %2x:", i);
+      printf("\n %02x:", i);
     }
 
     printf(" %x", ram[i]);
