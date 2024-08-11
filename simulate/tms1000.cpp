@@ -128,25 +128,32 @@ uint32_t SimulateTms1000::get_reg(const char *reg_string)
 
 void SimulateTms1000::set_pc(uint32_t value)
 {
-  pc = value;
+  pc = value & 0x3f;
+  pa = (value >> 6) & 0xf;
 }
 
 void SimulateTms1000::dump_registers()
 {
-  printf("pa:pc=%x:%02x pb=%x cl=%d sr=%x -- ",
-    pa,
-    pc,
-    pb,
-    cl,
-    sr);
+  printf(" REG   I/O     BR     PC\n");
 
-  printf("a=%x x=%x y=%x  s=%x\n",
+  printf(" a=%x   r=%04x  pb=%x   pa/pc=%x/%02x\n",
     reg_a,
+    r_pins,
+    pb,
+    pa, pc);
+
+  printf(" x=%x   o=%02x    sr=%d   s=%d\n",
     reg_x,
-    reg_y,
+    o_pins,
+    sr,
     s_flag);
 
-  printf("r=%04x  o=%02x  k=%x\n", r_pins, o_pins, k_pins);
+  printf(" y=%x   k=%x     cl=%d   xy=%02x\n",
+    reg_y,
+    o_pins,
+    cl,
+    (reg_x << 4) | reg_y);
+
   printf("\n");
 }
 
@@ -170,9 +177,11 @@ int SimulateTms1000::run(int max_cycles, int step)
 
     if (show == true) { printf("\x1b[1J\x1b[1;1H"); }
 
+    uint8_t curr_pa = pa;
     uint8_t update_s = 1;
     ret = execute(opcode, update_s);
     s_flag = update_s;
+    cycle_count += 6;
 
     if (show == true)
     {
@@ -181,16 +190,16 @@ int SimulateTms1000::run(int max_cycles, int step)
 
       n = 0;
 
-      while (n < 12)
+      while (n < 10)
       {
         int cycles_min, cycles_max;
         int num, count;
 
-        num = memory->read8((pa << 6) | pc_current);
+        num = memory->read8((curr_pa << 6) | pc_current);
 
         count = disasm_tms1000(
           memory,
-          (pa << 6) | tms1000_lsfr_to_address[pc_current],
+          (curr_pa << 6) | tms1000_lsfr_to_address[pc_current],
           instruction,
           sizeof(instruction),
           0,
