@@ -168,6 +168,9 @@ int SimulateTms1000::run(int max_cycles, int step)
 
   printf("Running... Press Ctl-C to break.\n");
 
+  enable_signal_handler();
+  stop_running = false;
+
   while (stop_running == false)
   {
     opcode = memory->read8((pa << 6) | pc);
@@ -335,6 +338,7 @@ int SimulateTms1000::execute(uint8_t opcode, uint8_t &update_s)
   {
     // 0110xxxx tcmiy [-]
     ram[xy] = tms1000_reverse_constant[opcode & 0xf];
+    return 0;
   }
 
   if ((opcode & 0xf0) == 0x70)
