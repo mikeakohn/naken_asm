@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -353,8 +353,7 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
   if (operand_count < 0) { return -1; }
 
-  n = 0;
-  while (table_powerpc[n].instr != NULL)
+  for (n = 0; table_powerpc[n].instr != NULL; n++)
   {
     if (strcmp(table_powerpc[n].instr, instr_case) == 0)
     {
@@ -362,14 +361,12 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
       if (modifiers.has_dot == 1 && !(table_powerpc[n].flags & FLAG_DOT))
       {
-        n++;
         continue;
       }
 
       if (modifiers.has_dot == 0 &&
          ((table_powerpc[n].flags & FLAG_REQUIRE_DOT) == FLAG_REQUIRE_DOT))
       {
-        n++;
         continue;
       }
 
@@ -1876,12 +1873,78 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
           return 4;
         }
+        case OP_TO_RA_RB:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 31)
+          {
+            print_error_range(asm_context, "Constant", 0, 31);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+            (operands[0].value << 21) |
+            (operands[1].value << 16) |
+            (operands[2].value << 11);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_TO_RA_UIMM:
+        {
+          if (operand_count != 3)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_REGISTER ||
+              operands[2].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].value < 0 || operands[0].value > 31)
+          {
+            print_error_range(asm_context, "Constant", 0, 31);
+            return -1;
+          }
+
+          if (operands[2].value < 0 || operands[2].value > 0xffff)
+          {
+            print_error_range(asm_context, "Immediate", 0, 0xffff);
+            return -1;
+          }
+
+          opcode = table_powerpc[n].opcode |
+            (operands[0].value << 21) |
+            (operands[1].value << 16) |
+            (operands[2].value);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
         default:
           break;
       }
     }
-
-    n++;
   }
 
   if (matched == 1)

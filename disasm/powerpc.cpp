@@ -20,12 +20,9 @@ static const char *cmp_bits[] = { "fl", "fg", "fe", "fu", "4", "5", "6", "7" };
 
 const char *get_spr_name(int value)
 {
-  int n = 0;
-
-  while (powerpc_spr[n].name != NULL)
+  for (int n = 0; powerpc_spr[n].name != NULL; n++)
   {
     if (value == powerpc_spr[n].value) { return powerpc_spr[n].name; }
-    n++;
   }
 
   return NULL;
@@ -45,15 +42,13 @@ int disasm_powerpc(
   int32_t offset;
   int32_t temp;
   int cr, bf, u, bfa;
-  int n;
 
   *cycles_min = -1;
   *cycles_max = -1;
 
   opcode = memory->read32(address);
 
-  n = 0;
-  while (table_powerpc[n].instr != NULL)
+  for (int n = 0; table_powerpc[n].instr != NULL; n++)
   {
     if ((opcode & table_powerpc[n].mask) == table_powerpc[n].opcode)
     {
@@ -356,6 +351,12 @@ int disasm_powerpc(
           }
           snprintf(instruction, length, "%s%s %d", instr, dot, rd);
           break;
+        case OP_TO_RA_RB:
+          snprintf(instruction, length, "%s %d, r%d, r%d", instr, rd, ra, rb);
+          break;
+        case OP_TO_RA_UIMM:
+          snprintf(instruction, length, "%s %d, r%d, 0x%04x", instr, rd, ra, opcode & 0xffff);
+          break;
         default:
           strcpy(instruction, "???");
           break;
@@ -363,8 +364,6 @@ int disasm_powerpc(
 
       return 4;
     }
-
-    n++;
   }
 
   strcpy(instruction, "???");
@@ -398,7 +397,7 @@ void list_output_powerpc(
       &cycles_min,
       &cycles_max);
 
-    fprintf(asm_context->list, "0x%08x: 0x%08x %-40s cycles: ", start, opcode, instruction);
+    fprintf(asm_context->list, "0x%08x: 0x%08x %-40s", start, opcode, instruction);
 
     if (cycles_min == -1)
     {
@@ -407,11 +406,11 @@ void list_output_powerpc(
       else
     if (cycles_min == cycles_max)
     {
-      fprintf(asm_context->list, "%d\n", cycles_min);
+      fprintf(asm_context->list, "cycles: %d\n", cycles_min);
     }
       else
     {
-      fprintf(asm_context->list, "%d-%d\n", cycles_min, cycles_max);
+      fprintf(asm_context->list, "cycles: %d-%d\n", cycles_min, cycles_max);
     }
 
     start += 4;

@@ -73,6 +73,8 @@ enum
   OP_BF_U,
   OP_FLM_FRB,
   OP_BT,
+  OP_TO_RA_RB,
+  OP_TO_RA_UIMM,
 };
 
 #define FLAG_NONE 0
