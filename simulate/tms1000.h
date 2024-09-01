@@ -32,10 +32,11 @@ public:
   virtual void dump_registers();
   virtual int run(int max_cycles, int step);
 
+  virtual int dump_ram(int start, int end);
+
 private:
   int execute(uint8_t opcode, uint8_t &update_s);
   int increment_pc(int pc);
-  void dump_ram();
 
   uint8_t pc;
   uint8_t pa;

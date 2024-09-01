@@ -189,7 +189,7 @@ int SimulateTms1000::run(int max_cycles, int step)
     if (show == true)
     {
       dump_registers();
-      dump_ram();
+      dump_ram(0, 63);
 
       n = 0;
 
@@ -295,6 +295,27 @@ int SimulateTms1000::run(int max_cycles, int step)
 
   printf("Stopped.  PC=0x%04x.\n", pc);
   printf("%d clock cycles have passed since last reset.\n", cycle_count);
+
+  return 0;
+}
+
+int SimulateTms1000::dump_ram(int start, int end)
+{
+  printf("RAM:");
+
+  if (end >= 64) { end = 63; }
+
+  for (int i = start; i <= end; i++)
+  {
+    if ((i % 16) == 0)
+    {
+      printf("\n %02x:", i);
+    }
+
+    printf(" %x", ram[i]);
+  }
+
+  printf("\n\n");
 
   return 0;
 }
@@ -692,22 +713,5 @@ int SimulateTms1000::increment_pc(int pc)
   pc = (pc << 1 | fb) & 0x3f;
 
   return pc;
-}
-
-void SimulateTms1000::dump_ram()
-{
-  printf("RAM:");
-
-  for (int i = 0; i < 64; i++)
-  {
-    if ((i % 16) == 0)
-    {
-      printf("\n %02x:", i);
-    }
-
-    printf(" %x", ram[i]);
-  }
-
-  printf("\n\n");
 }
 
