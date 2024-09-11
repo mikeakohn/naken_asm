@@ -75,6 +75,8 @@ enum
   OP_BT,
   OP_TO_RA_RB,
   OP_TO_RA_UIMM,
+  OP_CMP_FULL,
+  OP_CMPI_FULL,
 };
 
 #define FLAG_NONE 0

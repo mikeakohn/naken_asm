@@ -65,6 +65,7 @@ int disasm_powerpc(
       uint32_t vc;
       int8_t vsimm;
       const char *dot = "";
+      int crfd, l;
 
       switch (table_powerpc[n].type)
       {
@@ -356,6 +357,28 @@ int disasm_powerpc(
           break;
         case OP_TO_RA_UIMM:
           snprintf(instruction, length, "%s %d, r%d, 0x%04x", instr, rd, ra, opcode & 0xffff);
+          break;
+        case OP_CMP_FULL:
+          crfd = (opcode >> 23) & 0x7;
+          l = (opcode >> 21) & 1;
+
+          snprintf(instruction, length, "%s %d, %d, r%d, r%d",
+            instr, crfd, l, ra, rb);
+          break;
+        case OP_CMPI_FULL:
+          crfd = (opcode >> 23) & 0x7;
+          l = (opcode >> 21) & 1;
+
+          if ((opcode >> 26) == 10)
+          {
+            snprintf(instruction, length, "%s %d, %d, r%d, %d",
+              instr, crfd, l, ra, opcode & 0xffff);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s %d, %d, r%d, %d",
+              instr, crfd, l, ra, (int16_t)(opcode & 0xffff));
+          }
           break;
         default:
           strcpy(instruction, "???");

@@ -1941,6 +1941,75 @@ int parse_instruction_powerpc(AsmContext *asm_context, char *instr)
 
           return 4;
         }
+        case OP_CMP_FULL:
+        {
+          if (operand_count != 4)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_NUMBER ||
+              operands[2].type != OPERAND_REGISTER ||
+              operands[3].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (check_range(asm_context, "cr", operands[0].value, 0, 7) == -1) { return -1; }
+          if (check_range(asm_context, "L", operands[1].value, 0, 1) == -1) { return -1; }
+
+          opcode = table_powerpc[n].opcode |
+            (operands[0].value << 23) |
+            (operands[1].value << 21) |
+            (operands[2].value << 16) |
+            (operands[3].value << 11);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
+        }
+        case OP_CMPI_FULL:
+        {
+          if (operand_count != 4)
+          {
+            print_error_opcount(asm_context, instr);
+            return -1;
+          }
+
+          if (operands[0].type != OPERAND_NUMBER ||
+              operands[1].type != OPERAND_NUMBER ||
+              operands[2].type != OPERAND_REGISTER ||
+              operands[3].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if ((table_powerpc[n].opcode >> 26) == 10)
+          {
+            // cmpli (unsigned).
+            if (check_range(asm_context, "Immediate", operands[3].value, 0, 0xffff) == -1) { return -1; }
+          }
+          else
+          {
+            // cmpi (signed).
+            if (check_range(asm_context, "Immediate", operands[3].value, -32768, 32767) == -1) { return -1; }
+          }
+
+          if (check_range(asm_context, "cr", operands[0].value, 0, 7) == -1) { return -1; }
+          if (check_range(asm_context, "L", operands[1].value, 0, 1) == -1) { return -1; }
+
+          opcode = table_powerpc[n].opcode |
+            (operands[0].value << 23) |
+            (operands[1].value << 21) |
+            (operands[2].value << 16) |
+            (operands[3].value & 0xffff);
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+          return 4;
+        }
         default:
           break;
       }
