@@ -9,6 +9,8 @@
  *
  */
 
+// Apollo Guidance Computer.
+
 #ifndef NAKEN_ASM_TABLE_AGC_H
 #define NAKEN_ASM_TABLE_AGC_H
 
@@ -28,9 +30,11 @@ struct _table_agc
   uint16_t    opcode;
   uint16_t    mask;
   uint8_t     type;
-  bool        extended;
+  bool        is_extra_code;
   uint8_t     cycles;
 };
+
+extern struct _table_agc table_agc[];
 
 #endif
 

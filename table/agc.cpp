@@ -9,6 +9,8 @@
  *
  */
 
+// Apollo Guidance Computer.
+
 #include <stdlib.h>
 
 #include "table/agc.h"
