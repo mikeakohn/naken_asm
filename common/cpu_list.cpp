@@ -23,6 +23,7 @@
 #include "asm/8048.h"
 #include "asm/8051.h"
 #include "asm/86000.h"
+#include "asm/agc.h"
 #include "asm/arc.h"
 #include "asm/arm.h"
 #include "asm/arm64.h"
@@ -79,6 +80,7 @@
 #include "disasm/8048.h"
 #include "disasm/8051.h"
 #include "disasm/86000.h"
+#include "disasm/agc.h"
 #include "disasm/arc.h"
 #include "disasm/arm.h"
 #include "disasm/arm64.h"
@@ -507,6 +509,30 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_86000,
     disasm_range_86000,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_AGC
+  {
+    "agc",
+    CPU_TYPE_AGC,
+    ENDIAN_LITTLE,
+    2,
+    ALIGN_2,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_agc,
+    NULL,
+    link_not_supported,
+    list_output_agc,
+    disasm_range_agc,
     NULL,
     NO_FLAGS,
   },

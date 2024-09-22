@@ -31,6 +31,7 @@ CPUS=" \
   8048
   8051
   86000
+  AGC
   ARC
   ARM
   ARM64
@@ -422,6 +423,11 @@ for option in $@; do
     DISASM_OBJS="${DISASM_OBJS} 86000.o"
     TABLE_OBJS="${TABLE_OBJS} 86000.o"
     DFLAGS="${DFLAGS} -DENABLE_86000"
+  ;;
+  --enable-agc)
+    ASM_OBJS="${ASM_OBJS} agc.o"
+    DISASM_OBJS="${DISASM_OBJS} agc.o"
+    DFLAGS="${DFLAGS} -DENABLE_AGC"
   ;;
   --enable-arc)
     ASM_OBJS="${ASM_OBJS} arc.o"

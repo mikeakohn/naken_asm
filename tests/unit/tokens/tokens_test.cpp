@@ -13,8 +13,8 @@ void test_constants()
   char token[TOKENLEN];
   int token_type;
   int i;
-  const char *test = { "1234 0x12 0b11001001 0100b 20h \"\\n\\t\\r\"" };
-  const char *answer[] = { "1234", "18", "201", "4", "32", "\n\t\r", NULL };
+  const char *test = { "1234 012  0x12 0b11001001 0100b 20h \"\\n\\t\\r\"" };
+  const char *answer[] = { "1234", "10", "18", "201", "4", "32", "\n\t\r", NULL };
 
   printf(" - test_constants - \n");
 

@@ -51,6 +51,9 @@ int disasm_agc(
     if (((opcode & table_agc[n].mask) == table_agc[n].opcode) &&
         table_agc[n].is_extra_code == is_extra_code)
     {
+      *cycles_min = table_agc[n].cycles;
+      *cycles_max = table_agc[n].cycles;
+
       switch (table_agc[n].type)
       {
         case AGC_OP_NONE:
@@ -60,7 +63,7 @@ int disasm_agc(
         }
         case AGC_OP_K10:
         {
-          snprintf(instruction, length, "%s %d",
+          snprintf(instruction, length, "%s 0%o",
             table_agc[n].instr,
             opcode & 0x3ff);
 
@@ -68,7 +71,7 @@ int disasm_agc(
         }
         case AGC_OP_K12:
         {
-          snprintf(instruction, length, "%s %d",
+          snprintf(instruction, length, "%s 0%o",
             table_agc[n].instr,
             opcode & 0xfff);
 
@@ -76,7 +79,7 @@ int disasm_agc(
         }
         case AGC_OP_IO:
         {
-          snprintf(instruction, length, "%s %d",
+          snprintf(instruction, length, "%s 0%o",
             table_agc[n].instr,
             opcode & 0x1ff);
 
@@ -103,10 +106,8 @@ void list_output_agc(
 {
   char instruction[128];
   char temp[32];
-  char temp2[4];
   int cycles_min, cycles_max;
   int count;
-  int n;
 
   Memory *memory = &asm_context->memory;
 
@@ -123,14 +124,22 @@ void list_output_agc(
       &cycles_min,
       &cycles_max);
 
-    temp[0] = 0;
-    for (n = 0; n < count; n++)
+    if (count == 2)
     {
-      snprintf(temp2, sizeof(temp2), "%02x ", memory->read8(start + n));
-      strcat(temp, temp2);
+      snprintf(temp, sizeof(temp), "      %05o ", memory->read16(start));
+    }
+      else
+    {
+      snprintf(temp, sizeof(temp), "%05o %05o ",
+        memory->read16(start + 0),
+        memory->read16(start + 2));
     }
 
-    fprintf(asm_context->list, "0x%04x: %-10s %-40s\n", start, temp, instruction);
+    fprintf(asm_context->list, "0o%04o: %-11s %-40s  %d\n",
+      start,
+      temp,
+      instruction,
+      cycles_min);
 
     start += count;
   }
@@ -144,15 +153,13 @@ void disasm_range_agc(
 {
   char instruction[128];
   char temp[32];
-  char temp2[4];
   int cycles_min, cycles_max;
   int count;
-  int n;
 
   printf("\n");
 
-  printf("%-7s %-5s %-40s\n", "Addr", "Opcode", "Instruction");
-  printf("------- ------ ----------------------------------       ------\n");
+  printf("%-7s %-11s %-40s Cycles\n", "Addr", "Opcode", "Instruction");
+  printf("------- ----------- ----------------------------------       ------\n");
 
   while (start <= end)
   {
@@ -165,15 +172,22 @@ void disasm_range_agc(
       &cycles_min,
       &cycles_max);
 
-    temp[0] = 0;
-
-    for (n = 0; n < count; n++)
+    if (count == 2)
     {
-      snprintf(temp2, sizeof(temp2), "%02x ", memory->read8(start + n));
-      strcat(temp, temp2);
+      snprintf(temp, sizeof(temp), "      %05o", memory->read16(start));
+    }
+      else
+    {
+      snprintf(temp, sizeof(temp), "%05o %05o",
+        memory->read16(start + 0),
+        memory->read16(start + 2));
     }
 
-    printf("0x%04x: %-10s %-40s\n", start, temp, instruction);
+    printf("0o%04o: %-11s %-40s  %d\n",
+      start,
+      temp,
+      instruction,
+      cycles_min);
 
     start = start + count;
   }

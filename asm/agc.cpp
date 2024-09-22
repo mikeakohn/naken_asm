@@ -23,11 +23,11 @@
 #include "common/eval_expression.h"
 #include "table/agc.h"
 
-#define MAX_OPERANDS 2
+#define MAX_OPERANDS 1
 
 enum
 {
-  OPERAND_REG,
+  OPERAND_NONE,
   OPERAND_NUMBER,
 };
 
@@ -46,9 +46,7 @@ int parse_instruction_agc(AsmContext *asm_context, char *instr)
   int operand_count = 0;
   int token_type;
   int num, n;
-  //int count;
-  //uint16_t opcode;
-  //int min, max;
+  uint16_t opcode;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -67,31 +65,30 @@ int parse_instruction_agc(AsmContext *asm_context, char *instr)
       break;
     }
 
-    // Remove indent?
-    {
-      if (eval_expression(asm_context, &num) != 0)
-      {
-        if (asm_context->pass == 1)
-        {
-          ignore_operand(asm_context);
-          num = 0;
-        }
-          else
-        {
-          print_error_illegal_expression(asm_context, instr);
-          return -1;
-        }
-      }
+    tokens_push(asm_context, token, token_type);
 
-      operands[operand_count].type = OPERAND_NUMBER;
-      operands[operand_count].value = num;
+    if (eval_expression(asm_context, &num) != 0)
+    {
+      if (asm_context->pass == 1)
+      {
+        ignore_operand(asm_context);
+        num = 0;
+      }
+        else
+      {
+        print_error_illegal_expression(asm_context, instr);
+        return -1;
+      }
     }
+
+    operands[operand_count].type = OPERAND_NUMBER;
+    operands[operand_count].value = num;
 
     operand_count++;
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
     if (token_type == TOKEN_EOL) { break; }
-    if (IS_NOT_TOKEN(token, ',') || operand_count == 2)
+    if (IS_NOT_TOKEN(token, ',') || operand_count == MAX_OPERANDS)
     {
       print_error_unexp(asm_context, token);
       return -1;
@@ -102,6 +99,11 @@ int parse_instruction_agc(AsmContext *asm_context, char *instr)
   {
     if (strcmp(table_agc[n].instr, instr_case) == 0)
     {
+      if (table_agc[n].is_extra_code)
+      {
+        add_bin16(asm_context, 000006, IS_OPCODE);
+      }
+
       switch (table_agc[n].type)
       {
         case AGC_OP_NONE:
@@ -118,37 +120,46 @@ int parse_instruction_agc(AsmContext *asm_context, char *instr)
         }
         case AGC_OP_K10:
         {
-          if (operand_count != 1 || operands[1].type != OPERAND_NUMBER)
+          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
-          if (check_range(asm_context, "Address", operands[1].value, 0, 0x3ff) == -1) { return -1; }
+          if (check_range(asm_context, "Address", operands[0].value, 0, 0x3ff) == -1) { return -1; }
+
+          opcode = table_agc[n].opcode | (operands[0].value & 0x3ff);
+          add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
         }
         case AGC_OP_K12:
         {
-          if (operand_count != 1 || operands[1].type != OPERAND_NUMBER)
+          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
-          if (check_range(asm_context, "Address", operands[1].value, 0, 0xfff) == -1) { return -1; }
+          if (check_range(asm_context, "Address", operands[0].value, 0, 0xfff) == -1) { return -1; }
+
+          opcode = table_agc[n].opcode | (operands[0].value & 0xfff);
+          add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
         }
         case AGC_OP_IO:
         {
-          if (operand_count != 1 || operands[1].type != OPERAND_NUMBER)
+          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
-          if (check_range(asm_context, "IO", operands[1].value, 0, 0x1ff) == -1) { return -1; }
+          if (check_range(asm_context, "IO", operands[0].value, 0, 0x1ff) == -1) { return -1; }
+
+          opcode = table_agc[n].opcode | (operands[0].value & 0x1ff);
+          add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
         }
