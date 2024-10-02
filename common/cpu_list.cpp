@@ -299,6 +299,30 @@ struct _cpu_list cpu_list[] =
     NO_FLAGS,
   },
 #endif
+#ifdef ENABLE_65816
+  {
+    "65832",
+    CPU_TYPE_65816,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_1,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_65816,
+    NULL,
+    link_not_supported,
+    list_output_65816,
+    disasm_range_65816,
+    Simulate65816::init,
+    32,
+  },
+#endif
 #ifdef ENABLE_6800
   {
     "6800",

@@ -500,9 +500,16 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
           else
         if (size == 24)
         {
-          print_error(asm_context,
-                      "Cannot force long value in immediate mode.");
-          return -1;
+          if (asm_context->flags == 32)
+          {
+            size = 32;
+          }
+            else
+          {
+            print_error(asm_context,
+                        "Cannot force long value in immediate mode.");
+            return -1;
+          }
         }
           else
         {
@@ -891,7 +898,14 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
   }
     else
   {
-    bytes = op_bytes[op];
+    if (size == 32)
+    {
+      bytes = 4;
+    }
+      else
+    {
+      bytes = op_bytes[op];
+    }
   }
 
   // write output
