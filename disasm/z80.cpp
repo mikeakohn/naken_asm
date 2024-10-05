@@ -114,7 +114,7 @@ int disasm_z80(
         }
         case OP_A_NUMBER8:
         {
-          snprintf(instruction, length, "%s a,%d", instr, READ_RAM(address + 1));
+          snprintf(instruction, length, "%s a,0x%02x", instr, READ_RAM(address + 1));
           return 2;
         }
         case OP_HL_REG16_1:
@@ -134,7 +134,7 @@ int disasm_z80(
         }
         case OP_NUMBER8:
         {
-          snprintf(instruction, length, "%s %d", instr, READ_RAM(address + 1));
+          snprintf(instruction, length, "%s 0x%02x", instr, READ_RAM(address + 1));
           return 2;
         }
         case OP_ADDRESS:
@@ -177,20 +177,20 @@ int disasm_z80(
         }
         case OP_A_INDEX_N:
         {
-          snprintf(instruction, length, "%s a,(%d)", instr, READ_RAM(address + 1));
+          snprintf(instruction, length, "%s a,(0x%02x)", instr, READ_RAM(address + 1));
           return 2;
         }
         case OP_OFFSET8:
         {
           i = (int8_t)READ_RAM(address + 1);
-          snprintf(instruction, length, "%s %d  (%d)", instr, (address + 2) + i, i);
+          snprintf(instruction, length, "%s 0x%04x  (%d)", instr, (address + 2) + i, i);
           return 2;
         }
         case OP_JR_COND_ADDRESS:
         {
           r = (opcode >> 3) & 0x3;
           i = (int8_t)READ_RAM(address + 1);
-          snprintf(instruction, length, "%s %s,%d  (%d)", instr, cond[r], (address + 2) + i, i);
+          snprintf(instruction, length, "%s %s,0x%04x  (%d)", instr, cond[r], (address + 2) + i, i);
           return 2;
         }
         case OP_REG8_REG8:
@@ -203,7 +203,7 @@ int disasm_z80(
         case OP_REG8_NUMBER8:
         {
           r = (opcode >> 3) & 0x7;
-          snprintf(instruction, length, "%s %s,%d", instr, reg8[r],READ_RAM(address + 1));
+          snprintf(instruction, length, "%s %s,0x%02x", instr, reg8[r],READ_RAM(address + 1));
           return 2;
         }
         case OP_REG8_INDEX_HL:
@@ -220,7 +220,7 @@ int disasm_z80(
         }
         case OP_INDEX_HL_NUMBER8:
         {
-          snprintf(instruction, length, "%s (hl),%d", instr, READ_RAM(address + 1));
+          snprintf(instruction, length, "%s (hl),0x%02x", instr, READ_RAM(address + 1));
           return 2;
         }
         case OP_A_INDEX_BC:
@@ -276,7 +276,7 @@ int disasm_z80(
         }
         case OP_INDEX_ADDRESS8_A:
         {
-          snprintf(instruction, length, "%s (%d),a", instr, READ_RAM(address + 1));
+          snprintf(instruction, length, "%s (0x%02x),a", instr, READ_RAM(address + 1));
           return 2;
         }
         case OP_REG16P:
@@ -524,7 +524,7 @@ int disasm_z80(
           r = (opcode16 >> 13) & 0x1;
           offset = READ_RAM(address + 2);
           get_disp(disp, sizeof(disp), r, offset);
-          snprintf(instruction, length, "%s %s,%d", instr, disp, READ_RAM(address + 3));
+          snprintf(instruction, length, "%s %s,0x%02x", instr, disp, READ_RAM(address + 3));
           return 4;
         }
         case OP_IR_A:
@@ -702,7 +702,7 @@ void disasm_range_z80(
   uint32_t end)
 {
   char instruction[128];
-  char bytes[10];
+  char bytes[20];
   int cycles_min = 0, cycles_max = 0;
   int count;
   int n;
