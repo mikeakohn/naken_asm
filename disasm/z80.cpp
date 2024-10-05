@@ -652,7 +652,7 @@ void list_output_z80(
 {
   int cycles_min,cycles_max;
   char instruction[128];
-  char bytes[16];
+  char bytes[32];
   int count;
   int n;
 
@@ -702,7 +702,7 @@ void disasm_range_z80(
   uint32_t end)
 {
   char instruction[128];
-  char bytes[10];
+  char bytes[32];
   int cycles_min = 0, cycles_max = 0;
   int count;
   int n;
