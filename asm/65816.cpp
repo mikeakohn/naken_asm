@@ -502,6 +502,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
         {
           if (asm_context->flags == 32)
           {
+            // 65C832: An immediate with .l means read 32 bits.
             size = 32;
           }
             else
@@ -900,7 +901,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
   {
     if (size == 32)
     {
-      bytes = 4;
+      bytes = 5;
     }
       else
     {
@@ -924,6 +925,11 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
   if (bytes > 3)
   {
     add_bin8(asm_context, (num >> 16) & 0xff, IS_OPCODE);
+  }
+
+  if (bytes > 4)
+  {
+    add_bin8(asm_context, (num >> 24) & 0xff, IS_OPCODE);
   }
 
   return bytes;
