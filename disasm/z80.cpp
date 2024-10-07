@@ -9,10 +9,6 @@
  *
  */
 
-// define for hex output instead of decimal for:
-// IN/OUT/JR/LD_IX/LD_IY/LD_HL/LD_REG/Immediate AND/OR/XOR/CP/ADC/ADD/SBC/SUB
-#define HEX_OUTPUT
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -118,11 +114,7 @@ int disasm_z80(
         }
         case OP_A_NUMBER8:
         {
-#ifdef HEX_OUTPUT
           snprintf(instruction, length, "%s a,0x%02x", instr, READ_RAM(address + 1));
-#else
-          snprintf(instruction, length, "%s a,%d", instr, READ_RAM(address + 1));
-#endif
           return 2;
         }
         case OP_HL_REG16_1:
@@ -142,11 +134,7 @@ int disasm_z80(
         }
         case OP_NUMBER8:
         {
-#ifdef HEX_OUTPUT
           snprintf(instruction, length, "%s 0x%02x", instr, READ_RAM(address + 1));
-#else
-          snprintf(instruction, length, "%s %d", instr, READ_RAM(address + 1));
-#endif
           return 2;
         }
         case OP_ADDRESS:
@@ -189,32 +177,20 @@ int disasm_z80(
         }
         case OP_A_INDEX_N:
         {
-#ifdef HEX_OUTPUT
           snprintf(instruction, length, "%s a,(0x%02x)", instr, READ_RAM(address + 1));
-#else
-          snprintf(instruction, length, "%s a,(%d)", instr, READ_RAM(address + 1));
-#endif
           return 2;
         }
         case OP_OFFSET8:
         {
           i = (int8_t)READ_RAM(address + 1);
-#ifdef HEX_OUTPUT
           snprintf(instruction, length, "%s 0x%04x  (%d)", instr, (address + 2) + i, i);
-#else
-          snprintf(instruction, length, "%s %d  (%d)", instr, (address + 2) + i, i);
-#endif
           return 2;
         }
         case OP_JR_COND_ADDRESS:
         {
           r = (opcode >> 3) & 0x3;
           i = (int8_t)READ_RAM(address + 1);
-#ifdef HEX_OUTPUT
           snprintf(instruction, length, "%s %s,0x%04x  (%d)", instr, cond[r], (address + 2) + i, i);
-#else
-          snprintf(instruction, length, "%s %s,%d  (%d)", instr, cond[r], (address + 2) + i, i);
-#endif
           return 2;
         }
         case OP_REG8_REG8:
@@ -227,11 +203,7 @@ int disasm_z80(
         case OP_REG8_NUMBER8:
         {
           r = (opcode >> 3) & 0x7;
-#ifdef HEX_OUTPUT
           snprintf(instruction, length, "%s %s,0x%02x", instr, reg8[r],READ_RAM(address + 1));
-#else
-          snprintf(instruction, length, "%s %s,%d", instr, reg8[r],READ_RAM(address + 1));
-#endif
           return 2;
         }
         case OP_REG8_INDEX_HL:
@@ -248,11 +220,7 @@ int disasm_z80(
         }
         case OP_INDEX_HL_NUMBER8:
         {
-#ifdef HEX_OUTPUT
           snprintf(instruction, length, "%s (hl),0x%02x", instr, READ_RAM(address + 1));
-#else
-          snprintf(instruction, length, "%s (hl),%d", instr, READ_RAM(address + 1));
-#endif
           return 2;
         }
         case OP_A_INDEX_BC:
@@ -308,11 +276,7 @@ int disasm_z80(
         }
         case OP_INDEX_ADDRESS8_A:
         {
-#ifdef HEX_OUTPUT
           snprintf(instruction, length, "%s (0x%02x),a", instr, READ_RAM(address + 1));
-#else
-          snprintf(instruction, length, "%s (%d),a", instr, READ_RAM(address + 1));
-#endif
           return 2;
         }
         case OP_REG16P:
@@ -560,11 +524,7 @@ int disasm_z80(
           r = (opcode16 >> 13) & 0x1;
           offset = READ_RAM(address + 2);
           get_disp(disp, sizeof(disp), r, offset);
-#ifdef HEX_OUTPUT
           snprintf(instruction, length, "%s %s,0x%02x", instr, disp, READ_RAM(address + 3));
-#else
-          snprintf(instruction, length, "%s %s,%d", instr, disp, READ_RAM(address + 3));
-#endif
           return 4;
         }
         case OP_IR_A:
