@@ -90,7 +90,7 @@ void AsmContext::init()
   list_output = list_output_msp430;
   cpu_list_index = -1;
 #else
-  set_cpu(this, 0);
+  set_cpu(0);
 #endif
   address = 0;
   instruction_count = 0;

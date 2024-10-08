@@ -186,58 +186,6 @@ show_help()
   echo "  --include-path=PATH       default: (${INSTALL_PREFIX}/share/naken_asm/includes)"
   echo "  --compiler-prefix=PREFIX  for cross-compilers"
   echo "  --enable-debug            compile in debug code"
-  echo "  --enable-1802             compile in support for RCA 1802"
-  echo "  --enable-4004             compile in support for 4004/MCS-4"
-  echo "  --enable-6502             compile in support for 6502/6510 etc"
-  echo "  --enable-65816            compile in support for 65816"
-  echo "  --enable-6800             compile in support for 6800"
-  echo "  --enable-6809             compile in support for 6809"
-  echo "  --enable-68hc08           compile in support for 68hc08 series"
-  echo "  --enable-680x0            compile in support for 680x0 series"
-  echo "  --enable-8008             compile in support for 8008/MCS-8"
-  echo "  --enable-8048             compile in support for 8048/MCS-48/8041"
-  echo "  --enable-8051             compile in support for 8051/8052/MCS-51"
-  echo "  --enable-86000            compile in support for 86000"
-  echo "  --enable-arc              compile in support for ARC"
-  echo "  --enable-arm              compile in support for ARM"
-  echo "  --enable-arm64            compile in support for ARM64"
-  echo "  --enable-avr8             compile in support for Atmel AVR8"
-  echo "  --enable-cell             compile in support for Broadband Cell SPU"
-  echo "  --enable-copper           compile in support for Amiga Copper"
-  echo "  --enable-cp1610           compile in support for CP1610"
-  echo "  --enable-dotnet           compile in support for .NET CIL"
-  echo "  --enable-dspic            compile in support for dsPIC and PIC24"
-  echo "  --enable-ebpf             compile in support for Berkley Packet Filter"
-  echo "  --enable-epiphany         compile in support for Ephiphany-III/IV"
-  echo "  --enable-f100_l           compile in support for Ferranti F100-L"
-  echo "  --enable-java             compile in support for Java"
-  echo "  --enable-f8               compile in support for F8"
-  echo "  --enable-lc3              compile in support for LC-3"
-  echo "  --enable-m8c              compile in support for PSoC M8C"
-  echo "  --enable-mips             compile in support for MIPS"
-  echo "  --enable-msp430           compile in support for MSP430 and MSP430X"
-  echo "  --enable-padauk           compile in support for PDK13 to PDK16"
-  echo "  --enable-pdp8             compile in support for PDP-8"
-  echo "  --enable-pic14            compile in support for PIC14"
-  echo "  --enable-pic18            compile in support for PIC18"
-  echo "  --enable-powerpc          compile in support for PowerPC"
-  echo "  --enable-propeller        compile in support for Propeller"
-  echo "  --enable-propeller2       compile in support for Propeller2"
-  echo "  --enable-emotion-engine   compile in support for Emotion Engine"
-  echo "  --enable-riscv            compile in support for RISCV"
-  echo "  --enable-sh4              compile in support for SH4"
-  echo "  --enable-sparc            compile in support for SPARC"
-  echo "  --enable-stm8             compile in support for STM8"
-  echo "  --enable-super-fx         compile in support for Super FX"
-  echo "  --enable-sweet16          compile in support for sweet16"
-  echo "  --enable-thumb            compile in support for thumb"
-  echo "  --enable-tms340           compile in support for tms340"
-  echo "  --enable-tms1000          compile in support for tms1000/tms1100"
-  echo "  --enable-tms9900          compile in support for tms9900"
-  echo "  --enable-unsp             compile in support for SunPlus unSP"
-  echo "  --enable-webasm           compile in support for WebAssembly"
-  echo "  --enable-xtensa           compile in support for Xtensa"
-  echo "  --enable-z80              compile in support for z80"
   echo
 
   exit
@@ -354,6 +302,7 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} 1802.o"
     TABLE_OBJS="${TABLE_OBJS} 1802.o"
     DFLAGS="${DFLAGS} -DENABLE_1802"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-4004)
     ASM_OBJS="${ASM_OBJS} 4004.o"
@@ -361,6 +310,7 @@ for option in $@; do
     #SIM_OBJS="${SIM_OBJS} 4004.o"
     TABLE_OBJS="${TABLE_OBJS} 4004.o"
     DFLAGS="${DFLAGS} -DENABLE_4004"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-6502)
     ASM_OBJS="${ASM_OBJS} 6502.o"
@@ -368,36 +318,42 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} 6502.o"
     TABLE_OBJS="${TABLE_OBJS} 6502.o"
     DFLAGS="${DFLAGS} -DENABLE_6502"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-65816)
     ASM_OBJS="${ASM_OBJS} 65816.o"
     DISASM_OBJS="${DISASM_OBJS} 65816.o"
     TABLE_OBJS="${TABLE_OBJS} 65816.o"
     DFLAGS="${DFLAGS} -DENABLE_65816"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-6800)
     ASM_OBJS="${ASM_OBJS} 6800.o"
     DISASM_OBJS="${DISASM_OBJS} 6800.o"
     TABLE_OBJS="${TABLE_OBJS} 6800.o"
     DFLAGS="${DFLAGS} -DENABLE_6800"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-6809)
     ASM_OBJS="${ASM_OBJS} 6809.o"
     DISASM_OBJS="${DISASM_OBJS} 6809.o"
     TABLE_OBJS="${TABLE_OBJS} 6809.o"
     DFLAGS="${DFLAGS} -DENABLE_6809"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-68hc08)
     ASM_OBJS="${ASM_OBJS} 68hc08.o"
     DISASM_OBJS="${DISASM_OBJS} 68hc08.o"
     TABLE_OBJS="${TABLE_OBJS} 68hc08.o"
     DFLAGS="${DFLAGS} -DENABLE_68HC08"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-68000)
     ASM_OBJS="${ASM_OBJS} 68000.o"
     DISASM_OBJS="${DISASM_OBJS} 68000.o"
     TABLE_OBJS="${TABLE_OBJS} 68000.o"
     DFLAGS="${DFLAGS} -DENABLE_68000"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-8008)
     ASM_OBJS="${ASM_OBJS} 8008.o"
@@ -405,46 +361,54 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} 8008.o"
     TABLE_OBJS="${TABLE_OBJS} 8008.o"
     DFLAGS="${DFLAGS} -DENABLE_8008"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-8048)
     ASM_OBJS="${ASM_OBJS} 8048.o"
     DISASM_OBJS="${DISASM_OBJS} 8048.o"
     TABLE_OBJS="${TABLE_OBJS} 8048.o"
     DFLAGS="${DFLAGS} -DENABLE_8048"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-8051)
     ASM_OBJS="${ASM_OBJS} 8051.o"
     DISASM_OBJS="${DISASM_OBJS} 8051.o"
     TABLE_OBJS="${TABLE_OBJS} 8051.o"
     DFLAGS="${DFLAGS} -DENABLE_8051"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-86000)
     ASM_OBJS="${ASM_OBJS} 86000.o"
     DISASM_OBJS="${DISASM_OBJS} 86000.o"
     TABLE_OBJS="${TABLE_OBJS} 86000.o"
     DFLAGS="${DFLAGS} -DENABLE_86000"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-agc)
     ASM_OBJS="${ASM_OBJS} agc.o"
     DISASM_OBJS="${DISASM_OBJS} agc.o"
     DFLAGS="${DFLAGS} -DENABLE_AGC"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-arc)
     ASM_OBJS="${ASM_OBJS} arc.o"
     DISASM_OBJS="${DISASM_OBJS} arc.o"
     DFLAGS="${DFLAGS} -DENABLE_ARC"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-arm)
     ASM_OBJS="${ASM_OBJS} arm.o"
     DISASM_OBJS="${DISASM_OBJS} arm.o"
     TABLE_OBJS="${TABLE_OBJS} arm.o"
     DFLAGS="${DFLAGS} -DENABLE_ARM"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-arm64)
     ASM_OBJS="${ASM_OBJS} arm64.o"
     DISASM_OBJS="${DISASM_OBJS} arm64.o"
     TABLE_OBJS="${TABLE_OBJS} arm64.o"
     DFLAGS="${DFLAGS} -DENABLE_ARM64"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-avr8)
     ASM_OBJS="${ASM_OBJS} avr8.o"
@@ -452,48 +416,56 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} avr8.o"
     TABLE_OBJS="${TABLE_OBJS} avr8.o"
     DFLAGS="${DFLAGS} -DENABLE_AVR8"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-cell)
     ASM_OBJS="${ASM_OBJS} cell.o"
     DISASM_OBJS="${DISASM_OBJS} cell.o"
     TABLE_OBJS="${TABLE_OBJS} cell.o"
     DFLAGS="${DFLAGS} -DENABLE_CELL"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-copper)
     ASM_OBJS="${ASM_OBJS} copper.o"
     DISASM_OBJS="${DISASM_OBJS} copper.o"
     #TABLE_OBJS="${TABLE_OBJS} copper.o"
     DFLAGS="${DFLAGS} -DENABLE_COPPER"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-cp1610)
     ASM_OBJS="${ASM_OBJS} cp1610.o"
     DISASM_OBJS="${DISASM_OBJS} cp1610.o"
     TABLE_OBJS="${TABLE_OBJS} cp1610.o"
     DFLAGS="${DFLAGS} -DENABLE_CP1610"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-dotnet)
     ASM_OBJS="${ASM_OBJS} dotnet.o"
     DISASM_OBJS="${DISASM_OBJS} dotnet.o"
     TABLE_OBJS="${TABLE_OBJS} dotnet.o"
     DFLAGS="${DFLAGS} -DENABLE_DOTNET"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-dspic)
     ASM_OBJS="${ASM_OBJS} dspic.o"
     DISASM_OBJS="${DISASM_OBJS} dspic.o"
     TABLE_OBJS="${TABLE_OBJS} dspic.o"
     DFLAGS="${DFLAGS} -DENABLE_DSPIC"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-ebpf)
     ASM_OBJS="${ASM_OBJS} ebpf.o"
     DISASM_OBJS="${DISASM_OBJS} ebpf.o"
     TABLE_OBJS="${TABLE_OBJS} ebpf.o"
     DFLAGS="${DFLAGS} -DENABLE_EBPF"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-epiphany)
     ASM_OBJS="${ASM_OBJS} epiphany.o"
     DISASM_OBJS="${DISASM_OBJS} epiphany.o"
     TABLE_OBJS="${TABLE_OBJS} epiphany.o"
     DFLAGS="${DFLAGS} -DENABLE_EPIPHANY"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-f100_l)
     ASM_OBJS="${ASM_OBJS} f100_l.o"
@@ -501,30 +473,35 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} f100_l.o"
     TABLE_OBJS="${TABLE_OBJS} f100_l.o"
     DFLAGS="${DFLAGS} -DENABLE_F100_L"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-f8)
     ASM_OBJS="${ASM_OBJS} f8.o"
     DISASM_OBJS="${DISASM_OBJS} f8.o"
     TABLE_OBJS="${TABLE_OBJS} f8.o"
     DFLAGS="${DFLAGS} -DENABLE_F8"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-java)
     ASM_OBJS="${ASM_OBJS} java.o"
     DISASM_OBJS="${DISASM_OBJS} java.o"
     TABLE_OBJS="${TABLE_OBJS} java.o"
     DFLAGS="${DFLAGS} -DENABLE_JAVA"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-lc3)
     ASM_OBJS="${ASM_OBJS} lc3.o"
     DISASM_OBJS="${DISASM_OBJS} lc3.o"
     TABLE_OBJS="${TABLE_OBJS} lc3.o"
     DFLAGS="${DFLAGS} -DENABLE_LC3"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-m8c)
     ASM_OBJS="${ASM_OBJS} m8c.o"
     DISASM_OBJS="${DISASM_OBJS} m8c.o"
     TABLE_OBJS="${TABLE_OBJS} m8c.o"
     DFLAGS="${DFLAGS} -DENABLE_M8C"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-mips)
     ASM_OBJS="${ASM_OBJS} mips.o"
@@ -532,6 +509,7 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} mips.o"
     TABLE_OBJS="${TABLE_OBJS} mips.o"
     DFLAGS="${DFLAGS} -DENABLE_MIPS"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-msp430)
     ASM_OBJS="${ASM_OBJS} msp430.o"
@@ -540,72 +518,84 @@ for option in $@; do
     TABLE_OBJS="${TABLE_OBJS} msp430.o"
     DFLAGS="${DFLAGS} -DENABLE_MSP430"
     NO_MSP430=""
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-padauk)
     ASM_OBJS="${ASM_OBJS} pdk13.o pdk14.o pdk15.o pdk16.o pdk_parse.o"
     DISASM_OBJS="${DISASM_OBJS} pdk13.o pdk14.o pdk15.o pdk16.o"
     TABLE_OBJS="${TABLE_OBJS} pdk13.o pdk14.o pdk15.o pdk16.o"
     DFLAGS="${DFLAGS} -DENABLE_PADAUK"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-pdp8)
     ASM_OBJS="${ASM_OBJS} pdp8.o"
     DISASM_OBJS="${DISASM_OBJS} pdp8.o"
     TABLE_OBJS="${TABLE_OBJS} pdp8.o"
     DFLAGS="${DFLAGS} -DENABLE_PDP8"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-pic14)
     ASM_OBJS="${ASM_OBJS} pic14.o"
     DISASM_OBJS="${DISASM_OBJS} pic14.o"
     TABLE_OBJS="${TABLE_OBJS} pic14.o"
     DFLAGS="${DFLAGS} -DENABLE_PIC14"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-pic18)
     ASM_OBJS="${ASM_OBJS} pic18.o"
     DISASM_OBJS="${DISASM_OBJS} pic18.o"
     TABLE_OBJS="${TABLE_OBJS} pic18.o"
     DFLAGS="${DFLAGS} -DENABLE_PIC18"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-powerpc)
     ASM_OBJS="${ASM_OBJS} powerpc.o"
     DISASM_OBJS="${DISASM_OBJS} powerpc.o"
     TABLE_OBJS="${TABLE_OBJS} powerpc.o"
     DFLAGS="${DFLAGS} -DENABLE_POWERPC"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-propeller)
     ASM_OBJS="${ASM_OBJS} propeller.o"
     DISASM_OBJS="${DISASM_OBJS} propeller.o"
     TABLE_OBJS="${TABLE_OBJS} propeller.o"
     DFLAGS="${DFLAGS} -DENABLE_PROPELLER"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-propeller2)
     ASM_OBJS="${ASM_OBJS} propeller2.o"
     DISASM_OBJS="${DISASM_OBJS} propeller2.o"
     TABLE_OBJS="${TABLE_OBJS} propeller2.o"
     DFLAGS="${DFLAGS} -DENABLE_PROPELLER2"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-emotion-engine)
     ASM_OBJS="${ASM_OBJS} ps2_ee_vu.o"
     DISASM_OBJS="${DISASM_OBJS} ps2_ee_vu.o"
     TABLE_OBJS="${TABLE_OBJS} ps2_ee_vu.o"
     DFLAGS="${DFLAGS} -DENABLE_EMOTION_ENGINE"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-riscv)
     ASM_OBJS="${ASM_OBJS} riscv.o"
     DISASM_OBJS="${DISASM_OBJS} riscv.o"
     TABLE_OBJS="${TABLE_OBJS} riscv.o"
     DFLAGS="${DFLAGS} -DENABLE_RISCV"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-sh4)
     ASM_OBJS="${ASM_OBJS} sh4.o"
     DISASM_OBJS="${DISASM_OBJS} sh4.o"
     TABLE_OBJS="${TABLE_OBJS} sh4.o"
     DFLAGS="${DFLAGS} -DENABLE_SH4"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-sparc)
     ASM_OBJS="${ASM_OBJS} sparc.o"
     DISASM_OBJS="${DISASM_OBJS} sparc.o"
     TABLE_OBJS="${TABLE_OBJS} sparc.o"
     DFLAGS="${DFLAGS} -DENABLE_SPARC"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-stm8)
     ASM_OBJS="${ASM_OBJS} stm8.o"
@@ -613,30 +603,35 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} stm8.o"
     TABLE_OBJS="${TABLE_OBJS} stm8.o"
     DFLAGS="${DFLAGS} -DENABLE_STM8"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-super-fx)
     ASM_OBJS="${ASM_OBJS} super_fx.o"
     DISASM_OBJS="${DISASM_OBJS} super_fx.o"
     TABLE_OBJS="${TABLE_OBJS} super_fx.o"
     DFLAGS="${DFLAGS} -DENABLE_SUPER_FX"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-sweet16)
     ASM_OBJS="${ASM_OBJS} sweet16.o"
     DISASM_OBJS="${DISASM_OBJS} sweet16.o"
     TABLE_OBJS="${TABLE_OBJS} sweet16.o"
     DFLAGS="${DFLAGS} -DENABLE_SWEET16"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-thumb)
     ASM_OBJS="${ASM_OBJS} thumb.o"
     DISASM_OBJS="${DISASM_OBJS} thumb.o"
     TABLE_OBJS="${TABLE_OBJS} thumb.o"
     DFLAGS="${DFLAGS} -DENABLE_THUMB"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-tms340)
     ASM_OBJS="${ASM_OBJS} tms340.o"
     DISASM_OBJS="${DISASM_OBJS} tms340.o"
     TABLE_OBJS="${TABLE_OBJS} tms340.o"
     DFLAGS="${DFLAGS} -DENABLE_TMS340"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-tms1000)
     ASM_OBJS="${ASM_OBJS} tms1000.o"
@@ -644,6 +639,7 @@ for option in $@; do
     TABLE_OBJS="${TABLE_OBJS} tms1000.o"
     SIM_OBJS="${SIM_OBJS} tms1000.o"
     DFLAGS="${DFLAGS} -DENABLE_TMS1000"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-tms9900)
     ASM_OBJS="${ASM_OBJS} tms9900.o"
@@ -651,24 +647,28 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} tms9900.o"
     TABLE_OBJS="${TABLE_OBJS} tms9900.o"
     DFLAGS="${DFLAGS} -DENABLE_TMS9900"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-unsp)
     ASM_OBJS="${ASM_OBJS} unsp.o"
     DISASM_OBJS="${DISASM_OBJS} unsp.o"
     TABLE_OBJS="${TABLE_OBJS} unsp.o"
     DFLAGS="${DFLAGS} -DENABLE_UNSP"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-webasm)
     ASM_OBJS="${ASM_OBJS} webasm.o"
     DISASM_OBJS="${DISASM_OBJS} webasm.o"
     TABLE_OBJS="${TABLE_OBJS} webasm.o"
     DFLAGS="${DFLAGS} -DENABLE_WEBASM"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-xtensa)
     ASM_OBJS="${ASM_OBJS} xtensa.o"
     DISASM_OBJS="${DISASM_OBJS} xtensa.o"
     TABLE_OBJS="${TABLE_OBJS} xtensa.o"
     DFLAGS="${DFLAGS} -DENABLE_XTENSA"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   --enable-z80)
     ASM_OBJS="${ASM_OBJS} z80.o"
@@ -676,6 +676,7 @@ for option in $@; do
     SIM_OBJS="${SIM_OBJS} z80.o"
     TABLE_OBJS="${TABLE_OBJS} z80.o"
     DFLAGS="${DFLAGS} -DENABLE_Z80"
+    echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
   esac
 done
@@ -693,6 +694,9 @@ then
   TABLE_OBJS="${TABLE_OBJS_ALL}"
   DFLAGS="${DFLAGS_ALL}"
   NO_MSP430=""
+else
+  # FIXME: Remove when --enable-cpu is no longer available.
+  SIM_OBJS="${SIM_OBJS} Simulate.o"
 fi
 
 if test_c_compiler "gcc"
@@ -789,11 +793,6 @@ echo "INSTALL_INCLUDES=${INSTALL_INCLUDES}" >> config.mak
 echo "INSTALL_PREFIX=${INSTALL_PREFIX}" >> config.mak
 echo "INCLUDE_PATH=${INCLUDE_PATH}" >> config.mak
 echo "CONFIG_EXT=${CONFIG_EXT}" >> config.mak
-#echo "ASM_OBJS=${ASM_OBJS}" >> config.mak
-#echo "DISASM_OBJS=${DISASM_OBJS}" >> config.mak
-#echo "COMMON_OBJS=${COMMON_OBJS}" >> config.mak
-#echo "TABLE_OBJS=${TABLE_OBJS}" >> config.mak
-#echo "SIM_OBJS=${SIM_OBJS}" >> config.mak
 output_objs ASM_OBJS asm "${ASM_OBJS}"
 output_objs DISASM_OBJS disasm "${DISASM_OBJS}"
 output_objs TABLE_OBJS table "${TABLE_OBJS}"
@@ -817,3 +816,4 @@ echo "        BINS: naken_asm${CONFIG_EXT}, naken_util${CONFIG_EXT}"
 echo
 echo "Now type: make"
 echo
+
