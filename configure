@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-CC=gcc
-CXX=g++
+: ${CC:=gcc}
+: ${CXX=g++}
 COMPILER_PREFIX=
 DEBUG=
-CFLAGS="-Wall"
+: ${CFLAGS:="-Wall"}
 FLAGS=""
 LDFLAGS=""
 LDFLAGS_UTIL=""
@@ -180,7 +180,10 @@ show_help()
   echo "Usage: ./configure [options]"
   echo
   echo "  --help                    list options"
-  echo "  --cflags=CFLAGS           extra compiler flags"
+  echo "  --cc                      C compiler"
+  echo "  --cxx                     C++ compiler"
+  echo "  --cflags=CFLAGS           extra C compiler flags"
+  echo "  --cxxflags=CXXFLAGS       extra C++ compiler flags"
   echo "  --ldflags=LDFLAGS         extra linker flags"
   echo "  --prefix=PATH             base path to install to (${INSTALL_PREFIX})"
   echo "  --include-path=PATH       default: (${INSTALL_PREFIX}/share/naken_asm/includes)"
@@ -194,19 +197,43 @@ show_help()
 test_c_compiler()
 {
   cat >config.c <<EOF
-  main() { }
+  int main(int argc, char **argv) { (void)argc; (void)argv; return 0; }
 EOF
 
-  ${1} -o config config.c >>config.log 2>&1
+  rm -f config
+  ${1} ${CFLAGS} -o config config.c >>config.log 2>&1
+  local e=$?
+  if ! [ -e config ]
+  then
+    echo "C compiler ${CC} cannot create executables. Compiler command was:"
+    echo "${1} ${CFLAGS} -o config config.c >>config.log 2>&1"
+    echo "Check config.log for details."
+  else
+    rm -f config.log
+  fi
+  rm -f config
+  return $e
 }
 
 test_cpp_compiler()
 {
   cat >config.cpp <<EOF
-  main() { }
+  int main(int argc, char **argv) { (void)argc; (void)argv; return 0; }
 EOF
 
-  ${1} -o config config.cpp >>config.log 2>&1
+  rm -f config
+  ${1} ${CXXFLAGS} -o config config.cpp >>config.log 2>&1
+  local e=$?
+  if ! [ -e config ]
+  then
+    echo "C++ compiler ${CXX} cannot create executables. Compiler command was:"
+    echo "${1} ${CXXFLAGS} -o config config.cpp >>config.log 2>&1"
+    echo "Check config.log for details."
+  else
+    rm -f config.log
+  fi
+  rm -f config
+  return $e
 }
 
 test_lib()
@@ -280,11 +307,17 @@ for option in $@; do
   case "$option" in
   --help) show_help
   ;;
+  --cc=*) CC="$optval"
+  ;;
+  --cxx=*) CXX="$optval"
+  ;;
   --enable-debug) DEBUG="-DDEBUG -g"
   ;;
   --disable-elf) CFLAGS="${CFLAGS} -DDISABLE_ELF"
   ;;
   --cflags=*) CFLAGS="${CFLAGS} $optval"
+  ;;
+  --cxxflags=*) CXXFLAGS="${CXXFLAGS} $optval"
   ;;
   --ldflags=*) LDFLAGS="${LDFLAGS} $optval"
   ;;
@@ -686,9 +719,15 @@ for option in $@; do
   esac
 done
 
-if [ -e /usr/local/include/readline ]
+if (${CXX} --version 2>/dev/null | grep -q clang)
 then
-  CFLAGS="${CFLAGS} -I/usr/local/include/readline"
+  CXXFLAGS="${CXXFLAGS} -stdlib=libc++"
+fi
+
+if (pkg-config --exists readline)
+then
+  CFLAGS="${CFLAGS} -DREADLINE $( pkg-config --cflags readline )"
+  LDFLAGS_UTIL="${LDFLAGS_UTIL} $( pkg-config --libs readline )"
 fi
 
 if [ "${ASM_OBJS}" == "common.o" ]
@@ -704,20 +743,16 @@ else
   SIM_OBJS="${SIM_OBJS} Simulate.o"
 fi
 
-if test_c_compiler "gcc"
+if !(test_c_compiler "${CC}")
 then
-  CC="gcc"
-elif test_c_compiler "cc"
-then
-  CC="cc"
+  echo "C compiler \"${CC}\" cannot create executables"
+  exit 1
 fi
 
-if test_cpp_compiler "g++"
+if !(test_cpp_compiler "${CXX}")
 then
-  CXX="g++"
-elif test_cpp_compiler "cc"
-then
-  CXX="c++"
+  echo "C++ compiler \"${CXX}\" cannot create executables"
+  exit 1
 fi
 
 #if test_lib "-lws2_32"; then LDFLAGS="${LDFLAGS} -lws2_32"; fi
@@ -776,7 +811,7 @@ fi
 
 if [ "${INCLUDE_PATH}" = "" ]
 then
-  INCLUDE_PATH="${INSTALL_INCLUDES}/include"
+  INCLUDE_PATH="$( dirname "$( readlink -f "${0}" )" )/include"
 fi
 
 test_strip
@@ -792,6 +827,7 @@ echo "COMPILER_PREFIX=${COMPILER_PREFIX}" >> config.mak
 echo "LDFLAGS=${LDFLAGS}" >> config.mak
 echo "LDFLAGS_UTIL=${LDFLAGS_UTIL}" >> config.mak
 echo "CFLAGS=${CFLAGS}" >> config.mak
+echo "CXXFLAGS=${CXXFLAGS}" >> config.mak
 echo "DFLAGS=${DFLAGS}" >> config.mak
 echo "INSTALL_BIN=${INSTALL_BIN}" >> config.mak
 echo "INSTALL_INCLUDES=${INSTALL_INCLUDES}" >> config.mak
@@ -819,6 +855,12 @@ echo "     DEFINES: ${DFLAGS}"
 echo "INCLUDE_PATH: ${INCLUDE_PATH}"
 echo "        BINS: naken_asm${CONFIG_EXT}, naken_util${CONFIG_EXT}"
 echo
-echo "Now type: make"
+if (command -v gmake &>/dev/null)
+then
+  MAKE=gmake
+else
+  MAKE=make
+fi
+echo "Now type: ${MAKE}"
 echo
 
