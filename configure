@@ -323,6 +323,7 @@ for option in $@; do
   --enable-65816)
     ASM_OBJS="${ASM_OBJS} 65816.o"
     DISASM_OBJS="${DISASM_OBJS} 65816.o"
+    SIM_OBJS="${SIM_OBJS} 65816.o"
     TABLE_OBJS="${TABLE_OBJS} 65816.o"
     DFLAGS="${DFLAGS} -DENABLE_65816"
     echo "Enabling individual CPUs is deprecated and will be removed."
@@ -393,6 +394,7 @@ for option in $@; do
   --enable-arc)
     ASM_OBJS="${ASM_OBJS} arc.o"
     DISASM_OBJS="${DISASM_OBJS} arc.o"
+    TABLE_OBJS="${TABLE_OBJS} arc.o"
     DFLAGS="${DFLAGS} -DENABLE_ARC"
     echo "Enabling individual CPUs is deprecated and will be removed."
   ;;
@@ -456,6 +458,7 @@ for option in $@; do
   --enable-ebpf)
     ASM_OBJS="${ASM_OBJS} ebpf.o"
     DISASM_OBJS="${DISASM_OBJS} ebpf.o"
+    SIM_OBJS="${SIM_OBJS} ebpf.o"
     TABLE_OBJS="${TABLE_OBJS} ebpf.o"
     DFLAGS="${DFLAGS} -DENABLE_EBPF"
     echo "Enabling individual CPUs is deprecated and will be removed."
@@ -492,6 +495,7 @@ for option in $@; do
   --enable-lc3)
     ASM_OBJS="${ASM_OBJS} lc3.o"
     DISASM_OBJS="${DISASM_OBJS} lc3.o"
+    SIM_OBJS="${SIM_OBJS} lc3.o"
     TABLE_OBJS="${TABLE_OBJS} lc3.o"
     DFLAGS="${DFLAGS} -DENABLE_LC3"
     echo "Enabling individual CPUs is deprecated and will be removed."
@@ -579,6 +583,7 @@ for option in $@; do
   --enable-riscv)
     ASM_OBJS="${ASM_OBJS} riscv.o"
     DISASM_OBJS="${DISASM_OBJS} riscv.o"
+    SIM_OBJS="${SIM_OBJS} riscv.o"
     TABLE_OBJS="${TABLE_OBJS} riscv.o"
     DFLAGS="${DFLAGS} -DENABLE_RISCV"
     echo "Enabling individual CPUs is deprecated and will be removed."
