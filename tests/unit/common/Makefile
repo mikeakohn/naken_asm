@@ -8,10 +8,10 @@ LD_FLAGS=-L../../../build
 default:
 	$(CXX) -o var_test var_test.cpp \
           ../../../build/naken_asm.a \
-	  $(CFLAGS)
+	  $(CFLAGS) $(CXXFLAGS)
 	$(CXX) -o string_test string_test.cpp \
 	  ../../../build/naken_asm.a \
-	  $(CFLAGS)
+	  $(CFLAGS) $(CXXFLAGS)
 
 run:
 	./var_test

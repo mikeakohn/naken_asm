@@ -8,7 +8,7 @@ LD_FLAGS=-L../../build
 default:
 	$(CXX) -o symbol_address symbol_address.cpp \
 	  ../../build/naken_asm.a \
-	  $(CFLAGS)
+	  $(CFLAGS) $(CXXFLAGS)
 
 clean:
 	@rm -f symbol_address

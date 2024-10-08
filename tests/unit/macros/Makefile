@@ -8,7 +8,7 @@ LD_FLAGS=-L../../../build
 default:
 	$(CXX) -o macro_test macro_test.cpp \
           ../../../build/naken_asm.a \
-	  $(CFLAGS)
+	  $(CFLAGS) $(CXXFLAGS)
 
 clean:
 	@rm -f macro_test

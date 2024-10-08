@@ -8,7 +8,7 @@ LD_FLAGS=-L../../build
 default:
 	$(CXX) -o n64_rsp_illegal_instr n64_rsp_illegal_instr.cpp \
 	  ../../build/naken_asm.a \
-  	  $(CFLAGS)
+  	  $(CFLAGS) $(CXXFLAGS)
 
 run:
 	./n64_rsp_illegal_instr
@@ -17,7 +17,7 @@ run:
 check_libstdcplusplus:
 	$(CXX) -o check_libstdcplusplus check_libstdcplusplus.cpp \
 	  ../../build/naken_asm.a \
-  	  $(CFLAGS)
+  	  $(CFLAGS) $(CXXFLAGS)
 	./check_libstdcplusplus
 
 clean:
