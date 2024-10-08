@@ -52,7 +52,7 @@ clean:
 	@rm -rf build/*.o build/*.a
 	@rm -rf build/asm build/disasm build/table build/common
 	@rm -rf build/simulate build/fileio
-	@cd tests/unit/common && make clean
+	@cd tests/unit/common && $(MAKE) clean
 	@rm -f tests/unit/eval_expression/unit_test
 	@rm -f tests/unit/eval_expression_ex/unit_test
 	@rm -f tests/unit/data/data_test
@@ -67,22 +67,20 @@ clean:
 .PHONY: tests
 tests:
 	@cd tests/regression && sh regression.sh
-	@cd tests/unit/eval_expression && make && ./unit_test && make clean
-	@cd tests/unit/eval_expression_ex && make && ./unit_test && make clean
-	@cd tests/unit/common && make && make run && make clean
-	@cd tests/unit/data && make && ./data_test && make clean
-	@cd tests/unit/tokens && make && ./tokens_test && make clean
-	@cd tests/unit/macros && make && ./macro_test && make clean
-	@cd tests/unit/memory && make && ./memory_test && make clean
-	@cd tests/unit/symbols && make && ./symbols_test && make clean
-	@cd tests/unit/util && make && ./util_test && make clean
-	@cd tests/symbol_address && make && ./symbol_address && make clean
-	@cd tests/other && make && make run && make clean
-	@cd tests/disasm && make
-	@cd tests/comparison && make
+	@cd tests/unit/eval_expression && $(MAKE) && ./unit_test && make clean
+	@cd tests/unit/eval_expression_ex && $(MAKE) && ./unit_test && make clean
+	@cd tests/unit/common && $(MAKE) && $(MAKE) run && $(MAKE) clean
+	@cd tests/unit/data && $(MAKE) && ./data_test && $(MAKE) clean
+	@cd tests/unit/tokens && $(MAKE) && ./tokens_test && $(MAKE) clean
+	@cd tests/unit/macros && $(MAKE) && ./macro_test && $(MAKE) clean
+	@cd tests/unit/memory && $(MAKE) && ./memory_test && $(MAKE) clean
+	@cd tests/unit/symbols && $(MAKE) && ./symbols_test && $(MAKE) clean
+	@cd tests/unit/util && $(MAKE) && ./util_test && $(MAKE) clean
+	@cd tests/symbol_address && $(MAKE) && ./symbol_address && $(MAKE) clean
+	@cd tests/other && $(MAKE) && $(MAKE) run && $(MAKE) clean
+	@cd tests/disasm && $(MAKE)
+	@cd tests/comparison && $(MAKE)
 	@cd tests/directives && python3 test.py
 
 distclean: clean
 	@rm -f config.mak *.asm
-
-
