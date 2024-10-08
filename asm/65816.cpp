@@ -156,7 +156,7 @@ static int get_address(
     {
       if (worst_case == 1)
       {
-        printf("Use jml/jsl aliases or .l modifier to force 24-bit addressing.\n");
+        print_error(asm_context, "Use jml/jsl aliases or .l modifier to force 24-bit addressing.\n");
         return -1;
       }
         else
@@ -253,7 +253,7 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
     // no matching instruction
     if (instr_enum == -1)
     {
-      printf("No matching instruction for \"%s\".\n", instr_case);
+      print_error_unknown_instr(asm_context, instr_case);
       return -1;
     }
 
