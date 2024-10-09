@@ -15,11 +15,11 @@ OBJECTS= \
 default: $(OBJECTS)
 	@ar cr naken_asm.a $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) \
 	  $(SIM_OBJS) $(TABLE_OBJS) $(UTIL_OBJS) $(FILEIO_OBJS) $(PROG_OBJS)
-	$(CXX) -o ../naken_asm$(CONFIG_EXT) ../common/naken_asm.cpp \
+	$(CXX) $(CXXFLAGS) -o ../naken_asm$(CONFIG_EXT) ../common/naken_asm.cpp \
 	   naken_asm.a \
 	    -DINCLUDE_PATH="\"$(INCLUDE_PATH)\"" \
 	   $(CFLAGS) $(LDFLAGS) -I..
-	$(CXX) -o ../naken_util$(CONFIG_EXT) ../common/naken_util.cpp \
+	$(CXX) $(CXXFLAGS) -o ../naken_util$(CONFIG_EXT) ../common/naken_util.cpp \
 	   naken_asm.a \
 	   $(DFLAGS) -I.. \
 	   $(CFLAGS) $(LDFLAGS) $(LDFLAGS_UTIL)
@@ -42,7 +42,7 @@ common/cpu_list.o: common/cpu_list.cpp common/cpu_list.h
 	$(CC) -c $< -o $*.o $(CFLAGS) -I..
 
 %.o: %.cpp %.h common/cpu_list.h
-	$(CXX) -c $< -o $*.o $(CFLAGS) -I..
+	$(CXX) $(CXXFLAGS) -c $< -o $*.o $(CFLAGS) -I..
 
 %.o: %.cpp common/cpu_list.h
 	$(CXX) -c $< -o $*.o $(CFLAGS) -I..

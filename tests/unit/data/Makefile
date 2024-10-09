@@ -8,7 +8,7 @@ LD_FLAGS=-L../../../build
 default:
 	$(CXX) -o data_test data_test.cpp \
 	  ../../../build/naken_asm.a \
-	  $(CFLAGS)
+	  $(CFLAGS) $(CXXFLAGS)
 
 clean:
 	@rm -f data_test
