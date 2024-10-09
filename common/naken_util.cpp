@@ -721,60 +721,63 @@ int main(int argc, char *argv[])
       else
     if (strncmp(command, "bprint ", 7) == 0)
     {
-       util_print8(&util_context, command + 6);
+      util_print8(&util_context, command + 6);
     }
       else
     if (strncmp(command, "print16", 7) == 0)
     {
-       util_print16(&util_context, command + 7);
+      util_print16(&util_context, command + 7);
     }
       else
     if (strncmp(command, "wprint ", 7) == 0)
     {
-       util_print16(&util_context, command + 6);
+      util_print16(&util_context, command + 6);
     }
       else
     if (strncmp(command, "print32", 7) == 0)
     {
-       util_print32(&util_context, command + 7);
+      util_print32(&util_context, command + 7);
     }
       else
     if (strncmp(command, "write ", 6) == 0)
     {
-       util_write8(&util_context, command + 5);
+      util_write8(&util_context, command + 5);
     }
       else
     if (strncmp(command, "bwrite ", 7) == 0)
     {
-       util_write8(&util_context, command + 6);
+      util_write8(&util_context, command + 6);
     }
       else
     if (strncmp(command, "write16 ", 8) == 0)
     {
-       util_write16(&util_context, command + 7);
+      util_write16(&util_context, command + 7);
     }
       else
     if (strncmp(command, "wwrite ", 7) == 0)
     {
-       util_write16(&util_context, command + 6);
+      util_write16(&util_context, command + 6);
     }
       else
     if (strncmp(command, "write32 ", 8) == 0)
     {
-       util_write32(&util_context, command + 7);
+      util_write32(&util_context, command + 7);
     }
       else
     if (strncmp(command, "disasm ", 7) == 0)
     {
-       util_disasm(&util_context, command + 7);
+      util_disasm(&util_context, command + 7);
     }
       else
     if (strcmp(command, "disasm") == 0)
     {
-       util_disasm_range(
-         &util_context,
-         util_context.memory.low_address,
-         util_context.memory.high_address);
+      if (util_context.memory.low_address != 0xffffffff)
+      {
+        util_disasm_range(
+          &util_context,
+          util_context.memory.low_address,
+          util_context.memory.high_address);
+      }
     }
       else
     if (strcmp(command, "symbols") == 0)
