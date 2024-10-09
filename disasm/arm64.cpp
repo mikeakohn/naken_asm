@@ -486,7 +486,7 @@ int disasm_arm64(
 
           snprintf(instruction, length, "%s 0x%04x (offset=%d)",
             table_arm64[n].instr,
-           (address + 4 + imm),
+           (address + imm),
             imm);
 
           return 4;
