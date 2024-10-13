@@ -69,7 +69,7 @@ void tokens_reset(AsmContext *asm_context)
   asm_context->tokens.unget_stack[0] = 0;
 }
 
-static int tokens_hex_string_to_int(char *s, uint64_t *num, int prefixed)
+static int tokens_hex_string_to_int(char *s, uint64_t *num, bool prefixed)
 {
   uint64_t n = 0;
 
@@ -90,7 +90,7 @@ static int tokens_hex_string_to_int(char *s, uint64_t *num, int prefixed)
     s++;
   }
 
-  if ((*s == 'h' && *s =='H') && prefixed == 1) { return -1; }
+  if ((*s == 'h' || *s =='H') && prefixed == true) { return -1; }
 
   *num = n;
 
@@ -139,7 +139,7 @@ static int tokens_octal_string_to_int(char *s, uint64_t *num)
   return 0;
 }
 
-static int tokens_binary_string_to_int(char *s, uint64_t *num, int prefixed)
+static int tokens_binary_string_to_int(char *s, uint64_t *num, bool prefixed)
 {
   int n = 0;
 
@@ -157,7 +157,7 @@ static int tokens_binary_string_to_int(char *s, uint64_t *num, int prefixed)
     s++;
   }
 
-  if ((*s == 'b' && *s =='B') && prefixed == 1) { return -1; }
+  if ((*s == 'b' || *s =='B') && prefixed == true) { return -1; }
 
   *num = n;
 
@@ -271,7 +271,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
     return asm_context->tokens.pushback_type;
   }
 
-  while (1)
+  while (true)
   {
 #ifdef DEBUG
 //printf("debug> tokens_get, grabbing next char ptr=%d\n", ptr);
@@ -309,7 +309,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
         break;
       }
 
-      while (1)
+      while (true)
       {
         ch = tokens_get_char(asm_context);
         if (ch == '\n' || ch == EOF) { break; }
@@ -351,7 +351,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
     {
       token_type = TOKEN_QUOTED;
 
-      while (1)
+      while (true)
       {
         ch = tokens_get_char(asm_context);
 
@@ -379,7 +379,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
     {
       token_type = TOKEN_TICKED;
 
-      while (1)
+      while (true)
       {
         ch = tokens_get_char(asm_context);
 
@@ -522,7 +522,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
               ptr = 0;
               token[0] = 0;
 
-              while (1)
+              while (true)
               {
                 ch = tokens_get_char(asm_context);
                 if (ch == EOF)
@@ -550,7 +550,7 @@ int tokens_get(AsmContext *asm_context, char *token, int len)
               else
             if (ch == '/')
             {
-              while (1)
+              while (true)
               {
                 ch = tokens_get_char(asm_context);
                 if (ch == '\n' || ch == EOF) break;
@@ -713,18 +713,18 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
       else
     if (token[0] == '0' && token[1] == 'x')
     {
-      // If token starts with 0x it's probably hex
+      // If token starts with 0x it's probably hex.
       uint64_t num;
-      if (tokens_hex_string_to_int(token + 2, &num, 1) != 0) { return token_type; }
+      if (tokens_hex_string_to_int(token + 2, &num, true) != 0) { return token_type; }
       snprintf(token, len, "%" PRId64, num);
       token_type = TOKEN_NUMBER;
     }
       else
     if (token[0] == '0' && token[1] == 'b')
     {
-      // If token starts with 0b it's probably binary
+      // If token starts with 0b it's probably binary.
       uint64_t num;
-      if (tokens_binary_string_to_int(token + 2, &num, 1) != 0) { return token_type; }
+      if (tokens_binary_string_to_int(token + 2, &num, true) != 0) { return token_type; }
       snprintf(token, len, "%" PRId64, num);
       token_type = TOKEN_NUMBER;
     }
@@ -735,7 +735,7 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
     {
       // If token starts with a number and ends with a h it's probably hex
       uint64_t num;
-      if (tokens_hex_string_to_int(token, &num, 0) != 0) { return token_type; }
+      if (tokens_hex_string_to_int(token, &num, false) != 0) { return token_type; }
       snprintf(token, len, "%" PRId64, num);
       token_type = TOKEN_NUMBER;
     }
@@ -753,9 +753,9 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
       else
     if ((token[0] == '0' || token[0] == '1') && tolower(token[ptr - 1]) == 'b')
     {
-      // If token starts with a number and ends with a b it's probably binary
+      // If token starts with a number and ends with a b it's probably binary.
       uint64_t num;
-      if (tokens_binary_string_to_int(token, &num, 0) != 0) { return token_type; }
+      if (tokens_binary_string_to_int(token, &num, false) != 0) { return token_type; }
       snprintf(token, len, "%" PRId64, num);
       token_type = TOKEN_NUMBER;
     }
