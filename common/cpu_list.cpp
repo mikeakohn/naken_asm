@@ -301,7 +301,7 @@ struct _cpu_list cpu_list[] =
 #endif
 #ifdef ENABLE_65816
   {
-    "65c832",
+    "65832",
     CPU_TYPE_65816,
     ENDIAN_LITTLE,
     1,
