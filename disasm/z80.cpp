@@ -31,16 +31,12 @@ static const char *cond[]      = { "nz", "z", "nc", "c", "po", "pe", "p", "m" };
 
 static const char *get_instruction(int instr_enum)
 {
-  int n;
-
-  n = 0;
-  while (table_instr_z80[n].instr != NULL)
+  for (int n = 0; table_instr_z80[n].instr != NULL; n++)
   {
     if (table_instr_z80[n].instr_enum == instr_enum)
     {
       return table_instr_z80[n].instr;
     }
-    n++;
   }
 
   return "";
@@ -85,10 +81,9 @@ int disasm_z80(
   opcode = READ_RAM(address);
   opcode16 = READ_RAM16(address);
 
-  n = 0;
-  while (table_z80[n].instr_enum != Z80_NONE)
+  for (n = 0; table_z80[n].instr_enum != Z80_NONE; n++)
   {
-    if (table_z80[n].mask > 0xff) { n++; continue; }
+    if (table_z80[n].mask > 0xff) { continue; }
     if (table_z80[n].opcode == (opcode & table_z80[n].mask))
     {
       *cycles_min = table_z80[n].cycles_min;
@@ -299,15 +294,11 @@ int disasm_z80(
         }
       }
     }
-      else
-
-    n++;
   }
 
-  n = 0;
-  while (table_z80[n].instr_enum != Z80_NONE)
+  for (n = 0; table_z80[n].instr_enum != Z80_NONE; n++)
   {
-    if (table_z80[n].mask <= 0xff) { n++; continue; }
+    if (table_z80[n].mask <= 0xff) { continue; }
     if (table_z80[n].opcode == (opcode16 & table_z80[n].mask))
     {
       *cycles_min = table_z80[n].cycles_min;
@@ -599,16 +590,13 @@ int disasm_z80(
         }
       }
     }
-
-    n++;
   }
 
   if ((opcode16 & 0xdfff) == 0xddcb)
   {
     i = READ_RAM(address + 3);
 
-    n = 0;
-    while (table_z80_4_byte[n].instr_enum != Z80_NONE)
+    for (n = 0; table_z80_4_byte[n].instr_enum != Z80_NONE; n++)
     {
       if ((i & table_z80_4_byte[n].mask) == table_z80_4_byte[n].opcode)
       {
@@ -636,7 +624,6 @@ int disasm_z80(
           }
         }
       }
-      n++;
     }
   }
 

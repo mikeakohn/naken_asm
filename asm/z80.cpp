@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -273,23 +273,21 @@ int parse_instruction_z80(AsmContext *asm_context, char *instr)
   int token_type;
   char instr_case[TOKENLEN];
   struct _operand operands[3];
-  int operand_count=0;
-  int offset=0;
-  int matched=0;
+  int operand_count = 0;
+  int offset = 0;
+  bool matched = false;
   int instr_enum;
   int num;
-  int n,reg;
+  int n, reg;
 
   lower_copy(instr_case, instr);
 
   memset(&operands, 0, sizeof(operands));
 
   // Find instruction
-  n = 0;
-  while (table_instr_z80[n].instr != NULL)
+  for (n = 0; table_instr_z80[n].instr != NULL; n++)
   {
     if (strcmp(instr_case, table_instr_z80[n].instr) == 0) { break; }
-    n++;
   }
 
   if (table_instr_z80[n].instr == NULL)
@@ -301,9 +299,10 @@ int parse_instruction_z80(AsmContext *asm_context, char *instr)
   //instr_index = n;
   instr_enum = table_instr_z80[n].instr_enum;
 
-  while (1)
+  while (true)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
+
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
       break;
@@ -318,6 +317,7 @@ int parse_instruction_z80(AsmContext *asm_context, char *instr)
     if (IS_TOKEN(token,'('))
     {
       token_type = tokens_get(asm_context, token, TOKENLEN);
+
       if ((n = get_reg16(token)) != -1)
       {
         operands[operand_count].type = OPERAND_INDEX_REG16;
@@ -334,8 +334,10 @@ int parse_instruction_z80(AsmContext *asm_context, char *instr)
       {
         operands[operand_count].type = OPERAND_INDEX_REG16_XY;
         operands[operand_count].value = n;
+
         token_type = tokens_get(asm_context, token, TOKENLEN);
         tokens_push(asm_context, token, token_type);
+
         if (IS_NOT_TOKEN(token,')'))
         {
           if (eval_expression(asm_context, &num) != 0)
@@ -357,12 +359,14 @@ int parse_instruction_z80(AsmContext *asm_context, char *instr)
         else
       {
         tokens_push(asm_context, token, token_type);
+
         if (eval_expression(asm_context, &num) != 0)
         {
           if (asm_context->pass == 1)
           {
             int paren_count = 1;
-            while (1)
+
+            while (true)
             {
               token_type = tokens_get(asm_context, token, TOKENLEN);
               if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
@@ -492,12 +496,12 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
 
   // Instruction is parsed, now find matching opcode
 
-  n = 0;
-  while (table_z80[n].instr_enum != Z80_NONE)
+  for (n = 0; table_z80[n].instr_enum != Z80_NONE; n++)
   {
     if (table_z80[n].instr_enum == instr_enum)
     {
-      matched = 1;
+      matched = true;
+
       switch (table_z80[n].type)
       {
         case OP_NONE:
@@ -1581,15 +1585,14 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
         }
       }
     }
-    n++;
   }
 
-  n = 0;
-  while (table_z80_4_byte[n].instr_enum != Z80_NONE)
+  for (n = 0; table_z80_4_byte[n].instr_enum != Z80_NONE; n++)
   {
     if (table_z80_4_byte[n].instr_enum == instr_enum)
     {
-      matched = 1;
+      matched = true;
+
       switch (table_z80_4_byte[n].type)
       {
         case OP_BIT_INDEX_V2:
@@ -1628,11 +1631,9 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
         }
       }
     }
-
-    n++;
   }
 
-  if (matched==1)
+  if (matched)
   {
     print_error_unknown_operand_combo(asm_context, instr);
   }
