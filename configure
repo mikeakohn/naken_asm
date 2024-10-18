@@ -98,6 +98,7 @@ COMMON_OBJS="
   macros.o
   Memory.o
   MemoryPool.o
+  Operator.o
   Symbols.o
   tokens.o
   Var.o"

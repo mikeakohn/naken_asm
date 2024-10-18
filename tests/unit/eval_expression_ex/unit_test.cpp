@@ -105,6 +105,8 @@ int main(int argc, char *argv[])
   printf("eval_expression() test\n");
 
   test_int("-6", -6);
+  //test_int("6 + -5", 1);
+  //test_int("6 + -5 + -3", -2);
   test_int("3*5", 15);
   test_int("3+5+1*2", 10);
   test_int("3 * 5", 15);
