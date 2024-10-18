@@ -12,12 +12,14 @@
 #ifndef NAKEN_ASM_OPERATOR_H
 #define NAKEN_ASM_OPERATOR_H
 
+#include "Var.h"
+
 class Operator
 {
 public:
   Operator() :
-    operation  (OPER_UNSET),
-    precedence (PREC_UNSET)
+    operation  { OPER_UNSET },
+    precedence { PREC_UNSET }
   {
   }
 
@@ -32,6 +34,7 @@ public:
 
   bool is_math_operator(const char *token);
   bool set_operator(const char *token);
+  int execute(Var &var_d, Var &var_s);
   const char *to_string();
 
   enum
@@ -55,8 +58,8 @@ public:
     OPER_MOD,
     OPER_PLUS,
     OPER_MINUS,
-    OPER_LEFT_SHIFT,
-    OPER_RIGHT_SHIFT,
+    OPER_SHIFT_L,
+    OPER_SHIFT_R,
     OPER_AND,
     OPER_XOR,
     OPER_OR

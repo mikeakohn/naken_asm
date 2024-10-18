@@ -62,39 +62,22 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
 
     if (token_type == TOKEN_QUOTED)
     {
-      if (token[0] == '\\')
+      if (get_quoted_literal(asm_context, token, sizeof(token)) != 0)
       {
-        int e = tokens_escape_char(asm_context, (uint8_t *)token);
-        if (e == 0) { return -1; }
-        if (token[e + 1] != 0)
-        {
-          print_error(asm_context, "Quoted literal too long.");
-          return -1;
-        }
-        snprintf(token, sizeof(token), "%d", token[e]);
-      }
-        else
-      {
-        if (token[1] != 0)
-        {
-          print_error(asm_context, "Quoted literal too long.");
-          return -1;
-        }
-        snprintf(token, sizeof(token), "%d", token[0]);
+        return -1;
       }
 
       token_type = TOKEN_NUMBER;
     }
 
     // Open and close parenthesis
-    if (IS_TOKEN(token,'('))
+    if (IS_TOKEN(token, '('))
     {
       if (last_token_was_op == 0 && oper.is_set())
       {
-        operate(
+        last_operator.execute(
           var_stack[var_stack_ptr - 2],
-          var_stack[var_stack_ptr - 1],
-          last_operator);
+          var_stack[var_stack_ptr - 1]);
 
         var_stack_ptr--;
         oper.reset();
@@ -271,10 +254,9 @@ printf("TOKEN %s: precedence %d %d\n", token, last_operator.precedence, oper.pre
       }
         else
       {
-        operate(
+        last_operator.execute(
           var_stack[var_stack_ptr - 2],
-          var_stack[var_stack_ptr - 1],
-          last_operator);
+          var_stack[var_stack_ptr - 1]);
 
         var_stack_ptr--;
         last_operator = oper;
@@ -297,10 +279,9 @@ PRINT_STACK()
 
   if (last_operator.is_set())
   {
-    operate(
+    last_operator.execute(
       var_stack[var_stack_ptr - 2],
-      var_stack[var_stack_ptr - 1],
-      last_operator);
+      var_stack[var_stack_ptr - 1]);
 
     var_stack_ptr--;
   }
@@ -308,38 +289,6 @@ PRINT_STACK()
   var = var_stack[var_stack_ptr - 1];
 
   return 0;
-}
-
-int EvalExpression::operate(Var &var_d, Var &var_s, Operator &oper)
-{
-  switch (oper.operation)
-  {
-    case Operator::OPER_NOT:
-      return var_d.logical_not(var_d);
-    case Operator::OPER_MUL:
-      return var_d.mul(var_d, var_s);
-    case Operator::OPER_DIV:
-      return var_d.div(var_d, var_s);
-    case Operator::OPER_MOD:
-      return var_d.mod(var_d, var_s);
-    case Operator::OPER_PLUS:
-      return var_d.add(var_d, var_s);
-    case Operator::OPER_MINUS:
-      return var_d.sub(var_d, var_s);
-    case Operator::OPER_LEFT_SHIFT:
-      return var_d.shift_left(var_d, var_s);
-    case Operator::OPER_RIGHT_SHIFT:
-      return var_d.shift_right(var_d, var_s);
-    case Operator::OPER_AND:
-      return var_d.logical_and(var_d, var_s);
-    case Operator::OPER_XOR:
-      return var_d.logical_xor(var_d, var_s);
-    case Operator::OPER_OR:
-      return var_d.logical_or(var_d, var_s);
-    default:
-      printf("Internal Error: Bad operator %d?\n", oper.operation);
-      return 0;
-  }
 }
 
 int EvalExpression::parse_unary(
@@ -414,6 +363,38 @@ int EvalExpression::parse_unary(
     default:
       print_error_internal(NULL, __FILE__, __LINE__);
       return -1;
+  }
+
+  return 0;
+}
+
+int EvalExpression::get_quoted_literal(
+  AsmContext *asm_context,
+  char *token,
+  int length)
+{
+  if (token[0] == '\\')
+  {
+    int e = tokens_escape_char(asm_context, (uint8_t *)token);
+    if (e == 0) { return -1; }
+
+    if (token[e + 1] != 0)
+    {
+      print_error(asm_context, "Quoted literal too long.");
+      return -1;
+    }
+
+    snprintf(token, length, "%d", token[e]);
+  }
+    else
+  {
+    if (token[1] != 0)
+    {
+      print_error(asm_context, "Quoted literal too long.");
+      return -1;
+    }
+
+    snprintf(token, length, "%d", token[0]);
   }
 
   return 0;

@@ -29,8 +29,69 @@ private:
   EvalExpression()  { }
   ~EvalExpression() { }
 
+  class VarStack
+  {
+  public:
+
+    VarStack() : ptr { 0 }
+    {
+    }
+
+    int push(Var &var)
+    {
+      if (ptr >= 3) { return -1; }
+      stack[ptr++] = var;
+    }
+
+    int size() { return ptr; }
+
+    int pop_first()
+    {
+      assert(ptr > 0);
+
+      for (int i = 0; i < ptr - 1; i++)
+      {
+        stack[i] = stack[i + 1];
+      }
+
+      ptr--;
+    }
+
+    int pop()
+    {
+      assert(ptr > 0);
+
+      ptr--;
+    }
+
+    Var &get_first()
+    {
+      assert(ptr >= 1);
+
+      return stack[0];
+    }
+
+    Var &get_second()
+    {
+      assert(ptr >= 2);
+
+      return stack[ptr - 2];
+    }
+
+    Var &get_bottom()
+    {
+      assert(ptr >= 3);
+
+      return stack[ptr - 1];
+    }
+
+    Var stack[3];
+    int ptr;
+  };
+
   static int operate(Var &var_d, Var &var_s, Operator &oper);
   static int parse_unary(AsmContext *asm_context, int64_t *num, int operation);
+  static int get_quoted_literal(AsmContext *asm_context, char *token, int length);
 
 };
 

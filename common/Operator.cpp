@@ -9,7 +9,11 @@
  *
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "Operator.h"
+#include "Var.h"
 
 bool Operator::is_math_operator(const char *token)
 {
@@ -87,18 +91,40 @@ bool Operator::set_operator(const char *token)
   if (token[0] == '<' && token[1] == '<')
   {
     precedence = PREC_SHIFT;
-    operation = OPER_LEFT_SHIFT;
+    operation = OPER_SHIFT_L;
     return true;
   }
     else
   if (token[0] == '>' && token[1] == '>')
   {
     precedence = PREC_SHIFT;
-    operation = OPER_RIGHT_SHIFT;
+    operation = OPER_SHIFT_R;
     return true;
   }
 
   return false;
+}
+
+int Operator::execute(Var &var_d, Var &var_s)
+{
+  switch (operation)
+  {
+    case OPER_NOT:     return var_d.logical_not(var_d);
+    case OPER_MUL:     return var_d.mul(var_d, var_s);
+    case OPER_DIV:     return var_d.div(var_d, var_s);
+    case OPER_MOD:     return var_d.mod(var_d, var_s);
+    case OPER_PLUS:    return var_d.add(var_d, var_s);
+    case OPER_MINUS:   return var_d.sub(var_d, var_s);
+    case OPER_SHIFT_L: return var_d.shift_left(var_d, var_s);
+    case OPER_SHIFT_R: return var_d.shift_right(var_d, var_s);
+    case OPER_AND:     return var_d.logical_and(var_d, var_s);
+    case OPER_XOR:     return var_d.logical_xor(var_d, var_s);
+    case OPER_OR:      return var_d.logical_or(var_d, var_s);
+    default:
+      printf("Internal Error: Bad operator %d?\n", operation);
+      assert(false);
+      return 0;
+  }
 }
 
 const char *Operator::to_string()
@@ -112,8 +138,8 @@ const char *Operator::to_string()
     "%",  // OPER_MOD:
     "+",  // OPER_PLUS:
     "-",  // OPER_MINUS:
-    "<<", // OPER_LEFT_SHIFT:
-    ">>", // OPER_RIGHT_SHIFT:
+    "<<", // OPER_SHIFT_L:
+    ">>", // OPER_SHIFT_R:
     "&",  // OPER_AND:
     "^",  // OPER_XOR:
     "|"   // OPER_OR::
