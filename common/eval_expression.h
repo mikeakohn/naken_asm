@@ -33,7 +33,7 @@ private:
   {
   public:
 
-    VarStack() : ptr { 0 }
+    VarStack() : ptr (0)
     {
     }
 
@@ -41,6 +41,8 @@ private:
     {
       if (ptr >= 3) { return -1; }
       stack[ptr++] = var;
+
+      return 0;
     }
 
     int size() { return ptr; }
@@ -55,6 +57,8 @@ private:
       }
 
       ptr--;
+
+      return 0;
     }
 
     int pop()
@@ -62,6 +66,8 @@ private:
       assert(ptr > 0);
 
       ptr--;
+
+      return 0;
     }
 
     Var &get_first()

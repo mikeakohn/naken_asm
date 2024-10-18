@@ -18,8 +18,8 @@ class Operator
 {
 public:
   Operator() :
-    operation  { OPER_UNSET },
-    precedence { PREC_UNSET }
+    operation  (OPER_UNSET),
+    precedence (PREC_UNSET)
   {
   }
 
