@@ -41,14 +41,11 @@ public:
   template <typename TYPE>
   TYPE get_data()
   {
-    if (type == VAR_INT)
+    switch (type)
     {
-      return (TYPE)value_int;
-    }
-      else
-    if (type == VAR_FLOAT)
-    {
-      return (TYPE)value_float;
+      case VAR_INT:   return (TYPE)value_int;
+      case VAR_FLOAT: return (TYPE)value_float;
+      default: break;
     }
 
     assert(false);
@@ -73,10 +70,32 @@ public:
     type = VAR_INT;
   }
 
+  void set_int(const char *value)
+  {
+    value_int = atoll(value);
+    type = VAR_INT;
+  }
+
   void set_float(double value)
   {
     value_float = value;
     type = VAR_FLOAT;
+  }
+
+  void set_float(const char *value)
+  {
+    value_float = atof(value);
+    type = VAR_FLOAT;
+  }
+
+  void negative()
+  {
+    switch (type)
+    {
+      case VAR_INT:   value_int   = -value_int;   break;
+      case VAR_FLOAT: value_float = -value_float; break;
+      default: assert(false);
+    }
   }
 
   uint32_t get_bin32();
