@@ -23,6 +23,20 @@ public:
   {
   }
 
+  Operator(const Operator &o)
+  {
+    operation  = o.operation;
+    precedence = o.precedence;
+  }
+
+  Operator & operator= (const Operator &s)
+  {
+    operation  = s.operation;
+    precedence = s.precedence;
+
+    return *this;
+  }
+
   bool is_unset() { return operation == OPER_UNSET; }
   bool is_set()   { return operation != OPER_UNSET; }
 
@@ -32,7 +46,7 @@ public:
     precedence = PREC_UNSET;
   }
 
-  bool is_math_operator(const char *token);
+  static bool is_math_operator(const char *token);
   bool set_operator(const char *token);
   int execute(Var &var_d, Var &var_s);
   const char *to_string();

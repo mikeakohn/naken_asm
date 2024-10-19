@@ -18,32 +18,22 @@
 #include "common/Operator.h"
 #include "common/tokens.h"
 
-int EvalExpression::run(
-  AsmContext *asm_context,
-  Var &var,
-  Operator &last_oper)
+int EvalExpression::run(AsmContext *asm_context, Var &answer, bool is_paren)
 {
   char token[TOKENLEN];
   int token_type;
   VarStack var_stack;
-  Operator oper;
-  int last_token_was_op = -1;
-
-  oper = last_oper;
-  var_stack.push(var);
+  OperStack oper_stack;
+  int count = 0;
 
   while (true)
   {
     token_type = tokens_get(asm_context, token, TOKENLEN);
 
-#ifdef DEBUG
-printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
-#endif
-
-    // Issue 15: Return an error if a stack is full with no operator.
-    if (var_stack.size() == 3 && oper.is_unset())
+    if (token_type == TOKEN_EOL || token_type == TOKEN_EOF)
     {
-      return -1;
+      tokens_push(asm_context, token, token_type);
+      break;
     }
 
     if (token_type == TOKEN_QUOTED)
@@ -59,186 +49,141 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
     // Open and close parenthesis
     if (IS_TOKEN(token, '('))
     {
-      if (last_token_was_op == 0 && oper.is_set())
+      // This is probably the x(r12) case.. so this is actually okay.
+      if (need_symbol(count))
       {
-        last_oper.execute(
-          var_stack.get_second(),
-          var_stack.get_last());
-
-        var_stack.pop();
-        oper.reset();
-
-        var = var_stack.pop();
-
         tokens_push(asm_context, token, token_type);
-        return 0;
+        break;
       }
 
-      if (oper.is_unset() && var_stack.size() == 2)
-      {
-        // This is probably the x(r12) case.. so this is actually okay.
-        var = var_stack.pop();
-        tokens_push(asm_context, token, token_type);
-        return 0;
-      }
-
-      Var paren_var;
-      Operator paren_operator;
-
-      paren_var.clear();
-
-      if (run(asm_context, paren_var, paren_operator) != 0)
-      {
-        return -1;
-      }
-
-      last_token_was_op = 0;
-
-#ifdef DEBUG
-printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&paren_var), var_get_type(&paren_var));
-#endif
-
-      var_stack.push(paren_var);
-
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-
-      //if (!(token[0] == ')' && token[1] == 0))
-      if (IS_NOT_TOKEN(token, ')'))
-      {
-        print_error(asm_context, "No matching ')'");
-        return -1;
-      }
-
-      continue;
+      Var var;
+      if (run(asm_context, var, true) != 0) { return -1; }
+      var_stack.push(var);
+      count++;
     }
-
-    if (IS_TOKEN(token,')'))
+      else
+    if (IS_TOKEN(token, ')'))
     {
-      tokens_push(asm_context, token, token_type);
+      if (is_paren == false)
+      {
+        // This is probably the end of some instruction syntax such as
+        // Z80 "and (ix+5)".
+        tokens_push(asm_context, token, token_type);
+        break;
+      }
+
       break;
     }
-
-    // End of expression
+      else
     if (IS_TOKEN(token, ',') ||
         IS_TOKEN(token, ']') ||
+        IS_TOKEN(token, '[') ||
         IS_TOKEN(token, '.') ||
         token_type == TOKEN_EOF)
     {
+      if (is_paren == true)
+      {
+        print_error_unexp(asm_context, token);
+        return -1;
+      }
+
+      // End of expression
       tokens_push(asm_context, token, token_type);
       break;
     }
-
-    if (token_type == TOKEN_EOL)
-    {
-      tokens_push(asm_context, token, token_type);
-      break;
-    }
-
-    //bool do_minus = false;
-
-#if 0
-    if (oper.is_set() && IS_TOKEN(token, '-'))
-    {
-      do_minus = true;
-      token_type = tokens_get(asm_context, token, TOKENLEN);
-    }
-#endif
-
-    // Read number.
+      else
     if (token_type == TOKEN_NUMBER)
     {
-      last_token_was_op = 0;
+      // 0: empty
+      // 1: num
+      // 2:   oper
+      // 3: num
+      // 4:   oper
+      // 5: (num)
 
-      if (var_stack.size() == 3)
+      if (need_symbol(count) || var_stack.size() == 3)
       {
         print_error_unexp(asm_context, token);
         return -1;
       }
 
       var_stack.push_int(token);
+      count++;
     }
       else
     if (token_type == TOKEN_FLOAT)
     {
-      if (var_stack.size() == 3)
+      if (need_symbol(count) || var_stack.size() == 3)
       {
         print_error_unexp(asm_context, token);
         return -1;
       }
 
       var_stack.push_float(token);
+      count++;
     }
       else
     if (token_type == TOKEN_SYMBOL)
     {
-      last_token_was_op = 1;
-
-      Operator operator_prev = oper;
-
-      if (oper.set_operator(token) == false)
+      if (need_number(count))
       {
-        print_error_unexp(asm_context, token);
-        return -1;
-      }
+        Var var;
 
-      // Issue 15: 2015-July-21 mkohn - If operator is ~ then reverse
-      // the next number.
-      if (oper.operation == Operator::OPER_NOT)
-      {
-        int64_t num;
-
-        if (parse_unary(asm_context, &num, Operator::OPER_NOT) != 0)
+        if (IS_TOKEN(token, '+') && count == 0)
         {
+          // If the expression starts with +.
+          // Was needed for Z80 "and (ix+5)".
+          Operator oper;
+          oper.set_operator("+");
+          var_stack.push_int((uint64_t)0);
+          oper_stack.push(oper);
+          count += 2;
+        }
+          else
+        if (IS_TOKEN(token, '-'))
+        {
+          // Needed for: 6 + -5.
+          parse_unary_new(asm_context, var);
+          var.negative();
+          var_stack.push(var);
+          count++;
+        }
+          else
+        if (IS_TOKEN(token, '~'))
+        {
+          // Needed for: ~0xfe.
+          parse_unary_new(asm_context, var);
+          var.complement();
+          var_stack.push(var);
+          count++;
+        }
+          else
+        {
+          print_error_unexp(asm_context, token);
+          return -1;
+        }
+      }
+        else
+      {
+        if (var_stack.is_empty() || need_symbol(count) == false)
+        {
+          printf("Error: Unexpected operator '%s' at %s:%d\n",
+            token,
+            asm_context->tokens.filename,
+            asm_context->tokens.line);
           return -1;
         }
 
-        if (var_stack.size() == 3)
+        Operator oper;
+
+        if (oper.set_operator(token) == false)
         {
           print_error_unexp(asm_context, token);
           return -1;
         }
 
-        var_stack.push_int(num);
-
-        oper = operator_prev;
-        last_token_was_op = 0;
-
-        continue;
-      }
-
-      if (var_stack.is_empty())
-      {
-        printf("Error: Unexpected operator '%s' at %s:%d\n",
-          token,
-          asm_context->tokens.filename,
-          asm_context->tokens.line);
-        return -1;
-      }
-
-      if (last_oper.is_unset())
-      {
-        last_oper = oper;
-      }
-        else
-      if (last_oper.precedence > oper.precedence)
-      {
-        Var var = var_stack.pop();
-
-        if (run(asm_context, var, oper) == -1)
-        {
-          return -1;
-        }
-
-        var_stack.push(var);
-      }
-        else
-      {
-        last_oper.execute(
-          var_stack.get_second(),
-          var_stack.get_last());
-
-        var_stack.pop();
-        last_oper = oper;
+        oper_stack.push(oper);
+        count++;
       }
     }
       else
@@ -247,101 +192,104 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
       {
         print_error_unexp(asm_context, token);
       }
+
       return -1;
+    }
+
+    if (var_stack.size() == 3)
+    {
+      if (oper_stack.size() != 2)
+      {
+        print_error_unexp(asm_context, token);
+        return -1;
+      }
+
+      if (execute_stack(var_stack, oper_stack) != 0) { return  -1; }
+      count -= 2;
     }
   }
 
-#ifdef DEBUG
-printf("going to leave  operation=%d\n", last_oper.operation);
-PRINT_STACK()
-#endif
+  if (var_stack.is_empty()) { return -1; }
 
-  if (last_oper.is_set())
+  while (var_stack.size() > 1 && oper_stack.is_empty() == false)
   {
-    last_oper.execute(
-      var_stack.get_second(),
-      var_stack.get_last());
-
-    var_stack.pop();
+    if (execute_stack(var_stack, oper_stack) != 0) { return  -1; }
   }
 
-  var = var_stack.pop();
+  answer = var_stack.pop();
 
   return 0;
 }
 
-int EvalExpression::parse_unary(
-  AsmContext *asm_context,
-  int64_t *num,
-  int operation)
+int EvalExpression::execute_stack(VarStack &var_stack, OperStack &oper_stack)
+{
+  Operator oper;
+  Var d;
+  Var s;
+
+  if (oper_stack.get_precedence_index() == 0)
+  {
+    oper = oper_stack.pop_first();
+
+    d = var_stack.pop_first();
+    s = var_stack.pop_first();
+
+    if (oper.execute(d, s) != 0) { return -1; }
+    var_stack.push_front(d);
+  }
+    else
+  {
+    oper = oper_stack.pop();
+
+    s = var_stack.pop();
+    d = var_stack.pop();
+
+    if (oper.execute(d, s) != 0) { return -1; }
+    var_stack.push(d);
+  }
+
+  return 0;
+}
+
+int EvalExpression::parse_unary_new(AsmContext *asm_context, Var &answer)
 {
   char token[TOKENLEN];
   int token_type;
-  int64_t temp;
-  Var var;
 
-  //var.clear();
+  answer.clear();
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
 
-  if (IS_TOKEN(token, '-'))
-  {
-    if (parse_unary(asm_context, &temp, Operator::OPER_MINUS) == -1)
-    {
-      return -1;
-    }
-  }
-    else
-  if (IS_TOKEN(token, '~'))
-  {
-    if (parse_unary(asm_context, &temp, Operator::OPER_NOT) != 0)
-    {
-      return -1;
-    }
-  }
-    else
   if (token_type == TOKEN_NUMBER)
   {
-    temp = atoll(token);
+    answer.set_int(token);
+  }
+    else
+  if (token_type == TOKEN_FLOAT)
+  {
+    answer.set_float(token);
   }
     else
   if (IS_TOKEN(token, '('))
   {
-    if (eval_expression(asm_context, var) != 0) { return -1; }
-
-    if (var.get_type() != VAR_INT)
-    {
-      print_error(asm_context, "Non-integer number in expression");
-      return -1;
-    }
-
-    temp = var.get_int64();
-
-    token_type = tokens_get(asm_context, token, TOKENLEN);
-
-    if (IS_NOT_TOKEN(token, ')'))
-    {
-      print_error_unexp(asm_context, token);
-      return -1;
-    }
+    if (run(asm_context, answer, true) != 0) { return -1; }
+  }
+    else
+  if (IS_TOKEN(token, '~'))
+  {
+    if (parse_unary_new(asm_context, answer) != 0) { return -1; }
+    answer.complement();
+  }
+    else
+  if (IS_TOKEN(token, '-'))
+  {
+    if (parse_unary_new(asm_context, answer) != 0) { return -1; }
+    answer.negative();
   }
     else
   {
     print_error_unexp(asm_context, token);
     return -1;
-  }
-
-  switch (operation)
-  {
-    case Operator::OPER_NOT:
-      *num = ~temp;
-      break;
-    case Operator::OPER_MINUS:
-      *num = -temp;
-      break;
-    default:
-      print_error_internal(NULL, __FILE__, __LINE__);
-      return -1;
   }
 
   return 0;
@@ -379,21 +327,19 @@ int EvalExpression::get_quoted_literal(
   return 0;
 }
 
-int eval_expression(AsmContext *asm_context, Var &var)
+int eval_expression(AsmContext *asm_context, Var &answer)
 {
-  Operator oper;
+  answer.clear();
 
-  var.clear();
-
-  return EvalExpression::run(asm_context, var, oper);
+  return EvalExpression::run(asm_context, answer, false);
 }
 
 int eval_expression(AsmContext *asm_context, int *num)
 {
-  Var var;
+  Var answer;
 
-  int ret = eval_expression(asm_context, var);
-  *num = var.get_int32();
+  int ret = eval_expression(asm_context, answer);
+  *num = answer.get_int32();
 
   return ret;
 }

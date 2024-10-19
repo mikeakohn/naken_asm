@@ -42,10 +42,12 @@ bool Operator::set_operator(const char *token)
   {
     switch (token[0])
     {
+#if 0
       case '~':
         precedence = PREC_NOT;
         operation  = OPER_NOT;
         break;
+#endif
       case '*':
         precedence = PREC_MUL;
         operation  = OPER_MUL;

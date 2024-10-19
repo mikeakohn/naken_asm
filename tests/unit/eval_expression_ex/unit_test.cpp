@@ -136,8 +136,10 @@ int main(int argc, char *argv[])
 
 
   test_int("-6", -6);
-  //test_int("6 + -5", 1);
-  //test_int("6 + -5 + -3", -2);
+  test_int("6 + -5", 1);
+  test_int("+6 + -5", 1);
+  test_int("6 + -5 + -3", -2);
+  test_int("~0xfe", 0xffffff01);
   test_int("3 * \"\\0\" + 1", 1);
   test_int("3 * '0' + 1", 145);
   test_int("3*5", 15);

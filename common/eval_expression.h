@@ -20,10 +20,7 @@
 class EvalExpression
 {
 public:
-  static int run(
-    AsmContext *asm_context,
-    Var &var,
-    Operator &last_operator);
+  static int run(AsmContext *asm_context, Var &var, bool is_paren);
 
 private:
   EvalExpression()  { }
@@ -41,6 +38,21 @@ private:
     {
       if (ptr >= 3) { return -1; }
       stack[ptr++] = var;
+
+      return 0;
+    }
+
+    int push_front(Var &var)
+    {
+      if (ptr >= 3) { return -1; }
+
+      for (int n = ptr; n > 0; n--)
+      {
+        stack[n] = stack[n - 1];
+      }
+
+      stack[0] = var;
+      ptr++;
 
       return 0;
     }
@@ -69,9 +81,11 @@ private:
     int size()      { return ptr; }
     bool is_empty() { return ptr == 0; }
 
-    int pop_first()
+    Var pop_first()
     {
       assert(ptr > 0);
+
+      Var first = stack[0];
 
       for (int i = 0; i < ptr - 1; i++)
       {
@@ -80,7 +94,7 @@ private:
 
       ptr--;
 
-      return 0;
+      return first;
     }
 
     Var pop()
@@ -120,8 +134,74 @@ private:
     int ptr;
   };
 
-  static int operate(Var &var_d, Var &var_s, Operator &oper);
-  static int parse_unary(AsmContext *asm_context, int64_t *num, int operation);
+  class OperStack
+  {
+  public:
+    OperStack() : ptr (0)
+    {
+    }
+
+    void push(Operator &oper)
+    {
+      assert(ptr < 2);
+      stack[ptr++] = oper;
+    }
+
+    Operator pop()
+    {
+      assert(ptr > 0);
+      return stack[--ptr];
+    }
+
+    Operator pop_first()
+    {
+      assert(ptr > 0);
+      Operator value = stack[0];
+      stack[0] = stack[1];
+      ptr--;
+
+      return value;
+    }
+
+    int get_precedence_index()
+    {
+      assert(ptr > 0);
+
+      if (ptr == 1) { return 0; }
+
+      if (stack[0].precedence > stack[1].precedence) { return 1; }
+      return 0;
+    }
+
+    int size()      { return ptr; }
+    bool is_empty() { return ptr == 0; }
+
+    void dump()
+    {
+      printf("-- oper_stack %d --\n", ptr);
+      for (int n = 0; n < ptr; n++)
+      {
+        printf("  %d) %s\n", n, stack[n].to_string());
+      }
+    }
+
+  private:
+    Operator stack[2];
+    int ptr;
+  };
+
+  static bool need_symbol(int count)
+  {
+    return count == 1 || count == 3;
+  }
+
+  static bool need_number(int count)
+  {
+    return count == 0 || count == 2 || count == 4;
+  }
+
+  static int execute_stack(VarStack &var_stack, OperStack &oper_stack);
+  static int parse_unary_new(AsmContext *asm_context, Var &answer);
   static int get_quoted_literal(AsmContext *asm_context, char *token, int length);
 
 };

@@ -106,6 +106,11 @@ public:
     }
   }
 
+  void complement()
+  {
+    value_int = ~value_int;
+  }
+
   uint32_t get_bin32();
   uint64_t get_bin64();
   int mul(Var &var_d, Var &var_s);
