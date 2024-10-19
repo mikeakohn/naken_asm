@@ -1174,7 +1174,6 @@ printf("-- %d %d %d\n", operands[n].type, operands[n].value, operands[n].offset)
               reg != -1)
           {
             add_bin8(asm_context, table_z80[n].opcode | reg, IS_OPCODE);
-            add_bin8(asm_context, table_z80[n].opcode | reg, IS_OPCODE);
             return 1;
           }
           break;
