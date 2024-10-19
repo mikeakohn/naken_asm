@@ -18,33 +18,19 @@
 #include "common/Operator.h"
 #include "common/tokens.h"
 
-#define PRINT_STACK() \
-{ \
-  int i; \
-  for (i = 0; i < var_stack_ptr; i++) printf("%d) %lx <-\n", i, var_stack[i].value_int); \
-}
-
 int EvalExpression::run(
   AsmContext *asm_context,
   Var &var,
-  Operator &last_operator)
+  Operator &last_oper)
 {
   char token[TOKENLEN];
   int token_type;
-  Var var_stack[3];
-  int var_stack_ptr = 1;
+  VarStack var_stack;
   Operator oper;
   int last_token_was_op = -1;
 
-#ifdef DEBUG
-printf("Enter eval_expression,  var=%d/%f/%d\n",
-  var.get_int32(),
-  var.get_float(),
-  var.get_type());
-#endif
-
-  oper = last_operator;
-  var_stack[0] = var;
+  oper = last_oper;
+  var_stack.push(var);
 
   while (true)
   {
@@ -55,7 +41,7 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
 #endif
 
     // Issue 15: Return an error if a stack is full with no operator.
-    if (var_stack_ptr == 3 && oper.is_unset())
+    if (var_stack.size() == 3 && oper.is_unset())
     {
       return -1;
     }
@@ -75,22 +61,23 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
     {
       if (last_token_was_op == 0 && oper.is_set())
       {
-        last_operator.execute(
-          var_stack[var_stack_ptr - 2],
-          var_stack[var_stack_ptr - 1]);
+        last_oper.execute(
+          var_stack.get_second(),
+          var_stack.get_last());
 
-        var_stack_ptr--;
+        var_stack.pop();
         oper.reset();
 
-        var = var_stack[var_stack_ptr - 1];
+        var = var_stack.pop();
+
         tokens_push(asm_context, token, token_type);
         return 0;
       }
 
-      if (oper.is_unset() && var_stack_ptr == 2)
+      if (oper.is_unset() && var_stack.size() == 2)
       {
         // This is probably the x(r12) case.. so this is actually okay.
-        var = var_stack[var_stack_ptr - 1];
+        var = var_stack.pop();
         tokens_push(asm_context, token, token_type);
         return 0;
       }
@@ -111,12 +98,12 @@ printf("eval_expression> token=%s   var_stack_ptr=%d\n", token, var_stack_ptr);
 printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&paren_var), var_get_type(&paren_var));
 #endif
 
-      var_stack[var_stack_ptr++] = paren_var;
+      var_stack.push(paren_var);
 
       token_type = tokens_get(asm_context, token, TOKENLEN);
 
-      // FIXME: if (IS_NOT_TOKEN(token, ')')
-      if (!(token[0] == ')' && token[1] == 0))
+      //if (!(token[0] == ')' && token[1] == 0))
+      if (IS_NOT_TOKEN(token, ')'))
       {
         print_error(asm_context, "No matching ')'");
         return -1;
@@ -143,13 +130,11 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
 
     if (token_type == TOKEN_EOL)
     {
-      //asm_context->tokens.line++;
       tokens_push(asm_context, token, token_type);
       break;
     }
 
-//printf("** token=%s %s\n", token, oper.to_string());
-    bool do_minus = false;
+    //bool do_minus = false;
 
 #if 0
     if (oper.is_set() && IS_TOKEN(token, '-'))
@@ -164,29 +149,24 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
     {
       last_token_was_op = 0;
 
-      if (var_stack_ptr == 3)
+      if (var_stack.size() == 3)
       {
         print_error_unexp(asm_context, token);
         return -1;
       }
 
-//printf("var_stack_ptr=%d\n", var_stack_ptr);
-
-      var_stack[var_stack_ptr].set_int(token);
-      if (do_minus) { var_stack[var_stack_ptr].negative(); }
-
-      var_stack_ptr++;
+      var_stack.push_int(token);
     }
       else
     if (token_type == TOKEN_FLOAT)
     {
-      if (var_stack_ptr == 3)
+      if (var_stack.size() == 3)
       {
         print_error_unexp(asm_context, token);
         return -1;
       }
 
-      var_stack[var_stack_ptr++].set_float(token);
+      var_stack.push_float(token);
     }
       else
     if (token_type == TOKEN_SYMBOL)
@@ -212,13 +192,13 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
           return -1;
         }
 
-        if (var_stack_ptr == 3)
+        if (var_stack.size() == 3)
         {
           print_error_unexp(asm_context, token);
           return -1;
         }
 
-        var_stack[var_stack_ptr++].set_int(num);
+        var_stack.push_int(num);
 
         oper = operator_prev;
         last_token_was_op = 0;
@@ -226,8 +206,7 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
         continue;
       }
 
-      // Stack pointer probably shouldn't be less than 2.
-      if (var_stack_ptr == 0)
+      if (var_stack.is_empty())
       {
         printf("Error: Unexpected operator '%s' at %s:%d\n",
           token,
@@ -236,30 +215,30 @@ printf("Paren got back %d/%f/%d\n", var_get_int32(&paren_var), var_get_float(&pa
         return -1;
       }
 
-#ifdef DEBUG
-printf("TOKEN %s: precedence %d %d\n", token, last_operator.precedence, oper.precedence);
-#endif
-
-      if (last_operator.is_unset())
+      if (last_oper.is_unset())
       {
-        last_operator = oper;
+        last_oper = oper;
       }
         else
-      if (last_operator.precedence > oper.precedence)
+      if (last_oper.precedence > oper.precedence)
       {
-        if (run(asm_context, var_stack[var_stack_ptr - 1], oper) == -1)
+        Var var = var_stack.pop();
+
+        if (run(asm_context, var, oper) == -1)
         {
           return -1;
         }
+
+        var_stack.push(var);
       }
         else
       {
-        last_operator.execute(
-          var_stack[var_stack_ptr - 2],
-          var_stack[var_stack_ptr - 1]);
+        last_oper.execute(
+          var_stack.get_second(),
+          var_stack.get_last());
 
-        var_stack_ptr--;
-        last_operator = oper;
+        var_stack.pop();
+        last_oper = oper;
       }
     }
       else
@@ -273,20 +252,20 @@ printf("TOKEN %s: precedence %d %d\n", token, last_operator.precedence, oper.pre
   }
 
 #ifdef DEBUG
-printf("going to leave  operation=%d\n", last_operator.operation);
+printf("going to leave  operation=%d\n", last_oper.operation);
 PRINT_STACK()
 #endif
 
-  if (last_operator.is_set())
+  if (last_oper.is_set())
   {
-    last_operator.execute(
-      var_stack[var_stack_ptr - 2],
-      var_stack[var_stack_ptr - 1]);
+    last_oper.execute(
+      var_stack.get_second(),
+      var_stack.get_last());
 
-    var_stack_ptr--;
+    var_stack.pop();
   }
 
-  var = var_stack[var_stack_ptr - 1];
+  var = var_stack.pop();
 
   return 0;
 }

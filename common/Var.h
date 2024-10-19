@@ -28,7 +28,7 @@ public:
   {
   }
 
-  Var(Var &v)
+  Var(const Var &v)
   {
     type = v.type;
     value_int = v.value_int;
@@ -36,6 +36,14 @@ public:
 
   ~Var()
   {
+  }
+
+  Var & operator= (const Var &s)
+  {
+    type      = s.type;
+    value_int = s.value_int;
+
+    return *this;
   }
 
   template <typename TYPE>

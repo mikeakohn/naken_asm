@@ -45,7 +45,29 @@ private:
       return 0;
     }
 
-    int size() { return ptr; }
+    int push_int(uint64_t value)
+    {
+      Var var;
+      var.set_int(value);
+      return push(var);
+    }
+
+    int push_int(const char *token)
+    {
+      Var var;
+      var.set_int(token);
+      return push(var);
+    }
+
+    int push_float(const char *token)
+    {
+      Var var;
+      var.set_float(token);
+      return push(var);
+    }
+
+    int size()      { return ptr; }
+    bool is_empty() { return ptr == 0; }
 
     int pop_first()
     {
@@ -61,34 +83,37 @@ private:
       return 0;
     }
 
-    int pop()
+    Var pop()
     {
       assert(ptr > 0);
-
-      ptr--;
-
-      return 0;
+      return stack[--ptr];
     }
 
     Var &get_first()
     {
       assert(ptr >= 1);
-
       return stack[0];
     }
 
     Var &get_second()
     {
       assert(ptr >= 2);
-
       return stack[ptr - 2];
     }
 
-    Var &get_bottom()
+    Var &get_last()
     {
-      assert(ptr >= 3);
-
+      assert(ptr >= 1);
       return stack[ptr - 1];
+    }
+
+    void dump()
+    {
+      printf("-- var_stack %d --\n", ptr);
+      for (int n = 0; n < ptr; n++)
+      {
+        printf("  %d) %ld\n", n, stack[n].get_int64());
+      }
     }
 
     Var stack[3];

@@ -9,6 +9,29 @@
 
 int errors = 0;
 
+int get_int(const char *expression)
+{
+  AsmContext asm_context;
+  Var var;
+
+  printf("Testing: %s\n", expression);
+
+  tokens_open_buffer(&asm_context, expression);
+  tokens_reset(&asm_context);
+
+  int ret = eval_expression(&asm_context, var);
+  int num = var.get_int32();
+
+  if (ret != 0)
+  {
+    printf("FAILED.  (error evaluating)\n");
+  }
+
+  tokens_close(&asm_context);
+
+  return num;
+}
+
 void test_int(const char *expression, int answer)
 {
   AsmContext asm_context;
@@ -104,6 +127,14 @@ int main(int argc, char *argv[])
 {
   printf("eval_expression() test\n");
 
+  if (argc >= 2)
+  {
+    int n = get_int(argv[1]);
+    printf("Answer: %d\n", n);
+    exit(0);
+  }
+
+
   test_int("-6", -6);
   //test_int("6 + -5", 1);
   //test_int("6 + -5 + -3", -2);
@@ -120,6 +151,7 @@ int main(int argc, char *argv[])
   test_int("(106 - 100) / 2 - 2", 1);
   test_int("6 / 2 - 2", 1);
   test_int("6 * 2 - 2", 10);
+  test_int("8 * 4 / 2", 16);
   test_int64("0xffffffff+1", 0x100000000);
   test_int64("~0", -1);
   test_int64("1 - ~0", 2);
