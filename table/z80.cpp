@@ -88,8 +88,8 @@ struct _table_instr_z80 table_instr_z80[] =
   { NULL,   0        }
 };
 
-// Note: Some items below *must* be ordered with the more-specific masked item listed before
-//       the less-specific masked item to be correctly used!
+// Note: Some items below *must* be ordered with the more-specific masked
+//       item listed before the less-specific masked item to be correctly used.
 //       This primarily involves the INDEX_HL vs REG8 type items.
 //       Rules for any opcode:
 //           OP_A_INDEX_HL       - must be before OP_A_REG8
