@@ -88,33 +88,45 @@ struct _table_instr_z80 table_instr_z80[] =
   { NULL,   0        }
 };
 
+// Note: Some items below *must* be ordered with the more-specific masked item listed before
+//       the less-specific masked item to be correctly used!
+//       This primarily involves the INDEX_HL vs REG8 type items.
+//       Rules for any opcode:
+//           OP_A_INDEX_HL       - must be before OP_A_REG8
+//           OP_INDEX_HL         - must be before OP_REG8 and OP_A_REG_IHALF
+//           OP_INDEX_HL         - must be before OP_REG8_V2
+//           OP_REG8_INDEX_HL    - must be before OP_REG8_REG8
+//           OP_INDEX_HL_REG8    - must be before OP_REG8_REG8
+//           OP_INDEX_HL_NUMBER8 - must be before OP_REG8_NUMBER8
+//           OP_BIT_INDEX_HL     - must be before OP_BIT_REG8
+
 struct _table_z80 table_z80[] =
 {
+  { Z80_ADC,  OP_A_INDEX_HL,          0x8e,   0xff,   0x00,  7,  7 },
   { Z80_ADC,  OP_A_REG8,              0x88,   0xf8,   0x00,  4,  4 },
   { Z80_ADC,  OP_A_REG_IHALF,         0xdd8c, 0xdffe, 0x00,  8,  8 },
   { Z80_ADC,  OP_A_NUMBER8,           0xce,   0xff,   0x00,  7,  7 },
-  { Z80_ADC,  OP_A_INDEX_HL,          0x8e,   0xff,   0x00,  7,  7 },
   { Z80_ADC,  OP_A_INDEX,             0xdd8e, 0xdfff, 0x00, 19, 19 },
   { Z80_ADC,  OP_HL_REG16_2,          0xed4a, 0xffcf, 0x00, 15, 15 },
+  { Z80_ADD,  OP_A_INDEX_HL,          0x86,   0xff,   0x00,  7,  7 },
   { Z80_ADD,  OP_A_REG8,              0x80,   0xf8,   0x00,  4,  4 },
   { Z80_ADD,  OP_A_REG_IHALF,         0xdd84, 0xdffe, 0x00,  8,  8 },
   { Z80_ADD,  OP_A_NUMBER8,           0xc6,   0xff,   0x00,  7,  7 },
-  { Z80_ADD,  OP_A_INDEX_HL,          0x86,   0xff,   0x00,  7,  7 },
   { Z80_ADD,  OP_A_INDEX,             0xdd86, 0xdfff, 0x00, 19, 19 },
   { Z80_ADD,  OP_HL_REG16_1,          0x09,   0xcf,   0x00, 11, 11 },
   { Z80_ADD,  OP_XY_REG16,            0xdd09, 0xdfcf, 0x00, 15, 15 },
+  { Z80_AND,  OP_INDEX_HL,            0xa6,   0xff,   0x00,  7,  7 },
   { Z80_AND,  OP_REG8,                0xa0,   0xf8,   0x00,  4,  4 },
   { Z80_AND,  OP_REG_IHALF,           0xdda4, 0xdffe, 0x00,  8,  8 },
   { Z80_AND,  OP_NUMBER8,             0xe6,   0xff,   0x00,  7,  7 },
-  { Z80_AND,  OP_INDEX_HL,            0xc6,   0xff,   0x00,  7,  7 },
   { Z80_AND,  OP_INDEX,               0xdda6, 0xdfff, 0x00, 19, 19 },
   { Z80_CALL, OP_ADDRESS,             0xcd,   0xff,   0x00, 17, 17 },
   { Z80_CALL, OP_COND_ADDRESS,        0xc4,   0xc7,   0x00, 10, 17 },
   { Z80_CCF,  OP_NONE,                0x3f,   0xff,   0x00,  4,  4 },
+  { Z80_CP,   OP_INDEX_HL,            0xbe,   0xff,   0x00,  7,  7 },
   { Z80_CP,   OP_REG8,                0xb8,   0xf8,   0x00,  4,  4 },
   { Z80_CP,   OP_REG_IHALF,           0xddbc, 0xdffe, 0x00,  8,  8 },
   { Z80_CP,   OP_NUMBER8,             0xfe,   0xff,   0x00,  7,  7 },
-  { Z80_CP,   OP_INDEX_HL,            0xbe,   0xff,   0x00,  7,  7 },
   { Z80_CP,   OP_INDEX,               0xddbe, 0xdfff, 0x00, 19, 19 },
   { Z80_CPD,  OP_NONE16,              0xeda9, 0xffff, 0x00, 16, 16 },
   { Z80_CPDR, OP_NONE16,              0xedb9, 0xffff, 0x00, 16, 21 },
@@ -122,10 +134,10 @@ struct _table_z80 table_z80[] =
   { Z80_CPIR, OP_NONE16,              0xedb1, 0xffff, 0x00, 16, 21 },
   { Z80_CPL,  OP_NONE,                0x2f,   0xff,   0x00,  4,  4 },
   { Z80_DAA,  OP_NONE,                0x27,   0xff,   0x00,  4,  4 },
+  { Z80_DEC,  OP_INDEX_HL,            0x35,   0xff,   0x00, 11, 11 },
   { Z80_DEC,  OP_REG8_V2,             0x05,   0xc7,   0x00,  4,  4 },
   { Z80_DEC,  OP_REG_IHALF_V2,        0xdd25, 0xdff7, 0x00,  8,  8 },
-  { Z80_DEC,  OP_INDEX_HL,            0xc6,   0xff,   0x00, 11, 11 },
-  { Z80_DEC,  OP_INDEX,               0xdd35, 0xdfff, 0x00, 19, 19 },
+  { Z80_DEC,  OP_INDEX,               0xdd35, 0xdfff, 0x00, 23, 23 },
   { Z80_DEC,  OP_REG16,               0x0b,   0xcf,   0x00,  6,  6 },
   { Z80_DEC,  OP_XY,                  0xdd2b, 0xdfff, 0x00, 10, 10 },
   { Z80_DI,   OP_NONE,                0xf3,   0xff,   0x00,  4,  4 },
@@ -141,9 +153,9 @@ struct _table_z80 table_z80[] =
   { Z80_IN,   OP_A_INDEX_N,           0xdb,   0xff,   0x00, 11, 11 },
   { Z80_IN,   OP_REG8_INDEX_C,        0xed40, 0xffc7, 0x00, 12, 12 },
   { Z80_IN,   OP_F_INDEX_C,           0xed70, 0xffff, 0x00, 12, 12 },
+  { Z80_INC,  OP_INDEX_HL,            0x34,   0xff,   0x00, 11, 11 },
   { Z80_INC,  OP_REG8_V2,             0x04,   0xc7,   0x00,  4,  4 },
   { Z80_INC,  OP_REG_IHALF_V2,        0xdd24, 0xdff7, 0x00,  8,  8 },
-  { Z80_INC,  OP_INDEX_HL,            0x34,   0xff,   0x00, 11, 11 },
   { Z80_INC,  OP_INDEX,               0xdd34, 0xdfff, 0x00, 23, 23 },
   { Z80_INC,  OP_REG16,               0x03,   0xcf,   0x00,  6,  6 },
   { Z80_INC,  OP_XY,                  0xdd23, 0xdfff, 0x00, 10, 10 },
@@ -157,15 +169,15 @@ struct _table_z80 table_z80[] =
   { Z80_JP,   OP_COND_ADDRESS,        0xc2,   0xc7,   0x00, 10, 10 },
   { Z80_JR,   OP_OFFSET8,             0x18,   0xff,   0x00, 12, 12 },
   { Z80_JR,   OP_JR_COND_ADDRESS,     0x20,   0xe7,   0x00,  7, 12 },
+  { Z80_LD,   OP_REG8_INDEX_HL,       0x46,   0xc7,   0x00,  7,  7 },
+  { Z80_LD,   OP_INDEX_HL_REG8,       0x70,   0xf8,   0x00,  7,  7 },
   { Z80_LD,   OP_REG8_REG8,           0x40,   0xc0,   0x00,  4,  4 },
 //  "ld", 0xdd44, 0xdfc6, OP_REG8_REG_IHALF, Z80_LD, 8        WTF??
 //  "ld", 0xdd60, 0xdff0, OP_REG_IHALF_REG8, Z80_LD, 8        WTF??
 //  "ld", 0xdd64, 0xdf64, OP_REG_IHALF_REG_IHALF, Z80_LD, 8   WTF??
-  { Z80_LD,   OP_REG8_NUMBER8,        0x06,   0xc7,   0x00,  7,  7 },
-  { Z80_LD,   OP_REG8_INDEX_HL,       0x46,   0xc7,   0x00,  7,  7 },
-  { Z80_LD,   OP_REG8_INDEX,          0xdd46, 0xdfc7, 0x00, 19, 19 },
-  { Z80_LD,   OP_INDEX_HL_REG8,       0x70,   0xf8,   0x00,  7,  7 },
   { Z80_LD,   OP_INDEX_HL_NUMBER8,    0x36,   0xff,   0x00, 10, 10 },
+  { Z80_LD,   OP_REG8_NUMBER8,        0x06,   0xc7,   0x00,  7,  7 },
+  { Z80_LD,   OP_REG8_INDEX,          0xdd46, 0xdfc7, 0x00, 19, 19 },
   { Z80_LD,   OP_INDEX_REG8,          0xdd70, 0xdff8, 0x00, 19, 19 },
   { Z80_LD,   OP_INDEX_NUMBER8,       0xdd36, 0xdfff, 0x00, 19, 19 },
   { Z80_LD,   OP_A_INDEX_BC,          0x0a,   0xff,   0x00,  7,  7 },
@@ -197,10 +209,10 @@ struct _table_z80 table_z80[] =
   { Z80_LDIR, OP_NONE16,              0xedb0, 0xffff, 0x00, 16, 21 },
   { Z80_NEG,  OP_NONE16,              0xed44, 0xffff, 0x00,  8,  8 },
   { Z80_NOP,  OP_NONE,                0x00,   0xff,   0x00,  4,  4 },
+  { Z80_OR,   OP_INDEX_HL,            0xb6,   0xff,   0x00,  7,  7 },
   { Z80_OR,   OP_REG8,                0xb0,   0xf8,   0x00,  4,  4 },
   { Z80_OR,   OP_REG_IHALF,           0xddb4, 0xdffe, 0x00,  8,  8 },
   { Z80_OR,   OP_NUMBER8,             0xf6,   0xff,   0x00,  7,  7 },
-  { Z80_OR,   OP_INDEX_HL,            0xb6,   0xff,   0x00,  7,  7 },
   { Z80_OR,   OP_INDEX,               0xddb6, 0xdfff, 0x00, 19, 19 },
   { Z80_OUT,  OP_INDEX_ADDRESS8_A,    0xd3,   0xff,   0x00, 11, 11 },
   { Z80_OUT,  OP_INDEX_C_ZERO,        0xed71, 0xffff, 0x00, 12, 12 },
@@ -213,8 +225,8 @@ struct _table_z80 table_z80[] =
   { Z80_POP,  OP_XY,                  0xdde1, 0xdfff, 0x00, 14, 14 },
   { Z80_PUSH, OP_REG16P,              0xc5,   0xcf,   0x00, 11, 11 },
   { Z80_PUSH, OP_XY,                  0xdde5, 0xdfff, 0x00, 15, 15 },
-  { Z80_RES,  OP_BIT_REG8,            0xcb80, 0xffc0, 0x00,  8,  8 },
   { Z80_RES,  OP_BIT_INDEX_HL,        0xcb86, 0xffc7, 0x00, 15, 15 },
+  { Z80_RES,  OP_BIT_REG8,            0xcb80, 0xffc0, 0x00,  8,  8 },
   { Z80_RET,  OP_NONE,                0xc9,   0xff,   0x00, 10, 10 },
   { Z80_RET,  OP_COND,                0xc0,   0xc7,   0x00,  5, 11 },
   { Z80_RETI, OP_NONE16,              0xed4d, 0xffff, 0x00, 14, 14 },
@@ -238,10 +250,10 @@ struct _table_z80 table_z80[] =
   { Z80_RRC,  OP_INDEX_LONG,          0xddcb, 0xdfff, 0x0e, 23, 23 },
   { Z80_RRD,  OP_NONE16,              0xed67, 0xffff, 0x00, 18, 18 },
   { Z80_RST,  OP_RESTART_ADDRESS,     0xc7,   0xc7,   0x00, 11, 11 },
+  { Z80_SBC,  OP_A_INDEX_HL,          0x9e,   0xff,   0x00,  7,  7 },
   { Z80_SBC,  OP_A_REG8,              0x98,   0xf8,   0x00,  4,  4 },
   { Z80_SBC,  OP_A_REG_IHALF,         0xdd9c, 0xdffe, 0x00,  8,  8 },
   { Z80_SBC,  OP_A_NUMBER8,           0xde,   0xff,   0x00,  7,  7 },
-  { Z80_SBC,  OP_A_INDEX_HL,          0x9e,   0xff,   0x00,  7,  7 },
   { Z80_SBC,  OP_A_INDEX,             0xdd9e, 0xdfff, 0x00, 19, 19 },
   { Z80_SBC,  OP_HL_REG16_2,          0xed42, 0xffcf, 0x00, 15, 15 },
   { Z80_SCF,  OP_NONE,                0x37,   0xff,   0x00,  4,  4 },
@@ -260,19 +272,19 @@ struct _table_z80 table_z80[] =
   { Z80_SRL,  OP_REG8_CB,             0xcb38, 0xfff8, 0x00,  8,  8 },
   { Z80_SRL,  OP_INDEX_LONG,          0xddcb, 0xdfff, 0x3e, 23, 23 },
   { Z80_STOP, OP_NONE24,              0xdddd, 0xffff, 0x00,  0,  0 },
+  { Z80_SUB,  OP_INDEX_HL,            0x96,   0xff,   0x00,  7,  7 },
   { Z80_SUB,  OP_REG8,                0x90,   0xf8,   0x00,  4,  4 },
   { Z80_SUB,  OP_REG_IHALF,           0xdd94, 0xdffe, 0x00,  8,  8 },
   { Z80_SUB,  OP_NUMBER8,             0xd6,   0xff,   0x00,  7,  7 },
-  { Z80_SUB,  OP_INDEX_HL,            0x96,   0xff,   0x00,  7,  7 },
   { Z80_SUB,  OP_INDEX,               0xdd96, 0xdfff, 0x00, 19, 19 },
+  { Z80_XOR,  OP_INDEX_HL,            0xae,   0xff,   0x00,  7,  7 },
   { Z80_XOR,  OP_REG8,                0xa8,   0xf8,   0x00,  4,  4 },
   { Z80_XOR,  OP_REG_IHALF,           0xddac, 0xdffe, 0x00,  8,  8 },
   { Z80_XOR,  OP_NUMBER8,             0xee,   0xff,   0x00,  7,  7 },
-  { Z80_XOR,  OP_INDEX_HL,            0xae,   0xff,   0x00,  7,  7 },
   { Z80_XOR,  OP_INDEX,               0xddae, 0xdfff, 0x00, 19, 19 },
-  { Z80_BIT,  OP_BIT_REG8,            0xcb40, 0xffc0, 0x00,  8,  8 },
   { Z80_BIT,  OP_BIT_INDEX_HL,        0xcb46, 0xffc7, 0x00, 12, 12 },
-  { Z80_BIT,  OP_BIT_INDEX,           0xddcb, 0xdfff, 0x00, 20, 20 },
+  { Z80_BIT,  OP_BIT_REG8,            0xcb40, 0xffc0, 0x00,  8,  8 },
+  { Z80_BIT,  OP_BIT_INDEX,           0xddcb, 0xdfff, 0x00, 20, 23 },
   { Z80_NONE }
 };
 
