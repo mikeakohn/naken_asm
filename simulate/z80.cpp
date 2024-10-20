@@ -50,7 +50,7 @@
                           memory->read8((a + 1) & 0xffff)
 
 #define WRITE_RAM(a, b) \
-                          if ((a) == (uint32_t)break_io) \
+                          if ((uint16_t)(a) == (uint32_t)break_io) \
                           { \
                             exit(b); \
                           } \
