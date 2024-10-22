@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  * Z80 simulation completed by D.L. Karmann
  *
@@ -42,21 +42,26 @@
 
 #define SHOW_STACK        work_sp, memory->read8((work_sp+1) & 0xffff), memory->read8(work_sp & 0xffff)
 
-#define READ_RAM(a)       memory->read8(a & 0xffff)
-#define READ_RAM16(a)     (memory->read8((a + 1) & 0xffff) << 8) | \
-                          memory->read8(a & 0xffff)
+#define READ_RAM(a) memory->read8((a) & 0xffff)
 
-#define READ_OPCODE16(a)  (memory->read8(a & 0xffff) << 8) | \
-                          memory->read8((a + 1) & 0xffff)
+#define READ_RAM16(a) \
+  ((memory->read8(((a) + 1) & 0xffff) << 8) | \
+    memory->read8((a) & 0xffff))
+
+#define READ_OPCODE16(a) \
+ ((memory->read8((a) & 0xffff) << 8) | \
+   memory->read8(((a) + 1) & 0xffff))
 
 #define WRITE_RAM(a, b) \
-                          if ((uint16_t)(a) == (uint32_t)break_io) \
-                          { \
-                            exit(b); \
-                          } \
-                          memory->write8(a & 0xffff, b)
-#define WRITE_RAM16(a,b)  memory->write8((a + 1) & 0xffff, b >> 8); \
-                          memory->write8(a & 0xffff, b & 0xff)
+  if ((uint16_t)(a) == (uint32_t)break_io) \
+  { \
+    exit(b); \
+  } \
+  memory->write8((a) & 0xffff, b)
+
+#define WRITE_RAM16(a, b) \
+  memory->write8(((a) + 1) & 0xffff, (b) >> 8); \
+  memory->write8((a) & 0xffff, (b) & 0xff)
 
 #define GET_S() ((reg[REG_F] >> 7) & 1)
 #define GET_Z() ((reg[REG_F] >> 6) & 1)
@@ -155,7 +160,7 @@ int SimulateZ80::set_reg(const char * reg_string, uint32_t value)
   reg_item = get_reg_id(reg_string);
   if (reg_item == -1)    // might be flags
   {
-    for (int n = 0; n < (sizeof(flags) / sizeof(char *)); ++n)
+    for (int n = 0; n < (int)(sizeof(flags) / sizeof(char *)); ++n)
     {
       if (strcasecmp(reg_string, "nc") == 0)
       {
@@ -391,7 +396,7 @@ void SimulateZ80::dump_registers()
   printf("-----------------------------------------------------------------------\n");
 
   printf("Status: %02x   ", reg[REG_F]);
-  for (int i = 0; i < (sizeof(flags) / sizeof(char *)); ++i)
+  for (int i = 0; i < (int)(sizeof(flags) / sizeof(char *)); ++i)
   {
     printf("%s ", flags[i]);
   }
@@ -429,7 +434,7 @@ int SimulateZ80::dump_ram(int start, int end)
   int n, count;
 
   count = 0;
-  if (end >= sizeof(io_mem))
+  if (end >= (int)sizeof(io_mem))
   {
     end = sizeof(io_mem) - 1;   // limit IO space
   }
@@ -962,7 +967,7 @@ void SimulateZ80::set_overflow16(int _new, int old, int number, bool neg)
 
 // Do 'S', 'Z', 'H', 'PV', 'CY' flags
 // 'a' is result of op, 'number' is value used in op, 'vflag' is V flag calculation to do
-void SimulateZ80::set_flags_a(int a, int number, int8_t vflag, uint8_t instr_enum)
+void SimulateZ80::set_flags_a(int a, int number, int8_t vflag, uint16_t instr_enum)
 {
   int a0 = reg[REG_A];    // original value of A
 
@@ -1092,7 +1097,7 @@ void SimulateZ80::set_flags_a(int a, int number, int8_t vflag, uint8_t instr_enu
 // Do 'S', 'Z', 'H', 'PV', 'CY' flags
 // '_new' is result of op, 'old' is original value of modified item,
 // 'number' is value used in op, 'vflag' is V flag calculation to do
-void SimulateZ80::set_flags8(int _new, int old, int number, int8_t vflag, uint8_t instr_enum)
+void SimulateZ80::set_flags8(int _new, int old, int number, int8_t vflag, uint16_t instr_enum)
 {
   // overflow/parity - (P/V)
   switch (vflag)

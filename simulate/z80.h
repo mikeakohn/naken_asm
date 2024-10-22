@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -95,8 +95,8 @@ private:
   void set_half_carry16(int _new, int old, int number, bool neg);
   void set_carry16(int _new, int old, int number, bool neg);
   void set_overflow16(int _new, int old, int number, bool neg);
-  void set_flags_a(int a, int number, int8_t vflag, uint8_t instr_enum);
-  void set_flags8(int _new, int old, int number, int8_t vflag, uint8_t instr_enum);
+  void set_flags_a(int a, int number, int8_t vflag, uint16_t instr_enum);
+  void set_flags8(int _new, int old, int number, int8_t vflag, uint16_t instr_enum);
   void set_flags16(int _new, int old, int number, int8_t vflag, uint8_t instr_enum);
   int daa(uint8_t instr_enum);
   int execute_op_none(struct _table_z80 * table_z80_item);
