@@ -12,6 +12,9 @@
 #ifndef NAKEN_ASM_EVAL_EXPRESSION_H
 #define NAKEN_ASM_EVAL_EXPRESSION_H
 
+#include <stdint.h>
+#include <inttypes.h>
+
 #include "common/assembler.h"
 #include "common/eval_expression.h"
 #include "common/Operator.h"
@@ -126,7 +129,7 @@ private:
       printf("-- var_stack %d --\n", ptr);
       for (int n = 0; n < ptr; n++)
       {
-        printf("  %d) %ld\n", n, stack[n].get_int64());
+        printf("  %d) %" PRId64 "\n", n, stack[n].get_int64());
       }
     }
 
