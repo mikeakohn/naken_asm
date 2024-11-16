@@ -32,8 +32,8 @@ struct _table_agc table_agc[] =
   { "dca",    030001, 070001, AGC_OP_K12,  true,  3 },
   { "dcom",   040001, 077777, AGC_OP_NONE, true,  3 }, // same as dcs A
   { "dcs",    040001, 070001, AGC_OP_K12,  true,  3 },
-  { "ddoubl", 020001, 077777, AGC_OP_NONE, true,  3 },
-  { "dim",    026000, 076000, AGC_OP_K10,  false, 2 },
+  { "ddoubl", 020001, 077777, AGC_OP_NONE, false, 3 },
+  { "dim",    026000, 076000, AGC_OP_K10,  true,  2 },
   { "double", 060000, 077777, AGC_OP_NONE, false, 2 }, // same as ad A
   { "dtcb",   052006, 077777, AGC_OP_NONE, false, 3 },
   { "dtcf",   052005, 077777, AGC_OP_NONE, false, 3 },
@@ -42,7 +42,7 @@ struct _table_agc table_agc[] =
   { "edrupt", 007000, 077000, AGC_OP_IO,   true,  3 },
   { "extend", 000006, 077777, AGC_OP_NONE, false, 1 }, // not used
   { "incr",   024000, 076001, AGC_OP_K10,  false, 2 },
-  { "index",  050000, 076000, AGC_OP_K10,  false, 2 },
+  { "index",  050000, 076000, AGC_OP_K10,  false, 2 }, // 12 bit as extra
   { "ndx",    050000, 076000, AGC_OP_K10,  false, 2 }, // same as index
   { "inhint", 000004, 077777, AGC_OP_NONE, false, 2 }, // same as index
   { "lxch",   022000, 076000, AGC_OP_K10,  false, 2 },
