@@ -23,6 +23,7 @@
 #include "fileio/read_macho.h"
 #include "fileio/read_srec.h"
 #include "fileio/read_ti_txt.h"
+#include "fileio/read_uf2.h"
 #include "fileio/read_wdc.h"
 #include "fileio/write_amiga.h"
 #include "fileio/write_bin.h"
@@ -30,6 +31,7 @@
 #include "fileio/write_hex.h"
 #include "fileio/write_macho.h"
 #include "fileio/write_srec.h"
+#include "fileio/write_uf2.h"
 #include "fileio/write_wdc.h"
 
 int file_write(const char *filename, AsmContext *asm_context, int file_type)
@@ -87,6 +89,11 @@ int file_write(const char *filename, AsmContext *asm_context, int file_type)
       asm_context->cpu_type,
       cpu_list[asm_context->cpu_list_index].alignment);
   }
+    else
+  if (file_type == FILE_TYPE_UF2)
+  {
+    write_uf2(&asm_context->memory, out);
+  }
 
   fclose(out);
 
@@ -105,6 +112,7 @@ const char *file_get_file_type_name(int file_type)
     case FILE_TYPE_AMIGA:  return "amiga";
     case FILE_TYPE_TI_TXT: return "ti_txt";
     case FILE_TYPE_MACHO:  return "macho";
+    case FILE_TYPE_UF2:    return "uf2";
   }
 
   return "???";
@@ -133,15 +141,20 @@ static int is_elf(const char *filename)
   return check_magic(filename, "\x7f" "ELF");
 }
 
+static int is_amiga(const char *filename)
+{
+  return check_magic(filename, "\x00" "\x00" "\x03" "\xf3");
+}
+
 static int is_macho(const char *filename)
 {
   return check_magic(filename, "\xce" "\xfa" "\xed" "\xfe") ||
          check_magic(filename, "\xcf" "\xfa" "\xed" "\xfe");
 }
 
-static int is_amiga(const char *filename)
+static int is_uf2(const char *filename)
 {
-  return check_magic(filename, "\x00" "\x00" "\x03" "\xf3");
+  return check_magic(filename, "UF2\n");
 }
 
 static int is_hex(const char *filename)
@@ -182,11 +195,13 @@ static int get_file_type(const char *filename)
   if (strcasecmp(extension, "wdc")  == 0) { return FILE_TYPE_WDC; }
   if (strcasecmp(extension, "srec") == 0) { return FILE_TYPE_SREC; }
   if (strcasecmp(extension, "txt")  == 0) { return FILE_TYPE_TI_TXT; }
+  if (strcasecmp(extension, "uf2")  == 0) { return FILE_TYPE_UF2; }
 
   if (is_elf(filename)   == 1) { return FILE_TYPE_ELF; }
   if (is_macho(filename) == 1) { return FILE_TYPE_MACHO; }
   if (is_amiga(filename) == 1) { return FILE_TYPE_AMIGA; }
   if (is_hex(filename)   == 1) { return FILE_TYPE_HEX; }
+  if (is_uf2(filename)   == 1) { return FILE_TYPE_UF2; }
 
   if (strcasecmp(extension, "bin") == 0)  { return FILE_TYPE_BIN; }
 
@@ -238,6 +253,9 @@ int file_read(
       break;
     case FILE_TYPE_MACHO:
       ret = read_macho(filename, memory, &cpu_type, symbols);
+      break;
+    case FILE_TYPE_UF2:
+      ret = read_uf2(filename, memory);
       break;
     default:
       break;

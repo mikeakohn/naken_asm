@@ -113,6 +113,7 @@ FILEIO_OBJS="
   read_macho.o
   read_srec.o
   read_ti_txt.o
+  read_uf2.o
   read_wdc.o
   write_amiga.o
   write_bin.o
@@ -120,6 +121,7 @@ FILEIO_OBJS="
   write_hex.o
   write_macho.o
   write_srec.o
+  write_uf2.o
   write_wdc.o"
 
 for cpu in ${CPUS}
@@ -186,7 +188,6 @@ show_help()
   echo "  --prefix=PATH             base path to install to (${INSTALL_PREFIX})"
   echo "  --include-path=PATH       default: (${INSTALL_PREFIX}/share/naken_asm/includes)"
   echo "  --compiler-prefix=PREFIX  for cross-compilers"
-  echo "  --enable-debug            compile in debug code"
   echo
 
   exit
@@ -282,8 +283,6 @@ for option in $@; do
   --help) show_help
   ;;
   --enable-debug) DEBUG="-DDEBUG -g"
-  ;;
-  --disable-elf) CFLAGS="${CFLAGS} -DDISABLE_ELF"
   ;;
   --cflags=*) CFLAGS="${CFLAGS} $optval"
   ;;

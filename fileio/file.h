@@ -28,6 +28,7 @@ enum
   FILE_TYPE_AMIGA,
   FILE_TYPE_TI_TXT,
   FILE_TYPE_MACHO,
+  FILE_TYPE_UF2,
 };
 
 int file_write(const char *filename, AsmContext *asm_context, int file_type);

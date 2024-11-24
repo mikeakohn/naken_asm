@@ -71,6 +71,15 @@ void FileIo::set_endian(int value)
   }
 }
 
+int FileIo::get_file_length()
+{
+  fseek(fp, 0, SEEK_END);
+  int length = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+
+  return length;
+}
+
 void FileIo::write_int32_at_offset(int32_t n, long offset)
 {
   long marker = tell();

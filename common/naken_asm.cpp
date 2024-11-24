@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
   {
     printf("Usage: naken_asm [options] <infile>\n"
            "   -o <outfile>\n"
-           "   -type <hex, elf, bin, macho, srec, amiga, wdc>\n"
+           "   -type <hex, elf, bin, macho, srec, amiga, wdc, uf2>\n"
            "   -l             [create .lst listing file]\n"
            "   -I             [add to include path]\n"
            "   -q             Quiet (only output errors)\n"
@@ -131,13 +131,11 @@ int main(int argc, char *argv[])
     {
       file_type = FILE_TYPE_SREC;
     }
-#ifndef DISABLE_ELF
       else
     if (strcmp(argv[i], "-elf") == 0 || strcmp(argv[i], "-e") == 0)
     {
       file_type = FILE_TYPE_ELF;
     }
-#endif
       else
     if (strcmp(argv[i], "-wdc") == 0)
     {
@@ -192,6 +190,11 @@ int main(int argc, char *argv[])
       if (strcmp(argv[i], "macho") == 0)
       {
         file_type = FILE_TYPE_MACHO;
+      }
+        else
+      if (strcmp(argv[i], "uf2") == 0)
+      {
+        file_type = FILE_TYPE_UF2;
       }
         else
       {
@@ -302,6 +305,7 @@ int main(int argc, char *argv[])
       case FILE_TYPE_WDC:   outfile = "out.wdc";   break;
       case FILE_TYPE_AMIGA: outfile = "out";       break;
       case FILE_TYPE_MACHO: outfile = "out.macho"; break;
+      case FILE_TYPE_UF2:   outfile = "out.uf2";   break;
       default:              outfile = "out.err";   break;
     }
   }

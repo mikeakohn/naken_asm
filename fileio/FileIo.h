@@ -30,6 +30,8 @@ public:
 
   void set_endian(int value);
 
+  int get_file_length();
+
   int get_int8() { return getc(fp); }
   uint32_t get_int16() { return get_int16_func(fp); }
   uint32_t get_int32() { return get_int32_func(fp); }
