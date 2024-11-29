@@ -38,7 +38,7 @@ int disasm_agc(
   if (opcode == 000006)
   {
      is_extra_code = true;
-     opcode = memory->read8(address);
+     opcode = memory->read16(address);
   }
 
   count = is_extra_code ? 4 : 2;
@@ -135,8 +135,8 @@ void list_output_agc(
         memory->read16(start + 2));
     }
 
-    fprintf(asm_context->list, "0o%04o: %-11s %-40s  %d\n",
-      start,
+    fprintf(asm_context->list, "0%04o: %-11s %-40s  %d\n",
+      start / 2,
       temp,
       instruction,
       cycles_min);
@@ -183,8 +183,8 @@ void disasm_range_agc(
         memory->read16(start + 2));
     }
 
-    printf("0o%04o: %-11s %-40s  %d\n",
-      start,
+    printf("0%04o: %-11s %-40s  %d\n",
+      start / 2,
       temp,
       instruction,
       cycles_min);
