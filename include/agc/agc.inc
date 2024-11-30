@@ -67,3 +67,13 @@ RADARRUPT equ 04044
 HANDRUPT  equ 04050
 RUPT10    equ 04050 ; Alias of HANDRUPT
 
+;; I/O
+IO_L            equ 1
+IO_Q            equ 2
+IO_HISCALAR     equ 3
+IO_LOSCALAR     equ 4
+IO_PYJETS       equ 5
+IO_ROLLJETS     equ 6
+IO_SUPERBNK     equ 7
+IO_ENABLE_TIME6 equ 013
+
