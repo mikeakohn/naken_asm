@@ -38,7 +38,7 @@ int disasm_agc(
   if (opcode == 000006)
   {
      is_extra_code = true;
-     opcode = memory->read16(address);
+     opcode = memory->read16(address + 2);
   }
 
   count = is_extra_code ? 4 : 2;
