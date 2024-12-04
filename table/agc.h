@@ -22,6 +22,7 @@ enum
   AGC_OP_K10,
   AGC_OP_K12,
   AGC_OP_IO,
+  AGC_OP_NDX,
 };
 
 struct _table_agc

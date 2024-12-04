@@ -42,9 +42,10 @@ struct _table_agc table_agc[] =
   { "edrupt", 007000, 077000, AGC_OP_IO,   true,  3 },
   { "extend", 000006, 077777, AGC_OP_NONE, false, 1 }, // not used
   { "incr",   024000, 076001, AGC_OP_K10,  false, 2 },
-  { "index",  050000, 076000, AGC_OP_K10,  false, 2 }, // 12 bit as extra
-  { "ndx",    050000, 076000, AGC_OP_K10,  false, 2 }, // same as index
-  { "inhint", 000004, 077777, AGC_OP_NONE, false, 2 }, // same as index
+  { "resume", 050017, 077777, AGC_OP_NONE, false, 2 },
+  { "index",  050000, 076000, AGC_OP_NDX,  false, 2 }, // 12 bit as extra
+  { "ndx",    050000, 076000, AGC_OP_NDX,  false, 2 }, // same as index
+  { "inhint", 000004, 077777, AGC_OP_NONE, false, 2 },
   { "lxch",   022000, 076000, AGC_OP_K10,  false, 2 },
   { "mask",   070000, 070000, AGC_OP_K12,  false, 2 },
   { "msk",    070000, 070000, AGC_OP_K12,  false, 2 }, // same as mask
@@ -57,7 +58,6 @@ struct _table_agc table_agc[] =
   { "rand",   002000, 077000, AGC_OP_IO,   true,  2 },
   { "read",   000000, 077000, AGC_OP_IO,   true,  2 },
   { "relint", 000003, 077777, AGC_OP_NONE, false, 2 },
-  { "resume", 050017, 077777, AGC_OP_NONE, false, 2 },
   { "return", 000002, 077777, AGC_OP_NONE, false, 2 },
   { "ror",    004000, 077000, AGC_OP_IO,   true,  2 },
   { "rxor",   006000, 077000, AGC_OP_IO,   true,  2 },
@@ -76,6 +76,7 @@ struct _table_agc table_agc[] =
   { "xxalq",  000000, 077777, AGC_OP_NONE, false, 1 }, // alias of tc A
   { "zl",     022007, 077777, AGC_OP_NONE, false, 2 },
   { "zq",     022007, 077777, AGC_OP_NONE, true,  2 },
+  { "index",  050000, 070000, AGC_OP_NDX,  true,  2 }, // same as index
   { NULL,     000000, 000000, 0,           false, 0 }
 };
 

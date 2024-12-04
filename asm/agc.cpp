@@ -163,6 +163,30 @@ int parse_instruction_agc(AsmContext *asm_context, char *instr)
 
           return 2;
         }
+        case AGC_OP_NDX:
+        {
+          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (check_range(asm_context, "index", operands[0].value, 0, 0xfff) == -1) { return -1; }
+
+          if ((operands[0].value & 0xc00) == 0)
+          {
+            opcode = table_agc[n].opcode | (operands[0].value & 0x3ff);
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 2;
+          }
+            else
+          {
+            opcode = table_agc[n].opcode | (operands[0].value & 0xfff);
+            add_bin16(asm_context, 0x0006, IS_OPCODE);
+            add_bin16(asm_context, opcode, IS_OPCODE);
+            return 4;
+          }
+        }
         default:
           break;
       }

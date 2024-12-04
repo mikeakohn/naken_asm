@@ -85,6 +85,23 @@ int disasm_agc(
 
           return count;
         }
+        case AGC_OP_NDX:
+        {
+          if (is_extra_code)
+          {
+            snprintf(instruction, length, "%s 0%o",
+              table_agc[n].instr,
+              opcode & 0xfff);
+          }
+            else
+          {
+            snprintf(instruction, length, "%s 0%o",
+              table_agc[n].instr,
+              opcode & 0x3ff);
+          }
+
+          return count;
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);
