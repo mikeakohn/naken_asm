@@ -41,7 +41,7 @@ struct _table_agc table_agc[] =
   { "dxch",   052001, 076001, AGC_OP_K10,  false, 3 },
   { "edrupt", 007000, 077000, AGC_OP_IO,   true,  3 },
   { "extend", 000006, 077777, AGC_OP_NONE, false, 1 }, // not used
-  { "incr",   024000, 076001, AGC_OP_K10,  false, 2 },
+  { "incr",   024000, 076000, AGC_OP_K10,  false, 2 },
   { "resume", 050017, 077777, AGC_OP_NONE, false, 2 },
   { "index",  050000, 076000, AGC_OP_NDX,  false, 2 }, // 12 bit as extra
   { "ndx",    050000, 076000, AGC_OP_NDX,  false, 2 }, // same as index
