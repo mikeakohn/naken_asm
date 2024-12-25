@@ -15,7 +15,8 @@ CPU this source file should be assembled for.
 |.1802            |RCA 1802
 |.4004            |Intel 4004 (MCS-4)
 |.6502            |6502, 6510, and any other 65xx CPUs
-|.65816           |W65C816
+|.65816           |W65C816 (16 bit 6502)
+|.65832           |W65C832 (32 bit 6502)
 |.6800            |6800
 |.6809            |6809
 |.68hc08          |68HC08
@@ -25,6 +26,7 @@ CPU this source file should be assembled for.
 |.8048            |8048/MCS-48 (and similar)
 |.8051            |8051/8052/MCS-51 (and similar)
 |.86000           |86000
+|.agc             |Apollo Guidance Computer
 |.arm             |All 32 bit ARM CPUs
 |.avr8            |Atmel AVR8
 |.cell            |IBM Cell BE (Playstation 3)
