@@ -43,7 +43,15 @@ struct _table_8051
   int8_t range;   // range of register or page (r0, r1, r2 etc)
 };
 
+struct _table_8051_a251
+{
+  const char *name;
+  uint8_t opcode;
+  uint8_t type;
+};
+
 extern struct _table_8051 table_8051[];
+extern struct _table_8051_a251 table_8051_a251[];
 
 #endif
 

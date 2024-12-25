@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -271,5 +271,12 @@ struct _table_8051 table_8051[] =
   { "mov",   { OP_REG,        OP_A,         OP_NONE    },  5 }, // 0xfd
   { "mov",   { OP_REG,        OP_A,         OP_NONE    },  6 }, // 0xfe
   { "mov",   { OP_REG,        OP_A,         OP_NONE    },  7 }, // 0xff
+};
+
+struct _table_8051_a251 table_8051_a251[] =
+{
+  { "jsle", 0x08, OP_RELADDR },
+// A-63
+  { NULL, 0, 0 }
 };
 
