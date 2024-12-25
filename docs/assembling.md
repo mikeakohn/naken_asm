@@ -3,7 +3,7 @@ Assembling
 
     Usage: naken_asm [options] <infile>
        -o <outfile>
-       -type <hex, elf, bin, srec, amiga, wdc>
+       -type <hex, elf, bin, srec, amiga, wdc, uf2>
        -l             [create .lst listing file]
        -I             [add to include path]
        -q             Quite (only output errors)

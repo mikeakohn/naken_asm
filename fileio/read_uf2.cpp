@@ -47,6 +47,15 @@ static void print_block(Uf2Block &uf2_block, int offset)
   printf("  byte_count: %d\n",     uf2_block.byte_count);
   printf("block_number: %d\n",     uf2_block.sequence_block_number);
   printf("total_blocks: %d\n",     uf2_block.total_blocks);
+
+#if 0
+  for (uint32_t i = 0; i < sizeof(uf2_block.data); i++)
+  {
+    if ((i % 16) == 0) { printf("\n"); }
+    printf(" %02x", uf2_block.data[i]);
+  }
+#endif
+
   printf("board_family: 0x%08x\n", uf2_block.board_family);
 }
 
@@ -81,6 +90,9 @@ int read_uf2(const char *filename, Memory *memory)
       break;
     }
 
+#if 0
+    // REVIEW: pico2 generated programs seem to have invalid block
+    // and block numbers.
     if (uf2_block.sequence_block_number != block ||
         uf2_block.total_blocks == block)
     {
@@ -91,6 +103,7 @@ int read_uf2(const char *filename, Memory *memory)
 
       break;
     }
+#endif
 
     //printf("%04x %d\n", uf2_block.address, uf2_block.byte_count);
     //printf("%08x\n", uf2_block.board_family);
@@ -133,10 +146,14 @@ int read_uf2(const char *filename, Memory *memory)
     block += 1;
   }
 
+#if 0
+  // REVIEW: Again, the pico2 SDK seems to produce uf2 files that don't
+  // follow an order.
   if (uf2_block.total_blocks != block)
   {
     printf("Error: UF2 not enough blocks: %d\n", block);
   }
+#endif
 
   file.close_file();
 
