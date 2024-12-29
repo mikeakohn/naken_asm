@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -21,7 +21,7 @@
 #include "common/eval_expression.h"
 #include "table/riscv.h"
 
-#define MAX_OPERANDS 5
+#define MAX_OPERANDS 6
 
 enum
 {
@@ -33,6 +33,11 @@ enum
   OPERAND_REGISTER_OFFSET,
   // FIXME: What is this?
   OPERAND_IORW,
+  // RISC-V V-extension (vectors).
+  OPERAND_VSEW,
+  OPERAND_LMUL,
+  OPERAND_TUA,
+  OPERAND_MUA,
 };
 
 #define RM_RNE 0
@@ -504,6 +509,130 @@ static int compute_alias(
 }
 #endif
 
+static int build_vset(_operand *operands, int operand_count, uint32_t &opcode)
+{
+  if (operand_count < 3)
+  {
+    return -1;
+  }
+
+  int value = 0;
+
+  for (int i = 2; i < operand_count; i++)
+  {
+    switch (operands[i].type)
+    {
+      case OPERAND_VSEW:
+        value |= operands[i].value << 3;
+        break;
+      case OPERAND_LMUL:
+        value |= operands[i].value;
+        break;
+      case OPERAND_TUA:
+        value |= operands[i].value << 6;
+        break;
+      case OPERAND_MUA:
+        value |= operands[i].value << 7;
+        break;
+      default:
+        return -1;
+    }
+  }
+
+  opcode |= value << 20;
+
+  return 0;
+}
+
+static bool check_for_vector_config(const char *token, _operand &operand)
+{
+  if (strcasecmp(token, "tu") == 0)
+  {
+    operand.type = OPERAND_TUA;
+    operand.value = 0;
+    return true;
+  }
+
+  if (strcasecmp(token, "ta") == 0)
+  {
+    operand.type = OPERAND_TUA;
+    operand.value = 1;
+    return true;
+  }
+
+  if (strcasecmp(token, "mu") == 0)
+  {
+    operand.type = OPERAND_MUA;
+    operand.value = 0;
+    return true;
+  }
+
+  if (strcasecmp(token, "ma") == 0)
+  {
+    operand.type = OPERAND_MUA;
+    operand.value = 1;
+    return true;
+  }
+
+  int value = 0;
+
+  if (token[0] == 'e')
+  {
+    int n = atoi(token + 1);
+
+    switch (n)
+    {
+      case  8: value = 0; break;
+      case 16: value = 1; break;
+      case 32: value = 2; break;
+      case 64: value = 3; break;
+      default: return false;
+    }
+
+    operand.type = OPERAND_VSEW;
+    operand.value = value;
+    return true;
+  }
+
+  if (token[0] == 'm')
+  {
+    if (token[1] == 'f')
+    {
+      int n = atoi(token + 2);
+
+      switch (n)
+      {
+        case 8: value = 5; break;
+        case 4: value = 6; break;
+        case 2: value = 7; break;
+        default: return false;
+      }
+
+      operand.type = OPERAND_LMUL;
+      operand.value = value;
+      return true;
+    }
+
+    int n = atoi(token + 1);
+
+    switch (n)
+    {
+      case 1: value = 0; break;
+      case 2: value = 1; break;
+      case 4: value = 2; break;
+      case 8: value = 3; break;
+      default: return false;
+    }
+
+    operand.type = OPERAND_LMUL;
+    operand.value = value;
+
+    return true;
+  }
+
+  return false;
+}
+
 static int get_operands(
   AsmContext *asm_context,
   struct _operand *operands,
@@ -620,6 +749,16 @@ static int get_operands(
         break;
       }
 
+      // Check for vset (vector instruction) operands.
+      // These should only be operand 3 and above.
+      if (operand_count >= 2)
+      {
+        if (check_for_vector_config(token, operands[operand_count]))
+        {
+          break;
+        }
+      }
+
       // Check if this is (reg)
       if (IS_TOKEN(token, '('))
       {
@@ -715,10 +854,6 @@ static int get_operands(
       {
         tokens_push(asm_context, token, token_type);
       }
-
-      //}
-
-      //break;
     } while (false);
 
     operand_count++;
@@ -727,7 +862,7 @@ static int get_operands(
 
     if (token_type == TOKEN_EOL) { break; }
 
-    if (IS_NOT_TOKEN(token, ',') || operand_count == 5)
+    if (IS_NOT_TOKEN(token, ',') || operand_count == MAX_OPERANDS)
     {
       print_error_unexp(asm_context, token);
       return -1;
@@ -1944,6 +2079,74 @@ int parse_instruction_riscv(AsmContext *asm_context, char *instr)
           opcode = table_riscv[n].opcode |
             (operands[0].value << 20) |
             (operands[1].value << 15);
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_V_VSET_RRI:
+        {
+          if (operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_X_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_riscv[n].opcode |
+            (operands[1].value << 15) |
+            (operands[0].value << 7);
+
+          if (operand_count == 3 && operands[2].type == OPERAND_NUMBER)
+          {
+            if (check_range(asm_context, "Immediate", operands[2].value, 0, 0x7ff) == -1) { return -1; }
+
+            opcode |= table_riscv[n].opcode | (operands[2].value << 20);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          if (build_vset(operands, operand_count, opcode) == -1)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          add_bin32(asm_context, opcode, IS_OPCODE);
+
+          return 4;
+        }
+        case OP_V_VSET_RII:
+        {
+          if (operands[0].type != OPERAND_X_REGISTER ||
+              operands[1].type != OPERAND_NUMBER )
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (check_range(asm_context, "Immediate", operands[1].value, 0, 31) == -1) { return -1; }
+
+          opcode = table_riscv[n].opcode |
+            (operands[1].value << 15) |
+            (operands[0].value << 7);
+
+          if (operand_count == 3 && operands[2].type == OPERAND_NUMBER)
+          {
+            if (check_range(asm_context, "Immediate", operands[2].value, 0, 0x3ff) == -1) { return -1; }
+
+            opcode |= table_riscv[n].opcode | (operands[2].value << 20);
+            add_bin32(asm_context, opcode, IS_OPCODE);
+
+            return 4;
+          }
+
+          if (build_vset(operands, operand_count, opcode) == -1)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
           add_bin32(asm_context, opcode, IS_OPCODE);
 
           return 4;

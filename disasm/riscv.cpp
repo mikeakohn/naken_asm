@@ -24,6 +24,16 @@ const char *riscv_reg_names[32] =
     "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
+static const char *riscv_vector_sew[8] =
+{
+  "e8", "e16", "e32", "e64",  "e?", "e?", "e?", "e?"
+};
+
+static const char *riscv_vector_lmul[8] =
+{
+  "m1", "m2", "m4", "m8",  "m?", "mf8", "mf4", "mf2"
+};
+
 // REVIEW: Probably don't need this since compressed register
 // can be mapped to reg + 8. Still not sure what to do with s0/fp.
 #if 0
@@ -431,6 +441,28 @@ int disasm_riscv(
             opcode >> 20,
             rs1);
           break;
+        case OP_V_VSET_RRI:
+          snprintf(instruction, length, "%s %s, %s, %s, %s, t%c, m%c",
+            instr,
+            riscv_reg_names[rd],
+            riscv_reg_names[rs1],
+            riscv_vector_sew[(opcode >> 23) & 0x7],
+            riscv_vector_lmul[(opcode >> 20) & 0x7],
+            ((opcode >> 26) & 1) == 0 ? 'u' : 'a',
+            ((opcode >> 27) & 1) == 0 ? 'u' : 'a');
+          break;
+        case OP_V_VSET_RII:
+          snprintf(instruction, length, "%s %s, %d, %s, %s, t%c, m%c",
+            instr,
+            riscv_reg_names[rd],
+            rs1,
+            riscv_vector_sew[(opcode >> 23) & 0x7],
+            riscv_vector_lmul[(opcode >> 20) & 0x7],
+            ((opcode >> 26) & 1) == 0 ? 'u' : 'a',
+            ((opcode >> 27) & 1) == 0 ? 'u' : 'a');
+          break;
+        //case OP_V_VSET_RRR:
+        //  break;
         default:
           strcpy(instruction, "???");
           break;

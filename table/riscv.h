@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -90,6 +90,10 @@ enum
   OP_ALIAS_RD_CSR,
   OP_ALIAS_CSR_RS1,
   OP_ALIAS_CSR_UIMM,
+  // RISC-V V Extension (vectors).
+  OP_V_VSET_RRI,
+  OP_V_VSET_RII,
+  //OP_V_VSET_RRR,
 };
 
 #define RISCV64  0x01

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2024 by Michael Kohn
  *
  */
 
@@ -298,13 +298,17 @@ struct _table_riscv table_riscv[] =
   { "fcvt.d.l",   0xd2200053, 0xfff0007f, OP_FP_R_RM,     0 },
   { "fcvt.d.lu",  0xd2300053, 0xfff0007f, OP_FP_R_RM,     0 },
   { "fmv.d.x",    0xf2000053, 0xfff0707f, OP_FP_R,        0 },
-  // Privileged Instructions?
+  // Privileged instructions?
   { "uret",       0x00200073, 0xffffffff, OP_NONE,        0 },
   { "sret",       0x10200073, 0xffffffff, OP_NONE,        0 },
   { "hret",       0x20200073, 0xffffffff, OP_NONE,        0 },
   { "mret",       0x30200073, 0xffffffff, OP_NONE,        0 },
   { "wfi",        0x10500073, 0xffffffff, OP_NONE,        0 },
   { "sfence.vm",  0x10400073, 0xfff07fff, OP_RS1,         0 },
+  // RISC-V V Extension (vectors).
+  { "vsetvli",    0x00007057, 0x8000707f, OP_V_VSET_RRI,  0 },
+  { "vsetivli",   0xc0007057, 0xc000707f, OP_V_VSET_RII,  0 },
+  { "vsetvl",     0x80007057, 0xfe00707f, OP_R_TYPE,      0 },
   { NULL,                  0,          0, 0,              0 }
 };
 
@@ -354,6 +358,7 @@ struct _table_riscv_comp table_riscv_comp[] =
   { "c.lwsp",      0x4002, 0xe003, OP_COMP_RD_5_4276,  0 },
   { "c.flwsp",     0x6002, 0xe003, OP_COMP_RD_5_4276,  RISCV_FP },
   { "c.ldsp",      0x6002, 0xe003, OP_COMP_RD_5_4386,  RISCV64 | RISCV128 },
+  { "c.ret",       0x8082, 0xffff, OP_NONE,            0 },
   { "c.jr",        0x8002, 0xf07f, OP_COMP_RD32,       0 },
   { "c.mv",        0x8002, 0xf003, OP_COMP_RS1_RS2,    0 },
   { "c.ebreak",    0x9002, 0xffff, OP_NONE,            0 },
