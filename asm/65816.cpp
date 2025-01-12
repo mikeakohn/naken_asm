@@ -270,6 +270,12 @@ int parse_instruction_65816(AsmContext *asm_context, char *instr)
     GET_TOKEN();
     if (token_type == TOKEN_EOL || token_type == TOKEN_EOF) { break; }
 
+    if (IS_TOKEN(token, ','))
+    {
+      print_error_unexp(asm_context, token);
+      return -1;
+    }
+
     // dot suffix
     if (IS_TOKEN(token, '.'))
     {
