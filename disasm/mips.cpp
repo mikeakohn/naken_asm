@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2025 by Michael Kohn
  *
  */
 
@@ -720,7 +720,7 @@ int disasm_mips(
       {
         rs = (opcode >> 21) & 0x1f;
         rt = (opcode >> 16) & 0x1f;
-        int16_t offset = (opcode & 0xffff) << 2;
+        int32_t offset = ((int32_t)((int16_t)(opcode & 0xffff))) << 2;
 
         snprintf(instruction, length, "%s %s, %s, 0x%x (offset=%d)",
           mips_branch_table[n].instr,
@@ -738,7 +738,7 @@ int disasm_mips(
          ((opcode >> 16) & 0x1f) == (uint32_t)mips_branch_table[n].op_rt)
       {
         rs = (opcode >> 21) & 0x1f;
-        int16_t offset = (opcode & 0xffff) << 2;
+        int32_t offset = ((int32_t)((int16_t)(opcode & 0xffff))) << 2;
 
         snprintf(instruction, length, "%s %s, 0x%x (offset=%d)",
           mips_branch_table[n].instr,
