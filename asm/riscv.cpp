@@ -28,6 +28,7 @@ enum
   OPERAND_NONE,
   OPERAND_X_REGISTER,
   OPERAND_F_REGISTER,
+  OPERAND_V_REGISTER,
   OPERAND_NUMBER,
   OPERAND_RM,
   OPERAND_REGISTER_OFFSET,
@@ -89,7 +90,7 @@ static const char *fence_string[] =
   "pi",
 };
 
-static int get_register_number(char *token)
+static int get_register_number(const char *token)
 {
   int num = 0;
 
@@ -106,7 +107,7 @@ static int get_register_number(char *token)
   return num;
 }
 
-static int get_x_register_riscv(char *token)
+static int get_x_register_riscv(const char *token)
 {
   if (token[0] != 'x' && token[0] != 'X')
   {
@@ -160,6 +161,54 @@ static int get_x_register_riscv(char *token)
   return get_register_number(token + 1);
 }
 
+static int get_f_register_riscv(const char *token)
+{
+  int n;
+
+  if (token[0] != 'f') { return -1; }
+
+  if (token[1] == 's')
+  {
+    n = get_register_number(token + 2);
+    if (n >= 0 && n <= 1) { return n + 8; }
+    if (n >= 2 && n <= 11) { return n - 2 + 18; }
+    return -1;
+  }
+
+#if 0
+  if (token[1] == 'v')
+  {
+    n = get_register_number(token + 2);
+    if (n >= 0 && n <= 1) { return n + 16; }
+    return -1;
+  }
+#endif
+
+  if (token[1] == 'a')
+  {
+    n = get_register_number(token + 2);
+    if (n >= 0 && n <= 7) { return n + 10; }
+    return -1;
+  }
+
+  if (token[1] == 't')
+  {
+    n = get_register_number(token + 2);
+    if (n >= 0 && n <= 7) { return n + 0; }
+    if (n >= 8 && n <= 11) { return n - 8 + 28; }
+    return -1;
+  }
+
+  return get_register_number(token + 1);
+}
+
+static int get_v_register_riscv(const char *token)
+{
+  if (token[0] != 'v') { return -1; }
+
+  return get_register_number(token + 2);
+}
+
 static uint32_t permutate_branch(int32_t offset)
 {
   uint32_t immediate;
@@ -210,47 +259,6 @@ static int permutate_16(int i, int8_t *table, bool is_unsigned = true)
   }
 
   return value;
-}
-
-static int get_f_register_riscv(char *token)
-{
-  int n;
-
-  if (token[0] != 'f') { return -1; }
-
-  if (token[1] == 's')
-  {
-    n = get_register_number(token + 2);
-    if (n >= 0 && n <= 1) { return n + 8; }
-    if (n >= 2 && n <= 11) { return n - 2 + 18; }
-    return -1;
-  }
-
-#if 0
-  if (token[1] == 'v')
-  {
-    n = get_register_number(token + 2);
-    if (n >= 0 && n <= 1) { return n + 16; }
-    return -1;
-  }
-#endif
-
-  if (token[1] == 'a')
-  {
-    n = get_register_number(token + 2);
-    if (n >= 0 && n <= 7) { return n + 10; }
-    return -1;
-  }
-
-  if (token[1] == 't')
-  {
-    n = get_register_number(token + 2);
-    if (n >= 0 && n <= 7) { return n + 0; }
-    if (n >= 8 && n <= 11) { return n - 8 + 28; }
-    return -1;
-  }
-
-  return get_register_number(token + 1);
 }
 
 static uint32_t find_opcode(const char *instr_case)
@@ -713,6 +721,15 @@ static int get_operands(
       if (n != -1)
       {
         operands[operand_count].type = OPERAND_F_REGISTER;
+        operands[operand_count].value = n;
+        break;
+      }
+
+      n = get_v_register_riscv(token);
+
+      if (n != -1)
+      {
+        operands[operand_count].type = OPERAND_V_REGISTER;
         operands[operand_count].value = n;
         break;
       }

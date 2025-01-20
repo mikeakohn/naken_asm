@@ -793,14 +793,14 @@ void list_output_riscv(
 
     if (count == 2)
     {
-      fprintf(asm_context->list, "0x%08x: 0x%04x     %s",
+      fprintf(asm_context->list, "0x%08x: 0x%04x     %s\n",
         start,
         opcode,
         instruction);
     }
       else
     {
-      fprintf(asm_context->list, "0x%08x: 0x%08x %s",
+      fprintf(asm_context->list, "0x%08x: 0x%08x %s\n",
         start,
         opcode,
         instruction);
