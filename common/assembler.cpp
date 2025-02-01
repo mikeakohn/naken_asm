@@ -118,7 +118,7 @@ void AsmContext::print_info(FILE *out)
 
   if (dump_macros == 1)
   {
-    macros_print(&macros, out);
+    macros.dump(out);
   }
 
   fprintf(out, "Include Paths: .\n");

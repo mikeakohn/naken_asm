@@ -53,26 +53,42 @@ public:
 
   void reset();
   int get_stack_ptr() { return stack_ptr; }
+  void lock()         { locked = true; }
+  bool is_locked()    { return locked; }
 
-  bool is_letter(char ch)
+  int dump(FILE *out);
+
+//private:
+  static bool is_letter(char ch)
   {
     return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
   }
 
-  bool is_digit(char ch)
+  static bool is_digit(char ch)
   {
     return ch >= '0' && ch <= '9';
   }
 
-//private:
   MemoryPool *memory_pool;
   int locked;
   int stack_ptr;
   char *stack[MAX_NESTED_MACROS];
 };
 
-struct MacrosIter
+class MacrosIter
 {
+public:
+  MacrosIter() :
+    memory_pool (NULL),
+    param_count (0),
+    name        (NULL),
+    value       (NULL),
+    ptr         (0),
+    count       (0),
+    end_flag    (0)
+  {
+  }
+
   MemoryPool *memory_pool;
   uint8_t param_count;
   char *name;
@@ -82,13 +98,9 @@ struct MacrosIter
   int end_flag;
 };
 
-//int macros_init(Macros *macros);
-//void macros_free(Macros *macros);
 int macros_append(AsmContext *asm_context, char *name, char *value, int param_count);
-void macros_lock(Macros *macros);
 char *macros_lookup(Macros *macros, char *name, int *param_count);
 int macros_iterate(Macros *macros, MacrosIter *iter);
-int macros_print(Macros *macros, FILE *out);
 int macros_push_define(Macros *macros, char *define);
 int macros_get_char(AsmContext *asm_context);
 void macros_strip(char *macro);

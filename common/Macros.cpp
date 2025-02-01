@@ -141,13 +141,13 @@ static int check_endm(char *macro, int ptr)
 {
   ptr--;
 
-  // Ignore white space at start of the line
+  // Ignore white space at start of the line.
   while (ptr > 0 && (macro[ptr] == ' ' || macro[ptr] == '\t'))
   {
     ptr--;
   }
 
-  // Ignore white space before a possible .endm
+  // Ignore white space before a possible .endm.
   while (ptr > 0 && !(macro[ptr] == '\n' || macro[ptr] == ' ' || macro[ptr] == '\t'))
   {
     ptr--;
@@ -177,7 +177,7 @@ int macros_append(
   int name_len;
   int value_len;
 
-  if (macros->locked == 1) { return 0; }
+  if (macros->is_locked()) { return 0; }
 
   if (macros_lookup(macros, name, &param_count_temp) != NULL ||
       asm_context->symbols.lookup(name, &address) == 0)
@@ -239,11 +239,6 @@ int macros_append(
   return 0;
 }
 
-void macros_lock(Macros *macros)
-{
-  macros->locked = 1;
-}
-
 char *macros_lookup(Macros *macros, char *name, int *param_count)
 {
   MemoryPool *memory_pool = macros->memory_pool;
@@ -265,6 +260,7 @@ char *macros_lookup(Macros *macros, char *name, int *param_count)
         *param_count = macro_data->param_count;
         return value;
       }
+
       ptr += macro_data->name_len + macro_data->value_len + sizeof(MacroData);
     }
 
@@ -309,63 +305,12 @@ int macros_iterate(Macros *macros, MacrosIter *iter)
   return -1;
 }
 
-int macros_print(Macros *macros, FILE *out)
-{
-  MacrosIter iter;
-
-  memset(&iter, 0, sizeof(iter));
-
-  fprintf(out, "%18s %s\n", "NAME", "VALUE");
-
-  while (macros_iterate(macros, &iter) != -1)
-  {
-    if (iter.param_count == 0)
-    {
-      fprintf(out, "%30s=", iter.name);
-    }
-      else
-    {
-      int n;
-
-      fprintf(out, "%30s(", iter.name);
-
-      for (n = 0; n < iter.param_count; n++)
-      {
-        if (n != 0) { fprintf(out, ","); }
-        fprintf(out, "{%d}", n + 1);
-      }
-      fprintf(out, ")=");
-    }
-
-    char *value = iter.value;
-
-    while (*value != 0)
-    {
-      if (*value == 1)
-      {
-        value++;
-        fprintf(out, "{%d}", *value);
-      }
-      else
-      {
-        fprintf(out, "%c", *value);
-      }
-
-      value++;
-    }
-
-    fprintf(out, "\n");
-  }
-
-  fprintf(out, "Total %d.\n\n", iter.count);
-
-  return 0;
-}
-
 int macros_push_define(Macros *macros, char *define)
 {
 #ifdef DEBUG
-printf("debug> macros_push_define(), define=%s macros->stack_ptr=%d\n", define, macros->stack_ptr);
+printf("debug> macros_push_define(), define=%s macros->stack_ptr=%d\n",
+  define,
+  macros->stack_ptr);
 #endif
 
   if (macros->stack_ptr >= MAX_NESTED_MACROS)
@@ -410,7 +355,8 @@ int macros_get_char(AsmContext *asm_context)
         exit(1);
       }
 #ifdef DEBUG
-printf("debug> macros_get_char() asm_context->def_param_stack_count=%d\n",asm_context->def_param_stack_count);
+printf("debug> macros_get_char() asm_context->def_param_stack_count=%d\n",
+  asm_context->def_param_stack_count);
 #endif
     }
     macros->stack_ptr--;
@@ -420,8 +366,12 @@ printf("debug> macros_get_char() asm_context->def_param_stack_count=%d\n",asm_co
     if (asm_context->tokens.unget_ptr > asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr])
     {
 #ifdef DEBUG
-printf("debug> macros_get_char() tokens_get_char(?) ungetc %d %d '%c'\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr], asm_context->tokens.unget[asm_context->tokens.unget_ptr-1]);
+printf("debug> macros_get_char() tokens_get_char(?) ungetc %d %d '%c'\n",
+  asm_context->tokens.unget_stack_ptr,
+  asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr],
+  asm_context->tokens.unget[asm_context->tokens.unget_ptr-1]);
 #endif
+
       return asm_context->tokens.unget[--asm_context->tokens.unget_ptr];
     }
   }
@@ -653,9 +603,13 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
     }
 
     macro[ptr++] = ch;
+
     if (ptr >= MAX_MACRO_LEN - 2)
     {
-      printf("Internal error: macro longer than %d bytes on line %d\n", MAX_MACRO_LEN, asm_context->tokens.line);
+      printf("Internal error: macro longer than %d bytes on line %d\n",
+        MAX_MACRO_LEN,
+        asm_context->tokens.line);
+
       return -1;
     }
   }
@@ -748,9 +702,10 @@ char *macros_expand_params(
   }
 
 #ifdef DEBUG
-printf("debug> macros_expand_params() with params: pass=%d\n", asm_context->pass);
-int n;
-for (n = 0; n < count; n++)
+printf("debug> macros_expand_params() with params: pass=%d\n",
+  asm_context->pass);
+
+for (int n = 0; n < count; n++)
 {
   printf("debug>   %s\n", params + params_ptr[n]);
 }
@@ -764,7 +719,7 @@ for (n = 0; n < count; n++)
     {
       define++;
 
-      strcpy(asm_context->def_param_stack_data + ptr, params + params_ptr[((int)*define)-1]);
+      strcpy(asm_context->def_param_stack_data + ptr, params + params_ptr[((int)*define) - 1]);
 
       while (*(asm_context->def_param_stack_data + ptr) != 0) { ptr++; }
     }
@@ -789,13 +744,14 @@ printf("debug>   ptr=%d\n", ptr);
   asm_context->def_param_stack_data[ptr++] = 0;
 
 #ifdef DEBUG
-printf("debug> Expanded macro becomes: %s\n", asm_context->def_param_stack_data+asm_context->def_param_stack_ptr[asm_context->def_param_stack_count]);
+printf("debug> Expanded macro becomes: %s\n",
+  asm_context->def_param_stack_data + asm_context->def_param_stack_ptr[asm_context->def_param_stack_count]);
 #endif
 
   asm_context->def_param_stack_ptr[++asm_context->def_param_stack_count] = ptr;
 
   return asm_context->def_param_stack_data +
-         asm_context->def_param_stack_ptr[asm_context->def_param_stack_count-1];
+         asm_context->def_param_stack_ptr[asm_context->def_param_stack_count - 1];
 }
 
 void macros_strip_comment(AsmContext *asm_context)
@@ -816,5 +772,56 @@ printf("debug> macros_strip_comment()\n");
     if (ch == '/' && last == '*') { break; }
     last = ch;
   }
+}
+
+int Macros::dump(FILE *out)
+{
+  MacrosIter iter;
+
+  fprintf(out, "%18s %s\n", "NAME", "VALUE");
+
+  while (macros_iterate(this, &iter) != -1)
+  {
+    if (iter.param_count == 0)
+    {
+      fprintf(out, "%30s=", iter.name);
+    }
+      else
+    {
+      int n;
+
+      fprintf(out, "%30s(", iter.name);
+
+      for (n = 0; n < iter.param_count; n++)
+      {
+        if (n != 0) { fprintf(out, ","); }
+        fprintf(out, "{%d}", n + 1);
+      }
+      fprintf(out, ")=");
+    }
+
+    char *value = iter.value;
+
+    while (*value != 0)
+    {
+      if (*value == 1)
+      {
+        value++;
+        fprintf(out, "{%d}", *value);
+      }
+      else
+      {
+        fprintf(out, "%c", *value);
+      }
+
+      value++;
+    }
+
+    fprintf(out, "\n");
+  }
+
+  fprintf(out, "Total %d.\n\n", iter.count);
+
+  return 0;
 }
 

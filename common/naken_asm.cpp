@@ -383,7 +383,7 @@ int main(int argc, char *argv[])
 
     asm_context.symbols.lock();
     asm_context.symbols.scope_reset();
-    // macros_lock(&asm_context.defines_heap);
+    // asm_context->macros.lock(&asm_context.defines_heap);
 
     if (asm_context.quiet_output == 0) { printf("Pass 2...\n"); }
     asm_context.pass = 2;
