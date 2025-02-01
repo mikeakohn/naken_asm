@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2025 by Michael Kohn
  *
  */
 
@@ -45,12 +45,28 @@ struct MacroData
   char data[];        // name[], value[]
 };
 
-struct Macros
+class Macros
 {
+public:
+  Macros();
+  ~Macros();
+
+  void reset();
+
+  bool is_letter(char ch)
+  {
+    return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
+  }
+
+  bool is_digit(char ch)
+  {
+    return ch >= '0' && ch <= '9';
+  }
+
   MemoryPool *memory_pool;
   int locked;
-  char *stack[MAX_NESTED_MACROS];
   int stack_ptr;
+  char *stack[MAX_NESTED_MACROS];
 };
 
 struct MacrosIter
@@ -64,8 +80,8 @@ struct MacrosIter
   int end_flag;
 };
 
-int macros_init(Macros *macros);
-void macros_free(Macros *macros);
+//int macros_init(Macros *macros);
+//void macros_free(Macros *macros);
 int macros_append(AsmContext *asm_context, char *name, char *value, int param_count);
 void macros_lock(Macros *macros);
 char *macros_lookup(Macros *macros, char *name, int *param_count);

@@ -4,7 +4,7 @@
 
 #include "common/assembler.h"
 #include "common/ifdef_expression.h"
-#include "common/macros.h"
+#include "common/Macros.h"
 #include "common/tokens.h"
 
 int errors = 0;

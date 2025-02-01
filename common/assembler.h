@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2025 by Michael Kohn
  *
  */
 
@@ -16,7 +16,7 @@
 
 #include "common/cpu_list.h"
 #include "common/Linker.h"
-#include "common/macros.h"
+#include "common/Macros.h"
 #include "common/Memory.h"
 #include "common/print_error.h"
 #include "common/Symbols.h"

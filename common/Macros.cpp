@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2025 by Michael Kohn
  *
  */
 
@@ -14,10 +14,29 @@
 #include <string.h>
 
 #include "common/assembler.h"
-#include "common/macros.h"
+#include "common/Macros.h"
 #include "common/MemoryPool.h"
-//#include "common/symbols.h"
 #include "common/tokens.h"
+
+Macros::Macros() :
+  memory_pool { NULL },
+  locked      { 0 },
+  stack_ptr   { 0 }
+{
+  memset(stack, 0, sizeof(stack));
+}
+
+Macros::~Macros()
+{
+  reset();
+}
+
+void Macros::reset()
+{
+  memory_pool_free(memory_pool);
+  memory_pool = NULL;
+  stack_ptr = 0;
+}
 
 static int get_param_index(char *params, char *name)
 {
@@ -135,29 +154,14 @@ static int check_endm(char *macro, int ptr)
   }
 
   ptr++;
-  if (strncasecmp(macro + ptr, ".endm", 5) == 0 ||
-      strncasecmp(macro + ptr, "endm", 4) == 0)
+
+  if (strncasecmp(macro + ptr, ".endm", 5) == 0)
   {
     macro[ptr] = 0;
     return 1;
   }
 
   return 0;
-}
-
-int macros_init(Macros *macros)
-{
-  macros->memory_pool = NULL;
-  macros->locked = 0;
-
-  return 0;
-}
-
-void macros_free(Macros *macros)
-{
-  memory_pool_free(macros->memory_pool);
-  macros->memory_pool = NULL;
-  macros->stack_ptr = 0;
 }
 
 int macros_append(
@@ -453,7 +457,7 @@ int macros_parse(AsmContext *asm_context, int macro_type)
   int parens = 0;
   int param_count = 0;
 
-  // First pull the name out
+  // First pull the name out.
   parens = macros_parse_token(asm_context, name, 128, macro_type);
   if (parens == -1) { return -1; }
 
@@ -461,7 +465,7 @@ int macros_parse(AsmContext *asm_context, int macro_type)
 printf("debug> macros_parse() name=%s parens_flag=%d\n", name, parens);
 #endif
 
-  // Now pull any params out
+  // Now pull any params out.
   ptr = 0;
 
   if (parens != 0)

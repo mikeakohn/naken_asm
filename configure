@@ -95,7 +95,7 @@ COMMON_OBJS="
   imports_obj.o
   Linker.o
   print_error.o
-  macros.o
+  Macros.o
   Memory.o
   MemoryPool.o
   Operator.o

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2025 by Michael Kohn
  *
  */
 
@@ -16,7 +16,7 @@
 
 #include "common/assembler.h"
 #include "common/directives_include.h"
-#include "common/macros.h"
+#include "common/Macros.h"
 #include "common/tokens.h"
 #include "common/version.h"
 #include "fileio/file.h"
@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
     printf("\nPass 1...\n");
   }
 
-  macros_init(&asm_context.macros);
+  //macros_init(&asm_context.macros);
 
   asm_context.init();
 

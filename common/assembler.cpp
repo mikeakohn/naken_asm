@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2025 by Michael Kohn
  *
  */
 
@@ -24,7 +24,7 @@
 #include "common/eval_expression.h"
 #include "common/tokens.h"
 #include "common/ifdef_expression.h"
-#include "common/macros.h"
+#include "common/Macros.h"
 #include "common/print_error.h"
 #include "disasm/msp430.h"
 
@@ -68,7 +68,7 @@ AsmContext::AsmContext() :
   extra_context          (0)
 {
   memset(&tokens,  0, sizeof(tokens));
-  memset(&macros,  0, sizeof(macros));
+  //memset(&macros,  0, sizeof(macros));
 
   memset(def_param_stack_data, 0, sizeof(def_param_stack_data));
   memset(def_param_stack_ptr, 0, sizeof(def_param_stack_ptr));
@@ -79,7 +79,7 @@ AsmContext::~AsmContext()
 {
   delete linker;
 
-  macros_free(&macros);
+  //macros_free(&macros);
 }
 
 void AsmContext::init()
@@ -101,7 +101,7 @@ void AsmContext::init()
   bytes_per_address = 1;
   in_repeat = 0;
 
-  macros_free(&macros);
+  macros.reset();
   def_param_stack_count = 0;
 }
 

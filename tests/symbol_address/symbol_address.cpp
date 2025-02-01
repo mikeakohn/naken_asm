@@ -27,8 +27,6 @@ int test_symbols(const char *label, const char *code)
 
   printf("%s\n", code);
 
-  macros_init(&asm_context.macros);
-
   asm_context.pass = 1;
   asm_context.init();
   tokens_open_buffer(&asm_context, code);
