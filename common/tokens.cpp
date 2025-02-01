@@ -188,7 +188,10 @@ int tokens_get_char(AsmContext *asm_context)
   if (asm_context->tokens.unget_ptr > asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr])
   {
 #ifdef DEBUG
-//printf("debug> tokens_get_char(?) ungetc %d %d '%c'\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr], asm_context->tokens.unget[asm_context->tokens.unget_ptr - 1]);
+//printf("debug> tokens_get_char(?) ungetc %d %d '%c'\n",
+//  asm_context->tokens.unget_stack_ptr,
+//  asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr],
+//  asm_context->tokens.unget[asm_context->tokens.unget_ptr - 1]);
 #endif
     return asm_context->tokens.unget[--asm_context->tokens.unget_ptr];
   }
@@ -201,7 +204,10 @@ int tokens_get_char(AsmContext *asm_context)
     if (asm_context->tokens.unget_ptr > asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr])
     {
 #ifdef DEBUG
-//printf("debug> tokens_get_char(FILE ungetc %d %d '%c'\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr], asm_context->tokens.unget[asm_context->tokens.unget_ptr - 1]);
+//printf("debug> tokens_get_char(FILE ungetc %d %d '%c'\n",
+// asm_context->tokens.unget_stack_ptr,
+// asm_context->tokens.unget_stack[asm_context->tokens.unget_stack_ptr],
+// asm_context->tokens.unget[asm_context->tokens.unget_ptr - 1]);
 #endif
       return asm_context->tokens.unget[--asm_context->tokens.unget_ptr];
     }
@@ -702,7 +708,9 @@ printf("debug> '%s' is a macro.  param_count=%d\n", token, param_count);
       asm_context->tokens.unget_stack[++asm_context->tokens.unget_stack_ptr] = asm_context->tokens.unget_ptr;
 
 #ifdef DEBUG
-//printf("debug> unget_stack_ptr=%d unget_ptr=%d\n", asm_context->tokens.unget_stack_ptr, asm_context->tokens.unget_ptr);
+//printf("debug> unget_stack_ptr=%d unget_ptr=%d\n",
+//  asm_context->tokens.unget_stack_ptr,
+//  asm_context->tokens.unget_ptr);
 #endif
 
       token_type = tokens_get(asm_context, token, len);

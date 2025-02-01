@@ -101,12 +101,12 @@ static int macros_parse_token(
       break;
     }
 
-    if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_')
+    if (Macros::is_letter(ch) || ch == '_')
     {
       token[ptr++] = ch;
     }
       else
-    if (ch >= '0' && ch <= '9')
+    if (Macros::is_digit(ch))
     {
       if (ptr == 0)
       {
@@ -348,7 +348,7 @@ void macros_strip(char *macro)
 {
   char *s = macro;
 
-  // Remove ; and // comments
+  // Remove ; and // comments.
   while (*s != 0)
   {
     if (*s == ';') { *s = 0; break; }
@@ -455,7 +455,7 @@ printf("debug> macros_parse() param %s\n", token);
 printf("debug> macros_parse() param count=%d\n", param_count);
 #endif
 
-  // Now macro time
+  // Now macro time.
   ptr = 0;
   name_test = NULL;
 
@@ -463,19 +463,18 @@ printf("debug> macros_parse() param count=%d\n", param_count);
   {
     ch = tokens_get_char(asm_context);
 
-    // Tabs :(
+    // Tabs :(.
     if (ch == '\t') { ch = ' '; }
 
     if (name_test == NULL)
     {
-      if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
+      if (Macros::is_letter(ch))
       {
         name_test = macro + ptr;
       }
     }
       else
-    if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
-          (ch >= '0' && ch <= '9') || ch == '_'))
+    if (!(Macros::is_letter(ch) || Macros::is_digit(ch) || ch == '_'))
     {
       if (name_test != NULL)
       {
@@ -560,7 +559,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
       }
     }
 
-    if (ch == '*' && ptr > 0 && macro[ptr-1] == '/')
+    if (ch == '*' && ptr > 0 && macro[ptr - 1] == '/')
     {
       macros_strip_comment(asm_context);
       ptr--;
@@ -738,8 +737,8 @@ printf("debug> macros_strip_comment()\n");
   {
     ch = tokens_get_char(asm_context);
     if (ch == '\t') { ch = ' '; }
-    if (ch == EOF) break;
-    if (ch == '\n') asm_context->tokens.line++;
+    if (ch == EOF)  { break; }
+    if (ch == '\n') { asm_context->tokens.line++; }
     if (ch == '/' && last == '*') { break; }
     last = ch;
   }
