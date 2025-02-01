@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2025 by Michael Kohn
  *
  */
 
@@ -128,18 +128,18 @@ enum
 typedef struct _cpu_list
 {
   const char *name;
-  int8_t type;
-  int8_t default_endian;
-  int8_t bytes_per_address;
-  int8_t alignment;
-  int8_t is_dollar_hex : 1;
-  int8_t can_tick_end_string : 1;
-  int8_t pass_1_write_disable : 1;
-  int8_t strings_have_dots : 1;
-  int8_t strings_have_slashes : 1;
-  int8_t ignore_number_postfix : 1;
-  int8_t numbers_dont_have_dots : 1;
-  uint8_t srec_size : 2;
+  uint8_t type;
+  uint8_t default_endian;
+  uint8_t bytes_per_address;
+  uint8_t alignment;
+  uint8_t is_dollar_hex          : 1;
+  uint8_t can_tick_end_string    : 1;
+  uint8_t pass_1_write_disable   : 1;
+  uint8_t strings_have_dots      : 1;
+  uint8_t strings_have_slashes   : 1;
+  uint8_t ignore_number_postfix  : 1;
+  uint8_t numbers_dont_have_dots : 1;
+  uint8_t srec_size              : 2;
   parse_instruction_t parse_instruction;
   parse_directive_t parse_directive;
   link_function_t link_function;

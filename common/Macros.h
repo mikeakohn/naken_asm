@@ -52,6 +52,7 @@ public:
   ~Macros();
 
   void reset();
+  int get_stack_ptr() { return stack_ptr; }
 
   bool is_letter(char ch)
   {
@@ -63,6 +64,7 @@ public:
     return ch >= '0' && ch <= '9';
   }
 
+//private:
   MemoryPool *memory_pool;
   int locked;
   int stack_ptr;

@@ -394,7 +394,10 @@ int assemble(AsmContext *asm_context)
 
     if (token_type == TOKEN_EOL)
     {
-      if (asm_context->macros.stack_ptr == 0) { asm_context->tokens.line++; }
+      if (asm_context->macros.get_stack_ptr() == 0)
+      {
+        asm_context->tokens.line++;
+      }
     }
       else
     if (token_type == TOKEN_LABEL)
@@ -488,7 +491,11 @@ int assemble(AsmContext *asm_context)
 
           if (ret < 0) { return -1; }
 
-          if (asm_context->macros.stack_ptr == 0) { asm_context->tokens.line++; }
+          if (asm_context->macros.get_stack_ptr() == 0)
+          {
+            asm_context->tokens.line++;
+          }
+
           asm_context->instruction_count++;
 
           if (asm_context->address > start_address)

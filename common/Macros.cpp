@@ -19,9 +19,9 @@
 #include "common/tokens.h"
 
 Macros::Macros() :
-  memory_pool { NULL },
-  locked      { 0 },
-  stack_ptr   { 0 }
+  memory_pool (NULL),
+  locked      (0),
+  stack_ptr   (0)
 {
   memset(stack, 0, sizeof(stack));
 }
