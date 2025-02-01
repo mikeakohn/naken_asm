@@ -196,6 +196,8 @@ int main(int argc, char *argv[])
   test_if(".if 257 < 256\n", 0);
 
   test_define(".define blah(a) a\n.db blah(5)\n", 5);
+  test_define(".define blah(a) a\n.db blah(',')\n", ',');
+  test_define(".define blah(a) a\n.db blah('\"')\n", '"');
   test_define(".define blah(a) a + 1\n.db blah(5)\n", 6);
   test_define(".define blah(a) (a + 1)\n.db blah(5)\n", 6);
   test_define(".define blah (5 + 1)\n.db blah\n", 6);

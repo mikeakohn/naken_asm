@@ -603,8 +603,9 @@ char *macros_expand_params(
   int ch;
   char params[1024];
   int params_ptr[256];
-  int count,ptr;
+  int count, ptr;
   uint8_t in_string = 0;
+  uint8_t in_ticks = 0;
   uint8_t open_parens = 0;
 
   while (true)
@@ -633,9 +634,14 @@ char *macros_expand_params(
     if (ch == '\t') { ch = ' '; }
     if (ch == '\r') { continue; }
     // skip whitespace immediately after opening parenthesis or a comma
-    if ((ch == ' ' || ch == '\t') && (ptr == 0 || params[ptr-1] == 0)) { continue; }
-    if (ch == '"') { in_string = in_string ^ 1; }
-    if (ch == ')' && in_string == 0 && open_parens == 0) { break; }
+    if ((ch == ' ' || ch == '\t') && (ptr == 0 || params[ptr - 1] == 0)) { continue; }
+    if (ch == '"'  && !in_ticks)  { in_string = in_string ^ 1; }
+    if (ch == '\'' && !in_string) { in_ticks = in_ticks ^ 1; }
+
+    if (ch == ')' && in_string == 0 && in_ticks == 0 && open_parens == 0)
+    {
+      break;
+    }
 
     if (ch == '\n' || ch == EOF)
     {
@@ -643,15 +649,15 @@ char *macros_expand_params(
       return NULL;
     }
 
-    if (ch == ',' && !in_string && open_parens == 0)
+    if (ch == ',' && !in_string && !in_ticks && open_parens == 0)
     {
       params[ptr++] = 0;
       params_ptr[++count] = ptr;
       continue;
     }
 
-    if (ch == '(' && !in_string) { open_parens++; }
-    if (ch == ')' && !in_string) { open_parens--; }
+    if (ch == '(' && !in_string && !in_ticks) { open_parens++; }
+    if (ch == ')' && !in_string && !in_ticks) { open_parens--; }
 
     params[ptr++] = ch;
   }
