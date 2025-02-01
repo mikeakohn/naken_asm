@@ -78,16 +78,19 @@ public:
 class MacrosIter
 {
 public:
-  MacrosIter() :
+  MacrosIter(Macros &macros) :
     memory_pool (NULL),
     param_count (0),
     name        (NULL),
     value       (NULL),
     ptr         (0),
     count       (0),
-    end_flag    (0)
+    is_done     (false)
   {
+    memory_pool = macros.memory_pool;
   }
+
+  int next();
 
   MemoryPool *memory_pool;
   uint8_t param_count;
@@ -95,12 +98,12 @@ public:
   char *value;
   int ptr;
   int count;
-  int end_flag;
+  int is_done;
 };
 
 int macros_append(AsmContext *asm_context, char *name, char *value, int param_count);
 char *macros_lookup(Macros *macros, char *name, int *param_count);
-int macros_iterate(Macros *macros, MacrosIter *iter);
+//int macros_iterate(Macros *macros, MacrosIter *iter);
 int macros_push_define(Macros *macros, char *define);
 int macros_get_char(AsmContext *asm_context);
 void macros_strip(char *macro);

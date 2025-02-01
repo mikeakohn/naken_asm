@@ -270,41 +270,6 @@ char *macros_lookup(Macros *macros, char *name, int *param_count)
   return NULL;
 }
 
-int macros_iterate(Macros *macros, MacrosIter *iter)
-{
-  MemoryPool *memory_pool = macros->memory_pool;
-
-  if (iter->end_flag == 1) { return -1; }
-  if (iter->memory_pool == NULL)
-  {
-    iter->memory_pool = macros->memory_pool;
-    iter->ptr = 0;
-  }
-
-  while (memory_pool != NULL)
-  {
-    if (iter->ptr < memory_pool->ptr)
-    {
-      MacroData *macro_data = (MacroData *)(memory_pool->buffer + iter->ptr);
-
-      iter->param_count = macro_data->param_count;
-      iter->name = macro_data->data;
-      iter->value = macro_data->data + macro_data->name_len;
-
-      iter->ptr += macro_data->name_len + macro_data->value_len + sizeof(MacroData);
-
-      iter->count++;
-      return 0;
-    }
-
-    memory_pool = memory_pool->next;
-  }
-
-  iter->end_flag = 1;
-
-  return -1;
-}
-
 int macros_push_define(Macros *macros, char *define)
 {
 #ifdef DEBUG
@@ -774,29 +739,57 @@ printf("debug> macros_strip_comment()\n");
   }
 }
 
+int MacrosIter::next()
+{
+  if (is_done) { return -1; }
+
+  while (memory_pool != NULL)
+  {
+    if (ptr < memory_pool->ptr)
+    {
+      MacroData *macro_data = (MacroData *)(memory_pool->buffer + ptr);
+
+      param_count = macro_data->param_count;
+      name        = macro_data->data;
+      value       = macro_data->data + macro_data->name_len;
+
+      ptr += macro_data->name_len + macro_data->value_len + sizeof(MacroData);
+
+      count++;
+
+      return 0;
+    }
+
+    memory_pool = memory_pool->next;
+  }
+
+  is_done = true;
+
+  return -1;
+}
+
 int Macros::dump(FILE *out)
 {
-  MacrosIter iter;
+  MacrosIter iter(*this);
 
-  fprintf(out, "%18s %s\n", "NAME", "VALUE");
+  fprintf(out, " -- Macros --\n");
 
-  while (macros_iterate(this, &iter) != -1)
+  while (iter.next() != -1)
   {
     if (iter.param_count == 0)
     {
-      fprintf(out, "%30s=", iter.name);
+      fprintf(out, "%s=", iter.name);
     }
       else
     {
-      int n;
+      fprintf(out, "%s(", iter.name);
 
-      fprintf(out, "%30s(", iter.name);
-
-      for (n = 0; n < iter.param_count; n++)
+      for (int n = 0; n < iter.param_count; n++)
       {
         if (n != 0) { fprintf(out, ","); }
         fprintf(out, "{%d}", n + 1);
       }
+
       fprintf(out, ")=");
     }
 
