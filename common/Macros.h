@@ -69,6 +69,22 @@ public:
     return ch >= '0' && ch <= '9';
   }
 
+  static int escape(int ch)
+  {
+    switch (ch)
+    {
+      case 't':  return '\t';
+      case 'r':  return '\r';
+      case 'n':  return '\n';
+      case '\'': return '\'';
+      case '\"': return '\"';
+      case '\\': return '\\';
+      default: break;
+    }
+
+    return ch;
+  }
+
   MemoryPool *memory_pool;
   int locked;
   int stack_ptr;

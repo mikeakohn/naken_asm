@@ -632,8 +632,18 @@ char *macros_expand_params(
 
     if (ch == '\t') { ch = ' '; }
     if (ch == '\r') { continue; }
+
     // skip whitespace immediately after opening parenthesis or a comma
     if ((ch == ' ' || ch == '\t') && (ptr == 0 || params[ptr - 1] == 0)) { continue; }
+
+    if (ch == '\\' && (in_string || in_ticks))
+    {
+      params[ptr++] = ch;
+      ch = tokens_get_char(asm_context);
+      params[ptr++] = ch;
+      continue;
+    }
+
     if (ch == '"'  && !in_ticks)  { in_string = in_string ^ 1; }
     if (ch == '\'' && !in_string) { in_ticks = in_ticks ^ 1; }
 
