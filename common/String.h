@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2025 by Michael Kohn
  *
  */
 
@@ -47,7 +47,27 @@ public:
 
   bool is_heap()      const { return text != data; }
   int len()           const { return length; }
+  int allocated()     const { return size; }
   const char *value() const { return text; }
+
+  void clear()
+  {
+    text[0] = 0;
+    length = 0;
+  }
+
+  bool equals(const char *value)
+  {
+    return strcmp(text, value) == 0;
+  }
+
+  char char_at(int index) const
+  {
+    if (index < 0) { index = length + index; }
+    if (index < 0 || index >= length) { return 0; }
+
+    return text[index];
+  }
 
   void set(const char *text)
   {
@@ -60,11 +80,20 @@ public:
 
   void append(const char *text)
   {
-    int l = strlen(text) + 1;
+    int text_len = strlen(text);
+    int l = text_len + 1;
     if (length + l > size) { resize(length + l); }
 
     memcpy(this->text + length, text, l);
-    length += l - 1;
+    length += text_len;
+  }
+
+  void append(char s)
+  {
+    if (length + 2 > size) { resize(length + 2); }
+
+    text[length++] = s;
+    text[length] = 0;
   }
 
   void operator=(const char *text)
@@ -92,6 +121,11 @@ public:
     append(text);
   }
 
+  void operator+=(const char s)
+  {
+    append(s);
+  }
+
   void dump()
   {
     printf(" --- String ---\n");
@@ -102,6 +136,9 @@ public:
   }
 
 protected:
+  // String is always 0 terminated.
+  // length is the actual langth of the data without the 0 padding.
+  // size is how much data is currently allocated.
   char *text;
   char data[256];
   int size;
@@ -110,19 +147,19 @@ protected:
 private:
   void resize(int new_size)
   {
-    new_size = new_size * 2;
-    if (new_size < 512) { new_size = 512; }
+    while (size < new_size)
+    {
+      size = size * 2;
+    }
 
     if (text == data)
     {
-      text = (char *)malloc(new_size);
+      text = (char *)malloc(size);
     }
       else
     {
-      text = (char *)realloc(text, new_size);
+      text = (char *)realloc(text, size);
     }
-
-    size = new_size;
   }
 };
 

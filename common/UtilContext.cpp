@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2025 by Michael Kohn
  *
  */
 
@@ -16,6 +16,7 @@
 
 #include "common/assembler.h"
 #include "common/cpu_list.h"
+#include "common/String.h"
 #include "common/UtilContext.h"
 #include "disasm/msp430.h"
 #include "simulate/null.h"
@@ -90,27 +91,25 @@ void util_init(UtilContext *util_context)
 #endif
 }
 
-static const char *util_get_token(char *value, const char *source)
+static const char *util_get_token(String &value, const char *source)
 {
+  value = "";
+
   // Remove whitespace.
   while (*source == ' ') { source++; }
 
-  int ptr = 0;
-
   while (*source != ' ' && *source != 0)
   {
-    if (*source == '-' && ptr != 0) { break; }
+    if (*source == '-' && value.len() != 0) { break; }
 
-    value[ptr++] = *source;
+    value.append(*source);
     source++;
 
-    if (value[ptr - 1] == '-') { break; }
+    if (value.char_at(-1) == '-') { break; }
   }
 
-  value[ptr] = 0;
-
   // If no characters left to parse.
-  if (ptr == 0) { return NULL; }
+  if (value.len() == 0) { return NULL; }
 
   return source;
 }
@@ -121,8 +120,7 @@ int util_get_range(
   uint32_t *start,
   uint32_t *end)
 {
-  int length = strlen(token);
-  char data[length + 1];
+  String data;
 
   *start = 0;
   *end = 0;
@@ -132,10 +130,13 @@ int util_get_range(
 
   // If not a - then this must be an address. Resolve it and then grab
   // another token which should be NULL or "-".
-  if (strcmp(data, "-") != 0)
+  if (data.equals("-") == false)
   {
     // Look up start_string in symbol table or use number.
-    if (util_get_address(util_context, data, start) == NULL) { return -1; }
+    if (util_get_address(util_context, data.value(), start) == NULL)
+    {
+      return -1;
+    }
 
     token = util_get_token(data, token);
 
@@ -147,17 +148,21 @@ int util_get_range(
   }
 
   // If the next token isn't a "-", there is for sure a problem now.
-  if (strcmp(data, "-") != 0)
+  if (data.equals("-") == false)
   {
     return -1;
   }
 
-  // Next token should be end address.
+  // Next token should be end address, if not end address is end of code.
   token = util_get_token(data, token);
-  if (token == NULL) { return -1; }
+  if (token == NULL)
+  {
+    *end = util_context->memory.high_address;
+    return 0;
+  }
 
   // Look up end_string in symbol table or use number.
-  if (util_get_address(util_context, data, end) == NULL) { return -1; }
+  if (util_get_address(util_context, data.value(), end) == NULL) { return -1; }
 
   // Should not be any more characters at end of line.
   token = util_get_token(data, token);
