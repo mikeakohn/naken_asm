@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2025 by Michael Kohn
  *
  */
 
@@ -21,6 +21,7 @@
 #endif
 
 #include "common/assembler.h"
+#include "common/String.h"
 #include "common/UtilContext.h"
 #include "common/util_disasm.h"
 #include "common/util_sim.h"
@@ -40,68 +41,69 @@ static const char *reading_code = "asm";
 
 static void print_usage()
 {
-  printf("Usage: naken_util [options] <infile>\n"
-         "   // ELF files can auto-pick a CPU, if a hex file use:\n"
-         "   -1802                        (RCA 1802)\n"
-         "   -4004                        (Intel 4004 / MCS-4)\n"
-         "   -6502                        (6502)\n"
-         "   -65816                       (65816)\n"
-         "   -6800                        (6800)\n"
-         "   -6809                        (6809)\n"
-         "   -68hc08                      (68hc08)\n"
-         "   -68000                       (68000)\n"
-         "   -8008                        (8008 / MCS-8)\n"
-         "   -8048                        (8048 / MCS-48)\n"
-         "   -8051 / -8052                (8051 / 8052 / MCS-51)\n"
-         "   -86000                       (86000 / VMU)\n"
-         "   -arc                         (ARC)\n"
-         "   -arm                         (ARM)\n"
-         "   -arm64                       (ARM64)\n"
-         "   -avr8                        (Atmel AVR8)\n"
-         "   -cell                        (IBM Cell BE)\n"
-         "   -copper                      (Amiga Copper)\n"
-         "   -cp1610                      (General Instruments CP1610)\n"
-         "   -dotnet                      (.NET CIL)\n"
-         "   -dspic                       (dsPIC / PIC24)\n"
-         "   -epiphany                    (Epiphany III/IV)\n"
-         "   -f100_l                      (Ferranti F100-L)\n"
-         "   -f8                          (Fairchild F8)\n"
-         "   -java                        (Java)\n"
-         "   -lc3                         (LC-3)\n"
-         "   -m8c                         (PSoC M8C)\n"
-         "   -mips32 / mips               (MIPS / PIC32)\n"
-         "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
-         "   -pdp8                        (PDP-8)\n"
-         "   -pic14                       (PIC14 8 bit PIC / 14 bit opcode)\n"
-         "   -pic18                       (PIC18 8 bit PIC / 16 bit opcode)\n"
-         "   -powerpc                     (PowerPC)\n"
-         "   -propeller                   (Parallax Propeller)\n"
-         "   -propeller2                  (Parallax Propeller2)\n"
-         "   -ps2_ee                      (Playstation 2 EE)\n"
-         "   -ps2_ee_vu0                  (Playstation 2 VU0)\n"
-         "   -ps2_ee_vu1                  (Playstation 2 VU1)\n"
-         "   -riscv                       (RISCV)\n"
-         "   -sh4                         (SH4)\n"
-         "   -stm8                        (STM8)\n"
-         "   -super_fx                    (SuperFX)\n"
-         "   -sweet16                     (sweet16)\n"
-         "   -tms340                      (TMS340 / TMS34010)\n"
-         "   -tms1000                     (TMS1000)\n"
-         "   -tms1100                     (TMS1100)\n"
-         "   -tms9900                     (TMS9900)\n"
-         "   -unsp                        (SunPlus unSP)\n"
-         "   -webasm                      (WebAssembly)\n"
-         "   -xtensa                      (Xtensa)\n"
-         "   -z80                         (z80)\n"
-         "   -bin                         (file is binary)\n"
-         "   // The following options turn off interactive mode\n"
-         "   -disasm                      (Disassemble all of program)\n"
-         "   -disasm_range <start>-<end>  (Disassemble a range of executable code)\n"
-         "   -run                         (Simulate program and dump registers)\n"
-         "   -address <start_address>     (For bin files: binary placed at this address)\n"
-         "   -set_pc <address>            (Sets program counter after loading program)\n"
-         "   -break_io <address>          (In -run mode writing to an i/o port exits sim)\n"
-         "\n");
+  printf(
+    "Usage: naken_util [options] <infile>\n"
+    "   // ELF files can auto-pick a CPU, if a hex file use:\n"
+    "   -1802                        (RCA 1802)\n"
+    "   -4004                        (Intel 4004 / MCS-4)\n"
+    "   -6502                        (6502)\n"
+    "   -65816                       (65816)\n"
+    "   -6800                        (6800)\n"
+    "   -6809                        (6809)\n"
+    "   -68hc08                      (68hc08)\n"
+    "   -68000                       (68000)\n"
+    "   -8008                        (8008 / MCS-8)\n"
+    "   -8048                        (8048 / MCS-48)\n"
+    "   -8051 / -8052                (8051 / 8052 / MCS-51)\n"
+    "   -86000                       (86000 / VMU)\n"
+    "   -arc                         (ARC)\n"
+    "   -arm                         (ARM)\n"
+    "   -arm64                       (ARM64)\n"
+    "   -avr8                        (Atmel AVR8)\n"
+    "   -cell                        (IBM Cell BE)\n"
+    "   -copper                      (Amiga Copper)\n"
+    "   -cp1610                      (General Instruments CP1610)\n"
+    "   -dotnet                      (.NET CIL)\n"
+    "   -dspic                       (dsPIC / PIC24)\n"
+    "   -epiphany                    (Epiphany III/IV)\n"
+    "   -f100_l                      (Ferranti F100-L)\n"
+    "   -f8                          (Fairchild F8)\n"
+    "   -java                        (Java)\n"
+    "   -lc3                         (LC-3)\n"
+    "   -m8c                         (PSoC M8C)\n"
+    "   -mips32 / mips               (MIPS / PIC32)\n"
+    "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
+    "   -pdp8                        (PDP-8)\n"
+    "   -pic14                       (PIC14 8 bit PIC / 14 bit opcode)\n"
+    "   -pic18                       (PIC18 8 bit PIC / 16 bit opcode)\n"
+    "   -powerpc                     (PowerPC)\n"
+    "   -propeller                   (Parallax Propeller)\n"
+    "   -propeller2                  (Parallax Propeller2)\n"
+    "   -ps2_ee                      (Playstation 2 EE)\n"
+    "   -ps2_ee_vu0                  (Playstation 2 VU0)\n"
+    "   -ps2_ee_vu1                  (Playstation 2 VU1)\n"
+    "   -riscv                       (RISCV)\n"
+    "   -sh4                         (SH4)\n"
+    "   -stm8                        (STM8)\n"
+    "   -super_fx                    (SuperFX)\n"
+    "   -sweet16                     (sweet16)\n"
+    "   -tms340                      (TMS340 / TMS34010)\n"
+    "   -tms1000                     (TMS1000)\n"
+    "   -tms1100                     (TMS1100)\n"
+    "   -tms9900                     (TMS9900)\n"
+    "   -unsp                        (SunPlus unSP)\n"
+    "   -webasm                      (WebAssembly)\n"
+    "   -xtensa                      (Xtensa)\n"
+    "   -z80                         (z80)\n"
+    "   -bin                         (file is binary)\n"
+    "   // The following options turn off interactive mode\n"
+    "   -disasm                      (Disassemble all of program)\n"
+    "   -disasm_range <start>-<end>  (Disassemble a range of executable code)\n"
+    "   -run                         (Simulate program and dump registers)\n"
+    "   -address <start_address>     (For bin files: binary placed at this address)\n"
+    "   -set_pc <address>            (Sets program counter after loading program)\n"
+    "   -break_io <address>          (In -run mode writing to an i/o port exits sim)\n"
+    "\n");
 }
 
 #ifdef READLINE
@@ -332,16 +334,17 @@ int main(int argc, char *argv[])
   const char *filename = NULL;
   const char *cpu_name = NULL;
   int file_type = FILE_TYPE_AUTO;
-  std::string code;
+  String code;
   bool in_code = false;
   bool was_pc_set = false;
   uint32_t org = 0;
 
-  printf("\nnaken_util - by Michael Kohn\n"
-         "                Joe Davisson\n"
-         "    Web: https://www.mikekohn.net/\n"
-         "  Email: mike@mikekohn.net\n\n"
-         "Version: " VERSION "\n\n");
+  printf(
+    "\nnaken_util - by Michael Kohn\n"
+    "                  Joe Davisson\n"
+    "    Web: https://www.mikekohn.net/\n"
+    "  Email: mike@mikekohn.net\n\n"
+    "Version: " VERSION "\n\n");
 
   if (argc < 2)
   {
@@ -502,7 +505,7 @@ int main(int argc, char *argv[])
 #ifndef READLINE
       printf("%s> ", state);
       fflush(stdout);
-      if (fgets(command, 1023, stdin) == NULL) break;
+      if (fgets(command, 1023, stdin) == NULL) { break; }
       command[1023] = 0;
 #else
       char prompt[32];
@@ -552,7 +555,7 @@ int main(int argc, char *argv[])
     {
       if (command[0] == 0)
       {
-        if (code.size() > 0)
+        if (code.len() > 0)
         {
           printf("Assembling to 0x%04x\n", org);
 
@@ -567,7 +570,7 @@ int main(int argc, char *argv[])
             was_pc_set = true;
           }
 
-          assemble_code(util_context, cpu_name, code.c_str(), org);
+          assemble_code(util_context, cpu_name, code.value(), org);
           code.clear();
         }
 
@@ -576,7 +579,8 @@ int main(int argc, char *argv[])
       }
         else
       {
-        code += std::string(command) + "\n";
+        code += command;
+        code += "\n";
       }
 
       continue;

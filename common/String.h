@@ -106,6 +106,43 @@ public:
     set(s.value());
   }
 
+  bool is_whitespace(const char c)
+  {
+      return c == '\r' || c == '\n' || c == '\t' || c == ' ';
+  }
+
+  void ltrim()
+  {
+    int s;
+
+    for (s = 0; s < length; s++)
+    {
+      if (! is_whitespace(text[s])) { break; }
+    }
+
+    if (s == 0) { return; }
+
+    length -= s;
+    memmove(text, text + s, length + 1);
+  }
+
+  void rtrim()
+  {
+    while (length > 0)
+    {
+      if (! is_whitespace(text[length - 1])) { break; }
+      length -= 1;
+    }
+
+    text[length] = 0;
+  }
+
+  void trim()
+  {
+    ltrim();
+    rtrim();
+  }
+
 #if 0
   String operator+(const char *text)
   {
@@ -124,6 +161,16 @@ public:
   void operator+=(const char s)
   {
     append(s);
+  }
+
+  bool operator==(const char *s)
+  {
+    return strcmp(text, s) == 0;
+  }
+
+  bool operator==(const String &s)
+  {
+    return strcmp(text, s.value()) == 0;
   }
 
   void dump()

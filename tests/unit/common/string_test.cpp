@@ -191,6 +191,103 @@ int test_big_string_append_1()
   return errors;
 }
 
+int test_equals()
+{
+  int errors = 0;
+
+  String s("asdf");
+  String k("asdf");
+  String f("1234");
+
+  TEST_BOOL((s == "asdf"), true);
+  TEST_BOOL((s == "a"), false);
+  TEST_BOOL((s == k), true);
+  TEST_BOOL((s == f), false);
+
+  return errors;
+}
+
+int test_rtrim()
+{
+  int errors = 0;
+
+  String s("asdf");
+  String k("\n\t  asdf");
+  String f("asdf \n \t  ");
+
+  s.rtrim();
+  k.rtrim();
+  f.rtrim();
+
+  TEST_INT(s.len(), 4);
+  TEST_INT(k.len(), 8);
+  TEST_INT(f.len(), 4);
+
+  TEST_BOOL((s == "asdf"), true);
+  TEST_BOOL((k == "\n\t  asdf"), true);
+  TEST_BOOL((f == "asdf"), true);
+
+  return errors;
+}
+
+int test_ltrim()
+{
+  int errors = 0;
+
+  String s("asdf");
+  String k("\n\t  asdf");
+  String f("asdf \n \t  ");
+
+  s.ltrim();
+  k.ltrim();
+  f.ltrim();
+
+  TEST_INT(s.len(), 4);
+  TEST_INT(k.len(), 4);
+  TEST_INT(f.len(), 10);
+
+  TEST_BOOL((s == "asdf"), true);
+  TEST_BOOL((k == "asdf"), true);
+  TEST_BOOL((f == "asdf \n \t  "), true);
+
+  return errors;
+}
+
+int test_trim()
+{
+  int errors = 0;
+
+  String s("asdf");
+  String k("\n\t  asdf");
+  String f("asdf \n \t  ");
+  String a(" \tasdf \n \t  ");
+  String b("asdf ");
+  String c(" asdf");
+
+  s.trim();
+  k.trim();
+  f.trim();
+  a.trim();
+  b.trim();
+  c.trim();
+
+  TEST_INT(s.len(), 4);
+  TEST_INT(k.len(), 4);
+  TEST_INT(f.len(), 4);
+  TEST_INT(a.len(), 4);
+  TEST_INT(b.len(), 4);
+  TEST_INT(c.len(), 4);
+
+  TEST_BOOL((s == "asdf"), true);
+  TEST_BOOL((k == "asdf"), true);
+  TEST_BOOL((f == "asdf"), true);
+  TEST_BOOL((a == "asdf"), true);
+  TEST_BOOL((b == "asdf"), true);
+  TEST_BOOL((c == "asdf"), true);
+
+  return errors;
+}
+
 int main(int argc, char *argv[])
 {
   int errors = 0;
@@ -205,6 +302,10 @@ int main(int argc, char *argv[])
   errors += test_big_string();
   errors += test_big_string_append_0();
   errors += test_big_string_append_1();
+  errors += test_equals();
+  errors += test_rtrim();
+  errors += test_ltrim();
+  errors += test_trim();
 
   if (errors != 0) { printf("String.h ... FAILED.\n"); return -1; }
 
