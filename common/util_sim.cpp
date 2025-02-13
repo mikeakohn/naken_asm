@@ -51,76 +51,57 @@ void sim_show_info(UtilContext *util_context)
   printf("      Display: %s\n", simulate->get_show() == true ? "On" : "Off");
 }
 
-int sim_set_register(UtilContext *util_context, char *command)
+int sim_set_register(UtilContext *util_context, String &arg)
 {
-  if (command[3] != ' ')
+  int offset = arg.find('=');
+
+  if (offset == -1)
   {
-    printf("Syntax error: set requires register=value\n");
+    printf("Error: missing =.\n");
     return -1;
   }
 
-  char *s = command + 4;
+  String value = arg.value() + offset + 1;
+  value.trim();
+  arg.replace_at(offset, 0);
+  arg.rtrim();
 
-  while (*s != 0)
+  uint32_t num = value.as_int();
+
+  if (util_context->simulate->set_reg(arg.value(), num) == 0)
   {
-    if (*s == '=')
-    {
-      *s = 0;
-      s++;
-      uint32_t num;
-      util_get_num(s, &num);
-
-      if (util_context->simulate->set_reg(command + 4, num) == 0)
-      {
-        printf("Register %s set to 0x%04x.\n", command + 4, num);
-      }
-      else
-      {
-        printf("Syntax error.\n");
-      }
-      break;
-    }
-    s++;
-  }
-
-  if (*s == 0)
-  {
-    if (util_context->simulate->set_reg(command + 4, 1) == 0)
-    {
-      printf("Flag %s set.\n", command + 4);
-    }
-      else
-    {
-      printf("Syntax error.\n");
-    }
-  }
-
-  return 0;
-}
-
-int sim_clear_flag(UtilContext *util_context, char *command)
-{
-  if (command[5] != ' ')
-  {
-    printf("Syntax error: set requires flag\n");
-    return -1;
-  }
-
-  if (util_context->simulate->set_reg(command + 6, 0) == 0)
-  {
-    printf("Flag %s cleared.\n", command + 6);
+    printf("Register %s set to 0x%04x.\n", arg.value(), num);
   }
     else
   {
-    printf("Syntax error: Unknown flag %s\n", command + 6);
+    printf("Syntax error.\n");
   }
 
   return 0;
 }
 
-int sim_set_speed(UtilContext *util_context, char *command)
+int sim_clear_flag(UtilContext *util_context, String &arg)
 {
-  if (command[5] != ' ')
+  const char *flag = arg.value();
+
+  if (util_context->simulate->set_reg(flag, 0) == 0)
+  {
+    printf("Flag %s cleared.\n", flag);
+  }
+    else
+  {
+    printf("Syntax error: Unknown flag %s\n", flag);
+  }
+
+  return 0;
+}
+
+int sim_set_speed(UtilContext *util_context, String &arg)
+{
+  int value = arg.len() == 0 ? 0 : arg.as_int();
+
+#if 0
+  if (arg.len() == 0)
   {
     util_context->simulate->set_delay(0);
     printf("Simulator now in single step mode.\n");
@@ -128,42 +109,40 @@ int sim_set_speed(UtilContext *util_context, char *command)
     return 0;
   }
 
-  int a = atoi(command + 6);
+  int a = arg.as_int();
+#endif
 
-  if (a == 0)
+  if (value == 0)
   {
     util_context->simulate->set_delay(0);
+
     printf("Simulator now in single step mode.\n");
   }
     else
   {
-    util_context->simulate->set_delay(1000000 / a);
-    printf("Instruction delay is now %dus\n", util_context->simulate->get_delay());
+    util_context->simulate->set_delay(1000000 / value);
+
+    printf("Instruction delay is now %dus\n",
+      util_context->simulate->get_delay());
   }
 
   return 0;
 }
 
-int sim_stack_push(UtilContext *util_context, char *command)
+int sim_stack_push(UtilContext *util_context, String &arg)
 {
   uint32_t num;
 
-  if (command[4] != ' ')
-  {
-    printf("Syntax error: push requires a value\n");
-    return -1;
-  }
-
-  util_get_num(command + 5, &num);
+  util_get_num(arg.value(), &num);
   util_context->simulate->push(num);
   printf("Pushed 0x%04x.\n", num);
 
   return 0;
 }
 
-int sim_set_breakpoint(UtilContext *util_context, char *command)
+int sim_set_breakpoint(UtilContext *util_context, String &arg)
 {
-  if (command[5] == 0)
+  if (arg.len() == 0)
   {
     printf("Breakpoint removed.\n");
     util_context->simulate->remove_break_point();
@@ -171,12 +150,13 @@ int sim_set_breakpoint(UtilContext *util_context, char *command)
   }
 
   uint32_t address;
+  const char *value = arg.value();
 
-  const char *end = util_get_address(util_context, command + 6, &address);
+  const char *end = util_get_address(util_context, value, &address);
 
   if (end == NULL)
   {
-    printf("Error: Unknown address '%s'\n", command + 6);
+    printf("Error: Unknown address '%s'\n", value);
     return -1;
   }
 

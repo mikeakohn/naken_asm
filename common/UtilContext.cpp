@@ -337,12 +337,6 @@ void util_print8(UtilContext *util_context, const char *token)
   uint32_t start, end;
   int ptr = 0;
 
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
-
   // FIXME - is this right?
   if (util_get_range(util_context, token, &start, &end) == -1) { return; }
   if (start >= end) { end = start + 128; }
@@ -384,12 +378,6 @@ void util_print16(UtilContext *util_context, const char *token)
   char chars[20];
   uint32_t start, end;
   int ptr = 0;
-
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
 
   if (util_get_range(util_context, token, &start, &end) == -1) { return; }
   if (start >= end) { end = start + 128; }
@@ -456,12 +444,6 @@ void util_print32(UtilContext *util_context, const char *token)
   uint32_t start, end;
   int ptr = 0;
 
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
-
   if (util_get_range(util_context, token, &start, &end) == -1) { return; }
   if (start >= end) { end = start + 128; }
 
@@ -526,16 +508,6 @@ void util_write8(UtilContext *util_context, const char *token)
   uint32_t num;
   int count = 0;
 
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
-
-  while (*token == ' ' && *token != 0) { token++; }
-
-  if (token == 0) { printf("Syntax error: no address given.\n"); }
-
   token = util_get_address(util_context, token, &address);
 
   if (token == NULL) { printf("Syntax error: bad address\n"); }
@@ -562,16 +534,6 @@ void util_write16(UtilContext *util_context, const char *token)
   uint32_t address = 0;
   uint32_t num;
   int count = 0;
-
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
-
-  while (*token == ' ' && *token != 0) { token++; }
-
-  if (token == 0) { printf("Syntax error: no address given.\n"); }
 
   token = util_get_address(util_context, token, &address);
 
@@ -609,16 +571,6 @@ void util_write32(UtilContext *util_context, const char *token)
   uint32_t num;
   int count = 0;
 
-  if (*token != ' ')
-  {
-    printf("Syntax error: no address given.\n");
-    return;
-  }
-
-  while (*token == ' ' && *token != 0) { token++; }
-
-  if (token == 0) { printf("Syntax error: no address given.\n"); }
-
   token = util_get_address(util_context, token, &address);
 
   if (token == NULL) { printf("Syntax error: bad address\n"); }
@@ -646,3 +598,4 @@ void util_write32(UtilContext *util_context, const char *token)
   printf("Wrote %d int32's starting at address 0x%04x\n",
     count, n / util_context->bytes_per_address);
 }
+

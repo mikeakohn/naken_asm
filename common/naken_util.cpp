@@ -106,47 +106,57 @@ static void print_usage()
     "\n");
 }
 
-#ifdef READLINE
-static const char *command_names[] =
+struct CommandInfo
 {
-  "asm",
-  "break",
-  "call",
-  "clear",
-  "disasm",
-  "display",
-  "dumpram",
-  "dump_ram",
-  "exit",
-  "help",
-  "info",
-  "print",
-  "print16",
-  "print32",
-  "push",
-  "quit",
-  "registers",
-  "reset",
-  "run",
-  "set",
-  "speed",
-  "step",
-  "stop",
-  "symbols",
-  "write",
-  "write16",
-  "write32",
+  const char *name;
+  bool has_arg;
+  bool is_optional;
 };
 
+static CommandInfo command_names[] =
+{
+  { "asm",       true,  true  },
+  { "break",     true,  true  },
+  { "call",      true,  false },
+  { "clear",     true,  false },
+  { "disasm",    true,  true  },
+  { "display",   false, false },
+  { "dumpram",   true,  false },
+  { "dump_ram",  true,  false },
+  { "exit",      false, false },
+  { "help",      false, false },
+  { "info",      false, false },
+  { "print",     true,  false },
+  { "print16",   true,  false },
+  { "print32",   true,  false },
+  { "push",      true,  false },
+  { "quit",      false, false },
+  { "registers", false, false },
+  { "reg",       false, false },
+  { "reset",     false, false },
+  { "run",       false, false },
+  { "set",       true,  false },
+  { "speed",     true,  true  },
+  { "step",      false, false },
+  { "stop",      false, false },
+  { "symbols",   false, false },
+  { "write",     true,  false },
+  { "write16",   true,  false },
+  { "write32",   true,  false },
+  { NULL,        false, false }
+};
+
+#ifdef READLINE
 static const char *find_partial_command(const char *text, int *index)
 {
   int len = strlen(text);
-  const char *name;
 
-  while (*index < (int)(sizeof(command_names) / sizeof(char *)))
+  //while (*index < (int)(sizeof(command_names) / sizeof(char *)))
+
+  for (int i = *index; command_names[i].name != NULL; i++)
   {
-    name = command_names[*index];
-    ++*index;
+    const char *name = command_names[i].name;
+    *index = i + 1;
 
     if (strncmp(name, text, len) == 0)
     {
@@ -160,12 +170,13 @@ static const char *find_partial_command(const char *text, int *index)
 static const char *find_command(const char *text)
 {
   const char *name;
-  int index = 0;
+  //int index = 0;
 
-  while (index < (int)(sizeof(command_names) / sizeof(char *)))
+  //while (index < (int)(sizeof(command_names) / sizeof(char *)))
+  for (int i = 0; command_names[i].name != NULL; i++)
   {
-    name = command_names[index];
-    ++index;
+    name = command_names[i].name;
+    //++index;
 
     if (strcmp(name, text) == 0)
     {
@@ -238,6 +249,7 @@ static void print_help()
     "  asm <org>                 [ start interactive asm at address ]\n"
     "  break <address>           [ break at address ]\n"
     "  call <address>            [ call function at address ]\n"
+    "  clear <status flag>       [ clear a bit in the status register]\n"
     "  disasm                    [ disassemble at address ]\n"
     "  disasm <start>-<end>      [ disassemble range of addresses ]\n"
     "  display                   [ toggle display cpu info while simulating ]\n"
@@ -251,7 +263,7 @@ static void print_help()
     "  registers                 [ dump registers ]\n"
     "  run, stop, step           [ simulation run, stop, step ]\n"
     "  set <reg>=<value>         [ set register to value ]\n"
-    "  set, clear <status flag>  [ set or clear a bit in the status register]\n"
+    //"  set <status flag>         [ set a bit in the status register]\n"
     "  speed <speed in Hz>       [ simulation speed or 0 for single step ]\n"
     "  symbols                   [ show symbols ]\n"
     "  write <address> <data>..  [ write multiple bytes to RAM starting at address]\n"
@@ -316,12 +328,48 @@ int assemble_code(
   return 0;
 }
 
+bool is_command_valid(String &command, String &arg)
+{
+  bool has_arg = arg.len() != 0;
+
+  for (int i = 0; command_names[i].name != NULL; i++)
+  {
+    if (command.equals(command_names[i].name))
+    {
+      if (command_names[i].has_arg == false) 
+      {
+        if (has_arg)
+        {
+          printf("Error: %s doesn't take an argument.\n", command.value());
+          return false;
+        }
+      }
+        else
+      {
+        if (command_names[i].is_optional == false && has_arg == false) 
+        {
+          printf("Syntax error: %s requires argument(s)\n", command.value());
+          return false;
+        }
+      }
+
+      return true;
+    }
+  }
+
+  if (command.equals("")) { return true; }
+
+  printf("Unknown command: %s\n", command.value());
+
+  return false;
+}
+
 int main(int argc, char *argv[])
 {
   FILE *src = NULL;
   UtilContext util_context;
   const char *state = state_stopped;
-  char command[1024];
+  String command;
 #ifdef READLINE
   char *line = NULL;
 #endif
@@ -340,8 +388,9 @@ int main(int argc, char *argv[])
   uint32_t org = 0;
 
   printf(
-    "\nnaken_util - by Michael Kohn\n"
-    "                  Joe Davisson\n"
+    "\n"
+    "naken_util - by Michael Kohn\n"
+    "                Joe Davisson\n"
     "    Web: https://www.mikekohn.net/\n"
     "  Email: mike@mikekohn.net\n\n"
     "Version: " VERSION "\n\n");
@@ -367,13 +416,15 @@ int main(int argc, char *argv[])
 
     if (strcmp(argv[i], "-disasm") == 0)
     {
-       strcpy(command, "disasm");
+       command = "disasm";
        mode = MODE_DISASM;
     }
       else
     if (strcmp(argv[i], "-disasm_range") == 0)
     {
-       snprintf(command, sizeof(command), "disasm %s", argv[++i]);
+       command = "disasm";
+       command += ' ';
+       command += argv[++i];
        mode = MODE_DISASM;
     }
       else
@@ -417,7 +468,7 @@ int main(int argc, char *argv[])
       else
     if (strcmp(argv[i], "-run") == 0)
     {
-       strcpy(command, "run");
+       command = "run";
        mode = MODE_RUN;
     }
       else
@@ -496,7 +547,6 @@ int main(int argc, char *argv[])
   }
 
   printf("Type help for a list of commands.\n");
-  command[1023] = 0;
 
   while (true)
   {
@@ -505,8 +555,10 @@ int main(int argc, char *argv[])
 #ifndef READLINE
       printf("%s> ", state);
       fflush(stdout);
-      if (fgets(command, 1023, stdin) == NULL) { break; }
-      command[1023] = 0;
+      char temp[1024];
+      if (fgets(temp, 1023, stdin) == NULL) { break; }
+      temp[1023] = 0;
+      command = temp;
 #else
       char prompt[32];
       snprintf(prompt, sizeof(prompt), "%s> ", state);
@@ -516,44 +568,39 @@ int main(int argc, char *argv[])
       if (!(line == NULL || line[0] == 0))
       {
         add_history(line);
-        // FIXME - this stinks.
-        strncpy(command, line, 1023);
-        command[1023] = 0;
+        command = line;
       }
+#if 0
         else
       {
-        command[0] = 0;
+        command.clear();
       }
+#endif
 #endif
     }
 
-    // Trim CR/LF and whitespace at end of line.
-    i = 0;
+    command.trim();
 
-    while (command[i] != 0)
+    String arg;
+    int space = command.find(' ');
+
+    if (space != -1)
     {
-      if (command[i] == '\n' || command[i] == '\r')
-      {
-        command[i] = 0;
-        break;
-      }
+      arg = command.value() + space;
+      arg.trim();
 
-      i++;
+      command.replace_at(space, 0);
+      command.rtrim();
     }
 
-    // Trim trailing whitespace.
-    i--;
+    if (is_command_valid(command, arg) == false) { continue; }
 
-    while (i >= 0 && command[i] == ' ')
-    {
-      command[i] = 0;
-      i--;
-    }
+    bool has_arg = arg.len() != 0;
 
     // Assembler mode.
     if (in_code)
     {
-      if (command[0] == 0)
+      if (command.len() == 0)
       {
         if (code.len() > 0)
         {
@@ -579,14 +626,14 @@ int main(int argc, char *argv[])
       }
         else
       {
-        code += command;
+        code += command.value();
         code += "\n";
       }
 
       continue;
     }
 
-    if (command[0] == 0)
+    if (command.len() == 0)
     {
       if (util_context.simulate->in_step_mode())
       {
@@ -595,18 +642,17 @@ int main(int argc, char *argv[])
       continue;
     }
 
-    if (strcmp(command, "help") == 0 || strcmp(command, "?") == 0)
+    if (command == "help" || command == "?")
     {
       print_help();
     }
       else
-    if (strcmp(command, "quit") == 0 || strcmp(command, "exit") == 0)
+    if (command == "quit" || command == "exit")
     {
       break;
     }
       else
-    if (strncmp(command, "run", 3) == 0 &&
-        (command[3] == 0 || command[3] == ' '))
+    if (command == "run")
     {
       state = state_running;
 
@@ -615,9 +661,9 @@ int main(int argc, char *argv[])
         util_context.simulate->enable_step_mode();
       }
 
-      if (command[3] != 0)
+      if (has_arg)
       {
-        util_context.simulate->set_pc(strtol(command + 4, NULL, 0));
+        util_context.simulate->set_pc(arg.as_int());
       }
 
       int ret = util_context.simulate->run(-1, 0);
@@ -633,21 +679,15 @@ int main(int argc, char *argv[])
       continue;
     }
       else
-    if (strcmp(command, "step") == 0)
+    if (command == "step")
     {
       util_context.simulate->enable_step_mode();
       util_context.simulate->run(-1, 1);
       continue;
     }
       else
-    if (strncmp(command, "call", 4) == 0)
+    if (command == "call")
     {
-      if (command[4] != ' ')
-      {
-        printf("Syntax error: call requires an address\n");
-        continue;
-      }
-
       if (util_context.simulate->in_step_mode() == false)
       {
         util_context.simulate->enable_step_mode();
@@ -656,11 +696,11 @@ int main(int argc, char *argv[])
       // FIXME: This is MSP430 specific.
       uint32_t num;
 
-      const char *end = util_get_address(&util_context, command + 5, &num);
+      const char *end = util_get_address(&util_context, arg.value(), &num);
 
       if (end == NULL)
       {
-        printf("Error: Unknown address '%s'\n", command + 5);
+        printf("Error: Unknown address '%s'\n", arg.value());
         continue;
       }
 
@@ -672,109 +712,78 @@ int main(int argc, char *argv[])
       continue;
     }
       else
-    if (strcmp(command, "stop") == 0)
+    if (command == "stop")
     {
       state = state_stopped;
     }
       else
-    if (strcmp(command, "reset") == 0)
+    if (command == "reset")
     {
       util_context.simulate->reset();
     }
       else
-    if (strncmp(command, "break", 5) == 0)
+    if (command == "break")
     {
-      sim_set_breakpoint(&util_context, command);
+      sim_set_breakpoint(&util_context, arg);
     }
       else
-    if (strncmp(command, "push", 4) == 0)
+    if (command == "push")
     {
-      sim_stack_push(&util_context, command);
+      sim_stack_push(&util_context, arg);
     }
       else
-    if (strncmp(command, "set", 3) == 0)
+    if (command == "set")
     {
-      sim_set_register(&util_context, command);
+      sim_set_register(&util_context, arg);
     }
       else
-    if (strncmp(command, "clear", 5) == 0)
+    if (command == "clear")
     {
-      sim_clear_flag(&util_context, command);
-
-#if 0
-      if (util_context.simulate->simulate_set_reg(util_context.simulate, command+6, 0) == 0)
+      sim_clear_flag(&util_context, arg);
+    }
+      else
+    if (command == "speed")
+    {
+      sim_set_speed(&util_context, arg);
+    }
+      else
+    if (command == "print")
+    {
+      util_print8(&util_context, arg.value());
+    }
+      else
+    if (command == "print16")
+    {
+      util_print16(&util_context, arg.value());
+    }
+      else
+    if (command == "print32")
+    {
+      util_print32(&util_context, arg.value());
+    }
+      else
+    if (command == "write")
+    {
+      util_write8(&util_context, arg.value());
+    }
+      else
+    if (command == "write16")
+    {
+      util_write16(&util_context, arg.value());
+    }
+      else
+    if (command == "write32")
+    {
+      util_write32(&util_context, arg.value());
+    }
+      else
+    if (command == "disasm")
+    {
+      if (has_arg)
       {
-        printf("Flag %s cleared.\n", command+6);
+        util_disasm(&util_context, arg.value());
       }
         else
-      {
-        printf("Syntax error.\n");
-      }
-#endif
-    }
-      else
-    if (strncmp(command, "speed", 5) == 0)
-    {
-      sim_set_speed(&util_context, command);
-    }
-      else
-    if (strncmp(command, "print ", 6) == 0)
-    {
-       util_print8(&util_context, command + 5);
-    }
-      else
-    if (strncmp(command, "bprint ", 7) == 0)
-    {
-      util_print8(&util_context, command + 6);
-    }
-      else
-    if (strncmp(command, "print16", 7) == 0)
-    {
-      util_print16(&util_context, command + 7);
-    }
-      else
-    if (strncmp(command, "wprint ", 7) == 0)
-    {
-      util_print16(&util_context, command + 6);
-    }
-      else
-    if (strncmp(command, "print32", 7) == 0)
-    {
-      util_print32(&util_context, command + 7);
-    }
-      else
-    if (strncmp(command, "write ", 6) == 0)
-    {
-      util_write8(&util_context, command + 5);
-    }
-      else
-    if (strncmp(command, "bwrite ", 7) == 0)
-    {
-      util_write8(&util_context, command + 6);
-    }
-      else
-    if (strncmp(command, "write16 ", 8) == 0)
-    {
-      util_write16(&util_context, command + 7);
-    }
-      else
-    if (strncmp(command, "wwrite ", 7) == 0)
-    {
-      util_write16(&util_context, command + 6);
-    }
-      else
-    if (strncmp(command, "write32 ", 8) == 0)
-    {
-      util_write32(&util_context, command + 7);
-    }
-      else
-    if (strncmp(command, "disasm ", 7) == 0)
-    {
-      util_disasm(&util_context, command + 7);
-    }
-      else
-    if (strcmp(command, "disasm") == 0)
-    {
       if (util_context.memory.low_address != 0xffffffff)
       {
         util_disasm_range(
@@ -784,17 +793,16 @@ int main(int argc, char *argv[])
       }
     }
       else
-    if (strcmp(command, "symbols") == 0)
+    if (command == "symbols")
     {
       util_context.symbols.print(stdout);
     }
       else
-    if (strncmp(command, "dumpram", 7)  == 0 ||
-        strncmp(command, "dump_ram", 8) == 0)
+    if (command == "dumpram" || command == "dump_ram")
     {
       uint32_t start, end;
 
-      if (util_get_range(&util_context, command + 7, &start, &end) == -1)
+      if (util_get_range(&util_context, arg.value(), &start, &end) == -1)
       {
         printf("Illegal range.\n");
       }
@@ -805,48 +813,43 @@ int main(int argc, char *argv[])
       }
     }
       else
-    if (strcmp(command, "info") == 0)
+    if (command == "info")
     {
       sim_show_info(&util_context);
     }
       else
-    if (strcmp(command, "registers") == 0 || strcmp(command, "reg") == 0)
+    if (command == "registers" || command == "reg")
     {
       util_context.simulate->dump_registers();
     }
       else
-    if (strcmp(command, "display") == 0)
+    if (command == "display")
     {
       if (util_context.simulate->get_show() == false)
       {
-        printf("display now turned on\n");
+        printf("Display now turned on.\n");
         util_context.simulate->enable_show();
       }
         else
       {
-        printf("display now turned off\n");
+        printf("Display now turned off.\n");
         util_context.simulate->disable_show();
       }
     }
       else
-    if (strcmp(command, "asm") == 0)
+    if (command == "asm")
     {
-      in_code = true;
-      state = reading_code;
-    }
-      else
-    if (strncmp(command, "asm ", 4) == 0)
-    {
-      org = strtol(command + 4, NULL, 0);
+      if (has_arg) { org = arg.as_int(); }
       in_code = true;
       state = reading_code;
     }
       else
     {
-      printf("Unknown command: %s\n", command);
+      printf("Unknown command: %s\n", command.value());
     }
 
     if (mode != MODE_INTERACTIVE) { break; }
+
     util_context.simulate->disable_step_mode();
   }
 
