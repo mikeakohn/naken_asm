@@ -61,7 +61,7 @@ int sim_set_register(UtilContext *util_context, String &arg)
     return -1;
   }
 
-  String value = arg.value() + offset + 1;
+  String value(arg.value() + offset + 1);
   value.trim();
   arg.replace_at(offset, 0);
   arg.rtrim();
