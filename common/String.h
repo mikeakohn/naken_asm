@@ -69,31 +69,77 @@ public:
     return text[index];
   }
 
-  void set(const char *text)
+  void set(const char *value)
   {
-    int l = strlen(text) + 1;
+    int l = strlen(value) + 1;
     if (l > size) { resize(l); }
 
-    memcpy(this->text, text, l);
+    memcpy(text, value, l);
     length = l - 1;
   }
 
-  void append(const char *text)
+  void append(const char *value)
   {
-    int text_len = strlen(text);
+    int text_len = strlen(value);
     int l = text_len + 1;
     if (length + l > size) { resize(length + l); }
 
-    memcpy(this->text + length, text, l);
+    memcpy(text + length, value, l);
     length += text_len;
   }
 
-  void append(char s)
+  void append(char c)
   {
     if (length + 2 > size) { resize(length + 2); }
 
-    text[length++] = s;
+    text[length++] = c;
     text[length] = 0;
+  }
+
+  bool startswith(const char *value)
+  {
+    for (int i = 0; i < length + 1; i++)
+    {
+      if (value[i] == 0) { return true; }
+      if (text[i] != value[i]) { return false; }
+    }
+
+    return false;
+  }
+
+  int find(char s)
+  {
+    for (int i = 0; i < length; i++)
+    {
+      if (text[i] == s) { return i; }
+    }
+
+    return -1;
+  }
+
+  void replace_at(int index, char value)
+  {
+    if (index < 0 || index > length) { return; }
+    text[index] = value;
+  }
+
+  int as_int()
+  {
+    return strtol(text, NULL, 0);
+  }
+
+  int is_number()
+  {
+    int s = 0;
+
+    if (text[0] == '0' && text[1] == 'x') { s = 2; }
+
+    for (int i = s; i < length; i++)
+    {
+      if (text[i] <= '0' || text[i] >= '9') { return false; }
+    }
+
+    return true;
   }
 
   void operator=(const char *text)

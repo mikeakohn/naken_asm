@@ -94,6 +94,14 @@ int test_basic()
   TEST_TEXT(s.value(), "");
   TEST_BOOL(s.equals(""), true);
 
+  s = "i'm a little teapot";
+  int i = s.find(' ');
+  s.replace_at(i, 0);
+  TEST_TEXT(s.value(), "i'm");
+  s.replace_at(1000, 0);
+  s.replace_at(-1, 0);
+  TEST_TEXT(s.value(), "i'm");
+
   return errors;
 }
 
@@ -288,6 +296,68 @@ int test_trim()
   return errors;
 }
 
+int test_find()
+{
+  int errors = 0;
+
+  String a("mike kohn");
+  String b("");
+
+  TEST_INT(a.find(' '), 4);
+  TEST_INT(a.find('m'), 0);
+  TEST_INT(a.find('r'), -1);
+  TEST_INT(a.find(0),   -1);
+
+  TEST_INT(b.find(' '), -1);
+  TEST_INT(b.find('m'), -1);
+  TEST_INT(b.find('r'), -1);
+  TEST_INT(b.find(0),   -1);
+
+  return errors;
+}
+
+int test_startswith()
+{
+  int errors = 0;
+
+  String a("mike kohn");
+  String b("");
+  String c("mike");
+
+  TEST_INT(a.startswith("m"),    true);
+  TEST_INT(a.startswith("mike"), true);
+  TEST_INT(a.startswith("ike"),  false);
+  TEST_INT(a.startswith(""),     true);
+
+  TEST_INT(b.startswith("m"),    false);
+  TEST_INT(b.startswith("mike"), false);
+  TEST_INT(b.startswith("ike"),  false);
+  TEST_INT(b.startswith(""),     true);
+
+  TEST_INT(c.startswith("mike"),  true);
+  TEST_INT(c.startswith("mike "), false);
+
+  return errors;
+}
+
+int test_numbers()
+{
+  int errors = 0;
+
+  String a("1234");
+  String b("0x1234");
+  String c("1234K");
+
+  TEST_BOOL(a.is_number(), true);
+  TEST_BOOL(b.is_number(), true);
+  TEST_BOOL(c.is_number(), false);
+
+  TEST_INT(a.as_int(), 1234);
+  TEST_INT(b.as_int(), 0x1234);
+
+  return errors;
+}
+
 int main(int argc, char *argv[])
 {
   int errors = 0;
@@ -306,6 +376,9 @@ int main(int argc, char *argv[])
   errors += test_rtrim();
   errors += test_ltrim();
   errors += test_trim();
+  errors += test_find();
+  errors += test_startswith();
+  errors += test_numbers();
 
   if (errors != 0) { printf("String.h ... FAILED.\n"); return -1; }
 
