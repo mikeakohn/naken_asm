@@ -152,9 +152,9 @@ public:
     set(s.value());
   }
 
-  bool is_whitespace(const char c)
+  static bool is_whitespace(const char c)
   {
-      return c == '\r' || c == '\n' || c == '\t' || c == ' ';
+    return c == '\r' || c == '\n' || c == '\t' || c == ' ';
   }
 
   void ltrim()

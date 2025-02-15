@@ -12,12 +12,16 @@ default:
 	$(CXX) -o string_test string_test.cpp \
 	  ../../../build/naken_asm.a \
 	  $(CFLAGS)
+	$(CXX) -o string_heap_test string_heap_test.cpp \
+	  ../../../build/naken_asm.a \
+	  $(CFLAGS)
 
 run:
 	./var_test
 	./string_test
+	./string_heap_test
 
 clean:
-	@rm -f var_test string_test
+	@rm -f var_test string_test string_heap_test
 	@echo "Clean!"
 
