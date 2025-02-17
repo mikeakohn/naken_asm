@@ -40,14 +40,11 @@ MemoryPool *memory_pool_add(NakenHeap *heap, int heap_len)
 
 void memory_pool_free(MemoryPool *memory_pool)
 {
-  MemoryPool *curr_pool;
-  MemoryPool *last_pool;
-
-  curr_pool = memory_pool;
+  MemoryPool *curr_pool = memory_pool;
 
   while (curr_pool != NULL)
   {
-    last_pool = curr_pool;
+    MemoryPool *last_pool = curr_pool;
     curr_pool = curr_pool->next;
     free(last_pool);
   }
