@@ -9,6 +9,9 @@ default:
 	$(CXX) -o memory_pool_fixed_test memory_pool_fixed_test.cpp \
 	  ../../../build/naken_asm.a \
 	  $(CFLAGS)
+	$(CXX) -o named_record_test named_record_test.cpp \
+	  ../../../build/naken_asm.a \
+	  $(CFLAGS)
 	$(CXX) -o string_test string_test.cpp \
 	  ../../../build/naken_asm.a \
 	  $(CFLAGS)
@@ -24,13 +27,14 @@ default:
 
 run:
 	./memory_pool_fixed_test
+	./named_record_test
 	./string_test
 	./string_heap_test
 	./var_test
 	./vector_test
 
 clean:
-	@rm -f memory_pool_fixed_test string_test string_heap_test
-	@rm -f var_test vector_test
+	@rm -f memory_pool_fixed_test named_record_test string_test
+	@rm -f string_heap_test var_test vector_test
 	@echo "Clean!"
 

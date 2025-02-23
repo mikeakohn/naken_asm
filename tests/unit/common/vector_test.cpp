@@ -128,6 +128,23 @@ int test_pop()
 
   TEST_BOOL(v.empty(), true);
 
+  return errors;
+}
+
+int test_empty_iterator()
+{
+  int errors = 0;
+
+  Vector<int> v(4);
+
+  int i = 0;
+  for (auto value : v)
+  {
+    printf("%d\n", value);
+    i += 1;
+  }
+
+  TEST_INT(i, 0);
 
   return errors;
 }
@@ -143,6 +160,7 @@ int main(int argc, char *argv[])
   errors += test_basic();
   errors += test_clear();
   errors += test_pop();
+  errors += test_empty_iterator();
 
   if (errors != 0) { printf("Vector.h ... FAILED.\n"); return -1; }
 

@@ -31,7 +31,7 @@ public:
 
   void clear();
   void set(const char *list, int count = 0x7fffffff);
-  void append(const char *value);
+  const char *append(const char *value);
   int find(const char *value);
 
   int len()       const { return length; }

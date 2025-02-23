@@ -17,7 +17,7 @@
 #include "StringHeap.h"
 
 StringHeap::StringHeap() :
-  data        (NULL),
+  data        (nullptr),
   size        (4096),
   length      (0),
   entry_count (0)
@@ -26,7 +26,7 @@ StringHeap::StringHeap() :
 }
 
 StringHeap::StringHeap(int start_size) :
-  data        (NULL),
+  data        (nullptr),
   size        (start_size),
   length      (0),
   entry_count (0)
@@ -61,13 +61,13 @@ void StringHeap::set(const char *list, int count)
   }
 }
 
-void StringHeap::append(const char *value)
+const char *StringHeap::append(const char *value)
 {
   const int value_len = strlen(value);
   const int data_len = value_len + 3;
 
   // Don't add string if it's too long.
-  if (value_len > 0xffff) { return; }
+  if (value_len > 0xffff) { return nullptr; }
 
   if (length + data_len > size) { resize(value_len); }
 
@@ -76,10 +76,14 @@ void StringHeap::append(const char *value)
   s[0] = value_len & 0xff;
   s[1] = (value_len >> 8) & 0xff;
 
-  memcpy(data + length + 2, value, value_len + 1);
+  char *name = data + length + 2;
+
+  memcpy(name, value, value_len + 1);
 
   length += data_len;
   entry_count += 1;
+
+  return name;
 }
 
 int StringHeap::find(const char *value)

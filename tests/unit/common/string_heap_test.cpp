@@ -36,17 +36,21 @@ int test_basic()
   int errors = 0;
   int i;
 
+  const char *name;
+
   StringHeap s;
 
   TEST_INT(s.count(), 0);
 
-  s.append("hello");
+  name = s.append("hello");
   TEST_INT(s.count(), 1);
   TEST_INT(s.len(), 8);
+  TEST_BOOL((strcmp(name, "hello") == 0), true);
 
-  s.append("blah");
+  name = s.append("blah");
   TEST_INT(s.count(), 2);
   TEST_INT(s.len(), 15);
+  TEST_BOOL((strcmp(name, "blah") == 0), true);
 
   TEST_INT(s.find("hello"), 0);
   TEST_INT(s.find("blah"),  1);
@@ -130,6 +134,24 @@ int test_resize()
   return errors;
 }
 
+int test_empty_iterator()
+{
+  int errors = 0;
+
+  StringHeap s(16);
+
+  int i = 0;
+  for (auto value : s)
+  {
+    printf("%s\n", value);
+    i += 1;
+  }
+
+  TEST_INT(i, 0);
+
+  return errors;
+}
+
 int main(int argc, char *argv[])
 {
   int errors = 0;
@@ -141,6 +163,7 @@ int main(int argc, char *argv[])
   errors += test_basic();
   errors += test_set();
   errors += test_resize();
+  errors += test_empty_iterator();
 
   if (errors != 0) { printf("StringHeap.h ... FAILED.\n"); return -1; }
 
