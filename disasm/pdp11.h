@@ -14,7 +14,7 @@
 
 #include "common/assembler.h"
 
-int disasm_pdp8(
+int disasm_pdp11(
   Memory *memory,
   uint32_t address,
   char *instruction,
@@ -23,12 +23,12 @@ int disasm_pdp8(
   int *cycles_min,
   int *cycles_max);
 
-void list_output_pdp8(
+void list_output_pdp11(
   AsmContext *asm_context,
   uint32_t start,
   uint32_t end);
 
-void disasm_range_pdp8(
+void disasm_range_pdp11(
   Memory *memory,
   uint32_t flags,
   uint32_t start,

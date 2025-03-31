@@ -26,25 +26,49 @@
 enum
 {
   OPERAND_NUMBER,
+  OPERAND_IMMEDIATE,               // #num
+  OPERAND_ABSOLUTE,                // @#num
+  OPERAND_AT_NUMBER,               // @num
+  OPERAND_REGISTER,                // Rn
+  OPERAND_REGISTER_PAREN,          // (Rn)
+  OPERAND_REGISTER_PAREN_PLUS,     // (Rn)+
+  OPERAND_REGISTER_AT_PAREN_PLUS,  // @(Rn)+
+  OPERAND_REGISTER_MINUS_PAREN,    // -(Rn)
+  OPERAND_REGISTER_AT_MINUS_PAREN, // @-(Rn)
+  OPERAND_REGISTER_INDEXED,        // X(Rn)
+  OPERAND_REGISTER_AT_INDEXED,     // @X(Rn)
 };
 
-struct _operand
+struct Operand
 {
   int value;
   int type;
   uint8_t flags;
 };
 
+static int get_register(const char *token)
+{
+  if (strcasecmp(token, "sp") == 0) { return 6; }
+  if (strcasecmp(token, "pc") == 0) { return 7; }
+
+  if (token[0] != 'r' && token[1] != 'R') { return -1; }
+  if (token[1] <= '0' || token[1] >= '7') { return -1; }
+  if (token[2] != 0) { return -1; }
+
+  return token[1] - '0';
+}
+
 int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
 {
   char instr_case_mem[TOKENLEN];
   char *instr_case = instr_case_mem;
   char token[TOKENLEN];
-  struct _operand operands[MAX_OPERANDS];
+  struct Operand operands[MAX_OPERANDS];
   int operand_count = 0;
   int token_type;
   int num, n;
   uint16_t opcode;
+  //bool matched = false;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -63,16 +87,88 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
       break;
     }
 
-    tokens_push(asm_context, token, token_type);
+    bool has_at    = false;
+    bool has_minus = false;
+    bool has_hash  = false;
+    bool has_paren = false;
 
-    if (eval_expression(asm_context, &num) != 0)
+    do
     {
-      print_error_unexp(asm_context, token);
-      return -1;
-    }
+      if (IS_TOKEN(token, '@'))
+      {
+        if (has_at || has_minus || has_hash || has_paren)
+        {
+          print_error_unexp(asm_context, token);
+          return -1;
+        }
 
-    operands[operand_count].value = num;
-    operands[operand_count].type = OPERAND_NUMBER;
+        has_at = true;
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        continue;
+      }
+
+      if (IS_TOKEN(token, '-'))
+      {
+        if (has_minus || has_hash)
+        {
+          print_error_unexp(asm_context, token);
+          return -1;
+        }
+
+        has_minus = true;
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        continue;
+      }
+
+      if (IS_TOKEN(token, '#'))
+      {
+        if (has_minus || has_hash || has_paren)
+        {
+          print_error_unexp(asm_context, token);
+          return -1;
+        }
+
+        has_hash = true;
+        token_type = tokens_get(asm_context, token, TOKENLEN);
+
+        continue;
+      }
+
+      if (IS_TOKEN(token, '('))
+      {
+        if (has_hash)
+        {
+          print_error_unexp(asm_context, token);
+          return -1;
+        }
+
+        has_paren = true;
+
+        break;
+      }
+
+      num = get_register(token);
+
+      if (num != -1)
+      {
+        operands[operand_count].value = num;
+        operands[operand_count].type = OPERAND_REGISTER;
+        break;
+      }
+
+      tokens_push(asm_context, token, token_type);
+
+      if (eval_expression(asm_context, &num) != 0)
+      {
+        print_error_unexp(asm_context, token);
+        return -1;
+      }
+
+      operands[operand_count].value = num;
+      operands[operand_count].type = OPERAND_NUMBER;
+    } while (false);
 
     operand_count++;
     token_type = tokens_get(asm_context, token, TOKENLEN);
@@ -89,6 +185,8 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
   {
     if (strcmp(table_pdp11[n].instr, instr_case) == 0)
     {
+      //matched = true;
+
       switch (table_pdp11[n].type)
       {
         case OP_NONE:
@@ -103,8 +201,63 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
 
           return 2;
         }
+        case OP_DOUBLE:
+        {
+        }
+        case OP_D_EXTRA:
+        {
+        }
+        case OP_SINGLE:
+        {
+        }
+        case OP_BRANCH:
+        {
+        }
+        case OP_SUB_BR:
+        {
+        }
+        case OP_JSR:
+        {
+        }
+        case OP_REG:
+        {
+          if (operand_count != 1 || operands[0].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_pdp11[n].opcode | operands[0].value;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        }
+        case OP_NN:
+        {
+          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (check_range(asm_context, "Number", operands[0].value, 0, 63) == -1) { return -1; }
+
+          opcode = table_pdp11[n].opcode | operands[0].value;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        }
+        case OP_S_OPER:
+        {
+        }
+        case OP_NZVC:
+        {
+        }
         default:
         {
+          print_error_internal(asm_context, __FILE__, __LINE__);
           break;
         }
       }

@@ -44,6 +44,7 @@
 #include "asm/mips.h"
 #include "asm/msp430.h"
 #include "asm/pdp8.h"
+#include "asm/pdp11.h"
 #include "asm/pdk13.h"
 #include "asm/pdk14.h"
 #include "asm/pdk15.h"
@@ -100,6 +101,7 @@
 #include "disasm/mips.h"
 #include "disasm/msp430.h"
 #include "disasm/pdp8.h"
+#include "disasm/pdp11.h"
 #include "disasm/pdk13.h"
 #include "disasm/pdk14.h"
 #include "disasm/pdk15.h"
@@ -1077,6 +1079,30 @@ struct _cpu_list cpu_list[] =
     link_not_supported,
     list_output_pdp8,
     disasm_range_pdp8,
+    NULL,
+    NO_FLAGS,
+  },
+#endif
+#ifdef ENABLE_PDP11
+  {
+    "pdp11",
+    CPU_TYPE_PDP11,
+    ENDIAN_LITTLE,
+    1,
+    ALIGN_2,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    SREC_16,
+    parse_instruction_pdp11,
+    NULL,
+    link_not_supported,
+    list_output_pdp11,
+    disasm_range_pdp11,
     NULL,
     NO_FLAGS,
   },

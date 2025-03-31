@@ -16,7 +16,7 @@
 
 struct _table_pdp11 table_pdp11[] =
 {
-  // [opcode] [src] [reg] [dst] [reg]
+  // [opcode] [src:reg] [dst:reg]
   { "mov" ,  0x1000, 0xf000, OP_DOUBLE },
   { "movb",  0x9000, 0xf000, OP_DOUBLE },
   { "cmp",   0x2000, 0xf000, OP_DOUBLE },
@@ -106,7 +106,7 @@ struct _table_pdp11 table_pdp11[] =
   { "fdiv",  0x3dc0, 0xfff8, OP_REG },
 
   // [opcode 15:6] [nn]
-  { "rts",   0x0d00, 0xffc0, OP_NN },
+  { "mark",  0x0d00, 0xffc0, OP_NN },
 
   // [opcode 15:9] [S] [Operation Code]
   { "emt",   0x8800, 0xff00, OP_S_OPER },
@@ -122,6 +122,18 @@ struct _table_pdp11 table_pdp11[] =
   { "wait",  0x0001, 0xffff, OP_NONE },
   { "reset", 0x0005, 0xffff, OP_NONE },
   { "nop",   0x00a0, 0xffff, OP_NONE },
+  { "nop",   0x00b0, 0xffff, OP_NONE },
+
+  { "clc",   0x00a1, 0xffff, OP_NONE },
+  { "sec",   0x00b1, 0xffff, OP_NONE },
+  { "clv",   0x00a2, 0xffff, OP_NONE },
+  { "sev",   0x00b2, 0xffff, OP_NONE },
+  { "clz",   0x00a4, 0xffff, OP_NONE },
+  { "sez",   0x00b4, 0xffff, OP_NONE },
+  { "cln",   0x00a8, 0xffff, OP_NONE },
+  { "sen",   0x00b8, 0xffff, OP_NONE },
+  { "ccc",   0x00af, 0xffff, OP_NONE },
+  { "scc",   0x00bf, 0xffff, OP_NONE },
 
   // [opcode 15:6] [1] [S] [NZVC]
   { "c",     0x00a0, 0xffe0, OP_NZVC },

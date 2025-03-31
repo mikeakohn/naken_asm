@@ -16,6 +16,99 @@
 #include "disasm/pdp11.h"
 #include "table/pdp11.h"
 
+static int pdp11_addressing_mode(
+  Memory *memory,
+  uint32_t address,
+  char *temp,
+  int length,
+  int reg,
+  int reg_mode)
+{
+  uint16_t value = memory->read16(address);
+
+  // SP modes.
+  if (reg == 6)
+  {
+    switch (reg_mode)
+    {
+      case 1:
+        snprintf(temp, length, "(sp)");
+        return 0;
+      case 2:
+        snprintf(temp, length, "(sp)+");
+        return 0;
+      case 3:
+        snprintf(temp, length, "@(sp)+");
+        return 0;
+      case 4:
+        snprintf(temp, length, "-(sp)");
+        return 0;
+      case 6:
+        snprintf(temp, length, "0x%x(sp)", value);
+        return 2;
+      case 7:
+        snprintf(temp, length, "@0x%x(sp)", value);
+        return 2;
+      default:
+        break;
+    }
+  }
+
+  // PC modes.
+  if (reg == 7)
+  {
+    switch (reg_mode)
+    {
+      case 2:
+        snprintf(temp, length, "#0x%04x", value);
+        return 2;
+      case 3:
+        snprintf(temp, length, "@#0x%04x", value);
+        return 2;
+      case 6:
+        snprintf(temp, length, "0x%04x", value);
+        return 2;
+      case 7:
+        snprintf(temp, length, "@0x%04x", value);
+        return 2;
+      default:
+        break;
+    }
+  }
+
+  switch (reg_mode)
+  {
+    case 0:
+      snprintf(temp, length, "r%d", reg);
+      return 0;
+    case 1:
+      snprintf(temp, length, "(r%d)", reg);
+      return 0;
+    case 2:
+      snprintf(temp, length, "(r%d)+", reg);
+      return 0;
+    case 3:
+      snprintf(temp, length, "@(r%d)+", reg);
+      return 0;
+    case 4:
+      snprintf(temp, length, "-(r%d)", reg);
+      return 0;
+    case 5:
+      snprintf(temp, length, "@-(r%d)", reg);
+      return 0;
+    case 6:
+      snprintf(temp, length, "0x%04x(r%d)", value, reg);
+      return 2;
+    case 7:
+      snprintf(temp, length, "@0x%04x(r%d)", value, reg);
+      return 2;
+  }
+
+  snprintf(temp, length, "???");
+
+  return 0;
+}
+
 int disasm_pdp11(
   Memory *memory,
   uint32_t address,
@@ -26,10 +119,17 @@ int disasm_pdp11(
   int *cycles_max)
 {
   int opcode;
-  int n;
-  int i, z, a;
+  char temp[64];
+  //int n;
+  //int i, z, a;
 
   opcode = memory->read16(address);
+
+  //int rs = (opcode >> 6) & 0x07;
+  int rd      = opcode & 0x07;
+  int rd_mode = (opcode >> 3) & 0x07;
+
+  address += 2;
 
   for (int n = 0; table_pdp11[n].instr != NULL; n++)
   {
@@ -42,6 +142,54 @@ int disasm_pdp11(
           snprintf(instruction, length, "%s", table_pdp11[n].instr);
           return 2;
         }
+        case OP_DOUBLE:
+        {
+        }
+        case OP_D_EXTRA:
+        {
+        }
+        case OP_SINGLE:
+        {
+          pdp11_addressing_mode(
+            memory,
+            address,
+            temp,
+            sizeof(temp),
+            rd,
+            rd_mode);
+
+          snprintf(instruction, length, "%s %s",table_pdp11[n].instr, temp);
+          return 2;
+        }
+        case OP_BRANCH:
+        {
+        }
+        case OP_SUB_BR:
+        {
+        }
+        case OP_JSR:
+        {
+        }
+        case OP_REG:
+        {
+          snprintf(instruction, length, "%s r%d",
+            table_pdp11[n].instr,
+            rd);
+          return 2;
+        }
+        case OP_NN:
+        {
+          snprintf(instruction, length, "%s r%d",
+            table_pdp11[n].instr,
+            opcode & 0x3f);
+          return 2;
+        }
+        case OP_S_OPER:
+        {
+        }
+        case OP_NZVC:
+        {
+        }
         default:
         {
           //print_error_internal(asm_context, __FILE__, __LINE__);
@@ -49,8 +197,6 @@ int disasm_pdp11(
         }
       }
     }
-
-    n++;
   }
 
   strcpy(instruction, "???");
@@ -85,7 +231,7 @@ void list_output_pdp11(
 
     opcode = memory->read16(start);
 
-    fprintf(asm_context->list, "0%04o: %04o %s\n", start / 2, opcode, instruction);
+    fprintf(asm_context->list, "0%04x: %04x %s\n", start / 2, opcode, instruction);
 
     start += count;
   }
@@ -119,7 +265,7 @@ void disasm_range_pdp11(
 
     opcode = memory->read16(start);
 
-    printf("0%04o: %04o   %s\n", start / 2, opcode, instruction);
+    printf("0%04x: %04x   %s\n", start / 2, opcode, instruction);
 
     start = start + 2;
   }
