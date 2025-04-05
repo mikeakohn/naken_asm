@@ -119,15 +119,19 @@ int disasm_pdp11(
   int *cycles_max)
 {
   int opcode;
-  char temp[64];
+  char temp_d[64];
+  char temp_s[64];
   //int n;
   //int i, z, a;
 
+  const uint32_t address_start = address;
+
   opcode = memory->read16(address);
 
-  //int rs = (opcode >> 6) & 0x07;
   int rd      = opcode & 0x07;
   int rd_mode = (opcode >> 3) & 0x07;
+  int rs      = (opcode >> 6) & 0x07;
+  int rs_mode = (opcode >> 9) & 0x07;
 
   address += 2;
 
@@ -144,22 +148,44 @@ int disasm_pdp11(
         }
         case OP_DOUBLE:
         {
+          address += pdp11_addressing_mode(
+            memory,
+            address,
+            temp_d,
+            sizeof(temp_d),
+            rd,
+            rd_mode);
+
+          address += pdp11_addressing_mode(
+            memory,
+            address,
+            temp_s,
+            sizeof(temp_s),
+            rs,
+            rs_mode);
+
+          snprintf(instruction, length, "%s %s, %s",
+            table_pdp11[n].instr,
+            temp_s,
+            temp_d);
+
+          return address - address_start;
         }
         case OP_D_EXTRA:
         {
         }
         case OP_SINGLE:
         {
-          pdp11_addressing_mode(
+          address += pdp11_addressing_mode(
             memory,
             address,
-            temp,
-            sizeof(temp),
+            temp_d,
+            sizeof(temp_d),
             rd,
             rd_mode);
 
-          snprintf(instruction, length, "%s %s",table_pdp11[n].instr, temp);
-          return 2;
+          snprintf(instruction, length, "%s %s", table_pdp11[n].instr, temp_d);
+          return address - address_start;
         }
         case OP_BRANCH:
         {
