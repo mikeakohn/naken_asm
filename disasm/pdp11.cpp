@@ -16,6 +16,11 @@
 #include "disasm/pdp11.h"
 #include "table/pdp11.h"
 
+static const char *reg_name[] =
+{
+  "r0", "r1", "r2", "r3", "r4", "r5", "sp", "pc"
+};
+
 static int pdp11_addressing_mode(
   Memory *memory,
   uint32_t address,
@@ -146,6 +151,26 @@ int disasm_pdp11(
           snprintf(instruction, length, "%s", table_pdp11[n].instr);
           return 2;
         }
+        case OP_REG:
+        {
+          snprintf(instruction, length, "%s r%d",
+            table_pdp11[n].instr,
+            rd);
+          return 2;
+        }
+        case OP_SINGLE:
+        {
+          address += pdp11_addressing_mode(
+            memory,
+            address,
+            temp_d,
+            sizeof(temp_d),
+            rd,
+            rd_mode);
+
+          snprintf(instruction, length, "%s %s", table_pdp11[n].instr, temp_d);
+          return address - address_start;
+        }
         case OP_DOUBLE:
         {
           address += pdp11_addressing_mode(
@@ -171,10 +196,7 @@ int disasm_pdp11(
 
           return address - address_start;
         }
-        case OP_D_EXTRA:
-        {
-        }
-        case OP_SINGLE:
+        case OP_REG_D:
         {
           address += pdp11_addressing_mode(
             memory,
@@ -184,7 +206,28 @@ int disasm_pdp11(
             rd,
             rd_mode);
 
-          snprintf(instruction, length, "%s %s", table_pdp11[n].instr, temp_d);
+          snprintf(instruction, length, "%s %s, %s",
+            table_pdp11[n].instr,
+            reg_name[rs],
+            temp_d);
+
+          return address - address_start;
+        }
+        case OP_REG_S:
+        {
+          address += pdp11_addressing_mode(
+            memory,
+            address,
+            temp_d,
+            sizeof(temp_d),
+            rd,
+            rd_mode);
+
+          snprintf(instruction, length, "%s %s, %s",
+            table_pdp11[n].instr,
+            temp_d,
+            reg_name[rs]);
+
           return address - address_start;
         }
         case OP_BRANCH:
@@ -195,13 +238,6 @@ int disasm_pdp11(
         }
         case OP_JSR:
         {
-        }
-        case OP_REG:
-        {
-          snprintf(instruction, length, "%s r%d",
-            table_pdp11[n].instr,
-            rd);
-          return 2;
         }
         case OP_NN:
         {
@@ -257,9 +293,15 @@ void list_output_pdp11(
 
     opcode = memory->read16(start);
 
-    fprintf(asm_context->list, "0%04x: %04x %s\n", start / 2, opcode, instruction);
+    fprintf(asm_context->list, "0%04x: %04x %s\n", start, opcode, instruction);
 
-    start += count;
+    while (true)
+    {
+      count -= 2;
+      start += 2;
+      if (count == 0) { break; }
+      fprintf(asm_context->list, "       %04x\n", memory->read16(start));
+    }
   }
 }
 
@@ -280,7 +322,7 @@ void disasm_range_pdp11(
 
   while (start <= end)
   {
-    disasm_pdp11(
+    int count = disasm_pdp11(
       memory,
       start,
       instruction,
@@ -291,9 +333,15 @@ void disasm_range_pdp11(
 
     opcode = memory->read16(start);
 
-    printf("0%04x: %04x   %s\n", start / 2, opcode, instruction);
+    printf("0%04x: %04x   %s\n", start, opcode, instruction);
 
-    start = start + 2;
+    while (true)
+    {
+      count -= 2;
+      start = start + 2;
+      if (count == 0) { break; }
+      printf("       %04x\n", memory->read16(start));
+    }
   }
 }
 

@@ -17,13 +17,14 @@
 enum
 {
   OP_NONE,
-  OP_DOUBLE,
-  OP_D_EXTRA,
+  OP_REG,
   OP_SINGLE,
+  OP_DOUBLE,
+  OP_REG_D,
+  OP_REG_S,
   OP_BRANCH,
   OP_SUB_BR,
   OP_JSR,
-  OP_REG,
   OP_NN,
   OP_S_OPER,
   OP_NZVC,

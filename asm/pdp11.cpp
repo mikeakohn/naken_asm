@@ -96,21 +96,21 @@ static int get_extra(Operand &operand, int &reg, Extra &extra, bool is_dest)
       // #num  aka (pc)+  (010_111)
       if (is_dest) { return -1; }
 
-      extra.push(operand.value);
+      extra.push(operand.offset);
       reg = 0x17;
       return 0;
     }
     case OPERAND_ABSOLUTE:
     {
       // @#num  aka @(pc)+ (011_111)
-      extra.push(operand.value);
+      extra.push(operand.offset);
       reg = 0x1f;
       return 0;
     }
     case OPERAND_AT_NUMBER:
     {
       // @num  aka @x(pc)  (111_111)
-      extra.push(operand.value);
+      extra.push(operand.offset);
       reg = 0x3f;
       return 0;
     }
@@ -195,7 +195,8 @@ static int parse_immediate(AsmContext *asm_context, Operand &operand)
     }
   }
 
-  operand.value = num;
+  operand.value  = 7;
+  operand.offset = num;
 
   return 0;
 }
@@ -223,8 +224,8 @@ int parse_paren(AsmContext *asm_context, Operand &operand)
     return -1;
   }
 
-  operand.value = num;
-  operand.type  = OPERAND_REGISTER_PAREN;
+  operand.offset = num;
+  operand.type   = OPERAND_REGISTER_PAREN;
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -472,6 +473,41 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
 
           return 2;
         }
+        case OP_REG:
+        {
+          if (operand_count != 1 || operands[0].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_pdp11[n].opcode | operands[0].value;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          return 2;
+        }
+        case OP_SINGLE:
+        {
+          if (operand_count != 1)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (get_extra(operands[0], reg_d, extra, true) == -1)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_pdp11[n].opcode | reg_d;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          extra.add_values(asm_context);
+          return 2 + extra.size();
+        }
         case OP_DOUBLE:
         {
           if (operand_count != 2)
@@ -499,26 +535,42 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
           extra.add_values(asm_context);
           return 2 + extra.size();
         }
-        case OP_D_EXTRA:
+        case OP_REG_D:
         {
+          if (operand_count != 2 || operands[0].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (get_extra(operands[1], reg_d, extra, true) == -1)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          opcode = table_pdp11[n].opcode | (operands[0].value << 6) | reg_d;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+
+          extra.add_values(asm_context);
+          return 2 + extra.size();
         }
-        case OP_SINGLE:
+        case OP_REG_S:
         {
-          if (operand_count != 1)
+          if (operand_count != 2 || operands[1].type != OPERAND_REGISTER)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
-          if (get_extra(operands[0], reg_d, extra, true) == -1)
+          if (get_extra(operands[0], reg_s, extra, false) == -1)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
-          opcode = table_pdp11[n].opcode |
-            (reg_s << 6) |
-            (reg_d << 6);
+          opcode = table_pdp11[n].opcode | (operands[1].value << 6) | reg_s;
 
           add_bin16(asm_context, opcode, IS_OPCODE);
 
@@ -533,20 +585,6 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
         }
         case OP_JSR:
         {
-        }
-        case OP_REG:
-        {
-          if (operand_count != 1 || operands[0].type != OPERAND_REGISTER)
-          {
-            print_error_illegal_operands(asm_context, instr);
-            return -1;
-          }
-
-          opcode = table_pdp11[n].opcode | operands[0].value;
-
-          add_bin16(asm_context, opcode, IS_OPCODE);
-
-          return 2;
         }
         case OP_NN:
         {

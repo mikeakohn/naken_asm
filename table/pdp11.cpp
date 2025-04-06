@@ -31,11 +31,11 @@ struct _table_pdp11 table_pdp11[] =
   { "sub",   0xe000, 0xf000, OP_DOUBLE },
 
   // [opcode 15:9] [reg] [src/dst] [reg]
-  { "mul",   0x7000, 0xfe00, OP_D_EXTRA },
-  { "div",   0x7200, 0xfe00, OP_D_EXTRA },
-  { "ash",   0x7400, 0xfe00, OP_D_EXTRA },
-  { "ashc",  0x7600, 0xfe00, OP_D_EXTRA },
-  { "xor",   0x7800, 0xfe00, OP_D_EXTRA },
+  { "mul",   0x7000, 0xfe00, OP_REG_S },
+  { "div",   0x7200, 0xfe00, OP_REG_S },
+  { "ash",   0x7400, 0xfe00, OP_REG_S },
+  { "ashc",  0x7600, 0xfe00, OP_REG_S },
+  { "xor",   0x7800, 0xfe00, OP_REG_D },
 
   // [opcode 15:6] [src/dst] [reg]
   { "jmp",   0x0040, 0xffc0, OP_SINGLE },
