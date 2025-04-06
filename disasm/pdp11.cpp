@@ -126,6 +126,7 @@ int disasm_pdp11(
   int opcode;
   char temp_d[64];
   char temp_s[64];
+  char temp[8];
   //int n;
   //int i, z, a;
 
@@ -137,6 +138,7 @@ int disasm_pdp11(
   int rd_mode = (opcode >> 3) & 0x07;
   int rs      = (opcode >> 6) & 0x07;
   int rs_mode = (opcode >> 9) & 0x07;
+  int offset;
 
   address += 2;
 
@@ -232,25 +234,62 @@ int disasm_pdp11(
         }
         case OP_BRANCH:
         {
+          offset = (int8_t)(opcode & 0xff);
+          offset = offset * 2;
+
+          snprintf(instruction, length, "%s 0x%04x (offset=%d)",
+            table_pdp11[n].instr,
+            address + offset,
+            offset);
+
+          return 2;
         }
         case OP_SUB_BR:
         {
+          offset = opcode & 0x3f;
+          if ((offset & 0x20) != 0) { offset |= 0xffffffc0; }
+          offset = offset * 2;
+
+          snprintf(instruction, length, "%s %s, 0x%04x (offset=%d)",
+            table_pdp11[n].instr,
+            reg_name[rs],
+            address + offset,
+            offset);
+
+          return 2;
         }
+#if 0
         case OP_JSR:
         {
         }
+#endif
         case OP_NN:
         {
-          snprintf(instruction, length, "%s r%d",
+          snprintf(instruction, length, "%s %d",
             table_pdp11[n].instr,
             opcode & 0x3f);
           return 2;
         }
         case OP_S_OPER:
         {
+          snprintf(instruction, length, "%s %d",
+            table_pdp11[n].instr,
+            opcode & 0xff);
+          return 2;
         }
         case OP_NZVC:
         {
+          memset(temp, 0, sizeof(temp));
+
+          if ((opcode & 0x8) != 0) { strcat(temp, "N"); }
+          if ((opcode & 0x4) != 0) { strcat(temp, "Z"); }
+          if ((opcode & 0x2) != 0) { strcat(temp, "V"); }
+          if ((opcode & 0x1) != 0) { strcat(temp, "C"); }
+
+          snprintf(instruction, length, "%s %s",
+            table_pdp11[n].instr,
+            temp);
+          return 2;
         }
         default:
         {

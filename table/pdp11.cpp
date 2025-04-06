@@ -37,6 +37,9 @@ struct _table_pdp11 table_pdp11[] =
   { "ashc",  0x7600, 0xfe00, OP_REG_S },
   { "xor",   0x7800, 0xfe00, OP_REG_D },
 
+  // [opcode 15:9] [reg] [src] [reg]
+  { "jsr",   0x0800, 0xfe00, OP_REG_D },
+
   // [opcode 15:6] [src/dst] [reg]
   { "jmp",   0x0040, 0xffc0, OP_SINGLE },
   { "swab",  0x00c0, 0xffc0, OP_SINGLE },
@@ -94,9 +97,6 @@ struct _table_pdp11 table_pdp11[] =
   // [opcode 15:9] [reg] [offset]
   { "sob",   0x7e00, 0xfe00, OP_SUB_BR },
 
-  // [opcode 15:9] [reg] [src] [reg]
-  { "jsr",   0x0800, 0xfe00, OP_JSR },
-
   // [opcode 15:3] [reg]
   { "rts",   0x0080, 0xfff8, OP_REG },
 
@@ -110,7 +110,7 @@ struct _table_pdp11 table_pdp11[] =
 
   // [opcode 15:9] [S] [Operation Code]
   { "emt",   0x8800, 0xff00, OP_S_OPER },
-  { "trap",  0x8c00, 0xff00, OP_S_OPER },
+  { "trap",  0x8900, 0xff00, OP_S_OPER },
 
   // [opcode 15:0]
   { "rti",   0x0002, 0xffff, OP_NONE },
@@ -136,8 +136,8 @@ struct _table_pdp11 table_pdp11[] =
   { "scc",   0x00bf, 0xffff, OP_NONE },
 
   // [opcode 15:6] [1] [S] [NZVC]
-  { "c",     0x00a0, 0xffe0, OP_NZVC },
-  { "s",     0x00b0, 0xffe0, OP_NZVC },
+  { "c",     0x00a0, 0xfff0, OP_NZVC },
+  { "s",     0x00b0, 0xfff0, OP_NZVC },
 
   { NULL, 0, 0, OP_NONE },
 };

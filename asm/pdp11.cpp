@@ -339,6 +339,7 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
   Extra extra;
   int reg_s = 0, reg_d = 0;
   //bool matched = false;
+  int offset;
 
   lower_copy(instr_case, instr);
   memset(&operands, 0, sizeof(operands));
@@ -579,34 +580,120 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
         }
         case OP_BRANCH:
         {
-        }
-        case OP_SUB_BR:
-        {
-        }
-        case OP_JSR:
-        {
-        }
-        case OP_NN:
-        {
-          if (operand_count != 1 || operands[0].type != OPERAND_NUMBER)
+          // The operand parser treats a "NUMBER" as X(Rn) (reg=7).
+          if (operand_count != 1 ||
+              (asm_context->pass == 2 &&
+              !(operands[0].type == OPERAND_REGISTER_INDEXED &&
+                operands[0].value == 7)))
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
-          if (check_range(asm_context, "Number", operands[0].value, 0, 63) == -1) { return -1; }
+          offset = operands[0].offset  - (asm_context->address + 2);
+          if (asm_context->pass == 1) { offset = 0; }
 
-          opcode = table_pdp11[n].opcode | operands[0].value;
+          if ((offset & 1) != 0)
+          {
+            print_error_align(asm_context, 2);
+            return -1;
+          }
+
+          if (check_range(asm_context, "offset", offset, -256, 254) != 0)
+          {
+            return -1;
+          }
+
+          opcode = table_pdp11[n].opcode | ((offset >> 1) & 0xff);
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          return 2;
+        }
+        case OP_SUB_BR:
+        {
+          // The operand parser treats a "NUMBER" as X(Rn) (reg=7).
+          if (operand_count != 2 ||
+              operands[0].type != OPERAND_REGISTER ||
+              (asm_context->pass == 2 &&
+               !(operands[1].type == OPERAND_REGISTER_INDEXED &&
+                 operands[1].value == 7)))
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          offset = operands[1].offset  - (asm_context->address + 2);
+          if (asm_context->pass == 1) { offset = 0; }
+
+          if ((offset & 1) != 0)
+          {
+            print_error_align(asm_context, 2);
+            return -1;
+          }
+
+          if (check_range(asm_context, "offset", offset, -64, 62) != 0)
+          {
+            return -1;
+          }
+
+          opcode = table_pdp11[n].opcode | ((offset >> 1) & 0x3f);
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          return 2;
+        }
+#if 0
+        case OP_JSR:
+        {
+        }
+#endif
+        case OP_NN:
+        case OP_S_OPER:
+        {
+          // The operand parser treats a "NUMBER" as X(Rn) (reg=7).
+          if (operand_count != 1 ||
+              (asm_context->pass == 2 &&
+               !(operands[0].type == OPERAND_REGISTER_INDEXED &&
+                 operands[0].value == 7)))
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          int max = table_pdp11[n].type == OP_NN ? 63 : 255;
+
+          if (check_range(asm_context, "Number", operands[0].value, 0, max) == -1) { return -1; }
+
+          opcode = table_pdp11[n].opcode | operands[0].offset;
 
           add_bin16(asm_context, opcode, IS_OPCODE);
 
           return 2;
         }
-        case OP_S_OPER:
-        {
-        }
         case OP_NZVC:
         {
+#if 0
+          printf("%s isn't supported at this point at %s:%d.",
+            instr,
+            asm_context->tokens.filename,
+            asm_context->tokens.line);
+          return -1;
+#endif
+          // The operand parser treats a "NUMBER" as X(Rn) (reg=7).
+          if (operand_count != 1 ||
+              (asm_context->pass == 2 &&
+               !(operands[0].type == OPERAND_REGISTER_INDEXED &&
+                 operands[0].value == 7)))
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          if (check_range(asm_context, "Number", operands[0].value, 0, 15) == -1) { return -1; }
+
+          opcode = table_pdp11[n].opcode | operands[0].offset;
+
+          add_bin16(asm_context, opcode, IS_OPCODE);
+          return 2;
         }
         default:
         {
