@@ -105,10 +105,10 @@ int main(int argc, char *argv[])
         "    1802, 4004, 6502, 65C816, 68HC08, 6809, 68000, 8008, 8048, 8051,\n"
         "    86000, ARM, AVR8, Cell BE, Copper, CP1610, dsPIC, Epiphany,\n"
         "    F100-L, Fairchild F8, Java, LC-3, MIPS, MSP430, PDK13, PDK14,\n"
-        "    PDK15, PIC14, PIC18, PIC24, PIC32, Playstation 2 EE, PowerPC,\n"
-        "    Propeller, Propeller 2, PSoC, M8C, RISC-V, SH-4, STM8, SuperFX,\n"
-        "    SWEET16, unSP, THUMB, TMS1000, TMS1100, TMS340, TMS9900,\n"
-        "    WebAssembly, Xtensa, Z80\n");
+        "    PDK15, PDP8, PDP11, PIC14, PIC18, PIC24, PIC32,\n"
+        "    Playstation 2 EE, PowerPC, Propeller, Propeller 2, PSoC, M8C,\n"
+        "    RISC-V, SH-4, STM8, SuperFX, SWEET16, unSP, THUMB, TMS1000,\n"
+        "    TMS1100, TMS340, TMS9900, WebAssembly, Xtensa, Z80\n");
       exit(0);
     }
 

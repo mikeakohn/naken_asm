@@ -74,6 +74,7 @@ static void print_usage()
     "   -mips32 / mips               (MIPS / PIC32)\n"
     "   -msp430                      (MSP430/MSP430X) DEFAULT\n"
     "   -pdp8                        (PDP-8)\n"
+    "   -pdp11                       (PDP-11)\n"
     "   -pic14                       (PIC14 8 bit PIC / 14 bit opcode)\n"
     "   -pic18                       (PIC18 8 bit PIC / 16 bit opcode)\n"
     "   -powerpc                     (PowerPC)\n"

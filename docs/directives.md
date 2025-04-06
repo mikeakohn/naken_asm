@@ -46,6 +46,8 @@ CPU this source file should be assembled for.
 |.pdk13           |Padauk PDK13
 |.pdk14           |Padauk PDK14
 |.pdk15           |Padauk PDK15
+|.pdp8            |PDP-8
+|.pdp11           |PDP-11
 |.pic14           |PIC14
 |.pic18           |PIC18
 |.pic24           |PIC24
