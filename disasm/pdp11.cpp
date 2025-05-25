@@ -71,10 +71,10 @@ static int pdp11_addressing_mode(
         snprintf(temp, length, "@#0x%04x", value);
         return 2;
       case 6:
-        snprintf(temp, length, "0x%04x", value);
+        snprintf(temp, length, "0x%04x", (uint16_t)((address + 2) + value));
         return 2;
       case 7:
-        snprintf(temp, length, "@0x%04x", value);
+        snprintf(temp, length, "@0x%04x", (uint16_t)((address + 2) + value));
         return 2;
       default:
         break;
@@ -178,18 +178,18 @@ int disasm_pdp11(
           address += pdp11_addressing_mode(
             memory,
             address,
-            temp_d,
-            sizeof(temp_d),
-            rd,
-            rd_mode);
-
-          address += pdp11_addressing_mode(
-            memory,
-            address,
             temp_s,
             sizeof(temp_s),
             rs,
             rs_mode);
+
+          address += pdp11_addressing_mode(
+            memory,
+            address,
+            temp_d,
+            sizeof(temp_d),
+            rd,
+            rd_mode);
 
           snprintf(instruction, length, "%s %s, %s",
             table_pdp11[n].instr,

@@ -29,6 +29,7 @@ enum
   OPERAND_IMMEDIATE,               // #num
   OPERAND_ABSOLUTE,                // @#num
   OPERAND_AT_NUMBER,               // @num
+  OPERAND_RELATIVE,                // num
   OPERAND_REGISTER,                // Rn
   OPERAND_REGISTER_PAREN,          // (Rn)
   OPERAND_REGISTER_PAREN_PLUS,     // (Rn)+
@@ -83,7 +84,12 @@ static int get_register(const char *token)
   return token[1] - '0';
 }
 
-static int get_extra(Operand &operand, int &reg, Extra &extra, bool is_dest)
+static int get_extra(
+  Operand &operand,
+   int &reg,
+   Extra &extra,
+   uint32_t address,
+   bool is_dest)
 {
   switch (operand.type)
   {
@@ -107,10 +113,19 @@ static int get_extra(Operand &operand, int &reg, Extra &extra, bool is_dest)
       reg = 0x1f;
       return 0;
     }
+    case OPERAND_RELATIVE:
+    {
+      // num  aka x(pc)  (110_111)
+      int16_t offset = operand.offset - (address + 4 + extra.size());
+      extra.push(offset);
+      reg = 0x37;
+      return 0;
+    }
     case OPERAND_AT_NUMBER:
     {
-      // @num  aka @x(pc)  (111_111)
-      extra.push(operand.offset);
+      // @num  aka @x(pc)  (111_111)  (aka RELATIVE_DEFERRED)
+      int16_t offset = operand.offset - (address + 4 + extra.size());
+      extra.push(offset);
       reg = 0x3f;
       return 0;
     }
@@ -224,8 +239,8 @@ int parse_paren(AsmContext *asm_context, Operand &operand)
     return -1;
   }
 
-  operand.offset = num;
-  operand.type   = OPERAND_REGISTER_PAREN;
+  operand.value = num;
+  operand.type  = OPERAND_REGISTER_PAREN;
 
   token_type = tokens_get(asm_context, token, TOKENLEN);
 
@@ -243,6 +258,8 @@ int parse_paren(AsmContext *asm_context, Operand &operand)
 
 int parse_minus(AsmContext *asm_context, Operand &operand)
 {
+  if (expect_token(asm_context, '(') != 0) { return -1; }
+
   if (parse_paren(asm_context, operand) == -1) { return -1; }
 
   if (operand.type != OPERAND_REGISTER_PAREN)
@@ -277,13 +294,19 @@ int parse_at(AsmContext *asm_context, Operand &operand)
 
   if (IS_TOKEN(token, '-'))
   {
-    return parse_minus(asm_context, operand);
+    if (parse_minus(asm_context, operand) != 0) { return -1; };
+    operand.type = OPERAND_REGISTER_AT_MINUS_PAREN;
+    return 0;
   }
 
   if (IS_TOKEN(token, '('))
   {
-    return parse_paren(asm_context, operand);
+    if (parse_paren(asm_context, operand) != 0) { return -1; }
+    operand.type = OPERAND_REGISTER_AT_PAREN_PLUS;
+    return 0;
   }
+
+  tokens_push(asm_context, token, token_type);
 
   // This should be a number. On pass 1 who cares what it really is.
   if (asm_context->pass == 1)
@@ -319,7 +342,7 @@ int parse_at(AsmContext *asm_context, Operand &operand)
     else
   {
     tokens_push(asm_context, token, token_type);
-    operand.type  = OPERAND_REGISTER_AT_INDEXED;
+    //operand.type  = OPERAND_REGISTER_AT_INDEXED;
     operand.value = 7;
   }
 
@@ -438,7 +461,8 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
         else
       {
         tokens_push(asm_context, token, token_type);
-        operands[operand_count].type  = OPERAND_REGISTER_INDEXED;
+        //operands[operand_count].type  = OPERAND_REGISTER_INDEXED;
+        operands[operand_count].type  = OPERAND_RELATIVE;
         operands[operand_count].value = 7;
       }
     } while (false);
@@ -453,6 +477,16 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
       return -1;
     }
   }
+
+#if 0
+for (int i = 0; i < operand_count; i++)
+{
+printf("%d) type=%d, value=%d offset=%d\n", i,
+ operands[i].type,
+ operands[i].value,
+ operands[i].offset);
+}
+#endif
 
   for (n = 0; table_pdp11[n].instr != NULL; n++)
   {
@@ -496,7 +530,7 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if (get_extra(operands[0], reg_d, extra, true) == -1)
+          if (get_extra(operands[0], reg_d, extra, asm_context->address, true) == -1)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
@@ -517,13 +551,15 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if (get_extra(operands[0], reg_s, extra, false) == -1)
+          if (get_extra(operands[0], reg_s, extra, asm_context->address, false) == -1)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
           }
 
-          if (get_extra(operands[1], reg_d, extra, true) == -1)
+          bool is_dest = (table_pdp11[n].opcode & 0x7000) != 0x2000;
+
+          if (get_extra(operands[1], reg_d, extra, asm_context->address, is_dest) == -1)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
@@ -544,7 +580,7 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if (get_extra(operands[1], reg_d, extra, true) == -1)
+          if (get_extra(operands[1], reg_d, extra, asm_context->address, true) == -1)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
@@ -565,7 +601,7 @@ int parse_instruction_pdp11(AsmContext *asm_context, char *instr)
             return -1;
           }
 
-          if (get_extra(operands[0], reg_s, extra, false) == -1)
+          if (get_extra(operands[0], reg_s, extra, asm_context->address, false) == -1)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
