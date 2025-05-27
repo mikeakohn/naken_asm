@@ -96,7 +96,9 @@ static int get_source_reg(
       }
 
       a = a + (address + count);
-      snprintf(reg_str, length, "0x%04x", a);
+      // FIXME: Is this how 20 bit works?
+      int upper = address & 0xf0000;
+      snprintf(reg_str, length, "0x%04x", (a & 0xffff) | upper);
     }
       else
     if (As == 2)
@@ -237,7 +239,9 @@ static int get_dest_reg(
       }
 
       a = a + (address + count);
-      snprintf(reg_str, length, "0x%04x", a);
+      // FIXME: Is this how 20 bit works?
+      int upper = address & 0xf0000;
+      snprintf(reg_str, length, "0x%04x", (a & 0xffff) | upper);
     }
   }
     else

@@ -352,8 +352,12 @@ void SimulateMsp430::sp_inc(int *sp)
   if (*sp > 0xffff) { *sp = 0; }
 }
 
-uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
+uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw, int &ea)
 {
+  const int PC = reg[0];
+
+  ea = -1;
+
   if (reg_index == 3) // CG
   {
     if (As == 0)
@@ -386,18 +390,17 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
   {
     if (As == 1) // &LABEL
     {
-      int PC = reg[0];
-      uint16_t a = READ_RAM(PC) | (READ_RAM(PC+1) << 8);
+      ea = READ_RAM(PC) | (READ_RAM(PC + 1) << 8);
 
       reg[0] += 2;
 
       if (bw == BW_WORD)
       {
-        return READ_RAM(a) | (READ_RAM(a+1) << 8);
+        return READ_RAM(ea) | (READ_RAM(ea + 1) << 8);
       }
         else
       {
-        return READ_RAM(a);
+        return READ_RAM(ea);
       }
     }
       else
@@ -417,7 +420,7 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
     // This is probably worthless.. some other condition should pick this up
     if (As == 3) // #immediate
     {
-      uint16_t a = READ_RAM(reg[0]) | (READ_RAM(reg[0] + 1) << 8);
+      uint16_t a = READ_RAM(PC) | (READ_RAM(PC + 1) << 8);
 
       reg[0] += 2;
 
@@ -427,32 +430,32 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw)
 
   if (As == 1) // x(Rn)
   {
-    uint16_t a = READ_RAM(reg[0]) | (READ_RAM(reg[0] + 1) << 8);
-    uint16_t index = reg[reg_index] + ((int16_t)a);
+    uint16_t a = READ_RAM(PC) | (READ_RAM(PC + 1) << 8);
+    ea = (reg[reg_index] + ((int16_t)a)) & 0xffff;
 
     reg[0] += 2;
 
     if (bw == BW_WORD)
     {
-      return READ_RAM(index) | (READ_RAM(index+1) << 8);
+      return READ_RAM(ea) | (READ_RAM(ea + 1) << 8);
     }
       else
     {
-      return READ_RAM(index);
+      return READ_RAM(ea);
     }
   }
     else
   if (As == 2 || As == 3) // @Rn (mode 2) or @Rn+ (mode 3)
   {
-    uint16_t index = reg[reg_index];
+    ea = reg[reg_index];
 
     if (bw == BW_WORD)
     {
-      return READ_RAM(index) | (READ_RAM(index + 1) << 8);
+      return READ_RAM(ea) | (READ_RAM(ea + 1) << 8);
     }
       else
     {
-      return READ_RAM(reg[reg_index]);
+      return READ_RAM(reg[ea]);
     }
   }
 
@@ -481,7 +484,7 @@ void SimulateMsp430::update_reg(int reg_index, int mode, int bw)
 }
 
 int SimulateMsp430::put_data(
-  int PC,
+  int ea,
   int reg_index,
   int mode,
   int bw,
@@ -497,96 +500,31 @@ int SimulateMsp430::put_data(
     {
       reg[reg_index] = data & 0xff;
     }
-    return 0;
-  }
-
-  if (reg_index == 2)
-  {
-    if (mode == 1) // &LABEL
-    {
-      uint16_t a = READ_RAM(PC) | (READ_RAM(PC+1) << 8);
-
-      if (bw == BW_WORD)
-      {
-        WRITE_RAM(a, data & 0xff);
-        WRITE_RAM(a + 1, data >> 8);
-      }
-        else
-      { WRITE_RAM(a, data & 0xff); }
-
-      return 0;
-    }
-  }
-
-  if (reg_index == 0) // PC
-  {
-    if (mode == 1) // LABEL
-    {
-      uint16_t a = READ_RAM(PC) | (READ_RAM(PC + 1) << 8);
-
-      if (bw == BW_WORD)
-      {
-        WRITE_RAM(PC + a, data & 0xff);
-        WRITE_RAM(PC + a + 1, data >> 8);
-      }
-        else
-      {
-        WRITE_RAM(PC + a, data & 0xff);
-      }
-
-      return 0;
-    }
-  }
-
-  if (mode == 1) // x(Rn)
-  {
-    uint16_t a = READ_RAM(PC) | (READ_RAM(PC + 1) << 8);
-    int address = reg[reg_index] + ((int16_t)a);
-
-    if (bw == BW_WORD)
-    {
-      WRITE_RAM(address, data & 0xff);
-      WRITE_RAM(address + 1, data >> 8);
-    }
-      else
-    {
-      WRITE_RAM(address, data & 0xff);
-    }
 
     return 0;
+  }
+
+  if (bw == BW_WORD)
+  {
+    WRITE_RAM(ea,     data & 0xff);
+    WRITE_RAM(ea + 1, data >> 8);
   }
     else
-  if (mode == 2 || mode == 3) // @Rn (mode 2) or @Rn+ (mode 3)
   {
-    uint16_t index = reg[reg_index];
-
-    if (bw == BW_WORD)
-    {
-      WRITE_RAM(index, data & 0xff);
-      WRITE_RAM(index + 1, data >> 8);
-    }
-      else
-    {
-      WRITE_RAM(index, data & 0xff);
-    }
-
-    return 0;
+    WRITE_RAM(ea, data & 0xff);
   }
 
-  printf("Error: Unrecognized addressing mode for destination %d\n", mode);
-
-  return -1;
+  return 0;
 }
 
 int SimulateMsp430::one_operand_exe(uint16_t opcode)
 {
   int o;
   int reg_index;
-  int As,bw;
+  int As, bw;
   int count = 1;
   uint32_t result;
   int src;
-  int pc;
 
   o = (opcode & 0x0380) >> 7;
 
@@ -597,19 +535,20 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
   bw = (opcode & 0x0040) >> 6;
   reg_index = opcode & 0x000f;
 
+  int ea = -1;
+
   switch (o)
   {
     case 0:  // RRC
     {
-      pc = reg[0];
-      src = get_data(reg_index, As, bw);
+      src = get_data(reg_index, As, bw, ea);
       int c = get_c();
       if ((src & 1) == 1) { set_c(); } else { clear_c(); }
       if (bw == BW_WORD)
       { result = (c << 15) | (((uint16_t)src) >> 1); }
         else
       { result = (c << 7) | (((uint8_t)src) >> 1); }
-      put_data(pc, reg_index, As, bw, result);
+      put_data(ea, reg_index, As, bw, result);
       update_reg(reg_index, As, bw);
       update_nz(result, bw);
       clear_v();
@@ -617,23 +556,21 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
     }
     case 1:  // SWPB (no bw)
     {
-      pc = reg[0];
-      src = get_data(reg_index, As, bw);
+      src = get_data(reg_index, As, bw, ea);
       result = ((src & 0xff00) >> 8) | ((src & 0xff) << 8);
-      put_data(pc, reg_index, As, bw, result);
+      put_data(ea, reg_index, As, bw, result);
       update_reg(reg_index, As, bw);
       break;
     }
     case 2:  // RRA
     {
-      pc = reg[0];
-      src = get_data(reg_index, As, bw);
+      src = get_data(reg_index, As, bw, ea);
       if ((src & 1) == 1) { set_c(); } else { clear_c(); }
       if (bw == BW_WORD)
       { result = ((int16_t)src) >> 1; }
         else
       { result = ((int8_t)src) >> 1; }
-      put_data(pc, reg_index, As, bw, result);
+      put_data(ea, reg_index, As, bw, result);
       update_reg(reg_index, As, bw);
       update_nz(result, bw);
       clear_v();
@@ -641,10 +578,9 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
     }
     case 3:  // SXT (no bw)
     {
-      pc = reg[0];
-      src = get_data(reg_index, As, bw);
+      src = get_data(reg_index, As, bw, ea);
       result = (int16_t)((int8_t)((uint8_t)src));
-      put_data(pc, reg_index, As, bw, result);
+      put_data(ea, reg_index, As, bw, result);
       update_reg(reg_index, As, bw);
       update_nz(result, bw);
       update_c(result, bw);
@@ -654,7 +590,7 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
     case 4:  // PUSH
     {
       reg[1] -= 2;
-      src = get_data(reg_index, As, bw);
+      src = get_data(reg_index, As, bw, ea);
       update_reg(reg_index, As, bw);
       WRITE_RAM(reg[1], src & 0xff);
       WRITE_RAM(reg[1] + 1, src >> 8);
@@ -662,7 +598,7 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
     }
     case 5:  // CALL (no bw)
     {
-      src = get_data(reg_index, As, bw);
+      src = get_data(reg_index, As, bw, ea);
       update_reg(reg_index, As, bw);
       reg[1] -= 2;
       WRITE_RAM(reg[1], reg[0] & 0xff);
@@ -734,10 +670,9 @@ int SimulateMsp430::relative_jump_exe(uint16_t opcode)
 int SimulateMsp430::two_operand_exe(uint16_t opcode)
 {
   int o;
-  int src_reg,dst_reg;
-  int Ad,As,bw;
-  int dst,src;
-  int pc;
+  int src_reg, dst_reg;
+  int Ad, As, bw;
+  int dst, src;
   uint32_t result;
 
   o = opcode >> 12;
@@ -748,6 +683,8 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
   src_reg = (opcode >> 8) & 0x000f;
   dst_reg = opcode & 0x000f;
 
+  int ea = -1;
+
   switch (o)
   {
     case 0:
@@ -756,17 +693,15 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
     case 3:
       return -1;
     case 4:  // MOV
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
-      put_data(pc, dst_reg, Ad, bw, src);
+      dst = get_data(dst_reg, Ad, bw, ea);
+      put_data(ea, dst_reg, Ad, bw, src);
       break;
     case 5:  // ADD
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
+      dst = get_data(dst_reg, Ad, bw, ea);
       if (bw == BW_BYTE)
       {
         dst = dst & 0xff;
@@ -775,15 +710,14 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       result = (uint16_t)dst + (uint16_t)src;
       update_v(dst, src, result, bw);
       dst = result & 0xffff;
-      put_data(pc, dst_reg, Ad, bw, dst);
+      put_data(ea, dst_reg, Ad, bw, dst);
       update_nz(dst, bw);
       update_c(result, bw);
       break;
     case 6:  // ADDC
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
+      dst = get_data(dst_reg, Ad, bw, ea);
       if (bw == BW_BYTE)
       {
         dst = dst & 0xff;
@@ -792,15 +726,14 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       result = (uint16_t)dst + (uint16_t)src + get_c();
       update_v(dst, src, result, bw);
       dst = result & 0xffff;
-      put_data(pc, dst_reg, Ad, bw, dst);
+      put_data(ea, dst_reg, Ad, bw, dst);
       update_nz(dst, bw);
       update_c(result, bw);
       break;
     case 7:  // SUBC
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
+      dst = get_data(dst_reg, Ad, bw, ea);
       src = ((~((uint16_t)src)) & 0xffff);
       // FIXME - Added get_c().  Test it.
       if (bw == BW_BYTE)
@@ -811,15 +744,14 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       result = dst + src + get_c();
       update_v(dst, src, result, bw);
       dst = result & 0xffff;
-      put_data(pc, dst_reg, Ad, bw, dst);
+      put_data(ea, dst_reg, Ad, bw, dst);
       update_nz(dst, bw);
       update_c(result, bw);
       break;
     case 8:  // SUB
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
+      dst = get_data(dst_reg, Ad, bw, ea);
       src = ((~((uint16_t)src)) & 0xffff) + 1;
       if (bw == BW_BYTE)
       {
@@ -829,15 +761,14 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       result = dst + src;
       update_v(dst, src, result, bw);
       dst = result & 0xffff;
-      put_data(pc, dst_reg, Ad, bw, dst);
+      put_data(ea, dst_reg, Ad, bw, dst);
       update_nz(dst, bw);
       update_c(result, bw);
       break;
     case 9:  // CMP
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
+      dst = get_data(dst_reg, Ad, bw, ea);
       src = ((~((uint16_t)src)) & 0xffff) + 1;
       if (bw == BW_BYTE)
       {
@@ -851,10 +782,9 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
       update_c(result, bw);
       break;
     case 10: // DADD
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
+      dst = get_data(dst_reg, Ad, bw, ea);
       result = src + dst + get_c();
       if (bw == BW_WORD)
       {
@@ -874,53 +804,48 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
         if( (a>>4) >= 10 ) { a = (((a >> 4) % 10) << 4) | (a & 0x0f); set_c(); } else {clear_c(); }
         result = a;
       }
-      put_data(pc, dst_reg, Ad, bw, result);
+      put_data(ea, dst_reg, Ad, bw, result);
       update_nz(result, bw);
       break;
     case 11: // BIT (dest & src)
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
+      dst = get_data(dst_reg, Ad, bw, ea);
       result = src & dst;
       update_nz(result, bw);
       if (result != 0) { set_c(); } else { clear_c(); }
       clear_v();
       break;
     case 12: // BIC (dest &= ~src)
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
+      dst = get_data(dst_reg, Ad, bw, ea);
       result = (~src) & dst;
-      put_data(pc, dst_reg, Ad, bw, result);
+      put_data(ea, dst_reg, Ad, bw, result);
       break;
     case 13: // BIS (dest |= src)
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
+      dst = get_data(dst_reg, Ad, bw, ea);
       result = src | dst;
-      put_data(pc, dst_reg, Ad, bw, result);
+      put_data(ea, dst_reg, Ad, bw, result);
       break;
     case 14: // XOR
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
+      dst = get_data(dst_reg, Ad, bw, ea);
       result = src ^ dst;
-      put_data(pc, dst_reg, Ad, bw, result);
+      put_data(ea, dst_reg, Ad, bw, result);
       update_nz(result, bw);
       if (result != 0) { set_c(); } else { clear_c(); }
       if ((src & 0x8000) && (dst & 0x8000)) { set_v(); } else { clear_v(); }
       break;
     case 15: // AND
-      src = get_data(src_reg, As, bw);
+      src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      pc = reg[0];
-      dst = get_data(dst_reg, Ad, bw);
+      dst = get_data(dst_reg, Ad, bw, ea);
       result = src & dst;
-      put_data(pc, dst_reg, Ad, bw, result);
+      put_data(ea, dst_reg, Ad, bw, result);
       update_nz(result, bw);
       if (result != 0) { set_c(); } else { clear_c(); }
       clear_v();

@@ -34,9 +34,9 @@ public:
 
 private:
   void sp_inc(int *sp);
-  uint16_t get_data(int reg_index, int As, int bw);
+  uint16_t get_data(int reg_index, int As, int bw, int &ea);
   void update_reg(int reg_index, int mode, int bw);
-  int put_data(int PC, int reg_index, int mode, int bw, uint32_t data);
+  int put_data(int ea, int reg_index, int mode, int bw, uint32_t data);
   int one_operand_exe(uint16_t opcode);
   int relative_jump_exe(uint16_t opcode);
   int two_operand_exe(uint16_t opcode);
