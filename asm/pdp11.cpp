@@ -616,11 +616,8 @@ printf("%d) type=%d, value=%d offset=%d\n", i,
         }
         case OP_BRANCH:
         {
-          // The operand parser treats a "NUMBER" as X(Rn) (reg=7).
           if (operand_count != 1 ||
-              (asm_context->pass == 2 &&
-              !(operands[0].type == OPERAND_REGISTER_INDEXED &&
-                operands[0].value == 7)))
+              (asm_context->pass == 2 && operands[0].type != OPERAND_RELATIVE))
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
