@@ -644,12 +644,10 @@ printf("%d) type=%d, value=%d offset=%d\n", i,
         }
         case OP_SUB_BR:
         {
-          // The operand parser treats a "NUMBER" as X(Rn) (reg=7).
           if (operand_count != 2 ||
               operands[0].type != OPERAND_REGISTER ||
               (asm_context->pass == 2 &&
-               !(operands[1].type == OPERAND_REGISTER_INDEXED &&
-                 operands[1].value == 7)))
+               operands[1].type != OPERAND_RELATIVE))
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
