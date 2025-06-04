@@ -530,6 +530,14 @@ printf("%d) type=%d, value=%d offset=%d\n", i,
             return -1;
           }
 
+          // jmp instruction can't use a register.
+          if (table_pdp11[n].opcode == 0x0040 &&
+              operands[0].type == OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
           if (get_extra(operands[0], reg_d, extra, asm_context->address, true) == -1)
           {
             print_error_illegal_operands(asm_context, instr);
@@ -575,6 +583,14 @@ printf("%d) type=%d, value=%d offset=%d\n", i,
         case OP_REG_D:
         {
           if (operand_count != 2 || operands[0].type != OPERAND_REGISTER)
+          {
+            print_error_illegal_operands(asm_context, instr);
+            return -1;
+          }
+
+          // jsr instruction can't use a register.
+          if (table_pdp11[n].opcode == 0x0800 &&
+              operands[1].type == OPERAND_REGISTER)
           {
             print_error_illegal_operands(asm_context, instr);
             return -1;
