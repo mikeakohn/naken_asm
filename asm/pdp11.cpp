@@ -683,7 +683,9 @@ printf("%d) type=%d, value=%d offset=%d\n", i,
             return -1;
           }
 
-          opcode = table_pdp11[n].opcode | ((offset >> 1) & 0x3f);
+          opcode = table_pdp11[n].opcode |
+            (operands[0].value << 6) |
+            ((offset >> 1) & 0x3f);
 
           add_bin16(asm_context, opcode, IS_OPCODE);
           return 2;
