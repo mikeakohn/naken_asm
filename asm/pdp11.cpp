@@ -669,7 +669,8 @@ printf("%d) type=%d, value=%d offset=%d\n", i,
             return -1;
           }
 
-          offset = operands[1].offset  - (asm_context->address + 2);
+          //offset = operands[1].offset  - (asm_context->address + 2);
+          offset = (asm_context->address + 2) - operands[1].offset;;
           if (asm_context->pass == 1) { offset = 0; }
 
           if ((offset & 1) != 0)
@@ -678,7 +679,7 @@ printf("%d) type=%d, value=%d offset=%d\n", i,
             return -1;
           }
 
-          if (check_range(asm_context, "offset", offset, -64, 62) != 0)
+          if (check_range(asm_context, "offset", offset, 0, 126) != 0)
           {
             return -1;
           }

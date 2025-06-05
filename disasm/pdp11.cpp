@@ -247,13 +247,13 @@ int disasm_pdp11(
         case OP_SUB_BR:
         {
           offset = opcode & 0x3f;
-          if ((offset & 0x20) != 0) { offset |= 0xffffffc0; }
+          //if ((offset & 0x20) != 0) { offset |= 0xffffffc0; }
           offset = offset * 2;
 
-          snprintf(instruction, length, "%s %s, 0x%04x (offset=%d)",
+          snprintf(instruction, length, "%s %s, 0x%04x (offset=-%d)",
             table_pdp11[n].instr,
             reg_name[rs],
-            address + offset,
+            address - offset,
             offset);
 
           return 2;
