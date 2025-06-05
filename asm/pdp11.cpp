@@ -78,7 +78,7 @@ static int get_register(const char *token)
   if (strcasecmp(token, "pc") == 0) { return 7; }
 
   if (token[0] != 'r' && token[1] != 'R') { return -1; }
-  if (token[1] <= '0' || token[1] >= '7') { return -1; }
+  if (token[1]  < '0' || token[1]  > '7') { return -1; }
   if (token[2] != 0) { return -1; }
 
   return token[1] - '0';
@@ -660,6 +660,7 @@ printf("%d) type=%d, value=%d offset=%d\n", i,
         }
         case OP_SUB_BR:
         {
+
           if (operand_count != 2 ||
               operands[0].type != OPERAND_REGISTER ||
               (asm_context->pass == 2 &&
