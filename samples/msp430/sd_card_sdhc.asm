@@ -76,7 +76,7 @@ start:
   ;; Enable interrupts
   eint
 
-  ;; Clear 48 bytes of MSP430 RAM.
+  ;; Clear 64 bytes of MSP430 RAM.
   mov.w #0x200, r15
 memset:
   mov.w #0, 0(r15)

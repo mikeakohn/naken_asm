@@ -76,12 +76,12 @@ start:
   ;; Enable interrupts
   eint
 
-  ;; Clear 48 bytes of MSP430 RAM.
+  ;; Clear 64 bytes of MSP430 RAM.
   mov.w #0x200, r15
 memset:
   mov.w #0, 0(r15)
   add.w #2, r15
-  cmp.w #0x230, r15
+  cmp.w #0x240, r15
   jnz memset
 
   ;; This delay shouldn't be needed.
@@ -106,6 +106,10 @@ init_loop:
 
   ;; Read sector 0.
   mov.w #sd_command_read_0, r14
+  call #sd_read_sector
+
+  ;; Read sector 1.
+  mov.w #sd_command_read_1, r14
   call #sd_read_sector
 
 main:
@@ -178,6 +182,13 @@ sd_read_sector_data_loop:
   inc.w r14
   dec.w r13
   jnz sd_read_sector_data_loop
+  ;; Read the remaining bytes and 2 byte checksum.
+  mov.w #512 - 16 + 2, r13
+sd_read_sector_data_loop_2:
+  mov.b #0xff, r15
+  call #spi_send_char
+  dec.w r13
+  jnz sd_read_sector_data_loop_2
   CS_DESELECT
   ret
 
@@ -205,6 +216,9 @@ sd_command_init:
 
 sd_command_read_0:
   .db 0x51, 0x00, 0x00, 0x00, 0x00, 0x00
+
+sd_command_read_1:
+  .db 0x51, 0x00, 0x00, 0x02, 0x00, 0x00
 
 ;; Vectors.
 .org 0xfffe
