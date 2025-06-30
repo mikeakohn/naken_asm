@@ -8,6 +8,7 @@ default:
 	../../naken_asm -l -I$(INCLUDES) -o launchpad_blink.hex launchpad_blink.asm
 	../../naken_asm -l -I$(INCLUDES) -o msp430x.hex msp430x.asm
 	../../naken_asm -l -I$(INCLUDES) -o sd_card.hex sd_card.asm
+	../../naken_asm -l -I$(INCLUDES) -o sd_card_sdhc.hex sd_card_sdhc.asm
 	../../naken_asm -l -I$(INCLUDES) -o spi_msp430g2231.hex spi_msp430g2231.asm
 	../../naken_asm -l -I$(INCLUDES) -o spi_msp430g2553.hex spi_msp430g2553.asm
 	../../naken_asm -l -I$(INCLUDES) -o testing.hex testing.asm
