@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2025 by Michael Kohn
  *
  */
 
@@ -518,7 +518,6 @@ int write_elf(
     sym_offset = strlen(filename) + 2;
 
     n = 0;
-    //memset(&iter, 0, sizeof(iter));
     iter.reset();
 
     while (symbols->iterate(&iter) != -1)
@@ -564,7 +563,6 @@ int write_elf(
 
     // symbols from lookup tables
     n = 0;
-    //memset(&iter, 0, sizeof(iter));
     iter.reset();
 
     while (symbols->iterate(&iter) != -1)

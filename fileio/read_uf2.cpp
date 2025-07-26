@@ -72,7 +72,7 @@ int read_uf2(const char *filename, Memory *memory)
   file.set_endian(FileIo::FILE_ENDIAN_LITTLE);
 
   const int length = file.get_file_length();
-  uint32_t block = 0;
+  //uint32_t block = 0;
 
   //printf("UF2: file_length=%d\n", length);
 
@@ -143,7 +143,7 @@ int read_uf2(const char *filename, Memory *memory)
       memory->write8(address++, uf2_block.data[n]);
     }
 
-    block += 1;
+    //block += 1;
   }
 
 #if 0

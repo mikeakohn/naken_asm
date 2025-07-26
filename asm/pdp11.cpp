@@ -192,7 +192,7 @@ static int parse_immediate(AsmContext *asm_context, Operand &operand)
 {
   char token[TOKENLEN];
   int token_type;
-  int num;
+  int num = 0;
 
   if (asm_context->pass == 1)
   {
@@ -278,7 +278,7 @@ int parse_at(AsmContext *asm_context, Operand &operand)
 {
   char token[TOKENLEN];
   int token_type;
-  int num;
+  int num = 0;
 
   operand.type  = OPERAND_AT_NUMBER;
 
