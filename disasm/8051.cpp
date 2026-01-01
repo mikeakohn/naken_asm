@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -41,8 +41,8 @@ int disasm_8051(
   {
     snprintf(instruction, length, "%s 0x%02x, 0x%02x",
       table_8051[opcode].name,
-      READ_RAM(address + 1),
-      READ_RAM(address + 2));
+      READ_RAM(address + 2),
+      READ_RAM(address + 1));
     return 3;
   }
 
