@@ -72,8 +72,13 @@
 #define READ_FLASH(n) memory->read8(n)
 #define WRITE_FLASH(n,data) memory->write8(n, data)
 
-#define READ_RAM(a) ram[a & RAM_MASK];
-#define WRITE_RAM(a,v) ram[a & RAM_MASK] = v;
+#define READ_RAM(a) ((a == serial_addr) ? fgetc(serial_in) : ram[a & RAM_MASK])
+#define WRITE_RAM(a,v) \
+  if (a == serial_addr) \
+  { \
+    fputc(v, serial_out); \
+  } else \
+    ram[a & RAM_MASK] = v;
 
 SimulateAvr8::SimulateAvr8(Memory *memory) : Simulate(memory)
 {

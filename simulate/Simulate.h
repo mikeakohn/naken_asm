@@ -28,6 +28,9 @@ public:
     usec              (1000000),
     break_point       (0xffffffff),
     break_io          (0),
+    serial_addr       (0),
+    serial_in         (NULL),
+    serial_out        (NULL),
     step_mode         (false),
     show              (true),
     auto_run          (true)
@@ -62,6 +65,9 @@ public:
   void set_break_point(int value) { break_point = value; }
   void set_delay(useconds_t value) { usec = value; }
   void set_break_io(int value) { break_io = value; }
+  void set_serial_addr(int value) { serial_addr = value; }
+  void set_serial_in(FILE *value) { serial_in = value; }
+  void set_serial_out(FILE *value) { serial_out = value; }
 
   void remove_break_point() { break_point = -1; }
   bool is_break_point_set() { return break_point == -1; }
@@ -100,6 +106,9 @@ protected:
   useconds_t usec;
   int break_point;
   int break_io;
+  int serial_addr;
+  FILE *serial_in;
+  FILE *serial_out;
   bool step_mode : 1;
   bool show : 1;
   bool auto_run : 1;

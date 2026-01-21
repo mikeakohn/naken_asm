@@ -57,3 +57,12 @@ exit the simulator if written so:
 So now if the running program.hex does a mov.b #5, 0x0000 then the
 simulator exit with a return code of 5.
 
+To emulate a serial port, a set of 3 options is used as a group:
+	-serial_addr <address> is used to specify a memory mapped address
+	-serial_out <outputfile> is used to denote that writing a byte to the
+		<address> specified by -serial_addr will write that byte
+		to the <outputfile>
+	-serial_in <inputfile> is used to denote that reading a byte from the
+		<address> specified by -serial_addr will read a byte
+		from the <inputfile>
+This is currently implemented for AVR8 and MSP430

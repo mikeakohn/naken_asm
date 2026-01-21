@@ -104,6 +104,9 @@ static void print_usage()
     "   -address <start_address>     (For bin files: binary placed at this address)\n"
     "   -set_pc <address>            (Sets program counter after loading program)\n"
     "   -break_io <address>          (In -run mode writing to an i/o port exits sim)\n"
+    "   -serial_addr <ser_port_addr> (In -run mode sets the memory mapped serial port address)\n"
+    "   -serial_out <outputfile>     (In -run mode writing a byte to the serial port address (from -serial_addr) appends the value to the outputfile)\n"
+    "   -serial_in <inputfile>       (In -run mode reading a byte from the serial port address (from -serial_addr) reads from the inputfile)\n"
     "\n");
 }
 
@@ -365,6 +368,24 @@ bool is_command_valid(String &command, String &arg)
   return false;
 }
 
+int serial_addr = -1;
+int serial_addr_set = 0;
+FILE *serial_in = NULL;
+FILE *serial_out = NULL;
+
+void close_fh()
+{
+  if (serial_in != NULL)
+  {
+    fclose(serial_in);
+  }
+  if (serial_out != NULL)
+  {
+    fflush(serial_out);
+    fclose(serial_out);
+  }
+}
+
 int main(int argc, char *argv[])
 {
   FILE *src = NULL;
@@ -402,6 +423,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
+  atexit(close_fh);
   util_init(&util_context);
 
   for (i = 1; i < argc; i++)
@@ -460,6 +482,50 @@ int main(int argc, char *argv[])
         exit(1);
       }
       break_io = strtol(argv[i], NULL, 0);
+    }
+      else
+    if (strcmp(argv[i], "-serial_addr") == 0)
+    {
+      i++;
+      if (i >= argc)
+      {
+        printf("Error: -serial_addr needs an address\n");
+        exit(1);
+      }
+      serial_addr = strtol(argv[i], NULL, 0);
+      serial_addr_set = 1;
+    }
+      else
+    if (strcmp(argv[i], "-serial_out") == 0)
+    {
+      i++;
+      if (i >= argc)
+      {
+        printf("Error: -serial_out needs a file\n");
+        exit(1);
+      }
+      serial_out = fopen(argv[i], "w");
+      if (serial_out == NULL)
+      {
+        printf("Error: -serial_out file can\'t be opened\n");
+        exit(1);
+      }
+    }
+      else
+    if (strcmp(argv[i], "-serial_in") == 0)
+    {
+      i++;
+      if (i >= argc)
+      {
+        printf("Error: -serial_in needs a file\n");
+        exit(1);
+      }
+      serial_in = fopen(argv[i], "r");
+      if (serial_in == NULL)
+      {
+        printf("Error: -serial_in file can\'t be opened\n");
+        exit(1);
+      }
     }
       else
     if (strcmp(argv[i], "-bin") == 0)
@@ -541,6 +607,13 @@ int main(int argc, char *argv[])
   }
 
   util_context.simulate->set_break_io(break_io);
+
+  if (serial_addr_set)
+  {
+    util_context.simulate->set_serial_addr(serial_addr);
+    util_context.simulate->set_serial_in(serial_in ? serial_in : stdin);
+    util_context.simulate->set_serial_out(serial_out ? serial_out : stdout);
+  }
 
   if (set_pc != 0xffffffff)
   {

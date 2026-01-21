@@ -19,13 +19,17 @@
 #include "simulate/msp430.h"
 
 #define SHOW_STACK sp, memory->read8(sp + 1), memory->read8(sp)
-#define READ_RAM(a) memory->read8(a)
+#define READ_RAM(a) ((a == serial_addr) ? fgetc(serial_in) : memory->read8(a))
 #define WRITE_RAM(a,b) \
   if (a == break_io) \
   { \
     exit(b); \
   } \
-  memory->write8(a, b);
+  if (a == serial_addr) \
+  { \
+    fputc(b, serial_out); \
+  } else \
+    memory->write8(a, b);
 
 const char *SimulateMsp430::flags[] =
 {
