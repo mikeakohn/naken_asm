@@ -386,6 +386,14 @@ int main(int argc, char *argv[])
   bool was_pc_set = false;
   uint32_t org = 0;
 
+  struct Serial
+  {
+    Serial() : address(0), in_name(nullptr), out_name(nullptr) { }
+    int address;
+    const char *in_name;
+    const char *out_name;
+  } serial;
+
   printf(
     "\n"
     "naken_util - by Michael Kohn\n"
@@ -481,9 +489,10 @@ int main(int argc, char *argv[])
         exit(1);
       }
 
-      int address = strtol(argv[i], NULL, 0);
-      util_context.simulate->init_serial(address, argv[i + 1], argv[i + 2]);
-      i += 3;
+      serial.address  = strtol(argv[i], NULL, 0);
+      serial.in_name  = argv[i + 1];
+      serial.out_name = argv[i + 2];
+      i += 2;
     }
       else
     if (argv[i][0] == '-')
@@ -554,6 +563,14 @@ int main(int argc, char *argv[])
   }
 
   util_context.simulate->set_break_io(break_io);
+
+  if (serial.in_name != nullptr)
+  {
+    util_context.simulate->init_serial(
+      serial.address,
+      serial.in_name,
+      serial.out_name);
+  }
 
   if (set_pc != 0xffffffff)
   {

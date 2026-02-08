@@ -25,13 +25,13 @@ Simulate::Simulate(Memory *memory) :
   nested_call_count (0),
   usec              (1000000),
   break_point       (0xffffffff),
-  break_io          (0),
+  break_io          (0xffffffff),
   step_mode         (false),
   show              (true),
   auto_run          (true),
   serial_in         (nullptr),
   serial_out        (nullptr),
-  serial_address    (0)
+  serial_address    (0xffffffff)
 {
   enable_signal_handler();
 }

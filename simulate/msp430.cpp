@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -19,13 +19,6 @@
 #include "simulate/msp430.h"
 
 #define SHOW_STACK sp, memory->read8(sp + 1), memory->read8(sp)
-#define READ_RAM(a) memory->read8(a)
-#define WRITE_RAM(a,b) \
-  if (a == break_io) \
-  { \
-    exit(b); \
-  } \
-  memory->write8(a, b);
 
 const char *SimulateMsp430::flags[] =
 {
@@ -61,7 +54,7 @@ void SimulateMsp430::reset()
   memset(reg, 0, sizeof(reg));
 
   // Set PC to reset vector.
-  reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
+  reg[0] = ram_read16(0xfffe);
 
   // FIXME - A real chip wouldn't set the SP to this, but this is
   // in case someone is simulating code that won't run on a chip.
@@ -72,8 +65,7 @@ void SimulateMsp430::reset()
 void SimulateMsp430::push(uint32_t value)
 {
   reg[1] -= 2;
-  WRITE_RAM(reg[1], value & 0xff);
-  WRITE_RAM(reg[1] + 1, value >> 8);
+  ram_write16(reg[1], value);
 }
 
 int SimulateMsp430::set_reg(const char *reg_string, uint32_t value)
@@ -195,12 +187,13 @@ int SimulateMsp430::run(int max_cycles, int step)
   while (stop_running == false)
   {
     pc = reg[0];
-    opcode = READ_RAM(pc) | (READ_RAM(pc + 1) << 8);
+    opcode = ram_read16(pc);
+
     c = get_cycle_count(opcode);
     if (c > 0) { cycle_count += c; }
     reg[0] += 2;
 
-    if (show == true) printf("\x1b[1J\x1b[1;1H");
+    if (show == true) { printf("\x1b[1J\x1b[1;1H"); }
 
     if ((opcode & 0xfc00) == 0x1000)
     {
@@ -228,7 +221,7 @@ int SimulateMsp430::run(int max_cycles, int step)
       {
         int cycles_min,cycles_max;
         int num;
-        num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
+        num = ram_read16(pc);
 
         int count = disasm_msp430(
           memory,
@@ -292,7 +285,7 @@ int SimulateMsp430::run(int max_cycles, int step)
           }
 */
 
-          num = (READ_RAM(pc + 1) << 8) | READ_RAM(pc);
+          num = ram_read16(pc);
           printf("  0x%04x: 0x%04x\n", pc, num);
           pc += 2;
           count -= 2;
@@ -330,7 +323,7 @@ int SimulateMsp430::run(int max_cycles, int step)
     {
       printf("Function ended. Total cycles: %d\n", cycle_count);
       step_mode = false;
-      reg[0] = READ_RAM(0xfffe) | (READ_RAM(0xffff) << 8);
+      reg[0] = ram_read16(0xfffe);
       disable_signal_handler();
       return 0;
     }
@@ -390,17 +383,17 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw, int &ea)
   {
     if (As == 1) // &LABEL
     {
-      ea = READ_RAM(PC) | (READ_RAM(PC + 1) << 8);
+      ea = ram_read16(PC);
 
       reg[0] += 2;
 
       if (bw == BW_WORD)
       {
-        return READ_RAM(ea) | (READ_RAM(ea + 1) << 8);
+        return ram_read16(ea);
       }
         else
       {
-        return READ_RAM(ea);
+        return ram_read8(ea);
       }
     }
       else
@@ -420,7 +413,7 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw, int &ea)
     // This is probably worthless.. some other condition should pick this up
     if (As == 3) // #immediate
     {
-      uint16_t a = READ_RAM(PC) | (READ_RAM(PC + 1) << 8);
+      uint16_t a = ram_read16(PC);
 
       reg[0] += 2;
 
@@ -430,18 +423,18 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw, int &ea)
 
   if (As == 1) // x(Rn)
   {
-    uint16_t a = READ_RAM(PC) | (READ_RAM(PC + 1) << 8);
+    uint16_t a = ram_read16(PC);
     ea = (reg[reg_index] + ((int16_t)a)) & 0xffff;
 
     reg[0] += 2;
 
     if (bw == BW_WORD)
     {
-      return READ_RAM(ea) | (READ_RAM(ea + 1) << 8);
+      return ram_read16(ea);
     }
       else
     {
-      return READ_RAM(ea);
+      return ram_read8(ea);
     }
   }
     else
@@ -451,11 +444,11 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw, int &ea)
 
     if (bw == BW_WORD)
     {
-      return READ_RAM(ea) | (READ_RAM(ea + 1) << 8);
+      return ram_read16(ea);
     }
       else
     {
-      return READ_RAM(reg[ea]);
+      return ram_read8(reg[ea]);
     }
   }
 
@@ -506,12 +499,11 @@ int SimulateMsp430::put_data(
 
   if (bw == BW_WORD)
   {
-    WRITE_RAM(ea,     data & 0xff);
-    WRITE_RAM(ea + 1, data >> 8);
+    ram_write16(ea, data);
   }
     else
   {
-    WRITE_RAM(ea, data & 0xff);
+    ram_write8(ea, data);
   }
 
   return 0;
@@ -592,8 +584,7 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
       reg[1] -= 2;
       src = get_data(reg_index, As, bw, ea);
       update_reg(reg_index, As, bw);
-      WRITE_RAM(reg[1], src & 0xff);
-      WRITE_RAM(reg[1] + 1, src >> 8);
+      ram_write16(reg[1], src);
       break;
     }
     case 5:  // CALL (no bw)
@@ -601,8 +592,7 @@ int SimulateMsp430::one_operand_exe(uint16_t opcode)
       src = get_data(reg_index, As, bw, ea);
       update_reg(reg_index, As, bw);
       reg[1] -= 2;
-      WRITE_RAM(reg[1], reg[0] & 0xff);
-      WRITE_RAM(reg[1] + 1, reg[0] >> 8);
+      ram_write16(reg[1], reg[0]);
       reg[0] = src;
       nested_call_count++;
       break;

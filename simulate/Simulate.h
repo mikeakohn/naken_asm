@@ -89,7 +89,7 @@ protected:
   uint16_t serial_read16();
   uint32_t serial_read32();
 
-  void write8(uint32_t address, uint8_t data)
+  void ram_write8(uint32_t address, uint8_t data)
   {
     memory->write8(address, data);
 
@@ -97,9 +97,14 @@ protected:
     {
       serial_write8(data);
     }
+
+    if (address == break_io)
+    {
+      exit(data);
+    }
   }
 
-  void write16(uint32_t address, uint16_t data)
+  void ram_write16(uint32_t address, uint16_t data)
   {
     memory->write16(address, data);
 
@@ -109,7 +114,7 @@ protected:
     }
   }
 
-  void write32(uint32_t address, uint32_t data)
+  void ram_write32(uint32_t address, uint32_t data)
   {
     memory->write32(address, data);
 
@@ -119,7 +124,7 @@ protected:
     }
   }
 
-  uint8_t read8(uint32_t address)
+  uint8_t ram_read8(uint32_t address)
   {
     uint8_t data = memory->read8(address);
 
@@ -131,7 +136,7 @@ protected:
     return data;
   }
 
-  uint16_t read16(uint32_t address)
+  uint16_t ram_read16(uint32_t address)
   {
     uint16_t data = memory->read16(address);
 
@@ -143,7 +148,7 @@ protected:
     return data;
   }
 
-  uint32_t read32(uint32_t address)
+  uint32_t ram_read32(uint32_t address)
   {
     uint32_t data = memory->read32(address);
 
@@ -161,7 +166,7 @@ protected:
   int nested_call_count;
   useconds_t usec;
   int break_point;
-  int break_io;
+  uint32_t break_io;
 
   bool step_mode : 1;
   bool show      : 1;
