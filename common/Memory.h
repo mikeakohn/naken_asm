@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -46,6 +46,8 @@ public:
   void write_debug(uint32_t address, int line);
   void write(uint32_t address, uint8_t data, int line);
 
+  bool is_little_endian() { return endian == ENDIAN_LITTLE; }
+
   void dump();
 
   MemoryPage *pages;
@@ -56,20 +58,6 @@ public:
 };
 
 class AsmContext;
-
-//uint8_t memory_read(AsmContext *asm_context, uint32_t address);
-//uint8_t memory_read_inc(AsmContext *asm_context);
-//void memory_write(AsmContext *asm_context, uint32_t address, uint8_t data, int line);
-//void memory_write_inc(AsmContext *asm_context, uint8_t data, int line);
-
-#if 0
-uint8_t memory_read_m(Memory *memory, uint32_t address);
-uint16_t memory_read16_m(Memory *memory, uint32_t address);
-uint32_t memory_read32_m(Memory *memory, uint32_t address);
-void memory_write_m(Memory *memory, uint32_t address, uint8_t data);
-void memory_write16_m(Memory *memory, uint32_t address, uint16_t data);
-void memory_write32_m(Memory *memory, uint32_t address, uint32_t data);
-#endif
 
 #endif
 

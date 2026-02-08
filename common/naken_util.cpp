@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2025 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -104,6 +104,7 @@ static void print_usage()
     "   -address <start_address>     (For bin files: binary placed at this address)\n"
     "   -set_pc <address>            (Sets program counter after loading program)\n"
     "   -break_io <address>          (In -run mode writing to an i/o port exits sim)\n"
+    "   -sim_serial <address> <infile> <outfile>\n"
     "\n");
 }
 
@@ -171,13 +172,10 @@ static const char *find_partial_command(const char *text, int *index)
 static const char *find_command(const char *text)
 {
   const char *name;
-  //int index = 0;
 
-  //while (index < (int)(sizeof(command_names) / sizeof(char *)))
   for (int i = 0; command_names[i].name != NULL; i++)
   {
     name = command_names[i].name;
-    //++index;
 
     if (strcmp(name, text) == 0)
     {
@@ -471,6 +469,21 @@ int main(int argc, char *argv[])
     {
        command = "run";
        mode = MODE_RUN;
+    }
+      else
+    if (strcmp(argv[i], "-sim_serial") == 0)
+    {
+      i++;
+
+      if (i + 3 > argc)
+      {
+        printf("Error: -sim_serial needs 3 arguments\n");
+        exit(1);
+      }
+
+      int address = strtol(argv[i], NULL, 0);
+      util_context.simulate->init_serial(address, argv[i + 1], argv[i + 2]);
+      i += 3;
     }
       else
     if (argv[i][0] == '-')

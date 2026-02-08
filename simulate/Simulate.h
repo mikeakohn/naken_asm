@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -20,25 +20,8 @@
 class Simulate
 {
 public:
-  Simulate(Memory *memory) :
-    memory            (memory),
-    org               (0),
-    cycle_count       (0),
-    nested_call_count (0),
-    usec              (1000000),
-    break_point       (0xffffffff),
-    break_io          (0),
-    step_mode         (false),
-    show              (true),
-    auto_run          (true)
-  {
-    enable_signal_handler();
-  }
-
-  virtual ~Simulate()
-  {
-    disable_signal_handler();
-  }
+  Simulate(Memory *memory);
+  virtual ~Simulate();
 
   //static Simulate *init(Memory *memory);
 
@@ -59,17 +42,17 @@ public:
   int get_delay() { return usec; }
   bool get_show() { return show; }
 
-  void set_break_point(int value) { break_point = value; }
+  void set_break_point(int value)  { break_point = value; }
   void set_delay(useconds_t value) { usec = value; }
-  void set_break_io(int value) { break_io = value; }
+  void set_break_io(int value)     { break_io = value; }
 
   void remove_break_point() { break_point = -1; }
   bool is_break_point_set() { return break_point == -1; }
-  bool in_step_mode() { return usec == 0; }
-  bool in_auto_run() { return auto_run == 0; }
+  bool in_step_mode()       { return usec == 0; }
+  bool in_auto_run()        { return auto_run == 0; }
 
-  void disable_show() { show = false; }
-  void enable_show() { show = true; }
+  void disable_show()    { show = false; }
+  void enable_show()     { show = true; }
   void enable_auto_run() { auto_run = true; }
 
   void disable_step_mode()
@@ -86,12 +69,91 @@ public:
     //usec = 0;
   }
 
+  void init_serial(
+    uint32_t address,
+    const char *in_name,
+    const char *out_name);
+
 protected:
   static bool stop_running;
 
   static void handle_signal(int sig);
   void enable_signal_handler();
   void disable_signal_handler();
+
+  void serial_write8(uint8_t data);
+  void serial_write16(uint16_t data);
+  void serial_write32(uint32_t data);
+
+  uint8_t serial_read8();
+  uint16_t serial_read16();
+  uint32_t serial_read32();
+
+  void write8(uint32_t address, uint8_t data)
+  {
+    memory->write8(address, data);
+
+    if (serial_out != nullptr && address == serial_address)
+    {
+      serial_write8(data);
+    }
+  }
+
+  void write16(uint32_t address, uint16_t data)
+  {
+    memory->write16(address, data);
+
+    if (serial_out != nullptr && address == serial_address)
+    {
+      serial_write16(data);
+    }
+  }
+
+  void write32(uint32_t address, uint32_t data)
+  {
+    memory->write32(address, data);
+
+    if (serial_out != nullptr && address == serial_address)
+    {
+      serial_write32(data);
+    }
+  }
+
+  uint8_t read8(uint32_t address)
+  {
+    uint8_t data = memory->read8(address);
+
+    if (serial_in != nullptr && address == serial_address)
+    {
+      data = serial_read8();
+    }
+
+    return data;
+  }
+
+  uint16_t read16(uint32_t address)
+  {
+    uint16_t data = memory->read16(address);
+
+    if (serial_in != nullptr && address == serial_address)
+    {
+      data = serial_read16();
+    }
+
+    return data;
+  }
+
+  uint32_t read32(uint32_t address)
+  {
+    uint32_t data = memory->read32(address);
+
+    if (serial_in != nullptr && address == serial_address)
+    {
+      data = serial_read32();
+    }
+
+    return data;
+  }
 
   Memory *memory;
   uint32_t org;
@@ -100,9 +162,14 @@ protected:
   useconds_t usec;
   int break_point;
   int break_io;
+
   bool step_mode : 1;
-  bool show : 1;
-  bool auto_run : 1;
+  bool show      : 1;
+  bool auto_run  : 1;
+
+  FILE *serial_in;
+  FILE *serial_out;
+  uint32_t serial_address;
 };
 
 #endif
