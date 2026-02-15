@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  * 1802 file by Malik Enes Safak
  *
@@ -284,7 +284,7 @@ int Simulate1802::run(int cycles, int step)
 
     if (show == true)
     {
-      printf("\x1b[1J\x1b[1;1H");
+      clear_screen();
       dump_registers();
 
       int cycles_min, cycles_max;

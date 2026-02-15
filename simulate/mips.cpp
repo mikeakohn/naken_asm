@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -178,6 +178,7 @@ int SimulateMips::run(int max_cycles, int step)
 
     if (show == true)
     {
+      clear_screen();
       dump_registers();
 
       int n = 0;

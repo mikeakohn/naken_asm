@@ -193,7 +193,7 @@ int SimulateMsp430::run(int max_cycles, int step)
     if (c > 0) { cycle_count += c; }
     reg[0] += 2;
 
-    if (show == true) { printf("\x1b[1J\x1b[1;1H"); }
+    if (show == true) { clear_screen(); }
 
     if ((opcode & 0xfc00) == 0x1000)
     {

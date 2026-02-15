@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  * Z80 simulation completed by D.L. Karmann
  *
@@ -472,8 +472,7 @@ int SimulateZ80::run(int max_cycles, int step)
     int cycles_min, cycles_max;
     pc_current = pc;
 
-    if (show == true)
-    { printf("\x1b[1J\x1b[1;1H"); }
+    if (show == true) { clear_screen(); }
 
     int count = disasm_z80(
       memory,

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn, D.L. Karmann
+ * Copyright 2010-2026 by Michael Kohn, D.L. Karmann
  *
  * stm8 file by D.L. Karmann
  *
@@ -480,6 +480,7 @@ int SimulateStm8::run(int max_cycles, int step)
     {
       uint32_t disasm_pc = current_pc;
 
+      clear_screen();
       dump_registers();
 
       n = 0;

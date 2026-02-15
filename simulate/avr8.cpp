@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -27,61 +27,22 @@
 #define SREG_CLR(bit) (sreg &= (0xff ^ (1<<bit)))
 #define GET_SREG(bit) ((sreg & (1 << bit)) == 0 ? 0 : 1)
 
-#define GET_X() (reg[26] | (reg[27] << 8))
-#define GET_Y() (reg[28] | (reg[29] << 8))
-#define GET_Z() (reg[30] | (reg[31] << 8))
-
-#define INC_X() { int a = GET_X(); a++; \
-                  reg[26] = a & 0xff; \
-                  reg[27] = (a >> 8) & 0xff; }
-
-#define INC_Y() { int a = GET_Y(); a++; \
-                  reg[28] = a & 0xff; \
-                  reg[29] = (a >> 8) & 0xff; }
-
-#define INC_Z() { int a = GET_Z(); a++; \
-                  reg[30] = a & 0xff; \
-                  reg[31] = (a >> 8) & 0xff; }
-
-#define DEC_X() { int a = GET_X(); a--; \
-                  reg[26] = a & 0xff; \
-                  reg[27] = (a >> 8) & 0xff; }
-
-#define DEC_Y() { int a = GET_Y(); a--; \
-                  reg[28] = a & 0xff; \
-                  reg[29] = (a >> 8) & 0xff; }
-
-#define DEC_Z() { int a = GET_Z(); a--; \
-                  reg[30] = a & 0xff; \
-                  reg[31] = (a >> 8) & 0xff; }
-
-#define PUSH_STACK(n) \
-  ram[sp--] = (n) & 0xff;
-
-#define POP_STACK(n) \
-  ram[++sp];
-
-#define PUSH_STACK16(n) \
-  ram[sp--] = (n) & 0xff; \
-  ram[sp--] = (n) >> 8;
-
-#define POP_STACK16() \
-  (ram[sp+2] | \
-  (ram[sp+1] << 8)); sp += 2;
-
 #define READ_FLASH(n) memory->read8(n)
 #define WRITE_FLASH(n,data) memory->write8(n, data)
 
-#define READ_RAM(a) ram[a & RAM_MASK];
-#define WRITE_RAM(a,v) ram[a & RAM_MASK] = v;
-
-SimulateAvr8::SimulateAvr8(Memory *memory) : Simulate(memory)
+SimulateAvr8::SimulateAvr8(Memory *memory) :
+  Simulate(memory),
+  ram_mask(0x1fff)
 {
+  ram_size = ram_mask + 1;
+
+  ram = (uint8_t *)malloc(ram_size);
   reset();
 }
 
 SimulateAvr8::~SimulateAvr8()
 {
+  free(ram);
 }
 
 Simulate *SimulateAvr8::init(Memory *memory)
@@ -94,18 +55,18 @@ void SimulateAvr8::reset()
   cycle_count = 0;
   nested_call_count = 0;
   memset(reg, 0, sizeof(reg));
-  memset(io, 0, sizeof(io));
-  memset(ram, 0, sizeof(ram));
+  //memset(io, 0, sizeof(io));
+  memset(ram, 0, ram_size);
   pc = org;
-  sp = 0;
   sreg = 0;
   break_point = -1;
+
+  set_sp(ram_size);
 }
 
 void SimulateAvr8::push(uint32_t value)
 {
-  sp -= 1;
-  PUSH_STACK(value);
+  push_stack(value);
 }
 
 int SimulateAvr8::set_reg(const char *reg_string,uint32_t value)
@@ -115,7 +76,7 @@ int SimulateAvr8::set_reg(const char *reg_string,uint32_t value)
   // joe needed these
   if (strcasecmp(reg_string, "sp") == 0)
   {
-    sp = value & 0xffff;
+    set_sp(value & 0xffff);
     return 0;
   }
 
@@ -179,19 +140,20 @@ void SimulateAvr8::dump_registers()
 
   printf("\nSimulation Register Dump\n");
   printf("-------------------------------------------------------------------\n");
-  printf(" PC: 0x%04x,  SP: 0x%04x, SREG: I T H S V N Z C = 0x%02x\n"
-         "                                %d %d %d %d %d %d %d %d\n",
-         pc,
-         sp,
-         sreg,
-         GET_SREG(SREG_I),
-         GET_SREG(SREG_T),
-         GET_SREG(SREG_H),
-         GET_SREG(SREG_S),
-         GET_SREG(SREG_V),
-         GET_SREG(SREG_N),
-         GET_SREG(SREG_Z),
-         GET_SREG(SREG_C));
+  printf(
+    " PC: 0x%04x,  SP: 0x%04x, SREG: I T H S V N Z C = 0x%02x\n"
+    "                                %d %d %d %d %d %d %d %d\n",
+    pc,
+    get_sp(),
+    sreg,
+    GET_SREG(SREG_I),
+    GET_SREG(SREG_T),
+    GET_SREG(SREG_H),
+    GET_SREG(SREG_S),
+    GET_SREG(SREG_V),
+    GET_SREG(SREG_N),
+    GET_SREG(SREG_Z),
+    GET_SREG(SREG_C));
 
   for (n = 0; n < 32; n++)
   {
@@ -202,7 +164,7 @@ void SimulateAvr8::dump_registers()
     printf("%3s: 0x%02x", reg_name, reg[n]);
   }
 
-  printf(" X=0x%04x, Y=0x%04x, Z=0x%04x\n\n", GET_X(), GET_Y(), GET_Z());
+  printf(" X=0x%04x, Y=0x%04x, Z=0x%04x\n\n", get_x(), get_y(), get_z());
   printf("%d clock cycles have passed since last reset.\n\n", cycle_count);
 }
 
@@ -221,7 +183,7 @@ int SimulateAvr8::run(int max_cycles, int step)
     pc_current = pc;
     ret = execute();
 
-    if (show == true) printf("\x1b[1J\x1b[1;1H");
+    if (show == true) { clear_screen(); }
 
     if (ret > 0) { cycle_count += ret; }
 
@@ -329,6 +291,42 @@ int SimulateAvr8::run(int max_cycles, int step)
   return 0;
 }
 
+void SimulateAvr8::inc_x()
+{
+  int a = get_x() + 1;
+  set_reg16(26, a);
+}
+
+void SimulateAvr8::inc_y()
+{
+  int a = get_y() + 1;
+  set_reg16(28, a);
+}
+
+void SimulateAvr8::inc_z()
+{
+  int a = get_z() + 1;
+  set_reg16(30, a);
+}
+
+void SimulateAvr8::dec_x()
+{
+  int a = get_x() - 1;
+  set_reg16(26, a);
+}
+
+void SimulateAvr8::dec_y()
+{
+  int a = get_y() - 1;
+  set_reg16(28, a);
+}
+
+void SimulateAvr8::dec_z()
+{
+  int a = get_z() - 1;
+  set_reg16(30, a);
+}
+
 int SimulateAvr8::word_count()
 {
   uint16_t opcode = READ_OPCODE(pc);
@@ -339,7 +337,7 @@ int SimulateAvr8::word_count()
   {
     if ((opcode & table_avr8[n].mask) == table_avr8[n].opcode)
     {
-      switch(table_avr8[n].type)
+      switch (table_avr8[n].type)
       {
         case OP_JUMP:
         case OP_REG_SRAM:
@@ -357,7 +355,7 @@ int SimulateAvr8::word_count()
 
 int SimulateAvr8::execute_op_none(struct _table_avr8 *table_avr8)
 {
-  switch(table_avr8->id)
+  switch (table_avr8->id)
   {
     case AVR8_SEC:
       SREG_SET(SREG_C);
@@ -419,30 +417,30 @@ int SimulateAvr8::execute_op_none(struct _table_avr8 *table_avr8)
       // Should we do something here?
       return -1;
     case AVR8_IJMP:
-      pc = GET_Z();
+      pc = get_z();
       return table_avr8->cycles_min;
     case AVR8_EIJMP:
       return -1;
     case AVR8_ICALL:
-      PUSH_STACK16(pc)
-      pc = GET_Z();
+      push_stack16(pc);
+      pc = get_z();
       nested_call_count++;
       return table_avr8->cycles_min;
     case AVR8_EICALL:
       return -1;
     case AVR8_RET:
-      pc = POP_STACK16();
+      pc = pop_stack16();
       nested_call_count--;
       return table_avr8->cycles_min;
     case AVR8_RETI:
       return -1;
     case AVR8_LPM:
-      reg[0] = READ_FLASH(GET_Z());
+      reg[0] = READ_FLASH(get_z());
       return table_avr8->cycles_min;
     case AVR8_ELPM:
       return -1;
     case AVR8_SPM:
-      WRITE_FLASH(GET_Z(), reg[0]);
+      WRITE_FLASH(get_z(), reg[0]);
       return table_avr8->cycles_min;
   }
 
@@ -508,20 +506,23 @@ void SimulateAvr8::execute_set_sreg_logic(uint8_t rd_prev, uint8_t rd, int k)
   if (S == 1)  { SREG_SET(SREG_S); } else { SREG_CLR(SREG_S); }
 }
 
-void SimulateAvr8::execute_set_sreg_reg16(int rd_prev, int rd)
+void SimulateAvr8::execute_set_reg16(int prev_value, int value, int rd)
 {
-  int R15 = (rd & 0x8000) >> 15;
-  int Rdh7 = (rd_prev & 0x0080) >> 7;
+  int R15 = (value & 0x8000) >> 15;
+  int Rdh7 = (prev_value & 0x0080) >> 7;
   int N = R15;
   int V = (Rdh7 ^ 1) & R15;
   int S = N ^ V;
   int C = (R15 ^ 1) & Rdh7;
 
-  if (S == 1)  { SREG_SET(SREG_S); } else { SREG_CLR(SREG_S); }
-  if (V == 1)  { SREG_SET(SREG_V); } else { SREG_CLR(SREG_V); }
-  if (N == 1)  { SREG_SET(SREG_N); } else { SREG_CLR(SREG_N); }
-  if (rd == 0) { SREG_SET(SREG_Z); } else { SREG_CLR(SREG_Z); }
-  if (C == 1)  { SREG_SET(SREG_C); } else { SREG_CLR(SREG_C); }
+  if (S == 1)     { SREG_SET(SREG_S); } else { SREG_CLR(SREG_S); }
+  if (V == 1)     { SREG_SET(SREG_V); } else { SREG_CLR(SREG_V); }
+  if (N == 1)     { SREG_SET(SREG_N); } else { SREG_CLR(SREG_N); }
+  if (value == 0) { SREG_SET(SREG_Z); } else { SREG_CLR(SREG_Z); }
+  if (C == 1)     { SREG_SET(SREG_C); } else { SREG_CLR(SREG_C); }
+
+  reg[rd + 0] = value & 0xff;
+  reg[rd + 1] = (value >> 8) & 0xff;
 }
 
 void SimulateAvr8::execute_set_sreg_common(uint8_t value)
@@ -548,7 +549,7 @@ int SimulateAvr8::execute_op_branch_s_k(
 
   if ((k & 0x40) != 0) { k = (char)(0x80 | k); }
 
-  switch(table_avr8->id)
+  switch (table_avr8->id)
   {
     case AVR8_BRBS:
       if (GET_SREG(s) == 1) { pc += k; return 2; }
@@ -569,7 +570,7 @@ int SimulateAvr8::execute_op_branch_k(
 
   if ((k & 0x40) != 0) { k = (char)(0x80 | k); }
 
-  switch(table_avr8->id)
+  switch (table_avr8->id)
   {
     case AVR8_BREQ:
       if (GET_SREG(SREG_Z) == 1) { pc += k; return 2; }
@@ -639,7 +640,7 @@ int SimulateAvr8::execute_op_two_reg(
   uint8_t prev = reg[rd];
   int temp;
 
-  switch(table_avr8->id)
+  switch (table_avr8->id)
   {
     case AVR8_ADC:
       reg[rd] = reg[rd] + reg[rr] + GET_SREG(SREG_C);
@@ -686,7 +687,7 @@ int SimulateAvr8::execute_op_two_reg(
       if ((temp & 0x8000) != 0) { SREG_SET(SREG_C); } else { SREG_CLR(SREG_C); }
       break;
     case AVR8_OR:
-      reg[rd] = reg[rd] - reg[rr];
+      reg[rd] = reg[rd] | reg[rr];
       execute_set_sreg_logic(prev, reg[rd], reg[rr]);
       break;
     case AVR8_SBC:
@@ -711,7 +712,7 @@ int SimulateAvr8::execute_op_reg_imm(
   uint8_t prev = reg[rd];
   int temp;
 
-  switch(table_avr8->id)
+  switch (table_avr8->id)
   {
     case AVR8_ANDI:
       reg[rd] &= k;
@@ -808,10 +809,10 @@ int SimulateAvr8::execute_op_one_reg(
       execute_set_sreg_sign();
       break;
     case AVR8_POP:
-      reg[rd] = POP_STACK();
+      reg[rd] = pop_stack();
       break;
     case AVR8_PUSH:
-      PUSH_STACK(reg[rd]);
+      push_stack(reg[rd]);
       break;
     case AVR8_ROR:
       reg[rd] = ((prev >> 1) & 0x7f) | (GET_SREG(SREG_C) << 7);
@@ -837,7 +838,7 @@ int SimulateAvr8::execute_op_reg_bit(
   int k = opcode & 0x7;
   int t;
 
-  switch(table_avr8->id)
+  switch (table_avr8->id)
   {
     case AVR8_BLD:
       t = GET_SREG(SREG_T);
@@ -873,21 +874,21 @@ int SimulateAvr8::execute_op_reg_imm_word(
   struct _table_avr8 *table_avr8,
   uint16_t opcode)
 {
-  int prev_reg16,reg16;
+  int prev_value, value;
   int rd = (((opcode >> 4) & 0x3) << 1) + 24;
   int k = ((opcode & 0xc0) >> 2) | (opcode & 0xf);
 
-  switch(table_avr8->id)
+  switch (table_avr8->id)
   {
     case AVR8_ADIW:
-      prev_reg16 = reg[rd] | (reg[rd + 1] << 8);
-      reg16 = prev_reg16 + k;
-      execute_set_sreg_reg16(prev_reg16, reg16);
+      prev_value = get_reg16(rd);
+      value = prev_value + k;
+      execute_set_reg16(prev_value, value, rd);
       break;
     case AVR8_SBIW:
-      prev_reg16 = reg[rd] | (reg[rd + 1] << 8);
-      reg16 = prev_reg16 - k;
-      execute_set_sreg_reg16(prev_reg16, reg16);
+      prev_value = get_reg16(rd);
+      value = prev_value - k;
+      execute_set_reg16(prev_value, value, rd);
       break;
   }
 
@@ -900,17 +901,25 @@ int SimulateAvr8::execute_op_ioreg_bit(
 {
   int a = (opcode >> 3) & 0x1f;
   int k = opcode & 0x7;
+  uint8_t temp;
 
-  switch(table_avr8->id)
+  switch (table_avr8->id)
   {
     case AVR8_CBI:
-      io[a] &= 0xff ^ (1 << k);
+      //io[a] &= 0xff ^ (1 << k);
+      temp = read_sram(a);
+      temp &= 0xff ^ (1 << k);
+      write_sram(a, temp);
       break;
     case AVR8_SBI:
-      io[a] |= (1 << k);
+      //io[a] |= (1 << k);
+      temp = read_sram(a);
+      temp |= (1 << k);
+      write_sram(a, temp);
       break;
     case AVR8_SBIC:
-      if ((io[a] & (1 << k)) == 0)
+      //if ((io[a] & (1 << k)) == 0)
+      if ((read_sram(a) & (1 << k)) == 0)
       {
         int words = word_count();
         pc += words;
@@ -918,7 +927,8 @@ int SimulateAvr8::execute_op_ioreg_bit(
       }
       return 1;
     case AVR8_SBIS:
-      if ((io[a] & (1 << k)) != 0)
+      //if ((io[a] & (1 << k)) != 0)
+      if ((read_sram(a) & (1 << k)) != 0)
       {
         int words = word_count();
         pc += words;
@@ -936,7 +946,7 @@ int SimulateAvr8::execute_op_sreg_bit(
 {
   int k = (opcode >> 4) & 0x7;
 
-  switch(table_avr8->id)
+  switch (table_avr8->id)
   {
     case AVR8_BSET:
       sreg |= (1 << k);
@@ -957,12 +967,12 @@ int SimulateAvr8::execute_op_relative(
 
   if (k & 0x800) { k = -(((~k) & 0xfff) + 1); }
 
-  switch(table_avr8->id)
+  switch (table_avr8->id)
   {
     case AVR8_RJMP:
       break;
     case AVR8_RCALL:
-      PUSH_STACK16(pc)
+      push_stack16(pc);
       break;
   }
 
@@ -979,10 +989,10 @@ int SimulateAvr8::execute_op_jump(
 
   pc++;
 
-  switch(table_avr8->id)
+  switch (table_avr8->id)
   {
     case AVR8_CALL:
-      PUSH_STACK16(pc);
+      push_stack16(pc);
     case AVR8_JMP:
       pc = k;
       break;
@@ -1012,7 +1022,7 @@ int SimulateAvr8::execute()
       //*cycles_min = table_avr8[n].cycles_min;
       //*cycles_max = table_avr8[n].cycles_max;
 
-      switch(table_avr8[n].type)
+      switch (table_avr8[n].type)
       {
         case OP_NONE:
           cycles = execute_op_none(&table_avr8[n]);
@@ -1050,15 +1060,17 @@ int SimulateAvr8::execute()
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_IN:
-          rd = (opcode >> 4) & 0xf;
+          rd = (opcode >> 4) & 0x1f;
           k = ((opcode & 0x600) >> 5) | (opcode & 0xf);
-          reg[rd] = io[k];
+          //reg[rd] = io[k];
+          reg[rd] = read_sram(k);
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_OUT:
           rd = (opcode >> 4) & 0x1f;
           k = ((opcode & 0x600) >> 5) | (opcode & 0xf);
-          io[k] = reg[rd];
+          //io[k] = reg[rd];
+          write_sram(k, reg[rd]);
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_MOVW:
@@ -1075,66 +1087,66 @@ int SimulateAvr8::execute()
           cycles = execute_op_jump(&table_avr8[n], opcode);
           break;
         case OP_SPM_Z_PLUS:
-          WRITE_FLASH(GET_Z(), reg[0]);
-          WRITE_FLASH(GET_Z() + 1, reg[1]);
-          { INC_Z(); }
+          WRITE_FLASH(get_z(), reg[0]);
+          WRITE_FLASH(get_z() + 1, reg[1]);
+          inc_z();
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_REG_X:
         case OP_REG_X_PLUS:
         case OP_REG_MINUS_X:
           rd = (opcode >> 4) & 0x1f;
-          if (table_avr8[n].type == OP_REG_MINUS_X) { DEC_X(); }
-          reg[rd] = READ_RAM(GET_X());
-          if (table_avr8[n].type == OP_REG_X_PLUS) { INC_X(); }
+          if (table_avr8[n].type == OP_REG_MINUS_X) { dec_x(); }
+          reg[rd] = read_sram(get_x());
+          if (table_avr8[n].type == OP_REG_X_PLUS) { inc_x(); }
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_REG_Y:
         case OP_REG_Y_PLUS:
         case OP_REG_MINUS_Y:
           rd = (opcode >> 4) & 0x1f;
-          if (table_avr8[n].type == OP_REG_MINUS_Y) { DEC_Y(); }
-          reg[rd] = READ_RAM(GET_Y());
-          if (table_avr8[n].type == OP_REG_Y_PLUS) { INC_Y(); }
+          if (table_avr8[n].type == OP_REG_MINUS_Y) { dec_y(); }
+          reg[rd] = read_sram(get_y());
+          if (table_avr8[n].type == OP_REG_Y_PLUS) { inc_y(); }
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_REG_Z:
         case OP_REG_Z_PLUS:
         case OP_REG_MINUS_Z:
           rd = (opcode >> 4) & 0x1f;
-          if (table_avr8[n].type == OP_REG_MINUS_Z) { DEC_Z(); }
+          if (table_avr8[n].type == OP_REG_MINUS_Z) { dec_z(); }
           if (table_avr8[n].id == AVR8_LPM)
-            reg[rd] = READ_FLASH(GET_Z());
+            reg[rd] = READ_FLASH(get_z());
           else
-            reg[rd] = READ_RAM(GET_Z());
-          if (table_avr8[n].type == OP_REG_Z_PLUS) { INC_Z(); }
+            reg[rd] = read_sram(get_z());
+          if (table_avr8[n].type == OP_REG_Z_PLUS) { inc_z(); }
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_X_REG:
         case OP_X_PLUS_REG:
         case OP_MINUS_X_REG:
           rd = (opcode >> 4) & 0x1f;
-          if (table_avr8[n].type == OP_MINUS_X_REG) { DEC_X(); }
-          WRITE_RAM(GET_X(), reg[rd]);
-          if (table_avr8[n].type == OP_X_PLUS_REG) { INC_X(); }
+          if (table_avr8[n].type == OP_MINUS_X_REG) { dec_x(); }
+          write_sram(get_x(), reg[rd]);
+          if (table_avr8[n].type == OP_X_PLUS_REG) { inc_x(); }
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_Y_REG:
         case OP_Y_PLUS_REG:
         case OP_MINUS_Y_REG:
           rd = (opcode >> 4) & 0x1f;
-          if (table_avr8[n].type == OP_MINUS_Y_REG) { DEC_Y(); }
-          WRITE_RAM(GET_Y(), reg[rd]);
-          if (table_avr8[n].type == OP_Y_PLUS_REG) { INC_Y(); }
+          if (table_avr8[n].type == OP_MINUS_Y_REG) { dec_y(); }
+          write_sram(get_y(), reg[rd]);
+          if (table_avr8[n].type == OP_Y_PLUS_REG) { inc_y(); }
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_Z_REG:
         case OP_Z_PLUS_REG:
         case OP_MINUS_Z_REG:
           rd = (opcode >> 4) & 0x1f;
-          if (table_avr8[n].type == OP_MINUS_Z_REG) { DEC_Z(); }
-          WRITE_RAM(GET_Z(), reg[rd]);
-          if (table_avr8[n].type == OP_Z_PLUS_REG) { INC_Z(); }
+          if (table_avr8[n].type == OP_MINUS_Z_REG) { dec_z(); }
+          write_sram(get_z(), reg[rd]);
+          if (table_avr8[n].type == OP_Z_PLUS_REG) { inc_z(); }
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_FMUL:
@@ -1156,32 +1168,32 @@ int SimulateAvr8::execute()
           rd = (opcode >> 4) & 0x1f;
           k = READ_OPCODE(pc);
           pc++;
-          reg[rd] = READ_RAM(k);
+          reg[rd] = read_sram(k);
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_SRAM_REG:
           rr = (opcode >> 4) & 0x1f;
           k = READ_OPCODE(pc);
           pc++;
-          WRITE_RAM(k, reg[rr]);
+          write_sram(k, reg[rr]);
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_REG_Y_PLUS_Q:
         case OP_REG_Z_PLUS_Q:
           rd = (opcode >> 4) & 0x1f;
           k = ((opcode & 0x2000) >> 8) | ((opcode & 0xc00) >> 7) | (opcode & 0x7);
-          if (table_avr8[n].type == OP_REG_Y_PLUS_Q) { k += GET_Y(); }
-          if (table_avr8[n].type == OP_REG_Z_PLUS_Q) { k += GET_Z(); }
-          reg[rd] = READ_RAM(k);
+          if (table_avr8[n].type == OP_REG_Y_PLUS_Q) { k += get_y(); }
+          if (table_avr8[n].type == OP_REG_Z_PLUS_Q) { k += get_z(); }
+          reg[rd] = read_sram(k);
           cycles = table_avr8[n].cycles_min;
           break;
         case OP_Y_PLUS_Q_REG:
         case OP_Z_PLUS_Q_REG:
           rr = (opcode >> 4) & 0x1f;
           k = ((opcode & 0x2000) >> 8) | ((opcode & 0xc00) >> 7) | (opcode & 0x7);
-          if (table_avr8[n].type == OP_Y_PLUS_Q_REG) { k += GET_Y(); }
-          if (table_avr8[n].type == OP_Z_PLUS_Q_REG) { k += GET_Z(); }
-          WRITE_RAM(k, reg[rr]);
+          if (table_avr8[n].type == OP_Y_PLUS_Q_REG) { k += get_y(); }
+          if (table_avr8[n].type == OP_Z_PLUS_Q_REG) { k += get_z(); }
+          write_sram(k, reg[rr]);
           cycles = table_avr8[n].cycles_min;
           break;
 
@@ -1196,5 +1208,37 @@ int SimulateAvr8::execute()
   }
 
   return cycles;
+}
+
+void SimulateAvr8::ram_write8(uint32_t address, uint8_t data)
+{
+  memory->write8(address, data);
+
+  if (address == break_io) { exit(data); }
+}
+
+void SimulateAvr8::ram_write16(uint32_t address, uint16_t data)
+{
+  memory->write16(address, data);
+}
+
+void SimulateAvr8::ram_write32(uint32_t address, uint32_t data)
+{
+  memory->write32(address, data);
+}
+
+uint8_t SimulateAvr8::ram_read8(uint32_t address)
+{
+  return  memory->read8(address);
+}
+
+uint16_t SimulateAvr8::ram_read16(uint32_t address)
+{
+  return memory->read16(address);
+}
+
+uint32_t SimulateAvr8::ram_read32(uint32_t address)
+{
+  return memory->read32(address);
 }
 

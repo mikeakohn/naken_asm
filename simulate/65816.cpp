@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  * 65816 file by Joe Davisson
  *
@@ -205,7 +205,7 @@ int Simulate65816::run(int max_cycles, int step)
 
     if (show == true)
     {
-      printf("\x1b[1J\x1b[1;1H");
+      clear_screen();
       dump_registers();
 
       int n = 0;

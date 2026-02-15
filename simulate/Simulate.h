@@ -89,76 +89,15 @@ protected:
   uint16_t serial_read16();
   uint32_t serial_read32();
 
-  void ram_write8(uint32_t address, uint8_t data)
-  {
-    memory->write8(address, data);
+  virtual void ram_write8(uint32_t address, uint8_t data);
+  virtual void ram_write16(uint32_t address, uint16_t data);
+  virtual void ram_write32(uint32_t address, uint32_t data);
 
-    if (serial_out != nullptr && address == serial_address)
-    {
-      serial_write8(data);
-    }
+  virtual uint8_t ram_read8(uint32_t address);
+  virtual uint16_t ram_read16(uint32_t address);
+  virtual uint32_t ram_read32(uint32_t address);
 
-    if (address == break_io)
-    {
-      exit(data);
-    }
-  }
-
-  void ram_write16(uint32_t address, uint16_t data)
-  {
-    memory->write16(address, data);
-
-    if (serial_out != nullptr && address == serial_address)
-    {
-      serial_write16(data);
-    }
-  }
-
-  void ram_write32(uint32_t address, uint32_t data)
-  {
-    memory->write32(address, data);
-
-    if (serial_out != nullptr && address == serial_address)
-    {
-      serial_write32(data);
-    }
-  }
-
-  uint8_t ram_read8(uint32_t address)
-  {
-    uint8_t data = memory->read8(address);
-
-    if (serial_in != nullptr && address == serial_address)
-    {
-      data = serial_read8();
-    }
-
-    return data;
-  }
-
-  uint16_t ram_read16(uint32_t address)
-  {
-    uint16_t data = memory->read16(address);
-
-    if (serial_in != nullptr && address == serial_address)
-    {
-      data = serial_read16();
-    }
-
-    return data;
-  }
-
-  uint32_t ram_read32(uint32_t address)
-  {
-    uint32_t data = memory->read32(address);
-
-    if (serial_in != nullptr && address == serial_address)
-    {
-      data = serial_read32();
-    }
-
-    return data;
-  }
+  void clear_screen() { if (do_clear) { printf("\x1b[1J\x1b[1;1H"); } }
 
   Memory *memory;
   uint32_t org;
@@ -171,6 +110,7 @@ protected:
   bool step_mode : 1;
   bool show      : 1;
   bool auto_run  : 1;
+  bool do_clear  : 1;
 
   FILE *serial_in;
   FILE *serial_out;

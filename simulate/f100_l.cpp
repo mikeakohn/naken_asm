@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -132,7 +132,7 @@ int SimulateF100L::run(int max_cycles, int step)
 
     pc += 2;
 
-    if (show == true) printf("\x1b[1J\x1b[1;1H");
+    if (show == true) { clear_screen(); }
 
     ret = execute_instruction(opcode);
 

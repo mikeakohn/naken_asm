@@ -29,6 +29,7 @@ Simulate::Simulate(Memory *memory) :
   step_mode         (false),
   show              (true),
   auto_run          (true),
+  do_clear          (true),
   serial_in         (nullptr),
   serial_out        (nullptr),
   serial_address    (0xffffffff)
@@ -109,14 +110,14 @@ void Simulate::init_serial(
 }
 
 void Simulate::serial_write8(uint8_t data)
-{   
+{
   putc(data, serial_out);
-}   
-      
+}
+
 void Simulate::serial_write16(uint16_t data)
-{   
+{
   if (memory->is_little_endian())
-  { 
+  {
     putc(data & 0xff, serial_out);
     putc((data >> 8) & 0xff, serial_out);
   }
@@ -188,5 +189,67 @@ uint32_t Simulate::serial_read32()
   }
 
   return data;
+}
+
+void Simulate::ram_write8(uint32_t address, uint8_t data)
+{
+  memory->write8(address, data);
+
+  if (serial_out != nullptr && address == serial_address)
+  {
+    serial_write8(data);
+  }
+
+  if (address == break_io) { exit(data); }
+}
+
+void Simulate::ram_write16(uint32_t address, uint16_t data)
+{
+  memory->write16(address, data);
+
+  if (serial_out != nullptr && address == serial_address)
+  {
+    serial_write16(data);
+  }
+}
+
+void Simulate::ram_write32(uint32_t address, uint32_t data)
+{
+  memory->write32(address, data);
+
+  if (serial_out != nullptr && address == serial_address)
+  {
+    serial_write32(data);
+  }
+}
+
+uint8_t Simulate::ram_read8(uint32_t address)
+{
+  if (serial_in != nullptr && address == serial_address)
+  {
+    return serial_read8();
+  }
+
+  return  memory->read8(address);
+}
+
+uint16_t Simulate::ram_read16(uint32_t address)
+{
+  if (serial_in != nullptr && address == serial_address)
+  {
+    return serial_read16();
+  }
+
+  return memory->read16(address);
+}
+
+uint32_t Simulate::ram_read32(uint32_t address)
+{
+  if (serial_in != nullptr && address == serial_address)
+  {
+    return serial_read32();
+  }
+
+  return memory->read32(address);
 }
 

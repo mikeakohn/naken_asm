@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2026 by Michael Kohn, Joe Davisson
  *
  * 6502 file by Joe Davisson
  *
@@ -21,13 +21,6 @@
 #include "table/6502.h"
 
 #define SHOW_STACK 0x100 + sp, memory->read8(0x100 + sp)
-#define READ_RAM(a) memory->read8(a)
-#define WRITE_RAM(a, b) \
-  if (a == break_io) \
-  { \
-    exit(b); \
-  } \
-  memory->write8(a, b)
 
 // status register flags
 #define flag_c 0
@@ -78,7 +71,7 @@ void Simulate6502::reset()
 
 void Simulate6502::push(uint32_t value)
 {
-  WRITE_RAM(0x100 + reg_sp, value & 0xFF);
+  ram_write8(0x100 + reg_sp, value & 0xFF);
   reg_sp--;
   reg_sp &= 0xFF;
 }
@@ -180,7 +173,7 @@ int Simulate6502::run(int max_cycles, int step)
   {
     int pc = reg_pc;
     int cycles_min, cycles_max;
-    int opcode = READ_RAM(pc);
+    int opcode = ram_read8(pc);
 
     int ret = operand_exe(opcode);
 
@@ -203,7 +196,7 @@ int Simulate6502::run(int max_cycles, int step)
 
     if (show == true)
     {
-      printf("\x1b[1J\x1b[1;1H");
+      clear_screen();
       dump_registers();
 
       int n = 0;
@@ -224,7 +217,7 @@ int Simulate6502::run(int max_cycles, int step)
         for (i = 0; i < count; i++)
         {
           char temp[4];
-          snprintf(temp, sizeof(temp), "%02x ", READ_RAM(pc + i));
+          snprintf(temp, sizeof(temp), "%02x ", ram_read8(pc + i));
           strcat(bytes, temp);
         }
 
@@ -275,7 +268,7 @@ int Simulate6502::run(int max_cycles, int step)
         {
           if (pc == break_point) { printf("*"); }
           else { printf(" "); }
-          printf("  0x%04x: 0x%04x\n", pc, READ_RAM(pc));
+          printf("  0x%04x: 0x%04x\n", pc, ram_read8(pc));
           pc += count;
           count--;
         }
@@ -305,7 +298,7 @@ int Simulate6502::run(int max_cycles, int step)
     {
       printf("Function ended.  Total cycles: %d\n", cycle_count);
       step_mode = 0;
-      reg_pc = READ_RAM(0xFFFC) + READ_RAM(0xFFFD) * 256;
+      reg_pc = ram_read8(0xFFFC) + ram_read8(0xFFFD) * 256;
 
       disable_signal_handler();
       return 0;
@@ -325,8 +318,8 @@ int Simulate6502::run(int max_cycles, int step)
 // Return calculated address for each mode.
 int Simulate6502::calc_address(int address, int mode)
 {
-  int lo = READ_RAM(address);
-  int hi = READ_RAM((address + 1) & 0xFFFF);
+  int lo = ram_read8(address);
+  int hi = ram_read8((address + 1) & 0xFFFF);
   int indirect;
 
   switch (mode)
@@ -349,15 +342,15 @@ int Simulate6502::calc_address(int address, int mode)
       return ((lo | (hi << 8)) + reg_y) & 0xFFFF;
     case OP_INDIRECT16:
       indirect = (lo | (hi << 8)) & 0xFFFF;
-      return (READ_RAM(indirect) | ((READ_RAM((indirect + 1) & 0xFFFF) << 8) & 0xFFFF));
+      return (ram_read8(indirect) | ((ram_read8((indirect + 1) & 0xFFFF) << 8) & 0xFFFF));
     case OP_X_INDIRECT8:
-      indirect = ((READ_RAM(lo + reg_x)) & 0xFF) | (READ_RAM((lo + 1 + reg_x) & 0xFF) << 8);
+      indirect = ((ram_read8(lo + reg_x)) & 0xFF) | (ram_read8((lo + 1 + reg_x) & 0xFF) << 8);
       return (indirect) & 0xFFFF;
     case OP_INDIRECT8_Y:
-      indirect = READ_RAM(lo) | (READ_RAM((lo + 1) & 0xFF) << 8);
+      indirect = ram_read8(lo) | (ram_read8((lo + 1) & 0xFF) << 8);
       return (indirect + reg_y) & 0xFFFF;
     case OP_RELATIVE:
-      return (address + ((signed char)READ_RAM(address) + 1)) & 0xFFFF;
+      return (address + ((signed char)ram_read8(address) + 1)) & 0xFFFF;
     default:
       return -1;
   }
@@ -377,7 +370,7 @@ int Simulate6502::operand_exe(int opcode)
   if (address == -1)
     return -1;
 
-  int m = READ_RAM(address);
+  int m = ram_read8(address);
   int temp;
   int pc_lo, pc_hi;
   int temp_a = reg_a;
@@ -454,7 +447,7 @@ int Simulate6502::operand_exe(int opcode)
         m &= 0xFF;
         FLAG(m > 127, flag_n);
         FLAG(m == 0, flag_z);
-        WRITE_RAM(address, m);
+        ram_write8(address, m);
       }
       break;
     // BCC
@@ -589,7 +582,7 @@ int Simulate6502::operand_exe(int opcode)
     case 0xD6:
     case 0xDE:
       temp = (m - 1) & 0xFF;
-      WRITE_RAM(address, temp);
+      ram_write8(address, temp);
       FLAG(temp > 127, flag_n);
       FLAG(temp == 0, flag_z);
       break;
@@ -624,7 +617,7 @@ int Simulate6502::operand_exe(int opcode)
     case 0xF6:
     case 0xFE:
       temp = (m + 1) & 0xFF;
-      WRITE_RAM(address, temp);
+      ram_write8(address, temp);
       FLAG(temp > 127, flag_n);
       FLAG(temp == 0, flag_z);
       break;
@@ -647,10 +640,10 @@ int Simulate6502::operand_exe(int opcode)
       return 1;
     // JSR
     case 0x20:
-      WRITE_RAM(0x100 + reg_sp, (reg_pc + 2) / 256);
+      ram_write8(0x100 + reg_sp, (reg_pc + 2) / 256);
       reg_sp--;
       reg_sp &= 0xFF;
-      WRITE_RAM(0x100 + reg_sp, (reg_pc + 2) & 0xFF);
+      ram_write8(0x100 + reg_sp, (reg_pc + 2) & 0xFF);
       reg_sp--;
       reg_sp &= 0xFF;
       reg_pc = address;
@@ -709,7 +702,7 @@ int Simulate6502::operand_exe(int opcode)
         CLEAR_BIT(m, 7);
         FLAG(m > 127, flag_n);
         FLAG(m == 0, flag_z);
-        WRITE_RAM(address, m);
+        ram_write8(address, m);
       }
       break;
     // NOP
@@ -730,13 +723,13 @@ int Simulate6502::operand_exe(int opcode)
       break;
     // PHA
     case 0x48:
-      WRITE_RAM(0x100 + reg_sp, reg_a);
+      ram_write8(0x100 + reg_sp, reg_a);
       reg_sp--;
       reg_sp &= 0xFF;
       break;
     // PHP
     case 0x08:
-      WRITE_RAM(0x100 + reg_sp, reg_sr);
+      ram_write8(0x100 + reg_sp, reg_sr);
       reg_sp--;
       reg_sp &= 0xFF;
       break;
@@ -744,13 +737,13 @@ int Simulate6502::operand_exe(int opcode)
     case 0x68:
       reg_sp++;
       reg_sp &= 0xFF;
-      reg_a = READ_RAM(0x100 + reg_sp);
+      reg_a = ram_read8(0x100 + reg_sp);
       break;
     // PLP
     case 0x28:
       reg_sp++;
       reg_sp &= 0xFF;
-      reg_sr = READ_RAM(0x100 + reg_sp);
+      reg_sr = ram_read8(0x100 + reg_sp);
       break;
     // ROL
     case 0x26:
@@ -777,7 +770,7 @@ int Simulate6502::operand_exe(int opcode)
         m &= 0xFF;
         FLAG(m > 127, flag_n);
         FLAG(m == 0, flag_z);
-        WRITE_RAM(address, m);
+        ram_write8(address, m);
       }
       break;
     // ROR
@@ -803,20 +796,20 @@ int Simulate6502::operand_exe(int opcode)
         FLAG(temp, flag_c);
         FLAG(m > 127, flag_n);
         FLAG(m == 0, flag_z);
-        WRITE_RAM(address, m);
+        ram_write8(address, m);
       }
       break;
     // RTI
     case 0x40:
       reg_sp++;
       reg_sp &= 0xFF;
-      reg_sr = READ_RAM(0x100 + reg_sp);
+      reg_sr = ram_read8(0x100 + reg_sp);
       reg_sp++;
       reg_sp &= 0xFF;
-      pc_lo = READ_RAM(0x100 + reg_sp);
+      pc_lo = ram_read8(0x100 + reg_sp);
       reg_sp++;
       reg_sp &= 0xFF;
-      pc_hi = READ_RAM(0x100 + reg_sp);
+      pc_hi = ram_read8(0x100 + reg_sp);
       reg_pc = (pc_lo + 256 * pc_hi);
       reg_pc++;
       return 1;
@@ -824,10 +817,10 @@ int Simulate6502::operand_exe(int opcode)
     case 0x60:
       reg_sp++;
       reg_sp &= 0xFF;
-      pc_lo = READ_RAM(0x100 + reg_sp);
+      pc_lo = ram_read8(0x100 + reg_sp);
       reg_sp++;
       reg_sp &= 0xFF;
-      pc_hi = READ_RAM(0x100 + reg_sp);
+      pc_hi = ram_read8(0x100 + reg_sp);
       reg_pc = (pc_lo + 256 * pc_hi);
       reg_pc++;
       return 1;
@@ -885,19 +878,19 @@ int Simulate6502::operand_exe(int opcode)
     case 0x95:
     case 0x99:
     case 0x9D:
-      WRITE_RAM(address, reg_a);
+      ram_write8(address, reg_a);
       break;
     // STX
     case 0x86:
     case 0x8E:
     case 0x96:
-      WRITE_RAM(address, reg_x);
+      ram_write8(address, reg_x);
       break;
     // STY
     case 0x84:
     case 0x8C:
     case 0x94:
-      WRITE_RAM(address, reg_y);
+      ram_write8(address, reg_y);
       break;
     // TAX
     case 0xAA:

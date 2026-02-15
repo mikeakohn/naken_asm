@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -178,7 +178,7 @@ int SimulateTms1000::run(int max_cycles, int step)
     pc_current = pc;
     pc = increment_pc(pc);
 
-    if (show == true) { printf("\x1b[1J\x1b[1;1H"); }
+    if (show == true) { clear_screen(); }
 
     uint8_t curr_pa = pa;
     uint8_t update_s = 1;
