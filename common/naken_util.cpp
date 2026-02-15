@@ -128,6 +128,7 @@ static CommandInfo command_names[] =
   { "exit",      false, false },
   { "help",      false, false },
   { "info",      false, false },
+  { "no_clear",  false, false },
   { "print",     true,  false },
   { "print16",   true,  false },
   { "print32",   true,  false },
@@ -558,7 +559,7 @@ int main(int argc, char *argv[])
   if (mode == MODE_RUN)
   {
     util_context.simulate->set_delay(1);
-    util_context.simulate->enable_show();
+    util_context.simulate->set_show(true);
     util_context.simulate->enable_auto_run();
   }
 
@@ -859,13 +860,19 @@ int main(int argc, char *argv[])
       if (util_context.simulate->get_show() == false)
       {
         printf("Display now turned on.\n");
-        util_context.simulate->enable_show();
+        util_context.simulate->set_show(true);
       }
         else
       {
         printf("Display now turned off.\n");
-        util_context.simulate->disable_show();
+        util_context.simulate->set_show(false);
       }
+    }
+      else
+    if (command == "no_clear")
+    {
+      printf("Screen clear disabled.\n");
+      util_context.simulate->set_clear(false);
     }
       else
     if (command == "asm")

@@ -51,9 +51,9 @@ public:
   bool in_step_mode()       { return usec == 0; }
   bool in_auto_run()        { return auto_run == 0; }
 
-  void disable_show()    { show = false; }
-  void enable_show()     { show = true; }
-  void enable_auto_run() { auto_run = true; }
+  void set_show(bool value)  { show = value; }
+  void set_clear(bool value) { do_clear = value; }
+  void enable_auto_run()     { auto_run = true; }
 
   void disable_step_mode()
   {

@@ -34,7 +34,7 @@ public:
 
 private:
   void sp_inc(int *sp);
-  uint16_t get_data(int reg_index, int As, int bw, int &ea);
+  uint16_t get_data(int reg_index, int As, int bw, int &ea, bool do_mem_read = true);
   void update_reg(int reg_index, int mode, int bw);
   int put_data(int ea, int reg_index, int mode, int bw, uint32_t data);
   int one_operand_exe(uint16_t opcode);

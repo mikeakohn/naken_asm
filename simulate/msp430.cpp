@@ -345,7 +345,12 @@ void SimulateMsp430::sp_inc(int *sp)
   if (*sp > 0xffff) { *sp = 0; }
 }
 
-uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw, int &ea)
+uint16_t SimulateMsp430::get_data(
+  int reg_index,
+  int As,
+  int bw,
+  int &ea,
+  bool do_mem_read)
 {
   const int PC = reg[0];
 
@@ -387,14 +392,19 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw, int &ea)
 
       reg[0] += 2;
 
-      if (bw == BW_WORD)
+      if (do_mem_read)
       {
-        return ram_read16(ea);
+        if (bw == BW_WORD)
+        {
+          return ram_read16(ea);
+        }
+          else
+        {
+          return ram_read8(ea);
+        }
       }
-        else
-      {
-        return ram_read8(ea);
-      }
+
+      return 0;
     }
       else
     if (As == 2)
@@ -428,28 +438,38 @@ uint16_t SimulateMsp430::get_data(int reg_index, int As, int bw, int &ea)
 
     reg[0] += 2;
 
-    if (bw == BW_WORD)
+    if (do_mem_read)
     {
-      return ram_read16(ea);
+      if (bw == BW_WORD)
+      {
+        return ram_read16(ea);
+      }
+        else
+      {
+        return ram_read8(ea);
+      }
     }
-      else
-    {
-      return ram_read8(ea);
-    }
+
+    return 0;
   }
     else
   if (As == 2 || As == 3) // @Rn (mode 2) or @Rn+ (mode 3)
   {
     ea = reg[reg_index];
 
-    if (bw == BW_WORD)
+    if (do_mem_read)
     {
-      return ram_read16(ea);
+      if (bw == BW_WORD)
+      {
+        return ram_read16(ea);
+      }
+        else
+      {
+        return ram_read8(reg[ea]);
+      }
     }
-      else
-    {
-      return ram_read8(reg[ea]);
-    }
+
+    return 0;
   }
 
   printf("Error: Unrecognized source addressing mode %d\n", As);
@@ -685,7 +705,7 @@ int SimulateMsp430::two_operand_exe(uint16_t opcode)
     case 4:  // MOV
       src = get_data(src_reg, As, bw, ea);
       update_reg(src_reg, As, bw);
-      dst = get_data(dst_reg, Ad, bw, ea);
+      dst = get_data(dst_reg, Ad, bw, ea, false);
       put_data(ea, dst_reg, Ad, bw, src);
       break;
     case 5:  // ADD
