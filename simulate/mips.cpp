@@ -303,6 +303,15 @@ int SimulateMips::execute_mips_r(uint32_t opcode)
 
   switch (opcode)
   {
+    case 0x04: // sllv
+      reg[rd] = reg[rs] << reg[rt];
+      break;
+    case 0x06: // srlv
+      reg[rd] = (uint32_t)reg[rs] >> reg[rt];
+      break;
+    case 0x07: // srav
+      reg[rd] = reg[rs] >> reg[rt];
+      break;
     case 0x20: // add
       // FIXME - need to trap on overflow
       reg[rd] = reg[rs] + reg[rt];
@@ -546,6 +555,17 @@ int SimulateMips::execute()
 
       return -1;
     case 0x01:
+      if (rt == 0) // bltz
+      {
+        if (reg[rs] < 0)
+        {
+          delay_slot();
+          pc += 4 + get_offset16(opcode);
+          return 0;
+        }
+        break;
+      }
+
       if (rt == 1) // bgez
       {
         if (reg[rs] >= 0)
@@ -556,6 +576,7 @@ int SimulateMips::execute()
         }
         break;
       }
+
       return -1;
     case 0x02: // j
       delay_slot();
