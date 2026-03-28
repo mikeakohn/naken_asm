@@ -2,18 +2,18 @@
 
 import sys
 
-print "; Convert Microchip include files to naken_asm readable."
+print("; Convert Microchip include files to naken_asm readable.")
 print
 
 if len(sys.argv) != 3:
-  print "Usage: python " + sys.argv[0] + " <microchip .inc file> <microchip .gld file>"
+  print("Usage: python " + sys.argv[0] + " <microchip .inc file> <microchip .gld file>")
   print
-  print "Example: python convert.py /usbdisk/devkits/microchip/xc16/v1.11/support/dsPIC30F/inc/p30F3012.inc /usbdisk/devkits/microchip/xc16/v1.11/support/dsPIC30F/gld/p30F3012.gld > p30f3012.inc"
+  print("Example: python convert.py p30F3012.inc p30F3012.gld > p30f3012.inc")
   print
   print
   sys.exit(0)
 
-fp = open(sys.argv[2], "rb")
+fp = open(sys.argv[2], "r")
 
 # Read gld file first
 for line in fp:
@@ -26,18 +26,18 @@ for line in fp:
 
   if tokens[1] == "=":
     if line.endswith(";"): line = line.replace(";","")
-    print line.replace("=", "equ")
+    print(line.replace("=", "equ"))
 
 fp.close()
 
 # Read inc
-fp = open(sys.argv[1], "rb")
+fp = open(sys.argv[1], "r")
 
 for line in fp:
   line = line.strip()
   if line.startswith(".equiv"):
     tokens = line.split(",")
-    print tokens[0].replace(".equiv","") + " equ " + tokens[1]
+    print(tokens[0].replace(".equiv","") + " equ " + tokens[1])
 
 fp.close()
 
