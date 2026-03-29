@@ -2173,3 +2173,14 @@ UART2        equ 0x260
 _UART2        equ 0x260
 UART3        equ 0xF00
 _UART3        equ 0xF00
+
+;; These aren't generated yet.
+UARTEN equ 15
+UTXEN  equ 5
+URXEN  equ 4
+
+UTXBE  equ 5
+UTXBF  equ 4
+URXBE  equ 1
+URXBF  equ 0
+

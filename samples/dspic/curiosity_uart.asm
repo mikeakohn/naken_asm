@@ -3,9 +3,9 @@
 .dspic
 .include "p33ck64mc105.inc"
 
-UARTEN equ 15
-UTXEN  equ 5
-URXEN  equ 4
+;UARTEN equ 15
+;UTXEN  equ 5
+;URXEN  equ 4
 
 .org 0
   goto start
@@ -25,16 +25,16 @@ start:
   mov.w wreg, U1MODE
 
   mov #1, w0
-  mov.w wreg, RPOR13;
+  mov.w wreg, RPOR13
   mov #59, w0
-  mov.w wreg, RPINR18;
+  mov.w wreg, RPINR18
 
   mov #'A', w0
-  mov.w wreg, U1TXREG;
+  mov.w wreg, U1TXREG
   mov #'B', w0
-  mov.w wreg, U1TXREG;
+  mov.w wreg, U1TXREG
   mov #'C', w0
-  mov.w wreg, U1TXREG;
+  mov.w wreg, U1TXREG
 
   bclr TRISD, #10
 
@@ -43,13 +43,13 @@ main:
   call wait_uart_rx_available
   mov.w U1RXREG, wreg
   ;mov #'1', w0
-  mov.w wreg, U1TXREG;
+  mov.w wreg, U1TXREG
 
   bset LATD, #10
   call wait_uart_rx_available
   mov.w U1RXREG, wreg
   ;mov #'1', w0
-  mov.w wreg, U1TXREG;
+  mov.w wreg, U1TXREG
 
   bra main
 
