@@ -2184,3 +2184,14 @@ UTXBF  equ 4
 URXBE  equ 1
 URXBF  equ 0
 
+TON equ 15
+T1IF equ 1
+T1IE equ 1
+;T1IP equ 4
+
+__T1Interrupt equ 0x16
+
+FNOSC_FRC    equ 0xfff8
+FCKSM_CSECMD equ 0xff7f
+OSCIOFNC_ON  equ 0xfffb
+
