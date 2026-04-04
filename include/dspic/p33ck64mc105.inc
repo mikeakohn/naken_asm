@@ -2195,3 +2195,21 @@ FNOSC_FRC    equ 0xfff8
 FCKSM_CSECMD equ 0xff7f
 OSCIOFNC_ON  equ 0xfffb
 
+ANSELA0 equ 0
+ANSELA1 equ 1
+ANSELA2 equ 2
+ANSELA3 equ 3
+ANSELA4 equ 4
+ANSELA5 equ 5
+ANSELA6 equ 6
+ANSELA7 equ 7
+
+ADON      equ 15
+SHRRDY    equ 15
+SHRPWR    equ 7
+SHREN     equ 7
+CNVRTCH   equ 8
+TRIGSRC01 equ 1
+TRGSRC01  equ 1
+SWCTRG    equ 6
+
