@@ -27,28 +27,28 @@ static int test_ranges(UtilContext *util_context)
   int errors = 0;
   int ret;
 
-  ret = util_get_range(util_context, "asdf", &start, &end);
+  ret = util_context->get_range("asdf", &start, &end);
   TEST_RANGES(0, 0, -1);
 
-  ret = util_get_range(util_context, "1000", &start, &end);
+  ret = util_context->get_range("1000", &start, &end);
   TEST_RANGES(1000, 1000, 0);
 
-  ret = util_get_range(util_context, "1000-1024", &start, &end);
+  ret = util_context->get_range("1000-1024", &start, &end);
   TEST_RANGES(1000, 1024, 0);
 
-  ret = util_get_range(util_context, "  1000 - 1024   ", &start, &end);
+  ret = util_context->get_range("  1000 - 1024   ", &start, &end);
   TEST_RANGES(1000, 1024, 0);
 
-  ret = util_get_range(util_context, "-1024", &start, &end);
+  ret = util_context->get_range("-1024", &start, &end);
   TEST_RANGES(0, 1024, 0);
 
   util_context->symbols.append("blah", 64);
   util_context->symbols.append("asdf", 100);
 
-  ret = util_get_range(util_context, "blah-asdf", &start, &end);
+  ret = util_context->get_range("blah-asdf", &start, &end);
   TEST_RANGES(64, 100, 0);
 
-  ret = util_get_range(util_context, "blah-asdf blah", &start, &end);
+  ret = util_context->get_range("blah-asdf blah", &start, &end);
   if (ret != -1)
   {
     printf("Error: %s:%d test_ranges() return value expected -1, got %d\n",
@@ -62,8 +62,6 @@ int main(int argc, char *argv[])
 {
   int errors = 0;
   UtilContext util_context;
-
-  util_init(&util_context);
 
   errors += test_ranges(&util_context);
 
