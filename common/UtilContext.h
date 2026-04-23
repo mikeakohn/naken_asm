@@ -29,8 +29,8 @@ public:
   int set_cpu_by_type(uint8_t cpu_type);
   int set_cpu_by_name(const char *name);
 
-  //void disasm(const char *token);
-  //void disasm_range(int start, int end);
+  void disasm(const char *token);
+  void disasm(uint32_t start, uint32_t end);
 
   void print8(const char *token);
   void print16(const char *token);

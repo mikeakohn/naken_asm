@@ -23,7 +23,6 @@
 #include "common/assembler.h"
 #include "common/String.h"
 #include "common/UtilContext.h"
-#include "common/util_disasm.h"
 #include "common/util_sim.h"
 #include "common/version.h"
 #include "fileio/file.h"
@@ -811,13 +810,12 @@ int main(int argc, char *argv[])
     {
       if (has_arg)
       {
-        util_disasm(&util_context, arg.value());
+        util_context.disasm(arg.value());
       }
         else
       if (util_context.memory.low_address != 0xffffffff)
       {
-        util_disasm_range(
-          &util_context,
+        util_context.disasm(
           util_context.memory.low_address,
           util_context.memory.high_address);
       }

@@ -99,6 +99,84 @@ int UtilContext::set_cpu_by_name(const char *name)
   return 0;
 }
 
+void UtilContext::disasm(const char *token)
+{
+  uint32_t start, end;
+
+  if (get_range(token, &start, &end) == -1) { return; }
+
+  disasm_range(
+    &memory,
+    flags,
+    start,
+    end);
+}
+
+void UtilContext::disasm(uint32_t start, uint32_t end)
+{
+  uint32_t page_size, page_mask;
+  int curr_start = start;
+  int valid_page_start = 1;
+  int address_min,address_max;
+  int curr_end;
+
+  start = start * bytes_per_address;
+  end = end * bytes_per_address;
+
+  page_size = memory.get_page_size();
+  page_mask = page_size - 1;
+  curr_end = start | page_mask;
+
+  int data_size = 0;
+
+  uint32_t n = start;
+
+  while (n <= end)
+  {
+    data_size = page_size - (n & page_mask);
+
+    if (memory.in_use(n))
+    {
+      if (valid_page_start == 0)
+      {
+        curr_start = n & (~page_mask);
+        valid_page_start = 1;
+      }
+      curr_end = n | page_mask;
+    }
+      else
+    {
+      if (valid_page_start == 1)
+      {
+        address_min = memory.get_page_address_min(curr_start);
+        address_max = memory.get_page_address_max(curr_end);
+
+        disasm_range(
+          &memory,
+          flags,
+          address_min,
+          address_max);
+
+        valid_page_start = 0;
+      }
+    }
+
+    n += data_size;
+  }
+
+  if (valid_page_start == 1)
+  {
+    address_min = memory.get_page_address_min(curr_start);
+    address_max = memory.get_page_address_max(curr_end);
+
+    disasm_range(
+      &memory,
+      flags,
+      address_min,
+      address_max);
+  }
+}
+
 void UtilContext::print8(const char *token)
 {
   char chars[20];
