@@ -133,7 +133,7 @@ int sim_stack_push(UtilContext *util_context, String &arg)
 {
   uint32_t num;
 
-  util_get_num(arg.value(), &num);
+  UtilContext::get_num(arg.value(), &num);
   util_context->simulate->push(num);
   printf("Pushed 0x%04x.\n", num);
 
@@ -152,7 +152,7 @@ int sim_set_breakpoint(UtilContext *util_context, String &arg)
   uint32_t address;
   const char *value = arg.value();
 
-  const char *end = util_get_address(util_context, value, &address);
+  const char *end = util_context->get_address(value, &address);
 
   if (end == NULL)
   {

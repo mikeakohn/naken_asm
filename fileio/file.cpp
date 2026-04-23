@@ -267,11 +267,11 @@ int file_read(
 
   if (cpu_name != NULL)
   {
-    util_set_cpu_by_name(util_context, cpu_name);
+    util_context->set_cpu_by_name(cpu_name);
   }
     else
   {
-    util_set_cpu_by_type(util_context, cpu_type);
+    util_context->set_cpu_by_type(cpu_type);
   }
 
   return 0;

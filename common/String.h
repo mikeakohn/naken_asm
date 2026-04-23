@@ -219,14 +219,7 @@ public:
     return strcmp(text, s.value()) == 0;
   }
 
-  void dump()
-  {
-    printf(" --- String ---\n");
-    printf("       text: %s\n", text);
-    printf("       size: %d\n", size);
-    printf("     length: %d\n", length);
-    printf("  is_heap(): %d\n", is_heap());
-  }
+  void dump();
 
 protected:
   // String is always 0 terminated.
@@ -238,22 +231,8 @@ protected:
   int length;
 
 private:
-  void resize(int new_size)
-  {
-    while (size < new_size)
-    {
-      size = size * 2;
-    }
+  void resize(int new_size);
 
-    if (text == data)
-    {
-      text = (char *)malloc(size);
-    }
-      else
-    {
-      text = (char *)realloc(text, size);
-    }
-  }
 };
 
 #endif

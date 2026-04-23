@@ -100,6 +100,7 @@ COMMON_OBJS="
   Memory.o
   MemoryPool.o
   Operator.o
+  String.o
   StringHeap.o
   Symbols.o
   tokens.o

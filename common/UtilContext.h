@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -15,6 +15,7 @@
 #include "common/cpu_list.h"
 #include "common/Memory.h"
 #include "common/Symbols.h"
+#include "common/String.h"
 #include "simulate/msp430.h"
 
 class UtilContext
@@ -22,6 +23,29 @@ class UtilContext
 public:
   UtilContext();
   ~UtilContext();
+
+  static int is_supported_cpu(const char *name);
+
+  int set_cpu_by_type(uint8_t cpu_type);
+  int set_cpu_by_name(const char *name);
+
+  //void disasm(const char *token);
+  //void disasm_range(int start, int end);
+
+  void print8(const char *token);
+  void print16(const char *token);
+  void print32(const char *token);
+
+  void write8(const char *token);
+  void write16(const char *token);
+  void write32(const char *token);
+
+  const char *get_address(const char *token, uint32_t *address);
+
+  static const char *get_num(const char *token, uint32_t *num);
+
+  // Converts text passed in on the command line to a start / end int.
+  int get_range(const char *token, uint32_t *start, uint32_t *end);
 
   Memory memory;
   Symbols symbols;
@@ -32,34 +56,12 @@ public:
   uint8_t alignment;
   bool allow_unknown_cpu : 1;
   disasm_range_t disasm_range;
+
+private:
+  void copy_cpu_info(CpuList *cpu_info);
+  static const char *get_hex(const char *token, uint32_t *num);
+  static const char *get_token(String &value, const char *source);
 };
-
-void util_init(UtilContext *util_context);
-
-// Converts text pass in on the command line to a start / end int.
-int util_get_range(
-  UtilContext *util_context,
-  const char *token,
-  uint32_t *start,
-  uint32_t *end);
-
-int util_is_supported_cpu(const char *name);
-int util_set_cpu_by_type(UtilContext *util_context, uint8_t cpu_type);
-int util_set_cpu_by_name(UtilContext *util_context, const char *name);
-
-const char *util_get_num(const char *token, uint32_t *num);
-
-const char *util_get_address(
-  UtilContext *util_context,
-  const char *token,
-  uint32_t *address);
-
-void util_print8(UtilContext *util_context, const char *token);
-void util_print16(UtilContext *util_context, const char *token);
-void util_print32(UtilContext *util_context, const char *token);
-void util_write8(UtilContext *util_context, const char *token);
-void util_write16(UtilContext *util_context, const char *token);
-void util_write32(UtilContext *util_context, const char *token);
 
 #endif
 

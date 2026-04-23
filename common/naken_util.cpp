@@ -154,8 +154,6 @@ static const char *find_partial_command(const char *text, int *index)
 {
   int len = strlen(text);
 
-  //while (*index < (int)(sizeof(command_names) / sizeof(char *)))
-
   for (int i = *index; command_names[i].name != NULL; i++)
   {
     const char *name = command_names[i].name;
@@ -409,13 +407,13 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  util_init(&util_context);
+  //util_init(&util_context);
 
   for (i = 1; i < argc; i++)
   {
     if (argv[i][0] == '-')
     {
-      if (util_is_supported_cpu(argv[i] + 1) == 1)
+      if (UtilContext::is_supported_cpu(argv[i] + 1) == 1)
       {
         cpu_name = argv[i] + 1;
         continue;
@@ -528,18 +526,18 @@ int main(int argc, char *argv[])
       exit(1);
     }
 
-     const char *file_type_name = file_get_file_type_name(file_type);
+    const char *file_type_name = file_get_file_type_name(file_type);
 
-     printf("Loaded %s of type %s / %s from 0x%04x to 0x%04x\n",
-       filename,
-       file_type_name,
-       util_context.cpu_name,
-       util_context.memory.low_address,
-       util_context.memory.high_address);
+    printf("Loaded %s of type %s / %s from 0x%04x to 0x%04x\n",
+      filename,
+      file_type_name,
+      util_context.cpu_name,
+      util_context.memory.low_address,
+      util_context.memory.high_address);
   }
     else
   {
-    util_set_cpu_by_name(&util_context, cpu_name);
+    util_context.set_cpu_by_name(cpu_name);
   }
 
 #if 0
@@ -728,7 +726,7 @@ int main(int argc, char *argv[])
       // FIXME: This is MSP430 specific.
       uint32_t num;
 
-      const char *end = util_get_address(&util_context, arg.value(), &num);
+      const char *end = util_context.get_address(arg.value(), &num);
 
       if (end == NULL)
       {
@@ -781,32 +779,32 @@ int main(int argc, char *argv[])
       else
     if (command == "print")
     {
-      util_print8(&util_context, arg.value());
+      util_context.print8(arg.value());
     }
       else
     if (command == "print16")
     {
-      util_print16(&util_context, arg.value());
+      util_context.print16(arg.value());
     }
       else
     if (command == "print32")
     {
-      util_print32(&util_context, arg.value());
+      util_context.print32(arg.value());
     }
       else
     if (command == "write")
     {
-      util_write8(&util_context, arg.value());
+      util_context.write8(arg.value());
     }
       else
     if (command == "write16")
     {
-      util_write16(&util_context, arg.value());
+      util_context.write16(arg.value());
     }
       else
     if (command == "write32")
     {
-      util_write32(&util_context, arg.value());
+      util_context.write32(arg.value());
     }
       else
     if (command == "disasm")
@@ -834,7 +832,7 @@ int main(int argc, char *argv[])
     {
       uint32_t start, end;
 
-      if (util_get_range(&util_context, arg.value(), &start, &end) == -1)
+      if (util_context.get_range(arg.value(), &start, &end) == -1)
       {
         printf("Illegal range.\n");
       }
