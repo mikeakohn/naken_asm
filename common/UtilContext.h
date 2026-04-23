@@ -32,6 +32,13 @@ public:
   void disasm(const char *token);
   void disasm(uint32_t start, uint32_t end);
 
+  void sim_show_info();
+  int sim_set_register(String &arg);
+  int sim_clear_flag(String &arg);
+  int sim_set_speed(String &arg);
+  int sim_stack_push(String &arg);
+  int sim_set_breakpoint(String &arg);
+
   void print8(const char *token);
   void print16(const char *token);
   void print32(const char *token);

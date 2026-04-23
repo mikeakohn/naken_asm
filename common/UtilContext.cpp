@@ -177,6 +177,143 @@ void UtilContext::disasm(uint32_t start, uint32_t end)
   }
 }
 
+void UtilContext::sim_show_info()
+{
+  uint32_t start = memory.low_address / bytes_per_address;
+  uint32_t end = memory.high_address / bytes_per_address;
+
+  printf("Start address: 0x%04x (%d)\n", start, start);
+  printf("  End address: 0x%04x (%d)\n", end, end);
+  printf("  Break Point: ");
+
+  if (simulate->is_break_point_set())
+  {
+    printf("<not set>\n");
+  }
+    else
+  {
+    printf("0x%04x (%d)\n",
+      simulate->get_break_point(),
+      simulate->get_break_point());
+  }
+
+  printf("  Instr Delay: ");
+
+  if (simulate->in_step_mode())
+  {
+    printf("<step mode>\n");
+  }
+    else
+  {
+    printf("%d us\n", simulate->get_delay());
+  }
+
+  printf("      Display: %s\n", simulate->get_show() == true ? "On" : "Off");
+}
+
+int UtilContext::sim_set_register(String &arg)
+{
+  int offset = arg.find('=');
+
+  if (offset == -1)
+  {
+    printf("Error: missing =.\n");
+    return -1;
+  }
+
+  String value(arg.value() + offset + 1);
+  value.trim();
+  arg.replace_at(offset, 0);
+  arg.rtrim();
+
+  uint32_t num = value.as_int();
+
+  if (simulate->set_reg(arg.value(), num) == 0)
+  {
+    printf("Register %s set to 0x%04x.\n", arg.value(), num);
+  }
+    else
+  {
+    printf("Syntax error.\n");
+  }
+
+  return 0;
+}
+
+int UtilContext::sim_clear_flag(String &arg)
+{
+  const char *flag = arg.value();
+
+  if (simulate->set_reg(flag, 0) == 0)
+  {
+    printf("Flag %s cleared.\n", flag);
+  }
+    else
+  {
+    printf("Syntax error: Unknown flag %s\n", flag);
+  }
+
+  return 0;
+}
+
+int UtilContext::sim_set_speed(String &arg)
+{
+  int value = arg.len() == 0 ? 0 : arg.as_int();
+
+  if (value == 0)
+  {
+    simulate->set_delay(0);
+
+    printf("Simulator now in single step mode.\n");
+  }
+    else
+  {
+    simulate->set_delay(1000000 / value);
+
+    printf("Instruction delay is now %dus\n",
+      simulate->get_delay());
+  }
+
+  return 0;
+}
+
+int UtilContext::sim_stack_push(String &arg)
+{
+  uint32_t num;
+
+  UtilContext::get_num(arg.value(), &num);
+  simulate->push(num);
+  printf("Pushed 0x%04x.\n", num);
+
+  return 0;
+}
+
+int UtilContext::sim_set_breakpoint(String &arg)
+{
+  if (arg.len() == 0)
+  {
+    printf("Breakpoint removed.\n");
+    simulate->remove_break_point();
+    return 0;
+  }
+
+  uint32_t address;
+  const char *value = arg.value();
+
+  const char *end = get_address(value, &address);
+
+  if (end == NULL)
+  {
+    printf("Error: Unknown address '%s'\n", value);
+    return -1;
+  }
+
+  printf("Breakpoint added at 0x%04x.\n", address);
+  simulate->set_break_point(address);
+
+  return 0;
+}
+
 void UtilContext::print8(const char *token)
 {
   char chars[20];

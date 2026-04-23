@@ -23,7 +23,6 @@
 #include "common/assembler.h"
 #include "common/String.h"
 #include "common/UtilContext.h"
-#include "common/util_sim.h"
 #include "common/version.h"
 #include "fileio/file.h"
 
@@ -753,27 +752,27 @@ int main(int argc, char *argv[])
       else
     if (command == "break")
     {
-      sim_set_breakpoint(&util_context, arg);
+      util_context.sim_set_breakpoint(arg);
     }
       else
     if (command == "push")
     {
-      sim_stack_push(&util_context, arg);
+      util_context.sim_stack_push(arg);
     }
       else
     if (command == "set")
     {
-      sim_set_register(&util_context, arg);
+      util_context.sim_set_register(arg);
     }
       else
     if (command == "clear")
     {
-      sim_clear_flag(&util_context, arg);
+      util_context.sim_clear_flag(arg);
     }
       else
     if (command == "speed")
     {
-      sim_set_speed(&util_context, arg);
+      util_context.sim_set_speed(arg);
     }
       else
     if (command == "print")
@@ -843,7 +842,7 @@ int main(int argc, char *argv[])
       else
     if (command == "info")
     {
-      sim_show_info(&util_context);
+      util_context.sim_show_info();
     }
       else
     if (command == "registers" || command == "reg")
