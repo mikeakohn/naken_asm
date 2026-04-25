@@ -22,7 +22,7 @@ template<typename TYPE>
 class MemoryPoolFixed
 {
 public:
-  MemoryPoolFixed<TYPE>() :
+  MemoryPoolFixed() :
     current_pool (nullptr),
     free_entries (nullptr),
     index        (1024),
@@ -30,7 +30,7 @@ public:
   {
   }
 
-  MemoryPoolFixed<TYPE>(int size) :
+  MemoryPoolFixed(int size) :
     current_pool (nullptr),
     free_entries (nullptr),
     index        (size),
@@ -38,7 +38,7 @@ public:
   {
   }
 
-  ~MemoryPoolFixed<TYPE>()
+  ~MemoryPoolFixed()
   {
     while (current_pool != nullptr)
     {

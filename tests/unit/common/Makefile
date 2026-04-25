@@ -18,6 +18,9 @@ default:
 	$(CXX) -o string_heap_test string_heap_test.cpp \
 	  ../../../build/naken_asm.a \
 	  $(CFLAGS)
+	$(CXX) -o string_tokenizer_test string_tokenizer_test.cpp \
+	  ../../../build/naken_asm.a \
+	  $(CFLAGS)
 	$(CXX) -o var_test var_test.cpp \
           ../../../build/naken_asm.a \
 	  $(CFLAGS)
@@ -30,11 +33,12 @@ run:
 	./named_record_test
 	./string_test
 	./string_heap_test
+	./string_tokenizer_test
 	./var_test
 	./vector_test
 
 clean:
 	@rm -f memory_pool_fixed_test named_record_test string_test
-	@rm -f string_heap_test var_test vector_test
+	@rm -f string_heap_test string_tokenizer_test var_test vector_test
 	@echo "Clean!"
 

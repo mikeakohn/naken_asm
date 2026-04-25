@@ -50,6 +50,8 @@ public:
   int allocated()     const { return size; }
   const char *value() const { return text; }
 
+  operator const char*() const { return text; }
+
   void clear()
   {
     text[0] = 0;

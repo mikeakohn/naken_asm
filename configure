@@ -102,6 +102,7 @@ COMMON_OBJS="
   Operator.o
   String.o
   StringHeap.o
+  StringTokenizer.o
   Symbols.o
   tokens.o
   Var.o"
