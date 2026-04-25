@@ -665,15 +665,15 @@ const char *UtilContext::get_num(const char *token, uint32_t *num)
   return token + s;
 }
 
-int UtilContext::get_range(const char *token, uint32_t *start, uint32_t *end)
+int UtilContext::get_range(const char *text, uint32_t *start, uint32_t *end)
 {
   String data;
 
   *start = 0;
   *end = 0;
 
-  token = get_token(data, token);
-  if (token == NULL) { return -1; }
+  text = get_token(data, text);
+  if (text == NULL) { return -1; }
 
   // If not a - then this must be an address. Resolve it and then grab
   // another token which should be NULL or "-".
@@ -685,9 +685,9 @@ int UtilContext::get_range(const char *token, uint32_t *start, uint32_t *end)
       return -1;
     }
 
-    token = get_token(data, token);
+    text = get_token(data, text);
 
-    if (token == NULL)
+    if (text == NULL)
     {
       *end = *start;
       return 0;
@@ -701,8 +701,8 @@ int UtilContext::get_range(const char *token, uint32_t *start, uint32_t *end)
   }
 
   // Next token should be end address, if not end address is end of code.
-  token = get_token(data, token);
-  if (token == NULL)
+  text = get_token(data, text);
+  if (text == NULL)
   {
     *end = memory.high_address;
     return 0;
@@ -712,8 +712,8 @@ int UtilContext::get_range(const char *token, uint32_t *start, uint32_t *end)
   if (get_address(data.value(), end) == NULL) { return -1; }
 
   // Should not be any more characters at end of line.
-  token = get_token(data, token);
-  if (token != NULL) { return -1; }
+  text = get_token(data, text);
+  if (text != NULL) { return -1; }
 
   return 0;
 }

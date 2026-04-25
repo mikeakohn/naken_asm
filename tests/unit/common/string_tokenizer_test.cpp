@@ -13,14 +13,14 @@ int test_pop_num()
   int num;
   char ch;
 
-  StringTokenizer tokenizer("   1234   -   9999   ");
+  StringTokenizer tokenizer("   0x1a3F   -   9999   ");
   String token;
 
   TEST_BOOL(tokenizer.is_empty(), false);
 
   TEST_BOOL(tokenizer.is_num(), true);
   num = tokenizer.pop_num();
-  TEST_INT(num, 1234);
+  TEST_INT(num, 0x1a3f);
 
   TEST_BOOL(tokenizer.is_num(), false);
   num = tokenizer.pop_num();

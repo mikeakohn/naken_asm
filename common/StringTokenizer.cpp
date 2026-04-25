@@ -50,7 +50,7 @@ bool StringTokenizer::pop(String &token)
       break;
     }
 
-    text++; 
+    text++;
   }
 
   ltrim();
@@ -65,12 +65,34 @@ int StringTokenizer::pop_num()
 
   int num = 0;
   int count = 0;
+  bool is_hex = false;
 
   while (*text != 0)
   {
     if (count == 0 && *text == ' ') { continue; }
-    if (*text < '0' || *text > '9') { break; }
-    num = (num * 10) + *text - '0';
+
+    if (count == 1 && *text == 'x')
+    {
+      is_hex = true;
+    }
+      else
+    if (is_hex)
+    {
+      int value;
+
+      if      (*text >= '0' && *text <= '9') { value = *text - '0'; }
+      else if (*text >= 'a' && *text <= 'f') { value = *text - 'a' + 10; }
+      else if (*text >= 'A' && *text <= 'F') { value = *text - 'A' + 10; }
+      else { break; }
+
+      num = (num * 16) + value;
+    }
+      else
+    {
+      if (*text < '0' || *text > '9') { break; }
+      num = (num * 10) + *text - '0';
+    }
+
     text++;
     count++;
   }
